@@ -13,7 +13,7 @@ major=$(shell grep '^MAJOR_VERSION' Rules.mak|sed 's/.*=//')
 minor=$(shell grep '^MINOR_VERSION' Rules.mak|sed 's/.*=//')
 version:=$(strip $(major)).$(strip $(minor))
 
-kernel_source=kernel-source-2.4.16
+kernel_source=kernel-source-2.4.18
 
 target=$(DEB_HOST_GNU_CPU)
 #target=arm
