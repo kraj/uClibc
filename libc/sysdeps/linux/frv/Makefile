@@ -1,6 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000-2003 Erik Andersen <andersen@uclibc.org>
+# ported to FR-V by Alexandre Oliva <aoliva@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -81,9 +82,9 @@ gcrt1.o: $(CRT0_DEPS)
 endif
 
 headers:
-
+	$(LN) -fs ../libc/sysdeps/linux/frv/link.h $(TOPDIR)/include/
 
 clean:
 	rm -f *.[oa] *~ core
 	rm -f bits/sysnum.h
-
+	$(RM) $(TOPDIR)/include/link.h
