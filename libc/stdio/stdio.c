@@ -4,7 +4,18 @@
  */
 
 /* This is an implementation of the C standard IO package.
+ *
+ * Updates:
+ * 29-Sep-2000 W. Greathouse    1. fgetc copying beyond end of buffer
+ *                              2. stdout needs flushed when input requested on
+ *                                 stdin.
+ *                              3. bufend was set incorrectly to 4 bytes beyond
+ *                                 bufin (sizeof a pointer) instead of BUFSIZ.
+ *                                 This resulted in 4 byte buffers for full
+ *                                 buffered stdin and stdout and an 8 byte
+ *                                 buffer for the unbuffered stderr!
  */
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -33,30 +44,19 @@ extern struct fixed_buffer _fixed_buffers[2];
 
 #ifdef L__stdio_init
 
-#define buferr (stderr->unbuf)	/* Stderr is unbuffered */
+#define buferr (stderr->unbuf)		/* Stderr is unbuffered */
 
 FILE *__IO_list = 0;			/* For fflush at exit */
 
-#if 0
-static char bufin[BUFSIZ];
-static char bufout[BUFSIZ];
-
-#ifndef buferr
-static char buferr[BUFSIZ];
-#endif
-
-#else
 static char *bufin;
 static char *bufout;
-
 #ifndef buferr
 static char *buferr;
-#endif
 #endif
 
 FILE stdin[1] = {
 #if 0
-	{bufin, bufin, bufin, bufin, bufin + sizeof(bufin),
+	{bufin, bufin, bufin, bufin, bufin + BUFSIZ,
 #else
 	{0, 0, 0, 0, 0,
 #endif
@@ -65,7 +65,7 @@ FILE stdin[1] = {
 
 FILE stdout[1] = {
 #if 0
-	{bufout, bufout, bufout, bufout, bufout + sizeof(bufout),
+	{bufout, bufout, bufout, bufout, bufout + BUFSIZ,
 #else
 	{0, 0, 0, 0, 0,
 #endif
@@ -109,12 +109,11 @@ void __io_init_vars(void)
 		return;
 	first_time = 1;
 
-	stdin->bufpos = bufin = _fixed_buffers[0].data;
-		/*(char *)malloc(BUFSIZ) */ ;
+	stdin->bufpos = bufin = _fixed_buffers[0].data; /*(char *)malloc(BUFSIZ) */ ;
 	stdin->bufread = bufin;
 	stdin->bufwrite = bufin;
 	stdin->bufstart = bufin;
-	stdin->bufend = bufin + sizeof(bufin);
+	stdin->bufend = bufin + sizeof(_fixed_buffers[0].data);
 	stdin->fd = 0;
 	stdin->mode = _IOFBF | __MODE_READ | __MODE_IOTRAN | __MODE_FREEBUF;
 
@@ -124,7 +123,7 @@ void __io_init_vars(void)
 	stdout->bufread = bufout;
 	stdout->bufwrite = bufout;
 	stdout->bufstart = bufout;
-	stdout->bufend = bufout + sizeof(bufout);
+	stdout->bufend = bufout + sizeof(_fixed_buffers[1].data);
 	stdout->fd = 1;
 	stdout->mode = _IOFBF | __MODE_WRITE | __MODE_IOTRAN | __MODE_FREEBUF;
 
@@ -206,6 +205,9 @@ FILE *fp;
 
 	if (fp->mode & __MODE_WRITING)
 		fflush(fp);
+
+	if ( (fp == stdin) && (stdout->fd != -1) && (stdout->mode & __MODE_WRITING) ) 
+	    fflush(stdout);
 
 #if __MODE_IOTRAN
   try_again:
@@ -322,7 +324,7 @@ FILE *f;
 	register int ch;
 
 	ret = s;
-	for (i = count; i > 0; i--) {
+	for (i = count-1; i > 0; i--) {
 		ch = getc(f);
 		if (ch == EOF) {
 			if (s == ret)
