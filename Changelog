@@ -1,4 +1,4 @@
-0.9.10
+0.9.10	21 March 2002
 
 Major new features:
     o   pthreads support (derived from glibc 2.1.3's linuxthreads library)
@@ -14,12 +14,6 @@ Major new features:
 	    Now all common include/bits headers are grouped together.
 	
 
-Manuel Novoa III:
-    o   Rewrote all stdio functions for standards compliance, small size, 
-	pthreads support, wide/narrow stream support, large file support, 
-	unbuffered support, etc, etc, etc.
-    o   Rewrote the various string to int functions to be smaller, more
-	    standards compilant, and reduce dependance on libgcc.a.
 Erik Andersen:
     o   Lots of changes and improvements to the shared library loader
     o   Cleaned up a piles of bugs
@@ -34,29 +28,6 @@ Erik Andersen:
     o   Reworked libcrypt to avoid leaking private symbols into the namespace
     o   Added strtof(), strtold(), updwtmp(), strptime()
     o   Fix ldso build for older arm cross compilers
-M. R. Brown:
-    o   Fixed pthread support for SH, and fixed SH vfork as well
-    o   Fixed SH headers after Erik messed them up
-David McCullough:
-    o   Coldfire platform updates: clone, setjmp
-    o   Fixed simple malloc to work on systems with an MMU
-David Schleef:
-    o   Debian packaging updates
-    o   Check for proper 16-byte aliged stack pointer on powerpc
-Brian Stafford:
-    o   Rewrote strcasecmp() per SUSv2. 
-Bart Visscher:
-    o   missing IPV6 support and reentrant networking function additions
-	    so iptables now runs with IPV6 support.
-Stefan Soucek:
-    o   pthreads support for MMU-less systems
-    o   pthreads support (with Erik Andersen)
-Yoshinori Sato:
-    o   ptrace for the Hitachi h8300 fix
-Geoffrey Espin:
-    o   Mips architecture cleanups.  Now works perfectly
-	    with busybox, vi, ash, etc...
-    o   Merged in the random number support (rand, srand, etc) from glibc.
 Miles Bader:
     o   atexit cleanups
     o   fixed gcc wrapper handling of -M* options
@@ -66,6 +37,13 @@ Miles Bader:
     o   Large File support on the v850
     o   Fixed v850 headers after Erik messed them up
     o   Eliminate include/features.h namespace pollution
+M. R. Brown:
+    o   Fixed pthread support for SH, and fixed SH vfork as well
+    o   Fixed SH headers after Erik messed them up
+Geoffrey Espin:
+    o   Mips architecture cleanups.  Now works perfectly
+	    with busybox, vi, ash, etc...
+    o   Merged in the random number support (rand, srand, etc) from glibc.
 Thomas Fritzsche:
     o   Fixes DNS resolver bug from 0.9.9
 Steven J. Hill:
@@ -73,13 +51,35 @@ Steven J. Hill:
     o   Beginnings of a mips ldso port
 Andrew Ip:
     o   Support for gnu error() functions
+David McCullough:
+    o   Coldfire platform updates: clone, setjmp
+    o   Fixed simple malloc to work on systems with an MMU
+Manuel Novoa III:
+    o   Rewrote all stdio functions for standards compliance, small size, 
+	pthreads support, wide/narrow stream support, large file support, 
+	unbuffered support, etc, etc, etc.
+    o   Rewrote the various string to int functions to be smaller, more
+	    standards compilant, and reduce dependance on libgcc.a.
+Yoshinori Sato:
+    o   ptrace for the Hitachi h8300 fix
+David Schleef:
+    o   Debian packaging updates
+    o   Check for proper 16-byte aliged stack pointer on powerpc
+Stefan Soucek:
+    o   pthreads support for MMU-less systems
+    o   pthreads support (with Erik Andersen)
+Brian Stafford:
+    o   Rewrote strcasecmp() per SUSv2. 
+Bart Visscher:
+    o   Added missing IPV6 support and reentrant networking function 
+	    additions so iptables now runs with IPV6 support.
 
 
 
 
 
 
-0.9.9
+0.9.9	February  4, 2002
 
 Erik Andersen:
     o   A bunch of doc updates.  Major update to the working
