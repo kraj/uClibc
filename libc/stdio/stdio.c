@@ -423,8 +423,12 @@ off_t _uClibc_fread(unsigned char *buf, off_t bytes, FILE *fp)
 			goto FROM_BUF;
 		}
 
+	TRY_READ:
 		len = read(fp->fd, p, (unsigned) bytes);
 		if (len < 0) {
+			if (errno == EINTR) { /* We were interrupted, so try again. */
+				goto TRY_READ;
+			}
 			fp->mode |= __MODE_ERR;
 		} else {
 			p += len;
