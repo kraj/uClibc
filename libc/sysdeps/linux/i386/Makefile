@@ -41,7 +41,7 @@ ifeq ($(UNIFIED_SYSCALL),true)
 endif
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=__init_brk.c brk.c sbrk.c longjmp.c #jmp-unwind.c
+CSRC=brk.c sbrk.c longjmp.c #jmp-unwind.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)

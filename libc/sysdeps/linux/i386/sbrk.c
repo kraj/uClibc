@@ -1,34 +1,45 @@
-/* From libc-5.3.12 */
+/* Copyright (C) 1991, 1995, 1996, 1997, 2000 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #include <unistd.h>
-#include <sys/syscall.h>
 #include <errno.h>
 
-extern void * ___brk_addr;
+/* Defined in brk.c.  */
+extern void *___brk_addr;
+extern int brk (void *addr);
 
-extern int __init_brk (void);
-
-void *sbrk(intptr_t increment)
+/* Extend the process's data space by INCREMENT.
+   If INCREMENT is negative, shrink data space by - INCREMENT.
+   Return start of new space allocated, or -1 for errors.  */
+void * sbrk (intptr_t increment)
 {
-    if (__init_brk () == 0)
-    {
-	void * tmp = ___brk_addr+increment;
-#if defined(__PIC__) || defined (__pic__)
-	__asm__ volatile ("pushl %%ebx\n\t"
-			  "movl %%ecx,%%ebx\n\t"
-                          "int $0x80\n\t"
-                          "popl %%ebx"
-		:"=a" (___brk_addr)
-		:"0" (__NR_brk),"c" (tmp));
-#else
-	__asm__ volatile ("int $0x80"
-		:"=a" (___brk_addr)
-		:"0" (__NR_brk),"b" (tmp));
-#endif
-	if (___brk_addr == tmp)
-		return tmp-increment;
-	__set_errno(ENOMEM);
-	return ((void *) -1);
-    }
-    return ((void *) -1);
+  void *oldbrk;
+
+  if (___brk_addr == NULL)
+    if (brk (0) < 0)		/* Initialize the break.  */
+      return (void *) -1;
+
+  if (increment == 0)
+    return ___brk_addr;
+
+  oldbrk = ___brk_addr;
+  if (brk (oldbrk + increment) < 0)
+    return (void *) -1;
+
+  return oldbrk;
 }
