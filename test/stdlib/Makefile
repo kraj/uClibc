@@ -63,8 +63,8 @@ mallocbug: mallocbug.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	-@ echo "Compiling vs uC-Libc: "
 	-@ echo " "
-	$(CC) -g $(XCFLAGS) -c $< -o $@.o
-	$(CC) -g $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(CC) $(XCFLAGS) -c $< -o $@.o
+	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIP)
 	-ldd $@
 	ls $(LSFLAGS) $@
@@ -99,7 +99,7 @@ teststrtol: teststrtol.c Makefile $(TOPDIR)libc.a
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIP)
-	ldd $@
+	-ldd $@
 	ls -sh $@
 	-./$@ > $@.out
 	-@ echo " "
@@ -112,7 +112,7 @@ teststrtol_glibc: teststrtol.c Makefile $(TOPDIR)libc.a
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
 	$(STRIP)
-	ldd $@
+	-ldd $@
 	ls -sh $@
 	-./$@ > $@.out
 	-@ echo " "
