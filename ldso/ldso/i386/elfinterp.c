@@ -87,7 +87,7 @@ static void debug_reloc(Elf32_Sym *symtab,char *strtab, ELF_RELOC *rpnt)
 		rpnt->r_offset,
 		rpnt->r_addend);
 #else
-    _dl_dprintf(_dl_debug_file, "%s\toffset=%x",
+    _dl_dprintf(_dl_debug_file, "%s\toffset=%x\n",
 		_dl_reltypes(ELF32_R_TYPE(rpnt->r_info)),
 		rpnt->r_offset);
 #endif
@@ -157,7 +157,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 			_dl_dprintf(_dl_debug_file, "\nresolve function: %s",
 					strtab + symtab[symtab_index].st_name);
 			if(_dl_debug_detail) _dl_dprintf(_dl_debug_file, 
-					"\n\tpatch %x ==> %x @ %x\n", *got_addr, new_addr, got_addr);
+					"\n\tpatched %x ==> %x @ %x\n", *got_addr, new_addr, got_addr);
 		}
 	}
 	if (!_dl_debug_nofixups) {
@@ -178,7 +178,6 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 {
 	unsigned int i;
 	char *strtab;
-	int goof = 0;
 	Elf32_Sym *symtab;
 	ELF_RELOC *rpnt;
 	int symtab_index;
@@ -230,10 +229,10 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		else if (res >0)
 		{
 			_dl_dprintf(2, "can't resolve symbol\n");
-			goof += res;
+			return res;
 		}
 	  }
-	  return goof;
+	  return 0;
 }
 
 
@@ -243,19 +242,23 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 {
 	int reloc_type;
 	int symtab_index;
+	char *symname;
 	unsigned long *reloc_addr;
 	unsigned long symbol_addr;
-	int goof = 0;
+#if defined (__SUPPORT_LD_DEBUG__)
+	unsigned long old_val;
+#endif
 
 	reloc_addr   = (unsigned long *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr  = 0;
+	symname      = strtab + symtab[symtab_index].st_name;
 
 	if (symtab_index) {
 
-		symbol_addr = (unsigned long) _dl_find_hash(strtab + symtab[symtab_index].st_name, 
-				scope, (reloc_type == R_386_JMP_SLOT ? tpnt : NULL), symbolrel);
+		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, 
+				(reloc_type == R_386_JMP_SLOT ? tpnt : NULL), symbolrel);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -265,16 +268,15 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 
 		if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_GLOBAL) {
 #if defined (__SUPPORT_LD_DEBUG__)
-			_dl_dprintf(2, "library '%s': NOT resolving global symbol '%s'\n",
-					tpnt->libname, strtab + symtab[symtab_index].st_name);
+			_dl_dprintf(2, "\tglobal symbol '%s' already defined in '%s'\n",
+					symname, tpnt->libname);
 #endif
-			goof++;
+			return 0;
 		}
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
-	{
-		unsigned long old_val = *reloc_addr;
+	old_val = *reloc_addr;
 #endif
 		switch (reloc_type) {
 			case R_386_NONE:
@@ -299,13 +301,11 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 				return -1; /*call _dl_exit(1) */
 		}
 #if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug_reloc && _dl_debug_detail)
-			_dl_dprintf(_dl_debug_file, "\tpatch: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
-	}
-
+	if(_dl_debug_reloc && _dl_debug_detail)
+		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
 #endif
 
-	return goof;
+	return 0;
 }
 
 static int
@@ -314,6 +314,9 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 {
 	int reloc_type;
 	unsigned long *reloc_addr;
+#if defined (__SUPPORT_LD_DEBUG__)
+	unsigned long old_val;
+#endif
 	(void)scope;
 	(void)symtab;
 	(void)strtab;
@@ -322,8 +325,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
 
 #if defined (__SUPPORT_LD_DEBUG__)
-	{
-		unsigned long old_val = *reloc_addr;
+	old_val = *reloc_addr;
 #endif
 		switch (reloc_type) {
 			case R_386_NONE:
@@ -335,10 +337,8 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 				return -1; /*call _dl_exit(1) */
 		}
 #if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug_reloc && _dl_debug_detail)
-			_dl_dprintf(_dl_debug_file, "\tpatch: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
-	}
-
+	if(_dl_debug_reloc && _dl_debug_detail)
+		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
 #endif
 	return 0;
 

@@ -142,7 +142,6 @@ static char *_dl_malloc_addr, *_dl_mmap_zero;
 
 static char *_dl_trace_loaded_objects = 0;
 static int (*_dl_elf_main) (int, char **, char **);
-static int (*_dl_elf_init) (void);
 struct r_debug *_dl_debug_addr = NULL;
 unsigned long *_dl_brkp;
 unsigned long *_dl_envp;
@@ -665,7 +664,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	tpnt->next = 0;
 	tpnt->libname = 0;
 	tpnt->libtype = program_interpreter;
-	tpnt->loadaddr = (char *) load_addr;
+	tpnt->loadaddr = (ElfW(Addr)) load_addr;
 
 #ifdef ALLOW_ZERO_PLTGOT
 	if (tpnt->dynamic_info[DT_PLTGOT])
@@ -690,17 +689,17 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		tpnt->ppnt = myppnt = (ElfW(Phdr) *) (load_addr + epnt->e_phoff);
 		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {
 			if (myppnt->p_type == PT_DYNAMIC) {
-				tpnt->dynamic_addr = myppnt->p_vaddr + load_addr;
+				tpnt->dynamic_addr = (ElfW(Dyn) *)myppnt->p_vaddr + load_addr;
 #if defined(__mips__)
 				{
 					int k = 1;
-					Elf32_Dyn *dpnt = (Elf32_Dyn *) tpnt->dynamic_addr;
+					ElfW(Dyn) *dpnt = (ElfW(Dyn) *) tpnt->dynamic_addr;
 
 					while(dpnt->d_tag) {
 						dpnt++;
 						k++;
 					}
-					tpnt->dynamic_size = k * sizeof(Elf32_Dyn);
+					tpnt->dynamic_size = k * sizeof(ElfW(Dyn));
 				}
 #else
 				tpnt->dynamic_size = myppnt->p_filesz;
@@ -1038,8 +1037,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag;
 				dpnt++) {
 			if (dpnt->d_tag == DT_NEEDED) {
-				lpntstr = tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] +
-					dpnt->d_un.d_val;
+				lpntstr = (char*) (tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] + dpnt->d_un.d_val);
 				if (_dl_strcmp(lpntstr, "libc.so.6") == 0) {
 					char *name, *msg;
 					name = tcurr->libname;
@@ -1261,15 +1259,17 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		tpnt->init_flag |= INIT_FUNCS_CALLED;
 
 		if (tpnt->dynamic_info[DT_INIT]) {
-			_dl_elf_init = (int (*)(void)) (intptr_t) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
-			  
+			void (*dl_elf_func) (void);
+			dl_elf_func = (void (*)(void)) (intptr_t) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
 #if defined (__SUPPORT_LD_DEBUG__)
 			if(_dl_debug) _dl_dprintf(_dl_debug_file,"\ncalling init: %s\n\n", tpnt->libname);	
 #endif    
-			(*_dl_elf_init) ();
+			(*dl_elf_func) ();
 		}
 		if (_dl_atexit && tpnt->dynamic_info[DT_FINI]) {
-			(*_dl_atexit) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
+			void (*dl_elf_func) (void);
+			dl_elf_func = (void (*)(void)) (intptr_t) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
+			(*_dl_atexit) (dl_elf_func);
 #if defined (__SUPPORT_LD_DEBUG__)
 			if(_dl_debug && _dl_on_exit)
 			{

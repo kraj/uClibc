@@ -180,7 +180,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 {
 	char *pnt, *pnt1;
 	struct elf_resolve *tpnt1;
-	char *libname;
+	char *libname, *libname2;
 
 	_dl_internal_error_number = 0;
 	pnt = libname = full_libname;
@@ -190,11 +190,32 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	if (_dl_strlen(full_libname) > 1024)
 		goto goof;
 
-	/* Skip over any initial initial './' path to get the libname */ 
+	/* Skip over any initial initial './' and '/' stuff to 
+	 * get the short form libname with no path garbage */ 
 	pnt1 = _dl_strrchr(pnt, '/');
 	if (pnt1) {
 		libname = pnt1 + 1;
 	}
+
+	/* Critical step!  Weed out duplicates early to avoid
+	 * function aliasing, which wastes memory, and causes
+	 * really bad things to happen with weaks and globals. */
+	for (tpnt1 = _dl_loaded_modules; tpnt1; tpnt1 = tpnt1->next) {
+
+		/* Skip over any initial initial './' and '/' stuff to 
+		 * get the short form libname with no path garbage */ 
+		libname2 = tpnt1->libname;
+		pnt1 = _dl_strrchr(libname2, '/');
+		if (pnt1) {
+			libname2 = pnt1 + 1;
+		}
+
+		if (_dl_strcmp(libname2, libname) == 0) {
+			/* Well, that was certainly easy */
+			return tpnt1;
+		}
+	}
+	
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) _dl_dprintf(_dl_debug_file, "searching for library: '%s'\n", libname);

@@ -12,13 +12,13 @@ struct dyn_elf{
   struct dyn_elf * next;
   struct dyn_elf * prev;
 };
- 
+
 struct elf_resolve{
   /* These entries must be in this order to be compatible with the interface used
      by gdb to obtain the list of symbols. */
-  char * loadaddr;
-  char * libname;
-  unsigned long dynamic_addr;
+  ElfW(Addr) loadaddr;		/* Base address shared object is loaded at.  */
+  char *libname;		/* Absolute file name object was found in.  */
+  ElfW(Dyn) *dynamic_addr;	/* Dynamic section of the shared object.  */
   struct elf_resolve * next;
   struct elf_resolve * prev;
   /* Nothing after this address is used by gdb. */
@@ -53,25 +53,10 @@ struct elf_resolve{
 #endif
 };
 
-#if 0
-/*
- * The DT_DEBUG entry in the .dynamic section is given the address of this structure.
- * gdb can pick this up to obtain the correct list of loaded modules.
- */
-
-struct r_debug{
-  int r_version;
-  struct elf_resolve * link_map;
-  unsigned long brk_fun;
-  enum {RT_CONSISTENT, RT_ADD, RT_DELETE};
-  unsigned long ldbase;
-};
-#endif
-
-#define COPY_RELOCS_DONE 1
-#define RELOCS_DONE 2
-#define JMP_RELOCS_DONE 4
-#define INIT_FUNCS_CALLED 8
+#define COPY_RELOCS_DONE    1
+#define RELOCS_DONE         2
+#define JMP_RELOCS_DONE     4
+#define INIT_FUNCS_CALLED   8
 
 extern struct dyn_elf     * _dl_symbol_tables;
 extern struct elf_resolve * _dl_loaded_modules;

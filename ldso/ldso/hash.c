@@ -123,7 +123,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	tpnt->next = NULL;
 	tpnt->init_flag = 0;
 	tpnt->libname = _dl_strdup(libname);
-	tpnt->dynamic_addr = dynamic_addr;
+	tpnt->dynamic_addr = (ElfW(Dyn) *)dynamic_addr;
 	tpnt->dynamic_size = dynamic_size;
 	tpnt->libtype = loaded_file;
 
@@ -135,7 +135,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 		hash_addr += tpnt->nbucket;
 		tpnt->chains = hash_addr;
 	}
-	tpnt->loadaddr = loadaddr;
+	tpnt->loadaddr = (ElfW(Addr))loadaddr;
 	for (i = 0; i < 24; i++)
 		tpnt->dynamic_info[i] = dynamic_info[i];
 #ifdef __mips__
@@ -285,15 +285,14 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 							ELF32_ST_TYPE(symtab[si].st_info) 
 							== STT_NOTYPE) 
 						{	/* nakao */
-							data_result = tpnt->loadaddr + 
+							data_result = (char *)tpnt->loadaddr + 
 							    symtab[si].st_value;	/* nakao */
 							break;	/* nakao */
 						} else	/* nakao */
-							return tpnt->loadaddr + symtab[si].st_value;
+							return (char*)tpnt->loadaddr + symtab[si].st_value;
 					case STB_WEAK:
 						if (!weak_result)
-							weak_result =
-								tpnt->loadaddr + symtab[si].st_value;
+							weak_result = (char *)tpnt->loadaddr + symtab[si].st_value;
 						break;
 					default:	/* Do local symbols need to be examined? */
 						break;
