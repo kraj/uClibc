@@ -198,7 +198,15 @@ char _free_buffer_index = FIXED_BUFFERS;
  */
 void __stdio_flush_buffers(void)
 {
-	fflush(NULL);				/* Files will be closed on _exit call. */
+    FILE *fp;
+    for (fp = __IO_list; fp; fp = fp->next) {
+	if (WRITEABLE(fp)) {
+	    /* Set the underlying fd to non-block mode to ensure
+	     * that calls to _exit() and abort() will not block */
+	    fcntl(fp->fd, F_SETFL, O_NONBLOCK);
+	    fflush(fp);
+	}
+    }
 }
 
 /*
