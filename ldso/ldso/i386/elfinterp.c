@@ -179,8 +179,7 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 	rpnt = (Elf32_Rel *) (rel_addr + tpnt->loadaddr);
 	rel_size = rel_size / sizeof(Elf32_Rel);
 
-	symtab =
-		(Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
+	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
@@ -198,8 +197,7 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 				_dl_symbol(strtab + symtab[symtab_index].st_name))
 				continue;
 
-			symbol_addr = (unsigned long)
-				_dl_find_hash(strtab + symtab[symtab_index].st_name, 
+			symbol_addr = (unsigned long) _dl_find_hash(strtab + symtab[symtab_index].st_name, 
 					tpnt->symbol_scope, (unsigned long) reloc_addr, 
 					(reloc_type == R_386_JMP_SLOT ? tpnt : NULL), 0);
 
@@ -209,8 +207,7 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 			 * here, so all bases should be covered.
 			 */
 			if (!symbol_addr &&
-				ELF32_ST_BIND(symtab[symtab_index].st_info) ==
-				STB_GLOBAL) {
+				ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_GLOBAL) {
 				_dl_fdprintf(2, "%s: can't resolve symbol '%s'\n", 
 					_dl_progname, strtab + symtab[symtab_index].st_name);
 				goof++;
