@@ -85,6 +85,7 @@ ENTRY (__vfork)
 	.align	4
 
 2:
+.global __syscall_error
 __syscall_error:
 	/* Store it in errno... */
 	mov.l	.L4, r1
