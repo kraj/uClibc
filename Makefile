@@ -169,8 +169,10 @@ endif
 # in $(DEVEL_PREFIX)$(ROOT_DIR)/include.  Probably true only if you're using
 # a packaging system.
 install_dev:
+ifeq ($(DO_SHARED),shared)
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/lib
 	cp -fa lib/*.so* $(DEVEL_PREFIX)$(ROOT_DIR)/lib;
+endif
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/lib
 	cp -fa lib/*.[ao] $(DEVEL_PREFIX)$(ROOT_DIR)/usr/lib;
 ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
