@@ -124,6 +124,10 @@ endif
 ifeq ($(strip $(INCLUDE_THREADS)),true)
     CFLAGS  += -D_LIBC_REENTRANT
 endif
+# Currently locale support requires wide char support.
+ifeq ($(strip $(HAS_LOCALE)),true)
+    HAS_WCHAR:=true
+endif
 
 # TARGET_PREFIX is the directory under which which the uClibc runtime
 # environment will be installed and used on the target system.   The 
