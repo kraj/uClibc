@@ -1,4 +1,4 @@
-	/*
+/*
  * Linux dynamic resolving code for MIPS. Fixes up the GOT entry as
  * indicated in register t8 and jumps to the resolved address. Shamelessly
  * ripped from 'sysdeps/mips/dl-machine.h' in glibc-2.2.5.

@@ -1,7 +1,7 @@
 /* vi: set sw=8 ts=8: */
-/* 
+/*
  * ldso/ldso/sh64/resolve.S
- * 
+ *
  * SuperH (sh64) dynamic resolver support
  *
  * Copyright (C) 2003  Paul Mundt <lethal@linux-sh.org>
@@ -67,7 +67,7 @@ _dl_linux_resolve:
 	add	r21, r63, r3		! GOT offset
 	blink	tr0, r18		! call _dl_linux_resolver()
 	ptabs/l	r2, tr0			! save result = addr of function called
-	
+
 #ifdef HAVE_FPU
 	fld.d	r15, 0, dr0		! restore FP regs
 	fld.d	r15, 8, dr2

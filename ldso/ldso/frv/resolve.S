@@ -17,7 +17,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with uClibc; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
 USA.  */
-	
+
      /* The function below is tail-called by resolver stubs when a
 	lazily-bound function is called.  It must preserve all
 	registers that could be used to pass arguments to the actual
@@ -54,7 +54,7 @@ _dl_linux_resolve:
 	ldi	@(gr14, -4), gr9
 	mov.p	gr5, gr15
 	call	_dl_linux_resolver
-	
+
 	/* Move aside return value that contains the FUNCDESC_VALUE.  */
 	ldd	@(gr8,gr0),gr14
 

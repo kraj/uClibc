@@ -14,7 +14,7 @@
  * that to us.  Once we have that, we overwrite tpnt with this fixed up
  * address. We then clean up after ourselves, put all the registers back how we
  * found them, then we jump to the fixed up address, which is where the jump
- * symbol that got us here really wanted to jump to in the first place.  
+ * symbol that got us here really wanted to jump to in the first place.
  *  -Erik Andersen
  */
 

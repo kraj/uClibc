@@ -1,19 +1,18 @@
 /*
- * This function is _not_ called directly.  It is jumped to from PLT when 
- * attempting to use a symbol that has not yet been resolved.  The first 
- * time a jump symbol (such as a function call inside a shared library) 
- * is used (before it gets resolved) it will jump here.  When we get called 
- * the stack contains reloc_offset and tpnt is in MOF.
+ * This function is _not_ called directly.  It is jumped to from PLT when
+ * attempting to use a symbol that has not yet been resolved.  The first time a
+ * jump symbol (such as a function call inside a shared library) is used
+ * (before it gets resolved) it will jump here.  When we get called the stack
+ * contains reloc_offset and tpnt is in MOF.
  *
- * We save all the registers, setup R10 and R11 with the right arguments 
- * then call _dl_linux_resolver(tpnt, reloc_offset). _dl_linux_resolver() 
- * figures out where the jump symbol is _really_ supposed to have jumped to 
- * and returns that to us.  Once we have that, we overwrite tpnt with this 
- * fixed up address. We then clean up after ourselves, put all the registers 
- * back how we found them, then we jump to where the fixed up address, which 
- * is where the jump symbol that got us here really wanted to jump to in the 
- * first place.
- */		  
+ * We save all the registers, setup R10 and R11 with the right arguments then
+ * call _dl_linux_resolver(tpnt, reloc_offset). _dl_linux_resolver() figures
+ * out where the jump symbol is _really_ supposed to have jumped to and returns
+ * that to us.  Once we have that, we overwrite tpnt with this fixed up
+ * address. We then clean up after ourselves, put all the registers back how we
+ * found them, then we jump to where the fixed up address, which is where the
+ * jump symbol that got us here really wanted to jump to in the first place.
+ */
 
 .globl _dl_linux_resolve
 .type _dl_linux_resolve,@function

@@ -16,7 +16,7 @@
  * found them, then we jump to where the fixed up address, which is where the
  * jump symbol that got us here really wanted to jump to in the first place.
  * found them, then we jump to the fixed up address, which is where the jump
- * symbol that got us here really wanted to jump to in the first place.  
+ * symbol that got us here really wanted to jump to in the first place.
  *  -Erik Andersen
  */
 
@@ -31,7 +31,7 @@ _dl_linux_resolve:
 	lea	0x20(%esp),%eax		/* eax = tpnt and reloc_entry params */
 	pushl	4(%eax)			/* push copy of reloc_entry param */
 	pushl	(%eax)			/* push copy of tpnt param */
-					 
+
 #ifdef __PIC__
 	call	.L24
 .L24:
