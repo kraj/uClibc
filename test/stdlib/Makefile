@@ -25,6 +25,8 @@ TARGETS=testmalloc testmalloc_glibc
 TARGETS+=mallocbug mallocbug_glibc
 TARGETS+=teststrtol teststrtol_glibc teststrtol_diff
 TARGETS+=qsort qsort_glibc qsort_diff
+TARGETS+=teston_exit teston_exit_glibc teston_exit_diff
+TARGETS+=testatexit testatexit_glibc testatexit_diff
 
 all: $(TARGETS)
 
@@ -162,7 +164,76 @@ qsort_diff: qsort_glibc qsort
 	-diff -u qsort_glibc.out qsort.out
 	-@ echo " "
 
+teston_exit: teston_exit.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-$(LDD) $@
+	ls -l $@
+	-./$@ > $@.out
+	-@ echo " "
+
+teston_exit_glibc: teston_exit.c Makefile
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs GNU libc: "
+	-@ echo " "
+	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-$(LDD) $@
+	ls -l $@
+	-./$@ > $@.out
+	-@ echo " "
+
+teston_exit_diff: teston_exit_glibc teston_exit
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Diffing output: "
+	-@ echo " "
+	-diff -u teston_exit_glibc.out teston_exit.out
+	-@ echo " "
+
+testatexit: testatexit.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-$(LDD) $@
+	ls -l $@
+	-./$@ > $@.out
+	-@ echo " "
+
+testatexit_glibc: testatexit.c Makefile
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs GNU libc: "
+	-@ echo " "
+	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-$(LDD) $@
+	ls -l $@
+	-./$@ > $@.out
+	-@ echo " "
+
+testatexit_diff: testatexit_glibc testatexit
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Diffing output: "
+	-@ echo " "
+	-diff -u testatexit_glibc.out testatexit.out
+	-@ echo " "
+
+
 clean:
-	rm -f *.[oa] *~ core $(TARGETS) teststrtol_glibc.out teststrtol.out
+	rm -f *.[oa] *~ core $(TARGETS) *.out
 
 
