@@ -550,7 +550,7 @@ foo:
 		fprintf(stderr, "%s: not a dynamic executable\n", filename);
 		return -1;
 	}
-	if (ehdr->e_type == ET_EXEC) {
+	if (ehdr->e_type == ET_EXEC || ehdr->e_type != ET_DYN) {
 		if (statbuf.st_mode & S_ISUID)
 			is_suid = 1;
 		if ((statbuf.st_mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP))
@@ -564,7 +564,7 @@ foo:
 	interp = find_elf_interpreter(ehdr);
 
 #ifdef __LDSO_LDD_SUPPORT
-	if (interp && ehdr->e_type == ET_EXEC && ehdr->e_ident[EI_CLASS] == ELFCLASSM &&
+	if (interp && (ehdr->e_type == ET_EXEC || ehdr->e_type == ET_DYN) && ehdr->e_ident[EI_CLASS] == ELFCLASSM &&
 			ehdr->e_ident[EI_DATA] == ELFDATAM
 			&& ehdr->e_ident[EI_VERSION] == EV_CURRENT && MATCH_MACHINE(ehdr->e_machine))
 	{
