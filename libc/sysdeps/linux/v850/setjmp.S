@@ -1,8 +1,8 @@
 /*
  * libc/sysdeps/linux/v850/setjmp.S -- `setjmp' for v850
  *
- *  Copyright (C) 2001  NEC Corporation
- *  Copyright (C) 2001  Miles Bader <miles@gnu.org>
+ *  Copyright (C) 2001,2002  NEC Corporation
+ *  Copyright (C) 2001,2002  Miles Bader <miles@gnu.org>
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
@@ -18,7 +18,16 @@
 #include <clinkage.h>
 
 	.text
-C_ENTRY(__sigsetjmp):
+C_ENTRY(setjmp):
+	mov	1, r7			/* Save the signal mask.  */
+	br	C_SYMBOL_NAME(__sigsetjmp)
+
+	.globl C_SYMBOL_NAME(_setjmp)
+C_SYMBOL_NAME(_setjmp):
+	mov	0, r7			/* Don't save the signal mask.  */
+
+	.globl C_SYMBOL_NAME(__sigsetjmp)
+C_SYMBOL_NAME(__sigsetjmp):
 	/* Save registers */
 	mov	r6, ep
 	sst.w	sp, 0[ep]
@@ -36,4 +45,4 @@ C_ENTRY(__sigsetjmp):
 	sst.w	r29, 48[ep]
 	/* Make a tail call to __sigjmp_save; it takes the same args.  */
 	jr	C_SYMBOL_NAME(__sigjmp_save)
-C_END(__sigsetjmp)
+C_END(setjmp)
