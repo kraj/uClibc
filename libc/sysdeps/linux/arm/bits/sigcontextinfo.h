@@ -18,7 +18,7 @@
    02111-1307 USA.  */
 
 #include <bits/armsigctx.h>
-#include "kernel-features.h"
+#include <linux/version.h>
 
 #define SIGCONTEXT int _a2, int _a3, int _a4, union k_sigcontext
 #define SIGCONTEXT_EXTRA_ARGS _a2, _a3, _a4,
@@ -26,7 +26,7 @@
 /* The sigcontext structure changed between 2.0 and 2.1 kernels.  On any
    modern system we should be able to assume that the "new" format will be
    in use.  */
-#if __LINUX_KERNEL_VERSION > 131328
+#if LINUX_VERSION_CODE > 131328
 
 #define GET_PC(ctx)	((void *) ctx.v21.arm_pc)
 #define GET_FRAME(ctx)	ADVANCE_STACK_FRAME ((void *) ctx.v21.arm_fp)
