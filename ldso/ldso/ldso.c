@@ -139,7 +139,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		tpnt->ppnt = myppnt = (ElfW(Phdr) *) (load_addr + epnt->e_phoff);
 		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {
 			if (myppnt->p_type == PT_DYNAMIC) {
-				tpnt->dynamic_addr = (ElfW(Dyn) *)myppnt->p_vaddr + load_addr;
+				tpnt->dynamic_addr = (ElfW(Dyn) *)(myppnt->p_vaddr + load_addr);
 				tpnt->dynamic_size = myppnt->p_filesz;
 			}
 		}

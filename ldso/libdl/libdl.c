@@ -179,8 +179,11 @@ void *dlopen(const char *libname, int flag)
 	if(_dl_debug)
 		fprintf(stderr, "Trying to dlopen '%s'\n", (char*)libname);
 #endif
-	if (!(tpnt = _dl_check_if_named_library_is_loaded((char *)libname, 0)))
+	tpnt = _dl_check_if_named_library_is_loaded((char *)libname, 0);
+	if (!(tpnt))
 		tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname, 0);
+	else
+		tpnt->usage_count++;
 	if (tpnt == NULL) {
 		_dl_unmap_cache();
 		return NULL;
