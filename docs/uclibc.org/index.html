@@ -125,6 +125,44 @@ To subscribe, go and visit
 
 <ul>
 
+    <li> <b>10 April 2002, uClibc 0.9.11 Released</b>
+    <br>
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.11. This release is primarily focused on fixing the issues that
+    have turned up since the last release.  Several bugs in the gcc wrapper
+    have been fixed, allowing things like iproute2 and XFree86 to link properly
+    now.  Large file support has been improved, and a thread locking bug was
+    fixed that could cause s*printf calls to deadlock when threading was
+    enabled.  Several bugs were also fixed with the powerpc, h8300, m68k,
+    sparc, and mips architecture support.  Many additional applications now
+    compile and run perfectly and have been added to the end of the <a
+    href="uClibc-apps.html">working applications list</a> .
+    <p>
+    The <a href="downloads/Changelog">Changelog</a>
+    and <a href="downloads/uClibc-0.9.11.tar.bz2">source code</a> 
+    for this release are available <a href="downloads/">here</a>.
+    <p>
+
+
+    <li> <b>10 April 2002, Native uClibc/gcc-3.0.4 toolchain</b>
+    <br>
+    CodePoet Consulting has released source code and a Makefile
+    to build a gcc-3.0.4 toolchain that natively targets uClibc.
+    This brings with it full C++ support for uClibc, including the 
+    libstdc++ library.  A gcc-2.95.x toolchain will also be released 
+    shortly, but is not yet ready.  At this time, only source code and
+    a Makefile for the native uClibc toolchain is being released (i.e.
+    no binaries, sorry).  Source code can be downloaded 
+    <a href="downloads/toolchain/">here</a>,
+    but be aware that the source code is 27 MB.
+    <p>
+    To build the toolchain, simply grab the source, edit the Makefile
+    to select where you would like the toolchain installed.  Then
+    run 'make and wait for it to compile.  If you do not have a copy
+    of uClibc already, it will download the latest daily snapshot.
+    <p>
+
+
     <li> <b>21 March 2002, uClibc 0.9.10 Released!</b>
     <br>
 

@@ -1,6 +1,5 @@
 Erik's TODO list for the next release:
 
-    0) Release C++ toolchain including libstdc++ linked vs uClibc
     1) Better configuration system (CML1 + kbuild + menuconfig) 
     2) When fixing the config system, ensure that _every_ option
         that is enabled or disabled is listed in uClibc_config.h
@@ -8,18 +7,24 @@ Erik's TODO list for the next release:
         include files as well.
     4) Make all small objects (>~50 bytes) into either inlines or 
         into a static library
-    5) Fix Manuel's signal bug
-    6) Add struct _res support to libc/inet/resolv.c.  Right now, 
+    5) Add struct _res support to libc/inet/resolv.c.  Right now, 
 	struct _res, and res_init do nothing.  The other res_* 
 	functions are not yet implemented.  So fix that.
-    7) Fix uClibc timezone support so date(1) will show a real
+    6) Fix uClibc timezone support so date(1) will show a real
 	timezone, instead of just '???'
-    8) Rework some?/most?/all? code that fails POSIX conformance tests
-    9) Fix the bugs in crypt so it passes conformance tests 
-    10) Reentrancy auditing
-    11) Rework pwd/grp for standards compliance (and integrate 
+    7) Rework code that fails POSIX conformance tests
+    8) Fix the bugs in crypt so it passes conformance tests 
+    9) Reentrancy auditing
+    10) Rework pwd/grp for standards compliance (and integrate 
 	Jeff Garzik's key-value reading code for pwd/grp, and
 	perhaps for /etc/hosts and friends as well)
+    11) Document all differences between the feature set of uClibc 
+	and glibc.
+    12) Add missing syscall() function to allow arbitraty syscalls 
+	to be made. 
+    13) Split the tests up into two parts -- a compile phase, and 
+	a separate shell-script-driven test phase, allowing the
+	tests to be run when cross compiling....
 
 
 
@@ -77,7 +82,6 @@ Any takers?
 
 *) Fix regex so it isn't so stinking big
 *) Fix glob so it isn't so stinking big
-*) Add missing syscall() function to allow arbitraty syscalls to be made. 
 *) Documentation
 	- List all differences between the feature set of uClibc and glibc.
 *) run 'nm -D --size-sort -t d libuClibc-0.9.5.so' and work on the biggest things 
