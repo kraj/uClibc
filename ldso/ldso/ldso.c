@@ -1179,7 +1179,7 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 		case 'i':
 		case 'd':
 		    {
-			char tmp[13];
+			char tmp[22];
 			num = va_arg(args, int);
 			string = _dl_simple_ltoa(tmp, num);
 			_dl_write(fd, string, _dl_strlen(string));
@@ -1188,7 +1188,7 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 		case 'x':
 		case 'X':
 		    {
-			char tmp[13];
+			char tmp[22];
 			num = va_arg(args, int);
 			string = _dl_simple_ltoahex(tmp, num);
 			_dl_write(fd, string, _dl_strlen(string));
