@@ -36,11 +36,8 @@ void __uClibc_empty_func(void)
 {
 }
 
- __attribute__ ((__weak__, __alias__("__uClibc_empty_func")))
-void __init_stdio(void);
-
- __attribute__ ((__weak__, __alias__("__uClibc_empty_func")))
-void __stdio_close_all(void);
+extern void __init_stdio(void);
+extern void __stdio_close_all(void);
 
 typedef void (*vfuncp) (void);
 vfuncp __uClibc_cleanup = __stdio_close_all;
@@ -84,7 +81,6 @@ void __uClibc_main(int argc, char **argv, char **envp)
 char **__environ = 0;
 
 __asm__(".weak environ;environ = __environ");
-
-
-
+__asm__(".weak __init_stdio; __init_stdio = __uClibc_empty_func");
+__asm__(".weak __stdio_close_all; __stdio_close_all = __uClibc_empty_func");
 
