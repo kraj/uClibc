@@ -70,4 +70,8 @@ struct __dirstream {
 #endif
 };				/* stream data from opendir() */
 
+
+extern int __getdents(unsigned int fd, struct dirent *dirp, unsigned int count);
+extern int __getdents64 (unsigned int fd, struct dirent64 *dirp, unsigned int count);
+
 #endif /* dirent.h  */

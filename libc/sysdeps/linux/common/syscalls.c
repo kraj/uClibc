@@ -1226,11 +1226,7 @@ _syscall1(int, setfsgid, gid_t, gid);
 //See llseek.c
 
 //#define __NR_getdents         141
-#ifdef L_getdents
-#include <unistd.h>
-#include <dirent.h>
-_syscall3(int, getdents, int, fd, char *, dirp, size_t, count);
-#endif
+// See getdents.c
 
 //#define __NR__newselect       142
 #ifdef L__newselect
@@ -1766,13 +1762,7 @@ _syscall2(int, pivot_root, const char *, new_root, const char *, put_old);
 //#define __NR_madvise1		219	/* delete when C lib stub is removed */
 
 //#define __NR_getdents64		220
-#ifdef L_getdents64
-#ifdef __UCLIBC_HAS_LFS__
-#include <unistd.h>
-#include <dirent.h>
-_syscall3(int, getdents64, int, fd, char *, dirp, size_t, count);
-#endif /* __UCLIBC_HAS_LFS__ */
-#endif
+// See getdents64.c
 
 //#define __NR_fcntl64		221
 #ifdef L__fcntl64

@@ -5,8 +5,6 @@
 #include <dirent.h>
 #include "dirstream.h"
 
-extern int getdents __P ((unsigned int fd, struct dirent *dirp, unsigned int count));
-
 
 int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 {
@@ -27,7 +25,7 @@ int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 	do {
 	    if (dir->dd_size <= dir->dd_nextloc) {
 		/* read dir->dd_max bytes of directory entries. */
-		bytes = getdents(dir->dd_fd, dir->dd_buf, dir->dd_max);
+		bytes = __getdents(dir->dd_fd, dir->dd_buf, dir->dd_max);
 		if (bytes <= 0) {
 		    *result = NULL;
 		    ret = errno;

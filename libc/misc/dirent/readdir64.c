@@ -20,8 +20,6 @@
 #include <dirent.h>
 #include "dirstream.h"
 
-extern int getdents64 __P ((unsigned int fd, struct dirent64 *dirp, unsigned int count));
-
 
 struct dirent64 *readdir64(DIR * dir)
 {
@@ -40,7 +38,7 @@ struct dirent64 *readdir64(DIR * dir)
 	do {
 	    if (dir->dd_size <= dir->dd_nextloc) {
 		/* read dir->dd_max bytes of directory entries. */
-		bytes = getdents64(dir->dd_fd, dir->dd_buf, dir->dd_max);
+		bytes = __getdents64(dir->dd_fd, dir->dd_buf, dir->dd_max);
 		if (bytes <= 0) {
 		    de = NULL;
 		    goto all_done;
