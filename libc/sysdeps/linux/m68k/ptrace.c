@@ -8,7 +8,8 @@ ptrace(int request, int pid, int addr, int data)
 {
 	long ret;
 	long res;
-	if (request > 0 && request < 4) (long *)data = &ret;
+	if (request > 0 && request < 4) data = (int)&ret;
+
 
 	__asm__ volatile ("movel %1,%/d0\n\t"
 			  "movel %2,%/d1\n\t"
