@@ -25,6 +25,7 @@
 #define _STDIO_UTILITY
 #define _GNU_SOURCE
 #include <string.h>
+#include <locale.h> /* for __LOCALE_C_ONLY */
 
 #ifdef L_strcpy
 char * strcpy(char * dest, const char * src)
@@ -128,6 +129,9 @@ int strcmp(const char *cs, const char *ct)
 	    :"1" (cs),"2" (ct));
     return __res;
 }
+#ifdef __LOCALE_C_ONLY
+weak_alias(strcmp,strcoll);
+#endif /* __LOCALE_C_ONLY */
 #endif
 
 
@@ -174,6 +178,7 @@ char * strchr(const char *s, int c)
 	    :"=a" (__res), "=&S" (d0) : "1" (s),"0" (c));
     return __res;
 }
+weak_alias(strchr,index);
 #endif
 
 
@@ -193,6 +198,7 @@ char *strrchr(const char *s, int c)
 	    :"=g" (__res), "=&S" (d0), "=&a" (d1) :"0" (0),"1" (s),"2" (c));
     return __res;
 }
+weak_alias(strrchr,rindex);
 #endif
 
 
