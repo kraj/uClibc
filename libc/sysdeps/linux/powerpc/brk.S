@@ -51,7 +51,11 @@ __brk:
 	li	r3,0
 	blelr+
 	li      r3,ENOMEM
+#ifdef __PIC__
+	b	__syscall_error@plt
+#else
 	b	__syscall_error
+#endif
 .size __brk,.-__brk
 
 .weak brk;

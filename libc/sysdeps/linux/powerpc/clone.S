@@ -79,18 +79,30 @@ __clone:
 	mr	r3,r31
 	bctrl
 	/* Call _exit with result from procedure.  */
+#ifdef __PIC__
+	b	_exit@plt
+#else
 	b	_exit
+#endif
 
 .Lparent:
 	/* Parent.  Restore registers & return.  */
 	lmw	r29,16(r1)
 	addi	r1,r1,32
 	bnslr+
+#ifdef __PIC__
+	b	__syscall_error@plt
+#else
 	b	__syscall_error
+#endif
 
 .Lbadargs:
 	li	r3,EINVAL
+#ifdef __PIC__
+	b	__syscall_error@plt
+#else
 	b	__syscall_error
+#endif
 
 .size __clone,.-__clone
 .weak clone;

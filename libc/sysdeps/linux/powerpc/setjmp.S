@@ -76,5 +76,9 @@ FP(	stfd fp29,((JB_FPRS+15*2)*4)(3))
 FP(	stfd fp30,((JB_FPRS+16*2)*4)(3))
 	stw  r31,((JB_GPRS+17)*4)(3)
 FP(	stfd fp31,((JB_FPRS+17*2)*4)(3))
+#ifdef __PIC__
+	b __sigjmp_save@plt
+#else
 	b __sigjmp_save
+#endif
 .size     __sigsetjmp,.-__sigsetjmp
