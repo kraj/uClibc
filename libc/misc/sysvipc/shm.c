@@ -20,18 +20,20 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/shm.h>
+#include <syscall.h>
 #include "ipc.h"
 
 #ifdef L_shmat
 /* Attach the shared memory segment associated with SHMID to the data
    segment of the calling process.  SHMADDR and SHMFLG determine how
    and where the segment is attached.  */
-
-void *
-shmat (shmid, shmaddr, shmflg)
-    int shmid;
-    const void *shmaddr;
-    int shmflg;
+#if defined (__alpha__)
+#define __NR_osf_shmat __NR_shmat
+#endif
+#ifdef __NR_shmat
+_syscall3(void *, shmat, int shmid, const void *shmaddr, int shmflg);
+#else
+void * shmat (int shmid, const void *shmaddr, int shmflg)
 {
     int retval;
     unsigned long raddr;
@@ -41,43 +43,43 @@ shmat (shmid, shmaddr, shmflg)
 	    ? (void *) retval : (void *) raddr);
 }
 #endif
+#endif
 
 #ifdef L_shmctl
 /* Provide operations to control over shared memory segments.  */
-
-int
-shmctl (shmid, cmd, buf)
-    int shmid;
-    int cmd;
-    struct shmid_ds *buf;
+#ifdef __NR_shctl
+_syscall3(int, shmctl, int shmid, int, cmd, struct shmid_ds *, buf);
+#else
+int shmctl (int shmid, int cmd, struct shmid_ds *buf)
 {
     return __ipc(IPCOP_shmctl, shmid, cmd, 0, buf);
 }
+#endif
 #endif
 
 
 #ifdef L_shmdt
 /* Detach shared memory segment starting at address specified by SHMADDR
    from the caller's data segment.  */
-
-int
-shmdt (shmaddr)
-    const void *shmaddr;
+#ifdef __NR_shmdt
+_syscall1(int, shmdt, const void *, shmaddr);
+#else
+int shmdt (const void *shmaddr)
 {
     return __ipc(IPCOP_shmdt, 0, 0, 0, (void *) shmaddr);
 }
+#endif
 #endif
 
 #ifdef L_shmget
 /* Return an identifier for an shared memory segment of at least size SIZE
    which is associated with KEY.  */
-
-int
-shmget (key, size, shmflg)
-    key_t key;
-    size_t size;
-    int shmflg;
+#ifdef __NR_shmget
+_syscall1(int, shmget, key_t, key, size_t, size, int, shmflg);
+#else
+int shmget (key_t key, size_t size, int shmflg)
 {
     return __ipc(IPCOP_shmget, key, size, shmflg, NULL);
 }
+#endif
 #endif
