@@ -18,6 +18,8 @@ Erik's TODO list for the next release:
 	and glibc.
    11) Add missing syscall() function to ports that are still 
 	missing it.  (x86 and arm are finished so far).
+   12) Make sure that shared library constructors that depend on 
+	prior libc initialization work correctly
 
 
 
