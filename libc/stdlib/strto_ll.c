@@ -190,3 +190,13 @@ long long strtoll(const char *str, char **endptr, int base)
 }
 
 #endif
+
+#ifdef L_atoll
+long long atoll(const char *str)
+{
+    return(_strto_ll((str),(char**)0,10,0));
+}
+#endif
+
+
+

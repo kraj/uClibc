@@ -261,3 +261,10 @@ double strtod(const char *str, char **endptr)
 
     return number;
 }
+
+/* This should probably be in its own .o file.  Oh well. */
+double atof(const char *str)
+{
+    return(strtod((str),(char**)0));
+
+}

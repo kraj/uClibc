@@ -183,10 +183,25 @@ unsigned long strtoul(const char *str, char **endptr, int base)
 #endif
 
 #if L_strtol
-
 long strtol(const char *str, char **endptr, int base)
 {
     return _strto_l(str, endptr, base, 0);
 }
 
 #endif
+
+#ifdef L_atoi
+int atoi(const char *str)
+{
+    return((int)_strto_l((str),(char**)0,10, 0));
+
+}
+#endif
+
+#ifdef L_atol
+long atol(const char *str)
+{
+    return(_strto_l((str),(char**)0,10, 0));
+}
+#endif
+

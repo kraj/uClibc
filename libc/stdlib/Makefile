@@ -27,10 +27,10 @@ DIRS = $(MALLOC)
 ALL_SUBDIRS = malloc malloc-930716 malloc-simple
 
 MSRC=strto_l.c
-MOBJ=strtol.o strtoul.o strto_l.o
+MOBJ=strtol.o strtoul.o strto_l.o atoi.o atol.o
 
 MSRC1=strto_ll.c
-MOBJ1=strtoll.o strtoull.o strto_ll.o
+MOBJ1=strtoll.o strtoull.o strto_ll.o atoll.o
 
 MSRC2=atexit.c
 MOBJ2=atexit.o exit.o
