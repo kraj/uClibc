@@ -638,7 +638,17 @@ void ssort (void  *base,
 #define UTF_8_MAX_LEN 3
 #endif
 
+#ifdef __UCLIBC_HAS_LOCALE__
 #define ENCODING (__global_locale.encoding)
+#warning implement __CTYPE_HAS_UTF_8_LOCALES!
+#define __CTYPE_HAS_UTF_8_LOCALES
+#else
+#define ENCODING (__ctype_encoding_7_bit)
+#undef __CTYPE_HAS_8_BIT_LOCALES
+#undef __CTYPE_HAS_UTF_8_LOCALES
+#undef L__wchar_utf8sntowcs
+#undef L__wchar_wcsntoutf8s
+#endif
 
 #endif
 
@@ -647,15 +657,19 @@ void ssort (void  *base,
 
 size_t _stdlib_mb_cur_max(void)
 {
+#ifdef __CTYPE_HAS_UTF_8_LOCALES
 	return __global_locale.mb_cur_max;
+#else
+#ifdef __CTYPE_HAS_8_BIT_LOCALES
+#warning need to change this when/if transliteration is implemented
+#endif
+	return 1;
+#endif
 }
 
 #endif
 /**********************************************************************/
 #ifdef L_mblen
-
-#warning implement __CTYPE_HAS_UTF_8_LOCALES!
-#define __CTYPE_HAS_UTF_8_LOCALES
 
 int mblen(register const char *s, size_t n)
 {
@@ -683,9 +697,6 @@ int mblen(register const char *s, size_t n)
 /**********************************************************************/
 #ifdef L_mbtowc
 
-#warning implement __CTYPE_HAS_UTF_8_LOCALES!
-#define __CTYPE_HAS_UTF_8_LOCALES
-
 int mbtowc(wchar_t *__restrict pwc, register const char *__restrict s, size_t n)
 {
 	static mbstate_t state;
@@ -711,9 +722,6 @@ int mbtowc(wchar_t *__restrict pwc, register const char *__restrict s, size_t n)
 #endif
 /**********************************************************************/
 #ifdef L_wctomb
-
-#warning implement __CTYPE_HAS_UTF_8_LOCALES!
-#define __CTYPE_HAS_UTF_8_LOCALES
 
 /* Note: We completely ignore state in all currently supported conversions. */
 

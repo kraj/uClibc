@@ -50,6 +50,14 @@
  * an issue for uClibc, but may be for ELKS.  I'm currently not sure
  * if I'll use 16-bit, 32-bit, or configureable wchars in ELKS.
  *
+ * July 1, 2002
+ *
+ * Fixed _wchar_utf8sntowcs() for the max number of wchars == 0 case.
+ * Fixed nul-char bug in btowc(), and another in __mbsnrtowcs() for 8-bit
+ *    locales.
+ * Enabled building of a C/POSIX-locale-only version, so full locale support
+ *    no longer needs to be enabled.
+ *
  * Manuel
  */
 
@@ -66,7 +74,17 @@
 #include <locale.h>
 #include <wchar.h>
 
+#ifdef __UCLIBC_HAS_LOCALE__
 #define ENCODING (__global_locale.encoding)
+#warning implement __CTYPE_HAS_UTF_8_LOCALES!
+#define __CTYPE_HAS_UTF_8_LOCALES
+#else
+#define ENCODING (__ctype_encoding_7_bit)
+#undef __CTYPE_HAS_8_BIT_LOCALES
+#undef __CTYPE_HAS_UTF_8_LOCALES
+#undef L__wchar_utf8sntowcs
+#undef L__wchar_wcsntoutf8s
+#endif
 
 #if WCHAR_MAX > 0xffffU
 #define UTF_8_MAX_LEN 6
@@ -75,9 +93,6 @@
 #endif
 
 /*  #define KUHN */
-
-#warning implement __CTYPE_HAS_UTF_8_LOCALES!
-#define __CTYPE_HAS_UTF_8_LOCALES
 
 /* Implementation-specific work functions. */
 
@@ -103,6 +118,8 @@ extern size_t __wcsnrtombs(char *__restrict dst,
 
 wint_t btowc(int c)
 {
+#ifdef __CTYPE_HAS_8_BIT_LOCALES
+
 	wchar_t wc;
 	unsigned char buf[1];
 	mbstate_t mbstate;
@@ -110,11 +127,19 @@ wint_t btowc(int c)
 	if (c != EOF) {
 		*buf = (unsigned char) c;
 		mbstate.mask = 0;		/* Initialize the mbstate. */
-		if (mbrtowc(&wc, buf, 1, &mbstate) == 1) {
+		if (mbrtowc(&wc, buf, 1, &mbstate) <= 1) {
 			return wc;
 		}
 	}
 	return WEOF;
+
+#else  /*  __CTYPE_HAS_8_BIT_LOCALES */
+
+	/* If we don't have 8-bit locale support, then this is trivial since
+	 * anything outside of 0-0x7f is illegal in C/POSIX and UTF-8 locales. */
+	return (((unsigned int)c) < 0x80) ? c : WEOF;
+
+#endif /*  __CTYPE_HAS_8_BIT_LOCALES */
 }
 
 #endif
@@ -125,9 +150,22 @@ wint_t btowc(int c)
 
 int wctob(wint_t c)
 {
+#ifdef __CTYPE_HAS_8_BIT_LOCALES
+
 	unsigned char buf[MB_LEN_MAX];
 
 	return (wcrtomb(buf, c, NULL) == 1) ? *buf : EOF;
+
+#else  /*  __CTYPE_HAS_8_BIT_LOCALES */
+
+	/* If we don't have 8-bit locale support, then this is trivial since
+	 * anything outside of 0-0x7f is illegal in C/POSIX and UTF-8 locales. */
+	
+	/* TODO: need unsigned version of wint_t... */
+/*  	return (((unsigned int)c) < 0x80) ? c : WEOF; */
+	return ((c >= 0) && (c < 0x80)) ? c : EOF;
+
+#endif /*  __CTYPE_HAS_8_BIT_LOCALES */
 }
 
 #endif
@@ -144,6 +182,9 @@ int mbsinit(const mbstate_t *ps)
 #ifdef L_mbrlen
 
 size_t mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
+	 __attribute__ ((__weak__, __alias__("__mbrlen")));
+
+size_t __mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
 {
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
 
@@ -183,7 +224,7 @@ size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 	/* Need to do this here since mbsrtowcs doesn't allow incompletes. */
 	if (ENCODING == __ctype_encoding_utf8) {
 		r = _wchar_utf8sntowcs(pwc, 1, &p, n, ps, 1);
-		return (r == 1) ? (p-s) : r;
+		return (r == 1) ? (p-s) : r; /* Need to return 0 if nul char. */
 	}
 #endif
 
@@ -289,10 +330,13 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 		wn = SIZE_MAX;
 		incr = 0;
 	}
-#warning fix _wchar_utf8sntowcs to allow wn == 0!
-	assert(wn > 0);				/* TODO: fix this!! */
 
-	count = wn;
+	/* This is really here only to support the glibc extension function
+	 * __mbsnrtowcs which apparently returns 0 if wn == 0 without any
+	 * check on the validity of the mbstate. */
+	if (!(count = wn)) {
+		return 0;
+	}
 
 	if ((mask = (__uwchar_t) ps->mask) != 0) { /* A continuation... */
 #ifdef DECODER
@@ -420,7 +464,7 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 
 #endif
 /**********************************************************************/
-#ifdef L__wchar_wcstoutf8s
+#ifdef L__wchar_wcsntoutf8s
 
 size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 						  const wchar_t **__restrict src, size_t wn)
@@ -568,13 +612,13 @@ size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 				if (!wc) {
 					goto BAD;
 				}
-			} else if (!wc) {
+			}
+			if (!(*dst = wc)) {
 				s = NULL;
 				break;
 			}
-			++s;
-			*dst = wc;
 			dst += incr;
+			++s;
 			--count;
 		}
 		if (dst != wcbuf) {
@@ -633,7 +677,7 @@ size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 	if (ENCODING == __ctype_encoding_utf8) {
 		return _wchar_wcsntoutf8s(dst, len, src, NWC);
 	}
-#endif
+#endif /* __CTYPE_HAS_UTF_8_LOCALES */
 
 	incr = 1;
 	if (!dst) {
@@ -676,12 +720,12 @@ size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 /*  #define __WCHAR_REPLACEMENT_CHAR '?' */
 #ifdef __WCHAR_REPLACEMENT_CHAR
 				*dst = (unsigned char) ( u ? u : __WCHAR_REPLACEMENT_CHAR );
-#else
+#else  /* __WCHAR_REPLACEMENT_CHAR */
 				if (!u) {
 					goto BAD;
 				}
 				*dst = (unsigned char) u;
-#endif
+#endif /* __WCHAR_REPLACEMENT_CHAR */
 			}
 			++s;
 			dst += incr;
@@ -692,7 +736,7 @@ size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 		}
 		return len - count;
 	}
-#endif
+#endif /* __CTYPE_HAS_8_BIT_LOCALES */
 
 	assert(ENCODING == __ctype_encoding_7_bit);
 

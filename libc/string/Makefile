@@ -38,6 +38,8 @@ MOBJW2= wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
 	wcsnlen.o wcspbrk.o wcsrchr.o wcsspn.o wcsstr.o wcstok.o wmemchr.o \
 	wmemcmp.o wmemcpy.o wmemmove.o wmempcpy.o wmemset.o
 
+# wcscoll wcsxfrm wcpcpy wcpncpy
+
 MSRC1=strsignal.c
 MOBJ1=strsignal.o psignal.o
 

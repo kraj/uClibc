@@ -109,6 +109,7 @@ typedef struct
 # define __ldiv_t_defined	1
 #endif
 
+#ifdef __UCLIBC_HAS_LONG_LONG__
 #if defined __USE_ISOC99 && !defined __lldiv_t_defined
 /* Returned by `lldiv'.  */
 __extension__ typedef struct
@@ -118,6 +119,7 @@ __extension__ typedef struct
   } lldiv_t;
 # define __lldiv_t_defined	1
 #endif
+#endif /* __UCLIBC_HAS_LONG_LONG__ */
 
 
 /* The largest number rand will return (same as INT_MAX).  */
@@ -136,19 +138,24 @@ __extension__ typedef struct
 extern size_t _stdlib_mb_cur_max (void) __THROW;
 #endif
 
+#ifdef __UCLIBC_HAS_FLOATS__
 /* Convert a string to a floating-point number.  */
 extern double atof (__const char *__nptr) __THROW __attribute_pure__;
+#endif /* __UCLIBC_HAS_FLOATS__ */
 /* Convert a string to an integer.  */
 extern int atoi (__const char *__nptr) __THROW __attribute_pure__;
 /* Convert a string to a long integer.  */
 extern long int atol (__const char *__nptr) __THROW __attribute_pure__;
 
+#ifdef __UCLIBC_HAS_LONG_LONG__
 #if defined __USE_ISOC99 || (defined __GNUC__ && defined __USE_MISC)
 /* Convert a string to a long long integer.  */
 __extension__ extern long long int atoll (__const char *__nptr)
      __THROW __attribute_pure__;
 #endif
+#endif /* __UCLIBC_HAS_LONG_LONG__ */
 
+#ifdef __UCLIBC_HAS_FLOATS__
 /* Convert a string to a floating-point number.  */
 extern double strtod (__const char *__restrict __nptr,
 		      char **__restrict __endptr) __THROW;
@@ -161,6 +168,7 @@ extern float strtof (__const char *__restrict __nptr,
 extern long double strtold (__const char *__restrict __nptr,
 			    char **__restrict __endptr) __THROW;
 #endif
+#endif /* __UCLIBC_HAS_FLOATS__ */
 
 /* Convert a string to a long integer.  */
 extern long int strtol (__const char *__restrict __nptr,
@@ -170,6 +178,7 @@ extern unsigned long int strtoul (__const char *__restrict __nptr,
 				  char **__restrict __endptr, int __base)
      __THROW;
 
+#ifdef __UCLIBC_HAS_LONG_LONG__
 #if defined __GNUC__ && defined __USE_BSD
 /* Convert a string to a quadword integer.  */
 __extension__
@@ -195,6 +204,7 @@ extern unsigned long long int strtoull (__const char *__restrict __nptr,
 					char **__restrict __endptr, int __base)
      __THROW;
 #endif /* ISO C99 or GCC and use MISC.  */
+#endif /* __UCLIBC_HAS_LONG_LONG__ */
 
 
 #if 0
@@ -251,6 +261,7 @@ extern long double __strtold_l (__const char *__restrict __nptr,
 /* The internal entry points for `strtoX' take an extra flag argument
    saying whether or not to parse locale-dependent number grouping.  */
 
+#ifdef __UCLIBC_HAS_FLOATS__
 extern double __strtod_internal (__const char *__restrict __nptr,
 				 char **__restrict __endptr, int __group)
      __THROW;
@@ -260,6 +271,7 @@ extern float __strtof_internal (__const char *__restrict __nptr,
 extern long double __strtold_internal (__const char *__restrict __nptr,
 				       char **__restrict __endptr,
 				       int __group) __THROW;
+#endif /* __UCLIBC_HAS_FLOATS__ */
 #ifndef __strtol_internal_defined
 extern long int __strtol_internal (__const char *__restrict __nptr,
 				   char **__restrict __endptr,
@@ -272,6 +284,7 @@ extern unsigned long int __strtoul_internal (__const char *__restrict __nptr,
 					     int __base, int __group) __THROW;
 # define __strtoul_internal_defined	1
 #endif
+#ifdef __UCLIBC_HAS_LONG_LONG__
 #if defined __GNUC__ || defined __USE_ISOC99
 # ifndef __strtoll_internal_defined
 __extension__
@@ -290,6 +303,7 @@ extern unsigned long long int __strtoull_internal (__const char *
 #  define __strtoull_internal_defined	1
 # endif
 #endif /* GCC */
+#endif /* __UCLIBC_HAS_LONG_LONG__ */
 
 #ifdef __USE_EXTERN_INLINES
 /* Define inline functions which call the internal entry points.  */
@@ -460,9 +474,11 @@ extern int rand_r (unsigned int *__seed) __THROW;
 #if defined __USE_SVID || defined __USE_XOPEN
 /* System V style 48-bit random number generator functions.  */
 
+#ifdef __UCLIBC_HAS_FLOATS__
 /* Return non-negative, double-precision floating-point value in [0.0,1.0).  */
 extern double drand48 (void) __THROW;
 extern double erand48 (unsigned short int __xsubi[3]) __THROW;
+#endif /* __UCLIBC_HAS_FLOATS__ */
 
 /* Return non-negative, long integer in [0,2^31).  */
 extern long int lrand48 (void) __THROW;
@@ -487,15 +503,19 @@ struct drand48_data
     unsigned short int __old_x[3]; /* Old state.  */
     unsigned short int __c;	/* Additive const. in congruential formula.  */
     unsigned short int __init;	/* Flag for initializing.  */
+#ifdef __UCLIBC_HAS_LONG_LONG__
     unsigned long long int __a;	/* Factor in congruential formula.  */
+#endif /* __UCLIBC_HAS_LONG_LONG__ */
   };
 
+#ifdef __UCLIBC_HAS_FLOATS__
 /* Return non-negative, double-precision floating-point value in [0.0,1.0).  */
 extern int drand48_r (struct drand48_data *__restrict __buffer,
 		      double *__restrict __result) __THROW;
 extern int erand48_r (unsigned short int __xsubi[3],
 		      struct drand48_data *__restrict __buffer,
 		      double *__restrict __result) __THROW;
+#endif /* __UCLIBC_HAS_FLOATS__ */
 
 /* Return non-negative, long integer in [0,2^31).  */
 extern int lrand48_r (struct drand48_data *__restrict __buffer,
@@ -707,10 +727,12 @@ extern void qsort (void *__base, size_t __nmemb, size_t __size,
 /* Return the absolute value of X.  */
 extern int abs (int __x) __THROW __attribute__ ((__const__));
 extern long int labs (long int __x) __THROW __attribute__ ((__const__));
+#ifdef __UCLIBC_HAS_LONG_LONG__
 #ifdef __USE_ISOC99
 __extension__ extern long long int llabs (long long int __x)
      __THROW __attribute__ ((__const__));
 #endif
+#endif /* #ifdef __UCLIBC_HAS_LONG_LONG__ */
 
 
 /* Return the `div_t', `ldiv_t' or `lldiv_t' representation
@@ -720,13 +742,16 @@ extern div_t div (int __numer, int __denom)
      __THROW __attribute__ ((__const__));
 extern ldiv_t ldiv (long int __numer, long int __denom)
      __THROW __attribute__ ((__const__));
+#ifdef __UCLIBC_HAS_LONG_LONG__
 #ifdef __USE_ISOC99
 __extension__ extern lldiv_t lldiv (long long int __numer,
 				    long long int __denom)
      __THROW __attribute__ ((__const__));
 #endif
+#endif /* __UCLIBC_HAS_LONG_LONG__ */
 
 
+#ifdef __UCLIBC_HAS_FLOATS__
 #if defined __USE_SVID || defined __USE_XOPEN_EXTENDED
 /* Convert floating point numbers to strings.  The returned values are
    valid only until another call to the same function.  */
@@ -775,6 +800,7 @@ extern int qfcvt_r (long double __value, int __ndigit,
 		    char *__restrict __buf, size_t __len) __THROW;
 # endif	/* misc */
 #endif	/* use MISC || use X/Open Unix */
+#endif /* __UCLIBC_HAS_FLOATS__ */
 
 #ifdef __UCLIBC_HAS_WCHAR__
 /* Return the length of the multibyte character

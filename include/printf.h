@@ -154,7 +154,7 @@ struct printf_info
    The function should return the number of characters written,
    or -1 for errors.  */
 
-typedef int printf_function (FILE *__stream,
+typedef int (*printf_function) (FILE *__stream,
 			     __const struct printf_info *__info,
 			     __const void *__const *__args);
 

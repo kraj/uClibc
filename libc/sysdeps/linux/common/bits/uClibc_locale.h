@@ -63,11 +63,7 @@
 #define __LC_ALL			6
 
 /**********************************************************************/
-#if defined(_LIBC) && !defined(__LOCALE_C_ONLY)
-
-#include <stddef.h>
-#include <stdint.h>
-#include <bits/uClibc_locale_data.h>
+#ifdef _LIBC
 
 /* TODO: This really needs to be somewhere else... */
 #include <limits.h>
@@ -89,6 +85,14 @@ typedef uintmax_t			__uwchar_t;
 #error Can not determine an appropriate type for __uwchar_t!
 #endif
 
+#endif
+
+/**********************************************************************/
+#if defined(_LIBC) && !defined(__LOCALE_C_ONLY)
+
+#include <stddef.h>
+#include <stdint.h>
+#include <bits/uClibc_locale_data.h>
 
 
 extern void _locale_set(const unsigned char *p);

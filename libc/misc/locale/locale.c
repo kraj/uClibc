@@ -30,13 +30,7 @@
 #include <stdint.h>
 #include <assert.h>
 
-#ifdef __LOCALE_C_ONLY
-
-#ifdef __WCHAR_ENABLED
-#error wide char support requires full locale support
-#endif
-
-#else  /* __LOCALE_C_ONLY */
+#ifndef __LOCALE_C_ONLY
 
 #define CUR_LOCALE_SPEC			(__global_locale.cur_locale)
 #undef CODESET_LIST
@@ -496,14 +490,15 @@ void _locale_set(const unsigned char *p)
  *   ctype, numeric, monetary, time, collate, messages, all
  */
 
+#define C_LC_ALL 6
 
 /* Combine the data to avoid size penalty for seperate char arrays when
  * compiler aligns objects.  The original code is left in as documentation. */
 #define cat_start nl_data
-#define C_locale_data nl_data + LC_ALL + 1 + 78
+#define C_locale_data (nl_data + C_LC_ALL + 1 + 78)
 
-static const unsigned char nl_data[LC_ALL + 1 + 78 + 300] = {
-/*  static const unsigned char cat_start[LC_ALL + 1] = { */
+static const unsigned char nl_data[C_LC_ALL + 1 + 78 + 300] = {
+/*  static const unsigned char cat_start[C_LC_ALL + 1] = { */
 	'\x00', '\x01', '\x04', '\x1a', '\x4c', '\x4c', '\x4e', 
 /*  }; */
 /*  static const unsigned char item_offset[78] = { */
@@ -564,10 +559,10 @@ char *nl_langinfo(nl_item item)
 	unsigned int c;
 	unsigned int i;
 
-	if ((c = _NL_ITEM_CATEGORY(item)) < LC_ALL) {
+	if ((c = _NL_ITEM_CATEGORY(item)) < C_LC_ALL) {
 		if ((i = cat_start[c] + _NL_ITEM_INDEX(item)) < cat_start[c+1]) {
 /*  			return (char *) C_locale_data + item_offset[i] + (i & 64); */
-			return (char *) C_locale_data + nl_data[LC_ALL+1+i] + (i & 64);
+			return (char *) C_locale_data + nl_data[C_LC_ALL+1+i] + (i & 64);
 		}
 	}
 	return (char *) cat_start;	/* Conveniently, this is the empty string. */

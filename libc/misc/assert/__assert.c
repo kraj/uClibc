@@ -28,7 +28,7 @@
 #undef assert
 
 void __assert(const char *assertion, const char * filename,
-			  int linenumber, const char * function)
+			  int linenumber, register const char * function)
 {
 	char buf[__BUFLEN_INT10TOSTR];
 

@@ -24,12 +24,27 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-MSRC=  wchar.c
-MOBJ=  btowc.o wctob.o mbsinit.o mbrlen.o mbrtowc.o wcrtomb.o mbsrtowcs.o \
-	wcsrtombs.o _wchar_utf8sntowcs.o _wchar_wcstoutf8s.o \
+MSRC1=  wchar.c
+MOBJ1=  btowc.o wctob.o mbsinit.o mbrlen.o mbrtowc.o wcrtomb.o mbsrtowcs.o \
+	wcsrtombs.o _wchar_utf8sntowcs.o _wchar_wcsntoutf8s.o \
 	__mbsnrtowcs.o __wcsnrtombs.o
 
-OBJS=$(MOBJ)
+MSRC2=  wstdio.c
+MOBJ2=  fwide.o \
+	fgetwc.o getwchar.o fgetws.o \
+	fputwc.o putwchar.o fputws.o \
+	ungetwc.o
+# getwc (fgetwc alias) getwc_unlocked (fgetwc_unlocked alias)
+# putwc (fputwc alias) putwc_unlocked (fputwc_unlocked alias)
+
+# wcwidth wcswidth
+# wcstod wcstof wcstold
+# wcstol wcstoul wcstoq wcstouq wcstoll wcstoull
+# fwprintf wprintf swprintf vfwprintf vwprintf vswprintf
+# fwscanf  wscanf  swscanf  vfwscanf  vwscanf  vswscanf
+# wcsftime
+
+OBJS=$(MOBJ1) $(MOBJ2)
 
 all: $(OBJS) $(LIBC)
 
@@ -38,7 +53,11 @@ $(LIBC): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(MOBJ): $(MSRC)
+$(MOBJ1): $(MSRC1)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 

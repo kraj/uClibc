@@ -31,12 +31,8 @@
  * implementation doesn't for the "100ergs" case mentioned above.
  */
 
+#define _ISOC99_SOURCE			/* for LLONG_MAX primarily... */
 #define _GNU_SOURCE
-#include <features.h>
-#if defined(__UCLIBC__) && !defined(__USE_ISOC99)
-#define __USE_ISOC99
-#endif
-
 #define _STDIO_UTILITY
 #include <stdio.h>
 #include <stdlib.h>
@@ -124,8 +120,12 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 
 	string->filedes = -2;		/* for debugging */
 	string->modeflags = (__FLAG_NARROW|__FLAG_READONLY);
-	string->bufstart = string->bufrpos = (unsigned char *) ((void *) sp);
+	string->bufstart = string->bufpos = (unsigned char *) ((void *) sp);
 	string->bufgetc = (char *) ((unsigned) -1);
+
+#ifdef __STDIO_MBSTATE
+	__INIT_MBSTATE(&(string->state));
+#endif /* __STDIO_MBSTATE */
 
 #ifdef __STDIO_THREADSAFE
 	__stdio_init_mutex(&string->lock);
@@ -172,9 +172,11 @@ static int valid_digit(char c, char base)
 extern unsigned long
 _stdlib_strto_l(register const char * __restrict str,
 				char ** __restrict endptr, int base, int sflag);
+#ifdef LLONG_MAX
 extern unsigned long long
 _stdlib_strto_ll(register const char * __restrict str,
 				 char ** __restrict endptr, int base, int sflag);
+#endif
 
 struct scan_cookie {
 	FILE *fp;
@@ -205,7 +207,8 @@ static const char spec[]  = "%n[csoupxXid";
 /* radix[i] <-> spec[i+5]     o   u   p   x   X  i   d */
 static const char radix[] = { 8, 10, 16, 16, 16, 0, 10 };
 
-static void init_scan_cookie(struct scan_cookie *sc, FILE *fp)
+static void init_scan_cookie(register struct scan_cookie *sc,
+							 register FILE *fp)
 {
 	sc->fp = fp;
 	sc->nread = 0;
@@ -216,7 +219,7 @@ static void init_scan_cookie(struct scan_cookie *sc, FILE *fp)
 
 /* TODO -- what about literal '\0' chars in a file??? */
 
-static int scan_getc_nw(struct scan_cookie *sc)
+static int scan_getc_nw(register struct scan_cookie *sc)
 {
 	if (sc->ungot_flag == 0) {
 		sc->ungot_char = getc(sc->fp);
@@ -230,7 +233,7 @@ static int scan_getc_nw(struct scan_cookie *sc)
 	return sc->ungot_char;
 }
 
-static int scan_getc(struct scan_cookie *sc)
+static int scan_getc(register struct scan_cookie *sc)
 {
 	if (sc->ungot_flag == 0) {
 		sc->ungot_char = getc(sc->fp);
@@ -247,7 +250,7 @@ static int scan_getc(struct scan_cookie *sc)
 	return sc->ungot_char;
 }
 
-static void scan_ungetc(struct scan_cookie *sc)
+static void scan_ungetc(register struct scan_cookie *sc)
 {
 	if (sc->ungot_flag != 0) {
 		assert(sc->width < 0);
@@ -262,7 +265,7 @@ static void scan_ungetc(struct scan_cookie *sc)
 	}
 }
 
-static void kill_scan_cookie(struct scan_cookie *sc)
+static void kill_scan_cookie(register struct scan_cookie *sc)
 {
 	if (sc->ungot_flag) {
 		ungetc(sc->ungot_char,sc->fp);
@@ -273,10 +276,7 @@ static void kill_scan_cookie(struct scan_cookie *sc)
 	}
 }
 
-int vfscanf(fp, format, ap)
-FILE *fp;
-const char *format;
-va_list ap;
+int vfscanf(FILE *fp, const char *format, va_list ap)
 {
 #ifdef __UCLIBC_HAS_LONG_LONG__
 #define STRTO_L_(s,e,b,sf) _stdlib_strto_ll(s,e,b,sf)
@@ -294,9 +294,9 @@ va_list ap;
 #endif
 	UV_TYPE uv;
 	struct scan_cookie sc;
-	unsigned const char *fmt;
+	register unsigned const char *fmt;
 	const char *p;
-	unsigned char *b;
+	register unsigned char *b;
 	void *vp;
 	int cc, i, cnt;
 	signed char lval;
@@ -523,7 +523,7 @@ va_list ap;
 								*((unsigned int *)vp) = (unsigned int)uv;
 								break;
 #endif
-							case -1:
+							case (signed char)(-1):
 								if (usflag) {
 									if (uv > USHRT_MAX) {
 										uv = USHRT_MAX;
@@ -535,7 +535,7 @@ va_list ap;
 								}
 								*((unsigned short *)vp) = (unsigned short)uv;
 								break;
-							case -2:
+							case (signed char)(-2):
 								if (usflag) {
 									if (uv > UCHAR_MAX) {
 										uv = UCHAR_MAX;

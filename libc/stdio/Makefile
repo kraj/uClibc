@@ -57,7 +57,8 @@ MOBJ = fclose.o fflush.o fopen.o freopen.o perror.o remove.o \
 	__fsetlocking.o flockfile.o ftrylockfile.o funlockfile.o \
 	_stdio_fopen.o _stdio_fread.o _stdio_fwrite.o _stdio_adjpos.o \
 	_stdio_lseek.o _stdio_init.o \
-	_stdio_fsfopen.o _stdio_fdout.o _uintmaxtostr.o _stdio_strerror_r.o
+	_stdio_fsfopen.o _stdio_fdout.o _uintmaxtostr.o _stdio_strerror_r.o \
+	getdelim.o getline.o ctermid.o
 
 # ifeq ($(DOLFS),true)
 # 	MOBJ += fopen64.o freopen64.o ftello64.o fseeko64.o fsetpos64.o fgetpos64.o
@@ -83,8 +84,7 @@ endif
 MSRC3=scanf.c
 MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
 
-CSRC=popen.c getdelim.c getline.c tmpfile.c tmpnam.c \
-     tmpnam_r.c tempnam.c ctermid.c
+CSRC=popen.c tmpfile.c tmpnam.c tmpnam_r.c tempnam.c
 ifeq ($(USE_OLD_VFPRINTF),true)
 	CSRC += old_vfprintf.c
 endif

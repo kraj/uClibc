@@ -143,7 +143,9 @@
 
 /*  #define __isdigit(c) (((unsigned int)(c - '0')) < 10) */
 
+#if defined(__UCLIBC_HAS_FLOATS__)
 extern size_t _dtostr(FILE * fp, long double x, struct printf_info *info);
+#endif
 
 
 enum {
@@ -179,7 +181,7 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 			 va_list ap)
 {
 	int i, cnt, lval, len;
-	char *p;
+	register char *p;
 	const char *fmt0;
 	int preci, width;
 #define upcase i
@@ -325,7 +327,7 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
  					p = _uintmaxtostr((tmp + sizeof(tmp) - 1),
 									  ((lval>1) /* TODO -- longlong/long/int/short/char */
 									   ? va_arg(ap, uintmax_t)
-									   : (uintmax_t) ((long long) /* sign-extend! */
+									   : (uintmax_t) ((intmax_t) /* sign-extend! */
 													va_arg(ap, long))),
 									  -radix, upcase);
 

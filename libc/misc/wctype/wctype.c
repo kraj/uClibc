@@ -34,6 +34,7 @@
 #include <string.h>
 #include <errno.h>
 #include <locale.h>
+#include <ctype.h>
 
 /* We know wide char support is enabled.  We wouldn't be here otherwise. */
 
@@ -41,7 +42,9 @@
  * towctrans function. */
 /*  #define SMALL_UPLOW */
 
+#ifndef __LOCALE_C_ONLY
 #define __WCTYPE_WITH_LOCALE
+#endif
 
 /**********************************************************************/
 
@@ -292,6 +295,10 @@ wctype_t wctype(const char *property)
 /**********************************************************************/
 #ifdef L_iswctype
 
+#warning duh... replace the range-based classification with table lookup!
+
+#ifdef __WCTYPE_WITH_LOCALE
+
 #warning TODO: need to fix locale ctype table lookup stuff
 #if 0
 extern const char ctype_range[];
@@ -345,6 +352,102 @@ int iswctype(wint_t wc, wctype_t desc)
 	}
 	return 0;
 }
+
+#else
+
+static const unsigned char WCctype[] = {
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_space_blank     << 4),
+	__CTYPE_cntrl_space_nonblank | (__CTYPE_cntrl_space_nonblank  << 4),
+	__CTYPE_cntrl_space_nonblank | (__CTYPE_cntrl_space_nonblank  << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_cntrl_nonspace       | (__CTYPE_cntrl_nonspace        << 4),
+	__CTYPE_print_space_blank    | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_digit                | (__CTYPE_digit                 << 4),
+	__CTYPE_digit                | (__CTYPE_digit                 << 4),
+	__CTYPE_digit                | (__CTYPE_digit                 << 4),
+	__CTYPE_digit                | (__CTYPE_digit                 << 4),
+	__CTYPE_digit                | (__CTYPE_digit                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_alpha_upper           << 4),
+	__CTYPE_alpha_upper          | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_alpha_lower           << 4),
+	__CTYPE_alpha_lower          | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_punct                 << 4),
+	__CTYPE_punct                | (__CTYPE_cntrl_nonspace        << 4),
+};
+
+static const char ctype_range[] = {
+	__CTYPE_RANGES
+};
+
+int iswctype(wint_t wc, wctype_t desc)
+{
+	unsigned char d = __CTYPE_unclassified;
+
+	if (((__uwchar_t) wc) <= 0x7f) {
+		if (desc < _CTYPE_iswxdigit) {
+			d = WCctype[wc >> 1];
+			d = (wc & 1) ? (d >> 4) : (d & 0xf);
+
+			return ( ((unsigned char)(d - ctype_range[2*desc]))
+					 <= ctype_range[2*desc + 1] )
+				&& ((desc != _CTYPE_iswblank) || (d & 1));
+		}
+
+		if (desc == _CTYPE_iswxdigit) {
+			return __C_isxdigit(((char) wc));
+		}
+	}
+	return 0;
+}
+
+#endif
 
 #endif
 /**********************************************************************/
@@ -446,10 +549,26 @@ wint_t towctrans(wint_t wc, wctrans_t desc)
 
 #endif
 
-#else
+#else  /* __WCTYPE_WITH_LOCALE */
 
+/* Minimal support for C/POSIX locale. */
 
-#endif
+wint_t towctrans(wint_t wc, wctrans_t desc)
+{
+	if (((unsigned int)(desc - _CTYPE_tolower))
+		<= (_CTYPE_toupper - _CTYPE_tolower)
+		) {
+		/* Transliteration is either tolower or toupper. */
+		if (((__uwchar_t) wc) <= 0x7f) {
+			return (desc == _CTYPE_tolower) ? _tolower(wc) : _toupper(wc);
+		}
+	} else {
+		__set_errno(EINVAL);	/* Invalid transliteration. */
+	}
+	return wc;
+}
+
+#endif /* __WCTYPE_WITH_LOCALE */
 
 #endif
 /**********************************************************************/

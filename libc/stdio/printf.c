@@ -108,7 +108,7 @@
 #define __PA_FLAG_INTMASK \
 	(__PA_FLAG_CHAR|PA_FLAG_SHORT|__PA_FLAG_INT|PA_FLAG_LONG|PA_FLAG_LONG_LONG)
 
-extern printf_function *_custom_printf_handler[MAX_USER_SPEC];
+extern printf_function _custom_printf_handler[MAX_USER_SPEC];
 extern printf_arginfo_function *_custom_printf_arginfo[MAX_USER_SPEC];
 extern char *_custom_printf_spec;
 
@@ -177,19 +177,22 @@ enum {
  */
 
 /* TODO -- Fix the table below to take into account stdint.h. */
-#ifndef LLONG_MAX
-#error fix QUAL_CHARS for no long long!  Affects 'L', 'j', 'q', 'll'.
-#else
-#if LLONG_MAX != INTMAX_MAX
-#error fix QUAL_CHARS intmax_t entry 'j'!
-#endif
-#endif
+/*  #ifndef LLONG_MAX */
+/*  #error fix QUAL_CHARS for no long long!  Affects 'L', 'j', 'q', 'll'. */
+/*  #else */
+/*  #if LLONG_MAX != INTMAX_MAX */
+/*  #error fix QUAL_CHARS intmax_t entry 'j'! */
+/*  #endif */
+/*  #endif */
 
 #ifdef PDS
 #error PDS already defined!
 #endif
 #ifdef SS
 #error SS already defined!
+#endif
+#ifdef IMS
+#error IMS already defined!
 #endif
 
 #if PTRDIFF_MAX == INT_MAX
@@ -212,11 +215,21 @@ enum {
 #error fix QUAL_CHARS size_t entries 'z', 'Z'!
 #endif
 
+#if INTMAX_MAX == INT_MAX
+#define IMS		0
+#elif INTMAX_MAX == LONG_MAX
+#define IMS		4
+#elif defined(LLONG_MAX) && (INTMAX_MAX == LLONG_MAX)
+#define IMS		8
+#else
+#error fix QUAL_CHARS ptrdiff_t entry 't'!
+#endif
+
 #define QUAL_CHARS		{ \
 	/* j:(u)intmax_t z:(s)size_t  t:ptrdiff_t  \0:int */ \
 	/* q:long_long  Z:(s)size_t */ \
 	'h',   'l',  'L',  'j',  'z',  't',  'q', 'Z',  0, \
-	 2,     4,    8,    8,   SS,  PDS,    8,  SS,   0, /* TODO -- fix!!! */\
+	 2,     4,    8,  IMS,   SS,  PDS,    8,  SS,   0, /* TODO -- fix!!! */\
      1,     8 \
 }
 
@@ -311,7 +324,7 @@ extern int _ppfs_parsespec(ppfs_t *ppfs); /* parses specifier */
  */
 
 size_t parse_printf_format(register const char *template,
-						   size_t n, int *argtypes)
+						   size_t n, register int *argtypes)
 {
 	ppfs_t ppfs;
 	size_t i;
@@ -1021,7 +1034,7 @@ int register_printf_function(int spec, printf_function handler,
 /**********************************************************************/
 #ifdef L__do_one_spec
 
-printf_function *_custom_printf_handler[MAX_USER_SPEC];
+printf_function _custom_printf_handler[MAX_USER_SPEC];
 
 extern void _store_inttype(void *dest, int desttype, uintmax_t val);
 extern uintmax_t _load_inttype(int desttype, const void *src, int uflag);
@@ -1263,6 +1276,7 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 #endif
 /**********************************************************************/
 #ifdef L_vsnprintf
+
 #ifdef __STDIO_BUFFERS
 int vsnprintf(char *__restrict buf, size_t size,
 			  const char * __restrict format, va_list arg)
@@ -1273,7 +1287,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 #ifdef __STDIO_GETC_MACRO
 	f.bufgetc =
 #endif
-	f.bufrpos = f.bufwpos = f.bufstart = buf;
+	f.bufpos = f.bufread = f.bufstart = buf;
 
 	if (size > SIZE_MAX - (size_t) buf) {
 		size = SIZE_MAX - (size_t) buf;
@@ -1294,16 +1308,20 @@ int vsnprintf(char *__restrict buf, size_t size,
 	f.filedes = -2;				/* for debugging */
 	f.modeflags = (__FLAG_NARROW|__FLAG_WRITEONLY|__FLAG_WRITING);
 
+#ifdef __STDIO_MBSTATE
+	__INIT_MBSTATE(&(f.state));
+#endif /* __STDIO_MBSTATE */
+
 #ifdef __STDIO_THREADSAFE
 	__stdio_init_mutex(&f.lock);
 #endif
 
 	rv = vfprintf(&f, format, arg);
 	if (size) {
-		if (f.bufwpos == f.bufend) {
-			--f.bufwpos;
+		if (f.bufpos == f.bufend) {
+			--f.bufpos;
 		}
-		*f.bufwpos = 0;
+		*f.bufpos = 0;
 	}
 	return rv;
 }
@@ -1319,10 +1337,11 @@ typedef struct {
 
 #define COOKIE ((__snpf_cookie *) cookie)
 
-static ssize_t snpf_write(void *cookie, const char *buf, size_t bufsize)
+static ssize_t snpf_write(register void *cookie, const char *buf,
+						  size_t bufsize)
 {
 	size_t count;
-	char *p;
+	register char *p;
 
 	/* Note: bufsize < SSIZE_MAX because of _stdio_WRITE. */
 
@@ -1368,6 +1387,10 @@ int vsnprintf(char *__restrict buf, size_t size,
 	f.filedes = -1;				/* For debugging. */
 	f.modeflags = (__FLAG_NARROW|__FLAG_WRITEONLY|__FLAG_WRITING);
 
+#ifdef __STDIO_MBSTATE
+	__INIT_MBSTATE(&(f.state));
+#endif /* __STDIO_MBSTATE */
+
 #ifdef __STDIO_THREADSAFE
 	__stdio_init_mutex(&f.lock);
 #endif
@@ -1384,6 +1407,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 #endif
 /**********************************************************************/
 #ifdef L_vdprintf
+
 int vdprintf(int filedes, const char * __restrict format, va_list arg)
 {
 	FILE f;
@@ -1394,7 +1418,7 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 #ifdef __STDIO_GETC_MACRO
 	f.bufgetc =
 #endif
-	f.bufrpos = f.bufwpos = f.bufstart = buf;
+	f.bufpos = f.bufread = f.bufstart = buf;
 #ifdef __STDIO_PUTC_MACRO
 	f.bufputc = 
 #endif
@@ -1410,6 +1434,10 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 	f.filedes = filedes;
 	f.modeflags = (__FLAG_NARROW|__FLAG_WRITEONLY|__FLAG_WRITING);
 
+#ifdef __STDIO_MBSTATE
+	__INIT_MBSTATE(&(f.state));
+#endif /* __STDIO_MBSTATE */
+
 #ifdef __STDIO_THREADSAFE
 	__stdio_init_mutex(&f.lock);
 #endif
@@ -1418,6 +1446,7 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 
 	return fflush(&f) ? -1 : rv;
 }
+
 #endif
 /**********************************************************************/
 #ifdef L_vasprintf
@@ -1486,6 +1515,7 @@ int vsprintf(char *__restrict buf, const char * __restrict format,
 #endif
 /**********************************************************************/
 #ifdef L_fprintf
+
 int fprintf(FILE * __restrict stream, const char * __restrict format, ...)
 {
 	va_list arg;
@@ -1497,6 +1527,7 @@ int fprintf(FILE * __restrict stream, const char * __restrict format, ...)
 
 	return rv;
 }
+
 #endif
 /**********************************************************************/
 #ifdef L_snprintf
@@ -1521,6 +1552,7 @@ int snprintf(char *__restrict buf, size_t size,
 #endif
 /**********************************************************************/
 #ifdef L_dprintf
+
 int dprintf(int filedes, const char * __restrict format, ...)
 {
 	va_list arg;
@@ -1532,6 +1564,7 @@ int dprintf(int filedes, const char * __restrict format, ...)
 
 	return rv;
 }
+
 #endif
 /**********************************************************************/
 #ifdef L_asprintf
@@ -2059,7 +2092,8 @@ void _store_inttype(register void *dest, int desttype, uintmax_t val)
 /**********************************************************************/
 #ifdef L__load_inttype
 
-extern uintmax_t _load_inttype(int desttype, const void *src, int uflag)
+extern uintmax_t _load_inttype(int desttype, register const void *src,
+							   int uflag)
 {
 	if (uflag >= 0) {			/* unsigned */
 #if LONG_MAX != INT_MAX

@@ -40,6 +40,10 @@
 #define __STDIO_LARGE_FILES
 #endif /* __UCLIBC_HAVE_LFS__ */
 
+#ifdef __UCLIBC_HAS_WCHAR__
+#define __STDIO_WIDE
+#endif
+
 /* Make sure defines related to large files are consistent. */
 #ifdef _LIBC
 
@@ -67,9 +71,14 @@
 /* These are the stdio configuration options.  Keep them here until
    uClibc's configuration process gets reworked. */
 
-/*  #define __STDIO_WIDE */
 #ifdef __STDIO_WIDE
-typedef int __wchar_t;			/* TODO: temporary, as not currently uClibc */
+#define __need_wchar_t
+#include <stddef.h>
+/* Note: we don't really need mbstate for 8-bit locales.  We do for UTF-8.
+ * For now, always use it. */
+#define __STDIO_MBSTATE
+#define __need_mbstate_t
+#include <wchar.h>
 #endif
 
 #define __STDIO_BUFFERS
@@ -163,13 +172,19 @@ typedef int __wchar_t;			/* TODO: temporary, as not currently uClibc */
 
 typedef struct {
 	__off_t __pos;
-/*    __mbstate_t __state; */
+#ifdef __STDIO_MBSTATE
+  __mbstate_t __mbstate;
+#endif
 } __stdio_fpos_t;
 
+#ifdef __STDIO_LARGE_FILES
 typedef struct {
 	__off64_t __pos;
-/*    __mbstate_t __state; */
+#ifdef __STDIO_MBSTATE
+  __mbstate_t __mbstate;
+#endif
 } __stdio_fpos64_t;
+#endif
 
 
 /**********************************************************************/
@@ -229,8 +244,9 @@ struct __stdio_file_struct {
 	unsigned short modeflags;
 	/* There could be a hole here, but modeflags is used most.*/
 #ifdef __STDIO_WIDE
+	/* TOOD - ungot_width could be combined with ungot.  But what about hole? */
 	unsigned char ungot_width[2];
-	__wchar_t ungot[2];
+	wchar_t ungot[2];
 #else  /* __STDIO_WIDE */
 	unsigned char ungot[2];
 #endif /* __STDIO_WIDE */
@@ -241,8 +257,8 @@ struct __stdio_file_struct {
 #ifdef __STDIO_BUFFERS
 	unsigned char *bufstart;	/* pointer to buffer */
 	unsigned char *bufend;		/* pointer to 1 past end of buffer */
-	unsigned char *bufwpos;		/* pointer to 1 past last buffered */
-	unsigned char *bufrpos;		/* pointer to next readable buffered */
+	unsigned char *bufpos;
+	unsigned char *bufread;		/* pointer to 1 past last buffered read char. */
 #ifdef __STDIO_GETC_MACRO
 	unsigned char *bufgetc;		/* 1 past last readable by getc */
 #endif /* __STDIO_GETC_MACRO */
@@ -254,6 +270,9 @@ struct __stdio_file_struct {
 	void *cookie;
 	_IO_cookie_io_functions_t gcs;
 #endif /* __STDIO_GLIBC_CUSTOM_STREAMS */
+#ifdef __STDIO_MBSTATE
+	__mbstate_t state;
+#endif
 #ifdef __STDIO_THREADSAFE
 	int user_locking;
 	pthread_mutex_t lock;
@@ -302,6 +321,16 @@ extern int _cs_close(void *cookie);
 
 /**********************************************************************/
 
+#ifdef __STDIO_MBSTATE
+#define __COPY_MBSTATE(dest,src)  ((dest)->mask = (src)->mask, (dest)->wc = (src)->wc)
+#define __INIT_MBSTATE(dest) ((dest)->mask = 0)
+#else
+#define __COPY_MBSTATE(dest,src)
+#define __INIT_MBSTATE(dest)
+#endif
+
+/**********************************************************************/
+
 /* TODO -- thread safety issues */
 #define __CLEARERR(stream) \
 	((stream)->modeflags &= ~(__FLAG_EOF|__FLAG_ERROR), (void)0)
@@ -323,16 +352,16 @@ extern int _cs_close(void *cookie);
  */
 
 #ifdef __STDIO_GETC_MACRO
-#define __GETC(stream)		( ((stream)->bufrpos < (stream)->bufgetc) \
-							? (*(stream)->bufrpos++) \
+#define __GETC(stream)		( ((stream)->bufpos < (stream)->bufgetc) \
+							? (*(stream)->bufpos++) \
 							: fgetc_unlocked(stream) )
 #else  /* __STDIO_GETC_MACRO */
 #define __GETC(stream)		fgetc_unlocked(stream)
 #endif /* __STDIO_GETC_MACRO */
 
 #ifdef __STDIO_PUTC_MACRO
-#define __PUTC(c, stream)	( ((stream)->bufwpos < (stream)->bufputc) \
-							? (*(stream)->bufwpos++) = (c) \
+#define __PUTC(c, stream)	( ((stream)->bufpos < (stream)->bufputc) \
+							? (*(stream)->bufpos++) = (c) \
 							: fputc_unlocked((c),(stream)) )
 #else  /* __STDIO_PUTC_MACRO */
 #define __PUTC(c, stream)	fputc_unlocked(c, stream);
@@ -488,7 +517,9 @@ extern char *_uintmaxtostr(char * __restrict bufend, uintmax_t uval,
 
 /* TODO: note done above..  typedef struct __stdio_file_struct _UC_FILE; */
 typedef __stdio_fpos_t		_UC_fpos_t;
+#ifdef __STDIO_LARGE_FILES
 typedef __stdio_fpos64_t	_UC_fpos64_t;
+#endif
 
 #define _UC_IOFBF		_STDIO_IOFBF /* Fully buffered.  */
 #define _UC_IOLBF 		_STDIO_IOLBF /* Line buffered.  */

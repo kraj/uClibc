@@ -293,7 +293,7 @@ int Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
 
 #ifndef L_wcscmp
 #warning implement strcoll and remove weak alias (or enable for C locale only)
-weak_alias(strcmp, strcoll);
+weak_alias(strcmp,strcoll);
 #endif
 
 int Wstrcmp(register const Wchar *s1, register const Wchar *s2)

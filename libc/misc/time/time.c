@@ -94,13 +94,11 @@
 #endif
 
 /* TODO - This stuff belongs in some include/bits/ file. */
-#ifndef __BCC__
 #undef CLK_TCK
 #if (TARGET_ARCH == alpha) || (TARGET_ARCH == ia64)
 #define CLK_TCK     1024
 #else
 #define CLK_TCK     100
-#endif
 #endif
 
 /* The era code is currently unfinished. */
@@ -1855,9 +1853,8 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 	}
 
 #ifdef __BCC__
-	/* TODO - check */
 	d = p[5] - 1;
-	days = -719163L + d*365 + ((d/4) - (d/100) + (d/400) + p[3] + p[7]);
+	days = -719163L + ((long)d)*365 + ((d/4) - (d/100) + (d/400) + p[3] + p[7]);
 	secs = p[0] + 60*( p[1] + 60*((long)(p[2])) )
 		+ _time_tzinfo[timeptr->tm_isdst > 0].gmt_offset;
 	if (secs < 0) {

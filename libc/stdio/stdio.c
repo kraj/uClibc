@@ -25,6 +25,14 @@
  *
  *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
 
+/* Before we include anything, convert L_ctermid to L_ctermid_function
+ * and undef L_ctermid if defined.  This is necessary as L_ctermid is
+ * a SUSv3 standard macro defined in stdio.h. */
+#ifdef L_ctermid
+#define L_ctermid_function
+#undef L_ctermid
+#endif
+
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE
 #define _STDIO_UTILITY			/* for _stdio_fdout and _uintmaxtostr. */
@@ -72,27 +80,30 @@
 
 /**********************************************************************/
 
-/* TODO -- make this the default except for bcc with it's broken preproc? */
-#ifdef __UCLIBC__
-#define _stdin stdin
-#define _stdout stdout
-#define _stderr stderr
-#endif /* __UCLIBC__ */
-
-/**********************************************************************/
-
 #ifndef __STDIO_THREADSAFE
 
+#ifdef __BCC__
+#define UNLOCKED_STREAM(RETURNTYPE,NAME,PARAMS,ARGS,STREAM) \
+asm(".text\nexport _" "NAME" "_unlocked\n_" "NAME" "_unlocked = _" "NAME"); \
+RETURNTYPE NAME PARAMS
+#else
 #define UNLOCKED_STREAM(RETURNTYPE,NAME,PARAMS,ARGS,STREAM) \
 strong_alias(NAME,NAME##_unlocked) \
 RETURNTYPE NAME PARAMS
+#endif
 
 #define UNLOCKED(RETURNTYPE,NAME,PARAMS,ARGS) \
 	UNLOCKED_STREAM(RETURNTYPE,NAME,PARAMS,ARGS,stream)
 
+#ifdef __BCC__
+#define UNLOCKED_VOID_RETURN(NAME,PARAMS,ARGS) \
+asm(".text\nexport _" "NAME" "_unlocked\n_" "NAME" "_unlocked = _" "NAME"); \
+void NAME PARAMS
+#else
 #define UNLOCKED_VOID_RETURN(NAME,PARAMS,ARGS) \
 strong_alias(NAME,NAME##_unlocked) \
 void NAME PARAMS
+#endif
 
 #define __STDIO_THREADLOCK_OPENLIST
 #define __STDIO_THREADUNLOCK_OPENLIST
@@ -175,6 +186,14 @@ void NAME##_unlocked PARAMS
 #define __STDIO_FILE_INIT_CUSTOM_STREAM(stream)
 #endif
 
+#ifdef __STDIO_MBSTATE
+#define __STDIO_FILE_INIT_MBSTATE \
+	{ 0, 0 },
+#else
+#define __STDIO_FILE_INIT_MBSTATE
+#endif
+
+
 #ifdef __STDIO_THREADSAFE
 #define __STDIO_FILE_INIT_THREADSAFE \
 	0, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
@@ -191,20 +210,9 @@ void NAME##_unlocked PARAMS
 	__STDIO_FILE_INIT_BUFGETC((buf)) \
 	__STDIO_FILE_INIT_BUFPUTC((buf)) \
 	__STDIO_FILE_INIT_CUSTOM_STREAM(stream) \
+	__STDIO_FILE_INIT_MBSTATE \
 	__STDIO_FILE_INIT_THREADSAFE \
 } /* TODO: mbstate and builtin buf */
-
-#ifdef __STDIO_MBSTATE_DATA
-extern void _init_mbstate(mbstate_t *dest);
-
-#define __COMMA_CLEAN_MBSTATE        , 0
-#define __COPY_MBSTATE(dest,src)  memcpy(dest, src, sizeof(mbstate_t))
-#define __INIT_MBSTATE(dest) _init_mbstate(dest)
-#else
-#define __COMMA_CLEAN_MBSTATE
-#define __COPY_MBSTATE(dest,src)
-#define __INIT_MBSTATE(dest)
-#endif
 
 #ifdef __STDIO_GLIBC_CUSTOM_STREAMS
 
@@ -237,7 +245,7 @@ extern void _init_mbstate(mbstate_t *dest);
 
 /* SUSv2 Legacy function -- need not be reentrant. */
 
-int getw (register FILE *stream)
+int getw(FILE *stream)
 {
 	int aw[1];
 
@@ -259,7 +267,7 @@ int getw (register FILE *stream)
 
 /* SUSv2 Legacy function -- need not be reentrant. */
 
-int putw (int w, register FILE *stream)
+int putw(int w, FILE *stream)
 {
 	int aw[1];
 
@@ -318,6 +326,30 @@ FILE *fdopen(int filedes, const char *mode)
 FILE *fopen64(const char * __restrict filename, const char * __restrict mode)
 {
 	return _stdio_fopen(filename, mode, NULL, -2);
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_ctermid_function
+
+/* Not required to be reentrant. */
+
+char *ctermid(register char *s)
+{
+	static char sbuf[L_ctermid];
+
+#ifdef __BCC__
+	/* Currently elks doesn't support /dev/tty. */
+	if (!s) {
+		s = sbuf;
+	}
+	*s = 0;
+
+	return s;
+#else
+	/* glibc always returns /dev/tty for linux. */
+	return strcpy((s ? s : sbuf), "/dev/tty");
+#endif
 }
 
 #endif
@@ -413,7 +445,7 @@ typedef struct {
 
 #define COOKIE ((__fmo_cookie *) cookie)
 
-static ssize_t fmo_read(void *cookie, register char *buf, size_t bufsize)
+static ssize_t fmo_read(register void *cookie, char *buf, size_t bufsize)
 {
 	size_t count = COOKIE->len - COOKIE->pos;
 
@@ -442,7 +474,7 @@ static ssize_t fmo_read(void *cookie, register char *buf, size_t bufsize)
 	return bufsize;
 }
 
-static ssize_t fmo_write(void *cookie, register const char *buf, size_t bufsize)
+static ssize_t fmo_write(register void *cookie, const char *buf, size_t bufsize)
 {
 	size_t count;
 
@@ -499,7 +531,7 @@ static ssize_t fmo_write(void *cookie, register const char *buf, size_t bufsize)
 }
 
 /* glibc doesn't allow seeking, but it has in-buffer seeks... we don't. */
-static int fmo_seek(void *cookie, __offmax_t *pos, int whence)
+static int fmo_seek(register void *cookie, __offmax_t *pos, int whence)
 {
 	__offmax_t p = *pos;
 
@@ -522,7 +554,7 @@ static int fmo_seek(void *cookie, __offmax_t *pos, int whence)
 	return 0;
 }
 
-static int fmo_close(void *cookie)
+static int fmo_close(register void *cookie)
 {
 	if (COOKIE->dynbuf) {
 		free(COOKIE->buf);
@@ -545,7 +577,7 @@ static const cookie_io_functions_t _fmo_io_funcs = {
 FILE *fmemopen(void *s, size_t len, const char *modes)
 {
 	FILE *fp;
-	__fmo_cookie *cookie;
+	register __fmo_cookie *cookie;
 	size_t i;
 
 	if ((cookie = malloc(sizeof(__fmo_cookie))) != NULL) {
@@ -614,9 +646,9 @@ typedef struct {
 /*  { */
 /*  } */
 
-static ssize_t oms_write(void *cookie, const char *buf, size_t bufsize)
+static ssize_t oms_write(register void *cookie, const char *buf, size_t bufsize)
 {
-	char *newbuf;
+	register char *newbuf;
 	size_t count;
 
 	/* Note: we already know bufsize < SSIZE_MAX... */
@@ -649,10 +681,10 @@ static ssize_t oms_write(void *cookie, const char *buf, size_t bufsize)
 	return bufsize;
 }
 
-static int oms_seek(void *cookie, __offmax_t *pos, int whence)
+static int oms_seek(register void *cookie, __offmax_t *pos, int whence)
 {
 	__offmax_t p = *pos;
-	char *buf;
+	register char *buf;
 	size_t leastlen;
 
 	/* Note: fseek already checks that whence is legal, so don't check here
@@ -713,8 +745,8 @@ static const cookie_io_functions_t _oms_io_funcs = {
 
 FILE *open_memstream(char **__restrict bufloc, size_t *__restrict sizeloc)
 {
-	__oms_cookie *cookie;
-	FILE *fp;
+	register __oms_cookie *cookie;
+	register FILE *fp;
 
 	if ((cookie = malloc(sizeof(__oms_cookie))) != NULL) {
 		if ((cookie->buf = malloc(cookie->len = BUFSIZ)) == NULL) {
@@ -767,8 +799,8 @@ FILE *open_memstream(char **__restrict bufloc, size_t *__restrict sizeloc)
 
 #ifndef __BCC__
 
-FILE *fopencookie (void * __restrict cookie, const char * __restrict mode,
-					cookie_io_functions_t io_functions)
+FILE *fopencookie(void * __restrict cookie, const char * __restrict mode,
+				  cookie_io_functions_t io_functions)
 {
 	FILE *stream;
 	int fd;
@@ -804,10 +836,10 @@ FILE *fopencookie (void * __restrict cookie, const char * __restrict mode,
  * instead.
  */
 
-FILE *_fopencookie (void * __restrict cookie, const char * __restrict mode,
-					cookie_io_functions_t *io_functions)
+FILE *_fopencookie(void * __restrict cookie, const char * __restrict mode,
+				   register cookie_io_functions_t *io_functions)
 {
-	FILE *stream;
+	register FILE *stream;
 
 	if ((stream = _stdio_fopen("/dev/null", mode, NULL, -1)) != NULL) {
 		int fd = stream->filedes;
@@ -929,7 +961,7 @@ void __fpurge(register FILE * __restrict stream)
 #ifdef __STDIO_GETC_MACRO
 	stream->bufgetc =			/* Must disable getc. */
 #endif
-	stream->bufwpos = stream->bufrpos = stream->bufstart; /* Reset pointers. */
+	stream->bufpos = stream->bufread = stream->bufstart; /* Reset pointers. */
 #endif /* __STDIO_BUFFERS */
 	/* Reset r/w flags and clear ungots. */
 	stream->modeflags &= ~(__FLAG_READING|__FLAG_WRITING|__MASK_UNGOT);
@@ -942,19 +974,22 @@ void __fpurge(register FILE * __restrict stream)
 /* Not reentrant. */
 
 #ifdef __STDIO_WIDE
-#warning TODO  -- implement __fpending for wide streams! */
-#else  /* __STDIO_WIDE */
+#warning unlike the glibc version, this __fpending returns bytes in buffer for wide streams too!
+
+link_warning(__fpending, "This version of __fpending returns bytes remaining in buffer for both narrow and wide streams.  glibc's version returns wide chars in buffer for the wide stream case.")
+
+#endif  /* __STDIO_WIDE */
+
 size_t __fpending(register FILE * __restrict stream)
 {
 #ifdef __STDIO_BUFFERS
 	/* TODO -- should we check this?  should we set errno?  just assert? */
 	return (stream->modeflags & (__FLAG_READING|__FLAG_READONLY))
-		? 0 : (stream->bufwpos - stream->bufstart);
+		? 0 : (stream->bufpos - stream->bufstart);
 #else  /* __STDIO_BUFFERS */
 	return 0;
 #endif /* __STDIO_BUFFERS */
 }
-#endif /* __STDIO_WIDE */
 
 #endif
 /**********************************************************************/
@@ -1039,6 +1074,64 @@ void funlockfile(FILE *stream)
 
 #endif
 /**********************************************************************/
+#ifdef L_getline
+
+ssize_t getline(char **__restrict lineptr, size_t *__restrict n,
+				FILE *__restrict stream)
+{
+	return __getdelim(lineptr, n, '\n', stream);
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_getdelim
+
+weak_alias(__getdelim,getdelim);
+
+#define GETDELIM_GROWBY		64
+
+ssize_t __getdelim(char **__restrict lineptr, size_t *__restrict n,
+				   int delimiter, register FILE *__restrict stream)
+{
+	register char *buf;
+	size_t pos;
+	int c;
+
+	if (!lineptr || !n || !stream) { /* Be compatable with glibc... even */
+		__set_errno(EINVAL);	/* though I think we should assert here */
+		return -1;				/* if anything. */
+	}
+
+	if (!(buf = *lineptr)) {	/* If passed NULL for buffer, */
+		*n = 0;					/* ignore value passed and treat size as 0. */
+	}
+	pos = 1;			/* Make sure we have space for terminating nul. */
+
+	__STDIO_THREADLOCK(stream);
+
+	do {
+		if (pos >= *n) {
+			if (!(buf = realloc(buf, *n + GETDELIM_GROWBY))) {
+				__set_errno(ENOMEM); /* Emulate old uClibc implementation. */
+				break;
+			}
+			*n += GETDELIM_GROWBY;
+			*lineptr = buf;
+		}
+	} while (((c = getc(stream)) != EOF) && ((buf[pos++ - 1] = c) != delimiter));
+
+	__STDIO_THREADUNLOCK(stream);
+
+	if (--pos) {
+		buf[pos] = 0;
+		return pos;
+	}
+
+	return -1;		/* Either initial realloc failed or first read was EOF. */
+}
+
+#endif
+/**********************************************************************/
 /* my extension functions */
 /**********************************************************************/
 #ifdef L__stdio_fsfopen
@@ -1079,11 +1172,9 @@ FILE *_stdio_fsfopen(const char * __restrict filename,
  * then the file position is treated as unknown.
  */
 
-
 /* Internal function -- not reentrant. */
 
-int _stdio_adjpos(register FILE * __restrict stream,
-					register __offmax_t *pos)
+int _stdio_adjpos(register FILE * __restrict stream, register __offmax_t *pos)
 {
 	__offmax_t r;
 	int cor = stream->modeflags & __MASK_UNGOT;	/* handle ungots */
@@ -1092,18 +1183,18 @@ int _stdio_adjpos(register FILE * __restrict stream,
 	/* Assumed narrow stream so correct if wide. */
 	if (cor && (stream->modeflags & __FLAG_WIDE)) {
 		cor = cor - 1 + stream->ungot_width[0];
-		if ((stream->ungot_width[0] == 0) /* don't know byte count or */
-			|| ((stream->modeflags & __MASK_UNGOT) > 1)) { /* app case */
-			return -1;
+		if (((stream->modeflags & __MASK_UNGOT) > 1) || stream->ungot[1]) {
+			return -1; /* App did ungetwc, so position is indeterminate. */
 		}
+		assert(stream->ungot_width[0] > 0);
 	}
 #endif /* __STDIO_WIDE */
 #ifdef __STDIO_BUFFERS
 	if (stream->modeflags & __FLAG_WRITING) {
-		cor -= (stream->bufwpos - stream->bufstart); /* pending writes */
+		cor -= (stream->bufpos - stream->bufstart); /* pending writes */
 	}
 	if (stream->modeflags & __FLAG_READING) {
-		cor += (stream->bufwpos - stream->bufrpos); /* extra's read */
+		cor += (stream->bufread - stream->bufpos); /* extra's read */
 	}
 #endif /* __STDIO_BUFFERS */
 
@@ -1122,7 +1213,7 @@ int _stdio_adjpos(register FILE * __restrict stream,
 
 /* Internal function -- not reentrant. */
 
-int _stdio_lseek(FILE *stream, __offmax_t *pos, int whence)
+int _stdio_lseek(register FILE *stream, register __offmax_t *pos, int whence)
 {
 	__offmax_t res;
 
@@ -1152,7 +1243,7 @@ int _stdio_lseek(FILE *stream, __offmax_t *pos, int whence)
 
 /* Unlike write, it's ok for read to return fewer than bufsize, since
  * we may not need all of them. */
-static ssize_t _stdio_READ(FILE *stream, void *buf, size_t bufsize)
+static ssize_t _stdio_READ(register FILE *stream, unsigned char *buf, size_t bufsize)
 {
 	ssize_t rv;
 
@@ -1192,8 +1283,7 @@ static ssize_t _stdio_READ(FILE *stream, void *buf, size_t bufsize)
 
 /* Internal function -- not reentrant. */
 
-size_t _stdio_fread(unsigned char *buffer, size_t bytes,
-					  register FILE *stream)
+size_t _stdio_fread(unsigned char *buffer, size_t bytes, register FILE *stream)
 {
 	__stdio_validate_FILE(stream); /* debugging only */
 
@@ -1233,12 +1323,15 @@ size_t _stdio_fread(unsigned char *buffer, size_t bytes,
 	if (stream->modeflags & __MASK_BUFMODE) {
 		/* If the stream is readable and not fully buffered, we must first
 		 * flush all line buffered output streams.  Do this before the
-		 * error check as this may be a read/write line-buffered stream. */
-		fflush((FILE *) &_stdio_openlist); /* Uses an implementation hack!!! */
+		 * error check as this may be a read/write line-buffered stream.
+		 * Note: Uses an implementation-specific hack!!! */
+		fflush_unlocked((FILE *) &_stdio_openlist);
 	}
 
 #ifdef __STDIO_AUTO_RW_TRANSITION
-	if ((stream->modeflags & __FLAG_WRITING) && (fflush(stream) == EOF)) {
+	if ((stream->modeflags & __FLAG_WRITING)
+		&& (fflush_unlocked(stream) == EOF)
+		) {
 		return 0;				/* Fail if we need to fflush but can't. */
 	}
 #endif /* __STDIO_AUTO_RW_TRANSITION */
@@ -1260,23 +1353,23 @@ size_t _stdio_fread(unsigned char *buffer, size_t bytes,
 
 		/* Now get any other needed chars from the buffer or the file. */
 	FROM_BUF:
-		while (bytes && (stream->bufrpos < stream->bufwpos)) {
+		while (bytes && (stream->bufpos < stream->bufread)) {
 			--bytes;
-			*p++ = *stream->bufrpos++;
+			*p++ = *stream->bufpos++;
 		}
 
 		if (bytes > 0) {
 			ssize_t len;
 
 			/* The buffer is exhausted, but we still need chars.  */
-			stream->bufrpos = stream->bufwpos = stream->bufstart;
+			stream->bufpos = stream->bufread = stream->bufstart;
 
-			if (bytes <= stream->bufend - stream->bufwpos) {
+			if (bytes <= stream->bufend - stream->bufread) {
 				/* We have sufficient space in the buffer. */
-				len = _stdio_READ(stream, stream->bufwpos,
-								  stream->bufend - stream->bufwpos);
+				len = _stdio_READ(stream, stream->bufread,
+								  stream->bufend - stream->bufread);
 				if (len > 0) {
-					stream->bufwpos += len;
+					stream->bufread += len;
 					goto FROM_BUF;
 				}
 			} else {
@@ -1293,7 +1386,7 @@ size_t _stdio_fread(unsigned char *buffer, size_t bytes,
 
 #ifdef __STDIO_GETC_MACRO
 		if (!(stream->modeflags & (__FLAG_WIDE|__MASK_UNGOT|__MASK_BUFMODE))) {
-			stream->bufgetc = stream->bufwpos; /* Enable getc macro. */
+			stream->bufgetc = stream->bufread; /* Enable getc macro. */
 		}
 #endif
 
@@ -1377,7 +1470,8 @@ size_t _stdio_fread(unsigned char *buffer, size_t bytes,
  *deals correctly with bufsize > SSIZE_MAX... not much on an issue on linux
  * but definitly could be on Elks.  Also on Elks, always loops for EINTR..
  * Returns number of bytes written, so a short write indicates an error */
-static size_t _stdio_WRITE(FILE *stream, const void *buf, size_t bufsize)
+static size_t _stdio_WRITE(register FILE *stream,
+						   register const unsigned char *buf, size_t bufsize)
 {
 	size_t todo;
 	ssize_t rv, stodo;
@@ -1412,7 +1506,7 @@ static size_t _stdio_WRITE(FILE *stream, const void *buf, size_t bufsize)
 /* Internal function -- not reentrant. */
 
 size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
-					   register FILE *stream)
+					 register FILE *stream)
 {
 #ifdef __STDIO_BUFFERS
 	register const unsigned char *p;
@@ -1438,7 +1532,7 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 #ifdef __STDIO_AUTO_RW_TRANSITION
 	/* If reading, deal with ungots and read-buffered chars. */
 	if (stream->modeflags & __FLAG_READING) {
-		if (((stream->bufrpos < stream->bufwpos)
+		if (((stream->bufpos < stream->bufread)
 			 || (stream->modeflags & __MASK_UNGOT))
 			/* If appending, we might as well seek to end to save a seek. */
 			/* TODO: set EOF in fseek when appropriate? */
@@ -1456,7 +1550,7 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 #ifdef __STDIO_GETC_MACRO
 		stream->bufgetc =
 #endif /* __STDIO_GETC_MACRO */
-		stream->bufrpos = stream->bufwpos = stream->bufstart;
+		stream->bufpos = stream->bufread = stream->bufstart;
 	}
 #endif
 
@@ -1475,7 +1569,7 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 		if (!buffer) {				/* fflush the stream */
 		FFLUSH:
 			{
-				size_t count = stream->bufwpos - stream->bufstart;
+				size_t count = stream->bufpos - stream->bufstart;
 				p = stream->bufstart;
 
 				if (stream->filedes == -2) { /* TODO -- document this hack! */
@@ -1489,22 +1583,22 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 					count -= rv;
 				}
 			
-				stream->bufwpos = stream->bufstart;
+				stream->bufpos = stream->bufstart;
 				while (count) {
-					*stream->bufwpos++ = *p++;
+					*stream->bufpos++ = *p++;
 					--count;
 				}
 
 				if (!buffer) {	/* fflush case... */
 					__stdio_validate_FILE(stream); /* debugging only */
-					return stream->bufwpos - stream->bufstart;
+					return stream->bufpos - stream->bufstart;
 				}
 			}
 		}
 
 #if 1
 		/* TODO: If the stream is buffered, we may be able to omit. */
-		if ((stream->bufwpos == stream->bufstart) /* buf empty */
+		if ((stream->bufpos == stream->bufstart) /* buf empty */
 			&& (stream->bufend - stream->bufstart <= bytes)	/* fills */
 			&& (stream->filedes != -2)) { /* not strinf fake file */
 			/* so want to do a direct write of supplied buffer */
@@ -1517,7 +1611,7 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 #endif
 		/* otherwise buffer not empty and/or data fits */
 		{
-			size_t count = stream->bufend - stream->bufwpos;
+			size_t count = stream->bufend - stream->bufpos;
 			p = buffer;
 
 			if (count > bytes) {
@@ -1526,7 +1620,7 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 			bytes -= count;
 
 			while (count) {
-				*stream->bufwpos++ = *buffer++;
+				*stream->bufpos++ = *buffer++;
 				--count;
 			}
 
@@ -1615,10 +1709,12 @@ void __stdio_validate_FILE(FILE *stream)
 	__STDIO_THREADLOCK(stream);
 
 #ifdef __STDIO_BUFFERS
-	assert(stream->bufstart <= stream->bufrpos);
-	assert(stream->bufrpos <= stream->bufwpos);
-	assert(stream->bufwpos <= stream->bufend);
-	assert(stream->bufwpos <= stream->bufend);
+	assert(stream->bufstart <= stream->bufread);
+	if (stream->modeflags & (__FLAG_READING)) {
+		assert(stream->bufpos <= stream->bufread);
+	}
+	assert(stream->bufread <= stream->bufend);
+	assert(stream->bufpos <= stream->bufend);
 	if ((stream->modeflags & __MASK_BUFMODE) == __FLAG_NBF) {
 		assert(stream->bufstart == stream->bufend);
 	}
@@ -1637,7 +1733,7 @@ void __stdio_validate_FILE(FILE *stream)
 #endif
 #ifdef __STDIO_GETC_MACRO
 	assert(stream->bufstart <= stream->bufgetc);
-	assert(stream->bufgetc <= stream->bufwpos);
+	assert(stream->bufgetc <= stream->bufread);
 	if (stream->bufstart < stream->bufgetc) {
 		assert(stream->modeflags & (__FLAG_READING));
 		assert(!(stream->modeflags
@@ -1693,9 +1789,9 @@ static FILE _stdio_streams[] = {
 							 2, 0, 0, 0 )
 };
 
-FILE *_stdin = _stdio_streams + 0;
-FILE *_stdout = _stdio_streams + 1;
-FILE *_stderr = _stdio_streams + 2;
+FILE *stdin = _stdio_streams + 0;
+FILE *stdout = _stdio_streams + 1;
+FILE *stderr = _stdio_streams + 2;
 
 #if defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS)
 
@@ -1725,7 +1821,7 @@ void __stdio_init_mutex(pthread_mutex_t *m)
 void _stdio_term(void)
 {
 #if defined(__STDIO_GLIBC_CUSTOM_STREAMS) || defined(__STDIO_THREADSAFE)
-	FILE *ptr;
+	register FILE *ptr;
 #endif
 
 	/* TODO: if called via a signal handler for a signal mid _stdio_fwrite,
@@ -1746,7 +1842,7 @@ void _stdio_term(void)
 	/* TODO -- set an alarm and flush each file "by hand"? to avoid blocking? */
 
 	/* Now flush all streams. */
-	fflush(NULL);
+	fflush_unlocked(NULL);
 #endif /* __STDIO_BUFFERS */
 
 	/* Next close all custom streams in case of any special cleanup, but
@@ -1765,7 +1861,7 @@ void _stdio_term(void)
 			/* TODO: "unbuffer" files like glibc does?  Inconsistent with
 			 * custom stream handling above, but that's necessary to deal
 			 * with special user-defined close behavior. */
-			stream->bufwpos = stream->bufrpos = stream->bufend
+			stream->bufpos = stream->bufread = stream->bufend
 #ifdef __STDIO_GETC_MACRO
 				= stream->bufgetc
 #endif
@@ -1867,8 +1963,8 @@ int fclose(register FILE *stream)
 
 #ifdef __STDIO_BUFFERS
 	if (stream->modeflags & __FLAG_WRITING) {
-		rv = fflush(stream);	/* Write any pending buffered chars. */
-	}							/* Also disables putc macro if used. */
+		rv = fflush_unlocked(stream); /* Write any pending buffered chars. */
+	}								  /* Also disables putc macro if used. */
 
 #ifdef __STDIO_GETC_MACRO
 	/* Not necessary after fflush, but always do this to reduce size. */
@@ -2097,8 +2193,8 @@ FILE *fopen(const char * __restrict filename, const char * __restrict mode)
 /* Internal function -- reentrant (locks open file list) */
 
 FILE *_stdio_fopen(const char * __restrict filename,
-					 register const char * __restrict mode,
-					 register FILE * __restrict stream, int filedes)
+				   register const char * __restrict mode,
+				   register FILE * __restrict stream, int filedes)
 {
 	__mode_t open_mode;
 
@@ -2230,7 +2326,7 @@ FILE *_stdio_fopen(const char * __restrict filename,
 #ifdef __STDIO_PUTC_MACRO
 	stream->bufputc =
 #endif
-	stream->bufwpos = stream->bufrpos = stream->bufstart;
+	stream->bufpos = stream->bufread = stream->bufstart;
 #endif /* __STDIO_BUFFERS */
 
 #ifdef __STDIO_GLIBC_CUSTOM_STREAMS
@@ -2240,6 +2336,10 @@ FILE *_stdio_fopen(const char * __restrict filename,
 	stream->gcs.seek = 0;		/* The internal seek func handles normals. */
 	stream->gcs.close = _cs_close;
 #endif /* __STDIO_GLIBC_CUSTOM_STREAMS */
+
+#ifdef __STDIO_MBSTATE
+	__INIT_MBSTATE(&(stream->state));
+#endif /* __STDIO_MBSTATE */
 
 #ifdef __STDIO_THREADSAFE
 	__stdio_init_mutex(&stream->lock);
@@ -2282,7 +2382,7 @@ FILE *freopen(const char * __restrict filename, const char * __restrict mode,
 	 * TODO: Apparently linux allows setting append mode.  Implement?
 	 */
 	unsigned short dynmode;
-	FILE *fp;
+	register FILE *fp;
 
 	__STDIO_THREADLOCK(stream);
 
@@ -2290,7 +2390,7 @@ FILE *freopen(const char * __restrict filename, const char * __restrict mode,
 	/* This also removes the stream for the open file list. */
 	dynmode = 
 #ifdef __STDIO_BUFFERS
-		//		__MASK_BUFMODE |		/* TODO: check */
+		/*		__MASK_BUFMODE | */		/* TODO: check */
 #endif /* __STDIO_BUFFERS */
 		(stream->modeflags & (__FLAG_FREEBUF|__FLAG_FREEFILE));
 
@@ -2310,12 +2410,12 @@ FILE *freopen(const char * __restrict filename, const char * __restrict mode,
 
 /* Reentrant. */
 
-/* TODO -- is it collecting the common work (40 bytes) into a function? */
+/* TODO -- is it worth collecting the common work (40 bytes) in a function? */
 FILE *freopen64(const char * __restrict filename, const char * __restrict mode,
 				register FILE * __restrict stream)
 {
 	unsigned short dynmode;
-	FILE *fp;
+	register FILE *fp;
 
 	__STDIO_THREADLOCK(stream);
 
@@ -2323,7 +2423,7 @@ FILE *freopen64(const char * __restrict filename, const char * __restrict mode,
 	/* This also removes the stream for the open file list. */
 	dynmode = 
 #ifdef __STDIO_BUFFERS
-		//		__MASK_BUFMODE |		/* TODO: check */
+		/*		__MASK_BUFMODE | */		/* TODO: check */
 #endif /* __STDIO_BUFFERS */
 		(stream->modeflags & (__FLAG_FREEBUF|__FLAG_FREEFILE));
 
@@ -2448,7 +2548,7 @@ int setvbuf(register FILE * __restrict stream, register char * __restrict buf,
 #ifdef __STDIO_PUTC_MACRO
 		stream->bufputc =
 #endif
-		stream->bufwpos = stream->bufrpos = stream->bufstart = buf;
+		stream->bufpos = stream->bufread = stream->bufstart = buf;
 		stream->bufend = buf + size;
 	}
 
@@ -2603,9 +2703,9 @@ UNLOCKED(int,getc,(register FILE *stream),(stream))
 
 /* Reentrancy handled by UNLOCKED() macro. */
 
-UNLOCKED_STREAM(int,getchar,(void),(),_stdin)
+UNLOCKED_STREAM(int,getchar,(void),(),stdin)
 {
-	register FILE *stream = _stdin; /* This helps bcc optimize. */
+	register FILE *stream = stdin; /* This helps bcc optimize. */
 
 	return __GETC(stream);
 }
@@ -2620,7 +2720,7 @@ link_warning(gets, "the 'gets' function is dangerous and should not be used.")
 
 char *gets(char *s)				/* WARNING!!! UNSAFE FUNCTION!!! */
 {
-	register FILE *stream = _stdin;	/* This helps bcc optimize. */
+	register FILE *stream = stdin;	/* This helps bcc optimize. */
 	register char *p = s;
 	int c;
 
@@ -2628,7 +2728,7 @@ char *gets(char *s)				/* WARNING!!! UNSAFE FUNCTION!!! */
 
 	/* Note: don't worry about performance here... this shouldn't be used!
 	 * Therefore, force actual function call. */
-	while (((c = (*getc)(stream)) != EOF) && ((*p = c) != '\n')) {
+	while (((c = (getc_unlocked)(stream)) != EOF) && ((*p = c) != '\n')) {
 		++p;
 	}
 	if ((c == EOF) || (s == p)) {
@@ -2661,9 +2761,9 @@ UNLOCKED(int,putc,(int c, register FILE *stream),(c,stream))
 
 /* Reentrancy handled by UNLOCKED() macro. */
 
-UNLOCKED_STREAM(int,putchar,(int c),(c),_stdout)
+UNLOCKED_STREAM(int,putchar,(int c),(c),stdout)
 {
-	register FILE *stream = _stdout; /* This helps bcc optimize. */
+	register FILE *stream = stdout; /* This helps bcc optimize. */
 
 	return __PUTC(c, stream);
 }
@@ -2676,17 +2776,17 @@ UNLOCKED_STREAM(int,putchar,(int c),(c),_stdout)
 
 int puts(register const char *s)
 {
-	register FILE *stream = _stdout; /* This helps bcc optimize. */
+	register FILE *stream = stdout; /* This helps bcc optimize. */
 	int n;
 
 	__STDIO_THREADLOCK(stream);
 
-	n = fputs(s,stream) + 1;
+	n = fputs_unlocked(s,stream) + 1;
 	if (
 #if 1
-		fputc('\n',stream)
+		fputc_unlocked('\n',stream)
 #else
-		fputs("\n",stream)
+		fputs_unlocked("\n",stream)
 #endif
 		== EOF) {
 		n = EOF;
@@ -2739,7 +2839,7 @@ int ungetc(int c, register FILE *stream)
 #ifdef __STDIO_BUFFERS
 								/* TODO: shouldn't allow writing??? */
 	if (stream->modeflags & __FLAG_WRITING) {
-		fflush(stream);			/* Commit any write-buffered chars. */
+		fflush_unlocked(stream); /* Commit any write-buffered chars. */
 	}
 #endif /* __STDIO_BUFFERS */
 
@@ -2838,21 +2938,22 @@ UNLOCKED(size_t,fwrite,
 
 int fgetpos64(FILE * __restrict stream, register fpos64_t * __restrict pos)
 {
+#ifdef __STDIO_MBSTATE
 	int retval;
 
 	__STDIO_THREADLOCK(stream);
 
 	retval = ((pos != NULL) && ((pos->__pos = ftello64(stream)) >= 0))
-		? (
-#ifdef __STDIO_MBSTATE_DATA
-		   __COPY_MBSTATE(&(pos->__mbstate), &(stream->mbstate)),
-#endif /* __STDIO_MBSTATE_DATA */
-		   0)
+		? (__COPY_MBSTATE(&(pos->__mbstate), &(stream->state)), 0)
 		: (__set_errno(EINVAL), -1);
 
 	__STDIO_THREADUNLOCK(stream);
 
 	return retval;
+#else
+	return ((pos != NULL) && ((pos->__pos = ftello64(stream)) >= 0))
+		? 0 : (__set_errno(EINVAL), -1);
+#endif
 }
 
 #ifndef L_fgetpos64
@@ -2864,7 +2965,7 @@ int fgetpos64(FILE * __restrict stream, register fpos64_t * __restrict pos)
 #endif
 /**********************************************************************/
 #ifdef L_fseek
-strong_alias(fseek, fseeko);
+strong_alias(fseek,fseeko);
 #endif
 
 #if defined(L_fseek) && defined(__STDIO_LARGE_FILES)
@@ -2907,7 +3008,7 @@ int fseeko64(register FILE *stream, __off64_t offset, int whence)
 	if (
 #ifdef __STDIO_BUFFERS
 		/* First commit any pending buffered writes. */
-		((stream->modeflags & __FLAG_WRITING) && fflush(stream)) ||
+		((stream->modeflags & __FLAG_WRITING) && fflush_unlocked(stream)) ||
 #endif /* __STDIO_BUFFERS */
 		((whence == SEEK_CUR) && (_stdio_adjpos(stream, pos) < 0))
 		|| (_stdio_lseek(stream, pos, whence) < 0)
@@ -2921,16 +3022,16 @@ int fseeko64(register FILE *stream, __off64_t offset, int whence)
 #ifdef __STDIO_GETC_MACRO
 	stream->bufgetc =			/* Must disable getc. */
 #endif
-	stream->bufwpos = stream->bufrpos = stream->bufstart;
+	stream->bufpos = stream->bufread = stream->bufstart;
 #endif /* __STDIO_BUFFERS */
 
 	stream->modeflags &=
 		~(__FLAG_READING|__FLAG_WRITING|__FLAG_EOF|__MASK_UNGOT);
 
-#ifdef __STDIO_MBSTATE_DATA
+#ifdef __STDIO_MBSTATE
 	/* TODO: don't clear state if don't move? */
-	__INIT_MBSTATE(&(stream->mbstate));
-#endif /* __STDIO_MBSTATE_DATA */
+	__INIT_MBSTATE(&(stream->state));
+#endif /* __STDIO_MBSTATE */
 	__stdio_validate_FILE(stream); /* debugging only */
 
 	retval = 0;
@@ -2968,18 +3069,23 @@ int fsetpos64(FILE *stream, register const fpos64_t *pos)
 		__set_errno(EINVAL);
 		return EOF;
 	}
-#ifdef __STDIO_MBSTATE_DATA
-#error unimplemented and non-reentrant besides!
+#ifdef __STDIO_MBSTATE
 	{
 		int retval;
+
+		__STDIO_THREADLOCK(stream);
+
 		if ((retval = fseeko64(stream, pos->__pos, SEEK_SET)) == 0) {
-			__COPY_MBSTATE(&(stream->mbstate), &(pos->__mbstate));
+			__COPY_MBSTATE(&(stream->state), &(pos->__mbstate));
 		}
+
+		__STDIO_THREADUNLOCK(stream);
+
 		return retval;
 	}
-#else  /* __STDIO_MBSTATE_DATA */
+#else  /* __STDIO_MBSTATE */
 	return fseeko64(stream, pos->__pos, SEEK_SET);
-#endif /* __STDIO_MBSTATE_DATA */
+#endif /* __STDIO_MBSTATE */
 }
 
 #ifndef L_fsetpos64
@@ -2991,7 +3097,7 @@ int fsetpos64(FILE *stream, register const fpos64_t *pos)
 #endif
 /**********************************************************************/
 #ifdef L_ftell
-strong_alias(ftell, ftello);
+strong_alias(ftell,ftello);
 #endif
 
 #if defined(L_ftell) && defined(__STDIO_LARGE_FILES)
@@ -3042,6 +3148,10 @@ void rewind(register FILE *stream)
 
 	__CLEARERR(stream);			/* Clear errors first and then seek */
 	fseek(stream, 0L, SEEK_SET); /* in case there is an error seeking. */
+#ifdef __STDIO_MBSTATE
+	/* TODO: Is it correct to re-init the stream's state?  I think so... */
+	__INIT_MBSTATE(&(stream->state));
+#endif /* __STDIO_MBSTATE */
 
 	__STDIO_THREADUNLOCK(stream);
 }
@@ -3103,11 +3213,11 @@ void perror(register const char *s)
 
 #if 1
 #ifdef __STDIO_PRINTF_M_SPEC
-	fprintf(_stderr, "%s%s%m\n", s, sep); /* Use the gnu %m feature. */
+	fprintf(stderr, "%s%s%m\n", s, sep); /* Use the gnu %m feature. */
 #else
 	{
 		char buf[64];
-		fprintf(_stderr, "%s%s%s\n", s, sep,
+		fprintf(stderr, "%s%s%s\n", s, sep,
 				_stdio_strerror_r(errno, buf, sizeof(buf)));
 	}
 #endif
@@ -3135,7 +3245,7 @@ void perror(register const char *s)
 void _stdio_fdout(int fd, ...)
 {
 	va_list arg;
-	const char *p;
+	register const char *p;
 
 	va_start(arg, fd);
 	while ((p = va_arg(arg, const char *)) != NULL) {
@@ -3154,8 +3264,8 @@ void _stdio_fdout(int fd, ...)
 #define INTERNAL_DIV_MOD
 #endif
 
-char *_uintmaxtostr(char * __restrict bufend, uintmax_t uval,
-					 int base, __UIM_CASE alphacase)
+char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
+					int base, __UIM_CASE alphacase)
 {
     int negative;
     unsigned int digit;
@@ -3231,7 +3341,7 @@ char *_uintmaxtostr(char * __restrict bufend, uintmax_t uval,
 
 static const char unknown[] = "Unknown error";
 
-char *_stdio_strerror_r(int err, char *buf, size_t buflen)
+char *_stdio_strerror_r(int err, register char *buf, size_t buflen)
 {
 	int errsave;
 
