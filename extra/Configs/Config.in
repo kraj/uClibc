@@ -525,6 +525,26 @@ endmenu
 
 menu "String and Stdio Support"
 
+config UCLIBC_HAS_STRING_GENERIC_OPT
+	bool "Use glibc generic string functions"
+	default y
+	help
+	  Answer Y to use the (tweaked) glibc generic string functions.
+	  In general, they are faster (but 3-5K larger) than the base
+	  uClibc string functions which are optimized solely for size.
+
+	  Many people will answer Y.  
+
+config UCLIBC_HAS_STRING_ARCH_OPT
+	bool "Use arch-specific string functions"
+	default y
+	help
+	  Answer Y to use the arch-specific string functions instead of the
+	  base uClibc versions, which are optimized exclusively for size.
+
+	  Most people will answer Y, as this has been default behavior
+	  for some time.
+
 config UCLIBC_HAS_CTYPE_TABLES
 	bool "Use Table Versions Of 'ctype.h' Functions."
 	default y
