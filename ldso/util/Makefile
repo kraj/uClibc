@@ -37,7 +37,10 @@ ifeq ($(strip $(LDSO_LDD_SUPPORT)),y)
 XXFLAGS=-D__LDSO_LDD_SUPPORT
 endif
 
-readelf: readelf.c
+headers:
+	ln -fs $(TOPDIR)include/elf.h
+
+readelf: headers readelf.c
 	$(HOSTCC) $(HOSTCFLAGS) -I . readelf.c -o $@
 	strip -x -R .note -R .comment $@
 
@@ -45,20 +48,20 @@ readelf.target: readelf.c
 	$(TARGET_CC) $(CFLAGS) -Wl,-s readelf.c -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
-readsoname.o: readsoname.c readsoname2.c
+readsoname.o: headers readsoname.c readsoname2.c
 	$(HOSTCC) $(HOSTCFLAGS) -I . -c $< -o $@
 	strip -x -R .note -R .comment $*.o
     
-ldconfig.o: ldconfig.c
+ldconfig.o: headers ldconfig.c
 	$(HOSTCC) $(HOSTCFLAGS) -I . \
 		-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" -c $< -o $@
 	strip -x -R .note -R .comment $*.o
 
-ldconfig: ldconfig.o readsoname.o
+ldconfig: headers ldconfig.o readsoname.o
 	$(HOSTCC) $(HOSTCFLAGS) $^ -o $@
 	strip -x -R .note -R .comment $@
 
-ldd: ldd.c
+ldd: headers ldd.c
 	$(HOSTCC) $(HOSTCFLAGS) $(XXFLAGS) -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
@@ -75,5 +78,5 @@ ldd.target: ldd.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 clean:
-	rm -f $(TARGETS) *.o *~ core *.target
+	rm -f $(TARGETS) *.o *~ core *.target elf.h
 
