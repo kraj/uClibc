@@ -27,12 +27,14 @@ LIBPTHREAD_SHARED_FULLNAME=libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEV
 LIBTHREAD_DB=libthread_db.a
 LIBTHREAD_DB_SHARED=libthread_db.so.1
 LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
-
+    
 DIRS=
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 	DIRS+=linuxthreads
+	LDFLAGS_PTHREADS:= $(LDFLAGS)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	DIRS+=linuxthreads_db
+	LDFLAGS_PTHREADS:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
 endif
 endif
 
@@ -76,7 +78,7 @@ $(OBJ): Makefile
 shared: all
 	if [ -f $(LIBPTHREAD) ] ; then \
 		set -e; \
-		$(LD) $(LDFLAGS) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
+		$(LD) $(LDFLAGS_PTHREADS) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
 			-o $(LIBPTHREAD_SHARED_FULLNAME) $(START_FILES) --whole-archive $(LIBPTHREAD) \
 			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 			-L$(TOPDIR)/lib -lc $(END_FILES); \
