@@ -44,7 +44,11 @@ install: all
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin;
 	install -m 755 $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/
 	install -m 755 $(TARGET_ARCH)-uclibc-ld $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/
+	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-g++
+	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-c++
 	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-cc
+	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_PREFIX)/bin/c++
+	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_PREFIX)/bin/g++
 	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_PREFIX)/bin/gcc
 	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_PREFIX)/bin/cc
 	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ld $(PREFIX)$(DEVEL_PREFIX)/bin/ld

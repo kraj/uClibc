@@ -64,8 +64,6 @@
  *
  */
 
-#undef ENABLE_CRTBEGIN_END
-
 /*
  *
  * TODO:
@@ -138,6 +136,7 @@ int main(int argc, char **argv)
 	int use_build_dir = 0, linking = 1, use_static_linking = 0;
 	int use_stdinc = 1, use_start = 1, use_stdlib = 1;
 	int source_count = 0, use_rpath = 0, verbose = 0;
+	int ctor_dtor = 0, cplusplus = 0;
 	int i, j, k, l, m;
 	char ** gcc_argv;
 	char ** gcc_argument;
@@ -154,10 +153,29 @@ int main(int argc, char **argv)
 	char *uClibc_inc[2];
 	char *lib_path[2];
 	char *crt0_path[2];
-#ifdef ENABLE_CRTBEGIN_END
+	const char *s, *application_name = argv[0];
 	char *crti_path[2];
 	char *crtn_path[2];
-#endif
+	char *GPLUSPLUS_BIN = NULL;
+
+	if (application_name[0] == '-')
+		application_name++;
+	for (s = application_name; *s != '\0';) {
+		if (*s++ == '/')
+			application_name = s;
+	}
+	/* We must use strstr since g++ might be named like a
+	 * cross compiler (i.e. arm-linux-g++) . */
+	if (strstr(application_name, "g++")!=0 || strstr(application_name, "c++")!=0) {
+	    if ((s=strstr(GCC_BIN,"gcc")) != 0) {
+		GPLUSPLUS_BIN = strdup(GCC_BIN);
+		GPLUSPLUS_BIN[1+s-GCC_BIN]='+';
+		GPLUSPLUS_BIN[2+s-GCC_BIN]='+';
+	    }
+	    ctor_dtor = 1;
+	    cplusplus = 1;
+	}
+
 	devprefix = getenv("UCLIBC_DEVEL_PREFIX");
 	if (!devprefix) {
 		devprefix = UCLIBC_DEVEL_PREFIX;
@@ -182,12 +200,10 @@ int main(int argc, char **argv)
 
 	xstrcat(&(crt0_path[0]), devprefix, "/lib/crt0.o", NULL);
 	xstrcat(&(crt0_path[1]), builddir, "/lib/crt0.o", NULL);
-#ifdef ENABLE_CRTBEGIN_END
 	xstrcat(&(crti_path[0]), devprefix, "/lib/crti.o", NULL);
 	xstrcat(&(crti_path[1]), builddir, "/lib/crti.o", NULL);
 	xstrcat(&(crtn_path[0]), devprefix, "/lib/crtn.o", NULL);
 	xstrcat(&(crtn_path[1]), builddir, "/lib/crtn.o", NULL);
-#endif
 
 	xstrcat(&(lib_path[0]), "-L", devprefix, "/lib", NULL);
 	xstrcat(&(lib_path[1]), "-L", builddir, "/lib", NULL);
@@ -291,7 +307,10 @@ int main(int argc, char **argv)
 #endif
 
 	i = 0; k = 0;
-	gcc_argv[i++] = GCC_BIN;
+	if (cplusplus && GPLUSPLUS_BIN)
+	    gcc_argv[i++] = GPLUSPLUS_BIN;
+	else
+	    gcc_argv[i++] = GCC_BIN;
 	
 	for ( j = 1 ; j < argc ; j++ ) {
 		if (strcmp("--uclibc-use-build-dir",argv[j]) == 0) {
@@ -349,10 +368,10 @@ int main(int argc, char **argv)
 
 	if (linking && source_count) {
 	    if (use_start) {
-#ifdef ENABLE_CRTBEGIN_END
-		gcc_argv[i++] = crti_path[use_build_dir];
-		gcc_argv[i++] = GCC_LIB_DIR "crtbegin.o" ;
-#endif
+		if (ctor_dtor) {
+		    gcc_argv[i++] = crti_path[use_build_dir];
+		    gcc_argv[i++] = GCC_LIB_DIR "crtbegin.o" ;
+		}
 		gcc_argv[i++] = crt0_path[use_build_dir];
 	    }
 	    for ( l = 0 ; l < k ; l++ ) {
@@ -368,10 +387,10 @@ int main(int argc, char **argv)
 		gcc_argv[i++] = "-lgcc";
 		//gcc_argv[i++] = "-Wl,--end-group";
 	    }
-#ifdef ENABLE_CRTBEGIN_END
-	    gcc_argv[i++] = GCC_LIB_DIR "crtend.o" ;
-	    gcc_argv[i++] = crtn_path[use_build_dir];
-#endif
+	    if (ctor_dtor) {
+		gcc_argv[i++] = GCC_LIB_DIR "crtend.o" ;
+		gcc_argv[i++] = crtn_path[use_build_dir];
+	    }
 	} else {
 	    for ( l = 0 ; l < k ; l++ ) {
 		if (gcc_argument[l]) gcc_argv[i++] = gcc_argument[l];
@@ -386,5 +405,8 @@ int main(int argc, char **argv)
 		fflush(stdout);
 	}
 	//no need to free memory from xstrcat because we never return... 
-	return execvp(GCC_BIN, gcc_argv);
+	if (cplusplus && GPLUSPLUS_BIN)
+	    return execvp(GPLUSPLUS_BIN, gcc_argv);
+	else
+	    return execvp(GCC_BIN, gcc_argv);
 }
