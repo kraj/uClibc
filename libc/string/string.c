@@ -38,7 +38,15 @@ size_t strnlen (const char *string, size_t maxlen)
 #ifdef L_strcat
 char *strcat(char *dst, const char *src)
 {
-	strcpy(dst + strlen(dst), src);
+	register char *ptr = dst; 
+
+	while (*ptr)    
+		ptr++;
+
+	while (*src)
+		*ptr++ = *src++;
+	*ptr = '\0';
+
 	return dst;
 }
 #endif
