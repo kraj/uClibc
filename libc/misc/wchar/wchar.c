@@ -89,6 +89,9 @@
  * Aug 1, 2003
  * Bug fix for mbrtowc.
  *
+ * Aug 18, 2003
+ * Bug fix: _wchar_utf8sntowcs and _wchar_wcsntoutf8s now set errno if EILSEQ.
+ *
  * Manuel
  */
 
@@ -446,6 +449,7 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 			}
 			goto DONE;
 		}
+		__set_errno(EILSEQ);
 		return (size_t) -1;		/* We're in an error state. */
 #endif
 	}
@@ -470,6 +474,7 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 #else
 			ps->mask = mask;
 			ps->wc = 0xffffU;
+			__set_errno(EILSEQ);
 			return (size_t) -1;	/* Illegal start byte! */
 #endif
 
@@ -614,11 +619,13 @@ size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 #endif
 				|| ( ((__uwchar_t)(wc - 0xd800U)) < (0xe000U - 0xd800U) )
 				) {
+				__set_errno(EILSEQ);
 				return (size_t) -1;
 			}
 #else  /* KUHN */
 #if UTF_8_MAX_LEN != 3
 			if (wc > 0x7fffffffUL) { /* Value too large. */
+				__set_errno(EILSEQ);
 				return (size_t) -1;
 			}
 #endif
