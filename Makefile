@@ -208,7 +208,7 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 endif
 
 install_toolchain:
-	@$(MAKE) -C ldso shared
+	@$(MAKE) -C ldso util
 	install -m 755 ldso/util/ldd $(PREFIX)$(DEVEL_PREFIX)/bin
 	install -m 755 ldso/util/readelf $(PREFIX)$(DEVEL_PREFIX)/bin
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
