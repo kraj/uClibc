@@ -231,9 +231,13 @@ PIEFLAG=
 LDPIEFLAG=
 endif
 
-ifeq ($(SSP_CFLAGS),)
+SSP_DISABLE_FLAGS=$(call check_gcc,-fno-stack-protector,)
+ifeq ($(UCLIBC_PROPOLICE),y)
 SSP_CFLAGS=$(call check_gcc,-fno-stack-protector-all,)
 SSP_CFLAGS+=$(call check_gcc,-fstack-protector,)
+SSP_ALL_CFLAGS=$(call check_gcc,-fstack-protector-all,)
+else
+SSP_CFLAGS=$(SSP_DISABLE_FLAGS)
 endif
 
 # Some nice CFLAGS to work with
@@ -242,7 +246,8 @@ CFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) $(SSP_CFLAGS) 
 
 ifeq ($(DODEBUG),y)
     #CFLAGS += -g3
-    CFLAGS = $(XWARNINGS) -O0 -g3 $(CPU_CFLAGS) -fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
+    CFLAGS = $(XWARNINGS) -O0 -g3 $(CPU_CFLAGS) $(SSP_CFLAGS) \
+	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
     LDFLAGS:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
     STRIPTOOL:= true -Since_we_are_debugging
 else

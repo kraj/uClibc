@@ -34,6 +34,8 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
+CFLAGS+=$(SSP_ALL_CFLAGS)
+
 DIRS = 
 ifeq ($(strip $(HAS_FPU)),y)
 ifeq ($(TARGET_ARCH),$(wildcard $(TARGET_ARCH)))

@@ -19,6 +19,8 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
+CFLAGS+=$(SSP_ALL_CFLAGS)
+
 #Adjust the soname version to avoid namespace collisions with glibc's libpthread
 LIBPTHREAD=libpthread.a
 LIBPTHREAD_SHARED=libpthread.so

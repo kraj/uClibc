@@ -21,7 +21,7 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-XXFLAGS=$(XWARNINGS)
+XXFLAGS=$(XWARNINGS) $(SSP_CFLAGS) $(SSP_ALL_CFLAGS)
 ifeq ($(DODEBUG),y)
 XXFLAGS+=-O0 -g3
 else
