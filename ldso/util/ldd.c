@@ -206,7 +206,7 @@ int main(int argc, char **argv, char **envp)
 	{
 	case 'v':
 	    /* print our version number */
-	    printf("%s: version %s\n", argv[0], VERSION);
+	    printf("%s: uClibc version\n", argv[0]);
 	    vprinted = 1;
 	    break;
 	case 'd':

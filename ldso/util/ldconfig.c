@@ -617,7 +617,7 @@ int main(int argc, char **argv)
 
     /* allow me to introduce myself, hi, my name is ... */
     if (verbose > 0)
-	printf("%s: version %s\n", argv[0], VERSION);
+	printf("%s: uClibc version\n", argv[0]);
 
     if (printcache)
     {

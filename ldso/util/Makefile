@@ -1,27 +1,26 @@
 TOPDIR=../../
-include $(TOPDIR)/ldso/Rules.mak
+include $(TOPDIR)Rules.mak
 
-CFLAGS += -DLDSO_ADDR="0x62f00020" # needed by ldd.o
-#CFLAGS += -I./ -I../../include/
-#LDFLAGS += -nostdlib $(TOPDIR)lib/libc.a $(TOPDIR)lib/crt0.o $(GCCINCDIR)/../libgcc.a
-LDFLAGS += $(TOPDIR)lib/libc.a $(TOPDIR)lib/crt0.o $(GCCINCDIR)/../libgcc.a
+CFLAGS=-Wall -Os -I- -I../../include -I.
+CC = $(TOPDIR)extra/gcc-uClibc/$(NATIVE_ARCH)-uclibc-gcc
 
-ALL	= ldconfig ldd readelf # lddstub
+all: ldconfig ldd readelf
 
-all:	$(ALL)
-
-CSRC= readelf.c ldconfig.c ldd.c readsoname.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
-
-$(COBJS): %.o : %.c
+readsoname.o: readsoname.c readsoname2.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-readsoname.o: readsoname.c readsoname2.c
+ldconfig.o: ldconfig.c
+	$(CC) $(CFLAGS) -DUCLIBC_ROOT_DIR=\"$(ROOT_DIR)\" -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-readelf: readelf.o
-	$(CC) $(CFLAGS) $^ -o $@
+ldd.o: ldd.c 
+	$(CC) $(CFLAGS)  -DUCLIBC_ROOT_DIR=\"$(ROOT_DIR)\" \
+	    -DLDSO_ADDR="0x62f00020" -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+readelf: readelf.c
+	$(CC) $(CFLAGS) readelf.c -o $@
 
 ldconfig: ldconfig.o readsoname.o
 	$(CC) $(CFLAGS) $^ -o $@
@@ -29,13 +28,6 @@ ldconfig: ldconfig.o readsoname.o
 ldd:	ldd.o readsoname.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-#ifeq ($(DEBUG),true)
-#STUBFLAGS = -Wl,-dynamic-linker,../d-link/ld-linux.so
-#endif
-
-#lddstub: lddstub.o
-#	$(CC) $(CFLAGS) $(LDFLAGS) $(STUBFLAGS) $^ -o $@
-
 clean:
-	rm -f $(ALL) *.o *~ core
+	rm -f ldconfig ldd readelf *.o *~ core
 
