@@ -26,10 +26,10 @@ static int __check_dir_for_tty_match(char * dirname, struct stat *st, char *buf,
 	 * st_ino and st_dev uniquely identify a file, contrary to
 	 * SuSv3, so we cannot be quite so precise as to require an
 	 * exact match.  Settle for something less...  Grumble... */
-	if (stat(buf, &dst) == 0 &&
+	if (lstat(buf, &dst) == 0 &&
 		st->st_dev == dst.st_dev && st->st_ino == dst.st_ino)
 #else
-	if (stat(buf, &dst) == 0 &&
+	if (lstat(buf, &dst) == 0 &&
 		S_ISCHR(dst.st_mode) && st->st_rdev == dst.st_rdev)
 #endif
 	{
