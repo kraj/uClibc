@@ -149,8 +149,8 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	got_addr = (char **) instr_addr;
 
 	/* Get the address of the GOT entry */
-	new_addr = _dl_find_hash(symname,
-		tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
+	new_addr = _dl_find_hash(symname, tpnt->symbol_scope,
+				 tpnt, ELF_RTYPE_CLASS_PLT);
 	if (unlikely(!new_addr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 			_dl_progname, symname);
@@ -278,7 +278,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	if (symtab_index) {
 
 		symbol_addr = (unsigned long) _dl_find_hash(strtab + symtab[symtab_index].st_name,
-				scope, elf_machine_type_class(reloc_type));
+				scope, tpnt, elf_machine_type_class(reloc_type));
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -391,53 +391,6 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 }
 
-/* This is done as a separate step, because there are cases where
-   information is first copied and later initialized.  This results in
-   the wrong information being copied.  Someone at Sun was complaining about
-   a bug in the handling of _COPY by SVr4, and this may in fact be what he
-   was talking about.  Sigh. */
-
-/* No, there are cases where the SVr4 linker fails to emit COPY relocs
-   at all */
-static int
-_dl_do_copy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
-	     ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
-{
-        int reloc_type;
-	int symtab_index;
-	unsigned long *reloc_addr;
-	unsigned long symbol_addr;
-	int goof = 0;
-	return 0; /* disable now, remove later */
-	reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
-	reloc_type = ELF32_R_TYPE(rpnt->r_info);
-	if (reloc_type != R_ARM_COPY)
-		return 0;
-	symtab_index = ELF32_R_SYM(rpnt->r_info);
-	symbol_addr = 0;
-
-	if (symtab_index) {
-
-		symbol_addr = (unsigned long) _dl_find_hash(strtab +
-			symtab[symtab_index].st_name, scope,
-			ELF_RTYPE_CLASS_COPY);
-		if (!symbol_addr) goof++;
-	}
-	if (!goof) {
-#if defined (__SUPPORT_LD_DEBUG__)
-	        if(_dl_debug_move)
-		  _dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
-			     strtab + symtab[symtab_index].st_name,
-			     symtab[symtab_index].st_size,
-			     symbol_addr, symtab[symtab_index].st_value);
-#endif
-		_dl_memcpy((char *) symtab[symtab_index].st_value,
-			(char *) symbol_addr, symtab[symtab_index].st_size);
-	}
-
-	return goof;
-}
-
 void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size)
 {
@@ -448,11 +401,5 @@ int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size)
 {
 	return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
-}
-
-int _dl_parse_copy_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size)
-{
-	return _dl_parse(rpnt->dyn, rpnt->next, rel_addr, rel_size, _dl_do_copy_reloc);
 }
 

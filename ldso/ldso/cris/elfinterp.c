@@ -144,7 +144,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	got_addr = (char **)instr_addr;
 
 	/* Get the address of the GOT entry. */
-	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
+	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
 	if (unlikely(!new_addr)) {
 		_dl_dprintf(2, "%s: Can't resolve symbol '%s'\n", _dl_progname, symname);
 		_dl_exit(1);
@@ -253,7 +253,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		    ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_LOCAL) {
 			symbol_addr = (unsigned long)tpnt->loadaddr;
 		} else {
-			symbol_addr = (unsigned long)_dl_find_hash(symname, scope,
+		  symbol_addr = (unsigned long)_dl_find_hash(symname, scope, tpnt,
 								   elf_machine_type_class(reloc_type));
 		}
 

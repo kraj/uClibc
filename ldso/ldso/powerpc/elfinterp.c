@@ -210,7 +210,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	/* Get the address of the GOT entry */
 	finaladdr = (Elf32_Addr) _dl_find_hash(symname,
-			tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
+			tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
 	if (unlikely(!finaladdr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
 		_dl_exit(1);
@@ -269,7 +269,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symname      = strtab + symtab[symtab_index].st_name;
 	if (symtab_index) {
-		symbol_addr = (unsigned long) _dl_find_hash(symname, scope,
+		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, tpnt,
 							    elf_machine_type_class(reloc_type));
 		/* We want to allow undefined references to weak symbols - this might
 		 * have been intentional.  We should not be linking local symbols

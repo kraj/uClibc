@@ -137,7 +137,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
  * This function resolves externals, and this is either called when we process
  * relocations or when we call an entry in the PLT table for the first time.
  */
-char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, int type_class)
+char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *mytpnt, int type_class)
 {
 	struct elf_resolve *tpnt;
 	int si;
@@ -148,17 +148,24 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, int type_class)
 	char *weak_result = NULL;
 
 	elf_hash_number = _dl_elf_hash(name);
-
-	/* 
-	   NOTE! RTLD_LOCAL handling for dlopen not implemented yet.
-	   Everything is treated as RTLD_GLOBAL.
-	*/
 	   
 	for (; rpnt; rpnt = rpnt->next) {
 		tpnt = rpnt->dyn;
 
-		if (!(tpnt->rtld_flags & RTLD_GLOBAL))
-			continue;
+		if (!(tpnt->rtld_flags & RTLD_GLOBAL) && mytpnt) {
+			if (mytpnt == tpnt)
+				;
+			else {
+				struct init_fini_list *tmp;
+
+				for (tmp = mytpnt->rtld_local; tmp; tmp = tmp->next) {
+					if (tmp->tpnt == tpnt)
+						break;
+				}
+				if (!tmp)
+					continue;
+			}
+		}
 		/* Don't search the executable when resolving a copy reloc. */
 		if ((type_class &  ELF_RTYPE_CLASS_COPY) && tpnt->libtype == elf_executable)
 			continue;

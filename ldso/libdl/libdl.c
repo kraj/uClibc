@@ -39,7 +39,7 @@
 /* When libdl is loaded as a shared library, we need to load in
  * and use a pile of symbols from ldso... */
 
-extern char *_dl_find_hash(const char *, struct dyn_elf *, int)
+extern char *_dl_find_hash(const char *, struct dyn_elf *, struct elf_resolve *, int)
 	__attribute__ ((__weak__));
 extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **,
 	struct elf_resolve *, char *, int) __attribute__ ((__weak__));
@@ -136,7 +136,7 @@ void *dlopen(const char *libname, int flag)
 	struct elf_resolve *tpnt1;
 	void (*dl_brk) (void);
 	int now_flag;
-	struct init_fini_list *tmp;
+	struct init_fini_list *tmp, *runp;
 	int nlist, i;
 	struct elf_resolve **init_fini_list;
 
@@ -190,7 +190,7 @@ void *dlopen(const char *libname, int flag)
 	dyn_chain = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 	_dl_memset(dyn_chain, 0, sizeof(struct dyn_elf));
 	dyn_chain->dyn = tpnt;
-	tpnt->rtld_flags |= RTLD_GLOBAL;
+	tpnt->rtld_flags |= (flag & RTLD_GLOBAL);
 
 	dyn_chain->next_handle = _dl_handles;
 	_dl_handles = dyn_ptr = dyn_chain;
@@ -227,7 +227,7 @@ void *dlopen(const char *libname, int flag)
 					if (!tpnt1)
 						goto oops;
 				}
-				tpnt1->rtld_flags |= RTLD_GLOBAL;
+				tpnt1->rtld_flags |= (flag & RTLD_GLOBAL);
 				dyn_ptr->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 				_dl_memset (dyn_ptr->next, 0, sizeof (struct dyn_elf));
 				dyn_ptr = dyn_ptr->next;
@@ -246,6 +246,15 @@ void *dlopen(const char *libname, int flag)
 	i = 0;
 	for (tcurr = tpnt; tcurr; tcurr = tcurr->next) {
 		init_fini_list[i++] = tcurr;
+		for(runp = tcurr->init_fini; runp; runp = runp->next){
+			if (!(runp->tpnt->rtld_flags & RTLD_GLOBAL)) {
+				tmp = malloc(sizeof(struct init_fini_list));
+				tmp->tpnt = runp->tpnt;
+				tmp->next = tcurr->rtld_local;
+				tcurr->rtld_local = tmp;
+			}
+		}
+
 	}
 	/* Sort the INIT/FINI list in dependency order. */
 	for (tcurr = tpnt; tcurr; tcurr = tcurr->next) {
@@ -275,12 +284,10 @@ void *dlopen(const char *libname, int flag)
 	if(_dl_debug) {
 		fprintf(stderr, "\nINIT/FINI order and dependencies:\n");
 		for (i=0;i < nlist;i++) {
-			struct init_fini_list *tmp;
-
 			fprintf(stderr, "lib: %s has deps:\n", init_fini_list[i]->libname);
-			tmp = init_fini_list[i]->init_fini;
-			for ( ;tmp; tmp = tmp->next)
-				printf(" %s ", tmp->tpnt->libname);
+			runp = init_fini_list[i]->init_fini;
+			for ( ;runp; runp = runp->next)
+				printf(" %s ", runp->tpnt->libname);
 			printf("\n");
 		}
 	}
@@ -409,7 +416,7 @@ void *dlsym(void *vhandle, const char *name)
 		}
 	}
 
-	ret = _dl_find_hash((char*)name, handle, 0);
+	ret = _dl_find_hash((char*)name, handle, NULL, 0);
 
 	/*
 	 * Nothing found.
@@ -422,6 +429,7 @@ void *dlsym(void *vhandle, const char *name)
 static int do_dlclose(void *vhandle, int need_fini)
 {
 	struct dyn_elf *rpnt, *rpnt1;
+	struct init_fini_list *runp, *tmp;
 	ElfW(Phdr) *ppnt;
 	struct elf_resolve *tpnt;
 	int (*dl_elf_fini) (void);
@@ -461,7 +469,8 @@ static int do_dlclose(void *vhandle, int need_fini)
 			}
 		}
 	}
-	free(handle->init_fini.init_fini);
+	if (handle->dyn->usage_count == 1)
+		free(handle->init_fini.init_fini);
 	/* OK, this is a valid handle - now close out the file */
 	for (rpnt = handle; rpnt; rpnt = rpnt->next) {
 		tpnt = rpnt->dyn;
@@ -475,6 +484,11 @@ static int do_dlclose(void *vhandle, int need_fini)
 					end = ppnt->p_vaddr + ppnt->p_memsz;
 			}
 			_dl_munmap((void*)tpnt->loadaddr, end);
+			/* Free elements in RTLD_LOCAL scope list */ 
+			for (runp = tpnt->rtld_local; runp; runp = tmp) {
+				tmp = runp->next;
+				free(runp);
+			}
 			/* Next, remove tpnt from the loaded_module list */
 			if (_dl_loaded_modules == tpnt) {
 				_dl_loaded_modules = tpnt->next;

@@ -129,7 +129,7 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 	symname = strtab + sym->st_name;
 
 	new_addr = (unsigned long) _dl_find_hash(symname,
-			tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
+			tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
 	if (unlikely(!new_addr)) {
 		_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
 				_dl_progname, symname);
@@ -163,14 +163,6 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	/* Nothing to do */
 	return;
 }
-
-int _dl_parse_copy_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size)
-{
-	/* Nothing to do */
-	return 0;
-}
-
 
 int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 	unsigned long rel_addr, unsigned long rel_size)
@@ -290,12 +282,12 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 				}
 				else {
 					*got_entry = (unsigned long) _dl_find_hash(strtab +
-						sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
+						sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
 				}
 			}
 			else if (sym->st_shndx == SHN_COMMON) {
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
-					sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
+					sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
 			}
 			else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&
 				*got_entry != sym->st_value) {
@@ -307,7 +299,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 			}
 			else {
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
-					sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
+					sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
 			}
 
 			got_entry++;

@@ -774,7 +774,7 @@ next_lib2:
 	 * ld.so.1, so we have to look up each symbol individually.
 	 */
 
-	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash("__environ", _dl_symbol_tables, 0);
+	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash("__environ", _dl_symbol_tables, NULL, 0);
 	if (_dl_envp)
 		*_dl_envp = (unsigned long) envp;
 
@@ -798,10 +798,10 @@ next_lib2:
 	}
 #endif
 
-	_dl_atexit = (int (*)(void *)) (intptr_t) _dl_find_hash("atexit", _dl_symbol_tables, ELF_RTYPE_CLASS_PLT);
+	_dl_atexit = (int (*)(void *)) (intptr_t) _dl_find_hash("atexit", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
 #if defined (__SUPPORT_LD_DEBUG__)
 	_dl_on_exit = (int (*)(void (*)(int, void *),void*))
-		(intptr_t) _dl_find_hash("on_exit", _dl_symbol_tables, ELF_RTYPE_CLASS_PLT);
+		(intptr_t) _dl_find_hash("on_exit", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
 #endif
 
 	/* Notify the debugger we have added some objects. */
@@ -853,7 +853,7 @@ next_lib2:
 	_dl_debug_state();
 
 	/* Find the real malloc function and make ldso functions use that from now on */
-	 _dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash("malloc", _dl_symbol_tables, ELF_RTYPE_CLASS_PLT);
+	 _dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash("malloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
 }
 
 char *_dl_getenv(const char *symbol, char **envp)

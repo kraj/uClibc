@@ -35,7 +35,7 @@ struct elf_resolve{
   unsigned int nbucket;
   unsigned long * elf_buckets;
   struct init_fini_list *init_fini;
-
+  struct init_fini_list *rtld_local; /* keep tack of RTLD_LOCAL libs in same group */
   /*
    * These are only used with ELF style shared libraries
    */
@@ -71,7 +71,7 @@ extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname,
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 
 extern char * _dl_find_hash(const char * name, struct dyn_elf * rpnt1, 
-			    int type_class);
+			    struct elf_resolve *mytpnt, int type_class);
 
 extern int _dl_linux_dynamic_link(void);
 
