@@ -905,9 +905,10 @@ int select(int n, fd_set * readfds, fd_set * writefds, fd_set * exceptfds,
 
 //#define __NR_flock            143
 #ifdef L_flock
-SYSCALL__(flock, 2)
-	ret
+#include <sys/file.h>
+_syscall2(int,flock,int,fd, int,operation);
 #endif
+
 //#define __NR_msync            144
 #ifdef L_msync
 	SYSCALL__(msync, 3)
