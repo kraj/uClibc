@@ -13,10 +13,7 @@
 #define	_ERRNO_H
 #include <stdlib.h>
 #include <unistd.h>
-//#include <errno.h>
-#undef errno
 
-#define __set_errno(val) (*__errno_location ()) = (val)
 
 /*
  * Prototypes.
@@ -80,7 +77,8 @@ void __uClibc_main(int argc, char **argv, char **envp)
 	 * have resulted in errno being set nonzero, so set it to 0 before
 	 * we call main.
 	 */
-	__set_errno(0);
+	if (__errno_location)
+	    *(__errno_location()) = 0;
 
 	/*
 	 * Finally, invoke application's main and then exit.
