@@ -93,6 +93,6 @@ __clone:
 	b	__syscall_error
 
 .size __clone,.-__clone
-.weak clean;
+.weak clone;
 clone=__clone
 #endif
