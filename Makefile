@@ -40,6 +40,7 @@ tags:
 	ctags -R
 	
 clean: subdirs_clean
+	rm -f libc.a
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
