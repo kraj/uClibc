@@ -462,6 +462,7 @@ static struct library * find_elf_interpreter(Elf32_Ehdr* ehdr)
 				free(newlib->name);
 				if (newlib->path != not_found) {
 					free(newlib->path);
+				}
 				newlib->name = NULL;
 				newlib->path = NULL;
 				return NULL;
@@ -516,7 +517,7 @@ int find_dependancies(char* filename)
 	}
 	if (fstat(fileno(thefile), &statbuf) < 0) {
 		perror(filename);
-		flose(thefile);
+		fclose(thefile);
 		return -1;
 	}
 
@@ -529,9 +530,14 @@ int find_dependancies(char* filename)
 	/* mmap the file to make reading stuff from it effortless */
 	ehdr = (Elf32_Ehdr *)mmap(0, statbuf.st_size,
 			PROT_READ|PROT_WRITE, MAP_PRIVATE, fileno(thefile), 0);
+	if (ehdr == MAP_FAILED) {
+		fclose(thefile);
+		fprintf(stderr, "Out of memory!\n");
+		return -1;
+	}
 
 foo:
-	flose(thefile);
+	fclose(thefile);
 
 	/* Check if this looks like a legit ELF file */
 	if (check_elf_header(ehdr)) {
