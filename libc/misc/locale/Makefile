@@ -24,6 +24,9 @@ TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
 CSRC=locale.c localeconv.c
+ifeq ($(strip $(HAS_LOCALE)),true)
+    CSRC+=nl_langinfo.c C-collate.c C-ctype.c C-messages.c C-monetary.c C-numeric.c C-time.c C_name.c
+endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
