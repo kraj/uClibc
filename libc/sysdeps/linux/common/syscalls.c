@@ -1995,6 +1995,12 @@ _syscall2(int, pivot_root, const char *, new_root, const char *, put_old);
 
 //#define __NR_mincore		218
 //#define __NR_madvise		219
+#ifdef __NR_madvise
+#ifdef L_madvise
+_syscall3(int, madvise, void*, __addr, size_t, __len, int, __advice);
+#endif
+#endif
+
 //#define __NR_madvise1		219	/* delete when C lib stub is removed */
 
 //#define __NR_getdents64		220
