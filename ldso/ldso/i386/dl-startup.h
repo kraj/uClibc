@@ -37,7 +37,6 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 	}
 }
 
-
 /* Transfer control to the user's application, once the dynamic loader is
  * done.  This routine has to exit the current function, then call the
  * _dl_elf_main function.  */
@@ -45,7 +44,3 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 	__asm__ volatile ("leave\n\t"						\
 		    "jmp *%%eax\n\t"							\
 		    : "=a" (status) :	"a" (_dl_elf_main))
-
-
-
-
