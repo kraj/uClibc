@@ -38,7 +38,7 @@ MOBJ2=atexit.o exit.o
 
 CSRC =	abort.c getenv.c mktemp.c qsort.c realpath.c abs.c bsearch.c \
 	mkstemp.c putenv.c rand.c random.c setenv.c system.c div.c ldiv.c \
-	getpt.c ptsname.c grantpt.c unlockpt.c
+	getpt.c ptsname.c grantpt.c unlockpt.c gcvt.c
 ifeq ($(HAS_FLOATING_POINT),true)
 	CSRC += strtod.c
 endif
