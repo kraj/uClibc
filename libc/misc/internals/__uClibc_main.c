@@ -49,6 +49,9 @@ void __uClibc_empty_func(void)
 {
 }
 extern void exit (int status) __attribute__ ((__noreturn__));
+extern void _init(void);
+extern void _fini(void);
+extern void _stdio_init(void);
 weak_alias(__uClibc_empty_func, _init);
 weak_alias(__uClibc_empty_func, _fini);
 weak_alias(__uClibc_empty_func, _stdio_init);
