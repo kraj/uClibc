@@ -7,6 +7,15 @@
 #define NULL ((void *) 0)
 #endif
 
+extern inline size_t _dl_strlen(const char * str)
+{
+	register char *ptr = (char *) str;
+
+	while (*ptr)
+		ptr++;
+	return (ptr - str);
+}
+
 extern inline char * _dl_strcpy(char * dst,const char *src)
 {
 	register char *ptr = dst;
@@ -63,14 +72,22 @@ extern inline char * _dl_strchr(const char * str,int c)
 	return 0;
 }
 
-
-extern inline size_t _dl_strlen(const char * str)
+static inline char *_dl_strrchr(const char *str, int c)
 {
+	register char *prev = 0;
 	register char *ptr = (char *) str;
 
-	while (*ptr)
+	/* For null it's just like strlen */
+	if (c == '\0') {
+		return ptr + _dl_strlen(ptr);
+	}
+
+	/* everything else just step along the string. */
+	while ((ptr = _dl_strchr(ptr, c)) != 0) {
+		prev = ptr;
 		ptr++;
-	return (ptr - str);
+	}
+	return prev;
 }
 
 extern inline void * _dl_memcpy(void * dst, const void * src, size_t len)
@@ -142,6 +159,5 @@ static inline char *_dl_simple_ltoahex(unsigned long i)
 	*p-- = '0';
 	return p + 1;
 }
-
 
 #endif
