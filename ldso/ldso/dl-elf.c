@@ -741,7 +741,8 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 	tpnt = rpnt->dyn;
 
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug) _dl_dprintf(_dl_debug_file,"\nrelocation processing: %s", tpnt->libname);
+	if(_dl_debug && !(tpnt->init_flag & RELOCS_DONE)) 
+		_dl_dprintf(_dl_debug_file,"\nrelocation processing: %s\n", tpnt->libname);
 #endif
 
 	if (unlikely(tpnt->dynamic_info[UNSUPPORTED_RELOC_TYPE])) {
@@ -783,20 +784,6 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 					tpnt->dynamic_info[DT_PLTRELSZ]);
 		}
 	}
-
-	if (tpnt->init_flag & COPY_RELOCS_DONE)
-		return goof;
-	tpnt->init_flag |= COPY_RELOCS_DONE;
-	goof += _dl_parse_copy_information(rpnt,
-			tpnt->dynamic_info[DT_RELOC_TABLE_ADDR],
-			tpnt->dynamic_info[DT_RELOC_TABLE_SIZE]);
-
-#if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug) {
-		_dl_dprintf(_dl_debug_file,"\nrelocation processing: %s", tpnt->libname);
-		_dl_dprintf(_dl_debug_file,"; finished\n\n");
-	}
-#endif
 
 	return goof;
 }

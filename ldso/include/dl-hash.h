@@ -61,11 +61,10 @@ struct elf_resolve{
 #endif
 };
 
-#define COPY_RELOCS_DONE    1
-#define RELOCS_DONE         2
-#define JMP_RELOCS_DONE     4
-#define INIT_FUNCS_CALLED   8
-#define FINI_FUNCS_CALLED   16
+#define RELOCS_DONE         1
+#define JMP_RELOCS_DONE     2
+#define INIT_FUNCS_CALLED   4
+#define FINI_FUNCS_CALLED   8
 
 extern struct dyn_elf     * _dl_symbol_tables;
 extern struct elf_resolve * _dl_loaded_modules;

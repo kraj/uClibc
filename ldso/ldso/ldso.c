@@ -759,14 +759,14 @@ next_lib2:
 		tpnt->rtld_flags = RTLD_NOW | RTLD_GLOBAL; /* Must not be LAZY */
 #ifdef RERELOCATE_LDSO
 		/* Only rerelocate functions for now. */
-		tpnt->init_flag = RELOCS_DONE | COPY_RELOCS_DONE;
+		tpnt->init_flag = RELOCS_DONE;
 		lpnt = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT] + load_addr);
 # ifdef ALLOW_ZERO_PLTGOT
 		if (tpnt->dynamic_info[DT_PLTGOT])
 # endif
 			INIT_GOT(lpnt, tpnt);
 #else
-		tpnt->init_flag = RELOCS_DONE | JMP_RELOCS_DONE | COPY_RELOCS_DONE;
+		tpnt->init_flag = RELOCS_DONE | JMP_RELOCS_DONE;
 #endif
 		tpnt = NULL;
 	}

@@ -477,12 +477,3 @@ int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 {
 	return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
 }
-
-/* Should be a static inline instead, but that conflicts with ld_elf.h */
-int _dl_parse_copy_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size)
-{
-	/* Not used! */
-	return 0;
-}
-
