@@ -16,10 +16,13 @@ UNISTD_H_PATH=$TOPDIR/include/asm/unistd.h
 ) |
 $CC -E - |
 ( echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" ; echo ;
+  echo "#ifndef _BITS_SYSCALL_H" ;
+  echo "#define _BITS_SYSCALL_H" ;
   echo "#ifndef _SYSCALL_H" ;
   echo "# error \"Never use <bits/syscall.h> directly; include <sys/syscall.h> instead.\"" ;
   echo "#endif" ; echo ;
   sed -ne 's/^UCLIBC_\([A-Za-z0-9_]*\) *\(.*\)/#define __NR_\1 \2\
 #define SYS_\1 __NR_\1\
 #define __STR_NR_\1 \"\2\"/gp'
+  echo "#endif" ; echo ;
 )
