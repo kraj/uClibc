@@ -59,6 +59,12 @@
  *  Also fix _stdio_fopen to support fdopen() with append specified when
  *     the underlying file didn't have O_APPEND set.  It now sets the
  *     O_APPEND flag as recommended by SUSv3 and is done by glibc.
+ *
+ *  May 15, 2003
+ *  Modify __stdio_fread to deal with fake streams used by *sscanf.
+ *  Set EOF to end of buffer when fmemopen used on a readonly stream.
+ *    Note: I really need to run some tests on this to see what the
+ *    glibc code does in each case.
  */
 
 /* Before we include anything, convert L_ctermid to L_ctermid_function
@@ -639,6 +645,9 @@ FILE *fmemopen(void *s, size_t len, const char *modes)
 
 		if (fp != NULL) {
 			cookie->fp = fp;
+			if (fp->modeflags & __FLAG_READONLY) {
+				cookie->eof = len;
+			}
 			if ((fp->modeflags & __FLAG_APPEND) && (len > 0)) {
 				for (i = 0 ; i < len ; i++) {
 					if (cookie->buf[i] == 0) {
@@ -1406,7 +1415,7 @@ size_t _stdio_fread(unsigned char *buffer, size_t bytes, register FILE *stream)
 			*p++ = *stream->bufpos++;
 		}
 
-		if (bytes > 0) {
+		if ((bytes > 0) && (stream->filedes != -2)) {
 			ssize_t len;
 
 			/* The buffer is exhausted, but we still need chars.  */

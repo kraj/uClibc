@@ -32,6 +32,9 @@
  *
  * Sep 6, 2002
  * Patch from Tero_Lyytikäinen <tero@paravant.fi> to fix bug in matchchar case.
+ *
+ * May 15, 2003
+ * Hopefully fix handling of 0 bytes with %s, %c, and %[ specifiers.
  */
 
 #define _ISOC99_SOURCE			/* for LLONG_MAX primarily... */
@@ -122,10 +125,10 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
 	FILE string[1];
 
-	string->filedes = -2;		/* for debugging */
+	string->filedes = -2;
 	string->modeflags = (__FLAG_NARROW|__FLAG_READONLY);
 	string->bufstart = string->bufpos = (unsigned char *) ((void *) sp);
-	string->bufgetc = (char *) ((unsigned) -1);
+	string->bufgetc = string->bufstart + strlen(sp);
 
 #ifdef __STDIO_MBSTATE
 	__INIT_MBSTATE(&(string->state));
@@ -241,7 +244,7 @@ static int scan_getc(register struct scan_cookie *sc)
 	sc->width_flag = 1;
 	if (--sc->width < 0) {
 		sc->ungot_flag = 1;
-		return 0;
+		return -1;
 	}
 	sc->ungot_flag = 0;
 	if (sc->ungot_char > 0) {
@@ -347,7 +350,7 @@ int vfscanf(FILE *fp, const char *format, va_list ap)
 				if (p-spec < 5) { /* [,c,s - string conversions */
 					invert = 0;
 					if (*p == 'c') {
-						invert = 1;
+						invert = 0;
 						if (sc.width == INT_MAX) {
 							sc.width = 1;
 						}
@@ -399,12 +402,16 @@ int vfscanf(FILE *fp, const char *format, va_list ap)
 						b = buf;
 					}
 					cc = scan_getc(&sc);
-					if (cc <= 0) {
+					if (cc < 0) {
 						scan_ungetc(&sc);
 						goto done; /* return EOF if cnt == 0 */
 					}
+					if (*p == 'c') {
+						goto c_spec;
+					}
 					i = 0;
-					while ((cc>0) && (scanset[cc] != invert)) {
+					while ((cc>=0) && (scanset[cc] != invert)) {
+					c_spec:
 						i = 1; /* yes, we stored something */
 						*b = cc;
 						b += store;
