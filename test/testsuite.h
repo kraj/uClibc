@@ -24,15 +24,58 @@
 #ifndef TESTSUITE_H
 #define TESTSUITE_H
 
+#ifdef __NO_TESTCODE__
+
+extern size_t test_number;
+
+
+extern void init_testsuite(const char* testname);
+extern void done_testing(void) __attribute__((noreturn));
+extern void success_msg(int result, const char* command);
+extern void error_msg(int result, int line, const char* file, const char* command);
+
+#else
+
 
 size_t test_number = 0;
 static int failures = 0;
 
+void error_msg(int result, int line, const char* file, const char* command)
+{
+	failures++;
 
-void init_testsuite(const char* testname);
-void done_testing(void) __attribute__((noreturn));
-void success_msg(int result, const char* command);
-void error_msg(int result, int line, const char* file, const char* command);
+	printf("\nFAILED TEST %d: \n\t%s\n", test_number, command);
+	printf("AT LINE: %d, FILE: %s\n\n", line, file);
+}   
+
+void success_msg(int result, const char* command)
+{
+#if 0
+	printf("passed test: %s == 0\n", command);
+#endif	
+}
+
+void done_testing(void)
+{
+    if (0 < failures) {
+		printf("Failed %d tests\n", failures);
+		exit(EXIT_FAILURE);
+	} else {
+		printf("All functions tested sucessfully\n");
+		exit( EXIT_SUCCESS );
+	}
+}
+
+void init_testsuite(const char* testname)
+{
+	printf("%s", testname);
+	test_number = 0;
+	failures = 0;
+	atexit(done_testing);
+}
+
+#endif
+
 
 
 #define TEST_STRING_OUTPUT( command, expected_result ) \
@@ -70,41 +113,4 @@ void error_msg(int result, int line, const char* file, const char* command);
 
 #define STR_CMD(cmd)	cmd
 		
-
-
-
-void error_msg(int result, int line, const char* file, const char* command)
-{
-	failures++;
-
-	printf("\nFAILED TEST %d: \n\t%s\n", test_number, command);
-	printf("AT LINE: %d, FILE: %s\n\n", line, file);
-}   
-
-void success_msg(int result, const char* command)
-{
-#if 0
-	printf("passed test: %s == 0\n", command);
-#endif	
-}
-
-void done_testing(void)
-{
-    if (0 < failures) {
-		printf("Failed %d tests\n", failures);
-		exit(EXIT_FAILURE);
-	} else {
-		printf("All functions tested sucessfully\n");
-		exit( EXIT_SUCCESS );
-	}
-}
-
-void init_testsuite(const char* testname)
-{
-	printf("%s", testname);
-	test_number = 0;
-	failures = 0;
-	atexit(done_testing);
-}
-
 #endif	/* TESTSUITE_H */
