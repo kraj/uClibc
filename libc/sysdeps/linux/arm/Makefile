@@ -26,11 +26,7 @@ ASFLAGS=$(CFLAGS)
 
 TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
 
-ifeq ($(DOPIC),true)
-    CRT0=crt0pic.S
-else
-    CRT0=crt0.S
-endif
+CRT0=crt0.S
 CRT0_OBJ=crt0.o
 
 SSRC=longjmp.S setjmp.S vfork.S

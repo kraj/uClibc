@@ -6,6 +6,18 @@
 	NULL
         env[0...N]      environment variables (pointers)
         NULL
+
+   For uClinux it looks like this:
+
+        argc            argument counter (integer)
+        argv            char *argv[]
+        envp            char *envp[]
+        argv[0]         program name (pointer)
+        argv[1...N]     program args (pointers)
+        argv[argc-1]    end of args (integer)
+	NULL
+        env[0...N]      environment variables (pointers)
+        NULL
 	
    When we are done here, we want
 	a1=argc
@@ -34,6 +46,7 @@ ARM register quick reference:
     pc      r15          program counter
 */
 
+#include <features.h>
 
 .text
 	.global _start
@@ -44,10 +57,17 @@ ARM register quick reference:
 
 .text
 _start:
+#if 0 /* some old code the I feel should not be here - davidm */
+	@ adjust the data segment base pointer
+	ldr r3,=__data_start
+	sub sl,sl,r3
+	mov BASEREG,sl
+#endif
 
 	/* clear the frame pointer */
 	mov     fp, #0
 
+#ifdef __UCLIBC_HAS_MMU__
 	/* Load register r0 (argc) from the stack to its final resting place */
 	ldr     r0, [sp], #4
 
@@ -58,6 +78,16 @@ _start:
 	   we find there (hopefully the environment) in r2 */
 	add     r2, r1, r0, lsl #2
 	add     r2, r2, #4
+#else
+	/*
+	 * uClinux stacks look a little different to MMU stacks
+	 * for no good reason
+	 */
+	/* pull argc, argv and envp off the stack */
+	ldr r0,[sp, #0]
+	ldr r1,[sp, #4]
+	ldr r2,[sp, #8]
+#endif
 
 	/* Ok, now run uClibc's main() -- shouldn't return */
 	bl	__uClibc_main
