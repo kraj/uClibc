@@ -30,7 +30,7 @@ gcc-uClibc.h: $(TOPDIR)/Config
 	@echo "#define BUILD_DYNAMIC_LINKER " \"$(UCLIBC_DIR)/lib/$(UCLIBC_LDSO)\" >> gcc-uClibc.h
 
 gcc-uClibc: gcc-uClibc.h gcc-uClibc.c
-	gcc -Wall -O2 -s gcc-uClibc.c -o $(TARGET_ARCH)-uclibc-gcc
+	gcc -Wall -O2 -Wl,-s gcc-uClibc.c -o $(TARGET_ARCH)-uclibc-gcc
 
 ld-uClibc:
 	@echo "#!/bin/sh" > $(TARGET_ARCH)-uclibc-ld
