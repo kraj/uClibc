@@ -8,6 +8,7 @@
 struct dyn_elf{
   struct elf_resolve * dyn;
   struct dyn_elf * next_handle;  /* Used by dlopen et al. */
+  struct init_fini_list *init_fini;
   struct dyn_elf * next;
   struct dyn_elf * prev;
 };
@@ -57,6 +58,7 @@ struct elf_resolve{
 #define RELOCS_DONE         2
 #define JMP_RELOCS_DONE     4
 #define INIT_FUNCS_CALLED   8
+#define FINI_FUNCS_CALLED   16
 
 extern struct dyn_elf     * _dl_symbol_tables;
 extern struct elf_resolve * _dl_loaded_modules;

@@ -31,6 +31,13 @@
 #include <dl-elf.h>
 #include <dl-hash.h>
 
+/* For INIT/FINI handling */
+struct init_fini_list {
+	struct init_fini_list *next;
+	struct init_fini_list *prev;
+	struct elf_resolve *tpnt;
+};
+
 /* Global variables used within the shared library loader */
 extern char *_dl_library_path;         /* Where we look for libraries */
 extern char *_dl_preload;              /* Things to be loaded before the libs */

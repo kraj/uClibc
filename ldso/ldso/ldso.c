@@ -104,6 +104,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 #if defined (__SUPPORT_LD_DEBUG__)
 	int (*_dl_on_exit) (void (*FUNCTION)(int STATUS, void *ARG),void*);
 #endif
+	struct init_fini_list *init_list;
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	/* Wahoo!!! */
@@ -566,55 +567,54 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		}
 	}
 #endif
-
-	for (tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next)
-	{
+	init_list = NULL;
+	for (tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next) {
 		Elf32_Dyn *dpnt;
-		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++)
-		{
-			if (dpnt->d_tag == DT_NEEDED)
-			{
+		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++) {
+			if (dpnt->d_tag == DT_NEEDED) {
 				char *name;
+				struct init_fini_list *tmp;
+
 				lpntstr = (char*) (tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] + dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
 
-				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name, trace_loaded_objects)))
-				{
+				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name, trace_loaded_objects)))	{
 					tpnt1->usage_count++;
-					continue;
 				}
 #if defined (__SUPPORT_LD_DEBUG__)
-				if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfile='%s';  needed by '%s'\n",
-						lpntstr, _dl_progname);
+				if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfile='%s';  needed by '%s'\n", lpntstr, _dl_progname);
 #endif
-				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, trace_loaded_objects)))
-				{
+				if (!tpnt1) {
+					if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, trace_loaded_objects)))	{
 #ifdef __LDSO_LDD_SUPPORT__
-					if (trace_loaded_objects) {
-						_dl_dprintf(1, "\t%s => not found\n", lpntstr);
-						continue;
-					} else
+						if (trace_loaded_objects) {
+							_dl_dprintf(1, "\t%s => not found\n", lpntstr);
+							continue;
+						} else
 #endif
-					{
-						_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, lpntstr);
-						_dl_exit(16);
+						{
+							_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, lpntstr);
+							_dl_exit(16);
+						}
 					}
-				} else {
-					tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-					_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
-#endif
-#ifdef __LDSO_LDD_SUPPORT__
-					if (trace_loaded_objects && tpnt1->usage_count==1) {
-						_dl_dprintf(1, "\t%s => %s (%x)\n", lpntstr, tpnt1->libname,
-								(unsigned) tpnt1->loadaddr);
-					}
-#endif
 				}
+				tmp = alloca(sizeof(struct init_fini_list)); /* Allocates on stack, no need to free this memory */
+				/* Don't set the tmp->next ptr, it is not used */
+				tmp->tpnt = tpnt1;
+				tmp->prev = init_list;
+				init_list = tmp;
+				tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+				_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
+#endif
+#ifdef __LDSO_LDD_SUPPORT__
+				if (trace_loaded_objects && tpnt1->usage_count==1) {
+					_dl_dprintf(1, "\t%s => %s (%x)\n", lpntstr, tpnt1->libname, (unsigned) tpnt1->loadaddr);
+				}
+#endif
 			}
 		}
 	}
-
 
 	_dl_unmap_cache();
 
@@ -722,23 +722,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	/* Notify the debugger we have added some objects. */
 	_dl_debug_addr->r_state = RT_ADD;
 	_dl_debug_state();
-
-	for (rpnt = _dl_symbol_tables; rpnt!=NULL&& rpnt->next!=NULL; rpnt=rpnt->next)
-		;
-
-	for (;rpnt!=NULL; rpnt=rpnt->prev)
-	{
-		tpnt = rpnt->dyn;
-
-		if (tpnt->libtype == program_interpreter)
-			continue;
-
-		/* Apparently crt0/1 for the application is responsible for handling this.
-		 * We only need to run the init/fini for shared libraries
-		 */
-		if (tpnt->libtype == elf_executable)
-			break;      /* at this point all shared libs are initialized !! */
-
+	for (; init_list; init_list = init_list->prev) {
+		tpnt = init_list->tpnt;
 		if (tpnt->init_flag & INIT_FUNCS_CALLED)
 			continue;
 		tpnt->init_flag |= INIT_FUNCS_CALLED;
@@ -751,6 +736,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 #endif
 			(*dl_elf_func) ();
 		}
+		tpnt->init_flag |= FINI_FUNCS_CALLED;
 		if (_dl_atexit && tpnt->dynamic_info[DT_FINI]) {
 			void (*dl_elf_func) (void);
 			dl_elf_func = (void (*)(void)) (intptr_t) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
@@ -766,10 +752,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		else {
 			if (!_dl_atexit)
 				_dl_dprintf(_dl_debug_file, "%s: The address of atexit () is 0x0.\n", tpnt->libname);
-#if 0
-			if (!tpnt->dynamic_info[DT_FINI])
-				_dl_dprintf(_dl_debug_file, "%s: Invalid .fini section.\n", tpnt->libname);
-#endif
 		}
 #endif
 	}
