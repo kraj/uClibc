@@ -57,11 +57,12 @@ endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
-all: $(OBJS) $(LIBPTHREAD)
+# TODO: fix race condition between subdirs and $(OBJS).
+#       only applies to pt-machine.o and sh64.
 
-$(LIBPTHREAD): ar-target subdirs
+all: $(LIBPTHREAD)
 
-ar-target: $(OBJS)
+$(LIBPTHREAD) ar-target: $(OBJS) subdirs
 	$(AR) $(ARFLAGS) $(LIBPTHREAD) $(OBJS)
 
 $(COBJS): %.o : %.c
@@ -84,5 +85,4 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 $(patsubst %, _dirclean_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
-.PHONY: dummy subdirs
-
+.PHONY: dummy
