@@ -1,18 +1,18 @@
 #include <unistd.h>
 #include <sys/types.h>
+#include <byteswap.h>
 
-/* swab() swaps the position of two adjacent bytes, every two bytes.
- * Contributed by Kensuke Otake <kensuke@phreaker.net> */
+/* Updated implementation based on byteswap.h from Miles Bader
+ * <miles@gnu.org>.  This should be much faster on arches with machine
+ * specific, optimized definitions in include/bits/byteswap.h (i.e. on
+ * x86, use the bswap instruction on i486 and better boxes).  For
+ * platforms that lack such support, this should be no slower than it
+ * was before... */
+void swab (const void *source, void *dest, ssize_t count)
+{
+    const unsigned short *from = source, *from_end = from + (count >> 1);
+    unsigned short *to = dest;
 
-void swab(const void *source, void *dest, ssize_t count) {
-  const char *from = (const char *)source;
-  char *to = (char *)dest;
-
-  count &= ~((ssize_t)1);
-
-  while (count > 1) {
-    const char b0 = from[--count], b1 = from[--count];
-    to[count] = b0;
-    to[count + 1] = b1;
-  }
+    while (from < from_end)
+	*to++ = bswap_16 (*from++);
 }
