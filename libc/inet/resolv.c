@@ -1115,10 +1115,10 @@ int res_query(const char *dname, int class, int type,
 	char ** __nameserverXX;
 
 	__open_nameservers();
-	
+
 	if (!dname || class != 1 /* CLASS_IN */)
 		return(-1);
-		
+
 	memset((char *) &a, '\0', sizeof(a));
 
 	BIGLOCK;
@@ -1126,12 +1126,12 @@ int res_query(const char *dname, int class, int type,
 	__nameserverXX=__nameserver;
 	BIGUNLOCK;
 	i = __dns_lookup(dname, type, __nameserversXX, __nameserverXX, &packet, &a);
-	
+
 	if (i < 0)
 		return(-1);
-			
+
 	free(a.dotted);
-		
+
 	if (a.atype == type) { /* CNAME*/
 		if (anslen && answer)
 			memcpy(answer, a.rdata, MIN(anslen, a.rdlength));
@@ -1143,6 +1143,204 @@ int res_query(const char *dname, int class, int type,
 		free(packet);
 	return 0;
 }
+
+/*
+ * Formulate a normal query, send, and retrieve answer in supplied buffer.
+ * Return the size of the response on success, -1 on error.
+ * If enabled, implement search rules until answer or unrecoverable failure
+ * is detected.  Error code, if any, is left in h_errno.
+ */
+int res_search(name, class, type, answer, anslen)
+	const char *name;	/* domain name */
+	int class, type;	/* class and type of query */
+	u_char *answer;		/* buffer to put answer */
+	int anslen;		/* size of answer */
+{
+	const char *cp, * const *domain;
+	HEADER *hp = (HEADER *)(void *)answer;
+	u_int dots;
+	int trailing_dot, ret, saved_herrno;
+	int got_nodata = 0, got_servfail = 0, tried_as_is = 0;
+
+	if (!name || !answer)
+		return(-1);
+
+	if ((_res.options & RES_INIT) == 0 && res_init() == -1) {
+		h_errno = NETDB_INTERNAL;
+		return (-1);
+	}
+
+	errno = 0;
+	h_errno = HOST_NOT_FOUND;	/* default, if we never query */
+	dots = 0;
+	for (cp = name; *cp; cp++)
+		dots += (*cp == '.');
+	trailing_dot = 0;
+	if (cp > name && *--cp == '.')
+		trailing_dot++;
+
+	/*
+	 * If there are dots in the name already, let's just give it a try
+	 * 'as is'.  The threshold can be set with the "ndots" option.
+	 */
+	saved_herrno = -1;
+	if (dots >= _res.ndots) {
+		ret = res_querydomain(name, NULL, class, type, answer, anslen);
+		if (ret > 0)
+			return (ret);
+		saved_herrno = h_errno;
+		tried_as_is++;
+	}
+
+	/*
+	 * We do at least one level of search if
+	 *	- there is no dot and RES_DEFNAME is set, or
+	 *	- there is at least one dot, there is no trailing dot,
+	 *	  and RES_DNSRCH is set.
+	 */
+	if ((!dots && (_res.options & RES_DEFNAMES)) ||
+	    (dots && !trailing_dot && (_res.options & RES_DNSRCH))) {
+		int done = 0;
+
+		for (domain = (const char * const *)_res.dnsrch;
+		   *domain && !done;
+		   domain++) {
+
+			ret = res_querydomain(name, *domain, class, type,
+			    answer, anslen);
+			if (ret > 0)
+				return (ret);
+
+			/*
+			 * If no server present, give up.
+			 * If name isn't found in this domain,
+			 * keep trying higher domains in the search list
+			 * (if that's enabled).
+			 * On a NO_DATA error, keep trying, otherwise
+			 * a wildcard entry of another type could keep us
+			 * from finding this entry higher in the domain.
+			 * If we get some other error (negative answer or
+			 * server failure), then stop searching up,
+			 * but try the input name below in case it's
+			 * fully-qualified.
+			 */
+			if (errno == ECONNREFUSED) {
+				h_errno = TRY_AGAIN;
+				return (-1);
+			}
+
+			switch (h_errno) {
+			case NO_DATA:
+				got_nodata++;
+				/* FALLTHROUGH */
+			case HOST_NOT_FOUND:
+				/* keep trying */
+				break;
+			case TRY_AGAIN:
+				if (hp->rcode == SERVFAIL) {
+					/* try next search element, if any */
+					got_servfail++;
+					break;
+				}
+				/* FALLTHROUGH */
+			default:
+				/* anything else implies that we're done */
+				done++;
+			}
+			/*
+			 * if we got here for some reason other than DNSRCH,
+			 * we only wanted one iteration of the loop, so stop.
+			 */
+			if (!(_res.options & RES_DNSRCH))
+				done++;
+		}
+	}
+
+	/*
+	 * if we have not already tried the name "as is", do that now.
+	 * note that we do this regardless of how many dots were in the
+	 * name or whether it ends with a dot.
+	 */
+	if (!tried_as_is) {
+		ret = res_querydomain(name, NULL, class, type, answer, anslen);
+		if (ret > 0)
+			return (ret);
+	}
+
+	/*
+	 * if we got here, we didn't satisfy the search.
+	 * if we did an initial full query, return that query's h_errno
+	 * (note that we wouldn't be here if that query had succeeded).
+	 * else if we ever got a nodata, send that back as the reason.
+	 * else send back meaningless h_errno, that being the one from
+	 * the last DNSRCH we did.
+	 */
+	if (saved_herrno != -1)
+		h_errno = saved_herrno;
+	else if (got_nodata)
+		h_errno = NO_DATA;
+	else if (got_servfail)
+		h_errno = TRY_AGAIN;
+	return (-1);
+}
+
+/*
+ * Perform a call on res_query on the concatenation of name and domain,
+ * removing a trailing dot from name if domain is NULL.
+ */
+int res_querydomain(name, domain, class, type, answer, anslen)
+	const char *name, *domain;
+	int class, type;	/* class and type of query */
+	u_char *answer;		/* buffer to put answer */
+	int anslen;		/* size of answer */
+{
+	char nbuf[MAXDNAME];
+	const char *longname = nbuf;
+	size_t n, d;
+
+	if (!name || !answer)
+		return(-1);
+
+	if ((_res.options & RES_INIT) == 0 && res_init() == -1) {
+		h_errno = NETDB_INTERNAL;
+		return (-1);
+	}
+#ifdef DEBUG
+	if (_res.options & RES_DEBUG)
+		printf(";; res_querydomain(%s, %s, %d, %d)\n",
+			name, domain?domain:"<Nil>", class, type);
+#endif
+	if (domain == NULL) {
+		/*
+		 * Check for trailing '.';
+		 * copy without '.' if present.
+		 */
+		n = strlen(name);
+		if (n + 1 > sizeof(nbuf)) {
+			h_errno = NO_RECOVERY;
+			return (-1);
+		}
+		if (n > 0 && name[--n] == '.') {
+			strncpy(nbuf, name, n);
+			nbuf[n] = '\0';
+		} else
+			longname = name;
+	} else {
+		n = strlen(name);
+		d = strlen(domain);
+		if (n + 1 + d + 1 > sizeof(nbuf)) {
+			h_errno = NO_RECOVERY;
+			return (-1);
+		}
+		snprintf(nbuf, sizeof(nbuf), "%s.%s", name, domain);
+	}
+	return (res_query(longname, class, type, answer, anslen));
+}
+
+/* res_mkquery */
+/* res_send */
+/* dn_comp */
+/* dn_expand */
 #endif
 
 #ifdef L_gethostbyaddr
