@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2001  NEC Corporation
-# Copyright (C) 2001  Miles Bader <miles@gnu.org>
+# Copyright (C) 2001,2002  NEC Corporation
+# Copyright (C) 2001,2002  Miles Bader <miles@gnu.org>
 # Copyright (C) 2000  Lineo, inc.
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -36,7 +36,7 @@ CRT0_OBJ = $(patsubst %.S,%.o, $(CRT0))
 SSRC = setjmp.S longjmp.S vfork.S
 SOBJS = $(patsubst %.S,%.o, $(SSRC))
 
-CSRC = _mmap.c
+CSRC = _mmap.c truncate64.c ftruncate64.c
 COBJS = $(patsubst %.c,%.o, $(CSRC))
 
 OBJS = $(SOBJS) $(COBJS)

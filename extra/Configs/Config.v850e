@@ -113,7 +113,7 @@ UNIFIED_SYSCALL = false
 
 # If you want large file support (greater then 2 GiB) turn this on.
 # Do not enable this unless your kernel provides large file support.
-DOLFS = false
+DOLFS = true
 
 # Posix regular expression code is really big -- 27k all by itself.
 # If you don't use regular expressions, turn this off and save space.
@@ -181,14 +181,14 @@ SHARED_LIB_LOADER_PATH=$(DEVEL_PREFIX)/lib
 # This value is used by the 'make install' Makefile target.  Since this
 # directory is compiled into the uclibc cross compiler spoofer, you
 # have to recompile if you change this value...
-DEVEL_PREFIX = /usr/$(TARGET_ARCH)-linux-uclibc
+DEVEL_PREFIX = $(DESTDIR)/$(TARGET_ARCH)-uclibc
 
 # SYSTEM_DEVEL_PREFIX is the directory prefix used when installing
 # bin/arch-uclibc-gcc, bin/arch-uclibc-ld, etc.   This is only used by
 # the 'make install' target, and is not compiled into anything.  This
 # defaults to $DEVEL_PREFIX/usr, but makers of .rpms and .debs will
 # want to set this to "/usr" instead.
-SYSTEM_DEVEL_PREFIX = $(DEVEL_PREFIX)/usr
+SYSTEM_DEVEL_PREFIX = $(DESTDIR)
 
 # If you want 'make install' to install everything under a temporary
 # directory, the define PREFIX during the install step,
