@@ -654,7 +654,7 @@ _syscall1(int, chroot, const char *, path);
 //#define __NR_ustat            62
 #ifdef L___syscall_ustat
 #define __NR___syscall_ustat __NR_ustat
-#include <sys/stat.h>
+#include <sys/ustat.h>
 static inline
 _syscall2(int, __syscall_ustat, unsigned short int, kdev_t, struct ustat *, ubuf);
 int ustat(dev_t dev, struct ustat *ubuf)
