@@ -51,6 +51,56 @@
 <TR><TD BGCOLOR="#eeeee0">
 
 	<ul>
+    
+    <P>
+    <li> <b>20 June 2002, uClibc 0.9.12 Released</b>
+    <br>
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.12. This release adds an i960 port, an initial alpha port,
+    fully working mips shared library support, shared library support fixes
+    for on powerpc, and many other improvements.  One very exciting new feature
+    is nearly complete locale support, thanks to a lot of hard work by Manuel
+    Novoa III.  uClibc's locale support is <em>much</em> smaller than glibc's,
+    though it is also slightly less flexible.  This release was delayed by a
+    month due to the arrival of a new baby at Erik's house.  For those that
+    have been anxiously waiting, this release should certainly be worth the
+    wait.  Have fun!
+    <p>
+    The <a href="downloads/Changelog">Changelog</a>
+    and <a href="downloads/uClibc-0.9.12.tar.bz2">source code</a> 
+    for this release are available <a href="downloads/">here</a>.
+
+    <li> <b>28 May 2002, Native uClibc/gcc-3.1 toolchain</b>
+    <br>
+    CodePoet Consulting has released source code and a Makefile to build a
+    gcc-3.1 toolchain that natively targets uClibc.  Additionally, the
+    gcc-3.0.4 and gcc-2.95 toolchains have also been updated.  These toolchains
+    make it easy to build uClibc based applications.  Source code can be
+    downloaded <a href="downloads/toolchain/">here</a> and is now much smaller,
+    since much of the needed binutils and gcc source code is now downloaded on
+    demand.  To build the toolchain, simply grab the source, edit the Makefile
+    to select where you would like the toolchain installed, and then run 'make'
+    and wait for it to compile.
+
+    <p>
+    <p><li> <b>10 April 2002, uClibc 0.9.11 Released</b>
+    <br>
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.11. This release is primarily focused on fixing the issues that
+    have turned up since the last release.  Several bugs in the gcc wrapper
+    have been fixed, allowing applications such as iproute2 and XFree86 to link properly.  
+    Large file support has been improved, and a thread locking bug was
+    fixed that could cause s*printf calls to deadlock when threading was
+    enabled.  Several bugs were also fixed with the powerpc, h8300, m68k,
+    sparc, and mips architecture support.  Many additional applications now
+    compile and run perfectly and have been added to the <a
+    href="uClibc-apps.html">working applications list</a> .
+    <p>
+    The <a href="downloads/Changelog">Changelog</a>
+    and <a href="downloads/uClibc-0.9.11.tar.bz2">source code</a> 
+    for this release are available <a href="downloads/">here</a>.
+
+
 
     <p>
     <li> <b>10 April 2002, Native uClibc/gcc-3.0.4 toolchain</b>
