@@ -152,10 +152,14 @@ void _dl_init_got(unsigned long *plt,struct elf_resolve *tpnt)
 	PPC_DCBST(plt);
 	PPC_DCBST(plt+4);
 	PPC_DCBST(plt+8);
+	PPC_DCBST(plt+12);
+	PPC_DCBST(plt+16-1);
 	PPC_SYNC;
 	PPC_ICBI(plt);
-	PPC_ICBI(plt+4);
-	PPC_ICBI(plt+8);
+	PPC_ICBI(plt+4); /* glibc thinks this is not needed */
+	PPC_ICBI(plt+8); /* glibc thinks this is not needed */
+	PPC_ICBI(plt+12); /* glibc thinks this is not needed */
+	PPC_ICBI(plt+16-1);
 	PPC_ISYNC;
 }
 
@@ -245,7 +249,15 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		//PPC_SYNC;
 		//PPC_ICBI(ptr+index);
 		//PPC_ISYNC;
+
+		/* instructions were modified */
 		insns[1] = OPCODE_B(delta - 4);
+		PPC_DCBST(insn_addr+1);
+		PPC_SYNC;
+		PPC_ICBI(insn_addr+1);
+		PPC_ISYNC;
+		
+		return new_addr;
 	}
 
 	/* instructions were modified */
@@ -344,6 +356,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	switch (reloc_type) {
 		case R_PPC_NONE:
+			return 0;
 			break;
 		case R_PPC_JMP_SLOT:
 			{
@@ -380,8 +393,11 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	/* instructions were modified */
 	PPC_DCBST(reloc_addr);
+	PPC_DCBST(reloc_addr+1);
 	PPC_SYNC;
 	PPC_ICBI(reloc_addr);
+	PPC_ICBI(reloc_addr+1);
+	PPC_ISYNC;
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug_reloc && _dl_debug_detail)
@@ -435,6 +451,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 #endif
 		switch (reloc_type) {
 			case R_PPC_NONE:
+				return 0;
 				break;
 			case R_PPC_REL24:
 #if 0
@@ -494,6 +511,10 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 							//DPRINTF("        index %x delta %x\n",index,delta);
 							reloc_addr[0] = OPCODE_LI(11,index*4);
 							reloc_addr[1] = OPCODE_B(delta);
+
+							/* instructions were modified */
+							PPC_DCBST(reloc_addr+1);
+							PPC_ICBI(reloc_addr+1);
 						}
 					}
 					break;
@@ -503,6 +524,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 				break;
 			case R_PPC_COPY:
 				// handled later
+				return 0;
 				break;
 			default:
 #if 0
@@ -521,6 +543,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		PPC_DCBST(reloc_addr);
 		PPC_SYNC;
 		PPC_ICBI(reloc_addr);
+		PPC_ISYNC;
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug_reloc && _dl_debug_detail)
