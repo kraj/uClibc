@@ -46,13 +46,13 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 	@(cd tmp; CC=$(CC) LD=$(LD) /bin/sh ../../extra/scripts/get-needed-libgcc-objects.sh)
 	if [ -s ./tmp/libgcc-need.a ] ; then \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
-		    -Wl,-soname=$(SHARED_MAJORNAME) -Wl,--whole-archive \
+		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
 		    ./$(LIBNAME) ./tmp/libgcc-need.a \
 		    $(LDSO) -Wl,--dynamic-linker,$(DYNAMIC_LINKER); \
 	else \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
 		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
-		    ./$(LIBNAME) $(LDSO)  -Wl,-dynamic-linker=$(DYNAMIC_LINKER); \
+		    ./$(LIBNAME) $(LDSO)  -Wl,-dynamic-linker,$(DYNAMIC_LINKER); \
 	fi
 	@rm -rf tmp
 	install -d $(TOPDIR)lib
