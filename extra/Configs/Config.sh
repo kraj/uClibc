@@ -24,6 +24,10 @@ config HAVE_DOT_HIDDEN
         bool
 	default y
 
+config UCLIBC_COMPLETELY_PIC
+        bool
+	default y
+
 choice
 	prompt "Target Processor Type"
 	default CONFIG_SH4

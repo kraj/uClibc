@@ -34,6 +34,21 @@ config BUILD_UCLIBC_LDSO
 	  be built for your target architecture.  If this option is available,
 	  to you, then you almost certainly want to answer Y.
 
+config FORCE_SHAREABLE_TEXT_SEGMENTS
+	bool "Only load shared libraries which can share their text segment"
+	depends on BUILD_UCLIBC_LDSO && UCLIBC_COMPLETELY_PIC
+	default n
+	help
+	  If you answer Y here, the uClibc native shared library loader will
+	  only load shared libraries, which do not need to modify any non-writable
+	  segments. These libraries haven't set the DT_TEXTREL tag in the dynamic
+	  section (==> objdump). So all your libraries must be compiled with
+	  -fPIC or -fpic, and all assembler function must be written as position
+	  independend code (PIC). 
+	  Enabling this option will makes uClibc's shared library loader a
+	  little bit smaller and guarantee that no memory will be wasted by badly
+	  coded shared libraries.
+
 config LDSO_LDD_SUPPORT
 	bool "Native shared library loader 'ldd' support"
 	depends on BUILD_UCLIBC_LDSO

@@ -30,10 +30,6 @@
  * SUCH DAMAGE.
  */
 
-/* Enable mprotect protection munging.  ARM and MIPS Linux needs this
- * it seems, so leave this enabled by default */
-#define FORCE_SHAREABLE_TEXT_SEGMENTS
-
 // Support a list of library preloads in /etc/ld.so.preload
 //#define SUPPORT_LDSO_PRELOAD_FILE
 
@@ -434,7 +430,7 @@ LD_BOOT(unsigned long args)
 					}
 					app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
 					if (dpnt->d_tag == DT_DEBUG)
-#ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
+#ifdef FORCE_SHAREABLE_TEXT_SEGMENTS
 						dpnt->d_un.d_val = (unsigned long) debug_addr;
 #else
 						dpnt_debug = dpnt;
@@ -455,7 +451,7 @@ LD_BOOT(unsigned long args)
 	tpnt->elf_buckets = hash_addr;
 	hash_addr += tpnt->nbucket;
 
-#ifdef FORCE_SHAREABLE_TEXT_SEGMENTS
+#ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
 	/* Ugly, ugly.  We need to call mprotect to change the protection of
 	   the text pages so that we can do the dynamic linking.  We can set the
 	   protection back again once we are done */
@@ -1186,7 +1182,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		*_dl_envp = (unsigned long) envp;
 	}
 
-#ifdef FORCE_SHAREABLE_TEXT_SEGMENTS
+#ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
 	{
 		unsigned int j;
 		elf_phdr *myppnt;
