@@ -217,24 +217,11 @@ typedef struct __res_state *res_state;
 /*			0x00008000	*/
 
 
-/* Things involving an internal (static) resolver context. */
-#if defined __UCLIBC_HAS_THREADS__
-
-__BEGIN_DECLS
-extern struct __res_state *__res_state(void) __attribute__ ((__const__));
-__END_DECLS
-#define _res (*__res_state())
-
-#else /* !__UCLIBC_HAS_THREADS__ */
-
 #ifndef __BIND_NOSTATIC
+
+/* Internal (static) resolver context. */
 extern struct __res_state _res;
-#endif
 
-#endif /* __UCLIBC_HAS_THREADS__ */
-
-
-#ifndef __BIND_NOSTATIC
 #define fp_nquery		__fp_nquery
 #define fp_query		__fp_query
 #define hostalias		__hostalias
@@ -264,7 +251,9 @@ int		res_querydomain __P((const char *, const char *, int, int,
 int		res_search __P((const char *, int, int, u_char *, int));
 int		res_send __P((const u_char *, int, u_char *, int));
 __END_DECLS
-#endif
+
+#endif /* !__BIND_NOSTATIC */
+
 
 #if !defined(SHARED_LIBBIND) || defined(LIB)
 /*
