@@ -1,1028 +1,808 @@
-2002-11-09  Erik Andersen  <andersen@dillweed>
+2003-01-24  Erik Andersen  <andersen@dillweed>
 
-	* libm/Makefile: Patch from Simon Rowe to try and build asm libm code
-	only when HAS_FPU is set.  If you don't have an FPU
-	then usm FPU code isn't going to help much...
+	* libc/sysdeps/linux/sparc/bits/types.h, libc/sysdeps/linux/powerpc/bits/types.h, libc/sysdeps/linux/mips/bits/types.h, libc/sysdeps/linux/m68k/bits/kernel_stat.h, libc/sysdeps/linux/i386/bits/kernel_stat.h, libc/sysdeps/linux/h8300/bits/kernel_stat.h, libc/sysdeps/linux/cris/bits/kernel_stat.h, libc/sysdeps/linux/common/bits/kernel_stat.h, libc/sysdeps/linux/common/bits/types.h, libc/sysdeps/linux/common/xstatconv.c, libc/sysdeps/linux/arm/bits/kernel_stat.h, libc/sysdeps/linux/alpha/bits/types.h:
+	Finish up fixing stat and setting various system types.
 
 	* Makefile:
-	Patch from Stefan Allius, rebuild extra/config/conf if it is missing
-	following a make clean
+	Don't clean config system except on 'make distclean'.  Remember to
+	clean locale stuff on 'make clean'
 
-	* extra/config/mconf.c:
-	Patch from Stefan Allius:  avoid implicit casting of void *(64bit) to int(32bit)
+	* test/stat/.cvsignore, test/stat/Makefile, test/stat/stat.c:
+	Better stat tests
 
-2002-11-08  Erik Andersen  <andersen@dillweed>
-
-	* test/string/string.c: Re-enable the strchrnul and rawmemchr tests
-
-	* extra/Configs/Config.in:
-	Scare people away from enabling locale support for now.
-
-	* extra/Configs/Config.i386.default:
-	Disable ldso debugging.  It should not be on by default.
-
-	* extra/gcc-uClibc/Makefile:
-	Use NATIVE_CC. Don't hard code using 'gcc'.
+	* libc/sysdeps/linux/common/Makefile, libc/sysdeps/linux/common/syscalls.c, libc/sysdeps/linux/common/xstatconv.c, libc/sysdeps/linux/common/xstatconv.h:
+	I thought it would be smaller to inline since these funcs are small.
+	Well, not inlining saves 300 bytes, so do that instead.
 	 -Erik
 
-	* extra/scripts/get-needed-libgcc-objects.sh, ldso/ldso/Makefile, libc/Makefile:
-	Patch from Stefan Allius for libgcc multilib support
+	* libc/sysdeps/linux/v850/bits/kernel_stat.h, libc/sysdeps/linux/sparc/bits/kernel_stat.h, libc/sysdeps/linux/sh/bits/kernel_stat.h, libc/sysdeps/linux/powerpc/bits/kernel_stat.h, libc/sysdeps/linux/mips/bits/kernel_stat.h, libc/sysdeps/linux/m68k/bits/kernel_stat.h, libc/sysdeps/linux/i386/bits/kernel_stat.h, libc/sysdeps/linux/h8300/bits/kernel_stat.h, libc/sysdeps/linux/cris/bits/kernel_stat.h, libc/sysdeps/linux/common/bits/kernel_stat.h, libc/sysdeps/linux/common/bits/stat.h, libc/sysdeps/linux/common/syscalls.c, libc/sysdeps/linux/common/xstatconv.c, libc/sysdeps/linux/arm/bits/kernel_stat.h, libc/sysdeps/linux/alpha/bits/kernel_stat.h, ldso/ldso/ld_syscall.h:
+	Ok, people are probably going to hate me for this...  This commit changes the
+	type of 'struct stat' and 'struct stat64' so they use consistant types.
 
-	    this is the last patch, we need to make the support of multitarget libgcc
-	    complete.
+	This change is the result of a bug I found while trying to use GNU tar.  The
+	problem was caused by our using kernel types within struct stat and trying to
+	directly compare these values with standard types.  Trying an 'if (a < b)' when
+	'a' is an 'unsigned long' and 'b' is an 'int' leads to very different results
+	then when comparing entities of the same type (i.e. time_t values)....
+	Grumble.  Nasty stuff, but I'm glad I got this out of the way now.
 
-	    ---------------------------------
-	    In ldso/ldso/Makefile
-	      I added the CPU_LDFLAGS-y to the LDFLAGS
-	    ---------------------------------
-	    In libc/Makefile
-	      I set the LDFLAGS for the script get-needed-objects.sh with CPU_LDFLAGS-y
-	    ---------------------------------
-	    In extra/scripts/get-needed-object.sh
-	      we now use the LIBGCC from Rules.mak and call LD with LDFLAGS
-	      (==CPU_LDFLAGS-y). Addtionally I grep the NM output, to fix the unresolved
-	      external __GLOBAL_OFFSET_TABLE__ on SuperH targets.
-	    ---------------------------------
-
-	* include/fstab.h: Disble unimplemented function prototypes
-
-	* extra/Configs/Config.sh:
-	Patch from Stefan Allius to fixup SuperH ARCH_HAS_MMU and ARCH_HAS_FPU
-
-2002-11-08  miles  <miles@dillweed>
-
-	* extra/Configs/Config.v850.default: Initial checkin.
-
-2002-11-08  Erik Andersen  <andersen@dillweed>
-
-	* Rules.mak:
-	Add CPU_CFLAGS-y into LIBGCC_CFLAGS so multilibs gcc will behave
-	itself.  Revery the "=" to ":=" change, so people like Miles can
-	set stuff in their .config
-
-	* extra/Configs/Config.powerpc.default: Add defaults for powerpc
-
-	* extra/Configs/uClibc_config_fix.pl:
-	Kill the now obsolete uClibc_config_fix.pl
-
-	* extra/Configs/Config.sh.default: Add a default for sh
-
-2002-11-08  Manuel Novoa III  <mjn3@dillweed>
-
-	* docs/Glibc_vs_uClibc_Differences.txt:
-	Add notes about setvbuf and struct tm extension fields tm_gmtoff and tm_zone.
-
-	* libc/string/Makefile, libc/string/strxfrm.c, libc/string/wstring.c:
-	Added some temporary "stubs" for collation.
-	  strcoll is an alias for strcmp.
-	  strxfrm is an alias for strlcpy.
-	  wcscoll is an alias for wcscmp.
-	  wcsxfrm is implemented as a wchar version of strlcpy.
-	Real locale-dependent implementations are coming soon.
-
-2002-11-08  Erik Andersen  <andersen@dillweed>
-
-	* test/ldso/Makefile: Cleanup everything
-
-2002-11-08  Manuel Novoa III  <mjn3@dillweed>
-
-	* libc/misc/wchar/Makefile, libc/misc/wchar/wchar.c:
-	Add wcwidth and wcswidth, based on Markus Kuhn's wcwidth of 2002-05-08.
-	  Added some size/speed optimizations and integrated it into my locale
-	  framework.  Minimally tested at the moment, but the stub C-locale
-	  version (which most people would probably be using) should be fine.
-
-2002-11-08  Erik Andersen  <andersen@dillweed>
-
-	* extra/Configs/Config.arm.default: Leave ldso debugging off by default
-
-	* ldso/ldso/arm/elfinterp.c: Fix a silly compile bug
-
-	* extra/Configs/Config.in: Doh!  Leave ldso debugging off by default..
-
-	* extra/Configs/Config.arm.default:
-	Construct a default arm configuration
-
-	* extra/config/conf.c, extra/config/confdata.c, extra/config/mconf.c, extra/config/symbol.c:
-	Some minor changes from Stefan Allius to make conf and
-	mconf compile under Solaris.
-
-	* ldso/ldso/sh/ld_sysdep.h, ldso/ldso/sh/resolve.S:
-	Another SuperH patch from Stefan Allius.  This make it so
-	the SuperH lib loader can be compiled by GCC 3.3
-
-	* INSTALL, README: Update the docs
-
-	* extra/Configs/Config.in.arch, Rules.mak:
-	Large cleanup patch, based in large part on a patch from
-	Stefan Allius, which adds a great deal of sanity.
-
-	* extra/config/symbol.c, extra/config/zconf.l, extra/config/zconf.tab.c_shipped, extra/config/zconf.tab.h_shipped, extra/config/conf.c, extra/config/confdata.c, extra/config/expr.h, extra/config/lex.zconf.c_shipped, extra/config/mconf.c:
-	Merge an update from upstream
-
-	* extra/Configs/Config.in, extra/Configs/Config.in.arch, extra/Configs/Config.m68k, extra/Configs/Config.mips, extra/Configs/Config.mipsel, extra/Configs/Config.powerpc, extra/Configs/Config.sh, extra/Configs/Config.sparc, extra/Configs/Config.v850, extra/Configs/Config.alpha, extra/Configs/Config.arm, extra/Configs/Config.cris, extra/Configs/Config.h8300, extra/Configs/Config.i386, extra/Configs/Config.i386.default, extra/Configs/Config.i960, extra/config/Kconfig-language.txt:
-	Update doc reference
-
-2002-11-07  sjhill  <sjhill@dillweed>
-
-	* Rules.mak, extra/Configs/Config.mips, extra/Configs/Config.mips.default, extra/Configs/Config.mipsel.default:
-	Changes for MIPS and new configuration system.
-
-	* Rules.mak: Fix target determination for MIPSEL.
-
-2002-11-07  Manuel Novoa III  <mjn3@dillweed>
-
-	* libc/stdlib/strtod.c: Remove atof from strtod.o...
-
-	* libc/stdlib/Makefile: Okay, fix for atof _correctly_...
-
-	* libc/stdlib/Makefile: Apparently I forgot to build atof...
-
-2002-11-07  Erik Andersen  <andersen@dillweed>
-
-	* libc/sysdeps/linux/powerpc/sys/procfs.h:
-	Fixup function prototype for __uint128_t which fixes the compile
-	on powerpc with gcc 3.2.
+	As a result of this fix, uClibc 0.9.17 will not be binary compatible with
+	earlier releases.  I have always warned people this can and will happen.
 	 -Erik
 
-2002-11-07  sjhill  <sjhill@dillweed>
+	* docs/uclibc.org/FAQ.html:
+	Add FAQ entry for "sh: can't access tty; job control turned off"
+	 -Erik
 
-	* extra/config/Makefile, extra/Makefile, Makefile:
-	Fixed makefiles to remove binaries generated for the configuration
-	menu system when doing a 'make clean'.
+	* libc/stdlib/atexit.c:
+	Doh!  Fix potential stack corruption caused by dynamic atexit
+	allocating size incorrectly....
+	 -Erik
 
-2002-11-07  Erik Andersen  <andersen@dillweed>
+2003-01-23  Erik Andersen  <andersen@dillweed>
 
-	* extra/Configs/Config.in.arch: Add missing blank line
+	* libc/sysdeps/linux/v850/Makefile, libc/sysdeps/linux/sparc/Makefile, libc/sysdeps/linux/sh/Makefile, libc/sysdeps/linux/sh/crt0.S, libc/sysdeps/linux/mips/crt0.S, libc/sysdeps/linux/mips/Makefile, libc/sysdeps/linux/i960/Makefile, libc/sysdeps/linux/m68k/Makefile, libc/sysdeps/linux/m68k/crt0.S, libc/sysdeps/linux/i386/Makefile, libc/sysdeps/linux/i386/crt0.S, libc/sysdeps/linux/h8300/Makefile, libc/sysdeps/linux/h8300/crt0.S, libc/sysdeps/linux/cris/Makefile, libc/sysdeps/linux/common/Makefile, libc/sysdeps/linux/arm/Makefile, libc/sysdeps/linux/Makefile, libc/sysdeps/linux/alpha/Makefile, libc/sysdeps/Makefile:
+	Update architecture specific support to consistantly
+	generate a crt0 and crt1 file.  Most arches still need
+	to be updated to call __uClibc_start_main() rather than
+	__uClibc_main().
 
-2002-11-07  miles  <miles@dillweed>
+	* libc/sysdeps/linux/alpha/Makefile, libc/sysdeps/linux/alpha/crt0.S:
+	Hopefully this is correct
 
-	* extra/Configs/Config.v850, extra/Configs/Config.v850e:
-	Rename `Config.v850e' to `Config.v850'.
+	* libc/sysdeps/linux/cris/crt0.c, libc/sysdeps/linux/cris/Makefile:
+	Hopefully this will work as expected.  I have no way to
+	test but this should be correct.
 
-	* extra/Configs/Config.in.arch (UCLIBC_HAS_MMU):
-	Depend on !ARCH_HAS_NO_MMU, rather than just using it
-	  to set the default.
-	(HAS_FPU): Depend on !ARCH_HAS_NO_FPU.
-	(USE_GCC_SOFT_FLOAT_OPTION): New option.
+	* libc/sysdeps/linux/arm/crt0.S:
+	Update crt0 for arm to provide the main reference
+	a bit more nicely, and make _init and _fini be weak
+	for people with broken compilers
+	 -Erik
 
-	* extra/Configs/Config.in (DOPIC): Depend on !HAVE_NO_PIC.
-	(UCLIBC_HAS_FULL_RPC): default to `y' if !HAVE_SHARED.
-	(SYSTEM_LDSO): Depend on HAVE_SHARED.
-	(DOASSERTS): New option.
+	* Rules.mak: Shuffle OPTIMIZATION setting a bit
 
-	* Rules.mak: * Make -DNDEBUG depend on DOASSERTS, not DODEBUG
-	* Make -msoft-float depend on USE_GCC_SOFT_FLOAT_OPTION, not
-	  UCLIBC_HAS_SOFT_FLOAT.
-
-2002-11-06  Erik Andersen  <andersen@dillweed>
-
-	* libc/sysdeps/linux/arm/__longjmp.S, libc/sysdeps/linux/arm/setjmp.S, libc/sysdeps/linux/mips/__longjmp.c, libc/sysdeps/linux/mips/setjmp_aux.c:
-	Update soft-float handling
-
-	* extra/config/confdata.c: Increase maximum .config line size to 1024.
-
-	* extra/config/confdata.c:
-	Recognize 'n' tristate/boolean symbol value in the .config file,
-	allowing more convenient manual editing of the .config file.  Patch
-	by Petr Baudis, skimmed from linux-kernel mailing list.
-
-	* ldso/ldso/powerpc/elfinterp.c: Fix up a compile error
-
-	* ldso/ldso/Makefile: Cleanup patch from Simon Rowe
-
-2002-11-05  Manuel Novoa III  <mjn3@dillweed>
-
-	* libc/misc/wchar/wchar.c:
-	Forgot to change btowc and wctob when I changed the wc<->mb functions yesterday.
-
-2002-11-05  Erik Andersen  <andersen@dillweed>
+2003-01-23  Manuel Novoa III  <mjn3@dillweed>
 
 	* libc/stdio/stdio.c:
-	For now, leave the "Oddly enough, __fsetlocking() is NOT threadsafe."
-	comment as an mjn3 only item.
+	Wasn't thinking... we don't need to seek to end when appending if stdio
+	is built without buffer support.
 
-	* Rules.mak, extra/Configs/Config.in.arch: Cleanup soft-float support
+2003-01-23  Erik Andersen  <andersen@dillweed>
 
-	* libc/sysdeps/linux/h8300/Makefile, libc/sysdeps/linux/m68k/Makefile, Rules.mak:
-	Fixup handling of disabled options
+	* test/unistd/Makefile, test/termios/Makefile, test/string/Makefile, test/stdlib/Makefile, test/stat/Makefile, test/silly/Makefile, test/signal/Makefile, test/pwd_grp/Makefile, test/malloc/Makefile, test/math/.cvsignore, test/math/Makefile, test/math/rint.c, test/crypt/Makefile, test/Config, test/Rules.mak:
+	Update tests to be somewhat consistant with the rest of the world
 
-	* extra/gcc-uClibc/Makefile: Fix gcc-uClibc.h dependancies
+	* libc/sysdeps/linux/common/.cvsignore: Update ignore list
 
-	* ldso/ldso/sparc/elfinterp.c, ldso/ldso/sh/elfinterp.c, ldso/ldso/powerpc/elfinterp.c, ldso/ldso/mips/elfinterp.c, ldso/ldso/m68k/elfinterp.c, ldso/ldso/i386/elfinterp.c, ldso/ldso/cris/elfinterp.c, ldso/ldso/arm/elfinterp.c, ldso/ldso/readelflib1.c, ldso/ldso/Makefile, ldso/ldso/ldso.c, extra/Configs/Config.in:
-	Massive scrubbing of the shared lib loader error handling.
-	Move all configuration options into the new config system.
+	* libc/sysdeps/linux/i386/Makefile: Update a tiny bit
+
+	* libc/Makefile, libc/sysdeps/linux/common/Makefile, extra/scripts/initfini.awk, Rules.mak:
+	Cleanup makefiles and make clean a bit
+
+	* libc/misc/internals/__uClibc_main.c:
+	Making atexit weak does nothing for dynamicly linked apps.  And for
+	staticly linked apps it entirely prevents destructors from running
+	unless atexit is called for some other reason.  So if they enabled
+	ctor/dtor support we need to have a call to the real atexit for
+	dtors to work properly.  If people don't want the extra 4k or so
+	of junk in their static apps, they should leave ctor/dtor support
+	disabled.
 	 -Erik
 
-	* libc/termios/ttyname.c:
-	A patch from Danny Lepage so that we do not setting on symlinks
-	when looking for a device match, and instead keep looking till
-	we find the correct device.
+	* libc/sysdeps/linux/i386/crt0.S:
+	simpler method for getting a 'main' reference.  Make _init and _fini
+	be weak so people won't need to fix their compilers
 
-	* docs/Glibc_vs_uClibc_Differences.txt: Expand NIS comments
+	* libc/sysdeps/linux/powerpc/crt0.S:
+	Shuffle two lines so the comment applies to the correct line.
 
-	* Rules.mak, extra/gcc-uClibc/Makefile, extra/gcc-uClibc/gcc-uClibc.c, libpthread/Makefile:
-	Standardize LIBGCC_DIR
+	* libc/sysdeps/linux/powerpc/crt0.S, libc/sysdeps/linux/powerpc/Makefile:
+	Rewrite powerpc crt0.S for proper ctor/dtor handling
 
-	* ldso/ldso/Makefile: Kill legacy DOPIC=true assignment
-
-	* libc/Makefile: Patch from Stefan Allius -- export LIBGCC
-
-	* libc/sysdeps/linux/common/Makefile:
-	Patch from Stefan Allius.  Include CPU_CFLAGS when compiling
-	initfini
-
-	* extra/config/symbol.c: Patch from M. R. Brown to fix 'make defconfig'
-
-	* Rules.mak: Export TARGET_ARCH
-
-2002-11-04  Manuel Novoa III  <mjn3@dillweed>
-
-	* docs/Glibc_vs_uClibc_Differences.txt:
-	Hit the highlights of glibc differences in my code.  Not yet complete though.
-
-	* libc/misc/wchar/wchar.c, libc/stdio/printf.c:
-	Add printf wchar support for %lc (%C) and %ls (%S).
-	Require printf format strings to be valid multibyte strings beginning and
-	  ending in their initial shift state, as per the stds.
-
-	Fixed a bug in _wchar_wcsntoutf8s().  Don't store wcs position if dst is NULL.
-	Also, introduce an awful hack into _wchar_wcsntoutf8s() and wcsrtombs() in
-	  order to support %ls in printf.  See comments below for details.
-	Change behaviour of wc<->mb functions when in the C locale.  Now they do
-	  a 1-1 map for the range 0x80-UCHAR_MAX.  This is for backwards compatibility
-	  and consistency with the stds requirements that a printf format string by
-	  a valid multibyte string beginning and ending in it's initial shift state.
-
-	* Rules.mak: This fixes a broken build for me.
-
-2002-11-04  Erik Andersen  <andersen@dillweed>
-
-	* Rules.mak: Fixup so we use soft-float when HAS_FPU is disabled.
-	 -Erik
-
-	* libc/sysdeps/linux/sh/__longjmp.S, libc/sysdeps/linux/sh/bsd-_setjmp.S, libc/sysdeps/linux/sh/bsd-setjmp.S, libc/sysdeps/linux/sh/clone.S, libc/sysdeps/linux/sh/setjmp.S, libc/sysdeps/linux/sh/vfork.S:
-	I dunno why there were align 5, but align 4 is much more sensible.
-
-	* libc/sysdeps/linux/sh/bsd-setjmp.S, libc/sysdeps/linux/sh/clone.S, libc/sysdeps/linux/sh/setjmp.S, libc/sysdeps/linux/sh/sysdep.h, libc/sysdeps/linux/sh/vfork.S, libc/sysdeps/linux/sh/__longjmp.S, libc/sysdeps/linux/sh/bsd-_setjmp.S:
-	Kill sysdep.h and fixup the SH asm to not use it.
-	 -Erik
-
-	* libc/sysdeps/linux/sh/clone.S:
-	Don't use ENTRY(), make the asm explicit
-	 -Erik
-
-	* docs/uclibc.org/index.html:
-	Add link to search google's uclibc archive
-
-	* libc/sysdeps/linux/common/syscalls.c: Oops.  Fix compilation on arm.
-	 -Erik
-
-2002-11-03  Erik Andersen  <andersen@dillweed>
-
-	* libc/sysdeps/linux/arm/inout_bwl.c, libc/sysdeps/linux/arm/ioperm.c, libc/sysdeps/linux/arm/Makefile:
-	A patch from Vincent Sanders to fix the arm implementation of
-	ioperm() and iopl()
-
-2002-11-03  Manuel Novoa III  <mjn3@dillweed>
-
-	* libc/stdio/printf.c:
-	It was easy enough to respect locale-specific decimal point for printf
-	floating point output, so at least implement that.  But grouping will
-	have to wait for the rewrite of _dtostr.
-
-	* libc/stdio/stdio.c, libc/stdio/printf.c, libc/sysdeps/linux/common/bits/uClibc_stdio.h:
-	Implement locale-specific grouping in printf for base 10 integer conversions
-	when the grouping flag "'" is specified.  Grouping for floating point values
-	may wait until I do a rewrite of the floating pt to string code...
-
-2002-11-03  Erik Andersen  <andersen@dillweed>
-
-	* ldso/ldso/sh/elfinterp.c, ldso/ldso/sh/ld_sysdep.h, ldso/ldso/sh/resolve.S, ldso/ldso/ldso.c:
-	Several SH lib loader patches by Stefan Allius <allius@atecom.com>
-	and "M. R. Brown" <mrbrown@0xd6.org>
-
-	* extra/scripts/initfini.awk, libc/sysdeps/linux/common/initfini.c:
-	Another update to initfini.awk and initfini.c from Stefan Allius
-	to hopefully address SH wierdness.  Now works on other architecture
-	properly as well.
-
-	* libc/sysdeps/linux/cris/sysdep.h, libc/sysdeps/linux/i960/clone.S, libc/sysdeps/linux/m68k/clone.S, libc/sysdeps/linux/sh/sysdep.h:
-	Properly prefix some symbols
-
-	* extra/Configs/Config.in.arch, extra/Configs/Config.m68k, extra/Configs/Config.mips, extra/Configs/Config.mipsel, extra/Configs/Config.powerpc, extra/Configs/Config.sh, extra/Configs/Config.sparc, extra/Configs/Config.v850e, extra/Configs/Config.cris, extra/Configs/Config.h8300, extra/Configs/Config.i386, extra/Configs/Config.i386.default, extra/Configs/Config.i960, extra/Configs/Config.alpha, extra/Configs/Config.arm, Rules.mak:
-	Yet more config system updating.
-
-	* ldso/ldso/sh/boot1_arch.h, ldso/ldso/sh/ld_sysdep.h:
-	Patch from M. R. Brown <mrbrown@0xd6.org> to get rid of
-	"depreciated multi-line string literals" warnings
-
-	* libc/inet/resolv.c:
-	Patch from "Cho, Seong-Myun" <smcho@xecurenexus.com> to limit
-	things to the lower 16 bits of 'id'.
-
-	* Makefile, Rules.mak: Use "include_config" not "include-config"
-
-2002-11-02  Erik Andersen  <andersen@dillweed>
-
-	* extra/Configs/Config.sh:
-	kill some ancient stuff that appears to be lingering
-
-	* extra/Configs/Config.sh: Default to SH4
-
-	* extra/Configs/Config.sparc, extra/Configs/Config.v850e, extra/Configs/Config.alpha, extra/Configs/Config.arm, extra/Configs/Config.cris, extra/Configs/Config.cross.arm.uclinux, extra/Configs/Config.h8300, extra/Configs/Config.i386, extra/Configs/Config.i386.default, extra/Configs/Config.i960, extra/Configs/Config.in.arch, extra/Configs/Config.m68k, extra/Configs/Config.m68k.coff, extra/Configs/Config.mips, extra/Configs/Config.mipsel, extra/Configs/Config.powerpc, extra/Configs/Config.sh:
-	update all the Config files for the various arches so they work with the new
-	config system.  Hopefully I got everything here correct...
-	 -Erik
-
-	* TODO: Update TODO items
-
-	* extra/config/.cvsignore, extra/config/Makefile, extra/config/zconf.tab.c_shipped, extra/config/zconf.y:
-	A few cosmetic adjustments, and fixup the makefile a bit
-
-	* extra/Configs/Config.i386.default, extra/Configs/Config.in, ldso/ldso/Makefile:
-	Fix PIC configuration, so shared libraries once again work
-	 -Erik
-
-	* extra/Configs/Config.in:
-	It looks like I lost DEVEL_TOOL_PREFIX.  Put it back.
-	 -Erik
-
-2002-11-01  Manuel Novoa III  <mjn3@dillweed>
-
-	* libc/misc/locale/locale.c: Fix a stupid bug.
-
-	* libc/misc/locale/locale.c:
-	Reworked setlocale() return values and locale arg processing to
-	  be more like glibc.  Applications expecting to be able to
-	  query locale settings should now work... at the cost of almost
-	  doubling the size of the setlocale object code.
-	Fixed a bug in the internal fixed-size-string locale specifier code.
-
-	* extra/locale/LOCALES: Add a few more entries.
-
-	* extra/locale/gen_locale.c:
-	Work around glibc brain-damage regarding nl_langinfo and {mon_}grouping
-	entries.
-
-2002-11-01  Erik Andersen  <andersen@dillweed>
-
-	* docs/uclibc.org/uClibc-apps.html: Fix udhcp link
-
-	* Rules.mak: Don't assume i386
-
-2002-10-31  Erik Andersen  <andersen@dillweed>
-
-	* extra/Configs/Config.arm, extra/Configs/Config.i386, extra/Configs/Config.in.arch, Rules.mak:
-	Make it so arch specific stuff can be simpler.  Initial attempt at
-	making CPU_CFLAGS, which should allow things to be optimized per-CPU
-	and/or per-system.
-	 -Erik
-
-	* extra/config/lxdialog/.cvsignore, extra/config/lxdialog/lxdialog, extra/config/zconf.tab.c, extra/config/zconf.tab.h, extra/config/.cvsignore, extra/config/conf, extra/config/lex.zconf.c, extra/config/lkc_defs.h, extra/config/mconf:
-	Oops.  Kill generated binaries.
-
-	* extra/gcc-uClibc/Makefile: Skip the dependancy on .config for now
-
-	* extra/gcc-uClibc/Makefile: Fix a lingering reference to Config
-	 -Erik
-
-	* test/Makefile, test/Rules.mak:
-	Allow 'make clean' on the test stuff to work with the new config system.
-	 -Erik
-
-	* Rules.mak: Don't force gcc 3.2 on the world
-	 -Erik
-
-	* libutil/Makefile, libpthread/linuxthreads/attr.c, libpthread/linuxthreads/weaks.c, libpthread/linuxthreads/wrapsyscall.c, libpthread/Makefile, libm/powerpc/Makefile, libm/Makefile, libc/unistd/Makefile, libc/unistd/daemon.c, libc/unistd/fpathconf.c, libc/unistd/pathconf.c, libc/sysdeps/linux/sh/sysdep.h, libc/sysdeps/linux/powerpc/Makefile, libc/sysdeps/linux/m68k/Makefile, libc/sysdeps/linux/m68k/clone.S, libc/sysdeps/linux/m68k/crt0.S, libc/sysdeps/linux/m68k/vfork.S, libc/sysdeps/linux/i960/README, libc/sysdeps/linux/h8300/Makefile, libc/sysdeps/linux/h8300/crt0.S, libc/sysdeps/linux/h8300/vfork.S, libc/sysdeps/linux/cris/Makefile, libc/sysdeps/linux/common/bits/posix_opt.h, libc/sysdeps/linux/common/bits/uClibc_stdio.h, libc/sysdeps/linux/common/setrlimit64.c, libc/sysdeps/linux/common/syscalls.c, libc/sysdeps/linux/common/truncate64.c, libc/sysdeps/linux/common/Makefile, libc/sysdeps/linux/common/creat64.c, libc/sysdeps/linux/common/ftruncate64.c, libc/sysdeps/linux/common/getdirname.c, libc/sysdeps/linux/common/getrlimit64.c, libc/sysdeps/linux/common/initfini.c, libc/sysdeps/linux/common/llseek.c, libc/sysdeps/linux/common/mmap64.c, libc/sysdeps/linux/common/open64.c, libc/sysdeps/linux/common/pread_write.c, libc/string/Makefile, libc/stdlib/Makefile, libc/stdlib/getpt.c, libc/stdlib/grantpt.c, libc/stdlib/ptsname.c, libc/stdio/Makefile, libc/stdio/tmpfile.c, libc/pwd_grp/Makefile, libc/misc/time/Makefile, libc/misc/statfs/Makefile, libc/misc/statfs/fstatfs64.c, libc/misc/statfs/fstatvfs64.c, libc/misc/statfs/statfs64.c, libc/misc/statfs/statvfs64.c, libc/misc/locale/Makefile, libc/misc/internals/Makefile, libc/misc/internals/tempname.c, libc/misc/glob/glob64.c, libc/misc/dirent/alphasort64.c, libc/misc/dirent/readdir64.c, libc/misc/dirent/readdir64_r.c, libc/misc/dirent/scandir64.c, libc/misc/Makefile, libc/inet/rpc/Makefile, libc/inet/Makefile, ldso/ldso/Makefile, ldso/Makefile, include/sys/cdefs.h, include/features.h, extra/locale/Makefile, extra/gcc-uClibc/Makefile, extra/gcc-uClibc/gcc-uClibc.c, extra/config/lxdialog/inputbox.c, extra/config/lxdialog/lxdialog, extra/config/lxdialog/lxdialog.c, extra/config/lxdialog/menubox.c, extra/config/lxdialog/msgbox.c, extra/config/lxdialog/textbox.c, extra/config/lxdialog/util.c, extra/config/lxdialog/yesno.c, extra/config/lxdialog/BIG.FAT.WARNING, extra/config/lxdialog/Makefile, extra/config/lxdialog/checklist.c, extra/config/lxdialog/colors.h, extra/config/lxdialog/dialog.h, extra/config/zconf.tab.c_shipped, extra/config/zconf.tab.h, extra/config/zconf.tab.h_shipped, extra/config/zconf.y, extra/config/lkc_proto.h, extra/config/mconf, extra/config/mconf.c, extra/config/menu.c, extra/config/symbol.c, extra/config/zconf.l, extra/config/zconf.tab.c, extra/config/lex.zconf.c_shipped, extra/config/lkc.h, extra/config/lkc_defs.h, extra/config/Makefile, extra/config/conf, extra/config/conf.c, extra/config/confdata.c, extra/config/expr.c, extra/config/expr.h, extra/config/lex.zconf.c, extra/Configs/Config.i386, extra/Configs/Config.i386.default, extra/Configs/Config.in, Rules.mak, .cvsignore, Makefile:
-	Ok, this commit is _huge_ and its gonna change the world.  I've
-	been working on a new config system on and off for about 6 months
-	now, but I've never been fully satisfied.  Well, I'm finally am
-	happy with the new config system, so here it is.  This completely
-	removes the old uClibc configuration system, and replaces it with
-	an entirely new system based on LinuxKernelConf, from
-	    http://www.xs4all.nl/~zippel/lc/
-	As it turns out, Linus has just merged LinuxKernelConf into Linux
-	2.5.45, so it looks like I made the right choice.
-
-	I have thus far updated only x86.  I'll be updating the other
-	architectures shortly.
-	         -Erik
-
-	* test/malloc/.cvsignore: Ignore generated stuff
-
-	* test/malloc/Makefile, test/malloc/realloc0.c:
-	Add a simple realloc test
-	 -Erik
-
-	* extra/scripts/get-needed-libgcc-objects.sh:
-	Fixup script to avoid potential spurious whining over empty object files.
-	 -Erik
-
-2002-10-30  Erik Andersen  <andersen@dillweed>
-
-	* ldso/util/bswap.h: Use '#ifdef __linux__' not '#ifdef linux'
-
-	* Rules.mak: Use a nifty macro to make testing gcc features simpler
-	and easier to read.
-	 -Erik
-
-2002-10-29  Manuel Novoa III  <mjn3@dillweed>
-
-	* libc/stdlib/stdlib.c:
-	Fix a couple of 'restrict' bugs in mbstowcs and wcstombs.
-
-2002-10-29  Erik Andersen  <andersen@dillweed>
-
-	* libc/stdio/printf.c: Fix a silly typo for Manuel
-	 -Erik
-
-	* extra/scripts/initfini.awk: For now, comment out the broken part
-
-	* extra/scripts/initfini.awk, libc/sysdeps/linux/common/initfini.c:
-	Remove my horrible SH hack infavor of this fix for initfini.awk from
-	Stefan Allius <allius@atecom.com>, which does a better job.
-
-	* libpthread/linuxthreads/manager.c:
-	A patch from Arne Jonsson <arne.jonsson@i3micro.com>:
-
-	    Attached are the changes we think is necessary in order to use user
-	    defined stacksizes for each thread. When testing I forgot to lower the
-	    PTHREAD_STACK_MIN to the lowest value used for the stacks, this caused
-	    stranged reboots.
-	    As said before, we are using uClinux 2.0.38 on a ARM7TDMI.
-
-	* libc/sysdeps/linux/common/initfini.c:
-	Add in a horrible hack that seems necessary for the Hitachi
-	SH processors to work properly.
-	 -Erik
-
-2002-10-29  Manuel Novoa III  <mjn3@dillweed>
-
-	* libc/stdio/printf.c:
-	Fix a problem in vasprintf (reported by vodz a while back) when built
-	without custom stream support.  In that case, it is necessary to do
-	a va_copy.  Note: The affected code is not built in the stock config.
-	Also, make sure each va_copy has a matching va_end, as required by C99.
-
-2002-10-28  Manuel Novoa III  <mjn3@dillweed>
-
-	* libc/misc/assert/__assert.c:
-	ANSI/ISO C99 requires assert() to write to stderr.  This means that
-	writing to STDERR_FILENO is insufficient, as the user could freopen
-	stderr.  It is also insufficient to output to fileno(stderr) since
-	this would fail in the custom stream case.  I didn't remove the
-	old code though, as it doesn't use stdio stream functionality
-	and is useful in debugging the stdio code.
-
-	* libc/misc/time/time.c:
-	Allow timezone info to be specified in a file... /etc/TZ.  Turned on by
-	default for now.  From the comments...
-
-	* Defining __TIME_TZ_FILE causes tzset() to attempt to read the TZ value
-	* from the file /etc/TZ if the TZ env variable isn't set.  The file contents
-	* must be the intended value of TZ, followed by a newline.  No other chars,
-	* spacing, etc is allowed.  As an example, an easy way for me to init
-	* /etc/TZ appropriately would be:    echo CST6CDT > /etc/TZ
-
-	Also optimized timezone setting when the timezone string hasn't changed,
-	as well as fixed a minor buglet wrt SUSv3-allowed chars in TZ std and
-	dst fields.
-
-2002-10-28  miles  <miles@dillweed>
-
-	* Makefile:
-	Define TOPDIR to be just `.' when invoking gen_bits_syscall_h.sh, since
-	  we've already chdir'ed to $(TOPDIR).
-
-	* extra/scripts/gen_bits_syscall_h.sh:
-	Add appropriate -I options so that any files included by unistd.h are
-	  found correctly.
-	Tweak the whitespace of the generated file.
-
-2002-10-25  Erik Andersen  <andersen@dillweed>
-
-	* libc/misc/internals/Makefile: Fixup depends
-
-	* libc/Makefile: Put it back the way it was.  Sigh.
-
-	* libc/Makefile:
-	Sigh.  Lets not use LD to link, or we lose the INTERP field.
-	 -Erik
-
-	* libc/misc/internals/Makefile:
-	Doh.  Add a missing #include to interp.c.  I wonder why it used to
-	work?  Perhaps the wrapper bug miles fixed?  Regardless this is very
-	much needed.
-	 -Erik
-
-	* libc/sysdeps/linux/common/Makefile:
-	Overwriting the crt1.o link is fine
-
-	* libc/sysdeps/linux/common/Makefile:
-	Be nicer to gcc -- add a link for crt1.o
-
-	* ldso/libdl/Makefile: Actually install libdl.a
-	 -Erik
-
-2002-10-23  Erik Andersen  <andersen@dillweed>
-
-	* libpthread/linuxthreads/manager.c:
-	A patch from Arne Jonsson <arne.jonsson@i3micro.com> to allow
-	uClibc's libpthread to run on linux 2.0.x kernels which lack
-	poll() and therefore must use select() instead.
-
-2002-10-23  miles  <miles@dillweed>
-
-	* extra/gcc-uClibc/gcc-uClibc.c:
-	Make `-nostdlib' and `-nodefaultlibs' work correctly.
-
-2002-10-22  Erik Andersen  <andersen@dillweed>
-
-	* libc/stdlib/ptsname.c:
-	When UNIX98PTY_ONLY was false, but Unix 98 ptys were in fact working and
-	functional, everything would succeed but then we would return a failure due to
-	a silly logic bug.  This patch fixes it so things will work correctly
-	regardless of the UNIX98PTY_ONLY setting.
-	 -Erik
-
-2002-10-21  Erik Andersen  <andersen@dillweed>
-
-	* docs/uclibc.org/uClibc-apps.html:
-	Update freeswan entry, per success report from Arne Bernin
-
-2002-10-18  Erik Andersen  <andersen@dillweed>
-
-	* Rules.mak, libc/sysdeps/linux/common/Makefile:
-	This patch, based on a patch from Stefan Allius, lets us pick an
-	appropriate awk implementation at compile time, so we can again
-	compile on Solaris and whatnot.
-	 -Erik
-
-	* Makefile: Echo mmu-less warning where appropriate
-
-	* docs/Glibc_vs_uClibc_Differences.txt:
-	Add in an initial list of the differences between glibc and uClibc.
-	This is not complete, but covers some of the main points.
-	 -Erik
-
-2002-10-18  miles  <miles@dillweed>
+	* libc/stdlib/malloc-930716/malloc.c: Kill the needless '#if 1'
 
 	* libc/stdlib/malloc/malloc.c:
-	Don't infinitely recurse when trying to grow __malloc_mmb_heap.
+	Update malloc behavior on malloc(0) to be consistant with
+	malloc-930716 behavior, i.e. return a NULL.
 
-2002-10-17  Erik Andersen  <andersen@dillweed>
+	* libpthread/linuxthreads/manager.c, libpthread/linuxthreads/pthread.c, libpthread/linuxthreads/specific.c, libpthread/linuxthreads_db/td_symbol_list.c:
+	Just be a bit less different from latest glibc version in comments
+	and in the files where variables live.
 
-	* test/stdlib/.cvsignore, test/stdlib/Makefile, test/stdlib/ptytest.c:
-	Add a test from Alex King <alex@morrison.king.net.nz> which
-	shows a failure in ptsname when ASSUME_DEVPTS=false
+	* libpthread/linuxthreads/sysdeps/mips/pt-machine.h:
+	Per patch from Nathan Field at ghs.com, fix the mips __compare_and_swap inline
+	function.  Without this fix, pthread_mutex_lock/pthread_mutex_unlock don't work
+	on mips.
+
+	* libpthread/linuxthreads/pthread.c:
+	Per patch from Nathan Field at ghs.com, fix __pthread_initialize_manager so it
+	locks before calling clone when under a debugger, and unlocks on success or
+	failure of clone when under a debugger.
+
+	* libpthread/linuxthreads/manager.c, libpthread/linuxthreads/specific.c:
+	Per patch from Nathan Field at ghs.com, add a couple of variables
+	needed to make gdb happy when debugging threadded apps.
+
+	* libpthread/linuxthreads_db/td_symbol_list.c:
+	Fix indenting.  Per patch from Nathan Field at ghs.com,  change
+	LINUXTHREADS_PTHREAD_THREADS_MAX to properly point to "__pthread_threads_max".
+
+	* extra/config/menubox.c:
+	Patch from Brett Hunt at micron.com to fixup potential segfaults
+	during 'make menuconfig'
+
+2003-01-22  Manuel Novoa III  <mjn3@dillweed>
+
+	* libc/stdio/stdio.c:
+	Fixed a bug related file position in append mode.  _stdio_fwrite now
+	  seeks to the end of the stream when append mode is set and we are
+	  transitioning to write mode, so that subsequent ftell() return
+	  values are correct.
+	Also fix _stdio_fopen to support fdopen() with append specified when
+	  the underlying file didn't have O_APPEND set.  It now sets the
+	  O_APPEND flag as recommended by SUSv3 and is done by glibc.
+
+2003-01-22  Erik Andersen  <andersen@dillweed>
+
+	* libc/signal/sigaction.c, libc/sysdeps/linux/arm/sigaction.c, libc/sysdeps/linux/common/bits/kernel_sigaction.h, libc/sysdeps/linux/common/syscalls.c, libc/sysdeps/linux/i386/Makefile, libc/sysdeps/linux/i386/sigaction.c:
+	Update sigaction syscall names to act more like glibc.  Fix the x86 sigaction
+	implementation such that gdb can actually debug signal handlers.  Gdb behaves
+	much better now, for example, on multi-threaded apps.
 	 -Erik
 
-	* libc/stdlib/malloc/heap.h, libc/stdlib/malloc/realloc.c:
-	Fix malloc so it compiles and works when using pthreads
+2003-01-22  sjhill  <sjhill@dillweed>
+
+	* libc/sysdeps/linux/mips/bits/kernel_types.h:
+	Changed '__kernel_nlink_t' data type to match Linux/MIPS kernel type
+	definition and to be consistent with the ABI. Done per conversation
+	with Ralf (Linux/MIPS) maintainer.
+
+2003-01-22  Erik Andersen  <andersen@dillweed>
+
+	* libc/sysdeps/linux/arm/Makefile, libc/sysdeps/linux/arm/sigaction.c, libc/sysdeps/linux/arm/sigrestorer.S:
+	Add in arm specific sigaction implementation to fix sa_restorer
+	behavior so it works as expected
+
+	* libc/sysdeps/linux/common/bits/kernel_sigaction.h: Missed an endif
+
+	* libc/sysdeps/linux/common/bits/kernel_sigaction.h, libc/signal/sigaction.c:
+	Looks like sigaction on arm needs adjustment, so split this into
+	a common header file and a default implementation.
+
+2003-01-18  Erik Andersen  <andersen@dillweed>
+
+	* libc/misc/file/Makefile, libc/misc/file/lockf64.c:
+	Only include lockf64 when large file support is enabled, fixing
+	a problem noticed by Jeff Mock.  Sorry about that.
 	 -Erik
 
-2002-10-16  Erik Andersen  <andersen@dillweed>
+2003-01-17  Erik Andersen  <andersen@dillweed>
 
-	* test/ldso/Makefile: Remove -fuclibc-ctors
+	* Rules.mak: Remember to also export LC_ALL in addition to setting it.
+	 -Erik
+
+2003-01-16  Erik Andersen  <andersen@dillweed>
+
+	* extra/Configs/Config.arm, extra/Configs/Config.i386, extra/Configs/Config.i386.default, Rules.mak:
+	Update build rules a bit.  fix quoting problems.  Update default
+	x86 compiler optimization to not force building i386 opcodes.
+
+2003-01-14  Erik Andersen  <andersen@dillweed>
+
+	* Rules.mak: Strip off unwanted quotes from ARCH_CFLAGS.  Attempt to
+	enforce consistent sort order, 'gcc -print-search-dirs'
+	behavior, etc by forcing the build into the C locale.
+	 -Erik
+
+2003-01-11  Erik Andersen  <andersen@dillweed>
+
+	* extra/config/Makefile:
+	Patch from Robert Schwebel -- support ncurses installed in /usr/local
+
+2003-01-10  Erik Andersen  <andersen@dillweed>
+
+	* docs/uclibc.org/index.html: Update website dev image blurb
+
+	* libc/inet/resolv.c: Patch from Jay Kulpinski:
+	    __decode_dotted() does not count the null terminating byte of
+	    a hostname in the DNS response.  This causes lookups to fail
+	    if the DNS response doesn't compress domain names in the
+	    message.
+
+	* libc/inet/ether_addr.c: Fix warnings
+
+	* libc/misc/file/Makefile, libc/misc/file/lockf64.c: Implement lockf64
+	 -Erik
+
+	* libc/inet/Makefile, libc/inet/ether_addr.c:
+	Patch from Nick Fedchik to support ether_aton
+
+2003-01-09  Erik Andersen  <andersen@dillweed>
+
+	* docs/uclibc.org/index.html:
+	mention the uClibc root_fs now available on uclibc.org
+
+	* include/stdlib.h:
+	Hide unimplemented and legacy ecvt and friends from configure.
+	 -Erik
+
+2003-01-08  Erik Andersen  <andersen@dillweed>
+
+	* include/inttypes.h:
+	Disable the __USE_EXTERN_INLINES versions of these headers, which
+	use non-existant glibc internals.
+
+2003-01-08  Manuel Novoa III  <mjn3@dillweed>
+
+	* include/stdlib.h:
+	For now, "#if 0" out the inlining of (currently unsupported) glibc-specific
+	string->numeric conversion functions.
+
+2003-01-08  Erik Andersen  <andersen@dillweed>
+
+	* docs/uclibc.org/index.html:
+	Lineo has ceased to exist and is no longer a sponsor
+
+2003-01-05  Manuel Novoa III  <mjn3@dillweed>
+
+	* libc/stdio/stdio.c, TODO:
+	Fix a silly bug in _wstdio_fwrite.  wprintf %s should now work correctly.
+
+2003-01-03  Erik Andersen  <andersen@dillweed>
 
 	* ldso/libdl/dlib.c:
-	Kill a warning.  Patch from Joel Coltoff <joel@wmi.com>
+	If they call dlopen with anything other than RTLD_LAZY
+	or RTLD_NOW then we need to error out.
 
-2002-10-15  sjhill  <sjhill@dillweed>
+2003-01-02  Erik Andersen  <andersen@dillweed>
 
-	* ldso/libdl/dlib.c:
-	Fixed 'dlopen' call for MIPS. Things seem to work swimingly. Woohoo!
-
-2002-10-15  miles  <miles@dillweed>
-
-	* Makefile (uClibc_config):
-	Define __UCLIBC_UCLINUX_BROKEN_MUNMAP__ for MMU-less systems.
-
-	* libc/stdlib/malloc/realloc.c:
-	Use __heap_[un]lock instead of __malloc_[un]lock.
-
-	* libc/stdlib/malloc/malloc.h: Get rid of old malloc lock stuff.
-
-	* libc/stdlib/malloc/free.c, libc/stdlib/malloc/malloc.c:
-	Fix locking to not deadlock when __UCLIBC_UCLINUX_BROKEN_MUNMAP__ is defined.
-
-2002-10-14  Erik Andersen  <andersen@dillweed>
-
-	* extra/scripts/initfini.pl: Kill the now redundant initfini.pl
+	* libc/sysdeps/linux/sparc/bits/syscalls.h, libc/sysdeps/linux/sparc/Makefile, libc/sysdeps/linux/sparc/__longjmp.S, libc/sysdeps/linux/sparc/fork.S, libc/sysdeps/linux/sparc/rem.S, libc/sysdeps/linux/sparc/sdiv.S, libc/sysdeps/linux/sparc/setjmp.S, libc/sysdeps/linux/sparc/sysdep.h, libc/sysdeps/linux/sparc/udiv.S, libc/sysdeps/linux/sparc/umul.S, libc/sysdeps/linux/sparc/urem.S, libc/sysdeps/linux/sparc/vfork.S, libpthread/linuxthreads/sysdeps/sparc/pt-machine.h, libpthread/linuxthreads/sysdeps/sparc/sigcontextinfo.h:
+	Rework sparc architecture support so it will compile
+	and run.  Seems to be working...
 	 -Erik
 
-	* libc/sysdeps/linux/common/Makefile, extra/scripts/initfini.awk:
-	Patch from Christian MICHON <christian_michon@yahoo.fr> to reimplement
-	my little initfini.pl script in awk.  This eliminates uClibc's
-	compile-time dependancy on perl, and lets us use the much lighter
-	weight awk, which facilitates building uClibc standalone environments.
+2002-12-21  Erik Andersen  <andersen@dillweed>
 
-2002-10-13  Erik Andersen  <andersen@dillweed>
-
-	* include/pthread.h, libc/sysdeps/linux/common/bits/sigthread.h, libpthread/linuxthreads/sysdeps/unix/sysv/linux/bits/sigthread.h:
-	It turns out that __thread is now a gcc keyword.  We used __thread in
-	a few spots in our header files.  In this change I do a
-	    s/__thread/__thread_id/
-	so we no longer conflict with newer CVS versions of gcc (such as the
-	patched up gcc 3.2 included with RedHat 3.0).
+	* libc/sysdeps/linux/powerpc/Makefile:
+	Be sure we have a crt1.o file.  Use the asm version by default.
 	 -Erik
 
-2002-10-09  Erik Andersen  <andersen@dillweed>
+2002-12-20  Manuel Novoa III  <mjn3@dillweed>
 
-	* libc/sysdeps/linux/sparc/bits/fcntl.h, libc/sysdeps/linux/mips/bits/fcntl.h:
-	Octal to hex
+	* TODO: Update.
 
-	* libc/sysdeps/linux/cris/bits/fcntl.h, libc/sysdeps/linux/i960/bits/fcntl.h, libc/sysdeps/linux/alpha/bits/fcntl.h, libc/sysdeps/linux/v850/bits/fcntl.h, libc/sysdeps/linux/sparc/bits/fcntl.h, libc/sysdeps/linux/sh/bits/fcntl.h, libc/sysdeps/linux/powerpc/bits/fcntl.h, libc/sysdeps/linux/mips/bits/fcntl.h, libc/sysdeps/linux/m68k/bits/fcntl.h, libc/sysdeps/linux/h8300/bits/fcntl.h, libc/sysdeps/linux/i386/bits/fcntl.h, libc/sysdeps/linux/arm/bits/fcntl.h:
-	Support O_STREAMING
+	* extra/locale/LOCALES: Obligatory forgotten update...
 
-2002-10-09  miles  <miles@dillweed>
+	* extra/locale/Makefile:
+	Add a target so that people can download and use pregenerated locale data
+	files instead of generating approx 40Mb of glibc locales to get the 300+
+	locales currently supported.
 
-	* libc/stdlib/malloc/free.c, libc/stdlib/malloc/heap.h, libc/stdlib/malloc/malloc.c, libc/stdlib/malloc/malloc.h:
-	* Add support for uClinux's broken munmap, contingent on
-	  __UCLIBC_UCLINUX_BROKEN_MUNMAP__ (which is currently not defined anywhere).
-	  This makes other cases a tiny bit less efficient too.
-	* Move the malloc lock into the heap structure (locking is still done
-	  at the malloc level though, not by the heap functions).
-	* Initialize the malloc heap to contain a tiny initial static free-area so
-	  that programs that only do a very little allocation won't ever call mmap.
+	* libc/sysdeps/linux/common/bits/uClibc_locale.h, libc/string/Makefile, libc/string/wstring.c, libc/stdio/printf.c, libc/stdio/stdio.c, libc/misc/locale/locale.c, include/langinfo.h, extra/locale/collation/tl_PH, extra/locale/collation/tr_TR, extra/locale/collation/tt_RU, extra/locale/collation/uk_UA, extra/locale/collation/ur_PK, extra/locale/collation/uz_UZ, extra/locale/collation/vi_VN, extra/locale/collation/wa_BE, extra/locale/collation/yi_US, extra/locale/collation/zh_CN, extra/locale/collation/zh_HK, extra/locale/collation/zh_SG, extra/locale/collation/zh_TW, extra/locale/collation/oc_FR, extra/locale/collation/pl_PL, extra/locale/collation/pt_BR, extra/locale/collation/pt_PT, extra/locale/collation/ro_RO, extra/locale/collation/ru_RU, extra/locale/collation/ru_UA, extra/locale/collation/se_NO, extra/locale/collation/sk_SK, extra/locale/collation/sl_SI, extra/locale/collation/sq_AL, extra/locale/collation/sr_YU, extra/locale/collation/sv_FI, extra/locale/collation/sv_SE, extra/locale/collation/ta_IN, extra/locale/collation/te_IN, extra/locale/collation/tg_TJ, extra/locale/collation/th_TH, extra/locale/collation/ti_ER, extra/locale/collation/ti_ET, extra/locale/collation/mi_NZ, extra/locale/collation/mk_MK, extra/locale/collation/mr_IN, extra/locale/collation/ms_MY, extra/locale/collation/mt_MT, extra/locale/collation/nl_BE, extra/locale/collation/nl_NL, extra/locale/collation/nn_NO, extra/locale/collation/no_NO, extra/locale/collation/hu_HU, extra/locale/collation/hy_AM, extra/locale/collation/id_ID, extra/locale/collation/is_IS, extra/locale/collation/iso14651_t1, extra/locale/collation/it_CH, extra/locale/collation/it_IT, extra/locale/collation/iw_IL, extra/locale/collation/ja_JP, extra/locale/collation/ka_GE, extra/locale/collation/kl_GL, extra/locale/collation/ko_KR, extra/locale/collation/kw_GB, extra/locale/collation/lt_LT, extra/locale/collation/lv_LV, extra/locale/collation/es_VE, extra/locale/collation/et_EE, extra/locale/collation/eu_ES, extra/locale/collation/fa_IR, extra/locale/collation/fi_FI, extra/locale/collation/fo_FO, extra/locale/collation/fr_BE, extra/locale/collation/fr_CA, extra/locale/collation/fr_CH, extra/locale/collation/fr_FR, extra/locale/collation/fr_LU, extra/locale/collation/ga_IE, extra/locale/collation/gd_GB, extra/locale/collation/gl_ES, extra/locale/collation/gv_GB, extra/locale/collation/he_IL, extra/locale/collation/hi_IN, extra/locale/collation/hr_HR, extra/locale/collation/en_ZW, extra/locale/collation/eo_EO, extra/locale/collation/es_AR, extra/locale/collation/es_BO, extra/locale/collation/es_CL, extra/locale/collation/es_CO, extra/locale/collation/es_CR, extra/locale/collation/es_DO, extra/locale/collation/es_EC, extra/locale/collation/es_ES, extra/locale/collation/es_GT, extra/locale/collation/es_HN, extra/locale/collation/es_MX, extra/locale/collation/es_NI, extra/locale/collation/es_PA, extra/locale/collation/es_PE, extra/locale/collation/es_PR, extra/locale/collation/es_PY, extra/locale/collation/es_SV, extra/locale/collation/es_US, extra/locale/collation/es_UY, extra/locale/collation/cs_CZ, extra/locale/collation/cy_GB, extra/locale/collation/da_DK, extra/locale/collation/de_AT, extra/locale/collation/de_BE, extra/locale/collation/de_CH, extra/locale/collation/de_DE, extra/locale/collation/de_LU, extra/locale/collation/el_GR, extra/locale/collation/en_AU, extra/locale/collation/en_BW, extra/locale/collation/en_CA, extra/locale/collation/en_DK, extra/locale/collation/en_GB, extra/locale/collation/en_HK, extra/locale/collation/en_IE, extra/locale/collation/en_IN, extra/locale/collation/en_NZ, extra/locale/collation/en_PH, extra/locale/collation/en_SG, extra/locale/collation/en_US, extra/locale/collation/en_ZA, extra/locale/collation/af_ZA, extra/locale/collation/am_ET, extra/locale/collation/ar_AE, extra/locale/collation/ar_BH, extra/locale/collation/ar_DZ, extra/locale/collation/ar_EG, extra/locale/collation/ar_IN, extra/locale/collation/ar_IQ, extra/locale/collation/ar_JO, extra/locale/collation/ar_KW, extra/locale/collation/ar_LB, extra/locale/collation/ar_LY, extra/locale/collation/ar_MA, extra/locale/collation/ar_OM, extra/locale/collation/ar_QA, extra/locale/collation/ar_SA, extra/locale/collation/ar_SD, extra/locale/collation/ar_SY, extra/locale/collation/ar_TN, extra/locale/collation/ar_YE, extra/locale/collation/az_AZ, extra/locale/collation/be_BY, extra/locale/collation/bg_BG, extra/locale/collation/bn_BD, extra/locale/collation/bn_IN, extra/locale/collation/br_FR, extra/locale/collation/bs_BA, extra/locale/collation/ca_ES, extra/locale/collation/comm, extra/locale/charmaps/ARMSCII-8.pairs, extra/locale/charmaps/CP1255.pairs, extra/locale/charmaps/GEORGIAN-PS.pairs, extra/locale/charmaps/KOI8-T.pairs, extra/locale/Makefile, extra/locale/gen_collate.c, extra/locale/gen_ldc.c, extra/locale/gen_locale.c, extra/locale/gen_wc8bit.c, extra/locale/locale_mmap.h, extra/locale/tst_nl_langinfo.c:
+	The big thing is locale dependent collation support.
+	Also added outdigit support and (legacy) YESSTR/NOSTR support.
 
-2002-10-08  sjhill  <sjhill@dillweed>
+2002-12-19  Erik Andersen  <andersen@dillweed>
+
+	* docs/uclibc.org/uClibc-apps.html: Thanks to Siim Vahtre, add mplayer
+
+2002-12-18  miles  <miles@dillweed>
+
+	* libc/sysdeps/linux/v850/sys/procfs.h: Initial checkin
+
+	* libpthread/Makefile, libc/sysdeps/linux/v850/bits/kernel_types.h:
+	whitespace
+
+	* libc/sysdeps/linux/v850/Makefile (SSRC):
+	Rename longjmp.S to __longjmp.S
+	(CSRC): Add clone.c
+
+	* libc/sysdeps/linux/v850/clone.c: Initial checkin
+
+	* libc/sysdeps/linux/v850/__longjmp.S, libc/sysdeps/linux/v850/longjmp.S:
+	Rename longjmp.S to __longjmp.S
+	Remove extra weak symbols defined by ../common/longjmp.c
+
+2002-12-17  Erik Andersen  <andersen@dillweed>
+
+	* extra/config/Makefile, extra/Makefile:
+	Patch from Stefan Allius.  Only build config stuff when needed.
+
+	* include/dirent.h:
+	Dop not restrict the IFTODT() and DTTOIF() macros when
+	_DIRENT_HAVE_D_TYPE is not defined.
+	 -Erik
+
+2002-12-13  Erik Andersen  <andersen@dillweed>
+
+	* extra/config/Makefile, extra/Configs/Config.in, Makefile, Rules.mak:
+	Only build the ncurses stuff when it is needed, based on a
+	patch from Stefan Allius (though the extra/config/Makefile
+	rework is mine),
+	 -Erik
+
+	* Rules.mak: Move the soft float check
+
+2002-12-12  Erik Andersen  <andersen@dillweed>
+
+	* ldso/libdl/Makefile, ldso/libdl/dlib.c, ldso/ldso/hash.c, ldso/ldso/ldso.c, ldso/ldso/readelflib1.c:
+	Rework things such that staticly linked applications can use
+	dlopen and have it be successful.  This required moving some
+	things out of ldso.c into readelflib1.c, and directly including
+	hash.c and readelflib1.c into dlib.c when building the static
+	version of the library.
+	 -Erik
+
+	* extra/gcc-uClibc/gcc-uClibc.c:
+	Use crt1.o when ctor/dtor support is enabled
+
+	* extra/gcc-uClibc/gcc-uClibc.c:
+	When -shared is specified, meaning they wish to create a shared
+	library, we need to disable adding start files (i.e. crt0) since
+	it isn't supposed to be creating an executable, just a shared lib.
+	 -Erik
+
+	* docs/uclibc.org/uClibc-apps.html: Oops.  Patch was vs 5beta.
+
+	* extra/scripts/initfini.awk: It seems SCO puts touch in a wierd place
+
+	* libc/sysdeps/linux/sh/Makefile, libc/sysdeps/linux/sh/crt0.S, libc/sysdeps/linux/mips/Makefile, libc/sysdeps/linux/mips/crt0.S, libc/sysdeps/linux/i386/Makefile, libc/sysdeps/linux/i386/crt0.S, libc/sysdeps/linux/i386/crt0.c, libc/sysdeps/linux/common/Makefile, libc/sysdeps/linux/arm/Makefile, libc/sysdeps/linux/arm/crt0.S:
+	Based on discussions with Stefan Allius, change it so that we always
+	build a crt0.o and a crt1.o.  crt1.o will support ctors and dtors if
+	such support is enabled.  One more gratuitous toolchain support issue
+	is thereby removed...
+	 -Erik
+
+	* docs/uclibc.org/uClibc-apps.html:
+	Add portmap and patch from Steven Elling
+
+	* INSTALL: Fix typo noticed by V.Radhakrishnan
+
+	* Makefile, libnsl/.cvsignore, libnsl/Makefile, libnsl/nsl.c:
+	Add in a stub libnsl library to make stupid configure scripts
+	(i.e. openssh) do the right thing when used with uClibc's gcc
+	wrapper (which does not currently prevent system libraries from
+	leaking into the link).
+	 -Erik
+
+	* libresolv/.cvsignore: Fix broken ignore file
+
+	* libresolv/resolv.c: Avoid silly namespace pollution
+
+2002-12-11  Erik Andersen  <andersen@dillweed>
+
+	* docs/Glibc_vs_uClibc_Differences.txt: Remove a stray ')'
+
+2002-12-11  Manuel Novoa III  <mjn3@dillweed>
+
+	* libc/sysdeps/linux/common/bits/uClibc_ctype.h:
+	Remove trailing comma from enum list as a nicety for older compilers.
+
+2002-12-09  Erik Andersen  <andersen@dillweed>
+
+	* Rules.mak: Cleanup the case when using the system shared lib loader
+	 -Erik
+
+2002-12-05  tobiasa  <tobiasa@dillweed>
+
+	* Rules.mak: Added CPU_CFLAGS and CPU_LDFLAGS for cris.
+	Added additional CFLAGS for cris when compiling with PIC.
+
+	* extra/Configs/Config.cris, extra/Configs/Config.cris.default:
+	Removed redundant definition of __USE_WEAK_ALIASES.
+	Added option for selecting cris architecure type. For now, only CRIS is
+	available.
+	Added a default configuration for cris.
+
+2002-12-04  Erik Andersen  <andersen@dillweed>
+
+	* test/Makefile, test/Rules.mak, libc/unistd/Makefile, Makefile, Rules.mak, extra/config/Makefile, extra/gcc-uClibc/Makefile, extra/locale/Makefile, ldso/util/Makefile:
+	Change some variable names so we are more consistant with what
+	the linux kernel uses.
+	 -Erik
+
+	* extra/config/Makefile, extra/config/checklist.c, extra/config/colors.h, extra/config/dialog.h, extra/config/inputbox.c, extra/config/mconf.c, extra/config/menubox.c, extra/config/msgbox.c, extra/config/textbox.c, extra/config/util.c, extra/config/yesno.c:
+	This is based on a patch posted to lkml by Petr Baudis on 23 Nov, which was
+	then considerably hacked up by me.  This eliminates the separate lxdialog and
+	instead directly uses the lxdialog internals.  This allows 'make menuconfig'
+	to be much faster.
+	 -Erik
+
+	* libc/inet/if_nametoindex.c:
+	Implement the rest of the missing include/net/if.h interfaces
+	 -Erik
+
+	* ldso/ldso/ldso.c:
+	Looks like this is in fact needed to properly debug dynamically
+	linked stuff, so put it back but add a check for NULL
+
+	* Rules.mak: Override optimization settings when debugging
+
+	* libc/sysdeps/linux/common/getcwd.c: Fix the other instance of getcwd
+
+	* libc/unistd/sysconf.c:
+	For now, always claim we have exactly one cpu.  It should
+	generally be the truth...
+
+	* libc/sysdeps/linux/common/getcwd.c:
+	Properly allocate memory when size is 0, but so is buf
+
+2002-12-03  Erik Andersen  <andersen@dillweed>
+
+	* Rules.mak: Make the arm cpu-specific optimizations work properly
+
+2002-12-02  Erik Andersen  <andersen@dillweed>
 
 	* Makefile:
-	Implemented 'romfs' target so that uClibc works with building uClinux.
-
-2002-10-01  Erik Andersen  <andersen@dillweed>
-
-	* libc/sysdeps/linux/mips/crt0.S:
-	Patch from Marshall M. Midden <m4@brecis.com> to fixup crt0 for
-	mips where I had made a mess
-
-	* libc/string/Makefile: Patch from Stefan Allius <allius@atecom.com>:
-	    'wcschrnul.o' appeares two times in MOBJW2
-
-	* libc/sysdeps/linux/sh/__init_brk.c, libc/sysdeps/linux/sh/brk.c, libc/sysdeps/linux/sh/sbrk.c, libc/sysdeps/linux/common/initfini.c, extra/Configs/Config.sh, extra/scripts/initfini.pl:
-	Patch from Stefan Allius <allius@atecom.com>:
-
-	* extra/scripts/initfini.pl, extra/scripts/get-needed-libgcc-objects.sh, ldso/ldso/sh/boot1_arch.h, ldso/ldso/sh/elfinterp.c, ldso/ldso/sh/ld_sysdep.h, ldso/ldso/sh/resolve.S, ldso/ldso/i386/elfinterp.c, ldso/ldso/arm/elfinterp.c, ldso/ldso/ldso.c, ldso/ldso/readelflib1.c, libc/sysdeps/linux/sh/crt0.S, libc/sysdeps/linux/mips/crt0.S, libc/sysdeps/linux/i386/crt0.S, libc/sysdeps/linux/arm/crt0.S, extra/gcc-uClibc/gcc-uClibc.c, libc/Makefile, libc/misc/internals/__uClibc_main.c, libpthread/Makefile:
-	This commit contains a patch from Stefan Allius <allius@atecom.com> to change
-	how uClibc handles _init and _fini, allowing shared lib constructors and
-	destructors to initialize things in the correct sequence.  Stefan ported the SH
-	architecture.  I then ported x86, arm, and mips.  x86 and arm are working fine,
-	but I don't think I quite got things correct for mips.
-
-	* extra/locale/Makefile, Makefile, Rules.mak, test/Rules.mak:
-	Sigh.  OpenBSD used /usr/bin/{true|false}
-
-2002-09-26  Erik Andersen  <andersen@dillweed>
-
-	* libc/misc/internals/__uClibc_main.c, libc/sysdeps/linux/cris/sysdep.S:
-	Replace _LIBC_REENTRANT with __UCLIBC_HAS_THREADS__
+	Don't leak outside of the target area when installing things.
 	 -Erik
 
-	* docs/uclibc.org/uClibc-apps.html: A few additions
-
-	* libc/stdlib/atexit.c: A bug fix from Alexey V. Neyman:
-
-	    In case of vfork(), the parent was left with __exit_count of -1 and
-	    thus tried to find non-NULL value of __exit_function_table[-1].atexit,
-	    __exit_function_table[-2].atexit and call this function; of course, it
-	    leads to coredump.
-
-2002-09-23  tobiasa  <tobiasa@dillweed>
-
-	* libc/sysdeps/linux/cris/Makefile, libc/sysdeps/linux/cris/__init_brk.c, libc/sysdeps/linux/cris/brk.c, libc/sysdeps/linux/cris/crt0.c, libc/sysdeps/linux/cris/sbrk.c, libc/sysdeps/linux/cris/sysdep.h:
-	Cosmetic cleanup.
-
-	* ldso/ldso/cris/ld_syscalls.h:
-	Removed redundant code. Same thing exist in sys/syscalls.h so include that
-	instead.
-
-2002-09-20  tobiasa  <tobiasa@dillweed>
-
-	* extra/Configs/Config.cris:
-	Build libpthread now that the CRIS as support for it!
-
-	* libc/sysdeps/linux/cris/bits/syscalls.h, libc/sysdeps/linux/cris/sys/procfs.h, libc/sysdeps/linux/cris/clone.S, libc/sysdeps/linux/cris/syscall-cris.c, libc/sysdeps/linux/cris/syscall.S, libc/sysdeps/linux/cris/sysdep.S, libc/sysdeps/linux/cris/sysdep.h, libc/sysdeps/linux/cris/Makefile:
-	* Added clone() system call.
-	* Proper implementation of bits/syscalls.h, no cheating by just including
-	  <asm/unistd.h>.
-	* Proper implementation of syscall.S, it no longer contains the
-	  __syscall_error, instead it contains code which makes syscall(nr,...) a
-	  system call.
-	* Added sysdep.S which contains the code for __syscall_error.
-	* Added some macros to sysdep.h.
-	* Added sys/procfs.h, which is needed when compiling with thread support.
-	* Removed unused syscall-cris.c.
-
-	* libpthread/linuxthreads/sysdeps/cris/pt-machine.h, libpthread/linuxthreads/sysdeps/cris/sigcontextinfo.h:
-	Added pthread support for CRIS.
-
-	* libc/sysdeps/linux/cris/ipc.c: Removed unused file
-
-2002-09-19  Manuel Novoa III  <mjn3@dillweed>
-
-	* libc/misc/gnu/Makefile, libc/misc/gnu/obstack.c, libc/misc/Makefile, include/gnu-versions.h, include/obstack.h:
-	Add gnu obstack support.  I still need to implement the obstack_printf
-	and obstack_vprintf, but at least now the reiserfsprogs build.
-
-	* libc/unistd/getsubopt.c, libc/unistd/Makefile:
-	Add SUSv3 function getsubopt.
-
-	* libc/misc/wctype/wctype.c, libc/misc/wchar/wchar.c, libc/misc/locale/locale.c, libc/stdlib/stdlib.c, libc/string/Makefile, libc/string/wstring.c, include/string.h:
-	Hide my personal #warning reminders.  Add __wcschrnul, rename strchrnul
-	to __strchrnul, and add weak aliases for them.
-
-2002-09-19  tobiasa  <tobiasa@dillweed>
-
-	* ldso/ldso/cris/ld_syscalls.h:
-	* Changed paramater names to match their register, i.e. __a -> __r10.
-	* Do not clobber things that are specified as outputs.
-
-2002-09-17  davidm  <davidm@dillweed>
-
-	* libpthread/linuxthreads/sysdeps/m68k/pt-machine.h:
-	Fixup thread support for the 5200/5307 coldfire platforms.
-
-	* libc/sysdeps/linux/m68k/clone.S:
-	Add in clone and make the assembler PIC/msep-data friendly.
-
-	* libc/sysdeps/linux/m68k/bits/setjmp.h:
-	Fixup JMPBUF_UNWINDS so that is will compile if used :-)
-
-	* libc/inet/addr.c:
-	Fix a memory corruption bug.
-
-	With gcc, sizeof on a sized array argument to a function returns 4,  not
-	16 as was expected in this code.  This caused inet_ntoa to overwrite
-	whatever came before the buffer in the BSS by up to 12 bytes.
-
-2002-09-16  Erik Andersen  <andersen@dillweed>
-
-	* docs/uclibc.org/index.html: Add url
-
-	* docs/uclibc.org/index.html: Update index
-
-	* libc/sysdeps/linux/common/getdirname.c:
-	Use __UCLIBC_HAVE_LFS__ not __USE_LARGEFILE64 to decide if
-	64 bit interfaces should be used.
+	* extra/Configs/Config.in: Spelling fixes
 	 -Erik
 
-2002-09-16  tobiasa  <tobiasa@dillweed>
+2002-12-02  Manuel Novoa III  <mjn3@dillweed>
 
-	* libc/Makefile:
-	* Added semi-support for version scripts. If sysdeps/linux/<arch>/libc.map
-	  exists read it and include it when linking.
-	* Add LIBGCC when linking libc.
+	* libc/misc/search/Makefile: Cut and paste error.
 
-	* Rules.mak, Makefile: * Updated for the CRIS port.
-	* Added variable LIBGCC which is included when linking libc.so. Arch
-	  specific linker options go into LIBGCC_CFLAGS defined in Config.<arch>.
+	* libc/misc/search/Makefile, libc/misc/search/hsearch.c, libc/misc/search/hsearch_r.c, libc/misc/search/insremque.c, libc/misc/search/lsearch.c, libc/misc/search/tsearch.c, libc/misc/Makefile:
+	Add hsearch and hsearch_r.  Consolidate all functions prototyped in
+	search.h in one directory.
 
-	* extra/Configs/Config.cris: Configuration for the CRIS port.
+2002-12-01  davidm  <davidm@dillweed>
 
-	* ldso/ldso/Makefile, ldso/ldso/ldso.c: Updated for the CRIS port.
+	* libc/stdio/popen.c:
+	If the wait failed in pclose it would return a random status code
+	instead of -1 as expected.
 
-	* ldso/ldso/cris/boot1_arch.h, ldso/ldso/cris/elfinterp.c, ldso/ldso/cris/ld_syscalls.h, ldso/ldso/cris/ld_sysdep.h, ldso/ldso/cris/resolve.S:
-	Initial version of the dynamic linker code for the CRIS port.
+2002-12-01  ds  <ds@dillweed>
 
-	* libc/sysdeps/linux/Makefile: Added cris to ALL_SUBDIRS
+	* ldso/util/ldd.c:
+	Make ldd work even more like GNU ldd by appending dummy load addresses
 
-	* libc/sysdeps/linux/cris/sys/ucontext.h, libc/sysdeps/linux/cris/bits/byteswap.h, libc/sysdeps/linux/cris/bits/endian.h, libc/sysdeps/linux/cris/bits/fcntl.h, libc/sysdeps/linux/cris/bits/huge_val.h, libc/sysdeps/linux/cris/bits/kernel_stat.h, libc/sysdeps/linux/cris/bits/kernel_types.h, libc/sysdeps/linux/cris/bits/mathcalls.h, libc/sysdeps/linux/cris/bits/mman.h, libc/sysdeps/linux/cris/bits/setjmp.h, libc/sysdeps/linux/cris/bits/shm.h, libc/sysdeps/linux/cris/bits/syscalls.h, libc/sysdeps/linux/cris/bits/wordsize.h, libc/sysdeps/linux/cris/Makefile, libc/sysdeps/linux/cris/__init_brk.c, libc/sysdeps/linux/cris/__longjmp.S, libc/sysdeps/linux/cris/brk.c, libc/sysdeps/linux/cris/crt0.c, libc/sysdeps/linux/cris/fork.c, libc/sysdeps/linux/cris/ipc.c, libc/sysdeps/linux/cris/libc.map, libc/sysdeps/linux/cris/sbrk.c, libc/sysdeps/linux/cris/setjmp.S, libc/sysdeps/linux/cris/syscall-cris.c, libc/sysdeps/linux/cris/syscall.S, libc/sysdeps/linux/cris/sysdep.h, libc/sysdeps/linux/cris/vfork.c:
-	Initial version of the CRIS port.
+2002-11-29  Erik Andersen  <andersen@dillweed>
 
-2002-09-16  Erik Andersen  <andersen@dillweed>
+	* libc/sysdeps/linux/i386/crt0.S: I forgot to include features.h
 
-	* libc/pwd_grp/initgroups.c:
-	Fix stupid typo noticed by John Mullin <john.mullin@homenetcomm.com>
+	* libc/sysdeps/linux/sh/crt0.S:
+	Silly me, I forgot to include features.h
 
-2002-09-14  Erik Andersen  <andersen@dillweed>
+2002-11-28  Erik Andersen  <andersen@dillweed>
 
-	* libc/misc/statfs/Makefile:
-	Fix a thinko -- I used the wrong symbol to check for LFS support.
+	* ldso/ldso/ldso.c: Kill a bit of unused cruft
+
+	* test/Rules.mak: Fix compilation on mips
+
+2002-11-27  Erik Andersen  <andersen@dillweed>
+
+	* extra/Configs/Config.in, extra/gcc-uClibc/Makefile, extra/gcc-uClibc/gcc-uClibc.c, extra/scripts/get-needed-libgcc-objects.sh, libc/Makefile, libc/sysdeps/linux/common/Makefile, libc/sysdeps/linux/arm/crt0.S, libc/sysdeps/linux/i386/crt0.S, libc/sysdeps/linux/mips/crt0.S, libc/sysdeps/linux/sh/crt0.S, libpthread/Makefile:
+	Make support for global constructors and global destructors be
+	configurable, so people who do not need or want ctor/dtor support
+	can disable it and make their binaries a little bit smaller.
 	 -Erik
 
-2002-09-13  miles  <miles@dillweed>
+	* include/stdlib.h:
+	Fixup sysconf to report the correct answer when UCLIBC_DYNAMIC_ATEXIT
+	is enabled.
 
-	* libc/stdlib/malloc/heap_debug.c (__heap_check_failure): New function.
-	(__heap_check): Add more checks.  Use `__heap_check_failure'.
+2002-11-27  Manuel Novoa III  <mjn3@dillweed>
 
-2002-09-12  tobiasa  <tobiasa@dillweed>
+	* libc/stdio/printf.c: Fix an ifdef mismatch.
 
-	* ldso/ldso/ldso.c: Support LD_DEBUG=all
+2002-11-27  Erik Andersen  <andersen@dillweed>
 
-2002-09-12  Erik Andersen  <andersen@dillweed>
+	* extra/Configs/Config.sparc: Fix the defaults to make them be sane
 
-	* extra/gcc-uClibc/gcc-uClibc.c: Some minor C++ support updates
+2002-11-27  Manuel Novoa III  <mjn3@dillweed>
 
-	* ldso/ldso/sh/elfinterp.c, ldso/ldso/i386/elfinterp.c, ldso/ldso/arm/elfinterp.c:
-	Add missing _dl_dprintf arguments, as noticed by Tero Lyytikäinen <tero@paravant.fi>
+	* libc/misc/time/time.c:
+	Fix bug in setting daylight and timezone when no (valid) TZ.
+	Bug reported by Arne Bernin <arne@alamut.de> in regards to freeswan.
 
-2002-09-11  sjhill  <sjhill@dillweed>
+2002-11-23  Manuel Novoa III  <mjn3@dillweed>
 
-	* libc/sysdeps/linux/mips/setjmp_aux.c:
-	Forgot one more #ifdef related to MIPS soft floating point.
+	* libc/misc/wchar/wchar.c: Oops.. left in a bit of debugging code.
 
-2002-09-10  Erik Andersen  <andersen@dillweed>
+2002-11-23  Erik Andersen  <andersen@dillweed>
 
-	* libc/sysdeps/linux/arm/__longjmp.S, libc/sysdeps/linux/arm/setjmp.S:
-	Don't run floating point opcodes when code is compiled -msoft-float
+	* Makefile:
+	Use 'install' rather than 'mkdir -p' for target directories.
+	Add $(PREFIX) to avoid leaking things at install time.
 	 -Erik
 
-2002-09-10  sjhill  <sjhill@dillweed>
+2002-11-22  Manuel Novoa III  <mjn3@dillweed>
 
-	* libc/sysdeps/linux/mips/__longjmp.c, libc/sysdeps/linux/mips/setjmp_aux.c:
-	Don't unconditionally save/restore FP registers, we might be doing soft
-	floating point. Thanks to Jay Carlson.
+	* libc/sysdeps/linux/common/bits/uClibc_locale.h, libc/sysdeps/linux/common/bits/uClibc_stdio.h, libc/stdlib/Makefile, libc/stdlib/stdlib.c, libc/stdio/stdio.c, libc/stdio/Makefile, libc/stdio/printf.c, libc/misc/wchar/Makefile, libc/misc/wchar/wchar.c, libc/misc/wchar/wstdio.c, libc/misc/time/time.c, libc/misc/locale/locale.c, ldso/util/Makefile, include/iconv.h, extra/locale/Makefile, extra/locale/README, extra/locale/gen_ldc.c, extra/locale/gen_locale.c, extra/locale/gen_mmap.c, extra/locale/gen_wc8bit.c, extra/locale/gen_wctype.c, extra/locale/locale_mmap.h, docs/Glibc_vs_uClibc_Differences.txt, Makefile, TODO:
+	Ok... here's the summary:
+	Hopefully locale support will build when cross compiling now.  Collation is
+	  still not supported, but that's what I'm currently working on.  In the
+	  next couple of days, I'll probably put up a couple of files for download
+	  that will save people the trouble of generating all the glibc locales.
+	Added *wprintf functions, although they currently don't support floating
+	  point.  That will be fixed when I rewrite _dtostr... or possibly before.
+	Added the wcsto{inttype} functions.
+	Added iconv() and a mini iconv utility.  The require locale support and
+	  only provide for conversions involving the various unicode encodings
+	  { UCS-4*, UCS-2*, UTF-32*, UTF-16*, UTF-8 }, the 8-bit codesets built
+	  with the locale data, and the internal WCHAR_T.
 
-2002-09-10  Erik Andersen  <andersen@dillweed>
+2002-11-21  Erik Andersen  <andersen@dillweed>
 
-	* libc/pwd_grp/__getgrent.c, libc/pwd_grp/fgetgrent.c, libc/pwd_grp/getgrgid.c, libc/pwd_grp/getgrnam.c, libc/pwd_grp/grent.c, libc/pwd_grp/initgroups.c:
-	Fix some locking problems noted by Manuel.  __getgrent() was always
-	called under lock, but the callers did not share the same locks...
+	* libc/unistd/usershell.c:
+	Oops.  As Pavel Roskin notes, I forgot to conditionally include
+	the __fsetlocking call in libc/unistd/usershell.c.  It should
+	be wrapped and only included if __UCLIBC_HAS_THREADS__ is defined.
+
+	* libc/misc/internals/abi-note.S:
+	Doh!  As Stefan Allius points out, I forgot to properly review
+	this change.
+
+2002-11-21  miles  <miles@dillweed>
+
+	* libc/stdlib/malloc/malloc.h, libc/stdlib/malloc/malloc_debug.c:
+	Debugging tweaks.
+
+2002-11-21  Erik Andersen  <andersen@dillweed>
+
+	* libc/inet/getaddrinfo.c: Oops.
+
+	* libc/inet/getaddrinfo.c, libc/inet/in6_addr.c, libc/inet/resolv.c, libc/inet/Makefile:
+	Cleanup use of in6addr_loopback and in6addr_any
+
+	* Rules.mak, extra/Configs/Config.h8300, extra/scripts/initfini.awk, libc/misc/internals/abi-note.S, libc/sysdeps/linux/h8300/bits/kernel_stat.h, libc/sysdeps/linux/h8300/bits/kernel_types.h, libc/sysdeps/linux/h8300/bits/mman.h, libc/sysdeps/linux/h8300/sys/ucontext.h:
+	Patch from Yoshinori Sato to update the h8300 architecture.
+
+2002-11-21  miles  <miles@dillweed>
+
+	* extra/Configs/Config.in, libc/stdlib/malloc/Makefile, libc/stdlib/malloc/free.c, libc/stdlib/malloc/heap_debug.c, libc/stdlib/malloc/malloc.c, libc/stdlib/malloc/malloc.h, libc/stdlib/malloc/malloc_debug.c, libc/stdlib/malloc/realloc.c:
+	Improve malloc debugging support.
+
+2002-11-21  Erik Andersen  <andersen@dillweed>
+
+	* ldso/util/ldd.c:
+	Act more like the GNU version.  Accept multiple args.  Accept/ignore
+	the "--" option since we always do that anyways.
 	 -Erik
 
-	* libc/misc/syslog/syslog.c:
-	Patch from Tiago Marques <tmarques@viaconnect.inf.br> -- fall back to
-	using SOCK_STREAM if SOCK_DGRAM fails.
+	* Rules.mak:
+	Doh!  Manuel noticed I'd put the CFLAGS before DODEBUG, killing
+	any chance of actually building with debug symbols.
 	 -Erik
 
-	* libc/pwd_grp/putpwent.c:
-	As noted by Bill Huang <billhuang@redsonic.com>, the gid and uid
-	were reversed in putpwent().  Oops.
+2002-11-20  Erik Andersen  <andersen@dillweed>
+
+	* libc/unistd/usershell.c:
+	Rework usershell.c, as the old one was packed full of unhandled
+	failures, returned stack allocated memory, and misbehaved itself
+	in a number of other annoying ways,
 	 -Erik
 
-2002-09-09  Manuel Novoa III  <mjn3@dillweed>
+	* ldso/ldso/ldso.c, ldso/ldso/linuxelf.h, ldso/ldso/readelflib1.c:
+	Kill SVR4_BUGCOMPAT
 
-	* libc/stdlib/Makefile: Remove malloc_simple from subdir list.
+	* ldso/ldso/Makefile, ldso/ldso/ldso.c, ldso/ldso/linuxelf.h, ldso/ldso/readelflib1.c, extra/Configs/Config.in, extra/Configs/Config.sh:
+	Patch from Stefan Allius:
+	        - Invert all FORCE_SHAREABLE_TEXT_SEGMENTS checks.
+		- Define FORCE_SHAREABLE_TEXT_SEGMENTS in the Makefile,
+		  so it can be configured by the config system.
+		- linuxelf.h inspects that we don't combine FORCE_SHAREABLE_TEXT_SEGMENTS
+		  and SVR4_BUGCOMPAT
+		- Add a new config option for FORCE_SHAREABLE_TEXT_SEGMENTS
 
-	* libm/w_cabs.c: Clean up a warning.
+	* include/ctype.h:
+	Patch from Aidan Van Dyk to make _toupper and _tolower
+	work properly, reverting my wrong reading of SuSv3
 
-2002-09-09  sjhill  <sjhill@dillweed>
+2002-11-19  Erik Andersen  <andersen@dillweed>
 
-	* libc/sysdeps/linux/common/getdirname.c, libc/misc/statfs/Makefile:
-	Fixed compile bugs having to do with 64-bit filesystem operations that
-	need to be disabled when 'DOLFS' is disabled.
+	* docs/Glibc_vs_uClibc_Differences.txt: Update verbage regarding NIS
 
-2002-09-09  Erik Andersen  <andersen@dillweed>
-
-	* ldso/ldso/ldso.c: Fixup multi-line string
+	* Rules.mak:
+	Remove use of $(strip) when no longer needed.  Fixup DODEBUG
+	so when debugging is enabled we don't enable all the major
+	optimizations.
 	 -Erik
 
-2002-09-09  miles  <miles@dillweed>
-
-	* libc/stdlib/malloc/realloc.c (realloc):
-	Record the correct size in the malloc header in the case
-	where we extended the existing allocation, and got back more than we
-	asked for from the heap.
-
-2002-09-06  Manuel Novoa III  <mjn3@dillweed>
-
-	* libc/stdio/scanf.c:
-	Patch from Tero_Lyytikäinen <tero@paravant.fi> to fix bug in matchchar
-	case.
-
-	* libc/stdlib/valloc.c: Add #include <malloc.h> to silence warning.
-
-2002-09-06  miles  <miles@dillweed>
-
-	* libc/stdlib/malloc/heap_debug.c: Initial checkin.
-
-	* libc/stdlib/malloc/heap.h, libc/stdlib/malloc/malloc.c, libc/stdlib/malloc/malloc.h:
-	Update debugging hooks.
-
-2002-09-06  Erik Andersen  <andersen@dillweed>
-
-	* libm/fpmacros.c:
-	Add in some weak aliases to allow C99 apps to compile w/o defining
-	_ISOC99_SOURCE, per what glibc does.
+	* extra/Configs/Config.in, libc/stdlib/atexit.c:
+	Implement dynamic atexit handling.  Adds a few bytes and a dependancy
+	on malloc (via realloc).
 	 -Erik
 
-2002-09-05  tobiasa  <tobiasa@dillweed>
+	* test/stdlib/ptytest.c, test/stdlib/testatexit.c: Silence some whining
 
-	* ldso/ldso/readelflib1.c:
-	Fixed another address alignment where a pagesize of 4k were assumed.
+	* include/ctype.h:
+	Aidan Van Dyk noticed that _toupper and _tolower were misbehaving.
+	This corrects them, per SuSv3.
 
-2002-09-05  Erik Andersen  <andersen@dillweed>
+	* ldso/ldso/ldso.c, ldso/ldso/readelflib1.c:
+	Per suggestion from Stefan Allius, change DO_MPROTECT_HACKS to
+	the more clear FORCE_SHAREABLE_TEXT_SEGMENTS.
 
-	* libc/stdlib/malloc-930716/malloc.c, libc/stdlib/malloc-930716/malloc.h, libc/stdlib/malloc-930716/memalign.c, libc/stdlib/malloc-930716/realloc.c, libc/stdlib/malloc-930716/Makefile:
-	split-out memalign and realloc
+	* ldso/ldso/ldso.c, ldso/ldso/readelflib1.c: Stefan Allius writes:
+	I fixed two little bugs in ldso.c:
+	        - For LDD support we test the old environment variable
+	        LD_TRACE_LOADED_OBJECTS.
+	        - Before we init the GOT table of the dynamic loader
+	        we have to check, if we have a DT_PLTGOT entry.
+	        If DT_PLTGOT was zero we patch somthing in the header
+	        of the dynamic loader. This was the cause, why we have to
+	        enable the DO_MPROTECT_HACKS option for all targets, to avoid
+	        segment faults.
+
+	In readelflib1.c I added a warning, if we try to load a shared library, which
+	wasn't compiled with -fPIC or -fpic. So if we disable the DO_MPROTECT_HACKS
+	option we are sure, that we don't waste memory by shared libraries which
+	aren't able to share their text segment. I think this is a helpful option on
+	little embedded systems.
+
+	* include/wctype.h: cut-n-paste typo
+
+	* include/regex.h: Update to sync up with glibc 2.3
+
+2002-11-15  Erik Andersen  <andersen@dillweed>
+
+	* ldso/libdl/dlib.c:
+	For now, revert Ronald Wahl's change to dlopen.  We need to
+	look into what is breaking dlclose() further...
 	 -Erik
 
-2002-09-05  miles  <miles@dillweed>
-
-	* Makefile, extra/scripts/gen_bits_syscall_h.sh, libc/sysdeps/linux/alpha/Makefile, libc/sysdeps/linux/alpha/bits/syscalls.h, libc/sysdeps/linux/arm/Makefile, libc/sysdeps/linux/arm/bits/.cvsignore, libc/sysdeps/linux/arm/bits/syscalls.h, libc/sysdeps/linux/h8300/bits/.cvsignore, libc/sysdeps/linux/h8300/bits/syscalls.h, libc/sysdeps/linux/i386/Makefile, libc/sysdeps/linux/i386/bits/.cvsignore, libc/sysdeps/linux/i386/bits/syscalls.h, libc/sysdeps/linux/i960/Makefile, libc/sysdeps/linux/i960/bits/syscalls.h, libc/sysdeps/linux/m68k/Makefile, libc/sysdeps/linux/m68k/bits/.cvsignore, libc/sysdeps/linux/m68k/bits/syscalls.h, libc/sysdeps/linux/mips/Makefile, libc/sysdeps/linux/mips/bits/.cvsignore, libc/sysdeps/linux/mips/bits/syscalls.h, libc/sysdeps/linux/powerpc/Makefile, libc/sysdeps/linux/powerpc/README.bits, libc/sysdeps/linux/powerpc/bits/.cvsignore, libc/sysdeps/linux/powerpc/bits/syscalls.h, libc/sysdeps/linux/sh/Makefile, libc/sysdeps/linux/sh/bits/.cvsignore, libc/sysdeps/linux/sh/bits/syscalls.h, libc/sysdeps/linux/sparc/Makefile, libc/sysdeps/linux/sparc/bits/.cvsignore, libc/sysdeps/linux/sparc/bits/syscalls.h, libc/sysdeps/linux/v850/Makefile, libc/sysdeps/linux/v850/vfork.S, libc/sysdeps/linux/v850/bits/.cvsignore, libc/sysdeps/linux/v850/bits/syscalls.h:
-	Change <bits/syscall.h> to <bits/sysnum.h>.
-
-2002-09-04  sjhill  <sjhill@dillweed>
-
-	* libc/sysdeps/linux/mips/Makefile, libc/sysdeps/linux/mips/__uClibc_syscall.S, libc/sysdeps/linux/mips/syscall.S:
-	'syscall' now properly works for MIPS.
-
-2002-09-04  Erik Andersen  <andersen@dillweed>
-
-	* libc/stdlib/Makefile, libc/stdlib/malloc-930716/Makefile, libc/stdlib/malloc-930716/malloc.c, libc/stdlib/valloc.c:
-	Make sjhill happy, and revive memalign
+	* libc/sysdeps/linux/powerpc/bits/syscalls.h, libc/sysdeps/linux/powerpc/Makefile, libc/sysdeps/linux/powerpc/__uClibc_syscall.S, libc/sysdeps/linux/powerpc/_mmap.c, libc/sysdeps/linux/powerpc/pread_write.c, libc/sysdeps/linux/powerpc/vfork.c:
+	This draws from an old patch by David Blythe for the now-dead
+	unified syscall interface.  I reworked his old patch considerably
+	and cleaned up his version of bits/syscalls.h with some sneaky macro
+	magic.  And I implemented a powerpc correct version of pread/pwrite
 	 -Erik
 
-2002-09-04  sjhill  <sjhill@dillweed>
+	* libc/sysdeps/linux/common/syscalls.c, libc/sysdeps/linux/common/truncate64.c, libc/sysdeps/linux/common/create_module.c, libc/sysdeps/linux/common/ftruncate64.c, libc/sysdeps/linux/common/pread_write.c, libc/sysdeps/linux/common/sendfile64.c:
+	Cleanup a few structural wierdnesses
 
-	* libc/sysdeps/linux/common/bits/ipc.h, libc/sysdeps/linux/common/bits/msq.h:
-	Fixed 'struct ipc_perm' and 'struct msqid_ds' members to allow the Linux
-	Test Project to compile as well as be consistent with the architecture
-	specific files. Maybe eventually the architecture specific files could
-	be removed all together.
+	* libc/sysdeps/linux/sh/syscall_error.S, libc/sysdeps/linux/sh/vfork.S, libc/sysdeps/linux/sh/clone.S:
+	Stefan Allius writes:
 
-	* libc/stdlib/Makefile, libc/stdlib/malloc-930716/Makefile, libc/stdlib/malloc-930716/valloc.c, libc/stdlib/valloc.c:
-	Per discussions with Erik, 'valloc.c' should be built on top of whichever
-	memory allocator you choose. Unfortunately, the 'malloc-930716' needs a
-	fair amount of work before it is functional. For now, changes have been
-	made to add the 'valloc' call and it works properly with the plain 'malloc'
-	allocator.
+	    I attached a patch, which revise the clone.S and vfork.S:
+	        - Use PIC code.
+	        - include new file syscall.S, so we can simply make a branch to
+	          __syscall_error instead of a PLT/GOT call
+	        - call errno_location to store the syscall error (for pthreads)
+	        - avoid to use the 'shad' statement on SH2 targets
+	        - call fork if vfork isn't available
+	        - some cleanups and optimization
 
-	* libc/stdlib/malloc-930716/Makefile, libc/stdlib/malloc-930716/valloc.c:
-	Added 'valloc' back in. Ok, Erik can smack me now.
+	* libc/sysdeps/linux/sh/bsd-_setjmp.S, libc/sysdeps/linux/sh/bsd-setjmp.S:
+	Remove obsolete files
 
-	* libc/sysdeps/linux/common/syscalls.c:
-	Add syscalls:  modify_ldt  _sysctl  setresuid  getresuid  setresgid  getresgid
+	* libc/sysdeps/linux/common/ftruncate64.c, libc/sysdeps/linux/common/truncate64.c:
+	Fix it for real this time.
 
-	* libc/stdlib/Makefile, libc/stdlib/mkdtemp.c:
-	Added function 'mkdtemp' for Linux Test Project.
-
-	* libc/sysdeps/linux/common/Makefile, libc/sysdeps/linux/common/getdirname.c, include/unistd.h:
-	Added function 'get_current_dir_name' for Linux Test Project. Tested and
-	works identically to function in glibc.
-
-2002-09-04  miles  <miles@dillweed>
-
-	* libc/stdlib/malloc/free.c: (free):
-	  Update debug statement.
-	  Update to use __heap_delete and __heap_is_empty.
-
-	* libc/stdlib/malloc/heap.h (__heap_delete):
-	Renamed from `__heap_unlink_free_area'.
-	(__heap_free_area_alloc): Use __heap_delete.
-	(__heap_is_empty): New macro.
-
-2002-09-03  Erik Andersen  <andersen@dillweed>
-
-	* libc/misc/statfs/Makefile, libc/misc/statfs/fstatvfs64.c, libc/misc/statfs/statvfs64.c:
-	Support fstatvfs64 and statvfs64
+	* libc/sysdeps/linux/common/ftruncate64.c, libc/sysdeps/linux/common/truncate64.c:
+	Doh!  I screwed that one all up.  Lets try that again...
 	 -Erik
 
-	* libc/misc/statfs/fstatvfs.c, libc/misc/statfs/statvfs.c:
-	Oops.  Turns out I broke statvfs() and fstatvfs() back in February,
-	when I accidentally changed them unconditionally into the 64 bit
-	versions...  Oops.
+	* test/unistd/preadwrite.c: Only build the 64 tests when relevant
+
+	* test/unistd/.cvsignore, test/unistd/Makefile, test/unistd/preadwrite.c:
+	Add in a pread/pwrite test
+
+	* libc/unistd/getlogin.c:
+	Patch from Luc Van Oostenryck to fix a buffer overflow
+	in getlogin_r
+
+	* libc/sysdeps/linux/sh/Makefile, libc/sysdeps/linux/sh/__longjmp.S, libc/sysdeps/linux/sh/setjmp.S:
+	Stefan Allius writes:
+
+	    Hi Erik,
+
+	    I added the FPU support for the setjmp/longjmp stuff.
+
+	    This patch also moves the code from the bsd*.S files to the setjmp.S file, so
+	    we can use simple branch instructions instead of referencing over the
+	    .GOT/.PLT section. This makes the PIC code much easier, smaller and faster.
+	    (The idea comes from the SPARC target)
+
+	    Bye Stefan
+
+	* docs/uclibc.org/uClibc-apps.html: Fixup minislang link
+
+	* extra/gcc-uClibc/gcc-uClibc.c: Ronald Wahl writes:
+
+	    since uclibc-0.9.16 I have to specify -fpic during _link_-time or else
+	    I get an error from the dynamic linker when I load shared objects. Patch
+	    is appended.
+
+	* ldso/libdl/dlib.c: Ronald Wahl writes:
+	    I noticed that dlclose() does not work since libraries loaded with
+	    dlopen are not marked as "loaded_file". This breaks apache with dynamic
+	    modules. I append a small fix against uClibc-0.9.16.
+
+	* libc/sysdeps/linux/arm/crt0.S:
+	I was an idiot and put _fini into the wrong register.  Duh.
+	This patch from David Meggy fixes it...
+
+2002-11-14  Erik Andersen  <andersen@dillweed>
+
+	* libc/misc/regex/regex.c:
+	As released in uClibc 0.9.16, regex was being compiled without
+	wide char support, even when the rest of uClibc was.  This led
+	to anyone using regex segfaulting...
 	 -Erik
 
-2002-08-30  miles  <miles@dillweed>
-
-	* libc/sysdeps/linux/v850/bits/kernel_stat.h:
-	Redo stat structures (kernel changed too).
-
-	* libc/sysdeps/linux/v850/bits/kernel_types.h: Add __kernel_ino64_t.
-	Make __kernel_loff_t unconditional.
-
-2002-08-30  aaronl  <aaronl@dillweed>
-
-	* README: CFLAGS+=-D__FORCE_NOGLIBC, not CFLAGS+=__FORCE_NOGLIBC
-	Change a than to then
-
-2002-08-30  miles  <miles@dillweed>
-
-	* libc/stdlib/malloc/heap_free.c: Doc fix.
-
-	* libc/stdlib/malloc/heap_free.c (__heap_free):
-	Tighten up the inner loop, and make the code more readable.
-
-	* libc/stdlib/malloc/free.c, libc/stdlib/malloc/malloc.c:
-	Use `likely' & `unlikely' instead of the `__malloc_'-prefixed versions.
-
-	* libc/stdlib/malloc/heap.h (likely, unlikely): New macros.
-
-	* libc/stdlib/malloc/malloc.h (likely, unlikely): New macros.
-	(__malloc_likely, __malloc_unlikely): Macros removed.
-
-2002-08-28  Erik Andersen  <andersen@dillweed>
-
-	* libc/sysdeps/linux/v850/bits/syscalls.h, libc/sysdeps/linux/sparc/bits/syscalls.h, libc/sysdeps/linux/powerpc/bits/syscalls.h, libc/sysdeps/linux/m68k/bits/syscalls.h, libc/sysdeps/linux/h8300/bits/syscalls.h, libc/sysdeps/linux/i960/bits/syscalls.h, libc/sysdeps/linux/alpha/bits/syscalls.h:
-	Fix a silly bug notices by Ronald Wahl <rwa@peppercon.com>
-
-2002-08-28  davidm  <davidm@dillweed>
-
-	* libc/sysdeps/linux/common/Makefile:
-	If the initfini.pl script changes,  regenerate the crt[in].S files.
-
-2002-08-28  Erik Andersen  <andersen@dillweed>
-
-	* libc/sysdeps/linux/common/syscalls.c:
-	Fix broken getpriority syscall, per email from Marshall M. Midden
+	* libc/sysdeps/linux/common/ftruncate64.c, libc/sysdeps/linux/common/truncate64.c:
+	Minor cleanup
 	 -Erik
 
-	* docs/uclibc.org/index.html: fix grammar
+	* include/sys/sendfile.h, libc/sysdeps/linux/common/Makefile, libc/sysdeps/linux/common/sendfile64.c:
+	Implement sendfile64
+	 -Erik
 
-2002-08-27  Erik Andersen  <andersen@dillweed>
+	* ldso/ldso/arm/boot1_arch.h: Add missing quotes
+	 -Erik
 
-	* Changelog.full: Final update
+2002-11-12  Erik Andersen  <andersen@dillweed>
+
+	* ldso/ldso/powerpc/elfinterp.c: A powerpc patch from Ronald Wahl:
+
+	    Ok, now i got it after a day of work.
+
+	    I have had a look into glibc and found the following:
+
+	    sysdeps/powerpc/dl-machine.c:
+	    ...
+		case R_PPC_JMP_SLOT:
+		  /* It used to be that elf_machine_fixup_plt was used here,
+		     but that doesn't work when ld.so relocates itself
+		     for the second time.  On the bright side, there's
+		     no need to worry about thread-safety here.  */
+		  {
+		    Elf32_Sword delta = finaladdr - (Elf32_Word) reloc_addr;
+	    ...
+
+	    The comment made me suspicious. The same position in uClibc looks like this:
+
+	    ldso/ldso/powerpc/elfinterp.c:
+	    ...
+		    case R_PPC_JMP_SLOT:
+			{
+			unsigned long targ_addr = (unsigned long)_dl_linux_resolve;
+			int delta = targ_addr - (unsigned long)reloc_addr;
+	    ...
+
+	    When I change it to the following it works:
+	    ...
+		    case R_PPC_JMP_SLOT:
+			{
+			unsigned long targ_addr = *reloc_addr;
+			int delta = targ_addr - (unsigned long)reloc_addr;
+	    ...
+
+	    I hope it will not break anything. Can anyone review this change and
+	    commit it into CVS?
+
+	    thanks,
+	    ron
+
+2002-11-11  sjhill  <sjhill@dillweed>
+
+	* test/Makefile:
+	Add in 'ldso' to directory list since 'make clean' was not recursing
+	into it.
+
+2002-11-10  Erik Andersen  <andersen@dillweed>
+
+	* docs/uclibc.org/index.html: Don't link to us.kernel.org
+
+2002-11-09  aaronl  <aaronl@dillweed>
+
+	* extra/Configs/Config.in.arch: fix typo
+
+2002-11-09  Erik Andersen  <andersen@dillweed>
+
+	* extra/config/confdata.c, extra/config/mconf.c: Update from upstream
+
+	* Rules.mak: For arm use -mcpu for the moment, since it seems to work
+
+	* extra/Configs/Config.in: typo fixes
+
+	* include/features.h: Make sure we have __linux__ defined
+
+	* docs/uclibc.org/index.html: Manditory typo..
 
