@@ -30,10 +30,14 @@ int main(void)
 {
 	pid_t pid;
 	int status, wpid;
+	char *argv[] = {
+		"/bin/ls",
+		NULL,
+	};
 
 	if ((pid = vfork()) == 0) {
 		printf("Hi.  I'm the child process...\n");
-		execvp("/bin/ls",NULL);
+		execvp(argv[0], argv);
 		_exit(0);
 	}
 
