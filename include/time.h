@@ -113,8 +113,6 @@ extern char	* ctime_r	__P((__const time_t *, char *));
 extern struct tm* gmtime_r	__P((__const time_t *, struct tm *));
 extern struct tm* localtime_r	__P((__const time_t *, struct tm *));
 
-struct timespec;
-
 /* IEEE Std 1003.1b-1993. */
 extern int nanosleep __P((__const struct timespec *__rqtp,
 		struct timespec *__rmtp));
