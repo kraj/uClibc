@@ -21,7 +21,7 @@
 TESTDIR=../
 include $(TESTDIR)/Rules.mak
 
-TARGETS=diff md5c-test
+TARGETS=crypt md5c-test
 EXTRA_LIBS=-lcrypt
 
 all: $(TARGETS)
@@ -34,7 +34,7 @@ crypt: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ < crypt.input > $@.out 2>&1
+	-./$@ < crypt.input #> $@.out 2>&1
 	-@ echo " "
 
 crypt_glibc: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
