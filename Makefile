@@ -176,7 +176,7 @@ install_dev:
 	install -d $(PREFIX)$(DEVEL_PREFIX)/usr/lib
 	install -d $(PREFIX)$(DEVEL_PREFIX)/include
 	(cd $(PREFIX)$(DEVEL_PREFIX)/include; install -d arpa net netinet rpc sys asm bits linux)
-	install -m 644 include/*.h $(PREFIX)$(DEVEL_PREFIX)/
+	install -m 644 include/*.h $(PREFIX)$(DEVEL_PREFIX)/include/
 	install -m 644 include/arpa/*.h $(PREFIX)$(DEVEL_PREFIX)/include/arpa/
 	install -m 644 include/net/*.h $(PREFIX)$(DEVEL_PREFIX)/include/net/
 	install -m 644 include/netinet/*.h $(PREFIX)$(DEVEL_PREFIX)/include/netinet/
