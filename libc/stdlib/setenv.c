@@ -27,11 +27,10 @@
 #include <unistd.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
-/* protects against simultaneous modifications of `environ'.  */
 #include <pthread.h>
-static pthread_mutex_t envlock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	pthread_mutex_lock(&envlock)
-# define UNLOCK	pthread_mutex_unlock(&envlock);
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK	pthread_mutex_lock(&mylock)
+# define UNLOCK	pthread_mutex_unlock(&mylock);
 #else
 # define LOCK
 # define UNLOCK
