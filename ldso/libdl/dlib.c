@@ -47,6 +47,10 @@ extern int _dl_parse_relocation_information(struct elf_resolve *, unsigned long,
 	__attribute__ ((__weak__, __alias__ ("foobar")));
 extern void _dl_parse_lazy_relocation_information(struct elf_resolve *, unsigned long, unsigned long, int)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
+#ifdef __mips__
+extern void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
+	__attribute__ ((__weak__, __alias__ ("foobar")));
+#endif
 #ifdef USE_CACHE
 int _dl_map_cache(void) __attribute__ ((__weak__, __alias__ ("foobar")));
 int _dl_unmap_cache(void) __attribute__ ((__weak__, __alias__ ("foobar")));
