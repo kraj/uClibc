@@ -34,9 +34,11 @@ int main(void)
 	int status, wpid;
 	char *argv[] = {
 		"/bin/ls",
+		"-laF",
 		NULL,
 	};
 
+	clearenv();
 	if ((pid = vfork()) == 0) {
 		printf("Hi.  I'm the child process...\n");
 		execvp(argv[0], argv);
