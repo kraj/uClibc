@@ -32,6 +32,7 @@
 # define ECANCELED	125
 
 # ifndef __ASSEMBLER__
+
 /* We now need a declaration of the `errno' variable.  */
 extern int errno;
 
