@@ -165,11 +165,6 @@ uClibc_config.h: Makefile Config
 	else \
 	    echo "#undef __UCLIBC_USE_UNIFIED_SYSCALL__" >> uClibc_config.h ; \
 	fi
-	@if [ "$(OLD_STYLE_MMAP)" != "false" ] ; then \
-	    echo "#define __UCLIBC_OLD_STYLE_MMAP__ 1" >> uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_OLD_STYLE_MMAP__" >> uClibc_config.h ; \
-	fi
 	@echo "#define C_SYMBOL_PREFIX "\""$(C_SYMBOL_PREFIX)"\" >> uClibc_config.h
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))

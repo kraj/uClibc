@@ -119,11 +119,6 @@ MALLOC = malloc
 # At present, only affects i386.
 UNIFIED_SYSCALL = false
 
-# If false, then the mmap syscall takes individual arguments, just like
-# every other syscall; otherwise, they're all packed into a buffer first
-# (which was necessary on old version of linux worked).
-OLD_STYLE_MMAP = false
-
 # If you want large file summit support (greater then 2 Gib), 
 # turn this on.  This has no effect unless your kernel supports 
 # lfs.  This currently does nothing, but may someday...
