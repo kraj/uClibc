@@ -70,22 +70,22 @@ build-stamp:
 	
 	cp debian/config .config
 
-	sed -ie 's,^.*TARGET_$(target).*,TARGET_$(target)=y,g' \
+	sed -i -e 's,^.*TARGET_$(target).*,TARGET_$(target)=y,g' \
 		.config
-	sed -ie 's,^TARGET_ARCH.*,TARGET_ARCH=\"$(target)\",g' \
+	sed -i -e 's,^TARGET_ARCH.*,TARGET_ARCH=\"$(target)\",g' \
 		.config
-	sed -ie 's,^KERNEL_SOURCE=.*,KERNEL_SOURCE=\"$(builddir)/$(kernel_source)\",g' \
+	sed -i -e 's,^KERNEL_SOURCE=.*,KERNEL_SOURCE=\"$(builddir)/$(kernel_source)\",g' \
 		.config
-	sed -ie 's,^RUNTIME_PREFIX=.*,RUNTIME_PREFIX=\"/\",g' \
+	sed -i -e 's,^RUNTIME_PREFIX=.*,RUNTIME_PREFIX=\"/\",g' \
 		.config
-	sed -ie 's,^DEVEL_PREFIX=.*,DEVEL_PREFIX=\"/usr/\",g' \
+	sed -i -e 's,^DEVEL_PREFIX=.*,DEVEL_PREFIX=\"/usr/\",g' \
 		.config
-	sed -ie 's,^SHARED_LIB_LOADER_PREFIX=.*,SHARED_LIB_LOADER_PREFIX=\"/lib\",g' \
+	sed -i -e 's,^SHARED_LIB_LOADER_PREFIX=.*,SHARED_LIB_LOADER_PREFIX=\"/lib\",g' \
 		.config
-	sed -ie 's,.*UCLIBC_HAS_WCHAR.*,UCLIBC_HAS_WCHAR=y\nUCLIBC_HAS_LOCALE=n,g' \
+	sed -i -e 's,.*UCLIBC_HAS_WCHAR.*,UCLIBC_HAS_WCHAR=y\nUCLIBC_HAS_LOCALE=n,g' \
 		.config
 #ifeq ($(target),arm)
-		sed -ie 's,.*HAS_FPU.*,HAS_FPU=n\nUCLIBC_HAS_FLOATS=y\nUCLIBC_HAS_SOFT_FLOAT=y,g' .config
+		sed -i -e 's,.*HAS_FPU.*,HAS_FPU=n\nUCLIBC_HAS_FLOATS=y\nUCLIBC_HAS_SOFT_FLOAT=y,g' .config
 	echo CONFIG_GENERIC_ARM=y >>.config
 #endif
 #ifeq ($(target),i386)
