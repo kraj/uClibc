@@ -82,13 +82,12 @@ typedef struct
 
 /* Userlevel context.  */
 typedef struct ucontext
-  {
-    unsigned long int uc_flags;
-    struct ucontext *uc_link;
-    __sigset_t uc_sigmask;
-    stack_t uc_stack;
-    mcontext_t uc_mcontext;
-    long int uc_filler[5];
-  } ucontext_t;
+{
+    unsigned long     uc_flags;
+    struct ucontext  *uc_link;
+    stack_t           uc_stack;
+    struct sigcontext uc_mcontext;
+    sigset_t          uc_sigmask;   /* mask last for extensibility */
+} ucontext_t;
 
 #endif /* sys/ucontext.h */
