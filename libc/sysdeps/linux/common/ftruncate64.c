@@ -17,13 +17,14 @@
 #include <errno.h>
 #include <endian.h>
 #include <stdint.h>
+#include <sys/types.h>
 #include <sys/syscall.h>
 
 #if defined __UCLIBC_HAS_LFS__
 
 #if defined __NR_ftruncate64
 
-#if __WORDSIZE == 64 || (defined(__powerpc__) && defined (__UCLIBC_HAS_LFS__))
+#if __WORDSIZE == 64
 
 /* For a 64 bit machine, life is simple... */
 _syscall2(int, ftruncate64, int, fd, __off64_t, length);
@@ -33,7 +34,13 @@ _syscall2(int, ftruncate64, int, fd, __off64_t, length);
 #ifndef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) __syscall_ftruncate64 (args)
 #define __NR___syscall_ftruncate64 __NR_ftruncate64
-static inline _syscall3(int, __syscall_ftruncate64, int, fd, int, high_length, int, low_length);
+#if defined(__powerpc__) || defined(__mips__)
+static inline _syscall4(int, __syscall_ftruncate64, int, fd, uint32_t, pad,
+	unsigned long, high_length, unsigned long, low_length);
+#else
+static inline _syscall3(int, __syscall_ftruncate64, int, fd,
+	unsigned long, high_length, unsigned long, low_length);
+#endif
 #endif
 
 /* The exported ftruncate64 function.  */
@@ -41,7 +48,13 @@ int ftruncate64 (int fd, __off64_t length)
 {
     uint32_t low = length & 0xffffffff;
     uint32_t high = length >> 32;
-    return INLINE_SYSCALL(ftruncate64, 3, fd, __LONG_LONG_PAIR (high, low));
+#if defined(__powerpc__) || defined(__mips__)
+    return INLINE_SYSCALL(ftruncate64,
+	    4, fd, 0, __LONG_LONG_PAIR (high, low));
+#else
+    return INLINE_SYSCALL(ftruncate64, 3, fd,
+	    __LONG_LONG_PAIR (high, low));
+#endif
 }
 
 #else /* __WORDSIZE */
