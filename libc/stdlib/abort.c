@@ -50,6 +50,8 @@ Cambridge, MA 02139, USA.  */
 #define ABORT_INSTRUCTION asm (".long 0")
 #elif defined(__SH5__)
 #define ABORT_INSTRUCTION asm ("movi 0x10, r9; shori 0xff, r9; trapa r9")
+#elif defined(__sh2__)
+#define ABORT_INSTRUCTION asm ("trapa #32")
 #elif defined(__sh__)
 #define ABORT_INSTRUCTION asm ("trapa #0xff")
 #else
