@@ -427,7 +427,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		ppnt++;
 	};
 
-	maxvma = (maxvma + 0xfffU) & ~0xfffU;
+	maxvma = (maxvma + ADDR_ALIGN) & ~ADDR_ALIGN;
 	minvma = minvma & ~0xffffU;
 
 	flags = MAP_PRIVATE /*| MAP_DENYWRITE */ ;
