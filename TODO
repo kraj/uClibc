@@ -10,6 +10,10 @@ TODO list for the uClibc 0.9.27 release:
     *) Finish up current ldso cleanups
     *) Fix dlopen, for both static and dynamic cases, and make it
 	actually comply with SuSv3
+    *) Fix use of __secure in __uClibc_init() for so that we prevent
+	starting staticly linked SUID binaries where the standard file
+	descriptors are not opened.  For dynamically linked binaries,
+	ldso does this for us.
 
 
 TODO list for the uClibc 1.0.0 release:
