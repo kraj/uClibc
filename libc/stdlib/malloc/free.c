@@ -105,7 +105,7 @@ free_to_heap (void *mem, struct heap *heap)
 
 #ifdef MALLOC_USE_SBRK
 
-      /* Release the main lock; we're still holding the sbrk lock.  */
+      /* Release the heap lock; we're still holding the sbrk lock.  */
       __heap_unlock (heap);
       /* Lower the brk.  */
       sbrk (start - end);
@@ -161,16 +161,21 @@ free_to_heap (void *mem, struct heap *heap)
 	      else
 		__malloc_mmapped_blocks = next_mmb;
 
+	      /* Start searching again from the end of this block.  */
+	      start = mmb_end;
+
+	      /* We have to unlock the heap before we recurse to free the mmb
+		 descriptor, because we might be unmapping from the mmb
+		 heap.  */
+	      __heap_unlock (heap);
+
 	      /* Release the descriptor block we used.  */
 	      free_to_heap (mmb, &__malloc_mmb_heap);
 
 	      /* Do the actual munmap.  */
-	      __heap_unlock (heap);
 	      munmap ((void *)mmb_start, mmb_end - mmb_start);
-	      __heap_lock (heap);
 
-	      /* Start searching again from the end of that block.  */
-	      start = mmb_end;
+	      __heap_lock (heap);
 
 #  ifdef __UCLIBC_HAS_THREADS__
 	      /* In a multi-threaded program, it's possible that PREV_MMB has
