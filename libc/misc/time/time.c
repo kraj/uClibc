@@ -97,8 +97,8 @@
  *   Bug reported by Arne Bernin <arne@alamut.de> in regards to freeswan.
  *
  * July 27, 2003  Adjust the struct tm extension field support.
- *   Change __tm_tzone back to a ptr and add the __tm_tzname[] buffer for
- *   __tm_tzone to point to.  This gets around complaints from g++.
+ *   Change __tm_zone back to a ptr and add the __tm_tzname[] buffer for
+ *   __tm_zone to point to.  This gets around complaints from g++.
  *  Who knows... it might even fix the PPC timezone init problem.
  *
  * July 29, 2003  Fix a bug in mktime behavior when tm_isdst was -1.
@@ -119,6 +119,13 @@
  *   unambiguous (not falling in the dst<->st transition region) both
  *   uClibc and glibc should produce the same result for mktime.
  *
+ * Oct 31, 2003 Kill the seperate __tm_zone and __tm_tzname[] and which
+ *   doesn't work if you want the memcpy the struct.  Sigh... I didn't
+ *   think about that.  So now, when the extensions are enabled, we
+ *   malloc space when necessary and keep the timezone names in a linked
+ *   list.
+ *
+ *   Fix a dst-related bug which resulted in use of uninitialized data.
  */
 
 #define _GNU_SOURCE
@@ -512,6 +519,47 @@ struct tm *localtime(const time_t *timer)
 /**********************************************************************/
 #ifdef L_localtime_r
 
+#ifdef __UCLIBC_HAS_TM_EXTENSIONS__
+
+struct ll_tzname_item;
+
+typedef struct ll_tzname_item {
+	struct ll_tzname_item *next;
+	char tzname[TZNAME_MAX+1];
+} ll_tzname_item_t;
+
+static ll_tzname_item_t ll_tzname[] = {
+	{ ll_tzname + 1, "UTC" },	/* Always 1st. */
+	{ NULL, "???" }		  /* Always 2nd. (invalid or out-of-memory) */
+};
+
+const char *lookup_tzname(const char *key)
+{
+	ll_tzname_item_t *p;
+
+	for (p=ll_tzname ; p ; p=p->next) {
+		if (!strcmp(p->tzname, key)) {
+			return p->tzname;
+		}
+	}
+
+	/* Hmm... a new name. */
+	if (strnlen(key, TZNAME_MAX+1) < TZNAME_MAX+1) { /* Verify legal length */
+		if ((p = malloc(sizeof(ll_tzname_item_t))) != NULL) {
+			/* Insert as 3rd item in the list. */
+			p->next = ll_tzname[1].next;
+			ll_tzname[1].next = p;
+			strcpy(p->tzname, key);
+			return p->tzname;
+		}
+	}
+
+	/* Either invalid or couldn't alloc. */
+	return ll_tzname[1].tzname;
+}
+
+#endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
+
 static const unsigned char day_cor[] = { /* non-leap */
 	31, 31, 34, 34, 35, 35, 36, 36, 36, 37, 37, 38, 38
 /* 	 0,  0,  3,  3,  4,  4,  5,  5,  5,  6,  6,  7,  7 */
@@ -618,10 +666,9 @@ struct tm *localtime_r(register const time_t *__restrict timer,
 		result->tm_isdst = dst;
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
 		result->tm_gmtoff = - _time_tzinfo[dst].gmt_offset;
-		result->tm_zone = result->__tm_tzname;
-		strcpy(result->__tm_tzname, _time_tzinfo[dst].tzname);
+		result->tm_zone = lookup_tzname(_time_tzinfo[dst].tzname);
 #endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
-	} while ((++dst < 2) && (result->tm_isdst = tm_isdst(result)) != 0);
+	} while ((++dst < 2) && ((result->tm_isdst = tm_isdst(result)) != 0));
 
 	TZUNLOCK;
 
@@ -1698,13 +1745,8 @@ void tzset(void)
 #ifdef __UCLIBC_HAS_TZ_CACHING__
 		*oldval = 0;			/* Set oldval to an empty string. */
 #endif /* __UCLIBC_HAS_TZ_CACHING__ */
-		_time_tzinfo[0].gmt_offset = 0L;
-		s = _time_tzinfo[0].tzname;
-		*s = 'U';
-		*++s = 'T';
-		*++s = 'C';
-		*++s =
-		*_time_tzinfo[1].tzname = 0;
+		memset(_time_tzinfo, 0, 2*sizeof(rule_struct));
+		strcpy(_time_tzinfo[0].tzname, UTC);
 		goto DONE;
 	}
 
@@ -1774,6 +1816,7 @@ void tzset(void)
 	new_rules[count].gmt_offset = off;
 
 	if (!count) {
+		new_rules[1].gmt_offset = off; /* Shouldn't be needed... */
 		if (*e) {
 			++count;
 			goto LOOP;
@@ -1888,6 +1931,10 @@ static const unsigned char days[] = {
 	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, /* non-leap */
 	    29,
 };
+
+#ifdef __UCLIBC_HAS_TM_EXTENSIONS__
+static const char utc_string[] = "UTC";
+#endif
 
 /* Notes:
  * If time_t is 32 bits, then no overflow is possible.
@@ -2018,14 +2065,7 @@ struct tm *_time_t2tm(const time_t *__restrict timer,
 	p[4] = 0;					/* result[8] .. tm_isdst */
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
 	result->tm_gmtoff = 0;
-	result->tm_zone = result->__tm_tzname;
-	{
-		register char *s = result->__tm_tzname;
-		*s = 'U';
-		*++s = 'T';
-		*++s = 'C';
-		*++s = 0;
-	}
+	result->tm_zone = utc_string;
 #endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
 
 	return result;
@@ -2064,8 +2104,11 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 
 	memcpy(p, timeptr, sizeof(struct tm));
 
-	if ((default_dst = p[8]) < 0) {
-		default_dst = 1;		/* Assume advancing */
+	if ((default_dst = p[8]) < 0) {	/* Try to determing if dst? */
+		default_dst = 1;		/* Assume advancing. */
+		if (!_time_tzinfo[1].tzname[0]) { /* Oops... no dst. */
+			default_dst = p[8] = 0;
+		}
 	}
 
 	d = 400;

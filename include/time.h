@@ -143,12 +143,11 @@ struct tm
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
 #ifdef	__USE_BSD
   long int tm_gmtoff;		/* Seconds east of UTC.  */
-  __const char *tm_zone;	/* Timezone abbreviation.  */
+  __const char *tm_zone;	/* Timezone abbreviation. */
 #else
   long int __tm_gmtoff;		/* Seconds east of UTC.  */
-  __const char *__tm_zone;	/* Timezone abbreviation.  */
+  __const char *__tm_zone;	/* Timezone abbreviation. */
 #endif
-  char __tm_tzname[8];		/* In uClibc, tm_zone points to __tm_tzname. */
 #endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
 };
 __END_NAMESPACE_STD
