@@ -96,28 +96,28 @@ __uClibc_main(int argc, char **argv, char **envp)
 	 * where the standard file descriptors are not opened.  We have
 	 * to do this only for statically linked applications since
 	 * otherwise the dynamic loader did the work already.  */
-	if (unlikely (__libc_enable_secure))
+	if (unlikely (__libc_enable_secure!=NULL))
 	    __libc_check_standard_fds ();
 #endif
 
 #ifdef __UCLIBC_HAS_LOCALE__
 	/* Initialize the global locale structure. */
-	if (likely(_locale_init)) _locale_init();
+	if (likely(_locale_init!=NULL)) _locale_init();
 #endif
 
 	/*
 	 * Initialize stdio here.  In the static library case, this will
 	 * be bypassed if not needed because of the weak alias above.
 	 */
-	if (likely(_stdio_init))
+	if (likely(_stdio_init != NULL))
 	  _stdio_init();
 
 	/* Arrange for dtors to run at exit.  */
-	if (_fini && atexit) {
+	if (unlikely(_fini!=NULL && atexit)) {
 	    atexit (&_fini);
 	}
 	/* Run all ctors now.  */
-	if (_init)
+	if (unlikely(_init!=NULL))
 	    _init();
 
 	/*
@@ -125,11 +125,11 @@ __uClibc_main(int argc, char **argv, char **envp)
 	 * have resulted in errno being set nonzero, so set it to 0 before
 	 * we call main.
 	 */
-	if (likely(__errno_location))
+	if (likely(__errno_location!=NULL))
 	    *(__errno_location()) = 0;
 
 	/* Set h_errno to 0 as well */
-	if (likely(__h_errno_location))
+	if (likely(__h_errno_location!=NULL))
 	    *(__h_errno_location()) = 0;
 
 	/*
