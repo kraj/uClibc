@@ -476,6 +476,7 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 					if (*p == 'p') {
 						lval = (sizeof(char *) == sizeof(long));
 						upcase = 0;
+						flag[FLAG_HASH] = 1;
 					}
 #if defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR
 					if (lval >= 2) {
