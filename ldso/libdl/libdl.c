@@ -186,13 +186,6 @@ void *_dlopen(const char *libname, int flag)
 		_dl_unmap_cache();
 		return NULL;
 	}
-	if (tpnt->init_flag & INIT_FUNCS_CALLED) {
-
-	    /* If the init and fini stuff has already been run, that means
-	     * someone called dlopen on a library we already have opened, so
-	     * we don't need to fix thing up any further... */
-	    return tpnt;
-	}
 
 	dyn_chain = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 	_dl_memset(dyn_chain, 0, sizeof(struct dyn_elf));
@@ -203,6 +196,13 @@ void *_dlopen(const char *libname, int flag)
 
 	dyn_chain->next_handle = _dl_handles;
 	_dl_handles = rpnt = dyn_chain;
+
+	if (tpnt->init_flag & INIT_FUNCS_CALLED) {
+	    /* If the init and fini stuff has already been run, that means
+	     * the dlopen'd library has already been loaded, and nothing
+	     * further needs to be done. */
+	    return (void *) dyn_chain;
+	}
 
 
 #ifdef __SUPPORT_LD_DEBUG__
