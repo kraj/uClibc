@@ -107,7 +107,7 @@ void free(void *ptr)
 #ifdef __UCLIBC_HAS_MMU__
 	if (ptr) {
 		ptr -= sizeof(size_t);
-		munmap(ptr, * (size_t *) ptr);
+		munmap(ptr, * (size_t *) ptr + sizeof(size_t));
 	}
 #else
 	munmap(ptr, 0);
