@@ -25,7 +25,7 @@ testmalloc: testmalloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-ldd $@
+	-$(LDD) $@
 	ls -l $@
 	-./$@
 	-@ echo " "
@@ -38,7 +38,7 @@ testmalloc_glibc: testmalloc.c Makefile
 	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-ldd $@
+	-$(LDD) $@
 	ls -l $@
 	-./$@
 	-@ echo " "
@@ -51,7 +51,7 @@ mallocbug: mallocbug.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-ldd $@
+	-$(LDD) $@
 	ls -l $@
 	-./$@
 	-@ echo " "
@@ -64,7 +64,7 @@ mallocbug_glibc: mallocbug.c Makefile
 	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-ldd $@
+	-$(LDD) $@
 	ls -l $@
 	-./$@
 	-@ echo " "
@@ -84,7 +84,7 @@ teststrtol: teststrtol.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-ldd $@
+	-$(LDD) $@
 	ls -sh $@
 	-./$@ > $@.out
 	-@ echo " "
@@ -97,7 +97,7 @@ teststrtol_glibc: teststrtol.c Makefile
 	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-ldd $@
+	-$(LDD) $@
 	ls -sh $@
 	-./$@ > $@.out
 	-@ echo " "
@@ -118,7 +118,7 @@ qsort: qsort.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-ldd $@
+	-$(LDD) $@
 	ls -l $@
 	-./$@ > $@.out
 	-@ echo " "
@@ -131,7 +131,7 @@ qsort_glibc: qsort.c Makefile
 	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-ldd $@
+	-$(LDD) $@
 	ls -sh $@
 	-./$@ > $@.out
 	-@ echo " "

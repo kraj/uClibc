@@ -17,6 +17,7 @@ NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
 CC = ../$(TESTDIR)extra/gcc-uClibc/$(NATIVE_ARCH)-uclibc-gcc
 HOST_CC = gcc
 STRIPTOOL=strip
+LDD = ../$(TESTDIR)ldso/util/ldd
 
 
 # Check if 'ls -sh' works or not
