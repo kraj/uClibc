@@ -278,7 +278,8 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 		i = tpnt->mips_symtabno - tpnt->mips_gotsym;
 
 #if defined (__SUPPORT_LD_DEBUG__)
-		_dl_dprintf(2, "_dl_perform_mips_global_got_relocations for '%s'\n", tpnt->libname);
+		if(_dl_debug_reloc)
+			_dl_dprintf(2, "_dl_perform_mips_global_got_relocations for '%s'\n", tpnt->libname);
 #endif
 
 		/* Relocate the global GOT entries for the object */
