@@ -805,11 +805,17 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	_dl_debug    = _dl_getenv("LD_DEBUG", envp);
 	if (_dl_debug)
 	{
-	  _dl_debug_detail   = _dl_strstr(_dl_debug, "detail");
-	  _dl_debug_move     = _dl_strstr(_dl_debug, "move");
-	  _dl_debug_symbols  = _dl_strstr(_dl_debug, "sym");
-	  _dl_debug_reloc    = _dl_strstr(_dl_debug, "reloc");
-	  _dl_debug_bindings = _dl_strstr(_dl_debug, "bind");
+	  if (_dl_strstr(_dl_debug, "all")) {
+	  	_dl_debug_detail = _dl_debug_move = _dl_debug_symbols
+			= _dl_debug_reloc = _dl_debug_bindings = _dl_strstr(_dl_debug, "all");
+	  }
+	  else {
+	  	_dl_debug_detail   = _dl_strstr(_dl_debug, "detail");
+	  	_dl_debug_move     = _dl_strstr(_dl_debug, "move");
+	  	_dl_debug_symbols  = _dl_strstr(_dl_debug, "sym");
+	  	_dl_debug_reloc    = _dl_strstr(_dl_debug, "reloc");
+	  	_dl_debug_bindings = _dl_strstr(_dl_debug, "bind");
+	  }
 	}
 	{
 	  const char *dl_debug_output;
