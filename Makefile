@@ -154,10 +154,14 @@ install_target:
 ifeq ($(DO_SHARED),shared)
 	install -d $(TARGET_PREFIX)$(ROOT_DIR)/lib
 	cp -fa lib/*.so* $(TARGET_PREFIX)$(ROOT_DIR)/lib;
-#ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
-#	install -d $(TARGET_PREFIX)$(ROOT_DIR)/etc
+ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
+	install -d $(TARGET_PREFIX)$(ROOT_DIR)/etc
+	install -d $(TARGET_PREFIX)$(ROOT_DIR)/sbin
+	install -d $(TARGET_PREFIX)$(ROOT_DIR)/usr/bin
+	cp ldso/util/ldd $(TARGET_PREFIX)$(ROOT_DIR)/usr/bin
+	cp ldso/util/ldconfig $(TARGET_PREFIX)$(ROOT_DIR)/sbin
 #	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
-#endif
+endif
 endif
 
 # Installs development library and headers
@@ -169,6 +173,14 @@ install_dev:
 	cp -fa lib/*.so* $(DEVEL_PREFIX)$(ROOT_DIR)/lib;
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/lib
 	cp -fa lib/*.[ao] $(DEVEL_PREFIX)$(ROOT_DIR)/usr/lib;
+ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
+	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/etc
+	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/sbin
+	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/bin
+	cp ldso/util/ldd $(DEVEL_PREFIX)$(ROOT_DIR)/usr/bin
+	cp ldso/util/ldconfig $(DEVEL_PREFIX)$(ROOT_DIR)/sbin
+#	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
+endif
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/etc
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/bits
