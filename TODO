@@ -6,13 +6,8 @@ TODO list for the uClibc 0.9.27 release:
 	such as UCLIBC_HAS_SOFT_FLOAT, UCLIBC_HAS_THREADS, UCLIBC_HAS_LOCALE,
 	and perhaps others (finalize list) produce a lib with a differing
 	ABI.  Make it so apps cannot use an ABI mis-matched uClibc.
-    *) __data_start needs to be added to any crt0.S files that don't
-	currently have it.  It is used by the boehm gc, amoung other
-	things.  mjn3 has added it to i386 and mips, but some archs
-	are still missing it.
     *) Fix syscall() on mips
-    *) Finish up current ldso cleanups, and merge most of the patches
-	from Alexandre Oliva
+    *) Finish up current ldso cleanups
     *) Fix dlopen, for both static and dynamic cases, and make it
 	actually comply with SuSv3
 
@@ -72,6 +67,9 @@ TODO list for the uClibc 1.0.0 release:
     *) Build both pic and non-pic objects where appropriate, so that
 	static libs need not pay the pic size penalty.
     *) Cleanup/scrub all the Makefile copyright junk
+    *) Debugging pthreads with gdb does not work at all on mips
+    *) Debugging pthreads with gdb initially appears to work, but
+	fails to function correctly on arm
 
 
 TODO list for AFTER the uClibc 1.0.0 release:
