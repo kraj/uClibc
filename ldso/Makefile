@@ -1,7 +1,7 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-SUBDIRS = util libdl
+SUBDIRS = libdl
 ALL_SUBDIRS = util libdl d-link
 
 all:

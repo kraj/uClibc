@@ -17,13 +17,13 @@ ldd.o: ldd.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 readelf: readelf.c
-	$(TARGET_CC) $(TARGET_CFLAGS) readelf.c -o $@
+	$(TARGET_CC) $(TARGET_CFLAGS) -static readelf.c -o $@
 
 ldconfig: ldconfig.o readsoname.o
 	$(TARGET_CC) $(TARGET_CFLAGS) -static $^ -o $@
 
 ldd:	ldd.o readsoname.o
-	$(TARGET_CC) $(TARGET_CFLAGS) $^ -o $@
+	$(TARGET_CC) $(TARGET_CFLAGS) -static $^ -o $@
 
 clean:
 	rm -f ldconfig ldd readelf *.o *~ core
