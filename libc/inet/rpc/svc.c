@@ -48,7 +48,7 @@
 #include <sys/poll.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
-#define xports ((SVCXPRT **)RPC_THREAD_VARIABLE(svc_xports_s))
+#define xports (*(SVCXPRT ***)&RPC_THREAD_VARIABLE(svc_xports_s))
 #else
 static SVCXPRT **xports;
 #endif
@@ -67,7 +67,7 @@ struct svc_callout {
   void (*sc_dispatch) (struct svc_req *, SVCXPRT *);
 };
 #ifdef __UCLIBC_HAS_THREADS__
-#define svc_head ((struct svc_callout *)RPC_THREAD_VARIABLE(svc_head_s))
+#define svc_head (*(struct svc_callout **)&RPC_THREAD_VARIABLE(svc_head_s))
 #else
 static struct svc_callout *svc_head;
 #endif

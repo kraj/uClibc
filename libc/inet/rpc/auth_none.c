@@ -64,7 +64,7 @@ struct authnone_private_s {
   u_int mcnt;
 };
 #ifdef __UCLIBC_HAS_THREADS__
-#define authnone_private ((struct authnone_private_s *)RPC_THREAD_VARIABLE(authnone_private_s))
+#define authnone_private (*(struct authnone_private_s **)&RPC_THREAD_VARIABLE(authnone_private_s))
 #else
 static struct authnone_private_s *authnone_private;
 #endif
@@ -105,7 +105,7 @@ authnone_marshal (AUTH *client, XDR *xdrs)
 {
   struct authnone_private_s *ap;
 
-  ap = (struct authnone_private_s *) authnone_private;
+  ap = authnone_private;
   if (ap == NULL)
     return FALSE;
   return (*xdrs->x_ops->x_putbytes) (xdrs, ap->marshalled_client, ap->mcnt);

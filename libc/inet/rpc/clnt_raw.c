@@ -62,7 +62,7 @@ struct clntraw_private_s
     u_int mcnt;
   };
 #ifdef __UCLIBC_HAS_THREADS__
-#define clntraw_private ((struct clntraw_private_s *)RPC_THREAD_VARIABLE(clntraw_private_s))
+#define clntraw_private (*(struct clntraw_private_s **)&RPC_THREAD_VARIABLE(clntraw_private_s))
 #else
 static struct clntraw_private_s *clntraw_private;
 #endif

@@ -64,7 +64,7 @@ struct proglst_
     struct proglst_ *p_nxt;
   };
 #ifdef __UCLIBC_HAS_THREADS__
-#define proglst ((struct proglst_ *)RPC_THREAD_VARIABLE(svcsimple_proglst_s))
+#define proglst (*(struct proglst_ **)&RPC_THREAD_VARIABLE(svcsimple_proglst_s))
 #else
 static struct proglst_ *proglst;
 #endif
@@ -72,7 +72,7 @@ static struct proglst_ *proglst;
 
 static void universal (struct svc_req *rqstp, SVCXPRT *transp_s);
 #ifdef __UCLIBC_HAS_THREADS__
-#define transp ((SVCXPRT *)RPC_THREAD_VARIABLE(svcsimple_transp_s))
+#define transp (*(SVCXPRT **)&RPC_THREAD_VARIABLE(svcsimple_transp_s))
 #else
 static SVCXPRT *transp;
 #endif
