@@ -1034,11 +1034,77 @@ struct netent * getnetbyname(const char * name)
 
 
 #ifdef L_res_init
+struct __res_state * __res;
+
+#ifndef _res
+#define _res (*__res_state())
+#endif
 
 int res_init(void)
 {
+	struct __res_state *rp = __res;
+	if(!__res) {
+		rp = (struct __res_state *) malloc(sizeof(struct __res_state));
+		memset(rp, 0, sizeof(struct __res_state));
+		__res = rp;
+	}	
+
+	(void) open_nameservers();
+	rp->retrans = RES_TIMEOUT;
+	rp->retry = 4;
+	rp->options = RES_INIT;
+	rp->id = (u_int) random();
+	rp->nsaddr.sin_addr.s_addr = INADDR_ANY;
+	rp->nsaddr.sin_family = AF_INET;
+	rp->nsaddr.sin_port = htons(NAMESERVER_PORT);
+	rp->ndots = 1;
+	/** rp->pfcode = 0; **/
+	rp->_vcsock = -1;
+	/** rp->_flags = 0; **/
+	/** rp->qhook = NULL; **/
+	/** rp->rhook = NULL; **/
+	/** rp->_u._ext.nsinit = 0; **/
+
+	if(searchdomains) {
+		int i;
+		for(i=0; i<searchdomains; i++) {
+			rp->dnsrch[i] = searchdomain[i];
+		}
+	}
+
+	if(nameservers) {
+		int i;
+		struct in_addr a;
+		for(i=0; i<nameservers; i++) {
+			if (inet_aton(nameserver[i], &a)) {
+				rp->nsaddr_list[i].sin_addr = a;
+				rp->nsaddr_list[i].sin_family = AF_INET;
+				rp->nsaddr_list[i].sin_port = htons(NAMESERVER_PORT);
+			}
+		}
+	}
+	rp->nscount = nameservers;
+
 	return(0);
 }
+
+struct __res_state * __res_state (void)
+{
+	if(!__res) {
+		res_init();
+	}
+	return __res;
+}
+
+void res_close( void )
+{
+	if(__res) {
+		free(__res);
+		__res = NULL;
+	}
+	return;
+}
+
 #endif
 
 
