@@ -102,8 +102,8 @@ static inline Elf32_Addr
 elf_machine_load_address (void)
 {
 	Elf32_Addr gotaddr_diff;
-	__asm__ ("sub.d [$r0+_dl_boot:GOT16],$r0,%0\n\t"
-		 "add.d _dl_boot:GOTOFF,%0" : "=r" (gotaddr_diff));
+	__asm__ ("sub.d [$r0+_dl_parse:GOT16],$r0,%0\n\t"
+		 "add.d _dl_parse:GOTOFF,%0" : "=r" (gotaddr_diff));
 	return gotaddr_diff;
 }
 
