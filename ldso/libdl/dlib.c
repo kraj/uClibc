@@ -139,12 +139,12 @@ void * _dlopen(char * libname, int flag)
 	  {
 	    struct elf_resolve *tcurr;
 	    struct elf_resolve * tpnt1;
-	    struct dynamic * dpnt;
+	    Elf32_Dyn * dpnt;
 	    char * lpnt;
 
 	    tcurr = tpnt;
 	    do{
-	      for(dpnt = (struct dynamic *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++)
+	      for(dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++)
 		{
 	  
 		  if(dpnt->d_tag == DT_NEEDED)
@@ -330,7 +330,7 @@ static int do_dlclose(void * vhandle, int need_fini)
 {
 	struct dyn_elf * rpnt, *rpnt1;
 	struct dyn_elf *spnt, *spnt1;
-	struct elf_phdr * ppnt;
+	elf_phdr * ppnt;
 	struct elf_resolve * tpnt;
 	int (*dl_elf_fini)(void);
 	void (*dl_brk)(void);
@@ -603,13 +603,13 @@ int _dladdr(void * __address, Dl_info * __dlip )
 
 	{
 	  char * strtab;
-	  struct elf32_sym * symtab;
+	  Elf32_Sym * symtab;
 	  int hn, si;
 	  int sf;
 	  int sn = 0;
 	  void* sa = 0;
 
-	  symtab = (struct elf32_sym *) (pelf->dynamic_info[DT_SYMTAB] + 
+	  symtab = (Elf32_Sym *) (pelf->dynamic_info[DT_SYMTAB] + 
 					 pelf->loadaddr);
 	  strtab = (char *) (pelf->dynamic_info[DT_STRTAB] + pelf->loadaddr);
 
