@@ -42,6 +42,9 @@ XXFLAGS:=$(XXFLAGS:-O0=-O1)
 XXFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 LDFLAGS=$(CPU_LDFLAGS-y) -z now -Bsymbolic -shared --warn-common --export-dynamic --sort-common \
 	-z combreloc --discard-locals --discard-all --no-undefined
+ifeq ($(UCLIBC_BUILD_RELRO),y)
+	LDFLAGS+=-z relro
+endif
 
 CSRC= ldso.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))

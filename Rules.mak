@@ -254,6 +254,14 @@ else
     LDFLAGS := $(CPU_LDFLAGS-y) -s -shared --warn-common --warn-once -z combreloc
 endif
 
+ifeq ($(UCLIBC_BUILD_RELRO),y)
+LDFLAGS+=-z relro
+endif
+
+ifeq ($(UCLIBC_BUILD_NOW),y)
+LDFLAGS+=-z now
+endif
+
 # Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
 #CFLAGS+=-iwithprefix include
 CFLAGS+=-isystem $(shell $(CC) -print-file-name=include)

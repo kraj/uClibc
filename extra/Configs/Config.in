@@ -205,20 +205,6 @@ config FORCE_SHAREABLE_TEXT_SEGMENTS
 	  little bit smaller and guarantee that no memory will be wasted by badly
 	  coded shared libraries.
 
-config UCLIBC_BUILD_PIE
-	bool "Build utilities as ET_DYN/PIE executables"
-	depends on HAVE_SHARED
-	depends on TARGET_i386 || TARGET_powerpc || TARGET_frv
-	select FORCE_SHAREABLE_TEXT_SEGMENTS if BUILD_UCLIBC_LDSO
-	default n
-	help
-	  If you answer Y here, ldd and iconv are built as ET_DYN/PIE executables.
-	  This requires gcc-3.4 and binutils-2.15 or later.
-	  More about ET_DYN/PIE binaries on <http://pax.grsecurity.net/> .
-	  WARNING: This option also enables FORCE_SHAREABLE_TEXT_SEGMENTS, so all
-		libraries have to be built with -fPIC or -fpic, and all assembler
-		functions must be written as position independent code (PIC).
-
 config LDSO_LDD_SUPPORT
 	bool "Native shared library loader 'ldd' support"
 	depends on BUILD_UCLIBC_LDSO
@@ -282,52 +268,6 @@ config UCLIBC_CTOR_DTOR
 	  then you definitely want to answer Y here.  If you don't need ctors
 	  or dtors and want your binaries to be as small as possible, then
 	  answer N.
-
-config UCLIBC_HAS_SSP
-	bool "Support for propolice stack protection"
-	default n
-	help
-	  Adds propolice protection to libc (__guard and __stack_smash_handler).
-	  More about it on <http://www.research.ibm.com/trl/projects/security/ssp> .
-	  To be able to use it, you'll also need a propolice patched gcc,
-	  supporting the -fstack-protector[-all] options. It is a specially patched
-	  gcc version, where __guard and __stack_smash_handler are removed from libgcc.
-	  Most people will answer N.
-
-choice
-	prompt "Propolice protection blocking signal"
-	depends on UCLIBC_HAS_SSP
-	default PROPOLICE_BLOCK_ABRT if ! DODEBUG
-	default PROPOLICE_BLOCK_SEGV if DODEBUG
-	help
-	  "abort" use SIGABRT to block offending programs.
-	  This is the default implementation.
-
-	  "segfault" use SIGSEGV to block offending programs.
-	  Use this for debugging.
-
-	  "kill" use SIGKILL to block offending programs.
-	  Perhaps the best for security.
-
-	  If unsure, answer "abort".
-
-config PROPOLICE_BLOCK_ABRT
-	bool "abort"
-
-config PROPOLICE_BLOCK_SEGV
-	bool "segfault"
-
-config PROPOLICE_BLOCK_KILL
-	bool "kill"
-
-endchoice
-
-config UCLIBC_BUILD_SSP
-	bool "Build uClibc with propolice protection"
-	depends on UCLIBC_HAS_SSP
-	default n
-	help
-	  Build all libraries and executables with propolice protection enabled.
 
 config HAS_NO_THREADS
 	bool
@@ -1143,6 +1083,85 @@ config DEVEL_PREFIX
 
 	  For a typical target system this should be set to "/usr", such that
 	  'make install' will install /usr/include/<header files>.
+
+endmenu
+
+
+menu "uClibc security related options"
+
+config UCLIBC_BUILD_PIE
+	bool "Build utilities as ET_DYN/PIE executables"
+	depends on HAVE_SHARED
+	depends on TARGET_i386 || TARGET_powerpc || TARGET_frv
+	select FORCE_SHAREABLE_TEXT_SEGMENTS if BUILD_UCLIBC_LDSO
+	default n
+	help
+	  If you answer Y here, ldd and iconv are built as ET_DYN/PIE executables.
+	  It requires gcc-3.4 and binutils-2.15 or later.
+	  More about ET_DYN/PIE binaries on <http://pax.grsecurity.net/> .
+	  WARNING: This option also enables FORCE_SHAREABLE_TEXT_SEGMENTS, so all
+		libraries have to be built with -fPIC or -fpic, and all assembler
+		functions must be written as position independent code (PIC).
+
+config UCLIBC_HAS_SSP
+	bool "Support for propolice stack protection"
+	default n
+	help
+	  Adds propolice protection to libc (__guard and __stack_smash_handler).
+	  More about it on <http://www.research.ibm.com/trl/projects/security/ssp> .
+	  To be able to use it, you'll also need a propolice patched gcc,
+	  supporting the -fstack-protector[-all] options. It is a specially patched
+	  gcc version, where __guard and __stack_smash_handler are removed from libgcc.
+	  Most people will answer N.
+
+choice
+	prompt "Propolice protection blocking signal"
+	depends on UCLIBC_HAS_SSP
+	default PROPOLICE_BLOCK_ABRT if ! DODEBUG
+	default PROPOLICE_BLOCK_SEGV if DODEBUG
+	help
+	  "abort" use SIGABRT to block offending programs.
+	  This is the default implementation.
+
+	  "segfault" use SIGSEGV to block offending programs.
+	  Use this for debugging.
+
+	  "kill" use SIGKILL to block offending programs.
+	  Perhaps the best for security.
+
+	  If unsure, answer "abort".
+
+config PROPOLICE_BLOCK_ABRT
+	bool "abort"
+
+config PROPOLICE_BLOCK_SEGV
+	bool "segfault"
+
+config PROPOLICE_BLOCK_KILL
+	bool "kill"
+
+endchoice
+
+config UCLIBC_BUILD_SSP
+	bool "Build uClibc with propolice protection"
+	depends on UCLIBC_HAS_SSP
+	default n
+	help
+	  Build all libraries and executables with propolice protection enabled.
+
+config UCLIBC_BUILD_RELRO
+	bool "Build uClibc with RELRO"
+	depends on BUILD_UCLIBC_LDSO
+	default n
+	help
+	  Build all libraries and executables with -z relro.
+
+config UCLIBC_BUILD_NOW
+	bool "Build uClibc with NOW"
+	depends on BUILD_UCLIBC_LDSO
+	default n
+	help
+	  Build all libraries and executables with -z now.
 
 endmenu
 

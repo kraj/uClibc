@@ -37,6 +37,12 @@ ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	DIRS+=linuxthreads_db
 	LDFLAGS_THREAD_DB:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
+ifeq ($(UCLIBC_BUILD_RELRO),y)
+	LDFLAGS_PTHREAD_DB+=-z relro
+endif
+ifeq ($(UCLIBC_BUILD_NOW),y)
+	LDFLAGS_PTHREAD_DB+=-z now
+endif
 endif
 ifeq ($(DODEBUG),n)
 	LDFLAGS_THREAD_DB+=-s
