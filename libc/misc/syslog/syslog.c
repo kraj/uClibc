@@ -31,10 +31,8 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)syslog.c	8.4 (Berkeley) 3/18/94";
-#endif /* LIBC_SCCS and not lint */
-
+#define __FORCE_GLIBC__
+#include <features.h>
 /*
  * SYSLOG -- print message on log file
  *
@@ -130,7 +128,7 @@ void syslog( int, const char *, ...);
 void vsyslog( int, const char *, va_list );
 void openlog( const char *, int, int );
 void closelog( void );
-void setlogmask( int );
+int setlogmask(int pmask);
 
 static void 
 closelog_intern(int to_default)
@@ -332,17 +330,16 @@ closelog( void )
 	closelog_intern(1);
 }
 
-/*
- * SETLOGMASK -- set the log mask level
- */
-void
-setlogmask( int pmask )
+/* setlogmask -- set the log mask level */
+int setlogmask(int pmask)
 {
-	int omask;
+    int omask;
 
-	omask = LogMask;
-	LOCK();
-	if (pmask != 0)
-		LogMask = pmask;
-	UNLOCK();
+    omask = LogMask;
+    LOCK();
+    if (pmask != 0)
+	LogMask = pmask;
+    UNLOCK();
+    return (omask);
 }
+
