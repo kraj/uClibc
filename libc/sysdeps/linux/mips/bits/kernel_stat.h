@@ -26,7 +26,31 @@ struct stat {
 	unsigned long	st_pad2;
 	long long	st_blocks;
 };
+struct stat64 {
+	unsigned long	st_dev;
+	unsigned long	st_pad0[3];	/* Reserved for st_dev expansion  */
+	unsigned long long	st_ino;
+	unsigned int	st_mode;
+	int		st_nlink;
+	int		st_uid;
+	int		st_gid;
+	unsigned long	st_rdev;
+	unsigned long	st_pad1[3];	/* Reserved for st_rdev expansion  */
+	long long	st_size;
+	long		st_atime;
+	unsigned long	reserved0;	/* Reserved for st_atime expansion  */
+	long		st_mtime;
+	unsigned long	reserved1;	/* Reserved for st_mtime expansion  */
+	long		st_ctime;
+	unsigned long	reserved2;	/* Reserved for st_ctime expansion  */
+	unsigned long	st_blksize;
+	unsigned long	st_pad2;
+	long long	st_blocks;
+};
+
 #else
+
+#ifndef __USE_FILE_OFFSET64
 struct stat {
 	unsigned int	st_dev;
 	long		st_pad1[3];		/* Reserved for network id */
@@ -49,6 +73,30 @@ struct stat {
 	long		st_blocks;
 	long		st_pad4[14];
 };
+#else
+struct stat {
+	unsigned long	st_dev;
+	unsigned long	st_pad0[3];	/* Reserved for st_dev expansion  */
+	unsigned long long	st_ino;
+	unsigned int	st_mode;
+	int		st_nlink;
+	int		st_uid;
+	int		st_gid;
+	unsigned long	st_rdev;
+	unsigned long	st_pad1[3];	/* Reserved for st_rdev expansion  */
+	long long	st_size;
+	long		st_atime;
+	unsigned long	reserved0;	/* Reserved for st_atime expansion  */
+	long		st_mtime;
+	unsigned long	reserved1;	/* Reserved for st_mtime expansion  */
+	long		st_ctime;
+	unsigned long	reserved2;	/* Reserved for st_ctime expansion  */
+	unsigned long	st_blksize;
+	unsigned long	st_pad2;
+	long long	st_blocks;
+};
+#endif
+
 #ifdef __USE_LARGEFILE64
 struct stat64 {
 	unsigned long	st_dev;
