@@ -24,7 +24,7 @@ TOPDIR=../
 include $(TOPDIR)Rules.mak
 LIBCRYPT=libcrypt.a
 SHARED_NAME=libcrypt.so.1
-APP_CC= ../extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
+TARGET_CC= ../extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 CSRC = crypt.c des.c md5.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
@@ -40,14 +40,14 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBCRYPT) $(OBJS)
 
 $(COBJS): %.o : %.c
-	$(APP_CC) $(CFLAGS) -c $< -o $@
+	$(TARGET_CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
 
 shared: $(LIBCRYPT)
-	$(APP_CC) $(LDFLAGS) -shared -o $(SHARED_NAME) \
-	    -Wl,-soname,$(SHARED_NAME) $(COBJS) $(TOPDIR)libuClibc.so.1
+	$(TARGET_CC) $(LDFLAGS) -shared -o $(SHARED_NAME) \
+	    -Wl,-soname,$(SHARED_NAME) $(COBJS) $(TOPDIR)$(SHARED_FULLNAME)
 
 clean: 
 	rm -f *.[oa] *~ core $(SHARED_NAME)
