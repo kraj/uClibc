@@ -41,6 +41,8 @@
 #include "dl-elf.h"
 #include "readsoname.h"
 
+#define BUFFER_SIZE 4096
+
 struct exec
 {
   unsigned long a_info;		/* Use macros N_MAGIC, etc for access */
@@ -187,7 +189,7 @@ char *is_shlib(const char *dir, const char *name, int *type,
     struct exec exec;
     ElfW(Ehdr) *elf_hdr;
     struct stat statbuf;
-    char buff[PAGE_SIZE];
+    char buff[BUFFER_SIZE];
 
     /* see if name is of the form *.so* */
     if (name[strlen(name)-1] != '~' && (cp = strstr(name, ".so")))
@@ -287,8 +289,8 @@ char *is_shlib(const char *dir, const char *name, int *type,
 void link_shlib(const char *dir, const char *file, const char *so)
 {
     int change = 1;
-    char libname[PAGE_SIZE];
-    char linkname[PAGE_SIZE];
+    char libname[BUFFER_SIZE];
+    char linkname[BUFFER_SIZE];
     struct stat libstat;
     struct stat linkstat;
 
@@ -613,7 +615,7 @@ void cache_write(void)
 {
     int cachefd;
     int stroffset = 0;
-    char tempfile[PAGE_SIZE];
+    char tempfile[BUFFER_SIZE];
     liblist_t *cur_lib;
 
     if (!magic.nlibs)
