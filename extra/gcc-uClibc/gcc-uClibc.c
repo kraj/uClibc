@@ -1,6 +1,6 @@
-
 /*
  * Copyright (C) 2000 Manuel Novoa III
+ * Copyright (C) 2002 Erik Andersen
  *
  * This is a crude wrapper to use uClibc with gcc.
  * It was originally written to work around ./configure for ext2fs-utils.
@@ -63,6 +63,8 @@
  * behaviors can be invoked from the command line.
  *
  */
+
+#undef ENABLE_CRTBEGIN_END
 
 /*
  *
@@ -150,9 +152,12 @@ int main(int argc, char **argv)
 	char *rpath_link[2];
 	char *rpath[2];
 	char *uClibc_inc[2];
-	char *crt0_path[2];
 	char *lib_path[2];
-
+	char *crt0_path[2];
+#ifdef ENABLE_CRTBEGIN_END
+	char *crti_path[2];
+	char *crtn_path[2];
+#endif
 	devprefix = getenv("UCLIBC_DEVEL_PREFIX");
 	if (!devprefix) {
 		devprefix = UCLIBC_DEVEL_PREFIX;
@@ -177,6 +182,12 @@ int main(int argc, char **argv)
 
 	xstrcat(&(crt0_path[0]), devprefix, "/lib/crt0.o", NULL);
 	xstrcat(&(crt0_path[1]), builddir, "/lib/crt0.o", NULL);
+#ifdef ENABLE_CRTBEGIN_END
+	xstrcat(&(crti_path[0]), devprefix, "/lib/crti.o", NULL);
+	xstrcat(&(crti_path[1]), builddir, "/lib/crti.o", NULL);
+	xstrcat(&(crtn_path[0]), devprefix, "/lib/crtn.o", NULL);
+	xstrcat(&(crtn_path[1]), builddir, "/lib/crtn.o", NULL);
+#endif
 
 	xstrcat(&(lib_path[0]), "-L", devprefix, "/lib", NULL);
 	xstrcat(&(lib_path[1]), "-L", builddir, "/lib", NULL);
@@ -339,11 +350,8 @@ int main(int argc, char **argv)
 	if (linking && source_count) {
 	    if (use_start) {
 #ifdef ENABLE_CRTBEGIN_END
-		if (use_static_linking) {
-		    gcc_argv[i++] = GCC_LIB_DIR "crtbegin.o" ;
-		} else {
-		    gcc_argv[i++] = GCC_LIB_DIR "crtbeginS.o" ;
-		}
+		gcc_argv[i++] = crti_path[use_build_dir];
+		gcc_argv[i++] = GCC_LIB_DIR "crtbegin.o" ;
 #endif
 		gcc_argv[i++] = crt0_path[use_build_dir];
 	    }
@@ -361,13 +369,8 @@ int main(int argc, char **argv)
 		//gcc_argv[i++] = "-Wl,--end-group";
 	    }
 #ifdef ENABLE_CRTBEGIN_END
-	    if (use_start) {
-		if (use_static_linking) {
-		    gcc_argv[i++] = GCC_LIB_DIR "crtend.o" ;
-		} else {
-		    gcc_argv[i++] = GCC_LIB_DIR "crtendS.o" ;
-		}
-	    }
+	    gcc_argv[i++] = GCC_LIB_DIR "crtend.o" ;
+	    gcc_argv[i++] = crtn_path[use_build_dir];
 #endif
 	} else {
 	    for ( l = 0 ; l < k ; l++ ) {
