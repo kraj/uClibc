@@ -44,6 +44,12 @@
  * 8-16-2002
  * Fix two problems that showed up with the python 2.2.1 tests; one
  *    involving %o and one involving %f.
+ *
+ * 10-28-2002
+ * Fix a problem in vasprintf (reported by vodz a while back) when built
+ *    without custom stream support.  In that case, it is necessary to do
+ *    a va_copy.
+ * Make sure each va_copy has a matching va_end, as required by C99.
  */
 
 
@@ -107,6 +113,26 @@
 #else
 #define MAX_ARGS		MAX_POS_ARGS
 #endif
+
+/**********************************************************************/
+/* Deal with pre-C99 compilers. */
+
+#ifndef va_copy
+
+#ifdef __va_copy
+#define va_copy(A,B)	__va_copy(A,B)
+#else
+	/* TODO -- maybe create a bits/vacopy.h for arch specific versions
+	 * to ensure we get the right behavior?  Either that or fall back
+	 * on the portable (but costly in size) method of using a va_list *.
+	 * That means a pointer derefs in the va_arg() invocations... */
+#warning neither va_copy or __va_copy is defined.  using a simple copy instead...
+	/* the glibc manual suggests that this will usually suffice when
+        __va_copy doesn't exist.  */
+#define va_copy(A,B)	A = B
+#endif
+
+#endif /* va_copy */
 
 /**********************************************************************/
 
@@ -410,7 +436,7 @@ int vfprintf(FILE * __restrict stream, register const char * __restrict format,
 		_outnstr(stream, format, strlen(format));
 		count = -1;
 	} else {
-		_ppfs_prepargs(&ppfs, arg);
+		_ppfs_prepargs(&ppfs, arg);	/* This did a va_copy!!! */
 
 		do {
 			while (*format && (*format != '%')) {
@@ -443,6 +469,8 @@ int vfprintf(FILE * __restrict stream, register const char * __restrict format,
 				++format;
 			}
 		} while (1);
+
+		va_end(ppfs->arg);		/* Need to clean up after va_copy! */
 	}
 
 	__STDIO_THREADUNLOCK(stream);
@@ -523,18 +551,7 @@ void _ppfs_prepargs(register ppfs_t *ppfs, va_list arg)
 {
 	int i;
 
-#ifdef __va_copy
-	__va_copy(ppfs->arg, arg);
-#else
-	/* TODO -- maybe create a bits/vacopy.h for arch specific versions
-	 * to ensure we get the right behavior?  Either that or fall back
-	 * on the portable (but costly in size) method of using a va_list *.
-	 * That means a pointer derefs in the va_arg() invocations... */
-#warning __va_copy is not defined, using a simple copy instead...
-	/* the glibc manual suggests that this will usually suffice when
-        __va_copy doesn't exist.  */
-	ppfs->arg = arg;
-#endif
+	va_copy(ppfs->arg, arg);
 
 	if ((i = ppfs->maxposarg) > 0)  { /* init for positional args */
 		ppfs->num_data_args = i;
@@ -1472,8 +1489,12 @@ int vasprintf(char **__restrict buf, const char * __restrict format,
 	 * only does one malloc.  This can be a problem though when custom printf
 	 * specs or the %m specifier are involved because the results of the
 	 * second call might be different from the first. */
+	va_list arg2;
+	int rv;
 
- 	int rv = vsnprintf(NULL, 0, format, arg);
+	va_copy(arg2, arg);
+ 	rv = vsnprintf(NULL, 0, format, arg2);
+	va_end(arg2);
 
 	return (((rv >= 0) && ((*buf = malloc(++rv)) != NULL))
 			? vsnprintf(*buf, rv, format, arg)
