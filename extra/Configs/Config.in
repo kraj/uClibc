@@ -247,6 +247,19 @@ config ASSUME_DEVPTS
 
 	  Most people should answer Y.
 
+config UCLIBC_HAS_TM_EXTENSIONS
+	bool "Support 'struct tm' timezone extension fields"
+	default y
+	help
+	  Enabling this option adds fields to 'struct tm' in time.h for
+	  tracking the number of seconds east of UTC, and an abbreviation for
+	  the current timezone.  These fields are not specified by the SuSv3
+	  standard, but they are commonly used in both GNU and BSD application
+	  code.
+
+	  To strictly follow the SuSv3 standard, leave this disabled.
+	  Most people will probably want to answer Y.
+
 endmenu
 
 
