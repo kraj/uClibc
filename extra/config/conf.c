@@ -78,7 +78,7 @@ static void strip(char *str)
 	char *p = str;
 	int l;
 
-	while ((isspace(*p)))
+	while ((isspace((int)*p)))
 		p++;
 	l = strlen(p);
 	if (p != str)
@@ -86,7 +86,7 @@ static void strip(char *str)
 	if (!l)
 		return;
 	p = str + l - 1;
-	while ((isspace(*p)))
+	while ((isspace((int)*p)))
 		*p-- = 0;
 }
 
@@ -358,7 +358,7 @@ static int conf_choice(struct menu *menu)
 			continue;
 		}
 		if (line[0]) {
-			len = strlen(line) - 1;
+			len = strlen(line);
 			line[len] = 0;
 
 			def_menu = NULL;

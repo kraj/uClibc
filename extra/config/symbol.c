@@ -404,12 +404,12 @@ bool sym_string_valid(struct symbol *sym, const char *str)
 		ch = *str++;
 		if (ch == '-')
 			ch = *str++;
-		if (!isdigit(ch))
+		if (!isdigit((int)ch))
 			return false;
 		if (ch == '0' && *str != 0)
 			return false;
 		while ((ch = *str++)) {
-			if (!isdigit(ch))
+			if (!isdigit((int)ch))
 				return false;
 		}
 		return true;
@@ -418,7 +418,7 @@ bool sym_string_valid(struct symbol *sym, const char *str)
 			str += 2;
 		ch = *str++;
 		do {
-			if (!isxdigit(ch))
+			if (!isxdigit((int)ch))
 				return false;
 		} while ((ch = *str++));
 		return true;
