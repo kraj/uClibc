@@ -191,10 +191,10 @@ void *_dlopen(const char *libname, int flag)
 	/* Try to load the specified library */
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
-	_dl_dprintf(_dl_debug_file, "Trying to dlopen '%s'\n", (char*)libname);
+		_dl_dprintf(_dl_debug_file, "Trying to dlopen '%s'\n", (char*)libname);
 #endif
 	if (!(tpnt = _dl_check_if_named_library_is_loaded((char *)libname, 0)))
-	tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname, 0);
+		tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname, 0);
 	if (tpnt == NULL) {
 		_dl_unmap_cache();
 		return NULL;
@@ -211,16 +211,16 @@ void *_dlopen(const char *libname, int flag)
 	_dl_handles = rpnt = dyn_chain;
 
 	if (tpnt->init_flag & INIT_FUNCS_CALLED) {
-	    /* If the init and fini stuff has already been run, that means
-	     * the dlopen'd library has already been loaded, and nothing
-	     * further needs to be done. */
-	    return (void *) dyn_chain;
+		/* If the init and fini stuff has already been run, that means
+		 * the dlopen'd library has already been loaded, and nothing
+		 * further needs to be done. */
+		return (void *) dyn_chain;
 	}
 
 
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
-	_dl_dprintf(_dl_debug_file, "Looking for needed libraries\n");
+		_dl_dprintf(_dl_debug_file, "Looking for needed libraries\n");
 #endif
 
 	for (tcurr = tpnt; tcurr; tcurr = tcurr->next)
@@ -232,7 +232,7 @@ void *_dlopen(const char *libname, int flag)
 
 				char *name;
 				lpntstr = (char*) (tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] +
-					dpnt->d_un.d_val);
+						dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
 
 				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name, 0)))
@@ -240,8 +240,8 @@ void *_dlopen(const char *libname, int flag)
 
 #ifdef __SUPPORT_LD_DEBUG__
 				if(_dl_debug)
-				_dl_dprintf(_dl_debug_file, "Trying to load '%s', needed by '%s'\n",
-						lpntstr, tcurr->libname);
+					_dl_dprintf(_dl_debug_file, "Trying to load '%s', needed by '%s'\n",
+							lpntstr, tcurr->libname);
 #endif
 
 				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, 0))) {
@@ -273,7 +273,7 @@ void *_dlopen(const char *libname, int flag)
 
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
-	_dl_dprintf(_dl_debug_file, "Beginning dlopen relocation fixups\n");
+		_dl_dprintf(_dl_debug_file, "Beginning dlopen relocation fixups\n");
 #endif
 	/*
 	 * OK, now all of the kids are tucked into bed in their proper addresses.
@@ -300,13 +300,13 @@ void *_dlopen(const char *libname, int flag)
 
 #if 0 //def __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
-	_dlinfo();
+		_dlinfo();
 #endif
 
 #if defined (__LIBDL_SHARED__)
 	/* Find the last library so we can run things in the right order */
 	for (tpnt = dyn_chain->dyn; tpnt->next!=NULL; tpnt = tpnt->next)
-	    ;
+		;
 
 	/* Run the ctors and set up the dtors */
 	for (; tpnt != dyn_chain->dyn->prev; tpnt=tpnt->prev)
@@ -323,26 +323,26 @@ void *_dlopen(const char *libname, int flag)
 		tpnt->init_flag |= INIT_FUNCS_CALLED;
 
 		if (tpnt->dynamic_info[DT_INIT]) {
-		    void (*dl_elf_func) (void);
-		    dl_elf_func = (void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
-		    if (dl_elf_func && *dl_elf_func != NULL) {
+			void (*dl_elf_func) (void);
+			dl_elf_func = (void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
+			if (dl_elf_func && *dl_elf_func != NULL) {
 #ifdef __SUPPORT_LD_DEBUG__
-			if(_dl_debug)
-			_dl_dprintf(2, "running ctors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
+				if(_dl_debug)
+					_dl_dprintf(2, "running ctors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
 #endif
-			(*dl_elf_func) ();
-		    }
+				(*dl_elf_func) ();
+			}
 		}
 		if (tpnt->dynamic_info[DT_FINI]) {
-		    void (*dl_elf_func) (void);
-		    dl_elf_func = (void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
-		    if (dl_elf_func && *dl_elf_func != NULL) {
+			void (*dl_elf_func) (void);
+			dl_elf_func = (void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
+			if (dl_elf_func && *dl_elf_func != NULL) {
 #ifdef __SUPPORT_LD_DEBUG__
-			if(_dl_debug)
-			_dl_dprintf(2, "setting up dtors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
+				if(_dl_debug)
+					_dl_dprintf(2, "setting up dtors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
 #endif
-			atexit(dl_elf_func);
-		    }
+				atexit(dl_elf_func);
+			}
 		}
 	}
 #endif
@@ -393,7 +393,7 @@ void *_dlsym(void *vhandle, const char *name)
 		for (rpnt = _dl_symbol_tables; rpnt; rpnt = rpnt->next) {
 			tpnt = rpnt->dyn;
 			if (tpnt->loadaddr < from
-				&& (tfrom == NULL || tfrom->loadaddr < tpnt->loadaddr)) {
+					&& (tfrom == NULL || tfrom->loadaddr < tpnt->loadaddr)) {
 				tfrom = tpnt;
 				handle = rpnt->next;
 			}
@@ -448,7 +448,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 		if (spnt == _dl_symbol_tables)
 			break;
 		if (spnt->dyn->usage_count == 1
-			&& spnt->dyn->libtype == loaded_file) {
+				&& spnt->dyn->libtype == loaded_file) {
 			tpnt = spnt->dyn;
 			/* Apparently crt1 for the application is responsible for handling this.
 			 * We only need to run the init/fini for shared libraries
@@ -456,7 +456,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 
 			if (tpnt->dynamic_info[DT_FINI]) {
 				dl_elf_fini = (int (*)(void)) (tpnt->loadaddr +
-					tpnt->dynamic_info[DT_FINI]);
+						tpnt->dynamic_info[DT_FINI]);
 				(*dl_elf_fini) ();
 			}
 		}
@@ -477,7 +477,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 
 		rpnt->dyn->usage_count--;
 		if (rpnt->dyn->usage_count == 0
-			&& rpnt->dyn->libtype == loaded_file) {
+				&& rpnt->dyn->libtype == loaded_file) {
 			tpnt = rpnt->dyn;
 			/* Apparently crt1 for the application is responsible for handling this.
 			 * We only need to run the init/fini for shared libraries
@@ -488,13 +488,13 @@ static int do_dlclose(void *vhandle, int need_fini)
 			 * Otherwise when the needed symbols for _fini handling are
 			 * resolved a coredump would occur. Rob Ryan (robr@cmu.edu)*/
 			if (tpnt->dynamic_info[DT_FINI]) {
-			    dl_elf_fini = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
+				dl_elf_fini = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
 				(*dl_elf_fini) ();
 			}
 #endif
 			end = 0;
 			for (i = 0, ppnt = rpnt->dyn->ppnt;
-				 i < rpnt->dyn->n_phent; ppnt++, i++) {
+					i < rpnt->dyn->n_phent; ppnt++, i++) {
 				if (ppnt->p_type != PT_LOAD)
 					continue;
 				if (end < ppnt->p_vaddr + ppnt->p_memsz)
@@ -522,14 +522,14 @@ static int do_dlclose(void *vhandle, int need_fini)
 
 
 	if (_dl_debug_addr) {
-	    dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
-	    if (dl_brk != NULL) {
-		_dl_debug_addr->r_state = RT_DELETE;
-		(*dl_brk) ();
+		dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
+		if (dl_brk != NULL) {
+			_dl_debug_addr->r_state = RT_DELETE;
+			(*dl_brk) ();
 
-		_dl_debug_addr->r_state = RT_CONSISTENT;
-		(*dl_brk) ();
-	    }
+			_dl_debug_addr->r_state = RT_CONSISTENT;
+			(*dl_brk) ();
+		}
 	}
 
 	return 0;
@@ -567,15 +567,15 @@ void _dlinfo(void)
 	/* First start with a complete list of all of the loaded files. */
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
 		_dl_dprintf(2, "\t%x %x %x %s %d %s\n",
-			(unsigned) tpnt->loadaddr, (unsigned) tpnt,
-			(unsigned) tpnt->symbol_scope,
-			type[tpnt->libtype],
-			tpnt->usage_count, tpnt->libname);
+				(unsigned) tpnt->loadaddr, (unsigned) tpnt,
+				(unsigned) tpnt->symbol_scope,
+				type[tpnt->libtype],
+				tpnt->usage_count, tpnt->libname);
 	}
 
 	/* Next dump the module list for the application itself */
 	_dl_dprintf(2, "\nModules for application (%x):\n",
-				 (unsigned) _dl_symbol_tables);
+			(unsigned) _dl_symbol_tables);
 	for (rpnt = _dl_symbol_tables; rpnt; rpnt = rpnt->next)
 		_dl_dprintf(2, "\t%x %s\n", (unsigned) rpnt->dyn, rpnt->dyn->libname);
 
@@ -583,7 +583,7 @@ void _dlinfo(void)
 		_dl_dprintf(2, "Modules for handle %x\n", (unsigned) hpnt);
 		for (rpnt = hpnt; rpnt; rpnt = rpnt->next)
 			_dl_dprintf(2, "\t%x %s\n", (unsigned) rpnt->dyn,
-				rpnt->dyn->libname);
+					rpnt->dyn->libname);
 	}
 }
 weak_alias(_dlinfo, dlinfo);
@@ -610,11 +610,11 @@ int _dladdr(void *__address, Dl_info * __dlip)
 		tpnt = rpnt;
 #if 0
 		_dl_dprintf(2, "Module \"%s\" at %x\n",
-			tpnt->libname, tpnt->loadaddr);
+				tpnt->libname, tpnt->loadaddr);
 #endif
 		if (tpnt->loadaddr < (ElfW(Addr)) __address
-			&& (pelf == NULL || pelf->loadaddr < tpnt->loadaddr)) {
-		    pelf = tpnt;
+				&& (pelf == NULL || pelf->loadaddr < tpnt->loadaddr)) {
+			pelf = tpnt;
 		}
 	}
 
@@ -651,7 +651,7 @@ int _dladdr(void *__address, Dl_info * __dlip)
 				}
 #if 0
 				_dl_dprintf(2, "Symbol \"%s\" at %x\n",
-					strtab + symtab[si].st_name, symbol_addr);
+						strtab + symtab[si].st_name, symbol_addr);
 #endif
 			}
 		}
