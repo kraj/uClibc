@@ -33,16 +33,17 @@ MSRC2=resolv.c
 MOBJ2=encodeh.o decodeh.o encoded.o decoded.o lengthd.o encodeq.o \
 	decodeq.o lengthq.o encodea.o decodea.o encodep.o decodep.o \
 	formquery.o dnslookup.o resolveaddress.o resolvemailbox.o \
-	opennameservers.o closenameservers.o resolvename.o gethostbyname.o \
-	gethostbyaddr.o res_init.o res_query.o getnetbyname.o \
-	read_etc_hosts.o get_hosts_byname.o get_hosts_byaddr.o
+	opennameservers.o closenameservers.o resolvename.o gethostbyname.o\
+	gethostbyaddr.o get_hosts_byname.o get_hosts_byaddr.o read_etc_hosts.o
 
 MSRC3=socketcalls.c
 MOBJ3= accept.o bind.o connect.o getpeername.o getsockname.o getsockopt.o \
 	listen.o recv.o recvfrom.o recvmsg.o send.o sendmsg.o sendto.o \
 	setsockopt.o shutdown.o socket.o socketpair.o 
 
-CSRC =getservice.c getproto.c hostid.c
+CSRC =getservice.c getproto.c hostid.c getnetent.c getnetbynm.c getnetbyad.c \
+	herror.c inet_net.c
+
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
