@@ -13,18 +13,14 @@ major=$(shell grep '^MAJOR_VERSION' Rules.mak|sed 's/.*=//')
 minor=$(shell grep '^MINOR_VERSION' Rules.mak|sed 's/.*=//')
 version:=$(strip $(major)).$(strip $(minor))
 
-kernel_version=2.4.20
+kernel_version=2.4.22
 kernel_source=kernel-source-$(kernel_version)
 
 builddir=$(shell pwd)
 
 target=$(DEB_HOST_GNU_CPU)
-#target=arm
 
 with_shared_libs=y
-#ifeq ($(target),powerpc)
-#with_shared_libs=n
-#endif
 
 ifeq ($(with_shared_libs),y)
 shared_libs_true=true
@@ -42,18 +38,11 @@ else
 cross_options = --cross=""
 endif
 
-p_dev=libuclibc-dev$(target_suffix)
-p_lib=libuclibc0$(target_suffix)
-p_gcc=uclibc$(target_suffix)-toolchain
-
-debian/control: debian/control.in debian/rules
-	sed -e s/_TARGET_/$(target_suffix)/ \
-	  -e "s/_ARCHS_/alpha arm i386 m68k mips mipsel powerpc sh sparc/" \
-	  -e "s/_KERNEL_/$(kernel_source)/" \
-	  debian/control.in >debian/control
+p_dev=uclibc-dev$(target_suffix)
+p_lib=uclibc$(target_suffix)
 
 build: build-stamp
-build-stamp: debian/control
+build-stamp:
 	dh_testdir
 
 	# Brute force method of getting kernel headers
@@ -80,23 +69,38 @@ build-stamp: debian/control
 	) >$(kernel_source)/include/linux/version.h
 	
 	cp debian/config .config
-	echo CONFIG_386=y >>.config
-ifeq ($(findstring $(target),alpha m68k sparc),$(target))
-	echo BUILD_UCLIBC_LDSO=n >>.config
-endif
-	echo SHARED_LIB_LOADER_PATH=\"/lib\" >>.config
-	echo KERNEL_SOURCE=\"$(builddir)/$(kernel_source)\" >>.config
-	echo 'DEVEL_TOOL_PREFIX="$$(DEVEL_PREFIX)"' >>.config
-	echo 'SYSTEM_DEVEL_PREFIX="/usr"' >>.config
+
+	sed -ie 's,^.*TARGET_$(target).*,TARGET_$(target)=y,g' \
+		.config
+	sed -ie 's,^TARGET_ARCH.*,TARGET_ARCH=\"$(target)\",g' \
+		.config
+	sed -ie 's,^KERNEL_SOURCE=.*,KERNEL_SOURCE=\"$(builddir)/$(kernel_source)\",g' \
+		.config
+	sed -ie 's,^RUNTIME_PREFIX=.*,RUNTIME_PREFIX=\"/\",g' \
+		.config
+	sed -ie 's,^DEVEL_PREFIX=.*,DEVEL_PREFIX=\"/usr/\",g' \
+		.config
+	sed -ie 's,^SHARED_LIB_LOADER_PREFIX=.*,SHARED_LIB_LOADER_PREFIX=\"/lib\",g' \
+		.config
+	sed -ie 's,.*UCLIBC_HAS_WCHAR.*,UCLIBC_HAS_WCHAR=y\nUCLIBC_HAS_LOCALE=n,g' \
+		.config
+#ifeq ($(target),arm)
+		sed -ie 's,.*HAS_FPU.*,HAS_FPU=n\nUCLIBC_HAS_FLOATS=y\nUCLIBC_HAS_SOFT_FLOAT=y,g' .config
+	echo CONFIG_GENERIC_ARM=y >>.config
+#endif
+#ifeq ($(target),i386)
+	echo CONFIG_GENERIC_386=y >>.config
+#endif
 	yes '' | make oldconfig
 
 	mkdir -p lib
 
-	$(MAKE) TARGET_ARCH=$(target)
+	$(MAKE)
+	$(MAKE) utils
 
 	touch build-stamp
 
-clean: debian/control
+clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
@@ -110,7 +114,7 @@ clean: debian/control
 
 	dh_clean
 
-install: build debian/control
+install: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
@@ -118,36 +122,16 @@ install: build debian/control
 
 	-rm debian/tmp
 	-mkdir debian/tmp
-	#ln -s tmp debian/tmp
 
 	# Add here commands to install the package into debian/tmp.
-	$(MAKE) install PREFIX=`pwd`/debian/tmp
-	$(MAKE) install_runtime PREFIX=`pwd`/debian/tmp
+	$(MAKE) install install_utils PREFIX=`pwd`/debian/tmp
 
 	install -d debian/tmp/usr/share/man/man1
-	install -m 644 debian/uclibc-gcc.1 \
-	  debian/tmp/usr/share/man/man1/$(target)-uclibc-gcc.1
-	(cd debian/tmp/usr/share/man/man1; \
-	  ln -sf $(target)-uclibc-gcc.1.gz $(target)-uclibc-cc.1.gz; \
-	  ln -sf $(target)-uclibc-gcc.1.gz $(target)-uclibc-ld.1.gz; \
-	  for x in addr2line ar as cpp nm objcopy objdump ranlib \
-	  size strings strip;do \
-	    ln -sf $$x.1.gz $(target)-uclibc-$$x.1.gz;done)
+	install -m 644 debian/ldd.1 \
+	  debian/tmp/usr/share/man/man1/ldd.1
+	install -m 644 debian/ldconfig.1 \
+	  debian/tmp/usr/share/man/man1/ldconfig.1
 	
-	install -d debian/tmp/usr/share/man/man1
-	install -m 644 debian/uclibc-ldd.1 \
-	  debian/tmp/usr/share/man/man1/$(target)-uclibc-ldd.1
-	install -m 644 debian/uclibc-ldconfig.1 \
-	  debian/tmp/usr/share/man/man1/$(target)-uclibc-ldconfig.1
-	install -m 644 debian/uclibc-readelf.1 \
-	  debian/tmp/usr/share/man/man1/$(target)-uclibc-readelf.1
-	
-	mkdir debian/tmp/lib/
-	cd debian/tmp/lib && ln -sf /usr/$(target)-linux-uclibc/lib/ld-uClibc.so.0 .
-
-	cd debian/tmp && ../fixlinks
-
-	(cd debian/tmp; find . -name '.*' -exec rm -f '{}' ';')
 
 # Build architecture-independent files here.
 binary-indep:
@@ -167,7 +151,7 @@ binary-arch: build install
 #	dh_installpam
 #	dh_installinit
 	dh_installcron
-#	dh_installmanpages -plibuclibc0
+#	dh_installmanpages -puclibc
 	dh_installinfo
 #	dh_undocumented
 	dh_installchangelogs 
@@ -180,11 +164,7 @@ binary-arch: build install
 #	dh_makeshlibs
 	dh_installdeb
 #	dh_perl
-#ifeq ($(target),$(DEB_HOST_GNU_CPU))
-#	dh_shlibdeps --exclude=ld_uclibc -ldebian/$(p_lib)/usr/$(target)-linux-uclibc/lib
-#else
 	dh_shlibdeps --exclude=lib
-#endif
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
