@@ -51,7 +51,7 @@ choice
 	  - "Pentium-4" for the Intel Pentium 4.
 	  - "K6" for the AMD K6, K6-II and K6-III (aka K6-3D).
 	  - "Athlon" for the AMD K7 family (Athlon/Duron/Thunderbird).
-	  - "Elan" for the AMD Elan"
+	  - "Elan" for the AMD Elan.
 	  - "Crusoe" for the Transmeta Crusoe series.
 	  - "Winchip-C6" for original IDT Winchip.
 	  - "Winchip-2/Winchip-2A/Winchip-3" for IDT Winchip CPUs
