@@ -25,7 +25,13 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 
-DIRS = assert crypt ctype fnmatch glob internals lsearch mntent syslog regex shm time utmp
+DIRS = assert crypt ctype fnmatch glob internals lsearch mntent syslog shm time utmp
+
+# regex bombs out with an internal compiler error using m68k-pic-coff-gcc.
+ifneq ($(TARGET_ARCH),m68k)
+	DIRS += regex
+endif
+
 
 all: libc.a
 

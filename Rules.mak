@@ -24,15 +24,13 @@
 
 include $(TOPDIR)Config
 
-GCCINCDIR = $(shell gcc -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp")
+GCCINCDIR = $(shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp")
 
 ARFLAGS=r
 
 CCFLAGS=$(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -Dlinux -D__linux__ -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D__LIBC__
-# Figure out what arch to build...
-ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g')
 
-ifeq ($(ARCH), arm)
+ifeq ($(TARGET_ARCH), arm)
     ARCH_CFLAGS=-fpic
 endif
 

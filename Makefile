@@ -28,7 +28,7 @@
 
 include Rules.mak
 
-DIRS = sysdeps misc pwd_grp stdio string termios unistd net signal stdlib
+DIRS = misc pwd_grp stdio string termios unistd net signal stdlib sysdeps
 
 all: libc.a
 

@@ -36,8 +36,11 @@ MSRC2=atexit.c
 MOBJ2=on_exit.o atexit.o __do_exit.o exit.o
 
 
-CSRC =	abort.c getenv.c  mktemp.c  qsort.c  realpath.c strtod.c \
-	abs.c   bsearch.c mkstemp.c putenv.c rand.c setenv.c  system.c
+CSRC =	abort.c getenv.c mktemp.c qsort.c realpath.c abs.c bsearch.c \
+	mkstemp.c putenv.c rand.c setenv.c system.c
+ifeq ($(HAS_FLOATS),true)
+	CSRC += strtod.c
+endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 
