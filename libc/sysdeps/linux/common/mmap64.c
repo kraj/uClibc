@@ -19,6 +19,7 @@
 
 /* Massivly hacked up for uClibc by Erik Andersen */
 
+#include <features.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sysdep.h>
@@ -65,7 +66,7 @@ __ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t 
 #else
 
 #define __NR___syscall_mmap2	    __NR_mmap2
-static inline _syscall6(void *, __syscall_mmap2, void *, addr, 
+static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr, 
 	size_t len, int, prot, int, flags, int, fd, off_t, offset);
 
 /* This is always 12, even on architectures where PAGE_SHIFT != 12.  */
@@ -73,7 +74,7 @@ static inline _syscall6(void *, __syscall_mmap2, void *, addr,
 #  define MMAP2_PAGE_SHIFT 12
 # endif
 
-void * __mmap64 (void *addr, size_t len, int prot, int flags, int fd, off64_t offset)
+__ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t offset)
 {
     void *result;
     if (offset & ((1 << MMAP2_PAGE_SHIFT) - 1)) {
