@@ -92,12 +92,25 @@ _start:
 	rtld_fini:	%r9
 	stack_end:	stack.	*/
 
+#if 0
+	/* glibc */
 	movq %rdx, %r9   /* Address of the shared library termination function. */
 	popq %rsi        /* Pop the argument count. */
 	movq %rsp, %rdx  /* argv starts just at the current stack top. */
 	movq %rsi, %rbx  /* now we calc envp ... envp = argc */
+	addq $8, %rbx
 	shl  $0x3, %rbx  /* envp *= 8 */
 	addq %rdx, %rbx  /* envp += argv */
+#else
+	/* uclibc */
+	movq %rdx, %r9   /* Address of the shared library termination function. */
+	popq %rdi        /* Pop the argument count. */
+	movq %rsp, %rsi  /* argv starts just at the current stack top. */
+	movq %rdi, %rdx  /* now we calc envp ... envp = argc */
+	addq $8, %rdx
+	shl  $0x3, %rdx  /* envp *= 8 */
+	addq %rsi, %rdx  /* envp += argv */
+#endif
 	/* Align the stack to a 16 byte boundary to follow the ABI. */
 	andq $~15, %rsp
 
@@ -127,9 +140,11 @@ _start:
 #endif
 
 	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */
-	pushq %rbx	/* Environment pointer */
-	pushq %rdx	/* Argument pointer */
-	pushq %rsi	/* And the argument count */
+#if 0
+	pushq %rdx /* Environment pointer */
+	pushq %rsi /* Argument pointer */
+	pushq %rdi /* And the argument count */
+#endif
 
 	/* Ok, now run uClibc's main() -- shouldn't return */
 #ifdef L_Scrt1
@@ -138,10 +153,13 @@ _start:
 	call __uClibc_start_main
 #endif
 #else
+
 	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */
-	pushq %rbx	/* Environment pointer */
-	pushq %rdx	/* Argument pointer */
-	pushq %rsi	/* And the argument count */
+#if 0
+	pushq %rdx /* Environment pointer */
+	pushq %rsi /* Argument pointer */
+	pushq %rdi /* And the argument count */
+#endif
 
 #ifdef L_Scrt0
 	call *__uClibc_main@GOT(%rip)
