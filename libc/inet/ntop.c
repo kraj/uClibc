@@ -48,7 +48,7 @@ static const char *
 inet_ntop4(src, dst, size)
 	const u_char *src;
 	char *dst;
-	socklen_t size;
+	size_t size;
 {
 	char tmp[sizeof ("255.255.255.255") + 1] = "\0";
 	int octet;
@@ -95,7 +95,7 @@ static const char *
 inet_ntop6(src, dst, size)
 	const u_char *src;
 	char *dst;
-	socklen_t size;
+	size_t size;
 {
 	/*
 	 * Note that int32_t and int16_t need only be "at least" large enough
@@ -173,7 +173,7 @@ inet_ntop6(src, dst, size)
 	/*
 	 * Check for overflow, copy, and we're done.
 	 */
-	if ((socklen_t)(tp - tmp) > size) {
+	if ((size_t)(tp - tmp) > size) {
 		__set_errno (ENOSPC);
 		return (NULL);
 	}
@@ -350,7 +350,7 @@ inet_ntop(af, src, dst, size)
 	int af;
 	const void *src;
 	char *dst;
-	socklen_t size;
+	size_t size;
 {
 	switch (af) {
 	case AF_INET:
