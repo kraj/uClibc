@@ -24,6 +24,8 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
+DIRS=
+
 MSRC=sem.c
 MOBJ=semget.o semctl.o semop.o
 
