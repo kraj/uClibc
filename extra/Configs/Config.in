@@ -57,13 +57,16 @@ config TARGET_powerpc
 	bool "powerpc"
 
 config TARGET_sh
-	bool "SuperH"
+	bool "superh"
 
 config TARGET_sparc
 	bool "sparc"
 
 config TARGET_v850
 	bool "v850"
+
+config TARGET_x86_64
+	bool "x86_64"
 
 endchoice
 
@@ -142,6 +145,9 @@ if TARGET_v850
 source "extra/Configs/Config.v850"
 endif
 
+if TARGET_x86_64
+source "extra/Configs/Config.x86_64"
+endif
 
 
 source "extra/Configs/Config.in.arch"
