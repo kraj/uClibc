@@ -2,9 +2,8 @@
 /*
  * A small little ldd implementation for uClibc
  *
- * Copyright (C) 2000 by Lineo, inc.
- * Copyright (C) 2000,2001 Erik Andersen <andersee@debian.org>
- * Written by Erik Andersen <andersee@debian.org>
+ * Copyright (C) 2000 by Lineo, inc and Erik Andersen
+ * Copyright (C) 2000-2002 Erik Andersen <andersee@debian.org>
  *
  * Several functions in this file (specifically, elf_find_section_type(),
  * elf_find_phdr_type(), and elf_find_dynamic(), were stolen from elflib.c from
@@ -39,6 +38,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <endian.h>
+#include <byteswap.h>
 #include "elf.h"
 #ifdef DMALLOC
 #include <dmalloc.h>
@@ -52,15 +53,26 @@ struct library {
 };
 struct library *lib_list = NULL;
 char not_found[] = "not found";
+int byteswap;
+
+inline uint32_t byteswap32_to_host(uint32_t value)
+{
+	if (byteswap==1) {
+		return(bswap_32(value));
+	} else {
+		return(value);
+	}
+}
 
 
 
 Elf32_Shdr * elf_find_section_type( int key, Elf32_Ehdr *ehdr)
 {
 	int j;
-	Elf32_Shdr *shdr = (Elf32_Shdr *)(ehdr->e_shoff + (char *)ehdr);
+	Elf32_Shdr *shdr;
+	shdr = (Elf32_Shdr *)(ehdr->e_shoff + (char *)ehdr);
 	for (j = ehdr->e_shnum; --j>=0; ++shdr) {
-		if (shdr->sh_type == key) {
+		if (key==byteswap32_to_host(shdr->sh_type)) {
 			return shdr;
 		}
 	}
@@ -72,7 +84,7 @@ Elf32_Phdr * elf_find_phdr_type( int type, Elf32_Ehdr *ehdr)
 	int j;
 	Elf32_Phdr *phdr = (Elf32_Phdr *)(ehdr->e_phoff + (char *)ehdr);
 	for (j = ehdr->e_phnum; --j>=0; ++phdr) {
-		if (type==phdr->p_type) {
+		if (type==byteswap32_to_host(phdr->p_type)) {
 			return phdr;
 		}
 	}
@@ -84,19 +96,19 @@ void * elf_find_dynamic(int const key, Elf32_Dyn *dynp,
 	Elf32_Ehdr *ehdr, int return_val)
 {
 	Elf32_Phdr *pt_text = elf_find_phdr_type(PT_LOAD, ehdr);
-	unsigned tx_reloc = pt_text->p_vaddr - pt_text->p_offset;
-	for (; DT_NULL!=dynp->d_tag; ++dynp) {
-		if (dynp->d_tag == key) {
+	unsigned tx_reloc = byteswap32_to_host(pt_text->p_vaddr) - byteswap32_to_host(pt_text->p_offset);
+	for (; DT_NULL!=byteswap32_to_host(dynp->d_tag); ++dynp) {
+		if (key == byteswap32_to_host(dynp->d_tag)) {
 			if (return_val == 1)
-				return (void *)dynp->d_un.d_val;
+				return (void *)byteswap32_to_host(dynp->d_un.d_val);
 			else
-				return (void *)(dynp->d_un.d_val - tx_reloc + (char *)ehdr );
+				return (void *)(byteswap32_to_host(dynp->d_un.d_val) - tx_reloc + (char *)ehdr );
 		}
 	}
 	return NULL;
 }
 
-int check_elf_header(Elf32_Ehdr const *const ehdr)
+int check_elf_header(Elf32_Ehdr *const ehdr)
 {
 	if (! ehdr || strncmp((void *)ehdr, ELFMAG, SELFMAG) != 0 ||  
 			ehdr->e_ident[EI_CLASS] != ELFCLASS32 ||
@@ -104,6 +116,30 @@ int check_elf_header(Elf32_Ehdr const *const ehdr)
 	{
 		return 1;
 	}
+
+	/* Check if the target endianness matches the host's endianness */
+	byteswap = 0;
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+	if (ehdr->e_ident[5] == ELFDATA2MSB) {
+		/* Ick -- we will have to byte-swap everything */
+		byteswap = 1;
+	}
+#elif __BYTE_ORDER == __BIG_ENDIAN
+	if (ehdr->e_ident[5] == ELFDATA2LSB) {
+		byteswap = 1;
+	}
+#else
+#error Unknown host byte order!
+#endif
+	/* Be vary lazy, and only byteswap the stuff we use */
+	if (byteswap==1) {
+		ehdr->e_type=bswap_16(ehdr->e_type);
+		ehdr->e_phoff=bswap_32(ehdr->e_phoff);
+		ehdr->e_shoff=bswap_32(ehdr->e_shoff);
+		ehdr->e_phnum=bswap_16(ehdr->e_phnum);
+		ehdr->e_shnum=bswap_16(ehdr->e_shnum);
+	}
+
 	return 0;
 }
 
@@ -295,13 +331,14 @@ static void find_needed_libraries(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *st
 	/* Find the path where the shared lib loader lives */
 	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
 	if (phdr) {
-		ldpath = strdup((char*)ehdr + phdr->p_offset);
+		ldpath = strdup((char*)ehdr + byteswap32_to_host(phdr->p_offset));
 		ldpath = basename(ldpath);
 	}
 
-	for (dyns=dynamic; dyns->d_tag!=DT_NULL; ++dyns) {
-		if (dyns->d_tag == DT_NEEDED) {
-			add_library(ehdr, dynamic, strtab, is_setuid, (char*)strtab + dyns->d_un.d_val, ldpath);
+	for (dyns=dynamic; byteswap32_to_host(dyns->d_tag)!=DT_NULL; ++dyns) {
+		if (DT_NEEDED == byteswap32_to_host(dyns->d_tag)) {
+			add_library(ehdr, dynamic, strtab, is_setuid, (char*)strtab + 
+					byteswap32_to_host(dyns->d_un.d_val), ldpath);
 		}
 	}
 }
@@ -317,7 +354,7 @@ static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *str
 	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
 	if (phdr) {
 		struct library *cur, *newlib=NULL;
-		char *s = (char*)ehdr + phdr->p_offset;
+		char *s = (char*)ehdr + byteswap32_to_host(phdr->p_offset);
 	
 		char *tmp, *tmp1;
 		tmp1 = tmp = s;
@@ -413,7 +450,7 @@ foo:
 
 	dynsec = elf_find_section_type(SHT_DYNAMIC, ehdr);
 	if (dynsec) {
-		dynamic = (Elf32_Dyn*)(dynsec->sh_offset + (int)ehdr);
+		dynamic = (Elf32_Dyn*)(byteswap32_to_host(dynsec->sh_offset) + (int)ehdr);
 		dynstr = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
 		find_needed_libraries(ehdr, dynamic, dynstr, is_suid);
 	}
