@@ -641,6 +641,24 @@ extern int setregid (__gid_t __rgid, __gid_t __egid) __THROW;
 extern int setegid (__gid_t __gid) __THROW;
 #endif /* Use BSD.  */
 
+#ifdef __USE_GNU
+/* Fetch the effective user ID, real user ID, and saved-set user ID,
+   of the calling process.  */
+extern int getresuid (__uid_t *__euid, __uid_t *__ruid, __uid_t *__suid);
+
+/* Fetch the effective group ID, real group ID, and saved-set group ID,
+   of the calling process.  */
+extern int getresgid (__gid_t *__egid, __gid_t *__rgid, __gid_t *__sgid);
+
+/* Set the effective user ID, real user ID, and saved-set user ID,
+   of the calling process to EUID, RUID, and SUID, respectively.  */
+extern int setresuid (__uid_t __euid, __uid_t __ruid, __uid_t __suid);
+
+/* Set the effective group ID, real group ID, and saved-set group ID,
+   of the calling process to EGID, RGID, and SGID, respectively.  */
+extern int setresgid (__gid_t __egid, __gid_t __rgid, __gid_t __sgid);
+#endif
+
 
 /* Clone the calling process, creating an exact copy.
    Return -1 for errors, 0 to the new process,
@@ -728,7 +746,7 @@ extern int setlogin (__const char *__name) __THROW;
 #endif
 
 
-#if defined __USE_BSD || defined __USE_XOPEN2K
+#if defined __USE_BSD || defined __USE_UNIX98
 /* Put the name of the current host in no more than LEN bytes of NAME.
    The result is null-terminated if LEN is large enough for the full
    name and the terminator.  */
