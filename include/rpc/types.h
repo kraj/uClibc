@@ -33,6 +33,19 @@
 #ifndef _RPC_TYPES_H
 #define _RPC_TYPES_H 1
 
+#ifdef _LIBC
+/* Some adjustments to make the libc source from glibc
+ * compile more easily with uClibc... */
+#ifndef __FORCE_GLIBC
+#define __FORCE_GLIBC
+#endif
+#ifndef _GNU_SOUCE
+#define _GNU_SOUCE
+#endif
+#define _(X)	X
+#endif
+#include <features.h>
+
 typedef int bool_t;
 typedef int enum_t;
 /* This needs to be changed to uint32_t in the future */

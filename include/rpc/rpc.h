@@ -38,6 +38,19 @@
 #ifndef _RPC_RPC_H
 #define _RPC_RPC_H 1
 
+#ifdef _LIBC
+/* Some adjustments to make the libc source from glibc
+ * compile more easily with uClibc... */
+#ifndef __FORCE_GLIBC
+#define __FORCE_GLIBC
+#endif
+#ifndef _GNU_SOUCE
+#define _GNU_SOUCE
+#endif
+#define _(X)	X
+#include <features.h>
+#endif
+
 #include <rpc/types.h>		/* some typedefs */
 #include <netinet/in.h>
 
@@ -69,7 +82,6 @@
 
 __BEGIN_DECLS
 
-#if 0
 /* Global variables, protected for multi-threaded applications.  */
 extern fd_set *__rpc_thread_svc_fdset (void) __attribute__ ((__const__));
 #define svc_fdset (*__rpc_thread_svc_fdset ())
@@ -92,7 +104,6 @@ extern struct pollfd **__rpc_thread_svc_pollfd (void)
 
 extern int *__rpc_thread_svc_max_pollfd (void) __attribute__ ((__const__));
 #define svc_max_pollfd (*__rpc_thread_svc_max_pollfd ())
-#endif
 
 __END_DECLS
 
