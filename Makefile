@@ -265,7 +265,6 @@ endif
 install_runtime:
 ifeq ($(strip $(HAVE_SHARED)),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/lib
-	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/bin
 	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(PREFIX)$(RUNTIME_PREFIX)/lib
 	cp -fa lib/*.so.* $(PREFIX)$(RUNTIME_PREFIX)/lib
