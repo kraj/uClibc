@@ -552,7 +552,7 @@ extern void *calloc (size_t __nmemb, size_t __size)
  * style returning-a-valid-pointer-for-malloc(0) behavior.  This
  * calls malloc() as usual, but if __size is zero, we allocate and
  * return a 1-byte block instead....  sigh... */ 
-static __inline char * rpl_malloc (size_t __size)
+static __inline void *rpl_malloc (size_t __size)
 {
     if (__size == 0) {
 	__size++; 
