@@ -74,7 +74,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		(unsigned long) tpnt->loadaddr);
 	got_addr = (char **) instr_addr;
 
-#ifdef DL_DEBUG
+#ifdef DL_DEBUG_SYMBOLS
 	_dl_dprintf(2, "Resolving symbol %s\n", 
 		strtab + symtab[symtab_index].st_name);
 #endif
@@ -87,7 +87,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 			_dl_progname, strtab + symtab[symtab_index].st_name);
 		_dl_exit(1);
 	};
-#ifdef DL_DEBUG
+#ifdef DL_DEBUG_SYMBOLS
 	if ((unsigned long) got_addr < 0x40000000) {
 		_dl_dprintf(2, "Calling library function: %s\n", 
 			strtab + symtab[symtab_index].st_name);

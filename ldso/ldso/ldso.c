@@ -139,10 +139,11 @@
  */
 #define REALIGN() malloc_buffer = (char *) (((unsigned long) malloc_buffer + 3) & ~(3))
 
-static char *_dl_malloc_addr, *_dl_mmap_zero;
 char *_dl_library_path = 0;		/* Where we look for libraries */
 char *_dl_preload = 0;			/* Things to be loaded before the libs. */
+char *_dl_ldsopath = 0;
 static char *_dl_not_lazy = 0;
+static char *_dl_malloc_addr, *_dl_mmap_zero;
 
 #ifdef DL_TRACE
 static char *_dl_trace_loaded_objects = 0;
@@ -509,7 +510,7 @@ DL_BOOT(unsigned long args)
 					SEND_STDERR(" undefined.\n");
 					goof++;
 				}
-#ifdef DL_DEBUG
+#ifdef DL_DEBUG_SYMBOLS
 				SEND_STDERR("About to fixup symbol: ");
 				SEND_STDERR(strtab + symtab[symtab_index].st_name);
 				SEND_STDERR("\n");
@@ -661,6 +662,18 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 					(auxvt[AT_PHDR].a_un.a_val & 0xfffff000));
 		}
 	}
+	/* Store the path where the shared lib loader was found for 
+	 * later use */
+	{
+		char *pnt, *pnt1;
+		pnt = _dl_strdup(tpnt->libname);
+		pnt1 = _dl_strrchr(pnt, '/');
+		if (pnt != pnt1) {
+			*pnt1 = '\0';
+			_dl_ldsopath = pnt;
+		}
+	}
+
 #ifdef DL_DEBUG
 	_dl_dprintf(2, "Lib Loader:\t(%x) %s\n", tpnt->loadaddr, tpnt->libname);
 #endif

@@ -110,7 +110,7 @@ int _dl_unmap_cache(void)
 static struct elf_resolve * 
 search_for_named_library(char *name, int secure, const char *path_list)
 {
-	int i, count = 0;
+	int i, count = 1;
 	char *path, *path_n;
 	char mylibname[2050];
 	struct elf_resolve *tpnt1;
@@ -154,11 +154,12 @@ search_for_named_library(char *name, int secure, const char *path_list)
 
 unsigned long _dl_error_number;
 unsigned long _dl_internal_error_number;
+extern char *_dl_ldsopath;
 
 struct elf_resolve *_dl_load_shared_library(int secure, 
 	struct elf_resolve *tpnt, char *full_libname)
 {
-	char *pnt;
+	char *pnt, *pnt1;
 	struct elf_resolve *tpnt1;
 	char *libname;
 
@@ -176,6 +177,9 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 		pnt++;
 	}
 
+#ifdef DL_DEBUG
+	    _dl_dprintf(2, "searching for library: '%s'\n", libname);
+#endif
 	/* If the filename has any '/', try it straight and leave it at that.
 	   For IBCS2 compatibility under linux, we substitute the string 
 	   /usr/i486-sysv4/lib for /usr/lib in library names. */
@@ -197,6 +201,9 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 			if (pnt) {
 				pnt += (unsigned long) tpnt->loadaddr +
 					tpnt->dynamic_info[DT_STRTAB];
+#ifdef DL_DEBUG
+				_dl_dprintf(2, "searching RPATH: '%s'\n", pnt);
+#endif
 				if ((tpnt1 = search_for_named_library(libname, secure, pnt)) != NULL) 
 				{
 				    return tpnt1;
@@ -207,6 +214,9 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 
 	/* Check in LD_{ELF_}LIBRARY_PATH, if specified and allowed */
 	if (_dl_library_path) {
+#ifdef DL_DEBUG
+	    _dl_dprintf(2, "searching _dl_library_path: '%s'\n", _dl_library_path);
+#endif
 	    if ((tpnt1 = search_for_named_library(libname, secure, _dl_library_path)) != NULL) 
 	    {
 		return tpnt1;
@@ -236,8 +246,22 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	}
 #endif
 
+	/* Look for libraries wherever the shared library loader
+	 * was installed */
+#ifdef DL_DEBUG
+	_dl_dprintf(2, "searching in ldso dir: %s\n", _dl_ldsopath);
+#endif
+	if ((tpnt1 = search_for_named_library(libname, secure, _dl_ldsopath)) != NULL) 
+	{
+	    return tpnt1;
+	}
+
+
 	/* Lastly, search the standard list of paths for the library.
 	   This list must exactly match the list in uClibc/ldso/util/ldd.c */
+#ifdef DL_DEBUG
+	    _dl_dprintf(2, "searching full lib path list\n");
+#endif
 	if ((tpnt1 = search_for_named_library(libname, secure, 
 			UCLIBC_TARGET_PREFIX "/usr/lib:"
 			UCLIBC_TARGET_PREFIX "/lib:"
@@ -250,12 +274,15 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	    return tpnt1;
 	}
 
-  goof:
+goof:
 	/* Well, we shot our wad on that one.  All we can do now is punt */
 	if (_dl_internal_error_number)
 		_dl_error_number = _dl_internal_error_number;
 	else
 		_dl_error_number = DL_ERROR_NOFILE;
+#ifdef DL_DEBUG
+	    _dl_dprintf(2, "Bummer: could not find '%s'!\n", libname);
+#endif
 	return NULL;
 }
 
