@@ -1,42 +1,39 @@
-
 /*
- * This file lifted in toto from 'Dlibs' on the atari ST  (RdeBath)
+ * This file originally lifted in toto from 'Dlibs' on the atari ST  (RdeBath)
  *
  * 
  *    Dale Schumacher                         399 Beacon Ave.
  *    (alias: Dalnefre')                      St. Paul, MN  55104
  *    dal@syntel.UUCP                         United States of America
  *  "It's not reality that's important, but how you perceive things."
+ *
+ *  Reworked by Erik Andersen <andersen@uclibc.org>
  */
 #include <stdio.h>
 
-static int _bsearch;			/* index of element found, or where to
-
-								   * insert */
-
-char *bsearch(key, base, num, size, cmp)
-register char *key;				/* item to search for */
-register char *base;			/* base address */
-int num;						/* number of elements */
-register int size;				/* element size in bytes */
-register int (*cmp) ();			/* comparison function */
+void * bsearch (const void *key, const void *base, size_t num, size_t size,
+	         int (*cmp) (const void *, const void *))
 {
-	register int a, b, c, dir;
+    int dir;
+    size_t a, b, c;
+    const void *p;
 
-	a = 0;
-	b = num - 1;
-	while (a <= b) {
-		c = (a + b) >> 1;		/* == ((a + b) / 2) */
-		if ((dir = (*cmp) (key, (base + (c * size))))) {
-			if (dir < 0)
-				b = c - 1;
-			else				/* (dir > 0) */
-				a = c + 1;
-		} else {
-			_bsearch = c;
-			return (base + (c * size));
-		}
+    a = 0;
+    b = num;
+    while (a < b)
+    {
+	c = (a + b) >> 1;		/* == ((a + b) / 2) */
+	p = (void *)(((const char *) base) + (c * size));
+	dir = (*cmp)(key, p);
+	if (dir < 0) {
+	    b = c;
+	} else if (dir > 0) {
+	    a = c + 1;
+	} else {
+	    return (void *)p;
 	}
-	_bsearch = b;
-	return (NULL);
+    }
+
+    return NULL;
 }
+
