@@ -31,6 +31,10 @@ malloc_mutex_t __malloc_sbrk_lock;
 # endif /* MALLOC_USE_SBRK */
 #endif /* MALLOC_USE_LOCKING */
 
+#ifdef MALLOC_DEBUGGING
+int __malloc_debug = 0;
+#endif
+
 
 void *
 malloc (size_t size)

@@ -81,38 +81,20 @@ struct heap_free_area
 
 
 /* Define HEAP_DEBUGGING to cause the heap routines to emit debugging info
-   to stderr.  */
+   to stderr when the variable __heap_debug is set to true.  */
 #ifdef HEAP_DEBUGGING
-#include <stdio.h>
-static void HEAP_DEBUG (struct heap *heap, const char *str)
-{
-  static int recursed = 0;
-  if (! recursed)
-    {
-      struct heap_free_area *fa, *prev;
-      recursed = 1;
-      fprintf (stderr, "  %s: heap @0x%lx:\n", str, (long)heap);
-      for (prev = 0, fa = heap->free_areas; fa; prev = fa, fa = fa->next)
-	{
-	  fprintf (stderr,
-		   "    0x%lx:  0x%lx - 0x%lx  (%d)\tP=0x%lx, N=0x%lx\n",
-		   (long)fa,
-		   (long)HEAP_FREE_AREA_START (fa),
-		   (long)HEAP_FREE_AREA_END (fa),
-		   fa->size,
-		   (long)fa->prev,
-		   (long)fa->next);
-	  if (fa->prev != prev)
-	    fprintf (stderr,
-		     "      PREV POINTER CORRUPTED!!!!  P=0x%lx should be 0x%lx\n",
-		     (long)fa->prev, (long)prev);
-	}
-      recursed = 0;
-    }
-}
+extern int __heap_debug;
+#define HEAP_DEBUG(heap, str) (__heap_debug ? __heap_dump (heap, str) : 0)
 #else
 #define HEAP_DEBUG(heap, str) (void)0
 #endif
+
+/* Output a text representation of HEAP to stderr, labelling it with STR.  */
+extern void __heap_dump (struct heap *heap, const char *str);
+
+/* Do some consistency checks on HEAP.  If they fail, output an error
+   message to stderr, and exit.  STR is printed with the failure message.  */
+extern void __heap_check (struct heap *heap, const char *str);
 
 
 /* Delete the free-area FA from HEAP.  */
@@ -126,6 +108,7 @@ __heap_delete (struct heap *heap, struct heap_free_area *fa)
   else
     heap->free_areas = fa->next;
 }
+
 
 /* Link the free-area FA between the existing free-area's PREV and NEXT in
    HEAP.  PREV and NEXT may be 0; if PREV is 0, FA is installed as the

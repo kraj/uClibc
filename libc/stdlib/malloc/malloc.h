@@ -122,10 +122,13 @@ extern malloc_mutex_t __malloc_sbrk_lock;
 #endif /* !likely */
 
 
-/* Define MALLOC_DEBUGGING to cause malloc to emit debugging info to stderr.  */
+/* Define MALLOC_DEBUGGING to cause malloc to emit debugging info to stderr
+   when the variable __malloc_debug is set to true. */
 #ifdef MALLOC_DEBUGGING
 #include <stdio.h>
-#define MALLOC_DEBUG(fmt, args...) fprintf (stderr, fmt , ##args)
+extern int __malloc_debug;
+#define MALLOC_DEBUG(fmt, args...) \
+  (__malloc_debug ? fprintf (stderr, fmt , ##args) : 0)
 #else
 #define MALLOC_DEBUG(fmt, args...) (void)0
 #endif
