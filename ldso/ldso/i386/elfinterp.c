@@ -258,14 +258,10 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		 * have been intentional.  We should not be linking local symbols
 		 * here, so all bases should be covered.
 		 */
-
-		if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_GLOBAL) {
-#if defined (__SUPPORT_LD_DEBUG__)
-			_dl_dprintf(2, "\tglobal symbol '%s' already defined in '%s', rel type: %s\n",
-					symname, tpnt->libname, _dl_reltypes(reloc_type));
-#endif
-			return 0;
-		}
+		if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
+			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
+			_dl_exit(1);
+		};
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -288,7 +284,15 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 				*reloc_addr += (unsigned long) tpnt->loadaddr;
 				break;
 			case R_386_COPY:
-				/* handled later on */
+				if (symbol_addr) {
+#if defined (__SUPPORT_LD_DEBUG__)
+					if(_dl_debug_move)
+						_dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
+							    symname, symtab[symtab_index].st_size,
+							    symbol_addr, reloc_addr);
+#endif
+					_dl_memcpy((char *) reloc_addr, (char *) symbol_addr, symtab[symtab_index].st_size);
+				}
 				break;
 			default:
 				return -1; /*call _dl_exit(1) */
@@ -397,6 +401,8 @@ int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 int _dl_parse_copy_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size)
 {
-	return _dl_parse(rpnt->dyn, rpnt->next, rel_addr, rel_size, _dl_do_copy_reloc);
+	return 0;
+	/* just disable for now, remove when we know that it works */
+	/* return _dl_parse(rpnt->dyn, rpnt->next, rel_addr, rel_size, _dl_do_copy_reloc); */
 }
 
