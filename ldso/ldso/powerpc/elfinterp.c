@@ -472,7 +472,8 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 				*reloc_addr = (unsigned long)tpnt->loadaddr + (unsigned long)rpnt->r_addend;
 				break;
 			case R_PPC_ADDR32:
-				*reloc_addr += symbol_addr;
+			case R_PPC_GLOB_DAT:
+				*reloc_addr = symbol_addr + (unsigned long)rpnt->r_addend;
 				break;
 			case R_PPC_ADDR16_HA:
 				/* XXX is this correct? */
@@ -520,9 +521,6 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 					}
 					break;
 				}
-			case R_PPC_GLOB_DAT:
-				*reloc_addr += symbol_addr;
-				break;
 			case R_PPC_COPY:
 				// handled later
 				return 0;
@@ -591,7 +589,7 @@ _dl_do_copy (struct elf_resolve *tpnt, struct dyn_elf *scope,
 			     symbol_addr, symtab[symtab_index].st_value);
 #endif
 			_dl_memcpy((char *) reloc_addr,
-					(char *) symbol_addr, symtab[symtab_index].st_size);
+					(char *) (symbol_addr + (unsigned long)rpnt->r_addend), symtab[symtab_index].st_size);
 	}
 
 	return goof;
