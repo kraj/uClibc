@@ -204,15 +204,18 @@ static inline char *_dl_get_last_path_component(char *path)
 }
 
 /* Early on, we can't call printf, so use this to print out
- * numbers using the SEND_STDERR() macro */
+ * numbers using the SEND_STDERR() macro.  Avoid using mod
+ * or using long division */
 static inline char *_dl_simple_ltoa(char * local, unsigned long i)
 {
 	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
-	char *p = &local[22];
+	char *p = &local[21];
 	*p-- = '\0';
 	do {
-		*p-- = '0' + i % 10;
-		i /= 10;
+	    char temp;
+	    do_rem(temp, i, 10);
+	    *p-- = '0' + temp;
+	    i /= 10;
 	} while (i > 0);
 	return p + 1;
 }
@@ -220,15 +223,15 @@ static inline char *_dl_simple_ltoa(char * local, unsigned long i)
 static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 {
 	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
-	char *p = &local[22];
+	char *p = &local[21];
 	*p-- = '\0';
 	do {
-		char temp = i % 0x10;
+		char temp = i & 0xf;
 		if (temp <= 0x09)
 		    *p-- = '0' + temp;
 		else
 		    *p-- = 'a' - 0x0a + temp;
-		i /= 0x10;
+		i >>= 4;
 	} while (i > 0);
 	*p-- = 'x';
 	*p-- = '0';

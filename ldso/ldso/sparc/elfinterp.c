@@ -72,7 +72,7 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
   /*
    * Generate the correct relocation index into the .rela.plt section.
    */
-  reloc_entry = (reloc_entry >> 12) - 0xc;
+  reloc_entry = (reloc_entry >> 10) - 0xc;
 
   this_reloc = (Elf32_Rela *) ((char *) rel_addr + reloc_entry);
 
@@ -82,10 +82,14 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
   symtab =  (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
   strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 
+#ifdef __SUPPORT_LD_DEBUG__
+  if (_dl_debug_symbols) {
   _dl_dprintf(2, "tpnt = %x\n", tpnt);
   _dl_dprintf(2, "reloc = %x\n", this_reloc);
   _dl_dprintf(2, "symtab = %x\n", symtab);
   _dl_dprintf(2, "strtab = %x\n", strtab);
+  }
+#endif
 
 
   if (unlikely(reloc_type != R_SPARC_JMP_SLOT)) {
@@ -98,10 +102,10 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
   instr_addr  = ((int)this_reloc->r_offset  + (int)tpnt->loadaddr);
   got_addr = (char **) instr_addr;
 
-  _dl_dprintf(2, "symtab_index %d\n", symtab_index);
-
 #ifdef __SUPPORT_LD_DEBUG__
   if (_dl_debug_symbols) {
+  _dl_dprintf(2, "symtab_index %x\n", symtab_index);
+
 	  _dl_dprintf(2, "Resolving symbol %s\n",
 			  strtab + symtab[symtab_index].st_name);
   }

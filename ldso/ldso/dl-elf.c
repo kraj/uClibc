@@ -720,7 +720,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_dprintf(2, "\n\tfile='%s';  generating link map\n", libname);
 		_dl_dprintf(2, "\t\tdynamic: %x  base: %x   size: %x\n",
 				dynamic_addr, libaddr, dynamic_size);
-		_dl_dprintf(2, "\t\t  entry: %x  phdr: %x  phnum: %d\n\n",
+		_dl_dprintf(2, "\t\t  entry: %x  phdr: %x  phnum: %x\n\n",
 				epnt->e_entry + libaddr, tpnt->ppnt, tpnt->n_phent);
 
 	}
