@@ -24,7 +24,7 @@ CSRC=	__rt_sigtimedwait.c __socketcall.c __syscall_fcntl.c \
 	__syscall_sigaction.c _exit.c access.c acct.c adjtimex.c alarm.c \
 	bdflush.c capget.c capset.c chdir.c chmod.c chown.c chroot.c \
 	close.c cmsg_nxthdr.c creat64.c create_module.c delete_module.c \
-	dup.c dup2.c execve.c fchdir.c fchmod.c fchown.c fdatasync.c \
+	dup.c dup2.c epoll.c execve.c fchdir.c fchmod.c fchown.c fdatasync.c \
 	flock.c fork.c fstat.c fstat64.c fstatfs.c fsync.c ftruncate.c \
 	ftruncate64.c get_kernel_syms.c getcwd.c getdents.c getdents64.c \
 	getdirname.c getdnnm.c getdtablesize.c getegid.c geteuid.c \
