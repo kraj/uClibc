@@ -30,7 +30,7 @@ ENTRY (__sigsetjmp)
 __sigsetjmp:
 */
 	/* Save registers */
-	add	#(JB_SIZE), r4
+	add	#(JB_SIZE-5*4), r4 /* this code doesn't do FP yet */
 	stc.l	gbr, @-r4
 	sts.l	pr, @-r4
 	mov.l	r15, @-r4

@@ -35,7 +35,7 @@ CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 SSRC=setjmp.S bsd-setjmp.S bsd-_setjmp.S __longjmp.S vfork.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=_mmap.c longjmp.c pipe.c
+CSRC=_mmap.c longjmp.c pipe.c __init_brk.c brk.c sbrk.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
