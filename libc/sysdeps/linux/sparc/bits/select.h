@@ -20,6 +20,13 @@
 # error "Never use <bits/select.h> directly; include <sys/select.h> instead."
 #endif
 
+/* For some reason, this wants to use the definitions from 
+	/include/asm/posix_types.h  So we have to undef some symbols : 
+*/
+#undef __FD_ZERO
+#undef __FD_SET
+#undef __FD_CLR
+#undef __FD_ISSET
 
 /* We don't use `memset' because this would require a prototype and
    the array isn't too big.  */
