@@ -72,8 +72,6 @@ headers: dummy
 	rm -f include/asm;
 	@if [ $(TARGET_ARCH) = "powerpc" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-ppc include/asm; \
-	elif [ $(TARGET_ARCH) = "v850" ];then \
-	    ln -fs $(KERNEL_SOURCE)/include/asm-v850 include/asm; \
 	elif [ $(TARGET_ARCH) = "mips" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-mips include/asm; \
 	elif [ $(TARGET_ARCH) = "mipsel" ];then \
@@ -88,14 +86,14 @@ headers: dummy
 	    ln -fs $(KERNEL_SOURCE)/include/asm-h8300 include/asm; \
 	else \
 	    if [ $(HAS_MMU) != "true" ]; then \
-	    		if [ -d $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu ] ; then \
-			ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu include/asm;\
-			else \
-			ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
-			fi; \
+	    	if [ -d $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu ] ; then \
+		    ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu include/asm;\
 		else \
-			ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
+		    ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
 		fi; \
+	    else \
+		ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
+	    fi; \
 	fi;
 	@if [ ! -f include/asm/unistd.h ] ; then \
 	    set -e; \
