@@ -35,6 +35,7 @@ static const char dirlist[] =
 /*   12345670123 */
 "\010/dev/vc/\0"	/* Try /dev/vc first (be devfs compatible) */
 "\011/dev/tts/\0"	/* and /dev/tts next (be devfs compatible) */
+"\011/dev/pty/\0"	/* and /dev/pty next (be devfs compatible) */
 "\011/dev/pts/\0"	/* and try /dev/pts next */
 "\005/dev/\0";		/* and try walking through /dev last */
 
