@@ -259,14 +259,14 @@ endif
 # system, use the "install_target" target instead... 
 install_runtime:
 ifeq ($(strip $(HAVE_SHARED)),y)
-	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/lib
+	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
 	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
-		$(PREFIX)$(RUNTIME_PREFIX)/lib
-	cp -fa lib/*.so.* $(PREFIX)$(RUNTIME_PREFIX)/lib
+		$(PREFIX)$(RUNTIME_PREFIX)lib
+	cp -fa lib/*.so.* $(PREFIX)$(RUNTIME_PREFIX)lib
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
 	    $(INSTALL) -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
-	    		$(PREFIX)$(RUNTIME_PREFIX)/lib; \
+	    		$(PREFIX)$(RUNTIME_PREFIX)lib; \
 	fi;
 endif
 
@@ -279,16 +279,16 @@ endif
 
 install_utils: utils
 ifeq ($(strip $(HAVE_SHARED)),y)
-	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/sbin
-	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/usr/bin
+	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)sbin
+	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)usr/bin
 	$(INSTALL) -m 755 ldso/util/ldd \
-		$(PREFIX)$(RUNTIME_PREFIX)/usr/bin/ldd
+		$(PREFIX)$(RUNTIME_PREFIX)usr/bin/ldd
 	$(INSTALL) -m 755 ldso/util/ldconfig \
-		$(PREFIX)$(RUNTIME_PREFIX)/sbin/ldconfig;
+		$(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig;
 	# For now, don't bother with readelf since surely the host
 	# system has binutils, or we couldn't have gotten this far...
 	#$(INSTALL) -m 755 ldso/util/readelf \
-	#	$(PREFIX)$(RUNTIME_PREFIX)/usr/bin/readelf
+	#	$(PREFIX)$(RUNTIME_PREFIX)usr/bin/readelf
 endif
 
 # Installs run-time libraries and helper apps in preparation for
