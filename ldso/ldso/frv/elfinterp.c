@@ -1,5 +1,5 @@
 /* FR-V FDPIC ELF shared library loader suppport
-   Copyright (C) 2003 Red Hat, Inc.
+   Copyright (C) 2003, 2004 Red Hat, Inc.
    Contributed by Alexandre Oliva <aoliva@redhat.com>
    Lots of code copied from ../i386/elfinterp.c, so:
    Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
@@ -153,11 +153,10 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 	  DL_RELOC_ADDR (this_reloc->r_offset, tpnt->loadaddr);
 
 	/* Get the address to be used to fill in the GOT entry.  */
-	new_addr = __dl_find_hash(symname, tpnt->symbol_scope, tpnt, resolver,
-				  &new_tpnt);
+	new_addr = _dl_find_hash_mod(symname, tpnt->symbol_scope, 0,
+				     &new_tpnt);
 	if (!new_addr) {
-		new_addr = __dl_find_hash(symname, NULL, NULL, resolver,
-					  &new_tpnt);
+		new_addr = _dl_find_hash_mod(symname, NULL, 0, &new_tpnt);
 		if (!new_addr) {
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 				    _dl_progname, symname);
@@ -279,10 +278,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	} else {
 
 		symbol_addr = (unsigned long)
-		  __dl_find_hash(symname, scope, 
-				 (reloc_type == R_FRV_FUNCDESC_VALUE
-				  ? tpnt : NULL), symbolrel,
-				 &symbol_tpnt);
+		  _dl_find_hash_mod(symname, scope, 0, &symbol_tpnt);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -338,7 +334,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 			funcval.got_value = 0;
 		asm ("std%I0\t%1, %M0"
 		     : "=m" (*(struct funcdesc_value *)reloc_addr)
-		     : "r" (funcval));
+		     : "e" (funcval));
 		break;
 	case R_FRV_FUNCDESC:
 		if ((long)reloc_addr_packed & 3)
