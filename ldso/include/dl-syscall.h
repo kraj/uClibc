@@ -103,6 +103,7 @@ static inline _syscall0(gid_t, _dl_getpid);
 #define __NR__dl_readlink __NR_readlink
 static inline _syscall3(int, _dl_readlink, const char *, path, char *, buf, size_t, bufsiz);
 
+#ifdef __NR_mmap
 #if defined(__powerpc__) || defined(__mips__) || defined(__sh__)
 /* PowerPC, MIPS and SuperH have a different calling convention for mmap(). */
 #define __NR__dl_mmap __NR_mmap
@@ -126,7 +127,21 @@ static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
 	return (void *) _dl_mmap_real(buffer);
 }
 #endif
-
+#elif defined __NR_mmap2
+#define __NR___syscall_mmap2       __NR_mmap2
+static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
+		size_t, len, int, prot, int, flags, int, fd, off_t, offset);
+/*always 12, even on architectures where PAGE_SHIFT != 12 */
+#define MMAP2_PAGE_SHIFT 12
+static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
+		int flags, int fd, unsigned long offset)
+{
+    if (offset & ((1 << MMAP2_PAGE_SHIFT) - 1))
+	return MAP_FAILED;
+    return(__syscall_mmap2(addr, size, prot, flags,
+		fd, (off_t) (offset >> MMAP2_PAGE_SHIFT)));
+}
+#endif
 
 #endif /* _LD_SYSCALL_H_ */
 

@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
+#ifdef __NR_mmap
 #define __NR__mmap __NR_mmap
 _syscall1(__ptr_t, _mmap, unsigned long *, buffer);
 __ptr_t mmap(__ptr_t addr, size_t len, int prot,
@@ -26,3 +27,4 @@ __ptr_t mmap(__ptr_t addr, size_t len, int prot,
 	buffer[5] = (unsigned long) offset;
 	return (__ptr_t) _mmap(buffer);
 }
+#endif
