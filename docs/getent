@@ -1,0 +1,49 @@
+#!/bin/sh
+# $Header: /var/cvs/uClibc/docs/Attic/getent,v 1.1 2004/11/10 08:07:40 solar Exp $
+
+search_entry() {
+  if [ -e "$1" ] ; then
+    /bin/egrep -v "^#" $1 | /bin/sed 's/#.*$//' | /bin/egrep "${string}" | /bin/sed -n 1p
+    retval=$?
+    [ "$retval" = 0 ] || retval=2
+  else
+    retval=2
+  fi
+}
+
+file="/etc/$1"
+string="dummy"
+
+#aliases|ethers|group|hosts|netgroup|networks|passwd|protocols|rpc|services|shadow)
+# dns based search is not supported for hosts|networks
+# networks searches ^string
+# protocols|rpc|services searches string anywhere
+# ethers|netgroup ?
+# it returns only the first match
+case $1 in
+  group|passwd|shadow)
+    string="^\<$2\>:"
+    ;;
+  aliases)
+    if [ -f /etc/postfix/aliases ] ; then
+      file="/etc/postfix/aliases"
+    elif [ -f /etc/mail/aliases ] ; then
+      file="/etc/mail/aliases"
+    fi
+    string="^\<$2\>:"
+    ;;
+  networks)
+    string="^\<$2\>"
+    ;;
+  hosts|protocol|rpc|services)
+    string="\<$2\>"
+    ;;
+  *)
+    echo "Unknown database: $1"
+    exit 1
+    ;;
+esac
+
+search_entry $file $2
+
+exit $retval
