@@ -61,6 +61,7 @@ _syscall3(ssize_t, read, int, fd, __ptr_t, buf, size_t, count);
 #ifdef L_write
 #include <unistd.h>
 _syscall3(ssize_t, write, int, fd, const __ptr_t, buf, size_t, count);
+weak_alias(write, __write);
 #endif
 
 //#define __NR_open             5
