@@ -126,7 +126,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     if (act) {
 	kact.k_sa_handler = act->sa_handler;
-	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
+	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
 	kact.sa_flags = act->sa_flags;
 # ifdef HAVE_SA_RESTORER
 	kact.sa_restorer = act->sa_restorer;
@@ -140,7 +140,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     if (oact && result >= 0) {
 	oact->sa_handler = koact.k_sa_handler;
-	memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
+	memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
 	oact->sa_flags = koact.sa_flags;
 # ifdef HAVE_SA_RESTORER
 	oact->sa_restorer = koact.sa_restorer;
