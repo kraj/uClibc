@@ -30,11 +30,9 @@ PROJ_UCLINUX=/proj/soft2/uclinux
 # Cross compile on i386-pc-linux-gnu
 DESTDIR=$(PROJ_UCLINUX)/i386-pc-linux-gnu/v850e-linux
 
-# What arch do you want to compile for...
-TARGET_ARCH = v850
-
 # If you are running a cross compiler, you may want to set this
-# to something more interesting...
+# to something more interesting...  Target architecture is determined
+# by asking this compiler what arch it compiles stuff for.
 NATIVE_CC = gcc
 CROSS = v850e-elf-
 CC = $(CROSS)gcc

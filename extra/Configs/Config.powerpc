@@ -25,16 +25,9 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-# What arch do you want to compile for...
-#TARGET_ARCH=arm
-#TARGET_ARCH=i386
-#TARGET_ARCH=m68k
-TARGET_ARCH=powerpc
-#TARGET_ARCH=sh
-#TARGET_ARCH=sparc
-
 # If you are running a cross compiler, you may want to set this
-# to something more interesting...
+# to something more interesting...  Target architecture is determined
+# by asking this compiler what arch it compiles stuff for.
 NATIVE_CC = gcc
 CROSS = #$(TARGET_ARCH)-linux-
 CC = $(CROSS)gcc

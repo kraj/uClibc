@@ -38,11 +38,28 @@ BUILDTIME = ${shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z"}
 GCCINCDIR = ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp"}
 NATIVE_ARCH = ${shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g'}
+TARGET_ARCH=${shell $(CC) -dumpmachine | sed -e s'/-linux//' -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
+		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g'}
 
-# use '-Os' optimization if available, else use -O2, allow Config to override
+# Some nice architecture specific optimizations
 ifndef OPTIMIZATION
+# use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION = ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
     then echo "-Os"; else echo "-O2" ; fi}
+ifeq ($(strip $(TARGET_ARCH)),arm)
+	OPTIMIZATION+=-fstrict-aliasing
+endif
+ifeq ($(strip $(TARGET_ARCH)),i386)
+	OPTIMIZATION+=-march=i386
+	OPTIMIZATION += ${shell if $(CC) -mpreferred-stack-boundary=2 -S -o /dev/null -xc \
+		/dev/null >/dev/null 2>&1; then echo "-mpreferred-stack-boundary=2"; fi}
+	OPTIMIZATION += ${shell if $(CC) -malign-functions=0 -malign-jumps=0 -malign-loops=0 \
+		-S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo \
+		"-malign-functions=0 -malign-jumps=0 -malign-loops=0"; fi}
+	CPUFLAGS+=-pipe
+else
+	CPUFLAGS+=-pipe
+endif
 endif
 
 ARFLAGS=r
@@ -75,7 +92,7 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
 	LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
 	DYNAMIC_LINKER=$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO)
-	BUILD_DYNAMIC_LINKER=$(shell cd $(TOPDIR)lib; pwd)/$(UCLIBC_LDSO)
+	BUILD_DYNAMIC_LINKER=${shell cd $(TOPDIR)lib && pwd}/$(UCLIBC_LDSO)
 else
 	LDSO=$(SYSTEM_LDSO)
 	DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
