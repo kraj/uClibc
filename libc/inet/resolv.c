@@ -166,7 +166,6 @@ extern int __read_etc_hosts_r(FILE *fp, const char * name, int type,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
 			    int * h_errnop);
-extern int __connect_dns(char *dns);
 extern int __dns_lookup(const char * name, int type, int nscount, 
 	char ** nsip, unsigned char ** outpacket, struct resolv_answer * a);
 
@@ -561,45 +560,6 @@ int __form_query(int id, const char *name, int type, unsigned char *packet,
 }
 #endif
 
-#ifdef L_connect_dns
-int __connect_dns(char *nsip)
-{
-	int fd, rc;
-	struct sockaddr_in sa;
-#ifdef __UCLIBC_HAS_IPV6__
-	int v6;
-	struct sockaddr_in6 sa6;
-	v6 = inet_pton(AF_INET6, nsip, &sa6.sin6_addr) > 0;
-	fd = socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-#else
-	fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-#endif
-	if (fd == -1) return -1;
-
-#ifdef __UCLIBC_HAS_IPV6__
-	if (v6) {
-		sa6.sin6_family = AF_INET6;
-		sa6.sin6_port = htons(NAMESERVER_PORT);
-		/* sa6.sin6_addr is already here */
-		rc = connect(fd, (struct sockaddr *) &sa6, sizeof(sa6));
-	} else {
-#endif
-		sa.sin_family = AF_INET;
-		sa.sin_port = htons(NAMESERVER_PORT);
-		sa.sin_addr.s_addr = inet_addr(nsip);
-		rc = connect(fd, (struct sockaddr *) &sa, sizeof(sa));
-#ifdef __UCLIBC_HAS_IPV6__
-	}
-#endif
-	if (rc != 0) {
-		close(fd);
-		return -1;
-	}
-	return fd;
-}
-#endif
-
-
 #ifdef L_dnslookup
 
 #ifdef __UCLIBC_HAS_THREADS__
@@ -620,7 +580,7 @@ static int ns=0, id=1;
 int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 			   unsigned char **outpacket, struct resolv_answer *a)
 {
-	int i, j, len, fd, pos;
+	int i, j, len, fd, pos, rc;
 	struct timeval tv;
 	fd_set fds;
 	struct resolv_header h;
@@ -629,6 +589,11 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 	unsigned char * packet = malloc(PACKETSZ);
 	char *dns, *lookup = malloc(MAXDNAME);
 	int variant = 0;
+	struct sockaddr_in sa;
+#ifdef __UCLIBC_HAS_IPV6__
+	int v6;
+	struct sockaddr_in6 sa6;
+#endif
 
 	fd = -1;
 
@@ -688,14 +653,39 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		DPRINTF("On try %d, sending query to port %d of machine %s\n",
 				retries, NAMESERVER_PORT, dns);
 
-		fd = __connect_dns(dns);
+#ifdef __UCLIBC_HAS_IPV6__
+		v6 = inet_pton(AF_INET6, dns, &sa6.sin6_addr) > 0;
+		fd = socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+#else
+		fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+#endif
 		if (fd < 0) {
-			if (errno == ENETUNREACH) {
-				/* routing error, presume not transient */
-				goto tryall;
-			} else
-				/* retry */
-				continue;
+		    continue;
+		}
+
+		/* Connect to the UDP socket so that asyncronous errors are returned */		 
+#ifdef __UCLIBC_HAS_IPV6__
+		if (v6) {
+		    sa6.sin6_family = AF_INET6;
+		    sa6.sin6_port = htons(NAMESERVER_PORT);
+		    /* sa6.sin6_addr is already here */
+		    rc = connect(fd, (struct sockaddr *) &sa6, sizeof(sa6));
+		} else {
+#endif
+		    sa.sin_family = AF_INET;
+		    sa.sin_port = htons(NAMESERVER_PORT);
+		    sa.sin_addr.s_addr = inet_addr(dns);
+		    rc = connect(fd, (struct sockaddr *) &sa, sizeof(sa));
+#ifdef __UCLIBC_HAS_IPV6__
+		}
+#endif
+		if (rc < 0) {
+		    if (errno == ENETUNREACH) {
+			/* routing error, presume not transient */
+			goto tryall;
+		    } else
+			/* retry */
+			continue;
 		}
 
 		DPRINTF("Transmitting packet of length %d, id=%d, qr=%d\n",
@@ -716,9 +706,10 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		}
 
 		i = recv(fd, packet, 512, 0);
-		if (i < HFIXEDSZ)
+		if (i < HFIXEDSZ) {
 			/* too short ! */
 			goto again;
+		}
 
 		__decode_header(packet, &h);
 
