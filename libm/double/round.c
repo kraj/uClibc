@@ -40,7 +40,7 @@ double x;
  * Returns the nearest integer to x as a double precision
  * floating point result.  If x ends in 0.5 exactly, the
  * nearest even integer is chosen.
- * /
+ */
 /*
 Originally round from
 Cephes Math Library Release 2.1:  January, 1989
