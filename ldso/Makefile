@@ -12,6 +12,7 @@ all:
 
 install: all
 	mkdir -p $(TARGETDIR)/etc
+	mkdir -p $(TARGETDIR)/lib
 	cp -a ./d-link/ld-linux-uclibc.so.1 ./d-link/libdl/libdl.so.1 $(TARGETDIR)/lib 
 	./util/ldconfig
 
