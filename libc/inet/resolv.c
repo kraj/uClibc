@@ -598,7 +598,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 	struct resolv_question q;
 	int retries = 0;
 	unsigned char * packet = malloc(PACKETSZ);
-	char * lookup = malloc(MAXDNAME);
+	char *dns, *lookup = malloc(MAXDNAME);
 	int variant = 0;
 
 	fd = -1;
@@ -610,6 +610,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 
 	LOCK;
 	ns %= nscount;
+	UNLOCK;
 
 	while (retries++ < MAX_RETRIES) {
 		if (fd != -1)
@@ -618,7 +619,13 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		memset(packet, 0, PACKETSZ);
 
 		memset(&h, 0, sizeof(h));
+
+		/* Mess with globals while under lock */
+		LOCK;
 		h.id = ++id;
+		dns = nsip[ns];
+		UNLOCK;
+
 		h.qdcount = 1;
 		h.rd = 1;
 
@@ -646,9 +653,9 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		len = i + j;
 
 		DPRINTF("On try %d, sending query to port %d of machine %s\n",
-				retries, NAMESERVER_PORT, nsip[ns]);
+				retries, NAMESERVER_PORT, dns);
 
-		fd = __connect_dns(nsip[ns]);
+		fd = __connect_dns(dns);
 		if (fd < 0) {
 			if (errno == ENETUNREACH) {
 				/* routing error, presume not transient */
@@ -684,9 +691,14 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 
 		DPRINTF("id = %d, qr = %d\n", h.id, h.qr);
 
-		if ((h.id != id) || (!h.qr))
+		LOCK;
+		if ((h.id != id) || (!h.qr)) {
+			UNLOCK;
 			/* unsolicited */
 			goto again;
+		}
+		UNLOCK;
+
 
 		DPRINTF("Got response %s\n", "(i think)!");
 		DPRINTF("qrcount=%d,ancount=%d,nscount=%d,arcount=%d\n",
@@ -738,7 +750,6 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		else
 			free(packet);
 		free(lookup);
-		UNLOCK;
 		return (0);				/* success! */
 
 	  tryall:
@@ -755,13 +766,14 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		    variant++;
 		} else {
 		    /* next server, first search */
+		    LOCK;
 		    ns = (ns + 1) % nscount;
+		    UNLOCK;
 		    variant = 0;
 		}
 	}
 
 fail:
-	UNLOCK;
 	if (fd != -1)
 	    close(fd);
 	if (lookup)
@@ -774,6 +786,7 @@ fail:
 
 #ifdef L_opennameservers
 
+#warning fixme -- __nameserver, __nameservers, __searchdomain, and __searchdomains need locking
 int __nameservers;
 char * __nameserver[MAX_SERVERS];
 int __searchdomains;
