@@ -1,15 +1,8 @@
 TOPDIR = ../../
 include $(TOPDIR)Rules.mak
 
-# NOTE: This may need to be modified on each system.
-ifeq ($(TARGET_ARCH), i386)
-# Right now, I'm using .1 since .2 pulls in libc6 on my system. Manuel
-DYNAMIC_LINKER = /lib/ld-linux.so.1
-#DYNAMIC_LINKER = /lib/ld-linux-uclibc.so.1
-else
-# For Erik's arm case.
-DYNAMIC_LINKER = $(shell ls /lib/ld*.so.[0-9] | sort | tail -n 1)
-endif
+# NOTE: This may need to be modified for your system
+DYNAMIC_LINKER = /usr/$(TARGET_ARCH)-linux-uclibc/lib/ld-linux-uclibc.so.1
 
 UCLIBC_DIR = $(shell (cd ../.. ; /bin/pwd))
 GCC_BIN = $(CC)
