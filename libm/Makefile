@@ -89,30 +89,26 @@ else
 all: $(LIBM) subdirs
 endif
 
-$(LIBM): ar-target
-	@if [ -f $(LIBM) ] ; then \
-		set -x -e; \
-		$(INSTALL) -d $(TOPDIR)lib; \
-		$(RM) $(TOPDIR)lib/$(LIBM); \
-		$(INSTALL) -m 644 $(LIBM) $(TOPDIR)lib; \
-	fi;
+$(LIBM) ar-target: $(OBJS)
+ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
+	$(AR) $(ARFLAGS) $(LIBM) $(OBJS)
+	$(INSTALL) -d $(TOPDIR)lib
+	$(RM) $(TOPDIR)lib/$(LIBM)
+	$(INSTALL) -m 644 $(LIBM) $(TOPDIR)lib
+endif
 
 shared: all
-	@if [ -f $(LIBM) ] ; then \
-	    set -x -e; \
-	    $(LD) $(LDFLAGS) -soname=$(LIBM_SHARED).$(MAJOR_VERSION) \
+ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
+	$(LD) $(LDFLAGS) -soname=$(LIBM_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBM_SHARED_FULLNAME) --whole-archive $(LIBM) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC); \
-	    $(INSTALL) -d $(TOPDIR)lib; \
-	    $(RM) $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
-	    $(INSTALL) -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib; \
-	    $(LN) -sf $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED); \
-	    $(LN) -sf $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
-	fi;
-
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBM) $(OBJS)
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
+	$(INSTALL) -d $(TOPDIR)lib
+	$(RM) $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION)
+	$(INSTALL) -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib
+	$(LN) -sf $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED)
+	$(LN) -sf $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION)
+endif
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
