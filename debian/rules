@@ -42,7 +42,16 @@ build-stamp: debian/control
 	dh_testdir
 
 	# Brute force method of getting kernel headers
-	tar --bzip2 -xf /usr/src/$(kernel_source).tar.bz2 $(kernel_source)/include
+	tar --bzip2 -xf /usr/src/$(kernel_source).tar.bz2 \
+	  $(kernel_source)/include
+
+	# Hack to get include/asm-arm/arch directory.  This should
+	# stay here, and not move to the top-level Makefile, since
+	# it adds a link _in the kernel source_, which is almost
+	# certainly wrong in most situations.
+#ifeq ($(target),arm)
+	ln -s arch-sa1100 $(kernel_source)/include/asm-arm/arch
+#endif
 
 ifneq ($(target),mipsel)
 	cp extra/Configs/Config.$(target) Config
