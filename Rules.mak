@@ -42,6 +42,7 @@ AR= $(CROSS)ar
 LD= $(CROSS)ld
 NM= $(CROSS)nm
 STRIPTOOL= $(CROSS)strip
+RANLIB= $(CROSS)ranlib
 
 INSTALL= install
 LN= ln
@@ -69,6 +70,12 @@ SHARED_MAJORNAME:=libc.so.$(MAJOR_VERSION)
 UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
 LIBNAME:=libc.a
 LIBC:=$(TOPDIR)libc/$(LIBNAME)
+
+# Make sure DESTDIR and PREFIX can be used to install
+# PREFIX is a uClibcism while DESTDIR is a common GNUism
+ifndef PREFIX
+PREFIX = $(DESTDIR)
+endif
 
 # Pull in the user's uClibc configuration
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
@@ -309,4 +316,3 @@ ifeq ($(CONFIG_BINFMT_SHARED_FLAT),y)
 endif
 
 TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
-
