@@ -1,4 +1,3 @@
-#if !defined(__ppc__)
 /* @(#)s_logb.c 5.1 93/09/24 */
 /*
  * ====================================================
@@ -41,4 +40,3 @@ static char rcsid[] = "$NetBSD: s_logb.c,v 1.8 1995/05/10 20:47:50 jtc Exp $";
 	else
 		return (double) (ix-1023); 
 }
-#endif /* !__ppc__ */

@@ -1,4 +1,3 @@
-#if defined(__ppc__)
 /*******************************************************************************
 *                                                                              *
 *      File logb.c,                                                            *
@@ -101,4 +100,4 @@ double logb (  double x  )
             return ( xInHex.dbl - klTod );
             }
       }
-#endif /* __ppc__ */
+

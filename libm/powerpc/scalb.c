@@ -1,4 +1,3 @@
-#if defined(__ppc__)
 /***********************************************************************
 **      File:    scalb.c
 **      
@@ -84,4 +83,3 @@ double scalb ( double x, int n  )
       xInHex.words.hi = ( ( unsigned long ) ( n + 1023 ) ) << 20;
       return ( x * xInHex.dbl );
       }
-#endif /* __ppc__ */

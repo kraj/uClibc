@@ -1,4 +1,3 @@
-#if defined(__ppc__)
 /*******************************************************************************
 *                                                                              *
 *      File sign.c,                                                            *
@@ -55,4 +54,3 @@ double copysign ( double arg2, double arg1 )
       
       return y.dbl;
       }
-#endif /* __ppc__ */

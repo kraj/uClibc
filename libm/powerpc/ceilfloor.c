@@ -1,4 +1,3 @@
-#if defined(__ppc__)
 /*******************************************************************************
 *                                                                              *
 *      File ceilfloor.c,                                                       *
@@ -21,10 +20,6 @@
 *	 June	    13 2001: replaced __setflm with in-line assembly			 *
 *                                                                              *
 *******************************************************************************/
-
-#if !defined(__ppc__)
-#define asm(x)
-#endif
 
 static const double        twoTo52  = 4503599627370496.0;
 static const unsigned long signMask = 0x80000000ul;
@@ -176,4 +171,4 @@ double floor ( double x )
 *******************************************************************************/
 	return ( x );
 	}
-#endif /* __ppc__ */
+

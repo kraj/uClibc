@@ -47,10 +47,6 @@
 #include <limits.h>
 #include <math.h>
 
-#if !defined(__ppc__)
-#define asm(x)
-#endif
-
 #define      SET_INVALID      0x01000000UL
 
 typedef union
@@ -108,7 +104,6 @@ static const DblInHex TOWARDZERO = {{ 0x00000000, 0x00000001 }};
 *     Now a bit twidling version that is about %30 faster.                     *
 *******************************************************************************/
 
-#if defined(__ppc__)
 double rint ( double x )
       {
       DblInHex argument;
@@ -159,7 +154,6 @@ double rint ( double x )
 *******************************************************************************/
       return ( x );
       }
-#endif /* __ppc__ */
 
 /*******************************************************************************
 *                                                                              *
@@ -176,9 +170,7 @@ double rint ( double x )
 double nearbyint ( double x )
       {
 	double y;
-#if defined(__ppc__)
 	double OldEnvironment;
-#endif /* __ppc__ */
       
 	y = twoTo52;
 	
@@ -400,10 +392,8 @@ long int roundtol ( double x )
 	DblInHex argument, OldEnvironment;
 	register unsigned long int xhi;
 	register long int target;
-#if defined(__ppc__)
 	const DblInHex kTZ = {{ 0x0, 0x1 }};
 	const DblInHex kUP = {{ 0x0, 0x2 }};
-#endif /* __ppc__ */
 	
 	argument.dbl = x;
 	xhi = argument.words.hi & 0x7ffffffful;	        	// high 32 bits of x
@@ -568,7 +558,6 @@ double trunc ( double x )
 *     modf is the double implementation.                                       *                             
 *******************************************************************************/
 
-#if defined(__ppc__)
 double modf ( double x, double *iptr )
       {
       register double OldEnvironment, xtrunc;
@@ -629,4 +618,3 @@ double modf ( double x, double *iptr )
             return ( argument.dbl );
             }
       }
-#endif /* __ppc__ */

@@ -1,4 +1,3 @@
-#if !defined(__ppc__)
 /* @(#)s_copysign.c 5.1 93/09/24 */
 /*
  * ====================================================
@@ -37,4 +36,4 @@ static char rcsid[] = "$NetBSD: s_copysign.c,v 1.8 1995/05/10 20:46:57 jtc Exp $
 	SET_HIGH_WORD(x,(hx&0x7fffffff)|(hy&0x80000000));
         return x;
 }
-#endif
+

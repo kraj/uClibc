@@ -1,4 +1,3 @@
-#if defined(__ppc__)
 /*******************************************************************************
 *                                                                              *
 *      File frexpldexp.c,                                                      *
@@ -70,4 +69,4 @@ double frexp ( double value, int *eptr )
 	argument.words.hi = ( argument.words.hi & 0x800fffff ) | 0x3fe00000;
 	return argument.dbl;
 	}
-#endif /* __ppc__ */
+

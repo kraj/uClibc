@@ -1,4 +1,3 @@
-#if !defined(__ppc__)
 /* @(#)s_ldexp.c 5.1 93/09/24 */
 /*
  * ====================================================
@@ -31,4 +30,3 @@ static char rcsid[] = "$NetBSD: s_ldexp.c,v 1.6 1995/05/10 20:47:40 jtc Exp $";
 	if(!finite(value)||value==0.0) errno = ERANGE;
 	return value;
 }
-#endif /* !__ppc__ */

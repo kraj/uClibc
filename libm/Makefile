@@ -22,6 +22,14 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
+ifeq ($(TARGET_ARCH),$(wildcard $(TARGET_ARCH)))
+DIRS = $(TARGET_ARCH)
+else
+DIRS = 
+endif
+ALL_SUBDIRS = powerpc
+
+
 LIBM=libm.a
 LIBM_SHARED=libm.so
 LIBM_SHARED_FULLNAME=libm-$(MAJOR_VERSION).$(MINOR_VERSION).so
@@ -43,8 +51,7 @@ CSRC =   e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
          w_cosh.c w_drem.c w_exp.c w_fmod.c w_gamma.c w_gamma_r.c\
          w_hypot.c w_j0.c w_j1.c w_jn.c w_lgamma.c w_lgamma_r.c\
          w_log.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c\
-         w_sqrt.c ceilfloor.c fpmacros.c frexpldexp.c logb.c rndint.c\
-         scalb.c sign.c
+         w_sqrt.c fpmacros.c
 else
 CSRC =   w_acos.c w_asin.c s_atan.c w_atan2.c s_ceil.c s_cos.c \
 	 w_cosh.c w_exp.c s_expm1.c s_fabs.c s_floor.c w_fmod.c \
@@ -59,9 +66,9 @@ OBJS=$(COBJS)
 
 
 ifneq ($(strip $(HAS_FLOATING_POINT)),true)
-all:  clean
+all:  clean subdirs
 else
-all: $(OBJS) $(COBJS1) $(LIBM)
+all: $(OBJS) $(LIBM) subdirs
 endif
 
 $(LIBM): ar-target
@@ -90,11 +97,21 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
-$(COBJS1): Makefile
 
 tags:
 	ctags -R
 
-clean: 
+clean: subdirs_clean
 	rm -f *.[oa] *~ core $(LIBM_SHARED)* $(LIBM_SHARED_FULLNAME)*
+
+subdirs: $(patsubst %, _dir_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
+
+$(patsubst %, _dir_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dir_%, %, $@)
+
+$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
+	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+
+.PHONY: dummy
 

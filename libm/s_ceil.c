@@ -1,4 +1,3 @@
-#if !defined(__ppc__)
 /* @(#)s_ceil.c 5.1 93/09/24 */
 /*
  * ====================================================
@@ -79,4 +78,4 @@ static double huge = 1.0e300;
 	INSERT_WORDS(x,i0,i1);
 	return x;
 }
-#endif /* !__ppc__ */
+

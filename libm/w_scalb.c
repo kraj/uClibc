@@ -1,4 +1,3 @@
-#if !defined(__ppc__)
 /* @(#)w_scalb.c 5.1 93/09/24 */
 /*
  * ====================================================
@@ -59,4 +58,3 @@ static char rcsid[] = "$NetBSD: w_scalb.c,v 1.6 1995/05/10 20:49:48 jtc Exp $";
 	return z;
 #endif 
 }
-#endif /* !__ppc__ */
