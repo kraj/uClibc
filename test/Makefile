@@ -22,7 +22,7 @@ include $(TOPDIR)Config
 .EXPORT_ALL_VARIABLES:
 
 
-ALL_SUBDIRS = args assert ctype pwd_grp signal silly stdlib string unistd #misc
+ALL_SUBDIRS = args assert ctype pwd_grp signal silly stdlib string unistd crypt #misc
 DIRS = $(ALL_SUBDIRS)
 #ifeq ($(TARGET_ARCH), $(NATIVE_ARCH))
 #	DIRS = $(ALL_SUBDIRS)
