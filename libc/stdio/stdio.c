@@ -96,6 +96,10 @@ FILE _stdio_streams[3] = {
 	 2, _IONBF | __MODE_WRITE | __MODE_IOTRAN}
 };
 
+FILE *_stdin = _stdio_streams + 0;
+FILE *_stdout = _stdio_streams + 1;
+FILE *_stderr = _stdio_streams + 2;
+
 /*
  * Note: the following forces linking of the __init_stdio function if
  * any of the stdio functions are used (except perror) since they all
