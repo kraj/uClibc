@@ -20,10 +20,12 @@ function 'elf_machine_rel' in 'sysdeps/mips/dl-machine.h'.
 
 ld_syscalls.h
 -------------
-Contains all the macro functions for the system calls as well
-as the list of system calls supported. The functions were taken
-from the Linux kernel source 2.4.17 and can be found in the
-file 'include/asm-mips/unistd.h'.
+Used to contain all the macro functions for the system calls
+as well as the list of system calls supported. We now include
+<sys/syscall.h> but with the __set_errno macro defined empty
+so we can use the same file for the linker as well as userspace.
+Original code was taken from the Linux kernel source 2.4.17 and
+can be found in the file 'include/asm-mips/unistd.h'.
 
 ld_sysdep.h
 -----------
