@@ -87,7 +87,8 @@ $(AOBJS): %.o : %.S
 	$(CC) $(XXFLAGS) $(ASFLAGS) -I../libdl -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-ldso.o: $(CSRC) dl-elf.c dl-hash.c dl-startup.c
+ldso.o: $(CSRC) dl-elf.c dl-hash.c dl-startup.c \
+	$(TARGET_ARCH)/dl-startup.h
 
 clean:
 	$(RM) $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i ldso.h *~
