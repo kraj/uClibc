@@ -44,6 +44,9 @@ extern struct utmp *    getutid __P ((struct utmp *));
 extern struct utmp *    getutline __P ((struct utmp *));
 extern struct utmp *    pututline __P ((struct utmp *));
 extern void             endutent __P ((void));
+extern int login_tty (int __fd);
+extern void login (const struct utmp *entry);
+extern void logwtmp (const char *line, const char *name, const char *host);
 
 #ifdef _LIBC
 struct utmp *           __getutent __P ((int));

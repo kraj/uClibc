@@ -38,7 +38,8 @@ MOBJ2=atexit.o exit.o
 
 
 CSRC =	abort.c getenv.c mktemp.c qsort.c realpath.c abs.c bsearch.c \
-	mkstemp.c putenv.c rand.c random.c setenv.c system.c div.c ldiv.c
+	mkstemp.c putenv.c rand.c random.c setenv.c system.c div.c ldiv.c \
+	getpt.c ptsname.c grantpt.c unlockpt.c
 ifeq ($(HAS_FLOATS),true)
 	CSRC += strtod.c
 endif
