@@ -35,15 +35,15 @@
 # will build uClibc for 'mipsel'.
 
 CROSS=
-CC:= $(CROSS)gcc
-AR:= $(CROSS)ar
-LD:= $(CROSS)ld
-NM:= $(CROSS)nm
-STRIPTOOL:= $(CROSS)strip
+CC= $(CROSS)gcc
+AR= $(CROSS)ar
+LD= $(CROSS)ld
+NM= $(CROSS)nm
+STRIPTOOL= $(CROSS)strip
 
 # Select the compiler needed to build binaries for your development system
-NATIVE_CC:=gcc
-NATIVE_CFLAGS:=-O2 -Wall
+NATIVE_CC=gcc
+NATIVE_CFLAGS=-O2 -Wall
 
 
 #--------------------------------------------------------
@@ -192,7 +192,7 @@ ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
     CFLAGS += $(call check_gcc,-msoft-float,)
 endif
 
-LIBGCC_CFLAGS ?= $(CFLAGS)
+LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
 LIBGCC_DIR:=$(dir $(LIBGCC))
 
