@@ -14,7 +14,7 @@ NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
 
 # If you are running a cross compiler, you may want to set this
 # to something more interesting...
-TESTCC = ../$(TESTDIR)extra/gcc-uClibc/gcc-uClibc-$(NATIVE_ARCH)
+TESTCC = ../$(TESTDIR)extra/gcc-uClibc/$(NATIVE_ARCH)-uclibc-gcc
 CC = gcc
 STRIPTOOL=strip
 
