@@ -328,7 +328,7 @@
 #undef __need_uClibc_config_h
 
 /* Some nice features only work properly with ELF */
-#if defined HAVE_ELF	
+#if defined _LIBC && defined HAVE_ELF	
 #   define link_warning(symbol, msg)					      \
 	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");	      \
 	    static const char __evoke_link_warning_##symbol[]		      \
