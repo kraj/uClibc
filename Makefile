@@ -229,6 +229,9 @@ endif
 		$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
 			| sed -e 's/\.a$$/_pic.a/'`; \
 	done;
+	# Ugh!!! Remember that libdl.a and libdl_pic.a are different!
+	rm -f $(PREFIX)$(DEVEL_PREFIX)lib/libdl_pic.a
+	cp -f ldso/libdl/libdl_pic.a $(PREFIX)$(DEVEL_PREFIX)lib/libdl_pic.a
 endif
 
 
