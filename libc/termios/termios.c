@@ -35,14 +35,13 @@
 
 int isatty(int fd)
 {
-	struct __kernel_termios k_term;
+    struct __kernel_termios k_term;
 
-	/*
-	* When ioctl returns -1 we want to return 0 and
-	* when ioctl returns  0 we want to return 1.
-	* Incrementing is cheaper (size & speed) than a test.
-	*/
-	return ioctl(fd, TCGETS, &k_term) + 1;
+    /*
+     * When ioctl returns -1 we want to return 0 and
+     * when ioctl returns  0 we want to return 1.
+     */
+    return (ioctl(fd, TCGETS, &k_term)==0)? 1 : 0; 
 }
 #endif
 
