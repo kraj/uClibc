@@ -17,14 +17,17 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <sysdep.h>
 #define _SETJMP_H
 #define _ASM
 #include <bits/setjmp.h>
 
 /* __longjmp(jmpbuf, val) */
 
-ENTRY (__longjmp)
+.text
+.align 5
+.type	__longjmp,@function
+.globl	__longjmp;
+__longjmp:
 	mov.l	@r4+, r8
 	mov.l	@r4+, r9
 	mov.l	@r4+, r10
@@ -41,4 +44,5 @@ ENTRY (__longjmp)
 1:
 	rts
 	 ldc.l	@r4+, gbr
-END (__longjmp)
+.size __longjmp,.-__longjmp;
+

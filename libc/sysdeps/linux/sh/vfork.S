@@ -20,7 +20,6 @@
  respective copyright holders.
 */
 
-#include <sysdep.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
 
@@ -31,8 +30,11 @@
 
 .global errno
 
-ENTRY (__vfork)
-
+.text
+.align 5
+.type	__vfork,@function
+.globl	__vfork;
+__vfork:
 	mov.l	@r15+,r3		// pop value from the stack
 	mov.l	.L5,r1
 	mov.l	r3,@r1			// save it in .sav_stack

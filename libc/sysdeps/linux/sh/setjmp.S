@@ -17,18 +17,15 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <sysdep.h>
-
 #define _SETJMP_H
 #define _ASM
 #include <bits/setjmp.h>
 
-ENTRY (__sigsetjmp)
-/*
-	.globl	__sigsetjmp
-	.align	4
+.text
+.align 5
+.type	__sigsetjmp,@function
+.globl	__sigsetjmp;
 __sigsetjmp:
-*/
 	/* Save registers */
 	add	#(JB_SIZE-5*4), r4 /* this code doesn't do FP yet */
 	stc.l	gbr, @-r4
@@ -49,4 +46,5 @@ __sigsetjmp:
 	.align	2
 .L1:
 	.long	__sigjmp_save
-END (__sigsetjmp)
+.size __sigsetjmp,.-__sigsetjmp;
+

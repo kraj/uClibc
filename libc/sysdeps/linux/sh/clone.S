@@ -19,10 +19,18 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
+#include <features.h>
 #include <asm/unistd.h>
-#include <sysdep.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
+
+
+#if defined __HAVE_ELF__ && defined __HAVE_SHARED__ 
+#define PLTJMP(_x)	_x##@PLT
+#else
+#define PLTJMP(_x)	_x
+#endif
+
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
@@ -40,7 +48,7 @@ __clone:
 	 tst	r5, r5
 	bf/s	1f
 	 mov.l	.L1, r1
-#ifdef SHARED
+#ifdef __HAVE_SHARED__
 	mov.l	r12, @-r15
 	sts.l	pr, @-r15
         mov.l	.LG, r12
@@ -59,7 +67,7 @@ __clone:
 #endif
 	.align	2
 .L1:
-	.long	PLTJMP(C_SYMBOL_NAME(__syscall_error))
+	.long	PLTJMP(__syscall_error)
 1:
 	/* insert the args onto the new stack */
 	mov.l	r7, @-r5
@@ -77,7 +85,7 @@ __clone:
 	tst	r1, r1			// i.e. error in linux
 	bf	2f
 	mov.l	.L2, r1
-#ifdef SHARED
+#ifdef __HAVE_SHARED__
 	mov	r0, r4
 	mov.l	r12, @-r15
 	sts.l	pr, @-r15
@@ -97,7 +105,7 @@ __clone:
 #endif
 	.align	2
 .L2:
-	.long	PLTJMP(C_SYMBOL_NAME(__syscall_error))
+	.long	PLTJMP(__syscall_error)
 
 2:
 	tst	r0, r0
@@ -112,7 +120,7 @@ __clone:
 
 	/* we are done, passing the return value through r0  */
 	mov.l	.L3, r1
-#ifdef SHARED
+#ifdef __HAVE_SHARED__
 	mov.l	r12, @-r15
 	sts.l	pr, @-r15
 	mov	r0, r4
@@ -134,8 +142,8 @@ __clone:
 .LG:
 	.long	_GLOBAL_OFFSET_TABLE_
 .L3:
-	.long	PLTJMP(C_SYMBOL_NAME(_exit))
-	END(__clone)
+	.long	PLTJMP(_exit)
+.size __clone,.-__clone;
 
 .globl  clone;
     clone = __clone
