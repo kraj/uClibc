@@ -42,7 +42,7 @@ int getlogin_r(char *name, size_t len)
 		return -1;
 
 	strncpy(name, foo, len);
-	name[len] = '\0';
+	name[len-1] = '\0';
 	return 0;
 }
 
