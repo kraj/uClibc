@@ -35,10 +35,10 @@ endif
 
 CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 
-SSRC=longjmp.S setjmp.S
+SSRC=longjmp.S setjmp.S vfork.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=fork.c vfork.c
+CSRC=fork.c ptrace.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
