@@ -25,7 +25,7 @@ CRT0_OBJ = crt0.o crt1.o gcrt1.o
 CRT0_DEPS=gmon-start.S
 
 SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
-	bsd-_setjmp.S sigrestorer.S
+	bsd-_setjmp.S sigrestorer.S mmap64.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=brk.c syscall.c ioperm.c sigaction.c
