@@ -28,13 +28,13 @@ LIBM_SHARED_FULLNAME=libm-$(MAJOR_VERSION).$(MINOR_VERSION).so
 TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 DIRS=
-ifeq ($(strip $(HAS_FLOATS)),true)
+ifeq ($(strip $(HAS_LIBM_FLOAT)),true)
 	DIRS+=float
 endif
-ifeq ($(strip $(HAS_DOUBLE)),true)
+ifeq ($(strip $(HAS_LIBM_DOUBLE)),true)
 	DIRS+=double
 endif
-ifeq ($(strip $(HAS_LONG_DOUBLE)),true)
+ifeq ($(strip $(HAS_LIBM_LONG_DOUBLE)),true)
 	DIRS+=ldouble
 endif
 ALL_SUBDIRS = float double ldouble
@@ -50,7 +50,7 @@ $(LIBM): subdirs
 
 tags:
 	ctags -R
-	
+
 shared: all
 	if [ -f $(LIBM) ] ; then \
 		$(TARGET_CC) $(LDFLAGS) -shared -o $(LIBM_SHARED_FULLNAME) \

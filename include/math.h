@@ -156,7 +156,7 @@
 #define ERANGE		34
 
 /* Complex numeral.  */
-#ifdef __UCLIBC_HAS_DOUBLE__
+#ifdef __UCLIBC_HAS_LIBM_DOUBLE__
 typedef struct
 	{
 	double r;
@@ -164,7 +164,7 @@ typedef struct
 	} cmplx;
 #endif
 
-#ifdef __UCLIBC_HAS_FLOATS__
+#ifdef __UCLIBC_HAS_LIBM_FLOAT__
 typedef struct
 	{
 	float r;
@@ -172,7 +172,7 @@ typedef struct
 	} cmplxf;
 #endif
 
-#ifdef __UCLIBC_HAS_LONG_DOUBLE__
+#ifdef __UCLIBC_HAS_LIBM_LONG_DOUBLE__
 /* Long double complex numeral.  */
 typedef struct
 	{
@@ -254,7 +254,7 @@ enum
   };
 
 /* Return number of classification appropriate for X.  */
-#ifdef __UCLIBC_HAS_DOUBLE__
+#ifdef __UCLIBC_HAS_LIBM_DOUBLE__
 #  define fpclassify(x) \
      (sizeof (x) == sizeof (float) ?					      \
         __fpclassifyf (x)						      \
@@ -266,7 +266,7 @@ enum
 #endif
 
 
-#ifdef __UCLIBC_HAS_DOUBLE__
+#ifdef __UCLIBC_HAS_LIBM_DOUBLE__
 /* Return nonzero value if sign of X is negative.  */
 extern int signbit(double x);
 /* Return nonzero value if X is not +-Inf or NaN.  */
@@ -280,13 +280,13 @@ extern int isnan(double x);
         __isinff (x)							      \
       : sizeof (x) == sizeof (double) ?					      \
         __isinf (x) : __isinfl (x))
-# else
+#else
 #  define isinf(x) \
      (sizeof (x) == sizeof (float) ? __isinff (x) : __isinf (x))
-# endif
+#endif
 
 
-# ifdef __UCLIBC_HAS_LONG_DOUBLE__
+#ifdef __UCLIBC_HAS_LIBM_LONG_DOUBLE__
 /* Return nonzero value if sign of X is negative.  */
 extern int signbitl(long double x);
 /* Return nonzero value if X is not +-Inf or NaN.  */
@@ -330,7 +330,7 @@ extern int isnanl(long double x);
 
 
 
-#ifdef __UCLIBC_HAS_DOUBLE__
+#ifdef __UCLIBC_HAS_LIBM_DOUBLE__
 /* 7.12.4 Trigonometric functions */
 extern double acos(double x);
 extern double asin(double x);
@@ -407,7 +407,7 @@ extern double fmin(double x, double y);
 extern double fma(double x, double y, double z);
 #endif	
 
-#ifdef __UCLIBC_HAS_FLOATS__
+#ifdef __UCLIBC_HAS_LIBM_FLOAT__
 /* 7.12.4 Trigonometric functions */
 extern float acosf(float x);
 extern float asinf(float x);
@@ -484,7 +484,7 @@ extern float fminf(float x, float y);
 extern float fmaf(float x, float y, float z);
 #endif	
 
-#ifdef __UCLIBC_HAS_LONG_DOUBLE__
+#ifdef __UCLIBC_HAS_LIBM_LONG_DOUBLE__
 /* 7.12.4 Trigonometric functions */
 extern long double acosl(long double x);
 extern long double asinl(long double x);

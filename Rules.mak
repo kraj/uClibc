@@ -85,6 +85,12 @@ else
 	DYNAMIC_LINKER=$(SYSTEM_LDSO)
 endif
 
+# Disable libm if HAS_FLOATING_POINT isn't true.
+ifneq ($(HAS_FLOATING_POINT),true)
+	HAS_LIBM_FLOAT = false
+	HAS_LIBM_DOUBLE = false
+	HAS_LIBM_LONG_DOUBLE = false
+endif
 
 # It turns out the currently, function-sections causes ldelf2flt to segfault.
 # So till further notice, this is disabled by default....
