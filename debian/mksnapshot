@@ -25,8 +25,8 @@ cat changelog >>changelog.tmp
 mv changelog.tmp changelog
 
 cd ${topdir}/uclibc-tmp
-mv uClibc uclibc-cvs-${today}
-tar -czf ../uclibc-cvs-${today}.tgz uclibc-cvs-${today}
+mv uClibc uclibc-0.9.5-cvs${today}
+tar -czf ../uclibc-0.9.5-cvs${today}.tgz uclibc-0.9.5-cvs${today}
 
 
 cd ${topdir}
