@@ -3,6 +3,7 @@ testmalloc.o
 testmalloc_glibc
 testmalloc_glibc.o
 teststrtol
+teststrtol_glibc
 teststrtol.o
 teststrtol.out
 teststrtol_glibc.out
