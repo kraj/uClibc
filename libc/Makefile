@@ -49,7 +49,7 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 	@rm -rf tmp
 	@mkdir tmp
 	$(AR) rv ./tmp/libgcc-need.a
-	@(cd tmp && CC=$(CC) LD=$(LD) NM=$(NM) AR=$(AR) \
+	@(cd tmp && CC=$(CC) LD=$(LD) NM=$(NM) AR=$(AR) LIBGCC=$(LIBGCC) \
 		/bin/sh $(TOPDIR)../extra/scripts/get-needed-libgcc-objects.sh)
 	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
 		--whole-archive ./tmp/libgcc-need.a $(LIBNAME) --no-whole-archive \
