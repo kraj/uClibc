@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 #include "malloc.h"
 
 #ifdef __UCLIBC_HAS_THREADS__
@@ -44,8 +45,7 @@ void * realloc (void *ptr, size_t size)
 	LOCK;
 	__free_unlocked(ptr);
 	result = __malloc_unlocked(0);
-	UNLOCK;
-	return(result);
+	goto alldone;
     }
 
     LOCK;
@@ -59,8 +59,7 @@ void * realloc (void *ptr, size_t size)
 		    memcpy(result, ptr, size);
 		    __free_unlocked(ptr);
 		}
-		UNLOCK;
-		return result;
+		goto alldone;
 	    }
 
 	    /* The new size is a large allocation as well; see if
@@ -74,12 +73,12 @@ void * realloc (void *ptr, size_t size)
 		    = _heapinfo[block].busy.info.size - blocks;
 		_heapinfo[block].busy.info.size = blocks;
 		__free_unlocked(ADDRESS(block + blocks));
-		UNLOCK;
-		return ptr;
+		result = ptr;
+		goto alldone;
 	    } else if (blocks == _heapinfo[block].busy.info.size) {
 		/* No size change necessary. */
-		UNLOCK;
-		return ptr;
+		result = ptr;
+		goto alldone;
 	    } else {
 		/* Won't fit, so allocate a new region that will.  Free
 		   the old region first in case there is sufficient adjacent
@@ -102,13 +101,11 @@ void * realloc (void *ptr, size_t size)
 			__malloc_unlocked(blocks * BLOCKSIZE);
 			__free_unlocked(previous);
 		    }	    
-		    UNLOCK;
-		    return NULL;
+		    goto oom;
 		}
 		if (ptr != result)
 		    memmove(result, ptr, blocks * BLOCKSIZE);
-		UNLOCK;
-		return result;
+		goto alldone;
 	    }
 	    break;
 
@@ -117,24 +114,29 @@ void * realloc (void *ptr, size_t size)
 	       the fragment size. */
 	    if ((size > 1 << (type - 1)) && (size <= 1 << type)) {
 		/* New size is the same kind of fragment. */
-		UNLOCK;
-		return ptr;
+		result = ptr;
+		goto alldone;
 	    }
 	    else {
 		/* New size is different; allocate a new space, and copy
 		   the lesser of the new size and the old. */
 		result = __malloc_unlocked(size);
 		if (!result) {
-		    UNLOCK;
-		    return NULL;
+		    goto oom;
 		}
 		memcpy(result, ptr, MIN(size, (size_t)(1 << type)));
 		__free_unlocked(ptr);
-		UNLOCK;
-		return result;
+		goto alldone;
 	    }
 	    break;
     }
+alldone:
     UNLOCK;
+    return result;
+
+oom:
+    UNLOCK;
+    __set_errno(ENOMEM);
+    return NULL;
 }
 

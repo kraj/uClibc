@@ -13,6 +13,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "malloc.h"
 #include "heap.h"
@@ -25,13 +26,12 @@ realloc (void *mem, size_t new_size)
   char *base_mem;
 
   /* Check for special cases.  */
-  if (! new_size)
-    {
+  if (!mem)
+      return malloc(new_size);
+  if (!new_size) {
       free (mem);
-      return 0;
-    }
-  else if (! mem)
-    return malloc (new_size);
+      return (malloc(new_size));
+  }
 
   /* Normal realloc.  */
 

@@ -13,6 +13,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sys/mman.h>
 
 #include "malloc.h"
@@ -173,6 +174,7 @@ malloc_from_heap (size_t size, struct heap *heap)
 void *
 malloc (size_t size)
 {
+  void *mem;
 #ifdef MALLOC_DEBUGGING
   static int debugging_initialized = 0;
   if (! debugging_initialized)
@@ -185,12 +187,22 @@ malloc (size_t size)
 #endif
 
 #if defined(__MALLOC_GLIBC_COMPAT__)
-  if (size == 0)
-    return 0;
-#else
-  if (size == 0)
+  if (unlikely(size == 0))
       size++;
+#else
+  /* Some programs will call malloc (0).  Lets be strict and return NULL */
+  if (unlikely(size == 0))
+      goto oom;
 #endif
+  /* Check if they are doing something dumb like malloc(-1) */
+  if (unlikely(((unsigned long)size > (unsigned long)(MALLOC_HEADER_SIZE*-2))))
+      goto oom;
 
-  return malloc_from_heap (size, &__malloc_heap);
+  mem = malloc_from_heap (size, &__malloc_heap);
+  if (unlikely(!mem)) {
+oom:
+      __set_errno(ENOMEM);
+      return NULL;
+  }
+  return mem;
 }

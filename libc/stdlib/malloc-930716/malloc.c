@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 #include "malloc.h"
 
 #ifdef __UCLIBC_HAS_THREADS__
@@ -161,19 +162,22 @@ void * __malloc_unlocked (size_t size)
     struct list *next;
 
 #if defined(__MALLOC_GLIBC_COMPAT__)
-    if (size == 0)
+    if (unlikely(size == 0))
 	size++;
 #else
     /* Some programs will call malloc (0).  Lets be strict and return NULL */
-    if (size == 0)
-	return NULL;
+    if (unlikely(size == 0))
+	goto oom;
 #endif
+    /* Check if they are doing something dumb like malloc(-1) */
+    if (unlikely(((unsigned long)size > (unsigned long)(sizeof (struct list)*-2))))
+	goto oom;
 
-    if (size < sizeof (struct list))
+    if (unlikely(size < sizeof (struct list)))
 	size = sizeof (struct list);
 
     if (!initialized && !initialize()) {
-	return NULL;
+	goto oom;
     }
 
     /* Determine the allocation policy based on the request size. */
@@ -204,7 +208,7 @@ void * __malloc_unlocked (size_t size)
 	       and break it into fragments, returning the first. */
 	    result = __malloc_unlocked(BLOCKSIZE);
 	    if (!result) {
-		return NULL;
+		goto oom;
 	    }
 	    ++_fragblocks[log];
 
@@ -255,7 +259,7 @@ void * __malloc_unlocked (size_t size)
 		}
 		result = morecore(blocks * BLOCKSIZE);
 		if (!result) {
-		    return NULL;
+		    goto oom;
 		}
 		block = BLOCK(result);
 		_heapinfo[block].busy.type = 0;
@@ -293,6 +297,10 @@ void * __malloc_unlocked (size_t size)
     }
 
     return result;
+
+oom:
+    __set_errno(ENOMEM);
+    return NULL;
 }
 
 /* Return memory to the heap. */
