@@ -226,6 +226,7 @@ enum
 
 #define __PA_INTMASK		(0x0f00) /* non-gnu -- all int flags */
 
+#if 0
 /* Function which can be registered as `printf'-handlers.  */
 
 /* Print floating point value using using abbreviations for the orders
@@ -241,6 +242,7 @@ extern int printf_size_info (__const struct printf_info *__restrict
 			     __info, size_t __n, int *__restrict __argtypes)
      __THROW;
 
+#endif
 
 __END_DECLS
 
