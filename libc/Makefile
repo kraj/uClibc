@@ -30,12 +30,6 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
-CRTOBJS=../../lib/crti.o ../../lib/crt0.o ../../lib/crtn.o
-else
-CRTOBJS=../../lib/crt0.o
-endif
-
 DIRS = misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd
 
 # Check if the target architecture has a version script for
