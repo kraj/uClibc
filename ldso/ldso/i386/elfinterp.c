@@ -29,6 +29,8 @@
  * SUCH DAMAGE.
  */
 
+#include "ldso.h"
+
 #if defined (__SUPPORT_LD_DEBUG__)
 static const char *_dl_reltypes_tab[] =
 {
@@ -271,8 +273,8 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 
 		if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_GLOBAL) {
 #if defined (__SUPPORT_LD_DEBUG__)
-			_dl_dprintf(2, "\tglobal symbol '%s' already defined in '%s'\n",
-					symname, tpnt->libname);
+			_dl_dprintf(2, "\tglobal symbol '%s' already defined in '%s', rel type: %s\n",
+					symname, tpnt->libname, _dl_reltypes(reloc_type));
 #endif
 			return 0;
 		}

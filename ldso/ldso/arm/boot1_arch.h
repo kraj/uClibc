@@ -18,13 +18,9 @@ asm("" \
 "	mov	pc, r6\n"		\
 );
 
-#define _dl_boot _dl_boot2
-#define LD_BOOT(X)   static void *  __attribute__ ((unused)) _dl_boot (X)
-
-
  /* It seems ARM needs an offset here */
 #undef ELFMAGIC
-#define	    ELFMAGIC	ELFMAG+load_addr 
+#define	    ELFMAGIC	ELFMAG+load_addr
 
 
 

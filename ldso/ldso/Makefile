@@ -1,7 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2002 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2004 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -16,10 +15,6 @@
 # You should have received a copy of the GNU Library General Public License
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-#
-# Derived in part from the Linux-8086 C library, the GNU C Library, and several
-# other sundry sources.  Files within this library are copyright by their
-# respective copyright holders.
 
 
 TOPDIR=../../
@@ -46,7 +41,7 @@ XXFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1incl
 LDFLAGS=$(CPU_LDFLAGS-y) -shared --warn-common --export-dynamic --sort-common \
 	-z combreloc --discard-locals --discard-all --no-undefined
 
-CSRC= ldso.c #hash.c readelflib1.c $(TARGET_ARCH)/elfinterp.c
+CSRC= ldso.c startup.c #hash.c readelflib1.c $(TARGET_ARCH)/elfinterp.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 ASRC=$(shell ls $(TARGET_ARCH)/*.S)
 AOBJS=$(patsubst %.S,%.o, $(ASRC))
@@ -93,7 +88,7 @@ $(AOBJS): %.o : %.S
 	$(CC) $(XXFLAGS) -I../libdl -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-ldso.o: ldso.c hash.c readelflib1.c $(TARGET_ARCH)/elfinterp.c _dl_progname.h
+ldso.o: $(CSRC)
 
 clean:
 	$(RM) $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i _dl_progname.h ldso.h *~

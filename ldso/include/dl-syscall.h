@@ -131,25 +131,6 @@ static inline _syscall0(gid_t, _dl_getegid);
 #define __NR__dl_getpid __NR_getpid
 static inline _syscall0(gid_t, _dl_getpid);
 
-/*
- * Not an actual syscall, but we need something in assembly to say whether
- * this is OK or not.
- */
-static inline int _dl_suid_ok(void)
-{
-    uid_t uid, euid, gid, egid;
-
-    uid = _dl_getuid();
-    euid = _dl_geteuid();
-    gid = _dl_getgid();
-    egid = _dl_getegid();
-
-    if(uid == euid && gid == egid)
-	return 1;
-    else
-	return 0;
-}
-
 #define __NR__dl_readlink __NR_readlink
 static inline _syscall3(int, _dl_readlink, const char *, path, char *, buf, size_t, bufsiz);
 

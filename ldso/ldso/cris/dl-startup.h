@@ -13,5 +13,3 @@ asm(""					\
 "	jsr $r9\n"			\
 );
 
-#define _dl_boot _dl_boot2
-#define LD_BOOT(X) static void * __attribute__ ((unused)) _dl_boot(X)

@@ -21,5 +21,3 @@ asm("" \
 "	blink	tr0, r18	! call _dl_boot2 - user EP is in r2\n"	\
 );
 
-#define _dl_boot _dl_boot2
-#define LD_BOOT(X)   static void * __attribute__ ((unused)) _dl_boot (X)
