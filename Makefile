@@ -33,7 +33,7 @@ include Rules.mak
 
 DIRS = extra ldso libc libcrypt libresolv libutil libm libpthread
 
-all: headers uClibc_config subdirs shared finished
+all: headers uClibc_config subdirs shared util finished
 
 Config:
 	@echo
@@ -56,6 +56,11 @@ else
 	@echo
 	@echo Not building shared libraries...
 	@echo
+endif
+
+util:
+ifeq ($(strip $(HAVE_SHARED)),true)
+	@$(MAKE) -C ldso utils
 endif
 
 finished: shared
@@ -328,6 +333,7 @@ distclean clean:
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec rm -f {} \;
 	$(MAKE) -C test clean
 	$(MAKE) -C ldso clean
+	$(MAKE) -C libc/misc clean
 	$(MAKE) -C libc/unistd clean
 	$(MAKE) -C libc/sysdeps/linux/common clean
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean
