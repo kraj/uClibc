@@ -161,9 +161,7 @@ if [ $VERSION -eq 2 ] && [ $PATCHLEVEL -ge 6 ] ; then
 fi;
 
 
-# Create the include/linux and include/scsi symlinks.
+# Create the include/linux symlink.
 rm -f include/linux
 ln -fs $KERNEL_SOURCE/include/linux include/linux
-rm -f include/scsi
-ln -fs $KERNEL_SOURCE/include/scsi include/scsi
 

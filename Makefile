@@ -373,7 +373,7 @@ clean:
 			$(RM) include/sys/$$i; \
 		done; \
 	fi;
-	@$(RM) include/linux include/scsi include/asm*
+	@$(RM) include/linux include/asm*
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi;
