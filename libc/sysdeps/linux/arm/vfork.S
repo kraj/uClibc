@@ -24,13 +24,11 @@
 #include <sys/syscall.h>
 
 
-.global errno;
 
-
-.text
-.global vfork;
-.type vfork,#function
-.align 4;                                                               \
+		.text
+		.global vfork;
+		.type vfork,%function
+		.align 4;                                                               \
 
 
 
