@@ -54,7 +54,7 @@ dlib.o: dlib.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 dlib_pic.o: dlib.c
-	$(CC) -I../ldso -I../ldso/$(TARGET_ARCH) $(CFLAGS) -c dlib.c -o dlib_pic.o
+	$(CC) -I../ldso -I../ldso/$(TARGET_ARCH) $(CFLAGS) $(XXFLAGS) -c dlib.c -o dlib_pic.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
