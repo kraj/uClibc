@@ -121,9 +121,8 @@ malloc (size_t size)
   if (mem)
     /* Record the size of this block.  */
     {
-      MALLOC_SET_SIZE (mem, size);
-
       mem = MALLOC_ADDR (mem);
+      MALLOC_SET_SIZE (mem, size);
 
       MALLOC_DEBUG ("  malloc: returning 0x%lx (base:0x%lx, total_size:%d)\n",
 		    (long)mem, (long)mem - MALLOC_ALIGNMENT, size);
