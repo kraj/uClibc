@@ -58,7 +58,10 @@ __extension__ typedef unsigned long long int __uint64_t;
 #endif
 typedef __quad_t *__qaddr_t;
 
-typedef __u_quad_t __dev_t;		/* Type of device numbers.  */
+/* changed to be more compatible with kernel */
+/*typedef __u_quad_t __dev_t;*/		/* Type of device numbers.  */
+typedef __u_int __dev_t;		/* Type of device numbers.  */
+
 typedef __u_int __uid_t;		/* Type of user identifications.  */
 typedef __u_int __gid_t;		/* Type of group identifications.  */
 typedef __u_long __ino_t;		/* Type of file serial numbers.  */
