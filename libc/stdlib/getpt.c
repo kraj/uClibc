@@ -22,33 +22,45 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <paths.h>
-#include <sys/statfs.h>
+
+#if !defined ASSUME_DEVPTS
+# include <sys/statfs.h>
 
 /* Constant that identifies the `devpts' filesystem.  */
-#define DEVPTS_SUPER_MAGIC	0x1cd1
+# define DEVPTS_SUPER_MAGIC	0x1cd1
 /* Constant that identifies the `devfs' filesystem.  */
-#define DEVFS_SUPER_MAGIC	0x1373
+# define DEVFS_SUPER_MAGIC	0x1373
+#endif
 
 /* Path to the master pseudo terminal cloning device.  */
 #define _PATH_DEVPTMX _PATH_DEV "ptmx"
 /* Directory containing the UNIX98 pseudo terminals.  */
 #define _PATH_DEVPTS _PATH_DEV "pts"
 
+#if !defined UNIX98PTY_ONLY
 /* Prototype for function that opens BSD-style master pseudo-terminals.  */
 int __bsd_getpt (void);
+#endif
 
 /* Open a master pseudo terminal and return its file descriptor.  */
 int
 getpt (void)
 {
+#if !defined UNIX98PTY_ONLY
   static int have_no_dev_ptmx;
+#endif
   int fd;
 
+#if !defined UNIX98PTY_ONLY
   if (!have_no_dev_ptmx)
+#endif
     {
       fd = open (_PATH_DEVPTMX, O_RDWR);
       if (fd != -1)
 	{
+#if defined ASSUME_DEVPTS
+	  return fd;
+#else
 	  struct statfs fsbuf;
 	  static int devpts_mounted;
 
@@ -69,21 +81,28 @@ getpt (void)
              are not usable.  */
 	  close (fd);
 	  have_no_dev_ptmx = 1;
+#endif
 	}
       else
 	{
+#if !defined UNIX98PTY_ONLY
 	  if (errno == ENOENT || errno == ENODEV)
 	    have_no_dev_ptmx = 1;
 	  else
+#endif
 	    return -1;
 	}
     }
 
+#if !defined UNIX98PTY_ONLY
   return __bsd_getpt ();
+#endif
 }
 
-#define PTYNAME1 "pqrstuvwxyzabcde";
-#define PTYNAME2 "0123456789abcdef";
+#if !defined UNIX98PTY_ONLY
+# define PTYNAME1 "pqrstuvwxyzabcde";
+# define PTYNAME2 "0123456789abcdef";
 
-#define __getpt __bsd_getpt
-#include "bsd_getpt.c"
+# define __getpt __bsd_getpt
+# include "bsd_getpt.c"
+#endif

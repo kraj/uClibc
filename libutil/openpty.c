@@ -32,6 +32,8 @@ extern int grantpt (int fd);
 extern int ptsname_r (int fd, char *buf, size_t buflen);
 extern int unlockpt (int fd);
 
+/* BCS: the following function is, IMO, overkill */
+#if 0
 /* Return the result of ptsname_r in the buffer pointed to by PTS,
    which should be of length BUF_LEN.  If it is too long to fit in
    this buffer, a sufficiently long buffer is allocated using malloc,
@@ -83,6 +85,7 @@ pts_name (int fd, char **pts, size_t buf_len)
 
   return rv;
 }
+#endif
 
 /* Create pseudo tty master slave pair and set terminal attributes
    according to TERMP and WINP.  Return handles for both ends in
@@ -91,12 +94,20 @@ int
 openpty (int *amaster, int *aslave, char *name, struct termios *termp,
 	 struct winsize *winp)
 {
+#if 0
 #ifdef PATH_MAX
   char _buf[PATH_MAX];
 #else
   char _buf[512];
 #endif
   char *buf = _buf;
+#else
+#ifdef PATH_MAX
+  char buf[PATH_MAX];
+#else
+  char buf[512];
+#endif
+#endif
   int master, slave;
 
   master = getpt ();
@@ -109,15 +120,20 @@ openpty (int *amaster, int *aslave, char *name, struct termios *termp,
   if (unlockpt (master))
     goto fail;
 
+#if 0
   if (pts_name (master, &buf, sizeof (_buf)))
+#else
+  if (ptsname_r (master, buf, sizeof buf))
+#endif
     goto fail;
 
   slave = open (buf, O_RDWR | O_NOCTTY);
   if (slave == -1)
     {
+#if 0
       if (buf != _buf)
 	free (buf);
-
+#endif
       goto fail;
     }
 
@@ -132,8 +148,10 @@ openpty (int *amaster, int *aslave, char *name, struct termios *termp,
   if (name != NULL)
     strcpy (name, buf);
 
+#if 0
   if (buf != _buf)
     free (buf);
+#endif
   return 0;
 
  fail:

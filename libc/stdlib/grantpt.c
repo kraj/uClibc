@@ -18,6 +18,11 @@
 
 #include <limits.h>
 #include <stdlib.h>
+
+/* If ASSUME_DEVPTS is defined, grantpt() reduces to a stub since we
+   assume that the devfs/devpts filesystem automatically manages the
+   permissions. */
+#if !defined ASSUME_DEVPTS
 #include <sys/statfs.h>
 
 /* Constant that identifies the `devpts' filesystem.  */
@@ -34,18 +39,21 @@ int __unix_grantpt (int fd);
    pseudo terminal in a safe way.  */
 static int pts_name (int fd, char **pts, size_t buf_len);
 
+#endif
+
 /* Change the ownership and access permission of the slave pseudo
    terminal associated with the master pseudo terminal specified
    by FD.  */
 int
 grantpt (int fd)
 {
+#if !defined ASSUME_DEVPTS
   struct statfs fsbuf;
-#ifdef PATH_MAX
+# ifdef PATH_MAX
   char _buf[PATH_MAX];
-#else
+# else
   char _buf[512];
-#endif
+# endif
   char *buf = _buf;
 
   if (pts_name (fd, &buf, sizeof (_buf)))
@@ -56,11 +64,13 @@ grantpt (int fd)
 
   /* If the slave pseudo terminal lives on a `devpts' filesystem, the
      ownership and access permission are already set.  */
-  if (fsbuf.f_type == DEVPTS_SUPER_MAGIC || fsbuf.f_type == DEVFS_SUPER_MAGIC)
-    return 0;
-
+  if (fsbuf.f_type != DEVPTS_SUPER_MAGIC && fsbuf.f_type != DEVFS_SUPER_MAGIC)
   return __unix_grantpt (fd);
+#endif
+  return 0;
 }
 
-#define grantpt __unix_grantpt
-#include "unix_grantpt.c"
+#if !defined ASSUME_DEVPTS
+# define grantpt __unix_grantpt
+# include "unix_grantpt.c"
+#endif

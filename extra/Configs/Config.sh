@@ -25,10 +25,11 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
+NATIVE_CC = gcc
+
 # If you are running a cross compiler, you may want to set this
 # to something more interesting...  Target architecture is determined
 # by asking this compiler what arch it compiles stuff for.
-NATIVE_CC = gcc
 CROSS = /usr/cygnus/yapp-001013/H-i686-pc-linux-gnulibc2.1/bin/sh-linux-gnu-
 CC = $(CROSS)gcc
 AR = $(CROSS)ar
@@ -148,10 +149,21 @@ INCLUDE_RPC = false
 # Protocol: IP version 6, enable this.  This is off by default.
 INCLUDE_IPV6 = false
 
+# If you want to support only Unix 98 PTYs enable this.  Some older
+# applications may need this disabled.  For most current programs, 
+# you can generally leave this true.
+UNIX98PTY_ONLY = true
+
+# Enable this if /dev/pts is on a devpts or devfs file system.  Both
+# these filesystems automatically manage permissions on the /dev/pts 
+# devices.  You may need to mount this fs on /dev/pts for this to work. 
+# This is true by default.
+ASSUME_DEVPTS = true
+
+
 # If you want to compile the library as PIC code, turn this on.
+# This is automagically enabled when HAVE_SHARED is true
 DOPIC = false
-
-
 
 # Enable support for shared libraries?  If this is false, you can
 # ignore all the rest of the options in this file...

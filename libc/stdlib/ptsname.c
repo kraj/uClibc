@@ -27,6 +27,8 @@
 #include <termios.h>
 #include <unistd.h>
 
+#if !defined UNIX98PTY_ONLY
+
 /* Check if DEV corresponds to a master pseudo terminal device.  */
 #define MASTER_P(Dev)                                                         \
   (major ((Dev)) == 2                                                         \
@@ -44,22 +46,16 @@
    supported.  They have been replaced by major numbers 2 (masters)
    and 3 (slaves).  */
      
-/* Directory where we can find the slave pty nodes.  */
-#define _PATH_DEVPTS "/dev/pts/"
-
 /* The are declared in getpt.c.  */
 extern const char _ptyname1[];
 extern const char _ptyname2[];
 
-/* Static buffer for `ptsname'.  */
-static char buffer[sizeof (_PATH_DEVPTS) + 20];
+#endif
 
-/*
-extern char * 
-_itoa_word (unsigned long value, char *buflim,
-	unsigned int base, int upper_case);
-*/
+/* Directory where we can find the slave pty nodes.  */
+#define _PATH_DEVPTS "/dev/pts/"
 
+extern char *__ultostr(char *buf, unsigned long uval, int base, int uppercase);
 
 /* Store at most BUFLEN characters of the pathname of the slave pseudo
    terminal associated with the master FD is open on in BUF.
@@ -67,7 +63,9 @@ _itoa_word (unsigned long value, char *buflim,
 int ptsname_r (int fd, char *buf, size_t buflen)
 {
   int save_errno = errno;
+#if !defined UNIX98PTY_ONLY
   struct stat st;
+#endif
   int ptyno;
 
   if (buf == NULL)
@@ -76,26 +74,28 @@ int ptsname_r (int fd, char *buf, size_t buflen)
       return EINVAL;
     }
 
+#if !defined UNIX98PTY_ONLY
   if (!isatty (fd))
     {
       errno = ENOTTY;
       return ENOTTY;
     }
-#if 0
+#elif !defined TIOCGPTN
+# error "UNIX98PTY_ONLY requested but TIOCGPTN is undefined."
+#endif
 #ifdef TIOCGPTN
   if (ioctl (fd, TIOCGPTN, &ptyno) == 0)
     {
       /* Buffer we use to print the number in.  For a maximum size for
          `int' of 8 bytes we never need more than 20 digits.  */
       char numbuf[21];
-      const char *devpts = _PATH_DEVPTS;
-      const size_t devptslen = strlen (devpts);
+      static const char devpts[] = _PATH_DEVPTS;
       char *p;
 
       numbuf[20] = '\0';
-      p = _itoa_word (ptyno, &numbuf[20], 10, 0);
+      p = __ultostr (&numbuf[sizeof numbuf - 1], ptyno, 10, 0);
 
-      if (buflen < devptslen + strlen (p) + 1)
+      if (buflen < sizeof devpts + &numbuf[sizeof numbuf - 1] - p)
 	{
 	  errno = ERANGE;
 	  return ERANGE;
@@ -104,9 +104,25 @@ int ptsname_r (int fd, char *buf, size_t buflen)
       strcpy (buf, devpts);
       strcat (buf, p);
     }
+#endif
+#if defined UNIX98PTY_ONLY
+  else
+    {
+      /* If the ioctl fails it wasn't a Unix 98 master PTY */
+      errno = ENOTTY;
+      return ENOTTY;
+    }
+  /* Note: Don't bother with stat on the slave name and checking the
+           driver's major device number - the ioctl above succeeded so
+           we know the fd was a Unix'98 master and the /dev/pts/ prefix
+           is set by definition.  If the name isn't really a slave PTY,
+           the system is misconfigured anyway - something else will fail
+           later.
+   */
+#else
+# if !defined TIOCGPTN
   else if (errno == EINVAL)
-#endif
-#endif
+# endif
     {
       char *p;
 
@@ -156,6 +172,7 @@ int ptsname_r (int fd, char *buf, size_t buflen)
       errno = ENOTTY;
       return ENOTTY;
     }
+#endif
 
   errno = save_errno;
   return 0;
@@ -167,5 +184,7 @@ int ptsname_r (int fd, char *buf, size_t buflen)
 char *
 ptsname (int fd)
 {
+  static char buffer[sizeof (_PATH_DEVPTS) + 20];
+
   return ptsname_r (fd, buffer, sizeof (buffer)) != 0 ? NULL : buffer;
 }

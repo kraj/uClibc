@@ -161,6 +161,16 @@ uClibc_config.h: Makefile Config
 	else \
 	    echo "#undef __UCLIBC_HAVE_LFS__" >> uClibc_config.h ; \
 	fi
+	@if [ "$(UNIX98PTY_ONLY)" = "true" ] ; then \
+	    echo "#define UNIX98PTY_ONLY 1" >> uClibc_config.h ; \
+	else \
+	    echo "#undef UNIX98PTY_ONLY" >> uClibc_config.h ; \
+	fi
+	@if [ "$(ASSUME_DEVPTS)" = "true" ] ; then \
+	    echo "#define ASSUME_DEVPTS 1" >> uClibc_config.h ; \
+	else \
+	    echo "#undef ASSUME_DEVPTS" >> uClibc_config.h ; \
+	fi
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 
