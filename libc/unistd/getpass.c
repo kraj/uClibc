@@ -63,8 +63,11 @@ getpass (prompt)
       /* Tricky, tricky. */
       t.c_lflag &= ~(ECHO|ISIG);
       tty_changed = (tcsetattr (fileno (in), TCSAFLUSH|TCSASOFT, &t) == 0);
-      /* Disable buffering for input FILE to prevent the buffering from flushing. */
-      setvbuf(in, NULL, _IOLBF, 0);
+      if (in != stdin) {
+	/* Disable buffering for read/write FILE to prevent problems with
+	 * fseek and buffering for read/write auto-transitioning. */
+	setvbuf(in, NULL, _IONBF, 0);
+      }
     }
   else
     tty_changed = 0;
@@ -93,8 +96,6 @@ getpass (prompt)
   /* Restore the original setting.  */
   if (tty_changed) {
     (void) tcsetattr (fileno (in), TCSAFLUSH|TCSASOFT, &s);
-    /* Re-enable buffering. */
-    setlinebuf(in);
   }
 
   if (in != stdin)
