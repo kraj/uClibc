@@ -18,7 +18,7 @@ static char * __check_dir_for_tty_match(char * dirname, struct stat *st)
     strcat(name, "/");
 
     while ((d = readdir(fp)) != 0) {
-	strcpy(name + sizeof(dirname), d->d_name);
+	strcpy(name + strlen(dirname) + 1, d->d_name);
 	if (stat(name, &dst) == 0
 		&& st->st_dev == dst.st_dev && st->st_ino == dst.st_ino) {
 	    closedir(fp);
