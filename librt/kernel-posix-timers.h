@@ -5,6 +5,7 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <pthread.h>
 
 /* Type of timers in the kernel */
 typedef int kernel_timer_t;
