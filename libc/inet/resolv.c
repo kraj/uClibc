@@ -50,6 +50,11 @@
  *   allocation accordingly.  See MAX_ALIASES and ALIAS_DIM below.
  *   This fixes the segfault in the Python 2.2.1 socket test.
  *
+ * 04-Jan-2003 Jay Kulpinski <jskulpin@berkshire.rr.com>
+ *   Fixed __decode_dotted to count the terminating null character
+ *   in a host name.
+ *
+ *
  */
 
 #define __FORCE_GLIBC
@@ -305,6 +310,11 @@ int __decode_dotted(const unsigned char *data, int offset,
 			dest[used++] = '.';
 		else
 			dest[used++] = '\0';
+	}
+
+	/* The null byte must be counted too */
+	if (measure) {
+	    total++;
 	}
 
 	DPRINTF("Total decode len = %d\n", total);
