@@ -25,7 +25,7 @@ LIBPTHREAD_SHARED=libpthread.so
 LIBPTHREAD_SHARED_FULLNAME=libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 LIBTHREAD_DB=libthread_db.a
-LIBTHREAD_DB_SHARED=libthread_db.so.1
+LIBTHREAD_DB_SHARED=libthread_db.so
 LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
     
 DIRS=
@@ -103,6 +103,8 @@ shared: all
 		install -m 644 $(LIBTHREAD_DB_SHARED_FULLNAME) $(TOPDIR)lib; \
 		(cd $(TOPDIR)lib && ln -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
 			$(LIBTHREAD_DB_SHARED)); \
+		(cd $(TOPDIR)lib && ln -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
+			$(LIBTHREAD_DB_SHARED).1); \
 	fi;
 
 tags:
