@@ -115,9 +115,9 @@ static void HEAP_DEBUG (struct heap *heap, const char *str)
 #endif
 
 
-/* Remove the free-area FA from HEAP.  */
+/* Delete the free-area FA from HEAP.  */
 extern inline void
-__heap_unlink_free_area (struct heap *heap, struct heap_free_area *fa)
+__heap_delete (struct heap *heap, struct heap_free_area *fa)
 {
   if (fa->next)
     fa->next->prev = fa->prev;
@@ -193,7 +193,7 @@ __heap_free_area_alloc (struct heap *heap,
     /* There's not enough room left over in FA after allocating the block, so
        just use the whole thing, removing it from the list of free areas.  */
     {
-      __heap_unlink_free_area (heap, fa);
+      __heap_delete (heap, fa);
       /* Remember that we've alloced the whole area.  */
       size = fa_size;
     }
@@ -218,3 +218,6 @@ extern size_t __heap_alloc_at (struct heap *heap, void *mem, size_t size);
    Returns the heap free area into which the memory was placed.  */
 extern struct heap_free_area *__heap_free (struct heap *heap,
 					   void *mem, size_t size);
+
+/* Return true if HEAP contains absolutely no memory.  */
+#define __heap_is_empty(heap) (! (heap)->free_areas)
