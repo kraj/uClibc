@@ -32,9 +32,15 @@ XXFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
 	-fno-builtin -nostdinc -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
 
 ifeq ($(DODEBUG),y)
-XXFLAGS=$(XWARNINGS) -O0 -g3 $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
+XXFLAGS=$(XWARNINGS) $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 	-fno-builtin -nostdinc -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
+endif
+
+ifeq ($(TARGET_ARCH),powerpc)
+XXFLAGS+=-Os -g3
+else
+XXFLAGS+=-O0 -g3
 endif
 
 XXFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1include/gp")
