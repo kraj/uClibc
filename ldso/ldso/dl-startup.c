@@ -3,7 +3,7 @@
  * Program to load an ELF binary on a linux system, and run it
  * after resolving ELF shared library symbols
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codpoet.org>
+ * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
  *				David Engel, Hongjiu Lu and Mitch D'Souza
  *

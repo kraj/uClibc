@@ -2,7 +2,7 @@
 /*
  * Various assmbly language/system dependent  hacks that are required
  * so that we can minimize the amount of platform specific code.
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codpoet.org>
+ * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  */
 
 /* Define this if the system uses RELOCA.  */

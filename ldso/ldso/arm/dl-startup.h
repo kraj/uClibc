@@ -1,7 +1,7 @@
 /* vi: set sw=4 ts=4: */
 /*
  * Architecture specific code used by dl-startup.c
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codpoet.org>
+ * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  */
 
 

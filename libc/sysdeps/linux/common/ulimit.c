@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /*
- * Copyright (C) 2003 by Erik Andersen <andersen@codpoet.org>
+ * Copyright (C) 2003 by Erik Andersen <andersen@codepoet.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published by

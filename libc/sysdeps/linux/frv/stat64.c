@@ -2,7 +2,7 @@
  * Syscalls for uClibc
  *
  * Copyright (C) 2001-2003 by Erik Andersen
- * Extracted from ../common/syscalls.c by Erik Andersen <andersen@codpoet.org>
+ * Extracted from ../common/syscalls.c by Erik Andersen <andersen@codepoet.org>
  * Adapted to FR-V by Alexandre Oliva <aoliva@redhat.com>
  *
  * This program is free software; you can redistribute it and/or modify it
