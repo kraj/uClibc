@@ -9,8 +9,10 @@ asm("" \
 "	.text\n"			\
 "	.globl	_dl_boot\n"		\
 "_dl_boot:\n"				\
-"	mr	3,1\n"			\
+"	mr	3,1\n"		\
+"	li	4,0\n"			\
 "	addi	1,1,-16\n"		\
+"	stw	4,0(1)\n"		\
 "	bl      _dl_boot2\n"		\
 ".previous\n"				\
 );
