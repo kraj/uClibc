@@ -1,85 +1,97 @@
-/* -*- Mode: C; c-file-style: "gnu" -*- */
-/*
-   Copyright (c) 2000 Petter Reinholdtsen
+/* Copyright (C) 1992-1998, 2000 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-   Permission is hereby granted, free of charge, to any person
-   obtaining a copy of this software and associated documentation
-   files (the "Software"), to deal in the Software without
-   restriction, including without limitation the rights to use, copy,
-   modify, merge, publish, distribute, sublicense, and/or sell copies
-   of the Software, and to permit persons to whom the Software is
-   furnished to do so, subject to the following conditions:
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
-   The above copyright notice and this permission notice shall be
-   included in all copies or substantial portions of the Software.
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
 
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-   BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-   ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   SOFTWARE.
-*/
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  
+   */
+
+/* Modified for uClibc by Erik Andersen
+   */
 
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <sys/types.h>
 #include "dirstream.h"
 
-int scandir(const char *dir, struct dirent ***namelist,
-			 int (*selector) (const struct dirent *),
-			 int (*compar) (const __ptr_t, const __ptr_t))
+int scandir(const char *dir, struct dirent ***namelist, 
+	int (*selector) (const struct dirent *),
+	int (*compar) (const void *, const void *))
 {
-    DIR *d = opendir(dir);
+    DIR *dp = opendir (dir);
     struct dirent *current;
-    struct dirent **names;
-    int count = 0;
-    int pos = 0;
-    int result = -1;
+    struct dirent **names = NULL;
+    size_t names_size = 0, pos;
+    int save;
 
-    if (NULL == d)
-        return -1;
+    if (dp == NULL)
+	return -1;
 
-    while (NULL != readdir(d))
-        count++;
+    save = errno;
+    __set_errno (0);
 
-    if (!(names = malloc(sizeof (struct dirent *) * count))) {
-	closedir(d);
+    pos = 0;
+    while ((current = readdir (dp)) != NULL)
+	if (selector == NULL || (*selector) (current))
+	{
+	    struct dirent *vnew;
+	    size_t dsize;
+
+	    /* Ignore errors from selector or readdir */
+	    __set_errno (0);
+
+	    if (unlikely(pos == names_size))
+	    {
+		struct dirent **new;
+		if (names_size == 0)
+		    names_size = 10;
+		else
+		    names_size *= 2;
+		new = (struct dirent **) realloc (names, names_size * sizeof (struct dirent *));
+		if (new == NULL)
+		    break;
+		names = new;
+	    }
+
+	    dsize = &current->d_name[_D_ALLOC_NAMLEN (current)] - (char *) current;
+	    vnew = (struct dirent *) malloc (dsize);
+	    if (vnew == NULL)
+		break;
+
+	    names[pos++] = (struct dirent *) memcpy (vnew, current, dsize);
+	}
+
+    if (unlikely(errno != 0))
+    {
+	save = errno;
+	closedir (dp);
+	while (pos > 0)
+	    free (names[--pos]);
+	free (names);
+	__set_errno (save);
 	return -1;
     }
 
-    rewinddir(d);
+    closedir (dp);
+    __set_errno (save);
 
-    while (NULL != (current = readdir(d))) {
-        if (NULL == selector || selector(current)) {
-            struct dirent *copyentry = malloc(current->d_reclen);
-
-            memcpy(copyentry, current, current->d_reclen);
-
-            names[pos] = copyentry;
-            pos++;
-        }
-    }
-    result = closedir(d);
-
-    if (pos != count) {
-	struct dirent **tmp;
-	if (!(tmp = realloc(names, sizeof (struct dirent *) * pos))) {
-	    free(names);
-	    return -1;
-	}
-	names = tmp;
-    }
-
-    if (compar != NULL) {
-	qsort(names, pos, sizeof (struct dirent *), compar);
-    }
-
+    /* Sort the list if we have a comparison function to sort with.  */
+    if (compar != NULL)
+	qsort (names, pos, sizeof (struct dirent *), compar);
     *namelist = names;
-
     return pos;
 }
