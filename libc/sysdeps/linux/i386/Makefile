@@ -28,13 +28,13 @@ ASFLAGS=$(CFLAGS)
 CRT0=crt0.S
 CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 
-SSRC=longjmp.S setjmp.S vfork.S #_start.S #clone.S
+SSRC=__longjmp.S setjmp.S vfork.S #_start.S #clone.S
 ifeq ($(UNIFIED_SYSCALL),true)
 	SSRC += __uClibc_syscall.S
 endif
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=__init_brk.c brk.c sbrk.c
+CSRC=__init_brk.c brk.c sbrk.c longjmp.c #jmp-unwind.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)
