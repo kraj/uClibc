@@ -276,7 +276,7 @@ openlog( const char *ident, int logstat, int logfac )
 		(void)strncpy(SyslogAddr.sa_data, _PATH_LOG,
 		    sizeof(SyslogAddr.sa_data));
 		if (LogStat & LOG_NDELAY) {
-		        if ((LogFile = socket(AF_UNIX, SOCK_STREAM, 0)) == -1){
+		        if ((LogFile = socket(AF_UNIX, SOCK_DGRAM, 0)) == -1){
 			        UNLOCK;
 				return;
 			}
