@@ -36,7 +36,7 @@ provided by glibc's libresolv is provided internal to uClibc.  Other functions
 are not at all implemented.
 
 8) libnsl provides support for Network Information Service (NIS) which was
-originally called "Yellow Pages" or "YP"), which is an extension of RPC
+originally called "Yellow Pages" or "YP", which is an extension of RPC
 invented by Sun to share Unix password files over the network.  I personally
 think NIS is an evil abomination, and should be avoided.  These days, using
 ldap is much more effective mechanism for doing the same thing.  uClibc does
