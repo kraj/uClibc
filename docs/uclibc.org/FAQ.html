@@ -53,8 +53,8 @@ to the uClibc home page.</a>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
 
-    Currently uClibc runs on arm, i386, m68k, mipsel, powerpc, sh,
-    sparc, and v850.  
+    Currently uClibc runs on arm, i386, h8300, m68k, mips, mipsel, powerpc, 
+    sh, sparc, and v850.  
     
 
 <p>
@@ -150,7 +150,7 @@ to the uClibc home page.</a>
     doesn't provide wordexp().  There are many similar examples.  In other
     cases, uClibc leaves certain features (such as full C99 Math library
     support, IPV6, and RPC support) disabled by default.  Those features
-    can be enabled for people that need then, but are otherwise disabled to
+    can be enabled for people that need them, but are otherwise disabled to
     save space.
 
     <p>
@@ -216,7 +216,7 @@ to the uClibc home page.</a>
 <p>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
     <B>
-    How do I compile stuff?
+    How do I compile programs with uClibc?
     </B>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
@@ -247,15 +247,14 @@ to the uClibc home page.</a>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
     <B>
     When I run 'ldd' to get a list of the library dependencies for a uClibc
-    binary, ldd segfaults!  Or it runs my application!  Anyways, it doesn't 
-    work!  What should I do?
+    binary, ldd segfaults!  What should I do?
     </B>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
 
     Use the ldd that is built by uClibc, not your system's one.  When your
     system's ldd looks for library dependencies, it actually _runs_ that
-    program.  This works fine -- usually.  I doesn't work at all when you
+    program.  This works fine -- usually.  It doesn't work at all when you
     have been cross compiling (which is why ldd segfaults).  The ldd
     program created by uClibc is cross platform and doesn't even try to run
     the target program (like your system one does).  So use the uClibc one
@@ -313,6 +312,12 @@ to the uClibc home page.</a>
     contributing ports to new architectures, and a lot of work has been done on
     adding support for missing features.
 
+    <p>
+
+    These days, uClibc is being developed and enhanced by Erik Andersen of
+    <a href="http://codepoet-consulting.com/">CodePoet Consulting</a> along
+    with the rest of the embedded Linux community.
+
 
 
 <p>
@@ -336,7 +341,7 @@ to the uClibc home page.</a>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
     <B>
     I need you to add &lt;favorite feature&gt;!  Are the uClibc developers willing to 
-    be paid in order to add in &lt;favorite feature&gt;?  Are you willing to provide
+    be paid in order to fix bugs or add in &lt;favorite feature&gt;?  Are you willing to provide
     support contracts?  
     </B>
 </TD></TR>
