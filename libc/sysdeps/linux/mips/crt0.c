@@ -1,6 +1,6 @@
 /*
- * uC-libc/sysdeps/linux/powerpc/crt0.S
- * process init code for powerpc
+ * uC-libc/sysdeps/linux/mipsel/crt0.c
+ * process init code for mipsel
  *
  * Copyright (C) 2001 by Lineo, Inc.
  * Author: David A. Schleef <ds@schleef.org>
@@ -29,6 +29,20 @@ asm(
 //	"\tb _start2\n"
 	);
 #endif
+
+/* a little bit of stuff to support C++ */
+asm(
+	"\t.section .ctors,\"aw\"\n"
+	"\t.align 4\n"
+	"\t.global __CTOR_LIST__\n"
+	"__CTOR_LIST__:\n"
+	"\t.long -1\n"
+	"\t.section .dtors,\"aw\"\n"
+	"\t.align 4\n"
+	"\t.global __DTOR_LIST__\n"
+	"__DTOR_LIST__:\n"
+	"\t.long -1\n"
+	);
 
 void __uClibc_main(int argc,void *argv,void *envp);
 
