@@ -22,7 +22,7 @@ config LIBGCC_CFLAGS
 
 choice
 	prompt "Target Processor Type"
-	default CONFIG_386
+	default CONFIG_GENERIC_386
 	help
 	  This is the processor type of your CPU. This information is used for
 	  optimizing purposes.  To build a library that will run on all x86 CPU
@@ -31,6 +31,8 @@ choice
 	  will even run on anything other than the selected processor type.
 
 	  Here are the settings recommended for greatest speed:
+	  - "Generic 386" select this if your compiler is already setup to 
+	     optimize things properly.
 	  - "386" for the AMD/Cyrix/Intel 386DX/DXL/SL/SLC/SX, Cyrix/TI
 	     486DLC/DLC2, UMC 486SX-S and NexGen Nx586.  Only "386" kernels
 	     will run on a 386 class machine.
@@ -51,6 +53,9 @@ choice
 	  - "CyrixIII/VIA C3" for VIA Cyrix III or VIA C3.
 
 	  If you don't know what to do, choose "386".
+
+config CONFIG_GENERIC_386
+	bool "Generic 386"
 
 config CONFIG_386
 	bool "386"

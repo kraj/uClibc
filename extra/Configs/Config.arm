@@ -32,7 +32,8 @@ choice
 	  type.
 
 	  Here are the settings recommended for greatest speed:
-	  - "Generic Arm" for any ARM core
+	  - "Generic Arm" select this if your compiler is already setup to
+	    optimize things properly.
 	  - "arm7tdmi" an MMU-less ARM core such as those distributed
 	    by Atmel, Samsung, and others.
 	  - "StrongARM" for Intel's StrongARM cores, such as the
