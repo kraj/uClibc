@@ -25,13 +25,13 @@ void *calloc_dbg(size_t num, size_t size, char *function, char *file,
 
 #ifdef L_malloc_dbg
 
-void *malloc_dbg(size_t len, char *function, char *file, int line)
+void *malloc_dbg(size_t size, char *function, char *file, int line)
 {
 	void *result;
 
-	fprintf(stderr, "malloc of %d bytes at %s @%s:%d = ", len, function,
+	fprintf(stderr, "malloc of %d bytes at %s @%s:%d = ", size, function,
 			file, line);
-	result = malloc(len);
+	result = malloc(size);
 	fprintf(stderr, "%p\n", result);
 	return result;
 }
@@ -65,9 +65,14 @@ void *calloc(size_t num, size_t size)
 
 #ifdef L_malloc
 
-void *malloc(size_t len)
+void *malloc(size_t size)
 {
-	void *result = mmap((void *) 0, len, PROT_READ | PROT_WRITE,
+#if 1
+    /* Some programs will call malloc (0).  Lets be strict and return NULL */
+    if (size == 0)
+	return NULL;
+#endif
+	void *result = mmap((void *) 0, size, PROT_READ | PROT_WRITE,
 #ifdef __UCLIBC_HAS_MMU__
 						MAP_PRIVATE | MAP_ANONYMOUS, 0, 0
 #else
