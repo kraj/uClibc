@@ -39,18 +39,19 @@ my($arch)	    = "";
 my($cross)	    = "";
 my($xcc)	    = "";
 my($native_cc)	    = "";
-my($devel_prefix)   = "/usr/$arch-linux-uclibc";
-my($kernel_dir)	    = "/usr/src/linux";
-my($ldso_path)	    = "$devel_prefix/lib";
-my($mmu)	    = "true";
-my($large_file)	    = "false";
-my($rpc_support)    = "false";
-my($c99_math)	    = "false";
-my($threads)	    = "false";
-my($shared_support) = "true";
-my($shadow)	    = "false";
-my($pic)	    = "true";
+my($mmu)	    = "";
+my($large_file)	    = "";
+my($rpc_support)    = "";
+my($c99_math)	    = "";
+my($long_long)	    = "";
+my($float)	    = "";
+my($threads)	    = "";
+my($shadow)	    = "";
 my($filename)	    = "";
+my($shared_support) = "";
+my($kernel_dir)	    = "";
+my($devel_prefix)   = "";
+my($ldso_path)	    = "";
 my($line);
 my($got_arch);
 
@@ -66,11 +67,12 @@ Getopt::Long::Configure("no_ignore_case", "bundling");
 		"large_file=s" => \$large_file,
 		"rpc_support=s" => \$rpc_support,
 		"c99_math=s" => \$c99_math,
+		"long_long=s" => \$long_long,
+		"float=s" => \$float,
 		"threads=s" => \$threads,
 		"shadow=s" => \$shadow,
 		"shared_support=s" => \$shared_support,
 		"ldso_path=s" => \$ldso_path,
-		"pic=s" => \$pic,
 		"file=s" => \$filename,
 		);
 chomp($arch);
@@ -83,11 +85,12 @@ chomp($mmu);
 chomp($large_file);
 chomp($rpc_support);
 chomp($c99_math);
+chomp($long_long);
+chomp($float);
 chomp($threads);
 chomp($shadow);
 chomp($shared_support);
 chomp($ldso_path);
-chomp($pic);
 chomp($filename);
 
 if ($filename) {
@@ -99,7 +102,7 @@ if ($filename) {
 
 
 while($line = <FILE>) {
-    if ($line =~ /^TARGET_ARCH.*/) {
+    if ($arch && $line =~ /^TARGET_ARCH.*/) {
 	print "TARGET_ARCH=$arch\n";
 	$got_arch=1;
 	next;
@@ -116,39 +119,47 @@ while($line = <FILE>) {
 	print "NATIVE_CC=$native_cc\n";
 	next;
     }
-    if ($line =~ /^DEVEL_PREFIX.*/) {
+    if ($devel_prefix && $line =~ /^DEVEL_PREFIX.*/) {
 	print "DEVEL_PREFIX=$devel_prefix\n";
 	next;
     }
-    if ($line =~ /^KERNEL_SOURCE.*/) {
+    if ($kernel_dir && $line =~ /^KERNEL_SOURCE.*/) {
 	print "KERNEL_SOURCE=$kernel_dir\n";
 	next;
     }
-    if ($line =~ /^HAS_MMU.*/) {
+    if ($mmu && $line =~ /^HAS_MMU.*/) {
 	print "HAS_MMU=$mmu\n";
 	next;
     }
-    if ($line =~ /^DOLFS.*/) {
+    if ($large_file && $line =~ /^DOLFS.*/) {
 	print "DOLFS=$large_file\n";
 	next;
     }
-    if ($line =~ /^INCLUDE_RPC.*/) {
+    if ($rpc_support && $line =~ /^INCLUDE_RPC.*/) {
 	print "INCLUDE_RPC=$rpc_support\n";
 	next;
     }
-    if ($line =~ /^HAS_SHADOW.*/) {
+    if ($shadow && $line =~ /^HAS_SHADOW.*/) {
 	print "HAS_SHADOW=$shadow\n";
 	next;
     }
-    if ($line =~ /^DO_C99_MATH.*/) {
+    if ($c99_math && $line =~ /^DO_C99_MATH.*/) {
 	print "DO_C99_MATH=$c99_math\n";
 	next;
     }
-    if ($line =~ /^INCLUDE_THREADS.*/) {
+    if ($long_long && $line =~ /^HAS_LONG_LONG.*/) {
+	print "HAS_LONG_LONG=$long_long\n";
+	next;
+    }
+    if ($float && $line =~ /^HAS_FLOATING_POINT.*/) {
+	print "HAS_FLOATING_POINT=$float\n";
+	next;
+    }
+    if ($threads && $line =~ /^INCLUDE_THREADS.*/) {
 	print "INCLUDE_THREADS=$threads\n";
 	next;
     }
-    if ($shared_support == "true") {
+    if ($shared_support && $shared_support == "true") {
 	if ($line =~ /^BUILD_UCLIBC_LDSO.*/) {
 	    print "BUILD_UCLIBC_LDSO=true\n";
 	    next;
@@ -162,7 +173,7 @@ while($line = <FILE>) {
 	    print "DOPIC=true\n";
 	    next;
 	}
-	if ($line =~ /^SHARED_LIB_LOADER_PATH.*/) {
+	if ($ldso_path && $line =~ /^SHARED_LIB_LOADER_PATH.*/) {
 	    print "SHARED_LIB_LOADER_PATH=$ldso_path\n";
 	    next;
 	}
@@ -183,7 +194,7 @@ while($line = <FILE>) {
     print "$line";
 }
 
-if (! $got_arch) {
+if ($arch && ! $got_arch) {
     print "TARGET_ARCH=$arch\n";
 }
 
