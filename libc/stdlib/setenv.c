@@ -194,7 +194,7 @@ int putenv (char *string)
 	free(name);
 	return(result);
     }
-    __unsetenv (string);
+    unsetenv (string);
     return 0;
 }
 
