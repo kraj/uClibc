@@ -1,79 +1,50 @@
 
-#if 0
-#include <time.h>
-
-/* This is a translation from ALGOL in Collected Algorithms of CACM. */
-/* Copied from Algorithm 199, Author: Robert G. Tantzen */
-
-void __tm_conv(tmbuf, timep, offset)
-struct tm *tmbuf;
-time_t *timep;
-time_t offset;
-{
-	static int moffset[] =
-		{ 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
-
-	long s;
-	long j, d, m, y;
-
-	offset += *timep;
-
-	tmbuf->tm_isdst = 0;		/* Someone else can set this */
-
-	j = offset / 86400L + 719469;
-	s = offset % 86400L;
-
-	if (s < 0) {
-		s += 86400L;
-		j--;
-	}
-
-	tmbuf->tm_sec = s % 60;
-	tmbuf->tm_min = (s / 60) % 60;
-	tmbuf->tm_hour = s / 3600;
-
-	tmbuf->tm_wday = (j + 2) % 7;
-
-	/*
-	 * Julian date converter. Takes a julian date (the number of days since
-	 * some distant epoch or other), and fills tmbuf.
-	 */
-
-	y = (4L * j - 1L) / 146097L;
-	j = 4L * j - 1L - 146097L * y;
-	d = j / 4L;
-	j = (4L * d + 3L) / 1461L;
-	d = 4L * d + 3L - 1461L * j;
-	d = (d + 4L) / 4L;
-	m = (5L * d - 3L) / 153L;
-	d = 5L * d - 3 - 153L * m;
-	d = (d + 5L) / 5L;
-	y = 100L * y + j;
-	if (m < 10)
-		m += 2;
-	else {
-		m -= 10;
-		++y;
-	}
-
-	tmbuf->tm_year = y - 1900;
-	tmbuf->tm_mon = m;
-	tmbuf->tm_mday = d;
-
-	tmbuf->tm_yday = d + moffset[m];
-	if (m > 1 && ((y) % 4 == 0 && ((y) % 100 != 0 || (y) % 400 == 0)))
-		tmbuf->tm_yday++;
-}
-
-#else
-
 /* This is adapted from glibc */
 /* Copyright (C) 1991, 1993 Free Software Foundation, Inc */
 
 #define SECS_PER_HOUR 3600L
 #define SECS_PER_DAY  86400L
 
+#include <features.h>
 #include <time.h>
+#include <sys/types.h>
+
+/* This structure contains all the information about a
+   timezone given in the POSIX standard TZ envariable.  */
+typedef struct
+{
+    const char *name;
+
+    /* When to change.  */
+    enum { J0, J1, M } type;	/* Interpretation of:  */
+    unsigned short int m, n, d;	/* Month, week, day.  */
+    unsigned int secs;		/* Time of day.  */
+
+    long int offset;		/* Seconds east of GMT (west if < 0).  */
+
+    /* We cache the computed time of change for a
+       given year so we don't have to recompute it.  */
+    time_t change;	/* When to change to this zone.  */
+    int computed_for;	/* Year above is computed for.  */
+} tz_rule;
+
+/* tz_rules[0] is standard, tz_rules[1] is daylight.  */
+static tz_rule tz_rules[2];
+
+/* Warning -- this function is a stub andd always does UTC
+ * no matter what it is given */
+void tzset (void)
+{
+    tz_rules[0].name = tz_rules[1].name = "UTC";
+    tz_rules[0].type = tz_rules[1].type = J0;
+    tz_rules[0].m = tz_rules[0].n = tz_rules[0].d = 0;
+    tz_rules[1].m = tz_rules[1].n = tz_rules[1].d = 0;
+    tz_rules[0].secs = tz_rules[1].secs = 0;
+    tz_rules[0].offset = tz_rules[1].offset = 0L;
+    tz_rules[0].change = tz_rules[1].change = (time_t) -1;
+    tz_rules[0].computed_for = tz_rules[1].computed_for = 0;
+}
+
 
 static const unsigned short int __mon_lengths[2][12] = {
 	/* Normal years.  */
@@ -82,11 +53,9 @@ static const unsigned short int __mon_lengths[2][12] = {
 	{31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 };
 
-void __tm_conv(tmbuf, t, offset)
-struct tm *tmbuf;
-time_t *t;
-time_t offset;
+void __tm_conv(struct tm *tmbuf, time_t *t, time_t offset)
 {
+	int isdst;
 	long days, rem;
 	register int y;
 	register const unsigned short int *ip;
@@ -128,7 +97,9 @@ time_t offset;
 		days -= ip[y];
 	tmbuf->tm_mon = y;
 	tmbuf->tm_mday = days + 1;
-	tmbuf->tm_isdst = -1;
+	isdst = (*t >= tz_rules[0].change && *t < tz_rules[1].change);
+	tmbuf->tm_isdst = isdst;
+	tmbuf->tm_zone = tzname[isdst];
+
 }
 
-#endif

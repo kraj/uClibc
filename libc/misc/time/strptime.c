@@ -23,13 +23,13 @@
    some of them in the same format (such as year, week and weekday)
    this is enough information for determining the date.  */
 
+#include <features.h>
 #include <ctype.h>
 #include <langinfo.h>
 #include <limits.h>
 #include <string.h>
 #include <time.h>
 
-#undef _NL_CURRENT
 #undef ENABLE_ERA_JUNK
 
 
@@ -62,7 +62,7 @@
     if (val < from || val > to)						      \
       return NULL;							      \
   } while (0)
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 # define get_alt_number(from, to, n) \
   ({									      \
      __label__ do_normal;						      \
@@ -95,7 +95,7 @@
    && (rp = __strptime_internal (rp, (new_fmt), tm, decided, era_cnt)) != NULL)
 
 
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 /* This is defined in locale/C-time.c in the GNU libc.  */
 extern const struct locale_data _nl_C_LC_TIME;
 extern const unsigned short int __mon_yday[2][13];
@@ -184,14 +184,16 @@ static char * __strptime_internal (rp, fmt, tm, decided, era_cnt)
     int have_mon, have_mday;
     int have_uweek, have_wweek;
     int week_no;
+#ifdef ENABLE_ERA_JUNK
     size_t num_eras;
     struct era_entry *era;
 
+    era = NULL;
+#endif
     have_I = is_pm = 0;
     century = -1;
     want_century = 0;
     want_era = 0;
-    era = NULL;
     week_no = 0;
 
     have_wday = want_xday = have_yday = have_mon = have_mday = have_uweek = 0;
@@ -218,7 +220,7 @@ static char * __strptime_internal (rp, fmt, tm, decided, era_cnt)
 	}
 
 	++fmt;
-#ifndef _NL_CURRENT
+#ifndef __UCLIBC_HAS_LOCALE__
 	/* We need this for handling the `E' modifier.  */
 start_over:
 #endif
@@ -237,7 +239,7 @@ start_over:
 		/* Match day of week.  */
 		for (cnt = 0; cnt < 7; ++cnt)
 		{
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 		    if (*decided !=raw)
 		    {
 			if (match_string (_NL_CURRENT (LC_TIME, DAY_1 + cnt), rp))
@@ -278,7 +280,7 @@ start_over:
 		/* Match month name.  */
 		for (cnt = 0; cnt < 12; ++cnt)
 		{
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 		    if (*decided !=raw)
 		    {
 			if (match_string (_NL_CURRENT (LC_TIME, MON_1 + cnt), rp))
@@ -314,7 +316,7 @@ start_over:
 		break;
 	    case 'c':
 		/* Match locale's date and time format.  */
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 		if (*decided != raw)
 		{
 		    if (!recursive (_NL_CURRENT (LC_TIME, D_T_FMT)))
@@ -341,7 +343,9 @@ start_over:
 		break;
 	    case 'C':
 		/* Match century number.  */
+#ifdef __UCLIBC_HAS_LOCALE__
 match_century:
+#endif
 		get_number (0, 99, 2);
 		century = val;
 		want_xday = 1;
@@ -360,7 +364,7 @@ match_century:
 		want_xday = 1;
 		break;
 	    case 'x':
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 		if (*decided != raw)
 		{
 		    if (!recursive (_NL_CURRENT (LC_TIME, D_FMT)))
@@ -429,7 +433,7 @@ match_century:
 		break;
 	    case 'p':
 		/* Match locale's equivalent of AM/PM.  */
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 		if (*decided != raw)
 		{
 		    if (match_string (_NL_CURRENT (LC_TIME, AM_STR), rp))
@@ -455,7 +459,7 @@ match_century:
 			return NULL;
 		break;
 	    case 'r':
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 		if (*decided != raw)
 		{
 		    if (!recursive (_NL_CURRENT (LC_TIME, T_FMT_AMPM)))
@@ -511,7 +515,7 @@ match_century:
 		tm->tm_sec = val;
 		break;
 	    case 'X':
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 		if (*decided != raw)
 		{
 		    if (!recursive (_NL_CURRENT (LC_TIME, T_FMT)))
@@ -575,7 +579,9 @@ match_century:
 		have_wday = 1;
 		break;
 	    case 'y':
+#ifdef __UCLIBC_HAS_LOCALE__
 match_year_in_century:
+#endif
 		/* Match year within century.  */
 		get_number (0, 99, 2);
 		/* The "Year 2000: The Millennium Rollover" paper suggests that
@@ -596,7 +602,7 @@ match_year_in_century:
 		/* XXX How to handle this?  */
 		break;
 	    case 'E':
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 		switch (*fmt++)
 		{
 		    case 'c':
@@ -968,7 +974,7 @@ char * strptime (buf, format, tm)
 {
     enum locale_status decided;
 
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
     decided = not;
 #else
     decided = raw;

@@ -2,25 +2,9 @@
 #include <time.h>
 #include <sys/time.h>
 
-extern void __tm_conv();
-extern void __asctime();
-
-char *ctime_r(timep, buf)
-__const time_t *timep;
-char *buf;
+char * ctime_r(const time_t *t, char *buf)
 {
-	struct tm tmb;
-	struct timezone tz;
-	time_t offt;
+    struct tm tm;
+    return asctime_r(localtime_r(t, &tm), buf);
+} 
 
-	gettimeofday((void *) 0, &tz);
-
-	offt = -tz.tz_minuteswest * 60L;
-
-	/* tmb.tm_isdst = ? */
-	__tm_conv(&tmb, timep, offt);
-
-	__asctime(buf, &tmb);
-
-	return buf;
-}

@@ -22,10 +22,7 @@
 
 
 /* Return the difference between TIME1 and TIME0.  */
-double
-difftime (time1, time0)
-     time_t time1;
-     time_t time0;
+double difftime (time_t time1, time_t time0)
 {
   /* Algorithm courtesy Paul Eggert (eggert@twinsun.com).  */
 

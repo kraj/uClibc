@@ -84,7 +84,7 @@ static unsigned int week(const struct tm *const tp , int starting_day , int max_
 		: base + 1 + dl / 7;
 }
 
-#ifndef _NL_CURRENT
+#ifndef __UCLIBC_HAS_LOCALE__
 extern char const __weekday_name[][10];
 extern char const __month_name[][10];
 #endif
@@ -98,7 +98,7 @@ extern char const __month_name[][10];
 size_t strftime( char *s , size_t maxsize , const char *format , register const struct tm *tp)
 {
   int hour12 = tp->tm_hour;
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
   const char *const a_wkday = _NL_CURRENT (LC_TIME, ABDAY_1 + tp->tm_wday);
   const char *const f_wkday = _NL_CURRENT (LC_TIME, DAY_1 + tp->tm_wday);
   const char *const a_month = _NL_CURRENT (LC_TIME, ABMON_1 + tp->tm_mon);
@@ -133,15 +133,17 @@ size_t strftime( char *s , size_t maxsize , const char *format , register const 
   /* Initialize the buffer we will use for the sprintf format for numbers.  */
   number_fmt[0] = '%';
 
-  zone = 0;
-#if HAVE_TM_ZONE
+  /* The POSIX test suite assumes that setting
+     the environment variable TZ to a new value before calling strftime()
+     will influence the result (the %Z format) even if the information in
+     TP is computed with a totally different time zone.
+     This is bogus: though POSIX allows bad behavior like this,
+     POSIX does not require it.  Do the right thing instead.  */
   zone = (const char *) tp->tm_zone;
-#endif
-  if (!(zone && *zone) && tp->tm_isdst >= 0)
-    zone = tzname[tp->tm_isdst];
-  if (!(zone && *zone))
-    zone = "???";
-
+  /* POSIX.1 8.1.1 requires that whenever strftime() is called, the
+     time zone names contained in the external variable `tzname' shall
+     be set as if the tzset() function had been called.  */
+  tzset ();
   zonelen = strlen (zone);
 
   if (hour12 > 12)
@@ -218,7 +220,7 @@ size_t strftime( char *s , size_t maxsize , const char *format , register const 
 	  break;
 
 	case 'c':
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 	  subfmt = _NL_CURRENT (LC_TIME, D_T_FMT);
 #else
 	  subfmt = "%a %b %d %H:%M:%S %Z %Y";
@@ -241,7 +243,7 @@ size_t strftime( char *s , size_t maxsize , const char *format , register const 
 	  DO_NUMBER (2, (1900 + tp->tm_year) / 100);
 
 	case 'x':
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 	  subfmt = _NL_CURRENT (LC_TIME, D_FMT);
 	  goto subformat;
 #endif
@@ -341,7 +343,7 @@ size_t strftime( char *s , size_t maxsize , const char *format , register const 
 	  DO_NUMBER (2, tp->tm_sec);
 
 	case 'X':
-#ifdef _NL_CURRENT
+#ifdef __UCLIBC_HAS_LOCALE__
 	  subfmt = _NL_CURRENT (LC_TIME, T_FMT);
 	  goto subformat;
 #endif
@@ -373,6 +375,11 @@ size_t strftime( char *s , size_t maxsize , const char *format , register const 
 	  DO_NUMBER (2, tp->tm_year % 100);
 
 	case 'Z':
+	  /* The tzset() call might have changed the value.  */
+	  if (!(zone && *zone) && tp->tm_isdst >= 0)
+	    zone = tzname[tp->tm_isdst];
+	  if (! zone)
+	    zone = "";		/* POSIX.2 requires the empty string here.  */
 	  cpy(zonelen, zone);
 	  break;
 

@@ -1,3 +1,4 @@
+#ifndef __UCLIBC_HAS_LOCALE__
 char const __weekday_name[][10] =
   {
     "Sunday", "Monday", "Tuesday", "Wednesday",
@@ -25,3 +26,5 @@ const unsigned short int __mon_yday[2][13] =
     /* Leap years.  */
     { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
   };
+#endif
+

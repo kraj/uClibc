@@ -3,12 +3,11 @@
 
 extern void __tm_conv();
 
-struct tm *gmtime(timep)
-__const time_t *timep;
+/* Our static data lives in __time_static.c */
+extern struct tm __tmb;
+
+struct tm *gmtime(__const time_t *timep)
 {
-	static struct tm tmb;
-
-	__tm_conv(&tmb, timep, 0L);
-
-	return &tmb;
+    __tm_conv(&__tmb, timep, 0L);
+    return &__tmb;
 }
