@@ -54,10 +54,7 @@
  *	Paul Vixie, 1996.
  */
 static const char *
-inet_ntop4(src, dst, size)
-	const u_char *src;
-	char *dst;
-	size_t size;
+inet_ntop4(const u_char *src, char *dst, size_t size)
 {
 	char tmp[sizeof ("255.255.255.255") + 1] = "\0";
 	int octet;
@@ -202,9 +199,7 @@ inet_ntop6(src, dst, size)
  *	Paul Vixie, 1996.
  */
 static int
-inet_pton4(src, dst)
-	const char *src;
-	u_char *dst;
+inet_pton4(const char *src, u_char *dst)
 {
 	int saw_digit, octets, ch;
 	u_char tmp[4], *tp;

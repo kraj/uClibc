@@ -72,8 +72,7 @@ struct in_addr *inp;
 #endif
 
 #ifdef L_inet_addr
-unsigned long inet_addr(cp)
-const char *cp;
+unsigned long inet_addr(const char *cp)
 {
 	struct in_addr a;
 
@@ -117,8 +116,7 @@ char *inet_ntoa(struct in_addr in)
  * Formulate an Internet address from network + host.  Used in
  * building addresses stored in the ifnet structure.
  */
-struct in_addr inet_makeaddr(net, host)
-unsigned long net, host;
+struct in_addr inet_makeaddr(unsigned long net, unsigned long host)
 {
         unsigned long addr;
 
@@ -142,8 +140,7 @@ unsigned long net, host;
  * internet address; handles class a/b/c network
  * number formats.
  */
-unsigned long inet_lnaof(in)
-struct in_addr in;
+unsigned long inet_lnaof(struct in_addr in)
 {
 	unsigned long i = ntohl(in.s_addr);
 
@@ -163,8 +160,7 @@ struct in_addr in;
  * address; handles class a/b/c network #'s.
  */
 u_int32_t
-inet_netof(in)
-        struct in_addr in;
+inet_netof(struct in_addr in)
 {
         u_int32_t i = ntohl(in.s_addr);
 

@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 
 #ifdef __NR_socketcall
-extern int socketcall(int call, unsigned long *args);
+extern int __socketcall(int call, unsigned long *args);
 
 /* Various socketcall numbers */
 #define SYS_SOCKET      1
@@ -40,7 +40,7 @@ int __libc_accept(int s, struct sockaddr *addr, socklen_t * addrlen)
 	args[0] = s;
 	args[1] = (unsigned long) addr;
 	args[2] = (unsigned long) addrlen;
-	return socketcall(SYS_ACCEPT, args);
+	return __socketcall(SYS_ACCEPT, args);
 }
 #endif
 weak_alias(__libc_accept, accept);
@@ -57,7 +57,7 @@ int bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
 	args[0] = sockfd;
 	args[1] = (unsigned long) myaddr;
 	args[2] = addrlen;
-	return socketcall(SYS_BIND, args);
+	return __socketcall(SYS_BIND, args);
 }
 #endif
 #endif
@@ -74,7 +74,7 @@ int __libc_connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
 	args[0] = sockfd;
 	args[1] = (unsigned long) saddr;
 	args[2] = addrlen;
-	return socketcall(SYS_CONNECT, args);
+	return __socketcall(SYS_CONNECT, args);
 }
 #endif
 weak_alias(__libc_connect, connect);
@@ -91,7 +91,7 @@ int getpeername(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 	args[0] = sockfd;
 	args[1] = (unsigned long) addr;
 	args[2] = (unsigned long) paddrlen;
-	return socketcall(SYS_GETPEERNAME, args);
+	return __socketcall(SYS_GETPEERNAME, args);
 }
 #endif
 #endif
@@ -107,7 +107,7 @@ int getsockname(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 	args[0] = sockfd;
 	args[1] = (unsigned long) addr;
 	args[2] = (unsigned long) paddrlen;
-	return socketcall(SYS_GETSOCKNAME, args);
+	return __socketcall(SYS_GETSOCKNAME, args);
 }
 #endif
 #endif
@@ -126,7 +126,7 @@ int getsockopt(int fd, int level, int optname, __ptr_t optval,
 	args[2] = optname;
 	args[3] = (unsigned long) optval;
 	args[4] = (unsigned long) optlen;
-	return (socketcall(SYS_GETSOCKOPT, args));
+	return (__socketcall(SYS_GETSOCKOPT, args));
 }
 #endif
 #endif
@@ -141,7 +141,7 @@ int listen(int sockfd, int backlog)
 
 	args[0] = sockfd;
 	args[1] = backlog;
-	return socketcall(SYS_LISTEN, args);
+	return __socketcall(SYS_LISTEN, args);
 }
 #endif
 #endif
@@ -160,7 +160,7 @@ ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 	args[1] = (unsigned long) buffer;
 	args[2] = len;
 	args[3] = flags;
-	return (socketcall(SYS_RECV, args));
+	return (__socketcall(SYS_RECV, args));
 }
 #endif
 weak_alias(__libc_recv, recv);
@@ -184,7 +184,7 @@ ssize_t __libc_recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
 	args[3] = flags;
 	args[4] = (unsigned long) to;
 	args[5] = (unsigned long) tolen;
-	return (socketcall(SYS_RECVFROM, args));
+	return (__socketcall(SYS_RECVFROM, args));
 }
 #endif
 weak_alias(__libc_recvfrom, recvfrom);
@@ -202,7 +202,7 @@ ssize_t __libc_recvmsg(int sockfd, struct msghdr *msg, int flags)
 	args[0] = sockfd;
 	args[1] = (unsigned long) msg;
 	args[2] = flags;
-	return (socketcall(SYS_RECVMSG, args));
+	return (__socketcall(SYS_RECVMSG, args));
 }
 #endif
 weak_alias(__libc_recvmsg, recvmsg);
@@ -222,7 +222,7 @@ ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
 	args[1] = (unsigned long) buffer;
 	args[2] = len;
 	args[3] = flags;
-	return (socketcall(SYS_SEND, args));
+	return (__socketcall(SYS_SEND, args));
 }
 #endif
 weak_alias(__libc_send, send);
@@ -240,7 +240,7 @@ ssize_t __libc_sendmsg(int sockfd, const struct msghdr *msg, int flags)
 	args[0] = sockfd;
 	args[1] = (unsigned long) msg;
 	args[2] = flags;
-	return (socketcall(SYS_SENDMSG, args));
+	return (__socketcall(SYS_SENDMSG, args));
 }
 #endif
 weak_alias(__libc_sendmsg, sendmsg);
@@ -264,7 +264,7 @@ ssize_t __libc_sendto(int sockfd, const void *buffer, size_t len, int flags,
 	args[3] = flags;
 	args[4] = (unsigned long) to;
 	args[5] = tolen;
-	return (socketcall(SYS_SENDTO, args));
+	return (__socketcall(SYS_SENDTO, args));
 }
 #endif
 weak_alias(__libc_sendto, sendto);
@@ -285,7 +285,7 @@ int setsockopt(int fd, int level, int optname, const void *optval,
 	args[2] = optname;
 	args[3] = (unsigned long) optval;
 	args[4] = optlen;
-	return (socketcall(SYS_SETSOCKOPT, args));
+	return (__socketcall(SYS_SETSOCKOPT, args));
 }
 #endif
 #endif
@@ -301,7 +301,7 @@ int shutdown(int sockfd, int how)
 
 	args[0] = sockfd;
 	args[1] = how;
-	return (socketcall(SYS_SHUTDOWN, args));
+	return (__socketcall(SYS_SHUTDOWN, args));
 }
 #endif
 #endif
@@ -317,7 +317,7 @@ int socket(int family, int type, int protocol)
 	args[0] = family;
 	args[1] = type;
 	args[2] = (unsigned long) protocol;
-	return socketcall(SYS_SOCKET, args);
+	return __socketcall(SYS_SOCKET, args);
 }
 #endif
 #endif
@@ -334,7 +334,7 @@ int socketpair(int family, int type, int protocol, int sockvec[2])
 	args[1] = type;
 	args[2] = protocol;
 	args[3] = (unsigned long) sockvec;
-	return socketcall(SYS_SOCKETPAIR, args);
+	return __socketcall(SYS_SOCKETPAIR, args);
 }
 #endif
 #endif

@@ -936,9 +936,10 @@ _syscall2(int, fstatfs, int, fd, struct statfs *, buf);
 #endif
 
 //#define __NR_socketcall       102
-#ifdef L_socketcall
+#ifdef L___socketcall
 #ifdef __NR_socketcall
-_syscall2(int, socketcall, int, call, unsigned long *, args);
+#define __NR___socketcall __NR_socketcall
+_syscall2(int, __socketcall, int, call, unsigned long *, args);
 #endif
 #endif
 
