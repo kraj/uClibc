@@ -21,6 +21,9 @@ Cambridge, MA 02139, USA.  */
  *	NOTE: this file works for PIC and non-PIC code.  Be very careful how
  *	you modify it !
  */
+
+#include <features.h>
+
 	.global	_start
 	.global __exit
 	.global atexit
@@ -50,8 +53,9 @@ __exit:
  */
 empty_func:
 	rts
-#if defined HAVE_ELF
+#if defined(HAVE_ELF)
 	.weak atexit
+	atexit = empty_func
 #else
 	.set atexit,empty_func
 #endif
