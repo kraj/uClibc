@@ -451,7 +451,6 @@ test_strchr (void)
    }
 }
 
-#if 0
 static void
 test_strchrnul (void)
 {
@@ -512,7 +511,6 @@ test_rawmemchr (void)
       }
    }
 }
-#endif
 
 static void
 test_index (void)
@@ -1334,13 +1332,11 @@ main (void)
   /* strchr.  */
   test_strchr ();
 
-#if 0
   /* strchrnul.  */
   test_strchrnul ();
 
   /* rawmemchr.  */
   test_rawmemchr ();
-#endif
 
   /* index - just like strchr.  */
   test_index ();
