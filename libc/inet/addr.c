@@ -28,6 +28,22 @@
 int inet_aton(const char *cp, struct in_addr *addrptr);
 
 #ifdef L_inet_aton
+/*
+ * More undocumented inet_aton features.
+ * (read: uclibc doesnt support but glibc does)
+ * http://www.mkssoftware.com/docs/man3/inet_aton.3.asp
+ *
+ * *cp can take the form of:
+ * a.b.c.d    - {a,b,c,d} -> 1 byte
+ * a.b.c      - {a,b}     -> 1 byte    {c} -> 2 bytes
+ * a.b        - {a}       -> 1 byte    {b} -> 3 bytes
+ * a          -                        {a} -> 4 bytes
+ *
+ * Each part may be decimal, octal, or hexadecimal as in ISO C.
+ * 0x or 0X    -> hexadecimal
+ * leading 0   -> octal
+ * all else    -> decimal
+ */
 int inet_aton(cp, addrptr)
 const char *cp;
 struct in_addr *addrptr;
@@ -71,7 +87,7 @@ struct in_addr *addrptr;
 	 *  of the input string, but does not store the result.
 	 */
 	if (addrptr) {
-	    addrptr->s_addr = htonl(addr);
+		addrptr->s_addr = htonl(addr);
 	}
 
 	return 1;
@@ -99,7 +115,7 @@ char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
 	in_addr_t addr = ntohl(in.s_addr);
 	int i;
 	char *p, *q;
-   
+
 	q = 0;
 	p = buf + INET_NTOA_MAX_LEN - 1; /* cannot use sizeof(buf) here */
 	for (i=0 ; i < 4 ; i++ ) {
@@ -128,18 +144,18 @@ char *inet_ntoa(struct in_addr in)
  */
 struct in_addr inet_makeaddr(in_addr_t net, in_addr_t host)
 {
-        in_addr_t addr;
+	in_addr_t addr;
 
-        if (net < 128)
-                addr = (net << IN_CLASSA_NSHIFT) | (host & IN_CLASSA_HOST);
-        else if (net < 65536)
-                addr = (net << IN_CLASSB_NSHIFT) | (host & IN_CLASSB_HOST);
-        else if (net < 16777216UL)
-                addr = (net << IN_CLASSC_NSHIFT) | (host & IN_CLASSC_HOST);
-        else
-                addr = net | host;
-        addr = htonl(addr);
-        return (*(struct in_addr *)&addr);
+	if (net < 128)
+		addr = (net << IN_CLASSA_NSHIFT) | (host & IN_CLASSA_HOST);
+	else if (net < 65536)
+		addr = (net << IN_CLASSB_NSHIFT) | (host & IN_CLASSB_HOST);
+	else if (net < 16777216UL)
+		addr = (net << IN_CLASSC_NSHIFT) | (host & IN_CLASSC_HOST);
+	else
+		addr = net | host;
+	addr = htonl(addr);
+	return (*(struct in_addr *)&addr);
 }
 
 #endif
@@ -172,14 +188,14 @@ in_addr_t inet_lnaof(struct in_addr in)
 in_addr_t
 inet_netof(struct in_addr in)
 {
-        in_addr_t i = ntohl(in.s_addr);
+	in_addr_t i = ntohl(in.s_addr);
 
-        if (IN_CLASSA(i))
-                return (((i)&IN_CLASSA_NET) >> IN_CLASSA_NSHIFT);
-        else if (IN_CLASSB(i))
-                return (((i)&IN_CLASSB_NET) >> IN_CLASSB_NSHIFT);
-        else
-                return (((i)&IN_CLASSC_NET) >> IN_CLASSC_NSHIFT);
+	if (IN_CLASSA(i))
+		return (((i)&IN_CLASSA_NET) >> IN_CLASSA_NSHIFT);
+	else if (IN_CLASSB(i))
+		return (((i)&IN_CLASSB_NET) >> IN_CLASSB_NSHIFT);
+	else
+	return (((i)&IN_CLASSC_NET) >> IN_CLASSC_NSHIFT);
 }
 
 #endif
