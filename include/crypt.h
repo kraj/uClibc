@@ -44,14 +44,17 @@ extern void encrypt (char *__block, int __edflag);
 struct block {
 	unsigned char b_data[64];
 };
+struct ordering {
+	unsigned char o_data[64];
+};
 struct crypt_data
 {
     /* Stuff used by the des based routines */
     struct block key;
+    const struct ordering *EP;
     /* Stuff used by the md5 based routines */
     char *p;
     const char *sp,*ep;
-    char KS[16][48];
 };
 
 extern char *crypt_r (const char *__key, const char *__salt,

@@ -44,19 +44,8 @@
  */
 
 #include <crypt.h>
-#include <string.h>
-#include <unistd.h>
 
-extern char *md5_magic;
 extern char * md5_crypt_r( const char *pw, const char *salt, struct crypt_data * data);
-
-//struct block {
-//	unsigned char b_data[64];
-//};
-
-struct ordering {
-	unsigned char o_data[64];
-};
 
 static const struct ordering InitialTr = { {
 	58,50,42,34,26,18,10, 2,60,52,44,36,28,20,12, 4,
@@ -181,16 +170,14 @@ static void rotate(struct block *key)
 	key->b_data[55] = data28;
 }
 
-static const struct ordering *EP = &etr;
-
-static void f(int i, struct block *key, struct block *a, struct block *x)
+static void f(int i, struct block *key, struct block *a, struct block *x, struct crypt_data *data)
 {
 	struct block e, ikey, y;
 	int k;
 	unsigned char *p, *q, *r;
 
 	e = *a;
-	transpose(&e, EP, 48);
+	transpose(&e, data->EP, 48);
 	for (k = rots[i]; k; k--) rotate(key);
 	ikey = *key;
 	transpose(&ikey, &KeyTr2, 48);
@@ -244,7 +231,7 @@ extern void encrypt_r(char *blck, int edflag, struct crypt_data *data)
 		for (k = 31; k >= 0; k--) {
 			p->b_data[k] = b.b_data[k + 32];
 		}
-		f(j, key, p, &x);
+		f(j, key, p, &x, data);
 		for (k = 31; k >= 0; k--) {
 			p->b_data[k+32] = b.b_data[k] ^ x.b_data[k];
 		}
@@ -264,9 +251,10 @@ extern char *crypt_r(const char *pw, const char *salt, struct crypt_data *data)
 
 	/* First, check if we are supposed to be using the MD5 replacement
 	 * instead of DES...  */
-	if (strncmp (md5_magic, salt, sizeof (md5_magic) - 1) == 0)
+	if (salt[0]=='$' && salt[1]=='1' && salt[2]=='$')
 		return md5_crypt_r(pw, salt, data);
 
+	data->EP = &etr;
 	while (*pw && p < &pwb[64]) {
 		int j = 7;
 
@@ -283,7 +271,7 @@ extern char *crypt_r(const char *pw, const char *salt, struct crypt_data *data)
 	while (p < &pwb[66]) *p++ = 0;
 
 	new_etr = etr;
-	EP = &new_etr;
+	data->EP = &new_etr;
 	if (salt[0] == 0 || salt[1] == 0) salt = "**";
 	for (i = 0; i < 2; i++) {
 		char c = *salt++;
@@ -306,8 +294,8 @@ extern char *crypt_r(const char *pw, const char *salt, struct crypt_data *data)
 
 	if (result[1] == 0) result[1] = result[0];
 
-	for (i = 0; i < 25; i++) encrypt(pwb,0);
-	EP = &etr;
+	for (i = 0; i < 25; i++) encrypt_r(pwb,0, data);
+	data->EP = &etr;
 
 	p = pwb;
 	cp = result+2;

@@ -383,7 +383,10 @@ char * md5_crypt_r( const char *pw, const char *salt, struct crypt_data * data)
 	char *p = data->p;
 	const char *sp = data->sp;
 	const char *ep = data->ep;
-	char *passwd = *data->KS;
+	char *passwd = data->key.b_data;	/* This is a nice place where we can grab 
+					   a bit of reentrant space...  I'd create 
+					   a separate field in struct crypt_data, 
+					   but this spot should do nicely... */
 	unsigned char	final[17];	/* final[16] exists only to aid in looping */
 	int sl,pl,i,md5_magic_len,pw_len;
 	MD5_CTX	ctx,ctx1;
