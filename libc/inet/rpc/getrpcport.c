@@ -1,5 +1,5 @@
 /* @(#)getrpcport.c	2.1 88/07/29 4.0 RPCSRC */
-#define __FORCE_GLIBC__
+#define __FORCE_GLIBC
 #include <features.h>
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for

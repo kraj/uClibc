@@ -32,7 +32,7 @@
  * SUCH DAMAGE.
  */
 
-#define __FORCE_GLIBC__
+#define __FORCE_GLIBC
 #include <features.h>
 #include <ctype.h>
 #include <netinet/in.h>

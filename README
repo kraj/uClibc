@@ -44,7 +44,21 @@ To compile programs with uClibc,
 
 and then just ./configure and make as usual.
 
-Note: You may also want to look at extra/gcc-uclibc/gcc-uclibc.c for
-      additional information concerning what options and environment
-      variables the gcc wrapper handles.
+Note: 
 
+	You may also want to look at extra/gcc-uclibc/gcc-uclibc.c for
+	additional information concerning what options and environment
+	variables the gcc wrapper handles.
+
+Note2: 
+
+	There is an unwholesomely huge amount of code out there that
+	depends on the presence of GNU libc header files.  We have GNU
+	libc header files.  So we have committed a horrible sin in
+	uClibc.  We _lie_ and claim to be GNU libc in order to force
+	many applications to work as their developers intended.  This
+	is IMHO, pardonable, since these defines are not really
+	intended to check for the presence of a particular library, but
+	rather are used to define an _interface_.  Some programs (such
+	as GNU binutils) are especially chummy with glibc, and need
+	this behavior disabled by adding CFLAGS+=-D__FORCE_NOGLIBC

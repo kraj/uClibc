@@ -1,4 +1,4 @@
-#define __FORCE_GLIBC__
+#define __FORCE_GLIBC
 #include <features.h>
 #include <errno.h>
 #include <syscall.h>

@@ -17,7 +17,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define __FORCE_GLIBC__
+#define __FORCE_GLIBC
 #include <features.h>
 #include <sys/socket.h>
 

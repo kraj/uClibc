@@ -36,7 +36,7 @@
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define __FORCE_GLIBC__
+#define __FORCE_GLIBC
 #include <features.h>
 #include <unistd.h>
 #include <string.h>

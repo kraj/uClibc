@@ -1,5 +1,5 @@
 /* @(#)svc_run.c	2.1 88/07/29 4.0 RPCSRC */
-#define __FORCE_GLIBC__
+#define __FORCE_GLIBC
 #include <features.h>
 
 /*

@@ -15,7 +15,7 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-#define __FORCE_GLIBC__
+#define __FORCE_GLIBC
 #include <features.h>
 #include <netdb.h>
 #include <string.h>

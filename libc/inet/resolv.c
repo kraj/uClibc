@@ -43,7 +43,7 @@
  *   defined ip6addr_any and in6addr_loopback)
  */
 
-#define __FORCE_GLIBC__
+#define __FORCE_GLIBC
 #include <features.h>
 #include <string.h>
 #include <stdio.h>

@@ -1,4 +1,4 @@
-#define __FORCE_GLIBC__
+#define __FORCE_GLIBC
 #include <features.h>
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for

@@ -27,7 +27,7 @@
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
-#define __FORCE_GLIBC__
+#define __FORCE_GLIBC
 #include <features.h>
 
 /*

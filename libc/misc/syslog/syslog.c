@@ -31,7 +31,7 @@
  * SUCH DAMAGE.
  */
 
-#define __FORCE_GLIBC__
+#define __FORCE_GLIBC
 #include <features.h>
 /*
  * SYSLOG -- print message on log file
