@@ -8,22 +8,26 @@ static void start1 (int argc, char **argv) __attribute__ ((used, noreturn));
 /* 
  * It is important that this be the first function.
  * This file is the first thing in the text section.  
+ * This is implemented completely in assembler to avoid that the
+ * compiler pushes stuff on the stack (e.g. the frame pointer when
+ * debuging).
  */
-void
-_start (void)
-{
-	/* 
-	 * On the stack we have argc. We can calculate argv/envp
-	 * from that and the succeeding stack location, but fix so
-	 * we get the right calling convention (regs in r10/r11).
-	 *
-	 * Please view linux/fs/binfmt_elf.c for a complete
-	 * understanding of this.
-	 */
-	__asm__ volatile("pop $r10");
-	__asm__ volatile("move.d $sp, $r11");
-	__asm__ volatile("jump start1");
-}
+
+/*
+ * On the stack we have argc. We can calculate argv/envp
+ * from that and the succeeding stack location, but fix so
+ * we get the right calling convention (regs in r10/r11).
+ *
+ * Please view linux/fs/binfmt_elf.c for a complete
+ * understanding of this.
+ */
+__asm__ ( \
+          ".text\n\t" \
+          ".global _start\n\t" \
+          "_start:\n\t" \
+          "pop $r10\n\t" \
+          "move.d $sp, $r11\n\t" \
+          "jump start1\n\t");
 
 #include <features.h>
 
