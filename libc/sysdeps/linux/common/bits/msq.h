@@ -44,7 +44,7 @@ struct msqid_ds {
     __kernel_time_t msg_ctime;	/* last change time */
     unsigned long  msg_lcbytes;	/* Reuse junk fields for 32 bit */
     unsigned long  msg_lqbytes;	/* ditto */
-    unsigned short msg_cbytes;	/* current number of bytes on queue */
+    unsigned short __msg_cbytes;	/* current number of bytes on queue */
     unsigned short msg_qnum;	/* number of messages in queue */
     unsigned short msg_qbytes;	/* max number of bytes on queue */
     __kernel_ipc_pid_t msg_lspid;	/* pid of last msgsnd */

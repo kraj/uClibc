@@ -45,12 +45,12 @@ typedef int __kernel_key_t;
 /* Data structure used to pass permission information to IPC operations.  */
 struct ipc_perm
 {
-    __kernel_key_t	key;
+    __kernel_key_t	__key;
     __kernel_uid_t	uid;
     __kernel_gid_t	gid;
     __kernel_uid_t	cuid;
     __kernel_gid_t	cgid;
     __kernel_mode_t	mode; 
-    unsigned short	seq;
+    unsigned short	__seq;
 };
 
