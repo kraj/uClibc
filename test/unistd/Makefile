@@ -11,7 +11,7 @@ fork: fork.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TE
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(CFLAGS) -c $< -o $@.o
+	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
 	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	./$@

@@ -13,7 +13,7 @@ test_pwd: test_pwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(CFLAGS) -c $< -o $@.o
+	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
 	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ 2>&1 >test_pwd.out
@@ -35,7 +35,7 @@ test_grp: test_grp.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(CFLAGS) -c $< -o $@.o
+	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
 	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ 2>&1 >test_grp.out

@@ -13,7 +13,7 @@ string: string.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(CFLAGS) -c $< -o $@.o
+	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
 	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
@@ -35,7 +35,7 @@ testcopy: testcopy.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(CFLAGS) -c $< -o $@.o
+	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
 	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ > testcopy.out
@@ -66,7 +66,7 @@ strerror: ../../libc/string/strerror.c $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(CFLAGS) -DCHECK_BUF -c $< -o $@.o
+	$(TESTCC) $(TEST_CFLAGS) -DCHECK_BUF -c $< -o $@.o
 	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@

@@ -22,7 +22,7 @@ testmalloc: testmalloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTC
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(CFLAGS) -c $< -o $@.o
+	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
 	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
@@ -46,9 +46,9 @@ testmalloc_glibc: testmalloc.c Makefile
 mallocbug: mallocbug.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uC-Libc: "
+	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(CFLAGS) -c $< -o $@.o
+	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
 	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
@@ -79,9 +79,9 @@ teststrtol_source:
 teststrtol: teststrtol.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uC-Libc: "
+	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(CFLAGS) -c $< -o $@.o
+	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
 	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
@@ -115,7 +115,7 @@ qsort: qsort.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(CFLAGS) -c $< -o $@.o
+	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
 	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@

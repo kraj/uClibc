@@ -29,7 +29,8 @@ WARNINGS=-Wall
 OPTIMIZATION = $(shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
     then echo "-Os"; else echo "-O2" ; fi)
 
-CFLAGS=$(WARNINGS) $(OPTIMIZATION) 
+TEST_CFLAGS=$(WARNINGS) $(OPTIMIZATION) --uclibc-use-build-dir 
+CFLAGS=$(WARNINGS) $(OPTIMIZATION)
 
 ifeq ($(DODEBUG),true)
     CFLAGS +=-g
