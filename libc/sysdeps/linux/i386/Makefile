@@ -42,7 +42,7 @@ ifeq ($(UNIFIED_SYSCALL),true)
 endif
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=brk.c
+CSRC=brk.c ftruncate64.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)
