@@ -39,7 +39,7 @@ CCFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -Dlinux -
 
 CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
 
-ifeq ($(DODEBUG),true)
+ifeq ($(strip $(DODEBUG)),true)
     CFLAGS += -g
     LDFLAGS = -nostdlib -Wl,-warn-common 
     STRIPTOOL = /bin/true -Since_we_are_debugging
@@ -52,15 +52,15 @@ ifndef $(PREFIX)
     PREFIX = `pwd`/_install
 endif
 
-ifneq ($(HAS_MMU),true)
+ifneq ($(strip $(HAS_MMU)),true)
     CFLAGS += -D__HAS_NO_MMU__
 endif
 
-ifneq ($(HAS_FLOATS),true)
+ifneq ($(strip $(HAS_FLOATS)),true)
     CFLAGS += -D__HAS_NO_FLOATS__
 endif
 
-ifeq ($(TARGET_ARCH),m68k)
+ifeq ($(strip $(TARGET_ARCH)),m68k)
     CFLAGS += -D__VFORK_MACRO__ -Dconst= -D__const= -D__extension__= 
 endif
 
