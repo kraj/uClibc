@@ -53,13 +53,9 @@
 
 __BEGIN_DECLS
 
-/* Error status for non-reentrant lookup functions. 
- * NOTE: uClibc reuses errno for h_errno. */
-#include <errno.h>
-#define h_errno errno
+/* Error status for non-reentrant lookup functions.  */
+extern int h_errno;
 
-
-#if 0
 /* Function to get address of global `h_errno' variable.  */
 extern int *__h_errno_location (void) __THROW __attribute__ ((__const__));
 
@@ -79,7 +75,6 @@ __set_h_errno (int __err)
 #if !defined _LIBC || defined _LIBC_REENTRANT
 /* Use a macro to access always the thread specific `h_errno' variable.  */
 # define h_errno (*__h_errno_location ())
-#endif
 #endif
 
 

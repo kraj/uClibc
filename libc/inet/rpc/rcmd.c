@@ -37,16 +37,8 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 
 #define __FORCE_GLIBC
 #include <features.h>
-#include <sys/param.h>
-#include <sys/poll.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-#include <ctype.h>
 #define __USE_GNU
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,11 +46,17 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #include <alloca.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <netdb.h>
 #include <unistd.h>
 #include <pwd.h>
-
+#include <sys/param.h>
+#include <sys/poll.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
 #include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+
 
 /* hmm. uClibc seems to have that, but it doesn't work for some reason */
 #define getc_unlocked getc 
@@ -94,16 +92,22 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	pid = getpid();
 
 #ifdef _LIBC_REENTRANT
-#error "Fix the alloca stuff"
 	hstbuflen = 1024;
+#ifdef __UCLIBC_HAS_MMU__
 	tmphstbuf = alloca (hstbuflen);
+#else
+	tmphstbuf = malloc (hstbuflen);
+#endif
 
-	while (__gethostbyname_r (*ahost, &hostbuf, tmphstbuf, 
+	while (gethostbyname_r (*ahost, &hostbuf, tmphstbuf, 
 		    hstbuflen, &hp, &herr) != 0 || hp == NULL)
 	{
 	    if (herr != NETDB_INTERNAL || errno != ERANGE)
 	    {
 		__set_h_errno (herr);
+#ifndef __UCLIBC_HAS_MMU__
+		free(tmphstbuf);
+#endif
 		herror(*ahost);
 		return -1;
 	    }
@@ -111,9 +115,19 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	    {
 		/* Enlarge the buffer.  */
 		hstbuflen *= 2;
+#ifdef __UCLIBC_HAS_MMU__
 		tmphstbuf = alloca (hstbuflen);
+#else
+		if (tmphstbuf) {
+		    free(tmphstbuf);
+		}
+		tmphstbuf = malloc (hstbuflen);
+#endif
 	    }
 	}
+#ifndef __UCLIBC_HAS_MMU__
+	free(tmphstbuf);
+#endif
 #else /* call the non-reentrant version */
 	if ((hp = gethostbyname(*ahost)) == NULL) {
 	    return -1;
@@ -292,22 +306,38 @@ int ruserok(rhost, superuser, ruser, luser)
 #endif
 
 #ifdef _LIBC_REENTRANT
-#error "Fix the alloca stuff!"
 	buflen = 1024;
+#ifdef __UCLIBC_HAS_MMU__
 	buffer = alloca (buflen);
+#else
+	buffer = malloc (buflen);
+#endif
 
-	while (__gethostbyname_r (rhost, &hostbuf, buffer, 
+	while (gethostbyname_r (rhost, &hostbuf, buffer, 
 		    buflen, &hp, &herr) != 0 || hp == NULL) 
 	{
-	    if (herr != NETDB_INTERNAL || errno != ERANGE)
+	    if (herr != NETDB_INTERNAL || errno != ERANGE) {
+#ifndef __UCLIBC_HAS_MMU__
+		free(buffer);
+#endif
 		return -1;
-	    else
+	    } else
 	    {
 		/* Enlarge the buffer.  */
 		buflen *= 2;
+#ifdef __UCLIBC_HAS_MMU__
 		buffer = alloca (buflen);
+#else
+		if (buffer) {
+		    free(buffer);
+		}
+		buffer = malloc (buflen);
+#endif
 	    }
 	}
+#ifndef __UCLIBC_HAS_MMU__
+	free(buffer);
+#endif
 #else
 	if ((hp = gethostbyname(rhost)) == NULL) {
 		return -1;
@@ -402,16 +432,25 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 		uid_t uid;
 
 #ifdef _LIBC_REENTRANT
-#error "Fix the alloca stuff"
 		size_t buflen = sysconf (_SC_GETPW_R_SIZE_MAX);
-		char *buffer = alloca (buflen);
 		struct passwd pwdbuf;
+#ifdef __UCLIBC_HAS_MMU__
+		char *buffer = alloca (buflen);
+#else
+		char *buffer = malloc (buflen);
+#endif
 
-		if (__getpwnam_r (luser, &pwdbuf, buffer, 
+		if (getpwnam_r (luser, &pwdbuf, buffer, 
 			    buflen, &pwd) != 0 || pwd == NULL)
 		{
+#ifndef __UCLIBC_HAS_MMU__
+			free(buffer);
+#endif
 			return -1;
 		}
+#ifndef __UCLIBC_HAS_MMU__
+		free(buffer);
+#endif
 #else
 		if ((pwd = getpwnam(luser)) == NULL)
 			return -1;
@@ -519,7 +558,7 @@ __icheckhost (raddr, lhost, rhost)
 	buffer = malloc(buflen);
 	save_errno = errno;
 
-	while (__gethostbyname_r (lhost, &hostbuf, buffer, buflen, &hp, &herr)
+	while (gethostbyname_r (lhost, &hostbuf, buffer, buflen, &hp, &herr)
 	       != 0) {
 	    free(buffer);
 	    return (0);
