@@ -1,3 +1,9 @@
+uclibc (0.9.26-3) unstable; urgency=low
+
+  * minor updates
+
+ -- Erik Andersen <andersen@codepoet.org>  Thu, 15 Jul 2004 02:57:24 -0600
+
 uclibc (0.9.26-2) unstable; urgency=low
 
   * Fix some minor header file problems

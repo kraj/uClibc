@@ -48,7 +48,7 @@ build-stamp:
 
 	# Brute force method of getting kernel headers
 	if [ ! -f /usr/src/$(kernel_source).tar.bz2 ] ; then \
-		wget http://uclibc.org/downloads/$(kernel_source).tar.bz2 \
+		wget http://uclibc.org/downloads/toolchain/$(kernel_source).tar.bz2 \
 		-O /usr/src/$(kernel_source).tar.bz2; \
 	fi;
 	tar --bzip2 -xf /usr/src/$(kernel_source).tar.bz2
