@@ -823,20 +823,23 @@ next_lib2:
 		}
 	}
 #ifndef _DL_DO_FINI_IN_LIBC
-/* arches that has moved their ldso FINI handling should ship this part */
+	/* arches that have moved their ldso FINI handling should skip this part */
 	{
-		int (*_dl_atexit) (void *) = (int (*)(void *)) (intptr_t) _dl_find_hash("atexit", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
+		int (*_dl_atexit) (void *) = (int (*)(void *)) (intptr_t) _dl_find_hash("atexit",
+				_dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
 
 		if (_dl_atexit)
 			(*_dl_atexit) (_dl_fini);
-		/* Notify the debugger that all objects are now mapped in.  */
 	}
 #endif
-	_dl_debug_addr->r_state = RT_CONSISTENT;
-	_dl_debug_state();
 
 	/* Find the real malloc function and make ldso functions use that from now on */
-	 _dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash("malloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
+	 _dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash("malloc",
+			 _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
+
+	/* Notify the debugger that all objects are now mapped in.  */
+	_dl_debug_addr->r_state = RT_CONSISTENT;
+	_dl_debug_state();
 }
 
 char *_dl_getenv(const char *symbol, char **envp)
