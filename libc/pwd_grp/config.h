@@ -22,6 +22,7 @@
 #ifndef _CONFIG_GRP_H
 #define _CONFIG_GRP_H
 
+#include <features.h>
 #include <pwd.h>
 #include <grp.h>
 #include <shadow.h>
@@ -39,7 +40,7 @@ extern int __sgetspent_r(const char * string, struct spwd * spwd,
 
 #define PWD_BUFFER_SIZE 256
 
-  
+
 /*
  * Define GR_SCALE_DYNAMIC if you want grp to dynamically scale its read buffer
  * so that lines of any length can be used.  On very very small systems,
@@ -48,7 +49,20 @@ extern int __sgetspent_r(const char * string, struct spwd * spwd,
  * On larger systems, you will want to define this, because grp will _not_
  * deal with long lines gracefully (they will be skipped).
  */
+/*
+ * Define GR_DYNAMIC_GROUP_LIST to make initgroups() dynamically allocate
+ * space for it's GID array before calling setgroups().  This is probably
+ * unnecessary scalage, so it's undefined by default.
+ */
+#ifdef __UCLIBC_HAS_MMU__
+#define GR_SCALE_DYNAMIC 1
+#define GR_DYNAMIC_GROUP_LIST 1
+#else
 #undef GR_SCALE_DYNAMIC
+#undef GR_DYNAMIC_GROUP_LIST
+#endif
+
+
 
 #ifndef GR_SCALE_DYNAMIC
 /*
@@ -63,13 +77,6 @@ extern int __sgetspent_r(const char * string, struct spwd * spwd,
 
 #endif /* !GR_SCALE_DYNAMIC */
 
-
-/*
- * Define GR_DYNAMIC_GROUP_LIST to make initgroups() dynamically allocate
- * space for it's GID array before calling setgroups().  This is probably
- * unnecessary scalage, so it's undefined by default.
- */
-#undef GR_DYNAMIC_GROUP_LIST
 
 #ifndef GR_DYNAMIC_GROUP_LIST
 /*
