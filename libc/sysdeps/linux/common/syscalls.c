@@ -1328,11 +1328,6 @@ int sigsuspend (const sigset_t *mask)
 #endif
 
 //#define __NR_pread                    180
-#if 0
-/* If you enable these, be sure to also enable the cancelable version
- * in uClibc/libpthread/linuxthreads/wrapsyscall.c so this can be
- * overriden.
- */
 #ifdef L___libc_pread
 #define _XOPEN_SOURCE 500
 #include <unistd.h>
@@ -1340,17 +1335,14 @@ int sigsuspend (const sigset_t *mask)
 _syscall4(ssize_t, __libc_pread, int, fd, void *, buf, size_t, count, off_t, offset);
 weak_alias (__libc_pread, pread)
 #endif
-#endif
 
 //#define __NR_pwrite                   181
-#if 0
 #ifdef L___libc_pwrite
 #define _XOPEN_SOURCE 500
 #include <unistd.h>
 #define __NR___libc_pwrite __NR_pwrite
 _syscall4(ssize_t, __libc_pwrite, int, fd, const void *, buf, size_t, count, off_t, offset);
 weak_alias (__libc_pwrite, pwrite)
-#endif
 #endif
 
 //#define __NR_chown                    182

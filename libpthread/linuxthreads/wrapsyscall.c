@@ -31,6 +31,7 @@
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
+#include <sys/syscall.h>
 
 
 #ifndef PIC
@@ -126,7 +127,6 @@ strong_alias (open64, __open64)
 CANCELABLE_SYSCALL (int, pause, (void), ())
 
 
-#if 0
 /* Enable this if enabling these in syscalls.c */
 /* pread(3).  */
 CANCELABLE_SYSCALL (ssize_t, pread, (int fd, void *buf, size_t count,
@@ -134,7 +134,7 @@ CANCELABLE_SYSCALL (ssize_t, pread, (int fd, void *buf, size_t count,
 		    (fd, buf, count, offset))
 
 
-#ifdef __UCLIBC_HAVE_LFS__
+#if defined __UCLIBC_HAVE_LFS__ && defined __NR_pread64
 /* pread64(3).  */
 CANCELABLE_SYSCALL (ssize_t, pread64, (int fd, void *buf, size_t count,
 				       off64_t offset),
@@ -148,13 +148,12 @@ CANCELABLE_SYSCALL (ssize_t, pwrite, (int fd, const void *buf, size_t n,
 		    (fd, buf, n, offset))
 
 
-#ifdef __UCLIBC_HAVE_LFS__
+#if defined __UCLIBC_HAVE_LFS__ && defined __NR_pwrited64
 /* pwrite64(3).  */
 CANCELABLE_SYSCALL (ssize_t, pwrite64, (int fd, const void *buf, size_t n,
 					off64_t offset),
 		    (fd, buf, n, offset))
 strong_alias (pwrite64, __pwrite64)
-#endif
 #endif
 
 /* read(2).  */
