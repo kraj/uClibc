@@ -590,8 +590,8 @@ _dl_do_copy (struct elf_resolve *tpnt, struct dyn_elf *scope,
 			     symname, symtab[symtab_index].st_size,
 			     symbol_addr, symtab[symtab_index].st_value);
 #endif
-		_dl_memcpy((char *) symtab[symtab_index].st_value, 
-			(char *) symbol_addr, symtab[symtab_index].st_size);
+			_dl_memcpy((char *) reloc_addr,
+					(char *) symbol_addr, symtab[symtab_index].st_size);
 	}
 
 	return goof;
