@@ -24,6 +24,7 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 DIRS = $(TARGET_ARCH) common
+ALL_SUBDIRS = $(shell find * -type d -prune -name [a-z]\*)
 
 all: libc.a
 
@@ -35,12 +36,12 @@ tags:
 clean: subdirs_clean
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 
 $(patsubst %, _dir_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
+$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 
