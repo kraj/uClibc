@@ -22,7 +22,7 @@
 #include <sys/syscall.h>
 
 /* This must be initialized data because commons can't have aliases.  */
-void *___brk_addr = 0;
+void *__curbrk = 0;
 
 int brk (void *addr)
 {
@@ -31,11 +31,11 @@ int brk (void *addr)
     asm ("mov a1, %1\n"	/* save the argment in r0 */
 	    "swi %2\n"	/* do the system call */
 	    "mov %0, a1;"	/* keep the return value */
-	    : "=r"(newbrk) 
+	    : "=r"(newbrk)
 	    : "r"(addr), "i" (__NR_brk)
 	    : "a1");
 
-    ___brk_addr = newbrk;
+    __curbrk = newbrk;
 
     if (newbrk < addr)
     {

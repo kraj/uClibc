@@ -20,7 +20,7 @@
 #include <errno.h>
 
 /* Defined in brk.c.  */
-extern void *___brk_addr;
+extern void *__curbrk;
 extern int brk (void *addr);
 
 
@@ -31,14 +31,14 @@ void * sbrk (intptr_t increment)
 {
     void *oldbrk;
 
-    if (___brk_addr == NULL)
+    if (__curbrk == NULL)
 	if (brk (0) < 0)		/* Initialize the break.  */
 	    return (void *) -1;
 
     if (increment == 0)
-	return ___brk_addr;
+	return __curbrk;
 
-    oldbrk = ___brk_addr;
+    oldbrk = __curbrk;
     if (brk (oldbrk + increment) < 0)
 	return (void *) -1;
 

@@ -29,12 +29,12 @@
 #ifdef __PIC__
 .section .bss
 	.align 3
-	.globl ___brk_addr
-___brk_addr: .skip 8
-	.type ___brk_addr,@object
-	.size ___brk_addr,8
+	.globl __curbrk
+__curbrk: .skip 8
+	.type __curbrk,@object
+	.size __curbrk,8
 #else
-.comm ___brk_addr, 8
+.comm __curbrk, 8
 #endif
 
 	.text
@@ -71,9 +71,9 @@ __brk:
 	xor	$16, $0, $1
 	bne	$1, $err0
 
-	/* Update ___brk_addr and return cleanly.  */
+	/* Update __curbrk and return cleanly.  */
 	mov	$31, $0
-$ok:	stq	$16, ___brk_addr
+$ok:	stq	$16, __curbrk
 	addq	$30, 8, $30
 	ret
 

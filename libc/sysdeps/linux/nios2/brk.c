@@ -23,7 +23,7 @@
 
 
 /* This must be initialized data because commons can't have aliases.  */
-void *___brk_addr = 0;
+void *__curbrk = 0;
 
 
 int brk (void *addr)
@@ -35,7 +35,7 @@ int brk (void *addr)
 
     asm volatile ("trap\n\t" : "=r"(newbrk) : "0"(r2), "r"(r3), "r"(r4));
 
-    ___brk_addr = newbrk;
+    __curbrk = newbrk;
 
     if (newbrk < addr) {
       __set_errno (ENOMEM);

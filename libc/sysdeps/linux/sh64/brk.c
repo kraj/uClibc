@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
-extern void * ___brk_addr;
+extern void * __curbrk;
 
 extern int __init_brk (void);
 extern void *_brk(void *ptr);
@@ -13,8 +13,8 @@ int brk(void * end_data_seg)
 {
     if (__init_brk () == 0)
     {
-		___brk_addr = _brk(end_data_seg);
-		if (___brk_addr == end_data_seg)
+		__curbrk = _brk(end_data_seg);
+		if (__curbrk == end_data_seg)
 			return 0;
 		__set_errno(ENOMEM);
     }

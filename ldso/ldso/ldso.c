@@ -612,7 +612,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	   up each symbol individually. */
 
 
-	_dl_brkp = (unsigned long *) (intptr_t) _dl_find_hash("___brk_addr", NULL, 0);
+	_dl_brkp = (unsigned long *) (intptr_t) _dl_find_hash("__curbrk", NULL, 0);
 
 	if (_dl_brkp) {
 		*_dl_brkp = brk_addr;

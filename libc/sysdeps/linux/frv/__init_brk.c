@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
-void * ___brk_addr = 0;
+void * __curbrk = 0;
 
 #define __NR__brk __NR_brk
 _syscall1(void *, _brk, void *, ptr);
@@ -12,10 +12,10 @@ _syscall1(void *, _brk, void *, ptr);
 int
 __init_brk (void)
 {
-    if (___brk_addr == 0)
+    if (__curbrk == 0)
     {
-		___brk_addr = _brk(0);
-		if (___brk_addr == 0)
+		__curbrk = _brk(0);
+		if (__curbrk == 0)
 		{
 		  __set_errno(ENOMEM);
 		  return -1;

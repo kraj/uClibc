@@ -23,7 +23,7 @@
 
 
 /* This must be initialized data because commons can't have aliases.  */
-void *___brk_addr = 0;
+void *__curbrk = 0;
 
 
 int brk (void *addr)
@@ -37,7 +37,7 @@ int brk (void *addr)
 	    : "=a" (newbrk), "=r" (scratch)
 	    : "0" (__NR_brk), "g" (__ptrvalue (addr)));
 
-    ___brk_addr = newbrk;
+    __curbrk = newbrk;
 
     if (newbrk < addr)
     {

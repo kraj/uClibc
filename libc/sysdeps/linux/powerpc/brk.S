@@ -23,7 +23,7 @@
 #include <sys/syscall.h>
 
 #ifdef __NR_brk
-	.comm	___brk_addr,4,4
+	.comm	__curbrk,4,4
 	.section ".text"
 .globl      __brk;
 .type      __brk, @function;
@@ -39,12 +39,12 @@ __brk:
 	mflr    r4
 	bl      _GLOBAL_OFFSET_TABLE_@local-4
 	mflr    r5
-	lwz     r5,___brk_addr@got(r5)
+	lwz     r5,__curbrk@got(r5)
 	mtlr    r4
 	stw     r3,0(r5)
 #else
-	lis     r4,___brk_addr@ha
-	stw     r3,___brk_addr@l(r4)
+	lis     r4,__curbrk@ha
+	stw     r3,__curbrk@l(r4)
 #endif
 	cmplw   r6,r3
 	addi    r1,r1,16
