@@ -17,6 +17,6 @@
 #define	_PATH_TMP	"/tmp/"
 #define _PATH_LASTLOG	"/var/log/lastlog"
 #define _PATH_LOCALE	"/usr/lib/locale"
-#define _PATH_VARRUN	"/var/log/"
+#define _PATH_VARRUN	"/var/run/"
 
 #endif /* __PATHS_H */
