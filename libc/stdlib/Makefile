@@ -25,6 +25,7 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 DIRS = $(MALLOC)
+ALL_SUBDIRS = $(shell find * -type d -prune -name [a-z]\*)
 
 MSRC=strto_l.c
 MOBJ=strtol.o strtoul.o strto_l.o
@@ -72,12 +73,12 @@ $(COBJS): %.o : %.c
 $(OBJ): Makefile
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 
 $(patsubst %, _dir_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
+$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 clean: subdirs_clean
