@@ -101,7 +101,8 @@ int check_elf_header(Elf32_Ehdr const *const ehdr)
 	return 0;
 }
 
-/* This function must exactly match that in uClibc/ldso/util/ldd.c */
+/* This function's behavior must exactly match that 
+ * in uClibc/ldso/d-link/readelflib1.c */
 static void search_for_named_library(char *name, char *result, const char *path_list)
 {
 	int i, count = 0;
@@ -121,7 +122,7 @@ static void search_for_named_library(char *name, char *result, const char *path_
 		memmove(path_n, path_n+1, i-1);
 	}
 
-	/* Replace colons with zeros in path_parsed and count them */
+	/* Replace colons with zeros in path_list and count them */
 	for(i=strlen(path); i > 0; i--) {
 		if (path[i]==':') {
 			path[i]=0;
@@ -196,9 +197,12 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 		}
 	}
 
+#ifdef USE_CACHE
 	/* FIXME -- add code to check the Cache here */ 
+#endif
 
-	/* Lastly, search the standard list of paths for the library */
+	/* Lastly, search the standard list of paths for the library.
+	   This list must exactly match the list in uClibc/ldso/d-link/readelflib1.c */
 	path =	UCLIBC_TARGET_PREFIX "/usr/lib:"
 			UCLIBC_TARGET_PREFIX "/lib:"
 			UCLIBC_DEVEL_PREFIX "/lib:"
