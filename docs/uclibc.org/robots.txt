@@ -1,3 +1,2 @@
 # go away
 User-agent: *
-Disallow: /cgi-bin
