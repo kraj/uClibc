@@ -8,4 +8,16 @@ test_pwd
 test_pwd.out
 test_pwd_glibc
 test_pwd_glibc.out
+pwcat
+pwcat.o
+pwcat.out
+pwcat_glibc
+pwcat_glibc.o
+pwcat_glibc.out
+grcat
+grcat.o
+grcat.out
+grcat_glibc
+grcat_glibc.o
+grcat_glibc.out
 
