@@ -1,6 +1,6 @@
 /*
  * Distributed under the terms of the GNU General Public License v2
- * $Header: /var/cvs/uClibc/libc/sysdeps/linux/common/ssp.c,v 1.3 2004/11/11 03:12:37 solar Exp $
+ * $Header: /var/cvs/uClibc/libc/sysdeps/linux/common/ssp.c,v 1.4 2004/11/11 03:13:36 solar Exp $
  *
  * This is a modified version of Hiroaki Etoh's stack smashing routines
  * implemented for glibc.
@@ -108,7 +108,7 @@ void __stack_smash_handler(char func[], int damaged)
 
 	/* print error message to stderr and syslog */
 	fprintf(stderr, "%s%s%s()\n", __progname, message, func);
-	syslog(KERN_INFO, "%s%s%s()", __progname, message, func);
+	syslog(LOG_INFO, "%s%s%s()", __progname, message, func);
 
 	/* Make sure the default handler is associated with the our signal handler */
 	memset(&sa, 0, sizeof(struct sigaction));
