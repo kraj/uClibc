@@ -67,7 +67,6 @@
 #define	_PATH_SHADOW	"/etc/shadow"
 #define	_PATH_PASSWD	"/etc/passwd"
 #define	_PATH_GROUP	"/etc/group"
-#define	_PATH_TZ	"/etc/TZ"
 
 /* Provide trailing slash, since mostly used for building pathnames. */
 #define	_PATH_DEV	"/dev/"

@@ -401,9 +401,9 @@ char *ctime(const time_t *clock)
 
 char *ctime_r(const time_t *clock, char *buf)
 {
-	struct tm xtms;
+	struct tm xtm;
 
-	return asctime_r(localtime_r(clock, &xtms), buf);
+	return asctime_r(localtime_r(clock, &xtm), buf);
 }
 
 #endif
@@ -589,13 +589,12 @@ struct tm *localtime_r(register const time_t *__restrict timer,
 		*x = *timer + offset;
 
 		_time_t2tm(x, days, result);
-		
-		if (dst) {
-			result->tm_isdst = dst;
-			break;
-		}
-		++dst;
-	} while ((result->tm_isdst = tm_isdst(result)) != 0);
+		result->tm_isdst = dst;
+#ifdef __UCLIBC_HAS_TM_EXTENSIONS__
+		result->tm_gmtoff = - _time_tzinfo[dst].gmt_offset;
+		strcpy( (char *)(result->tm_zone), _time_tzinfo[dst].tzname);
+#endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
+	} while ((++dst < 2) && (result->tm_isdst = tm_isdst(result)) != 0);
 
 	TZUNLOCK;
 
@@ -606,10 +605,15 @@ struct tm *localtime_r(register const time_t *__restrict timer,
 /**********************************************************************/
 #ifdef L_mktime
 
+/* Another name for `mktime'.  */
+/* time_t timelocal(struct tm *tp) */
+weak_alias(mktime,timelocal);
+
 time_t mktime(struct tm *timeptr)
 {
 	return  _time_mktime(timeptr, 1);
 }
+
 
 #endif
 /**********************************************************************/
@@ -1538,7 +1542,7 @@ static char *read_TZ_file(char *buf)
 	size_t todo;
 	char *p = NULL;
 
-	if ((fd = open(_PATH_TZ, O_RDONLY)) >= 0) {
+	if ((fd = open("/etc/TZ", O_RDONLY)) >= 0) {
 		todo = TZ_BUFLEN;
 		p = buf;
 		do {
@@ -1612,7 +1616,7 @@ void tzset(void)
 		 ) || !*e) {			/* or set to empty string. */
 	ILLEGAL:					/* TODO: Clean up the following... */
 #ifdef __TIME_TZ_OPT_SPEED
-		*oldval = 0;			/* Set oldval tonnn empty string. */
+		*oldval = 0;			/* Set oldval to an empty string. */
 #endif /* __TIME_TZ_OPT_SPEED */
 		s = _time_tzinfo[0].tzname;
 		*s = 'U';
@@ -1932,6 +1936,16 @@ struct tm *_time_t2tm(const time_t *__restrict timer,
 	}
 	/* TODO -- should this be 0? */
 	p[4] = 0;					/* result[8] .. tm_isdst */
+#ifdef __UCLIBC_HAS_TM_EXTENSIONS__
+	result->tm_gmtoff = 0;
+	{
+		register char *s = (char *) result->tm_zone;
+		*s = 'U';
+		*++s = 'T';
+		*++s = 'C';
+		*++s = 0;
+	}
+#endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
 
 	return result;
 }
@@ -2041,3 +2055,17 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 
 #endif
 /**********************************************************************/
+#ifdef L_dysize
+/* Return the number of days in YEAR.  */
+
+int dysize(int year)
+{
+	return __isleap(year) ? 366 : 365;
+}
+
+#endif
+/**********************************************************************/
+/* Like `mktime', but for TP represents Universal Time, not local time.  */
+/* time_t timegm(struct tm *tp) */
+
+
