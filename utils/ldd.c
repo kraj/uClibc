@@ -281,7 +281,7 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_suid, stru
 
 	/* If this is a fully resolved name, our job is easy */
 	if (stat (lib->name, &filestat) == 0) {
-		lib->path = lib->name;
+		lib->path = strdup(lib->name);
 		return;
 	}
 
@@ -470,7 +470,7 @@ static struct library * find_elf_interpreter(Elf32_Ehdr* ehdr)
 			return NULL;
 		newlib->name = malloc(strlen(s)+1);
 		strcpy(newlib->name, s);
-		newlib->path = newlib->name;
+		newlib->path = strdup(newlib->name);
 		newlib->resolved = 1;
 		newlib->next = NULL;
 
@@ -664,13 +664,11 @@ int main( int argc, char** argv)
 			printf("\tnot a dynamic executable\n");
 
 		for (cur = lib_list; cur; cur=cur->next) {
+			free(cur->name);
+			cur->name=NULL;
 			if (cur->path && cur->path != not_found) {
 				free(cur->path);
 				cur->path=NULL;
-			}
-			if (cur->name) {
-				free(cur->name);
-				cur->name=NULL;
 			}
 		}
 		lib_list=NULL;
