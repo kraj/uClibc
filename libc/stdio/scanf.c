@@ -29,6 +29,9 @@
  *
  * So uClibc's *scanf functions conform to the standard, and glibc's
  * implementation doesn't for the "100ergs" case mentioned above.
+ *
+ * Sep 6, 2002
+ * Patch from Tero_Lyytikäinen <tero@paravant.fi> to fix bug in matchchar case.
  */
 
 #define _ISOC99_SOURCE			/* for LLONG_MAX primarily... */
@@ -581,6 +584,7 @@ int vfscanf(FILE *fp, const char *format, va_list ap)
 		} else {				/* Match the current fmt char. */
 		matchchar:
 			if (scan_getc_nw(&sc) != *fmt) {
+				scan_ungetc(&sc);
 				goto done;
 			}
 			scan_getc_nw(&sc);
