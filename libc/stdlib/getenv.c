@@ -4,9 +4,8 @@
  */
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <malloc.h>
-
-extern char **environ;
 
 char *getenv(var)
 const char *var;
@@ -16,10 +15,10 @@ const char *var;
 
 	len = strlen(var);
 
-	if (!environ)
+	if (!__environ)
 		return 0;
 
-	for (p = environ; *p; p++) {
+	for (p = __environ; *p; p++) {
 		if (memcmp(var, *p, len) == 0 && (*p)[len] == '=')
 			return *p + len + 1;
 	}

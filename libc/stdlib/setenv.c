@@ -21,9 +21,6 @@ Cambridge, MA 02139, USA.  */
 #include <unistd.h>
 #include <errno.h>
 
-#if !defined(HAVE_GNU_LD) && !defined (__ELF__)
-#define	__environ	environ
-#endif
 
 #if defined(_REENTRENT) || defined(_THREAD_SAFE)
 # include <pthread.h>

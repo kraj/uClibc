@@ -4,9 +4,8 @@
  */
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <malloc.h>
-
-extern char **environ;
 
 #define ADD_NUM 4
 
@@ -25,14 +24,14 @@ const char *var;
 	else
 		len = r - var;
 
-	if (!environ) {
-		environ = (char **) malloc(ADD_NUM * sizeof(char *));
-		memset(environ, 0, sizeof(char *) * ADD_NUM);
+	if (!__environ) {
+		__environ = (char **) malloc(ADD_NUM * sizeof(char *));
+		memset(__environ, 0, sizeof(char *) * ADD_NUM);
 
 		extras = ADD_NUM;
 	}
 
-	for (p = environ; *p; p++) {
+	for (p = __environ; *p; p++) {
 		if (memcmp(var, *p, len) == 0 && (*p)[len] == '=') {
 			while ((p[0] = p[1]))
 				p++;
@@ -43,20 +42,20 @@ const char *var;
 	if (r == 0)
 		return 0;
 	if (extras <= 0) {			/* Need more space */
-		d = malloc((p - environ + 1 + ADD_NUM) * sizeof(char *));
+		d = malloc((p - __environ + 1 + ADD_NUM) * sizeof(char *));
 
 		if (d == 0)
 			return -1;
 
-		memcpy((void *) d, (void *) environ,
+		memcpy((void *) d, (void *) __environ,
 
-			   (p - environ + 1) * sizeof(char *));
-		p = d + (p - environ);
+			   (p - __environ + 1) * sizeof(char *));
+		p = d + (p - __environ);
 		extras = ADD_NUM;
 
 		if (mall_env)
 			free(mall_env);
-		environ = d;
+		__environ = d;
 		mall_env = d;
 	}
 	*p++ = strdup((char *) var);

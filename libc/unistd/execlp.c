@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <stdarg.h>
 
-extern char **environ;
 extern int execvep(const char *path, char *__const argv[], char *__const envp[]);
 
 int execlp(__const char *file, __const char *arg, ...)
@@ -43,7 +42,7 @@ int execlp(__const char *file, __const char *arg, ...)
 
 	va_end(args);
 
-	i = execvep(file, (char *const *) argv, environ);
+	i = execvep(file, (char *const *) argv, __environ);
 
 	if (argv != shortargv)
 		free(argv);

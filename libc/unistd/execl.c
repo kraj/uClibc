@@ -3,8 +3,6 @@
 #include <unistd.h>
 #include <stdarg.h>
 
-extern char **environ;
-
 int execl(__const char *path, __const char *arg, ...)
 {
 	const char *shortargv[16];
@@ -42,7 +40,7 @@ int execl(__const char *path, __const char *arg, ...)
 
 	va_end(args);
 
-	i = execve(path, (char *const *) argv, environ);
+	i = execve(path, (char *const *) argv, __environ);
 
 	if (argv != shortargv)
 		free(argv);
