@@ -20,6 +20,7 @@ rm -f libc.ldr
 $LD -r -o libc.ldr ../../lib/crt0.o ../../lib/crti.o ../../lib/crtn.o --whole-archive ../libc.a
 
 if $NM --undefined-only libc.ldr | grep -v "^main$" | grep -v "^_GLOBAL_OFFSET_TABLE_$" > sym.need ; then
+    EXIT_WITH_ERROR=0
     rm -f obj.need
     touch obj.need
     for SYM in `cat sym.need | sed -e 's/ U //g'` ; do
@@ -27,8 +28,10 @@ if $NM --undefined-only libc.ldr | grep -v "^main$" | grep -v "^_GLOBAL_OFFSET_T
 	    $NM -s $LIBGCC | grep $SYM" in " | cut -d' ' -f3 >> obj.need
 	else
 	    echo Symbol $SYM needed by libc.a but not found in libgcc.a
+	    EXIT_WITH_ERROR=1
 	fi
     done
+    exit $EXIT_WITH_ERROR
 else
     echo No missing symbols found.
     exit 0
