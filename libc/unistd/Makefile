@@ -56,7 +56,7 @@ sysconf_$(TARGET_ARCH).c: sysconf.c
 	@echo warning: sysconf_$(NATIVE_ARCH).c is older then sysconf.c so using generic sysconf.c
 	@echo To build sysconf_$(NATIVE_ARCH).c run gen_sysconf \> sysconf_$(NATIVE_ARCH).c on
 	@echo your target platform, place in the unistd directory, and rebuild
-	cp -f sysconf.c sysconf_src.c
+	cp -f sysconf.c sysconf_$(TARGET_ARCH).c
 
 # We are compiling for the native platform, so build an optimized sysconf.c.
 sysconf_native: sysconf.c
