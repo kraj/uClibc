@@ -196,6 +196,13 @@ void *_dlopen(const char *libname, int flag)
 
 	rpnt->next = _dl_symbol_tables;
 
+	/*
+	 * MIPS is special *sigh*
+	 */
+#ifdef __mips__
+	_dl_perform_mips_global_got_relocations(tpnt);
+#endif
+
 	if (do_fixup(tpnt, flag)) {
 		_dl_error_number = LD_NO_SYMBOL;
 		goto oops;
@@ -215,6 +222,8 @@ void *_dlopen(const char *libname, int flag)
 		/* Apparently crt1 for the application is responsible for handling this.
 		 * We only need to run the init/fini for shared libraries
 		 */
+		if (tpnt->libtype == program_interpreter)
+			continue;
 		if (tpnt->libtype == elf_executable)
 			continue;
 		if (tpnt->init_flag & INIT_FUNCS_CALLED)
