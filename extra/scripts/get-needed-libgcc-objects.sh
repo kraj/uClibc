@@ -19,7 +19,7 @@ echo "    partial linking..."
 rm -f libc.ldr
 $LD -r -o libc.ldr ../crt0.o --whole-archive ../libc.a
 
-if $NM --undefined-only libc.ldr | grep -v "^main$" > sym.need ; then
+if $NM --undefined-only libc.ldr | grep -v "^main$" | grep -v "^_GLOBAL_OFFSET_TABLE_$" > sym.need ; then
     rm -f obj.need
     touch obj.need
     for SYM in `cat sym.need | sed -e 's/ U //g'` ; do
