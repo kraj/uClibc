@@ -51,3 +51,7 @@ memcmp:
 	beq	1b
 	sub	r0, r2, r3
 	mov	pc, lr
+
+.weak  bcmp;
+    bcmp = memcmp
+
