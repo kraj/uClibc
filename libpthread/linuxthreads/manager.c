@@ -38,6 +38,16 @@
 #include "semaphore.h"
 #include "debug.h" /* PDEBUG, added by StS */
 
+
+/* poll() is not supported in kernel <= 2.0, therefore is __NR_poll is
+ * not available, we assume an old Linux kernel is in use and we will
+ * use select() instead. */
+#include <sys/syscall.h>
+#ifndef __NR_poll
+# define USE_SELECT
+#endif
+
+
 /* Array of active threads. Entry 0 is reserved for the initial thread. */
 struct pthread_handle_struct __pthread_handles[PTHREAD_THREADS_MAX] =
 { { LOCK_INITIALIZER, &__pthread_initial_thread, 0},
@@ -104,7 +114,12 @@ static void pthread_kill_all_threads(int sig, int main_thread_also);
 int __pthread_manager(void *arg)
 {
   int reqfd = (int) (long int) arg;
+#ifdef USE_SELECT
+  struct timeval tv;
+  fd_set fd;
+#else
   struct pollfd ufd;
+#endif
   sigset_t mask;
   int n;
   struct pthread_request request;
@@ -126,14 +141,23 @@ int __pthread_manager(void *arg)
   /* Synchronize debugging of the thread manager */
   n = __libc_read(reqfd, (char *)&request, sizeof(request));
   ASSERT(n == sizeof(request) && request.req_kind == REQ_DEBUG);
+#ifndef USE_SELECT
   ufd.fd = reqfd;
   ufd.events = POLLIN;
+#endif
   /* Enter server loop */
   while(1) {
+#ifdef USE_SELECT
+    tv.tv_sec = 2;
+    tv.tv_usec = 0;
+    FD_ZERO (&fd);
+    FD_SET (reqfd, &fd);
+    n = select (reqfd + 1, &fd, NULL, NULL, &tv);
+#else
 PDEBUG("before poll\n");
     n = poll(&ufd, 1, 2000);
 PDEBUG("after poll\n");
-
+#endif
     /* Check for termination of the main thread */
     if (getppid() == 1) {
       pthread_kill_all_threads(SIGKILL, 0);
@@ -145,7 +169,13 @@ PDEBUG("after poll\n");
       pthread_reap_children();
     }
     /* Read and execute request */
-    if (n == 1 && (ufd.revents & POLLIN)) {
+#ifdef USE_SELECT
+    if (n == 1)
+#else
+    if (n == 1 && (ufd.revents & POLLIN))
+#endif
+    {
+
 PDEBUG("before __libc_read\n");
       n = __libc_read(reqfd, (char *)&request, sizeof(request));
 PDEBUG("after __libc_read, n=%d\n", n);
@@ -488,6 +518,18 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   /* Do the cloning.  We have to use two different functions depending
      on whether we are debugging or not.  */
   pid = 0;     /* Note that the thread never can have PID zero.  */
+
+
+  /* ******************************************************** */
+  /*  This code was moved from below to cope with running threads
+   *  on uClinux systems.  See comment below...
+   * Insert new thread in doubly linked list of active threads */ 
+  new_thread->p_prevlive = __pthread_main_thread;
+  new_thread->p_nextlive = __pthread_main_thread->p_nextlive;
+  __pthread_main_thread->p_nextlive->p_prevlive = new_thread;
+  __pthread_main_thread->p_nextlive = new_thread;
+  /* ********************************************************* */
+
   if (report_events)
     {
       /* See whether the TD_CREATE event bit is set in any of the
@@ -535,6 +577,14 @@ PDEBUG("cloning new_thread = %p\n", new_thread);
 		  __pthread_sig_cancel, new_thread);
   /* Check if cloning succeeded */
   if (pid == -1) {
+    /******************************************************** 
+     * Code inserted to remove the thread from our list of active
+     * threads in case of failure (needed to cope with uClinux), 
+     * See comment below. */
+    new_thread->p_nextlive->p_prevlive = new_thread->p_prevlive;
+    new_thread->p_prevlive->p_nextlive = new_thread->p_nextlive;
+    /********************************************************/
+
     /* Free the stack if we allocated it */
     if (attr == NULL || !attr->__stackaddr_set)
       {
@@ -553,11 +603,25 @@ PDEBUG("cloning new_thread = %p\n", new_thread);
     return errno;
   }
 PDEBUG("new thread pid = %d\n", pid);
+
+#if 0
+  /* ***********************************************************
+   This code has been moved before the call to clone().  In uClinux,
+   the use of wait on a semaphore is dependant upon that the child so
+   the child must be in the active threads list. This list is used in
+   pthread_find_self() to get the pthread_descr of self. So, if the
+   child calls sem_wait before this code is executed , it will hang
+   forever and initial_thread will instead be posted by a sem_post
+   call. */
+
   /* Insert new thread in doubly linked list of active threads */
   new_thread->p_prevlive = __pthread_main_thread;
   new_thread->p_nextlive = __pthread_main_thread->p_nextlive;
   __pthread_main_thread->p_nextlive->p_prevlive = new_thread;
   __pthread_main_thread->p_nextlive = new_thread;
+  /************************************************************/
+#endif
+
   /* Set pid field of the new thread, in case we get there before the
      child starts. */
   new_thread->p_pid = pid;
