@@ -23,7 +23,7 @@ DIRS:=
 MSRC1 = exec.c
 MOBJ1 = execl.o execv.o execle.o execlp.o execvp.o
 
-CSRC=	sleep.c usleep.c getpass.c sysconf.c getlogin.c \
+CSRC=	sleep.c usleep.c ualarm.c getpass.c sysconf.c getlogin.c \
 	fpathconf.c confstr.c pathconf.c swab.c usershell.c \
 	getsubopt.c
 
