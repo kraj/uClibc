@@ -16,8 +16,11 @@ _dl_boot:
 	sw $4, -0x7ff0($28)
 	move $4, $29
 	la $8, coff
-	bltzal $8, coff
+	.set noreorder
+	bltzal $0, coff
+	nop
 coff:	subu $8, $31, $8
+	.set reorder
 	la $25, _dl_boot2
 	addu $25, $8
 	jalr $25

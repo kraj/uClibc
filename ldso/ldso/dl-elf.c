@@ -527,14 +527,14 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 #if defined(__mips__)
 	{
-	    int i = 1;
-	    Elf32_Dyn *dpnt = (Elf32_Dyn *) dynamic_addr;
+		int i = 1;
+		Elf32_Dyn *dpnt = (Elf32_Dyn *) dynamic_addr;
 
-	    while(dpnt->d_tag) {
-		dpnt++;
-		i++;
-	    }
-	    dynamic_size = i * sizeof(Elf32_Dyn);
+		while(dpnt->d_tag) {
+			dpnt++;
+			i++;
+		}
+		dynamic_size = i;
 	}
 #endif
 

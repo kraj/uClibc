@@ -20,12 +20,10 @@
 
 
 /*
- * Initialization sequence for the application or library GOT.
+ * Initialization sequence for the application/library GOT.
  */
 #define INIT_GOT(GOT_BASE,MODULE)										\
 do {																	\
-	Elf32_Sym *sym;														\
-	char *strtab;														\
 	unsigned long i;													\
 																		\
 	/* Check if this is the dynamic linker itself */					\
@@ -41,43 +39,6 @@ do {																	\
 	while (i < MODULE->mips_local_gotno)								\
 		GOT_BASE[i++] += (unsigned long) MODULE->loadaddr;				\
 																		\
-	/* Handle global GOT entries */										\
-	GOT_BASE += MODULE->mips_local_gotno;								\
-	sym = (Elf32_Sym *) (MODULE->dynamic_info[DT_SYMTAB] +				\
-		(unsigned long) MODULE->loadaddr) + MODULE->mips_gotsym;		\
-	strtab = (char *) (MODULE->dynamic_info[DT_STRTAB] +				\
-		(unsigned long) MODULE->loadaddr);								\
-	i = MODULE->mips_symtabno - MODULE->mips_gotsym;					\
-	while (i--) {														\
-		if (sym->st_shndx == SHN_UNDEF) {								\
-			if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&				\
-				sym->st_value)											\
-				*GOT_BASE = sym->st_value +								\
-					(unsigned long) MODULE->loadaddr;					\
-			else {														\
-				*GOT_BASE = (unsigned long) _dl_find_hash(strtab +		\
-					sym->st_name, MODULE->symbol_scope, NULL, 1);		\
-			}															\
-		}																\
-		else if (sym->st_shndx == SHN_COMMON) {							\
-			*GOT_BASE = (unsigned long) _dl_find_hash(strtab +			\
-				sym->st_name, MODULE->symbol_scope, NULL, 1);			\
-		}																\
-		else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&				\
-			*GOT_BASE != sym->st_value)									\
-			*GOT_BASE += (unsigned long) MODULE->loadaddr;				\
-		else if (ELF32_ST_TYPE(sym->st_info) == STT_SECTION) {			\
-			if (sym->st_other == 0)										\
-				*GOT_BASE += (unsigned long) MODULE->loadaddr;			\
-		}																\
-		else {															\
-			*GOT_BASE = (unsigned long) _dl_find_hash(strtab +			\
-				sym->st_name, MODULE->symbol_scope, NULL, 1);			\
-		}																\
-																		\
-		++GOT_BASE;														\
-		++sym;															\
-	}																	\
 } while (0)
 
 

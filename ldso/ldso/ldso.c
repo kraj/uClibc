@@ -709,12 +709,10 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			app_tpnt->usage_count++;
 			app_tpnt->symbol_scope = _dl_symbol_tables;
 			lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
-#ifndef __mips__
 #ifdef ALLOW_ZERO_PLTGOT
 			if (lpnt)
 #endif
 				INIT_GOT(lpnt, _dl_loaded_modules);
-#endif
 		}
 
 		/* OK, fill this in - we did not have this before */
@@ -1046,6 +1044,14 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	}
 #endif
 
+#ifdef __mips__
+	/*
+	 * Relocation of the GOT entries for MIPS have to be done
+	 * after all the libraries have been loaded.
+	 */
+	_dl_perform_mips_global_got_relocations(_dl_loaded_modules);
+#endif
+
 #ifdef DL_DEBUG
 	_dl_dprintf(2, "Beginning relocation fixups\n");
 #endif
@@ -1090,11 +1096,6 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	if (_dl_envp) {
 		*_dl_envp = (unsigned long) envp;
 	}
-
-#ifdef __mips__
-	lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
-	INIT_GOT(lpnt, _dl_loaded_modules);
-#endif
 
 #ifdef DO_MPROTECT_HACKS
 	{

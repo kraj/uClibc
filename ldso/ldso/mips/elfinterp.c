@@ -142,3 +142,62 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 	};
 	return 0;
 }
+
+void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
+{
+	Elf32_Sym *sym;
+	char *strtab;
+	unsigned long i;
+	unsigned long *got_entry;
+
+	for (; tpnt ; tpnt = tpnt->next) {
+
+		/* We don't touch the dynamic linker */
+		if (tpnt->libtype == program_interpreter)
+			continue;
+
+		/* Setup the loop variables */
+		got_entry = (unsigned long *) (tpnt->loadaddr +
+			tpnt->dynamic_info[DT_PLTGOT]) + tpnt->mips_local_gotno;
+		sym = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] +
+			(unsigned long) tpnt->loadaddr) + tpnt->mips_gotsym;
+		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] +
+			(unsigned long) tpnt->loadaddr);
+		i = tpnt->mips_symtabno - tpnt->mips_gotsym;
+
+		/* Relocate the global GOT entries for the object */
+		while(i--) {
+			if (sym->st_shndx == SHN_UNDEF) {
+				if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC && sym->st_value)
+					*got_entry = sym->st_value + (unsigned long) tpnt->loadaddr;
+				else {
+					*got_entry = (unsigned long) _dl_find_hash(strtab +
+						sym->st_name, tpnt->symbol_scope, NULL, 1);
+				}
+			}
+			else if (sym->st_shndx == SHN_COMMON) {
+				*got_entry = (unsigned long) _dl_find_hash(strtab +
+					sym->st_name, tpnt->symbol_scope, NULL, 1);
+			}
+			else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&
+				*got_entry != sym->st_value)
+				*got_entry += (unsigned long) tpnt->loadaddr;
+			else if (ELF32_ST_TYPE(sym->st_info) == STT_SECTION) {
+				if (sym->st_other == 0)
+					*got_entry += (unsigned long) tpnt->loadaddr;
+			}
+			else {
+				*got_entry = (unsigned long) _dl_find_hash(strtab +
+					sym->st_name, tpnt->symbol_scope, NULL, 1);
+			}
+
+#ifdef DL_DEBUG
+			if (*got_entry == 0)
+				_dl_dprintf(2,"ZERO: %s\n", strtab + sym->st_name);
+#endif
+
+			got_entry++;
+			sym++;
+		}
+	}
+}
