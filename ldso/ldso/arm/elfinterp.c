@@ -242,6 +242,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	  return goof;
 }
 
+#if 0
 static unsigned long
 fix_bad_pc24 (unsigned long *const reloc_addr, unsigned long value)
 {
@@ -265,6 +266,7 @@ fix_bad_pc24 (unsigned long *const reloc_addr, unsigned long value)
 
   return (unsigned long)fix_address;
 }
+#endif
 
 static int
 _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
@@ -307,6 +309,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 				*reloc_addr += symbol_addr;
 				break;
 			case R_ARM_PC24:
+#if 0
 				{
 					unsigned long addend;
 					long newvalue, topbits;
@@ -333,6 +336,10 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 					*reloc_addr = symbol_addr;
 					break;
 				}
+#else
+				_dl_dprintf(2,"R_ARM_PC24: Compile shared libraries with -fPIC!\n");
+				_dl_exit(1);
+#endif
 			case R_ARM_GLOB_DAT:
 			case R_ARM_JUMP_SLOT:
 				*reloc_addr = symbol_addr;
