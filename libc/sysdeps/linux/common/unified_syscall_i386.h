@@ -7,6 +7,11 @@
 
 #include "str_syscalls.h"
 
+/*
+ * Disable the following for now... it only saved space if no other
+ * syscalls but _exit were used, and no longer works (__uClibc_main).
+ */
+#if 0
 #undef uClibc_syscall_exit
 #define uClibc_syscall_exit(type,name,type1,arg1) \
 __asm__ ( \
@@ -15,6 +20,7 @@ __asm__ ( \
 "movl %esp,%ebp;\nsubl $4,%esp;\npushl %ebx;\nmovl 8(%ebp),%ebx;\n" \
 "jmp _start_exit\n.Lfe1"###name":\n.size "###name",.Lfe1"###name"-"###name \
 )
+#endif
 
 #define unified_syscall_body(name) \
 __asm__ ( \
