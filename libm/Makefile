@@ -34,10 +34,11 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
+DIRS = 
+ifeq ($(strip $(HAS_FPU)),y)
 ifeq ($(TARGET_ARCH),$(wildcard $(TARGET_ARCH)))
 DIRS = $(TARGET_ARCH)
-else
-DIRS = 
+endif
 endif
 ALL_SUBDIRS = powerpc
 
