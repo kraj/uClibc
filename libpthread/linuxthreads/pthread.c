@@ -236,6 +236,18 @@ void (*__pthread_suspend)(pthread_descr) = __pthread_suspend_old;
 
 static void pthread_initialize(void) __attribute__((constructor));
 
+ /* Do some minimal initialization which has to be done during the
+    startup of the C library.  */
+void __pthread_initialize_minimal(void)
+{
+    /* If we have special thread_self processing, initialize 
+     * that for the main thread now.  */
+#ifdef INIT_THREAD_SELF
+    INIT_THREAD_SELF(&__pthread_initial_thread, 0);
+#endif
+}
+
+
 static void pthread_initialize(void)
 {
   struct sigaction sa;

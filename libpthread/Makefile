@@ -30,7 +30,10 @@ LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SU
 
 DIRS=
 ifeq ($(strip $(INCLUDE_THREADS)),true)
-	DIRS+=linuxthreads linuxthreads_db
+	DIRS+=linuxthreads
+endif
+ifeq ($(strip $(DODEBUG)),true)
+	DIRS+=linuxthreads_db
 endif
 
 ALL_SUBDIRS = linuxthreads linuxthreads_db

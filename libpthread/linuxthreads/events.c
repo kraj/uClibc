@@ -19,6 +19,8 @@
 
 /* The functions contained here do nothing, they just return.  */
 
+#include "internals.h"
+
 void
 __linuxthreads_create_event (void)
 {

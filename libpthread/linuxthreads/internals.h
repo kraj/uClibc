@@ -426,6 +426,7 @@ void __pthread_reset_main_thread(void);
 void __fresetlockfiles(void);
 void __pthread_manager_adjust_prio(int thread_prio);
 void __pthread_set_own_extricate_if(pthread_descr self, pthread_extricate_if *peif);
+void __pthread_initialize_minimal (void);
 
 extern int __pthread_attr_setguardsize __P ((pthread_attr_t *__attr,
 					     size_t __guardsize));
