@@ -88,7 +88,15 @@ export RUNTIME_PREFIX DEVEL_PREFIX
 ARFLAGS:=r
 
 OPTIMIZATION:=
-PICFLAG:=-fPIC
+
+# PowerPC can hold 8192 entries in its GOT with -fpic which is more than enough. Therefore use
+# -fpic which will reduce code size and generates faster code.
+ifeq ($(strip $(TARGET_ARCH)),powerpc)
+	PICFLAG:=-fpic
+else
+	PICFLAG:=-fPIC
+endif
+
 # Some nice CPU specific optimizations
 ifeq ($(strip $(TARGET_ARCH)),i386)
 	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)

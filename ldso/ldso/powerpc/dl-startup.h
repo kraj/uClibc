@@ -38,15 +38,15 @@ asm("" \
 	 Elf32_Addr finaladdr=(SYMBOL)+(RELP)->r_addend;\
 	if (type==R_PPC_RELATIVE) {			\
 		*REL=(Elf32_Word)(LOAD)+(RELP)->r_addend;\
+	} else if (type==R_PPC_ADDR32 || type==R_PPC_GLOB_DAT) {\
+		*REL=finaladdr;				\
 	} else if (type==R_PPC_JMP_SLOT) {		\
 		Elf32_Sword delta=finaladdr-(Elf32_Word)(REL);\
 		*REL=OPCODE_B(delta);			\
-	} else if (type==R_PPC_ADDR32) {		\
-		*REL=finaladdr;				\
+		PPC_DCBST(REL); PPC_SYNC; PPC_ICBI(REL);\
 	} else {					\
-	  _dl_exit(100+ELF32_R_TYPE((RELP)->r_info));	\
+		_dl_exit(100+ELF32_R_TYPE((RELP)->r_info));\
 	}						\
-	PPC_DCBST(REL); PPC_SYNC; PPC_ICBI(REL);	\
 	}
 /*
  * Transfer control to the user's application, once the dynamic loader
