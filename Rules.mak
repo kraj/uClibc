@@ -26,13 +26,14 @@ include $(TOPDIR)Config
 
 GCCINCDIR = $(shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp")
 
+# use '-Os' optimization if available, else use -O2
+OPTIMIZATION = $(shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
+    then echo "-Os"; else echo "-O2" ; fi)
+
 ARFLAGS=r
 
-CCFLAGS=$(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -Dlinux -D__linux__ -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D__LIBC__
 
-ifeq ($(TARGET_ARCH), arm)
-    ARCH_CFLAGS=-fpic
-endif
+CCFLAGS=$(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -Dlinux -D__linux__ -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D__LIBC__
 
 CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS)
 
@@ -51,9 +52,6 @@ endif
 
 ifneq ($(HAS_MMU),true)
     CFLAGS += -D__HAS_NO_MMU__
-    ARCH_DIR = $(shell echo $(TARGET_ARCH)nommu)
-else
-    ARCH_DIR = $(TARGET_ARCH)
 endif
 
 ifneq ($(HAS_FLOATS),true)
@@ -61,14 +59,16 @@ ifneq ($(HAS_FLOATS),true)
 endif
 
 
-
+# It turns out the currently, function-sections causes ldelf2flt to segfault.
+# So till further notice, this is disabled by default....
+# 
 # Use '-ffunction-sections -fdata-sections' and '--gc-sections' if they work
 # to try and strip out any unused junk automagically....
 #
-ifeq ($(shell $(CC) -ffunction-sections -fdata-sections -S \
-	-o /dev/null -xc /dev/null && $(LD) --gc-sections -v >/dev/null && echo 1),1)
-    CFLAGS += -ffunction-sections -fdata-sections
-    LDFLAGS += --gc-sections
-endif
+#ifeq ($(shell $(CC) -ffunction-sections -fdata-sections -S \
+#	-o /dev/null -xc /dev/null && $(LD) --gc-sections -v >/dev/null && echo 1),1)
+#    CFLAGS += -ffunction-sections -fdata-sections
+#    LDFLAGS += --gc-sections
+#endif
 
 
