@@ -54,6 +54,7 @@ config CONFIG_SH3
 
 config CONFIG_SH4
 	select UCLIBC_HAS_MMU
+	select FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "SH4"
 
 config CONFIG_SH5
