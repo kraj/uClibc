@@ -118,7 +118,11 @@ typedef int __timer_t;
 typedef int __key_t;
 
 /* Used in `struct shmid_ds'.  */
-typedef __kernel_ipc_pid_t __ipc_pid_t;
+#if __WORDSIZE == 64
+typedef int		   __ipc_pid_t;
+#else
+typedef unsigned short int __ipc_pid_t;
+#endif
 
 
 /* Type to represent block size.  */
@@ -154,7 +158,7 @@ typedef unsigned int __socklen_t;
 
 
 /* Now add the thread types.  */
-#if defined __USE_POSIX199506 || defined __USE_UNIX98
+#if defined __UCLIBC_HAS_THREADS__ && (defined __USE_POSIX199506 || defined __USE_UNIX98)
 # include <bits/pthreadtypes.h>
 #endif
 
