@@ -61,7 +61,7 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 initfini.s: initfini.c
-	$(CC) $(SAFECFLAGS) -c initfini.c -S -o initfini.s
+	$(CC) $(SAFECFLAGS) -I$(TOPDIR)include -c initfini.c -S -o initfini.s
 
 crti.S crtn.S: initfini.s
 	$(TOPDIR)/extra/scripts/initfini.pl
