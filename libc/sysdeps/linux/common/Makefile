@@ -34,12 +34,10 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 MSRC=syscalls.c
 MOBJ=$(shell ./list_syscalls.sh)
 
-ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 SAFECFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) -fno-builtin
 ifeq ($(strip $(DOPIC)),y)
 SAFECFLAGS+=-fPIC
-endif
 endif
 
 OBJ=$(COBJS) $(MOBJ)
@@ -59,6 +57,7 @@ $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 initfini.S: initfini.c
 	$(CC) $(SAFECFLAGS) -I$(TOPDIR)include -c initfini.c -S -o initfini.S
 
@@ -78,6 +77,14 @@ crtn.o: crtn.S
 $(TOPDIR)lib/crtn.o: crtn.o
 	mkdir -p $(TOPDIR)lib/
 	cp crtn.o $(TOPDIR)lib/
+else
+crti.o:
+	mkdir -p $(TOPDIR)lib/
+	$(AR) $(ARFLAGS) $(TOPDIR)lib/crti.o
+crtn.o:
+	mkdir -p $(TOPDIR)lib/
+	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
+endif
 
 clean:
 	rm -f *.[oa] *~ core crt[in].* *.S
