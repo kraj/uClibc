@@ -347,7 +347,7 @@ int conf_write(const char *name)
 				case no:
 					fprintf(out, "# %s is not set\n", sym->name);
 					if (out_h)
-						fprintf(out_h, "#undef %s\n", sym->name);
+						fprintf(out_h, "#undef __%s__\n", sym->name);
 					break;
 				case mod:
 					fprintf(out, "%s=m\n", sym->name);
