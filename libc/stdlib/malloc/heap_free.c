@@ -16,30 +16,34 @@
 #include "heap.h"
 
 
-/* Return the memory area MEM of size SIZE to HEAP.  */
+/* Return the block of memory at MEM, of size SIZE, to HEAP.  */
 struct heap_free_area *
 __heap_free (struct heap *heap, void *mem, size_t size)
 {
-  struct heap_free_area *prev_fa, *fa;
+  struct heap_free_area *fa, *prev_fa;
   void *end = (char *)mem + size;
 
   HEAP_DEBUG (heap, "before __heap_free");
 
-  /* Find an adjacent free-list entry.  */
+  /* Find the right position in the free-list entry to place the new block.
+     This is the most speed critical loop in this malloc implementation:
+     since we use a simple linked-list for the free-list, and we keep it in
+     address-sorted order, it can become very expensive to insert something
+     in the free-list when it becomes fragmented and long.  [A better
+     implemention would use a balanced tree or something for the free-list,
+     though that bloats the code-size and complexity quite a bit.]  */
   for (prev_fa = 0, fa = heap->free_areas; fa; prev_fa = fa, fa = fa->next)
+    if (unlikely (HEAP_FREE_AREA_END (fa) >= mem))
+      break;
+
+  if (fa && HEAP_FREE_AREA_START (fa) <= end)
+    /* The free-list FA is adjacent to the new block, merge them.  */
     {
-      size_t fa_size = fa->size;
-      void *fa_mem = HEAP_FREE_AREA_START (fa);
+      size_t fa_size = fa->size + size;
 
-      if (fa_mem > end)
-	/* We've reached the right spot in the free-list without finding an
-	   adjacent free-area, so continue below to add a new free area. */
-	break;
-      else if (fa_mem == end)
-	/* FA is just after MEM, grow down to encompass it. */
+      if (HEAP_FREE_AREA_START (fa) == end)
+	/* FA is just after the new block, grow down to encompass it. */
 	{
-	  fa_size += size;
-
 	  /* See if FA can now be merged with its predecessor. */
 	  if (prev_fa && mem == HEAP_FREE_AREA_END (prev_fa))
 	    /* Yup; merge PREV_FA's info into FA.  */
@@ -47,17 +51,11 @@ __heap_free (struct heap *heap, void *mem, size_t size)
 	      fa_size += prev_fa->size;
 	      __heap_link_free_area_after (heap, fa, prev_fa->prev);
 	    }
-
-	  fa->size = fa_size;
-
-	  goto done;
 	}
-      else if (HEAP_FREE_AREA_END (fa) == mem)
-	/* FA is just before MEM, expand to encompass it. */
+      else
+	/* FA is just before the new block, expand to encompass it. */
 	{
 	  struct heap_free_area *next_fa = fa->next;
-
-	  fa_size += size;
 
 	  /* See if FA can now be merged with its successor. */
 	  if (next_fa && end == HEAP_FREE_AREA_START (next_fa))
@@ -77,17 +75,14 @@ __heap_free (struct heap *heap, void *mem, size_t size)
 	      /* Update links with the neighbors in the list.  */ 
 	      __heap_link_free_area (heap, fa, prev_fa, next_fa);
 	    }
-
-	  fa->size = fa_size;
-
-	  goto done;
 	}
+
+      fa->size = fa_size;
     }
+  else
+    /* Make the new block into a separate free-list entry.  */
+    fa = __heap_add_free_area (heap, mem, size, prev_fa, fa);
 
-  /* Make MEM into a new free-list entry.  */
-  fa = __heap_add_free_area (heap, mem, size, prev_fa, fa);
-
- done:
   HEAP_DEBUG (heap, "after __heap_free");
 
   return fa;
