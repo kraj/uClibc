@@ -1,27 +1,51 @@
-*) Fix ldd to not multiply list libs
-*) Check cris architecture
+TODO list for the uClibc 1.0.0 release:
 
-Erik's TODO list for the next release:
-
-    *) When options are disabled, also disable them in the
-	include files as well.
-    *) Make all configured out symbols optionally add a linker warning saying
-	"Hey!  You are trying to use a function that you have configured out.  
-	If you really want to use this function, enable CONFIG_FOO and rebuild
-	uClibc".
+    *) mjn3's mysterious python select/poll self-test failure that he
+	still needs to tell me about
+    *) Perhaps implement glibc style frame-unwinding, so that gcc need
+	not be built with --enable-sjlj-exceptions for exception handling to work.
+    *) Implement some mechanism (perhaps encoded in the .so name)
+	for flagging config options that break the ABI.  Options
+	such as UCLIBC_HAS_SOFT_FLOAT, UCLIBC_HAS_THREADS, UCLIBC_HAS_LOCALE,
+	and perhaps others (finalize list) produce a lib with a differing
+	ABI.  Make it so apps cannot use an ABI mis-matched uClibc.
+    *) Implement the float and long double versions of math funcs,
+	using wrappers on top of the double versions (size / precision
+	trade off).
+    *) Delete current profiling code (because it is crap
+	and only works when static + PIC)
+    *) Fix profiling by adding missing stub functions per
+	http://uclibc.org/lists/uclibc/2004-February/008167.html
+	and used by, i.e. http://www710.univ-lyon1.fr/~yperret/fnccheck/
+    *) Audit header files.  Remove prototypes for all functions that
+	are not supported.  Especially needed for the libm headers.
+    *) Audit header files.  When options are disabled, also disable
+	them in the include files as well.
     *) Make all small objects (>~50 bytes) into either inlines or
 	into a static library
-    *) Document all differences between the feature set of uClibc 
-	and glibc.
+    *) Add support for Linux 2.6.x NGPL pthreads, futexes, etc
+    *) Documentation updates:
+	    *) Update README document
+	    *) Update INSTALL document
+	    *) Update docs/Glibc_vs_uClibc_Differences.txt document
+		and fully document all differences between the feature
+		set of uClibc and glibc.
+	    *) Update docs/uClibc_vs_SuSv3.txt document
+	    *) Update docs/threads.txt document
+	    *) Write a HOWTO document
+	    *) Write man pages for ldd and ldconfig utility binaries
     *) Fix regex so it isn't so stinking big
     *) Fix glob so it isn't so stinking big
-    *)  Fix the dlopen() bug with handling of symbols that are already
-	resolved.  Seems if it is already resolved it ignores them rather than
-	resolving the new symbol and overriding.
-    *) Adapt uClibc to use Linux 2.5.x pthreads
-    *) Remove all use of kernel headers (i.e. copy the needed bits
-	to completely specify the per-arch kernel ABI).
-    *) Fix x86 profiling.  It currently only works when static + PIC...
+    *) run 'nm -D --size-sort -t d libuClibc-0.9.26.so' and work on the
+	biggest things (i.e. stuff at the end of the list) to make
+	them smaller.
+    *) Cleanup / rewrite sysconf.c.  It should get some information
+	from ldso (such as HZ).  Other stuff it currently just makes
+	up, which is obviously wrong.  Also bits/uClibc_clk_tck.h
+	needs to be updated at the same time to get proper HZ values.
+    *) __data_start needs to be added to any crt0.S files that don't
+	currently have it.  It is used by the boehm gc.  mjn3 has added
+	it to i386 and mips, but some archs are still missing it.
 
 
 -----------------------------------------------------------------------------
@@ -36,7 +60,7 @@ Manuel's todo:
   d) Implement glibc 'a' flag for scanf string conversions.
   e) Allow use of the older non-table-based ctype functions when using
      stub locale support. (smaller)
-  
+
   2) Additional str{f|p}time issues.
   ----------------------------------
   a) Spacing issue wrt strptime.
@@ -44,7 +68,7 @@ Manuel's todo:
   c) Support locale era in year designations.   (data is in place)
   d) Deal with mb format string issues in strftime.
   e) Implement wcsftime.
-  
+
   3) Other locale issues (my implementation):
   -------------------------------------------
   a) Do a little more clean up of ctype and wctype.
@@ -64,38 +88,4 @@ Manuel's todo:
   a) Port uClibc to other OSs (including elks), or even bare metal (libgloss).
   b) Write a space-efficient gettext substitute, to avoid storing large amounts
      of redundant data.
-
-
-Other stuff:
-
-Move the target-specific sysconf.c generator to extra (as it needs to be
-	run on the target) and fix libc/unistd/Makefile.
-
------------------------------------------------------------------------------
-ds's list:
-
-Search for string literals that are not in the .rodata section.  (Varies
-by architecture and gcc version.)
-
-man pages for binaries
-
-check compiling without FP support -- are FP instructions still generated?
-Needs a uClibc_config.h entry dependent on HAS_FLOATING_POINT.
-
-Why does ld.so search /usr/powerpc-uclibc/lib before LD_LIBRARY_PATH?
-
------------------------------------------------------------------------------
-
-Any takers?
-
-*) Documentation
-	- List all differences between the feature set of uClibc and glibc.
-*) run 'nm -D --size-sort -t d libuClibc-0.9.5.so' and work on the biggest things 
-	(i.e. stuff at the end of the list) to make them smaller.
-*) make inb/outb work for all arches.  This is complete for i386 and arm.  
-	Other archs like powerpc, still need fixing.
-
------------------------------------------------------------------------------
-
-
 
