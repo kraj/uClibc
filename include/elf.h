@@ -137,8 +137,18 @@ typedef struct
 					/* Value must be EV_CURRENT */
 
 #define EI_OSABI	7		/* OS ABI identification */
-#define ELFOSABI_SYSV		0	/* UNIX System V ABI */
+#define ELFOSABI_NONE		0	/* UNIX System V ABI */
+#define ELFOSABI_SYSV		0	/* Alias.  */
 #define ELFOSABI_HPUX		1	/* HP-UX */
+#define ELFOSABI_NETBSD		2	/* NetBSD.  */
+#define ELFOSABI_LINUX		3	/* Linux.  */
+#define ELFOSABI_SOLARIS	6	/* Sun Solaris.  */
+#define ELFOSABI_AIX		7	/* IBM AIX.  */
+#define ELFOSABI_IRIX		8	/* SGI Irix.  */
+#define ELFOSABI_FREEBSD	9	/* FreeBSD.  */
+#define ELFOSABI_TRU64		10	/* Compaq TRU64 UNIX.  */
+#define ELFOSABI_MODESTO	11	/* Novell Modesto.  */
+#define ELFOSABI_OPENBSD	12	/* OpenBSD.  */
 #define ELFOSABI_ARM		97	/* ARM */
 #define ELFOSABI_STANDALONE	255	/* Standalone (embedded) application */
 
@@ -247,7 +257,7 @@ typedef struct
 #define EM_ALPHA	0x9026
 
 /* V850 backend magic number.  Written in the absense of an ABI.  */
-#define EM_CYGNUS_V850	0x9080
+#define EM_CYGNUS_V850 0x9080
 
 
 /* Legal values for e_version (version).  */
@@ -320,6 +330,7 @@ typedef struct
 #define SHT_SYMTAB_SHNDX  18		/* Extended section indeces */
 #define	SHT_NUM		  19		/* Number of defined types.  */
 #define SHT_LOOS	  0x60000000	/* Start OS-specific */
+#define SHT_GNU_LIBLIST	  0x6ffffff7	/* Prelink library list */
 #define SHT_CHECKSUM	  0x6ffffff8	/* Checksum for DSO content.  */
 #define SHT_LOSUNW	  0x6ffffffa	/* Sun-specific low bound.  */
 #define SHT_SUNW_move	  0x6ffffffa
@@ -346,6 +357,8 @@ typedef struct
 #define SHF_LINK_ORDER	     (1 << 7)	/* Preserve order after combining */
 #define SHF_OS_NONCONFORMING (1 << 8)	/* Non-standard OS specific handling
 					   required */
+#define SHF_GROUP	     (1 << 9)	/* Section is member of a group.  */
+#define SHF_TLS		     (1 << 10)	/* Section hold thread-local data.  */
 #define SHF_MASKOS	     0x0ff00000	/* OS-specific.  */
 #define SHF_MASKPROC	     0xf0000000	/* Processor-specific */
 
@@ -406,10 +419,6 @@ typedef struct
 #define SYMINFO_NUM		2
 
 
-/* Special section index.  */
-
-#define SHN_UNDEF	0		/* No section, undefined symbol.  */
-
 /* How to extract and insert information held in the st_info field.  */
 
 #define ELF32_ST_BIND(val)		(((unsigned char) (val)) >> 4)
@@ -440,7 +449,8 @@ typedef struct
 #define STT_SECTION	3		/* Symbol associated with a section */
 #define STT_FILE	4		/* Symbol's name is file name */
 #define STT_COMMON	5		/* Symbol is a common data object */
-#define	STT_NUM		6		/* Number of defined types.  */
+#define STT_TLS		6		/* Symbol is thread-local data object*/
+#define	STT_NUM		7		/* Number of defined types.  */
 #define STT_LOOS	10		/* Start of OS-specific */
 #define STT_HIOS	12		/* End of OS-specific */
 #define STT_LOPROC	13		/* Start of processor-specific */
@@ -548,8 +558,14 @@ typedef struct
 #define PT_NOTE		4		/* Auxiliary information */
 #define PT_SHLIB	5		/* Reserved */
 #define PT_PHDR		6		/* Entry for header table itself */
-#define	PT_NUM		7		/* Number of defined types */
+#define PT_TLS		7		/* Thread-local storage segment */
+#define	PT_NUM		8		/* Number of defined types */
 #define PT_LOOS		0x60000000	/* Start of OS-specific */
+#define PT_GNU_EH_FRAME	0x6474e550	/* GCC .eh_frame_hdr segment */
+#define PT_LOSUNW	0x6ffffffa
+#define PT_SUNWBSS	0x6ffffffa	/* Sun Specific segment */
+#define PT_SUNWSTACK	0x6ffffffb	/* Stack segment */
+#define PT_HISUNW	0x6fffffff
 #define PT_HIOS		0x6fffffff	/* End of OS-specific */
 #define PT_LOPROC	0x70000000	/* Start of processor-specific */
 #define PT_HIPROC	0x7fffffff	/* End of processor-specific */
@@ -571,6 +587,7 @@ typedef struct
 #define NT_PLATFORM	5		/* String from sysinfo(SI_PLATFORM) */
 #define NT_AUXV		6		/* Contains copy of auxv array */
 #define NT_GWINDOWS	7		/* Contains copy of gwindows struct */
+#define NT_ASRS		8		/* Contains copy of asrset struct */
 #define NT_PSTATUS	10		/* Contains copy of pstatus struct */
 #define NT_PSINFO	13		/* Contains copy of psinfo struct */
 #define NT_PRCRED	14		/* Contains copy of prcred struct */
@@ -643,8 +660,8 @@ typedef struct
 #define DT_PREINIT_ARRAY 32		/* Array with addresses of preinit fct*/
 #define DT_PREINIT_ARRAYSZ 33		/* size in bytes of DT_PREINIT_ARRAY */
 #define	DT_NUM		34		/* Number used */
-#define DT_LOOS		0x60000000	/* Start of OS-specific */
-#define DT_HIOS		0x6fffffff	/* End of OS-specific */
+#define DT_LOOS		0x6000000d	/* Start of OS-specific */
+#define DT_HIOS		0x6ffff000	/* End of OS-specific */
 #define DT_LOPROC	0x70000000	/* Start of processor-specific */
 #define DT_HIPROC	0x7fffffff	/* End of processor-specific */
 #define	DT_PROCNUM	DT_MIPS_NUM	/* Most used by any processor */
@@ -653,6 +670,9 @@ typedef struct
    Dyn.d_un.d_val field of the Elf*_Dyn structure.  This follows Sun's
    approach.  */
 #define DT_VALRNGLO	0x6ffffd00
+#define DT_GNU_PRELINKED 0x6ffffdf5	/* Prelinking timestamp */
+#define DT_GNU_CONFLICTSZ 0x6ffffdf6	/* Size of conflict section */
+#define DT_GNU_LIBLISTSZ 0x6ffffdf7	/* Size of library list */
 #define DT_CHECKSUM	0x6ffffdf8
 #define DT_PLTPADSZ	0x6ffffdf9
 #define DT_MOVEENT	0x6ffffdfa
@@ -663,6 +683,8 @@ typedef struct
 #define DT_SYMINSZ	0x6ffffdfe	/* Size of syminfo table (in bytes) */
 #define DT_SYMINENT	0x6ffffdff	/* Entry size of syminfo */
 #define DT_VALRNGHI	0x6ffffdff
+#define DT_VALTAGIDX(tag)	(DT_VALRNGHI - (tag))	/* Reverse order! */
+#define DT_VALNUM 12
 
 /* DT_* entries which fall between DT_ADDRRNGHI & DT_ADDRRNGLO use the
    Dyn.d_un.d_ptr field of the Elf*_Dyn structure.
@@ -670,6 +692,8 @@ typedef struct
    If any adjustment is made to the ELF object after it has been
    built these entries will need to be adjusted.  */
 #define DT_ADDRRNGLO	0x6ffffe00
+#define DT_GNU_CONFLICT	0x6ffffef8	/* Start of conflict section */
+#define DT_GNU_LIBLIST	0x6ffffef9	/* Library list */
 #define DT_CONFIG	0x6ffffefa	/* Configuration information.  */
 #define DT_DEPAUDIT	0x6ffffefb	/* Dependency auditing.  */
 #define DT_AUDIT	0x6ffffefc	/* Object auditing.  */
@@ -677,6 +701,8 @@ typedef struct
 #define	DT_MOVETAB	0x6ffffefe	/* Move table.  */
 #define DT_SYMINFO	0x6ffffeff	/* Syminfo table.  */
 #define DT_ADDRRNGHI	0x6ffffeff
+#define DT_ADDRTAGIDX(tag)	(DT_ADDRRNGHI - (tag))	/* Reverse order! */
+#define DT_ADDRNUM 10
 
 /* The versioning entry types.  The next are defined as part of the
    GNU extension.  */
@@ -708,6 +734,7 @@ typedef struct
 #define DF_SYMBOLIC	0x00000002	/* Symbol resolutions starts here */
 #define DF_TEXTREL	0x00000004	/* Object contains text relocations */
 #define DF_BIND_NOW	0x00000008	/* No lazy binding for this object */
+#define DF_STATIC_TLS	0x00000010	/* Module uses the static TLS model */
 
 /* State flags selectable in the `d_un.d_val' element of the DT_FLAGS_1
    entry in the dynamic section.  */
@@ -1038,19 +1065,56 @@ typedef struct
 
 /* i386 relocs.  */
 
-#define R_386_NONE	0		/* No reloc */
-#define R_386_32	1		/* Direct 32 bit  */
-#define R_386_PC32	2		/* PC relative 32 bit */
-#define R_386_GOT32	3		/* 32 bit GOT entry */
-#define R_386_PLT32	4		/* 32 bit PLT address */
-#define R_386_COPY	5		/* Copy symbol at runtime */
-#define R_386_GLOB_DAT	6		/* Create GOT entry */
-#define R_386_JMP_SLOT	7		/* Create PLT entry */
-#define R_386_RELATIVE	8		/* Adjust by program base */
-#define R_386_GOTOFF	9		/* 32 bit offset to GOT */
-#define R_386_GOTPC	10		/* 32 bit PC relative offset to GOT */
+#define R_386_NONE	   0		/* No reloc */
+#define R_386_32	   1		/* Direct 32 bit  */
+#define R_386_PC32	   2		/* PC relative 32 bit */
+#define R_386_GOT32	   3		/* 32 bit GOT entry */
+#define R_386_PLT32	   4		/* 32 bit PLT address */
+#define R_386_COPY	   5		/* Copy symbol at runtime */
+#define R_386_GLOB_DAT	   6		/* Create GOT entry */
+#define R_386_JMP_SLOT	   7		/* Create PLT entry */
+#define R_386_RELATIVE	   8		/* Adjust by program base */
+#define R_386_GOTOFF	   9		/* 32 bit offset to GOT */
+#define R_386_GOTPC	   10		/* 32 bit PC relative offset to GOT */
+#define R_386_32PLT	   11
+#define R_386_TLS_TPOFF	   14		/* Offset in static TLS block */
+#define R_386_TLS_IE	   15		/* Address of GOT entry for static TLS
+					   block offset */
+#define R_386_TLS_GOTIE	   16		/* GOT entry for static TLS block
+					   offset */
+#define R_386_TLS_LE	   17		/* Offset relative to static TLS
+					   block */
+#define R_386_TLS_GD	   18		/* Direct 32 bit for GNU version of
+					   general dynamic thread local data */
+#define R_386_TLS_LDM	   19		/* Direct 32 bit for GNU version of
+					   local dynamic thread local data
+					   in LE code */
+#define R_386_16	   20
+#define R_386_PC16	   21
+#define R_386_8		   22
+#define R_386_PC8	   23
+#define R_386_TLS_GD_32	   24		/* Direct 32 bit for general dynamic
+					   thread local data */
+#define R_386_TLS_GD_PUSH  25		/* Tag for pushl in GD TLS code */
+#define R_386_TLS_GD_CALL  26		/* Relocation for call to
+					   __tls_get_addr() */
+#define R_386_TLS_GD_POP   27		/* Tag for popl in GD TLS code */
+#define R_386_TLS_LDM_32   28		/* Direct 32 bit for local dynamic
+					   thread local data in LE code */
+#define R_386_TLS_LDM_PUSH 29		/* Tag for pushl in LDM TLS code */
+#define R_386_TLS_LDM_CALL 30		/* Relocation for call to
+					   __tls_get_addr() in LDM code */
+#define R_386_TLS_LDM_POP  31		/* Tag for popl in LDM TLS code */
+#define R_386_TLS_LDO_32   32		/* Offset relative to TLS block */
+#define R_386_TLS_IE_32	   33		/* GOT entry for negated static TLS
+					   block offset */
+#define R_386_TLS_LE_32	   34		/* Negated offset relative to static
+					   TLS block */
+#define R_386_TLS_DTPMOD32 35		/* ID of module containing symbol */
+#define R_386_TLS_DTPOFF32 36		/* Offset in TLS block */
+#define R_386_TLS_TPOFF32  37		/* Negated offset in static TLS block */
 /* Keep this the last entry.  */
-#define R_386_NUM	11
+#define R_386_NUM	   38
 
 /* SUN SPARC specific definitions.  */
 
@@ -1073,66 +1137,90 @@ typedef struct
 
 /* SPARC relocs.  */
 
-#define R_SPARC_NONE	0		/* No reloc */
-#define R_SPARC_8	1		/* Direct 8 bit */
-#define R_SPARC_16	2		/* Direct 16 bit */
-#define R_SPARC_32	3		/* Direct 32 bit */
-#define R_SPARC_DISP8	4		/* PC relative 8 bit */
-#define R_SPARC_DISP16	5		/* PC relative 16 bit */
-#define R_SPARC_DISP32	6		/* PC relative 32 bit */
-#define R_SPARC_WDISP30	7		/* PC relative 30 bit shifted */
-#define R_SPARC_WDISP22	8		/* PC relative 22 bit shifted */
-#define R_SPARC_HI22	9		/* High 22 bit */
-#define R_SPARC_22	10		/* Direct 22 bit */
-#define R_SPARC_13	11		/* Direct 13 bit */
-#define R_SPARC_LO10	12		/* Truncated 10 bit */
-#define R_SPARC_GOT10	13		/* Truncated 10 bit GOT entry */
-#define R_SPARC_GOT13	14		/* 13 bit GOT entry */
-#define R_SPARC_GOT22	15		/* 22 bit GOT entry shifted */
-#define R_SPARC_PC10	16		/* PC relative 10 bit truncated */
-#define R_SPARC_PC22	17		/* PC relative 22 bit shifted */
-#define R_SPARC_WPLT30	18		/* 30 bit PC relative PLT address */
-#define R_SPARC_COPY	19		/* Copy symbol at runtime */
-#define R_SPARC_GLOB_DAT 20		/* Create GOT entry */
-#define R_SPARC_JMP_SLOT 21		/* Create PLT entry */
-#define R_SPARC_RELATIVE 22		/* Adjust by program base */
-#define R_SPARC_UA32	23		/* Direct 32 bit unaligned */
+#define R_SPARC_NONE		0	/* No reloc */
+#define R_SPARC_8		1	/* Direct 8 bit */
+#define R_SPARC_16		2	/* Direct 16 bit */
+#define R_SPARC_32		3	/* Direct 32 bit */
+#define R_SPARC_DISP8		4	/* PC relative 8 bit */
+#define R_SPARC_DISP16		5	/* PC relative 16 bit */
+#define R_SPARC_DISP32		6	/* PC relative 32 bit */
+#define R_SPARC_WDISP30		7	/* PC relative 30 bit shifted */
+#define R_SPARC_WDISP22		8	/* PC relative 22 bit shifted */
+#define R_SPARC_HI22		9	/* High 22 bit */
+#define R_SPARC_22		10	/* Direct 22 bit */
+#define R_SPARC_13		11	/* Direct 13 bit */
+#define R_SPARC_LO10		12	/* Truncated 10 bit */
+#define R_SPARC_GOT10		13	/* Truncated 10 bit GOT entry */
+#define R_SPARC_GOT13		14	/* 13 bit GOT entry */
+#define R_SPARC_GOT22		15	/* 22 bit GOT entry shifted */
+#define R_SPARC_PC10		16	/* PC relative 10 bit truncated */
+#define R_SPARC_PC22		17	/* PC relative 22 bit shifted */
+#define R_SPARC_WPLT30		18	/* 30 bit PC relative PLT address */
+#define R_SPARC_COPY		19	/* Copy symbol at runtime */
+#define R_SPARC_GLOB_DAT	20	/* Create GOT entry */
+#define R_SPARC_JMP_SLOT	21	/* Create PLT entry */
+#define R_SPARC_RELATIVE	22	/* Adjust by program base */
+#define R_SPARC_UA32		23	/* Direct 32 bit unaligned */
 
 /* Additional Sparc64 relocs.  */
 
-#define R_SPARC_PLT32	24		/* Direct 32 bit ref to PLT entry */
-#define R_SPARC_HIPLT22	25		/* High 22 bit PLT entry */
-#define R_SPARC_LOPLT10	26		/* Truncated 10 bit PLT entry */
-#define R_SPARC_PCPLT32	27		/* PC rel 32 bit ref to PLT entry */
-#define R_SPARC_PCPLT22	28		/* PC rel high 22 bit PLT entry */
-#define R_SPARC_PCPLT10	29		/* PC rel trunc 10 bit PLT entry */
-#define R_SPARC_10	30		/* Direct 10 bit */
-#define R_SPARC_11	31		/* Direct 11 bit */
-#define R_SPARC_64	32		/* Direct 64 bit */
-#define R_SPARC_OLO10	33		/* 10bit with secondary 13bit addend */
-#define R_SPARC_HH22	34		/* Top 22 bits of direct 64 bit */
-#define R_SPARC_HM10	35		/* High middle 10 bits of ... */
-#define R_SPARC_LM22	36		/* Low middle 22 bits of ... */
-#define R_SPARC_PC_HH22	37		/* Top 22 bits of pc rel 64 bit */
-#define R_SPARC_PC_HM10	38		/* High middle 10 bit of ... */
-#define R_SPARC_PC_LM22	39		/* Low miggle 22 bits of ... */
-#define R_SPARC_WDISP16	40		/* PC relative 16 bit shifted */
-#define R_SPARC_WDISP19	41		/* PC relative 19 bit shifted */
-#define R_SPARC_7	43		/* Direct 7 bit */
-#define R_SPARC_5	44		/* Direct 5 bit */
-#define R_SPARC_6	45		/* Direct 6 bit */
-#define R_SPARC_DISP64	46		/* PC relative 64 bit */
-#define R_SPARC_PLT64	47		/* Direct 64 bit ref to PLT entry */
-#define R_SPARC_HIX22	48		/* High 22 bit complemented */
-#define R_SPARC_LOX10	49		/* Truncated 11 bit complemented */
-#define R_SPARC_H44	50		/* Direct high 12 of 44 bit */
-#define R_SPARC_M44	51		/* Direct mid 22 of 44 bit */
-#define R_SPARC_L44	52		/* Direct low 10 of 44 bit */
-#define R_SPARC_REGISTER 53		/* Global register usage */
-#define R_SPARC_UA64	54		/* Direct 64 bit unaligned */
-#define R_SPARC_UA16	55		/* Direct 16 bit unaligned */
+#define R_SPARC_PLT32		24	/* Direct 32 bit ref to PLT entry */
+#define R_SPARC_HIPLT22		25	/* High 22 bit PLT entry */
+#define R_SPARC_LOPLT10		26	/* Truncated 10 bit PLT entry */
+#define R_SPARC_PCPLT32		27	/* PC rel 32 bit ref to PLT entry */
+#define R_SPARC_PCPLT22		28	/* PC rel high 22 bit PLT entry */
+#define R_SPARC_PCPLT10		29	/* PC rel trunc 10 bit PLT entry */
+#define R_SPARC_10		30	/* Direct 10 bit */
+#define R_SPARC_11		31	/* Direct 11 bit */
+#define R_SPARC_64		32	/* Direct 64 bit */
+#define R_SPARC_OLO10		33	/* 10bit with secondary 13bit addend */
+#define R_SPARC_HH22		34	/* Top 22 bits of direct 64 bit */
+#define R_SPARC_HM10		35	/* High middle 10 bits of ... */
+#define R_SPARC_LM22		36	/* Low middle 22 bits of ... */
+#define R_SPARC_PC_HH22		37	/* Top 22 bits of pc rel 64 bit */
+#define R_SPARC_PC_HM10		38	/* High middle 10 bit of ... */
+#define R_SPARC_PC_LM22		39	/* Low miggle 22 bits of ... */
+#define R_SPARC_WDISP16		40	/* PC relative 16 bit shifted */
+#define R_SPARC_WDISP19		41	/* PC relative 19 bit shifted */
+#define R_SPARC_7		43	/* Direct 7 bit */
+#define R_SPARC_5		44	/* Direct 5 bit */
+#define R_SPARC_6		45	/* Direct 6 bit */
+#define R_SPARC_DISP64		46	/* PC relative 64 bit */
+#define R_SPARC_PLT64		47	/* Direct 64 bit ref to PLT entry */
+#define R_SPARC_HIX22		48	/* High 22 bit complemented */
+#define R_SPARC_LOX10		49	/* Truncated 11 bit complemented */
+#define R_SPARC_H44		50	/* Direct high 12 of 44 bit */
+#define R_SPARC_M44		51	/* Direct mid 22 of 44 bit */
+#define R_SPARC_L44		52	/* Direct low 10 of 44 bit */
+#define R_SPARC_REGISTER	53	/* Global register usage */
+#define R_SPARC_UA64		54	/* Direct 64 bit unaligned */
+#define R_SPARC_UA16		55	/* Direct 16 bit unaligned */
+#define R_SPARC_TLS_GD_HI22	56
+#define R_SPARC_TLS_GD_LO10	57
+#define R_SPARC_TLS_GD_ADD	58
+#define R_SPARC_TLS_GD_CALL	59
+#define R_SPARC_TLS_LDM_HI22	60
+#define R_SPARC_TLS_LDM_LO10	61
+#define R_SPARC_TLS_LDM_ADD	62
+#define R_SPARC_TLS_LDM_CALL	63
+#define R_SPARC_TLS_LDO_HIX22	64
+#define R_SPARC_TLS_LDO_LOX10	65
+#define R_SPARC_TLS_LDO_ADD	66
+#define R_SPARC_TLS_IE_HI22	67
+#define R_SPARC_TLS_IE_LO10	68
+#define R_SPARC_TLS_IE_LD	69
+#define R_SPARC_TLS_IE_LDX	70
+#define R_SPARC_TLS_IE_ADD	71
+#define R_SPARC_TLS_LE_HIX22	72
+#define R_SPARC_TLS_LE_LOX10	73
+#define R_SPARC_TLS_DTPMOD32	74
+#define R_SPARC_TLS_DTPMOD64	75
+#define R_SPARC_TLS_DTPOFF32	76
+#define R_SPARC_TLS_DTPOFF64	77
+#define R_SPARC_TLS_TPOFF32	78
+#define R_SPARC_TLS_TPOFF64	79
 /* Keep this the last entry.  */
-#define R_SPARC_NUM	56
+#define R_SPARC_NUM		80
 
 /* For Sparc64, legal values for d_tag of Elf64_Dyn.  */
 
@@ -1710,24 +1798,37 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_ALPHA_SREL16		9	/* PC relative 16 bit */
 #define R_ALPHA_SREL32		10	/* PC relative 32 bit */
 #define R_ALPHA_SREL64		11	/* PC relative 64 bit */
-#define R_ALPHA_OP_PUSH		12	/* OP stack push */
-#define R_ALPHA_OP_STORE	13	/* OP stack pop and store */
-#define R_ALPHA_OP_PSUB		14	/* OP stack subtract */
-#define R_ALPHA_OP_PRSHIFT	15	/* OP stack right shift */
-#define R_ALPHA_GPVALUE		16
-#define R_ALPHA_GPRELHIGH	17
-#define R_ALPHA_GPRELLOW	18
-#define R_ALPHA_IMMED_GP_16	19
-#define R_ALPHA_IMMED_GP_HI32	20
-#define R_ALPHA_IMMED_SCN_HI32	21
-#define R_ALPHA_IMMED_BR_HI32	22
-#define R_ALPHA_IMMED_LO32	23
+#define R_ALPHA_GPRELHIGH	17	/* GP relative 32 bit, high 16 bits */
+#define R_ALPHA_GPRELLOW	18	/* GP relative 32 bit, low 16 bits */
+#define R_ALPHA_GPREL16		19	/* GP relative 16 bit */
 #define R_ALPHA_COPY		24	/* Copy symbol at runtime */
 #define R_ALPHA_GLOB_DAT	25	/* Create GOT entry */
 #define R_ALPHA_JMP_SLOT	26	/* Create PLT entry */
 #define R_ALPHA_RELATIVE	27	/* Adjust by program base */
+#define R_ALPHA_TLS_GD_HI	28
+#define R_ALPHA_TLSGD		29
+#define R_ALPHA_TLS_LDM		30
+#define R_ALPHA_DTPMOD64	31
+#define R_ALPHA_GOTDTPREL	32
+#define R_ALPHA_DTPREL64	33
+#define R_ALPHA_DTPRELHI	34
+#define R_ALPHA_DTPRELLO	35
+#define R_ALPHA_DTPREL16	36
+#define R_ALPHA_GOTTPREL	37
+#define R_ALPHA_TPREL64		38
+#define R_ALPHA_TPRELHI		39
+#define R_ALPHA_TPRELLO		40
+#define R_ALPHA_TPREL16		41
 /* Keep this the last entry.  */
-#define R_ALPHA_NUM		28
+#define R_ALPHA_NUM		46
+
+/* Magic values of the LITUSE relocation addend.  */
+#define LITUSE_ALPHA_ADDR	0
+#define LITUSE_ALPHA_BASE	1
+#define LITUSE_ALPHA_BYTOFF	2
+#define LITUSE_ALPHA_JSR	3
+#define LITUSE_ALPHA_TLS_GD	4
+#define LITUSE_ALPHA_TLS_LDM	5
 
 
 /* PowerPC specific declarations */
@@ -1781,6 +1882,78 @@ typedef Elf32_Addr Elf32_Conflict;
 /* Keep this the last entry.  */
 #define R_PPC_NUM		37
 
+/* PowerPC64 relocations defined by the ABIs */
+#define R_PPC64_NONE    R_PPC_NONE
+#define R_PPC64_ADDR32  R_PPC_ADDR32  /* 32bit absolute address.  */
+#define R_PPC64_ADDR24  R_PPC_ADDR24  /* 26bit address, word aligned.  */
+#define R_PPC64_ADDR16  R_PPC_ADDR16  /* 16bit absolute address. */
+#define R_PPC64_ADDR16_LO R_PPC_ADDR16_LO /* lower 16bits of abs. address.  */
+#define R_PPC64_ADDR16_HI R_PPC_ADDR16_HI /* high 16bits of abs. address. */
+#define R_PPC64_ADDR16_HA R_PPC_ADDR16_HA /* adjusted high 16bits.  */
+#define R_PPC64_ADDR14 R_PPC_ADDR14   /* 16bit address, word aligned.  */
+#define R_PPC64_ADDR14_BRTAKEN  R_PPC_ADDR14_BRTAKEN
+#define R_PPC64_ADDR14_BRNTAKEN R_PPC_ADDR14_BRNTAKEN
+#define R_PPC64_REL24   R_PPC_REL24 /* PC relative 26 bit, word aligned.  */
+#define R_PPC64_REL14   R_PPC_REL14 /* PC relative 16 bit. */
+#define R_PPC64_REL14_BRTAKEN   R_PPC_REL14_BRTAKEN
+#define R_PPC64_REL14_BRNTAKEN  R_PPC_REL14_BRNTAKEN
+#define R_PPC64_GOT16     R_PPC_GOT16
+#define R_PPC64_GOT16_LO  R_PPC_GOT16_LO
+#define R_PPC64_GOT16_HI  R_PPC_GOT16_HI
+#define R_PPC64_GOT16_HA  R_PPC_GOT16_HA
+
+#define R_PPC64_COPY      R_PPC_COPY
+#define R_PPC64_GLOB_DAT  R_PPC_GLOB_DAT
+#define R_PPC64_JMP_SLOT  R_PPC_JMP_SLOT
+#define R_PPC64_RELATIVE  R_PPC_RELATIVE
+
+#define R_PPC64_UADDR32   R_PPC_UADDR32
+#define R_PPC64_UADDR16   R_PPC_UADDR16
+#define R_PPC64_REL32     R_PPC_REL32
+#define R_PPC64_PLT32     R_PPC_PLT32
+#define R_PPC64_PLTREL32  R_PPC_PLTREL32
+#define R_PPC64_PLT16_LO  R_PPC_PLT16_LO
+#define R_PPC64_PLT16_HI  R_PPC_PLT16_HI
+#define R_PPC64_PLT16_HA  R_PPC_PLT16_HA
+
+#define R_PPC64_SECTOFF     R_PPC_SECTOFF
+#define R_PPC64_SECTOFF_LO  R_PPC_SECTOFF_LO
+#define R_PPC64_SECTOFF_HI  R_PPC_SECTOFF_HI
+#define R_PPC64_SECTOFF_HA  R_PPC_SECTOFF_HA
+#define R_PPC64_ADDR30          37  /* word30 (S + A - P) >> 2.  */
+#define R_PPC64_ADDR64          38  /* doubleword64 S + A.  */
+#define R_PPC64_ADDR16_HIGHER   39  /* half16 #higher(S + A).  */
+#define R_PPC64_ADDR16_HIGHERA  40  /* half16 #highera(S + A).  */
+#define R_PPC64_ADDR16_HIGHEST  41  /* half16 #highest(S + A).  */
+#define R_PPC64_ADDR16_HIGHESTA 42  /* half16 #highesta(S + A). */
+#define R_PPC64_UADDR64     43  /* doubleword64 S + A.  */
+#define R_PPC64_REL64       44  /* doubleword64 S + A - P.  */
+#define R_PPC64_PLT64       45  /* doubleword64 L + A.  */
+#define R_PPC64_PLTREL64    46  /* doubleword64 L + A - P.  */
+#define R_PPC64_TOC16       47  /* half16* S + A - .TOC.  */
+#define R_PPC64_TOC16_LO    48  /* half16 #lo(S + A - .TOC.).  */
+#define R_PPC64_TOC16_HI    49  /* half16 #hi(S + A - .TOC.).  */
+#define R_PPC64_TOC16_HA    50  /* half16 #ha(S + A - .TOC.).  */
+#define R_PPC64_TOC         51  /* doubleword64 .TOC. */
+#define R_PPC64_PLTGOT16    52  /* half16* M + A.  */
+#define R_PPC64_PLTGOT16_LO 53  /* half16 #lo(M + A).  */
+#define R_PPC64_PLTGOT16_HI 54  /* half16 #hi(M + A).  */
+#define R_PPC64_PLTGOT16_HA 55  /* half16 #ha(M + A).  */
+
+#define R_PPC64_ADDR16_DS      56 /* half16ds* (S + A) >> 2.  */
+#define R_PPC64_ADDR16_LO_DS   57 /* half16ds  #lo(S + A) >> 2.  */
+#define R_PPC64_GOT16_DS       58 /* half16ds* (G + A) >> 2.  */
+#define R_PPC64_GOT16_LO_DS    59 /* half16ds  #lo(G + A) >> 2.  */
+#define R_PPC64_PLT16_LO_DS    60 /* half16ds  #lo(L + A) >> 2.  */
+#define R_PPC64_SECTOFF_DS     61 /* half16ds* (R + A) >> 2.  */
+#define R_PPC64_SECTOFF_LO_DS  62 /* half16ds  #lo(R + A) >> 2.  */
+#define R_PPC64_TOC16_DS       63 /* half16ds* (S + A - .TOC.) >> 2.  */
+#define R_PPC64_TOC16_LO_DS    64 /* half16ds  #lo(S + A - .TOC.) >> 2.  */
+#define R_PPC64_PLTGOT16_DS    65 /* half16ds* (M + A) >> 2.  */
+#define R_PPC64_PLTGOT16_LO_DS 66 /* half16ds  #lo(M + A) >> 2.  */
+/* Keep this the last entry.  */
+#define R_PPC64_NUM		67
+
 /* The remaining relocs are from the Embedded ELF ABI, and are not
    in the SVR4 ELF ABI.  */
 #define R_PPC_EMB_NADDR32	101
@@ -1812,6 +1985,9 @@ typedef Elf32_Addr Elf32_Conflict;
    that may still be in object files.  */
 #define R_PPC_TOC16		255
 
+/* PowerPC64 specific values for the Dyn d_tag field.  */
+#define DT_PPC64_GLINK  (DT_LOPROC + 0)
+#define DT_PPC64_NUM    1
 
 /* ARM specific declarations */
 
@@ -2029,6 +2205,19 @@ typedef Elf32_Addr Elf32_Conflict;
 #define	R_SH_SWITCH8		33
 #define	R_SH_GNU_VTINHERIT	34
 #define	R_SH_GNU_VTENTRY	35
+#define	R_SH_TLS_GD_32		144
+#define	R_SH_TLS_LD_32		145
+#define	R_SH_TLS_LDO_32		146
+#define	R_SH_TLS_IE_32		147
+#define	R_SH_TLS_LE_32		148
+#define	R_SH_TLS_DTPMOD32	149
+#define	R_SH_TLS_DTPOFF32	150
+#define	R_SH_TLS_TPOFF32	151
+#define	R_SH_TLS_GD_MOV		152
+#define	R_SH_TLS_LDM_MOV	153
+#define	R_SH_TLS_LDO_MOV	154
+#define	R_SH_TLS_IE_MOV		155
+#define	R_SH_TLS_LE_MOV		156
 #define	R_SH_GOT32		160
 #define	R_SH_PLT32		161
 #define	R_SH_COPY		162
@@ -2042,36 +2231,36 @@ typedef Elf32_Addr Elf32_Conflict;
 
 /* Additional s390 relocs */
 
-#define R_390_NONE      0              /* No reloc.  */
-#define R_390_8         1              /* Direct 8 bit.  */
-#define R_390_12        2              /* Direct 12 bit.  */
-#define R_390_16        3              /* Direct 16 bit.  */
-#define R_390_32        4              /* Direct 32 bit.  */
-#define R_390_PC32      5              /* PC relative 32 bit.  */
-#define R_390_GOT12     6              /* 12 bit GOT offset.  */
-#define R_390_GOT32     7              /* 32 bit GOT offset.  */
-#define R_390_PLT32     8              /* 32 bit PC relative PLT address.  */
-#define R_390_COPY      9              /* Copy symbol at runtime.  */
-#define R_390_GLOB_DAT  10             /* Create GOT entry.  */
-#define R_390_JMP_SLOT  11             /* Create PLT entry.  */
-#define R_390_RELATIVE  12             /* Adjust by program base.  */
-#define R_390_GOTOFF    13             /* 32 bit offset to GOT.  */
-#define R_390_GOTPC     14             /* 32 bit PC relative offset to GOT.  */
-#define R_390_GOT16     15             /* 16 bit GOT offset.  */
-#define R_390_PC16      16             /* PC relative 16 bit.  */
-#define R_390_PC16DBL   17             /* PC relative 16 bit shifted by 1.  */
-#define R_390_PLT16DBL  18             /* 16 bit PC rel. PLT shifted by 1.  */
-#define R_390_PC32DBL   19             /* PC relative 32 bit shifted by 1.  */
-#define R_390_PLT32DBL  20             /* 32 bit PC rel. PLT shifted by 1.  */
-#define R_390_GOTPCDBL  21             /* 32 bit PC rel. GOT shifted by 1.  */
-#define R_390_64        22             /* Direct 64 bit.  */
-#define R_390_PC64      23             /* PC relative 64 bit.  */
-#define R_390_GOT64     24             /* 64 bit GOT offset.  */
-#define R_390_PLT64     25             /* 64 bit PC relative PLT address.  */
-#define R_390_GOTENT    26             /* 32 bit PC rel. to GOT entry >> 1. */
+#define R_390_NONE	0	       /* No reloc.  */
+#define R_390_8		1	       /* Direct 8 bit.	 */
+#define R_390_12	2	       /* Direct 12 bit.  */
+#define R_390_16	3	       /* Direct 16 bit.  */
+#define R_390_32	4	       /* Direct 32 bit.  */
+#define R_390_PC32	5	       /* PC relative 32 bit.  */
+#define R_390_GOT12	6	       /* 12 bit GOT offset.  */
+#define R_390_GOT32	7	       /* 32 bit GOT offset.  */
+#define R_390_PLT32	8	       /* 32 bit PC relative PLT address.  */
+#define R_390_COPY	9	       /* Copy symbol at runtime.  */
+#define R_390_GLOB_DAT	10	       /* Create GOT entry.  */
+#define R_390_JMP_SLOT	11	       /* Create PLT entry.  */
+#define R_390_RELATIVE	12	       /* Adjust by program base.  */
+#define R_390_GOTOFF	13	       /* 32 bit offset to GOT.	 */
+#define R_390_GOTPC	14	       /* 32 bit PC relative offset to GOT.  */
+#define R_390_GOT16	15	       /* 16 bit GOT offset.  */
+#define R_390_PC16	16	       /* PC relative 16 bit.  */
+#define R_390_PC16DBL	17	       /* PC relative 16 bit shifted by 1.  */
+#define R_390_PLT16DBL	18	       /* 16 bit PC rel. PLT shifted by 1.  */
+#define R_390_PC32DBL	19	       /* PC relative 32 bit shifted by 1.  */
+#define R_390_PLT32DBL	20	       /* 32 bit PC rel. PLT shifted by 1.  */
+#define R_390_GOTPCDBL	21	       /* 32 bit PC rel. GOT shifted by 1.  */
+#define R_390_64	22	       /* Direct 64 bit.  */
+#define R_390_PC64	23	       /* PC relative 64 bit.  */
+#define R_390_GOT64	24	       /* 64 bit GOT offset.  */
+#define R_390_PLT64	25	       /* 64 bit PC relative PLT address.  */
+#define R_390_GOTENT	26	       /* 32 bit PC rel. to GOT entry >> 1. */
 
 /* Keep this the last entry.  */
-#define R_390_NUM       19
+#define R_390_NUM	27
 
 /* CRIS relocations.  */
 #define R_CRIS_NONE		0
@@ -2095,7 +2284,55 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_CRIS_32_PLT_GOTREL	18
 #define R_CRIS_32_PLT_PCREL	19
 
+/* Keep this the last entry.  */
 #define R_CRIS_NUM		20
+
+/* AMD x86-64 relocations.  */
+#define R_X86_64_NONE		0	/* No reloc */
+#define R_X86_64_64		1	/* Direct 64 bit  */
+#define R_X86_64_PC32		2	/* PC relative 32 bit signed */
+#define R_X86_64_GOT32		3	/* 32 bit GOT entry */
+#define R_X86_64_PLT32		4	/* 32 bit PLT address */
+#define R_X86_64_COPY		5	/* Copy symbol at runtime */
+#define R_X86_64_GLOB_DAT	6	/* Create GOT entry */
+#define R_X86_64_JUMP_SLOT	7	/* Create PLT entry */
+#define R_X86_64_RELATIVE	8	/* Adjust by program base */
+#define R_X86_64_GOTPCREL	9	/* 32 bit signed PC relative
+					   offset to GOT */
+#define R_X86_64_32		10	/* Direct 32 bit zero extended */
+#define R_X86_64_32S		11	/* Direct 32 bit sign extended */
+#define R_X86_64_16		12	/* Direct 16 bit zero extended */
+#define R_X86_64_PC16		13	/* 16 bit sign extended pc relative */
+#define R_X86_64_8		14	/* Direct 8 bit sign extended  */
+#define R_X86_64_PC8		15	/* 8 bit sign extended pc relative */
+#define R_X86_64_DTPMOD64	16	/* ID of module containing symbol */
+#define R_X86_64_DTPOFF64	17	/* Offset in module's TLS block */
+#define R_X86_64_TPOFF64	18	/* Offset in initial TLS block */
+#define R_X86_64_TLSGD		19	/* 32 bit signed PC relative offset
+					   to two GOT entries for GD symbol */
+#define R_X86_64_TLSLD		20	/* 32 bit signed PC relative offset
+					   to two GOT entries for LD symbol */
+#define R_X86_64_DTPOFF32	21	/* Offset in TLS block */
+#define r_x86_64_GOTTPOFF	22	/* 32 bit signed PC relative offset
+					   to GOT entry for IE symbol */
+#define R_X86_64_TPOFF32	23	/* Offset in initial TLS block */
+
+/* Keep this the last entry.  */
+#define R_X86_64_NUM		24
+
+
+/* i960 Relocations */
+#define R_960_NONE      0
+#define R_960_12        1
+#define R_960_32        2
+#define R_960_IP24      3
+#define R_960_SUB       4
+#define R_960_OPTCALL   5
+#define R_960_OPTCALLX  6
+#define R_960_OPTCALLXA 7
+/* Keep this the last entry.  */
+#define R_960_NUM	8
+
 
 /* v850 relocations.  */
 #define R_V850_NONE		0
@@ -2128,18 +2365,9 @@ typedef Elf32_Addr Elf32_Conflict;
 /* END CYGNUS LOCAL */
 #define R_V850_GNU_VTINHERIT	23
 #define R_V850_GNU_VTENTRY	24
-
+/* Keep this the last entry.  */
 #define R_V850_NUM		25
 
-/* i960 Relocations */
-#define R_960_NONE      0
-#define R_960_12        1
-#define R_960_32        2
-#define R_960_IP24      3
-#define R_960_SUB       4
-#define R_960_OPTCALL   5
-#define R_960_OPTCALLX  6
-#define R_960_OPTCALLXA 7
 
 __END_DECLS
 
