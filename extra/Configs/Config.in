@@ -1089,12 +1089,17 @@ endmenu
 
 menu "uClibc security related options"
 
+config UCLIBC_SECURITY
+	bool "Enable security options"
+	default n
+
 config UCLIBC_BUILD_PIE
 	bool "Build utilities as ET_DYN/PIE executables"
+	depends on UCLIBC_SECURITY
 	depends on HAVE_SHARED
 	depends on TARGET_i386 || TARGET_powerpc || TARGET_frv
 	select FORCE_SHAREABLE_TEXT_SEGMENTS if BUILD_UCLIBC_LDSO
-	default n
+	default y
 	help
 	  If you answer Y here, ldd and iconv are built as ET_DYN/PIE executables.
 	  It requires gcc-3.4 and binutils-2.15 or later.
@@ -1105,6 +1110,7 @@ config UCLIBC_BUILD_PIE
 
 config UCLIBC_HAS_SSP
 	bool "Support for propolice stack protection"
+	depends on UCLIBC_SECURITY
 	default n
 	help
 	  Adds propolice protection to libc (__guard and __stack_smash_handler).
@@ -1144,6 +1150,7 @@ endchoice
 
 config UCLIBC_BUILD_SSP
 	bool "Build uClibc with propolice protection"
+	depends on UCLIBC_SECURITY
 	depends on UCLIBC_HAS_SSP
 	default n
 	help
@@ -1151,17 +1158,28 @@ config UCLIBC_BUILD_SSP
 
 config UCLIBC_BUILD_RELRO
 	bool "Build uClibc with RELRO"
+	depends on UCLIBC_SECURITY
 	depends on BUILD_UCLIBC_LDSO
-	default n
+	default y
 	help
 	  Build all libraries and executables with -z relro.
 
 config UCLIBC_BUILD_NOW
 	bool "Build uClibc with NOW"
+	depends on UCLIBC_SECURITY
 	depends on BUILD_UCLIBC_LDSO
-	default n
+	default y
 	help
 	  Build all libraries and executables with -z now.
+
+config UCLIBC_BUILD_NOEXECSTACK
+	bool "Build uClibc with noexecstack marking"
+	depends on UCLIBC_SECURITY
+	default y
+	help
+	  Mark all assembler files as noexecstack. This will result in marking
+	  all libraries and executables built against uClibc not requiring
+	  executable stack.
 
 endmenu
 

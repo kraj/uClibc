@@ -23,6 +23,9 @@ LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 # reset to initial (disabling predefined CFLAGS)
 ASFLAGS=
+ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
+ASFLAGS+=$(check_as_noexecstack)
+endif
 
 XXFLAGS=$(XWARNINGS) $(SSP_DISABLE_FLAGS)
 ifeq ($(DODEBUG),y)

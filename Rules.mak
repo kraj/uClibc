@@ -89,10 +89,10 @@ ARFLAGS:=r
 
 OPTIMIZATION:=
 PICFLAG:=-fPIC
+
 PIEFLAG:=$(call check_gcc,-fPIE,)
 ifeq ($(strip $(PIEFLAG)),-fPIE)
-# should add check if ld supports -pie
-LDPIEFLAG:=-Wl,-pie
+LDPIEFLAG:=$(shell $(LD) --help | grep -q pie && echo "-Wl,-pie")
 endif
 
 # Some nice CPU specific optimizations
@@ -286,6 +286,10 @@ ifeq ($(DOPIC),y)
 endif
 
 ASFLAGS = $(CFLAGS)
+ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
+check_as_noexecstack=$(shell if $(LD) --help | grep -q "z noexecstack"; then echo "-Wa,--noexecstack"; fi)
+ASFLAGS += $(check_as_noexecstack)
+endif
 
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
