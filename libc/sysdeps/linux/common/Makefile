@@ -36,6 +36,11 @@ MOBJ=$(shell ./list_syscalls.sh)
 
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 SAFECFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) -fno-builtin
+#
+# on SH4 addition of -g kills the initfini stuff, removed here for all
+# platforms as I suspect no one want initfini compiled -g :-) - davidm
+#
+SAFECFLAGS := $(subst -g,,$(SAFECFLAGS))
 ifeq ($(strip $(DOPIC)),y)
 SAFECFLAGS+=-fPIC
 endif
