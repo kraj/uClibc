@@ -24,7 +24,6 @@ gcc-uClibc.h: $(TOPDIR)/Config
 	@echo "#define GCC_BIN " \"$(GCC_BIN)\" >> gcc-uClibc.h
 	@echo "#define GCC_LIB " \"$(GCC_LIB)\" >> gcc-uClibc.h
 	@echo "#define GCC_LIB_DIR " \"$(GCC_LIB_DIR)\" >> gcc-uClibc.h
-	@echo "#define GCC_INCDIR " \"$(GCCINCDIR)\" >> gcc-uClibc.h
 	@echo "#define TARGET_ARCH " \"$(TARGET_ARCH)\" >> gcc-uClibc.h
 	@echo "#define DYNAMIC_LINKER " \"$(DYNAMIC_LINKER)\" >> gcc-uClibc.h
 	@echo "#define BUILD_DYNAMIC_LINKER " \"$(UCLIBC_DIR)/lib/$(UCLIBC_LDSO)\" >> gcc-uClibc.h

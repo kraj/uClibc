@@ -75,6 +75,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
+#include <libgen.h>
 
 #include "gcc-uClibc.h"
 
@@ -138,24 +139,30 @@ int main(int argc, char **argv)
 	char *uClibc_inc[2];
 	char *our_lib_path[2];
 	char *crt0_path[2];
-	const char *s, *application_name = argv[0];
+	const char *application_name;
 	char *crti_path[2];
 	char *crtn_path[2];
 	char *GPLUSPLUS_BIN = NULL;
+	int len;
 
+	application_name = basename(argv[0]);
 	if (application_name[0] == '-')
 		application_name++;
-	for (s = application_name; *s != '\0';) {
-		if (*s++ == '/')
-			application_name = s;
-	}
+
 	/* We must use strstr since g++ might be named like a
-	 * cross compiler (i.e. arm-linux-g++) . */
-	if (strstr(application_name, "g++")!=0 || strstr(application_name, "c++")!=0) {
-	    if ((s=strstr(GCC_BIN,"gcc")) != 0) {
-		GPLUSPLUS_BIN = strdup(GCC_BIN);
-		GPLUSPLUS_BIN[1+s-GCC_BIN]='+';
-		GPLUSPLUS_BIN[2+s-GCC_BIN]='+';
+	 * cross compiler (i.e. arm-linux-g++).   We must also
+	 * search carefully, in case we are searching something 
+	 * like /opt/c++/gcc-3.1/bin/arm-linux-g++ or some similar 
+	 * perversion...  */
+	len = strlen(application_name);
+	if ((strcmp(application_name+len-3, "g++")==0) ||
+		(strcmp(application_name+len-3, "c++")==0)) {
+	    char *gcc_bin = GCC_BIN;
+	    len = strlen(gcc_bin);
+	    if (strcmp(gcc_bin+len-3, "gcc")==0) {
+		GPLUSPLUS_BIN = strdup(gcc_bin);
+		GPLUSPLUS_BIN[len-1]='+';
+		GPLUSPLUS_BIN[len-2]='+';
 	    }
 	    ctor_dtor = 1;
 	    cplusplus = 1;
@@ -285,6 +292,9 @@ int main(int argc, char **argv)
 					} else if (strcmp("--uclibc-use-rpath",argv[i]) == 0) {
 					    use_rpath = 1;
 					    argv[i]='\0';
+					} else if (strcmp("--uclibc-ctors",argv[i]) == 0) {
+					    ctor_dtor = 1;
+					    argv[i]='\0';
 					}
 					break;
 			}
@@ -343,8 +353,8 @@ int main(int argc, char **argv)
 	    gcc_argv[i++] = nostdinc;
 	    gcc_argv[i++] = "-isystem";
 	    gcc_argv[i++] = uClibc_inc[use_build_dir];
-	    gcc_argv[i++] = "-isystem";
-	    gcc_argv[i++] = GCC_INCDIR;
+	    gcc_argv[i++] = "-iwithprefix";
+	    gcc_argv[i++] = "include";
 	    if( incstr )
 		gcc_argv[i++] = incstr;
 	}
