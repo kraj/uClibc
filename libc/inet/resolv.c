@@ -120,7 +120,7 @@ extern int searchdomains;
 extern char * searchdomain[MAX_SEARCH];
 extern struct hostent * get_hosts_byname(const char * name, int type);
 extern struct hostent * get_hosts_byaddr(const char * addr, int len, int type);
-extern void __open_etc_hosts(FILE *fp);
+extern void __open_etc_hosts(FILE **fp);
 extern struct hostent * read_etc_hosts(FILE *fp, const char * name, int type, enum etc_hosts_action action);
 extern int resolve_address(const char * address, int nscount, 
 	char ** nsip, struct in_addr * in);
@@ -1327,10 +1327,10 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 
 #ifdef L_read_etc_hosts
 
-void __open_etc_hosts(FILE *fp)
+void __open_etc_hosts(FILE **fp)
 {
-	if ((fp = fopen("/etc/hosts", "r")) == NULL) {
-		fp = fopen("/etc/config/hosts", "r");
+	if ((*fp = fopen("/etc/hosts", "r")) == NULL) {
+		*fp = fopen("/etc/config/hosts", "r");
 	}
 	return;
 }
@@ -1351,7 +1351,7 @@ struct hostent * read_etc_hosts(FILE * fp, const char * name, int type, enum etc
 	int						aliases, i;
 
 	if (action!=GETHOSTENT) {
-		__open_etc_hosts(fp);
+		__open_etc_hosts(&fp);
 		if (fp == NULL) {
 			return((struct hostent *)NULL);
 		}
@@ -1454,7 +1454,7 @@ struct hostent *gethostent (void)
     struct hostent *host;
 
     if (__gethostent_fp == NULL) {
-	__open_etc_hosts(__gethostent_fp);
+	__open_etc_hosts(&__gethostent_fp);
 	if (__gethostent_fp == NULL) {
 	    return((struct hostent *)NULL);
 	}
