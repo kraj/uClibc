@@ -83,7 +83,7 @@ unsigned int _dl_linux_resolver (int dummy1, int dummy2,
   instr_addr = (int) this_reloc->r_offset + (int) tpnt->loadaddr;
   got_addr = (char **) instr_addr;
 
-#ifdef DEBUG
+#ifdef DL_DEBUG
   _dl_dprintf (2, "Resolving symbol %s\n",
 		strtab + symtab[symtab_index].st_name);
 #endif
@@ -97,8 +97,8 @@ unsigned int _dl_linux_resolver (int dummy1, int dummy2,
 		    _dl_progname, strtab + symtab[symtab_index].st_name);
       _dl_exit (1);
     }
-/* #define DEBUG_LIBRARY */
-#ifdef DEBUG_LIBRARY
+/* #define DL_DEBUG */
+#ifdef DL_DEBUG
   if ((unsigned int) got_addr < 0x40000000)
     _dl_dprintf (2, "Calling library function: %s\n",
 		  strtab + symtab[symtab_index].st_name);

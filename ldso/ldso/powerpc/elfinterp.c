@@ -1,4 +1,4 @@
-//#define DEBUG
+//#define DL_DEBUG
 /* Run an ELF binary on a linux system.
 
    Copyright (C) 1993, Eric Youngdale.
@@ -49,7 +49,7 @@ static char *_dl_reltypes[] =
    working. */
 
 
-#ifdef DEBUG
+#ifdef DL_DEBUG
 static void debug_sym(Elf32_Sym *symtab,char *strtab,int symtab_index);
 static void debug_reloc(ELF_RELOC *rpnt);
 #define DPRINTF(fmt,args...) _dl_dprintf(2,fmt,args)
@@ -547,7 +547,7 @@ static void fixup_jmpslot(unsigned long reloc_addr, unsigned long targ_addr)
 #endif
 
 
-#ifdef DEBUG
+#ifdef DL_DEBUG
 static void debug_sym(Elf32_Sym *symtab,char *strtab,int symtab_index)
 {
 	if(symtab_index){
