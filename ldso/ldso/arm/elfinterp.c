@@ -258,7 +258,8 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 						topbits = newvalue & 0xfe000000;
 						if (topbits != 0xfe000000 && topbits != 0x00000000)
 						{
-							_dl_dprintf(2, "R_ARM_PC24 relocation out of range ");
+							_dl_dprintf(2,"symbol '%s': R_ARM_PC24 relocation out of range.", 
+								symtab[symtab_index].st_name);
 							_dl_exit(1);
 						}
 					}
