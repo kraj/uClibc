@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 93, 94, 96, 97, 98 Free Software Foundation, Inc.
+/* Copyright (C) 1991, 92, 94, 95, 97, 99 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -18,33 +18,29 @@
 
 #include <sysdep.h>
 
-#define _ASM 1
-#define _SETJMP_H
-#include <bits/setjmp.h>
+.text;  
+.global    fork;
+.align 4;      
+fork: ;
+.type   fork  ,@function; ;      
 
-ENTRY(_setjmp)
-	b	1f
-	 set	0, %o1
-END(_setjmp)
+	mov	2, %g1 ; 
+	ta	0x10;
+	bcc,a 9000f;
+	nop;
+	save    %sp,-96,%sp;
+	call __errno_location;
+	nop;    
+	st	%i0,[%o0];
+	jmpl    %i7+8,%g0;
+	restore %g0,-1,%o0; ;
+	9000:;
 
-ENTRY(setjmp)
-	set	1, %o1
-END(setjmp)
+	/* %o1 is now 0 for the parent and 1 for the child.  Decrement it to
+	   make it -1 (all bits set) for the parent, and 0 (no bits set)
+	   for the child.  Then AND it with %o0, so the parent gets
+	   %o0&-1==pid, and the child gets %o0&0==0.  */
+	sub %o1, 1, %o1
+	retl
+	and %o0, %o1, %o0
 
-ENTRY (__sigsetjmp)
-1:
-	/* Save our PC, SP and FP.  Save the signal mask if requested with
-	   a tail-call for simplicity; it always returns zero.  */
-	ta	ST_FLUSH_WINDOWS
-
-	st	%o7, [%o0 + (JB_PC * 4)]
-	st	%sp, [%o0 + (JB_SP * 4)]
-	st	%fp, [%o0 + (JB_FP * 4)]
-
-	mov	%o7, %g1
-	call	__sigjmp_save
-	 mov	%g1, %o7
-END(__sigsetjmp)
-
-.weak   _setjmp    
-.weak   setjmp  

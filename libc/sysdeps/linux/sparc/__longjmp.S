@@ -2,21 +2,19 @@
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
-
-/* Code taken from glibc/sysdeps/sparc/sparc32/  (glibc 2.2.2) */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #include <sysdep.h>
 
@@ -27,7 +25,11 @@
 #define ST_FLUSH_WINDOWS 3
 #define RW_FP [%fp + 0x48]
 
-ENTRY(__longjmp)
+.global   __longjmp;
+.align 4;
+__longjmp: ; 
+.type __longjmp ,@function; 
+
 	/* Store our arguments in global registers so we can still
 	   use them while unwinding frames and their register windows.  */
 
@@ -40,27 +42,21 @@ ENTRY(__longjmp)
 	xor %fp, %g3, %o0
 	add %fp, 512, %o1
 	andncc %o0, 4095, %o0
-	bne thread
-	//bne LOC(thread)
+	bne .Lthread
 	 cmp %o1, %g3
-	bl thread
-	//bl LOC(thread)
+	bl .Lthread
 
 	/* Now we will loop, unwinding the register windows up the stack
 	   until the restored %fp value matches the target value in %g3.  */
 
-//LOC(loop):
-loop:
+.Lloop:
 	cmp %fp, %g3		/* Have we reached the target frame? */
-	bl,a loop		/* Loop while current fp is below target.  */
-	//bl,a LOC(loop)	/* Loop while current fp is below target.  */
+	bl,a .Lloop		/* Loop while current fp is below target.  */
 	 restore		/* Unwind register window in delay slot.  */
-	be,a found		/* Better have hit it exactly.  */
-	//be,a LOC(found)	/* Better have hit it exactly.  */
+	be,a .Lfound		/* Better have hit it exactly.  */
 	 ld ENV(g1,JB_SP), %o0	/* Delay slot: extract target SP.  */
 
-thread:
-//LOC(thread):
+.Lthread:
 	/*
 	 * Do a "flush register windows trap".  The trap handler in the
 	 * kernel writes all the register windows to their stack slots, and
@@ -77,15 +73,13 @@ thread:
 	retl
 	 restore %g2, 0, %o0	/* Restore values from above register frame. */
 
-found:
-//LOC(found):
+.Lfound:
 	/* We have unwound register windows so %fp matches the target.  */
 	mov %o0, %sp		/* OK, install new SP.  */
 
-//LOC(sp_ok):
-sp_ok:
+.Lsp_ok:
 	ld ENV(g1,JB_PC), %o0	/* Extract target return PC.  */
 	jmp %o0 + 8		/* Return there.  */
 	 mov %g2, %o0		/* Delay slot: set return value.  */
 
-END(__longjmp)
+.size  __longjmp , . -  __longjmp

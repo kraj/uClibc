@@ -1,9 +1,8 @@
 /* vi: set sw=4 ts=4: */
-/* fork for uClibc
+/* uClibc/sysdeps/linux/i386/crt0.S
+ * Pull stuff off the stack and get uClibc moving.
  *
- * Copyright (C) 2000 by Lineo, inc. and Erik Andersen
  * Copyright (C) 2000,2001 by Erik Andersen <andersen@uclibc.org>
- * Written by Erik Andersen <andersen@uclibc.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published by
@@ -20,15 +19,26 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include <errno.h>
-#include <features.h>
-#include <sys/types.h>
-#include <sys/syscall.h>
+extern void __uClibc_main(int argc,void *argv,void *envp);
 
-#ifndef __HAS_NO_MMU__
+/* a little bit of stuff to support C++ */
+__asm__(".section .ctors,\"aw\"\n.align 4\n.global __CTOR_LIST__\n"
+	"__CTOR_LIST__:\n.long -1\n");
 
-//#define __NR_fork             2
-#include <unistd.h>
-_syscall0(pid_t, fork);
+__asm__(".section .dtors,\"aw\"\n.align 4\n.global __DTOR_LIST__\n"
+	"__DTOR_LIST__:\n.long -1\n");
 
-#endif
+void _start(unsigned int first_arg)
+{
+	unsigned int argc;
+	char **argv, **envp;
+	unsigned long *stack;
+
+	stack = (unsigned long*) &first_arg;
+	argc = *(stack - 1);
+	argv = (char **) stack;
+	envp = (char **)stack + argc + 1;
+
+	__uClibc_main(argc, argv, envp);
+}
+

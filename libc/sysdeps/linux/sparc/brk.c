@@ -1,4 +1,5 @@
-/* Copyright (C) 1991, 93, 94, 96, 97, 98 Free Software Foundation, Inc.
+/* brk system call for Linux/i386.
+   Copyright (C) 1995, 1996, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,35 +17,33 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sysdep.h>
+#include <errno.h>
+#include <unistd.h>
+#include <sys/syscall.h>
 
-#define _ASM 1
-#define _SETJMP_H
-#include <bits/setjmp.h>
 
-ENTRY(_setjmp)
-	b	1f
-	 set	0, %o1
-END(_setjmp)
+/* This must be initialized data because commons can't have aliases.  */
+void *___brk_addr = 0;
 
-ENTRY(setjmp)
-	set	1, %o1
-END(setjmp)
 
-ENTRY (__sigsetjmp)
-1:
-	/* Save our PC, SP and FP.  Save the signal mask if requested with
-	   a tail-call for simplicity; it always returns zero.  */
-	ta	ST_FLUSH_WINDOWS
+int brk (void *addr)
+{
+    void *newbrk;
 
-	st	%o7, [%o0 + (JB_PC * 4)]
-	st	%sp, [%o0 + (JB_SP * 4)]
-	st	%fp, [%o0 + (JB_FP * 4)]
+    {
+	register void *o0 __asm__("%o0") = addr;
+	register int g1 __asm__("%g1") = 17 ;
+	__asm ("t 0x10" : "=r"(o0) : "r"(g1), "0"(o0) : "cc");
+	newbrk = o0;
+    }
 
-	mov	%o7, %g1
-	call	__sigjmp_save
-	 mov	%g1, %o7
-END(__sigsetjmp)
+    ___brk_addr = newbrk;
 
-.weak   _setjmp    
-.weak   setjmp  
+    if (newbrk < addr)
+    {
+	__set_errno (ENOMEM);
+	return -1;
+    }
+
+    return 0;
+}
