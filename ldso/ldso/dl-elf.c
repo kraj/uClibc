@@ -894,4 +894,26 @@ char *_dl_strdup(const char *string)
 	_dl_strcpy(retval, string);
 	return retval;
 }
+#ifdef __USE_GNU
+#if ! defined LIBDL || (! defined PIC && ! defined __PIC__)
+int
+__dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info, size_t size, void *data), void *data)
+{
+	struct elf_resolve *l;
+	struct dl_phdr_info info;
+	int ret = 0;
 
+	for (l = _dl_loaded_modules; l != NULL; l = l->next) {
+		info.dlpi_addr = l->loadaddr;
+		info.dlpi_name = l->libname;
+		info.dlpi_phdr = l->ppnt;
+		info.dlpi_phnum = l->n_phent;
+		ret = callback (&info, sizeof (struct dl_phdr_info), data);
+		if (ret)
+			break;
+	}
+	return ret;
+}
+strong_alias(__dl_iterate_phdr, dl_iterate_phdr);
+#endif
+#endif

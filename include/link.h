@@ -92,4 +92,24 @@ struct link_map
     struct link_map *l_next, *l_prev; /* Chain of loaded objects.  */
   };
 
+#ifdef __USE_GNU
+
+struct dl_phdr_info
+  {
+    ElfW(Addr) dlpi_addr;
+    const char *dlpi_name;
+    const ElfW(Phdr) *dlpi_phdr;
+    ElfW(Half) dlpi_phnum;
+  };
+
+__BEGIN_DECLS
+
+extern int dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info,
+					     size_t size, void *data),
+			    void *data) __THROW;
+
+__END_DECLS
+
+#endif
+
 #endif /* link.h */
