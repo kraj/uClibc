@@ -183,7 +183,7 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 tags:
 	ctags -R
 
-install: install_dev install_runtime install_toolchain install_utils finished2
+install: install_dev install_runtime install_utils finished2
 
 
 # Installs header files and development library links.
