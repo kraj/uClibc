@@ -384,10 +384,12 @@ release: distclean
 	cd ..;					\
 	rm -rf uClibc-$(VERSION);		\
 	cp -a uClibc uClibc-$(VERSION);		\
-	find uClibc-$(VERSION)/ -type d		\
+	find uClibc-$(VERSION)/ -type f		\
 	    -name .\#* -exec rm -rf {} \; ;	\
+	find uClibc-$(VERSION)/ -type d		\
+	    -name CVS  -exec rm -rf {} \; ;	\
 						\
-	tar -cvzf uClibc-$(VERSION).tar.gz --exclude CVS uClibc-$(VERSION)/;
+	tar -cvzf uClibc-$(VERSION).tar.gz uClibc-$(VERSION)/;
 
 endif # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
