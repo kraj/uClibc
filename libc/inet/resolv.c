@@ -167,8 +167,9 @@ int decode_dotted(const unsigned char *data, int offset,
 	if (!data)
 		return -1;
 
-	while ((measure && total++), (l=data[offset++])) {
-
+	while ((l=data[offset++])) {
+		if (measure)
+		    total++;
 		if ((l & 0xc0) == (0xc0)) {
 			if (measure)
 				total++;
