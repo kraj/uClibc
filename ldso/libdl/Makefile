@@ -60,9 +60,9 @@ $(LIBDL): ar-target
 ar-target: $(OBJS) $(PIC_OBJS)
 	$(AR) $(ARFLAGS) $(LIBDL) ../ldso/$(TARGET_ARCH)/resolve.o $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBDL_PIC) $(PIC_OBJS)
-	install -d $(TOPDIR)lib
+	$(INSTALL) -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBDL)
-	install -m 644 $(LIBDL) $(TOPDIR)lib
+	$(INSTALL) -m 644 $(LIBDL) $(TOPDIR)lib
 
 
 dlib.o: dlib.c
@@ -80,9 +80,9 @@ shared:
 		-o $(LIBDL_SHARED_FULLNAME) --whole-archive $(LIBDL_PIC) \
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 		-L$(TOPDIR)/lib -lc;
-	install -d $(TOPDIR)lib
+	$(INSTALL) -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED).$(MAJOR_VERSION)
-	install -m 644 $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib;
+	$(INSTALL) -m 644 $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib
 	(cd $(TOPDIR)lib && ln -sf $(LIBDL_SHARED_FULLNAME) $(LIBDL_SHARED)); 
 	(cd $(TOPDIR)lib && ln -sf $(LIBDL_SHARED_FULLNAME) $(LIBDL_SHARED).$(MAJOR_VERSION)); 
 

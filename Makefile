@@ -94,17 +94,17 @@ finished: shared
 .PHONY: romfs
 romfs:
 	@if [ "$(CONFIG_BINFMT_SHARED_FLAT)" = "y" ]; then \
-		[ -e $(ROMFSDIR)/lib ] || mkdir -p $(ROMFSDIR)/lib; \
+		[ -e $(ROMFSDIR)/lib ] || $(INSTALL) -d $(ROMFSDIR)/lib; \
 		$(ROMFSINST) $(SHARED_TARGET) /lib/lib$(LIBID).so; \
 	fi
 ifeq ($(strip $(HAVE_SHARED)),y)
-	install -d $(ROMFSDIR)/lib
-	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	$(INSTALL) -d $(ROMFSDIR)/lib
+	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(ROMFSDIR)/lib
 	cp -fa lib/*.so.* $(ROMFSDIR)/lib/.
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
-	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	    $(INSTALL) -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	    		$(ROMFSDIR)/lib; \
 		$(ROMFSINST) -s \
 			/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
@@ -117,7 +117,7 @@ include/bits/uClibc_config.h: .config
 	    make -C extra/config conf; \
 	fi;
 	rm -rf include/bits
-	mkdir -p include/bits
+	$(INSTALL) -d include/bits
 	@./extra/config/conf -o extra/Configs/Config.$(TARGET_ARCH)
 
 headers: include/bits/uClibc_config.h
@@ -191,10 +191,10 @@ install: install_dev install_runtime install_toolchain install_utils finished2
 
 # Installs header files and development library links.
 install_dev:
-	install -d $(PREFIX)$(DEVEL_PREFIX)/lib
-	install -d $(PREFIX)$(DEVEL_PREFIX)/usr/lib
-	install -d $(PREFIX)$(DEVEL_PREFIX)/include
-	-install -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
+	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/lib
+	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/usr/lib
+	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/include
+	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
 	tar -chf - include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX);
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	# Remove floating point related headers since float support is disabled.
@@ -252,7 +252,7 @@ endif
 	-find $(PREFIX)$(DEVEL_PREFIX) -name CVS | xargs rm -rf;
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
 ifeq ($(strip $(HAVE_SHARED)),y)
-	-install -m 644 lib/*.so $(PREFIX)$(DEVEL_PREFIX)/lib/
+	-$(INSTALL) -m 644 lib/*.so $(PREFIX)$(DEVEL_PREFIX)/lib/
 	-find lib/ -type l -name '*.so' -exec cp -fa {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
 	# If we build shared libraries then the static libs are PIC...
 	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
@@ -267,28 +267,28 @@ endif
 # system, use the "install_target" target instead... 
 install_runtime:
 ifeq ($(strip $(HAVE_SHARED)),y)
-	install -d $(PREFIX)$(DEVEL_PREFIX)/lib
-	install -d $(PREFIX)$(DEVEL_PREFIX)/bin
-	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/lib
+	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/bin
+	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(PREFIX)$(DEVEL_PREFIX)/lib
 	cp -fa lib/*.so.* $(PREFIX)$(DEVEL_PREFIX)/lib
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
-	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	    $(INSTALL) -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	    		$(PREFIX)$(DEVEL_PREFIX)/lib; \
 	fi;
 	#@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
-	#    install -d $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
+	#    $(INSTALL) -d $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
 	#    ln -sf $(PREFIX)$(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	#		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO); \
 	#fi;
 endif
 
 install_toolchain:
-	install -d $(PREFIX)$(DEVEL_PREFIX)/lib
-	install -d $(PREFIX)$(DEVEL_PREFIX)/bin
-	install -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin
-	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
+	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/lib
+	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/bin
+	$(INSTALL) -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin
+	$(INSTALL) -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
 	$(MAKE) -C extra/gcc-uClibc install
 
 ifeq ($(strip $(HAVE_SHARED)),y)
@@ -300,21 +300,21 @@ endif
 
 install_utils: utils
 ifeq ($(strip $(HAVE_SHARED)),y)
-	install -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin;
-	install -m 755 ldso/util/ldd \
+	$(INSTALL) -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin;
+	$(INSTALL) -m 755 ldso/util/ldd \
 		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
 	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd \
 		$(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ldd
 	# For now, don't bother with readelf since surely the host
 	# system has binutils, or we couldn't have gotten this far...
-	#install -m 755 ldso/util/readelf \
+	#$(INSTALL) -m 755 ldso/util/readelf \
 	#	$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf
 	#ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf \
 	#	$(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/readelf
 	@if [ -x ldso/util/ldconfig ] ; then \
 	    set -x -e; \
-	    install -d $(PREFIX)$(DEVEL_PREFIX)/etc; \
-	    install -m 755 ldso/util/ldconfig \
+	    $(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/etc; \
+	    $(INSTALL) -m 755 ldso/util/ldconfig \
 		    $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig; \
 	    ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig \
 		    $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ldconfig; \
@@ -327,18 +327,18 @@ endif
 # deployment onto your target system.
 install_target:
 ifeq ($(strip $(HAVE_SHARED)),y)
-	install -d $(PREFIX)$(TARGET_PREFIX)/lib
-	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin
-	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	$(INSTALL) -d $(PREFIX)$(TARGET_PREFIX)/lib
+	$(INSTALL) -d $(PREFIX)$(TARGET_PREFIX)/usr/bin
+	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(PREFIX)$(TARGET_PREFIX)/lib
 	cp -fa lib/*.so.* $(PREFIX)$(TARGET_PREFIX)/lib
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
-	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	    $(INSTALL) -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	    		$(PREFIX)$(TARGET_PREFIX)/lib; \
 	fi;
 	#@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
-	#    install -d $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
+	#    $(INSTALL) -d $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
 	#    ln -sf $(PREFIX)$(TARGET_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	#    		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO); \
 	#fi;
@@ -347,17 +347,17 @@ endif
 install_target_utils:
 ifeq ($(strip $(HAVE_SHARED)),y)
 	@$(MAKE) -C ldso/util ldd.target ldconfig.target #readelf.target
-	install -d $(PREFIX)$(TARGET_PREFIX)/etc;
-	install -d $(PREFIX)$(TARGET_PREFIX)/sbin;
-	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin;
-	install -m 755 ldso/util/ldd.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/ldd
-	install -m 755 ldso/util/ldconfig.target $(PREFIX)$(TARGET_PREFIX)/sbin/ldconfig;
-	#install -m 755 ldso/util/readelf.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/readelf;
+	$(INSTALL) -d $(PREFIX)$(TARGET_PREFIX)/etc;
+	$(INSTALL) -d $(PREFIX)$(TARGET_PREFIX)/sbin;
+	$(INSTALL) -d $(PREFIX)$(TARGET_PREFIX)/usr/bin;
+	$(INSTALL) -m 755 ldso/util/ldd.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/ldd
+	$(INSTALL) -m 755 ldso/util/ldconfig.target $(PREFIX)$(TARGET_PREFIX)/sbin/ldconfig;
+	#$(INSTALL) -m 755 ldso/util/readelf.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/readelf;
 endif
 ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 	@$(MAKE) -C libc/misc/wchar iconv.target
-	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin;
-	install -m 755 libc/misc/wchar/iconv.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/iconv
+	$(INSTALL) -d $(PREFIX)$(TARGET_PREFIX)/usr/bin;
+	$(INSTALL) -m 755 libc/misc/wchar/iconv.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/iconv
 endif
 
 finished2:
@@ -389,37 +389,37 @@ buildmconf:
 
 menuconfig: extra/config/mconf
 	rm -rf include/bits
-	mkdir -p include/bits
+	$(INSTALL) -d include/bits
 	@./extra/config/mconf extra/Configs/Config.$(TARGET_ARCH)
 
 config: extra/config/conf
 	rm -rf include/bits
-	mkdir -p include/bits
+	$(INSTALL) -d include/bits
 	@./extra/config/conf extra/Configs/Config.$(TARGET_ARCH)
 
 oldconfig: extra/config/conf
 	rm -rf include/bits
-	mkdir -p include/bits
+	$(INSTALL) -d include/bits
 	@./extra/config/conf -o extra/Configs/Config.$(TARGET_ARCH)
 
 randconfig: extra/config/conf
 	rm -rf include/bits
-	mkdir -p include/bits
+	$(INSTALL) -d include/bits
 	@./extra/config/conf -r extra/Configs/Config.$(TARGET_ARCH)
 
 allyesconfig: extra/config/conf
 	rm -rf include/bits
-	mkdir -p include/bits
+	$(INSTALL) -d include/bits
 	@./extra/config/conf -y extra/Configs/Config.$(TARGET_ARCH)
 
 allnoconfig: extra/config/conf
 	rm -rf include/bits
-	mkdir -p include/bits
+	$(INSTALL) -d include/bits
 	@./extra/config/conf -n extra/Configs/Config.$(TARGET_ARCH)
 
 defconfig: extra/config/conf
 	rm -rf include/bits
-	mkdir -p include/bits
+	$(INSTALL) -d include/bits
 	@./extra/config/conf -d extra/Configs/Config.$(TARGET_ARCH)
 
 
@@ -461,7 +461,7 @@ distclean: clean
 release: distclean
 	cd ..;					\
 	rm -rf uClibc-$(VERSION);		\
-	cp -fa uClibc uClibc-$(VERSION);		\
+	cp -fa uClibc uClibc-$(VERSION);	\
 	find uClibc-$(VERSION)/ -type f		\
 	    -name .\#* -exec rm -rf {} \; ;	\
 	find uClibc-$(VERSION)/ -type d		\

@@ -43,6 +43,8 @@ LD= $(CROSS)ld
 NM= $(CROSS)nm
 STRIPTOOL= $(CROSS)strip
 
+INSTALL= install
+
 # Select the compiler needed to build binaries for your development system
 HOSTCC=gcc
 HOSTCFLAGS=-O2 -Wall

@@ -88,9 +88,9 @@ endif
 $(LIBM): ar-target
 	@if [ -f $(LIBM) ] ; then \
 		set -x -e; \
-		install -d $(TOPDIR)lib; \
+		$(INSTALL) -d $(TOPDIR)lib; \
 		rm -f $(TOPDIR)lib/$(LIBM); \
-		install -m 644 $(LIBM) $(TOPDIR)lib; \
+		$(INSTALL) -m 644 $(LIBM) $(TOPDIR)lib; \
 	fi;
 
 shared: all
@@ -100,9 +100,9 @@ shared: all
 		-o $(LIBM_SHARED_FULLNAME) --whole-archive $(LIBM) \
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 		-L$(TOPDIR)/lib -lc; \
-	    install -d $(TOPDIR)lib; \
+	    $(INSTALL) -d $(TOPDIR)lib; \
 	    rm -f $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
-	    install -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib; \
+	    $(INSTALL) -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib; \
 	    (cd $(TOPDIR)lib && ln -sf $(LIBM_SHARED_FULLNAME) $(LIBM_SHARED)); \
 	    (cd $(TOPDIR)lib && ln -sf $(LIBM_SHARED_FULLNAME) $(LIBM_SHARED).$(MAJOR_VERSION)); \
 	fi;

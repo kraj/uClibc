@@ -53,9 +53,9 @@ all: halfclean subdirs $(LIBNAME) $(DO_SHARED)
 
 ar-target:
 	$(CROSS)ranlib $(LIBNAME)
-	install -d $(TOPDIR)lib
+	$(INSTALL) -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBNAME)
-	install -m 644 $(LIBNAME) $(TOPDIR)lib
+	$(INSTALL) -m 644 $(LIBNAME) $(TOPDIR)lib
 
 $(LIBNAME): subdirs ar-target
 
@@ -66,9 +66,9 @@ shared: $(TOPDIR)lib/$(LIBNAME) $(LIBGCC_NEED)
 		$(TOPDIR)/libc/misc/internals/interp.o --no-whole-archive \
 		-init __uClibc_init $(LIBGCC)
 	@true #rm -rf tmp
-	install -d $(TOPDIR)lib
+	$(INSTALL) -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(SHARED_FULLNAME)
-	install -m 644 $(SHARED_FULLNAME) $(TOPDIR)lib
+	$(INSTALL) -m 644 $(SHARED_FULLNAME) $(TOPDIR)lib
 	(cd ../lib && ln -sf $(SHARED_FULLNAME) libc.so);
 	(cd ../lib && ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME));
 

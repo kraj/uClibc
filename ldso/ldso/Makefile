@@ -71,8 +71,8 @@ all: lib
 lib:: _dl_progname.h $(OBJS) $(DLINK_OBJS)
 	$(LD) $(LDFLAGS) -e _dl_boot -soname=$(UCLIBC_LDSO) \
 		-o $(LDSO_FULLNAME) $(OBJS) $(LIBGCC);
-	install -d $(TOPDIR)lib 
-	install -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
+	$(INSTALL) -d $(TOPDIR)lib
+	$(INSTALL) -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
 	(cd $(TOPDIR)lib && ln -sf $(LDSO_FULLNAME) $(UCLIBC_LDSO))
 
 _dl_progname.h: Makefile

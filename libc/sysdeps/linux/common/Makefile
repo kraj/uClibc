@@ -80,21 +80,21 @@ crti.o: crti.S
 	$(CC) $(SAFECFLAGS) -c crti.S -o crti.o
 
 $(TOPDIR)lib/crti.o: crti.o
-	mkdir -p $(TOPDIR)lib/
+	$(INSTALL) -d $(TOPDIR)lib/
 	cp crti.o $(TOPDIR)lib/
 
 crtn.o: crtn.S
 	$(CC) $(SAFECFLAGS) -c crtn.S -o crtn.o
 
 $(TOPDIR)lib/crtn.o: crtn.o
-	mkdir -p $(TOPDIR)lib/
+	$(INSTALL) -d $(TOPDIR)lib/
 	cp crtn.o $(TOPDIR)lib/
 else
 $(TOPDIR)lib/crti.o:
-	mkdir -p $(TOPDIR)lib/
+	$(INSTALL) -d $(TOPDIR)lib/
 	$(AR) $(ARFLAGS) $(TOPDIR)lib/crti.o
 $(TOPDIR)lib/crtn.o:
-	mkdir -p $(TOPDIR)lib/
+	$(INSTALL) -d $(TOPDIR)lib/
 	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
 endif
 

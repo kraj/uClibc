@@ -61,10 +61,10 @@ $(TARGET_ARCH)-uclibc-ld:	Makefile $(TOPDIR)/.config
 	chmod a+x $@
 
 install:	all
-	install -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin;
-	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin;
-	install -m 755 $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/
-	install -m 755 $(TARGET_ARCH)-uclibc-ld $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/
+	$(INSTALL) -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin
+	$(INSTALL) -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
+	$(INSTALL) -m 755 $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/
+	$(INSTALL) -m 755 $(TARGET_ARCH)-uclibc-ld $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/
 	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-cc
 	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/gcc
 	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/cc

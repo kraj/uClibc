@@ -55,17 +55,17 @@ all: $(LIBPTHREAD) $(LIBTHREAD_DB)
 $(LIBPTHREAD): subdirs
 	@if [ -f $(LIBPTHREAD) ] ; then \
 		set -e; \
-		install -d $(TOPDIR)lib; \
+		$(INSTALL) -d $(TOPDIR)lib; \
 		rm -f $(TOPDIR)lib/$(LIBPTHREAD); \
-		install -m 644 $(LIBPTHREAD) $(TOPDIR)lib; \
+		$(INSTALL) -m 644 $(LIBPTHREAD) $(TOPDIR)lib; \
 	fi;
 
 $(LIBTHREAD_DB): subdirs
 	@if [ -f $(LIBTHREAD_DB) ] ; then \
 		set -e; \
-		install -d $(TOPDIR)lib; \
+		$(INSTALL) -d $(TOPDIR)lib; \
 		rm -f $(TOPDIR)lib/$(LIBTHREAD_DB); \
-		install -m 644 $(LIBTHREAD_DB) $(TOPDIR)lib; \
+		$(INSTALL) -m 644 $(LIBTHREAD_DB) $(TOPDIR)lib; \
 	fi;
 
 
@@ -82,10 +82,10 @@ shared: all
 			-o $(LIBPTHREAD_SHARED_FULLNAME) $(START_FILES) --whole-archive $(LIBPTHREAD) \
 			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 			-L$(TOPDIR)/lib -lc $(END_FILES); \
-		install -d $(TOPDIR)lib; \
+		$(INSTALL) -d $(TOPDIR)lib; \
 		rm -f $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) \
 			$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION); \
-		install -m 644 $(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib; \
+		$(INSTALL) -m 644 $(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib; \
 		(cd $(TOPDIR)lib && ln -sf $(LIBPTHREAD_SHARED_FULLNAME) \
 			$(LIBPTHREAD_SHARED)); \
 		(cd $(TOPDIR)lib && ln -sf $(LIBPTHREAD_SHARED_FULLNAME) \
@@ -97,10 +97,10 @@ shared: all
 			-o $(LIBTHREAD_DB_SHARED_FULLNAME) $(START_FILES) --whole-archive $(LIBTHREAD_DB) \
 			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 			-L$(TOPDIR)/lib -lc $(END_FILES); \
-		install -d $(TOPDIR)lib; \
+		$(INSTALL) -d $(TOPDIR)lib; \
 		rm -f $(TOPDIR)lib/$(LIBTHREAD_DB_SHARED_FULLNAME) \
 			$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).$(MAJOR_VERSION); \
-		install -m 644 $(LIBTHREAD_DB_SHARED_FULLNAME) $(TOPDIR)lib; \
+		$(INSTALL) -m 644 $(LIBTHREAD_DB_SHARED_FULLNAME) $(TOPDIR)lib; \
 		(cd $(TOPDIR)lib && ln -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
 			$(LIBTHREAD_DB_SHARED)); \
 		(cd $(TOPDIR)lib && ln -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
