@@ -1,6 +1,6 @@
 /*
  * Distributed under the terms of the GNU General Public License v2
- * $Header: /var/cvs/uClibc/libc/sysdeps/linux/common/ssp.c,v 1.5 2004/11/25 19:10:39 solar Exp $
+ * $Header: /var/cvs/uClibc/libc/sysdeps/linux/common/ssp.c,v 1.6 2005/01/11 17:01:53 vapier Exp $
  *
  * This is a modified version of Hiroaki Etoh's stack smashing routines
  * implemented for glibc.
@@ -29,7 +29,9 @@
 #include <sys/un.h>
 #include <sys/syslog.h>
 #include <sys/time.h>
+#ifdef HAVE_DEV_ERANDOM
 #include <sys/sysctl.h>
+#endif
 
 #ifdef __PROPOLICE_BLOCK_SEGV__
 #define SSP_SIGTYPE SIGSEGV
