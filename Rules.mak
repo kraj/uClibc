@@ -1,10 +1,9 @@
 # Rules.make for uClibc
 #
-# This file contains rules which are shared between multiple Makefiles.
-# All normal configuration options live in the file named "Config".
-# You probably should not mess with this file unless you know what you
-# are doing... 
-#  -Erik Andersen <andersen@lineo.com> < andersee@debian.org>
+# This file contains rules which are shared between multiple Makefiles.  All
+# normal configuration options live in the file named "Config".  You probably
+# should not mess with this file unless you know what you are doing...  -Erik
+# Andersen <andersen@lineo.com> < andersee@debian.org>
 # 
 # Copyright (C) 2000 by Lineo, inc.
 #
@@ -18,9 +17,9 @@
 # FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 # details.
 #
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-# Place, Suite 330, Boston, MA 02111-1307 USA
+# You should have received a copy of the GNU Library General Public License
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
 include $(TOPDIR)Config
