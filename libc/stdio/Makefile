@@ -40,7 +40,7 @@ MSRC3=scanf.c
 MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
 
 CSRC=popen.c perror.c remove.c getdelim.c getline.c tmpfile.c tmpnam.c \
-     tmpnam_r.c tempnam.c ctermid.c
+     tmpnam_r.c tempnam.c ctermid.c getw.c putw.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
 

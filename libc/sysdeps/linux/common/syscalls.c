@@ -268,8 +268,24 @@ _syscall2(int, utime, const char *, filename, const struct utimbuf *, buf);
 #endif
 
 //#define __NR_stty             31
+#ifdef L_stty
+#include <sgtty.h>
+int stty (int __fd, __const struct sgttyb *__params);
+{
+	__set_errno(ENOSYS);
+	return -1;
+}
+#endif
 
 //#define __NR_gtty             32
+#ifdef L_gtty
+#include <sgtty.h>
+int gtty (int __fd, struct sgttyb *__params)
+{
+	__set_errno(ENOSYS);
+	return -1;
+}
+#endif
 
 //#define __NR_access           33
 #ifdef L_access

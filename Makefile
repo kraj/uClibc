@@ -229,9 +229,11 @@ install_utils:
 ifeq ($(strip $(HAVE_SHARED)),true)
 	@$(MAKE) -C ldso utils
 	install -m 755 ldso/util/ldd $(PREFIX)$(DEVEL_PREFIX)/bin
-	install -m 755 ldso/util/readelf $(PREFIX)$(DEVEL_PREFIX)/bin
 	ln -fs $(DEVEL_PREFIX)/bin/ldd $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
-	ln -fs $(DEVEL_PREFIX)/bin/readelf $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf
+	# For now, don't bother with readelf since surely the host
+	# system has binutils, or we couldn't have gotten this far...
+	#install -m 755 ldso/util/readelf $(PREFIX)$(DEVEL_PREFIX)/bin
+	#ln -fs $(DEVEL_PREFIX)/bin/readelf $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf
 	@if [ -x ldso/util/ldconfig ] ; then \
 	    set -x -e; \
 	    install -d $(PREFIX)$(DEVEL_PREFIX)/etc; \
@@ -286,10 +288,10 @@ dist release: distclean
 	cd ..;					\
 	rm -rf uClibc-$(VERSION);		\
 	cp -a uClibc uClibc-$(VERSION);		\
-						\
-	find uClibc-$(VERSION)/ -type d	\
-				 -name CVS	\
-		-exec rm -rf {} \; ;            \
+	find uClibc-$(VERSION)/ -type d		\
+	    -name CVS -exec rm -rf {} \; ;	\
+	find uClibc-$(VERSION)/ -type d		\
+	    -name .\#* -exec rm -rf {} \; ;	\
 						\
 	tar -cvzf uClibc-$(VERSION).tar.gz --exclude CVS uClibc-$(VERSION)/;
 
