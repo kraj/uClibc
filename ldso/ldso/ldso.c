@@ -183,7 +183,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 				continue;
 #endif
 			/* OK, we have what we need - slip this one into the list. */
-			app_tpnt = _dl_add_elf_hash_table("", (char *)app_tpnt->loadaddr,
+			app_tpnt = _dl_add_elf_hash_table(_dl_progname, (char *)app_tpnt->loadaddr,
 					app_tpnt->dynamic_info, ppnt->p_vaddr + app_tpnt->loadaddr, ppnt->p_filesz);
 			_dl_loaded_modules->libtype = elf_executable;
 			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
@@ -364,6 +364,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 			{
 				if ((tpnt1 = _dl_check_if_named_library_is_loaded(str, trace_loaded_objects)))
 				{
+					tpnt1->usage_count++;
 					continue;
 				}
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -448,6 +449,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 
 						if ((tpnt1 = _dl_check_if_named_library_is_loaded(cp2, trace_loaded_objects)))
 						{
+							tpnt1->usage_count++;
 							continue;
 						}
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -503,6 +505,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 
 				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name, trace_loaded_objects)))
 				{
+					tpnt1->usage_count++;
 					continue;
 				}
 #if defined (__SUPPORT_LD_DEBUG__)

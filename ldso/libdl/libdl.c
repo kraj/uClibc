@@ -117,15 +117,12 @@ static const char *dl_error_names[] = {
 	"Unable to resolve symbol"
 };
 
-static void __attribute__ ((destructor)) dl_cleanup(void)
+void __attribute__ ((destructor)) dl_cleanup(void)
 {
 	struct dyn_elf *d;
-
-	for (d = _dl_handles; d; d = d->next_handle)
-		if (d->dyn->libtype == loaded_file && d->dyn->dynamic_info[DT_FINI]) {
-			(* ((int (*)(void)) (d->dyn->loadaddr + d->dyn->dynamic_info[DT_FINI]))) ();
-			d->dyn->dynamic_info[DT_FINI] = 0;
-		}
+	for (d = _dl_handles; d; d = d->next_handle) {
+		do_dlclose(d, 1);
+	}
 }
 
 void *dlopen(const char *libname, int flag)
@@ -227,6 +224,8 @@ void *dlopen(const char *libname, int flag)
 					if (!tpnt1)
 						goto oops;
 					dyn_ptr->dyn = tpnt1;
+				} else {
+					tpnt1->usage_count++;
 				}
 			}
 		}
@@ -303,17 +302,6 @@ void *dlopen(const char *libname, int flag)
 				(*dl_elf_func) ();
 			}
 		}
-		if (tpnt->dynamic_info[DT_FINI]) {
-			void (*dl_elf_func) (void);
-			dl_elf_func = (void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
-			if (dl_elf_func && *dl_elf_func != NULL) {
-#ifdef __SUPPORT_LD_DEBUG__
-				if(_dl_debug)
-					fprintf(stderr, "setting up dtors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
-#endif
-				atexit(dl_elf_func);
-			}
-		}
 	}
 #endif
 	return (void *) dyn_chain;
@@ -382,7 +370,6 @@ void *dlsym(void *vhandle, const char *name)
 static int do_dlclose(void *vhandle, int need_fini)
 {
 	struct dyn_elf *rpnt, *rpnt1;
-	struct dyn_elf *spnt, *spnt1;
 	ElfW(Phdr) *ppnt;
 	struct elf_resolve *tpnt;
 	int (*dl_elf_fini) (void);
@@ -394,9 +381,8 @@ static int do_dlclose(void *vhandle, int need_fini)
 	handle = (struct dyn_elf *) vhandle;
 	rpnt1 = NULL;
 	for (rpnt = _dl_handles; rpnt; rpnt = rpnt->next_handle) {
-		if (rpnt == handle) {
+		if (rpnt == handle)
 			break;
-		}
 		rpnt1 = rpnt;
 	}
 
@@ -404,74 +390,31 @@ static int do_dlclose(void *vhandle, int need_fini)
 		_dl_error_number = LD_BAD_HANDLE;
 		return 1;
 	}
-
-	/* OK, this is a valid handle - now close out the file.
-	 * We check if we need to call fini () on the handle. */
-	spnt = need_fini ? handle : handle->next;
-	for (; spnt; spnt = spnt1) {
-		spnt1 = spnt->next;
-
-		/* We appended the module list to the end - when we get back here,
-		   quit. The access counts were not adjusted to account for being here. */
-		if (spnt == _dl_symbol_tables)
-			break;
-		if (spnt->dyn->usage_count == 1
-				&& spnt->dyn->libtype == loaded_file) {
-			tpnt = spnt->dyn;
-			/* Apparently crt1 for the application is responsible for handling this.
-			 * We only need to run the init/fini for shared libraries
-			 */
-
-			if (tpnt->dynamic_info[DT_FINI]) {
-				dl_elf_fini = (int (*)(void)) (tpnt->loadaddr +
-						tpnt->dynamic_info[DT_FINI]);
-				(*dl_elf_fini) ();
-			}
-		}
-	}
 	if (rpnt1)
 		rpnt1->next_handle = rpnt->next_handle;
 	else
 		_dl_handles = rpnt->next_handle;
-
 	/* OK, this is a valid handle - now close out the file */
-	for (rpnt = handle; rpnt; rpnt = rpnt1) {
-		rpnt1 = rpnt->next;
-
-		/* We appended the module list to the end - when we get back here,
-		   quit. The access counts were not adjusted to account for being here. */
-		if (rpnt == _dl_symbol_tables)
-			break;
-
-		rpnt->dyn->usage_count--;
-		if (rpnt->dyn->usage_count == 0
-				&& rpnt->dyn->libtype == loaded_file) {
-			tpnt = rpnt->dyn;
-			/* Apparently crt1 for the application is responsible for handling this.
-			 * We only need to run the init/fini for shared libraries
-			 */
-#if 0
-
-			/* We have to do this above, before we start closing objects.
-			 * Otherwise when the needed symbols for _fini handling are
-			 * resolved a coredump would occur. Rob Ryan (robr@cmu.edu)*/
-			if (tpnt->dynamic_info[DT_FINI]) {
+	for (rpnt = handle; rpnt; rpnt = rpnt->next) {
+		tpnt = rpnt->dyn;
+		if (--tpnt->usage_count == 0) {
+			if (need_fini && tpnt->dynamic_info[DT_FINI]) {
 				dl_elf_fini = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
 				(*dl_elf_fini) ();
 			}
-#endif
+
 			end = 0;
-			for (i = 0, ppnt = rpnt->dyn->ppnt;
-					i < rpnt->dyn->n_phent; ppnt++, i++) {
+			for (i = 0, ppnt = tpnt->ppnt;
+					i < tpnt->n_phent; ppnt++, i++) {
 				if (ppnt->p_type != PT_LOAD)
 					continue;
 				if (end < ppnt->p_vaddr + ppnt->p_memsz)
 					end = ppnt->p_vaddr + ppnt->p_memsz;
 			}
-			_dl_munmap((void*)rpnt->dyn->loadaddr, end);
-			/* Next, remove rpnt->dyn from the loaded_module list */
-			if (_dl_loaded_modules == rpnt->dyn) {
-				_dl_loaded_modules = rpnt->dyn->next;
+			_dl_munmap((void*)tpnt->loadaddr, end);
+			/* Next, remove tpnt from the loaded_module list */
+			if (_dl_loaded_modules == tpnt) {
+				_dl_loaded_modules = tpnt->next;
 				if (_dl_loaded_modules)
 					_dl_loaded_modules->prev = 0;
 			} else
@@ -482,6 +425,22 @@ static int do_dlclose(void *vhandle, int need_fini)
 							tpnt->next->prev = tpnt;
 						break;
 					}
+
+			/* Next, remove tpnt from the global symbol table list */
+			if (_dl_symbol_tables->dyn == rpnt->dyn) {
+				_dl_symbol_tables = rpnt->next;
+				if (_dl_symbol_tables)
+					_dl_symbol_tables->prev = 0;
+			} else
+				for (rpnt1 = _dl_symbol_tables; rpnt1->next; rpnt1 = rpnt1->next) {
+					if (rpnt1->next->dyn == rpnt->dyn) {
+						free(rpnt1->next);
+						rpnt1->next = rpnt1->next->next;
+						if (rpnt1->next)
+							rpnt1->next->prev = rpnt1;
+						break;
+					}
+				}
 			free(rpnt->dyn->libname);
 			free(rpnt->dyn);
 		}

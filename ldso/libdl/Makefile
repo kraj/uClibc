@@ -73,7 +73,7 @@ $(OBJ): Makefile
 
 shared:
 	$(LD) $(LDFLAGS) -soname=$(LIBDL_SHARED).$(MAJOR_VERSION) \
-		-o $(LIBDL_SHARED_FULLNAME) --whole-archive $(LIBDL_PIC) \
+		-o $(LIBDL_SHARED_FULLNAME) -fini dl_cleanup --whole-archive $(LIBDL_PIC) \
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 		-L$(TOPDIR)/lib -lc $(LDADD_LIBFLOAT) $(LIBGCC);
 	$(INSTALL) -d $(TOPDIR)lib
