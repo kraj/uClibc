@@ -29,7 +29,7 @@ Cambridge, MA 02139, USA.  */
 #include <errno.h>
 
 
-/* Our last ditch effort to commit suicide */ 
+/* Our last ditch effort to commit suicide */
 #if defined(__i386__)
 #define ABORT_INSTRUCTION asm ("hlt")
 #elif defined(__ia64__)
@@ -44,6 +44,10 @@ Cambridge, MA 02139, USA.  */
 #define ABORT_INSTRUCTION asm ("unimp 0xf00")
 #elif defined(__x86_64__)
 #define ABORT_INSTRUCTION asm ("hlt")
+#elif defined(__hppa__)
+#define ABORT_INSTRUCTION asm ("iitlbp %r0,(%r0)")
+#elif defined(__powerpc__)
+#define ABORT_INSTRUCTION asm (".long 0")
 #else
 #define ABORT_INSTRUCTION
 #endif
