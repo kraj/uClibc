@@ -29,7 +29,11 @@
         .text
 .extern __syscall_error
 
-ENTRY(__clone)
+.text
+.align 5
+.type	__clone,@function
+.globl	__clone;
+__clone:
 	/* sanity check arguments.  */
 	tst	r4, r4
 	bf/s	1f
