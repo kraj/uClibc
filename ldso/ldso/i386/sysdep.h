@@ -13,7 +13,7 @@
  * the address if the first argument, on other platforms we need to
  * do something a little more subtle here.
  */
-#define GET_ARGV(ARGVP, ARGS) ARGVP = ((unsigned int*) & ARGS)
+#define GET_ARGV(ARGVP, ARGS) ARGVP = ((unsigned long*) & ARGS)
 /*
  * Get the address of the Global offset table.  This must be absolute, not
  * relative.
@@ -42,14 +42,14 @@
 	  *REL += SYMBOL;		\
 	  break;		\
 	case R_386_PC32:		\
-	  *REL += SYMBOL - (unsigned int) REL;		\
+	  *REL += SYMBOL - (unsigned long) REL;		\
 	  break;		\
 	case R_386_GLOB_DAT:		\
 	case R_386_JMP_SLOT:		\
 	  *REL = SYMBOL;		\
 	  break;		\
 	case R_386_RELATIVE:		\
-	  *REL += (unsigned int) LOAD;		\
+	  *REL += (unsigned long) LOAD;		\
 	  break;		\
 	default:		\
 	  _dl_exit(1);		\
@@ -76,6 +76,6 @@
 #define ELF_TARGET "386"
 
 struct elf_resolve;
-extern unsigned int _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
+extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
 #define do_rem(result, n, base)  result = (n % base)

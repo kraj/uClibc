@@ -37,7 +37,14 @@ static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
 #endif
 #define _dl_mmap_check_error(__res)	\
 	(((int)__res) < 0 && ((int)__res) >= -_dl_MAX_ERRNO)
-
+#include <sys/mman.h>			// For MAP_ANONYMOUS -- differs between platforms
+#ifndef MAP_ANONYMOUS
+#ifdef __sparc__
+#define MAP_ANONYMOUS 0x20
+#else
+#error MAP_ANONYMOUS not defined and suplementary value not known
+#endif
+#endif
 
 
 #define __NR__dl_open __NR_open

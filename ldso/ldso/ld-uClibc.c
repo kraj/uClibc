@@ -120,9 +120,9 @@ void *(*_dl_malloc_function) (int size) = NULL;
 
 struct r_debug *_dl_debug_addr = NULL;
 
-unsigned int *_dl_brkp;
+unsigned long *_dl_brkp;
 
-unsigned int *_dl_envp;
+unsigned long *_dl_envp;
 
 #define DL_MALLOC(SIZE) ((void *) (malloc_buffer += SIZE, malloc_buffer - SIZE))
 /*
@@ -130,7 +130,7 @@ unsigned int *_dl_envp;
  * platforms we may need to increase this to 8, but this is good enough for
  * now.  This is typically called after DL_MALLOC.
  */
-#define REALIGN() malloc_buffer = (char *) (((unsigned int) malloc_buffer + 3) & ~(3))
+#define REALIGN() malloc_buffer = (char *) (((unsigned long) malloc_buffer + 3) & ~(3))
 
 
 
@@ -161,31 +161,29 @@ void _dl_debug_state()
 	return;
 }
 
-void _dl_boot(int args);
-
-void _dl_boot(int args)
+void _dl_boot(unsigned long args)
 {
-	unsigned int argc;
+	unsigned long argc;
 	char **argv, **envp;
 	int status;
 
-	unsigned int load_addr;
-	unsigned int *got;
-	unsigned int *aux_dat;
+	unsigned long load_addr;
+	unsigned long *got;
+	unsigned long *aux_dat;
 	int goof = 0;
 	elfhdr *header;
 	struct elf_resolve *tpnt;
 	struct dyn_elf *rpnt;
 	struct elf_resolve *app_tpnt;
-	unsigned int brk_addr;
-	unsigned int dl_data[AT_EGID + 1];
+	unsigned long brk_addr;
+	unsigned long dl_data[AT_EGID + 1];
 	unsigned char *malloc_buffer, *mmap_zero;
 	int (*_dl_atexit) (void *);
-	int *lpnt;
+	unsigned long *lpnt;
 	Elf32_Dyn *dpnt;
-	unsigned int *hash_addr;
+	unsigned long *hash_addr;
 	struct r_debug *debug_addr;
-	unsigned int *chains;
+	unsigned long *chains;
 	int indx;
 	int _dl_secure;
 
@@ -204,7 +202,7 @@ void _dl_boot(int args)
 	dl_data[AT_UID] = -1;			/* check later to see if it is changed */
 	while (*aux_dat) 
 	{
-		unsigned int *ad1;
+		unsigned long *ad1;
 
 		ad1 = aux_dat + 1;
 		if (*aux_dat <= AT_EGID)
@@ -282,7 +280,7 @@ void _dl_boot(int args)
 					}
 					app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
 					if (dpnt->d_tag == DT_DEBUG)
-						dpnt->d_un.d_val = (int) debug_addr;
+						dpnt->d_un.d_val = (unsigned long) debug_addr;
 					if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT)
 						app_tpnt->dynamic_info[DT_TEXTREL] = 1;
 					dpnt++;
@@ -293,7 +291,7 @@ void _dl_boot(int args)
 	/* Get some more of the information that we will need to dynamicly link
 	   this module to itself */
 
-	hash_addr = (unsigned int *) (tpnt->dynamic_info[DT_HASH] + load_addr);
+	hash_addr = (unsigned long *) (tpnt->dynamic_info[DT_HASH] + load_addr);
 	tpnt->nbucket = *hash_addr++;
 	tpnt->nchain = *hash_addr++;
 	tpnt->elf_buckets = hash_addr;
@@ -317,7 +315,7 @@ void _dl_boot(int args)
 					_dl_mprotect((void *) (load_addr + 
 						(ppnt->p_vaddr & 0xfffff000)), 
 						(ppnt->p_vaddr & 0xfff) + 
-						(unsigned int) ppnt->p_filesz, 
+						(unsigned long) ppnt->p_filesz, 
 						PROT_READ | PROT_WRITE | PROT_EXEC);
 			}
 		}
@@ -329,7 +327,7 @@ void _dl_boot(int args)
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
 					_dl_mprotect((void *) (ppnt->p_vaddr & 0xfffff000), 
 						(ppnt->p_vaddr & 0xfff) + 
-						(unsigned int) ppnt->p_filesz, 
+						(unsigned long) ppnt->p_filesz, 
 						PROT_READ | PROT_WRITE | PROT_EXEC);
 			}
 		}
@@ -342,10 +340,10 @@ void _dl_boot(int args)
 	for (indx = 0; indx < 2; indx++) {
 		int i;
 		ELF_RELOC *rpnt;
-		unsigned int *reloc_addr;
-		unsigned int symbol_addr;
+		unsigned long *reloc_addr;
+		unsigned long symbol_addr;
 		int symtab_index;
-		unsigned int rel_addr, rel_size;
+		unsigned long rel_addr, rel_size;
 
 
 #ifdef ELF_USES_RELOCA
@@ -371,7 +369,7 @@ void _dl_boot(int args)
 		/* Now parse the relocation information */
 		rpnt = (ELF_RELOC *) (rel_addr + load_addr);
 		for (i = 0; i < rel_size; i += sizeof(ELF_RELOC), rpnt++) {
-			reloc_addr = (int *) (load_addr + (int) rpnt->r_offset);
+			reloc_addr = (unsigned long *) (load_addr + (unsigned long) rpnt->r_offset);
 			symtab_index = ELF32_R_SYM(rpnt->r_info);
 			symbol_addr = 0;
 			if (symtab_index) {
@@ -430,7 +428,7 @@ void _dl_boot(int args)
    fixed up by now.  Still no function calls outside of this library ,
    since the dynamic resolver is not yet ready. */
 
-	lpnt = (int *) (tpnt->dynamic_info[DT_PLTGOT] + load_addr);
+	lpnt = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT] + load_addr);
 	INIT_GOT(lpnt, tpnt);
 
 	/* OK, this was a big step, now we need to scan all of the user images
@@ -494,7 +492,7 @@ void _dl_boot(int args)
 				rpnt->dyn = _dl_loaded_modules;
 				app_tpnt->usage_count++;
 				app_tpnt->symbol_scope = _dl_symbol_tables;
-				lpnt = (int *) (app_tpnt->dynamic_info[DT_PLTGOT]);
+				lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
 #ifdef ALLOW_ZERO_PLTGOT
 				if (lpnt)
 #endif
@@ -812,14 +810,14 @@ void _dl_boot(int args)
 	   up each symbol individually. */
 
 
-	_dl_brkp = (unsigned int *) _dl_find_hash("___brk_addr", NULL, 1, NULL, 0);
+	_dl_brkp = (unsigned long *) _dl_find_hash("___brk_addr", NULL, 1, NULL, 0);
 	if (_dl_brkp)
 		*_dl_brkp = brk_addr;
 	_dl_envp =
-		(unsigned int *) _dl_find_hash("__environ", NULL, 1, NULL, 0);
+		(unsigned long *) _dl_find_hash("__environ", NULL, 1, NULL, 0);
 
 	if (_dl_envp)
-		*_dl_envp = (unsigned int) envp;
+		*_dl_envp = (unsigned long) envp;
 
 	{
 		int i;
@@ -834,7 +832,7 @@ void _dl_boot(int args)
 					_dl_mprotect((void *) (tpnt->loadaddr + 
 						    (ppnt->p_vaddr & 0xfffff000)), 
 						(ppnt->p_vaddr & 0xfff) + 
-						(unsigned int) ppnt->p_filesz, 
+						(unsigned long) ppnt->p_filesz, 
 						LXFLAGS(ppnt->p_flags));
 
 	}
@@ -974,7 +972,7 @@ void *_dl_malloc(int size)
 	 * Align memory to 4 byte boundary.  Some platforms require this, others
 	 * simply get better performance.
 	 */
-	_dl_malloc_addr = (char *) (((unsigned int) _dl_malloc_addr + 3) & ~(3));
+	_dl_malloc_addr = (char *) (((unsigned long) _dl_malloc_addr + 3) & ~(3));
 	return retval;
 }
 

@@ -121,8 +121,8 @@ int _dl_unmap_cache(void)
  * Used to return error codes back to dlopen et. al.
  */
 
-unsigned int _dl_error_number;
-unsigned int _dl_internal_error_number;
+unsigned long _dl_error_number;
+unsigned long _dl_internal_error_number;
 
 struct elf_resolve *_dl_load_shared_library(int secure, 
 	struct elf_resolve *tpnt, char *full_libname)
@@ -166,7 +166,7 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 		if (tpnt->libtype == elf_executable) {
 			pnt1 = (char *) tpnt->dynamic_info[DT_RPATH];
 			if (pnt1) {
-				pnt1 += (unsigned int) tpnt->loadaddr +
+				pnt1 += (unsigned long) tpnt->loadaddr +
 					tpnt->dynamic_info[DT_STRTAB];
 				while (*pnt1) {
 					pnt2 = mylibname;
@@ -314,8 +314,8 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	char *libname, int flag)
 {
 	elfhdr *epnt;
-	unsigned int dynamic_addr = 0;
-	unsigned int dynamic_size = 0;
+	unsigned long dynamic_addr = 0;
+	unsigned long dynamic_size = 0;
 	Elf32_Dyn *dpnt;
 	struct elf_resolve *tpnt;
 	elf_phdr *ppnt;
@@ -323,10 +323,10 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	char *status;
 	int flags;
 	char header[4096];
-	int dynamic_info[24];
+	unsigned long dynamic_info[24];
 	int *lpnt;
-	unsigned int libaddr;
-	unsigned int minvma = 0xffffffff, maxvma = 0;
+	unsigned long libaddr;
+	unsigned long minvma = 0xffffffff, maxvma = 0;
 
 	int i;
 	int infile;
@@ -410,7 +410,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			if (piclib && ppnt->p_vaddr < minvma) {
 				minvma = ppnt->p_vaddr;
 			}
-			if (((unsigned int) ppnt->p_vaddr + ppnt->p_memsz) > maxvma) {
+			if (((unsigned long) ppnt->p_vaddr + ppnt->p_memsz) > maxvma) {
 				maxvma = ppnt->p_vaddr + ppnt->p_memsz;
 			}
 		}
@@ -432,7 +432,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_close(infile);
 		return NULL;
 	};
-	libaddr = (unsigned int) status;
+	libaddr = (unsigned long) status;
 	flags |= MAP_FIXED;
 
 	/* Get the memory to store the library */
@@ -450,7 +450,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 
 			if (ppnt->p_flags & PF_W) {
-				unsigned int map_size;
+				unsigned long map_size;
 				char *cpnt;
 
 				status = (char *) _dl_mmap((char *) ((piclib ? libaddr : 0) + 
@@ -470,7 +470,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				/* Pad the last page with zeroes. */
 				cpnt = (char *) (status + (ppnt->p_vaddr & 0xfff) +
 							  ppnt->p_filesz);
-				while (((unsigned int) cpnt) & 0xfff)
+				while (((unsigned long) cpnt) & 0xfff)
 					*cpnt++ = 0;
 
 				/* I am not quite sure if this is completely
@@ -499,7 +499,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			};
 
 			/* if(libaddr == 0 && piclib) {
-			   libaddr = (unsigned int) status;
+			   libaddr = (unsigned long) status;
 			   flags |= MAP_FIXED;
 			   }; */
 		};
@@ -509,7 +509,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	/* For a non-PIC library, the addresses are all absolute */
 	if (piclib) {
-		dynamic_addr += (unsigned int) libaddr;
+		dynamic_addr += (unsigned long) libaddr;
 	}
 
 	/* 
@@ -551,7 +551,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
 				_dl_mprotect((void *) ((piclib ? libaddr : 0) + 
 					    (ppnt->p_vaddr & 0xfffff000)), 
-					(ppnt->p_vaddr & 0xfff) + (unsigned int) ppnt->p_filesz, 
+					(ppnt->p_vaddr & 0xfff) + (unsigned long) ppnt->p_filesz, 
 					PROT_READ | PROT_WRITE | PROT_EXEC);
 		}
 	}

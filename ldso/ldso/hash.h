@@ -5,7 +5,7 @@
 #endif
 
 struct dyn_elf{
-  unsigned int flags;
+  unsigned long flags;
   struct elf_resolve * dyn;
   struct dyn_elf * next_handle;  /* Used by dlopen et al. */
   struct dyn_elf * next;
@@ -16,7 +16,7 @@ struct elf_resolve{
      by gdb to obtain the list of symbols. */
   char * loadaddr;
   char * libname;
-  unsigned int dynamic_addr;
+  unsigned long dynamic_addr;
   struct elf_resolve * next;
   struct elf_resolve * prev;
   /* Nothing after this address is used by gdb. */
@@ -25,16 +25,16 @@ struct elf_resolve{
   unsigned short usage_count;
   unsigned short int init_flag;
   unsigned int nbucket;
-  unsigned int * elf_buckets;
+  unsigned long * elf_buckets;
   /*
    * These are only used with ELF style shared libraries
    */
-  unsigned int nchain;
-  unsigned int * chains;
-  unsigned int dynamic_info[24];
+  unsigned long nchain;
+  unsigned long * chains;
+  unsigned long dynamic_info[24];
 
-  unsigned int dynamic_size;
-  unsigned int n_phent;
+  unsigned long dynamic_size;
+  unsigned long n_phent;
   Elf32_Phdr * ppnt;
 };
 
@@ -64,15 +64,11 @@ extern struct dyn_elf 	  * _dl_handles;
 
 extern struct elf_resolve * _dl_check_hashed_files(char * libname);
 extern struct elf_resolve * _dl_add_elf_hash_table(char * libname, 
-					       char * loadaddr, 
-					       unsigned int * dynamic_info, 
-					       unsigned int dynamic_addr, 
-					       unsigned int dynamic_size);
+	char * loadaddr, unsigned long * dynamic_info, 
+	unsigned long dynamic_addr, unsigned long dynamic_size);
 extern char * _dl_find_hash(char * name, struct dyn_elf * rpnt1, 
-			    unsigned int instr_addr, 
-			    struct elf_resolve * f_tpnt, 
-			    int copyrel);
-
+	unsigned long instr_addr, struct elf_resolve * f_tpnt, 
+	int copyrel);
 extern int _dl_linux_dynamic_link(void);
 
 #ifdef __mc68000__

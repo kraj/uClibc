@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/wait.h>
-#include <linux/elf.h>
+#include "../d-link/elf.h"
 #include "../config.h"
 #include "readelf.h"
 
@@ -134,7 +134,7 @@ int is_bin(char *argv0, char *prog)
 	else if (N_MAGIC(exec) != ZMAGIC && N_MAGIC(exec) != QMAGIC &&
                  N_MAGIC(exec) != OMAGIC)
 	{
-	    struct elfhdr elf_hdr;
+	    elfhdr elf_hdr;
 	    
  	    rewind(file);
 	    fread(&elf_hdr, sizeof elf_hdr, 1, file);
@@ -143,7 +143,7 @@ int is_bin(char *argv0, char *prog)
 		fprintf(stderr, "%s: %s is not a.out or ELF\n", argv0, prog);
 	    else
 	    {
-		struct elf_phdr phdr;
+		elf_phdr phdr;
 		int i;
 
 		/* Check its an exectuable, library or other */
