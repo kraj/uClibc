@@ -28,7 +28,12 @@ _vfork:
 	jmp	@er1                     /* don't return,  just jmp directly */
 fix_errno:
 	neg.l	er0
+#if !defined(__PIC__)
 	mov.l	er0,@_errno
+#else
+	mov.l	@(_errno@GOTOFF,er5),er2
+	mov.l	er0,@er2
+#endif
 	sub.l	er0,er0
 	dec.l	#1,er0
 	jmp	@er1                     /* don't return,  just jmp directly */

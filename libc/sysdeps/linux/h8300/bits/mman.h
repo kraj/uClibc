@@ -1,5 +1,5 @@
-/* Definitions for BSD-style memory management.
-   Copyright (C) 1994-1998,2000,01 Free Software Foundation, Inc.
+/* Definitions for POSIX memory map interface.  Linux/m68k version.
+   Copyright (C) 1997 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,23 +17,23 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-/* These are the bits used by 4.4 BSD and its derivatives.  On systems
-   (such as GNU) where these facilities are not system services but can be
-   emulated in the C library, these are the definitions we emulate.  */
-
 #ifndef _SYS_MMAN_H
 # error "Never use <bits/mman.h> directly; include <sys/mman.h> instead."
 #endif
+
+/* The following definitions basically come from the kernel headers.
+   But the kernel header is not namespace clean.  */
+
 
 /* Protections are chosen from these bits, OR'd together.  The
    implementation does not necessarily support PROT_EXEC or PROT_WRITE
    without PROT_READ.  The only guarantees are that no writing will be
    allowed without PROT_WRITE and no access will be allowed for PROT_NONE. */
 
-#define	PROT_NONE	 0x00	/* No access.  */
-#define	PROT_READ	 0x01	/* Pages can be read.  */
-#define	PROT_WRITE	 0x02	/* Pages can be written.  */
-#define	PROT_EXEC	 0x04	/* Pages can be executed.  */
+#define PROT_READ	0x1		/* Page can be read.  */
+#define PROT_WRITE	0x2		/* Page can be written.  */
+#define PROT_EXEC	0x4		/* Page can be executed.  */
+#define PROT_NONE	0x0		/* Page can not be accessed.  */
 
 /* Sharing types (must choose one and only one of these).  */
 #define MAP_SHARED	0x01		/* Share changes.  */

@@ -36,7 +36,12 @@ _start: /* put here so that references to _start work with elf-PIC */
 	mov.l	@(0,sp),er0	/* argc */
 	mov.l	@(4,sp),er1	/* argv */
 	mov.l	@(8,sp),er2	/* envp */
+#if !defined(__PIC__)
 	jsr	@___uClibc_main
+#else
+	mov.l	@(___uClibc_main@GOTOFF,er5),er3
+	jsr	@er3
+#endif
 
 	/* If that didn't kill us, ... */
 __exit:

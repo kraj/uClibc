@@ -38,13 +38,12 @@ struct kernel_stat64 {
 	unsigned int	st_nlink;
 	unsigned long	st_uid;
 	unsigned long	st_gid;
-	unsigned char	__pad2[6];
 	unsigned short	st_rdev;
-	unsigned char	__pad3[2];
+	unsigned char	__pad3[10];
 	long long	st_size;
 	unsigned long	st_blksize;
-	unsigned long	__pad4;		/* future possible st_blocks high bits */
 	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
+	unsigned long	__pad4;		/* future possible st_blocks high bits */
 	unsigned long	st_atime;
 	unsigned long	__pad5;
 	unsigned long	st_mtime;

@@ -1,11 +1,11 @@
-/* Note that we use the exact same include guard #define names
- * as asm/posix_types.h.  This will avoid gratuitous conflicts 
- * with the posix_types.h kernel header, and will ensure that 
- * our private content, and not the kernel header, will win.
- *  -Erik
- */
-#ifndef __ARCH_H8300_POSIX_TYPES_H
-#define __ARCH_H8300_POSIX_TYPES_H
+#ifndef _BITS_KERNEL_TYPES_H
+#define _BITS_KERNEL_TYPES_H
+
+/* Sigh.  We need to carefully wrap this one...  No guarantees
+ * that the asm/posix_types.h kernel header is working.  Many
+ * arches have broken headers that introduce tons of gratuitous
+ * conflicts with uClibc's namespace.   See bits/kernel_types.h
+ * for i386, arm, etc for examples... */
 
 typedef unsigned short	__kernel_dev_t;
 typedef unsigned long	__kernel_ino_t;
@@ -28,14 +28,10 @@ typedef unsigned short	__kernel_uid16_t;
 typedef unsigned short	__kernel_gid16_t;
 typedef unsigned int	__kernel_uid32_t;
 typedef unsigned int	__kernel_gid32_t;
-
 typedef unsigned short	__kernel_old_uid_t;
 typedef unsigned short	__kernel_old_gid_t;
-typedef __kernel_dev_t	__kernel_old_dev_t;
-
-#ifdef __GNUC__
 typedef long long	__kernel_loff_t;
-#endif
+typedef __kernel_dev_t	__kernel_old_dev_t;
 
 typedef struct {
 #ifdef __USE_ALL
@@ -45,4 +41,4 @@ typedef struct {
 #endif
 } __kernel_fsid_t;
 
-#endif /* __ARCH_H8300_POSIX_TYPES_H */
+#endif /* _BITS_KERNEL_TYPES_H */
