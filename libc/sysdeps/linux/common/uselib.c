@@ -9,4 +9,6 @@
 
 #include "syscalls.h"
 #include <unistd.h>
+#ifdef __NR_uselib
 _syscall1(int, uselib, const char *, library);
+#endif
