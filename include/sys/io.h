@@ -35,6 +35,16 @@ extern int ioperm __P ((unsigned long int __from, unsigned long int __num,
 extern int iopl __P ((int __level));
 
 /* The functions that actually perform reads and writes.  */
+#ifdef __i386__
+/*
+ * For i386, glibc defines the in* and out* functions as static inlines
+ * in this header file.  For a number of other archs, these appear to be
+ * external functions.  Since uClibc shares this header amongst archs,
+ * stash the i386 stuff in bits/io_i386.h for now to cut down on clutter
+ * and still give expected behavior.
+ */
+#include <bits/io_i386.h>
+#else
 extern unsigned char inb (unsigned long port);
 extern unsigned short inw (unsigned long port);
 extern unsigned long inl (unsigned long port);
@@ -42,6 +52,7 @@ extern unsigned long inl (unsigned long port);
 extern void outb (unsigned char value, unsigned long port);
 extern void outw (unsigned short value, unsigned long port);
 extern void outl (unsigned long value, unsigned long port);
+#endif /* __i386__ */
 
 __END_DECLS
 
