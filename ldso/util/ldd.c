@@ -122,6 +122,7 @@ char not_found[] = "not found";
 char *interp = NULL;
 char *interp_dir = NULL;
 int byteswap;
+static int interpreter_already_found=0;
 
 inline uint32_t byteswap32_to_host(uint32_t value)
 {
@@ -352,7 +353,7 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_setuid, char
 	}
 
 	/* We add libc.so.0 elsewhere */
-	if ((tmp=strrchr(interp, '/')) != NULL)
+	if (interpreter_already_found && (tmp=strrchr(interp, '/')) != NULL)
 	{
 		int len = strlen(interp_dir);
 		if (strcmp(s, interp+1+len)==0)
@@ -409,14 +410,12 @@ static void find_needed_libraries(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *st
 	}
 }
     
-static int interpreter_already_found=0;
 static struct library * find_elf_interpreter(Elf32_Ehdr* ehdr)
 {
 	Elf32_Phdr *phdr;
 
 	if (interpreter_already_found==1)
 		return NULL;
-	interpreter_already_found=1;
 	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
 	if (phdr) {
 		struct library *cur, *newlib=NULL;
@@ -467,6 +466,7 @@ static struct library * find_elf_interpreter(Elf32_Ehdr* ehdr)
 			cur->next = newlib;
 		}
 #endif
+		interpreter_already_found=1;
 		return newlib;
 	}
 	return NULL;
