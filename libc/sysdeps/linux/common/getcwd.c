@@ -9,45 +9,10 @@
 
 #ifdef __NR_getcwd
 
-#ifndef INLINE_SYSCALL
-#define INLINE_SYSCALL(name, nr, args...) __syscall_getcwd (args)
 #define __NR___syscall_getcwd __NR_getcwd
-static inline _syscall2(int, __syscall_getcwd, char *, buf, unsigned long, size);
-#endif
+static inline 
+_syscall2(int, __syscall_getcwd, char *, buf, unsigned long, size);
 
-char *getcwd(char *buf, int size)
-{
-    int olderrno, ret;
-    char *allocbuf;
-
-    if (size == 0) {
-	if (buf != NULL) {
-	    __set_errno(EINVAL);
-	    return NULL;
-	}
-	size = PATH_MAX;
-    }
-    if (size < 3) {
-	__set_errno(ERANGE);
-	return NULL;
-    }
-    allocbuf=NULL;
-    olderrno = errno;
-    if (buf == NULL) {
-	buf = allocbuf = malloc (size);
-	if (buf == NULL)
-	    return NULL;
-    }
-    ret = INLINE_SYSCALL(getcwd, 2, buf, size);
-    if (ret < 0) {
-	if (allocbuf) {
-	    free(allocbuf);
-	}
-	return NULL;
-    } 
-    __set_errno(olderrno);
-    return buf;
-}
 #else
 
 /* If the syscall is not present, we have to walk up the
@@ -74,8 +39,9 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 	int slow_search = (sizeof(ino_t) != sizeof(d->d_ino));
 #endif
 
-	if (stat(path_buf, &st) < 0)
-		return 0;
+	if (stat(path_buf, &st) < 0) {
+		goto oops;
+	}
 #ifdef FAST_DIR_SEARCH_POSSIBLE
 	if (this_dev != st.st_dev)
 		slow_search = 1;
@@ -85,8 +51,7 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 	ptr = path_buf + slen - 1;
 	if (*ptr != '/') {
 		if (slen + 2 > path_size) {
-			__set_errno(ERANGE);
-			return 0;
+			goto oops;
 		}
 		strcpy(++ptr, "/");
 		slen++;
@@ -94,16 +59,16 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 	slen++;
 
 	dp = opendir(path_buf);
-	if (dp == 0)
-		return 0;
+	if (dp == 0) {
+	    goto oops;
+	}
 
 	while ((d = readdir(dp)) != 0) {
 #ifdef FAST_DIR_SEARCH_POSSIBLE
 		if (slow_search || this_ino == d->d_ino) {
 #endif
 			if (slen + strlen(d->d_name) > path_size) {
-				__set_errno(ERANGE);
-				return 0;
+			    goto oops;
 			}
 			strcpy(ptr + 1, d->d_name);
 			if (stat(path_buf, &st) < 0)
@@ -118,7 +83,10 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 	}
 
 	closedir(dp);
-	__set_errno(ENOENT);
+	return 0;
+
+oops:
+	__set_errno(ERANGE);
 	return 0;
 }
 
@@ -129,54 +97,83 @@ static char *recurser(char *path_buf, int path_size, dev_t root_dev, ino_t root_
 	dev_t this_dev;
 	ino_t this_ino;
 
-	if (stat(path_buf, &st) < 0)
-		return 0;
+	if (stat(path_buf, &st) < 0) {
+	    if (errno != EFAULT)
+		goto oops;
+	    return 0;
+	}
 	this_dev = st.st_dev;
 	this_ino = st.st_ino;
 	if (this_dev == root_dev && this_ino == root_ino) {
+		if (path_size < 2) {
+		    goto oops;
+		}
 		strcpy(path_buf, "/");
 		return path_buf;
 	}
 	if (strlen(path_buf) + 4 > path_size) {
-		__set_errno(ERANGE);
-		return 0;
+	    goto oops;
 	}
 	strcat(path_buf, "/..");
 	if (recurser(path_buf, path_size, root_dev, root_ino) == 0)
 		return 0;
 
 	return search_dir(this_dev, this_ino, path_buf, path_size);
+oops:
+	__set_errno(ERANGE);
+	return 0;
 }
 
+static inline
+int __syscall_getcwd(char * buf, unsigned long size)
+{
+    int len;
+    char *cwd;
+    struct stat st;
+    int olderrno;
+
+    olderrno = errno;
+    len = -1;
+    cwd = recurser(buf, size, st.st_dev, st.st_ino);
+    if (cwd) {
+	len = strlen(buf);
+	__set_errno(olderrno);
+    }
+    return len;
+}
+
+#endif
 
 char *getcwd(char *buf, int size)
 {
-    struct stat st;
+    int ret;
+    char *path;
+    size_t alloc_size = size;
 
     if (size == 0) {
 	if (buf != NULL) {
 	    __set_errno(EINVAL);
 	    return NULL;
 	}
-	size = PATH_MAX;
+	alloc_size = PATH_MAX;
     }
-    if (size < 3) {
-	__set_errno(ERANGE);
-	return NULL;
-    }
-
+    path=buf;
     if (buf == NULL) {
-	buf = malloc (size);
-	if (buf == NULL)
+	path = malloc(alloc_size);
+	if (path == NULL)
 	    return NULL;
     }
-
-    strcpy(buf, ".");
-    if (stat("/", &st) < 0) {
-	return NULL;
+    ret = __syscall_getcwd(path, alloc_size);
+    if (ret >= 0)
+    {
+	if (buf == NULL && size == 0)
+	    buf = realloc(path, ret);
+	if (buf == NULL)
+	    buf = path;
+	return buf;
     }
-
-    return recurser(buf, size, st.st_dev, st.st_ino);
+    if (buf == NULL)
+	free (path);
+    return NULL;
 }
 
-#endif
