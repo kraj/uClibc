@@ -1,0 +1,123 @@
+/* Copyright (C) 1991, 1992 Free Software Foundation, Inc.
+This file is part of the GNU C Library.
+
+The GNU C Library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Library General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.
+
+The GNU C Library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Library General Public License for more details.
+
+You should have received a copy of the GNU Library General Public
+License along with the GNU C Library; see the file COPYING.LIB.  If
+not, write to the Free Software Foundation, Inc., 675 Mass Ave,
+Cambridge, MA 02139, USA.  */
+
+
+/*  If you don't know what is going on here, check out 
+    http://linuxassembly.org/startup.html
+    For a description of the stack layout.
+     -John Beppu, and Erik Andersen
+*/
+
+.global __environ
+.global __errno
+.global _start
+.global exit
+.global main
+.global __stdio_close_all
+.global _void_void_null_func
+.global _start_exit
+
+.text
+_start:
+	/* First locate the start of the environment variables */
+	popl %ecx	/* Store argc into %ecx */
+	movl %esp,%ebx  /* Store argv into ebx */
+	movl %esp,%eax  /* Store argv into eax as well*/
+	movl %ecx,%edx	/* Stick argc into %edx so we can do some math in a sec */
+	leal 4(%eax,%edx,4),%eax
+
+	/*  [ register layout ]
+
+	    sizeof(char*) == 4
+	    %ecx = argc	    ; 0(esp)
+	    %ebx = argv	    ; 4(esp)
+	    %eax = env	    ; argv + (argc * 4) + 4
+	*/
+
+
+	/* Set up an invalid (NULL return address, NULL frame pointer)
+	   callers stack frame so anybody unrolling the stack knows where
+	   to stop */
+	xorl %ebp,%ebp  /* NULL */
+	pushl %ebp      /* callers %cs */
+	pushl %ebp      /* callers %eip (return address) */
+	pushl %ebp      /* callers %ebp (frame pointer) */
+	movl %esp,%ebp  /* mark callers stack frame as invalid */
+
+	/* Now set the environment, argc, and argv where the app can get to them */
+	pushl %eax      /* Environment pointer */
+	pushl %ebx       /* Argument pointer */
+	pushl %ecx      /* And the argument count */
+
+	/* Make sure we are not using iBCS2 personality. (i.e. force linux).  */
+	movl $136,%eax
+	sub %ebx,%ebx
+	int $0x80
+
+	/* set up __environ */	
+	movl 8(%esp),%eax
+	movl %eax,__environ
+
+	/* Tell libc to initialize anything it needs to do */
+	call __libc_init
+	/* call __malloc_init */
+	call __init_stdio
+
+	/* Ok, now run main() */
+	call main
+	pushl %eax
+	call exit
+
+	/* Just in case _exit fails... We use int $0x80 for __exit().  */
+	popl %ebx
+	.align 4,0x90
+_start_exit:
+	movl $1,%eax
+	int $0x80
+	jmp _start_exit
+	.align 4,0x90
+_void_void_null_func:
+	ret
+
+.weak __libc_init
+__libc_init = _void_void_null_func
+
+/*
+.weak __malloc_init
+__malloc_init = _void_void_null_func
+*/
+
+.weak __init_stdio
+__init_stdio = _void_void_null_func
+
+.weak __stdio_close_all
+__stdio_close_all = _void_void_null_func
+	
+.data
+__environ:
+        .long 0
+.weak environ
+.align  4
+environ = __environ
+
+.data
+__errno:
+        .long 0
+.weak errno
+.align  4
+errno = __errno

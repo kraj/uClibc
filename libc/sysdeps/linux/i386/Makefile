@@ -25,7 +25,10 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
-SSRC=_start.S longjmp.S setjmp.S #_start.S #clone.S
+CRT0=crt0.S
+CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
+
+SSRC=longjmp.S setjmp.S #_start.S #clone.S
 ifeq ($(UNIFIED_SYSCALL),true)
 	SSRC += __uClibc_syscall.S
 endif
@@ -37,12 +40,17 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(SOBJS) $(COBJS)
 
 
-all: $(OBJS) $(LIBC)
+all: $(OBJS) $(CRT0_OBJ) $(LIBC)
 
 $(LIBC): ar-target
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+
+$(CRT0_OBJ): %.o : %.S
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+	cp $*.o $(TOPDIR)/libcrt0.o
 
 $(SOBJS): %.o : %.S
 	$(CC) $(CFLAGS) -c $< -o $@
