@@ -216,20 +216,19 @@ void *dlopen(const char *libname, int flag)
 					fprintf(stderr, "Trying to load '%s', needed by '%s'\n",
 							lpntstr, tcurr->libname);
 #endif
+				if (tpnt1) {
+					tpnt1->usage_count++;
+				} else {
+					tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, 0);
+					if (!tpnt1)
+						goto oops;
+				}
+				tpnt1->rtld_flags |= RTLD_GLOBAL;
 				dyn_ptr->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 				_dl_memset (dyn_ptr->next, 0, sizeof (struct dyn_elf));
 				dyn_ptr = dyn_ptr->next;
 				dyn_ptr->dyn = tpnt1;
-				if (!tpnt1) {
-					tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, 0);
-					dyn_ptr->dyn = tpnt1;
-					if (!tpnt1)
-						goto oops;
-					tpnt1->rtld_flags |= RTLD_GLOBAL;
-				} else {
-					tpnt1->rtld_flags |= RTLD_GLOBAL;
-					tpnt1->usage_count++;
-				}
+
 				tmp = alloca(sizeof(struct init_fini_list)); /* Allocates on stack, no need to free this memory */
 				tmp->tpnt = tpnt1;
 				tmp->next = tcurr->init_fini;
