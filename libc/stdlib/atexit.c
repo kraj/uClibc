@@ -43,7 +43,7 @@
 
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+extern pthread_mutex_t mylock;
 # define LOCK	pthread_mutex_lock(&mylock)
 # define UNLOCK	pthread_mutex_unlock(&mylock);
 #else
@@ -168,6 +168,7 @@ void __exit_handler(int status)
 #ifdef L_exit
 extern void weak_function _stdio_term(void);
 void (*__exit_cleanup) (int) = 0;
+pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 /*
  * Normal program termination
