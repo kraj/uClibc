@@ -51,7 +51,7 @@ int _dl_map_cache(void)
 		return 0;
 
 	if (_dl_stat(LDSO_CACHE, &st)
-			|| (fd = _dl_open(LDSO_CACHE, O_RDONLY)) < 0) {
+			|| (fd = _dl_open(LDSO_CACHE, O_RDONLY, 0)) < 0) {
 		_dl_dprintf(2, "%s: can't open cache '%s'\n", _dl_progname, LDSO_CACHE);
 		_dl_cache_addr = (caddr_t) - 1;	/* so we won't try again */
 		return -1;
@@ -429,7 +429,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	}
 
 	libaddr = 0;
-	infile = _dl_open(libname, O_RDONLY);
+	infile = _dl_open(libname, O_RDONLY, 0);
 	if (infile < 0) {
 #if 0
 		/*
