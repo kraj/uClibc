@@ -201,6 +201,10 @@ extern int vfscanf __P ((FILE *__restrict __s,
 /* Print a message describing the meaning of the value of errno.  */
 extern void perror __P ((__const char *__s));
 
+/* Like `getdelim', but reads up to a newline.  */
+extern int getline __P ((char **__restrict __lineptr,
+				 size_t *__restrict __n,
+				 FILE *__restrict __stream));
 
 
 #endif /* __STDIO_H */

@@ -41,6 +41,7 @@
 #define __USE_BSD
 #define __USE_MISC
 #define __USE_POSIX
+#define __USE_POSIX2
 #define _POSIX_THREAD_SAFE_FUNCTIONS
 
 #include <sys/cdefs.h>

@@ -15,7 +15,7 @@ LIBC=$(TOPDIR)libc.a
 	$(CC) $(CFLAGS) -c -o $*.o $<
 
 SSRC=syscalls.S
-OBJ= setjmp.o longjmp.o readdir.o _start.o _exit.o #select.o 
+OBJ= setjmp.o longjmp.o readdir.o _start.o _exit.o fork.o #select.o 
 include makefile.objs
 
 all: $(LIBC)

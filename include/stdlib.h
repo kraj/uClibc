@@ -58,6 +58,7 @@ extern int putenv __P ((__const char *__string));
 
 extern int setenv __P ((__const char *__name, __const char *__value,
                         int __replace));
+extern void unsetenv __P ((__const char *__name));
 
 extern int system __P ((__const char *__command));
 
@@ -87,7 +88,6 @@ extern void qsort __P ((__ptr_t __base, size_t __nmemb, size_t __size,
 #define atof(x) strtod((x),(char**)0)
 #define atoi(x) (int)strtol((x),(char**)0,10)
 #define atol(x) strtol((x),(char**)0,10)
-char* itoa(int i);
 
 /* Returned by `div'.  */
 typedef struct

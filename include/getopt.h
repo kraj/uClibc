@@ -9,8 +9,9 @@
 #include <features.h>
 
 extern char *optarg;
-extern int opterr;
 extern int optind;
+extern int opterr;
+extern int optopt;
 
 extern int getopt __P((int argc, char *const *argv, const char *shortopts));
 

@@ -276,37 +276,37 @@ extern int mkfifo __P ((__const char *__path, __mode_t __mode));
 
 /* Wrappers for stat and mknod system calls.  */
 #ifndef __USE_FILE_OFFSET64
-extern int __fxstat __P ((int __ver, int __fildes,
+extern int _fxstat __P ((int __ver, int __fildes,
 			  struct stat *__stat_buf));
-extern int __xstat __P ((int __ver, __const char *__filename,
+extern int _xstat __P ((int __ver, __const char *__filename,
 			 struct stat *__stat_buf));
-extern int __lxstat __P ((int __ver, __const char *__filename,
+extern int _lxstat __P ((int __ver, __const char *__filename,
 			  struct stat *__stat_buf));
 #else
 # ifdef __REDIRECT
-extern int __REDIRECT (__fxstat, __P ((int __ver, int __fildes,
-				       struct stat *__stat_buf)), __fxstat64);
-extern int __REDIRECT (__xstat, __P ((int __ver, __const char *__filename,
-				      struct stat *__stat_buf)), __xstat64);
-extern int __REDIRECT (__lxstat, __P ((int __ver, __const char *__filename,
-				       struct stat *__stat_buf)), __lxstat64);
+extern int __REDIRECT (_fxstat, __P ((int __ver, int __fildes,
+				       struct stat *__stat_buf)), _fxstat64);
+extern int __REDIRECT (_xstat, __P ((int __ver, __const char *__filename,
+				      struct stat *__stat_buf)), _xstat64);
+extern int __REDIRECT (_lxstat, __P ((int __ver, __const char *__filename,
+				       struct stat *__stat_buf)), _lxstat64);
 
 # else
-#  define __fxstat __fxstat64
-#  define __xstat __xstat64
-#  define __lxstat __lxstat64
+#  define _fxstat _fxstat64
+#  define _xstat _xstat64
+#  define _lxstat _lxstat64
 # endif
 #endif
 
 #ifdef __USE_LARGEFILE64
-extern int __fxstat64 __P ((int __ver, int __fildes,
+extern int _fxstat64 __P ((int __ver, int __fildes,
 			    struct stat64 *__stat_buf));
-extern int __xstat64 __P ((int __ver, __const char *__filename,
+extern int _xstat64 __P ((int __ver, __const char *__filename,
 			   struct stat64 *__stat_buf));
-extern int __lxstat64 __P ((int __ver, __const char *__filename,
+extern int _lxstat64 __P ((int __ver, __const char *__filename,
 			    struct stat64 *__stat_buf));
 #endif
-extern int __xmknod __P ((int __ver, __const char *__path,
+extern int _xmknod __P ((int __ver, __const char *__path,
 			  __mode_t __mode, __dev_t *__dev));
 
 #if defined __GNUC__ && __GNUC__ >= 2
@@ -315,27 +315,27 @@ extern int __xmknod __P ((int __ver, __const char *__path,
 extern __inline__ int stat (__const char *__path,
 			    struct stat *__statbuf) 
 {
-  return __xstat (_STAT_VER, __path, __statbuf);
+  return _xstat (_STAT_VER, __path, __statbuf);
 }
 
 # if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 extern __inline__ int lstat (__const char *__path,
 			     struct stat *__statbuf) 
 {
-  return __lxstat (_STAT_VER, __path, __statbuf);
+  return _lxstat (_STAT_VER, __path, __statbuf);
 }
 # endif
 
 extern __inline__ int fstat (int __fd, struct stat *__statbuf) 
 {
-  return __fxstat (_STAT_VER, __fd, __statbuf);
+  return _fxstat (_STAT_VER, __fd, __statbuf);
 }
 
 # if defined __USE_MISC || defined __USE_BSD
 extern __inline__ int mknod (__const char *__path, __mode_t __mode,
 			     __dev_t __dev) 
 {
-  return __xmknod (_MKNOD_VER, __path, __mode, &__dev);
+  return _xmknod (_MKNOD_VER, __path, __mode, &__dev);
 }
 # endif
 
@@ -343,20 +343,20 @@ extern __inline__ int mknod (__const char *__path, __mode_t __mode,
 extern __inline__ int stat64 (__const char *__path,
 			      struct stat64 *__statbuf) 
 {
-  return __xstat64 (_STAT_VER, __path, __statbuf);
+  return _xstat64 (_STAT_VER, __path, __statbuf);
 }
 
 #  if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 extern __inline__ int lstat64 (__const char *__path,
 			       struct stat64 *__statbuf) 
 {
-  return __lxstat64 (_STAT_VER, __path, __statbuf);
+  return _lxstat64 (_STAT_VER, __path, __statbuf);
 }
 #  endif
 
 extern __inline__ int fstat64 (int __fd, struct stat64 *__statbuf) 
 {
-  return __fxstat64 (_STAT_VER, __fd, __statbuf);
+  return _fxstat64 (_STAT_VER, __fd, __statbuf);
 }
 # endif
 

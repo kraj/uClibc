@@ -65,13 +65,71 @@ extern char * mktemp __P ((char * __template));
 
 extern int _clone __P ((int (*fn)(void *arg), void *child_stack, int flags, void *arg));
 
+/* Return the current machine's Internet number.  */
+extern long int gethostid __P ((void));
+
+/* Put the name of the current host in no more than LEN bytes of NAME.
+   The result is null-terminated if LEN is large enough for the full
+   name and the terminator.  */
+extern int gethostname __P ((char *__name, size_t __len));
+
+/* Set the name of the current host to NAME, which is LEN bytes long.
+   This call is restricted to the super-user.  */
+extern int sethostname __P ((__const char *__name, size_t __len));
+
+
+/* Set the user ID of the calling process to UID.
+   If the calling process is the super-user, set the real
+   and effective user IDs, and the saved set-user-ID to UID;
+   if not, the effective user ID is set to UID.  */
+extern int setuid __P ((__uid_t __uid));
+
+/* Create a new session with the calling process as its leader.
+   The process group IDs of the session and the calling process
+   are set to the process ID of the calling process, which is returned.  */
+extern __pid_t setsid __P ((void));
+
+/* Get the real user ID of the calling process.  */
+extern __uid_t getuid __P ((void));
+
+/* Get the effective user ID of the calling process.  */
+extern __uid_t geteuid __P ((void));
+
+/* Get the real group ID of the calling process.  */
+extern __gid_t getgid __P ((void));
+
+/* Get the effective group ID of the calling process.  */
+extern __gid_t getegid __P ((void));
+
+/* If SIZE is zero, return the number of supplementary groups
+   the calling process is in.  Otherwise, fill in the group IDs
+   of its supplementary groups in LIST and return the number written.  */
+extern int getgroups __P ((int __size, __gid_t __list[]));
+
+
+
+/* Return the foreground process group ID of FD.  */
+extern __pid_t tcgetpgrp __P ((int __fd));
+/* Set the foreground process group ID of FD set PGRP_ID.  */
+extern int tcsetpgrp __P ((int __fd, __pid_t __pgrp_id));
+
+/* Get the process group ID of the calling process.
+   This function is different on old BSD. */
+extern __pid_t getpgrp __P ((void));
+/* Set the process group ID of the process matching PID to PGID.
+   If PID is zero, the current process's process group ID is set.
+   If PGID is zero, the process ID of the process is used.  */
+extern int setpgid __P ((__pid_t __pid, __pid_t __pgid));
+
+/* Get the process ID of the calling process.  */
+extern __pid_t getpid __P ((void));
+
+
+
 
 /* Make PATH be the root directory (the starting point for absolute paths).
    This call is restricted to the super-user.  */
 extern int chroot __P ((__const char *__path));
-
-
-
 
 /* Execute PATH with all arguments after PATH until
    a NULL pointer and environment from `environ'.  */
@@ -112,6 +170,18 @@ extern __pid_t fork __P ((void));
  *       replaced by a call to `execve'.  Return -1 for errors, 0 to the new process,
  *          and the process ID of the new process to the old process.  */
 extern __pid_t vfork __P ((void));
+
+/* Return the number of bytes in a page.  This is the system's page size,
+   which is not necessarily the same as the hardware page size.  */
+extern int getpagesize __P ((void)) __attribute__ ((__const__));
+
+#ifdef	__USE_POSIX2
+/* Get definitions and prototypes for functions to process the
+   arguments in ARGV (ARGC of them, minus the program name) for
+   options given in OPTS.  */
+# define __need_getopt
+# include <getopt.h>
+#endif
 
 
 #ifndef SEEK_SET

@@ -1,5 +1,5 @@
 DIRS = headers error getent malloc-simple misc regex stdio2 \
-	    string sysdeps termios time #rpc
+	    string termios time sysdeps #rpc
 
 all: libc.a
 
