@@ -77,8 +77,8 @@ strsignal: ../../string/strsignal.c
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(CC) $(CFLAGS) -DCHECK_BUF -c $< -o $@.o
-	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(TESTCC) $(CFLAGS) -DCHECK_BUF -c $< -o $@.o
+	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo " "

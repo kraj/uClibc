@@ -122,7 +122,7 @@ int main(void)
 	retcode = EXIT_SUCCESS;
 
 #if WANT_SIGLIST
-	printf("_NSIG = %d  from headers\n", _NSIG);
+	/*printf("_NSIG = %d  from headers\n", _NSIG);*/
 	for ( i=0 ; sys_siglist[i] ; i++ ) {
 		j = strlen(sys_siglist[i])+1;
 		if (j > max) max = j;
@@ -136,13 +136,14 @@ int main(void)
 	p = strsignal(INT_MIN);
 	j = strlen(p)+1;
 	if (j > max) max = j;
-	printf("strsignal.c - Test of INT_MIN: <%s>  %d\n", p, j);
+	/*printf("strsignal.c - Test of INT_MIN: <%s>  %d\n", p, j);*/
 
 	if (sizeof(retbuf) != max) {
 		printf("Error: strsignal.c - dimension of retbuf should be = %d\n", max);
 		retcode = EXIT_FAILURE;
 	}
-	printf("strsignal.c - dimension of retbuf correct at %d\n", max);
+	/*printf("strsignal.c - dimension of retbuf correct at %d\n", max);*/
+	printf("Passed.\n");
 
 	return retcode;
 }
