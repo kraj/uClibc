@@ -1,0 +1,20 @@
+#!/bin/sh
+
+
+version=$(dpkg-parsechangelog | grep ^Version | sed 's/^Version: //')
+
+dir=uclibc-${version}
+
+export CVSROOT='cvs.uclinux.org:/var/cvs'
+#export CVSROOT=':pserver:anonymous@cvs.uclinux.org:/var/cvs'
+#if ! grep -q '^.pserver.anonymous.cvs.uclinux.org..var.cvs' ~/.cvspass
+#then
+#echo "$CVSROOT" 'Ay=0=a%0bZ' >>~/.cvspass
+#fi
+
+rm -rf ${dir}
+cvs co -d ${dir} uClibc
+
+tar -czvf ${dir}.tgz ${dir}
+
+
