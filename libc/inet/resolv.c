@@ -1860,20 +1860,26 @@ int gethostbyname_r(const char * name,
 		return EINVAL;
 
 	/* do /etc/hosts first */
-	if ((i=__get_hosts_byname_r(name, AF_INET, result_buf,
-				  buf, buflen, result, h_errnop))==0)
-		return i;
-	switch (*h_errnop) {
-		case HOST_NOT_FOUND:
-		case NO_ADDRESS:
-			break;
-		case NETDB_INTERNAL:
-			if (errno == ENOENT) {
-			    break;
-			}
-			/* else fall through */
-		default:
+	{
+		int old_errno = errno;	/* Save the old errno and reset errno */
+		__set_errno(0);			/* to check for missing /etc/hosts. */
+
+		if ((i=__get_hosts_byname_r(name, AF_INET, result_buf,
+									buf, buflen, result, h_errnop))==0)
 			return i;
+		switch (*h_errnop) {
+			case HOST_NOT_FOUND:
+			case NO_ADDRESS:
+				break;
+			case NETDB_INTERNAL:
+				if (errno == ENOENT) {
+					break;
+				}
+				/* else fall through */
+			default:
+				return i;
+		}
+		__set_errno(old_errno);
 	}
 
 	DPRINTF("Nothing found in /etc/hosts\n");
@@ -1996,15 +2002,26 @@ int gethostbyname2_r(const char *name, int family,
 		return EINVAL;
 
 	/* do /etc/hosts first */
-	if ((i=__get_hosts_byname_r(name, family, result_buf,
-				  buf, buflen, result, h_errnop))==0)
-		return i;
-	switch (*h_errnop) {
-		case HOST_NOT_FOUND:
-		case NO_ADDRESS:
-			break;
-		default:
+	{
+		int old_errno = errno;	/* Save the old errno and reset errno */
+		__set_errno(0);			/* to check for missing /etc/hosts. */
+
+		if ((i=__get_hosts_byname_r(name, AF_INET, result_buf,
+									buf, buflen, result, h_errnop))==0)
 			return i;
+		switch (*h_errnop) {
+			case HOST_NOT_FOUND:
+			case NO_ADDRESS:
+				break;
+			case NETDB_INTERNAL:
+				if (errno == ENOENT) {
+					break;
+				}
+				/* else fall through */
+			default:
+				return i;
+		}
+		__set_errno(old_errno);
 	}
 
 	DPRINTF("Nothing found in /etc/hosts\n");
