@@ -115,13 +115,67 @@ static void HEAP_DEBUG (struct heap *heap, const char *str)
 extern inline void
 __heap_unlink_free_area (struct heap *heap, struct heap_free_area *fa)
 {
-      if (fa->next)
-	fa->next->prev = fa->prev;
-      if (fa->prev)
-	fa->prev->next = fa->next;
-      else
-	heap->free_areas = fa->next;
+  if (fa->next)
+    fa->next->prev = fa->prev;
+  if (fa->prev)
+    fa->prev->next = fa->next;
+  else
+    heap->free_areas = fa->next;
 }
+
+/* Link the free-area FA between the existing free-area's PREV and NEXT in
+   HEAP.  PREV and NEXT may be 0; if PREV is 0, FA is installed as the
+   first free-area.  */
+extern inline void
+__heap_link_free_area (struct heap *heap, struct heap_free_area *fa,
+		       struct heap_free_area *prev,
+		       struct heap_free_area *next)
+{
+  fa->next = next;
+  fa->prev = prev;
+
+  if (prev)
+    prev->next = fa;
+  else
+    heap->free_areas = fa;
+  if (next)
+    next->prev = fa;
+}
+
+/* Update the mutual links between the free-areas PREV and FA in HEAP.
+   PREV may be 0, in which case FA is installed as the first free-area (but
+   FA may not be 0).  */
+extern inline void
+__heap_link_free_area_after (struct heap *heap,
+			     struct heap_free_area *fa,
+			     struct heap_free_area *prev)
+{
+  if (prev)
+    prev->next = fa;
+  else
+    heap->free_areas = fa;
+  fa->prev = prev;
+}
+
+/* Add a new free-area MEM, of length SIZE, in between the existing
+   free-area's PREV and NEXT in HEAP, and return a pointer to its header.
+   PREV and NEXT may be 0; if PREV is 0, MEM is installed as the first
+   free-area.  */
+extern inline struct heap_free_area *
+__heap_add_free_area (struct heap *heap, void *mem, size_t size,
+		      struct heap_free_area *prev,
+		      struct heap_free_area *next)
+{
+  struct heap_free_area *fa = (struct heap_free_area *)
+    ((char *)mem + size - sizeof (struct heap_free_area));
+
+  fa->size = size;
+
+  __heap_link_free_area (heap, fa, prev, next);
+
+  return fa;
+}
+
 
 /* Allocate SIZE bytes from the front of the free-area FA in HEAP, and
    return the amount actually allocated (which may be more than SIZE).  */

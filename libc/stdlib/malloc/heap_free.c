@@ -20,7 +20,7 @@
 struct heap_free_area *
 __heap_free (struct heap *heap, void *mem, size_t size)
 {
-  struct heap_free_area *prev_fa, *fa, *new_fa;
+  struct heap_free_area *prev_fa, *fa;
   void *end = (char *)mem + size;
 
   __heap_lock (heap);
@@ -31,10 +31,9 @@ __heap_free (struct heap *heap, void *mem, size_t size)
   for (prev_fa = 0, fa = heap->free_areas; fa; prev_fa = fa, fa = fa->next)
     {
       size_t fa_size = fa->size;
-      void *fa_end = HEAP_FREE_AREA_END (fa);
       void *fa_mem = HEAP_FREE_AREA_START (fa);
 
-      if (fa_mem == end)
+      if (end == fa_mem)
 	/* FA is just after MEM, grow down to encompass it. */
 	{
 	  fa_size += size;
@@ -43,20 +42,15 @@ __heap_free (struct heap *heap, void *mem, size_t size)
 	  if (prev_fa && fa_mem - size == HEAP_FREE_AREA_END (prev_fa))
 	    /* Yup; merge PREV_FA's info into FA.  */
 	    {
-	      struct heap_free_area *pp = prev_fa->prev;
 	      fa_size += prev_fa->size;
-	      if (pp)
-		pp->next = fa;
-	      else
-		heap->free_areas = fa;
-	      fa->prev = pp;
+	      __heap_link_free_area_after (heap, fa, prev_fa->prev);
 	    }
 
 	  fa->size = fa_size;
 
 	  goto done;
 	}
-      else if (fa_end == mem)
+      else if (HEAP_FREE_AREA_END (fa) == mem)
 	/* FA is just before MEM, expand to encompass it. */
 	{
 	  struct heap_free_area *next_fa = fa->next;
@@ -64,33 +58,22 @@ __heap_free (struct heap *heap, void *mem, size_t size)
 	  fa_size += size;
 
 	  /* See if FA can now be merged with its successor. */
-	  if (next_fa && fa_end + size == HEAP_FREE_AREA_START (next_fa))
+	  if (next_fa && mem + size == HEAP_FREE_AREA_START (next_fa))
 	    {
 	      /* Yup; merge FA's info into NEXT_FA.  */
 	      fa_size += next_fa->size;
-	      if (prev_fa)
-		prev_fa->next = next_fa;
-	      else
-		heap->free_areas = next_fa;
-	      next_fa->prev = prev_fa;
+	      __heap_link_free_area_after (heap, next_fa, prev_fa);
 	      fa = next_fa;
 	    }
 	  else
 	    /* FA can't be merged; move the descriptor for it to the tail-end
 	       of the memory block.  */
 	    {
-	      new_fa = (struct heap_free_area *)((char *)fa + size);
-	      /* Update surrounding free-areas to point to FA's new address. */
-	      if (prev_fa)
-		prev_fa->next = new_fa;
-	      else
-		heap->free_areas = new_fa;
-	      if (next_fa)
-		next_fa->prev = new_fa;
-	      /* Fill in the moved descriptor.  */
-	      new_fa->prev = prev_fa;
-	      new_fa->next = next_fa;
-	      fa = new_fa;
+	      /* The new descriptor is at the end of the extended block,
+		 SIZE bytes later than the old descriptor.  */
+	      fa = (struct heap_free_area *)((char *)fa + size);
+	      /* Update links with the neighbors in the list.  */ 
+	      __heap_link_free_area (heap, fa, prev_fa, next_fa);
 	    }
 
 	  fa->size = fa_size;
@@ -99,28 +82,12 @@ __heap_free (struct heap *heap, void *mem, size_t size)
 	}
       else if (fa_mem > mem)
 	/* We've reached the right spot in the free-list without finding an
-	   adjacent free-area, so add a new free area to hold MEM. */
+	   adjacent free-area, so continue below to add a new free area. */
 	break;
     }
 
-  /* Make a new free-list entry.  */
-
-  /* NEW_FA initially holds only MEM.  */
-  new_fa = (struct heap_free_area *)
-    ((char *)mem + size - sizeof (struct heap_free_area));
-  new_fa->size = size;
-  new_fa->next = fa;
-  new_fa->prev = prev_fa;
-
-  /* Insert NEW_FA in the free-list between PREV_FA and FA. */
-  if (prev_fa)
-    prev_fa->next = new_fa;
-  else
-    heap->free_areas = new_fa;
-  if (fa)
-    fa->prev = new_fa;
-
-  fa = new_fa;
+  /* Make MEM into a new free-list entry.  */
+  fa = __heap_add_free_area (heap, mem, size, prev_fa, fa);
 
  done:
   HEAP_DEBUG (heap, "after __heap_free");
