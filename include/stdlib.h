@@ -195,7 +195,7 @@ extern unsigned long long int strtoull (__const char *__restrict __nptr,
 
 
 #if 0
-//#ifdef __USE_GNU
+/*#ifdef __USE_GNU*/
 /* The concept of one static locale per category is not very well
    thought out.  Many applications will need to process its data using
    information from several different locales.  Another application is
@@ -661,7 +661,7 @@ extern int system (__const char *__command) __THROW;
 
 
 #if 0
-//#ifdef	__USE_GNU
+/*#ifdef	__USE_GNU*/
 /* Return a malloc'd string containing the canonical absolute name of the
    named file.  The last file name component need not exist, and may be a
    symlink to a nonexistent file.  */
@@ -848,7 +848,7 @@ extern char *ptsname (int __fd) __THROW;
 #endif
 
 #if 0
-//#ifdef __USE_GNU
+/*#ifdef __USE_GNU*/
 /* Store at most BUFLEN characters of the pathname of the slave pseudo
    terminal associated with the master FD is open on in BUF.
    Return 0 on success, otherwise an error number.  */

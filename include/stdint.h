@@ -24,9 +24,9 @@
 #define _STDINT_H	1
 
 #include <features.h>
-//#define __need_wchar_t
+/*#define __need_wchar_t*/
 #include <stddef.h>
-//#include <bits/wchar.h>
+/*#include <bits/wchar.h>*/
 #include <bits/wordsize.h>
 
 /* Exact integral types.  */

@@ -210,7 +210,7 @@ extern int fflush_unlocked (FILE *__stream) __THROW;
 #endif
 
 #if 0
-//#ifdef __USE_GNU
+/*#ifdef __USE_GNU*/
 /* Close all streams.  */
 extern int fcloseall (void) __THROW;
 #endif
@@ -252,7 +252,7 @@ extern FILE *fdopen (int __fd, __const char *__modes) __THROW;
 #endif
 
 #if 0
-//#ifdef	__USE_GNU
+/*#ifdef	__USE_GNU*/
 /* Create a new stream that refers to the given magic cookie,
    and uses the given functions for input and output.  */
 extern FILE *fopencookie (void *__restrict __magic_cookie,
@@ -432,7 +432,7 @@ extern char *fgets (char *__restrict __s, int __n, FILE *__restrict __stream)
      __THROW;
 
 #if 0
-//#ifdef __USE_GNU
+/*#ifdef __USE_GNU*/
 /* This function does the same as `fgets' but does not lock the stream.  */
 extern char *fgets_unlocked (char *__restrict __s, int __n,
 			     FILE *__restrict __stream) __THROW;
@@ -468,7 +468,7 @@ extern int fputs (__const char *__restrict __s, FILE *__restrict __stream)
      __THROW;
 
 #if 0
-//#ifdef __USE_GNU
+/*#ifdef __USE_GNU*/
 /* This function does the same as `fputs' but does not lock the stream.  */
 extern int fputs_unlocked (__const char *__restrict __s,
 			   FILE *__restrict __stream) __THROW;
@@ -579,7 +579,7 @@ extern int sys_nerr;
 extern __const char *__const sys_errlist[];
 #endif
 #if 0
-//#ifdef	__USE_GNU
+/*#ifdef	__USE_GNU*/
 extern int _sys_nerr;
 extern __const char *__const _sys_errlist[];
 #endif
@@ -621,7 +621,7 @@ extern char *cuserid (char *__s) __THROW;
 
 
 #if 0
-//#ifdef	__USE_GNU
+/*#ifdef	__USE_GNU*/
 struct obstack;			/* See <obstack.h>.  */
 
 /* Write formatted output to an obstack.  */

@@ -309,7 +309,7 @@
 
 /* This is here only because every header file already includes this one.  */
 #if 0
-//#ifndef _LIBC
+/*#ifndef _LIBC*/
 /* Get the definitions of all the appropriate `__stub_FUNCTION' symbols.
    <gnu/stubs.h> contains `#define __stub_FUNCTION' when FUNCTION is a stub
    which will always return failure (and set errno to ENOSYS).

@@ -260,7 +260,7 @@ typedef __socklen_t socklen_t;
 extern int access (__const char *__name, int __type) __THROW;
 
 #if 0
-//#ifdef __USE_GNU
+/*#ifdef __USE_GNU*/
 /* Test for access to NAME using the effective UID and GID
    (as normal file operations use).  */
 extern int euidaccess (__const char *__name, int __type) __THROW;
@@ -424,7 +424,7 @@ extern int fchdir (int __fd) __THROW;
 extern char *getcwd (char *__buf, size_t __size) __THROW;
 
 #if 0
-//#ifdef	__USE_GNU
+/*#ifdef	__USE_GNU*/
 /* Return a malloc'd string containing the current directory name.
    If the environment variable `PWD' is set, and its value is correct,
    that value is used.  */
@@ -458,7 +458,7 @@ extern int execve (__const char *__path, char *__const __argv[],
 		   char *__const __envp[]) __THROW;
 
 #if 0
-//#ifdef __USE_GNU
+/*#ifdef __USE_GNU*/
 /* Execute the file FD refers to, overlaying the running program image.
    ARGV and ENVP are passed to the new program, as for `execve'.  */
 extern int fexecve (int __fd, char *__const __argv[], char *__const __envp[])
@@ -605,7 +605,7 @@ extern __gid_t getegid (void) __THROW;
 extern int getgroups (int __size, __gid_t __list[]) __THROW;
 
 #if 0
-//#ifdef	__USE_GNU
+/*#ifdef	__USE_GNU*/
 /* Return nonzero iff the calling process is in group GID.  */
 extern int group_member (__gid_t __gid) __THROW;
 #endif

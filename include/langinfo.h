@@ -576,7 +576,7 @@ extern char *nl_langinfo (nl_item __item) __THROW;
 
 
 #if 0
-//#ifdef	__USE_GNU
+/*#ifdef	__USE_GNU*/
 /* This interface is for the extended locale model.  See <locale.h> for
    more information.  */
 

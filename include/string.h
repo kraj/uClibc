@@ -62,7 +62,7 @@ extern int memcmp (__const void *__s1, __const void *__s2, size_t __n)
 extern void *memchr (__const void *__s, int __c, size_t __n)
       __THROW __attribute_pure__;
 
-//#ifdef __USE_GNU
+/*#ifdef __USE_GNU*/
 #if 0
 /* Search in S for C.  This is similar to `memchr' but there is no
    length limit.  */
@@ -103,7 +103,7 @@ extern size_t strxfrm (char *__restrict __dest,
 		       __const char *__restrict __src, size_t __n) __THROW;
 
 #if 0
-//#ifdef __USE_GNU
+/*#ifdef __USE_GNU*/
 /* The following functions are equivalent to the both above but they
    take the locale they use for the collation as an extra argument.
    This is not standardsized but something like will come.  */
@@ -159,7 +159,7 @@ extern char *strchr (__const char *__s, int __c) __THROW __attribute_pure__;
 extern char *strrchr (__const char *__s, int __c) __THROW __attribute_pure__;
 
 #if 0
-//#ifdef __USE_GNU
+/*#ifdef __USE_GNU*/
 /* This funciton is similar to `strchr'.  But it returns a pointer to
    the closing NUL byte in case C is not found in S.  */
 extern char *strchrnul (__const char *__s, int __c) __THROW __attribute_pure__;
@@ -266,7 +266,7 @@ extern int ffs (int __i) __THROW __attribute__ ((__const__));
 /* The following two functions are non-standard but necessary for non-32 bit
    platforms.  */
 # if 0
-//# ifdef	__USE_GNU
+/*# ifdef	__USE_GNU*/
 extern int ffsl (long int __l) __THROW __attribute__ ((__const__));
 #  ifdef __GNUC__
 __extension__ extern int ffsll (long long int __ll)
@@ -284,7 +284,7 @@ extern int strncasecmp (__const char *__s1, __const char *__s2, size_t __n)
 #endif /* Use BSD.  */
 
 #if 0
-//#ifdef	__USE_GNU
+/*#ifdef	__USE_GNU*/
 /* Again versions of a few functions which use the given locale instead
    of the global one.  */
 extern int __strcasecmp_l (__const char *__s1, __const char *__s2,
