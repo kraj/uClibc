@@ -26,6 +26,7 @@
  * Original copyright notice is retained at the end of this file.
  */
 
+#include <stdio.h>
 #include <features.h>
 #include <fcntl.h>
 #include <paths.h>

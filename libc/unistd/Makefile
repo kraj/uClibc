@@ -25,8 +25,8 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 DIRS:=
 
-CSRC=execl.c execlp.c execv.c execvep.c execvp.c getcwd.c getopt.c \
-	sleep.c getpass.c sysconf_src.c getopt_vars.c daemon.c
+CSRC=execl.c execlp.c execv.c execvep.c execvp.c execle.c getcwd.c getopt.c \
+	sleep.c getpass.c sysconf_src.c getopt_vars.c daemon.c getlogin.c fpathconf.c
 
 # TESTING -- comment this out if it breaks for you
 ifeq ($(TARGET_ARCH), $(NATIVE_ARCH))
