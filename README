@@ -5,5 +5,8 @@ To build uClibc,
 3) make
 4) As root, make install
 
-To compile programs with uClibc, use the gcc wrapper <arch>-uclibc-gcc
-installed in $(INSTALL_DIR)/usr/bin/ (see extra/gcc-uClibc).
+To compile programs with uClibc,
+
+export PATH={uClibc INSTALL_DIR}/bin:$PATH
+
+and then just ./configure and make as usual.
