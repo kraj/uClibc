@@ -421,7 +421,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	  int (*reloc_fnc) (struct elf_resolve *tpnt, struct dyn_elf *scope,
 			    ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab))
 {
-	unsigned int i;
+	unsigned int i, relative_count;
 	char *strtab;
 	Elf32_Sym *symtab;
 	ELF_RELOC *rpnt;
@@ -433,6 +433,18 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	symtab = (Elf32_Sym *)(intptr_t) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+	
+	relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
+	if (relative_count) { /* Optimize the  R_PPC_RELATIVE relocations if possible */
+		Elf32_Addr loadaddr = tpnt->loadaddr;
+		rel_size -= relative_count;
+		--rpnt;
+		do {     /* PowerPC handles pre increment/decrement better */ 
+			Elf32_Addr *const reloc_addr = (void *) (loadaddr + (++rpnt)->r_offset);
+
+			*reloc_addr =  loadaddr + rpnt->r_addend;
+		} while (--relative_count);
+	}
 
 	  for (i = 0; i < rel_size; i++, rpnt++) {
 	        int res;
