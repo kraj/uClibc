@@ -1,6 +1,7 @@
 TESTDIR=../
 include $(TESTDIR)/Rules.mak
 
+CFLAGS += -D_GNU_SOURCE
 
 TARGETS=signal signal_glibc
 all: $(TARGETS)
