@@ -284,7 +284,7 @@ _syscall0(uid_t, getuid);
 #ifdef L_stime
 #include <time.h>
 #include <sys/time.h>
-#ifdef _NR_stime
+#ifdef __NR_stime
 _syscall1(int, stime, const time_t *, t);
 #else
 int stime(const time_t *when)
