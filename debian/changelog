@@ -1,3 +1,9 @@
+uclibc (0.9.10-1) unstable; urgency=low
+
+  * New upstream release (Closes: #140295)
+
+ -- David Schleef <ds@schleef.org>  Thu, 28 Mar 2002 11:25:17 -0800
+
 uclibc (0.9.9-cvs20020221-2) unstable; urgency=low
 
   * debian/rules: touch linux/autoconf.h.  Should make us buildable

@@ -84,6 +84,7 @@ endif
 	echo 'HAS_FLOATING_POINT = true' >>Config
 	echo 'DO_C99_MATH = true' >>Config
 	echo 'DODEBUG = false' >>Config
+	echo 'INCLUDE_THREADS = true' >>Config
 
 	$(MAKE)
 
