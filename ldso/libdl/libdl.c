@@ -39,7 +39,7 @@ static void __attribute__ ((unused)) foobar(void)
 
 static int __attribute__ ((unused)) foobar1 = (int) foobar;	/* Use as pointer */
 extern void _dl_dprintf(int, const char *, ...) __attribute__ ((__weak__, __alias__ ("foobar")));
-extern char *_dl_find_hash(char *, struct dyn_elf *, struct elf_resolve *, int)
+extern char *_dl_find_hash(char *, struct dyn_elf *, struct elf_resolve *, enum caller_type)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
 extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **, struct elf_resolve *, char *)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
@@ -199,7 +199,7 @@ void *_dlopen(const char *libname, int flag)
 	rpnt->next = _dl_symbol_tables;
 
 	if (do_fixup(tpnt, flag)) {
-		_dl_error_number = DL_NO_SYMBOL;
+		_dl_error_number = LD_NO_SYMBOL;
 		goto oops;
 	}
 
@@ -311,7 +311,7 @@ void *_dlsym(void *vhandle, const char *name)
 			if (rpnt == handle)
 				break;
 		if (!rpnt) {
-			_dl_error_number = DL_BAD_HANDLE;
+			_dl_error_number = LD_BAD_HANDLE;
 			return NULL;
 		}
 	} else if (handle == RTLD_NEXT) {
@@ -335,13 +335,13 @@ void *_dlsym(void *vhandle, const char *name)
 		}
 	}
 
-	ret = _dl_find_hash((char*)name, handle, NULL, 1);
+	ret = _dl_find_hash((char*)name, handle, NULL, copyrel);
 
 	/*
 	 * Nothing found.
 	 */
 	if (!ret)
-		_dl_error_number = DL_NO_SYMBOL;
+		_dl_error_number = LD_NO_SYMBOL;
 	return ret;
 }
 
@@ -372,7 +372,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 	}
 
 	if (!rpnt) {
-		_dl_error_number = DL_BAD_HANDLE;
+		_dl_error_number = LD_BAD_HANDLE;
 		return 1;
 	}
 
