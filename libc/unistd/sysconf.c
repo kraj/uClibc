@@ -203,10 +203,7 @@ long int sysconf(int name)
       return _POSIX_VERSION;
 
     case _SC_PAGESIZE:
-#if 0
-      return __getpagesize ();
-#else
-      return -1;
+      return getpagesize();
 #endif
 
     case _SC_AIO_LISTIO_MAX:
