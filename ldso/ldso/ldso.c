@@ -653,11 +653,26 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #endif
 				INIT_GOT(lpnt, _dl_loaded_modules);
 		}
+
 		/* OK, fill this in - we did not have this before */
 		if (ppnt->p_type == PT_INTERP) {	
-			char *pnt, *pnt1;
+			int readsize = 0;
+			char *pnt, *pnt1, buf[1024];
 			tpnt->libname = _dl_strdup((char *) ppnt->p_offset +
 					(auxvt[AT_PHDR].a_un.a_val & 0xfffff000));
+			
+			/* Determine if the shared lib loader is a symlink */
+			_dl_memset(buf, 0, sizeof(buf));
+			readsize = _dl_readlink(tpnt->libname, buf, sizeof(buf));
+			if (readsize > 0 && readsize < sizeof(buf)-1) {
+				pnt1 = _dl_strrchr(buf, '/');
+				if (pnt1 && buf != pnt1) {
+#ifdef DL_DEBUG
+					_dl_dprintf(2, "changing tpnt->libname from '%s' to '%s'\n", tpnt->libname, buf);
+#endif
+					tpnt->libname = _dl_strdup(buf);
+				}
+			}
 
 			/* Store the path where the shared lib loader was found for 
 			 * later use */
