@@ -27,7 +27,7 @@ include $(TOPDIR)Rules.mak
 MSRC1=  wchar.c
 MOBJ1=  btowc.o wctob.o mbsinit.o mbrlen.o mbrtowc.o wcrtomb.o mbsrtowcs.o \
 	wcsrtombs.o _wchar_utf8sntowcs.o _wchar_wcsntoutf8s.o \
-	__mbsnrtowcs.o __wcsnrtombs.o
+	__mbsnrtowcs.o __wcsnrtombs.o wcwidth.o wcswidth.o
 
 MSRC2=  wstdio.c
 MOBJ2=  fwide.o \

@@ -72,6 +72,13 @@
  *
  * Forgot to change btowc and wctob when I changed the wc<->mb functions yesterday.
  *
+ * Nov 7, 2002
+ *
+ * Add wcwidth and wcswidth, based on Markus Kuhn's wcwidth of 2002-05-08.
+ *   Added some size/speed optimizations and integrated it into my locale
+ *   framework.  Minimally tested at the moment, but the stub C-locale
+ *   version (which most people would probably be using) should be fine.
+ *
  * Manuel
  */
 
@@ -811,6 +818,252 @@ size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 		*src = (const wchar_t *) s;
 	}
 	return len - count;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_wcswidth
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning if we start doing translit, wcwidth and wcswidth will need updating.
+#endif
+
+#if defined(__UCLIBC_HAS_LOCALE__) && \
+( defined(__CTYPE_HAS_8_BIT_LOCALES) || defined(__CTYPE_HAS_UTF_8_LOCALES) )
+
+static const unsigned char new_idx[] = {
+	0,    5,    5,    6,   10,   15,   28,   39, 
+	48,   48,   71,   94,  113,  128,  139,  154, 
+	175,  186,  188,  188,  188,  188,  188,  188, 
+	203,  208,  208,  208,  208,  208,  208,  208, 
+	208,  219,  219,  219,  222,  222,  222,  222, 
+	222,  222,  222,  222,  222,  222,  222,  224, 
+	224,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  231,  231,  231, 
+	231,  231,  231,  231,  231,  233,  233,  233, 
+	233,  233,  233,  233,  234,  234,  234,  234, 
+	234,  234,  234,  234,  234,  234,  234,  234, 
+	234,  234,  234,  234,  234,  234,  234,  234, 
+	234,  234,  234,  234,  234,  234,  234,  234, 
+	234,  234,  234,  234,  234,  234,  234,  234, 
+	234,  234,  234,  234,  234,  234,  234,  234, 
+	236,  236,  236,  236,  236,  236,  236,  236, 
+	236,  236,  236,  236,  236,  236,  236,  236, 
+	236,  236,  236,  236,  236,  236,  236,  236, 
+	236,  236,  236,  236,  236,  236,  236,  236, 
+	236,  237,  237,  238,  241,  241,  242,  249, 
+	255, 
+};
+
+static const unsigned char new_tbl[] = {
+	0x00, 0x01, 0x20, 0x7f, 0xa0, 0x00, 0x00, 0x50, 
+	0x60, 0x70, 0x00, 0x83, 0x87, 0x88, 0x8a, 0x00, 
+	0x91, 0xa2, 0xa3, 0xba, 0xbb, 0xbe, 0xbf, 0xc0, 
+	0xc1, 0xc3, 0xc4, 0xc5, 0x00, 0x4b, 0x56, 0x70, 
+	0x71, 0xd6, 0xe5, 0xe7, 0xe9, 0xea, 0xee, 0x00, 
+	0x0f, 0x10, 0x11, 0x12, 0x30, 0x4b, 0xa6, 0xb1, 
+	0x00, 0x01, 0x03, 0x3c, 0x3d, 0x41, 0x49, 0x4d, 
+	0x4e, 0x51, 0x55, 0x62, 0x64, 0x81, 0x82, 0xbc, 
+	0xbd, 0xc1, 0xc5, 0xcd, 0xce, 0xe2, 0xe4, 0x00, 
+	0x02, 0x03, 0x3c, 0x3d, 0x41, 0x43, 0x47, 0x49, 
+	0x4b, 0x4e, 0x70, 0x72, 0x81, 0x83, 0xbc, 0xbd, 
+	0xc1, 0xc6, 0xc7, 0xc9, 0xcd, 0xce, 0x00, 0x01, 
+	0x02, 0x3c, 0x3d, 0x3f, 0x40, 0x41, 0x44, 0x4d, 
+	0x4e, 0x56, 0x57, 0x82, 0x83, 0xc0, 0xc1, 0xcd, 
+	0xce, 0x00, 0x3e, 0x41, 0x46, 0x49, 0x4a, 0x4e, 
+	0x55, 0x57, 0xbf, 0xc0, 0xc6, 0xc7, 0xcc, 0xce, 
+	0x00, 0x41, 0x44, 0x4d, 0x4e, 0xca, 0xcb, 0xd2, 
+	0xd5, 0xd6, 0xd7, 0x00, 0x31, 0x32, 0x34, 0x3b, 
+	0x47, 0x4f, 0xb1, 0xb2, 0xb4, 0xba, 0xbb, 0xbd, 
+	0xc8, 0xce, 0x00, 0x18, 0x1a, 0x35, 0x36, 0x37, 
+	0x38, 0x39, 0x3a, 0x71, 0x7f, 0x80, 0x85, 0x86, 
+	0x88, 0x90, 0x98, 0x99, 0xbd, 0xc6, 0xc7, 0x00, 
+	0x2d, 0x31, 0x32, 0x33, 0x36, 0x38, 0x39, 0x3a, 
+	0x58, 0x5a, 0x00, 0x60, 0x00, 0x12, 0x15, 0x32, 
+	0x35, 0x52, 0x54, 0x72, 0x74, 0xb7, 0xbe, 0xc6, 
+	0xc7, 0xc9, 0xd4, 0x00, 0x0b, 0x0f, 0xa9, 0xaa, 
+	0x00, 0x0b, 0x10, 0x2a, 0x2f, 0x60, 0x64, 0x6a, 
+	0x70, 0xd0, 0xeb, 0x00, 0x29, 0x2b, 0x00, 0x80, 
+	0x00, 0x2a, 0x30, 0x3f, 0x40, 0x99, 0x9b, 0x00, 
+	0xd0, 0x00, 0x00, 0xa4, 0x00, 0x00, 0x00, 0x1e, 
+	0x1f, 0x00, 0x00, 0x10, 0x20, 0x24, 0x30, 0x70, 
+	0xff, 0x00, 0x61, 0xe0, 0xe7, 0xf9, 0xfc, 
+};
+
+static const signed char new_wtbl[] = {
+	0,   -1,    1,   -1,    1,    1,    0,    1, 
+	0,    1,    1,    0,    1,    0,    1,    1, 
+	0,    1,    0,    1,    0,    1,    0,    1, 
+	0,    1,    0,    1,    1,    0,    1,    0, 
+	1,    0,    1,    0,    1,    0,    1,    1, 
+	0,    1,    0,    1,    0,    1,    0,    1, 
+	1,    0,    1,    0,    1,    0,    1,    0, 
+	1,    0,    1,    0,    1,    0,    1,    0, 
+	1,    0,    1,    0,    1,    0,    1,    1, 
+	0,    1,    0,    1,    0,    1,    0,    1, 
+	0,    1,    0,    1,    0,    1,    0,    1, 
+	0,    1,    0,    1,    0,    1,    1,    0, 
+	1,    0,    1,    0,    1,    0,    1,    0, 
+	1,    0,    1,    0,    1,    0,    1,    0, 
+	1,    1,    0,    1,    0,    1,    0,    1, 
+	0,    1,    0,    1,    0,    1,    0,    1, 
+	1,    0,    1,    0,    1,    0,    1,    0, 
+	1,    0,    1,    1,    0,    1,    0,    1, 
+	0,    1,    0,    1,    0,    1,    0,    1, 
+	0,    1,    1,    0,    1,    0,    1,    0, 
+	1,    0,    1,    0,    1,    0,    1,    0, 
+	1,    0,    1,    0,    1,    0,    1,    1, 
+	0,    1,    0,    1,    0,    1,    0,    1, 
+	0,    1,    2,    0,    1,    0,    1,    0, 
+	1,    0,    1,    0,    1,    0,    1,    0, 
+	1,    0,    1,    1,    0,    1,    0,    1, 
+	1,    0,    1,    0,    1,    0,    1,    0, 
+	1,    0,    1,    1,    2,    1,    1,    2, 
+	2,    0,    2,    1,    2,    0,    2,    2, 
+	1,    1,    2,    1,    1,    2,    1,    0, 
+	1,    1,    0,    1,    0,    1,    2,    1, 
+	0,    2,    1,    2,    1,    0,    1, 
+};
+
+int wcswidth(const wchar_t *pwcs, size_t n)
+{
+    int h, l, m, count;
+    wchar_t wc;
+    unsigned char b;
+
+	if (ENCODING == __ctype_encoding_7_bit) {
+		size_t i;
+		
+		for (i = 0 ; (i < n) && pwcs[i] ; i++) {
+			if (pwcs[i] != ((unsigned char)(pwcs[i]))) {
+				return -1;
+			}
+		}
+	}
+#ifdef __CTYPE_HAS_8_BIT_LOCALES
+	else if (ENCODING == __ctype_encoding_8_bit) {
+		mbstate_t mbstate;
+
+		mbstate.mask = 0;			/* Initialize the mbstate. */
+		if (__wcsnrtombs(NULL, &pwcs, n, SIZE_MAX, &mbstate) == ((size_t) - 1)) {
+			return -1;
+		}
+	}
+#endif /* __CTYPE_HAS_8_BIT_LOCALES */
+#if defined(__CTYPE_HAS_UTF_8_LOCALES) && defined(KUHN)
+	/* For stricter handling of allowed unicode values... see comments above. */
+	else if (ENCODING == __ctype_encoding_utf8) {
+		size_t i;
+		
+		for (i = 0 ; (i < n) && pwcs[i] ; i++) {
+			if ( (((__uwchar_t)((pwcs[i]) - 0xfffeU)) < 2)
+				 || (((__uwchar_t)((pwcs[i]) - 0xd800U)) < (0xe000U - 0xd800U))
+				) {
+				return -1;
+			}
+		}
+	}
+#endif /* __CTYPE_HAS_UTF_8_LOCALES */
+
+    for (count = 0 ; n && (wc = *pwcs++) ; n--) {
+		if (wc <= 0xff) {
+			/* If we're here, wc != 0. */
+			if ((wc < 32) || ((wc >= 0x7f) && (wc < 0xa0))) {
+				return -1;
+			}
+			++count;
+			continue;
+		}
+		if (((unsigned int) wc) <= 0xffff) {
+			b = wc & 0xff;
+			h = (wc >> 8);
+			l = new_idx[h];
+			h = new_idx[h+1];
+			while ((m = (l+h) >> 1) != l) {
+				if (b >= new_tbl[m]) {
+					l = m;
+				} else {		/* wc < tbl[m] */
+					h = m;
+				}
+			}
+			count += new_wtbl[l]; /* none should be -1. */
+			continue;
+		}
+
+		/* Redo this to minimize average number of compares?*/
+		if (wc >= 0x1d167) {
+			if (wc <= 0x1d1ad) {
+				if ((wc <= 0x1d169
+					 || (wc >= 0x1d173
+						 && (wc <= 0x1d182
+							 || (wc >= 0x1d185
+								 && (wc <= 0x1d18b
+									 || (wc >= 0x1d1aa))))))
+					) {
+					continue;
+				}
+			} else if (((wc >= 0xe0020) && (wc <= 0xe007f)) || (wc == 0xe0001)) {
+				continue;
+			} else if ((wc >= 0x20000) && (wc <= 0x2ffff)) {
+				++count;		/* need 2.. add one here */
+			}
+#if (WCHAR_MAX > 0x7fffffffL)
+			else if (wc > 0x7fffffffL) {
+				return -1;
+			}
+#endif /* (WCHAR_MAX > 0x7fffffffL) */
+		}
+
+		++count;
+    }
+
+    return count;
+}
+
+#else  /*  __UCLIBC_HAS_LOCALE__ */
+
+int wcswidth(const wchar_t *pwcs, size_t n)
+{
+	int count;
+	wchar_t wc;
+
+    for (count = 0 ; n && (wc = *pwcs++) ; n--) {
+		if (wc <= 0xff) {
+			/* If we're here, wc != 0. */
+			if ((wc < 32) || ((wc >= 0x7f) && (wc < 0xa0))) {
+				return -1;
+			}
+			++count;
+			continue;
+		} else {
+			return -1;
+		}
+	}
+
+	return count;
+}
+
+#endif /*  __UCLIBC_HAS_LOCALE__ */
+
+#endif
+/**********************************************************************/
+#ifdef L_wcwidth
+
+int wcwidth(wchar_t wc)
+{
+    return wcswidth(&wc, 1);
 }
 
 #endif
