@@ -48,7 +48,7 @@ all: $(STR_SYSCALLS) $(OBJ) $(LIBC)
 
 $(LIBC): ar-target
 
-ar-target: $(OBJ) crti.o crtn.o
+ar-target: $(OBJ) $(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJ)
 
 $(MOBJ): $(MSRC)
@@ -67,10 +67,16 @@ crti.S crtn.S: initfini.s
 
 crti.o: crti.S
 	$(CC) $(SAFECFLAGS) -c crti.S -o crti.o
+
+$(TOPDIR)lib/crti.o: crti.o
+	mkdir -p $(TOPDIR)lib/
 	cp crti.o $(TOPDIR)lib/
 
 crtn.o: crtn.S
 	$(CC) $(SAFECFLAGS) -c crtn.S -o crtn.o
+
+$(TOPDIR)lib/crtn.o: crtn.o
+	mkdir -p $(TOPDIR)lib/
 	cp crtn.o $(TOPDIR)lib/
 
 clean:
