@@ -35,7 +35,9 @@ ifeq ($(HAS_LONG_LONG),true)
 endif
 
 MSRC=stdio.c
-MOBJ=_stdio_init.o _stdio_buffer.o  clearerr.o feof.o ferror.o fileno.o \
+MOBJ=_stdio_init.o \
+     _alloc_stdio_buffer.o _free_stdio_buffer.o _free_stdio_stream.o \
+     clearerr.o feof.o ferror.o fileno.o \
      setbuffer.o setvbuf.o setbuf.o setlinebuf.o \
      fclose.o _fopen.o fopen.o freopen.o fdopen.o fflush.o \
      fseek.o rewind.o ftell.o fgetpos.o fsetpos.o \

@@ -49,7 +49,7 @@ extern void _free_stdio_buffer(unsigned char *buf);
 extern void _free_stdio_stream(FILE *fp);
 #endif
 
-#ifdef L__stdio_buffer
+#ifdef L__alloc_stdio_buffer
 unsigned char *_alloc_stdio_buffer(size_t size)
 {
 	if (size == BUFSIZ) {
@@ -63,7 +63,9 @@ unsigned char *_alloc_stdio_buffer(size_t size)
 	}
 	return malloc(size);
 }
+#endif
 
+#ifdef L__free_stdio_buffer
 void _free_stdio_buffer(unsigned char *buf)
 {
 	int i;
@@ -117,8 +119,10 @@ FILE *_stderr = _stdio_streams + 2;
  */
 FILE *__IO_list = _stdio_streams;			/* For fflush at exit */
 
-/* Call the stdio initiliser; it's main job it to call atexit */
-
+/*
+ * __stdio_close_all is automatically when exiting if stdio is used.
+ * See misc/internals/__uClibc_main.c and and stdlib/atexit.c.
+ */
 void __stdio_close_all(void)
 {
 	FILE *fp;
@@ -129,6 +133,9 @@ void __stdio_close_all(void)
 	}
 }
 
+/*
+ * __init_stdio is automatically by __uClibc_main if stdio is used.
+ */
 void __init_stdio(void)
 {
 #if (FIXED_BUFFERS > 2) || (FIXED_STREAMS > 3)
@@ -148,12 +155,13 @@ void __init_stdio(void)
 	_fixed_buffers[0].used = 1;
 	_fixed_buffers[1].used = 1;
 
-	if (isatty(1)) {
-		stdout->mode |= _IOLBF;
-	}
+#if _IOFBF != 0 || _IOLBF != 1
+#error Assumption violated -- values of _IOFBF and/or _IOLBF
+/* This asssumption is also made in _fopen. */
+#endif
 
-	/* Cleanup is now taken care of in __uClibc_main. */
-	/* atexit(__stdio_close_all); */
+	/* stdout uses line buffering when connected to a tty. */
+	_stdio_streams[1].mode |= isatty(1);
 }
 #endif
 
@@ -206,9 +214,18 @@ FILE *fp;
 	if (fp->mode & __MODE_WRITING)
 		fflush(fp);
 
+#if 1
+#warning Need to check out tie between stdin and stdout.
+	/*
+	 * This bit of code needs checking.  The way I read the C89 standard,
+	 * there is no guarantee that stdout is flushed before reading stdin.
+	 * Plus, this is broken if either stdin or stdout has been closed and
+	 * reopend.
+	 */
 	if ( (fp == stdin) && (stdout->fd != -1) 
 		 && (stdout->mode & __MODE_WRITING) ) 
 	    fflush(stdout);
+#endif
 
 	/* Can't read or there's been an EOF or error then return EOF */
 	if ((fp->mode & (__MODE_READ | __MODE_EOF | __MODE_ERR)) !=
@@ -572,32 +589,32 @@ const char *mode;
 	int fopen_mode;
 	int i;
 
-	fopen_mode = 0;
+	nfp = fp;
 
-	/* If we've got an fp close the old one (freopen) */
-	if (fp) {					/* We don't want to deallocate fp. */
-		fopen_mode |=
-			(fp->mode & (__MODE_BUF | __MODE_FREEFIL | __MODE_FREEBUF));
-		fp->mode &= ~(__MODE_FREEFIL | __MODE_FREEBUF);
-		fclose(fp);
+	/* If we've got an fp, flush it and close the old fd (freopen) */
+	if (nfp) {					/* We don't want to deallocate fp. */
+		fflush(nfp);
+		close(nfp->fd);
+		nfp->mode &= (__MODE_FREEFIL | __MODE_FREEBUF);
 	}
 
-	/* decode the new open mode */
+	/* Parse the mode string arg. */
 	switch (*mode++) {
 		case 'r':				/* read */
-			fopen_mode |= __MODE_READ;
+			fopen_mode = __MODE_READ;
 			open_mode = O_RDONLY;
 			break;
 		case 'w':				/* write (create or truncate)*/
-			fopen_mode |= __MODE_WRITE;
+			fopen_mode = __MODE_WRITE;
 			open_mode = (O_WRONLY | O_CREAT | O_TRUNC);
 			break;
 		case 'a':				/* write (create or append) */
-			fopen_mode |= __MODE_WRITE;
+			fopen_mode = __MODE_WRITE;
 			open_mode = (O_WRONLY | O_CREAT | O_APPEND);
 			break;
 		default:				/* illegal mode */
-			return 0;
+			errno = EINVAL;
+			goto _fopen_ERROR;
 	}
 
 	if ((*mode == 'b')) {		/* binary mode (nop for uClibc) */
@@ -618,7 +635,6 @@ const char *mode;
 		++mode;
 	}
 
-	nfp = 0;
 	if (fp == 0) {				/* We need a FILE so allocate it before */
 		for (i = 0; i < FIXED_STREAMS; i++) { /* we potentially call open. */
 			if (_stdio_streams[i].fd == -1) {
@@ -629,46 +645,46 @@ const char *mode;
 		if ((i == FIXED_STREAMS) && (!(nfp = malloc(sizeof(FILE))))) {
 			return 0;
 		}
+		nfp->mode = __MODE_FREEFIL;
+		/* Initially set to use 8 byte buffer in FILE structure */
+		nfp->bufstart = nfp->unbuf;
+		nfp->bufend = nfp->unbuf + sizeof(nfp->unbuf);
 	}
-
 
 	if (fname) {				/* Open the file itself */
 		fd = open(fname, open_mode, 0666);
 	}
-	if (fd < 0) {				/* Error from open or bad arg. */
+#warning fdopen should check that modes are compatible with existing fd.
+
+	if (fd < 0) {				/* Error from open or bad arg passed. */
+	_fopen_ERROR:
 		if (nfp) {
+			if (nfp->mode & __MODE_FREEBUF) {
+				_free_stdio_buffer(nfp->bufstart);
+			}
 			_free_stdio_stream(nfp);
 		}
 		return 0;
 	}
 
-	if (fp == 0) {				/* Not freopen so... */
-		fp = nfp;				/* use newly created FILE and */
-		fp->next = __IO_list;	/* add it to the list of open files. */
-		__IO_list = fp;
+	nfp->fd = fd;				/* Set FILE's fd before adding to open list. */
 
-		fp->mode = __MODE_FREEFIL;
-		if (!(fp->bufstart = _alloc_stdio_buffer(BUFSIZ))) {
-			/* Allocation failed so use 8 byte buffer in FILE structure */
-			fp->bufstart = fp->unbuf;
-			fp->bufend = fp->unbuf + sizeof(fp->unbuf);
-		} else {
-			fp->bufend = fp->bufstart + BUFSIZ;
-			fp->mode |= __MODE_FREEBUF;
+	if (fp == 0) {				/* Not freopen so... */
+		nfp->next = __IO_list;	/* use newly created FILE and */
+		__IO_list = nfp;		/* add it to the list of open files. */
+
+		if ((nfp->bufstart = _alloc_stdio_buffer(BUFSIZ)) != 0) {
+			nfp->bufend = nfp->bufstart + BUFSIZ;
+			nfp->mode |= __MODE_FREEBUF;
 		}
 	}
 
-	if (isatty(fd)) {
-		fp->mode |= _IOLBF;
-	} else {					/* Note: the following should be optimized */
-		fp->mode |= _IOFBF;		/* away since we should have _IOFBF = 0. */
-	}
-
 	/* Ok, file's ready clear the buffer and save important bits */
-	fp->bufpos = fp->bufread = fp->bufwrite = fp->bufstart;
-	fp->mode |= fopen_mode;
-	fp->fd = fd;
-	return fp;
+	nfp->bufpos = nfp->bufread = nfp->bufwrite = nfp->bufstart;
+	nfp->mode |= fopen_mode;
+	nfp->mode |= isatty(fd);
+
+	return nfp;
 }
 #endif
 
@@ -688,33 +704,38 @@ FILE *fp;
 		rv = EOF;
 	}
 
-	if (fp->mode & __MODE_FREEBUF) {
+	if (fp->mode & __MODE_FREEBUF) { /* Free buffer if necessary. */
 		_free_stdio_buffer(fp->bufstart);
 	}
 
-	if (fp->mode & __MODE_FREEFIL) {
-		prev = 0;
-		for (ptr = __IO_list; ptr ; ptr = ptr->next) {
-			if (ptr == fp) {
-				if (prev == 0) {
-					__IO_list = fp->next;
-				} else {
-					prev->next = fp->next;
-				}
-				_free_stdio_stream(fp);
-				break;
+	prev = 0;					/* Remove file from open list. */
+	for (ptr = __IO_list; ptr ; ptr = ptr->next) {
+		if (ptr == fp) {
+			if (prev == 0) {
+				__IO_list = fp->next;
+			} else {
+				prev->next = fp->next;
 			}
-			prev = ptr;
+			break;
 		}
+		prev = ptr;
 	}
+
+	_free_stdio_stream(fp);		/* Finally free the stream if necessary. */
 
 	return rv;
 }
+#endif
 
-/* The following is only called by fclose and _fopen (which calls fclose) */
+#ifdef L__free_stdio_stream
+/* The following is only called by fclose and _fopen. */
 void _free_stdio_stream(FILE *fp)
 {
 	int i;
+	
+	if (!(fp->mode & __MODE_FREEFIL)) {
+		return;
+	}
 
 	for (i = 0; i < FIXED_STREAMS; i++) {
 		if (fp == _stdio_streams + i) {
