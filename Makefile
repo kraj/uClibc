@@ -32,10 +32,6 @@ include Rules.mak
 
 DIRS = extra ldso libc libcrypt libresolv libutil libm  
 
-ifndef $(TARGET_PREFIX)
-	TARGET_PREFIX = `pwd`/_install
-endif
-
 all: headers uClibc_config.h subdirs $(DO_SHARED) done
 
 Config:
@@ -64,12 +60,12 @@ done: $(DO_SHARED)
 headers: dummy
 	@rm -f include/asm include/linux include/bits
 	@if [ $(TARGET_ARCH) = "powerpc" ];then \
-	    ln -s $(KERNEL_SOURCE)/include/asm-ppc include/asm; \
+	    ln -fs $(KERNEL_SOURCE)/include/asm-ppc include/asm; \
 	else \
 	    if [ $(HAS_MMU) != "true" ]; then \
-			ln -s $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu include/asm;\
+			ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu include/asm;\
 		else \
-			ln -s $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
+			ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
 		fi; \
 	fi;
 	@if [ ! -f include/asm/unistd.h ] ; then \
@@ -86,8 +82,8 @@ headers: dummy
 	    echo " "; \
 	    sleep 10; \
 	fi;
-	@ln -s $(KERNEL_SOURCE)/include/linux include/linux
-	@ln -s ../libc/sysdeps/linux/$(TARGET_ARCH)/bits include/bits
+	@ln -fs $(KERNEL_SOURCE)/include/linux include/linux
+	@ln -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/bits include/bits
 	(cd include/bits; ln -sf ../../../../../uClibc_config.h uClibc_config.h)
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
@@ -173,54 +169,70 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 tags:
 	ctags -R
 
-install: install_dev
+install: install_dev install_runtime install_gcc
 
-# Installs shared libraries for a target.
+# install_target:
+# Installs run-time libraries and helper apps (ldconfig) to the
+# locations that one would expect on a host that is running uClibc
+# as the primary libc.  TARGET_PREFIX is the location of the root
+# directory.
 install_target:
 ifeq ($(DO_SHARED),shared)
-	install -d $(TARGET_PREFIX)$(ROOT_DIR)/lib
-	cp -fa lib/*.so* $(TARGET_PREFIX)$(ROOT_DIR)/lib;
-	install -d $(TARGET_PREFIX)$(ROOT_DIR)/etc
-	install -d $(TARGET_PREFIX)$(ROOT_DIR)/sbin
-	install -d $(TARGET_PREFIX)$(ROOT_DIR)/usr/bin
-	cp -f ldso/util/ldd $(TARGET_PREFIX)$(ROOT_DIR)/usr/bin
-	cp -f ldso/util/ldconfig $(TARGET_PREFIX)$(ROOT_DIR)/sbin
+	install -d $(TARGET_PREFIX)/lib
+	install -d $(TARGET_PREFIX)/etc
+	install -d $(TARGET_PREFIX)/sbin
+	install -d $(TARGET_PREFIX)/usr/bin
+	install -m 644 lib/lib*-0.9.5.so $(TARGET_PREFIX)/lib
+	cp -a lib/*.so.* $(TARGET_PREFIX)/lib
+ifeq ($(LDSO_PRESENT),$(TARGET_ARCH))
+	install -m 755 lib/ld-uClibc-0.9.5.so $(TARGET_PREFIX)/lib
+	install -m 755 ldso/util/ldd $(TARGET_PREFIX)/usr/bin
+	install -m 755 ldso/util/ldconfig $(TARGET_PREFIX)/sbin
+endif
 ifeq ($(NATIVE_ARCH), $(TARGET_ARCH))
-	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
+#	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
 endif
 endif
 
-# Installs development library and headers
-# This is done with the assumption that it can blow away anything
-# in $(DEVEL_PREFIX)$(ROOT_DIR)/include.  Probably true only if you're using
-# a packaging system.
-install_dev:
-	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/lib
-	cp -fa lib/*.[ao] $(DEVEL_PREFIX)$(ROOT_DIR)/usr/lib;
+# install_runtime:
+# Installs run-time libraries and helper apps (ldconfig) to the
+# locations one would expect on a host that is running a different
+# libary as the primary libc.
+install_runtime:
 ifeq ($(DO_SHARED),shared)
-	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/lib
-	cp -fa lib/*.so* $(DEVEL_PREFIX)$(ROOT_DIR)/lib;
-	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/etc
-	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/sbin
-	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/bin
-	cp -f ldso/util/ldd $(DEVEL_PREFIX)$(ROOT_DIR)/usr/bin
-	cp -f ldso/util/ldconfig $(DEVEL_PREFIX)$(ROOT_DIR)/sbin
+	install -d $(DEVEL_PREFIX)/lib
+	install -d $(DEVEL_PREFIX)/etc
+	install -d $(DEVEL_PREFIX)/bin
+	install -m 644 lib/lib*-0.9.5.so $(DEVEL_PREFIX)/lib
+	cp -a lib/*.so.* $(DEVEL_PREFIX)/lib
+ifeq ($(LDSO_PRESENT),$(TARGET_ARCH))
+	install -m 755 lib/ld-uClibc-0.9.5.so $(DEVEL_PREFIX)/lib
+	install -m 755 ldso/util/ldd $(DEVEL_PREFIX)/bin
+	install -m 755 ldso/util/ldconfig $(DEVEL_PREFIX)/bin
+	install -d $(PREFIX)/bin
+	ln -fs $(DEVEL_PREFIX)/bin/ldd $(PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
+	install -d $(PREFIX)/sbin
+	ln -fs $(DEVEL_PREFIX)/sbin/ldconfig $(PREFIX)/sbin/$(TARGET_ARCH)-uclibc-ldconfig
+endif
+endif
+
+# install_dev:
+# Installs header files and development library links.
+# DEVEL_PREFIX should be $(PREFIX)/$(target)-linux-uclibc/
+install_dev:
+	install -d $(DEVEL_PREFIX)/lib
+	install -m 644 lib/*.[ao] $(DEVEL_PREFIX)/lib/
+ifeq ($(DO_SHARED),shared)
+	find lib/ -type l -name '*.so' -exec cp -a {} $(DEVEL_PREFIX)/lib ';'
 ifeq ($(NATIVE_ARCH), $(TARGET_ARCH))
-	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
+#	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
 endif
 endif
-	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/etc
-	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include
-	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/bits
-	rm -f $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/asm
-	rm -f $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/linux
-	ln -s $(KERNEL_SOURCE)/include/asm $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/asm
-	ln -s $(KERNEL_SOURCE)/include/linux $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/linux
-	find include/ -type f -depth -not -path "*CVS*" -exec install \
-	    -D -m 644 {} $(DEVEL_PREFIX)$(ROOT_DIR)/usr/'{}' ';'
-	find include/bits/ -type f -depth -not -path "*CVS*" -exec install \
-	    -D -m 644 {} $(DEVEL_PREFIX)$(ROOT_DIR)/usr/'{}' ';'
-	install -m 644 include/bits/uClibc_config.h $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/bits/
+	install -d $(DEVEL_PREFIX)/include
+	find include/ -name '*.h' -depth -follow -exec install \
+	    -D -m 644 {} $(DEVEL_PREFIX)/'{}' ';'
+
+install_gcc:
 	$(MAKE) -C extra/gcc-uClibc install
 
 clean:

@@ -1,20 +1,56 @@
-To build and install the uClibc development environment,
 
-1) cp ./extra/Configs/Config.<your arch> ./Config
-2) Edit ./Config for your setup.
-3) make
-4) make install_dev (as root if necessary, depending on your Config)
+* Configuration:
+
+  cp ./extra/Configs/Config.<target arch> .Config
+
+Then edit ./Config for your setup.  In particular, modify
+CROSS and KERNEL_SOURCE as necessary.  You may also want
+to modify PREFIX if you want to install the development
+environment to /usr/local/ or elsewhere.  By default, the
+development environment is installed into /usr and
+/usr/<arch>-linux-uclibc/.
 
 
-To install the runtime environment,
-   make install_target  (again, as root if necessary)
+* Building:
+
+  make
+
+
+* Installing the development environment:
+
+(As root, if necessary,)
+
+  make install
+
+This will install the header files, libraries, and the gcc
+wrapper into the directories defined in Config.
+
+If you are targetting the same architecture as the host machine,
+you may want to add a link from /lib/ld-uclibc.0 to the location
+where ld-uclibc.0 was installed.  This allows you to run binaries
+compiled against uClibc without contaminating /lib too much.
+
+
+* Installing the target runtime environment:
+
+(As root, if necessary,)
+
+   make TARGET_PREFIX=`pwd`/_install install_target
+
+This installs only the files that are necessary to run binaries
+compiled against uClibc.  Hint: You really don't want to install
+the target runtime environment on the host machine.
+
+
+* Using uClibc:
 
 To compile programs with uClibc,
 
-   export PATH={uClibc DEVEL_PREFIX/ROOT_DIR}/bin:$PATH
+   export PATH={uClibc DEVEL_PREFIX}/bin:$PATH
 
 and then just ./configure and make as usual.
 
 Note: You may also want to look at extra/gcc-uclibc/gcc-uclibc.c for
       additional information concerning what options and environment
       variables the gcc wrapper handles.
+

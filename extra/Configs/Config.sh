@@ -160,23 +160,31 @@ INCLUDE_IPV6 = false
 # If you want to compile the library as PIC code, turn this on.
 DOPIC = false
 
-# ROOT_DIR is the base directory which will be compiled into the uClibc 
-# runtime environment.  When compiled as a shared library, the shared
-# library loader will look in <ROOT_DIR>/lib and <ROOT_DIR>/usr/lib
-# for shared libraries.
+# PREFIX is the directory prefix that is applied to all installed
+# files.  Typically, it is set to /usr or /usr/local, although it
+# could also be /opt/vendor_name_here/some/random/path/.  The
+# install_runtime makefile target installs a few symbolic links
+# based on PREFIX, not DEVEL_PREFIX.
 #
-# DEVEL_PREFIX is the base directory which will be compiled into the uClibc 
-# development environment.  The uClibc development environment will
-# look for the uClibc header files under <DEVEL_PREFIX><ROOT_DIR>/usr/include,
-# and for static libs and crt0.o in <DEVEL_PREFIX><ROOT_DIR>/usr/lib.
-# Also, 'make install' will install the compiler tools to 
-# <DEVEL_PREFIX><ROOT_DIR>/bin and <DEVEL_PREFIX><ROOT_DIR>/usr/bin.
-#
-# TARGET_PREFIX is the directory under which 'make install' will install the 
-# uClibc runtime environment.   This path does not get compiled into anything,
-# and is provided simply to make it easier to build standalone target systems.
-# Note: This doesn't do anything if there are no shared libs.
+# DEVEL_PREFIX is the directory into which the development environment
+# will be installed.  Include files are installed into
+# $(DEVEL_PREFIX)/include, libraries into $(DEVEL_PREFIX)/lib, etc.
+# This directory is compiled into the uclibc cross compiler spoofer.
+# Generally, DEVEL_PREFIX should be $(PREFIX)/$(TARGET_ARCH)-uclibc-linux.
+# DEVEL_PREFIX is used by the Makefile install targets install_gcc,
+# install_dev, and install_runtime.
+# 
+# TARGET_PREFIX is the directory into which the target runtime
+# environment is installed.  The target runtime environment is
+# what one would use for a embedded system where uclibc is the
+# native libaray.  This will typically be a staging area for
+# creating a root filesystem for the target system, so the default
+# is in the local directory.
+# 
+# If you want to install to a temporary directory before copying
+# files to their final location, you can change PREFIX after build
+# but before 'make install'.
+PREFIX = /opt/uClinux
+DEVEL_PREFIX = $(PREFIX)/$(TARGET_ARCH)-elf
+TARGET_PREFIX = $(TOPDIR)/_install
 
-DEVEL_PREFIX = 
-ROOT_DIR = /opt/uClinux/$(TARGET_ARCH)-pic-elf
-TARGET_PREFIX = 

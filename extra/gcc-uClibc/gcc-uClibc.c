@@ -78,31 +78,31 @@
 #include "gcc-uClibc.h"
 
 static char *rpath_link[] = {
-	"-Wl,-rpath-link,"UCLIBC_DEVEL_PREFIX UCLIBC_ROOT_DIR"/lib",
+	"-Wl,-rpath-link,"UCLIBC_DEVEL_PREFIX"/lib",
 	"-Wl,-rpath-link,"UCLIBC_BUILD_DIR"/lib"
 };
 
 static char *rpath[] = {
-	"-Wl,-rpath,"UCLIBC_DEVEL_PREFIX UCLIBC_ROOT_DIR"/lib",
+	"-Wl,-rpath,"UCLIBC_DEVEL_PREFIX"/lib",
 	"-Wl,-rpath,"UCLIBC_BUILD_DIR"/lib"
 };
 
 static char *uClibc_inc[] = {
-	"-I"UCLIBC_DEVEL_PREFIX UCLIBC_ROOT_DIR"/usr/include/",
+	"-I"UCLIBC_DEVEL_PREFIX"/include/",
 	"-I"UCLIBC_BUILD_DIR"/include/"
 };
 
 static char *crt0_path[] = {
-	UCLIBC_DEVEL_PREFIX UCLIBC_ROOT_DIR"/usr/lib/crt0.o",
+	UCLIBC_DEVEL_PREFIX"/lib/crt0.o",
 	UCLIBC_BUILD_DIR"/lib/crt0.o"
 };
 
 static char *lib_path[] = {
-	"-L"UCLIBC_DEVEL_PREFIX UCLIBC_ROOT_DIR"/lib",
+	"-L"UCLIBC_DEVEL_PREFIX"/lib",
 	"-L"UCLIBC_BUILD_DIR"/lib"
 };
 
-static char *usr_lib_path = "-L"UCLIBC_DEVEL_PREFIX UCLIBC_ROOT_DIR"/usr/lib";
+static char *usr_lib_path = "-L"UCLIBC_DEVEL_PREFIX"/lib";
 
 static char static_linking[] = "-static";
 static char nostdinc[] = "-nostdinc";

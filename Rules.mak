@@ -30,7 +30,7 @@ MINOR_VERSION=9.5
 LIBNAME=libc.a
 SHARED_FULLNAME=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
 SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION)
-UCLIBC_LDSO=ld-uclibc.so.$(MAJOR_VERSION)
+UCLIBC_LDSO=ld-uClibc.so.$(MAJOR_VERSION)
 LIBC=$(TOPDIR)libc/libc.a
 
 BUILDTIME = $(shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z")
@@ -65,12 +65,14 @@ else
     TARGET_LDFLAGS = --uclibc-use-build-dir -s -Wl,-warn-common
 endif
 ifeq ($(strip $(DOPIC)),true)
-    CFLAGS += -fPIC -D__PIC__
+    CFLAGS += -fPIC
 endif
 
 
-ifndef $(PREFIX)
-    PREFIX = `pwd`/_install
+ifndef PREFIX
+    PREFIX = `pwd`/_install/
+    DEVEL_PREFIX = $(PREFIX)
+    TARGET_PREFIX = $(PREFIX)
 endif
 
 NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g')
@@ -90,10 +92,12 @@ endif
 
 ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
 	LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
-	DYNAMIC_LINKER=$(ROOT_DIR)/lib/$(UCLIBC_LDSO)
+	DYNAMIC_LINKER=/lib/$(UCLIBC_LDSO)
+	BUILD_DYNAMIC_LINKER=$(shell cd $(TOPDIR)lib; pwd)/$(UCLIBC_LDSO)
 else
 	LDSO=$(SYSTEM_LDSO)
 	DYNAMIC_LINKER=$(SYSTEM_LDSO)
+	BUILD_DYNAMIC_LINKER=$(shell cd $(TOPDIR)lib; pwd)/$(UCLIBC_LDSO)
 endif
 
 # Disable libm if HAS_FLOATING_POINT isn't true.
