@@ -4,14 +4,14 @@ Fix regex so it isn't so stinking big
 Fix glob so it isn't so stinking big
 Integrate Jeff Garzik's key-value reading code for pwd/grp, /etc/hosts, etc
 Get the powerpc port of the shared lib loader working
+Sync up powerpc/mips/etc with the current header files.
 Finish sparc port
-Standardize the style of the header files.
 Documentation
 Better configuration system
 run 'nm -D --size-sort -t d libuClibc-0.9.5.so' and work on the biggest things 
     (i.e. stuff at the end of the list) to make them smaller.
 make inb/outb work (for lilo et all)
-	update: done for i386.  lilo and the pcmcia tools compile cleanly now
+	update: done for i386 and arm.  lilo and the pcmcia tools compile cleanly now
 include/resolv.h does not define struct _res, and libc/inet/resolv.c
     does not use this struct.  res_init does nothing.  the other res_* 
     functions are not implemented.
