@@ -35,7 +35,7 @@
 # will build uClibc for 'arm'.
 
 ifndef CROSS
-CROSS=
+CROSS=/mnt/src/jocke/bb5/buildroot/build_powerpc_nofpu/staging_dir/bin/powerpc-linux-uclibc-
 endif
 CC= $(CROSS)gcc
 AR= $(CROSS)ar
@@ -88,14 +88,7 @@ export RUNTIME_PREFIX DEVEL_PREFIX
 ARFLAGS:=r
 
 OPTIMIZATION:=
-
-# PowerPC can hold 8192 entries in its GOT with -fpic which is more than enough. Therefore use
-# -fpic which will reduce code size and generates faster code.
-ifeq ($(strip $(TARGET_ARCH)),powerpc)
-	PICFLAG:=-fpic
-else
-	PICFLAG:=-fPIC
-endif
+PICFLAG:=-fPIC
 
 # Some nice CPU specific optimizations
 ifeq ($(strip $(TARGET_ARCH)),i386)
@@ -178,7 +171,14 @@ endif
 ifeq ($(strip $(TARGET_ARCH)),cris)
 	CPU_LDFLAGS-$(CONFIG_CRIS)+=-mcrislinux
 	CPU_CFLAGS-$(CONFIG_CRIS)+=-mlinux
-	PICFLAG=-fpic
+	PICFLAG:=-fpic
+endif
+
+ifeq ($(strip $(TARGET_ARCH)),powerpc)
+# PowerPC can hold 8192 entries in its GOT with -fpic which is more than
+# enough. Therefore use -fpic which will reduce code size and generates
+# faster code.
+	PICFLAG:=-fpic
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),frv)
