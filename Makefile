@@ -186,7 +186,7 @@ uClibc_config.h: Config
 	@echo "#error Never include <bits/uClibc_config.h> directly; use <features.h> instead." >> uClibc_config.h
 	@echo "#endif" >> uClibc_config.h
 	@echo "#define linux 1" >> uClibc_config.h 
-	@echo "#define __linux_ 1" >> uClibc_config.h 
+	@echo "#define __linux__ 1" >> uClibc_config.h 
 	@if [ "$(HAS_MMU)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAS_MMU__ 1" >> uClibc_config.h ; \
 	else \
