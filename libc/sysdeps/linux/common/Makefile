@@ -44,7 +44,7 @@ SAFECFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) -fno-built
 # on SH4 addition of -g kills the initfini stuff, removed here for all
 # platforms as I suspect no one want initfini compiled -g :-) - davidm
 #
-SAFECFLAGS := $(subst -g,,$(SAFECFLAGS))
+SAFECFLAGS := $(filter-out -g,$(SAFECFLAGS))
 ifeq ($(strip $(DOPIC)),y)
 SAFECFLAGS+=$(PICFLAG)
 endif

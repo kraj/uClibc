@@ -57,7 +57,7 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 ifeq ($(strip $(UCLIBC_PROFILING)),y)
-SAFECFLAGS := $(subst -g,,$(CFLAGS))
+SAFECFLAGS := $(filter-out -g,$(CFLAGS))
 gmon-start.S: ../common/gmon-start.c
 	$(CC) $(SAFECFLAGS) -c $< -S -o $*.S
 gcrt1.o: $(CRT0_DEPS)
