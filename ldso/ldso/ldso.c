@@ -659,10 +659,16 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	tpnt->libtype = program_interpreter;
 	tpnt->loadaddr = (char *) load_addr;
 
-	INIT_GOT(lpnt, tpnt);
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	_dl_dprintf(_dl_debug_file, "GOT found at %x\n", lpnt);
+#ifdef ALLOW_ZERO_PLTGOT
+	if (tpnt->dynamic_info[DT_PLTGOT])
 #endif
+	{
+		INIT_GOT(lpnt, tpnt);
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+		_dl_dprintf(_dl_debug_file, "GOT found at %x\n", lpnt);
+#endif
+	}
+
 	/* OK, this was a big step, now we need to scan all of the user images
 	   and load them properly. */
 
@@ -859,7 +865,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	
 	
 #endif	
-	_dl_trace_loaded_objects = _dl_getenv("__LDSO_LDD_SUPPORT___LOADED_OBJECTS", envp);
+	_dl_trace_loaded_objects = _dl_getenv("LD_TRACE_LOADED_OBJECTS", envp);
 #ifndef __LDSO_LDD_SUPPORT__
 	if (_dl_trace_loaded_objects) {
 		_dl_dprintf(_dl_debug_file, "Use the ldd provided by uClibc\n");

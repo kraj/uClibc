@@ -573,6 +573,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	   back again later. */
 
 	if (dynamic_info[DT_TEXTREL]) {
+#ifdef DO_MPROTECT_HACKS
 		ppnt = (elf_phdr *)(intptr_t) & header[epnt->e_phoff];
 		for (i = 0; i < epnt->e_phnum; i++, ppnt++) {
 			if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
@@ -581,6 +582,10 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 					(ppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) ppnt->p_filesz, 
 					PROT_READ | PROT_WRITE | PROT_EXEC);
 		}
+#else
+		_dl_dprintf(_dl_debug_file, "Can't modify %s's text section. Use GCC option -fPIC for shared objects, please.\n",libname);
+		_dl_exit(1);
+#endif		
 	}
 
 	tpnt = _dl_add_elf_hash_table(libname, (char *) libaddr, dynamic_info, 
