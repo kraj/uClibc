@@ -81,7 +81,7 @@ int ptsname_r (int fd, char *buf, size_t buflen)
       return ENOTTY;
     }
 #elif !defined TIOCGPTN
-# error "UNIX98PTY_ONLY requested but TIOCGPTN is undefined."
+# error "UNIX98PTY_ONLY enabled but TIOCGPTN ioctl not supported by your kernel."
 #endif
 #ifdef TIOCGPTN
   if (ioctl (fd, TIOCGPTN, &ptyno) == 0)
