@@ -9,13 +9,6 @@
 #define ELF_USES_RELOCA
 
 /*
- * Get a pointer to the argv array.  On many platforms this can be just
- * the address if the first argument, on other platforms we need to
- * do something a little more subtle here.
- */
-#define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long*) ARGS)+1)
-
-/*
  * Initialization sequence for a GOT.
  */
 #define INIT_GOT(GOT_BASE,MODULE)  _dl_init_got(GOT_BASE,MODULE)
@@ -62,50 +55,6 @@
 #define PPC_ISYNC asm volatile ("sync; isync" : : : "memory")
 #define PPC_ICBI(where) asm volatile ("icbi 0,%0" : : "r"(where) : "memory")
 #define PPC_DIE asm volatile ("tweq 0,0")
-
-/*
- * Here is a macro to perform a relocation.  This is only used when
- * bootstrapping the dynamic loader.  RELP is the relocation that we
- * are performing, REL is the pointer to the address we are relocating.
- * SYMBOL is the symbol involved in the relocation, and LOAD is the
- * load address.
- */
-#define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB) \
-	{int type=ELF32_R_TYPE((RELP)->r_info);		\
-	 Elf32_Addr finaladdr=(SYMBOL)+(RELP)->r_addend;\
-	if (type==R_PPC_RELATIVE) {			\
-		*REL=(Elf32_Word)(LOAD)+(RELP)->r_addend;\
-	} else if (type==R_PPC_JMP_SLOT) {		\
-		Elf32_Sword delta=finaladdr-(Elf32_Word)(REL);\
-		*REL=OPCODE_B(delta);			\
-	} else if (type==R_PPC_ADDR32) {		\
-		*REL=finaladdr;				\
-	} else {					\
-	  _dl_exit(100+ELF32_R_TYPE((RELP)->r_info));	\
-	}						\
-	PPC_DCBST(REL); PPC_SYNC; PPC_ICBI(REL);	\
-	}
-/*
- * Transfer control to the user's application, once the dynamic loader
- * is done.  This routine has to exit the current function, then 
- * call the _dl_elf_main function.
- */
-
-/* hgb@ifi.uio.no:
- * Adding a clobber list consisting of r0 for %1.  addi on PowerPC
- * takes a register as the second argument, but if the register is
- * r0, the value 0 is used instead.  If r0 is used here, the stack
- * pointer (r1) will be zeroed, and the dynamically linked
- * application will seg.fault immediatly when receiving control.
- */
-#define START()		\
-	__asm__ volatile ( \
-		    "addi 1,%1,0\n\t" \
-		    "mtlr %0\n\t" \
-		    "blrl\n\t"	\
-		    : : "r" (_dl_elf_main), "r" (args) \
-		    : "r0")
-
 
 /* Here we define the magic numbers that this dynamic loader should accept */
 
