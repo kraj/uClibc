@@ -53,14 +53,14 @@ HOSTCFLAGS=-O2 -Wall
 
 
 #--------------------------------------------------------
-# Nothing beyond this point should ever be touched by mere mortals.  
+# Nothing beyond this point should ever be touched by mere mortals.
 # Unless you hang out with the gods, you should probably leave all
 # this stuff alone.
 MAJOR_VERSION:=0
 MINOR_VERSION:=9
-SUBLEVEL:=24
+SUBLEVEL:=25
 VERSION:=$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
-# Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc. 
+# Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc.
 LC_ALL:= C
 export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_ALL
 
@@ -117,7 +117,7 @@ ifeq ($(strip $(TARGET_ARCH)),arm)
 	CPU_CFLAGS-$(CONFIG_GENERIC_ARM)+=
 	CPU_CFLAGS-$(CONFIG_ARM610)+=-mtune=arm610 -march=armv3
 	CPU_CFLAGS-$(CONFIG_ARM710)+=-mtune=arm710 -march=armv3
-	CPU_CFLAGS-$(CONFIG_ARM720T)+=-mtune=arm7tdmi -march=armv4 
+	CPU_CFLAGS-$(CONFIG_ARM720T)+=-mtune=arm7tdmi -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM920T)+=-mtune=arm9tdmi -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM922T)+=-mtune=arm9tdmi -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM926T)+=-mtune=arm9tdmi -march=armv4
