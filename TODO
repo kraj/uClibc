@@ -6,8 +6,6 @@ On ARM, the kernel fp math emulator uses a funky byte ordering
 Fix regex so it isn't so stinking big
 Fix glob so it isn't so stinking big
 Integrate Jeff Garzik's key-value reading code for pwd/grp, /etc/hosts, etc
-Get the powerpc port of the shared lib loader working
-Sync up powerpc/mips/etc with the current header files.
 Finish sparc port
 Documentation
 Better configuration system
@@ -58,6 +56,21 @@ What to do about %m in printf?
 Make errno and endptr handling the default in the strto* functions and
 	document how to turn those off to save space.
 
+-----------------------------------------------------------------------------
+ds's list:
+
+Search for string literals that are not in the .rodata section.  (Varies
+by architecture.)
+
+man pages for binaries
+
+add basename() and dirname() for gettext
+
+add obstack stuff for gettext (?)
+
+setjmp() on powerpc
+
+getaddrinfo()
 -----------------------------------------------------------------------------
 
 PORTING
