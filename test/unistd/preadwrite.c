@@ -71,6 +71,8 @@ int test(int argc, char *argv[])
 }
 
 /* Test the 64-bit versions as well.  */
+#if defined __UCLIBC_HAS_LFS__ 
+
 #undef PREAD
 #undef PWRITE
 #define PREAD pread64
@@ -106,6 +108,7 @@ int test64(int argc, char *argv[])
     unlink (name);
     return memcmp (buf + 50, res, sizeof (buf) - 50);
 }
+#endif
 
 void prepare(void)
 {
@@ -134,6 +137,7 @@ int main (int argc, char **argv)
     }
     fprintf(stderr, "pread/pwrite test successful.\n");
 
+#if defined __UCLIBC_HAS_LFS__ 
     prepare();
     result+=test64(argc, argv);
     if (result) { 
@@ -141,5 +145,6 @@ int main (int argc, char **argv)
 	return(EXIT_FAILURE);
     }
     fprintf(stderr, "pread64/pwrite64 test successful.\n");
+#endif
     return(EXIT_SUCCESS);
 }
