@@ -29,12 +29,14 @@
  * fine unless you are messing with SIGCHLD...  */
 unsigned int sleep (unsigned int sec)
 {
+	unsigned int res;
 	struct timespec ts = { 
 	    tv_sec:  (long int) sec,
 	    tv_nsec: 0 
 	};
-	nanosleep(&ts, &ts);
-	return(sec-ts.tv_sec);
+	res = nanosleep(&ts, &ts);
+	if (res) res = (unsigned int) ts.tv_sec + (ts.tv_nsec >= 500000000L);
+	return res;
 }
 
 #else
