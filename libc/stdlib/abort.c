@@ -33,7 +33,7 @@ Cambridge, MA 02139, USA.  */
 #elif defined(__ia64__)
 #define ABORT_INSTRUCTION asm ("break 0")
 #elif defined(__mc68000__)
-#define ABORT_INSTRUCTION asm ("illegal")
+#define ABORT_INSTRUCTION asm (".long 0xffffffff")
 #elif defined(__mips__)
 #define ABORT_INSTRUCTION asm ("break 255")
 #elif defined(__s390__)
