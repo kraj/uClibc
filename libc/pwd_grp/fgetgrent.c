@@ -22,14 +22,12 @@
 #include <errno.h>
 #include <grp.h>
 
-struct group *
-fgetgrent(FILE * file)
+struct group *fgetgrent(FILE * file)
 {
-  if (file==NULL)
-    {
-      errno=EINTR;
-      return NULL;
-    }
-  
-  return __getgrent(fileno(file));
+	if (file == NULL) {
+		errno = EINTR;
+		return NULL;
+	}
+
+	return __getgrent(fileno(file));
 }

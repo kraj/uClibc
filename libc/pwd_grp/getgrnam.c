@@ -24,28 +24,25 @@
 #include <fcntl.h>
 #include <grp.h>
 
-struct group *
-getgrnam(const char * name)
+struct group *getgrnam(const char *name)
 {
-  int grp_fd;
-  struct group * group;
+	int grp_fd;
+	struct group *group;
 
-  if (name==NULL)
-    {
-      errno=EINVAL;
-      return NULL;
-    }
+	if (name == NULL) {
+		errno = EINVAL;
+		return NULL;
+	}
 
-  if ((grp_fd=open("/etc/group", O_RDONLY))<0)
-    return NULL;
+	if ((grp_fd = open("/etc/group", O_RDONLY)) < 0)
+		return NULL;
 
-  while ((group=__getgrent(grp_fd))!=NULL)
-    if (!strcmp(group->gr_name, name))
-      {
+	while ((group = __getgrent(grp_fd)) != NULL)
+		if (!strcmp(group->gr_name, name)) {
+			close(grp_fd);
+			return group;
+		}
+
 	close(grp_fd);
-	return group;
-      }
-
-  close(grp_fd);
-  return NULL;
+	return NULL;
 }

@@ -23,29 +23,24 @@
 #include <stdio.h>
 #include <pwd.h>
 
-int
-getpw(uid_t uid, char *buf)
+int getpw(uid_t uid, char *buf)
 {
-  struct passwd * passwd;
+	struct passwd *passwd;
 
-  if (buf==NULL)
-    {
-      errno=EINVAL;
-      return -1;
-    }
-  if ((passwd=getpwuid(uid))==NULL)
-    return -1;
+	if (buf == NULL) {
+		errno = EINVAL;
+		return -1;
+	}
+	if ((passwd = getpwuid(uid)) == NULL)
+		return -1;
 
-  if (sprintf(buf, "%s:%s:%u:%u:%s:%s:%s", passwd->pw_name, passwd->pw_passwd,
-	  passwd->pw_gid, passwd->pw_uid, passwd->pw_gecos,
-	  passwd->pw_dir, passwd->pw_shell)<0)
-    {
-      errno=ENOBUFS;
-      return -1;
-    }
+	if (sprintf
+		(buf, "%s:%s:%u:%u:%s:%s:%s", passwd->pw_name, passwd->pw_passwd,
+		 passwd->pw_gid, passwd->pw_uid, passwd->pw_gecos, passwd->pw_dir,
+		 passwd->pw_shell) < 0) {
+		errno = ENOBUFS;
+		return -1;
+	}
 
-  return 0;
-}  
-
-
-
+	return 0;
+}

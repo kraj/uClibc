@@ -25,28 +25,25 @@
 #include <pwd.h>
 
 
-struct passwd *
-getpwnam(const char * name)
+struct passwd *getpwnam(const char *name)
 {
-  int passwd_fd;
-  struct passwd * passwd;
+	int passwd_fd;
+	struct passwd *passwd;
 
-  if (name==NULL)
-    {
-      errno=EINVAL;
-      return NULL;
-    }
+	if (name == NULL) {
+		errno = EINVAL;
+		return NULL;
+	}
 
-  if ((passwd_fd=open("/etc/passwd", O_RDONLY))<0)
-    return NULL;
+	if ((passwd_fd = open("/etc/passwd", O_RDONLY)) < 0)
+		return NULL;
 
-  while ((passwd=__getpwent(passwd_fd))!=NULL)
-    if (!strcmp(passwd->pw_name, name))
-      {
+	while ((passwd = __getpwent(passwd_fd)) != NULL)
+		if (!strcmp(passwd->pw_name, name)) {
+			close(passwd_fd);
+			return passwd;
+		}
+
 	close(passwd_fd);
-	return passwd;
-      }	  
-
-  close(passwd_fd);
-  return NULL;
+	return NULL;
 }

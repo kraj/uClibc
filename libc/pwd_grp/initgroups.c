@@ -24,57 +24,51 @@
 #include <grp.h>
 #include "config.h"
 
-int
-initgroups(__const char * user, gid_t gid)
+int initgroups(__const char *user, gid_t gid)
 {
-  register struct group * group;
+	register struct group *group;
+
 #ifndef GR_DYNAMIC_GROUP_LIST
-  gid_t group_list[GR_MAX_GROUPS];
+	gid_t group_list[GR_MAX_GROUPS];
 #else
-  gid_t * group_list=NULL;
+	gid_t *group_list = NULL;
 #endif
-  register char ** tmp_mem;
-  int num_groups;
-  int grp_fd;
+	register char **tmp_mem;
+	int num_groups;
+	int grp_fd;
 
 
-  if ((grp_fd=open("/etc/group", O_RDONLY))<0)
-    return -1;
+	if ((grp_fd = open("/etc/group", O_RDONLY)) < 0)
+		return -1;
 
-  num_groups=0;
+	num_groups = 0;
 #ifdef GR_DYNAMIC_GROUP_LIST
-  group_list=(gid_t *) realloc(group_list, 1);
+	group_list = (gid_t *) realloc(group_list, 1);
 #endif
-  group_list[num_groups]=gid;
+	group_list[num_groups] = gid;
 #ifndef GR_DYNAMIC_GROUP_LIST
-  while (num_groups<GR_MAX_GROUPS &&
-	 (group=__getgrent(grp_fd))!=NULL)
+	while (num_groups < GR_MAX_GROUPS &&
+		   (group = __getgrent(grp_fd)) != NULL)
 #else
-  while ((group=__getgrent(grp_fd))!=NULL)
-#endif      
-    {
-      if (group->gr_gid!=gid);
-        {
-	  tmp_mem=group->gr_mem;
-	  while(*tmp_mem!=NULL)
-	    {
-	      if (!strcmp(*tmp_mem, user))
+	while ((group = __getgrent(grp_fd)) != NULL)
+#endif
+	{
+		if (group->gr_gid != gid);
 		{
-		  num_groups++;
-#ifdef GR_DYNAMIC_GROUP_LIST  
-		  group_list=(gid_t *)realloc(group_list,
-					      num_groups*sizeof(gid_t *));
-#endif		  
-		  group_list[num_groups]=group->gr_gid;
+			tmp_mem = group->gr_mem;
+			while (*tmp_mem != NULL) {
+				if (!strcmp(*tmp_mem, user)) {
+					num_groups++;
+#ifdef GR_DYNAMIC_GROUP_LIST
+					group_list = (gid_t *) realloc(group_list, num_groups *
+						sizeof(gid_t *));
+#endif
+					group_list[num_groups] = group->gr_gid;
+				}
+				tmp_mem++;
+			}
 		}
-	      tmp_mem++;
-	    }
 	}
-    }
-  close(grp_fd);
-  return setgroups(num_groups, group_list);
+	close(grp_fd);
+	return setgroups(num_groups, group_list);
 }
-
-
-
-

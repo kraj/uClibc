@@ -23,26 +23,20 @@
 #include <fcntl.h>
 #include <grp.h>
 
-struct group *
-getgrgid(const gid_t gid)
+struct group *getgrgid(const gid_t gid)
 {
-  struct group * group;
-  int grp_fd;
+	struct group *group;
+	int grp_fd;
 
-  if ((grp_fd=open("/etc/group", O_RDONLY))<0)
-    return NULL;
+	if ((grp_fd = open("/etc/group", O_RDONLY)) < 0)
+		return NULL;
 
-  while ((group=__getgrent(grp_fd))!=NULL)
-    if (group->gr_gid==gid)
-      {
+	while ((group = __getgrent(grp_fd)) != NULL)
+		if (group->gr_gid == gid) {
+			close(grp_fd);
+			return group;
+		}
+
 	close(grp_fd);
-	return group;
-      }
-
-  close(grp_fd);
-  return NULL;
+	return NULL;
 }
-
-
-
-

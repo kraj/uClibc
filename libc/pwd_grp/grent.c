@@ -28,30 +28,25 @@
 #include <fcntl.h>
 #include <grp.h>
 
-static int grp_fd=-1;
+static int grp_fd = -1;
 
-void
-setgrent(void)
+void setgrent(void)
 {
-  if (grp_fd!=-1)
-    close(grp_fd);
-  grp_fd=open("/etc/group", O_RDONLY);
+	if (grp_fd != -1)
+		close(grp_fd);
+	grp_fd = open("/etc/group", O_RDONLY);
 }
 
-void
-endgrent(void)
+void endgrent(void)
 {
- if (grp_fd!=-1)
-   close(grp_fd);
- grp_fd=-1;
+	if (grp_fd != -1)
+		close(grp_fd);
+	grp_fd = -1;
 }
 
-struct group *
-getgrent(void)
+struct group *getgrent(void)
 {
-  if (grp_fd==-1)
-    return NULL;
-  return __getgrent(grp_fd);
+	if (grp_fd == -1)
+		return NULL;
+	return __getgrent(grp_fd);
 }
-
-

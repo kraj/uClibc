@@ -22,14 +22,12 @@
 #include <stdio.h>
 #include <pwd.h>
 
-struct passwd *
-fgetpwent(FILE * file)
+struct passwd *fgetpwent(FILE * file)
 {
-  if (file==NULL)
-    {
-      errno=EINTR;
-      return NULL;
-    }
+	if (file == NULL) {
+		errno = EINTR;
+		return NULL;
+	}
 
-  return __getpwent(fileno(file));
+	return __getpwent(fileno(file));
 }
