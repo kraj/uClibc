@@ -106,11 +106,6 @@ typedef int __wchar_t;			/* TODO: temporary, as not currently uClibc */
 /* NOTE: for us it is currently _always_ 9 */
 /*#define NL_ARGMAX			9*/
 
-/* TODO -- where should this go? */
-#ifndef O_LARGEFILE
-#define O_LARGEFILE	0100000
-#endif
-
 /**********************************************************************/
 
 /* These are consistency checks on the different options */

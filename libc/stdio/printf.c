@@ -54,6 +54,22 @@
 
 /**********************************************************************/
 
+#define __STDIO_PRINTF_FLOAT
+
+#if defined(__UCLIBC__) && !defined(__UCLIBC_HAS_FLOATS__)
+#undef __STDIO_PRINTF_FLOAT
+#endif
+
+#ifdef __BCC__
+#undef __STDIO_PRINTF_FLOAT
+#endif
+
+#ifndef __STDIO_PRINTF_FLOAT
+#undef L__dtostr
+#endif
+
+/**********************************************************************/
+
 #define __STDIO_GLIBC_CUSTOM_PRINTF
 
 /* TODO -- move these to a configuration section? */
@@ -197,10 +213,10 @@ typedef union {
 #ifdef ULLONG_MAX
 	unsigned long long ull;
 #endif
-#ifndef __BCC__
+#ifdef __STDIO_PRINTF_FLOAT
 	double d;
 	long double ld;
-#endif
+#endif /* __STDIO_PRINTF_FLOAT */
 	void *p;
 } argvalue_t;
 
@@ -234,7 +250,9 @@ typedef struct {
 /* TODO -- __isdigit() macro */
 #define __isdigit(c) (((unsigned int)(c - '0')) < 10)
 
+#ifdef __STDIO_PRINTF_FLOAT
 extern size_t _dtostr(FILE * fp, long double x, struct printf_info *info);
+#endif
 
 #define _outnstr(stream, string, len)	_stdio_fwrite(s, len, stream)	/* TODO */
 
@@ -511,7 +529,7 @@ void _ppfs_setargs(register ppfs_t *ppfs)
 					/* we're assuming wchar_t is at least an int */
 					GET_VA_ARG(p,wc,wchar_t,ppfs->arg);
 					break;
-#ifndef __BCC__
+#ifdef __STDIO_PRINTF_FLOAT
 					/* PA_FLOAT */
 				case PA_DOUBLE:
 					GET_VA_ARG(p,d,double,ppfs->arg);
@@ -519,11 +537,12 @@ void _ppfs_setargs(register ppfs_t *ppfs)
 				case (PA_DOUBLE|PA_FLAG_LONG_DOUBLE):
 					GET_VA_ARG(p,ld,long double,ppfs->arg);
 					break;
-#else
+#else  /* __STDIO_PRINTF_FLOAT */
 				case PA_DOUBLE:
 				case (PA_DOUBLE|PA_FLAG_LONG_DOUBLE):
 					assert(0);
-#endif
+					continue;
+#endif /* __STDIO_PRINTF_FLOAT */
 				default:
 					/* TODO -- really need to ensure this can't happen */
 					assert(ppfs->argtype[i-1] & PA_FLAG_PTR);
@@ -598,11 +617,11 @@ static const short int type_codes[] = {
 	PA_INT|PA_FLAG_LONG,
 	PA_INT|PA_FLAG_LONG_LONG,
 	PA_WCHAR,
-#ifndef __BCC__
+#ifdef __STDIO_PRINTF_FLOAT
 	/* PA_FLOAT, */
 	PA_DOUBLE,
 	PA_DOUBLE|PA_FLAG_LONG_DOUBLE,
-#endif
+#endif /* __STDIO_PRINTF_FLOAT */
 };
 
 static const unsigned char type_sizes[] = {
@@ -621,11 +640,11 @@ static const unsigned char type_sizes[] = {
 	PROMOTED_SIZE_OF(long),		/* TODO -- is this correct? (above too) */
 #endif
 	PROMOTED_SIZE_OF(wchar_t),
-#ifndef __BCC__
+#ifdef __STDIO_PRINTF_FLOAT
 	/* PROMOTED_SIZE_OF(float), */
 	PROMOTED_SIZE_OF(double),
 	PROMOTED_SIZE_OF(long double),
-#endif
+#endif /* __STDIO_PRINTF_FLOAT */
 };
 
 static int _promoted_size(int argtype)
@@ -1099,12 +1118,16 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 			}
 			numfill = ((numfill > slen) ? numfill - slen : 0);
 		} else if (ppfs->conv_num <= CONV_A) {	/* floating point */
+#ifdef __STDIO_PRINTF_FLOAT
 			*count += _dtostr(stream,
 							  (PRINT_INFO_FLAG_VAL(&(ppfs->info),is_long_double)
 							   ? *(long double *) *argptr
 							   : (long double) (* (double *) *argptr)),
 							  &ppfs->info);
 			return 0;
+#else  /* __STDIO_PRINTF_FLOAT */
+			return -1;			/* TODO -- try ton continue? */
+#endif /* __STDIO_PRINTF_FLOAT */
 		} else if (ppfs->conv_num <= CONV_S) {	/* wide char or string */
 #if 1
 			return -1;			/* TODO -- wide */

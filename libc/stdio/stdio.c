@@ -41,6 +41,13 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#ifndef O_LARGEFILE		/* uClibc undefines this if no large file support. */
+#ifdef __STDIO_LARGE_FILES
+#error missing define for O_LARGEFILE!
+#endif
+#define O_LARGEFILE		0
+#endif
+
 /**********************************************************************/
 /* First deal with some build issues... */
 
@@ -2170,7 +2177,7 @@ FILE *_stdio_fopen(const char * __restrict filename,
 	} else {
 #ifdef __STDIO_LARGE_FILES
 		if (filedes < -1) {
-			open_mode |= __FLAG_LARGEFILE;
+			open_mode |= O_LARGEFILE;
 		}
 #endif /* __STDIO_LARGE_FILES */
 		stream->filedes = open(filename, open_mode, 0666);
@@ -2193,7 +2200,8 @@ FILE *_stdio_fopen(const char * __restrict filename,
 #ifdef __STDIO_BUFFERS
 		(isatty(stream->filedes) * __FLAG_LBF) |
 #endif /* __STDIO_BUFFERS */
-#if (O_APPEND == __FLAG_APPEND) && (O_LARGEFILE == __FLAG_LARGEFILE)
+#if (O_APPEND == __FLAG_APPEND) \
+&& ((O_LARGEFILE == __FLAG_LARGEFILE) || (O_LARGEFILE == 0))
 		(open_mode & (O_APPEND|O_LARGEFILE)) | /* i386 linux and elks */
 #else  /* (O_APPEND == __FLAG_APPEND) && (O_LARGEFILE == __FLAG_LARGEFILE) */
 		((open_mode & O_APPEND) ? __FLAG_APPEND : 0) |
