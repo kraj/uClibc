@@ -31,7 +31,7 @@
  * SUCH DAMAGE.
  */ 
 
-#if defined(LIBC_SCCS) && !defined(lint)
+#if 0
 static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #endif /* LIBC_SCCS and not lint */
 

@@ -27,7 +27,7 @@
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
-#if !defined(lint) && defined(SCCSIDS)
+#if 0
 static char sccsid[] = "@(#)xdr_reference.c 1.11 87/08/11 SMI";
 #endif
 

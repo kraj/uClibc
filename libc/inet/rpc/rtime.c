@@ -1,6 +1,3 @@
-#if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)rtime.c	2.2 88/08/10 4.0 RPCSRC; from 1.8 88/02/08 SMI";
-#endif
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for
  * unrestricted use provided that this legend is included on all tape
@@ -29,6 +26,9 @@ static char sccsid[] = "@(#)rtime.c	2.2 88/08/10 4.0 RPCSRC; from 1.8 88/02/08 S
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
+#if 0
+static char sccsid[] = "@(#)rtime.c	2.2 88/08/10 4.0 RPCSRC; from 1.8 88/02/08 SMI";
+#endif
 
 /*
  * Copyright (c) 1988 by Sun Microsystems, Inc.
