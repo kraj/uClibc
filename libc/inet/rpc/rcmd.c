@@ -37,6 +37,12 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 
 #define __FORCE_GLIBC
 #include <features.h>
+
+#ifdef _LIBC_REENTRANT
+#undef _LIBC_REENTRANT
+#warning FIXME I am not reentrant yet...
+#endif
+
 #define __USE_GNU
 #include <ctype.h>
 #include <stdio.h>
