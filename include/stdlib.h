@@ -130,10 +130,11 @@ __extension__ typedef struct
 #define	EXIT_SUCCESS	0	/* Successful exit status.  */
 
 
+#if 0
 /* Maximum length of a multibyte character in the current locale.  */
 #define	MB_CUR_MAX	(__ctype_get_mb_cur_max ())
 extern size_t __ctype_get_mb_cur_max (void) __THROW;
-
+#endif
 
 /* Convert a string to a floating-point number.  */
 extern double atof (__const char *__nptr) __THROW __attribute_pure__;
