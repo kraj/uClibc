@@ -19,6 +19,11 @@
 #include <stdint.h>
 #include <sys/syscall.h>
 
+#if __WORDSIZE == 64
+/* For a 64 bit machine, life is simple... */
+_syscall2(int, truncate64, const char *, path, __off64_t, length);
+#elif __WORDSIZE == 32
+
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_truncate64
 #ifndef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) __syscall_truncate64 (args)
@@ -26,10 +31,7 @@
 static inline _syscall3(int, __syscall_truncate64, const char *, path, int, high_length, int, low_length);
 #endif
 
-#if __WORDSIZE == 64
-/* For a 64 bit machine, life is simple... */
-_syscall2(int, truncate64, const char *, path, __off64_t, length);
-#elif __WORDSIZE == 32
+
 /* The exported truncate64 function.  */
 int truncate64 (const char * path, __off64_t length)
 {

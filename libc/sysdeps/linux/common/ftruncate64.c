@@ -19,6 +19,11 @@
 #include <stdint.h>
 #include <sys/syscall.h>
 
+#if __WORDSIZE == 64
+/* For a 64 bit machine, life is simple... */
+_syscall2(int, ftruncate64, int, fd, __off64_t, length);
+#elif __WORDSIZE == 32
+
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_ftruncate64
 #ifndef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) __syscall_ftruncate64 (args)
@@ -27,10 +32,6 @@ static inline _syscall3(int, __syscall_ftruncate64, int, fd, int, high_length, i
 #endif
 
 
-#if __WORDSIZE == 64
-/* For a 64 bit machine, life is simple... */
-_syscall2(int, ftruncate64, int, fd, __off64_t, length);
-#elif __WORDSIZE == 32
 /* The exported ftruncate64 function.  */
 int ftruncate64 (int fd, __off64_t length)
 {
