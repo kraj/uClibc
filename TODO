@@ -22,7 +22,7 @@ I'm currently working on completing the wide char and locale support.
 
   1) Little things that need fixing:
   ----------------------------------
-  *) Fix bugs in *printf:  wprintf %ls bug ; outdigit precison bug
+  *) Fix bug in *printf: outdigit precison bug
   a) Use locale decimal point in *printf() and strto*d() -- slightly
      complicated by the fact that at least one locale uses a wchar
      radix that does not map to a single byte in UTF-8.

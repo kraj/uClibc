@@ -48,6 +48,8 @@
  *
  *  Nov 21, 2002
  *  Added internal function _wstdio_fwrite.
+ *  Jan 3, 2003
+ *  Fixed a bug in _wstdio_fwrite.
  */
 
 /* Before we include anything, convert L_ctermid to L_ctermid_function
@@ -3514,7 +3516,7 @@ size_t _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
 	pw = ws;
 	count = 0;
 	while (n > count) {
-		r = wcsnrtombs(buf, &pw, n, sizeof(buf), &stream->state);
+		r = wcsnrtombs(buf, &pw, n-count, sizeof(buf), &stream->state);
 		if (r != ((size_t) -1)) { /* No encoding errors */
 			if (!r) {
 				++r;		  /* 0 is returned when nul is reached. */
