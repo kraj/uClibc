@@ -698,6 +698,7 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 			*outpacket = packet;
 		else
 			free(packet);
+		free(lookup);
 		return (0);				/* success! */
 
 	  tryall:
