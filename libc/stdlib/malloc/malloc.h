@@ -124,12 +124,6 @@ extern int __malloc_mmb_debug;
 typedef pthread_mutex_t malloc_mutex_t;
 # define MALLOC_MUTEX_INIT	PTHREAD_MUTEX_INITIALIZER
 
-/* The main malloc lock.  This must be hold while accessing __malloc_heap,
-   and in order to gain __malloc_sbrk_lock.  */
-extern malloc_mutex_t __malloc_lock;
-# define __malloc_lock()	pthread_mutex_lock (&__malloc_lock)
-# define __malloc_unlock()	pthread_mutex_unlock (&__malloc_lock)
-
 # ifdef MALLOC_USE_SBRK
 /* This lock is used to serialize uses of the `sbrk' function (in both
    malloc and free, sbrk may be used several times in succession, and
@@ -143,8 +137,6 @@ extern malloc_mutex_t __malloc_sbrk_lock;
 #else /* !__UCLIBC_HAS_THREADS__ */
 
 /* Without threads, mutex operations are a nop.  */
-# define __malloc_lock()	(void)0
-# define __malloc_unlock()	(void)0
 # define __malloc_lock_sbrk()	(void)0
 # define __malloc_unlock_sbrk()	(void)0
 
