@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /*
- * A simple clopne based pthread implementation
+ * A simple clone based pthread implementation
  *
  * Copyright (C) 2001 by Erik Andersen <andersee@debian.org>
  *
