@@ -37,7 +37,6 @@ all: headers uClibc_config.h subdirs $(DO_SHARED) done
 shared:
 	@$(MAKE) -C libc shared
 	@$(MAKE) -C ldso shared
-	@$(MAKE) -C ldso/libdl shared
 	@$(MAKE) -C libcrypt shared
 	@$(MAKE) -C libutil shared
 	@$(MAKE) -C libm shared
