@@ -72,6 +72,8 @@ struct __dirstream {
 
 
 extern int __getdents(unsigned int fd, struct dirent *dirp, unsigned int count);
+#ifdef __UCLIBC_HAS_LFS__
 extern int __getdents64 (unsigned int fd, struct dirent64 *dirp, unsigned int count);
+#endif
 
 #endif /* dirent.h  */

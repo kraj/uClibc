@@ -39,6 +39,10 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#if ! defined __UCLIBC_HAS_LFS__ 
+#define off64_t off_t
+#endif
+
 #ifdef __NR_pread
 #define __NR___syscall_pread __NR_pread 
 static inline _syscall4(ssize_t, __syscall_pread, int, fd, 
