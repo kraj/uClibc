@@ -64,7 +64,7 @@ initfini.s: initfini.c
 	$(CC) $(SAFECFLAGS) -I$(TOPDIR)include -c initfini.c -S -o initfini.s
 
 crti.S crtn.S: initfini.s $(TOPDIR)/extra/scripts/initfini.awk
-	$(TOPDIR)/extra/scripts/initfini.awk initfini.s
+	$(AWK) -f $(TOPDIR)extra/scripts/initfini.awk initfini.s
 
 crti.o: crti.S
 	$(CC) $(SAFECFLAGS) -c crti.S -o crti.o
@@ -81,5 +81,5 @@ $(TOPDIR)lib/crtn.o: crtn.o
 	cp crtn.o $(TOPDIR)lib/
 
 clean:
-	rm -f *.[oa] *~ core crti.* crtn.* initfini.s
+	rm -f *.[oa] *~ core crt[in].* initfini.s
 

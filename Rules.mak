@@ -37,6 +37,9 @@ UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
 LIBC:=$(TOPDIR)libc/libc.a
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
 
+# check if we have nawk, otherwise user awk
+AWK:= ${shell if [ -x /usr/bin/nawk ]; then echo "/usr/bin/nawk"; else echo "/usr/bin/awk"; fi}
+
 NATIVE_ARCH:= ${shell uname -m | sed \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
