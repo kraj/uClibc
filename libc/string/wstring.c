@@ -27,10 +27,13 @@
  *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
 
 /*  Dec 20, 2002
- *
  *  Initial test implementation of strcoll, strxfrm, wcscoll, and wcsxfrm.
  *  The code needs to be cleaned up a good bit, but I'd like to see people
  *  test it out.
+ *
+ *  Sep 11, 2003
+ *  Patch by Atsushi Nemoto <anemo@mba.ocn.ne.jp> to do arch-required
+ *  mapping of signal strings (alpha, mips, hppa, sparc).
  */
 
 #define _STDIO_UTILITY
@@ -2141,6 +2144,9 @@ const char _string_syssigmsgs[] = {
 	/*  29:  445, 13 */ "I/O possible\0"
 	/*  30:  458, 14 */ "Power failure\0"
 	/*  31:  472, 16 */ "Bad system call"
+#if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
+	/*  32:  488,  9 */ "\0EMT trap"
+#endif
 };
 
 #endif
@@ -2149,70 +2155,43 @@ const char _string_syssigmsgs[] = {
 #if defined(L_sys_siglist) && defined(__UCLIBC_HAS_SYS_SIGLIST__)
 
 const char *const sys_siglist[_NSIG] = {
-	NULL,
-	_string_syssigmsgs + 1,
-	_string_syssigmsgs + 8,
-	_string_syssigmsgs + 18,
-	_string_syssigmsgs + 23,
-	_string_syssigmsgs + 43,
-	_string_syssigmsgs + 65,
-	_string_syssigmsgs + 73,
-	_string_syssigmsgs + 83,
-	_string_syssigmsgs + 108,
-	_string_syssigmsgs + 115,
-	_string_syssigmsgs + 137,
-	_string_syssigmsgs + 156,
-	_string_syssigmsgs + 178,
-	_string_syssigmsgs + 190,
-	_string_syssigmsgs + 202,
-	_string_syssigmsgs + 213,
-	_string_syssigmsgs + 225,
-	_string_syssigmsgs + 238,
-	_string_syssigmsgs + 248,
-	_string_syssigmsgs + 265,
-	_string_syssigmsgs + 273,
-	_string_syssigmsgs + 293,
-	_string_syssigmsgs + 314,
-	_string_syssigmsgs + 335,
-	_string_syssigmsgs + 359,
-	_string_syssigmsgs + 384,
-	_string_syssigmsgs + 406,
-	_string_syssigmsgs + 430,
-	_string_syssigmsgs + 445,
-	_string_syssigmsgs + 458,
-	_string_syssigmsgs + 472,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
+	[0] =				NULL,
+	[SIGHUP] =			_string_syssigmsgs + 1,
+	[SIGINT] =			_string_syssigmsgs + 8,
+	[SIGQUIT] =			_string_syssigmsgs + 18,
+	[SIGILL] =			_string_syssigmsgs + 23,
+	[SIGTRAP] =			_string_syssigmsgs + 43,
+	[SIGABRT] =			_string_syssigmsgs + 65,
+	[SIGBUS] =			_string_syssigmsgs + 73,
+	[SIGFPE] =			_string_syssigmsgs + 83,
+	[SIGKILL] =			_string_syssigmsgs + 108,
+	[SIGUSR1] =			_string_syssigmsgs + 115,
+	[SIGSEGV] =			_string_syssigmsgs + 137,
+	[SIGUSR2] =			_string_syssigmsgs + 156,
+	[SIGPIPE] =			_string_syssigmsgs + 178,
+	[SIGALRM] =			_string_syssigmsgs + 190,
+	[SIGTERM] =			_string_syssigmsgs + 202,
+#if !(defined(__alpha__) || defined(__mips__) || defined(__sparc__))
+	[SIGSTKFLT] =		_string_syssigmsgs + 213,
+#endif
+	[SIGCHLD] =			_string_syssigmsgs + 225,
+	[SIGCONT] =			_string_syssigmsgs + 238,
+	[SIGSTOP] =			_string_syssigmsgs + 248,
+	[SIGTSTP] =			_string_syssigmsgs + 265,
+	[SIGTTIN] =			_string_syssigmsgs + 273,
+	[SIGTTOU] =			_string_syssigmsgs + 293,
+	[SIGURG] =			_string_syssigmsgs + 314,
+	[SIGXCPU] =			_string_syssigmsgs + 335,
+	[SIGXFSZ] =			_string_syssigmsgs + 359,
+	[SIGVTALRM] =		_string_syssigmsgs + 384,
+	[SIGPROF] =			_string_syssigmsgs + 406,
+	[SIGWINCH] =		_string_syssigmsgs + 430,
+	[SIGIO] =			_string_syssigmsgs + 445,
+	[SIGPWR] =			_string_syssigmsgs + 458,
+	[SIGSYS] =			_string_syssigmsgs + 472,
+#if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
+	[SIGEMT] =			_string_syssigmsgs + 488,
+#endif
 };
 
 #endif
@@ -2223,6 +2202,50 @@ const char *const sys_siglist[_NSIG] = {
 
 #ifdef __UCLIBC_HAS_SIGNUM_MESSAGES__
 
+#if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
+static const unsigned char sstridx[] = {
+	0,
+	SIGHUP,
+	SIGINT,
+	SIGQUIT,
+	SIGILL,
+	SIGTRAP,
+	SIGIOT,
+	SIGBUS,
+	SIGFPE,
+	SIGKILL,
+	SIGUSR1,
+	SIGSEGV,
+	SIGUSR2,
+	SIGPIPE,
+	SIGALRM,
+	SIGTERM,
+#if defined(__alpha__) || defined(__mips__) || defined(__sparc__)
+	0,
+#else
+	SIGSTKFLT,
+#endif
+	SIGCHLD,
+	SIGCONT,
+	SIGSTOP,
+	SIGTSTP,
+	SIGTTIN,
+	SIGTTOU,
+	SIGURG,
+	SIGXCPU,
+	SIGXFSZ,
+	SIGVTALRM,
+	SIGPROF,
+	SIGWINCH,
+	SIGIO,
+	SIGPWR,
+	SIGSYS,
+#if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
+	SIGEMT,
+#endif
+};
+#endif
+
 char *strsignal(int signum)
 {
     register char *s;
@@ -2232,12 +2255,26 @@ char *strsignal(int signum)
 		'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 's', 'i', 'g', 'n', 'a', 'l', ' '
     };
 
+#if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
+	/* Need to translate signum to string index. */
+	for (i = 0 ; i < sizeof(sstridx)/sizeof(sstridx[0]) ; i++) {
+		if (sstridx[i] == signum) {
+			goto GOT_SSTRIDX;
+		}
+	}
+	i = INT_MAX;	/* Failed. */
+ GOT_SSTRIDX:
+#else
+	/* No signum to string index translation needed. */
+	i = signum;
+#endif
+
     if (((unsigned int) signum) < _SYS_NSIG) {
 		/* Trade time for space.  This function should rarely be called
 		 * so rather than keeping an array of pointers for the different
 		 * messages, just run through the buffer until we find the
 		 * correct string. */
-		for (s = (char *) _string_syssigmsgs, i = signum ; i ; ++s) {
+		for (s = (char *) _string_syssigmsgs ; i ; ++s) {
 			if (!*s) {
 				--i;
 			}
