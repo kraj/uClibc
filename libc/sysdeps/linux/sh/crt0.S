@@ -62,6 +62,7 @@ _start:
 	mov r4,r6
 	add #1,r6
 	shll2 r6
+	add r5,r6
 
 	/* call main */
 	mov.l L_main, r0
