@@ -2074,12 +2074,16 @@ _syscall3(int, madvise, void*, __addr, size_t, __len, int, __advice);
 
 //#define __NR_fcntl64		221
 #ifdef L___syscall_fcntl64
-#ifdef __UCLIBC_HAS_LFS__
 #include <stdarg.h>
 #include <fcntl.h>
+#ifdef __UCLIBC_HAS_LFS__
 #define __NR___syscall_fcntl64 __NR_fcntl64
 static inline
 _syscall3(int, __syscall_fcntl64, int, fd, int, cmd, long, arg);
+#else
+#define __syscall_fcntl64  __syscall_fcntl
+extern int __syscall_fcntl(int fd, int cmd, ...);
+#endif
 int __libc_fcntl64(int fd, int cmd, ...)
 {
 	long arg;
@@ -2090,9 +2094,6 @@ int __libc_fcntl64(int fd, int cmd, ...)
 	return(__syscall_fcntl64(fd, cmd, arg));
 }
 weak_alias(__libc_fcntl64, fcntl64)
-#else
-weak_alias(__libc_fcntl64, __libc_fcntl)
-#endif
 #endif
 
 //#define __NR_security		223	/* syscall for security modules */
