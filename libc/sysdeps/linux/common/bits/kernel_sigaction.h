@@ -41,7 +41,6 @@ struct old_kernel_sigaction {
     __sighandler_t  k_sa_handler;
     unsigned int    sa_flags;
     unsigned long   sa_mask;
-#endif
 };
 #define _KERNEL_NSIG           128
 #define _KERNEL_NSIG_BPW       32
