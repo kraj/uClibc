@@ -9,6 +9,11 @@
  *
  * Notes:
  *
+ * At most MAX_DIGITS significant digits are kept.  Any trailing digits
+ * are treated as 0 as they are really just the results of rounding noise
+ * anyway.  If you want to do better, use an arbitary precision arithmetic
+ * package.  ;-)
+ *
  * It should also be fairly portable, as not assumptions are made about the
  * bit-layout of doubles.
  *
@@ -154,7 +159,6 @@ int __dtostr(FILE * fp, size_t size, double x,
 	char *s;
 	char *e;
 	char buf[BUF_SIZE];
-	char buf2[BUF_SIZE];
 	INT_OR_PTR pc_fwi[2*MAX_CALLS];
 	INT_OR_PTR *ppc;
 	char exp_buf[8];
@@ -232,7 +236,7 @@ int __dtostr(FILE * fp, size_t size, double x,
 	assert(x < 1e9);
 
  GENERATE_DIGITS:
-	s = buf2 + 2; /* leave space for '\0' and '0' */
+	s = buf + 2; /* leave space for '\0' and '0' */
 
 	for (i = 0 ; i < NUM_DIGIT_BLOCKS ; ++i ) {
 		digit_block = (DIGIT_BLOCK_TYPE) x;
@@ -259,9 +263,6 @@ int __dtostr(FILE * fp, size_t size, double x,
 	if (mode == 'f') {
 		round += exp;
 	}
-
- RESTART:
-	memcpy(buf,buf2,sizeof(buf2)); /* backup in case g need to be f */
 
 	s = buf;
 	*s++ = 0;					/* terminator for rounding and 0-triming */
@@ -291,7 +292,6 @@ int __dtostr(FILE * fp, size_t size, double x,
 
 	if ((mode == 'g') && ((o_exp >= -4) && (o_exp < round))) {
 		mode = 'f';
-		goto RESTART;
 	}
 
 	exp = o_exp;
