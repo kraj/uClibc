@@ -47,6 +47,7 @@ endif
 ifneq ($(DODYNAMIC),true)
     LDFLAGS +=--static
 endif
+ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
 CFLAGS+=--uclibc-use-build-dir
 LDFLAGS+=--uclibc-use-build-dir
-
+endif
