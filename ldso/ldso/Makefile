@@ -1,6 +1,5 @@
 TOPDIR=../../
-include $(TOPDIR)Rules.mak
-include $(TOPDIR)/ld.so-1/Config.mk
+include $(TOPDIR)/ld.so-1/Rules.mak
 
 DIRS = $(TARGET_ARCH)
 

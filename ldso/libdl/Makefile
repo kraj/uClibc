@@ -1,6 +1,5 @@
 TOPDIR=../../
-include $(TOPDIR)Rules.mak
-include $(TOPDIR)/ld.so-1/Config.mk
+include $(TOPDIR)/ld.so-1/Rules.mak
 
 CFLAGS += -DNO_UNDERSCORE -DVERBOSE_DLINKER -DUSE_CACHE
 CFLAGS += #-fPIC -D__PIC__ #-funroll-loops
@@ -21,7 +20,7 @@ ELF_LDFLAGS=--shared -nostartfiles -nostdlib # using GNU ld
 lib:: $(OBJS)
 	$(CC) $(ELF_LDFLAGS) \
 		-o $(LIBDL).$(LDSO_VMAJOR) -Wl,-soname -Wl,$(LIBDL).$(LDSO_VMAJOR) \
-		*.o $(TOPDIR)uClibc-0.95.so
+		*.o $(TOPDIR)$(SHARED_FULLNAME)
 
 obj: $(OBJS)
 
