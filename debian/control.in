@@ -2,7 +2,7 @@ Source: uclibc
 Section: devel
 Priority: optional
 Maintainer: David Schleef <ds@schleef.org>
-Build-Depends: debhelper, kernel-headers | kernel-headers-2.4.10
+Build-Depends: debhelper, kernel-headers-2.4
 Standards-Version: 3.5.2
 
 Package: libuclibc-dev_TARGET_
