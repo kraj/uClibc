@@ -435,7 +435,7 @@ extern int _cs_close(void *cookie);
 							? (*(stream)->bufpos++) = (c) \
 							: fputc_unlocked((c),(stream)) )
 #else  /* __STDIO_PUTC_MACRO */
-#define __PUTC(c, stream)	fputc_unlocked(c, stream);
+#define __PUTC(c, stream)	fputc_unlocked(c, stream)
 #endif /* __STDIO_PUTC_MACRO */
 
 
