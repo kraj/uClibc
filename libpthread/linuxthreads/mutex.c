@@ -195,7 +195,7 @@ static pthread_cond_t once_finished = PTHREAD_COND_INITIALIZER;
 
 enum { NEVER = 0, IN_PROGRESS = 1, DONE = 2 };
 
-int pthread_once(pthread_once_t * once_control, void (*init_routine)(void))
+int __pthread_once(pthread_once_t * once_control, void (*init_routine)(void))
 {
   /* Test without locking first for speed */
   if (*once_control == DONE) return 0;
@@ -218,4 +218,4 @@ int pthread_once(pthread_once_t * once_control, void (*init_routine)(void))
   pthread_mutex_unlock(&once_masterlock);
   return 0;
 }
-//strong_alias (__pthread_once, pthread_once)
+strong_alias (__pthread_once, pthread_once)
