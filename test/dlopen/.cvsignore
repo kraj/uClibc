@@ -6,3 +6,8 @@ dlttest2
 test1
 test2
 test3
+dltest
+dltest2
+libtest.so
+libtest3.so
+.gdbinit

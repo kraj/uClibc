@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2003 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Library General Public License
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+# Makefile for uClibc
 
 TESTDIR=../
 include $(TESTDIR)/Rules.mak
@@ -42,13 +43,32 @@ libtest1.so: libtest1.o
 libtest2.so: libtest2.o
 	$(CC) $(CFLAGS) -fPIC -shared -o libtest2.so -Wl,-soname,libtest2.so libtest2.o
 
-run: libtest2.so libtest1.so test1 test2 test3
+dltest: dltest.c
+	$(CC) $(CFLAGS) -DLIBNAME="\"./libtest.so\"" dltest.c -ldl -lpthread -o dltest
+
+libtest.so: libtest.c
+	$(CC) $(CFLAGS) -fPIC -shared -Wl,-soname,libtest.so libtest.c -o libtest.so
+
+# Second time, directly link libtest3.so with libpthread
+dltest2: dltest.c
+	$(CC) $(CFLAGS) -DLIBNAME="\"./libtest3.so\"" dltest.c -ldl -lpthread -o dltest2
+
+libtest3.so: libtest.c
+	$(CC) $(CFLAGS) -fPIC -shared -Wl,-soname,libtest3.so libtest.c -o libtest3.so -lpthread
+
+run: libtest2.so libtest1.so test1 test2 test3 dltest libtest.so dltest2 libtest3.so
 	@echo "----------running test 1--------------"
 	-LD_LIBRARY_PATH=`pwd`:. LD_DEBUG=all ./test1
 	@echo "----------running test 2--------------"
 	-LD_LIBRARY_PATH=`pwd`:. LD_DEBUG=all ./test2
 	@echo "----------running test 3--------------"
 	-LD_LIBRARY_PATH=`pwd`:. LD_DEBUG=all ./test3
+	@echo "----------running test 3--------------"
+	-LD_DEBUG=all ./dltest2
+	@echo "----------running test 4--------------"
+	-LD_DEBUG=all ./dltest
 
 clean:
-	rm -f *.o libtest1.so* libtest2.so* test1 test2 test3
+	rm -f *.o libtest1.so* libtest2.so* test1 test2 test3 \
+		dltest dltest2 libtest.so libtest3.so
+

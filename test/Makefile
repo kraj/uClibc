@@ -22,7 +22,7 @@ TOPDIR=../
 .EXPORT_ALL_VARIABLES:
 
 
-ALL_SUBDIRS = args assert ctype ldso pwd_grp signal silly stdlib string unistd crypt #misc
+ALL_SUBDIRS = args assert ctype dlopen pwd_grp signal silly stdlib string unistd crypt #misc
 DIRS = $(ALL_SUBDIRS)
 #ifeq ($(TARGET_ARCH), $(HOST_ARCH))
 #	DIRS = $(ALL_SUBDIRS)
@@ -31,7 +31,7 @@ DIRS = $(ALL_SUBDIRS)
 #endif
 ifeq ($(strip $(HAVE_SHARED)),true)
   ifeq ($(strip $(DODYNAMIC)),true)
-	DIRS += ldso
+	DIRS += dlopen
   endif	
 endif	
 ifeq ($(strip $(INCLUDE_THREADS)),true)
