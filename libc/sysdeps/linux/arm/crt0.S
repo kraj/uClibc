@@ -93,11 +93,22 @@ _start:
 #endif
 
 #if (defined L_crt1 ) && defined __UCLIBC_CTOR_DTOR__
+#ifdef __PIC__
+	/* Store the address of _init in r3 as an argument to main() */
+	adr r5, .L_init
+	ldr r3, .L_init
+	add r3, r3, r5
+
+	/* Push _fini onto the stack as the final argument to main() */
+	ldr r4, .L_init + 4
+	add r4, r4, r5
+#else
 	/* Store the address of _init in r3 as an argument to main() */
 	ldr r3, =_init
 
 	/* Push _fini onto the stack as the final argument to main() */
 	ldr r4, =_fini
+#endif
 	stmfd sp!, {r4}
 
 	/* Ok, now run uClibc's main() -- shouldn't return */
@@ -108,6 +119,12 @@ _start:
 
 	/* Crash if somehow `exit' returns anyways.  */
 	bl abort
+
+#if (defined L_crt1 ) && defined __UCLIBC_CTOR_DTOR__ && defined __PIC__
+.L_init:
+	.word _init - .L_init
+	.word _fini - .L_init
+#endif
 
 /* We need this stuff to make gdb behave itself, otherwise
    gdb will chokes with SIGILL when trying to debug apps.
