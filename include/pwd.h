@@ -5,6 +5,8 @@
 #include <features.h>
 #include <stdio.h>
 
+__BEGIN_DECLS
+
 /* The passwd structure.  */
 struct passwd
 {
@@ -53,6 +55,7 @@ extern int __getpwent_r(struct passwd * passwd, char * line_buff,
 	size_t buflen, int pwd_fd);
 #endif
 
+__END_DECLS
 
 #endif /* pwd.h  */
 

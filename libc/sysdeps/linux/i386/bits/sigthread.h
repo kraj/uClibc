@@ -26,6 +26,8 @@
 
 /* Functions for handling signals. */
 
+__BEGIN_DECLS
+
 /* Modify the signal mask for the calling thread.  The arguments have
    the same meaning as for sigprocmask(2). */
 extern int pthread_sigmask __P ((int __how, __const __sigset_t *__newmask,
@@ -33,5 +35,7 @@ extern int pthread_sigmask __P ((int __how, __const __sigset_t *__newmask,
 
 /* Send signal SIGNO to the given thread. */
 extern int pthread_kill __P ((pthread_t __thread, int __signo));
+
+__END_DECLS
 
 #endif	/* bits/sigthread.h */

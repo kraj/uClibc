@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <netinet/in.h>
 
+__BEGIN_DECLS
+
 struct resolv_header {
 	int id;
 	int qr,opcode,aa,tc,rd,ra,rcode;
@@ -82,5 +84,7 @@ extern struct hostent * gethostbyaddr(const char * addr, int len, int type);
 extern int res_init(void);
 extern int res_query(const char *dname, int class, int type,
 	unsigned char *answer, int anslen);
+
+__END_DECLS
 
 #endif /*_RESOLV_H_*/

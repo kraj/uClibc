@@ -5,6 +5,8 @@
 #include <features.h>
 #include <stdio.h>
 
+__BEGIN_DECLS
+
 /* The group structure */
 struct group
 {
@@ -30,6 +32,8 @@ extern int initgroups __P ((__const char * user, gid_t gid));
 #ifdef _LIBC
 extern struct group * __getgrent __P ((int grp_fd));
 #endif
+
+__END_DECLS
 
 #endif /* _GRP_H */
 

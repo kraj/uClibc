@@ -200,6 +200,8 @@ typedef pthread_key_t __libc_key_t;
 /* Functions that are used by this file and are internal to the GNU C
    library.  */
 
+__BEGIN_DECLS
+
 extern int __pthread_mutex_init (pthread_mutex_t *__mutex,
 				 __const pthread_mutexattr_t *__mutex_attr);
 
@@ -250,6 +252,7 @@ extern int __pthread_atfork (void (*__prepare) (void),
 			     void (*__parent) (void),
 			     void (*__child) (void));
 
+__END_DECLS
 
 
 /* Make the pthread functions weak so that we can elide them from

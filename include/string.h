@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <stddef.h>
 
+__BEGIN_DECLS
 /* Basic string functions */
 
 /* Return the length of S.  */
@@ -117,7 +118,7 @@ extern size_t strspn __P ((__const char *__s, __const char *__accept));
 extern char *strsignal __P ((int __sig));
 
 /* More BSD compatabilty */
-int bcmp(const void *s1, const void *s2, size_t n);
+extern int bcmp(const void *s1, const void *s2, size_t n);
 
 /* Linux silly hour */
 char *strfry __P ((char *));
@@ -146,5 +147,7 @@ extern size_t strnlen __P ((__const char *__string, size_t __maxlen));
       __new[__len] = '\0';						      \
       (char *) memcpy (__new, __old, __len);				      \
     }))
+
+__END_DECLS
 
 #endif

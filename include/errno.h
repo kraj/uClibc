@@ -4,6 +4,8 @@
 #include <features.h>
 #include <bits/errno.h>
 
+__BEGIN_DECLS
+
 extern int sys_nerr;
 extern const char *const sys_errlist[];
 
@@ -16,5 +18,6 @@ extern int	errno;
 extern void	perror __P ((__const char* __s));
 extern char*	strerror __P ((int __errno));
 
+__END_DECLS
 
 #endif

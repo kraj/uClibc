@@ -70,9 +70,13 @@ struct lconv
   char n_sign_posn;
 };
 
+__BEGIN_DECLS
+
 extern char *setlocale(int __category, __const char *__locale);
 
 /* Return the numeric/monetary information for the current locale.  */
 extern struct lconv *localeconv __P ((void));
+
+__END_DECLS
 
 #endif /* locale.h  */

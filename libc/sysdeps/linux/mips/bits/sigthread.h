@@ -24,6 +24,8 @@
 # error "Never include this file directly.  Use <pthread.h> instead"
 #endif
 
+__BEGIN_DECLS
+
 /* Functions for handling signals. */
 
 /* Modify the signal mask for the calling thread.  The arguments have
@@ -34,5 +36,7 @@ extern int pthread_sigmask (int __how,
 
 /* Send signal SIGNO to the given thread. */
 extern int pthread_kill (pthread_t __thread, int __signo) __THROW;
+
+__END_DECLS
 
 #endif	/* bits/sigthread.h */

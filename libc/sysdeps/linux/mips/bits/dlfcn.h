@@ -54,6 +54,8 @@
 # define DL_CALL_FCT(fctp, args) \
   (_dl_mcount_wrapper_check (fctp), (*(fctp)) args)
 
+__BEGIN_DECLS
 /* This function calls the profiling functions.  */
 extern void _dl_mcount_wrapper_check (void *__selfpc) __THROW;
+__END_DECLS
 #endif

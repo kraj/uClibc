@@ -47,6 +47,7 @@
  #error "Never include <bits/mathcalls.h> directly; include <math.h> instead."
 #endif
 
+__BEGIN_DECLS
 
 /* Trigonometric functions.  */
 
@@ -334,3 +335,5 @@ __MATHDECL_1 (int, __signbit,, (_Mdouble_ __value))
 /* Multiply-add function computed as a ternary operation.  */
 __MATHCALL (fma,, (_Mdouble_ __x, _Mdouble_ __y, _Mdouble_ __z));
 #endif /* Use ISO C 9X.  */
+
+__END_DECLS

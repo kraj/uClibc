@@ -23,6 +23,8 @@
 #define USER_PROCESS 7
 #define DEAD_PROCESS 8
 
+__BEGIN_DECLS
+
 struct utmp
 {
   short   ut_type;                 /* type of login */
@@ -51,6 +53,8 @@ extern void logwtmp (const char *line, const char *name, const char *host);
 #ifdef _LIBC
 struct utmp *           __getutent __P ((int));
 #endif
+
+__END_DECLS
 
 #endif /* __UTMP_H */
 

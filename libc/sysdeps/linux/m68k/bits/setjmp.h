@@ -49,8 +49,10 @@ typedef struct
 
 /* Simple version of sigsetjmp and siglongjmp */
 
+__BEGIN_DECLS
 extern int __setjmp(__jmp_buf __buf);
 extern int __longjmp(__jmp_buf __buf, int __val);
+__END_DECLS
 
 #define longjmp(buf, val) __longjmp(buf, val)
 

@@ -24,6 +24,8 @@
 # undef ERANGE
 # include <linux/errno.h>
 
+__BEGIN_DECLS
+
 /* Linux has no ENOTSUP error code.  */
 # define ENOTSUP EOPNOTSUPP
 
@@ -58,3 +60,5 @@ extern int *__errno_location __P ((void)) __attribute__ ((__const__));
 # define EILSEQ	84	/* Illegal byte sequence.  */
 # define ERANGE	34	/* Math result not representable.  */
 #endif /* !_ERRNO_H && __need_Emath */
+
+__END_DECLS

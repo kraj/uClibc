@@ -25,6 +25,7 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 
+__BEGIN_DECLS
 
 /* Create pseudo tty master slave pair with NAME and set terminal
    attributes according to TERMP and WINP and return handles for both
@@ -36,5 +37,7 @@ extern int openpty (int *__amaster, int *__aslave, char *__name,
    child's controlling terminal.  */
 extern int forkpty (int *__amaster, char *__name,
 		    struct termios *__termp, struct winsize *__winp);
+
+__END_DECLS
 
 #endif	/* pty.h */

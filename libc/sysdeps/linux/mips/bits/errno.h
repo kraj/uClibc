@@ -28,6 +28,9 @@
 # define ENOTSUP EOPNOTSUPP
 
 # ifndef __ASSEMBLER__
+
+__BEGIN_DECLS
+
 /* We now need a declaration of the `errno' variable.  */
 extern int errno;
 
@@ -43,6 +46,9 @@ extern int *__errno_location (void);
 /* When using threads, errno is a per-thread value.  */
 #   define errno (*__errno_location ())
 #  endif
+
+__END_DECLS
+
 # endif /* !__ASSEMBLER__ */
 #endif /* _ERRNO_H */
 

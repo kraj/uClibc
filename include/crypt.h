@@ -27,6 +27,8 @@
 
 #include <features.h>
 
+__BEGIN_DECLS
+
 /* Encrypt characters from KEY using salt to perturb the encryption method.
  * If salt begins with "$1$", md5 hashing is used instead of DES. */
 extern char *crypt (const char *__key, const char *__salt);
@@ -65,4 +67,7 @@ extern void setkey_r (const char *__key,
 
 extern void encrypt_r (char *__block, int __edflag,
 		       struct crypt_data * __data);
+
+__END_DECLS
+
 #endif	/* crypt.h */

@@ -47,6 +47,7 @@
 
 #define _Mdouble_complex_ _Mdouble_ _Complex
 
+__BEGIN_DECLS
 
 /* Trigonometric functions.  */
 
@@ -153,5 +154,6 @@ __MATH_PRECNAME(conj) (_Mdouble_complex_ __z)
 {
   return ~__z;
 }
-
 #endif
+
+__END_DECLS

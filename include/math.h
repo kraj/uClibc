@@ -184,8 +184,10 @@ typedef struct
 
 
 /* Variable for error reporting.  See mtherr.c.  */
+__BEGIN_DECLS
 extern int mtherr(char *name, int code);
 extern int merror;
+__END_DECLS
 
 
 /* If you define UNK, then be sure to set BIGENDIAN properly. */
@@ -195,6 +197,7 @@ extern int merror;
 #else /* __BYTE_ORDER == __LITTLE_ENDIAN */
 #  define BIGENDIAN 0
 #endif
+
 
 
 #define __USE_ISOC9X
@@ -265,6 +268,7 @@ enum
      (sizeof (x) == sizeof (float) ? __fpclassifyf (x) : __fpclassify (x))
 #endif
 
+__BEGIN_DECLS
 
 #ifdef __UCLIBC_HAS_LIBM_DOUBLE__
 /* Return nonzero value if sign of X is negative.  */
@@ -610,5 +614,6 @@ extern long double fmal(long double x, long double y, long double z);
       fpclassify (__u) == FP_NAN || fpclassify (__v) == FP_NAN; }))
 # endif
 
+__END_DECLS
 
 #endif /* math.h  */

@@ -6,6 +6,8 @@
 
 #include <features.h>
 
+__BEGIN_DECLS
+
 /* For now, just always use the functions instead of the macros...*/
 #define __USE_CTYPE_C_FUNCTIONS
 
@@ -57,5 +59,7 @@ extern int toupper(int c);
 #define toupper(c)  (islower(c) ? (c - 'a' + 'A') : (c))
 
 #endif
+
+__END_DECLS
 
 #endif /* __CTYPE_H */

@@ -24,6 +24,8 @@
 # undef ERANGE
 # include <linux/errno.h>
 
+__BEGIN_DECLS
+
 /* Linux has no ENOTSUP error code.  */
 # define ENOTSUP EOPNOTSUPP
 
@@ -49,6 +51,8 @@ extern int *__errno_location __P ((void)) __attribute__ ((__const__));
 #  endif
 # endif /* !__ASSEMBLER__ */
 #endif /* _ERRNO_H */
+
+__END_DECLS
 
 #if !defined _ERRNO_H && defined __need_Emath
 /* This is ugly but the kernel header is not clean enough.  We must

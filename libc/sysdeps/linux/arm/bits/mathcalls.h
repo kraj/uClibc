@@ -48,6 +48,7 @@
 #endif
 
 
+__BEGIN_DECLS
 /* Trigonometric functions.  */
 
 /* Arc cosine of X.  */
@@ -338,4 +339,7 @@ __MATHDECL_1 (int, __signbit,, (_Mdouble_ __value))
 
 /* Multiply-add function computed as a ternary operation.  */
 __MATHCALL (fma,, (_Mdouble_ __x, _Mdouble_ __y, _Mdouble_ __z));
+
 #endif /* Use ISO C99.  */
+
+__END_DECLS

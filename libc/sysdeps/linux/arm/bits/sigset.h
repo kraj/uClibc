@@ -32,7 +32,6 @@ typedef struct
 
 #endif
 
-
 /* We only want to define these functions if <signal.h> was actually
    included; otherwise we were included just to define the types.  Since we
    are namespace-clean, it wouldn't hurt to define extra macros.  But
@@ -97,6 +96,8 @@ typedef struct
 #  endif
 # endif
 
+__BEGIN_DECLS
+
 /* These functions needn't check for a bogus signal number -- error
    checking is done in the non __ versions.  */
 
@@ -121,5 +122,6 @@ __SIGSETFN (__sigdelset, ((__set->__val[__word] &= ~__mask), 0), )
 #  undef __SIGSETFN
 # endif
 
+__END_DECLS
 
 #endif /* ! _SIGSET_H_fns.  */

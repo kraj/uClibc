@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <limits.h>
 
+__BEGIN_DECLS
+
 /* Don't overwrite user definitions of NULL */
 #ifndef NULL
 #define NULL ((void *) 0)
@@ -121,5 +123,6 @@ extern ldiv_t ldiv __P ((long int __numer, long int __denom)) __attribute__ ((__
 extern char *mktemp __P ((char *__template));
 extern int mkstemp __P ((char *__template));
 
+__END_DECLS
 
 #endif /* __STDLIB_H */

@@ -13,6 +13,8 @@ struct utsname {
 	char domainname[65];
 };
 
+__BEGIN_DECLS
 extern int uname __P ((struct utsname * __utsbuf));
+__END_DECLS
 
 #endif
