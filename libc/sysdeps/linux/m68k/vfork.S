@@ -11,7 +11,9 @@
 	.align 2
 	.globl errno
 	.globl vfork
+#if defined HAVE_ELF
 	.type	 vfork,@function
+#endif
 vfork:
 	movl	%sp@+, %a1               /* save the return address for later */
 	movl	IMM __NR_vfork,%d0
