@@ -1,25 +1,34 @@
-Any takers?
+Erik's TODO list for the 0.9.10, which will hopefully
+take place around March 1st.
 
-*) Fix regex so it isn't so stinking big
-*) Fix glob so it isn't so stinking big
-*) Integrate Jeff Garzik's key-value reading code for pwd/grp, /etc/hosts, etc
-*) Finish sparc port
-*) Documentation
-*) Better configuration system.  Use CML1 + kbuild and use menuconfig
-	to select from available features. 
-*) run 'nm -D --size-sort -t d libuClibc-0.9.5.so' and work on the biggest things 
-	(i.e. stuff at the end of the list) to make them smaller.
-*) make inb/outb work (for lilo et all).  This is complete for i386 and arm.  
-	lilo and the pcmcia tools compile cleanly now.  Othere arches,
-	like powerpc, probably still need fixing.
-*) scandir.c doesn't check returns on malloc and realloc.
-*) Add in shadow support (include/shadow.h and such)
-*) Right now, getopt has different behavior when dynamically vs when
-	statically linked, violating the principle of least surprise.
-*) libc/inet/resolv.c does not define or use struct _res, and res_init does 
-	nothing.  the other res_* functions are not implemented.
-*) uClibc timezone support is stubbed out, so date(1) will show '???'
-	for the timezone when compiled with uClibc. 
+Erik's current plans for uClibc 0.9.10 (which will hopefull
+be released around March 1st):
+    1) Fix C++ global constructors/destructors
+    2) Fix uClibc timezone support so date(1) will show a real
+	timezone, instead of just '???'
+    3) Group all common include/bits files together to avoid
+        the current situation where there are many redundnant
+        files.
+    4) Add struct _res support to libc/inet/resolv.c.  Right now, 
+	struct _res, and res_init do nothing.  The other res_* 
+	functions are not yet implemented.  So fix that.
+    5) Rework pwd/grp for standards compliance (and integrate 
+	Jeff Garzik's key-value reading code for pwd/grp, and
+	perhaps for /etc/hosts and friends as well)
+    6) Fix the bugs in crypt so it passes conformance tests 
+    7) Rework some?/most?/all? code that fails POSIX conformance 
+	tests
+
+
+Erik's current plans for uClibc 0.9.11:
+    1) Better configuration system (CML1 + kbuild + menuconfig) 
+    2) When fixing the config system, ensure that _every_ option
+        that is enabled or disabled is listed in uClibc_config.h
+    3) When options are disabled, also disable them in the 
+        include files as well.
+    4) Reentrancy auditing
+    5) Make all small objects (>~50 bytes) into either inlines or 
+        into a static library
 
 
 -----------------------------------------------------------------------------
@@ -30,8 +39,8 @@ Move the target-specific sysconf.c generator to extra (as it needs to be
 
 Add a usage message to the gcc wrapper.
 
-Look at pre-cephes-addition floating point code and possibly rework.
-	(primarily nan and infinity handling)
+Look at older, (pre-cephes-addition) floating point code and 
+    rework for proper nan and infinity handling
 
 Make scanf and strtod aware of nan and inf.
 
@@ -69,9 +78,28 @@ Needs a uClibc_config.h entry dependent on HAS_FLOATING_POINT.
 getaddrinfo()
 
 Why does ld.so search /usr/powerpc-uclibc/lib before LD_LIBRARY_PATH?
+
+-----------------------------------------------------------------------------
+
+Any takers?
+
+*) Fix regex so it isn't so stinking big
+*) Fix glob so it isn't so stinking big
+*) Add drand48()
+*) Add missing syscall() function to allow arbitraty syscalls to be made. 
+*) Documentation
+	- List all differences between the feature set of uClibc and glibc.
+*) run 'nm -D --size-sort -t d libuClibc-0.9.5.so' and work on the biggest things 
+	(i.e. stuff at the end of the list) to make them smaller.
+*) make inb/outb work for all arches.  This is complete for i386 and arm.  
+	Other archs like powerpc, still need fixing.
+
 -----------------------------------------------------------------------------
 
 PORTING
 -------
 
 bits/dirent.h currently differs from the glibc version (d_type unsupported)
+
+
+
