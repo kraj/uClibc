@@ -1,0 +1,62 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Library General Public License
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+#
+# Derived in part from the Linux-8086 C library, the GNU C Library, and several
+# other sundry sources.  Files within this library are copyright by their
+# respective copyright holders.
+
+TOPDIR=../
+include $(TOPDIR)Rules.mak
+
+LIBRESOLV=libresolv.a
+LIBRESOLV_SHARED=libresolv.so
+LIBRESOLV_SHARED_FULLNAME=libresolv-$(MAJOR_VERSION).$(MINOR_VERSION).so
+TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
+
+CSRC = resolv.c
+OBJS=$(patsubst %.c,%.o, $(CSRC))
+
+all: $(OBJS) $(LIBRESOLV)
+
+$(LIBRESOLV): ar-target
+
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBRESOLV) $(OBJS)
+	install -d $(TOPDIR)lib
+	rm -f $(TOPDIR)lib/$(LIBRESOLV)
+	install -m 644 $(LIBRESOLV) $(TOPDIR)lib
+
+$(OBJS): %.o : %.c
+	$(TARGET_CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(OBJ): Makefile
+
+shared: all
+	$(TARGET_CC) $(LDFLAGS) -shared -o $(LIBRESOLV_SHARED_FULLNAME) \
+	    -Wl,-soname,$(LIBRESOLV_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive \
+	    $(LIBRESOLV) $(TOPDIR)lib/$(SHARED_FULLNAME)
+	install -d $(TOPDIR)lib
+	rm -f $(TOPDIR)lib/$(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRESOLV_SHARED).$(MAJOR_VERSION)
+	install -m 644 $(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib;
+	(cd $(TOPDIR)lib; ln -sf $(LIBRESOLV_SHARED_FULLNAME) $(LIBRESOLV_SHARED)); 
+	(cd $(TOPDIR)lib; ln -sf $(LIBRESOLV_SHARED_FULLNAME) $(LIBRESOLV_SHARED).$(MAJOR_VERSION)); 
+
+clean: 
+	rm -f *.[oa] *~ core $(LIBRESOLV_SHARED)* $(LIBRESOLV_SHARED_FULLNAME)*
+

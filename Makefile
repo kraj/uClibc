@@ -33,7 +33,7 @@ include Rules.mak
 ifeq ($(DO_SHARED),shared)
     LDSO_DIR = ldso
 endif
-DIRS = extra $(LDSO_DIR) libc libcrypt libutil libm  
+DIRS = extra $(LDSO_DIR) libc libcrypt libresolv libutil libm  
 
 all: headers uClibc_config.h subdirs $(DO_SHARED) done
 
