@@ -8,13 +8,13 @@
  */
 
 #include "syscalls.h"
-#	ifdef __NR_umount2	/* Old kernels don't have umount2 */
-#		include <sys/mount.h>
+#ifdef __NR_umount2	/* Old kernels don't have umount2 */
+#include <sys/mount.h>
 _syscall2(int, umount2, const char *, special_file, int, flags);
-#	else
+#else
 int umount2(const char *special_file, int flags)
 {
 	__set_errno(ENOSYS);
 	return -1;
 }
-#	endif
+#endif
