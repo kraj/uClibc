@@ -78,7 +78,7 @@ typedef int __wchar_t;			/* TODO: temporary, as not currently uClibc */
 
 /* For uClibc, these are currently handled above. */
 /*  #define __STDIO_LARGE_FILES */
-#define __STDIO_THREADSAFE
+/*  #define __STDIO_THREADSAFE */
 
 /* L mode extension for fopen. */
 #define __STDIO_FOPEN_LARGEFILE_MODE
