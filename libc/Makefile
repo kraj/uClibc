@@ -69,8 +69,8 @@ shared: $(TOPDIR)lib/$(LIBNAME) $(LIBGCC_NEED)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(SHARED_FULLNAME)
 	$(INSTALL) -m 644 $(SHARED_FULLNAME) $(TOPDIR)lib
-	(cd ../lib && ln -sf $(SHARED_FULLNAME) libc.so);
-	(cd ../lib && ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME));
+	$(LN) -sf $(SHARED_FULLNAME) $(TOPDIR)lib/libc.so
+	$(LN) -sf $(SHARED_FULLNAME) $(TOPDIR)lib/$(SHARED_MAJORNAME)
 
 $(LIBGCC_NEED): $(TOPDIR)lib/$(LIBNAME)
 	@$(RM) -r tmp

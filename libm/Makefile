@@ -103,8 +103,8 @@ shared: all
 	    $(INSTALL) -d $(TOPDIR)lib; \
 	    $(RM) $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
 	    $(INSTALL) -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib; \
-	    (cd $(TOPDIR)lib && ln -sf $(LIBM_SHARED_FULLNAME) $(LIBM_SHARED)); \
-	    (cd $(TOPDIR)lib && ln -sf $(LIBM_SHARED_FULLNAME) $(LIBM_SHARED).$(MAJOR_VERSION)); \
+	    $(LN) -sf $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED); \
+	    $(LN) -sf $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
 	fi;
 
 ar-target: $(OBJS)

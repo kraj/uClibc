@@ -63,10 +63,9 @@ $(COBJS): %.o : %.c
 headers:
 ifneq ($(strip $(HAVE_ELF)),y)
 	echo "Working around compiler bug in the m68k-pic-coff toolchain"
-	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/m68k/float.h .
+	$(LN) -fs ../libc/sysdeps/linux/m68k/float.h $(TOPDIR)/include/
 endif
-	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/m68k/fpu_control.h .
-
+	$(LN) -fs ../libc/sysdeps/linux/m68k/fpu_control.h $(TOPDIR)/include/
 
 clean:
 	$(RM) *.[oa] *~ core
@@ -74,4 +73,3 @@ clean:
 ifneq ($(strip $(HAVE_ELF)),y)
 	$(RM) $(TOPDIR)/include/float.h
 endif
-

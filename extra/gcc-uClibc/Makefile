@@ -65,22 +65,22 @@ install:	all
 	$(INSTALL) -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
 	$(INSTALL) -m 755 $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/
 	$(INSTALL) -m 755 $(TARGET_ARCH)-uclibc-ld $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/
-	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-cc
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/gcc
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/cc
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ld  $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ld
+	$(LN) -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-cc
+	$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/gcc
+	$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/cc
+	$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ld  $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ld
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
-	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-g++
-	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-c++
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/c++
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/g++
+	$(LN) -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-g++
+	$(LN) -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-c++
+	$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/c++
+	$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/g++
 endif
 	for app in addr2line ar as cpp gasp nm objcopy \
 	    objdump ranlib size strings strip; do \
 	  APPNAME=`which $(CROSS)$${app} 2>/dev/null`; \
 	  if [ -x "$$APPNAME" ] ; then \
-	    ln -fs "$$APPNAME" $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/$${app}; \
-	    ln -fs "$$APPNAME" $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-$${app}; \
+	    $(LN) -fs "$$APPNAME" $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/$${app}; \
+	    $(LN) -fs "$$APPNAME" $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-$${app}; \
 	  fi; \
 	done
 

@@ -99,8 +99,7 @@ $(TOPDIR)lib/crtn.o:
 endif
 
 headers:
-	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/common/fpu_control.h .
+	$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h $(TOPDIR)/include/
 
 clean:
 	$(RM) *.[oa] *~ core crt[in].* *.S
-

@@ -39,7 +39,7 @@ endif
 all:	$(TARGETS)
 
 headers:
-	ln -fs $(TOPDIR)include/elf.h
+	$(LN) -fs $(TOPDIR)include/elf.h
 
 readelf:	readelf.c
 	$(HOSTCC) $(HOSTCFLAGS) -I. -I../include $^ -o $@

@@ -53,12 +53,11 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 headers:
-	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/mips/sgidefs.h .
-#	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/mips/regdef.h .
-	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/mips/fpu_control.h .
+	$(LN) -fs ../libc/sysdeps/linux/mips/sgidefs.h $(TOPDIR)/include/
+#	$(LN) -fs ../libc/sysdeps/linux/mips/regdef.h $(TOPDIR)/include/
+	$(LN) -fs ../libc/sysdeps/linux/mips/fpu_control.h $(TOPDIR)/include/
 
 clean:
 	$(RM) *.[oa] *~ core
 	$(RM) bits/sysnum.h
 	$(RM) $(TOPDIR)/include/sgidefs.h
-

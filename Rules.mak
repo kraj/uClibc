@@ -44,6 +44,7 @@ NM= $(CROSS)nm
 STRIPTOOL= $(CROSS)strip
 
 INSTALL= install
+LN= ln
 RM= rm -f
 
 # Select the compiler needed to build binaries for your development system

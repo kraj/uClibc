@@ -80,7 +80,7 @@ bogus $(SHARED_TARGET): lib/libc.a lib/main.o Makefile
 		-L __CTOR_LIST__ -L __DTOR_LIST__			\
 		-L _current_shared_library_a5_offset_			\
 		$(SHARED_TARGET).gdb
-	ln -sf $(SHARED_TARGET).gdb .
+	$(LN) -sf $(SHARED_TARGET).gdb .
 endif
 
 finished: shared
@@ -127,31 +127,28 @@ else
 	@./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH) -n
 endif
 	@if [ "$(TARGET_ARCH)" = "mipsel" ]; then \
-	    (cd libc/sysdeps/linux; \
-	    ln -fs mips mipsel); \
-	    (cd ldso/ldso; \
-	    ln -fs mips mipsel); \
-	    (cd libpthread/linuxthreads/sysdeps; \
-	    ln -fs mips mipsel); \
+	    $(LN) -fs mips libc/sysdeps/linux/mipsel; \
+	    $(LN) -fs mips ldso/ldso/mipsel; \
+	    $(LN) -fs mips libpthread/linuxthreads/sysdeps/mipsel; \
 	fi;
 	@cd include/bits; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
-		ln -fs $$i .; \
+		$(LN) -fs $$i .; \
 	done; \
 	if [ -d ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits ] ; then \
 		for i in `ls ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/*.h` ; do \
-			ln -fs $$i .; \
+			$(LN) -fs $$i .; \
 		done; \
 	fi
 	@cd include/sys; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/sys/*.h` ; do \
-		ln -fs $$i .; \
+		$(LN) -fs $$i .; \
 	done; \
 	if [ -d ../../libc/sysdeps/linux/$(TARGET_ARCH)/sys ] ; then \
 		for i in `ls ../../libc/sysdeps/linux/$(TARGET_ARCH)/sys/*.h` ; do \
-			ln -fs $$i .; \
+			$(LN) -fs $$i .; \
 		done; \
 	fi
 	@cd $(TOPDIR); \
@@ -257,7 +254,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	# If we build shared libraries then the static libs are PIC...
 	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
 	for i in `find lib/  -type f -name '*.a' | sed -e 's/lib\///'` ; do \
-		ln -sf $$i $(PREFIX)$(DEVEL_PREFIX)/lib/`echo $$i | sed -e 's/\.a$$/_pic.a/'`; \
+		$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)/lib/`echo $$i | sed -e 's/\.a$$/_pic.a/'`; \
 	done
 endif
 
@@ -279,7 +276,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	fi;
 	#@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	#    $(INSTALL) -d $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
-	#    ln -sf $(PREFIX)$(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	#    $(LN) -sf $(PREFIX)$(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	#		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO); \
 	#fi;
 endif
@@ -303,20 +300,20 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	$(INSTALL) -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin;
 	$(INSTALL) -m 755 ldso/util/ldd \
 		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd \
+	$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd \
 		$(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ldd
 	# For now, don't bother with readelf since surely the host
 	# system has binutils, or we couldn't have gotten this far...
 	#$(INSTALL) -m 755 ldso/util/readelf \
 	#	$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf
-	#ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf \
+	#$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf \
 	#	$(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/readelf
 	@if [ -x ldso/util/ldconfig ] ; then \
 	    set -x -e; \
 	    $(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/etc; \
 	    $(INSTALL) -m 755 ldso/util/ldconfig \
 		    $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig; \
-	    ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig \
+	    $(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig \
 		    $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ldconfig; \
 	fi;
 endif
@@ -339,7 +336,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	fi;
 	#@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	#    $(INSTALL) -d $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
-	#    ln -sf $(PREFIX)$(TARGET_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	#    $(LN) -sf $(PREFIX)$(TARGET_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	#    		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO); \
 	#fi;
 endif

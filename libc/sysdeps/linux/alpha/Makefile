@@ -54,10 +54,8 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 headers:
-	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/alpha/fpu_control.h .
-
+	$(LN) -fs ../libc/sysdeps/linux/alpha/fpu_control.h $(TOPDIR)/include/
 
 clean:
 	$(RM) *.[oa] *~ core
 	$(RM) bits/sysnum.h
-

@@ -74,7 +74,7 @@ lib:: _dl_progname.h $(OBJS) $(DLINK_OBJS)
 		-o $(LDSO_FULLNAME) $(OBJS) $(LIBGCC);
 	$(INSTALL) -d $(TOPDIR)lib
 	$(INSTALL) -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
-	(cd $(TOPDIR)lib && ln -sf $(LDSO_FULLNAME) $(UCLIBC_LDSO))
+	$(LN) -sf $(LDSO_FULLNAME) $(TOPDIR)lib/$(UCLIBC_LDSO)
 
 _dl_progname.h: Makefile
 	echo "const char *_dl_progname=\""$(UCLIBC_LDSO)"\";" > _dl_progname.h

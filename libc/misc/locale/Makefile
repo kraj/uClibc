@@ -60,7 +60,7 @@ $(MOBJx): $(MSRC)
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 locale_data.o:
-	ln -sf ../../../extra/locale/locale_data.c
+	$(LN) -sf ../../../extra/locale/locale_data.c
 	$(CC) $(CFLAGS) -c -D__WCHAR_ENABLED -I../../../extra/locale locale_data.c -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
