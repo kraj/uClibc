@@ -184,8 +184,13 @@ malloc (size_t size)
     __heap_check (&__malloc_heap, "malloc");
 #endif
 
+#if defined(__MALLOC_GLIBC_COMPAT__)
   if (size == 0)
     return 0;
+#else
+  if (size == 0)
+      size++;
+#endif
 
   return malloc_from_heap (size, &__malloc_heap);
 }
