@@ -43,7 +43,7 @@ XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
 # BEWARE!!! At least mips* will die if -O0 is used!!!
 XXFLAGS:=$(XXFLAGS:-O0=-O1)
 XXFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
-LDFLAGS=$(CPU_LDFLAGS-y) -z now -Bsymbolic -shared --warn-common --export-dynamic --sort-common \
+LDFLAGS=$(CPU_LDFLAGS-y) -e _start -z now -Bsymbolic -shared --warn-common --export-dynamic --sort-common \
 	-z combreloc --discard-locals --discard-all --no-undefined
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 	LDFLAGS+=-z relro
