@@ -1,34 +1,31 @@
 /* vi: set sw=4 ts=4: */
-
-/* Run an ELF binary on a linux system.
-
+/* mips/mipsel ELF shared library loader suppport
+ *
    Copyright (C) 2002, Steven J. Hill (sjhill@realitydiluted.com)
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
-
-
-/* Program to load an ELF binary on a linux system, and run it.
-   References to symbols in sharable libraries can be resolved by either
-   an ELF sharable library or a linux style of shared library. */
-
-/* Disclaimer:  I have never seen any AT&T source code for SVr4, nor have
-   I ever taken any courses on internals.  This program was developed using
-   information available through the book "UNIX SYSTEM V RELEASE 4,
-   Programmers guide: Ansi C and Programming Support Tools", which did
-   a more than adequate job of explaining everything required to get this
-   working. */
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. The name of the above contributors may not be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
 
 
 extern int _dl_linux_resolve(void);
@@ -55,11 +52,11 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 
 	value = (unsigned long) _dl_find_hash(strtab + sym->st_name,
-		 tpnt->symbol_scope, tpnt, 1);
+		 tpnt->symbol_scope, tpnt, resolver);
 
 	*(got + local_gotno + sym_index - gotsym) = value;
 
-#ifdef DL_DEBUG
+#ifdef LD_DEBUG
 	_dl_dprintf(2, "---RESOLVER---\n");
 	_dl_dprintf(2, "SYMTAB INDEX: %i\n", sym_index);
 	_dl_dprintf(2, "      GOTSYM: %i\n", gotsym);
@@ -167,7 +164,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 
 		/* Relocate the global GOT entries for the object */
 		while(i--) {
-#ifdef DL_DEBUG
+#ifdef LD_DEBUG
 			_dl_dprintf(2,"BEFORE: %s=%x\n", strtab + sym->st_name,
 				*got_entry);
 #endif
@@ -176,12 +173,12 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 					*got_entry = sym->st_value + (unsigned long) tpnt->loadaddr;
 				else {
 					*got_entry = (unsigned long) _dl_find_hash(strtab +
-						sym->st_name, tpnt->symbol_scope, NULL, 1);
+						sym->st_name, tpnt->symbol_scope, NULL, copyrel);
 				}
 			}
 			else if (sym->st_shndx == SHN_COMMON) {
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
-					sym->st_name, tpnt->symbol_scope, NULL, 1);
+					sym->st_name, tpnt->symbol_scope, NULL, copyrel);
 			}
 			else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&
 				*got_entry != sym->st_value)
@@ -192,10 +189,10 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 			}
 			else {
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
-					sym->st_name, tpnt->symbol_scope, NULL, 1);
+					sym->st_name, tpnt->symbol_scope, NULL, copyrel);
 			}
 
-#ifdef DL_DEBUG
+#ifdef LD_DEBUG
 			if (*got_entry == 0)
 				_dl_dprintf(2,"ZERO: %s\n", strtab + sym->st_name);
 			else

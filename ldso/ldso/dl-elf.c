@@ -1,21 +1,34 @@
-/* Load an ELF sharable library into memory.
-
-   Copyright (C) 1993-1996, Eric Youngdale.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
-
+/* vi: set sw=4 ts=4: */
+/* Program to load an ELF binary on a linux system, and run it
+ * after resolving ELF shared library symbols
+ *
+ * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald, 
+ *				David Engel, Hongjiu Lu and Mitch D'Souza
+ * Copyright (C) 2001-2002, Erik Andersen
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. The name of the above contributors may not be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
 
 
 /* This file contains the helper routines to load an ELF sharable
@@ -180,8 +193,8 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		pnt++;
 	}
 
-#ifdef DL_DEBUG
-	    _dl_dprintf(2, "searching for library: '%s'\n", libname);
+#ifdef LD_DEBUG
+	    _dl_dprintf(_dl_debug_file, "searching for library: '%s'\n", libname);
 #endif
 	/* If the filename has any '/', try it straight and leave it at that.
 	   For IBCS2 compatibility under linux, we substitute the string 
@@ -204,8 +217,8 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 			if (pnt) {
 				pnt += (unsigned long) tpnt->loadaddr +
 					tpnt->dynamic_info[DT_STRTAB];
-#ifdef DL_DEBUG
-				_dl_dprintf(2, "searching RPATH: '%s'\n", pnt);
+#ifdef LD_DEBUG
+				_dl_dprintf(_dl_debug_file, "searching RPATH: '%s'\n", pnt);
 #endif
 				if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL) 
 				{
@@ -217,8 +230,8 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 
 	/* Check in LD_{ELF_}LIBRARY_PATH, if specified and allowed */
 	if (_dl_library_path) {
-#ifdef DL_DEBUG
-	    _dl_dprintf(2, "searching _dl_library_path: '%s'\n", _dl_library_path);
+#ifdef LD_DEBUG
+	    _dl_dprintf(_dl_debug_file, "searching _dl_library_path: '%s'\n", _dl_library_path);
 #endif
 	    if ((tpnt1 = search_for_named_library(libname, secure, _dl_library_path, rpnt)) != NULL) 
 	    {
@@ -251,8 +264,8 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 
 	/* Look for libraries wherever the shared library loader
 	 * was installed */
-#ifdef DL_DEBUG
-	_dl_dprintf(2, "searching in ldso dir: %s\n", _dl_ldsopath);
+#ifdef LD_DEBUG
+	_dl_dprintf(_dl_debug_file, "searching in ldso dir: %s\n", _dl_ldsopath);
 #endif
 	if ((tpnt1 = search_for_named_library(libname, secure, _dl_ldsopath, rpnt)) != NULL) 
 	{
@@ -262,8 +275,8 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 
 	/* Lastly, search the standard list of paths for the library.
 	   This list must exactly match the list in uClibc/ldso/util/ldd.c */
-#ifdef DL_DEBUG
-	    _dl_dprintf(2, "searching full lib path list\n");
+#ifdef LD_DEBUG
+	    _dl_dprintf(_dl_debug_file, "searching full lib path list\n");
 #endif
 	if ((tpnt1 = search_for_named_library(libname, secure, 
 			UCLIBC_TARGET_PREFIX "/usr/lib:"
@@ -282,8 +295,8 @@ goof:
 	if (_dl_internal_error_number)
 		_dl_error_number = _dl_internal_error_number;
 	else
-		_dl_error_number = DL_ERROR_NOFILE;
-#ifdef DL_DEBUG
+		_dl_error_number = LD_ERROR_NOFILE;
+#ifdef LD_DEBUG
 	    _dl_dprintf(2, "Bummer: could not find '%s'!\n", libname);
 #endif
 	return NULL;
@@ -323,6 +336,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			(*rpnt)->next = (struct dyn_elf *)
 				_dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset((*rpnt)->next, 0, sizeof(*((*rpnt)->next)));
+			(*rpnt)->next->prev = (*rpnt);
 			*rpnt = (*rpnt)->next;
 			(*rpnt)->dyn = tpnt;
 			tpnt->symbol_scope = _dl_symbol_tables;
@@ -352,7 +366,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		 */
 		_dl_dprintf(2, "%s: can't open '%s'\n", _dl_progname, libname);
 #endif
-		_dl_internal_error_number = DL_ERROR_NOFILE;
+		_dl_internal_error_number = LD_ERROR_NOFILE;
 		return NULL;
 	}
 
@@ -365,7 +379,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	{
 		_dl_dprintf(2, "%s: '%s' is not an ELF file\n", _dl_progname,
 					 libname);
-		_dl_internal_error_number = DL_ERROR_NOTELF;
+		_dl_internal_error_number = LD_ERROR_NOTELF;
 		_dl_close(infile);
 		return NULL;
 	};
@@ -377,7 +391,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		)) 
 	{
 		_dl_internal_error_number = 
-		    (epnt->e_type != ET_DYN ? DL_ERROR_NOTDYN : DL_ERROR_NOTMAGIC);
+		    (epnt->e_type != ET_DYN ? LD_ERROR_NOTDYN : LD_ERROR_NOTMAGIC);
 		_dl_dprintf(2, "%s: '%s' is not an ELF executable for " ELF_TARGET 
 			"\n", _dl_progname, libname);
 		_dl_close(infile);
@@ -424,7 +438,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		maxvma - minvma, PROT_NONE, flags | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(status)) {
 		_dl_dprintf(2, "%s: can't map %s\n", _dl_progname, libname);
-		_dl_internal_error_number = DL_ERROR_MMAP_FAILED;
+		_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 		_dl_close(infile);
 		return NULL;
 	};
@@ -457,7 +471,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				if (_dl_mmap_check_error(status)) {
 					_dl_dprintf(2, "%s: can't map '%s'\n", 
 						_dl_progname, libname);
-					_dl_internal_error_number = DL_ERROR_MMAP_FAILED;
+					_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 					_dl_munmap((char *) libaddr, maxvma - minvma);
 					_dl_close(infile);
 					return NULL;
@@ -488,7 +502,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 					infile, ppnt->p_offset & OFFS_ALIGN);
 			if (_dl_mmap_check_error(status)) {
 				_dl_dprintf(2, "%s: can't map '%s'\n", _dl_progname, libname);
-				_dl_internal_error_number = DL_ERROR_MMAP_FAILED;
+				_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 				_dl_munmap((char *) libaddr, maxvma - minvma);
 				_dl_close(infile);
 				return NULL;
@@ -516,7 +530,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	/* Start by scanning the dynamic section to get all of the pointers */
 
 	if (!dynamic_addr) {
-		_dl_internal_error_number = DL_ERROR_NODYNAMIC;
+		_dl_internal_error_number = LD_ERROR_NODYNAMIC;
 		_dl_dprintf(2, "%s: '%s' is missing a dynamic section\n", 
 			_dl_progname, libname);
 		return NULL;
@@ -580,6 +594,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		(*rpnt)->next = (struct dyn_elf *)
 			_dl_malloc(sizeof(struct dyn_elf));
 		_dl_memset((*rpnt)->next, 0, sizeof(*((*rpnt)->next)));
+		(*rpnt)->next->prev = (*rpnt);
 		*rpnt = (*rpnt)->next;
 		(*rpnt)->dyn = tpnt;
 		tpnt->symbol_scope = _dl_symbol_tables;
@@ -626,6 +641,10 @@ int _dl_copy_fixups(struct dyn_elf *rpnt)
 		return goof;
 	tpnt->init_flag |= COPY_RELOCS_DONE;
 
+#if defined (SUPPORT_LD_DEBUG)
+	if(_dl_debug) _dl_dprintf(_dl_debug_file,"\nrelocation copy fixups: %s", tpnt->libname);	
+#endif    
+
 #ifdef ELF_USES_RELOCA
 	goof += _dl_parse_copy_information(rpnt, 
 		tpnt->dynamic_info[DT_RELA], tpnt->dynamic_info[DT_RELASZ], 0);
@@ -635,5 +654,8 @@ int _dl_copy_fixups(struct dyn_elf *rpnt)
 		tpnt->dynamic_info[DT_RELSZ], 0);
 
 #endif
+#if defined (SUPPORT_LD_DEBUG)
+	if(_dl_debug) _dl_dprintf(_dl_debug_file,"\nrelocation copy fixups: %s; finished\n\n", tpnt->libname);	
+#endif    
 	return goof;
 }

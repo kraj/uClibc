@@ -2,20 +2,22 @@
  * will work as expected and cope with whatever platform specific wierdness is
  * needed for this architecture.  */
 
-/* Overrive the default _dl_boot function, and replace it with a bit of asm.
- * Then call the real _dl_boot function, which is now named _dl_boot2. */
-
 asm("\
-.text
-.globl _dl_boot
+	.text
+	.globl	_dl_boot
 _dl_boot:
-	mr	3,1
-	addi	1,1,-16
-
-	bl      _dl_boot2
-.previous\n\
+        mov	r15, r4
+        mov.l	.L_dl_boot2, r1
+	mova	.L_dl_boot2, r0
+	add	r1, r0
+	jsr	@r0
+	 add	#4, r4
+	jmp	@r0
+	 mov    #0, r4        /* call _start with arg == 0 */
+.L_dl_boot2:\n\
+	.long	_dl_boot2-.\n\
+	.previous\n\
 ");
 
 #define _dl_boot _dl_boot2
 #define LD_BOOT(X)   static void *  __attribute__ ((unused)) _dl_boot (X)
-

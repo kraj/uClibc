@@ -31,13 +31,35 @@ LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 # (i.e. where the shared library loader does all the heavy lifting)
 # Since this currently only saves about 300 bytes, I'm going to leave 
 # it enabled...
-XXFLAGS+= -DDL_TRACE
+XXFLAGS+= -DLD_TRACE
 
-# Enable this to enable debugging output from ld.so
-#XXFLAGS+= -DDL_DEBUG
-#XXFLAGS+= -DDL_DEBUG_SYMBOLS
-#Enable this to never actually fixup symbols so you can watch each call...
-#XXFLAGS+= -DDL_NEVER_FIXUP_SYMBOLS
+# Enable this to enable all the code needed for debugging the runtime 
+# linking of an application using the LD_DEBUG environment variable:
+#   LD_DEBUG=token1,token2,..  prog
+# enables diagnostics to the stderr.
+# For now there are these tokens possible:
+#    bindings      displays the resolve processing (function calls); detail shows the relocation patch
+#    detail        provide more information for some options
+#    move          display copy processings
+#    reloc         display relocation processing; detail shows the relocation patch
+#    symbols       display symbol table processing
+#
+# The additional environment variable:
+#    LD_DEBUG_OUTPUT=file
+# redirects the diagnostics to an output file created using
+# the specified name and the process id as a suffix.
+#
+# try this
+# $ LD_DEBUG=binding,move,symbols,reloc,detail LD_DEBUG_OUTPUT=appname ./appname
+#
+#XXFLAGS+= -DSUPPORT_LD_DEBUG
+
+# Enable this for the very very early debugging.  Really only useful
+# for people porting to new architectures.
+#XXFLAGS+= -DLD_DEBUG
+
+# Enable this to never actually fixup symbols...
+#XXFLAGS+= -DLD_NEVER_FIXUP_SYMBOLS
 
 XXFLAGS+=-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 	-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \

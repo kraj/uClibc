@@ -17,5 +17,5 @@ _dl_boot:
 ");
 
 #define _dl_boot _dl_boot2
-#define DL_BOOT(X)   static void *  __attribute__ ((unused)) _dl_boot (X)
+#define LD_BOOT(X)   static void *  __attribute__ ((unused)) _dl_boot (X)
 

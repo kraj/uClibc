@@ -1,21 +1,34 @@
-/* Run an ELF binary on a linux system.
-
-   Copyright (C) 1993-1996, Eric Youngdale.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
-
+/* vi: set sw=4 ts=4: */
+/* Program to load an ELF binary on a linux system, and run it
+ * after resolving ELF shared library symbols
+ *
+ * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald, 
+ *				David Engel, Hongjiu Lu and Mitch D'Souza
+ * Copyright (C) 2001-2002, Erik Andersen
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. The name of the above contributors may not be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
 
 
 /* Various symbol table handling functions, including symbol lookup */
@@ -150,7 +163,7 @@ struct elf_resolve *_dl_add_elf_hash_table(char *libname,
  */
 
 char *_dl_find_hash(char *name, struct dyn_elf *rpnt1, 
-	struct elf_resolve *f_tpnt, int copyrel)
+	struct elf_resolve *f_tpnt, enum caller_type caller_type)
 {
 	struct elf_resolve *tpnt;
 	int si;
@@ -172,7 +185,7 @@ char *_dl_find_hash(char *name, struct dyn_elf *rpnt1,
 	   that any shared library data symbols referenced in the executable
 	   will be seen at the same address by the executable, shared libraries
 	   and dynamically loaded code. -Rob Ryan (robr@cmu.edu) */
-	if (!copyrel && rpnt1) {
+	if (copyrel!=caller_type && rpnt1) {
 		first = (*_dl_symbol_tables);
 		first.next = rpnt1;
 		rpnt1 = (&first);
@@ -247,11 +260,12 @@ char *_dl_find_hash(char *name, struct dyn_elf *rpnt1,
 				pnt = strtab + symtab[si].st_name;
 
 				if (_dl_strcmp(pnt, name) == 0 &&
-					(ELF32_ST_TYPE(symtab[si].st_info) == STT_FUNC ||
-					 ELF32_ST_TYPE(symtab[si].st_info) == STT_NOTYPE ||
-					 ELF32_ST_TYPE(symtab[si].st_info) == STT_OBJECT) &&
-					symtab[si].st_value != 0 &&
-					symtab[si].st_shndx != 0) {
+				    symtab[si].st_value != 0)
+				{
+				  if ((ELF32_ST_TYPE(symtab[si].st_info) == STT_FUNC ||
+				       ELF32_ST_TYPE(symtab[si].st_info) == STT_NOTYPE ||
+				       ELF32_ST_TYPE(symtab[si].st_info) == STT_OBJECT) &&
+				      symtab[si].st_shndx != SHN_UNDEF) {
 
 					/* Here we make sure that we find a module where the symbol is
 					 * actually defined.
@@ -284,6 +298,24 @@ char *_dl_find_hash(char *name, struct dyn_elf *rpnt1,
 					default:	/* Do local symbols need to be examined? */
 						break;
 					}
+				  }
+				  /*
+				   * References to the address of a function from an executable file and
+				   * the shared objects associated with it might not resolve to the same
+				   * value. To allow comparisons of function addresses we must resolve
+				   * to the address of the plt entry of the executable instead of the
+				   * real function address.
+				   * see "TIS ELF Specification Version 1.2, Book 3, A-11 (Function
+				   * Adresses) 
+				   */				 
+				  if (resolver != caller_type &&
+				      NULL==f_tpnt && /*trick: don't  handle R_??_JMP_SLOT reloc type*/
+				      tpnt->libtype == elf_executable &&
+				      ELF32_ST_TYPE(symtab[si].st_info) == STT_FUNC &&
+				      symtab[si].st_shndx == SHN_UNDEF)
+				  {
+				      return (char*)symtab[si].st_value;
+				  }
 				}
 			}
 		}

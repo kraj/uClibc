@@ -1,23 +1,33 @@
-/* Run an ELF binary on a linux system.
-
-   Copyright (C) 1993, Eric Youngdale.
-   Copyright (C) 1995, Andreas Schwab.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
-
-/* Adapted to ELF/68k by Andreas Schwab.  */
+/* vi: set sw=4 ts=4: */
+/* m68k ELF shared library loader suppport
+ *
+ * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald, 
+ *				David Engel, Hongjiu Lu and Mitch D'Souza
+ * Adapted to ELF/68k by Andreas Schwab.
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. The name of the above contributors may not be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
 
 #ifndef VERBOSE_DLINKER
 #define VERBOSE_DLINKER
@@ -83,21 +93,21 @@ unsigned int _dl_linux_resolver (int dummy1, int dummy2,
   instr_addr = (int) this_reloc->r_offset + (int) tpnt->loadaddr;
   got_addr = (char **) instr_addr;
 
-#ifdef DL_DEBUG_SYMBOLS
+#ifdef LD_DEBUG_SYMBOLS
   _dl_dprintf (2, "Resolving symbol %s\n",
 		strtab + symtab[symtab_index].st_name);
 #endif
 
   /* Get the address of the GOT entry.  */
   new_addr = _dl_find_hash (strtab + symtab[symtab_index].st_name,
-			    tpnt->symbol_scope, tpnt, 0);
+			    tpnt->symbol_scope, tpnt, resolver);
   if (!new_addr)
     {
       _dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
 		    _dl_progname, strtab + symtab[symtab_index].st_name);
       _dl_exit (1);
     }
-#ifdef DL_NEVER_FIXUP_SYMBOLS
+#ifdef LD_NEVER_FIXUP_SYMBOLS
   if ((unsigned int) got_addr < 0x40000000) {
       _dl_dprintf (2, "Calling library function: %s\n",
 	      strtab + symtab[symtab_index].st_name);
@@ -202,7 +212,7 @@ _dl_parse_relocation_information (struct elf_resolve *tpnt,
 	  symbol_addr = (unsigned int)
 	    _dl_find_hash (strtab + symtab[symtab_index].st_name,
 			   tpnt->symbol_scope,
-			   reloc_type == R_68K_JMP_SLOT ? tpnt : NULL, 0);
+			   reloc_type == R_68K_JMP_SLOT ? tpnt : NULL, symbolrel);
 
 	  /* We want to allow undefined references to weak symbols -
 	     this might have been intentional.  We should not be
@@ -327,7 +337,7 @@ _dl_parse_copy_information (struct dyn_elf *xpnt, unsigned long rel_addr,
 	{
 	  symbol_addr = (unsigned int)
 	    _dl_find_hash (strtab + symtab[symtab_index].st_name,
-			   xpnt->next, NULL, 1);
+			   xpnt->next, NULL, copyrel);
 	  if (!symbol_addr)
 	    {
 	      _dl_dprintf (2, "%s: can't resolve symbol '%s'\n",

@@ -1,23 +1,33 @@
 /* vi: set sw=4 ts=4: */
 /* Program to load an ELF binary on a linux system, and run it
  * after resolving ELF shared library symbols
- * 
- * Copyright (C) 1993-1996, Eric Youngdale.
+ *
+ * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald, 
+ *				David Engel, Hongjiu Lu and Mitch D'Souza
  * Copyright (C) 2001-2002, Erik Andersen
  *
- * This program is free software; you can redistribute it and/or modify 
- * it under the terms of the GNU General Public License as published by 
- * the Free Software Foundation; either version 2, or (at your option) 
- * any later version.  
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- * GNU General Public License for more details.  
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. The name of the above contributors may not be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
  */
 
 /* Enable mprotect protection munging.  ARM and MIPS Linux needs this
@@ -26,21 +36,6 @@
 
 // Support a list of library preloads in /etc/ld.so.preload
 //#define SUPPORT_LDSO_PRELOAD_FILE
-
-/* Enable ldd library tracing.  Just set LD_TRACE_LOADED_OBJECTS=1 in
- * the environment and run the app to do the ldd thing.  With this
- * enabled you can make a simple /usr/bin/ldd shell script as:
- *		#!/bin/sh
- *		LD_TRACE_LOADED_OBJECTS=1 $1
- * so you can do stuff like:
- *		$ ldd ./appname
- *				libc.so.0 => /lib/libc.so.0 (0x0x40006000) 
- *				ld-uClibc.so.0 => /home/andersen/CVS/uClibc/lib/ld-uClibc.so.0 (0x0x40000000)
- * This is off by default since it doesn't work when cross compiling,
- * so uClibc provides an ELF header reading ldd instead...
- */
-//#define DL_TRACE
-
 
 
 /* Disclaimer:  I have never seen any AT&T source code for SVr4, nor have
@@ -113,6 +108,12 @@
  * housekeeping chores and we can transfer control to the user's
  * application.
  */
+#ifdef LD_DEBUG_SYMBOLS
+#ifdef SUPPORT_LD_DEBUG
+#undef SUPPORT_LD_DEBUG
+#endif
+#define SUPPORT_LD_DEBUG
+#endif
 
 #include "ld_syscall.h"
 #include "linuxelf.h"
@@ -127,11 +128,11 @@
 #define	    ELFMAGIC	ELFMAG
 
 /* This is a poor man's malloc, used prior to resolving our internal poor man's malloc */
-#define DL_MALLOC(SIZE) ((void *) (malloc_buffer += SIZE, malloc_buffer - SIZE)) ;  REALIGN();
+#define LD_MALLOC(SIZE) ((void *) (malloc_buffer += SIZE, malloc_buffer - SIZE)) ;  REALIGN();
 /*
  * Make sure that the malloc buffer is aligned on 4 byte boundary.  For 64 bit
  * platforms we may need to increase this to 8, but this is good enough for
- * now.  This is typically called after DL_MALLOC.
+ * now.  This is typically called after LD_MALLOC.
  */
 #define REALIGN() malloc_buffer = (char *) (((unsigned long) malloc_buffer + 3) & ~(3))
 
@@ -139,6 +140,17 @@ char *_dl_library_path = 0;		/* Where we look for libraries */
 char *_dl_preload = 0;			/* Things to be loaded before the libs. */
 char *_dl_ldsopath = 0;
 static char *_dl_not_lazy = 0;
+#ifdef SUPPORT_LD_DEBUG
+static char *_dl_debug  = 0;
+static char *_dl_debug_symbols = 0;
+static char *_dl_debug_move    = 0;
+static char *_dl_debug_reloc   = 0;
+static char *_dl_debug_detail  = 0;
+static char *_dl_debug_bindings  = 0;
+static int   _dl_debug_file = 2;
+#else
+#define _dl_debug_file 2
+#endif
 static char *_dl_malloc_addr, *_dl_mmap_zero;
 
 static char *_dl_trace_loaded_objects = 0;
@@ -171,7 +183,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		auxvt[0...N]   Auxiliary Vector Table elements (mixed types)
 */
 
-#ifdef DL_DEBUG
+#ifdef LD_DEBUG
 /* Debugging is especially tricky on PowerPC, since string literals
  * require relocations.  Thus, you can't use _dl_dprintf() for
  * anything until the bootstrap relocations are finished. */
@@ -192,7 +204,7 @@ static inline void hexprint(unsigned long x)
 }
 #endif
 
-DL_BOOT(unsigned long args)
+LD_BOOT(unsigned long args)
 {
 	unsigned int argc;
 	char **argv, **envp;
@@ -257,14 +269,19 @@ DL_BOOT(unsigned long args)
 	/* Check the ELF header to make sure everything looks ok.  */
 	if (!header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
 		header->e_ident[EI_VERSION] != EV_CURRENT
-#if !defined(__powerpc__) && !defined(__mips__)
+#if !defined(__powerpc__) && !defined(__mips__) && !defined(__sh__)
 		|| _dl_strncmp((void *) header, ELFMAGIC, SELFMAG) != 0
+#else
+	        || header->e_ident[EI_MAG0] != ELFMAG0
+	        || header->e_ident[EI_MAG1] != ELFMAG1
+	        || header->e_ident[EI_MAG2] != ELFMAG2
+	        || header->e_ident[EI_MAG3] != ELFMAG3
 #endif
 		) {
 		SEND_STDERR("Invalid ELF header\n");
 		_dl_exit(0);
 	}
-#ifdef DL_DEBUG
+#ifdef LD_DEBUG
 	SEND_STDERR("ELF header=");
 	SEND_ADDRESS_STDERR(load_addr, 1);
 #endif
@@ -286,6 +303,16 @@ DL_BOOT(unsigned long args)
   __asm__("\tbl _GLOBAL_OFFSET_TABLE_-4@local\n\t":"=l"(got));
 #elif defined(__mips__)
   __asm__("\tmove %0, $28\n\tsubu %0,%0,0x7ff0\n\t":"=r"(got));
+#elif defined(__sh__)
+  __asm__("
+	   mov.l    1f, %0
+	   mova     1f, r0
+	   bra      2f
+	   add r0,  %0
+	   .balign  4
+1:	   .long    _GLOBAL_OFFSET_TABLE_
+2:
+"  : "=r" (got) : : "r0");
 #else
 	/* Do things the slow way in C */
 	{
@@ -294,7 +321,7 @@ DL_BOOT(unsigned long args)
 		Elf32_Shdr *shdr;
 		Elf32_Phdr *pt_load;
 
-#ifdef DL_DEBUG
+#ifdef LD_DEBUG
 		SEND_STDERR("Finding the GOT using C code to read the ELF file\n");
 #endif
 		/* Find where the dynamic linking information section is hiding */
@@ -339,7 +366,7 @@ DL_BOOT(unsigned long args)
 
 	/* Now, finally, fix up the location of the dynamic stuff */
 	dpnt = (Elf32_Dyn *) (*got + load_addr);
-#ifdef DL_DEBUG
+#ifdef LD_DEBUG
 	SEND_STDERR("First Dynamic section entry=");
 	SEND_ADDRESS_STDERR(dpnt, 1);
 #endif
@@ -354,15 +381,15 @@ DL_BOOT(unsigned long args)
 		_dl_exit(13);
 	}
 
-	tpnt = DL_MALLOC(sizeof(struct elf_resolve));
+	tpnt = LD_MALLOC(sizeof(struct elf_resolve));
 	_dl_memset(tpnt, 0, sizeof(*tpnt));
-	app_tpnt = DL_MALLOC(sizeof(struct elf_resolve));
+	app_tpnt = LD_MALLOC(sizeof(struct elf_resolve));
 	_dl_memset(app_tpnt, 0, sizeof(*app_tpnt));
 
 	/*
 	 * This is used by gdb to locate the chain of shared libraries that are currently loaded.
 	 */
-	debug_addr = DL_MALLOC(sizeof(struct r_debug));
+	debug_addr = LD_MALLOC(sizeof(struct r_debug));
 	_dl_memset(debug_addr, 0, sizeof(*debug_addr));
 
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
@@ -483,7 +510,7 @@ DL_BOOT(unsigned long args)
 
 	/* OK, now do the relocations.  We do not do a lazy binding here, so
 	   that once we are done, we have considerably more flexibility. */
-#ifdef DL_DEBUG
+#ifdef LD_DEBUG
 	SEND_STDERR("About to do library loader relocations.\n");
 #endif
 
@@ -541,7 +568,7 @@ DL_BOOT(unsigned long args)
 					SEND_STDERR(" undefined.\n");
 					goof++;
 				}
-#ifdef DL_DEBUG_SYMBOLS
+#ifdef LD_DEBUG_SYMBOLS
 				SEND_STDERR("About to fixup symbol: ");
 				SEND_STDERR(strtab + symtab[symtab_index].st_name);
 				SEND_STDERR("\n");
@@ -557,9 +584,9 @@ DL_BOOT(unsigned long args)
 	if (goof) {
 		_dl_exit(14);
 	}
-#ifdef DL_DEBUG
+#ifdef LD_DEBUG
 	/* Wahoo!!! */
-	_dl_dprintf(2, "Done relocating library loader, so we can now\n\tuse globals and make function calls!\n");
+	_dl_dprintf(_dl_debug_file, "Done relocating library loader, so we can now\n\tuse globals and make function calls!\n");
 #endif
 
 	if (argv[0]) {
@@ -594,9 +621,12 @@ DL_BOOT(unsigned long args)
 	 * Transfer control to the application.
 	 */
 	status = 0;					/* Used on x86, but not on other arches */
-#ifdef DL_DEBUG
-	_dl_dprintf(2, "Calling application main()\n");
+#ifdef LD_DEBUG
+	_dl_dprintf(_dl_debug_file, "Calling application main()\n");
 #endif
+#if defined (SUPPORT_LD_DEBUG)
+	if(_dl_debug) _dl_dprintf(_dl_debug_file,"\ntransfering control: %s\n\n", _dl_progname);	
+#endif    
 	START();
 }
 
@@ -628,8 +658,8 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	tpnt->loadaddr = (char *) load_addr;
 
 	INIT_GOT(lpnt, tpnt);
-#ifdef DL_DEBUG
-	_dl_dprintf(2, "GOT found at %x\n", tpnt);
+#ifdef LD_DEBUG
+	_dl_dprintf(_dl_debug_file, "GOT found at %x\n", lpnt);
 #endif
 	/* OK, this was a big step, now we need to scan all of the user images
 	   and load them properly. */
@@ -728,8 +758,8 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			if (readsize > 0 && readsize < sizeof(buf)-1) {
 				pnt1 = _dl_strrchr(buf, '/');
 				if (pnt1 && buf != pnt1) {
-#ifdef DL_DEBUG
-					_dl_dprintf(2, "changing tpnt->libname from '%s' to '%s'\n", tpnt->libname, buf);
+#ifdef LD_DEBUG
+					_dl_dprintf(_dl_debug_file, "changing tpnt->libname from '%s' to '%s'\n", tpnt->libname, buf);
 #endif
 					tpnt->libname = _dl_strdup(buf);
 				}
@@ -745,8 +775,8 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			} else {
 				_dl_ldsopath = tpnt->libname;
 			}
-#ifdef DL_DEBUG
-			_dl_dprintf(2, "Lib Loader:\t(%x) %s\n", tpnt->loadaddr, tpnt->libname);
+#ifdef LD_DEBUG
+			_dl_dprintf(_dl_debug_file, "Lib Loader:\t(%x) %s\n", tpnt->loadaddr, tpnt->libname);
 #endif
 		}
 	}
@@ -774,10 +804,56 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		}
 	}
 
+#ifdef SUPPORT_LD_DEBUG
+	_dl_debug    = _dl_getenv("LD_DEBUG", envp);
+	if (_dl_debug)
+	{
+	  _dl_debug_detail   = _dl_strstr(_dl_debug, "detail");
+	  _dl_debug_move     = _dl_strstr(_dl_debug, "move");
+	  _dl_debug_symbols  = _dl_strstr(_dl_debug, "sym");
+	  _dl_debug_reloc    = _dl_strstr(_dl_debug, "reloc");
+	  _dl_debug_bindings = _dl_strstr(_dl_debug, "bind");
+	}
+	{
+	  const char *dl_debug_output;
+	  
+	  dl_debug_output = _dl_getenv("LD_DEBUG_OUTPUT", envp);
+
+	  if (dl_debug_output)
+	  {
+	    char tmp[22], *tmp1, *filename;
+	    int len1, len2;
+	    
+	    _dl_memset(tmp, 0, sizeof(tmp));
+	    tmp1=_dl_simple_ltoa( tmp, (unsigned long)_dl_getpid());
+
+	    len1 = _dl_strlen(dl_debug_output);
+	    len2 = _dl_strlen(tmp1);
+
+	    filename = _dl_malloc(len1+len2+2);
+
+	    if (filename)
+	    {
+	      _dl_strcpy (filename, dl_debug_output);
+	      filename[len1] = '.';
+	      _dl_strcpy (&filename[len1+1], tmp1);
+
+	      _dl_debug_file= _dl_open (filename, O_WRONLY|O_CREAT);
+	      if (_dl_debug_file<0)
+	      {
+		_dl_debug_file = 2;
+		_dl_dprintf (2, "can't open file: '%s'\n",filename);
+	      }
+	    }
+	  }
+	}
+	
+	
+#endif	
 	_dl_trace_loaded_objects = _dl_getenv("LD_TRACE_LOADED_OBJECTS", envp);
-#ifndef DL_TRACE
+#ifndef LD_TRACE
 	if (_dl_trace_loaded_objects) {
-		_dl_dprintf(2, "Use the ldd provided by uClibc\n");
+		_dl_dprintf(_dl_debug_file, "Use the ldd provided by uClibc\n");
 		_dl_exit(1);
 	}
 #endif
@@ -809,7 +885,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			{
 				tpnt1 = _dl_load_shared_library(_dl_secure, &rpnt, NULL, str);
 				if (!tpnt1) {
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 					if (_dl_trace_loaded_objects)
 						_dl_dprintf(1, "\t%s => not found\n", str);
 					else {
@@ -817,14 +893,14 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 						_dl_dprintf(2, "%s: can't load "
 								"library '%s'\n", _dl_progname, str);
 						_dl_exit(15);
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 					}
 #endif
 				} else {
-#ifdef DL_DEBUG
-					_dl_dprintf(2, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
+#ifdef LD_DEBUG
+					_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 					if (_dl_trace_loaded_objects
 							&& tpnt1->usage_count==1) {
 						/* this is a real hack to make ldd not print 
@@ -888,7 +964,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 
 						tpnt1 = _dl_load_shared_library(0, &rpnt, NULL, cp2);
 						if (!tpnt1) {
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 							if (_dl_trace_loaded_objects)
 								_dl_dprintf(1, "\t%s => not found\n", cp2);
 							else {
@@ -896,14 +972,14 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 								_dl_dprintf(2, "%s: can't load library '%s'\n", 
 										_dl_progname, cp2);
 								_dl_exit(15);
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 							}
 #endif
 						} else {
-#ifdef DL_DEBUG
-							_dl_dprintf(2, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
+#ifdef LD_DEBUG
+							_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 							if (_dl_trace_loaded_objects
 									&& tpnt1->usage_count==1) {
 								_dl_dprintf(1, "\t%s => %s (0x%x)\n", cp2, 
@@ -939,7 +1015,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 				if (tpnt && _dl_strcmp(lpntstr, _dl_get_last_path_component(tpnt->libname)) == 0) {
 					struct elf_resolve *ttmp;
 
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 					if (_dl_trace_loaded_objects && tpnt->usage_count==1) {
 						_dl_dprintf(1, "\t%s => %s (0x%x)\n", 
 								lpntstr, tpnt->libname, (unsigned) tpnt->loadaddr);
@@ -954,6 +1030,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 					rpnt->next = (struct dyn_elf *)
 						_dl_malloc(sizeof(struct dyn_elf));
 					_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
+					rpnt->next->prev = rpnt;
 					rpnt = rpnt->next;
 					rpnt->dyn = tpnt;
 					tpnt->usage_count++;
@@ -963,7 +1040,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 				}
 				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr)))
 				{
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 					if (_dl_trace_loaded_objects)
 						_dl_dprintf(1, "\t%s => not found\n", lpntstr);
 					else {
@@ -971,14 +1048,14 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 						_dl_dprintf(2, "%s: can't load library '%s'\n", 
 								_dl_progname, lpntstr);
 						_dl_exit(16);
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 					}
 #endif
 				} else {
-#ifdef DL_DEBUG
-					_dl_dprintf(2, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
+#ifdef LD_DEBUG
+					_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 					if (_dl_trace_loaded_objects && tpnt1->usage_count==1)
 						_dl_dprintf(1, "\t%s => %s (0x%x)\n", lpntstr, tpnt1->libname, 
 								(unsigned) tpnt1->loadaddr);
@@ -993,7 +1070,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	_dl_unmap_cache();
 #endif
 	/* ldd uses uses this.  I am not sure how you pick up the other flags */
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 	if (_dl_trace_loaded_objects) {
 		char *_dl_warn = 0;
 		_dl_warn = _dl_getenv("LD_WARN", envp);
@@ -1026,6 +1103,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			rpnt->next =
 				(struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
+			rpnt->next->prev = rpnt;
 			rpnt = rpnt->next;
 		} else {
 			rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
@@ -1034,7 +1112,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		rpnt->dyn = tpnt;
 		tpnt = NULL;
 	}
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 	if (_dl_trace_loaded_objects) {
 		_dl_dprintf(1, "\t%s => %s (0x%x)\n", rpnt->dyn->libname + (_dl_strlen(_dl_ldsopath)) + 1, 
 				rpnt->dyn->libname, rpnt->dyn->loadaddr);  
@@ -1050,8 +1128,8 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	_dl_perform_mips_global_got_relocations(_dl_loaded_modules);
 #endif
 
-#ifdef DL_DEBUG
-	_dl_dprintf(2, "Beginning relocation fixups\n");
+#ifdef LD_DEBUG
+	_dl_dprintf(_dl_debug_file, "Beginning relocation fixups\n");
 #endif
 	/*
 	 * OK, now all of the kids are tucked into bed in their proper addresses.
@@ -1065,12 +1143,12 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	   and we have to manually search for entries that require fixups. 
 	   Solaris gets this one right, from what I understand.  */
 
-#ifdef DL_DEBUG
-	_dl_dprintf(2, "Beginning copy fixups\n");
+#ifdef LD_DEBUG
+	_dl_dprintf(_dl_debug_file, "Beginning copy fixups\n");
 #endif
 	if (_dl_symbol_tables)
 		goof += _dl_copy_fixups(_dl_symbol_tables);
-#ifdef DL_TRACE
+#ifdef LD_TRACE
 	if (goof || _dl_trace_loaded_objects)
 		_dl_exit(0);
 #endif
@@ -1083,13 +1161,13 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	   up each symbol individually. */
 
 
-	_dl_brkp = (unsigned long *) _dl_find_hash("___brk_addr", NULL, NULL, 0);
+	_dl_brkp = (unsigned long *) _dl_find_hash("___brk_addr", NULL, NULL, symbolrel);
 	
 	if (_dl_brkp) {
 		*_dl_brkp = brk_addr;
 	}
 	_dl_envp =
-		(unsigned long *) _dl_find_hash("__environ", NULL, NULL, 0);
+		(unsigned long *) _dl_find_hash("__environ", NULL, NULL, symbolrel);
 
 	if (_dl_envp) {
 		*_dl_envp = (unsigned long) envp;
@@ -1113,7 +1191,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 
 	}
 #endif
-	_dl_atexit = (int (*)(void *)) _dl_find_hash("atexit", NULL, NULL, 0);
+	_dl_atexit = (int (*)(void *)) _dl_find_hash("atexit", NULL, NULL, symbolrel);
 
 	/*
 	 * OK, fix one more thing - set up the debug_addr structure to point
@@ -1130,33 +1208,48 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	   function call. */
 	((void (*)(void)) debug_addr->r_brk) ();
 
-#ifdef DL_DEBUG
-	_dl_dprintf(2, "Calling init/fini for shared libraries\n");
+#ifdef LD_DEBUG
+ 	_dl_dprintf(_dl_debug_file, "Calling init/fini for shared libraries\n");
 #endif
-	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-		/* Apparently crt1 for the application is responsible for handling this.
+
+	for (rpnt = _dl_symbol_tables; rpnt!=NULL&& rpnt->next!=NULL; rpnt=rpnt->next)
+	  ;
+	  
+	for (;rpnt!=NULL; rpnt=rpnt->prev)
+	{
+  	        tpnt = rpnt->dyn;
+
+	        if (tpnt->libtype == program_interpreter)
+			continue;
+
+		/* Apparently crt0/1 for the application is responsible for handling this.
 		 * We only need to run the init/fini for shared libraries
 		 */
-		if (tpnt->libtype == program_interpreter || tpnt->libtype == elf_executable)
-			continue;
+	        if (tpnt->libtype == elf_executable)
+			break;      /* at this point all shared libs are initialized !! */
+
 		if (tpnt->init_flag & INIT_FUNCS_CALLED)
 			continue;
 		tpnt->init_flag |= INIT_FUNCS_CALLED;
 
 		if (tpnt->dynamic_info[DT_INIT]) {
 			_dl_elf_init = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
+			  
+#if defined (SUPPORT_LD_DEBUG)
+			if(_dl_debug) _dl_dprintf(_dl_debug_file,"\ncalling init: %s\n\n", tpnt->libname);	
+#endif    
 			(*_dl_elf_init) ();
 		}
 		if (_dl_atexit && tpnt->dynamic_info[DT_FINI]) {
 			(*_dl_atexit) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
 		}
-#ifdef DL_DEBUG
+#ifdef LD_DEBUG
 		else {
 			if (!_dl_atexit)
-				_dl_dprintf(2, "%s: The address of atexit () is 0x0.\n", tpnt->libname);
+				_dl_dprintf(_dl_debug_file, "%s: The address of atexit () is 0x0.\n", tpnt->libname);
 #if 0
 			if (!tpnt->dynamic_info[DT_FINI])
-				_dl_dprintf(2, "%s: Invalid .fini section.\n", tpnt->libname);
+				_dl_dprintf(_dl_debug_file, "%s: Invalid .fini section.\n", tpnt->libname);
 #endif
 		}
 #endif
@@ -1179,6 +1272,10 @@ int _dl_fixup(struct elf_resolve *tpnt)
 
 	if (tpnt->next)
 		goof += _dl_fixup(tpnt->next);
+#if defined (SUPPORT_LD_DEBUG)
+	if(_dl_debug) _dl_dprintf(_dl_debug_file,"\nrelocation processing: %s", tpnt->libname);	
+#endif    
+	
 	if (tpnt->dynamic_info[DT_REL]) {
 #ifdef ELF_USES_RELOCA
 		_dl_dprintf(2, "%s: can't handle REL relocation records\n",
@@ -1216,6 +1313,9 @@ int _dl_fixup(struct elf_resolve *tpnt)
 			goof += _dl_parse_relocation_information(tpnt, tpnt->dynamic_info[DT_JMPREL], 
 					tpnt->dynamic_info[DT_PLTRELSZ], 0);
 	}
+#if defined (SUPPORT_LD_DEBUG)
+	if(_dl_debug) _dl_dprintf(_dl_debug_file,"\nrelocation processing: %s; finished\n\n", tpnt->libname);	
+#endif    
 	return goof;
 }
 
@@ -1224,8 +1324,8 @@ void *_dl_malloc(int size)
 	void *retval;
 
 #if 0
-#ifdef DL_DEBUG
-	_dl_dprintf(2, "malloc: request for %d bytes\n", size);
+#ifdef LD_DEBUG
+	_dl_dprintf(_dl_debug_file, "malloc: request for %d bytes\n", size);
 #endif
 #endif
 
@@ -1233,8 +1333,8 @@ void *_dl_malloc(int size)
 		return (*_dl_malloc_function) (size);
 
 	if (_dl_malloc_addr - _dl_mmap_zero + size > 4096) {
-#ifdef DL_DEBUG
-		_dl_dprintf(2, "malloc: mmapping more memory\n");
+#ifdef LD_DEBUG
+		_dl_dprintf(_dl_debug_file, "malloc: mmapping more memory\n");
 #endif
 		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size, 
 				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);

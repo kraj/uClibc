@@ -51,8 +51,8 @@ static inline _syscall1(void, _dl_exit, int, status);
 static inline _syscall1(int, _dl_close, int, fd);
 
 
-#if defined(__powerpc) || defined(__mips__)
-/* PowerPC and MIPS have a different calling convention for mmap(). */
+#if defined(__powerpc) || defined(__mips__) || defined(__sh__)
+/* PowerPC, MIPS and SuperH have a different calling convention for mmap(). */
 #define __NR__dl_mmap __NR_mmap
 static inline _syscall6(void *, _dl_mmap, void *, start, size_t, length,
 		int, prot, int, flags, int, fd, off_t, offset);
@@ -91,6 +91,9 @@ static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
 
 #define __NR__dl_open __NR_open
 #define O_RDONLY        0x0000
+#define O_WRONLY	     01
+#define O_RDWR		     02
+#define O_CREAT		   0100	/* not fcntl */
 static inline _syscall2(int, _dl_open, const char *, fn, int, flags);
 
 #define __NR__dl_write __NR_write
@@ -125,6 +128,9 @@ static inline _syscall0(gid_t, _dl_getgid);
 
 #define __NR__dl_getegid __NR_getegid
 static inline _syscall0(gid_t, _dl_getegid);
+
+#define __NR__dl_getpid __NR_getpid
+static inline _syscall0(gid_t, _dl_getpid);
 
 /*
  * Not an actual syscall, but we need something in assembly to say whether

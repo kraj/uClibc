@@ -1,9 +1,8 @@
 /* vi: set sw=4 ts=4: */
-/* i386 ELF shared library loader suppport
+/* SuperH ELF shared library loader suppport
  *
- * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald, 
- *				David Engel, Hongjiu Lu and Mitch D'Souza
- * Copyright (C) 2001-2002, Erik Andersen
+ * Copyright (C) 2002, Stefan Allius <allius@atecom.com> and 
+ *                     Eddie C. Dost <ecd@atecom.com>
  *
  * All rights reserved.
  *
@@ -32,9 +31,14 @@
 #if defined (SUPPORT_LD_DEBUG) || defined (LD_DEBUG_SYMBOLS)
 static const char *_dl_reltypes_tab[] =
 {
-  [0]	"R_386_NONE",	    "R_386_32",	    "R_386_PC32",	"R_386_GOT32",
-  [4]	"R_386_PLT32",	    "R_386_COPY",   "R_386_GLOB_DAT",	"R_386_JMP_SLOT",
-  [8]	"R_386_RELATIVE",   "R_386_GOTOFF", "R_386_GOTPC",
+  [0]	"R_SH_NONE",	"R_SH_DIR32",	"R_SH_REL32",	"R_SH_DIR8WPN",
+  [4]	"R_SH_IND12W",	"R_SH_DIR8WPL",	"R_SH_DIR8WPZ",	"R_SH_DIR8BP",
+  [8]	"R_SH_DIR8W",	"R_SH_DIR8L",
+ [25]	"R_SH_SWITCH16","R_SH_SWITCH32","R_SH_USES",
+ [28]	"R_SH_COUNT",	"R_SH_ALIGN",	"R_SH_CODE",	"R_SH_DATA",
+ [32]	"R_SH_LABEL",	"R_SH_SWITCH8",	"R_SH_GNU_VTINHERIT","R_SH_GNU_VTENTRY",
+[160]	"R_SH_GOT32",	"R_SH_PLT32",	"R_SH_COPY",	"R_SH_GLOB_DAT",
+[164]	"R_SH_JMP_SLOT","R_SH_RELATIVE","R_SH_GOTOFF",	"R_SH_GOTPC",
 };
 
 static const char *
@@ -112,32 +116,32 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	ELF_RELOC *this_reloc;
 	char *strtab;
 	Elf32_Sym *symtab;
-	ELF_RELOC *rel_addr;
 	int symtab_index;
+	char *rel_addr;
 	char *new_addr;
 	char **got_addr;
 	unsigned long instr_addr;
 
-	rel_addr = (ELF_RELOC *) (tpnt->dynamic_info[DT_JMPREL] + tpnt->loadaddr);
+	rel_addr = (char *) (tpnt->dynamic_info[DT_JMPREL] + tpnt->loadaddr);
 
-	this_reloc = rel_addr + (reloc_entry >> 3);
+	this_reloc = (ELF_RELOC *) (rel_addr + reloc_entry);
 	reloc_type = ELF32_R_TYPE(this_reloc->r_info);
 	symtab_index = ELF32_R_SYM(this_reloc->r_info);
 
 	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 
-
-	if (reloc_type != R_386_JMP_SLOT) {
-		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n", 
-			_dl_progname);
-		_dl_exit(1);
-	};
-
+	if (reloc_type != R_SH_JMP_SLOT) {
+	  _dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n", 
+		       _dl_progname);
+	  _dl_exit(1);
+	}
+	
 	/* Address of jump instruction to fix up */
 	instr_addr = ((unsigned long) this_reloc->r_offset + 
-		(unsigned long) tpnt->loadaddr);
+			(unsigned long) tpnt->loadaddr);
 	got_addr = (char **) instr_addr;
+
 
 	/* Get the address of the GOT entry */
 	new_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name, 
@@ -146,9 +150,10 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", 
 			_dl_progname, strtab + symtab[symtab_index].st_name);
 		_dl_exit(1);
-	};
+	}
+
 #if defined (SUPPORT_LD_DEBUG) || defined (LD_NEVER_FIXUP_SYMBOLS)
-	if ((unsigned long) got_addr < 0x40000000)
+	if ((unsigned long) got_addr < 0x20000000)
 	{
 #ifndef SUPPORT_LD_DEBUG
           if (_dl_debug_bindings)
@@ -170,6 +175,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	return (unsigned long) new_addr;
 }
+
 
 static int
 _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
@@ -204,7 +210,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		    _dl_symbol(strtab + symtab[symtab_index].st_name))
 			continue;
 
-#if defined (SUPPORT_LD_DEBUG) || defined (LD_DEBUG_SYMBOLS)
+#if defined (SUPPORT_LD_DEBUG)
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
 #endif
@@ -237,16 +243,17 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	  return goof;
 }
 
+
 static int
 _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	      ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
 {
-	int reloc_type;
+        int reloc_type;
 	int symtab_index;
 	unsigned long *reloc_addr;
 	unsigned long symbol_addr;
 	int goof = 0;
-
+  
 	reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
@@ -254,8 +261,10 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 
 	if (symtab_index) {
 
+
 		symbol_addr = (unsigned long) _dl_find_hash(strtab + symtab[symtab_index].st_name, 
-				scope, (reloc_type == R_386_JMP_SLOT ? tpnt : NULL), symbolrel);
+				scope, 
+				(reloc_type == R_SH_JMP_SLOT ? tpnt : NULL), symbolrel);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -267,82 +276,75 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		}
 	}
 
+
 #if defined (SUPPORT_LD_DEBUG)
 	{
-		unsigned long old_val = *reloc_addr;
+	    unsigned long old_val = *reloc_addr;
 #endif
-		switch (reloc_type) {
-			case R_386_NONE:
-				break;
-			case R_386_32:
-				*reloc_addr += symbol_addr;
-				break;
-			case R_386_PC32:
-				*reloc_addr += symbol_addr - (unsigned long) reloc_addr;
-				break;
-			case R_386_GLOB_DAT:
-			case R_386_JMP_SLOT:
-				*reloc_addr = symbol_addr;
-				break;
-			case R_386_RELATIVE:
-				*reloc_addr += (unsigned long) tpnt->loadaddr;
-				break;
-			case R_386_COPY:
-#if 0
-				/* Do this later */
-				_dl_dprintf(2, "Doing copy for symbol ");
-				if (symtab_index) _dl_dprintf(2, strtab + symtab[symtab_index].st_name);
-				_dl_dprintf(2, "\n");
-				_dl_memcpy((void *) symtab[symtab_index].st_value, 
-						(void *) symbol_addr, symtab[symtab_index].st_size);
-#endif
-				break;
-
-			default:
-				return -1; /*call _dl_exit(1) */
-		}
+	    switch (reloc_type) {
+		case R_SH_NONE:
+			break;
+		case R_SH_COPY:
+			/* handled later on */
+			break;
+		case R_SH_DIR32:
+			*reloc_addr += symbol_addr + rpnt->r_addend;
+			break;
+		case R_SH_JMP_SLOT:
+			*reloc_addr = symbol_addr + rpnt->r_addend;
+			break;
+		case R_SH_REL32:
+			*reloc_addr += rpnt->r_addend -
+					(unsigned long) tpnt->loadaddr;
+			break;
+		case R_SH_RELATIVE:
+			*reloc_addr += (unsigned long) tpnt->loadaddr;
+			break;
+		default:
+			return -1; /*call _dl_exit(1) */
+	    }
 #if defined (SUPPORT_LD_DEBUG)
-		if(_dl_debug_reloc && _dl_debug_detail)
-			_dl_dprintf(_dl_debug_file, "\tpatch: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
+	    if(_dl_debug_reloc && _dl_debug_detail)
+	       _dl_dprintf(_dl_debug_file, "\tpatch: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
 	}
-
+	
 #endif
 
 	return goof;
 }
-
+ 
+	  
 static int
 _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 		   ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
 {
-	int reloc_type;
+        int reloc_type;
 	unsigned long *reloc_addr;
 
 	reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
-
+  
 #if defined (SUPPORT_LD_DEBUG)
 	{
-		unsigned long old_val = *reloc_addr;
+	    unsigned long old_val = *reloc_addr;
 #endif
-		switch (reloc_type) {
-			case R_386_NONE:
-				break;
-			case R_386_JMP_SLOT:
-				*reloc_addr += (unsigned long) tpnt->loadaddr;
-				break;
-
-			default:
-				return -1; /*call _dl_exit(1) */
-		}
+	    switch (reloc_type) {
+	      case R_SH_NONE:
+		break;
+	      case R_SH_JMP_SLOT:
+		*reloc_addr += (unsigned long) tpnt->loadaddr;
+		break;
+	      default:
+	        return -1; /*call _dl_exit(1) */
+	    }
 #if defined (SUPPORT_LD_DEBUG)
-		if(_dl_debug_reloc && _dl_debug_detail)
-			_dl_dprintf(_dl_debug_file, "\tpatch: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
+	    if(_dl_debug_reloc && _dl_debug_detail)
+	       _dl_dprintf(_dl_debug_file, "\tpatch: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
 	}
-
+	
 #endif
 	return 0;
-
+	
 }
 
 /* This is done as a separate step, because there are cases where
@@ -365,8 +367,8 @@ _dl_do_copy (struct elf_resolve *tpnt, struct dyn_elf *scope,
 	  
 	reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
-	if (reloc_type != R_386_COPY) 
-		return 0;
+	if (reloc_type != R_SH_COPY) 
+	    return 0;
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr = 0;
 		
@@ -392,6 +394,7 @@ _dl_do_copy (struct elf_resolve *tpnt, struct dyn_elf *scope,
 	return goof;
 }
 
+
 void _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, 
 	unsigned long rel_addr, unsigned long rel_size, int type)
 {
@@ -409,4 +412,5 @@ int _dl_parse_copy_information(struct dyn_elf *xpnt, unsigned long rel_addr,
 {
   return _dl_parse(xpnt->dyn, xpnt->next, rel_addr, rel_size, _dl_do_copy);
 }
+
 

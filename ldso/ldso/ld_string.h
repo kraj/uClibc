@@ -17,6 +17,7 @@ static int _dl_strcmp(const char * s1,const char * s2);
 static int _dl_strncmp(const char * s1,const char * s2,size_t len);
 static char * _dl_strchr(const char * str,int c);
 static char *_dl_strrchr(const char *str, int c);
+static char *_dl_strstr(const char *s1, const char *s2);
 static void * _dl_memcpy(void * dst, const void * src, size_t len);
 static int _dl_memcmp(const void * s1,const void * s2,size_t len);
 static void *_dl_memset(void * str,int c,size_t len);
@@ -122,6 +123,29 @@ static inline char *_dl_strrchr(const char *str, int c)
     return(prev);
 }
 
+
+static inline char *_dl_strstr(const char *s1, const char *s2)
+{
+    register const char *s = s1;
+    register const char *p = s2;
+    
+    do {
+        if (!*p) {
+	    return (char *) s1;;
+	}
+	if (*p == *s) {
+	    ++p;
+	    ++s;
+	} else {
+	    p = s2;
+	    if (!*s) {
+	      return NULL;
+	    }
+	    s = ++s1;
+	}
+    } while (1);
+}
+
 static inline void * _dl_memcpy(void * dst, const void * src, size_t len)
 {
 	register char *a = dst;
@@ -221,7 +245,7 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 }
 
 
-#if defined mc68000 || defined __arm__ || defined __mips__
+#if defined mc68000 || defined __arm__ || defined __mips__ || defined __sh__
 /* On some arches constant strings are referenced through the GOT. */
 /* XXX Requires load_addr to be defined. */
 #define SEND_STDERR(X)				\

@@ -4,4 +4,4 @@
  * can be done.
  */
 
-#define DL_BOOT(X)   void _dl_boot (X)
+#define LD_BOOT(X)   void _dl_boot (X)
