@@ -28,7 +28,7 @@ ASFLAGS=$(CFLAGS)
 # If you're looking for vfork(), it is defined in include/unistd.h
 
 
-ifeq ($(HAS_MMU),true)
+ifeq ($(UCLIBC_HAS_MMU),y)
 CRT0=crt0.c
 CRT0_OBJ=$(patsubst %.c,%.o, $(CRT0))
 else
@@ -54,7 +54,7 @@ ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 	cp $(CRT0_OBJ) $(TOPDIR)lib/$(CRT0_OBJ)
 
-ifeq ($(HAS_MMU),true)
+ifeq ($(UCLIBC_HAS_MMU),y)
 $(CRT0_OBJ): %.o : %.c
 else
 $(CRT0_OBJ): %.o : %.S
@@ -71,7 +71,7 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 headers:
-ifeq ($(strip $(HAVE_ELF)),false)
+ifeq ($(strip $(HAVE_ELF)),n)
 	echo "Working around compiler bug in the m68k-pic-coff toolchain"
 	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/m68k/float.h .
 endif
@@ -80,7 +80,7 @@ endif
 clean:
 	rm -f *.[oa] *~ core
 	rm -f bits/sysnum.h
-ifeq ($(strip $(HAVE_ELF)),false)
+ifeq ($(strip $(HAVE_ELF)),n)
 	rm -f $(TOPDIR)/include/float.h
 endif
 

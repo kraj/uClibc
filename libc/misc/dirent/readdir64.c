@@ -1,5 +1,5 @@
 #include <features.h>
-#ifdef __UCLIBC_HAVE_LFS__
+#ifdef __UCLIBC_HAS_LFS__
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
 #undef _FILE_OFFSET_BITS
 #define	_FILE_OFFSET_BITS   64
@@ -68,4 +68,4 @@ all_done:
 	return de;
 }
 
-#endif /* __UCLIBC_HAVE_LFS__ */
+#endif /* __UCLIBC_HAS_LFS__ */

@@ -25,7 +25,7 @@ TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
 SAFECFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin
-ifeq ($(strip $(DOPIC)),true)
+ifeq ($(strip $(DOPIC)),y)
 SAFECFLAGS+=-fPIC
 endif
 
@@ -35,7 +35,7 @@ CSRC=	waitpid.c getdnnm.c gethstnm.c getcwd.c \
 	cmsg_nxthdr.c longjmp.c open64.c ftruncate64.c \
 	truncate64.c getrlimit64.c setrlimit64.c creat64.c mmap64.c \
 	llseek.c pread_write.c _exit.c setuid.c sync.c getdirname.c
-ifneq ($(strip $(EXCLUDE_BRK)),true)
+ifneq ($(strip $(EXCLUDE_BRK)),y)
 CSRC+=sbrk.c
 endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))

@@ -22,7 +22,7 @@
 #include <sysdep.h>
 #include <sys/mman.h>
 
-#if defined __UCLIBC_HAVE_LFS__
+#if defined __UCLIBC_HAS_LFS__
 
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
 #undef _FILE_OFFSET_BITS
@@ -48,5 +48,5 @@ __ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t 
 
     return mmap (addr, len, prot, flags, fd, (off_t) offset);
 }
-#endif /* __UCLIBC_HAVE_LFS__ */
+#endif /* __UCLIBC_HAS_LFS__ */
 

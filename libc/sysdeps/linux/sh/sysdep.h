@@ -21,7 +21,7 @@
 #include <bits/uClibc_config.h>
 
 /* Define a macro we can use to construct the asm name for a C symbol.  */
-#ifdef	NO_UNDERSCORES
+#ifdef	__NO_UNDERSCORES__
 #ifdef	__STDC__
 #define C_LABEL(name)		name##:
 #else
@@ -53,7 +53,7 @@
 
 /* Syntactic details of assembler.  */
 
-#ifdef HAVE_ELF
+#ifdef __HAVE_ELF__
 
 #define ALIGNARG(log2) log2
 /* For ELF we need the `.type' directive to make shared libs work right.  */
@@ -95,7 +95,7 @@
 #define CALL_MCOUNT		/* Do nothing.  */
 #endif
 
-#ifdef	NO_UNDERSCORES
+#ifdef	__NO_UNDERSCORES__
 /* Since C identifiers are not normally prefixed with an underscore
    on this system, the asm identifier `syscall_error' intrudes on the
    C name space.  Make sure we use an innocuous name.  */

@@ -10,7 +10,7 @@
 	.align 2
 	.globl _errno
 	.globl _vfork
-#if defined HAVE_ELF
+#if defined __HAVE_ELF__
 	.type	 vfork,@function
 #endif
 _vfork:

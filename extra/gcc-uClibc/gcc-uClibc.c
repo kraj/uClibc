@@ -337,7 +337,7 @@ int main(int argc, char **argv)
 	}
 
 	if (linking && source_count) {
-#if defined HAVE_ELF && ! defined HAS_MMU
+#if defined __HAVE_ELF__ && ! defined __UCLIBC_HAS_MMU__
 	    gcc_argv[i++] = "-Wl,-elf2flt";
 #endif
 	    gcc_argv[i++] = nostdlib;

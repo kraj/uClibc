@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <sys/syscall.h>
 
-#if defined __UCLIBC_HAVE_LFS__ && defined __NR_truncate64
+#if defined __UCLIBC_HAS_LFS__ && defined __NR_truncate64
 #ifndef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) __syscall_truncate64 (args)
 #define __NR___syscall_truncate64 __NR_truncate64
@@ -40,4 +40,4 @@ int truncate64 (const char * path, __off64_t length)
 #else
 #error Your machine is not 64 bit or 32 bit, I am dazed and confused.
 #endif
-#endif /* __UCLIBC_HAVE_LFS__ */
+#endif /* __UCLIBC_HAS_LFS__ */

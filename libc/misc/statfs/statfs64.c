@@ -36,7 +36,7 @@
 #include <stddef.h>
 #include <sys/statfs.h>
 
-#if defined __UCLIBC_HAVE_LFS__
+#if defined __UCLIBC_HAS_LFS__
 
 /* Return information about the filesystem on which FILE resides.  */
 int statfs64 (const char *file, struct statfs64 *buf)

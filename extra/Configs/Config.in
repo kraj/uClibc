@@ -1,0 +1,260 @@
+#
+# For a description of the syntax of this configuration file,
+# see Documentation/kbuild/config-language.txt.
+#
+
+
+menu "General Library Settings"
+
+config HAVE_PIC
+	bool "Generate Position Independent Code (PIC)"
+	default y
+	help
+	  If you wish to build uClibc with support for shared libraries then
+	  answer Y here.  If you only want to build uClibc as a static library,
+	  then answer N.
+
+config HAVE_SHARED
+	bool "Enable support for shared libraries"
+	depends on HAVE_PIC
+	default y
+	help
+	  If you wish to build uClibc with support for shared libraries then
+	  answer Y here.  If you only want to build uClibc as a static library,
+	  then answer N.
+
+config BUILD_UCLIBC_LDSO
+	bool "Compile native shared library loader"
+	depends on HAVE_SHARED
+	default y
+	help
+	  uClibc has a native shared library loader for some architectures.
+	  If you answer Y here, the uClibc native shared library loader will
+	  be built for your target architecture.  If this option is available,
+	  to you, then you almost certainly want to answer Y.
+
+config UCLIBC_HAS_THREADS
+	bool "POSIX Threading Support"
+	default y
+	help
+	  If you want to compile uClibc with pthread support, then answer Y.  
+	  This will increase the size of uClibc by adding a bunch of locking
+	  to critical data structures, and adding extra code to ensure that
+	  functions are properly reentrant.
+
+	  If your applications require pthreads, answer Y.
+
+config UCLIBC_HAS_LFS
+	bool "Large File Support"
+	default y
+	help
+	  If you wish to build uClibc with support for accessing large files 
+	  (i.e. files greater then 2 GiB) then answer Y.  Do not enable this 
+	  if you are using an older Linux kernel (2.0.x) that lacks large file 
+	  support.  Enabling this option will increase the size of uClibc.
+
+choice
+	prompt "Malloc Implementation"
+	default "malloc-930716"
+	help
+	  "malloc" use mmap for all allocations and so works very well on MMU-less
+	  systems that do not support the brk() system call.   It is pretty smart
+	  about reusing already allocated memory, and minimizing memory wastage.
+
+	  "malloc-930716" is derived from libc-5.3.12 and uses the brk() system call
+	  for all memory allocations.  This makes it very fast.  It is also pretty
+	  smart about reusing already allocated memory, and minimizing memory wastage.
+	  Because this uses brk() it will not work on uClinux MMU-less systems.
+
+	  If unsure, answer "malloc".
+
+config MALLOC
+	bool "malloc"
+
+config MALLOC_930716
+	bool "malloc-930716"
+	depends on UCLIBC_HAS_MMU
+
+endchoice
+
+config HAS_SHADOW
+	bool "Shadow Password Support"
+	default y
+	help
+	  Answer N if you do not need shadow password support.  
+	  Most people will answer Y.
+
+config UCLIBC_HAS_REGEX
+	bool "Regular Expression Support"
+	default y
+	help
+	  Posix regular expression code is really big -- 27k all by itself.
+	  If you don't use regular expressions, turn this off and save space.
+	  Of course, if you only staticly link, leave this on, since it will
+	  only be included in your apps if you use regular expressions.
+
+config UNIX98PTY_ONLY
+	bool "Support only Unix 98 PTYs"
+	default y
+	help
+	  If you want to support only Unix 98 PTYs enable this.  Some older
+	  applications may need this disabled.  For most current programs, 
+	  you can generally answer Y.
+
+config ASSUME_DEVPTS
+	bool "Assume that /dev/pts is a devpts or devfs file system"
+	default y
+	help
+	  Enable this if /dev/pts is on a devpts or devfs filesystem.  Both
+	  these filesystems automatically manage permissions on the /dev/pts 
+	  devices.  You may need to mount your devpts or devfs filesystem on
+	  /dev/pts for this to work.
+
+	  Most people should answer Y.
+
+endmenu
+
+
+
+menu "Networking Support"
+
+config UCLIBC_HAS_IPV6
+	bool "IP version 6 Support"
+	default n
+	help
+	  If you want to include support for the next version of the Internet
+	  Protocol (IP version 6) then answer Y.
+	  
+	  Most people should answer N.
+
+config UCLIBC_HAS_RPC
+	bool "Remote Procedute Call (RPC) support"
+	default n
+	help
+	  If you want to include RPC support, enable this.  RPC is rarely used 
+	  for anything except for the NFS filesystem.  Unless you plan to use NFS, 
+	  you can probably leave this set to N and save some space.  If you need
+	  to use NFS then you should answer Y.
+
+config UCLIBC_HAS_FULL_RPC
+	bool "Full RPC support"
+	depends on UCLIBC_HAS_RPC
+	default n
+	help
+	  Normally we enable just enough RPC support for things like rshd and
+	  nfs mounts to work.  If you find you need the rest of the RPC stuff, 
+	  then enable this option.  Most people can safely answer N.
+
+endmenu
+
+
+menu "String and Stdio Support"
+
+config UCLIBC_HAS_WCHAR
+	bool "Wide Charactor Support"
+	default n
+	help
+	  Answer Y to enable wide char support.  This will make uClibc much
+	  bigger.
+
+	  Most people will answer N.
+
+config UCLIBC_HAS_LOCALE
+	bool "Locale Support"
+	depends on UCLIBC_HAS_WCHAR
+	default n
+	help
+	  Answer Y to enable locale support.  This will make uClibc much
+	  bigger.
+
+	  Most people will answer N.
+
+config USE_OLD_VFPRINTF
+	bool "Use the old vfprintf implementation"
+	default n
+	help
+	  Set to true to use the old vfprintf instead of the new.  This is roughly
+	  C89 compliant, but doesn't deal with qualifiers on %n and doesn't deal with
+	  %h correctly or %hh at all on the interger conversions.  But on i386 it is
+	  over 1.5k smaller than the new code.  Of course, the new code fixes the
+	  above mentioned deficiencies and adds custom specifier support similar to
+	  glibc, as well as handling positional args.  This will be rewritten at some 
+	  point to bring it to full C89 standards compliance.
+
+	  Most people will answer N.
+
+endmenu
+
+menu "Library Installation Options"
+
+config SHARED_LIB_LOADER_PATH
+	string "Shared library loader path"
+	depends on BUILD_UCLIBC_LDSO
+	default "$(DEVEL_PREFIX)/lib"
+	help
+	  When using shared libraries, this path is the location where the
+	  shared library will be invoked.  This value will be compiled into
+	  every binary compiled with uClibc.
+
+	  BIG FAT WARNING:
+	  If you do not have a shared library loader with the correct name
+	  sitting in the directory this points to, your binaries will not 
+	  run.
+
+config SYSTEM_LDSO
+	string "System shared library loader"
+	depends on !BUILD_UCLIBC_LDSO
+	default "/lib/ld-linux.so.2"
+	help
+	  If you are using shared libraries, but do not want/have a native
+	  uClibc shared library loader, please specify the name of your
+	  target system's shared library loader here...
+
+	  BIG FAT WARNING:
+	  If you do not have a shared library loader with the correct name
+	  sitting in the directory this points to, your binaries will not 
+	  run.
+
+config DEVEL_PREFIX
+	string "uClibc development environment directory"
+	default "/usr/$(TARGET_ARCH)-linux-uclibc"
+	help
+	  DEVEL_PREFIX is the directory into which the uClibc development
+	  environment will be installed.   The result will look something
+	  like the following:
+	      $(DEVEL_PREFIX)/
+	          lib/            <contains all runtime and static libs>
+		  include/        <Where all the header files go>
+	  This value is used by the 'make install' Makefile target.  Since this
+	  directory is compiled into the uclibc cross compiler spoofer, you
+	  have to recompile uClibc if you change this value...
+
+config SYSTEM_DEVEL_PREFIX
+	string "uClibc development environment system directory"
+	default "$(DEVEL_PREFIX)"
+	help
+	  SYSTEM_DEVEL_PREFIX is the directory prefix used when installing
+	  bin/arch-uclibc-gcc, bin/arch-uclibc-ld, etc.   This is only used by
+	  the 'make install' target, and is not compiled into anything.  This
+	  defaults to $(DEVEL_PREFIX)/usr, but makers of .rpms and .debs will
+	  want to set this to "/usr" instead.
+
+endmenu
+
+menu "uClibc hacking options"
+
+config DODEBUG
+	bool "Build uClibc with debugging symbols"
+	default n
+	help
+	  Say Y here if you wish to compile uClibc with debugging symbols.
+	  This will allow you to use a debugger to examine uClibc internals
+	  while applications are running.  This increases the size of the
+	  library considerably and should only be used when doing development.
+	  If you are doing development and want to debug uClibc, answer Y.
+
+	  Otherwise, answer N.
+endmenu
+
+
+

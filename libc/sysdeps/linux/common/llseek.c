@@ -34,7 +34,7 @@
 #include <sys/syscall.h>
 
 
-#if defined __NR__llseek && defined __UCLIBC_HAVE_LFS__
+#if defined __NR__llseek && defined __UCLIBC_HAS_LFS__
 
 #ifndef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) __syscall_llseek (args)

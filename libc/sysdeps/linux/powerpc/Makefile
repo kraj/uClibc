@@ -21,7 +21,7 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-USE_CRT0_C=y
+USE_CRT0_C=true
 
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
@@ -29,7 +29,7 @@ ASFLAGS=$(CFLAGS)
 
 TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
 
-ifeq ($(USE_CRT0_C),y)
+ifeq ($(USE_CRT0_C),true)
 CRT0=crt0.c
 CRT0_OBJ=$(patsubst %.c,%.o, $(CRT0))
 else
@@ -55,7 +55,7 @@ ar-target: $(OBJS) $(CRT0_OBJ)
 	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
 
-ifeq ($(USE_CRT0_C),y)
+ifeq ($(USE_CRT0_C),true)
 $(CRT0_OBJ): %.o : %.c
 else
 $(CRT0_OBJ): %.o : %.S

@@ -24,21 +24,8 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-# Set to true to use the old vfprintf instead of the new.  The old is roughly
-# C89 compliant, but doesn't deal with qualifiers on %n and doesn't deal with
-# %h correctly or %hh at all on the interger conversions.  But on i386 it is
-# over 1.5k smaller than the new code.  Of course, the new code fixes the
-# above mentioned deficiencies and adds custom specifier support similar to
-# glibc, as well as handling positional args.  This option is here temporarily
-# until the configuration system gets rewritten.  Note also that the old
-# vfprintf code will be rewritten at some point to bring it into at least C89
-# standards compliance.
-
-USE_OLD_VFPRINTF = false
-
 # Note: The *64.o objects are empty when compiled without large file support.
-#       To not build them at all, remove the appropriate line from the MOBJ
-#       definition and uncomment the DOLFS test below.
+#
 
 # Note: Use the libpthreads of: flockfile.o ftrylockfile.o funlockfile.o
 #       Also, maybe move __fsetlocking.o as well?
@@ -60,15 +47,11 @@ MOBJ = fclose.o fflush.o fopen.o freopen.o perror.o remove.o \
 	_stdio_fsfopen.o _stdio_fdout.o _uintmaxtostr.o _stdio_strerror_r.o \
 	getdelim.o getline.o ctermid.o
 
-# ifeq ($(DOLFS),true)
-# 	MOBJ += fopen64.o freopen64.o ftello64.o fseeko64.o fsetpos64.o fgetpos64.o
-# endif
-
 MSRC2= printf.c
 MOBJ2=  vsnprintf.o vdprintf.o vasprintf.o vprintf.o vsprintf.o \
 	fprintf.o  snprintf.o  dprintf.o  asprintf.o  printf.o  sprintf.o
 
-ifneq ($(USE_OLD_VFPRINTF),true)
+ifneq ($(USE_OLD_VFPRINTF),y)
 	MOBJ2 += _ppfs_init.o _ppfs_prepargs.o _ppfs_setargs.o \
 		 _ppfs_parsespec.o _do_one_spec.o vfprintf.o \
 		 _store_inttype.o _load_inttype.o \
@@ -77,7 +60,7 @@ endif
 
 
 
-ifeq ($(HAS_FLOATING_POINT),true)
+ifeq ($(UCLIBC_HAS_FLOATS),y)
 	MOBJ2 += _dtostr.o
 endif
 
@@ -85,7 +68,7 @@ MSRC3=scanf.c
 MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
 
 CSRC=popen.c tmpfile.c tmpnam.c tmpnam_r.c tempnam.c
-ifeq ($(USE_OLD_VFPRINTF),true)
+ifeq ($(USE_OLD_VFPRINTF),y)
 	CSRC += old_vfprintf.c
 endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))

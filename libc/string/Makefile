@@ -46,7 +46,7 @@ CSRC=strxfrm.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(COBJS) $(MOBJW)
 
-ifeq ($(HAS_WCHAR),true)
+ifeq ($(UCLIBC_HAS_WCHAR),y)
 	OBJS += $(MOBJW2)
 endif
 

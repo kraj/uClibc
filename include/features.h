@@ -337,7 +337,7 @@
 #undef __need_uClibc_config_h
 
 /* Make sure users large file options agree with uClibc's configuration. */
-#ifndef __UCLIBC_HAVE_LFS__
+#ifndef __UCLIBC_HAS_LFS__
 
 /* If uClibc was built without large file support, output an error if
  * and 64-bit file offsets were requested, output an error.
@@ -371,7 +371,7 @@ uClibc was built without large file support enabled.
 
 /* Some nice features only work properly with ELF */
 #if defined _LIBC 
-#if defined HAVE_ELF	
+#if defined __HAVE_ELF__
 /* Define ALIASNAME as a weak alias for NAME. */
 #  define weak_alias(name, aliasname) _weak_alias (name, aliasname)
 #  define _weak_alias(name, aliasname) \
@@ -390,12 +390,12 @@ uClibc was built without large file support enabled.
 	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");	      \
 	    static const char __evoke_link_warning_##symbol[]		      \
 	    __attribute__ ((section (".gnu.warning." #symbol "\n\t#"))) = msg;
-#else /* !defined HAVE_ELF */
+#else /* !defined __HAVE_ELF__ */
 #  define strong_alias(name, aliasname) _strong_alias (name, aliasname)
 #  define weak_alias(name, aliasname) _strong_alias (name, aliasname)
 #  define _strong_alias(name, aliasname) \
-	__asm__(".global " C_SYMBOL_PREFIX #aliasname "\n" \
-                ".set " C_SYMBOL_PREFIX #aliasname "," C_SYMBOL_PREFIX #name);
+	__asm__(".global " __C_SYMBOL_PREFIX__ #aliasname "\n" \
+                ".set " __C_SYMBOL_PREFIX__ #aliasname "," __C_SYMBOL_PREFIX__ #name);
 #  define link_warning(symbol, msg) \
 	asm (".stabs \"" msg "\",30,0,0,0\n\t" \
 	      ".stabs \"" #symbol "\",1,0,0,0\n");

@@ -29,15 +29,15 @@ LIBTHREAD_DB_SHARED=libthread_db.so
 LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 DIRS=
-ifeq ($(strip $(INCLUDE_THREADS)),true)
+ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 	DIRS+=linuxthreads
-ifeq ($(strip $(DODEBUG)),true)
+ifeq ($(strip $(DODEBUG)),y)
 	DIRS+=linuxthreads_db
 endif
 endif
 
 GCC_LIB_DIR = $(dir $(shell $(CC) -print-libgcc-file-name ))
-ifeq ($(strip $(DOPIC)),true)
+ifeq ($(strip $(DOPIC)),y)
     START_FILES  = $(TOPDIR)lib/crti.o     $(GCC_LIB_DIR)crtbeginS.o
     END_FILES    = $(GCC_LIB_DIR)crtendS.o $(TOPDIR)lib/crtn.o
 else

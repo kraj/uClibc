@@ -24,15 +24,21 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-DIRS = $(MALLOC)
-ALL_SUBDIRS = malloc malloc-930716
+DIRS:=
+ifeq ($(MALLOC),y)
+    DIRS+=malloc
+endif
+ifeq ($(MALLOC_930716),y)
+    DIRS+=malloc-930716
+endif
+
 
 MSRC = stdlib.c
 MOBJ = abs.o labs.o atoi.o atol.o strtol.o strtoul.o _stdlib_strto_l.o \
        qsort.o bsearch.o
 MOBJ +=  llabs.o atoll.o strtoll.o strtoull.o _stdlib_strto_ll.o
 
-ifeq ($(HAS_WCHAR),true)
+ifeq ($(UCLIBC_HAS_WCHAR),y)
 	MOBJ += mblen.o mbtowc.o wctomb.o mbstowcs.o wcstombs.o \
 		_stdlib_mb_cur_max.o 
 endif
@@ -46,7 +52,7 @@ CSRC =	abort.c getenv.c mkdtemp.c mktemp.c realpath.c mkstemp.c mkstemp64.c \
 	drand48_r.c erand48.c erand48_r.c jrand48.c jrand48_r.c lrand48.c \
 	lrand48_r.c mrand48.c mrand48_r.c nrand48.c nrand48_r.c rand_r.c \
 	srand48.c srand48_r.c calloc.c valloc.c
-ifeq ($(HAS_FLOATING_POINT),true)
+ifeq ($(UCLIBC_HAS_FLOATS),y)
 	CSRC += strtod.c strtof.c strtold.c
 endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))

@@ -90,7 +90,7 @@ CANCELABLE_SYSCALL (int, fsync, (int fd), (fd))
 CANCELABLE_SYSCALL (off_t, lseek, (int fd, off_t offset, int whence),
 		    (fd, offset, whence))
 
-#ifdef __UCLIBC_HAVE_LFS__
+#ifdef __UCLIBC_HAS_LFS__
 /* lseek64(2).  */
 CANCELABLE_SYSCALL (off64_t, lseek64, (int fd, off64_t offset, int whence),
 		    (fd, offset, whence))
@@ -112,7 +112,7 @@ CANCELABLE_SYSCALL_VA (int, open, (const char *pathname, int flags, ...),
 		       (pathname, flags, va_arg (ap, mode_t)), flags)
 
 
-#ifdef __UCLIBC_HAVE_LFS__
+#ifdef __UCLIBC_HAS_LFS__
 /* open64(3).  */
 CANCELABLE_SYSCALL_VA (int, open64, (const char *pathname, int flags, ...),
 		       (pathname, flags, va_arg (ap, mode_t)), flags)
@@ -129,7 +129,7 @@ CANCELABLE_SYSCALL (ssize_t, pread, (int fd, void *buf, size_t count,
 		    (fd, buf, count, offset))
 
 
-#if defined __UCLIBC_HAVE_LFS__ && defined __NR_pread64
+#if defined __UCLIBC_HAS_LFS__ && defined __NR_pread64
 /* pread64(3).  */
 CANCELABLE_SYSCALL (ssize_t, pread64, (int fd, void *buf, size_t count,
 				       off64_t offset),
@@ -142,7 +142,7 @@ CANCELABLE_SYSCALL (ssize_t, pwrite, (int fd, const void *buf, size_t n,
 		    (fd, buf, n, offset))
 
 
-#if defined __UCLIBC_HAVE_LFS__ && defined __NR_pwrited64
+#if defined __UCLIBC_HAS_LFS__ && defined __NR_pwrited64
 /* pwrite64(3).  */
 CANCELABLE_SYSCALL (ssize_t, pwrite64, (int fd, const void *buf, size_t n,
 					off64_t offset),

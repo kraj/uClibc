@@ -22,29 +22,27 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-#--------------------------------------------------------
-#
-#There are a number of configurable options in "Config"
-#
-#--------------------------------------------------------
 
+#--------------------------------------------------------------
+# You shouldn't need to mess with anything beyond this point...
+#--------------------------------------------------------------
+noconfig_targets := menuconfig config oldconfig randconfig \
+	defconfig allyesconfig allnoconfig clean distclean \
+	release tags TAGS
 TOPDIR=./
 include Rules.mak
 
 DIRS = extra ldso libc libcrypt libresolv libutil libm libpthread
 
-all: headers uClibc_config subdirs shared utils finished
+ifdef include-config
 
-Config:
-	@echo
-	@echo "You didn't read the README, did you... =)"
-	@echo "Choose a configuration file in extras/Config/ and then run"
-	@echo "  ln -s ./extra/Configs/Config.<arch> ./Config"
-	@echo
-	@exit 1
+all: headers subdirs shared utils finished
+
+# In this section, we need .config
+-include .config.cmd
 
 shared:
-ifeq ($(strip $(HAVE_SHARED)),true)
+ifeq ($(strip $(HAVE_SHARED)),y)
 	@$(MAKE) -C libc shared
 	@$(MAKE) -C ldso shared
 	@$(MAKE) -C libcrypt shared
@@ -67,7 +65,7 @@ finished: shared
 # Target for uClinux distro
 #
 romfs:
-ifeq ($(strip $(HAVE_SHARED)),true)
+ifeq ($(strip $(HAVE_SHARED)),y)
 	install -d $(ROMFSDIR)/lib
 	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(ROMFSDIR)/lib
@@ -79,13 +77,18 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	fi;
 endif
 
-headers: dummy
+include/bits/uClibc_config.h: .config
+	rm -rf include/bits
+	mkdir -p include/bits
+	@./extra/config/conf -o extra/Configs/Config.$(TARGET_ARCH)
+
+headers: include/bits/uClibc_config.h
 	rm -f include/asm;
-	@if [ $(TARGET_ARCH) = "powerpc" ];then \
+	@if [ "$(TARGET_ARCH)" = "powerpc" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-ppc include/asm; \
-	elif [ $(TARGET_ARCH) = "mips" ];then \
+	elif [ "$(TARGET_ARCH)" = "mips" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-mips include/asm; \
-	elif [ $(TARGET_ARCH) = "mipsel" ];then \
+	elif [ "$(TARGET_ARCH)" = "mipsel" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-mips include/asm; \
 	    cd $(shell pwd)/libc/sysdeps/linux; \
 	    ln -fs mips mipsel; \
@@ -93,10 +96,10 @@ headers: dummy
 	    ln -fs mips mipsel; \
 	    cd $(shell pwd)/libpthread/linuxthreads/sysdeps; \
 	    ln -fs mips mipsel; \
-	elif [ $(TARGET_ARCH) = "cris" ];then \
+	elif [ "$(TARGET_ARCH)" = "cris" ];then \
 		ln -fs $(KERNEL_SOURCE)/include/asm-cris include/asm; \
 	else \
-	    if [ $(HAS_MMU) != "true" ]; then \
+	    if [ "$(UCLIBC_HAS_MMU)" != "y" ]; then \
 	    	if [ -d $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu ] ; then \
 		    ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu include/asm;\
 		else \
@@ -110,16 +113,14 @@ headers: dummy
 	    set -e; \
 	    echo " "; \
 	    echo "The path '$(KERNEL_SOURCE)/include/asm' doesn't exist."; \
-	    echo "I bet you didn't set KERNEL_SOURCE, TARGET_ARCH or HAS_MMU in \`Config'"; \
-	    echo "correctly.  Please edit \`Config' and fix these settings."; \
+	    echo "I bet you didn't set KERNEL_SOURCE, TARGET_ARCH or UCLIBC_HAS_MMU"; \
+	    echo "correctly when you configured uClibc.  Please fix these settings."; \
 	    echo " "; \
 	    false; \
 	fi;
 	rm -f include/linux include/scsi
 	ln -fs $(KERNEL_SOURCE)/include/linux include/linux
 	ln -fs $(KERNEL_SOURCE)/include/scsi include/scsi
-	rm -rf include/bits
-	mkdir -p include/bits
 	@cd include/bits; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
@@ -146,97 +147,6 @@ headers: dummy
 	TOPDIR=. CC=$(CC) /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
-uClibc_config: Makefile Config
-	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > include/bits/uClibc_config.h
-	@echo "#if !defined __FEATURES_H && !defined __need_uClibc_config_h" >> include/bits/uClibc_config.h
-	@echo "#error Never include <bits/uClibc_config.h> directly; use <features.h> instead." >> include/bits/uClibc_config.h
-	@echo "#endif" >> include/bits/uClibc_config.h
-	@echo "#define __UCLIBC_MAJOR__ $(MAJOR_VERSION)" >> include/bits/uClibc_config.h 
-	@echo "#define __UCLIBC_MINOR__ $(MINOR_VERSION)" >> include/bits/uClibc_config.h 
-	@echo "#define __UCLIBC_SUBLEVEL__ $(SUBLEVEL)" >> include/bits/uClibc_config.h 
-	@echo "#define linux 1" >> include/bits/uClibc_config.h 
-	@echo "#define __linux__ 1" >> include/bits/uClibc_config.h 
-	@if [ "$(INCLUDE_IPV6)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_IPV6__ 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_HAS_IPV6__" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(HAS_MMU)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_MMU__ 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "For now we make the assumption that a linux system without an"; \
-	    echo "MMU must be uClinux, and must have a broken munmap (both"; \
-	    echo "assumptions are a bit dodgy, but can be changed in the future)."; \
-	    echo "#undef __UCLIBC_HAS_MMU__" >> include/bits/uClibc_config.h ; \
-	    echo "#define __UCLIBC_UCLINUX_BROKEN_MUNMAP__ 1" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(HAS_FLOATING_POINT)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_FLOATS__ 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_HAS_FLOATS__" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(HAS_LOCALE)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_LOCALE__ 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_HAS_LOCALE__" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(HAS_WCHAR)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_WCHAR__ 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_HAS_WCHAR__" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(HAVE_ELF)" = "false" ] ; then \
-	    echo "#undef HAVE_ELF" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#define HAVE_ELF 1" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(HAVE_SHARED)" = "false" ] ; then \
-	    echo "#undef HAVE_SHARED" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#define HAVE_SHARED 1" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(TARGET_ARCH)" = "sh" ] ; then \
-	    echo "#define NO_UNDERSCORES 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef NO_UNDERSCORES" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(INCLUDE_RPC)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_RPC__ 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_HAS_RPC__" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(DOLFS)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAVE_LFS__ 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_HAVE_LFS__" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(INCLUDE_THREADS)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_THREADS__ 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_HAS_THREADS__" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(INCLUDE_REGEX)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_REGEX__ 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_HAS_REGEX__" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(UNIX98PTY_ONLY)" = "true" ] ; then \
-	    echo "#define UNIX98PTY_ONLY 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef UNIX98PTY_ONLY" >> include/bits/uClibc_config.h ; \
-	fi
-	@if [ "$(ASSUME_DEVPTS)" = "true" ] ; then \
-	    echo "#define ASSUME_DEVPTS 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef ASSUME_DEVPTS" >> include/bits/uClibc_config.h ; \
-	fi
-	@echo "#define C_SYMBOL_PREFIX "\""$(C_SYMBOL_PREFIX)"\" >> include/bits/uClibc_config.h
-	@if [ "$(HAVE_DOT_HIDDEN)" = "true" ] ; then \
-	    echo "#define HAVE_DOT_HIDDEN 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef HAVE_DOT_HIDDEN" >> include/bits/uClibc_config.h ; \
-	fi
-
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 
 $(patsubst %, _dir_%, $(DIRS)) : dummy
@@ -260,7 +170,7 @@ install_dev:
 	done;
 	-find $(PREFIX)$(DEVEL_PREFIX) -name CVS | xargs rm -rf;
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
-ifeq ($(strip $(HAVE_SHARED)),true)
+ifeq ($(strip $(HAVE_SHARED)),y)
 	-find lib/ -type l -name '*.so' -exec cp -a {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
 	# If we build shared libraries then the static libs are PIC...
 	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
@@ -274,7 +184,7 @@ endif
 # allowing cross development.  If you want to deploy to a target 
 # system, use the "install_target" target instead... 
 install_runtime:
-ifeq ($(strip $(HAVE_SHARED)),true)
+ifeq ($(strip $(HAVE_SHARED)),y)
 	install -d $(PREFIX)$(DEVEL_PREFIX)/lib
 	install -d $(PREFIX)$(DEVEL_PREFIX)/bin
 	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
@@ -297,7 +207,7 @@ install_toolchain:
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
 	$(MAKE) -C extra/gcc-uClibc install
 
-ifeq ($(strip $(HAVE_SHARED)),true)
+ifeq ($(strip $(HAVE_SHARED)),y)
 utils: $(TOPDIR)ldso/util/ldd
 	$(MAKE) -C ldso utils
 else
@@ -305,7 +215,7 @@ utils: dummy
 endif
 
 install_utils: utils
-ifeq ($(strip $(HAVE_SHARED)),true)
+ifeq ($(strip $(HAVE_SHARED)),y)
 	install -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin;
 	install -m 755 ldso/util/ldd \
 		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
@@ -332,7 +242,7 @@ endif
 # $PREFIX is set to, allowing you to package up the result for
 # deployment onto your target system.
 install_target:
-ifeq ($(strip $(HAVE_SHARED)),true)
+ifeq ($(strip $(HAVE_SHARED)),y)
 	install -d $(PREFIX)$(TARGET_PREFIX)/lib
 	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin
 	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
@@ -349,7 +259,7 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 endif
 
 install_target_utils:
-ifeq ($(strip $(HAVE_SHARED)),true)
+ifeq ($(strip $(HAVE_SHARED)),y)
 	@$(MAKE) -C ldso/util ldd.target readelf.target #ldconfig.target
 	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin;
 	install -m 755 ldso/util/ldd.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/ldd
@@ -367,8 +277,60 @@ finished2:
 	@echo Finished installing...
 	@echo
 
+else # ifdef include-config
 
-distclean clean:
+all: menuconfig
+
+ifeq ($(filter-out $(noconfig_targets),$(MAKECMDGOALS)),)
+# Targets which don't need .config
+
+# configuration
+# ---------------------------------------------------------------------------
+
+extra/config/conf extra/config/mconf:
+	make -C extra/config
+	-@if [ ! -f .config ] ; then \
+		cp extra/Configs/Config.$(TARGET_ARCH).default .config; \
+	fi
+
+menuconfig: extra/config/mconf
+	make -C extra/config/lxdialog
+	rm -rf include/bits
+	mkdir -p include/bits
+	@./extra/config/mconf extra/Configs/Config.$(TARGET_ARCH)
+
+config: extra/config/conf
+	rm -rf include/bits
+	mkdir -p include/bits
+	@./extra/config/conf extra/Configs/Config.$(TARGET_ARCH)
+
+oldconfig: extra/config/conf
+	rm -rf include/bits
+	mkdir -p include/bits
+	@./extra/config/conf -o extra/Configs/Config.$(TARGET_ARCH)
+
+randconfig: extra/config/conf
+	rm -rf include/bits
+	mkdir -p include/bits
+	@./extra/config/conf -r extra/Configs/Config.$(TARGET_ARCH)
+
+allyesconfig: extra/config/conf
+	rm -rf include/bits
+	mkdir -p include/bits
+	@./extra/config/conf -y extra/Configs/Config.$(TARGET_ARCH)
+
+allnoconfig: extra/config/conf
+	rm -rf include/bits
+	mkdir -p include/bits
+	@./extra/config/conf -n extra/Configs/Config.$(TARGET_ARCH)
+
+defconfig: extra/config/conf
+	rm -rf include/bits
+	mkdir -p include/bits
+	@./extra/config/conf -d extra/Configs/Config.$(TARGET_ARCH)
+
+
+clean:
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec rm -f {} \;
 	@rm -rf tmp lib include/bits libc/tmp _install
 	$(MAKE) -C test clean
@@ -390,14 +352,17 @@ distclean clean:
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi;
-	@if [ $(TARGET_ARCH) = "mipsel" ]; then \
+	@if [ "$(TARGET_ARCH)" = "mipsel" ]; then \
 	    $(MAKE) -C libc/sysdeps/linux/mips clean; \
 	    rm -f ldso/ldso/mipsel; \
 	    rm -f libc/sysdeps/linux/mipsel; \
 	    rm -f libpthread/linuxthreads/sysdeps/mipsel; \
 	fi;
 
-dist release: distclean
+distclean: clean
+	rm -f .config .config.old .config.cmd
+
+release: distclean
 	cd ..;					\
 	rm -rf uClibc-$(VERSION);		\
 	cp -a uClibc uClibc-$(VERSION);		\
@@ -406,5 +371,9 @@ dist release: distclean
 						\
 	tar -cvzf uClibc-$(VERSION).tar.gz --exclude CVS uClibc-$(VERSION)/;
 
-.PHONY: dummy subdirs release distclean clean
+endif # ifeq ($(filter-out $(noconfig_targets),$(MAKECMDGOALS)),)
+endif # ifdef include-config
+
+.PHONY: dummy subdirs release distclean clean config oldconfig menuconfig
+
 

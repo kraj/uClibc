@@ -25,20 +25,7 @@ TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 CFLAGS+=-I$(TOPDIR)libpthread/linuxthreads/sysdeps/pthread
 
-# If INCLUDE_FULL_RPC is not defined, default to `false' if shared
-# libraries are enabled, and `true' otherwise (because the main
-# advantage of not including everything is that it reduces the size of
-# shared libraries; the size of static libraries doesn't typically
-# matter as much, since they need not be present at runtime).
-ifeq ($(strip $(INCLUDE_FULL_RPC)),)
-  ifeq ($(strip $(HAVE_SHARED)),false)
-    INCLUDE_FULL_RPC = true
-  else
-    INCLUDE_FULL_RPC = false
-  endif
-endif
-
-ifeq ($(strip $(INCLUDE_FULL_RPC)),true)
+ifeq ($(strip $(UCLIBC_HAS_FULL_RPC)),y)
 CSRC :=auth_none.c auth_unix.c authunix_prot.c bindresvport.c \
 	clnt_generic.c clnt_perror.c clnt_raw.c clnt_simple.c clnt_tcp.c \
 	clnt_udp.c rpc_dtablesize.c get_myaddress.c getrpcent.c getrpcport.c \

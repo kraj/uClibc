@@ -124,7 +124,7 @@
 #if defined __GNUC__ && __GNUC__ >= 2
 
 # define __REDIRECT(name, proto, alias) name proto __asm__ (__ASMNAME (#alias))
-# define __ASMNAME(cname) C_SYMBOL_PREFIX cname
+# define __ASMNAME(cname) __C_SYMBOL_PREFIX__ cname
 
 /*
 #elif __SOME_OTHER_COMPILER__

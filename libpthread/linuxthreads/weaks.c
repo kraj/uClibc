@@ -30,7 +30,7 @@ extern void __pthread_return_void __P ((void));
  */
 
 /* Those are pthread functions which return 0 if successful. */
-//#if defined HAVE_ELF && defined PIC && defined DO_VERSIONING
+//#if defined __HAVE_ELF__ && defined PIC && defined DO_VERSIONING
 //weak_alias (__pthread_return_0, __libc_pthread_attr_init_2_0)
 //symbol_version (__libc_pthread_attr_init_2_0, pthread_attr_init, GLIBC_2.0);
 //weak_alias (__pthread_return_0, __libc_pthread_attr_init_2_1)

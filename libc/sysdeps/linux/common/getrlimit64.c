@@ -34,7 +34,7 @@
 #include <sys/types.h>
 #include <sys/resource.h>
 
-#if defined __UCLIBC_HAVE_LFS__
+#if defined __UCLIBC_HAS_LFS__
 
 /* Put the soft and hard limits for RESOURCE in *RLIMITS.
    Returns 0 if successful, -1 if not (and sets errno).  */

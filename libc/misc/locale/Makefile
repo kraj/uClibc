@@ -29,7 +29,7 @@ MOBJ= setlocale.o localeconv.o _locale_init.o nl_langinfo.o
 
 OBJS= $(MOBJ)
 
-ifeq ($(HAS_LOCALE),true)
+ifeq ($(UCLIBC_HAS_LOCALE),y)
 	OBJS += locale_data.o
 endif
 
@@ -47,7 +47,7 @@ $(MOBJ): $(MSRC)
 $(OBJS): Makefile
 
 data:
-ifeq ($(HAS_LOCALE),true)
+ifeq ($(UCLIBC_HAS_LOCALE),y)
 	make -C $(TOPDIR)/extra/locale
 endif
 

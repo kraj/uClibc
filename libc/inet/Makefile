@@ -24,7 +24,7 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-ifeq ($(strip $(INCLUDE_RPC)),true)
+ifeq ($(strip $(UCLIBC_HAS_RPC)),y)
 	DIRS=rpc
 else
 	DIRS=

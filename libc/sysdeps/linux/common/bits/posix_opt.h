@@ -130,14 +130,14 @@
 #define _LFS_ASYNCHRONOUS_IO	1
 
 /* The LFS support in asynchronous I/O is also available.  */
-#ifdef __UCLIBC_HAVE_LFS__
+#ifdef __UCLIBC_HAS_LFS__
 # define _LFS64_ASYNCHRONOUS_IO	1
 #else
 # undef _LFS64_ASYNCHRONOUS_IO
 #endif
 
 /* The rest of the LFS is also available.  */
-#ifdef __UCLIBC_HAVE_LFS__
+#ifdef __UCLIBC_HAS_LFS__
 # define _LFS_LARGEFILE		1
 # define _LFS64_LARGEFILE	1
 # define _LFS64_STDIO		1

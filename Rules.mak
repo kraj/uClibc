@@ -21,21 +21,40 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
--include $(TOPDIR)Config
+# If you are running a cross compiler, you may want to set this
+# to something more interesting...  Target architecture is determined
+# by asking this compiler what arch it compiles stuff for.
+CROSS=
+CC = $(CROSS)gcc-3.2
+AR = $(CROSS)ar
+LD = $(CROSS)ld
+NM = $(CROSS)nm
+STRIPTOOL = $(CROSS)strip
+#STRIPTOOL = /bin/true
+
+# Select the compiler needed to build binaries for your development system
+NATIVE_CC = gcc
+
 
 # Be sure to update include/features.h when changing this...
 MAJOR_VERSION:=0
 MINOR_VERSION:=9
 SUBLEVEL:=15
 VERSION:=$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
+export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION
 
-
-LIBNAME:=libc.a
 SHARED_FULLNAME:=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 SHARED_MAJORNAME:=libc.so.$(MAJOR_VERSION)
 UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
-LIBC:=$(TOPDIR)libc/libc.a
+LIBNAME:=libc.a
+LIBC:=$(TOPDIR)libc/$(LIBNAME)
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
+
+# Pull in the user's uClibc configuration
+ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+include-config := 1
+-include $(TOPDIR).config
+endif
 
 # A nifty macro to make testing gcc features easier
 check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
@@ -45,7 +64,7 @@ check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; 
 AWK:=$(shell if [ -x /usr/bin/nawk ]; then echo "/usr/bin/nawk"; \
 	else echo "/usr/bin/awk"; fi)
 
-NATIVE_ARCH:= ${shell uname -m | sed \
+NATIVE_ARCH:= $(shell uname -m | sed \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \
@@ -54,9 +73,9 @@ NATIVE_ARCH:= ${shell uname -m | sed \
 		-e 's/v850.*/v850/g' \
 		-e 's/sh[234].*/sh/' \
 		-e 's/mips.*/mips/' \
-		}
+		)
 ifeq ($(strip $(TARGET_ARCH)),)
-TARGET_ARCH:=${shell $(CC) -dumpmachine | sed -e s'/-.*//' \
+TARGET_ARCH:=$(shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \
@@ -66,7 +85,7 @@ TARGET_ARCH:=${shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		-e 's/sh[234]/sh/' \
 		-e 's/mips.*/mips/' \
 		-e 's/cris.*/cris/' \
-		}
+		)
 endif
 
 # Ensure consistent filename sort order
@@ -80,7 +99,7 @@ ifndef OPTIMIZATION
 
 # use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION:=
-OPTIMIZATION+=${call check_gcc,-Os,-O2}
+OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 ifeq ($(strip $(TARGET_ARCH)),arm)
 	OPTIMIZATION+=-fstrict-aliasing
 endif
@@ -100,7 +119,7 @@ CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
 	-I$(TOPDIR)include -iwithprefix include -I. -D_LIBC $(ARCH_CFLAGS)
 NATIVE_CFLAGS:=-O2 -Wall
 
-ifeq ($(strip $(DODEBUG)),true)
+ifeq ($(strip $(DODEBUG)),y)
     CFLAGS += -g
     LDFLAGS:= -shared --warn-common --warn-once -z combreloc
     STRIPTOOL:= true -Since_we_are_debugging
@@ -109,26 +128,20 @@ else
     LDFLAGS := -s -shared --warn-common --warn-once -z combreloc
 endif
 
-ifeq ($(strip $(HAVE_SHARED)),true)
-    DOPIC:=true
+ifeq ($(strip $(HAVE_SHARED)),y)
     LIBRARY_CACHE:=#-DUSE_CACHE
-    ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
+    ifeq ($(strip $(BUILD_UCLIBC_LDSO)),y)
 	LDSO:=$(TOPDIR)lib/$(UCLIBC_LDSO)
 	DYNAMIC_LINKER:=$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO)
-	BUILD_DYNAMIC_LINKER:=${shell cd $(TOPDIR) && pwd}/lib/$(UCLIBC_LDSO)
+	BUILD_DYNAMIC_LINKER:=$(shell cd $(TOPDIR) && pwd)/lib/$(UCLIBC_LDSO)
     else
 	LDSO:=$(SYSTEM_LDSO)
-	BUILD_UCLIBC_LDSO:=false
 	DYNAMIC_LINKER:=/lib/$(notdir $(SYSTEM_LDSO))
 	BUILD_DYNAMIC_LINKER:=/lib/$(notdir $(SYSTEM_LDSO))
    endif
 endif
-ifeq ($(strip $(DOPIC)),true)
+ifeq ($(strip $(DOPIC)),y)
     CFLAGS += -fPIC
-endif
-# Currently locale support requires wide char support.
-ifeq ($(strip $(HAS_LOCALE)),true)
-    HAS_WCHAR:=true
 endif
 
 # TARGET_PREFIX is the directory under which which the uClibc runtime

@@ -962,7 +962,7 @@ _syscall2(int, getitimer, __itimer_which_t, which, struct itimerval *, value);
 #include <unistd.h>
 #include <sys/stat.h>
 _syscall2(int, stat, const char *, file_name, struct stat *, buf);
-#if ! defined __NR_stat64 && defined __UCLIBC_HAVE_LFS__
+#if ! defined __NR_stat64 && defined __UCLIBC_HAS_LFS__
 weak_alias(stat, stat64);
 #endif
 #endif
@@ -972,7 +972,7 @@ weak_alias(stat, stat64);
 #include <unistd.h>
 #include <sys/stat.h>
 _syscall2(int, lstat, const char *, file_name, struct stat *, buf);
-#if ! defined __NR_lstat64 && defined __UCLIBC_HAVE_LFS__
+#if ! defined __NR_lstat64 && defined __UCLIBC_HAS_LFS__
 weak_alias(lstat, lstat64);
 #endif
 #endif
@@ -982,7 +982,7 @@ weak_alias(lstat, lstat64);
 #include <unistd.h>
 #include <sys/stat.h>
 _syscall2(int, fstat, int, filedes, struct stat *, buf);
-#if ! defined __NR_fstat64 && defined __UCLIBC_HAVE_LFS__
+#if ! defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__
 weak_alias(fstat, fstat64);
 #endif
 #endif
@@ -1621,29 +1621,29 @@ int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
 
 //#define __NR_stat64             195
 #ifdef L_stat64
-#if defined __NR_stat64 && defined __UCLIBC_HAVE_LFS__
+#if defined __NR_stat64 && defined __UCLIBC_HAS_LFS__
 #include <unistd.h>
 #include <sys/stat.h>
 _syscall2(int, stat64, const char *, file_name, struct stat64 *, buf);
-#endif /* __UCLIBC_HAVE_LFS__ */
+#endif /* __UCLIBC_HAS_LFS__ */
 #endif
 
 //#define __NR_lstat64            196
 #ifdef L_lstat64
-#if defined __NR_lstat64 && defined __UCLIBC_HAVE_LFS__
+#if defined __NR_lstat64 && defined __UCLIBC_HAS_LFS__
 #include <unistd.h>
 #include <sys/stat.h>
 _syscall2(int, lstat64, const char *, file_name, struct stat64 *, buf);
-#endif /* __UCLIBC_HAVE_LFS__ */
+#endif /* __UCLIBC_HAS_LFS__ */
 #endif
 
 //#define __NR_fstat64            197
 #ifdef L_fstat64
-#if defined __NR_fstat64 && defined __UCLIBC_HAVE_LFS__
+#if defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__
 #include <unistd.h>
 #include <sys/stat.h>
 _syscall2(int, fstat64, int, filedes, struct stat64 *, buf);
-#endif /* __UCLIBC_HAVE_LFS__ */
+#endif /* __UCLIBC_HAS_LFS__ */
 #endif
 
 
@@ -1679,16 +1679,16 @@ _syscall2(int, pivot_root, const char *, new_root, const char *, put_old)
 
 //#define __NR_getdents64		220
 #ifdef L_getdents64
-#ifdef __UCLIBC_HAVE_LFS__
+#ifdef __UCLIBC_HAS_LFS__
 #include <unistd.h>
 #include <dirent.h>
 _syscall3(int, getdents64, int, fd, char *, dirp, size_t, count);
-#endif /* __UCLIBC_HAVE_LFS__ */
+#endif /* __UCLIBC_HAS_LFS__ */
 #endif
 
 //#define __NR_fcntl64		221
 #ifdef L__fcntl64
-#ifdef __UCLIBC_HAVE_LFS__
+#ifdef __UCLIBC_HAS_LFS__
 #ifdef __NR_fcntl64
 #define __NR__fcntl64 __NR_fcntl64
 #include <stdarg.h>

@@ -16,8 +16,8 @@ prepended underscore
 --------------------
 
 As the i960 compiler prepends an underscore to symbols, it is critical that
-the Config file define C_SYMBOL_PREFIX as
-    C_SYMBOL_PREFIX = _
+the Config file define __C_SYMBOL_PREFIX__ as
+    __C_SYMBOL_PREFIX__ = _
 to make sure that underscores are applied to symbol names when needed.
 
 

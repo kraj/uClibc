@@ -46,7 +46,7 @@ __exit:
  */
 empty_func:
 	rts
-#if defined(HAVE_ELF)
+#if defined(__HAVE_ELF__)
 	.weak atexit
 	atexit = empty_func
 #else

@@ -22,7 +22,7 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-ifeq ($(strip $(DOLFS)),true)
+ifeq ($(strip $(UCLIBC_HAS_LFS)),y)
 CSRC = fstatfs64.c statfs64.c statvfs.c statvfs64.c fstatvfs.c fstatvfs64.c
 else
 CSRC = statvfs.c fstatvfs.c

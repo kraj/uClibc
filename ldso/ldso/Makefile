@@ -23,10 +23,8 @@
 
 
 TOPDIR=../../
-DOPIC=true
 include $(TOPDIR)Rules.mak
 LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
-LIBGCC:=$(shell $(CC) -print-libgcc-file-name)
 
 # Enable this to enable all the code needed to support traditional ldd
 # (i.e. where the shared library loader does all the heavy lifting)

@@ -46,7 +46,7 @@
 
 /* Declare symbols as hidden. Hidden symbols are only seen by
  * the link editor and not by the dynamic loader. */
-#ifdef HAVE_DOT_HIDDEN
+#ifdef __HAVE_DOT_HIDDEN__
 #  define HIDDEN(func)  asm (".hidden  " #func );
 #else
 #  define HIDDEN(func)

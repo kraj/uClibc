@@ -20,7 +20,7 @@ CRT0=crt0.c
 CRT0_OBJ=$(patsubst %.c,%.o, $(CRT0))
 
 SSRC= setjmp.S __longjmp.S clone.S sysdep.S syscall.S
-ifeq ($(UNIFIED_SYSCALL),true)
+ifeq ($(UNIFIED_SYSCALL),y)
 	SSRC += __uClibc_syscall.S
 endif
 SOBJS=$(patsubst %.S,%.o, $(SSRC))

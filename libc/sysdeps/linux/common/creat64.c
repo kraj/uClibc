@@ -20,7 +20,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 
-#if defined __UCLIBC_HAVE_LFS__
+#if defined __UCLIBC_HAS_LFS__
 
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
 #undef _FILE_OFFSET_BITS
@@ -42,5 +42,5 @@ int creat64 (const char *file, mode_t mode)
 {
     return open64 (file, O_WRONLY|O_CREAT|O_TRUNC, mode);
 }
-#endif /* __UCLIBC_HAVE_LFS__ */
+#endif /* __UCLIBC_HAS_LFS__ */
 

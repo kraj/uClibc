@@ -63,7 +63,7 @@ headers:
 
 clean:
 	rm -f *.[oa] *~ core
-ifeq ($(strip $(HAVE_ELF)),false)
+ifeq ($(strip $(HAVE_ELF)),n)
 	rm -f $(TOPDIR)/include/float.h
 endif
 

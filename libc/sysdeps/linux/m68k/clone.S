@@ -76,7 +76,7 @@ thread_start:
 	trap	#0
 	/*jsr    exit*/
 
-#if defined(HAVE_ELF)
+#if defined(__HAVE_ELF__)
 	.weak clone
 	clone = __clone
 #else

@@ -25,7 +25,7 @@
 #define O_LARGEFILE	0100000
 #endif
 
-#ifdef __UCLIBC_HAVE_LFS__
+#ifdef __UCLIBC_HAS_LFS__
 extern int __libc_open (__const char *file, int oflag, mode_t mode);
 
 /* Open FILE with access OFLAG.  If OFLAG includes O_CREAT,
@@ -45,4 +45,4 @@ int __libc_open64 (const char *file, int oflag, ...)
   return __libc_open(file, oflag | O_LARGEFILE, mode);
 }
 weak_alias (__libc_open64, open64);
-#endif /* __UCLIBC_HAVE_LFS__ */
+#endif /* __UCLIBC_HAS_LFS__ */

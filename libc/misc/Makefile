@@ -28,13 +28,13 @@ include $(TOPDIR)Rules.mak
 DIRS = assert ctype dirent file fnmatch glob internals lsearch \
        mntent syslog time utmp tsearch locale sysvipc statfs \
        error insremque ttyent gnu
-ifeq ($(strip $(INCLUDE_REGEX)),true)
+ifeq ($(strip $(UCLIBC_HAS_REGEX)),y)
 DIRS += regex
 endif
-ifeq ($(strip $(INCLUDE_THREADS)),true)
+ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 DIRS += pthread
 endif
-ifeq ($(strip $(HAS_WCHAR)),true)
+ifeq ($(strip $(UCLIBC_HAS_WCHAR)),y)
 DIRS += wctype wchar
 endif
 

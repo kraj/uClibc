@@ -47,7 +47,7 @@ LIBM_SHARED=libm.so
 LIBM_SHARED_FULLNAME=libm-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
-ifeq ($(strip $(DO_C99_MATH)),true)
+ifeq ($(strip $(DO_C99_MATH)),y)
 CSRC =   e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
          e_exp.c e_fmod.c e_gamma.c e_gamma_r.c e_hypot.c e_j0.c\
          e_j1.c e_jn.c e_lgamma.c e_lgamma_r.c e_log.c e_log10.c\
@@ -78,7 +78,7 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
 
-ifneq ($(strip $(HAS_FLOATING_POINT)),true)
+ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 all:  clean subdirs
 else
 all: $(OBJS) $(LIBM) subdirs

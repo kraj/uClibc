@@ -37,7 +37,7 @@ include $(TOPDIR)Rules.mak
 LIBM=../libm.a
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
-ifeq ($(strip $(DO_C99_MATH)),true)
+ifeq ($(strip $(DO_C99_MATH)),y)
 CSRC = s_ceil.c s_floor.c s_ldexp.c s_frexp.c s_logb.c s_modf.c w_scalb.c s_copysign.c s_rint.c
 else
 CSRC =
@@ -46,7 +46,7 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
 
-ifneq ($(strip $(HAS_FLOATING_POINT)),true)
+ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 all:  clean
 else
 all: $(OBJS) $(LIBM)

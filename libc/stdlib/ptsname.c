@@ -30,7 +30,7 @@
 #include <unistd.h>
 
 
-#if !defined UNIX98PTY_ONLY
+#if !defined __UNIX98PTY_ONLY__
 
 /* Check if DEV corresponds to a master pseudo terminal device.  */
 #define MASTER_P(Dev)                                                         \
@@ -64,7 +64,7 @@ extern const char _ptyname2[];
 int ptsname_r (int fd, char *buf, size_t buflen)
 {
   int save_errno = errno;
-#if !defined UNIX98PTY_ONLY
+#if !defined __UNIX98PTY_ONLY__
   struct stat st;
 #endif
   int ptyno;
@@ -75,14 +75,14 @@ int ptsname_r (int fd, char *buf, size_t buflen)
       return EINVAL;
     }
 
-#if !defined UNIX98PTY_ONLY
+#if !defined __UNIX98PTY_ONLY__
   if (!isatty (fd))
     {
       errno = ENOTTY;
       return ENOTTY;
     }
 #elif !defined TIOCGPTN
-# error "UNIX98PTY_ONLY enabled but TIOCGPTN ioctl not supported by your kernel."
+# error "__UNIX98PTY_ONLY__ enabled but TIOCGPTN ioctl not supported by your kernel."
 #endif
 #ifdef TIOCGPTN
   if (ioctl (fd, TIOCGPTN, &ptyno) == 0)
@@ -113,7 +113,7 @@ int ptsname_r (int fd, char *buf, size_t buflen)
       return 0;
     }
 #endif
-#if defined UNIX98PTY_ONLY
+#if defined __UNIX98PTY_ONLY__
   else
     {
       /* If the ioctl fails it wasn't a Unix 98 master PTY */

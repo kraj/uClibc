@@ -1,5 +1,5 @@
 #include <features.h>
-#ifdef __UCLIBC_HAVE_LFS__
+#ifdef __UCLIBC_HAS_LFS__
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
 #undef _FILE_OFFSET_BITS
 #define	_FILE_OFFSET_BITS   64
@@ -22,5 +22,5 @@ int alphasort64(const void * a, const void * b)
     return strcmp ((*(const struct dirent64 **) a)->d_name,
 	    (*(const struct dirent64 **) b)->d_name);
 }
-#endif /* __UCLIBC_HAVE_LFS__ */
+#endif /* __UCLIBC_HAS_LFS__ */
 

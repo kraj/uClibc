@@ -9,3 +9,4 @@ lib
 Config
 _install
 build-stamp
+.config*

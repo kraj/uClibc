@@ -19,10 +19,10 @@
 #include <limits.h>
 #include <stdlib.h>
 
-/* If ASSUME_DEVPTS is defined, grantpt() reduces to a stub since we
+/* If __ASSUME_DEVPTS__ is defined, grantpt() reduces to a stub since we
    assume that the devfs/devpts filesystem automatically manages the
    permissions. */
-#if !defined ASSUME_DEVPTS
+#if !defined __ASSUME_DEVPTS__
 #include <sys/statfs.h>
 
 /* Constant that identifies the `devpts' filesystem.  */
@@ -47,7 +47,7 @@ static int pts_name (int fd, char **pts, size_t buf_len);
 int
 grantpt (int fd)
 {
-#if !defined ASSUME_DEVPTS
+#if !defined __ASSUME_DEVPTS__
   struct statfs fsbuf;
 # ifdef PATH_MAX
   char _buf[PATH_MAX];
@@ -70,7 +70,7 @@ grantpt (int fd)
   return 0;
 }
 
-#if !defined ASSUME_DEVPTS
+#if !defined __ASSUME_DEVPTS__
 # define grantpt __unix_grantpt
 # include "unix_grantpt.c"
 #endif

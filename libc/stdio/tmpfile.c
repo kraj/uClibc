@@ -46,6 +46,6 @@ FILE * tmpfile (void)
 
     return f;
 }
-#ifdef __UCLIBC_HAVE_LFS__
+#ifdef __UCLIBC_HAS_LFS__
 weak_alias(tmpfile, tmpfile64);
 #endif

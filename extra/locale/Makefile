@@ -5,7 +5,7 @@ include $(TOPDIR)Rules.mak
 
 CFLAGS_wc8bit=-DCTYPE_PACKED=1
 CFLAGS_mmap=
-ifeq ($(strip $(HAS_WCHAR)),true)
+ifeq ($(strip $(UCLIBC_HAS_WCHAR)),y)
     CFLAGS_wc8bit += -DDO_WIDE_CHAR=1
     CFLAGS_mmap += -D__WCHAR_ENABLED=1
 endif

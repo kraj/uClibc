@@ -189,7 +189,7 @@ int __gen_tempname (char *tmpl, int kind)
 	    case __GT_FILE:
 		fd = open (tmpl, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
 		break;
-#if defined __UCLIBC_HAVE_LFS__
+#if defined __UCLIBC_HAS_LFS__
 	    case __GT_BIGFILE:
 		fd = open64 (tmpl, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
 		break;
