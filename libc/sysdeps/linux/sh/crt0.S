@@ -1,6 +1,7 @@
 /* Startup code for SH & ELF.
    Copyright (C) 1999 Free Software Foundation, Inc.
    Copyright (C) 2001 Hewlett-Packard Australia
+   Copyright (C) 2002 Stefan Allius
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Library General Public License as published by the Free
@@ -15,11 +16,8 @@
  You should have received a copy of the GNU Library General Public License
  along with this program; if not, write to the Free Software Foundation, Inc.,
  59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-
- Derived in part from the Linux-8086 C library, the GNU C Library, and several
- other sundry sources.  Files within this library are copyright by their
- respective copyright holders.
 */
+
 
 /* This is the canonical entry point, usually the first thing in the text
    segment.
@@ -35,6 +33,9 @@
 		...
 					NULL
 */
+
+#include <features.h>
+
 	.file "crt0.S"
 	.text
 	.globl _start
