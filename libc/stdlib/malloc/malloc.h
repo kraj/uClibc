@@ -109,6 +109,16 @@ extern malloc_mutex_t __malloc_sbrk_lock;
 #endif /* __UCLIBC_HAS_THREADS__ */
 
 
+/* Use branch-prediction macros from libc if defined.  */
+#ifdef likely
+#define __malloc_likely(c)	likely(c)
+#define __malloc_unlikely(c)	unlikely(c)
+#else
+#define __malloc_likely(c)	(c)
+#define __malloc_unlikely(c)	(c)
+#endif
+
+
 /* Define MALLOC_DEBUGGING to cause malloc to emit debugging info to stderr.  */
 #ifdef MALLOC_DEBUGGING
 #include <stdio.h>
