@@ -33,7 +33,7 @@ SYSDEPINC = -I$(PTDIR)sysdeps/unix/sysv/linux \
             -I$(PTDIR)sysdeps/$(TARGET_ARCH) \
             -I$(PTDIR)sysdeps \
             -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
-CFLAGS += $(SYSDEPINC) -DLIBPTHREAD_SO="\"libpthread.so.$(PT_VERSION)\"" -D_GNU_SOURCE
+CFLAGS += $(SYSDEPINC) -DLIBPTHREAD_SO="\"libpthread.so.$(PT_VERSION)\""
 
 CSRC=td_init.c td_log.c td_ta_clear_event.c td_ta_delete.c \
 	td_ta_enable_stats.c td_ta_event_addr.c td_ta_event_getmsg.c \

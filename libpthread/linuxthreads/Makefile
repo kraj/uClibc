@@ -33,7 +33,7 @@ SYSDEPINC = -I$(PTDIR)sysdeps/unix/sysv/linux \
             -I$(PTDIR)sysdeps/$(TARGET_ARCH) \
             -I$(PTDIR)sysdeps \
             -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
-CFLAGS += $(SYSDEPINC) -DLIBPTHREAD_SO="\"libpthread.so.$(PT_VERSION)\"" -D_GNU_SOURCE
+CFLAGS += $(SYSDEPINC) -DLIBPTHREAD_SO="\"libpthread.so.$(PT_VERSION)\""
 
 CSRC=attr.c cancel.c condvar.c errno.c events.c join.c lockfile.c manager.c \
 	mutex.c oldsemaphore.c pt-machine.c ptfork.c pthread.c \

@@ -16,6 +16,8 @@
 
 /* Mutexes */
 
+#include <features.h>
+#define __USE_GNU
 #include <errno.h>
 #include <sched.h>
 #include <stddef.h>
