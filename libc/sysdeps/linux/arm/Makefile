@@ -54,6 +54,12 @@ $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
+ifeq ($(strip $(UCLIBC_PROFILING)),y)
+gmon-start.S: ../common/gmon-start.c
+	$(CC) $(CFLAGS) -c $< -S -o $*.S
+gcrt1.o: $(CRT0_DEPS)
+endif
+
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 crti.o: crti.S
 	$(CC) $(CFLAGS) -c crti.S -o crti.o
