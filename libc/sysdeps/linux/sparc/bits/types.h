@@ -28,15 +28,7 @@
 #define __need_size_t
 #include <stddef.h>
 #include <bits/wordsize.h>
-
-/* Sigh.  We need to carefully wrap this one... */
-#ifndef __GLIBC__
-#define __GLIBC__ 2
-#include <asm/posix_types.h>
-#undef __GLIBC__
-#else
-#include <asm/posix_types.h>
-#endif
+#include <bits/kernel_types.h>
 
 /* Convenience types.  */
 typedef unsigned char __u_char;
