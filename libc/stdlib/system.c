@@ -6,7 +6,7 @@
 
 /* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
 #include <sys/syscall.h>
-#if ! defined __NR_vfork && defined __UCLIBC_HAS_MMU__ 
+#if ! defined __NR_vfork
 #define vfork fork	
 #endif
 
