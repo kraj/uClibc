@@ -204,7 +204,6 @@ long int sysconf(int name)
 
     case _SC_PAGESIZE:
       return getpagesize();
-#endif
 
     case _SC_AIO_LISTIO_MAX:
 #ifdef	AIO_LISTIO_MAX
