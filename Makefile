@@ -160,13 +160,17 @@ endif
 # Command used to download source code
 WGET:=wget --passive-ftp
 
+LOCALE_DATA_FILENAME:=uClibc-locale-030818.tgz
+
 pregen: headers
 ifeq ($(strip $(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA)),y)
 	(cd extra/locale; \
-	$(WGET) http://www.uclibc.org/downloads/uClibc-locale-030818.tgz);
+	if [ ! -f $(LOCALE_DATA_FILENAME) ] ; then \
+	$(WGET) http://www.uclibc.org/downloads/$(LOCALE_DATA_FILENAME) ; \
+	fi );
 endif
 ifeq ($(strip $(UCLIBC_PREGENERATED_LOCALE_DATA)),y)
-	(cd extra/locale; zcat uClibc-locale-030818.tgz | tar -xvf -)
+	(cd extra/locale; zcat $(LOCALE_DATA_FILENAME) | tar -xvf -)
 	make -C extra/locale pregen
 endif
 
