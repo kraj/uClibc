@@ -90,4 +90,14 @@ else
 endif
 endif
 
+# TARGET_PREFIX is the directory under which which the uClibc runtime
+# environment will be installed and used on the target system.   The 
+# result will look something like the following:
+#   TARGET_PREFIX/
+#	lib/            <contains all runtime and static libs>
+#	usr/lib/        <this directory is searched for runtime libs>
+#	etc/            <weher the shared library cache and configuration 
+#	                information go if you enabled LIBRARY_CACHE above>
+# Very few people will need to change this value from the default...
+TARGET_PREFIX = /
 
