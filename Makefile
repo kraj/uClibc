@@ -244,13 +244,21 @@ endif
 	-find $(PREFIX)$(DEVEL_PREFIX) -name CVS | xargs $(RM) -r;
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
 ifeq ($(strip $(HAVE_SHARED)),y)
-	-$(INSTALL) -m 644 lib/*.so $(PREFIX)$(DEVEL_PREFIX)lib/
-	-find lib/ -type l -name '*.so' -exec cp -fa {} $(PREFIX)$(DEVEL_PREFIX)lib ';'
-	# If we build shared libraries then the static libs are PIC...
-	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
+	for i in `find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
+	sed -e 's/lib\///'` ; do \
+		$(LN) -sf $(RUNTIME_PREFIX)lib/$$i.$(MAJOR_VERSION) \
+		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
+	done;
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	ln -sf $(RUNTIME_PREFIX)lib/libthread_db.so.1 \
+		$(PREFIX)$(DEVEL_PREFIX)lib/libthread_db.so
+endif
+#	# If we build shared libraries then the static libs are PIC...
+#	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
 	for i in `find lib/  -type f -name '*.a' | sed -e 's/lib\///'` ; do \
-		$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i | sed -e 's/\.a$$/_pic.a/'`; \
-	done
+		$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
+			| sed -e 's/\.a$$/_pic.a/'`; \
+	done;
 endif
 
 
