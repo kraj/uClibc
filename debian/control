@@ -23,10 +23,12 @@ Description: A small implementation of the C library
  much smaller than glibc, which makes it useful for embedded
  systems.
 
-Package: uclibc-gcc
+Package: uclibc-toolchain
 Section: devel
 Architecture: any
 Depends: gcc|c-compiler, binutils, ${shlibs:Depends}
+Conflicts: uclibc-gcc
+Replaces: uclibc-gcc
 Description: A compiler wrapper for uClibc
  This is a small wrapper for gcc, ld, and other toolchain utilities
  to do compilation against uClibc instead of the native libc.

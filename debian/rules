@@ -104,6 +104,13 @@ ifeq ($(target),$(DEB_HOST_GNU_CPU))
 	  debian/$(p_lib)/lib/ld-uClibc.so.0
 endif
 endif
+	
+	install -d debian/$(p_gcc)/usr/bin
+	mv debian/$(p_gcc)/usr/$(target)-linux-uclibc/bin/$(target)-* \
+		debian/$(p_gcc)/usr/bin
+	install -d debian/$(p_lib)/usr/bin
+	mv debian/$(p_lib)/usr/$(target)-linux-uclibc/bin/$(target)-* \
+		debian/$(p_lib)/usr/bin
 
 # Build architecture-independent files here.
 binary-indep:
