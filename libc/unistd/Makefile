@@ -63,7 +63,7 @@ getpagesize_tester.o:
 	$(CC) $(CFLAGS) -D_UCLIBC_GENERATE_SYSCONF_ARCH \
 	    -c ../sysdeps/linux/common/getpagesize.c -o getpagesize_tester.o
 
-sysconf_tester.o:
+sysconf_tester.o: sysconf.c
 	$(CC) $(CFLAGS) -D_UCLIBC_GENERATE_SYSCONF_ARCH -c sysconf.c \
 	    -o sysconf_tester.o
 
