@@ -9,4 +9,11 @@
 
 #include "syscalls.h"
 #include <unistd.h>
+
+#if defined (__alpha__)
+#undef  __NR_fdatasync
+#define __NR_fdatasync __NR_osf_fdatasync
+#endif
+
 _syscall1(int, fdatasync, int, fd);
+
