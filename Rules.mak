@@ -155,6 +155,11 @@ ifeq ($(strip $(TARGET_ARCH)),h8300)
 	CPU_CFLAGS-y+=-mh -mint32 -fsigned-char
 endif
 
+ifeq ($(strip $(TARGET_ARCH)),cris)
+	CPU_LDFLAGS-$(CONFIG_CRIS):="-mcrislinux"
+	CPU_CFLAGS-$(CONFIG_CRIS):="-mlinux"
+endif
+
 # Override optimization settings when debugging
 ifeq ($(DODEBUG),y)
     OPTIMIZATION=$(call check_gcc,-Os,-O2)
@@ -179,7 +184,6 @@ endif
 #CFLAGS+=-iwithprefix include
 CFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1include/gp")
 
-
 ifneq ($(DOASSERTS),y)
     CFLAGS += -DNDEBUG
 endif
@@ -196,9 +200,15 @@ ifeq ($(HAVE_SHARED),y)
 	BUILD_DYNAMIC_LINKER:=/lib/$(notdir $(SYSTEM_LDSO))
    endif
 endif
+
 ifeq ($(DOPIC),y)
+ifeq ($(strip $(TARGET_ARCH)),cris)
+	CFLAGS += -fpic -mlinux
+else
     CFLAGS += -fPIC
 endif
+endif
+
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
     CFLAGS += $(call check_gcc,-msoft-float,)
 endif
