@@ -129,9 +129,8 @@ MALLOC = malloc-simple
 # At present, only affects i386.
 UNIFIED_SYSCALL = false
 
-# If you want large file summit support (greater then 2 Gib), 
-# turn this on.  This has no effect unless your kernel supports 
-# lfs.  This currently does nothing, but may someday...
+# If you want large file support (greater then 2 GiB) turn this on.
+# Do not enable this unless your kernel provides large file support.
 DOLFS = false
 
 # If you want to include RPC support, enable this.  RPC is almost never used 
