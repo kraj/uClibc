@@ -17,7 +17,7 @@ LIBGCC=`$CC -print-libgcc-file-name`
 echo Finding missing symbols in libc.a ...
 echo "    partial linking..."
 rm -f libc.ldr
-ld -r -o libc.ldr ../crt0.o --whole-archive ../libc.a
+$LD -r -o libc.ldr ../crt0.o --whole-archive ../libc.a
 
 if nm --undefined-only libc.ldr | grep -v "^main$" > sym.need ; then
     rm -f obj.need
@@ -44,7 +44,7 @@ echo Extracting referenced libgcc.a objects ...
 rm -f obj.need.0
 touch obj.need.0
 while [ -s obj.need ] && ! cmp -s obj.need obj.need.0 ; do
-    (cd tmp-gcc ; cat ../obj.need | xargs ld -r -o ../libgcc.ldr)
+    (cd tmp-gcc ; cat ../obj.need | xargs $LD -r -o ../libgcc.ldr)
     cp obj.need obj.need.0
     if nm --undefined-only libgcc.ldr > sym.need ; then
 	for SYM in `cat sym.need | sed -e 's/ U //g'` ; do

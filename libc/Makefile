@@ -43,7 +43,7 @@ $(LIBNAME): subdirs
 shared: $(TOPDIR)lib/$(LIBNAME)
 	@rm -rf tmp
 	@mkdir tmp
-	@(cd tmp; CC=$(CC) /bin/sh ../../extra/scripts/get-needed-libgcc-objects.sh)
+	@(cd tmp; CC=$(CC) LD=$(LD) /bin/sh ../../extra/scripts/get-needed-libgcc-objects.sh)
 	if [ -s ./tmp/libgcc-need.a ] ; then \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
 		    -Wl,-soname=$(SHARED_MAJORNAME) -Wl,--whole-archive \
