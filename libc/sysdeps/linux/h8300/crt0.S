@@ -37,7 +37,7 @@ _start: /* put here so that references to _start work with elf-PIC */
 	mov.l	@(4,sp),er1	/* argv */
 	mov.l	@(8,sp),er2	/* envp */
 	jsr	@___uClibc_main
-	
+
 	/* If that didn't kill us, ... */
 __exit:
 	mov.l	er0,er1
@@ -57,4 +57,13 @@ empty_func:
 #else
 	.set atexit,empty_func
 #endif
+
+
+/* Define a symbol for the first piece of initialized data.  */
+	.data
+	.globl __data_start
+__data_start:
+	.long 0
+	.weak data_start
+	data_start = __data_start
 

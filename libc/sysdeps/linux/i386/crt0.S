@@ -92,7 +92,7 @@ _start:
 	pushl $_init
 #endif
 
-	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */ 
+	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */
 	pushl %eax	/* Environment pointer */
 	pushl %ebx	/* Argument pointer */
 	pushl %ecx	/* And the argument count */
@@ -104,7 +104,7 @@ _start:
 	call __uClibc_start_main
 #endif
 #else
-	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */ 
+	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */
 	pushl %eax	/* Environment pointer */
 	pushl %ebx	/* Argument pointer */
 	pushl %ecx	/* And the argument count */
@@ -120,10 +120,14 @@ _start:
 	hlt
 .size _start,.-_start
 
-	.section ".data"
-	.globl  __data_start
+
+/* Define a symbol for the first piece of initialized data.  */
+	.data
+	.globl __data_start
 __data_start:
 	.long 0
+	.weak data_start
+	data_start = __data_start
 
 #if defined L_gcrt1 && defined __UCLIBC_PROFILING__
 # include "./gmon-start.S"

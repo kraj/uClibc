@@ -18,7 +18,7 @@
 	NULL
         env[0...N]      environment variables (pointers)
         NULL
-	
+
    When we are done here, we want
 	a1=argc
 	a2=argv[0]
@@ -76,7 +76,7 @@ _start:
 	/* Copy argv pointer into r1 -- which its final resting place */
 	mov     r1, sp
 
-	/* Skip to the end of argv and put a pointer to whatever 
+	/* Skip to the end of argv and put a pointer to whatever
 	   we find there (hopefully the environment) in r2 */
 	add     r2, r1, r0, lsl #2
 	add     r2, r2, #4
@@ -114,16 +114,25 @@ _start:
 */
 	.section ".note.ABI-tag", "a"
 	.align 4
-	.long 1f - 0f            
-	.long 3f - 2f            
-	.long  1                 
-0:	.asciz "GNU"             
-1:	.align 4                
-2:	.long 0          
-	.long 2,0,0 
-3:	.align 4                 
+	.long 1f - 0f
+	.long 3f - 2f
+	.long  1
+0:	.asciz "GNU"
+1:	.align 4
+2:	.long 0
+	.long 2,0,0
+3:	.align 4
 
 #if defined L_gcrt1 && defined __UCLIBC_PROFILING__
 # include "./gmon-start.S"
 #endif
+
+
+/* Define a symbol for the first piece of initialized data.  */
+	.data
+	.globl __data_start
+__data_start:
+	.long 0
+	.weak data_start
+	data_start = __data_start
 

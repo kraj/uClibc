@@ -23,7 +23,7 @@
  * we can be sure that main() actually gets linked in */
 	.type	main,%function
 
-__start:              
+__start:
 #ifdef __PIC__
         .set noreorder
         bltzal zero,0f
@@ -43,7 +43,7 @@ __start:
 			    /* multiple of 8 for longlong/double support */
 	la   v0, _fini
 	sw   v0, 16(sp)	    /* stack has 5th argument, address of _fini */
-	
+
 	/* Ok, now run uClibc's main() -- shouldn't return */
 	jal  __uClibc_start_main
 
@@ -53,6 +53,11 @@ __start:
 hlt:
 	b   hlt
 
-	.section ".data"
+/* Define a symbol for the first piece of initialized data.  */
+	.data
 	.globl __data_start
 __data_start:
+	.long 0
+	.weak data_start
+	data_start = __data_start
+

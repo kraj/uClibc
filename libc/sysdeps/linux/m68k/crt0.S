@@ -61,3 +61,12 @@ empty_func:
 	.set atexit,empty_func
 #endif
 
+
+/* Define a symbol for the first piece of initialized data.  */
+	.data
+	.globl __data_start
+__data_start:
+	.long 0
+	.weak data_start
+	data_start = __data_start
+

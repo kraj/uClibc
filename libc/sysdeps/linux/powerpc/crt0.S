@@ -79,12 +79,15 @@ _start:
 #endif
 .size _start,.-_start
 
-	.section ".data"
-	.globl  __data_start
+/* Define a symbol for the first piece of initialized data.  */
+	.data
+	.globl __data_start
 __data_start:
+	.long 0
+	.weak data_start
+	data_start = __data_start
 
 #if defined L_gcrt1 && defined __UCLIBC_PROFILING__
 # include "./gmon-start.S"
 #endif
-
 

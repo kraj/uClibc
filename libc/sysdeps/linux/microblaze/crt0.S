@@ -8,7 +8,7 @@
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
  * directory of this archive for more details.
- * 
+ *
  * Written by Miles Bader <miles@gnu.org>
  */
 
@@ -19,7 +19,7 @@
 */
 
 	.text
-C_ENTRY(_start):	
+C_ENTRY(_start):
 	lw	r5, r0, r1		// Arg 0: argc
 
 	addi	r6, r1, 4		// Arg 1: argv
@@ -45,3 +45,12 @@ C_ENTRY(_start):
    we can be sure that `main' actually gets linked in.  */
 L_dummy_main_reference:
 	.long	C_SYMBOL_NAME(main)
+
+/* Define a symbol for the first piece of initialized data.  */
+	.data
+	.globl __data_start
+__data_start:
+	.long 0
+	.weak data_start
+	data_start = __data_start
+

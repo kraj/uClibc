@@ -1,5 +1,5 @@
 #
-# clone.S, part of the i960 support for the uClibc library.
+# crt0.S, part of the i960 support for the uClibc library.
 #
 # Copyright (C) 2002 by Okiok Data Ltd.  http://www.okiok.com/
 #
@@ -19,7 +19,7 @@
 #
 
 /*
- *        
+ *
  * The behavior in this file is tightly coupled with how the linux kernel sets things up
  * on the stack before calling us.
  *
@@ -28,7 +28,7 @@
  *
  * ^
  * |                        <- sp somewhere around here, after being aligned.
- * |        
+ * |
  * |envp    -> envp[0]
  * |argv    -> argv[0]
  * |argc                    <- g13
@@ -37,13 +37,22 @@
  * create_flat_tables_stack_grows_up in fs/binfmt_flat.c
  *
  * I believe having to use this register could probably be avoided.
- *        
+ *
  */
-        
+
         .globl  start
 start:
         mov     g13, r3
         ldt     (r3), g0
         callx   ___uClibc_main
-        
+
 /* We might want to add some instruction so that it crashes if main returns */
+
+/* Define a symbol for the first piece of initialized data.  */
+	.data
+	.globl __data_start
+__data_start:
+	.long 0
+	.weak data_start
+	data_start = __data_start
+

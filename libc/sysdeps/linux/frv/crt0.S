@@ -57,7 +57,7 @@ _start:
 	setlo	#gprello(.Lcall), gr5
 	sub.p	gr4, gr5, gr4
 	/* gr4 now holds the _gp address.  */
-	
+
 	mov	gr16, gr8
 	sethi.p #gprelhi(__ROFIXUP_LIST__), gr9
 	sethi	#gprelhi(__ROFIXUP_END__), gr10
@@ -99,7 +99,7 @@ _start:
 #else
 	mov.p	gr17, gr15
 	call	__uClibc_main
-#endif	
+#endif
 
 	/* Crash if somehow `exit' returns anyways.  */
 	jmpl	@(gr0,gr0)
@@ -108,3 +108,12 @@ _start:
 #if defined L_gcrt1 && defined __UCLIBC_PROFILING__
 # include "./gmon-start.S"
 #endif
+
+/* Define a symbol for the first piece of initialized data.  */
+	.data
+	.globl __data_start
+__data_start:
+	.long 0
+	.weak data_start
+	data_start = __data_start
+

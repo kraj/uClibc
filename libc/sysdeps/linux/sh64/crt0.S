@@ -43,7 +43,7 @@
 
 	.section .text64,"xa"
 	.align 2	/* 2^2 = 4 */
-	
+
 _start:
 	/* Clear the frame pointer since this is the outermost frame.  */
 ###	mov #0, r14	# qqq
@@ -75,4 +75,12 @@ _start:
 __main:
 	ptabs/l	r18,tr0
 	blink	tr0,r63
+
+/* Define a symbol for the first piece of initialized data.  */
+	.data
+	.globl __data_start
+__data_start:
+	.long 0
+	.weak data_start
+	data_start = __data_start
 
