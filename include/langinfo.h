@@ -615,6 +615,8 @@ extern char *nl_langinfo (nl_item __item) __THROW;
 
 /* Just like nl_langinfo but get the information from the locale object L.  */
 extern char *nl_langinfo_l (nl_item __item, __locale_t l);
+extern char *__nl_langinfo_l (nl_item __item, __locale_t l);
+
 #endif
 #endif
 

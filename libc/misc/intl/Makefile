@@ -25,8 +25,7 @@ TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
 MSRC= intl.c
-MOBJ= gettext.o ngettext.o  dgettext.o dcgettext.o dngettext.o dcngettext.o \
-	textdomain.o bindtextdomain.o bind_textdomain_codeset.o
+MOBJ= __uClibc_dgettext.o __uClibc_dcgettext.o
 
 OBJS=$(MOBJ)
 

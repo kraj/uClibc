@@ -652,7 +652,7 @@ size_t strftime(char *__restrict s, size_t maxsize,
 				const char *__restrict format,
 				const struct tm *__restrict timeptr)
 {
-	return strftime_l(s, maxsize, format, timeptr, __UCLIBC_CURLOCALE);
+	return __strftime_l(s, maxsize, format, timeptr, __UCLIBC_CURLOCALE);
 }
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
@@ -1106,6 +1106,8 @@ size_t __XL(strftime)(char *__restrict s, size_t maxsize,
 	goto LOOP;
 }
 
+__XL_ALIAS(strftime)
+
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
 #endif
@@ -1127,7 +1129,7 @@ size_t __XL(strftime)(char *__restrict s, size_t maxsize,
 char *strptime(const char *__restrict buf, const char *__restrict format,
 			   struct tm *__restrict tm)
 {
-	return strptime_l(buf, format, tm, __UCLIBC_CURLOCALE);
+	return __strptime_l(buf, format, tm, __UCLIBC_CURLOCALE);
 }
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
@@ -1481,6 +1483,8 @@ char *__XL(strptime)(const char *__restrict buf, const char *__restrict format,
 	}
 	return NULL;
 }
+
+__XL_ALIAS(strptime)
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 

@@ -222,8 +222,8 @@ __fpmax_t __strtofpmax(const Wchar *str, Wchar **endptr, int exponent_power)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-__fpmax_t __XL(__strtofpmax)(const Wchar *str, Wchar **endptr, int exponent_power
-							 __LOCALE_PARAM )
+__fpmax_t __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endptr, int exponent_power
+								 __LOCALE_PARAM )
 {
 	__fpmax_t number;
 	__fpmax_t p_base = 10;			/* Adjusted to 16 in the hex case. */
@@ -522,6 +522,8 @@ extern void __fp_range_check(__fpmax_t y, __fpmax_t x)
 #if defined(L_wcstof) || defined(L_wcstof_l)
 #define strtof           wcstof
 #define strtof_l         wcstof_l
+#define __strtof         __wcstof
+#define __strtof_l       __wcstof_l
 #define __strtofpmax     __wcstofpmax
 #define __strtofpmax_l   __wcstofpmax_l
 #define Wchar wchar_t
@@ -533,12 +535,12 @@ extern void __fp_range_check(__fpmax_t y, __fpmax_t x)
 float __XL(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 1
-	return __XL(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
+	return __XL_NPP(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
 #else
 	__fpmax_t x;
 	float y;
 
-	x = __XL(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
+	x = __XL_NPP(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
 	y = (float) x;
 
 	__fp_range_check(y, x);
@@ -546,6 +548,8 @@ float __XL(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 	return y;
 #endif
 }
+
+__XL_ALIAS(strtof)
 
 #endif
 #endif
@@ -556,6 +560,8 @@ float __XL(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 #if defined(L_wcstod) || defined(L_wcstod_l)
 #define strtod           wcstod
 #define strtod_l         wcstod_l
+#define __strtod         __wcstod
+#define __strtod_l       __wcstod_l
 #define __strtofpmax     __wcstofpmax
 #define __strtofpmax_l   __wcstofpmax_l
 #define Wchar wchar_t
@@ -563,15 +569,16 @@ float __XL(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 #define Wchar char
 #endif
 
-double __XL(strtod)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
+double __XL(strtod)(const Wchar *__restrict str,
+					Wchar **__restrict endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 2
-	return __XL(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
+	return __XL_NPP(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
 #else
 	__fpmax_t x;
 	double y;
 
-	x = __XL(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
+	x = __XL_NPP(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
 	y = (double) x;
 
 	__fp_range_check(y, x);
@@ -579,6 +586,8 @@ double __XL(strtod)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 	return y;
 #endif
 }
+
+__XL_ALIAS(strtod)
 
 #endif
 #endif
@@ -589,6 +598,8 @@ double __XL(strtod)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 #if defined(L_wcstold) || defined(L_wcstold_l)
 #define strtold           wcstold
 #define strtold_l         wcstold_l
+#define __strtold         __wcstold
+#define __strtold_l       __wcstold_l
 #define __strtofpmax     __wcstofpmax
 #define __strtofpmax_l   __wcstofpmax_l
 #define Wchar wchar_t
@@ -599,12 +610,12 @@ double __XL(strtod)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 long double __XL(strtold)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 3
-	return __XL(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
+	return __XL_NPP(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
 #else
 	__fpmax_t x;
 	long double y;
 
-	x = __XL(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
+	x = __XL_NPP(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
 	y = (long double) x;
 
 	__fp_range_check(y, x);
@@ -612,6 +623,8 @@ long double __XL(strtold)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 	return y;
 #endif
 }
+
+__XL_ALIAS(strtold)
 
 #endif
 #endif

@@ -256,14 +256,17 @@ int tolower(int c)
 #ifdef L_tolower_l
 
 #undef tolower_l
+#undef __tolower_l
 
-int tolower_l(int c, __locale_t l)
+int __tolower_l(int c, __locale_t l)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
 	assert(CTYPE_DOMAIN_CHECK(c));
 #endif
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? l->__ctype_tolower[c] : c;
 }
+
+weak_alias(__tolower_l, tolower_l)
 
 #endif
 /**********************************************************************/
@@ -282,14 +285,17 @@ int toupper(int c)
 #ifdef L_toupper_l
 
 #undef toupper_l
+#undef __toupper_l
 
-int toupper_l(int c, __locale_t l)
+int __toupper_l(int c, __locale_t l)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
 	assert(CTYPE_DOMAIN_CHECK(c));
 #endif
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? l->__ctype_toupper[c] : c;
 }
+
+weak_alias(__toupper_l, toupper_l)
 
 #endif
 /**********************************************************************/
@@ -300,6 +306,8 @@ int __XL(isascii)(int c)
 	return __isascii(c);		/* locale-independent */
 }
 
+__XL_ALIAS(isascii)
+
 #endif
 /**********************************************************************/
 #if defined(L_toascii) || defined(L_toascii_l)
@@ -308,6 +316,8 @@ int __XL(toascii)(int c)
 {
 	return __toascii(c);		/* locale-independent */
 }
+
+__XL_ALIAS(toascii)
 
 #endif
 /**********************************************************************/

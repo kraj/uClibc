@@ -41,7 +41,6 @@ wctables.h: gen_wctype
 gen_locale: gen_locale.c c8tables.h
 	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) gen_locale.c -o $@
 
-# TODO: if no wide char support, we should auto-disable all UTF-8 locales
 locale_tables.h: gen_locale locales.txt
 	./gen_locale locales.txt
 
@@ -70,62 +69,27 @@ locales.txt:
 	    false; \
 	fi;
 
-# ifneq ($(TARGET_ARCH),$(HOST_ARCH))
-
-# locale.mmap: gen_mmap
-# 	echo Your locale.mmap file is either missing or out of date.
-# 	echo The developmental code can only generate one for the
-# 	echo target arch == native arch case.  Sorry.
-# else
-
-# gen_mmap: gen_mmap.c c8tables.h wctables.h locale_tables.h
-# 	gcc $(CFLAGS_mmap) -Os -Wall -static gen_mmap.c -o gen_mmap
-
-# locale.mmap: gen_mmap
-# 	./gen_mmap
-
-# endif
-
-# lmmtolso: lmmtolso.c
-# 	gcc -Os -Wall lmmtolso.c -o lmmtolso
-
-# locale_data.c: lmmtolso locale.mmap
-# 	./lmmtolso
-
 gen_ldc: gen_ldc.c c8tables.h wctables.h locale_tables.h locale_collate.h
 	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) $(CFLAGS_mmap) gen_ldc.c -o $@
-#gen_ldc.c -o gen_ldc
 
 locale_data.c: gen_ldc
 	./gen_ldc
-
-locale_data.o: locale_data.c lt_defines.h
-	$(CC) $(CFLAGS_mmap) -c locale_data.c
-	$(STRIPTOOL) -x -R .note -R .comment locale_data.o
 
 uClibc_locale_data.h: c8tables.h wctables.h lt_defines.h locale_mmap.h
 	grep -v "define __LC" lt_defines.h > uClibc_locale_data.h
 	cat c8tables.h wctables.h locale_mmap.h >> uClibc_locale_data.h
 
-links-target: locale_data.o uClibc_locale_data.h
-	ln -sf ../../../extra/locale/locale_data.o ../../libc/misc/locale
+links-target: locale_data.c uClibc_locale_data.h
 	cat uClibc_locale_data.h | awk 'BEGIN{i=1}{ if ( /WANT_/ ) i = /endif/ ; else if (i) print $0 }' > ../../include/bits/uClibc_locale_data.h
-
-#	cp uClibc_locale_data.h ../../libc/sysdeps/linux/common/bits/
 
 pregen:
-	$(CC) $(CFLAGS_mmap) -c locale_data.c
-	$(STRIPTOOL) -x -R .note -R .comment locale_data.o
-	ln -sf ../../../extra/locale/locale_data.o ../../libc/misc/locale
 	cat uClibc_locale_data.h | awk 'BEGIN{i=1}{ if ( /WANT_/ ) i = /endif/ ; else if (i) print $0 }' > ../../include/bits/uClibc_locale_data.h
-
-#	cp uClibc_locale_data.h ../../libc/sysdeps/linux/common/bits/
 
 clean:
 	rm -f *.[oa] *~ core
 	rm -f gen_wc8bit gen_wctype gen_locale gen_ldc gen_collate
 	rm -f c8tables.h wctables.h locale_tables.h lt_defines.h locale_collate.h
 	rm -f gen_mmap locale.mmap lmmtolso
-	rm -f locale_data.c locale_data.o  uClibc_locale_data.h
+	rm -f locale_data.c uClibc_locale_data.h
 
-.PHONY: pregen
+.PHONY: pregen links-target

@@ -21,52 +21,46 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../../../
+TOPDIR=../
 include $(TOPDIR)Rules.mak
+LIBC=$(TOPDIR)libc.a
 
-MSRC= locale.c
-MOBJ= setlocale.o localeconv.o _locale_init.o nl_langinfo.o
-MOBJx=
+LIBINTL=libintl.a
+LIBINTL_SHARED=libintl.so
+LIBINTL_SHARED_FULLNAME=libintl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-ifeq ($(UCLIBC_HAS_LOCALE),y)
-	MOBJ += newlocale.o __locale_mbrtowc_l.o
-endif
+MSRC= intl.c
+MOBJ= gettext.o ngettext.o  dgettext.o dcgettext.o dngettext.o dcngettext.o \
+	textdomain.o bindtextdomain.o bind_textdomain_codeset.o \
+	_nl_expand_alias.o _nl_msg_cat_cntr.o # glibc-isms
 
-ifeq ($(UCLIBC_HAS_XLOCALE),y)
-	MOBJx += nl_langinfo_l.o duplocale.o freelocale.o uselocale.o __curlocale.o
-endif
-
-DATA=
-ifeq ($(UCLIBC_HAS_LOCALE),y)
-	DATA = locale_data.o
-endif
-
-OBJS= $(MOBJ) $(MOBJx) $(DATA)
+OBJS=$(MOBJ)
 
 all: $(OBJS) $(LIBC)
-
 
 $(LIBC): ar-target
 
 ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBINTL) $(OBJS)
+	install -d $(TOPDIR)lib
+	rm -f $(TOPDIR)lib/$(LIBINTL)
+	install -m 644 $(LIBINTL) $(TOPDIR)lib/
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(MOBJx): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-locale_data.o:
-	ln -sf ../../../extra/locale/locale_data.c
-	$(CC) $(CFLAGS) -c -D__WCHAR_ENABLED -I../../../extra/locale locale_data.c -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(OBJS): Makefile
+shared: all
+	$(LD) $(LDFLAGS) -soname=$(LIBINTL_SHARED).$(MAJOR_VERSION) \
+		-o $(LIBINTL_SHARED_FULLNAME) --whole-archive $(LIBINTL) \
+		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
+		-L$(TOPDIR)/lib -lc;
+	install -d $(TOPDIR)lib
+	rm -f $(TOPDIR)lib/$(LIBINTL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBINTL_SHARED).$(MAJOR_VERSION)
+	install -m 644 $(LIBINTL_SHARED_FULLNAME) $(TOPDIR)lib/;
+	(cd $(TOPDIR)lib && ln -sf $(LIBINTL_SHARED_FULLNAME) $(LIBINTL_SHARED)); 
+	(cd $(TOPDIR)lib && ln -sf $(LIBINTL_SHARED_FULLNAME) $(LIBINTL_SHARED).$(MAJOR_VERSION)); 
 
 clean:
-	rm -f *.[oa] *~ core locale_data.c
+	rm -f *.[oa] *~ core $(LIBINTL_SHARED)* $(LIBINTL_SHARED_FULLNAME)*
 
-.PHONY: data

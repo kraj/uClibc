@@ -299,8 +299,10 @@ strong_alias(__XL(strtol),__XL(strtoll))
 long __XL(strtol)(const char * __restrict str, char ** __restrict endptr,
 				  int base   __LOCALE_PARAM )
 {
-    return __XL(_stdlib_strto_l)(str, endptr, base, 1   __LOCALE_ARG );
+    return __XL_NPP(_stdlib_strto_l)(str, endptr, base, 1   __LOCALE_ARG );
 }
+
+__XL_ALIAS(strtol)
 
 #endif
 /**********************************************************************/
@@ -319,9 +321,11 @@ long long __XL(strtoll)(const char * __restrict str,
 						char ** __restrict endptr, int base
 						__LOCALE_PARAM )
 {
-    return (long long) __XL(_stdlib_strto_ll)(str, endptr, base, 1
-											  __LOCALE_ARG );
+    return (long long) __XL_NPP(_stdlib_strto_ll)(str, endptr, base, 1
+												  __LOCALE_ARG );
 }
+
+__XL_ALIAS(strtoll)
 
 #endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
@@ -341,8 +345,10 @@ unsigned long __XL(strtoul)(const char * __restrict str,
 							char ** __restrict endptr, int base
 							__LOCALE_PARAM )
 {
-    return __XL(_stdlib_strto_l)(str, endptr, base, 0   __LOCALE_ARG );
+    return __XL_NPP(_stdlib_strto_l)(str, endptr, base, 0   __LOCALE_ARG );
 }
+
+__XL_ALIAS(strtoul)
 
 #endif
 /**********************************************************************/
@@ -361,8 +367,10 @@ unsigned long long __XL(strtoull)(const char * __restrict str,
 								  char ** __restrict endptr, int base
 								  __LOCALE_PARAM )
 {
-    return __XL(_stdlib_strto_ll)(str, endptr, base, 0   __LOCALE_ARG );
+    return __XL_NPP(_stdlib_strto_ll)(str, endptr, base, 0   __LOCALE_ARG );
 }
+
+__XL_ALIAS(strtoull)
 
 #endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
@@ -432,9 +440,9 @@ unsigned long _stdlib_strto_l(register const Wchar * __restrict str,
 /* This is the main work fuction which handles both strtol (sflag = 1) and
  * strtoul (sflag = 0). */
 
-unsigned long __XL(_stdlib_strto_l)(register const Wchar * __restrict str,
-									Wchar ** __restrict endptr, int base,
-									int sflag   __LOCALE_PARAM )
+unsigned long __XL_NPP(_stdlib_strto_l)(register const Wchar * __restrict str,
+										Wchar ** __restrict endptr, int base,
+										int sflag   __LOCALE_PARAM )
 {
     unsigned long number, cutoff;
 #if _STRTO_ENDPTR
@@ -575,9 +583,9 @@ unsigned long long _stdlib_strto_ll(register const Wchar * __restrict str,
 /* This is the main work fuction which handles both strtoll (sflag = 1) and
  * strtoull (sflag = 0). */
 
-unsigned long long __XL(_stdlib_strto_ll)(register const Wchar * __restrict str,
-										  Wchar ** __restrict endptr, int base,
-										  int sflag   __LOCALE_PARAM )
+unsigned long long __XL_NPP(_stdlib_strto_ll)(register const Wchar * __restrict str,
+											  Wchar ** __restrict endptr, int base,
+											  int sflag   __LOCALE_PARAM )
 {
     unsigned long long number;
 #if _STRTO_ENDPTR
@@ -956,8 +964,10 @@ strong_alias(__XL(wcstol),__XL(wcstoll))
 long __XL(wcstol)(const wchar_t * __restrict str,
 				  wchar_t ** __restrict endptr, int base   __LOCALE_PARAM )
 {
-    return __XL(_stdlib_wcsto_l)(str, endptr, base, 1   __LOCALE_ARG );
+    return __XL_NPP(_stdlib_wcsto_l)(str, endptr, base, 1   __LOCALE_ARG );
 }
+
+__XL_ALIAS(wcstol)
 
 #endif
 /**********************************************************************/
@@ -976,9 +986,11 @@ long long __XL(wcstoll)(const wchar_t * __restrict str,
 						wchar_t ** __restrict endptr, int base
 						__LOCALE_PARAM )
 {
-    return (long long) __XL(_stdlib_wcsto_ll)(str, endptr, base, 1
-											  __LOCALE_ARG );
+    return (long long) __XL_NPP(_stdlib_wcsto_ll)(str, endptr, base, 1
+												  __LOCALE_ARG );
 }
+
+__XL_ALIAS(wcstoll)
 
 #endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
@@ -998,8 +1010,10 @@ unsigned long __XL(wcstoul)(const wchar_t * __restrict str,
 							wchar_t ** __restrict endptr, int base
 							__LOCALE_PARAM )
 {
-    return __XL(_stdlib_wcsto_l)(str, endptr, base, 0   __LOCALE_ARG );
+    return __XL_NPP(_stdlib_wcsto_l)(str, endptr, base, 0   __LOCALE_ARG );
 }
+
+__XL_ALIAS(wcstoul)
 
 #endif
 /**********************************************************************/
@@ -1018,8 +1032,10 @@ unsigned long long __XL(wcstoull)(const wchar_t * __restrict str,
 								  wchar_t ** __restrict endptr, int base
 								  __LOCALE_PARAM )
 {
-    return __XL(_stdlib_wcsto_ll)(str, endptr, base, 0   __LOCALE_ARG );
+    return __XL_NPP(_stdlib_wcsto_ll)(str, endptr, base, 0   __LOCALE_ARG );
 }
+
+__XL_ALIAS(wcstoull)
 
 #endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 

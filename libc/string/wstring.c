@@ -1087,8 +1087,9 @@ int ffs(int i)
 
 #define strcasecmp wcscasecmp
 #define strcasecmp_l wcscasecmp_l
+#define __strcasecmp_l __wcscasecmp_l
 #ifdef __UCLIBC_DO_XLOCALE
-#define TOLOWER(C) towlower_l((C), locale_arg)
+#define TOLOWER(C) __towlower_l((C), locale_arg)
 #else
 #define TOLOWER(C) towlower((C))
 #endif
@@ -1096,7 +1097,7 @@ int ffs(int i)
 #else  /* defined(L_wcscasecmp) || defined(L_wcscasecmp_l) */
 
 #ifdef __UCLIBC_DO_XLOCALE
-#define TOLOWER(C) tolower_l((C), locale_arg)
+#define TOLOWER(C) __tolower_l((C), locale_arg)
 #else
 #define TOLOWER(C) tolower((C))
 #endif
@@ -1108,7 +1109,7 @@ int ffs(int i)
 
 int strcasecmp(register const Wchar *s1, register const Wchar *s2)
 {
-	return strcasecmp_l(s1, s2, __UCLIBC_CURLOCALE);
+	return __strcasecmp_l(s1, s2, __UCLIBC_CURLOCALE);
 }
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
@@ -1138,6 +1139,8 @@ int __XL(strcasecmp)(register const Wchar *s1, register const Wchar *s2
 #endif
 }
 
+__XL_ALIAS(strcasecmp)
+
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
 #endif
@@ -1148,8 +1151,9 @@ int __XL(strcasecmp)(register const Wchar *s1, register const Wchar *s2
 
 #define strncasecmp wcsncasecmp
 #define strncasecmp_l wcsncasecmp_l
+#define __strncasecmp_l __wcsncasecmp_l
 #ifdef __UCLIBC_DO_XLOCALE
-#define TOLOWER(C) towlower_l((C), locale_arg)
+#define TOLOWER(C) __towlower_l((C), locale_arg)
 #else
 #define TOLOWER(C) towlower((C))
 #endif
@@ -1157,7 +1161,7 @@ int __XL(strcasecmp)(register const Wchar *s1, register const Wchar *s2
 #else  /* defined(L_wcsncasecmp) || defined(L_wcsncasecmp_l) */
 
 #ifdef __UCLIBC_DO_XLOCALE
-#define TOLOWER(C) tolower_l((C), locale_arg)
+#define TOLOWER(C) __tolower_l((C), locale_arg)
 #else
 #define TOLOWER(C) tolower((C))
 #endif
@@ -1169,7 +1173,7 @@ int __XL(strcasecmp)(register const Wchar *s1, register const Wchar *s2
 
 int strncasecmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 {
-	return strncasecmp_l(s1, s2, n, __UCLIBC_CURLOCALE);
+	return __strncasecmp_l(s1, s2, n, __UCLIBC_CURLOCALE);
 }
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
@@ -1201,6 +1205,8 @@ int __XL(strncasecmp)(register const Wchar *s1, register const Wchar *s2,
 	return r;
 #endif
 }
+
+__XL_ALIAS(strncasecmp)
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -2311,8 +2317,10 @@ void psignal(int signum, register const char *message)
 
 #define wcscoll   strcoll
 #define wcscoll_l strcoll_l
+#define __wcscoll_l __strcoll_l
 #define wcsxfrm   strxfrm
 #define wcsxfrm_l strxfrm_l
+#define __wcsxfrm_l __strxfrm_l
 
 #undef WANT_WIDE
 #undef Wvoid
@@ -2328,12 +2336,12 @@ void psignal(int signum, register const char *message)
 
 int wcscoll (const Wchar *s0, const Wchar *s1)
 {
-	return wcscoll_l(s0, s1, __UCLIBC_CURLOCALE );
+	return __wcscoll_l(s0, s1, __UCLIBC_CURLOCALE );
 }
 
 size_t wcsxfrm(Wchar *__restrict ws1, const Wchar *__restrict ws2, size_t n)
 {
-	return wcsxfrm_l(ws1, ws2, n, __UCLIBC_CURLOCALE );
+	return __wcsxfrm_l(ws1, ws2, n, __UCLIBC_CURLOCALE );
 }
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
@@ -2387,7 +2395,7 @@ typedef struct {
 
 #undef TRACE
 #if 0
-#define TRACE(X)	printf##X
+#define TRACE(X)	printf X
 #else
 #define TRACE(X)	((void)0)
 #endif
@@ -2806,6 +2814,8 @@ int __XL(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
 	return 0;
 }
 
+__XL_ALIAS(wcscoll)
+
 #ifdef WANT_WIDE
 
 size_t __XL(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
@@ -2845,6 +2855,8 @@ size_t __XL(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
 	}
 	return count-1;
 }
+
+__XL_ALIAS(wcsxfrm)
 
 #else  /* WANT_WIDE */
 
@@ -2925,6 +2937,8 @@ size_t __XL(strxfrm)(char *__restrict ws1, const char *__restrict ws2, size_t n
 	}
 	return count-1;
 }
+
+__XL_ALIAS(strxfrm)
 
 #endif /* WANT_WIDE */
 

@@ -466,7 +466,7 @@ _obstack_memory_used (h)
 #  if (HAVE_LIBINTL_H && ENABLE_NLS) || defined _LIBC
 #   include <libintl.h>
 #   ifndef _
-#    define _(Str) gettext (Str)
+#    define _(Str) __dcgettext (NULL, Str, LC_MESSAGES)
 #   endif
 #  else
 #   define _(Str) (Str)

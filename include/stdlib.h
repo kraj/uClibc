@@ -267,6 +267,37 @@ extern float strtof_l (__const char *__restrict __nptr,
 extern long double strtold_l (__const char *__restrict __nptr,
 			      char **__restrict __endptr,
 			      __locale_t __loc) __THROW;
+
+/* Internal names to support libstd++. */
+extern long int __strtol_l (__const char *__restrict __nptr,
+			  char **__restrict __endptr, int __base,
+			  __locale_t __loc) __THROW;
+
+extern unsigned long int __strtoul_l (__const char *__restrict __nptr,
+				    char **__restrict __endptr,
+				    int __base, __locale_t __loc) __THROW;
+
+__extension__
+extern long long int __strtoll_l (__const char *__restrict __nptr,
+				char **__restrict __endptr, int __base,
+				__locale_t __loc) __THROW;
+
+__extension__
+extern unsigned long long int __strtoull_l (__const char *__restrict __nptr,
+					  char **__restrict __endptr,
+					  int __base, __locale_t __loc)
+     __THROW;
+
+extern double __strtod_l (__const char *__restrict __nptr,
+			char **__restrict __endptr, __locale_t __loc)
+     __THROW;
+
+extern float __strtof_l (__const char *__restrict __nptr,
+		       char **__restrict __endptr, __locale_t __loc) __THROW;
+
+extern long double __strtold_l (__const char *__restrict __nptr,
+			      char **__restrict __endptr,
+			      __locale_t __loc) __THROW;
 #endif /* GNU */
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 

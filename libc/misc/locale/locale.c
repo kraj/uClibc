@@ -16,7 +16,6 @@
  */
 
 /* Nov. 1, 2002
- *
  * Reworked setlocale() return values and locale arg processing to
  *   be more like glibc.  Applications expecting to be able to
  *   query locale settings should now work... at the cost of almost
@@ -24,8 +23,15 @@
  * Fixed a bug in the internal fixed-size-string locale specifier code.
  *
  * Dec 20, 2002
- *
  * Added in collation support and updated stub nl_langinfo.
+ *
+ * Aug 1, 2003
+ * Added glibc-like extended locale stuff (newlocale, duplocale, etc).
+ *
+ * Aug 18, 2003
+ * Bug in duplocale... collation data wasn't copied.
+ * Bug in newlocale... translate 1<<LC_ALL to LC_ALL_MASK.
+ * Bug in _wchar_utf8sntowcs... fix cut-n-paste error.
  */
 
 
@@ -48,6 +54,8 @@
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
+#warning devel code
+#include <stdio.h>
 
 #undef __LOCALE_C_ONLY
 #ifndef __UCLIBC_HAS_LOCALE__
@@ -249,10 +257,8 @@ char *setlocale(int category, const char *locale)
 	}
 
 	if (locale != NULL) {		/* Not just a query... */
-		if (!__newlocale((category == LC_ALL) ? LC_ALL_MASK : (1 << category),
-						 locale, __global_locale)
-			) { /* Failed! */
-			return NULL;
+		if (!__newlocale((1 << category), locale, __global_locale)) {
+			return NULL;		/* Failed! */
 		}
 		update_hr_locale(__global_locale->cur_locale);
 	}
@@ -436,35 +442,36 @@ static int init_cur_collate(int der_num, __collate_t *cur_collate)
 	cur_collate->ti_mask = (1 << cur_collate->ti_shift)-1;
 	cur_collate->ii_mask = (1 << cur_collate->ii_shift)-1;
 
-/*	 printf("base=%d  num_col_base: %d  %d\n", cdd->base_idx ,cur_collate->num_col_base, cdb->num_col_base); */
+/* 	fflush(stdout); */
+/* 	fprintf(stderr,"base=%d  num_col_base: %d  %d\n", cdd->base_idx ,cur_collate->num_col_base, cdb->num_col_base); */
 
 	n = (sizeof(coldata_header_t) + cdh->num_base * sizeof(coldata_base_t)
 		 + cdh->num_der * sizeof(coldata_der_t))/2;
 
-/*	 printf("n   = %d\n", n); */
+/* 	fprintf(stderr,"n   = %d\n", n); */
 	cur_collate->index2weight_tbl = __locale_collate_tbl + n + cdb->index2weight_offset;
-/*	 printf("i2w = %d\n", n + cdb->index2weight_offset); */
+/* 	fprintf(stderr,"i2w = %d\n", n + cdb->index2weight_offset); */
 	n += cdh->num_index2weight;
 	cur_collate->index2ruleidx_tbl = __locale_collate_tbl + n + cdb->index2ruleidx_offset;
-/*	 printf("i2r = %d\n", n + cdb->index2ruleidx_offset); */
+/* 	fprintf(stderr,"i2r = %d\n", n + cdb->index2ruleidx_offset); */
 	n += cdh->num_index2ruleidx;
 	cur_collate->multistart_tbl = __locale_collate_tbl + n + cdd->multistart_offset;
-/*	 printf("mts = %d\n", n + cdb->multistart_offset); */
+/* 	fprintf(stderr,"mts = %d\n", n + cdb->multistart_offset); */
 	n += cdh->num_multistart;
 	cur_collate->overrides_tbl = __locale_collate_tbl + n + cdd->overrides_offset;
-/*	 printf("ovr = %d\n", n + cdd->overrides_offset); */
+/* 	fprintf(stderr,"ovr = %d\n", n + cdd->overrides_offset); */
 	n += cdh->num_override;
 	cur_collate->ruletable = __locale_collate_tbl + n;
-/*	 printf("rtb = %d\n", n); */
+/* 	fprintf(stderr, "rtb = %d\n", n); */
 	n += cdh->num_ruletable;
 	cur_collate->weightstr = __locale_collate_tbl + n;
-/*	 printf("wts = %d\n", n); */
+/* 	fprintf(stderr,"wts = %d\n", n); */
 	n += cdh->num_weightstr;
 	cur_collate->wcs2colidt_tbl = __locale_collate_tbl + n
 		+ (((unsigned long)(cdb->wcs2colidt_offset_hi)) << 16)
 		+ cdb->wcs2colidt_offset_low;
-/*	 printf("wcs = %lu\n", n	+ (((unsigned long)(cdb->wcs2colidt_offset_hi)) << 16) */
-/* 		   + cdb->wcs2colidt_offset_low); */
+/* 	fprintf(stderr,"wcs = %lu\n", n	+ (((unsigned long)(cdb->wcs2colidt_offset_hi)) << 16) */
+/* 			+ cdb->wcs2colidt_offset_low); */
 
 	cur_collate->MAX_WEIGHTS = cdh->MAX_WEIGHTS;
 
@@ -494,13 +501,15 @@ static int init_cur_collate(int der_num, __collate_t *cur_collate)
 		w = *p++;
 		do {
 			i = *p++;
-/* 			fprintf(stderr, "	i=%d w=%d *p=%d\n", i, w, *p); */
+/* 			fprintf(stderr, "	i=%d (%#x) w=%d *p=%d\n", i, i, w, *p); */
 			cur_collate->index2weight[i-1] = w++;
 			cur_collate->index2ruleidx[i-1] = *p++;
 		} while (--n);
 	}
+	assert(*p == 1);
 	while (*++p) {
 		i = *p;
+/* 		fprintf(stderr, "	i=%d (%#x) w=%d *p=%d\n", i, i, p[1], p[2]); */
 		cur_collate->index2weight[i-1] = *++p;
 		cur_collate->index2ruleidx[i-1] = *++p;
 	}
@@ -869,7 +878,7 @@ char *nl_langinfo(nl_item item)
 
 char *nl_langinfo(nl_item item)
 {
-	return nl_langinfo_l(item, __UCLIBC_CURLOCALE);
+	return __nl_langinfo_l(item, __UCLIBC_CURLOCALE);
 }
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
@@ -1056,6 +1065,10 @@ __locale_t __newlocale(int category_mask, const char *locale, __locale_t base)
 	int i, j, k;
 	unsigned char new_selector[LOCALE_SELECTOR_SIZE];
 
+	if (category_mask == (1 << LC_ALL)) {
+		category_mask = LC_ALL_MASK;
+	}
+
 	if (!locale || (((unsigned int)(category_mask)) > LC_ALL_MASK)) {
 	INVALID:
 		__set_errno(EINVAL);
@@ -1141,20 +1154,22 @@ weak_alias(__newlocale, newlocale)
 #warning REMINDER: When we allocate ctype tables, remember to dup them.
 #endif
 
-__locale_t duplocale(__locale_t dataset)
+__locale_t __duplocale(__locale_t dataset)
 {
 	__locale_t r;
 	uint16_t * i2w;
+	size_t n;
 
 	assert(dataset != LC_GLOBAL_LOCALE);
 
 	if ((r = malloc(sizeof(__uclibc_locale_t))) != NULL) {
-		if ((i2w = calloc(2*dataset->collate.max_col_index+2,
-						  sizeof(uint16_t)))
+		n = 2*dataset->collate.max_col_index+2;
+		if ((i2w = calloc(n, sizeof(uint16_t)))
 			!= NULL
 			) {
 			memcpy(r, dataset, sizeof(__uclibc_locale_t));
 			r->collate.index2weight = i2w;
+			memcpy(i2w, dataset->collate.index2weight, n * sizeof(uint16_t));
 		} else {
 			free(r);
 			r = NULL;
@@ -1162,6 +1177,8 @@ __locale_t duplocale(__locale_t dataset)
 	}
 	return r;
 }
+
+weak_alias(__duplocale, duplocale)
 
 #endif
 /**********************************************************************/
@@ -1171,7 +1188,7 @@ __locale_t duplocale(__locale_t dataset)
 #warning REMINDER: When we allocate ctype tables, remember to free them.
 #endif
 
-void freelocale(__locale_t dataset)
+void __freelocale(__locale_t dataset)
 {
 	assert(dataset != __global_locale);
 	assert(dataset != LC_GLOBAL_LOCALE);
@@ -1180,11 +1197,13 @@ void freelocale(__locale_t dataset)
 	free(dataset);				/* Free locale */
 }
 
+weak_alias(__freelocale, freelocale)
+
 #endif
 /**********************************************************************/
 #ifdef L_uselocale
 
-__locale_t uselocale(__locale_t dataset)
+__locale_t __uselocale(__locale_t dataset)
 {
 	__locale_t old;
 
@@ -1207,6 +1226,8 @@ __locale_t uselocale(__locale_t dataset)
 	}
 	return old;
 }
+
+weak_alias(__uselocale, uselocale)
 
 #endif
 /**********************************************************************/
@@ -1283,8 +1304,8 @@ int __locale_mbrtowc_l(wchar_t *__restrict dst,
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
 	if (loc->encoding == __ctype_encoding_8_bit) {
 		wchar_t wc = *dst - 0x80;
-		*dst = __LOCALE_PTR->tbl8c2wc[
-						(__LOCALE_PTR->idx8c2wc[wc >> Cc2wc_IDX_SHIFT]
+		*dst = loc->tbl8c2wc[
+						(loc->idx8c2wc[wc >> Cc2wc_IDX_SHIFT]
 						 << Cc2wc_IDX_SHIFT) + (wc & (Cc2wc_ROW_LEN - 1))];
 		if (*dst) {
 			return 1;

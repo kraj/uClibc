@@ -117,9 +117,15 @@ __END_NAMESPACE_STD
 /* Compare the collated forms of S1 and S2 using rules from L.  */
 extern int strcoll_l (__const char *__s1, __const char *__s2, __locale_t __l)
      __THROW __attribute_pure__;
+extern int __strcoll_l (__const char *__s1, __const char *__s2, __locale_t __l)
+     __THROW __attribute_pure__;
+
 /* Put a transformation of SRC into no more than N bytes of DEST.  */
 extern size_t strxfrm_l (char *__dest, __const char *__src, size_t __n,
 			 __locale_t __l) __THROW;
+extern size_t __strxfrm_l (char *__dest, __const char *__src, size_t __n,
+			 __locale_t __l) __THROW;
+
 #endif
 #endif
 
@@ -323,8 +329,13 @@ extern int strncasecmp (__const char *__s1, __const char *__s2, size_t __n)
    of the global one.  */
 extern int strcasecmp_l (__const char *__s1, __const char *__s2,
 			 __locale_t __loc) __THROW __attribute_pure__;
+extern int __strcasecmp_l (__const char *__s1, __const char *__s2,
+			 __locale_t __loc) __THROW __attribute_pure__;
 
 extern int strncasecmp_l (__const char *__s1, __const char *__s2,
+			  size_t __n, __locale_t __loc)
+     __THROW __attribute_pure__;
+extern int __strncasecmp_l (__const char *__s1, __const char *__s2,
 			  size_t __n, __locale_t __loc)
      __THROW __attribute_pure__;
 #endif
