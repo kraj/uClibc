@@ -37,6 +37,9 @@ XXFLAGS+=-O0 -g3
 endif
 endif
 
+# BEWARE!!! At least mips* will die if -O0 is used!!!
+XXFLAGS :=$(XXFLAGS:-O0=-O1)
+
 XXFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1include/gp")
 LDFLAGS=$(CPU_LDFLAGS-y) -shared --warn-common --export-dynamic --sort-common \
 	-z combreloc --discard-locals --discard-all --no-undefined
