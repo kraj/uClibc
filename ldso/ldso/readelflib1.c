@@ -315,11 +315,6 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	unsigned long minvma = 0xffffffff, maxvma = 0;
 	int i;
 	int infile;
-#if defined(__mips__)
-	unsigned long mips_gotsym = 0;
-	unsigned long mips_local_gotno = 0;
-	unsigned long mips_symtabno = 0;
-#endif
 
 	/* If this file is already loaded, skip this step */
 	tpnt = _dl_check_hashed_files(libname);
@@ -529,22 +524,21 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	dynamic_size = dynamic_size / sizeof(Elf32_Dyn);
 	_dl_memset(dynamic_info, 0, sizeof(dynamic_info));
+
 #if defined(__mips__)
-	/*
-	 * The program header file size for the dynamic section is
-	 * calculated differently for MIPS. We look for a null tag
-	 * value instead.
-	 */
-	while(dpnt->d_tag)
-		if (dpnt->d_tag == DT_MIPS_GOTSYM)
-			mips_gotsym = (unsigned long) dpnt->d_un.d_val;
-		if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO)
-			mips_local_gotno = (unsigned long) dpnt->d_un.d_val;
-		if (dpnt->d_tag == DT_MIPS_SYMTABNO)
-			mips_symtabno = (unsigned long) dpnt->d_un.d_val;
-#else
-	for (i = 0; i < dynamic_size; i++) 
+	{
+	    int i = 1;
+	    Elf32_Dyn *dpnt = (Elf32_Dyn *) dynamic_addr;
+
+	    while(dpnt->d_tag) {
+		dpnt++;
+		i++;
+	    }
+	    dynamic_size = i * sizeof(Elf32_Dyn);
+	}
 #endif
+
+	for (i = 0; i < dynamic_size; i++) 
 	{
 		if (dpnt->d_tag > DT_JMPREL) {
 			dpnt++;
@@ -601,11 +595,6 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	if (lpnt) {
 		lpnt = (unsigned long *) (dynamic_info[DT_PLTGOT] +
 			((int) libaddr));
-#if defined(__mips__)
-		tpnt->mips_gotsym = mips_gotsym;
-		tpnt->mips_local_gotno = mips_local_gotno;
-		tpnt->mips_symtabno = mips_symtabno;
-#endif
 		INIT_GOT(lpnt, tpnt);
 	};
 

@@ -125,6 +125,21 @@ struct elf_resolve *_dl_add_elf_hash_table(char *libname,
 	tpnt->loadaddr = loadaddr;
 	for (i = 0; i < 24; i++)
 		tpnt->dynamic_info[i] = dynamic_info[i];
+#ifdef __mips__
+	{
+		Elf32_Dyn *dpnt = (Elf32_Dyn *) dynamic_addr;
+
+		while(dpnt->d_tag) {
+			if (dpnt->d_tag == DT_MIPS_GOTSYM)
+				tpnt->mips_gotsym = dpnt->d_un.d_val;
+			if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO)
+				tpnt->mips_local_gotno = dpnt->d_un.d_val;
+			if (dpnt->d_tag == DT_MIPS_SYMTABNO)
+				tpnt->mips_symtabno = dpnt->d_un.d_val;
+			dpnt++;
+		}
+	}
+#endif
 	return tpnt;
 }
 
@@ -235,7 +250,8 @@ char *_dl_find_hash(char *name, struct dyn_elf *rpnt1,
 					(ELF32_ST_TYPE(symtab[si].st_info) == STT_FUNC ||
 					 ELF32_ST_TYPE(symtab[si].st_info) == STT_NOTYPE ||
 					 ELF32_ST_TYPE(symtab[si].st_info) == STT_OBJECT) &&
-					symtab[si].st_value != 0) {
+					symtab[si].st_value != 0 &&
+					symtab[si].st_shndx != 0) {
 
 					/* Here we make sure that we find a module where the symbol is
 					 * actually defined.

@@ -23,18 +23,22 @@ _dl_linux_resolve:
 	addu	$25, 8		# t9 ($25) now points at .cpload instruction
 	.cpload	$25		# Compute GP
 	.set reorder
-	subu	$29, 32
-	.cprestore 28
+	subu	$29, 40
+	.cprestore 32
+	sw	$15, 36($29)
 	sw	$4, 16($29)
 	sw	$5, 20($29)
-	sw	$15, 24($29)
+	sw	$6, 24($29)
+	sw	$7, 28($29)
 	move	$4, $24
 	move	$5, $3
 	jal     _dl_linux_resolver
-	lw	$31, 24($29)
+	lw	$31, 36($29)
 	lw	$4, 16($29)
 	lw	$5, 20($29)
-	addu	$29, 32
+	lw	$6, 24($29)
+	lw	$7, 28($29)
+	addu	$29, 40
 	move	$25, $2
 	jr	$25
 .size _dl_linux_resolve,.-_dl_linux_resolve

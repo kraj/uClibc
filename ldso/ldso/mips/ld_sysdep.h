@@ -20,7 +20,7 @@
 
 
 /*
- * Initialization sequence for the application GOT.
+ * Initialization sequence for the application or library GOT.
  */
 #define INIT_GOT(GOT_BASE,MODULE)										\
 do {																	\
@@ -56,12 +56,12 @@ do {																	\
 					(unsigned long) MODULE->loadaddr;					\
 			else {														\
 				*GOT_BASE = (unsigned long) _dl_find_hash(strtab +		\
-					sym->st_name, MODULE->symbol_scope, NULL, 0);		\
+					sym->st_name, MODULE->symbol_scope, NULL, 1);		\
 			}															\
 		}																\
 		else if (sym->st_shndx == SHN_COMMON) {							\
 			*GOT_BASE = (unsigned long) _dl_find_hash(strtab +			\
-				sym->st_name, MODULE->symbol_scope, NULL, 0);			\
+				sym->st_name, MODULE->symbol_scope, NULL, 1);			\
 		}																\
 		else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&				\
 			*GOT_BASE != sym->st_value)									\
@@ -72,7 +72,7 @@ do {																	\
 		}																\
 		else {															\
 			*GOT_BASE = (unsigned long) _dl_find_hash(strtab +			\
-				sym->st_name, MODULE->symbol_scope, NULL, 0);			\
+				sym->st_name, MODULE->symbol_scope, NULL, 1);			\
 		}																\
 																		\
 		++GOT_BASE;														\

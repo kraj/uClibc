@@ -368,12 +368,6 @@ DL_BOOT(unsigned long args)
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
 	while (dpnt->d_tag) {
-		if (dpnt->d_tag < 24) {
-			tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-			if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT) {
-				tpnt->dynamic_info[DT_TEXTREL] = 1;
-			}
-		}
 #if defined(__mips__)
 		if (dpnt->d_tag == DT_MIPS_GOTSYM)
 			tpnt->mips_gotsym = (unsigned long) dpnt->d_un.d_val;
@@ -382,6 +376,12 @@ DL_BOOT(unsigned long args)
 		if (dpnt->d_tag == DT_MIPS_SYMTABNO)
 			tpnt->mips_symtabno = (unsigned long) dpnt->d_un.d_val;
 #endif
+		if (dpnt->d_tag < 24) {
+			tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
+			if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT) {
+				tpnt->dynamic_info[DT_TEXTREL] = 1;
+			}
+		}
 		dpnt++;
 	}
 
@@ -473,9 +473,10 @@ DL_BOOT(unsigned long args)
 #endif
 
 
-	/* For MIPS, we have to do special stuff to the GOT before we do
-	   any relocations. */
 #if defined(__mips__)
+	/*
+	 * For MIPS we have to do stuff to the GOT before we do relocations.
+	 */
 	PERFORM_BOOTSTRAP_GOT(got);
 #endif
 
@@ -612,11 +613,6 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	struct elf_resolve *tpnt1;
 	unsigned long brk_addr, *lpnt;
 	int (*_dl_atexit) (void *);
-#ifdef __mips__
-	unsigned long mips_gotsym = 0;
-	unsigned long mips_local_gotno = 0;
-	unsigned long mips_symtabno = 0;
-#endif
 
 
 	/* Now we have done the mandatory linking of some things.  We are now
@@ -649,7 +645,20 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		for (i = 0; i < epnt->e_phnum; i++, ppnt++) {
 			if (ppnt->p_type == PT_DYNAMIC) {
 				tpnt->dynamic_addr = ppnt->p_vaddr + load_addr;
+#if defined(__mips__)
+				{
+					int i = 1;
+					Elf32_Dyn *dpnt = (Elf32_Dyn *) tpnt->dynamic_addr;
+
+					while(dpnt->d_tag) {
+						dpnt++;
+						i++;
+					}
+					tpnt->dynamic_size = i * sizeof(Elf32_Dyn);
+				}
+#else
 				tpnt->dynamic_size = ppnt->p_filesz;
+#endif
 			}
 		}
 	}
@@ -674,31 +683,38 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 				continue;
 #endif
 			/* OK, we have what we need - slip this one into the list. */
-#ifdef __mips__
-			mips_gotsym = app_tpnt->mips_gotsym;
-			mips_local_gotno = app_tpnt->mips_local_gotno;
-			mips_symtabno = app_tpnt->mips_symtabno;
-#endif
+#if defined(__mips__)
+			{
+				int i = 1;
+				Elf32_Dyn *dpnt = (Elf32_Dyn *) tpnt->dynamic_addr;
+
+				while(dpnt->d_tag) {
+					dpnt++;
+					i++;
+				}
+				app_tpnt = _dl_add_elf_hash_table("", 0, 
+					app_tpnt->dynamic_info, ppnt->p_vaddr,
+					(i * sizeof(Elf32_Dyn)));
+			}
+#else
 			app_tpnt = _dl_add_elf_hash_table("", 0, 
 					app_tpnt->dynamic_info, ppnt->p_vaddr, ppnt->p_filesz);
+#endif
 			_dl_loaded_modules->libtype = elf_executable;
 			_dl_loaded_modules->ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
 			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
-#ifdef __mips__
-			_dl_loaded_modules->mips_gotsym = mips_gotsym; 
-			_dl_loaded_modules->mips_local_gotno = mips_local_gotno;
-			_dl_loaded_modules->mips_symtabno = mips_symtabno;
-#endif
 			_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt, 0, sizeof(*rpnt));
 			rpnt->dyn = _dl_loaded_modules;
 			app_tpnt->usage_count++;
 			app_tpnt->symbol_scope = _dl_symbol_tables;
 			lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
+#ifndef __mips__
 #ifdef ALLOW_ZERO_PLTGOT
 			if (lpnt)
 #endif
 				INIT_GOT(lpnt, _dl_loaded_modules);
+#endif
 		}
 
 		/* OK, fill this in - we did not have this before */
@@ -1063,8 +1079,8 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	   up each symbol individually. */
 
 
-	_dl_brkp =
-		(unsigned long *) _dl_find_hash("___brk_addr", NULL, NULL, 0);
+	_dl_brkp = (unsigned long *) _dl_find_hash("___brk_addr", NULL, NULL, 0);
+	
 	if (_dl_brkp) {
 		*_dl_brkp = brk_addr;
 	}
@@ -1074,6 +1090,11 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	if (_dl_envp) {
 		*_dl_envp = (unsigned long) envp;
 	}
+
+#ifdef __mips__
+	lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
+	INIT_GOT(lpnt, _dl_loaded_modules);
+#endif
 
 #ifdef DO_MPROTECT_HACKS
 	{
