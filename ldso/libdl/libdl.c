@@ -1,70 +1,82 @@
+/* vi: set sw=4 ts=4: */
 /*
- * libdl.c
- * 
- * Functions required for dlopen et. al.
+ * Program to load an ELF binary on a linux system, and run it
+ * after resolving ELF shared library symbols
+ *
+ * Copyright (C) 2000-2004 by Erik Andersen <andersen@codpoet.org>
+ * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
+ *				David Engel, Hongjiu Lu and Mitch D'Souza
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. The name of the above contributors may not be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
  */
+
 
 #include <ldso.h>
 
 
-/* The public interfaces */
-void *dlopen(const char *, int) __attribute__ ((__weak__, __alias__ ("_dlopen")));
-int dlclose(void *) __attribute__ ((__weak__, __alias__ ("_dlclose")));
-void *dlsym(void *, const char *) __attribute__ ((__weak__, __alias__ ("_dlsym")));
-const char *dlerror(void) __attribute__ ((__weak__, __alias__ ("_dlerror")));
-int dladdr(void *, Dl_info *) __attribute__ ((__weak__, __alias__ ("_dladdr")));
-void _dlinfo(void);
-
-
 #if defined (__LIBDL_SHARED__)
-/* This is a real hack.  We need access to the dynamic linker, but we
-also need to make it possible to link against this library without any
-unresolved externals.  We provide these weak symbols to make the link
-possible, but at run time the normal symbols are accessed. */
-static void __attribute__ ((unused)) foobar(void)
-{
-	const char msg[]="libdl library not correctly linked\n";
-	_dl_write(2, msg, _dl_strlen(msg));
-	_dl_exit(1);
-}
 
-static int __attribute__ ((unused)) foobar1 = (int) foobar;	/* Use as pointer */
-extern void _dl_dprintf(int, const char *, ...) __attribute__ ((__weak__, __alias__ ("foobar")));
+/* When libdl is loaded as a shared library, we need to load in
+ * and use a pile of symbols from ldso... */
+
+extern void _dl_dprintf(int, const char *, ...) __attribute__ ((__weak__));
 extern char *_dl_find_hash(const char *, struct dyn_elf *, int)
-	__attribute__ ((__weak__, __alias__ ("foobar")));
-extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **, struct elf_resolve *, char *, int)
-	__attribute__ ((__weak__, __alias__ ("foobar")));
+	__attribute__ ((__weak__));
+extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **,
+	struct elf_resolve *, char *, int) __attribute__ ((__weak__));
 extern struct elf_resolve * _dl_check_if_named_library_is_loaded(const char *, int)
-	__attribute__ ((__weak__, __alias__ ("foobar")));
+	__attribute__ ((__weak__));
 extern int _dl_fixup(struct dyn_elf *rpnt, int lazy)
-	 __attribute__ ((__weak__, __alias__ ("foobar")));
+	 __attribute__ ((__weak__));
+extern struct dyn_elf *_dl_symbol_tables __attribute__ ((__weak__));
+extern struct dyn_elf *_dl_handles __attribute__ ((__weak__));
+extern struct elf_resolve *_dl_loaded_modules __attribute__ ((__weak__));
+extern struct r_debug *_dl_debug_addr __attribute__ ((__weak__));
+extern unsigned long _dl_error_number __attribute__ ((__weak__));
+extern void *(*_dl_malloc_function)(size_t) __attribute__ ((__weak__));
+#ifdef USE_CACHE
+int _dl_map_cache(void) __attribute__ ((__weak__));
+int _dl_unmap_cache(void) __attribute__ ((__weak__));
+#endif
 #ifdef __mips__
 extern void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
-	__attribute__ ((__weak__, __alias__ ("foobar")));
+	__attribute__ ((__weak__));
 #endif
-#ifdef USE_CACHE
-int _dl_map_cache(void) __attribute__ ((__weak__, __alias__ ("foobar")));
-int _dl_unmap_cache(void) __attribute__ ((__weak__, __alias__ ("foobar")));
-#endif	
-
-extern struct dyn_elf *_dl_symbol_tables __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern struct dyn_elf *_dl_handles __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern struct elf_resolve *_dl_loaded_modules __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern struct r_debug *_dl_debug_addr __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern unsigned long _dl_error_number __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern void *(*_dl_malloc_function)(size_t) __attribute__ ((__weak__, __alias__ ("foobar1")));
 #ifdef __SUPPORT_LD_DEBUG__
-extern char *_dl_debug __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern char *_dl_debug_symbols __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern char *_dl_debug_move __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern char *_dl_debug_reloc __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern char *_dl_debug_detail __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern char *_dl_debug_nofixups __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern char *_dl_debug_bindings __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern int   _dl_debug_file __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern char *_dl_debug __attribute__ ((__weak__));
+extern char *_dl_debug_symbols __attribute__ ((__weak__));
+extern char *_dl_debug_move __attribute__ ((__weak__));
+extern char *_dl_debug_reloc __attribute__ ((__weak__));
+extern char *_dl_debug_detail __attribute__ ((__weak__));
+extern char *_dl_debug_nofixups __attribute__ ((__weak__));
+extern char *_dl_debug_bindings __attribute__ ((__weak__));
+extern int   _dl_debug_file __attribute__ ((__weak__));
 #endif
 
-#else	/* __LIBDL_SHARED__ */
+
+#else /* __LIBDL_SHARED__ */
+
+/* When libdl is linked as a static library, we need to replace all
+ * the symbols that otherwise would have been loaded in from ldso... */
 
 #ifdef __SUPPORT_LD_DEBUG__
 char *_dl_debug  = 0;
@@ -80,12 +92,12 @@ char *_dl_library_path = 0;
 char *_dl_ldsopath = 0;
 struct r_debug *_dl_debug_addr = NULL;
 static unsigned char *_dl_malloc_addr, *_dl_mmap_zero;
+void *(*_dl_malloc_function) (size_t size);
+int _dl_fixup(struct dyn_elf *rpnt, int lazy);
 #include "../ldso/dl-progname.h"               /* Pull in the name of ld.so */
 #include "../ldso/dl-hash.c"
 #define _dl_trace_loaded_objects    0
 #include "../ldso/dl-elf.c"
-void *(*_dl_malloc_function) (size_t size);
-int _dl_fixup(struct dyn_elf *rpnt, int lazy);
 #endif
 
 static int do_dlclose(void *, int need_fini);
@@ -176,7 +188,7 @@ void *_dlopen(const char *libname, int flag)
 
 	/* Try to load the specified library */
 #ifdef __SUPPORT_LD_DEBUG__
-	if(_dl_debug) 
+	if(_dl_debug)
 	_dl_dprintf(_dl_debug_file, "Trying to dlopen '%s'\n", (char*)libname);
 #endif
 	if (!(tpnt = _dl_check_if_named_library_is_loaded((char *)libname, 0)))
@@ -205,7 +217,7 @@ void *_dlopen(const char *libname, int flag)
 
 
 #ifdef __SUPPORT_LD_DEBUG__
-	if(_dl_debug) 
+	if(_dl_debug)
 	_dl_dprintf(_dl_debug_file, "Looking for needed libraries\n");
 #endif
 
@@ -217,7 +229,7 @@ void *_dlopen(const char *libname, int flag)
 			if (dpnt->d_tag == DT_NEEDED) {
 
 				char *name;
-				lpntstr = (char*) (tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] + 
+				lpntstr = (char*) (tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] +
 					dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
 
@@ -225,8 +237,8 @@ void *_dlopen(const char *libname, int flag)
 					continue;
 
 #ifdef __SUPPORT_LD_DEBUG__
-				if(_dl_debug) 
-				_dl_dprintf(_dl_debug_file, "Trying to load '%s', needed by '%s'\n", 
+				if(_dl_debug)
+				_dl_dprintf(_dl_debug_file, "Trying to load '%s', needed by '%s'\n",
 						lpntstr, tcurr->libname);
 #endif
 
@@ -258,7 +270,7 @@ void *_dlopen(const char *libname, int flag)
 #endif
 
 #ifdef __SUPPORT_LD_DEBUG__
-	if(_dl_debug) 
+	if(_dl_debug)
 	_dl_dprintf(_dl_debug_file, "Beginning dlopen relocation fixups\n");
 #endif
 	/*
@@ -285,7 +297,7 @@ void *_dlopen(const char *libname, int flag)
 	}
 
 #if 0 //def __SUPPORT_LD_DEBUG__
-	if(_dl_debug) 
+	if(_dl_debug)
 	_dlinfo();
 #endif
 
@@ -313,7 +325,7 @@ void *_dlopen(const char *libname, int flag)
 		    dl_elf_func = (void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
 		    if (dl_elf_func && *dl_elf_func != NULL) {
 #ifdef __SUPPORT_LD_DEBUG__
-			if(_dl_debug) 
+			if(_dl_debug)
 			_dl_dprintf(2, "running ctors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
 #endif
 			(*dl_elf_func) ();
@@ -324,7 +336,7 @@ void *_dlopen(const char *libname, int flag)
 		    dl_elf_func = (void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
 		    if (dl_elf_func && *dl_elf_func != NULL) {
 #ifdef __SUPPORT_LD_DEBUG__
-			if(_dl_debug) 
+			if(_dl_debug)
 			_dl_dprintf(2, "setting up dtors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
 #endif
 			atexit(dl_elf_func);
@@ -340,6 +352,7 @@ oops:
 	do_dlclose(dyn_chain, 0);
 	return NULL;
 }
+weak_alias(_dlopen, dlopen);
 
 void *_dlsym(void *vhandle, const char *name)
 {
@@ -394,11 +407,7 @@ void *_dlsym(void *vhandle, const char *name)
 		_dl_error_number = LD_NO_SYMBOL;
 	return ret;
 }
-
-int _dlclose(void *vhandle)
-{
-	return do_dlclose(vhandle, 1);
-}
+weak_alias(_dlsym, dlsym);
 
 static int do_dlclose(void *vhandle, int need_fini)
 {
@@ -432,7 +441,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 	for (; spnt; spnt = spnt1) {
 		spnt1 = spnt->next;
 
-		/* We appended the module list to the end - when we get back here, 
+		/* We appended the module list to the end - when we get back here,
 		   quit. The access counts were not adjusted to account for being here. */
 		if (spnt == _dl_symbol_tables)
 			break;
@@ -444,7 +453,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 			 */
 
 			if (tpnt->dynamic_info[DT_FINI]) {
-				dl_elf_fini = (int (*)(void)) (tpnt->loadaddr + 
+				dl_elf_fini = (int (*)(void)) (tpnt->loadaddr +
 					tpnt->dynamic_info[DT_FINI]);
 				(*dl_elf_fini) ();
 			}
@@ -459,7 +468,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 	for (rpnt = handle; rpnt; rpnt = rpnt1) {
 		rpnt1 = rpnt->next;
 
-		/* We appended the module list to the end - when we get back here, 
+		/* We appended the module list to the end - when we get back here,
 		   quit. The access counts were not adjusted to account for being here. */
 		if (rpnt == _dl_symbol_tables)
 			break;
@@ -473,10 +482,10 @@ static int do_dlclose(void *vhandle, int need_fini)
 			 */
 #if 0
 
-			/* We have to do this above, before we start closing objects.  
-			 * Otherwise when the needed symbols for _fini handling are 
-			 * resolved a coredump would occur. Rob Ryan (robr@cmu.edu)*/ 
-			if (tpnt->dynamic_info[DT_FINI]) { 
+			/* We have to do this above, before we start closing objects.
+			 * Otherwise when the needed symbols for _fini handling are
+			 * resolved a coredump would occur. Rob Ryan (robr@cmu.edu)*/
+			if (tpnt->dynamic_info[DT_FINI]) {
 			    dl_elf_fini = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
 				(*dl_elf_fini) ();
 			}
@@ -524,6 +533,12 @@ static int do_dlclose(void *vhandle, int need_fini)
 	return 0;
 }
 
+int _dlclose(void *vhandle)
+{
+	return do_dlclose(vhandle, 1);
+}
+weak_alias(_dlclose, dlclose);
+
 const char *_dlerror(void)
 {
 	const char *retval;
@@ -534,6 +549,7 @@ const char *_dlerror(void)
 	_dl_error_number = 0;
 	return retval;
 }
+weak_alias(_dlerror, dlerror);
 
 /*
  * Dump information to stderrr about the current loaded modules
@@ -547,8 +563,8 @@ void _dlinfo(void)
 
 	_dl_dprintf(2, "List of loaded modules\n");
 	/* First start with a complete list of all of the loaded files. */
-	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) { 
-		_dl_dprintf(2, "\t%x %x %x %s %d %s\n", 
+	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
+		_dl_dprintf(2, "\t%x %x %x %s %d %s\n",
 			(unsigned) tpnt->loadaddr, (unsigned) tpnt,
 			(unsigned) tpnt->symbol_scope,
 			type[tpnt->libtype],
@@ -564,10 +580,11 @@ void _dlinfo(void)
 	for (hpnt = _dl_handles; hpnt; hpnt = hpnt->next_handle) {
 		_dl_dprintf(2, "Modules for handle %x\n", (unsigned) hpnt);
 		for (rpnt = hpnt; rpnt; rpnt = rpnt->next)
-			_dl_dprintf(2, "\t%x %s\n", (unsigned) rpnt->dyn, 
+			_dl_dprintf(2, "\t%x %s\n", (unsigned) rpnt->dyn,
 				rpnt->dyn->libname);
 	}
 }
+weak_alias(_dlinfo, dlinfo);
 
 int _dladdr(void *__address, Dl_info * __dlip)
 {
@@ -590,7 +607,7 @@ int _dladdr(void *__address, Dl_info * __dlip)
 
 		tpnt = rpnt;
 #if 0
-		_dl_dprintf(2, "Module \"%s\" at %x\n", 
+		_dl_dprintf(2, "Module \"%s\" at %x\n",
 			tpnt->libname, tpnt->loadaddr);
 #endif
 		if (tpnt->loadaddr < (ElfW(Addr)) __address
@@ -631,7 +648,7 @@ int _dladdr(void *__address, Dl_info * __dlip)
 					sf = 1;
 				}
 #if 0
-				_dl_dprintf(2, "Symbol \"%s\" at %x\n", 
+				_dl_dprintf(2, "Symbol \"%s\" at %x\n",
 					strtab + symtab[si].st_name, symbol_addr);
 #endif
 			}
@@ -646,3 +663,4 @@ int _dladdr(void *__address, Dl_info * __dlip)
 		return 1;
 	}
 }
+weak_alias(_dladdr, dladdr);
