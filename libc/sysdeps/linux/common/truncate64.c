@@ -34,10 +34,6 @@ _syscall2(int, truncate64, const char *, path, __off64_t, length);
 static inline _syscall3(int, __syscall_truncate64, const char *, path, int, high_length, int, low_length);
 #endif
 
-#else
-#error Your machine is not 64 bit or 32 bit, I am dazed and confused.
-#endif /* __WORDSIZE */
-
 
 /* The exported truncate64 function.  */
 int truncate64 (const char * path, __off64_t length)
@@ -46,4 +42,10 @@ int truncate64 (const char * path, __off64_t length)
     uint32_t high = length >> 32;
     return INLINE_SYSCALL(truncate64, 3, path, __LONG_LONG_PAIR (high, low));
 }
+
+#else
+#error Your machine is not 64 bit or 32 bit, I am dazed and confused.
+#endif /* __WORDSIZE */
+
 #endif /* __UCLIBC_HAS_LFS__ */
+
