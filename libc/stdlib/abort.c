@@ -18,7 +18,6 @@ Cambridge, MA 02139, USA.  */
 
 /* Hacked up for uC-Libc by Erik Andersen */
 
-#include <ansidecl.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
