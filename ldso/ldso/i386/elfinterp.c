@@ -230,7 +230,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		else if (res >0)
 		{
 			_dl_dprintf(2, "can't resolve symbol\n");
-			//goof += res;
+			goof += res;
 		}
 	  }
 	  return goof;
