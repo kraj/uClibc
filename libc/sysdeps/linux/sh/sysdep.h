@@ -21,19 +21,7 @@
 #include <bits/uClibc_config.h>
 
 /* Define a macro we can use to construct the asm name for a C symbol.  */
-#ifdef	__NO_UNDERSCORES__
-#ifdef	__STDC__
-#define C_LABEL(name)		name##:
-#else
-#define C_LABEL(name)		name/**/:
-#endif
-#else
-#ifdef	__STDC__
-#define C_LABEL(name)		_##name##:
-#else
-#define C_LABEL(name)		_/**/name/**/:
-#endif
-#endif
+#define C_LABEL(name) __C_SYMBOL_PREFIX__ name
 
 /* Mark the end of function named SYM.  This is used on some platforms
    to generate correct debugging information.  */
@@ -88,19 +76,11 @@
 #define END(name)							      \
   ASM_SIZE_DIRECTIVE(C_SYMBOL_NAME(name))
 
-/* If compiled for profiling, call `mcount' at the start of each function.  */
+/* If compiled for profiling, call `_mcount' at the start of each function.  */
 #ifdef	PROF
 #define CALL_MCOUNT	/* NOTYET */
 #else
 #define CALL_MCOUNT		/* Do nothing.  */
-#endif
-
-#ifdef	__NO_UNDERSCORES__
-/* Since C identifiers are not normally prefixed with an underscore
-   on this system, the asm identifier `syscall_error' intrudes on the
-   C name space.  Make sure we use an innocuous name.  */
-#define	syscall_error	__syscall_error
-#define mcount		_mcount
 #endif
 
 #endif	/* __ASSEMBLER__ */

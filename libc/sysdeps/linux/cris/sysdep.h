@@ -107,10 +107,10 @@
 #define PSEUDO_END(name) \
 0:                          @ \
   SETUP_PIC                     @ \
-  PLTJUMP (syscall_error)               @ \
+  PLTJUMP (__syscall_error)               @ \
   END (name)
 
-/* If compiled for profiling, call `mcount' at the start of each function.
+/* If compiled for profiling, call `_mcount' at the start of each function.
    FIXME: Note that profiling is not actually implemented.  This is just
    example code which might not even compile, though it is believed to be
    correct.  */
@@ -123,7 +123,7 @@
   push	$r12						@ \
   push	$r13						@ \
   SETUP_PIC						@ \
-  PLTCALL (mcount)					@ \
+  PLTCALL (_mcount)					@ \
   TEARDOWN_PIC						@ \
   pop	$r13						@ \
   pop	$r12						@ \
@@ -135,11 +135,6 @@
 #define CALL_MCOUNT		/* Do nothing.  */
 #endif
 
-/* Since C identifiers are not normally prefixed with an underscore
-   on this system, the asm identifier `syscall_error' intrudes on the
-   C name space.  Make sure we use an innocuous name.  */
-#define	syscall_error	__syscall_error
-#define mcount		_mcount
 
 #endif /* __ASSEMBLER__ */
 #endif /* _SYSDEP_H_ */

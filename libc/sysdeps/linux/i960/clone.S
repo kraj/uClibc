@@ -44,11 +44,11 @@ __clone:
         calls   0
 
         /* Do the system call */
-        cmpibg  0, g0, syscall_error    /* if < 0, error */
+        cmpibg  0, g0, __syscall_error    /* if < 0, error */
         be      thread_start            /* if == 0, we're the child */
         ret                             /* we're the parent */
 
-syscall_error:
+__syscall_error:
         not     g0, r3
         callx   ___errno_location
         st      r3, (g0)

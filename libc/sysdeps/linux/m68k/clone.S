@@ -23,11 +23,11 @@ __clone:
 	movel   4(%sp), %d1             /* no NULL function pointers */
 	movel	%d1, %a0
 	tstl    %d1
-	beq.w   syscall_error
+	beq.w   __syscall_error
 	movel   8(%sp), %d1             /* no NULL stack pointers */
 	movel	%d1, %a1
 	tstl    %d1
-	beq.w   syscall_error
+	beq.w   __syscall_error
 
 	/* Allocate space and copy the argument onto the new stack.  */
 	movel   16(%sp), -(%a1)
@@ -52,12 +52,12 @@ __clone:
 #endif
 
 	tstl    %d0
-	bmi.w   syscall_error
+	bmi.w   __syscall_error
 	beq.w   thread_start
 
 	rts
 
-syscall_error:
+__syscall_error:
 	negl	%d0
 	movel	%d0, %sp@-
 	lea		__errno_location-.-8, %a0
