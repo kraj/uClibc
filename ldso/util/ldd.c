@@ -176,8 +176,6 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 		if (*buf != '\0') {
 			lib->path = buf;
 			return;
-		} else {
-			free(buf);
 		}
 	}
 
@@ -193,8 +191,6 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 		if (*buf != '\0') {
 			lib->path = buf;
 			return;
-		} else {
-			free(buf);
 		}
 	}
 
