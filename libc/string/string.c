@@ -23,6 +23,16 @@ size_t strlen(const char *str)
 }
 #endif
 
+/********************** Function strnlen ************************************/
+
+#ifdef L_strnlen
+size_t strnlen (const char *string, size_t maxlen)
+{
+	const char *end = memchr (string, '\0', maxlen);
+	return end ? end - string : maxlen;
+}
+#endif
+
 /********************** Function strcat ************************************/
 
 #ifdef L_strcat
