@@ -24,7 +24,7 @@ config ARCH_E1
 
 config ARCH_CFLAGS
 	string
-	default "-I$(KERNEL_SOURCE)/include -mgnu-param" 
+	default "-mgnu-param"
 
 config ARCH_LDFLAGS
 	string
