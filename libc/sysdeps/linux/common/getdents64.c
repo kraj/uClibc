@@ -17,9 +17,6 @@
    02111-1307 USA.  */
 
 #include <features.h>
-
-#ifdef __UCLIBC_HAS_LFS__
-
 #include <alloca.h>
 #include <assert.h>
 #include <errno.h>
@@ -28,10 +25,12 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+#include <sysdep.h>
 #include <sys/param.h>
 #include <sys/types.h>
-#include <sysdep.h>
 #include <sys/syscall.h>
+
+#if defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64 
 
 
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
@@ -103,6 +102,12 @@ ssize_t __getdents64 (int fd, char *buf, size_t nbytes)
 	kdp = (struct kernel_dirent64 *) (((char *) kdp) + kdp->d_reclen);
     }
     return (char *) dp - buf;
+}
+#else
+ssize_t __getdents (int fd, char *buf, size_t nbytes);
+ssize_t __getdents64 (int fd, char *buf, size_t nbytes)
+{
+    return(__getdents(fd, buf, nbytes));
 }
 #endif /* __UCLIBC_HAS_LFS__ */
 

@@ -969,7 +969,8 @@ _syscall2(int, getitimer, __itimer_which_t, which, struct itimerval *, value);
 #ifdef L___syscall_stat
 #define __NR___syscall_stat __NR_stat
 #include <unistd.h>
-#include <sys/stat.h>
+#define _SYS_STAT_H
+#include <bits/stat.h>
 #include "xstatconv.h"
 _syscall2(int, __syscall_stat, const char *, file_name, struct kernel_stat *, buf);
 int stat(const char * file_name, struct stat * buf)
@@ -991,7 +992,8 @@ weak_alias(stat, stat64);
 #ifdef L___syscall_lstat
 #define __NR___syscall_lstat __NR_lstat
 #include <unistd.h>
-#include <sys/stat.h>
+#define _SYS_STAT_H
+#include <bits/stat.h>
 #include <bits/kernel_stat.h>
 #include "xstatconv.h"
 _syscall2(int, __syscall_lstat, const char *, file_name, struct kernel_stat *, buf);
@@ -1014,7 +1016,8 @@ weak_alias(lstat, lstat64);
 #ifdef L___syscall_fstat
 #define __NR___syscall_fstat __NR_fstat
 #include <unistd.h>
-#include <sys/stat.h>
+#define _SYS_STAT_H
+#include <bits/stat.h>
 #include <bits/kernel_stat.h>
 #include "xstatconv.h"
 _syscall2(int, __syscall_fstat, int, fd, struct kernel_stat *, buf);
@@ -1767,10 +1770,10 @@ _syscall2(int, pivot_root, const char *, new_root, const char *, put_old);
 //#define __NR_fcntl64		221
 #ifdef L__fcntl64
 #ifdef __UCLIBC_HAS_LFS__
-#ifdef __NR_fcntl64
-#define __NR__fcntl64 __NR_fcntl64
 #include <stdarg.h>
 #include <fcntl.h>
+#ifdef __NR_fcntl64
+#define __NR__fcntl64 __NR_fcntl64
 extern int _fcntl64(int fd, int cmd, long arg);
 
 _syscall3(int, _fcntl64, int, fd, int, cmd, long, arg);
@@ -1787,8 +1790,18 @@ int fcntl64(int fd, int command, ...)
 	return _fcntl64(fd, command, arg);
 }
 #else
-extern int __libc_fcntl(int fd, int command, ...);
-weak_alias(__libc_fcntl, fcntl64)
+extern int _fcntl(int fd, int cmd, long arg);
+int fcntl64(int fd, int command, ...)
+{
+	long arg;
+	va_list list;
+
+	va_start(list, command);
+	arg = va_arg(list, long);
+
+	va_end(list);
+	return _fcntl(fd, command, arg);
+}
 #endif
 #endif
 #endif
