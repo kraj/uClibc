@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 1982, 1986, 1988 Regents of the University of California.
- * All rights reserved.
+ * Copyright (c) 1982, 1986, 1988, 1993
+ *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,13 +30,16 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)syslog.h	7.20 (Berkeley) 2/23/91
+ *	@(#)syslog.h	8.1 (Berkeley) 6/2/93
  */
 
-#ifndef _SYS_LOG_H
-#define	_SYS_LOG_H
+#ifndef _SYS_SYSLOG_H
+#define _SYS_SYSLOG_H 1
 
 #include <features.h>
+#define __need___va_list
+#include <stdarg.h>
+
 
 #define	_PATH_LOG	"/dev/log"
 
@@ -72,21 +75,22 @@ typedef struct _code {
 	int	c_val;
 } CODE;
 
-CODE prioritynames[] = {
-	{ "alert",	LOG_ALERT },
-	{ "crit",	LOG_CRIT },
-	{ "debug",	LOG_DEBUG },
-	{ "emerg",	LOG_EMERG },
-	{ "err",	LOG_ERR },
-	{ "error",	LOG_ERR },		/* DEPRECATED */
-	{ "info",	LOG_INFO },
-	{ "none",	INTERNAL_NOPRI },	/* INTERNAL */
-	{ "notice",	LOG_NOTICE },
-	{ "panic", 	LOG_EMERG },		/* DEPRECATED */
-	{ "warn",	LOG_WARNING },		/* DEPRECATED */
-	{ "warning",	LOG_WARNING },
-	{ NULL,		-1 }
-};
+CODE prioritynames[] =
+  {
+    { "alert", LOG_ALERT },
+    { "crit", LOG_CRIT },
+    { "debug", LOG_DEBUG },
+    { "emerg", LOG_EMERG },
+    { "err", LOG_ERR },
+    { "error", LOG_ERR },		/* DEPRECATED */
+    { "info", LOG_INFO },
+    { "none", INTERNAL_NOPRI },		/* INTERNAL */
+    { "notice", LOG_NOTICE },
+    { "panic", LOG_EMERG },		/* DEPRECATED */
+    { "warn", LOG_WARNING },		/* DEPRECATED */
+    { "warning", LOG_WARNING },
+    { NULL, -1 }
+  };
 #endif
 
 /* facility codes */
@@ -101,6 +105,7 @@ CODE prioritynames[] = {
 #define	LOG_UUCP	(8<<3)	/* UUCP subsystem */
 #define	LOG_CRON	(9<<3)	/* clock daemon */
 #define	LOG_AUTHPRIV	(10<<3)	/* security/authorization messages (private) */
+#define	LOG_FTP		(11<<3)	/* ftp daemon */
 
 	/* other codes through 15 reserved for system use */
 #define	LOG_LOCAL0	(16<<3)	/* reserved for local use */
@@ -118,34 +123,32 @@ CODE prioritynames[] = {
 #define	LOG_FAC(p)	(((p) & LOG_FACMASK) >> 3)
 
 #ifdef SYSLOG_NAMES
-CODE facilitynames[] = {
-	{ "auth",	LOG_AUTH },
-	{ "authpriv",	LOG_AUTHPRIV },
-	{ "cron", 	LOG_CRON },
-	{ "daemon",	LOG_DAEMON },
-	{ "kern",	LOG_KERN },
-	{ "lpr",	LOG_LPR },
-	{ "mail",	LOG_MAIL },
-	{ "mark", 	INTERNAL_MARK },	/* INTERNAL */
-	{ "news",	LOG_NEWS },
-	{ "security",	LOG_AUTH },		/* DEPRECATED */
-	{ "syslog",	LOG_SYSLOG },
-	{ "user",	LOG_USER },
-	{ "uucp",	LOG_UUCP },
-	{ "local0",	LOG_LOCAL0 },
-	{ "local1",	LOG_LOCAL1 },
-	{ "local2",	LOG_LOCAL2 },
-	{ "local3",	LOG_LOCAL3 },
-	{ "local4",	LOG_LOCAL4 },
-	{ "local5",	LOG_LOCAL5 },
-	{ "local6",	LOG_LOCAL6 },
-	{ "local7",	LOG_LOCAL7 },
-	{ NULL,		-1 }
-};
-#endif
-
-#ifdef KERNEL
-#define	LOG_PRINTF	-1	/* pseudo-priority to indicate use of printf */
+CODE facilitynames[] =
+  {
+    { "auth", LOG_AUTH },
+    { "authpriv", LOG_AUTHPRIV },
+    { "cron", LOG_CRON },
+    { "daemon", LOG_DAEMON },
+    { "ftp", LOG_FTP },
+    { "kern", LOG_KERN },
+    { "lpr", LOG_LPR },
+    { "mail", LOG_MAIL },
+    { "mark", INTERNAL_MARK },		/* INTERNAL */
+    { "news", LOG_NEWS },
+    { "security", LOG_AUTH },		/* DEPRECATED */
+    { "syslog", LOG_SYSLOG },
+    { "user", LOG_USER },
+    { "uucp", LOG_UUCP },
+    { "local0", LOG_LOCAL0 },
+    { "local1", LOG_LOCAL1 },
+    { "local2", LOG_LOCAL2 },
+    { "local3", LOG_LOCAL3 },
+    { "local4", LOG_LOCAL4 },
+    { "local5", LOG_LOCAL5 },
+    { "local6", LOG_LOCAL6 },
+    { "local7", LOG_LOCAL7 },
+    { NULL, -1 }
+  };
 #endif
 
 /*
@@ -167,34 +170,27 @@ CODE facilitynames[] = {
 #define	LOG_NOWAIT	0x10	/* don't wait for console forks: DEPRECATED */
 #define	LOG_PERROR	0x20	/* log to stderr as well */
 
-#ifndef KERNEL
-
-#include <sys/cdefs.h>
-
 __BEGIN_DECLS
 
-#ifdef __GNUC__
-/* This define avoids name pollution if we're using GNU stdarg.h */
-#define __need___va_list
-#include <stdarg.h>
-#endif
+/* Close desriptor used to write to system logger.  */
+extern void closelog __P ((void));
 
-void	closelog __P((void));
-void	openlog __P((__const char *, int, int));
-void	setlogmask __P((int));
-void	syslog __P((int, __const char *, ...))
-#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 5)
-	__attribute__ ((format (printf, 2, 0)))
-#endif
-	;
-#ifdef __GNUC_VA_LIST
-void	vsyslog __P((int, __const char *, __gnuc_va_list));
-#else
-void	vsyslog __P(());
+/* Open connection to system logger.  */
+extern void openlog __P ((__const char *__ident, int __option,
+			  int __facility));
+
+/* Set the log mask level.  */
+extern int setlogmask __P ((int __mask));
+
+/* Generate a log message using FMT string and option arguments.  */
+extern void syslog __P ((int __pri, __const char *__fmt, ...));
+
+#ifdef __USE_BSD
+/* Generate a log message using FMT and using arguments pointed to by AP.  */
+extern void vsyslog __P ((int __pri, __const char *__fmt,
+			  va_list __ap));
 #endif
 
 __END_DECLS
 
-#endif /* !KERNEL */
-
-#endif /* _SYS_LOG_H */
+#endif /* sys/syslog.h */
