@@ -19,7 +19,7 @@
 
 /* Code taken from glibc2.2.2/sysdeps/unix/sysv/linux/sparc/vfork.S */
 
-#include <sysdep.h>
+#include "sysdep.h"
 
 PSEUDO (__vfork, vfork, 0)
 	sub	%o1, 1, %o1

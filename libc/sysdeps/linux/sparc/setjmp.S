@@ -20,6 +20,7 @@
 
 #include <sysdep.h>
 #include <sys/trap.h>
+#include "sysdep.h"
 
 #define _ASM 1
 #define _SETJMP_H

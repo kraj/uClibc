@@ -18,7 +18,6 @@
 
 /* Code taken from glibc/sysdeps/sparc/sparc32/  (glibc 2.2.2) */
 
-//#include "sysdep.h"
 #include <sysdep.h>
 
 #define _ASM 1
