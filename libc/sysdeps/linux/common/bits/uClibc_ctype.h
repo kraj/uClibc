@@ -58,7 +58,7 @@ enum {
 	__CTYPE_space_blank_noncntrl,
 	__CTYPE_cntrl_space_nonblank,
 	__CTYPE_cntrl_space_blank,
-	__CTYPE_cntrl_nonspace,
+	__CTYPE_cntrl_nonspace
 };
 
 /* Some macros that test for various (w)ctype classes when passed one of the
