@@ -23,7 +23,7 @@
 # Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-include Config
+include $(TOPDIR)Config
 
 GCCINCDIR = $(shell gcc -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp")
 
