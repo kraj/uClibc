@@ -10,8 +10,18 @@ include $(TESTDIR)../Config
 include $(TESTDIR)Config
 
 
-NATIVE_ARCH = ${shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
-	-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/'}
+# Use NATIVE_ARCH here since running these test is not
+# even possible when cross compiling...
+NATIVE_ARCH = ${shell uname -m | sed \
+		-e 's/i.86/i386/' \
+		-e 's/sparc.*/sparc/' \
+		-e 's/arm.*/arm/g' \
+		-e 's/m68k.*/m68k/' \
+		-e 's/ppc/powerpc/g' \
+		-e 's/v850.*/v850/g' \
+		-e 's/sh[234].*/sh/' \
+		-e 's/mips.*/mips/' \
+		}
 
 # If you are running a cross compiler, you may want to set this
 # to something more interesting...
