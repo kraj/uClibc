@@ -21,6 +21,16 @@ with_shared_libs=y
 #with_shared_libs=n
 #endif
 
+ifneq ($(target),$(DEB_HOST_GNU_CPU))
+target_suffix=-$(target)
+endif
+
+p_dev=libuclibc-dev$(target_suffix)
+p_lib=libuclibc0$(target_suffix)
+p_gcc=uclibc$(target_suffix)-gcc
+
+debian/control: debian/control.in
+	sed s/_TARGET_/$(target_suffix)/ debian/control.in >debian/control
 
 build: build-stamp
 build-stamp:
@@ -56,42 +66,46 @@ clean:
 
 	dh_clean
 
-install: build
+install: build debian/control
 	dh_testdir
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
 
-	# Add here commands to install the package into debian/tmp.
-	$(MAKE) install_dev DESTDIR=`pwd`/debian/tmp
-	$(MAKE) install_runtime DESTDIR=`pwd`/debian/libuclibc0
-	$(MAKE) install_gcc DESTDIR=`pwd`/debian/uclibc-gcc
+	-rm debian/$(p_dev)
+	ln -s tmp debian/$(p_dev)
 
+	# Add here commands to install the package into debian/tmp.
+	$(MAKE) install_dev DESTDIR=`pwd`/debian/$(p_dev)
+	$(MAKE) install_runtime DESTDIR=`pwd`/debian/$(p_lib)
+	$(MAKE) install_gcc DESTDIR=`pwd`/debian/$(p_gcc)
+
+	install -d debian/$(p_gcc)/usr/share/man/man1
 	install -m 644 debian/uclibc-gcc.1 \
-	  debian/uclibc-gcc/usr/share/man/man1/$(target)-uclibc-gcc.1
-	(cd debian/uclibc-gcc/usr/share/man/man1; \
+	  debian/$(p_gcc)/usr/share/man/man1/$(target)-uclibc-gcc.1
+	(cd debian/$(p_gcc)/usr/share/man/man1; \
 	  ln -sf $(target)-uclibc-gcc.1.gz $(target)-uclibc-cc.1.gz; \
 	  ln -sf $(target)-uclibc-gcc.1.gz $(target)-uclibc-ld.1.gz; \
 	  for x in addr2line ar as cpp gasp nm objcopy objdump ranlib \
 	  size strings strip;do \
 	    ln -sf $$x.1.gz $(target)-uclibc-$$x.1.gz;done)
 	
-	install -d debian/libuclibc0/usr/share/man/man1
+	install -d debian/$(p_lib)/usr/share/man/man1
 	install -m 644 debian/uclibc-ldd.1 \
-	  debian/libuclibc0/usr/share/man/man1/$(target)-uclibc-ldd.1
-
+	  debian/$(p_lib)/usr/share/man/man1/$(target)-uclibc-ldd.1
 	install -m 644 debian/uclibc-ldconfig.1 \
-	  debian/libuclibc0/usr/share/man/man1/$(target)-uclibc-ldconfig.1
+	  debian/$(p_lib)/usr/share/man/man1/$(target)-uclibc-ldconfig.1
 
 ifeq ($(with_shared_libs),y)
-	mkdir -p debian/libuclibc0/lib/
-	ln -sf /usr/$(target)-uclibc-linux/lib/ld-uclibc.so.0 \
-	  debian/libuclibc0/lib/ld-uclibc.so.0
+ifeq ($(target),$(DEB_HOST_GNU_CPU))
+	mkdir -p debian/$(p_lib)/lib/
+	ln -sf /usr/$(target)-uclibc-linux/lib/ld-uClibc.so.0 \
+	  debian/$(p_lib)/lib/ld-uClibc.so.0
+endif
 endif
 
 # Build architecture-independent files here.
-binary-indep: build install
-# We have nothing to do by default.
+binary-indep:
 
 # Build architecture-dependent files here.
 binary-arch: build install
@@ -120,7 +134,11 @@ binary-arch: build install
 #	dh_makeshlibs
 	dh_installdeb
 #	dh_perl
-	dh_shlibdeps --exclude=ld_uclibc -ldebian/libuclibc0/usr/$(target)-linux-uclibc/lib
+ifeq ($(target),$(DEB_HOST_GNU_CPU))
+	dh_shlibdeps --exclude=ld_uclibc -ldebian/$(p_lib)/usr/$(target)-linux-uclibc/lib
+else
+	dh_shlibdeps --exclude=lib
+endif
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
