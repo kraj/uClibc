@@ -23,6 +23,11 @@ static void
 profil_counter (int signo, int _a2, int _a3, int _a4, struct sigcontext sc)
 {
   void *pc;
+  (void) signo;
+  (void)_a2;
+  (void)_a3;
+  (void)_a4;
+  
   pc = (void *) sc.sc_pc;
   profil_count (pc);
 }

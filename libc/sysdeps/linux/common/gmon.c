@@ -52,7 +52,7 @@
 /*  Head of basic-block list or NULL. */
 struct __bb *__bb_head;
 
-struct gmonparam _gmonparam = { GMON_PROF_OFF };
+struct gmonparam _gmonparam = { state: GMON_PROF_OFF };
 
 /*
  * See profil(2) where this is described:
@@ -221,8 +221,7 @@ static void write_call_graph (int fd)
     u_char tag = GMON_TAG_CG_ARC;
     struct gmon_cg_arc_record raw_arc[NARCS_PER_WRITEV]
 	__attribute__ ((aligned (__alignof__ (char*))));
-    ARCINDEX from_index, to_index;
-    int from_len;
+    ARCINDEX from_index, to_index, from_len;
     u_long frompc;
     struct iovec iov[2 * NARCS_PER_WRITEV];
     int nfilled;

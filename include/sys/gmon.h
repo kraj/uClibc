@@ -162,7 +162,7 @@ struct gmonparam {
 	u_long		fromssize;
 	struct tostruct	*tos;
 	u_long		tossize;
-	long		tolimit;
+	ARCINDEX        tolimit;
 	u_long		lowpc;
 	u_long		highpc;
 	u_long		textsize;
