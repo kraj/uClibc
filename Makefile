@@ -22,7 +22,7 @@
 
 #--------------------------------------------------------
 #
-#There are a number of configurable options in Rules.make
+#There are a number of configurable options in Rules.mak
 #
 #--------------------------------------------------------
 

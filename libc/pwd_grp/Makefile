@@ -21,7 +21,7 @@
 # respective copyright holders.
 
 TOPDIR=../
-include $(TOPDIR)Rules.make
+include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 CSRC=__getpwent.c pwent.c getpwnam.c getpwuid.c putpwent.c getpw.c fgetpwent.c \

@@ -21,12 +21,12 @@
 # respective copyright holders.
 
 TOPDIR=../
-include $(TOPDIR)Rules.make
+include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 MSRC=string.c
 MOBJ=strlen.o strcat.o strcpy.o strcmp.o strncat.o strncpy.o strncmp.o \
-	strchr.o strrchr.o strdup.o memcpy.o memccpy.o memset.o \
+	strrchr.o strdup.o memcpy.o memccpy.o memset.o \
 	memmove.o memcmp.o memchr.o
 
 MSRC1=index.c
@@ -34,7 +34,7 @@ MOBJ1=index.o rindex.o
 
 CSRC=strpbrk.c strsep.c strstr.c strtok.c strcspn.c config.c \
 	strspn.c strcasecmp.c strncasecmp.c strerror.c sys_siglist.c \
-	bcopy.c bzero.c bcmp.c
+	bcopy.c bzero.c bcmp.c strchr.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ1) $(COBJS)
 

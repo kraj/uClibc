@@ -22,7 +22,7 @@
 # respective copyright holders.
 
 TOPDIR=../../../
-include $(TOPDIR)Rules.make
+include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 #The file makefile.objs defines $(COBJS)

@@ -580,21 +580,14 @@ test_strsep (void)
   equal(one+2, "b", 49);
   equal(one+4, "c", 50);
 
-printf( "A\n");
   {
     char text[] = "This,is,a,test";
     char *list = strdup (text);
-printf( "B\n");
     equal (strsep (&list, ","), "This", 51);
-printf( "C\n");
     equal (strsep (&list, ","), "is", 52);
-printf( "D\n");
     equal (strsep (&list, ","), "a", 53);
-printf( "E\n");
     equal (strsep (&list, ","), "test", 54);
-printf( "F\n");
     check (strsep (&list, ",") == NULL, 55);
-printf( "G\n");
   }
 
   cp = strcpy(one, "a,b, c,, ,d,");
