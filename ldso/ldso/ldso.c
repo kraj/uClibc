@@ -20,11 +20,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  
  */
 
-/* Enable this to turn on debugging noise */
-//#define DL_DEBUG
-
-/* Enable mprotect protection munging.  ARM Linux needs this it seems,
- * so leave this enabled by default */
+/* Enable mprotect protection munging.  ARM and MIPS Linux needs this
+ * it seems, so leave this enabled by default */
 #define DO_MPROTECT_HACKS
 
 // Support a list of library preloads in /etc/ld.so.preload
@@ -209,10 +206,16 @@ DL_BOOT(unsigned long args)
 	Elf32_auxv_t auxvt[AT_EGID + 1];
 	unsigned char *malloc_buffer, *mmap_zero;
 	Elf32_Dyn *dpnt;
+	Elf32_Dyn *dpnt_debug = NULL;
 	unsigned long *hash_addr;
 	struct r_debug *debug_addr;
 	int indx;
 	int status;
+#if defined(__mips__)
+	unsigned long mips_gotsym = 0;
+	unsigned long mips_local_gotno = 0;
+	unsigned long mips_symtabno = 0;
+#endif
 
 
 	/* WARNING! -- we cannot make _any_ funtion calls until we have
@@ -223,7 +226,7 @@ DL_BOOT(unsigned long args)
 	/* First obtain the information on the stack that tells us more about
 	   what binary is loaded, where it is loaded, etc, etc */
 	GET_ARGV(aux_dat, args);
-#if defined(__arm__) || defined(__mips__)
+#if defined (__arm__) || defined (__mips__)
 	aux_dat += 1;
 #endif
 	argc = *(aux_dat - 1);
@@ -267,7 +270,7 @@ DL_BOOT(unsigned long args)
 		_dl_exit(0);
 	}
 #ifdef DL_DEBUG
-	SEND_STDERR("ELF header =");
+	SEND_STDERR("ELF header=");
 	SEND_ADDRESS_STDERR(load_addr, 1);
 #endif
 
@@ -287,7 +290,7 @@ DL_BOOT(unsigned long args)
 #elif defined(__powerpc__)
   __asm__("\tbl _GLOBAL_OFFSET_TABLE_-4@local\n\t":"=l"(got));
 #elif defined(__mips__)
-  __asm__("\tmove %0, $28\n\t":"=r"(got));
+  __asm__("\tmove %0, $28\n\tsubu %0,%0,0x7ff0\n\t":"=r"(got));
 #else
 	/* Do things the slow way in C */
 	{
@@ -334,7 +337,7 @@ DL_BOOT(unsigned long args)
 		_dl_exit(0);
 
 	  found_got:
-		got = (unsigned long *) (dynamic->d_un.d_val - tx_reloc + 
+		got = (unsigned long *) (dynamic->d_un.d_val - tx_reloc +
 				(char *) header);
 	}
 #endif
@@ -376,6 +379,14 @@ DL_BOOT(unsigned long args)
 				tpnt->dynamic_info[DT_TEXTREL] = 1;
 			}
 		}
+#if defined(__mips__)
+		if (dpnt->d_tag == DT_MIPS_GOTSYM)
+			mips_gotsym = (unsigned long) dpnt->d_un.d_val;
+		if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO)
+			mips_local_gotno = (unsigned long) dpnt->d_un.d_val;
+		if (dpnt->d_tag == DT_MIPS_SYMTABNO)
+			mips_symtabno = (unsigned long) dpnt->d_un.d_val;
+#endif
 		dpnt++;
 	}
 
@@ -394,7 +405,11 @@ DL_BOOT(unsigned long args)
 					}
 					app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
 					if (dpnt->d_tag == DT_DEBUG)
+#ifndef DO_MPROTECT_HACKS
 						dpnt->d_un.d_val = (unsigned long) debug_addr;
+#else
+						dpnt_debug = dpnt;
+#endif
 					if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT)
 						app_tpnt->dynamic_info[DT_TEXTREL] = 1;
 					dpnt++;
@@ -446,6 +461,16 @@ DL_BOOT(unsigned long args)
 			}
 		}
 	}
+
+	/* Now we can store the debug structure address */
+	dpnt_debug->d_un.d_val = (unsigned long) debug_addr;
+#endif
+
+
+	/* For MIPS, we have to do special stuff to the GOT before we do
+	   any relocations. */
+#if defined(__mips__)
+	PERFORM_BOOTSTRAP_GOT(got);
 #endif
 
 
@@ -454,6 +479,7 @@ DL_BOOT(unsigned long args)
 #ifdef DL_DEBUG
 	SEND_STDERR("About to do library loader relocations.\n");
 #endif
+
 	goof = 0;
 	for (indx = 0; indx < 2; indx++) {
 		int i;
@@ -475,7 +501,6 @@ DL_BOOT(unsigned long args)
 		rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] : tpnt->
 			 dynamic_info[DT_RELSZ]);
 #endif
-
 
 		if (!rel_addr)
 			continue;
@@ -499,6 +524,7 @@ DL_BOOT(unsigned long args)
 				if (!_dl_symbol(strtab + symtab[symtab_index].st_name))
 					continue;
 				symbol_addr = load_addr + symtab[symtab_index].st_value;
+					SEND_NUMBER_STDERR(symbol_addr,1);
 
 				if (!symbol_addr) {
 					/* This will segfault - you cannot call a function until

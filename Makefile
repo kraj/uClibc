@@ -332,16 +332,17 @@ finished2:
 
 distclean clean:
 	@rm -rf tmp lib include/bits libc/tmp _install
-	- find include -type l -exec rm -f {} \;
-	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec rm -f {} \;
 	$(MAKE) -C test clean
 	$(MAKE) -C ldso clean
 	$(MAKE) -C libc/misc clean
 	$(MAKE) -C libc/unistd clean
 	$(MAKE) -C libc/sysdeps/linux/common clean
-	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean
 	$(MAKE) -C extra/gcc-uClibc clean
-	find . -name mipsel -exec rm -rf {} \;
+	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
+	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
+	fi;
+	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec rm -f {} \;
+	- find -type l -exec rm -f {} \;
 
 dist release: distclean
 	cd ..;					\

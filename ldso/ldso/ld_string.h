@@ -221,7 +221,7 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 }
 
 
-#if defined mc68000 || defined __arm__
+#if defined mc68000 || defined __arm__ || defined __mips__
 /* On some arches constant strings are referenced through the GOT. */
 /* XXX Requires load_addr to be defined. */
 #define SEND_STDERR(X)				\

@@ -13,11 +13,8 @@ _dl_boot:
 	nop
 0:	.cpload $31
 	.set reorder
-	# i386 ABI book says that the first entry of GOT holds
-	# the address of the dynamic structure. Though MIPS ABI
-	# doesn't say nothing about this, I emulate this here.
+	# Store offset of DYNAMIC section in first entry of GOT
 	la $4, _DYNAMIC
-	# Subtract OFFSET_GP_GOT
 	sw $4, -0x7ff0($28)
 	move $4, $29
 	la $8, coff

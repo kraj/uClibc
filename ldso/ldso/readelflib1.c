@@ -308,7 +308,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	int flags;
 	char header[4096];
 	unsigned long dynamic_info[24];
-	int *lpnt;
+	unsigned long *lpnt;
 	unsigned long libaddr;
 	unsigned long minvma = 0xffffffff, maxvma = 0;
 
@@ -553,10 +553,11 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	 * resolved. 
 	 */
 
-	lpnt = (int *) dynamic_info[DT_PLTGOT];
+	lpnt = (unsigned long *) dynamic_info[DT_PLTGOT];
 
 	if (lpnt) {
-		lpnt = (int *) (dynamic_info[DT_PLTGOT] + ((int) libaddr));
+		lpnt = (unsigned long *) (dynamic_info[DT_PLTGOT] +
+			((int) libaddr));
 		INIT_GOT(lpnt, tpnt);
 	};
 
