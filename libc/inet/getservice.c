@@ -163,12 +163,14 @@ int getservent_r(struct servent * result_buf,
 
     if (servf == NULL && (servf = fopen(_PATH_SERVICES, "r" )) == NULL) {
 	UNLOCK;
+	errno=EIO;
 	return errno;
     }
 again:
     if ((p = fgets(line, BUFSIZ, servf)) == NULL) {
 	UNLOCK;
-	return TRY_AGAIN;
+	errno=EIO;
+	return errno;
     }
     if (*p == '#')
 	goto again;
