@@ -66,7 +66,11 @@ headers: dummy
 	@if [ $(TARGET_ARCH) = "powerpc" ];then \
 	    ln -s $(KERNEL_SOURCE)/include/asm-ppc include/asm; \
 	else \
-	    ln -s $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
+	    if [ $(HAS_MMU) != "true" ]; then \
+			ln -s $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu include/asm;\
+		else \
+			ln -s $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
+		fi; \
 	fi;
 	@if [ ! -f include/asm/unistd.h ] ; then \
 	    echo " "; \
