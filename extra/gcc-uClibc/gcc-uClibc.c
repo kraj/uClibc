@@ -226,8 +226,6 @@ int main(int argc, char **argv)
 				case 'c':		/* compile or assemble */
 				case 'S':		/* generate assembler code */
 				case 'E':		/* preprocess only */
-				case 'r':		/* partial-link */
-				case 'i':		/* partial-link */
 				case 'M':	    /* generate dependencies */
 					linking = 0;
 					break;
