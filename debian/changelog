@@ -1,8 +1,29 @@
+uclibc (0.9.12-2) unstable; urgency=low
+
+  * Make sure MAS_MMU=true on m68k
+
+ -- David Schleef <ds@schleef.org>  Thu, 27 Jun 2002 15:04:59 -0700
+
+uclibc (0.9.12-1) unstable; urgency=low
+
+  * New upstream release.
+  * Attempt to fix MIPS build again. (Closes: #150313)
+
+ -- David Schleef <ds@schleef.org>  Mon, 24 Jun 2002 16:26:18 -0700
+
+uclibc (0.9.11-cvs20020619-1) unstable; urgency=low
+
+  * This is an automatic snapshot of uClibc CVS
+  * new snapshot
+  * MIPS build should have been fixed in the last entry, which
+    was not actually uploaded (Closes: #150313).
+
+ -- David Schleef <ds@schleef.org>  Wed, 19 Jun 2002 11:45:59 -0700
+
 uclibc (0.9.11-cvs20020420-1) unstable; urgency=low
 
   * Many of the configs have broken CROSS definitions.  Compensate
     for that in debian/rules.
-  * Install more documentation
 
  -- David Schleef <ds@schleef.org>  Sat, 20 Apr 2002 15:40:39 -0700
 

@@ -1,15 +1,12 @@
 
-
-
-Notes about building:
-
 The script mksnapshot will automatically download a new snapshot
-from the uClibc CVS server.  This uses the uclinux.org anonymous
-CVS repository, which is a read-only mirror of the actual upstream
-repository.
+from the uClibc CVS server.
 
-Building depends on the kernel-source-2.4.18 package.  Doing this
-is really the most convenient way of getting kernel headers, and
-it works consistently on all architectures.
+Notes on Build-Depends:
+
+  kernel-headers | kernel-headers-2.4.10 autobuilt on i386 and powerpc
+
+  kernel-headers-2.4 autobuilt on xxx
+
 
 

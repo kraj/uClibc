@@ -13,7 +13,8 @@ major=$(shell grep '^MAJOR_VERSION' Rules.mak|sed 's/.*=//')
 minor=$(shell grep '^MINOR_VERSION' Rules.mak|sed 's/.*=//')
 version:=$(strip $(major)).$(strip $(minor))
 
-kernel_source=kernel-source-2.4.18
+kernel_version=2.4.18
+kernel_source=kernel-source-$(kernel_version)
 
 target=$(DEB_HOST_GNU_CPU)
 #target=arm
@@ -77,15 +78,16 @@ build-stamp: debian/control
 	# Various stupid programs use linux/version.h to find the
 	# Linux version.
 	( \
-		echo '#define UTS_RELEASE "2.4.16"' \
-		echo '#define LINUX_VERSION_CODE 132112' \
-		echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))' \
+		echo '#define UTS_RELEASE "$(kernel_version)"'; \
+		echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))'; \
+		echo '#define LINUX_VERSION_CODE KERNEL_VERSION($(shell echo $(kernel_version) | sed s/\\./,/g))'; \
 	) >$(kernel_source)/include/linux/version.h
 
 	extra/Configs/uClibc_config_fix.pl \
 		--arch=$(target) \
 		$(cross_options) \
 		--devel_prefix=/usr/$(target)-linux-uclibc \
+		--system_devel_prefix=/usr \
 		--kernel_dir=`pwd`/$(kernel_source) \
 		--large_file=true \
 		--rpc_support=true \
@@ -94,6 +96,7 @@ build-stamp: debian/control
 		--long_long=true \
 		--float=true \
 		--shadow=true \
+		--mmu=true \
 		--ldso_path="/lib" \
 		--shared_support=$(shared_libs_true) \
 		--file=$(config_orig) \
