@@ -2,15 +2,26 @@
 #include <errno.h>
 #include <asm/ptrace.h>
 #include <sys/syscall.h>
+#include <stdarg.h>
 
 int
-ptrace(int request, int pid, int addr, int data)
+ptrace(int request, ... /* int pid, int addr, int data */)
 {
 	long ret;
 	long res;
+	int pid,addr,data;
+	va_list ap;
+
+	va_start(ap,request);
+	pid  = va_arg(ap,int);
+	addr = va_arg(ap,int);
+	data = va_arg(ap,int);
+	va_end(ap);
+
 	if (request > 0 && request < 4) (long *)data = &ret;
 
-	__asm__ volatile ("mov.l %1,er0\n\t"
+	__asm__ volatile ("sub.l er0,er0\n\t"
+                          "mov.b %1,r0l\n\t"
 			  "mov.l %2,er1\n\t"
 			  "mov.l %3,er2\n\t"
 			  "mov.l %4,er3\n\t"
