@@ -71,7 +71,11 @@ endchoice
 
 config ARCH_HAS_NO_MMU
 	bool
-	default y if CONFIG_SH2 || CONFIG_SH3
+	default y if CONFIG_SH2
+
+config ARCH_HAS_NO_FPU
+       bool
+       default y if CONFIG_SH2 || CONFIG_SH3
 
 source "extra/Configs/Config.in.arch"
 
