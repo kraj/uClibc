@@ -20,7 +20,7 @@ TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 ASFLAGS=$(CFLAGS)
 
-CRT0_SRC = crt0.c
+CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o
 
 SSRC= setjmp.S __longjmp.S clone.S sysdep.S syscall.S
