@@ -39,7 +39,7 @@ toascii( int c )
 
 
 /* locale depended */
-#if !__UCLIBC_HAS_LOCALE__
+#ifndef __UCLIBC_HAS_LOCALE__
 
 #ifdef L_isalpha
 int
@@ -154,7 +154,7 @@ toupper( int c )
 }
 #endif
 
-#else   /* __UCLIBC_HAS_LOCALE__ == 1 */
+#else   /* __UCLIBC_HAS_LOCALE__ */
 
 #include <limits.h>
 #include "./ctype.h"

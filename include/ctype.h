@@ -10,7 +10,7 @@
 #define __USE_CTYPE_C_FUNCTIONS
 
 /* Locale-compatible macros/inlines have yet to be implemented. */
-#if __UCLIBC_HAS_LOCALE__ && !defined(__USE_CTYPE_C_FUNCTIONS)
+#if defined(__UCLIBC_HAS_LOCALE__) && !defined(__USE_CTYPE_C_FUNCTIONS)
 #define __USE_CTYPE_C_FUNCTIONS
 #endif
 

@@ -25,7 +25,7 @@
 
 #ifdef L_setlocale
 
-#if __UCLIBC_HAS_LOCALE__
+#ifdef __UCLIBC_HAS_LOCALE__
 
 static char C_LOCALE_NAME[]="C";
 
