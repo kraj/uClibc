@@ -64,9 +64,20 @@ finished: shared
 	@echo
 
 #
-# dummy target for uClinux distro
+# Target for uClinux distro
 #
 romfs:
+ifeq ($(strip $(HAVE_SHARED)),true)
+	install -d $(ROMFSDIR)/lib
+	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+		$(ROMFSDIR)/lib
+	cp -a lib/*.so.* $(ROMFSDIR)/lib
+	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
+	    set -x -e; \
+	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	    		$(ROMFSDIR)/lib; \
+	fi;
+endif
 
 headers: dummy
 	rm -f include/asm;
