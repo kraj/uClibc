@@ -22,7 +22,7 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC = fstatfs64.c fstatvfs.c statfs64.c statvfs.c
+CSRC = fstatfs64.c statfs64.c statvfs.c statvfs64.c fstatvfs.c fstatvfs64.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
