@@ -226,7 +226,7 @@ ifeq ($(strip $(TARGET_ARCH)),arm)
 endif
 endif
 
-ifneq ($(UCLIBC_PIE_SUPPORT),y)
+ifneq ($(UCLIBC_BUILD_PIE),y)
 PIEFLAG=
 LDPIEFLAG=
 endif

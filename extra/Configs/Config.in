@@ -205,7 +205,7 @@ config FORCE_SHAREABLE_TEXT_SEGMENTS
 	  little bit smaller and guarantee that no memory will be wasted by badly
 	  coded shared libraries.
 
-config UCLIBC_PIE_SUPPORT
+config UCLIBC_BUILD_PIE
 	bool "Build utilities as ET_DYN/PIE executables"
 	depends on HAVE_SHARED
 	depends on TARGET_i386 || TARGET_powerpc || TARGET_frv
