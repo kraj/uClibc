@@ -28,15 +28,15 @@
 
 include Rules.mak
 
-DIRS = misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd extra
+DIRS = extra misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd crypt
 
 ifeq ($(strip $(HAS_MMU)),true)
 	DO_SHARED=shared
 endif
 
-all: $(LIBNAME) $(DO_SHARED) done
+all: halfclean headers uClibc_config.h subdirs $(LIBNAME) $(DO_SHARED) done
 
-$(LIBNAME): halfclean headers uClibc_config.h subdirs
+$(LIBNAME): subdirs
 	$(CROSS)ranlib $(LIBNAME)
 
 shared: $(LIBNAME)
@@ -57,6 +57,7 @@ shared: $(LIBNAME)
 	@rm -rf tmp
 	ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME)
 	ln -sf $(SHARED_MAJORNAME) libc.so
+	@make -C crypt shared
 	@make -C ld.so-1
 
 done: $(LIBNAME) $(DO_SHARED)
@@ -66,7 +67,7 @@ done: $(LIBNAME) $(DO_SHARED)
 
 halfclean:
 	@rm -f $(LIBNAME) crt0.o uClibc_config.h
-	@rm -f $(SHARED_FULLNAME) $(SHARED_MAJORNAME) libc.so
+	@rm -f $(SHARED_FULLNAME) $(SHARED_MAJORNAME) uClibc-0.* libc.so*
 
 headers: dummy
 	@rm -f include/asm include/linux include/bits
@@ -111,12 +112,13 @@ install: install_runtime install_dev install_ldso
 
 # Installs shared library
 install_runtime:
+	@make -C crypt install
 ifneq ($(DO_SHARED),)
 	install -d $(INSTALL_DIR)/lib
 	rm -rf $(INSTALL_DIR)/lib/$(SHARED_FULLNAME)
 	rm -rf $(INSTALL_DIR)/lib/$(SHARED_MAJORNAME)
 	rm -rf $(INSTALL_DIR)/lib/libc.so
-	install -m 644 $(SHARED_FULLNAME) $(INSTALL_DIR)/lib/
+	install -m 755 $(SHARED_FULLNAME) $(INSTALL_DIR)/lib/
 	(cd $(INSTALL_DIR)/lib;ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME))
 	(cd $(INSTALL_DIR)/lib;ln -sf $(SHARED_MAJORNAME) libc.so)
 # ldconfig is really not necessary, and impossible to cross
@@ -152,6 +154,7 @@ install_dev:
 install_ldso:
 ifeq ($(strip $(DO_SHARED)),shared)
 	@make -C ld.so-1 install
+	$(TOPDIR)ld.so-1/util/ldconfig
 else
 	@echo "Skipping shared library support"
 endif
@@ -200,5 +203,5 @@ uClibc_config.h: Config
 	    echo "#undef NO_UNDERSCORES" >> uClibc_config.h ; \
 	fi
 
-.PHONY: dummy
+.PHONY: dummy subdirs
 

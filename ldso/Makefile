@@ -2,19 +2,18 @@ TOPDIR=../
 include Rules.mak
 
 SUBDIRS = util d-link libdl # man
-TARGETDIR=/usr/$(TARGET_ARCH)-linux-uclibc
-
 
 
 all:
 	set -e ; for d in $(SUBDIRS) ; do $(MAKE) -C $$d ; done
 
 install: all
-	mkdir -p $(TARGETDIR)/etc
-	mkdir -p $(TARGETDIR)/lib
-	cp -a ./d-link/$(DLINKER).$(LDSO_VMAJOR) \
-		./libdl/$(LIBDL).$(LDSO_VMAJOR) $(TARGETDIR)/lib 
-	./util/ldconfig
+	install -d $(INSTALL_DIR)/lib
+	install -d $(INSTALL_DIR)/etc
+	install -m 755 ./d-link/$(DLINKER).$(LDSO_VMAJOR) $(INSTALL_DIR)/lib/
+	install -m 644 ./libdl/$(LIBDL).$(LDSO_VMAJOR) $(INSTALL_DIR)/lib/
+	(cd $(INSTALL_DIR)/lib/;ln -sf $(DLINKER).$(LDSO_VMAJOR) $(DLINKER))
+	(cd $(INSTALL_DIR)/lib/;ln -sf $(LIBDL).$(LDSO_VMAJOR) $(LIBDL))
 
 clean:
 	set -e ; for d in $(SUBDIRS) ; do $(MAKE) -C $$d $@ ; done
