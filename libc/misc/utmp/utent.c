@@ -107,19 +107,6 @@ struct utmp *getutent(void)
     return __getutent(static_fd);
 }
 
-#if 0
-struct utmp * getutent(void)
-{
-    struct utmp *result;
-    static struct utmp buffer;
-
-    if (getutent_r(&buffer, &result) < 0)
-	return NULL;
-
-    return result;
-}
-#endif
-
 /* Locking is done in __getutent */
 struct utmp *getutid (const struct utmp *utmp_entry)
 {
