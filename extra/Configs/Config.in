@@ -367,4 +367,15 @@ config SUPPORT_LD_DEBUG_EARLY
 	  to debug the uClibc shared library loader early initialization,
 	  answer Y.  Mere mortals answer N.
 
+config UCLIBC_MALLOC_DEBUGGING
+	bool "Build malloc with debugging support"
+	depends MALLOC
+	default n
+	help
+	  Answer Y here to compile extra debugging support code into malloc.
+	  Malloc debugging output may then be enabled at runtime using
+	  the MALLOC_DEBUG environment variable.  Because this increases
+	  the size of malloc appreciably (due to strings etc), you
+	  should say N unless you need to debug a malloc problem.
+
 endmenu

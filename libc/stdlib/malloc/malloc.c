@@ -29,10 +29,6 @@ struct heap __malloc_heap = HEAP_INIT_WITH_FA (initial_fa);
 malloc_mutex_t __malloc_sbrk_lock;
 #endif /* MALLOC_USE_LOCKING && MALLOC_USE_SBRK */
 
-#ifdef MALLOC_DEBUGGING
-int __malloc_debug = 0;
-#endif
-
 
 #ifdef __UCLIBC_UCLINUX_BROKEN_MUNMAP__
 /* A list of all malloc_mmb structures describing blocsk that
@@ -44,10 +40,6 @@ struct malloc_mmb *__malloc_mmapped_blocks = 0;
    annoying ways.  */
 HEAP_DECLARE_STATIC_FREE_AREA (initial_mmb_fa, 48); /* enough for 3 mmbs */
 struct heap __malloc_mmb_heap = HEAP_INIT_WITH_FA (initial_mmb_fa);
-
-# ifdef MALLOC_MMB_DEBUGGING
-int __malloc_mmb_debug = 0;
-# endif
 #endif /* __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
 
 
@@ -56,7 +48,7 @@ malloc_from_heap (size_t size, struct heap *heap)
 {
   void *mem;
 
-  MALLOC_DEBUG ("malloc: %d bytes\n", size);
+  MALLOC_DEBUG (1, "malloc: %d bytes", size);
 
   /* Include extra space to record the size of the allocated block.  */
   size += MALLOC_HEADER_SIZE;
@@ -121,7 +113,7 @@ malloc_from_heap (size_t size, struct heap *heap)
 	  struct malloc_mmb *mmb, *prev_mmb, *new_mmb;
 #endif
 
-	  MALLOC_DEBUG ("  adding memory: 0x%lx - 0x%lx (%d bytes)\n",
+	  MALLOC_DEBUG (1, "adding system memroy to heap: 0x%lx - 0x%lx (%d bytes)",
 			(long)block, (long)block + block_size, block_size);
 
 	  /* Get back the heap lock.  */
@@ -129,6 +121,8 @@ malloc_from_heap (size_t size, struct heap *heap)
 
 	  /* Put BLOCK into the heap.  */
 	  __heap_free (heap, block, block_size);
+
+	  MALLOC_DEBUG_INDENT (-1);
 
 	  /* Try again to allocate.  */
 	  mem = __heap_alloc (heap, &size);
@@ -155,7 +149,7 @@ malloc_from_heap (size_t size, struct heap *heap)
 	  else
 	    __malloc_mmapped_blocks = new_mmb;
 
-	  MALLOC_MMB_DEBUG ("  new mmb at 0x%x: 0x%x[%d]\n",
+	  MALLOC_MMB_DEBUG (0, "new mmb at 0x%x: 0x%x[%d]",
 			    (unsigned)new_mmb,
 			    (unsigned)new_mmb->mem, block_size);
 #endif /* !MALLOC_USE_SBRK && __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
@@ -167,9 +161,11 @@ malloc_from_heap (size_t size, struct heap *heap)
     {
       mem = MALLOC_SETUP (mem, size);
 
-      MALLOC_DEBUG ("  malloc: returning 0x%lx (base:0x%lx, total_size:%d)\n",
+      MALLOC_DEBUG (-1, "malloc: returning 0x%lx (base:0x%lx, total_size:%ld)",
 		    (long)mem, (long)MALLOC_BASE(mem), (long)MALLOC_SIZE(mem));
     }
+  else
+    MALLOC_DEBUG (-1, "malloc: returning 0");
 
   return mem;
 }
@@ -177,5 +173,16 @@ malloc_from_heap (size_t size, struct heap *heap)
 void *
 malloc (size_t size)
 {
+#ifdef MALLOC_DEBUGGING
+  static int debugging_initialized = 0;
+  if (! debugging_initialized)
+    {
+      debugging_initialized = 1;
+      __malloc_debug_init ();
+    }
+  if (__malloc_check)
+    __heap_check (&__malloc_heap, "malloc");
+#endif
+
   return malloc_from_heap (size, &__malloc_heap);
 }

@@ -43,7 +43,7 @@ realloc (void *mem, size_t new_size)
      allocation unit (SIZE is already guaranteed to be so).*/
   new_size = HEAP_ADJUST_SIZE (new_size + MALLOC_HEADER_SIZE);
 
-  MALLOC_DEBUG ("realloc: 0x%lx, %d (base = 0x%lx, total_size = %d)\n",
+  MALLOC_DEBUG (1, "realloc: 0x%lx, %d (base = 0x%lx, total_size = %d)",
 		(long)mem, new_size, (long)base_mem, size);
 
   if (new_size > size)
@@ -81,9 +81,10 @@ realloc (void *mem, size_t new_size)
     }
 
   if (mem)
-    MALLOC_DEBUG ("  realloc: returning 0x%lx"
-		  " (base:0x%lx, total_size:%d)\n",
+    MALLOC_DEBUG (-1, "realloc: returning 0x%lx (base:0x%lx, total_size:%d)",
 		  (long)mem, (long)MALLOC_BASE(mem), (long)MALLOC_SIZE(mem));
+  else
+    MALLOC_DEBUG (-1, "realloc: returning 0");
 
   return mem;
 }

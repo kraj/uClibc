@@ -78,12 +78,18 @@ extern struct heap __malloc_mmb_heap;
    about mmap block allocation/freeing by the `uclinux broken munmap' code
    to stderr, when the variable __malloc_mmb_debug is set to true. */
 #ifdef MALLOC_MMB_DEBUGGING
-#include <stdio.h>
+# include <stdio.h>
 extern int __malloc_mmb_debug;
-#define MALLOC_MMB_DEBUG(fmt, args...) \
-  (__malloc_mmb_debug ? fprintf (stderr, fmt , ##args) : 0)
+# define MALLOC_MMB_DEBUG(indent, fmt, args...)				      \
+   (__malloc_mmb_debug ? __malloc_debug_printf (indent, fmt , ##args) : 0)
+# define MALLOC_MMB_DEBUG_INDENT(indent)				      \
+   (__malloc_mmb_debug ? __malloc_debug_indent (indent) : 0)
+# ifndef MALLOC_DEBUGGING
+#  define MALLOC_DEBUGGING
+# endif
 #else /* !MALLOC_MMB_DEBUGGING */
-#define MALLOC_MMB_DEBUG(fmt, args...) (void)0
+# define MALLOC_MMB_DEBUG(fmt, args...) (void)0
+# define MALLOC_MMB_DEBUG_INDENT(indent) (void)0
 #endif /* MALLOC_MMB_DEBUGGING */
 
 #endif /* __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
@@ -158,13 +164,30 @@ extern malloc_mutex_t __malloc_sbrk_lock;
 /* Define MALLOC_DEBUGGING to cause malloc to emit debugging info to stderr
    when the variable __malloc_debug is set to true. */
 #ifdef MALLOC_DEBUGGING
-#include <stdio.h>
-extern int __malloc_debug;
-#define MALLOC_DEBUG(fmt, args...) \
-  (__malloc_debug ? fprintf (stderr, fmt , ##args) : 0)
-#else
-#define MALLOC_DEBUG(fmt, args...) (void)0
-#endif
+
+extern int __malloc_debug, __malloc_check;
+
+# define MALLOC_DEBUG(indent, fmt, args...)				      \
+   (__malloc_debug ? __malloc_debug_printf (indent, fmt , ##args) : 0)
+# define MALLOC_DEBUG_INDENT(indent)					      \
+   (__malloc_debug ? __malloc_debug_indent (indent) : 0)
+
+extern int __malloc_debug_cur_indent;
+
+/* Print FMT and args indented at the current debug print level, followed
+   by a newline, and change the level by INDENT.  */
+extern void __malloc_debug_printf (int indent, const char *fmt, ...);
+
+/* Change the current debug print level by INDENT.  */
+#define __malloc_debug_indent(indent) (__malloc_debug_cur_indent += indent)
+
+/* Set the current debug print level to LEVEL.  */
+#define __malloc_debug_set_indent(level) (__malloc_debug_cur_indent = level)
+
+#else /* !MALLOC_DEBUGGING */
+# define MALLOC_DEBUG(fmt, args...) (void)0
+# define MALLOC_DEBUG_INDENT(indent) (void)0
+#endif /* MALLOC_DEBUGGING */
 
 
 /* Return SZ rounded down to POWER_OF_2_SIZE (which must be power of 2).  */

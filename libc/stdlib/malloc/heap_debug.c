@@ -16,6 +16,7 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include "malloc.h"
 #include "heap.h"
 
 
@@ -29,14 +30,14 @@ __heap_dump_freelist (struct heap *heap)
 {
   struct heap_free_area *fa;
   for (fa = heap->free_areas; fa; fa = fa->next)
-    fprintf (stderr,
-	     "    0x%lx:  0x%lx - 0x%lx  (%d)\tP=0x%lx, N=0x%lx\n",
-	     (long)fa,
-	     (long)HEAP_FREE_AREA_START (fa),
-	     (long)HEAP_FREE_AREA_END (fa),
-	     fa->size,
-	     (long)fa->prev,
-	     (long)fa->next);
+    __malloc_debug_printf (0,
+			   "0x%lx:  0x%lx - 0x%lx  (%d)\tP=0x%lx, N=0x%lx",
+			   (long)fa,
+			   (long)HEAP_FREE_AREA_START (fa),
+			   (long)HEAP_FREE_AREA_END (fa),
+			   fa->size,
+			   (long)fa->prev,
+			   (long)fa->next);
 }
 
 /* Output a text representation of HEAP to stderr, labelling it with STR.  */
@@ -51,8 +52,9 @@ __heap_dump (struct heap *heap, const char *str)
 
       recursed = 1;
 
-      fprintf (stderr, "  %s: heap @0x%lx:\n", str, (long)heap);
+      __malloc_debug_printf (1, "%s: heap @0x%lx:", str, (long)heap);
       __heap_dump_freelist (heap);
+      __malloc_debug_indent (-1);
 
       recursed = 0;
     }
@@ -76,7 +78,10 @@ __heap_check_failure (struct heap *heap, struct heap_free_area *fa,
   vfprintf (stderr, fmt, val);
   va_end (val);
 
-  fprintf (stderr, "\nheap dump:\n");
+  putc ('\n', stderr);
+
+  __malloc_debug_set_indent (0);
+  __malloc_debug_printf (1, "heap dump:");
   __heap_dump_freelist (heap);
 
   exit (22);

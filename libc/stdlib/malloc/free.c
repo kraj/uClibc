@@ -31,7 +31,7 @@ free_to_heap (void *mem, struct heap *heap)
 
   /* Normal free.  */
 
-  MALLOC_DEBUG ("free: 0x%lx (base = 0x%lx, total_size = %d)\n",
+  MALLOC_DEBUG (1, "free: 0x%lx (base = 0x%lx, total_size = %d)",
 		(long)mem, (long)MALLOC_BASE (mem), MALLOC_SIZE (mem));
 
   size = MALLOC_SIZE (mem);
@@ -76,7 +76,7 @@ free_to_heap (void *mem, struct heap *heap)
 	 reasonably cheap.  */
       if ((void *)end != sbrk (0))
 	{
-	  MALLOC_DEBUG ("  not unmapping: 0x%lx - 0x%lx (%ld bytes)\n",
+	  MALLOC_DEBUG (-1, "not unmapping: 0x%lx - 0x%lx (%ld bytes)",
 			start, end, end - start);
 	  __malloc_unlock_sbrk ();
 	  __heap_unlock (heap);
@@ -84,7 +84,7 @@ free_to_heap (void *mem, struct heap *heap)
 	}
 #endif
 
-      MALLOC_DEBUG ("  unmapping: 0x%lx - 0x%lx (%ld bytes)\n",
+      MALLOC_DEBUG (0, "unmapping: 0x%lx - 0x%lx (%ld bytes)",
 		    start, end, end - start);
 
       /* Remove FA from the heap.  */
@@ -119,7 +119,8 @@ free_to_heap (void *mem, struct heap *heap)
 	 exactly as we got them from mmap, so scan through our list of
 	 mmapped blocks, and return them in order.  */
 
-      MALLOC_MMB_DEBUG ("  walking mmb list for region 0x%x[%d]...\n", start, end - start);
+      MALLOC_MMB_DEBUG (1, "walking mmb list for region 0x%x[%d]...",
+			start, end - start);
 
       prev_mmb = 0;
       mmb = __malloc_mmapped_blocks;
@@ -127,7 +128,7 @@ free_to_heap (void *mem, struct heap *heap)
 	     && ((mmb_end = (mmb_start = (unsigned long)mmb->mem) + mmb->size)
 		 <= end))
 	{
-	  MALLOC_MMB_DEBUG ("    considering mmb at 0x%x: 0x%x[%d]\n",
+	  MALLOC_MMB_DEBUG (1, "considering mmb at 0x%x: 0x%x[%d]",
 			    (unsigned)mmb, mmb_start, mmb_end - mmb_start);
 
 	  if (mmb_start >= start
@@ -143,17 +144,19 @@ free_to_heap (void *mem, struct heap *heap)
 		   this block, so give up.  */
 		break;
 
-	      MALLOC_MMB_DEBUG ("      unmapping mmb at 0x%x: 0x%x[%d]\n",
+	      MALLOC_MMB_DEBUG (1, "unmapping mmb at 0x%x: 0x%x[%d]",
 				(unsigned)mmb, mmb_start, mmb_end - mmb_start);
 
 	      if (mmb_start != start)
 		/* We're going to unmap a part of the heap that begins after
 		   start, so put the intervening region back into the heap.  */
 		{
-		  MALLOC_MMB_DEBUG ("        putting intervening region back into heap: 0x%x[%d]\n",
+		  MALLOC_MMB_DEBUG (0, "putting intervening region back into heap: 0x%x[%d]",
 				    start, mmb_start - start);
 		  __heap_free (heap, (void *)start, mmb_start - start);
 		}
+
+	      MALLOC_MMB_DEBUG_INDENT (-1);
 
 	      /* Unlink MMB from the list.  */
 	      if (prev_mmb)
@@ -194,16 +197,20 @@ free_to_heap (void *mem, struct heap *heap)
 	      prev_mmb = mmb;
 	      mmb = mmb->next;
 	    }
+
+	  MALLOC_MMB_DEBUG_INDENT (-1);
 	}
 
       if (start != end)
 	/* Hmm, well there's something we couldn't unmap, so put it back
 	   into the heap.  */
 	{
-	  MALLOC_MMB_DEBUG ("    putting tail region back into heap: 0x%x[%d]\n",
+	  MALLOC_MMB_DEBUG (0, "putting tail region back into heap: 0x%x[%d]",
 			    start, end - start);
 	  __heap_free (heap, (void *)start, end - start);
 	}
+
+      MALLOC_MMB_DEBUG_INDENT (-1);
 
 # else /* !__UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
 
@@ -241,6 +248,8 @@ free_to_heap (void *mem, struct heap *heap)
 
 #endif /* MALLOC_USE_SBRK */
     }
+
+  MALLOC_DEBUG_INDENT (-1);
 }
 
 void
