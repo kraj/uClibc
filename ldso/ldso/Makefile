@@ -5,7 +5,7 @@ include $(TOPDIR)/ld.so-1/Config.mk
 DIRS = $(TARGET_ARCH) libdl
 
 CFLAGS += -DNO_UNDERSCORE -DVERBOSE_DLINKER
-CFLAGS += -DUSE_CACHE #-fPIC -D__PIC__ #-funroll-loops
+CFLAGS += -DUSE_CACHE -fPIC -D__PIC__ #-funroll-loops
 
 CSRC= boot1.c hash.c readelflib1.c vsprintf.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
