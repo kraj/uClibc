@@ -12,7 +12,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** Library General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU Library General Public
 ** License along with the NYS Library; see the file COPYING.LIB.  If
 ** not, write to the Free Software Foundation, Inc., 675 Mass Ave,
@@ -210,8 +210,8 @@ again:
     return 0;
 }
 
-int getservbyname_r(const char *name, const char *proto, 
-	struct servent * result_buf, char * buf, size_t buflen, 
+int getservbyname_r(const char *name, const char *proto,
+	struct servent * result_buf, char * buf, size_t buflen,
 	struct servent ** result)
 {
     register char **cp;
@@ -236,8 +236,8 @@ gotname:
     return *result?0:ret;
 }
 
-int getservbyport_r(int port, const char *proto, 
-	struct servent * result_buf, char * buf, 
+int getservbyport_r(int port, const char *proto,
+	struct servent * result_buf, char * buf,
 	size_t buflen, struct servent ** result)
 {
     int ret;
