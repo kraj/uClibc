@@ -33,8 +33,8 @@ LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
 XXFLAGS+=-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 	-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 	-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\"
-LDFLAGS=-nostdlib -shared --warn-common --export-dynamic --warn-once \
-	-z combreloc --sort-common --discard-locals --discard-all
+LDFLAGS=-shared --warn-common --export-dynamic --sort-common \
+	-z combreloc --discard-locals --discard-all
 CSRC= ldso.c #hash.c readelflib1.c $(TARGET_ARCH)/elfinterp.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 ASRC=$(shell ls $(TARGET_ARCH)/*.S)
@@ -48,8 +48,8 @@ endif
 all: lib
 
 lib:: ldso.h $(OBJS) $(DLINK_OBJS)
-	$(CC) -e _dl_boot $(LDFLAGS) -o $(LDSO_FULLNAME) \
-	    -Wl,-soname=$(UCLIBC_LDSO) $(OBJS)
+	$(LD) $(LDFLAGS) -e _dl_boot -soname=$(UCLIBC_LDSO) \
+		-o $(LDSO_FULLNAME) $(OBJS);
 	install -d $(TOPDIR)lib 
 	install -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
 	(cd $(TOPDIR)lib && ln -sf $(LDSO_FULLNAME) $(UCLIBC_LDSO))
