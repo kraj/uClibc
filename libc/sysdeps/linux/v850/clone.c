@@ -4,9 +4,9 @@
  *  Copyright (C) 2002  NEC Electronics Corporation
  *  Copyright (C) 2002  Miles Bader <miles@gnu.org>
  *
- * This file is subject to the terms and conditions of the GNU General
- * Public License.  See the file COPYING in the main directory of this
- * archive for more details.
+ * This file is subject to the terms and conditions of the GNU Lesser
+ * General Public License.  See the file COPYING.LIB in the main
+ * directory of this archive for more details.
  *
  * Written by Miles Bader <miles@gnu.org>
  */
