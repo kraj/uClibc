@@ -170,8 +170,10 @@ ifeq ($(strip $(TARGET_ARCH)),cris)
 	PICFLAG=-fpic
 endif
 
-# use '-Os' optimization if available, else use -O2, allow Config to override
+# Use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
+# Use the gcc 3.4 -funit-at-a-time optimization when available
+OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
 
 
 # Add a bunch of extra pedantic annoyingly strict checks
