@@ -23,8 +23,7 @@
 #include <string.h>
 #include <netdb.h>
 
-#ifdef L_herror
-
+static const char *error_msg = "Resolver error";
 static const char *const h_errlist[] = {
 	"Error 0",
 	"Unknown host",			    /* 1 HOST_NOT_FOUND */
@@ -47,19 +46,16 @@ void herror(const char *s)
 	if (!s || !*s) {
 		c += 2;
 	}
-	p = "Resolver error";
+	p = error_msg;
 	if ((h_errno >= 0) && (h_errno < h_nerr)) {
 	    p = h_errlist[h_errno];
 	}
 	fprintf(stderr, "%s%s%s\n", s, c, p);
 }
 
-#endif
 
-#ifdef L_hstrerror
 const char *hstrerror(int err)
 {
-    const char *error_msg = "Resolver error";
     if (err < 0) {
 	return(error_msg);
     } else if (err < h_nerr) {
@@ -67,4 +63,3 @@ const char *hstrerror(int err)
     }
     return(error_msg);
 }
-#endif

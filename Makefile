@@ -33,7 +33,7 @@ include Rules.mak
 
 DIRS = extra ldso libc libcrypt libresolv libutil libm #libpthread
 
-all: headers uClibc_config.h subdirs shared done
+all: headers uClibc_config.h subdirs shared finished
 
 Config:
 	@echo
@@ -58,7 +58,7 @@ else
 	@echo
 endif
 
-done: shared
+finished: shared
 	@echo
 	@echo Finally finished compiling...
 	@echo
@@ -182,7 +182,7 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 tags:
 	ctags -R
 
-install: install_dev install_runtime install_toolchain install_utils
+install: install_dev install_runtime install_toolchain install_utils finished2
 
 
 # Installs header files and development library links.
@@ -272,6 +272,12 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	    install -m 755 ldso/util/ldconfig.target $(PREFIX)$(TARGET_PREFIX)/sbin/ldconfig; \
 	fi;
 endif
+
+finished2:
+	@echo
+	@echo Finished installing...
+	@echo
+
 
 distclean clean:
 	@rm -rf tmp lib include/bits/uClibc_config.h uClibc_config.h
