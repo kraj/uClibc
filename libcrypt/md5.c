@@ -86,7 +86,7 @@ static void   __md5_Init (struct MD5Context *);
 static void   __md5_Update (struct MD5Context *, const unsigned char *, unsigned int);
 static void   __md5_Pad (struct MD5Context *);
 static void   __md5_Final (unsigned char [16], struct MD5Context *);
-static char * __md5_crypt_r( const char *pw, const char *salt, struct crypt_data * data);
+//static char * __md5_crypt_r( const char *pw, const char *salt, struct crypt_data * data);
 static void __md5_Transform __P((u_int32_t [4], const unsigned char [64]));
 
 
@@ -533,7 +533,7 @@ static void __md5_to64( char *s, unsigned long v, int n)
  * Use MD5 for what it is best at...
  */
 
-static char * __md5_crypt_r( const char *pw, const char *salt, struct crypt_data * data)
+extern char * __md5_crypt_r( const char *pw, const char *salt, struct crypt_data * data)
 {
 	char *p = data->p;
 	const char *sp = data->sp;

@@ -21,11 +21,14 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#define __FORCE_GLIBC
 #include <crypt.h>
 #include <unistd.h>
 
 /* For use by the old, non-reentrant routines (crypt/encrypt/setkey)  */
 static struct crypt_data __crypt_data;
+extern char * __md5_crypt_r( const char *pw, const char *salt, struct crypt_data * data);
+extern char * __des_crypt_r( const char *pw, const char *salt, struct crypt_data * data);
 
 extern char * crypt(const char *key, const char *salt)
 {
@@ -42,3 +45,12 @@ extern void encrypt(char *block, int edflag)
     encrypt_r(block, edflag, &__crypt_data);
 }
 
+extern char *crypt_r(const char *pw, const char *salt, struct crypt_data *data)
+{
+	/* First, check if we are supposed to be using the MD5 replacement
+	 * instead of DES...  */
+	if (salt[0]=='$' && salt[1]=='1' && salt[2]=='$')
+		return __md5_crypt_r(pw, salt, data);
+	else
+		return __des_crypt_r(pw, salt, data);
+}

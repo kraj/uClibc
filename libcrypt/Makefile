@@ -28,7 +28,7 @@ LIBCRYPT=libcrypt.a
 LIBCRYPT_SHARED=libcrypt.so
 LIBCRYPT_SHARED_FULLNAME=libcrypt-$(MAJOR_VERSION).$(MINOR_VERSION).so
 
-CSRC = crypt.c des.c
+CSRC = crypt.c des.c md5.c
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
 all: $(OBJS) $(LIBCRYPT)
@@ -46,8 +46,6 @@ $(OBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
-
-des.o: des.c md5.c
 
 shared: all
 	$(LD) $(LDFLAGS) -soname=$(LIBCRYPT_SHARED).$(MAJOR_VERSION) \
