@@ -7,10 +7,6 @@ mainmenu "uClibc C Library Configuration"
 
 menu "Target Architecture Features and Options"
 
-config HAVE_ELF
-	bool
-	default y
-
 config ARCH_CFLAGS
 	string
 
@@ -28,9 +24,21 @@ config ARCH_HAS_NO_MMU
 	bool
 	default y
 
+config ARCH_HAS_NO_FPU
+	bool
+	default y
+
 config ARCH_HAS_C_SYMBOL_PREFIX
 	bool
 	default y
+
+config HAVE_NO_PIC
+	bool
+	default y
+
+config CROSS
+        string
+	default "v850e-elf-"
 
 source "extra/Configs/Config.in.arch"
 
