@@ -135,7 +135,7 @@ void *_dlopen(const char *libname, int flag)
 #endif
 
 	/* A bit of sanity checking... */
-	if (!(flag & RTLD_LAZY|RTLD_NOW)) {
+	if (!(flag & (RTLD_LAZY|RTLD_NOW))) {
 		_dl_error_number = LD_BAD_HANDLE;
 		return NULL;
 	}
