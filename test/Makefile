@@ -21,15 +21,19 @@
 # respective copyright holders.
 
 TOPDIR=../
-include $(TOPDIR)Rules.mak
+include $(TOPDIR)Config
+
+.EXPORT_ALL_VARIABLES:
+
 
 ALL_SUBDIRS = args assert ctype pwd_grp signal silly stdlib string unistd #misc
-ifeq ($(TARGET_ARCH), $(NATIVE_ARCH))
-	DIRS = $(ALL_SUBDIRS)
-else
-	DIRS =
-endif
-ifeq ($(DO_SHARED),shared)
+DIRS = $(ALL_SUBDIRS)
+#ifeq ($(TARGET_ARCH), $(NATIVE_ARCH))
+#	DIRS = $(ALL_SUBDIRS)
+#else
+#	DIRS =
+#endif
+ifeq ($(strip $(HAVE_SHARED)),true)
 	DIRS += ldso
 endif	
 
@@ -47,7 +51,7 @@ subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 $(patsubst %, _dir_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
-$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
+$(patsubst %, _dirclean_%, $(ALL_SUBDIRS) ldso) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy
