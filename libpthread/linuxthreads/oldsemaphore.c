@@ -224,7 +224,7 @@ static void sem_restart_list(pthread_descr waiting)
   }
 }
 
-#if defined __PIC__ && DO_VERSIONING
+#if defined __PIC__ && defined DO_VERSIONING
 symbol_version (__old_sem_init, sem_init, GLIBC_2.0);
 symbol_version (__old_sem_wait, sem_wait, GLIBC_2.0);
 symbol_version (__old_sem_trywait, sem_trywait, GLIBC_2.0);

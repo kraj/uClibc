@@ -50,7 +50,7 @@ int pthread_attr_init(pthread_attr_t *attr)
 
 /* uClibc: leave out this for now. */
 #if DO_PTHREAD_VERSIONING_WITH_UCLIBC
-#if defined __HAVE_ELF__ && defined PIC && defined DO_VERSIONING
+#if defined __HAVE_ELF__ && defined __PIC__ && defined DO_VERSIONING
 default_symbol_version (__pthread_attr_init_2_1, pthread_attr_init, GLIBC_2.1);
 
 int __pthread_attr_init_2_0(pthread_attr_t *attr)
