@@ -59,11 +59,11 @@
 #  include <sys/types.h>
 # endif
 
-# define WIDE_CHAR_SUPPORT (HAVE_WCTYPE_H && HAVE_WCHAR_H && HAVE_BTOWC)
 
 /* For platform which support the ISO C amendement 1 functionality we
    support user defined character classes.  */
-# if defined _LIBC || WIDE_CHAR_SUPPORT
+#if defined __UCLIBC_HAS_WCHAR__
+#  define WIDE_CHAR_SUPPORT 1
 /* Solaris 2.5 has a bug: <wchar.h> must be included before <wctype.h>.  */
 #  include <wchar.h>
 #  include <wctype.h>
