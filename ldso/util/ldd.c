@@ -45,6 +45,7 @@ struct library {
 	struct library *next;
 };
 struct library *lib_list = NULL;
+char not_found[] = "not found";
 
 
 
@@ -113,6 +114,12 @@ static void search_for_named_library(char *name, char *result, const char *path_
 		fprintf(stderr, "Out of memory!\n");
 		exit(EXIT_FAILURE);
 	}
+	/* Eliminate all double //s */
+	path_n=path;
+	while((path_n=strstr(path_n, "//"))) {
+		i = strlen(path_n);
+		memmove(path_n, path_n+1, i-1);
+	}
 
 	/* Replace colons with zeros in path_parsed and count them */
 	for(i=strlen(path); i > 0; i--) {
@@ -144,10 +151,6 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 	char *path;
 	struct stat filestat;
 	
-	
-
-	lib->path = "not found";
-
 	/* If this is a fully resolved name, our job is easy */
 	if (stat (lib->name, &filestat) == 0) {
 		lib->path = lib->name;
@@ -196,8 +199,8 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 	/* FIXME -- add code to check the Cache here */ 
 
 	/* Lastly, search the standard list of paths for the library */
-	path =	UCLIBC_PREFIX "/usr/lib:"
-			UCLIBC_PREFIX "/lib:"
+	path =	UCLIBC_TARGET_PREFIX "/usr/lib:"
+			UCLIBC_TARGET_PREFIX "/lib:"
 			UCLIBC_DEVEL_PREFIX "/lib:"
 			UCLIBC_BUILD_DIR "/lib:"
 			"/usr/lib:"
@@ -207,6 +210,8 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 		lib->path = buf;
 	} else { 
 		free(buf);
+		printf("bad stuff\n");
+		lib->path = not_found;
 	}
 }
 
@@ -231,6 +236,7 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int i
 	newlib->name = malloc(strlen(s));
 	strcpy(newlib->name, s);
 	newlib->resolved = 0;
+	newlib->path = NULL;
 	newlib->next = NULL;
 
 	/* Now try and locate where this library might be living... */
@@ -264,7 +270,32 @@ static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *str
 	Elf32_Phdr *phdr;
 	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
 	if (phdr) {
-		add_library(ehdr, dynamic, strtab, is_setuid, (char*)ehdr + phdr->p_offset);
+		struct library *cur, *prev, *newlib=lib_list;
+		char *s = (char*)ehdr + phdr->p_offset;
+
+		for (cur = lib_list; cur; cur=cur->next) {
+			if(strcmp(cur->name, s)==0) {
+				/* Lib is already in the list */
+				return;
+			}
+		}
+		newlib = malloc(sizeof(struct library));
+		if (!newlib)
+			return;
+		newlib->name = malloc(strlen(s));
+		strcpy(newlib->name, s);
+		newlib->path = newlib->name;
+		newlib->resolved = 1;
+		newlib->next = NULL;
+
+		//printf("adding '%s' to '%s'\n", newlib->name, newlib->path);
+		if (!lib_list) {
+			lib_list = newlib;
+		} else {
+			for (cur = prev = lib_list;  cur->next; prev=cur, cur=cur->next); /* nothing */
+			cur = newlib;
+			prev->next = cur;
+		}
 	}
 }
 
@@ -279,6 +310,8 @@ int find_dependancies(char* filename)
 	Elf32_Shdr *dynsec = NULL;
 	Elf32_Dyn *dynamic = NULL;
 
+	if (filename == not_found)
+		return 0;
 
 	if (!filename) {
 		fprintf(stderr, "No filename specified.\n");
