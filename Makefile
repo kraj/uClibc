@@ -40,22 +40,23 @@ $(LIBNAME): halfclean headers uClibc_config.h subdirs
 	$(CROSS)ranlib $(LIBNAME)
 
 shared: $(LIBNAME)
-	@make -C ld.so-1
 	@rm -rf tmp
 	@mkdir tmp
 	@(cd tmp; CC=$(CC) /bin/sh ../extra/scripts/get-needed-libgcc-objects.sh)
 	if [ -s ./tmp/libgcc-need.a ] ; then \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
 		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
-		    ./$(LIBNAME) ./tmp/libgcc-need.a ; \
+		    ./$(LIBNAME) ./tmp/libgcc-need.a \
+		    ld.so-1/d-link/ld-linux-uclibc.so.0; \
 	else \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
 		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
-		    ./$(LIBNAME) ; \
+		    ./$(LIBNAME) ld.so-1/d-link/ld-linux-uclibc.so.0; \
 	fi
 	@rm -rf tmp
 	ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME)
 	ln -sf $(SHARED_MAJORNAME) libc.so
+	@make -C ld.so-1
 
 done: $(LIBNAME) $(DO_SHARED)
 	@echo
@@ -94,6 +95,7 @@ tags:
 clean: subdirs_clean halfclean
 	@rm -rf tmp
 	rm -f include/asm include/linux include/bits
+	@make -C ld.so-1 clean
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS) test)
