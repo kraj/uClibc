@@ -45,4 +45,3 @@ tempnam (const char *dir, const char *pfx)
   return strdup (buf);
 }
 
-link_warning (tempnam, "`tempnam' is dangerous, use `mkstemp'")
