@@ -208,7 +208,8 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 #if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
-		old_val = *reloc_addr;
+		if (reloc_addr)
+			old_val = *reloc_addr;
 #endif
 
 		switch (reloc_type) {
@@ -248,7 +249,7 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 
 	};
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug_reloc && _dl_debug_detail)
+	if(_dl_debug_reloc && _dl_debug_detail && reloc_addr)
 		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x\n", old_val, *reloc_addr, reloc_addr);
 #endif
 
