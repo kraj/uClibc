@@ -37,26 +37,57 @@ choice
 
 	  Here are the settings recommended for greatest speed:
 	  - "Generic Arm" select this if your compiler is already setup to
-	    optimize things properly.
-	  - "arm7tdmi" an MMU-less ARM core such as those distributed
-	    by Atmel, Samsung, and others.
-	  - "StrongARM" for Intel's StrongARM cores, such as the
-	     StrongARM 110/1100/1110.
-	  - "XScale" for Intel's XScale processors 
+	    optimize things properly, or if you want to run on pretty much
+	    everything, or you just don't much care.
+	  - For anything else, pick the ARM core type that best matches the
+	    cpu you will be using on your device.
 
 	  If you don't know what to do, choose "Generic Arm".
 
 config CONFIG_GENERIC_ARM
 	bool "Generic Arm"
 
-config CONFIG_ARM7TDMI
-	bool "arm7tdmi"
+config CONFIG_ARM610
+	bool "Arm 610"
 
-config CONFIG_STRONGARM
-	bool "StrongARM"
+config CONFIG_ARM710
+	bool "Arm 710"
 
-config CONFIG_XSCALE
-	bool "XScale"
+config CONFIG_ARM720T
+	bool "Arm 720T"
+
+config CONFIG_ARM920T
+	bool "Arm 920T"
+
+config CONFIG_ARM922T
+	bool "Arm 922T"
+
+config CONFIG_ARM926T
+	bool "Arm 926T"
+
+config CONFIG_ARM_SA110
+	bool "Intel StrongArm SA-110"
+
+config CONFIG_ARM_SA1100
+	bool "Intel StrongArm SA-1100"
+
+config CONFIG_ARM_XSCALE
+	bool "Intel Xscale"
+
+endchoice
+
+choice
+	prompt "Target Processor Endianness"
+	default ARCH_LITTLE_ENDIAN
+	help
+	  This is the endianness you wish to build use.  Choose either Big
+	  Endian, or Little Endian.
+
+config ARCH_LITTLE_ENDIAN
+	bool "Little Endian"
+
+config ARCH_BIG_ENDIAN
+	bool "Big Endian"
 
 endchoice
 

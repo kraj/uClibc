@@ -130,10 +130,21 @@ endif
 
 ifeq ($(strip $(TARGET_ARCH)),arm)
 	OPTIMIZATION+=-fstrict-aliasing
+	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN):="-EL"
+	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN):="-EB"
+	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN):="-mlittle-endian"
+	CPU_CFLAGS-$(ARCH_BIG_ENDIAN):="-mbig-endian"
 	CPU_CFLAGS-$(CONFIG_GENERIC_ARM):=
-	CPU_CFLAGS-$(CONFIG_ARM7TDMI):="-march=arm7tdmi"
-	CPU_CFLAGS-$(CONFIG_STRONGARM):="-march=strongarm"
-	CPU_CFLAGS-$(CONFIG_XSCALE):="-march=xscale"
+	CPU_CFLAGS-$(CONFIG_ARM610):=-mtune=arm610 -march=armv3
+	CPU_CFLAGS-$(CONFIG_ARM710):=-mtune=arm710 -march=armv3
+	CPU_CFLAGS-$(CONFIG_ARM720T):=-mtune=arm7tdmi -march=armv4 
+	CPU_CFLAGS-$(CONFIG_ARM920T):=-mtune=arm9tdmi -march=armv4
+	CPU_CFLAGS-$(CONFIG_ARM922T):=-mtune=arm9tdmi -march=armv4
+	CPU_CFLAGS-$(CONFIG_ARM926T):=-mtune=arm9tdmi -march=armv4
+	CPU_CFLAGS-$(CONFIG_ARM_SA110):=-mtune=strongarm110 -march=armv4
+	CPU_CFLAGS-$(CONFIG_ARM_SA1100):=-mtune=strongarm1100 -march=armv4
+	CPU_CFLAGS-$(CONFIG_ARM_XSCALE):=$(call check_gcc,-mtune=xscale,-mtune=strongarm110) \
+				$(call check_gcc,-march=armv5te,-march=armv4 -Wa$(comma)-mxscale)
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),sh)
@@ -212,7 +223,8 @@ ifeq ($(HAVE_SHARED),y)
    endif
 endif
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
-    CFLAGS += $(call check_gcc,-msoft-float,)
+    CFLAGS += -msoft-float
+    LDFLAGS+= -Wa,-mno-fpu
 endif
 
 CFLAGS_NOPIC:=$(CFLAGS)
