@@ -1,3 +1,54 @@
+0.9.18	12 February 2003
+
+See Changelog.full for the complete list of who did what. 
+
+Note:
+
+    Once again, this release is _NOT_ binary compatible with earlier 
+    releases.  I _think this will be the last time (with the possible
+    exception of some future changes to our locale support...)
+
+
+Release highlights:
+    Stefan Allius
+	o fixed a compile problem when large file support was disabled 
+	o fixed dlib_pic.o to compile with proper flags
+	o fixed a shared lib loader compile warning
+	o Made adding libgcc functions to uClibc optional
+    Erik Andersen
+	o Fixed scandir64 to not free the wrong pieces of memory 
+	    which caused segfaults
+	o Fixed mismatches between kernel and libc dirent structures 
+	o Fixed mismatches between the size of uClibc's struct dirent 
+	    and struct dirent64 so that when _FILE_OFFSET_BITS=64 we
+	    do not lose part of the filename
+	o Fixed getdents64.c so the build will not break when compiling
+	    vs a 2.0.x Linux kernel when UCLIBC_HAS_LFS is enabled
+	o Create stub crti.o and crtn.o files when UCLIBC_CTOR_DTOR is disabled
+	o Fixed licenses for a few files that erroneously were listed as GPL
+	    but were really LGPL after discussing with authors
+	o sigaction for x86 had an extra and unwanted sigaction syscall
+	o Fixed debugging of arm binaries by adding a .note.ABI-tag section
+    Miles Bader
+	o header file updates for v850 architecture
+	o Fixed v850 clone syscall
+    Christian Krause
+	o Fixed pthread_cond_timedwait to properly uses rt singals
+	    when available
+    Christophe Massiot
+	o Added mips _flush_cache syscall
+    David McCullough
+	o Added m68k brk syscall
+    Marshall M. Midden
+	o Fixed pipe implementation for mips
+
+
+ -Erik
+
+
+
+
+
 0.9.17	25 January 2003
 
 See Changelog.full for the complete list of who did what. 
