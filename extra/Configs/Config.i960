@@ -86,17 +86,15 @@ HAS_LOCALE = false
 HAS_WCHAR = false
 
 # This specifies which malloc implementation is used.
-# "malloc-simple" is very, very small, but is also very, very dumb 
-# and does not try to make good use of memory or clean up after itself.
 #
-# "malloc" on the other hand is a bit bigger, but is pretty smart thereby
-# minimizing memory wastage and reusing already allocated memory.  This 
-# can be lots faster and safer IMHO.
+# "malloc" use mmap for all allocations and so works very well on MMU-less
+# systems that do not support the brk() system call.   It is pretty smart 
+# about reusing already allocated memory, and minimizing memory wastage.
 #
-# "malloc-930716" is from libc-5.3.12 and was/is the standard gnu malloc.
-# It is actually smaller than "malloc", but because it is based on brk/sbrk
-# it will only work on systems with an MMU.
-#MALLOC = malloc-simple
+# "malloc-930716" is derived from libc-5.3.12 and uses the brk() system call
+# for all memory allocations.  This makes it very fast.  It is also pretty
+# smart about reusing already allocated memory, and minimizing memory wastage.
+# Because this uses brk() it will not work on uClinux MMU-less systems.
 MALLOC = malloc 
 #MALLOC = malloc-930716
 

@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2002  NEC Corporation
+# Copyright (C) 2002  Miles Bader <miles@gnu.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -24,14 +24,10 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-#MSRC=alloc.c
-#MOBJ=malloc_dbg.o free_dbg.o calloc_dbg.o realloc_dbg.o
-
-MSRC1=malloc.c
-MOBJ1=_avl_support.o _free_support.o _malloc_init.o _realloc_no_move.o calloc.o \
-	 free.o malloc.o realloc.o
-
-OBJS=$(MOBJ) $(MOBJ1)
+CSRC = malloc.o free.o realloc.o calloc.o heap_alloc.o \
+	heap_alloc_at.o heap_free.o heap_append_free.o
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(COBJS)
 
 all: $(OBJS) $(LIBC)
 
@@ -40,12 +36,8 @@ $(LIBC): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(MOBJ): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(MOBJ1): $(MSRC1)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
