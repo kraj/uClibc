@@ -68,7 +68,7 @@ static void dl_cleanup(void)
 void *_dlopen(const char *libname, int flag)
 {
 	struct elf_resolve *tpnt, *tfrom;
-	struct dyn_elf *rpnt;
+	struct dyn_elf *rpnt = NULL;
 	struct dyn_elf *dyn_chain;
 	struct dyn_elf *dpnt;
 	static int dl_init = 0;
@@ -115,7 +115,6 @@ void *_dlopen(const char *libname, int flag)
 		return NULL;
 	}
 
-	tpnt->usage_count++;
 	dyn_chain = rpnt = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 	_dl_memset(rpnt, 0, sizeof(*rpnt));
 	rpnt->dyn = tpnt;
@@ -151,7 +150,6 @@ void *_dlopen(const char *libname, int flag)
 		      rpnt->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 		      _dl_memset (rpnt->next, 0, sizeof (*(rpnt->next)));
 		      rpnt = rpnt->next;
-		      tpnt1->usage_count++;
 		      if (!tpnt1->symbol_scope) tpnt1->symbol_scope = dyn_chain;
 		      rpnt->dyn = tpnt1;
 		    };

@@ -25,7 +25,7 @@ extern int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 extern struct elf_resolve * _dl_load_shared_library(int secure, 
 	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname);
 extern struct elf_resolve * _dl_load_elf_shared_library(int secure, 
-	struct dyn_elf **rpnt, char *libname, int flag);
+	struct dyn_elf **rpnt, char *libname);
 extern int _dl_linux_resolve(void);
 #define ELF_CLASS   ELFCLASS32
 

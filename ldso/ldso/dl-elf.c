@@ -141,7 +141,7 @@ search_for_named_library(char *name, int secure, const char *path_list,
 		_dl_strcat(mylibname, "/"); 
 		_dl_strcat(mylibname, name);
 		if ((tpnt1 = _dl_load_elf_shared_library(secure, rpnt,
-			mylibname, 0)) != NULL)
+			mylibname)) != NULL)
 		{
 			return tpnt1;
 		}
@@ -188,7 +188,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	   /usr/i486-sysv4/lib for /usr/lib in library names. */
 
 	if (libname != full_libname) {
-		tpnt1 = _dl_load_elf_shared_library(secure, rpnt, full_libname, 0);
+		tpnt1 = _dl_load_elf_shared_library(secure, rpnt, full_libname);
 		if (tpnt1)
 			return tpnt1;
 		goto goof;
@@ -243,7 +243,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 				 libent[i].flags == LIB_ELF_LIBC5) &&
 				_dl_strcmp(libname, strs + libent[i].sooffset) == 0 &&
 				(tpnt1 = _dl_load_elf_shared_library(secure, 
-				     rpnt, strs + libent[i].liboffset, 0)))
+				     rpnt, strs + libent[i].liboffset)))
 				return tpnt1;
 		}
 	}
@@ -297,7 +297,7 @@ goof:
  */
 
 struct elf_resolve *_dl_load_elf_shared_library(int secure,
-	struct dyn_elf **rpnt, char *libname, int flag)
+	struct dyn_elf **rpnt, char *libname)
 {
 	elfhdr *epnt;
 	unsigned long dynamic_addr = 0;
@@ -319,14 +319,16 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	/* If this file is already loaded, skip this step */
 	tpnt = _dl_check_hashed_files(libname);
 	if (tpnt) {
-		(*rpnt)->next = (struct dyn_elf *)
-			_dl_malloc(sizeof(struct dyn_elf));
-		_dl_memset((*rpnt)->next, 0, sizeof(*((*rpnt)->next)));
-		*rpnt = (*rpnt)->next;
+		if (*rpnt) {
+			(*rpnt)->next = (struct dyn_elf *)
+				_dl_malloc(sizeof(struct dyn_elf));
+			_dl_memset((*rpnt)->next, 0, sizeof(*((*rpnt)->next)));
+			*rpnt = (*rpnt)->next;
+			(*rpnt)->dyn = tpnt;
+			tpnt->symbol_scope = _dl_symbol_tables;
+		}
 		tpnt->usage_count++;
-		tpnt->symbol_scope = _dl_symbol_tables;
 		tpnt->libtype = elf_lib;
-		(*rpnt)->dyn = tpnt;
 		return tpnt;
 	}
 
@@ -565,7 +567,6 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		}
 	}
 
-
 	tpnt = _dl_add_elf_hash_table(libname, (char *) libaddr, dynamic_info, 
 		dynamic_addr, dynamic_size);
 
@@ -575,14 +576,16 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	/*
 	 * Add this object into the symbol chain
 	 */
-	(*rpnt)->next = (struct dyn_elf *)
-		_dl_malloc(sizeof(struct dyn_elf));
-	_dl_memset((*rpnt)->next, 0, sizeof(*((*rpnt)->next)));
-	*rpnt = (*rpnt)->next;
+	if (*rpnt) {
+		(*rpnt)->next = (struct dyn_elf *)
+			_dl_malloc(sizeof(struct dyn_elf));
+		_dl_memset((*rpnt)->next, 0, sizeof(*((*rpnt)->next)));
+		*rpnt = (*rpnt)->next;
+		(*rpnt)->dyn = tpnt;
+		tpnt->symbol_scope = _dl_symbol_tables;
+	}
 	tpnt->usage_count++;
-	tpnt->symbol_scope = _dl_symbol_tables;
 	tpnt->libtype = elf_lib;
-	(*rpnt)->dyn = tpnt;
 
 	/*
 	 * OK, the next thing we need to do is to insert the dynamic linker into
