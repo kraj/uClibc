@@ -93,7 +93,7 @@ shared: all
 	fi;
 	if [ -f $(LIBTHREAD_DB) ] ; then \
 		set -e; \
-		$(LD) $(LDFLAGS) -soname=$(LIBTHREAD_DB_SHARED).$(MAJOR_VERSION) \
+		$(LD) $(LDFLAGS) -soname=$(LIBTHREAD_DB_SHARED).1 \
 			-o $(LIBTHREAD_DB_SHARED_FULLNAME) $(START_FILES) --whole-archive $(LIBTHREAD_DB) \
 			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 			-L$(TOPDIR)/lib -lc $(END_FILES); \
