@@ -37,6 +37,9 @@
 
 extern char *__ltostr(char *buf, long uval, int base, int uppercase);
 
+/********************** Function strsignal ************************************/
+#ifdef L_strsignal
+
 #if WANT_SIGLIST
 
 const char *const sys_siglist[] = {
@@ -79,8 +82,6 @@ const char *const sys_siglist[] = {
 
 #define NUM_KNOWN_SIGNALS    32
 
-/********************** Function strsignal ************************************/
-
 static char retbuf[28];			/* 28 is sufficient for 32 bit ints */
 static const char unknown_signal[] = "Unknown Signal:";
 
@@ -104,6 +105,18 @@ char *strsignal(int sig)
 	return pos;
 }
 
+#endif
+/********************** Function psignal ************************************/
+#ifdef L_psignal
+
+#include <stdio.h>
+
+void psignal(int sig, const char *s)
+{
+	fprintf(stderr, "%s: %s\n", s, strsignal(sig));
+}
+
+#endif
 /********************** THE END ********************************************/
 
 #ifdef CHECK_BUF
