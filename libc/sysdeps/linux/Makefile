@@ -24,7 +24,7 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 DIRS = common $(TARGET_ARCH)
-ALL_SUBDIRS = $(shell find * -type d -prune -name [a-z]\*)
+ALL_SUBDIRS = arm common i386 m68k powerpc sh sparc 
 
 all: libc.a
 
