@@ -27,6 +27,11 @@ gcc-uClibc.h: $(TOPDIR)/Config
 	@echo "#define TARGET_ARCH " \"$(TARGET_ARCH)\" >> gcc-uClibc.h
 	@echo "#define DYNAMIC_LINKER " \"$(DYNAMIC_LINKER)\" >> gcc-uClibc.h
 	@echo "#define BUILD_DYNAMIC_LINKER " \"$(UCLIBC_DIR)/lib/$(UCLIBC_LDSO)\" >> gcc-uClibc.h
+ifeq ($(strip $(HAS_MMU)),true)
+	@echo "#define HAS_MMU 1" >> gcc-uClibc.h
+else
+	@echo "#undef HAS_MMU" >> gcc-uClibc.h
+endif
 
 gcc-uClibc: gcc-uClibc.h gcc-uClibc.c
 	gcc -Wall -O2 -Wl,-s gcc-uClibc.c -o $(TARGET_ARCH)-uclibc-gcc

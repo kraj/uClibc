@@ -322,6 +322,9 @@ int main(int argc, char **argv)
 	}
 
 	if (linking && source_count) {
+#ifndef HAS_MMU
+	    gcc_argv[i++] = "-Wl,-elf2flt";
+#endif
 	    if (use_stdlib) {
 		gcc_argv[i++] = nostdlib;
 	    }
