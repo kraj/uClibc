@@ -92,7 +92,7 @@ $(LIBM): ar-target
 	fi;
 
 shared: all
-	if [ -f $(LIBM) ] ; then \
+	@if [ -f $(LIBM) ] ; then \
 	    set -x -e; \
 	    $(TARGET_CC) $(TARGET_LDFLAGS) -nostdlib -shared -o $(LIBM_SHARED_FULLNAME) \
 		-Wl,-soname,$(LIBM_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBM) -lc; \
