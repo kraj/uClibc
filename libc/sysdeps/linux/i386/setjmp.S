@@ -21,16 +21,6 @@
 #define _SETJMP_H
 #include <bits/setjmp.h>
 
-.globl _setjmp;
-.type	 _setjmp,@function
-.align 4;                                                               \
-_setjmp:
-	popl %eax		/* Pop return address.  */
-	popl %ecx		/* Pop jmp_buf.  */
-	pushl $0		/* Push zero argument.  */
-	pushl %ecx		/* Push jmp_buf.  */
-	pushl %eax		/* Push back return address.  */
-
 .globl __sigsetjmp;
 .type	 __sigsetjmp,@function
 .align 4;                                                               \
@@ -46,6 +36,9 @@ __sigsetjmp:
 	movl 0(%esp), %ecx	/* Save PC we are returning to now.  */
      	movl %ecx, (JB_PC*4)(%eax)
 
+	pushl 0x8(%esp) /* save mask */
+	pushl 0x8(%esp) /* jump buf */
+
 	/* Make a tail call to __sigjmp_save; it takes the same args.  */
 #if defined(PIC)
 	/* We cannot use the PLT, because it requires that %ebx be set, but
@@ -57,8 +50,23 @@ Lhere:
 	popl %ecx
 	addl $_GLOBAL_OFFSET_TABLE_+[.-Lhere], %ecx
 	movl (__sigjmp_save)(%ecx), %ecx
-	jmp *%ecx
+	call *%ecx
 #else
-	jmp __sigjmp_save
+	call __sigjmp_save
 #endif
+
+	add  $8, %esp
+	ret
 .size __sigsetjmp,.-__sigsetjmp;
+
+.globl _setjmp;
+.type	 _setjmp,@function
+.align 4;                                                               \
+_setjmp:
+	pushl $0		/* Push zero argument.  */
+	pushl 0x8(%esp)	/* Push jmp_buf.  */
+	call  __sigsetjmp
+	add  $8, %esp
+	ret
+.size _setjmp,.-_setjmp;
+
