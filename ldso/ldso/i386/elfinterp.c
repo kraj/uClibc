@@ -305,8 +305,9 @@ int _dl_parse_copy_information(struct dyn_elf *xpnt, unsigned long rel_addr,
 				_dl_symbol(strtab + symtab[symtab_index].st_name))
 				continue;
 
-			symbol_addr = (unsigned long) _dl_find_hash(strtab + symtab[symtab_index].st_name, 
-					xpnt->next, (int) reloc_addr, NULL, 1);
+			symbol_addr = (unsigned long) _dl_find_hash(strtab + 
+				symtab[symtab_index].st_name, xpnt->next, 
+				(unsigned long) reloc_addr, NULL, 1);
 			if (!symbol_addr) {
 				_dl_fdprintf(2, "%s: can't resolve symbol '%s'\n", 
 					_dl_progname, strtab + symtab[symtab_index].st_name);
