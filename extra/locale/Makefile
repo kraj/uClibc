@@ -26,14 +26,14 @@ codesets.txt:
 	fi;
 
 gen_wc8bit: gen_wc8bit.c
-	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) $(CFLAGS_wc8bit) $^ -o $@
+	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) $(CFLAGS_wc8bit) $^ -o $@
 #gen_wc8bit.c -o gen_wc8bit
 
 c8tables.h: gen_wc8bit codesets.txt
 	./gen_wc8bit `cat codesets.txt`
 
 gen_wctype: gen_wctype.c
-	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) $^ -o $@
+	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) $^ -o $@
 #gen_wctype.c -o gen_wctype
 
 # Warning! Beware tr_TR toupper/tolower exceptions!
@@ -42,7 +42,7 @@ wctables.h: gen_wctype
 	./gen_wctype en_US
 
 gen_locale: gen_locale.c c8tables.h
-	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) gen_locale.c -o $@
+	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) gen_locale.c -o $@
 #gen_locale.c -o gen_locale
 
 # TODO: if no wide char support, we should auto-disable all UTF-8 locales
@@ -67,7 +67,7 @@ locales.txt:
 	    false; \
 	fi;
 
-# ifneq ($(TARGET_ARCH),$(NATIVE_ARCH))
+# ifneq ($(TARGET_ARCH),$(HOST_ARCH))
 
 # locale.mmap: gen_mmap
 # 	echo Your locale.mmap file is either missing or out of date.
@@ -90,7 +90,7 @@ locales.txt:
 # 	./lmmtolso
 
 gen_ldc: gen_ldc.c c8tables.h wctables.h locale_tables.h
-	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) $(CFLAGS_mmap) gen_ldc.c -o $@
+	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) $(CFLAGS_mmap) gen_ldc.c -o $@
 #gen_ldc.c -o gen_ldc
 
 locale_data.c: gen_ldc

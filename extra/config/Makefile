@@ -22,18 +22,17 @@ include $(TOPDIR)Rules.mak
 
 all: ncurses conf mconf
 
-#NATIVE_CFLAGS=-Wall -g -O0
 LIBS = -lncurses
 ifeq (/usr/include/ncurses/ncurses.h, $(wildcard /usr/include/ncurses/ncurses.h))
-	NATIVE_CFLAGS += -I/usr/include/ncurses -DCURSES_LOC="<ncurses.h>"
+	HOSTCFLAGS += -I/usr/include/ncurses -DCURSES_LOC="<ncurses.h>"
 else
 ifeq (/usr/include/ncurses/curses.h, $(wildcard /usr/include/ncurses/curses.h))
-	NATIVE_CFLAGS += -I/usr/include/ncurses -DCURSES_LOC="<ncurses/curses.h>"
+	HOSTCFLAGS += -I/usr/include/ncurses -DCURSES_LOC="<ncurses/curses.h>"
 else
 ifeq (/usr/include/ncurses.h, $(wildcard /usr/include/ncurses.h))
-	NATIVE_CFLAGS += -DCURSES_LOC="<ncurses.h>"
+	HOSTCFLAGS += -DCURSES_LOC="<ncurses.h>"
 else
-	NATIVE_CFLAGS += -DCURSES_LOC="<curses.h>"
+	HOSTCFLAGS += -DCURSES_LOC="<curses.h>"
 endif
 endif
 endif
@@ -47,10 +46,10 @@ MCONF_OBJS=$(patsubst %.c,%.o, $(MCONF_SRC))
 LXDLG_OBJS=$(patsubst %.c,%.o, $(LXDLG_SRC))
 
 conf: $(CONF_OBJS) 
-	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) $^ -o $@
+	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) $^ -o $@
 
 mconf: $(MCONF_OBJS) $(LXDLG_OBJS)
-	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) $^ -o $@ $(LIBS)
+	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) $^ -o $@ $(LIBS)
 
 lkc_deps:=lkc.h lkc_proto.h lkc_defs.h expr.h zconf.tab.h
 
@@ -63,7 +62,7 @@ zconf.tab.o: zconf.tab.c lex.zconf.c confdata.c expr.c symbol.c menu.c $(lkc_dep
 lex.zconf.o: lex.zconf.c $(lkc_deps)
 
 %.o : %.c
-	$(NATIVE_CC) $(NATIVE_CFLAGS) -I. -c $< -o $@
+	$(HOSTCC) $(HOSTCFLAGS) -I. -c $< -o $@
 
 lkc_defs.h: lkc_proto.h
 	@sed < $< > $@ 's/P(\([^,]*\),.*/#define \1 (\*\1_p)/'
@@ -97,7 +96,7 @@ endif
 
 ncurses:
 	@echo "main() {}" > lxtemp.c
-	@if $(NATIVE_CC) lxtemp.c $(LIBS) ; then \
+	@if $(HOSTCC) lxtemp.c $(LIBS) ; then \
 		rm -f lxtemp.c a.out; \
 	else \
 		rm -f lxtemp.c; \

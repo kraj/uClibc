@@ -37,7 +37,7 @@ elf_header:
 	ln -fs $(TOPDIR)include/elf.h
 
 readelf: readelf.c
-	$(NATIVE_CC) $(NATIVE_CFLAGS) -I . readelf.c -o $@
+	$(HOSTCC) $(HOSTCFLAGS) -I . readelf.c -o $@
 	strip -x -R .note -R .comment $@
 
 readelf.target: readelf.c
@@ -45,20 +45,20 @@ readelf.target: readelf.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 readsoname.o: readsoname.c readsoname2.c
-	$(NATIVE_CC) $(NATIVE_CFLAGS) -I . -c $< -o $@
+	$(HOSTCC) $(HOSTCFLAGS) -I . -c $< -o $@
 	strip -x -R .note -R .comment $*.o
     
 ldconfig.o: ldconfig.c
-	$(NATIVE_CC) $(NATIVE_CFLAGS) -I . \
+	$(HOSTCC) $(HOSTCFLAGS) -I . \
 		-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" -c $< -o $@
 	strip -x -R .note -R .comment $*.o
 
 ldconfig: ldconfig.o readsoname.o
-	$(NATIVE_CC) $(NATIVE_CFLAGS) $^ -o $@
+	$(HOSTCC) $(HOSTCFLAGS) $^ -o $@
 	strip -x -R .note -R .comment $@
 
 ldd: ldd.c
-	$(NATIVE_CC) $(NATIVE_CFLAGS) -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
+	$(HOSTCC) $(HOSTCFLAGS) -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" -I . \

@@ -10,9 +10,9 @@
 include $(TESTDIR)Config
 
 
-# Use NATIVE_ARCH here since running these test is not
+# Use HOST_ARCH here since running these test is not
 # even possible when cross compiling...
-NATIVE_ARCH:= $(shell uname -m | sed \
+HOST_ARCH:= $(shell uname -m | sed \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \

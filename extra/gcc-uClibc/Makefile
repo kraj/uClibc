@@ -41,7 +41,7 @@ else
 endif
 
 gcc-uClibc: gcc-uClibc.h gcc-uClibc.c
-	$(NATIVE_CC) $(NATIVE_CFLAGS) -Wl,-s gcc-uClibc.c -o $(TARGET_ARCH)-uclibc-gcc
+	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s gcc-uClibc.c -o $(TARGET_ARCH)-uclibc-gcc
 
 ld-uClibc:
 	@echo "#!/bin/sh" > $(TARGET_ARCH)-uclibc-ld

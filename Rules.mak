@@ -42,8 +42,8 @@ NM= $(CROSS)nm
 STRIPTOOL= $(CROSS)strip
 
 # Select the compiler needed to build binaries for your development system
-NATIVE_CC=gcc
-NATIVE_CFLAGS=-O2 -Wall
+HOSTCC=gcc
+HOSTCFLAGS=-O2 -Wall
 
 
 #--------------------------------------------------------
@@ -78,7 +78,7 @@ check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; 
 AWK:=$(shell if [ -x /usr/bin/nawk ]; then echo "/usr/bin/nawk"; \
 	else echo "/usr/bin/awk"; fi)
 
-NATIVE_ARCH:= $(shell uname -m | sed \
+HOST_ARCH:= $(shell uname -m | sed \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \

@@ -24,7 +24,7 @@ TOPDIR=../
 
 ALL_SUBDIRS = args assert ctype ldso pwd_grp signal silly stdlib string unistd crypt #misc
 DIRS = $(ALL_SUBDIRS)
-#ifeq ($(TARGET_ARCH), $(NATIVE_ARCH))
+#ifeq ($(TARGET_ARCH), $(HOST_ARCH))
 #	DIRS = $(ALL_SUBDIRS)
 #else
 #	DIRS =

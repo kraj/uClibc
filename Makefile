@@ -306,7 +306,6 @@ extra/config/conf extra/config/mconf:
 	fi
 
 menuconfig: extra/config/mconf
-	make -C extra/config/lxdialog
 	rm -rf include/bits
 	mkdir -p include/bits
 	@./extra/config/mconf extra/Configs/Config.$(TARGET_ARCH)

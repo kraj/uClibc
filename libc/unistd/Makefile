@@ -34,7 +34,7 @@ ifeq ($(strip $(UCLIBC_HAS_MMU)),y)
 endif
 
 # TESTING -- comment this out if it breaks for you
-ifeq ($(TARGET_ARCH), $(NATIVE_ARCH))
+ifeq ($(TARGET_ARCH), $(HOST_ARCH))
 	SYSCONF = sysconf_native
 else
 	SYSCONF = sysconf_$(TARGET_ARCH).c
@@ -52,8 +52,8 @@ ar-target: $(OBJS)
 
 # We are cross-compiling so use the generic sysconf.c.
 sysconf_$(TARGET_ARCH).c: sysconf.c
-	@echo warning: sysconf_$(NATIVE_ARCH).c is older then sysconf.c so using generic sysconf.c
-	@echo To build sysconf_$(NATIVE_ARCH).c run gen_sysconf \> sysconf_$(NATIVE_ARCH).c on
+	@echo warning: sysconf_$(HOST_ARCH).c is older then sysconf.c so using generic sysconf.c
+	@echo To build sysconf_$(HOST_ARCH).c run gen_sysconf \> sysconf_$(HOST_ARCH).c on
 	@echo your target platform, place in the unistd directory, and rebuild
 	cp -f sysconf.c sysconf_$(TARGET_ARCH).c
 
@@ -74,14 +74,14 @@ gen_sysconf_tester.o: sysconf_tester.o getpagesize_tester.o
 		cp -f sysconf.c sysconf_src.c ;\
 	else \
 		set -e -x; \
-		if ../extra/gcc-uClibc/gcc-uClibc-$(NATIVE_ARCH) -static \
+		if ../extra/gcc-uClibc/gcc-uClibc-$(HOST_ARCH) -static \
 			-D_UCLIBC_GENERATE_SYSCONF_MAIN sysconf.c sysconf_tester.o \
-			-o gen_sysconf && ./gen_sysconf > sysconf_$(NATIVE_ARCH).c ;\
+			-o gen_sysconf && ./gen_sysconf > sysconf_$(HOST_ARCH).c ;\
 		then \
-			echo successfully built sysconf_$(NATIVE_ARCH).c ;\
+			echo successfully built sysconf_$(HOST_ARCH).c ;\
 		else \
 			echo warning: build of gen_sysconf failed so using generic sysconf.c ;\
-			cp -f sysconf.c sysconf_$(NATIVE_ARCH).c ;\
+			cp -f sysconf.c sysconf_$(HOST_ARCH).c ;\
 		fi ;\
 	fi
 
