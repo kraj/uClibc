@@ -1,6 +1,6 @@
 #
 # For a description of the syntax of this configuration file,
-# see Documentation/kbuild/config-language.txt.
+# see extra/config/Kconfig-language.txt
 #
 
 mainmenu "uClibc C Library Configuration"
