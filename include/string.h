@@ -66,6 +66,10 @@ extern __ptr_t memmove __P ((__ptr_t __dest, __const __ptr_t __src,
 #define index strchr
 #define rindex strrchr
 
+/* Return the position of the first bit set in I, or 0 if none are set.
+   The least-significant bit is position 1, the most-significant 32.  */
+extern int ffs __P ((int __i)) __attribute__ ((const));
+
 /* Other common BSD functions */
 /* Set N bytes of S to 0.  */
 extern void bzero __P ((__ptr_t __s, size_t __n));
