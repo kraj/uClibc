@@ -55,6 +55,7 @@
 
 #define _POSIX_SOURCE
 #define _XOPEN_SOURCE
+#include <features.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <limits.h>
@@ -177,10 +178,10 @@ void *__hunk_alloc(int size)
 			(p =
 			 (Hunk_t *) mmap(HUNK_MSTART, HUNK_MSIZE,
 							 PROT_READ | PROT_WRITE,
-#ifdef __HAS_NO_MMU__
-							 MAP_SHARED | MAP_ANONYMOUS
-#else
+#ifdef __UCLIBC_HAS_MMU__
 							 MAP_PRIVATE | MAP_ANONYMOUS
+#else
+							 MAP_SHARED | MAP_ANONYMOUS
 #endif
 							 , 0, 0)) == (Hunk_t *) MAP_FAILED)
 		  // {
@@ -483,10 +484,10 @@ static Block_t *bl_mapnew(size_t size)
 
 	map_size = PAGE_ALIGN(size);
 	pt = mmap(LARGE_MSTART, map_size, PROT_READ | PROT_WRITE | PROT_EXEC,
-#ifdef __HAS_NO_MMU__
-							 MAP_SHARED | MAP_ANONYMOUS
-#else
+#ifdef __UCLIBC_HAS_MMU__
 							 MAP_PRIVATE | MAP_ANONYMOUS
+#else
+							 MAP_SHARED | MAP_ANONYMOUS
 #endif
 							 , 0, 0);
 
@@ -511,10 +512,10 @@ void __bl_uncommit(Block_t * b)
 
 #if M_DOTRIMMING
 	mmap(u_start, u_end - u_start, PROT_READ | PROT_WRITE | PROT_EXEC,
-#ifdef __HAS_NO_MMU__
-							 MAP_SHARED | MAP_ANONYMOUS |MAP_FIXED
-#else
+#ifdef __UCLIBC_HAS_MMU__
 							 MAP_PRIVATE | MAP_ANONYMOUS |MAP_FIXED
+#else
+							 MAP_SHARED | MAP_ANONYMOUS |MAP_FIXED
 #endif
 							 , 0, 0);
 #endif

@@ -38,7 +38,7 @@ _syscall1(void, _exit, int, status);
 
 //#define __NR_fork             2
 #ifdef L_fork
-#ifndef __HAS_NO_MMU__
+#ifdef __UCLIBC_HAS_MMU__
 #include <unistd.h>
 _syscall0(pid_t, fork);
 #endif
@@ -683,7 +683,7 @@ _syscall2(int, statfs, const char *, path, struct statfs *, buf);
 _syscall2(int, fstatfs, int, fd, struct statfs *, buf);
 #endif
 
-#ifndef __HAS_NO_MMU__
+#ifdef __UCLIBC_HAS_MMU__
 //#define __NR_ioperm           101
 #ifdef L_ioperm
 #include <sys/io.h>
@@ -802,7 +802,7 @@ int fstat(int filedes, struct libc_stat *buf)
 
 //#define __NR_olduname         109
 
-#ifndef __HAS_NO_MMU__
+#ifdef __UCLIBC_HAS_MMU__
 //#define __NR_iopl             110
 #ifdef L_iopl
 #include <sys/io.h>

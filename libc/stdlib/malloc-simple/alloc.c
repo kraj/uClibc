@@ -1,3 +1,4 @@
+#include <features.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,10 +68,10 @@ void *calloc(size_t num, size_t size)
 void *malloc(size_t len)
 {
 	void *result = mmap((void *) 0, len, PROT_READ | PROT_WRITE,
-#ifdef __HAS_NO_MMU__
-						MAP_SHARED | MAP_ANONYMOUS, 0, 0
-#else
+#ifdef __UCLIBC_HAS_MMU__
 						MAP_PRIVATE | MAP_ANONYMOUS, 0, 0
+#else
+						MAP_SHARED | MAP_ANONYMOUS, 0, 0
 #endif
 						    );
 

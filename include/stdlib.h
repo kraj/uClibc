@@ -48,7 +48,7 @@ extern long strtol __P ((const char * nptr, char ** endptr, int base));
 extern unsigned long strtoul __P ((const char * nptr, char ** endptr, int base));
 extern long long strtoll __P ((const char * nptr, char ** endptr, int base));
 extern unsigned long long strtoull __P ((const char * nptr, char ** endptr, int base));
-#ifndef __HAS_NO_FLOATS__
+#ifdef __UCLIBC_HAS_FLOATS__
 /*TODO: extern char * gcvt __P ((double number, size_t ndigit, char * buf)); */
 extern double strtod __P ((const char * nptr, char ** endptr));
 #endif

@@ -51,23 +51,6 @@ ifndef $(PREFIX)
     PREFIX = `pwd`/_install
 endif
 
-ifneq ($(strip $(HAS_MMU)),true)
-    CFLAGS += -D__HAS_NO_MMU__
-endif
-
-ifneq ($(strip $(HAS_FLOATS)),true)
-    CFLAGS += -D__HAS_NO_FLOATS__
-endif
-
-ifeq ($(strip $(TARGET_ARCH)),m68k)
-    CFLAGS += -D__VFORK_MACRO__ -Dconst= -D__const= -D__extension__= 
-endif
-
-
-ifeq ($(strip $(TARGET_ARCH)),sh)
-    CFLAGS +=  -DNO_UNDERSCORES
-endif
-
 NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g' -e 's/m68k.*/m68k/')
 
 # It turns out the currently, function-sections causes ldelf2flt to segfault.

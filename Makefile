@@ -150,23 +150,36 @@ uClibc_config.h: Config
 	@if [ "$(HAS_MMU)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAS_MMU__ 1" >> uClibc_config.h ; \
 	else \
-	    echo "#define __UCLIBC_HAS_MMU__ 0" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_HAS_MMU__" >> uClibc_config.h ; \
 	fi
 	@if [ "$(HAS_FLOATS)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAS_FLOATS__ 1" >> uClibc_config.h ; \
 	else \
-	    echo "#define __UCLIBC_HAS_FLOATS__ 0" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_HAS_FLOATS__" >> uClibc_config.h ; \
 	fi
 	@if [ "$(HAS_LONG_LONG)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAS_LONG_LONG__ 1" >> uClibc_config.h ; \
 	else \
-	    echo "#define __UCLIBC_HAS_LONG_LONG__ 0" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_HAS_LONG_LONG__" >> uClibc_config.h ; \
 	fi
 	@if [ "$(HAS_LOCALE)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAS_LOCALE__ 1" >> uClibc_config.h ; \
 	    echo "#define __UCLIBC_LOCALE_DIR \""$(LOCALE_DIR)"\"" >> uClibc_config.h ; \
 	else \
-	    echo "#define __UCLIBC_HAS_LOCALE__ 0" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_HAS_LOCALE__" >> uClibc_config.h ; \
+	fi
+	@if [ "$(TARGET_ARCH)" = "m68k" ] ; then \
+	    echo "#define __VFORK_MACRO__ 1" >> uClibc_config.h ; \
+	    echo "#define const" >> uClibc_config.h ; \
+	    echo "#define __const" >> uClibc_config.h ; \
+	    echo "#define __extension" >> uClibc_config.h ; \
+	else \
+	    echo "#undef __VFORK_MACRO__" >> uClibc_config.h ; \
+	fi
+	@if [ "$(TARGET_ARCH)" = "sh" ] ; then \
+	    echo "#define NO_UNDERSCORES 1" >> uClibc_config.h ; \
+	else \
+	    echo "#undef NO_UNDERSCORES" >> uClibc_config.h ; \
 	fi
 
 .PHONY: dummy
