@@ -4,6 +4,9 @@ DIRS = headers error getent malloc-simple misc net regexp rpc stdio2 \
 all: libc.a
 
 libc.a: $(DIRS) dummy
+	@echo
+	@echo Finally finished compiling...
+	@echo
 	$(CROSS)ranlib $@
 
 headers: dummy

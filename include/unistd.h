@@ -62,6 +62,37 @@ extern char * mktemp __P ((char * __template));
 extern int _clone __P ((int (*fn)(void *arg), void *child_stack, int flags, void *arg));
 
 
+/* Make PATH be the root directory (the starting point for absolute paths).
+   This call is restricted to the super-user.  */
+extern int chroot __P ((__const char *__path));
+
+
+
+
+/* Execute PATH with all arguments after PATH until
+   a NULL pointer and environment from `environ'.  */
+extern int execl __P ((__const char *__path, __const char *__arg, ...));
+
+/* Execute FILE, searching in the `PATH' environment variable if
+   it contains no slashes, with all arguments after FILE until a
+   NULL pointer and environment from `environ'.  */
+extern int execlp __P ((__const char *__file, __const char *__arg, ...));
+
+/* Execute PATH with arguments ARGV and environment from `environ'.  */
+extern int execv __P ((__const char *__path, char *__const __argv[]));
+
+/* Replace the current process, executing PATH with arguments ARGV and
+   environment ENVP.  ARGV and ENVP are terminated by NULL pointers.  */
+extern int execve __P ((__const char *__path, char *__const __argv[],
+			char *__const __envp[]));
+/* Execute FILE, searching in the `PATH' environment variable if it contains
+   no slashes, with arguments ARGV and environment from `environ'.  */
+extern int execvp __P ((__const char *__file, char *__const __argv[]));
+
+
+
+
+
 #if 0                                                                         
 #ifndef SYS_fork
 #define SYS_fork 2

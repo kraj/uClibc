@@ -64,6 +64,16 @@ extern FILE stdout[1];
 extern FILE stderr[1];
 
 
+#define stdio_pending(fp) ((fp)->bufread>(fp)->bufpos)
+
+/* Read chunks of generic data from STREAM.  */
+extern size_t fread __P ((void *__restrict __ptr, size_t __size,
+			  size_t __n, FILE *__restrict __stream));
+/* Write chunks of generic data to STREAM.  */
+extern size_t fwrite __P ((__const void *__restrict __ptr, size_t __size,
+			   size_t __n, FILE *__restrict __s));
+
+
 #define putc(c, stream)	\
     (((stream)->bufpos >= (stream)->bufwrite) ? fputc((c), (stream))	\
                           : (unsigned char) (*(stream)->bufpos++ = (c))	)
@@ -88,31 +98,104 @@ extern int setvbuf __P((FILE*, char*, int, size_t));
 #define setbuf(__fp, __buf) setbuffer((__fp), (__buf), BUFSIZ)
 extern void setbuffer __P((FILE*, char*, int));
 
-extern int fgetc __P((FILE*));
-extern int fputc __P((int, FILE*));
+/* Read a character from STREAM.  */
+extern int fgetc __P ((FILE *__stream));
+extern int getc __P ((FILE *__stream));
+/* Push a character back onto the input buffer of STREAM.  */
+extern int ungetc __P ((int __c, FILE *__stream));
+/* Read a character from stdin.  */
+extern int getchar __P ((void));
 
-extern int fclose __P((FILE*));
-extern int fflush __P((FILE*));
-extern char *fgets __P((char*, size_t, FILE*));
-extern FILE *__fopen __P((char*, int, FILE*, char*));
+/* Write a character to STREAM.  */
+extern int fputc __P ((int __c, FILE *__stream));
+extern int putc __P ((int __c, FILE *__stream));
+/* Write a character to stdout.  */
+extern int putchar __P ((int __c));
 
+/* Close STREAM.  */
+extern int fclose __P ((FILE *__stream));
+/* Flush STREAM, or all streams if STREAM is NULL.  */
+extern int fflush __P ((FILE *__stream));
+
+/* Get a newline-terminated string from stdin, removing the newline.
+   DO NOT USE THIS FUNCTION!!  There is no limit on how much it will read.  */
+extern char *gets __P ((char *__s));
+/* Get a newline-terminated string of finite length from STREAM.  */
+extern char *fgets __P ((char *__restrict __s, int __n,
+			 FILE *__restrict __stream));
+
+
+extern FILE *__fopen __P((__const char *__restrict __filename, int __fd, 
+	    FILE *__restrict __stream, __const char *__restrict __modes));
+
+/* Open a file and create a new stream for it.  */
 #define fopen(__file, __mode)         __fopen((__file), -1, (FILE*)0, (__mode))
+/* Open a file, replacing an existing stream with it. */
 #define freopen(__file, __mode, __fp) __fopen((__file), -1, (__fp), (__mode))
+/* Create a new stream that refers to an existing system file descriptor.  */
 #define fdopen(__file, __mode)  __fopen((char*)0, (__file), (FILE*)0, (__mode))
 
-extern int fseek __P((FILE*, long, int));
-extern long ftell __P((FILE*));
-extern void rewind __P((FILE*));
 
-extern int fputs __P((char*, FILE*));
-extern int puts __P((char*));
+/* Seek to a certain position on STREAM.  */
+extern int fseek __P ((FILE *__stream, long int __off, int __whence));
+/* Return the current position of STREAM.  */
+extern long int ftell __P ((FILE *__stream));
+/* Rewind to the beginning of STREAM.  */
+extern void rewind __P ((FILE *__stream));
 
-extern int printf __P ((__const char*, ...));
-extern int fprintf __P ((FILE*, __const char*, ...));
-extern int sprintf __P ((char*, __const char*, ...));
 
-extern int ungetc __P ((int c, FILE * stream));
+/* Write a string, followed by a newline, to stdout.  */
+extern int puts __P ((__const char *__s));
+/* Write a string to STREAM.  */
+extern int fputs __P ((__const char *__restrict __s,
+		       FILE *__restrict __stream));
 
-#define stdio_pending(fp) ((fp)->bufread>(fp)->bufpos)
+
+/* Write formatted output to stdout.  */
+extern int printf __P ((__const char *__restrict __format, ...));
+/* Write formatted output to STREAM.  */
+extern int fprintf __P ((FILE *__restrict __stream,
+			 __const char *__restrict __format, ...));
+/* Write formatted output to S.  */
+extern int sprintf __P ((char *__restrict __s,
+			 __const char *__restrict __format, ...));
+
+/* Write formatted output to stdout from argument list ARG.  */
+extern int vprintf __P ((__const char *__restrict __format,
+			 va_list __arg));
+/* Write formatted output to S from argument list ARG.  */
+extern int vfprintf __P ((FILE *__restrict __s,
+			  __const char *__restrict __format,
+			  va_list __arg));
+/* Write formatted output to S from argument list ARG.  */
+extern int vsprintf __P ((char *__restrict __s,
+			  __const char *__restrict __format,
+			  va_list __arg));
+
+
+
+/* Read formatted input from stdin.  */
+extern int scanf __P ((__const char *__restrict __format, ...));
+/* Read formatted input from S.  */
+extern int sscanf __P ((__const char *__restrict __s,
+			__const char *__restrict __format, ...));
+/* Read formatted input from STREAM.  */
+extern int fscanf __P ((FILE *__restrict __stream,
+			__const char *__restrict __format, ...));
+/* Read formatted input from stdin into argument list ARG.  */
+extern int vscanf __P ((__const char *__restrict __format, va_list __arg))
+     __attribute__ ((__format__ (__scanf__, 1, 0)));
+/* Read formatted input from S into argument list ARG.  */
+extern int vsscanf __P ((__const char *__restrict __s,
+			 __const char *__restrict __format,
+			 va_list __arg))
+     __attribute__ ((__format__ (__scanf__, 2, 0)));
+/* Read formatted input from S into argument list ARG.  */
+extern int vfscanf __P ((FILE *__restrict __s,
+			 __const char *__restrict __format,
+			 va_list __arg))
+     __attribute__ ((__format__ (__scanf__, 2, 0)));
+
+
 
 #endif /* __STDIO_H */
