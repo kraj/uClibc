@@ -102,6 +102,15 @@ int ptsname_r (int fd, char *buf, size_t buflen)
 
       strcpy (buf, devpts);
       strcat (buf, p);
+      /* Note: Don't bother with stat on the slave name and checking the
+	 driver's major device number - the ioctl above succeeded so
+	 we know the fd was a Unix'98 master and the /dev/pts/ prefix
+	 is set by definition.  If the name isn't really a slave PTY,
+	 the system is misconfigured anyway - something else will fail
+	 later.
+	 */
+      errno = save_errno;
+      return 0;
     }
 #endif
 #if defined UNIX98PTY_ONLY
@@ -111,13 +120,6 @@ int ptsname_r (int fd, char *buf, size_t buflen)
       errno = ENOTTY;
       return ENOTTY;
     }
-  /* Note: Don't bother with stat on the slave name and checking the
-           driver's major device number - the ioctl above succeeded so
-           we know the fd was a Unix'98 master and the /dev/pts/ prefix
-           is set by definition.  If the name isn't really a slave PTY,
-           the system is misconfigured anyway - something else will fail
-           later.
-   */
 #else
 # if !defined TIOCGPTN
   else if (errno == EINVAL)
