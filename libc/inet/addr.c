@@ -46,8 +46,14 @@ struct in_addr *inp;
 				return 0;
 		}
 
-		if (*cp++ != ((part == 4) ? '\0' : '.'))
+		if (part < 4) {
+			if (*cp++ != '.')
+				return 0;
+		} else {
+			char c = *cp++;
+			if (c != '\0' && !isspace(c))
 			return 0;
+		}
 
 		addr <<= 8;
 		addr |= value;
