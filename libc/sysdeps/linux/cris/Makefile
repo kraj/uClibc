@@ -19,7 +19,7 @@ ASFLAGS=$(CFLAGS)
 CRT0=crt0.c
 CRT0_OBJ=$(patsubst %.c,%.o, $(CRT0))
 
-SSRC= setjmp.S __longjmp.S
+SSRC= setjmp.S __longjmp.S clone.S sysdep.S syscall.S
 ifeq ($(UNIFIED_SYSCALL),true)
 	SSRC += __uClibc_syscall.S
 endif
@@ -53,6 +53,7 @@ $(COBJS): %.o : %.c
 
 headers:
 	@(TOPDIR=$(TOPDIR) CC=$(CC) /bin/sh $(TOPDIR)/extra/scripts/gen_bits_syscall_h.sh > bits/syscall.h ) 
+#	cd $(TOPDIR)/include/sys && ln -fs ../../libc/sysdeps/linux/m68k/reg.h .
 
 clean:
 	rm -f *.[oa] *~ core

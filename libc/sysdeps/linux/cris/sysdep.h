@@ -91,6 +91,22 @@
 #define END(name) \
   ASM_SIZE_DIRECTIVE (C_SYMBOL_NAME (name))
 
+#define PSEUDO(name, syscall_name, args) \
+  ENTRY (name)                      @ \
+  DOARGS_##args                     @ \
+  movu.w SYS_ify (syscall_name),$r9         @ \
+  break 13                      @ \
+  cmps.w -4096,$r10                 @ \
+  bhs   0f                      @ \
+  nop                           @ \
+  UNDOARGS_return_##args
+
+#define PSEUDO_END(name) \
+0:                          @ \
+  SETUP_PIC                     @ \
+  PLTJUMP (syscall_error)               @ \
+  END (name)
+
 /* If compiled for profiling, call `mcount' at the start of each function.
    FIXME: Note that profiling is not actually implemented.  This is just
    example code which might not even compile, though it is believed to be
