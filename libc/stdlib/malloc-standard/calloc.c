@@ -29,7 +29,7 @@ void* calloc(size_t n_elements, size_t elem_size)
 
     /* guard vs integer overflow, but allow nmemb
      * to fall through and call malloc(0) */
-    size=lsize * nmemb;
+    size = n_elements * elem_size;
     if (n_elements && elem_size != (size / n_elements)) {
 	__set_errno(ENOMEM);
 	return NULL;
