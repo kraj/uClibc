@@ -37,8 +37,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-#include "dl-elf.h"
-#include "readsoname.h"
+#include "dl-defs.h"
 
 #define BUFFER_SIZE 4096
 
@@ -99,6 +98,26 @@ char *conffile = LDSO_CONF;	/* default conf file */
 char *cachefile = LDSO_CACHE;	/* default cache file */
 #endif
 
+struct needed_tab
+{
+  char *soname;
+  int type;
+};
+
+struct needed_tab needed_tab[] = {
+  { "libc.so.0",    LIB_ELF_LIBC0 },
+  { "libm.so.0",    LIB_ELF_LIBC0 },
+  { "libdl.so.0",   LIB_ELF_LIBC0 },
+  { "libc.so.5",    LIB_ELF_LIBC5 },
+  { "libm.so.5",    LIB_ELF_LIBC5 },
+  { "libdl.so.1",   LIB_ELF_LIBC5 },
+  { "libc.so.6",    LIB_ELF_LIBC6 },
+  { "libm.so.6",    LIB_ELF_LIBC6 },
+  { "libdl.so.2",   LIB_ELF_LIBC6 },
+  { NULL,           LIB_ELF }
+};
+
+
 /* These two are used internally -- you shouldn't need to use them */
 static void verror_msg(const char *s, va_list p)
 {
@@ -107,7 +126,7 @@ static void verror_msg(const char *s, va_list p)
 	vfprintf(stderr, s, p);
 }
 
-extern void warnx(const char *s, ...)
+static void warnx(const char *s, ...)
 {
 	va_list p;
 
@@ -117,7 +136,7 @@ extern void warnx(const char *s, ...)
 	fprintf(stderr, "\n");
 }
 
-extern void err(int errnum, const char *s, ...)
+static void err(int errnum, const char *s, ...)
 {
 	va_list p;
 
@@ -140,7 +159,7 @@ static void vperror_msg(const char *s, va_list p)
 	fprintf(stderr, "%s%s\n", s, strerror(err));
 }
 
-extern void warn(const char *s, ...)
+static void warn(const char *s, ...)
 {
 	va_list p;
 
@@ -149,7 +168,7 @@ extern void warn(const char *s, ...)
 	va_end(p);
 }
 
-void *xmalloc(size_t size)
+static void *xmalloc(size_t size)
 {
     void *ptr;
     if ((ptr = malloc(size)) == NULL)
@@ -157,13 +176,46 @@ void *xmalloc(size_t size)
     return ptr;
 }
 
-char *xstrdup(const char *str)
+static char *xstrdup(const char *str)
 {
     char *ptr;
     if ((ptr = strdup(str)) == NULL)
 	err(EXIT_FATAL,"out of memory");
     return ptr;
 }
+
+
+#undef __ELF_NATIVE_CLASS
+#undef readsonameXX
+#define readsonameXX readsoname32
+#define __ELF_NATIVE_CLASS 32
+#include "readsoname2.c"
+
+#undef __ELF_NATIVE_CLASS
+#undef readsonameXX
+#define readsonameXX readsoname64
+#define __ELF_NATIVE_CLASS 64
+#include "readsoname2.c"
+
+char *readsoname(char *name, FILE *infile, int expected_type, 
+		 int *type, int elfclass)
+{
+  char *res;
+
+  if (elfclass == ELFCLASS32)
+    res = readsoname32(name, infile, expected_type, type);
+  else
+  {
+    res = readsoname64(name, infile, expected_type, type);
+#if 0
+    *type |= LIB_ELF64;
+#endif
+  }
+
+  return res;
+}
+
+
 
 /* If shared library, return a malloced copy of the soname and set the
    type, else return NULL.
@@ -753,8 +805,10 @@ void usage(void)
 	    "\t-X:\t\tdon't update the library links\n"
 	    "\t-l:\t\tlibrary mode, manually link libraries\n"
 	    "\t-p:\t\tprint the current library cache\n"
+#ifdef __LDSO_CACHE_SUPPORT__
 	    "\t-f conf :\tuse conf instead of %s\n"
 	    "\t-C cache:\tuse cache instead of %s\n"
+#endif
 	    "\t-r root :\tfirst, do a chroot to the indicated directory\n"
 	    "\tdir ... :\tdirectories to process\n"
 #ifdef __LDSO_CACHE_SUPPORT__
@@ -776,7 +830,9 @@ int main(int argc, char **argv)
     int libtype, islink;
     char *chroot_dir = NULL;
     int printcache = 0;
+#ifdef __LDSO_CACHE_SUPPORT__
     char *extpath;
+#endif
 
     prog = argv[0];
     opterr = 0;

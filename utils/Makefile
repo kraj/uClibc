@@ -44,7 +44,7 @@ readelf: readelf.c
 	$(CC) $(CFLAGS) -Wl,-s $^ -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
-ldconfig:	ldconfig.c readsoname.c
+ldconfig:	ldconfig.c
 	$(CC) $(CFLAGS) -Wl,-s -static \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
@@ -76,7 +76,7 @@ ldd.host:	ldd.c
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 
-ldconfig.host:	ldconfig.c readsoname.c
+ldconfig.host:	ldconfig.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
@@ -89,7 +89,7 @@ clean:
 	$(RM) $(TARGETS) *.o *~ core *.target elf.h iconv *.host
 
 
-readelf.c readsoname.c ldconfig.c ldd.c:	headers
+readelf.c ldconfig.c ldd.c:	headers
 
 install: all
 ifeq ($(strip $(HAVE_SHARED)),y)
