@@ -33,7 +33,11 @@
 unsigned int error_message_count;
 /* Sometimes we want to have at most one error per line.  This
    variable controls whether this mode is selected or not.  */
-static int error_one_per_line;
+int error_one_per_line;
+/* If NULL, error will flush stdout, then print on stderr the program
+   name, a colon and a space.  Otherwise, error will call this
+   function without parameters instead.  */
+void (*error_print_progname) (void) = NULL;
 
 
 void __error (int status, int errnum, const char *message, ...)
