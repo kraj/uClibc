@@ -33,7 +33,7 @@ p_gcc=uclibc$(target_suffix)-toolchain
 
 debian/control: debian/control.in debian/rules
 	sed -e s/_TARGET_/$(target_suffix)/ \
-	  -e "s/_ARCHS_/arm i386 m68k mips powerpc sh sparc/" \
+	  -e "s/_ARCHS_/arm i386 m68k mips mipsel powerpc sh sparc/" \
 	  -e "s/_KERNEL_/$(kernel_source)/" \
 	  debian/control.in >debian/control
 
