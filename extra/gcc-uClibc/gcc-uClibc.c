@@ -24,12 +24,12 @@
  * If you want to use the uninstalled header files and libs, either include
  * the string "build" in the invocation name such as
  *       'ln -s <ARCH>-uclibc-gcc <ARCH>-uclibc-gcc-build'
- * or include it in the environment variable setting of UCLIBC_GCC.
+ * or include it in the environment variable setting of UCLIBC_ENV.
  * Note: This automatically enables the "rpath" behavior described below.
  *
  * The wrapper will now pass the location of the uClibc shared libs used to
  * the linker with the "-rpath" option if the invocation name includes the
- * string "rpath" or if the environment variable UCLIBC_GCC include it (as
+ * string "rpath" or if the environment variable UCLIBC_ENV include it (as
  * with "build" above).  This is primarily intended to be used on devel
  * platforms of the same arch as the target.  A good place to use this feature
  * would be in the uClibc/test directory.
@@ -39,7 +39,7 @@
  * May 31, 2001
  *
  * "rpath" and "build" behavior are now decoupled.  You can of course get
- * the old "build" behavior by setting UCLIBC_GCC="rpath-build".  Order
+ * the old "build" behavior by setting UCLIBC_ENV="rpath-build".  Order
  * isn't important here, as only the substrings are searched for.
  *
  * Added environment variable check for UCLIBC_GCC_DLOPT to let user specify
@@ -187,6 +187,7 @@ int main(int argc, char **argv)
 	char *builddir;
 	char *libstr;
 	char *build_dlstr = 0;
+	char *cc;
 	char *ep;
 	char *rpath_link[2];
 	char *rpath[2];
@@ -208,6 +209,11 @@ int main(int argc, char **argv)
 	char *gcrt1_path[2];
 #endif
 
+	cc     = getenv("UCLIBC_CC");
+	if (!cc) {
+		cc = GCC_BIN;
+	}
+
 	application_name = basename(argv[0]);
 	if (application_name[0] == '-')
 		application_name++;
@@ -221,10 +227,9 @@ int main(int argc, char **argv)
 	len = strlen(application_name);
 	if ((strcmp(application_name+len-3, "g++")==0) ||
 		(strcmp(application_name+len-3, "c++")==0)) {
-	    char *gcc_bin = GCC_BIN;
-	    len = strlen(gcc_bin);
-	    if (strcmp(gcc_bin+len-3, "gcc")==0) {
-		GPLUSPLUS_BIN = strdup(gcc_bin);
+	    len = strlen(cc);
+	    if (strcmp(cc+len-3, "gcc")==0) {
+		GPLUSPLUS_BIN = strdup(cc);
 		GPLUSPLUS_BIN[len-1]='+';
 		GPLUSPLUS_BIN[len-2]='+';
 	    }
@@ -245,6 +250,20 @@ int main(int argc, char **argv)
 
 	incstr = getenv("UCLIBC_GCC_INC");
 	libstr = getenv("UCLIBC_GCC_LIB");
+
+	ep     = getenv("UCLIBC_ENV");
+	if (!ep) {
+		ep = "";
+	}
+
+	if (strstr(ep,"build") != 0) {
+		use_build_dir = 1;
+	}
+
+	if (strstr(ep,"rpath") != 0) {
+		use_rpath = 1;
+	}
+
 
 	xstrcat(&(rpath_link[0]), "-Wl,-rpath-link,", devprefix, "/lib", NULL);
 	xstrcat(&(rpath_link[1]), "-Wl,-rpath-link,", builddir, "/lib", NULL);
@@ -281,19 +300,6 @@ int main(int argc, char **argv)
 		dlstr = "-Wl,--dynamic-linker," DYNAMIC_LINKER;
 	}
 #endif
-
-	ep = getenv("UCLIBC_GCC");
-	if (!ep) {
-		ep = "";
-	}
-
-	if (strstr(ep,"build") != 0) {
-		use_build_dir = 1;
-	}
-
-	if (strstr(ep,"rpath") != 0) {
-		use_rpath = 1;
-	}
 
 	m = 0;
 	libraries = __builtin_alloca(sizeof(char*) * (argc));
@@ -443,7 +449,7 @@ int main(int argc, char **argv)
 		    close(2);
 		    dup2(gcc_pipe[1], 1);
 		    dup2(gcc_pipe[1], 2);
-		    argv[0] = GCC_BIN; 
+		    argv[0] = cc; 
 		    argv[2] = "-print-libgcc-file-name";
 		    argv[3] = NULL;
 		    execvp(argv[0], argv);
@@ -485,7 +491,7 @@ crash_n_burn:
 	    gcc_argv[i++] = GPLUSPLUS_BIN;
 	else
 #endif
-	    gcc_argv[i++] = GCC_BIN;
+	    gcc_argv[i++] = cc;
 	
 	for ( j = 1 ; j < argc ; j++ ) {
 		if (argv[j]=='\0') {
@@ -625,5 +631,5 @@ crash_n_burn:
 	    return execvp(GPLUSPLUS_BIN, gcc_argv);
 	else
 #endif
-	    return execvp(GCC_BIN, gcc_argv);
+	    return execvp(cc, gcc_argv);
 }
