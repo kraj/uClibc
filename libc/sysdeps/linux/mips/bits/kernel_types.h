@@ -36,7 +36,7 @@ typedef long long      __kernel_loff_t;
 typedef unsigned int	__kernel_dev_t;
 typedef unsigned long	__kernel_ino_t;
 typedef unsigned int	__kernel_mode_t;
-typedef int		__kernel_nlink_t;
+typedef unsigned long	__kernel_nlink_t;
 typedef long		__kernel_off_t;
 typedef int		__kernel_pid_t;
 typedef int		__kernel_ipc_pid_t;
