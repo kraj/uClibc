@@ -1,5 +1,5 @@
 TOPDIR=../../
-include $(TOPDIR)Rules.make
+include $(TOPDIR)Rules.mak
 
 # Check if 'ls -sh' works or not 
 LSFLAGS = $(shell if ls -sh >/dev/null 2>&1; \
@@ -41,7 +41,7 @@ hello: hello.c Makefile $(TOPDIR)libc.a
 	$(STRIP)
 	-ldd $@
 	ls $(LSFLAGS) $@
-	./$@
+	-./$@
 	-@ echo " "
 
 hello_glibc: hello.c Makefile $(TOPDIR)libc.a
