@@ -94,3 +94,5 @@ clean:
 	$(RM) *.[oa] *~ core
 	$(RM) bits/sysnum.h
 	$(RM) $(TOPDIR)/include/fpu_control.h
+	$(RM) gmon-start.S
+
