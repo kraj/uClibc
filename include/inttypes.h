@@ -323,6 +323,7 @@ extern uintmax_t wcstoumax (__const __gwchar_t *__restrict __nptr,
      __THROW;
 #endif
 
+#if 0	/* disabled for uClibc */
 #ifdef __USE_EXTERN_INLINES
 
 # if __WORDSIZE == 64
@@ -356,7 +357,6 @@ strtoumax (__const char *__restrict nptr, char **__restrict endptr,
   return __strtoul_internal (nptr, endptr, base, 0);
 }
 
-#if 0
 /* Like `wcstol' but convert to `intmax_t'.  */
 #  ifndef __wcstol_internal_defined
 extern long int __wcstol_internal (__const __gwchar_t * __restrict __nptr,
@@ -387,7 +387,6 @@ wcstoumax (__const __gwchar_t *__restrict nptr, __gwchar_t **__restrict endptr,
 {
   return __wcstoul_internal (nptr, endptr, base, 0);
 }
-#endif
 
 # else /* __WORDSIZE == 32 */
 
@@ -424,7 +423,6 @@ strtoumax (__const char *__restrict nptr, char **__restrict endptr,
   return __strtoull_internal (nptr, endptr, base, 0);
 }
 
-#if 0
 /* Like `wcstol' but convert to `intmax_t'.  */
 #  ifndef __wcstoll_internal_defined
 __extension__
@@ -459,9 +457,10 @@ wcstoumax (__const __gwchar_t *__restrict nptr, __gwchar_t **__restrict endptr,
 {
   return __wcstoull_internal (nptr, endptr, base, 0);
 }
-#endif
 # endif	/* __WORDSIZE == 32	*/
 #endif	/* Use extern inlines.  */
+#endif	/* disabled for uClibc */
+
 
 __END_DECLS
 
