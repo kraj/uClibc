@@ -92,6 +92,7 @@ register struct pmaplist **rp;
 	bool_t more_elements;
 	register int freeing = (xdrs->x_op == XDR_FREE);
 	register struct pmaplist **next;
+#warning expect "next" might be unitialized
 
 	while (TRUE) {
 		more_elements = (bool_t) (*rp != NULL);
@@ -107,7 +108,7 @@ register struct pmaplist **rp;
 		if (freeing)
 			next = &((*rp)->pml_next);
 		if (!xdr_reference(xdrs, (caddr_t *) rp,
-						   (u_int) sizeof(struct pmaplist), xdr_pmap))
+						   (u_int) sizeof(struct pmaplist), (xdrproc_t) xdr_pmap))
 			return (FALSE);
 
 		rp = (freeing) ? next : &((*rp)->pml_next);

@@ -43,6 +43,7 @@
 #include <netdb.h>
 #include <errno.h>
 #include <rpc/pmap_clnt.h>
+#include <unistd.h>
 
 extern int errno;
 
@@ -115,6 +116,7 @@ u_int recvsz;
 	struct timeval now;
 	struct rpc_msg call_msg;
 
+	cu = NULL;					/* in case of fooy */
 	cl = (CLIENT *) mem_alloc(sizeof(CLIENT));
 	if (cl == NULL) {
 		(void) fprintf(stderr, "clntudp_create: out of memory\n");
@@ -284,8 +286,8 @@ struct timeval utimeout;		/* seconds to wait before giving up */
 #endif							/* def FD_SETSIZE */
 	for (;;) {
 		readfds = mask;
-		switch (select(_rpc_dtablesize(), &readfds, (int *) NULL,
-					   (int *) NULL, &(cu->cu_wait))) {
+		switch (select(_rpc_dtablesize(), &readfds, NULL,
+					   NULL, &(cu->cu_wait))) {
 
 		case 0:
 			time_waited.tv_sec += cu->cu_wait.tv_sec;

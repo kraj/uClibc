@@ -38,6 +38,7 @@
 #include <rpc/rpc.h>
 #include <netdb.h>
 #include <sys/socket.h>
+#include <rpc/pmap_clnt.h>
 
 extern int getrpcport (const char * host, u_long prognum,
 			   u_long versnum, u_int proto)

@@ -45,7 +45,7 @@
 #include <rpc/rpc.h>
 #include <sys/socket.h>
 #include <errno.h>
-extern errno;
+#include <unistd.h>
 
 /*
  * Ops vector for TCP/IP based rpc service handle
@@ -72,6 +72,7 @@ static struct xp_ops svctcp_op = {
 static bool_t rendezvous_request();
 static enum xprt_stat rendezvous_stat();
 
+#warning Expect 3 warnings for initialization from incompatible pointer type
 static struct xp_ops svctcp_rendezvous_op = {
 	rendezvous_request,
 	rendezvous_stat,
@@ -300,7 +301,7 @@ register int len;
 #endif							/* def FD_SETSIZE */
 	do {
 		readfds = mask;
-		if (select(_rpc_dtablesize(), &readfds, (int *) NULL, (int *) NULL,
+		if (select(_rpc_dtablesize(), &readfds, NULL, NULL,
 				   &wait_per_try) <= 0) {
 			if (errno == EINTR) {
 				continue;

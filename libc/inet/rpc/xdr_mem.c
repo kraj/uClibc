@@ -41,7 +41,7 @@
  *
  */
 
-
+#include <string.h>
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 #include <netinet/in.h>
@@ -52,7 +52,7 @@ static bool_t xdrmem_getbytes();
 static bool_t xdrmem_putbytes();
 static u_int xdrmem_getpos();
 static bool_t xdrmem_setpos();
-static long *xdrmem_inline();
+static int32_t *xdrmem_inline();
 static void xdrmem_destroy();
 
 static struct xdr_ops xdrmem_ops = {
@@ -163,15 +163,15 @@ u_int pos;
 	return (TRUE);
 }
 
-static long *xdrmem_inline(xdrs, len)
+static int32_t *xdrmem_inline(xdrs, len)
 register XDR *xdrs;
 int len;
 {
-	long *buf = 0;
+	int32_t *buf = 0;
 
 	if (xdrs->x_handy >= len) {
 		xdrs->x_handy -= len;
-		buf = (long *) xdrs->x_private;
+		buf = (int32_t *) xdrs->x_private;
 		xdrs->x_private += len;
 	}
 	return (buf);

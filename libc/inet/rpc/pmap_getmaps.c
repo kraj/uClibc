@@ -47,6 +47,7 @@
 #include <errno.h>
 //#include <net/if.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 #define NAMELEN 255
 #define MAX_BROADCAST_SIZE 1400
 
@@ -69,8 +70,9 @@ struct sockaddr_in *address;
 	address->sin_port = htons(PMAPPORT);
 	client = clnttcp_create(address, PMAPPROG, PMAPVERS, &socket, 50, 500);
 	if (client != (CLIENT *) NULL) {
-		if (CLNT_CALL(client, PMAPPROC_DUMP, xdr_void, NULL, xdr_pmaplist,
-					  &head, minutetimeout) != RPC_SUCCESS) {
+		if (CLNT_CALL(client, PMAPPROC_DUMP, (xdrproc_t) xdr_void, NULL, 
+					  (xdrproc_t) xdr_pmaplist, (caddr_t) &head,
+					  minutetimeout) != RPC_SUCCESS) {
 			clnt_perror(client, "pmap_getmaps rpc problem");
 		}
 		CLNT_DESTROY(client);

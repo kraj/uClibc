@@ -409,7 +409,7 @@ int *readfds;
 	maskp = (u_long *) readfds->fds_bits;
 #endif
 	for (sock = 0; sock < setsize; sock += NFDBITS) {
-		for (mask = *maskp++; bit = ffs(mask); mask ^= (1 << (bit - 1))) {
+		for (mask = *maskp++; (bit = ffs(mask)); mask ^= (1 << (bit - 1))) {
 			/* sock has input waiting */
 			xprt = xports[sock + bit - 1];
 #else

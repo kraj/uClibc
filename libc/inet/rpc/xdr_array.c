@@ -40,6 +40,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include <rpc/types.h>
 #include <rpc/xdr.h>
@@ -97,6 +98,7 @@ xdrproc_t elproc;				/* xdr routine to handle each element */
 
 		case XDR_FREE:
 			return (TRUE);
+		default:				/* silence the warnings */
 		}
 
 	/*

@@ -54,9 +54,9 @@ struct rpcdata {
 	struct rpcent rpc;
 	char line[BUFSIZ + 1];
 	char *domain;
-} *rpcdata, *_rpcdata();
+} *rpcdata;
 
-static struct rpcent *interpret();
+static struct rpcent *interpret(const char *val, int len);
 struct hostent *gethostent();
 char *inet_ntoa();
 
@@ -85,14 +85,11 @@ register int number;
 {
 	register struct rpcdata *d = _rpcdata();
 	register struct rpcent *p;
-	int reason;
-	char adrstr[16], *val = NULL;
-	int vallen;
 
 	if (d == 0)
 		return (0);
 	setrpcent(0);
-	while (p = getrpcent()) {
+	while ((p = getrpcent())) {
 		if (p->r_number == number)
 			break;
 	}
@@ -112,7 +109,7 @@ char *name;
 	char **rp;
 
 	setrpcent(0);
-	while (rpc = getrpcent()) {
+	while ((rpc = getrpcent())) {
 		if (strcmp(rpc->r_name, name) == 0)
 			return (rpc);
 		for (rp = rpc->r_aliases; *rp != NULL; rp++) {
@@ -165,10 +162,6 @@ endrpcent()
 
 struct rpcent *getrpcent()
 {
-	struct rpcent *hp;
-	int reason;
-	char *key = NULL, *val = NULL;
-	int keylen, vallen;
 	register struct rpcdata *d = _rpcdata();
 
 	if (d == 0)
@@ -198,14 +191,14 @@ char *s;
 }
 #endif
 
-static struct rpcent *interpret(val, len)
+static struct rpcent *interpret(const char *val, int len)
 {
 	register struct rpcdata *d = _rpcdata();
 	char *p;
 	register char *cp, **q;
 
 	if (d == 0)
-		return;
+		return NULL;
 	strncpy(d->line, val, len);
 	p = d->line;
 	d->line[len] = '\n';

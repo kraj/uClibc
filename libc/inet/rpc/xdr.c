@@ -337,7 +337,7 @@ register u_int cnt;
 		}
 		if (rndup == 0)
 			return (TRUE);
-		return (XDR_GETBYTES(xdrs, crud, rndup));
+		return (XDR_GETBYTES(xdrs, (caddr_t) crud, rndup));
 	}
 
 	if (xdrs->x_op == XDR_ENCODE) {
@@ -503,6 +503,7 @@ u_int maxsize;
 	case XDR_ENCODE:
 		size = strlen(sp);
 		break;
+	default:					/* silence the warnings */
 	}
 	if (!xdr_u_int(xdrs, &size)) {
 		return (FALSE);

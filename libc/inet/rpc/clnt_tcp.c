@@ -55,6 +55,7 @@
 #include <netdb.h>
 #include <errno.h>
 #include <rpc/pmap_clnt.h>
+#include <unistd.h>
 
 #define MCALL_MSG_SIZE 24
 
@@ -118,6 +119,7 @@ u_int recvsz;
 	struct timeval now;
 	struct rpc_msg call_msg;
 
+	ct = NULL;					/* in case of fooy */
 	h = (CLIENT *) mem_alloc(sizeof(*h));
 	if (h == NULL) {
 		(void) fprintf(stderr, "clnttcp_create: out of memory\n");
@@ -279,7 +281,7 @@ struct timeval timeout;
 	while (TRUE) {
 		reply_msg.acpted_rply.ar_verf = _null_auth;
 		reply_msg.acpted_rply.ar_results.where = NULL;
-		reply_msg.acpted_rply.ar_results.proc = xdr_void;
+		reply_msg.acpted_rply.ar_results.proc = (xdrproc_t) xdr_void;
 		if (!xdrrec_skiprecord(xdrs))
 			return (ct->ct_error.re_status);
 		/* now decode and validate the response header */
@@ -411,7 +413,7 @@ register int len;
 	while (TRUE) {
 		readfds = mask;
 		switch (select
-				(_rpc_dtablesize(), &readfds, (int *) NULL, (int *) NULL,
+				(_rpc_dtablesize(), &readfds,  NULL,  NULL,
 				 &(ct->ct_wait))) {
 		case 0:
 			ct->ct_error.re_status = RPC_TIMEDOUT;

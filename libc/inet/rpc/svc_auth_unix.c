@@ -71,7 +71,7 @@ register struct rpc_msg *msg;
 	auth_len = (u_int) msg->rm_call.cb_cred.oa_length;
 	xdrmem_create(&xdrs, msg->rm_call.cb_cred.oa_base, auth_len,
 				  XDR_DECODE);
-	buf = XDR_INLINE(&xdrs, auth_len);
+	buf = (long *)XDR_INLINE(&xdrs, auth_len);
 	if (buf != NULL) {
 		aup->aup_time = IXDR_GET_LONG(buf);
 		str_len = IXDR_GET_U_LONG(buf);

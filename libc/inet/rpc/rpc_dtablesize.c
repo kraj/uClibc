@@ -30,11 +30,13 @@
 #define __FORCE_GLIBC__
 #include <features.h>
 
+#include <rpc/clnt.h>
+#include <unistd.h>
 /*
  * Cache the result of getdtablesize(), so we don't have to do an
  * expensive system call every time.
  */
-_rpc_dtablesize()
+int _rpc_dtablesize(void)
 {
 	static int size;
 

@@ -48,6 +48,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 #include <netinet/in.h>
@@ -62,7 +63,7 @@ static bool_t xdrrec_getbytes();
 static bool_t xdrrec_putbytes();
 static u_int xdrrec_getpos();
 static bool_t xdrrec_setpos();
-static long *xdrrec_inline();
+static int32_t *xdrrec_inline();
 static void xdrrec_destroy();
 
 static struct xdr_ops xdrrec_ops = {
@@ -117,6 +118,11 @@ typedef struct rec_strm {
 	u_int recvsize;
 } RECSTREAM;
 
+static bool_t flush_out(register RECSTREAM *rstrm, bool_t eor);
+static bool_t set_input_fragment(register RECSTREAM *rstrm);
+static bool_t get_input_bytes(register RECSTREAM *rstrm,
+							  register caddr_t addr, register int len);
+static bool_t skip_input_bytes(register RECSTREAM *rstrm, long cnt);
 
 /*
  * Create an xdr handle for xdrrec
@@ -342,22 +348,23 @@ u_int pos;
 				return (TRUE);
 			}
 			break;
+		default:				/* silence the warnings */
 		}
 	return (FALSE);
 }
 
-static long *xdrrec_inline(xdrs, len)
+static int32_t *xdrrec_inline(xdrs, len)
 register XDR *xdrs;
 int len;
 {
 	register RECSTREAM *rstrm = (RECSTREAM *) xdrs->x_private;
-	long *buf = NULL;
+	int32_t *buf = NULL;
 
 	switch (xdrs->x_op) {
 
 	case XDR_ENCODE:
 		if ((rstrm->out_finger + len) <= rstrm->out_boundry) {
-			buf = (long *) rstrm->out_finger;
+			buf = (int32_t *) rstrm->out_finger;
 			rstrm->out_finger += len;
 		}
 		break;
@@ -365,11 +372,12 @@ int len;
 	case XDR_DECODE:
 		if ((len <= rstrm->fbtbc) &&
 			((rstrm->in_finger + len) <= rstrm->in_boundry)) {
-			buf = (long *) rstrm->in_finger;
+			buf = (int32_t *) rstrm->in_finger;
 			rstrm->fbtbc -= len;
 			rstrm->in_finger += len;
 		}
 		break;
+	default:					/* silence the warnings */
 	}
 	return (buf);
 }

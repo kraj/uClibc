@@ -50,7 +50,7 @@ static bool_t xdrstdio_getbytes();
 static bool_t xdrstdio_putbytes();
 static u_int xdrstdio_getpos();
 static bool_t xdrstdio_setpos();
-static long *xdrstdio_inline();
+static int32_t *xdrstdio_inline();
 static void xdrstdio_destroy();
 
 /*
@@ -166,7 +166,7 @@ u_int pos;
 			FALSE : TRUE);
 }
 
-static long *xdrstdio_inline(xdrs, len)
+static int32_t *xdrstdio_inline(xdrs, len)
 XDR *xdrs;
 u_int len;
 {

@@ -41,6 +41,7 @@
 #include <rpc/pmap_prot.h>
 #include <rpc/pmap_clnt.h>
 #include <sys/socket.h>
+#include <unistd.h>
 //#include <net/if.h>
 
 static struct timeval timeout = { 5, 0 };
@@ -71,8 +72,10 @@ u_int protocol;
 		parms.pm_vers = version;
 		parms.pm_prot = protocol;
 		parms.pm_port = 0;		/* not needed or used */
-		if (CLNT_CALL(client, PMAPPROC_GETPORT, xdr_pmap, &parms,
-					  xdr_u_short, &port, tottimeout) != RPC_SUCCESS) {
+		if (CLNT_CALL(client, PMAPPROC_GETPORT,
+					  (xdrproc_t) xdr_pmap, (caddr_t) &parms,
+					  (xdrproc_t) xdr_u_short, (caddr_t) &port,
+					  tottimeout) != RPC_SUCCESS) {
 			rpc_createerr.cf_stat = RPC_PMAPFAILURE;
 			clnt_geterr(client, &rpc_createerr.cf_error);
 		} else if (port == 0) {

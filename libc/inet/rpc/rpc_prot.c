@@ -98,6 +98,7 @@ register struct accepted_reply *ar;
 		if (!xdr_u_long(xdrs, &(ar->ar_vers.low)))
 			return (FALSE);
 		return (xdr_u_long(xdrs, &(ar->ar_vers.high)));
+	default:					/* silence the warnings */
 	}
 	return (TRUE);				/* TRUE => open ended set of problems */
 }
@@ -122,13 +123,14 @@ register struct rejected_reply *rr;
 
 	case AUTH_ERROR:
 		return (xdr_enum(xdrs, (enum_t *) & (rr->rj_why)));
+	default:					/* silence the warnings */
 	}
 	return (FALSE);
 }
 
 static struct xdr_discrim reply_dscrm[3] = {
-	{(int) MSG_ACCEPTED, xdr_accepted_reply},
-	{(int) MSG_DENIED, xdr_rejected_reply},
+	{(int) MSG_ACCEPTED, (xdrproc_t) xdr_accepted_reply},
+	{(int) MSG_DENIED, (xdrproc_t) xdr_rejected_reply},
 	{__dontcare__, NULL_xdrproc_t}
 };
 
@@ -203,6 +205,8 @@ register struct rpc_err *error;
 	case SUCCESS:
 		error->re_status = RPC_SUCCESS;
 		return;
+
+	default:					/* silence the warnings */
 	}
 	/* something's wrong, but we don't know what ... */
 	error->re_status = RPC_FAILED;
@@ -224,6 +228,8 @@ register struct rpc_err *error;
 	case AUTH_ERROR:
 		error->re_status = RPC_AUTHERROR;
 		return;
+
+	default:					/* silence the warnings */
 	}
 	/* something's wrong, but we don't know what ... */
 	error->re_status = RPC_FAILED;
@@ -274,5 +280,7 @@ register struct rpc_err *error;
 		error->re_vers.low = msg->acpted_rply.ar_vers.low;
 		error->re_vers.high = msg->acpted_rply.ar_vers.high;
 		break;
+
+	default:					/* silence the warnings */
 	}
 }

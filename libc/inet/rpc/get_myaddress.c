@@ -45,11 +45,13 @@
 #include <sys/ioctl.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <rpc/clnt.h>
+#include <unistd.h>
 
 #ifdef __linux__
 /* DO use gethostbyname because it's portable */
 #include <netdb.h>
-get_myaddress(addr)
+void get_myaddress(addr)
 struct sockaddr_in *addr;
 {
 	char localhost[256 + 1];

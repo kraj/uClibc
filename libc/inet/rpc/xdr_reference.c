@@ -40,6 +40,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 
@@ -76,6 +77,7 @@ xdrproc_t proc;					/* xdr routine to handle the object */
 			}
 			bzero(loc, (int) size);
 			break;
+		default:				/* silence the warnings */
 		}
 
 	stat = (*proc) (xdrs, loc, LASTUNSIGNED);

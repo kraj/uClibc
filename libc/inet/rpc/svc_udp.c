@@ -42,10 +42,13 @@
 #include <rpc/rpc.h>
 #include <sys/socket.h>
 #include <errno.h>
+#include <unistd.h>
 
 
 #define rpc_buffer(xprt) ((xprt)->xp_p1)
+#ifndef MAX
 #define MAX(a, b)     ((a > b) ? a : b)
+#endif
 
 static bool_t svcudp_recv();
 static bool_t svcudp_reply();
@@ -53,6 +56,10 @@ static enum xprt_stat svcudp_stat();
 static bool_t svcudp_getargs();
 static bool_t svcudp_freeargs();
 static void svcudp_destroy();
+
+static void cache_set(SVCXPRT *xprt, u_long replylen);
+static int cache_get(SVCXPRT *xprt, struct rpc_msg *msg, 
+					 char **replyp, u_long *replylenp);
 
 static struct xp_ops svcudp_op = {
 	svcudp_recv,
@@ -62,8 +69,6 @@ static struct xp_ops svcudp_op = {
 	svcudp_freeargs,
 	svcudp_destroy
 };
-
-extern int errno;
 
 /*
  * kept in xprt->xp_p2
@@ -329,7 +334,7 @@ struct udp_cache {
  * Enable use of the cache. 
  * Note: there is no disable.
  */
-svcudp_enablecache(transp, size)
+int svcudp_enablecache(transp, size)
 SVCXPRT *transp;
 u_long size;
 {
@@ -367,7 +372,7 @@ u_long size;
 /*
  * Set an entry in the cache
  */
-static cache_set(xprt, replylen)
+static void cache_set(xprt, replylen)
 SVCXPRT *xprt;
 u_long replylen;
 {
@@ -432,7 +437,7 @@ u_long replylen;
  * Try to get an entry from the cache
  * return 1 if found, 0 if not found
  */
-static cache_get(xprt, msg, replyp, replylenp)
+static int cache_get(xprt, msg, replyp, replylenp)
 SVCXPRT *xprt;
 struct rpc_msg *msg;
 char **replyp;
