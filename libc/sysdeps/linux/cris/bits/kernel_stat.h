@@ -17,7 +17,7 @@ struct __old_kernel_stat {
 	unsigned long  st_ctime;
 };
 
-struct stat {
+struct kernel_stat {
 	unsigned short st_dev;
 	unsigned short __pad1;
 	unsigned long st_ino;
@@ -40,10 +40,10 @@ struct stat {
 	unsigned long  __unused5;
 };
 
-/* This matches struct stat64 in glibc2.1, hence the absolutely
+/* This matches struct kernel_stat64 in glibc2.1, hence the absolutely
  * insane amounts of padding around dev_t's.
  */
-struct stat64 {
+struct kernel_stat64 {
 	unsigned short	st_dev;
 	unsigned char	__pad0[10];
 

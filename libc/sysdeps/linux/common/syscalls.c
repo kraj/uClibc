@@ -156,9 +156,17 @@ time_t time (time_t *t)
 #endif
 
 //#define __NR_mknod            14
-#ifdef L_mknod
+#ifdef L___syscall_mknod
+#define __NR___syscall_mknod __NR_mknod
 #include <sys/stat.h>
-_syscall3(int, mknod, const char *, path, mode_t, mode, dev_t, dev);
+_syscall3(int, __syscall_mknod, const char *, path, __kernel_mode_t, mode, __kernel_dev_t, dev);
+int mknod(const char *path, mode_t mode, dev_t dev)
+{ 
+	__kernel_dev_t k_dev;
+	/* We must convert the dev_t value to a __kernel_dev_t */
+	k_dev = ((major(dev) & 0xff) << 8) | (minor(dev) & 0xff);
+	return __syscall_mknod(path, mode, k_dev);
+}
 #endif
 
 //#define __NR_chmod            15
@@ -958,30 +966,69 @@ _syscall2(int, getitimer, __itimer_which_t, which, struct itimerval *, value);
 #endif
 
 //#define __NR_stat             106
-#ifdef L_stat
+#ifdef L___syscall_stat
+#define __NR___syscall_stat __NR_stat
 #include <unistd.h>
 #include <sys/stat.h>
-_syscall2(int, stat, const char *, file_name, struct stat *, buf);
+#include <bits/kernel_stat.h>
+#include "xstatconv.c"
+_syscall2(int, __syscall_stat, const char *, file_name, struct kernel_stat *, buf);
+int stat(const char * file_name, struct stat * buf)
+{
+	int result;
+	struct kernel_stat kbuf;
+	result = __syscall_stat(file_name, &kbuf);
+	if (result == 0) {
+		__xstat_conv(&kbuf, buf);
+	}
+	return result;
+}
 #if ! defined __NR_stat64 && defined __UCLIBC_HAS_LFS__
 weak_alias(stat, stat64);
 #endif
 #endif
 
 //#define __NR_lstat            107
-#ifdef L_lstat
+#ifdef L___syscall_lstat
+#define __NR___syscall_lstat __NR_lstat
 #include <unistd.h>
 #include <sys/stat.h>
-_syscall2(int, lstat, const char *, file_name, struct stat *, buf);
+#include <bits/kernel_stat.h>
+#include "xstatconv.c"
+_syscall2(int, __syscall_lstat, const char *, file_name, struct kernel_stat *, buf);
+int lstat(const char * file_name, struct stat * buf)
+{
+	int result;
+	struct kernel_stat kbuf;
+	result = __syscall_lstat(file_name, &kbuf);
+	if (result == 0) {
+		__xstat_conv(&kbuf, buf);
+	}
+	return result;
+}
 #if ! defined __NR_lstat64 && defined __UCLIBC_HAS_LFS__
 weak_alias(lstat, lstat64);
 #endif
 #endif
 
 //#define __NR_fstat            108
-#ifdef L_fstat
+#ifdef L___syscall_fstat
+#define __NR___syscall_fstat __NR_fstat
 #include <unistd.h>
 #include <sys/stat.h>
-_syscall2(int, fstat, int, filedes, struct stat *, buf);
+#include <bits/kernel_stat.h>
+#include "xstatconv.c"
+_syscall2(int, __syscall_fstat, int, fd, struct kernel_stat *, buf);
+int fstat(int fd, struct stat * buf)
+{
+	int result;
+	struct kernel_stat kbuf;
+	result = __syscall_fstat(fd, &kbuf);
+	if (result == 0) {
+		__xstat_conv(&kbuf, buf);
+	}
+	return result;
+}
 #if ! defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__
 weak_alias(fstat, fstat64);
 #endif
@@ -1623,29 +1670,68 @@ int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
 
 
 //#define __NR_stat64             195
-#ifdef L_stat64
+#ifdef L___syscall_stat64
 #if defined __NR_stat64 && defined __UCLIBC_HAS_LFS__
+#define __NR___syscall_stat64 __NR_stat64
 #include <unistd.h>
 #include <sys/stat.h>
-_syscall2(int, stat64, const char *, file_name, struct stat64 *, buf);
+#include <bits/kernel_stat.h>
+#include "xstatconv.c"
+_syscall2(int, __syscall_stat64, const char *, file_name, struct kernel_stat64 *, buf);
+int stat64(const char * file_name, struct stat64 * buf)
+{
+	int result;
+	struct kernel_stat64 kbuf;
+	result = __syscall_stat64(file_name, &kbuf);
+	if (result == 0) {
+		__xstat64_conv(&kbuf, buf);
+	}
+	return result;
+}
 #endif /* __UCLIBC_HAS_LFS__ */
 #endif
 
 //#define __NR_lstat64            196
-#ifdef L_lstat64
+#ifdef L___syscall_lstat64
 #if defined __NR_lstat64 && defined __UCLIBC_HAS_LFS__
+#define __NR___syscall_lstat64 __NR_lstat64
 #include <unistd.h>
 #include <sys/stat.h>
-_syscall2(int, lstat64, const char *, file_name, struct stat64 *, buf);
+#include <bits/kernel_stat.h>
+#include "xstatconv.c"
+_syscall2(int, __syscall_lstat64, const char *, file_name, struct kernel_stat64 *, buf);
+int lstat64(const char * file_name, struct stat64 * buf)
+{
+	int result;
+	struct kernel_stat64 kbuf;
+	result = __syscall_lstat64(file_name, &kbuf);
+	if (result == 0) {
+		__xstat64_conv(&kbuf, buf);
+	}
+	return result;
+}
 #endif /* __UCLIBC_HAS_LFS__ */
 #endif
 
 //#define __NR_fstat64            197
-#ifdef L_fstat64
+#ifdef L___syscall_fstat64
 #if defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__
+#define __NR___syscall_fstat64 __NR_fstat64
 #include <unistd.h>
 #include <sys/stat.h>
-_syscall2(int, fstat64, int, filedes, struct stat64 *, buf);
+#include <bits/kernel_stat.h>
+#include "xstatconv.c"
+_syscall2(int, __syscall_fstat64, int, filedes, struct kernel_stat64 *, buf);
+int fstat64(int fd, struct stat64 * buf)
+{
+	int result;
+	struct kernel_stat64 kbuf;
+	result = __syscall_fstat64(fd, &kbuf);
+	if (result == 0) {
+		__xstat64_conv(&kbuf, buf);
+	}
+	return result;
+}
 #endif /* __UCLIBC_HAS_LFS__ */
 #endif
 

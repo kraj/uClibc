@@ -2,9 +2,9 @@
 #define _BITS_STAT_STRUCT_H
 
 /* This file provides whatever this particular arch's kernel thinks 
- * struct stat should look like...  It turns out each arch has a 
+ * struct kernel_stat should look like...  It turns out each arch has a 
  * different opinion on the subject... */
-struct stat {
+struct kernel_stat {
 	unsigned int	st_dev;
 	unsigned int	st_ino;
 	unsigned int	st_mode;
@@ -21,7 +21,7 @@ struct stat {
 	unsigned int	st_flags;
 	unsigned int	st_gen;
 };
-struct stat64 {
+struct kernel_stat64 {
 	unsigned int	st_dev;
 	unsigned int	st_ino;
 	unsigned int	st_mode;
