@@ -32,6 +32,12 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
     int result;
     struct kernel_sigaction kact, koact;
 
+#ifdef SIGCANCEL
+    if (sig == SIGCANCEL) {
+	__set_errno (EINVAL);
+	return -1;
+    }
+#endif
     if (act) {
 	kact.k_sa_handler = act->sa_handler;
 	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
@@ -43,7 +49,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     /* XXX The size argument hopefully will have to be changed to the
        real size of the user-level sigset_t.  */
-    result = __rt_sigaction(sig, act ? __ptrvalue (&kact) : NULL,
+    result = __syscall_rt_sigaction(sig, act ? __ptrvalue (&kact) : NULL,
 	    oact ? __ptrvalue (&koact) : NULL, _NSIG / 8);
 
     if (oact && result >= 0) {
@@ -67,6 +73,12 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
     int result;
     struct old_kernel_sigaction kact, koact;
 
+#ifdef SIGCANCEL
+    if (sig == SIGCANCEL) {
+	__set_errno (EINVAL);
+	return -1;
+    }
+#endif
     if (act) {
 	kact.k_sa_handler = act->sa_handler;
 	kact.sa_mask = act->sa_mask.__val[0];
@@ -75,7 +87,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 	kact.sa_restorer = act->sa_restorer;
 # endif
     }
-    result = __sigaction(sig, act ? __ptrvalue (&kact) : NULL,
+    result = __syscall_sigaction(sig, act ? __ptrvalue (&kact) : NULL,
 	    oact ? __ptrvalue (&koact) : NULL);
 
     if (oact && result >= 0) {

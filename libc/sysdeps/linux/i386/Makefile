@@ -32,7 +32,7 @@ SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
 	bsd-_setjmp.S syscall.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=brk.c
+CSRC=brk.c sigaction.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)

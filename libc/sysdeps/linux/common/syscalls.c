@@ -616,11 +616,11 @@ _syscall0(pid_t, setsid);
 
 //#define __NR_sigaction        67
 #ifndef __NR_rt_sigaction
-#define __NR___sigaction __NR_sigaction
-#ifdef L___sigaction
+#define __NR___syscall_sigaction __NR_sigaction
+#ifdef L___syscall_sigaction
 #include <signal.h>
 #undef sigaction
-_syscall3(int, __sigaction, int, signum, const struct sigaction *, act,
+_syscall3(int, __syscall_sigaction, int, signum, const struct sigaction *, act,
 		  struct sigaction *, oldact);
 #endif
 #endif
@@ -1435,11 +1435,11 @@ _syscall3(int, getresgid, gid_t *, egid, gid_t *, rgid, gid_t *, sgid);
 //#define __NR_rt_sigreturn             173
 //#define __NR_rt_sigaction             174
 #ifdef __NR_rt_sigaction
-#define __NR___rt_sigaction __NR_rt_sigaction
-#ifdef L___rt_sigaction
+#define __NR___syscall_rt_sigaction __NR_rt_sigaction
+#ifdef L___syscall_rt_sigaction
 #include <signal.h>
 #undef sigaction
-_syscall4(int, __rt_sigaction, int, signum, const struct sigaction *, act, 
+_syscall4(int, __syscall_rt_sigaction, int, signum, const struct sigaction *, act, 
 		struct sigaction *, oldact, size_t, size); 
 #endif
 #endif

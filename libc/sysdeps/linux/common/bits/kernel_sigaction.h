@@ -84,10 +84,10 @@ struct kernel_sigaction {
 };
 #endif
 
-extern int __rt_sigaction (int, const struct kernel_sigaction *__unbounded,
-	struct kernel_sigaction *__unbounded, size_t);
-
-extern int __sigaction (int, const struct old_kernel_sigaction *__unbounded,
+extern int __syscall_sigaction (int, const struct old_kernel_sigaction *__unbounded,
 	struct old_kernel_sigaction *__unbounded);
+
+extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
+	struct kernel_sigaction *__unbounded, size_t);
 
 #endif /* _BITS_STAT_STRUCT_H */

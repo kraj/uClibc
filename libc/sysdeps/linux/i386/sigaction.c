@@ -26,10 +26,12 @@
 #include <bits/kernel_sigaction.h>
 
 #define SA_RESTORER	0x04000000
-extern void __default_sa_restorer(void);
-extern void __default_rt_sa_restorer(void);
+
 
 #if defined __NR_rt_sigaction
+#warning "Yes there are two warnings here.  Don't worry about it."
+static void restore_rt (void) asm ("__restore_rt");
+static void restore (void) asm ("__restore");
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
@@ -38,22 +40,21 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
     int result;
     struct kernel_sigaction kact, koact;
 
+#ifdef SIGCANCEL
+    if (sig == SIGCANCEL) {
+	__set_errno (EINVAL);
+	return -1;
+    }
+#endif
+
     if (act) {
 	kact.k_sa_handler = act->sa_handler;
 	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
 	kact.sa_flags = act->sa_flags;
-# ifdef HAVE_SA_RESTORER
-	if (kact.sa_flags & (SA_RESTORER | SA_ONSTACK)) {
-	    kact.sa_restorer = act->sa_restorer;
-	} else {
-	    if (kact.sa_flags & SA_SIGINFO) {
-		kact.sa_restorer = __default_rt_sa_restorer;
-	    } else {
-		kact.sa_restorer = __default_sa_restorer;
-		kact.sa_flags |= SA_RESTORER;
-	    }
-	}
-# endif
+
+	kact.sa_flags = act->sa_flags | SA_RESTORER;
+	kact.sa_restorer = ((act->sa_flags & SA_SIGINFO)
+		? &restore_rt : &restore);
     }
 
     /* XXX The size argument hopefully will have to be changed to the
@@ -65,15 +66,15 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 	oact->sa_handler = koact.k_sa_handler;
 	memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
 	oact->sa_flags = koact.sa_flags;
-# ifdef HAVE_SA_RESTORER
 	oact->sa_restorer = koact.sa_restorer;
-# endif
     }
     return result;
 }
 
 
 #else
+#warning "Yes there is a warning here.  Don't worry about it."
+static void restore (void) asm ("__restore");
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
@@ -82,35 +83,87 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
     int result;
     struct old_kernel_sigaction kact, koact;
 
+#ifdef SIGCANCEL
+    if (sig == SIGCANCEL) {
+	__set_errno (EINVAL);
+	return -1;
+    }
+#endif
+
     if (act) {
 	kact.k_sa_handler = act->sa_handler;
 	kact.sa_mask = act->sa_mask.__val[0];
-	kact.sa_flags = act->sa_flags;
-# ifdef HAVE_SA_RESTORER
-	/* See the comments above for why we test SA_ONSTACK.  */
-	if (kact.sa_flags & (SA_RESTORER | SA_ONSTACK)) {
-	    kact.sa_restorer = act->sa_restorer;
-	} else {
-	    kact.sa_restorer = __default_sa_restorer;
-	    kact.sa_flags |= SA_RESTORER;
-	}
-# endif
+	kact.sa_flags = act->sa_flags | SA_RESTORER;
+	kact.sa_restorer = &restore;
     }
     result = __syscall_sigaction(sig, act ? __ptrvalue (&kact) : NULL,
 	    oact ? __ptrvalue (&koact) : NULL);
 
-    if (oact && result >= 0) {
+    asm volatile ("pushl %%ebx\n"
+	    "movl %2, %%ebx\n"
+	    "int $0x80\n"
+	    "popl %%ebx"
+	    : "=a" (result)
+	    : "0" (SYS_ify (sigaction)), "mr" (sig),
+	    "c" (act ? __ptrvalue (&kact) : 0),
+	    "d" (oact ? __ptrvalue (&koact) : 0));
+
+    if (result < 0) {
+	__set_errno(-result);
+	return -1;
+    }
+
+    if (oact) {
 	oact->sa_handler = koact.k_sa_handler;
 	oact->sa_mask.__val[0] = koact.sa_mask;
 	oact->sa_flags = koact.sa_flags;
-# ifdef HAVE_SA_RESTORER
 	oact->sa_restorer = koact.sa_restorer;
-# endif
     }
     return result;
 }
 
 #endif
+weak_alias (__libc_sigaction, sigaction)
 
-weak_alias(__libc_sigaction, sigaction)
+
+
+
+/* NOTE: Please think twice before making any changes to the bits of
+   code below.  GDB needs some intimate knowledge about it to
+   recognize them as signal trampolines, and make backtraces through
+   signal handlers work right.  Important are both the names
+   (__restore and __restore_rt) and the exact instruction sequence.
+   If you ever feel the need to make any changes, please notify the
+   appropriate GDB maintainer.  */
+
+#define RESTORE(name, syscall) RESTORE2 (name, syscall)
+#define RESTORE2(name, syscall) \
+asm						\
+  (						\
+   ".text\n"					\
+   "	.align 16\n"				\
+   "__" #name ":\n"				\
+   "	movl $" #syscall ", %eax\n"		\
+   "	int  $0x80"				\
+   );
+
+#ifdef __NR_rt_sigaction
+/* The return code for realtime-signals.  */
+RESTORE (restore_rt, __NR_rt_sigreturn)
+#endif
+
+/* For the boring old signals.  */
+# undef RESTORE2
+# define RESTORE2(name, syscall) \
+asm						\
+  (						\
+   ".text\n"					\
+   "	.align 8\n"				\
+   "__" #name ":\n"				\
+   "	popl %eax\n"				\
+   "	movl $" #syscall ", %eax\n"		\
+   "	int  $0x80"				\
+   );
+
+RESTORE (restore, __NR_sigreturn)
 
