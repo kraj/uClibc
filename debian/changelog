@@ -1,3 +1,13 @@
+uclibc (0.9.10-cvs20020406-1) unstable; urgency=low
+
+  * new upstream snapshot
+    - should fix build on mips
+  * updated shlibs to 0.9.10, since it was broken previously (actually
+    was done in previous upload)
+  * create top-level lib/, for safety
+
+ -- David Schleef <ds@schleef.org>  Sat,  6 Apr 2002 14:34:41 -0800
+
 uclibc (0.9.10-1) unstable; urgency=low
 
   * New upstream release (Closes: #140295)

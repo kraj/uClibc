@@ -86,6 +86,8 @@ endif
 	echo 'DODEBUG = false' >>Config
 	echo 'INCLUDE_THREADS = true' >>Config
 
+	mkdir -p lib
+
 	$(MAKE)
 
 	touch build-stamp
