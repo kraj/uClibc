@@ -86,5 +86,5 @@ $(AOBJS): %.o : %.S
 ldso.o: ldso.c hash.c readelflib1.c $(TARGET_ARCH)/elfinterp.c _dl_progname.h
 
 clean::
-	$(RM) -f $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i _dl_progname.h *~
+	$(RM) -f $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i _dl_progname.h ldso.h *~
 
