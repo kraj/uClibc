@@ -53,6 +53,122 @@
 	<ul>
     
     <p>
+    <li> <b>17 February 2003, development system updates</b>
+    <br>
+
+    The uClibc development systems for
+    <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">i386</a>
+    and 
+    <a href="http://www.uclibc.org/downloads/root_fs-powerpc.bz2">powerpc</a>,
+    and
+    <a href="http://www.uclibc.org/downloads/root_fs-arm.bz2">arm</a>
+    have been again updated.  This time around a few broken symlinks
+    (one preventing C++ code from compiling) have been fixed, several
+    system calls related to uids and gid have been fixed, the powerpc
+    system call mechanism has been updated, and GNU tar and GNU grep
+    have been added.  gcc, gcc+, ssh, etc are all still included and
+    things remain binary compatible with uClibc 0.9.18.
+    Have Fun.
+    <p>
+
+
+    <p>
+    <li> <b>12 February 2003, development system updates</b>
+    <br>
+
+    The uClibc development system has had a number of problems
+    fixed, and has been updated for uClibc 0.9.18.  The 
+    <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">i386</a>
+    and 
+    <a href="http://www.uclibc.org/downloads/root_fs-powerpc.bz2">powerpc</a>,
+    and
+    <a href="http://www.uclibc.org/downloads/root_fs-arm.bz2">arm</a>
+    devel systems are updated and ready to download and use.
+    Have Fun.
+    <p>
+
+
+    <p>
+    <li> <b>12 February 2003, uClibc 0.9.18 Released</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.18.  This is primarily a bug-fix release, as there were a few
+    directory handling problem that could cause application using uClibc 0.9.17
+    to either segfault or lose the first character when reading directry names.
+    Unfortunately, once again, this release is _NOT_ binary compatible with
+    earlier uClibc releases.  I _think this will be the last time (with the
+    possible exception of some future changes to our locale support...)
+
+    <p>
+    As usual, the 
+    <a href="http://www.uclibc.org/downloads/Changelog">Changelog</a>
+    and <a href="http://www.uclibc.org/downloads/uClibc-0.9.18.tar.bz2">source code</a> 
+    for this release are available <a href="http://www.uclibc.org/downloads/">here</a>.
+    You might want to download uClibc from the closest 
+    <a href="http://kernel.org/mirrors/">kernel.org mirror site</a>.
+    Just pick the closest mirror site, and then go to 
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/">
+    http://www.XX.kernel.org/pub/linux/libs/uclibc/</a>
+    to download uClibc, where XX is your two letter country code.
+    <p>
+    <p>
+
+    <p>
+    <li> <b>25 January 2003, uClibc 0.9.17 Released</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.17.  The biggest piece of news with this release, thanks to
+    Manuel Novoa's continuing hard work, is that we now have fully standards
+    compliant locale support (optional of course).  The support works nicely,
+    (though configuring the locales you wish to support is still manual -- a
+    task for the next release).  Full locale data for over 300 locales adds
+    approximately 250k.  The collation data for all supported locales is
+    roughly 180k.  This may seem rather large to some -- but it is much smaller
+    than the approximately 40 MB needed by Glibc to provide the same data.  And
+    if you don't need it, you can either disable locale support entirely, or
+    enable a smaller set of locales. 
+
+    <p>
+
+    This release also fixes <em>lots and lots</em> of bugs.  The arm
+    architecture support (I am embarrassed to note) was totally broken in the
+    last release, but is now working as expected.   A security problem (a
+    buffer overflow in getlogin_r) was fixed.  And there were architecture
+    updates across the board (x86, arm, powerpc, cris, h8300, sparc, and mips).
+    And of course, this release includes the usual pile of bug fixes.  Many
+    thanks for the large number of patches and fixes that were contributed!
+
+    <p>
+
+    Unfortunately, this release is not binary compatible with earlier uClibc
+    releases.  As noted as item 3 <a href="downloads/Glibc_vs_uClibc_Differences.txt">here</a>, 
+    uClibc does not (yet) attempt to
+    ensure binary compatibility across releases.  We will eventually do that
+    (once we reach the "1.0" release) but not yet.  A few bugs turned up that
+    needed to be fixed, and the only good way to fix them was to change some
+    fundamental data structure sizes.  As a result, this release is _NOT_
+    binary compatible with earlier releases -- you will need to recompile your
+    applications.  The x86, arm, powerpc, and mips architectures (i.e. the
+    systems Erik has available in his office for testing) have been tested and
+    are known to work following this change.  Other architectures <em>may</em> 
+    need additional updates.  Sorry about that, but it had to be done.  
+
+    <p>
+    As usual, the 
+    <a href="http://www.uclibc.org/downloads/Changelog">Changelog</a>
+    and <a href="http://www.uclibc.org/downloads/uClibc-0.9.17.tar.bz2">source code</a> 
+    for this release are available <a href="http://www.uclibc.org/downloads/">here</a>.
+    You might want to download uClibc from the closest 
+    <a href="http://kernel.org/mirrors/">kernel.org mirror site</a>.
+    Just pick the closest mirror site, and then go to 
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/">
+    http://www.XX.kernel.org/pub/linux/libs/uclibc/</a>
+    to download uClibc, where XX is your two letter country code.
+    <p>
+
+    <p>
     <li> <b>25 January 2003, dev system updates, arm image released</b>
     <br>
 
