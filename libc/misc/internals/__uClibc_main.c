@@ -13,62 +13,25 @@
 
 #define	_ERRNO_H
 #include <unistd.h>
+#include <stdlib.h>
 
-#if !defined HAVE_ELF
-/* This is a theoretical attempt to support old a.out compilers.
- * Dunno if this will work properly and I really don't much
- * care... Elf is the One True Path(tm).  You will be assimilated */
-# define __USE_WEAK_ALIASES
-#endif
 
 /*
  * Prototypes.
  */
-extern int main(int argc, char **argv, char **envp);
-#ifndef __USE_WEAK_ALIASES
-#include <stdlib.h>
-extern int weak_function atexit(void (*function)(void));
+extern int  main(int argc, char **argv, char **envp);
 extern void weak_function _init(void);
 extern void weak_function _fini(void);
 extern void weak_function _stdio_init(void);
-extern void weak_function _stdio_term(void);
 extern int *weak_const_function __errno_location(void);
 extern int *weak_const_function __h_errno_location(void);
+extern int weak_function atexit(void (*function)(void));
 #ifdef __UCLIBC_HAS_LOCALE__
 extern void weak_function _locale_init(void);
 #endif
-#else
-/*
- * Define an empty function and use it as a weak alias for the stdio
- * initialization routine.  That way we don't pull in all the stdio
- * code unless we need to.  Similarly, do the same for _stdio_term
- * so as not to include atexit unnecessarily.
- *
- * NOTE!!! This is only true for the _static_ case!!!
- */
 
-weak_alias(__environ, environ);
-void __uClibc_empty_func(void)
-{
-}
-extern void exit (int status) __attribute__ ((__noreturn__));
-extern void _init(void);
-extern void _fini(void);
-extern void _stdio_init(void);
-weak_alias(__uClibc_empty_func, _init);
-weak_alias(__uClibc_empty_func, _fini);
-//weak_alias(__uClibc_empty_func, _stdio_init);
-//weak_alias(__uClibc_empty_func, _stdio_term);
-//weak_alias(__uClibc_empty_func, atexit);
-extern int atexit(void (*function)(void));
-//weak_alias(__uClibc_empty_func, __errno_location);
-extern int *__errno_location(void);
-//weak_alias(__uClibc_empty_func, __h_errno_location);
-extern int *__h_errno_location(void);
-#ifdef __UCLIBC_HAS_LOCALE__
-extern void _locale_init(void);
-#endif
-#endif
+
+
 
 /*
  * Declare the __environ global variable and create a weak alias environ.
@@ -80,16 +43,18 @@ char **__environ = 0;
 weak_alias(__environ, environ);
 
 
-/*
- * Now for our main routine.
- */
+
+
 void __attribute__ ((__noreturn__)) 
 __uClibc_main(int argc, char **argv, char **envp) 
 {
-	/* 
-	 * Initialize the global variable __environ.
-	 */
-	__environ = envp;
+	/* If we are dynamically linked the shared lib loader
+	 * already did this for us.  But if we are statically
+	 * linked, we need to do this for ourselves. */
+	if (__environ==NULL) {
+		/* Statically linked. */ 
+		__environ = envp;
+	}
 
 #if 0
 	/* Some security at this point.  Prevent starting a SUID binary
@@ -97,7 +62,7 @@ __uClibc_main(int argc, char **argv, char **envp)
 	 * to do this only for statically linked applications since
 	 * otherwise the dynamic loader did the work already.  */
 	if (unlikely (__libc_enable_secure!=NULL))
-	    __libc_check_standard_fds ();
+		__libc_check_standard_fds ();
 #endif
 
 #ifdef __UCLIBC_HAS_LOCALE__
@@ -110,15 +75,16 @@ __uClibc_main(int argc, char **argv, char **envp)
 	 * be bypassed if not needed because of the weak alias above.
 	 */
 	if (likely(_stdio_init != NULL))
-	  _stdio_init();
+		_stdio_init();
 
 	/* Arrange for dtors to run at exit.  */
 	if (unlikely(_fini!=NULL && atexit)) {
-	    atexit (&_fini);
+		atexit (&_fini);
 	}
+
 	/* Run all ctors now.  */
 	if (unlikely(_init!=NULL))
-	    _init();
+		_init();
 
 	/*
 	 * Note: It is possible that any initialization done above could
@@ -126,15 +92,14 @@ __uClibc_main(int argc, char **argv, char **envp)
 	 * we call main.
 	 */
 	if (likely(__errno_location!=NULL))
-	    *(__errno_location()) = 0;
+		*(__errno_location()) = 0;
 
 	/* Set h_errno to 0 as well */
 	if (likely(__h_errno_location!=NULL))
-	    *(__h_errno_location()) = 0;
+		*(__h_errno_location()) = 0;
 
 	/*
 	 * Finally, invoke application's main and then exit.
 	 */
 	exit(main(argc, argv, envp));
 }
-
