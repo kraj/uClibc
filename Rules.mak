@@ -54,8 +54,8 @@ MAJOR_VERSION:=0
 MINOR_VERSION:=9
 SUBLEVEL:=16
 VERSION:=$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
-# Ensure consistent filename sort order
-LC_COLLATE:= C
+# Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc. 
+LC_ALL:= C
 export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_COLLATE
 
 SHARED_FULLNAME:=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
@@ -169,7 +169,7 @@ endif
 WARNINGS+=-Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
 # Some nice CFLAGS to work with
 CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
-	-D_LIBC $(CPU_CFLAGS-y) $(ARCH_CFLAGS) -I$(TOPDIR)include -I.
+	-D_LIBC $(CPU_CFLAGS-y) $(subst ",, $(strip $(ARCH_CFLAGS))) -I$(TOPDIR)include -I.
 
 ifeq ($(DODEBUG),y)
     CFLAGS += -g
