@@ -32,7 +32,7 @@ to use existing toolchains that were targetted for glibc.  See
 extra/gcc-uClibc/ for information.
 
 uClibc strives to be standards compliant, which means that most
-documentation written for functions in glibc also apply to uClibc
+documentation written for functions in glibc also applies to uClibc
 functions.  However, many GNU extensions are not supported because
 they have not been ported, or more importantly, would increase the
 size of uClibc disproportional to the added functionality.
@@ -55,6 +55,6 @@ Please Note:
 	these defines are not really intended to check for the
 	presence of a particular library, but rather are used to
 	define an _interface_.  Some programs (such as GNU
-	binutils) are especially chummy with glibc, and need this
-	behavior disabled by adding CFLAGS+=-D__FORCE_NOGLIBC
+	binutils) are especially chummy with glibc, and may need 
+	this behavior disabled by adding CFLAGS+=-D__FORCE_NOGLIBC
 
