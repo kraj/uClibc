@@ -24,6 +24,7 @@
 #include <features.h>
 
 /* Get machine dependent definition of data structures.  */
+#if 0
 #include <sys/ucontext.h>
 
 __BEGIN_DECLS
@@ -46,7 +47,7 @@ extern int swapcontext __P ((ucontext_t *__oucp, __const ucontext_t *__ucp));
    is as good as any other choice.  */
 extern void makecontext __P ((ucontext_t *__ucp, void (*__func) (void),
 			      int __argc, ...));
-
 __END_DECLS
+#endif
 
 #endif /* ucontext.h */
