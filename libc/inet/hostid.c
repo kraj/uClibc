@@ -1,3 +1,5 @@
+#define __FORCE_GLIBC__
+#include <features.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>

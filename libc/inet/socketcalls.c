@@ -1,3 +1,5 @@
+#define __FORCE_GLIBC__
+#include <features.h>
 #include <errno.h>
 #include <syscall.h>
 #include <sys/socket.h>

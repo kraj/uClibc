@@ -27,11 +27,8 @@
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
-#if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] =
-
-	"@(#)rpc_dtablesize.c 1.2 87/08/11 Copyr 1987 Sun Micro";
-#endif
+#define __FORCE_GLIBC__
+#include <features.h>
 
 /*
  * Cache the result of getdtablesize(), so we don't have to do an

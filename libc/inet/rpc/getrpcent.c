@@ -1,9 +1,6 @@
 /* @(#)getrpcent.c	2.2 88/07/29 4.0 RPCSRC */
-#if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] =
-
-	"@(#)getrpcent.c 1.9 87/08/11  Copyr 1984 Sun Micro";
-#endif
+#define __FORCE_GLIBC__
+#include <features.h>
 
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for

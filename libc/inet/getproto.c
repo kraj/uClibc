@@ -51,6 +51,8 @@
 ** SUCH DAMAGE.
 */
 
+#define __FORCE_GLIBC__
+#include <features.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>

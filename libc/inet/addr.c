@@ -12,6 +12,8 @@
  * inet_ntoa in half (from 190 bytes down to 94).
  */
 
+#define __FORCE_GLIBC__
+#include <features.h>
 #include <string.h>
 #include <ctype.h>
 #include <netinet/in.h>

@@ -1,8 +1,5 @@
-#if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] =
-
-	"@(#)svc_auth.c	2.1 88/08/07 4.0 RPCSRC; from 1.19 87/08/11 Copyr 1984 Sun Micro";
-#endif
+#define __FORCE_GLIBC__
+#include <features.h>
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for
  * unrestricted use provided that this legend is included on all tape

@@ -27,9 +27,8 @@
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
-#if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] = "@(#)svc_raw.c 1.15 87/08/11 Copyr 1984 Sun Micro";
-#endif
+#define __FORCE_GLIBC__
+#include <features.h>
 
 /*
  * svc_raw.c,   This a toy for simple testing and timing.

@@ -27,11 +27,8 @@
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
-#if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] =
-
-	"@(#)auth_unix.c 1.19 87/08/11 Copyr 1984 Sun Micro";
-#endif
+#define __FORCE_GLIBC__
+#include <features.h>
 
 /*
  * auth_unix.c, Implements UNIX style authentication parameters. 

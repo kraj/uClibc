@@ -27,9 +27,8 @@
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
-#if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] = "@(#)xdr_reference.c 1.11 87/08/11 SMI";
-#endif
+#define __FORCE_GLIBC__
+#include <features.h>
 
 /*
  * xdr_reference.c, Generic XDR routines impelmentation.

@@ -34,6 +34,8 @@
  *
  */
 
+#define __FORCE_GLIBC__
+#include <features.h>
 #include <string.h>
 #include <stdio.h>
 #include <signal.h>
@@ -46,6 +48,7 @@
 #include <unistd.h>
 #include <cfgfile.h>
 #include <resolv.h>
+#include <netdb.h>
 #include <arpa/nameser.h>
 
 #define MAX_RECURSE 5

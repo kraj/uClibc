@@ -27,9 +27,6 @@
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
-#if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
-#endif
 
 /*
  * pmap_rmt.c
@@ -39,6 +36,12 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
+#define __FORCE_GLIBC__
+#include <features.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <rpc/rpc.h>
 #include <rpc/pmap_prot.h>
 #include <rpc/pmap_clnt.h>
@@ -105,7 +108,7 @@ u_long *port_ptr;
  * XDR remote call arguments
  * written for XDR_ENCODE direction only
  */
-bool_t xdr_rmtcall_args(xdrs, args)
+bool_t xdr_rmtcall_args(xdrs, arg2)
 register XDR *xdrs;
 void * arg2;
 {
@@ -150,6 +153,7 @@ register struct rmtcallres *crp;
 	return (FALSE);
 }
 
+void get_myaddress( struct sockaddr_in *addr);
 
 /*
  * The following is kludged-up support for simple rpc broadcasts.
@@ -223,6 +227,8 @@ char *buf;						/* why allocxate more when we can use existing... */
 }
 
 typedef bool_t(*resultproc_t) ();
+void _rpc_dtablesize(void );
+
 
 enum clnt_stat
 clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp,

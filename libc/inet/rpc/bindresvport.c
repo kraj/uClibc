@@ -31,6 +31,8 @@
  * Copyright (c) 1987 by Sun Microsystems, Inc.
  */
 
+#define __FORCE_GLIBC__
+#include <features.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
