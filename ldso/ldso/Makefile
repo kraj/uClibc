@@ -24,9 +24,12 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
+TARGET_CFLAGS += #-DDL_DEBUG #-funroll-loops
+
+
+
 LDSO_FULLNAME=ld-uclibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
-
-
+TARGET_CFLAGS+=-fPIC -D__PIC__ -DUCLIBC_ROOT_DIR=\"$(ROOT_DIR)\"
 CSRC= boot1.c hash.c readelflib1.c vsprintf.c $(TARGET_ARCH)/elfinterp.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 ASRC=$(shell ls $(TARGET_ARCH)/*.S)
@@ -34,25 +37,20 @@ AOBJS=$(patsubst %.S,%.o, $(ASRC))
 OBJS=$(AOBJS) $(COBJS)
 
 
-CFLAGS=-Wall -Os -fPIC -D__PIC__ --uclibc-use-build-dir -I. -DUCLIBC_ROOT_DIR=\"$(ROOT_DIR)\"
-CC = $(TOPDIR)extra/gcc-uClibc/$(NATIVE_ARCH)-uclibc-gcc
-
-CFLAGS += #-DDL_DEBUG #-funroll-loops
-
 all: lib
 
 lib:: ld.so.h $(OBJS) $(DLINK_OBJS)
-	$(LD) -e _dl_boot --shared -o $(LDSO_FULLNAME) \
-		-soname $(UCLIBC_LDSO) $(OBJS)
-	install -d $(TOPDIR)lib ; \
-	install -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib; \
-	(cd $(TOPDIR)lib;ln -sf $(LDSO_FULLNAME) $(UCLIBC_LDSO));
+	$(TARGET_CC) -e _dl_boot $(TARGET_LDFLAGS) -nostdlib -shared -o $(LDSO_FULLNAME) \
+	    -Wl,-soname,$(UCLIBC_LDSO) $(OBJS)
+	install -d $(TOPDIR)lib 
+	install -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
+	(cd $(TOPDIR)lib;ln -sf $(LDSO_FULLNAME) $(UCLIBC_LDSO))
 
 ld.so.h: Makefile
 	echo "#define _dl_static_progname \""$(UCLIBC_LDSO)"\"" > ld.so.h
 
 $(COBJS): %.o : %.c
-	$(CC) -I. -I./$(TARGET_ARCH) -I../libdl $(CFLAGS) -c $< -o $@
+	$(TARGET_CC) $(TARGET_CFLAGS) -I. -I./$(TARGET_ARCH) -I../libdl -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean::
