@@ -30,11 +30,7 @@ LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SU
 
 DIRS=
 ifeq ($(strip $(INCLUDE_THREADS)),true)
-	DIRS+=linuxthreads
-# For now, don't build the debug library since it doesn't work yet anyways...
-#ifeq ($(strip $(DODEBUG)),true)
-#	DIRS+=linuxthreads_db
-#endif
+	DIRS+=linuxthreads linuxthreads_db
 endif
 
 ALL_SUBDIRS = linuxthreads linuxthreads_db

@@ -166,7 +166,7 @@ libc_internal_tsd_set(enum __libc_tsd_key_t key, const void * pointer)
   return 0;
 }
 int (*__libc_internal_tsd_set)(enum __libc_tsd_key_t key, const void * pointer)
-     = libc_internal_tsd_set;
+    = libc_internal_tsd_set;
 
 static void *
 libc_internal_tsd_get(enum __libc_tsd_key_t key)
@@ -176,4 +176,5 @@ libc_internal_tsd_get(enum __libc_tsd_key_t key)
   return THREAD_GETMEM_NC(self, p_libc_specific[key]);
 }
 void * (*__libc_internal_tsd_get)(enum __libc_tsd_key_t key)
-     = libc_internal_tsd_get;
+    = libc_internal_tsd_get;
+

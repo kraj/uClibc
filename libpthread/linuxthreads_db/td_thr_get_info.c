@@ -1,22 +1,22 @@
 /* Get thread information.
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1999.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #include <stddef.h>
 #include <string.h>
@@ -46,7 +46,7 @@ td_thr_get_info (const td_thrhandle_t *th, td_thrinfo_t *infop)
     {
       infop->ti_tid = th->th_ta_p->pthread_threads_max * 2 + 1;
       infop->ti_type = TD_THR_SYSTEM;
-      infop->ti_state = TD_THR_RUN;
+      infop->ti_state = TD_THR_ACTIVE;
     }
   else
     {
@@ -54,13 +54,14 @@ td_thr_get_info (const td_thrhandle_t *th, td_thrinfo_t *infop)
       infop->ti_tls = (char *) pds.p_specific;
       infop->ti_pri = pds.p_priority;
       infop->ti_type = TD_THR_USER;
-
-      if (pds.p_exited)
-	/* This should not happen.  */
+      
+      if (! pds.p_terminated)
+	/* XXX For now there is no way to get more information.  */
+	infop->ti_state = TD_THR_ACTIVE;
+      else if (! pds.p_detached)
 	infop->ti_state = TD_THR_ZOMBIE;
       else
-	/* XXX For now there is no way to get more information.  */
-	infop->ti_state = TD_THR_RUN;
+	infop->ti_state = TD_THR_UNKNOWN;
     }
 
   /* Initialization which are the same in both cases.  */

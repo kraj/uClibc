@@ -21,8 +21,12 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 #Adjust the soname version to avoid namespace collisions with glibc's libpthread
-PT_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
-LIBPTHREAD=../libpthread.a
+LIBTHREAD_DB:=../libthread_db.a
+ifeq ($(strip $(TARGET_ARCH)),sparc)
+SYSDEPS_DIR:=$(TARGET_ARCH)/sparc32
+else
+SYSDEPS_DIR:=$(TARGET_ARCH)
+endif
 
 # set up system dependencies include dirs (NOTE: order matters!)
 PTDIR = $(TOPDIR)libpthread/linuxthreads/
@@ -33,7 +37,7 @@ SYSDEPINC = -I$(PTDIR)sysdeps/unix/sysv/linux \
             -I$(PTDIR)sysdeps/$(TARGET_ARCH) \
             -I$(PTDIR)sysdeps \
             -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
-CFLAGS += $(SYSDEPINC) -DLIBPTHREAD_SO="\"libpthread.so.$(PT_VERSION)\""
+CFLAGS += $(SYSDEPINC) -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 
 CSRC=td_init.c td_log.c td_ta_clear_event.c td_ta_delete.c \
 	td_ta_enable_stats.c td_ta_event_addr.c td_ta_event_getmsg.c \
@@ -50,12 +54,12 @@ CSRC=td_init.c td_log.c td_ta_clear_event.c td_ta_delete.c \
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
-all: $(OBJS) $(LIBPTHREAD)
+all: $(OBJS) $(LIBTHREAD_DB)
 
-$(LIBPTHREAD): ar-target
+$(LIBTHREAD_DB): ar-target
 
 ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBPTHREAD) $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBTHREAD_DB) $(OBJS)
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -63,6 +67,5 @@ $(COBJS): %.o : %.c
 
 clean:
 	rm -f *.[oa] *~ core
-
 
 

@@ -37,12 +37,12 @@ SYSDEPINC = -I$(PTDIR)sysdeps/unix/sysv/linux \
             -I$(PTDIR)sysdeps/$(TARGET_ARCH) \
             -I$(PTDIR)sysdeps \
             -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
-CFLAGS += $(SYSDEPINC) -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
+CFLAGS += $(SYSDEPINC)
 
 CSRC=attr.c cancel.c condvar.c errno.c events.c join.c lockfile.c manager.c \
 	mutex.c oldsemaphore.c pt-machine.c ptfork.c pthread.c \
 	ptlongjmp.c rwlock.c semaphore.c signals.c specific.c spinlock.c \
-	wrapsyscall.c #weaks.c no-tsd.c
+	wrapsyscall.c #weaks.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 

@@ -14,11 +14,18 @@
 
 /* Thread cancellation */
 
+#define __FORCE_GLIBC
+#include <features.h>
 #include <errno.h>
 #include "pthread.h"
 #include "internals.h"
 #include "spinlock.h"
 #include "restart.h"
+#ifdef __UCLIBC_HAS_RPC__
+#include <rpc/rpc.h>
+extern void __rpc_thread_destroy(void);
+#endif
+
 
 int pthread_setcancelstate(int state, int * oldstate)
 {
@@ -160,6 +167,12 @@ void __pthread_perform_cleanup(void)
   struct _pthread_cleanup_buffer * c;
   for (c = THREAD_GETMEM(self, p_cleanup); c != NULL; c = c->__prev)
     c->__routine(c->__arg);
+
+#ifdef __UCLIBC_HAS_RPC__
+  /* And the TSD which needs special help.  */
+  if (THREAD_GETMEM(self, p_libc_specific[_LIBC_TSD_KEY_RPC_VARS]) != NULL)
+      __rpc_thread_destroy ();
+#endif
 }
 
 #ifndef PIC
