@@ -145,26 +145,16 @@ struct group *__getgrent(int grp_fd)
 	}
 #else							/* !GR_SCALE_DYNAMIC */
 	if (members != NULL)
-		free(members);
-	members = (char **) malloc(1 * sizeof(char *));
-
-	while ((ptr = strchr(ptr, ',')) != NULL) {
-		*ptr = '\0';
-		ptr++;
-		members[member_num] = field_begin;
-		field_begin = ptr;
-		member_num++;
-		members =
-			(char **) realloc((void *) members,
-
-							  (member_num + 1) * sizeof(char *));
+	    free(members);
+	members = (char **) malloc((member_num + 1) * sizeof(char *));
+	for ( ; field_begin && *field_begin != '\0'; field_begin = ptr) {
+	    if ((ptr = strchr(field_begin, ',')) != NULL)
+		*ptr++ = '\0';
+	    members[member_num++] = field_begin;
+	    members = (char **) realloc(members,
+		    (member_num + 1) * sizeof(char *));
 	}
-	if (*field_begin == '\0')
-		members[member_num] = NULL;
-	else {
-		members[member_num] = field_begin;
-		members[member_num + 1] = NULL;
-	}
+	members[member_num] = NULL;
 #endif							/* GR_SCALE_DYNAMIC */
 
 	group.gr_mem = members;
