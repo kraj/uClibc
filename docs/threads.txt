@@ -11,19 +11,11 @@ Things that are still known to be needed for thread safety:
 
 Things that might be nice, but are not required:
 
+        getnetent_r             <desired, but not required for SuSv3>
         gethostent_r            <desired, but not required for SuSv3>
-        getnetbyaddr_r          <desired, but not required for SuSv3>
-        getnetent_r             <desired, but not required for SuSv3>
-        getnetbyname_r          <desired, but not required for SuSv3>
-        getprotobynumber_r      <desired, but not required for SuSv3>
         getprotoent_r           <desired, but not required for SuSv3>
-        getprotobyname_r        <desired, but not required for SuSv3>
-        getnetbyaddr_r          <desired, but not required for SuSv3>
         getnetbyname_r          <desired, but not required for SuSv3>
-        getnetent_r             <desired, but not required for SuSv3>
-        getprotobynumber_r      <desired, but not required for SuSv3>
-        getprotoent_r           <desired, but not required for SuSv3>
-        getprotobyname_r        <desired, but not required for SuSv3>
+        getnetbyaddr_r          <desired, but not required for SuSv3>
 
 
 
