@@ -1,29 +1,9 @@
-/*  Copyright (C) 2002     Manuel Novoa III
- *  Header for my stdio library for linux and (soon) elks.
+/* Copyright (C) 2002-2004   Manuel Novoa III    <mjn3@codepoet.org>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public
- *  License as published by the Free Software Foundation; either
- *  version 2 of the License, or (at your option) any later version.
+ * GNU Library General Public License (LGPL) version 2 or later.
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Library General Public License for more details.
- *
- *  You should have received a copy of the GNU Library General Public
- *  License along with this library; if not, write to the Free
- *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
-
-/*  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!
- *
- *  This code is currently under development.  Also, I plan to port
- *  it to elks which is a 16-bit environment with a fairly limited
- *  compiler.  Therefore, please refrain from modifying this code
- *  and, instead, pass any bug-fixes, etc. to me.  Thanks.  Manuel
- *
- *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
 
 #ifndef _STDIO_H
 #error Always include <stdio.h> rather than <bits/uClibc_stdio.h>
@@ -410,11 +390,13 @@ extern int __fputc_unlocked(int __c, FILE *__stream);
 /* First define the default definitions.  They overriden below as necessary. */
 #define __FGETC_UNLOCKED(__stream)		(__fgetc_unlocked)((__stream))
 #define __FGETC(__stream)				(fgetc)((__stream))
+#define __GETC_UNLOCKED_MACRO(__stream)	(__fgetc_unlocked)((__stream))
 #define __GETC_UNLOCKED(__stream)		(__fgetc_unlocked)((__stream))
 #define __GETC(__stream)				(fgetc)((__stream))
 
 #define __FPUTC_UNLOCKED(__c, __stream)	(__fputc_unlocked)((__c),(__stream))
 #define __FPUTC(__c, __stream)			(fputc)((__c),(__stream))
+#define __PUTC_UNLOCKED_MACRO(__c, __stream) (__fputc_unlocked)((__c),(__stream))
 #define __PUTC_UNLOCKED(__c, __stream)	(__fputc_unlocked)((__c),(__stream))
 #define __PUTC(__c, __stream)			(fputc)((__c),(__stream))
 
@@ -423,6 +405,7 @@ extern int __fputc_unlocked(int __c, FILE *__stream);
 
 extern FILE *__stdin;			/* For getchar() macro. */
 
+# undef  __GETC_UNLOCKED_MACRO
 # define __GETC_UNLOCKED_MACRO(__stream)					\
 		( ((__stream)->__bufpos < (__stream)->__bufgetc_u)	\
 		  ? (*(__stream)->__bufpos++)						\
@@ -481,6 +464,7 @@ extern FILE *__stdin;			/* For getchar() macro. */
 
 extern FILE *__stdout;			/* For putchar() macro. */
 
+# undef  __PUTC_UNLOCKED_MACRO
 # define __PUTC_UNLOCKED_MACRO(__c, __stream)						\
 		( ((__stream)->__bufpos < (__stream)->__bufputc_u)	\
 		  ? (*(__stream)->__bufpos++) = (__c)				\

@@ -74,6 +74,8 @@ extern int _cs_close(void *cookie);
 
 #else  /* __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__ */
 
+extern int __stdio_seek(FILE *stream, register __offmax_t *pos, int whence);
+
 #define __STDIO_STREAM_RESET_GCS(S) ((void)0)
 
 #define __READ(STREAMPTR,BUF,SIZE) \
