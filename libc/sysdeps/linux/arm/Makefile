@@ -28,7 +28,7 @@ ASFLAGS=$(CFLAGS)
 SSRC=
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=divsi3.c
+CSRC=
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
