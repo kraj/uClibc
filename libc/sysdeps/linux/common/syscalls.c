@@ -1477,12 +1477,14 @@ _syscall4(int, quotactl, int, cmd, const char *, special , int, id, caddr_t, add
 //#define __NR_getpgid          132
 #ifdef L___syscall_getpgid
 #define __NR___syscall_getpgid __NR_getpgid
+#define __FAVOR_BSD
 static inline
 _syscall1(__kernel_pid_t, __syscall_getpgid, __kernel_pid_t, pid);
-pid_t getpgid(pid_t pid)
+pid_t __getpgid(pid_t pid)
 {
 	return(__syscall_getpgid(pid));
 }
+weak_alias(__getpgid, getpgid);
 #endif
 
 //#define __NR_fchdir           133
