@@ -166,7 +166,8 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 }
 
 /* Check if the named library is already loaded... */
-struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libname)
+struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libname,
+		int trace_loaded_objects)
 {
 	const char *pnt, *pnt1;
 	struct elf_resolve *tpnt1;
@@ -201,7 +202,7 @@ struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libnam
 	{
 		/* Abort attempts to load glibc, libc5, etc */
 		if ( libname[8]!='0') {
-			if (!_dl_trace_loaded_objects) {
+			if (!trace_loaded_objects) {
 				_dl_dprintf(2, aborted_wrong_lib, libname, _dl_progname);
 				_dl_exit(1);
 			}
@@ -241,7 +242,7 @@ unsigned long _dl_internal_error_number;
 extern char *_dl_ldsopath;
 
 struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
-	struct elf_resolve *tpnt, char *full_libname)
+	struct elf_resolve *tpnt, char *full_libname, int trace_loaded_objects)
 {
 	char *pnt, *pnt1;
 	struct elf_resolve *tpnt1;
@@ -265,7 +266,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	/* Critical step!  Weed out duplicates early to avoid
 	 * function aliasing, which wastes memory, and causes
 	 * really bad things to happen with weaks and globals. */
-	if ((tpnt1=_dl_check_if_named_library_is_loaded(libname))!=NULL)
+	if ((tpnt1=_dl_check_if_named_library_is_loaded(libname, trace_loaded_objects))!=NULL)
 		return tpnt1;
 
 #if defined (__SUPPORT_LD_DEBUG__)

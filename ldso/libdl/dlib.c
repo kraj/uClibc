@@ -32,9 +32,9 @@ static int __attribute__ ((unused)) foobar1 = (int) foobar;	/* Use as pointer */
 extern void _dl_dprintf(int, const char *, ...) __attribute__ ((__weak__, __alias__ ("foobar")));
 extern char *_dl_find_hash(const char *, struct dyn_elf *, struct elf_resolve *, enum caller_type)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
-extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **, struct elf_resolve *, char *)
+extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **, struct elf_resolve *, char *, int)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
-extern struct elf_resolve * _dl_check_if_named_library_is_loaded(const char *full_libname)
+extern struct elf_resolve * _dl_check_if_named_library_is_loaded(const char *, int)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
 extern int _dl_fixup(struct dyn_elf *rpnt, int lazy)
 	 __attribute__ ((__weak__, __alias__ ("foobar")));
@@ -79,7 +79,7 @@ int   _dl_debug_file = 2;
 char *_dl_library_path = 0;
 char *_dl_ldsopath = 0;
 struct r_debug *_dl_debug_addr = NULL;
-static char *_dl_malloc_addr, *_dl_mmap_zero;
+static unsigned char *_dl_malloc_addr, *_dl_mmap_zero;
 #include "../ldso/_dl_progname.h"               /* Pull in the name of ld.so */
 #include "../ldso/hash.c"
 #define _dl_trace_loaded_objects    0
@@ -179,7 +179,7 @@ void *_dlopen(const char *libname, int flag)
 	if(_dl_debug) 
 	_dl_dprintf(_dl_debug_file, "Trying to dlopen '%s'\n", (char*)libname);
 #endif
-	tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname);
+	tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname, 0);
 	if (tpnt == NULL) {
 		_dl_unmap_cache();
 		return NULL;
@@ -226,7 +226,7 @@ void *_dlopen(const char *libname, int flag)
 						lpntstr, tcurr->libname);
 #endif
 
-				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr))) {
+				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, 0))) {
 					goto oops;
 				}
 

@@ -44,7 +44,7 @@ endif
 
 XXFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1include/gp")
 LDFLAGS=$(CPU_LDFLAGS-y) -shared --warn-common --export-dynamic --sort-common \
-	-z combreloc --discard-locals --discard-all
+	-z combreloc --discard-locals --discard-all --no-undefined
 
 CSRC= ldso.c #hash.c readelflib1.c $(TARGET_ARCH)/elfinterp.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
