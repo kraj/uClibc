@@ -44,7 +44,7 @@ export TARGET_ARCH
 CROSS=
 CC= $(CROSS)gcc
 STRIPTOOL=strip
-LDD=../$(TESTDIR)ldso/util/ldd
+LDD=../$(TOPDIR)/utils/ldd
 
 RM= rm -f
 

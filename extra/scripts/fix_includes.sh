@@ -59,10 +59,10 @@ while [ -n "$1" ]; do
     esac;
 done;
 
-if [ ! -f "$KERNEL_SOURCE/Makefile" ]; then
+if [ ! -f "$KERNEL_SOURCE/Makefile" -a ! -f "$KERNEL_SOURCE/include/linux/version.h" ]; then
     echo "";
     echo "";
-    echo "The file $KERNEL_SOURCE/Makefile is missing!";
+    echo "The file $KERNEL_SOURCE/Makefile or $KERNEL_SOURCE/include/linux/version.h is missing!";
     echo "Perhaps your kernel source is broken?"
     echo "";
     echo "";
@@ -78,8 +78,21 @@ if [ ! -d "$KERNEL_SOURCE" ]; then
     exit 1;
 fi;
 
-# set current VERSION, PATCHLEVEL, SUBLEVEL, EXTERVERSION
+if [ -f "$KERNEL_SOURCE/Makefile" ] ; then
+# set current VERSION, PATCHLEVEL, SUBLEVEL, EXTRAVERSION
 eval `sed -n -e 's/^\([A-Z]*\) = \([0-9]*\)$/\1=\2/p' -e 's/^\([A-Z]*\) = \(-[-a-z0-9]*\)$/\1=\2/p' $KERNEL_SOURCE/Makefile`
+else
+ver=`grep UTS_RELEASE $KERNEL_SOURCE/include/linux/version.h | cut -d '"' -f 2`
+VERSION=`echo "$ver" | cut -d '.' -f 1`
+PATCHLEVEL=`echo "$ver" | cut -d '.' -f 2`
+if echo "$ver" | grep -q '-' ; then
+SUBLEVEL=`echo "$ver" | sed "s/${VERSION}.${PATCHLEVEL}.//" | cut -d '-' -f 1`
+EXTRAVERSION=`echo "$ver" | sed "s/${VERSION}.${PATCHLEVEL}.${SUBLEVEL}-//"`
+else
+SUBLEVEL=`echo "$ver" | cut -d '.' -f 3`
+#EXTRAVERSION=
+fi
+fi
 if [ -z "$VERSION" -o -z "$PATCHLEVEL" -o -z "$SUBLEVEL" ]
 then
     echo "Unable to determine version for kernel headers"

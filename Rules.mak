@@ -220,8 +220,13 @@ ifeq ($(strip $(TARGET_ARCH)),arm)
 endif
 endif
 
+ifeq ($(SSP_CFLAGS),)
+SSP_CFLAGS=$(call check_gcc,-fno-stack-protector-all,)
+SSP_CFLAGS+=$(call check_gcc,-fstack-protector,)
+endif
+
 # Some nice CFLAGS to work with
-CFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) \
+CFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
 
 ifeq ($(DODEBUG),y)
