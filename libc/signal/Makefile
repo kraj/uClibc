@@ -26,7 +26,7 @@ include $(TOPDIR)Rules.mak
 CSRC=bsd_sig.c raise.c sigblock.c siggetmask.c sigjmp.c signal.c sigintr.c\
 	sigpause.c sigstmsk.c killpg.c allocrtsig.c sigsetops.c \
 	sigaddset.c sigandset.c sigdelset.c sigfillset.c sigorset.c \
-	sigempty.c sighold.c sigisempty.c sigismem.c sigrelse.c
+	sigempty.c sighold.c sigisempty.c sigismem.c sigrelse.c sysv_signal.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(COBJS)
