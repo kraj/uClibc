@@ -41,6 +41,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <rpc/types.h>
 #include <rpc/xdr.h>
@@ -238,9 +239,7 @@ char *cp;
 /*
  * XDR an unsigned char
  */
-bool_t xdr_u_char(xdrs, cp)
-XDR *xdrs;
-char *cp;
+bool_t xdr_u_char (XDR *xdrs, u_char *cp)
 {
 	u_int u;
 
@@ -317,7 +316,7 @@ caddr_t cp;
 register u_int cnt;
 {
 	register u_int rndup;
-	static crud[BYTES_PER_XDR_UNIT];
+	static u_long crud[BYTES_PER_XDR_UNIT];
 
 	/*
 	 * if no data we are done
@@ -439,7 +438,7 @@ bool_t xdr_union(xdrs, dscmp, unp, choices, dfault)
 register XDR *xdrs;
 enum_t *dscmp;					/* enum to decide which arm to work on */
 char *unp;						/* the union itself */
-struct xdr_discrim *choices;	/* [value, xdr proc] for each arm */
+const struct xdr_discrim *choices;	/* [value, xdr proc] for each arm */
 xdrproc_t dfault;				/* default xdr routine */
 {
 	register enum_t dscm;

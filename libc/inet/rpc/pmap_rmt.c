@@ -108,12 +108,9 @@ u_long *port_ptr;
  * XDR remote call arguments
  * written for XDR_ENCODE direction only
  */
-bool_t xdr_rmtcall_args(xdrs, arg2)
-register XDR *xdrs;
-void * arg2;
+bool_t xdr_rmtcall_args(XDR *xdrs, struct rmtcallargs *cap)
 {
 	u_int lenposition, argposition, position;
-	register struct rmtcallargs *cap = arg2;
 
 	if (xdr_u_long(xdrs, &(cap->prog)) &&
 		xdr_u_long(xdrs, &(cap->vers)) && xdr_u_long(xdrs, &(cap->proc))) {
@@ -226,8 +223,8 @@ char *buf;						/* why allocxate more when we can use existing... */
 #endif
 }
 
-typedef bool_t(*resultproc_t) ();
-void _rpc_dtablesize(void );
+//typedef bool_t(*resultproc_t) ();
+//void _rpc_dtablesize(void );
 
 
 enum clnt_stat

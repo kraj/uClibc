@@ -132,12 +132,8 @@ SVCXPRT *xprt;
  * The dispatch routine will be called when a rpc request for this
  * program number comes in.
  */
-bool_t svc_register(xprt, prog, vers, dispatch, protocol)
-SVCXPRT *xprt;
-u_long prog;
-u_long vers;
-void (*dispatch) ();
-int protocol;
+bool_t svc_register (SVCXPRT *xprt, u_long prog, 
+	u_long vers, __dispatch_fn_t dispatch, u_long protocol)
 {
 	struct svc_callout *prev;
 	register struct svc_callout *s;
