@@ -44,8 +44,10 @@ TARGET_ARCH=${shell $(CC) -dumpmachine | sed -e s'/-.*//' -e 's/i.86/i386/' -e '
 # Some nice architecture specific optimizations
 ifndef OPTIMIZATION
 # use '-Os' optimization if available, else use -O2, allow Config to override
-OPTIMIZATION = ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
+OPTIMIZATION += ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
     then echo "-Os"; else echo "-O2" ; fi}
+OPTIMIZATION += ${shell if $(CC) -falign-functions=1 -S -o /dev/null -xc \
+		/dev/null >/dev/null 2>&1; then echo "-falign-functions=1"; fi}
 ifeq ($(strip $(TARGET_ARCH)),arm)
 	OPTIMIZATION+=-fstrict-aliasing
 endif

@@ -76,6 +76,7 @@ headers: dummy
 		fi; \
 	fi;
 	@if [ ! -f include/asm/unistd.h ] ; then \
+	    set -e; \
 	    echo " "; \
 	    echo "The path '$(KERNEL_SOURCE)/include/asm' doesn't exist."; \
 	    echo "I bet you didn't set KERNEL_SOURCE, TARGET_ARCH or HAS_MMU in \`Config'"; \
@@ -84,6 +85,7 @@ headers: dummy
 	    /bin/false; \
 	fi;
 	@if [ $(HAS_MMU) != "true" ]  && [ $(TARGET_ARCH) = "i386" ] ; then \
+	    set -e; \
 	    echo "WARNING: I bet your x86 system really has an MMU, right?"; \
 	    echo "         malloc and friends won't work unless you fix \`Config'"; \
 	    echo " "; \
@@ -199,13 +201,15 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
 	ln -fs $(DEVEL_PREFIX)/bin/ldd $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
 	ln -fs $(DEVEL_PREFIX)/bin/readelf $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf
-	if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
+	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
+	    set -x -e; \
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(DEVEL_PREFIX)/lib; \
 	    mkdir -p $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
 	    ln -s $(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so \
 	    		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) || true; \
 	fi;
-	if [ -x ldso/util/ldconfig ] ; then \
+	@if [ -x ldso/util/ldconfig ] ; then \
+	    set -x -e; \
 	    install -d $(PREFIX)$(DEVEL_PREFIX)/etc; \
 	    install -m 755 ldso/util/ldconfig $(PREFIX)$(DEVEL_PREFIX)/bin; \
 	    ln -fs $(DEVEL_PREFIX)/sbin/ldconfig $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig; \
@@ -229,13 +233,15 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	cp -a lib/*.so.* $(PREFIX)$(TARGET_PREFIX)/lib
 	install -m 755 ldso/util/ldd $(PREFIX)$(TARGET_PREFIX)/usr/bin
 	install -m 755 ldso/util/readelf $(PREFIX)$(TARGET_PREFIX)/usr/bin
-	if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
+	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
+	    set -x -e; \
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(TARGET_PREFIX)/lib; \
 	    mkdir -p $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
 	    ln -s $(TARGET_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so \
 	    		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) || true; \
 	fi;
-	if [ -x ldso/util/ldconfig ] ; then \
+	@if [ -x ldso/util/ldconfig ] ; then \
+	    set -x -e; \
 	    install -d $(PREFIX)$(TARGET_PREFIX)/etc; \
 	    install -m 755 ldso/util/ldconfig $(PREFIX)$(TARGET_PREFIX)/sbin; \
 	fi;

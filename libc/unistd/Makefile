@@ -71,13 +71,15 @@ sysconf_tester.o: sysconf.c
 
 gen_sysconf_tester.o: sysconf_tester.o getpagesize_tester.o
 	@ld -r -o gen_sysconf_tester.o sysconf_tester.o getpagesize_tester.o
-	@if nm -s gen_sysconf_tester.o | grep -v "U errno" | grep " U " ;\
-	then \
+	@if [ nm -s gen_sysconf_tester.o | grep -v "U errno" | grep " U " ] ; then \
+		set -e -x; \
 		echo warning: missing symbols in gen_sysconf_tester.o so using generic sysconf.c ;\
 		cp -f sysconf.c sysconf_src.c ;\
 	else \
-		if ../extra/gcc-uClibc/gcc-uClibc-$(NATIVE_ARCH) -static -D_UCLIBC_GENERATE_SYSCONF_MAIN sysconf.c sysconf_tester.o -o gen_sysconf && \
-			./gen_sysconf > sysconf_$(NATIVE_ARCH).c ;\
+		set -e -x; \
+		if ../extra/gcc-uClibc/gcc-uClibc-$(NATIVE_ARCH) -static \
+			-D_UCLIBC_GENERATE_SYSCONF_MAIN sysconf.c sysconf_tester.o \
+			-o gen_sysconf && ./gen_sysconf > sysconf_$(NATIVE_ARCH).c ;\
 		then \
 			echo successfully built sysconf_$(NATIVE_ARCH).c ;\
 		else \

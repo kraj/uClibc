@@ -85,6 +85,7 @@ endif
 
 $(LIBM): ar-target
 	@if [ -f $(LIBM) ] ; then \
+		set -x -e; \
 		install -d $(TOPDIR)lib; \
 		rm -f $(TOPDIR)lib/$(LIBM); \
 		install -m 644 $(LIBM) $(TOPDIR)lib; \
@@ -92,6 +93,7 @@ $(LIBM): ar-target
 
 shared: all
 	if [ -f $(LIBM) ] ; then \
+	    set -x -e; \
 	    $(TARGET_CC) $(TARGET_LDFLAGS) -nostdlib -shared -o $(LIBM_SHARED_FULLNAME) \
 		-Wl,-soname,$(LIBM_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBM) -lc; \
 	    install -d $(TOPDIR)lib; \
