@@ -62,9 +62,14 @@ void endgrent(void)
 
 struct group *getgrent(void)
 {
+    struct group *r;
+
     LOCK;
-    if (grp_fd == -1)
+    if (grp_fd == -1) {
+	UNLOCK;
 	return NULL;
-    return __getgrent(grp_fd);
+    }
+    r = __getgrent(grp_fd);
     UNLOCK;
+    return r;
 }
