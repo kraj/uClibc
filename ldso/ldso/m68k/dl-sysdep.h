@@ -1,25 +1,29 @@
-
-/* Various assmbly language/system dependent hacks that are required
-   so that we can minimize the amount of platform specific code. */
+/* vi: set sw=4 ts=4: */
+/*
+ * Various assmbly language/system dependent hacks that are required
+ * so that we can minimize the amount of platform specific code. 
+ * Copyright (C) 2005 by Erik Andersen <andersen@codepoet.org>
+ */
 
 /* Define this if the system uses RELOCA.  */
 #define ELF_USES_RELOCA
 #include <elf.h>
 /* Initialization sequence for a GOT.  */
-#define INIT_GOT(GOT_BASE,MODULE)		\
-{						\
-  GOT_BASE[2] = (int) _dl_linux_resolve;	\
-  GOT_BASE[1] = (int) (MODULE);			\
-}
+#define INIT_GOT(GOT_BASE,MODULE) \
+do { \
+	GOT_BASE[2] = (int) _dl_linux_resolve; \
+	GOT_BASE[1] = (int) (MODULE); \
+} while(0)
 
 /* Here we define the magic numbers that this dynamic loader should accept */
 #define MAGIC1 EM_68K
-#undef MAGIC2
+#undef  MAGIC2
+
 /* Used for error messages */
 #define ELF_TARGET "m68k"
 
 struct elf_resolve;
-extern unsigned int _dl_linux_resolver (int, int, struct elf_resolve *, int);
+extern unsigned int _dl_linux_resolver (struct elf_resolve *, int);
 
 /* Define this because we do not want to call .udiv in the library.
    Not needed for m68k.  */
