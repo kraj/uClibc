@@ -41,7 +41,7 @@ export TARGET_ARCH
 #        make CROSS=mipsel-linux-
 # will build uClibc for 'mipsel'.
 
-CROSS=../$(TESTDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-
+CROSS=
 CC= $(CROSS)gcc
 STRIPTOOL=strip
 LDD=../$(TESTDIR)ldso/util/ldd
@@ -70,9 +70,9 @@ endif
 
 XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes
 XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
-CFLAGS=--uclibc-use-build-dir $(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS)
+CFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS)
 GLIBC_CFLAGS+=$(XWARNINGS) $(OPTIMIZATION)
-LDFLAGS=--uclibc-use-build-dir
+LDFLAGS=
 
 ifeq ($(DODEBUG),true)
     CFLAGS+=-g
