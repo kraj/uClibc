@@ -44,7 +44,8 @@ CSRC:=create_xid.c pmap_clnt.c pmap_getmaps.c pmap_getport.c \
 	auth_none.c auth_unix.c xdr.c xdr_array.c xdr_rec.c \
 	xdr_reference.c xdr_mem.c svc.c svc_auth.c svc_auth_unix.c \
 	rpc_callmsg.c rpc_prot.c rpc_dtablesize.c rpc_commondata.c \
-	rpc_thread.c rcmd.c rexec.c sa_len.c ruserpass.c rtime.c 
+	rpc_thread.c rcmd.c rexec.c sa_len.c ruserpass.c rtime.c \
+	getrpcent.c
 endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
