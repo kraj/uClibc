@@ -39,6 +39,7 @@ NATIVE_CC = gcc
 CC = $(CROSS)gcc
 AR = $(CROSS)ar
 LD = $(CROSS)ld
+NM = $(CROSS)nm
 STRIPTOOL = $(CROSS)strip
 #STRIPTOOL = /bin/true
 

@@ -40,6 +40,7 @@ CROSS = /usr/cygnus/yapp-001013/H-i686-pc-linux-gnulibc2.1/bin/sh-linux-gnu-
 CC = $(CROSS)gcc
 AR = $(CROSS)ar
 LD = $(CROSS)ld
+NM = $(CROSS)nm
 STRIPTOOL = $(CROSS)strip
 #STRIPTOOL = /bin/true
 

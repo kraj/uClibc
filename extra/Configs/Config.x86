@@ -39,6 +39,7 @@ CROSS = #i386-linux-
 CC = $(CROSS)gcc
 AR = $(CROSS)ar
 LD = $(CROSS)ld
+NM = $(CROSS)nm
 STRIPTOOL = $(CROSS)strip
 #STRIPTOOL = /bin/true
 
