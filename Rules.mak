@@ -33,16 +33,16 @@ OPTIMIZATION = $(shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&
 ARFLAGS=r
 
 
-CCFLAGS=$(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -Dlinux -D__linux__ -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D__LIBC__
+CCFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -Dlinux -D__linux__ -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D__LIBC__
 
 CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS)
 
 ifeq ($(DODEBUG),true)
-    CFLAGS += $(WARNINGS) -g
+    CFLAGS += -g
     LDFLAGS = -nostdlib -Wl,-warn-common 
     STRIPTOOL = /bin/true -Since_we_are_debugging
 else
-    CFLAGS  += -DNDEBUG $(WARNINGS) #-fomit-frame-pointer
+    CFLAGS  += -DNDEBUG #-fomit-frame-pointer
     LDFLAGS  = -s -nostdlib -Wl,-warn-common
 endif
 
