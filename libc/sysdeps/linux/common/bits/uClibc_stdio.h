@@ -438,6 +438,14 @@ typedef enum {
 	__UIM_UPPER = 'A' - 10,
 } __UIM_CASE;
 
+/* WARNING!!! While similar to the glibc strerror_r function, the
+ * following function is not the same.  It expects "unknown" error
+ * strings will fit in the buffer passed.  Also, the return value
+ * may not be == buf, as unknown strings are "right-justified" in
+ * the buf due to the way _int10stostr works. */
+
+extern char *_stdio_strerror_r(int err, char *buf, size_t buflen);
+
 /* Write a NULL-terminated list of "char *" args to file descriptor fd.
  * For an example of usage, see __assert.c.
  */

@@ -1207,7 +1207,7 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 			}
 #ifdef __STDIO_PRINTF_M_SUPPORT
 		} else if (ppfs->conv_num == CONV_m) {
-			s = strerror(errno);
+			s = _stdio_strerror_r(errno, buf, sizeof(buf));
 			goto SET_STRING_LEN;
 #endif
 		} else {

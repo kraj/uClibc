@@ -57,7 +57,7 @@ MOBJ = fclose.o fflush.o fopen.o freopen.o perror.o remove.o \
 	__fsetlocking.o flockfile.o ftrylockfile.o funlockfile.o \
 	_stdio_fopen.o _stdio_fread.o _stdio_fwrite.o _stdio_adjpos.o \
 	_stdio_lseek.o _stdio_init.o \
-	_stdio_fsfopen.o _stdio_fdout.o _uintmaxtostr.o
+	_stdio_fsfopen.o _stdio_fdout.o _uintmaxtostr.o _stdio_strerror_r.o
 
 # ifeq ($(DOLFS),true)
 # 	MOBJ += fopen64.o freopen64.o ftello64.o fseeko64.o fsetpos64.o fgetpos64.o
