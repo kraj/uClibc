@@ -63,8 +63,5 @@ $(COBJ): %.o : %.c
 
 $(OBJ): Makefile
 
-__getgrent_r.c: config.h
-initgroups.c: config.h
-
 clean:
 	$(RM) *.[oa] *~ core
