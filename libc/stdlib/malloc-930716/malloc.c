@@ -468,7 +468,7 @@ void * realloc (void *ptr, size_t size)
 	    if (size <= BLOCKSIZE / 2) {
 		if ((result = malloc_unlocked(size)) != NULL) {
 		    memcpy(result, ptr, size);
-		    free(ptr);
+		    free_unlocked(ptr);
 		}
 		UNLOCK;
 		return result;
@@ -484,7 +484,7 @@ void * realloc (void *ptr, size_t size)
 		_heapinfo[block + blocks].busy.info.size
 		    = _heapinfo[block].busy.info.size - blocks;
 		_heapinfo[block].busy.info.size = blocks;
-		free(ADDRESS(block + blocks));
+		free_unlocked(ADDRESS(block + blocks));
 		UNLOCK;
 		return ptr;
 	    } else if (blocks == _heapinfo[block].busy.info.size) {
@@ -499,7 +499,7 @@ void * realloc (void *ptr, size_t size)
 		/* Prevent free from actually returning memory to the system. */
 		oldlimit = _heaplimit;
 		_heaplimit = 0;
-		free(ptr);
+		free_unlocked(ptr);
 		_heaplimit = oldlimit;
 		result = malloc_unlocked(size);
 		if (!result) {
@@ -511,7 +511,7 @@ void * realloc (void *ptr, size_t size)
 		    else {
 			previous = malloc_unlocked((block - _heapindex) * BLOCKSIZE);
 			malloc_unlocked(blocks * BLOCKSIZE);
-			free(previous);
+			free_unlocked(previous);
 		    }	    
 		    UNLOCK;
 		    return NULL;
@@ -540,7 +540,7 @@ void * realloc (void *ptr, size_t size)
 		    return NULL;
 		}
 		memcpy(result, ptr, MIN(size, (size_t)(1 << type)));
-		free(ptr);
+		free_unlocked(ptr);
 		UNLOCK;
 		return result;
 	    }
