@@ -219,8 +219,9 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 	}
 }
 
-static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid, const char *s)
+static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid, char *s)
 {
+	char *tmp, *tmp1, *tmp2;
 	struct library *cur, *newlib=lib_list;
 
 	if (!s || !strlen(s))
@@ -230,9 +231,23 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int i
 	if (strcmp(s, UCLIBC_LDSO)==0)
 		return 1;
 
+	tmp = s; 
+	while (*tmp) {
+		if (*tmp == '/')
+			s = tmp + 1;
+		tmp++;
+	}
+
 	for (cur = lib_list; cur; cur=cur->next) {
-		if(strcmp(cur->name, s)==0) {
-			/* Lib is already in the list */
+		/* Check if this library is already in the list */
+		tmp1 = tmp2 = cur->name; 
+		while (*tmp1) {
+			if (*tmp1 == '/')
+				tmp2 = tmp1 + 1;
+			tmp1++;
+		}
+		if(strcmp(tmp2, s)==0) {
+			//printf("find_elf_interpreter is skipping '%s' (already in list)\n", cur->name);
 			return 0;
 		}
 	}
@@ -250,7 +265,7 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int i
 	/* Now try and locate where this library might be living... */
 	locate_library_file(ehdr, dynamic, strtab, is_setuid, newlib);
 
-	//printf("adding '%s' to '%s'\n", newlib->name, newlib->path);
+	//printf("add_library is adding '%s' to '%s'\n", newlib->name, newlib->path);
 	if (!lib_list) {
 		lib_list = newlib;
 	} else {
@@ -282,10 +297,28 @@ static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *str
 	been_there_done_that=1;
 	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
 	if (phdr) {
-		struct library *cur, *newlib=lib_list;
+		struct library *cur, *newlib=NULL;
 		char *s = (char*)ehdr + phdr->p_offset;
-
-		newlib = malloc(sizeof(struct library));
+	
+		char *tmp, *tmp1;
+		tmp1 = tmp = s;
+		while (*tmp) {
+			if (*tmp == '/')
+				tmp1 = tmp + 1;
+			tmp++;
+		}
+		for (cur = lib_list; cur; cur=cur->next) {
+			/* Check if this library is already in the list */
+			if(strcmp(cur->name, tmp1)==0) {
+				//printf("find_elf_interpreter is replacing '%s' (already in list)\n", cur->name);
+				newlib = cur;
+				free(newlib->name);
+				free(newlib->path);
+				return;
+			}
+		}
+		if (newlib == NULL)
+			newlib = malloc(sizeof(struct library));
 		if (!newlib)
 			return;
 		newlib->name = malloc(strlen(s));
@@ -293,8 +326,8 @@ static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *str
 		newlib->path = newlib->name;
 		newlib->resolved = 1;
 		newlib->next = NULL;
-
-		//printf("adding '%s' to '%s'\n", newlib->name, newlib->path);
+	
+		//printf("find_elf_interpreter is adding '%s' to '%s'\n", newlib->name, newlib->path);
 		if (!lib_list) {
 			lib_list = newlib;
 		} else {
