@@ -25,8 +25,8 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 DIRS:=
 
-CSRC=execl.c execlp.c execv.c execvep.c execvp.c execle.c getcwd.c getopt.c \
-	sleep.c usleep.c getpass.c sysconf_src.c getopt_vars.c getlogin.c \
+CSRC=execl.c execlp.c execv.c execvep.c execvp.c execle.c getcwd.c \
+	sleep.c usleep.c getpass.c sysconf_src.c getlogin.c \
 	fpathconf.c confstr.c pathconf.c
 ifeq ($(strip $(HAS_MMU)),true)
     CSRC+=daemon.c
@@ -41,11 +41,9 @@ endif
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-MSRC=gnu_getopt.c
+MSRC=getopt.c
 MOBJ=_gnu_getopt_internal.o gnu_getopt_long.o gnu_getopt_long_only.o
 
-# WARNING! MOBJ _must_ come after COBJS for link to pick getopt 
-# over gnu_getopt when appropriate.
 OBJS=$(COBJS) $(MOBJ)
 
 all: $(SYSCONF) $(OBJS) $(LIBC)
