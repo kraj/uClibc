@@ -24,6 +24,7 @@
 #ifndef _BITS_SOCKADDR_H
 #define _BITS_SOCKADDR_H	1
 
+__BEGIN_DECLS
 
 /* POSIX.1g specifies this type name for the `sa_family' member.  */
 typedef unsigned short int sa_family_t;
@@ -36,5 +37,7 @@ typedef unsigned short int sa_family_t;
   sa_family_t sa_prefix##family
 
 #define __SOCKADDR_COMMON_SIZE	(sizeof (unsigned short int))
+
+__END_DECLS
 
 #endif	/* bits/sockaddr.h */

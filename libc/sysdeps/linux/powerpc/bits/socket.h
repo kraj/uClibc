@@ -24,6 +24,8 @@
 # error "Never include <bits/socket.h> directly; use <sys/socket.h> instead."
 #endif
 
+__BEGIN_DECLS
+
 #define	__need_size_t
 #define __need_NULL
 #include <stddef.h>
@@ -310,5 +312,7 @@ struct linger
     int l_onoff;		/* Nonzero to linger on close.  */
     int l_linger;		/* Time to linger.  */
   };
+
+__END_DECLS
 
 #endif	/* bits/socket.h */
