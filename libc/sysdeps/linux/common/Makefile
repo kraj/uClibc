@@ -25,7 +25,7 @@ CSRC=	waitpid.c getdnnm.c gethstnm.c getcwd.c \
 	cmsg_nxthdr.c longjmp.c open64.c ftruncate64.c \
 	truncate64.c getrlimit64.c setrlimit64.c creat64.c mmap64.c \
 	llseek.c pread_write.c _exit.c setuid.c sync.c getdirname.c \
-	sendfile64.c
+	sendfile64.c xstatconv.c
 ifneq ($(strip $(EXCLUDE_BRK)),y)
 CSRC+=sbrk.c
 endif

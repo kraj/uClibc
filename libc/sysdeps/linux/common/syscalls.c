@@ -970,8 +970,7 @@ _syscall2(int, getitimer, __itimer_which_t, which, struct itimerval *, value);
 #define __NR___syscall_stat __NR_stat
 #include <unistd.h>
 #include <sys/stat.h>
-#include <bits/kernel_stat.h>
-#include "xstatconv.c"
+#include "xstatconv.h"
 _syscall2(int, __syscall_stat, const char *, file_name, struct kernel_stat *, buf);
 int stat(const char * file_name, struct stat * buf)
 {
@@ -994,7 +993,7 @@ weak_alias(stat, stat64);
 #include <unistd.h>
 #include <sys/stat.h>
 #include <bits/kernel_stat.h>
-#include "xstatconv.c"
+#include "xstatconv.h"
 _syscall2(int, __syscall_lstat, const char *, file_name, struct kernel_stat *, buf);
 int lstat(const char * file_name, struct stat * buf)
 {
@@ -1017,7 +1016,7 @@ weak_alias(lstat, lstat64);
 #include <unistd.h>
 #include <sys/stat.h>
 #include <bits/kernel_stat.h>
-#include "xstatconv.c"
+#include "xstatconv.h"
 _syscall2(int, __syscall_fstat, int, fd, struct kernel_stat *, buf);
 int fstat(int fd, struct stat * buf)
 {
@@ -1676,7 +1675,7 @@ int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
 #include <unistd.h>
 #include <sys/stat.h>
 #include <bits/kernel_stat.h>
-#include "xstatconv.c"
+#include "xstatconv.h"
 _syscall2(int, __syscall_stat64, const char *, file_name, struct kernel_stat64 *, buf);
 int stat64(const char * file_name, struct stat64 * buf)
 {
@@ -1698,7 +1697,7 @@ int stat64(const char * file_name, struct stat64 * buf)
 #include <unistd.h>
 #include <sys/stat.h>
 #include <bits/kernel_stat.h>
-#include "xstatconv.c"
+#include "xstatconv.h"
 _syscall2(int, __syscall_lstat64, const char *, file_name, struct kernel_stat64 *, buf);
 int lstat64(const char * file_name, struct stat64 * buf)
 {
@@ -1720,7 +1719,7 @@ int lstat64(const char * file_name, struct stat64 * buf)
 #include <unistd.h>
 #include <sys/stat.h>
 #include <bits/kernel_stat.h>
-#include "xstatconv.c"
+#include "xstatconv.h"
 _syscall2(int, __syscall_fstat64, int, filedes, struct kernel_stat64 *, buf);
 int fstat64(int fd, struct stat64 * buf)
 {

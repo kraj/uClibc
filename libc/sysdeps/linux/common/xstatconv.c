@@ -20,7 +20,19 @@
    Modified for uClibc by Erik Andersen <andersen@codepoet.org>
    */
 
-static inline void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
+#define _GNU_SOURCE
+#define _LARGEFILE64_SOURCE
+#include <features.h>
+#undef __OPTIMIZE__
+/* We absolutely do _NOT_ want interfaces silently
+ *  *  * renamed under us or very bad things will happen... */
+#ifdef __USE_FILE_OFFSET64
+# undef __USE_FILE_OFFSET64
+#endif
+#include <sys/stat.h>
+#include "xstatconv.h"
+
+void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 {
     /* Convert to current kernel version of `struct stat'.  */
     buf->st_dev = kbuf->st_dev;
@@ -59,7 +71,7 @@ static inline void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 #endif
 }
 
-static inline void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
+void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 {
     /* Convert to current kernel version of `struct stat64'.  */
     buf->st_dev = kbuf->st_dev;
