@@ -61,12 +61,12 @@ KERNEL_SOURCE=/usr/src/linux
 
 # Set this to `false' if your CPU doesn't have a memory management unit (MMU).
 # Set it to `true' otherwise.
-HAS_MMU = false
+HAS_MMU = true
 
 # Set this to `false' if you don't have/need basic floating point support
 # support in libc (strtod, printf, scanf).  Set it to `true' otherwise.
 # Note: If not true, Rules.mak disables libm as well.
-HAS_FLOATING_POINT = false
+HAS_FLOATING_POINT = true
 
 # Set this to `false' if you don't have/need float functions in libm.
 # Set it to `true' otherwise, and make sure HAS_FLOATING_POINT is true as well.
@@ -145,7 +145,6 @@ INCLUDE_RPC = false
 # uClibc runtime environment.   This path does not get compiled into anything,
 # and is provided simply to make it easier to build standalone target systems.
 # Note: This doesn't do anything if there are no shared libs.
-
 DEVEL_PREFIX = 
 ROOT_DIR = /usr/$(TARGET_ARCH)-linux-uclibc
 TARGET_PREFIX = 
