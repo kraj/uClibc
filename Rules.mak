@@ -88,6 +88,7 @@ TARGET_ARCH:=$(shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		-e 's/v850.*/v850/g' \
 		-e 's/sh[234]/sh/' \
 		-e 's/mips.*/mips/' \
+		-e 's/mipsel.*/mipsel/' \
 		-e 's/cris.*/cris/' \
 		)
 endif
