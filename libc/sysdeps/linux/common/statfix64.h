@@ -3,9 +3,16 @@
 
 #include <features.h>
 
+#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
+#undef _FILE_OFFSET_BITS
 #define	_FILE_OFFSET_BITS   64
-#define __USE_FILE_OFFSET64
-#define __USE_LARGEFILE64
+#endif
+#ifndef __USE_FILE_OFFSET64
+# define __USE_FILE_OFFSET64	1
+#endif
+#ifndef __USE_LARGEFILE64
+# define __USE_LARGEFILE64	1
+#endif
 
 #ifdef __UCLIBC_HAVE_LFS__
 

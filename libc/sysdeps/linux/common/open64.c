@@ -29,7 +29,7 @@
 
 /* Open FILE with access OFLAG.  If OFLAG includes O_CREAT,
    a third argument is the file protection.  */
-int open64 (const char *file, int oflag, ...)
+int __libc_open64 (const char *file, int oflag, ...)
 {
   int mode = 0;
 
@@ -41,8 +41,7 @@ int open64 (const char *file, int oflag, ...)
       va_end (arg);
     }
 
-  return open(file, oflag | O_LARGEFILE, mode);
+  return __libc_open(file, oflag | O_LARGEFILE, mode);
 }
-
+weak_alias (__libc_open64, open64);
 #endif /* __UCLIBC_HAVE_LFS__ */
-

@@ -32,9 +32,6 @@
 /* Do not include unistd.h, so gcc doesn't whine about 
  * _exit returning.  It really doesn't return... */
 #define __NR__exit __NR_exit
-#ifdef __STR_NR_exit
-#define __STR_NR__exit __STR_NR_exit
-#endif
 _syscall1(void, _exit, int, status);
 #endif
 
@@ -71,30 +68,11 @@ weak_alias(__libc_write, write)
 #endif
 
 //#define __NR_open             5
-#ifdef L___open
+#ifdef L___libc_open
 #include <stdarg.h>
-#include <fcntl.h>
-#define __NR___open __NR_open
-#ifdef __STR_NR_open
-#define __STR_NR___open __STR_NR_open
-#endif
-_syscall3(int, __open, const char *, fn, int, flags, mode_t, mode);
-
-int __libc_open(const char *file, int oflag, ...)
-{
-	int mode = 0;
-
-	if (oflag & O_CREAT) {
-		va_list args;
-
-		va_start(args, oflag);
-		mode = va_arg(args, int);
-
-		va_end(args);
-	}
-
-	return __open(file, oflag, mode);
-}
+/* Do not include fcntl.h, so gcc doesn't whine the prototype */
+#define __NR___libc_open __NR_open
+_syscall3(int, __libc_open, const char *, fn, int, flags, mode_t, mode);
 weak_alias(__libc_open, open)
 #endif
 
@@ -252,9 +230,6 @@ _syscall1(int, stime, const time_t *, t);
 #ifdef L___ptrace
 #include <sys/ptrace.h>
 #define __NR___ptrace __NR_ptrace
-#ifdef __STR_NR_ptrace
-#define __STR_NR___ptrace __STR_NR_ptrace
-#endif
 _syscall4(long, __ptrace, enum __ptrace_request, request, pid_t, pid,
 		void*, addr, void*, data);
 #endif
@@ -436,9 +411,6 @@ _syscall1(int, acct, const char *, filename);
 #include <stdarg.h>
 #include <sys/ioctl.h>
 #define __NR__ioctl __NR_ioctl
-#ifdef __STR_NR_ioctl
-#define __STR_NR__ioctl __STR_NR_ioctl
-#endif
 extern int _ioctl(int fd, int request, void *arg);
 
 _syscall3(int, _ioctl, int, fd, int, request, void *, arg);
@@ -461,9 +433,6 @@ int ioctl(int fd, unsigned long int request, ...)
 #include <stdarg.h>
 #include <fcntl.h>
 #define __NR__fcntl __NR_fcntl
-#ifdef __STR_NR_fcntl
-#define __STR_NR__fcntl __STR_NR_fcntl
-#endif
 extern int _fcntl(int fd, int cmd, long arg);
 
 _syscall3(int, _fcntl, int, fd, int, cmd, long, arg);
@@ -674,9 +643,6 @@ _syscall2(int, swapon, const char *, path, int, swapflags);
 //#define __NR_reboot           88
 #ifdef L__reboot
 #define __NR__reboot __NR_reboot
-#ifdef __STR_NR_reboot
-#define __STR_NR__reboot __STR_NR_reboot
-#endif
 extern int _reboot(int magic, int magic2, int flag);
 
 _syscall3(int, _reboot, int, magic, int, magic2, int, flag);
@@ -692,9 +658,6 @@ int reboot(int flag)
 //#define __NR_mmap             90
 #ifdef L__mmap
 #define __NR__mmap __NR_mmap
-#ifdef __STR_NR_mmap
-#define __STR_NR__mmap __STR_NR_mmap
-#endif
 #include <unistd.h>
 #include <sys/mman.h>
 extern __ptr_t _mmap(unsigned long *buffer);
@@ -796,9 +759,6 @@ _syscall2(int, socketcall, int, call, unsigned long *, args);
 #ifdef L__syslog
 #include <unistd.h>
 #define __NR__syslog		__NR_syslog
-#ifdef __STR_NR_syslog
-#define __STR_NR__syslog	__STR_NR_syslog
-#endif
 extern int _syslog(int type, char *buf, int len);
 
 _syscall3(int, _syslog, int, type, char *, buf, int, len);
@@ -828,9 +788,6 @@ _syscall2(int, getitimer, __itimer_which_t, which, struct itimerval *, value);
 #include <unistd.h>
 #include "statfix.h"
 #define __NR___stat	__NR_stat
-#ifdef __STR_NR_stat
-#define __STR_NR___stat	__STR_NR_stat
-#endif
 extern int __stat(const char *file_name, struct kernel_stat *buf);
 _syscall2(int, __stat, const char *, file_name, struct kernel_stat *, buf);
 
@@ -856,9 +813,6 @@ int stat(const char *file_name, struct libc_stat *buf)
 #include <unistd.h>
 #include "statfix.h"
 #define __NR___lstat	__NR_lstat
-#ifdef __STR_NR_lstat
-#define __STR_NR___lstat	__STR_NR_lstat
-#endif
 extern int __lstat(const char *file_name, struct kernel_stat *buf);
 _syscall2(int, __lstat, const char *, file_name, struct kernel_stat *, buf);
 
@@ -884,9 +838,6 @@ int lstat(const char *file_name, struct libc_stat *buf)
 #include <unistd.h>
 #include "statfix.h"
 #define __NR___fstat	__NR_fstat
-#ifdef __STR_NR_fstat
-#define __STR_NR___fstat	__STR_NR_fstat
-#endif
 extern int __fstat(int filedes, struct kernel_stat *buf);
 _syscall2(int, __fstat, int, filedes, struct kernel_stat *, buf);
 
@@ -955,9 +906,6 @@ _syscall1(int, sysinfo, struct sysinfo *, info);
 //#define __NR_ipc              117
 #ifdef L___ipc
 #define __NR___ipc __NR_ipc
-#ifdef __STR_NR_ipc
-#define __STR_NR___ipc __STR_NR_ipc
-#endif
 _syscall5(int, __ipc, unsigned int, call, int, first, int, second, int, third, void *, ptr);
 #endif
 
@@ -1091,13 +1039,14 @@ _syscall1(int, setfsgid, gid_t, gid);
 #endif
 
 //#define __NR__llseek          140
+#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L__llseek
 extern int _llseek(int fd, off_t hoff, off_t loff, loff_t *res, int whence);
 
 _syscall5(int, _llseek, int, fd, off_t, hoff, off_t, loff, loff_t *, res,
 		  int, whence);
 
-loff_t llseek(int fd, loff_t offset, int whence)
+loff_t __libc_lseek64(int fd, loff_t offset, int whence)
 {
 	int ret;
 	loff_t result;
@@ -1107,8 +1056,8 @@ loff_t llseek(int fd, loff_t offset, int whence)
 
 	return ret ? (loff_t) ret : result;
 }
-#ifdef __UCLIBC_HAVE_LFS__
-weak_alias(llseek, lseek64);
+weak_alias(__libc_lseek64, llseek);
+weak_alias(__libc_lseek64, lseek64);
 #endif
 #endif
 
@@ -1136,13 +1085,15 @@ _syscall2(int,flock,int,fd, int,operation);
 #endif
 
 //#define __NR_msync            144
-/* If this ever gets implemented, be sure to use the __libc_ convention
- * so that it can be over-ridden with a cancelable version by linuxthreads.
- * Also update uClibc/libpthread/linuxthreads/wrapsyscall.c to do the override.
- */
+#ifdef L___libc_msync
+#include <unistd.h>
+#include <sys/mman.h>
+#define __NR___libc_msync __NR_msync
+_syscall3(int, __libc_msync, void *, addr, size_t, length, int, flags);
+weak_alias(__libc_msync, msync);
+#endif
 
 //#define __NR_readv            145
-
 #ifdef L_readv
 #include <sys/uio.h>
 _syscall3(ssize_t, readv, int, filedes, const struct iovec *, vector, int,
@@ -1377,7 +1328,31 @@ int sigsuspend (const sigset_t *mask)
 #endif
 
 //#define __NR_pread                    180
+#if 0
+/* If you enable these, be sure to also enable the cancelable version
+ * in uClibc/libpthread/linuxthreads/wrapsyscall.c so this can be
+ * overriden.
+ */
+#ifdef L___libc_pread
+#define _XOPEN_SOURCE 500
+#include <unistd.h>
+#define __NR___libc_pread __NR_pread
+_syscall4(ssize_t, __libc_pread, int, fd, void *, buf, size_t, count, off_t, offset);
+weak_alias (__libc_pread, pread)
+#endif
+#endif
+
 //#define __NR_pwrite                   181
+#if 0
+#ifdef L___libc_pwrite
+#define _XOPEN_SOURCE 500
+#include <unistd.h>
+#define __NR___libc_pwrite __NR_pwrite
+_syscall4(ssize_t, __libc_pwrite, int, fd, const void *, buf, size_t, count, off_t, offset);
+weak_alias (__libc_pwrite, pwrite)
+#endif
+#endif
+
 //#define __NR_chown                    182
 #ifdef L_chown
 #include <unistd.h>
@@ -1464,9 +1439,6 @@ _syscall2(int, ftruncate64, int, fd, __off64_t, length);
 #include <unistd.h>
 #include "statfix64.h"
 #define __NR___stat64	__NR_stat64
-#ifdef __STR_NR_stat64
-#define __STR_NR___stat64	__STR_NR_stat64
-#endif
 extern int __stat64(const char *file_name, struct kernel_stat64 *buf);
 _syscall2(int, __stat64, const char *, file_name, struct kernel_stat64 *, buf);
 
@@ -1494,9 +1466,6 @@ int stat64(const char *file_name, struct libc_stat64 *buf)
 #include <unistd.h>
 #include "statfix64.h"
 #define __NR___lstat64	__NR_lstat64
-#ifdef __STR_NR_lstat64
-#define __STR_NR___lstat64	__STR_NR_lstat64
-#endif
 extern int __lstat64(const char *file_name, struct kernel_stat64 *buf);
 _syscall2(int, __lstat64, const char *, file_name, struct kernel_stat64 *, buf);
 
@@ -1524,9 +1493,6 @@ int lstat64(const char *file_name, struct libc_stat64 *buf)
 #include <unistd.h>
 #include "statfix64.h"
 #define __NR___fstat64	__NR_fstat64
-#ifdef __STR_NR_fstat64
-#define __STR_NR___fstat64	__STR_NR_fstat64
-#endif
 extern int __fstat64(int filedes, struct kernel_stat64 *buf);
 _syscall2(int, __fstat64, int, filedes, struct kernel_stat64 *, buf);
 

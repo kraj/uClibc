@@ -126,6 +126,8 @@ strong_alias (open64, __open64)
 CANCELABLE_SYSCALL (int, pause, (void), ())
 
 
+#if 0
+/* Enable this if enabling these in syscalls.c */
 /* pread(3).  */
 CANCELABLE_SYSCALL (ssize_t, pread, (int fd, void *buf, size_t count,
 				     off_t offset),
@@ -152,6 +154,7 @@ CANCELABLE_SYSCALL (ssize_t, pwrite64, (int fd, const void *buf, size_t n,
 					off64_t offset),
 		    (fd, buf, n, offset))
 strong_alias (pwrite64, __pwrite64)
+#endif
 #endif
 
 /* read(2).  */
