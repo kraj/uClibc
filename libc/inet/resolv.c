@@ -111,8 +111,8 @@
  *   and read_etc_hosts; getnameinfo() port from glibc; defined
  *   defined ip6addr_any and in6addr_loopback)
  *
- * 2-Feb-2002 Erik Andersen <andersee@debian.org>
- * Added gethostent(), sethostent(), and endhostent()
+ * 2-Feb-2002 Erik Andersen <andersen@codepoet.org>
+ *   Added gethostent(), sethostent(), and endhostent()
  *
  * 17-Aug-2002 Manuel Novoa III <mjn3@codepoet.org>
  *   Fixed __read_etc_hosts_r to return alias list, and modified buffer
@@ -127,6 +127,9 @@
  *   Lifted dn_expand() and dependent ns_name_uncompress(), ns_name_unpack(),
  *   and ns_name_ntop() from glibc 2.3.2 for compatibility with ipsec-tools 
  *   and openldap.
+ *
+ * 7-Sep-2004 Erik Andersen <andersen@codepoet.org>
+ *   Added gethostent_r()
  *
  */
 
@@ -1042,6 +1045,8 @@ struct hostent *gethostbyname2(const char *name, int family)
 }
 #endif
 
+
+
 #ifdef L_res_init
 struct __res_state _res;
 
@@ -1554,6 +1559,29 @@ void sethostent (int stay_open)
     UNLOCK;
 }
 
+int gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
+	struct hostent **result, int *h_errnop)
+{
+    int ret;
+
+    LOCK;
+    if (__gethostent_fp == NULL) {
+	__open_etc_hosts(&__gethostent_fp);
+	if (__gethostent_fp == NULL) {
+	    UNLOCK;
+	    *result=NULL;
+	    return 0;
+	}
+    }
+
+    ret = __read_etc_hosts_r(__gethostent_fp, NULL, AF_INET, GETHOSTENT, 
+		   result_buf, buf, buflen, result, h_errnop);
+    if (__stay_open==0) {
+	fclose(__gethostent_fp);
+    }
+    UNLOCK;
+    return(ret);
+}
 
 struct hostent *gethostent (void)
 {
@@ -1569,19 +1597,7 @@ struct hostent *gethostent (void)
     struct hostent *host;
 
     LOCK;
-    if (__gethostent_fp == NULL) {
-	__open_etc_hosts(&__gethostent_fp);
-	if (__gethostent_fp == NULL) {
-	    UNLOCK;
-	    return((struct hostent *)NULL);
-	}
-    }
-
-    __read_etc_hosts_r(__gethostent_fp, NULL, AF_INET, GETHOSTENT, 
-		   &h, buf, sizeof(buf), &host, &h_errno);
-    if (__stay_open==0) {
-	fclose(__gethostent_fp);
-    }
+    gethostent_r(&h, buf, sizeof(buf), &host, &h_errno);
     UNLOCK;
     return(host);
 }
