@@ -187,6 +187,9 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 	unsigned long old_val=0;
 #endif
 
+	if (tpnt->libtype == program_interpreter)
+		return 0;
+
 	/* Now parse the relocation information */
 	rel_size = rel_size / sizeof(Elf32_Rel);
 	rpnt = (Elf32_Rel *) (rel_addr + tpnt->loadaddr);
@@ -201,9 +204,6 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 		reloc_type = ELF32_R_TYPE(rpnt->r_info);
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
 		symbol_addr = 0;
-
-		if (!symtab_index && tpnt->libtype == program_interpreter)
-			continue;
 
 #if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab,strtab,symtab_index);

@@ -490,7 +490,7 @@ found_got:
 		unsigned long symbol_addr;
 		int symtab_index;
 		unsigned long rel_addr, rel_size;
-
+		Elf32_Sym *sym;
 
 		rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
 				dynamic_info[DT_RELOC_TABLE_ADDR]);
@@ -506,43 +506,24 @@ found_got:
 			reloc_addr = (unsigned long *) (load_addr + (unsigned long) rpnt->r_offset);
 			symtab_index = ELF32_R_SYM(rpnt->r_info);
 			symbol_addr = 0;
+			sym = NULL;
 			if (symtab_index) {
 				char *strtab;
-				char *symname;
 				Elf32_Sym *symtab;
 
 				symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + load_addr);
 				strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + load_addr);
-				symname = strtab + symtab[symtab_index].st_name;
+				sym = &symtab[symtab_index];
+				symbol_addr = load_addr + sym->st_value;
 
-				/* We only do a partial dynamic linking right now.  The user
-				   is not supposed to define any symbols that start with a
-				   '_dl', so we can do this with confidence. */
-				if (!symname || !_dl_symbol(symname)) {
-					continue;
-				}
-
-				symbol_addr = load_addr + symtab[symtab_index].st_value;
-
-				if (!symbol_addr) {
-					/* This will segfault - you cannot call a function until
-					 * we have finished the relocations.
-					 */
-					SEND_STDERR("ELF dynamic loader - unable to self-bootstrap - symbol ");
-					SEND_STDERR(symname);
-					SEND_STDERR(" undefined.\n");
-					goof++;
-				}
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 				SEND_STDERR("relocating symbol: ");
-				SEND_STDERR(symname);
+				SEND_STDERR(strtab + sym->st_name);
 				SEND_STDERR("\n");
 #endif
-				PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, &symtab[symtab_index]);
-			} else {
-				/* Use this machine-specific macro to perform the actual relocation.  */
-				PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, NULL);
 			}
+			/* Use this machine-specific macro to perform the actual relocation.  */
+			PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, sym);
 		}
 	}
 
