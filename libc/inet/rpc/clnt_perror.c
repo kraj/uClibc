@@ -45,11 +45,12 @@ static char sccsid[] =
 #include <rpc/auth.h>
 #include <rpc/clnt.h>
 
-extern char *sys_errlist[];
-static char *auth_errmsg();
+//extern char *sys_errlist[];
+//static char *auth_errmsg();
 
 extern char *strcpy();
 
+#if 0
 static char *buf;
 
 static char *_buf()
@@ -59,13 +60,12 @@ static char *_buf()
 		buf = (char *) malloc(256);
 	return (buf);
 }
+#endif	
 
 /*
  * Print reply error info
  */
-char *clnt_sperror(rpch, s)
-CLIENT *rpch;
-char *s;
+char *clnt_sperror __P ((CLIENT *rpch, const char *s))
 {
 #if 0
 	struct rpc_err e;
@@ -143,11 +143,10 @@ char *s;
 	(void) sprintf(str, "\n");
 	return (strstart);
 #endif
+	return (0);
 }
 
-void clnt_perror(rpch, s)
-CLIENT *rpch;
-char *s;
+void clnt_perror __P ((CLIENT *rpch, const char *s))
 {
 	(void) fprintf(stderr, "%s", clnt_sperror(rpch, s));
 }
@@ -224,8 +223,7 @@ enum clnt_stat num;
 }
 
 
-char *clnt_spcreateerror(s)
-char *s;
+char *clnt_spcreateerror __P ((__const char *s))
 {
 #if 0
 	extern int sys_nerr;
@@ -256,10 +254,10 @@ char *s;
 	(void) strcat(str, "\n");
 	return (str);
 #endif
+	return(0);
 }
 
-void clnt_pcreateerror(s)
-char *s;
+extern void clnt_pcreateerror __P ((__const char *s))
 {
 	(void) fprintf(stderr, "%s", clnt_spcreateerror(s));
 }
@@ -269,6 +267,7 @@ struct auth_errtab {
 	char *message;
 };
 
+#if 0
 static struct auth_errtab auth_errlist[] = {
 	{AUTH_OK,
 	 "Authentication OK"},
@@ -300,3 +299,4 @@ enum auth_stat stat;
 	}
 	return (NULL);
 }
+#endif	

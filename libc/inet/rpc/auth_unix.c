@@ -92,12 +92,9 @@ static bool_t marshal_new_auth();
  * Create a unix style authenticator.
  * Returns an auth handle with the given stuff in it.
  */
-AUTH *authunix_create(machname, uid, gid, len, aup_gids)
-char *machname;
-int uid;
-int gid;
-register int len;
-int *aup_gids;
+AUTH *authunix_create __P ((char *machname, uid_t uid,
+				   gid_t gid, int len,
+				   gid_t *aup_gids))
 {
 	struct authunix_parms aup;
 	char mymem[MAX_AUTH_BYTES];

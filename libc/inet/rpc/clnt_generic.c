@@ -43,11 +43,8 @@ static char sccsid[] = "@(#)clnt_generic.c 1.4 87/08/11 (C) 1987 SMI";
  * returns client handle. Default options are set, which the user can 
  * change using the rpc equivalent of ioctl()'s.
  */
-CLIENT *clnt_create(hostname, prog, vers, proto)
-char *hostname;
-unsigned prog;
-unsigned vers;
-char *proto;
+CLIENT *clnt_create __P ((const char *hostname, const u_long prog,
+				 const u_long vers, const char *proto))
 {
 	struct hostent *h;
 	struct protoent *p;
@@ -94,7 +91,7 @@ char *proto;
 			return (NULL);
 		}
 		tv.tv_sec = 25;
-		clnt_control(client, CLSET_TIMEOUT, &tv);
+		clnt_control(client, CLSET_TIMEOUT, (char*)&tv);
 		break;
 	case IPPROTO_TCP:
 		client = clnttcp_create(&sin, prog, vers, &sock, 0, 0);
@@ -103,7 +100,7 @@ char *proto;
 		}
 		tv.tv_sec = 25;
 		tv.tv_usec = 0;
-		clnt_control(client, CLSET_TIMEOUT, &tv);
+		clnt_control(client, CLSET_TIMEOUT, (char*)&tv);
 		break;
 	default:
 		rpc_createerr.cf_stat = RPC_SYSTEMERROR;

@@ -1,6 +1,3 @@
-static char sccsid[] =
-
-	"@(#)bindresvport.c	2.2 88/07/29 4.0 RPCSRC 1.8 88/02/08 SMI";
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for
  * unrestricted use provided that this legend is included on all tape
@@ -34,6 +31,8 @@ static char sccsid[] =
  * Copyright (c) 1987 by Sun Microsystems, Inc.
  */
 
+#include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/errno.h>
 #include <sys/socket.h>
@@ -42,7 +41,7 @@ static char sccsid[] =
 /*
  * Bind a socket to a privileged IP port
  */
-bindresvport(sd, sin)
+int bindresvport(sd, sin)
 int sd;
 struct sockaddr_in *sin;
 {

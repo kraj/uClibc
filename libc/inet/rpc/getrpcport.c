@@ -40,8 +40,8 @@ static char sccsid[] = "@(#)getrpcport.c 1.3 87/08/11 SMI";
 #include <netdb.h>
 #include <sys/socket.h>
 
-getrpcport(host, prognum, versnum, proto)
-char *host;
+extern int getrpcport (const char * host, u_long prognum,
+			   u_long versnum, u_int proto)
 {
 	struct sockaddr_in addr;
 	struct hostent *hp;

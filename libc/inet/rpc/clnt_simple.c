@@ -41,6 +41,7 @@ static char sccsid[] =
  */
 
 #include <stdio.h>
+#include <unistd.h>
 #include <rpc/rpc.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -53,10 +54,10 @@ static struct callrpc_private {
 	char *oldhost;
 } *callrpc_private;
 
-callrpc(host, prognum, versnum, procnum, inproc, in, outproc, out)
-char *host;
-xdrproc_t inproc, outproc;
-char *in, *out;
+int callrpc (const char *host, const u_long prognum,
+			 const u_long versnum, const u_long procnum,
+			 const xdrproc_t inproc, const char *in,
+			 const xdrproc_t outproc, char *out)
 {
 	register struct callrpc_private *crp = callrpc_private;
 	struct sockaddr_in server_addr;

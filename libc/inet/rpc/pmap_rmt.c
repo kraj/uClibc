@@ -105,11 +105,12 @@ u_long *port_ptr;
  * XDR remote call arguments
  * written for XDR_ENCODE direction only
  */
-bool_t xdr_rmtcall_args(xdrs, cap)
+bool_t xdr_rmtcall_args(xdrs, args)
 register XDR *xdrs;
-register struct rmtcallargs *cap;
+void * arg2;
 {
 	u_int lenposition, argposition, position;
+	register struct rmtcallargs *cap = arg2;
 
 	if (xdr_u_long(xdrs, &(cap->prog)) &&
 		xdr_u_long(xdrs, &(cap->vers)) && xdr_u_long(xdrs, &(cap->proc))) {
