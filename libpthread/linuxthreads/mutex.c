@@ -32,7 +32,7 @@ int pthread_mutex_init(pthread_mutex_t * mutex,
 {
   __pthread_init_lock(&mutex->__m_lock);
   mutex->__m_kind =
-    mutex_attr == NULL ? PTHREAD_MUTEX_FAST_NP : mutex_attr->__mutexkind;
+    mutex_attr == NULL ? PTHREAD_MUTEX_ADAPTIVE_NP : mutex_attr->__mutexkind;
   mutex->__m_count = 0;
   mutex->__m_owner = NULL;
   return 0;
@@ -52,7 +52,7 @@ int pthread_mutex_trylock(pthread_mutex_t * mutex)
   int retcode;
 
   switch(mutex->__m_kind) {
-  case PTHREAD_MUTEX_FAST_NP:
+  case PTHREAD_MUTEX_ADAPTIVE_NP:
     retcode = __pthread_trylock(&mutex->__m_lock);
     return retcode;
   case PTHREAD_MUTEX_RECURSIVE_NP:
@@ -84,7 +84,7 @@ int pthread_mutex_lock(pthread_mutex_t * mutex)
   pthread_descr self;
 
   switch(mutex->__m_kind) {
-  case PTHREAD_MUTEX_FAST_NP:
+  case PTHREAD_MUTEX_ADAPTIVE_NP:
     __pthread_lock(&mutex->__m_lock, NULL);
     return 0;
   case PTHREAD_MUTEX_RECURSIVE_NP:
@@ -112,7 +112,7 @@ int pthread_mutex_lock(pthread_mutex_t * mutex)
 int pthread_mutex_unlock(pthread_mutex_t * mutex)
 {
   switch (mutex->__m_kind) {
-  case PTHREAD_MUTEX_FAST_NP:
+  case PTHREAD_MUTEX_ADAPTIVE_NP:
     __pthread_unlock(&mutex->__m_lock);
     return 0;
   case PTHREAD_MUTEX_RECURSIVE_NP:
@@ -137,7 +137,7 @@ int pthread_mutex_unlock(pthread_mutex_t * mutex)
 
 int pthread_mutexattr_init(pthread_mutexattr_t *attr)
 {
-  attr->__mutexkind = PTHREAD_MUTEX_FAST_NP;
+  attr->__mutexkind = PTHREAD_MUTEX_ADAPTIVE_NP;
   return 0;
 }
 //strong_alias (__pthread_mutexattr_init, pthread_mutexattr_init)
@@ -150,7 +150,7 @@ int pthread_mutexattr_destroy(pthread_mutexattr_t *attr)
 
 int __pthread_mutexattr_settype(pthread_mutexattr_t *attr, int kind)
 {
-  if (kind != PTHREAD_MUTEX_FAST_NP
+  if (kind != PTHREAD_MUTEX_ADAPTIVE_NP
       && kind != PTHREAD_MUTEX_RECURSIVE_NP
       && kind != PTHREAD_MUTEX_ERRORCHECK_NP)
     return EINVAL;
