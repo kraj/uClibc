@@ -41,6 +41,7 @@
  * On April 19th, 2001 md5_crypt() was modified to make it reentrant 
  * by Erik Andersen <andersen@uclibc.org>
  *
+ *
  * June 28, 2001             Manuel Novoa III
  *
  * "Un-inlined" code using loops and static const tables in order to
@@ -59,6 +60,10 @@
  *               in each loop (glacial)
  * On i386, sizes are roughly (-Os -fno-builtin):
  *     0: 3k     1: 2.5k     2: 2.2k     3: 2k
+ *
+ *
+ * Since SuSv3 does not require crypt_r, modified again August 7, 2002
+ * by Erik Andersen to remove reentrance stuff...
  */
 
 /*
@@ -86,7 +91,6 @@ static void   __md5_Init (struct MD5Context *);
 static void   __md5_Update (struct MD5Context *, const unsigned char *, unsigned int);
 static void   __md5_Pad (struct MD5Context *);
 static void   __md5_Final (unsigned char [16], struct MD5Context *);
-//static char * __md5_crypt_r( const char *pw, const char *salt, struct crypt_data * data);
 static void __md5_Transform __P((u_int32_t [4], const unsigned char [64]));
 
 
@@ -533,15 +537,12 @@ static void __md5_to64( char *s, unsigned long v, int n)
  * Use MD5 for what it is best at...
  */
 
-extern char * __md5_crypt_r( const char *pw, const char *salt, struct crypt_data * data)
+extern char * __md5_crypt( const char *pw, const char *salt)
 {
-	char *p = data->p;
-	const char *sp = data->sp;
-	const char *ep = data->ep;
-	char *passwd = data->key.b_data;	/* This is a nice place where we can grab 
-					   a bit of reentrant space...  I'd create 
-					   a separate field in struct crypt_data, 
-					   but this spot should do nicely... */
+	/* Static stuff */
+	static const char *sp, *ep;
+	static char passwd[120], *p;
+
 	unsigned char	final[17];	/* final[16] exists only to aid in looping */
 	int sl,pl,i,__md5__magic_len,pw_len;
 	struct MD5Context ctx,ctx1;
