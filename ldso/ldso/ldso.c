@@ -138,6 +138,38 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	if (_dl_getenv("LD_BIND_NOW", envp))
 		unlazy = RTLD_NOW;
 
+	/* Now we need to figure out what kind of options are selected.
+	 * Note that for SUID programs we ignore the settings in
+	 * LD_LIBRARY_PATH.
+	 */
+	if ((auxvt[AT_UID].a_un.a_val == -1 && _dl_suid_ok()) ||
+	    (auxvt[AT_UID].a_un.a_val != -1 &&
+	     auxvt[AT_UID].a_un.a_val == auxvt[AT_EUID].a_un.a_val &&
+	     auxvt[AT_GID].a_un.a_val == auxvt[AT_EGID].a_un.a_val)) {
+		_dl_secure = 0;
+		_dl_preload = _dl_getenv("LD_PRELOAD", envp);
+		_dl_library_path = _dl_getenv("LD_LIBRARY_PATH", envp);
+	} else {
+		static const char unsecure_envvars[] =
+#ifdef EXTRA_UNSECURE_ENVVARS
+			EXTRA_UNSECURE_ENVVARS
+#endif
+			UNSECURE_ENVVARS;
+		const char *nextp;
+		_dl_secure = 1;
+
+		nextp = unsecure_envvars;
+		do {
+			_dl_unsetenv (nextp, envp);
+			/* We could use rawmemchr but this need not be fast.  */
+			nextp = (char *) _dl_strchr(nextp, '\0') + 1;
+		} while (*nextp != '\0');
+		_dl_preload = NULL;
+		_dl_library_path = NULL;
+		/* SUID binaries can be exploited if they do LAZY relocation. */
+		unlazy = RTLD_NOW;
+	}
+
 	/* At this point we are now free to examine the user application,
 	 * and figure out which libraries are supposed to be called.  Until
 	 * we have this list, we will not be completely ready for dynamic
@@ -269,36 +301,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	}
 	app_tpnt->relro_addr = relro_addr;
 	app_tpnt->relro_size = relro_size;
-
-	/* Now we need to figure out what kind of options are selected.
-	 * Note that for SUID programs we ignore the settings in
-	 * LD_LIBRARY_PATH.
-	 */
-	if ((auxvt[AT_UID].a_un.a_val == -1 && _dl_suid_ok()) ||
-	    (auxvt[AT_UID].a_un.a_val != -1 &&
-	     auxvt[AT_UID].a_un.a_val == auxvt[AT_EUID].a_un.a_val &&
-	     auxvt[AT_GID].a_un.a_val == auxvt[AT_EGID].a_un.a_val)) {
-		_dl_secure = 0;
-		_dl_preload = _dl_getenv("LD_PRELOAD", envp);
-		_dl_library_path = _dl_getenv("LD_LIBRARY_PATH", envp);
-	} else {
-		static const char unsecure_envvars[] =
-#ifdef EXTRA_UNSECURE_ENVVARS
-			EXTRA_UNSECURE_ENVVARS
-#endif
-			UNSECURE_ENVVARS;
-		const char *nextp;
-		_dl_secure = 1;
-
-		nextp = unsecure_envvars;
-		do {
-			_dl_unsetenv (nextp, envp);
-			/* We could use rawmemchr but this need not be fast.  */
-			nextp = (char *) _dl_strchr(nextp, '\0') + 1;
-		} while (*nextp != '\0');
-		_dl_preload = NULL;
-		_dl_library_path = NULL;
-	}
 
 #ifdef __SUPPORT_LD_DEBUG__
 	_dl_debug = _dl_getenv("LD_DEBUG", envp);
