@@ -44,9 +44,6 @@ int __getgrent_r (struct group *__restrict group,
 		return ERANGE;
 	}
 
-	if (grp_fd==-1)
-		setgrent();
-
 	/* We use the restart label to handle malformatted lines */
 restart:
 	/* Read the group line into the buffer for processing */

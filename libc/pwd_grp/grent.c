@@ -26,6 +26,7 @@
  * in together.
  */
 
+#define _GNU_SOURCE
 #include <features.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -35,7 +36,7 @@
 
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 # define LOCK   pthread_mutex_lock(&mylock)
 # define UNLOCK pthread_mutex_unlock(&mylock);
 #else       
@@ -43,12 +44,13 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 # define UNLOCK
 #endif      
 
-static int grp_fd = -1;
+/* file descriptor for the group file currently open */
+static int grp_fd = -9;
 
 void setgrent(void)
 {
 	LOCK;
-	if (grp_fd != -1)
+	if (grp_fd > -1)
 		close(grp_fd);
 	grp_fd = open(_PATH_GROUP, O_RDONLY);
 	UNLOCK;
@@ -57,7 +59,7 @@ void setgrent(void)
 void endgrent(void)
 {
 	LOCK;
-	if (grp_fd != -1)
+	if (grp_fd > -1)
 		close(grp_fd);
 	grp_fd = -1;
 	UNLOCK;
@@ -70,6 +72,10 @@ struct group *getgrent(void)
 	static char line_buff[PWD_BUFFER_SIZE];
 
 	LOCK;
+	/* Open /etc/group if it has never been opened */
+	if (grp_fd == -9) {
+		setgrent();
+	}
 	if (grp_fd == -1) {
 		UNLOCK;
 		return NULL;

@@ -20,6 +20,13 @@
  *
  */
 
+/*
+ * setpwent(), endpwent(), and getpwent() are included in the same object
+ * file, since one cannot be used without the other two, so it makes sense to
+ * link them all in together.
+ */
+
+#define _GNU_SOURCE
 #include <features.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -30,7 +37,7 @@
 
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 # define LOCK   pthread_mutex_lock(&mylock)
 # define UNLOCK pthread_mutex_unlock(&mylock);
 #else       
@@ -38,21 +45,14 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 # define UNLOCK
 #endif      
 
-/*
- * setpwent(), endpwent(), and getpwent() are included in the same object
- * file, since one cannot be used without the other two, so it makes sense to
- * link them all in together.
- */
-
 /* file descriptor for the password file currently open */
-static int pw_fd = -1;
+static int pw_fd = -9;
 
 void setpwent(void)
 {
 	LOCK;
-	if (pw_fd != -1)
+	if (pw_fd > -1)
 		close(pw_fd);
-
 	pw_fd = open(_PATH_PASSWD, O_RDONLY);
 	UNLOCK;
 }
@@ -60,7 +60,7 @@ void setpwent(void)
 void endpwent(void)
 {
 	LOCK;
-	if (pw_fd != -1)
+	if (pw_fd > -1)
 		close(pw_fd);
 	pw_fd = -1;
 	UNLOCK;
@@ -86,13 +86,25 @@ int getpwent_r (struct passwd *password, char *buff,
 struct passwd *getpwent(void)
 {
 	int ret;
-	static char line_buff[PWD_BUFFER_SIZE];
-	static struct passwd pwd;
 	struct passwd *result;
+	static struct passwd pwd;
+	static char line_buff[PWD_BUFFER_SIZE];
 
-	if ((ret=getpwent_r(&pwd, line_buff, sizeof(line_buff), &result)) == 0) {
+	LOCK;
+	/* Open /etc/passwd if not yet opened */
+	if (pw_fd == -9) {
+		setpwent();
+	}
+	if (pw_fd == -1) {
+		UNLOCK;
+		return NULL;
+	}
+	ret=getpwent_r(&pwd, line_buff, sizeof(line_buff), &result);
+	if (ret == 0) {
+		UNLOCK;
 		return &pwd;
 	}
+	UNLOCK;
 	__set_errno(ret);
 	return NULL;
 }
