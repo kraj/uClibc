@@ -12,7 +12,15 @@
 #ifndef _RESOLV_H_
 #define _RESOLV_H_
 
-#include <netdb.h>
+#include <features.h>
+
+#include <sys/param.h>
+#if (!defined(BSD)) || (BSD < 199306)
+# include <sys/bitypes.h>
+#else
+# include <sys/types.h>
+#endif
+#include <stdio.h>
 #include <netinet/in.h>
 
 struct resolv_header {
