@@ -53,7 +53,7 @@ ldconfig:	ldconfig.c readsoname.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -static \
 		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
-		$^ -o $@ $(LDADD_LIBFLOAT)
+		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldd:	ldd.c
