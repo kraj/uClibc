@@ -85,7 +85,7 @@ to the uClibc home page.</a>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
 
-    Initially, the project began since the GNU C library lacks support for
+    Initially, the project began since the GNU C library lacked support for
     MMU-less systems, and because glibc is very large.  The GNU C library is
     designed with a very different set of goals then uClibc.  The GNU C library
     is a great piece of software, make no mistake.  It is compliant with just
@@ -109,38 +109,46 @@ to the uClibc home page.</a>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
 
-    uClibc has been designed from the ground up to be a C library for embedded
-    Linux.  We don't need to worry about things like MS-DOS support, or BeOS,
-    or AmigaOs any other system.  This lets us cut out a lot of complexity and
-    very carefully optimize for Linux.  By very careful design, we can also
-    take a few shortcuts.  
-<!-- FIXME
-    For example, glibc's stdio code (handling things
-    like printf, scanf, fopen, etc) has been evolved over many years by
-    patching various bits of additional functionality as needed.  uClibc's
-    stdio code was written by just one person, and was carefully designed from
-    the outset to comply with the latest standards while carefully reusing code
-    and being as small and configurable as possible,  In this way, uClibc's
-    stdio code...
-
-    There are many similar examples.  
--->
-    In other cases, uClibc
-    leaves certain features (such as full C99 Math library support, IPV6, and
-    RPC support) disabled by default.  Those features can be enabled for people
-    that need them, but are otherwise disabled to save space.
+    uClibc and glibc have different goals.  glibc strives for features
+    and performance, and is targeted for desktops and servers with
+    (these days) lots of resources.  It also strives for ABI stability.
 
     <p>
 
-    Glibc is a general purpose C library, and so as policy things are optimized
-    for speed.  Most of uClibc's routines have been very carefully written to
-    optimize them for size instead.
+    On the other hand, the goal of uClibc is to provide as much functionality
+    as possible in a small amount of space, and it is intended primarily for
+    embedded use.  It is also highly configurable in supported features, at the
+    cost of ABI differences for different configurations.  uClibc has been
+    designed from the ground up to be a C library for embedded Linux.  We don't
+    need to worry about things like MS-DOS support, or BeOS, or AmigaOs any
+    other system.  This lets us cut out a lot of complexity and very carefully
+    optimize for Linux.
+
+    <p>
+
+    In other cases, uClibc
+    leaves certain features (such as full C99 Math library support, wordexp, 
+    IPV6, and RPC support) disabled by default.  Those features can be enabled 
+    for people that need them, but are otherwise disabled to save space.
+
+    <p>
+    
+    Some of the space savings in uClibc is obtained at the cost of performance,
+    and some is due to sacrificing features.  Much of it comes from aggressive
+    refactoring of code to eliminate redundancy.  In regards to locale data,
+    elimination of redundant data storage resulted in substantial space
+    savings.  The result is a libc that currently includes the features needed
+    by nearly all applications and yet is considerably smaller than glibc.  To
+    compare "apples to apples", if you take uClibc and compile in locale data
+    for about 170 UTF-8 locales, then uClibc will take up about 570k.  If you
+    take glibc and add in locale data for the same 170 UTF-8 locales, you will
+    need over 30MB!!!
 
     <p>
 
     The end result is a C library that will compile just about everything you
     throw at it, that looks like glibc to application programs when you
-    compile, but is many times smaller.
+    compile, and is many times smaller.
 
     
 
@@ -155,6 +163,8 @@ to the uClibc home page.</a>
     I don't know if you should use uClibc or not.  It depends on your needs.
     If you are building an embedded Linux system and you are tight on space, then
     using uClibc instead if glibc may be a very good idea.
+
+    <p>
 
     If you are trying to build a huge fileserver for your company that will
     have 12 Terabytes of storage, then using glibc may make more sense.  
@@ -201,7 +211,7 @@ to the uClibc home page.</a>
 <p>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
     <B>
-    Can I use it on my desktop i386 system?
+    Can I use it on my x86 development system?
     </B>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
@@ -403,9 +413,18 @@ to the uClibc home page.</a>
 
     <p>
 
-    These days, uClibc is being developed and enhanced by Erik Andersen of
-    <a href="http://codepoet-consulting.com/">CodePoet Consulting</a> along
-    with the rest of the embedded Linux community.
+    In particular, around the end of 2000, Manuel Novoa III got involved with
+    uClibc.  One of his first contributions was the original gcc wrapper.
+    Since then, he has written virtually all of the current uClibc stdio, time,
+    string, ctype, locale, and wchar-related code, as well as much of stdlib
+    and various other bits throught the library.
+
+    <p>
+
+    These days, uClibc is being developed and enhanced by Erik Andersen 
+    and Manuel Novoa III of
+    <a href="http://codepoet-consulting.com/">CodePoet Consulting</a> 
+    along with the rest of the embedded Linux community.
 
 
 
