@@ -76,6 +76,6 @@ elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 	do {
 		Elf32_Addr *const reloc_addr = (void *) (load_off + (++rpnt)->r_offset);
 
-		*reloc_addr =  load_off;
+		*reloc_addr += load_off;
 	} while (--relative_count);
 }
