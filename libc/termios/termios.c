@@ -28,20 +28,15 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "kernel_termios.h"
+#include <termios.h>
 
 #ifdef L_isatty
 /* Return 1 if FD is a terminal, 0 if not.  */
 
 int isatty(int fd)
 {
-    struct __kernel_termios k_term;
-
-    /*
-     * When ioctl returns -1 we want to return 0 and
-     * when ioctl returns  0 we want to return 1.
-     */
-    return (ioctl(fd, TCGETS, &k_term)==0)? 1 : 0; 
+    struct termios term;
+    return (tcgetattr (fd, &term) == 0);
 }
 #endif
 
@@ -124,7 +119,7 @@ pid_t tcgetpgrp ( int fd)
 
 #ifdef L_cfgetospeed
 /* Return the output baud rate stored in *TERMIOS_P.  */
-speed_t cfgetospeed ( const struct libc_termios *termios_p)
+speed_t cfgetospeed ( const struct termios *termios_p)
 {
       return termios_p->c_cflag & (CBAUD | CBAUDEX);
 }
@@ -136,7 +131,7 @@ speed_t cfgetospeed ( const struct libc_termios *termios_p)
  * Although for Linux there is no difference between input and output
  * speed, the numerical 0 is a special case for the input baud rate. It
  * should set the input baud rate to the output baud rate. */
-speed_t cfgetispeed (const struct libc_termios *termios_p)
+speed_t cfgetispeed (const struct termios *termios_p)
 {
     return ((termios_p->c_iflag & IBAUD0)
 	    ? 0 : termios_p->c_cflag & (CBAUD | CBAUDEX));
@@ -145,7 +140,7 @@ speed_t cfgetispeed (const struct libc_termios *termios_p)
 
 #ifdef L_cfsetospeed
 /* Set the output baud rate stored in *TERMIOS_P to SPEED.  */
-int cfsetospeed  (struct libc_termios *termios_p, speed_t speed)
+int cfsetospeed  (struct termios *termios_p, speed_t speed)
 {
     if ((speed & ~CBAUD) != 0
 	    && (speed < B57600 || speed > B460800))
@@ -166,7 +161,7 @@ int cfsetospeed  (struct libc_termios *termios_p, speed_t speed)
  *    Although for Linux there is no difference between input and output
  *       speed, the numerical 0 is a special case for the input baud rate.  It
  *          should set the input baud rate to the output baud rate.  */
-int cfsetispeed ( struct libc_termios *termios_p, speed_t speed)
+int cfsetispeed ( struct termios *termios_p, speed_t speed)
 {
     if ((speed & ~CBAUD) != 0
 	    && (speed < B57600 || speed > B460800))
@@ -273,7 +268,7 @@ static const struct speed_struct speeds[] =
 
 
 /* Set both the input and output baud rates stored in *TERMIOS_P to SPEED.  */
-int cfsetspeed (struct libc_termios *termios_p, speed_t speed)
+int cfsetspeed (struct termios *termios_p, speed_t speed)
 {
   size_t cnt;
 
@@ -305,7 +300,7 @@ int cfsetspeed (struct libc_termios *termios_p, speed_t speed)
 
 /* Set *T to indicate raw mode.  */
 void
-cfmakeraw (struct libc_termios *t)
+cfmakeraw (struct termios *t)
 {
   t->c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON);
   t->c_oflag &= ~OPOST;

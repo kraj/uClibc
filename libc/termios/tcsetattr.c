@@ -2,22 +2,23 @@
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #include <errno.h>
 #include <string.h>
+#include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 
@@ -46,73 +47,70 @@
 
 
 /* Set the state of FD to *TERMIOS_P.  */
-int tcsetattr (fd, optional_actions, termios_p)
-     int fd;
-     int optional_actions;
-     const struct libc_termios *termios_p;
+int tcsetattr (int fd, int optional_actions, const struct termios *termios_p)
 {
-  struct __kernel_termios k_termios;
-  unsigned long int cmd;
-  int retval;
+    struct __kernel_termios k_termios;
+    unsigned long int cmd;
+    int retval;
 
-  switch (optional_actions)
+    switch (optional_actions)
     {
-    case TCSANOW:
-      cmd = TCSETS;
-      break;
-    case TCSADRAIN:
-      cmd = TCSETSW;
-      break;
-    case TCSAFLUSH:
-      cmd = TCSETSF;
-      break;
-    default:
-      __set_errno(EINVAL);
-      return -1;
+	case TCSANOW:
+	    cmd = TCSETS;
+	    break;
+	case TCSADRAIN:
+	    cmd = TCSETSW;
+	    break;
+	case TCSAFLUSH:
+	    cmd = TCSETSF;
+	    break;
+	default:
+	    __set_errno (EINVAL);
+	    return -1;
     }
 
-  k_termios.c_iflag = termios_p->c_iflag & ~IBAUD0;
-  k_termios.c_oflag = termios_p->c_oflag;
-  k_termios.c_cflag = termios_p->c_cflag;
-  k_termios.c_lflag = termios_p->c_lflag;
-  k_termios.c_line = termios_p->c_line;
+    k_termios.c_iflag = termios_p->c_iflag & ~IBAUD0;
+    k_termios.c_oflag = termios_p->c_oflag;
+    k_termios.c_cflag = termios_p->c_cflag;
+    k_termios.c_lflag = termios_p->c_lflag;
+    k_termios.c_line = termios_p->c_line;
 #ifdef _HAVE_C_ISPEED
-  k_termios.c_ispeed = termios_p->c_ispeed;
+    k_termios.c_ispeed = termios_p->c_ispeed;
 #endif
 #ifdef _HAVE_C_OSPEED
-  k_termios.c_ospeed = termios_p->c_ospeed;
+    k_termios.c_ospeed = termios_p->c_ospeed;
 #endif
-  memcpy (&k_termios.c_cc[0], &termios_p->c_cc[0],
-	  __KERNEL_NCCS * sizeof (cc_t));
+    memcpy (&k_termios.c_cc[0], &termios_p->c_cc[0],
+	    __KERNEL_NCCS * sizeof (cc_t));
 
-  retval = ioctl (fd, cmd, &k_termios);
+    retval = ioctl (fd, cmd, &k_termios);
 
-  if (retval == 0 && cmd == TCSETS)
+    if (retval == 0 && cmd == TCSETS)
     {
-      /* The Linux kernel has a bug which silently ignore the invalid
-	 c_cflag on pty. We have to check it here. */
-      int save = errno;
-      retval = ioctl (fd, TCGETS, &k_termios);
-      if (retval)
+	/* The Linux kernel has a bug which silently ignore the invalid
+	   c_cflag on pty. We have to check it here. */
+	int save = errno;
+	retval = ioctl (fd, TCGETS, &k_termios);
+	if (retval)
 	{
-	  /* We cannot verify if the setting is ok. We don't return
-	     an error (?). */
-	  __set_errno(save);
-	  retval = 0;
+	    /* We cannot verify if the setting is ok. We don't return
+	       an error (?). */
+	    __set_errno (save);
+	    retval = 0;
 	}
-      else if ((termios_p->c_cflag & (PARENB | CREAD))
-	       != (k_termios.c_cflag & (PARENB | CREAD))
-	       || ((termios_p->c_cflag & CSIZE)
-		   && ((termios_p->c_cflag & CSIZE)
-		       != (k_termios.c_cflag & CSIZE))))
+	else if ((termios_p->c_cflag & (PARENB | CREAD))
+		!= (k_termios.c_cflag & (PARENB | CREAD))
+		|| ((termios_p->c_cflag & CSIZE)
+		    && ((termios_p->c_cflag & CSIZE)
+			!= (k_termios.c_cflag & CSIZE))))
 	{
-	  /* It looks like the Linux kernel silently changed the
-	     PARENB/CREAD/CSIZE bits in c_cflag. Report it as an
-	     error. */
-	  __set_errno(EINVAL);
-	  retval = -1;
+	    /* It looks like the Linux kernel silently changed the
+	       PARENB/CREAD/CSIZE bits in c_cflag. Report it as an
+	       error. */
+	    __set_errno (EINVAL);
+	    retval = -1;
 	}
     }
 
-  return retval;
+    return retval;
 }

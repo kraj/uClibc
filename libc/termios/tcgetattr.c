@@ -2,21 +2,24 @@
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
+#include <features.h>
+#define __USE_GNU
 #include <string.h>
+#include <termios.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -27,40 +30,47 @@
 #include "kernel_termios.h"
 
 /* Put the state of FD into *TERMIOS_P.  */
-int tcgetattr ( int fd, struct libc_termios *termios_p)
+int tcgetattr (int fd, struct termios *termios_p)
 {
-  struct __kernel_termios k_termios;
-  int retval;
+    struct __kernel_termios k_termios;
+    int retval;
 
-  retval = ioctl (fd, TCGETS, &k_termios);
+    retval = ioctl (fd, TCGETS, &k_termios);
 
-  termios_p->c_iflag = k_termios.c_iflag;
-  termios_p->c_oflag = k_termios.c_oflag;
-  termios_p->c_cflag = k_termios.c_cflag;
-  termios_p->c_lflag = k_termios.c_lflag;
-  termios_p->c_line = k_termios.c_line;
+    termios_p->c_iflag = k_termios.c_iflag;
+    termios_p->c_oflag = k_termios.c_oflag;
+    termios_p->c_cflag = k_termios.c_cflag;
+    termios_p->c_lflag = k_termios.c_lflag;
+    termios_p->c_line = k_termios.c_line;
 #ifdef _HAVE_C_ISPEED
-  termios_p->c_ispeed = k_termios.c_ispeed;
+    termios_p->c_ispeed = k_termios.c_ispeed;
 #endif
 #ifdef _HAVE_C_OSPEED
-  termios_p->c_ospeed = k_termios.c_ospeed;
+    termios_p->c_ospeed = k_termios.c_ospeed;
 #endif
-  if (sizeof (cc_t) == 1 || _POSIX_VDISABLE == 0
-      || (unsigned char) _POSIX_VDISABLE == (unsigned char) -1)
-    memset ( (memcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
-		       __KERNEL_NCCS * sizeof (cc_t)) + (__KERNEL_NCCS * sizeof (cc_t))) , 
-	    _POSIX_VDISABLE, (NCCS - __KERNEL_NCCS) * sizeof (cc_t));
-  else
+
+
+    if (sizeof (cc_t) == 1 || _POSIX_VDISABLE == 0
+	    || (unsigned char) _POSIX_VDISABLE == (unsigned char) -1)
     {
-      size_t cnt;
+	memset (mempcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
+		    __KERNEL_NCCS * sizeof (cc_t)),
+		_POSIX_VDISABLE, (NCCS - __KERNEL_NCCS) * sizeof (cc_t));
+#if 0	
+	memset ( (memcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
+			__KERNEL_NCCS * sizeof (cc_t)) + (__KERNEL_NCCS * sizeof (cc_t))) , 
+		_POSIX_VDISABLE, (NCCS - __KERNEL_NCCS) * sizeof (cc_t));
+#endif
+    } else {
+	size_t cnt;
 
-      memcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
-	      __KERNEL_NCCS * sizeof (cc_t));
+	memcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
+		__KERNEL_NCCS * sizeof (cc_t));
 
-      for (cnt = __KERNEL_NCCS; cnt < NCCS; ++cnt)
-	termios_p->c_cc[cnt] = _POSIX_VDISABLE;
+	for (cnt = __KERNEL_NCCS; cnt < NCCS; ++cnt)
+	    termios_p->c_cc[cnt] = _POSIX_VDISABLE;
     }
 
-  return retval;
+    return retval;
 }
 
