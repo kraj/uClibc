@@ -26,6 +26,7 @@
 #endif
 
 #ifdef __UCLIBC_HAVE_LFS__
+extern int __libc_open (__const char *file, int oflag, mode_t mode);
 
 /* Open FILE with access OFLAG.  If OFLAG includes O_CREAT,
    a third argument is the file protection.  */
