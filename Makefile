@@ -1,5 +1,5 @@
-DIRS = headers error getent malloc-simple misc net regexp rpc stdio2 \
-	    string sysdeps termios time
+DIRS = headers error getent malloc-simple misc net regexp stdio2 \
+	    string sysdeps termios time #rpc
 
 all: libc.a
 
@@ -54,5 +54,5 @@ dummy:
 
 clean:
 	-rm -f `find -name \*.[oa]` `find -name \*~` core
-	-rm -f include/asm include/net include/linux
+	-rm -rf include/asm include/net include/linux
 
