@@ -351,5 +351,5 @@ dist release: distclean
 						\
 	tar -cvzf uClibc-$(VERSION).tar.gz --exclude CVS uClibc-$(VERSION)/;
 
-.PHONY: dummy subdirs
+.PHONY: dummy subdirs release distclean clean
 
