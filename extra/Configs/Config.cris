@@ -135,6 +135,10 @@ INCLUDE_REGEX = true
 # disabled.  This is off by default.
 INCLUDE_RPC = true
 
+# If you want to include threads support, enable this.  The C library will
+# be compiled thread-safe, and the libpthread library will be built.
+INCLUDE_THREADS = true
+
 # If you want to include support for the next version of the Internet
 # Protocol: IP version 6, enable this.  This is off by default.
 INCLUDE_IPV6 = false
