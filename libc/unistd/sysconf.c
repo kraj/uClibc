@@ -98,7 +98,7 @@ long int sysconf(int name)
 #endif
 
     case _SC_OPEN_MAX:
-#if 0
+#if 1
       RETURN_FUNCTION(getdtablesize());
 #else
       RETURN_NEG_1;
