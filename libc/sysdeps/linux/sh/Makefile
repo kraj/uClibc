@@ -64,6 +64,7 @@ gcrt1.o: $(CRT0_DEPS)
 endif
 
 headers:
+	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/sh/fpu_control.h .
 
 clean:
 	rm -f *.[oa] *~ core

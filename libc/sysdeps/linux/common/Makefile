@@ -54,7 +54,7 @@ endif
 
 OBJ=$(COBJS) $(MOBJ)
 
-all: $(STR_SYSCALLS) $(OBJ) $(LIBC)
+all: $(STR_SYSCALLS) $(OBJ) $(LIBC) headers
 
 $(LIBC): ar-target
 
@@ -97,6 +97,9 @@ $(TOPDIR)lib/crtn.o:
 	mkdir -p $(TOPDIR)lib/
 	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
 endif
+
+headers:
+	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/common/fpu_control.h .
 
 clean:
 	rm -f *.[oa] *~ core crt[in].* *.S

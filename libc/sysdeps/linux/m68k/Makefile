@@ -65,6 +65,7 @@ ifneq ($(strip $(HAVE_ELF)),y)
 	echo "Working around compiler bug in the m68k-pic-coff toolchain"
 	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/m68k/float.h .
 endif
+	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/m68k/fpu_control.h .
 
 
 clean:

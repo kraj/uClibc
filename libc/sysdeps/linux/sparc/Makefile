@@ -55,6 +55,7 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 headers:
+	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/sparc/fpu_control.h .
 
 clean:
 	rm -f *.[oa] *~ core
