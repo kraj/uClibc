@@ -16,9 +16,12 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <stddef.h>
+#include <features.h>
 #define _GNU_SOURCE
-#define _SVID_SOURCE
+#include <stddef.h>
+#ifndef _SVID_SOURCE
+#define _SVID_SOURCE 1
+#endif
 #include <search.h>
 
 /* Insert ELEM into a doubly-linked list, after PREV.  */
