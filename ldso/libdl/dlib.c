@@ -72,6 +72,8 @@ static char *_dl_debug_detail  = 0;
 static char *_dl_debug_nofixups  = 0;
 static char *_dl_debug_bindings  = 0;
 static int   _dl_debug_file = 2;
+#elif defined __SUPPORT_LD_DEBUG_EARLY__
+#define _dl_debug_file 2
 #endif
 char *_dl_library_path = 0;
 char *_dl_ldsopath = 0;
