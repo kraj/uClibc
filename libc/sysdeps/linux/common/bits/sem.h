@@ -36,16 +36,15 @@
 
 
 /* Data structure describing a set of semaphores.  */
-struct semid_ds
-{
-  struct ipc_perm sem_perm;		/* operation permission struct */
-  __time_t sem_otime;			/* last semop() time */
-  unsigned long int __unused1;
-  __time_t sem_ctime;			/* last time changed by semctl() */
-  unsigned long int __unused2;
-  unsigned long int sem_nsems;		/* number of semaphores in set */
-  unsigned long int __unused3;
-  unsigned long int __unused4;
+struct semid_ds {
+    struct ipc_perm	sem_perm;		/* permissions .. see ipc.h */
+    time_t		sem_otime;		/* last semop time */
+    time_t		sem_ctime;		/* last change time */
+    struct sem		*sem_base;		/* ptr to first semaphore in array */
+    struct sem_queue	*sem_pending;		/* pending operations to be processed */
+    struct sem_queue	**sem_pending_last;	/* last pending operation */
+    struct sem_undo	*undo;			/* undo requests on this array */
+    unsigned short	sem_nsems;		/* no. of semaphores in array */
 };
 
 /* The user should define a union like the following to use it for arguments

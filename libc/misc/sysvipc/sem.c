@@ -26,13 +26,13 @@
 /* Return identifier for array of NSEMS semaphores associated with
    KEY.  */
 #include <stdarg.h>
-/* Define a `union semun' suitable for Linux here.  */
-union semun
-{
+/* arg for semctl system calls. */
+union semun {
     int val;			/* value for SETVAL */
     struct semid_ds *buf;		/* buffer for IPC_STAT & IPC_SET */
-    unsigned short int *array;	/* array for GETALL & SETALL */
-    struct seminfo *__buf;	/* buffer for IPC_INFO */
+    unsigned short *array;		/* array for GETALL & SETALL */
+    struct seminfo *__buf;		/* buffer for IPC_INFO */
+    void *__pad;
 };
 
 
@@ -41,18 +41,15 @@ union semun
 static inline _syscall4(int, __semctl, int, semid, int, semnum, int, cmd, union semun *, arg);
 #endif
 
-int semctl (int semid, int semnum, int cmd, ...)
+int semctl(int semid, int semnum, int cmd, ...)
 {
     union semun arg;
-    va_list ap;
-
-    va_start (ap, cmd);
+    va_list ap; 
 
     /* Get the argument.  */
+    va_start (ap, cmd);
     arg = va_arg (ap, union semun);
-
     va_end (ap);
-
 #ifdef __NR_semctl
     return __semctl(semid, semnum, cmd, &arg);
 #else
