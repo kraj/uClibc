@@ -2212,6 +2212,38 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 
 #endif
 /**********************************************************************/
+#if defined(L_wcsftime) || defined(L_wcsftime_l)
+
+#if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
+
+extern size_t __wcsftime_l (wchar_t *__restrict __s, size_t __maxsize,
+			  __const wchar_t *__restrict __format,
+			  __const struct tm *__restrict __timeptr,
+			  __locale_t __loc) __THROW;
+
+size_t wcsftime(wchar_t *__restrict s, size_t maxsize,
+				const wchar_t *__restrict format,
+				const struct tm *__restrict timeptr)
+{
+	return __wcsftime_l(s, maxsize, format, timeptr, __UCLIBC_CURLOCALE);
+}
+
+#else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
+
+size_t __XL(wcsftime)(wchar_t *__restrict s, size_t maxsize,
+					  const wchar_t *__restrict format,
+					  const struct tm *__restrict timeptr   __LOCALE_PARAM )
+{
+#warning wcsftime always fails
+	return 0;					/* always fail */
+}
+
+__XL_ALIAS(wcsftime)
+
+#endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
+
+#endif
+/**********************************************************************/
 #ifdef L_dysize
 /* Return the number of days in YEAR.  */
 

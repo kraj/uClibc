@@ -38,6 +38,10 @@ ifeq ($(UCLIBC_HAS_XLOCALE),y)
 endif
 
 ifeq ($(UCLIBC_HAS_WCHAR),y)
+	MOBJ += wcsftime.o
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+	MOBJx += wcsftime_l.o
+endif
 endif
 
 CSRC= adjtime.c ftime.c clock_gettime.c

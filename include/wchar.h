@@ -842,7 +842,6 @@ extern int fputws_unlocked (__const wchar_t *__restrict __ws,
 #endif
 
 
-#if 0
 __BEGIN_NAMESPACE_C99
 /* Format TP into S according to FORMAT.
    Write no more than MAXSIZE wide characters and return the number
@@ -868,7 +867,6 @@ extern size_t __wcsftime_l (wchar_t *__restrict __s, size_t __maxsize,
 			  __locale_t __loc) __THROW;
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 # endif
-#endif /* 0 */
 
 /* The X/Open standard demands that most of the functions defined in
    the <wctype.h> header must also appear here.  This is probably
