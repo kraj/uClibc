@@ -83,11 +83,21 @@
 #endif /* DEBUG */
 
 
-/* Global stuff... */
+/* Global stuff (stuff needing to be locked to be thread safe)... */
 extern int __nameservers;
 extern char * __nameserver[MAX_SERVERS];
 extern int __searchdomains;
 extern char * __searchdomain[MAX_SEARCH];
+
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+extern pthread_mutex_t __resolv_lock;
+# define BIGLOCK	pthread_mutex_lock(&__resolv_lock)
+# define BIGUNLOCK	pthread_mutex_unlock(&__resolv_lock);
+#else
+# define BIGLOCK
+# define BIGUNLOCK
+#endif
 
 
 
@@ -573,7 +583,6 @@ int __connect_dns(char *nsip)
 #ifdef L_dnslookup
 
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
 static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 # define LOCK	pthread_mutex_lock(&mylock)
 # define UNLOCK	pthread_mutex_unlock(&mylock);
@@ -636,11 +645,13 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 			goto fail;
 
 		strncpy(lookup,name,MAXDNAME);
+		BIGLOCK;
 		if (variant < __searchdomains && strchr(lookup, '.') == NULL)
 		{
 		    strncat(lookup,".", MAXDNAME);
 		    strncat(lookup,__searchdomain[variant], MAXDNAME);
 		}
+		BIGUNLOCK;
 		DPRINTF("lookup name: %s\n", lookup);
 		q.dotted = (char *)lookup;
 		q.qtype = type;
@@ -755,21 +766,35 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 	  tryall:
 		/* if there are other nameservers, give them a go,
 		   otherwise return with error */
-		variant = 0;
-		if (retries >= nscount*(__searchdomains+1))
-		    goto fail;
+		{
+		    int sdomains;
+
+		    BIGLOCK;
+		    sdomains=__searchdomains;
+		    BIGUNLOCK;
+		    variant = 0;
+		    if (retries >= nscount*(sdomains+1))
+			goto fail;
+		}
 
 	  again:
 		/* if there are searchdomains, try them or fallback as passed */
-		if (variant < __searchdomains) {
-		    /* next search */
-		    variant++;
-		} else {
-		    /* next server, first search */
-		    LOCK;
-		    ns = (ns + 1) % nscount;
-		    UNLOCK;
-		    variant = 0;
+		{
+		    int sdomains;
+		    BIGLOCK;
+		    sdomains=__searchdomains;
+		    BIGUNLOCK;
+
+		    if (variant < sdomains) {
+			/* next search */
+			variant++;
+		    } else {
+			/* next server, first search */
+			LOCK;
+			ns = (ns + 1) % nscount;
+			UNLOCK;
+			variant = 0;
+		    }
 		}
 	}
 
@@ -786,11 +811,13 @@ fail:
 
 #ifdef L_opennameservers
 
-#warning fixme -- __nameserver, __nameservers, __searchdomain, and __searchdomains need locking
 int __nameservers;
 char * __nameserver[MAX_SERVERS];
 int __searchdomains;
 char * __searchdomain[MAX_SEARCH];
+#ifdef __UCLIBC_HAS_THREADS__
+pthread_mutex_t __resolv_lock = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 /*
  *	we currently read formats not quite the same as that on normal
@@ -805,8 +832,11 @@ int __open_nameservers()
 	char szBuffer[128], *p, *argv[RESOLV_ARGS];
 	int argc;
 
-	if (__nameservers > 0) 
+	BIGLOCK;
+	if (__nameservers > 0) { 
+	    BIGUNLOCK;
 	    return 0;
+	}
 
 	if ((fp = fopen("/etc/resolv.conf", "r")) ||
 			(fp = fopen("/etc/config/resolv.conf", "r"))) {
@@ -850,6 +880,7 @@ int __open_nameservers()
 	    DPRINTF("failed to open %s\n", "resolv.conf");
 	}
 	DPRINTF("nameservers = %d\n", __nameservers);
+	BIGUNLOCK;
 	return 0;
 }
 #endif
@@ -859,6 +890,7 @@ int __open_nameservers()
 
 void __close_nameservers(void)
 {
+	BIGLOCK;
 	while (__nameservers > 0) {
 		free(__nameserver[--__nameservers]);
 		__nameserver[__nameservers] = NULL;
@@ -867,6 +899,7 @@ void __close_nameservers(void)
 		free(__searchdomain[--__searchdomains]);
 		__searchdomain[__searchdomains] = NULL;
 	}
+	BIGUNLOCK;
 }
 #endif
 
@@ -955,6 +988,7 @@ int res_init(void)
 	/** rp->rhook = NULL; **/
 	/** rp->_u._ext.nsinit = 0; **/
 
+	BIGLOCK;
 	if(__searchdomains) {
 		int i;
 		for(i=0; i<__searchdomains; i++) {
@@ -974,6 +1008,7 @@ int res_init(void)
 		}
 	}
 	rp->nscount = __nameservers;
+	BIGUNLOCK;
 
 	return(0);
 }
@@ -1007,9 +1042,11 @@ void res_close( void )
 int res_query(const char *dname, int class, int type,
               unsigned char *answer, int anslen)
 {
+	int i;
 	unsigned char * packet = 0;
 	struct resolv_answer a;
-	int i;
+	int __nameserversXX;
+	char ** __nameserverXX;
 
 	__open_nameservers();
 	
@@ -1018,7 +1055,11 @@ int res_query(const char *dname, int class, int type,
 		
 	memset((char *) &a, '\0', sizeof(a));
 
-	i = __dns_lookup(dname, type, __nameservers, __nameserver, &packet, &a);
+	BIGLOCK;
+	__nameserversXX=__nameservers;
+	__nameserverXX=__nameserver;
+	BIGUNLOCK;
+	i = __dns_lookup(dname, type, __nameserversXX, __nameserverXX, &packet, &a);
 	
 	if (i < 0)
 		return(-1);
@@ -1215,7 +1256,6 @@ int __read_etc_hosts_r(FILE * fp, const char * name, int type,
 #ifdef L_gethostent
 
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
 static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 # define LOCK	pthread_mutex_lock(&mylock)
 # define UNLOCK	pthread_mutex_unlock(&mylock);
@@ -1532,6 +1572,8 @@ int gethostbyname_r(const char * name,
 	struct resolv_answer a;
 	int i;
 	int nest = 0;
+	int __nameserversXX;
+	char ** __nameserverXX;
 
 	__open_nameservers();
 
@@ -1591,7 +1633,11 @@ int gethostbyname_r(const char * name,
 
 	for (;;) {
 
-		i = __dns_lookup(buf, T_A, __nameservers, __nameserver, &packet, &a);
+	BIGLOCK;
+	__nameserversXX=__nameservers;
+	__nameserverXX=__nameserver;
+	BIGUNLOCK;
+		i = __dns_lookup(buf, T_A, __nameserversXX, __nameserverXX, &packet, &a);
 
 		if (i < 0) {
 			*h_errnop = HOST_NOT_FOUND;
@@ -1665,6 +1711,8 @@ int gethostbyname2_r(const char *name, int family,
 	struct resolv_answer a;
 	int i;
 	int nest = 0;
+	int __nameserversXX;
+	char ** __nameserverXX;
 
 	if (family == AF_INET)
 		return gethostbyname_r(name, result_buf, buf, buflen, result, h_errnop);
@@ -1724,8 +1772,12 @@ int gethostbyname2_r(const char *name, int family,
 	}
 
 	for (;;) {
+	BIGLOCK;
+	__nameserversXX=__nameservers;
+	__nameserverXX=__nameserver;
+	BIGUNLOCK;
 
-		i = __dns_lookup(buf, T_AAAA, __nameservers, __nameserver, &packet, &a);
+		i = __dns_lookup(buf, T_AAAA, __nameserversXX, __nameserverXX, &packet, &a);
 
 		if (i < 0) {
 			*h_errnop = HOST_NOT_FOUND;
@@ -1790,6 +1842,8 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 	struct resolv_answer a;
 	int i;
 	int nest = 0;
+	int __nameserversXX;
+	char ** __nameserverXX;
 
 	*result=NULL;
 	if (!addr)
@@ -1892,7 +1946,11 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 
 	for (;;) {
 
-		i = __dns_lookup(buf, T_PTR, __nameservers, __nameserver, &packet, &a);
+	BIGLOCK;
+	__nameserversXX=__nameservers;
+	__nameserverXX=__nameserver;
+	BIGUNLOCK;
+		i = __dns_lookup(buf, T_PTR, __nameserversXX, __nameserverXX, &packet, &a);
 
 		if (i < 0) {
 			*h_errnop = HOST_NOT_FOUND;
