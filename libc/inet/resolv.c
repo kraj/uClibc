@@ -7,6 +7,31 @@
  * modify it under the terms of the GNU Library General Public
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
+ *
+ *  5-Oct-2000 W. Greathouse  wgreathouse@smva.com
+ *                              Fix memory leak and memory corruption.
+ *                              -- Every name resolution resulted in
+ *                                 a new parse of resolv.conf and new
+ *                                 copy of nameservers allocated by
+ *                                 strdup.
+ *                              -- Every name resolution resulted in
+ *                                 a new read of resolv.conf without
+ *                                 resetting index from prior read...
+ *                                 resulting in exceeding array bounds.
+ *
+ *                              Limit nameservers read from resolv.conf
+ *
+ *                              Add "search" domains from resolv.conf
+ *
+ *                              Some systems will return a security
+ *                              signature along with query answer for
+ *                              dynamic DNS entries.
+ *                              -- skip/ignore this answer
+ *
+ *                              Include arpa/nameser.h for defines.
+ *
+ *                              General cleanup
+ *
  */
 
 #include <string.h>
@@ -21,11 +46,13 @@
 #include <unistd.h>
 #include <cfgfile.h>
 #include <resolv.h>
+#include <arpa/nameser.h>
 
-#define DNS_SERVICE 53
 #define MAX_RECURSE 5
 #define REPLY_TIMEOUT 10
 #define MAX_RETRIES 15
+#define MAX_SERVERS 3
+#define MAX_SEARCH 4
 
 #undef DEBUG
 #ifdef DEBUG
@@ -37,7 +64,7 @@
 #ifdef L_encodeh
 int encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
 {
-	if (maxlen < 12)
+	if (maxlen < HFIXEDSZ)
 		return -1;
 
 	dest[0] = (h->id & 0xff00) >> 8;
@@ -55,7 +82,7 @@ int encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
 	dest[10] = (h->arcount & 0xff00) >> 8;
 	dest[11] = (h->arcount & 0x00ff) >> 0;
 
-	return 12;
+	return HFIXEDSZ;
 }
 #endif
 
@@ -75,7 +102,7 @@ int decode_header(unsigned char *data, struct resolv_header *h)
 	h->nscount = (data[8] << 8) | data[9];
 	h->arcount = (data[10] << 8) | data[11];
 
-	return 12;
+	return HFIXEDSZ;
 }
 #endif
 
@@ -129,7 +156,10 @@ int decode_dotted(const unsigned char *data, int offset,
 	if (!data)
 		return -1;
 
-	while ((measure && total++), (l = data[offset++])) {
+	while ((l = data[offset++])) {
+		
+		if (measure && total++)
+			break;
 
 		if ((l & 0xc0) == (0xc0)) {
 			if (measure)
@@ -217,7 +247,7 @@ int decode_question(unsigned char *message, int offset,
 	char temp[256];
 	int i;
 
-	i = decode_dotted(message, offset, temp, 256);
+	i = decode_dotted(message, offset, temp, sizeof(temp));
 	if (i < 0)
 		return i;
 
@@ -256,7 +286,7 @@ int encode_answer(struct resolv_answer *a, unsigned char *dest, int maxlen)
 	dest += i;
 	maxlen -= i;
 
-	if (maxlen < (10 + a->rdlength))
+	if (maxlen < (RRFIXEDSZ+a->rdlength))
 		return -1;
 
 	*dest++ = (a->atype & 0xff00) >> 8;
@@ -271,7 +301,7 @@ int encode_answer(struct resolv_answer *a, unsigned char *dest, int maxlen)
 	*dest++ = (a->rdlength & 0x00ff) >> 0;
 	memcpy(dest, a->rdata, a->rdlength);
 
-	return i + 10 + a->rdlength;
+	return i + RRFIXEDSZ + a->rdlength;
 }
 #endif
 
@@ -282,7 +312,7 @@ int decode_answer(unsigned char *message, int offset,
 	char temp[256];
 	int i;
 
-	i = decode_dotted(message, offset, temp, 256);
+	i = decode_dotted(message, offset, temp, sizeof(temp));
 	if (i < 0)
 		return i;
 
@@ -299,11 +329,11 @@ int decode_answer(unsigned char *message, int offset,
 	a->rdlength = (message[0] << 8) | message[1];
 	message += 2;
 	a->rdata = message;
-	a->rdoffset = offset + i + 10;
+	a->rdoffset = offset + i + RRFIXEDSZ;
 
 	DPRINTF("i=%d,rdlength=%d\n", i, a->rdlength);
 
-	return i + 10 + a->rdlength;
+	return i + RRFIXEDSZ + a->rdlength;
 }
 #endif
 
@@ -385,7 +415,7 @@ int form_query(int id, const char *name, int type, unsigned char *packet,
 
 	q.dotted = (char *) name;
 	q.qtype = type;
-	q.qclass = 1 /*CLASS_IN */ ;
+	q.qclass = C_IN; /* CLASS_IN */
 
 	i = encode_header(&h, packet, maxlen);
 	if (i < 0)
@@ -411,9 +441,7 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 			   unsigned char **outpacket, struct resolv_answer *a)
 {
 	static int id = 1;
-	int i, j, len;
-	int fd;
-	int pos;
+	int i, j, len, fd, pos;
 	static int ns = 0;
 	struct sockaddr_in sa;
 	int oldalarm;
@@ -421,16 +449,16 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 	struct resolv_header h;
 	struct resolv_question q;
 	int retries = 0;
-	unsigned char *packet = malloc(512);
+	unsigned char * packet = malloc(PACKETSZ);
+	unsigned char * lookup = malloc(MAXDNAME);
+	int variant = 0;
+	extern int searchdomains;
+	extern const char * searchdomain[MAX_SEARCH];
 
-	if (!packet)
-		goto fail1;
+	if (!packet || !lookup || !nscount)
+	    goto fail;
 
 	DPRINTF("Looking up type %d answer for '%s'\n", type, name);
-
-
-	if (!nscount)
-		goto fail1;
 
 	ns %= nscount;
 
@@ -444,10 +472,9 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 		fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 		if (fd == -1)
-			goto fail2;
+			goto fail;
 
-
-		memset(packet, 0, 512);
+		memset(packet, 0, PACKETSZ);
 
 		memset(&h, 0, sizeof(h));
 		h.id = ++id;
@@ -456,25 +483,32 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 
 		DPRINTF("encoding header\n");
 
-		i = encode_header(&h, packet, 512);
+		i = encode_header(&h, packet, PACKETSZ);
 		if (i < 0)
-			goto fail3;
+			goto fail;
 
-		q.dotted = (char *) name;
+		strncpy(lookup,name,MAXDNAME);
+		if (variant < searchdomains)
+		{
+		    strncat(lookup,".", MAXDNAME);
+		    strncat(lookup,searchdomain[variant], MAXDNAME);
+		}
+		DPRINTF("lookup name: %s\n", lookup);
+		q.dotted = (char *)lookup;
 		q.qtype = type;
-		q.qclass = 1 /*CLASS_IN */ ;
+		q.qclass = C_IN; /* CLASS_IN */
 
-		j = encode_question(&q, packet + i, 512 - i);
+		j = encode_question(&q, packet+i, PACKETSZ-i);
 		if (j < 0)
-			goto fail3;
+			goto fail;
 
 		len = i + j;
 
 		DPRINTF("On try %d, sending query to port %d of machine %s\n",
-				retries, DNS_SERVICE, nsip[ns]);
+				retries, NAMESERVER_PORT, nsip[ns]);
 
 		sa.sin_family = AF_INET;
-		sa.sin_port = htons(DNS_SERVICE);
+		sa.sin_port = htons(NAMESERVER_PORT);
 		sa.sin_addr.s_addr = inet_addr(nsip[ns]);
 
 		if (connect(fd, (struct sockaddr *) &sa, sizeof(sa)) == -1) {
@@ -483,7 +517,7 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 				goto tryall;
 			} else
 				/* retry */
-				break;
+				continue;
 		}
 
 		DPRINTF("Transmitting packet of length %d, id=%d, qr=%d\n",
@@ -495,7 +529,7 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 		oldalarm = alarm(REPLY_TIMEOUT);
 		oldhandler = signal(SIGALRM, dns_catch_signal);
 
-		i = recv(fd, packet, 512, 0);
+		i = recv(fd, packet, PACKETSZ, 0);
 
 		alarm(0);
 		signal(SIGALRM, oldhandler);
@@ -508,7 +542,7 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 			   to next nameserver on queue */
 			goto again;
 
-		if (i < 12)
+		if (i < HFIXEDSZ)
 			/* too short ! */
 			goto again;
 
@@ -528,10 +562,10 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 
 		if ((h.rcode) || (h.ancount < 1)) {
 			/* negative result, not present */
-			goto tryall;
+			goto again;
 		}
 
-		pos = 12;
+		pos = HFIXEDSZ;
 
 		for (j = 0; j < h.qdcount; j++) {
 			DPRINTF("Skipping question %d at %d\n", j, pos);
@@ -543,11 +577,21 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 		}
 		DPRINTF("Decoding answer at pos %d\n", pos);
 
-		i = decode_answer(packet, pos, a);
+		for (j=0;j<h.ancount;j++)
+		{
+		    i = decode_answer(packet, pos, a);
 
-		if (i < 0) {
+		    if (i<0) {
 			DPRINTF("failed decode %d\n", i);
 			goto again;
+		    }
+		    /* For all but T_SIG, accept first answer */
+		    if (a->atype != T_SIG)
+			break;
+
+		    DPRINTF("skipping T_SIG %d\n", i);
+		    free(a->dotted);
+		    pos += i;
 		}
 
 		DPRINTF("Answer name = |%s|\n", a->dotted);
@@ -564,28 +608,37 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 	  tryall:
 		/* if there are other nameservers, give them a go,
 		   otherwise return with error */
-		if (retries >= nscount)
-			break;
+		variant = 0;
+		if (retries >= nscount*(searchdomains+1))
+		    goto fail;
+
 	  again:
-		ns = (ns + 1) % nscount;
-		continue;
+		/* if there are searchdomains, try them or fallback as passed */
+		if (variant < searchdomains) {
+		    /* next search */
+		    variant++;
+		} else {
+		    /* next server, first search */
+		    ns = (ns + 1) % nscount;
+		    variant = 0;
+		}
 	}
 
-
-
-  fail3:
-	close(fd);
-  fail2:
-	free(packet);
-  fail1:
+fail:
+	if (fd != -1)
+	    close(fd);
+	if (lookup)
+	    free(lookup);
+	if (packet)
+	    free(packet);
 	return -1;
 }
 #endif
 
 #ifdef L_resolveaddress
 
-int resolve_address(const char *address,
-					int nscount, const char **nsip, struct in_addr *in)
+int resolve_address(const char *address, int nscount, 
+	const char **nsip, struct in_addr *in)
 {
 	unsigned char *packet;
 	struct resolv_answer a;
@@ -596,19 +649,19 @@ int resolve_address(const char *address,
 	if (!address || !in)
 		return -1;
 
-	strcpy(temp, address);
+	strncpy(temp, address, sizeof(temp));
 
 	for (;;) {
 
-		i = dns_lookup(temp, 1, nscount, nsip, &packet, &a);
+		i = dns_lookup(temp, T_A, nscount, nsip, &packet, &a);
 
 		if (i < 0)
 			return -1;
 
 		free(a.dotted);
 
-		if (a.atype == 5) {		/* CNAME */
-			i = decode_dotted(packet, a.rdoffset, temp, 256);
+		if (a.atype == T_CNAME) {		/* CNAME */
+			i = decode_dotted(packet, a.rdoffset, temp, sizeof(temp));
 			free(packet);
 
 			if (i < 0)
@@ -616,7 +669,7 @@ int resolve_address(const char *address,
 			if (++nest > MAX_RECURSE)
 				return -1;
 			continue;
-		} else if (a.atype == 1) {	/* ADDRESS */
+		} else if (a.atype == T_A) {	/* ADDRESS */
 			free(packet);
 			break;
 		} else {
@@ -626,7 +679,7 @@ int resolve_address(const char *address,
 	}
 
 	if (in)
-		memcpy(in, a.rdata, 4);
+	    memcpy(in, a.rdata, INADDRSZ); /* IPv4 T_A */
 
 	return 0;
 }
@@ -647,33 +700,33 @@ int resolve_mailbox(const char *address,
 		return -1;
 
 	/* look up mail exchange */
-	i = dns_lookup(address, 15, nscount, nsip, &packet, &a);
+	i = dns_lookup(address, T_MX, nscount, nsip, &packet, &a);
 
-	strcpy(temp, address);
+	strncpy(temp, address, sizeof(temp));
 
 	if (i >= 0) {
-		i = decode_dotted(packet, a.rdoffset + 2, temp, 256);
+		i = decode_dotted(packet, a.rdoffset+2, temp, sizeof(temp));
 		free(packet);
 	}
 
 	for (;;) {
 
-		i = dns_lookup(temp, 1, nscount, nsip, &packet, &a);
+		i = dns_lookup(temp, T_A, nscount, nsip, &packet, &a);
 
 		if (i < 0)
 			return -1;
 
 		free(a.dotted);
 
-		if (a.atype == 5) {		/* CNAME */
-			i = decode_dotted(packet, a.rdoffset, temp, 256);
+		if (a.atype == T_CNAME) {		/* CNAME */
+			i = decode_dotted(packet, a.rdoffset, temp, sizeof(temp));
 			free(packet);
 			if (i < 0)
 				return i;
 			if (++nest > MAX_RECURSE)
 				return -1;
 			continue;
-		} else if (a.atype == 1) {	/* ADDRESS */
+		} else if (a.atype == T_A) {	/* ADDRESS */
 			free(packet);
 			break;
 		} else {
@@ -683,19 +736,23 @@ int resolve_mailbox(const char *address,
 	}
 
 	if (in)
-		memcpy(in, a.rdata, 4);
+		memcpy(in, a.rdata, INADDRSZ); /* IPv4 */
 
 	return 0;
 }
 #endif
 
 extern int nameservers;
-extern const char *nameserver[3];
+extern const char * nameserver[MAX_SERVERS];
+extern int searchdomains;
+extern const char * searchdomain[MAX_SEARCH];
 
 #ifdef L_opennameservers
 
 int nameservers;
-const char * nameserver[3];
+const char * nameserver[MAX_SERVERS];
+int searchdomains;
+const char * searchdomain[MAX_SEARCH];
 
 int open_nameservers()
 {
@@ -703,14 +760,27 @@ int open_nameservers()
 	char **arg;
 	int i;
 
+	if (nameservers > 0) 
+	    return 0;
+
 	if ((fp = fopen("/etc/resolv.conf", "r"))) {
-		if ((arg = cfgfind(fp, "nameserver"))) {
-			for (i = 1; arg[i]; i++) {
+		if (0 != (arg = cfgfind(fp, "nameserver"))) {
+			for (i=1; arg[i] && nameservers <= MAX_SERVERS; i++) {
 				nameserver[nameservers++] = strdup(arg[i]);
+				DPRINTF("adding nameserver %s\n",arg[i]);
+			}
+		}
+		if (0 != (arg = cfgfind(fp, "search"))) {
+			for (i=1; arg[i] && searchdomains <= MAX_SEARCH; i++) {
+				searchdomain[searchdomains++] = strdup(arg[i]);
+				DPRINTF("adding search %s\n",arg[i]);
 			}
 		}
 		fclose(fp);
+	} else {
+	    DPRINTF("failed to open resolv.conf\n");
 	}
+	DPRINTF("nameservers = %d\n", nameservers);
 	return 0;
 }
 #endif
@@ -720,7 +790,7 @@ void close_nameservers(void)
 {
 
 	while (nameservers > 0)
-		free(nameserver[--nameservers]);
+		free((void*)nameserver[--nameservers]);
 }
 #endif
 
@@ -787,12 +857,12 @@ struct hostent *gethostbyname(const char *name)
 		if (i < 0)
 			return 0;
 
-		strcpy(namebuf, a.dotted);
+		strncpy(namebuf, a.dotted, sizeof(namebuf));
 		free(a.dotted);
 
 
-		if (a.atype == 5) {		/* CNAME */
-			i = decode_dotted(packet, a.rdoffset, namebuf, 256);
+		if (a.atype == T_CNAME) {		/* CNAME */
+			i = decode_dotted(packet, a.rdoffset, namebuf, sizeof(namebuf));
 			free(packet);
 
 			if (i < 0)
@@ -800,7 +870,7 @@ struct hostent *gethostbyname(const char *name)
 			if (++nest > MAX_RECURSE)
 				return 0;
 			continue;
-		} else if (a.atype == 1) {	/* ADDRESS */
+		} else if (a.atype == T_A) {	/* ADDRESS */
 			memcpy(&in, a.rdata, sizeof(in));
 			h.h_name = namebuf;
 			h.h_addrtype = AF_INET;
@@ -850,16 +920,16 @@ struct hostent *gethostbyaddr(const char *addr, int len, int type)
 
 	for (;;) {
 
-		i = dns_lookup(namebuf, 12, nameservers, nameserver, &packet, &a);
+		i = dns_lookup(namebuf, T_PTR, nameservers, nameserver, &packet, &a);
 
 		if (i < 0)
 			return 0;
 
-		strcpy(namebuf, a.dotted);
+		strncpy(namebuf, a.dotted, sizeof(namebuf));
 		free(a.dotted);
 
-		if (a.atype == 5) {		/* CNAME */
-			i = decode_dotted(packet, a.rdoffset, namebuf, 256);
+		if (a.atype == T_CNAME) {		/* CNAME */
+			i = decode_dotted(packet, a.rdoffset, namebuf, sizeof(namebuf));
 			free(packet);
 
 			if (i < 0)
@@ -867,8 +937,8 @@ struct hostent *gethostbyaddr(const char *addr, int len, int type)
 			if (++nest > MAX_RECURSE)
 				return 0;
 			continue;
-		} else if (a.atype == 12) {	/* ADDRESS */
-			i = decode_dotted(packet, a.rdoffset, namebuf, 256);
+		} else if (a.atype == T_PTR) {	/* ADDRESS */
+			i = decode_dotted(packet, a.rdoffset, namebuf, sizeof(namebuf));
 			free(packet);
 
 			h.h_name = namebuf;
