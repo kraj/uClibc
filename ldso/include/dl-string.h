@@ -177,32 +177,20 @@ static inline void * _dl_memset(void * str,int c,size_t len)
 
 static inline char *_dl_get_last_path_component(char *path)
 {
-	char *s;
-	register char *ptr = path;
-	register char *prev = 0;
+	register char *ptr = path-1;
 
-	while (*ptr)
-		ptr++;
-	s = ptr - 1;
+	while (*++ptr)
+		;/* empty */
 
 	/* strip trailing slashes */
-	while (s != path && *s == '/') {
-		*s-- = '\0';
+	while (ptr != path && *--ptr == '/') {
+		*ptr = '\0';
 	}
 
 	/* find last component */
-	ptr = path;
-	while (*ptr != '\0') {
-	    if (*ptr == '/')
-		prev = ptr;
-	    ptr++;
-	}
-	s = prev;
-
-	if (s == NULL || s[1] == '\0')
-		return path;
-	else
-		return s+1;
+	while (ptr != path && *--ptr != '/')
+		;/* empty */
+	return ptr == path ? ptr : ptr+1;
 }
 
 /* Early on, we can't call printf, so use this to print out
@@ -211,33 +199,33 @@ static inline char *_dl_get_last_path_component(char *path)
 static inline char *_dl_simple_ltoa(char * local, unsigned long i)
 {
 	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
-	char *p = &local[21];
-	*p-- = '\0';
+	char *p = &local[22];
+	*--p = '\0';
 	do {
 	    char temp;
 	    do_rem(temp, i, 10);
-	    *p-- = '0' + temp;
+	    *--p = '0' + temp;
 	    i /= 10;
 	} while (i > 0);
-	return p + 1;
+	return p;
 }
 
 static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 {
 	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
-	char *p = &local[21];
-	*p-- = '\0';
+	char *p = &local[22];
+	*--p = '\0';
 	do {
 		char temp = i & 0xf;
 		if (temp <= 0x09)
-		    *p-- = '0' + temp;
+		    *--p = '0' + temp;
 		else
-		    *p-- = 'a' - 0x0a + temp;
+		    *--p = 'a' - 0x0a + temp;
 		i >>= 4;
 	} while (i > 0);
-	*p-- = 'x';
-	*p-- = '0';
-	return p + 1;
+	*--p = 'x';
+	*--p = '0';
+	return p;
 }
 
 
