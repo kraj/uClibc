@@ -75,7 +75,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
-#include <libgen.h>
 
 #include "gcc-uClibc.h"
 
@@ -89,6 +88,22 @@ static char nostdlib[] = "-nostdlib";
 #ifdef __UCLIBC_CTOR_DTOR__
 static char nostdinc_plus[] = "-nostdinc++";
 #endif
+
+/* Include a local implementation of basename, since this
+ * uses the host system's C lib, and CYGWIN apparently
+ * doesn't provide an implementation of basename(). */
+char *basename(const char *path)
+{
+	register const char *s;
+	register const char *p;
+	p = s = path;
+	while (*s) {
+		if (*s++ == '/') {
+			p = s;
+		}
+	}
+	return (char *) p;
+}
 
 
 extern void *xmalloc(size_t size)
