@@ -206,6 +206,9 @@ int main(int argc, char **argv)
 			gcc_argv[i++] = "-lc";
 			gcc_argv[i++] = GCC_LIB;
 		}
+		if (!use_static_linking) {
+		    gcc_argv[i++] = DYNAMIC_LINKER;
+		}
 	}
 	gcc_argv[i++] = NULL;
 
