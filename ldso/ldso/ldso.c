@@ -278,9 +278,9 @@ LD_BOOT(unsigned long args)
 #if defined(__i386__)
   __asm__("\tmovl %%ebx,%0\n\t":"=a"(got));
 #elif defined(__m68k__)
-  __asm__("movel %%a5,%0":"=g"(got))
+  __asm__("movel %%a5,%0":"=g"(got));
 #elif defined(__sparc__)
-  __asm__("\tmov %%l7,%0\n\t":"=r"(got))
+  __asm__("\tmov %%l7,%0\n\t":"=r"(got));
 #elif defined(__arm__)
   __asm__("\tmov %0, r10\n\t":"=r"(got));
 #elif defined(__powerpc__)
