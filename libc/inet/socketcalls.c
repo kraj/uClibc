@@ -324,7 +324,7 @@ int socket(int family, int type, int protocol)
 
 #ifdef L_socketpair
 #ifdef __NR_socketpair
-_syscall4(int, socketpair, int, family, int, type, int, protocol, int, sockvec[2]);
+_syscall4(int, socketpair, int, family, int, type, int, protocol, int *, sockvec);
 #else
 int socketpair(int family, int type, int protocol, int sockvec[2])
 {
