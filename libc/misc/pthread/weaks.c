@@ -21,9 +21,9 @@
 #include <limits.h>
 #include <stdlib.h>
 
-extern int __pthread_return_0 __P ((void));
-extern int __pthread_return_1 __P ((void));
-extern void __pthread_return_void __P ((void));
+static int __pthread_return_0 __P ((void));
+static int __pthread_return_1 __P ((void));
+static void __pthread_return_void __P ((void));
 
 /**********************************************************************/
 /* Weaks for application/library use.
@@ -105,25 +105,21 @@ weak_alias (__pthread_return_0, __pthread_mutex_lock)
 weak_alias (__pthread_return_0, __pthread_mutex_trylock)
 weak_alias (__pthread_return_0, __pthread_mutex_unlock)
 
-/* Weaks used internally by the C library rpc code only. */
-weak_alias (__pthread_return_0, __pthread_once)
-weak_alias (__pthread_return_void, __pthread_initialize_minimal)
-
 /**********************************************************************/
 
-int
+static int
 __pthread_return_0 (void)
 {
   return 0;
 }
 
-int
+static int
 __pthread_return_1 (void)
 {
   return 1;
 }
 
-void
+static void
 __pthread_return_void (void)
 {
 }

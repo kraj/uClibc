@@ -35,7 +35,7 @@ __rpc_thread_destroy (void)
 }
 
 
-extern int __pthread_once (pthread_once_t *__once_control,
+extern int weak_function __pthread_once (pthread_once_t *__once_control,
 			   void (*__init_routine) (void));
 
 # define __libc_once_define(CLASS, NAME) \
