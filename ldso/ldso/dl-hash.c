@@ -185,7 +185,7 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 	   that any shared library data symbols referenced in the executable
 	   will be seen at the same address by the executable, shared libraries
 	   and dynamically loaded code. -Rob Ryan (robr@cmu.edu) */
-	if (!caller_type && rpnt1) {
+	if (_dl_symbol_tables && !caller_type && rpnt1) {
 		first = (*_dl_symbol_tables);
 		first.next = rpnt1;
 		rpnt1 = (&first);

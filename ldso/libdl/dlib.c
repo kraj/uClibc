@@ -12,7 +12,6 @@
 #include "ld_hash.h"
 #include "ld_string.h"
 
-extern int _dl_error_number;
 extern struct r_debug *_dl_debug_addr;
 
 extern void *(*_dl_malloc_function) (size_t size);
@@ -26,6 +25,7 @@ void *dlsym(void *, const char *) __attribute__ ((__weak__, __alias__ ("_dlsym")
 int dlclose(void *) __attribute__ ((__weak__, __alias__ ("_dlclose")));
 int dladdr(void *, Dl_info *) __attribute__ ((__weak__, __alias__ ("_dladdr")));
 
+#ifdef __PIC__
 /* This is a real hack.  We need access to the dynamic linker, but we
 also need to make it possible to link against this library without any
 unresolved externals.  We provide these weak symbols to make the link
@@ -60,8 +60,27 @@ extern struct dyn_elf *_dl_symbol_tables __attribute__ ((__weak__, __alias__ ("f
 extern struct dyn_elf *_dl_handles __attribute__ ((__weak__, __alias__ ("foobar1")));
 extern struct elf_resolve *_dl_loaded_modules __attribute__ ((__weak__, __alias__ ("foobar1")));
 extern struct r_debug *_dl_debug_addr __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern int _dl_error_number __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern unsigned long _dl_error_number __attribute__ ((__weak__, __alias__ ("foobar1")));
 extern void *(*_dl_malloc_function)(size_t) __attribute__ ((__weak__, __alias__ ("foobar1")));
+#else
+#ifdef __SUPPORT_LD_DEBUG__
+static char *_dl_debug  = 0;
+static char *_dl_debug_symbols = 0;
+static char *_dl_debug_move    = 0;
+static char *_dl_debug_reloc   = 0;
+static char *_dl_debug_detail  = 0;
+static char *_dl_debug_nofixups  = 0;
+static char *_dl_debug_bindings  = 0;
+static int   _dl_debug_file = 2;
+#endif
+char *_dl_library_path = 0;
+char *_dl_ldsopath = 0;
+struct r_debug *_dl_debug_addr = NULL;
+static char *_dl_malloc_addr, *_dl_mmap_zero;
+#include "../ldso/ldso.h"               /* Pull in the name of ld.so */
+#include "../ldso/hash.c"
+#include "../ldso/readelflib1.c"
+#endif
 
 static const char *dl_error_names[] = {
 	"",
@@ -109,7 +128,9 @@ void *_dlopen(const char *libname, int flag)
 	static int dl_init = 0;
 	char *from;
 	void (*dl_brk) (void);
+#ifdef __PIC__
 	int (*dl_elf_init) (void);
+#endif
 
 	from = __builtin_return_address(0);
 
@@ -213,15 +234,18 @@ void *_dlopen(const char *libname, int flag)
 		goto oops;
 	}
 
-	dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
-	if (dl_brk != NULL) {
+	if (_dl_debug_addr) {
+	    dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
+	    if (dl_brk != NULL) {
 		_dl_debug_addr->r_state = RT_ADD;
 		(*dl_brk) ();
 
 		_dl_debug_addr->r_state = RT_CONSISTENT;
 		(*dl_brk) ();
+	    }
 	}
 
+#ifdef __PIC__
 	for (rpnt = dyn_chain; rpnt; rpnt = rpnt->next) {
 		tpnt = rpnt->dyn;
 		/* Apparently crt1 for the application is responsible for handling this.
@@ -244,6 +268,7 @@ void *_dlopen(const char *libname, int flag)
 		}
 
 	}
+#endif
 
 #ifdef USE_CACHE
 	_dl_unmap_cache();
@@ -476,13 +501,15 @@ static int do_dlclose(void *vhandle, int need_fini)
 	}
 
 
-	dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
-	if (dl_brk != NULL) {
+	if (_dl_debug_addr) {
+	    dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
+	    if (dl_brk != NULL) {
 		_dl_debug_addr->r_state = RT_DELETE;
 		(*dl_brk) ();
 
 		_dl_debug_addr->r_state = RT_CONSISTENT;
 		(*dl_brk) ();
+	    }
 	}
 
 	return 0;

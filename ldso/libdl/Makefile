@@ -16,42 +16,52 @@
 # You should have received a copy of the GNU Library General Public License
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-#
-# Derived in part from the Linux-8086 C library, the GNU C Library, and several
-# other sundry sources.  Files within this library are copyright by their
-# respective copyright holders.
 
 
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
+XXFLAGS+=-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
+	-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
+	-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\"
+ifeq ($(strip $(SUPPORT_LD_DEBUG)),y)
+XXFLAGS+=-D__SUPPORT_LD_DEBUG__
+endif
+
 LIBDL=libdl.a
+LIBDL_PIC=libdl_pic.a
 LIBDL_SHARED=libdl.so
 LIBDL_SHARED_FULLNAME=libdl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-CSRC= dlib.c
-OBJS=$(patsubst %.c,%.o, $(CSRC))
+CSRC=dlib.c
+OBJS=dlib.o
+PIC_OBJS=dlib_pic.o
 
 all: $(OBJS) $(LIBDL) shared
 
 $(LIBDL): ar-target
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBDL) $(OBJS)
+ar-target: $(OBJS) $(PIC_OBJS)
+	$(AR) $(ARFLAGS) $(LIBDL) ../ldso/$(TARGET_ARCH)/resolve.o $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBDL_PIC) $(PIC_OBJS)
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBDL)
 	install -m 644 $(LIBDL) $(TOPDIR)lib
 
 
-$(OBJS): %.o : %.c
-	$(CC) -I../ldso -I../ldso/$(TARGET_ARCH) $(CFLAGS) -c $< -o $@
+dlib.o: dlib.c
+	$(CC) -I../ldso -I../ldso/$(TARGET_ARCH) $(CFLAGS_NOPIC) $(XXFLAGS) -c dlib.c -o dlib.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+dlib_pic.o: dlib.c
+	$(CC) -I../ldso -I../ldso/$(TARGET_ARCH) $(CFLAGS) -c dlib.c -o dlib_pic.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
 
 shared:
 	$(LD) $(LDFLAGS) -soname=$(LIBDL_SHARED).$(MAJOR_VERSION) \
-		-o $(LIBDL_SHARED_FULLNAME) --whole-archive $(LIBDL) \
+		-o $(LIBDL_SHARED_FULLNAME) --whole-archive $(LIBDL_PIC) \
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 		-L$(TOPDIR)/lib -lc;
 	install -d $(TOPDIR)lib

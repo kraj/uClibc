@@ -147,7 +147,6 @@ static char *_dl_malloc_addr, *_dl_mmap_zero;
 static char *_dl_trace_loaded_objects = 0;
 static int (*_dl_elf_main) (int, char **, char **);
 static int (*_dl_elf_init) (void);
-void *(*_dl_malloc_function) (int size) = NULL;
 struct r_debug *_dl_debug_addr = NULL;
 unsigned long *_dl_brkp;
 unsigned long *_dl_envp;
@@ -1339,41 +1338,6 @@ int _dl_fixup(struct elf_resolve *tpnt)
 	return goof;
 }
 
-void *_dl_malloc(int size)
-{
-	void *retval;
-
-#if 0
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	_dl_dprintf(_dl_debug_file, "malloc: request for %d bytes\n", size);
-#endif
-#endif
-
-	if (_dl_malloc_function)
-		return (*_dl_malloc_function) (size);
-
-	if (_dl_malloc_addr - _dl_mmap_zero + size > 4096) {
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-		_dl_dprintf(_dl_debug_file, "malloc: mmapping more memory\n");
-#endif
-		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size, 
-				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-		if (_dl_mmap_check_error(_dl_mmap_zero)) {
-			_dl_dprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
-			_dl_exit(20);
-		}
-	}
-	retval = _dl_malloc_addr;
-	_dl_malloc_addr += size;
-
-	/*
-	 * Align memory to 4 byte boundary.  Some platforms require this, others
-	 * simply get better performance.
-	 */
-	_dl_malloc_addr = (char *) (((unsigned long) _dl_malloc_addr + 3) & ~(3));
-	return retval;
-}
-
 char *_dl_getenv(const char *symbol, char **envp)
 {
 	char *pnt;
@@ -1404,89 +1368,6 @@ void _dl_unsetenv(const char *symbol, char **envp)
 			*newenvp++ = *envp;
 	}
 	*newenvp++ = *envp;
-	return;
-}
-
-char *_dl_strdup(const char *string)
-{
-	char *retval;
-	int len;
-
-	len = _dl_strlen(string);
-	retval = _dl_malloc(len + 1);
-	_dl_strcpy(retval, string);
-	return retval;
-}
-
-/* Minimal printf which handles only %s, %d, and %x */
-void _dl_dprintf(int fd, const char *fmt, ...)
-{
-	int num;
-	va_list args;
-	char *start, *ptr, *string;
-	char buf[2048];
-
-	start = ptr = buf;
-
-	if (!fmt)
-		return;
-
-	if (_dl_strlen(fmt) >= (sizeof(buf) - 1))
-		_dl_write(fd, "(overflow)\n", 10);
-
-	_dl_strcpy(buf, fmt);
-	va_start(args, fmt);
-
-	while (start) {
-		while (*ptr != '%' && *ptr) {
-			ptr++;
-		}
-
-		if (*ptr == '%') {
-			*ptr++ = '\0';
-			_dl_write(fd, start, _dl_strlen(start));
-
-			switch (*ptr++) {
-			case 's':
-				string = va_arg(args, char *);
-
-				if (!string)
-					_dl_write(fd, "(null)", 6);
-				else
-					_dl_write(fd, string, _dl_strlen(string));
-				break;
-
-			case 'i':
-			case 'd':
-			{
-				char tmp[22];
-				num = va_arg(args, int);
-
-				string = _dl_simple_ltoa(tmp, num);
-				_dl_write(fd, string, _dl_strlen(string));
-				break;
-			}
-			case 'x':
-			case 'X':
-			{
-				char tmp[22];
-				num = va_arg(args, int);
-
-				string = _dl_simple_ltoahex(tmp, num);
-				_dl_write(fd, string, _dl_strlen(string));
-				break;
-			}
-			default:
-				_dl_write(fd, "(null)", 6);
-				break;
-			}
-
-			start = ptr;
-		} else {
-			_dl_write(fd, start, _dl_strlen(start));
-			start = NULL;
-		}
-	}
 	return;
 }
 
