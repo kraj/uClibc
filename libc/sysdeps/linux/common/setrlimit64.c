@@ -1,5 +1,4 @@
-/* Return information about the filesystem on which FILE resides.
-   Copyright (C) 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1991,1995,1996,1997,1998,2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,6 +16,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+
 #include <features.h>
 
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
@@ -30,33 +30,27 @@
 # define __USE_LARGEFILE64	1
 #endif
 
-#include <string.h>
-#include <stddef.h>
-#include <sys/statfs.h>
-
+#include <sys/types.h>
+#include <sys/resource.h>
 
 #if defined __UCLIBC_HAVE_LFS__
 
-/* Return information about the filesystem on which FILE resides.  */
-int statfs64 (const char *file, struct statfs64 *buf)
+/* Set the soft and hard limits for RESOURCE to *RLIMITS.
+   Only the super-user can increase hard limits.
+   Return 0 if successful, -1 if not (and sets errno).  */
+int setrlimit64 (__rlimit_resource_t resource, const struct rlimit64 *rlimits)
 {
-    struct statfs buf32;
+    struct rlimit rlimits32;
 
-    if (statfs (file, &buf32) < 0)
-	return -1;
+    if (rlimits->rlim_cur >= RLIM_INFINITY)
+	rlimits32.rlim_cur = RLIM_INFINITY;
+    else
+	rlimits32.rlim_cur = rlimits->rlim_cur;
+    if (rlimits->rlim_max >= RLIM_INFINITY)
+	rlimits32.rlim_max = RLIM_INFINITY;
+    else
+	rlimits32.rlim_max = rlimits->rlim_max;
 
-    buf->f_type = buf32.f_type;
-    buf->f_bsize = buf32.f_bsize;
-    buf->f_blocks = buf32.f_blocks;
-    buf->f_bfree = buf32.f_bfree;
-    buf->f_bavail = buf32.f_bavail;
-    buf->f_files = buf32.f_files;
-    buf->f_ffree = buf32.f_ffree;
-    buf->f_fsid = buf32.f_fsid;
-    buf->f_namelen = buf32.f_namelen;
-    memcpy (buf->f_spare, buf32.f_spare, sizeof (buf32.f_spare));
-
-    return 0;
+    return setrlimit (resource, &rlimits32);
 }
-
 #endif

@@ -566,18 +566,59 @@ _syscall2(int, sethostname, const char *, name, size_t, len);
 #endif
 
 //#define __NR_setrlimit        75
+#ifndef __NR_ugetrlimit
+/* Only wrap setrlimit if the new ugetrlimit is not present */ 
+#ifdef L___setrlimit
+#define __NR___setrlimit __NR_setrlimit
+#include <unistd.h>
+#include <sys/resource.h>
+_syscall2(int, __setrlimit, int, resource, const struct rlimit *, rlim);
+int setrlimit (enum __rlimit_resource resource, const struct rlimit *rlimits)
+{
+	struct rlimit rlimits_small;
+	/* We might have to correct the limits values.  Since the old values
+	 * were signed the new values might be too large.  */
+	rlimits_small.rlim_cur = MIN ((unsigned long int) rlimits->rlim_cur,
+			RLIM_INFINITY >> 1);
+	rlimits_small.rlim_max = MIN ((unsigned long int) rlimits->rlim_max,
+			RLIM_INFINITY >> 1);
+	return(__setrlimit(resource, &rlimits_small));
+}
+#endif
+#else /* We don't need to wrap setrlimit */
 #ifdef L_setrlimit
 #include <unistd.h>
 #include <sys/resource.h>
 _syscall2(int, setrlimit, int, resource, const struct rlimit *, rlim);
 #endif
+#endif /* __NR_setrlimit */
 
 //#define __NR_getrlimit        76
-#ifdef L_getrlimit
+#ifdef L___getrlimit
+/* Only include the old getrlimit if the new one (ugetrlimit) is not around */ 
+#ifndef __NR_ugetrlimit
+#define __NR___getrlimit __NR_getrlimit
 #include <unistd.h>
 #include <sys/resource.h>
-_syscall2(int, getrlimit, int, resource, struct rlimit *, rlim);
+_syscall2(int, __getrlimit, int, resource, struct rlimit *, rlim);
+int getrlimit (enum __rlimit_resource resource, struct rlimit *rlim)
+{
+	int result;
+	result = __getrlimit(resource, rlim);
+
+	if (result == -1)
+		return result;
+
+	/* We might have to correct the limits values.  Since the old values
+	 * were signed the infinity value is too small.  */
+	if (rlimits->rlim_cur == RLIM_INFINITY >> 1)
+		rlimits->rlim_cur = RLIM_INFINITY;
+	if (rlimits->rlim_max == RLIM_INFINITY >> 1)
+		rlimits->rlim_max = RLIM_INFINITY;
+	return result;
+}
 #endif
+#endif /* __NR_getrlimit */
 
 //#define __NR_getrusage        77
 #ifdef L_getrusage
@@ -1404,6 +1445,17 @@ _syscall4(ssize_t,sendfile, int, out_fd, int, in_fd, __off_t *, offset, size_t, 
 //See sysdeps/linux/<arch>vfork.[cS] for architecture specific implementation...
 
 //#define __NR_ugetrlimit		191	/* SuS compliant getrlimit */
+#ifdef L___ugetrlimit
+#define __NR___ugetrlimit __NR_ugetrlimit
+#include <unistd.h>
+#include <sys/resource.h>
+_syscall2(int, __ugetrlimit, enum __rlimit_resource, resource, struct rlimit *, rlim);
+int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
+{
+	return(__ugetrlimit(resource, rlimits));
+}
+#endif
+
 //#define __NR_mmap2		192
 
 

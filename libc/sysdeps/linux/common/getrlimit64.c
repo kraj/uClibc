@@ -1,5 +1,4 @@
-/* Return information about the filesystem on which FILE resides.
-   Copyright (C) 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1991, 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -30,33 +29,29 @@
 # define __USE_LARGEFILE64	1
 #endif
 
-#include <string.h>
-#include <stddef.h>
-#include <sys/statfs.h>
-
+#include <sys/types.h>
+#include <sys/resource.h>
 
 #if defined __UCLIBC_HAVE_LFS__
 
-/* Return information about the filesystem on which FILE resides.  */
-int statfs64 (const char *file, struct statfs64 *buf)
+/* Put the soft and hard limits for RESOURCE in *RLIMITS.
+   Returns 0 if successful, -1 if not (and sets errno).  */
+int getrlimit64 (__rlimit_resource_t resource, struct rlimit64 *rlimits)
 {
-    struct statfs buf32;
+    struct rlimit rlimits32;
 
-    if (statfs (file, &buf32) < 0)
+    if (getrlimit (resource, &rlimits32) < 0)
 	return -1;
 
-    buf->f_type = buf32.f_type;
-    buf->f_bsize = buf32.f_bsize;
-    buf->f_blocks = buf32.f_blocks;
-    buf->f_bfree = buf32.f_bfree;
-    buf->f_bavail = buf32.f_bavail;
-    buf->f_files = buf32.f_files;
-    buf->f_ffree = buf32.f_ffree;
-    buf->f_fsid = buf32.f_fsid;
-    buf->f_namelen = buf32.f_namelen;
-    memcpy (buf->f_spare, buf32.f_spare, sizeof (buf32.f_spare));
+    if (rlimits32.rlim_cur == RLIM_INFINITY)
+	rlimits->rlim_cur = RLIM64_INFINITY;
+    else
+	rlimits->rlim_cur = rlimits32.rlim_cur;
+    if (rlimits32.rlim_max == RLIM_INFINITY)
+	rlimits->rlim_max = RLIM64_INFINITY;
+    else
+	rlimits->rlim_max = rlimits32.rlim_max;
 
     return 0;
 }
-
 #endif
