@@ -1,6 +1,9 @@
 #include <string.h>
 #include <signal.h>
 
+/* Global variable */
+sigset_t _sigintr;              /* Set by siginterrupt.  */
+
 __sighandler_t
 __signal (int sig, __sighandler_t handler, int flags)
 {

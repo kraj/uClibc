@@ -29,6 +29,6 @@ __bsd_signal (int sig, __sighandler_t handler)
     action.sa_flags = 0;
 #endif
   }
-  ret = __sigaction (sig, &action, &oaction); 
+  ret = sigaction (sig, &action, &oaction); 
   return (ret == -1) ? SIG_ERR : oaction.sa_handler;
 }
