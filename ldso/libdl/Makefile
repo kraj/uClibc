@@ -53,6 +53,8 @@ all: $(OBJS) $(LIBDL) shared
 
 $(LIBDL): ar-target
 
+$(LIBDL_PIC): ar-target
+
 ar-target: $(OBJS) $(PIC_OBJS)
 	$(AR) $(ARFLAGS) $(LIBDL) ../ldso/$(TARGET_ARCH)/resolve.o $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBDL_PIC) $(PIC_OBJS)
@@ -71,7 +73,7 @@ libdl_pic.o: libdl.c
 
 $(OBJ): Makefile
 
-shared: $(TOPDIR)lib/$(LIBDL_SHARED_FULLNAME)
+shared: $(LIBDL_PIC)
 	$(LD) $(LDFLAGS) -soname=$(LIBDL_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBDL_SHARED_FULLNAME) -fini dl_cleanup --whole-archive $(LIBDL_PIC) \
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
