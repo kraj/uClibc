@@ -100,3 +100,77 @@ void __error_at_line (int status, int errnum, const char *file_name,
 weak_alias (__error, error)
 weak_alias (__error_at_line, error_at_line)
 
+
+    
+#include "err.h"
+#include "errno.h"
+
+/* NORETURN */
+void verr (int status, const char *message, va_list args)
+{
+    fflush (stdout);
+
+    vfprintf (stderr, message, args);
+    if (errno) {
+        fprintf (stderr, ": %s", strerror (errno));
+    }
+    putc ('\n', stderr);
+    if (status)
+        exit (status);
+}
+
+/* NORETURN */
+void verrx (int status, const char *message, va_list args)
+{
+    fflush (stdout);
+
+    vfprintf (stderr, message, args);
+    if (status)
+        exit (status);
+}
+
+void vwarn (const char *message, va_list args)
+{
+    verr (0, message, args);
+}
+
+void vwarnx (const char *message, va_list args)
+{
+    verrx (0, message, args);
+}
+
+void err (int status, const char *message, ...)
+{
+    va_list args;
+
+    va_start (args, message);
+    verr (status, message, args);
+    va_end (args);
+}
+
+void errx (int status, const char *message, ...)
+{
+    va_list args;
+
+    va_start (args, message);
+    verrx (status, message, args);
+    va_end (args);
+}
+
+void warn (const char *message, ...)
+{
+    va_list args;
+
+    va_start (args, message);
+    verr (0, message, args);
+    va_end (args);
+}
+
+void warnx (const char *message, ...)
+{
+    va_list args;
+
+    va_start (args, message);
+    verrx (0, message, args);
+    va_end (args);
+}
