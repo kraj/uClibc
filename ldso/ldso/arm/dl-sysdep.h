@@ -117,3 +117,8 @@ static inline unsigned long arm_modulus(unsigned long m, unsigned long p) {
 }
 
 #define do_rem(result, n, base)  result=arm_modulus(n,base);
+
+/* 4096 bytes alignment */
+#define PAGE_ALIGN 0xfffff000
+#define ADDR_ALIGN 0xfff
+#define OFFS_ALIGN 0x7ffff000

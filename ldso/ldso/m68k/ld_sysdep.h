@@ -81,3 +81,8 @@ extern unsigned int _dl_linux_resolver (int, int, struct elf_resolve *, int);
 /* Define this because we do not want to call .udiv in the library.
    Not needed for m68k.  */
 #define do_rem(result, n, base)  ((result) = (n) % (base))
+
+/* 4096 bytes alignment */
+#define PAGE_ALIGN 0xfffff000
+#define ADDR_ALIGN 0xfff
+#define OFFS_ALIGN 0x7ffff000

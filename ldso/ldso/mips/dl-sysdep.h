@@ -129,3 +129,8 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 
 
 #define do_rem(result, n, base)  result = (n % base)
+
+/* 4096 bytes alignment */
+#define PAGE_ALIGN 0xfffff000
+#define ADDR_ALIGN 0xfff
+#define OFFS_ALIGN 0x7ffff000

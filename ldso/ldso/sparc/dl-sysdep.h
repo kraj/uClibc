@@ -123,3 +123,7 @@ __asm__("mov %%g0,%%Y\n\t" \
 #define _dl_linux_resolve _elf_rtbndr
 #endif
 
+/* 4096 bytes alignment */
+#define PAGE_ALIGN 0xfffff000
+#define ADDR_ALIGN 0xfff
+#define OFFS_ALIGN 0x7ffff000

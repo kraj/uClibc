@@ -448,8 +448,8 @@ DL_BOOT(unsigned long args)
 					header->e_phoff);
 			for (i = 0; i < header->e_phnum; i++, ppnt++) {
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W)) {
-					_dl_mprotect((void *) (load_addr + (ppnt->p_vaddr & 0xfffff000)), 
-							(ppnt->p_vaddr & 0xfff) + (unsigned long) ppnt->p_filesz, 
+					_dl_mprotect((void *) (load_addr + (ppnt->p_vaddr & PAGE_ALIGN)), 
+							(ppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) ppnt->p_filesz, 
 							PROT_READ | PROT_WRITE | PROT_EXEC);
 				}
 			}
@@ -460,8 +460,8 @@ DL_BOOT(unsigned long args)
 			ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
 			for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
-					_dl_mprotect((void *) (ppnt->p_vaddr & 0xfffff000),
-								 (ppnt->p_vaddr & 0xfff) +
+					_dl_mprotect((void *) (ppnt->p_vaddr & PAGE_ALIGN),
+								 (ppnt->p_vaddr & ADDR_ALIGN) +
 								 (unsigned long) ppnt->p_filesz,
 								 PROT_READ | PROT_WRITE | PROT_EXEC);
 			}
@@ -720,7 +720,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			int readsize = 0;
 			char *pnt, *pnt1, buf[1024];
 			tpnt->libname = _dl_strdup((char *) ppnt->p_offset +
-					(auxvt[AT_PHDR].a_un.a_val & 0xfffff000));
+					(auxvt[AT_PHDR].a_un.a_val & PAGE_ALIGN));
 			
 			/* Determine if the shared lib loader is a symlink */
 			_dl_memset(buf, 0, sizeof(buf));
@@ -1107,8 +1107,8 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
 			for (ppnt = tpnt->ppnt, i = 0; i < tpnt->n_phent; i++, ppnt++) {
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W) && tpnt->dynamic_info[DT_TEXTREL]) {
-					_dl_mprotect((void *) (tpnt->loadaddr + (ppnt->p_vaddr & 0xfffff000)), 
-							(ppnt->p_vaddr & 0xfff) + (unsigned long) ppnt->p_filesz, LXFLAGS(ppnt->p_flags));
+					_dl_mprotect((void *) (tpnt->loadaddr + (ppnt->p_vaddr & PAGE_ALIGN)), 
+							(ppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) ppnt->p_filesz, LXFLAGS(ppnt->p_flags));
 				}
 			}
 		}

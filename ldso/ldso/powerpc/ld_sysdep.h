@@ -120,3 +120,8 @@ void _dl_init_got(unsigned long *lpnt,struct elf_resolve *tpnt);
 
 
 #define do_rem(result, n, base)  result = (n % base)
+
+/* 4096 bytes alignment */
+#define PAGE_ALIGN 0xfffff000
+#define ADDR_ALIGN 0xfff
+#define OFFS_ALIGN 0x7ffff000

@@ -448,9 +448,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				char *cpnt;
 
 				status = (char *) _dl_mmap((char *) ((piclib ? libaddr : 0) + 
-					(ppnt->p_vaddr & 0xfffff000)), (ppnt->p_vaddr & 0xfff) 
+					(ppnt->p_vaddr & PAGE_ALIGN)), (ppnt->p_vaddr & ADDR_ALIGN) 
 					+ ppnt->p_filesz, LXFLAGS(ppnt->p_flags), flags, infile, 
-					ppnt->p_offset & 0x7ffff000);
+					ppnt->p_offset & OFFS_ALIGN);
 
 				if (_dl_mmap_check_error(status)) {
 					_dl_dprintf(2, "%s: can't map '%s'\n", 
@@ -462,9 +462,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				};
 
 				/* Pad the last page with zeroes. */
-				cpnt = (char *) (status + (ppnt->p_vaddr & 0xfff) +
+				cpnt = (char *) (status + (ppnt->p_vaddr & ADDR_ALIGN) +
 							  ppnt->p_filesz);
-				while (((unsigned long) cpnt) & 0xfff)
+				while (((unsigned long) cpnt) & ADDR_ALIGN)
 					*cpnt++ = 0;
 
 				/* I am not quite sure if this is completely
@@ -473,17 +473,17 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				 * /dev/zero if there are any pages left over
 				 * that are not mapped as part of the file */
 
-				map_size = (ppnt->p_vaddr + ppnt->p_filesz + 0xfff) & 0xfffff000;
+				map_size = (ppnt->p_vaddr + ppnt->p_filesz + ADDR_ALIGN) & PAGE_ALIGN;
 				if (map_size < ppnt->p_vaddr + ppnt->p_memsz)
 					status = (char *) _dl_mmap((char *) map_size + 
 						(piclib ? libaddr : 0), 
 						ppnt->p_vaddr + ppnt->p_memsz - map_size, 
 						LXFLAGS(ppnt->p_flags), flags | MAP_ANONYMOUS, -1, 0);
 			} else
-				status = (char *) _dl_mmap((char *) (ppnt->p_vaddr & 0xfffff000) 
-					+ (piclib ? libaddr : 0), (ppnt->p_vaddr & 0xfff) + 
+				status = (char *) _dl_mmap((char *) (ppnt->p_vaddr & PAGE_ALIGN) 
+					+ (piclib ? libaddr : 0), (ppnt->p_vaddr & ADDR_ALIGN) + 
 					ppnt->p_filesz, LXFLAGS(ppnt->p_flags), flags, 
-					infile, ppnt->p_offset & 0x7ffff000);
+					infile, ppnt->p_offset & OFFS_ALIGN);
 			if (_dl_mmap_check_error(status)) {
 				_dl_dprintf(2, "%s: can't map '%s'\n", _dl_progname, libname);
 				_dl_internal_error_number = DL_ERROR_MMAP_FAILED;
@@ -559,8 +559,8 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		for (i = 0; i < epnt->e_phnum; i++, ppnt++) {
 			if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
 				_dl_mprotect((void *) ((piclib ? libaddr : 0) + 
-					    (ppnt->p_vaddr & 0xfffff000)), 
-					(ppnt->p_vaddr & 0xfff) + (unsigned long) ppnt->p_filesz, 
+					    (ppnt->p_vaddr & PAGE_ALIGN)), 
+					(ppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) ppnt->p_filesz, 
 					PROT_READ | PROT_WRITE | PROT_EXEC);
 		}
 	}
