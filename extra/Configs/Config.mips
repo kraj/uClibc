@@ -3,9 +3,9 @@
 # see extra/config/Kconfig-language.txt
 #
 
-mainmenu "uClibc C Library Configuration"
-
-menu "Target Architecture Features and Options"
+config TARGET_ARCH
+	default "mips" if ARCH_BIG_ENDIAN
+	default "mipsel" if ARCH_LITTLE_ENDIAN
 
 config HAVE_ELF
 	bool
@@ -20,11 +20,4 @@ config ARCH_LDFLAGS
 
 config LIBGCC_CFLAGS
 	string
-
-source "extra/Configs/Config.in.arch"
-
-endmenu
-
-source "extra/Configs/Config.in"
-
 

@@ -2,12 +2,129 @@
 # For a description of the syntax of this configuration file,
 # see extra/config/Kconfig-language.txt
 #
-config HAVE_DOT_CONFIG
-	bool
-	default y
+mainmenu "uClibc C Library Configuration"
 
+
+choice
+	prompt "Target Architecture"
+	default TARGET_I386
+	help
+	  Stuff
+
+config TARGET_ALPHA
+	bool "alpha"
+
+config TARGET_ARM
+	bool "arm"
+
+config TARGET_CRIS
+	bool "cris"
+
+config TARGET_E1
+	bool "e1"
+
+config TARGET_H8300
+	bool "h8300"
+
+config TARGET_I386
+	bool "i386"
+
+config TARGET_I960
+	bool "i960"
+
+config TARGET_M68K
+	bool "m68k"
+
+config TARGET_MICROBLAZE
+	bool "microblaze"
+
+config TARGET_MIPS
+	bool "mips"
+
+config TARGET_POWERPC
+	bool "powerpc"
+
+config TARGET_SH
+	bool "SuperH"
+
+config TARGET_SPARC
+	bool "sparc"
+
+config TARGET_V850
+	bool "v850"
+
+endchoice
+
+
+menu "Target Architecture Features and Options"
+
+if TARGET_ALPHA
+source "extra/Configs/Config.alpha"
+endif
+
+if TARGET_ARM
+source "extra/Configs/Config.arm"
+endif
+
+if TARGET_CRIS
+source "extra/Configs/Config.cris"
+endif
+
+if TARGET_E1
+source "extra/Configs/Config.e1"
+endif
+
+if TARGET_H8300
+source "extra/Configs/Config.h8300"
+endif
+
+if TARGET_I386
+source "extra/Configs/Config.i386"
+endif
+
+if TARGET_I960
+source "extra/Configs/Config.i960"
+endif
+
+if TARGET_M68K
+source "extra/Configs/Config.m68k"
+endif
+
+if TARGET_MICROBLAZE
+source "extra/Configs/Config.microblaze"
+endif
+
+if TARGET_MIPS
+source "extra/Configs/Config.mips"
+endif
+
+if TARGET_POWERPC
+source "extra/Configs/Config.powerpc"
+endif
+
+if TARGET_SH
+source "extra/Configs/Config.sh"
+endif
+
+if TARGET_SPARC
+source "extra/Configs/Config.sparc"
+endif
+
+if TARGET_V850
+source "extra/Configs/Config.v850"
+endif
+
+
+
+source "extra/Configs/Config.in.arch"
+
+endmenu
 
 menu "General Library Settings"
+
+config HAVE_NO_PIC
+	bool
+	default n
 
 config DOPIC
 	bool "Generate Position Independent Code (PIC)"
@@ -818,7 +935,7 @@ endmenu
 
 menu "Library Installation Options"
 
-config SHARED_LIB_LOADER_PATH
+config SHARED_LIB_LOADER_PREFIX
 	string "Shared library loader path"
 	depends on BUILD_UCLIBC_LDSO
 	default "$(DEVEL_PREFIX)/lib"
@@ -826,6 +943,9 @@ config SHARED_LIB_LOADER_PATH
 	  When using shared libraries, this path is the location where the
 	  shared library will be invoked.  This value will be compiled into
 	  every binary compiled with uClibc.
+
+	  For a typical target system this should be set to "/lib", such that
+	  'make install' will install /lib/ld-uClibc.so.0.
 
 	  BIG FAT WARNING:
 	  If you do not have a shared library loader with the correct name
@@ -848,20 +968,25 @@ config SYSTEM_LDSO
 
 config RUNTIME_PREFIX
 	string "uClibc runtime library directory"
-	default "/usr/$(TARGET_ARCH)-linux-uclibc"
+	default "/usr/$(TARGET_ARCH)-linux-uclibc/"
 	help
 	  RUNTIME_PREFIX is the directory into which the uClibc runtime
 	  libraries will be installed.   The result will look something
 	  like the following:
 	      $(RUNTIME_PREFIX)/
 	          lib/            <contains all runtime libraries>
+	          bin/ldd         <the ldd utility program>
+	          sbin/ldconfig   <the ldconfig utility program>
 	  This value is used by the 'make install' Makefile target.  Since this
-	  directory is compiled into the uclibc cross compiler wrapper, you
-	  have to recompile uClibc if you change this value...
+	  directory is compiled into the shared library loader, you will need to
+	  recompile uClibc if you change this value...
+
+	  For a typical target system this should be set to "/", such that
+	  'make install' will install /lib/libuClibc-<VERSION>.so
 
 config DEVEL_PREFIX
 	string "uClibc development environment directory"
-	default "/usr/$(TARGET_ARCH)-linux-uclibc"
+	default "/usr/$(TARGET_ARCH)-linux-uclibc/usr/"
 	help
 	  DEVEL_PREFIX is the directory into which the uClibc development
 	  environment will be installed.   The result will look something
@@ -869,29 +994,11 @@ config DEVEL_PREFIX
 	      $(DEVEL_PREFIX)/
 	          lib/            <contains static libs>
 		  include/        <Where all the header files go>
-	  This value is used by the 'make install' Makefile target.  Since this
-	  directory is compiled into the uclibc cross compiler wrapper, you
-	  have to recompile uClibc if you change this value...
+	  This value is used by the 'make install' Makefile target when
+	  installing a uClibc development environment.
 
-config SYSTEM_DEVEL_PREFIX
-	string "uClibc development environment system directory"
-	default "$(DEVEL_PREFIX)"
-	help
-	  SYSTEM_DEVEL_PREFIX is the directory prefix used when installing
-	  bin/arch-uclibc-gcc, bin/arch-uclibc-ld, etc.   This is only used by
-	  the 'make install' target, and is not compiled into anything.  This
-	  defaults to $(DEVEL_PREFIX), but makers of .rpms and .debs may want
-	  to set this to "/usr" instead.
-
-config DEVEL_TOOL_PREFIX
-	string "uClibc development environment tool directory"
-	default "$(DEVEL_PREFIX)/usr"
-	help
-	  DEVEL_TOOL_PREFIX is the directory prefix used when installing
-	  bin/gcc, bin/ld, etc.   This is only used by the 'make install'
-	  target, and is not compiled into anything.  This defaults to
-	  $(DEVEL_PREFIX)/usr, but makers of .rpms and .debs may want to
-	  set this to something else.
+	  For a typical target system this should be set to "/usr", such that
+	  'make install' will install /usr/include/<header files>.
 
 endmenu
 

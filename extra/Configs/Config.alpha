@@ -3,13 +3,14 @@
 # see extra/config/Kconfig-language.txt
 #
 
-mainmenu "uClibc C Library Configuration"
-
-menu "Target Architecture Features and Options"
-
 config HAVE_ELF
 	bool
+	select UCLIBC_HAS_MMU
+	select ARCH_HAS_NO_FPU
 	default y
+
+config TARGET_ARCH
+	default "alpha"
 
 config ARCH_CFLAGS
 	string
@@ -19,11 +20,4 @@ config ARCH_LDFLAGS
 
 config LIBGCC_CFLAGS
 	string
-
-source "extra/Configs/Config.in.arch"
-
-endmenu
-
-source "extra/Configs/Config.in"
-
 

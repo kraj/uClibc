@@ -3,6 +3,25 @@
 # see extra/config/Kconfig-language.txt
 #
 
+choice
+	prompt "Target Processor Endianness"
+	default ARCH_LITTLE_ENDIAN
+	help
+	  This is the endianness you wish to build use.  Choose either Big
+	  Endian, or Little Endian.
+
+config ARCH_LITTLE_ENDIAN
+	bool "Little Endian"
+
+config ARCH_BIG_ENDIAN
+	bool "Big Endian"
+
+endchoice
+
+config ARCH_HAS_NO_MMU
+	bool
+	default n
+
 config UCLIBC_HAS_MMU
 	bool "Target CPU has a memory management unit (MMU)"
 	default y
@@ -26,6 +45,10 @@ config UCLIBC_HAS_FLOATS
 
 	  Answering N to this option can reduce the size of uClibc.  Most people
 	  will answer Y.
+
+config ARCH_HAS_NO_FPU
+	bool
+	default n
 
 config HAS_FPU
 	bool "Target CPU has a floating point unit (FPU)"
@@ -92,4 +115,8 @@ config C_SYMBOL_PREFIX
 	string
 	default "_" if ARCH_HAS_C_SYMBOL_PREFIX
 	default "" if !ARCH_HAS_C_SYMBOL_PREFIX
+
+config HAVE_DOT_CONFIG
+	bool
+	default y
 

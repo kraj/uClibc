@@ -3,9 +3,8 @@
 # see extra/config/Kconfig-language.txt
 #
 
-mainmenu "uClibc C Library Configuration"
-
-menu "Target Architecture Features and Options"
+config TARGET_ARCH
+	default "sparc"
 
 config HAVE_ELF
 	bool
@@ -19,11 +18,4 @@ config ARCH_LDFLAGS
 
 config LIBGCC_CFLAGS
 	string
-
-source "extra/Configs/Config.in.arch"
-
-endmenu
-
-source "extra/Configs/Config.in"
-
 

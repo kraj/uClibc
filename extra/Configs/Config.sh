@@ -3,9 +3,11 @@
 # see extra/config/Kconfig-language.txt
 #
 
-mainmenu "uClibc C Library Configuration"
-
-menu "Target Architecture Features and Options"
+config TARGET_ARCH
+	default "sh2" if CONFIG_SH2
+	default "sh3" if CONFIG_SH3
+	default "sh4" if CONFIG_SH4
+	default "sh64" if CONFIG_SH5
 
 config HAVE_ELF
 	bool
@@ -41,46 +43,28 @@ choice
 	  - "SH2" Hitachi SH2
 	  - "SH3" Hitachi SH3
 	  - "SH4" Hitachi SH4
+	  - "SH5" SH-5 101, 103
 
 config CONFIG_SH2
+	select ARCH_HAS_NO_FPU
+	select ARCH_HAS_NO_MMU
 	bool "SH2"
 
 config CONFIG_SH3
+	select HAS_FPU
+	select UCLIBC_HAS_MMU
 	bool "SH3"
 
 config CONFIG_SH4
+	select HAS_FPU
+	select UCLIBC_HAS_MMU
 	bool "SH4"
 
-endchoice
-
-choice
-	prompt "Target Processor Endianness"
-	default ARCH_LITTLE_ENDIAN
-	help
-	  This is the endianness you wish to build use.  Choose either Big
-	  Endian, or Little Endian.
-
-config ARCH_LITTLE_ENDIAN
-	bool "Little Endian"
-
-config ARCH_BIG_ENDIAN
-	bool "Big Endian"
+config CONFIG_SH5
+	select HAS_FPU
+	select UCLIBC_HAS_MMU
+	bool "SH5"
 
 endchoice
-
-
-config ARCH_HAS_NO_MMU
-	bool
-	default y if CONFIG_SH2
-
-config ARCH_HAS_NO_FPU
-       bool
-       default y if CONFIG_SH2 || CONFIG_SH3
-
-source "extra/Configs/Config.in.arch"
-
-endmenu
-
-source "extra/Configs/Config.in"
 
 

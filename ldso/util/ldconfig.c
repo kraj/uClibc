@@ -885,9 +885,9 @@ int main(int argc, char **argv)
 		free(extpath);
 	    }
 
-	    scan_dir(UCLIBC_TARGET_PREFIX "/usr/X11R6/lib");
-	    scan_dir(UCLIBC_TARGET_PREFIX "/usr/lib");
-	    scan_dir(UCLIBC_TARGET_PREFIX "/lib");
+	    scan_dir(UCLIBC_RUNTIME_PREFIX "/usr/X11R6/lib");
+	    scan_dir(UCLIBC_RUNTIME_PREFIX "/usr/lib");
+	    scan_dir(UCLIBC_RUNTIME_PREFIX "/lib");
 	}
 
 #ifdef USE_CACHE

@@ -3,13 +3,16 @@
 # see extra/config/Kconfig-language.txt
 #
 
-mainmenu "uClibc C Library Configuration"
-
-menu "Target Architecture Features and Options"
-
 config HAVE_ELF
 	bool
+	select HAS_FPU
+	select ARCH_LITTLE_ENDIAN
+	select UCLIBC_HAS_MMU
 	default y
+
+config TARGET_ARCH
+	string
+	default "i386"
 
 config ARCH_CFLAGS
 	string
@@ -21,7 +24,7 @@ config LIBGCC_CFLAGS
 	string
 
 choice
-	prompt "Target Processor Type"
+	prompt "Target x86 Processor Family"
 	default CONFIG_GENERIC_386
 	help
 	  This is the processor type of your CPU. This information is used for
@@ -58,6 +61,7 @@ config CONFIG_GENERIC_386
 	bool "Generic 386"
 
 config CONFIG_386
+	select ARCH_HAS_NO_FPU
 	bool "386"
 
 config CONFIG_486
@@ -97,10 +101,4 @@ config CONFIG_CYRIXIII
 	bool "CyrixIII/VIA-C3"
 
 endchoice
-
-source "extra/Configs/Config.in.arch"
-
-endmenu
-
-source "extra/Configs/Config.in"
 

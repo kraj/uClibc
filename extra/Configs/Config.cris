@@ -3,13 +3,12 @@
 # see extra/config/Kconfig-language.txt
 #
 
-mainmenu "uClibc C Library Configuration"
-
-menu "Target Architecture Features and Options"
-
 config HAVE_ELF
 	bool
 	default y
+
+config TARGET_ARCH
+	default "cris"
 
 config ARCH_CFLAGS
 	string
@@ -32,14 +31,9 @@ choice
 		- CRIS  Generic support for Axis' CRIS architecture.
 
 config CONFIG_CRIS
+	select UCLIBC_HAS_MMU
+	select ARCH_HAS_NO_FPU
 	bool "CRIS"
 
 endchoice
-
-source "extra/Configs/Config.in.arch"
-
-endmenu
-
-source "extra/Configs/Config.in"
-
 

@@ -28,7 +28,7 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 TOPDIR=./
 include Rules.mak
 
-DIRS = extra ldso libc libcrypt libresolv libnsl libutil libm libpthread
+DIRS = ldso libc libcrypt libresolv libnsl libutil libm libpthread
 ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
 	DIRS += libintl
 endif
@@ -118,13 +118,13 @@ include/bits/uClibc_config.h: .config
 	fi;
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
-	@./extra/config/conf -o extra/Configs/Config.$(TARGET_ARCH)
+	@./extra/config/conf -o extra/Configs/Config.in
 
 headers: include/bits/uClibc_config.h
 ifeq ($(strip $(UCLIBC_HAS_MMU)),y)
-	@./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH)
+	@set -x; ./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH)
 else
-	@./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH) -n
+	@set -x; ./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH) -n
 endif
 	@if [ "$(TARGET_ARCH)" = "mipsel" ]; then \
 	    $(LN) -fs mips libc/sysdeps/linux/mipsel; \
@@ -275,25 +275,6 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	fi;
 endif
 
-# Using the wrapper toolchain is depricated.  You should 
-# really use a _real_ toolchain instead....
-install_toolchain: install_utils
-	$(INSTALL) -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin
-	$(INSTALL) -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
-	$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd \
-		$(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ldd
-	$(INSTALL) -m 755 ldso/util/ldd \
-		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
-	$(INSTALL) -m 755 ldso/util/ldconfig \
-		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig;
-	$(INSTALL) -m 755 ldso/util/ldconfig \
-		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig;
-	# For now, don't bother with readelf since surely the host
-	# system has binutils, or we couldn't have gotten this far...
-	#$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf \
-	#	$(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/readelf
-	$(MAKE) -C extra/gcc-uClibc install
-
 ifeq ($(strip $(HAVE_SHARED)),y)
 utils: $(TOPDIR)ldso/util/ldd
 	$(MAKE) -C ldso utils
@@ -303,16 +284,16 @@ endif
 
 install_utils: utils
 ifeq ($(strip $(HAVE_SHARED)),y)
-	$(INSTALL) -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/sbin
-	$(INSTALL) -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin
+	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/sbin
+	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/usr/bin
 	$(INSTALL) -m 755 ldso/util/ldd \
-		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin/ldd
+		$(PREFIX)$(RUNTIME_PREFIX)/usr/bin/ldd
 	$(INSTALL) -m 755 ldso/util/ldconfig \
-		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/sbin/ldconfig;
+		$(PREFIX)$(RUNTIME_PREFIX)/sbin/ldconfig;
 	# For now, don't bother with readelf since surely the host
 	# system has binutils, or we couldn't have gotten this far...
 	#$(INSTALL) -m 755 ldso/util/readelf \
-	#	$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin/readelf
+	#	$(PREFIX)$(RUNTIME_PREFIX)/usr/bin/readelf
 endif
 
 # Installs run-time libraries and helper apps in preparation for
@@ -360,56 +341,46 @@ all: menuconfig
 
 # configuration
 # ---------------------------------------------------------------------------
-extra/config/conf: buildconf
-	-@if [ ! -f .config ] ; then \
-		cp extra/Configs/Config.$(TARGET_ARCH).default .config; \
-	fi
-
-buildconf:
+extra/config/conf:
 	make -C extra/config conf
 
-extra/config/mconf: buildmconf
-	-@if [ ! -f .config ] ; then \
-		cp extra/Configs/Config.$(TARGET_ARCH).default .config; \
-	fi
-
-buildmconf:
+extra/config/mconf:
 	make -C extra/config ncurses mconf
 
 menuconfig: extra/config/mconf
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
-	@./extra/config/mconf extra/Configs/Config.$(TARGET_ARCH)
+	@./extra/config/mconf extra/Configs/Config.in
 
 config: extra/config/conf
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
-	@./extra/config/conf extra/Configs/Config.$(TARGET_ARCH)
+	@./extra/config/conf extra/Configs/Config.in
 
 oldconfig: extra/config/conf
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
-	@./extra/config/conf -o extra/Configs/Config.$(TARGET_ARCH)
+	@./extra/config/conf -o extra/Configs/Config.in
 
 randconfig: extra/config/conf
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
-	@./extra/config/conf -r extra/Configs/Config.$(TARGET_ARCH)
+	@./extra/config/conf -r extra/Configs/Config.in
 
 allyesconfig: extra/config/conf
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
-	@./extra/config/conf -y extra/Configs/Config.$(TARGET_ARCH)
+	@./extra/config/conf -y extra/Configs/Config.in
 
 allnoconfig: extra/config/conf
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
-	@./extra/config/conf -n extra/Configs/Config.$(TARGET_ARCH)
+	@./extra/config/conf -n extra/Configs/Config.in
 
 defconfig: extra/config/conf
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
-	@./extra/config/conf -d extra/Configs/Config.$(TARGET_ARCH)
+	@./extra/config/conf -d extra/Configs/Config.in
 
 
 clean:
@@ -421,7 +392,6 @@ clean:
 	$(MAKE) -C libc/misc/wchar clean
 	$(MAKE) -C libc/unistd clean
 	$(MAKE) -C libc/sysdeps/linux/common clean
-	$(MAKE) -C extra/gcc-uClibc clean
 	$(MAKE) -C extra/locale clean
 	@set -e; \
 	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \

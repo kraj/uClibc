@@ -275,9 +275,8 @@ void menu_finalize(struct menu *parent)
 				break;
 			case P_SELECT:
 				sym2 = prop_get_symbol(prop);
-				if ((sym->type != S_BOOLEAN && sym->type != S_TRISTATE) ||
-				    (sym2->type != S_BOOLEAN && sym2->type != S_TRISTATE))
-					fprintf(stderr, "%s:%d:warning: enable is only allowed with boolean and tristate symbols\n",
+				if ((sym->type != S_BOOLEAN) || (sym2->type != S_BOOLEAN))
+					fprintf(stderr, "%s:%d:warning: enable is only allowed with booleans\n",
 						prop->file->name, prop->lineno);
 				break;
 			case P_RANGE:

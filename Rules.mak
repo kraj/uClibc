@@ -83,31 +83,10 @@ check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; 
 AWK:=$(shell if [ -x /usr/bin/nawk ]; then echo "/usr/bin/nawk"; \
 	else echo "/usr/bin/awk"; fi)
 
-HOST_ARCH:=$(shell uname -m | sed \
-		-e 's/i.86/i386/' \
-		-e 's/sparc.*/sparc/' \
-		-e 's/arm.*/arm/g' \
-		-e 's/m68k.*/m68k/' \
-		-e 's/ppc/powerpc/g' \
-		-e 's/v850.*/v850/g' \
-		-e 's/sh[234].*/sh/' \
-		-e 's/mips.*/mips/' \
-		)
-ifeq ($(strip $(TARGET_ARCH)),)
-TARGET_ARCH:=$(shell $(CC) -dumpmachine | sed -e s'/-.*//' \
-		-e 's/i.86/i386/' \
-		-e 's/sparc.*/sparc/' \
-		-e 's/arm.*/arm/g' \
-		-e 's/m68k.*/m68k/' \
-		-e 's/ppc/powerpc/g' \
-		-e 's/v850.*/v850/g' \
-		-e 's/sh[234]/sh/' \
-		-e 's/mips-.*/mips/' \
-		-e 's/mipsel-.*/mipsel/' \
-		-e 's/cris.*/cris/' \
-		)
-endif
-export TARGET_ARCH
+# Make certain these contain a final "/", but no "//"s.
+RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
+DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
+export RUNTIME_PREFIX DEVEL_PREFIX
 
 ARFLAGS:=r
 
@@ -218,7 +197,7 @@ ifeq ($(HAVE_SHARED),y)
     LIBRARY_CACHE:=#-DUSE_CACHE
     ifeq ($(BUILD_UCLIBC_LDSO),y)
 	LDSO:=$(TOPDIR)lib/$(UCLIBC_LDSO)
-	DYNAMIC_LINKER:=$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO)
+	DYNAMIC_LINKER:=$(SHARED_LIB_LOADER_PREFIX)/$(UCLIBC_LDSO)
 	BUILD_DYNAMIC_LINKER:=$(shell cd $(TOPDIR) && pwd)/lib/$(UCLIBC_LDSO)
     else
 	LDSO:=$(SYSTEM_LDSO)
@@ -245,17 +224,6 @@ LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
 LIBGCC_DIR:=$(dir $(LIBGCC))
 
-# TARGET_PREFIX is the directory under which which the uClibc runtime
-# environment will be installed and used on the target system.   The 
-# result will look something like the following:
-#   TARGET_PREFIX/
-#	lib/            <contains all runtime and static libs>
-#	usr/lib/        <this directory is searched for runtime libs>
-#	etc/            <weher the shared library cache and configuration 
-#	                information go if you enabled LIBRARY_CACHE above>
-# Very few people will need to change this value from the default...
-TARGET_PREFIX = /
-
 ########################################
 #
 # uClinux shared lib support
@@ -268,4 +236,6 @@ ifeq ($(CONFIG_BINFMT_SHARED_FLAT),y)
   export LIBID FLTFLAGS
   SHARED_TARGET = lib/libc
 endif
+
+TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
 

@@ -3,9 +3,16 @@
 # see extra/config/Kconfig-language.txt
 #
 
-mainmenu "uClibc C Library Configuration"
+config TARGET_ARCH
+	default "v850"
 
-menu "Target Architecture Features and Options"
+config HAVE_ELF
+	bool
+	select ARCH_HAS_NO_FPU
+	select ARCH_HAS_NO_MMU
+	select ARCH_HAS_C_SYMBOL_PREFIX
+	select HAVE_NO_PIC
+	default y
 
 config ARCH_CFLAGS
 	string
@@ -16,34 +23,7 @@ config ARCH_LDFLAGS
 config LIBGCC_CFLAGS
 	string
 
-config HAVE_ELF
-	bool
-	default y
-
-config ARCH_HAS_NO_MMU
-	bool
-	default y
-
-config ARCH_HAS_NO_FPU
-	bool
-	default y
-
-config ARCH_HAS_C_SYMBOL_PREFIX
-	bool
-	default y
-
-config HAVE_NO_PIC
-	bool
-	default y
-
 config CROSS
         string
 	default "v850e-elf-"
-
-source "extra/Configs/Config.in.arch"
-
-endmenu
-
-source "extra/Configs/Config.in"
-
 

@@ -53,43 +53,30 @@ readsoname.o:	readsoname.c readsoname2.c
 	$(HOSTCC) $(HOSTCFLAGS) -I. -I../include -c $< -o $@
 	strip -x -R .note -R .comment $*.o
 
-#ldconfig.o:	ldconfig.c
-#	$(HOSTCC) $(HOSTCFLAGS) -I. -I../include \
-#		-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" -c $< -o $@
-#	strip -x -R .note -R .comment $*.o
-
-#ldconfig:	ldconfig.o readsoname.o
-#	$(HOSTCC) $(HOSTCFLAGS) $^ -o $@
-#	strip -x -R .note -R .comment $@
-
 ldconfig:	ldconfig.c readsoname.c
-	$(HOSTCC) $(HOSTCFLAGS) $(XXFLAGS) -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
-		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
-		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
+	$(HOSTCC) $(HOSTCFLAGS) $(XXFLAGS) \
+		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" -I. -I../include \
 		$^ -o $@
 	strip -x -R .note -R .comment $@
 
 ldconfig.target:	ldconfig.c readsoname.c
-	$(TARGET_CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
-		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
-		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
+	$(TARGET_CC) $(CFLAGS) $(XXFLAGS) -Wl,-s \
+		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" -I. -I../include \
 		$^ -o $@ $(LDADD_LIBFLOAT)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldd:	ldd.c
-	$(HOSTCC) $(HOSTCFLAGS) $(XXFLAGS) -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
-		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
-		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
+	$(HOSTCC) $(HOSTCFLAGS) $(XXFLAGS) \
+		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" -I. -I../include \
 		$^ -o $@
 	strip -x -R .note -R .comment $@
 
 ldd.target:	ldd.c
-	$(TARGET_CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
-		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
-		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
+	$(TARGET_CC) $(CFLAGS) $(XXFLAGS) -Wl,-s \
+		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" \
 		$^ -o $@ $(LDADD_LIBFLOAT)
 	$(STRIPTOOL) -x -R .note -R .comment $@

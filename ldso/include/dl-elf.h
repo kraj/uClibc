@@ -10,9 +10,9 @@
 #  define LDSO_CACHE "../util/ld.so.cache"
 #  define LDSO_PRELOAD "../util/ld.so.preload"
 #else
-#  define LDSO_CONF  UCLIBC_TARGET_PREFIX "etc/ld.so.conf"
-#  define LDSO_CACHE UCLIBC_TARGET_PREFIX "etc/ld.so.cache"
-#  define LDSO_PRELOAD UCLIBC_TARGET_PREFIX "etc/ld.so.preload"
+#  define LDSO_CONF  UCLIBC_RUNTIME_PREFIX "etc/ld.so.conf"
+#  define LDSO_CACHE UCLIBC_RUNTIME_PREFIX "etc/ld.so.cache"
+#  define LDSO_PRELOAD UCLIBC_RUNTIME_PREFIX "etc/ld.so.preload"
 #endif
 
 

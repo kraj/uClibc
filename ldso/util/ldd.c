@@ -215,7 +215,7 @@ int check_elf_header(Elf32_Ehdr *const ehdr)
 }
 
 /* This function's behavior must exactly match that 
- * in uClibc/ldso/d-link/readelflib1.c */
+ * in uClibc/ldso/ldso/readelflib1.c */
 static void search_for_named_library(char *name, char *result, const char *path_list)
 {
 	int i, count = 1;
@@ -322,11 +322,10 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_suid, stru
 	}
 
 	/* Lastly, search the standard list of paths for the library.
-	   This list must exactly match the list in uClibc/ldso/d-link/readelflib1.c */
-	path =	UCLIBC_TARGET_PREFIX "/usr/lib:"
-			UCLIBC_TARGET_PREFIX "/lib:"
-			UCLIBC_DEVEL_PREFIX "/lib:"
-			UCLIBC_BUILD_DIR "/lib:"
+	   This list must exactly match the list in uClibc/ldso/ldso/readelflib1.c */
+	path =	UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib:"
+			UCLIBC_RUNTIME_PREFIX "usr/lib:"
+			UCLIBC_RUNTIME_PREFIX "lib:"
 			"/usr/lib:"
 			"/lib";
 	search_for_named_library(lib->name, buf, path);

@@ -3,9 +3,15 @@
 # see extra/config/Kconfig-language.txt
 #
 
-mainmenu "uClibc C Library Configuration"
+config HAVE_ELF
+	bool
+	select ARCH_HAS_NO_MMU
+	select ARCH_HAS_NO_FPU
+	select ARCH_HAS_C_SYMBOL_PREFIX
+	default y
 
-menu "Target Architecture Features and Options"
+config TARGET_ARCH
+	default "h8300"
 
 choice
 	prompt "Target Processor"
@@ -21,10 +27,6 @@ config CONFIG_H8S
 
 endchoice
 
-config HAVE_ELF
-	bool
-	default y
-
 config ARCH_CFLAGS
 	string
 
@@ -33,19 +35,4 @@ config ARCH_LDFLAGS
 
 config LIBGCC_CFLAGS
 	string
-
-config ARCH_HAS_NO_MMU
-	bool
-	default y
-
-config ARCH_HAS_C_SYMBOL_PREFIX
-	bool
-	default y
-
-source "extra/Configs/Config.in.arch"
-
-endmenu
-
-source "extra/Configs/Config.in"
-
 
