@@ -3,7 +3,7 @@ include $(TOPDIR)Rules.mak
 
 # NOTE: This may need to be modified for your system
 ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
-	DYNAMIC_LINKER = $(INSTALL_DIR)/lib/$(UCLIBC_LDSO)
+	DYNAMIC_LINKER=$(INSTALL_DIR)/lib/$(UCLIBC_LDSO)
 else
 	DYNAMIC_LINKER=$(SYSTEM_LDSO)
 endif

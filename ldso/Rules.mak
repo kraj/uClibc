@@ -1,8 +1,6 @@
 include $(TOPDIR)Rules.mak
 
 LDSO_VERSION=1.9.11
-LDSO_VMAJOR=$(MAJOR_VERSION)
-DLINKER = ld-linux-uclibc.so
 LIBDL = libdl.so
 
 DEVEL=true

@@ -5,17 +5,17 @@ Inital port for uClibc from debian ld.so_1.9.11-9.tar.gz.
 
 Removed a.out support.
 
-"make" generates the ld-linux-uclibc.so.1, libdl.so.1, ldd, ldconfig
+"make" generates the ld-uclibc.so.0, libdl.so.0, ldd, ldconfig
        suitable for the target platform.
 
-"make DEVEL=true" generates the same files, but ld-linux-uclibc.so.1 and
+"make DEVEL=true" generates the same files, but ld-uclibc.so.0 and
        ldconfig are modified to not conflict with the devel platform system
        libs.  (This is only of use if TARGET_ARCH == NATIVE_ARCH.)  These
        modified versions ignore /lib and /usr/lib and look for shared libs
        only in $(INSTALL_DIR)/lib.  The modified ldconfig writes ld.so.cache
        in $(INSTALL_DIR)/etc.
 
-The above assumes you've set the DYNAMIC_LINKER to /lib/ld-linux-uclibc.so.1
+The above assumes you've set the DYNAMIC_LINKER to /lib/ld-uclibc.so.0
 in extra/gcc-uClibc/Makefile.
 
 Todo:

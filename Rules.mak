@@ -30,7 +30,7 @@ MINOR_VERSION=9.5
 LIBNAME=libc.a
 SHARED_FULLNAME=uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
 SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION)
-UCLIBC_LDSO=ld-linux-uclibc.so.$(MAJOR_VERSION)
+UCLIBC_LDSO=ld-uclibc.so.$(MAJOR_VERSION)
 
 BUILDTIME = $(shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z")
 

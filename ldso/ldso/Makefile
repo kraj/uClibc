@@ -11,19 +11,22 @@ OBJS=$(AOBJS) $(COBJS)
 
 ELF_LDFLAGS=--shared # using GNU ld
 
-all: lib
+all: ld.so.h lib
+
+ld.so.h:
+	echo "char *_dl_progname = \""$(UCLIBC_LDSO)"\";" > ld.so.h
 
 lib:: $(OBJS) $(DLINK_OBJS)
-	$(LD) -e _dl_boot $(ELF_LDFLAGS) -o $(DLINKER).$(LDSO_VMAJOR) \
-	  -soname $(DLINKER).$(LDSO_VMAJOR) $(OBJS)
+	$(LD) -e _dl_boot $(ELF_LDFLAGS) -o $(UCLIBC_LDSO) \
+		-soname $(UCLIBC_LDSO) $(OBJS)
 
 $(COBJS): %.o : %.c
 	$(CC) -I. -I./$(TARGET_ARCH) -I../libdl $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 realclean::
-	$(RM) -f .depend $(DLINKER) core *.o *.a *.s *.i tmp_make foo *~
+	$(RM) -f .depend $(UCLIBC_LDSO)* core *.o *.a *.s *.i tmp_make foo *~
 
 clean::
-	$(RM) -f $(DLINKER)* $(OBJS) core *.o *.a *.s *.i tmp_make foo *~
+	$(RM) -f $(UCLIBC_LDSO)* $(OBJS) core *.o *.a *.s *.i tmp_make foo *~
 

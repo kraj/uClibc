@@ -1,2 +1,2 @@
-ld-linux-uclibc.so*
-
+ld-uclibc.so*
+ld.so.h

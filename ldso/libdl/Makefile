@@ -19,7 +19,7 @@ ELF_LDFLAGS=--shared -nostartfiles -nostdlib # using GNU ld
 
 lib:: $(OBJS)
 	$(CC) $(ELF_LDFLAGS) \
-		-o $(LIBDL).$(LDSO_VMAJOR) -Wl,-soname -Wl,$(LIBDL).$(LDSO_VMAJOR) \
+		-o $(LIBDL).$(MAJOR_VERSION) -Wl,-soname -Wl,$(LIBDL).$(MAJOR_VERSION) \
 		*.o $(TOPDIR)$(SHARED_FULLNAME)
 
 obj: $(OBJS)

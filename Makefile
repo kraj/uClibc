@@ -57,7 +57,6 @@ shared: $(LIBNAME)
 	fi
 	@rm -rf tmp
 	ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME)
-	ln -sf $(SHARED_MAJORNAME) libc.so
 	@$(MAKE) -C crypt shared
 	@$(MAKE) -C libutil shared
 	@$(MAKE) -C libm shared
@@ -125,7 +124,6 @@ ifneq ($(DO_SHARED),)
 	rm -rf $(INSTALL_DIR)/lib/libc.so
 	install -m 755 $(SHARED_FULLNAME) $(INSTALL_DIR)/lib/
 	(cd $(INSTALL_DIR)/lib;ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME))
-	(cd $(INSTALL_DIR)/lib;ln -sf $(SHARED_MAJORNAME) libc.so)
 # ldconfig is really not necessary, and impossible to cross
 #ifeq ($(INSTALL_DIR),)
 #	/sbin/ldconfig -n $(INSTALL_DIR)/lib
