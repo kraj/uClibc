@@ -20,22 +20,21 @@ TOPDIR=../
 include $(TOPDIR)Rules.mak
 
 #Adjust the soname version to avoid namespace collisions with glibc's libpthread
-PT_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION)
-
 LIBPTHREAD=libpthread.a
 LIBPTHREAD_SHARED=libpthread.so
-LIBPTHREAD_SHARED_FULLNAME=libpthread-$(PT_VERSION).so
+LIBPTHREAD_SHARED_FULLNAME=libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).so
 
 LIBTHREAD_DB=libthread_db.a
 LIBTHREAD_DB_SHARED=libthread_db.so
-LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(PT_VERSION).so
+LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).so
 
 DIRS=
 ifeq ($(strip $(INCLUDE_THREADS)),true)
 	DIRS+=linuxthreads
-ifeq ($(strip $(DODEBUG)),true)
-	DIRS+=linuxthreads_db
-endif
+# For now, don't build the debug library since it doesn't work yet anyways...
+#ifeq ($(strip $(DODEBUG)),true)
+#	DIRS+=linuxthreads_db
+#endif
 endif
 
 ALL_SUBDIRS = linuxthreads linuxthreads_db
@@ -68,33 +67,33 @@ $(OBJ): Makefile
 shared: all
 	if [ -f $(LIBPTHREAD) ] ; then \
 		set -e; \
-		$(LD) $(LDFLAGS) -soname=$(LIBPTHREAD_SHARED).$(PT_VERSION) \
+		$(LD) $(LDFLAGS) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
 			-o $(LIBPTHREAD_SHARED_FULLNAME) --whole-archive $(LIBPTHREAD) \
 			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 			-L$(TOPDIR)/lib -lc; \
 		install -d $(TOPDIR)lib; \
 		rm -f $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) \
-			$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(PT_VERSION); \
+			$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION); \
 		install -m 644 $(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib; \
 		(cd $(TOPDIR)lib && ln -sf $(LIBPTHREAD_SHARED_FULLNAME) \
 			$(LIBPTHREAD_SHARED)); \
 		(cd $(TOPDIR)lib && ln -sf $(LIBPTHREAD_SHARED_FULLNAME) \
-			$(LIBPTHREAD_SHARED).$(PT_VERSION)); \
+			$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)); \
 	fi;
 	if [ -f $(LIBTHREAD_DB) ] ; then \
 		set -e; \
-		$(LD) $(LDFLAGS) -soname=$(LIBTHREAD_DB_SHARED).$(PT_VERSION) \
+		$(LD) $(LDFLAGS) -soname=$(LIBTHREAD_DB_SHARED).$(MAJOR_VERSION) \
 			-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \
 			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 			-L$(TOPDIR)/lib -lc; \
 		install -d $(TOPDIR)lib; \
 		rm -f $(TOPDIR)lib/$(LIBTHREAD_DB_SHARED_FULLNAME) \
-			$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).$(PT_VERSION); \
+			$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).$(MAJOR_VERSION); \
 		install -m 644 $(LIBTHREAD_DB_SHARED_FULLNAME) $(TOPDIR)lib; \
 		(cd $(TOPDIR)lib && ln -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
 			$(LIBTHREAD_DB_SHARED)); \
 		(cd $(TOPDIR)lib && ln -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
-			$(LIBTHREAD_DB_SHARED).$(PT_VERSION)); \
+			$(LIBTHREAD_DB_SHARED).$(MAJOR_VERSION)); \
 	fi;
 
 tags:
