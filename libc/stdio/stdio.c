@@ -51,6 +51,10 @@
 extern off_t _uClibc_fwrite(const unsigned char *buf, off_t bytes, FILE *fp);
 extern off_t _uClibc_fread(unsigned char *buf, off_t bytes, FILE *fp);
 
+/* Used internally to actually open files */
+extern FILE *__fopen __P((__const char *__restrict __filename, int __fd,
+	                FILE *__restrict __stream, __const char *__restrict __mode));
+
 /* Note: This def of READING is ok since 1st ungetc puts in buf. */
 #define READING(fp) (fp->bufstart < fp->bufread)
 #define WRITING(fp) (fp->bufwrite > fp->bufstart)
