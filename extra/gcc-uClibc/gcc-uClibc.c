@@ -172,8 +172,8 @@ int main(int argc, char **argv)
 	xstrcat(&(rpath[0]), "-Wl,-rpath,", devprefix, "/lib", NULL);
 	xstrcat(&(rpath[1]), "-Wl,-rpath,", builddir, "/lib", NULL);
 
-	xstrcat(&(uClibc_inc[0]), "-I", devprefix, "/include/", NULL);
-	xstrcat(&(uClibc_inc[1]), "-I", builddir, "/include/", NULL);
+	xstrcat(&(uClibc_inc[0]), "-isystem", devprefix, "/include/", NULL);
+	xstrcat(&(uClibc_inc[1]), "-isystem", builddir, "/include/", NULL);
 
 	xstrcat(&(crt0_path[0]), devprefix, "/lib/crt0.o", NULL);
 	xstrcat(&(crt0_path[1]), builddir, "/lib/crt0.o", NULL);
@@ -296,8 +296,6 @@ int main(int argc, char **argv)
 		} else if (strncmp("-v",argv[j], 2) == 0) {
 		    continue;
 		} else {
-			if (verbose)
-			    printf("gcc_argument[%d] = %s\n", k, argv[j]);
 			gcc_argument[k++] = argv[j];
 			gcc_argument[k] = '\0';
 		}
@@ -357,7 +355,7 @@ int main(int argc, char **argv)
 	    if (use_stdinc && source_count) {
 		gcc_argv[i++] = nostdinc;
 		gcc_argv[i++] = uClibc_inc[use_build_dir];
-		gcc_argv[i++] = GCC_INCDIR;
+		gcc_argv[i++] = "-isystem" GCC_INCDIR;
 		if( incstr )
 		    gcc_argv[i++] = incstr;
 	    }
