@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1998, 1999 Free Software Foundation, Inc.
+/* Copyright (C) 1997, 1998, 1999, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Daniel Jacobowitz <dan@debian.org>, 1999.
 
@@ -38,7 +38,7 @@
 #endif
 
 #undef	creat
-__ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, off64_t offset)
+__ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t offset)
 {
     if (offset != (off_t) offset || (offset + len) != (off_t) (offset + len))
     {
