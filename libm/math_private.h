@@ -11,7 +11,7 @@
 
 /*
  * from: @(#)fdlibm.h 5.1 93/09/24
- * $Id: math_private.h,v 1.2 2002/06/26 09:10:51 andersen Exp $
+ * $Id: math_private.h,v 1.3 2004/02/09 07:10:38 andersen Exp $
  */
 
 #ifndef _MATH_PRIVATE_H_
@@ -35,11 +35,12 @@
    ints.  */
 
 /*
- * Math on arm is little endian except for the FP word order which is
- * big endian.
+ * Math on arm is special:
+ * For FPA, float words are always big-endian.
+ * For VFP, floats words follow the memory system mode.
  */
 
-#if (__BYTE_ORDER == __BIG_ENDIAN) || defined(__arm__)
+#if (__BYTE_ORDER == __BIG_ENDIAN) || defined(__arm__) && !defined(__VFP_FP__)
 
 typedef union 
 {
@@ -53,7 +54,7 @@ typedef union
 
 #endif
 
-#if (__BYTE_ORDER == __LITTLE_ENDIAN) && !defined(__arm__)
+#if (__BYTE_ORDER == __LITTLE_ENDIAN) && (!defined(__arm__) || defined(__VFP_FP__))
 
 typedef union 
 {
