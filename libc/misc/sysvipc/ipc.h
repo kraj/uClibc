@@ -1,5 +1,8 @@
 #ifndef IPC_H
 #define IPC_H
+#include <syscall.h>
+
+#ifdef __NR_ipc
 
 /* The actual system call: all functions are multiplexed by this.  */
 extern int __ipc __P((int __call, int __first, int __second,
@@ -18,5 +21,7 @@ extern int __ipc __P((int __call, int __first, int __second,
 #define IPCOP_shmdt	22
 #define IPCOP_shmget	23
 #define IPCOP_shmctl	24
+
+#endif
 
 #endif							/* IPC_H */
