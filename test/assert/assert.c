@@ -24,26 +24,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <signal.h>
+#include "../testsuite.h"
 
+int got_abort;
+
+void aborthandler(int junk)
+{
+	got_abort=1;
+}
 
 int main( int argc, char **argv)
 {
+	signal(SIGABRT, aborthandler);
+	
+	init_testsuite("Testing functions defined in assert.h:\n\t");
 
-    printf( "Testing functions defined in assert.h\n");
-
-    printf( "Testing \"assert(0==0)\"\n");
+	got_abort=0;
 	assert(0==0);
-
-    printf( "Testing \"assert(0==1)\" with NDEBUG disabled\n");
-#undef  NDEBUG
-	assert(0==1);
+	TEST_NUMERIC(got_abort, 0);
 
 #define  NDEBUG
-    printf( "Testing \"assert(0==1)\" with NDEBUG enabled\n");
-#undef  NDEBUG
+	got_abort=0;
+	printf("Don't worry -- This next test is supposed to print an assert message:\n");
+	fprintf(stderr, "\t");
 	assert(0==1);
+	TEST_NUMERIC(got_abort, 0);
 
-    printf( "Finished testing assert.h\n");
+#undef  NDEBUG
+	got_abort=0;
+	assert(0==1);
+	TEST_NUMERIC(got_abort, 1);
 
 	exit(0);
 }

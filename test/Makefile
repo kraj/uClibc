@@ -20,7 +20,15 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-DIRS = assert ctype pwd_grp signal silly stdlib string 
+TOPDIR=../
+include $(TOPDIR)Rules.mak
+
+ifeq ($(TARGET_ARCH), $(NATIVE_ARCH))
+	DIRS = assert ctype pwd_grp signal silly stdlib string 
+else
+	DIRS =
+endif
+
 all: subdirs
 
 tags:

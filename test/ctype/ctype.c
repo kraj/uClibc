@@ -27,31 +27,28 @@
 #include <ctype.h>
 #include "../testsuite.h"
 
-#define TRUE	0
+#define TRUE	1
 
 int main( int argc, char **argv)
 {
 	int i, c;
 
 
-    printf( "Testing functions defined in ctype.h\n");
-
+    init_testsuite("Testing functions defined in ctype.h\n");
 
 	/* isalnum() */
 	{
 		int buffer[]={ '1', '4', 'a', 'z', 'A', 'Z', '5', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isalnum(c)==TRUE, 
-					"isalnum(%c)", c);
+			TEST( isalnum(c)==TRUE);
 		}
 	}
 	{
 		int buffer[]={  2, 128, 254, '\n', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isalnum(c)!=TRUE, 
-					"!isalnum(%d)", c);
+			TEST( isalnum(c)!=TRUE);
 		}
 	}
 
@@ -62,16 +59,14 @@ int main( int argc, char **argv)
 		int buffer[]={ 'a', 'z', 'A', 'Z', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isalpha(c)==TRUE, 
-					"isalpha(%c)", c);
+			TEST( isalpha(c)==TRUE);
 		}
 	}
 	{
 		int buffer[]={  2, 63, 128, 254, '\n', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isalpha(c)!=TRUE, 
-					"!isalpha(%d)", c);
+			TEST( isalpha(c)!=TRUE);
 		}
 	}
 
@@ -82,16 +77,14 @@ int main( int argc, char **argv)
 		int buffer[]={ 'a', 'z', 'A', 'Z', '\n', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isascii(c)==TRUE, 
-					"isascii(%d)", c);
+			TEST( isascii(c)==TRUE);
 		}
 	}
 	{
 		int buffer[]={  128, 254, -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isascii(c)!=TRUE, 
-					"!isascii(%d)", c);
+			TEST( isascii(c)!=TRUE);
 		}
 	}
 
@@ -101,16 +94,14 @@ int main( int argc, char **argv)
 		int buffer[]={ 0x7F, 6, '\t', '\n', 0x7F, -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( iscntrl(c)==TRUE, 
-					"iscntrl(%d)", c);
+			TEST( iscntrl(c)==TRUE);
 		}
 	}
 	{
 		int buffer[]={  63, 128, 254, -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( iscntrl(c)!=TRUE, 
-					"!iscntrl(%d)", c);
+			TEST( iscntrl(c)!=TRUE);
 		}
 	}
 
@@ -120,16 +111,14 @@ int main( int argc, char **argv)
 		int buffer[]={ '1', '5', '7', '9', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isdigit(c)==TRUE, 
-					"isdigit(%c)", c);
+			TEST( isdigit(c)==TRUE);
 		}
 	}
 	{
 		int buffer[]={  2, 'a', 'z', 'A', 'Z', 63, 128, 254, '\n', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isdigit(c)!=TRUE, 
-					"!isdigit(%d)", c);
+			TEST( isdigit(c)!=TRUE);
 		}
 	}
 
@@ -140,16 +129,14 @@ int main( int argc, char **argv)
 		int buffer[]={ ')', '~', '9', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isgraph(c)==TRUE, 
-					"isgraph(%d)", c);
+			TEST( isgraph(c)==TRUE);
 		}
 	}
 	{
 		int buffer[]={ 9, ' ', '\t', '\n', 200, 0x7F, -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isgraph(c)!=TRUE, 
-					"!isgraph(%d)", c);
+			TEST( isgraph(c)!=TRUE);
 		}
 	}
 
@@ -159,16 +146,14 @@ int main( int argc, char **argv)
 		int buffer[]={ 'a', 'g', 'z', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( islower(c)==TRUE, 
-					"islower(%c)", c);
+			TEST( islower(c)==TRUE);
 		}
 	}
 	{
 		int buffer[]={ 9, 'A', 'Z', 128, 254, ' ', '\t', '\n', 0x7F, -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( islower(c)!=TRUE, 
-					"!islower(%d)", c);
+			TEST( islower(c)!=TRUE);
 		}
 	}
 
@@ -178,16 +163,14 @@ int main( int argc, char **argv)
 		int buffer[]={ ' ', ')', '~', '9', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isprint(c)==TRUE, 
-					"isprint(%c)", c);
+			TEST( isprint(c)==TRUE);
 		}
 	}
 	{
 		int buffer[]={ '\b', '\t', '\n', 9, 128, 254, 200, 0x7F, -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isprint(c)!=TRUE, 
-					"!isprint(%d)", c);
+			TEST( isprint(c)!=TRUE);
 		}
 	}
 
@@ -197,16 +180,14 @@ int main( int argc, char **argv)
 		int buffer[]={ '.', '#', '@', ';', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( ispunct(c)==TRUE, 
-					"ispunct(%c)", c);
+			TEST( ispunct(c)==TRUE);
 		}
 	}
 	{
 		int buffer[]={  2, 'a', 'Z', '1', 128, 254, '\n', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( ispunct(c)!=TRUE, 
-					"!ispunct(%d)", c);
+			TEST( ispunct(c)!=TRUE);
 		}
 	}
 
@@ -216,16 +197,14 @@ int main( int argc, char **argv)
 		int buffer[]={ ' ', '\t', '\r', '\v', '\n', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isspace(c)==TRUE, 
-					"isspace(%d)", c);
+			TEST( isspace(c)==TRUE);
 		}
 	}
 	{
 		int buffer[]={  2, 'a', 'Z', '1', 128, 254, -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isspace(c)!=TRUE, 
-					"!isspace(%d)", c);
+			TEST( isspace(c)!=TRUE);
 		}
 	}
 
@@ -235,16 +214,14 @@ int main( int argc, char **argv)
 		int buffer[]={ 'A', 'G', 'Z', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isupper(c)==TRUE, 
-					"isupper(%c)", c);
+			TEST( isupper(c)==TRUE);
 		}
 	}
 	{
 		int buffer[]={  2, 'a', 'z', '1', 128, 254, -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isupper(c)!=TRUE, 
-					"!isupper(%d)", c);
+			TEST( isupper(c)!=TRUE);
 		}
 	}
 
@@ -255,38 +232,33 @@ int main( int argc, char **argv)
 		int buffer[]={ 'f', 'A', '1', '8', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isxdigit(c)==TRUE, 
-					"isxdigit(%c)", c);
+			TEST( isxdigit(c)==TRUE);
 		}
 	}
 	{
 		int buffer[]={  2, 'g', 'G', 'x', '\n', -1};
 		for(i=0; buffer[i]!=-1; i++) {
 			c = buffer[i];
-			TEST_SUCCESS( isxdigit(c)!=TRUE, 
-					"!isxdigit(%d)", c);
+			TEST( isxdigit(c)!=TRUE);
 		}
 	}
 
 
 	/* tolower() */
 	c='A';
-	TEST_NUMERIC_OUTPUT( tolower(c), 'a', "tolower(%c)=%c", c, tolower(c));
+	TEST_NUMERIC( tolower(c), 'a');
 	c='a';
-	TEST_NUMERIC_OUTPUT( tolower(c), 'a', "tolower(%c)=%c", c, tolower(c));
+	TEST_NUMERIC( tolower(c), 'a');
 	c='#';
-	TEST_NUMERIC_OUTPUT( tolower(c), c, "tolower(%c)=%c", c, tolower(c));
+	TEST_NUMERIC( tolower(c), c);
 
 	/* toupper() */
 	c='a';
-	TEST_NUMERIC_OUTPUT( toupper(c), 'A', "toupper(%c)=%c", c, toupper(c));
+	TEST_NUMERIC( toupper(c), 'A');
 	c='A';
-	TEST_NUMERIC_OUTPUT( toupper(c), 'A', "toupper(%c)=%c", c, toupper(c));
+	TEST_NUMERIC( toupper(c), 'A');
 	c='#';
-	TEST_NUMERIC_OUTPUT( toupper(c), c, "toupper(%c)=%c", c, toupper(c));
+	TEST_NUMERIC( toupper(c), c);
 
-
-    printf( "Finished testing ctype.h\n");
-
-	stop_testing();
+	exit(0);
 }

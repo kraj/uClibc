@@ -2,8 +2,8 @@
 /*
  * Some simple macros for use in test applications.
  *
- * Copyright (C) 2000 by Lineo, inc.  Written by Erik Andersen
- * <andersen@lineo.com>, <andersee@debian.org>
+ * Copyright (C) 2000, 2001 by Lineo, inc.  
+ * Written by Erik Andersen <andersen@lineo.com>, <andersee@debian.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published by
@@ -21,65 +21,74 @@
  *
  */
 
-
-void error_msg(int result, int line, const char* file, const char* msg, ...);
-void success_msg(int result, const char* msg, ...);
-void stop_testing(void)  __attribute__((noreturn));;
+#ifndef TESTSUITE_H
+#define TESTSUITE_H
 
 
-
+size_t test_number = 0;
 static int failures = 0;
 
 
-#define TEST_STRING_OUTPUT( command, expected_result, message, args...) \
+void init_testsuite(const char* testname);
+void done_testing(void) __attribute__((noreturn));
+void success_msg(int result, const char* command);
+void error_msg(int result, int line, const char* file, const char* command);
+
+
+#define TEST_STRING_OUTPUT( command, expected_result ) \
 	do { \
 		int result=strcmp( command, expected_result); \
-		if ( result != 0 ) \
-			success_msg( result, message, ## args); \
-		else \
-			error_msg(result, __LINE__, __FILE__, message, ## args); \
+		test_number++; \
+		if ( result == expected_result ) { \
+			success_msg( result, "command"); \
+		} else { \
+			error_msg(result, __LINE__, __FILE__, command); \
+		}; \
 	} while (0)
 		
-
-#define TEST_NUMERIC_OUTPUT( command, expected_result, message, args...) \
+#define TEST_NUMERIC( command, expected_result ) \
 	do { \
 		int result=(command); \
-		if ( result == expected_result ) \
-			success_msg( result, message, ## args); \
-		else \
-			error_msg(result, __LINE__, __FILE__, message, ## args); \
+		test_number++; \
+		if ( result == expected_result ) { \
+			success_msg( result, # command); \
+		} else { \
+			error_msg(result, __LINE__, __FILE__, # command); \
+		}; \
 	} while (0)
 		
+#define TEST(command) \
+	do { \
+		int result=(command); \
+		test_number++; \
+		if ( result == 1) { \
+			success_msg( result, # command); \
+		} else { \
+			error_msg(result, __LINE__, __FILE__,  # command ); \
+		}; \
+	} while (0)
 
-#define TEST_SUCCESS(command, message, args...)	TEST_NUMERIC_OUTPUT( command, EXIT_SUCCESS, message, ## args)
+#define STR_CMD(cmd)	cmd
+		
 
 
 
-void error_msg(int result, int line, const char* file, const char* msg, ...)
+void error_msg(int result, int line, const char* file, const char* command)
 {
-	va_list p;
 	failures++;
 
-	va_start(p, msg);
-	printf("FAILED TEST ");
-	vprintf(msg, p);
-	va_end(p);
-	printf(" AT LINE: %d, FILE: %s\n", line, file);
+	printf("\nFAILED TEST %d: \n\t%s\n", test_number, command);
+	printf("AT LINE: %d, FILE: %s\n\n", line, file);
 }   
 
-void success_msg(int result, const char* msg, ...)
+void success_msg(int result, const char* command)
 {
 #if 0
-	va_list p;
-	va_start(p, msg);
-	printf("passed test: ");
-	vprintf(msg, p);
-	va_end(p);
-	printf("\n");
-#endif
+	printf("passed test: %s == 0\n", command);
+#endif	
 }
 
-void stop_testing(void)
+void done_testing(void)
 {
     if (0 < failures) {
 		printf("Failed %d tests\n", failures);
@@ -89,3 +98,13 @@ void stop_testing(void)
 		exit( EXIT_SUCCESS );
 	}
 }
+
+void init_testsuite(const char* testname)
+{
+	printf("%s", testname);
+	test_number = 0;
+	failures = 0;
+	atexit(done_testing);
+}
+
+#endif	/* TESTSUITE_H */
