@@ -14,6 +14,7 @@
 #undef stat
 
 extern void statfix(struct libc_stat *libcstat, struct kernel_stat *kstat);
+extern int _fxstat(int version, int fd, struct libc_stat * statbuf);
 
 #endif
 
