@@ -1,0 +1,27 @@
+
+The program gen_ctype_from_glibc.c will generate data files which can be
+used by uClibc ctype functions to support locales.  From the comments:
+
+/*
+ * Generator locale ctype tables
+ * You must have already setuped locale for worked libc (libc5 or glibc)
+ *
+ * This programm scan /usr/share/locale directories and write
+ * ./LOCALE/LC_CTYPE files for system with uclibc
+ *
+ * Written by Vladimir Oleynik <vodz@usa.net> 2001
+ * Base on ideas Nickolay Saukh  <nms@ussr.EU.net>
+ *
+ */
+
+
+Sample usage to dump all the data files in a tmp directory:
+
+gcc gen_ctype_from_glibc.c -o gen_ctype_from_glibc
+
+mkdir tmp
+cd tmp
+../gen_ctype_from_glibc
+
+Then just move the directory or directories you need (not the .c files)
+to the uClibc locale file directory you set in Config.

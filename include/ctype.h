@@ -4,11 +4,17 @@
 #ifndef __CTYPE_H
 #define __CTYPE_H
 
+#include <features.h>
+
 /* For now, just always use the functions instead of the macros...*/
-#define USE_CTYPE_C_FUNCTIONS
+#define __USE_CTYPE_C_FUNCTIONS
 
+/* Locale-compatible macros/inlines have yet to be implemented. */
+#if __UCLIBC_HAS_LOCALE__ && !defined(__USE_CTYPE_C_FUNCTIONS)
+#define __USE_CTYPE_C_FUNCTIONS
+#endif
 
-#ifdef USE_CTYPE_C_FUNCTIONS
+#ifdef __USE_CTYPE_C_FUNCTIONS
 /* function prototpes */ 
 extern int isalnum(int c);
 extern int isalpha(int c);
@@ -34,7 +40,7 @@ extern int toupper(int c);
 #define isalnum(c)  (isalpha(c) || isdigit(c))
 #define isalpha(c)  (isupper(c) || islower(c))
 #define isascii(c)  (c > 0 && c <= 0x7f)
-#define iscntrl(c)  ((c > 0) && ((c <= 0x1F) || (c == 0x7f)))
+#define iscntrl(c)  ((c >= 0) && ((c <= 0x1F) || (c == 0x7f)))
 #define isdigit(c)  (c >= '0' && c <= '9')
 #define isgraph(c)  (c != ' ' && isprint(c))
 #define islower(c)  (c >=  'a' && c <= 'z')

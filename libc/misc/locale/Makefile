@@ -20,38 +20,27 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../
+TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
+MSRC=locale.c
+MOBJ= setlocale.o
 
-DIRS = assert crypt ctype fnmatch glob internals lsearch mntent syslog shm \
-	time utmp tsearch locale
+OBJS=$(MOBJ)
+all: $(MOBJ) $(LIBC)
 
-# regex bombs out with an internal compiler error using m68k-pic-coff-gcc.
-ifneq ($(TARGET_ARCH),m68k)
-	DIRS += regex
-endif
+$(LIBC): ar-target
 
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-all: libc.a
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-libc.a: subdirs
+$(OBJS): Makefile
 
-tags:
-	ctags -R
-
-clean: subdirs_clean
+clean:
 	rm -f *.[oa] *~ core
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
-
-$(patsubst %, _dir_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-.PHONY: dummy
 
