@@ -4,8 +4,8 @@
 #include <sys/types.h>	/* for size_t */
 
 extern void *_dl_malloc(int size);
-extern char *_dl_getenv(char *symbol, char **envp);
-extern void _dl_unsetenv(char *symbol, char **envp);
+extern char *_dl_getenv(const char *symbol, char **envp);
+extern void _dl_unsetenv(const char *symbol, char **envp);
 extern char *_dl_strdup(const char *string);
 extern void _dl_dprintf(int, const char *, ...);
 
@@ -65,7 +65,7 @@ static inline char * _dl_strcpy(char * dst,const char *src)
  
 static inline int _dl_strcmp(const char * s1,const char * s2)
 {
-	unsigned register char c1, c2;
+	register unsigned char c1, c2;
 
 	do {
 		c1 = (unsigned char) *s1++;
@@ -80,8 +80,8 @@ static inline int _dl_strcmp(const char * s1,const char * s2)
 
 static inline int _dl_strncmp(const char * s1,const char * s2,size_t len)
 {
-	unsigned register char c1 = '\0';
-	unsigned register char c2 = '\0';
+	register unsigned char c1 = '\0';
+	register unsigned char c2 = '\0';
 
 	while (len > 0) {
 		c1 = (unsigned char) *s1++;

@@ -78,7 +78,7 @@ unsigned long _dl_elf_hash(const char *name)
 /*
  * Check to see if a library has already been added to the hash chain.
  */
-struct elf_resolve *_dl_check_hashed_files(char *libname)
+struct elf_resolve *_dl_check_hashed_files(const char *libname)
 {
 	struct elf_resolve *tpnt;
 	int len = _dl_strlen(libname);
@@ -98,7 +98,7 @@ struct elf_resolve *_dl_check_hashed_files(char *libname)
  * externals properly.
  */
 
-struct elf_resolve *_dl_add_elf_hash_table(char *libname, 
+struct elf_resolve *_dl_add_elf_hash_table(const char *libname, 
 	char *loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr, 
 	unsigned long dynamic_size)
 {
@@ -128,7 +128,7 @@ struct elf_resolve *_dl_add_elf_hash_table(char *libname,
 	tpnt->libtype = loaded_file;
 
 	if (dynamic_info[DT_HASH] != 0) {
-		hash_addr = (unsigned long *) (dynamic_info[DT_HASH] + loadaddr);
+		hash_addr = (unsigned long *) (intptr_t)(dynamic_info[DT_HASH] + loadaddr);
 		tpnt->nbucket = *hash_addr++;
 		tpnt->nchain = *hash_addr++;
 		tpnt->elf_buckets = hash_addr;
@@ -162,7 +162,7 @@ struct elf_resolve *_dl_add_elf_hash_table(char *libname,
  * relocations or when we call an entry in the PLT table for the first time.
  */
 
-char *_dl_find_hash(char *name, struct dyn_elf *rpnt1, 
+char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1, 
 	struct elf_resolve *f_tpnt, enum caller_type caller_type)
 {
 	struct elf_resolve *tpnt;
@@ -245,7 +245,7 @@ char *_dl_find_hash(char *name, struct dyn_elf *rpnt1,
 			 * Avoid calling .urem here.
 			 */
 			do_rem(hn, elf_hash_number, tpnt->nbucket);
-			symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
+			symtab = (Elf32_Sym *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 			strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 			/*
 			 * This crap is required because the first instance of a

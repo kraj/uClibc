@@ -110,13 +110,13 @@ extern struct dyn_elf     * _dl_symbol_tables;
 extern struct elf_resolve * _dl_loaded_modules;
 extern struct dyn_elf 	  * _dl_handles;
 
-extern struct elf_resolve * _dl_check_hashed_files(char * libname);
-extern struct elf_resolve * _dl_add_elf_hash_table(char * libname, 
+extern struct elf_resolve * _dl_check_hashed_files(const char * libname);
+extern struct elf_resolve * _dl_add_elf_hash_table(const char * libname, 
 	char * loadaddr, unsigned long * dynamic_info, 
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 
 enum caller_type{symbolrel=0,copyrel=1,resolver=2};
-extern char * _dl_find_hash(char * name, struct dyn_elf * rpnt1, 
+extern char * _dl_find_hash(const char * name, struct dyn_elf * rpnt1, 
 	struct elf_resolve * f_tpnt, enum caller_type);
 
 extern int _dl_linux_dynamic_link(void);

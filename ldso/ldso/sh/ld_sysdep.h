@@ -77,7 +77,67 @@
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
-#define do_rem(result, n, base)	    result = (n % base)
+static __inline__ unsigned int
+_dl_urem(unsigned int n, unsigned int base)
+{
+register unsigned int __r0 __asm__ ("r0");
+register unsigned int __r4 __asm__ ("r4") = n;
+register unsigned int __r5 __asm__ ("r5") = base;
+
+	__asm__ ("
+		mov	#0, r0
+		div0u
+
+		! get one bit from the msb of the numerator into the T
+		! bit and divide it by whats in %2.  Put the answer bit
+		! into the T bit so it can come out again at the bottom
+
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+ 
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4 ; div1 r5, r0
+		rotcl	r4
+		mov  r4, r0
+"
+		: "=r" (__r0)
+		: "r" (__r4), "r" (__r5)
+		: "r4", "cc");
+
+	return n - (base * __r0);
+}
+
+#define do_rem(result, n, base)     ((result) = _dl_urem((n), (base)))
 
 /* 4096 bytes alignment */
 #define PAGE_ALIGN 0xfffff000

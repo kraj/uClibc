@@ -371,7 +371,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	}
 
 	_dl_read(infile, header, sizeof(header));
-	epnt = (elfhdr *) header;
+	epnt = (elfhdr *) (intptr_t) header;
 	if (epnt->e_ident[0] != 0x7f ||
 		epnt->e_ident[1] != 'E' || 
 		epnt->e_ident[2] != 'L' || 
@@ -398,7 +398,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		return NULL;
 	};
 
-	ppnt = (elf_phdr *) & header[epnt->e_phoff];
+	ppnt = (elf_phdr *)(intptr_t) & header[epnt->e_phoff];
 
 	piclib = 1;
 	for (i = 0; i < epnt->e_phnum; i++) {
@@ -446,7 +446,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	flags |= MAP_FIXED;
 
 	/* Get the memory to store the library */
-	ppnt = (elf_phdr *) & header[epnt->e_phoff];
+	ppnt = (elf_phdr *)(intptr_t) & header[epnt->e_phoff];
 
 	for (i = 0; i < epnt->e_phnum; i++) {
 		if (ppnt->p_type == PT_LOAD) {
@@ -543,6 +543,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 #if defined(__mips__)
 	{
+		
 		int i = 1;
 		Elf32_Dyn *dpnt = (Elf32_Dyn *) dynamic_addr;
 
@@ -571,7 +572,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	   back again later. */
 
 	if (dynamic_info[DT_TEXTREL]) {
-		ppnt = (elf_phdr *) & header[epnt->e_phoff];
+		ppnt = (elf_phdr *)(intptr_t) & header[epnt->e_phoff];
 		for (i = 0; i < epnt->e_phnum; i++, ppnt++) {
 			if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
 				_dl_mprotect((void *) ((piclib ? libaddr : 0) + 
@@ -584,7 +585,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	tpnt = _dl_add_elf_hash_table(libname, (char *) libaddr, dynamic_info, 
 		dynamic_addr, dynamic_size);
 
-	tpnt->ppnt = (elf_phdr *) (tpnt->loadaddr + epnt->e_phoff);
+	tpnt->ppnt = (elf_phdr *)(intptr_t) (tpnt->loadaddr + epnt->e_phoff);
 	tpnt->n_phent = epnt->e_phnum;
 
 	/*

@@ -47,7 +47,7 @@ _dl_reltypes(int type)
   static char buf[22];  
   const char *str;
   
-  if (type >= (sizeof (_dl_reltypes_tab)/sizeof(_dl_reltypes_tab[0])) ||
+  if (type >= (int)(sizeof (_dl_reltypes_tab)/sizeof(_dl_reltypes_tab[0])) ||
       NULL == (str = _dl_reltypes_tab[type]))
   {
     str =_dl_simple_ltoa( buf, (unsigned long)(type));
@@ -124,11 +124,11 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	rel_addr = (char *) (tpnt->dynamic_info[DT_JMPREL] + tpnt->loadaddr);
 
-	this_reloc = (ELF_RELOC *) (rel_addr + reloc_entry);
+	this_reloc = (ELF_RELOC *)(intptr_t)(rel_addr + reloc_entry);
 	reloc_type = ELF32_R_TYPE(this_reloc->r_info);
 	symtab_index = ELF32_R_SYM(this_reloc->r_info);
 
-	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
+	symtab = (Elf32_Sym *)(intptr_t) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 
 	if (reloc_type != R_SH_JMP_SLOT) {
@@ -183,7 +183,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	  int (*reloc_fnc) (struct elf_resolve *tpnt, struct dyn_elf *scope,
 			    ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab))
 {
-	int i;
+	unsigned int i;
 	char *strtab;
 	int goof = 0;
 	Elf32_Sym *symtab;
@@ -191,10 +191,10 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	int symtab_index;
 	/* Now parse the relocation information */
 
-	rpnt = (ELF_RELOC *) (rel_addr + tpnt->loadaddr);
+	rpnt = (ELF_RELOC *)(intptr_t) (rel_addr + tpnt->loadaddr);
 	rel_size = rel_size / sizeof(ELF_RELOC);
 
-	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
+	symtab = (Elf32_Sym *)(intptr_t) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 
 	  for (i = 0; i < rel_size; i++, rpnt++) {
@@ -254,7 +254,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	unsigned long symbol_addr;
 	int goof = 0;
   
-	reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
+	reloc_addr = (unsigned long *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr = 0;
@@ -318,10 +318,13 @@ static int
 _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 		   ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
 {
-        int reloc_type;
+	int reloc_type;
 	unsigned long *reloc_addr;
+	(void)scope;
+	(void)symtab;
+	(void)strtab;
 
-	reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
+	reloc_addr = (unsigned long *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
   
 #if defined (SUPPORT_LD_DEBUG)
@@ -365,7 +368,7 @@ _dl_do_copy (struct elf_resolve *tpnt, struct dyn_elf *scope,
 	unsigned long symbol_addr;
 	int goof = 0;
 	  
-	reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
+	reloc_addr = (unsigned long *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
 	if (reloc_type != R_SH_COPY) 
 	    return 0;
@@ -398,19 +401,22 @@ _dl_do_copy (struct elf_resolve *tpnt, struct dyn_elf *scope,
 void _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, 
 	unsigned long rel_addr, unsigned long rel_size, int type)
 {
-  (void)_dl_parse(tpnt, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
+	(void) type;
+	(void)_dl_parse(tpnt, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
 }
 
 int _dl_parse_relocation_information(struct elf_resolve *tpnt, 
 	unsigned long rel_addr, unsigned long rel_size, int type)
 {
-  return _dl_parse(tpnt, tpnt->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
+	(void) type;
+	return _dl_parse(tpnt, tpnt->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
 }
 
 int _dl_parse_copy_information(struct dyn_elf *xpnt, unsigned long rel_addr, 
 	unsigned long rel_size, int type)
 {
-  return _dl_parse(xpnt->dyn, xpnt->next, rel_addr, rel_size, _dl_do_copy);
+	(void) type;
+	return _dl_parse(xpnt->dyn, xpnt->next, rel_addr, rel_size, _dl_do_copy);
 }
 
 

@@ -160,8 +160,6 @@ void *(*_dl_malloc_function) (int size) = NULL;
 struct r_debug *_dl_debug_addr = NULL;
 unsigned long *_dl_brkp;
 unsigned long *_dl_envp;
-char *_dl_getenv(char *symbol, char **envp);
-void _dl_unsetenv(char *symbol, char **envp);
 int _dl_fixup(struct elf_resolve *tpnt);
 void _dl_debug_state(void);
 char *_dl_get_last_path_component(char *path);
@@ -471,7 +469,7 @@ LD_BOOT(unsigned long args)
 		/* First cover the shared library/dynamic linker. */
 		if (tpnt->dynamic_info[DT_TEXTREL]) {
 			header = (elfhdr *) auxvt[AT_BASE].a_un.a_ptr;
-			ppnt = (elf_phdr *) (auxvt[AT_BASE].a_un.a_ptr + 
+			ppnt = (elf_phdr *) ((int)auxvt[AT_BASE].a_un.a_ptr + 
 					header->e_phoff);
 			for (i = 0; i < header->e_phnum; i++, ppnt++) {
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W)) {
@@ -516,7 +514,7 @@ LD_BOOT(unsigned long args)
 
 	goof = 0;
 	for (indx = 0; indx < 2; indx++) {
-		int i;
+		unsigned int i;
 		ELF_RELOC *rpnt;
 		unsigned long *reloc_addr;
 		unsigned long symbol_addr;
@@ -755,7 +753,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			/* Determine if the shared lib loader is a symlink */
 			_dl_memset(buf, 0, sizeof(buf));
 			readsize = _dl_readlink(tpnt->libname, buf, sizeof(buf));
-			if (readsize > 0 && readsize < sizeof(buf)-1) {
+			if (readsize > 0 && readsize < (int)(sizeof(buf)-1)) {
 				pnt1 = _dl_strrchr(buf, '/');
 				if (pnt1 && buf != pnt1) {
 #ifdef LD_DEBUG
@@ -1161,13 +1159,12 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	   up each symbol individually. */
 
 
-	_dl_brkp = (unsigned long *) _dl_find_hash("___brk_addr", NULL, NULL, symbolrel);
+	_dl_brkp = (unsigned long *) (intptr_t) _dl_find_hash("___brk_addr", NULL, NULL, symbolrel);
 	
 	if (_dl_brkp) {
 		*_dl_brkp = brk_addr;
 	}
-	_dl_envp =
-		(unsigned long *) _dl_find_hash("__environ", NULL, NULL, symbolrel);
+	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash("__environ", NULL, NULL, symbolrel);
 
 	if (_dl_envp) {
 		*_dl_envp = (unsigned long) envp;
@@ -1175,7 +1172,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 
 #ifdef DO_MPROTECT_HACKS
 	{
-		int j;
+		unsigned int j;
 		elf_phdr *myppnt;
 
 		/* We had to set the protections of all pages to R/W for dynamic linking.
@@ -1191,7 +1188,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 
 	}
 #endif
-	_dl_atexit = (int (*)(void *)) _dl_find_hash("atexit", NULL, NULL, symbolrel);
+	_dl_atexit = (int (*)(void *)) (intptr_t) _dl_find_hash("atexit", NULL, NULL, symbolrel);
 
 	/*
 	 * OK, fix one more thing - set up the debug_addr structure to point
@@ -1233,7 +1230,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		tpnt->init_flag |= INIT_FUNCS_CALLED;
 
 		if (tpnt->dynamic_info[DT_INIT]) {
-			_dl_elf_init = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
+			_dl_elf_init = (int (*)(void)) (intptr_t) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
 			  
 #if defined (SUPPORT_LD_DEBUG)
 			if(_dl_debug) _dl_dprintf(_dl_debug_file,"\ncalling init: %s\n\n", tpnt->libname);	
@@ -1354,10 +1351,10 @@ void *_dl_malloc(int size)
 	return retval;
 }
 
-char *_dl_getenv(char *symbol, char **envp)
+char *_dl_getenv(const char *symbol, char **envp)
 {
 	char *pnt;
-	char *pnt1;
+	const char *pnt1;
 
 	while ((pnt = *envp++)) {
 		pnt1 = symbol;
@@ -1370,10 +1367,10 @@ char *_dl_getenv(char *symbol, char **envp)
 	return 0;
 }
 
-void _dl_unsetenv(char *symbol, char **envp)
+void _dl_unsetenv(const char *symbol, char **envp)
 {
 	char *pnt;
-	char *pnt1;
+	const char *pnt1;
 	char **newenvp = envp;
 
 	for (pnt = *envp; pnt; pnt = *++envp) {
