@@ -16,7 +16,7 @@ endif
 all: $(GCC_UCLIBC)
 
 clean:
-	rm -f gcc-uClibc.h gcc-uClibc-*
+	rm -f gcc-uClibc.h gcc-uClibc-* core
 
 gcc-uClibc.h: clean
 	echo "/* this file is created by make */" > gcc-uClibc.h
@@ -30,7 +30,7 @@ gcc-uClibc-native: gcc-uClibc.h gcc-uClibc.c
 	# uClibc built for native environment, so why not use it ;-)
 	$(CC) $(CFLAGS) -nostdinc -I$(UCLIBC_DIR)/include -I$(GCC_INC) \
 		-Wl,-static gcc-uClibc.c \
-		$(UCLIBC_DIR)/sysdeps/linux/$(TARGET_ARCH)/_start.o \
+		$(UCLIBC_DIR)/libcrt0.o \
 		-nostdlib $(GCC_LIB) $(UCLIBC_DIR)/libc.a \
 		-s -o gcc-uClibc-$(TARGET_ARCH) #-DDEBUG
 

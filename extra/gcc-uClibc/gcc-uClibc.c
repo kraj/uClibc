@@ -20,7 +20,7 @@
 
 #include "gcc-uClibc.h"
 
-#define UCLIBC_START UCLIBC_DIR"sysdeps/linux/"TARGET_ARCH"/_start.o"
+#define UCLIBC_START UCLIBC_DIR"libcrt0.o"
 #define UCLIBC_START_G UCLIBC_START
 #define UCLIBC_LIB UCLIBC_DIR"libc.a"
 #if 1
