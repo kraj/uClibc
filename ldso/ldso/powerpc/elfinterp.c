@@ -178,7 +178,6 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		insns[0] = OPCODE_BA (targ_addr);
 	}else{
 		/* Warning: we don't handle double-sized PLT entries */
-		int num_plt_entries;
 		unsigned long plt_addr;
 		unsigned long lbranch_addr;
 		unsigned long *ptr;
