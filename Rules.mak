@@ -152,6 +152,9 @@ endif
 
 # Add a bunch of extra pedantic annoyingly strict checks
 WARNINGS+=-Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+# Some nice CFLAGS to work with
+CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
+	-D_LIBC $(CPU_CFLAGS-y) $(ARCH_CFLAGS) -I$(TOPDIR)include -I.
 
 ifeq ($(DODEBUG),y)
     CFLAGS += -g
@@ -161,10 +164,6 @@ ifeq ($(DODEBUG),y)
 else
     LDFLAGS := $(CPU_LDFLAGS-y) -s -shared --warn-common --warn-once -z combreloc
 endif
-
-# Some nice CFLAGS to work with
-CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
-	-D_LIBC $(CPU_CFLAGS-y) $(ARCH_CFLAGS) -I$(TOPDIR)include -I.
 
 # Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
 #CFLAGS+=-iwithprefix include
