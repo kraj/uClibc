@@ -296,8 +296,8 @@ struct Block_s /* 32-bytes long control structure (if 4-byte aligned) */
 
   /* packed 4-byte attributes */
 /* { */
-  char bal_free_mem : 8;   /* balance of <free_mem> subtree */
-  char bal_ptrs : 8;       /* balance of <ptrs> subtree */
+  signed char bal_free_mem : 8;   /* balance of <free_mem> subtree */
+  signed char bal_ptrs : 8;       /* balance of <ptrs> subtree */
   unsigned int used : 1;   /* used/free state of the block */
   unsigned int broken : 1; /* 1 if previous block can't be merged with it */
 /* } */

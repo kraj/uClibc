@@ -39,11 +39,11 @@ endif
 CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS)
 
 ifeq ($(DODEBUG),true)
-    CFLAGS += -Wall -g
+    CFLAGS += $(WARNINGS) -g
     LDFLAGS = -nostdlib -Wl,-warn-common 
     STRIPTOOL = /bin/true -Since_we_are_debugging
 else
-    CFLAGS  += -Wall #-fomit-frame-pointer
+    CFLAGS  += $(WARNINGS) #-fomit-frame-pointer
     LDFLAGS  = -s -nostdlib -Wl,-warn-common
 endif
 
@@ -53,15 +53,15 @@ endif
 
 ifneq ($(HAS_MMU),true)
     CFLAGS += -D__HAS_NO_MMU__
+    ARCH_DIR = $(shell echo $(TARGET_ARCH)nommu)
+else
+    ARCH_DIR = $(TARGET_ARCH)
 endif
 
 ifneq ($(HAS_FLOATS),true)
     CFLAGS += -D__HAS_NO_FLOATS__
 endif
 
-ifneq ($(DO_FIXME_STUFF),true)
-    CFLAGS += -DFIXME
-endif
 
 
 # Use '-ffunction-sections -fdata-sections' and '--gc-sections' if they work

@@ -32,13 +32,11 @@ extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
 /* Cause an abnormal program termination with core-dump.  */
 void abort(void)
 {
-#if FIXME
 	sigset_t sigset;
 
 	if (sigemptyset(&sigset) == 0 && sigaddset(&sigset, SIGABRT) == 0) {
 		sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
 	}
-#endif
 
 	if (__cleanup)
 		__cleanup();

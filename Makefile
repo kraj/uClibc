@@ -42,16 +42,18 @@ halfclean:
 	@rm -f libc.a
 
 headers: dummy
-	@if [ ! -L "include/asm" ]; then ln -s /usr/include/asm include/asm ; fi
-	@if [ ! -L "include/net" ]; then ln -s /usr/include/net include/net ; fi
-	@if [ ! -L "include/linux" ]; then ln -s /usr/include/linux include/linux ; fi
-	@if [ ! -L "include/bits" ]; then ln -s ../sysdeps/linux/$(ARCH)/bits include/bits ; fi
+	@rm -f include/asm include/net include/linux include/bits
+	@ln -s $(KERNEL_SOURCE)/include/asm-$(ARCH_DIR) include/asm
+	@ln -s $(KERNEL_SOURCE)/include/net include/net
+	@ln -s $(KERNEL_SOURCE)/include/linux include/linux
+	@ln -s ../sysdeps/linux/$(TARGET_ARCH)/bits include/bits
 
 tags:
 	ctags -R
 	
 clean: subdirs_clean
 	rm -f libc.a
+	rm -f include/asm include/net include/linux include/bits
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))

@@ -47,19 +47,19 @@
 #include <errno.h>
 #endif
 
-unsigned long _strto_l(const char *str, char **endptr, int base, int uflag);
+unsigned long long _strto_ll(const char *str, char **endptr, int base, int uflag);
 
-#if L_strto_l
+#if L_strto_ll
 
 /*
  * This is the main work fuction which handles both strtol (uflag = 0) and
  * strtoul (uflag = 1).
  */
 
-unsigned long _strto_l(const char *str, char **endptr, int base, int uflag)
+unsigned long long _strto_ll(const char *str, char **endptr, int base, int uflag)
 {
-    unsigned long number = 0;
-    unsigned long cutoff;
+    unsigned long long number = 0;
+    unsigned long long cutoff;
     char *pos = (char *) str;
 #if _STRTO_ENDPTR
     char *fail_char = (char *) str;
@@ -107,8 +107,8 @@ unsigned long _strto_l(const char *str, char **endptr, int base, int uflag)
 	goto DONE;
     }
 
-    cutoff_digit = ULONG_MAX % base;
-    cutoff = ULONG_MAX / base;
+    cutoff_digit = ULONG_LONG_MAX % base;
+    cutoff = ULONG_LONG_MAX / base;
 
     while (1) {
 	digit = 40;
@@ -132,9 +132,9 @@ unsigned long _strto_l(const char *str, char **endptr, int base, int uflag)
 	/* adjust number, with overflow check */
 	if ((number > cutoff)
 	    || ((number == cutoff) && (digit > cutoff_digit))) {
-	    number = ULONG_MAX;
+	    number = ULONG_LONG_MAX;
 	    if (uflag) {
-		negative = 0; /* since unsigned returns ULONG_MAX */
+		negative = 0; /* since unsigned returns ULONG_LONG_MAX */
 	    }
 #if _STRTO_ERRNO
 	    errno = ERANGE;
@@ -153,19 +153,19 @@ unsigned long _strto_l(const char *str, char **endptr, int base, int uflag)
 #endif
 
     if (negative) {
-	if (!uflag && (number > ((unsigned long)(-(1+LONG_MIN)))+1)) {
+	if (!uflag && (number > ((unsigned long long)(-(1+LONG_LONG_MIN)))+1)) {
 #if _STRTO_ERRNO
 	    errno = ERANGE;
 #endif
-	    return (unsigned long) LONG_MIN;
+	    return (unsigned long long) LONG_LONG_MIN;
 	}
-	return (unsigned long)(-((long)number));
+	return (unsigned long long)(-((long long)number));
     } else {
-	if (!uflag && (number > (unsigned long) LONG_MAX)) {
+	if (!uflag && (number > (unsigned long long) LONG_LONG_MAX)) {
 #if _STRTO_ERRNO
 	    errno = ERANGE;
 #endif
-	    return LONG_MAX;
+	    return LONG_LONG_MAX;
 	}
 	return number;
     }
@@ -173,20 +173,20 @@ unsigned long _strto_l(const char *str, char **endptr, int base, int uflag)
 
 #endif
 
-#if L_strtoul
+#if L_strtoull
 
-unsigned long strtoul(const char *str, char **endptr, int base)
+unsigned long long strtoull(const char *str, char **endptr, int base)
 {
-    return _strto_l(str, endptr, base, 1);
+    return _strto_ll(str, endptr, base, 1);
 }
 
 #endif
 
-#if L_strtol
+#if L_strtoll
 
-long strtol(const char *str, char **endptr, int base)
+long long strtoll(const char *str, char **endptr, int base)
 {
-    return _strto_l(str, endptr, base, 0);
+    return _strto_ll(str, endptr, base, 0);
 }
 
 #endif

@@ -135,10 +135,18 @@ _syscall3(int, mknod, const char *, pathname, mode_t, mode, dev_t, dev);
 _syscall2(int, chmod, const char *, path, mode_t, mode);
 #endif
 
+/* Old kernels don't have lchown -- do chown instead.  This
+ * is sick and wrong, but at least things will compile.  
+ * They may not follow links when they should though... */
+#ifndef __NR_lchown 
+#define __NR_lchown __NR_chown
+#endif
+
 //#define __NR_lchown           16
 #ifdef L_lchown
 #include <unistd.h>
 _syscall3(int, lchown, const char *, path, uid_t, owner, gid_t, group);
+#endif
 #endif
 
 
@@ -325,10 +333,12 @@ gid_t getegid(void)
 
 //#define __NR_acct             51
 
+#ifdef __NR_umount2 /* Old kernels don't have umount2 */ 
 //#define __NR_umount2          52
 #ifdef L_umount2
 #include <sys/mount.h>
 _syscall2(int, umount2, const char *, special_file, int, flags);
+#endif
 #endif
 
 //#define __NR_lock             53
@@ -639,12 +649,14 @@ _syscall2(int, statfs, const char *, path, struct statfs *, buf);
 _syscall2(int, fstatfs, int, fd, struct statfs *, buf);
 #endif
 
+#ifndef __HAS_NO_MMU__
 //#define __NR_ioperm           101
 #ifdef L_ioperm
 #include <sys/io.h>
 syscall3(int, ioperm, unsigned, long, from, unsigned long, num, int,
 
 		 turn_on);
+#endif
 #endif
 
 //#define __NR_socketcall       102
@@ -737,10 +749,12 @@ int fstat(int fd, struct libc_stat *cstat)
 
 //#define __NR_olduname         109
 
+#ifndef __HAS_NO_MMU__
 //#define __NR_iopl             110
 #ifdef L_iopl
 #include <sys/io.h>
 _syscall1(int, iopl, int, level);
+#endif
 #endif
 
 //#define __NR_vhangup          111

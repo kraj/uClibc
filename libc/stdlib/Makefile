@@ -29,6 +29,9 @@ DIRS = $(MALLOC)
 MSRC=strto_l.c
 MOBJ=strtol.o strtoul.o strto_l.o
 
+MSRC1=strto_ll.c
+MOBJ1=strtoll.o strtoull.o strto_ll.o
+
 MSRC2=atexit.c
 MOBJ2=on_exit.o atexit.o __do_exit.o exit.o
 
@@ -38,7 +41,7 @@ CSRC =	abort.c getenv.c  mktemp.c  qsort.c  realpath.c strtod.c \
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 
-OBJS=$(MOBJ) $(MOBJ2) $(COBJS)
+OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(COBJS)
 
 all: $(OBJS) $(LIBC)
 
@@ -48,6 +51,10 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
 $(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ1): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 

@@ -23,7 +23,7 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-DIRS = $(ARCH) common
+DIRS = $(TARGET_ARCH) common
 
 all: libc.a
 
