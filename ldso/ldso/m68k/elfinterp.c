@@ -118,8 +118,8 @@ _dl_linux_resolver (int dummy1, int dummy2,
 }
 
 void
-_dl_parse_lazy_relocation_information (struct elf_resolve *tpnt, int rel_addr,
-				       int rel_size, int type)
+_dl_parse_lazy_relocation_information (struct elf_resolve *tpnt,
+                       unsigned long rel_addr, unsigned long rel_size, int type)
 {
   int i;
   char *strtab;
@@ -171,8 +171,8 @@ _dl_parse_lazy_relocation_information (struct elf_resolve *tpnt, int rel_addr,
 }
 
 int 
-_dl_parse_relocation_information (struct elf_resolve *tpnt, int rel_addr,
-				  int rel_size, int type)
+_dl_parse_relocation_information (struct elf_resolve *tpnt,
+                  unsigned long rel_addr, unsigned long rel_size, int type)
 {
   int i;
   char *strtab;
@@ -294,8 +294,8 @@ _dl_parse_relocation_information (struct elf_resolve *tpnt, int rel_addr,
    at all.  */
 
 int 
-_dl_parse_copy_information (struct dyn_elf *xpnt, int rel_addr,
-			    int rel_size, int type)
+_dl_parse_copy_information (struct dyn_elf *xpnt, unsigned long rel_addr,
+			    unsigned long rel_size, int type)
 {
   int i;
   char *strtab;

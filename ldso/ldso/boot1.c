@@ -92,10 +92,10 @@
  */
 
 #include <stdarg.h>
+#include "sysdep.h" /* before elf.h to get ELF_USES_RELOCA right */
 #include <elf.h>
 #include "linuxelf.h"
 #include "link.h"
-#include "sysdep.h"
 #include "hash.h"
 #include "syscall.h"
 #include "string.h"
