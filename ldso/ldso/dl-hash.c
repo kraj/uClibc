@@ -153,8 +153,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
  * This function resolves externals, and this is either called when we process
  * relocations or when we call an entry in the PLT table for the first time.
  */
-char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
-		    int type_class)
+char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1, int type_class)
 {
 	struct elf_resolve *tpnt;
 	int si;
@@ -162,11 +161,9 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 	char *strtab;
 	Elf32_Sym *symtab;
 	unsigned long elf_hash_number, hn;
-	char *weak_result;
 	struct dyn_elf *rpnt;
 	const ElfW(Sym) *sym;
 
-	weak_result = 0;
 	elf_hash_number = _dl_elf_hash(name);
 
 	/*
@@ -207,9 +204,7 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 			if ((type_class &  ELF_RTYPE_CLASS_COPY) && tpnt->libtype == elf_executable)
 				continue;
 
-			/*
-			 * Avoid calling .urem here.
-			 */
+			/* Avoid calling .urem here. */
 			do_rem(hn, elf_hash_number, tpnt->nbucket);
 			symtab = (Elf32_Sym *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 			strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
@@ -217,28 +212,24 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 			for (si = tpnt->elf_buckets[hn]; si != STN_UNDEF; si = tpnt->chains[si]) {
 				sym = &symtab[si];
 
-				if (sym->st_value == 0)
-					continue;
-				if (ELF32_ST_TYPE(sym->st_info) > STT_FUNC)
-					continue;
 				if (type_class & (sym->st_shndx == SHN_UNDEF))
 					continue;
 				if (_dl_strcmp(strtab + sym->st_name, name) != 0)
 					continue;
+				if (sym->st_value == 0)
+					continue;
+				if (ELF32_ST_TYPE(sym->st_info) > STT_FUNC)
+					continue;
 
 				switch (ELF32_ST_BIND(sym->st_info)) {
 					case STB_WEAK:
-#ifndef __LIBDL_SHARED__
-/* 
-Due to a special hack in libdl.c, one must handle the _dl_ symbols
-according to the OLD weak symbol scheme. This stuff can be deleted
-once that hack has been fixed.
-*/
-
+#if 0
+/* Perhaps we should support old style weak symbol handling
+ * per what glibc does when you export LD_DYNAMIC_WEAK */
 						if(_dl_symbol((char *)name)) {
-						if (!weak_result)
-							weak_result = (char *)tpnt->loadaddr + sym->st_value;
-						break;
+							if (!weak_result)
+								weak_result = (char *)tpnt->loadaddr + sym->st_value;
+							break;
 						}
 #endif
 					case STB_GLOBAL:
@@ -249,5 +240,5 @@ once that hack has been fixed.
 			}
 		}
 	}
-	return weak_result;
+	return NULL;
 }
