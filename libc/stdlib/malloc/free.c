@@ -18,7 +18,7 @@
 #include "malloc.h"
 #include "heap.h"
 
-
+
 void
 free (void *mem)
 {
@@ -35,22 +35,22 @@ free (void *mem)
 
       __malloc_lock ();
 
+      /* Put MEM back in the heap, and get the free-area it was placed in.  */
       fa = __heap_free (&__malloc_heap, mem, size);
 
-      /* Now we check to see if FA has grown big enough that it should be
+      /* See if the free-area FA has grown big enough that it should be
 	 unmapped.  */
       if (HEAP_FREE_AREA_SIZE (fa) < MALLOC_UNMAP_THRESHOLD)
-	/* Nothing left to do, just release the lock.  */
+	/* Nope, nothing left to do, just release the lock.  */
 	__malloc_unlock ();
       else
-	/* Try to unmap FA.  */
+	/* Yup, try to unmap FA.  */
 	{
-	  unsigned long start, end;
+	  unsigned long start = (unsigned long)HEAP_FREE_AREA_START (fa);
+	  unsigned long end = (unsigned long)HEAP_FREE_AREA_END (fa);
 #ifndef MALLOC_USE_SBRK
 	  unsigned long unmap_start, unmap_end;
 #endif
-
-	  end = (unsigned long)HEAP_FREE_AREA_END (fa);
 
 #ifdef MALLOC_USE_SBRK
 	  /* Get the sbrk lock so that the two possible calls to sbrk below
@@ -68,16 +68,12 @@ free (void *mem)
 	  if ((void *)end != sbrk (0))
 	    {
 	      MALLOC_DEBUG ("  not unmapping: 0x%lx - 0x%lx (%d bytes)\n",
-			    (unsigned long)HEAP_FREE_AREA_START (fa),
-			    (unsigned long)HEAP_FREE_AREA_END (fa),
-			    fa->size);
+			    start, end, end - start);
 	      __malloc_unlock_sbrk ();
 	      __malloc_unlock ();
 	      return;
 	    }
 #endif
-
-	  start = (unsigned long)HEAP_FREE_AREA_START (fa);
 
 	  MALLOC_DEBUG ("  unmapping: 0x%lx - 0x%lx (%ld bytes)\n",
 			start, end, end - start);
@@ -136,6 +132,7 @@ free (void *mem)
 	  __malloc_unlock ();
 
 	  if (unmap_end > unmap_start)
+	    /* Finally, actually unmap the memory.  */
 	    munmap ((void *)unmap_start, unmap_end - unmap_start);
 
 #endif /* MALLOC_USE_SBRK */

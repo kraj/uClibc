@@ -31,7 +31,7 @@ malloc_mutex_t __malloc_sbrk_lock;
 # endif /* MALLOC_USE_SBRK */
 #endif /* MALLOC_USE_LOCKING */
 
-
+
 void *
 malloc (size_t size)
 {
