@@ -136,6 +136,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "paths.h"
 /* ":<tzname>+hh:mm:ss<tzname>+hh:mm:ss,Mmm.w.d/hh:mm:ss,Mmm.w.d/hh:mm:ss" + nul */
 /* 1 + 2*(1+TZNAME_MAX+1 + 9 + 7 + 9) + 1 = 2*TZNAME_MAX + 56 */
 #else  /* __TIME_TZ_FILE */
@@ -1537,7 +1538,7 @@ static char *read_TZ_file(char *buf)
 	size_t todo;
 	char *p = NULL;
 
-	if ((fd = open("/etc/TZ", O_RDONLY)) >= 0) {
+	if ((fd = open(_PATH_TZ, O_RDONLY)) >= 0) {
 		todo = TZ_BUFLEN;
 		p = buf;
 		do {
