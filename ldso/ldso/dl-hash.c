@@ -25,7 +25,7 @@
 #include <linux/unistd.h>
 #include <linux/elf.h>
 
-#include "libdl/dlfcn.h"
+#include "dlfcn.h"
 #include "hash.h"
 #include "linuxelf.h"
 #include "syscall.h"

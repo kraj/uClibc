@@ -2,7 +2,7 @@ TOPDIR=../
 include $(TOPDIR)Rules.mak
 include Config.mk
 
-SUBDIRS = util d-link # man
+SUBDIRS = util d-link libdl # man
 TARGETDIR=/usr/$(TARGET_ARCH)-linux-uclibc
 
 
@@ -13,7 +13,8 @@ all:
 install: all
 	mkdir -p $(TARGETDIR)/etc
 	mkdir -p $(TARGETDIR)/lib
-	cp -a ./d-link/ld-linux-uclibc.so.1 ./d-link/libdl/libdl.so.1 $(TARGETDIR)/lib 
+	cp -a ./d-link/$(DLINKER).$(LDSO_VMAJOR) \
+		./libdl/$(LIBDL).$(LDSO_VMAJOR) $(TARGETDIR)/lib 
 	./util/ldconfig
 
 clean:
