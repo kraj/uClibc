@@ -46,16 +46,23 @@ endif
 ARFLAGS=r
 
 CCFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D_LIBC
+TARGET_CCFLAGS=--uclibc-use-build-dir $(WARNINGS) $(OPTIMIZATION) $(CPUFLAGS)
 
 CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
+TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
+TARGET_CFLAGS=$(ARCH_CFLAGS) $(TARGET_CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
 
 ifeq ($(strip $(DODEBUG)),true)
     CFLAGS += -g
+    TARGET_CFLAGS += -g
     LDFLAGS = -nostdlib -Wl,-warn-common 
+    TARGET_LDFLAGS = -Wl,-warn-common
     STRIPTOOL = /bin/true -Since_we_are_debugging
 else
     CFLAGS  += -DNDEBUG #-fomit-frame-pointer
+    TARGET_CFLAGS += -DNDEBUG #-fomit-frame-pointer
     LDFLAGS  = -s -nostdlib -Wl,-warn-common
+    TARGET_LDFLAGS = -s -Wl,-warn-common
 endif
 
 ifndef $(PREFIX)

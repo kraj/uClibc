@@ -49,7 +49,7 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBM) $(OBJS)
 
 $(COBJS): %.o : %.c
-	$(TARGET_CC) $(CFLAGS) -c $< -o $@
+	$(TARGET_CC) $(TARGET_CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile

@@ -26,7 +26,6 @@ include $(TOPDIR)Rules.mak
 LIBRESOLV=libresolv.a
 LIBRESOLV_SHARED=libresolv.so
 LIBRESOLV_SHARED_FULLNAME=libresolv-$(MAJOR_VERSION).$(MINOR_VERSION).so
-TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 CSRC = resolv.c
 OBJS=$(patsubst %.c,%.o, $(CSRC))
@@ -42,15 +41,14 @@ ar-target: $(OBJS)
 	install -m 644 $(LIBRESOLV) $(TOPDIR)lib
 
 $(OBJS): %.o : %.c
-	$(TARGET_CC) $(CFLAGS) -c $< -o $@
+	$(TARGET_CC) $(TARGET_CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
 
 shared: all
-	$(TARGET_CC) $(LDFLAGS) -shared -o $(LIBRESOLV_SHARED_FULLNAME) \
-	    -Wl,-soname,$(LIBRESOLV_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive \
-	    $(LIBRESOLV) $(TOPDIR)lib/$(SHARED_FULLNAME)
+	$(TARGET_CC) $(TARGET_LDFLAGS) -nostdlib -shared -o $(LIBRESOLV_SHARED_FULLNAME) \
+	    -Wl,-soname,$(LIBRESOLV_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBRESOLV)
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRESOLV_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib;

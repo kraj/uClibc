@@ -50,7 +50,7 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBM) $(OBJS)
 
 $(COBJS): %.o : %.c
-	$(TARGET_CC) $(CFLAGS) -c $< -o $@
+	$(TARGET_CC) $(TARGET_CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
@@ -65,37 +65,37 @@ clean:
 #all: libmd.a mtst dtestvec monot dcalc paranoia
 
 time-it: time-it.o
-	$(CC) -o time-it time-it.o
+	$(TARGET_CC) -o time-it time-it.o
 
 time-it.o: time-it.c
-	$(CC) -O2 -c time-it.c
+	$(TARGET_CC) -O2 -c time-it.c
 
 dcalc: dcalc.o libmd.a
-	$(CC) -o dcalc dcalc.o libmd.a
+	$(TARGET_CC) -o dcalc dcalc.o libmd.a
 
 mtst: mtst.o libmd.a
-	$(CC) -v -o mtst mtst.o libmd.a
+	$(TARGET_CC) -v -o mtst mtst.o libmd.a
 
 mtst.o: mtst.c
-	$(CC) -O2 -Wall -c mtst.c
+	$(TARGET_CC) -O2 -Wall -c mtst.c
 
 dtestvec: dtestvec.o libmd.a
-	$(CC) -o dtestvec dtestvec.o libmd.a
+	$(TARGET_CC) -o dtestvec dtestvec.o libmd.a
 
 dtestvec.o: dtestvec.c
-	$(CC) -g -c dtestvec.c
+	$(TARGET_CC) -g -c dtestvec.c
 
 monot: monot.o libmd.a
-	$(CC) -o monot monot.o libmd.a
+	$(TARGET_CC) -o monot monot.o libmd.a
 
 monot.o: monot.c
-	$(CC) -g -c monot.c
+	$(TARGET_CC) -g -c monot.c
 
 paranoia: paranoia.o setprec.o libmd.a
-	$(CC) -o paranoia paranoia.o setprec.o libmd.a
+	$(TARGET_CC) -o paranoia paranoia.o setprec.o libmd.a
 
 paranoia.o: paranoia.c
-	$(CC) $(CFLAGS) -Wno-implicit -c paranoia.c
+	$(TARGET_CC) $(TARGET_CFLAGS) -Wno-implicit -c paranoia.c
 
 libmd.a: $(OBJS) $(INCS)
 	$(AR) rv libmd.a $(OBJS)

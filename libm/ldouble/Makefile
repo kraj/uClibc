@@ -45,7 +45,7 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBM) $(OBJS)
 
 $(COBJS): %.o : %.c
-	$(TARGET_CC) $(CFLAGS) -c $< -o $@
+	$(TARGET_CC) $(TARGET_CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
@@ -61,20 +61,20 @@ clean:
 #all: mtstl lparanoi lcalc fltestl nantst testvect monotl libml.a
 
 mtstl: libml.a mtstl.o $(OBJS)
-	$(CC) $(CFLAGS) -o mtstl mtstl.o libml.a $(LIBS)
+	$(TARGET_CC) $(TARGET_CFLAGS) -o mtstl mtstl.o libml.a $(LIBS)
 
 mtstl.o: mtstl.c
 
 lparanoi: libml.a lparanoi.o setprec.o ieee.o econst.o $(OBJS)
-	$(CC) $(CFLAGS) -o lparanoi lparanoi.o setprec.o ieee.o econst.o libml.a $(LIBS)
+	$(TARGET_CC) $(TARGET_CFLAGS) -o lparanoi lparanoi.o setprec.o ieee.o econst.o libml.a $(LIBS)
 
 lparanoi.o: lparanoi.c
-	$(CC) $(CFLAGS) -Wno-implicit -c lparanoi.c
+	$(TARGET_CC) $(TARGET_CFLAGS) -Wno-implicit -c lparanoi.c
 
 econst.o: econst.c ehead.h
 
 lcalc: libml.a lcalc.o ieee.o econst.o $(OBJS)
-	$(CC) $(CFLAGS) -o lcalc lcalc.o ieee.o econst.o libml.a $(LIBS)
+	$(TARGET_CC) $(TARGET_CFLAGS) -o lcalc lcalc.o ieee.o econst.o libml.a $(LIBS)
 
 lcalc.o: lcalc.c lcalc.h ehead.h
 
@@ -87,31 +87,31 @@ libml.a: $(OBJS) mconf.h
 
 
 fltestl: fltestl.c libml.a
-	$(CC) $(CFLAGS) -o fltestl fltestl.c libml.a
+	$(TARGET_CC) $(TARGET_CFLAGS) -o fltestl fltestl.c libml.a
 
 fltestl.o: fltestl.c
 
 flrtstl: flrtstl.c libml.a
-	$(CC) $(CFLAGS) -o flrtstl flrtstl.c libml.a
+	$(TARGET_CC) $(TARGET_CFLAGS) -o flrtstl flrtstl.c libml.a
 
 flrtstl.o: flrtstl.c
 
 nantst: nantst.c libml.a
-	$(CC) $(CFLAGS) -o nantst nantst.c libml.a
+	$(TARGET_CC) $(TARGET_CFLAGS) -o nantst nantst.c libml.a
 
 nantst.o: nantst.c
 
 testvect: testvect.o libml.a
-	$(CC) $(CFLAGS) -o testvect testvect.o libml.a
+	$(TARGET_CC) $(TARGET_CFLAGS) -o testvect testvect.o libml.a
 
 testvect.o: testvect.c
-	$(CC) -g -c -o testvect.o testvect.c
+	$(TARGET_CC) -g -c -o testvect.o testvect.c
 
 monotl: monotl.o libml.a
-	$(CC) $(CFLAGS) -o monotl monotl.o libml.a
+	$(TARGET_CC) $(TARGET_CFLAGS) -o monotl monotl.o libml.a
 
 monotl.o: monotl.c
-	$(CC) -g -c -o monotl.o monotl.c
+	$(TARGET_CC) -g -c -o monotl.o monotl.c
 
 # Run test programs
 check: mtstl fltestl testvect monotl libml.a

@@ -27,12 +27,11 @@ include $(TOPDIR)Rules.mak
 LIBDL=libdl.a
 LIBDL_SHARED=libdl.so
 LIBDL_SHARED_FULLNAME=libdl-$(MAJOR_VERSION).$(MINOR_VERSION).so
-TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 CSRC= dlib.c
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-CFLAGS += --uclibc-use-build-dir -DUSE_CACHE #-fPIC -D__PIC__ #-funroll-loops
+TARGET_CFLAGS += -DUSE_CACHE #-fPIC -D__PIC__ #-funroll-loops
 
 all: $(OBJS) $(LIBDL) shared
 
@@ -45,15 +44,14 @@ ar-target: $(OBJS)
 	#install -m 644 $(LIBDL) $(TOPDIR)lib
 
 $(OBJS): %.o : %.c
-	$(TARGET_CC) -I../d-link -I../d-link/$(TARGET_ARCH) $(CFLAGS) -c $< -o $@
+	$(TARGET_CC) -I../d-link -I../d-link/$(TARGET_ARCH) $(TARGET_CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
 
 shared: all
-	$(TARGET_CC) $(LDFLAGS) -shared -o $(LIBDL_SHARED_FULLNAME) \
-	    -Wl,-soname,$(LIBDL_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive \
-	    $(LIBDL) $(TOPDIR)lib/$(SHARED_FULLNAME)
+	$(TARGET_CC) $(TARGET_LDFLAGS) -nostdlib -shared -o $(LIBDL_SHARED_FULLNAME) \
+	    -Wl,-soname,$(LIBDL_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBDL)
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib;
