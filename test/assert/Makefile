@@ -30,8 +30,9 @@ assert: assert.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-@ echo "This is supposed to core dump on test #3"
 	-./$@
+	-@ echo "This was supposed to core dump on test #3"
+	-@rm -f core
 	-@ echo " "
 
 assert_glibc: assert.c Makefile $(TOPDIR)libc.a
@@ -41,8 +42,9 @@ assert_glibc: assert.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
-	-@ echo "This is supposed to core dump on test #3"
 	-./$@
+	-@ echo "This was supposed to core dump on test #3"
+	-@rm -f core
 	-@ echo " "
 
 clean:
