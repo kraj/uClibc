@@ -82,6 +82,9 @@ time functions
    echo CST6CDT > /etc/TZ
 3) Currently, locale specific eras and alternate digits are not supported.
    They are on my TODO list.
+4) The extension fields tm_gmtoff and tm_zone, even prefixed with "__", are
+   not currently supported as they aren't required by SUSv3 and I didn't
+   need them when I wrote the time code.
 
 wide char support
 -----------------
@@ -123,6 +126,9 @@ stdio
 6) uClibc's scanf still needs work.
 7) The functions fcloseall() and __fpending() can behave differently than their
    glibc counterparts.
+8) uClibc's setvbuf is more restrictive about when it can be called than glibc's
+   is.  The standards specify that setvbuf must occur before any other operations
+   take place on the stream.
 
 
 More to follow as I think of it...
