@@ -181,7 +181,7 @@ __BEGIN_DECLS
 
 void	closelog __P((void));
 void	openlog __P((__const char *, int, int));
-int	setlogmask __P((int));
+void	setlogmask __P((int));
 void	syslog __P((int, __const char *, ...))
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 5)
 	__attribute__ ((format (printf, 2, 0)))
