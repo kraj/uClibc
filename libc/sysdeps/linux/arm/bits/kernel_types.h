@@ -1,5 +1,11 @@
-#ifndef _BITS_KERNEL_TYPES_H
-#define _BITS_KERNEL_TYPES_H
+/* Note that we use the exact same include guard #define names
+ * as asm/posix_types.h.  This will avoid gratuitous conflicts 
+ * with the posix_types.h kernel header, and will ensure that 
+ * our private content, and not the kernel header, will win.
+ *  -Erik
+ */
+#ifndef __ARCH_ARM_POSIX_TYPES_H
+#define __ARCH_ARM_POSIX_TYPES_H
 
 typedef unsigned short		__kernel_dev_t;
 typedef unsigned long		__kernel_ino_t;
@@ -26,4 +32,4 @@ typedef unsigned short		__kernel_old_uid_t;
 typedef unsigned short		__kernel_old_gid_t;
 typedef long long		__kernel_loff_t;
 
-#endif /* _BITS_KERNEL_TYPES_H */
+#endif /* __ARCH_ARM_POSIX_TYPES_H */

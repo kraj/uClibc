@@ -10,6 +10,8 @@
  *
  * Written by Miles Bader <miles@gnu.org>
  */
+#ifndef __ASM_V850_POSIX_TYPES_H
+#define __ASM_V850_POSIX_TYPES_H
 
 typedef unsigned int	__kernel_dev_t;
 typedef unsigned long	__kernel_ino_t;
@@ -39,3 +41,5 @@ typedef unsigned short	__kernel_old_gid_t;
 #ifdef __GNUC__
 typedef long long	__kernel_loff_t;
 #endif
+
+#endif /* __ASM_V850_POSIX_TYPES_H */
