@@ -24,12 +24,14 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-CSRC=malloc.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-
 MSRC=alloc.c
 MOBJ=malloc_dbg.o free_dbg.o calloc_dbg.o
-OBJS=$(COBJS) $(MOBJ)
+
+MSRC1=malloc.c
+MOBJ1=_avl_support.o _free_support.o _malloc_init.o _realloc_no_move.o calloc.o \
+	 free.o malloc.o realloc.o
+
+OBJS=$(MOBJ) $(MOBJ1)
 
 all: $(OBJS) $(LIBC)
 
@@ -42,8 +44,8 @@ $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(MOBJ1): $(MSRC1)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
