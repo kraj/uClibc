@@ -1,8 +1,5 @@
 Any takers?
 
-On ARM, the kernel fp math emulator uses a funky byte ordering
-    that causes some of our math functions to produce bad results.
-    We need to fix up the things for the wierd ARM byte ordering.
 Fix regex so it isn't so stinking big
 Fix glob so it isn't so stinking big
 Integrate Jeff Garzik's key-value reading code for pwd/grp, /etc/hosts, etc
@@ -20,11 +17,6 @@ scandir.c doesn't check returns on malloc and realloc.
 Add in shadow support (include/shadow.h and such)
 Right now, getopt has different behavior when dynamically vs when
     statically linked, violating the principle of least surprise.
-
-Split the math library, such that by default we only build C89
-    math functions, i.e.: acos asin atan atan2 ceil cos cosh exp 
-    fabs floor fmod frexp ldexp log log10 modf pow sin sinh sqrt 
-    tan tanh
 
 
 -----------------------------------------------------------------------------

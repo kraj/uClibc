@@ -28,7 +28,6 @@ LIBM_SHARED_FULLNAME=libm-$(MAJOR_VERSION).$(MINOR_VERSION).so
 TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 TARGET_CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
-
 ifeq ($(strip $(DO_C99_MATH)),true)
 CSRC =   e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
          e_exp.c e_fmod.c e_gamma.c e_gamma_r.c e_hypot.c e_j0.c\
@@ -59,8 +58,11 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
 
-
+ifneq ($(strip $(HAS_FLOATING_POINT)),true)
+all:  clean
+else
 all: $(OBJS) $(COBJS1) $(LIBM)
+endif
 
 $(LIBM): ar-target
 	@if [ -f $(LIBM) ] ; then \

@@ -114,21 +114,6 @@ uClibc_config.h: Makefile Config
 	else \
 	    echo "#undef __UCLIBC_HAS_FLOATS__" >> uClibc_config.h ; \
 	fi
-	@if [ "$(HAS_LIBM_FLOAT)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_LIBM_FLOAT__ 1" >> uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_HAS_LIBM_FLOAT__" >> uClibc_config.h ; \
-	fi
-	@if [ "$(HAS_LIBM_DOUBLE)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_LIBM_DOUBLE__ 1" >> uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_HAS_LIBM_DOUBLE__" >> uClibc_config.h ; \
-	fi
-	@if [ "$(HAS_LIBM_LONG_DOUBLE)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_LIBM_LONG_DOUBLE__ 1" >> uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_HAS_LIBM_LONG_DOUBLE__" >> uClibc_config.h ; \
-	fi
 	@if [ "$(HAS_LONG_LONG)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAS_LONG_LONG__ 1" >> uClibc_config.h ; \
 	else \

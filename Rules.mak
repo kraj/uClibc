@@ -69,13 +69,6 @@ ifeq ($(strip $(DOPIC)),true)
     CFLAGS += -fPIC
 endif
 
-# Disable libm if HAS_FLOATING_POINT isn't true.
-ifneq ($(HAS_FLOATING_POINT),true)
-	HAS_LIBM_FLOAT = false
-	HAS_LIBM_DOUBLE = false
-	HAS_LIBM_LONG_DOUBLE = false
-endif
-
 ifeq ($(strip $(HAVE_SHARED)),true)
     LIBRARY_CACHE=#-DUSE_CACHE
 ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
