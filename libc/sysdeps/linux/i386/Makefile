@@ -36,10 +36,8 @@ CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 endif
 
 
-SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S bsd-_setjmp.S
-ifeq ($(UNIFIED_SYSCALL),true)
-	SSRC += __uClibc_syscall.S
-endif
+SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
+	bsd-_setjmp.S syscall.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=brk.c
