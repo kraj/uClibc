@@ -357,8 +357,8 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 		switch (reloc_type) {
 		case R_PPC_NONE:
 			break;
-#if 0
 		case R_PPC_REL24:
+#if 0
 			{
 			int delta = symbol_addr - (unsigned long)reloc_addr;
 			if(delta<<6>>6 != delta){
@@ -369,6 +369,9 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 			*reloc_addr |= delta&0x03fffffc;
 			}
 			break;
+#else
+			_dl_dprintf(2,"R_PPC_REL24: Compile shared libraries with -fPIC!\n");
+			_dl_exit(1);
 #endif
 		case R_PPC_RELATIVE:
 			*reloc_addr = (unsigned long)tpnt->loadaddr + addend;
