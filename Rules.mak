@@ -232,7 +232,7 @@ LDPIEFLAG=
 endif
 
 SSP_DISABLE_FLAGS=$(call check_gcc,-fno-stack-protector,)
-ifeq ($(UCLIBC_PROPOLICE),y)
+ifeq ($(UCLIBC_BUILD_SSP),y)
 SSP_CFLAGS=$(call check_gcc,-fno-stack-protector-all,)
 SSP_CFLAGS+=$(call check_gcc,-fstack-protector,)
 SSP_ALL_CFLAGS=$(call check_gcc,-fstack-protector-all,)

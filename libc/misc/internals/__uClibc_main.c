@@ -24,7 +24,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
-#ifdef __UCLIBC_PROPOLICE__
+#ifdef __UCLIBC_HAS_SSP__
 extern void __guard_setup(void);
 #endif
 
@@ -225,7 +225,7 @@ __uClibc_start_main(int argc, char **argv, char **envp,
     }
 #endif
 
-#ifdef __UCLIBC_PROPOLICE__
+#ifdef __UCLIBC_HAS_SSP__
     __guard_setup ();
 #endif
 
