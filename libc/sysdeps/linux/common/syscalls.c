@@ -1066,6 +1066,11 @@ _syscall1(int, uname, struct utsname *, buf);
 #endif
 
 //#define __NR_modify_ldt       123
+#ifdef __NR_modify_ldt
+#ifdef L_modify_ldt
+_syscall3(int, modify_ldt, int, func, void *, ptr, unsigned long, bytecount);
+#endif
+#endif
 
 //#define __NR_adjtimex         124
 #ifdef L_adjtimex
@@ -1235,6 +1240,27 @@ _syscall1(int, fdatasync, int, fd);
 #endif
 
 //#define __NR__sysctl          149
+#ifdef __NR__sysctl
+#ifdef L__sysctl
+#include <linux/sysctl.h>
+_syscall1(int, _sysctl, struct __sysctl_args *, args);
+int sysctl(int *name, int nlen, void *oldval, size_t *oldlenp,
+			void *newval, size_t newlen)
+{
+	struct __sysctl_args args =
+	{
+		name: name,
+		nlen: nlen,
+		oldval: oldval,
+		oldlenp: oldlenp,
+		newval: newval,
+		newlen: newlen
+	};
+
+	return _sysctl(&args);
+}
+#endif
+#endif
 
 //#define __NR_mlock            150
 #ifdef L_mlock
@@ -1348,7 +1374,19 @@ _syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t, new_s
 #endif
 
 //#define __NR_setresuid                164
+#ifdef __NR_setresuid
+#ifdef L_setresuid
+_syscall3(int, setresuid, uid_t, ruid, uid_t, euid, uid_t, suid);
+#endif
+#endif
+
 //#define __NR_getresuid                165
+#ifdef __NR_getresuid
+#ifdef L_getresuid
+_syscall3(int, getresuid, uid_t *, euid, uid_t *, ruid, uid_t *, suid);
+#endif
+#endif
+
 //#define __NR_vm86                     166
 
 //#define __NR_query_module             167
@@ -1376,7 +1414,19 @@ _syscall3(int, poll, struct pollfd *, fds, unsigned long int, nfds, int, timeout
 //nfsservctl	EXTRA	nfsservctl	i:ipp	nfsservctl
 
 //#define __NR_setresgid                170
+#ifdef __NR_setresgid
+#ifdef L_setresgid
+_syscall3(int, setresgid, gid_t, rgid, gid_t, egid, gid_t, sgid);
+#endif
+#endif
+
 //#define __NR_getresgid                171
+#ifdef __NR_getresgid
+#ifdef L_getresgid
+_syscall3(int, getresgid, gid_t *, egid, gid_t *, rgid, gid_t *, sgid);
+#endif
+#endif
+
 //#define __NR_prctl                    172
 
 //#define __NR_rt_sigreturn             173
