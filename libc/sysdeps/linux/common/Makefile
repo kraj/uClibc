@@ -33,7 +33,7 @@ CSRC=	waitpid.c kernel_version.c statfix.c getdnnm.c gethstnm.c \
 	mkfifo.c setegid.c wait.c getpagesize.c seteuid.c \
 	wait3.c setpgrp.c getdtablesize.c create_module.c ptrace.c \
 	cmsg_nxthdr.c statfix64.c longjmp.c open64.c ftruncate64.c \
-	truncate64.c getrlimit64.c setrlimit64.c creat64.c
+	truncate64.c getrlimit64.c setrlimit64.c creat64.c mmap64.c
 ifneq ($(strip $(EXCLUDE_BRK)),true)
 CSRC+=sbrk.c
 endif
