@@ -17,19 +17,22 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <sysdep.h>
 #define _ASM
 #define _SETJMP_H
 #include <bits/setjmp.h>
 
-ENTRY (__setjmp)
+.globl __setjmp;
+.align 4;                                                               \
+__setjmp:
 	popl %eax		/* Pop return address.  */
 	popl %ecx		/* Pop jmp_buf.  */
 	pushl $0		/* Push zero argument.  */
 	pushl %ecx		/* Push jmp_buf.  */
 	pushl %eax		/* Push back return address.  */
 
-ENTRY (__sigsetjmp)
+.globl __sigsetjmp;
+.align 4;                                                               \
+__sigsetjmp:
 	movl 4(%esp), %eax	/* User's jmp_buf in %eax.  */
      	/* Save registers.  */
 	movl %ebx, (JB_BX*4)(%eax)

@@ -20,14 +20,15 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
-#include <sysdep.h>
 #include <asm/errno.h>
 
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
         .text
-ENTRY(__clone)
+.globl __clone;
+.align 4;                                                               \
+__clone:
 	/* Sanity check arguments.  */
 	movl	$-EINVAL,%eax
 	movl	4(%esp),%ecx		/* no NULL function pointers */
