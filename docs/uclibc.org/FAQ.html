@@ -1,69 +1,49 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd"> 
-
-<HTML>
-<HEAD>
-    <TITLE>uClibc FAQ-- a C library for embedded systems</TITLE>
-</HEAD>
-
-<body text="#000000" alink="#660000" link="#660000" bgcolor="#dee2de" vlink="#660000">
-
-<basefont face="lucida, helvetica, arial" size="3">
+<!--#include file="header.html" -->
 
 
-<CENTER>
-<p>
+<h3>Frequently Asked Questions</h3>
 
-<TABLE BORDER=0 CELLSPACING=1 CELLPADDING=2>
-    <TR>
-	<td bgcolor="#000000">
-	  <FONT FACE="lucida, helvetica" COLOR="#ccccc0">
-	      <B>µ&nbsp;C&nbsp;l&nbsp;i&nbsp;b&nbsp;c</B>
-	  </FONT>
-	</TD>
-    </TR>
-</TABLE>
-<p>
-
-
-<!-- Begin NOT Working List -->
-
-
-<TABLE WIDTH=95% CELLSPACING=1 CELLPADDING=4 BORDER=1>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="notworking"> <BIG><B>
-		uClibc Frequently Asked Questions (FAQ)
-    </font>
-    </A></B></BIG>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-
-<p> 
-This is a collection of some of the frequently asked questions
+This is a collection of some of the most frequently asked questions
 about uClibc.  Some of the questions even have answers. If you
 have additions to this FAQ document, we would love to add them,
-<br>
-When you are done, <a href="http://uclibc.org/">you can click here to return 
-to the uClibc home page.</a>
 
+<ol>
+  <li><a href="#naming">Why is it called uClibc?</a>
+  <li><a href="#platforms">What platforms does uClibc run on?</a>
+  <li><a href="#why">Why are you doing this?  What's wrong with glibc?</a>
+  <li><a href="#doesnt_suck">So uClibc is smaller then glibc?  Doesn't that mean it 
+	completely sucks?  How could it be smaller and not suck?</a>
+  <li><a href="#why_should_i">Why should I use uClibc?</a>
+  <li><a href="#licensing">If I use uClibc, do I have to release all my source code to the world for
+	free?  I want to create a closed source commercial application and I want
+	to protect my intellectual property.</a>
+  <li><a href="#development">Can I use it on my x86 development system?</a>
+  <li><a href="#shared"> Does uClibc support shared libraries?</a>
+
+    <li><a href="#compiling">How do I compile programs with uClibc?</a>
+    <li><a href="#job_control">Why do I keep getting "sh: can't access tty; job control 
+	    turned off" errors?  Why doesn't Control-C work within my shell?</a>
+    <li><a href="#autoconf">How do I make autoconf and automake behave?</a>
+    <li><a href="#ldd">When I run 'ldd' to get a list of the library dependencies 
+	    for a uClibc binary, ldd segfaults!  What should I do?</a>
+    <li><a href="#timezones">Why does localtime() return times in UTC even when I have my timezone set?</a>
+    <li><a href="#history">What is the history of uClibc?  Where did it come from?</a>
+    <li><a href="#demanding">I demand that you to add &lt;favorite feature&gt; right now!   How come 
+	    you don't answer all my questions on the mailing list instantly?  I demand 
+	    that you help me with all of my problems <em>Right Now</em>!</a>
+    <li><a href="#contracts">I need you to add &lt;favorite feature&gt;!  Are the uClibc developers willing to 
+	    be paid in order to fix bugs or add in &lt;favorite feature&gt;?  Are you willing to provide
+	    support contracts?</a>
+    <li><a href="#support">I think you guys are great and I want to help support your work!</a>
+
+
+</ol>
+
+
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    What platforms does uClibc run on?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-
-    Currently uClibc runs on alpha, ARM, cris, i386, i960, h8300, 
-    m68k, mips/mipsel, PowerPC, SH, SPARC, and v850 processors.
-    
-
+<h2><a name="naming">Why is it called uClibc?</a></h2>
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    Why is it called uClibc?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
 
     The letter 'u' is short for µ (the greek letter "mu").  µ is commonly used
     as the abbreviation for the word "micro".  The capital "C" is short for
@@ -77,13 +57,20 @@ to the uClibc home page.</a>
     ARM7TDMI.  These days, uClibc also works just fine on normal Linux systems
     (such as i386, ARM, and PowerPC), but we couldn't think of a better name.
 
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    Why are you doing this?  What's wrong with glibc?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="platforms">What platforms does uClibc run on?</a></h2>
+<p>
+
+
+    Currently uClibc runs on alpha, ARM, cris, i386, i960, h8300, 
+    m68k, mips/mipsel, PowerPC, SH, SPARC, and v850 processors.
+    
+
+<hr />
+<p>
+<h2><a name="why">Why are you doing this?  What's wrong with glibc?</a></h2>
+<p>
 
     Initially, the project began since the GNU C library lacked support for
     MMU-less systems, and because glibc is very large.  The GNU C library is
@@ -100,14 +87,12 @@ to the uClibc home page.</a>
 
 
 
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    So uClibc is smaller then glibc?  Doesn't that mean it completely sucks?
-    How could it be smaller and not suck?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="doesnt_suck">So uClibc is smaller then glibc?  Doesn't that mean it completely sucks?
+How could it be smaller and not suck?</a></h2>
+<p>
+<p>
 
     uClibc and glibc have different goals.  glibc strives for features
     and performance, and is targeted for desktops and servers with
@@ -152,13 +137,10 @@ to the uClibc home page.</a>
 
     
 
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    Why should I use uClibc?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="why_should_i">Why should I use uClibc?</a></h2>
+<p>
 
     I don't know if you should use uClibc or not.  It depends on your needs.
     If you are building an embedded Linux system and you are tight on space, then
@@ -175,15 +157,12 @@ to the uClibc home page.</a>
 
 
 
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    If I use uClibc, do I have to release all my source code to the world for
-    free?  I want to create a closed source commercial application and I want
-    to protect my intellectual property.  
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="licensing">If I use uClibc, do I have to release all my source code to the world for
+	free?  I want to create a closed source commercial application and I want
+	to protect my intellectual property.</a></h2>
+<p>
 
     No, you do not need to give away your application source code just because
     you use uClibc and/or run on Linux.  uClibc is licensed under the <a
@@ -210,13 +189,10 @@ to the uClibc home page.</a>
     those you gave the fully linked application.
 
 
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    Can I use it on my x86 development system?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="development">Can I use it on my x86 development system?</a></h2>
+<p>
 
     Sure!  In fact, this can be very nice during development.  By
     installing uClibc on your development system, you can be sure that
@@ -225,13 +201,10 @@ to the uClibc home page.</a>
 
 
 
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    Does uClibc support shared libraries?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="shared"> Does uClibc support shared libraries?</a></h2>
+<p>
     
     Yes.  uClibc has native shared library support on i386, ARM, mips, 
     SH, CRIS, and PowerPC processors.  Other architectures can use shared
@@ -243,13 +216,10 @@ to the uClibc home page.</a>
     shared library support they may be able to help.
 
 
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    How do I compile programs with uClibc?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="compiling">How do I compile programs with uClibc?</a></h2>
+<p>
 
     You will need to have your own uClibc toolchain (i.e. GNU binutils and
     gcc configured to produce binaries linked with uClibc).
@@ -281,14 +251,12 @@ to the uClibc home page.</a>
     and use resize2fs to make them fill a partition...  Whatever works best for
     you.
 
+
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    Why do I keep getting "sh: can't access tty; job control turned off" errors?
-    Why doesn't Control-C work within my shell?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="job_control">Why do I keep getting "sh: can't access tty; job control 
+	turned off" errors?  Why doesn't Control-C work within my shell?</a></h2>
+<p>
 
     This isn't really a uClibc question, but I'll answer it here anyways.  Job
     control will be turned off since your shell can not obtain a controlling
@@ -302,13 +270,10 @@ to the uClibc home page.</a>
     run your shell on a real console...
 
 
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    How do I make autoconf and automake behave?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="autoconf">How do I make autoconf and automake behave?</a></h2>
+<p>
 
     When you are cross-compiling, autoconf and automake are known to behave
     badly.  This is because a large number of configure scripts (such as the
@@ -319,14 +284,11 @@ to the uClibc home page.</a>
     configure scripts.
 
 
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    When I run 'ldd' to get a list of the library dependencies for a uClibc
-    binary, ldd segfaults!  What should I do?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="ldd">When I run 'ldd' to get a list of the library dependencies 
+	for a uClibc binary, ldd segfaults!  What should I do?</a></h2>
+<p>
 
     Use the ldd that is built by uClibc, not your system's one.  When your
     system's ldd looks for library dependencies, it actually _runs_ that
@@ -338,13 +300,10 @@ to the uClibc home page.</a>
     cross compiling.
 
 
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    Why does localtime() return times in UTC even when I have my timezone set?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="timezones">Why does localtime() return times in UTC even when I have my timezone set?</a></h2>
+<p>
 
 
     The uClibc time functions get timezone information from the TZ environment
@@ -359,13 +318,11 @@ to the uClibc home page.</a>
     automagically use the specified setting.
 
 
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    What is the history of uClibc?  Where did it come from?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="history">What is the history of uClibc?  Where did it come from?</a></h2>
+<p>
+
 
     The history and origin of uClibc is long and twisty.
     In the beginning, there was <a href="http://www.gnu.org/software/libc/libc.html">GNU libc</a>.  Then, libc4
@@ -421,15 +378,12 @@ to the uClibc home page.</a>
 
 
 
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    I demand that you to add &lt;favorite feature&gt; right now!   How come 
-    you don't answer all my questions on the mailing list instantly?  I demand 
-    that you help me with all of my problems <em>Right Now</em>!
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="demanding">I demand that you to add &lt;favorite feature&gt; right now!   How come 
+	you don't answer all my questions on the mailing list instantly?  I demand 
+	that you help me with all of my problems <em>Right Now</em>!</a></h2>
+<p>
 
     You have not paid us a single cent and yet you still have the
     product of several years of work from Erik and Manuel and
@@ -438,15 +392,14 @@ to the uClibc home page.</a>
     ignore you.
 
 
+    
+
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    I need you to add &lt;favorite feature&gt;!  Are the uClibc developers willing to 
-    be paid in order to fix bugs or add in &lt;favorite feature&gt;?  Are you willing to provide
-    support contracts?  
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="contracts">I need you to add &lt;favorite feature&gt;!  Are the uClibc developers willing to 
+	be paid in order to fix bugs or add in &lt;favorite feature&gt;?  Are you willing to provide
+	support contracts?</a></h2>
+<p>
 
     Sure!  Now you have our attention!  What you should do is contact <a
 	href="mailto:andersen@codepoet.org">Erik Andersen</a> of <a
@@ -455,14 +408,11 @@ to the uClibc home page.</a>
     are several other active uClibc contributors who will almost certainly be able 
     to help you out.  Erik can contact them and ask them about their availability.
     
-    
+
+<hr />
 <p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    I think you guys are great and I want to help support your work!
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
+<h2><a name="support">I think you guys are great and I want to help support your work!</a></h2>
+<p>
 
     Wow, that would be great!  You can click here to help support uClibc and/or request features.
     
@@ -483,70 +433,8 @@ to the uClibc home page.</a>
     support requests, etc., you can contact 
     <a href="http://codepoet-consulting.com/">CodePoet Consulting</a> here.
 
-<p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-	Ok, I'm done reading all this stuff.
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-
-<a href="http://uclibc.org/">Well then, click here to return to the uClibc home page.</a>
+<hr />
 
 
+<!--#include file="footer.html" -->
 
-<!-- End things -->
-
-</TD></TR>
-</TABLE>
-</P>
-
-
-
-<!-- Footer -->
-<HR>
-<TABLE WIDTH="100%">
-    <TR>
-	<TD>
-	    <font size="-1" face="arial, helvetica, sans-serif">
-	    Mail all comments, insults, suggestions and bribes to 
-	    <a href="mailto:andersen@codepoet.org">Erik Andersen</a><BR>
-	    </font>
-	</TD>
-
-	<TD>
-	    <a href="http://www.vim.org"><img border=0 width=90 height=36
-	    src="images/written.in.vi.png" 
-	    alt="This site created with the vi editor"></a>
-	</TD>
-
-	<TD>
-	    <a href="http://www.gimp.org/"><img border=0 width=90 height=36
-	    src="images/gfx_by_gimp.png" alt="Graphics by GIMP"></a>
-	</TD>
-
-	<TD>
-	    <a href="http://www.linuxtoday.com"><img width=90 height=36
-	    src="images/ltbutton2.png" alt="Linux Today"></a>
-	</TD>
-
-	<TD>
-	    <p><a href="http://slashdot.org"><img width=90 height=36
-	    src="images/sdsmall.png" alt="Slashdot"></a>
-	</TD>
-
-	<TD>
-	    <a href="http://freshmeat.net"><img width=90 height=36
-	    src="images/fm.mini.png" alt="Freshmeat"></a>
-	</TD>
-
-    </TR>
-</TABLE>
-
-
-</CENTER>
-</BODY>
-</HTML>
-
- 
- 

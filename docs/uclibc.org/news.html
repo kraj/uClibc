@@ -1,0 +1,124 @@
+<!--#include file="header.html" -->
+
+
+<ul>
+
+    <p>
+    <li> <b>13 November 2003, uClibc 0.9.23 Released</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.23.  Of course, we are somewhat less than pleased that there
+    were configuration problems in the previous release that made such it
+    necessary to release .23 so quickly.  Updated uClibc development systems
+    using uClibc 0.9.23 are being built and will be posted shortly.  And Erik
+    has built Debian stable (woody) for x86 with uClibc and it runs great.
+
+    <p>
+    
+    This release continues to be binary compatible with uClibc 0.9.21 and
+    0.9.22 -- as long as you pick compatible configuration options.  Enabling
+    or disabling things like soft-float, locale, wide char support, or changing
+    cpu optimizations are all good examples of binary incompatible
+    configuration options.  If have changed any of those sorts of options (or
+    if you are not sure!) you will need to recompile all your applications and
+    libraries.
+
+    <p>
+
+    As usual, the 
+    <a href="http://www.uclibc.org/downloads/Changelog">Changelog</a>, 
+    <a href="http://www.uclibc.org/downloads/Changelog.full">detailed changelog</a>, 
+    and <a href="http://www.uclibc.org/downloads/uClibc-0.9.23.tar.bz2">source code for this release</a> 
+    are available <a href="http://www.uclibc.org/downloads/">here</a>.
+
+    <p>
+    
+
+    <p>
+    <li> <b>8 November 2003, uClibc 0.9.22 Released</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.22.  This release has been cooking for a couple of months now
+    and is looking quite solid.  We have done quite a lot of testing with this
+    release and things are looking good.  And Erik has built Debian stable
+    (woody) for x86 with uClibc and it runs great.  Expect that to be released
+    in the next few days.
+
+    <p>
+    
+    This release is binary compatible with uClibc 0.9.21 -- as long as you pick
+    compatible configuration options.  Enabling or disabling things like
+    soft-float, locale, wide char support, or changing cpu optimizations are
+    all good examples of binary incompatible configuration options.  If have
+    changed any of those sorts of options (or if you are not sure!) you will
+    need to recompile all your applications and libraries.
+
+    <p>
+
+    Updated uClibc development systems using uClibc 0.9.22 will be made
+    available within a few days.  Meanwhile, we invite you to try out uClibc
+    with the latest <a href="http://ltp.sourceforge.net/">Linux Test Project
+    test suite</a> (you will need to apply a small <a
+    href="http://www.uclibc.org/cgi-bin/cvsweb/buildroot/sources/ltp-testsuite.patch?rev=1.3">patch</a>.
+    And also give the latest Perl and Python test suites a try as well.
+    If you find any bugs in uClibc, PLEASE let us know!
+    <p>
+
+    As usual, the 
+    <a href="http://www.uclibc.org/downloads/Changelog">Changelog</a>, 
+    <a href="http://www.uclibc.org/downloads/Changelog.full">detailed changelog</a>, 
+    and <a href="http://www.uclibc.org/downloads/uClibc-0.9.22.tar.bz2">source code for this release</a> 
+    are available <a href="http://www.uclibc.org/downloads/">here</a>.
+
+    <p>
+    
+
+    <p>
+    <li> <b>30 September 2003, dev systems updated to uClibc 0.9.21+</b>
+    <br>
+
+    The uClibc development systems for
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_i386.bz2">i386</a>,
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_powerpc.bz2">powerpc</a>,
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_arm.bz2">arm</a>,
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_mipsel.bz2">mips</a>,
+    have been updated to uClibc 0.9.21 (plus all the CVS updates up to
+    today).  Several problems have been fixed up,
+    gcc has been updated to version 3.3.1, binutils was updated to 2.14.90.0.6, and
+    <em>tada</em> everything finally works for cross compiling.  These were
+    all cross compiled (which really makes things faster since the older
+    mipsel releases used to take 2 days to build!)
+
+    <p>
+    These are ~100 MB ext2 filesystems that run natively on the specified
+    architecture.  They contains all the development software you need to build
+    your own uClibc applications, including bash, coreutils, findutils,
+    diffutils, patch, sed, ed, flex, bison, file, gawk, tar, grep gdb, strace,
+    make, gcc, g++,  autoconf, automake, ncurses, zlib, openssl, openssh perl, 
+    and more.   And of course, everything is dynamically linked against uClibc.  
+    By using a uClibc only system, you can avoid all the painful
+    cross-configuration problems that have made using uClibc somewhat painful
+    in the past.  If you want to quickly get started with testing or using
+    uClibc you should give these images a try.  You can loop mount and them
+    you can chroot into them, you can boot into with using user-mode Linux, 
+    and you can even 'dd' them to a spare partition and use resize2fs to make 
+    them fill the drive.  Whatever works for you.
+
+    <p> If you would like to build your own custom uClibc system, you can
+	use <a href="/cgi-bin/cvsweb/buildroot/">buildroot</a>, which is
+	how these uClibc development systems were created.
+    <p>
+
+
+    <p> <li> <b>Old News</b>
+    <br>
+    <a href="/oldnews.html">Click here to read older news</a>
+    <p>
+
+
+</ul>
+
+<!--#include file="footer.html" -->
+
