@@ -321,9 +321,11 @@ extern struct __uclibc_locale_struct * __global_locale;
 
 typedef struct __uclibc_locale_struct *__locale_t;
 
+#ifdef _LIBC
 extern int __locale_mbrtowc_l(wchar_t *__restrict dst,
 							  const char *__restrict src,
 							  __locale_t loc );
+#endif
 
 #ifdef L_setlocale
 /* so we only get the warning once... */
