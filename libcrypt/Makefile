@@ -50,7 +50,7 @@ $(OBJ): Makefile
 shared: all
 	$(LD) $(LDFLAGS) -o $(LIBCRYPT_SHARED_FULLNAME) \
 		-soname=$(LIBCRYPT_SHARED).$(MAJOR_VERSION) \
-		--whole-archive $(LIBCRYPT) -L$(TOPDIR)/lib -lc;
+		--whole-archive $(LIBCRYPT) -Bdynamic -L$(TOPDIR)/lib -lc;
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBCRYPT_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib;

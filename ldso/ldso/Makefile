@@ -45,7 +45,7 @@ all: lib
 
 lib:: ldso.h $(OBJS) $(DLINK_OBJS)
 	$(LD) -e _dl_boot $(LDFLAGS) -nostdlib -shared -o $(LDSO_FULLNAME) \
-	    -soname=$(UCLIBC_LDSO) $(OBJS)
+	    -soname=$(UCLIBC_LDSO) -Bstatic $(OBJS)
 	install -d $(TOPDIR)lib 
 	install -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
 	(cd $(TOPDIR)lib && ln -sf $(LDSO_FULLNAME) $(UCLIBC_LDSO))

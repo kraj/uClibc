@@ -52,7 +52,7 @@ $(OBJS): %.o : %.c
 shared: all
 	$(LD) $(LDFLAGS) -o $(LIBUTIL_SHARED_FULLNAME) \
 	    -soname=$(LIBUTIL_SHARED).$(MAJOR_VERSION) \
-	    --whole-archive $(LIBUTIL) -L$(TOPDIR)/lib -lc;
+	    --whole-archive $(LIBUTIL) -Bdynamic -L$(TOPDIR)/lib -lc;
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBUTIL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBUTIL_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBUTIL_SHARED_FULLNAME) $(TOPDIR)lib/;
