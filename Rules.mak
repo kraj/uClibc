@@ -35,6 +35,7 @@ SHARED_FULLNAME:=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 SHARED_MAJORNAME:=libc.so.$(MAJOR_VERSION)
 UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
 LIBC:=$(TOPDIR)libc/libc.a
+LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
 
 NATIVE_ARCH:= ${shell uname -m | sed \
 		-e 's/i.86/i386/' \
@@ -56,6 +57,7 @@ TARGET_ARCH:=${shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		-e 's/v850.*/v850/g' \
 		-e 's/sh[234]/sh/' \
 		-e 's/mips.*/mips/' \
+		-e 's/cris.*/cris/' \
 		}
 endif
 
