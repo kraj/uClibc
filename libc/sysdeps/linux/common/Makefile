@@ -63,7 +63,7 @@ $(COBJS): %.o : %.c
 initfini.s: initfini.c
 	$(CC) $(SAFECFLAGS) -I$(TOPDIR)include -c initfini.c -S -o initfini.s
 
-crti.S crtn.S: initfini.s
+crti.S crtn.S: initfini.s $(TOPDIR)/extra/scripts/initfini.pl
 	$(TOPDIR)/extra/scripts/initfini.pl
 
 crti.o: crti.S
