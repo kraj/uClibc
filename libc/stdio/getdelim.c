@@ -41,13 +41,12 @@ ssize_t getdelim(char **linebuf, size_t *linebufsz, int delimiter, FILE *file)
 	int ch;
 	int idx = 0;
 
-	if ((file == NULL || linebuf==NULL || *linebuf == NULL || *linebufsz == 0)
-			&& !(*linebuf == NULL && *linebufsz ==0 )) {
+	if (file == NULL || linebuf==NULL || linebufsz == NULL) {
 	    __set_errno(EINVAL);
 	    return -1;
 	}
 
-	if (*linebuf == NULL && *linebufsz == 0){
+	if (*linebuf == NULL || *linebufsz < 2) {
 		*linebuf = malloc(GROWBY);
 		if (!*linebuf) {
 			__set_errno(ENOMEM);
