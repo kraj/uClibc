@@ -12,14 +12,12 @@
  */
 
 #define	_ERRNO_H
-#include <stdlib.h>
 #include <unistd.h>
 
-#if !defined HAVE_ELF || !defined __UCLIBC_HAS_MMU__
-# undef weak_function
-# undef weak_const_function
-# define weak_function
-# define weak_const_function
+#if !defined HAVE_ELF
+/* This is a theoretical attempt to support old a.out compilers.
+ * Dunno if this will work properly and I really don't much
+ * care... Elf is the One True Path(tm).  You will be assimilated */
 # define __USE_WEAK_ALIASES
 #endif
 
@@ -27,6 +25,8 @@
  * Prototypes.
  */
 extern int main(int argc, char **argv, char **envp);
+#ifndef __USE_WEAK_ALIASES
+#include <stdlib.h>
 extern int weak_function atexit(void (*function)(void));
 extern void weak_function _init(void);
 extern void weak_function _fini(void);
@@ -34,6 +34,32 @@ extern void weak_function _stdio_init(void);
 extern void weak_function _stdio_term(void);
 extern int *weak_const_function __errno_location(void);
 extern int *weak_const_function __h_errno_location(void);
+#else
+/*
+ * Define an empty function and use it as a weak alias for the stdio
+ * initialization routine.  That way we don't pull in all the stdio
+ * code unless we need to.  Similarly, do the same for _stdio_term
+ * so as not to include atexit unnecessarily.
+ *
+ * NOTE!!! This is only true for the _static_ case!!!
+ */
+
+weak_alias(__environ, environ);
+void __uClibc_empty_func(void)
+{
+}
+extern void exit (int status) __attribute__ ((__noreturn__));
+weak_alias(__uClibc_empty_func, _init);
+weak_alias(__uClibc_empty_func, _fini);
+weak_alias(__uClibc_empty_func, _stdio_init);
+weak_alias(__uClibc_empty_func, _stdio_term);
+//weak_alias(__uClibc_empty_func, atexit);
+extern int atexit(void (*function)(void));
+//weak_alias(__uClibc_empty_func, __errno_location);
+extern int *__errno_location(void);
+//weak_alias(__uClibc_empty_func, __h_errno_location);
+extern int *__h_errno_location(void);
+#endif
 
 /*
  * Declare the __environ global variable and create a weak alias environ.
@@ -97,25 +123,3 @@ __uClibc_main(int argc, char **argv, char **envp)
 	exit(main(argc, argv, envp));
 }
 
-#ifdef __USE_WEAK_ALIASES
-/*
- * Define an empty function and use it as a weak alias for the stdio
- * initialization routine.  That way we don't pull in all the stdio
- * code unless we need to.  Similarly, do the same for _stdio_term
- * so as not to include atexit unnecessarily.
- *
- * NOTE!!! This is only true for the _static_ case!!!
- */
-
-weak_alias(__environ, environ);
-void __uClibc_empty_func(void)
-{
-}
-weak_alias(__uClibc_empty_func, atexit);
-weak_alias(__uClibc_empty_func, _init);
-weak_alias(__uClibc_empty_func, _fini);
-weak_alias(__uClibc_empty_func, __errno_location);
-weak_alias(__uClibc_empty_func, __h_errno_location);
-weak_alias(__uClibc_empty_func, _stdio_init);
-weak_alias(__uClibc_empty_func, _stdio_term);
-#endif	
