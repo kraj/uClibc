@@ -22,6 +22,7 @@
  */
 
 #include <stddef.h>
+#define __USE_GNU
 #include <stdio.h>
 
 /* Basically getdelim() with the delimiter hard wired to '\n' */

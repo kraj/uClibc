@@ -74,7 +74,9 @@ int callrpc (const char *host, const u_long prognum,
 		crp->socket = RPC_ANYSOCK;
 	}
 	if (crp->valid && crp->oldprognum == prognum
-		&& crp->oldversnum == versnum && strcmp(crp->oldhost, host) == 0) {
+		&& crp->oldversnum == versnum && 
+		strcmp(crp->oldhost, host) == 0) 
+	{
 		/* reuse old client */
 	} else {
 		crp->valid = 0;
@@ -91,9 +93,9 @@ int callrpc (const char *host, const u_long prognum,
 		bcopy(hp->h_addr, (char *) &server_addr.sin_addr, hp->h_length);
 		server_addr.sin_family = AF_INET;
 		server_addr.sin_port = 0;
-		if ((crp->client = clntudp_create(&server_addr, (u_long) prognum,
-										  (u_long) versnum, timeout,
-										  &crp->socket)) == NULL)
+		if ((crp->client = clntudp_create(&server_addr, 
+				(u_long) prognum, (u_long) versnum, 
+				timeout, &crp->socket)) == NULL)
 			return ((int) rpc_createerr.cf_stat);
 		crp->valid = 1;
 		crp->oldprognum = prognum;
@@ -102,8 +104,8 @@ int callrpc (const char *host, const u_long prognum,
 	}
 	tottimeout.tv_sec = 25;
 	tottimeout.tv_usec = 0;
-	clnt_stat = clnt_call(crp->client, procnum, inproc, in,
-						  outproc, out, tottimeout);
+	clnt_stat = clnt_call(crp->client, procnum, inproc, (char*)in, 
+		outproc, out, tottimeout);
 	/* 
 	 * if call failed, empty cache
 	 */

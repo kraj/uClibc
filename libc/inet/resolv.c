@@ -67,12 +67,19 @@
 
 
 extern int nameservers;
-extern const char * nameserver[MAX_SERVERS];
+extern char * nameserver[MAX_SERVERS];
 extern int searchdomains;
-extern const char * searchdomain[MAX_SEARCH];
+extern char * searchdomain[MAX_SEARCH];
 extern struct hostent * get_hosts_byname(const char * name);
 extern struct hostent * get_hosts_byaddr(const char * addr, int len, int type);
 extern struct hostent * read_etc_hosts(const char * name, int ip);
+extern int resolve_address(const char * address, int nscount, 
+	char ** nsip, struct in_addr * in);
+extern int resolve_mailbox(const char * address, int nscount, 
+	char ** nsip, struct in_addr * in);
+extern int dns_lookup(const char * name, int type, int nscount, 
+	char ** nsip, unsigned char ** outpacket, struct resolv_answer * a);
+
 
 
 #ifdef L_encodeh
@@ -451,7 +458,7 @@ void dns_catch_signal(int signo)
 	dns_caught_signal = 1;
 }
 
-int dns_lookup(const char *name, int type, int nscount, const char **nsip,
+int dns_lookup(const char *name, int type, int nscount, char **nsip,
 			   unsigned char **outpacket, struct resolv_answer *a)
 {
 	static int id = 1;
@@ -650,7 +657,7 @@ fail:
 #ifdef L_resolveaddress
 
 int resolve_address(const char *address, int nscount, 
-	const char **nsip, struct in_addr *in)
+	char **nsip, struct in_addr *in)
 {
 	unsigned char *packet;
 	struct resolv_answer a;
@@ -700,8 +707,8 @@ int resolve_address(const char *address, int nscount,
 
 #ifdef L_resolvemailbox
 
-int resolve_mailbox(const char *address,
-					int nscount, const char **nsip, struct in_addr *in)
+int resolve_mailbox(const char *address, int nscount, 
+	char **nsip, struct in_addr *in)
 {
 	struct resolv_answer a;
 	unsigned char *packet;
@@ -760,9 +767,9 @@ int resolve_mailbox(const char *address,
 #ifdef L_opennameservers
 
 int nameservers;
-const char * nameserver[MAX_SERVERS];
+char * nameserver[MAX_SERVERS];
 int searchdomains;
-const char * searchdomain[MAX_SEARCH];
+char * searchdomain[MAX_SEARCH];
 
 /*
  *	we currently read formats not quite the same as that on normal

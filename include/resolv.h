@@ -73,17 +73,6 @@ int encode_packet(struct resolv_header * h,
 	unsigned char * dest, int maxlen);
 int decode_packet(unsigned char * data, struct resolv_header * h);
 
-int dns_lookup(const char * name, int type, int nscount, const char ** nsip,
-	unsigned char ** outpacket, struct resolv_answer * a);
-
-int resolve_address(const char * address, 
-	int nscount, const char ** nsip, 
-	struct in_addr * in);
-
-int resolve_mailbox(const char * address, 
-	int nscount, const char ** nsip, 
-	struct in_addr * in);
-
 extern int open_nameservers(void);
 extern void close_nameservers(void);
 
