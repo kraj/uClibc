@@ -303,7 +303,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	gcc_argv = __builtin_alloca(sizeof(char*) * (argc + 20));
+	gcc_argv = __builtin_alloca(sizeof(char*) * (argc + 64));
 	gcc_argument = __builtin_alloca(sizeof(char*) * (argc + 20));
 
 	i = 0; k = 0;
@@ -354,6 +354,12 @@ int main(int argc, char **argv)
 	}
 	if (use_stdinc && source_count) {
 	    gcc_argv[i++] = nostdinc;
+	    if (cplusplus) {
+		char *cppinc;
+		xstrcat(&cppinc, uClibc_inc[use_build_dir], "g++/", NULL);
+		gcc_argv[i++] = "-isystem";
+		gcc_argv[i++] = cppinc;
+	    }
 	    gcc_argv[i++] = "-isystem";
 	    gcc_argv[i++] = uClibc_inc[use_build_dir];
 	    gcc_argv[i++] = "-iwithprefix";
@@ -378,6 +384,10 @@ int main(int argc, char **argv)
 		gcc_argv[i++] = "-lgcc";
 		for ( l = 0 ; l < m ; l++ ) {
 		    if (libraries[l]) gcc_argv[i++] = libraries[l];
+		}
+		if (cplusplus) {
+		    gcc_argv[ i++ ] = "-lstdc++";
+		    gcc_argv[ i++ ] = "-lm";
 		}
 		gcc_argv[i++] = "-lc";
 		gcc_argv[i++] = "-lgcc";
