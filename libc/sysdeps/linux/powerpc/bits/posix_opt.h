@@ -64,7 +64,8 @@
 #define	_POSIX_NO_TRUNC	1
 
 /* X/Open realtime support is available.  */
-#define _XOPEN_REALTIME	1
+/* except it's not */
+#undef _XOPEN_REALTIME
 
 /* X/Open realtime thread support is available.  */
 #define _XOPEN_REALTIME_THREADS	1
@@ -73,7 +74,8 @@
 #define	_XOPEN_SHM	1
 
 /* Tell we have POSIX threads.  */
-#define _POSIX_THREADS	1
+/* except we don't */
+#undef _POSIX_THREADS
 
 /* We have the reentrant functions described in POSIX.  */
 #define _POSIX_REENTRANT_FUNCTIONS      1
