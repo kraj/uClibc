@@ -25,6 +25,19 @@
  *
  *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
 
+/*  8-05-2002
+ *  Changed fflush() behavior to no-op for r/w streams in read-mode.
+ *     This falls under undefined behavior wrt ANSI/ISO C99, but
+ *     SUSv3 seems to treat it as a no-op and it occurs in some apps.
+ *  Fixed a problem with _stdio_fwrite() not checking for underlying
+ *     write() failures.
+ *  Fixed both _stdio_fwrite() and _stdio_fread() to make sure that
+ *     the putc and getc macros were disabled if the stream was in
+ *     and error state.
+ *  The above changes should take care of a problem initially reported
+ *  by "Steven J. Hill" <sjhill@realitydiluted.com>.
+ */
+
 /* Before we include anything, convert L_ctermid to L_ctermid_function
  * and undef L_ctermid if defined.  This is necessary as L_ctermid is
  * a SUSv3 standard macro defined in stdio.h. */
@@ -1385,7 +1398,9 @@ size_t _stdio_fread(unsigned char *buffer, size_t bytes, register FILE *stream)
 		}
 
 #ifdef __STDIO_GETC_MACRO
-		if (!(stream->modeflags & (__FLAG_WIDE|__MASK_UNGOT|__MASK_BUFMODE))) {
+		if (!(stream->modeflags
+			  & (__FLAG_WIDE|__MASK_UNGOT|__MASK_BUFMODE|__FLAG_ERROR))
+			) {
 			stream->bufgetc = stream->bufread; /* Enable getc macro. */
 		}
 #endif
@@ -1565,6 +1580,7 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 
 	{
 		const unsigned char *buf0 = buffer;
+		size_t write_count = 1;	/* 0 means a write failed */
 
 		if (!buffer) {				/* fflush the stream */
 		FFLUSH:
@@ -1578,9 +1594,9 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 				}
 
 				{
-					size_t rv = _stdio_WRITE(stream, p, count);
-					p += rv;
-					count -= rv;
+					write_count = _stdio_WRITE(stream, p, count);
+					p += write_count;
+					count -= write_count;
 				}
 			
 				stream->bufpos = stream->bufstart;
@@ -1624,21 +1640,23 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 				--count;
 			}
 
-			if (bytes) {
-				goto FFLUSH;
-			}
+			if (write_count) {	/* no write errors */
+				if (bytes) {
+					goto FFLUSH;
+				}
 
-			if (stream->modeflags & __FLAG_LBF) {
-				while (p < buffer) { /* check for newline. */
-					if (*p++ == '\n') {
-						goto FFLUSH;
+				if (stream->modeflags & __FLAG_LBF) {
+					while (p < buffer) { /* check for newline. */
+						if (*p++ == '\n') {
+							goto FFLUSH;
+						}
 					}
 				}
 			}
 		}
 
 #ifdef __STDIO_PUTC_MACRO
-		if (!(stream->modeflags & (__FLAG_WIDE|__MASK_BUFMODE))) {
+		if (!(stream->modeflags & (__FLAG_WIDE|__MASK_BUFMODE|__FLAG_ERROR))) {
 			/* Not wide, no errors and fully buffered, so enable putc macro. */
 			stream->bufputc = stream->bufend;
 		}
@@ -2127,13 +2145,11 @@ int fflush_unlocked(register FILE *stream)
 		if (_stdio_fwrite(NULL, 0, stream) > 0) { /* flush buffer contents. */
 			rv = -1;			/* Not all chars written. */
 		}
-	} else if (stream->modeflags & (__FLAG_READONLY|__FLAG_READING)) {
-		/* TODO - __FLAG_READING too?  check glibc behavior */
+	} else if (stream->modeflags & __FLAG_READONLY) {
 		/* According to info, glibc returns an error when the file is opened
 		 * in read-only mode.
 		 * ANSI/ISO says behavior in this case is undefined but also says you
-		 * shouldn't flush a stream you were reading from.
-		 */
+		 * shouldn't flush a stream you were reading from. */
 		stream->modeflags |= __FLAG_ERROR; /* TODO - check glibc behavior */
 		__set_errno(EBADF);
 		rv = -1;
@@ -2156,7 +2172,7 @@ int fflush_unlocked(register FILE *stream)
 
 	/* TODO -- check glibc behavior regarding error indicator */
 	return ((stream != NULL)
-			&& (stream->modeflags & (__FLAG_READONLY|__FLAG_READING))
+			&& (stream->modeflags & __FLAG_READONLY)
 			? ((stream->modeflags |= __FLAG_ERROR), __set_errno(EBADF), EOF)
 			: 0 );
 
