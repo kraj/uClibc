@@ -27,6 +27,7 @@
 
         .text
 .globl __clone;
+.type	 __clone,@function
 .align 4;                                                               \
 __clone:
 	/* Sanity check arguments.  */

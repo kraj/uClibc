@@ -22,6 +22,7 @@
 #include <bits/setjmp.h>
 
 .globl __setjmp;
+.type	 __setjmp,@function
 .align 4;                                                               \
 __setjmp:
 	popl %eax		/* Pop return address.  */
@@ -31,6 +32,7 @@ __setjmp:
 	pushl %eax		/* Push back return address.  */
 
 .globl __sigsetjmp;
+.type	 __sigsetjmp,@function
 .align 4;                                                               \
 __sigsetjmp:
 	movl 4(%esp), %eax	/* User's jmp_buf in %eax.  */
@@ -45,15 +47,15 @@ __sigsetjmp:
      	movl %ecx, (JB_PC*4)(%eax)
 
 	/* Make a tail call to __sigjmp_save; it takes the same args.  */
-#ifdef	PIC
+#if defined(PIC)
 	/* We cannot use the PLT, because it requires that %ebx be set, but
            we can't save and restore our caller's value.  Instead, we do an
            indirect jump through the GOT, using for the temporary register
            %ecx, which is call-clobbered.  */
-	call L(here)
-L(here):
+	call Lhere
+Lhere:
 	popl %ecx
-	addl $_GLOBAL_OFFSET_TABLE_+[.-L(here)], %ecx
+	addl $_GLOBAL_OFFSET_TABLE_+[.-Lhere], %ecx
 	movl (__sigjmp_save)(%ecx), %ecx
 	jmp *%ecx
 #else
