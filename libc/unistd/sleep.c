@@ -23,17 +23,14 @@
 #include <signal.h>
 #include <unistd.h>
 
-#if 1
+#if 0
 /* This is a quick and dirty, but not 100% compliant with
  * the stupid SysV SIGCHLD vs. SIG_IGN behaviour.  It is
  * fine unless you are messing with SIGCHLD...  */
 unsigned int sleep (unsigned int sec)
 {
 	unsigned int res;
-	struct timespec ts = { 
-	    tv_sec:  (long int) sec,
-	    tv_nsec: 0 
-	};
+	struct timespec ts = { .tv_sec = (long int) seconds, .tv_nsec = 0 };
 	res = nanosleep(&ts, &ts);
 	if (res) res = (unsigned int) ts.tv_sec + (ts.tv_nsec >= 500000000L);
 	return res;
@@ -46,7 +43,7 @@ unsigned int sleep (unsigned int sec)
    behaviour for this syscall.  Therefore we have to emulate it here.  */
 unsigned int sleep (unsigned int seconds)
 {
-    struct timespec ts = { tv_sec: (long int) seconds, tv_nsec: 0 };
+    struct timespec ts = { .tv_sec = (long int) seconds, .tv_nsec = 0 };
     sigset_t set, oset;
     unsigned int result;
 
