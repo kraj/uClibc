@@ -1,969 +1,1674 @@
 ---------------------
-PatchSet 2412 
-Date: 2003/03/04 07:05:33
+PatchSet 2524 
+Date: 2003/06/30 22:51:15
+Author: andersen
+Branch: HEAD
+Tag: uClibc_0_9_20 
+Log:
+Update for release
+
+Members: 
+	Changelog:1.16->1.17 
+	Changelog.full:1.12->1.13 
+	TODO:1.39->1.40 
+	docs/uclibc.org/index.html:1.60->1.61 
+
+---------------------
+PatchSet 2525 
+Date: 2003/07/01 01:44:11
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Fix compile when profiling is disabled
+Update note re binary compat
 
 Members: 
-	libc/sysdeps/linux/i386/crt0.S:1.19->1.20 
+	docs/uclibc.org/index.html:1.61->1.62 
 
 ---------------------
-PatchSet 2413 
-Date: 2003/03/04 10:13:01
+PatchSet 2526 
+Date: 2003/07/01 01:49:22
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Teach ldd to be a bit more helpful by telling you specifically
-what the problem library is that is linked vs glibc.
- -Erik
+More updates
 
 Members: 
-	ldso/ldso/ldso.c:1.65->1.66 
+	docs/uclibc.org/index.html:1.62->1.63 
+	docs/uclibc.org/old-news.html:1.11->1.12 
 
 ---------------------
-PatchSet 2414 
-Date: 2003/03/04 10:39:05
+PatchSet 2527 
+Date: 2003/07/01 02:44:53
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Patch from Stefan Allius to make ldd.c compile under Solaris
+oops.  This is 0.9.20, not .30
 
 Members: 
-	ldso/util/ldd.c:1.27->1.28 
+	Changelog:1.17->1.18 
 
 ---------------------
-PatchSet 2415 
-Date: 2003/03/04 10:47:50
+PatchSet 2528 
+Date: 2003/07/01 18:11:13
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Patch from Stefan Allius adding the function 'thread_self_stack'
-from glibc 2.3 that is needed for pthreads to compile for SuperH.
+Fix source code URL
 
 Members: 
-	libpthread/linuxthreads/pthread.c:1.8->1.9 
+	docs/uclibc.org/index.html:1.63->1.64 
 
 ---------------------
-PatchSet 2416 
-Date: 2003/03/04 20:56:00
+PatchSet 2529 
+Date: 2003/07/02 18:04:08
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Seperate pthread debugging from uClibc debugging.  They are used
-for different things.
+Only exec child apps if they are elf type ET_EXEC
 
 Members: 
-	extra/Configs/Config.in:1.17->1.18 
-	libpthread/Makefile:1.19->1.20 
+	ldso/util/ldd.c:1.32->1.33 
 
 ---------------------
-PatchSet 2417 
-Date: 2003/03/05 10:28:53
+PatchSet 2530 
+Date: 2003/07/03 11:40:18
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Default to using fork() for vfork() when no arch specific
-implementation of vfork is present.
+As noted by Felix Radensky back on 16 Mar:
+
+    I've tried several times to compile uClibc with soft-float
+    (both gcc-3.2.2 toolchain and wrapper), but applications
+    compiled with uClibc always failed with "Invalid instruction".
+    So I ended up disabling floating point at all and this works well.
+    I also has no problem with glibc from Monta Vista, which is
+    compiled with soft-float. My processor is PowerPC 405GP.
+
+    Maybe the problem is in FP() macro definition in
+    libc/sysdeps/linux/powerpc/setjmp.S and
+    libc/sysdeps/linux/powerpc/__longjmp.S
+
+    #ifdef __UCLIBC_HAS_FLOATS__
+    #define FP(x...) x
+    #else
+    #define FP(x...)
+    #endif
+
+    which should be defined as
+
+    if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
+    #define FP(x...) x
+    #else
+    #define FP(x...)
+    #endif
 
 Members: 
-	libc/sysdeps/linux/common/Makefile:1.80->1.81 
-	libc/sysdeps/linux/common/vfork.c:INITIAL->1.1 
+	libc/sysdeps/linux/powerpc/__longjmp.S:1.1->1.2 
+	libc/sysdeps/linux/powerpc/setjmp.S:1.4->1.5 
 
 ---------------------
-PatchSet 2418 
-Date: 2003/03/05 10:30:30
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-The vfork system call on powerpc seems to be completely
-broken.  Use fork instead, per glibc behavior.
-
-Members: 
-	libc/sysdeps/linux/powerpc/vfork.c:1.2->1.3 
-
----------------------
-PatchSet 2419 
-Date: 2003/03/05 10:52:44
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Stefan Allius:
-
-    Hi Erik,
-
-    I patched the initfini.awk script, so we can build crt[in].S for the SuperH
-    targets with gmon-support.
-
-    The patch moves all labels into the wright sections, and add some assembler
-    statements to jump over them. (only activ on SH targets)
-
-    The patch also avoid any references of _GLOBAL_OFFSET_TABLE_ or *gmon_start*
-    in the crtn.S file. This should work on every target.
-
-    Bye Stefan
-
-Members: 
-	extra/scripts/initfini.awk:1.8->1.9 
-
----------------------
-PatchSet 2420 
-Date: 2003/03/05 10:55:31
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Konrad Eisele to omit -Wl,--dynamic-linker from
-the gcc wrapper when not building with shared library support.
-
-Members: 
-	extra/gcc-uClibc/Makefile:1.56->1.57 
-	extra/gcc-uClibc/gcc-uClibc.c:1.54->1.55 
-
----------------------
-PatchSet 2421 
-Date: 2003/03/05 10:57:14
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Konrad Eisele to add include/asm-generic since, at least
-on sparc, this is needed by some of the include/asm files
-
-Members: 
-	Makefile:1.202->1.203 
-
----------------------
-PatchSet 2422 
-Date: 2003/03/06 11:28:09
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Update website
-
-Members: 
-	docs/uclibc.org/index.html:1.56->1.57 
-	docs/uclibc.org/old-news.html:1.10->1.11 
-
----------------------
-PatchSet 2423 
-Date: 2003/03/06 13:57:30
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Stefan Allius to finish off the last required bits
-for gmon profiling support for the SuperH target.
-
-Members: 
-	libc/sysdeps/linux/sh/Makefile:1.20->1.21 
-	libc/sysdeps/linux/sh/crt0.S:1.12->1.13 
-	libc/sysdeps/linux/sh/bits/machine-gmon.h:1.1->1.2 
-
----------------------
-PatchSet 2424 
-Date: 2003/03/06 14:16:35
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Make profiling on arm work
-
-Members: 
-	libc/sysdeps/linux/arm/Makefile:1.41->1.42 
-	libc/sysdeps/linux/arm/crt0.S:1.19->1.20 
-
----------------------
-PatchSet 2425 
-Date: 2003/03/06 15:03:33
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Finish off gmon based profiling for powerpc
-
-Members: 
-	libc/sysdeps/linux/powerpc/Makefile:1.18->1.19 
-	libc/sysdeps/linux/powerpc/crt0.S:1.6->1.7 
-	libc/sysdeps/linux/powerpc/mcount.S:INITIAL->1.1 
-
----------------------
-PatchSet 2426 
-Date: 2003/03/06 16:56:02
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-For now, leave mmap on mips using mmap1, since mmap2 seems
-to have 'issues' (i.e. it doesn't work 100% properly).
- -Erik
-
-Members: 
-	libc/sysdeps/linux/mips/_mmap.c:1.2->1.3 
-
----------------------
-PatchSet 2427 
-Date: 2003/03/06 20:41:33
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Make the text a bit more clear
-
-Members: 
-	docs/uclibc.org/index.html:1.57->1.58 
-
----------------------
-PatchSet 2428 
-Date: 2003/03/06 20:45:11
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-/me needs to learn to proofread
-
-Members: 
-	docs/uclibc.org/index.html:1.58->1.59 
-
----------------------
-PatchSet 2429 
-Date: 2003/03/06 20:57:44
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-more random changes
-
-Members: 
-	docs/uclibc.org/index.html:1.59->1.60 
-
----------------------
-PatchSet 2430 
-Date: 2003/03/06 22:00:12
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Fixup ldd handling of multiple files
-
-Members: 
-	ldso/util/ldd.c:1.28->1.29 
-
----------------------
-PatchSet 2431 
-Date: 2003/03/07 12:05:46
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Stefan Allius:
-fix a couple of gcc 3.3 compiler warnings in gmon.c
-
-Members: 
-	include/sys/gmon.h:1.1->1.2 
-	libc/sysdeps/linux/common/gmon.c:1.1->1.2 
-	libc/sysdeps/linux/sh/bits/profil-counter.h:1.1->1.2 
-
----------------------
-PatchSet 2432 
-Date: 2003/03/07 12:07:13
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Stefan Allius:
-
-    a make install_target stops if we have some sysmlinks in the destination
-    target.  This little patch force to install over a previous installed
-    uClibc version,so we will allways get a consistent uClibc installation.
-
-Members: 
-	Makefile:1.203->1.204 
-
----------------------
-PatchSet 2433 
-Date: 2003/03/07 12:23:11
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Stefan Allius
-
-    the ldd.c wasn't compilable for SuperH due to a missing ELFCLASSM define and
-    the readelf executable was linked with a wrong dynamic linker path. To fix
-    this I removed the --uclibc-use-build-dir.
-
-    The patch also fixed all the compiler warnings (-Wall -W).
-
-Erik made a few additional changes to eliminate unused function arguments
-and fixup a static variable that was was doing the wrong thing
-
-Members: 
-	ldso/util/Makefile:1.31->1.32 
-	ldso/util/ldd.c:1.29->1.30 
-	ldso/util/readelf.c:1.7->1.8 
-
----------------------
-PatchSet 2434 
-Date: 2003/03/07 12:39:51
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-remove a leftover debug printf
-
-Members: 
-	ldso/util/readelf.c:1.8->1.9 
-
----------------------
-PatchSet 2435 
-Date: 2003/03/10 17:23:42
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Jordan Crouse to avoid potential rendering problems
-
-Members: 
-	extra/config/menubox.c:1.2->1.3 
-
----------------------
-PatchSet 2436 
-Date: 2003/03/11 16:54:42
-Author: sjhill
-Branch: HEAD
-Tag: (none) 
-Log:
-Compliance with MIPS ABI and MIPS kernel changes.
-
-Members: 
-	libc/sysdeps/linux/common/bits/kernel_sigaction.h:1.3->1.4 
-	libc/sysdeps/linux/mips/bits/sigaction.h:1.2->1.3 
-
----------------------
-PatchSet 2437 
-Date: 2003/03/11 20:07:00
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Minor cleanup to better sync with glibc 2.3
-
-Members: 
-	libpthread/linuxthreads/specific.c:1.4->1.5 
-
----------------------
-PatchSet 2438 
-Date: 2003/03/11 20:08:00
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Make it so debugging pthreads works, even with DODEBUG turned off
- -Erik
-
-Members: 
-	libpthread/Makefile:1.20->1.21 
-	libpthread/linuxthreads/Makefile:1.4->1.5 
-
----------------------
-PatchSet 2439 
-Date: 2003/03/11 20:27:02
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-sjhill needs to buy donuts for everyone
-
-Members: 
-	libc/sysdeps/linux/common/bits/kernel_sigaction.h:1.4->1.5 
-
----------------------
-PatchSet 2440 
-Date: 2003/03/13 19:43:38
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-resync with glibc 2.3
-
-Members: 
-	include/elf.h:1.6->1.7 
-
----------------------
-PatchSet 2441 
-Date: 2003/03/13 19:54:36
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Oops.  Don't call strip twice
-
-Members: 
-	libpthread/linuxthreads/Makefile:1.5->1.6 
-
----------------------
-PatchSet 2442 
-Date: 2003/03/31 16:26:21
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Avoid errors with buggy preprocessors
-
-Members: 
-	extra/config/lkc_proto.h:1.1->1.2 
-
----------------------
-PatchSet 2443 
-Date: 2003/04/02 06:40:43
-Author: miles
-Branch: HEAD
-Tag: (none) 
-Log:
-(free_to_heap): Unlock the heap before returning in the
-__UCLIBC_UCLINUX_BROKEN_MUNMAP__ case.  Fix from YYang1@Winbond.com.tw.
-
-Members: 
-	libc/stdlib/malloc/free.c:1.16->1.17 
-
----------------------
-PatchSet 2444 
-Date: 2003/04/16 01:59:00
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Liam Girdwood to fix mips profiling when using
-newer gcc versions.
-
-Members: 
-	libc/sysdeps/linux/mips/bits/machine-gmon.h:1.1->1.2 
-
----------------------
-PatchSet 2445 
-Date: 2003/04/20 00:25:34
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Konrad Taro Eisele noticed the sparc struct stat was broken.
-Fix it.
-
-Members: 
-	libc/sysdeps/linux/sparc/bits/kernel_stat.h:1.3->1.4 
-
----------------------
-PatchSet 2446 
-Date: 2003/04/20 00:35:01
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Marshall M. Midden:
-
-It turns out that uClibc's syslog.c does not close sockets when
-doing retries and when it exits due to errors.  This patch fixes
-it.
-
-Members: 
-	libc/misc/syslog/syslog.c:1.10->1.11 
-
----------------------
-PatchSet 2447 
-Date: 2003/04/21 20:07:26
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Fix SIGTRAP handling on arm.  The defination of struct ucontext,
-which was copied from glibc, is wrong.  So fix it.
- -Erik
-
-Members: 
-	libc/sysdeps/linux/arm/sys/ucontext.h:1.1->1.2 
-
----------------------
-PatchSet 2448 
-Date: 2003/04/23 21:59:01
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Thierry De Corte notices that when UCLIBC_HAS_FLOAT is disabled, we must also
-disable drand48, drand48_r, erand48, and erand48_r since they use floats.
-
-Members: 
-	libc/stdlib/Makefile:1.50->1.51 
-
----------------------
-PatchSet 2449 
-Date: 2003/04/25 10:09:56
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Comment on glibc's MALLOC_CHECK_ support.
-
-Members: 
-	docs/Glibc_vs_uClibc_Differences.txt:1.8->1.9 
-
----------------------
-PatchSet 2450 
-Date: 2003/04/29 08:25:59
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-uClibc 0.9.19 has a bug in globfree(). If the previous call to
-glob(...,pglob) used the GLOB_DOOFFS flag to reserve the first
-pglob->gl_offs slots of pglob->gl_pathv, globfree(pglob) would attempt
-to free the objects pointed to by those slots. If those objects were not
-on the heap, the system would crash.
-
-The attached patch fixes this.
-
-Norm
-
-Members: 
-	libc/misc/glob/glob.c:1.4->1.5 
-
----------------------
-PatchSet 2451 
-Date: 2003/04/29 15:41:48
-Author: davidm
-Branch: HEAD
-Tag: (none) 
-Log:
-
-Fixup __libc_open to use varargs and match the prototype.
-
-On the H8 varargs are rather unusual and if you declare a function with
-varargs,  it had better use them or it won't work.
-
-Members: 
-	libc/sysdeps/linux/common/syscalls.c:1.103->1.104 
-
----------------------
-PatchSet 2452 
-Date: 2003/04/29 15:46:30
-Author: davidm
-Branch: HEAD
-Tag: (none) 
-Log:
-
-Some small fixups for the h8 support and add the h8s platform support.
-
-Members: 
-	Rules.mak:1.131->1.132 
-	extra/Configs/Config.h8300:1.13->1.14 
-	extra/Configs/Config.h8300.default:INITIAL->1.1 
-	libc/sysdeps/linux/h8300/crt0.S:1.6->1.7 
-	libc/sysdeps/linux/h8300/setjmp.S:1.1->1.2 
-	libc/sysdeps/linux/h8300/vfork.S:1.2->1.3 
-
----------------------
-PatchSet 2453 
-Date: 2003/05/01 06:28:43
-Author: davidm
-Branch: HEAD
-Tag: (none) 
-Log:
-
-setjmp was trashing r12 which is bad and can cause apps to crash if they are
-using r12. r12 is supposed to be preserved across C function calls.  r0-r7
-are trashable :-)
-
-Members: 
-	libc/sysdeps/linux/sh/setjmp.S:1.7->1.8 
-
----------------------
-PatchSet 2454 
-Date: 2003/05/08 03:36:12
-Author: miles
-Branch: HEAD
-Tag: (none) 
-Log:
-(__libc_open): Fix wacky indentation.
-
-Members: 
-	libc/sysdeps/linux/common/syscalls.c:1.104->1.105 
-
----------------------
-PatchSet 2455 
-Date: 2003/05/14 06:10:58
-Author: davidm
-Branch: HEAD
-Tag: (none) 
-Log:
-
-Sleep was returning the wrong value because:
-
-* nanosleep returns the remaining time,  not the time slept
-
-* nanosleep only fills out the remaining time if it returns -1 (ie., the
-  sleep was interrupted)
-
-Fix from Paul Dale <pauli@snapgear.com>
-
-Members: 
-	libc/unistd/sleep.c:1.5->1.6 
-
----------------------
-PatchSet 2456 
-Date: 2003/05/14 14:35:27
-Author: davidm
-Branch: HEAD
-Tag: (none) 
-Log:
-
-Add in a default file for m68k.
-
-Members: 
-	Config.m68k.default:INITIAL->1.1 
-
----------------------
-PatchSet 2457 
-Date: 2003/05/15 22:32:31
+PatchSet 2531 
+Date: 2003/07/14 22:16:54
 Author: mjn3
 Branch: HEAD
 Tag: (none) 
 Log:
-Fix (hopefully) scanf behavior for nul bytes in the stream when processing
-%c, %s, and %[ specifiers.  Note that scanf is undergoing rewrite so I
-didn't bother optimizing this.  I did run all my regression tests though.
-Set EOF correctly for fmemopen on readonly streams.  I really need to
-check what glibc behavior is for the various open modes though.
+Yikes!  This was doing another lock instead of unlocking the stream.
 
 Members: 
-	libc/stdio/scanf.c:1.24->1.25 
-	libc/stdio/stdio.c:1.66->1.67 
+	libc/stdio/old_vfprintf.c:1.5->1.6 
 
 ---------------------
-PatchSet 2458 
-Date: 2003/05/23 07:42:53
+PatchSet 2532 
+Date: 2003/07/15 08:00:50
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Cope with autoconf's broken AC_FUNC_MALLOC macro, which redefines malloc as
-rpl_malloc if it does not detect glibc style
-returning-a-valid-pointer-for-malloc(0) behavior.  This wrapper calls malloc()
-as usual, but if N is zero, we allocate and return a 1-byte block instead....
-sigh...
-
- -Erik
+Fix a silly cut-n-paste error
 
 Members: 
-	include/stdlib.h:1.35->1.36 
+	docs/uclibc.org/uClibc-apps.html:1.21->1.22 
 
 ---------------------
-PatchSet 2459 
-Date: 2003/05/23 16:04:43
+PatchSet 2533 
+Date: 2003/07/15 08:44:34
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Patch from Peter Kjellerstedt to make it simpler for arches to specify
+either -fPIC or -fpic
+
+Members: 
+	Rules.mak:1.133->1.134 
+	libc/sysdeps/linux/common/Makefile:1.81->1.82 
+
+---------------------
+PatchSet 2534 
+Date: 2003/07/15 08:46:09
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Patch from Peter Kjellerstedt to not modify include/bits/sysnum.h
+if it does not need to be updated.
+
+Members: 
+	Makefile:1.206->1.207 
+
+---------------------
+PatchSet 2535 
+Date: 2003/07/17 17:07:48
 Author: mjn3
 Branch: HEAD
 Tag: (none) 
 Log:
-Sorry.  Changed this while fixing the last bug and forgot to change it
-back.  Unfortunately, none of my test cases caught it.
+Bug fix from  Peter Kjellerstedt <peter.kjellerstedt@axis.com>.  vfscanf was
+not setting the FILE bufread member to flag the end of the buffer.
+Also, do not set bufgetc member if getc macro support is disabled.
 
 Members: 
-	libc/stdio/scanf.c:1.25->1.26 
+	libc/stdio/scanf.c:1.26->1.27 
 
 ---------------------
-PatchSet 2460 
-Date: 2003/05/27 21:11:16
+PatchSet 2536 
+Date: 2003/07/21 21:28:58
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Change 'N' to '__size' to avoid conflicts with common #define of N
+Doing an search and replace on CFLAGS can prove dangerous.  We don't
+do -O0 by default anyways, so leave this disabled for now.
 
 Members: 
-	include/stdlib.h:1.36->1.37 
+	libpthread/linuxthreads/Makefile:1.7->1.8 
 
 ---------------------
-PatchSet 2461 
-Date: 2003/05/27 21:13:13
+PatchSet 2537 
+Date: 2003/08/01 10:13:43
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-grr.  It's a void *, not a char *.
-
-Members: 
-	include/stdlib.h:1.37->1.38 
-
----------------------
-PatchSet 2462 
-Date: 2003/05/28 08:15:46
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Accomodate building under cygwin
-
-Members: 
-	extra/gcc-uClibc/gcc-uClibc.c:1.55->1.56 
-
----------------------
-PatchSet 2463 
-Date: 2003/05/28 08:47:51
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Allow gcc to move/update by detecting where needed files are should
-they move/disappear from the expected location.
+Remove the arch specific shm.h and use the fixed up common
+one which now uses the kernel structs
  -Erik
 
 Members: 
-	extra/gcc-uClibc/gcc-uClibc.c:1.56->1.57 
+	libc/sysdeps/linux/alpha/bits/shm.h:1.1->1.2(DEAD) 
+	libc/sysdeps/linux/common/bits/shm.h:1.1->1.2 
+	libc/sysdeps/linux/cris/bits/shm.h:1.1->1.2(DEAD) 
+	libc/sysdeps/linux/mips/bits/shm.h:1.3->1.4(DEAD) 
+	libc/sysdeps/linux/powerpc/bits/shm.h:1.2->1.3(DEAD) 
+	libc/sysdeps/linux/sparc/bits/shm.h:1.2->1.3(DEAD) 
 
 ---------------------
-PatchSet 2464 
-Date: 2003/05/29 23:55:14
+PatchSet 2538 
+Date: 2003/08/01 21:08:36
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Add a new *scanf implementation, includeing the *wscanf functions.
+  Should be standards compliant and with several optional features,
+  including support for hexadecimal float notation, locale awareness,
+  glibc-like locale-specific digit grouping with the `'' flag, and
+  positional arg support.  I tested it pretty well (finding several
+  bugs in glibc's scanf in the process), but it is brand new so be
+  aware.
+
+The *wprintf functions now support floating point output.  Also, a
+  couple of bugs were squashed.  Finally, %a/%A conversions are
+  now implemented.
+
+Implement the glibc xlocale interface for thread-specific locale
+  support.  Also add the various *_l(args, locale_t loc_arg) funcs.
+
+  NOTE!!!  setlocale() is NOT threadsafe!  NOTE!!!
+
+The strto{floating point} conversion functions are now locale aware.
+  The also now support hexadecimal floating point notation.
+
+Add the wcsto{floating point} conversion functions.
+
+Fix a bug in mktime() related to dst.  Note that unlike glibc's mktime,
+  uClibc's version always normalizes the struct tm before attempting
+  to determine the correct dst setting if tm_isdst == -1 on entry.
+
+Add a stub version of the libintl functions.  (untested)
+
+Fixed a known memory leak in setlocale() related to the collation data.
+
+Add lots of new config options (which Erik agreed to sort out :-),
+  including finally exposing some of the stripped down stdio configs.
+  Be careful with those though, as they haven't been tested in a
+  long time.
+
+
+(temporary) GOTCHAs...
+
+The ctype functions are currently incorrect for 8-bit locales.  They
+  will be fixed shortly.
+
+The ctype functions are now table-based, resulting in larger staticly
+  linked binaries.  I'll be adding an option to use the old approach
+  in the stub locale configuration.
+
+Members: 
+	TODO:1.40->1.41 
+	extra/Configs/Config.in:1.19->1.20 
+	extra/locale/Makefile:1.9->1.10 
+	extra/locale/gen_collate.c:1.2->1.3 
+	extra/locale/gen_ldc.c:1.2->1.3 
+	extra/locale/gen_locale.c:1.4->1.5 
+	extra/locale/gen_wc8bit.c:1.3->1.4 
+	extra/locale/gen_wctype.c:1.2->1.3 
+	extra/locale/locale_mmap.h:1.3->1.4 
+	include/ctype.h:1.15->1.16 
+	include/langinfo.h:1.5->1.6 
+	include/libintl.h:1.1->1.2 
+	include/locale.h:1.5->1.6 
+	include/signal.h:1.6->1.7 
+	include/stdio.h:1.27->1.28 
+	include/stdlib.h:1.39->1.40 
+	include/string.h:1.23->1.24 
+	include/time.h:1.6->1.7 
+	include/wchar.h:1.2->1.3 
+	include/wctype.h:1.2->1.3 
+	include/xlocale.h:INITIAL->1.1 
+	include/sys/cdefs.h:1.7->1.8 
+	libc/inet/rpc/rcmd.c:1.7->1.8 
+	libc/misc/Makefile:1.35->1.36 
+	libc/misc/assert/__assert.c:1.6->1.7 
+	libc/misc/ctype/Makefile:1.12->1.13 
+	libc/misc/ctype/ctype.c:1.13->1.14 
+	libc/misc/intl/Makefile:INITIAL->1.1 
+	libc/misc/intl/intl.c:INITIAL->1.1 
+	libc/misc/locale/Makefile:1.9->1.10 
+	libc/misc/locale/locale.c:1.12->1.13 
+	libc/misc/time/Makefile:1.32->1.33 
+	libc/misc/time/time.c:1.12->1.13 
+	libc/misc/wchar/Makefile:1.4->1.5 
+	libc/misc/wchar/wchar.c:1.10->1.11 
+	libc/misc/wchar/wstdio.c:1.3->1.4 
+	libc/misc/wctype/Makefile:1.1->1.2 
+	libc/misc/wctype/wctype.c:1.3->1.4 
+	libc/stdio/Makefile:1.38->1.39 
+	libc/stdio/old_vfprintf.c:1.6->1.7 
+	libc/stdio/printf.c:1.45->1.46 
+	libc/stdio/scanf.c:1.27->1.28 
+	libc/stdio/stdio.c:1.69->1.70 
+	libc/stdlib/Makefile:1.51->1.52 
+	libc/stdlib/stdlib.c:1.10->1.11 
+	libc/stdlib/strtod.c:1.6->1.7 
+	libc/string/Makefile:1.52->1.53 
+	libc/string/wstring.c:1.15->1.16 
+	libc/sysdeps/linux/common/bits/uClibc_ctype.h:1.2->1.3 
+	libc/sysdeps/linux/common/bits/uClibc_fpmax.h:INITIAL->1.1 
+	libc/sysdeps/linux/common/bits/uClibc_locale.h:1.5->1.6 
+	libc/sysdeps/linux/common/bits/uClibc_stdio.h:1.11->1.12 
+	libc/sysdeps/linux/common/bits/uClibc_touplow.h:INITIAL->1.1 
+	libc/sysdeps/linux/common/bits/uClibc_uwchar.h:INITIAL->1.1 
+	libc/sysdeps/linux/common/bits/xopen_lim.h:1.2->1.3 
+	libc/unistd/getopt.c:1.7->1.8 
+	libpthread/linuxthreads/Makefile:1.8->1.9 
+	libpthread/linuxthreads/internals.h:1.5->1.6 
+	libpthread/linuxthreads/locale.c:INITIAL->1.1 
+	libpthread/linuxthreads/manager.c:1.6->1.7 
+	libpthread/linuxthreads/pthread.c:1.10->1.11 
+
+---------------------
+PatchSet 2539 
+Date: 2003/08/01 21:35:12
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Fix a silly error.
+
+To use the pregenerated locales, untar in the extra/locale directory.
+Do a 'make config' or 'make menuconfig' in the uClibc root dir, then
+a 'make headers' followed by 'make -C extra/locale pregen'.  Then
+continue with 'make' as usual.
+
+Members: 
+	extra/locale/Makefile:1.10->1.11 
+
+---------------------
+PatchSet 2540 
+Date: 2003/08/02 00:56:15
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Replace 'new' in a prototype to avoid c++ problems.
+
+Members: 
+	libc/sysdeps/linux/common/bits/uClibc_locale.h:1.6->1.7 
+
+---------------------
+PatchSet 2541 
+Date: 2003/08/02 20:17:59
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Eviscerate stropts.h so configure scripts won't try to use STREAMS
-garbage.  uClibc does not support STREAMS in any way whatsoever.
+Update licensing discussion
+
+Members: 
+	docs/uclibc.org/FAQ.html:1.12->1.13 
+
+---------------------
+PatchSet 2542 
+Date: 2003/08/04 20:03:33
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Update inet_aton() to support an undocumented feature of inet_aton,
+per UNIX Network Programming, Volume 1, second edition:
+
+    An undocumented feature of inet_aton is that if addrptr is
+    a null pointer, the function still performs it validation
+    of the input string, but does not store the result.
+
+Members: 
+	libc/inet/addr.c:1.12->1.13 
+
+---------------------
+PatchSet 2543 
+Date: 2003/08/04 21:23:05
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+For sparc, powerpc, mips, and alpha we should also use the
+common ipc.h header and struct definitions.
  -Erik
 
 Members: 
-	include/stropts.h:1.1->1.2 
+	libc/sysdeps/linux/alpha/bits/ipc.h:1.1->1.2(DEAD) 
+	libc/sysdeps/linux/mips/bits/ipc.h:1.3->1.4(DEAD) 
+	libc/sysdeps/linux/powerpc/bits/ipc.h:1.2->1.3(DEAD) 
+	libc/sysdeps/linux/sparc/bits/ipc.h:1.2->1.3(DEAD) 
 
 ---------------------
-PatchSet 2465 
-Date: 2003/05/30 05:40:22
+PatchSet 2544 
+Date: 2003/08/05 02:52:38
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Enable ADD_LIBGCC_FUNCTIONS by default on arm
-
-Members: 
-	extra/Configs/Config.arm:1.34->1.35 
-
----------------------
-PatchSet 2466 
-Date: 2003/05/30 05:47:42
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-In a number of places we erroneously used tests such as '#ifdef PIC' when we
-should instead have been testing for '#ifdef __PIC__'.  This resulted in
-NON-PIC code getting mixed into the shared library.  Oops!!!
+Merge/rework config system per the latest from linux-2.6.0-test2
  -Erik
 
 Members: 
-	Makefile:1.204->1.205 
-	libc/sysdeps/linux/alpha/brk.S:1.1->1.2 
-	libc/sysdeps/linux/i386/bsd-setjmp.S:1.1->1.2 
-	libc/sysdeps/linux/i386/clone.S:1.5->1.6 
-	libc/sysdeps/linux/i386/setjmp.S:1.9->1.10 
-	libc/sysdeps/linux/i386/syscall.S:1.2->1.3 
-	libc/sysdeps/linux/i386/vfork.S:1.3->1.4 
-	libc/sysdeps/linux/mips/syscall.S:1.1->1.2 
-	libc/sysdeps/linux/powerpc/mcount.S:1.1->1.2 
-	libpthread/linuxthreads/cancel.c:1.2->1.3 
-	libpthread/linuxthreads/oldsemaphore.c:1.1->1.2 
-	libpthread/linuxthreads/pthread.c:1.9->1.10 
-	libpthread/linuxthreads/weaks.c:1.2->1.3 
-	libpthread/linuxthreads/wrapsyscall.c:1.9->1.10 
+	extra/config/conf.c:1.3->1.4 
+	extra/config/confdata.c:1.6->1.7 
+	extra/config/expr.c:1.1->1.2 
+	extra/config/expr.h:1.2->1.3 
+	extra/config/lex.zconf.c_shipped:1.2->1.3 
+	extra/config/lkc.h:1.1->1.2 
+	extra/config/lkc_proto.h:1.2->1.3 
+	extra/config/mconf.c:1.7->1.8 
+	extra/config/menu.c:1.1->1.2 
+	extra/config/symbol.c:1.4->1.5 
+	extra/config/zconf.l:1.2->1.3 
+	extra/config/zconf.tab.c_shipped:1.3->1.4 
+	extra/config/zconf.y:1.2->1.3 
 
 ---------------------
-PatchSet 2467 
-Date: 2003/05/30 06:51:40
+PatchSet 2545 
+Date: 2003/08/05 06:54:28
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Clone still had a few little PIC problems....
+Shuffle options around a bit
 
 Members: 
-	libc/sysdeps/linux/i386/clone.S:1.6->1.7 
+	extra/Configs/Config.in:1.20->1.21 
 
 ---------------------
-PatchSet 2468 
-Date: 2003/06/02 18:51:32
+PatchSet 2546 
+Date: 2003/08/05 06:58:49
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Patch from Peter S. Mazinger to fix some leftover problems
-from converting "PIC" to "__PIC__"
+Looks like I missed a spot
 
 Members: 
-	libpthread/linuxthreads/attr.c:1.2->1.3 
-	libpthread/linuxthreads/oldsemaphore.c:1.2->1.3 
+	extra/config/zconf.tab.c_shipped:1.4->1.5 
+	extra/config/zconf.y:1.3->1.4 
 
 ---------------------
-PatchSet 2469 
-Date: 2003/06/03 18:59:37
+PatchSet 2547 
+Date: 2003/08/05 09:08:46
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Fix broken
-
-Members: 
-	libc/sysdeps/linux/i386/vfork.S:1.4->1.5 
-
----------------------
-PatchSet 2470 
-Date: 2003/06/03 20:13:14
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Kill the runtime fallback to fork and make it be compile time
-
-Members: 
-	libc/sysdeps/linux/i386/vfork.S:1.5->1.6 
-
----------------------
-PatchSet 2471 
-Date: 2003/06/05 07:32:59
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-We do not provide getfsent and friends, so remove this header
-file, to prevent stupid configure scripts from getting confused.
-
-Members: 
-	include/fstab.h:1.3->1.4(DEAD) 
-
----------------------
-PatchSet 2472 
-Date: 2003/06/05 22:25:52
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Peter S. Mazinger to make the get-needed-libgcc-objects
-script work with newer binutils versions.
-
-Members: 
-	extra/scripts/get-needed-libgcc-objects.sh:1.18->1.19 
-	libc/Makefile:1.26->1.27 
-
----------------------
-PatchSet 2473 
-Date: 2003/06/11 02:45:27
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Fix arm syscall implementation so it does not blow chunks with gcc 3.3
+Zou WeiJun noticed a type breaking the stime syscall
  -Erik
 
 Members: 
-	libc/sysdeps/linux/arm/syscall.c:1.1->1.2 
-	libc/sysdeps/linux/arm/bits/syscalls.h:1.4->1.5 
+	libc/sysdeps/linux/common/syscalls.c:1.106->1.107 
 
 ---------------------
-PatchSet 2474 
-Date: 2003/06/11 18:12:05
+PatchSet 2548 
+Date: 2003/08/05 19:51:16
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Marshall M. Midden at brecis.com writes:
-    The gnu ld and binutils for mips has a bug with relocation.
+Patch from David Wuertele to prevent "conflicts with new declaration with C
+linkage" problems with C++
 
-    It is possible for a relocation table to be created that is not able to be loaded correctly.
-    We found this with the intersil wireless driver port.
+Members: 
+	libc/sysdeps/linux/common/bits/shm.h:1.2->1.3 
 
-    To enable a correctly created mips relocation table (either a .o, or ld -r) it is necessary
-    to turn off one of the instruction re-scheduling passes.
-
-    Specifically, on mips-gcc -fno-schedule-insns2 is needed.
-
-    This is an FYI.  The bug has been reported to the appropriate mailing lists.
-
-This patch is an effort to avoid this problem on mips.
+---------------------
+PatchSet 2549 
+Date: 2003/08/06 23:41:22
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Begin documenting differences between uClibc and SuSv3
  -Erik
 
 Members: 
-	extra/Configs/Config.mips:1.34->1.35 
-	extra/Configs/Config.mips.default:1.1->1.2 
-	extra/Configs/Config.mipsel:1.33->1.34 
-	extra/Configs/Config.mipsel.default:1.1->1.2 
+	docs/uClibc_vs_SuSv3.txt:INITIAL->1.1 
 
 ---------------------
-PatchSet 2475 
-Date: 2003/06/12 22:39:10
+PatchSet 2550 
+Date: 2003/08/08 11:07:32
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Fix mips so it compiles with gcc 3.3
-
-Members: 
-	ldso/ldso/mips/boot1_arch.h:1.5->1.6 
-
----------------------
-PatchSet 2476 
-Date: 2003/06/12 22:44:56
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Set the default thread stack size to 16k for mmu-less systems.
+Add support for personality(), prctl(), ustat(), and ulimit()
+syscalls, which had managed to stay unimplemented thus far.
  -Erik
 
 Members: 
-	libpthread/linuxthreads/internals.h:1.4->1.5 
+	include/ulimit.h:INITIAL->1.1 
+	include/ustat.h:INITIAL->1.1 
+	include/sys/personality.h:INITIAL->1.1 
+	include/sys/prctl.h:INITIAL->1.1 
+	include/sys/resource.h:1.4->1.5 
+	include/sys/ustat.h:INITIAL->1.1 
+	libc/sysdeps/linux/common/Makefile:1.82->1.83 
+	libc/sysdeps/linux/common/syscalls.c:1.107->1.108 
+	libc/sysdeps/linux/common/bits/ustat.h:1.1->1.2 
 
 ---------------------
-PatchSet 2477 
-Date: 2003/06/12 23:10:40
+PatchSet 2551 
+Date: 2003/08/08 11:30:10
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-As suggested by Marshall M. Midden at brecis, use -mno-split-addresses
-instead for mips, which should be a bit faster and will be safer too.
+Add in a MALLOC_GLIBC_COMPAT option to let people decide if they
+want glibc style malloc(0) behavior
 
 Members: 
-	extra/Configs/Config.mips:1.35->1.36 
-	extra/Configs/Config.mips.default:1.2->1.3 
-	extra/Configs/Config.mipsel:1.34->1.35 
-	extra/Configs/Config.mipsel.default:1.2->1.3 
+	extra/Configs/Config.in:1.21->1.22 
+	libc/stdlib/malloc/malloc.c:1.33->1.34 
+	libc/stdlib/malloc-930716/malloc.c:1.9->1.10 
 
 ---------------------
-PatchSet 2478 
-Date: 2003/06/12 23:31:38
+PatchSet 2552 
+Date: 2003/08/10 03:58:53
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-The mere presence of stropts.h causes many configure scripts to erroneously
-believe that uClibc supports STREAMS.  Well, we don't.  So I am hereby removing
-this header file, since it was empty anyways.  Applications that depend on
-stropts.h being present, but do not depend on its contents, are broken anyways.
+Add support for the ulimit syscall
+
+Members: 
+	libc/sysdeps/linux/common/ulimit.c:INITIAL->1.1 
+
+---------------------
+PatchSet 2553 
+Date: 2003/08/10 05:39:24
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Update likely() to cope with truth values other than 1
+
+Members: 
+	include/features.h:1.48->1.49 
+
+---------------------
+PatchSet 2554 
+Date: 2003/08/10 09:01:17
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+An even simpler likely
+
+Members: 
+	include/features.h:1.49->1.50 
+
+---------------------
+PatchSet 2555 
+Date: 2003/08/10 11:09:44
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+silly me, thats not going to work.
+
+Members: 
+	include/features.h:1.50->1.51 
+
+---------------------
+PatchSet 2556 
+Date: 2003/08/11 05:42:36
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+also carefully booleanize the false value
+
+Members: 
+	include/features.h:1.51->1.52 
+
+---------------------
+PatchSet 2557 
+Date: 2003/08/12 07:57:40
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Fixup centering so the site does not look like crap in IE
+
+Members: 
+	docs/uclibc.org/index.html:1.64->1.65 
+
+---------------------
+PatchSet 2558 
+Date: 2003/08/13 21:08:21
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Patch from Paul Mundt adding uClibc sh64 support:
+
+Here's a patch that implements the beginnings of a rudimentary sh64 port. So
+far, this only works static, as I haven't done any of the ldso work yet. I've
+also not touched the libpthread stuff yet either, so that's also disabled for
+now.
+
+This port was based off of some work that Sean McGoogan at SuperH did for his
+initial port, but the this patch doesn't carry over too much from there
+(basically the libc/sysdeps/linux/sh64/Makefile (or rather, parts of it),
+the setjmp/longjmp stuff (which I had to rewrite portions of it to work with
+the new toolchains), etc.).
+
+However, for static, everything appears to work correcly, at least in a hello
+world type application.
+
+Members: 
+	Rules.mak:1.134->1.135 
+	extra/Configs/Config.sh:1.35->1.36 
+	extra/Configs/Config.sh.default:1.1->1.2 
+	extra/Configs/Config.sh64:INITIAL->1.1 
+	extra/Configs/Config.sh64.default:INITIAL->1.1 
+	libc/sysdeps/linux/Makefile:1.18->1.19 
+	libc/sysdeps/linux/common/initfini.c:1.13->1.14 
+	libc/sysdeps/linux/sh64/Makefile:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/__init_brk.c:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/brk.c:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/crt0.S:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/fork.c:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/longjmp.S:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/sbrk.c:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/setjmp.S:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/bits/endian.h:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/bits/fcntl.h:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/bits/kernel_stat.h:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/bits/kernel_types.h:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/bits/setjmp.h:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/bits/syscalls.h:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/bits/wordsize.h:INITIAL->1.1 
+	libc/sysdeps/linux/sh64/sys/ucontext.h:INITIAL->1.1 
+
+---------------------
+PatchSet 2559 
+Date: 2003/08/14 19:46:31
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Use the common version for bits/sem.h.  Fixup the types to
+match the kernel type exactly.
+
+Members: 
+	libc/sysdeps/linux/alpha/bits/sem.h:1.1->1.2(DEAD) 
+	libc/sysdeps/linux/common/bits/sem.h:1.2->1.3 
+	libc/sysdeps/linux/mips/bits/sem.h:1.2->1.3(DEAD) 
+	libc/sysdeps/linux/powerpc/bits/sem.h:1.2->1.3(DEAD) 
+	libc/sysdeps/linux/sparc/bits/sem.h:1.2->1.3(DEAD) 
+
+---------------------
+PatchSet 2560 
+Date: 2003/08/17 05:40:42
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Fix a cut-and-paste error.  Collation should be working again.
+
+Members: 
+	libc/misc/locale/locale.c:1.13->1.14 
+
+---------------------
+PatchSet 2561 
+Date: 2003/08/18 22:14:27
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+_wchar_utf8sntowcs and _wchar_wcsntoutf8s now set errno if EILSEQ.
+
+Members: 
+	libc/misc/wchar/wchar.c:1.11->1.12 
+
+---------------------
+PatchSet 2562 
+Date: 2003/08/18 22:15:55
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+scanf %lc,%ls,%l[ would always set mb_fail on eof or error,
+  even when just starting a new mb char.
+wscanf would incorrectly unget in certain situations.
+
+Members: 
+	libc/stdio/scanf.c:1.28->1.29 
+
+---------------------
+PatchSet 2563 
+Date: 2003/08/18 22:28:33
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Fixed a bug where locales nontrivially derived from iso14651_t1 did not have
+the UNDEFINED entry set properly.
+
+Members: 
+	extra/locale/gen_collate.c:1.3->1.4 
+
+---------------------
+PatchSet 2564 
+Date: 2003/08/18 22:56:11
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Cleanup arm architecture optimizations and add big endian arm as well.
+
+Members: 
+	Rules.mak:1.135->1.136 
+	extra/Configs/Config.arm:1.35->1.36 
+
+---------------------
+PatchSet 2565 
+Date: 2003/08/19 00:14:09
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Work around a bug in nm from binutils-2.14.90.0.5.
+
+Members: 
+	extra/scripts/get-needed-libgcc-objects.sh:1.19->1.20 
+
+---------------------
+PatchSet 2566 
+Date: 2003/08/19 07:05:29
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Phase one of my evil plan to clean up ld.so...
+
+Members: 
+	ldso/Makefile:1.22->1.23 
+	ldso/config.h:1.5->1.6(DEAD) 
+	ldso/include/.cvsignore:INITIAL->1.1 
+	ldso/include/dlfcn.h:INITIAL->1.1 
+	ldso/include/ld_elf.h:INITIAL->1.1 
+	ldso/include/ld_hash.h:INITIAL->1.1 
+	ldso/include/ld_string.h:INITIAL->1.1 
+	ldso/include/ld_syscall.h:INITIAL->1.1 
+	ldso/include/ldso.h:INITIAL->1.1 
+	ldso/ldso/.cvsignore:1.6->1.7 
+	ldso/ldso/Makefile:1.40->1.41 
+	ldso/ldso/ld_hash.h:1.16->1.17(DEAD) 
+	ldso/ldso/ld_string.h:1.17->1.18(DEAD) 
+	ldso/ldso/ld_syscall.h:1.17->1.18(DEAD) 
+	ldso/ldso/ldso.c:1.67->1.68 
+	ldso/ldso/linuxelf.h:1.10->1.11(DEAD) 
+	ldso/ldso/readelflib1.c:1.41->1.42 
+	ldso/libdl/Makefile:1.27->1.28 
+	ldso/libdl/dlfcn.h:1.1->1.2(DEAD) 
+	ldso/libdl/dlib.c:1.26->1.27 
+	ldso/util/Makefile:1.32->1.33 
+	ldso/util/ldconfig.c:1.9->1.10 
+
+---------------------
+PatchSet 2567 
+Date: 2003/08/19 14:11:05
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Cool.  Found most of the problem.  Turns out we were inadvertanly loading some
+libraries multiple times, wasting memory and causing different libraries to use
+different symbol sets, some of which were not properly resolved.
+
+Continue scrubbing ld.so and converting it to use proper types.
+
+Members: 
+	ldso/include/ld_hash.h:1.1->1.2 
+	ldso/ldso/hash.c:1.13->1.14 
+	ldso/ldso/ldso.c:1.68->1.69 
+	ldso/ldso/readelflib1.c:1.42->1.43 
+	ldso/ldso/i386/elfinterp.c:1.23->1.24 
+	ldso/libdl/dlib.c:1.27->1.28 
+
+---------------------
+PatchSet 2568 
+Date: 2003/08/19 15:08:44
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+More routine cleanup
+
+Members: 
+	ldso/ldso/i386/elfinterp.c:1.24->1.25 
+
+---------------------
+PatchSet 2569 
+Date: 2003/08/19 15:15:39
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+I just realized we need global symbol resolution for everything in
+a chain of dependent libraries or libraries that depend on other
+shared libraries will not work!
+
+So with a well placed
+    dyn_chain->flags |= RTLD_GLOBAL;
+everything is now working perfectly!!!  Sweet!!!!
+
+This patch also removes some leftover junk from my previous efforts.
+
+Members: 
+	ldso/libdl/dlib.c:1.28->1.29 
+
+---------------------
+PatchSet 2570 
+Date: 2003/08/19 15:24:14
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Update the tests a little bit
+
+Members: 
+	test/dlopen/Makefile:1.1->1.2 
+	test/dlopen/libtest1.c:1.1->1.2 
+	test/dlopen/libtest2.c:1.1->1.2 
+	test/dlopen/test3.c:INITIAL->1.1 
+
+---------------------
+PatchSet 2571 
+Date: 2003/08/19 15:25:45
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+ignore unwanted stuff
+
+Members: 
+	test/dlopen/.cvsignore:INITIAL->1.1 
+
+---------------------
+PatchSet 2572 
+Date: 2003/08/20 05:26:41
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Correct included header for ustat.
+
+Members: 
+	libc/sysdeps/linux/common/syscalls.c:1.108->1.109 
+
+---------------------
+PatchSet 2573 
+Date: 2003/08/21 00:19:23
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Revert this change for now.
+
+Members: 
+	Rules.mak:1.136->1.137 
+
+---------------------
+PatchSet 2574 
+Date: 2003/08/21 08:56:36
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Be sure to remove the old ldso.h, since it will screw things
+up badly if still present...
+
+Members: 
+	ldso/ldso/Makefile:1.41->1.42 
+
+---------------------
+PatchSet 2575 
+Date: 2003/08/21 09:15:58
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Add missing semicolons
+
+Members: 
+	libc/sysdeps/linux/common/sendfile64.c:1.2->1.3 
+
+---------------------
+PatchSet 2576 
+Date: 2003/08/22 03:56:46
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Remove some mips specific hacks that are no longer needed, and actively break
+things, now that I have cleaned up the code to be a bit less horribly messy.
+With this, the shared lib loader works on mips once again.
  -Erik
 
 Members: 
-	include/stropts.h:1.2->1.3(DEAD) 
+	ldso/ldso/ldso.c:1.69->1.70 
 
 ---------------------
-PatchSet 2479 
-Date: 2003/06/14 02:39:39
+PatchSet 2577 
+Date: 2003/08/22 04:05:06
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Patch from Atsushi Nemoto, who writes:
+
+I found that current pread/pwrite is broken on mips.
+
+On mips, kernel needs 6 arguments for pread/pwrite system call.  (3
+words for first 3 arguments + 1 padding word + 2 words for last 64bit
+argument).  Also, mips64 kernel needs just 4 arguments so no wrapper
+will be required.
+
+This is a patch against 0.9.20.
+
+Members: 
+	libc/sysdeps/linux/mips/Makefile:1.28->1.29 
+	libc/sysdeps/linux/mips/pread_write.c:INITIAL->1.1 
+
+---------------------
+PatchSet 2578 
+Date: 2003/08/22 04:25:42
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+mention ucdot.org
+
+Members: 
+	docs/uclibc.org/index.html:1.65->1.66 
+
+---------------------
+PatchSet 2579 
+Date: 2003/08/22 05:07:06
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Link update
+
+Members: 
+	docs/uclibc.org/index.html:1.66->1.67 
+
+---------------------
+PatchSet 2580 
+Date: 2003/08/22 08:04:16
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Make the mips ld.so debug noise somewhat useful, and less gratuitously
+different than all other arches.
+ -Erik
+
+Members: 
+	ldso/ldso/mips/elfinterp.c:1.6->1.7 
+
+---------------------
+PatchSet 2581 
+Date: 2003/08/22 21:28:43
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Avoid gratuitous conflicts when used with kernel headers
+
+Members: 
+	include/features.h:1.52->1.53 
+
+---------------------
+PatchSet 2582 
+Date: 2003/08/22 22:10:47
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Don't use linux/sysctl.h and instead locally define struct __sysctl_args.
+
+Members: 
+	libc/sysdeps/linux/common/syscalls.c:1.109->1.110 
+
+---------------------
+PatchSet 2583 
+Date: 2003/08/24 04:49:05
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Fix a few bugs in the new extended locale functions.
+Move stub gettext functions to a stub libintl to make switching in
+  gnu gettext easier.  Also add a few gnu-isms.
+Change to using hidden names with global weak aliases for the extended
+  locale functions, as expected by libstd++.
+Slightly rework the locale data generation stuff to allow pregenerated
+  locale data to be used with buildroot.
+
+Members: 
+	Makefile:1.207->1.208 
+	extra/locale/Makefile:1.11->1.12 
+	include/langinfo.h:1.6->1.7 
+	include/locale.h:1.6->1.7 
+	include/stdlib.h:1.40->1.41 
+	include/string.h:1.24->1.25 
+	include/time.h:1.7->1.8 
+	include/wchar.h:1.3->1.4 
+	include/wctype.h:1.3->1.4 
+	libc/misc/ctype/ctype.c:1.14->1.15 
+	libc/misc/gnu/obstack.c:1.1->1.2 
+	libc/misc/intl/Makefile:1.1->1.2 
+	libc/misc/intl/intl.c:1.1->1.2 
+	libc/misc/locale/.cvsignore:1.1->1.2 
+	libc/misc/locale/Makefile:1.10->1.11 
+	libc/misc/locale/locale.c:1.14->1.15 
+	libc/misc/time/time.c:1.13->1.14 
+	libc/misc/wctype/wctype.c:1.4->1.5 
+	libc/stdlib/stdlib.c:1.11->1.12 
+	libc/stdlib/strtod.c:1.7->1.8 
+	libc/string/wstring.c:1.16->1.17 
+	libc/sysdeps/linux/common/bits/uClibc_locale.h:1.7->1.8 
+	libintl/.cvsignore:INITIAL->1.1 
+	libintl/Makefile:INITIAL->1.1 
+	libintl/intl.c:INITIAL->1.1 
+
+---------------------
+PatchSet 2584 
+Date: 2003/08/24 06:11:50
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+conditionally add wordexp, in this case ripped from glibc.
+I hate to add this stuff, but it is specified by SuSv3...
+
+Members: 
+	libc/misc/Makefile:1.36->1.37 
+	libc/misc/wordexp/Makefile:1.2->1.3 
+	libc/misc/wordexp/wordexp.c:1.2->1.3 
+
+---------------------
+PatchSet 2585 
+Date: 2003/08/24 06:55:50
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Reluctantly add wordexp()
+
+Members: 
+	extra/Configs/Config.in:1.22->1.23 
+
+---------------------
+PatchSet 2586 
+Date: 2003/08/25 16:00:00
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Add missing header.
+
+Members: 
+	include/wordexp.h:INITIAL->1.1 
+
+---------------------
+PatchSet 2587 
+Date: 2003/08/27 13:59:23
+Author: tobiasa
+Branch: HEAD
+Tag: (none) 
+Log:
+Cosmetic changes.
+
+Members: 
+	ldso/ldso/cris/boot1_arch.h:1.1->1.2 
+	ldso/ldso/cris/elfinterp.c:1.2->1.3 
+	ldso/ldso/cris/ld_sysdep.h:1.1->1.2 
+
+---------------------
+PatchSet 2588 
+Date: 2003/08/27 14:04:27
+Author: tobiasa
+Branch: HEAD
+Tag: (none) 
+Log:
+Updated CRIS configuration files.
+
+Members: 
+	extra/Configs/Config.cris:1.6->1.7 
+	extra/Configs/Config.cris.default:1.1->1.2 
+
+---------------------
+PatchSet 2589 
+Date: 2003/08/27 14:07:01
+Author: tobiasa
+Branch: HEAD
+Tag: (none) 
+Log:
+Removed CRIS specific code.
+
+Members: 
+	ldso/ldso/Makefile:1.42->1.43 
+
+---------------------
+PatchSet 2590 
+Date: 2003/08/27 14:13:47
+Author: tobiasa
+Branch: HEAD
+Tag: (none) 
+Log:
+Cosmetic changes.
+
+Members: 
+	libc/sysdeps/linux/cris/crt0.c:1.3->1.4 
+	libc/sysdeps/linux/cris/bits/byteswap.h:1.1->1.2 
+	libc/sysdeps/linux/cris/bits/syscalls.h:1.2->1.3 
+
+---------------------
+PatchSet 2591 
+Date: 2003/08/27 14:17:07
+Author: tobiasa
+Branch: HEAD
+Tag: (none) 
+Log:
+Added cris to "define list".
+
+Members: 
+	libc/sysdeps/linux/common/create_module.c:1.7->1.8 
+
+---------------------
+PatchSet 2592 
+Date: 2003/08/28 06:51:04
+Author: miles
+Branch: HEAD
+Tag: (none) 
+Log:
+(1) Make UCLIBC_CC env var work even if __UCLIBC_CTOR_DTOR__ isn't defined.
+(2) Add a command-line option --uclibc-cc with the same functionality.
+
+Members: 
+	extra/gcc-uClibc/gcc-uClibc.c:1.61->1.62 
+
+---------------------
+PatchSet 2593 
+Date: 2003/08/28 18:16:52
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Create a typedef for the ctype bitmask table entries.
+Hack a fix for ctype support of 8-bit codeset locales.
+
+Note: toupper/tolower mappings do not handle the special cases for the
+tr_TR and az_AZ locales, since the wide versions currently handle them
+either.  That will be addressed when I rewrite the data generation tools
+and the libc locale code.
+
+Members: 
+	include/ctype.h:1.16->1.17 
+	libc/misc/ctype/ctype.c:1.15->1.16 
+	libc/misc/locale/locale.c:1.15->1.16 
+	libc/sysdeps/linux/common/bits/uClibc_locale.h:1.8->1.9 
+	libc/sysdeps/linux/common/bits/uClibc_touplow.h:1.1->1.2 
+
+---------------------
+PatchSet 2594 
+Date: 2003/08/29 23:52:20
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+here is (I hope) a better way to handle this one.  I regularly build
+debug versions of uClibc with -O0, but libpthread/linuxthreads/spinlock.c
+will not compile without at least -O1 optimization...
+
+Members: 
+	libpthread/linuxthreads/Makefile:1.9->1.10 
+
+---------------------
+PatchSet 2595 
+Date: 2003/08/30 00:52:04
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Remove comments about wordexp.
+
+Members: 
+	docs/Glibc_vs_uClibc_Differences.txt:1.9->1.10 
+	docs/uClibc_vs_SuSv3.txt:1.1->1.2 
+	docs/uclibc.org/FAQ.html:1.13->1.14 
+
+---------------------
+PatchSet 2596 
+Date: 2003/08/30 04:31:55
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Some doc updates.
+
+Members: 
+	TODO:1.41->1.42 
+	docs/Glibc_vs_uClibc_Differences.txt:1.10->1.11 
+
+---------------------
+PatchSet 2597 
+Date: 2003/08/30 20:16:43
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Add a couple of things... And check that cvs commit diffs are
+working again...
+
+Members: 
+	TODO:1.42->1.43 
+
+---------------------
+PatchSet 2598 
+Date: 2003/08/31 07:51:52
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Weed out duplicates before trying to load libraries....  Delayed
+checking for duplicates and returning an alias if an existing lib
+is already loaded is still correct for the dlopen case.
+
+Members: 
+	ldso/include/ld_elf.h:1.1->1.2 
+	ldso/ldso/ldso.c:1.70->1.71 
+	ldso/ldso/readelflib1.c:1.43->1.44 
+
+---------------------
+PatchSet 2599 
+Date: 2003/09/01 10:45:44
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Fix precision bug for %g conversion specifier when using %f style.
+
+Members: 
+	libc/stdio/printf.c:1.46->1.47 
+
+---------------------
+PatchSet 2600 
+Date: 2003/09/01 10:47:08
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Rework a few things.
+
+Members: 
+	libc/misc/intl/Makefile:1.2->1.3 
+	libc/misc/intl/intl.c:1.2->1.3 
+	libintl/intl.c:1.1->1.2 
+
+---------------------
+PatchSet 2601 
+Date: 2003/09/01 15:56:33
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Greg Nutt writes:
+
+Attached is a patch for a bug I found in libc/termios/ttyname.c.
+Essentially the length of the buffer is calculated incorrectly in a
+strncpy call and then the null terminator is placed on the byte after
+the buffer.
+
+This probably cause some very strange behavior on my system (it ended up
+setting malloc's heapsize to zero) but may be innocuous on other systems.
+
+Members: 
+	libc/termios/ttyname.c:1.10->1.11 
+
+---------------------
+PatchSet 2602 
+Date: 2003/09/01 16:00:54
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Atsushi Nemoto writes:
+
+I found math fpclassify function is broken because FP_XXX definitions
+in libm/fp_private.h is incompatible with include/math.h.
+
+Also I noticed fp_private.h and fpmacros.c use many 'long int' for
+32bit variables.  I think these should be int or u_int32_t.
+
+Here is a patch against 0.9.20.
+
+fp_private.c:
+--- fix union members (use u_int32_t instead of 'unsigned long int').
+--- remove incompatible FP_XXX definitions (and some unused macros).
+fpmacros.c:
+--- use FP_NAN instead of FP_QNAN/FP_SNAN.
+--- use correct type (int instead of long int).
+--- fix union members (use u_int32_t instead of 'unsigned long int').
+--- remove unnecessary cast.
+
+Note that I had to remove weak_alias for isnanl,isinfl to compile
+patched fpmacroc.c.  Is this really needed?  Original behavior (using
+isnan for isnanl) seems problematic anyway.
+
+Members: 
+	libm/fp_private.h:1.1->1.2 
+	libm/fpmacros.c:1.4->1.5 
+
+---------------------
+PatchSet 2603 
+Date: 2003/09/01 16:06:26
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Rob Landley writes:
+
+SYSTEM_DEVEL_PREFIX says: "This defaults to $(DEVEL_PREFIX)/usr", but it
+actually defaults to just "($DEVEL_PREFIX)".
+
+Just thought I'd mention it... :)
+
+Members: 
+	extra/Configs/Config.in:1.23->1.24 
+
+---------------------
+PatchSet 2604 
+Date: 2003/09/01 18:47:29
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Remove a bunch of guessing about the location of the kernel
+headers.  Move most of that into a script, and warn loudly
+when having to guess.
+ -Erik
+
+Members: 
+	Makefile:1.208->1.209 
+	extra/scripts/fix_includes.sh:INITIAL->1.1 
+
+---------------------
+PatchSet 2605 
+Date: 2003/09/01 18:58:38
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Do not overwrite CPU_CFLAGS values....
+
+Members: 
+	Rules.mak:1.137->1.138 
+
+---------------------
+PatchSet 2606 
+Date: 2003/09/01 19:03:49
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+15 retries is really rather excessive...
+
+Members: 
+	libc/inet/resolv.c:1.46->1.47 
+
+---------------------
+PatchSet 2607 
+Date: 2003/09/01 19:32:22
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Hack around bg_BG bug; grouping specified but no thousands separator.
+Also, disable the locale link_warnings for now, as they generate a
+lot of noise when using libstd++.
+
+Members: 
+	libc/misc/locale/locale.c:1.16->1.17 
+
+---------------------
+PatchSet 2608 
+Date: 2003/09/01 20:25:55
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+pass in "-s" directly
+
+Members: 
+	extra/gcc-uClibc/Makefile:1.57->1.58 
+
+---------------------
+PatchSet 2609 
+Date: 2003/09/01 20:26:33
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+minor link updates
+
+Members: 
+	docs/uclibc.org/uClibc-apps.html:1.22->1.23 
+
+---------------------
+PatchSet 2610 
+Date: 2003/09/01 20:57:31
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+minor cleanup
+
+Members: 
+	test/unistd/vfork.c:1.4->1.5 
+
+---------------------
+PatchSet 2611 
+Date: 2003/09/01 21:42:39
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+A better test for a dlopen problem with weak symbols, based
+on a much improve test by mjn3.
+
+Members: 
+	test/ldso/.cvsignore:1.3->1.4 
+	test/ldso/Makefile:1.11->1.12 
+	test/ldso/dltest.c:1.1->1.2 
+	test/ldso/howdy.c:1.3->1.4(DEAD) 
+	test/ldso/libtest.c:INITIAL->1.1 
+
+---------------------
+PatchSet 2612 
+Date: 2003/09/01 21:45:21
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+kill these too.
+
+Members: 
+	test/ldso/dltest2.c:1.2->1.3(DEAD) 
+	test/ldso/dlttest.c:1.1->1.2(DEAD) 
+
+---------------------
+PatchSet 2613 
+Date: 2003/09/02 00:43:42
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+move the ldso tests to dlopen where they belong
+
+Members: 
+	test/Makefile:1.26->1.27 
+	test/dlopen/.cvsignore:1.1->1.2 
+	test/dlopen/Makefile:1.2->1.3 
+	test/dlopen/dltest.c:INITIAL->1.1 
+	test/dlopen/libtest.c:INITIAL->1.1 
+	test/ldso/.cvsignore:1.4->1.5(DEAD) 
+	test/ldso/Makefile:1.12->1.13(DEAD) 
+	test/ldso/dltest.c:1.2->1.3(DEAD) 
+	test/ldso/libtest.c:1.1->1.2(DEAD) 
+
+---------------------
+PatchSet 2614 
+Date: 2003/09/02 00:55:15
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Use "__pthread_once", since that is weak and present in both
+glibc and uClibc.
+
+Members: 
+	test/dlopen/dltest.c:1.1->1.2 
+	test/dlopen/libtest.c:1.1->1.2 
+
+---------------------
+PatchSet 2615 
+Date: 2003/09/02 01:17:01
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Make it easier to disable lib debugging (mainly for when testing
+with glibc).
+
+Members: 
+	test/dlopen/Makefile:1.3->1.4 
+
+---------------------
+PatchSet 2616 
+Date: 2003/09/02 07:54:14
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Fix a problem with dtors/dtors.
+
+Members: 
+	ldso/libdl/dlib.c:1.29->1.30 
+
+---------------------
+PatchSet 2617 
+Date: 2003/09/02 07:55:18
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+delete some garbage, cleanup duplicate handling
+
+Members: 
+	ldso/ldso/ldso.c:1.71->1.72 
+
+---------------------
+PatchSet 2618 
+Date: 2003/09/02 07:55:55
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+cleanup/simplify duplicate handling.
+
+Members: 
+	ldso/ldso/readelflib1.c:1.44->1.45 
+
+---------------------
+PatchSet 2619 
+Date: 2003/09/03 04:23:31
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Only define __STDC_ISO_10646__ if wide char support is enabled.
+
+Members: 
+	include/features.h:1.53->1.54 
+
+---------------------
+PatchSet 2620 
+Date: 2003/09/03 08:23:12
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Some more buildroot-motivated fixes.  Avoid installing some headers, as
+well as stub libintl, depending on configuration.
+
+Members: 
+	Makefile:1.209->1.210 
+	libc/misc/Makefile:1.37->1.38 
+	libc/misc/gnu/obstack.c:1.2->1.3 
+
+---------------------
+PatchSet 2621 
+Date: 2003/09/03 13:49:01
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Let "$KERNEL_SOURCE/include/asm" be either a link or a directory.
+
+Members: 
+	extra/scripts/fix_includes.sh:1.1->1.2 
+
+---------------------
+PatchSet 2622 
+Date: 2003/09/04 02:39:18
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Minor cosmetic cleanups to avoid getting spurious bug reports.
+
+Members: 
+	extra/scripts/fix_includes.sh:1.2->1.3 
+
+---------------------
+PatchSet 2623 
+Date: 2003/09/05 06:36:10
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Oops... Forgot to convert this to the new floating point conversion func.
+
+Members: 
+	libc/stdio/old_vfprintf.c:1.7->1.8 
+
+---------------------
+PatchSet 2624 
+Date: 2003/09/05 07:20:05
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Move an #endif that was in the wrong place.
+
+Members: 
+	include/stdlib.h:1.41->1.42 
+
+---------------------
+PatchSet 2625 
+Date: 2003/09/05 07:50:56
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Always build _store_inttype since it is used by the new scanf.
+
+Members: 
+	libc/stdio/Makefile:1.39->1.40 
+
+---------------------
+PatchSet 2626 
+Date: 2003/09/05 22:04:39
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+mjn3 noticed we were missing seed48, which was odd since we had
+all the other *48 random functions.
+
+Members: 
+	libc/stdlib/Makefile:1.52->1.53 
+	libc/stdlib/seed48.c:INITIAL->1.1 
+	libc/stdlib/seed48_r.c:INITIAL->1.1 
+
+---------------------
+PatchSet 2627 
+Date: 2003/09/05 23:33:18
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Add support for ftw and nftw
+
+Members: 
+	include/ftw.h:INITIAL->1.1 
+	libc/misc/ftw/Makefile:INITIAL->1.1 
+	libc/misc/ftw/ftw.c:INITIAL->1.1 
+
+---------------------
+PatchSet 2628 
+Date: 2003/09/06 00:21:22
 Author: andersen
 Branch: HEAD
 Tag: (none) 
@@ -971,594 +1676,546 @@ Log:
 Bump version number in preparation for a release
 
 Members: 
-	Rules.mak:1.132->1.133 
+	Rules.mak:1.138->1.139 
 
 ---------------------
-PatchSet 2480 
-Date: 2003/06/14 05:25:57
+PatchSet 2629 
+Date: 2003/09/06 00:29:47
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Comment out the rpl_malloc workaround.  It was a good idea, but it violates
-namespace guarantees and conflicts with other programs that have used the
-AC_FUNC_MALLOC autoconf macro properly.
+Remove ftw and nftw as exceptions, add getgrgid_r and getgrnam_r
 
 Members: 
-	include/stdlib.h:1.38->1.39 
+	docs/uClibc_vs_SuSv3.txt:1.2->1.3 
 
 ---------------------
-PatchSet 2481 
-Date: 2003/06/15 02:08:43
+PatchSet 2630 
+Date: 2003/09/06 01:00:03
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Implement syscall() for powerpc.  Fixup syscall code so
-it compiles properly with gcc 3.3.
- -Erik
+Let people enable ftw, make glob an option, add a new "Big and Tall"
+top level config menu.
 
 Members: 
-	ldso/ldso/powerpc/ld_syscalls.h:1.3->1.4 
-	libc/sysdeps/linux/powerpc/Makefile:1.19->1.20 
-	libc/sysdeps/linux/powerpc/_mmap.c:1.4->1.5 
-	libc/sysdeps/linux/powerpc/syscall.S:INITIAL->1.1 
-	libc/sysdeps/linux/powerpc/bits/syscalls.h:1.7->1.8 
+	extra/Configs/Config.in:1.24->1.25 
+	libc/misc/Makefile:1.38->1.39 
 
 ---------------------
-PatchSet 2482 
-Date: 2003/06/15 07:13:36
+PatchSet 2631 
+Date: 2003/09/06 01:32:05
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Don't segfault when given things other than a regular file.
- -Erik
+Fix the bugs I stupidly added
 
 Members: 
-	ldso/util/ldd.c:1.30->1.31 
+	libc/misc/ftw/ftw.c:1.1->1.2 
+	libc/misc/search/Makefile:1.2->1.3 
+	libc/misc/search/tsearch.c:1.1->1.2 
 
 ---------------------
-PatchSet 2483 
-Date: 2003/06/16 05:50:07
+PatchSet 2632 
+Date: 2003/09/06 01:38:29
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Remove more headers when options are disabled
+
+Members: 
+	Makefile:1.210->1.211 
+
+---------------------
+PatchSet 2633 
+Date: 2003/09/06 02:07:11
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Add more pretty comments
+
+Members: 
+	Makefile:1.211->1.212 
+
+---------------------
+PatchSet 2634 
+Date: 2003/09/06 02:08:55
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Be more clear
+
+Members: 
+	Makefile:1.212->1.213 
+
+---------------------
+PatchSet 2635 
+Date: 2003/09/06 03:15:41
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+fixup ftw and ftw64.  Unfortunately, adding ftw64 doubles the
+size... :-(
+
+Members: 
+	libc/misc/ftw/Makefile:1.1->1.2 
+	libc/misc/ftw/ftw.c:1.2->1.3 
+
+---------------------
+PatchSet 2636 
+Date: 2003/09/06 03:58:32
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+oops.  ftw would blow chunks if UCLIBC_HAS_LFS was disabled.
+
+Members: 
+	libc/misc/ftw/ftw.c:1.3->1.4 
+
+---------------------
+PatchSet 2637 
+Date: 2003/09/06 04:28:09
 Author: mjn3
 Branch: HEAD
 Tag: (none) 
 Log:
-Add memmem().
+Don't install floating point related headers, and wrap some previously
+  unwrapped prototypes, when float support is disabled.
+Also don't install printf.h if glibc custom printf specifier support
+  is disabled.
 
 Members: 
-	include/string.h:1.22->1.23 
-	libc/string/Makefile:1.51->1.52 
-	libc/string/wstring.c:1.14->1.15 
+	Makefile:1.213->1.214 
+	include/time.h:1.8->1.9 
+	include/values.h:1.1->1.2 
+	include/wchar.h:1.4->1.5 
 
 ---------------------
-PatchSet 2484 
-Date: 2003/06/16 08:34:25
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Fix a segfault when used on a library w/o an INTERP program header.
-
-Members: 
-	ldso/util/ldd.c:1.31->1.32 
-
----------------------
-PatchSet 2485 
-Date: 2003/06/16 19:08:00
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-For some strange reason, davidm put this file in the wrong spot.
-So put it where it is supposed to be.
- -Erik
-
-Members: 
-	Config.m68k.default:1.1->1.2(DEAD) 
-	extra/Configs/Config.m68k.default:INITIAL->1.1 
-
----------------------
-PatchSet 2486 
-Date: 2003/06/16 20:07:14
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-As noted by Peter S. Mazinger
-
-    After removal of stropts.h none of the files references bits/stropts.h, so
-    it can be removed.
-
-    Peter
-
-Members: 
-	libc/sysdeps/linux/common/bits/stropts.h:1.1->1.2(DEAD) 
-
----------------------
-PatchSet 2487 
-Date: 2003/06/17 19:31:23
+PatchSet 2638 
+Date: 2003/09/06 04:29:33
 Author: mjn3
 Branch: HEAD
 Tag: (none) 
 Log:
-Ok... pasting in DUMPn() is unnecessary and technically incorrect.
+Small fix for when threading (I think) was disabled.
 
 Members: 
-	extra/locale/gen_collate.c:1.1->1.2 
+	libc/pwd_grp/__getgrent.c:1.8->1.9 
 
 ---------------------
-PatchSet 2488 
-Date: 2003/06/17 19:39:54
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Coldfire patch from Bernardo Innocenti
-
-Members: 
-	libpthread/linuxthreads/sysdeps/m68k/pt-machine.h:1.5->1.6 
-
----------------------
-PatchSet 2489 
-Date: 2003/06/17 20:03:39
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-When compiling with -O0, linuxthreads does not compile.  So add
-a local override changing -O0 to -O1 only for that directory.
-
-Members: 
-	libpthread/linuxthreads/Makefile:1.6->1.7 
-
----------------------
-PatchSet 2490 
-Date: 2003/06/17 20:09:50
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Ronald Wahl fixing an IPV6 specific problem
-with getaddrinfo().
-
-Members: 
-	libc/inet/resolv.c:1.45->1.46 
-
----------------------
-PatchSet 2491 
-Date: 2003/06/17 20:19:38
+PatchSet 2639 
+Date: 2003/09/06 04:30:42
 Author: mjn3
 Branch: HEAD
 Tag: (none) 
 Log:
-Optionally support the struct tm extension fields.
-Add a few misc functions mentioned in time.h.
-Revert davidm's change regarding using a define for the "/etc/TZ" path,
-as this is eventually meant to be a configurable extension and not
-unconditionally supported.
+Update old_vfconfig help and some dependencies.
 
 Members: 
-	include/paths.h:1.7->1.8 
-	include/time.h:1.5->1.6 
-	libc/misc/time/Makefile:1.31->1.32 
-	libc/misc/time/time.c:1.11->1.12 
+	extra/Configs/Config.in:1.25->1.26 
 
 ---------------------
-PatchSet 2492 
-Date: 2003/06/18 23:42:23
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Be extra careful to memset the correct size, not the size of some random
-pointer.  Fix printing of '0x0x' in ldd output.  Simplify discrimination of
-libname, so doing things like dlopen("./libfoo.so",RTLD_NOW) with a leading
-"./" in the path will work as expected.
- -Erik
-
-Members: 
-	ldso/ldso/hash.c:1.12->1.13 
-	ldso/ldso/ldso.c:1.66->1.67 
-	ldso/ldso/readelflib1.c:1.40->1.41 
-
----------------------
-PatchSet 2493 
-Date: 2003/06/24 04:14:19
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Make login actually write out utmp and wtmp junk (even
-though such things are completly unreliable crap)
-
-Members: 
-	libutil/login.c:1.1->1.2 
-
----------------------
-PatchSet 2494 
-Date: 2003/06/24 05:07:40
+PatchSet 2640 
+Date: 2003/09/06 04:37:17
 Author: mjn3
 Branch: HEAD
 Tag: (none) 
 Log:
-Change 'undefined behavior' of fflush() on readonly or reading streams
-to match that of current glibc; i.e. don't do anything and return success.
-Apparently, php calls fflush() on a file opened as readonly before trying
-to read.  Eventually I'll add some config options to flag this and several
-other instances of nonportable code.
+Implement vsnprintf (old_vfprintf only) and vsnscanf when uClibc is
+  configured with non-buffered stdio and non-wchar mode.
+Fix a couple of bugs that showed up in minimalist configurations.
+Update old_vfprintf to handle size qualifiers on the integer and %n
+  conversions.  It now passed the glibc printf tests with the exception
+  of a floating point rounding difference.
 
 Members: 
-	libc/stdio/stdio.c:1.67->1.68 
+	libc/stdio/Makefile:1.40->1.41 
+	libc/stdio/old_vfprintf.c:1.8->1.9 
+	libc/stdio/printf.c:1.47->1.48 
+	libc/stdio/scanf.c:1.29->1.30 
 
 ---------------------
-PatchSet 2495 
-Date: 2003/06/24 08:40:05
+PatchSet 2641 
+Date: 2003/09/06 07:09:51
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Rename the very badly named 'UCLIBC_GCC' to 'UCLIBC_ENV' and
-implement 'UCLIBC_CC', which does this:
-
-$ UCLIBC_CC=gcc-2.95 /usr/i386-linux-uclibc/bin/i386-uclibc-gcc --version
-2.95.4
-
-$ UCLIBC_CC=gcc-3.3 /usr/i386-linux-uclibc/bin/i386-uclibc-gcc --version
-gcc-3.3 (GCC) 3.3 (Debian)
-Copyright (C) 2003 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+Running ltp 20030905 showed that tcsendbreak was broken.
+This fixes it.
 
 Members: 
-	extra/gcc-uClibc/gcc-uClibc.c:1.57->1.58 
+	libc/termios/termios.c:1.12->1.13 
 
 ---------------------
-PatchSet 2496 
-Date: 2003/06/24 09:19:35
+PatchSet 2642 
+Date: 2003/09/06 12:49:27
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Make indenting be consistant
+Fix errno values.  Fix MALLOC_GLIBC_COMPAT handling in malloc/malloc.c,
+which was reversed.  Provide more consistancy between implementations.
+Handle it when people do stupid things like malloc(-1);
 
 Members: 
-	extra/gcc-uClibc/gcc-uClibc.c:1.58->1.59 
+	libc/stdlib/malloc/malloc.c:1.34->1.35 
+	libc/stdlib/malloc/realloc.c:1.18->1.19 
+	libc/stdlib/malloc-930716/malloc.c:1.10->1.11 
+	libc/stdlib/malloc-930716/realloc.c:1.3->1.4 
 
 ---------------------
-PatchSet 2497 
-Date: 2003/06/24 09:23:19
+PatchSet 2643 
+Date: 2003/09/06 13:58:51
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Fix indenting for real this time.
-
-Members: 
-	extra/gcc-uClibc/gcc-uClibc.c:1.59->1.60 
-
----------------------
-PatchSet 2498 
-Date: 2003/06/24 09:55:19
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Several more cleanups
-
-Members: 
-	extra/gcc-uClibc/gcc-uClibc.c:1.60->1.61 
-
----------------------
-PatchSet 2499 
-Date: 2003/06/27 06:50:09
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Add in ceilf() and floorf() since XFree86 wants them...
-
-Members: 
-	libm/Makefile:1.33->1.34 
-	libm/s_ceilf.c:INITIAL->1.1 
-	libm/s_floorf.c:INITIAL->1.1 
-
----------------------
-PatchSet 2500 
-Date: 2003/06/27 08:31:45
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Per a patch from Rob McMullen, add getprotoent_r, getprotobyname_r,
-and getprotobynumber_r
-
-Members: 
-	libc/inet/getproto.c:1.4->1.5 
-
----------------------
-PatchSet 2501 
-Date: 2003/06/27 08:36:43
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Add missing madvise syscall
-
-Members: 
-	libc/sysdeps/linux/common/syscalls.c:1.105->1.106 
-
----------------------
-PatchSet 2502 
-Date: 2003/06/27 08:49:25
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Mention that the common mmap64 is a stub and must be overridden
-on a per arch basis using platform specific code
-
-Members: 
-	libc/sysdeps/linux/common/mmap64.c:1.3->1.4 
-
----------------------
-PatchSet 2503 
-Date: 2003/06/27 09:05:40
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Actually, some arches do support _syscall6, so implement a generic version
-for them...
+Fix numerous problems with both getcwd implementations.
  -Erik
 
 Members: 
-	libc/sysdeps/linux/common/mmap64.c:1.4->1.5 
+	libc/sysdeps/linux/common/getcwd.c:1.4->1.5 
 
 ---------------------
-PatchSet 2504 
-Date: 2003/06/27 09:22:45
+PatchSet 2644 
+Date: 2003/09/06 14:00:11
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-oops.  Fix the name so it is "mmap64", not "__mmap64"
+Add an implementation of profil(), based on the version from
+glibc, with several changes for use in uClibc.
 
 Members: 
-	libc/sysdeps/linux/common/mmap64.c:1.5->1.6 
+	libc/sysdeps/linux/common/Makefile:1.83->1.84 
+	libc/sysdeps/linux/common/profil.c:INITIAL->1.1 
 
 ---------------------
-PatchSet 2505 
-Date: 2003/06/27 09:23:23
+PatchSet 2645 
+Date: 2003/09/06 14:34:48
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-add mmap64 for i386
+add missing prototype
 
 Members: 
-	libc/sysdeps/linux/i386/Makefile:1.55->1.56 
-	libc/sysdeps/linux/i386/mmap64.S:INITIAL->1.1 
+	libc/stdlib/malloc/malloc.h:1.16->1.17 
 
 ---------------------
-PatchSet 2506 
-Date: 2003/06/27 09:37:55
+PatchSet 2646 
+Date: 2003/09/06 14:36:07
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Implement mmap64 for arm
+'extern inline' doesn't work...  Use 'static inline'
 
 Members: 
-	libc/sysdeps/linux/arm/Makefile:1.42->1.43 
-	libc/sysdeps/linux/arm/mmap64.S:INITIAL->1.1 
+	libc/stdlib/malloc/heap.h:1.11->1.12 
 
 ---------------------
-PatchSet 2507 
-Date: 2003/06/27 09:38:15
+PatchSet 2647 
+Date: 2003/09/07 03:08:25
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Cleanup a couple of ugly bits
+Fix some more problems found by the ltp
 
 Members: 
-	libc/sysdeps/linux/arm/vfork.S:1.6->1.7 
+	libc/sysdeps/linux/common/pread_write.c:1.6->1.7 
+	libc/sysdeps/linux/mips/pread_write.c:1.1->1.2 
 
 ---------------------
-PatchSet 2508 
-Date: 2003/06/27 09:57:23
-Author: andersen
+PatchSet 2648 
+Date: 2003/09/07 04:13:56
+Author: mjn3
 Branch: HEAD
 Tag: (none) 
 Log:
-Do not let isatty mess up errno
+Remove profil.c, since it is constained within gmon.c.
 
 Members: 
-	libc/stdio/stdio.c:1.68->1.69 
+	libc/sysdeps/linux/common/Makefile:1.84->1.85 
+	libc/sysdeps/linux/common/profil.c:1.1->1.2(DEAD) 
 
 ---------------------
-PatchSet 2509 
-Date: 2003/06/27 10:12:38
-Author: andersen
+PatchSet 2649 
+Date: 2003/09/07 04:17:10
+Author: mjn3
 Branch: HEAD
 Tag: (none) 
 Log:
-Add config option to enable 'struct tm' timezone extension fields
+i386/mcount.S expects to call __mcount_internal with the 2 args passed
+in registers.
+
+NOTE:  i386/mcount.S really needs to be rewritten.  It currently won't
+work for non-PIC builds.
 
 Members: 
-	extra/Configs/Config.in:1.18->1.19 
+	libc/sysdeps/linux/i386/bits/machine-gmon.h:1.1->1.2 
 
 ---------------------
-PatchSet 2510 
-Date: 2003/06/27 11:19:28
+PatchSet 2650 
+Date: 2003/09/07 05:08:26
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Fixup errno handling
+Some updates from glibc.  mjn3 reports this fixes profiling
+on i386, at least, so seems like a good thing.
+
+Members: 
+	libc/sysdeps/linux/arm/bits/profil-counter.h:1.1->1.2 
+	libc/sysdeps/linux/arm/bits/sigcontextinfo.h:1.1->1.2 
+	libc/sysdeps/linux/i386/bits/profil-counter.h:1.1->1.2 
+	libc/sysdeps/linux/powerpc/bits/profil-counter.h:1.1->1.2 
+	libc/sysdeps/linux/sh/bits/profil-counter.h:1.2->1.3 
+
+---------------------
+PatchSet 2651 
+Date: 2003/09/07 06:02:52
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+A few minor syscall cleanups
+
+Members: 
+	libc/sysdeps/linux/common/syscalls.c:1.110->1.111 
+
+---------------------
+PatchSet 2652 
+Date: 2003/09/07 06:30:52
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+More FAQ updates
+
+Members: 
+	docs/uclibc.org/FAQ.html:1.14->1.15 
+
+---------------------
+PatchSet 2653 
+Date: 2003/09/08 06:59:04
+Author: miles
+Branch: HEAD
+Tag: (none) 
+Log:
+ansidecl.h and symcat.h copied from glibc.
+
+Members: 
+	include/ansidecl.h:INITIAL->1.1 
+	include/symcat.h:INITIAL->1.1 
+
+---------------------
+PatchSet 2654 
+Date: 2003/09/08 07:31:16
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+mjn3 pointed out that my brain was not in gear....
+
+Members: 
+	libc/sysdeps/linux/common/syscalls.c:1.111->1.112 
+
+---------------------
+PatchSet 2655 
+Date: 2003/09/08 09:40:55
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Be certain the config system binaries are current
+
+Members: 
+	Makefile:1.214->1.215 
+
+---------------------
+PatchSet 2656 
+Date: 2003/09/08 12:12:57
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Fixup build problem on powerpc
+
+Members: 
+	libm/fp_private.h:1.2->1.3 
+
+---------------------
+PatchSet 2657 
+Date: 2003/09/08 20:59:44
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Use __libc_fork for the uClinux fork stub
+
+Members: 
+	libc/sysdeps/linux/common/syscalls.c:1.112->1.113 
+
+---------------------
+PatchSet 2658 
+Date: 2003/09/08 21:33:00
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Add back in table-less ctype funcs for those interested in minimizing
+  static build sizes and not needing wchar support.
+Add in a SUSv3 getopt as an option for those not needing gnu getopt.
+  Again, mainly for the static linking crowd.
+
+Members: 
+	Makefile:1.215->1.216 
+	extra/Configs/Config.in:1.26->1.27 
+	extra/locale/Makefile:1.12->1.13 
+	include/getopt.h:1.5->1.6 
+	include/stdio.h:1.28->1.29 
+	include/unistd.h:1.23->1.24 
+	libc/misc/ctype/Makefile:1.13->1.14 
+	libc/misc/ctype/ctype.c:1.16->1.17 
+	libc/sysdeps/linux/common/bits/getopt.h:INITIAL->1.1 
+	libc/sysdeps/linux/common/bits/uClibc_ctype.h:1.3->1.4 
+	libc/unistd/Makefile:1.32->1.33 
+	libc/unistd/getopt-susv3.c:INITIAL->1.1 
+
+---------------------
+PatchSet 2659 
+Date: 2003/09/08 21:37:11
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Obligatory forgotten file.
+
+Members: 
+	include/ctype.h:1.17->1.18 
+
+---------------------
+PatchSet 2660 
+Date: 2003/09/08 21:44:33
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Signifcantly speed out integer to string conversion for printf.
+  Printf still needs some performance work done though.
+Also some bufferless stdio cleanups.
+
+Members: 
+	libc/stdio/stdio.c:1.70->1.71 
+
+---------------------
+PatchSet 2661 
+Date: 2003/09/08 23:08:14
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Fix a trivial compile problem
+
+Members: 
+	libc/sysdeps/linux/arm/bits/sigcontextinfo.h:1.2->1.3 
+
+---------------------
+PatchSet 2662 
+Date: 2003/09/09 00:19:46
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Fix broken test
+
+Members: 
+	test/ctype/ctype.c:1.4->1.5 
+
+---------------------
+PatchSet 2663 
+Date: 2003/09/09 00:27:46
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Oops!  I broke pread on mips with my last update.  This
+fixes it again so it both compiles and works,
  -Erik
 
 Members: 
-	libc/pwd_grp/__getpwent_r.c:1.2->1.3 
-	libc/pwd_grp/__getspent_r.c:1.4->1.5 
-	libc/pwd_grp/__sgetspent_r.c:1.2->1.3 
-	libc/pwd_grp/fgetpwent.c:1.7->1.8 
-	libc/pwd_grp/fgetspent.c:1.3->1.4 
-	libc/pwd_grp/getpwnam.c:1.8->1.9 
-	libc/pwd_grp/getpwuid.c:1.7->1.8 
-	libc/pwd_grp/getspnam.c:1.3->1.4 
-	libc/pwd_grp/getspuid.c:1.3->1.4 
-	libc/pwd_grp/initgroups.c:1.10->1.11 
-	libc/pwd_grp/pwent.c:1.9->1.10 
-	libc/pwd_grp/sgetspent.c:1.3->1.4 
-	libc/pwd_grp/spent.c:1.3->1.4 
+	libc/sysdeps/linux/mips/pread_write.c:1.2->1.3 
 
 ---------------------
-PatchSet 2511 
-Date: 2003/06/27 11:43:43
+PatchSet 2664 
+Date: 2003/09/09 00:43:20
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Yet more cleanup for the reentrant pwd/grp functions so they
-should now actually be doing the right thing
+Force enable ADD_LIBGCC_FUNCTIONS on arm
 
 Members: 
-	libc/pwd_grp/fgetpwent.c:1.8->1.9 
-	libc/pwd_grp/fgetspent.c:1.4->1.5 
-	libc/pwd_grp/getpwnam.c:1.9->1.10 
-	libc/pwd_grp/getpwuid.c:1.8->1.9 
-	libc/pwd_grp/getspnam.c:1.4->1.5 
-	libc/pwd_grp/getspuid.c:1.4->1.5 
-	libc/pwd_grp/pwent.c:1.10->1.11 
-	libc/pwd_grp/sgetspent.c:1.4->1.5 
-	libc/pwd_grp/spent.c:1.4->1.5 
+	extra/Configs/Config.arm:1.36->1.37 
 
 ---------------------
-PatchSet 2512 
-Date: 2003/06/27 12:03:37
+PatchSet 2665 
+Date: 2003/09/09 05:15:24
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Fix wctype.c so that wchar can be enabled without ctype table-based functions.
+
+Members: 
+	extra/Configs/Config.in:1.27->1.28 
+	libc/misc/wctype/wctype.c:1.5->1.6 
+
+---------------------
+PatchSet 2666 
+Date: 2003/09/09 06:53:30
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-whitespace and debug updates
+Add in several config system updates for locale support.
 
 Members: 
-	ldso/ldso/i386/elfinterp.c:1.21->1.22 
+	extra/Configs/Config.in:1.28->1.29 
 
 ---------------------
-PatchSet 2513 
-Date: 2003/06/27 12:16:24
+PatchSet 2667 
+Date: 2003/09/09 07:11:11
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Revenge of the Typo
+Arm needs this to compile with gcc 2.95
 
 Members: 
-	libc/sysdeps/linux/i386/mmap64.S:1.1->1.2 
+	ldso/ldso/arm/ld_syscalls.h:1.5->1.6 
 
 ---------------------
-PatchSet 2514 
-Date: 2003/06/27 12:45:12
+PatchSet 2668 
+Date: 2003/09/09 07:12:30
 Author: andersen
 Branch: HEAD
 Tag: (none) 
 Log:
-Run dlopened ctors and dtors in the correct order
+Enable automagic locale data downloads
 
 Members: 
-	ldso/libdl/dlib.c:1.25->1.26 
-
----------------------
-PatchSet 2515 
-Date: 2003/06/27 12:51:42
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-oops
-
-Members: 
-	ldso/ldso/i386/elfinterp.c:1.22->1.23 
-
----------------------
-PatchSet 2516 
-Date: 2003/06/27 12:55:20
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Add a test which shows off the broken spots in our dlopen implementation
-
-Members: 
-	test/dlopen/Makefile:INITIAL->1.1 
-	test/dlopen/libtest1.c:INITIAL->1.1 
-	test/dlopen/libtest2.c:INITIAL->1.1 
-	test/dlopen/test1.c:INITIAL->1.1 
-	test/dlopen/test2.c:INITIAL->1.1 
-
----------------------
-PatchSet 2517 
-Date: 2003/06/27 20:35:17
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-ret could have been used uninitialized in one case
-
-Members: 
-	libc/pwd_grp/pwent.c:1.11->1.12 
-	libc/pwd_grp/spent.c:1.5->1.6 
-
----------------------
-PatchSet 2518 
-Date: 2003/06/27 21:26:18
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Fix a couple of typos
-
-Members: 
-	libc/sysdeps/linux/common/mmap64.c:1.6->1.7 
-
----------------------
-PatchSet 2519 
-Date: 2003/06/30 19:14:36
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Patch from Pavel Roskin to fixup toplevel help text
-
-Members: 
-	extra/config/mconf.c:1.6->1.7 
-
----------------------
-PatchSet 2520 
-Date: 2003/06/30 19:22:43
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Per suggestion from Stuart Hughes, allow uClibc to re-install
-headers on a system where they have previously been installed.
-
-Members: 
-	Makefile:1.205->1.206 
-
----------------------
-PatchSet 2521 
-Date: 2003/06/30 19:27:34
-Author: andersen
-Branch: HEAD
-Tag: (none) 
-Log:
-Fixup symlinks to libthread_db
-
-Members: 
-	libpthread/Makefile:1.21->1.22 
+	Makefile:1.216->1.217 
+	extra/Configs/Config.in:1.29->1.30 
 
