@@ -1,8 +1,21 @@
 # Makefile for uClibc's math library
-# Copyright (C) 2001 by Lineo, inc.
 #
-# This math library is derived primarily from the Cephes Math Library,
-# copyright by Stephen L. Moshier <moshier@world.std.com>
+# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+#
+# The routines included in this math library are derived from the
+# math library for Apple's MacOS X/Darwin math library, which was
+# itself swiped from FreeBSD.  The original copyright information
+# is as follows:
+# 
+#     Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+# 
+#     Developed at SunPro, a Sun Microsystems, Inc. business.
+#     Permission to use, copy, modify, and distribute this
+#     software is freely granted, provided that this notice
+#     is preserved.
+# 
+# It has been ported to work with uClibc and generally behave
+# by Erik Andersen <andersen@codepoet.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -17,7 +30,6 @@
 # You should have received a copy of the GNU Library General Public License
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-#
 
 TOPDIR=../../
 include $(TOPDIR)Rules.mak

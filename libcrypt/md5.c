@@ -39,7 +39,7 @@
  *
  * ----------------------------------------------------------------------------
  * On April 19th, 2001 md5_crypt() was modified to make it reentrant 
- * by Erik Andersen <andersen@lineo.com>, <andersee@debian.org>
+ * by Erik Andersen <andersen@uclibc.org>
  *
  * June 28, 2001             Manuel Novoa III
  *

@@ -1,10 +1,8 @@
-/*
- * uClibc/sysdeps/linux/i386/crt0.S
+/* vi: set sw=4 ts=4: */
+/* uClibc/sysdeps/linux/m68k/crt0.S
  * Pull stuff off the stack and get uClibc moving.
  *
- * Copyright (C) 2001 by Lineo, inc.  
- * Written by Erik Andersen <andersen@lineo.com>, <andersee@debian.org>
- * who is very pleased he managed to do this entirely in C code.
+ * Copyright (C) 2000,2001 by Erik Andersen <andersen@uclibc.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published by
@@ -19,7 +17,6 @@
  * You should have received a copy of the GNU Library General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
  */
 
 extern void __uClibc_main(int argc,void *argv,void *envp);

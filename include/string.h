@@ -62,16 +62,16 @@ extern int memcmp (__const void *__s1, __const void *__s2, size_t __n)
 extern void *memchr (__const void *__s, int __c, size_t __n)
       __THROW __attribute_pure__;
 
-#if 0
 //#ifdef __USE_GNU
+#if 0
 /* Search in S for C.  This is similar to `memchr' but there is no
    length limit.  */
 extern void *rawmemchr (__const void *__s, int __c) __THROW __attribute_pure__;
 
+#endif
 /* Search N bytes of S for the final occurrence of C.  */
 extern void *memrchr (__const void *__s, int __c, size_t __n)
       __THROW __attribute_pure__;
-#endif
 
 
 /* Copy SRC to DEST.  */

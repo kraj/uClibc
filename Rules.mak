@@ -3,9 +3,9 @@
 # This file contains rules which are shared between multiple Makefiles.  All
 # normal configuration options live in the file named "Config".  You probably
 # should not mess with this file unless you know what you are doing...  
-#   -Erik Andersen <andersen@lineo.com> < andersee@debian.org>
 # 
-# Copyright (C) 2000, 2001 by Lineo, inc.
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000,2001 Erik Andersen <andersee@debian.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free

@@ -3,8 +3,8 @@
  * ctype.h
  * Character classification and conversion
  *
- * Copyright (C) 2000 by Lineo, inc.  
- * Written by Erik Andersen <andersen@lineo.com>, <andersee@debian.org>
+ * Copyright (C) 2000 by Lineo, inc.
+ * Copyright (C) 2000,2001 Erik Andersen <andersee@debian.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published by

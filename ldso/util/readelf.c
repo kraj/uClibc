@@ -2,13 +2,14 @@
 /*
  * A small little readelf implementation for uClibc
  *
- * Copyright (C) 2001 by Lineo, inc.
- * Written by Erik Andersen <andersen@lineo.com>, <andersee@debian.org>
+ * Copyright (C) 2000 by Lineo, inc.
+ * Copyright (C) 2000,2001 Erik Andersen <andersee@debian.org>
+ * Written by Erik Andersen <andersee@debian.org>
  *
  * Several functions in this file (specifically, elf_find_section_type(),
  * elf_find_phdr_type(), and elf_find_dynamic(), were stolen from elflib.c from
  * elfvector (http://www.BitWagon.com/elfvector.html) by John F. Reiser
- * <jreiser@BitWagon.com>, and which is copyright 2000 BitWagon Software LLC
+ * <jreiser@BitWagon.com>, which is copyright 2000 BitWagon Software LLC
  * (GPL2).
  *
  * This program is free software; you can redistribute it and/or modify

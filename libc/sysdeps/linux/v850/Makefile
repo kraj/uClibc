@@ -1,14 +1,26 @@
+# Makefile for uClibc
 #
-# libc/sysdeps/linux/v850/Makefile -- Makefile for v850 machine-dependent dir
+# Copyright (C) 2001  NEC Corporation
+# Copyright (C) 2001  Miles Bader <miles@gnu.org>
+# Copyright (C) 2000  Lineo, inc.
 #
-#  Copyright (C) 2001  NEC Corporation
-#  Copyright (C) 2001  Miles Bader <miles@gnu.org>
-#  Copyright (C) 2000  Lineo, inc.
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
 #
-# This file is subject to the terms and conditions of the GNU Library
-# General Public License.  See the file COPYING.LIB in the main
-# directory of this archive for more details.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
+# details.
 #
+# You should have received a copy of the GNU Library General Public License
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+#
+# Derived in part from the Linux-8086 C library, the GNU C Library, and several
+# other sundry sources.  Files within this library are copyright by their
+# respective copyright holders.
 
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak

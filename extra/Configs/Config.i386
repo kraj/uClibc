@@ -1,10 +1,11 @@
 # Library Configuration rules for uClibc
 #
-# This file contains rules which are shared between multiple Makefiles.  Feel
-# free to adjust to taste...  
-#  -Erik Andersen <andersen@lineo.com> <andersee@debian.org>
+# This file contains rules which are shared between multiple Makefiles.  All
+# normal configuration options live in the file named "Config".  You probably
+# should not mess with this file unless you know what you are doing...  
 # 
 # Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000,2001 Erik Andersen <andersee@debian.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -45,7 +46,7 @@ STRIPTOOL = $(CROSS)strip
 
 # Set the following to `true' to make a debuggable build, and `false' for
 # production builds.
-DODEBUG = false
+DODEBUG = true
 
 # Compiler warnings you want to see 
 WARNINGS=-Wall
@@ -114,19 +115,19 @@ UNIFIED_SYSCALL = false
 # If you want large file summit support (greater then 2 Gib), 
 # turn this on.  This has no effect unless your kernel supports 
 # lfs.  This currently does nothing, but may someday...
-DOLFS = false
+DOLFS = true
 
 # If you want to include RPC support, enable this.  RPC is almost never used 
 # for anything except NFS support, so unless you plan to use NFS, leave this
 # disabled.  This is off by default.
-INCLUDE_RPC = false
+INCLUDE_RPC = true
 
 # If you want to include support for the next version of the Internet
 # Protocol: IP version 6, enable this.  This is off by default.
 INCLUDE_IPV6 = false
 
 # If you want to compile the library as PIC code, turn this on.
-DOPIC = false
+DOPIC = true
 
 
 

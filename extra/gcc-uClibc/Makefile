@@ -1,3 +1,9 @@
+# Makefile for building a fake gcc/binutils toolchain
+# that simply spoofs the location of the C library
+#
+# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+#
+
 TOPDIR = ../../
 include $(TOPDIR)Rules.mak
 

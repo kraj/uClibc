@@ -1,8 +1,8 @@
 # Library Configuration rules for uClibc
 #
-# This file contains rules which are shared between multiple Makefiles.  Feel
-# free to adjust to taste...  
-#  -Erik Andersen <andersen@lineo.com> <andersee@debian.org>
+# This file contains rules which are shared between multiple Makefiles.  All
+# normal configuration options live in the file named "Config".  You probably
+# should not mess with this file unless you know what you are doing...  
 # 
 # Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2001 by Hewlett-Packard Australia

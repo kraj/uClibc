@@ -6,7 +6,7 @@
  * on Andy Tanenbaum's book "Computer Networks", and then rewritten in
  * C by Kees J. Bot, 7 Feb 1994.  This code was ported from Minix to
  * uClibc on June 28, 2001 by Manuel Novoa III, and then reshuffled to
- * be reentrant by Erik Andersen <andersen@lineo.com> on June 28, 2001. 
+ * be reentrant by Erik Andersen <andersen@uclibc.org> on June 28, 2001. 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published by

@@ -1,7 +1,7 @@
-# Copyright (C) 1995,1996 Robert de Bath <rdebath@cix.compulink.co.uk> Makefile
-# for uClibc
+# Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
