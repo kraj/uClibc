@@ -44,7 +44,7 @@ config FORCE_SHAREABLE_TEXT_SEGMENTS
 	  segments. These libraries haven't set the DT_TEXTREL tag in the dynamic
 	  section (==> objdump). So all your libraries must be compiled with
 	  -fPIC or -fpic, and all assembler function must be written as position
-	  independend code (PIC). 
+	  independent code (PIC). 
 	  Enabling this option will makes uClibc's shared library loader a
 	  little bit smaller and guarantee that no memory will be wasted by badly
 	  coded shared libraries.
@@ -55,13 +55,13 @@ config LDSO_LDD_SUPPORT
 	default y
 	help
 	  Enable this to enable all the code needed to support traditional ldd,
-	  which executes the shared library loader to resolve all dependancies
+	  which executes the shared library loader to resolve all dependencies
 	  and then provide a list of shared libraries that are required for an
 	  application to function.  Disabling this option will makes uClibc's
 	  shared library loader a little bit smaller.  Most people will answer Y.
 
 config UCLIBC_CTOR_DTOR
-	bool "Support global constructors and destructos"
+	bool "Support global constructors and destructors"
 	default y
 	help
 	  If you wish to build uClibc with support for global constructor
@@ -73,7 +73,7 @@ config UCLIBC_CTOR_DTOR
 	  also add a small amount of additional size to each binary compiled vs
 	  uClibc.  If you will be using uClibc with C++, or if you need the gcc
 	  __attribute__((constructor)) and __attribute__((destructor)) to work,
-	  then you definately want to answer Y here.  If you don't need ctors
+	  then you definitely want to answer Y here.  If you don't need ctors
 	  or dtors and want your binaries to be as small as possible, then
 	  answer N.
 
@@ -149,7 +149,7 @@ config UCLIBC_HAS_REGEX
 	bool "Regular Expression Support"
 	default y
 	help
-	  Posix regular expression code is really big -- 27k all by itself.
+	  POSIX regular expression code is really big -- 27k all by itself.
 	  If you don't use regular expressions, turn this off and save space.
 	  Of course, if you only staticly link, leave this on, since it will
 	  only be included in your apps if you use regular expressions.
@@ -189,7 +189,7 @@ config UCLIBC_HAS_IPV6
 	  Most people should answer N.
 
 config UCLIBC_HAS_RPC
-	bool "Remote Procedute Call (RPC) support"
+	bool "Remote Procedure Call (RPC) support"
 	default n
 	help
 	  If you want to include RPC support, enable this.  RPC is rarely used 
@@ -237,7 +237,7 @@ config USE_OLD_VFPRINTF
 	help
 	  Set to true to use the old vfprintf instead of the new.  This is roughly
 	  C89 compliant, but doesn't deal with qualifiers on %n and doesn't deal with
-	  %h correctly or %hh at all on the interger conversions.  But on i386 it is
+	  %h correctly or %hh at all on the integer conversions.  But on i386 it is
 	  over 1.5k smaller than the new code.  Of course, the new code fixes the
 	  above mentioned deficiencies and adds custom specifier support similar to
 	  glibc, as well as handling positional args.  This will be rewritten at some 
@@ -350,7 +350,7 @@ config SUPPORT_LD_DEBUG
 
 	  For now these debugging tokens are available:
 	    detail        provide more information for some options
-	    move          display copy processings
+	    move          display copy processing
 	    symbols       display symbol table processing
 	    reloc         display relocation processing; detail shows the relocation patch
 	    nofixups      never fixes up jump relocations
@@ -377,7 +377,7 @@ config SUPPORT_LD_DEBUG_EARLY
 	help
 	  Answer Y here to if you find the uClibc shared library loader is
 	  crashing or otherwise not working very early on.  This is typical
-	  only when starting a new port when you havn't figured out how to
+	  only when starting a new port when you haven't figured out how to
 	  properly get the values for argc, argv, environ, etc.  This method
 	  allows a degree of visibility into the very early shared library
 	  loader initialization process.  If you are doing development and want
