@@ -2,108 +2,97 @@
 
 #ifndef __USE_FILE_OFFSET64
 
-struct stat {
-	unsigned short st_dev;
-	unsigned short __pad1;
-	unsigned long st_ino;
-	unsigned short st_mode;
-	unsigned short st_nlink;
-	unsigned short st_uid;
-	unsigned short st_gid;
-	unsigned short st_rdev;
-	unsigned short __pad2;
-	unsigned long  st_size;
-	unsigned long  st_blksize;
-	unsigned long  st_blocks;
-	unsigned long  st_atime;
-	unsigned long  __unused1;
-	unsigned long  st_mtime;
-	unsigned long  __unused2;
-	unsigned long  st_ctime;
-	unsigned long  __unused3;
-	unsigned long  __unused4;
-	unsigned long  __unused5;
+struct stat
+{
+  __kernel_dev_t	st_dev;
+  __kernel_ino_t	st_ino;
+  __kernel_mode_t	st_mode;
+  __kernel_nlink_t 	st_nlink;
+  __kernel_uid_t 	st_uid;
+  __kernel_gid_t 	st_gid;
+  __kernel_dev_t	st_rdev;
+  __kernel_off_t	st_size;
+  unsigned long		st_blksize;
+  unsigned long		st_blocks;
+  unsigned long		st_atime;
+  unsigned long		__unused1;
+  unsigned long		st_mtime;
+  unsigned long		__unused2;
+  unsigned long		st_ctime;
+  unsigned long		__unused3;
+  unsigned long		__unused4;
+  unsigned long		__unused5;
 };
 
 #else /* __USE_FILE_OFFSET64 */
 
-/* This matches struct stat64 in glibc2.1, hence the absolutely
- * insane amounts of padding around dev_t's.
- */
-struct stat {
-	unsigned char	__pad0[6];
-	unsigned short	st_dev;
-	unsigned char	__pad1[4];
+struct stat
+{
+  __kernel_dev_t	st_dev;
+  unsigned long		__unused0;
+  unsigned long		__unused1;
 
-#define STAT64_HAS_BROKEN_ST_INO	1
-	unsigned long	__st_ino;
+  __kernel_ino64_t	st_ino;
 
-	unsigned int	st_mode;
-	unsigned int	st_nlink;
+  __kernel_mode_t	st_mode;
+  __kernel_nlink_t 	st_nlink;
 
-	unsigned long	st_uid;
-	unsigned long	st_gid;
+  __kernel_uid_t	st_uid;
+  __kernel_gid_t	st_gid;
 
-	unsigned char	__pad2[6];
-	unsigned short	st_rdev;
-	unsigned char	__pad3[4];
+  __kernel_dev_t	st_rdev;
+  unsigned long		__unused2;
+  unsigned long		__unused3;
 
-	long long	st_size;
-	unsigned long	st_blksize;
+  __kernel_loff_t	st_size;
+  unsigned long		st_blksize;
 
-	unsigned long	__pad4;		/* future possible st_blocks high bits */
-	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
+  unsigned long		__unused4; /* future possible st_blocks high bits */
+  unsigned long		st_blocks; /* Number 512-byte blocks allocated. */
 
-	unsigned long	st_atime;
-	unsigned long	__pad5;
+  unsigned long		st_atime;
+  unsigned long		__unused5;
 
-	unsigned long	st_mtime;
-	unsigned long	__pad6;
+  unsigned long		st_mtime;
+  unsigned long		__unused6;
 
-	unsigned long	st_ctime;
-	unsigned long	__pad7;		/* will be high 32 bits of ctime someday */
-
-	unsigned long long	st_ino;
+  unsigned long		st_ctime;
+  unsigned long		__unused7; /* high 32 bits of ctime someday */
 };
 
 #endif /* __USE_FILE_OFFSET64 */
 
 
-/* This matches struct stat64 in glibc2.1, hence the absolutely
- * insane amounts of padding around dev_t's.
- */
-struct stat64 {
-	unsigned char	__pad0[6];
-	unsigned short	st_dev;
-	unsigned char	__pad1[4];
+struct stat64
+{
+  __kernel_dev_t	st_dev;
+  unsigned long		__unused0;
+  unsigned long		__unused1;
 
-#define STAT64_HAS_BROKEN_ST_INO	1
-	unsigned long	__st_ino;
+  __kernel_ino64_t	st_ino;
 
-	unsigned int	st_mode;
-	unsigned int	st_nlink;
+  __kernel_mode_t	st_mode;
+  __kernel_nlink_t 	st_nlink;
 
-	unsigned long	st_uid;
-	unsigned long	st_gid;
+  __kernel_uid_t	st_uid;
+  __kernel_gid_t	st_gid;
 
-	unsigned char	__pad2[6];
-	unsigned short	st_rdev;
-	unsigned char	__pad3[4];
+  __kernel_dev_t	st_rdev;
+  unsigned long		__unused2;
+  unsigned long		__unused3;
 
-	long long	st_size;
-	unsigned long	st_blksize;
+  __kernel_loff_t	st_size;
+  unsigned long		st_blksize;
 
-	unsigned long	__pad4;		/* future possible st_blocks high bits */
-	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
+  unsigned long		__unused4; /* future possible st_blocks high bits */
+  unsigned long		st_blocks; /* Number 512-byte blocks allocated. */
 
-	unsigned long	st_atime;
-	unsigned long	__pad5;
+  unsigned long		st_atime;
+  unsigned long		__unused5;
 
-	unsigned long	st_mtime;
-	unsigned long	__pad6;
+  unsigned long		st_mtime;
+  unsigned long		__unused6;
 
-	unsigned long	st_ctime;
-	unsigned long	__pad7;		/* will be high 32 bits of ctime someday */
-
-	unsigned long long	st_ino;
+  unsigned long		st_ctime;
+  unsigned long		__unused7; /* high 32 bits of ctime someday */
 };
