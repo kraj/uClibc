@@ -318,10 +318,8 @@ void _dl_boot(unsigned int args)
 			ppnt = (elf_phdr *) (auxv_t[AT_BASE].a_un.a_ptr + header->e_phoff);
 			for (i = 0; i < header->e_phnum; i++, ppnt++) {
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
-					_dl_mprotect((void *) (load_addr + 
-						(ppnt->p_vaddr & 0xfffff000)), 
-						(ppnt->p_vaddr & 0xfff) + 
-						(unsigned long) ppnt->p_filesz, 
+					_dl_mprotect((void *) (load_addr + (ppnt->p_vaddr & 0xfffff000)), 
+						(ppnt->p_vaddr & 0xfff) + (unsigned long) ppnt->p_filesz, 
 						PROT_READ | PROT_WRITE | PROT_EXEC);
 			}
 		}
@@ -382,8 +380,7 @@ void _dl_boot(unsigned int args)
 				char *strtab;
 				Elf32_Sym *symtab;
 
-				symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] +
-								   load_addr);
+				symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + load_addr);
 				strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + load_addr);
 
 				/* We only do a partial dynamic linking right now.  The user
@@ -488,8 +485,7 @@ void _dl_boot(unsigned int args)
 				_dl_loaded_modules->libtype = elf_executable;
 				_dl_loaded_modules->ppnt = (elf_phdr *) auxv_t[AT_PHDR].a_un.a_ptr;
 				_dl_loaded_modules->n_phent = auxv_t[AT_PHNUM].a_un.a_val;
-				_dl_symbol_tables = rpnt =
-					(struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
+				_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 				_dl_memset(rpnt, 0, sizeof(*rpnt));
 				rpnt->dyn = _dl_loaded_modules;
 				app_tpnt->usage_count++;
@@ -581,8 +577,7 @@ void _dl_boot(unsigned int args)
 							/* this is a real hack to make ldd not print 
 							 * the library itself when run on a library. */
 							if (_dl_strcmp(_dl_progname, str) != 0)
-								_dl_fdprintf(1, "\t%s => %s (0x%x)\n", 
-									str, tpnt1->libname, 
+								_dl_fdprintf(1, "\t%s => %s (0x%x)\n", str, tpnt1->libname, 
 									(unsigned) tpnt1->loadaddr);
 						}
 						rpnt->next = (struct dyn_elf *)
@@ -648,21 +643,17 @@ void _dl_boot(unsigned int args)
 							tpnt1 = _dl_load_shared_library(0, NULL, cp2);
 							if (!tpnt1) {
 								if (_dl_trace_loaded_objects)
-									_dl_fdprintf(1, "\t%s => not "
-										"found\n", cp2);
+									_dl_fdprintf(1, "\t%s => not found\n", cp2);
 								else {
-									_dl_fdprintf(2, "%s: can't "
-										"load library '%s'\n", 
+									_dl_fdprintf(2, "%s: can't load library '%s'\n", 
 										_dl_progname, cp2);
 									_dl_exit(15);
 								}
 							} else {
 								if (_dl_trace_loaded_objects
 									&& !tpnt1->usage_count) {
-									_dl_fdprintf(1, "\t%s => %s "
-										"(0x%x)\n", cp2, 
-										tpnt1->libname, 
-										(unsigned) tpnt1->loadaddr);
+									_dl_fdprintf(1, "\t%s => %s (0x%x)\n", cp2, 
+										tpnt1->libname, (unsigned) tpnt1->loadaddr);
 								}
 								rpnt->next = (struct dyn_elf *)
 									_dl_malloc(sizeof(struct dyn_elf));
@@ -696,8 +687,6 @@ void _dl_boot(unsigned int args)
 					if (tpnt && _dl_strcmp(lpnt, 
 						    _dl_get_last_path_component(tpnt->libname)) == 0) {
 						struct elf_resolve *ttmp;
-						_dl_fdprintf(1, "\t%s => %s (0x%x)\n", 
-							lpnt, tpnt->libname, (unsigned) tpnt->loadaddr);
 						ttmp = _dl_loaded_modules;
 						while (ttmp->next)
 							ttmp = ttmp->next;
@@ -724,8 +713,7 @@ void _dl_boot(unsigned int args)
 						}
 					} else {
 						if (_dl_trace_loaded_objects && !tpnt1->usage_count)
-							_dl_fdprintf(1, "\t%s => %s (0x%x)\n", 
-								lpnt, tpnt1->libname, 
+							_dl_fdprintf(1, "\t%s => %s (0x%x)\n", lpnt, tpnt1->libname, 
 								(unsigned) tpnt1->loadaddr);
 						rpnt->next = (struct dyn_elf *)
 							_dl_malloc(sizeof(struct dyn_elf));
@@ -834,10 +822,8 @@ void _dl_boot(unsigned int args)
 			for (ppnt = tpnt->ppnt, i = 0; i < tpnt->n_phent; i++, ppnt++)
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W) &&
 					tpnt->dynamic_info[DT_TEXTREL])
-					_dl_mprotect((void *) (tpnt->loadaddr + 
-						    (ppnt->p_vaddr & 0xfffff000)), 
-						(ppnt->p_vaddr & 0xfff) + 
-						(unsigned long) ppnt->p_filesz, 
+					_dl_mprotect((void *) (tpnt->loadaddr + (ppnt->p_vaddr & 0xfffff000)), 
+						(ppnt->p_vaddr & 0xfff) + (unsigned long) ppnt->p_filesz, 
 						LXFLAGS(ppnt->p_flags));
 
 	}
