@@ -1894,8 +1894,8 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 	qp+=sizeof(*addr_list6)*2;
 	plen-=sizeof(*addr_list6)*2;
 
-	if (len < buflen) {
-		buflen=len;
+	if (plen < buflen) {
+		buflen=plen;
 		buf=qp;
 	}
 #endif /* __UCLIBC_HAS_IPV6__ */
