@@ -481,6 +481,13 @@ long int sysconf(int name)
       return -1;
 #endif
 
+    case _SC_2_FORT_RUN:
+#ifdef	_POSIX2_FORT_RUN
+      return _POSIX2_FORT_RUN;
+#else
+      return -1;
+#endif
+
     case _SC_2_LOCALEDEF:
 #ifdef	_POSIX2_LOCALEDEF
       return _POSIX2_LOCALEDEF;
@@ -651,8 +658,8 @@ long int sysconf(int name)
 #endif
 
     case _SC_ATEXIT_MAX:
-      /* We have no limit since we use lists.  */
-      return INT_MAX;
+      /* See stdlib/atexit.c  */
+      return 20;
 
     case _SC_PASS_MAX:
       /* We have no limit but since the return value might be used to
