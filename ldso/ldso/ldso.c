@@ -145,9 +145,7 @@ char *_dl_ldsopath = 0;
 static char *_dl_not_lazy = 0;
 static char *_dl_malloc_addr, *_dl_mmap_zero;
 
-#ifdef DL_TRACE
 static char *_dl_trace_loaded_objects = 0;
-#endif
 static int (*_dl_elf_main) (int, char **, char **);
 static int (*_dl_elf_init) (void);
 void *(*_dl_malloc_function) (int size) = NULL;
@@ -701,8 +699,12 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		}
 	}
 
-#ifdef DL_TRACE
 	_dl_trace_loaded_objects = _dl_getenv("LD_TRACE_LOADED_OBJECTS", envp);
+#ifndef DL_TRACE
+	if (_dl_trace_loaded_objects) {
+		_dl_dprintf(2, "Use the ldd provided by uClibc\n");
+		_dl_exit(1);
+	}
 #endif
 	/* OK, we now have the application in the list, and we have some
 	   basic stuff in place.  Now search through the list for other shared
@@ -944,6 +946,8 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	if (_dl_trace_loaded_objects) {
 		char *_dl_warn = 0;
 
+		_dl_dprintf(1, "\t%s => %s (0x%x)\n", tpnt->libname + (_dl_strlen(_dl_ldsopath)) + 1, 
+				tpnt->libname, tpnt->loadaddr);  
 		_dl_warn = _dl_getenv("LD_WARN", envp);
 		if (!_dl_warn)
 			_dl_exit(0);

@@ -27,6 +27,12 @@ DOPIC=true
 include $(TOPDIR)Rules.mak
 LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
 
+# Enable this to enable all the code needed to support traditional ldd
+# (i.e. where the shared library loader does all the heavy lifting)
+# Since this currently only saves about 300 bytes, I'm going to leave 
+# it enabled...
+XXFLAGS+= -DDL_TRACE
+
 # Enable this to enable debugging output from ld.so
 #XXFLAGS+= -DDL_DEBUG
 #XXFLAGS+= -DDL_DEBUG_SYMBOLS
