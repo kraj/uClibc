@@ -1,6 +1,6 @@
 /*
  * Distributed under the terms of the GNU General Public License v2
- * $Header: /var/cvs/uClibc/libc/sysdeps/linux/common/ssp.c,v 1.4 2004/11/11 03:13:36 solar Exp $
+ * $Header: /var/cvs/uClibc/libc/sysdeps/linux/common/ssp.c,v 1.5 2004/11/25 19:10:39 solar Exp $
  *
  * This is a modified version of Hiroaki Etoh's stack smashing routines
  * implemented for glibc.
