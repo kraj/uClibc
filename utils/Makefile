@@ -80,7 +80,7 @@ endif
 
 LDADD_LIBFLOAT=
 ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
-    CFLAGS += $(call check_gcc,-msoft-float,)
+    override CFLAGS += $(call check_gcc,-msoft-float,CAN_NOT_SET_SOFT_FLOAT)
     #LDFLAGS+= -Wa,-mno-fpu
 ifeq ($(strip $(subst ",, $(strip $(TARGET_ARCH)))),arm)
     LDADD_LIBFLOAT=-lfloat
