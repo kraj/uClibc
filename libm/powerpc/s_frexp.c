@@ -31,12 +31,12 @@ typedef union
         unsigned long int hi;
         unsigned long int lo;
 #else
-        unsigned long int lo; 
-        unsigned long int hi; 
+        unsigned long int lo;
+        unsigned long int hi;
 #endif
       } words;
       double dbl;
-      } DblInHex;       
+      } DblInHex;
 
 double frexp ( double value, int *eptr )
       {
@@ -49,7 +49,7 @@ double frexp ( double value, int *eptr )
       *eptr = 0;
 	if ( valueHead >= 0x7ff00000 || ( valueHead | argument.words.lo ) == 0 )
 		return value;		// 0, inf, or NaN
-	
+
 	if ( valueHead < 0x00100000 )
 		{	// denorm
 		argument.dbl = two54 * value;

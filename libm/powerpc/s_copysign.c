@@ -45,12 +45,12 @@ double copysign ( double arg2, double arg1 )
 /*******************************************************************************
 *     No need to flush NaNs out.                                               *
 *******************************************************************************/
-      
+
       x.dbl = arg1;
       y.dbl = arg2;
-      
+
       y.hex.high = y.hex.high & 0x7FFFFFFF;
       y.hex.high = ( y.hex.high | ( x.hex.high & dSgnMask ) );
-      
+
       return y.dbl;
       }

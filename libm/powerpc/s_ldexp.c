@@ -29,18 +29,18 @@ typedef union
         unsigned long int hi;
         unsigned long int lo;
 #else
-        unsigned long int lo; 
-        unsigned long int hi; 
+        unsigned long int lo;
+        unsigned long int hi;
 #endif
       } words;
       double dbl;
-      } DblInHex;       
+      } DblInHex;
 
-double ldexp ( double value, int exp ) 
+double ldexp ( double value, int exp )
       {
-      if ( exp > SHRT_MAX ) 
+      if ( exp > SHRT_MAX )
             exp = SHRT_MAX;
-      else if ( exp < -SHRT_MAX ) 
+      else if ( exp < -SHRT_MAX )
             exp = -SHRT_MAX;
       return scalb ( value, exp  );
       }

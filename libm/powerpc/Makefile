@@ -6,14 +6,14 @@
 # math library for Apple's MacOS X/Darwin math library, which was
 # itself swiped from FreeBSD.  The original copyright information
 # is as follows:
-# 
+#
 #     Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
-# 
+#
 #     Developed at SunPro, a Sun Microsystems, Inc. business.
 #     Permission to use, copy, modify, and distribute this
 #     software is freely granted, provided that this notice
 #     is preserved.
-# 
+#
 # It has been ported to work with uClibc and generally behave
 # by Erik Andersen <andersen@codepoet.org>
 #
@@ -66,6 +66,6 @@ $(OBJ): Makefile
 tags:
 	ctags -R
 
-clean: 
+clean:
 	$(RM) *.[oa] *~ core
 

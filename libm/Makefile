@@ -6,14 +6,14 @@
 # math library for Apple's MacOS X/Darwin math library, which was
 # itself swiped from FreeBSD.  The original copyright information
 # is as follows:
-# 
+#
 #     Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
-# 
+#
 #     Developed at SunPro, a Sun Microsystems, Inc. business.
 #     Permission to use, copy, modify, and distribute this
 #     software is freely granted, provided that this notice
 #     is preserved.
-# 
+#
 # It has been ported to work with uClibc and generally behave
 # by Erik Andersen <andersen@codepoet.org>
 #
@@ -36,7 +36,7 @@ include $(TOPDIR)Rules.mak
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-DIRS = 
+DIRS =
 ifeq ($(strip $(HAS_FPU)),y)
 ifeq ($(TARGET_ARCH),$(wildcard $(TARGET_ARCH)))
 DIRS = $(TARGET_ARCH)
@@ -71,7 +71,7 @@ else
 CSRC =   w_acos.c w_asin.c s_atan.c w_atan2.c s_ceil.c s_cos.c \
 	 w_cosh.c w_exp.c s_fabs.c s_floor.c w_fmod.c s_frexp.c \
 	 s_ldexp.c w_log.c w_log10.c s_modf.c w_pow.c s_sin.c \
-	 w_sinh.c w_sqrt.c s_tan.c s_tanh.c 
+	 w_sinh.c w_sqrt.c s_tan.c s_tanh.c
 CSRC+=   s_expm1.c s_scalbn.c s_copysign.c e_acos.c e_asin.c e_atan2.c \
 	 k_cos.c e_cosh.c e_exp.c e_fmod.c e_log.c e_log10.c e_pow.c \
 	 k_sin.c e_sinh.c e_sqrt.c k_tan.c e_rem_pio2.c k_rem_pio2.c \
