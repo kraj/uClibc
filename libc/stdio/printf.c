@@ -279,6 +279,17 @@ int vsnprintf(char *sp, size_t size, __const char *fmt, va_list ap)
 }
 #endif
 
+#ifdef L_vdprintf
+#warning rewrite vdprintf ... fd may have an associated file!!! plus buffer?
+extern int vdprintf(int fd, const char *fmt, va_list ap)
+{
+	FILE f = {f.unbuf, f.unbuf, f.unbuf, f.unbuf, f.unbuf + sizeof(f.unbuf),
+			  fd, _IONBF | __MODE_WRITE | __MODE_IOTRAN};
+
+	return vfnprintf(&f, -1, fmt, ap);
+}
+#endif
+
 #ifdef L_vfnprintf
 
 extern char *__ultostr(char *buf, unsigned long uval, int base, int uppercase);

@@ -41,7 +41,7 @@ MOBJ=_stdio_init.o fputc.o fgetc.o fflush.o fgets.o gets.o fputs.o	\
 
 MSRC2=printf.c
 MOBJ2=printf.o sprintf.o fprintf.o vprintf.o vsprintf.o vfprintf.o snprintf.o \
-     vsnprintf.o asprintf.o vfnprintf.o fnprintf.o
+     vsnprintf.o asprintf.o vfnprintf.o fnprintf.o vdprintf.o
 
 MSRC3=scanf.c
 MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
