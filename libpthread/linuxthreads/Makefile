@@ -21,6 +21,9 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
+# As long as there is only one subdir, we don't 
+# have to worry about race conditions with multiple
+# $(AR)'s running on linuxthreads.a
 DIRS = sysdeps
 
 #Adjust the soname version to avoid namespace collisions with glibc's libpthread
@@ -56,9 +59,6 @@ endif
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
-
-# TODO: fix race condition between subdirs and $(OBJS).
-#       only applies to pt-machine.o and sh64.
 
 all: $(LIBPTHREAD)
 
