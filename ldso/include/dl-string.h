@@ -135,12 +135,13 @@ static inline char *_dl_strstr(const char *s1, const char *s2)
 
 static inline void * _dl_memcpy(void * dst, const void * src, size_t len)
 {
-	register char *a = dst;
-	register const char *b = src;
+	register char *a = dst-1;
+	register const char *b = src-1;
 
-	while (len--)
-		*a++ = *b++;
-
+	while (len) {
+		*++a = *++b;
+		--len;
+	}
 	return dst;
 }
 
