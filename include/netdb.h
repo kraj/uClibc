@@ -60,19 +60,10 @@ extern int h_errno;
 extern int *__h_errno_location (void) __THROW __attribute__ ((__const__));
 
 #ifdef _LIBC
-# ifdef __UCLIBC_HAS_THREADS__
-static inline int
-__set_h_errno (int __err)
-{
-  return *__h_errno_location () = __err;
-}
-# else
-#  define __set_h_errno(x) (h_errno = (x))
-# endif	/* __UCLIBC_HAS_THREADS__ */
-#endif /* _LIBC */
+# define __set_h_errno(x) (h_errno = (x))
+#endif
 
-
-#if !defined _LIBC || defined __UCLIBC_HAS_THREADS__
+#if defined __UCLIBC_HAS_THREADS__
 /* Use a macro to access always the thread specific `h_errno' variable.  */
 # define h_errno (*__h_errno_location ())
 #endif
