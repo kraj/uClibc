@@ -16,8 +16,8 @@ TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 ASFLAGS=$(CFLAGS)
 
-CRT0=crt0.c
-CRT0_OBJ=$(patsubst %.c,%.o, $(CRT0))
+CRT0_SRC = crt0.c
+CRT0_OBJ = crt0.o crt1.o
 
 SSRC= setjmp.S __longjmp.S clone.S sysdep.S syscall.S
 ifeq ($(UNIFIED_SYSCALL),y)
@@ -39,8 +39,8 @@ ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 	cp $(CRT0_OBJ) $(TOPDIR)libc/$(CRT0_OBJ)
 
-$(CRT0_OBJ): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(CRT0_OBJ): $(CRT0_SRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): %.o : %.S
@@ -52,7 +52,6 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 headers:
-	@(TOPDIR=$(TOPDIR) CC=$(CC) /bin/sh $(TOPDIR)/extra/scripts/gen_bits_syscall_h.sh > bits/syscall.h ) 
 
 clean:
 	rm -f *.[oa] *~ core

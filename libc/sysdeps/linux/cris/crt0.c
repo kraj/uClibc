@@ -23,8 +23,15 @@ _start ()
 	__asm__ volatile("jump start1");
 }
 
-void __uClibc_main(int argc, char **argv, char **envp)
+#include <features.h>
+
+extern void __uClibc_main(int argc, char **argv, char **envp)
          __attribute__ ((__noreturn__));
+extern void __uClibc_start_main(int argc, char **argv, char **envp, 
+	void (*app_init)(void), void (*app_fini)(void))
+         __attribute__ ((__noreturn__));
+extern void weak_function _init(void);
+extern void weak_function _fini(void);
 
 static void
 start1 (int argc, char **argv)
@@ -45,6 +52,10 @@ start1 (int argc, char **argv)
 		 */
 		--environ;
 	
+#if defined L_crt0 || ! defined __UCLIBC_CTOR_DTOR__
 	/* Leave control to the libc */
 	__uClibc_main(argc, argv, environ);
+#else
+	__uClibc_start_main(argc, argv, environ, _init, _fini);
+#endif
 }
