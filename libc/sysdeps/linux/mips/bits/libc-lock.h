@@ -23,11 +23,17 @@
 #include <pthread.h>
 
 /* Mutex type.  */
-#ifdef _LIBC
+#if defined(_LIBC) || defined(_IO_MTSAFE_IO)
 typedef pthread_mutex_t __libc_lock_t;
+typedef struct { pthread_mutex_t mutex; } __libc_lock_recursive_t;
+# ifdef __USE_UNIX98
 typedef pthread_rwlock_t __libc_rwlock_t;
+# else
+typedef struct __libc_rwlock_opaque__ __libc_rwlock_t;
+# endif
 #else
 typedef struct __libc_lock_opaque__ __libc_lock_t;
+typedef struct __libc_lock_recursive_opaque__ __libc_lock_recursive_t;
 typedef struct __libc_rwlock_opaque__ __libc_rwlock_t;
 #endif
 
@@ -45,6 +51,8 @@ typedef pthread_key_t __libc_key_t;
   CLASS __libc_lock_t NAME;
 #define __libc_rwlock_define(CLASS,NAME) \
   CLASS __libc_rwlock_t NAME;
+#define __libc_lock_define_recursive(CLASS,NAME) \
+  CLASS __libc_lock_recursive_t NAME;
 
 /* Define an initialized lock variable NAME with storage class CLASS.
 
@@ -69,7 +77,9 @@ typedef pthread_key_t __libc_key_t;
 /* Define an initialized recursive lock variable NAME with storage
    class CLASS.  */
 #define __libc_lock_define_initialized_recursive(CLASS,NAME) \
-  CLASS __libc_lock_t NAME = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+  CLASS __libc_lock_recursive_t NAME = _LIBC_LOCK_RECURSIVE_INITIALIZER;
+#define _LIBC_LOCK_RECURSIVE_INITIALIZER \
+  {PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP}
 
 /* Initialize the named lock variable, leaving it in a consistent, unlocked
    state.  */
@@ -86,7 +96,7 @@ typedef pthread_key_t __libc_key_t;
 	pthread_mutexattr_t __attr;					      \
 	__pthread_mutexattr_init (&__attr);				      \
 	__pthread_mutexattr_settype (&__attr, PTHREAD_MUTEX_RECURSIVE_NP); \
-	__pthread_mutex_init (&(NAME), &__attr);			      \
+	__pthread_mutex_init (&(NAME).mutex, &__attr);			      \
 	__pthread_mutexattr_destroy (&__attr);				      \
       }									      \
   } while (0);
@@ -100,7 +110,7 @@ typedef pthread_key_t __libc_key_t;
   (__pthread_rwlock_destroy != NULL ? __pthread_rwlock_destroy (&(NAME)) : 0);
 
 /* Finalize recursive named lock.  */
-#define __libc_lock_fini_recursive(NAME) __libc_lock_fini (NAME)
+#define __libc_lock_fini_recursive(NAME) __libc_lock_fini ((NAME).mutex)
 
 /* Lock the named lock variable.  */
 #define __libc_lock_lock(NAME) \
@@ -111,7 +121,7 @@ typedef pthread_key_t __libc_key_t;
   (__pthread_rwlock_wrlock != NULL ? __pthread_rwlock_wrlock (&(NAME)) : 0);
 
 /* Lock the recursive named lock variable.  */
-#define __libc_lock_lock_recursive(NAME) __libc_lock_lock (NAME)
+#define __libc_lock_lock_recursive(NAME) __libc_lock_lock ((NAME).mutex)
 
 /* Try to lock the named lock variable.  */
 #define __libc_lock_trylock(NAME) \
@@ -124,7 +134,7 @@ typedef pthread_key_t __libc_key_t;
    ? __pthread_rwlock_trywrlock (&(NAME)) : 0)
 
 /* Try to lock the recursive named lock variable.  */
-#define __libc_lock_trylock_recursive(NAME) __libc_lock_trylock (NAME)
+#define __libc_lock_trylock_recursive(NAME) __libc_lock_trylock ((NAME).mutex)
 
 /* Unlock the named lock variable.  */
 #define __libc_lock_unlock(NAME) \
@@ -133,7 +143,7 @@ typedef pthread_key_t __libc_key_t;
   (__pthread_rwlock_unlock != NULL ? __pthread_rwlock_unlock (&(NAME)) : 0);
 
 /* Unlock the recursive named lock variable.  */
-#define __libc_lock_unlock_recursive(NAME) __libc_lock_unlock (NAME)
+#define __libc_lock_unlock_recursive(NAME) __libc_lock_unlock ((NAME).mutex)
 
 
 /* Define once control variable.  */
@@ -160,9 +170,9 @@ typedef pthread_key_t __libc_key_t;
 
 
 /* Start critical region with cleanup.  */
-#define __libc_cleanup_region_start(FCT, ARG) \
+#define __libc_cleanup_region_start(DOIT, FCT, ARG) \
   { struct _pthread_cleanup_buffer _buffer;				      \
-    int _avail = _pthread_cleanup_push_defer != NULL;			      \
+    int _avail = (DOIT) && _pthread_cleanup_push_defer != NULL;		      \
     if (_avail) {							      \
       _pthread_cleanup_push_defer (&_buffer, (FCT), (ARG));		      \
     }
@@ -199,8 +209,6 @@ typedef pthread_key_t __libc_key_t;
 
 /* Functions that are used by this file and are internal to the GNU C
    library.  */
-
-__BEGIN_DECLS
 
 extern int __pthread_mutex_init (pthread_mutex_t *__mutex,
 				 __const pthread_mutexattr_t *__mutex_attr);
@@ -252,7 +260,6 @@ extern int __pthread_atfork (void (*__prepare) (void),
 			     void (*__parent) (void),
 			     void (*__child) (void));
 
-__END_DECLS
 
 
 /* Make the pthread functions weak so that we can elide them from

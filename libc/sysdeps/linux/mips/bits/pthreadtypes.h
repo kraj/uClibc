@@ -22,14 +22,12 @@
 #define __need_schedparam
 #include <bits/sched.h>
 
-typedef int _lt_spinlock_t;
-
 /* Fast locks (not abstract because mutexes and conditions aren't abstract). */
 struct _pthread_fastlock
 {
   long int __status;   /* "Free" or "taken" or head of waiting list */
-  _lt_spinlock_t __spinlock; /* Used by compare_and_swap emulation. Also,
-				adaptive SMP lock stores spin count here. */
+  int __spinlock;      /* Used by compare_and_swap emulation. Also,
+			  adaptive SMP lock stores spin count here. */
 };
 
 #ifndef _PTHREAD_DESCR_DEFINED

@@ -2,29 +2,19 @@
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
-
-/*
- * June 25, 2001
- *
- * Removed d_type support for dirent and undefined _DIRENT_HAVE_D_TYPE;
- * i.e. match the kernel structs and avoid any translation for now.
- * Note: glibc fakes d_type for the dirent case.
- * Note: dirent64 still has the d_type field.
- */
-
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _DIRENT_H
 # error "Never use <bits/dirent.h> directly; include <dirent.h> instead."
@@ -40,6 +30,7 @@ struct dirent
     __off64_t d_off;
 #endif
     unsigned short int d_reclen;
+    /*unsigned char d_type;*/
     char d_name[256];		/* We must not include limits.h! */
   };
 
@@ -49,7 +40,7 @@ struct dirent64
     __ino64_t d_ino;
     __off64_t d_off;
     unsigned short int d_reclen;
-    unsigned char d_type;
+    /*unsigned char d_type;*/
     char d_name[256];		/* We must not include limits.h! */
   };
 #endif
@@ -59,4 +50,4 @@ struct dirent64
 #undef  _DIRENT_HAVE_D_NAMLEN
 #define _DIRENT_HAVE_D_RECLEN
 #define _DIRENT_HAVE_D_OFF
-#undef  _DIRENT_HAVE_D_TYPE
+#undef _DIRENT_HAVE_D_TYPE

@@ -2,19 +2,19 @@
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 /*
  * Never include this file directly; use <sys/types.h> instead.
@@ -136,25 +136,6 @@ typedef int __intptr_t;
 /* Duplicate info from sys/socket.h.  */
 typedef unsigned int __socklen_t;
 
-/* --- */
-/* Added by ds */
-/* I don't understand why these weren't here... */
-#define __NFDBITS	(8 * sizeof(__fd_mask))
-#define __FDELT(d)	((d) / __NFDBITS)
-#define __FDMASK(d)	((__fd_mask) 1 << ((d) % __NFDBITS))
-
-typedef unsigned long __fd_mask;
-typedef struct
-  {
-#ifdef __USE_XOPEN
-    __fd_mask fds_bits[__FD_SETSIZE / __NFDBITS];
-#define __FDS_BITS(set) ((set)->fds_bits)
-#else
-    __fd_mask __fds_bits[__FD_SETSIZE / __NFDBITS];
-#define __FDS_BITS(set) ((set)->__fds_bits)
-#endif
-  } __fd_set;
-/* --- */
 
 /* Now add the thread types.  */
 #if defined __USE_POSIX199506 || defined __USE_UNIX98
