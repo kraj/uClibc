@@ -13,7 +13,7 @@
 #ifdef __NR_bdflush
 _syscall2(int, bdflush, int, __func, long int, __data);
 #else
-int bdflush(int __func, int __data)
+int bdflush(int __func, long int __data)
 {
 	__set_errno(ENOSYS);
 	return -1;
