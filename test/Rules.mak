@@ -12,7 +12,7 @@ include $(TESTDIR)Config
 
 # Use NATIVE_ARCH here since running these test is not
 # even possible when cross compiling...
-NATIVE_ARCH:= ${shell uname -m | sed \
+NATIVE_ARCH:= $(shell uname -m | sed \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \
@@ -21,9 +21,9 @@ NATIVE_ARCH:= ${shell uname -m | sed \
 		-e 's/v850.*/v850/g' \
 		-e 's/sh[234].*/sh/' \
 		-e 's/mips.*/mips/' \
-		}
+		)
 ifeq ($(strip $(TARGET_ARCH)),)
-TARGET_ARCH:=${shell $(CC) -dumpmachine | sed -e s'/-.*//' \
+TARGET_ARCH:=$(shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \
@@ -31,10 +31,12 @@ TARGET_ARCH:=${shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		-e 's/ppc/powerpc/g' \
 		-e 's/v850.*/v850/g' \
 		-e 's/sh[234]/sh/' \
-		-e 's/mips.*/mips/' \
-		}
+		-e 's/mips-.*/mips/' \
+		-e 's/mipsel-.*/mipsel/' \
+		-e 's/cris.*/cris/' \
+		)
 endif
-
+export TARGET_ARCH
 
 # If you are running a cross compiler, you may want to set this
 # to something more interesting...
