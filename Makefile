@@ -191,7 +191,7 @@ install_dev:
 	install -d $(PREFIX)$(DEVEL_PREFIX)/usr/lib
 	install -d $(PREFIX)$(DEVEL_PREFIX)/include
 	install -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
-	tar -chO include | tar -xC $(PREFIX)$(DEVEL_PREFIX);
+	tar -chO include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX);
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod -f 755 $$i; chmod -f 644 $$i/*.h; \
 	done;
