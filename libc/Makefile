@@ -30,6 +30,12 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+CRTOBJS="../../lib/crti.o ../../lib/crt0.o ../../lib/crtn.o"
+else
+CRTOBJS="../../lib/crt0.o"
+endif
+
 DIRS = misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd
 
 # Check if the target architecture has a version script for
@@ -49,7 +55,8 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 	@rm -rf tmp
 	@mkdir tmp
 	$(AR) rv ./tmp/libgcc-need.a
-	@(cd tmp && CC=$(CC) LD=$(LD) LDFLAGS=$(CPU_LDFLAGS-y) NM=$(NM) AR=$(AR) LIBGCC=$(LIBGCC) \
+	@(cd tmp && CC=$(CC) LD=$(LD) LDFLAGS=$(CPU_LDFLAGS-y) NM=$(NM) AR=$(AR) \
+		LIBGCC=$(LIBGCC) CRTOBJS=$(CRTOBJS) \
 		/bin/sh $(TOPDIR)../extra/scripts/get-needed-libgcc-objects.sh)
 	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
 		--whole-archive ./tmp/libgcc-need.a $(LIBNAME) --no-whole-archive \

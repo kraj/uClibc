@@ -83,10 +83,12 @@ static char *our_usr_lib_path = "-L"UCLIBC_DEVEL_PREFIX"/lib";
 
 static char static_linking[] = "-static";
 static char nostdinc[] = "-nostdinc";
-static char nostdinc_plus[] = "-nostdinc++";
 static char nostartfiles[] = "-nostartfiles";
 static char nodefaultlibs[] = "-nodefaultlibs";
 static char nostdlib[] = "-nostdlib";
+#ifdef __UCLIBC_CTOR_DTOR__
+static char nostdinc_plus[] = "-nostdinc++";
+#endif
 
 
 extern void *xmalloc(size_t size)
@@ -120,9 +122,8 @@ void xstrcat(char **string, ...)
 int main(int argc, char **argv)
 {
 	int use_build_dir = 0, linking = 1, use_static_linking = 0;
-	int use_stdinc = 1, use_nostdinc_plus = 0, use_start = 1, use_stdlib = 1, use_pic = 0;
+	int use_stdinc = 1, use_start = 1, use_stdlib = 1, use_pic = 0;
 	int source_count = 0, use_rpath = 0, verbose = 0;
-	int ctor_dtor = 1, cplusplus = 0;
 	int i, j, k, l, m, n;
 	char ** gcc_argv;
 	char ** gcc_argument;
@@ -141,15 +142,19 @@ int main(int argc, char **argv)
 	char *our_lib_path[2];
 	char *crt0_path[2];
 	const char *application_name;
+#ifdef __UCLIBC_CTOR_DTOR__
 	char *crti_path[2];
 	char *crtn_path[2];
-	char *GPLUSPLUS_BIN = NULL;
 	int len;
+	int ctor_dtor = 1, cplusplus = 0, use_nostdinc_plus = 0;
+	char *GPLUSPLUS_BIN = NULL;
+#endif
 
 	application_name = basename(argv[0]);
 	if (application_name[0] == '-')
 		application_name++;
 
+#ifdef __UCLIBC_CTOR_DTOR__
 	/* We must use strstr since g++ might be named like a
 	 * cross compiler (i.e. arm-linux-g++).   We must also
 	 * search carefully, in case we are searching something 
@@ -168,6 +173,7 @@ int main(int argc, char **argv)
 	    cplusplus = 1;
 	    use_nostdinc_plus = 1;
 	}
+#endif
 
 	devprefix = getenv("UCLIBC_DEVEL_PREFIX");
 	if (!devprefix) {
@@ -193,10 +199,12 @@ int main(int argc, char **argv)
 
 	xstrcat(&(crt0_path[0]), devprefix, "/lib/crt0.o", NULL);
 	xstrcat(&(crt0_path[1]), builddir, "/lib/crt0.o", NULL);
+#ifdef __UCLIBC_CTOR_DTOR__
 	xstrcat(&(crti_path[0]), devprefix, "/lib/crti.o", NULL);
 	xstrcat(&(crti_path[1]), builddir, "/lib/crti.o", NULL);
 	xstrcat(&(crtn_path[0]), devprefix, "/lib/crtn.o", NULL);
 	xstrcat(&(crtn_path[1]), builddir, "/lib/crtn.o", NULL);
+#endif
 
 	xstrcat(&(our_lib_path[0]), "-L", devprefix, "/lib", NULL);
 	xstrcat(&(our_lib_path[1]), "-L", builddir, "/lib", NULL);
@@ -267,11 +275,14 @@ int main(int argc, char **argv)
 					} else if (strcmp(nostdlib,argv[i]) == 0) {
 						use_start = 0;
 						use_stdlib = 0;
-					} else if (strcmp(nostdinc_plus,argv[i]) == 0) {
+					} 
+#ifdef __UCLIBC_CTOR_DTOR__
+					else if (strcmp(nostdinc_plus,argv[i]) == 0) {
 						if (cplusplus==1) {
 							use_nostdinc_plus = 0;
 						}
 					}
+#endif
 					break;
 				case 's':
 					if (strstr(argv[i],static_linking) != NULL) {
@@ -310,10 +321,13 @@ int main(int argc, char **argv)
 					} else if (strcmp("--uclibc-use-rpath",argv[i]) == 0) {
 					    use_rpath = 1;
 					    argv[i]='\0';
-					} else if (strcmp("--uclibc-no-ctors",argv[i]) == 0) {
+					}
+#ifdef __UCLIBC_CTOR_DTOR__
+					else if (strcmp("--uclibc-no-ctors",argv[i]) == 0) {
 					    ctor_dtor = 0;
 					    argv[i]='\0';
 					}
+#endif
 					break;
 			}
 		} else {				/* assume it is an existing source file */
@@ -325,9 +339,11 @@ int main(int argc, char **argv)
 	gcc_argument = __builtin_alloca(sizeof(char*) * (argc + 20));
 
 	i = 0; k = 0;
+#ifdef __UCLIBC_CTOR_DTOR__
 	if (cplusplus && GPLUSPLUS_BIN)
 	    gcc_argv[i++] = GPLUSPLUS_BIN;
 	else
+#endif
 	    gcc_argv[i++] = GCC_BIN;
 	
 	for ( j = 1 ; j < argc ; j++ ) {
@@ -370,6 +386,7 @@ int main(int argc, char **argv)
 	}
 	if (use_stdinc && source_count) {
 	    gcc_argv[i++] = nostdinc;
+#ifdef __UCLIBC_CTOR_DTOR__
 	    if (cplusplus) {
 		char *cppinc;
 		if (use_nostdinc_plus) {
@@ -382,6 +399,7 @@ int main(int argc, char **argv)
 		gcc_argv[i++] = "-isystem";
 		gcc_argv[i++] = cppinc;
 	    }
+#endif
 	    gcc_argv[i++] = "-isystem";
 	    gcc_argv[i++] = uClibc_inc[use_build_dir];
 	    gcc_argv[i++] = "-iwithprefix";
@@ -392,6 +410,7 @@ int main(int argc, char **argv)
 
 	if (linking && source_count) {
 	    if (use_start) {
+#ifdef __UCLIBC_CTOR_DTOR__
 		if (ctor_dtor) {
 		    gcc_argv[i++] = crti_path[use_build_dir];
 		    if (use_pic) {
@@ -400,6 +419,7 @@ int main(int argc, char **argv)
 			gcc_argv[i++] = LIBGCC_DIR "crtbegin.o" ;
 		    }
 		}
+#endif
 		gcc_argv[i++] = crt0_path[use_build_dir];
 	    }
 	    for ( l = 0 ; l < k ; l++ ) {
@@ -413,14 +433,17 @@ int main(int argc, char **argv)
 		if (libraries[l]) gcc_argv[i++] = libraries[l];
 	    }
 	    if (use_stdlib) {
+#ifdef __UCLIBC_CTOR_DTOR__
 		if (cplusplus) {
 		    gcc_argv[ i++ ] = "-lstdc++";
 		    gcc_argv[ i++ ] = "-lm";
 		}
+#endif
 		gcc_argv[i++] = "-lc";
 		gcc_argv[i++] = "-lgcc";
 		//gcc_argv[i++] = "-Wl,--end-group";
 	    }
+#ifdef __UCLIBC_CTOR_DTOR__
 	    if (ctor_dtor) {
 		if (use_pic) {
 		    gcc_argv[i++] = LIBGCC_DIR "crtendS.o" ;
@@ -429,6 +452,7 @@ int main(int argc, char **argv)
 		}
 		gcc_argv[i++] = crtn_path[use_build_dir];
 	    }
+#endif
 	} else {
 	    for ( l = 0 ; l < k ; l++ ) {
 		if (gcc_argument[l]) gcc_argv[i++] = gcc_argument[l];
@@ -443,8 +467,10 @@ int main(int argc, char **argv)
 		fflush(stdout);
 	}
 	//no need to free memory from xstrcat because we never return... 
+#ifdef __UCLIBC_CTOR_DTOR__
 	if (cplusplus && GPLUSPLUS_BIN)
 	    return execvp(GPLUSPLUS_BIN, gcc_argv);
 	else
+#endif
 	    return execvp(GCC_BIN, gcc_argv);
 }

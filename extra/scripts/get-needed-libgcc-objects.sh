@@ -18,7 +18,7 @@
 echo Finding missing symbols in libc.a ...
 echo "    partial linking..."
 rm -f libc.ldr
-$LD $LDFLAGS -r -o libc.ldr ../../lib/crt0.o ../../lib/crti.o ../../lib/crtn.o --whole-archive ../libc.a
+$LD $LDFLAGS -r -o libc.ldr $CRTOBJS --whole-archive ../libc.a
 
 if $NM --undefined-only libc.ldr 2>&1 | grep -v "^main$" | grep -v "^_GLOBAL_OFFSET_TABLE_$" | grep -v "_gp_disp" > sym.need ; then
     EXIT_WITH_ERROR=0

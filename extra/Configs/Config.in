@@ -60,6 +60,23 @@ config LDSO_LDD_SUPPORT
 	  application to function.  Disabling this option will makes uClibc's
 	  shared library loader a little bit smaller.  Most people will answer Y.
 
+config UCLIBC_CTOR_DTOR
+	bool "Support global constructors and destructos"
+	default y
+	help
+	  If you wish to build uClibc with support for global constructor
+	  (ctor) and global destructor (dtor) support, then answer Y here.
+	  When ctor/dtor support is enabled, binaries linked with uClibc must
+	  also be linked with crtbegin.o and crtend.o which are provided by gcc
+	  (the "*startfile:" and "*endfile:" settings in your gcc specs file
+	  may need to be adjusted to include these files).  This support will
+	  also add a small amount of additional size to each binary compiled vs
+	  uClibc.  If you will be using uClibc with C++, or if you need the gcc
+	  __attribute__((constructor)) and __attribute__((destructor)) to work,
+	  then you definately want to answer Y here.  If you don't need ctors
+	  or dtors and want your binaries to be as small as possible, then
+	  answer N.
+
 config UCLIBC_HAS_THREADS
 	bool "POSIX Threading Support"
 	default y

@@ -61,6 +61,7 @@ _start:
 	pushl %ebp      /* callers %ebp (frame pointer) */
 	movl %esp,%ebp  /* mark callers stack frame as invalid */
 
+#ifdef __UCLIBC_CTOR_DTOR__
 	/* Push .init and .fini arguments to __uClibc_start_main() on the stack */
 	pushl $_fini
 	pushl $_init
@@ -72,6 +73,14 @@ _start:
 
 	/* Ok, now run uClibc's main() -- shouldn't return */
 	call __uClibc_start_main
+#else
+	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */ 
+	pushl %eax	/* Environment pointer */
+	pushl %ebx	/* Argument pointer */
+	pushl %ecx	/* And the argument count */
+
+	call __uClibc_main
+#endif
 
 	/* Crash if somehow `exit' returns anyways.  */
 	hlt

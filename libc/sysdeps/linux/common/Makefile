@@ -24,11 +24,6 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
-SAFECFLAGS=$(WARNINGS) $(CPU_CFLAGS-y) $(OPTIMIZATION) -fno-builtin
-ifeq ($(strip $(DOPIC)),y)
-SAFECFLAGS+=-fPIC
-endif
-
 CSRC=	waitpid.c getdnnm.c gethstnm.c getcwd.c \
 	mkfifo.c setegid.c wait.c getpagesize.c seteuid.c \
 	wait3.c setpgrp.c getdtablesize.c create_module.c ptrace.c \
@@ -44,13 +39,21 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 MSRC=syscalls.c
 MOBJ=$(shell ./list_syscalls.sh)
 
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
+SAFECFLAGS=$(WARNINGS) $(CPU_CFLAGS-y) $(OPTIMIZATION) -fno-builtin
+ifeq ($(strip $(DOPIC)),y)
+SAFECFLAGS+=-fPIC
+endif
+endif
+
 OBJ=$(COBJS) $(MOBJ)
 
 all: $(STR_SYSCALLS) $(OBJ) $(LIBC)
 
 $(LIBC): ar-target
 
-ar-target: $(OBJ) $(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
+ar-target: $(OBJ) $(CTOR_TARGETS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJ)
 	(cd $(TOPDIR)lib/; ln -fs crt0.o crt1.o)
 

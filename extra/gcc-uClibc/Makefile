@@ -1,7 +1,7 @@
 # Makefile for building a fake gcc/binutils toolchain
 # that simply spoofs the location of the C library
 #
-# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2002 Erik Andersen <andersen@uclibc.org>
 #
 
 TOPDIR = ../../
@@ -34,6 +34,11 @@ ifeq ($(strip $(HAS_ELF)),y)
 else
 	@echo "#undef __HAS_ELF__" >> gcc-uClibc.h
 endif
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+	@echo "#define __UCLIBC_CTOR_DTOR__ 1" >> gcc-uClibc.h
+else
+	@echo "#undef __UCLIBC_CTOR_DTOR__" >> gcc-uClibc.h
+endif
 
 gcc-uClibc: gcc-uClibc.h gcc-uClibc.c
 	$(NATIVE_CC) $(NATIVE_CFLAGS) -Wl,-s gcc-uClibc.c -o $(TARGET_ARCH)-uclibc-gcc
@@ -50,14 +55,16 @@ install: all
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin;
 	install -m 755 $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/
 	install -m 755 $(TARGET_ARCH)-uclibc-ld $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/
-	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-g++
-	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-c++
 	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-cc
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/c++
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/g++
 	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/gcc
 	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/cc
 	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ld  $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ld
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-g++
+	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-c++
+	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/c++
+	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/g++
+endif
 	for app in addr2line ar as cpp gasp nm objcopy \
 	    objdump ranlib size strings strip; do \
 	  APPNAME=`which $(CROSS)$${app}`; \

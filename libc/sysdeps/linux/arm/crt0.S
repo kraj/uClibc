@@ -80,6 +80,7 @@ _start:
 	ldr r2,[sp, #8]
 #endif
 
+#ifdef __UCLIBC_CTOR_DTOR__
 	/* Store the address of _init in r3 as an argument to main() */
 	ldr r3, =_init
 
@@ -89,6 +90,9 @@ _start:
 
 	/* Ok, now run uClibc's main() -- shouldn't return */
 	bl	__uClibc_start_main
+#else
+	bl	__uClibc_main
+#endif
 
 	/* Crash if somehow `exit' returns anyways.  */
 	bl abort
