@@ -269,7 +269,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symname      = strtab + symtab[symtab_index].st_name;
 	if (symtab_index) {
-		symbol_addr = (unsigned long) _dl_find_hash(symname, scope->dyn->symbol_scope,
+		symbol_addr = (unsigned long) _dl_find_hash(symname, scope,
 							    elf_machine_type_class(reloc_type));
 		/* We want to allow undefined references to weak symbols - this might
 		 * have been intentional.  We should not be linking local symbols
@@ -475,7 +475,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size)
 {
-	return _dl_parse(rpnt->dyn, rpnt, rel_addr, rel_size, _dl_do_reloc);
+	return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
 }
 
 /* Should be a static inline instead, but that conflicts with ld_elf.h */
