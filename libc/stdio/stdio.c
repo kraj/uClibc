@@ -1736,18 +1736,6 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 	/* We always clear the reading flag in case at EOF. */
 	stream->modeflags &= ~(__FLAG_READING);
 
-	if ((stream->modeflags & (__FLAG_WRITING|__FLAG_APPEND)) == __FLAG_APPEND) {
-		/* Append mode, but not currently writing.  Need to seek to end for proper
-		 * ftell() return values.  Don't worry if the stream isn't seekable. */
-		__offmax_t pos[1];
-		*pos = 0;
-		if (_stdio_lseek(stream, pos, SEEK_END) && (errno != EPIPE)) { /* Too big? */
-			stream->modeflags |= __FLAG_ERROR;
-			return 0;
-		}
-	}
-
-
 	/* Unlike the buffered case, we set the writing flag now since we don't
 	 * need to do anything here for fflush(). */
 	stream->modeflags |= __FLAG_WRITING;
