@@ -93,7 +93,6 @@ typedef __ino64_t ino64_t;
 #endif
 
 
-#if defined __USE_BSD
 /* File types for `d_type'.  */
 enum
   {
@@ -117,6 +116,7 @@ enum
 # define DT_WHT		DT_WHT
   };
 
+#if defined __USE_BSD && defined _DIRENT_HAVE_D_TYPE
 /* Convert between stat structure types and directory types.  */
 # define IFTODT(mode)	(((mode) & 0170000) >> 12)
 # define DTTOIF(dirtype)	((dirtype) << 12)
