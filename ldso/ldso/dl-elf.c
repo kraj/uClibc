@@ -171,9 +171,15 @@ struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libnam
 	const char *pnt, *pnt1;
 	struct elf_resolve *tpnt1;
 	const char *libname, *libname2;
+	static const char *libc = "libc.so.";
+	static const char *aborted_wrong_lib = "%s: aborted attempt to load %s!\n";
 
 	pnt = libname = full_libname;
 
+#if defined (__SUPPORT_LD_DEBUG__)
+	if(_dl_debug) 
+		_dl_dprintf(_dl_debug_file, "Checking if '%s' is already loaded\n", full_libname);
+#endif
 	/* quick hack to ensure mylibname buffer doesn't overflow.  don't 
 	   allow full_libname or any directory to be longer than 1024. */
 	if (_dl_strlen(full_libname) > 1024)
@@ -184,6 +190,23 @@ struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libnam
 	pnt1 = _dl_strrchr(pnt, '/');
 	if (pnt1) {
 		libname = pnt1 + 1;
+	}
+
+	/* Make sure they are not trying to load the wrong C library!
+	 * This sometimes happens esp with shared libraries when the
+	 * library path is somehow wrong! */
+#define isdigit(c)  (c >= '0' && c <= '9')
+	if ((_dl_strncmp(libname, libc, 8) == 0) &&  _dl_strlen(libname) >=8 &&
+			isdigit(libname[8]))
+	{
+		/* Abort attempts to load glibc, libc5, etc */
+		if ( libname[8]!='0') {
+			if (!_dl_trace_loaded_objects) {
+				_dl_dprintf(2, aborted_wrong_lib, libname, _dl_progname);
+				_dl_exit(1);
+			}
+			return NULL;
+		}
 	}
 
 	/* Critical step!  Weed out duplicates early to avoid
@@ -204,6 +227,7 @@ struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libnam
 			return tpnt1;
 		}
 	}
+
 	return NULL;
 }
 	
@@ -220,11 +244,9 @@ extern char *_dl_ldsopath;
 struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	struct elf_resolve *tpnt, char *full_libname)
 {
-	const char *pnt, *pnt1;
+	char *pnt, *pnt1;
 	struct elf_resolve *tpnt1;
-	const char *libname;
-	static const char *libc = "libc.so.";
-	static const char *aborted_wrong_lib = "%s: aborted attempt to load %s!\n";
+	char *libname;
 
 	_dl_internal_error_number = 0;
 	libname = full_libname;
@@ -246,18 +268,6 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	 * really bad things to happen with weaks and globals. */
 	if ((tpnt1=_dl_check_if_named_library_is_loaded(libname))!=NULL)
 		return tpnt1;
-
-	/* Make sure they are not trying to load the wrong C library!
-	 * This sometimes happens esp with shared libraries when the
-	 * library path is somehow wrong! */
-	if ((_dl_strcmp(libname, libc) == 0) && 
-			( libname[8]=='6' || libname[8]=='5'))
-	{
-		if (!_dl_trace_loaded_objects) {
-			_dl_dprintf(2, aborted_wrong_lib, libname, _dl_progname);
-		}
-		return NULL;
-	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfind library='%s'; searching\n", libname);
