@@ -202,37 +202,22 @@ int main(int argc, char **argv)
 
 	i = 0;
 	gcc_argv[i++] = GCC_BIN;
+	
 	for ( j = 1 ; j < argc ; j++ ) {
 		if (strcmp("--uclibc-use-build-dir",argv[j]) == 0) {
 			use_build_dir = 1;
 		} else if (strcmp("--uclibc-use-rpath",argv[j]) == 0) {
 			use_rpath = 1;
-		}
-#if 0
-		} else {
+		} 
+		else {
 			gcc_argv[i++] = argv[j];
 		}
-#endif	
 	}
-	if (linking && source_count) {
-		if (use_start) {
-			gcc_argv[i++] = crt0_path[use_build_dir];
-			gcc_argv[i++] = "-e _start";
-		}
-	}
-
 
 	if (use_stdinc) {
 		gcc_argv[i++] = nostdinc;
 		gcc_argv[i++] = uClibc_inc[use_build_dir];
 		gcc_argv[i++] = GCC_INCDIR;
-	}
-
-	for ( j = 1 ; j < argc ; j++ ) {
-		if (strcmp("--uclibc-use-build-dir",argv[j]) != 0 && 
-		    strcmp("--uclibc-use-rpath",argv[j]) != 0) {
-			gcc_argv[i++] = argv[j];
-		}
 	}
 
 	if (linking && source_count) {
@@ -251,12 +236,9 @@ int main(int argc, char **argv)
 		if (!use_build_dir) {
 			gcc_argv[i++] = usr_lib_path;
 		}
-#if 0
 		if (use_start) {
-			gcc_argv[i++] = "-e _start";
 			gcc_argv[i++] = crt0_path[use_build_dir];
 		}
-#endif
 		if (use_stdlib) {
 			gcc_argv[i++] = nostdlib;
 			gcc_argv[i++] = "-lc";
