@@ -62,12 +62,14 @@ void endspent(void)
 }
 
 int getspent_r (struct spwd *spwd, char *buff, 
-	size_t buflen, struct spwd **crap)
+	size_t buflen, struct spwd **result)
 {
     int ret;
     LOCK;
+    *result = NULL;
     if (spwd_fd != -1 && (ret=__getspent_r(spwd, buff, buflen, spwd_fd)) == 0) {
 	UNLOCK;
+	*result = spwd;
 	return 0;
     }
     UNLOCK;
@@ -79,9 +81,10 @@ struct spwd *getspent(void)
     int ret;
     static char line_buff[PWD_BUFFER_SIZE];
     static struct spwd spwd;
+    struct spwd *result;
 
     LOCK;
-    if ((ret=getspent_r(&spwd, line_buff, sizeof(line_buff), NULL)) == 0) {
+    if ((ret=getspent_r(&spwd, line_buff, sizeof(line_buff), &result)) == 0) {
 	UNLOCK;
 	return &spwd;
     }

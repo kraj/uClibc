@@ -34,12 +34,16 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 int fgetpwent_r (FILE *file, struct passwd *password,
-	char *buff, size_t buflen, struct passwd **crap)
+	char *buff, size_t buflen, struct passwd **result)
 {
+    int res;
     if (file == NULL) {
 	return EINTR;
     }
-    return(__getpwent_r(password, buff, buflen, fileno(file)));
+    *result = NULL;
+    res = __getpwent_r(password, buff, buflen, fileno(file));
+    *result = password;
+    return res;
 }
 
 struct passwd *fgetpwent(FILE * file)
@@ -47,9 +51,10 @@ struct passwd *fgetpwent(FILE * file)
     int ret;
     static char line_buff[PWD_BUFFER_SIZE];
     static struct passwd pwd;
+    struct passwd *result;
 
     LOCK;
-    if ((ret=fgetpwent_r(file, &pwd, line_buff, sizeof(line_buff), NULL)) == 0) {
+    if ((ret=fgetpwent_r(file, &pwd, line_buff, sizeof(line_buff), &result)) == 0) {
 	UNLOCK;
 	return &pwd;
     }

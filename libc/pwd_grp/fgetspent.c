@@ -33,12 +33,16 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 int fgetspent_r (FILE *file, struct spwd *spwd,
-	char *buff, size_t buflen, struct spwd **crap)
+	char *buff, size_t buflen, struct spwd **result)
 {
+    int res;
     if (file == NULL) {
 	return EINTR;
     }
-    return(__getspent_r(spwd, buff, buflen, fileno(file)));
+    *result = NULL;
+    res = __getspent_r(spwd, buff, buflen, fileno(file));
+    *result = spwd;
+    return res;
 }
 
 struct spwd *fgetspent(FILE * file)
@@ -46,9 +50,10 @@ struct spwd *fgetspent(FILE * file)
     int ret;
     static char line_buff[PWD_BUFFER_SIZE];
     static struct spwd spwd;
+    struct spwd *result;
 
     LOCK;
-    if ((ret=fgetspent_r(file, &spwd, line_buff, sizeof(line_buff), NULL)) == 0) {
+    if ((ret=fgetspent_r(file, &spwd, line_buff, sizeof(line_buff), &result)) == 0) {
 	UNLOCK;
 	return &spwd;
     }

@@ -41,11 +41,14 @@ int getspuid_r (uid_t uid, struct spwd *spwd,
     char pwd_buff[PWD_BUFFER_SIZE];
     struct passwd password;
 
+    *result = NULL;
     ret = getpwuid_r(uid, &password, pwd_buff,  sizeof(pwd_buff), NULL);
     if (ret != 0)
 	return ret;
 
-    return getspnam_r(password.pw_name, spwd, buff, buflen, result);
+    ret = getspnam_r(password.pw_name, spwd, buff, buflen, result);
+    *result = spwd;
+    return ret;
 }
 
 struct spwd *getspuid(uid_t uid)
@@ -53,9 +56,10 @@ struct spwd *getspuid(uid_t uid)
     int ret;
     static char line_buff[PWD_BUFFER_SIZE];
     static struct spwd spwd;
+    struct spwd *result;
 
     LOCK;
-    if ((ret=getspuid_r(uid, &spwd, line_buff, sizeof(line_buff), NULL)) == 0) {
+    if ((ret=getspuid_r(uid, &spwd, line_buff, sizeof(line_buff), &result)) == 0) {
 	UNLOCK;
 	return &spwd;
     }

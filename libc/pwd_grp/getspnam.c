@@ -35,7 +35,7 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #endif      
 
 int getspnam_r (const char *name, struct spwd *spwd,
-	char *buff, size_t buflen, struct spwd **crap)
+	char *buff, size_t buflen, struct spwd **result)
 {
     int spwd_fd;
 
@@ -46,9 +46,11 @@ int getspnam_r (const char *name, struct spwd *spwd,
     if ((spwd_fd = open(_PATH_SHADOW, O_RDONLY)) < 0)
 	return errno;
 
+    *result = NULL;
     while (__getspent_r(spwd, buff, buflen, spwd_fd) == 0)
 	if (!strcmp(spwd->sp_namp, name)) {
 	    close(spwd_fd);
+	    *result = spwd;
 	    return 0;
 	}
 
@@ -61,9 +63,10 @@ struct spwd *getspnam(const char *name)
     int ret;
     static char line_buff[PWD_BUFFER_SIZE];
     static struct spwd spwd;
+    struct spwd *result;
 
     LOCK;
-    if ((ret=getspnam_r(name, &spwd, line_buff,  sizeof(line_buff), NULL)) == 0) {
+    if ((ret=getspnam_r(name, &spwd, line_buff,  sizeof(line_buff), &result)) == 0) {
 	UNLOCK;
 	return &spwd;
     }

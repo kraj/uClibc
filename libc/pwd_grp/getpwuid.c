@@ -37,16 +37,18 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #endif      
 
 int getpwuid_r (uid_t uid, struct passwd *password,
-	char *buff, size_t buflen, struct passwd **crap)
+	char *buff, size_t buflen, struct passwd **result)
 {
     int passwd_fd;
 
     if ((passwd_fd = open(_PATH_PASSWD, O_RDONLY)) < 0)
 	return errno;
 
+    *result = NULL;
     while (__getpwent_r(password, buff, buflen, passwd_fd) == 0)
 	if (password->pw_uid == uid) {
 	    close(passwd_fd);
+	    *result = password;
 	    return 0;
 	}
 
@@ -60,9 +62,10 @@ struct passwd *getpwuid(uid_t uid)
     /* file descriptor for the password file currently open */
     static char line_buff[PWD_BUFFER_SIZE];
     static struct passwd pwd;
+    struct passwd *result;
 
     LOCK;
-    if ((ret=getpwuid_r(uid, &pwd, line_buff,  sizeof(line_buff), NULL)) == 0) {
+    if ((ret=getpwuid_r(uid, &pwd, line_buff,  sizeof(line_buff), &result)) == 0) {
 	UNLOCK;
 	return &pwd;
     }

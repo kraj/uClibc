@@ -42,6 +42,8 @@ int getpwnam_r (const char *name, struct passwd *password,
     int ret;
     int passwd_fd;
 
+    *result = NULL;
+
     if (name == NULL) {
 	return EINVAL;
     }
@@ -54,6 +56,7 @@ int getpwnam_r (const char *name, struct passwd *password,
 	if (!strcmp(password->pw_name, name)) {
 	    *result=password;
 	    close(passwd_fd);
+	    *result = password;
 	    return 0;
 	}
     }
@@ -66,7 +69,8 @@ struct passwd *getpwnam(const char *name)
 {
     int ret;
     static char line_buff[PWD_BUFFER_SIZE];
-    static struct passwd pwd, *result;
+    static struct passwd pwd;
+    struct passwd *result;
 
     LOCK;
     if ((ret=getpwnam_r(name, &pwd, line_buff, sizeof(line_buff), &result)) == 0) {
