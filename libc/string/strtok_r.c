@@ -25,7 +25,7 @@ Cambridge, MA 02139, USA.  */
 
 #include <string.h>
 
-char *__strtok_r(char *s, const char *delim, char **save_ptr)
+char *strtok_r(char *s, const char *delim, char **save_ptr)
 {
 	char *token;
 
@@ -51,5 +51,3 @@ char *__strtok_r(char *s, const char *delim, char **save_ptr)
 
 	return token;
 }
-
-weak_alias(__strtok_r, strtok_r);
