@@ -72,7 +72,7 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 headers:
-	cd $(TOPDIR)/include;ln -s ../libc/sysdeps/linux/mipsel/sgidefs.h .
+	cd $(TOPDIR)/include;ln -fs ../libc/sysdeps/linux/mipsel/sgidefs.h .
 
 clean:
 	rm -f *.[oa] *~ core
