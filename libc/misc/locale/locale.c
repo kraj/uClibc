@@ -110,6 +110,7 @@ static __inline char *human_readable_locale(int category, const unsigned char *s
 
  SKIP:
 	i = (category == LC_ALL) ? 0 : category;
+	s += 2*i;
 	n = hr_locale;
 
 	do {
