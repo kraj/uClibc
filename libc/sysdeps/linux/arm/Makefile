@@ -25,7 +25,7 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
-SSRC=_start.S 
+SSRC=_start.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 MSRC=syscalls.c
@@ -44,8 +44,8 @@ $(LIBC): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(SOBJS): $(SSRC)
-	$(CC) $(CFLAGS) $< -c -o $*.o
+$(SOBJS):
+	$(CC) $(CFLAGS) $< -c $*.S -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ): $(MSRC)
