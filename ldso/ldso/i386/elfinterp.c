@@ -44,8 +44,8 @@ an ELF sharable library or a linux style of shared library. */
 
 #include "hash.h"
 #include "linuxelf.h"
+#include "syscall.h"
 #include "../string.h"
-#include "../syscall.h"
 
 #define SVR4_COMPATIBILITY
 
