@@ -54,7 +54,7 @@ endif
 
 OBJ=$(COBJS) $(MOBJ)
 
-all: $(STR_SYSCALLS) $(OBJ) $(LIBC) headers
+all: $(STR_SYSCALLS) $(OBJ) $(LIBC)
 
 $(LIBC): ar-target
 

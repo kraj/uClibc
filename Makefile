@@ -159,6 +159,7 @@ endif
 	else \
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
+	$(MAKE) -C libc/sysdeps/linux/common headers
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
 # Command used to download source code
