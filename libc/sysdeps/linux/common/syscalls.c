@@ -126,10 +126,22 @@ _syscall1(time_t, time, time_t *, t);
 #endif
 
 //#define __NR_mknod            14
-#ifdef L___mknod
+#ifdef L_mknod
 #include <unistd.h>
-#define __NR___mknod __NR_mknod
-_syscall3(int, __mknod, const char *, pathname, mode_t, mode, dev_t, dev);
+extern int mknod(const char *pathname, mode_t mode, dev_t dev);
+_syscall3(int, mknod, const char *, pathname, mode_t, mode, dev_t, dev);
+
+int _xmknod (int version, const char * path, mode_t mode, dev_t *dev)
+{
+	switch(version)
+	{
+		case 1:
+			return mknod (path, mode, *dev);
+		default:
+			errno = EINVAL;
+			return -1;
+	}
+}
 #endif
 
 //#define __NR_chmod            15
@@ -714,14 +726,13 @@ _syscall2(int, getitimer, enum __itimer_which, which, struct itimerval *, value)
 
 //#define __NR_stat             106
 #ifdef L___stat
-#define __NR___stat __NR_stat
 #include <unistd.h>
 #include "statfix.h"
+#define __NR___stat	__NR_stat
 extern int __stat(const char *file_name, struct kernel_stat *buf);
-
 _syscall2(int, __stat, const char *, file_name, struct kernel_stat *, buf);
 
-int _stat(const char * file_name, struct libc_stat * cstat)
+int _xstat(int version, const char * file_name, struct libc_stat * cstat)
 {
 	struct kernel_stat kstat;
 	int result = __stat(file_name, &kstat);
@@ -731,18 +742,22 @@ int _stat(const char * file_name, struct libc_stat * cstat)
 	}
 	return result;
 }
+
+int stat(const char *file_name, struct libc_stat *buf)
+{
+	return(_xstat(0, file_name, buf));
+}
 #endif
 
 //#define __NR_lstat            107
 #ifdef L___lstat
-#define __NR___lstat __NR_lstat
 #include <unistd.h>
 #include "statfix.h"
+#define __NR___lstat	__NR_lstat
 extern int __lstat(const char *file_name, struct kernel_stat *buf);
-
 _syscall2(int, __lstat, const char *, file_name, struct kernel_stat *, buf);
 
-int _lstat(const char * file_name, struct libc_stat * cstat)
+int _lxstat(int version, const char * file_name, struct libc_stat * cstat)
 {
 	struct kernel_stat kstat;
 	int result = __lstat(file_name, &kstat);
@@ -752,18 +767,22 @@ int _lstat(const char * file_name, struct libc_stat * cstat)
 	}
 	return result;
 }
+
+int lstat(const char *file_name, struct libc_stat *buf)
+{
+	return(_lxstat(0, file_name, buf));
+}
 #endif
 
 //#define __NR_fstat            108
 #ifdef L___fstat
-#define __NR___fstat __NR_fstat
 #include <unistd.h>
 #include "statfix.h"
+#define __NR___fstat	__NR_fstat
 extern int __fstat(int filedes, struct kernel_stat *buf);
-
 _syscall2(int, __fstat, int, filedes, struct kernel_stat *, buf);
 
-int _fstat(int fd, struct libc_stat *cstat) 
+int _fxstat(int version, int fd, struct libc_stat * cstat)
 {
 	struct kernel_stat kstat;
 	int result = __fstat(fd, &kstat);
@@ -772,6 +791,11 @@ int _fstat(int fd, struct libc_stat *cstat)
 		statfix(cstat, &kstat);
 	}
 	return result;
+}
+
+int fstat(int filedes, struct libc_stat *buf)
+{
+	return(_fxstat(0, filedes, buf));
 }
 #endif
 

@@ -25,7 +25,7 @@ TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-CSRC=	_xmknod.c waitpid.c getdents.c kernel_version.c rewinddir.c \
+CSRC=	waitpid.c getdents.c kernel_version.c rewinddir.c \
 	statfix.c getdnnm.c seekdir.c telldir.c tell.c gethstnm.c \
 	mkfifo.c setegid.c wait.c errno.c closedir.c getpagesize.c \
 	opendir.c seteuid.c wait3.c dirfd.c readdir.c setpgrp.c \
@@ -33,13 +33,10 @@ CSRC=	_xmknod.c waitpid.c getdents.c kernel_version.c rewinddir.c \
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-NISRC= _fxstat.c _lxstat.c _xstat.c
-NIOBJS=$(patsubst %.c,%.o, $(NISRC))
-
 MSRC=syscalls.c
 MOBJ=$(shell ./list_syscalls.sh)
 
-OBJ=$(COBJS) $(NIOBJS) $(MOBJ)
+OBJ=$(COBJS) $(MOBJ)
 
 UNIFIED_SYSCALL_HEADER = /dev/null
 STR_SYSCALLS =
@@ -63,10 +60,6 @@ $(MOBJ): $(MSRC)
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(NIOBJS):
-	$(CC) $(CFLAGS) $< -c $*.c -o $*.o -fno-inline
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 str_syscalls:
