@@ -91,13 +91,11 @@
  * can transfer control to the user's application.
  */
 
-#include <stdarg.h>
-#include "sysdep.h" /* before elf.h to get ELF_USES_RELOCA right */
-#include <elf.h>
 #include "linuxelf.h"
-#include "hash.h"
-#include "syscall.h"
-#include "string.h"
+#include <stdarg.h>
+#include "ld_hash.h"
+#include "ld_syscall.h"
+#include "ld_string.h"
 #include "../config.h"
 
 #define ALLOW_ZERO_PLTGOT
@@ -117,7 +115,7 @@
 static char *_dl_malloc_addr, *_dl_mmap_zero;
 char *_dl_library_path = 0;		/* Where we look for libraries */
 char *_dl_preload = 0;			/* Things to be loaded before the libs. */
-#include "ld.so.h"			/* Pull in the name of ld.so */
+#include "ld-uClibc.h"			/* Pull in the name of ld.so */
 const char *_dl_progname=_dl_static_progname;
 static char *_dl_not_lazy = 0;
 #ifdef DL_TRACE
