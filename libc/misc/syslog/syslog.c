@@ -111,7 +111,9 @@ static void
 closelog_intern(int to_default)
 {
 	LOCK;
-	(void) close(LogFile);
+	if (LogFile != -1) {
+	    (void) close(LogFile);
+	}
 	LogFile = -1;
 	connected = 0;
 	if (to_default)
@@ -264,46 +266,50 @@ getout:
 void
 openlog( const char *ident, int logstat, int logfac )
 {
-	int logType = SOCK_DGRAM;
+    int logType = SOCK_DGRAM;
 
-        LOCK;
+    LOCK;
 
-	if (ident != NULL)
-		LogTag = ident;
-	LogStat = logstat;
-	if (logfac != 0 && (logfac &~ LOG_FACMASK) == 0)
-		LogFacility = logfac;
-	if (LogFile == -1) {
-		SyslogAddr.sa_family = AF_UNIX;
-		(void)strncpy(SyslogAddr.sa_data, _PATH_LOG,
-		    sizeof(SyslogAddr.sa_data));
+    if (ident != NULL)
+	LogTag = ident;
+    LogStat = logstat;
+    if (logfac != 0 && (logfac &~ LOG_FACMASK) == 0)
+	LogFacility = logfac;
+    if (LogFile == -1) {
+	SyslogAddr.sa_family = AF_UNIX;
+	(void)strncpy(SyslogAddr.sa_data, _PATH_LOG,
+		      sizeof(SyslogAddr.sa_data));
 retry:
-		if (LogStat & LOG_NDELAY) {
-		        if ((LogFile = socket(AF_UNIX, logType, 0)) == -1){
-			        UNLOCK;
-				return;
-			}
-/*			fcntl(LogFile, F_SETFD, 1); */
-		}
+	if (LogStat & LOG_NDELAY) {
+	    if ((LogFile = socket(AF_UNIX, logType, 0)) == -1){
+		UNLOCK;
+		return;
+	    }
+	    /*			fcntl(LogFile, F_SETFD, 1); */
 	}
-	if (LogFile != -1 && !connected &&
-#if 0
-	    connect(LogFile, &SyslogAddr, sizeof(SyslogAddr.sa_family)+
-			strlen(SyslogAddr.sa_data)) != -1
-#else
-	    connect(LogFile, &SyslogAddr, sizeof(SyslogAddr) -
-			sizeof(SyslogAddr.sa_data) +
-			strlen(SyslogAddr.sa_data)) != -1
-#endif
-	    ) 
+    }
+
+    if (LogFile != -1 && !connected) {
+	if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr) - 
+		    sizeof(SyslogAddr.sa_data) + strlen(SyslogAddr.sa_data)) != -1)
 	{
-		connected = 1;
+	    connected = 1;
 	} else if (logType == SOCK_DGRAM) {
 	    logType = SOCK_STREAM;
+	    if (LogFile != -1) {
+		close(LogFile);
+		LogFile = -1;
+	    }
 	    goto retry;
+	} else {
+	    if (LogFile != -1) {
+		close(LogFile);
+		LogFile = -1;
+	    }
 	}
+    }
 
-        UNLOCK;
+    UNLOCK;
 }
 
 /*
