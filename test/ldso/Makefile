@@ -19,6 +19,7 @@
 TESTDIR=../
 include $(TESTDIR)/Rules.mak
 
+CFLAGS+=--uclibc-ctors
 all: dltest libhowdy.so run
 
 dltest.o: dltest.c
