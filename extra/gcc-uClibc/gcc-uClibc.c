@@ -197,13 +197,16 @@ int main(int argc, char **argv)
 	xstrcat(&(uClibc_inc[0]), devprefix, "/include/", NULL);
 	xstrcat(&(uClibc_inc[1]), builddir, "/include/", NULL);
 
-	xstrcat(&(crt0_path[0]), devprefix, "/lib/crt0.o", NULL);
-	xstrcat(&(crt0_path[1]), builddir, "/lib/crt0.o", NULL);
 #ifdef __UCLIBC_CTOR_DTOR__
+	xstrcat(&(crt0_path[0]), devprefix, "/lib/crt1.o", NULL);
+	xstrcat(&(crt0_path[1]), builddir, "/lib/crt1.o", NULL);
 	xstrcat(&(crti_path[0]), devprefix, "/lib/crti.o", NULL);
 	xstrcat(&(crti_path[1]), builddir, "/lib/crti.o", NULL);
 	xstrcat(&(crtn_path[0]), devprefix, "/lib/crtn.o", NULL);
 	xstrcat(&(crtn_path[1]), builddir, "/lib/crtn.o", NULL);
+#else
+	xstrcat(&(crt0_path[0]), devprefix, "/lib/crt0.o", NULL);
+	xstrcat(&(crt0_path[1]), builddir, "/lib/crt0.o", NULL);
 #endif
 
 	xstrcat(&(our_lib_path[0]), "-L", devprefix, "/lib", NULL);
