@@ -1,209 +1,206 @@
-2003-02-12  Erik Andersen  <andersen@uclibc.org>
+2003-03-03  Erik Andersen  <andersen@dillweed>
 
-	* Rules.mak: Bump version number
+	* Rules.mak: begin preparing for release
 
-	* libnsl/Makefile: Somewhat pointless naming pedantry
+2003-03-03  Manuel Novoa III  <mjn3@dillweed>
 
-	* docs/uclibc.org/index.html: Use http not ftp
+	* libc/string/wstring.c:
+	Remove bogus link_warning.  It is meaningless and stupid.  While the
+	previous committed patch was well-meaning, the #warning it replaced
+	was simply a reminder I accidently left in when implementing strcoll/wcscoll.
+	Besides, strcmp is completely locale invariant.
 
-2003-02-11  Erik Andersen  <andersen@uclibc.org>
+2003-03-03  davidm  <davidm@dillweed>
 
 	* Makefile:
-	Per suggestion from Peter Lassahn, fix the install_dev target
+	more uClinux shared libs fixups
 
-2003-02-10  Erik Andersen  <andersen@uclibc.org>
+	* libpthread/linuxthreads/sysdeps/m68k/pt-machine.h:
+	fix coldfire/68000 support properly this time, ifdef logic was back to
+	front.
 
-	* libc/sysdeps/linux/common/getdents.c, libc/sysdeps/linux/common/getdents64.c, libc/sysdeps/linux/common/bits/dirent.h:
-	We need to have the size of struct dirent equal to the size of struct dirent64
-	so when _FILE_OFFSET_BITS=64 (such that we transparently change 32bit into 64
-	bit interfaces), we will not lose an unsigned char from d_name which silently
-	becomes the d_type field instead.  oops.
+	* libc/sysdeps/linux/arm/setjmp.S:
+	Fix the double sub #48,  should have been an add :-)
+
+2003-03-02  Erik Andersen  <andersen@dillweed>
+
+	* libc/sysdeps/linux/common/syscalls.c: cut-n-paste strikes again
+
+	* libc/sysdeps/linux/common/syscalls.c: Add missing alias __modify_ldt
+
+2003-03-01  Erik Andersen  <andersen@dillweed>
+
+	* ldso/ldso/ldso.c, ldso/util/Makefile, ldso/util/ldd.c:
+	Teach ldd to act just the glibc provided one (relying on the
+	shared lib loader to do the work) when it is possible to do
+	so, and only go poking about through the ELF headers when that
+	fails so we can still use 'ldd' on cross compiled stuff.
 	 -Erik
 
-	* test/Config, test/Rules.mak: A few minor little changes
+	* libc/inet/resolv.c: Patch from Jeffrey Damick:
 
-	* docs/uclibc.org/index.html: Mention the dev systems have been updated
+	With glibc if you do a res_init() that forces a reread of the nameservers file,
+	but in uClibc the res_init will not force a reread if it has already read the
+	file because then the nameservers value is greater than 0.
 
-2003-02-10  miles  <miles@uclibc.org>
+	So res_init must call close_nameservers() before calling open_nameservers().
 
-	* Rules.mak: Don't use -O0 when DODEBUG is turned on.
+	* libpthread/linuxthreads/internals.h:
+	Use a funky version in a probably vein attempt at preventing gdb
+	from dlopen()'ing glibc's libthread_db library...
 
-	* libc/sysdeps/linux/v850/clone.c:
-	Pass CHILD_STACK argument to system call (it possibly worked before `by
-	accident', as the function argument is in the same register).
+	* ldso/ldso/ldso.c:
+	doh.  I forgot mips can't talk to globals that early on in the
+	process.  Fix that up too.
 
-2003-02-09  Erik Andersen  <andersen@uclibc.org>
-
-	* libc/sysdeps/linux/mips/__longjmp.c: Fix a warning
-
-	* libc/sysdeps/linux/mips/pipe.S: Fix a compile error
-
-2003-02-08  Erik Andersen  <andersen@uclibc.org>
-
-	* libc/misc/internals/Makefile, libc/misc/internals/abi-note.S, libc/misc/internals/abi-tag.h, libc/sysdeps/linux/arm/crt0.S:
-	Fixup handling of the .note.ABI-tag section so that it is ARM only,
-	and so it actually works as intended allowing binaries on ARM to be
-	debugged.
+	* ldso/libdl/dlib.c:
+	doh.  I forgot mips can't talk to globals that early on in the
+	process.  Fix that up too.
 	 -Erik
 
-2003-02-05  Erik Andersen  <andersen@uclibc.org>
-
-	* docs/uclibc.org/index.html: mention penguru
-
-2003-02-05  davidm  <davidm@uclibc.org>
-
-	* libc/sysdeps/linux/m68k/Makefile, libc/sysdeps/linux/m68k/brk.c:
-	add brk for m68k
-
-	NOTE: on uClinux-2.[45] kernels, brk works but is limited to slack space in
-	      the memory allocated to the process.
-
-2003-02-05  Erik Andersen  <andersen@uclibc.org>
-
-	* libc/Makefile, extra/Configs/Config.in:
-	Patch from Stefan Allius to make adding libgcc functions to the library an
-	option, to avoid the possibility of adding non PIC code into the shared PIC
-	uClibc library, thereby making the .text segment unshareable.
-
-2003-02-04  Erik Andersen  <andersen@uclibc.org>
-
-	* ldso/ldso/ldso.c: Patch from Stefan Allius to fix a compiler warning
-
-2003-02-03  Erik Andersen  <andersen@uclibc.org>
-
-	* libc/sysdeps/linux/common/getdents64.c, libc/sysdeps/linux/common/syscalls.c:
-	Fixup compile on 2.2.x kernels when UCLIBC_HAS_LFS is enabled
-
-	* libc/sysdeps/linux/i386/sigaction.c:
-	Oops.  I'd left an extra invocation of sigaction in there...
-
-2003-01-31  Erik Andersen  <andersen@uclibc.org>
-
-	* libc/sysdeps/linux/mips/cacheflush.c: heh
-
-	* libc/sysdeps/linux/mips/cacheflush.c: Fix copyright
-
-2003-01-31  miles  <miles@uclibc.org>
-
-	* libc/sysdeps/linux/v850/clone.c, libc/sysdeps/linux/v850/bits/kernel_types.h, libpthread/linuxthreads/sysdeps/v850/pt-machine.h, libpthread/linuxthreads/sysdeps/v850/sigcontextinfo.h:
-	Correct license.
-
-2003-01-30  Erik Andersen  <andersen@uclibc.org>
-
-	* libc/sysdeps/linux/mips/Makefile, libc/sysdeps/linux/mips/pipe.S:
-	Patch from Marshall M. Midden @ brecis.com:
-	    pipe.c for mips was broken with freeswan.  No error checking.
-
-	* libc/inet/ether_addr.c:
-	Per discussion with Nick Fedchik, restore original LGPL
-	licensing to libc/inet/ether_addr.c
-
-	* libc/sysdeps/linux/mips/Makefile, libc/sysdeps/linux/mips/cacheflush.c:
-	Patch from Christophe Massiot:
-
-	    Hello,
-
-	    When using uClibc to compile the modutils for a MIPS target, the linker
-	    outputs an "undefined symbol: _flush_cache". After some digging, it's
-	    a syscall only available on the MIPS architecture, and the _flush_cache
-	    symbol is in the GNU libc.
-
-	    Attached patch defines it in uClibc as well. I'm not sure if I made it
-	    the right way, though, but it works for me.
-
-	* libpthread/linuxthreads/pthread.c: Patch from Christian Krause:
-
-	    I found a problem in uClibc in libpthread/linuxthres/condvar.c:
-
-	    pthread_cond_timedwait never uses rt singals
-
-	    uClibc has two implementations of pthread_cond_timewait -
-	    pthread_cond_timedwait_relative_old using the "normal" signals and
-	    pthread_cond_timedwait_relative_new usign the rt signals
-	    (for kernels >= 2.2).
-
-	    The function pointer pthread_cond_tw_rel is initialised with the old
-	    function. In "__pthread_init_condvar(int)" this pointer is set to the new
-	    function using rt signals, but "__pthread_init_condvar" is never called in
-	    the uClibc.
-
-	    The following patch solves this issue, so that __pthread_init_condvars
-	    is called and the function pointer is always initialised with the correct
-	    function.
-
-	    regards,
-	    christian
-
-	* ldso/ldso/mips/resolve.S:
-	The original glibc sysdeps/mips/dl-machine.h source from Kazumoto Kojima was
-	under the LGPL.  I noticed Steven J. Hill has accidentally changed the license
-	to be GPL.  Per email with him, change it back to LGPL.
-
-	    Erik Andersen wrote:
-	    >I just noticed that uClibc/ldso/ldso/mips/resolve.S is
-	    >listed as licensed under the GPL, rather than the LGPL
-	    >like the rest of uClibc.  Accident?
-	    >
-	    Yes. Feel free to change it.
-
-2003-01-30  miles  <miles@uclibc.org>
-
-	* libc/sysdeps/linux/common/Makefile:
-	Use correct names for dummy crti.o/crtn.o files.
-
-	* libpthread/linuxthreads/sysdeps/v850/pt-machine.h, libpthread/linuxthreads/sysdeps/v850/sigcontextinfo.h:
-	Initial checkin.
-
-2003-01-29  Erik Andersen  <andersen@uclibc.org>
-
-	* libc/sysdeps/linux/common/Makefile:
-	Create stub crti.o and crtn.o files when UCLIBC_CTOR_DTOR is disabled
+	* ldso/ldso/readelflib1.c, ldso/ldso/ld_hash.h, ldso/ldso/ldso.c, ldso/ldso/linuxelf.h:
+	Fix the shared library loader so we can properly debug things like pthreads.
+	Mips gdb support for pthreads and similar complex stuff is broken, but then it
+	couldn't have worked before either...
 	 -Erik
 
-2003-01-28  Erik Andersen  <andersen@uclibc.org>
+2003-02-28  Erik Andersen  <andersen@dillweed>
 
-	* libc/misc/dirent/dirstream.h, libc/misc/dirent/readdir.c, libc/misc/dirent/readdir64.c, libc/misc/dirent/readdir64_r.c, libc/misc/dirent/readdir_r.c, libc/misc/dirent/scandir64.c, libc/sysdeps/linux/common/syscalls.c, libc/sysdeps/linux/common/Makefile, libc/sysdeps/linux/common/getdents.c, libc/sysdeps/linux/common/getdents64.c:
-	Fix scandir64 to not free the wrong pieces of memory (which could
-	and did cause segfaults) by adjusting the working scandir.c to
-	the the 64 thing.  Fix up potential for mismatches between the
-	libc and kernel dirent structures, which could also cause ugly
-	problems.
+	* ldso/libdl/dlib.c: Fix a potential compile error
+
+	* libpthread/linuxthreads/sysdeps/mips/pt-machine.h:
+	Fixup mips pthreads
+
+2003-02-28  davidm  <davidm@dillweed>
+
+	* libpthread/linuxthreads/sysdeps/m68k/pt-machine.h:
+	restore the coldfire changes
+
+2003-02-27  Erik Andersen  <andersen@dillweed>
+
+	* libc/sysdeps/linux/common/bits/initspin.h, libc/sysdeps/linux/common/bits/pthreadtypes.h, libpthread/linuxthreads_db/td_thr_validate.c, libpthread/linuxthreads_db/thread_db.h, libpthread/linuxthreads_db/thread_dbP.h, libpthread/linuxthreads_db/td_thr_setxregs.c, libpthread/linuxthreads_db/td_thr_sigsetmask.c, libpthread/linuxthreads_db/td_thr_tls_get_addr.c, libpthread/linuxthreads_db/td_thr_tsd.c, libpthread/linuxthreads_db/td_ta_reset_stats.c, libpthread/linuxthreads_db/td_ta_set_event.c, libpthread/linuxthreads_db/td_ta_setconcurrency.c, libpthread/linuxthreads_db/td_ta_thr_iter.c, libpthread/linuxthreads_db/td_ta_tsd_iter.c, libpthread/linuxthreads_db/td_thr_clear_event.c, libpthread/linuxthreads_db/td_thr_dbresume.c, libpthread/linuxthreads_db/td_thr_dbsuspend.c, libpthread/linuxthreads_db/td_thr_event_enable.c, libpthread/linuxthreads_db/td_thr_event_getmsg.c, libpthread/linuxthreads_db/td_thr_get_info.c, libpthread/linuxthreads_db/td_thr_getfpregs.c, libpthread/linuxthreads_db/td_thr_getgregs.c, libpthread/linuxthreads_db/td_thr_getxregs.c, libpthread/linuxthreads_db/td_thr_getxregsize.c, libpthread/linuxthreads_db/td_thr_set_event.c, libpthread/linuxthreads_db/td_thr_setfpregs.c, libpthread/linuxthreads_db/td_thr_setgregs.c, libpthread/linuxthreads_db/td_thr_setprio.c, libpthread/linuxthreads_db/td_thr_setsigpending.c, libpthread/linuxthreads_db/Makefile, libpthread/linuxthreads_db/Versions, libpthread/linuxthreads_db/proc_service.h, libpthread/linuxthreads_db/td_init.c, libpthread/linuxthreads_db/td_log.c, libpthread/linuxthreads_db/td_symbol_list.c, libpthread/linuxthreads_db/td_ta_clear_event.c, libpthread/linuxthreads_db/td_ta_delete.c, libpthread/linuxthreads_db/td_ta_enable_stats.c, libpthread/linuxthreads_db/td_ta_event_addr.c, libpthread/linuxthreads_db/td_ta_event_getmsg.c, libpthread/linuxthreads_db/td_ta_get_nthreads.c, libpthread/linuxthreads_db/td_ta_get_ph.c, libpthread/linuxthreads_db/td_ta_get_stats.c, libpthread/linuxthreads_db/td_ta_map_id2thr.c, libpthread/linuxthreads_db/td_ta_map_lwp2thr.c, libpthread/linuxthreads_db/td_ta_new.c, libpthread/linuxthreads_db/Banner, libpthread/linuxthreads_db/ChangeLog, libpthread/linuxthreads/sysdeps/sparc/stackinfo.h, libpthread/linuxthreads/sysdeps/sh/pt-machine.h, libpthread/linuxthreads/sysdeps/sh/stackinfo.h, libpthread/linuxthreads/sysdeps/sh/tls.h, libpthread/linuxthreads/sysdeps/pthread/bits/libc-lock.h, libpthread/linuxthreads/sysdeps/pthread/bits/libc-tsd.h, libpthread/linuxthreads/sysdeps/pthread/tls.h, libpthread/linuxthreads/sysdeps/powerpc/pt-machine.h, libpthread/linuxthreads/sysdeps/powerpc/stackinfo.h, libpthread/linuxthreads/sysdeps/mips/pt-machine.h, libpthread/linuxthreads/sysdeps/mips/stackinfo.h, libpthread/linuxthreads/sysdeps/m68k/pt-machine.h, libpthread/linuxthreads/sysdeps/m68k/stackinfo.h, libpthread/linuxthreads/sysdeps/i386/i686/pt-machine.h, libpthread/linuxthreads/sysdeps/i386/pt-machine.h, libpthread/linuxthreads/sysdeps/i386/sigcontextinfo.h, libpthread/linuxthreads/sysdeps/i386/stackinfo.h, libpthread/linuxthreads/sysdeps/i386/tls.h, libpthread/linuxthreads/sysdeps/i386/useldt.h, libpthread/linuxthreads/sysdeps/cris/pt-machine.h, libpthread/linuxthreads/sysdeps/cris/stackinfo.h, libpthread/linuxthreads/sysdeps/arm/pt-machine.h, libpthread/linuxthreads/sysdeps/arm/sigcontextinfo.h, libpthread/linuxthreads/sysdeps/arm/stackinfo.h, libpthread/linuxthreads/sysdeps/alpha/pt-machine.h, libpthread/linuxthreads/sysdeps/alpha/stackinfo.h, libpthread/linuxthreads/pthread.c, libpthread/linuxthreads/restart.h, libpthread/linuxthreads/semaphore.c, libpthread/linuxthreads/semaphore.h, libpthread/linuxthreads/signals.c, libpthread/linuxthreads/spinlock.c, libpthread/linuxthreads/spinlock.h, libpthread/linuxthreads/condvar.c, libpthread/linuxthreads/internals.h, libpthread/linuxthreads/join.c, libpthread/linuxthreads/manager.c, libpthread/linuxthreads/mutex.c, libpthread/Makefile, include/semaphore.h:
+	Major update for pthreads, based in large part on improvements
+	from glibc 2.3.  This should make threads much more efficient.
 	 -Erik
 
-	* test/misc/.cvsignore, test/misc/Makefile, test/misc/dirent.c, test/misc/fdopen.c:
-	Add a couple of tests
+	* test/Rules.mak: Fix a silly bug
 
-	* ldso/libdl/Makefile:
-	Stefan Allius noticed dlib_pic.o was not using XXFLAGS as it should
+	* extra/gcc-uClibc/gcc-uClibc.c:
+	Patch from David Airlie to fix handling of ctor/dtor stuff when used in
+	combination with and w/o both the nostdinc and nostdlib options.
 
-	* libc/sysdeps/linux/common/xstatconv.c, libc/sysdeps/linux/common/xstatconv.h:
-	Patch from Stefan Allius to fix the build when
-	large file support is disabled
+2003-02-26  Erik Andersen  <andersen@dillweed>
 
-2003-01-27  miles  <miles@uclibc.org>
-
-	* libc/sysdeps/linux/v850/bits/kernel_stat.h:
-	Add multiple-include protection.
-
-2003-01-25  Erik Andersen  <andersen@uclibc.org>
-
-	* docs/uclibc.org/index.html: bah
-
-	* docs/uclibc.org/index.html: Cleaner
-
-	* Makefile: Fix the 'make release' target
-
-	* libc/sysdeps/linux/mips/crt0.S:
-	This seems to be needed or else apps will blow up.
+	* test/mmap/mmap.c, libc/sysdeps/linux/mips/_mmap.c:
+	Prefer mmap2 for mips when available.  Fix the mmap test.
 	 -Erik
 
-	* TODO: some minor todo updates
+	* ldso/ldso/ldso.c:
+	Fixup a really stupid and terribly obvious bug that was causing
+	the shared lib loader on mips to puke...
+	 -Erik
+
+	* ldso/ldso/ldso.c:
+	Add a bunch of additional early debugg messages into the shared
+	lib loader to make it more obvious what is wrong when things puke
+	early on in the process.
+	 -Erik
+
+2003-02-25  Erik Andersen  <andersen@dillweed>
 
 	* docs/uclibc.org/index.html, docs/uclibc.org/old-news.html:
-	Move some stuff into old-news
+	Add a toolchain section.  Mention Steven J. Hill's mips RPMs.
 
-	* docs/uclibc.org/FAQ.html, docs/uclibc.org/index.html:
-	Update webpage for release
+2003-02-24  Erik Andersen  <andersen@dillweed>
 
-	* Changelog.full, Changelog: Update the changelog for release
+	* libc/misc/dirent/dirstream.h, libc/sysdeps/linux/powerpc/pread_write.c:
+	Fixup some small issues that show up when large file support is disabled
+
+2003-02-23  davidm  <davidm@dillweed>
+
+	* libc/sysdeps/linux/arm/__longjmp.S, libc/sysdeps/linux/arm/setjmp.S:
+	Fix FP handling alignment problems on ARM platforms without an FPU,
+	patch from Vadim Lebedev <vadim@7chips.com>.
+
+2003-02-23  Erik Andersen  <andersen@dillweed>
+
+	* libc/sysdeps/linux/mips/bits/kernel_stat.h, libc/sysdeps/linux/mips/bits/kernel_types.h:
+	Some stuff I forgot to check in about a month ago...
+	 -Erik
+
+2003-02-21  miles  <miles@dillweed>
+
+	* libc/sysdeps/linux/v850/crt0.S:
+	Reserve stack space for args we pass to __uClibc_main.
+
+2003-02-20  miles  <miles@dillweed>
+
+	* libc/sysdeps/linux/v850/sys/ptrace.h: Add back in PTRACE_SINGLESTEP.
+	Use decimal instead of hex to agree with common/sys/ptrace.h.
+
+2003-02-18  Erik Andersen  <andersen@dillweed>
+
+	* libc/sysdeps/linux/common/Makefile, libc/sysdeps/linux/common/ioctl.c, libc/sysdeps/linux/common/syscalls.c, libc/sysdeps/linux/powerpc/Makefile, libc/sysdeps/linux/powerpc/ioctl.c:
+	Fixup ioctl so we can special case powerpc silliness
+
+2003-02-17  Erik Andersen  <andersen@dillweed>
+
+	* docs/uclibc.org/index.html: Mention latest update
+
+	* docs/uclibc.org/FAQ.html, docs/uclibc.org/old-news.html: Fixup bui
+
+	* test/Makefile: Patch from Stefan Allius
+
+	    And at last I fixed a warning in test's Makefile. (ldso was first
+	    added to the ALL_SUBDIRS variable in line 25):
+
+	* libc/string/wstring.c: Patch from Stefan Allius:
+
+	    In libc/string/wstring I replaced a '#warning ..' statement by the
+	    link_warning macro.
+
+	* include/features.h: Patch from Stefan Allius:
+
+	    I patched the link_warning macro in features.h to fix warnings like:
+	    locale.c:358: warning: `__evoke_link_warning_localeconv' defined but not used
+
+2003-02-17  davidm  <davidm@dillweed>
+
+	* Makefile, Rules.mak:
+	updates to the uClinux-dist romfs and uClinux shared library targets.
+
+	* include/paths.h, libc/misc/time/time.c:
+	Use a define for the path to /etc/TZ
+
+	* libc/sysdeps/linux/common/Makefile:
+	Using -g when doing the initfini compilation breaks the SH4 case pretty
+	badly. I have removed -g for all platforms as I suspect no one wants it for
+	the initfini creation process.
+
+	* libc/sysdeps/linux/sh/setjmp.S:
+	If floating point was enabled,  setjmp would write to memory well past the
+	end of the buffer.
+
+2003-02-16  Erik Andersen  <andersen@dillweed>
+
+	* ldso/ldso/powerpc/boot1_arch.h, ldso/ldso/powerpc/elfinterp.c, libc/sysdeps/linux/powerpc/bits/syscalls.h:
+	Fixup powerpc syscalls to eliminate warnings with gcc-3.2, and fix
+	some other minor warnings.
+
+2003-02-15  Erik Andersen  <andersen@dillweed>
+
+	* libc/sysdeps/linux/common/syscalls.c:
+	Add missing ';'s so powerpc will compile
+
+	* Rules.mak: Don't just tune, use -march which implies -mcpu as well
+
+	* libc/sysdeps/linux/common/setuid.c, libc/sysdeps/linux/common/syscalls.c, libc/sysdeps/linux/common/Makefile:
+	Fix a _ton_ of system call user type/kernel type translation
+	problems, causing user space to get scrambled hosed up results.
+	 -Erik
+
+2003-02-12  ds  <ds@dillweed>
+
+	* debian/config, debian/control, debian/control.in, debian/fixlinks, debian/libuclibc-dev.files, debian/libuclibc0.files, debian/libuclibc0.shlibs, debian/rules, debian/uclibc-toolchain.files, debian/changelog:
+	Update CVS to Debian 0.9.18-1 package
 

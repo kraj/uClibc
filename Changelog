@@ -1,3 +1,52 @@
+0.9.19	3 March 2003
+
+See Changelog.full for the complete list of who did what. 
+
+Note:
+    This release remains binary compatible with 0.9.18 (except
+    for mips, but then mips was unusable in stock 0.9.18 anyways).
+
+
+Release highlights:
+    Stefan Allius
+	o Some Makefile and warning fixes
+    David Airlie
+	o Fixed gcc wrapper handling of ctor/dtor stuff when used in 
+	    with and w/o the nostdinc and nostdlib options
+    Erik Andersen
+	o Fixed a number of system call kernel type/user type translation
+	    problems that scrambed a handful of system calls.
+	o Fixup powerpc syscalls to eliminate warnings with gcc-3.2
+	o Fixed several ioctl special cases for powerpc
+	o Checked in forgotten mips kernel_types.h changes
+	o Fixed mips shared library loader bug that caused segfaults
+	o Major update to the pthreads library.  Should improve performance.
+	o Fixed uClibc's shared library loader so we can properly debug 
+	    applications using pthreads (must use gdb 5.3 or newer which
+	    was compiled using uClibc).
+	o Made uClibc's ldd act just the glibc provided one (i.e. relying
+	    on the shared lib loader to do the work) when it is possible to 
+	    doi so, and only rummage about the ELF headers when we have no
+	    other choice (such as when using 'ldd' on cross compiled stuff).
+    Miles Bader
+	o header file updates for v850 architecture
+	o Fixed v850 crt0.S __uClibc_main argument stack space
+    Jeffrey Damick
+	o Fixed res_init() so it properly reloads /etc/resolv.conf
+    Vadim Lebedev
+	o Fixed ARM setjmp when floating point was disabled
+    David McCullough
+	o Removed debug (-g) when building crti.o and crtn.o, as
+	    debug would mess up the build for SH4 and probably others.
+	o Fixed SH setjmp when floating point was enabled
+
+
+ -Erik
+
+
+
+
+
 0.9.18	12 February 2003
 
 See Changelog.full for the complete list of who did what. 
