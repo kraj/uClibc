@@ -198,6 +198,10 @@ _syscall3(int, lchown, const char *, path, uid_t, owner, gid_t, group);
 #define __NR___libc_lseek __NR_lseek
 _syscall3(__off_t, __libc_lseek, int, fildes, __off_t, offset, int, whence);
 weak_alias(__libc_lseek, lseek)
+#ifndef __NR__llseek
+weak_alias(__libc_lseek, llseek)
+weak_alias(__libc_lseek, lseek64)
+#endif
 #endif
 
 //#define __NR_getpid           20
@@ -309,14 +313,15 @@ unsigned int alarm (unsigned int seconds)
 #ifdef __NR_pause
 #define __NR___libc_pause __NR_pause
 _syscall0(int, __libc_pause);
+weak_alias(__libc_pause, pause)
 #else
 #include <signal.h>
 int __libc_pause (void)
 {
 	return(__sigpause(sigblock(0), 0));
 }
-#endif
 weak_alias(__libc_pause, pause)
+#endif
 #endif
 
 //#define __NR_utime            30
@@ -350,6 +355,8 @@ int utime(const char *file, const struct utimbuf *times)
 #ifdef __NR_utimes
 _syscall2(int, utimes, const char *, file, const struct timeval *, tvp);
 #else
+#include <stdlib.h>
+#include <sys/time.h>
 int utimes (const char *file, const struct timeval tvp[2])
 {
 	struct utimbuf buf, *times;
@@ -782,6 +789,16 @@ _syscall2(int, setgroups, size_t, size, const gid_t *, list);
 #endif
 
 //#define __NR_select           82
+#ifdef L_select
+//Used as a fallback if _newselect isn't available...
+#ifndef _NR__newselect
+#include <unistd.h>
+extern int select(int n, fd_set *readfds, fd_set *writefds, 
+		fd_set *exceptfds, struct timeval *timeout);
+_syscall5(int, select, int, n, fd_set *, readfds, fd_set *, writefds,
+		fd_set *, exceptfds, struct timeval *, timeout);
+#endif
+#endif
 
 //#define __NR_symlink          83
 #ifdef L_symlink
@@ -976,6 +993,10 @@ int stat(const char *file_name, struct libc_stat *buf)
 {
 	return(__xstat(0, file_name, buf));
 }
+#if ! defined __NR_stat64 && defined __UCLIBC_HAVE_LFS__
+weak_alias(stat, stat64);
+weak_alias(__xstat, __xstat64);
+#endif
 #endif
 
 //#define __NR_lstat            107
@@ -1001,6 +1022,10 @@ int lstat(const char *file_name, struct libc_stat *buf)
 {
 	return(__lxstat(0, file_name, buf));
 }
+#if ! defined __NR_lstat64 && defined __UCLIBC_HAVE_LFS__
+weak_alias(lstat, lstat64);
+weak_alias(__lxstat, __lxstat64);
+#endif
 #endif
 
 //#define __NR_fstat            108
@@ -1026,6 +1051,10 @@ int fstat(int filedes, struct libc_stat *buf)
 {
 	return(__fxstat(0, filedes, buf));
 }
+#if ! defined __NR_fstat64 && defined __UCLIBC_HAVE_LFS__
+weak_alias(fstat, fstat64);
+weak_alias(__fxstat, __fxstat64);
+#endif
 #endif
 
 //#define __NR_olduname         109
@@ -1212,7 +1241,7 @@ _syscall1(int, setfsgid, gid_t, gid);
 //#define __NR__llseek          140
 #ifdef L__llseek
 #ifdef __UCLIBC_HAVE_LFS__
-#ifdef _NR_llseek
+#ifdef __NR__llseek
 extern int _llseek(int fd, __off_t offset_hi, __off_t offset_lo, 
 		__loff_t *result, int whence);
 
@@ -1231,10 +1260,6 @@ __loff_t __libc_lseek64(int fd, __loff_t offset, int whence)
 }
 weak_alias(__libc_lseek64, llseek);
 weak_alias(__libc_lseek64, lseek64);
-#else
-extern __off_t __libc_lseek(int fildes, __off_t offset, int whence);
-weak_alias(__libc_lseek, llseek);
-weak_alias(__libc_lseek, lseek64);
 #endif
 #endif
 #endif
@@ -1247,19 +1272,15 @@ _syscall3(int, getdents, int, fd, char *, dirp, size_t, count);
 #endif
 
 //#define __NR__newselect       142
-#if defined L__newselect || defined L_select
-#include <unistd.h>
+#ifdef L__newselect
+//Used in preference to select when available...
 #ifdef _NR__newselect
+#include <unistd.h>
 extern int _newselect(int n, fd_set *readfds, fd_set *writefds,
 					  fd_set *exceptfds, struct timeval *timeout);
 _syscall5(int, _newselect, int, n, fd_set *, readfds, fd_set *, writefds,
 		fd_set *, exceptfds, struct timeval *, timeout);
 weak_alias(_newselect, select);
-#else
-extern int select(int n, fd_set *readfds, fd_set *writefds, 
-		fd_set *exceptfds, struct timeval *timeout);
-_syscall5(int, select, int, n, fd_set *, readfds, fd_set *, writefds,
-		fd_set *, exceptfds, struct timeval *, timeout);
 #endif
 #endif
 
@@ -1632,9 +1653,8 @@ int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
 
 //#define __NR_stat64             195
 #ifdef L___stat64
-#ifdef __UCLIBC_HAVE_LFS__
+#if defined __NR_stat64 && defined __UCLIBC_HAVE_LFS__
 #include <unistd.h>
-#ifdef __NR_stat64
 #include "statfix64.h"
 #define __NR___stat64	__NR_stat64
 extern int __stat64(const char *file_name, struct kernel_stat64 *buf);
@@ -1655,21 +1675,13 @@ int stat64(const char *file_name, struct libc_stat64 *buf)
 {
 	return(__xstat64(0, file_name, buf));
 }
-#else
-struct stat;
-extern int stat(const char *file_name, struct stat *buf);
-extern int __xstat(int version, const char * file_name, struct stat *cstat);
-weak_alias(stat, stat64);
-weak_alias(__xstat, __xstat64);
-#endif
 #endif /* __UCLIBC_HAVE_LFS__ */
 #endif
 
 //#define __NR_lstat64            196
 #ifdef L___lstat64
-#ifdef __UCLIBC_HAVE_LFS__
+#if defined __NR_lstat64 && defined __UCLIBC_HAVE_LFS__
 #include <unistd.h>
-#ifdef __NR_lstat64
 #include "statfix64.h"
 #define __NR___lstat64	__NR_lstat64
 extern int __lstat64(const char *file_name, struct kernel_stat64 *buf);
@@ -1690,21 +1702,13 @@ int lstat64(const char *file_name, struct libc_stat64 *buf)
 {
 	return(__lxstat64(0, file_name, buf));
 }
-#else
-struct stat;
-extern int lstat(const char *file_name, struct stat *buf);
-extern int __lxstat(int version, const char * file_name, struct stat * cstat);
-weak_alias(lstat, lstat64);
-weak_alias(__lxstat, __lxstat64);
-#endif
 #endif /* __UCLIBC_HAVE_LFS__ */
 #endif
 
 //#define __NR_fstat64            197
 #ifdef L___fstat64
-#ifdef __UCLIBC_HAVE_LFS__
+#if defined __NR_fstat64 && defined __UCLIBC_HAVE_LFS__
 #include <unistd.h>
-#ifdef __NR_fstat64
 #include "statfix64.h"
 #define __NR___fstat64	__NR_fstat64
 extern int __fstat64(int filedes, struct kernel_stat64 *buf);
@@ -1725,13 +1729,6 @@ int fstat64(int filedes, struct libc_stat64 *buf)
 {
 	return(__fxstat64(0, filedes, buf));
 }
-#else
-struct stat;
-extern int fstat(int filedes, struct stat *buf);
-extern int __fxstat(int version, int fd, struct stat * cstat);
-weak_alias(fstat, fstat64);
-weak_alias(__fxstat, __fxstat64);
-#endif
 #endif /* __UCLIBC_HAVE_LFS__ */
 #endif
 
