@@ -151,6 +151,13 @@ char *strchr(const char *str, int c)
 }
 #endif
 
+#ifdef L_index
+char *index (const char *s, int c)
+{
+	    return( strchr(s, c));
+}
+#endif
+
 /********************** Function strrchr ************************************/
 
 #ifdef L_strrchr
@@ -169,6 +176,13 @@ char *strrchr(const char *str, int c)
 		ptr++;
 	}
 	return prev;
+}
+#endif
+
+#ifdef L_rindex
+char *rindex (const char *s, int c)
+{
+	    return( strrchr(s, c));
 }
 #endif
 
