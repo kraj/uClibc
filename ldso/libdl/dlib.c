@@ -181,12 +181,18 @@ void *_dlopen(const char *libname, int flag)
 	if(_dl_debug) 
 	_dl_dprintf(_dl_debug_file, "Trying to dlopen '%s'\n", (char*)libname);
 #endif
-	if (!(tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname))) {
+	tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname);
+	if (tpnt == NULL) {
 		_dl_unmap_cache();
 		return NULL;
 	}
-	//tpnt->libtype = loaded_file;
+	if (tpnt->init_flag & INIT_FUNCS_CALLED) {
 
+	    /* If the init and fini stuff has already been run, that means
+	     * someone called dlopen on a library we already have opened, so
+	     * we don't need to fix thing up any further... */
+	    return tpnt;
+	}
 
 	dyn_chain = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 	_dl_memset(dyn_chain, 0, sizeof(struct dyn_elf));
@@ -203,6 +209,7 @@ void *_dlopen(const char *libname, int flag)
 	if(_dl_debug) 
 	_dl_dprintf(_dl_debug_file, "Looking for needed libraries\n");
 #endif
+
 	for (tcurr = tpnt; tcurr; tcurr = tcurr->next)
 	{
 		Elf32_Dyn *dpnt;
@@ -220,22 +227,17 @@ void *_dlopen(const char *libname, int flag)
 				_dl_dprintf(_dl_debug_file, "Trying to load '%s', needed by '%s'\n", 
 						lpntstr, tcurr->libname);
 #endif
-#if 0
-				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name)))
-				{
-				    /* If the needed library is already loaded, then we
-				     * need to override all globals and weaks in the current
-				     * chain...  Or something. */
-				    continue;
-				}
-#endif
 
 				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr))) {
 					goto oops;
 				}
+
+#if 1
+//FIXME:  Enabling this is _so_ wrong....
 				/* We need global symbol resolution for everything
 				 * in the dependent chain */
 				dyn_chain->flags |= RTLD_GLOBAL;
+#endif
 
 				rpnt->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 				_dl_memset (rpnt->next, 0, sizeof (struct dyn_elf));
@@ -269,7 +271,7 @@ void *_dlopen(const char *libname, int flag)
 	 * Now we go through and look for REL and RELA records that indicate fixups
 	 * to the GOT tables.  We need to do this in reverse order so that COPY
 	 * directives work correctly */
-	if (_dl_fixup(dyn_chain->dyn, (dyn_chain->flags & RTLD_LAZY)))
+	if (_dl_fixup(dyn_chain->dyn, dyn_chain->flags))
 		goto oops;
 
 #ifdef __SUPPORT_LD_DEBUG__
