@@ -72,35 +72,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
 
 #include "gcc-uClibc.h"
-
-static char *rpath_link[] = {
-	"-Wl,-rpath-link,"UCLIBC_DEVEL_PREFIX"/lib",
-	"-Wl,-rpath-link,"UCLIBC_BUILD_DIR"/lib"
-};
-
-static char *rpath[] = {
-	"-Wl,-rpath,"UCLIBC_DEVEL_PREFIX"/lib",
-	"-Wl,-rpath,"UCLIBC_BUILD_DIR"/lib"
-};
-
-static char *uClibc_inc[] = {
-	"-I"UCLIBC_DEVEL_PREFIX"/include/",
-	"-I"UCLIBC_BUILD_DIR"/include/"
-};
-
-static char *crt0_path[] = {
-	UCLIBC_DEVEL_PREFIX"/lib/crt0.o",
-	UCLIBC_BUILD_DIR"/lib/crt0.o"
-};
-
-static char *lib_path[] = {
-	"-L"UCLIBC_DEVEL_PREFIX"/lib",
-	"-L"UCLIBC_BUILD_DIR"/lib"
-};
 
 static char *usr_lib_path = "-L"UCLIBC_DEVEL_PREFIX"/lib";
 
@@ -110,6 +86,51 @@ static char nostartfiles[] = "-nostartfiles";
 static char nodefaultlibs[] = "-nodefaultlibs";
 static char nostdlib[] = "-nostdlib";
 
+
+extern void *xmalloc(size_t size)
+{
+	void *ptr = malloc(size);
+
+	if (!ptr) {
+	    fprintf(stderr, "memory exhausted");
+	    exit(EXIT_FAILURE);
+	}
+	return ptr;
+}
+
+void xstrcat(char **string, ...)
+{
+	const char *c;
+	va_list p; 
+#if 0
+	int len = 0;
+
+	/* Calculate how big exerything will be */
+	va_start(p, string);
+	while(1) {
+	    if (!(c = va_arg(p, const char *)))
+		break;
+	    len+=strlen(c);
+	}
+	va_end(p);
+	va_start(p, string);
+	*string = xmalloc(len * sizeof(const char) + 2);
+#else
+	 /* This is faster.  */
+	/* Don't bother to calculate how big exerything 
+	 * will be, just be careful to not overflow...  */
+	va_start(p, string);
+	*string = xmalloc(BUFSIZ);
+#endif
+	**string = '\0';
+	while(1) {
+	    if (!(c = va_arg(p, const char *)))
+		break;
+	    strcat(*string, c); 
+	}
+	va_end(p);
+}
+
 int main(int argc, char **argv)
 {
 	int use_build_dir = 0, linking = 1, use_static_linking = 0;
@@ -118,8 +139,45 @@ int main(int argc, char **argv)
 	int i, j;
 	char ** gcc_argv;
 	char *dlstr;
+	char *incstr;
+	char *devprefix;
+	char *builddir;
+	char *libstr;
 	char *build_dlstr;
 	char *ep;
+	char *rpath_link[2];
+	char *rpath[2];
+	char *uClibc_inc[2];
+	char *crt0_path[2];
+	char *lib_path[2];
+
+	devprefix = getenv("UCLIBC_DEVEL_PREFIX");
+	if (!devprefix) {
+		devprefix = UCLIBC_DEVEL_PREFIX;
+	}
+
+	builddir = getenv("UCLIBC_BUILD_DIR");
+	if (!builddir) {
+		builddir = UCLIBC_BUILD_DIR;
+	}
+
+	incstr = getenv("UCLIBC_GCC_INC");
+	libstr = getenv("UCLIBC_GCC_LIB");
+
+	xstrcat(&(rpath_link[0]), "-Wl,-rpath-link,", devprefix, "/lib", NULL);
+	xstrcat(&(rpath_link[1]), "-Wl,-rpath-link,", builddir, "/lib", NULL);
+
+	xstrcat(&(rpath[0]), "-Wl,-rpath,", devprefix, "/lib", NULL);
+	xstrcat(&(rpath[1]), "-Wl,-rpath,", builddir, "/lib", NULL);
+
+	xstrcat(&(uClibc_inc[0]), "-I", devprefix, "/include/", NULL);
+	xstrcat(&(uClibc_inc[1]), "-I", builddir, "/include/", NULL);
+
+	xstrcat(&(crt0_path[0]), devprefix, "/lib/crt0.o", NULL);
+	xstrcat(&(crt0_path[1]), builddir, "/lib/crt0.o", NULL);
+
+	xstrcat(&(lib_path[0]), "-L", devprefix, "/lib", NULL);
+	xstrcat(&(lib_path[1]), "-L", builddir, "/lib", NULL);
 
 	build_dlstr = "-Wl,--dynamic-linker," BUILD_DYNAMIC_LINKER;
 	dlstr = getenv("UCLIBC_GCC_DLOPT");
@@ -218,6 +276,8 @@ int main(int argc, char **argv)
 		gcc_argv[i++] = nostdinc;
 		gcc_argv[i++] = uClibc_inc[use_build_dir];
 		gcc_argv[i++] = GCC_INCDIR;
+		if( incstr )
+			gcc_argv[i++] = incstr;
 	}
 
 	if (linking && source_count) {
@@ -232,6 +292,8 @@ int main(int argc, char **argv)
 			}
 		}
 		gcc_argv[i++] = rpath_link[use_build_dir]; /* just to be safe */
+		if( libstr )
+			gcc_argv[i++] = libstr;
 		gcc_argv[i++] = lib_path[use_build_dir];
 		if (!use_build_dir) {
 			gcc_argv[i++] = usr_lib_path;
@@ -254,5 +316,6 @@ int main(int argc, char **argv)
 		}
 	}
 
+	//no need to free memory from xstrcat because we never return... 
 	return execvp(GCC_BIN, gcc_argv);
 }
