@@ -101,9 +101,7 @@ _init (void)
   /* Now the epilog. */
   asm ("\n/*@_init_PROLOG_ENDS*/");
   asm ("\n/*@_init_EPILOG_BEGINS*/");
-  SECTION(".init");
 }
-asm ("END_INIT");
 
 /* End of the _init epilog, beginning of the _fini prolog. */
 asm ("\n/*@_init_EPILOG_ENDS*/");
@@ -130,9 +128,7 @@ _fini (void)
 
   /* Beginning of the _fini epilog. */
   asm ("\n/*@_fini_EPILOG_BEGINS*/");
-  SECTION (".fini");
 }
-asm ("END_FINI");
 
 /* End of the _fini epilog.  Any further generated assembly (e.g. .ident)
    is shared between both crt files. */

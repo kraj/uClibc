@@ -31,19 +31,20 @@ if ($initfini) {
 } else {
     die "(fatal) Please give me an --initfini argument$!";
 }
-while($line = <INITFINI>) {
-    if ($line =~ /^\w\.endp/) {
+while(<INITFINI>) {
+    if (/\.endp/) {
 	$endp=1;
 	next;
     }
-    if ($line =~ /^\w\.end/) {
+    if (/\.end/) {
 	$end=1;
 	next;
     }
-    if ($line =~ /\w\.align\(.*\)/) {
+    if (/\.align(.*)/) {
 	$alignval=$1;
 	next;
     }
+
 }
 close(INITFINI);
 
@@ -79,7 +80,11 @@ while(<INITFINI>) {
     }
     if (/PROLOG_BEGINS/) {
 	$omitcrti = 0;
+	$omitcrtn = 0;
 	next;
+    }
+    if (/^_init:/ || /^_fini:/) {
+	$omitcrtn = 1;
     }
     if (/PROLOG_PAUSES/) {
 	$omitcrti = 1;
