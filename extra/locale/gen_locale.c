@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 #include <assert.h>
 #include <locale.h>
 #include <langinfo.h>
@@ -547,7 +548,48 @@ static int lc_numeric_uniq;
 static void lc_numeric_S(int X, int k)
 {
 	int j, m;
-	j = addstring(nl_langinfo(X));
+	char buf[256];
+	char *e;
+	char *s;
+	char c;
+
+	s = nl_langinfo(X);
+	if (X == GROUPING) {
+		if (s) {
+			if ((*s == CHAR_MAX) || (*s == -1)) { /* stupid glibc... :-( */
+				s = "";
+			}
+			e = s;
+			c = 0;
+			while (*e) { /* find end of string */
+				if (*e == CHAR_MAX) {
+					c = CHAR_MAX;
+					++e;
+					break;
+				}
+				++e;
+			}
+			if ((e - s) > sizeof(buf)) {
+				printf("grouping specifier too long\n");
+				exit(EXIT_FAILURE);
+			}
+			strncpy(buf, s, (e-s));
+			e = buf + (e-s);
+			*e = 0;				/* Make sure we're null-terminated. */
+
+			if (c != CHAR_MAX) { /* remove duplicate repeats */
+				while (e > buf) {
+					--e;
+					if (*e != e[-1]) {
+						break;
+					}
+				}
+				*++e = 0;
+			}
+			s = buf;
+		}
+	}
+	j = addstring(s);
 	for (m=0 ; m < lc_numeric_count[k] ; m++) {
 		if (lc_numeric_item[k][m] == j) {
 			break;
@@ -692,7 +734,48 @@ static void lc_monetary_C(int X, int k)
 static void lc_monetary_S(int X, int k)
 {
 	int j, m;
-	j = addstring(nl_langinfo(X));
+	char buf[256];
+	char *e;
+	char *s;
+	char c;
+
+	s = nl_langinfo(X);
+	if (X == MON_GROUPING) {
+		if (s) {
+			if ((*s == CHAR_MAX) || (*s == -1)) { /* stupid glibc... :-( */
+				s = "";
+			}
+			e = s;
+			c = 0;
+			while (*e) { /* find end of string */
+				if (*e == CHAR_MAX) {
+					c = CHAR_MAX;
+					++e;
+					break;
+				}
+				++e;
+			}
+			if ((e - s) > sizeof(buf)) {
+				printf("mon_grouping specifier too long\n");
+				exit(EXIT_FAILURE);
+			}
+			strncpy(buf, s, (e-s));
+			e = buf + (e-s);
+			*e = 0;				/* Make sure we're null-terminated. */
+
+			if (c != CHAR_MAX) { /* remove duplicate repeats */
+				while (e > buf) {
+					--e;
+					if (*e != e[-1]) {
+						break;
+					}
+				}
+				*++e = 0;
+			}
+			s = buf;
+		}
+	}
+	j = addstring(s);
 	for (m=0 ; m < lc_monetary_count[k] ; m++) {
 		if (lc_monetary_item[k][m] == j) {
 			break;
