@@ -34,7 +34,7 @@ endif
 
 ARFLAGS=r
 
-CCFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -Dlinux -D__linux__ -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D__LIBC__
+CCFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D__LIBC__
 
 CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
 
