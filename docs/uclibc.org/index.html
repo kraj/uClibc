@@ -112,6 +112,44 @@ you might want to search the mailing list archives...
 <ul>
     
     <p>
+    <li> <b>9 January 2003, uClibc development system released</b>
+    <br>
+
+    CodePoet Consulting (i.e. Erik) has been working hard on <a
+    href="/cgi-bin/cvsweb/buildroot/">buildroot</a> recently, and is pleased to
+    offer a full stand-alone uClibc-only development system.  This is an ext2
+    filesystem for i386 containing all the development software you need to
+    build your own uClibc applications.  With bash, awk, make, gcc, g++,
+    autoconf, automake, ncurses, zlib, openssl, openssh, gdb, strace, valgrind,
+    busybox, GNU coreutils, and more, this should have pretty much everything
+    you need to get started building your own applications linked against
+    uClibc.  By using a uClibc only system, you can avoid all the painful
+    cross-configuration problems that have made using uClibc somewhat painful
+    in the past.  A powerpc and an arm version are in progress.  Expect them
+    to be released shortly....
+
+    <p>
+
+    The <a href="ftp://ftp.uclibc.org/uClibc/root_fs_0.9.17.pre-i386.bz2/">
+    uClibc development system is an 18MB bzip2 compressed ext2 filesystem</a>,
+    so be prepared to wait if you are on a slow link.  If you wish to have more
+    space, you can loop mount it and 'cp -a' the contents to their own
+    partition, or do what I did... <EM>WARNING, the following can be very
+    dangerous.  Please be sure you know what you are doing before trying this.
+    I am not responsible if you lose all your important data.</EM>I had a spare
+    hard drive (in my case /dev/hdg but you'll want to adapt this to your own 
+    needs), so I partitioned it with a single ext2 partition filling the drive 
+    (in my case /dev/hdg1).  Then I ran:<PRE>
+    bzcat root_fs_0.9.17.pre-i386.bz2 | dd of=/dev/hdg1
+    e2fsck -f /dev/hdg1
+    resize2fs -p /dev/hdg1</PRE>
+
+    which overwrote everything on /dev/hdg with the new uClibc devel system,
+    and then expanded the filesystem with the uClibc devel system till it
+    filled the whole drive.
+    <p>
+
+    <p>
     <li> <b>8 November 2002, uClibc 0.9.16 Released</b>
     <br>
 
