@@ -4,7 +4,8 @@ include $(TOPDIR)Rules.mak
 
 # NOTE: This may need to be modified on each system.
 # If your default dynamic linker works, comment this out.
-DYNAMIC_LINKER = /lib/ld-linux.so.1
+#DYNAMIC_LINKER = /lib/ld-linux.so.1
+DYNAMIC_LINKER = $(shell ls /lib/ld*.so.[0-9] | sort | tail -n 1)
 
 UCLIBC_DIR = $(shell (cd ../.. ; /bin/pwd))
 GCC_BIN = $(CC)
