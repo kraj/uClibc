@@ -1698,13 +1698,13 @@ void tzset(void)
 #ifdef __UCLIBC_HAS_TZ_CACHING__
 		*oldval = 0;			/* Set oldval to an empty string. */
 #endif /* __UCLIBC_HAS_TZ_CACHING__ */
+		_time_tzinfo[0].gmt_offset = 0L;
 		s = _time_tzinfo[0].tzname;
 		*s = 'U';
 		*++s = 'T';
 		*++s = 'C';
 		*++s =
 		*_time_tzinfo[1].tzname = 0;
-		_time_tzinfo[0].gmt_offset = 0;
 		goto DONE;
 	}
 
