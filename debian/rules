@@ -41,6 +41,8 @@ endif
 
 ifneq ($(target),$(DEB_HOST_GNU_CPU))
 cross_options = --cross="$(target)-linux-"
+else
+cross_options = --cross=""
 endif
 
 p_dev=libuclibc-dev$(target_suffix)
@@ -71,6 +73,14 @@ build-stamp: debian/control
 #endif
 	
 	touch $(kernel_source)/include/linux/autoconf.h
+
+	# Various stupid programs use linux/version.h to find the
+	# Linux version.
+	( \
+		echo '#define UTS_RELEASE "2.4.16"' \
+		echo '#define LINUX_VERSION_CODE 132112' \
+		echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))' \
+	) >$(kernel_source)/include/linux/version.h
 
 	extra/Configs/uClibc_config_fix.pl \
 		--arch=$(target) \
