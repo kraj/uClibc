@@ -54,6 +54,11 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 # define VFORK_UNLOCK	UNLOCK
 #endif
 
+/* Temporarily support old stdio code. */
+#ifndef __MASK_READING
+#define __filedes		filedes
+#endif
+
 struct popen_list_item {
 	struct popen_list_item *next;
 	FILE *f;
