@@ -24,14 +24,20 @@ TOPDIR=../
 include $(TOPDIR)Rules.make
 LIBC=$(TOPDIR)libc.a
 
-OBJ=__getpwent.o pwent.o getpwnam.o getpwuid.o putpwent.o getpw.o fgetpwent.o \
-	__getgrent.o grent.o getgrnam.o getgrgid.o fgetgrent.o initgroups.o \
-	utent.o
+CSRC=__getpwent.c pwent.c getpwnam.c getpwuid.c putpwent.c getpw.c fgetpwent.c \
+	__getgrent.c grent.c getgrnam.c getgrgid.c fgetgrent.c initgroups.c \
+	utent.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(OBJ) $(LIBC)
 
-$(LIBC): $(OBJ)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJ)
+all: $(COBJS) $(LIBC)
+
+$(LIBC): $(COBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(COBJS)
+
+$(COBJS): Makefile
+__getgrent.c: config.h
+initgroups.c: config.h
 
 clean:
 	rm -f *.[oa] *~ core
