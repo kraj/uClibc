@@ -35,7 +35,7 @@
 	.section ".text"
 	.globl	_start
 	.type	_start,@function
-#if defined L_crt0 || L_Scrt0 || ! defined __UCLIBC_CTOR_DTOR__
+#if defined L_crt0 || defined L_Scrt0 || ! defined __UCLIBC_CTOR_DTOR__
 	.type	__uClibc_main,%function
 #else
 	.weak	_init
