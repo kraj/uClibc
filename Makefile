@@ -1,6 +1,7 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000, 2001 by Lineo, inc.
+# Written by Erik Andersen <andersen@lineo.com>, <andersee@debian.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -56,7 +57,8 @@ shared: $(LIBNAME)
 		    ./$(LIBNAME) $(LDSO) ; \
 	fi
 	@rm -rf tmp
-	ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME)
+	cp -a $(SHARED_FULLNAME) lib;
+	(cd lib; ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME));
 	@$(MAKE) -C libcrypt shared
 	@$(MAKE) -C libutil shared
 	@$(MAKE) -C libm shared
@@ -110,23 +112,12 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 $(patsubst %, _dirclean_%, $(DIRS) test) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
-install: install_runtime install_dev install_ldso
+install: install_runtime install_dev
 
 # Installs shared library
 install_runtime:
-	@$(MAKE) -C libcrypt install
-	@$(MAKE) -C libutil install
-	@$(MAKE) -C libm install
-ifneq ($(DO_SHARED),)
 	install -d $(INSTALL_DIR)/lib
-	rm -rf $(INSTALL_DIR)/lib/$(SHARED_FULLNAME)
-	rm -rf $(INSTALL_DIR)/lib/$(SHARED_MAJORNAME)
-	rm -rf $(INSTALL_DIR)/lib/libc.so
-	install -m 755 $(SHARED_FULLNAME) $(INSTALL_DIR)/lib/
-	(cd $(INSTALL_DIR)/lib;ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME))
-else
-	echo shared library not installed
-endif
+	cp -fa lib/* $(INSTALL_DIR)/lib;
 
 # Installs development library and headers
 # This is done with the assumption that it can blow away anything
@@ -148,16 +139,6 @@ install_dev:
 	@if [ -f crt0.o ] ; then install -m 644 crt0.o $(INSTALL_DIR)/lib/; fi
 	install -d $(INSTALL_DIR)/bin
 	$(MAKE) -C extra/gcc-uClibc install
-
-
-install_ldso:
-ifeq ($(strip $(DO_SHARED)),shared)
-	$(MAKE) -C ld.so-1 install
-	install -d $(INSTALL_DIR)/etc
-	#$(TOPDIR)ld.so-1/util/ldconfig
-else
-	@echo "Skipping shared library support"
-endif
 
 uClibc_config.h: Config
 	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > uClibc_config.h

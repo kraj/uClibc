@@ -25,6 +25,7 @@ include $(TOPDIR)Rules.mak
 
 LIBM=libm.a
 LIBM_SHARED=libm.so
+LIBM_SHARED_FULLNAME=libm-$(MAJOR_VERSION).$(MINOR_VERSION).so
 TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 DIRS=
@@ -42,20 +43,23 @@ ALL_SUBDIRS = float double ldouble
 all: $(LIBM)
 
 $(LIBM): subdirs
+	@if [ -f $(LIBM) ] ; then \
+		install -d $(TOPDIR)lib; \
+		rm -f $(TOPDIR)lib/$(LIBM); \
+		install -m 644 $(LIBM) $(TOPDIR)lib; \
+	fi;
 
 tags:
 	ctags -R
 	
-shared: $(LIBM)
-	$(TARGET_CC) $(LDFLAGS) -shared -o $(LIBM_SHARED).$(MAJOR_VERSION) \
-	    -Wl,-soname,$(LIBM_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBM) $(TOPDIR)$(SHARED_FULLNAME)
-
-install: all
-	install -d $(INSTALL_DIR)/lib
-	install -m 644 $(LIBM) $(INSTALL_DIR)/lib/
-	@if [ -f $(LIBM_SHARED).$(MAJOR_VERSION) ] ; then \
-	    install -m 644 $(LIBM_SHARED).$(MAJOR_VERSION) $(INSTALL_DIR)/lib/; \
-	    (cd $(INSTALL_DIR)/lib/;ln -sf $(LIBM_SHARED).$(MAJOR_VERSION) $(LIBM_SHARED)); \
+shared: all
+	@if [ -f $(LIBM) ] ; then \
+		$(TARGET_CC) $(LDFLAGS) -shared -o $(LIBM_SHARED_FULLNAME) \
+		    -Wl,-soname,$(LIBM_SHARED).$(MAJOR_VERSION) $(OBJS) $(TOPDIR)$(SHARED_FULLNAME); \
+		install -d $(TOPDIR)lib; \
+		rm -f $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
+		install -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib; \
+		(cd $(TOPDIR)lib; ln -sf $(LIBM_SHARED_FULLNAME) $(LIBM_SHARED).$(MAJOR_VERSION)); \
 	fi;
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
@@ -68,7 +72,7 @@ $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 clean: subdirs_clean
-	rm -f *.[oa] *~ core $(LIBM_SHARED)* $(LIBM)
+	rm -f *.[oa] *~ core $(LIBM_SHARED)* $(LIBM_SHARED_FULLNAME)*
 
 .PHONY: dummy
 

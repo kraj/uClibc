@@ -25,13 +25,11 @@ include $(TOPDIR)Rules.mak
 
 LIBCRYPT=libcrypt.a
 LIBCRYPT_SHARED=libcrypt.so
+LIBCRYPT_SHARED_FULLNAME=libcrypt-$(MAJOR_VERSION).$(MINOR_VERSION).so
 TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 CSRC = crypt.c des.c md5.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-
-
-OBJS=$(COBJS)
+OBJS=$(patsubst %.c,%.o, $(CSRC))
 
 all: $(OBJS) $(LIBCRYPT)
 
@@ -39,28 +37,24 @@ $(LIBCRYPT): ar-target
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBCRYPT) $(OBJS)
+	install -d $(TOPDIR)lib
+	rm -f $(TOPDIR)lib/$(LIBCRYPT)
+	install -m 644 $(LIBCRYPT) $(TOPDIR)lib/
 
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(TARGET_CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
 
-shared: $(LIBCRYPT)
-	$(TARGET_CC) $(LDFLAGS) -shared -o $(LIBCRYPT_SHARED).$(MAJOR_VERSION) \
-	    -Wl,-soname,$(LIBCRYPT_SHARED).$(MAJOR_VERSION) $(COBJS) $(TOPDIR)$(SHARED_FULLNAME)
-
-install: all
-	install -d $(INSTALL_DIR)/lib
-	install -m 644 $(LIBCRYPT) $(INSTALL_DIR)/lib/
-	@if [ -f $(LIBCRYPT_SHARED).$(MAJOR_VERSION) ] ; then \
-	    install -m 644 $(LIBCRYPT_SHARED).$(MAJOR_VERSION) $(INSTALL_DIR)/lib/; \
-	    (cd $(INSTALL_DIR)/lib/;ln -sf $(LIBCRYPT_SHARED).$(MAJOR_VERSION) $(LIBCRYPT_SHARED)); \
-	fi;
+shared: all
+	$(TARGET_CC) $(LDFLAGS) -shared -o $(LIBCRYPT_SHARED_FULLNAME) \
+	    -Wl,-soname,$(LIBCRYPT_SHARED).$(MAJOR_VERSION) $(OBJS) $(TOPDIR)$(SHARED_FULLNAME)
+	install -d $(TOPDIR)lib
+	rm -f $(TOPDIR)lib/$(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBCRYPT_SHARED).$(MAJOR_VERSION)
+	install -m 644 $(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib/;
+	(cd $(TOPDIR)lib; ln -sf $(LIBCRYPT_SHARED_FULLNAME) $(LIBCRYPT_SHARED).$(MAJOR_VERSION)); 
 
 clean: 
-	rm -f *.[oa] *~ core $(LIBCRYPT_SHARED)*
-
-.PHONY: dummy
-
+	rm -f *.[oa] *~ core $(LIBCRYPT_SHARED)* $(LIBCRYPT_SHARED_FULLNAME)*
 

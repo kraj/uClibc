@@ -1,5 +1,8 @@
 libc.a       
 libcrt0.o
-libuClibc.so.1
+uClibc.so*
+libuClibc.so*
 uClibc_config.h
 uClibc-0*
+libuClibc-0*
+lib

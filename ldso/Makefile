@@ -8,14 +8,12 @@ all:
 	@if [ -d $(TOPDIR)ld.so-1/d-link/$(TARGET_ARCH) ] ; then \
 		set -e ; for d in $(SUBDIRS) ; do $(MAKE) -C $$d ; done \
 	fi;
-
-install: all
-	if [ -d $(TOPDIR)ld.so-1/d-link/$(TARGET_ARCH) ] ; then \
-		install -d $(INSTALL_DIR)/lib $(INSTALL_DIR)/etc ; \
-		install -m 755 $(TOPDIR)ld.so-1/d-link/$(UCLIBC_LDSO) $(INSTALL_DIR)/lib/ld-linux-uclibc.so ; \
-		install -m 644 $(TOPDIR)ld.so-1/libdl/$(LIBDL).$(MAJOR_VERSION) $(INSTALL_DIR)/lib/  ; \
-		(cd $(INSTALL_DIR)/lib/;ln -sf ld-linux-uclibc.so $(UCLIBC_LDSO)); \
-		(cd $(INSTALL_DIR)/lib/;ln -sf $(LIBDL).$(MAJOR_VERSION) $(LIBDL))  ; \
+	@if [ -d $(TOPDIR)ld.so-1/d-link/$(TARGET_ARCH) ] ; then \
+		install -d $(TOPDIR)lib ; \
+		install -m 755 $(TOPDIR)ld.so-1/d-link/$(UCLIBC_LDSO) $(TOPDIR)lib/ld-linux-uclibc.so ; \
+		install -m 644 $(TOPDIR)ld.so-1/libdl/$(LIBDL).$(MAJOR_VERSION) $(TOPDIR)lib  ; \
+		(cd $(TOPDIR)lib;ln -sf ld-linux-uclibc.so $(UCLIBC_LDSO)); \
+		(cd $(TOPDIR)lib;ln -sf $(LIBDL).$(MAJOR_VERSION) $(LIBDL))  ; \
 	fi;
 
 ldso:
