@@ -38,14 +38,15 @@ MOBJ4=hcreate_r.o hdestroy_r.o hsearch_r.o
 
 CSRC=hsearch.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
 
-all: $(MOBJ1) $(MOBJ2) $(MOBJ3) $(MOBJ4) $(OBJS) $(LIBC)
+OBJS=$(COBJS) $(MOBJ1) $(MOBJ2) $(MOBJ3) $(MOBJ4)
+
+all: $(OBJS) $(LIBC)
 
 $(LIBC): ar-target
 
-ar-target: $(MOBJ)
-	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ)
+ar-target:  $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
 $(MOBJ1): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
