@@ -1,0 +1,2275 @@
+uClibc thread-safety analysis
+By Steve Thayer <sthayer@coactive.com>
+with updates by Erik Andersen <andersee@debian.org>
+
+Introduction:
+
+The purpose of this document is to identify the things that need to be done
+to the uClibc C library in order to make it thread-safe.  The goal is to be
+able to use a pthreads thread implementation under uClinux, using the uClibc
+C library.  To help identify the things that require changing, I used David R.
+Butenhof's book Programming With POSIX Threads, the source code for the
+glibc 2.1.3 C library, and the source code for the C library included in the
+Proventhreads distribution.
+
+References:
+
+Butenhof, David R., Programming With POSIX Threads,  Addison Wesley Longman, Inc., Reading, MA, ISBN 0-201-63392-2, 1997.
+
+
+The GNU C library is available from the Free Software Foundation 
+http://www.gnu.org/software/libc/libc.html
+
+Proventhreads is part of the Inferno Operating system.
+http://www.vitanuova.com/inferno/index.html
+
+
+1. Stdio:
+
+1.1 Buffer access mutexes
+
+        The following functions are required in order to protect shared
+        I/O buffers from being accessed by more than one thread at a time.
+        None of these functions are currently implemented in the uClibc
+        library, so they must be added.
+
+        flockfile               <required>                              <---
+        ftrylockfile            <required>                              <---
+        funlockfile             <required>                              <---
+
+1.2 Functions that must use buffer access mutexes, according to Butenhof
+
+        The following functions are identified by Butenhof as needing to use
+        buffer access mutexes.  This does not represent all functions that
+        need to use the mutexes.
+
+        getc                    <mutex required>                        <---
+        getchar                 <mutex required>                        <---
+        putc                    <mutex required>                        <---
+        putchar                 <mutex required>                        <---
+
+1.3 Functions from glibc (libio) that use buffer access mutexes
+
+        The following functions are functions found in glibc that currently
+        use the buffer access mutexes.  Comments in brackets represent
+        status of uClibc with regard to these functions.  Most of these
+        functions aren't even supported under uClibc, so no work is required.
+        The rest may require the access mutex. (These must be analyzed on a
+        case-by-case basis.)
+
+        clearerr                <mutex required>                        <---
+        feof                    <mutex required>                        <---
+        ferror                  <mutex required>                        <---
+        fputc                   <mutex required>                        <---
+        fputwc                  <not supported>
+        freopen                 <mutex required>                        <---
+        freopen64               <not supported>
+        fseek                   <mutex required>                        <---
+        fseeko                  <not supported>
+        fseeko64                <not supported>
+        ftello                  <not supported>
+        ftello64                <not supported>
+        fwide                   <not supported>
+        getc                    <macro for fgetc>
+        getchar                 <macro for fgetc>
+        getwc                   <not supported>
+        getwchar                <not supported>
+        iofclose                <not supported>
+        iofflush                <not supported>
+        iofgetpos               <not supported>
+        iofgetpos64             <not supported>
+        iofgets                 <not supported>
+        iofgetws                <not supported>
+        iofputs                 <not supported>
+        iofputws                <not supported>
+        iofread                 <not supported>
+        iofsetpos               <not supported>
+        iofsetpos64             <not supported>
+        ioftell                 <not supported>
+        iofwrite                <not supported>
+        iogetdelim              <not supported>
+        iogets                  <not supported>
+        ioputs                  <not supported>
+        ioseekoff               <not supported>
+        ioseekpos               <not supported>
+        iosetbuffer             <not supported>
+        iosetvbuf               <not supported>
+        ioungetc                <not supported>
+        ioungetwc               <not supported>
+        oldiofclose             <not supported>
+        oldiofgetpos            <not supported>
+        oldiofgetpos64          <not supported>
+        oldiofsetpos            <not supported>
+        oldiofsetpos64          <not supported>
+        peekc                   <not supported>
+        putc                    <macro for fputc>
+        putchar                 <macro for fputc>
+        putwc                   <not supported>
+        putwchar                <not supported>
+        rewind                  <mutex required>                        <---
+
+1.4 Functions from Proventhreads that use buffer access mutexes
+
+        See description above.  This applies only to the C library included
+        in the proventhreads distribution.
+
+        clearerr                <mutex required>                        <---
+        fclose                  <mutex required>                        <---
+        fflush                  <mutex required>                        <---
+        fgetc                   <mutex required>                        <---
+        __getc                  <not supported>
+        fgetline                <not supported>
+        fgetpos                 <mutex required>                        <---
+        fgets                   <mutex required>                        <---
+        fpurge                  <not supported>
+        fputc                   <mutex required>                        <---
+        __putc                  <not supported>
+        fputs                   <mutex required>                        <---
+        fread                   <mutex required>                        <---
+        freopen                 <mutex required>                        <---
+        fscanf                  <mutex required>                        <---
+        fseek                   <mutex required>                        <---
+        ftell                   <mutex required>                        <---
+        fwalk                   <not supported>
+        fwrite                  <mutex required>                        <---
+        getc                    <macro for fgetc>
+        getchar                 <mutex required>                        <---
+        putc                    <macro for fputc>
+        putchar                 <mutex required>                        <---
+        puts                    <mutex required>                        <---
+        putw                    <not supported>
+        refill                  <not supported>
+        rewind                  <mutex required>                        <---
+        scanf                   <mutex required>                        <---
+        setvbuf                 <mutex required>                        <---
+        ungetc                  <mutex required>                        <---
+        vfprintf                <mutex required>                        <---
+        vscanf                  <mutex required>                        <---
+
+1.5 Unlocked buffer access
+
+        These functions get used in situations where speed is important,
+        and locking isn't necessary, or for use in a section of code that
+        is already locked.  For example, a for-loop that makes multiple calls
+        to getc could make an exlicit call to flockfile outside the loop, and
+        then use getc_unlocked within the loop for speed.  That way, the lock
+        only needs to be grabbed and released once, rather than for each call.
+
+        getc_unlocked           <required>                              <---
+        getchar_unlocked        <required>                              <---
+        putc_unlocked           <required>                              <---
+        putchar_unlocked        <required>                              <---
+
+1.6 Additional unlocked calls made in glibc
+
+        These are additional functions (not mentioned by Butenhof) that the
+        glibc library uses for unlocked buffer access.  Though not strictly
+        necessary, these may be nice to have in uClibc.
+
+        fileno_unlocked         <desired>                               <---
+        clearerr_unlocked       <desired>                               <---
+        feof_unlocked           <desired>                               <---
+        ferror_unlocked         <desired>                               <---
+        fputc_unlocked          <desired>                               <---
+        fgetc_unlocked          <desired>                               <---
+        fflush_unlocked         <desired>                               <---
+        fread_unlocked          <desired>                               <---
+        fwrite_unlocked         <desired>                               <---
+        fgets_unlocked          <desired>                               <---
+        fputs_unlocked          <desired>                               <---
+
+1.7 Additional unlocked calls made in Proventhreads
+
+        Proventhreads only provides the four unlocked function calls above.
+
+        <none>
+
+
+2. Thread-safe functions:
+
+	There are some functions in the C library standard that are
+	simply not thread-safe and cannot be thread-safe using their
+	current interface.  For example, any function that returns a
+	pointer to static data, or requires static context between
+	calls.  To resolve this problem, new functions were added to
+	the standard that perform the same basic task, but use a new
+	interface that does not require static data.  These functions
+	share their name with the old unsafe functions, but have an
+	"_r" appended to the name.  By definition, these functions are
+	reentrant and thread-safe.  It is important to note that these
+	functions to do not depend on <pthread.h> and can be used even
+	if threading is not supported.
+
+2.1 User and terminal identification:
+
+        getlogin_r              <implemented>
+        ctermid                 <implemented>                           (1)
+        ttyname_r               <required>                              <---
+
+        1. ctermid is a special case.  The signature has not changed, but a
+        requirement has been added that its parameter point to a structure
+        of exactly L_ctermid bytes.  
+
+2.2 Directory searching
+
+        readdir_r               <required>                              <---
+
+2.3 String token
+
+        strtok_r                <implemented>
+
+2.4 Time representation
+
+        asctime_r               <implemented>
+        ctime_r                 <implemented>
+        gmtime_r                <implemented>
+        localtime_r             <implemented>
+
+2.5 Random number generation
+
+        rand_r                  <required>                              <---
+
+2.6 Group and user database
+
+        getgrgid_r              <required>                              <---
+        getgrnam_r              <required>                              <---
+        getpwuid_r              <implemented>
+        getpwnam_r              <implemented>
+
+2.7 Additional thread-safe functions implemented by glibc
+
+        The following is a list of additional functions implemented by glibc
+        that also provide thread-safe functionality.  Most of these functions
+        are not supported by uClibc, so there is no need to implement the
+        thread-safe version.  Those that do apply, but have not been
+        implemented yet are highlighted.
+
+        __fgetpwent_r                   <not supported>
+        fgetpwent_r                     <implemented>
+        __ttyname_r                     <not supported>
+        getttyname_r                    <not supported>
+        __getmntent_r                   <not supported>
+        getmntent_r                     <desired>                       <---
+        ecvt_r                          <not supported>
+        fcvt_r                          <not supported>
+        qecvt_r                         <not supported>
+        qfcvt_r                         <not supported>
+        hcreate_r                       <not supported>
+        hdestroy_r                      <not supported>
+        hsearch_r                       <not supported>
+        __getspent_r                    <not supported>
+        getspent_r                      <not supported>
+        __getspnam_r                    <not supported>
+        getspnam_r                      <not supported>
+        __sgetspent_r                   <not supported>
+        sgetspent_r                     <not supported>
+        __fgetspent_r                   <not supported>
+        fgetspent_r                     <not supported>
+        __gethostbyaddr_r               <not supported>
+        gethostbyaddr_r                 <desired>                       <---
+        __gethostbyname2_r              <not supported>
+        gethostbyname2_r                <not supported>
+        __gethostbyname_r               <not supported>
+        gethostbyname_r                 <desired>                       <---
+        __gethostent_r                  <not supported
+        gethostent_r                    <not supported>
+        __getnetbyaddr_r                <not supported>
+        getnetbyaddr_r                  <desired>                       <---
+        __getnetent_r                   <not supported>
+        getnetent_r                     <desired>                       <---
+        __getnetbyname_r                <not supported>
+        getnetbyname_r                  <desired>                       <---
+        __getprotobynumber_r            <not supported>
+        getprotobynumber_r              <desired>                       <---
+        __getprotoent_r                 <not supported>
+        getprotoent_r                   <desired>                       <---
+        __getprotobyname_r              <not supported>
+        getprotobyname_r                <desired>                       <---
+        __getservbyname_r               <not supported>
+        getservbyname_r                 <desired>                       <---
+        __getservbyport_r               <not supported>
+        getservbyport_r                 <desired>                       <---
+        __getservent_r                  <not supported>
+        getservent_r                    <desired>                       <---
+        __getrpcent_r                   <not supported>
+        getrpcent_r                     <desired>                       <---
+        __getrpcbyname_r                <not supported>
+        getrpcbyname_r                  <desired>                       <---
+        __getrpcbynumber_r              <not supported>
+        getrpcbynumber_r                <desired>                       <---
+        ether_aton_r                    <not supported>
+        ether_ntoa_r                    <not supported>
+        __getnetgrent_r                 <not supported>
+        __internal_getnetgrent_r        <not supported>
+        getnetgrent_r                   <not supported>
+        __getaliasent_r                 <not supported>
+        getaliasent_r                   <not supported>
+        __getaliasbyname_r              <not supported>
+        getaliasbyname_r                <not supported>
+        __nscd_getpwnam_r               <not supported>
+        __nscd_getpwuid_r               <not supported>
+        nscd_getpw_r                    <not supported>
+        __nscd_getgrgid_r               <not supported>
+        __nscd_getgrnam_r               <not supported>
+        nscd_getgr_r                    <not supported>
+        __nscd_gethostbyaddr_r          <not supported>
+        __nscd_gethostbyname2_r         <not supported>
+        __nscd_gethostbyname_r          <not supported>
+        nscd_gethst_r                   <not supported>
+        __getutent_r                    <desired>                       <---
+        getutent_r                      <desired>                       <---
+        getutent_r_unknown              <not supported>
+        getutid_r_unknown               <not supported>
+        getutline_r_unknown             <not supported>
+        __getutid_r                     <not supported>
+        getutid_r                       <desired>                       <---
+        __getutline_r                   <not supported>
+        getutline_r                     <required>                      <---
+        getutent_r_file                 <not supported>
+        getutid_r_file                  <not supported>
+        getutline_r_file                <not supported>
+        internal_getut_r                <not supported>
+        getutent_r_daemon               <not supported>
+        getutid_r_daemon                <not supported>
+        getutline_r_daemon              <not supported>
+        __ptsname_r                     <not supported>
+        ptsname_r                       <not supported>
+
+
+2.8 Additional thread-safe functions implemented by Proventhreads
+
+        See description above.  This applies only to the C library included
+        in the proventhreads distribution.
+
+        inet_ntoa_r             <desired>                               <---
+        gethostbyaddr_r         <desired>                               <---
+        gethostbyname_r         <desired>                               <---
+        gethostent_r            <not supported>
+        getnetbyaddr_r          <desired>                               <---
+        getnetbyname_r          <desired>                               <---
+        getnetent_r             <desired>                               <---
+        getprotobynumber_r      <desired>                               <---
+        getprotoent_r           <desired>                               <---
+        getprotobyname_r        <desired>                               <---
+        getservbyname_r         <desired>                               <---
+        getservbyport_r         <desired>                               <---
+        getservent_r            <desired>                               <---
+
+
+3. List of functions in uClibc that use static data structures
+
+        The following is a list of static data structures found in uClibc,
+        and the functions that use them.  In most cases, static data is not
+        thread-safe, since multiple threads can access the same data at the
+        same time.  This is an attempt to identify all of the static data that
+        is not considered thread-safe.  Some of these problems will get
+        resolved by the changes outlines above.
+
+        crypt/crypt.c:
+
+        static struct crypt_data __crypt_data;
+
+        crypt                   <crypt_r implemented>
+        setkey                  <setkey_r implemented>
+        encrypt                 <encrypt_r implemented>
+
+        --------------------------------------------------------------------
+
+        crypt/md5.c:
+
+        static unsigned char PADDING[64]        <fix desired>           <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        inet/addr.c:
+
+        static char buf[16];
+
+        inet_ntoa               <inet_ntoa_r not implemented>           <---
+
+        --------------------------------------------------------------------
+
+        inet/getnetent.c:
+
+        static FILE *netf = NULL;
+        static char line[BUFSIZ+1];
+        static struct netent net;
+        static char *net_aliases[MAXALIASES];
+
+        setnetent               <fix required>                          <---
+        endnetent               <fix required>                          <---
+        getnetent               <getnetent_r required>                  <---
+
+        NOTE: setnetent and endnetent are not implemented in glibc.
+        Proventhreads uses pthread mutexes to protect this static data.
+
+        --------------------------------------------------------------------
+
+        inet/getproto.c:
+
+        static FILE *protof = NULL;
+        static char line[BUFSIZ+1];
+        static struct protoent proto;
+        static char *proto_aliases[MAXALIASES];
+        static int proto_stayopen;
+
+        setprotoent             <fix required>                          <---
+        endprotoent             <fix required>                          <---
+        getprotoent             <getprotoent_r required>                <---
+        getprotobyname          <getprotobyname_r required>             <---
+        getprotobynumber        <getprotobynumber required>             <---
+
+        NOTE: setprotoent and endprotoent are not implemented in glibc.
+        Proventhreads uses pthread mutexes to protect this static data.
+
+        --------------------------------------------------------------------
+
+        inet/getservice.c:
+
+        static FILE *servf = NULL;
+        static char line[BUFSIZ+1];
+        static struct servent serv;
+        static char *serv_aliases[MAXALIASES];
+        static int serv_stayopen;
+
+        setservent              <fix required>                          <---
+        endservent              <fix required>                          <---
+        getservent              <getservent_r required>                 <---
+        getservbyname           <getservbyname_r required>              <---
+        getservbyport           <getservbyport_r required>              <---
+
+        NOTE: setservent and endservent are not implemented in glibc.
+        Proventhreads uses pthread mutexes to protect this static data.
+
+        --------------------------------------------------------------------
+
+        net/resolv.c:   
+
+        static int id = 1;
+        static int ns = 0;
+
+        dns_lookup              <fix required>                          <---
+
+        NOTE: dns_lookup is not implemented by glibc or Proventhreads.
+
+        static struct hostent h;
+        static char namebuf[256];
+        static struct in_addr in;
+        static struct in_addr *addr_list[2];
+
+        gethostbyname           <gethostbyname_r required>              <---
+
+        static struct hostent h;
+        static char namebuf[256];
+        static struct in_addr in;
+        static struct in_addr *addr_list[2];
+
+        gethostbyaddr           <gethostbyaddr_r required>              <---
+
+        static struct hostent   h;
+        static struct in_addr   in;
+        static struct in_addr   *addr_list[2];
+        static char                             line[80];
+
+        read_etc_hosts          <fix required>                          <---
+
+        NOTE: dns_lookup is not implemented by glibc or Proventhreads.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/auth_none.c:
+
+        static struct auth_ops ops
+        static struct authnone_private
+
+        authnone_create         <fix required>                          <---
+        authnone_marshal        <fix required>                          <---
+
+        NOTE: This file makes a lot of use of this static variable and
+        also a global allocated authentication structure.  Care should
+        be taken in fixing this to make it thread-safe.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/auth_unix.c:
+
+        static struct auth_ops auth_unix_ops
+
+        authunix_create         <fix required>                          <---
+        marshal_new_auth        <fix required>                          <---
+
+        NOTE: This file makes a lot of use of this static variable and
+        also a global allocated authentication structure.  Care should
+        be taken in fixing this to make it thread-safe.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/bindresvport.c:
+
+        static short port;
+
+        bindresvport            <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        inet/rpc/clnt_perror.c:
+
+        static char *buf;
+        static struct rpc_errtab rpc_errlist[]
+        static struct auth_errtab auth_errlist[]
+
+        NOTE: These static structures all have #if 0 around them, so they
+        do not get compiled in.  Hopefully, we don't have to worry about
+        them right now, but prehaps a comment should be added to the code
+        indicating that it is not thread-safe.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/clnt_raw.c:
+
+        static struct clntraw_private
+        static struct clnt_ops client_ops
+        
+        clntraw_create          <fix required>                          <---
+        clntraw_call            <fix required>                          <---
+        clntraw_freeres         <fix required>                          <---
+
+        NOTE: This file makes a lot of use of these static variables and
+        also a global allocated client structure.  Care should
+        be taken in fixing this to make it thread-safe.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/clnt_simple.c:
+
+        static struct callrpc_private
+
+        callrpc                 <fix required>                          <---
+        
+        --------------------------------------------------------------------
+
+        inet/rpc/clnt_tcp.c:
+
+        static struct clnt_ops tcp_ops
+
+        clnttcp_create
+
+        NOTE: This static structure is just a group of function pointers.
+        It could probably be made const, but this might affect the function
+        signature.  This should be investigated further.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/clnt_udp.c:
+
+        static struct clnt_ops udp_ops
+
+        clntudp_bufcreate
+
+        NOTE: This static structure is just a group of function pointers.
+        It could probably be made const, but this might affect the function
+        signature.  This should be investigated further.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/getrpcent.c:
+
+        static char RPCDB[]     <fix desired>                           <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/pmap_clnt.c:
+
+        static struct timeval timeout           <fix desired>           <---
+        static struct timeval tottimeout        <fix desired>           <---
+
+        NOTE: These are okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/pmap_getport.c:
+
+        static struct timeval timeout           <fix desired>           <---
+        static struct timeval tottimeout        <fix desired>           <---
+
+        NOTE: These are okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/pmap_rmt.c:
+
+        static struct timeval timeout           <fix desired>           <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/rpc_dtablesize.c:
+
+        static int size;
+
+        _rpc_dtablesize         <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        inet/rpc/rpc_prot.c:
+
+        static struct xdr_discrim reply_dscrm[3]        <fix desired>   <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/svc.c:
+
+        static SVCXPRT **xports;
+        static SVCXPRT *xports[NOFILE];
+        static struct svc_callout
+
+        xprt_register           <fix required>                          <---
+        xprt_unregister         <fix required>                          <---
+        svc_getreqset           <fix required>                          <---
+        svc_register            <fix required>                          <---
+        svc_unregister          <fix required>                          <---
+        svc_callout             <fix required>                          <---
+
+        NOTE: This is intricate code, and care should be taken when making
+        this thread-safe.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/svc_auth.c:
+
+        static struct svcauthsw         <fix desired>                   <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        net/rpc/svc_raw.c:      
+
+        static struct svcraw_private
+        static struct xp_ops server_ops
+
+        svcraw_create           <fix required>                          <---
+        svcraw_recv             <fix required>                          <---
+        svcraw_reply            <fix required>                          <---
+        svcraw_getargs          <fix required>                          <---
+        svcraw_freeargs         <fix required>                          <---
+
+        NOTE: This is intricate code, and care should be taken when making
+        this thread-safe.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/svc_simple.c:
+
+        static struct proglst
+        static SVCXPRT *transp;
+
+        registerrpc             <fix required>                          <---
+        universal               <fix required>                          <---
+
+        NOTE: This is intricate code, and care should be taken when making
+        this thread-safe.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/svc_tcp.c:
+
+        static struct xp_ops svctcp_op
+        static struct xp_ops svctcp_rendezvous_op
+
+        svctcp_create           <fix required>                          <---
+        makefd_xprt             <fix required>                          <---
+
+        NOTE: This static structure is just a group of function pointers.
+        It could probably be made const, but this might affect the function
+        signature.  This should be investigated further.
+
+        static struct timeval wait_per_try
+
+        readtcp                 <fix required>                          <---
+
+        NOTE: This looks like a bug.  This static timeout value is passed
+        by reference to a select() call.  According to the linux man page
+        for select:
+
+                "On  Linux,  timeout  is  modified to reflect the amount of
+                time not slept; most other implementations do not do this.
+                This  causes  problems  both  when  Linux code which reads
+                timeout is ported to other  operating  systems,  and  when
+                code  is  ported to Linux that reuses a struct timeval for
+                multiple selects in  a  loop  without  reinitializing  it.
+                Consider timeout to be undefined after select returns."
+
+        Unless the implementation of select is different than that of Linux,
+        this needs to be fixed!
+
+        --------------------------------------------------------------------
+
+        inet/rpc/svc_udp.c:
+
+        static struct xp_ops svcudp_op          <fix desired>           (1)
+
+        svcudp_bufcreate
+
+        1: This static structure is just a group of function pointers.
+        It could probably be made const, but this might affect the function
+        signature.  This should be investigated further.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/xdr.c: 
+
+        static char xdr_zero[BYTES_PER_XDR_UNIT]        <fix desired>   <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        static u_long crud[BYTES_PER_XDR_UNIT]
+
+        NOTE: This looks like it doesn't matter what's in this array.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/xdr_float.c:
+
+        static struct sgl_limits        <fix desired>                   <---
+        static struct dbl_limits        <fix desired>                   <---
+
+        NOTE: These are okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/xdr_mem.c:
+
+        static struct xdr_ops xdrmem_ops        <fix desired>           (1)
+
+        xdrmem_create
+
+        1: This static structure is just a group of function pointers.
+        It could probably be made const, but this might affect the function
+        signature.  This should be investigated further.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/xdr_rec.c:
+
+        static struct xdr_ops xdrrec_ops        <fix desired>           (1)
+
+        xdrrec_create
+
+        1: This static structure is just a group of function pointers.
+        It could probably be made const, but this might affect the function
+        signature.  This should be investigated further.
+
+        --------------------------------------------------------------------
+
+        inet/rpc/xdr_stdio.c:
+
+        static struct xdr_ops xdrstdio_ops      <fix desired>           (1)
+
+        xdrstdio_create
+
+        1: This static structure is just a group of function pointers.
+        It could probably be made const, but this might affect the function
+        signature.  This should be investigated further.
+
+        --------------------------------------------------------------------
+
+        ld.so-1/d-link/boot1.c:
+
+        static char *_dl_malloc_addr
+        static char *_dl_mmap_zero
+        static char *_dl_not_lazy
+        static char *_dl_warn
+        static char *_dl_trace_loaded_objects
+
+        _dl_boot                <fix required>                          <---
+        _dl_malloc              <fix required>                          <---
+        _dl_fixup               <fix required>                          <---
+
+	These are all part of the shared library loader, and are not
+	used by applications directly.  Therefore, fixing these is not 
+	a high priority item. 
+        
+        --------------------------------------------------------------------
+
+        ld.so-1/d-link/readelflib1.c:
+
+        static caddr_t _dl_cache_addr
+        static size_t _dl_cache_size
+
+        _dl_map_cache           <fix required>                          <---
+        _dl_unmap_cache         <fix required>                          <---
+        _dl_load_shared_library <fix required>                          <---
+	
+	These are all part of the shared library loader, and are not
+	used by applications directly.  Therefore, fixing these is not 
+	a high priority item. 
+        
+        --------------------------------------------------------------------
+
+        ld.so-1/d-link/string.h:
+
+        static char local[22]
+
+        _dl_simple_ltoa         <fix required>                          <---
+        _dl_simple_ltoahex      <fix required>                          <---
+
+	These are all part of the shared library loader, and are not
+	used by applications directly.  Therefore, fixing these is not 
+	a high priority item. 
+
+        --------------------------------------------------------------------
+
+        ld.so-1/d-link/arm/elfinterp.c:
+
+        static char *_dl_reltypes[]     <fix desired>                   <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        ld.so-1/d-link/i386/elfinterp.c:
+
+        static char *_dl_reltypes[]     <fix desired>                   <---
+
+        NOTE: This is okay, but should use the const keyword.
+	
+	These are all part of the shared library loader, and are not
+	used by applications directly.  Therefore, fixing these is not 
+	a high priority item. 
+
+        --------------------------------------------------------------------
+
+        ld.so-1/d-link/m68k/elfinterp.c:
+
+        static char *_dl_reltypes[]     <fix desired>                   <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+	These are all part of the shared library loader, and are not
+	used by applications directly.  Therefore, fixing these is not 
+	a high priority item. 
+
+        --------------------------------------------------------------------
+
+        ld.so-1/d-link/sparc/elfinterp.c:
+
+        static char *_dl_reltypes[]     <fix desired>                   <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+	These are all part of the shared library loader, and are not
+	used by applications directly.  Therefore, fixing these is not 
+	a high priority item. 
+
+        --------------------------------------------------------------------
+
+        ld.so-1/libdl/dlib.c:
+
+        static int dl_init
+
+        _dlopen                 <fix required>                          <---
+
+        static int __attribute__ ((unused)) foobar1     <fix required?> (1)
+
+        NOTE: The comment for this says it all: "This is a real hack." ;-)
+	
+
+        static char *type[]     <fix desired>                           <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+	These are all part of the shared library loader, and are not
+	used by applications directly.  Therefore, fixing these is not 
+	a high priority item. 
+
+        --------------------------------------------------------------------
+
+        ld.so-1/util/ldconfig.c:
+
+        static header_t magic   <fix desired>                           <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        static liblist_t *lib_head
+
+        cache_dolib             <fix required>                          <---
+        cache_write             <fix required>                          <---
+        
+	This is not actually part of the C library, and is not built by
+	default, so fixing these is not a high priority item. 
+
+        --------------------------------------------------------------------
+
+        misc/internals/tempname.c:
+
+        static uint64_t value;
+
+        __gen_tempname          <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        misc/locale/locale.c:
+
+        static char C_LOCALE_NAME[]="C";        <fix desired>           <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        static struct SAV_LOADED_LOCALE sav_loaded_locale [1]
+        static struct SAV_LOADED_LOCALE * old_locale
+
+        setlocale               <fix required>                          <---
+
+        NOTE: Can different threads use different locales?  I don't see
+        why not.
+
+        --------------------------------------------------------------------
+
+        misc/locale/localeconv.c:
+
+        static struct lconv result;
+
+        localeconv              <fix required>                          <---
+
+        NOTE: This function returns a pointer to a static data structure.
+
+        static char *blank = "";        <fix desired>                   <---
+        static char *decimal = ".";     <fix desired>                   <---
+
+        NOTE: These are okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        misc/mntent/mntent.c:
+
+        static char buff[MNTMAXSTR];
+        static struct mntent mnt;
+
+        getmntent               <getmntent_r required>                  <---
+
+        --------------------------------------------------------------------
+
+        misc/regex/regex.c:
+
+        static char re_syntax_table[CHAR_SET_SIZE];
+        static int done = 0;
+
+        init_syntax_table       <fix required>                          <---
+
+        static int debug;
+
+        <several functions>     <fix required>                          <---
+
+        NOTE: This is used to turn on debugging, and is used in several
+        functions.  It will need to be fixed if you want differing debug
+        levels per thread.
+
+        static char reg_unset_dummy;
+
+        <REG_UNSET...>          <fix required>                          <---
+
+        static fail_stack_type fail_stack;
+
+        regex_compile           <fix required>                          <---
+        <FREE_VARIABLES>        <fix required>                          <---
+        <FAIL_STACK_EMPTY>      <fix required>                          <---
+        <FAIL_STACK_PTR_EMPTY>  <fix required>                          <---
+        <FAIL_STACK_FULL>       <fix required>                          <---
+        <INIT_FAIL_STACK>       <fix required>                          <---
+        <RESET_FAIL_STACK>      <fix required>                          <---
+        <DOUBLE_FAIL_STACK>     <fix required>                          <---
+        <PUSH_FAILURE_POINTER>  <fix required>                          <---
+        <PUSH_FAILURE_INT>      <fix required>                          <---
+        <PUSH_FAILURE_ELT>      <fix required>                          <---
+        <POP_FAILURE_POINTER>   <fix required>                          <---
+        <POP_FAILURE_INT>       <fix required>                          <---
+        <POP_FAILURE_ELT>       <fix required>                          <---
+        <REMAINING_AVAIL_SLOTS> <fix required>                          <---
+
+        static int regs_allocated_size;
+
+        regs_grow_registers     <fix required>                          <---
+
+        static register_info_type *reg_info;
+        static register_info_type *reg_info_dummy;
+        static unsigned failure_id;
+        static struct re_pattern_buffer re_comp_buf;
+
+        <too many to list>      <fix required>                          <---
+        
+        NOTE: This is just a NASTY file for static variables.  A lot of
+        work needs to be done here to clean this up.  But I'm not even
+        sure if it matters.  This code is taken directly from glibc.
+
+	This code is also very large (adds over 30k to the C library
+	all by itself).  This file needs a complete rewrite.
+
+        --------------------------------------------------------------------
+
+        misc/syslog/syslog.c:
+
+        static pthread_once__t _once_block = pthread_once_init;
+        static pthread_mutex_t _syslog_mutex;
+        
+        NOTE: I think these are okay. ;-)
+
+        static int LogFile = -1;
+        static int connected;
+        static int LogStat = 0;
+        static int LogFacility = LOG_USER;
+        static int LogMask = 0xff;
+        static char truncate_msg[12]
+        static struct sockaddr SyslogAddr;
+
+        NOTE: These are already protected.
+
+        --------------------------------------------------------------------
+
+        misc/time/asctime.c:
+
+        static char timebuf[26];
+
+        asctime                 <asctime_r implemented>
+
+        --------------------------------------------------------------------
+
+        misc/time/ctime.c:
+
+        static char cbuf[26];
+
+        ctime                   <ctime_r implemented>
+
+        --------------------------------------------------------------------
+
+        misc/time/gmtime.c:
+
+        static struct tm tmb;
+
+        gmtime                  <gmtime_r implemented>
+
+        --------------------------------------------------------------------
+
+        misc/time/localtime.c:
+
+        static struct tm tmb;
+
+        localtime               <localtime_r implemented>
+
+        --------------------------------------------------------------------
+
+        misc/time/mktime.c:
+
+        static tz_rule tz_rules[2];
+
+        tzset                   <fix required>                          <---
+
+        static time_t localtime_offset;
+
+        mktime                  <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        misc/time/tm_conv.c:
+
+        static int moffset[]    <fix desired>                           <---
+        
+        NOTE: This is okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        misc/utmp/utent.c:
+
+        static int ut_fd = -1;
+
+        setutent                <fix required>                          <---
+        endutent                <fix required>                          <---
+        getutent                <fix required>                          <---
+        getutid                 <fix required>                          <---
+        getutline               <fix required>                          <---
+        pututline               <fix required>                          <---
+        utmpname                <fix required>                          <---
+        
+        static struct utmp utmp;
+
+        __getutent              <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        pwd_grp/__getgrent.c:
+
+        static char line_buff[GR_MAX_LINE_LEN];
+        static char *members[GR_MAX_MEMBERS];
+        static char *line_buff = NULL;
+        static char **members = NULL;
+        static struct group group;
+
+        __getgrent              <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        pwd_grp/fgetpwent.c:
+
+        static char line_buff[PWD_BUFFER_SIZE];
+        static struct passwd pwd;
+
+        fgetpwent               <fgetpwent_r implemented>
+
+        --------------------------------------------------------------------
+
+        pwd_grp/getpwnam.c:
+
+        static char line_buff[PWD_BUFFER_SIZE];
+        static struct passwd pwd;
+
+        getpwnam                <getpwnam_r implemented>
+
+        --------------------------------------------------------------------
+
+        pwd_grp/getpwuid.c:
+
+        static char line_buff[PWD_BUFFER_SIZE];
+        static struct passwd pwd;
+
+        getpwuid                <getpwuid_r implemented>
+
+        --------------------------------------------------------------------
+
+        pwd_grp/grent.c:
+
+        static int grp_fd = -1;
+
+        setgrent                <fix required>                          <---
+        endgrent                <fix required>                          <---
+        getgrent                <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        pwd_grp/pwent.c:
+
+        static int pw_fd = -1;
+
+        setpwent                <fix required>                          <---
+        endpwent                <fix required>                          <---
+        getpwent_r              <fix required>                          <---
+
+        NOTE: Yeah, this looks weird, but getpwent_r isn't completely
+        thread-safe.
+
+        static char line_buff[PWD_BUFFER_SIZE]; 
+        static struct passwd pwd;
+
+        getpwent                <getpwent_r implemented>                <---
+
+        --------------------------------------------------------------------
+
+        stdio/tmpnam.c:
+
+        static char tmpnam_buffer[L_tmpnam];
+
+        tmpnam                  <tmpnam_r implemented>
+
+        --------------------------------------------------------------------
+
+        stdlib/atexit.c:
+
+        static vfuncp __atexit_table[__UCLIBC_MAX_ATEXIT];
+        static int __atexit_count = 0;
+
+        atexit_handler          <fix required>                          <---
+        atexit                  <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        stdlib/bsearch.c:
+
+        static int _bsearch;
+
+        bsearch                 <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        stdlib/putenv.c:
+
+        static char **mall_env = 0;
+        static int extras = 0;
+
+        putenv                  <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        stdlib/random.c:
+
+        static long int seed1 = 1;
+        static long int seed2 = 1;
+        static long int seed3 = 1;
+
+        random                  <fix required?>                         (1)
+        srandom                 <fix required?>                         (1)
+
+        1: I'm not sure if it matters if these are static, since they
+        are random number seeds.  Who cares if more than one thread changes
+        their value?
+
+        --------------------------------------------------------------------
+
+        stdlib/setenv.c:
+
+        static pthread_once__t _once_block = pthread_once_init;         (1)
+        static pthread_mutex_t _setenv_mutex;                           (1)
+        static char **last_environ = NULL;                              (1)
+
+        1: Obviously, nothing to do here. (Unless I change the way we
+        deal with threads).
+
+        --------------------------------------------------------------------
+
+        stdlib/malloc/avlmacro.h
+
+        static objname *__Avl_##objname##pr##_new_node;
+
+        Avl_Tree_no_replace     <fix required>                          <---
+
+        NOTE: This will take a bit of study to figure out if it needs fixing.
+
+        --------------------------------------------------------------------
+
+        stdlib/malloc/malloc.c:
+
+        //static mutex_t malloc_lock = MUTEX_INITIALIZER;               <---
+
+        NOTE: Basically, thread support in malloc is broken and must be
+        fixed.  It looks like the infrastructure is there, but more
+        investigation is required.
+
+        --------------------------------------------------------------------
+
+        stdlib/malloc-930716/malloc.c:
+
+        static int heapsize;
+        static int initialized;
+        static size_t pagesize;
+        
+        inititalize             <fix required>                          <---
+        morecore                <fix required>                          <---
+        malloc                  <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        stdlib/malloc-930716/valloc.c:
+
+        static size_t pagesize;
+
+        valloc                  <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        string/config.c:
+
+        static char *args[16];
+        static char cfgbuf[128];
+
+        cfgread                 <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        string/strerror.c:
+
+        static char retbuf[48];
+        static char retbuf[33];
+
+        strerror                <fix required>                          <---
+        main                    <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        string/strsignal.c:
+
+        static char retbuf[28];
+
+        strsignal               <fix required>                          <---
+        main                    <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        string/strtok.c:
+
+        static char *save = 0;
+
+        strtok                  <strtok_r implemented>                  <---
+
+        --------------------------------------------------------------------
+
+        sysdeps/linux/common/kernel_version.c:
+
+        static int __linux_kernel_version = -1;
+
+        __get_linux_kernel_version      <fix required>                  (1)
+
+        1: This static value never actually gets updated!  This a bug.
+
+        --------------------------------------------------------------------
+
+        sysdeps/linux/i386/bits/huge_val.h:
+
+        static __huge_val_t __huge_val          <fix desired>           <---
+        static __huge_valf_t __huge_valf        <fix desired>           <---
+        static __huge_vall_t __huge_vall        <fix desired>           <---
+
+        NOTE: These are okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        sysdeps/linux/i386/bits/nan.h:
+
+        static union { ... } __nan_union        <fix desired>           <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        sysdeps/linux/m68k/bits/huge_val.h:
+
+        static union { ... } __huge_val         <fix desired>           <---
+        static union { ... } __huge_valf        <fix desired>           <---
+        static union { ... } __huge_vall        <fix desired>           <---
+
+        NOTE: These are okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        sysdeps/linux/m68k/bits/nan.h:
+
+        static union { ... } __nan_union        <fix desired>           <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        sysdeps/linux/sh/bits/huge_val.h:
+
+        static __huge_val_t __huge_val          <fix desired>           <---
+        static __huge_valf_t __huge_valf        <fix desired>           <---
+
+        NOTE: These are okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        sysdeps/linux/sh/bits/nan.h:
+
+        static union { ... } __nan_union        <fix desired>           <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        sysdeps/linux/sparc/bits/huge_val.h:
+
+        static __huge_val_t __huge_val          <fix desired>           <---
+        static __huge_valf_t __huge_valf        <fix desired>           <---
+
+        NOTE: These are okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        sysdeps/linux/sparc/bits/nan.h:
+
+        static union { ... } __nan_union        <fix desired>           <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        termios/tcgetsid.c:
+
+        static int tiocgsid_does_not_work;
+
+        tcgestsid               <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        termios/ttyname.c:
+
+        static char dev[] = "/dev";
+
+        ttyname                 <fix desired>                           <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        static char name[NAME_MAX];
+
+        ttyname                 <ttyname_r required>                    <---
+
+        --------------------------------------------------------------------
+
+        test/testsuite.h:
+
+        static int failures
+
+        error_msg               <fix required>                          <---
+        done_testing            <fix required>                          <---
+        init_testsuite          <fix required>                          <---
+        
+        --------------------------------------------------------------------
+
+        unistd/getcwd.c:
+
+        static char *path_buf;
+        static int path_size;
+        static dev_t root_dev;
+        static ino_t root_ino;
+        static struct stat st;
+
+        getswd                  <fix required>                          <---
+        recurser                <fix required>                          <---
+        search_dir              <fix required>                          <---
+        
+        --------------------------------------------------------------------
+
+        unistd/getopt.c:
+
+        static int sp = 1;
+
+        getopt                  <fix required>                          <---
+        
+        --------------------------------------------------------------------
+
+        unistd/getpass.c:
+
+        static char buf[PWD_BUFFER_SIZE];
+
+        getpass                 <fix required>                          <---
+        
+        NOTE: This function returns a pointer to a static data structure.
+        This seems like it requires an _r version of this function.  Glibc
+        does the same thing.  Oops!  So much for thread-safe glibc!
+
+        --------------------------------------------------------------------
+
+        unistd/gnu_getopt.c:
+
+        static char *nextchar;
+        static enum ordering;
+        static int first_nonopt;
+        static int last_nonopt;
+
+        _getopt_initialize      <fix required>                          <---
+        _getopt_internal        <fix required>                          <---
+        exchange                <fix required>                          <---
+
+        static struct option long_options[]     <fix desired>           <---
+
+        NOTE: This is okay, but should use the const keyword.
+
+        --------------------------------------------------------------------
+
+        unistd/sysconf.c:
+
+        static long int ret_vals[_UCLIBC_SYSCONF_NUM_VALID_ARGS];
+
+        find_or_add_in_table    <fix required?>                         <---
+        main                    <fix required?>                         <---
+
+        NOTE: I'm not sure if this needs to be multi-threaded or not.
+
+        --------------------------------------------------------------------
+
+        unistd/sysconf_src.c:
+
+        static long int ret_vals[_UCLIBC_SYSCONF_NUM_VALID_ARGS];
+
+        find_or_add_in_table    <fix required?>                         <---
+        main                    <fix required?>                         <---
+
+        NOTE: I'm not sure if this needs to be multi-threaded or not.
+
+        --------------------------------------------------------------------
+
+        unistd/sysconf_i386.c:
+
+        static long int ret_vals[_UCLIBC_SYSCONF_NUM_VALID_ARGS];
+
+        find_or_add_in_table    <fix required?>                         <---
+        main                    <fix required?>                         <---
+
+        NOTE: I'm not sure if this needs to be multi-threaded or not.
+
+        --------------------------------------------------------------------
+
+
+4. List of functions that use global variables
+
+	The following is a list of functions that make use of global
+	variables.  Since multiple threads can access the same global
+	variable at the same time, access should be considered unsafe.
+	This is an attempt to identify all the areas where global
+	variables are used.  This does not necessarily mean that each
+	of these is unsafe.  It just means that there is a potential
+	for them to be unsafe.  If this code never runs in more than
+	one thread, then there's no problem.  More ivestigation will be
+	required to determine if changes are really required.
+
+        Global variable:
+
+        __environ (misc/internals/__uClibc_main.c)
+
+        __uClibc_main.c:
+
+        __uClibc_main           <fix required?>                         (1)
+
+        1: This should only get executed once, so it is probably fine.
+        
+        stdlib/getenv.c:
+
+        getenv                  <fix required>                          <---
+
+        stdlib/putenv.c:
+
+        putenv                  <fix required>                          <---
+
+        stdlib/setenv.c:
+
+        setenv                  <fix required>                          <---
+        unsetenv                <fix required>                          <---
+
+        test/args/arg_test.c:
+
+        main                    <fix required>                          <---
+
+        unistd/execl.c:
+
+        execl                   <fix required>                          <---
+
+        unistd/execlp.c:
+
+        execlp                  <fix required>                          <---
+
+        unistd/execv.c:
+
+        execv                   <fix required>                          <---
+
+        unistd/execvp.c:
+
+        execvep                 <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        __uClibc_cleanup (misc/internals/__uClibc_main.c)
+
+        stdlib/abort.c:
+
+        abort                   <fix required>                          <---
+
+        stdlib/atexit.c:
+
+        atexit_handler          <fix required>                          <---
+        atexit                  <fix required>                          <---
+        exit                    <fix required>                          <---
+
+        NOTE: Not sure if multiple threads can be in this code or not.
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        environ (misc/internals/__uClibc_main.c)
+
+        NOTE: This is a weak alias for __environ, but it doesn't ever get
+        used in the uClibc library.
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        timezone (misc/time/tm_conv.c)
+
+        misc/time/tm_conv.c:
+
+        __tm_conv               <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        re_max_failures (misc/regex/regex.c)
+
+        misc/regex/regex.c:
+
+        DOUBLE_FAIL_STACK       <fix required>                          <---
+        regex_compile           <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        re_syntax_options (misc/regex/regex.c)
+
+        misc/regex/regex.c:
+
+        re_set_syntax           <fix required>                          <---
+        re_compile_pattern      <fix required>                          <---
+        re_comp                 <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        __IO_list (stdio/stdio.c)
+
+        stdio/stdio.c:
+
+        fflush                  <fix required>                          <---
+        __fopen                 <fix required>                          <---
+        fclose                  <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        _fixed_buffers (stdio/stdio.c)
+
+        stdio/stdio.c:
+
+        _alloc_stdio_buffer             <fix required>                  <---
+        _free_stdio_buffer_of_file      <fix required>                  <---
+        __init_stdio                    <fix required>                  <---
+        
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        _free_buffer_index (stdio/stdio.c)
+
+        stdio/stdio.c:
+
+        _alloc_stdio_buffer             <fix required>                  <---
+        _free_stdio_buffer_of_file      <fix required>                  <---
+        __init_stdio                    <fix required>                  <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        _free_file_list (stdio/stdio.c)
+
+        stdio/stdio.c:
+
+        __init_stdio            <fix required>                          <---
+        _alloc_stdio_stream     <fix required>                          <---
+        _free_stdio_stream      <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        _stderr (stdio/stdio.c)
+
+        ld.so-1/util/ldconfig.c:
+
+        warn                    <fix required>                          <---
+        error                   <fix required>                          <---
+        usage                   <fix required>                          <---
+
+        ld.so-1/util/ldd.c:
+
+        warn                    <fix required>                          <---
+        error                   <fix required>                          <---
+        is_bin                  <fix required>                          <---
+        main                    <fix required>                          <---
+        
+        misc/locale/locale.c:
+
+        setlocale               <fix required>                          <---
+        
+        misc/regex/regex.c:
+
+        printchar               <fix required>                          <---
+
+        stdio/perror.c:
+
+        perror                  <fix required>                          <---
+
+        stdlib/malloc/alloc.c:
+
+        calloc_dbg              <fix required>                          <---
+        malloc_dbg              <fix required>                          <---
+        free_dbg                <fix required>                          <---
+
+        stdlib/malloc/malloc.c:
+
+        __hunk_alloc            <fix required?>                         (1)
+        __malloc_init           <fix required?>                         (1)
+        malloc                  <fix required?>                         (1)
+
+        1: These are commented out with C++ style comments.
+
+        stdlib/malloc-simple/alloc.c:
+
+        calloc_dbg              <fix required>                          <---
+        malloc_dbg              <fix required>                          <---
+        free_dbg                <fix required>                          <---
+
+        string/strsignal.c:
+
+        psignal                 <fix required>                          <---
+
+        test/args/arg_test.c:
+
+        main                    <fix required>                          <---
+
+        test/assert/assert.c:
+
+        main                    <fix required>                          <---
+
+        unistd/getopt.c:
+
+        Err                     <fix required>                          <---
+
+        unistd/getpass.c:
+
+        getpass                 <fix required>                          <---
+
+        unistd/gnu_getopt.c:
+
+        _getopt_internal        <fix required>                          <---
+
+        unistd/sysconf.c:
+
+        main                    <fix required>                          <---
+
+        unistd/sysconf_src.c:
+
+        main                    <fix required>                          <---
+
+        unistd/sysconf_i386.c:
+
+        main                    <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        _stdin (stdio/stdio.c)
+
+        include/stdio.h:
+
+        getchar                 <fix required>                          <---
+
+        include/bits/stdio.h:
+
+        getchar                 <fix required>                          <---
+        getchar_unlocked        <fix required>                          <---
+
+        stdio/scanf.c:
+
+        scanf                   <fix required>                          <---
+        vscanf                  <fix required>                          <---
+
+        stdio/stdio.c
+
+        gets                    <fix required>                          <---
+        getchar                 <fix required>                          <---
+
+        sysdeps/linux/i386/bits/stdio.h:
+
+        getchar                 <fix required>                          <---
+        getchar_unlocked        <fix required>                          <---
+
+        sysdeps/linux/m68k/bits/stdio.h:
+
+        getchar                 <fix required>                          <---
+        getchar_unlocked        <fix required>                          <---
+
+        sysdeps/linux/sh/bits/stdio.h:
+
+        getchar                 <fix required>                          <---
+        getchar_unlocked        <fix required>                          <---
+
+        sysdeps/linux/sparc/bits/stdio.h:
+
+        getchar                 <fix required>                          <---
+        getchar_unlocked        <fix required>                          <---
+
+        unistd/getpass.c:
+
+        getpass                 <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        _stdio_streams (stdio/stdio.c)
+
+        stdio/stdio.c:
+
+        __init_stdio            <fix required>                          <---
+        _free_stdio_stream      <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        _stdout (stdio/stdio.c)
+
+        include/stdio.h:
+
+        putchar                 <fix required>                          <---
+
+        include/bits/stdio.h:
+
+        vprintf                 <fix required>                          <---
+        putchar                 <fix required>                          <---
+        putchar_unlocked        <fix required>                          <---
+
+        ld.so-1/util/ldconfig.c:
+
+        warn                    <fix required>                          <---
+        error                   <fix required>                          <---
+
+        ld.so-1/util/ldd.c:
+
+        warn                    <fix required>                          <---
+        error                   <fix required>                          <---
+        main                    <fix required>                          <---
+
+        stdio/printf.c:
+
+        printf                  <fix required>                          <---
+        vprintf                 <fix required>                          <---
+
+        stdio/stdio.c:
+
+        puts                    <fix required>                          <---
+        _uClibc_fread           <fix required>                          <---
+        putchar                 <fix required>                          <---
+
+        sysdeps/linux/i386/bits/stdio.h:
+
+        vprintf                 <fix required>                          <---
+        putchar                 <fix required>                          <---
+        putchar_unlocked        <fix required>                          <---
+
+        sysdeps/linux/m68k/bits/stdio.h:
+
+        vprintf                 <fix required>                          <---
+        putchar                 <fix required>                          <---
+        putchar_unlocked        <fix required>                          <---
+
+        sysdeps/linux/sh/bits/stdio.h:
+
+        vprintf                 <fix required>                          <---
+        putchar                 <fix required>                          <---
+        putchar_unlocked        <fix required>                          <---
+
+        sysdeps/linux/sparc/bits/stdio.h:
+
+        vprintf                 <fix required>                          <---
+        putchar                 <fix required>                          <---
+        putchar_unlocked        <fix required>                          <---
+
+        test/pwd_grp/test_grp.c:
+
+        main                    <fix required>                          <---
+
+        test/pwd_grp/test_pwd.c:
+
+        main                    <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        dns_caught_signal (inet/resolv.c)
+
+        inet/resolv.c:
+
+        dns_catch_signal        <fix required>                          <---
+        dns_lookup              <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        nameserver (inet/resolv.c)
+        nameservers (inet/resolv.c)
+
+        inet/resolv.c:
+
+        open_nameservers        <fix required>                          <---
+        close_nameservers       <fix required>                          <---
+        resolve_name            <fix required>                          <---
+        gethostbyname           <fix required>                          <---
+        res_query               <fix required>                          <---
+        gethostbyaddr           <fix required>                          <---
+        
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        searchdomain (inet/resolv.c)
+        searchdomains (inet/resolv.c)
+
+        inet/resolv.c:
+
+        dns_lookup              <fix required>                          <---
+        
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        _net_stayopen (inet/getnetent.c)
+
+        inet/getnetbyad.c:
+
+        getnetbyaddr            <fix required>                          <---
+
+        inet/getnetbynm.c:
+
+        getnetbyname            <fix required>                          <---
+
+        inet/getnetent.c:
+
+        setnetent               <fix required>                          <---
+        endnetent               <fix required>                          <---
+        
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        rpcdata (inet/rpc/getrpcent.c)
+
+        inet/rpc/getrpcent.c:
+
+        _rpcdata                <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        _null_auth (inet/rpc/rpc_commondata.c)  <fix desired>           <---
+
+        NOTE: _null_auth is never actually initialized.  It never gets written,
+        only read.  So it should be thread safe.  But it should be declared
+        as a const if that is the case.  It should also be initialized.
+
+        inet/rpc/auth_none.c:
+
+        authnone_create 
+
+        inet/rpc/auth_unix.c:
+
+        authunix_create
+
+        inet/rpc/clnt_raw.c:
+
+        clntraw_call
+
+        inet/rpc/clnt_tcp.c:
+
+        clnttcp_call
+
+        inet/rpc/clnt_udp.c:
+
+        clntudp_call
+
+        inet/rpc/pmap_rmt.c:
+
+        clnt_broadcast
+
+        inet/rpc/svc_auth.c:
+
+        _authenticate
+
+        inet/rpc/svc_tcp.c:
+
+        svctcp_create
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        rpc_createerr (inet/rpc/rpc_commondata.c)
+
+        inet/rpc/clnt_generic.c:
+
+        clnt_create             <fix required>                          <---
+        
+        inet/rpc/clnt_perror.c:
+
+        clnt_spcreateerror      <fix desired?>                          <---
+
+        NOTE: This piece of code has an "#if 0" around it.
+
+        inet/rpc/clnt_simple.c:
+
+        callrpc                 <fix required>                          <---
+
+        inet/rpc/clnt_tcp.c:
+
+        clnttcp_create          <fix required>                          <---
+
+        inet/rpc/clnt_udp.c:
+
+        clntudp_bufcreate       <fix required>                          <---
+
+        inet/rpc/pmap_getport.c:
+
+        pmap_getport            <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        svc_fdset (inet/rpc/rpc_commondata.c)
+
+        inet/rpc/svc.c:
+
+        xprt_register           <fix required>                          <---
+        xprt_unregister         <fix required>                          <---
+        svc_getreq              <fix required>                          <---
+
+        inet/rpc/svc_run.c:
+
+        svc_run                 <fix required>                          <---
+
+        NOTE: Be careful to also fix the uses of the "svc_fds" #define.
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        pl (inet/rpc/svc_simple.c)
+
+        registerrpc             <fix required>                          <---
+
+        NOTE: proglst is set up to point at pl, so it needs fixing as well.
+        (See proglst earlier in this document.)
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        _sigintr (signal/signal.c)
+
+        signal/bsd_sig.c:
+
+        __bsd_signal            <fix required>                          <---
+
+        signal/sigintr.c:
+
+        siginterrupt            <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        __Avl_Block_tfree_mem_tree (stdlib/malloc/malloc.c)
+
+        stdlib/malloc/malloc.c:
+
+        __free_mem_del_block    <fix required>                          <---
+        bl_alloc                <fix required>                          <---
+        __malloc_init           <fix required>                          <---
+
+        NOTE: This code is very tricky stuff.
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        __Avl_Block_tptrs_tree (stdlib/malloc/malloc.c)
+
+        stdlib/malloc/malloc.c:
+
+        __bl_free               <fix required>                          <---
+        __malloc_init           <fix required>                          <---
+        free                    <fix required>                          <---
+        _realloc_no_move        <fix required>                          <---
+        realloc                 <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        __bl_last (stdlib/malloc/malloc.c)
+
+        stdlib/malloc/malloc.c:
+
+        COMBINE_BLOCKS          <fix required>                          <---
+        SPLIT_BLOCK             <fix required>                          <---
+        bl_mapnew               <fix required>                          <---
+        bl_alloc                <fix required>                          <---
+        __malloc_init           <fix required>                          <---
+        
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        __free_h (stdlib/malloc/malloc.c)
+
+        stdlib/malloc/malloc.c:
+
+        __hunk_alloc            <fix required>                          <---
+        __hunk_free             <fix required>                          <---
+        __malloc_init           <fix required>                          <---
+        
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        __malloc_initialized (stdlib/malloc/malloc.c)
+
+        stdlib/malloc/malloc.c:
+
+        __malloc_init           <fix required>                          <---
+        malloc                  <fix required>                          <---
+        free                    <fix required>                          <---
+        _realloc_no_move        <fix required>                          <---
+        
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        __total_h (stdlib/malloc/malloc.c)
+
+        stdlib/malloc/malloc.c:
+
+        __hunk_alloc            <fix required>                          <---
+        __malloc_init           <fix required>                          <---
+        
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        errno (sysdeps/linux/common/errno.c)
+
+        sysdeps/linux/common/errno.c:
+
+        __errno_location        <fix required>                          <---
+
+        NOTE: Obviously, errno gets used all over the place.  I won't list
+        them all here.
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        ___brk_addr (sysdeps/linux/i386/__init_brk.c)
+
+        sysdeps/linux/i386/__init_brk.c:
+
+        __init_brk              <fix required>                          <---
+
+        sysdeps/linux/i386/brk.c:
+
+        brk                     <fix required>                          <---
+
+        sysdeps/linux/i386/sbrk.c:
+
+        sbrk                    <fix required>                          <---
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        optarg (unistd/getopt_vars.c)
+
+        extra/locale/gen_ctype_from_glibc.c:
+
+        main                    <fix required?>                         (1)
+
+        ld.so-1/util/ldconfig.c:
+
+        main                    <fix required?>                         (1)
+
+        unistd/getopt.c:
+
+        getopt                  <fix required>                          <---
+
+        unistd/gnu_getopt.c:
+
+        _getopt_internal        <fix required>                          <---
+        main                    <fix required?>                         (1)
+
+        1: Probably not required unless this program is run on multiple
+        threads.
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        opterr (unistd/getopt_vars.c)
+
+        ld.so-1/util/ldconfig.c:
+
+        main                    <fix required?>                         (1)
+
+        unistd/getopt.c:
+
+        Err                     <fix required>                          <---
+        getopt                  <fix required>                          <---
+
+        unistd/gnu_getopt.c:
+
+        _getopt_internal        <fix required>                          <---
+
+        1: Probably not required unless this program is run on multiple
+        threads.
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        optind (unistd/getopt_vars.c)
+
+        extra/locale/gen_ctype_from_glibc.c:
+
+        main                    <fix required?>                         (1)
+        
+        ld.so-1/util/ldconfig.c:
+
+        main                    <fix required?>                         (1)
+
+        ld.so-1/util/ldd.c:
+
+        main                    <fix required?>                         (1)
+        
+        unistd/getopt.c:
+
+        Err                     <fix required>                          <---
+        getopt                  <fix required>                          <---
+
+        unistd/gnu_getopt.c:
+
+        exchange                <fix required>                          <---
+        _getopt_initialize      <fix required>                          <---
+        _getopt_internal        <fix required>                          <---
+        main                    <fix required?>                         (1)
+        main (2nd one)          <fix required?>                         (1)
+
+        1: Probably not required unless this program is run on multiple
+        threads.
+
+        --------------------------------------------------------------------
+
+        Global variable:
+
+        optopt (unistd/getopt_vars.c)
+
+        unistd/getopt.c:
+
+        Err                     <fix required>                          <---
+        getopt                  <fix required>                          <---
+
+        unistd/gnu_getopt.c:
+
+        _getopt_internal        <fix required>                          <---
+

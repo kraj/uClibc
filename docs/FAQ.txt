@@ -5,6 +5,20 @@ have additions to this FAQ document, I'd love to add them,
  -Erik
 
 
+Q: What platforms does uClibc run on?
+
+    Currently uClibc runs on arm, i386, m68k, mipsel, powerpc, sh,
+    sparc, and v850.  
+    
+
+
+Q: Does uClibc support shared libraries?
+    
+    Yes.  uClibc has shared library support on x86, arm, and powerpc.  
+    Shared Libraries are _not_ currently supported on MMU-less systems. 
+
+
+
 Q: Why is it called uClibc?
 
     The letter 'u' is short for the greek letter "mu".  "Mu" stands for
@@ -35,6 +49,7 @@ Q: Why are you doing this?  Whats wrong with glibc?
     [an embedded OS]. It is designed as a native library (as opposed to
     embedded).  Many functions (e.g., printf) contain functionality which is
     not wanted in embedded systems." 24 May 1999
+
 
 
 Q: So uClibc is smaller then glibc?  Doesn't that mean it completely sucks?
@@ -69,7 +84,6 @@ Q: Why should I use uClibc?
 
     If you are trying to build a ultra fast fileserver for your company that
     has 12 Terabytes of storage, then you probably want to use glibc... 
-
 
 
 
@@ -110,6 +124,7 @@ Q: How do I compile stuff?
 
 
 Q: How do I make autoconf and automake behave?
+
     First run
 	export PATH=/usr/i386-linux-uclibc/bin:$PATH
     (or similar adjusted for your target architecture) then run you can simply
@@ -135,7 +150,6 @@ Q: I need you to add <favorite feature> now!   How come you don't answer all my
     questions on the mailing list withing 5 minutes?  I demand that you help me
     Right Now!
 
-
     You have not paid me a single cent and yet you still have the product of
     over year and a half of my work, and lots of work from other people.  How
     dare you treat me that way!  I work on uClibc because I find it
@@ -146,11 +160,11 @@ Q: I need you to add <favorite feature> now!   How come you don't answer all my
 Q: I need you to add <favorite feature>!  Are the uClibc developers willing to 
     be paid in order to add in <favorite feature>?  Are you willing to provide
     support contracts?  
-    
 
     Sure!  Now you have our attention!  What you should do is contact 
     Erik Andersen of CodePoet Consulting to bid on your project.  If Erik
-    is too busy to personally add your feature
+    is too busy to personally add your feature, there are several other
+    active contributors who may be able to help you out.
     
     
 Q: I think you guys are great and I want to help support your work!
