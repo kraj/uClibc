@@ -19,18 +19,14 @@
 #ifndef _SYSCALL_H
 #define _SYSCALL_H	1
 
-/* This file includes the kernel's syscall list, and then includes our own
- * private copy of the _syscall macros.  This is important, since on
- * some arches (such as i386), the kernel _syscall[0-5] macros don't
- * handle things like PIC code, so we can't use them. */
+/* This file provides us with our own private copy of the _syscall[0-5] macros.
+ * This is important, since on some arches (such as i386) the kernel's macros
+ * don't handle things like PIC code, so we can't use them. */
 #include <bits/syscalls.h>
 
-#ifndef _LIBC
-/* The Linux kernel header file defines macros `__NR_<name>', but some
-   programs expect the traditional form `SYS_<name>'.  So in building libc
-   we scan the kernel's list and produce <bits/syscall.h> with macros for
-   all the `SYS_' names.  */
-# include <bits/syscall.h>
-#endif
+/* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
+ * header files.  It also defines the traditional `SYS_<name>' macros for older
+ * programs.  */
+#include <bits/syscall.h>
 
 #endif
