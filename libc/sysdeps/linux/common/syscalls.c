@@ -1039,12 +1039,13 @@ _syscall1(int, setfsgid, gid_t, gid);
 #endif
 
 //#define __NR__llseek          140
-#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L__llseek
-extern int _llseek(int fd, off_t hoff, off_t loff, loff_t *res, int whence);
+#ifdef __UCLIBC_HAVE_LFS__
+extern int _llseek(int fd, off_t offset_hi, off_t offset_lo, 
+		loff_t *result, int whence);
 
-_syscall5(int, _llseek, int, fd, off_t, hoff, off_t, loff, loff_t *, res,
-		  int, whence);
+_syscall5(int, _llseek, int, fd, off_t, offset_hi, off_t, offset_lo, 
+		loff_t *, result, int, whence);
 
 loff_t __libc_lseek64(int fd, loff_t offset, int whence)
 {
@@ -1409,25 +1410,41 @@ _syscall4(ssize_t,sendfile, int, out_fd, int, in_fd, off_t *, offset, size_t, co
 
 
 //#define __NR_truncate64         193
-#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L_truncate64
+#ifdef __UCLIBC_HAVE_LFS__
+#include <bits/wordsize.h>
+/* We only implement truncate64/ftruncate64 on 64-bit systems, because 
+ * Using _syscall2 to pass 64-bit arguments generally only works on 64-bit 
+ * systems, so we only implement truncate64/ftruncate64 in that case.  Ports 
+ * for processors with shorter word-lengths should define their own custom 
+ * versions instead.  */
+#if __WORDSIZE >= 64
 #include <unistd.h>
 _syscall2(int, truncate64, const char *, path, __off64_t, length);
-#endif
+#endif /* __WORDSIZE >= 64 */
 #endif /* __UCLIBC_HAVE_LFS__ */
+#endif
 
 //#define __NR_ftruncate64        194
-#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L_ftruncate64
+#ifdef __UCLIBC_HAVE_LFS__
+#include <bits/wordsize.h>
+/* We only implement truncate64/ftruncate64 on 64-bit systems, because 
+ * Using _syscall2 to pass 64-bit arguments generally only works on 64-bit 
+ * systems, so we only implement truncate64/ftruncate64 in that case.  Ports 
+ * for processors with shorter word-lengths should define their own custom 
+ * versions instead.  */
+#if __WORDSIZE >= 64
 #include <unistd.h>
 _syscall2(int, ftruncate64, int, fd, __off64_t, length);
-#endif
+#endif /* __WORDSIZE >= 64 */
 #endif /* __UCLIBC_HAVE_LFS__ */
+#endif
 
 
 //#define __NR_stat64             195
-#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L___stat64
+#ifdef __UCLIBC_HAVE_LFS__
 #include <unistd.h>
 #include "statfix64.h"
 #define __NR___stat64	__NR_stat64
@@ -1449,12 +1466,12 @@ int stat64(const char *file_name, struct libc_stat64 *buf)
 {
 	return(__xstat64(0, file_name, buf));
 }
-#endif
 #endif /* __UCLIBC_HAVE_LFS__ */
+#endif
 
 //#define __NR_lstat64            196
-#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L___lstat64
+#ifdef __UCLIBC_HAVE_LFS__
 #include <unistd.h>
 #include "statfix64.h"
 #define __NR___lstat64	__NR_lstat64
@@ -1476,12 +1493,12 @@ int lstat64(const char *file_name, struct libc_stat64 *buf)
 {
 	return(__lxstat64(0, file_name, buf));
 }
-#endif
 #endif /* __UCLIBC_HAVE_LFS__ */
+#endif
 
 //#define __NR_fstat64            197
-#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L___fstat64
+#ifdef __UCLIBC_HAVE_LFS__
 #include <unistd.h>
 #include "statfix64.h"
 #define __NR___fstat64	__NR_fstat64
@@ -1503,8 +1520,8 @@ int fstat64(int filedes, struct libc_stat64 *buf)
 {
 	return(__fxstat64(0, filedes, buf));
 }
-#endif
 #endif /* __UCLIBC_HAVE_LFS__ */
+#endif
 
 
 //#define __NR_lchown32		198
@@ -1538,18 +1555,18 @@ _syscall2(int, pivot_root, const char *, new_root, const char *, put_old)
 //#define __NR_madvise1		219	/* delete when C lib stub is removed */
 
 //#define __NR_getdents64		220
-#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L_getdents64
+#ifdef __UCLIBC_HAVE_LFS__
 #include <unistd.h>
 #include <dirent.h>
 _syscall3(int, getdents64, int, fd, char *, dirp, size_t, count);
-#endif
 #endif /* __UCLIBC_HAVE_LFS__ */
+#endif
 
 //#define __NR_fcntl64		221
+#ifdef L__fcntl64
 #ifdef __UCLIBC_HAVE_LFS__
 #define __NR__fcntl64 __NR_fcntl64
-#ifdef L__fcntl64
 #include <stdarg.h>
 #include <fcntl.h>
 extern int _fcntl64(int fd, int cmd, long arg);
