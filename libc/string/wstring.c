@@ -954,9 +954,16 @@ void *memrchr(const void *s, int c, size_t n)
 
 #endif
 /**********************************************************************/
+#ifdef L_wcpcpy
+#define L_stpcpy
+#define Wstpcpy wcpcpy
+#else
+#define Wstpcpy stpcpy
+#endif
+
 #ifdef L_stpcpy
 
-char *stpcpy(register char * __restrict s1, const char * __restrict s2)
+Wchar *Wstpcpy(register Wchar * __restrict s1, const Wchar * __restrict s2)
 {
 #ifdef __BCC__
 	do {
@@ -971,14 +978,21 @@ char *stpcpy(register char * __restrict s1, const char * __restrict s2)
 
 #endif
 /**********************************************************************/
+#ifdef L_wcpncpy
+#define L_stpncpy
+#define Wstpncpy wcpncpy
+#else
+#define Wstpncpy stpncpy
+#endif
+
 #ifdef L_stpncpy
 
-char *stpncpy(register char * __restrict s1,
-			  register const char * __restrict s2,
-			  size_t n)
+Wchar *Wstpncpy(register Wchar * __restrict s1,
+				register const Wchar * __restrict s2,
+				size_t n)
 {
-	char *s = s1;
-	const char *p = s2;
+	Wchar *s = s1;
+	const Wchar *p = s2;
 
 #ifdef __BCC__
 	while (n--) {
@@ -1270,6 +1284,80 @@ char *dirname(char *path)
 	}
  DOT:
 	return (char *) null_or_empty_or_noslash;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_strlcat
+
+/* OpenBSD function:
+ * Append at most n-1-strlen(dst) chars from src to dst and nul-terminate dst.
+ * Returns strlen(src) + strlen({original} dst), so truncation occurred if the
+ * return val is >= n.
+ * Note: If dst doesn't contain a nul in the first n chars, strlen(dst) is
+ *       taken as n. */
+
+size_t strlcat(register char *__restrict dst,
+			   register const char *__restrict src,
+			   size_t n)
+{
+	size_t len;
+	char dummy[1];
+
+	len = 0;
+
+	while (1) {
+		if (len >= n) {
+			dst = dummy;
+			break;
+		}
+		if (!*dst) {
+			break;
+		}
+		++dst;
+		++len;
+	}
+
+	while ((*dst = *src) != 0) {
+		if (++len < n) {
+			++dst;
+		}
+		++src;
+	}
+
+	return len;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_strlcpy
+
+/* OpenBSD function:
+ * Copy at most n-1 chars from src to dst and nul-terminate dst.
+ * Returns strlen(src), so truncation occurred if the return value is >= n. */
+
+size_t strlcpy(register char *__restrict dst,
+			   register const char *__restrict src,
+			   size_t n)
+{
+	const char *src0 = src;
+	char dummy[1];
+
+	if (!n) {
+		dst = dummy;
+	} else {
+		--n;
+	}
+
+	while ((*dst = *src) != 0) {
+		if (n) {
+			--n;
+			++dst;
+		}
+		++src;
+	}
+
+	return src - src0;
 }
 
 #endif

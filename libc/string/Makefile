@@ -31,14 +31,14 @@ MOBJW=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
 	strcmp.o strcpy.o strcspn.o strdup.o strlen.o strncasecmp.o strncat.o \
 	strncmp.o strncpy.o strndup.o strnlen.o strpbrk.o strrchr.o strsep.o \
 	strspn.o strstr.o strtok.o strtok_r.o \
-	 __xpg_basename.o # strcoll.o strerror.o
+	 __xpg_basename.o strlcat.o strlcpy.o # strcoll.o strerror.o
 
 MOBJW2= wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
 	wcsdup.o wcslen.o wcsncasecmp.o wcsncat.o wcsncmp.o wcsncpy.o \
 	wcsnlen.o wcspbrk.o wcsrchr.o wcsspn.o wcsstr.o wcstok.o wmemchr.o \
-	wmemcmp.o wmemcpy.o wmemmove.o wmempcpy.o wmemset.o
+	wmemcmp.o wmemcpy.o wmemmove.o wmempcpy.o wmemset.o wcpcpy.o wcpncpy.o
 
-# wcscoll wcsxfrm wcpcpy wcpncpy
+# wcscoll wcsxfrm
 
 MSRC1=strsignal.c
 MOBJ1=strsignal.o psignal.o
