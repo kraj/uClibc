@@ -433,6 +433,9 @@ uClibc was built without large file support enabled.
 #ifndef unlikely
 # define unlikely(x)	__builtin_expect((!!(x)),0)
 #endif
+#ifndef __LINUX_COMPILER_H
+#define __LINUX_COMPILER_H
+#endif
 
 /* --- this is added to integrate linuxthreads */
 #define __USE_UNIX98            1
