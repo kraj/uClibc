@@ -20,8 +20,7 @@ STRIPTOOL=strip
 
 
 # Check if 'ls -sh' works or not
-LSFLAGS = $(shell if ls -sh >/dev/null 2>&1; \
-    then echo "-sh"; else echo "-s" ; fi)
+LSFLAGS = -l
 
 # use '-Os' optimization if available, else use -O2
 OPTIMIZATION = $(shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
