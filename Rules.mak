@@ -200,17 +200,17 @@ ifeq ($(HAVE_SHARED),y)
 	BUILD_DYNAMIC_LINKER:=/lib/$(strip $(subst ",, $(notdir $(SYSTEM_LDSO))))
    endif
 endif
+ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
+    CFLAGS += $(call check_gcc,-msoft-float,)
+endif
 
+CFLAGS_NOPIC:=$(CFLAGS)
 ifeq ($(DOPIC),y)
 ifeq ($(strip $(TARGET_ARCH)),cris)
 	CFLAGS += -fpic -mlinux
 else
     CFLAGS += -fPIC
 endif
-endif
-
-ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
-    CFLAGS += $(call check_gcc,-msoft-float,)
 endif
 
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
