@@ -130,7 +130,7 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 
 	new_addr = (unsigned long) _dl_find_hash(symname,
 			tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
-	if (!new_addr) {
+	if (unlikely(!new_addr)) {
 		_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
 				_dl_progname, symname);
 		_dl_exit (1);

@@ -88,7 +88,7 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
   _dl_dprintf(2, "strtab = %x\n", strtab);
 
 
-  if (reloc_type != R_SPARC_JMP_SLOT) {
+  if (unlikely(reloc_type != R_SPARC_JMP_SLOT)) {
     _dl_dprintf(2, "%s: incorrect relocation type in jump relocations (%d)\n",
 		  _dl_progname, reloc_type);
     _dl_exit(30);
@@ -110,7 +110,7 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
   /* Get the address of the GOT entry */
   new_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name,
   			tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
-  if(!new_addr) {
+  if(unlikely(!new_addr)) {
     _dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 	       _dl_progname, strtab + symtab[symtab_index].st_name);
     _dl_exit(31);
@@ -225,7 +225,7 @@ int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 
       symbol_addr = (unsigned int)
 	_dl_find_hash(strtab + symtab[symtab_index].st_name,
-		      tpnt->symbol_scope, elf_machine_type_class(reloc_type);
+		      tpnt->symbol_scope, elf_machine_type_class(reloc_type));
 
       if(!symbol_addr &&
 	 ELF32_ST_BIND(symtab [symtab_index].st_info) == STB_GLOBAL) {

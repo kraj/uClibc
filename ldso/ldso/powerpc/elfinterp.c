@@ -194,7 +194,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	debug_sym(symtab,strtab,symtab_index);
 	debug_reloc(symtab,strtab,this_reloc);
 
-	if (ELF32_R_TYPE(this_reloc->r_info) != R_PPC_JMP_SLOT) {
+	if (unlikely(ELF32_R_TYPE(this_reloc->r_info) != R_PPC_JMP_SLOT)) {
 		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocation\n", _dl_progname);
 		_dl_exit(1);
 	};
@@ -211,7 +211,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	/* Get the address of the GOT entry */
 	finaladdr = (Elf32_Addr) _dl_find_hash(symname,
 			tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
-	if (!finaladdr) {
+	if (unlikely(!finaladdr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
 		_dl_exit(1);
 	};
@@ -351,7 +351,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	case R_PPC_REL24:
 	{
 		Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
-		if(delta<<6>>6 != delta){
+		if(unlikely(delta<<6>>6 != delta)) {
 			_dl_dprintf(2, "%s: symbol '%s' R_PPC_REL24 is out of range.\n\t"
 					"Compile shared libraries with -fPIC!\n",
 				    _dl_progname, symname);
@@ -472,7 +472,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		if (symtab_index)
 		  _dl_dprintf(2, "symbol '%s': ", strtab + symtab[symtab_index].st_name);
 
-		if (res <0)
+		if (unlikely(res <0))
 		{
 		        int reloc_type = ELF32_R_TYPE(rpnt->r_info);
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -482,7 +482,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 #endif
 			_dl_exit(-res);
 		}
-		else if (res >0)
+		if (unlikely(res >0))
 		{
 			_dl_dprintf(2, "can't resolve symbol\n");
 			return res;

@@ -79,7 +79,7 @@ unsigned int _dl_linux_resolver (int dummy1, int dummy2,
   strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 
 
-  if (reloc_type != R_68K_JMP_SLOT)
+  if (unlikely(reloc_type != R_68K_JMP_SLOT))
     {
       _dl_dprintf (2, "%s: incorrect relocation type in jump relocations\n",
 		    _dl_progname);
@@ -99,7 +99,7 @@ unsigned int _dl_linux_resolver (int dummy1, int dummy2,
   /* Get the address of the GOT entry.  */
   new_addr = _dl_find_hash (strtab + symtab[symtab_index].st_name,
 			    tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
-  if (!new_addr)
+  if (unlikely(!new_addr))
     {
       _dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
 		    _dl_progname, strtab + symtab[symtab_index].st_name);

@@ -177,7 +177,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	strtab = (char *)(tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 	symname = strtab + symtab[symtab_index].st_name;
 
-	if (reloc_type != R_SH_JMP_SLOT) {
+	if (unlikely(reloc_type != R_SH_JMP_SLOT)) {
 		_dl_dprintf(2, "%s: Incorrect relocation type in jump reloc\n",
 			    _dl_progname);
 		_dl_exit(1);
@@ -191,7 +191,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	/* Get the address of the GOT entry */
 	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
-	if (!new_addr) {
+	if (unlikely(!new_addr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 			    _dl_progname, symname);
 		_dl_exit(1);
@@ -268,7 +268,7 @@ static int _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			_dl_dprintf(2, "symbol '%s': ",
 				strtab + symtab[symtab_index].st_name);
 
-		if (res < 0) {
+		if (unlikely(res < 0)) {
 		        int reloc_type = ELF32_R_TYPE(rpnt->r_info);
 
 			_dl_dprintf(2, "can't handle reloc type "
@@ -280,7 +280,8 @@ static int _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			);
 
 			_dl_exit(-res);
-		} else if (res > 0) {
+		}
+		if (unlikely(res > 0)) {
 			_dl_dprintf(2, "can't resolve symbol\n");
 
 			return res;

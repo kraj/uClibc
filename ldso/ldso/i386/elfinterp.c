@@ -217,7 +217,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		if (symtab_index)
 		  _dl_dprintf(2, "symbol '%s': ", strtab + symtab[symtab_index].st_name);
 
-		if (res <0)
+		if (unlikely(res <0))
 		{
 		        int reloc_type = ELF32_R_TYPE(rpnt->r_info);
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -227,7 +227,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 #endif
 			_dl_exit(-res);
 		}
-		else if (res >0)
+		if (unlikely(res >0))
 		{
 			_dl_dprintf(2, "can't resolve symbol\n");
 			return res;
