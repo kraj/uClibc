@@ -1,13 +1,38 @@
+/* Pull in compiler and arch stuff */
+#include <stdarg.h>
 /* Pull in the arch specific type information */
 #include <sys/types.h>
 /* Pull in the arch specific syscall implementation */
 #include "ld_syscalls.h"
 /*  For MAP_ANONYMOUS -- differs between platforms */
-#include <sys/mman.h>			
+#include <asm/mman.h>			
 /* Pull in whatever this particular arch's kernel thinks the kernel version of
  * struct stat should look like.  It turns out that each arch has a different
  * opinion on the subject, and different kernel revs use different names... */
-#include <sys/stat.h> 
+#define _SYS_STAT_H
+#include <asm/stat.h> 
+
+
+/* Encoding of the file mode.  */
+#define	S_IFMT		0170000	/* These bits determine file type.  */
+
+/* File types.  */
+#define	S_IFDIR		0040000	/* Directory.  */
+#define	S_IFCHR		0020000	/* Character device.  */
+#define	S_IFBLK		0060000	/* Block device.  */
+#define	S_IFREG		0100000	/* Regular file.  */
+#define	S_IFIFO		0010000	/* FIFO.  */
+#define	S_IFLNK		0120000	/* Symbolic link.  */
+#define	S_IFSOCK	0140000	/* Socket.  */
+
+/* Protection bits.  */
+
+#define	S_ISUID		04000	/* Set user ID on execution.  */
+#define	S_ISGID		02000	/* Set group ID on execution.  */
+#define	S_ISVTX		01000	/* Save swapped text after use (sticky).  */
+#define	S_IREAD		0400	/* Read by owner.  */
+#define	S_IWRITE	0200	/* Write by owner.  */
+#define	S_IEXEC		0100	/* Execute by owner.  */
 
 
 /* Here are the definitions for some syscalls that are used
@@ -120,3 +145,5 @@ static inline int _dl_suid_ok(void)
 	return 0;
 }
 
+#define __NR__dl_readlink __NR_readlink
+static inline _syscall3(int, _dl_readlink, const char *, path, char *, buf, size_t, bufsiz);

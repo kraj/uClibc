@@ -1,5 +1,3 @@
-#include <sys/types.h>
-
 /*
  * This file contains the system call macros and syscall 
  * numbers used by the shared library loader.
@@ -16,6 +14,7 @@
 #define __NR_geteuid			(__NR_SYSCALL_BASE+ 49)
 #define __NR_getgid			(__NR_SYSCALL_BASE+ 47)
 #define __NR_getegid			(__NR_SYSCALL_BASE+ 50)
+#define __NR_readlink			(__NR_SYSCALL_BASE+ 85)
 #define __NR_mmap			(__NR_SYSCALL_BASE+ 90)
 #define __NR_munmap			(__NR_SYSCALL_BASE+ 91)
 #define __NR_stat			(__NR_SYSCALL_BASE+106)

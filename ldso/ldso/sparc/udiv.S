@@ -37,15 +37,7 @@
 
 
 #include "DEFS.h"
-#ifndef __linux__
-#ifdef __svr4__
-#include <sys/trap.h>
-#else
-#include "/usr/include/machine/trap.h"
-#endif
-#else
 #include <asm/traps.h>
-#endif
 
 FUNC(_dl_udiv)
 
