@@ -46,7 +46,7 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
 $(MOBJ): $(MSRC)
-	$(CC) $(CFLAGS) -DTARGET_ARCH=$(TARGET_ARCH) -DL_$* $< -c -o $*.o
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c

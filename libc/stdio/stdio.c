@@ -3196,8 +3196,6 @@ UNLOCKED(int,ferror,(FILE *stream),(stream))
 /**********************************************************************/
 #ifdef L_perror
 
-/* TODO -- not allowed to interfere with static storage of strerror(). */
-
 void perror(register const char *s)
 {
 	/* If the program is calling perror, it's a safe bet that printf and
