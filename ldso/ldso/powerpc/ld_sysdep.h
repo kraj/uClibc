@@ -70,30 +70,21 @@
  * SYMBOL is the symbol involved in the relocation, and LOAD is the
  * load address.
  */
-// finaladdr = LOAD ?
 #define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB) \
 	{int type=ELF32_R_TYPE((RELP)->r_info);		\
-	if(type==R_PPC_NONE){				\
-	}else if(type==R_PPC_ADDR32){			\
-		*REL += (SYMBOL);			\
-	}else if(type==R_PPC_RELATIVE){			\
-		*REL = (Elf32_Word)(LOAD) + (RELP)->r_addend;		\
-	}else if(type==R_PPC_REL24){			\
-		Elf32_Sword delta = (Elf32_Word)(SYMBOL) - (Elf32_Word)(REL);	\
-		*REL &= 0xfc000003;			\
-		*REL |= (delta & 0x03fffffc);		\
-	}else if(type==R_PPC_JMP_SLOT){			\
-		Elf32_Sword delta = (Elf32_Word)(SYMBOL) - (Elf32_Word)(REL);	\
-		/*if (delta << 6 >> 6 != delta)_dl_exit(99);*/	\
-		*REL = OPCODE_B(delta);			\
-	}else{						\
+	 Elf32_Addr finaladdr=(SYMBOL)+(RELP)->r_addend;\
+	if (type==R_PPC_RELATIVE) {			\
+		*REL=(Elf32_Word)(LOAD)+(RELP)->r_addend;\
+	} else if (type==R_PPC_JMP_SLOT) {		\
+		Elf32_Sword delta=finaladdr-(Elf32_Word)(REL);\
+		*REL=OPCODE_B(delta);			\
+	} else if (type==R_PPC_ADDR32) {		\
+		*REL=finaladdr;				\
+	} else {					\
 	  _dl_exit(100+ELF32_R_TYPE((RELP)->r_info));	\
 	}						\
-	if(type!=R_PPC_NONE){				\
-		PPC_DCBST(REL); PPC_SYNC; PPC_ICBI(REL);\
-	}						\
+	PPC_DCBST(REL); PPC_SYNC; PPC_ICBI(REL);	\
 	}
-
 /*
  * Transfer control to the user's application, once the dynamic loader
  * is done.  This routine has to exit the current function, then 
