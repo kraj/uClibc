@@ -89,7 +89,7 @@ int __libc_open (const char * file, int flags, ...)
 {
 	mode_t mode;
 	if (unlikely(file==NULL || *file=='\0')) {
-		__set_errno(EINVAL);
+		__set_errno(ENOENT);
 		return -1;
 	}
 	if (unlikely(((strlen(file)+1) > NAME_MAX))) {
@@ -150,7 +150,7 @@ _syscall3(int, __syscall_execve, const char *, filename,
 int execve(const char *filename, char *const *argv, char *const *envp)
 { 
 	if (unlikely(filename==NULL || *filename=='\0')) {
-		__set_errno(EINVAL);
+		__set_errno(ENOENT);
 		return -1;
 	}
 	if (unlikely(((strlen(filename)+1) > NAME_MAX))) {
@@ -171,7 +171,7 @@ _syscall1(int, __syscall_chdir, const char *, path);
 int chdir(const char *path)
 { 
 	if (unlikely(path==NULL || *path=='\0')) {
-		__set_errno(EINVAL);
+		__set_errno(ENOENT);
 		return -1;
 	}
 	if (unlikely(((strlen(path)+1) > NAME_MAX))) {
@@ -514,7 +514,7 @@ int rename(const char *oldpath, const char *newpath)
 	if (unlikely((oldpath==NULL || newpath==NULL ||
 					*oldpath=='\0' || *newpath=='\0'))) 
 	{
-		__set_errno(EINVAL);
+		__set_errno(ENOENT);
 		return -1;
 	}
 	if (unlikely(((strlen(oldpath)+1) >= NAME_MAX) || 
@@ -746,7 +746,7 @@ _syscall1(int, __syscall_chroot, const char *, path);
 int chroot(const char *path)
 { 
 	if (unlikely(path==NULL || *path=='\0')) {
-		__set_errno(EINVAL);
+		__set_errno(ENOENT);
 		return -1;
 	}
 	if (unlikely(((strlen(path)+1) > NAME_MAX))) {
@@ -1179,7 +1179,7 @@ _syscall2(int, __syscall_statfs, const char *, path, struct statfs *, buf);
 int statfs(const char *path, struct statfs *buf)
 { 
 	if (unlikely(path==NULL || *path=='\0')) {
-		__set_errno(EINVAL);
+		__set_errno(ENOENT);
 		return -1;
 	}
 	if (unlikely(((strlen(path)+1) > NAME_MAX))) {
