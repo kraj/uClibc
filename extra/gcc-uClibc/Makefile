@@ -63,8 +63,11 @@ install: all
 	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ld  $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ld
 	for app in addr2line ar as cpp gasp nm objcopy \
 	    objdump ranlib size strings strip; do \
-	  ln -fs `which $(CROSS)$${app}` $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/$${app}; \
-	  ln -fs `which $(CROSS)$${app}` $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-$${app}; \
+	  APPNAME=`which $(CROSS)$${app}`; \
+	  if [ -x "$$APPNAME" ] ; then \
+	  ln -fs "$$APPNAME" $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/$${app}; \
+	  ln -fs "$$APPNAME" $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-$${app}; \
+	  fi; \
 	done
 
 clean:
