@@ -28,9 +28,10 @@ realloc (void *mem, size_t new_size)
       char *base_mem = MALLOC_BASE (mem);
       size_t size = MALLOC_SIZE (mem);
 
-      /* Make sure that we're dealing in a multiple of the heap allocation
-	 unit (SIZE is already guaranteed to be so).  */
-      new_size = HEAP_ADJUST_SIZE (new_size);
+      /* Include extra space to record the size of the allocated block.
+	 Also make sure that we're dealing in a multiple of the heap
+	 allocation unit (SIZE is already guaranteed to be so).*/
+      new_size = HEAP_ADJUST_SIZE (new_size + MALLOC_HEADER_SIZE);
 
       MALLOC_DEBUG ("realloc: 0x%lx, %d (base = 0x%lx, total_size = %d)\n",
 		    (long)mem, new_size, (long)base_mem, size);
