@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <netinet/in.h>
 
+int inet_aton(const char *cp, struct in_addr *inp);
 
 #ifdef L_inet_aton
 int

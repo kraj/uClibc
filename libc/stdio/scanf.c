@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -30,27 +32,27 @@ va_dcl
 
 #ifdef L_sscanf
 #ifdef __STDC__
-int sscanf(char * sp, const char * fmt, ...)
+int sscanf(const char * sp, const char * fmt, ...)
 #else
 int sscanf(sp, fmt, va_alist)
-char * sp;
+__const char * sp;
 __const char *fmt;
 va_dcl
 #endif
 {
-static FILE  string[1] =
-{
-   {0, (char*)(unsigned) -1, 0, 0, (char*) (unsigned) -1, -1,
-    _IOFBF | __MODE_READ}
-};
+    FILE  string[1] =
+    {
+	{0, (char*)(unsigned) -1, 0, 0, (char*) (unsigned) -1, -1,
+	    _IOFBF | __MODE_READ}
+    };
 
-  va_list ptr;
-  int rv;
-  va_strt(ptr, fmt);
-  string->bufpos = sp;
-  rv = vfscanf(string,fmt,ptr);
-  va_end(ptr);
-  return rv;
+    va_list ptr;
+    int rv;
+    va_strt(ptr, fmt);
+    string->bufpos = (unsigned char *)((void*)sp);
+    rv = vfscanf(string,fmt,ptr);
+    va_end(ptr);
+    return rv;
 }
 #endif
 
@@ -83,18 +85,16 @@ va_list ap;
 #endif
 
 #ifdef L_vsscanf
-int vsscanf(sp, fmt, ap)
-char * sp;
-__const char *fmt;
+int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
-static FILE  string[1] =
-{
-   {0, (char*)(unsigned) -1, 0, 0, (char*) (unsigned) -1, -1,
-    _IOFBF | __MODE_READ}
-};
+    FILE  string[1] =
+    {
+	{0, (char*)(unsigned) -1, 0, 0, (char*) (unsigned) -1, -1,
+	    _IOFBF | __MODE_READ}
+    };
 
-  string->bufpos = sp;
-  return vfscanf(string,fmt,ap);
+    string->bufpos = (unsigned char *)((void*)sp);
+    return vfscanf(string,fmt,ap);
 }
 #endif
 
@@ -170,7 +170,7 @@ int fp_sval[NSTATE] = {
 int
 vfscanf(fp, fmt, ap)
 register FILE *fp;
-register char *fmt;
+register const char *fmt;
 va_list ap;
 
 {

@@ -1,4 +1,4 @@
-
+#include <string.h>
 #include <features.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -8,7 +8,7 @@ char * mktemp(template)
 char * template;
 {
 	int i;
-	int num; /* UNINITIALIZED */
+	int num __attribute__ ((unused)); /* UNINITIALIZED */
 	int n2;
 	int l = strlen(template);
 	struct stat stbuf;

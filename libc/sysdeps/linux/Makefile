@@ -5,7 +5,7 @@ ARCH = $(shell uname -m | sed -e 's/i.86/i386/' | sed -e 's/sparc.*/sparc/')
 all: $(ARCH) common
 
 $(ARCH): dummy
-	echo Building for ARCH=$(ARCH)
+	@echo Building for ARCH=$(ARCH)
 	make -C $(ARCH)
 
 common:	dummy

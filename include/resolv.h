@@ -55,13 +55,13 @@ int encode_answer(struct resolv_answer * a,
 	unsigned char * dest, int maxlen);
 int decode_answer(unsigned char * message, int offset,
 	struct resolv_answer * a);
-char * resolve_name(const char * name, int mailbox);
+const char * resolve_name(const char * name, int mailbox);
 
 int encode_packet(struct resolv_header * h,
 	struct resolv_question ** q,
-	struct resolv_question ** an,
-	struct resolv_question ** ns,
-	struct resolv_question ** ar,
+	struct resolv_answer ** an,
+	struct resolv_answer ** ns,
+	struct resolv_answer ** ar,
 	unsigned char * dest, int maxlen);
 int decode_packet(unsigned char * data, struct resolv_header * h);
 

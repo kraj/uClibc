@@ -7,7 +7,7 @@ int
 system(command)
 char * command;
 {
-   int wait_val, wait_ret, pid;
+   int wait_val, pid;
    __sighandler_t save_quit, save_int, save_chld;
 
    if( command == 0 ) return 1;

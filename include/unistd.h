@@ -36,6 +36,10 @@ extern int symlink __P ((__const char *__from, __const char *__to));
 extern int readlink __P ((__const char *__path, char *__buf, size_t __len));
 extern int unlink __P ((__const char *__name));
 extern char *getcwd __P ((char *__buf, size_t __size));
+/* Duplicate FD, returning a new file descriptor on the same file.  */
+extern int dup __P ((int __fd));
+/* Duplicate FD to FD2, closing FD2 and making it open on the same file.  */
+extern int dup2 __P ((int __fd, int __fd2));
 extern int fchdir __P ((int __fd));
 extern int chdir __P ((__const char *__path));
 extern int chown __P ((__const char *__file,
@@ -90,44 +94,25 @@ extern int execve __P ((__const char *__path, char *__const __argv[],
 extern int execvp __P ((__const char *__file, char *__const __argv[]));
 
 
+/* Execute PATH with arguments ARGV and environment ENVP. */
+extern int execvep __P ((__const char *path, char *__const __argv[], 
+	    char *__const __envp[]));
 
+/* Terminate program execution with the low-order 8 bits of STATUS.  */
+extern void _exit __P ((int __status)) __attribute__ ((__noreturn__));
 
+/* Clone the calling process, creating an exact copy.
+ *    Return -1 for errors, 0 to the new process,
+ *       and the process ID of the new process to the old process.  */
+extern __pid_t __fork __P ((void));
+extern __pid_t fork __P ((void));
 
-#if 0                                                                         
-#ifndef SYS_fork
-#define SYS_fork 2
-#endif
+/* Clone the calling process, but without copying the whole address space.
+ *    The calling process is suspended until the new process exits or is
+ *       replaced by a call to `execve'.  Return -1 for errors, 0 to the new process,
+ *          and the process ID of the new process to the old process.  */
+extern __pid_t vfork __P ((void));
 
-#define vfork() ({ \
-register long __res __asm__ ("%d0"); \
-__asm__ __volatile__ ("trap  #0" \
-                      : "=g" (__res) \
-                      : "0" (SYS_fork) \
-                      : "%d0"); \
-__res; \
-})
-#endif
-
-#ifdef __mc68000__
-
-#define vfork() ({						\
-register unsigned long __res __asm__ ("%d0") = __NR_fork;	\
-__asm__ __volatile__ ("trap  #0"				\
-                      : "=g" (__res)				\
-                      : "0" (__res)				\
-                      : "%d0");					\
-if (__res >= (unsigned long)-4096) {				\
-	errno = -__res;						\
-	__res = (pid_t)-1;					\
-}								\
-(pid_t)__res;							\
-})
-
-
-
-#define fork fork_not_available_use_vfork
-#define clone clone_not_available_use__clone
-#endif		
 
 #ifndef SEEK_SET
 #define SEEK_SET 0

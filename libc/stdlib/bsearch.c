@@ -28,7 +28,7 @@ register int (*cmp) ();		/* comparison function */
    while (a <= b)
    {
       c = (a + b) >> 1;		/* == ((a + b) / 2) */
-      if (dir = (*cmp) ((base + (c * size)), key))
+      if ((dir = (*cmp) ((base + (c * size)), key)))
       {
 	 if (dir > 0)
 	    b = c - 1;

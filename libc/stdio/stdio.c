@@ -6,14 +6,18 @@
 /* This is an implementation of the C standard IO package.
  */
 
+#include <stdlib.h>
 #include <stdio.h>
-
+#include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <malloc.h>
 #include <errno.h>
+#include <string.h>
 
 #undef STUB_FWRITE
+
+void __io_init_vars(void);
 
 extern FILE *__IO_list;		/* For fflush at exit */
 
@@ -80,10 +84,7 @@ FILE  stderr[1] =
 
 /* Call the stdio initiliser; it's main job it to call atexit */
 
-#define STATIC
-
-STATIC int 
-__stdio_close_all()
+void __stdio_close_all(void)
 {
    FILE *fp;
    fflush(stdout);
@@ -103,8 +104,7 @@ static int first_time = 0;
 struct fixed_buffer _fixed_buffers[2];
 
 
-STATIC void 
-__io_init_vars()
+void __io_init_vars(void)
 {
    if( first_time ) return;
    first_time = 1;
@@ -206,7 +206,9 @@ FILE *fp;
    if (fp->mode & __MODE_WRITING)
       fflush(fp);
 
+#if __MODE_IOTRAN
  try_again:
+#endif
    /* Can't read or there's been an EOF or error then return EOF */
    if ((fp->mode & (__MODE_READ | __MODE_EOF | __MODE_ERR)) != __MODE_READ)
       return EOF;
@@ -319,7 +321,7 @@ FILE *fp;
 char *
 fgets(s, count, f)
 char *s;
-size_t count;
+int count;
 FILE *f;
 {
    char *ret;
@@ -368,7 +370,7 @@ char *str;
 #ifdef L_fputs
 int
 fputs(str, fp)
-char *str;
+const char *str;
 FILE *fp;
 {
    register int n = 0;
@@ -385,7 +387,7 @@ FILE *fp;
 #ifdef L_puts
 int
 puts(str)
-char *str;
+const char *str;
 {
    register int n;
 
@@ -405,12 +407,12 @@ char *str;
  * This ignores __MODE__IOTRAN; probably exactly what you want. (It _is_ what
  * fgetc wants)
  */
-int
+size_t
 fread(buf, size, nelm, fp)
-char *buf;
-int   size;
-int   nelm;
-FILE *fp;
+void	*buf;
+size_t  size;
+size_t  nelm;
+FILE	*fp;
 {
    int   len, v;
    unsigned bytes, got = 0;
@@ -467,12 +469,12 @@ FILE *fp;
  * 
  * Again this ignores __MODE__IOTRAN.
  */
-int
+size_t
 fwrite(buf, size, nelm, fp)
-char *buf;
-int   size;
-int   nelm;
-FILE *fp;
+const void *buf;
+size_t  size;
+size_t  nelm;
+FILE	*fp;
 {
    register int v;
    int   len;
@@ -606,7 +608,6 @@ int   ref;
 long ftell(fp)
 FILE * fp;
 {
-   long rv;
    if (fflush(fp) == EOF)
       return EOF;
    return lseek(fp->fd, 0L, SEEK_CUR);
@@ -620,10 +621,10 @@ FILE * fp;
  */
 FILE *
 __fopen(fname, fd, fp, mode)
-char *fname;
+const char *fname;
 int   fd;
 FILE *fp;
-char *mode;
+const char *mode;
 {
    int   open_mode = 0;
 #if __MODE_IOTRAN
@@ -875,8 +876,8 @@ size_t size;
 
    if( mode == _IOFBF || mode == _IOLBF )
    {
-      if( size <= 0  ) size = BUFSIZ;
-      if( buf == 0 )
+      if( size <= 0  ) { size = BUFSIZ; }
+      if( buf == 0 ) {
          if (size == BUFSIZ) {
             int i;
             for(i=0;i<FIXED_BUFFERS;i++)
@@ -887,8 +888,10 @@ size_t size;
                }
             if(i==FIXED_BUFFERS)
                buf = malloc(size);
-         } else
+         } else {
             buf = malloc(size);
+	 }
+      }
       if( buf == 0 ) return EOF;
 
       fp->bufstart = buf;
@@ -896,6 +899,7 @@ size_t size;
       fp->mode |= mode;
    }
    fp->bufpos = fp->bufread = fp->bufwrite = fp->bufstart;
+   return 0;
 }
 #endif
 

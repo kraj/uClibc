@@ -17,7 +17,7 @@ char *s1; char *s2;
 
    if( l==0 ) return p;
 
-   while (p = strchr(p, *s2))
+   while ((p = strchr(p, *s2)))
    {
       if( memcmp(p, s2, l) == 0 )
          return p;

@@ -312,9 +312,9 @@ int decode_answer(unsigned char * message, int offset,
 #ifdef L_encodep
 int encode_packet(struct resolv_header * h,
 	struct resolv_question ** q,
-	struct resolv_question ** an,
-	struct resolv_question ** ns,
-	struct resolv_question ** ar,
+	struct resolv_answer ** an,
+	struct resolv_answer ** ns,
+	struct resolv_answer ** ar,
 	unsigned char * dest, int maxlen)
 {
 	int i, total=0;
@@ -694,12 +694,12 @@ int resolve_mailbox(const char * address,
 #endif
 
 extern int nameservers;
-extern const char * nameserver[3];
+extern const char *__const nameserver[3];
 
 #ifdef L_opennameservers
 
 int nameservers;
-const char * nameserver[3];
+const char *__const nameserver[3];
 
 int open_nameservers()
 {
@@ -707,8 +707,8 @@ int open_nameservers()
 	char **arg;
 	int i;
 
-	if (fp = fopen("/etc/resolv.conf", "r")) {
-		if (arg = cfgfind(fp, "nameserver")) {
+	if ((fp = fopen("/etc/resolv.conf", "r"))) {
+		if ((arg = cfgfind(fp, "nameserver"))) {
 			for (i=1; arg[i]; i++) {
 				nameserver[nameservers++] = strdup(arg[i]);
 			}
@@ -730,7 +730,7 @@ void close_nameservers(void) {
 
 #ifdef L_resolvename
 
-char * resolve_name(const char * name, int mailbox)
+const char * resolve_name(const char * name, int mailbox)
 {
 	struct in_addr in;
 	int i;

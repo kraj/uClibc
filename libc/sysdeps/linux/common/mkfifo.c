@@ -29,6 +29,5 @@
 int
 mkfifo (const char *path, mode_t mode)
 {
-  dev_t dev = 0;
-  return mknod (path, mode | S_IFIFO, &dev);
+  return mknod (path, mode | S_IFIFO, 0);
 }

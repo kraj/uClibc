@@ -35,7 +35,8 @@ static int extras = 0;
       {
          if (!overwrite)
          	return -1;
-         while( p[0] = p[1] ) p++;
+	 /* Overwrite stuff */
+         while( (p[0] = p[1]) ) p++;
          extras++;
          break;
       }

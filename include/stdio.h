@@ -3,6 +3,7 @@
 #define __STDIO_H
 
 #include <features.h>
+#include <stdarg.h>
 #include <sys/types.h>
 
 #ifndef SEEK_SET
@@ -195,6 +196,10 @@ extern int vfscanf __P ((FILE *__restrict __s,
 			 __const char *__restrict __format,
 			 va_list __arg))
      __attribute__ ((__format__ (__scanf__, 2, 0)));
+
+
+/* Print a message describing the meaning of the value of errno.  */
+extern void perror __P ((__const char *__s));
 
 
 
