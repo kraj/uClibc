@@ -55,6 +55,10 @@ Yoshinori Sato:
 David Schleef:
     o   Made powerpc assembly code PIC-compatible
     o   Removed powerpc R_PPC_REL24 handling, since it was deceptively useless.
+John Traill:
+    o   Several types on powerpc, such as dev_t, are different than on other 
+	architectures.  John spotted this, which fixed a _ton_ of problems since
+	anything calling stat() was previously broken.
 Jim Treadway:
     o   Eliminated use of alarm() from the DNS resolver by converting
 	it to use select instead (much cleaner).
