@@ -32,11 +32,11 @@ free (void *mem)
 
   /* Normal free.  */
 
+  MALLOC_DEBUG ("free: 0x%lx (base = 0x%lx, total_size = %d)\n",
+		(long)mem, (long)MALLOC_BASE (mem), MALLOC_SIZE (mem));
+
   size = MALLOC_SIZE (mem);
   mem = MALLOC_BASE (mem);
-
-  MALLOC_DEBUG ("free: 0x%lx (base = 0x%lx, total_size = %d)\n",
-		(long)MALLOC_ADDR (mem), (long)mem, size);
 
   __malloc_lock ();
 
@@ -84,9 +84,9 @@ free (void *mem)
 		    start, end, end - start);
 
       /* Remove FA from the heap.  */
-      __heap_unlink_free_area (heap, fa);
+      __heap_delete (heap, fa);
 
-      if (!fa->next && !fa->prev)
+      if (__heap_is_empty (heap))
 	/* We want to avoid the heap from losing all memory, so reserve
 	   a bit.  This test is only a heuristic -- the existance of
 	   another free area, even if it's smaller than
