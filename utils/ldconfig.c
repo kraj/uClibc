@@ -699,6 +699,9 @@ void cache_print(void)
 	    case LIB_ELF:
 		printf("(ELF%s)", libent[fd].flags & LIB_ELF64 ? "/64" : "");
 		break;
+	    case LIB_ELF_LIBC0:
+		printf("(libc0%s)",libent[fd].flags & LIB_ELF64 ? "/64" : "");
+		break;
 	    case LIB_ELF_LIBC5:
 	    case LIB_ELF_LIBC6:
 		printf("(libc%d%s)", (libent[fd].flags & ~LIB_ELF64) + 3,
@@ -884,13 +887,13 @@ int main(int argc, char **argv)
 	    if ((extpath = get_extpath()))
 	    {
 		for (cp = strtok(extpath, DIR_SEP); cp; cp = strtok(NULL, DIR_SEP)) {
-			/* we do the redundancy check only if cache usage is enabled */
-#ifdef __LDSO_CACHE_SUPPORT__
 			/* strip trailing slashes */
 			int len = strlen(cp);
 			if (len) 
 				while (cp[--len] == '/' && len)
 					cp[len] = 0;
+			/* we do the redundancy check only if cache usage is enabled */
+#ifdef __LDSO_CACHE_SUPPORT__
 			if (strcmp(UCLIBC_RUNTIME_PREFIX "lib", cp) == 0 ||
 			    strcmp(UCLIBC_RUNTIME_PREFIX "usr/lib", cp) == 0) {
 				if (verbose >= 0)
