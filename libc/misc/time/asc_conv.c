@@ -1,7 +1,9 @@
-
 #include <features.h>
-#include <time.h>
+#include <ctype.h>
+#include <langinfo.h>
 #include <string.h>
+#include <time.h>
+
 /*
  * Internal ascii conversion routine, avoid use of printf, it's a bit big!
  */
@@ -25,13 +27,13 @@
 #ifdef __UCLIBC_HAS_LOCALE__
 /* This is defined in locale/C-time.c in the GNU libc.  */
 extern const struct locale_data _nl_C_LC_TIME;
-extern const unsigned short int __mon_yday[2][13];
-# define __ab_weekday_name \
-  (&_nl_C_LC_TIME.values[_NL_ITEM_INDEX (ABDAY_1)].string)
-# define __ab_month_name (&_nl_C_LC_TIME.values[_NL_ITEM_INDEX (ABMON_1)].string)
+#define __ab_weekday_name(DAY) (_nl_C_LC_TIME.values[_NL_ITEM_INDEX (ABDAY_1)+(DAY)].string)
+#define __ab_month_name(MON)   (_nl_C_LC_TIME.values[_NL_ITEM_INDEX (ABMON_1)+(MON)].string)
 #else
 extern char const __ab_weekday_name[][4];
 extern char const __ab_month_name[][4];
+#define __ab_weekday_name(DAY) (__ab_weekday_name[DAY])
+#define __ab_month_name(MON)   (__ab_month_name[MON])
 #endif
 
 void __asctime(register char *buffer, struct tm *ptm)
@@ -45,11 +47,11 @@ void __asctime(register char *buffer, struct tm *ptm)
 	memcpy(buffer, template, sizeof(template));
 
 	if ((ptm->tm_wday >= 0) && (ptm->tm_wday <= 6)) {
-		memcpy(buffer, __ab_weekday_name[ptm->tm_wday], 3);
+		memcpy(buffer, __ab_weekday_name(ptm->tm_wday), 3);
 	}
 
 	if ((ptm->tm_mon >= 0) && (ptm->tm_mon <= 11)) {
-		memcpy(buffer + 4, __ab_month_name[ptm->tm_mon], 3);
+		memcpy(buffer + 4, __ab_month_name(ptm->tm_mon), 3);
 	}
 
 	tm_field[0] = ptm->tm_mday;
