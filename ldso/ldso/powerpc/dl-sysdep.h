@@ -91,7 +91,7 @@
 	}						\
 	if(type!=R_PPC_NONE){				\
 		PPC_DCBST(REL); PPC_SYNC; PPC_ICBI(REL);\
-	|						\
+	}						\
 	}
 
 /*
