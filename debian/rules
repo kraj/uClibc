@@ -52,7 +52,7 @@ endif
 ifeq ($(with_shared_libs),n)
 	echo 'HAVE_SHARED = false' >>Config
 endif
-	echo 'KERNEL_SOURCE = /usr/src/kernel-headers-2.4.5' >>Config
+	echo 'KERNEL_SOURCE = '`echo /usr/src/kernel-headers-*|sed 's/ .*//'` >>Config
 
 	$(MAKE)
 
