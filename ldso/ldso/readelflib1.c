@@ -874,74 +874,58 @@ int _dl_fixup(struct dyn_elf *rpnt, int flag)
 	tpnt = rpnt->dyn;
 
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug) _dl_dprintf(_dl_debug_file,"\nrelocation processing: %s", tpnt->libname);	
-#endif    
-	
-	if (tpnt->dynamic_info[DT_REL]) {
-#ifdef ELF_USES_RELOCA
+	if(_dl_debug) _dl_dprintf(_dl_debug_file,"\nrelocation processing: %s", tpnt->libname);
+#endif
+
+	if (unlikely(tpnt->dynamic_info[UNSUPPORTED_RELOC_TYPE])) {
 #if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug) _dl_dprintf(2, "%s: can't handle REL relocation records\n", _dl_progname);
-#endif    
+		if(_dl_debug) {
+			_dl_dprintf(2, "%s: can't handle %s relocation records\n",
+					_dl_progname, UNSUPPORTED_RELOC_STR);
+		}
+#endif
 		goof++;
 		return goof;
-#else
+	}
+
+	if (tpnt->dynamic_info[DT_RELOC_TABLE_ADDR]) {
 		if (tpnt->init_flag & RELOCS_DONE)
 			return goof;
 		tpnt->init_flag |= RELOCS_DONE;
-		goof += _dl_parse_relocation_information(tpnt, 
-				tpnt->dynamic_info[DT_REL], 
-				tpnt->dynamic_info[DT_RELSZ], 0);
-#endif
+		goof += _dl_parse_relocation_information(tpnt,
+				tpnt->dynamic_info[DT_RELOC_TABLE_ADDR],
+				tpnt->dynamic_info[DT_RELOC_TABLE_SIZE], 0);
 	}
-	if (tpnt->dynamic_info[DT_RELA]) {
-#ifndef ELF_USES_RELOCA
-#if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug) _dl_dprintf(2, "%s: can't handle RELA relocation records\n", _dl_progname);
-#endif    
-		goof++;
-		return goof;
-#else
-		if (tpnt->init_flag & RELOCS_DONE)
-			return goof;
-		tpnt->init_flag |= RELOCS_DONE;
-		goof += _dl_parse_relocation_information(tpnt, 
-				tpnt->dynamic_info[DT_RELA], 
-				tpnt->dynamic_info[DT_RELASZ], 0);
-#endif
-	}
+
 	if (tpnt->dynamic_info[DT_JMPREL]) {
 		if (tpnt->init_flag & JMP_RELOCS_DONE)
 			return goof;
 		tpnt->init_flag |= JMP_RELOCS_DONE;
 		if (flag & RTLD_LAZY) {
-			_dl_parse_lazy_relocation_information(tpnt, 
-					tpnt->dynamic_info[DT_JMPREL], 
+			_dl_parse_lazy_relocation_information(tpnt,
+					tpnt->dynamic_info[DT_JMPREL],
 					tpnt->dynamic_info [DT_PLTRELSZ], 0);
 		} else {
-			goof += _dl_parse_relocation_information(tpnt, 
-					tpnt->dynamic_info[DT_JMPREL], 
+			goof += _dl_parse_relocation_information(tpnt,
+					tpnt->dynamic_info[DT_JMPREL],
 					tpnt->dynamic_info[DT_PLTRELSZ], 0);
 		}
 	}
+
 	if (tpnt->init_flag & COPY_RELOCS_DONE)
 		return goof;
 	tpnt->init_flag |= COPY_RELOCS_DONE;
-#ifdef ELF_USES_RELOCA
-	goof += _dl_parse_copy_information(rpnt, 
-		tpnt->dynamic_info[DT_RELA], tpnt->dynamic_info[DT_RELASZ], 0);
-
-#else
-	goof += _dl_parse_copy_information(rpnt, tpnt->dynamic_info[DT_REL], 
-		tpnt->dynamic_info[DT_RELSZ], 0);
-
-#endif
+	goof += _dl_parse_copy_information(rpnt,
+		tpnt->dynamic_info[DT_RELOC_TABLE_ADDR],
+		tpnt->dynamic_info[DT_RELOC_TABLE_SIZE], 0);
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) {
-		_dl_dprintf(_dl_debug_file,"\nrelocation processing: %s", tpnt->libname);     
+		_dl_dprintf(_dl_debug_file,"\nrelocation processing: %s", tpnt->libname);
 		_dl_dprintf(_dl_debug_file,"; finished\n\n");
 	}
-#endif    
+#endif
+
 	return goof;
 }
 

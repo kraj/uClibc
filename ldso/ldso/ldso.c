@@ -565,17 +565,10 @@ LD_BOOT(unsigned long args)
 		unsigned long rel_addr, rel_size;
 
 
-#ifdef ELF_USES_RELOCA
 		rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
-			 dynamic_info[DT_RELA]);
+			 dynamic_info[DT_RELOC_TABLE_ADDR]);
 		rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] : tpnt->
-			 dynamic_info[DT_RELASZ]);
-#else
-		rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
-			 dynamic_info[DT_REL]);
-		rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] : tpnt->
-			 dynamic_info[DT_RELSZ]);
-#endif
+			 dynamic_info[DT_RELOC_TABLE_SIZE]);
 
 		if (!rel_addr)
 			continue;

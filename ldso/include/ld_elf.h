@@ -77,9 +77,18 @@ extern int _dl_linux_resolve(void);
  */
 #ifdef ELF_USES_RELOCA
 # define ELF_RELOC	ElfW(Rela)
+# define DT_RELOC_TABLE_ADDR	DT_RELA
+# define DT_RELOC_TABLE_SIZE	DT_RELASZ
+# define UNSUPPORTED_RELOC_TYPE	DT_REL
+# define UNSUPPORTED_RELOC_STR	"REL"
 #else
 # define ELF_RELOC	ElfW(Rel)
+# define DT_RELOC_TABLE_ADDR	DT_REL
+# define DT_RELOC_TABLE_SIZE	DT_RELSZ
+# define UNSUPPORTED_RELOC_TYPE	DT_RELA
+# define UNSUPPORTED_RELOC_STR	"RELA"
 #endif
+
 
 
 /* Convert between the Linux flags for page protections and the
