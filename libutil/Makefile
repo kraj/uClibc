@@ -47,7 +47,7 @@ $(OBJS): %.o : %.c
 
 shared: all
 	$(TARGET_CC) $(TARGET_LDFLAGS) -nostdlib -shared -o $(LIBUTIL_SHARED_FULLNAME) \
-	    -Wl,-soname,$(LIBUTIL_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBUTIL)
+	    -Wl,-soname,$(LIBUTIL_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBUTIL) -lc
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBUTIL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBUTIL_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBUTIL_SHARED_FULLNAME) $(TOPDIR)lib/;

@@ -51,7 +51,7 @@ $(OBJ): Makefile
 
 shared: all
 	$(TARGET_CC) $(TARGET_LDFLAGS) -nostdlib -shared -o $(LIBDL_SHARED_FULLNAME) \
-	    -Wl,-soname,$(LIBDL_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBDL)
+	    -Wl,-soname,$(LIBDL_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBDL) -lc
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib;

@@ -48,7 +48,7 @@ $(OBJ): Makefile
 
 shared: all
 	$(TARGET_CC) $(TARGET_LDFLAGS) -nostdlib -shared -o $(LIBCRYPT_SHARED_FULLNAME) \
-	    -Wl,-soname,$(LIBCRYPT_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBCRYPT)
+	    -Wl,-soname,$(LIBCRYPT_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBCRYPT) -lc
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBCRYPT_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib;
