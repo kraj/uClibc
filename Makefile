@@ -42,6 +42,9 @@ all: headers pregen subdirs shared finished
 
 shared: subdirs
 ifeq ($(strip $(HAVE_SHARED)),y)
+	@echo
+	@echo Building shared libraries ...
+	@echo
 	@$(MAKE) -C libc shared
 	@$(MAKE) -C ldso shared
 	@$(MAKE) -C libcrypt shared
@@ -109,6 +112,7 @@ endif
 	fi
 	$(MAKE) -C libc/sysdeps/linux/common headers
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
+	touch headers
 
 # Command used to download source code
 WGET:=wget --passive-ftp
@@ -317,6 +321,7 @@ defconfig: extra/config/conf
 clean:
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec $(RM) {} \;
 	@$(RM) -r tmp lib include/bits libc/tmp _install
+	$(RM) libc/obj.* headers
 	$(MAKE) -C test clean
 	$(MAKE) -C ldso clean
 	$(MAKE) -C libc/misc/internals clean
