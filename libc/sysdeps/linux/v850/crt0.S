@@ -45,11 +45,9 @@ C_ENTRY(start):
 	// Load GP
 	mov	hilo(C_SYMBOL_NAME(_gp)), gp
 
-	// call uclibc's startup routine
-	jarl	C_SYMBOL_NAME(__uClibc_main), lp
+	// tail-call uclibc's startup routine
+	jr	C_SYMBOL_NAME(__uClibc_main)
 
-	// should never get here....
-	jr	C_SYMBOL_NAME(abort)
 
 /* Stick in a dummy reference to `main', so that if an application
    is linking when the `main' function is in a static library (.a)
