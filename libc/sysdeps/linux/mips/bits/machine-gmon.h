@@ -17,8 +17,13 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#if __GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ <= 1)
 #define _MCOUNT_DECL(frompc,selfpc) \
 static void __attribute_used__ __mcount (u_long frompc, u_long selfpc)
+#else
+#define _MCOUNT_DECL(frompc,selfpc) \
+static void __mcount (u_long frompc, u_long selfpc)
+#endif
 
 /* Call __mcount with our the return PC for our caller,
    and the return PC our caller will return to.  */
