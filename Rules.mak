@@ -172,7 +172,7 @@ endif
 ifeq ($(strip $(DOPIC)),y)
     CFLAGS += -fPIC
 endif
-ifneq ($(strip $(HAS_FPU)),y)
+ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
     CFLAGS += -msoft-float
 endif
 
