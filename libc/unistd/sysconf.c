@@ -16,7 +16,6 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define _XOPEN_SOURCE	500
 #include <features.h>
 #include <errno.h>
 #include <limits.h>
@@ -24,12 +23,15 @@
 #include <pwd.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
 #include <sys/sysinfo.h>
 #include <sys/types.h>
 #include <regex.h>
+
+#ifndef SYSTEM_CLK_TCK
+# define SYSTEM_CLK_TCK 100
+#endif
 
 extern int getpagesize (void);
 extern int getdtablesize (void);
@@ -89,11 +91,8 @@ long int __sysconf(int name)
 #endif
 
     case _SC_CLK_TCK:
-#ifdef	CLK_TCK
-      return CLK_TCK;
-#else
-      return 60;
-#endif
+      /* Can't use CLK_TCK here since that calls __sysconf(_SC_CLK_TCK) */
+      return SYSTEM_CLK_TCK;
 
     case _SC_NGROUPS_MAX:
 #ifdef	NGROUPS_MAX
