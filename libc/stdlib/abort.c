@@ -18,6 +18,8 @@ Cambridge, MA 02139, USA.  */
 
 /* Hacked up for uClibc by Erik Andersen */
 
+#define _GNU_SOURCE
+#include <features.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,10 +52,25 @@ extern void weak_function _stdio_term(void);
 extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
 static int been_there_done_that = 0;
 
+/* Be prepared in case multiple threads try to abort().  */
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+# define LOCK	pthread_mutex_lock(&mylock)
+# define UNLOCK	pthread_mutex_unlock(&mylock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
+
+
 /* Cause an abnormal program termination with core-dump.  */
 void abort(void)
 {
     sigset_t sigset;
+
+      /* Make sure we acquire the lock before proceeding.  */
+      LOCK;
 
     /* Unmask SIGABRT to be sure we can get it */
     if (__sigemptyset(&sigset) == 0 && __sigaddset(&sigset, SIGABRT) == 0) {
@@ -71,7 +88,9 @@ void abort(void)
 	/* Try to suicide with a SIGABRT.  */
 	if (been_there_done_that == 0) {
 	    been_there_done_that++;
+	    UNLOCK;
 	    raise(SIGABRT);
+	    LOCK;
 	}
 
 	/* Still here?  Try to remove any signal handlers.  */
