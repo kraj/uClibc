@@ -79,7 +79,7 @@
 
 #define MAX_RECURSE 5
 #define REPLY_TIMEOUT 10
-#define MAX_RETRIES 15
+#define MAX_RETRIES 3
 #define MAX_SERVERS 3
 #define MAX_SEARCH 4
 
