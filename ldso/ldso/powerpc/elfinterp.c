@@ -349,17 +349,22 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		*(short *)reloc_addr = finaladdr;
 		break;
 	case R_PPC_REL24:
-	{
-		Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
-		if(unlikely(delta<<6>>6 != delta)) {
-			_dl_dprintf(2, "%s: symbol '%s' R_PPC_REL24 is out of range.\n\t"
-					"Compile shared libraries with -fPIC!\n",
-				    _dl_progname, symname);
-			_dl_exit(1);
+#if 0
+		{
+			Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
+			if(unlikely(delta<<6>>6 != delta)) {
+				_dl_dprintf(2, "%s: symbol '%s' R_PPC_REL24 is out of range.\n\t"
+						"Compile shared libraries with -fPIC!\n",
+						_dl_progname, symname);
+				_dl_exit(1);
+			}
+			*reloc_addr = (*reloc_addr & 0xfc000003) | (delta & 0x3fffffc);
+			break;
 		}
-		*reloc_addr = (*reloc_addr & 0xfc000003) | (delta & 0x3fffffc);
-		break;
-	}
+#else
+		_dl_dprintf(2,"R_PPC_REL24: Compile shared libraries with -fPIC!\n");
+		_dl_exit(1);
+#endif
 	default:
 		_dl_dprintf(2, "%s: can't handle reloc type ", _dl_progname);
 #if defined (__SUPPORT_LD_DEBUG__)
