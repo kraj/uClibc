@@ -26,7 +26,7 @@ int clock_gettime (clockid_t clock, struct timespec* ts)
 	int retval = -1;
 	switch (clock) {
 		case CLOCK_REALTIME:
-			retval = gettimeofday (&tv, NULL);
+			retval = __libc_gettimeofday (&tv, NULL);
 			if (retval == 0) {
 				TIMEVAL_TO_TIMESPEC (&tv, ts);
 			}

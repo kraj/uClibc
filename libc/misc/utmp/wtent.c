@@ -38,7 +38,7 @@ void logwtmp (const char *line, const char *name, const char *host)
     strncpy(lutmp.ut_line, line, sizeof(lutmp.ut_line)-1);
     strncpy(lutmp.ut_name, name, sizeof(lutmp.ut_name)-1);
     strncpy(lutmp.ut_host, host, sizeof(lutmp.ut_host)-1);
-    gettimeofday(&(lutmp.ut_tv), NULL);
+    __libc_gettimeofday(&(lutmp.ut_tv), NULL);
 
     updwtmp(_PATH_WTMP, &(lutmp));
 }
