@@ -179,7 +179,7 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 tags:
 	ctags -R
 
-install: install_dev install_runtime install_utils finished2
+install: install_runtime install_dev finished2
 
 
 # Installs header files and development library links.
@@ -270,26 +270,16 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	fi;
 endif
 
+.PHONY: utils
 ifeq ($(strip $(HAVE_SHARED)),y)
-utils: $(TOPDIR)utils/ldd
+utils:
 	$(MAKE) -C utils
 else
 utils: dummy
 endif
 
 install_utils: utils
-ifeq ($(strip $(HAVE_SHARED)),y)
-	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)sbin
-	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)usr/bin
-	$(INSTALL) -m 755 ldso/util/ldd \
-		$(PREFIX)$(RUNTIME_PREFIX)usr/bin/ldd
-	$(INSTALL) -m 755 ldso/util/ldconfig \
-		$(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig;
-	# For now, don't bother with readelf since surely the host
-	# system has binutils, or we couldn't have gotten this far...
-	#$(INSTALL) -m 755 ldso/util/readelf \
-	#	$(PREFIX)$(RUNTIME_PREFIX)usr/bin/readelf
-endif
+	$(MAKE) CFLAGS= LDFLAGS= -C utils install
 ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 	@$(MAKE) -C libc/misc/wchar iconv.target
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/usr/bin;

@@ -17,20 +17,21 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 # Pull in the user's uClibc configuration, but do not
-# include Rules.mak.....
+# pull in Rules.mak.....
 TOPDIR=../
 include $(TOPDIR).config
+
+MAJOR_VERSION=0
+UCLIBC_LDSO=ld-uClibc.so.$(MAJOR_VERSION)
 
 # A nifty macro to make testing gcc features easier
 check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; else echo "$(2)"; fi)
 
 # use '-Os' optimization if available, else use -O2, allow Config to override
-OPTIMIZATION+=$(call check_gcc,-Os,-O2)
-XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
-
-MAJOR_VERSION:=0
-UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
+OPTIMIZATION=$(call check_gcc,-Os,-O2)
+UWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
 
 ifndef CROSS
 CROSS=
@@ -42,24 +43,46 @@ NM= $(CROSS)nm
 STRIP= $(CROSS)strip
 LN=ln
 
+override CFLAGS=$(UWARNINGS) $(OPTIMIZATION) #$(XARCH_CFLAGS)
+override LDFLAGS=-s
 ifeq ($(DODEBUG),y)
-    CFLAGS = $(XWARNINGS) -O0 -g3
-    LDFLAGS =
-else
-    CFLAGS=$(XWARNINGS) $(OPTIMIZATION)
-    LDFLAGS = -s
+    override CFLAGS=$(UWARNINGS) -O0 -g3 #$(XARCH_CFLAGS)
+    override LDFLAGS=
 endif
 
 # Make certain these contain a final "/", but no "//"s.
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
-export RUNTIME_PREFIX DEVEL_PREFIX
 
 
 TARGETS = ldd ldconfig readelf
 
+ifeq ($(HAVE_SHARED),y)
+    LIBRARY_CACHE=#-DUSE_CACHE
+    ifeq ($(BUILD_UCLIBC_LDSO),y)
+	LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
+	DYNAMIC_LINKER=$(SHARED_LIB_LOADER_PREFIX)/$(UCLIBC_LDSO)
+    else
+	LDSO=$(SYSTEM_LDSO)
+	DYNAMIC_LINKER=/lib/$(strip $(subst ",, $(notdir $(SYSTEM_LDSO))))
+   endif
+endif
+
+
+XXFLAGS=
 ifeq ($(strip $(LDSO_LDD_SUPPORT)),y)
-XXFLAGS = -D__LDSO_LDD_SUPPORT
+XXFLAGS= -D__LDSO_LDD_SUPPORT
+else
+XXFLAGS=
+endif
+
+LDADD_LIBFLOAT=
+ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
+    CFLAGS += $(call check_gcc,-msoft-float,)
+    #LDFLAGS+= -Wa,-mno-fpu
+ifeq ($(strip $(TARGET_ARCH)),arm)
+    LDADD_LIBFLOAT=-lfloat
+endif
 endif
 
 ifeq ($(strip $(HAVE_SHARED)),y)
@@ -92,4 +115,17 @@ ldd:	ldd.c
 clean:
 	$(RM) $(TARGETS) *.o *~ core *.target elf.h
 
+
 readelf.c readsoname.c ldconfig.c ldd.c:	headers
+
+install: all
+ifeq ($(strip $(HAVE_SHARED)),y)
+	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)sbin
+	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)usr/bin
+	$(INSTALL) -m 755 ldd $(PREFIX)$(RUNTIME_PREFIX)usr/bin/ldd
+	$(INSTALL) -m 755 ldconfig $(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig;
+	# For now, don't bother with readelf since surely the host
+	# system has binutils, or we couldn't have gotten this far...
+	#$(INSTALL) -m 755 readelf $(PREFIX)$(RUNTIME_PREFIX)usr/bin/readelf
+endif
+

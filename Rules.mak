@@ -194,11 +194,9 @@ ifeq ($(HAVE_SHARED),y)
     ifeq ($(BUILD_UCLIBC_LDSO),y)
 	LDSO:=$(TOPDIR)lib/$(UCLIBC_LDSO)
 	DYNAMIC_LINKER:=$(SHARED_LIB_LOADER_PREFIX)/$(UCLIBC_LDSO)
-	BUILD_DYNAMIC_LINKER:=$(shell cd $(TOPDIR) && pwd)/lib/$(UCLIBC_LDSO)
     else
 	LDSO:=$(SYSTEM_LDSO)
 	DYNAMIC_LINKER:=/lib/$(strip $(subst ",, $(notdir $(SYSTEM_LDSO))))
-	BUILD_DYNAMIC_LINKER:=/lib/$(strip $(subst ",, $(notdir $(SYSTEM_LDSO))))
    endif
 endif
 
