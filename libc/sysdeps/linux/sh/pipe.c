@@ -1,6 +1,7 @@
 
 /* Copyright (C) 2001 Lineo, <davidm@lineo.com> */
 
+#include <errno.h>
 #include <unistd.h>
 #include <syscall.h>
 

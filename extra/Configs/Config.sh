@@ -75,6 +75,10 @@ ifeq ($(strip $(TARGET_PROC)),SH3)
 ARCH_CFLAGS += -ml
 HAS_MMU = true
 endif
+ifeq ($(strip $(TARGET_PROC)),SH4)
+ARCH_CFLAGS += -ml -m4
+HAS_MMU = true
+endif
 endif
 
 # Set this to `false' if you don't have/need basic floating point support
