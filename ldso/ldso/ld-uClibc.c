@@ -244,6 +244,8 @@ DL_BOOT(unsigned long args)
 	__asm__("\tmov %%l7,%0\n\t" : "=r" (got))
 #elif defined(__arm__)
 	__asm__("\tmov %0, r10\n\t" : "=r"(got));
+#elif defined(__powerpc__)
+	__asm__("\tbl _GLOBAL_OFFSET_TABLE_-4@local\n\t" : "=l"(got));
 #else
 	/* Do things the slow way in C */
 	{

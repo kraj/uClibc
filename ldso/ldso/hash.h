@@ -86,7 +86,7 @@ extern int _dl_linux_dynamic_link(void);
 #define SEND_ADDRESS_STDERR(X, add_a_newline) { \
     char tmp[13], *tmp1; \
     _dl_memset_inline(tmp, 0, sizeof(tmp)); \
-    tmp1=_dl_simple_ltoahex( tmp, (unsigned long)(X)); \
+    tmp1=_dl_simple_ltoahex_inline( tmp, (unsigned long)(X)); \
     _dl_write(2, tmp1, _dl_strlen_inline(tmp1)); \
     if (add_a_newline) { \
 	tmp[0]='\n'; \
@@ -97,7 +97,7 @@ extern int _dl_linux_dynamic_link(void);
 #define SEND_NUMBER_STDERR(X, add_a_newline) { \
     char tmp[13], *tmp1; \
     _dl_memset_inline(tmp, 0, sizeof(tmp)); \
-    tmp1=_dl_simple_ltoahex( tmp, (unsigned long)(X)); \
+    tmp1=_dl_simple_ltoahex_inline( tmp, (unsigned long)(X)); \
     _dl_write(2, tmp1, _dl_strlen_inline(tmp1)); \
     if (add_a_newline) { \
 	tmp[0]='\n'; \

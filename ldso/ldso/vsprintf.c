@@ -271,11 +271,13 @@ int _dl_fdprintf(int fd, const char *fmt, ...)
 		}
 		if (qualifier == 'l')
 			num = va_arg(args, unsigned long);
+#ifndef __powerpc__
 		else if (qualifier == 'h')
 			if (flags & SIGN)
 				num = va_arg(args, short);
 			else
 				num = va_arg(args, unsigned short);
+#endif
 		else if (flags & SIGN)
 			num = va_arg(args, int);
 		else
