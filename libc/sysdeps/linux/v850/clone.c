@@ -1,8 +1,8 @@
 /*
  * libc/sysdeps/linux/v850/clone.c -- `clone' syscall for linux/v850
  *
- *  Copyright (C) 2002  NEC Electronics Corporation
- *  Copyright (C) 2002  Miles Bader <miles@gnu.org>
+ *  Copyright (C) 2002,03  NEC Electronics Corporation
+ *  Copyright (C) 2002,03  Miles Bader <miles@gnu.org>
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
@@ -23,13 +23,15 @@ clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg)
     {
       register unsigned long syscall asm (SYSCALL_NUM);
       register unsigned long arg0 asm (SYSCALL_ARG0);
+      register unsigned long arg1 asm (SYSCALL_ARG1);
 
       /* Clone this thread.  */
       arg0 = flags;
+      arg1 = (unsigned long)child_stack;
       syscall = __NR_clone;
       asm volatile ("trap " SYSCALL_SHORT_TRAP
 		    : "=r" (rval), "=r" (syscall)
-		    : "1" (syscall), "r" (arg0)
+		    : "1" (syscall), "r" (arg0), "r" (arg1)
 		    : SYSCALL_SHORT_CLOBBERS);
 
       if (rval == 0)
