@@ -653,7 +653,8 @@ int main( int argc, char** argv)
 		for (cur = lib_list; cur; cur=cur->next) {
 			free(cur->name);
 			cur->name=NULL;
-			free(cur->path);
+			if (cur->path && cur->path != not_found)
+				free(cur->path);
 			cur->path=NULL;
 		}
 		lib_list=NULL;
