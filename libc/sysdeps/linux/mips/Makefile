@@ -67,4 +67,5 @@ headers:
 clean:
 	rm -f *.[oa] *~ core
 	rm -f bits/syscall.h
+	rm -f $(TOPDIR)/include/sgidefs.h
 
