@@ -22,10 +22,10 @@
 #include <bits/errno.h>
 
        .text
-       .globl  __libc_vfork
-       .type __libc_vfork,@function
+       .globl  vfork
+       .type vfork,@function
 /* int vfork(void) */
-__libc_vfork:
+vfork:
        setlos  #__NR_vfork, gr7
        tira    gr0, #0
 
@@ -39,6 +39,3 @@ __libc_vfork:
 
        .size   vfork,.-vfork
 
-.weak vfork
-.global vfork
-.set vfork, __libc_vfork
