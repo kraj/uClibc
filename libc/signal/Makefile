@@ -24,7 +24,7 @@ TOPDIR=../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-CSRC=raise.c sys_siglist.c
+CSRC=raise.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
@@ -35,7 +35,9 @@ $(LIBC): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(OBJS): Makefile
+$(COBJS):
+	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	rm -f *.[oa] *~ core

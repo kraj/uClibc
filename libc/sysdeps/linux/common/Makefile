@@ -37,7 +37,9 @@ $(LIBC): ar-target
 ar-target: $(OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJ)
 
-$(OBJ): Makefile
+$(COBJS):
+	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	rm -f *.[oa] *~ core

@@ -43,8 +43,11 @@ ar-target: $(OBJS)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(OBJS): Makefile
+$(COBJS):
+	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	rm -f *.[oa] *~ core

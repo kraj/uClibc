@@ -31,9 +31,13 @@ ASMOBJS=$(shell ./list_syscalls.sh)
 SSRC=_start.S setjmp.S longjmp.S #fork.S #clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
+MSRC=syscalls.c
+MOBJ=read.o write.o __open.o close.o
+
 CSRC=readdir.c #select.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(SOBJS) $(ASMOBJS) $(COBJS)
+
+OBJS=$(SOBJS) $(ASMOBJS) $(COBJS) $(MOBJ)
 
 
 all: $(OBJS) $(LIBC)
@@ -45,12 +49,19 @@ ar-target: $(OBJS)
 
 $(ASMOBJS): $(ASMSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): $(SSRC)
+	$(CC) $(CFLAGS) $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS): $(CSRC)
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(OBJS): Makefile
+$(COBJS):
+	$(CC) $(CFLAGS) $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	rm -f *.[oa] *~ core

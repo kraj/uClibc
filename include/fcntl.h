@@ -57,11 +57,13 @@ __BEGIN_DECLS
 
 /* Do the file control operation described by CMD on FD.
    The remaining arguments are interpreted depending on CMD.  */
+extern int __fcntl __P ((int __fd, int __cmd, ...));
 extern int fcntl __P ((int __fd, int __cmd, ...));
 
 /* Open FILE and return a new file descriptor for it, or -1 on error.
    OFLAG determines the type of access used.  If O_CREAT is on OFLAG,
    the third argument is taken as a `mode_t', the mode of the created file.  */
+extern int __open __P ((__const char *__file, int __oflag, mode_t mode));
 #ifndef __USE_FILE_OFFSET64
 extern int open __P ((__const char *__file, int __oflag, ...));
 #else

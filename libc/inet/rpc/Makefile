@@ -39,6 +39,10 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 all: $(COBJS) $(LIBC)
 
+$(COBJS):
+	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
 $(LIBC): $(COBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(COBJS)
 

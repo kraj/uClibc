@@ -28,7 +28,7 @@
 
 
 
-DIRS = misc pwd_grp stdio string termios unistd net signal stdlib sysdeps
+DIRS = io misc pwd_grp stdio string termios unistd net signal stdlib sysdeps
 
 all: libc.a
 

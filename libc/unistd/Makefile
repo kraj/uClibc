@@ -37,6 +37,10 @@ $(LIBC): ar-target subdirs
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
+$(COBJS):
+	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
 $(OBJ): Makefile
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
