@@ -4,9 +4,7 @@
 #
 
 config TARGET_ARCH
-	default "sh2" if CONFIG_SH2
-	default "sh3" if CONFIG_SH3
-	default "sh4" if CONFIG_SH4
+	default "sh" if CONFIG_SH2 || CONFIG_SH3 || CONFIG_SH4
 	default "sh64" if CONFIG_SH5
 
 config HAVE_ELF
