@@ -1970,7 +1970,7 @@ int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
 
 //#define __NR_stat64             195
 #ifdef L___syscall_stat64
-#if defined __NR_stat64 && defined __UCLIBC_HAS_LFS__
+#if defined __UCLIBC_HAS_LFS__ && defined __NR_stat64
 #define __NR___syscall_stat64 __NR_stat64
 #include <unistd.h>
 #include <sys/stat.h>
@@ -1992,7 +1992,7 @@ int stat64(const char * file_name, struct stat64 * buf)
 
 //#define __NR_lstat64            196
 #ifdef L___syscall_lstat64
-#if defined __NR_lstat64 && defined __UCLIBC_HAS_LFS__
+#if defined __UCLIBC_HAS_LFS__ && defined __NR_lstat64
 #define __NR___syscall_lstat64 __NR_lstat64
 #include <unistd.h>
 #include <sys/stat.h>
@@ -2014,7 +2014,7 @@ int lstat64(const char * file_name, struct stat64 * buf)
 
 //#define __NR_fstat64            197
 #ifdef L___syscall_fstat64
-#if defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__
+#if defined __UCLIBC_HAS_LFS__ && defined __NR_fstat64
 #define __NR___syscall_fstat64 __NR_fstat64
 #include <unistd.h>
 #include <sys/stat.h>
@@ -2078,7 +2078,7 @@ _syscall3(int, madvise, void*, __addr, size_t, __len, int, __advice);
 #ifdef L___syscall_fcntl64
 #include <stdarg.h>
 #include <fcntl.h>
-#ifdef __UCLIBC_HAS_LFS__
+#if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
 #define __NR___syscall_fcntl64 __NR_fcntl64
 static inline
 _syscall3(int, __syscall_fcntl64, int, fd, int, cmd, long, arg);
