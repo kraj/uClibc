@@ -47,13 +47,17 @@ extern void weak_function __pthread_initialize_minimal(void);
  * environ symbol is also included.
  */
 
-extern int _dl_secure;
 size_t __pagesize = 0;
-
 char **__environ = 0;
 const char *__progname = 0;
 weak_alias(__environ, environ);
 
+/* FIXME */
+#if 0
+extern int _dl_secure;
+int __secure = 0;
+weak_alias(__secure, _dl_secure);
+#endif
 
 
 /* __uClibc_init completely initialize uClibc so it is ready to use.
@@ -86,12 +90,13 @@ void __uClibc_init(void)
 	__pthread_initialize_minimal();
 #endif
 
+    /* FIXME */
 #if 0
     /* Some security at this point.  Prevent starting a SUID binary
      * where the standard file descriptors are not opened.  We have
      * to do this only for statically linked applications since
      * otherwise the dynamic loader did the work already.  */
-    if (unlikely (__libc_enable_secure!=NULL))
+    if (unlikely (__secure!=NULL))
 	__libc_check_standard_fds ();
 #endif
 
