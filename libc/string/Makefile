@@ -19,7 +19,7 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-DIRS = 
+DIRS=
 ifeq ($(TARGET_ARCH),$(wildcard $(TARGET_ARCH)))
 DIRS = $(TARGET_ARCH)
 endif
@@ -59,7 +59,7 @@ ifeq ($(UCLIBC_HAS_WCHAR),y)
 	OBJS += $(MOBJW) $(MOBJWx)
 endif
 
-all: $(OBJS) $(LIBC) subdirs
+all: $(LIBC) subdirs
 
 $(LIBC): ar-target
 
@@ -92,7 +92,7 @@ clean: subdirs_clean
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 
-$(patsubst %, _dir_%, $(DIRS)) : dummy
+$(patsubst %, _dir_%, $(DIRS)) : $(OBJS)
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
