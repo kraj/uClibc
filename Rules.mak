@@ -276,58 +276,6 @@ LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
 LIBGCC_DIR:=$(dir $(LIBGCC))
 
-#
-# common part for libs and binaries
-#
-# normally used start and end files
-N_START_FILE = $(LIBGCC_DIR)crtbegin.o
-N_END_FILE = $(LIBGCC_DIR)crtend.o
-
-# shared/pie start and end files
-S_START_FILE = $(LIBGCC_DIR)crtbeginS.o
-S_END_FILE = $(LIBGCC_DIR)crtendS.o
-
-ifeq ($(DOPIC),y)
-  START_FILE = $(S_START_FILE)
-  END_FILE = $(S_END_FILE)
-else
-  START_FILE = $(N_START_FILE)
-  END_FILE = $(N_END_FILE)
-endif
-
-START_FILES = $(TOPDIR)lib/crti.o $(START_FILE)
-END_FILES = $(END_FILE) $(TOPDIR)lib/crtn.o
-
-#
-# binaries specific part
-#
-ifeq ($(UCLIBC_CTOR_DTOR),y)
-  CRT_FILE=$(TOPDIR)lib/crt1.o
-else
-  CRT_FILE=$(TOPDIR)lib/crt0.o
-endif
-
-# PIE
-S_CRT_FILE=$(TOPDIR)lib/Scrt1.o
-
-# arm and ia64 do not use crtbeginT.o for static linking
-# please add condition for ia64 when it becomes supported
-ifeq ($(TARGET_arm),y)
-  STATIC_BEGIN_FILE=$(LIBGCC_DIR)crtbegin.o
-else
-  STATIC_BEGIN_FILE=$(LIBGCC_DIR)crtbeginT.o
-endif
-
-ifeq ($(UCLIBC_PIE_SUPPORT),y)
-  BIN_START_FILES = $(S_CRT_FILE) $(TOPDIR)lib/crti.o $(S_START_FILE)
-else
-  BIN_START_FILES = $(CRT_FILE) $(TOPDIR)lib/crti.o $(START_FILE)
-endif
-
-# static start and end files
-STATIC_BIN_START_FILES = $(CRT_FILE) $(TOPDIR)lib/crti.o $(STATIC_BEGIN_FILE)
-STATIC_BIN_END_FILES = $(N_END_FILE) $(TOPDIR)lib/crtn.o
-
 ########################################
 #
 # uClinux shared lib support

@@ -27,7 +27,7 @@ LIBPTHREAD_SHARED_FULLNAME=libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEV
 LIBTHREAD_DB=libthread_db.a
 LIBTHREAD_DB_SHARED=libthread_db.so
 LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
-    
+
 DIRS=
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 	DIRS+=linuxthreads
@@ -38,10 +38,9 @@ ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 endif
 endif
 
-# do we really have to unset these?
-ifneq ($(strip $(UCLIBC_CTOR_DTOR)),y)
-	START_FILES =
-	END_FILES =
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+	SHARED_START_FILES = $(TOPDIR)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
+	SHARED_END_FILES = $(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
 endif
 
 ALL_SUBDIRS = linuxthreads linuxthreads_db
@@ -75,10 +74,10 @@ shared: all
 	if [ -f $(LIBPTHREAD) ] ; then \
 		set -e; \
 		$(LD) $(LDFLAGS_PTHREADS) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
-			-o $(LIBPTHREAD_SHARED_FULLNAME) $(START_FILES) --whole-archive $(LIBPTHREAD) \
+			-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD) \
 			--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 			-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
-			$(END_FILES); \
+			$(SHARED_END_FILES); \
 		$(INSTALL) -d $(TOPDIR)lib; \
 		$(RM) $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) \
 			$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION); \
@@ -91,10 +90,10 @@ shared: all
 	if [ -f $(LIBTHREAD_DB) ] ; then \
 		set -e; \
 		$(LD) $(LDFLAGS) -soname=$(LIBTHREAD_DB_SHARED).1 \
-			-o $(LIBTHREAD_DB_SHARED_FULLNAME) $(START_FILES) --whole-archive $(LIBTHREAD_DB) \
+			-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \
 			--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 			-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
-			$(END_FILES); \
+			; \
 		$(INSTALL) -d $(TOPDIR)lib; \
 		$(RM) $(TOPDIR)lib/$(LIBTHREAD_DB_SHARED_FULLNAME) \
 			$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).1; \
