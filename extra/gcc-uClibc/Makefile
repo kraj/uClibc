@@ -12,7 +12,7 @@ GCC_BIN = $(shell which $(CC))
 LD_BIN = $(shell which $(LD))
 GCC_LIB = $(shell $(CC) -print-libgcc-file-name )
 GCC_LIB_DIR = $(dir $(shell $(CC) -print-libgcc-file-name ))
-#GCCINCDIR inherited from Rules.mak
+GCCINCDIR:= ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp"}
 
 all: gcc-uClibc ld-uClibc
 
