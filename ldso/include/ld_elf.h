@@ -58,7 +58,6 @@ static inline void _dl_unmap_cache(void) { }
 
 
 /* Function prototypes for non-static stuff in readelflib1.c */
-int _dl_copy_fixups(struct dyn_elf * tpnt);
 extern int _dl_parse_copy_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size, int type);
 extern void _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt,

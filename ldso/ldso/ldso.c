@@ -145,7 +145,7 @@ static int (*_dl_elf_main) (int, char **, char **);
 struct r_debug *_dl_debug_addr = NULL;
 unsigned long *_dl_brkp;
 unsigned long *_dl_envp;
-int _dl_fixup(struct elf_resolve *tpnt, int lazy);
+int _dl_fixup(struct dyn_elf *rpnt, int flag);
 void _dl_debug_state(void);
 char *_dl_get_last_path_component(char *path);
 static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt, 
@@ -1185,18 +1185,9 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	 * Now we go through and look for REL and RELA records that indicate fixups
 	 * to the GOT tables.  We need to do this in reverse order so that COPY
 	 * directives work correctly */
-	goof = _dl_loaded_modules ? _dl_fixup(_dl_loaded_modules, _dl_be_lazy) : 0;
-
-
-	/* Some flavors of SVr4 do not generate the R_*_COPY directive,
-	   and we have to manually search for entries that require fixups. 
-	   Solaris gets this one right, from what I understand.  */
-
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	_dl_dprintf(_dl_debug_file, "Beginning copy fixups\n");
-#endif
 	if (_dl_symbol_tables)
-		goof += _dl_copy_fixups(_dl_symbol_tables);
+		goof += _dl_fixup(_dl_symbol_tables, _dl_be_lazy);
+
 
 	/* OK, at this point things are pretty much ready to run.  Now we
 	   need to touch up a few items that are required, and then

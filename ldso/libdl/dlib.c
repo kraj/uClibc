@@ -36,9 +36,7 @@ extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **, stru
 	__attribute__ ((__weak__, __alias__ ("foobar")));
 extern struct elf_resolve * _dl_check_if_named_library_is_loaded(const char *full_libname)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
-extern int _dl_fixup(struct elf_resolve *tpnt, int lazy)
-	 __attribute__ ((__weak__, __alias__ ("foobar")));
-extern int _dl_copy_fixups(struct dyn_elf * tpnt)
+extern int _dl_fixup(struct dyn_elf *rpnt, int lazy)
 	 __attribute__ ((__weak__, __alias__ ("foobar")));
 #ifdef __mips__
 extern void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
@@ -87,7 +85,7 @@ static char *_dl_malloc_addr, *_dl_mmap_zero;
 #define _dl_trace_loaded_objects    0
 #include "../ldso/readelflib1.c"
 void *(*_dl_malloc_function) (size_t size);
-int _dl_fixup(struct elf_resolve *tpnt, int lazy);
+int _dl_fixup(struct dyn_elf *rpnt, int lazy);
 #endif
 
 static int do_dlclose(void *, int need_fini);
@@ -271,21 +269,11 @@ void *_dlopen(const char *libname, int flag)
 	 * Now we go through and look for REL and RELA records that indicate fixups
 	 * to the GOT tables.  We need to do this in reverse order so that COPY
 	 * directives work correctly */
-	if (_dl_fixup(dyn_chain->dyn, dyn_chain->flags))
+	if (_dl_fixup(dyn_chain, dyn_chain->flags))
 		goto oops;
 
-#ifdef __SUPPORT_LD_DEBUG__
-	if(_dl_debug) 
-	_dl_dprintf(_dl_debug_file, "Beginning dlopen copy fixups\n");
-#endif
-	if (_dl_symbol_tables) {
-		if (_dl_copy_fixups(dyn_chain))
-			goto oops;
-	}
-
-
 	/* TODO:  Should we set the protections of all pages back to R/O now ? */
-	
+
 
 	/* Notify the debugger we have added some objects. */
 	if (_dl_debug_addr) {
