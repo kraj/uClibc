@@ -8,6 +8,17 @@
 #define	__UCLIBC_MAJOR__	9
 #define	__UCLIBC_MINOR__	5
 
+/*  There is an unwholesomely huge amount of code out there that depends on the
+ *  presence of GNU libc header files.  We have GNU libc header files.  So here
+ *  we commit a horrible sin.  At this point, we _lie_ and claim to be GNU libc
+ *  to make things like /usr/include/linux/socket.h and lots of apps work as
+ *  their developers intended.  This is IMHO, pardonable, since these defines
+ *  are not really intended to check for the presence of a particular library,
+ *  but rather are used to define an _interface_.  */
+#define __GNU_LIBRARY__ 6
+#define __GLIBC__       2
+#define __GLIBC_MINOR__ 1
+
 /* Make a half-hearted attempt to accomodate non-gcc compilers */
 #ifndef __GNUC__
 #define __attribute(foo)  /* Ignore */
