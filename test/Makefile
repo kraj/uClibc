@@ -23,12 +23,15 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-ALL_SUBDIRS = args assert ctype pwd_grp signal silly stdlib string unistd misc
+ALL_SUBDIRS = args assert ctype pwd_grp signal silly stdlib string unistd #misc
 ifeq ($(TARGET_ARCH), $(NATIVE_ARCH))
 	DIRS = $(ALL_SUBDIRS)
 else
 	DIRS =
 endif
+ifeq ($(DO_SHARED),shared)
+	DIRS += ldso
+endif	
 
 all: subdirs
 

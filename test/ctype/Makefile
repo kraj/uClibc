@@ -4,13 +4,13 @@ include $(TESTDIR)/Rules.mak
 TARGETS=ctype
 all: $(TARGETS)
 
-ctype: ctype.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+ctype: ctype.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
-	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	./$@
 	-@ echo " "

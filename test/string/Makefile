@@ -8,13 +8,13 @@ TARGETS+=strerror #strsignal
 
 all: $(TARGETS)
 
-string: string.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+string: string.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
-	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo " "
@@ -24,19 +24,19 @@ string_glibc: string.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) $@.o -o $@
+	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo " "
 
-testcopy: testcopy.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+testcopy: testcopy.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
-	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ > testcopy.out
 	-@ echo " "
@@ -46,8 +46,8 @@ testcopy_glibc: testcopy.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) $@.o -o $@
+	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ > testcopy.gnu.out
 	-@ echo " "
@@ -61,13 +61,13 @@ testcopy_diff: testcopy testcopy_glibc
 	-@ echo " "
 
 
-strerror: ../../libc/string/strerror.c $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+strerror: ../../libc/string/strerror.c $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(TEST_CFLAGS) -DCHECK_BUF -c $< -o $@.o
-	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(CC) $(CFLAGS) -DCHECK_BUF -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo " "
@@ -77,8 +77,8 @@ strsignal: ../../libc/string/strsignal.c
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(CFLAGS) -DCHECK_BUF -c $< -o $@.o
-	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(CC) $(CFLAGS) -DCHECK_BUF -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo " "

@@ -15,16 +15,16 @@ hello_source:
 	-@ cat hello.c
 	-@ echo " "
 
-hello: hello.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+hello: hello.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
-	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
-	ls $(LSFLAGS) $@
+	ls -l $@
 	-./$@
 	-@ echo " "
 
@@ -33,11 +33,11 @@ hello_glibc: hello.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) $@.o -o $@
+	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
-	ls $(LSFLAGS) $@
+	ls -l $@
 	-./$@
 	-@ echo " "
 

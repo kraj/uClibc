@@ -14,8 +14,8 @@ NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
 
 # If you are running a cross compiler, you may want to set this
 # to something more interesting...
-TESTCC = ../$(TESTDIR)extra/gcc-uClibc/$(NATIVE_ARCH)-uclibc-gcc
-CC = gcc
+CC = ../$(TESTDIR)extra/gcc-uClibc/$(NATIVE_ARCH)-uclibc-gcc
+HOST_CC = gcc
 STRIPTOOL=strip
 
 
@@ -29,20 +29,23 @@ WARNINGS=-Wall
 OPTIMIZATION = $(shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
     then echo "-Os"; else echo "-O2" ; fi)
 
-TEST_CFLAGS=$(WARNINGS) $(OPTIMIZATION) --uclibc-use-build-dir 
-CFLAGS=$(WARNINGS) $(OPTIMIZATION)
-
 ifeq ($(DODEBUG),true)
-    CFLAGS +=-g
+    CFLAGS +=$(WARNINGS) $(OPTIMIZATION) -g
+    GLIBC_CFLAGS +=$(WARNINGS) $(OPTIMIZATION) -g
     LDFLAGS =-Wl,-warn-common 
+    GLIBC_LDFLAGS =-Wl,-warn-common 
     STRIPTOOL =/bin/true -Since_we_are_debugging
 else
     CFLAGS  +=-fomit-frame-pointer
+    GLIBC_CFLAGS  +=-fomit-frame-pointer
     LDFLAGS  =-s -Wl,-warn-common
+    GLIBC_LDFLAGS  =-s -Wl,-warn-common
     STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $(PROG)
 endif
 
 ifneq ($(DODYNAMIC),true)
     LDFLAGS +=--static
 endif
+CFLAGS+=--uclibc-use-build-dir
+LDFLAGS+=--uclibc-use-build-dir
 

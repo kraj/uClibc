@@ -8,13 +8,13 @@ TARGETS+=test_pwd_diff test_grp_diff
 
 all: $(TARGETS)
 
-test_pwd: test_pwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+test_pwd: test_pwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
-	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ 2>&1 >test_pwd.out
 	-@ echo " "
@@ -24,19 +24,19 @@ test_pwd_glibc: test_pwd.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) $@.o -o $@
+	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ 2>&1 >test_pwd_glibc.out
 	-@ echo " "
 
-test_grp: test_grp.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+test_grp: test_grp.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
-	$(TESTCC) $(TEST_CFLAGS) -c $< -o $@.o
-	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ 2>&1 >test_grp.out
 	-@ echo " "
@@ -46,8 +46,8 @@ test_grp_glibc: test_grp.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(CC) $(CFLAGS) -c $< -o $@.o
-	$(CC) $(LDFLAGS) $@.o -o $@
+	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ 2>&1 >test_grp_glibc.out
 	-@ echo " "
