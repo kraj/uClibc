@@ -1,4 +1,4 @@
-/* Copyright (C) 1996, 1997,98,99,2000,02 Free Software Foundation, Inc.
+/* Copyright (C) 1996,1997,98,99,2000,02,03 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@tamu.edu)
 
@@ -18,15 +18,17 @@
    02111-1307 USA.  */
 
 /* clone() is even more special than fork() as it mucks with stacks
-   and invokes a function in the right context after its all over.  
-   
+   and invokes a function in the right context after its all over.
+
    Hacked up for uClibc by Erik Andersen <andersen@codepoet.org>
 */
 
 #define _ERRNO_H	1
 #include <features.h>
 #include <bits/errno.h>
-#include <sys/syscall.h>
+
+/* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg,
+	     pid_t *ptid, struct user_desc *tls, pid_t *ctid); */
 
 #define LINKAGE     4
 #define PTR_SIZE    4
@@ -39,6 +41,8 @@
 #define TLS         PTID+PTR_SIZE
 #define CTID        TLS+PTR_SIZE
 
+#define __NR_clone        120
+#define __NR_exit         1
 
 .text
 .type clone,@function;
@@ -51,20 +55,13 @@ __clone:
 	/* Sanity check arguments.  */
 	movl	$-EINVAL,%eax
 
-	movl	FUNC(%esp),%ecx		/* no NULL function pointers */
-#ifdef __PIC__
+	/* no NULL function pointers */
+	movl	FUNC(%esp),%ecx
 	jecxz	.Lclone_error
-#else
-	testl	%ecx,%ecx
-	jz	.Lclone_error
-#endif
-	movl	STACK(%esp),%ecx	/* no NULL stack pointers */
-#ifdef __PIC__
+
+	/* no NULL stack pointers */
+	movl	STACK(%esp),%ecx
 	jecxz	.Lclone_error
-#else
-	testl	%ecx,%ecx
-	jz	.Lclone_error
-#endif
 
 	/* Insert the argument onto the new stack.  Make sure the new
 	   thread is started with an alignment of (mod 16).  */
@@ -115,23 +112,38 @@ __clone:
 	movl	$__NR_exit, %eax
 	int	$0x80
 
+#ifdef __PIC__
+
+.Lthere:
+	movl	(%esp), %ebx
+	ret
+
+.Lclone_error:
+	pushl %ebx
+	call .Lthere
+	addl $_GLOBAL_OFFSET_TABLE_, %ebx
+	xorl %edx, %edx
+	subl %eax, %edx
+	pushl %edx
+	call __errno_location@PLT
+	popl %ecx
+	popl %ebx
+	movl %ecx, (%eax)
+	orl $-1, %eax
+	jmp .Lpseudo_end
+
+#else	/* __PIC__ */
+
 .Lclone_error:
 	negl    %eax
 	pushl   %eax
-#ifdef __PIC__
-	call .Lthere
-.Lthere:
-	popl	%ebx
-	addl	$_GLOBAL_OFFSET_TABLE_+[.- .Lthere  ], %ebx
-	call    __errno_location@PLT
-#else
 	call	__errno_location
-#endif
 	popl	%ecx
 	movl	%ecx, (%eax)
 	xorl	%eax, %eax
 	decl	%eax
 
-.Lsize:
-	.size	 __clone,.Lsize-__clone
+#endif
+
+.size __clone,.-__clone
 
