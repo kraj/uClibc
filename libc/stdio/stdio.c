@@ -28,7 +28,7 @@
 
 #undef STUB_FWRITE
 
-void __io_init_vars(void);
+void __init_stdio(void);
 
 extern FILE *__IO_list;			/* For fflush at exit */
 
@@ -39,8 +39,6 @@ struct fixed_buffer {
 };
 
 extern struct fixed_buffer _fixed_buffers[2];
-
-#define Inline_init __io_init_vars()
 
 #ifdef L__stdio_init
 
@@ -103,7 +101,7 @@ static int first_time = 0;
 struct fixed_buffer _fixed_buffers[2];
 
 
-void __io_init_vars(void)
+void __init_stdio(void)
 {
 	if (first_time)
 		return;
@@ -154,7 +152,7 @@ FILE *fp;
 {
 	register int v;
 
-	Inline_init;
+	__init_stdio();
 
 	v = fp->mode;
 	/* If last op was a read ... */
@@ -201,7 +199,7 @@ FILE *fp;
 {
 	int ch;
 
-	Inline_init;
+	__init_stdio();
 
 	if (fp->mode & __MODE_WRITING)
 		fflush(fp);
@@ -244,6 +242,8 @@ FILE *fp;
 {
 	int len, cc, rv = 0;
 	char *bstart;
+
+	__init_stdio();
 
 	if (fp == NULL) {			/* On NULL flush the lot. */
 		if (fflush(stdin))
@@ -406,7 +406,7 @@ FILE *fp;
 	int len, v;
 	unsigned bytes, got = 0;
 
-	Inline_init;
+	__init_stdio();
 
 	v = fp->mode;
 
@@ -611,7 +611,7 @@ const char *mode;
 	int fopen_mode = 0;
 	FILE *nfp = 0;
 
-	Inline_init;
+	__init_stdio();
 
 	/* If we've got an fp close the old one (freopen) */
 	if (fp) {
@@ -732,6 +732,8 @@ int fclose(fp)
 FILE *fp;
 {
 	int rv = 0;
+
+	__init_stdio();
 
 	if (fp == 0) {
 		errno = EINVAL;

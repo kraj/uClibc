@@ -55,6 +55,11 @@
 #define __USE_POSIX2
 #define __USE_XOPEN
 
+#undef  __KERNEL_STRICT_NAMES
+#ifndef _LOOSE_KERNEL_NAMES
+# define __KERNEL_STRICT_NAMES
+#endif
+
 
 #include <sys/cdefs.h>
 

@@ -1,10 +1,10 @@
 /* stdlib.h  */
+#ifndef __STDLIB_H
+#define __STDLIB_H
+
 #include <features.h>
 #include <sys/types.h>
 #include <limits.h>
-
-#ifndef __STDLIB_H
-#define __STDLIB_H
 
 /* Don't overwrite user definitions of NULL */
 #ifndef NULL
