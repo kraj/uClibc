@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2002  NEC Corporation
-# Copyright (C) 2002  Miles Bader <miles@gnu.org>
+# Copyright (C) 2002,03  NEC Electronics Corporation
+# Copyright (C) 2002,03  Miles Bader <miles@gnu.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -46,6 +46,9 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+
+malloc.o free.o realloc.o memalign.o: malloc.h
+$(COBJS): heap.h
 
 # Depend on uClinux_config.h to cache changes in __UCLIBC_MALLOC_DEBUGGING__
 $(COBJS): %.o : %.c ../../../include/bits/uClibc_config.h
