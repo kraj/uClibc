@@ -29,7 +29,7 @@
 TOPDIR=./
 include Rules.mak
 
-DIRS = extra misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd crypt libutil libm
+DIRS = extra misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd libcrypt libutil libm
 
 ifeq ($(strip $(HAS_MMU)),true)
 	DO_SHARED=shared
@@ -57,7 +57,7 @@ shared: $(LIBNAME)
 	fi
 	@rm -rf tmp
 	ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME)
-	@$(MAKE) -C crypt shared
+	@$(MAKE) -C libcrypt shared
 	@$(MAKE) -C libutil shared
 	@$(MAKE) -C libm shared
 	@$(MAKE) -C ld.so-1
@@ -114,7 +114,7 @@ install: install_runtime install_dev install_ldso
 
 # Installs shared library
 install_runtime:
-	@$(MAKE) -C crypt install
+	@$(MAKE) -C libcrypt install
 	@$(MAKE) -C libutil install
 	@$(MAKE) -C libm install
 ifneq ($(DO_SHARED),)
@@ -124,10 +124,6 @@ ifneq ($(DO_SHARED),)
 	rm -rf $(INSTALL_DIR)/lib/libc.so
 	install -m 755 $(SHARED_FULLNAME) $(INSTALL_DIR)/lib/
 	(cd $(INSTALL_DIR)/lib;ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME))
-# ldconfig is really not necessary, and impossible to cross
-#ifeq ($(INSTALL_DIR),)
-#	/sbin/ldconfig -n $(INSTALL_DIR)/lib
-#endif
 else
 	echo shared library not installed
 endif
@@ -158,7 +154,7 @@ install_ldso:
 ifeq ($(strip $(DO_SHARED)),shared)
 	$(MAKE) -C ld.so-1 install
 	install -d $(INSTALL_DIR)/etc
-	$(TOPDIR)ld.so-1/util/ldconfig
+	#$(TOPDIR)ld.so-1/util/ldconfig
 else
 	@echo "Skipping shared library support"
 endif
