@@ -62,5 +62,13 @@ typedef unsigned short	       __kernel_old_gid_t;
 typedef long long              __kernel_loff_t;
 #endif
 
+typedef struct {
+#ifdef __USE_ALL
+	int val[2];
+#else
+	int __val[2];
+#endif
+} __kernel_fsid_t;
+
 #endif /* ! defined __ARCH_SPARC_POSIX_TYPES_H && ! defined __ARCH_SPARC64_POSIX_TYPES_H */
 

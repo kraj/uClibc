@@ -60,5 +60,9 @@ typedef unsigned int	__kernel_old_gid_t;
 typedef long long	__kernel_loff_t;
 #endif
 
+typedef struct {
+	int val[2];
+} __kernel_fsid_t;
+
 #endif /* ! defined _PPC_POSIX_TYPES_H && ! defined _PPC64_POSIX_TYPES_H */
 

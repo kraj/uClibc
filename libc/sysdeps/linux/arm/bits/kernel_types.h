@@ -32,4 +32,12 @@ typedef unsigned short		__kernel_old_uid_t;
 typedef unsigned short		__kernel_old_gid_t;
 typedef long long		__kernel_loff_t;
 
+typedef struct {
+#ifdef __USE_ALL
+	int val[2];
+#else
+	int __val[2];
+#endif
+} __kernel_fsid_t;
+
 #endif /* __ARCH_ARM_POSIX_TYPES_H */

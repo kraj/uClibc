@@ -33,4 +33,8 @@ typedef __kernel_gid_t __kernel_old_gid_t;
 typedef __kernel_uid_t __kernel_uid32_t;
 typedef __kernel_gid_t __kernel_gid32_t;
 
+typedef struct {
+	int val[2];
+} __kernel_fsid_t;
+
 #endif /* _ALPHA_POSIX_TYPES_H */
