@@ -1,17 +1,21 @@
 TESTDIR=../
 include $(TESTDIR)/Rules.mak
 
-all: dltest shared run
+all: dltest libhowdy.so run
 
-dltest:
+dltest.o: dltest.c
 	$(CC) $(CFLAGS) -c dltest.c -o dltest.o
+
+howdy.o: howdy.c
 	$(CC) $(CFLAGS) -c howdy.c -o howdy.o
 
-shared:
+libhowdy.so: howdy.o
 	$(CC) $(CFLAGS) -shared -o libhowdy.so -Wl,-soname,libhowdy.so howdy.o
+
+dltest: dltest.o
 	$(CC) $(CFLAGS) -o dltest dltest.o -ldl
 	
-run:
+run: dltest libhowdy.so
 	@echo Running dltest
 	./dltest
 
