@@ -31,6 +31,7 @@
 
 
 #include <ldso.h>
+#include <stdio.h>
 
 
 #if defined (__LIBDL_SHARED__)
@@ -38,7 +39,6 @@
 /* When libdl is loaded as a shared library, we need to load in
  * and use a pile of symbols from ldso... */
 
-extern void _dl_dprintf(int, const char *, ...) __attribute__ ((__weak__));
 extern char *_dl_find_hash(const char *, struct dyn_elf *, int)
 	__attribute__ ((__weak__));
 extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **,
@@ -64,13 +64,6 @@ extern void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 #endif
 #ifdef __SUPPORT_LD_DEBUG__
 extern char *_dl_debug __attribute__ ((__weak__));
-extern char *_dl_debug_symbols __attribute__ ((__weak__));
-extern char *_dl_debug_move __attribute__ ((__weak__));
-extern char *_dl_debug_reloc __attribute__ ((__weak__));
-extern char *_dl_debug_detail __attribute__ ((__weak__));
-extern char *_dl_debug_nofixups __attribute__ ((__weak__));
-extern char *_dl_debug_bindings __attribute__ ((__weak__));
-extern int   _dl_debug_file __attribute__ ((__weak__));
 #endif
 
 
@@ -81,22 +74,15 @@ extern int   _dl_debug_file __attribute__ ((__weak__));
 
 #ifdef __SUPPORT_LD_DEBUG__
 char *_dl_debug  = 0;
-char *_dl_debug_symbols = 0;
-char *_dl_debug_move    = 0;
-char *_dl_debug_reloc   = 0;
-char *_dl_debug_detail  = 0;
-char *_dl_debug_nofixups  = 0;
-char *_dl_debug_bindings  = 0;
-int   _dl_debug_file = 2;
 #endif
-char *_dl_library_path = 0;
-char *_dl_ldsopath = 0;
+char *_dl_library_path         = 0;		    /* Where we look for libraries */
+char *_dl_ldsopath             = 0;		    /* Location of the shared lib loader */
+int _dl_errno                  = 0;         /* We can't use the real errno in ldso */
+size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for use later */
+/* This global variable is also to communicate with debuggers such as gdb. */
 struct r_debug *_dl_debug_addr = NULL;
-static unsigned char *_dl_malloc_addr, *_dl_mmap_zero;
-void *(*_dl_malloc_function) (size_t size);
-int _dl_errno = 0;
-int _dl_fixup(struct dyn_elf *rpnt, int lazy);
-#include "../ldso/dl-progname.h"               /* Pull in the name of ld.so */
+#define _dl_malloc malloc
+#include "dl-progname.h"
 #include "../ldso/dl-hash.c"
 #define _dl_trace_loaded_objects    0
 #include "../ldso/dl-elf.c"
@@ -142,7 +128,7 @@ static void __attribute__ ((destructor)) dl_cleanup(void)
 		}
 }
 
-void *_dlopen(const char *libname, int flag)
+void *dlopen(const char *libname, int flag)
 {
 	struct elf_resolve *tpnt, *tfrom, *tcurr;
 	struct dyn_elf *dyn_chain, *rpnt = NULL;
@@ -163,7 +149,9 @@ void *_dlopen(const char *libname, int flag)
 	/* Have the dynamic linker use the regular malloc function now */
 	if (!dl_init) {
 		dl_init++;
+#if defined (__LIBDL_SHARED__)
 		_dl_malloc_function = malloc;
+#endif
 	}
 
 	/* Cover the trivial case first */
@@ -191,7 +179,7 @@ void *_dlopen(const char *libname, int flag)
 	/* Try to load the specified library */
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
-		_dl_dprintf(_dl_debug_file, "Trying to dlopen '%s'\n", (char*)libname);
+		fprintf(stderr, "Trying to dlopen '%s'\n", (char*)libname);
 #endif
 	if (!(tpnt = _dl_check_if_named_library_is_loaded((char *)libname, 0)))
 		tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname, 0);
@@ -220,7 +208,7 @@ void *_dlopen(const char *libname, int flag)
 
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
-		_dl_dprintf(_dl_debug_file, "Looking for needed libraries\n");
+		fprintf(stderr, "Looking for needed libraries\n");
 #endif
 
 	for (tcurr = tpnt; tcurr; tcurr = tcurr->next)
@@ -240,7 +228,7 @@ void *_dlopen(const char *libname, int flag)
 
 #ifdef __SUPPORT_LD_DEBUG__
 				if(_dl_debug)
-					_dl_dprintf(_dl_debug_file, "Trying to load '%s', needed by '%s'\n",
+					fprintf(stderr, "Trying to load '%s', needed by '%s'\n",
 							lpntstr, tcurr->libname);
 #endif
 
@@ -273,7 +261,7 @@ void *_dlopen(const char *libname, int flag)
 
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
-		_dl_dprintf(_dl_debug_file, "Beginning dlopen relocation fixups\n");
+		fprintf(stderr, "Beginning dlopen relocation fixups\n");
 #endif
 	/*
 	 * OK, now all of the kids are tucked into bed in their proper addresses.
@@ -297,11 +285,6 @@ void *_dlopen(const char *libname, int flag)
 			(*dl_brk) ();
 		}
 	}
-
-#if 0 //def __SUPPORT_LD_DEBUG__
-	if(_dl_debug)
-		_dlinfo();
-#endif
 
 #if defined (__LIBDL_SHARED__)
 	/* Find the last library so we can run things in the right order */
@@ -328,7 +311,7 @@ void *_dlopen(const char *libname, int flag)
 			if (dl_elf_func && *dl_elf_func != NULL) {
 #ifdef __SUPPORT_LD_DEBUG__
 				if(_dl_debug)
-					_dl_dprintf(2, "running ctors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
+					fprintf(stderr, "running ctors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
 #endif
 				(*dl_elf_func) ();
 			}
@@ -339,7 +322,7 @@ void *_dlopen(const char *libname, int flag)
 			if (dl_elf_func && *dl_elf_func != NULL) {
 #ifdef __SUPPORT_LD_DEBUG__
 				if(_dl_debug)
-					_dl_dprintf(2, "setting up dtors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
+					fprintf(stderr, "setting up dtors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
 #endif
 				atexit(dl_elf_func);
 			}
@@ -354,9 +337,8 @@ oops:
 	do_dlclose(dyn_chain, 0);
 	return NULL;
 }
-weak_alias(_dlopen, dlopen);
 
-void *_dlsym(void *vhandle, const char *name)
+void *dlsym(void *vhandle, const char *name)
 {
 	struct elf_resolve *tpnt, *tfrom;
 	struct dyn_elf *handle;
@@ -409,7 +391,6 @@ void *_dlsym(void *vhandle, const char *name)
 		_dl_error_number = LD_NO_SYMBOL;
 	return ret;
 }
-weak_alias(_dlsym, dlsym);
 
 static int do_dlclose(void *vhandle, int need_fini)
 {
@@ -535,13 +516,12 @@ static int do_dlclose(void *vhandle, int need_fini)
 	return 0;
 }
 
-int _dlclose(void *vhandle)
+int dlclose(void *vhandle)
 {
 	return do_dlclose(vhandle, 1);
 }
-weak_alias(_dlclose, dlclose);
 
-const char *_dlerror(void)
+const char *dlerror(void)
 {
 	const char *retval;
 
@@ -551,22 +531,21 @@ const char *_dlerror(void)
 	_dl_error_number = 0;
 	return retval;
 }
-weak_alias(_dlerror, dlerror);
 
 /*
  * Dump information to stderrr about the current loaded modules
  */
 static char *type[] = { "Lib", "Exe", "Int", "Mod" };
 
-void _dlinfo(void)
+void dlinfo(void)
 {
 	struct elf_resolve *tpnt;
 	struct dyn_elf *rpnt, *hpnt;
 
-	_dl_dprintf(2, "List of loaded modules\n");
+	fprintf(stderr, "List of loaded modules\n");
 	/* First start with a complete list of all of the loaded files. */
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-		_dl_dprintf(2, "\t%x %x %x %s %d %s\n",
+		fprintf(stderr, "\t%x %x %x %s %d %s\n",
 				(unsigned) tpnt->loadaddr, (unsigned) tpnt,
 				(unsigned) tpnt->symbol_scope,
 				type[tpnt->libtype],
@@ -574,21 +553,20 @@ void _dlinfo(void)
 	}
 
 	/* Next dump the module list for the application itself */
-	_dl_dprintf(2, "\nModules for application (%x):\n",
+	fprintf(stderr, "\nModules for application (%x):\n",
 			(unsigned) _dl_symbol_tables);
 	for (rpnt = _dl_symbol_tables; rpnt; rpnt = rpnt->next)
-		_dl_dprintf(2, "\t%x %s\n", (unsigned) rpnt->dyn, rpnt->dyn->libname);
+		fprintf(stderr, "\t%x %s\n", (unsigned) rpnt->dyn, rpnt->dyn->libname);
 
 	for (hpnt = _dl_handles; hpnt; hpnt = hpnt->next_handle) {
-		_dl_dprintf(2, "Modules for handle %x\n", (unsigned) hpnt);
+		fprintf(stderr, "Modules for handle %x\n", (unsigned) hpnt);
 		for (rpnt = hpnt; rpnt; rpnt = rpnt->next)
-			_dl_dprintf(2, "\t%x %s\n", (unsigned) rpnt->dyn,
+			fprintf(stderr, "\t%x %s\n", (unsigned) rpnt->dyn,
 					rpnt->dyn->libname);
 	}
 }
-weak_alias(_dlinfo, dlinfo);
 
-int _dladdr(void *__address, Dl_info * __dlip)
+int dladdr(void *__address, Dl_info * __dlip)
 {
 	struct elf_resolve *pelf;
 	struct elf_resolve *rpnt;
@@ -601,7 +579,7 @@ int _dladdr(void *__address, Dl_info * __dlip)
 	pelf = NULL;
 
 #if 0
-	_dl_dprintf(2, "dladdr( %x, %x )\n", __address, __dlip);
+	fprintf(stderr, "dladdr( %x, %x )\n", __address, __dlip);
 #endif
 
 	for (rpnt = _dl_loaded_modules; rpnt; rpnt = rpnt->next) {
@@ -609,7 +587,7 @@ int _dladdr(void *__address, Dl_info * __dlip)
 
 		tpnt = rpnt;
 #if 0
-		_dl_dprintf(2, "Module \"%s\" at %x\n",
+		fprintf(stderr, "Module \"%s\" at %x\n",
 				tpnt->libname, tpnt->loadaddr);
 #endif
 		if (tpnt->loadaddr < (ElfW(Addr)) __address
@@ -650,7 +628,7 @@ int _dladdr(void *__address, Dl_info * __dlip)
 					sf = 1;
 				}
 #if 0
-				_dl_dprintf(2, "Symbol \"%s\" at %x\n",
+				fprintf(stderr, "Symbol \"%s\" at %x\n",
 						strtab + symtab[si].st_name, symbol_addr);
 #endif
 			}
@@ -665,4 +643,3 @@ int _dladdr(void *__address, Dl_info * __dlip)
 		return 1;
 	}
 }
-weak_alias(_dladdr, dladdr);

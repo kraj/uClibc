@@ -36,7 +36,13 @@ else
 	echo "Not building libdl"
 endif
 
-headers:
+include/dl-progname.h: Makefile
+	echo "const char *_dl_progname=\""$(UCLIBC_LDSO)"\";" \
+		> include/dl-progname.h
+	echo -e "#include \"$(TARGET_ARCH)/elfinterp.c\"" \
+		>> include/dl-progname.h
+
+headers: include/dl-progname.h
 	$(LN) -fs $(TOPDIR)../include/elf.h include/
 	$(LN) -fs ../ldso/$(TARGET_ARCH)/dl-startup.h include/
 	$(LN) -fs ../ldso/$(TARGET_ARCH)/dl-syscalls.h include/
@@ -45,4 +51,5 @@ headers:
 clean:
 	set -e ; for d in $(ALL_SUBDIRS) ; do $(MAKE) -C $$d $@ ; done
 	-find . -name '*~' | xargs $(RM)
-	$(RM) include/elf.h include/boot1_arch.h include/ld_syscalls.h include/ld_sysdep.h
+	$(RM) include/elf.h include/boot1_arch.h include/ld_syscalls.h \
+		include/ld_sysdep.h include/dl-progname.h

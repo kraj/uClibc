@@ -46,6 +46,7 @@ extern unsigned long *_dl_brkp;        /* The end of the data segment for brk an
 extern unsigned long *_dl_envp;        /* The environment address */
 extern int _dl_secure;                 /* Are we dealing with setuid stuff? */
 extern size_t _dl_pagesize;            /* Store the page size for use later */
+extern const char *_dl_progname;       /* The name of the shared library loader */
 
 #ifdef __SUPPORT_LD_DEBUG__
 extern char *_dl_debug;

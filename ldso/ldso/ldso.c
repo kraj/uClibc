@@ -41,13 +41,12 @@
 char *_dl_library_path         = 0;		/* Where we look for libraries */
 char *_dl_preload              = 0;		/* Things to be loaded before the libs */
 char *_dl_ldsopath             = 0;		/* Location of the shared lib loader */
-unsigned char *_dl_malloc_addr = 0;		/* Lets _dl_malloc use the already allocated memory page */
-unsigned char *_dl_mmap_zero   = 0;		/* Also used by _dl_malloc */
 unsigned long *_dl_brkp        = 0;		/* The end of the data segment for brk and sbrk */
 unsigned long *_dl_envp        = 0;		/* The environment address */
 int _dl_secure                 = 1;		/* Are we dealing with setuid stuff? */
 int _dl_errno                  = 0;     /* We can't use the real errno in ldso */
 size_t _dl_pagesize            = 0;		/* Store the page size for use later */
+struct r_debug *_dl_debug_addr = NULL;  /* Used to communicate with the gdb debugger */
 
 
 
@@ -74,8 +73,8 @@ void _dl_debug_state(void)
 {
 }
 
-/* This global variable is also to communicate with debuggers such as gdb. */
-struct r_debug *_dl_debug_addr = NULL;
+static unsigned char *_dl_malloc_addr = 0;		/* Lets _dl_malloc use the already allocated memory page */
+static unsigned char *_dl_mmap_zero   = 0;		/* Also used by _dl_malloc */
 
 
 
@@ -756,6 +755,43 @@ static int _dl_suid_ok(void)
 	}
 	return 0;
 }
+
+void *(*_dl_malloc_function) (size_t size) = NULL;
+void *_dl_malloc(int size)
+{
+	void *retval;
+
+#if 0
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+	_dl_dprintf(2, "malloc: request for %d bytes\n", size);
+#endif
+#endif
+
+	if (_dl_malloc_function)
+		return (*_dl_malloc_function) (size);
+
+	if (_dl_malloc_addr - _dl_mmap_zero + size > _dl_pagesize) {
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+		_dl_dprintf(2, "malloc: mmapping more memory\n");
+#endif
+		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size,
+				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		if (_dl_mmap_check_error(_dl_mmap_zero)) {
+			_dl_dprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
+			_dl_exit(20);
+		}
+	}
+	retval = _dl_malloc_addr;
+	_dl_malloc_addr += size;
+
+	/*
+	 * Align memory to 4 byte boundary.  Some platforms require this, others
+	 * simply get better performance.
+	 */
+	_dl_malloc_addr = (unsigned char *) (((unsigned long) _dl_malloc_addr + 3) & ~(3));
+	return retval;
+}
+
 
 #include "dl-hash.c"
 #include "dl-elf.c"

@@ -70,17 +70,12 @@ XXFLAGS := $(XXFLAGS:-fomit-frame-pointer=)
 
 all: lib
 
-lib:: dl-progname.h $(OBJS) $(DLINK_OBJS)
+lib:: $(OBJS) $(DLINK_OBJS)
 	$(LD) $(LDFLAGS) -e _dl_boot -soname=$(UCLIBC_LDSO) \
 		-o $(LDSO_FULLNAME) $(OBJS) $(LIBGCC);
 	$(INSTALL) -d $(TOPDIR)lib
 	$(INSTALL) -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
 	$(LN) -sf $(LDSO_FULLNAME) $(TOPDIR)lib/$(UCLIBC_LDSO)
-
-dl-progname.h: Makefile
-	echo "const char *_dl_progname=\""$(UCLIBC_LDSO)"\";" > dl-progname.h
-	echo "#include \"$(TARGET_ARCH)/elfinterp.c\"" >> dl-progname.h
-
 
 $(COBJS): %.o : %.c
 	$(CC) $(XXFLAGS) -I../libdl -c $< -o $@
@@ -93,4 +88,4 @@ $(AOBJS): %.o : %.S
 ldso.o: $(CSRC)
 
 clean:
-	$(RM) $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i dl-progname.h ldso.h *~
+	$(RM) $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i ldso.h *~
