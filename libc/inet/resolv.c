@@ -55,6 +55,7 @@
 #include <errno.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
@@ -140,6 +141,7 @@ extern int read_etc_hosts_r(FILE *fp, const char * name, int type,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
 			    int * h_errnop);
+extern int connect_dns(char *dns);
 extern int dns_lookup(const char * name, int type, int nscount, 
 	char ** nsip, unsigned char ** outpacket, struct resolv_answer * a);
 
@@ -529,6 +531,45 @@ int form_query(int id, const char *name, int type, unsigned char *packet,
 }
 #endif
 
+#ifdef L_connect_dns
+int connect_dns(char *nsip)
+{
+	int fd, rc;
+	struct sockaddr_in sa;
+#ifdef __UCLIBC_HAS_IPV6__
+	int v6;
+	struct sockaddr_in6 sa6;
+	v6 = inet_pton(AF_INET6, nsip, &sa6.sin6_addr) > 0;
+	fd = socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+#else
+	fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+#endif
+	if (fd == -1) return -1;
+
+#ifdef __UCLIBC_HAS_IPV6__
+	if (v6) {
+		sa6.sin6_family = AF_INET6;
+		sa6.sin6_port = htons(NAMESERVER_PORT);
+		/* sa6.sin6_addr is already here */
+		rc = connect(fd, (struct sockaddr *) &sa6, sizeof(sa6));
+	} else {
+#endif
+		sa.sin_family = AF_INET;
+		sa.sin_port = htons(NAMESERVER_PORT);
+		sa.sin_addr.s_addr = inet_addr(nsip);
+		rc = connect(fd, (struct sockaddr *) &sa, sizeof(sa));
+#ifdef __UCLIBC_HAS_IPV6__
+	}
+#endif
+	if (rc != 0) {
+		close(fd);
+		return -1;
+	}
+	return fd;
+}
+#endif
+
+
 #ifdef L_dnslookup
 
 #ifdef __UCLIBC_HAS_THREADS__
@@ -542,18 +583,15 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 /* Just for the record, having to lock dns_lookup() just for these two globals
- * is pretty lame.  Sometime I should work on making the locking a bit more
- * careful to avoid needless blocking...  */
+ * is pretty lame.  I think these two variables can probably be de-global-ized, 
+ * which should eliminate the need for doing locking here...  Needs a closer 
+ * look anyways. */
 static int ns=0, id=1;
 
 int dns_lookup(const char *name, int type, int nscount, char **nsip,
 			   unsigned char **outpacket, struct resolv_answer *a)
 {
 	int i, j, len, fd, pos;
-	struct sockaddr_in sa;
-#ifdef __UCLIBC_HAS_IPV6__
-	struct sockaddr_in6 sa6;
-#endif /* __UCLIBC_HAS_IPV6__ */
 	struct timeval tv;
 	fd_set fds;
 	struct resolv_header h;
@@ -562,9 +600,6 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 	unsigned char * packet = malloc(PACKETSZ);
 	char * lookup = malloc(MAXDNAME);
 	int variant = 0;
-#ifdef __UCLIBC_HAS_IPV6__
-	int v6;
-#endif /* __UCLIBC_HAS_IPV6__ */
 
 	fd = -1;
 
@@ -577,21 +612,8 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 	ns %= nscount;
 
 	while (retries++ < MAX_RETRIES) {
-#ifdef __UCLIBC_HAS_IPV6__
-		v6 = (inet_pton(AF_INET6, nsip[ns], &sa6.sin6_addr) > 0);
-#endif /* __UCLIBC_HAS_IPV6__ */
-
 		if (fd != -1)
 			close(fd);
-
-#ifndef __UCLIBC_HAS_IPV6__
-		fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-#else /* __UCLIBC_HAS_IPV6__ */
-		fd = socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-#endif /* __UCLIBC_HAS_IPV6__ */
-
-		if (fd == -1)
-			goto fail;
 
 		memset(packet, 0, PACKETSZ);
 
@@ -626,28 +648,8 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 		DPRINTF("On try %d, sending query to port %d of machine %s\n",
 				retries, NAMESERVER_PORT, nsip[ns]);
 
-#ifndef __UCLIBC_HAS_IPV6__
-		sa.sin_family = AF_INET;
-		sa.sin_port = htons(NAMESERVER_PORT);
-		sa.sin_addr.s_addr = inet_addr(nsip[ns]);
-#else /* __UCLIBC_HAS_IPV6__ */
-		if (v6) {
-			sa6.sin6_family = AF_INET6;
-			sa6.sin6_port = htons(NAMESERVER_PORT);
-			/* sa6.sin6_addr is already here */
-		} else {
-			sa.sin_family = AF_INET;
-			sa.sin_port = htons(NAMESERVER_PORT);
-			sa.sin_addr.s_addr = inet_addr(nsip[ns]);
-		}
-#endif /* __UCLIBC_HAS_IPV6__ */
-
-#ifndef __UCLIBC_HAS_IPV6__
-		if (connect(fd, (struct sockaddr *) &sa, sizeof(sa)) == -1) {
-#else /* __UCLIBC_HAS_IPV6__ */
-		if (connect(fd, (struct sockaddr *) (v6 ? &sa6 : &sa), 
-			    v6 ? sizeof(sa6) : sizeof(sa)) == -1) {
-#endif /* __UCLIBC_HAS_IPV6__ */
+		fd = connect_dns(nsip[ns]);
+		if (fd < 0) {
 			if (errno == ENETUNREACH) {
 				/* routing error, presume not transient */
 				goto tryall;
