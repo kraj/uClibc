@@ -61,11 +61,11 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 {
 	int save_errno;
 	ssize_t result;
-	off64_t old_offset;
+	off_t old_offset;
 
 	/* Since we must not change the file pointer preserve the 
 	 * value so that we can restore it later.  */
-	if ((old_offset=lseek64(fd, 0, SEEK_CUR)) == (off64_t) -1)
+	if ((old_offset=lseek(fd, 0, SEEK_CUR)) == (off_t) -1)
 		return -1;
 
 	/* Set to wanted position.  */
@@ -83,13 +83,13 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 	/* Now we have to restore the position.  If this fails we 
 	 * have to return this as an error.  */
 	save_errno = errno;
-	if (lseek (fd, old_offset, SEEK_SET) == (__off_t) -1)
+	if (lseek(fd, old_offset, SEEK_SET) == (__off_t) -1)
 	{
 		if (result == -1)
-			__set_errno (save_errno);
+			__set_errno(save_errno);
 		return -1;
 	}
-	__set_errno (save_errno);
+	__set_errno(save_errno);
 	return(result);
 }
 
