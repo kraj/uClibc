@@ -65,20 +65,18 @@ ALL_SUBDIRS = linuxthreads linuxthreads_db
 all: $(LIBPTHREAD) $(LIBTHREAD_DB)
 
 $(LIBPTHREAD): subdirs
-	@if [ -f $(LIBPTHREAD) ] ; then \
-		set -e; \
-		$(INSTALL) -d $(TOPDIR)lib; \
-		$(RM) $(TOPDIR)lib/$(LIBPTHREAD); \
-		$(INSTALL) -m 644 $(LIBPTHREAD) $(TOPDIR)lib; \
-	fi;
+ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
+	$(INSTALL) -d $(TOPDIR)lib
+	$(RM) $(TOPDIR)lib/$(LIBPTHREAD)
+	$(INSTALL) -m 644 $(LIBPTHREAD) $(TOPDIR)lib
+endif
 
 $(LIBTHREAD_DB): subdirs
-	@if [ -f $(LIBTHREAD_DB) ] ; then \
-		set -e; \
-		$(INSTALL) -d $(TOPDIR)lib; \
-		$(RM) $(TOPDIR)lib/$(LIBTHREAD_DB); \
-		$(INSTALL) -m 644 $(LIBTHREAD_DB) $(TOPDIR)lib; \
-	fi;
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(INSTALL) -d $(TOPDIR)lib
+	$(RM) $(TOPDIR)lib/$(LIBTHREAD_DB)
+	$(INSTALL) -m 644 $(LIBTHREAD_DB) $(TOPDIR)lib
+endif
 
 
 $(OBJS): %.o : %.c
@@ -88,38 +86,35 @@ $(OBJS): %.o : %.c
 $(OBJ): Makefile
 
 shared: all
-	if [ -f $(LIBPTHREAD) ] ; then \
-		set -e; \
-		$(LD) $(LDFLAGS_THREAD) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
-			-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD) \
-			--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-			-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
-			$(SHARED_END_FILES); \
-		$(INSTALL) -d $(TOPDIR)lib; \
-		$(RM) $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) \
-			$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION); \
-		$(INSTALL) -m 644 $(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib; \
-		$(LN) -sf $(LIBPTHREAD_SHARED_FULLNAME) \
-			$(TOPDIR)lib/$(LIBPTHREAD_SHARED); \
-		$(LN) -sf $(LIBPTHREAD_SHARED_FULLNAME) \
-			$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION); \
-	fi;
-	if [ -f $(LIBTHREAD_DB) ] ; then \
-		set -e; \
-		$(LD) $(LDFLAGS_THREAD_DB) -soname=$(LIBTHREAD_DB_SHARED).1 \
-			-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \
-			--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-			-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
-			; \
-		$(INSTALL) -d $(TOPDIR)lib; \
-		$(RM) $(TOPDIR)lib/$(LIBTHREAD_DB_SHARED_FULLNAME) \
-			$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).1; \
-		$(INSTALL) -m 644 $(LIBTHREAD_DB_SHARED_FULLNAME) $(TOPDIR)lib; \
-		$(LN) -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
-			$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED); \
-		$(LN) -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
-			$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).1; \
-	fi;
+ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
+	$(LD) $(LDFLAGS_THREAD) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
+		-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD) \
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
+		$(SHARED_END_FILES)
+	$(INSTALL) -d $(TOPDIR)lib
+	$(RM) $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) \
+		$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
+	$(INSTALL) -m 644 $(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib
+	$(LN) -sf $(LIBPTHREAD_SHARED_FULLNAME) \
+		$(TOPDIR)lib/$(LIBPTHREAD_SHARED)
+	$(LN) -sf $(LIBPTHREAD_SHARED_FULLNAME) \
+		$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
+endif
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(LD) $(LDFLAGS_THREAD_DB) -soname=$(LIBTHREAD_DB_SHARED).1 \
+		-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
+	$(INSTALL) -d $(TOPDIR)lib
+	$(RM) $(TOPDIR)lib/$(LIBTHREAD_DB_SHARED_FULLNAME) \
+		$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).1
+	$(INSTALL) -m 644 $(LIBTHREAD_DB_SHARED_FULLNAME) $(TOPDIR)lib
+	$(LN) -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
+		$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED)
+	$(LN) -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
+		$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).1
+endif
 
 tags:
 	ctags -R
