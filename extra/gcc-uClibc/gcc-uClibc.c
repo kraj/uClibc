@@ -212,15 +212,13 @@ int main(int argc, char **argv)
 	char *gcrt1_path[2];
 #endif
 
-#ifdef __UCLIBC_CTOR_DTOR__
 	cc     = getenv("UCLIBC_CC");
 	if (cc==NULL) {
 		cc = GCC_BIN;
+#ifdef __UCLIBC_CTOR_DTOR__
 		findlibgcc = 0;
-	}
-#else
-	cc = GCC_BIN;
 #endif
+	}
 
 	application_name = basename(argv[0]);
 	if (application_name[0] == '-')
@@ -421,6 +419,13 @@ int main(int argc, char **argv)
 					} else if (strcmp("--uclibc-use-rpath",argv[i]) == 0) {
 						use_rpath = 1;
 						argv[i]='\0';
+					} else if (strcmp ("--uclibc-cc", argv[i]) == 0 && argv[i + 1]) {
+						cc = argv[i + 1];
+						argv[i] = 0;
+						argv[i + 1] = 0;
+					} else if (strncmp ("--uclibc-cc=", argv[i], 12) == 0) {
+						cc = argv[i] + 12;
+						argv[i] = 0;
 					}
 #ifdef __UCLIBC_CTOR_DTOR__
 					else if (strcmp("--uclibc-no-ctors",argv[i]) == 0) {
