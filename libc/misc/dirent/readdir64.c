@@ -58,7 +58,7 @@ struct dirent64 *readdir64(DIR * dir)
 	    dir->dd_nextoff = de->d_off;
 
 	    /* Skip deleted files.  */
-	} while (dir->d_ino == 0);
+	} while (de->d_ino == 0);
 
 all_done:
 #ifdef _POSIX_THREADS
