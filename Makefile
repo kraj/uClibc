@@ -63,7 +63,7 @@ finished: shared
 	@echo Finally finished compiling...
 	@echo
 
-headers1: dummy
+headers: dummy
 	@- find include -type l -exec rm -f {} \;
 	@if [ $(TARGET_ARCH) = "powerpc" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-ppc include/asm; \
@@ -125,8 +125,10 @@ headers1: dummy
 			ln -fs $$i .; \
 		done; \
 	fi
-
-headers: headers1
+	@cd $(TOPDIR); \
+	set -x -e; \
+	rm -f include/bits/syscall.h; \
+	TOPDIR=$(TOPDIR) CC=$(CC) /bin/sh $(TOPDIR)/extra/scripts/gen_bits_syscall_h.sh > include/bits/syscall.h
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
 uClibc_config: Makefile Config
