@@ -18,17 +18,19 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 
-#--------------------------------------------------------
-# This file contains rules which are shared between multiple Makefiles.
-# All normal configuration options live in the file named ".config".
-# Don't mess with this file unless you know what you are doing.
+#-----------------------------------------------------------
+# This file contains rules which are shared between multiple
+# Makefiles.  All normal configuration options live in the 
+# file named ".config".  Don't mess with this file unless 
+# you know what you are doing.
 
 
-#--------------------------------------------------------
-# If you are running a cross compiler, you will want to set 'CROSS'
-# to something more interesting...  Target architecture is determined
-# by asking the CC compiler what arch it compiles things for, so unless
-# your compiler is broken, you should not need to specify TARGET_ARCH
+#-----------------------------------------------------------
+# If you are running a cross compiler, you will want to set 
+# 'CROSS' to something more interesting ...  Target 
+# architecture is determined by asking the CC compiler what 
+# arch it compiles things for, so unless your compiler is 
+# broken, you should not need to specify TARGET_ARCH.
 #
 # Most people will set this stuff on the command line, i.e.
 #        make CROSS=arm-linux-
@@ -37,32 +39,32 @@
 ifndef CROSS
 CROSS=
 endif
-CC= $(CROSS)gcc
-AR= $(CROSS)ar
-LD= $(CROSS)ld
-NM= $(CROSS)nm
-STRIPTOOL= $(CROSS)strip
-RANLIB= $(CROSS)ranlib
+CC         = $(CROSS)gcc
+AR         = $(CROSS)ar
+LD         = $(CROSS)ld
+NM         = $(CROSS)nm
+RANLIB     = $(CROSS)ranlib
+STRIPTOOL  = $(CROSS)strip
 
-INSTALL= install
-LN= ln
-RM= rm -f
+INSTALL    = install
+LN         = ln
+RM         = rm -f
 
 # Select the compiler needed to build binaries for your development system
-HOSTCC=gcc
-HOSTCFLAGS=-O2 -Wall
+HOSTCC     = gcc
+HOSTCFLAGS = -O2 -Wall
 
 
-#--------------------------------------------------------
-# Nothing beyond this point should ever be touched by mere mortals.
-# Unless you hang out with the gods, you should probably leave all
-# this stuff alone.
-MAJOR_VERSION:=0
-MINOR_VERSION:=9
-SUBLEVEL:=27
-VERSION:=$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
+#---------------------------------------------------------
+# Nothing beyond this point should ever be touched by mere
+# mortals.  Unless you hang out with the gods, you should
+# probably leave all this stuff alone.
+MAJOR_VERSION := 0
+MINOR_VERSION := 9
+SUBLEVEL      := 27
+VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 # Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc.
-LC_ALL:= C
+LC_ALL := C
 export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_ALL
 
 SHARED_FULLNAME:=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
