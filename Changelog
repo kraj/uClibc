@@ -1,3 +1,23 @@
+0.9.14	12 August 2002
+
+This is a minor bugfix release.
+
+See Changelog.full for the complete list of who did what. 
+Release highlights:
+    o   Fix a compile error when RPC and Pthread support
+	were both enabled.
+    o   Eliminate duplicate define warnings in wstring.c.
+    o   Fix potentially broken preprocessor comparisons.
+    o   Erik was an idiot and broke thread locking in exit(),
+	atexit() and friends.  Fix that.
+    o   Fix the gcc wrapper to use crtbeginS.o and crtendS.o when 
+	compiling PIC code (crtbegin.o and crtend.o) otherwise.
+
+ -Erik
+
+
+
+
 0.9.13	9 August 2002
 
 Security Fixes

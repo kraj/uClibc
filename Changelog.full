@@ -1,3 +1,85 @@
+2002-08-12  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
+	Fix the gcc wrapper to include crtbeginS.o and crtendS.o when we are compiling
+	PIC code, and use crtbegin.o and crtend.o when compiling non-pic code.  As was
+	caused problems, esp on powerpc...
+	 -Erik
+
+	* /var/cvs/uClibc/test/Makefile: Test threads when appropriate
+
+	* /var/cvs/uClibc/libc/misc/pthread/weaks.c, /var/cvs/uClibc/libc/inet/rpc/rpc_thread.c:
+	Fix use of __pthread_once, and fix rpc usage of thread local
+	storage....
+	 -Erik
+
+	* /var/cvs/uClibc/ldso/ldso/arm/resolve.S:
+	Fix alignment, minor cosmetic changes
+	 -Erik
+
+2002-08-12  Manuel Novoa III  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_stdio.h, /var/cvs/uClibc/libc/string/wstring.c, /var/cvs/uClibc/libc/stdlib/stdlib.c, /var/cvs/uClibc/libc/stdio/printf.c, /var/cvs/uClibc/libc/stdio/stdio.c, /var/cvs/uClibc/libc/misc/wchar/wchar.c, /var/cvs/uClibc/libc/misc/time/time.c:
+	Revert commit by davidm to printf.c that initialized conv_num
+	  needlessly.  To do so increases the generated code size with bcc.
+	Eliminate duplicate define warnings in wstring.c.
+	Fix potentially broken preprocessor comparisons.  The preprocessor
+	  converts integers to maximal signed type, so inequality comparisons
+	  involving UINTMAX_MAX, ULLONG_MAX, and (if no long long) ULONG_MAX
+	  were potentially broken.
+
+2002-08-12  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/atexit.c:
+	Geez I'm an idiot some times.  I shouldn't code when I'm exhausted.
+	I _totally_ screwed up the locking on exit and atexit such that it
+	didn't do any good at all.
+	 -Erik
+
+2002-08-11  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/inet/rpc/rpc_thread.c, /var/cvs/uClibc/libpthread/linuxthreads/mutex.c:
+	Ugh.  Make uClibc cross compile with gcc 2.95.x and threads.  I wonder
+	if this is serious enough to warrent 0.9.14?
+	 -Erik
+
+2002-08-09  ds  <ds@dillweed>
+
+	* /var/cvs/uClibc/debian/README.Debian, /var/cvs/uClibc/debian/changelog, /var/cvs/uClibc/debian/docs, /var/cvs/uClibc/debian/mksnapshot, /var/cvs/uClibc/debian/rules:
+	update to last Debian upload.  Dumbass Debian maintainer forgets to check
+	stuff in.
+
+	* /var/cvs/uClibc/debian/README.Debian, /var/cvs/uClibc/debian/changelog, /var/cvs/uClibc/debian/docs, /var/cvs/uClibc/debian/mksnapshot:
+	fix mksnapshot and update documentation.
+
+2002-08-09  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/docs/uclibc.org/uClibc-apps.html: Fix spacing
+
+	* /var/cvs/uClibc/docs/uclibc.org/index.html: spacing
+
+	* /var/cvs/uClibc/docs/uclibc.org/index.html, /var/cvs/uClibc/docs/uclibc.org/old-news.html:
+	Move old stuff into old-news
+
+	* /var/cvs/uClibc/libc/stdlib/atexit.c:
+	Add missing thread-safe locking.
+	 -Erik
+
+	* /var/cvs/uClibc/TODO: update todo again
+
+	* /var/cvs/uClibc/docs/uclibc.org/index.html:
+	Update webpage for release
+
+	* /var/cvs/uClibc/Changelog.full, /var/cvs/uClibc/Changelog:
+	Update Changelog for release
+	 -Erik
+
+2002-08-09  Manuel Novoa III  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/TODO:
+	Update my TODO list.  In particular, breakdown what I'll be working on
+	in the next two months.
+
 2002-08-09  Erik Andersen  <andersen@dillweed>
 
 	* /var/cvs/uClibc/TODO: Update todo list a bit
@@ -888,3 +970,7 @@
 
 	* /var/cvs/uClibc/TODO: Update my todo list.
 
+
+[---------------The rest has been snipped for brevity---------------------]
+[---------------Check out the CVS tree if you really----------------------]
+[---------------really want to know---------------------------------------]
