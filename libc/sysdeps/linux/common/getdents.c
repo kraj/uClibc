@@ -27,7 +27,7 @@
 
 #include <sysdep.h>
 
-#include <linux/posix_types.h>
+#include <bits/posix_types.h>
 
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
@@ -37,11 +37,16 @@ extern int _getdents __P ((int fd, char *buf, size_t nbytes));
 /* For Linux we need a special version of this file since the
    definition of `struct dirent' is not the same for the kernel and
    the libc.  There is one additional field which might be introduced
-   in the kernel structure in the future.
+   in the kernel structure in the future.  Here is a copy of the kernel
+   struct dirent...
    */
-#define dirent kernel_dirent
-#include <linux/dirent.h>
-#undef dirent
+struct kernel_dirent {
+    long            d_ino;
+    __kernel_off_t  d_off;
+    unsigned short  d_reclen;
+    char            d_name[256]; /* We must not include limits.h! */
+};
+
 
 
 #ifdef GETDENTS64
