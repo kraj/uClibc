@@ -10,34 +10,29 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <search.h>
 
-char *lfind(key, base, num, size, cmp)
-register char *key, *base;
-unsigned int *num;
-register unsigned int size;
-register int (*cmp) ();
+void *lfind(const void *key, const void *base, size_t *nmemb,
+	size_t size, int (*compar)(const void *, const void *))
 {
-	register int n = *num;
+	register int n = *nmemb;
 
 	while (n--) {
-		if ((*cmp) (base, key) == 0)
-			return (base);
+		if ((*compar) (base, key) == 0)
+			return ((void*)base);
 		base += size;
 	}
 	return (NULL);
 }
 
-char *lsearch(key, base, num, size, cmp)
-char *key, *base;
-register unsigned int *num;
-register unsigned int size;
-int (*cmp) ();
+void *lsearch(const void *key, void *base, size_t *nmemb, 
+	size_t size, int (*compar)(const void *, const void *))
 {
 	register char *p;
 
-	if ((p = lfind(key, base, num, size, cmp)) == NULL) {
-		p = memcpy((base + (size * (*num))), key, size);
-		++(*num);
+	if ((p = lfind(key, base, nmemb, size, compar)) == NULL) {
+		p = memcpy((base + (size * (*nmemb))), key, size);
+		++(*nmemb);
 	}
 	return (p);
 }
