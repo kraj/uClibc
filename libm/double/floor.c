@@ -451,3 +451,81 @@ else
 	return(u.y);
 	}
 }
+
+/**********************************************************************/
+/*
+ * trunc is just a slightly modified version of floor above.
+ */
+
+double trunc(double x)
+{
+	union {
+		double y;
+		unsigned short sh[4];
+	} u;
+	unsigned short *p;
+	int e;
+
+#ifdef UNK
+	mtherr( "trunc", DOMAIN );
+	return(0.0);
+#endif
+#ifdef NANS
+	if( isnan(x) )
+		return( x );
+#endif
+#ifdef INFINITIES
+	if(!isfinite(x))
+		return(x);
+#endif
+#ifdef MINUSZERO
+	if(x == 0.0L)
+		return(x);
+#endif
+	u.y = x;
+	/* find the exponent (power of 2) */
+#ifdef DEC
+	p = (unsigned short *)&u.sh[0];
+	e = (( *p  >> 7) & 0377) - 0201;
+	p += 3;
+#endif
+
+#ifdef IBMPC
+	p = (unsigned short *)&u.sh[3];
+	e = (( *p >> 4) & 0x7ff) - 0x3ff;
+	p -= 3;
+#endif
+
+#ifdef MIEEE
+	p = (unsigned short *)&u.sh[0];
+	e = (( *p >> 4) & 0x7ff) - 0x3ff;
+	p += 3;
+#endif
+
+	if( e < 0 )
+		return( 0.0 );
+
+	e = (NBITS -1) - e;
+	/* clean out 16 bits at a time */
+	while( e >= 16 )
+		{
+#ifdef IBMPC
+			*p++ = 0;
+#endif
+
+#ifdef DEC
+			*p-- = 0;
+#endif
+
+#ifdef MIEEE
+			*p-- = 0;
+#endif
+			e -= 16;
+		}
+
+	/* clear the remaining bits */
+	if( e > 0 )
+		*p &= bmask[e];
+
+	return(u.y);
+}
