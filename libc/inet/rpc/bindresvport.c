@@ -76,8 +76,8 @@ bindresvport (int sd, struct sockaddr_in *sin)
 
   for (i = 0; i < NPORTS && res < 0 && errno == EADDRINUSE; ++i)
     {
-      sin->sin_port = htons (port++);
-      if (port > ENDPORT)
+      sin->sin_port = htons (port);
+      if (++port > ENDPORT)
 	{
 	  port = STARTPORT;
 	}
