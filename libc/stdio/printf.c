@@ -60,12 +60,14 @@
  *                    Manuel Novoa III   Jan 2000
  *
  * Removed fake file from *s*printf functions because of possible problems
- * if called recursively.  Instead, have sprintf, snprintf, and vsprintf
- * call vsnprintf which allocates a fake file on the stack.
- *
+ *    if called recursively.  Instead, have sprintf, snprintf, and vsprintf
+ *    call vsnprintf which allocates a fake file on the stack.
+ * Removed WANT_FPUTC option.  Always use standard putc macro to avoid
+ *    problems with the fake file used by the *s*printf functions.
  * Added asprintf.
- *
- * Hopefully fixed 0-pad prefixing bug.
+ * Fixed 0-pad prefixing bug.
+ * Converted sizeof(int) == sizeof(long) tests to compile time vs run time.
+ *    This saves 112 bytes of code on i386.
  */
 
 /*****************************************************************************/
@@ -74,8 +76,8 @@
 /* The optional support for long longs and doubles comes in two forms.
  *
  *   1) Normal (or partial for doubles) output support.  Set to 1 to turn on.
- *      Adds about 54 byes and about 217 bytes for long longss to the base size
- *      of 1298.  (Bizarre: both turned on is smaller than WANT_LONG_LONG only.)
+ *      Adds about 70 bytes for doubles, about 220 bytes for long longs,
+ *      and about 275 for both to the base code size of 1163 on i386.
  */
 
 #define WANT_LONG_LONG         0
@@ -84,8 +86,9 @@
 /*   2) An error message is inserted into the stream, an arg of the
  *      appropriate size is removed from the arglist, and processing
  *      continues.  This is adds less code and may be useful in some
- *      cases.  Set to 1 to turn on.  Adds about 31 bytes for doubles
- *      and about 54 bytes for long longs to the base size of 1298.
+ *      cases.  Set to 1 to turn on.  Adds about 50 bytes for doubles,
+ *      about 140 bytes for long longs, and about 175 bytes for both
+ *      to the base code size of 1163 on i386.
  */
 
 #define WANT_LONG_LONG_ERROR   0
@@ -100,20 +103,13 @@
 
 #define WANT_GNU_ERRNO         0
 
-/*
- * Use fputc instead of macro putc.  Slower but saves about 36 bytes.
- * WARNING! This may cause problems the the *s*printf functions!
- * Don't enable at this time.  Manuel
- */
-
-#define WANT_FPUTC             0
-
 /**************************************************************************/
 
 #include <sys/types.h>
 #include <fcntl.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #if WANT_GNU_ERRNO
 #include <errno.h>
@@ -128,12 +124,6 @@
 #endif
 
 #include "stdio.h"
-
-#if WANT_FPUTC
-#undef putc
-#define putc(c,s) fputc(c,s)
-#endif
-
 
 extern int vfnprintf(FILE * op, size_t max_size,
 					 register __const char *fmt, register va_list ap);
@@ -224,6 +214,15 @@ int vprintf(const char *fmt, va_list ap)
 {
 	return vfprintf(stdout, fmt, ap);
 }
+#endif
+
+#ifdef L_vfprintf
+
+int vfprintf(FILE * op, register __const char *fmt, register va_list ap)
+{
+	return (vfnprintf(op, -1, fmt, ap));
+}
+
 #endif
 
 #ifdef L_vsprintf
@@ -334,7 +333,11 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 			preci = -5;			/* max string width or mininum digits */
 			radix = 10;			/* number base */
 			dpoint = 0;			/* found decimal point */
-			lval = (sizeof(int) == sizeof(long));	/* long value flaged */
+#if INT_MAX != LONG_MAX
+			lval = 0;			/* sizeof(int) != sizeof(long) */
+#else
+			lval = 1;			/* sizeof(int) == sizeof(long) */
+#endif
 
 			tmp[1] = 0;			/* set things up for %c -- better done here */
 
@@ -345,10 +348,12 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 			flag[FLAG_0_PAD] = ' ';
 
 			/* process optional flags */
-			for (p = (char *)spec ; *p ; p++) {
+			for (p = (char *)spec ; *p ; ) {
 				if (*fmt == *p) {
 					flag[p-spec] = *fmt++;
 					p = (char *)spec; /* restart scan */
+				} else {
+					p++;
 				}
 			}
 			
@@ -437,28 +442,35 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 #endif /* WANT_LONG_LONG */
 					} else {
 #endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
+#if UINT_MAX != ULONG_MAX
+						/* sizeof(unsigned int) != sizeof(unsigned long) */
 						p = __ultostr(tmp + sizeof(tmp) - 1, (unsigned long)
 									  ((lval)
 									   ? va_arg(ap, unsigned long)
 									   : va_arg(ap, unsigned int)),
 									  radix, upcase);
+#else
+						/* sizeof(unsigned int) == sizeof(unsigned long) */
+						p = __ultostr(tmp + sizeof(tmp) - 1, (unsigned long)
+									  va_arg(ap, unsigned long),
+									  radix, upcase);
+#endif
 #if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
 					}
 #endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
 					flag[FLAG_PLUS] = '\0';	/* meaningless for unsigned */
-					if (flag[FLAG_HASH]) {
-						switch (radix) {
-							case 16:
-								flag[FLAG_PLUS] = '0';
-								*--p = 'x';
+					if (flag[FLAG_HASH] && (*p != '0')) { /* non-zero */
+						if (radix == 8) {
+							*--p = '0';	/* add leadding zero */
+						} else { /* either 2 or 16 */
+							flag[FLAG_PLUS] = '0';
+							*--p = 'b';
+							if (radix == 16) {
+								*p = 'x';
 								if (*fmt == 'X') {
 									*p = 'X';
 								}
-								break;
-							case 8:
-								if (*p != '0') { /* if not zero */
-									*--p = '0';	/* add leadding zero */
-								}
+							}
 						}
 					}
 				} else if (p-u_spec < 10) { /* signed conversion */
@@ -473,10 +485,17 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 #endif /* WANT_LONG_LONG */
 					} else {
 #endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
+#if INT_MAX != LONG_MAX
+						/* sizeof(int) != sizeof(long) */
 						p = __ltostr(tmp + sizeof(tmp) - 1, (long)
 									 ((lval)
 									  ? va_arg(ap, long)
 									  : va_arg(ap, int)), 10, 0);
+#else
+						/* sizeof(int) == sizeof(long) */
+						p = __ltostr(tmp + sizeof(tmp) - 1, (long)
+									 va_arg(ap, long), 10, 0);
+#endif
 #if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
 					}
 #endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
@@ -547,8 +566,8 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 
 					if (preci < 0) {
 						preci = 0;
-						if (flag[FLAG_PLUS]
-							&& !flag[FLAG_MINUS_LJUSTIFY]
+						if (!flag[FLAG_MINUS_LJUSTIFY]
+							/* && flag[FLAG_PLUS] */
 							&& (flag[FLAG_0_PAD] == '0')) { 
 							preci = width;
 							width = 0;
@@ -560,7 +579,7 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 						/* right padding || left padding */
 						if ((!len && !preci)
 							|| (width && !flag[FLAG_MINUS_LJUSTIFY])) {
-							ch = flag[FLAG_0_PAD];
+							ch = ' ';
 							--width;
 						} else if (flag[FLAG_PLUS]) {
 							ch = flag[FLAG_PLUS]; /* sign */
@@ -570,15 +589,12 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 								flag[FLAG_PLUS] = '\0';
 							}
 							--len;
+						} else if (preci) {
+							ch = '0';
+							--preci;
 						} else {
-							flag[FLAG_0_PAD]=' ';
-							if (preci) {
-								ch = '0';
-								--preci;
-							} else {
-								ch = *p++; /* main field */
-								--len;
-							}
+							ch = *p++; /* main field */
+							--len;
 						}
 
 						if (++cnt < max_size) {
@@ -623,11 +639,3 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 
 #endif
 
-#ifdef L_vfprintf
-
-int vfprintf(FILE * op, register __const char *fmt, register va_list ap)
-{
-	return (vfnprintf(op, -1, fmt, ap));
-}
-
-#endif
