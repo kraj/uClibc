@@ -74,7 +74,7 @@ static inline void pthread_call_handlers(struct handler_list * list)
 {
   for (/*nothing*/; list != NULL; list = list->next) (list->handler)();
 }
-
+#ifdef __UCLIBC_HAS_MMU__
 extern int __libc_fork(void);
 
 pid_t __fork(void)
@@ -105,3 +105,27 @@ pid_t __vfork(void)
   return __fork();
 }
 weak_alias (__vfork, vfork);
+#else
+pid_t __vfork(void)
+{
+  pid_t pid;
+  struct handler_list * prepare, * child, * parent;
+
+  pthread_mutex_lock(&pthread_atfork_lock);
+  prepare = pthread_atfork_prepare;
+  child = pthread_atfork_child;
+  parent = pthread_atfork_parent;
+  pthread_mutex_unlock(&pthread_atfork_lock);
+  pthread_call_handlers(prepare);
+  pid = __libc_vfork();
+  if (pid == 0) {
+    __pthread_reset_main_thread();
+    __fresetlockfiles();
+    pthread_call_handlers(child);
+  } else {
+    pthread_call_handlers(parent);
+  }
+  return pid;
+}
+weak_alias (__vfork, vfork);
+#endif

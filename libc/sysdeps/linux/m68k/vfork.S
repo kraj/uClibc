@@ -11,10 +11,13 @@
 	.align 2
 	.globl errno
 	.globl vfork
+	.globl __libc_vfork
 #if defined __HAVE_ELF__
 	.type	 vfork,@function
+	.type	 __libc_vfork,@function
 #endif
 vfork:
+__libc_vfork:
 	movl	%sp@+, %a1               /* save the return address for later */
 	movl	IMM __NR_vfork,%d0
 	trap	#0
