@@ -41,9 +41,6 @@ $(LIBC): $(MOBJ) $(COBJS)
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 
-$(COBJS): $(CSRC)
-
-
 clean:
 	rm -f *.[oa] *~ core
 
