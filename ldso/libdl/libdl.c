@@ -358,7 +358,7 @@ void *dlopen(const char *libname, int flag)
 			if (dl_elf_func && *dl_elf_func != NULL) {
 #ifdef __SUPPORT_LD_DEBUG__
 				if(_dl_debug)
-					fprintf(stderr, "running ctors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
+					fprintf(stderr, "running ctors for library %s at '%x'\n", tpnt->libname, (unsigned)dl_elf_func);
 #endif
 				(*dl_elf_func) ();
 			}
@@ -466,7 +466,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 				dl_elf_fini = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
 #ifdef __SUPPORT_LD_DEBUG__
 				if(_dl_debug)
-					fprintf(stderr, "running dtors for library %s at '%x'\n", tpnt->libname, dl_elf_fini);
+					fprintf(stderr, "running dtors for library %s at '%x'\n", tpnt->libname, (unsigned)dl_elf_fini);
 #endif
 				(*dl_elf_fini) ();
 			}
@@ -555,7 +555,7 @@ char *dlerror(void)
 		return NULL;
 	retval = dl_error_names[_dl_error_number];
 	_dl_error_number = 0;
-	return retval;
+	return (char *)retval;
 }
 
 /*

@@ -112,10 +112,7 @@ static const unsigned char __md5_itoa64[] =		/* 0 ... 63 => ascii - 64 */
  */
 
 static void
-__md5_Encode (output, input, len)
-	unsigned char *output;
-	u_int32_t *input;
-	unsigned int len;
+__md5_Encode (unsigned char *output, u_int32_t *input, unsigned int len)
 {
 	unsigned int i, j;
 
@@ -133,10 +130,7 @@ __md5_Encode (output, input, len)
  */
 
 static void
-__md5_Decode (output, input, len)
-	u_int32_t *output;
-	const unsigned char *input;
-	unsigned int len;
+__md5_Decode (u_int32_t *output, const unsigned char *input, unsigned int len)
 {
 	unsigned int i, j;
 

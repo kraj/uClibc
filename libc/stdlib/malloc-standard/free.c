@@ -17,37 +17,6 @@
 #include "malloc.h"
 
 
-/* ------------------------- malloc_trim -------------------------
-  malloc_trim(size_t pad);
-
-  If possible, gives memory back to the system (via negative
-  arguments to sbrk) if there is unused memory at the `high' end of
-  the malloc pool. You can call this after freeing large blocks of
-  memory to potentially reduce the system-level memory requirements
-  of a program. However, it cannot guarantee to reduce memory. Under
-  some allocation patterns, some large free blocks of memory will be
-  locked between two used chunks, so they cannot be given back to
-  the system.
-  
-  The `pad' argument to malloc_trim represents the amount of free
-  trailing space to leave untrimmed. If this argument is zero,
-  only the minimum amount of memory to maintain internal data
-  structures will be left (one page or less). Non-zero arguments
-  can be supplied to maintain enough trailing space to service
-  future expected allocations without having to re-obtain memory
-  from the system.
-  
-  Malloc_trim returns 1 if it actually released any memory, else 0.
-  On systems that do not support "negative sbrks", it will always
-  return 0.
-*/
-int malloc_trim(size_t pad)
-{
-  mstate av = get_malloc_state();
-  __malloc_consolidate(av);
-  return __malloc_trim(pad, av);
-}
-
 /* ------------------------- __malloc_trim -------------------------
    __malloc_trim is an inverse of sorts to __malloc_alloc.  It gives memory
    back to the system (via negative arguments to sbrk) if there is unused
@@ -107,6 +76,37 @@ static int __malloc_trim(size_t pad, mstate av)
 	}
     }
     return 0;
+}
+
+/* ------------------------- malloc_trim -------------------------
+  malloc_trim(size_t pad);
+
+  If possible, gives memory back to the system (via negative
+  arguments to sbrk) if there is unused memory at the `high' end of
+  the malloc pool. You can call this after freeing large blocks of
+  memory to potentially reduce the system-level memory requirements
+  of a program. However, it cannot guarantee to reduce memory. Under
+  some allocation patterns, some large free blocks of memory will be
+  locked between two used chunks, so they cannot be given back to
+  the system.
+
+  The `pad' argument to malloc_trim represents the amount of free
+  trailing space to leave untrimmed. If this argument is zero,
+  only the minimum amount of memory to maintain internal data
+  structures will be left (one page or less). Non-zero arguments
+  can be supplied to maintain enough trailing space to service
+  future expected allocations without having to re-obtain memory
+  from the system.
+
+  Malloc_trim returns 1 if it actually released any memory, else 0.
+  On systems that do not support "negative sbrks", it will always
+  return 0.
+*/
+int malloc_trim(size_t pad)
+{
+  mstate av = get_malloc_state();
+  __malloc_consolidate(av);
+  return __malloc_trim(pad, av);
 }
 
 /*

@@ -40,9 +40,13 @@ int __stdio_trans2w(FILE * __restrict stream)
 #endif
 
 	if (stream->__modeflags & __FLAG_READONLY) {
+#if defined(__UCLIBC_HAS_WCHAR__) || !defined(__UCLIBC_HAS_STDIO_AUTO_RW_TRANSITION__)
 	DO_EBADF:
+#endif
 		__set_errno(EBADF);
+#ifdef __UCLIBC_HAS_STDIO_AUTO_RW_TRANSITION__
 	ERROR:
+#endif
 		__STDIO_STREAM_SET_ERROR(stream);
 		__STDIO_STREAM_VALIDATE(stream);
 		return EOF;
