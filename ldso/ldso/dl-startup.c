@@ -293,7 +293,7 @@ found_got:
 	/* Call mmap to get a page of writable memory that can be used
 	 * for _dl_malloc throughout the shared lib loader. */
 	mmap_zero = malloc_buffer = _dl_mmap((void *) 0, PAGE_SIZE,
-			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(mmap_zero)) {
 		SEND_STDERR("dl_boot: mmap of a spare page failed!\n");
 		_dl_exit(13);

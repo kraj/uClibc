@@ -444,7 +444,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	}
 
 	header = _dl_mmap((void *) 0, PAGE_SIZE, PROT_READ | PROT_WRITE,
-			MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(header)) {
 		_dl_dprintf(2, "%s: can't map '%s'\n", _dl_progname, libname);
 		_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
@@ -803,7 +803,7 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 	static char *buf;
 
 	buf = _dl_mmap((void *) 0, PAGE_SIZE, PROT_READ | PROT_WRITE,
-			MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(buf)) {
 		_dl_write(fd, "mmap of a spare page failed!\n", 29);
 		_dl_exit(20);
@@ -906,7 +906,7 @@ void *_dl_malloc(int size)
 		_dl_dprintf(2, "malloc: mmapping more memory\n");
 #endif
 		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size,
-				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
 			_dl_dprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
 			_dl_exit(20);
