@@ -36,8 +36,6 @@
    * crtn.s puts the corresponding function epilogues
    in the .init and .fini sections. */
 
-#include <stdlib.h>
-
 #undef GMON_SUPPORT
 
 /* We use embedded asm for .section unconditionally, as this makes it
