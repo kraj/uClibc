@@ -27,6 +27,8 @@
 #include <features.h>
 #include <bits/types.h>
 
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
+
 __BEGIN_DECLS
 
 #ifndef _ISbit
@@ -378,5 +380,11 @@ extern int toupper_l (int __c, __locale_t __l) __THROW;
 #endif /* Use GNU.  */
 
 __END_DECLS
+
+#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
+#include <bits/uClibc_ctype.h>
+
+#endif
 
 #endif /* ctype.h  */
