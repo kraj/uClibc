@@ -48,7 +48,7 @@ CFLAGS += $(SYSDEPINC)
 CSRC=attr.c cancel.c condvar.c errno.c events.c join.c lockfile.c manager.c \
 	mutex.c oldsemaphore.c pt-machine.c ptfork.c pthread.c \
 	ptlongjmp.c rwlock.c semaphore.c signals.c specific.c spinlock.c \
-	wrapsyscall.c #weaks.c
+	wrapsyscall.c
 
 ifeq ($(UCLIBC_HAS_XLOCALE),y)
 	CSRC += locale.c
