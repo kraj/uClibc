@@ -669,11 +669,14 @@ int main( int argc, char** argv)
 			printf("\tnot a dynamic executable\n");
 
 		for (cur = lib_list; cur; cur=cur->next) {
-			free(cur->name);
-			cur->name=NULL;
-			if (cur->path && cur->path != not_found)
+			if (cur->path && cur->path != not_found) {
 				free(cur->path);
-			cur->path=NULL;
+				cur->path=NULL;
+			}
+			if (cur->name) {
+				free(cur->name);
+				cur->name=NULL;
+			}
 		}
 		lib_list=NULL;
 	}
