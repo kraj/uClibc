@@ -85,8 +85,7 @@ static void debug_fini (int status, void *arg)
 #endif
 
 void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
-		Elf32_auxv_t auxvt[AT_EGID + 1], char **envp,
-		unsigned char *malloc_buffer, unsigned char *mmap_zero, char **argv)
+		Elf32_auxv_t auxvt[AT_EGID + 1], char **envp, char **argv)
 {
 	ElfW(Phdr) *ppnt;
 	Elf32_Dyn *dpnt;
@@ -109,14 +108,14 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	SEND_STDERR("Cool, we managed to make a function call.\n");
 #endif
 
+	/* Store the page size for later use */
+	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 	/* Make it so _dl_malloc can use the page of memory we have already
 	 * allocated.  We shouldn't need to grab any more memory.  This must
 	 * be first since things like _dl_dprintf() use _dl_malloc().... */
-	_dl_malloc_addr = malloc_buffer;
-	_dl_mmap_zero = mmap_zero;
+	_dl_malloc_addr = (unsigned char *)_dl_pagesize;
+	_dl_mmap_zero = 0;
 
-	/* Store the page size for later use */
-	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 
 	/* Now we have done the mandatory linking of some things.  We are now
 	 * free to start using global variables, since these things have all been

@@ -90,14 +90,6 @@
 
 #include "ldso.h"
 
-/* This is a poor man's malloc, used prior to resolving our internal poor man's malloc */
-#define LD_MALLOC(SIZE) ((void *) (malloc_buffer += SIZE, malloc_buffer - SIZE)) ;  REALIGN();
-
-/* Make sure that the malloc buffer is aligned on 4 byte boundary.  For 64 bit
- * platforms we may need to increase this to 8, but this is good enough for
- * now.  This is typically called after LD_MALLOC.  */
-#define REALIGN() malloc_buffer = (char *) (((unsigned long) malloc_buffer + 3) & ~(3))
-
 /* Pull in all the arch specific stuff */
 #include "dl-startup.h"
 
@@ -126,11 +118,10 @@ DL_BOOT(unsigned long args)
 	unsigned long *aux_dat;
 	int goof = 0;
 	ElfW(Ehdr) *header;
-	struct elf_resolve *tpnt;
+	struct elf_resolve tpnt_tmp;
+	struct elf_resolve *tpnt = &tpnt_tmp;
 	Elf32_auxv_t auxvt[AT_EGID + 1];
-	unsigned char *malloc_buffer, *mmap_zero;
 	Elf32_Dyn *dpnt;
-	size_t pagesize;
 	int indx;
 #if defined(__i386__)
 	int status = 0;
@@ -283,19 +274,6 @@ found_got:
 	SEND_STDERR("First Dynamic section entry=");
 	SEND_ADDRESS_STDERR(dpnt, 1);
 #endif
-
-
-	/* Call mmap to get a page of writable memory that can be used
-	 * for _dl_malloc throughout the shared lib loader. */
-	pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
-	mmap_zero = malloc_buffer = _dl_mmap((void *) 0, pagesize,
-			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	if (_dl_mmap_check_error(mmap_zero)) {
-		SEND_STDERR("dl_boot: mmap of a spare page failed!\n");
-		_dl_exit(13);
-	}
-
-	tpnt = LD_MALLOC(sizeof(struct elf_resolve));
 	_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
 
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
@@ -425,8 +403,7 @@ found_got:
 	   free to start using global variables, since these things have all been
 	   fixed up by now.  Still no function calls outside of this library ,
 	   since the dynamic resolver is not yet ready. */
-	_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp,
-			     malloc_buffer, mmap_zero, argv);
+	_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp, argv);
 
 
 	/* Transfer control to the application.  */
