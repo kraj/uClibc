@@ -267,7 +267,7 @@ int vsnprintf(char *sp, size_t size, __const char *fmt, va_list ap)
 	 */
 	f.bufwrite = (char *) ((unsigned) -1);
 	f.bufpos = sp;
-	f.mode = _IOFBF | __MODE_WRITE;
+	f.mode = _IOFBF;
 
 	rv = vfnprintf(&f, size, fmt, ap);
 	if (size) {					/* If this is going to a buffer, */
@@ -283,25 +283,17 @@ int vsnprintf(char *sp, size_t size, __const char *fmt, va_list ap)
  */
 extern int vdprintf(int fd, const char *fmt, va_list ap)
 {
-#if 0
-	FILE f = {f.unbuf, f.unbuf, f.unbuf, f.unbuf, f.unbuf + sizeof(f.unbuf),
-			  fd, _IONBF | __MODE_WRITE};
-
-	assert(fd >= 0);			/* fd==0 may no longer be stdin */
-
-	return vfnprintf(&f, -1, fmt, ap);
-#else
 	char buf[BUFSIZ];
-	FILE f = {buf, buf, buf, buf, buf + sizeof(buf),
-			  fd, _IOFBF | __MODE_WRITE};
+	FILE f = {buf, 0, buf+sizeof(buf), buf, buf+sizeof(buf), 0, fd, _IOFBF};
 	int rv;
 
-	assert(fd >= 0);			/* fd==0 may no longer be stdin */
-
 	rv = vfnprintf(&f, -1, fmt, ap);
-	fflush(&f);
+
+	if (fflush(&f)) {
+		return -1;
+	}
+
 	return rv;
-#endif
 }
 #endif
 
@@ -311,7 +303,7 @@ extern char *__ultostr(char *buf, unsigned long uval, int base, int uppercase);
 extern char *__ltostr(char *buf, long val, int base, int uppercase);
 extern char *__ulltostr(char *buf, unsigned long long uval, int base, int uppercase);
 extern char *__lltostr(char *buf, long long val, int base, int uppercase);
-extern int __dtostr(FILE * fp, size_t size, double x,
+extern int __dtostr(FILE * fp, size_t size, long double x,
 				  char flag[], int width, int preci, char mode);
 
 enum {
@@ -353,7 +345,7 @@ static const char u_radix[] = "\x02\x08\x10\x10\x10\x0a";
 
 int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 {
-	int i, cnt = 0, lval;
+	int i, cnt, lval;
 	char *p;
 	const char *fmt0;
 	int buffer_mode;
@@ -367,7 +359,9 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 #endif
 	char flag[sizeof(spec)];
 
-	/* This speeds things up a bit for unbuffered */
+	cnt = 0;
+
+	/* This speeds things up a bit for line unbuffered */
 	buffer_mode = (op->mode & __MODE_BUF);
 	op->mode &= (~__MODE_BUF);
 
@@ -375,9 +369,6 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 		if (*fmt == '%') {
 			fmt0 = fmt;			/* save our position in case of bad format */
 			++fmt;
-			if (buffer_mode == _IONBF) {
-				fflush(op);
-			}
 			width = -1;			/* min field width */
 			preci = -5;			/* max string width or mininum digits */
 			radix = 10;			/* number base */
@@ -511,7 +502,7 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 					if (flag[FLAG_HASH] && (*p != '0')) { /* non-zero */
 						if (radix == 8) {
 							*--p = '0';	/* add leadding zero */
-						} else { /* either 2 or 16 */
+						} else if (radix != 10) { /* either 2 or 16 */
 							flag[FLAG_PLUS] = '0';
 							*--p = 'b';
 							if (radix == 16) {
@@ -556,6 +547,9 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 						*p = va_arg(ap, int);
 					} else {	/* string */
 						p = va_arg(ap, char *);
+						if (!p) {
+							p = "(null)";
+						}
 					}
 #if WANT_DOUBLE || WANT_DOUBLE_ERROR
 				} else if (p-u_spec < 27) {		/* floating point */
@@ -564,11 +558,15 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 					if (preci < 0) {
 						preci = 6;
 					}
-					cnt += __dtostr(op, max_size, va_arg(ap, double),
+					cnt += __dtostr(op, max_size,
+									(long double) ((lval > 1)
+									 ? va_arg(ap, long double)
+									 : va_arg(ap, double)),
 									flag, width,  preci, *fmt);
 					goto nextfmt;
 #elif WANT_DOUBLE_ERROR
-					(void) va_arg(ap,double); /* carry on */
+					(void) ((lval > 1) ? va_arg(ap, long double)
+							: va_arg(ap, double)); /* carry on */
 					p = (char *) dbl_err;
 #endif /* WANT_DOUBLE */
 				}
@@ -604,7 +602,11 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 						|| (*fmt == 'm')
 #endif
 						) {
-							len = preci;
+							if (len > preci) {
+								len = preci;
+							} else {
+								preci = len;
+							}
 						}
 						preci -= len;
 						if (preci < 0) {
@@ -678,11 +680,8 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 	}
 
 	op->mode |= buffer_mode;
-	if (buffer_mode == _IONBF) {
-		fflush(op);
-	}
 	if (buffer_mode == _IOLBF) {
-		op->bufwrite = op->bufstart;
+		op->bufwrite = op->bufpos;
 	}
 
 	if (ferror(op)) {

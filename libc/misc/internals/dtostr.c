@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2000, 2001 Manuel Novoa III
  *
- * Function:  int __dtostr(FILE * fp, size_t size, double x, 
+ * Function:  int __dtostr(FILE * fp, size_t size, long double x, 
  *			               char flag[], int width, int preci, char mode)
  *
  * This was written for uClibc to provide floating point support for
@@ -32,17 +32,18 @@
 
 /*
  * Configuration for the scaling power table.  Ignoring denormals, you
- * should have 2**EXP_TABLE_SIZE >= MAX_DBL_EXP >= 2**(EXP_TABLE_SIZE-1).
+ * should have 2**EXP_TABLE_SIZE >= LDBL_MAX_EXP >= 2**(EXP_TABLE_SIZE-1).
  * The minimum for standard C is 6.  For IEEE 8bit doubles, 9 suffices.
+ * For long doubles on i386, use 13.
  */
-#define EXP_TABLE_SIZE       9
+#define EXP_TABLE_SIZE       13
 
 /* 
  * Set this to the maximum number of digits you want converted.
  * Conversion is done in blocks of DIGITS_PER_BLOCK (9 by default) digits.
- * 17 digits suffices to uniquely determine a double on i386.
+ * (20) 17 digits suffices to uniquely determine a (long) double on i386.
  */
-#define MAX_DIGITS          17
+#define MAX_DIGITS          20
 
 /*
  * Set this to the smallest integer type capable of storing a pointer.
@@ -56,11 +57,7 @@
  * caused by the FPU that strtod had.  If it causes problems, call the function
  * and compile zoicheck.c with -ffloat-store.
  */
-#if 1
 #define _zero_or_inf_check(x) ( x == (x/4) )
-#else
-extern int _zero_or_inf_check(double x);
-#endif
 
 /*
  * Fairly portable nan check.  Bitwise for i386 generated larger code.
@@ -103,10 +100,9 @@ enum {
 
 /*
  * Only bother checking if this is too small.
- * Throw in some play for denormals ( roughly O(-324) vs O(-307) on i386 ).
  */
 
-#if (3+DBL_DIG-DBL_MIN_10_EXP)/2 > EXP_TABLE_MAX
+#if LDBL_MAX_10_EXP/2 > EXP_TABLE_MAX
 #error larger EXP_TABLE_SIZE needed
 #endif
 
@@ -147,11 +143,11 @@ static const char *fmts[] = {
 
 /*****************************************************************************/
 
-int __dtostr(FILE * fp, size_t size, double x, 
+int __dtostr(FILE * fp, size_t size, long double x, 
 			 char flag[], int width, int preci, char mode)
 {
-	double exp_table[EXP_TABLE_SIZE];
-	double p10;
+	long double exp_table[EXP_TABLE_SIZE];
+	long double p10;
 	DIGIT_BLOCK_TYPE digit_block; /* int of at least 32 bits */
 	int i, j;
 	int round, o_exp;
@@ -290,7 +286,7 @@ int __dtostr(FILE * fp, size_t size, double x,
 	}
 	*++e = 0;					/* ending nul char */
 
-	if ((mode == 'g') && ((o_exp >= -4) && (o_exp < round))) {
+	if ((mode == 'g') && ((o_exp >= -4) && (o_exp <= round))) {
 		mode = 'f';
 	}
 

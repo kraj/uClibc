@@ -35,17 +35,17 @@ __BEGIN_DECLS
 struct __stdio_file {
   unsigned char *bufpos;   /* the next byte to write to or read from */
   unsigned char *bufread;  /* the end of data returned by last read() */
-  unsigned char *bufwrite; /* highest address writable by macro */
+  unsigned char *bufwrite; /* 1 + highest address writable by macro */
   unsigned char *bufstart; /* the start of the buffer */
   unsigned char *bufend;   /* the end of the buffer; ie the byte after the last
                               malloc()ed byte */
-
-  int fd; /* the file descriptor associated with the stream */
-  int mode;
-
   struct __stdio_file * next;
 
-  char unbuf[8];	   /* The buffer for 'unbuffered' streams */
+  int fd; /* the file descriptor associated with the stream */
+
+  unsigned char mode;
+  unsigned char ungot;
+  char unbuf[2];	   /* The buffer for 'unbuffered' streams */
 };
 
 typedef struct __stdio_file FILE;
@@ -65,17 +65,13 @@ typedef struct __stdio_file FILE;
 #define _IONBF 2		/* No buffering.  */
 
 /* Possible states for a file stream -- internal use only */
-#define __MODE_BUF	0x03	/* Modal buffering dependent on isatty */
-#define __MODE_FREEBUF	0x04	/* Buffer allocated with malloc, can free */
-#define __MODE_FREEFIL	0x08	/* FILE allocated with malloc, can free */
-#define __MODE_READ	0x10	/* Opened in read only */
-#define __MODE_WRITE	0x20	/* Opened in write only */
-#define __MODE_RDWR	0x30	/* Opened in read/write */
-#define __MODE_READING	0x40	/* Buffer has pending read data */
-#define __MODE_WRITING	0x80	/* Buffer has pending write data */
-#define __MODE_EOF	0x100	/* EOF status */
-#define __MODE_ERR	0x200	/* Error status */
-#define __MODE_UNGOT	0x400	/* Buffer has been polluted by ungetc */
+#define __MODE_BUF		0x03	/* Modal buffering dependent on isatty */
+#define __MODE_FREEBUF	0x04	/* Buffer allocated by stdio code, can free */
+#define __MODE_FREEFIL	0x08	/* FILE allocated by stdio code, can free */
+#define __MODE_UNGOT	0x10	/* Buffer has been polluted by ungetc */
+#define __MODE_TIED 	0x20	/* FILE is tied with stdin/stdout */
+#define __MODE_EOF		0x40	/* EOF status */
+#define __MODE_ERR		0x80	/* Error status */
 
 /* The possibilities for the third argument to `fseek'.
    These values should not be changed.  */
@@ -157,7 +153,26 @@ extern FILE *fopen __P ((__const char *__restrict __filename,
 extern FILE *freopen __P ((__const char *__restrict __filename,
 			   __const char *__restrict __mode,
 			   FILE *__restrict __stream));
-#define freopen(__file, __mode, __fp) __fopen((__file), -1, (__fp), (__mode))
+
+#ifdef __USE_MISC
+/*
+ * Open a file using an automatically (stack) or statically allocated FILE.
+ * The FILE * returned behaves just as any other FILE * with respect to the
+ * stdio functions, but be aware of the following:
+ * NOTE: The buffer used for the file is FILE's builtin 2-byte buffer, so
+ *       setting a new buffer is probably advisable.
+ * NOTE: This function is primarily intended to be used for stack-allocated
+ *       FILEs when uClibc stdio has been built with no dynamic memory support.
+ *       For the statically allocated case, it is probably better to increase
+ *        the value of FIXED_STREAMS in stdio.c.
+ * WARNING: If allocated on the stack, make sure you call fclose before the
+ *          stack memory is reclaimed!
+ */
+extern FILE *fsfopen __P ((__const char *__restrict __filename,
+			   __const char *__restrict __mode,
+			   FILE *__restrict __stream));
+#endif
+
 
 #ifdef __USE_LARGEFILE64
 extern FILE *fopen64 __P ((__const char *__restrict __filename,
@@ -390,8 +405,8 @@ extern int ferror __P ((FILE *__stream));
 /* Macro versions of the 3 previous functions */
 /* If fp is NULL... */
 #define clearerr(fp) ((fp)->mode &= ~(__MODE_EOF|__MODE_ERR), (void)0)
-#define feof(fp)   	(((fp)->mode&__MODE_EOF) != 0)
-#define ferror(fp)	(((fp)->mode&__MODE_ERR) != 0)
+#define feof(fp)   	((fp)->mode&__MODE_EOF)
+#define ferror(fp)	((fp)->mode&__MODE_ERR)
 
 /* Print a message describing the meaning of the value of errno.  */
 extern void perror __P ((__const char *__s));

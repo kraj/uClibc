@@ -35,15 +35,15 @@ va_dcl
 #endif
 {
 	FILE string[1] = {
-		{0, (char *) (unsigned) -1, 0, 0, (char *) (unsigned) -1, -1,
-		 _IOFBF | __MODE_READ}
+		{0, (unsigned char *) ((unsigned) -1), 0, 0, (char *) ((unsigned) -1),
+		 0, -1, _IOFBF}
 	};
 
 	va_list ptr;
 	int rv;
 
-	va_start(ptr, fmt);
 	string->bufpos = (unsigned char *) ((void *) sp);
+	va_start(ptr, fmt);
 	rv = vfscanf(string, fmt, ptr);
 	va_end(ptr);
 	return rv;
@@ -83,11 +83,11 @@ va_list ap;
 int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
 	FILE string[1] = {
-		{0, (char *) (unsigned) -1, 0, 0, (char *) (unsigned) -1, -1,
-		 _IOFBF | __MODE_READ}
+		{0, (unsigned char *) ((unsigned) -1), 0, 0, (char *) ((unsigned) -1),
+		 0, -1, _IOFBF}
 	};
 
-	string->bufpos = (unsigned char *) ((void *) sp);
+	string->bufpos = (unsigned char *) sp;
 	return vfscanf(string, fmt, ap);
 }
 #endif
