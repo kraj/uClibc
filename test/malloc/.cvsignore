@@ -1,0 +1,7 @@
+malloc
+testmalloc
+testmalloc.o
+testmalloc_glibc
+testmalloc_glibc.o
+mallocbug
+mallocbug_glibc

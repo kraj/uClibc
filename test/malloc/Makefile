@@ -21,6 +21,8 @@ include $(TESTDIR)/Rules.mak
 
 
 TARGETS=malloc
+TARGETS+=testmalloc testmalloc_glibc 
+TARGETS+=mallocbug mallocbug_glibc
 all: $(TARGETS)
 
 malloc: malloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
@@ -33,6 +35,66 @@ malloc: malloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo " "
+
+testmalloc_source:
+	-@ echo "-------"
+	-@ echo "testmalloc.c source: "
+	-@ echo " "
+	-@ cat testmalloc.c
+	-@ echo " "
+
+testmalloc: testmalloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-$(LDD) $@
+	ls -l $@
+	-./$@
+	-@ echo " "
+
+testmalloc_glibc: testmalloc.c Makefile
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs GNU libc: "
+	-@ echo " "
+	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-$(LDD) $@
+	ls -l $@
+	-./$@
+	-@ echo " "
+
+mallocbug: mallocbug.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-$(LDD) $@
+	ls -l $@
+	-./$@
+	-@ echo " "
+
+mallocbug_glibc: mallocbug.c Makefile
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs GNU libc: "
+	-@ echo " "
+	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-$(LDD) $@
+	ls -l $@
+	-./$@
+	-@ echo " "
+
 
 clean:
 	rm -f *.[oa] *~ core $(TARGETS)

@@ -17,6 +17,7 @@ int main(int argc,char *argv[])
 {
 	test1();
 	test2();
+	return 0;
 }
 
 void test1(void)
