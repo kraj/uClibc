@@ -17,7 +17,7 @@
  *   Changed name of __cleanup to __uClibc_cleanup.
  *   Moved declaration of __uClibc_cleanup to __uClibc_main
  *      where it is initialized with (possibly weak alias)
- *      __stdio_close_all.
+ *      __stdio_flush_buffers.
  *
  * Jul 2001          Steve Thayer
  * 
@@ -44,7 +44,7 @@ typedef enum {
 	ef_on_exit
 } ef_type; /* exit function types */
 
-extern void __stdio_close_all(void);
+extern void __stdio_flush_buffers(void);
 
 /* this is in the L_exit object */
 extern void (*__exit_cleanup) (int);
@@ -139,13 +139,11 @@ void __exit_handler(int status)
 			break;
 		}
 	}
-	if (__stdio_close_all)
-	  __stdio_close_all();
 }
 #endif
 
 #ifdef L_exit
-extern void (*__uClibc_cleanup) (void);
+extern void __stdio_flush_buffers(void);
 void (*__exit_cleanup) (int) = 0;
 
 /*
@@ -159,8 +157,8 @@ void exit(int rv)
 	}
 
 	/* Clean up everything else */
-	if (__uClibc_cleanup) 
-	    __uClibc_cleanup();
+	if (__stdio_flush_buffers) 
+	    __stdio_flush_buffers();
 
 	_exit(rv);
 }

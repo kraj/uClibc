@@ -46,8 +46,7 @@ Cambridge, MA 02139, USA.  */
 #define ABORT_INSTRUCTION
 #endif
 
-typedef void (*vfuncp) (void);
-extern vfuncp __uClibc_cleanup;
+extern void __stdio_flush_buffers(void);
 extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
 static int been_there_done_that = 0;
 
@@ -61,10 +60,9 @@ void abort(void)
 	sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
     }
 
-    /* __uClibc_cleanup NULLs itself out after being called */
-    if (__uClibc_cleanup) {		
-	__uClibc_cleanup();
-    }
+    /* If we are using stdio, flush all open streams */
+    if (__stdio_flush_buffers)
+	__stdio_flush_buffers();
 
     while (1) {
 	/* Try to suicide with a SIGABRT.  */

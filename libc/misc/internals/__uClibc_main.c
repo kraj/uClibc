@@ -28,16 +28,14 @@ void __uClibc_main(int argc, char **argv, char **envp)
 #ifdef HAVE_ELF
 weak_alias(__environ, environ);
 extern void weak_function __init_stdio(void);
-extern void weak_function __stdio_close_all(void);
+extern void weak_function __stdio_flush_buffers(void);
 extern void weak_function __pthread_initialize_minimal (void);
 #else
 extern void __init_stdio(void);
-extern void __stdio_close_all(void);
+extern void __stdio_flush_buffers(void);
 extern void __pthread_initialize_minimal (void);
 #endif	
 
-typedef void (*vfuncp) (void);
-vfuncp __uClibc_cleanup = __stdio_close_all;
 
 /*
  * Now for our main routine.
@@ -95,7 +93,7 @@ char **__environ = 0;
 /*
  * Define an empty function and use it as a weak alias for the stdio
  * initialization routine.  That way we don't pull in all the stdio
- * code unless we need to.  Similarly, do the same for __stdio_close_all
+ * code unless we need to.  Similarly, do the same for __stdio_flush_buffers
  * so as not to include atexit unnecessarily.
  *
  * NOTE!!! This is only true for the _static_ case!!!
@@ -107,6 +105,6 @@ void __uClibc_empty_func(void)
 {
 }
 weak_alias(__uClibc_empty_func, __init_stdio);
-weak_alias(__uClibc_empty_func, __stdio_close_all);
+weak_alias(__uClibc_empty_func, __stdio_flush_buffers);
 #endif
 #endif	

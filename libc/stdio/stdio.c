@@ -193,10 +193,10 @@ FILE *_free_file_list = 0;
 char _free_buffer_index = FIXED_BUFFERS;
 
 /*
- * __stdio_close_all is automatically when exiting if stdio is used.
+ * __stdio_flush_buffers is automatically when exiting if stdio is used.
  * See misc/internals/__uClibc_main.c and and stdlib/atexit.c.
  */
-void __stdio_close_all(void)
+void __stdio_flush_buffers(void)
 {
 	fflush(NULL);				/* Files will be closed on _exit call. */
 }
