@@ -112,16 +112,9 @@ void _dl_init_got(unsigned long *plt,struct elf_resolve *tpnt)
 	Elf32_Word rel_offset_words;
 	Elf32_Word dlrr = (Elf32_Word) _dl_linux_resolve;
 
-	//DPRINTF("init_got plt=%x, tpnt=%x\n", (unsigned long)plt,(unsigned long)tpnt);
-
 	num_plt_entries = tpnt->dynamic_info[DT_PLTRELSZ] / sizeof(ELF_RELOC);
-	//DPRINTF("n_plt_entries %d\n",n_plt_entries);
-
 	rel_offset_words = PLT_DATA_START_WORDS(num_plt_entries);
-	//DPRINTF("rel_offset_words %x\n",rel_offset_words);
 	data_words = (Elf32_Word) (plt + rel_offset_words);
-	//DPRINTF("data_words %x\n",data_words);
-
 	tpnt->data_words = data_words;
 
 	plt[PLT_LONGBRANCH_ENTRY_WORDS] = OPCODE_ADDIS_HI(11, 11, data_words);
@@ -146,10 +139,10 @@ void _dl_init_got(unsigned long *plt,struct elf_resolve *tpnt)
 		tramp[4] = OPCODE_LI (12, (Elf32_Word) tpnt);
 		tramp[5] = OPCODE_ADDIS_HI (12, 12, (Elf32_Word) tpnt);
 
-		/* Call _dl_runtime_resolve.  */
+		/* Call _dl_linux_resolve .  */
 		tramp[6] = OPCODE_BA (dlrr);
 	} else {
-		/* Get address of _dl_runtime_resolve in CTR.  */
+		/* Get address of _dl_linux_resolve in CTR.  */
 		tramp[4] = OPCODE_LI(12,dlrr);
 		tramp[5] = OPCODE_ADDIS_HI(12,12,dlrr);
 		tramp[6] = OPCODE_MTCTR(12);
@@ -158,7 +151,7 @@ void _dl_init_got(unsigned long *plt,struct elf_resolve *tpnt)
 		tramp[7] = OPCODE_LI(12,(Elf32_Word) tpnt);
 		tramp[8] = OPCODE_ADDIS_HI(12,12,(Elf32_Word) tpnt);
 
-		/* Call _dl_runtime_resolve.  */
+		/* Call _dl_linux_resolve.  */
 		tramp[9] = OPCODE_BCTR();
 	}
 	/* [16] unused */
@@ -229,8 +222,11 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	delta = finaladdr - (Elf32_Word)reloc_addr;
 	if (delta<<6>>6 == delta) {
 		*reloc_addr = OPCODE_B(delta);
+#if 0
+	/* this will almost never be true */
 	} else if (finaladdr <= 0x01fffffc || finaladdr >= 0xfe000000) {
 		*reloc_addr = OPCODE_BA (finaladdr);
+#endif
 	} else {
 		/* Warning: we don't handle double-sized PLT entries */
 		Elf32_Word *plt, *data_words, index, offset;
@@ -321,45 +317,6 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 }
 
 static int
-_dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
-		   ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
-{
-	Elf32_Addr *reloc_addr;
-	Elf32_Word *plt, index, offset;
-
-	(void)scope;
-	(void)symtab;
-	(void)strtab;
-
-	reloc_addr = (Elf32_Addr *)(tpnt->loadaddr + rpnt->r_offset);
-#if defined (__SUPPORT_LD_DEBUG__)
-	if (ELF32_R_TYPE(rpnt->r_info) != R_PPC_JMP_SLOT) {
-		_dl_dprintf(2, "Reloc type != R_PPC_JMP_SLOT. Type is 0x%x\n", ELF32_R_TYPE(rpnt->r_info));
-		return -1;
-	}
-#endif
-	plt = (Elf32_Word *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
-	offset = reloc_addr - plt;
-	index = (offset - PLT_INITIAL_ENTRY_WORDS)/2;
-	reloc_addr[0] = OPCODE_LI(11,index*4);
-	reloc_addr[1] = OPCODE_B((PLT_TRAMPOLINE_ENTRY_WORDS + 2 - (offset+1)) * 4);
-
-	/* instructions were modified */
-	PPC_DCBST(reloc_addr);
-	PPC_DCBST(reloc_addr+1);
-	PPC_SYNC;
-	PPC_ICBI(reloc_addr);
-	PPC_ICBI(reloc_addr+1);
-	PPC_ISYNC;
-
-#if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug_reloc && _dl_debug_detail)
-		_dl_dprintf(_dl_debug_file, "\tpatched: %x", reloc_addr);
-#endif
-	return 0;
-}
-
-static int
 _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	      ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
 {
@@ -415,8 +372,11 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		
 		if (delta<<6>>6 == delta) {
 			*reloc_addr = OPCODE_B(delta);
+#if 0
+		/* this will almost never be true */
 		} else if (finaladdr <= 0x01fffffc || finaladdr >= 0xfe000000) {
 			*reloc_addr = OPCODE_BA (finaladdr);
+#endif
 		} else {
 			/* Warning: we don't handle double-sized PLT entries */
 			Elf32_Word *plt, *data_words, index, offset;
@@ -537,8 +497,44 @@ _dl_do_copy (struct elf_resolve *tpnt, struct dyn_elf *scope,
 void _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, 
 	unsigned long rel_addr, unsigned long rel_size, int type)
 {
+	Elf32_Word *plt, offset, i,  num_plt_entries, rel_offset_words;
+
 	(void) type;
-	(void)_dl_parse(tpnt, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
+	num_plt_entries = rel_size / sizeof(ELF_RELOC);
+
+	/* When the dynamic linker bootstrapped itself, it resolved some symbols.
+	   Make sure we do not do them again */
+	if (tpnt->libtype == program_interpreter)
+		return;
+	rel_offset_words = PLT_DATA_START_WORDS(num_plt_entries);
+	plt = (Elf32_Word *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
+
+	/* Set up the lazy PLT entries.  */
+	offset = PLT_INITIAL_ENTRY_WORDS;
+	i = 0;
+	/* Warning: we don't handle double-sized PLT entries */
+	while (i < num_plt_entries) {
+		plt[offset  ] = OPCODE_LI(11, i * 4);
+		plt[offset+1] = OPCODE_B((PLT_TRAMPOLINE_ENTRY_WORDS + 2 - (offset+1)) * 4);
+		i++;
+		offset += 2;
+	}
+	/* Now, we've modified code.  We need to write the changes from
+	   the data cache to a second-level unified cache, then make
+	   sure that stale data in the instruction cache is removed.
+	   (In a multiprocessor system, the effect is more complex.)
+	   Most of the PLT shouldn't be in the instruction cache, but
+	   there may be a little overlap at the start and the end.
+	   
+	   Assumes that dcbst and icbi apply to lines of 16 bytes or
+	   more.  Current known line sizes are 16, 32, and 128 bytes.  */
+	for (i = 0; i < rel_offset_words; i += 4)
+		PPC_DCBST (plt + i);
+	PPC_DCBST (plt + rel_offset_words - 1);
+	PPC_SYNC;
+	PPC_ICBI (plt);
+	PPC_ICBI (plt + rel_offset_words - 1);
+	PPC_ISYNC;
 }
 
 int _dl_parse_relocation_information(struct elf_resolve *tpnt, 
