@@ -54,7 +54,7 @@ MOBJ = fclose.o fflush.o fopen.o freopen.o perror.o remove.o \
 	__fbufsize.o __freading.o __fwriting.o __freadable.o __fwritable.o \
 	__flbf.o __fpurge.o __fpending.o _flushlbf.o \
 	 fopencookie.o fmemopen.o open_memstream.o \
-	__fsetlocking.o \
+	__fsetlocking.o flockfile.o ftrylockfile.o funlockfile.o \
 	_stdio_fopen.o _stdio_fread.o _stdio_fwrite.o _stdio_adjpos.o \
 	_stdio_lseek.o _stdio_init.o \
 	_stdio_fsfopen.o _stdio_fdout.o _uintmaxtostr.o

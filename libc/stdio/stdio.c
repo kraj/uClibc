@@ -1007,7 +1007,9 @@ int __fsetlocking(FILE *stream, int locking_mode)
 
 void flockfile(FILE *stream)
 {
+#ifdef __STDIO_THREADSAFE
 	pthread_mutex_lock(&stream->lock);
+#endif
 }
 
 #endif
@@ -1016,7 +1018,11 @@ void flockfile(FILE *stream)
 
 int ftrylockfile(FILE *stream)
 {
+#ifdef __STDIO_THREADSAFE
 	return pthread_mutex_trylock(&stream->lock);
+#else
+	return 1;
+#endif
 }
 
 #endif
@@ -1025,7 +1031,9 @@ int ftrylockfile(FILE *stream)
 
 void funlockfile(FILE *stream)
 {
+#ifdef __STDIO_THREADSAFE
 	pthread_mutex_unlock(&stream->lock);
+#endif
 }
 
 #endif
