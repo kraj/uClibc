@@ -2,7 +2,7 @@ Source: uclibc
 Section: libs
 Priority: required
 Maintainer: Erik Andersen <andersen@codepoet.org>
-Build-Depends: make (>= 3.78-4), dpkg-dev (>= 1.4.1.5), debianutils (>= 1.13.1), tar (>= 1.13.11), bzip2, texinfo (>= 4.0), kernel-source-2.4.22, gcc-3.3, binutils (>= 2.14.90.0.6), sed (>= 4.0.5-4)
+Build-Depends: make (>= 3.78-4), dpkg-dev (>= 1.4.1.5), debianutils (>= 1.13.1), tar (>= 1.13.11), bzip2, texinfo (>= 4.0), kernel-source-2.4.22, sed (>= 4.0.5-4)
 Standards-Version: 3.5.8
 
 Package: uclibc

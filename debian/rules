@@ -47,7 +47,8 @@ build-stamp:
 
 	# Brute force method of getting kernel headers
 	tar --bzip2 -xf /usr/src/$(kernel_source).tar.bz2 \
-	  $(kernel_source)/include
+	  $(kernel_source)/Makefile $(kernel_source)/include
+	
 
 	# Hack to get include/asm-arm/arch directory.  This should
 	# stay here, and not move to the top-level Makefile, since
