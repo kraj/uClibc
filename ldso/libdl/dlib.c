@@ -225,6 +225,10 @@ void *_dlopen(const char *libname, int flag)
 			dl_elf_init = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
 			(*dl_elf_init) ();
 		}
+		if (tpnt->dynamic_info[DT_FINI]) {
+			atexit((void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]));
+		}
+
 	}
 
 #ifdef USE_CACHE
