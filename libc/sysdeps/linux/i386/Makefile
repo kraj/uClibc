@@ -14,7 +14,7 @@ LIBC=$(TOPDIR)libc.a
 .S.o:
 	$(CC) $(CFLAGS) -c -o $*.o $<
 
-SSRC=syscall.S
+SSRC=syscalls.S
 OBJ= setjmp.o longjmp.o readdir.o _start.o _exit.o #select.o 
 include makefile.objs
 
