@@ -17,12 +17,11 @@ You should have received a copy of the GNU Lesser General Public
 License along with uClibc; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
 USA.  */
-	
-/* Define the __set_errno macro as nothing so that INLINE_SYSCALL
- * won't set errno, which is important since we make system calls
- * before the errno symbol is dynamicly linked. */
 
-#define __set_errno(X) {(void)(X);}
+/* We can't use the real errno in ldso, since it has not yet
+ * been dynamicly linked in yet. */
+extern int _dl_errno;
+#define __set_errno(X) {(_dl_errno) = (X);}
 #include "sys/syscall.h"
 #include <sys/mman.h>
 

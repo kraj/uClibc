@@ -46,6 +46,7 @@ unsigned char *_dl_mmap_zero   = 0;		/* Also used by _dl_malloc */
 unsigned long *_dl_brkp        = 0;		/* The end of the data segment for brk and sbrk */
 unsigned long *_dl_envp        = 0;		/* The environment address */
 int _dl_secure                 = 1;		/* Are we dealing with setuid stuff? */
+int _dl_errno                  = 0;     /* We can't use the real errno in ldso */
 size_t _dl_pagesize            = 0;		/* Store the page size for use later */
 
 

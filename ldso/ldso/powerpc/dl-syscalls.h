@@ -19,6 +19,11 @@
 #define __NR_stat		106
 #define __NR_mprotect		125
 
+
+/* We can't use the real errno in ldso, since it has not yet
+ * been dynamicly linked in yet. */
+extern int _dl_errno;
+
 /* Here are the macros which define how this platform makes
  * system calls.  This particular variant does _not_ set 
  * errno (note how it is disabled in __syscall_return) since
@@ -27,7 +32,7 @@
 
 #undef __syscall_return
 #define __syscall_return(type) \
-	return (__sc_err & 0x10000000 ? /*errno = __sc_ret,*/ __sc_ret = -1 : 0), \
+	return (__sc_err & 0x10000000 ? _dl_errno = __sc_ret, __sc_ret = -1 : 0), \
 	       (type) __sc_ret
 
 #undef __syscall_clobbers

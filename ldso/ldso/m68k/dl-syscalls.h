@@ -18,6 +18,9 @@
 #define __NR_stat		106
 #define __NR_mprotect		125
 
+/* We can't use the real errno in ldso, since it has not yet
+ * been dynamicly linked in yet. */
+extern int _dl_errno;
 
 /* Here are the macros which define how this platform makes
  * system calls.  This particular variant does _not_ set 
@@ -31,8 +34,8 @@ do { \
 	if ((unsigned long)(res) >= (unsigned long)(-125)) { \
 	/* avoid using res which is declared to be in register d0; \
 	   errno might expand to a function call and clobber it.  */ \
-		/* int __err = -(res); \
-		errno = __err; */ \
+		int __err = -(res); \
+		_dl_errno = __err; \
 		res = -1; \
 	} \
 	return (type) (res); \
@@ -48,8 +51,8 @@ type name(void)								\
 			: "=g" (__res)					\
 			: "i" (__NR_##name)				\
 			: "cc", "%d0");					\
-  if ((unsigned long)(__res) >= (unsigned long)(-125)) {			\
-    /* errno = -__res; */							\
+  if ((unsigned long)(__res) >= (unsigned long)(-125)) {		\
+    _dl_errno = -__res; 						\
     __res = -1;								\
   }									\
   return (type)__res;							\
@@ -67,8 +70,8 @@ type name(atype a)							\
 			: "i" (__NR_##name),				\
 			  "g" ((long)a)					\
 			: "cc", "%d0", "%d1");				\
-  if ((unsigned long)(__res) >= (unsigned long)(-125)) {			\
-    /* errno = -__res; */							\
+  if ((unsigned long)(__res) >= (unsigned long)(-125)) {		\
+    _dl_errno = -__res; 						\
     __res = -1;								\
   }									\
   return (type)__res;							\
@@ -88,8 +91,8 @@ type name(atype a, btype b)						\
 			  "a" ((long)a),				\
 			  "g" ((long)b)					\
 			: "cc", "%d0", "%d1", "%d2");			\
-  if ((unsigned long)(__res) >= (unsigned long)(-125)) {			\
-    /* errno = -__res; */							\
+  if ((unsigned long)(__res) >= (unsigned long)(-125)) {		\
+    _dl_errno = -__res; 						\
     __res = -1;								\
   }									\
   return (type)__res;							\
@@ -111,8 +114,8 @@ type name(atype a, btype b, ctype c)					\
 			  "a" ((long)b),				\
 			  "g" ((long)c)					\
 			: "cc", "%d0", "%d1", "%d2", "%d3");		\
-  if ((unsigned long)(__res) >= (unsigned long)(-125)) {			\
-    /* errno = -__res; */							\
+  if ((unsigned long)(__res) >= (unsigned long)(-125)) {		\
+    _dl_errno = -__res; 						\
     __res = -1;								\
   }									\
   return (type)__res;							\
@@ -137,8 +140,8 @@ type name(atype a, btype b, ctype c, dtype d)				\
 			  "g" ((long)d)					\
 			: "cc", "%d0", "%d1", "%d2", "%d3",		\
 			  "%d4");					\
-  if ((unsigned long)(__res) >= (unsigned long)(-125)) {			\
-    /* errno = -__res; */							\
+  if ((unsigned long)(__res) >= (unsigned long)(-125)) {		\
+    _dl_errno = -__res; 						\
     __res = -1;								\
   }									\
   return (type)__res;							\
@@ -165,8 +168,8 @@ type name(atype a, btype b, ctype c, dtype d, etype e)			\
 			  "g" ((long)e)					\
 			: "cc", "%d0", "%d1", "%d2", "%d3",		\
 			  "%d4", "%d5");				\
-  if ((unsigned long)(__res) >= (unsigned long)(-125)) {			\
-    /* errno = -__res; */							\
+  if ((unsigned long)(__res) >= (unsigned long)(-125)) {		\
+    _dl_errno = -__res; 						\
     __res = -1;								\
   }									\
   return (type)__res;							\

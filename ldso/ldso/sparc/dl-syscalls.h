@@ -19,6 +19,10 @@
 #define __NR_stat		 38
 #define __NR_mprotect		 74
 
+/* We can't use the real errno in ldso, since it has not yet
+ * been dynamicly linked in yet. */
+extern int _dl_errno;
+
 /* Here are the macros which define how this platform makes
  * system calls.  This particular variant does _not_ set 
  * errno (note how it is disabled in __syscall_return) since
@@ -40,7 +44,7 @@ __asm__ __volatile__ ("t 0x10\n\t" \
 		      : "o0", "cc"); \
 if (__res < -255 || __res >= 0) \
     return (type) __res; \
-/*errno = -__res; */\
+_dl_errno = -__res; \
 return -1; \
 }
 
@@ -60,7 +64,7 @@ __asm__ __volatile__ ("t 0x10\n\t" \
 		      : "cc"); \
 if (__res < -255 || __res >= 0) \
 	return (type) __res; \
-/*errno = -__res;*/ \
+_dl_errno = -__res; \
 return -1; \
 }
 
@@ -81,7 +85,7 @@ __asm__ __volatile__ ("t 0x10\n\t" \
 		      : "cc"); \
 if (__res < -255 || __res >= 0) \
 	return (type) __res; \
-/*errno = -__res;*/ \
+_dl_errno = -__res; \
 return -1; \
 }
 
@@ -103,7 +107,7 @@ __asm__ __volatile__ ("t 0x10\n\t" \
 		      : "cc"); \
 if (__res < -255 || __res>=0) \
 	return (type) __res; \
-/*errno = -__res;*/ \
+_dl_errno = -__res; \
 return -1; \
 }
 
@@ -126,7 +130,7 @@ __asm__ __volatile__ ("t 0x10\n\t" \
 		      : "cc"); \
 if (__res < -255 || __res>=0) \
 	return (type) __res; \
-/*errno = -__res;*/ \
+_dl_errno = -__res; \
 return -1; \
 } 
 
@@ -151,6 +155,6 @@ __asm__ __volatile__ ("t 0x10\n\t" \
 		      : "cc"); \
 if (__res < -255 || __res>=0) \
 	return (type) __res; \
-/*errno = -__res; */\
+_dl_errno = -__res; \
 return -1; \
 }
