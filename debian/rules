@@ -23,8 +23,24 @@ with_shared_libs=y
 #with_shared_libs=n
 #endif
 
+ifeq ($(with_shared_libs),y)
+shared_libs_true=true
+else
+shared_libs_true=false
+endif
+
 ifneq ($(target),$(DEB_HOST_GNU_CPU))
 target_suffix=-$(target)
+endif
+
+ifneq ($(target),mipsel)
+config_orig = extra/Configs/Config.$(target)
+else
+config_orig = extra/Configs/Config.mips
+endif
+
+ifneq ($(target),$(DEB_HOST_GNU_CPU))
+cross_options = --cross="$(target)-linux-"
 endif
 
 p_dev=libuclibc-dev$(target_suffix)
@@ -56,12 +72,24 @@ build-stamp: debian/control
 	
 	touch $(kernel_source)/include/linux/autoconf.h
 
-ifneq ($(target),mipsel)
-	cp extra/Configs/Config.$(target) Config
-else
-	cp extra/Configs/Config.mips Config
-endif
+	extra/Configs/uClibc_config_fix.pl \
+		--arch=$(target) \
+		$(cross_options) \
+		--devel_prefix=/usr/$(target)-linux-uclibc \
+		--kernel_dir=`pwd`/$(kernel_source) \
+		--large_file=true \
+		--rpc_support=true \
+		--c99_math=true \
+		--threads=true \
+		--long_long=true \
+		--float=true \
+		--shadow=true \
+		--ldso_path="/lib" \
+		--shared_support=$(shared_libs_true) \
+		--file=$(config_orig) \
+		>Config
 
+ifeq (yes,no)
 	echo '#Debian configuration overrides'  >>Config
 ifneq ($(target),$(DEB_HOST_GNU_CPU))
 	echo 'TARGET_ARCH = $(target)'  >>Config
@@ -85,6 +113,7 @@ endif
 	echo 'DO_C99_MATH = true' >>Config
 	echo 'DODEBUG = false' >>Config
 	echo 'INCLUDE_THREADS = true' >>Config
+endif
 
 	mkdir -p lib
 
