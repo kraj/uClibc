@@ -70,6 +70,7 @@ _start:
 	addi	r5,r5,1
 	rlwinm	r5,r5,2,0,29
 	add	r5,r5,r4
+	mr	r8,r7 /* Pass _dl_fini from ldso */
 	/* Ok, now run uClibc's main() -- shouldn't return */
 #if (defined L_crt1 || defined L_Scrt1) && defined __UCLIBC_CTOR_DTOR__
 # ifdef L_Scrt1
