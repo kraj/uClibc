@@ -70,12 +70,12 @@ clnt_create(hostname, prog, vers, proto)
 		rpc_createerr.cf_error.re_errno = EAFNOSUPPORT; 
 		return (NULL);
 	}
-#ifdef linux
+#ifdef __linux__
 	bzero((char *) &sin, sizeof(sin));
 #endif
 	sin.sin_family = h->h_addrtype;
 	sin.sin_port = 0;
-#ifndef linux
+#ifndef __linux__
 	bzero(sin.sin_zero, sizeof(sin.sin_zero));
 #endif
 	bcopy(h->h_addr, (char*)&sin.sin_addr, h->h_length);

@@ -4,13 +4,10 @@
 # Copyright (C) 1999      D. Jeff Dionne <jeff@rt-control.com>
 # under the GNU Library General Public License.
 
+TOPDIR=../
+include Rules.make
+
 LIBC=../libc.a
-
-CC=$(CROSS)gcc
-AR=$(CROSS)ar
-RANLIB=$(CROSS)ranlib
-
-CCFLAGS= -O2 $(CPUFLAGS) -fno-builtin -I../include
 
 ASRC=addr.c
 AOBJ=inet_aton.o inet_addr.o inet_ntoa.o
@@ -23,8 +20,6 @@ opennameservers.o closenameservers.o resolvename.o gethostbyname.o\
 gethostbyaddr.o
 
 OBJ=$(AOBJ) $(ROBJ)
-
-CFLAGS=$(ARCH) $(CCFLAGS) $(DEFS)
 
 all: $(LIBC)
 	@$(RM) $(OBJ)

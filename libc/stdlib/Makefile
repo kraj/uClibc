@@ -2,13 +2,10 @@
 # This file is part of the Linux-8086 C library and is distributed
 # under the GNU Library General Public License.
 
+TOPDIR=../
+include $(TOPDIR)Rules.make
+
 LIBC=../libc.a
-
-CC=$(CROSS)gcc
-AR=$(CROSS)ar
-RANLIB=$(CROSS)ranlib
-
-CCFLAGS= -O2 $(CPUFLAGS) -fno-builtin -I../include
 
 MSRC=aliases.c
 MOBJ=abs.o remove.o creat.o bcopy.o bzero.o
@@ -32,8 +29,6 @@ OBJ=$(MOBJ) $(EOBJ) $(GOBJ) $(UOBJ)
 #ifneq ($(LIB_CPU),i86)
 #OBJ+=strtod.o
 #endif
-
-CFLAGS=$(ARCH) $(CCFLAGS) $(DEFS)
 
 all: $(LIBC)
 	@$(RM) $(OBJ)

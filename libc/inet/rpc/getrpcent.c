@@ -60,7 +60,7 @@ struct rpcdata {
 static	struct rpcent *interpret();
 struct	hostent *gethostent();
 char	*inet_ntoa();
-#ifndef linux
+#ifndef __linux__
 static	char *index();
 #else
 char *index();
@@ -102,7 +102,7 @@ getrpcbynumber(number)
 }
 
 struct rpcent *
-#ifdef linux
+#ifdef __linux__
 getrpcbyname(const char *name)
 #else
 getrpcbyname(name)
@@ -125,7 +125,7 @@ getrpcbyname(name)
 	return (NULL);
 }
 
-#ifdef linux
+#ifdef __linux__
 void
 #endif
 setrpcent(f)
@@ -145,7 +145,7 @@ setrpcent(f)
 	d->stayopen |= f;
 }
 
-#ifdef linux
+#ifdef __linux__
 void
 #endif
 endrpcent()
@@ -182,7 +182,7 @@ getrpcent()
 	return interpret(d->line, strlen(d->line));
 }
 
-#ifdef linux
+#ifdef __linux__
 static char *
 firstwhite(s)
 char *s;
@@ -224,7 +224,7 @@ interpret(val, len)
 			return (getrpcent());
 	}
 	*cp = '\0';
-#ifdef linux
+#ifdef __linux__
 	if ((cp = firstwhite(p)))
 		*cp++ = 0;
 	else
@@ -245,7 +245,7 @@ interpret(val, len)
 		cp++;
 	d->rpc.r_number = atoi(cp);
 	q = d->rpc.r_aliases = d->rpc_aliases;
-#ifdef linux
+#ifdef __linux__
 	if ((cp = firstwhite(cp)))
 		*cp++ = '\0';
 #else
@@ -266,7 +266,7 @@ interpret(val, len)
 		}
 		if (q < &(d->rpc_aliases[MAXALIASES - 1]))
 			*q++ = cp;
-#ifdef linux
+#ifdef __linux__
 		if ((cp = firstwhite(cp)))
 			*cp++ = '\0';
 #else

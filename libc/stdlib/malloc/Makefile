@@ -2,14 +2,10 @@
 # This file is part of the Linux-8086 C library and is distributed
 # under the GNU Library General Public License.
 
+TOPDIR=../
+include Rules.make
+
 LIBC=../libc.a
-
-CC=$(CROSS)gcc
-AR=$(CROSS)ar
-RANLIB=$(CROSS)ranlib
-
-CCFLAGS= -O2 $(CPUFLAGS) -I../include
-
 
 MSRC=alloc.c
 MOBJ=malloc.o free.o calloc.o malloc_dbg.o free_dbg.o calloc_dbg.o

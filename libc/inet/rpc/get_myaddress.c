@@ -47,7 +47,7 @@ static char sccsid[] = "@(#)get_myaddress.c 1.4 87/08/11 Copyr 1984 Sun Micro";
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-#ifdef linux
+#ifdef __linux__
 /* DO use gethostbyname because it's portable */
 #include <netdb.h>
 get_myaddress(addr)

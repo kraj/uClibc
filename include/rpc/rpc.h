@@ -37,7 +37,7 @@
 #ifndef __RPC_HEADER__
 #define __RPC_HEADER__
 
-#ifdef linux
+#ifdef __linux__
 #include <sys/time.h>
 #endif
 

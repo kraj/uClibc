@@ -59,6 +59,6 @@ crt: dummy
 dummy:
 
 clean:
-	-rm `find -name \*.[oa]` `find -name \*~` core
+	-rm -f `find -name \*.[oa]` `find -name \*~` core
 	-rm include/asm include/net include/linux
 

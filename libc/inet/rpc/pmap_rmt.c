@@ -164,7 +164,7 @@ getbroadcastnets(addrs, sock, buf)
 	int sock;  /* any valid socket will do */
 	char *buf;  /* why allocxate more when we can use existing... */
 {
-#ifdef linux
+#ifdef __linux__
 	struct sockaddr_in addr;
 
 	get_myaddress(&addr);

@@ -2,13 +2,10 @@
 # This file is part of the Linux-8086 C library and is distributed
 # under the GNU Library General Public License.
 
+TOPDIR=../
+include $(TOPDIR)Rules.make
+
 LIBC=../libc.a
-
-CC=$(CROSS)gcc
-AR=$(CROSS)ar
-RANLIB=$(CROSS)ranlib
-
-CCFLAGS= -O2 $(CPUFLAGS) -I../include
 
 SSRC=string.c
 SOBJ=strlen.o strcat.o strcpy.o strcmp.o strncat.o strncpy.o strncmp.o	\
@@ -17,8 +14,6 @@ SOBJ=strlen.o strcat.o strcpy.o strcmp.o strncat.o strncpy.o strncmp.o	\
 
 OBJ=$(SOBJ) strpbrk.o strsep.o strstr.o strtok.o strcspn.o	\
     strspn.o strcasecmp.o strncasecmp.o config.o
-
-CFLAGS=$(ARCH) $(CCFLAGS) $(DEFS)
 
 all: $(LIBC)
 	@$(RM) $(OBJ)

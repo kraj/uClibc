@@ -1,8 +1,5 @@
-CC=$(CROSS)gcc
-AR=$(CROSS)ar
-RANLIB=$(CROSS)ranlib
-
-CFLAGS= -O2 -fomit-frame-pointer -Dlinux -I../include
+TOPDIR=../
+include $(TOPDIR)Rules.make
 
 OBJS = auth_none.o auth_unix.o authunix_prot.o \
 	bindresvport.o clnt_generic.o clnt_perror.o \

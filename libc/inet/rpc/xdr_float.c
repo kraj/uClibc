@@ -51,7 +51,7 @@ static char sccsid[] = "@(#)xdr_float.c 1.12 87/08/11 Copyr 1984 Sun Micro";
  * This routine works on Suns (Sky / 68000's) and Vaxen.
  */
 
-#ifdef linux
+#ifdef __linux__
 /* cheat big time */
 #define sparc
 #endif

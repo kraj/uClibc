@@ -2,13 +2,10 @@
 # This file is part of the Linux-8086 C library and is distributed
 # under the GNU Library General Public License.
 
+TOPDIR=../
+include $(TOPDIR)Rules.make
+
 LIBC=../libc.a
-
-CC=$(CROSS)gcc
-AR=$(CROSS)ar
-RANLIB=$(CROSS)ranlib
-
-CCFLAGS= -O2 $(CPUFLAGS) -I../include
 
 ASRC=stdio.c
 AOBJ=_stdio_init.o fputc.o fgetc.o fflush.o fgets.o gets.o fputs.o	\
@@ -22,8 +19,6 @@ SSRC=scanf.c
 SOBJ=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
 
 OBJ= $(AOBJ) $(POBJ) $(SOBJ) dputs.o
-
-CFLAGS=$(ARCH) $(CCFLAGS) $(DEFS)
 
 all: $(LIBC)
 	@$(RM) $(OBJ)

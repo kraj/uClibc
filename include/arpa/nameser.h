@@ -77,7 +77,7 @@
 
 /*
  *      @(#)nameser.h	8.1 (Berkeley) 6/2/93
- *	$Id: nameser.h,v 1.1 2000/05/14 04:16:36 erik Exp $
+ *	$Id: nameser.h,v 1.2 2000/05/14 06:07:30 erik Exp $
  */
 
 #ifndef _NAMESER_H_
@@ -258,7 +258,7 @@
 #if (BSD >= 199103)
 # include <machine/endian.h>
 #else
-#ifdef linux
+#ifdef __linux__
 # include <endian.h>
 #else
 #define LITTLE_ENDIAN	1234	/* least-significant byte first (vax, pc) */
@@ -280,7 +280,7 @@
     defined (BIT_ZERO_ON_LEFT) || defined(m68k)
 #define BYTE_ORDER	BIG_ENDIAN
 #endif
-#endif /* linux */
+#endif /* __linux__ */
 #endif /* BSD */
 #endif /* BYTE_ORDER */
 

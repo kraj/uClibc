@@ -44,7 +44,7 @@ static char sccsid[] = "@(#)svc.c 1.41 87/10/13 Copyr 1984 Sun Micro";
 #include <sys/errno.h>
 #include <rpc/rpc.h>
 #include <rpc/pmap_clnt.h>
-#ifdef linux
+#ifdef __linux__
 #include <sys/types.h>
 #endif
 
@@ -375,7 +375,7 @@ svc_getreq(rdfds)
 	fd_set readfds;
 
 	FD_ZERO(&readfds);
-/*#ifdef linux*/
+/*#ifdef __linux__*/
 #if 0
 	readfds = rdfds;
 #else
@@ -419,7 +419,7 @@ svc_getreqset(readfds)
 
 #ifdef FD_SETSIZE
 	setsize = _rpc_dtablesize();	
-#ifdef linux
+#ifdef __linux__
 /*#define NFDBITS	32*/
 	maskp = (u_long *)readfds;
 #else
