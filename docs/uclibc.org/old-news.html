@@ -54,6 +54,95 @@
     
 
     <p>
+    <li> <b>27 August 2002, uClibc 0.9.15 Released</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate availability 
+    of uClibc 0.9.15.  This release fixes a number of problems that turned 
+    up since the last release.   The good news is that uClibc now 
+    passes all tests in the perl 5.8 and Python 2.2.1 test suites, both with
+    and without pthreads.  So without any further ado....
+    <p>
+    The 
+    <a href="http://www.us.kernel.org/pub/linux/libs/uclibc/Changelog">Changelog</a>
+    and <a href="http://www.us.kernel.org/pub/linux/libs/uclibc/uClibc-0.9.15.tar.bz2">source code</a> 
+    for this release are available <a href="http://www.us.kernel.org/pub/linux/libs/uclibc/">here</a>.
+    <p>
+    Have fun!
+    <p>
+    
+
+    <p>
+    <li> <b>12 August 2002, uClibc 0.9.14 Released</b>
+    <br>
+
+    CodePoet Consulting is slightly less pleased then usual to announce the
+    immediate availability of uClibc 0.9.14.  This is, unfortunately, a bugfix
+    release intended to fix the couple of dumb things that slipped into the
+    previous release.  Version 0.9.13 of uClibc would fail to compile when
+    enabling both RPC and Pthreads.  There was also a problem with RPC thread
+    local storage (but noone noticed since it didn't compile ;-).  Also, the
+    thread locking in exit(), onexit() and atexit() was broken, and wasn't
+    actually locking anything.   This release also fixes uClibc's gcc wrapper
+    to use crtbeginS.o and crtendS.o when compiling PIC code, fixing a subtle
+    bug (that was much less subtle on powerpc).  Finally, this release includes a
+    few minor compile warning cleanups.
+    <p>
+    The 
+    <a href="http://www.us.kernel.org/pub/linux/libs/uclibc/Changelog">Changelog</a>
+    and <a href="http://www.us.kernel.org/pub/linux/libs/uclibc/uClibc-0.9.14.tar.bz2">source code</a> 
+    for this release are available <a href="http://www.us.kernel.org/pub/linux/libs/uclibc/">here</a>.
+    <p>
+    Have fun!
+    <p>
+    
+
+    <li> <b>12 August 2002, Native uClibc/gcc-3.1.1 toolchain released</b>
+    <br>
+
+    CodePoet Consulting (i.e. Erik) has released an updated native
+    uClibc/gcc-3.1.1 toolchain.   This toolchain builds a real gcc cross
+    compiler (i.e. not just a wrapper) and creates executables linked vs
+    uClibc.  This toolchain has been (briefly) tested as working on x86, arm,
+    mips, and arm7tdmi (uClinux).  This toolchain provides a number of
+    improvements over previous releases.   In particular, Steven J. Hill found
+    and fixes a number of "glibc-isms" in the libstdc++ math support which
+    caused a number of math functions to be mapped to the non-standard named
+    under GNU libc.   This release also includes greatly improved uClinux
+    "elf2flt" support, and it now produces working flat binaries for my
+    uClinux/arm7tdmi system.  The native uClibc/gcc-2.95 toolchain will be
+    updated in a few days, and will include STLport which will allow that
+    toolchain to also provide full C++ support.
+    <p>
+
+    This toolchain should make it easy for anyone to build uClibc based 
+    applications.  <a href="http://www.us.kernel.org/pub/linux/libs/uclibc/toolchain/">
+    Source code can be downloaded here</a>. 
+    Be aware that much of the needed source code will actually be downloaded on
+    demand when you compile things.  To build the toolchain, simply
+    grab the source, edit the Makefile to select where you would like
+    the toolchain installed, run 'make', and then go watch TV, eat
+    dinner, or visit with your friends while it compiles.  It takes
+    about 15 minutes for Erik to compile the gcc-3.1.1 toolchain (w/C++ support)
+    on his Athlon XP 1600 (not counting the time it takes to download
+    source code).  Your results may vary...
+    <p>
+
+    <li> <b>9 August 2002, uClibc now mirrored on kernel.org!</b>
+    <br>
+    uClibc is now available from the kernel.org mirrors!  This should make
+    uClibc downloads much faster.  The kernel.org mirrors will have all 
+    uClibc release versions (everything but the daily snapshots).
+    Here is a list of all the <a href="http://kernel.org/mirrors/">kernel.org mirror sites</a>.
+    Just pick the closest mirror site, and then go to "/pub/linux/libs/uclibc/"
+    to download uClibc.  For example, is you live the USA, you can go to
+    <a href="http://www.us.kernel.org/pub/linux/libs/uclibc/">
+    http://www.us.kernel.org/pub/linux/libs/uclibc/</a> to download the latest 
+    uClibc release from a nice fast system.
+    <p>
+    <p>
+
+    <p>
     <li> <b>9 August 2002, uClibc 0.9.13 Released</b>
     <br>
 

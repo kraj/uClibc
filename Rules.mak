@@ -52,7 +52,7 @@ NATIVE_CFLAGS=-O2 -Wall
 # this stuff alone.
 MAJOR_VERSION:=0
 MINOR_VERSION:=9
-SUBLEVEL:=15
+SUBLEVEL:=16
 VERSION:=$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 # Ensure consistent filename sort order
 LC_COLLATE:= C

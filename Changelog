@@ -1,3 +1,26 @@
+0.9.16	8 November 2002
+
+See Changelog.full for the complete list of who did what. 
+
+Release highlights:
+    o   CRIS architecture and shared library support from Tobias Anderberg 
+    o   New uClibc configuration system
+    o   shared library global constructors and destructors initialization
+	ordering fixed by Stefan Allius
+    o   More SuperH architecture fixes from Stefan Allius 
+    o   uClibc now compiles with newer versions of gcc (i.e. RedHat 8.0)
+    o   uClibc no longer requires perl to compile
+    o   mips dlopen was fixed by Steven J. Hill
+    o   pty and tty handling fixes
+    o   Manuel Novoa added support for a new /etc/TZ file for globally
+	setting the system timezone.
+    o   Manuel also fixed up a number of remaining wide char issues. 
+    o   Lots of other little bug fixes and cleanups
+
+ -Erik
+
+
+
 0.9.15	27 August 2002
 
 This is a minor bugfix release.
