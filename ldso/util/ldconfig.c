@@ -34,7 +34,7 @@
 #include <unistd.h>
 #include <link.h>
 #include <fcntl.h>
-#include <err.h>
+//#include <err.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -97,6 +97,56 @@ void cache_print(void);
 void cache_dolib(const char *dir, const char *so, int libtype);
 void cache_write(void);
 
+/* These two are used internally -- you shouldn't need to use them */
+static void verror_msg(const char *s, va_list p)
+{
+	fflush(stdout);
+	fprintf(stderr, "%s: ", prog);
+	vfprintf(stderr, s, p);
+}
+
+extern void warnx(const char *s, ...)
+{
+	va_list p;
+
+	va_start(p, s);
+	verror_msg(s, p);
+	va_end(p);
+	fprintf(stderr, "\n");
+}
+
+extern void err(int errnum, const char *s, ...)
+{
+	va_list p;
+
+	va_start(p, s);
+	verror_msg(s, p);
+	va_end(p);
+	fprintf(stderr, "\n");
+	exit(errnum);
+}
+
+static void vperror_msg(const char *s, va_list p)
+{
+	int err = errno;
+
+	if (s == 0)
+		s = "";
+	verror_msg(s, p);
+	if (*s)
+		s = ": ";
+	fprintf(stderr, "%s%s\n", s, strerror(err));
+}
+
+extern void warn(const char *s, ...)
+{
+	va_list p;
+
+	va_start(p, s);
+	vperror_msg(s, p);
+	va_end(p);
+}
+
 void *xmalloc(size_t size)
 {
     void *ptr;
@@ -155,9 +205,9 @@ char *is_shlib(const char *dir, const char *name, int *type,
 
 	/* first, make sure it's a regular file */
 	if (lstat(buff, &statbuf))
-	    warn("can't lstat %s (%s), skipping", buff, strerror(errno));
+	    warn("skipping %s", buff);
 	else if (!S_ISREG(statbuf.st_mode) && !S_ISLNK(statbuf.st_mode))
-	    warn("%s is not a regular file or symlink, skipping", buff);
+	    warnx("%s is not a regular file or symlink, skipping", buff);
 	else
 	{
 	    /* is it a regular file or a symlink */
@@ -165,12 +215,12 @@ char *is_shlib(const char *dir, const char *name, int *type,
 
 	    /* then try opening it */
 	    if (!(file = fopen(buff, "rb")))
-		warn("can't open %s (%s), skipping", buff, strerror(errno));
+		warn("skipping %s", buff);
 	    else
 	    {
 		/* now make sure it's a shared library */
 		if (fread(&exec, sizeof exec, 1, file) < 1)
-		    warn("can't read header from %s, skipping", buff);
+		    warnx("can't read header from %s, skipping", buff);
 		else if (N_MAGIC(exec) != ZMAGIC && N_MAGIC(exec) != QMAGIC)
 		{
 		    elf_hdr = (ElfW(Ehdr) *) &exec;
@@ -179,13 +229,13 @@ char *is_shlib(const char *dir, const char *name, int *type,
 		    {
 			/* silently ignore linker scripts */
 			if (strncmp((char *)&exec, "/* GNU ld", 9) != 0)
-			    warn("%s is not a shared library, skipping", buff);
+			    warnx("%s is not a shared library, skipping", buff);
 		    }
 		    else
 		    {
 			/* always call readsoname to update type */
 			if(expected_type == LIB_DLL) {
-			    warn("%s is not an a.out library, its ELF!\n", buff);
+			    warnx("%s is not an a.out library, its ELF!\n", buff);
 			    expected_type=LIB_ANY;
 			}
 			*type = LIB_ELF;
@@ -204,8 +254,7 @@ char *is_shlib(const char *dir, const char *name, int *type,
 			    int len = strlen(good);
 			    if (debug && (strncmp(good, name, len) != 0 ||
 					(name[len] != '\0' && name[len] != '.')))
-				warn("%s has inconsistent soname (%s)",
-					buff, good);
+				warnx("%s has inconsistent soname (%s)", buff, good);
 			}
 		    }
 		}
@@ -221,7 +270,7 @@ char *is_shlib(const char *dir, const char *name, int *type,
 		    }
 		    if(expected_type != LIB_ANY && expected_type != LIB_DLL)
 		    {
-			warn("%s is not an ELF library, its an a.out DLL!", buff);
+			warnx("%s is not an ELF library, its an a.out DLL!", buff);
 			expected_type=LIB_ANY;
 		    }
 
@@ -253,7 +302,7 @@ void link_shlib(const char *dir, const char *file, const char *so)
     {
 	/* now see if it's the one we want */
 	if (stat(libname, &libstat))
-	    warn("can't stat %s (%s)", libname, strerror(errno));
+	    warn("can't stat %s", libname);
 	else if (libstat.st_dev == linkstat.st_dev &&
 		libstat.st_ino == linkstat.st_ino)
 	    change = 0;
@@ -266,12 +315,12 @@ void link_shlib(const char *dir, const char *file, const char *so)
 	{
 	    if (!S_ISLNK(linkstat.st_mode))
 	    {
-		warn("%s is not a symlink", linkname);
+		warnx("%s is not a symlink", linkname);
 		change = -1;
 	    }
 	    else if (remove(linkname))
 	    {
-		warn("can't unlink %s (%s)", linkname, strerror(errno));
+		warn("can't unlink %s", linkname);
 		change = -1;
 	    }
 	}
@@ -279,7 +328,7 @@ void link_shlib(const char *dir, const char *file, const char *so)
 	{
 	    if (symlink(file, linkname))
 	    {
-		warn("can't link %s to %s (%s)", linkname, file, strerror(errno));
+		warn("can't link %s to %s", linkname, file);
 		change = -1;
 	    }
 	}
@@ -336,7 +385,7 @@ void scan_dir(const char *rawname)
     DIR *dir;
     const char *name;
     struct dirent *ent;
-    char *so, *t, *path, *path_n;
+    char *so, *path, *path_n;
     struct lib *lp, *libs = NULL;
     int i, libtype, islink, expected_type = LIB_ANY;
 
@@ -354,6 +403,8 @@ void scan_dir(const char *rawname)
     }
     name = path;
 
+#if 0
+    char *t;
     /* Check for an embedded expected type */
     t=strrchr(name, '=');
     if( t )
@@ -383,13 +434,14 @@ void scan_dir(const char *rawname)
 		    }
 		    else
 		    {
-			warn("Unknown type field '%s' for dir '%s' - ignored\n", t, name);
+			warnx("Unknown type field '%s' for dir '%s' - ignored\n", t, name);
 			expected_type = LIB_ANY;
 		    }
 		}
 	    }
 	}
     }
+#endif
 
     /* let 'em know what's going on */
     if (verbose > 0)
@@ -398,7 +450,8 @@ void scan_dir(const char *rawname)
     /* if we can't open it, we can't do anything */
     if ((dir = opendir(name)) == NULL)
     {
-	warn("can't open %s (%s), skipping", name, strerror(errno));
+	warn("skipping %s", name);
+	free(path);
 	return;
     }
 
@@ -468,6 +521,7 @@ void scan_dir(const char *rawname)
 	libs = lp;
     }
 
+    free(path);
     return;
 }
 
