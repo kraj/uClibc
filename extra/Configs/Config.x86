@@ -132,6 +132,9 @@ DOLFS = false
 # disabled.  This is off by default.
 INCLUDE_RPC = false
 
+# If you want to compile the library as PIC code, turn this on.
+DOPIC = false
+
 # ROOT_DIR is the base directory which will be compiled into the uClibc 
 # runtime environment.  When compiled as a shared library, the shared
 # library loader will look in <ROOT_DIR>/lib and <ROOT_DIR>/usr/lib

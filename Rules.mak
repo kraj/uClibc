@@ -45,7 +45,7 @@ endif
 
 ARFLAGS=r
 
-CCFLAGS=$(WARNINGS) $(OPTIMIZATION) -fPIC -fno-builtin -nostdinc $(CPUFLAGS) -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D_LIBC
+CCFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D_LIBC
 TARGET_CCFLAGS=--uclibc-use-build-dir $(WARNINGS) $(OPTIMIZATION) $(CPUFLAGS)
 
 CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
@@ -64,6 +64,10 @@ else
     LDFLAGS  = -s -nostdlib -Wl,-warn-common
     TARGET_LDFLAGS = --uclibc-use-build-dir -s -Wl,-warn-common
 endif
+ifeq ($(strip $(DOPIC)),true)
+    CFLAGS += -fPIC -D__PIC__
+endif
+
 
 ifndef $(PREFIX)
     PREFIX = `pwd`/_install
