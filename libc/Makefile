@@ -58,6 +58,7 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(SHARED_FULLNAME)
 	install -m 644 $(SHARED_FULLNAME) $(TOPDIR)lib
+	(cd ../lib; ln -sf $(SHARED_FULLNAME) libc.so);
 	(cd ../lib; ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME));
 
 
