@@ -1108,6 +1108,13 @@ _syscall1(pid_t, getsid, pid_t, pid);
 #endif
 
 //#define __NR_fdatasync        148
+#ifdef __NR_fdatasync
+#ifdef L_fdatasync
+#include <unistd.h>
+_syscall1(int, fdatasync, int, fd);
+#endif
+#endif
+
 //#define __NR__sysctl          149
 
 //#define __NR_mlock            150
