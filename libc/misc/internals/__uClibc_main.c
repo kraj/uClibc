@@ -1,6 +1,6 @@
 /*
  * Manuel Novoa III           Feb 2001
- * Erik Anderseni             Mar 2002
+ * Erik Andersen              Mar 2002
  *
  * __uClibc_main is the routine to be called by all the arch-specific
  * versions of crt0.S in uClibc.
