@@ -1,10 +1,9 @@
 #include <string.h>
 #include "dirstream.h"
 
-int alphasort(const __ptr_t __e1, const __ptr_t __e2)
+int alphasort(const void * a, const void * b)
 {
-    const struct dirent *a = __e1;
-    const struct dirent *b = __e2;
-    return (strcmp(a->d_name, b->d_name));
+    return strcmp ((*(const struct dirent **) a)->d_name,
+	    (*(const struct dirent **) b)->d_name);
 }
 
