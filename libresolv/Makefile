@@ -34,11 +34,9 @@ LIBRESOLV_SHARED_FULLNAME=libresolv-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL
 CSRC = resolv.c
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(OBJS) $(LIBRESOLV)
+all: $(LIBRESOLV)
 
-$(LIBRESOLV): ar-target
-
-ar-target: $(OBJS)
+$(LIBRESOLV) ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBRESOLV) $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBRESOLV)

@@ -23,7 +23,6 @@
 
 TOPDIR=../
 include $(TOPDIR)Rules.mak
-LIBC=$(TOPDIR)libc.a
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
@@ -37,11 +36,9 @@ ifeq ($(strip $(ARCH_HAS_MMU)),y)
 endif
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(OBJS) $(LIBC)
+all: $(LIBUTIL)
 
-$(LIBC): ar-target
-
-ar-target: $(OBJS)
+$(LIBUTIL) ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBUTIL) $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBUTIL)

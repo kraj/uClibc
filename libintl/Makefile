@@ -23,7 +23,6 @@
 
 TOPDIR=../
 include $(TOPDIR)Rules.mak
-LIBC=$(TOPDIR)libc.a
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
@@ -38,11 +37,9 @@ MOBJ= gettext.o ngettext.o  dgettext.o dcgettext.o dngettext.o dcngettext.o \
 
 OBJS=$(MOBJ)
 
-all: $(OBJS) $(LIBC)
+all: $(LIBINTL)
 
-$(LIBC): ar-target
-
-ar-target: $(OBJS)
+$(LIBINTL) ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBINTL) $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBINTL)

@@ -28,11 +28,9 @@ LIBNSL_SHARED_FULLNAME=libnsl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 CSRC = nsl.c
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(OBJS) $(LIBNSL)
+all: $(LIBNSL)
 
-$(LIBNSL): ar-target
-
-ar-target: $(OBJS)
+$(LIBNSL) ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBNSL) $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBNSL)

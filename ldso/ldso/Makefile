@@ -70,11 +70,11 @@ endif
 #This stuff will not work with -fomit-frame-pointer
 XXFLAGS := $(XXFLAGS:-fomit-frame-pointer=)
 
-all: lib
+all: $(LDSO_FULLNAME)
 
-lib:: $(OBJS) $(DLINK_OBJS)
+$(LDSO_FULLNAME): $(OBJS) $(DLINK_OBJS)
 	$(LD) $(LDFLAGS) -e _dl_boot -soname=$(UCLIBC_LDSO) \
-		-o $(LDSO_FULLNAME) $(OBJS) $(LIBGCC);
+		-o $(LDSO_FULLNAME) $(OBJS) $(LIBGCC)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(INSTALL) -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
 	$(LN) -sf $(LDSO_FULLNAME) $(TOPDIR)lib/$(UCLIBC_LDSO)

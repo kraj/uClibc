@@ -4,7 +4,6 @@
 
 TOPDIR=../
 include $(TOPDIR)Rules.mak
-LIBC=$(TOPDIR)libc.a
 
 LIBRT=librt.a
 LIBRT_SHARED=librt.so
@@ -18,11 +17,9 @@ CSRC=mq_open.c mq_close.c mq_unlink.c mq_getsetattr.c \
      timer_settime.c timer_gettime.c timer_getoverr.c
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(OBJS) $(LIBC)
+all: $(LIBRT)
 
-$(LIBC): ar-target
-
-ar-target: $(OBJS)
+$(LIBRT) ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBRT) $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBRT)

@@ -33,11 +33,9 @@ LIBCRYPT_SHARED_FULLNAME=libcrypt-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).
 CSRC = crypt.c des.c md5.c
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(OBJS) $(LIBCRYPT)
+all: $(LIBCRYPT)
 
-$(LIBCRYPT): ar-target
-
-ar-target: $(OBJS)
+$(LIBCRYPT) ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBCRYPT) $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBCRYPT)
