@@ -315,13 +315,10 @@ static int _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 		 */
 		stb = ELF32_ST_BIND(symtab[symtab_index].st_info);
 
-		if (stb == STB_GLOBAL && !symbol_addr) {
-#ifdef __SUPPORT_LD_DEBUG__
-			_dl_dprintf(2, "\tglobal symbol '%s' "
-				    "already defined in '%s'\n",
-				    symname, tpnt->libname);
-#endif
-			return 0;
+		if (stb != STB_WEAK && !symbol_addr) {
+			_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
+				     _dl_progname, strtab + symtab[symtab_index].st_name);
+			_dl_exit (1);
 		}
 	}
 
@@ -333,7 +330,8 @@ static int _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 	case R_SH_NONE:
 		break;
 	case R_SH_COPY:
-		/* handled later on */
+		_dl_memcpy((char *)reloc_addr,
+			   (char *)symbol_addr, symtab[symtab_index].st_size);
 		break;
 	case R_SH_DIR32:
 	case R_SH_GLOB_DAT:
@@ -464,7 +462,7 @@ static int _dl_do_copy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	unsigned long symbol_addr;
 	char *symname;
 	int goof = 0;
-
+	return 0; /* disable now, remove later */
 	reloc_addr = (unsigned long *)(intptr_t)
 		(tpnt->loadaddr + (unsigned long)rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);

@@ -212,11 +212,11 @@ int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 	     linking local symbols here, so all bases should be
 	     covered.  */
 	  if (!symbol_addr
-	      && ELF32_ST_BIND (symtab[symtab_index].st_info) == STB_GLOBAL)
+	      && ELF32_ST_BIND (symtab[symtab_index].st_info) != STB_WEAK)
 	    {
-	      _dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
-			    _dl_progname, strtab + symtab[symtab_index].st_name);
-	      goof++;
+			_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
+				     _dl_progname, strtab + symtab[symtab_index].st_name);
+			_dl_exit (1);
 	    }
 	}
       switch (reloc_type)
@@ -254,16 +254,9 @@ int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 			 + (rpnt->r_addend ? : *reloc_addr));
 	  break;
 	case R_68K_COPY:
-#if 0 /* Do this later.  */
-	  _dl_dprintf (2, "Doing copy");
-	  if (symtab_index)
-	    _dl_dprintf (2, " for symbol %s",
-			  strtab + symtab[symtab_index].st_name);
-	  _dl_dprintf (2, "\n");
-	  _dl_memcpy ((void *) symtab[symtab_index].st_value,
+	  _dl_memcpy ((void *) reloc_addr,
 		      (void *) symbol_addr,
 		      symtab[symtab_index].st_size);
-#endif
 	  break;
 	default:
 	  _dl_dprintf (2, "%s: can't handle reloc type ", _dl_progname);
@@ -303,7 +296,7 @@ int _dl_parse_copy_information(struct dyn_elf *xpnt,
   struct elf_resolve *tpnt;
   int symtab_index;
   /* Now parse the relocation information */
-
+  return 0; /* disable now, remove later */
   tpnt = xpnt->dyn;
 
   rpnt = (Elf32_Rela *) (rel_addr + tpnt->loadaddr);

@@ -285,8 +285,10 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		 * have been intentional.  We should not be linking local symbols
 		 * here, so all bases should be covered.
 		 */
-		if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_GLOBAL) {
-			goof++;
+		if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK) {
+			_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
+				     _dl_progname, strtab + symtab[symtab_index].st_name);
+			_dl_exit (1);
 		}
 	}
 
@@ -340,14 +342,8 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 				*reloc_addr += (unsigned long) tpnt->loadaddr;
 				break;
 			case R_ARM_COPY:
-#if 0
-				/* Do this later */
-				_dl_dprintf(2, "Doing copy for symbol ");
-				if (symtab_index) _dl_dprintf(2, strtab + symtab[symtab_index].st_name);
-				_dl_dprintf(2, "\n");
-				_dl_memcpy((void *) symtab[symtab_index].st_value,
-						(void *) symbol_addr, symtab[symtab_index].st_size);
-#endif
+				_dl_memcpy((void *) reloc_addr,
+					   (void *) symbol_addr, symtab[symtab_index].st_size);
 				break;
 			default:
 				return -1; /*call _dl_exit(1) */
@@ -412,7 +408,7 @@ _dl_do_copy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 	unsigned long *reloc_addr;
 	unsigned long symbol_addr;
 	int goof = 0;
-
+	return 0; /* disable now, remove later */
 	reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
 	if (reloc_type != R_ARM_COPY)

@@ -286,12 +286,10 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		 * here, so all bases should be covered.
 		 */
 
-		if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_GLOBAL) {
-#if defined (__SUPPORT_LD_DEBUG__)
-			_dl_dprintf(2, "\tglobal symbol '%s' already defined in '%s'\n",
-					symname, tpnt->libname);
-#endif
-			return 0;
+		if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK) {
+			_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
+				     _dl_progname, strtab + symtab[symtab_index].st_name);
+			_dl_exit (1);
 		}
 	}
 
