@@ -104,7 +104,7 @@ endif
 	fi
 	@cd $(TOPDIR); \
 	set -x -e; \
-	TOPDIR=. CC="$(HOSTCC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
+	TOPDIR=. CC="$(CC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
 	if cmp include/bits/sysnum.h include/bits/sysnum.h.new >/dev/null 2>&1; then \
 		$(RM) include/bits/sysnum.h.new; \
 	else \
@@ -112,7 +112,6 @@ endif
 	fi
 	$(MAKE) -C libc/sysdeps/linux/common headers
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
-	touch headers
 
 # Command used to download source code
 WGET:=wget --passive-ftp
