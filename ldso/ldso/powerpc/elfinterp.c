@@ -231,14 +231,14 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	}else{
 		/* Warning: we don't handle double-sized PLT entries */
 		unsigned long plt_addr;
-		unsigned long lbranch_addr;
 		unsigned long *ptr;
 		int index;
 
 		plt_addr = (unsigned long)tpnt->dynamic_info[DT_PLTGOT] + 
 			(unsigned long)tpnt->loadaddr;
-		lbranch_addr = plt_addr + PLT_LONGBRANCH_ENTRY_WORDS*4;
-		delta = lbranch_addr - insn_addr;
+
+		delta = PLT_LONGBRANCH_ENTRY_WORDS*4 - (insn_addr-plt_addr+4);
+
 		index = (insn_addr - plt_addr - PLT_INITIAL_ENTRY_WORDS*4)/8;
 
 		ptr = (unsigned long *)tpnt->data_words;
@@ -426,7 +426,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	if (symtab_index) {
 
 		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, 
-				(reloc_type == R_386_JMP_SLOT ? tpnt : NULL), symbolrel);
+				(reloc_type == R_PPC_JMP_SLOT ? tpnt : NULL), symbolrel);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -495,10 +495,10 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 						{
 							int delta;
 							int index;
-							unsigned long *plt;
+							unsigned long *plt, *ptr;
 							plt = (unsigned long *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
 
-							delta = (unsigned long)(plt+PLT_TRAMPOLINE_ENTRY_WORDS+2)
+							delta = (unsigned long)(plt+PLT_LONGBRANCH_ENTRY_WORDS)
 								- (unsigned long)(reloc_addr+1);
 
 							index = ((unsigned long)reloc_addr -
@@ -506,6 +506,8 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 								/sizeof(unsigned long);
 							index /= 2;
 							//DPRINTF("        index %x delta %x\n",index,delta);
+							ptr = (unsigned long *)tpnt->data_words;
+							ptr[index] = targ_addr;
 							reloc_addr[0] = OPCODE_LI(11,index*4);
 							reloc_addr[1] = OPCODE_B(delta);
 
@@ -570,7 +572,7 @@ _dl_do_copy (struct elf_resolve *tpnt, struct dyn_elf *scope,
 	  
 	reloc_addr = (unsigned long *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
-	if (reloc_type != R_386_COPY) 
+	if (reloc_type != R_PPC_COPY) 
 		return 0;
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr = 0;
