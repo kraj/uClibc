@@ -15,6 +15,12 @@ TODO list for the uClibc 0.9.27 release:
 TODO list for the uClibc 1.0.0 release:
 -------------------------------------------------
 
+    *) Explicity add some sortof CONFIG_LINUX_2_2_ABI, CONFIG_LINUX_2_4_ABI
+	and CONFIG_LINUX_2_6_ABI type options, rather than having the abi
+	depend on the selected set of kernel headers.  This will likely also
+	require that we provide a set of kernel headers (probably a derivitive
+	of Mazur's linux-libc-headers) that can supplies the 2.2, 2.4, and 2.6
+	kernel abi.
     *) Documentation updates:
 	    *) Write a uClibc HOWTO document
 	    *) Update README document
