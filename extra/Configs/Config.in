@@ -1215,6 +1215,14 @@ endmenu
 
 menu "uClibc development/debugging options"
 
+config CROSS_COMPILE
+	string "Cross-compiling toolchain prefix"
+	default ""
+	help
+	  The prefix used to execute your cross-compiling toolchain.  For 
+	  example, if you run 'arm-linux-uclibc-gcc' to compile something, 
+	  then enter 'arm-linux-uclibc-' here.
+
 config DODEBUG
 	bool "Build uClibc with debugging symbols"
 	default n

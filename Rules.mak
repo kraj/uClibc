@@ -84,6 +84,10 @@ ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 -include $(TOPDIR).config
 endif
 
+ifndef CROSS
+CROSS=$(subst ",, $(strip $(CROSS_COMPILE)))
+endif
+
 # A nifty macro to make testing gcc features easier
 check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; else echo "$(2)"; fi)
