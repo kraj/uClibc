@@ -26,7 +26,7 @@ all: $(TARGETS)
 string: string.c Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Testing ctype functions: "
+	-@ echo "Compiling vs uCLibc: "
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -36,11 +36,10 @@ string: string.c Makefile $(TOPDIR)libc.a
 string_glibc: string.c Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Testing string functions: "
+	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
-	-./$@
 	-./$@
 	-@ echo " "
 

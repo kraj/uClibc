@@ -26,7 +26,7 @@ all: $(TARGETS)
 ctype: ctype.c ../testsuite.h Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Testing ctype functions: "
+	-@ echo "Compiling vs uCLibc: "
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -36,11 +36,10 @@ ctype: ctype.c ../testsuite.h Makefile $(TOPDIR)libc.a
 ctype_glibc: ctype.c ../testsuite.h Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Testing ctype functions: "
+	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
-	-./$@
 	-./$@
 	-@ echo " "
 

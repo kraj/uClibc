@@ -26,7 +26,7 @@ all: $(TARGETS)
 assert: assert.c Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Testing ctype functions: "
+	-@ echo "Compiling vs uCLibc: "
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -36,11 +36,10 @@ assert: assert.c Makefile $(TOPDIR)libc.a
 assert_glibc: assert.c Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Testing assert functions: "
+	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
-	-./$@
 	-./$@
 	-@ echo " "
 
