@@ -33,12 +33,13 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../../obj.sysdeps.$(TARGET_ARCH)
 
-$(LIBC): ar-target 
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
+	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
+	$(INSTALL) -d $(TOPDIR)lib/
 	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
 $(CRT0_OBJ): $(CRT0_SRC)
@@ -76,7 +77,6 @@ $(TOPDIR)lib/crtn.o:
 	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
 endif
 
-
 headers:
 	$(LN) -fs ../libc/sysdeps/linux/arm/fpu_control.h $(TOPDIR)/include/
 
@@ -84,4 +84,3 @@ clean:
 	$(RM) *.[oa] *~ core
 	$(RM) bits/sysnum.h
 	$(RM) gmon-start.S
-

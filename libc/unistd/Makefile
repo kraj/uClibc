@@ -42,12 +42,12 @@ endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS) $(MOBJ1)
 
-all: $(SYSCONF) $(OBJS) $(LIBC)
+OBJ_LIST=../obj.unistd
 
-$(LIBC): ar-target subdirs
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, unistd/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ1): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o

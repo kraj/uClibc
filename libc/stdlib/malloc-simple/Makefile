@@ -27,18 +27,16 @@ MSRC=alloc.c
 MOBJ=malloc.o realloc.o free.o calloc.o memalign.o
 OBJS=$(MOBJ)
 
+OBJ_LIST=../../obj.stdlib.malloc-simple
 
-all: $(OBJS) $(LIBC)
+all: $(OBJ_LIST)
 
-$(LIBC): ar-target
-
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, stdlib/malloc-simple/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	rm -f *.[oa] *~ core
-
+	$(RM) *.[oa] *~ core

@@ -21,13 +21,14 @@ include $(TOPDIR)Rules.mak
 
 SSRC= memcpy.S memset.S strcpy.S strlen.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
+OBJS=$(SOBJS)
 
-all: $(SOBJS) $(LIBC)
+OBJ_LIST=../../obj.string.$(TARGET_ARCH)
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(SOBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(SOBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, string/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
 
 $(SOBJS): %.o : %.S
 	$(CC) $(ASFLAGS) -c $< -o $@
@@ -35,4 +36,3 @@ $(SOBJS): %.o : %.S
 
 clean:
 	$(RM) *.[oa] *~ core
-

@@ -39,6 +39,4 @@ subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
-
 .PHONY: dummy $(TARGET_ARCH)
-

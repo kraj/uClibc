@@ -34,13 +34,12 @@ CSRC=tcgetattr.c tcgetsid.c tcsetattr.c ttyname.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(COBJS)
 
+OBJ_LIST=../obj.termios
 
-all: $(OBJS) $(LIBC)
+all: $(OBJ_LIST)
 
-$(LIBC): ar-target
-
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, termios/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -52,4 +51,3 @@ $(COBJS): %.o : %.c
 
 clean:
 	$(RM) *.[oa] *~ core
-

@@ -118,13 +118,12 @@ ifeq ($(strip $(UCLIBC_HAS_LFS)),y)
 OBJS += $(CLOBJS)
 endif
 
+OBJ_LIST=../obj.stdio
 
-all: $(OBJS) $(LIBC)
+all: $(OBJ_LIST)
 
-$(LIBC): ar-target
-
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, stdio/%, $(OBJS)) > $(OBJ_LIST)
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -153,5 +152,4 @@ $(MWOBJ): $(MWSRC)
 $(OBJ): Makefile
 
 clean:
-	rm -f *.[oa] *~ core
-
+	$(RM) *.[oa] *~ core

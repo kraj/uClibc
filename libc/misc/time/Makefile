@@ -50,12 +50,12 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(COBJS) $(MOBJ) $(MOBJx)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../obj.misc.time
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, misc/time/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -71,4 +71,3 @@ $(COBJS): %.o : %.c
 
 clean:
 	$(RM) *.[oa] *~ core
-

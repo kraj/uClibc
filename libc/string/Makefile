@@ -67,12 +67,12 @@ ifeq ($(UCLIBC_HAS_WCHAR),y)
 	OBJS += $(MOBJW) $(MOBJWx)
 endif
 
-all: $(LIBC) subdirs
+OBJ_LIST=../obj.string
 
-$(LIBC): ar-target
+all: $(OBJ_LIST) subdirs
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, string/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -107,4 +107,3 @@ $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy
-

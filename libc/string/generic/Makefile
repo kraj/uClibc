@@ -25,15 +25,14 @@ CSRC=	memchr.c memcmp.c memcpy.c memmem.c memmove.c mempcpy.c memrchr.c \
 	strrchr.c strsep.c strspn.c strstr.c strtok_r.c
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-
 OBJS=$(COBJS)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../obj.string.generic
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, string/generic/%, $(OBJS)) > $(OBJ_LIST)
 
 # $(MOBJ): $(MSRC)
 # 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -45,4 +44,3 @@ $(COBJS): %.o : %.c
 
 clean:
 	$(RM) *.[oa] *~ core
-

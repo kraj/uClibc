@@ -45,12 +45,12 @@ endif
 
 OBJS=$(MOBJ1)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../obj.misc.wchar
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, misc/wchar/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ1): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -62,4 +62,3 @@ $(MOBJ2): $(MSRC2)
 
 clean:
 	$(RM) *.[oa] *~ core
-

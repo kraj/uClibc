@@ -40,13 +40,12 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
 
+OBJ_LIST=../../obj.misc.sysvipc
 
-all: $(OBJS) $(LIBC)
+all: $(OBJ_LIST)
 
-$(LIBC): ar-target subdirs
-
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, misc/sysvipc/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -77,4 +76,3 @@ $(patsubst %, _dirclean_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy
-

@@ -41,12 +41,12 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(COBJS) $(MOBJ1) $(MOBJ2) $(MOBJ3) $(MOBJ4)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../obj.misc.search
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target:  $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, misc/search/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ1): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -70,4 +70,3 @@ $(COBJS): %.o : %.c
 
 clean:
 	$(RM) *.[oa] *~ core
-

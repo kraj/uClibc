@@ -47,12 +47,12 @@ ifeq ($(UCLIBC_HAS_XLOCALE),y)
 	OBJS += $(MOBJx)
 endif
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../obj.misc.ctype
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, misc/ctype/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -66,4 +66,3 @@ $(OBJS): Makefile
 
 clean:
 	$(RM) *.[oa] *~ core
-

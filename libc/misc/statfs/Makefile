@@ -30,13 +30,12 @@ endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
+OBJ_LIST=../../obj.misc.statfs
 
-all: $(OBJS) $(LIBC)
+all: $(OBJ_LIST)
 
-$(LIBC): ar-target
-
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, misc/statfs/%, $(OBJS)) > $(OBJ_LIST)
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -44,4 +43,3 @@ $(COBJS): %.o : %.c
 
 clean:
 	$(RM) *.[oa] *~ core
-

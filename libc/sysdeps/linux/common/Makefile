@@ -63,14 +63,14 @@ endif
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJ=$(COBJS) $(MOBJ)
+OBJS=$(COBJS) $(MOBJ)
 
-all: $(STR_SYSCALLS) $(OBJ) $(LIBC)
+OBJ_LIST=../../../obj.sysdeps.common
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJ)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJ)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, sysdeps/linux/common/%, $(OBJS)) > $(OBJ_LIST)
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@

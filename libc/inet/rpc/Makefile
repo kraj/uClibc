@@ -50,12 +50,12 @@ endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
-all: ar-target
+OBJ_LIST=../../obj.inet.rpc
 
-$(LIBC): $(OBJS)
+all: $(OBJ_LIST)
 
-ar-target: $(LIBC)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, inet/rpc/%, $(OBJS)) > $(OBJ_LIST)
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -63,4 +63,3 @@ $(COBJS): %.o : %.c
 
 clean:
 	$(RM) *.[oa] *~ core
-

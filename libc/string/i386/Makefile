@@ -25,12 +25,12 @@ MOBJ= strcpy.o strncpy.o strcat.o strncat.o strcmp.o \
 	memcpy.o memmove.o memchr.o memset.o 
 OBJS=$(MOBJ)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../obj.string.$(TARGET_ARCH)
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, string/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -42,4 +42,3 @@ $(COBJS): %.o : %.c
 
 clean:
 	$(RM) *.[oa] *~ core
-

@@ -37,10 +37,33 @@ DIRS = misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd
 VERSION_SCRIPT:=${shell if [ -f sysdeps/linux/$(TARGET_ARCH)/libc.map ] ; then \
         echo "--version-script sysdeps/linux/$(TARGET_ARCH)/libc.map"; fi}
 
-all: halfclean $(LIBNAME) $(DO_SHARED)
+LIBNAME_TARGET:=$(TOPDIR)lib/$(LIBNAME)
 
+all: halfclean $(LIBNAME_TARGET) $(DO_SHARED)
+
+# Some functions are duplicated across subdirs, and when you pass $(AR)
+# the same object file more than once, it'll add it to the archive multiple 
+# times (boo!).  So what we do here is:
+#  - import all the objects (thus we may have dupes)
+#  - delete all the dupes
+#  - re-import certain objects based upon preference
+#    - the sysdeps dir should override all other symbols for example
+# We need to use shell globbing with obj.* because if we use make's wildcard,
+# the wildcard will be evaluated when `make` is run instead of when the make 
+# target is evaluated.  That means if you run `rm obj.* ; make`, the wildcard 
+# will evaluate to no files :(.
 $(LIBNAME) ar-target: subdirs
+	objs=`cat obj.*` ; $(AR) $(ARFLAGS) $(LIBNAME) $$objs
+	objs=`cat obj.*` ; $(AR) dN 2 $(LIBNAME) $$objs
+	@for objfile in obj.signal obj.string.generic obj.string \
+	               obj.sysdeps.$(TARGET_ARCH) obj.sysdeps.common ; do \
+		echo $(AR) $(ARFLAGS) $(LIBNAME) $$objfile ; \
+		objs=`cat $$objfile` ; \
+		$(AR) $(ARFLAGS) $(LIBNAME) $$objs || exit 1 ; \
+	done
 	$(RANLIB) $(LIBNAME)
+
+$(LIBNAME_TARGET): $(LIBNAME)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBNAME)
 	$(INSTALL) -m 644 $(LIBNAME) $(TOPDIR)lib
@@ -67,6 +90,7 @@ tags:
 clean: subdirs_clean halfclean
 	@$(RM) -r tmp
 	$(RM) include/asm include/linux include/bits
+	$(RM) obj.*
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))

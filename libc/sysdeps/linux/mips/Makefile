@@ -32,12 +32,13 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../../obj.sysdeps.$(TARGET_ARCH)
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
+	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
+	$(INSTALL) -d $(TOPDIR)lib/
 	cp $(CRT0_OBJ) $(TOPDIR)lib/
 	$(LN) -fs $(CRT0_OBJ) $(TOPDIR)/lib/crt0.o
 	$(LN) -fs $(CRT0_OBJ) $(TOPDIR)/lib/Scrt1.o
@@ -77,7 +78,6 @@ $(TOPDIR)lib/crtn.o:
 	$(INSTALL) -d $(TOPDIR)lib/
 	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
 endif
-
 
 headers:
 	$(LN) -fs ../libc/sysdeps/linux/mips/sgidefs.h $(TOPDIR)/include/

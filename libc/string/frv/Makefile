@@ -23,12 +23,12 @@ SSRC=memcpy.S memset.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 OBJS=$(SOBJS)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../obj.string.$(TARGET_ARCH)
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, string/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
 
 $(SOBJS): %.o : %.S
 	$(CC) $(ASFLAGS) -c $< -o $@
@@ -36,4 +36,3 @@ $(SOBJS): %.o : %.S
 
 clean:
 	$(RM) *.[oa] *~ core
-

@@ -29,12 +29,12 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(COBJS)
 
-all: $(OBJS) interp.o $(LIBC)
+OBJ_LIST=../../obj.misc.internals
 
-$(LIBC): interp.c ar-target
+all: $(OBJ_LIST) interp.o
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, misc/internals/%, $(OBJS)) > $(OBJ_LIST)
 
 interp.c: Makefile
 	echo "/* Force shared libraries to know about the correct library loader */" > interp.c
@@ -54,4 +54,3 @@ $(COBJS): %.o : %.c
 
 clean:
 	$(RM) *.[oa] interp.c *~ core
-

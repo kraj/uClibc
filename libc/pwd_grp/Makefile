@@ -46,12 +46,12 @@ endif
 COBJ=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(COBJ)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../obj.pwd_grp
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, pwd_grp/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o

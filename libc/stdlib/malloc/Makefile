@@ -39,12 +39,12 @@ endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../obj.stdlib.malloc
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, stdlib/malloc/%, $(OBJS)) > $(OBJ_LIST)
 
 malloc.o free.o realloc.o memalign.o: malloc.h
 $(COBJS): heap.h

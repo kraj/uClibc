@@ -28,12 +28,12 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(COBJS)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../obj.signal
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, signal/%, $(OBJS)) > $(OBJ_LIST)
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@

@@ -50,9 +50,7 @@ ifeq ($(strip $(UCLIBC_HAS_GLOB)),y)
 DIRS += glob
 endif
 
-all: libc.a
-
-libc.a: subdirs
+all: subdirs
 
 tags:
 	ctags -R
@@ -70,4 +68,3 @@ $(patsubst %, _dirclean_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy
-

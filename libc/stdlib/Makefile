@@ -94,12 +94,12 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(MOBJ) $(MOBJx) $(MOBJ1) $(MOBJ1x) $(MOBJ2) $(COBJS)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../obj.stdlib
 
-$(LIBC): ar-target subdirs
+all: $(OBJ_LIST) subdirs
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, stdlib/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -140,5 +140,3 @@ clean: subdirs_clean
 	$(RM) *.[oa] *~ core
 
 .PHONY: dummy
-
-

@@ -27,12 +27,12 @@ MSRC=ftw.c
 MOBJ=ftw.o ftw64.o
 OBJS=$(MOBJ)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../obj.misc.ftw
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, misc/ftw/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -40,4 +40,3 @@ $(MOBJ): $(MSRC)
 
 clean:
 	$(RM) *.[oa] *~ core
-

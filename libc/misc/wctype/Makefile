@@ -41,12 +41,12 @@ ifeq ($(UCLIBC_HAS_XLOCALE),y)
 	OBJS += $(MOBJx)
 endif
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../obj.misc.wctype
 
-$(LIBC): ar-target
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+$(OBJ_LIST): $(OBJS)
+	echo $(patsubst %, misc/wctype/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -58,4 +58,3 @@ $(MOBJx): $(MSRC)
 
 clean:
 	$(RM) *.[oa] *~ core
-
