@@ -22,6 +22,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <paths.h>
+#include <stdlib.h>
 #include "config.h"
 
 int initgroups(__const char *user, gid_t gid)
