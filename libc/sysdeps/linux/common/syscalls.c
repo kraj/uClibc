@@ -1517,11 +1517,11 @@ int sigpending(sigset_t *set)
 
 //#define __NR_rt_sigtimedwait          177
 #ifdef L___rt_sigtimedwait
-#ifdef __NR_rt_sigtimedwait
-#define __NR___rt_sigtimedwait __NR_rt_sigtimedwait
 #include <signal.h>
 #define __need_NULL
 #include <stddef.h>
+#ifdef __NR_rt_sigtimedwait
+#define __NR___rt_sigtimedwait __NR_rt_sigtimedwait
 _syscall4(int, __rt_sigtimedwait, const sigset_t *, set, siginfo_t *, info, 
 		const struct timespec *, timeout, size_t, setsize);
 
