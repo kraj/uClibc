@@ -269,6 +269,7 @@ extern uint16_t htons (uint16_t __hostshort)
 /* Get machine dependent optimized versions of byte swapping functions.  */
 #include <bits/byteswap.h>
 
+#define __OPTIMIZE__
 #ifdef __OPTIMIZE__
 /* We can optimize calls to the conversion functions.  Either nothing has
    to be done or we are using directly the byte-swapping functions which
