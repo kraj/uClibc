@@ -42,7 +42,9 @@ MAJOR_VERSION:=0
 MINOR_VERSION:=9
 SUBLEVEL:=15
 VERSION:=$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
-export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION
+# Ensure consistent filename sort order
+LC_COLLATE:= C
+export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_COLLATE
 
 SHARED_FULLNAME:=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 SHARED_MAJORNAME:=libc.so.$(MAJOR_VERSION)
@@ -88,10 +90,7 @@ TARGET_ARCH:=$(shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		-e 's/cris.*/cris/' \
 		)
 endif
-
-# Ensure consistent filename sort order
-LC_COLLATE      := C
-export LC_COLLATE
+export TARGET_ARCH
 
 ARFLAGS:=r
 
