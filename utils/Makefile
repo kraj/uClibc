@@ -32,26 +32,28 @@ endif
 # NOTE: We build the utils AFTER we have a uClibc-targeted toolchain.
 
 ifeq ($(strip $(HAVE_SHARED)),y)
-all:	$(TARGETS) $(TARGET_ICONV)
+all: $(TARGETS) $(TARGET_ICONV)
 else
-all:	$(TARGET_ICONV)
+all: $(TARGET_ICONV)
 endif
 
 headers:
 	@$(LN) -fs $(TOPDIR)include/elf.h
 
+readelf.c ldconfig.c ldd.c:	headers
+
 readelf: readelf.c
 	$(CC) $(CFLAGS) -Wl,-s $^ -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
-ldconfig:	ldconfig.c
+ldconfig: ldconfig.c
 	$(CC) $(CFLAGS) -Wl,-s $(if $(filter $(UCLIBC_STATIC_LDCONFIG),y),-static) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
-ldd:	ldd.c
+ldd: ldd.c
 	$(CC) $(CFLAGS) $(PIEFLAG) $(LDPIEFLAG) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
@@ -70,13 +72,13 @@ else
 hostutils: readelf.host
 endif
 
-ldd.host:	ldd.c
+ldd.host: ldd.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 
-ldconfig.host:	ldconfig.c
+ldconfig.host: ldconfig.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
@@ -87,9 +89,6 @@ readelf.host: readelf.c
 
 clean:
 	$(RM) $(TARGETS) *.o *~ core *.target elf.h iconv *.host
-
-
-readelf.c ldconfig.c ldd.c:	headers
 
 install: all
 ifeq ($(strip $(HAVE_SHARED)),y)
