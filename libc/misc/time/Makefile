@@ -40,7 +40,7 @@ endif
 ifeq ($(UCLIBC_HAS_WCHAR),y)
 endif
 
-CSRC= adjtime.c ftime.c
+CSRC= adjtime.c ftime.c clock_gettime.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(COBJS) $(MOBJ) $(MOBJx)
