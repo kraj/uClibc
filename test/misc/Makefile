@@ -58,7 +58,7 @@ fdopen: fdopen.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-@ echo " "
 
 dirent_source:
-	-@ rm -f $(TARGETS)
+	-@ $(RM) $(TARGETS)
 	-@ echo "-------"
 	-@ echo "dirent.c source: "
 	-@ echo " "
@@ -126,7 +126,7 @@ dirent64_diff: dirent64 dirent64_glibc
 	-@ echo " "
 
 clean:
-	rm -f *.[oa] *~ core dirent dirent_glibc dirent_glibc.out dirent.out \
+	$(RM) *.[oa] *~ core dirent dirent_glibc dirent_glibc.out dirent.out \
 		dirent64 dirent64_glibc dirent64_glibc.out dirent64.out \
 		outb sem fdopen
 

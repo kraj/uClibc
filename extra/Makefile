@@ -35,7 +35,7 @@ tags:
 	ctags -R
 
 clean: subdirs_clean
-	rm -f *.[oa] *~ core
+	$(RM) *.[oa] *~ core
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS) $(EXTRA_DIRS_TO_CLEAN))

@@ -89,7 +89,7 @@ $(LIBM): ar-target
 	@if [ -f $(LIBM) ] ; then \
 		set -x -e; \
 		$(INSTALL) -d $(TOPDIR)lib; \
-		rm -f $(TOPDIR)lib/$(LIBM); \
+		$(RM) $(TOPDIR)lib/$(LIBM); \
 		$(INSTALL) -m 644 $(LIBM) $(TOPDIR)lib; \
 	fi;
 
@@ -101,7 +101,7 @@ shared: all
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 		-L$(TOPDIR)/lib -lc; \
 	    $(INSTALL) -d $(TOPDIR)lib; \
-	    rm -f $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
+	    $(RM) $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
 	    $(INSTALL) -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib; \
 	    (cd $(TOPDIR)lib && ln -sf $(LIBM_SHARED_FULLNAME) $(LIBM_SHARED)); \
 	    (cd $(TOPDIR)lib && ln -sf $(LIBM_SHARED_FULLNAME) $(LIBM_SHARED).$(MAJOR_VERSION)); \
@@ -120,7 +120,7 @@ tags:
 	ctags -R
 
 clean: subdirs_clean
-	rm -f *.[oa] *~ core $(LIBM_SHARED)* $(LIBM_SHARED_FULLNAME)*
+	$(RM) *.[oa] *~ core $(LIBM_SHARED)* $(LIBM_SHARED_FULLNAME)*
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
@@ -132,4 +132,3 @@ $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy
-

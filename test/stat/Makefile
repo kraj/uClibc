@@ -27,7 +27,7 @@ TARGETS=stat_diff stat64_diff
 all: $(TARGETS)
 
 stat_source:
-	-@ rm -f $(TARGETS)
+	-@ $(RM) $(TARGETS)
 	-@ echo "-------"
 	-@ echo "stat.c source: "
 	-@ echo " "
@@ -95,7 +95,7 @@ stat64_diff: stat64 stat64_glibc
 	-@ echo " "
 
 clean:
-	rm -f *.[oa] *~ core stat stat_glibc stat_glibc.out stat.out \
+	$(RM) *.[oa] *~ core stat stat_glibc stat_glibc.out stat.out \
 		stat64 stat64_glibc stat64_glibc.out stat64.out
 
 

@@ -56,4 +56,4 @@ $(COBJS): %.o : %.c ../../../include/bits/uClibc_config.h
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	rm -f *.[oa] *~ core
+	$(RM) *.[oa] *~ core

@@ -35,6 +35,6 @@ ctype_run:
 	./ctype
 	-@ echo " "
 clean:
-	rm -f *.[oa] *~ core $(TARGETS)
+	$(RM) *.[oa] *~ core $(TARGETS)
 
 

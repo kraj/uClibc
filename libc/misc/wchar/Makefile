@@ -66,5 +66,5 @@ iconv.target: wchar.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 clean:
-	rm -f *.[oa] *~ core iconv.target
+	$(RM) *.[oa] *~ core iconv.target
 

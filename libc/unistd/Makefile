@@ -115,5 +115,5 @@ $(patsubst %, _dirclean_%, $(DIRS)) : dummy
 dummy:
 
 clean:
-	rm -f *.[oa] *~ core gen_sysconf sysconf_*.c
+	$(RM) *.[oa] *~ core gen_sysconf sysconf_*.c
 

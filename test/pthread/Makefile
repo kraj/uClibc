@@ -86,5 +86,5 @@ ex7: ex7.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-@ echo " "
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS)
+	$(RM) *.[oa] *~ core $(TARGETS)
 

@@ -70,6 +70,6 @@ else
 endif
 
 clean:
-	rm -f *.[oa] *~ core
+	$(RM) *.[oa] *~ core
 
 

@@ -134,7 +134,7 @@ $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 clean: subdirs_clean
-	rm -f *.[oa] *~ core
+	$(RM) *.[oa] *~ core
 
 .PHONY: dummy
 

@@ -26,7 +26,7 @@ TARGETS=hello_source hello hello_glibc tiny
 all: $(TARGETS)
 
 hello_source:
-	-@ rm -f $(TARGETS)
+	-@ $(RM) $(TARGETS)
 	-@ echo "-------"
 	-@ echo "hello.c source: "
 	-@ echo " "
@@ -75,6 +75,6 @@ tiny: tiny.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS)
+	$(RM) *.[oa] *~ core $(TARGETS)
 
 

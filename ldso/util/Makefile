@@ -95,6 +95,6 @@ ldd.target:	ldd.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 clean:
-	rm -f $(TARGETS) *.o *~ core *.target elf.h
+	$(RM) $(TARGETS) *.o *~ core *.target elf.h
 
 readelf.c readsoname.c ldconfig.c ldd.c:	headers

@@ -53,4 +53,4 @@ __getgrent_r.c: config.h
 initgroups.c: config.h
 
 clean:
-	rm -f *.[oa] *~ core
+	$(RM) *.[oa] *~ core

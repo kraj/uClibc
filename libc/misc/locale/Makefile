@@ -67,6 +67,6 @@ locale_data.o:
 $(OBJS): Makefile
 
 clean:
-	rm -f *.[oa] *~ core locale_data.c
+	$(RM) *.[oa] *~ core locale_data.c
 
 .PHONY: data

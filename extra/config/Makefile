@@ -103,9 +103,9 @@ endif
 ncurses:
 	@echo "main() {}" > lxtemp.c
 	@if $(HOSTCC) lxtemp.c $(LIBS) ; then \
-		rm -f lxtemp.c a.out; \
+		$(RM) lxtemp.c a.out; \
 	else \
-		rm -f lxtemp.c; \
+		$(RM) lxtemp.c; \
 		echo -e "\007" ;\
 		echo ">> Unable to find the Ncurses libraries." ;\
 		echo ">>" ;\
@@ -119,6 +119,6 @@ ncurses:
 	fi
 
 clean:
-	rm -f *.o *~ core $(TARGETS) $(MCONF_OBJS) $(CONF_OBJS) \
+	$(RM) *.o *~ core $(TARGETS) $(MCONF_OBJS) $(CONF_OBJS) \
 		conf mconf zconf.tab.c zconf.tab.h lex.zconf.c lkc_defs.h
 

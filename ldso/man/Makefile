@@ -30,4 +30,4 @@ ld.so.info: ld.so.texi
 	makeinfo $<
 
 clean:
-	rm -f $(ALL) *~
+	$(RM) $(ALL) *~

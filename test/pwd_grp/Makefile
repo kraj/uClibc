@@ -87,6 +87,6 @@ test_grp_diff: test_grp_glibc test_grp
 	-@ echo " "
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS) *.out
+	$(RM) *.[oa] *~ core $(TARGETS) *.out
 
 

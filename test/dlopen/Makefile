@@ -71,6 +71,6 @@ run: libtest2.so libtest1.so test1 test2 test3 dltest libtest.so dltest2 libtest
 	-$(DEBUG_LIBS)=all ./dltest
 
 clean:
-	rm -f *.o libtest1.so* libtest2.so* test1 test2 test3 \
+	$(RM) *.o libtest1.so* libtest2.so* test1 test2 test3 \
 		dltest dltest2 libtest.so libtest3.so
 

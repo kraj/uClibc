@@ -56,7 +56,7 @@ $(LIBPTHREAD): subdirs
 	@if [ -f $(LIBPTHREAD) ] ; then \
 		set -e; \
 		$(INSTALL) -d $(TOPDIR)lib; \
-		rm -f $(TOPDIR)lib/$(LIBPTHREAD); \
+		$(RM) $(TOPDIR)lib/$(LIBPTHREAD); \
 		$(INSTALL) -m 644 $(LIBPTHREAD) $(TOPDIR)lib; \
 	fi;
 
@@ -64,7 +64,7 @@ $(LIBTHREAD_DB): subdirs
 	@if [ -f $(LIBTHREAD_DB) ] ; then \
 		set -e; \
 		$(INSTALL) -d $(TOPDIR)lib; \
-		rm -f $(TOPDIR)lib/$(LIBTHREAD_DB); \
+		$(RM) $(TOPDIR)lib/$(LIBTHREAD_DB); \
 		$(INSTALL) -m 644 $(LIBTHREAD_DB) $(TOPDIR)lib; \
 	fi;
 
@@ -83,7 +83,7 @@ shared: all
 			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 			-L$(TOPDIR)/lib -lc $(END_FILES); \
 		$(INSTALL) -d $(TOPDIR)lib; \
-		rm -f $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) \
+		$(RM) $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) \
 			$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION); \
 		$(INSTALL) -m 644 $(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib; \
 		(cd $(TOPDIR)lib && ln -sf $(LIBPTHREAD_SHARED_FULLNAME) \
@@ -98,7 +98,7 @@ shared: all
 			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 			-L$(TOPDIR)/lib -lc $(END_FILES); \
 		$(INSTALL) -d $(TOPDIR)lib; \
-		rm -f $(TOPDIR)lib/$(LIBTHREAD_DB_SHARED_FULLNAME) \
+		$(RM) $(TOPDIR)lib/$(LIBTHREAD_DB_SHARED_FULLNAME) \
 			$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).$(MAJOR_VERSION); \
 		$(INSTALL) -m 644 $(LIBTHREAD_DB_SHARED_FULLNAME) $(TOPDIR)lib; \
 		(cd $(TOPDIR)lib && ln -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
@@ -120,9 +120,7 @@ $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 clean: subdirs_clean
-	rm -f *.[oa] *~ core $(LIBPTHREAD) $(LIBPTHREAD_SHARED_FULLNAME) \
+	$(RM) *.[oa] *~ core $(LIBPTHREAD) $(LIBPTHREAD_SHARED_FULLNAME) \
 		$(LIBTHREAD_DB) $(LIBTHREAD_DB_SHARED_FULLNAME)
 
 .PHONY: dummy
-
-

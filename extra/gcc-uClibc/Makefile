@@ -85,4 +85,4 @@ endif
 	done
 
 clean:
-	rm -f gcc-uClibc.h *-uclibc-gcc *-uclibc-ld core
+	$(RM) gcc-uClibc.h *-uclibc-gcc *-uclibc-ld core

@@ -58,5 +58,5 @@ $(COBJS): %.o : %.c
 headers:
 
 clean:
-	rm -f *.[oa] *~ core
+	$(RM) *.[oa] *~ core
 

@@ -69,5 +69,5 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	rm -f *.[oa] *~ core
+	$(RM) *.[oa] *~ core
 

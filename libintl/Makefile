@@ -43,7 +43,7 @@ $(LIBC): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBINTL) $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBINTL)
+	$(RM) $(TOPDIR)lib/$(LIBINTL)
 	$(INSTALL) -m 644 $(LIBINTL) $(TOPDIR)lib/
 
 $(MOBJ): $(MSRC)
@@ -56,11 +56,10 @@ shared: all
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 		-L$(TOPDIR)/lib -lc;
 	$(INSTALL) -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBINTL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBINTL_SHARED).$(MAJOR_VERSION)
+	$(RM) $(TOPDIR)lib/$(LIBINTL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBINTL_SHARED).$(MAJOR_VERSION)
 	$(INSTALL) -m 644 $(LIBINTL_SHARED_FULLNAME) $(TOPDIR)lib
 	(cd $(TOPDIR)lib && ln -sf $(LIBINTL_SHARED_FULLNAME) $(LIBINTL_SHARED)); 
 	(cd $(TOPDIR)lib && ln -sf $(LIBINTL_SHARED_FULLNAME) $(LIBINTL_SHARED).$(MAJOR_VERSION)); 
 
 clean:
-	rm -f *.[oa] *~ core $(LIBINTL_SHARED)* $(LIBINTL_SHARED_FULLNAME)*
-
+	$(RM) *.[oa] *~ core $(LIBINTL_SHARED)* $(LIBINTL_SHARED_FULLNAME)*

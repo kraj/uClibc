@@ -116,7 +116,7 @@ include/bits/uClibc_config.h: .config
 	@if [ ! -x ./extra/config/conf ] ; then \
 	    make -C extra/config conf; \
 	fi;
-	rm -rf include/bits
+	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -o extra/Configs/Config.$(TARGET_ARCH)
 
@@ -198,58 +198,58 @@ install_dev:
 	tar -chf - include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX);
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	# Remove floating point related headers since float support is disabled.
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/complex.h
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/fpu_control.h
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/ieee754.h
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/math.h
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/tgmath.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/complex.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/fpu_control.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/ieee754.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/math.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/tgmath.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_WCHAR)),y)
 	# Remove wide char headers since wide char support is disabled.
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/wctype.h
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/wchar.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/wctype.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/wchar.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 	# Remove iconv header since locale support is disabled.
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/iconv.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/iconv.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_GLIBC_CUSTOM_PRINTF)),y)
 	# Remove printf header since custom print specifier support is disabled.
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/printf.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/printf.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_XLOCALE)),y)
 	# Remove xlocale header since extended locale support is disabled.
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/xlocale.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/xlocale.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
 	# Remove libintl header since gettext support is disabled.
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/libintl.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/libintl.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_REGEX)),y)
 	# Remove regex headers since regex support is disabled.
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/regex.h
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/regexp.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/regex.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/regexp.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_WORDEXP)),y)
 	# Remove wordexp header since wordexp support is disabled.
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/wordexp.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/wordexp.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_FTW)),y)
 	# Remove ftw header since ftw support is disabled.
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/ftw.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/ftw.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_GLOB)),y)
 	# Remove glob header since glob support is disabled.
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/glob.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/glob.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_GNU_GETOPT)),y)
 	# Remove getopt header since gnu getopt support is disabled.
-	rm $(PREFIX)$(DEVEL_PREFIX)/include/getopt.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/getopt.h
 endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod -f 755 $$i; chmod -f 644 $$i/*.h; \
 	done;
-	-find $(PREFIX)$(DEVEL_PREFIX) -name CVS | xargs rm -rf;
+	-find $(PREFIX)$(DEVEL_PREFIX) -name CVS | xargs $(RM) -r;
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
 ifeq ($(strip $(HAVE_SHARED)),y)
 	-$(INSTALL) -m 644 lib/*.so $(PREFIX)$(DEVEL_PREFIX)/lib/
@@ -388,44 +388,44 @@ buildmconf:
 	make -C extra/config ncurses mconf
 
 menuconfig: extra/config/mconf
-	rm -rf include/bits
+	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/mconf extra/Configs/Config.$(TARGET_ARCH)
 
 config: extra/config/conf
-	rm -rf include/bits
+	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/conf extra/Configs/Config.$(TARGET_ARCH)
 
 oldconfig: extra/config/conf
-	rm -rf include/bits
+	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -o extra/Configs/Config.$(TARGET_ARCH)
 
 randconfig: extra/config/conf
-	rm -rf include/bits
+	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -r extra/Configs/Config.$(TARGET_ARCH)
 
 allyesconfig: extra/config/conf
-	rm -rf include/bits
+	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -y extra/Configs/Config.$(TARGET_ARCH)
 
 allnoconfig: extra/config/conf
-	rm -rf include/bits
+	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -n extra/Configs/Config.$(TARGET_ARCH)
 
 defconfig: extra/config/conf
-	rm -rf include/bits
+	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -d extra/Configs/Config.$(TARGET_ARCH)
 
 
 clean:
-	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec rm -f {} \;
-	@rm -rf tmp lib include/bits libc/tmp _install
+	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec $(RM) {} \;
+	@$(RM) -r tmp lib include/bits libc/tmp _install
 	$(MAKE) -C test clean
 	$(MAKE) -C ldso clean
 	$(MAKE) -C libc/misc/internals clean
@@ -436,36 +436,36 @@ clean:
 	$(MAKE) -C extra/locale clean
 	@set -e; \
 	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \
-		rm -f include/sys/$$i; \
+		$(RM) include/sys/$$i; \
 	done; \
 	if [ -d libc/sysdeps/linux/$(TARGET_ARCH)/sys ] ; then \
 		for i in `(cd libc/sysdeps/linux/$(TARGET_ARCH)/sys; ls *.h)` ; do \
-			rm -f include/sys/$$i; \
+			$(RM) include/sys/$$i; \
 		done; \
 	fi;
-	@rm -f include/linux include/scsi include/asm
+	@$(RM) include/linux include/scsi include/asm
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi;
 	@if [ "$(TARGET_ARCH)" = "mipsel" ]; then \
 	    $(MAKE) -C libc/sysdeps/linux/mips clean; \
-	    rm -f ldso/ldso/mipsel; \
-	    rm -f libc/sysdeps/linux/mipsel; \
-	    rm -f libpthread/linuxthreads/sysdeps/mipsel; \
+	    $(RM) ldso/ldso/mipsel; \
+	    $(RM) libc/sysdeps/linux/mipsel; \
+	    $(RM) libpthread/linuxthreads/sysdeps/mipsel; \
 	fi;
 
 distclean: clean
-	rm -f .config .config.old .config.cmd
+	$(RM) .config .config.old .config.cmd
 	$(MAKE) -C extra clean
 
 release: distclean
 	cd ..;					\
-	rm -rf uClibc-$(VERSION);		\
+	$(RM) -r uClibc-$(VERSION);		\
 	cp -fa uClibc uClibc-$(VERSION);	\
 	find uClibc-$(VERSION)/ -type f		\
-	    -name .\#* -exec rm -rf {} \; ;	\
+	    -name .\#* -exec $(RM) -r {} \; ;	\
 	find uClibc-$(VERSION)/ -type d		\
-	    -name CVS  -exec rm -rf {} \; ;	\
+	    -name CVS  -exec $(RM) -r {} \; ;	\
 						\
 	tar -cvzf uClibc-$(VERSION).tar.gz uClibc-$(VERSION)/;
 

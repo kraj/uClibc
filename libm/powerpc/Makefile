@@ -67,5 +67,5 @@ tags:
 	ctags -R
 
 clean: 
-	rm -f *.[oa] *~ core
+	$(RM) *.[oa] *~ core
 

@@ -65,7 +65,7 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean: subdirs_clean
-	rm -f *.[oa] *~ core
+	$(RM) *.[oa] *~ core
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))

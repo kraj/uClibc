@@ -187,6 +187,6 @@ ptytest: ptytest.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS) *.out
+	$(RM) *.[oa] *~ core $(TARGETS) *.out
 
 

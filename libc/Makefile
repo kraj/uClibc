@@ -54,7 +54,7 @@ all: halfclean subdirs $(LIBNAME) $(DO_SHARED)
 ar-target:
 	$(CROSS)ranlib $(LIBNAME)
 	$(INSTALL) -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBNAME)
+	$(RM) $(TOPDIR)lib/$(LIBNAME)
 	$(INSTALL) -m 644 $(LIBNAME) $(TOPDIR)lib
 
 $(LIBNAME): subdirs ar-target
@@ -65,15 +65,15 @@ shared: $(TOPDIR)lib/$(LIBNAME) $(LIBGCC_NEED)
 		--whole-archive $(LIBGCC_NEED) $(LIBNAME) \
 		$(TOPDIR)/libc/misc/internals/interp.o --no-whole-archive \
 		-init __uClibc_init $(LIBGCC)
-	@true #rm -rf tmp
+	@true #$(RM) -r tmp
 	$(INSTALL) -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(SHARED_FULLNAME)
+	$(RM) $(TOPDIR)lib/$(SHARED_FULLNAME)
 	$(INSTALL) -m 644 $(SHARED_FULLNAME) $(TOPDIR)lib
 	(cd ../lib && ln -sf $(SHARED_FULLNAME) libc.so);
 	(cd ../lib && ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME));
 
 $(LIBGCC_NEED): $(TOPDIR)lib/$(LIBNAME)
-	@rm -rf tmp
+	@$(RM) -r tmp
 	@mkdir tmp
 	$(AR) rv $@
 	(cd tmp && CC="$(CC)" LD="$(LD)" LDFLAGS="$(CPU_LDFLAGS-y)" \
@@ -81,15 +81,15 @@ $(LIBGCC_NEED): $(TOPDIR)lib/$(LIBNAME)
 		/bin/sh $(TOPDIR)../extra/scripts/get-needed-libgcc-objects.sh)
 
 halfclean:
-	@rm -f $(LIBNAME) uClibc_config.h
-	@rm -f $(SHARED_FULLNAME) $(SHARED_MAJORNAME) uClibc-0.* libc.so*
+	@$(RM) $(LIBNAME) uClibc_config.h
+	@$(RM) $(SHARED_FULLNAME) $(SHARED_MAJORNAME) uClibc-0.* libc.so*
 
 tags:
 	ctags -R
 
 clean: subdirs_clean halfclean
-	@rm -rf tmp
-	rm -f include/asm include/linux include/bits
+	@$(RM) -r tmp
+	$(RM) include/asm include/linux include/bits
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))

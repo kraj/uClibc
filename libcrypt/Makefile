@@ -38,7 +38,7 @@ $(LIBCRYPT): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBCRYPT) $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBCRYPT)
+	$(RM) $(TOPDIR)lib/$(LIBCRYPT)
 	$(INSTALL) -m 644 $(LIBCRYPT) $(TOPDIR)lib
 
 $(OBJS): %.o : %.c
@@ -53,11 +53,10 @@ shared: all
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 		-L$(TOPDIR)/lib -lc;
 	$(INSTALL) -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBCRYPT_SHARED).$(MAJOR_VERSION)
+	$(RM) $(TOPDIR)lib/$(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBCRYPT_SHARED).$(MAJOR_VERSION)
 	$(INSTALL) -m 644 $(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib;
 	(cd $(TOPDIR)lib && ln -sf $(LIBCRYPT_SHARED_FULLNAME) $(LIBCRYPT_SHARED)); 
 	(cd $(TOPDIR)lib && ln -sf $(LIBCRYPT_SHARED_FULLNAME) $(LIBCRYPT_SHARED).$(MAJOR_VERSION)); 
 
 clean: 
-	rm -f *.[oa] *~ core $(LIBCRYPT_SHARED)* $(LIBCRYPT_SHARED_FULLNAME)*
-
+	$(RM) *.[oa] *~ core $(LIBCRYPT_SHARED)* $(LIBCRYPT_SHARED_FULLNAME)*

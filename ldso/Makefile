@@ -51,5 +51,5 @@ headers:
 
 clean:
 	set -e ; for d in $(ALL_SUBDIRS) ; do $(MAKE) -C $$d $@ ; done
-	-find . -name '*~' | xargs rm -f
-	rm -f include/elf.h include/boot1_arch.h include/ld_syscalls.h include/ld_sysdep.h
+	-find . -name '*~' | xargs $(RM)
+	$(RM) include/elf.h include/boot1_arch.h include/ld_syscalls.h include/ld_sysdep.h

@@ -124,6 +124,6 @@ realloc0_glibc: realloc0.c Makefile
 
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS)
+	$(RM) *.[oa] *~ core $(TARGETS)
 
 

@@ -68,6 +68,6 @@ md5c-test: md5c-test.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-@ echo " "
 
 clean:
-	rm -f *.[oa] *~ core crypt_glibc crypt crypt_glibc.out crypt.out md5c-test
+	$(RM) *.[oa] *~ core crypt_glibc crypt crypt_glibc.out crypt.out md5c-test
 
 

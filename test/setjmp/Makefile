@@ -35,6 +35,6 @@ setjmp_test: setjmp_test.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-@ echo " "
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS)
+	$(RM) *.[oa] *~ core $(TARGETS)
 
 

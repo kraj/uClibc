@@ -58,6 +58,6 @@ headers:
 
 
 clean:
-	rm -f *.[oa] *~ core
-	rm -f bits/sysnum.h
+	$(RM) *.[oa] *~ core
+	$(RM) bits/sysnum.h
 

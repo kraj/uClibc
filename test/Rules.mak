@@ -46,6 +46,8 @@ CC= $(CROSS)gcc
 STRIPTOOL=strip
 LDD=../$(TESTDIR)ldso/util/ldd
 
+RM= rm -f
+
 # Select the compiler needed to build binaries for your development system
 HOSTCC=gcc
 HOSTCFLAGS=-O2 -Wall

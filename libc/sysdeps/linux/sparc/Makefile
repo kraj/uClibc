@@ -58,6 +58,6 @@ headers:
 	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/sparc/fpu_control.h .
 
 clean:
-	rm -f *.[oa] *~ core
-	rm -f bits/sysnum.h
+	$(RM) *.[oa] *~ core
+	$(RM) bits/sysnum.h
 

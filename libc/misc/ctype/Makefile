@@ -65,5 +65,5 @@ $(MOBJx): $(MSRC)
 $(OBJS): Makefile
 
 clean:
-	rm -f *.[oa] *~ core
+	$(RM) *.[oa] *~ core
 

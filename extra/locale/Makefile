@@ -86,10 +86,10 @@ pregen:
 	cat uClibc_locale_data.h | awk 'BEGIN{i=1}{ if ( /WANT_/ ) i = /endif/ ; else if (i) print $0 }' > ../../include/bits/uClibc_locale_data.h
 
 clean:
-	rm -f *.[oa] *~ core
-	rm -f gen_wc8bit gen_wctype gen_locale gen_ldc gen_collate
-	rm -f c8tables.h wctables.h locale_tables.h lt_defines.h locale_collate.h
-	rm -f gen_mmap locale.mmap lmmtolso
-	rm -f locale_data.c uClibc_locale_data.h
+	$(RM) *.[oa] *~ core
+	$(RM) gen_wc8bit gen_wctype gen_locale gen_ldc gen_collate
+	$(RM) c8tables.h wctables.h locale_tables.h lt_defines.h locale_collate.h
+	$(RM) gen_mmap locale.mmap lmmtolso
+	$(RM) locale_data.c uClibc_locale_data.h
 
 .PHONY: pregen links-target

@@ -100,6 +100,6 @@ libm-test.c: $(ulps-file) libm-test.inc gen-libm-test.pl
 	$(PERL) ./gen-libm-test.pl -u $< ./libm-test.inc -o "." 2>&1 > /dev/null
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS) $(generated) rint_glibc.out rint.out
+	$(RM) *.[oa] *~ core $(TARGETS) $(generated) rint_glibc.out rint.out
 
 

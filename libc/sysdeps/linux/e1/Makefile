@@ -58,9 +58,9 @@ headers:
 
 
 clean:
-	rm -f *.[oa] *~ core
-	rm -f bits/sysnum.h
+	$(RM) *.[oa] *~ core
+	$(RM) bits/sysnum.h
 ifneq ($(strip $(HAVE_ELF)),y)
-	rm -f $(TOPDIR)/include/float.h
+	$(RM) $(TOPDIR)/include/float.h
 endif
 

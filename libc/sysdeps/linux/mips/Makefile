@@ -58,7 +58,7 @@ headers:
 	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/mips/fpu_control.h .
 
 clean:
-	rm -f *.[oa] *~ core
-	rm -f bits/sysnum.h
-	rm -f $(TOPDIR)/include/sgidefs.h
+	$(RM) *.[oa] *~ core
+	$(RM) bits/sysnum.h
+	$(RM) $(TOPDIR)/include/sgidefs.h
 

@@ -107,5 +107,5 @@ $(COBJS): %.o : %.c
 $(OBJ): Makefile
 
 clean:
-	rm -f *.[oa] *~ core
+	$(RM) *.[oa] *~ core
 

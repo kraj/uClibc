@@ -61,7 +61,7 @@ ar-target: $(OBJS) $(PIC_OBJS)
 	$(AR) $(ARFLAGS) $(LIBDL) ../ldso/$(TARGET_ARCH)/resolve.o $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBDL_PIC) $(PIC_OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBDL)
+	$(RM) $(TOPDIR)lib/$(LIBDL)
 	$(INSTALL) -m 644 $(LIBDL) $(TOPDIR)lib
 
 
@@ -81,11 +81,10 @@ shared:
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 		-L$(TOPDIR)/lib -lc;
 	$(INSTALL) -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED).$(MAJOR_VERSION)
+	$(RM) $(TOPDIR)lib/$(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED).$(MAJOR_VERSION)
 	$(INSTALL) -m 644 $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib
 	(cd $(TOPDIR)lib && ln -sf $(LIBDL_SHARED_FULLNAME) $(LIBDL_SHARED)); 
 	(cd $(TOPDIR)lib && ln -sf $(LIBDL_SHARED_FULLNAME) $(LIBDL_SHARED).$(MAJOR_VERSION)); 
 
 clean:
-	$(RM) -f .depend $(LIBDL_SHARED)* $(LIBDL_SHARED_FULLNAME) core *.o *.a *.s *.i tmp_make foo *~
-
+	$(RM) .depend $(LIBDL_SHARED)* $(LIBDL_SHARED_FULLNAME) core *.o *.a *.s *.i tmp_make foo *~

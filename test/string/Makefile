@@ -103,6 +103,6 @@ strsignal: ../../libc/string/strsignal.c
 
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS) testcopy.gnu.out testcopy.out
+	$(RM) *.[oa] *~ core $(TARGETS) testcopy.gnu.out testcopy.out
 
 

@@ -102,5 +102,5 @@ headers:
 	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/common/fpu_control.h .
 
 clean:
-	rm -f *.[oa] *~ core crt[in].* *.S
+	$(RM) *.[oa] *~ core crt[in].* *.S
 

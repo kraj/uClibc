@@ -39,7 +39,7 @@ $(LIBRESOLV): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBRESOLV) $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBRESOLV)
+	$(RM) $(TOPDIR)lib/$(LIBRESOLV)
 	$(INSTALL) -m 644 $(LIBRESOLV) $(TOPDIR)lib
 
 $(OBJS): %.o : %.c
@@ -54,11 +54,10 @@ shared: all
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 		-L$(TOPDIR)/lib -lc;
 	$(INSTALL) -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRESOLV_SHARED).$(MAJOR_VERSION)
+	$(RM) $(TOPDIR)lib/$(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRESOLV_SHARED).$(MAJOR_VERSION)
 	$(INSTALL) -m 644 $(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib
 	(cd $(TOPDIR)lib && ln -sf $(LIBRESOLV_SHARED_FULLNAME) $(LIBRESOLV_SHARED)); 
 	(cd $(TOPDIR)lib && ln -sf $(LIBRESOLV_SHARED_FULLNAME) $(LIBRESOLV_SHARED).$(MAJOR_VERSION)); 
 
 clean: 
-	rm -f *.[oa] *~ core $(LIBRESOLV_SHARED)* $(LIBRESOLV_SHARED_FULLNAME)*
-
+	$(RM) *.[oa] *~ core $(LIBRESOLV_SHARED)* $(LIBRESOLV_SHARED_FULLNAME)*

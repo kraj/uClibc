@@ -69,6 +69,6 @@ sigchld_glibc: sigchld.c Makefile
 	-@ echo " "
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS)
+	$(RM) *.[oa] *~ core $(TARGETS)
 
 

@@ -42,5 +42,5 @@ $(COBJS): %.o : %.c
 glob64.o: glob64.c glob.c
 
 clean:
-	rm -f *.[oa] *~ core
+	$(RM) *.[oa] *~ core
 
