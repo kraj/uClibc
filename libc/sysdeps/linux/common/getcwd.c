@@ -17,33 +17,36 @@ static inline _syscall2(int, __syscall_getcwd, char *, buf, unsigned long, size)
 
 char *getcwd(char *buf, int size)
 {
-	int olderrno, ret;
-	char *allocbuf;
-	
-	if (size == 0) {
-		__set_errno(EINVAL);
-		return NULL;
-	}
-	if (size < 3) {
-		__set_errno(ERANGE);
-		return NULL;
-	}
-	allocbuf=NULL;
-	olderrno = errno;
-	if (buf == NULL) {
-		buf = allocbuf = malloc (size);
-		if (buf == NULL)
-			return NULL;
-	}
-	ret = INLINE_SYSCALL(getcwd, 2, buf, size);
-	if (ret < 0) {
-	    if (allocbuf) {
-		free(allocbuf);
-	    }
+    int olderrno, ret;
+    char *allocbuf;
+
+    if (size == 0) {
+	if (buf != NULL) {
+	    __set_errno(EINVAL);
 	    return NULL;
-	} 
-	__set_errno(olderrno);
-	return buf;
+	}
+	size = PATH_MAX;
+    }
+    if (size < 3) {
+	__set_errno(ERANGE);
+	return NULL;
+    }
+    allocbuf=NULL;
+    olderrno = errno;
+    if (buf == NULL) {
+	buf = allocbuf = malloc (size);
+	if (buf == NULL)
+	    return NULL;
+    }
+    ret = INLINE_SYSCALL(getcwd, 2, buf, size);
+    if (ret < 0) {
+	if (allocbuf) {
+	    free(allocbuf);
+	}
+	return NULL;
+    } 
+    __set_errno(olderrno);
+    return buf;
 }
 #else
 
