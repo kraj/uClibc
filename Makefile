@@ -47,7 +47,7 @@ shared: $(STATIC_NAME)
 	@mkdir tmp
 	@(cd tmp; ar -x ../$(STATIC_NAME))
 	@(cd tmp; CC=$(CC) /bin/sh ../extra/scripts/get-needed-libgcc-objects.sh)
-	$(CC) -s -nostdlib -shared -o $(SHARED_NAME) -Wl,-soname,$(SHARED_NAME) tmp/*.o
+	$(CC) -g $(LDFLAGS) -shared -o $(SHARED_NAME) -Wl,-soname,$(SHARED_NAME) tmp/*.o
 	@rm -rf tmp
 
 done: $(STATIC_NAME) $(DO_SHARED)
