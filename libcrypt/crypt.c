@@ -34,11 +34,11 @@ extern char * crypt(const char *key, const char *salt)
 
 extern void setkey(const char *key)
 {
-    return setkey_r(key, &__crypt_data);
+    setkey_r(key, &__crypt_data);
 }
 
 extern void encrypt(char *block, int edflag)
 {
-    return encrypt_r(block, edflag, &__crypt_data);
+    encrypt_r(block, edflag, &__crypt_data);
 }
 
