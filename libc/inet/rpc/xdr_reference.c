@@ -95,7 +95,7 @@ xdr_reference (xdrs, pp, size, proc)
 	      (void) fputs (_("xdr_reference: out of memory\n"), stderr);
 	    return FALSE;
 	  }
-	bzero (loc, (int) size);
+	memset (loc, 0, (int) size);
 	break;
       default:
 	break;

@@ -1734,7 +1734,8 @@ Wchar *Wstpncpy(register Wchar * __restrict s1,
 /**********************************************************************/
 #ifdef L_bzero
 
-void bzero(void *s, size_t n)
+weak_alias(__bzero,bzero);
+void __bzero(void *s, size_t n)
 {
 	register unsigned char *p = s;
 #ifdef __BCC__
