@@ -82,7 +82,7 @@ void _free_stdio_buffer(unsigned char *buf)
 
 #define bufin (_fixed_buffers[0].data)
 #define bufout (_fixed_buffers[1].data)
-#define buferr (_stdio_streams[3].unbuf)		/* Stderr is unbuffered */
+#define buferr (_stdio_streams[2].unbuf)		/* Stderr is unbuffered */
 
 struct fixed_buffer _fixed_buffers[FIXED_BUFFERS];
 
