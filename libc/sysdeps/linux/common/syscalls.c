@@ -668,9 +668,7 @@ _syscall2(int, fstatfs, int, fd, struct statfs *, buf);
 //#define __NR_ioperm           101
 #ifdef L_ioperm
 #include <sys/io.h>
-syscall3(int, ioperm, unsigned, long, from, unsigned long, num, int,
-
-		 turn_on);
+_syscall3(int, ioperm, unsigned long, from, unsigned long, num, int, turn_on);
 #endif
 #endif
 
@@ -808,12 +806,13 @@ _syscall1(int, swapoff, const char *, path);
 //#define __NR_sysinfo          116
 #ifdef L_sysinfo
 #include <sys/sysinfo.h>
-_sysinfo(int, sysinfo, struct sysinfo *, info);
+_syscall1(int, sysinfo, struct sysinfo *, info);
 #endif
 
 //#define __NR_ipc              117
-#ifdef L_ipc
-//_syscall6(int,ipc,unsigned int,call, int,first, int,second, int,third, void *,ptr, long, fifth);
+#ifdef L___ipc
+#define __NR___ipc __NR_ipc
+_syscall5(int, __ipc, unsigned int, call, int, first, int, second, int, third, void *, ptr);
 #endif
 
 //#define __NR_fsync            118
@@ -892,15 +891,9 @@ _syscall1(int, fchdir, int, fd);
 //#define __NR_afs_syscall      137
 
 //#define __NR_setfsuid         138
-#ifdef L_setfsuid
-SYSCALL__(setfsuid, 1)
-	ret
-#endif
+
 //#define __NR_setfsgid         139
-#ifdef L_setfsgid
-	SYSCALL__(setfsgid, 1)
-	ret
-#endif
+
 //#define __NR__llseek          140
 #ifdef L__llseek
 extern int _llseek(int fd, off_t hoff, off_t loff, loff_t *res, int whence);
@@ -951,14 +944,11 @@ _syscall2(int,flock,int,fd, int,operation);
 #endif
 
 //#define __NR_msync            144
-#ifdef L_msync
-	SYSCALL__(msync, 3)
-	ret
-#endif
 //#define __NR_readv            145
+
 #ifdef L_readv
 #include <sys/uio.h>
-	_syscall3(ssize_t, readv, int, filedes, const struct iovec *, vector, int,
+_syscall3(ssize_t, readv, int, filedes, const struct iovec *, vector, int,
 		  count);
 #endif
 
@@ -976,97 +966,55 @@ _syscall1(pid_t, getsid, pid_t, pid);
 #endif
 
 //#define __NR_fdatasync        148
-#ifdef L_fdatasync
-	SYSCALL__(fdatasync, 1)
-	ret
-#endif
+//
 //#define __NR__sysctl          149
+//#ifdef L_sysctl
+//_syscall1(int, sysctl, struct __sysctl_args *, args);
+//#endif	
+
 //#define __NR_mlock            150
-#ifdef L_mlock
-	SYSCALL__(mlock, 2)
-	ret
-#endif
 //#define __NR_munlock          151
-#ifdef L_munlock
-	SYSCALL__(munlock, 2)
-	ret
-#endif
 //#define __NR_mlockall         152
-#ifdef L_mlockall
-	SYSCALL__(mlockall, 1)
-	ret
-#endif
 //#define __NR_munlockall       153
-#ifdef L_munlockall
-	SYSCALL__(munlockall, 0)
-	ret
-#endif
 //#define __NR_sched_setparam   154
-#ifdef L_sched_setparam
-	SYSCALL__(sched_setparam, 2)
-	ret
-#endif
 //#define __NR_sched_getparam   155
-#ifdef L_sched_getparam
-	SYSCALL__(sched_getparam, 2)
-	ret
-#endif
 //#define __NR_sched_setscheduler       156
-#ifdef L_sched_setscheduler
-	SYSCALL__(sched_setscheduler, 3)
-	ret
-#endif
 //#define __NR_sched_getscheduler       157
-#ifdef L_sched_getscheduler
-	SYSCALL__(sched_getscheduler, 1)
-	ret
-#endif
 //#define __NR_sched_yield              158
-#ifdef L_sched_yield
-	SYSCALL__(sched_yield, 0)
-	ret
-#endif
 //#define __NR_sched_get_priority_max   159
-#ifdef L_sched_get_priority_max
-	SYSCALL__(sched_get_priority_max, 1)
-	ret
-#endif
 //#define __NR_sched_get_priority_min   160
-#ifdef L_sched_get_priority_min
-	SYSCALL__(sched_get_priority_min, 1)
-	ret
-#endif
 //#define __NR_sched_rr_get_interval    161
-#ifdef L_sched_rr_get_interval
-	SYSCALL__(sched_rr_get_interval, 2)
-	ret
-#endif
+
 //#define __NR_nanosleep                162
 #ifdef L_nanosleep
-	SYSCALL__(nanosleep, 2)
-	ret
+#include <time.h>
+_syscall2(int, nanosleep, const struct timespec *, req, struct timespec *, rem);
 #endif
+
 //#define __NR_mremap                   163
 #ifdef L_mremap
 #include <unistd.h>
 #include <sys/mman.h>
-	_syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t,
+_syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t,
 		  new_size, int, may_move);
 #endif
 
 //#define __NR_setresuid                164
-
 //#define __NR_getresuid                165
-
 //#define __NR_vm86                     166
 
 //#define __NR_query_module             167
+#ifdef L_query_module
+_syscall5(int, query_module, const char *, name, int, which,
+		void *, buf, size_t, bufsize, size_t*, ret);
+#endif	
 
 //#define __NR_poll                     168
 #ifdef L_poll
-SYSCALL__(poll, 3)
-	ret
+#include <sys/poll.h>
+_syscall3(int, poll, struct pollfd *, fds, unsigned long int, nfds, int, timeout);
 #endif
+
 //#define __NR_nfsservctl               169
 //#define __NR_setresgid                170
 //#define __NR_getresgid                171
@@ -1083,10 +1031,11 @@ SYSCALL__(poll, 3)
 //#define __NR_chown                    182
 #ifdef L_chown
 #include <unistd.h>
-	_syscall3(int, chown, const char *, path, uid_t, owner, gid_t, group);
+_syscall3(int, chown, const char *, path, uid_t, owner, gid_t, group);
 #endif
 
 //#define __NR_getcwd                   183
+// See unistd/getcwd.c -- we don't use the syscall, even when it is available...
 
 //#define __NR_capget                   184
 
@@ -1101,6 +1050,6 @@ SYSCALL__(poll, 3)
 //#define __NR_putpmsg                  189
 
 //#define __NR_vfork                    190
-//See architecture specific implementation...
+//See sysdeps/linux/<arch>vfork.[cS] for architecture specific implementation...
 
 
