@@ -1,3 +1,4 @@
+/* vi: set sw=4 ts=4: */
 /* Copyright (C) 1995,1996 Robert de Bath <rdebath@cix.compulink.co.uk>
  * This file is part of the Linux-8086 C library and is distributed
  * under the GNU Library General Public License.
@@ -6,321 +7,280 @@
 #include <string.h>
 #include <malloc.h>
 
-/* This is a basic string package; it includes the most used functions
-
-   strlen strcat strcpy strcmp strncat strncpy strncmp strchr strrchr strdup
-   memcpy memccpy memset memmove
-
-   These functions are in seperate files.
-    strpbrk.o strsep.o strstr.o strtok.o strcspn.o
-    strspn.o strcasecmp.o strncasecmp.o
- */
-
 /********************** Function strlen ************************************/
 
 #ifdef L_strlen
-size_t strlen(const char * str)
+size_t strlen(const char *str)
 {
-   register char * p =(char *) str;
-   while(*p) p++;
-   return p-str;
+	register char *ptr = (char *) str;
+
+	while (*ptr)
+		ptr++;
+	return (ptr - str);
 }
 #endif
 
 /********************** Function strcat ************************************/
 
 #ifdef L_strcat
-char * strcat(char *d, const char * s)
+char *strcat(char *dst, const char *src)
 {
-   (void) strcpy(d+strlen(d), s);
-   return d;
+	strcpy(dst + strlen(dst), src);
+	return dst;
 }
 #endif
 
 /********************** Function strcpy ************************************/
 
 #ifdef L_strcpy
-char * strcpy( char *d, const char * s)
+char *strcpy(char *dst, const char *src)
 {
-   /* This is probably the quickest on an 8086 but a CPU with a cache will
-    * prefer to do this in one pass */
-   return memcpy(d, s, strlen(s)+1);
+	register char *ptr = dst;
+
+	while (*src)
+		*dst++ = *src++;
+	*dst = '\0';
+
+	return ptr;
 }
 #endif
 
 /********************** Function strcmp ************************************/
 
 #ifdef L_strcmp
-int strcmp(const char *d, const char * s)
+int strcmp(const char *s1, const char *s2)
 {
-    register const unsigned char *s1 = (const unsigned char *) d;
-    register const unsigned char *s2 = (const unsigned char *) s;
-    unsigned register char c1, c2;
+	unsigned register char c1, c2;
 
-    do
-    {
-	c1 = (unsigned char) *s1++;
-	c2 = (unsigned char) *s2++;
-	if (c1 == '\0')
-	    return c1 - c2;
-    }
-    while (c1 == c2);
+	do {
+		c1 = (unsigned char) *s1++;
+		c2 = (unsigned char) *s2++;
+		if (c1 == '\0')
+			return c1 - c2;
+	}
+	while (c1 == c2);
 
-    return c1 - c2;
+	return c1 - c2;
 }
 #endif
 
 /********************** Function strncat ************************************/
 
 #ifdef L_strncat
-char * strncat( char *d, const char *s, size_t l)
+char *strncat(char *dst, const char *src, size_t len)
 {
-   register char *s1=d+strlen(d), *s2;
-   
-   s2 = memchr(s, 0, l);
-   if( s2 )
-      memcpy(s1, s, s2-s+1);
-   else
-   {
-      memcpy(s1, s, l);
-      s1[l] = '\0';
-   }
-   return d;
+	register char *s1 = dst + strlen(dst), *s2;
+
+	s2 = memchr(src, 0, len);
+	if (s2) {
+		memcpy(s1, src, s2 - src + 1);
+	} else {
+		memcpy(s1, src, len);
+		s1[len] = '\0';
+	}
+	return dst;
 }
 #endif
 
 /********************** Function strncpy ************************************/
 
 #ifdef L_strncpy
-char * strncpy ( char *s1, const char *s2, size_t n)
+char *strncpy(char *dst, const char *src, size_t len)
 {
-    register char c;
-    char *s = s1;
+	char *ptr = dst;
 
-    --s1;
-
-    if (n >= 4)
-    {
-	size_t n4 = n >> 2;
-
-	for (;;)
-	{
-	    c = *s2++;
-	    *++s1 = c;
-	    if (c == '\0')
-		break;
-	    c = *s2++;
-	    *++s1 = c;
-	    if (c == '\0')
-		break;
-	    c = *s2++;
-	    *++s1 = c;
-	    if (c == '\0')
-		break;
-	    c = *s2++;
-	    *++s1 = c;
-	    if (c == '\0')
-		break;
-	    if (--n4 == 0)
-		goto last_chars;
+	while (len--) {
+		if (*src)
+			*dst++ = *src++;
+		else
+			*dst++ = '\0';
 	}
-	n = n - (s1 - s) - 1;
-	if (n == 0)
-	    return s;
-	goto zero_fill;
-    }
 
-last_chars:
-    n &= 3;
-    if (n == 0)
-	return s;
-
-    do
-    {
-	c = *s2++;
-	*++s1 = c;
-	if (--n == 0)
-	    return s;
-    }
-    while (c != '\0');
-
-zero_fill:
-    do
-	*++s1 = '\0';
-    while (--n > 0);
-
-    return s;
+	return ptr;
 }
 #endif
 
 /********************** Function strncmp ************************************/
 
 #ifdef L_strncmp
-int strncmp (const char *s1, const char *s2, size_t n)
+int strncmp(const char *s1, const char *s2, size_t len)
 {
-  unsigned register char c1 = '\0';
-  unsigned register char c2 = '\0';
+	unsigned register char c1 = '\0';
+	unsigned register char c2 = '\0';
 
-  if (n >= 4)
-    {
-      size_t n4 = n >> 2;
-      do
-	{
-	  c1 = (unsigned char) *s1++;
-	  c2 = (unsigned char) *s2++;
-	  if (c1 == '\0' || c1 != c2)
-	    return c1 - c2;
-	  c1 = (unsigned char) *s1++;
-	  c2 = (unsigned char) *s2++;
-	  if (c1 == '\0' || c1 != c2)
-	    return c1 - c2;
-	  c1 = (unsigned char) *s1++;
-	  c2 = (unsigned char) *s2++;
-	  if (c1 == '\0' || c1 != c2)
-	    return c1 - c2;
-	  c1 = (unsigned char) *s1++;
-	  c2 = (unsigned char) *s2++;
-	  if (c1 == '\0' || c1 != c2)
-	    return c1 - c2;
-	} while (--n4 > 0);
-      n &= 3;
-    }
+	while (len > 0) {
+		c1 = (unsigned char) *s1++;
+		c2 = (unsigned char) *s2++;
+		if (c1 == '\0' || c1 != c2)
+			return c1 - c2;
+		len--;
+	}
 
-  while (n > 0)
-    {
-      c1 = (unsigned char) *s1++;
-      c2 = (unsigned char) *s2++;
-      if (c1 == '\0' || c1 != c2)
 	return c1 - c2;
-      n--;
-    }
-
-  return c1 - c2;
 }
 #endif
 
 /********************** Function strchr ************************************/
 
 #ifdef L_strchr
-char *
-strchr(s, c)
-const char * s;
-int c;
+char *strchr(const char *str, int c)
 {
-   register char ch;
-   for(;;)
-   {
-     if( (ch= *s) == c ) return (char*)s;
-     if( ch == 0 ) return 0;
-     s++;
-   }
+	register char ch;
+
+	do {
+		if ((ch = *str) == c)
+			return (char *) str;
+		str++;
+	}
+	while (ch);
+
+	return 0;
 }
 #endif
 
 /********************** Function strrchr ************************************/
 
 #ifdef L_strrchr
-char * strrchr(s, c)
-const char * s;
-int c;
+char *strrchr(const char *str, int c)
 {
-   register char * prev = 0;
-   register char * p = (char*)s;
-   /* For null it's just like strlen */
-   if( c == '\0' ) return p+strlen(p);
+	register char *prev = 0;
+	register char *ptr = (char *) str;
 
-   /* everything else just step along the string. */
-   while( (p=strchr(p, c)) != 0 )
-   {
-      prev = p; p++;
-   }
-   return prev;
+	/* For null it's just like strlen */
+	if (c == '\0')
+		return ptr + strlen(ptr);
+
+	/* everything else just step along the string. */
+	while ((ptr = strchr(ptr, c)) != 0) {
+		prev = ptr;
+		ptr++;
+	}
+	return prev;
 }
 #endif
 
 /********************** Function strdup ************************************/
 
 #ifdef L_strdup
-char * strdup(s)
-const char * s;
+char *strdup(const char *str)
 {
-   register size_t len;
-   register char * p;
+	register size_t len;
+	register char *dst;
 
-   len = strlen(s)+1;
-   p = (char *) malloc(len);
-   if(p) memcpy(p, s, len); /* Faster than strcpy */
-   return p;
+	len = strlen(str) + 1;
+	dst = (char *) malloc(len);
+	if (dst)
+		memcpy(dst, str, len);
+	return dst;
 }
 #endif
 
 /********************** Function memcpy ************************************/
 
 #ifdef L_memcpy
-void *
-memcpy(d, s, l)
-void *d;
-const void *s;
-size_t l;
+void *memcpy(void *dst, const void *src, size_t len)
 {
-   register char *s1=d, *s2=(char *)s;
-   for( ; l>0; l--) *((unsigned char*)s1++) = *((unsigned char*)s2++);
-   return d;
+	register char *a = dst;
+	register const char *b = src;
+
+	while (len--)
+		*a++ = *b++;
+
+	return dst;
 }
 #endif
 
 /********************** Function memccpy ************************************/
 
 #ifdef L_memccpy
-void * memccpy(d, s, c, l)	/* Do we need a fast one ? */
-void *d;
-const void *s;
-int c;
-size_t l;
+void *memccpy(void *dst, const void *src, int c, size_t len)
 {
-   register char *s1=d, *s2=(char*)s;
-   while(l-- > 0)
-      if((*s1++ = *s2++) == c )
-         return s1;
-   return 0;
+	register char *a = dst;
+	register const char *b = src;
+
+	while (len--) {
+		if ((*a++ = *b++) == c)
+			return a;
+	}
+
+	return 0;
 }
 #endif
 
 /********************** Function memset ************************************/
 
 #ifdef L_memset
-void * memset(str, c, l)
-void * str;
-int c;
-size_t l;
+void *memset(void *str, int c, size_t len)
 {
-   register char *s1=str;
-   while(l-->0) *s1++ = c;
-   return str;
+	register char *a = str;
+
+	while (len--)
+		*a++ = c;
+
+	return str;
 }
 #endif
 
 /********************** Function memmove ************************************/
 
 #ifdef L_memmove
-void *
-memmove(d, s, l)
-void *d;
-const void *s;
-size_t l;
+void *memmove(void *dst, const void *src, size_t len)
 {
-   register char *s1=d, *s2=(char*)s;
-   /* This bit of sneakyness c/o Glibc, it assumes the test is unsigned */
-   if( s1-s2 >= l ) return memcpy(d,s,l);
+	register char *s1 = dst, *s2 = (char *) src;
 
-   /* This reverse copy only used if we absolutly have to */
-   s1+=l; s2+=l;
-   while(l-- >0)
-      *(--s1) = *(--s2);
-   return d;
+	/* This bit of sneakyness c/o Glibc, it assumes the test is unsigned */
+	if (s1 - s2 >= len)
+		return memcpy(dst, src, len);
+
+	/* This reverse copy only used if we absolutly have to */
+	s1 += len;
+	s2 += len;
+	while (len-- > 0)
+		*(--s1) = *(--s2);
+	return dst;
+}
+#endif
+
+/********************** Function memchr ************************************/
+
+#ifdef L_memchr
+void *memchr(const void *str, int c, size_t len)
+{
+	register unsigned char *ptr = (unsigned char *) str;
+
+	while (len--) {
+		if (*ptr == (unsigned char) c)
+			return ptr;
+		ptr++;
+	}
+
+	return 0;
+}
+#endif
+
+/********************** Function memcmp ************************************/
+
+#ifdef L_memcmp
+int memcmp(const void *s1, const void *s2, size_t len)
+{
+	unsigned register char c1 = '\0';
+	unsigned register char c2 = '\0';
+
+	register char *str1 = (char *) s1;
+	register char *str2 = (char *) s2;
+
+	while (len > 0) {
+		c1 = (unsigned char) *str1++;
+		c2 = (unsigned char) *str2++;
+		if (c1 == '\0' || c1 != c2)
+			return c1 - c2;
+		len--;
+	}
+
+	return c1 - c2;
 }
 #endif
 
 
-/********************** THE END ********************************************/
 
+/********************** THE END ********************************************/

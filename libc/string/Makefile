@@ -27,11 +27,10 @@ LIBC=$(TOPDIR)libc.a
 MSRC=string.c
 MOBJ=strlen.o strcat.o strcpy.o strcmp.o strncat.o strncpy.o strncmp.o \
 	strchr.o strrchr.o strdup.o memcpy.o memccpy.o memset.o \
-	memmove.o
+	memmove.o memcmp.o memchr.o
 
 CSRC=strpbrk.c strsep.c strstr.c strtok.c strcspn.c \
-	config.c memcmp.c memchr.c strspn.c strcasecmp.c \
-	strncasecmp.c
+	config.c strspn.c strcasecmp.c strncasecmp.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 all: $(MOBJ) $(COBJS) $(LIBC)
@@ -41,8 +40,6 @@ $(LIBC): $(MOBJ) $(COBJS)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-
-memcmp.o: memcopy.h
 
 clean:
 	rm -f *.[oa] *~ core

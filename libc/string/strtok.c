@@ -30,42 +30,34 @@ static char *olds = 0;
 	x = strtok(NULL, "=");		// x = NULL
 		// s = "abc\0-def\0"
 */
-char *
-strtok(s, delim)
-register char *s;
-register const char *delim;
+char *strtok( register char *s, register const char *delim)
 {
-  char *token;
+	char *token;
 
-  if (s == 0)
-    {
-      if (olds == 0)
-	{
-	  return 0;
+	if (s == 0) {
+		if (olds == 0) {
+			return 0;
+		} else
+			s = olds;
 	}
-      else
-	s = olds;
-    }
 
-  /* Scan leading delimiters.  */
-  s += strspn(s, delim);
-  if (*s == '\0')
-    {
-      olds = 0;
-      return 0;
-    }
+	/* Scan leading delimiters.  */
+	s += strspn(s, delim);
+	if (*s == '\0') {
+		olds = 0;
+		return 0;
+	}
 
-  /* Find the end of the token.  */
-  token = s;
-  s = strpbrk(token, delim);
-  if (s == 0)
-    /* This token finishes the string.  */
-    olds = 0;
-  else
-    {
-      /* Terminate the token and make OLDS point past it.  */
-      *s = '\0';
-      olds = s + 1;
-    }
-  return token;
+	/* Find the end of the token.  */
+	token = s;
+	s = strpbrk(token, delim);
+	if (s == 0)
+		/* This token finishes the string.  */
+		olds = 0;
+	else {
+		/* Terminate the token and make OLDS point past it.  */
+		*s = '\0';
+		olds = s + 1;
+	}
+	return token;
 }

@@ -19,21 +19,16 @@ Cambridge, MA 02139, USA.  */
 #include <string.h>
 
 
-char *
-strsep(pp, delim)
-char **pp;
-const char *delim;
+char *strsep( char **pp, const char *delim)
 {
-  char *p, *q;
+	char *p, *q;
 
-  if (!(p = *pp))
-    return 0;
-  if ((q = strpbrk (p, delim)))
-    {
-      *pp = q + 1;
-      *q = '\0';
-    }
-  else
-    *pp = 0;
-  return p;
+	if (!(p = *pp))
+		return 0;
+	if ((q = strpbrk(p, delim))) {
+		*pp = q + 1;
+		*q = '\0';
+	} else
+		*pp = 0;
+	return p;
 }

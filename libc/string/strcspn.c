@@ -33,18 +33,15 @@
 
 /* Return the length of the maximum initial segment of S
    which contains no characters from REJECT.  */
-size_t
-strcspn (s, reject)
-     const char *s;
-     const char *reject;
+size_t strcspn( const char *s, const char *reject)
 {
-  size_t count = 0;
+	size_t count = 0;
 
-  while (*s != '\0')
-    if (strchr (reject, *s++) == NULL)
-      ++count;
-    else
-      return count;
+	while (*s != '\0')
+		if (strchr(reject, *s++) == NULL)
+			++count;
+		else
+			return count;
 
-  return count;
+	return count;
 }

@@ -17,76 +17,72 @@
 static char *args[16];
 static char cfgbuf[128];
 
-static char *
-ws(char **buf)
+static char *ws(char **buf)
 {
-  char *b = *buf;
-  char *p;
+	char *b = *buf;
+	char *p;
 
-  /* eat ws */
-  while (*b &&
-	 (*b == ' '  ||
-	  *b == '\n' ||
-	  *b == '\t')) b++;
-  p = b;
+	/* eat ws */
+	while (*b && (*b == ' ' || *b == '\n' || *b == '\t'))
+		b++;
+	p = b;
 
-  /* find the end */
-  while (*p &&
-	 !(*p == ' '  ||
-	   *p == '\n' ||
-	   *p == '\t')) p++;
-  *p = 0;
-  *buf = p+1;
-  return b;
+	/* find the end */
+	while (*p && !(*p == ' ' || *p == '\n' || *p == '\t'))
+		p++;
+	*p = 0;
+	*buf = p + 1;
+	return b;
 }
 
-char **
-cfgread(FILE *fp)
+char **cfgread(FILE * fp)
 {
-  char *ebuf;
-  char *p;
-  int i;
+	char *ebuf;
+	char *p;
+	int i;
 
-  if (!fp) {
-    errno = EIO;
-    return (void *)0;
-  }
-  
-  while (fgets(cfgbuf, sizeof(cfgbuf), fp)) {
+	if (!fp) {
+		errno = EIO;
+		return (void *) 0;
+	}
 
-    /* ship comment lines */
-    if (cfgbuf[0] == '#') continue;
+	while (fgets(cfgbuf, sizeof(cfgbuf), fp)) {
 
-    ebuf = cfgbuf + strlen(cfgbuf);
+		/* ship comment lines */
+		if (cfgbuf[0] == '#')
+			continue;
 
-    p = cfgbuf;
-    for (i = 0; i < 16 && p < ebuf; i++) {
-      args[i] = ws(&p);
-    }
-    args[i] = (void *)0;
+		ebuf = cfgbuf + strlen(cfgbuf);
 
-    /* return if we found something */
-    if (strlen(args[0])) return args;
-  }
-  return (void *)0;
+		p = cfgbuf;
+		for (i = 0; i < 16 && p < ebuf; i++) {
+			args[i] = ws(&p);
+		}
+		args[i] = (void *) 0;
+
+		/* return if we found something */
+		if (strlen(args[0]))
+			return args;
+	}
+	return (void *) 0;
 }
 
-char **
-cfgfind(FILE *fp, char *var)
+char **cfgfind(FILE * fp, char *var)
 {
-  char **ret;
-  char search[80];
+	char **ret;
+	char search[80];
 
-  if (!fp || !var) {
-    errno = EIO;
-    return (void *)0;
-  }
+	if (!fp || !var) {
+		errno = EIO;
+		return (void *) 0;
+	}
 
-  strncpy(search, var, sizeof(search));
+	strncpy(search, var, sizeof(search));
 
-  fseek(fp, 0, SEEK_SET);
-  while ((ret = cfgread(fp))) {
-    if (!strcmp(ret[0], search)) return ret;
-  }
-  return (void *)0;
+	fseek(fp, 0, SEEK_SET);
+	while ((ret = cfgread(fp))) {
+		if (!strcmp(ret[0], search))
+			return ret;
+	}
+	return (void *) 0;
 }
