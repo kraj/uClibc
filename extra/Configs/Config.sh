@@ -50,9 +50,8 @@ config CONFIG_SH2
 	bool "SH2"
 
 config CONFIG_SH3
-	select HAS_FPU
+	select ARCH_HAS_NO_FPU
 	select UCLIBC_HAS_MMU
-	select ARCH_HAS_NO_LDSO
 	bool "SH3"
 
 config CONFIG_SH4
