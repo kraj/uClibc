@@ -118,6 +118,7 @@
 #endif /* __UCLIBC_HAS_WCHAR__ */
 
 #include <bits/uClibc_uintmaxtostr.h>
+#include <bits/uClibc_va_copy.h>
 
 /* Some older or broken gcc toolchains define LONG_LONG_MAX but not
  * LLONG_MAX.  Since LLONG_MAX is part of the standard, that's what
@@ -204,27 +205,6 @@
 /* N for spec itself, plus 1 each for width and precision */
 #define MAX_ARGS        (MAX_ARGS_PER_SPEC + 2)
 #endif
-
-
-/**********************************************************************/
-/* Deal with pre-C99 compilers. */
-
-#ifndef va_copy
-
-#ifdef __va_copy
-#define va_copy(A,B)	__va_copy(A,B)
-#else
-	/* TODO -- maybe create a bits/vacopy.h for arch specific versions
-	 * to ensure we get the right behavior?  Either that or fall back
-	 * on the portable (but costly in size) method of using a va_list *.
-	 * That means a pointer derefs in the va_arg() invocations... */
-#warning Neither va_copy (C99/SUSv3) or __va_copy is defined.  Using a simple copy instead.  But you should really check that this is appropriate...
-	/* the glibc manual suggests that this will usually suffice when
-        __va_copy doesn't exist.  */
-#define va_copy(A,B)	A = B
-#endif
-
-#endif /* va_copy */
 
 /**********************************************************************/
 

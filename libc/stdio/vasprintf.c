@@ -7,6 +7,7 @@
 
 #include "_stdio.h"
 #include <stdarg.h>
+#include <bits/uClibc_va_copy.h>
 
 #ifdef __UCLIBC_MJN3_ONLY__
 /* Do the memstream stuff inline to avoid fclose and the openlist? */
@@ -16,19 +17,6 @@
 #ifndef __STDIO_HAS_VSNPRINTF
 #warning Skipping vasprintf since no vsnprintf!
 #else
-
-/* Deal with pre-C99 compilers. */
-
-#ifndef va_copy
-
-#ifdef __va_copy
-#define va_copy(A,B)	__va_copy(A,B)
-#else
-#warning Neither va_copy (C99/SUSv3) nor __va_copy is defined.  Using a simple copy instead.  But you should really check that this is appropriate...
-#define va_copy(A,B)	A = B
-#endif
-
-#endif /* va_copy */
 
 int vasprintf(char **__restrict buf, const char * __restrict format,
 			 va_list arg)
