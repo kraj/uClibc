@@ -9,11 +9,12 @@ dir=uclibc-${version}-cvs${today}
 mkdir -p ${topdir}/uclibc-tmp
 cd ${topdir}/uclibc-tmp
 
-export CVSROOT=':pserver:anonymous@cvs.uclinux.org:/var/cvs'
-if ! grep -q '^.pserver.anonymous.cvs.uclinux.org..var.cvs' ~/.cvspass
-then
-	echo "$CVSROOT" 'Ay=0=a%0bZ' >>~/.cvspass
-fi
+#export CVSROOT=':pserver:anonymous@cvs.uclibc.org:/var/cvs'
+#if ! grep -q '^.pserver.anonymous.cvs.uclibc.org..var.cvs' ~/.cvspass
+#then
+#	echo "$CVSROOT" 'Ay=0=a%0bZ' >>~/.cvspass
+#fi
+export CVSROOT='ds@cvs.uclibc.org:/var/cvs'
 
 cvs co -d ${dir} uClibc
 
