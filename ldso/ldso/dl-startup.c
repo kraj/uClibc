@@ -282,8 +282,8 @@ found_got:
 	SEND_STDERR("scanning DYNAMIC section\n");
 #endif
 	tpnt->dynamic_addr = dpnt;
-#ifdef __mips__
-	/* MIPS cannot call functions here, must inline */
+#if defined(__mips__) || defined(__cris__)
+	/* Some architectures cannot call functions here, must inline */
 	__dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL);
 #else
 	_dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL);
