@@ -54,7 +54,7 @@ struct __dirstream {
   size_t dd_size;
 
   /* -> directory buffer */
-  struct dirent *dd_buf;
+  void *dd_buf;
 
   /* offset of the next dir entry in directory. */
   off_t dd_nextoff;

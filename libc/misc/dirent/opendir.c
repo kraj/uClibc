@@ -15,7 +15,7 @@ DIR *opendir(const char *name)
 {
 	int fd;
 	struct stat statbuf;
-	struct dirent *buf;
+	char *buf;
 	DIR *ptr;
 
 	if (stat(name, &statbuf))
