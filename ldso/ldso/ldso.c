@@ -209,7 +209,6 @@ LD_BOOT(unsigned long args)
 	Elf32_auxv_t auxvt[AT_EGID + 1];
 	unsigned char *malloc_buffer, *mmap_zero;
 	Elf32_Dyn *dpnt;
-	Elf32_Dyn *dpnt_debug = NULL;
 	unsigned long *hash_addr;
 	struct r_debug *debug_addr;
 	int indx;
@@ -432,8 +431,6 @@ LD_BOOT(unsigned long args)
 					if (dpnt->d_tag == DT_DEBUG)
 #ifdef FORCE_SHAREABLE_TEXT_SEGMENTS
 						dpnt->d_un.d_val = (unsigned long) debug_addr;
-#else
-						dpnt_debug = dpnt;
 #endif
 					if (dpnt->d_tag == DT_TEXTREL)
 						app_tpnt->dynamic_info[DT_TEXTREL] = 1;
@@ -486,9 +483,6 @@ LD_BOOT(unsigned long args)
 			}
 		}
 	}
-
-	/* Now we can store the debug structure address */
-	dpnt_debug->d_un.d_val = (unsigned long) debug_addr;
 #endif
 
 
