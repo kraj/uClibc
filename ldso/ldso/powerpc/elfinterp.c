@@ -333,7 +333,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 			if(_dl_debug_move)
 				_dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
 					    symname, symtab[symtab_index].st_size,
-					    symbol_addr, symtab[symtab_index].st_value);
+					    symbol_addr, reloc_addr);
 #endif
 			_dl_memcpy((char *) reloc_addr, (char *) finaladdr, symtab[symtab_index].st_size);
 		}
