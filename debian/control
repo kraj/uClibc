@@ -7,7 +7,7 @@ Standards-Version: 3.5.2
 
 Package: libuclibc-dev
 Section: devel
-Architecture: any
+Architecture: i386 powerpc mipsel sh m68k arm
 Depends: ${shlibs:Depends}
 Description: A small implementation of the C library
  uClibc is an implementation of the standard C library that is
@@ -16,8 +16,7 @@ Description: A small implementation of the C library
 
 Package: libuclibc0
 Section: libs
-Architecture: any
-Depends: ${shlibs:Depends}
+Architecture: i386 powerpc mipsel sh m68k arm
 Description: A small implementation of the C library
  uClibc is an implementation of the standard C library that is
  much smaller than glibc, which makes it useful for embedded
@@ -25,7 +24,7 @@ Description: A small implementation of the C library
 
 Package: uclibc-toolchain
 Section: devel
-Architecture: any
+Architecture: i386 powerpc mipsel sh m68k arm
 Depends: gcc|c-compiler, binutils, ${shlibs:Depends}
 Conflicts: uclibc-gcc
 Replaces: uclibc-gcc

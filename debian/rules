@@ -30,7 +30,9 @@ p_lib=libuclibc0$(target_suffix)
 p_gcc=uclibc$(target_suffix)-toolchain
 
 debian/control: debian/control.in debian/rules
-	sed s/_TARGET_/$(target_suffix)/ debian/control.in >debian/control
+	sed -e s/_TARGET_/$(target_suffix)/ \
+	  -e "s/_ARCHS_/i386 powerpc mipsel sh m68k arm/" \
+	  debian/control.in >debian/control
 
 build: build-stamp
 build-stamp: debian/control
@@ -99,6 +101,8 @@ install: build debian/control
 	  debian/$(p_lib)/usr/share/man/man1/$(target)-uclibc-ldd.1
 	install -m 644 debian/uclibc-ldconfig.1 \
 	  debian/$(p_lib)/usr/share/man/man1/$(target)-uclibc-ldconfig.1
+	install -m 644 debian/uclibc-readelf.1 \
+	  debian/$(p_lib)/usr/share/man/man1/$(target)-uclibc-readelf.1
 
 ifeq ($(with_shared_libs),y)
 ifeq ($(target),$(DEB_HOST_GNU_CPU))
@@ -130,6 +134,9 @@ binary-arch: build install
 #	dh_undocumented
 	dh_installchangelogs 
 	dh_link
+	cd debian/libuclibc0 && ../fixlinks
+	cd debian/libuclibc-dev && ../fixlinks
+	cd debian/uclibc-toolchain && ../fixlinks
 	dh_strip
 	dh_compress
 	dh_fixperms -Xld-uClibc

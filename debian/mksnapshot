@@ -1,20 +1,34 @@
-#!/bin/sh
+#!/bin/bash
 
 
-version=$(dpkg-parsechangelog | grep ^Version | sed 's/^Version: //' | sed 's/-1$//')
+topdir=$(pwd)
+today=$(date +%Y%m%d)
 
-dir=uclibc-${version}
+mkdir -p ${topdir}/uclibc-tmp
+cd ${topdir}/uclibc-tmp
 
-export CVSROOT='cvs.uclinux.org:/var/cvs'
-#export CVSROOT=':pserver:anonymous@cvs.uclinux.org:/var/cvs'
-#if ! grep -q '^.pserver.anonymous.cvs.uclinux.org..var.cvs' ~/.cvspass
-#then
-#echo "$CVSROOT" 'Ay=0=a%0bZ' >>~/.cvspass
-#fi
+export CVSROOT=':pserver:anonymous@cvs.uclinux.org:/var/cvs'
+if ! grep -q '^.pserver.anonymous.cvs.uclinux.org..var.cvs' ~/.cvspass
+then
+	echo "$CVSROOT" 'Ay=0=a%0bZ' >>~/.cvspass
+fi
 
-rm -rf ${dir}
-cvs co -d ${dir} uClibc
+cvs co uClibc
 
-tar -czvf ${dir}.tgz ${dir}
+cd ${topdir}/uclibc-tmp/uClibc/debian
+echo "uclibc (0.9.5-cvs${today}-1) unstable; urgency=low" >changelog.tmp
+echo >>changelog.tmp
+echo "  * This is an automatic snapshot of uClibc CVS" >>changelog.tmp
+echo >>changelog.tmp
+echo " -- David Schleef <ds@schleef.org>  $(date -R)" >>changelog.tmp
+cat changelog >>changelog.tmp
+mv changelog.tmp changelog
 
+cd ${topdir}/uclibc-tmp
+mv uClibc uclibc-cvs-${today}
+tar -czf ../uclibc-cvs-${today}.tgz uclibc-cvs-${today}
+
+
+cd ${topdir}
+rm -rf uclibc-tmp
 

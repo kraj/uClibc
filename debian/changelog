@@ -30,6 +30,3 @@ uclibc (0.9.5-cvs20010625-1) unstable; urgency=low
 
  -- David Schleef <ds@schleef.org>  Mon, 25 Jun 2001 22:13:43 -0700
 
-Local variables:
-mode: debian-changelog
-End:
