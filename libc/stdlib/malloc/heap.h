@@ -38,7 +38,7 @@ struct heap
   /* A lock that can be used by callers to control access to the heap.
      The heap code _does not_ use this lock, it's merely here for the
      convenience of users!  */
-  extern heap_mutex_t lock;
+  pthread_mutex_t lock;
 #endif
 };
 
