@@ -421,12 +421,6 @@ extern char *getcwd (char *__buf, size_t __size) __THROW;
    that value is used.  */
 extern char *get_current_dir_name (void) __THROW;
 
-#if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
-/* Put the absolute pathname of the current working directory in BUF.
-   If successful, return BUF.  If not, put an error message in
-   BUF and return NULL.  BUF should be at least PATH_MAX bytes long.  */
-extern char *getwd (char *__buf) __THROW;
-#endif
 
 
 /* Duplicate FD, returning a new file descriptor on the same file.  */
@@ -664,12 +658,6 @@ extern int ttyname_r (int __fd, char *__buf, size_t __buflen) __THROW;
    with a terminal, zero if not.  */
 extern int isatty (int __fd) __THROW;
 
-#if defined __USE_BSD \
-    || (defined __USE_XOPEN_EXTENDED && !defined __USE_UNIX98)
-/* Return the index into the active-logins file (utmp) for
-   the controlling terminal.  */
-extern int ttyslot (void) __THROW;
-#endif
 
 
 /* Make a link to FROM named TO.  */
@@ -709,10 +697,6 @@ extern char *getlogin (void) __THROW;
 extern int getlogin_r (char *__name, size_t __name_len) __THROW;
 #endif
 
-#ifdef	__USE_BSD
-/* Set the login name returned by `getlogin'.  */
-extern int setlogin (__const char *__name) __THROW;
-#endif
 
 
 #ifdef	__USE_POSIX2
@@ -754,17 +738,6 @@ extern int setdomainname (__const char *__name, size_t __len) __THROW;
    group of the control terminal.  */
 extern int vhangup (void) __THROW;
 
-/* Revoke the access of all descriptors currently open on FILE.  */
-extern int revoke (__const char *__file) __THROW;
-
-
-/* Enable statistical profiling, writing samples of the PC into at most
-   SIZE bytes of SAMPLE_BUFFER; every processor clock tick while profiling
-   is enabled, the system examines the user PC and increments
-   SAMPLE_BUFFER[((PC - OFFSET) / 2) * SCALE / 65536].  If SCALE is zero,
-   disable profiling.  Returns zero on success, -1 on error.  */
-extern int profil (unsigned short int *__sample_buffer, size_t __size,
-		   size_t __offset, unsigned int __scale) __THROW;
 
 
 /* Turn accounting on if NAME is an existing file.  The system will then write
