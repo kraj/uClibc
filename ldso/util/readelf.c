@@ -56,7 +56,7 @@ Elf32_Shdr * elf_find_section_type( int key, Elf32_Ehdr *ehdr)
 	int j;
 	Elf32_Shdr *shdr = (Elf32_Shdr *)(ehdr->e_shoff + (char *)ehdr);
 	for (j = ehdr->e_shnum; --j>=0; ++shdr) {
-		if (key==byteswap32_to_host(shdr->sh_type)) {
+		if (key==(int)byteswap32_to_host(shdr->sh_type)) {
 			return shdr;
 		}
 	}
@@ -68,7 +68,7 @@ Elf32_Phdr * elf_find_phdr_type( int type, Elf32_Ehdr *ehdr)
 	int j;
 	Elf32_Phdr *phdr = (Elf32_Phdr *)(ehdr->e_phoff + (char *)ehdr);
 	for (j = ehdr->e_phnum; --j>=0; ++phdr) {
-		if (type==byteswap32_to_host(phdr->p_type)) {
+		if (type==(int)byteswap32_to_host(phdr->p_type)) {
 			return phdr;
 		}
 	}
@@ -82,7 +82,7 @@ void * elf_find_dynamic(int const key, Elf32_Dyn *dynp,
 	Elf32_Phdr *pt_text = elf_find_phdr_type(PT_LOAD, ehdr);
 	unsigned tx_reloc = byteswap32_to_host(pt_text->p_vaddr) - byteswap32_to_host(pt_text->p_offset);
 	for (; DT_NULL!=byteswap32_to_host(dynp->d_tag); ++dynp) {
-		if (key == byteswap32_to_host(dynp->d_tag)) {
+		if (key == (int)byteswap32_to_host(dynp->d_tag)) {
 			if (return_val == 1)
 				return (void *)(intptr_t)byteswap32_to_host(dynp->d_un.d_val);
 			else
@@ -307,8 +307,9 @@ int main( int argc, char** argv)
 	Elf32_Shdr *dynsec;
 	Elf32_Dyn *dynamic;
 
+        fprintf (stderr," argc:%d argv:'%s' '%s'\n",argc, argv[0], argv[1]);
 
-	if (!thefilename) {
+	if (argc < 2 || !thefilename) {
 		fprintf(stderr, "No filename specified.\n");
 		exit(EXIT_FAILURE);
 	}
@@ -321,7 +322,7 @@ int main( int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 
-	if (statbuf.st_size < sizeof(Elf32_Ehdr))
+	if ((size_t)statbuf.st_size < sizeof(Elf32_Ehdr))
 		goto foo;
 
 	/* mmap the file to make reading stuff from it effortless */

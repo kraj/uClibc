@@ -45,7 +45,7 @@ readelf: readelf.c
 	strip -x -R .note -R .comment $@
 
 readelf.target: readelf.c
-	$(TARGET_CC) $(CFLAGS) --uclibc-use-build-dir -Wl,-s readelf.c -o $@
+	$(TARGET_CC) $(CFLAGS) -Wl,-s readelf.c -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 readsoname.o: readsoname.c readsoname2.c
