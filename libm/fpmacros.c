@@ -158,11 +158,13 @@ int __finitef ( float x )
    z.fval = x;
    return ((z.lval & FEXP_MASK) != FEXP_MASK);
 }
+weak_alias (__finitef, finitef)
    
 int __finite ( double x )
 {
 	return ( __fpclassify ( x ) >= FP_ZERO ); 
 }
+weak_alias (__finite, finite)
 
 
 /***********************************************************************
