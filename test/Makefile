@@ -1,6 +1,9 @@
 TOPDIR=../
 include $(TOPDIR)Rules.make
 
+# Check if 'ls -sh' works or not 
+LSFLAGS = $(shell if ls -sh >/dev/null 2>&1; \
+    then echo "-sh"; else echo "-s" ; fi)
 
 XCFLAGS = -Wall -Os -fomit-frame-pointer -fno-builtin -nostdinc \
 	-I$(TOPDIR)include -I/usr/include/linux
@@ -36,8 +39,8 @@ hello: hello.c Makefile $(TOPDIR)libc.a
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIP)
-	ldd $@
-	ls -sh $@
+	-ldd $@
+	ls $(LSFLAGS) $@
 	-./$@
 	-@ echo " "
 
@@ -49,8 +52,8 @@ hello_glibc: hello.c Makefile $(TOPDIR)libc.a
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
 	$(STRIP)
-	ldd $@
-	ls -sh $@
+	-ldd $@
+	ls $(LSFLAGS) $@
 	-./$@
 	-@ echo " "
 
@@ -69,8 +72,8 @@ testmalloc: testmalloc.c Makefile $(TOPDIR)libc.a
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIP)
-	ldd $@
-	ls -sh $@
+	-ldd $@
+	ls $(LSFLAGS) $@
 	-./$@
 	-@ echo " "
 
@@ -82,8 +85,8 @@ testmalloc_glibc: testmalloc.c Makefile $(TOPDIR)libc.a
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
 	$(STRIP)
-	ldd $@
-	ls -sh $@
+	-ldd $@
+	ls $(LSFLAGS) $@
 	-./$@
 	-@ echo " "
 
