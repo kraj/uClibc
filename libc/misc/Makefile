@@ -26,7 +26,7 @@ LIBC=$(TOPDIR)libc.a
 
 
 DIRS = assert crypt ctype fnmatch glob internals lsearch mntent syslog shm \
-	time utmp tsearch wordexp
+	time utmp tsearch
 
 # regex bombs out with an internal compiler error using m68k-pic-coff-gcc.
 ifneq ($(TARGET_ARCH),m68k)
