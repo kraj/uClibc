@@ -36,6 +36,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <rpc/rpc.h>
 #include <netdb.h>
@@ -59,12 +60,6 @@ struct rpcdata {
 static struct rpcent *interpret(const char *val, int len);
 struct hostent *gethostent();
 char *inet_ntoa();
-
-#ifndef __linux__
-static char *index();
-#else
-char *index();
-#endif
 
 static char RPCDB[] = "/etc/rpc";
 

@@ -70,7 +70,7 @@ struct sockaddr_in *addr;
 /* 
  * don't use gethostbyname, which would invoke yellow pages
  */
-get_myaddress(addr)
+void get_myaddress(addr)
 struct sockaddr_in *addr;
 {
 	int s;
