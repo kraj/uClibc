@@ -25,19 +25,22 @@ realloc (void *mem, size_t new_size)
     return malloc (new_size);
   else
     {
-      void *base_mem = mem - MALLOC_ALIGNMENT;
-      size_t size = *(size_t *)base_mem;
+      char *base_mem = MALLOC_BASE (mem);
+      size_t size = MALLOC_SIZE (mem);
+
+      /* Make sure that we're dealing in a multiple of the heap allocation
+	 unit (SIZE is already guaranteed to be so).  */
+      // new_size = HEAP_ADJUST_SIZE (new_size);
 
       MALLOC_DEBUG ("realloc: 0x%lx, %d (base = 0x%lx, total_size = %d)\n",
 		    (long)mem, new_size, (long)base_mem, size);
 
-      if (new_size <= size)
-	return mem;
-      else
+      if (new_size > size)
+	/* Grow the block.  */
 	{
 	  void *new_mem = 0;
 	  size_t ext_size = new_size - size;
-	  void *ext_addr = (char *)base_mem + ext_size;
+	  void *ext_addr = base_mem + size;
 
 	  __malloc_lock ();
 	  ext_size = __heap_alloc_at (&__malloc_heap, ext_addr, ext_size);
@@ -62,5 +65,15 @@ realloc (void *mem, size_t new_size)
 
 	  return new_mem;
 	}
+      else if (new_size + HEAP_MIN_FREE_AREA_SIZE <= size)
+	/* Shrink the block.  */
+	{
+	  __malloc_lock ();
+	  __heap_free (&__malloc_heap, base_mem + new_size, new_size - size);
+	  __malloc_unlock ();
+	}
+      else
+	/* Do nothing.  */
+	return mem;
     }
 }
