@@ -15,8 +15,8 @@
 **   
 **  Change History (most recent first):
 **
-**     07 Jul 01   ram      First created from fpfloatfunc.c, fp.c,
-**							classify.c and sign.c in MathLib v3 Mac OS9.
+**     07 Jul 01   ram      First created from fpfloatfunc.c, fp.c, 
+**				classify.c and sign.c in MathLib v3 Mac OS9.
 **            
 ***********************************************************************/
 
@@ -148,7 +148,7 @@ long int __isnorma ( double x )
    Calls:  none
 ***********************************************************************/
 
-long int __isfinitef ( float x )
+long int __finitef ( float x )
 {   
    union {
       unsigned long int lval;
@@ -159,62 +159,9 @@ long int __isfinitef ( float x )
    return ((z.lval & FEXP_MASK) != FEXP_MASK);
 }
    
-long int __isfinite ( double x )
+long int __finite ( double x )
 {
 	return ( __fpclassify ( x ) >= FP_ZERO ); 
-}
-
-
-/***********************************************************************
-* long int __isinff(float x) returns -1 if value represents  negative
-*	infinity,  1  if value represents positive infinity,
-*	and 0 otherwise.
-*
-* Calls:  __signbit
-* +***********************************************************************/
-long int __isinff ( float x )
-{
-    long int class = __fpclassifyf(x);
-    if ( class == FP_INFINITE ) {
-	return ( (__signbitf(x)) ? -1 : 1);
-    }
-    return 0;
-}
-
-long int __isinf ( double x )
-{
-    long int class = __fpclassify(x);
-    if ( class == FP_INFINITE ) {
-	return ( (__signbit(x)) ? -1 : 1);
-    }
-    return 0;
-}
-
-/***********************************************************************
-   long int __isnanf(float x) returns nonzero if and only if x is a
-   NaN and zero otherwise.
-   
-   Exceptions:  INVALID is raised if x is a signaling NaN; in this case,
-                nonzero is returned.
-   
-   Calls:  none
-***********************************************************************/
-
-long int __isnanf ( float x )
-{   
-   union {
-      unsigned long int lval;
-      float fval;
-   } z;
-   
-   z.fval = x;
-   return (((z.lval&FEXP_MASK) == FEXP_MASK) && ((z.lval&FFRAC_MASK) != 0));
-}
-
-long int __isnan ( double x )
-{
-	long int class = __fpclassify(x);
-	return ( ( class == FP_SNAN ) || ( class == FP_QNAN ) ); 
 }
 
 
@@ -260,4 +207,75 @@ long int __signbit ( double arg )
       return sign;
 }
 
+
+/***********************************************************************
+* long int __isinff(float x) returns -1 if value represents  negative
+*	infinity,  1  if value represents positive infinity,
+*	and 0 otherwise.
+*
+* Calls:  __signbit
+* +***********************************************************************/
+long int __isinff ( float x )
+{
+    long int class = __fpclassifyf(x);
+    if ( class == FP_INFINITE ) {
+	return ( (__signbitf(x)) ? -1 : 1);
+    }
+    return 0;
+}
+
+long int __isinf ( double x )
+{
+    long int class = __fpclassify(x);
+    if ( class == FP_INFINITE ) {
+	return ( (__signbit(x)) ? -1 : 1);
+    }
+    return 0;
+}
+
+#if 0
+long int __isinfl ( long double x )
+{
+    long int class = __fpclassify(x);
+    if ( class == FP_INFINITE ) {
+	return ( (__signbit(x)) ? -1 : 1);
+    }
+    return 0;
+}
+#endif
+
+/***********************************************************************
+   long int __isnanf(float x) returns nonzero if and only if x is a
+   NaN and zero otherwise.
+   
+   Exceptions:  INVALID is raised if x is a signaling NaN; in this case,
+                nonzero is returned.
+   
+   Calls:  none
+***********************************************************************/
+
+long int __isnanf ( float x )
+{   
+   union {
+      unsigned long int lval;
+      float fval;
+   } z;
+   
+   z.fval = x;
+   return (((z.lval&FEXP_MASK) == FEXP_MASK) && ((z.lval&FFRAC_MASK) != 0));
+}
+
+long int __isnan ( double x )
+{
+	long int class = __fpclassify(x);
+	return ( ( class == FP_SNAN ) || ( class == FP_QNAN ) ); 
+}
+
+#if 0
+long int __isnanl ( long double x )
+{
+	long int class = __fpclassify(x);
+	return ( ( class == FP_SNAN ) || ( class == FP_QNAN ) ); 
+}
+#endif
 

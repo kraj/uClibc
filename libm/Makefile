@@ -62,7 +62,7 @@ CSRC =   e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
          w_cosh.c w_drem.c w_exp.c w_fmod.c w_gamma.c w_gamma_r.c\
          w_hypot.c w_j0.c w_j1.c w_jn.c w_lgamma.c w_lgamma_r.c\
          w_log.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c\
-         w_sqrt.c w_sqrtf.c fpmacros.c
+         w_sqrt.c w_sqrtf.c fpmacros.c nan.c
 else
 # This list of math functions was taken from POSIX/IEEE 1003.1b-1993
 CSRC =   w_acos.c w_asin.c s_atan.c w_atan2.c s_ceil.c s_cos.c \
