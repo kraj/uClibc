@@ -1,4 +1,4 @@
-/* Copyright (C) 1991,1993,1996-1999,2000 Free Software Foundation, Inc.
+/* Copyright (C) 1998 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,26 +17,13 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-/* Generate a unique temporary filename using up to five characters of PFX
-   if it is not NULL.  The directory to put this file in is searched for
-   as follows: First the environment variable "TMPDIR" is checked.
-   If it contains the name of a writable directory, that directory is used.
-   If not and if DIR is not NULL, that value is checked.  If that fails,
-   P_tmpdir is tried and finally "/tmp".  The storage for the filename
-   is allocated by `malloc'.  */
-char *
-tempnam (const char *dir, const char *pfx)
+/* Generate a unique temporary file name from TEMPLATE.
+   The last six characters of TEMPLATE must be "XXXXXX";
+   they are replaced with a string that makes the filename unique.
+   Then open the file and return a fd. */
+int mkstemp64 (char *template)
 {
-  char buf[FILENAME_MAX];
-
-  if (__path_search (buf, FILENAME_MAX, dir, pfx, 1))
-    return NULL;
-
-  if (__gen_tempname (buf, __GT_NOCREATE))
-    return NULL;
-
-  return strdup (buf);
+    return __gen_tempname (template, __GT_BIGFILE);
 }
-

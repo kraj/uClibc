@@ -27,11 +27,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <assert.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/time.h>
+
 
 /* Return nonzero if DIR is an existent directory.  */
 static int direxists (const char *dir)
@@ -46,8 +48,8 @@ static int direxists (const char *dir)
    for use with mk[s]temp.  Will fail (-1) if DIR is non-null and
    doesn't exist, none of the searched dirs exists, or there's not
    enough space in TMPL. */
-int __path_search (char *tmpl, size_t tmpl_len, const char *dir, const char *pfx,
-	       int try_tmpdir)
+int __path_search (char *tmpl, size_t tmpl_len, const char *dir, 
+	const char *pfx, int try_tmpdir)
 {
     //const char *d;
     size_t dlen, plen;
@@ -111,22 +113,28 @@ static const char letters[] =
 /* Generate a temporary file name based on TMPL.  TMPL must match the
    rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
    does not exist at the time of the call to __gen_tempname.  TMPL is
-   overwritten with the result.  If OPENIT is nonzero, creates the
-   file and returns a read-write fd; the file is mode 0600 modulo
-   umask.  If LARGEFILE is nonzero, uses open64() instead of open().
+   overwritten with the result.  
+
+   KIND may be one of:
+   __GT_NOCREATE:       simply verify that the name does not exist
+                        at the time of the call.
+   __GT_FILE:           create the file using open(O_CREAT|O_EXCL)
+                        and return a read-write fd.  The file is mode 0600.
+   __GT_BIGFILE:        same as __GT_FILE but use open64().
+   __GT_DIR:            create a directory, which will be mode 0700.
 
    We use a clever algorithm to get hard-to-predict names. */
-int __gen_tempname (char *tmpl, int openit)
+int __gen_tempname (char *tmpl, int kind)
 {
     int len;
     char *XXXXXX;
     static uint64_t value;
     struct timeval tv;
-	uint32_t high, low, rh;
-	unsigned int k;
+    uint32_t high, low, rh;
+    unsigned int k;
     int count, fd;
     int save_errno = errno;
-	int i;
+    int i;
 
     len = strlen (tmpl);
     if (len < 6 || strcmp (&tmpl[len - 6], "XXXXXX"))
@@ -148,46 +156,60 @@ int __gen_tempname (char *tmpl, int openit)
 	high = value >> 32;
 
 	for (i = 0 ; i < 6 ; i++) {
-		rh = high % 62;
-		high /= 62;
+	    rh = high % 62;
+	    high /= 62;
 #define L ((UINT32_MAX % 62 + 1) % 62)
-		k = (low % 62) + (L * rh);
+	    k = (low % 62) + (L * rh);
 #undef L
 #define H ((UINT32_MAX / 62) + ((UINT32_MAX % 62 + 1) / 62))
-		low = (low / 62) + (H * rh) + (k / 62);
+	    low = (low / 62) + (H * rh) + (k / 62);
 #undef H
-		k %= 62;
-		XXXXXX[i] = letters[k];
+	    k %= 62;
+	    XXXXXX[i] = letters[k];
 	}
 
-	if (openit)
-	{
-	    fd = open (tmpl, O_RDWR | O_CREAT | O_EXCL, 0600);
-	    if (fd >= 0)
-	    {
-		__set_errno (save_errno);
-		return fd;
-	    }
-	    else if (errno != EEXIST)
-		/* Any other error will apply also to other names we might
-		   try, and there are 2^32 or so of them, so give up now. */
-		return -1;
-	}
-	else
-	{
-	    struct stat st;
-	    if (stat (tmpl, &st) < 0)
-	    {
-		if (errno == ENOENT)
+	switch(kind) {
+	    case __GT_NOCREATE:
 		{
-		    __set_errno (save_errno);
-		    return 0;
+		    struct stat st;
+		    if (stat (tmpl, &st) < 0)
+		    {
+			if (errno == ENOENT)
+			{
+			    __set_errno (save_errno);
+			    return 0;
+			}
+			else
+			    /* Give up now. */
+			    return -1;
+		    }
+		    else
+			continue;
 		}
-		else
-		    /* Give up now. */
-		    return -1;
-	    }
+	    case __GT_FILE:
+		fd = open (tmpl, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+		break;
+#if defined __UCLIBC_HAVE_LFS__
+	    case __GT_BIGFILE:
+		fd = open64 (tmpl, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+		break;
+#endif
+	    case __GT_DIR:
+		fd = mkdir (tmpl, S_IRUSR | S_IWUSR | S_IXUSR);
+		break;
+	    default:
+		fd = -1;
+		assert (! "invalid KIND in __gen_tempname");
 	}
+
+	if (fd >= 0) {
+	    __set_errno (save_errno);
+	    return fd;
+	}
+	else if (errno != EEXIST)
+	    /* Any other error will apply also to other names we might
+	       try, and there are 2^32 or so of them, so give up now. */
+	    return -1;
     }
 
     /* We got out of the loop because we ran out of combinations to try.  */

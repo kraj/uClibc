@@ -20,10 +20,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-extern int __path_search (char *tmpl, size_t tmpl_len, const char *dir, const char *pfx,
-	       int try_tmpdir);
-extern int __gen_tempname (char *tmpl, int openit);
-
 /* This returns a new stream opened on a temporary file (generated
    by tmpnam).  The file is opened with mode "w+b" (binary read/write).
    If we couldn't generate a unique filename or the file couldn't
@@ -36,7 +32,7 @@ FILE * tmpfile (void)
 
     if (__path_search (buf, FILENAME_MAX, NULL, "tmpf", 0))
 	return NULL;
-    fd = __gen_tempname (buf, 1);
+    fd = __gen_tempname (buf, __GT_FILE);
     if (fd < 0)
 	return NULL;
 

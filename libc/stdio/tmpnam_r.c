@@ -18,10 +18,6 @@
 
 #include <stdio.h>
 
-extern int __path_search (char *tmpl, size_t tmpl_len, const char *dir, const char *pfx,
-	       int try_tmpdir);
-extern int __gen_tempname (char *tmpl, int openit);
-
 /* Generate a unique filename in P_tmpdir.  If S is NULL return NULL.
    This makes this function thread safe.  */
 char * tmpnam_r (char *s)
@@ -31,7 +27,7 @@ char * tmpnam_r (char *s)
 
     if (__path_search (s, L_tmpnam, NULL, NULL, 0))
 	return NULL;
-    if (__gen_tempname (s, 0))
+    if (__gen_tempname (s, __GT_NOCREATE))
 	return NULL;
 
     return s;

@@ -19,13 +19,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern int __gen_tempname (char *tmpl, int openit);
-
 /* Generate a unique temporary file name from TEMPLATE.
    The last six characters of TEMPLATE must be "XXXXXX";
    they are replaced with a string that makes the filename unique.
    Then open the file and return a fd. */
 int mkstemp (char *template)
 {
-    return __gen_tempname (template, 1);
+    return __gen_tempname (template, __GT_FILE);
 }

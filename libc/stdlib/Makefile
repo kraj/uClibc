@@ -38,8 +38,8 @@ MSRC2=atexit.c
 MOBJ2=atexit.o on_exit.o __exit_handler.o exit.o
 
 CSRC =	abort.c getenv.c mktemp.c qsort.c realpath.c bsearch.c \
-	mkstemp.c putenv.c rand.c random.c random_r.c setenv.c system.c div.c \
-	ldiv.c getpt.c ptsname.c grantpt.c unlockpt.c gcvt.c
+	mkstemp.c mkstemp64.c putenv.c rand.c random.c random_r.c setenv.c \
+	system.c div.c ldiv.c getpt.c ptsname.c grantpt.c unlockpt.c gcvt.c
 CSRC+=  drand48.c drand48-iter.c drand48_r.c erand48.c erand48_r.c \
 	jrand48.c jrand48_r.c lrand48.c lrand48_r.c mrand48.c mrand48_r.c \
 	nrand48.c nrand48_r.c rand_r.c srand48.c srand48_r.c

@@ -19,15 +19,11 @@
 #include <stdio.h>
 #include <string.h>
 
-extern int __path_search (char *tmpl, size_t tmpl_len, const char *dir, const char *pfx,
-	       int try_tmpdir);
-extern int __gen_tempname (char *tmpl, int openit);
-
 static char tmpnam_buffer[L_tmpnam];
 
 /* Generate a unique filename in P_tmpdir.
-
-   This function is *not* thread safe when S == NULL!  */
+   This function is *not* thread safe when S == NULL!  
+*/
 char * tmpnam (char *s)
 {
     /* By using two buffers we manage to be thread safe in the case
@@ -40,7 +36,7 @@ char * tmpnam (char *s)
     if (__path_search (s ? : tmpbuf, L_tmpnam, NULL, NULL, 0))
 	return NULL;
 
-    if (__gen_tempname (s ? : tmpbuf, 0))
+    if (__gen_tempname (s ? : tmpbuf, __GT_NOCREATE))
 	return NULL;
 
     if (s == NULL)
