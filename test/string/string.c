@@ -1,25 +1,31 @@
 /* Tester for string functions.
-   Copyright (C) 1995, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
+   Copyright (C) 1995-2000, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 
 /* Make sure we don't test the optimized inline functions if we want to
    test the real implementation.  */
+#if !defined DO_STRING_INLINES
 #undef __USE_STRING_INLINES
+#endif
 
 #include <errno.h>
 #include <stdio.h>
@@ -39,7 +45,7 @@ const char *it = "<UNSET>";	/* Routine name for message routines. */
 size_t errors = 0;
 
 /* Complain if condition is not true.  */
-void
+static void
 check (int thing, int number)
 {
   if (!thing)
@@ -50,17 +56,17 @@ check (int thing, int number)
 }
 
 /* Complain if first two args don't strcmp as equal.  */
-void
+static void
 equal (const char *a, const char *b, int number)
 {
-  check(a != NULL && b != NULL && (strcmp(a, b)==0), number);
+  check(a != NULL && b != NULL && STREQ (a, b), number);
 }
 
 char one[50];
 char two[50];
 char *cp;
 
-void
+static void
 test_strcmp (void)
 {
   it = "strcmp";
@@ -110,7 +116,19 @@ test_strcmp (void)
   }
 }
 
-void
+#define SIMPLE_COPY(fn, n, str, ntest) \
+  do {									      \
+    int __n;								      \
+    char *cp;								      \
+    for (__n = 0; __n < (int) sizeof (one); ++__n)			      \
+      one[__n] = 'Z';							      \
+    fn (one, str);							      \
+    for (cp = one, __n = 0; __n < n; ++__n, ++cp)			      \
+      check (*cp == '0' + (n % 10), ntest);				      \
+    check (*cp == '\0', ntest);						      \
+  } while (0)
+
+static void
 test_strcpy (void)
 {
   int i;
@@ -137,38 +155,124 @@ test_strcpy (void)
       (void) strcpy (two, one + i);		/* Unaligned source. */
       equal (two, "hi there", 9 + (i * 2));
     }
+
+  SIMPLE_COPY(strcpy, 0, "", 41);
+  SIMPLE_COPY(strcpy, 1, "1", 42);
+  SIMPLE_COPY(strcpy, 2, "22", 43);
+  SIMPLE_COPY(strcpy, 3, "333", 44);
+  SIMPLE_COPY(strcpy, 4, "4444", 45);
+  SIMPLE_COPY(strcpy, 5, "55555", 46);
+  SIMPLE_COPY(strcpy, 6, "666666", 47);
+  SIMPLE_COPY(strcpy, 7, "7777777", 48);
+  SIMPLE_COPY(strcpy, 8, "88888888", 49);
+  SIMPLE_COPY(strcpy, 9, "999999999", 50);
+  SIMPLE_COPY(strcpy, 10, "0000000000", 51);
+  SIMPLE_COPY(strcpy, 11, "11111111111", 52);
+  SIMPLE_COPY(strcpy, 12, "222222222222", 53);
+  SIMPLE_COPY(strcpy, 13, "3333333333333", 54);
+  SIMPLE_COPY(strcpy, 14, "44444444444444", 55);
+  SIMPLE_COPY(strcpy, 15, "555555555555555", 56);
+  SIMPLE_COPY(strcpy, 16, "6666666666666666", 57);
 }
 
-void
+static void
 test_stpcpy (void)
 {
-  int i;
   it = "stpcpy";
-  check (stpcpy (one, "abcd") == one+4, 1); /* Returned value. */
-  equal (one, "abcd", 2);		/* Basic test. */
+  check ((stpcpy (one, "a") - one) == 1, 1);
+  equal (one, "a", 2);
 
-  (void) stpcpy (one, "x");
-  equal (one, "x", 3);			/* Writeover. */
-  equal (one+2, "cd", 4);		/* Wrote too much? */
+  check ((stpcpy (one, "ab") - one) == 2, 3);
+  equal (one, "ab", 4);
 
-  (void) stpcpy (two, "hi there");
-  (void) stpcpy (one, two);
-  equal (one, "hi there", 5);		/* Basic test encore. */
-  equal (two, "hi there", 6);		/* Stomped on source? */
+  check ((stpcpy (one, "abc") - one) == 3, 5);
+  equal (one, "abc", 6);
 
-  (void) stpcpy (one, "");
-  equal (one, "", 7);			/* Boundary condition. */
+  check ((stpcpy (one, "abcd") - one) == 4, 7);
+  equal (one, "abcd", 8);
 
-  for (i = 0; i < 16; i++)
-    {
-      (void) stpcpy (one + i, "hi there");	/* Unaligned destination. */
-      equal (one + i, "hi there", 8 + (i * 2));
-      (void) stpcpy (two, one + i);		/* Unaligned source. */
-      equal (two, "hi there", 9 + (i * 2));
-    }
+  check ((stpcpy (one, "abcde") - one) == 5, 9);
+  equal (one, "abcde", 10);
+
+  check ((stpcpy (one, "abcdef") - one) == 6, 11);
+  equal (one, "abcdef", 12);
+
+  check ((stpcpy (one, "abcdefg") - one) == 7, 13);
+  equal (one, "abcdefg", 14);
+
+  check ((stpcpy (one, "abcdefgh") - one) == 8, 15);
+  equal (one, "abcdefgh", 16);
+
+  check ((stpcpy (one, "abcdefghi") - one) == 9, 17);
+  equal (one, "abcdefghi", 18);
+
+  check ((stpcpy (one, "x") - one) == 1, 19);
+  equal (one, "x", 20);			/* Writeover. */
+  equal (one+2, "cdefghi", 21);		/* Wrote too much? */
+
+  check ((stpcpy (one, "xx") - one) == 2, 22);
+  equal (one, "xx", 23);		/* Writeover. */
+  equal (one+3, "defghi", 24);		/* Wrote too much? */
+
+  check ((stpcpy (one, "xxx") - one) == 3, 25);
+  equal (one, "xxx", 26);		/* Writeover. */
+  equal (one+4, "efghi", 27);		/* Wrote too much? */
+
+  check ((stpcpy (one, "xxxx") - one) == 4, 28);
+  equal (one, "xxxx", 29);		/* Writeover. */
+  equal (one+5, "fghi", 30);		/* Wrote too much? */
+
+  check ((stpcpy (one, "xxxxx") - one) == 5, 31);
+  equal (one, "xxxxx", 32);		/* Writeover. */
+  equal (one+6, "ghi", 33);		/* Wrote too much? */
+
+  check ((stpcpy (one, "xxxxxx") - one) == 6, 34);
+  equal (one, "xxxxxx", 35);		/* Writeover. */
+  equal (one+7, "hi", 36);		/* Wrote too much? */
+
+  check ((stpcpy (one, "xxxxxxx") - one) == 7, 37);
+  equal (one, "xxxxxxx", 38);		/* Writeover. */
+  equal (one+8, "i", 39);		/* Wrote too much? */
+
+  check ((stpcpy (stpcpy (stpcpy (one, "a"), "b"), "c") - one) == 3, 40);
+  equal (one, "abc", 41);
+  equal (one + 4, "xxx", 42);
+
+  SIMPLE_COPY(stpcpy, 0, "", 43);
+  SIMPLE_COPY(stpcpy, 1, "1", 44);
+  SIMPLE_COPY(stpcpy, 2, "22", 45);
+  SIMPLE_COPY(stpcpy, 3, "333", 46);
+  SIMPLE_COPY(stpcpy, 4, "4444", 47);
+  SIMPLE_COPY(stpcpy, 5, "55555", 48);
+  SIMPLE_COPY(stpcpy, 6, "666666", 49);
+  SIMPLE_COPY(stpcpy, 7, "7777777", 50);
+  SIMPLE_COPY(stpcpy, 8, "88888888", 51);
+  SIMPLE_COPY(stpcpy, 9, "999999999", 52);
+  SIMPLE_COPY(stpcpy, 10, "0000000000", 53);
+  SIMPLE_COPY(stpcpy, 11, "11111111111", 54);
+  SIMPLE_COPY(stpcpy, 12, "222222222222", 55);
+  SIMPLE_COPY(stpcpy, 13, "3333333333333", 56);
+  SIMPLE_COPY(stpcpy, 14, "44444444444444", 57);
+  SIMPLE_COPY(stpcpy, 15, "555555555555555", 58);
+  SIMPLE_COPY(stpcpy, 16, "6666666666666666", 59);
 }
 
-void
+static void
+test_stpncpy (void)
+{
+  it = "stpncpy";
+  memset (one, 'x', sizeof (one));
+  check (stpncpy (one, "abc", 2) == one + 2, 1);
+  check (stpncpy (one, "abc", 3) == one + 3, 2);
+  check (stpncpy (one, "abc", 4) == one + 3, 3);
+  check (one[3] == '\0' && one[4] == 'x', 4);
+  check (stpncpy (one, "abcd", 5) == one + 4, 5);
+  check (one[4] == '\0' && one[5] == 'x', 6);
+  check (stpncpy (one, "abcd", 6) == one + 4, 7);
+  check (one[4] == '\0' && one[5] == '\0' && one[6] == 'x', 8);
+}
+
+static void
 test_strcat (void)
 {
   it = "strcat";
@@ -198,7 +302,7 @@ test_strcat (void)
   equal (one, "cd", 9);
 }
 
-void
+static void
 test_strncat (void)
 {
   /* First test it as strcat, with big counts, then test the count
@@ -240,7 +344,7 @@ test_strncat (void)
   equal (one, "abcdgh", 12);		/* Count and length equal. */
 }
 
-void
+static void
 test_strncmp (void)
 {
   /* First test as strcmp with big counts, then test count code.  */
@@ -260,7 +364,7 @@ test_strncmp (void)
   check (strncmp ("abc", "def", 0) == 0, 13);	/* Zero count. */
 }
 
-void
+static void
 test_strncpy (void)
 {
   /* Testing is a bit different because of odd semantics.  */
@@ -302,7 +406,7 @@ test_strncpy (void)
   equal (one, "hi there", 15);		/* Stomped on source? */
 }
 
-void
+static void
 test_strlen (void)
 {
   it = "strlen";
@@ -323,7 +427,7 @@ test_strlen (void)
    }
 }
 
-void
+static void
 test_strchr (void)
 {
   it = "strchr";
@@ -352,7 +456,70 @@ test_strchr (void)
    }
 }
 
-void
+#if 0
+static void
+test_strchrnul (void)
+{
+  const char *os;
+  it = "strchrnul";
+  cp = strchrnul ((os = "abcd"), 'z');
+  check (*cp == '\0', 1);			/* Not found. */
+  check (cp == os + 4, 2);
+  (void) strcpy (one, "abcd");
+  check (strchrnul (one, 'c') == one+2, 3);	/* Basic test. */
+  check (strchrnul (one, 'd') == one+3, 4);	/* End of string. */
+  check (strchrnul (one, 'a') == one, 5);	/* Beginning. */
+  check (strchrnul (one, '\0') == one+4, 6);	/* Finding NUL. */
+  (void) strcpy (one, "ababa");
+  check (strchrnul (one, 'b') == one+1, 7);	/* Finding first. */
+  (void) strcpy (one, "");
+  check (strchrnul (one, 'b') == one, 8);	/* Empty string. */
+  check (strchrnul (one, '\0') == one, 9);	/* NUL in empty string. */
+  {
+    char buf[4096];
+    int i;
+    char *p;
+    for (i=0; i < 0x100; i++)
+      {
+	p = (char *) ((unsigned long int) (buf + 0xff) & ~0xff) + i;
+	strcpy (p, "OK");
+	strcpy (p+3, "BAD/WRONG");
+	cp = strchrnul (p, '/');
+	check (*cp == '\0', 9+2*i);
+	check (cp == p+2, 10+2*i);
+      }
+   }
+}
+
+static void
+test_rawmemchr (void)
+{
+  it = "rawmemchr";
+  (void) strcpy (one, "abcd");
+  check (rawmemchr (one, 'c') == one+2, 1);	/* Basic test. */
+  check (rawmemchr (one, 'd') == one+3, 2);	/* End of string. */
+  check (rawmemchr (one, 'a') == one, 3);		/* Beginning. */
+  check (rawmemchr (one, '\0') == one+4, 4);	/* Finding NUL. */
+  (void) strcpy (one, "ababa");
+  check (rawmemchr (one, 'b') == one+1, 5);	/* Finding first. */
+  (void) strcpy (one, "");
+  check (rawmemchr (one, '\0') == one, 6);	/* NUL in empty string. */
+  {
+    char buf[4096];
+    int i;
+    char *p;
+    for (i=0; i < 0x100; i++)
+      {
+	p = (char *) ((unsigned long int) (buf + 0xff) & ~0xff) + i;
+	strcpy (p, "OK");
+	strcpy (p+3, "BAD/WRONG");
+	check (rawmemchr (p, 'R') == p+8, 6+i);
+      }
+   }
+}
+#endif
+
+static void
 test_index (void)
 {
   it = "index";
@@ -369,7 +536,7 @@ test_index (void)
   check (index (one, '\0') == one, 8);	/* NUL in empty string. */
 }
 
-void
+static void
 test_strrchr (void)
 {
   it = "strrchr";
@@ -398,7 +565,53 @@ test_strrchr (void)
    }
 }
 
-void
+static void
+test_memrchr (void)
+{
+  size_t l;
+  it = "memrchr";
+  check (memrchr ("abcd", 'z', 5) == NULL, 1);	/* Not found. */
+  (void) strcpy (one, "abcd");
+  l = strlen (one) + 1;
+  check (memrchr (one, 'c', l) == one+2, 2);	/* Basic test. */
+  check (memrchr (one, 'd', l) == one+3, 3);	/* End of string. */
+  check (memrchr (one, 'a', l) == one, 4);		/* Beginning. */
+  check (memrchr (one, '\0', l) == one+4, 5);	/* Finding NUL. */
+  (void) strcpy (one, "ababa");
+  l = strlen (one) + 1;
+  check (memrchr (one, 'b', l) == one+3, 6);	/* Finding last. */
+  (void) strcpy (one, "");
+  l = strlen (one) + 1;
+  check (memrchr (one, 'b', l) == NULL, 7);	/* Empty string. */
+  check (memrchr (one, '\0', l) == one, 8);	/* NUL in empty string. */
+
+  /* now test all possible alignment and length combinations to catch
+     bugs due to unrolled loops (assuming unrolling is limited to no
+     more than 128 byte chunks: */
+  {
+    char buf[128 + sizeof(long)];
+    long align, len, i, pos;
+
+    for (align = 0; align < (long) sizeof(long); ++align) {
+      for (len = 0; len < (long) (sizeof(buf) - align); ++len) {
+	for (i = 0; i < len; ++i)
+	  buf[align + i] = 'x';		/* don't depend on memset... */
+
+	for (pos = len - 1; pos >= 0; --pos) {
+#if 0
+	  printf("align %d, len %d, pos %d\n", align, len, pos);
+#endif
+	  check(memrchr(buf + align, 'x', len) == buf + align + pos, 9);
+	  check(memrchr(buf + align + pos + 1, 'x', len - (pos + 1)) == NULL,
+		10);
+	  buf[align + pos] = '-';
+	}
+      }
+    }
+  }
+}
+
+static void
 test_rindex (void)
 {
   it = "rindex";
@@ -415,7 +628,7 @@ test_rindex (void)
   check (rindex (one, '\0') == one, 8);	/* NUL in empty string. */
 }
 
-void
+static void
 test_strpbrk (void)
 {
   it = "strpbrk";
@@ -444,7 +657,7 @@ test_strpbrk (void)
   check(strpbrk(one, "efgh") == one+6, 17);	/* And yet another. */
 }
 
-void
+static void
 test_strstr (void)
 {
   it = "strstr";
@@ -471,34 +684,7 @@ test_strstr (void)
   check(strstr(one, "bbca") == one+1, 16);	/* With overlap. */
 }
 
-void
-test_strcasestr (void)
-{
-  it = "strcasestr";
-  check(strcasestr("abcd", "z") == NULL, 1);	/* Not found. */
-  check(strcasestr("abcd", "abx") == NULL, 2);	/* Dead end. */
-  (void) strcpy(one, "aBcD");
-  check(strcasestr(one, "c") == one+2, 3);	/* Basic test. */
-  check(strcasestr(one, "bc") == one+1, 4);	/* Multichar. */
-  check(strcasestr(one, "d") == one+3, 5);	/* End of string. */
-  check(strcasestr(one, "cd") == one+2, 6);	/* Tail of string. */
-  check(strcasestr(one, "abc") == one, 7);	/* Beginning. */
-  check(strcasestr(one, "abcd") == one, 8);	/* Exact match. */
-  check(strcasestr(one, "abcde") == NULL, 9);	/* Too long. */
-  check(strcasestr(one, "de") == NULL, 10);	/* Past end. */
-  check(strcasestr(one, "") == one, 11);	/* Finding empty. */
-  (void) strcpy(one, "aBaBa");
-  check(strcasestr(one, "ba") == one+1, 12);	/* Finding first. */
-  (void) strcpy(one, "");
-  check(strcasestr(one, "b") == NULL, 13);	/* Empty string. */
-  check(strcasestr(one, "") == one, 14);	/* Empty in empty string. */
-  (void) strcpy(one, "BcBcA");
-  check(strcasestr(one, "bca") == one+2, 15);	/* False start. */
-  (void) strcpy(one, "BbBcABBcA");
-  check(strcasestr(one, "bbca") == one+1, 16);	/* With overlap. */
-}
-
-void
+static void
 test_strspn (void)
 {
   it = "strspn";
@@ -509,7 +695,7 @@ test_strspn (void)
   check(strspn("abc", "") == 0, 5);	/* Null search list. */
 }
 
-void
+static void
 test_strcspn (void)
 {
   it = "strcspn";
@@ -520,7 +706,7 @@ test_strcspn (void)
   check(strcspn("abc", "") == 3, 5);	/* Null search list. */
 }
 
-void
+static void
 test_strtok (void)
 {
   it = "strtok";
@@ -570,9 +756,71 @@ test_strtok (void)
   equal(one+4, "c", 33);
 }
 
-void
+static void
+test_strtok_r (void)
+{
+  it = "strtok_r";
+  (void) strcpy(one, "first, second, third");
+  cp = NULL;	/* Always initialize cp to make sure it doesn't point to some old data.  */
+  equal(strtok_r(one, ", ", &cp), "first", 1);	/* Basic test. */
+  equal(one, "first", 2);
+  equal(strtok_r((char *)NULL, ", ", &cp), "second", 3);
+  equal(strtok_r((char *)NULL, ", ", &cp), "third", 4);
+  check(strtok_r((char *)NULL, ", ", &cp) == NULL, 5);
+  (void) strcpy(one, ", first, ");
+  cp = NULL;
+  equal(strtok_r(one, ", ", &cp), "first", 6);	/* Extra delims, 1 tok. */
+  check(strtok_r((char *)NULL, ", ", &cp) == NULL, 7);
+  (void) strcpy(one, "1a, 1b; 2a, 2b");
+  cp = NULL;
+  equal(strtok_r(one, ", ", &cp), "1a", 8);	/* Changing delim lists. */
+  equal(strtok_r((char *)NULL, "; ", &cp), "1b", 9);
+  equal(strtok_r((char *)NULL, ", ", &cp), "2a", 10);
+  (void) strcpy(two, "x-y");
+  cp = NULL;
+  equal(strtok_r(two, "-", &cp), "x", 11);	/* New string before done. */
+  equal(strtok_r((char *)NULL, "-", &cp), "y", 12);
+  check(strtok_r((char *)NULL, "-", &cp) == NULL, 13);
+  (void) strcpy(one, "a,b, c,, ,d");
+  cp = NULL;
+  equal(strtok_r(one, ", ", &cp), "a", 14);	/* Different separators. */
+  equal(strtok_r((char *)NULL, ", ", &cp), "b", 15);
+  equal(strtok_r((char *)NULL, " ,", &cp), "c", 16);	/* Permute list too. */
+  equal(strtok_r((char *)NULL, " ,", &cp), "d", 17);
+  check(strtok_r((char *)NULL, ", ", &cp) == NULL, 18);
+  check(strtok_r((char *)NULL, ", ", &cp) == NULL, 19);	/* Persistence. */
+  (void) strcpy(one, ", ");
+  cp = NULL;
+  check(strtok_r(one, ", ", &cp) == NULL, 20);	/* No tokens. */
+  (void) strcpy(one, "");
+  cp = NULL;
+  check(strtok_r(one, ", ", &cp) == NULL, 21);	/* Empty string. */
+  check(strtok_r((char *)NULL, ", ", &cp) == NULL, 22);	/* Persistence. */
+  (void) strcpy(one, "abc");
+  cp = NULL;
+  equal(strtok_r(one, ", ", &cp), "abc", 23);	/* No delimiters. */
+  check(strtok_r((char *)NULL, ", ", &cp) == NULL, 24);
+  (void) strcpy(one, "abc");
+  cp = NULL;
+  equal(strtok_r(one, "", &cp), "abc", 25);	/* Empty delimiter list. */
+  check(strtok_r((char *)NULL, "", &cp) == NULL, 26);
+  (void) strcpy(one, "abcdefgh");
+  (void) strcpy(one, "a,b,c");
+  cp = NULL;
+  equal(strtok_r(one, ",", &cp), "a", 27);	/* Basics again... */
+  equal(strtok_r((char *)NULL, ",", &cp), "b", 28);
+  equal(strtok_r((char *)NULL, ",", &cp), "c", 29);
+  check(strtok_r((char *)NULL, ",", &cp) == NULL, 30);
+  equal(one+6, "gh", 31);			/* Stomped past end? */
+  equal(one, "a", 32);			/* Stomped old tokens? */
+  equal(one+2, "b", 33);
+  equal(one+4, "c", 34);
+}
+
+static void
 test_strsep (void)
 {
+  char *ptr;
   it = "strsep";
   cp = strcpy(one, "first, second, third");
   equal(strsep(&cp, ", "), "first", 1);	/* Basic test. */
@@ -638,7 +886,7 @@ test_strsep (void)
 
   {
     char text[] = "This,is,a,test";
-    char *list = strdup (text);
+    char *list = strdupa (text);
     equal (strsep (&list, ","), "This", 51);
     equal (strsep (&list, ","), "is", 52);
     equal (strsep (&list, ","), "a", 53);
@@ -667,33 +915,56 @@ test_strsep (void)
   equal(strsep(&cp, "xy,"), "", 71);
   check(strsep(&cp, "x,y") == NULL, 72);
   check(strsep(&cp, ",xy") == NULL, 73);	/* Persistence. */
+
+  cp = strcpy(one, "ABC");
+  one[4] = ':';
+  equal(strsep(&cp, "C"), "AB", 74);	/* Access beyond NUL.  */
+  ptr = strsep(&cp, ":");
+  equal(ptr, "", 75);
+  check(ptr == one + 3, 76);
+  check(cp == NULL, 77);
+
+  cp = strcpy(one, "ABC");
+  one[4] = ':';
+  equal(strsep(&cp, "CD"), "AB", 78);	/* Access beyond NUL.  */
+  ptr = strsep(&cp, ":.");
+  equal(ptr, "", 79);
+  check(ptr == one + 3, 80);
+
+  cp = strcpy(one, "ABC");		/* No token in string.  */
+  equal(strsep(&cp, ","), "ABC", 81);
+  check(cp == NULL, 82);
+
+  *one = '\0';				/* Empty string. */
+  cp = one;
+  ptr = strsep(&cp, ",");
+  equal(ptr, "", 83);
+  check(ptr == one, 84);
+  check(cp == NULL, 85);
+
+  *one = '\0';				/* Empty string and no token. */
+  cp = one;
+  ptr = strsep(&cp, "");
+  equal(ptr, "", 86);
+  check(ptr == one , 87);
+  check(cp == NULL, 88);
 }
 
-void
+static void
 test_memcmp (void)
 {
-    int foo[6] = {'\0','0','1','2','3','4'};
-    int bar[6] = {'\0','0','1','2','3','5'};
-
-    it = "memcmp";
-    check(memcmp("a", "a", 1) == 0, 1);		/* Identity. */
-    check(memcmp("abc", "abc", 3) == 0, 2);	/* Multicharacter. */
-    check(memcmp("abcd", "abce", 4) < 0, 3);	/* Honestly unequal. */
-    check(memcmp("abce", "abcd", 4) > 0, 4);
-    check(memcmp("alph", "beta", 4) < 0, 5);
-    check(memcmp("a\203", "a\003", 2) > 0, 6);
-    check(memcmp("abce", "abcd", 3) == 0, 7);	/* Count limited. */
-    check(memcmp("abc", "def", 0) == 0, 8);	/* Zero count. */
-
-    check(memcmp(foo, bar, 5*(sizeof(int))) == 0, 9);  /* non-string test 
-							  case (both begin 
-							  with a NULL) */
-    check(memcmp(foo, bar, 6*(sizeof(int))) < 0, 10);  /* non-string test 
-							  case (both begin 
-							  with a NULL) */
+  it = "memcmp";
+  check(memcmp("a", "a", 1) == 0, 1);		/* Identity. */
+  check(memcmp("abc", "abc", 3) == 0, 2);	/* Multicharacter. */
+  check(memcmp("abcd", "abce", 4) < 0, 3);	/* Honestly unequal. */
+  check(memcmp("abce", "abcd", 4) > 0, 4);
+  check(memcmp("alph", "beta", 4) < 0, 5);
+  check(memcmp("a\203", "a\003", 2) > 0, 6);
+  check(memcmp("abce", "abcd", 3) == 0, 7);	/* Count limited. */
+  check(memcmp("abc", "def", 0) == 0, 8);	/* Zero count. */
 }
 
-void
+static void
 test_memchr (void)
 {
   it = "memchr";
@@ -736,9 +1007,10 @@ test_memchr (void)
   }
 }
 
-void
+static void
 test_memcpy (void)
 {
+  int i;
   it = "memcpy";
   check(memcpy(one, "abc", 4) == one, 1);	/* Returned value. */
   equal(one, "abc", 2);			/* Did the copy go right? */
@@ -756,9 +1028,60 @@ test_memcpy (void)
   (void) memcpy(two, one, 9);
   equal(two, "hi there", 5);		/* Just paranoia. */
   equal(one, "hi there", 6);		/* Stomped on source? */
+
+  for (i = 0; i < 16; i++)
+    {
+      const char *x = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+      strcpy (one, x);
+      check (memcpy (one + i, "hi there", 9) == one + i,
+	     7 + (i * 6));		/* Unaligned destination. */
+      check (memcmp (one, x, i) == 0, 8 + (i * 6));  /* Wrote under? */
+      equal (one + i, "hi there", 9 + (i * 6));
+      check (one[i + 9] == 'x', 10 + (i * 6));       /* Wrote over? */
+      check (memcpy (two, one + i, 9) == two,
+	     11 + (i * 6));		/* Unaligned source. */
+      equal (two, "hi there", 12 + (i * 6));
+    }
 }
 
-void
+static void
+test_mempcpy (void)
+{
+  int i;
+  it = "mempcpy";
+  check(mempcpy(one, "abc", 4) == one + 4, 1);	/* Returned value. */
+  equal(one, "abc", 2);			/* Did the copy go right? */
+
+  (void) strcpy(one, "abcdefgh");
+  (void) mempcpy(one+1, "xyz", 2);
+  equal(one, "axydefgh", 3);		/* Basic test. */
+
+  (void) strcpy(one, "abc");
+  (void) mempcpy(one, "xyz", 0);
+  equal(one, "abc", 4);			/* Zero-length copy. */
+
+  (void) strcpy(one, "hi there");
+  (void) strcpy(two, "foo");
+  (void) mempcpy(two, one, 9);
+  equal(two, "hi there", 5);		/* Just paranoia. */
+  equal(one, "hi there", 6);		/* Stomped on source? */
+
+  for (i = 0; i < 16; i++)
+    {
+      const char *x = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+      strcpy (one, x);
+      check (mempcpy (one + i, "hi there", 9) == one + i + 9,
+	     7 + (i * 6));		/* Unaligned destination. */
+      check (memcmp (one, x, i) == 0, 8 + (i * 6));  /* Wrote under? */
+      equal (one + i, "hi there", 9 + (i * 6));
+      check (one[i + 9] == 'x', 10 + (i * 6));       /* Wrote over? */
+      check (mempcpy (two, one + i, 9) == two + 9,
+	     11 + (i * 6));		/* Unaligned source. */
+      equal (two, "hi there", 12 + (i * 6));
+    }
+}
+
+static void
 test_memmove (void)
 {
   it = "memmove";
@@ -792,7 +1115,7 @@ test_memmove (void)
   equal(one, "abcdefgh", 9);		/* 100% overlap. */
 }
 
-void
+static void
 test_memccpy (void)
 {
   /* First test like memcpy, then the search part The SVID, the only
@@ -834,7 +1157,7 @@ test_memccpy (void)
   equal(two, "xbcdlebee", 15);
 }
 
-void
+static void
 test_memset (void)
 {
   int i;
@@ -856,7 +1179,7 @@ test_memset (void)
 
   /* Non-8bit fill character.  */
   memset (one, 0x101, sizeof (one));
-  for (i = 0; i < sizeof (one); ++i)
+  for (i = 0; i < (int) sizeof (one); ++i)
     check (one[i] == '\01', 7);
 
   /* Test for more complex versions of memset, for all alignments and
@@ -896,7 +1219,7 @@ test_memset (void)
   }
 }
 
-void
+static void
 test_bcopy (void)
 {
   /* Much like memcpy.  Berklix manual is silent about overlap, so
@@ -920,7 +1243,7 @@ test_bcopy (void)
   equal(one, "hi there", 5);		/* Stomped on source? */
 }
 
-void
+static void
 test_bzero (void)
 {
   it = "bzero";
@@ -935,7 +1258,31 @@ test_bzero (void)
   equal(one, "abcdef", 4);		/* Zero-length copy. */
 }
 
-void
+static void
+test_strndup (void)
+{
+  char *p, *q;
+  it = "strndup";
+  p = strndup("abcdef", 12);
+  check(p != NULL, 1);
+  if (p != NULL)
+    {
+      equal(p, "abcdef", 2);
+      q = strndup(p + 1, 2);
+      check(q != NULL, 3);
+      if (q != NULL)
+	equal(q, "bc", 4);
+      free (q);
+    }
+  free (p);
+  p = strndup("abc def", 3);
+  check(p != NULL, 5);
+  if (p != NULL)
+    equal(p, "abc", 6);
+  free (p);
+}
+
+static void
 test_bcmp (void)
 {
   it = "bcmp";
@@ -948,14 +1295,13 @@ test_bcmp (void)
   check(bcmp("abc", "def", 0) == 0, 8);	/* Zero count. */
 }
 
-void
+static void
 test_strerror (void)
 {
-  int f;
   it = "strerror";
-  f = open("/", O_WRONLY);	/* Should always fail. */
-  check(f < 0 && errno > 0 && errno < _sys_nerr, 1);
-  equal(strerror(errno), _sys_errlist[errno], 2);
+  check(strerror(EDOM) != 0, 1);
+  check(strerror(ERANGE) != 0, 2);
+  check(strerror(ENOENT) != 0, 3);
 }
 
 int
@@ -969,8 +1315,11 @@ main (void)
   /* Test strcpy next because we need it to set up other tests.  */
   test_strcpy ();
 
-  /* stpcpy */
+  /* A closely related function is stpcpy.  */
   test_stpcpy ();
+
+  /* stpncpy.  */
+  test_stpncpy ();
 
   /* strcat.  */
   test_strcat ();
@@ -990,11 +1339,22 @@ main (void)
   /* strchr.  */
   test_strchr ();
 
+#if 0
+  /* strchrnul.  */
+  test_strchrnul ();
+
+  /* rawmemchr.  */
+  test_rawmemchr ();
+#endif
+
   /* index - just like strchr.  */
   test_index ();
 
   /* strrchr.  */
   test_strrchr ();
+
+  /* memrchr.  */
+  test_memrchr ();
 
   /* rindex - just like strrchr.  */
   test_rindex ();
@@ -1004,7 +1364,6 @@ main (void)
 
   /* strstr - somewhat like strchr.  */
   test_strstr ();
-  test_strcasestr ();
 
   /* strspn.  */
   test_strspn ();
@@ -1014,6 +1373,9 @@ main (void)
 
   /* strtok - the hard one.  */
   test_strtok ();
+
+  /* strtok_r.  */
+  test_strtok_r ();
 
   /* strsep.  */
   test_strsep ();
@@ -1030,6 +1392,9 @@ main (void)
   /* memmove - must work on overlap.  */
   test_memmove ();
 
+  /* mempcpy */
+  test_mempcpy ();
+
   /* memccpy.  */
   test_memccpy ();
 
@@ -1045,6 +1410,9 @@ main (void)
   /* bcmp - somewhat like memcmp.  */
   test_bcmp ();
 
+  /* strndup.  */
+  test_strndup ();
+
   /* strerror - VERY system-dependent.  */
   test_strerror ();
 
@@ -1059,5 +1427,6 @@ main (void)
       status = EXIT_FAILURE;
       printf("%d errors.\n", errors);
     }
-  exit(status);
+
+  return status;
 }
