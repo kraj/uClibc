@@ -167,24 +167,29 @@ to the uClibc home page.</a>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
 
-    No, you do not need to give away your source code just because you use
-    uClibc and/or run on Linux.  uClibc is licensed under the LGPL, just like
-    GNU libc.  Using shared libraries makes complying with the license easy.
-    If you are using uClibc as a shared library, then your closed source
-    application is 100% legal.  Please consider sharing some of the money you
-    make with us!  :-)
-
+    No, you do not need to give away your application source code just because
+    you use uClibc and/or run on Linux.  uClibc is licensed under the <a
+    href="http://www.gnu.org/copyleft/lesser.html">Lesser GPL</a> licence, just
+    like the GNU C library (glibc).  Please read this licence, or have a lawyer
+    read this licence if you have any questions.  Here is my brief summary...
+    Using shared libraries makes complying with the license easy.  You can
+    distribute a closed source application which is linked with an unmodified
+    uClibc shared library.  In this case, you do not need to give away any
+    source code for your application or for the uClibc library.  Please
+    consider sharing some of the money you make with us!  :-)
     <p>
-    
-    If you are statically linking your closed source application with
-    uClibc, then you must take additional steps to comply with the uClibc
-    license.  You may sell your statically linked application as usual, but
-    you must also make your application available to your customers as an
-    object file which can later be re-linked against updated versions of
-    uClibc.  This will (in theory) allow your customers to apply uClibc bug
-    fixes to your application.  You do not need to make the application
-    object file available to everyone, just to those you gave the fully
-    linked application.  
+
+    If you make any changes to uClibc, and distribute uClibc or distribute any
+    applications using your modified version, you must also distribute the
+    source code for uClibc containing all of your changes.
+    <p>
+
+    If you distribute an application which has uClibc statically linked, you
+    must also make your application available as an object file which can later
+    be re-linked against updated versions of uClibc.  This will (in theory)
+    allow your customers to apply uClibc bug fixes to your application.  You do
+    not need to make the application object file available to everyone, just to
+    those you gave the fully linked application.
 
 
 <p>
