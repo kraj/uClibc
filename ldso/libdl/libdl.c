@@ -47,6 +47,7 @@ extern struct elf_resolve * _dl_check_if_named_library_is_loaded(const char *, i
 	__attribute__ ((__weak__));
 extern int _dl_fixup(struct dyn_elf *rpnt, int lazy)
 	 __attribute__ ((__weak__));
+extern int _dl_errno __attribute__ ((__weak__));
 extern struct dyn_elf *_dl_symbol_tables __attribute__ ((__weak__));
 extern struct dyn_elf *_dl_handles __attribute__ ((__weak__));
 extern struct elf_resolve *_dl_loaded_modules __attribute__ ((__weak__));
@@ -93,6 +94,7 @@ char *_dl_ldsopath = 0;
 struct r_debug *_dl_debug_addr = NULL;
 static unsigned char *_dl_malloc_addr, *_dl_mmap_zero;
 void *(*_dl_malloc_function) (size_t size);
+int _dl_errno = 0;
 int _dl_fixup(struct dyn_elf *rpnt, int lazy);
 #include "../ldso/dl-progname.h"               /* Pull in the name of ld.so */
 #include "../ldso/dl-hash.c"
