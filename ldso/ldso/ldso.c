@@ -931,21 +931,18 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #ifdef __LDSO_LDD_SUPPORT__
 					if (_dl_trace_loaded_objects)
 						_dl_dprintf(1, "\t%s => not found\n", str);
-					else {
+					else 
 #endif
-						_dl_dprintf(2, "%s: can't load "
-								"library '%s'\n", _dl_progname, str);
+					{
+						_dl_dprintf(2, "%s: can't load " "library '%s'\n", _dl_progname, str);
 						_dl_exit(15);
-#ifdef __LDSO_LDD_SUPPORT__
 					}
-#endif
 				} else {
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 					_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
 #ifdef __LDSO_LDD_SUPPORT__
-					if (_dl_trace_loaded_objects
-							&& tpnt1->usage_count==1) {
+					if (_dl_trace_loaded_objects && tpnt1->usage_count==1) {
 						/* this is a real hack to make ldd not print 
 						 * the library itself when run on a library. */
 						if (_dl_strcmp(_dl_progname, str) != 0)
@@ -1010,21 +1007,18 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #ifdef __LDSO_LDD_SUPPORT__
 							if (_dl_trace_loaded_objects)
 								_dl_dprintf(1, "\t%s => not found\n", cp2);
-							else {
+							else 
 #endif
-								_dl_dprintf(2, "%s: can't load library '%s'\n", 
-										_dl_progname, cp2);
+							{
+								_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, cp2);
 								_dl_exit(15);
-#ifdef __LDSO_LDD_SUPPORT__
 							}
-#endif
 						} else {
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 							_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
 #ifdef __LDSO_LDD_SUPPORT__
-							if (_dl_trace_loaded_objects
-									&& tpnt1->usage_count==1) {
+							if (_dl_trace_loaded_objects && tpnt1->usage_count==1) {
 								_dl_dprintf(1, "\t%s => %s (0x%x)\n", cp2, 
 										tpnt1->libname, (unsigned) tpnt1->loadaddr);
 							}
@@ -1086,13 +1080,12 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #ifdef __LDSO_LDD_SUPPORT__
 					if (_dl_trace_loaded_objects)
 						_dl_dprintf(1, "\t%s => not found\n", lpntstr);
-					else {
+					else 
 #endif
+					{
 						_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, lpntstr);
 						_dl_exit(16);
-#ifdef __LDSO_LDD_SUPPORT__
 					}
-#endif
 				} else {
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 					_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
@@ -1110,15 +1103,6 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 
 #ifdef USE_CACHE
 	_dl_unmap_cache();
-#endif
-	/* ldd uses uses this.  I am not sure how you pick up the other flags */
-#ifdef __LDSO_LDD_SUPPORT__
-	if (_dl_trace_loaded_objects) {
-		char *_dl_warn = 0;
-		_dl_warn = _dl_getenv("LD_WARN", envp);
-		if (!_dl_warn)
-			_dl_exit(0);
-	}
 #endif
 
 	/*
@@ -1154,13 +1138,16 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		rpnt->dyn = tpnt;
 		tpnt = NULL;
 	}
+
 #ifdef __LDSO_LDD_SUPPORT__
+	/* End of the line for ldd.... */
 	if (_dl_trace_loaded_objects) {
 		_dl_dprintf(1, "\t%s => %s (0x%x)\n", rpnt->dyn->libname + (_dl_strlen(_dl_ldsopath)) + 1, 
 				rpnt->dyn->libname, rpnt->dyn->loadaddr);  
 		_dl_exit(0);
 	}
 #endif
+
 
 #ifdef __mips__
 	/*
@@ -1190,10 +1177,6 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #endif
 	if (_dl_symbol_tables)
 		goof += _dl_copy_fixups(_dl_symbol_tables);
-#ifdef __LDSO_LDD_SUPPORT__
-	if (goof || _dl_trace_loaded_objects)
-		_dl_exit(0);
-#endif
 
 	/* OK, at this point things are pretty much ready to run.  Now we
 	   need to touch up a few items that are required, and then

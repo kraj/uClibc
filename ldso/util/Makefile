@@ -33,6 +33,10 @@ TARGETS += ldconfig
 endif
 all: $(TARGETS)
 
+ifeq ($(strip $(LDSO_LDD_SUPPORT)),y)
+XXFLAGS=-D__LDSO_LDD_SUPPORT
+endif
+
 elf_header:
 	ln -fs $(TOPDIR)include/elf.h
 
@@ -58,7 +62,7 @@ ldconfig: ldconfig.o readsoname.o
 	strip -x -R .note -R .comment $@
 
 ldd: ldd.c
-	$(HOSTCC) $(HOSTCFLAGS) -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
+	$(HOSTCC) $(HOSTCFLAGS) $(XXFLAGS) -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" -I . \
@@ -66,7 +70,7 @@ ldd: ldd.c
 	strip -x -R .note -R .comment $@
 
 ldd.target: ldd.c
-	$(TARGET_CC) $(CFLAGS) -Wl,-s -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
+	$(TARGET_CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" \

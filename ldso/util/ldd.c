@@ -49,6 +49,59 @@
 #include <dmalloc.h>
 #endif
 
+#if defined(__arm__)
+#define MATCH_MACHINE(x) (x == EM_ARM)
+#define ELFCLASSM	ELFCLASS32
+#endif
+
+#if defined(__s390__)
+#define MATCH_MACHINE(x) (x == EM_S390)
+#define ELFCLASSM	ELFCLASS32
+#endif
+
+#if defined(__i386__)
+#ifndef EM_486
+#define MATCH_MACHINE(x) (x == EM_386)
+#else
+#define MATCH_MACHINE(x) (x == EM_386 || x == EM_486)
+#endif
+#define ELFCLASSM	ELFCLASS32
+#endif
+
+#if defined(__mc68000__) 
+#define MATCH_MACHINE(x) (x == EM_68K)
+#define ELFCLASSM	ELFCLASS32
+#endif
+
+#if defined(__mips__)
+#define MATCH_MACHINE(x) (x == EM_MIPS || x == EM_MIPS_RS3_LE)
+#define ELFCLASSM	ELFCLASS32
+#endif
+
+#if defined(__powerpc__)
+#define MATCH_MACHINE(x) (x == EM_PPC)
+#define ELFCLASSM	ELFCLASS32
+#endif
+
+#if defined(__sh__)
+#define MATCH_MACHINE(x) (x == EM_SH)
+#endif
+
+#if defined (__v850e__)
+#define MATCH_MACHINE(x) ((x) == EM_V850 || (x) == EM_CYGNUS_V850)
+#define ELFCLASSM	ELFCLASS32
+#endif
+
+#ifndef MATCH_MACHINE
+#warning "You really should add a MATCH_MACHINE() macro for your architecture"
+#endif
+
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#define ELFDATAM	ELFDATA2LSB
+#elif __BYTE_ORDER == __BIG_ENDIAN
+#define ELFDATAM	ELFDATA2MSB
+#endif
+
 struct library {
 	char *name;
 	int resolved;
@@ -132,6 +185,7 @@ int check_elf_header(Elf32_Ehdr *const ehdr)
 	}
 #elif __BYTE_ORDER == __BIG_ENDIAN
 	if (ehdr->e_ident[5] == ELFDATA2LSB) {
+		/* Ick -- we will have to byte-swap everything */
 		byteswap = 1;
 	}
 #else
@@ -347,13 +401,14 @@ static void find_needed_libraries(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *st
 	}
 }
     
-static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid)
+static struct library * 
+find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid)
 {
 	static int been_there_done_that=0;
 	Elf32_Phdr *phdr;
 
 	if (been_there_done_that==1)
-		return;
+		return NULL;
 	been_there_done_that=1;
 	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
 	if (phdr) {
@@ -383,13 +438,13 @@ static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *str
 				newlib = cur;
 				free(newlib->name);
 				free(newlib->path);
-				return;
+				return NULL;
 			}
 		}
 		if (newlib == NULL)
 			newlib = malloc(sizeof(struct library));
 		if (!newlib)
-			return;
+			return NULL;
 		newlib->name = malloc(strlen(s)+1);
 		strcpy(newlib->name, s);
 		newlib->path = newlib->name;
@@ -405,7 +460,9 @@ static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *str
 			cur->next = newlib;
 		}
 #endif
+		return newlib;
 	}
+	return NULL;
 }
 
 /* map the .so, and locate interesting pieces */
@@ -418,6 +475,7 @@ int find_dependancies(char* filename)
 	Elf32_Ehdr *ehdr = NULL;
 	Elf32_Shdr *dynsec = NULL;
 	Elf32_Dyn *dynamic = NULL;
+	struct library *interp;
 
 	if (filename == not_found)
 		return 0;
@@ -464,7 +522,31 @@ foo:
 	}
 
 	dynsec = elf_find_section_type(SHT_DYNAMIC, ehdr);
-	find_elf_interpreter(ehdr, dynamic, dynstr, is_suid);
+	interp = find_elf_interpreter(ehdr, dynamic, dynstr, is_suid);
+			
+#ifdef __LDSO_LDD_SUPPORT
+	if (interp && ehdr->e_ident[EI_CLASS] == ELFCLASSM && ehdr->e_ident[EI_DATA] == ELFDATAM
+		&& ehdr->e_ident[EI_VERSION] == EV_CURRENT && MATCH_MACHINE(ehdr->e_machine)) 
+	{
+		struct stat statbuf;
+		if (stat(interp->path, &statbuf) == 0 && S_ISREG(statbuf.st_mode)) {
+			static const char * const environment[] = {
+				"PATH=/usr/bin:/bin:/usr/sbin:/sbin",
+				"SHELL=/bin/sh",
+				"LD_TRACE_LOADED_OBJECTS=1",
+				NULL
+			};
+			/* Cool, it looks like we should be able to actually 
+			 * run this puppy.  Do so now... */
+			execle(filename, filename, NULL, environment);
+
+			/* If the exec failed, we fall through to trying to find
+			 * all the needed libraries ourselves by rummaging about
+			 * in the ELF headers... */
+		}
+	}
+#endif
+
 	if (dynsec) {
 		dynamic = (Elf32_Dyn*)(byteswap32_to_host(dynsec->sh_offset) + (intptr_t)ehdr);
 		dynstr = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
