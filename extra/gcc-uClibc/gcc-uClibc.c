@@ -1,7 +1,7 @@
 /* vi: set sw=4 ts=4: */
 /*
  * Copyright (C) 2000 Manuel Novoa III
- * Copyright (C) 2002 Erik Andersen
+ * Copyright (C) 2002-2003 Erik Andersen
  *
  * This is a crude wrapper to use uClibc with gcc.
  * It was originally written to work around ./configure for ext2fs-utils.
@@ -76,6 +76,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 
@@ -203,17 +204,23 @@ int main(int argc, char **argv)
 	char *crtn_path[2];
 	int len;
 	int ctor_dtor = 1, cplusplus = 0, use_nostdinc_plus = 0;
-	char *GPLUSPLUS_BIN = NULL;
+	int findlibgcc = 1;
+	char *cpp = NULL;
 #endif
 #ifdef __UCLIBC_PROFILING__
 	int profile = 0;
 	char *gcrt1_path[2];
 #endif
 
+#ifdef __UCLIBC_CTOR_DTOR__
 	cc     = getenv("UCLIBC_CC");
-	if (!cc) {
+	if (cc==NULL) {
 		cc = GCC_BIN;
+		findlibgcc = 0;
 	}
+#else
+	cc = GCC_BIN;
+#endif
 
 	application_name = basename(argv[0]);
 	if (application_name[0] == '-')
@@ -230,9 +237,9 @@ int main(int argc, char **argv)
 			(strcmp(application_name+len-3, "c++")==0)) {
 		len = strlen(cc);
 		if (strcmp(cc+len-3, "gcc")==0) {
-			GPLUSPLUS_BIN = strdup(cc);
-			GPLUSPLUS_BIN[len-1]='+';
-			GPLUSPLUS_BIN[len-2]='+';
+			cpp = strdup(cc);
+			cpp[len-1]='+';
+			cpp[len-2]='+';
 		}
 		cplusplus = 1;
 		use_nostdinc_plus = 1;
@@ -435,10 +442,11 @@ int main(int argc, char **argv)
 #ifdef __UCLIBC_CTOR_DTOR__
 	if (ctor_dtor) {
 		struct stat statbuf;
-		if (stat(LIBGCC_DIR, &statbuf)!=0 || 
+		if (findlibgcc==1 || stat(LIBGCC_DIR, &statbuf)!=0 || 
 				!S_ISDIR(statbuf.st_mode))
 		{
-			/* Bummer, gcc has moved things on us... */
+			/* Bummer, gcc is hiding from us. This is going
+			 * to really slow things down... bummer.  */
 			int status, gcc_pipe[2];
 			pid_t pid, wpid;
 
@@ -450,35 +458,41 @@ int main(int argc, char **argv)
 				close(2);
 				dup2(gcc_pipe[1], 1);
 				dup2(gcc_pipe[1], 2);
-				argv[0] = cc; 
-				argv[2] = "-print-libgcc-file-name";
-				argv[3] = NULL;
-				execvp(argv[0], argv);
+				argv[0] = cc;
+				argv[1] = "-print-libgcc-file-name";
+				argv[2] = NULL;
+				execvp(cc, argv);
 				close(gcc_pipe[1]);
-				_exit(-1);
+				_exit(EXIT_FAILURE);
 			}
 			wpid=0;
 			while (wpid != pid) {
 				wpid = wait(&status);
 			}
 			close(gcc_pipe[1]);
-			if (WIFEXITED(status)) {
-				char buf[1024], *dir;
-				status = read(gcc_pipe[0], buf, sizeof(buf));
-				if (status < 0) {
-					goto crash_n_burn;
-				}
-				dir = dirname(buf);
-				xstrcat(&(crtbegin_path[0]), dir, "crtbegin.o", NULL);
-				xstrcat(&(crtbegin_path[1]), dir, "crtbeginS.o", NULL);
-				xstrcat(&(crtend_path[0]), dir, "crtend.o", NULL);
-				xstrcat(&(crtend_path[1]), dir, "crtendS.o", NULL);
-			} else {
+			if (WIFEXITED(status) && WEXITSTATUS(status)) {
 crash_n_burn:
 				fprintf(stderr, "Unable to locale crtbegin.o provided by gcc");
 				exit(EXIT_FAILURE);
 			}
-			close(gcc_pipe[0]);
+			if (WIFSIGNALED(status)) {
+				fprintf(stderr, "%s exited because of uncaught signal %d", cc, WTERMSIG(status));
+				exit(EXIT_FAILURE);
+			}
+
+			{
+				char buf[1024], *dir;
+				status = read(gcc_pipe[0], buf, sizeof(buf));
+				close(gcc_pipe[0]);
+				if (status < 0) {
+					goto crash_n_burn;
+				}
+				dir = dirname(buf);
+				xstrcat(&(crtbegin_path[0]), dir, "/crtbegin.o", NULL);
+				xstrcat(&(crtbegin_path[1]), dir, "/crtbeginS.o", NULL);
+				xstrcat(&(crtend_path[0]), dir, "/crtend.o", NULL);
+				xstrcat(&(crtend_path[1]), dir, "/crtendS.o", NULL);
+			}
 
 		} else {
 			xstrcat(&(crtbegin_path[0]), LIBGCC_DIR, "crtbegin.o", NULL);
@@ -488,8 +502,8 @@ crash_n_burn:
 		}
 	}
 
-	if (cplusplus && GPLUSPLUS_BIN)
-		gcc_argv[i++] = GPLUSPLUS_BIN;
+	if (cplusplus && cpp)
+		gcc_argv[i++] = cpp;
 	else
 #endif
 		gcc_argv[i++] = cc;
@@ -628,9 +642,14 @@ crash_n_burn:
 	}
 	//no need to free memory from xstrcat because we never return... 
 #ifdef __UCLIBC_CTOR_DTOR__
-	if (cplusplus && GPLUSPLUS_BIN)
-		return execvp(GPLUSPLUS_BIN, gcc_argv);
-	else
+	if (cplusplus && cpp) {
+		execvp(cpp, gcc_argv);
+		fprintf(stderr, "%s: %s\n", cpp, strerror(errno));
+	} else
 #endif
-		return execvp(cc, gcc_argv);
+	{
+		execvp(cc, gcc_argv);
+		fprintf(stderr, "%s: %s\n", cc, strerror(errno));
+	}
+	exit(EXIT_FAILURE);
 }
