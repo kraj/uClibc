@@ -423,10 +423,49 @@ config UCLIBC_HAS_LOCALE
 	select UCLIBC_HAS_CTYPE_TABLES
 	default n
 	help
-	  Answer Y to enable locale support.  This will make uClibc much
-	  bigger.  uClibc's locale support is still under development.
+	  uClibc now has full ansi/iso C99 locale support (except for
+	  wcsftime() and collating items in regex).  Be aware that enabling
+	  this option will make uClibc much larger.  
+	  
+	  Enabling UCLIBC_HAS_LOCALE with the default set of supported locales
+	  (169 UTF-8 locales, and 144 locales for other codesets) will enlarge
+	  uClibc by arond 300k.  You can reduce this size by building your own
+	  custom set of locate data (see extra/locale/LOCALES for details).
 
-	  Most people will wisely answer N.
+	  uClibc's locale support is still under development.  For example,
+	  codesets using shift states are not currently supported.  Support is
+	  planned in the next iteration of locale support.
+
+	  Answer Y to enable locale support.  Most people will answer N.
+
+config UCLIBC_PREGENERATED_LOCALE_DATA
+	bool "Use Pre-generated Locale Data"
+	depends on UCLIBC_HAS_LOCALE
+	default n
+	help
+	  If you are selective and only want locale data for a few selected
+	  locales, or you enjoy pain, or you are a rabid do-it-yourself sort of
+	  person, you can turn this option off, and manually walk through the
+	  mostly undocumented procedure needed to generate your own locale
+	  data.
+
+	  Mere mortals will answer Y and use the default set of pregenerated
+	  locale data, which supports 169 UTF-8 locales, and 144 locales for
+	  other codesets (for the complete list see extra/locale/LOCALES).
+
+config UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA
+	bool "Automagically Download the Pre-generated Locale Data (if necessary)"
+	depends on UCLIBC_PREGENERATED_LOCALE_DATA
+	default n
+	help
+	  If you would like the build process to use 'wget' to automatically
+	  download the pregenerated locale data, enable this option.  Otherwise
+	  you will need to obtain the locale data yourself from:
+		http://www.uclibc.org/downloads/uClibc-locale-030818.tgz
+	  and place the uClibc-locale-030818.tgz tarball in the extra/locale/
+	  directory.
+
+	  Go ahead and make life easy for yourself... Answer Y.
 
 config UCLIBC_HAS_XLOCALE
 	bool "Extended Locale Support (experimental/incomplete)"
