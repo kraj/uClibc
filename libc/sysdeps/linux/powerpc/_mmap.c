@@ -1,9 +1,14 @@
 
 #include <unistd.h>
 #include <sys/mman.h>
-#include <sys/syscall.h>
 #include <errno.h>
+#include <sys/syscall.h>
 
+#define __syscall_clobbers \
+	"r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"
+#define __syscall_return(type) \
+	return (__sc_err & 0x10000000 ? errno = __sc_ret, __sc_ret = -1 : 0), \
+	       (type) __sc_ret
 
 void * mmap(void *start, size_t length, int prot, int flags, int fd,
 	off_t offset)
