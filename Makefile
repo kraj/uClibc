@@ -219,6 +219,9 @@ clean:
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core \) -exec rm -f {} \;
 	$(MAKE) -C ldso clean
 	$(MAKE) -C libc/unistd clean
+	$(MAKE) -C libc/systeps/linux/common clean
+	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean
+	$(MAKE) -C extra/gcc-uClibc clean
 
 .PHONY: dummy subdirs
 
