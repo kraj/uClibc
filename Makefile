@@ -197,7 +197,7 @@ install_dev:
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod -f 755 $$i; chmod -f 644 $$i/*.h; \
 	done;
-	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
+	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
 ifeq ($(strip $(HAVE_SHARED)),true)
 	find lib/ -type l -name '*.so' -exec cp -a {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
 endif
