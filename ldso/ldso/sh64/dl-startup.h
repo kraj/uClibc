@@ -5,30 +5,37 @@
 
 asm("" \
 "	.section .text..SHmedia32,\"ax\"\n"				\
-"	.globl _dl_boot\n"						\
-"	.type _dl_boot, @function\n"					\
+"	.globl _start\n"						\
+"	.type _start, @function\n"					\
 "	.align 5\n"							\
-"_dl_boot:\n"								\
+"_start:\n"								\
 "	! Set r12 to point to GOT\n"					\
-"	movi	(((datalabel _GLOBAL_OFFSET_TABLE_-(.LZZZ3-.)) >> 16) & 65535), r12\n"	\
-"	shori	((datalabel _GLOBAL_OFFSET_TABLE_-(.LZZZ3-.)) & 65535), r12\n"		\
+"	movi	(((datalabel _GLOBAL_OFFSET_TABLE_-(.LZZZ3-.)) >> 16) & 0xffff), r12\n"	\
+"	shori	((datalabel _GLOBAL_OFFSET_TABLE_-(.LZZZ3-.)) & 0xffff), r12\n"		\
 ".LZZZ3:\n"								\
 "	ptrel/u	r12, tr0\n"						\
 "	gettr	tr0, r12	! GOT address\n"			\
 "	add	r18, r63, r11	! save return address - needed?\n"	\
 "	add	r15, r63, r2	! arg = stack pointer\n"		\
-"	pt	_dl_boot2, tr0	! should work even if PIC\n"		\
-"	blink	tr0, r18	! call _dl_boot2 - user EP is in r2\n"	\
+"	pt	_dl_start, tr0	! should work even if PIC\n"		\
+"	blink	tr0, r18	! call _dl_start - user EP is in r2\n"	\
+"	add	r2, r63, r28\n"						\
+"	movi	(((_dl_fini@GOT) >> 16) & 0xffff), r1\n"		\
+"	shori	((_dl_fini@GOT) & 0xffff), r1\n"			\
+"	ldx.l	r1, r12, r2\n"						\
+"	add	r11, r63, r18\n"					\
+"	ptabs/l r28, tr0\n"						\
+"	blink	tr0, r63\n"						\
+"	.size	_start,.-_start\n"
+"	.previous\n"
 );
-
-#define DL_BOOT(X)   static void __attribute_used__ _dl_boot2 (X)
 
 /*
  * Get a pointer to the argv array.  On many platforms this can be just
  * the address if the first argument, on other platforms we need to
  * do something a little more subtle here.
  */
-#define GET_ARGV(ARGVP, ARGS) ARGVP = ((unsigned long *)ARGS)
+#define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long *)ARGS)+1)
 
 /*
  * Here is a macro to perform a relocation.  This is only used when
@@ -38,43 +45,11 @@ asm("" \
  * load address.
  */
 
-/*
- * We need to do this stupidity here as the preprocessor will choke when
- * SYMTAB is NULL if we do this in PERFORM_BOOTSTRAP_RELOC().
- */
-
 #include <elf.h>
-
-static inline int __extract_lsb_from_symtab(Elf32_Sym *symtab)
-{
-	static int lsb = 0;
-
-	/* Check for SHmedia/SHcompact */
-	if (symtab)
-		lsb = symtab->st_other & 4;
-
-	return lsb;
-}
-
-/*
- * While on the subject of stupidity, there appear to be some conflicts with
- * regards to several relocation types as far as binutils is concerned
- * (Barcelona and Madrid both appear to use an out of date elf.h, whereas
- * native Catalonia has all of the necessary definitions. As a workaround,
- * we'll just define them here for sanity..
- */
-#ifndef R_SH_RELATIVE_LOW16
-#  define R_SH_RELATIVE_LOW16		197
-#  define R_SH_RELATIVE_MEDLOW16	198
-#  define R_SH_IMM_LOW16		246
-#  define R_SH_IMM_LOW16_PCREL		247
-#  define R_SH_IMM_MEDLOW16		248
-#  define R_SH_IMM_MEDLOW16_PCREL	249
-#endif
 
 #define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB)		\
 	const unsigned int r_type = ELF32_R_TYPE((RELP)->r_info);	\
-	int lsb = __extract_lsb_from_symtab(SYMTAB);			\
+	int lsb = !!((SYMTAB)->st_other & STO_SH5_ISA32);		\
 									\
 	switch (r_type)	{						\
 	case R_SH_REL32:						\
@@ -156,5 +131,4 @@ static inline int __extract_lsb_from_symtab(Elf32_Sym *symtab)
  */
 
 #define START()   return _dl_elf_main;
-
 

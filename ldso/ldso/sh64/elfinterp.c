@@ -4,7 +4,7 @@
  *
  * SuperH (sh64) ELF shared library loader suppport
  *
- * Copyright (C) 2003  Paul Mundt <lethal@linux-sh.org>
+ * Copyright (C) 2003, 2004, 2005  Paul Mundt <lethal@linux-sh.org>
  *
  * All rights reserved.
  *
@@ -34,16 +34,16 @@
 static const char *_dl_reltypes_tab[] = {
 	/* SHcompact relocs */
 	  [0] =	"R_SH_NONE",		"R_SH_DIR32",
-	  	"R_SH_REL32",		"R_SH_DIR8WPN",
+		"R_SH_REL32",		"R_SH_DIR8WPN",
 	  [4] = "R_SH_IND12W",		"R_SH_DIR8WPL",
-	  	"R_SH_DIR8WPZ",		"R_SH_DIR8BP",
+		"R_SH_DIR8WPZ",		"R_SH_DIR8BP",
 	  [8] = "R_SH_DIR8W",		"R_SH_DIR8L",
 	 [25] = "R_SH_SWITCH16",	"R_SH_SWITCH32",
-	 	"R_SH_USES",		"R_SH_COUNT",
+		"R_SH_USES",		"R_SH_COUNT",
 	 [29] = "R_SH_ALIGN",		"R_SH_CODE",
-	 	"R_SH_DATA",		"R_SH_LABEL",
+		"R_SH_DATA",		"R_SH_LABEL",
 	 [33] = "R_SH_SWITCH8",		"R_SH_GNU_VTINHERIT",
-	 	"R_SH_GNU_VTENTRY",
+		"R_SH_GNU_VTENTRY",
 	[160] = "R_SH_GOT32",		"R_SH_PLT32",
 		"R_SH_COPY",		"R_SH_GLOB_DAT",
 	[164] = "R_SH_JMP_SLOT",	"R_SH_RELATIVE",
@@ -88,7 +88,7 @@ static const char *_dl_reltypes(int type)
 	tabsize = sizeof(_dl_reltypes_tab)/sizeof(_dl_reltypes_tab[0]);
 	str	= _dl_reltypes_tab[type];
 
-  	if (type >= tabsize || str == NULL)
+	if (type >= tabsize || str == NULL)
 		str =_dl_simple_ltoa(buf, (unsigned long)(type));
 
 	return str;
@@ -295,7 +295,7 @@ static int _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr  = 0;
-	lsb          = symtab[symtab_index].st_other & 4;
+	lsb          = !!(symtab[symtab_index].st_other & STO_SH5_ISA32);
 	symname      = strtab + symtab[symtab_index].st_name;
 	reloc_addr   = (unsigned long *)(intptr_t)
 		(tpnt->loadaddr + (unsigned long)rpnt->r_offset);
@@ -362,7 +362,7 @@ static int _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 	case R_SH_IMM_LOW16:
 	case R_SH_IMM_MEDLOW16:
 	    {
-	    	unsigned long word, value;
+		unsigned long word, value;
 
 		word = (unsigned long)reloc_addr & ~0x3fffc00;
 		value = (symbol_addr + rpnt->r_addend) | lsb;
@@ -378,7 +378,7 @@ static int _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 	case R_SH_IMM_LOW16_PCREL:
 	case R_SH_IMM_MEDLOW16_PCREL:
 	    {
-	    	unsigned long word, value;
+		unsigned long word, value;
 
 		word = (unsigned long)reloc_addr & ~0x3fffc00;
 		value = symbol_addr + rpnt->r_addend -
@@ -416,7 +416,7 @@ static int _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
-	lsb          = symtab[symtab_index].st_other & 4;
+	lsb          = !!(symtab[symtab_index].st_other & STO_SH5_ISA32);
 	reloc_addr   = (unsigned long *)(intptr_t)
 		(tpnt->loadaddr + (unsigned long)rpnt->r_offset);
 
