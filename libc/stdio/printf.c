@@ -57,7 +57,7 @@
  */
 
 /*
- *                    Manuel Novoa III   Jan 2000
+ *                    Manuel Novoa III   Jan 2001
  *
  * Removed fake file from *s*printf functions because of possible problems
  *    if called recursively.  Instead, have sprintf, snprintf, and vsprintf
@@ -73,7 +73,11 @@
  * Added function fnprintf to support __dtostr.
  * Added floating point support for doubles.  Yeah!
  * 
- * TODO: long double support
+ *
+ * May 2001     Fixes from Johan Adolfsson (johan.adolfsson@axis.com)
+ *    1) printf("%c",0) returned 0 instead of 1.
+ *    2) unrolled loop in asprintf to reduce size and remove compile warning.
+ *
  */
 
 /*****************************************************************************/
@@ -155,26 +159,29 @@ int printf(const char *fmt, ...)
 int asprintf(char **app, const char *fmt, ...)
 {
 	va_list ptr;
-	int rv, i;
-	char *p;					/* unitialized warning is ok here */
+	int rv;
+	char *p;
+
 	/*
-	 * First  iteration - find out size of buffer required and allocate it.
+	 * First iteration - find out size of buffer required and allocate it.
+	 */
+	va_strt(ptr, fmt);
+	rv = vsnprintf(NULL, 0, fmt, ptr);
+	va_end(ptr);
+
+	p = malloc(++rv);			/* allocate the buffer */
+	*app = p;
+	if (!p) {
+		return -1;
+	}
+
+	/*
 	 * Second iteration - actually produce output.
 	 */
-	rv = 0;
-	for (i=0 ; i<2 ; i++) {
-		va_strt(ptr, fmt);
-		rv = vsnprintf(p, rv, fmt, ptr);
-		va_end(ptr);
+	va_strt(ptr, fmt);
+	rv = vsnprintf(p, rv, fmt, ptr);
+	va_end(ptr);
 
-		if (i==0) {				/* first time through so */
-			p = malloc(++rv); /* allocate the buffer */
-			*app = p;
-			if (!p) {
-				return -1;
-			}
-		}
-	}
 	return rv;
 }
 #endif
@@ -345,7 +352,7 @@ static const char u_radix[] = "\x02\x08\x10\x10\x10\x0a";
 
 int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 {
-	int i, cnt, lval;
+	int i, cnt, lval, len;
 	char *p;
 	const char *fmt0;
 	int buffer_mode;
@@ -545,6 +552,9 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 					if (*p == 'c') {	/* character */
 						p = tmp;
 						*p = va_arg(ap, int);
+						/* This takes care of the "%c",0 case */
+						len = 1;
+						goto print_len_set;
 					} else {	/* string */
 						p = va_arg(ap, char *);
 						if (!p) {
@@ -576,11 +586,9 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 			print:
 #endif
 				{				/* this used to be printfield */
-					int len;
-
 					/* cheaper than strlen call */
 					for ( len = 0 ; p[len] ; len++ ) { }
-
+				print_len_set:
 					if ((*p == '-')
 #if WANT_GNU_ERRNO
 						&& (*fmt != 'm')
