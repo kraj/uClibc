@@ -1042,15 +1042,6 @@ struct hostent *gethostbyname2(const char *name, int family)
 }
 #endif
 
-#ifdef L_getnetbyname
-
-struct netent * getnetbyname(const char * name)
-{
-	return NULL;
-}
-#endif
-
-
 #ifdef L_res_init
 struct __res_state _res;
 
