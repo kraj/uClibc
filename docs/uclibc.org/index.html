@@ -116,6 +116,43 @@ you might want to search the mailing list archives...
 <ul>
 
     <p>
+    <li> <b>30 September 2003, dev systems updated to uClibc 0.9.21+</b>
+    <br>
+
+    The uClibc development systems for
+    <a href="http://www.uclibc.org/downloads/root_fs_i386.bz2">i386</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs_powerpc.bz2">powerpc</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs_arm.bz2">arm</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs_mipsel.bz2">mips</a>,
+    have been updated to uClibc 0.9.21 (plus all the CVS updates up to
+    today).  Several problems have been fixed up,
+    gcc has been updated to version 3.3.1, binutils was updated, and
+    <em>tada</em> everything finally works for cross compiling.  These were
+    all cross compiled (which really makes things faster since the older
+    mipsel releases used to take 2 days to build!)
+
+    <p>
+    This is an ~100 MB ext2 filesystem that runs natively on the specified
+    architecture.  It contains all the development software you need to build
+    your own uClibc applications, including bash, coreutils, findutils,
+    diffutils, patch, sed, ed, flex, bison, file, gawk, tar, grep gdb, strace,
+    make, gcc, g++,  autoconf, automake, ncurses, zlib, openssl, openssh perl, 
+    and more.   And of course, everything is dynamically linked against uClibc.  
+    By using a uClibc only system, you can avoid all the painful
+    cross-configuration problems that have made using uClibc somewhat painful
+    in the past.  If you want to quickly get started with testing or using
+    uClibc you should give these images a try.  You can loop mount and them
+    you can chroot into them, you can boot into with using user-mode Linux, 
+    and you can even 'dd' them to a spare partition and use resize2fs to make 
+    them fill the drive.  Whatever works for you.
+
+    <p> If you would like to build your own custom uClibc system, you can
+	use <a href="/cgi-bin/cvsweb/buildroot/">buildroot</a>, which is
+	how these uClibc development systems were created.
+    <p>
+
+
+    <p>
     <li> <b>9 September 2003, uClibc 0.9.21 Released</b>
     <br>
 
