@@ -347,7 +347,7 @@ void setbuffer(FILE * __restrict stream, register char * __restrict buf,
 void setlinebuf(FILE * __restrict stream)
 {
 #ifdef __STDIO_BUFFERS
-	setvbuf(stream, NULL, _IOLBF, (size_t) BUFSIZ);
+	setvbuf(stream, NULL, _IOLBF, (size_t) 0);
 #else  /* __STDIO_BUFFERS */
 	/* Nothing to do. */
 #endif /* __STDIO_BUFFERS */
@@ -458,7 +458,7 @@ static ssize_t fmo_write(void *cookie, register const char *buf, size_t bufsize)
 	if (bufsize > count) {
 		bufsize = count;
 		if (count == 0) {		/* We're at the end of the buffer... */
-			errno = EFBIG;
+			__set_errno(EFBIG);
 			return -1;
 		}
 	}
@@ -632,7 +632,7 @@ static ssize_t oms_write(void *cookie, const char *buf, size_t bufsize)
 		} else {
 			bufsize = count;
 			if (count == 0) {
-				errno = EFBIG;	/* TODO: check glibc errno setting... */
+				__set_errno(EFBIG);	/* TODO: check glibc errno setting... */
 				return -1;
 			}
 		}
@@ -1214,7 +1214,7 @@ size_t _stdio_fread(unsigned char *buffer, size_t bytes,
 		 * use this errno for read attempt while writing, as no errno is
 		 * specified by posix for this case, even though the restriction is
 		 * mentioned in fopen(). */
-		errno = EBADF;
+		__set_errno(EBADF);
 		return 0;
 	}
 
@@ -1237,9 +1237,8 @@ size_t _stdio_fread(unsigned char *buffer, size_t bytes,
 	}
 
 #ifdef __STDIO_AUTO_RW_TRANSITION
-	if (stream->modeflags & __FLAG_WRITING) {
-		/* TODO -- return if error?  Test glibc behavior with a custom r/w. */
-		fflush(stream);
+	if ((stream->modeflags & __FLAG_WRITING) && (fflush(stream) == EOF)) {
+		return 0;				/* Fail if we need to fflush but can't. */
 	}
 #endif /* __STDIO_AUTO_RW_TRANSITION */
 
@@ -1316,7 +1315,7 @@ size_t _stdio_fread(unsigned char *buffer, size_t bytes,
 		 * use this errno for read attempt while writing, as no errno is
 		 * specified by posix for this case, even though the restriction is
 		 * mentioned in fopen(). */
-		errno = EBADF;
+		__set_errno(EBADF);
 		return 0;
 	}
 
@@ -1431,35 +1430,39 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 		 * use this errno for write attempt while reading, as no errno is
 		 * specified by posix for this case, even though the restriction is
 		 * mentioned in fopen(). */
-		errno = EBADF;
+		__set_errno(EBADF);
 		return 0;
 	}
 
 #ifdef __STDIO_AUTO_RW_TRANSITION
-	/* If we were reading, deal with ungots and buffered chars. */
-	if ((stream->modeflags & (__FLAG_EOF|__FLAG_WRITING|__FLAG_WRITEONLY))
-		== 0) {
-		/* If appending, we might as well seek to end to save a seek. */
-		fseek(stream, 0L, 
-			  ((stream->modeflags & __FLAG_APPEND) ? SEEK_END : SEEK_CUR));
-		/* TODO: set EOF in fseek when appropriate? */
+	/* If reading, deal with ungots and read-buffered chars. */
+	if (stream->modeflags & __FLAG_READING) {
+		if (((stream->bufrpos < stream->bufwpos)
+			 || (stream->modeflags & __MASK_UNGOT))
+			/* If appending, we might as well seek to end to save a seek. */
+			/* TODO: set EOF in fseek when appropriate? */
+			&& fseek(stream, 0L, 
+					 ((stream->modeflags & __FLAG_APPEND)
+					  ? SEEK_END : SEEK_CUR))
+			) {
+			/* Note: This differs from glibc's apparent behavior of
+			   not setting the error flag and discarding the buffered
+			   read data. */
+			stream->modeflags |= __FLAG_ERROR; /* fseek may not set this. */
+			return 0;			/* Fail if we need to fseek but can't. */
+		}
+		/* Always reset even if fseek called (saves a test). */
+#ifdef __STDIO_GETC_MACRO
+		stream->bufgetc =
+#endif /* __STDIO_GETC_MACRO */
+		stream->bufrpos = stream->bufwpos = stream->bufstart;
 	}
 #endif
 
-	/* We need to disable putc and getc macros in case of error */
-#if defined(__STDIO_AUTO_RW_TRANSITION) \
-	|| defined(__STDIO_PUTC_MACRO) || defined(__STDIO_GETC_MACRO)
-#ifdef __STDIO_AUTO_RW_TRANSITION
-	stream->bufrpos =			/* TODO -- necessary? */
-#endif /* __STDIO_AUTO_RW_TRANSITION */
 #ifdef __STDIO_PUTC_MACRO
-	stream->bufputc =
+	/* We need to disable putc macro in case of error */
+	stream->bufputc = stream->bufstart;
 #endif /* __STDIO_GETC_MACRO */
-#ifdef __STDIO_GETC_MACRO
-	stream->bufgetc =
-#endif /* __STDIO_GETC_MACRO */
-	stream->bufstart;
-#endif /* not using ansi restrictions ; or using putc and/or getc macro */
 
 	/* Clear both reading and writing flags.  We need to clear the writing
 	 * flag in case we're fflush()ing or in case of an error. */
@@ -1568,7 +1571,7 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 		 * use this errno for write attempt while reading, as no errno is
 		 * specified by posix for this case, even though the restriction is
 		 * mentioned in fopen(). */
-		errno = EBADF;
+		__set_errno(EBADF);
 		return 0;
 	}
 
@@ -2408,6 +2411,10 @@ int setvbuf(register FILE * __restrict stream, register char * __restrict buf,
 	if (mode == _IONBF) {
 		size = 0;
 		buf = NULL;
+	} else if (!buf && !size) {
+		/* If buf==NULL && size==0 && either _IOFBF or _IOLBF, keep
+		 * current buffer and only set buffering mode. */
+		size = stream->bufend - stream->bufstart;
 	}
 
 	stream->modeflags &= ~(__MASK_BUFMODE);	/* Clear current mode */
