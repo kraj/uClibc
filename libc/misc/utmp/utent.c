@@ -108,17 +108,15 @@ struct utmp *pututline (const struct utmp *utmp_entry)
 
 	/* Ignore the return value.  That way, if they've already positioned
 	   the file pointer where they want it, everything will work out. */
-	(void) lseek(ut_fd, (off_t) - sizeof(utmp_entry), SEEK_CUR);
+	(void) lseek(ut_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
 
 	if ((ut = getutid(utmp_entry)) != NULL) {
-		lseek(ut_fd, (off_t) - sizeof(utmp_entry), SEEK_CUR);
-		if (write(ut_fd, (char *) utmp_entry, sizeof(utmp_entry))
-			!= sizeof(utmp_entry))
+		lseek(ut_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
+		if (write(ut_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
 			return NULL;
 	} else {
 		lseek(ut_fd, (off_t) 0, SEEK_END);
-		if (write(ut_fd, (char *) utmp_entry, sizeof(utmp_entry))
-			!= sizeof(utmp_entry))
+		if (write(ut_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
 			return NULL;
 	}
 
