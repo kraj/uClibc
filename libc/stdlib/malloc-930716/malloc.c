@@ -167,7 +167,7 @@ void * __malloc_unlocked (size_t size)
 #else
     /* Some programs will call malloc (0).  Lets be strict and return NULL */
     if (unlikely(size == 0))
-	return 0
+	return 0;
 #endif
     /* Check if they are doing something dumb like malloc(-1) */
     if (unlikely(((unsigned long)size > (unsigned long)(sizeof (struct list)*-2))))
