@@ -321,10 +321,6 @@
 # include <gnu/stubs.h>
 #endif
 
-/* No C++ */
-#define __BEGIN_DECLS
-#define __END_DECLS
-
 /* Load up the current set of uClibc supported features */
 #define __need_uClibc_config_h
 #include <bits/uClibc_config.h>
