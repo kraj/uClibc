@@ -98,14 +98,16 @@ int main(void)
 
 	p = strerror(INT_MIN);
 	j = strlen(p)+1;
-	if (j > max) max = j;
-	printf("strerror.c - Test of INT_MIN: <%s>  %d\n", p, j);
+	if (j > max) {
+	    max = j;
+	    printf("strerror.c - Test of INT_MIN: <%s>  %d\n", p, j);
+	}
 
 	if (sizeof(retbuf) != max) {
 		printf("Error: strerror.c - dimension of retbuf should be = %d\n", max);
 		retcode = EXIT_FAILURE;
 	}
-	printf("strerror.c - dimension of retbuf correct at %d\n", max);
+	printf("Passed.\n");
 
 	return retcode;
 }
