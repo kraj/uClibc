@@ -165,6 +165,8 @@ extern malloc_mutex_t __malloc_sbrk_lock;
    when the variable __malloc_debug is set to true. */
 #ifdef MALLOC_DEBUGGING
 
+extern void __malloc_debug_init (void);
+
 /* The number of spaces in a malloc debug indent level.  */
 #define MALLOC_DEBUG_INDENT_SIZE 3
 
