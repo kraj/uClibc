@@ -38,9 +38,15 @@ _syscall1(void, _exit, int, status);
 
 //#define __NR_fork             2
 #ifdef L_fork
+#include <unistd.h>
 #	ifdef __UCLIBC_HAS_MMU__
-#		include <unistd.h>
 		_syscall0(pid_t, fork);
+#	else
+		pid_t fork(void)
+		{
+			__set_errno(ENOSYS);
+			return -1;
+		}
 #	endif
 #endif
 
@@ -292,7 +298,6 @@ _syscall1(int, rmdir, const char *, pathname);
 
 //#define __NR_dup              41
 #ifdef L_dup
-
 #include <unistd.h>
 _syscall1(int, dup, int, oldfd);
 #endif
@@ -329,37 +334,43 @@ _syscall0(gid_t, getgid);
 
 //#define __NR_geteuid          49
 #ifdef	L_geteuid
-#ifdef	__NR_geteuid
-#include <unistd.h>
-_syscall0(uid_t, geteuid);
-#else
-uid_t geteuid(void)
-{
-	return (getuid());
-}
-#endif
+#	ifdef	__NR_geteuid
+#	include <unistd.h>
+	_syscall0(uid_t, geteuid);
+#	else
+	uid_t geteuid(void)
+	{
+		return (getuid());
+	}
+#	endif
 #endif
 
 //#define __NR_getegid          50
 #ifdef	L_getegid
-#ifdef	__NR_getegid
-#include <unistd.h>
-_syscall0(gid_t, getegid);
-#else
-gid_t getegid(void)
-{
-	return (getgid());
-}
-#endif
+#	ifdef	__NR_getegid
+#	include <unistd.h>
+	_syscall0(gid_t, getegid);
+#	else
+	gid_t getegid(void)
+	{
+		return (getgid());
+	}
+#	endif
 #endif
 
 //#define __NR_acct             51
 
-#ifdef __NR_umount2 /* Old kernels don't have umount2 */ 
 //#define __NR_umount2          52
-#	ifdef L_umount2
+#ifdef L_umount2
+#	ifdef __NR_umount2 /* Old kernels don't have umount2 */ 
 #		include <sys/mount.h>
 		_syscall2(int, umount2, const char *, special_file, int, flags);
+#	else
+		int umount2(const char * special_file, int flags)
+		{
+			__set_errno(ENOSYS);
+			return -1;
+		}
 #	endif
 #endif
 
@@ -370,7 +381,6 @@ gid_t getegid(void)
 #include <stdarg.h>
 #include <sys/ioctl.h>
 #define __NR__ioctl __NR_ioctl
-
 extern int _ioctl(int fd, int request, void *arg);
 
 _syscall3(int, _ioctl, int, fd, int, request, void *, arg);
@@ -386,7 +396,6 @@ int ioctl(int fd, unsigned long int request, ...)
 	va_end(list);
 	return _ioctl(fd, request, arg);
 }
-
 #endif
 
 //#define __NR_fcntl            55
@@ -394,7 +403,6 @@ int ioctl(int fd, unsigned long int request, ...)
 #include <stdarg.h>
 #include <fcntl.h>
 #define __NR__fcntl __NR_fcntl
-
 extern int _fcntl(int fd, int cmd, long arg);
 
 _syscall3(int, _fcntl, int, fd, int, cmd, long, arg);
@@ -446,15 +454,15 @@ _syscall2(int, dup2, int, oldfd, int, newfd);
 
 //#define __NR_getppid          64
 #ifdef	L_getppid
-#include <unistd.h>
-#ifdef	__NR_getppid
-_syscall0(pid_t, getppid);
-#else
-pid_t getppid(void)
-{
-	return (getpid());
-}
-#endif
+#	include <unistd.h>
+#	ifdef	__NR_getppid
+	_syscall0(pid_t, getppid);
+#	else
+	pid_t getppid(void)
+	{
+		return (getpid());
+	}
+#	endif
 #endif
 
 //#define __NR_getpgrp          65
@@ -588,7 +596,6 @@ _syscall2(int, swapon, const char *, path, int, swapflags);
 //#define __NR_reboot           88
 #ifdef L__reboot
 #define __NR__reboot __NR_reboot
-
 extern int _reboot(int magic, int magic2, int flag);
 
 _syscall3(int, _reboot, int, magic, int, magic2, int, flag);
@@ -606,7 +613,6 @@ int reboot(int flag)
 #define __NR__mmap __NR_mmap
 #include <unistd.h>
 #include <sys/mman.h>
-
 extern __ptr_t _mmap(unsigned long *buffer);
 
 _syscall1(__ptr_t, _mmap, unsigned long *, buffer);
@@ -683,11 +689,17 @@ _syscall2(int, statfs, const char *, path, struct statfs *, buf);
 _syscall2(int, fstatfs, int, fd, struct statfs *, buf);
 #endif
 
-#ifdef __UCLIBC_HAS_MMU__
 //#define __NR_ioperm           101
-#	ifdef L_ioperm
-#		include <sys/io.h>
+#ifdef L_ioperm
+#include <sys/io.h>
+#	if defined __UCLIBC_HAS_MMU__ && defined __NR_ioperm
 		_syscall3(int, ioperm, unsigned long, from, unsigned long, num, int, turn_on);
+#	else
+		int ioperm(unsigned long from, unsigned long num, int turn_on)
+		{
+			__set_errno(ENOSYS);
+			return -1;
+		}
 #	endif
 #endif
 
@@ -700,7 +712,6 @@ _syscall2(int, socketcall, int, call, unsigned long *, args);
 #ifdef L__syslog
 #include <unistd.h>
 #define __NR__syslog		__NR_syslog
-
 extern int _syslog(int type, char *buf, int len);
 
 _syscall3(int, _syslog, int, type, char *, buf, int, len);
@@ -802,12 +813,18 @@ int fstat(int filedes, struct libc_stat *buf)
 
 //#define __NR_olduname         109
 
-#if defined __UCLIBC_HAS_MMU__ && defined __NR_iopl
 //#define __NR_iopl             110
 #ifdef L_iopl
 #include <sys/io.h>
-_syscall1(int, iopl, int, level);
-#endif
+#	if defined __UCLIBC_HAS_MMU__ && defined __NR_iopl
+		_syscall1(int, iopl, int, level);
+#	else
+		int iopl(int level)
+		{
+			__set_errno(ENOSYS);
+			return -1;
+		}
+#	endif
 #endif
 
 //#define __NR_vhangup          111
@@ -906,6 +923,12 @@ _syscall5(int, init_module, void *, first, void *, second, void *, third,
 #ifdef L_delete_module
 #	ifdef __NR_delete_module
 		_syscall1(int, delete_module, const char *, name);
+#	else
+		int delete_module(const char * name)
+		{
+			__set_errno(ENOSYS);
+			return -1;
+		}
 #	endif
 #endif
 
@@ -1048,8 +1071,15 @@ _syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t,
 //#define __NR_query_module             167
 #ifdef L_query_module
 #	ifdef __NR_query_module
-	_syscall5(int, query_module, const char *, name, int, which,
-			void *, buf, size_t, bufsize, size_t*, ret);
+		_syscall5(int, query_module, const char *, name, int, which,
+				void *, buf, size_t, bufsize, size_t*, ret);
+#	else
+		int query_module(const char * name, int which,
+					void * buf, size_t bufsize, size_t* ret)
+		{
+			__set_errno(ENOSYS);
+			return -1;
+		}
 #	endif	
 #endif	
 
@@ -1079,11 +1109,33 @@ _syscall3(int, chown, const char *, path, uid_t, owner, gid_t, group);
 #endif
 
 //#define __NR_getcwd                   183
-// See unistd/getcwd.c -- we don't use the syscall, even when it is available...
+// See unistd/getcwd.c -- we don't use this syscall, even when it is available...
 
 //#define __NR_capget                   184
+#ifdef L_capget
+#	ifdef __NR_capget
+		_syscall2(int, capget, void*, header, void*, data);
+#	else
+		int capget(void* header, void* data)
+		{
+			__set_errno(ENOSYS);
+			return -1;
+		}
+#	endif
+#endif
 
 //#define __NR_capset                   185
+#ifdef L_capset
+#	ifdef __NR_capset
+		_syscall2(int, capset, void*, header, const void*, data);
+#	else
+		int capset(void* header, const void* data)
+		{
+			__set_errno(ENOSYS);
+			return -1;
+		}
+#	endif
+#endif
 
 //#define __NR_sigaltstack              186
 
