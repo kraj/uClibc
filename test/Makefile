@@ -19,11 +19,55 @@ ifndef $(STRIPTOOL)
 endif
 STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $@
 
-TARGETS=hello_source hello_glibc hello
-TARGETS+=testmalloc_source testmalloc_glibc testmalloc
-TARGETS+=teststrtol_source teststrtol_glibc teststrtol teststrtol_diff
+TARGETS=string string_glibc
+TARGETS+=ctype ctype_glibc
+#TARGETS+=hello_source hello hello_glibc
+#TARGETS+=testmalloc_source testmalloc testmalloc_glibc 
+#TARGETS+=teststrtol_source teststrtol teststrtol_glibc teststrtol_diff
 
 all: $(TARGETS)
+
+string: string.c Makefile $(TOPDIR)libc.a
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Testing ctype functions: "
+	-@ echo " "
+	$(CC) $(XCFLAGS) -c $< -o $@.o
+	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	-./$@
+	-@ echo " "
+
+string_glibc: string.c testsuite.h Makefile $(TOPDIR)libc.a
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Testing string functions: "
+	-@ echo " "
+	$(CC) $(YCFLAGS) -c $< -o $@.o
+	$(CC) $(YLDFLAGS) --static $@.o -o $@
+	-./$@
+	-./$@
+	-@ echo " "
+
+ctype: ctype.c testsuite.h Makefile $(TOPDIR)libc.a
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Testing ctype functions: "
+	-@ echo " "
+	$(CC) $(XCFLAGS) -c $< -o $@.o
+	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	-./$@
+	-@ echo " "
+
+ctype_glibc: ctype.c testsuite.h Makefile $(TOPDIR)libc.a
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Testing ctype functions: "
+	-@ echo " "
+	$(CC) $(YCFLAGS) -c $< -o $@.o
+	$(CC) $(YLDFLAGS) --static $@.o -o $@
+	-./$@
+	-./$@
+	-@ echo " "
 
 hello_source:
 	-@ rm -f $(TARGETS)
