@@ -47,6 +47,8 @@
 #include <asm/page.h>
 #include <sys/sysctl.h>
 
+#include <linux/version.h>
+
 #define PATH_ARM_SYSTYPE	"/etc/arm_systype"
 #define PATH_CPUINFO		"/proc/cpuinfo"
 
@@ -93,6 +95,8 @@ static struct platform {
  * 3. Lookup the "system type" field in /proc/cpuinfo.  Again, if it
  *    matches an entry in the platform[] table, use the corresponding
  *    values.
+ *
+ * 4. BUS_ISA is changed to CTL_BUS_ISA (for kernel since 2.4.23).
  */
 
 static int
@@ -100,8 +104,15 @@ init_iosys (void)
 {
     char systype[256];
     int i, n;
+    
+#if LINUX_VERSION_CODE < 132119
     static int iobase_name[] = { CTL_BUS, BUS_ISA, BUS_ISA_PORT_BASE };
     static int ioshift_name[] = { CTL_BUS, BUS_ISA, BUS_ISA_PORT_SHIFT };
+#else
+    static int iobase_name[] = { CTL_BUS, CTL_BUS_ISA, BUS_ISA_PORT_BASE };
+    static int ioshift_name[] = { CTL_BUS, CTL_BUS_ISA, BUS_ISA_PORT_SHIFT };
+#endif
+
     size_t len = sizeof(io.base);
 
     if (! sysctl (iobase_name, 3, &io.io_base, &len, NULL, 0)
