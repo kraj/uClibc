@@ -380,6 +380,7 @@ int main(int argc, char **argv)
 		for ( j = 0 ; gcc_argv[j] ; j++ ) {
 			printf("arg[%2i] = %s\n", j, gcc_argv[j]);
 		}
+		fflush(stdout);
 	}
 	//no need to free memory from xstrcat because we never return... 
 	return execvp(GCC_BIN, gcc_argv);
