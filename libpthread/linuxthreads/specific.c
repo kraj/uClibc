@@ -27,6 +27,9 @@
 static struct pthread_key_struct pthread_keys[PTHREAD_KEYS_MAX] =
   { { 0, NULL } };
 
+/* Put the maximum number of keys in a variable to make gdb happy. */
+const int __linuxthreads_pthread_keys_max = PTHREAD_KEYS_MAX;
+
 /* Mutex to protect access to pthread_keys */
 
 static pthread_mutex_t pthread_keys_mutex = PTHREAD_MUTEX_INITIALIZER;
