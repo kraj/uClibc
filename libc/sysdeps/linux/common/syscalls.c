@@ -738,7 +738,6 @@ _syscall2(int, fstatfs, int, fd, struct statfs *, buf);
 
 //#define __NR_ioperm           101
 #ifdef L_ioperm
-#include <sys/io.h>
 #	if defined __UCLIBC_HAS_MMU__ && defined __NR_ioperm
 		_syscall3(int, ioperm, unsigned long, from, unsigned long, num, int, turn_on);
 #	else
@@ -862,7 +861,6 @@ int fstat(int filedes, struct libc_stat *buf)
 
 //#define __NR_iopl             110
 #ifdef L_iopl
-#include <sys/io.h>
 /* Tuns out the m68k unistd.h kernel header is broken */
 #	if defined __UCLIBC_HAS_MMU__ && defined __NR_iopl && ! defined(__mc68000__)
 		_syscall1(int, iopl, int, level);
