@@ -2,10 +2,10 @@
 #
 # This file contains rules which are shared between multiple Makefiles.  All
 # normal configuration options live in the file named "Config".  You probably
-# should not mess with this file unless you know what you are doing...  -Erik
-# Andersen <andersen@lineo.com> < andersee@debian.org>
+# should not mess with this file unless you know what you are doing...  
+#   -Erik Andersen <andersen@lineo.com> < andersee@debian.org>
 # 
-# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000, 2001 by Lineo, inc.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -61,6 +61,8 @@ endif
 ifeq ($(TARGET_ARCH),m68k)
     CFLAGS += -D__VFORK_MACRO__ -Dconst= -D__const= -D__extension__= 
 endif
+
+NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g' -e 's/m68k.*/m68k/')
 
 # It turns out the currently, function-sections causes ldelf2flt to segfault.
 # So till further notice, this is disabled by default....
