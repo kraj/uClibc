@@ -7,6 +7,7 @@
  * these will get called before the errno symbol is dynamicly 
  * linked. */
 
+#undef __syscall_return
 #define __syscall_return(type, res) \
 do { \
 	if ((unsigned long)(res) >= (unsigned long)(-125)) { \
