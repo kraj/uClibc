@@ -40,13 +40,6 @@
  * on the subject, and different kernel revs use different names... */
 #include <bits/kernel_stat.h>
 
-#ifdef __USE_LARGEFILE64
-#  ifdef __USE_FILE_OFFSET64
-#    define stat   stat64
-#  endif
-#endif
-
-
 /* Tell code we have these members.  */
 #define	_STATBUF_ST_BLKSIZE
 #define _STATBUF_ST_RDEV
