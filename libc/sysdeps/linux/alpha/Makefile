@@ -22,6 +22,7 @@ ASFLAGS=$(CFLAGS)
 
 CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o
+CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 SSRC=__longjmp.S brk.S bsd-_setjmp.S bsd-setjmp.S clone.S \
     setjmp.S divl.S reml.S remq.S divq.S 
@@ -37,7 +38,7 @@ all: $(OBJS) $(LIBC)
 
 $(LIBC): ar-target 
 
-ar-target: $(OBJS) $(CRT0_OBJ)
+ar-target: $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
@@ -52,6 +53,30 @@ $(SOBJS): %.o : %.S
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+crti.o: crti.S
+	$(CC) $(SAFECFLAGS) -c crti.S -o crti.o
+
+$(TOPDIR)lib/crti.o: crti.o
+	$(INSTALL) -d $(TOPDIR)lib/
+	cp crti.o $(TOPDIR)lib/
+
+crtn.o: crtn.S
+	$(CC) $(SAFECFLAGS) -c crtn.S -o crtn.o
+
+$(TOPDIR)lib/crtn.o: crtn.o
+	$(INSTALL) -d $(TOPDIR)lib/
+	cp crtn.o $(TOPDIR)lib/
+else
+$(TOPDIR)lib/crti.o:
+	$(INSTALL) -d $(TOPDIR)lib/
+	$(AR) $(ARFLAGS) $(TOPDIR)lib/crti.o
+$(TOPDIR)lib/crtn.o:
+	$(INSTALL) -d $(TOPDIR)lib/
+	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
+endif
+
 
 headers:
 	$(LN) -fs ../libc/sysdeps/linux/alpha/fpu_control.h $(TOPDIR)/include/
