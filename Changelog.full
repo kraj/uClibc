@@ -1,3 +1,4 @@
+---------------------
 PatchSet 2873 
 Date: 2003/11/13 12:45:50
 Author: andersen
@@ -777,4 +778,151 @@ Members:
 	libpthread/linuxthreads/sysdeps/sh64/Makefile:INITIAL->1.1 
 	libpthread/linuxthreads/sysdeps/sh64/pt-machine.c:INITIAL->1.1 
 	libpthread/linuxthreads/sysdeps/sh64/pt-machine.h:INITIAL->1.1 
+
+---------------------
+PatchSet 2928 
+Date: 2003/12/08 21:18:40
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Prepare for uClibc 0.9.24 release
+
+Members: 
+	Changelog:1.22->1.23 
+	Changelog.full:1.16->1.17 
+	Changelog.full.last:1.1->1.2 
+	Rules.mak:1.158->1.159 
+
+---------------------
+PatchSet 2929 
+Date: 2003/12/11 07:16:11
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+Rework the website
+
+Members: 
+	docs/uclibc.org/FAQ.html:1.20->1.21 
+	docs/uclibc.org/cvs_anon.html:1.5->1.6 
+	docs/uclibc.org/cvs_howto.html:INITIAL->1.1 
+	docs/uclibc.org/cvs_write.html:1.3->1.4 
+	docs/uclibc.org/download.html:INITIAL->1.1 
+	docs/uclibc.org/footer.html:INITIAL->1.1 
+	docs/uclibc.org/header.html:INITIAL->1.1 
+	docs/uclibc.org/index.html:1.76->1.77 
+	docs/uclibc.org/lists.html:INITIAL->1.1 
+	docs/uclibc.org/news.html:INITIAL->1.1 
+	docs/uclibc.org/old-news.html:1.16->1.17(DEAD) 
+	docs/uclibc.org/oldnews.html:INITIAL->1.1 
+	docs/uclibc.org/other_libs.html:INITIAL->1.1 
+	docs/uclibc.org/products.html:INITIAL->1.1 
+	docs/uclibc.org/robots.txt:1.2->1.3(DEAD) 
+	docs/uclibc.org/toolchains.html:INITIAL->1.1 
+
+---------------------
+PatchSet 2930 
+Date: 2003/12/11 07:41:48
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+more minor cleanups
+
+Members: 
+	docs/uclibc.org/FAQ.html:1.21->1.22 
+	docs/uclibc.org/index.html:1.77->1.78 
+
+---------------------
+PatchSet 2931 
+Date: 2003/12/11 07:42:05
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+mjn3 found a url for the darwin C lib
+
+Members: 
+	docs/uclibc.org/other_libs.html:1.1->1.2 
+
+---------------------
+PatchSet 2932 
+Date: 2003/12/11 07:54:56
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+fixup some silly html bugs
+
+Members: 
+	docs/uclibc.org/FAQ.html:1.22->1.23 
+	docs/uclibc.org/footer.html:1.1->1.2 
+	docs/uclibc.org/header.html:1.1->1.2 
+	docs/uclibc.org/index.html:1.78->1.79 
+	docs/uclibc.org/news.html:1.1->1.2 
+	docs/uclibc.org/other_libs.html:1.2->1.3 
+
+---------------------
+PatchSet 2933 
+Date: 2003/12/11 07:55:13
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+add image for validator
+
+Members: 
+	docs/uclibc.org/images/vh40.gif:INITIAL->1.1 
+
+---------------------
+PatchSet 2934 
+Date: 2003/12/11 08:18:42
+Author: andersen
+Branch: HEAD
+Tag: (none) 
+Log:
+fix a cut-n-paste typo
+
+Members: 
+	docs/uclibc.org/cvs_write.html:1.4->1.5 
+
+---------------------
+PatchSet 2935 
+Date: 2003/12/14 19:10:23
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Fix a couple of 'declaration after statement' errors.
+
+Members: 
+	libc/misc/locale/locale.c:1.17->1.18 
+	libc/stdio/scanf.c:1.32->1.33 
+
+---------------------
+PatchSet 2936 
+Date: 2003/12/14 23:51:30
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Fix some dst issues in _time_mktime().
+  Normalize the tm_isdst value to -1, 0, or 1.
+  If no dst for this timezone, then reset tm_isdst to 0.
+
+Members: 
+	libc/misc/time/time.c:1.17->1.18 
+
+---------------------
+PatchSet 2937 
+Date: 2003/12/14 23:52:57
+Author: mjn3
+Branch: HEAD
+Tag: (none) 
+Log:
+Link ldconfig with the appropriate libraries.
+
+Members: 
+	utils/Makefile:1.9->1.10 
 
