@@ -57,7 +57,7 @@ struct dyn_elf *_dl_handles = NULL;
 /* This is the hash function that is used by the ELF linker to generate the
  * hash table that each executable and library is required to have.  We need
  * it to decode the hash table.  */
-unsigned long _dl_elf_hash(const char *name)
+unsigned long _dl_elf_hash(const unsigned char *name)
 {
 	unsigned long hash = 0;
 	unsigned long tmp;
@@ -67,7 +67,7 @@ unsigned long _dl_elf_hash(const char *name)
 		if ((tmp = hash & 0xf0000000))
 			hash ^= tmp >> 24;
 		hash &= ~tmp;
-	};
+	}
 	return hash;
 }
 
