@@ -181,7 +181,7 @@ void *_dlopen(const char *libname, int flag)
 	//tpnt->libtype = loaded_file;
 
 	dyn_chain = rpnt = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
-	_dl_memset(rpnt, 0, sizeof(*rpnt));
+	_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
 	rpnt->dyn = tpnt;
 	rpnt->flags = flag;
 	if (!tpnt->symbol_scope)
@@ -213,7 +213,7 @@ void *_dlopen(const char *libname, int flag)
 			goto oops;
 
 		      rpnt->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
-		      _dl_memset (rpnt->next, 0, sizeof (*(rpnt->next)));
+		      _dl_memset (rpnt->next, 0, sizeof (struct dyn_elf));
 		      rpnt = rpnt->next;
 		      if (!tpnt1->symbol_scope) tpnt1->symbol_scope = dyn_chain;
 		      rpnt->dyn = tpnt1;
@@ -254,8 +254,12 @@ void *_dlopen(const char *libname, int flag)
 	}
 
 #ifdef __PIC__
-	for (rpnt = dyn_chain; rpnt; rpnt = rpnt->next) {
-		tpnt = rpnt->dyn;
+	/* Find the last library */
+	for (tpnt = dyn_chain->dyn; tpnt->next!=NULL; tpnt = tpnt->next)
+		;
+	/* Run the ctors and set up the dtors */
+	for (; tpnt != dyn_chain->dyn->prev; tpnt=tpnt->prev)
+	{
 		/* Apparently crt1 for the application is responsible for handling this.
 		 * We only need to run the init/fini for shared libraries
 		 */
