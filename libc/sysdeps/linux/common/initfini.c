@@ -109,6 +109,11 @@ void _init (void)
 
   asm ("ALIGN");
   asm("END_INIT");
+#if defined(__sh__)
+  /* This is a horrible hack, but seems to be necessary to
+   * make this work for the Hitachi SH processors */
+  asm ("\n.L5:\n\t.long   _GLOBAL_OFFSET_TABLE_\n");
+#endif
   /* Now the epilog. */
   asm ("\n/*@_init_PROLOG_ENDS*/");
   asm ("\n/*@_init_EPILOG_BEGINS*/");
@@ -129,6 +134,11 @@ void _fini (void)
   /* End of the _fini prolog. */
   asm ("ALIGN");
   asm ("END_FINI");
+#if defined(__sh__)
+  /* This is a horrible hack, but seems to be necessary to
+   * make this work for the Hitachi SH processors */
+  asm ("\n.L10:\n\t.long   _GLOBAL_OFFSET_TABLE_\n");
+#endif
   asm ("\n/*@_fini_PROLOG_ENDS*/");
 
   {
