@@ -43,8 +43,8 @@ all: $(OBJS) $(LIBC)
 $(LIBC): ar-target 
 
 ar-target: $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS) #Tassos
-	cp $(CRT0_OBJ) $(TOPDIR)lib/$(CRT0_OBJ) #Tassos
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+	cp $(CRT0_OBJ) $(TOPDIR)lib/$(CRT0_OBJ)
 
 $(CRT0_OBJ): %.o : %.S
 	$(CC) $(CFLAGS) -c $< -o $@
