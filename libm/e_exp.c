@@ -110,8 +110,13 @@ P5   =  4.13813679705723846039e-08; /* 0x3E663769, 0x72BEA4D0 */
 	double x;
 #endif
 {
-	double y,hi,lo,c,t;
-	int32_t k,xsb;
+	double y;
+	double hi = 0;
+	double lo = 0;
+	double c;
+	double t;
+	int32_t k=0;
+	int32_t xsb;
 	u_int32_t hx;
 
 	GET_HIGH_WORD(hx,x);

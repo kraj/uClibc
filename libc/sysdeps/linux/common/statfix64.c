@@ -31,6 +31,7 @@
 /* Convert from the kernel's version of struct stat to libc's version  */
 void statfix64(struct libc_stat64 *libcstat, struct kernel_stat64 *kstat)
 {
+	memset(libcstat, 0, sizeof(struct libc_stat64));
 	libcstat->st_dev = kstat->st_dev;
 	libcstat->st_ino = kstat->st_ino;
 	libcstat->st_mode = kstat->st_mode;

@@ -111,8 +111,8 @@ static double zero = 0.0;
 	double x;
 #endif
 {
-	double hfsq,f,c,s,z,R,u;
-	int32_t k,hx,hu,ax;
+	double hfsq,f=0,c=0,s,z,R,u;
+	int32_t k,hx,hu=0,ax;
 
 	GET_HIGH_WORD(hx,x);
 	ax = hx&0x7fffffff;

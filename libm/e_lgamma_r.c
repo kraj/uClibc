@@ -223,7 +223,7 @@ __inline__
 	double x; int *signgamp;
 #endif
 {
-	double t,y,z,nadj,p,p1,p2,p3,q,r,w;
+	double t,y,z,nadj=0,p,p1,p2,p3,q,r,w;
 	int i,hx,lx,ix;
 
 	EXTRACT_WORDS(hx,lx,x);

@@ -330,7 +330,7 @@ static double ps2[5] = {
 #endif
 {
 #ifdef __STDC__
-	const double *p,*q;
+	const double *p=0,*q=0;
 #else
 	double *p,*q;
 #endif
@@ -467,7 +467,7 @@ static double qs2[6] = {
 #endif
 {
 #ifdef __STDC__
-	const double *p,*q;
+	const double *p=0,*q=0;
 #else
 	double *p,*q;
 #endif
