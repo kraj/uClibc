@@ -525,18 +525,15 @@ extern __pid_t getppid __P ((void));
 #ifndef __FAVOR_BSD
 extern __pid_t getpgrp __P ((void));
 #else
-# ifdef __REDIRECT
-extern __pid_t __REDIRECT (getpgrp, __P ((__pid_t __pid)), __getpgid);
-# else
-#  define getpgrp __getpgid
-# endif
+//# ifdef __REDIRECT
+//extern __pid_t __REDIRECT (getpgrp, __P ((__pid_t __pid)), __getpgid);
+//# else
+#  define getpgrp getpgid
+//# endif
 #endif
 
 /* Get the process group ID of process PID.  */
-extern __pid_t __getpgid __P ((__pid_t __pid));
-#ifdef __USE_XOPEN_EXTENDED
 extern __pid_t getpgid __P ((__pid_t __pid));
-#endif
 
 
 /* Set the process group ID of the process matching PID to PGID.
