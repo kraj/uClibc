@@ -36,10 +36,10 @@ CSRC=	__rt_sigtimedwait.c __socketcall.c __syscall_fcntl.c \
 	lstat.c lstat64.c madvise.c mkdir.c mkfifo.c mknod.c mlock.c \
 	mlockall.c mmap.c mmap64.c modify_ldt.c mount.c mprotect.c \
 	mremap.c msync.c munlock.c munlockall.c munmap.c nanosleep.c \
-	nice.c ntp_gettime.c open.c open64.c pause.c personality.c \
-	pipe.c pivot_root.c poll.c prctl.c pread_write.c ptrace.c \
-	query_module.c quotactl.c read.c readlink.c readv.c reboot.c \
-	rename.c rmdir.c sched_get_priority_max.c \
+	nice.c noophooks.c ntp_gettime.c open.c open64.c pause.c \
+	personality.c pipe.c pivot_root.c poll.c prctl.c pread_write.c \
+	ptrace.c query_module.c quotactl.c read.c readlink.c readv.c \
+	reboot.c rename.c rmdir.c sched_get_priority_max.c \
 	sched_get_priority_min.c sched_getparam.c sched_getscheduler.c \
 	sched_rr_get_interval.c sched_setparam.c sched_setscheduler.c \
 	sched_yield.c select.c sendfile.c sendfile64.c setdomainname.c \
@@ -56,9 +56,6 @@ CSRC=	__rt_sigtimedwait.c __socketcall.c __syscall_fcntl.c \
 
 ifneq ($(strip $(EXCLUDE_BRK)),y)
 CSRC+=sbrk.c
-endif
-ifeq ($(strip $(UCLIBC_PROFILING)),y)
-CSRC+=noophooks.c pcprofile.c
 endif
 ifeq ($(strip $(UCLIBC_PROPOLICE)),y)
 CSRC+=ssp.c
