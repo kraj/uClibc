@@ -1067,8 +1067,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #endif
 #ifdef __LDSO_LDD_SUPPORT__
 					if (_dl_trace_loaded_objects && tpnt1->usage_count==1) {
-						name = _dl_get_last_path_component(tpnt1->libname);
-						_dl_dprintf(1, "\t%s => %s (%x)\n", lpntstr, --name, 
+						_dl_dprintf(1, "\t%s => %s (%x)\n", lpntstr, tpnt1->libname, 
 								(unsigned) tpnt1->loadaddr);
 					}
 #endif
