@@ -166,7 +166,7 @@ while($line = <FILE>) {
 	print "INCLUDE_THREADS=$threads\n";
 	next;
     }
-    if ($shared_support && $shared_support == "true") {
+    if ($shared_support && $shared_support =~ /true/ ) {
 	if ($line =~ /^BUILD_UCLIBC_LDSO.*/) {
 	    print "BUILD_UCLIBC_LDSO=true\n";
 	    next;
