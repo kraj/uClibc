@@ -79,7 +79,6 @@
 #warning implement __CTYPE_HAS_UTF_8_LOCALES!
 #define __CTYPE_HAS_UTF_8_LOCALES
 #else
-#define ENCODING (__ctype_encoding_7_bit)
 #undef __CTYPE_HAS_8_BIT_LOCALES
 #undef __CTYPE_HAS_UTF_8_LOCALES
 #undef L__wchar_utf8sntowcs
@@ -572,7 +571,7 @@ size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
 	wchar_t wcbuf[1];
 	const char *s;
-	size_t count, r;
+	size_t count;
 	int incr;
 
 	if (!ps) {
@@ -581,6 +580,7 @@ size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 
 #ifdef __CTYPE_HAS_UTF_8_LOCALES
 	if (ENCODING == __ctype_encoding_utf8) {
+		size_t r;
 		return ((r = _wchar_utf8sntowcs(dst, len, src, NMC, ps, 1))
 				!= (size_t) -2) ? r : 0;
 	}
@@ -628,7 +628,9 @@ size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 	}
 #endif
 
+#ifdef __UCLIBC_HAS_LOCALE__
 	assert(ENCODING == __ctype_encoding_7_bit);
+#endif
 
 	while (count) {
 		if ((*dst = (unsigned char) *s) == 0) {
@@ -738,7 +740,9 @@ size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 	}
 #endif /* __CTYPE_HAS_8_BIT_LOCALES */
 
+#ifdef __UCLIBC_HAS_LOCALE__
 	assert(ENCODING == __ctype_encoding_7_bit);
+#endif
 
 	while (count) {
 		if (*s >= 0x80) {
