@@ -9,9 +9,12 @@
 #include <sys/syscall.h>
 
 /* int _clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
- 
+
 .text
 .align 4
+.type	clone,@function
+.globl	clone;
+clone:
 .type	__clone,@function
 .globl	__clone;
 __clone:
@@ -20,11 +23,11 @@ __clone:
 	movel   4(%sp), %d1             /* no NULL function pointers */
 	movel	%d1, %a0
 	tstl    %d1
-	jeq     syscall_error
+	beq.w   syscall_error
 	movel   8(%sp), %d1             /* no NULL stack pointers */
 	movel	%d1, %a1
 	tstl    %d1
-	jeq     syscall_error
+	beq.w   syscall_error
 
 	/* Allocate space and copy the argument onto the new stack.  */
 	movel   16(%sp), -(%a1)
@@ -49,8 +52,8 @@ __clone:
 #endif
 
 	tstl    %d0
-	jmi     syscall_error
-	jeq     thread_start
+	bmi.w   syscall_error
+	beq.w   thread_start
 
 	rts
 
@@ -58,7 +61,7 @@ syscall_error:
 	negl	%d0
 	movel	%d0, %sp@-
 	lea		__errno_location-.-8, %a0
-	jsr		0(%pc, %a0)
+	jsr		%pc@(%a0)
 	movel	%d0, %a0
 	movel	%sp@+, %a0@
 	moveq	#-1, %d0
@@ -72,4 +75,11 @@ thread_start:
 	movel	#__NR_exit, %d0
 	trap	#0
 	/*jsr    exit*/
+
+#if defined(HAVE_ELF)
+	.weak clone
+	clone = __clone
+#else
+	.set clone,__clone
+#endif
 
