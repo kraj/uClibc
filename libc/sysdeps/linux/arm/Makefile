@@ -28,10 +28,11 @@ ASFLAGS=$(CFLAGS)
 CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o
 
-SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S bsd-_setjmp.S
+SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
+	bsd-_setjmp.S sigrestorer.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=brk.c syscall.c ioperm.c
+CSRC=brk.c syscall.c ioperm.c sigaction.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
