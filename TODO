@@ -1,25 +1,23 @@
 
 Erik's TODO list for the next release:
 
-    1) Finish up the reentrancy auditing
-    2) Better configuration system (CML1 + kbuild + menuconfig)
-    3) When fixing the config system, ensure that _every_ option 
-	that is enabled or disabled is listed in uClibc_config.h
-    4) When options are disabled, also disable them in the
+    1) Release gcc 2.95.x native uClibc toolchain with
+	STLport (to provide full C++ support)
+    2) Commit new configuration system (CML1 + kbuild + menuconfig)
+	work is already done and ready to commit...
+    3) Fix profiling support
+    4) Implement getgrgid_r and getgrnam_r, per SuSv3 
+    5) Fix libc/inet/rpc/rpc_thread.c thread local storage
+    6) Change HAS_FLOATING_POINT so we can support -msoft-float
+    7) When options are disabled, also disable them in the
 	include files as well.
-    5) Make all small objects (>~50 bytes) into either inlines or
+    8) Make all small objects (>~50 bytes) into either inlines or
 	into a static library
-    6) Rework code that fails POSIX conformance tests
-
-Other random things:
-
-    *) Rework code that fails POSIX conformance tests
-    *) Document all differences between the feature set of uClibc 
+    9) Rework code that fails POSIX conformance tests
+   10) Document all differences between the feature set of uClibc 
 	and glibc.
-    *) Add missing syscall() function to allow arbitraty syscalls 
-	to be made. 
-    *) Fix profiling support
-    *) pwrite64 and pread64
+   11) Add missing syscall() function to ports that are still 
+	missing it.  (x86 and arm are finished so far).
 
 
 
@@ -41,8 +39,6 @@ tzfile?
 era support in strftime/strptime?
 
 Reimplement _dtostr to correct its deficiencies (%A support!) and hopefully reduce its size.
-
-Revisit the unified syscall stuff which has been broken for a while now.
 
 Older stuff...
 
