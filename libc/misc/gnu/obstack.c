@@ -21,6 +21,8 @@
 /* Make uClibc lie about being glibc. */
 #define __FORCE_GLIBC 1
 
+#include <locale.h>
+
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
