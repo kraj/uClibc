@@ -46,14 +46,15 @@ __BEGIN_DECLS
 
 /* when you add or change fields here, be sure to change the initialization
  * in stdio_init and fopen */
-struct _IO_FILE {
+
+struct _UC_FILE {
   unsigned char *bufpos;   /* the next byte to write to or read from */
   unsigned char *bufread;  /* the end of data returned by last read() */
   unsigned char *bufwrite; /* 1 + highest address writable by macro */
   unsigned char *bufstart; /* the start of the buffer */
   unsigned char *bufend;   /* the end of the buffer; ie the byte after the last
                               malloc()ed byte */
-  struct _IO_FILE * next;
+  struct _UC_FILE * next;
 
   int fd; /* the file descriptor associated with the stream */
 
@@ -61,7 +62,8 @@ struct _IO_FILE {
   unsigned char ungot;
   char unbuf[2];	   /* The buffer for 'unbuffered' streams */
 };
-typedef struct _IO_FILE FILE;
+
+typedef struct _UC_FILE FILE;
 
 # define __FILE_defined	1
 #endif /* FILE not defined.  */
@@ -71,7 +73,7 @@ typedef struct _IO_FILE FILE;
 #if !defined ____FILE_defined && defined __need___FILE
 
 /* The opaque type of streams.  This is the definition used elsewhere.  */
-typedef struct _IO_FILE __FILE;
+typedef struct _UC_FILE __FILE;
 
 # define ____FILE_defined	1
 #endif /* __FILE not defined.  */
@@ -82,7 +84,6 @@ typedef struct _IO_FILE __FILE;
 #undef _STDIO_USES_IOSTREAM
 
 #include <stdarg.h>
-typedef va_list _G_va_list;
 
 /* The type of the second argument to `fgetpos' and `fsetpos'.  */
 #ifndef __USE_FILE_OFFSET64
@@ -300,13 +301,13 @@ extern int sprintf (char *__restrict __s,
 
 /* Write formatted output to S from argument list ARG.  */
 extern int vfprintf (FILE *__restrict __s, __const char *__restrict __format,
-		     _G_va_list __arg) __THROW;
+		     va_list __arg) __THROW;
 /* Write formatted output to stdout from argument list ARG.  */
-extern int vprintf (__const char *__restrict __format, _G_va_list __arg)
+extern int vprintf (__const char *__restrict __format, va_list __arg)
      __THROW;
 /* Write formatted output to S from argument list ARG.  */
 extern int vsprintf (char *__restrict __s, __const char *__restrict __format,
-		     _G_va_list __arg) __THROW;
+		     va_list __arg) __THROW;
 
 #if defined __USE_BSD || defined __USE_ISOC99 || defined __USE_UNIX98
 /* Maximum chars of output to write in MAXLEN.  */
@@ -315,7 +316,7 @@ extern int snprintf (char *__restrict __s, size_t __maxlen,
      __THROW __attribute__ ((__format__ (__printf__, 3, 4)));
 
 extern int vsnprintf (char *__restrict __s, size_t __maxlen,
-		      __const char *__restrict __format, _G_va_list __arg)
+		      __const char *__restrict __format, va_list __arg)
      __THROW __attribute__ ((__format__ (__printf__, 3, 0)));
 #endif
 
@@ -323,7 +324,7 @@ extern int vsnprintf (char *__restrict __s, size_t __maxlen,
 /* Write formatted output to a string dynamically allocated with `malloc'.
    Store the address of the string in *PTR.  */
 extern int vasprintf (char **__restrict __ptr, __const char *__restrict __f,
-		      _G_va_list __arg)
+		      va_list __arg)
      __THROW __attribute__ ((__format__ (__printf__, 2, 0)));
 extern int __asprintf (char **__restrict __ptr,
 		       __const char *__restrict __fmt, ...)
@@ -334,7 +335,7 @@ extern int asprintf (char **__restrict __ptr,
 
 /* Write formatted output to a file descriptor.  */
 extern int vdprintf (int __fd, __const char *__restrict __fmt,
-		     _G_va_list __arg)
+		     va_list __arg)
      __THROW __attribute__ ((__format__ (__printf__, 2, 0)));
 extern int dprintf (int __fd, __const char *__restrict __fmt, ...)
      __THROW __attribute__ ((__format__ (__printf__, 2, 3)));
@@ -353,16 +354,16 @@ extern int sscanf (__const char *__restrict __s,
 #ifdef	__USE_ISOC99
 /* Read formatted input from S into argument list ARG.  */
 extern int vfscanf (FILE *__restrict __s, __const char *__restrict __format,
-		    _G_va_list __arg)
+		    va_list __arg)
      __THROW __attribute__ ((__format__ (__scanf__, 2, 0)));
 
 /* Read formatted input from stdin into argument list ARG.  */
-extern int vscanf (__const char *__restrict __format, _G_va_list __arg)
+extern int vscanf (__const char *__restrict __format, va_list __arg)
      __THROW __attribute__ ((__format__ (__scanf__, 1, 0)));
 
 /* Read formatted input from S into argument list ARG.  */
 extern int vsscanf (__const char *__restrict __s,
-		    __const char *__restrict __format, _G_va_list __arg)
+		    __const char *__restrict __format, va_list __arg)
      __THROW __attribute__ ((__format__ (__scanf__, 2, 0)));
 #endif /* Use ISO C9x.  */
 
@@ -636,7 +637,7 @@ extern int obstack_printf (struct obstack *__restrict __obstack,
 			   __const char *__restrict __format, ...) __THROW;
 extern int obstack_vprintf (struct obstack *__restrict __obstack,
 			    __const char *__restrict __format,
-			    _G_va_list __args) __THROW;
+			    va_list __args) __THROW;
 #endif /* Use GNU.  */
 
 
