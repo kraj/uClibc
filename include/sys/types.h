@@ -95,6 +95,7 @@ typedef __off64_t off64_t;
 #ifndef pid_t
 typedef __pid_t pid_t;
 # define pid_t pid_t
+# define __pid_t_defined
 #endif
 
 #if defined __USE_SVID || defined __USE_XOPEN
@@ -105,6 +106,7 @@ typedef __id_t id_t;
 #ifndef ssize_t
 typedef __ssize_t ssize_t;
 # define ssize_t ssize_t
+# define __ssize_t_defined
 #endif
 
 #ifdef	__USE_BSD

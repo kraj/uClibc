@@ -31,10 +31,13 @@ MOBJ=semget.o semctl.o semop.o
 MSRC2=shm.c
 MOBJ2=shmat.o shmctl.o shmdt.o shmget.o
 
+MSRC3=msgq.c
+MOBJ3=msgctl.o msgget.o msgrcv.o msgsnd.o
+
 CSRC = ftok.c 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(MOBJ) $(MOBJ2) $(COBJS)
+OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
 
 
 all: $(OBJS) $(LIBC)
@@ -49,6 +52,10 @@ $(MOBJ): $(MSRC)
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ2): $(MSRC2)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ3): $(MSRC3)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
