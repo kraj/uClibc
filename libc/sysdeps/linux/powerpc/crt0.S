@@ -34,7 +34,7 @@
 
 	.section ".text"
 	.globl	_start
-	.type	main,%function
+	.type	_start,@function
 #if defined L_crt0 || ! defined __UCLIBC_CTOR_DTOR__
 	.type	__uClibc_main,%function
 #else
@@ -45,7 +45,7 @@
 /* Stick in a dummy reference to main(), so that if an application
  * is linking when the main() function is in a static library (.a)
  * we can be sure that main() actually gets linked in */
-	.type	_start,@function
+	.type	main,%function
 
 _start:
 	/* Save the stack pointer, in case we're statically linked under Linux.  */
