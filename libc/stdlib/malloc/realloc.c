@@ -39,7 +39,10 @@ realloc (void *mem, size_t new_size)
 	  size_t ext_size = new_size - size;
 	  void *ext_addr = (char *)base_mem + ext_size;
 
+	  __malloc_lock ();
 	  ext_size = __heap_alloc_at (&__malloc_heap, ext_addr, ext_size);
+	  __malloc_unlock ();
+
 	  if (! ext_size)
 	    /* Our attempts to extend MEM in place failed, just
 	       allocate-and-copy.  */

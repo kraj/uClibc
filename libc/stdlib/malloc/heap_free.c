@@ -23,8 +23,6 @@ __heap_free (struct heap *heap, void *mem, size_t size)
   struct heap_free_area *prev_fa, *fa;
   void *end = (char *)mem + size;
 
-  __heap_lock (heap);
-
   HEAP_DEBUG (heap, "before __heap_free");
 
   /* Find an adjacent free-list entry.  */
@@ -59,8 +57,8 @@ __heap_free (struct heap *heap, void *mem, size_t size)
 
 	  /* See if FA can now be merged with its successor. */
 	  if (next_fa && mem + size == HEAP_FREE_AREA_START (next_fa))
+	    /* Yup; merge FA's info into NEXT_FA.  */
 	    {
-	      /* Yup; merge FA's info into NEXT_FA.  */
 	      fa_size += next_fa->size;
 	      __heap_link_free_area_after (heap, next_fa, prev_fa);
 	      fa = next_fa;
@@ -91,8 +89,6 @@ __heap_free (struct heap *heap, void *mem, size_t size)
 
  done:
   HEAP_DEBUG (heap, "after __heap_free");
-
-  __heap_unlock (heap);
 
   return fa;
 }

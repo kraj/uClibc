@@ -22,6 +22,15 @@
 /* The malloc heap.  */
 struct heap __malloc_heap = HEAP_INIT;
 
+#ifdef MALLOC_USE_LOCKING
+/* A lock protecting the malloc heap.  */
+malloc_mutex_t __malloc_lock;
+# ifdef MALLOC_USE_SBRK
+/* A lock protecting our use of sbrk.  */
+malloc_mutex_t __malloc_sbrk_lock;
+# endif /* MALLOC_USE_SBRK */
+#endif /* MALLOC_USE_LOCKING */
+
 
 void *
 malloc (size_t size)
@@ -33,6 +42,8 @@ malloc (size_t size)
   /* Include extra space to record the size of the allocated block.  */
   size += MALLOC_ROUND_UP (sizeof (size_t), MALLOC_ALIGNMENT);
 
+  __malloc_lock ();
+
   mem = __heap_alloc (&__malloc_heap, &size);
   if (! mem) 
     /* We couldn't allocate from the heap, so get some more memory
@@ -40,24 +51,30 @@ malloc (size_t size)
     {
       /* If we're trying to allocate a block bigger than the default
 	 MALLOC_HEAP_EXTEND_SIZE, make sure we get enough to hold it. */
+      void *block;
       size_t block_size
 	= (size < MALLOC_HEAP_EXTEND_SIZE
 	   ? MALLOC_HEAP_EXTEND_SIZE
 	   : MALLOC_ROUND_UP_TO_PAGE_SIZE (size));
-      /* Allocate the new heap block.  */
+
 #ifdef MALLOC_USE_SBRK
-      /* Use sbrk we can, as it's faster than mmap, and guarantees
-	 contiguous allocation.  */
-      void *block = sbrk (block_size);
-#else
-      /* Otherwise, use mmap.  */
-      void *block = mmap (0, block_size, PROT_READ | PROT_WRITE,
-			  MAP_SHARED | MAP_ANONYMOUS, 0, 0);
+      /* Get the sbrk lock while we've still got the main lock.  */
+      __malloc_lock_sbrk ();
 #endif
 
+      /* Don't hold the main lock during the syscall, so that small
+	 allocations in a different thread may succeed while we're
+	 blocked.  */
+      __malloc_unlock ();
+
+      /* Allocate the new heap block.  */
+#ifdef MALLOC_USE_SBRK
+
+      /* Use sbrk we can, as it's faster than mmap, and guarantees
+	 contiguous allocation.  */
+      block = sbrk (block_size);
       if (block != (void *)-1)
 	{
-#ifdef MALLOC_USE_SBRK
 	  /* Because sbrk can return results of arbitrary
 	     alignment, align the result to a MALLOC_ALIGNMENT boundary.  */
 	  long aligned_block = MALLOC_ROUND_UP ((long)block, MALLOC_ALIGNMENT);
@@ -71,8 +88,22 @@ malloc (size_t size)
 	      sbrk (aligned_block - (long)block);
 	      block = (void *)aligned_block;
 	    }
+	}
+      __malloc_unlock_sbrk ();
+
+#else /* !MALLOC_USE_SBRK */
+
+      /* Otherwise, use mmap.  */
+      block = mmap (0, block_size, PROT_READ | PROT_WRITE,
+		    MAP_SHARED | MAP_ANONYMOUS, 0, 0);
+
 #endif /* MALLOC_USE_SBRK */
 
+      /* Get back the main lock.  */
+      __malloc_lock ();
+
+      if (block != (void *)-1)
+	{
 	  MALLOC_DEBUG ("  adding memory: 0x%lx - 0x%lx (%d bytes)\n",
 			(long)block, (long)block + block_size, block_size);
 
@@ -83,6 +114,8 @@ malloc (size_t size)
 	  mem = __heap_alloc (&__malloc_heap, &size);
 	}
     }
+
+  __malloc_unlock ();
 
   if (mem)
     /* Record the size of this block just before the returned address.  */

@@ -14,21 +14,6 @@
 #include <features.h>
 
 
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-typedef pthread_mutex_t heap_mutex_t;
-# define HEAP_MUTEX_INIT	PTHREAD_MUTEX_INITIALIZER
-# define __heap_lock(heap)	pthread_mutex_lock (&(heap)->lock)
-# define __heap_unlock(heap)	pthread_mutex_unlock (&(heap)->lock);
-#else
-/* Without threads, Mutex operations are a nop.  */
-typedef int heap_mutex_t;
-# define HEAP_MUTEX_INIT	0
-# define __heap_lock(heap)
-# define __heap_unlock(heap)
-#endif
-
-
 /* The heap allocates in multiples of, and aligned to, HEAP_GRANULARITY.
    HEAP_GRANULARITY must be a power of 2.  Malloc depends on this being the
    same as MALLOC_ALIGNMENT.  */
@@ -41,10 +26,8 @@ struct heap
 {
   /* A list of memory in the heap available for allocation.  */
   struct heap_free_area *free_areas;
-
-  heap_mutex_t lock;
 };
-#define HEAP_INIT 	{ 0, HEAP_MUTEX_INIT }
+#define HEAP_INIT 	{ 0 }
 
 
 /* A free-list area `header'.  These are actually stored at the _ends_ of

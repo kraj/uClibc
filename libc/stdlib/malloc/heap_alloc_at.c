@@ -26,8 +26,6 @@ __heap_alloc_at (struct heap *heap, void *mem, size_t size)
 
   size = HEAP_ADJUST_SIZE (size);
 
-  __heap_lock (heap);
-
   HEAP_DEBUG (heap, "before __heap_alloc_at");
 
   /* Look for a free area that can contain SIZE bytes.  */
@@ -44,8 +42,6 @@ __heap_alloc_at (struct heap *heap, void *mem, size_t size)
     }
 
   HEAP_DEBUG (heap, "after __heap_alloc_at");
-
-  __heap_unlock (heap);
 
   return alloced;
 }

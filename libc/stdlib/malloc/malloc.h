@@ -38,8 +38,44 @@
    mmap/munmap, and guarantees contiguous allocation, but is also less
    flexible, and causes the heap to only be shrinkable from the end.  */
 #ifdef __UCLIBC_HAS_MMU__
-#define MALLOC_USE_SBRK
+# define MALLOC_USE_SBRK
 #endif
+
+
+#ifdef __UCLIBC_HAS_THREADS__
+
+# include <pthread.h>
+
+# define MALLOC_USE_LOCKING
+
+typedef pthread_mutex_t malloc_mutex_t;
+# define MALLOC_MUTEX_INIT	PTHREAD_MUTEX_INITIALIZER
+
+/* The main malloc lock.  This must be hold while accessing __malloc_heap,
+   and in order to gain __malloc_sbrk_lock.  */
+extern malloc_mutex_t __malloc_lock;
+# define __malloc_lock()	pthread_mutex_lock (&__malloc_lock)
+# define __malloc_unlock()	pthread_mutex_unlock (&__malloc_lock)
+
+# ifdef MALLOC_USE_SBRK
+/* This lock is used to serialize uses of the `sbrk' function (in both
+   malloc and free, sbrk may be used several times in succession, and
+   things will break if these multiple calls are interleaved with another
+   thread's use of sbrk!).  */
+extern malloc_mutex_t __malloc_sbrk_lock;
+#  define __malloc_lock_sbrk()	pthread_mutex_lock (&__malloc_sbrk_lock)
+#  define __malloc_unlock_sbrk() pthread_mutex_unlock (&__malloc_sbrk_lock)
+# endif /* MALLOC_USE_SBRK */
+
+#else /* !__UCLIBC_HAS_THREADS__ */
+
+/* Without threads, mutex operations are a nop.  */
+# define __malloc_lock()	(void)0
+# define __malloc_unlock()	(void)0
+# define __malloc_lock_sbrk()	(void)0
+# define __malloc_unlock_sbrk()	(void)0
+
+#endif /* __UCLIBC_HAS_THREADS__ */
 
 
 /* Change this to `#if 1' to cause malloc to emit debugging info to stderr.  */

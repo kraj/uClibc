@@ -33,8 +33,6 @@ __heap_alloc (struct heap *heap, size_t *size)
        we must make sure that every allocated block can hold one.  */
     _size = HEAP_ADJUST_SIZE (sizeof (struct heap_free_area));
 
-  __heap_lock (heap);
-
   HEAP_DEBUG (heap, "before __heap_alloc");
 
   /* Look for a free area that can contain _SIZE bytes.  */
@@ -48,8 +46,6 @@ __heap_alloc (struct heap *heap, size_t *size)
       }
 
   HEAP_DEBUG (heap, "after __heap_alloc");
-
-  __heap_unlock (heap);
 
   return mem;
 }
