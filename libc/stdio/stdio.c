@@ -1953,9 +1953,11 @@ void _stdio_term(void)
 void _stdio_init(void)
 {
 #ifdef __STDIO_BUFFERS
+	int old_errno = errno;
 	/* stdin and stdout uses line buffering when connected to a tty. */
 	_stdio_streams[0].modeflags ^= (1-isatty(0)) * __FLAG_LBF;
 	_stdio_streams[1].modeflags ^= (1-isatty(1)) * __FLAG_LBF;
+	__set_errno(old_errno);
 #endif /* __STDIO_BUFFERS */
 #ifndef __UCLIBC__
 /* __stdio_term is automatically when exiting if stdio is used.
@@ -2404,10 +2406,16 @@ FILE *_stdio_fopen(const char * __restrict filename,
 		return NULL;
 	}
 
-	stream->modeflags |=
 #ifdef __STDIO_BUFFERS
-		(isatty(stream->filedes) * __FLAG_LBF) |
-#endif /* __STDIO_BUFFERS */
+	{
+	    /* Do not let isatty mess up errno */
+	    int old_errno = errno;
+	    stream->modeflags |= (isatty(stream->filedes) * __FLAG_LBF);
+	    __set_errno(old_errno);
+	}
+#endif
+
+	stream->modeflags |=
 #if (O_APPEND == __FLAG_APPEND) \
 && ((O_LARGEFILE == __FLAG_LARGEFILE) || (O_LARGEFILE == 0))
 		(open_mode & (O_APPEND|O_LARGEFILE)) | /* i386 linux and elks */
