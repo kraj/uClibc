@@ -10,7 +10,16 @@
 #define random_size()	(random()%MAX_SIZE)
 #define random_ptr()	(random()%N_PTRS)
 
+void test1(void);
+void test2(void);
+
 int main(int argc,char *argv[])
+{
+	test1();
+	test2();
+}
+
+void test1(void)
 {
 	void **ptrs;
 	int i,j;
@@ -37,7 +46,24 @@ int main(int argc,char *argv[])
 	for(i=0;i<N_PTRS;i++){
 		free(ptrs[i]);
 	}
+}
 
-	return 0;
+void test2(void)
+{
+	void *ptr = NULL;
+
+	ptr = realloc(ptr,100);
+	if(!ptr){
+		printf("couldn't realloc() a NULL pointer\n");
+	}else{
+		free(ptr);
+	}
+	
+	ptr = malloc(100);
+	ptr = realloc(ptr, 0);
+	if(ptr){
+		printf("realloc(,0) failed\n");
+		free(ptr);
+	}
 }
 
