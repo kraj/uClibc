@@ -147,8 +147,8 @@ void __exit_handler(int status)
 	struct exit_function *efp;
 
 	/* In reverse order */
-	for ( ; __exit_count-- ; ) {
-		efp = &__exit_function_table[__exit_count];
+	while ( __exit_count ) {
+		efp = &__exit_function_table[--__exit_count];
 		switch (efp->type) {
 		case ef_on_exit:
 			if (efp->funcs.on_exit.func) {
