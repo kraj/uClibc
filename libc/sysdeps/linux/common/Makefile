@@ -38,30 +38,13 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 MSRC=syscalls.c
 MOBJ=$(shell ./list_syscalls.sh)
 
-CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
-SAFECFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) -fno-builtin
-#
-# on SH4 addition of -g kills the initfini stuff, removed here for all
-# platforms as I suspect no one want initfini compiled -g :-) - davidm
-#
-SAFECFLAGS := $(filter-out -g,$(SAFECFLAGS))
-ifeq ($(strip $(DOPIC)),y)
-SAFECFLAGS+=$(PICFLAG)
-endif
-ifeq ($(strip $(UCLIBC_PROFILING)),y)
-SAFECFLAGS+=-DGMON_SUPPORT
-endif
-ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
-SAFECFLAGS += $(call check_gcc,-msoft-float,)
-endif
-
 OBJ=$(COBJS) $(MOBJ)
 
 all: $(STR_SYSCALLS) $(OBJ) $(LIBC)
 
 $(LIBC): ar-target
 
-ar-target: $(OBJ) $(CTOR_TARGETS)
+ar-target: $(OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJ)
 
 $(MOBJ): $(MSRC)
@@ -71,35 +54,6 @@ $(MOBJ): $(MSRC)
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
-initfini.S: initfini.c
-	$(CC) $(SAFECFLAGS) -I$(TOPDIR)include -c initfini.c -S -o initfini.S
-
-crti.S crtn.S: initfini.S $(TOPDIR)/extra/scripts/initfini.awk
-	$(AWK) -f $(TOPDIR)extra/scripts/initfini.awk initfini.S
-
-crti.o: crti.S
-	$(CC) $(SAFECFLAGS) -c crti.S -o crti.o
-
-$(TOPDIR)lib/crti.o: crti.o
-	$(INSTALL) -d $(TOPDIR)lib/
-	cp crti.o $(TOPDIR)lib/
-
-crtn.o: crtn.S
-	$(CC) $(SAFECFLAGS) -c crtn.S -o crtn.o
-
-$(TOPDIR)lib/crtn.o: crtn.o
-	$(INSTALL) -d $(TOPDIR)lib/
-	cp crtn.o $(TOPDIR)lib/
-else
-$(TOPDIR)lib/crti.o:
-	$(INSTALL) -d $(TOPDIR)lib/
-	$(AR) $(ARFLAGS) $(TOPDIR)lib/crti.o
-$(TOPDIR)lib/crtn.o:
-	$(INSTALL) -d $(TOPDIR)lib/
-	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
-endif
 
 headers:
 	$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h $(TOPDIR)/include/
