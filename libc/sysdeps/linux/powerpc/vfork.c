@@ -1,4 +1,3 @@
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>
@@ -10,11 +9,16 @@
 	return (__sc_err & 0x10000000 ? errno = __sc_ret, __sc_ret = -1 : 0), \
 	       (type) __sc_ret
 
-int vfork(void)
+pid_t vfork(void)
 {
 	unsigned long __sc_ret, __sc_err;
 	register unsigned long __sc_0 __asm__ ("r0");
 	register unsigned long __sc_3 __asm__ ("r3");
+
+#if 0
+	/* Sigh.  The vfork system call on powerpc
+	 * seems to be completely broken.  So just 
+	 * use fork instead */
 
 	__sc_0 = __NR_vfork;
 	__asm__ __volatile__
@@ -26,7 +30,9 @@ int vfork(void)
 	__sc_ret = __sc_3;
 	__sc_err = __sc_0;
 
-	if((__sc_err & 0x10000000) && (__sc_ret == ENOSYS)){ 
+	if((__sc_err & 0x10000000) && (__sc_ret == ENOSYS))
+#endif
+	{ 
 		__sc_0 = __NR_fork;
 		__asm__ __volatile__
 			("sc		\n\t"
