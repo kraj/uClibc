@@ -30,6 +30,7 @@
  */
 
 #include "ldso.h"
+#include "unsecvars.h"
 
 #define ALLOW_ZERO_PLTGOT
 
@@ -338,11 +339,21 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		_dl_preload = _dl_getenv("LD_PRELOAD", envp);
 		_dl_library_path = _dl_getenv("LD_LIBRARY_PATH", envp);
 	} else {
+		static const char unsecure_envvars[] =
+#ifdef EXTRA_UNSECURE_ENVVARS
+			EXTRA_UNSECURE_ENVVARS
+#endif
+			UNSECURE_ENVVARS;
+		const char *nextp;
 		_dl_secure = 1;
-		_dl_preload = _dl_getenv("LD_PRELOAD", envp);
-		_dl_unsetenv("LD_AOUT_PRELOAD", envp);
-		_dl_unsetenv("LD_LIBRARY_PATH", envp);
-		_dl_unsetenv("LD_AOUT_LIBRARY_PATH", envp);
+
+		nextp = unsecure_envvars;
+		do {
+			_dl_unsetenv (nextp, envp);
+			/* We could use rawmemchr but this need not be fast.  */
+			nextp = (char *) _dl_strchr(nextp, '\0') + 1;
+		} while (*nextp != '\0');
+		_dl_preload = NULL;
 		_dl_library_path = NULL;
 	}
 
