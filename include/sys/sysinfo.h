@@ -21,6 +21,7 @@
 
 #include <features.h>
 
+#ifndef _LINUX_KERNEL_H
 /* Include our own copy of struct sysinfo to avoid binary compatability
  * problems with Linux 2.4, which changed things.  Grumble, grumble. */
 struct sysinfo {
@@ -39,6 +40,7 @@ struct sysinfo {
 	unsigned int mem_unit;		/* Memory unit size in bytes */
 	char _f[20-2*sizeof(long)-sizeof(int)];	/* Padding: libc5 uses this.. */
 };
+#endif
 
 __BEGIN_DECLS
 
