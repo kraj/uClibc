@@ -24,7 +24,7 @@ TOPDIR=../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-DIRS = #rpc
+DIRS = rpc
 
 MSRC=addr.c
 MOBJ=inet_aton.o inet_addr.o inet_ntoa.o
