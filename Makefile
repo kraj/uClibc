@@ -34,7 +34,7 @@ include Rules.mak
 
 DIRS = extra ldso libc libcrypt libresolv libutil libm libpthread
 
-ifdef include-config
+ifdef include_config
 
 all: headers subdirs shared utils finished
 
@@ -277,7 +277,7 @@ finished2:
 	@echo Finished installing...
 	@echo
 
-else # ifdef include-config
+else # ifdef include_config
 
 all: menuconfig
 
@@ -372,7 +372,7 @@ release: distclean
 	tar -cvzf uClibc-$(VERSION).tar.gz --exclude CVS uClibc-$(VERSION)/;
 
 endif # ifeq ($(filter-out $(noconfig_targets),$(MAKECMDGOALS)),)
-endif # ifdef include-config
+endif # ifdef include_config
 
 .PHONY: dummy subdirs release distclean clean config oldconfig menuconfig
 

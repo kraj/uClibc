@@ -52,7 +52,7 @@ LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
 
 # Pull in the user's uClibc configuration
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
-include-config := 1
+include_config := 1
 -include $(TOPDIR).config
 endif
 
