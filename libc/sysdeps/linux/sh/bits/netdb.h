@@ -1,5 +1,4 @@
-/* Definitions of flag bits for `waitpid' et al.
-   Copyright (C) 1992, 1996, 1997, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,14 +16,18 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#if !defined _SYS_WAIT_H && !defined _STDLIB_H
-# error "Never include <bits/waitflags.h> directly; use <sys/wait.h> instead."
+#ifndef _NETDB_H
+# error "Never include <bits/netdb.h> directly; use <netdb.h> instead."
 #endif
 
 
-/* Bits in the third argument to `waitpid'.  */
-#define	WNOHANG		1	/* Don't block waiting.  */
-#define	WUNTRACED	2	/* Report status of stopped children.  */
-
-#define __WALL		0x40000000 /* Wait for any child.  */
-#define __WCLONE	0x80000000 /* Wait for cloned process.  */
+/* Description of data base entry for a single network.  NOTE: here a
+   poor assumption is made.  The network number is expected to fit
+   into an unsigned long int variable.  */
+struct netent
+{
+  char *n_name;			/* Official name of network.  */
+  char **n_aliases;		/* Alias list.  */
+  int n_addrtype;		/* Net address type.  */
+  uint32_t n_net;		/* Network number.  */
+};

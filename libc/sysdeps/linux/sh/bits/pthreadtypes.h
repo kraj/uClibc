@@ -25,8 +25,9 @@
 /* Fast locks (not abstract because mutexes and conditions aren't abstract). */
 struct _pthread_fastlock
 {
-  long int __status;            /* "Free" or "taken" or head of waiting list */
-  int __spinlock;               /* For compare-and-swap emulation */
+  long int __status;   /* "Free" or "taken" or head of waiting list */
+  int __spinlock;      /* Used by compare_and_swap emulation. Also,
+			  adaptive SMP lock stores spin count here. */
 };
 
 #ifndef _PTHREAD_DESCR_DEFINED
@@ -37,7 +38,7 @@ typedef struct _pthread_descr_struct *_pthread_descr;
 
 
 /* Attributes for threads.  */
-typedef struct
+typedef struct __pthread_attr_s
 {
   int __detachstate;
   int __schedpolicy;
@@ -95,7 +96,7 @@ typedef int pthread_once_t;
 
 #ifdef __USE_UNIX98
 /* Read-write locks.  */
-typedef struct
+typedef struct _pthread_rwlock_t
 {
   struct _pthread_fastlock __rw_lock; /* Lock to guarantee mutual exclusion */
   int __rw_readers;                   /* Number of readers */
@@ -113,6 +114,25 @@ typedef struct
   int __lockkind;
   int __pshared;
 } pthread_rwlockattr_t;
+#endif
+
+#ifdef __USE_XOPEN2K
+/* POSIX spinlock data type.  */
+typedef volatile int pthread_spinlock_t;
+
+/* POSIX barrier. */
+typedef struct {
+  struct _pthread_fastlock __ba_lock; /* Lock to guarantee mutual exclusion */
+  int __ba_required;                  /* Threads needed for completion */
+  int __ba_present;                   /* Threads waiting */
+  _pthread_descr __ba_waiting;        /* Queue of waiting threads */
+} pthread_barrier_t;
+
+/* barrier attribute */
+typedef struct {
+  int __pshared;
+} pthread_barrierattr_t;
+
 #endif
 
 

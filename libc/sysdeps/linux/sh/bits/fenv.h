@@ -1,61 +1,72 @@
-/* Copyright (C) 1997, 1998, 1999 Free Software Foundation, Inc.
+/* Copyright (C) 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _FENV_H
 # error "Never use <bits/fenv.h> directly; include <fenv.h> instead."
 #endif
 
 
-/* Here should be the exception be defined:
-    FE_INVALID
-    FE_DIVBYZERO
-    FE_OVERFLOW
-    FE_UNDERFLOW
-    FE_INEXACT
-   We define no macro which signals no exception is supported.  */
+/* Define bits representing the exception.  We use the bit positions
+   of the appropriate bits in the FPU control word.  */
+enum
+  {
+    FE_INEXACT = 0x04,
+#define FE_INEXACT	FE_INEXACT
+    FE_UNDERFLOW = 0x08,
+#define FE_UNDERFLOW	FE_UNDERFLOW
+    FE_OVERFLOW = 0x10,
+#define FE_OVERFLOW	FE_OVERFLOW
+    FE_DIVBYZERO = 0x20,
+#define FE_DIVBYZERO	FE_DIVBYZERO
+    FE_INVALID = 0x40,
+#define FE_INVALID	FE_INVALID
+  };
 
-#define FE_ALL_EXCEPT 0
+#define FE_ALL_EXCEPT \
+	(FE_INEXACT | FE_DIVBYZERO | FE_UNDERFLOW | FE_OVERFLOW | FE_INVALID)
+
+/* The SH FPU supports all of the four defined rounding modes.  We
+   use again the bit positions in the FPU control word as the values
+   for the appropriate macros.  */
+enum
+  {
+    FE_TONEAREST = 0x0,
+#define FE_TONEAREST	FE_TONEAREST
+    FE_TOWARDZERO = 0x1,
+#define FE_TOWARDZERO	FE_TOWARDZERO
+    FE_UPWARD = 0x2,
+#define FE_UPWARD	FE_UPWARD
+    FE_DOWNWARD = 0x3
+#define FE_DOWNWARD	FE_DOWNWARD
+  };
 
 
-/* Here should the rounding modes be defined:
-    FE_TONEAREST
-    FE_DOWNWARD
-    FE_UPWARD
-    FE_TOWARDZERO
-   We define no macro which signals no rounding mode is selectable.  */
+/* Type representing exception flags.  */
+typedef unsigned short int fexcept_t;
 
 
-/* Type representing exception flags.
-   XXX Probably we should also include the signal handler here.  */
+/* Type representing floating-point environment.  This function corresponds
+   to the layout of the block written by the `fstenv'.  */
 typedef struct
   {
-    unsigned int __flags;
-  }
-fexcept_t;
-
-
-/* Type representing floating-point environment.  */
-typedef struct
-  {
-    fexcept_t __excepts;
-    /* XXX I don't know what else we should save.  */
+    unsigned int __fpscr;
   }
 fenv_t;
 
 /* If the default argument is used we use this value.  */
-#define FE_DFL_ENV	((fenv_t *) -1l)
+#define FE_DFL_ENV	((fenv_t *) -1)
