@@ -22,6 +22,8 @@ extern char *strcpy __P ((char *__restrict __dest,
 			  __const char *__restrict __src));
 extern char *stpcpy __P ((char *__restrict __dest,
 			  __const char *__restrict __src));
+extern char *stpncpy __P ((char *__restrict __dest,
+			   __const char *__restrict __src, size_t __n));
 /* Copy no more than N characters of SRC to DEST.  */
 extern char *strncpy __P ((char *__restrict __dest,
 			   __const char *__restrict __src, size_t __n));

@@ -79,6 +79,23 @@ char *stpcpy(char *dst, const char *src)
 }
 #endif
 
+/********************** Function stpncpy ************************************/
+
+#ifdef L_stpncpy
+char *stpncpy(char *dst, const char *src, size_t len)
+{
+	while (len--) {
+		if (*src)
+			*dst++ = *src++;
+		else
+			*dst++ = '\0';
+	}
+
+	return dst;
+}
+#endif
+
+
 /********************** Function strcmp ************************************/
 
 #ifdef L_strcmp
