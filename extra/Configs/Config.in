@@ -526,6 +526,16 @@ config UCLIBC_TZ_FILE_PATH
 
 	  Most people will use the default of '/etc/TZ'.
 
+config UCLIBC_XATTR
+	bool "Extended Attributes"
+	default n
+	help
+	  Extended attributes are name:value pairs associated with inodes (files, 
+	  directories, symlinks, etc).  They are extensions to the normal attributes 
+	  which are associated with all inodes in the system.
+	  Most people should answer N.
+	  Selinux users will want to say Y here.
+
 endmenu
 
 menu "Networking Support"

@@ -32,8 +32,8 @@ CSRC=	__rt_sigtimedwait.c __socketcall.c __syscall_fcntl.c \
 	getpgid.c getpgrp.c getpid.c getppid.c getpriority.c getresgid.c \
 	getresuid.c getrlimit.c getrlimit64.c getrusage.c getsid.c \
 	gettimeofday.c getuid.c init_module.c ioctl.c ioperm.c iopl.c \
-	kill.c klogctl.c lchown.c link.c llseek.c longjmp.c lseek.c \
-	lstat.c lstat64.c madvise.c mkdir.c mkfifo.c mknod.c mlock.c \
+	kill.c klogctl.c lchown.c link.c llseek.c longjmp.c lseek.c lstat.c \
+	lstat64.c madvise.c mkdir.c mkfifo.c mincore.c mknod.c mlock.c \
 	mlockall.c mmap.c mmap64.c modify_ldt.c mount.c mprotect.c \
 	mremap.c msync.c munlock.c munlockall.c munmap.c nanosleep.c \
 	nice.c noophooks.c ntp_gettime.c open.c open64.c pause.c \
@@ -60,6 +60,11 @@ endif
 ifeq ($(strip $(UCLIBC_PROPOLICE)),y)
 CSRC+=ssp.c
 endif
+
+ifeq ($(strip $(UCLIBC_XATTR)),y)
+CSRC+=xattr.c
+endif
+
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJ=$(COBJS) $(MOBJ)
