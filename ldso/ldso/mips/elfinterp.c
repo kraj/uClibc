@@ -188,9 +188,6 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 	unsigned long old_val=0;
 #endif
 
-	/* Relocate any global GOT entries for the object */
-	_dl_perform_mips_global_got_relocations(tpnt);
-
 	/* Now parse the relocation information */
 	rel_size = rel_size / sizeof(Elf32_Rel);
 	rpnt = (Elf32_Rel *) (rel_addr + tpnt->loadaddr);
@@ -260,47 +257,61 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 /* Relocate the global GOT entries for the object */
 void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 {
-	char *strtab;
 	Elf32_Sym *sym;
+	char *strtab;
 	unsigned long i;
 	unsigned long *got_entry;
-	/* Setup the loop variables */
-	got_entry = (unsigned long *) (tpnt->loadaddr +
-				       tpnt->dynamic_info[DT_PLTGOT]) + tpnt->mips_local_gotno;
-	sym = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] +
-			     (unsigned long) tpnt->loadaddr) + tpnt->mips_gotsym;
-	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] +
-			   (unsigned long) tpnt->loadaddr);
-	i = tpnt->mips_symtabno - tpnt->mips_gotsym;
 
-	while(i--) {
-		if (sym->st_shndx == SHN_UNDEF) {
-			if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC && sym->st_value) {
-				*got_entry = sym->st_value + (unsigned long) tpnt->loadaddr;
+	for (; tpnt ; tpnt = tpnt->next) {
+
+		/* We don't touch the dynamic linker */
+		if (tpnt->libtype == program_interpreter)
+			continue;
+
+		/* Setup the loop variables */
+		got_entry = (unsigned long *) (tpnt->loadaddr +
+			tpnt->dynamic_info[DT_PLTGOT]) + tpnt->mips_local_gotno;
+		sym = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] +
+			(unsigned long) tpnt->loadaddr) + tpnt->mips_gotsym;
+		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] +
+			(unsigned long) tpnt->loadaddr);
+		i = tpnt->mips_symtabno - tpnt->mips_gotsym;
+
+#if defined (__SUPPORT_LD_DEBUG__)
+		_dl_dprintf(2, "_dl_perform_mips_global_got_relocations for '%s'\n", tpnt->libname);
+#endif
+
+		/* Relocate the global GOT entries for the object */
+		while(i--) {
+			if (sym->st_shndx == SHN_UNDEF) {
+				if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC && sym->st_value) {
+					*got_entry = sym->st_value + (unsigned long) tpnt->loadaddr;
+				}
+				else {
+					*got_entry = (unsigned long) _dl_find_hash(strtab +
+						sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
+				}
+			}
+			else if (sym->st_shndx == SHN_COMMON) {
+				*got_entry = (unsigned long) _dl_find_hash(strtab +
+					sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
+			}
+			else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&
+				*got_entry != sym->st_value) {
+				*got_entry += (unsigned long) tpnt->loadaddr;
+			}
+			else if (ELF32_ST_TYPE(sym->st_info) == STT_SECTION) {
+				if (sym->st_other == 0)
+					*got_entry += (unsigned long) tpnt->loadaddr;
 			}
 			else {
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
-									   sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
+					sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
 			}
-		}
-		else if (sym->st_shndx == SHN_COMMON) {
-			*got_entry = (unsigned long) _dl_find_hash(strtab +
-								   sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
-		}
-		else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&
-			 *got_entry != sym->st_value) {
-			*got_entry += (unsigned long) tpnt->loadaddr;
-		}
-		else if (ELF32_ST_TYPE(sym->st_info) == STT_SECTION) {
-			if (sym->st_other == 0)
-				*got_entry += (unsigned long) tpnt->loadaddr;
-		}
-		else {
-			*got_entry = (unsigned long) _dl_find_hash(strtab +
-								   sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
-		}
 
-		got_entry++;
-		sym++;
+			got_entry++;
+			sym++;
+		}
 	}
 }
+

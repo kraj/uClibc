@@ -275,11 +275,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				INIT_GOT(lpnt, _dl_loaded_modules);
 		}
 
-#if defined(__mips__)
-		/* Relocate any global GOT entries for the application */
-		_dl_perform_mips_global_got_relocations(app_tpnt);
-#endif
-
 		/* OK, fill this in - we did not have this before */
 		if (ppnt->p_type == PT_INTERP) {
 			int readsize = 0;
@@ -667,17 +662,17 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 #endif
 
 
-#ifdef __mips__
-	/*
-	 * Relocation of the GOT entries for MIPS have to be done
-	 * after all the libraries have been loaded.
-	 */
-	_dl_perform_mips_global_got_relocations(_dl_loaded_modules);
-#endif
-
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	_dl_dprintf(_dl_debug_file, "Beginning relocation fixups\n");
 #endif
+
+#ifdef __mips__
+	/*
+	 * Relocation of the GOT entries for MIPS have to be done
+	 * after all the libraries have been loaded.  */
+	_dl_perform_mips_global_got_relocations(_dl_loaded_modules);
+#endif
+
 	/*
 	 * OK, now all of the kids are tucked into bed in their proper addresses.
 	 * Now we go through and look for REL and RELA records that indicate fixups
