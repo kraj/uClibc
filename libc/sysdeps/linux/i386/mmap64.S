@@ -64,7 +64,7 @@ mmap64:
 	movl FLAGS(%esp), %esi
 	movl FD(%esp), %edi
 
-	movl $_NR_mmap2, %eax	/* System call number in %eax.  */
+	movl $__NR_mmap2, %eax	/* System call number in %eax.  */
 	int $0x80
 
 	/* Restore registers.  */
