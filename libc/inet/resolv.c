@@ -641,7 +641,9 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 
 		/* Mess with globals while under lock */
 		LOCK;
-		h.id = ++id;
+		++id;
+		id &= 0xffff;
+		h.id = id;
 		dns = nsip[ns];
 		UNLOCK;
 
