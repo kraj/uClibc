@@ -1004,6 +1004,12 @@ _syscall1(int, get_kernel_syms, struct kernel_sym *, table);
 #endif
 
 //#define __NR_quotactl         131
+#ifdef __NR_quotactl
+#ifdef L_quotactl
+#include <sys/quota.h>
+_syscall4(int, quotactl, int, cmd, const char *, special , int, id, caddr_t, addr);
+#endif
+#endif
 
 //#define __NR_getpgid          132
 #ifdef L_getpgid
@@ -1019,7 +1025,6 @@ _syscall1(int, fchdir, int, fd);
 //#define __NR_bdflush          134
 #ifdef L_bdflush
 #include <sys/kdaemon.h>
-
 _syscall2(int, bdflush, int, __func, long int, __data);
 #endif
 
@@ -1030,8 +1035,10 @@ _syscall2(int, bdflush, int, __func, long int, __data);
 //#define __NR_afs_syscall      137
 
 //#define __NR_setfsuid         138
+//setfsuid	EXTRA	setfsuid	i:i	setfsuid
 
 //#define __NR_setfsgid         139
+//setfsgid	EXTRA	setfsgid	i:i	setfsgid
 
 //#define __NR__llseek          140
 #ifdef L__llseek
@@ -1136,13 +1143,68 @@ _syscall1(pid_t, getsid, pid_t, pid);
 #endif	
 
 //#define __NR_sched_setparam   154
+#ifdef __NR_sched_setparam
+#ifdef L_sched_setparam
+#include <sched.h>
+_syscall2(int, sched_setparam, pid_t, pid, const struct sched_param *, p);
+#endif
+#endif
+
 //#define __NR_sched_getparam   155
+#ifdef __NR_sched_getparam
+#ifdef L_sched_getparam
+#include <sched.h>
+_syscall2(int, sched_getparam, pid_t, pid, struct sched_param *, p);
+#endif
+#endif
+
 //#define __NR_sched_setscheduler       156
+#ifdef __NR_sched_setscheduler
+#ifdef L_sched_setscheduler
+#include <sched.h>
+_syscall3(int, sched_setscheduler, pid_t, pid, int, policy, const struct sched_param *, p);
+#endif
+#endif
+
 //#define __NR_sched_getscheduler       157
+#ifdef __NR_sched_getscheduler
+#ifdef L_sched_getscheduler
+#include <sched.h>
+_syscall1(int, sched_getscheduler, pid_t, pid);
+#endif
+#endif
+
 //#define __NR_sched_yield              158
+#ifdef __NR_sched_yield
+#ifdef L_sched_yield
+#include <sched.h>
+_syscall0(int, sched_yield);
+#endif
+#endif
+
 //#define __NR_sched_get_priority_max   159
+#ifdef __NR_sched_get_priority_max
+#ifdef L_sched_get_priority_max
+#include <sched.h>
+_syscall1(int, sched_get_priority_max, int, policy);
+#endif
+#endif
+
 //#define __NR_sched_get_priority_min   160
+#ifdef __NR_sched_get_priority_min
+#ifdef L_sched_get_priority_min
+#include <sched.h>
+_syscall1(int, sched_get_priority_min, int, policy);
+#endif
+#endif
+
 //#define __NR_sched_rr_get_interval    161
+#ifdef __NR_sched_rr_get_interval
+#ifdef L_sched_rr_get_interval
+#include <sched.h>
+_syscall2(int, sched_rr_get_interval, pid_t, pid, struct timespec *, tp);
+#endif
+#endif
 
 //#define __NR_nanosleep                162
 #ifdef L_nanosleep
@@ -1184,9 +1246,12 @@ _syscall3(int, poll, struct pollfd *, fds, unsigned long int, nfds, int, timeout
 #endif
 
 //#define __NR_nfsservctl               169
+//nfsservctl	EXTRA	nfsservctl	i:ipp	nfsservctl
+
 //#define __NR_setresgid                170
 //#define __NR_getresgid                171
 //#define __NR_prctl                    172
+
 //#define __NR_rt_sigreturn             173
 //#define __NR_rt_sigaction             174
 #ifdef __NR_rt_sigaction
@@ -1286,8 +1351,21 @@ _syscall3(int, chown, const char *, path, uid_t, owner, gid_t, group);
 #endif
 
 //#define __NR_sigaltstack              186
+#ifdef __NR_sigaltstack
+#ifdef L_sigaltstack
+#include <signal.h>
+_syscall2(int, sigaltstack, const struct sigaltstack *, ss, struct sigaltstack *, oss);
+#endif
+#endif
 
 //#define __NR_sendfile                 187
+#ifdef __NR_sendfile
+#ifdef L_sendfile
+#include <unistd.h>
+#include <sys/sendfile.h>
+_syscall4(ssize_t,sendfile, int, out_fd, int, in_fd, off_t *, offset, size_t, count)
+#endif
+#endif
 
 //#define __NR_getpmsg                  188
 
@@ -1296,22 +1374,29 @@ _syscall3(int, chown, const char *, path, uid_t, owner, gid_t, group);
 //#define __NR_vfork                    190
 //See sysdeps/linux/<arch>vfork.[cS] for architecture specific implementation...
 
-#ifdef __UCLIBC_HAVE_LFS__
+//#define __NR_ugetrlimit		191	/* SuS compliant getrlimit */
+//#define __NR_mmap2		192
+
 
 //#define __NR_truncate64         193
+#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L_truncate64
 #include <unistd.h>
 _syscall2(int, truncate64, const char *, path, __off64_t, length);
 #endif
+#endif /* __UCLIBC_HAVE_LFS__ */
 
 //#define __NR_ftruncate64        194
+#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L_ftruncate64
 #include <unistd.h>
 _syscall2(int, ftruncate64, int, fd, __off64_t, length);
 #endif
+#endif /* __UCLIBC_HAVE_LFS__ */
 
 
 //#define __NR_stat64             195
+#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L___stat64
 #include <unistd.h>
 #include "statfix64.h"
@@ -1338,8 +1423,10 @@ int stat64(const char *file_name, struct libc_stat64 *buf)
 	return(__xstat64(0, file_name, buf));
 }
 #endif
+#endif /* __UCLIBC_HAVE_LFS__ */
 
 //#define __NR_lstat64            196
+#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L___lstat64
 #include <unistd.h>
 #include "statfix64.h"
@@ -1366,8 +1453,10 @@ int lstat64(const char *file_name, struct libc_stat64 *buf)
 	return(__lxstat64(0, file_name, buf));
 }
 #endif
+#endif /* __UCLIBC_HAVE_LFS__ */
 
 //#define __NR_fstat64            197
+#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L___fstat64
 #include <unistd.h>
 #include "statfix64.h"
@@ -1394,20 +1483,50 @@ int fstat64(int filedes, struct libc_stat64 *buf)
 	return(__fxstat64(0, filedes, buf));
 }
 #endif
+#endif /* __UCLIBC_HAVE_LFS__ */
 
 
-//#define __NR_getdents64         220
+//#define __NR_lchown32		198
+//#define __NR_getuid32		199
+//#define __NR_getgid32		200
+//#define __NR_geteuid32		201
+//#define __NR_getegid32		202
+//#define __NR_setreuid32		203
+//#define __NR_setregid32		204
+//#define __NR_getgroups32	205
+//#define __NR_setgroups32	206
+//#define __NR_fchown32		207
+//#define __NR_setresuid32	208
+//#define __NR_getresuid32	209
+//#define __NR_setresgid32	210
+//#define __NR_getresgid32	211
+//#define __NR_chown32		212
+//#define __NR_setuid32		213
+//#define __NR_setgid32		214
+//#define __NR_setfsuid32		215
+//#define __NR_setfsgid32		216
+//#define __NR_pivot_root		217
+#ifdef __NR_pivot_root
+#ifdef L_pivot_root
+_syscall2(int, pivot_root, const char *, new_root, const char *, put_old)
+#endif
+#endif
+
+//#define __NR_mincore		218
+//#define __NR_madvise		219
+//#define __NR_madvise1		219	/* delete when C lib stub is removed */
+
+//#define __NR_getdents64		220
+#ifdef __UCLIBC_HAVE_LFS__
 #ifdef L_getdents64
 #include <unistd.h>
 #include <dirent.h>
 _syscall3(int, getdents64, int, fd, char *, dirp, size_t, count);
 #endif
-
-
-//#define __NR_fcntl64            221
-
-
 #endif /* __UCLIBC_HAVE_LFS__ */
 
-
+//#define __NR_fcntl64		221
+//#define __NR_security		223	/* syscall for security modules */
+//#define __NR_gettid		224
+//#define __NR_readahead		225
 
