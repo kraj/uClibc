@@ -20,7 +20,7 @@ TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
 CRT0_SRC = crt0.S
-CRT0_OBJ = crt0.o crt1.o
+CRT0_OBJ = crt1.o
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 SSRC=bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S syscall.S pipe.S
@@ -39,6 +39,8 @@ $(LIBC): ar-target
 ar-target: $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 	cp $(CRT0_OBJ) $(TOPDIR)lib/
+	$(LN) -fs $(CRT0_OBJ) $(TOPDIR)/lib/crt0.o
+	$(LN) -fs $(CRT0_OBJ) $(TOPDIR)/lib/Scrt1.o
 
 $(CRT0_OBJ): $(CRT0_SRC)
 	$(CC) $(ASFLAGS) -DL_$* $< -c -o $*.o

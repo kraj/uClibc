@@ -1097,7 +1097,7 @@ config UCLIBC_BUILD_PIE
 	bool "Build utilities as ET_DYN/PIE executables"
 	depends on UCLIBC_SECURITY
 	depends on HAVE_SHARED
-	depends on TARGET_i386 || TARGET_powerpc || TARGET_frv
+	depends on TARGET_i386 || TARGET_powerpc || TARGET_mips || TARGET_frv
 	select FORCE_SHAREABLE_TEXT_SEGMENTS if BUILD_UCLIBC_LDSO
 	default y
 	help
