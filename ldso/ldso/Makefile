@@ -1,7 +1,7 @@
 TOPDIR=../../
 include $(TOPDIR)/ld.so-1/Rules.mak
 
-CFLAGS += -DUSE_CACHE -fPIC -D__PIC__ #-funroll-loops
+CFLAGS += -DUSE_CACHE -fPIC -D__PIC__ #-DDL_DEBUG #-funroll-loops
 
 CSRC= boot1.c hash.c readelflib1.c vsprintf.c $(TARGET_ARCH)/elfinterp.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
