@@ -171,7 +171,7 @@ config BUILD_UCLIBC_LDSO
 
 config FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "Only load shared libraries which can share their text segment"
-	depends on BUILD_UCLIBC_LDSO && UCLIBC_COMPLETELY_PIC
+	depends on BUILD_UCLIBC_LDSO
 	default n
 	help
 	  If you answer Y here, the uClibc native shared library loader will
