@@ -8,8 +8,6 @@
 
 __BEGIN_DECLS
 
-/* Locale-compatible macros/inlines have yet to be implemented. */
-#if defined(__UCLIBC_HAS_LOCALE__) && !defined(__USE_CTYPE_C_MACROS)
 
 /* function prototpes */ 
 extern int isalnum(int c);
@@ -30,7 +28,9 @@ extern int toascii(int c);
 extern int tolower(int c);
 extern int toupper(int c);
 
-#else
+
+/* Locale-compatible macros/inlines have yet to be implemented. */
+#if defined(__USE_CTYPE_MACROS) && !defined __UCLIBC_HAS_LOCALE__
 
 /* macro definitions */
 #define isalnum(c)  (isalpha(c) || isdigit(c))

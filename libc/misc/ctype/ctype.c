@@ -11,7 +11,7 @@
  * used ideas is part of the GNU C Library.
  */
 
-#define __USE_CTYPE_C_MACROS
+#define __USE_CTYPE_MACROS
 #include <ctype.h>
 
 #ifdef L_isascii
