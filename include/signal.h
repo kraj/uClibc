@@ -225,8 +225,6 @@ extern int sigprocmask __P ((int __how,
 extern int sigsuspend __P ((__const sigset_t *__set));
 
 /* Get and/or set the action for signal SIG.  */
-extern int __sigaction __P ((int __sig, __const struct sigaction *__act,
-			     struct sigaction *__oact));
 extern int sigaction __P ((int __sig, __const struct sigaction *__act,
 			   struct sigaction *__oact));
 
