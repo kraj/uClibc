@@ -39,7 +39,7 @@ endif
 SSRC=longjmp.S setjmp.S vfork.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=
+CSRC=_mmap.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
