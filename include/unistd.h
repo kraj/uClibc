@@ -102,6 +102,14 @@ extern __gid_t getgid __P ((void));
 /* Get the effective group ID of the calling process.  */
 extern __gid_t getegid __P ((void));
 
+/* Set the real user ID of the calling process to RUID,
+   and the effective user ID of the calling process to EUID.  */
+extern int setreuid __P ((__uid_t __ruid, __uid_t __euid));
+
+/* Set the real group ID of the calling process to RGID,
+   and the effective group ID of the calling process to EGID.  */
+extern int setregid __P ((__gid_t __rgid, __gid_t __egid));
+
 /* If SIZE is zero, return the number of supplementary groups
    the calling process is in.  Otherwise, fill in the group IDs
    of its supplementary groups in LIST and return the number written.  */

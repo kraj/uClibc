@@ -44,7 +44,7 @@ $(LIBC): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(SOBJS):
+$(SOBJS): 
 	$(CC) $(CFLAGS) $< -c $*.S -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
