@@ -27,26 +27,24 @@ Cambridge, MA 02139, USA.  */
 
 typedef void (*vfuncp) ();
 extern vfuncp __cleanup;
-extern void _exit __P ((int __status)) __attribute__ ((__noreturn__));
+extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
 
 /* Cause an abnormal program termination with core-dump.  */
-void
-abort(void)
+void abort(void)
 {
-    sigset_t sigset;
+	sigset_t sigset;
 
-    if (sigemptyset(&sigset) == 0 &&
-	    sigaddset(&sigset, SIGABRT) == 0) { 
-	sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
-    }
+	if (sigemptyset(&sigset) == 0 && sigaddset(&sigset, SIGABRT) == 0) {
+		sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
+	}
 
-   if (__cleanup)
-      __cleanup();
+	if (__cleanup)
+		__cleanup();
 
-    while (1)
-	if (raise(SIGABRT))
-	    /* If we can't signal ourselves, exit.  */
-	    _exit(127);
-    /* If we signal ourselves and are still alive,
-       or can't exit, loop forever.  */
+	while (1)
+		if (raise(SIGABRT))
+			/* If we can't signal ourselves, exit.  */
+			_exit(127);
+	/* If we signal ourselves and are still alive,
+	   or can't exit, loop forever.  */
 }
