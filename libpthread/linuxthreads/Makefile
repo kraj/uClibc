@@ -22,8 +22,8 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 # As long as there is only one subdir, we don't 
-# have to worry about race conditions with multiple
-# $(AR)'s running on linuxthreads.a
+# have to worry about race conditions with multiple 
+# $(AR)'s in subdirs running on linuxthreads.a.
 DIRS = sysdeps
 
 #Adjust the soname version to avoid namespace collisions with glibc's libpthread
@@ -60,9 +60,13 @@ endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
-all: $(LIBPTHREAD)
+# We need to make sure that we put all the top-level $(OBJS) into
+# our archive before executing subdirs.  That way, when $(AR) is 
+# run in the subdirs, it'll bump the generic top-level objects 
+# out of our archive in favor of the machine-specific ones.
+all: $(LIBPTHREAD) subdirs
 
-$(LIBPTHREAD) ar-target: $(OBJS) subdirs
+$(LIBPTHREAD) ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBPTHREAD) $(OBJS)
 
 $(COBJS): %.o : %.c
@@ -76,7 +80,7 @@ endif
 clean: subdirs_clean
 	$(RM) *.[oa] *~ core
 
-subdirs: $(patsubst %, _dir_%, $(DIRS))
+subdirs: $(patsubst %, _dir_%, $(DIRS)) $(LIBPTHREAD)
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
 
 $(patsubst %, _dir_%, $(DIRS)) : dummy
