@@ -25,19 +25,16 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
-ASMSRC=syscalls.S
-ASMOBJS=$(shell ./list_syscalls.sh)
-
 SSRC=_start.S setjmp.S longjmp.S #fork.S #clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 MSRC=syscalls.c
-MOBJ=read.o write.o __open.o close.o
+MOBJ=$(shell ./list_syscalls.sh)
 
 CSRC=readdir.c #select.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(SOBJS) $(ASMOBJS) $(COBJS) $(MOBJ)
+OBJS=$(SOBJS) $(COBJS) $(MOBJ)
 
 
 all: $(OBJS) $(LIBC)
@@ -46,10 +43,6 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-
-$(ASMOBJS): $(ASMSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): $(SSRC)
 	$(CC) $(CFLAGS) $< -c -o $*.o
@@ -60,7 +53,7 @@ $(MOBJ): $(MSRC)
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS):
-	$(CC) $(CFLAGS) $< -c -o $*.o
+	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
