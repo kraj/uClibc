@@ -59,6 +59,8 @@
 #include <netdb.h>
 #include <ctype.h>
 #include <arpa/nameser.h>
+#include <sys/utsname.h>
+#include <sys/un.h>
 
 #define MAX_RECURSE 5
 #define REPLY_TIMEOUT 10
@@ -1238,15 +1240,14 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 	memset(&h, 0, sizeof(h));
 
 	if(type == AF_INET) {
+		unsigned char *tmp_addr = (unsigned char *)addr;
+
 		memcpy(&in.s_addr, addr, len);
 
 		addr_list[0] = &in;
 
-		sprintf(namebuf, "%d.%d.%d.%d.in-addr.arpa",
-			(in.s_addr >> 24) & 0xff,
-			(in.s_addr >> 16) & 0xff,
-			(in.s_addr >> 8) & 0xff, 
-			(in.s_addr >> 0) & 0xff);
+		sprintf(namebuf, "%u.%u.%u.%u.in-addr.arpa",
+			tmp_addr[3], tmp_addr[2], tmp_addr[1], tmp_addr[0]);
 #ifdef __UCLIBC_HAS_IPV6__
 	} else {
 		memcpy(&in6.s6_addr, addr, len);
@@ -1436,6 +1437,10 @@ struct hostent * get_hosts_byaddr(const char * addr, int len, int type)
 
 #ifdef L_getnameinfo
 
+#ifndef min
+# define min(x,y) (((x) > (y)) ? (y) : (x))
+#endif /* min */
+
 int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 	     socklen_t hostlen, char *serv, socklen_t servlen,
 	     unsigned int flags)
@@ -1510,7 +1515,6 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 #ifdef __UCLIBC_HAS_IPV6__
 					if (sa->sa_family == AF_INET6) {
 						const struct sockaddr_in6 *sin6p;
-						uint32_t scopeid;
 
 						sin6p = (const struct sockaddr_in6 *) sa;
 
@@ -1518,6 +1522,7 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 							(const void *) &sin6p->sin6_addr, host, hostlen);
 #if 0
 /* Does scope id need to be supported? */
+						uint32_t scopeid;
 						scopeid = sin6p->sin6_scope_id;
 						if (scopeid != 0) {
 							/* Buffer is >= IFNAMSIZ+1.  */
