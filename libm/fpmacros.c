@@ -20,6 +20,7 @@
 **            
 ***********************************************************************/
 
+#include     <features.h>
 #include     "fp_private.h"
 
 #define SIGN_MASK 0x80000000
@@ -223,6 +224,7 @@ long int __isinff ( float x )
     }
     return 0;
 }
+weak_alias (__isinff, isinff)
 
 long int __isinf ( double x )
 {
@@ -232,6 +234,7 @@ long int __isinf ( double x )
     }
     return 0;
 }
+weak_alias (__isinf, isinf)
 
 #if 0
 long int __isinfl ( long double x )
@@ -242,6 +245,9 @@ long int __isinfl ( long double x )
     }
     return 0;
 }
+weak_alias (__isinfl, isinfl);
+#else
+weak_alias (__isinf, isinfl)
 #endif
 
 /***********************************************************************
@@ -264,12 +270,14 @@ long int __isnanf ( float x )
    z.fval = x;
    return (((z.lval&FEXP_MASK) == FEXP_MASK) && ((z.lval&FFRAC_MASK) != 0));
 }
+weak_alias (__isnanf, isnanf);
 
 long int __isnan ( double x )
 {
 	long int class = __fpclassify(x);
 	return ( ( class == FP_SNAN ) || ( class == FP_QNAN ) ); 
 }
+weak_alias (__isnan, isnan);
 
 #if 0
 long int __isnanl ( long double x )
@@ -277,5 +285,8 @@ long int __isnanl ( long double x )
 	long int class = __fpclassify(x);
 	return ( ( class == FP_SNAN ) || ( class == FP_QNAN ) ); 
 }
+weak_alias (__isnanl, isnanl);
+#else
+weak_alias (__isnan, isnanl);
 #endif
 
