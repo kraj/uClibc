@@ -27,10 +27,10 @@ register int (*cmp) ();			/* comparison function */
 	b = num - 1;
 	while (a <= b) {
 		c = (a + b) >> 1;		/* == ((a + b) / 2) */
-		if ((dir = (*cmp) ((base + (c * size)), key))) {
-			if (dir > 0)
+		if ((dir = (*cmp) (key, (base + (c * size))))) {
+			if (dir < 0)
 				b = c - 1;
-			else				/* (dir < 0) */
+			else				/* (dir > 0) */
 				a = c + 1;
 		} else {
 			_bsearch = c;
