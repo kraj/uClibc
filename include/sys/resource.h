@@ -20,6 +20,7 @@
 #define	_SYS_RESOURCE_H	1
 
 #include <features.h>
+#include <sys/types.h>
 
 /* Get the system-dependent definitions of structures and bit values.  */
 #include <bits/resource.h>

@@ -660,13 +660,13 @@ _syscall3(int, fchown, int, fd, uid_t, owner, gid_t, group);
 //#define __NR_getpriority      96
 #ifdef L_getpriority
 #include <sys/resource.h>
-_syscall2(int, getpriority, int, which, int, who);
+_syscall2(int, getpriority, __priority_which_t, which, id_t, who);
 #endif
 
 //#define __NR_setpriority      97
 #ifdef L_setpriority
 #include <sys/resource.h>
-_syscall3(int, setpriority, int, which, int, who, int, prio);
+_syscall3(int, setpriority, __priority_which_t, which, id_t, who, int, prio);
 #endif
 
 //#define __NR_profil           98
