@@ -859,8 +859,11 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			if (dpnt->d_tag == DT_NEEDED) {
 				lpntstr = tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] +
 					dpnt->d_un.d_val;
-				if (tpnt && _dl_strcmp(lpntstr, 
-							_dl_get_last_path_component(tpnt->libname)) == 0) {
+				if (_dl_strcmp(lpntstr, "libc.so.6") == 0) {
+					_dl_dprintf(2, "%s: linked against GNU libc!\n", _dl_progname);
+					_dl_exit(150);
+				}
+				if (tpnt && _dl_strcmp(lpntstr, _dl_get_last_path_component(tpnt->libname)) == 0) {
 					struct elf_resolve *ttmp;
 
 #ifdef DL_TRACE
