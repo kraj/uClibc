@@ -134,3 +134,15 @@ int utmpname (const char *new_ut_name)
 		close(ut_fd);
 	return 0;
 }
+
+extern void updwtmp(const char *wtmp_file, const struct utmp *ut)
+{
+	int fd;
+
+	fd = open(wtmp_file, O_APPEND | O_WRONLY, 0);
+	if (fd >= 0) {
+		write(fd, (const char *) ut, sizeof(*ut));
+		close(fd);
+	}
+}
+
