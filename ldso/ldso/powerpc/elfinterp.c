@@ -357,6 +357,7 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 		switch (reloc_type) {
 		case R_PPC_NONE:
 			break;
+#if 0
 		case R_PPC_REL24:
 			{
 			int delta = symbol_addr - (unsigned long)reloc_addr;
@@ -368,6 +369,7 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 			*reloc_addr |= delta&0x03fffffc;
 			}
 			break;
+#endif
 		case R_PPC_RELATIVE:
 			*reloc_addr = (unsigned long)tpnt->loadaddr + addend;
 			break;
