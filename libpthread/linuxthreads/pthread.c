@@ -32,11 +32,16 @@
 #include "restart.h"
 #include "debug.h"      /* added to linuxthreads -StS */
 
+
+/* Mods for uClibc: Some includes */
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/syscall.h>
+
 /* mods for uClibc: getpwd and getpagesize are the syscalls */
 #define __getpid getpid
 #define __getpagesize getpagesize
 /* mods for uClibc: __libc_sigaction is not in any standard headers */
-#include <signal.h>
 extern int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact);
 
 
@@ -180,12 +185,6 @@ char *__pthread_manager_thread_tos = NULL;
 int __pthread_exit_requested = 0;
 int __pthread_exit_code = 0;
 
-/* Pointers that select new or old suspend/resume functions
-   based on availability of rt signals. */
-
-void (*__pthread_restart)(pthread_descr) = __pthread_restart_old;
-void (*__pthread_suspend)(pthread_descr) = __pthread_suspend_old;
-
 /* Communicate relevant LinuxThreads constants to gdb */
 
 const int __pthread_threads_max = PTHREAD_THREADS_MAX;
@@ -212,105 +211,21 @@ static void pthread_handle_sigdebug(int sig);
    platform does not support any real-time signals we will define the
    values to some unreasonable value which will signal failing of all
    the functions below.  */
-#ifndef __SIGRTMIN
-static int current_rtmin = -1;
-static int current_rtmax = -1;
-int __pthread_sig_restart = SIGUSR1;
-int __pthread_sig_cancel = SIGUSR2;
-int __pthread_sig_debug = 0;
-#else
-static int current_rtmin;
-static int current_rtmax;
-
-#if __SIGRTMAX - __SIGRTMIN >= 3
+#ifdef __NR_rt_sigaction
 int __pthread_sig_restart = __SIGRTMIN;
 int __pthread_sig_cancel = __SIGRTMIN + 1;
 int __pthread_sig_debug = __SIGRTMIN + 2;
+void (*__pthread_restart)(pthread_descr) = __pthread_restart_new;
+void (*__pthread_suspend)(pthread_descr) = __pthread_wait_for_restart_signal;
 #else
 int __pthread_sig_restart = SIGUSR1;
 int __pthread_sig_cancel = SIGUSR2;
 int __pthread_sig_debug = 0;
+/* Pointers that select new or old suspend/resume functions
+   based on availability of rt signals. */
+void (*__pthread_restart)(pthread_descr) = __pthread_restart_old;
+void (*__pthread_suspend)(pthread_descr) = __pthread_suspend_old;
 #endif
-
-static int rtsigs_initialized;
-
-#include "testrtsig.h"
-
-static void
-init_rtsigs (void)
-{
-  if (!kernel_has_rtsig ())
-    {
-      current_rtmin = -1;
-      current_rtmax = -1;
-#if __SIGRTMAX - __SIGRTMIN >= 3
-      __pthread_sig_restart = SIGUSR1;
-      __pthread_sig_cancel = SIGUSR2;
-      __pthread_sig_debug = 0;
-#endif
-PDEBUG("no rt-sigs, sig_restart=%d, sig_cancel=%d.\n", __pthread_sig_restart, __pthread_sig_cancel  );
-      __pthread_init_condvar(0);
-    }
-  else
-    {
-#if __SIGRTMAX - __SIGRTMIN >= 3
-      current_rtmin = __SIGRTMIN + 3;
-      __pthread_restart = __pthread_restart_new;
-      __pthread_suspend = __pthread_wait_for_restart_signal;
-      __pthread_init_condvar(1);
-#else
-      current_rtmin = __SIGRTMIN;
-      __pthread_init_condvar(0);
-#endif
-
-      current_rtmax = __SIGRTMAX;
-PDEBUG("have rt-sigs, rtmin = %d, rtmax = %d.\n", current_rtmin, current_rtmax);
-    }
-
-  rtsigs_initialized = 1;
-}
-#endif
-
-/* Return number of available real-time signal with highest priority.  */
-int
-__libc_current_sigrtmin (void)
-{
-#ifdef __SIGRTMIN
-  if (!rtsigs_initialized)
-    init_rtsigs ();
-#endif
-  return current_rtmin;
-}
-
-/* Return number of available real-time signal with lowest priority.  */
-int
-__libc_current_sigrtmax (void)
-{
-#ifdef __SIGRTMIN
-  if (!rtsigs_initialized)
-    init_rtsigs ();
-#endif
-  return current_rtmax;
-}
-
-/* Allocate real-time signal with highest/lowest available
-   priority.  Please note that we don't use a lock since we assume
-   this function to be called at program start.  */
-int
-__libc_allocate_rtsig (int high)
-{
-#ifndef __SIGRTMIN
-  return -1;
-#else
-  if (!rtsigs_initialized)
-    init_rtsigs ();
-  if (current_rtmin == -1 || current_rtmin > current_rtmax)
-    /* We don't have anymore signal available.  */
-    return -1;
-
-  return high ? current_rtmin++ : current_rtmax--;
-#endif
-}
 
 /* Initialize the pthread library.
    Initialization is split in two functions:
@@ -374,10 +289,6 @@ static void pthread_initialize(void)
 	 __pthread_initial_thread_bos, __pthread_initial_thread_tos);
 #endif /* __UCLIBC_HAS_MMU__ */
 
-#ifdef __SIGRTMIN
-  /* Initialize real-time signals. */
-  init_rtsigs ();
-#endif
   /* Setup signal handlers for the initial thread.
      Since signal handlers are shared between threads, these settings
      will be inherited by all other threads. */
@@ -822,12 +733,27 @@ void __pthread_wait_for_restart_signal(pthread_descr self)
   } while (self->p_signal !=__pthread_sig_restart );
 }
 
+#ifdef __NR_rt_sigaction
+void __pthread_restart_new(pthread_descr th)
+{
+    kill(th->p_pid, __pthread_sig_restart);
+}
+
+/* There is no __pthread_suspend_new because it would just
+   be a wasteful wrapper for __pthread_wait_for_restart_signal */
+#if 0
+void __pthread_suspend_new(pthread_descr th)
+{
+    __pthread_wait_for_restart_signal(th);
+}
+#endif
+
+#else
 /* The _old variants are for 2.0 and early 2.1 kernels which don't have RT signals.
    On these kernels, we use SIGUSR1 and SIGUSR2 for restart and cancellation.
    Since the restart signal does not queue, we use an atomic counter to create
    queuing semantics. This is needed to resolve a rare race condition in
    pthread_cond_timedwait_relative. */
-
 void __pthread_restart_old(pthread_descr th)
 {
   if (atomic_increment(&th->p_resume_count) == -1)
@@ -839,11 +765,7 @@ void __pthread_suspend_old(pthread_descr self)
   if (atomic_decrement(&self->p_resume_count) <= 0)
     __pthread_wait_for_restart_signal(self);
 }
-
-void __pthread_restart_new(pthread_descr th)
-{
-    kill(th->p_pid, __pthread_sig_restart);
-}
+#endif
 
 /* There is no __pthread_suspend_new because it would just
    be a wasteful wrapper for __pthread_wait_for_restart_signal */
