@@ -40,9 +40,11 @@ CC= $(CROSS)gcc
 AR= $(CROSS)ar
 LD= $(CROSS)ld
 NM= $(CROSS)nm
-STRIP= $(CROSS)strip
-LN=ln
+STRIPTOOL= $(CROSS)strip
 
+INSTALL= install
+LN= ln
+RM= rm -f
 override CFLAGS=$(UWARNINGS) $(OPTIMIZATION) #$(XARCH_CFLAGS)
 override LDFLAGS=-s
 ifeq ($(DODEBUG),y)
@@ -96,21 +98,21 @@ headers:
 
 readelf: readelf.c
 	$(CC) $(CFLAGS) -Wl,-s $^ -o $@ $(LDADD_LIBFLOAT)
-	$(STRIP) -x -R .note -R .comment $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldconfig:	ldconfig.c readsoname.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@ $(LDADD_LIBFLOAT)
-	$(STRIP) -x -R .note -R .comment $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldd:	ldd.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
 		$^ -o $@ $(LDADD_LIBFLOAT)
-	$(STRIP) -x -R .note -R .comment $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
 
 clean:
 	$(RM) $(TARGETS) *.o *~ core *.target elf.h
