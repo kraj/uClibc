@@ -109,7 +109,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 #endif
 
 	/* Store the page size for later use */
-	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? (size_t) auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 	/* Make it so _dl_malloc can use the page of memory we have already
 	 * allocated.  We shouldn't need to grab any more memory.  This must
 	 * be first since things like _dl_dprintf() use _dl_malloc().... */
@@ -836,7 +836,7 @@ void *_dl_malloc(int size)
 	if (_dl_malloc_function)
 		return (*_dl_malloc_function) (size);
 
-	if (_dl_malloc_addr - _dl_mmap_zero + size > _dl_pagesize) {
+	if (_dl_malloc_addr - _dl_mmap_zero + (unsigned)size > _dl_pagesize) {
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 		_dl_dprintf(2, "malloc: mmapping more memory\n");
 #endif

@@ -388,12 +388,11 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 }
 
 void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
+	unsigned long rel_addr, unsigned long rel_size)
 {
 	struct elf_resolve *tpnt = rpnt->dyn;
 	Elf32_Word *plt, offset, i,  num_plt_entries, rel_offset_words;
 
-	(void) type;
 	num_plt_entries = rel_size / sizeof(ELF_RELOC);
 
 	rel_offset_words = PLT_DATA_START_WORDS(num_plt_entries);
@@ -485,14 +484,14 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 }
 
 int _dl_parse_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
+	unsigned long rel_addr, unsigned long rel_size)
 {
 	return _dl_parse(rpnt->dyn, rpnt, rel_addr, rel_size, _dl_do_reloc);
 }
 
 /* Should be a static inline instead, but that conflicts with ld_elf.h */
 int _dl_parse_copy_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
+	unsigned long rel_addr, unsigned long rel_size)
 {
 	/* Not used! */
 	return 0;

@@ -424,16 +424,14 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt,
 
 void
 _dl_parse_lazy_relocation_information
-(struct dyn_elf *rpnt, unsigned long rel_addr, unsigned long rel_size,
- int type __attribute_used__)
+(struct dyn_elf *rpnt, unsigned long rel_addr, unsigned long rel_size)
 {
   _dl_parse(rpnt->dyn, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
 }
 
 int
 _dl_parse_relocation_information
-(struct dyn_elf *rpnt, unsigned long rel_addr, unsigned long rel_size,
- int type __attribute_used__)
+(struct dyn_elf *rpnt, unsigned long rel_addr, unsigned long rel_size)
 {
   return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
 }
@@ -444,8 +442,7 @@ int
 _dl_parse_copy_information
 (struct dyn_elf *rpnt __attribute_used__,
  unsigned long rel_addr __attribute_used__,
- unsigned long rel_size __attribute_used__,
- int type __attribute_used__)
+ unsigned long rel_size __attribute_used__)
 {
   return 0;
 }

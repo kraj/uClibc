@@ -235,7 +235,7 @@ unsigned long _dl_error_number;
 unsigned long _dl_internal_error_number;
 
 struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
-	struct elf_resolve *tpnt, char *full_libname, int trace_loaded_objects)
+	struct elf_resolve *tpnt, char *full_libname, int __attribute__((unused)) trace_loaded_objects)
 {
 	char *pnt, *pnt1;
 	struct elf_resolve *tpnt1;
@@ -767,7 +767,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 		tpnt->init_flag |= RELOCS_DONE;
 		goof += _dl_parse_relocation_information(rpnt,
 				tpnt->dynamic_info[DT_RELOC_TABLE_ADDR],
-				reloc_size, 0);
+				reloc_size);
 	}
 	if (tpnt->dynamic_info[DT_JMPREL] &&
 	    (!(tpnt->init_flag & JMP_RELOCS_DONE) ||
@@ -777,11 +777,11 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 		if (!(tpnt->rtld_flags & RTLD_NOW)) {
 			_dl_parse_lazy_relocation_information(rpnt,
 					tpnt->dynamic_info[DT_JMPREL],
-					tpnt->dynamic_info [DT_PLTRELSZ], 0);
+					tpnt->dynamic_info [DT_PLTRELSZ]);
 		} else {
 			goof += _dl_parse_relocation_information(rpnt,
 					tpnt->dynamic_info[DT_JMPREL],
-					tpnt->dynamic_info[DT_PLTRELSZ], 0);
+					tpnt->dynamic_info[DT_PLTRELSZ]);
 		}
 	}
 
@@ -790,7 +790,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 	tpnt->init_flag |= COPY_RELOCS_DONE;
 	goof += _dl_parse_copy_information(rpnt,
 			tpnt->dynamic_info[DT_RELOC_TABLE_ADDR],
-			tpnt->dynamic_info[DT_RELOC_TABLE_SIZE], 0);
+			tpnt->dynamic_info[DT_RELOC_TABLE_SIZE]);
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) {

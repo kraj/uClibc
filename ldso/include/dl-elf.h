@@ -59,11 +59,11 @@ static inline void _dl_unmap_cache(void) { }
 
 /* Function prototypes for non-static stuff in readelflib1.c */
 extern int _dl_parse_copy_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type);
+	unsigned long rel_addr, unsigned long rel_size);
 extern void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type);
+	unsigned long rel_addr, unsigned long rel_size);
 extern int _dl_parse_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type);
+	unsigned long rel_addr, unsigned long rel_size);
 extern struct elf_resolve * _dl_load_shared_library(int secure,
 	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname,
 	int trace_loaded_objects);

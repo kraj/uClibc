@@ -158,14 +158,14 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 }
 
 void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
+	unsigned long rel_addr, unsigned long rel_size)
 {
 	/* Nothing to do */
 	return;
 }
 
 int _dl_parse_copy_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
+	unsigned long rel_addr, unsigned long rel_size)
 {
 	/* Nothing to do */
 	return 0;
@@ -173,7 +173,7 @@ int _dl_parse_copy_information(struct dyn_elf *rpnt,
 
 
 int _dl_parse_relocation_information(struct dyn_elf *xpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
+	unsigned long rel_addr, unsigned long rel_size)
 {
 	Elf32_Sym *symtab;
 	Elf32_Rel *rpnt;

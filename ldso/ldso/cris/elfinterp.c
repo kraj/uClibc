@@ -370,26 +370,20 @@ _dl_do_copy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope, ELF_RELOC *rp
 /* External interface to the generic part of the dynamic linker. */
 
 void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
+	unsigned long rel_addr, unsigned long rel_size)
 {
-	/* Keep the compiler happy. */
-	(void) type;
 	(void)_dl_parse(rpnt->dyn, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
 }
 
 int _dl_parse_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
+	unsigned long rel_addr, unsigned long rel_size)
 {
-	/* Keep the compiler happy. */
-	(void) type;
 	return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
 }
 
 int _dl_parse_copy_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
+	unsigned long rel_addr, unsigned long rel_size)
 {
-	/* Keep the compiler happy. */
-	(void) type;
 	return _dl_parse(rpnt->dyn, rpnt->next, rel_addr, rel_size, _dl_do_copy_reloc);
 }
 

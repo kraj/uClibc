@@ -127,7 +127,7 @@ unsigned int _dl_linux_resolver (int dummy1, int dummy2,
 }
 
 void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
+	unsigned long rel_addr, unsigned long rel_size)
 {
   int i;
   char *strtab;
@@ -173,7 +173,7 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 }
 
 int _dl_parse_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
+	unsigned long rel_addr, unsigned long rel_size)
 {
   int i;
   char *strtab;
@@ -290,7 +290,7 @@ int _dl_parse_relocation_information(struct dyn_elf *rpnt,
    at all.  */
 
 int _dl_parse_copy_information(struct dyn_elf *xpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
+	unsigned long rel_addr, unsigned long rel_size)
 {
   int i;
   char *strtab;
