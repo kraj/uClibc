@@ -48,6 +48,47 @@
 #endif
 
 
+/* The current implementation of munmap in uClinux doesn't work correctly:
+   it requires that ever call to munmap exactly match a corresponding call
+   to mmap (that is, it doesn't allow you to unmap only part of a
+   previously allocated block, or to unmap two contiguous blocks with a
+   single call to munmap).  This behavior is broken, and uClinux should be
+   fixed; however, until it is, we add code to work around the problem in
+   malloc.  */
+#ifdef __UCLIBC_UCLINUX_BROKEN_MUNMAP__
+
+/* A structure recording a block of memory mmapped by malloc.  */
+struct malloc_mmb
+{
+  void *mem;			/* the mmapped block */
+  size_t size;			/* its size */
+  struct malloc_mmb *next;
+};
+
+/* A list of all malloc_mmb structures describing blocsk that malloc has
+   mmapped, ordered by the block address.  */
+extern struct malloc_mmb *__malloc_mmapped_blocks;
+
+/* A heap used for allocating malloc_mmb structures.  We could allocate
+   them from the main heap, but that tends to cause heap fragmentation in
+   annoying ways.  */
+extern struct heap __malloc_mmb_heap;
+
+/* Define MALLOC_MMB_DEBUGGING to cause malloc to emit debugging info about
+   about mmap block allocation/freeing by the `uclinux broken munmap' code
+   to stderr, when the variable __malloc_mmb_debug is set to true. */
+#ifdef MALLOC_MMB_DEBUGGING
+#include <stdio.h>
+extern int __malloc_mmb_debug;
+#define MALLOC_MMB_DEBUG(fmt, args...) \
+  (__malloc_mmb_debug ? fprintf (stderr, fmt , ##args) : 0)
+#else /* !MALLOC_MMB_DEBUGGING */
+#define MALLOC_MMB_DEBUG(fmt, args...) (void)0
+#endif /* MALLOC_MMB_DEBUGGING */
+
+#endif /* __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
+
+
 /* The size of a malloc allocation is stored in a size_t word
    MALLOC_ALIGNMENT bytes prior to the start address of the allocation:
 

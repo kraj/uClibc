@@ -19,12 +19,11 @@
 #include "heap.h"
 
 
-void
-free (void *mem)
+static void
+free_to_heap (void *mem, struct heap *heap)
 {
   size_t size;
   struct heap_free_area *fa;
-  struct heap *heap = &__malloc_heap;
 
   /* Check for special cases.  */
   if (unlikely (! mem))
@@ -38,7 +37,7 @@ free (void *mem)
   size = MALLOC_SIZE (mem);
   mem = MALLOC_BASE (mem);
 
-  __malloc_lock ();
+  __heap_lock (heap);
 
   /* Put MEM back in the heap, and get the free-area it was placed in.  */
   fa = __heap_free (heap, mem, size);
@@ -47,15 +46,20 @@ free (void *mem)
      unmapped.  */
   if (HEAP_FREE_AREA_SIZE (fa) < MALLOC_UNMAP_THRESHOLD)
     /* Nope, nothing left to do, just release the lock.  */
-    __malloc_unlock ();
+    __heap_unlock (heap);
   else
     /* Yup, try to unmap FA.  */
     {
       unsigned long start = (unsigned long)HEAP_FREE_AREA_START (fa);
       unsigned long end = (unsigned long)HEAP_FREE_AREA_END (fa);
 #ifndef MALLOC_USE_SBRK
+# ifdef __UCLIBC_UCLINUX_BROKEN_MUNMAP__
+      struct malloc_mmb *mmb, *prev_mmb;
+      unsigned long mmb_start, mmb_end;
+# else /* !__UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
       unsigned long unmap_start, unmap_end;
-#endif
+# endif /* __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
+#endif /* !MALLOC_USE_SBRK */
 
 #ifdef MALLOC_USE_SBRK
       /* Get the sbrk lock so that the two possible calls to sbrk below
@@ -75,7 +79,7 @@ free (void *mem)
 	  MALLOC_DEBUG ("  not unmapping: 0x%lx - 0x%lx (%ld bytes)\n",
 			start, end, end - start);
 	  __malloc_unlock_sbrk ();
-	  __malloc_unlock ();
+	  __heap_unlock (heap);
 	  return;
 	}
 #endif
@@ -102,13 +106,101 @@ free (void *mem)
 #ifdef MALLOC_USE_SBRK
 
       /* Release the main lock; we're still holding the sbrk lock.  */
-      __malloc_unlock ();
+      __heap_unlock (heap);
       /* Lower the brk.  */
       sbrk (start - end);
       /* Release the sbrk lock too; now we hold no locks.  */
       __malloc_unlock_sbrk ();
 
 #else /* !MALLOC_USE_SBRK */
+
+# ifdef __UCLIBC_UCLINUX_BROKEN_MUNMAP__
+      /* Using the uClinux broken munmap, we have to only munmap blocks
+	 exactly as we got them from mmap, so scan through our list of
+	 mmapped blocks, and return them in order.  */
+
+      MALLOC_MMB_DEBUG ("  walking mmb list for region 0x%x[%d]...\n", start, end - start);
+
+      prev_mmb = 0;
+      mmb = __malloc_mmapped_blocks;
+      while (mmb
+	     && ((mmb_end = (mmb_start = (unsigned long)mmb->mem) + mmb->size)
+		 <= end))
+	{
+	  MALLOC_MMB_DEBUG ("    considering mmb at 0x%x: 0x%x[%d]\n",
+			    (unsigned)mmb, mmb_start, mmb_end - mmb_start);
+
+	  if (mmb_start >= start
+	      /* If the space between START and MMB_START is non-zero, but
+		 too small to return to the heap, we can't unmap MMB.  */
+	      && (start == mmb_start
+		  || mmb_start - start > HEAP_MIN_FREE_AREA_SIZE))
+	    {
+	      struct malloc_mmb *next_mmb = mmb->next;
+
+	      if (mmb_end != end && mmb_end + HEAP_MIN_FREE_AREA_SIZE > end)
+		/* There's too little space left at the end to deallocate
+		   this block, so give up.  */
+		break;
+
+	      MALLOC_MMB_DEBUG ("      unmapping mmb at 0x%x: 0x%x[%d]\n",
+				(unsigned)mmb, mmb_start, mmb_end - mmb_start);
+
+	      if (mmb_start != start)
+		/* We're going to unmap a part of the heap that begins after
+		   start, so put the intervening region back into the heap.  */
+		{
+		  MALLOC_MMB_DEBUG ("        putting intervening region back into heap: 0x%x[%d]\n",
+				    start, mmb_start - start);
+		  __heap_free (heap, (void *)start, mmb_start - start);
+		}
+
+	      /* Unlink MMB from the list.  */
+	      if (prev_mmb)
+		prev_mmb->next = next_mmb;
+	      else
+		__malloc_mmapped_blocks = next_mmb;
+
+	      /* Release the descriptor block we used.  */
+	      free_to_heap (mmb, &__malloc_mmb_heap);
+
+	      /* Do the actual munmap.  */
+	      __heap_unlock (heap);
+	      munmap ((void *)mmb_start, mmb_end - mmb_start);
+	      __heap_lock (heap);
+
+	      /* Start searching again from the end of that block.  */
+	      start = mmb_end;
+
+#  ifdef __UCLIBC_HAS_THREADS__
+	      /* In a multi-threaded program, it's possible that PREV_MMB has
+		 been invalidated by another thread when we released the
+		 heap lock to do the munmap system call, so just start over
+		 from the beginning of the list.  It sucks, but oh well;
+		 it's probably not worth the bother to do better.  */
+	      prev_mmb = 0;
+	      mmb = __malloc_mmapped_blocks;
+#  else
+	      mmb = next_mmb;
+#  endif
+	    }
+	  else
+	    {
+	      prev_mmb = mmb;
+	      mmb = mmb->next;
+	    }
+	}
+
+      if (start != end)
+	/* Hmm, well there's something we couldn't unmap, so put it back
+	   into the heap.  */
+	{
+	  MALLOC_MMB_DEBUG ("    putting tail region back into heap: 0x%x[%d]\n",
+			    start, end - start);
+	  __heap_free (heap, (void *)start, end - start);
+	}
+
+# else /* !__UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
 
       /* MEM/LEN may not be page-aligned, so we have to page-align them,
 	 and return any left-over bits on the end to the heap.  */
@@ -133,13 +225,21 @@ free (void *mem)
 	  __heap_free (heap, (void *)unmap_end, end - unmap_end);
 	}
 
-      /* Release the malloc lock before we do the system call.  */
-      __malloc_unlock ();
+      /* Release the heap lock before we do the system call.  */
+      __heap_unlock (heap);
 
       if (unmap_end > unmap_start)
 	/* Finally, actually unmap the memory.  */
 	munmap ((void *)unmap_start, unmap_end - unmap_start);
 
+# endif /* __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
+
 #endif /* MALLOC_USE_SBRK */
     }
+}
+
+void
+free (void *mem)
+{
+  free_to_heap (mem, &__malloc_heap);
 }

@@ -19,35 +19,49 @@
 #include "heap.h"
 
 
-/* The malloc heap.  */
-struct heap __malloc_heap = HEAP_INIT;
+/* The malloc heap.  We provide a bit of initial static space so that
+   programs can do a little mallocing without mmaping in more space.  */
+HEAP_DECLARE_STATIC_FREE_AREA (initial_fa, 256);
+struct heap __malloc_heap = HEAP_INIT_WITH_FA (initial_fa);
 
-#ifdef MALLOC_USE_LOCKING
-/* A lock protecting the malloc heap.  */
-malloc_mutex_t __malloc_lock;
-# ifdef MALLOC_USE_SBRK
+#if defined(MALLOC_USE_LOCKING) && defined(MALLOC_USE_SBRK)
 /* A lock protecting our use of sbrk.  */
 malloc_mutex_t __malloc_sbrk_lock;
-# endif /* MALLOC_USE_SBRK */
-#endif /* MALLOC_USE_LOCKING */
+#endif /* MALLOC_USE_LOCKING && MALLOC_USE_SBRK */
 
 #ifdef MALLOC_DEBUGGING
 int __malloc_debug = 0;
 #endif
 
 
-void *
-malloc (size_t size)
+#ifdef __UCLIBC_UCLINUX_BROKEN_MUNMAP__
+/* A list of all malloc_mmb structures describing blocsk that
+   malloc has mmapped, ordered by the block address.  */
+struct malloc_mmb *__malloc_mmapped_blocks = 0;
+
+/* A heap used for allocating malloc_mmb structures.  We could allocate
+   them from the main heap, but that tends to cause heap fragmentation in
+   annoying ways.  */
+HEAP_DECLARE_STATIC_FREE_AREA (initial_mmb_fa, 48); /* enough for 3 mmbs */
+struct heap __malloc_mmb_heap = HEAP_INIT_WITH_FA (initial_mmb_fa);
+
+# ifdef MALLOC_MMB_DEBUGGING
+int __malloc_mmb_debug = 0;
+# endif
+#endif /* __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
+
+
+static void *
+malloc_from_heap (size_t size, struct heap *heap)
 {
   void *mem;
-  struct heap *heap = &__malloc_heap;
 
   MALLOC_DEBUG ("malloc: %d bytes\n", size);
 
   /* Include extra space to record the size of the allocated block.  */
   size += MALLOC_HEADER_SIZE;
 
-  __malloc_lock ();
+  __heap_lock (heap);
 
   /* First try to get memory that's already in our heap.  */
   mem = __heap_alloc (heap, &size);
@@ -65,14 +79,14 @@ malloc (size_t size)
 	   : MALLOC_ROUND_UP_TO_PAGE_SIZE (size));
 
 #ifdef MALLOC_USE_SBRK
-      /* Get the sbrk lock while we've still got the main lock.  */
+      /* Get the sbrk lock while we've still got the heap lock.  */
       __malloc_lock_sbrk ();
 #endif
 
-      /* Don't hold the main lock during the syscall, so that small
+      /* Don't hold the heap lock during the syscall, so that small
 	 allocations in a different thread may succeed while we're
 	 blocked.  */
-      __malloc_unlock ();
+      __heap_unlock (heap);
 
       /* Allocate the new heap block.  */
 #ifdef MALLOC_USE_SBRK
@@ -106,23 +120,53 @@ malloc (size_t size)
 
 #endif /* MALLOC_USE_SBRK */
 
-      /* Get back the main lock.  */
-      __malloc_lock ();
+      /* Get back the heap lock.  */
+      __heap_lock (heap);
 
       if (likely (block != (void *)-1))
 	{
+#if !defined(MALLOC_USE_SBRK) && defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)
+	  struct malloc_mmb *mmb, *prev_mmb, *new_mmb;
+#endif /* !MALLOC_USE_SBRK && __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
+
 	  MALLOC_DEBUG ("  adding memory: 0x%lx - 0x%lx (%d bytes)\n",
 			(long)block, (long)block + block_size, block_size);
 
 	  /* Put BLOCK into the heap.  */
 	  __heap_free (heap, block, block_size);
 
+#if !defined(MALLOC_USE_SBRK) && defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)
+	  /* Insert a record of this allocation in sorted order into the
+	     __malloc_mmapped_blocks list.  */
+
+	  for (prev_mmb = 0, mmb = __malloc_mmapped_blocks;
+	       mmb;
+	       prev_mmb = mmb, mmb = mmb->next)
+	    if (block < mmb->mem)
+	      break;
+
+	  new_mmb = malloc_from_heap (sizeof *new_mmb, &__malloc_mmb_heap);
+	  new_mmb->next = mmb;
+	  new_mmb->mem = block;
+	  new_mmb->size = block_size;
+
+	  MALLOC_MMB_DEBUG ("  new mmb at 0x%x: 0x%x[%d]\n",
+			    (unsigned)new_mmb,
+			    (unsigned)new_mmb->mem, block_size);
+
+	  if (prev_mmb)
+	    prev_mmb->next = new_mmb;
+	  else
+	    __malloc_mmapped_blocks = new_mmb;
+
+#endif /* !MALLOC_USE_SBRK && __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
+
 	  /* Try again to allocate.  */
 	  mem = __heap_alloc (heap, &size);
 	}
     }
 
-  __malloc_unlock ();
+  __heap_unlock (heap);
 
   if (likely (mem))
     /* Record the size of the block and get the user address.  */
@@ -134,4 +178,10 @@ malloc (size_t size)
     }
 
   return mem;
+}
+
+void *
+malloc (size_t size)
+{
+  return malloc_from_heap (size, &__malloc_heap);
 }

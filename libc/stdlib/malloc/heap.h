@@ -14,6 +14,13 @@
 #include <features.h>
 
 
+/* On multi-threaded systems, the heap includes a lock.  */
+#ifdef __UCLIBC_HAS_THREADS__
+# include <pthread.h>
+# define HEAP_USE_LOCKING
+#endif
+
+
 /* The heap allocates in multiples of, and aligned to, HEAP_GRANULARITY.
    HEAP_GRANULARITY must be a power of 2.  Malloc depends on this being the
    same as MALLOC_ALIGNMENT.  */
@@ -26,9 +33,26 @@ struct heap
 {
   /* A list of memory in the heap available for allocation.  */
   struct heap_free_area *free_areas;
-};
-#define HEAP_INIT 	{ 0 }
 
+#ifdef HEAP_USE_LOCKING
+  /* A lock that can be used by callers to control access to the heap.
+     The heap code _does not_ use this lock, it's merely here for the
+     convenience of users!  */
+  extern heap_mutex_t lock;
+#endif
+};
+
+/* The HEAP_INIT macro can be used as a static initializer for a heap
+   variable.  The HEAP_INIT_WITH_FA variant is used to initialize a heap
+   with an initial static free-area; its argument FA should be declared
+   using HEAP_DECLARE_STATIC_FREE_AREA.  */
+#ifdef HEAP_USE_LOCKING
+# define HEAP_INIT 		{ 0, PTHREAD_MUTEX_INITIALIZER }
+# define HEAP_INIT_WITH_FA(fa)	{ &fa._fa, PTHREAD_MUTEX_INITIALIZER }
+#else
+# define HEAP_INIT 		{ 0 }
+# define HEAP_INIT_WITH_FA(fa) 	{ &fa._fa }
+#endif
 
 /* A free-list area `header'.  These are actually stored at the _ends_ of
    free areas (to make allocating from the beginning of the area simpler),
@@ -46,6 +70,16 @@ struct heap_free_area
 #define HEAP_FREE_AREA_START(fa) ((void *)((char *)(fa + 1) - (fa)->size))
 /* Return the size of the frea area FA.  */
 #define HEAP_FREE_AREA_SIZE(fa) ((fa)->size)
+
+/* This rather clumsy macro allows one to declare a static free-area for
+   passing to HEAP_INIT_WITH_FA initializer macro.  This is only use for
+   which NAME is allowed.  */
+#define HEAP_DECLARE_STATIC_FREE_AREA(name, size)			\
+  static struct								\
+  {									\
+    char space[(size) - sizeof (struct heap_free_area)];		\
+    struct heap_free_area _fa;						\
+  } name = { "", { (size), 0, 0 } }
 
 
 /* Rounds SZ up to be a multiple of HEAP_GRANULARITY.  */
@@ -95,6 +129,16 @@ extern void __heap_dump (struct heap *heap, const char *str);
 /* Do some consistency checks on HEAP.  If they fail, output an error
    message to stderr, and exit.  STR is printed with the failure message.  */
 extern void __heap_check (struct heap *heap, const char *str);
+
+
+#ifdef HEAP_USE_LOCKING
+# define __heap_lock(heap)	pthread_mutex_lock (&(heap)->lock)
+# define __heap_unlock(heap)	pthread_mutex_unlock (&(heap)->lock)
+#else /* !__UCLIBC_HAS_THREADS__ */
+/* Without threads, mutex operations are a nop.  */
+# define __heap_lock(heap)	(void)0
+# define __heap_unlock(heap)	(void)0
+#endif /* HEAP_USE_LOCKING */
 
 
 /* Delete the free-area FA from HEAP.  */
