@@ -1,8 +1,8 @@
 /*
  * libc/stdlib/malloc/malloc.c -- malloc function
  *
- *  Copyright (C) 2002  NEC Corporation
- *  Copyright (C) 2002  Miles Bader <miles@gnu.org>
+ *  Copyright (C) 2002,03  NEC Electronics Corporation
+ *  Copyright (C) 2002,03  Miles Bader <miles@gnu.org>
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
@@ -183,6 +183,9 @@ malloc (size_t size)
   if (__malloc_check)
     __heap_check (&__malloc_heap, "malloc");
 #endif
+
+  if (size == 0)
+    return 0;
 
   return malloc_from_heap (size, &__malloc_heap);
 }
