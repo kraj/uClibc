@@ -75,11 +75,11 @@ LDFLAGS=--uclibc-use-build-dir
 ifeq ($(DODEBUG),true)
     CFLAGS+=-g
     GLIBC_CFLAGS+=-g
-    LDFLAGS = -g -Wl,-warn-common
+    LDFLAGS += -g -Wl,-warn-common
     GLIBC_LDFLAGS =-g -Wl,-warn-common 
     STRIPTOOL =true -Since_we_are_debugging
 else
-    LDFLAGS  =-s -Wl,-warn-common
+    LDFLAGS  +=-s -Wl,-warn-common
     GLIBC_LDFLAGS  =-s -Wl,-warn-common
     STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $(PROG)
 endif
