@@ -200,12 +200,13 @@ config FORCE_SHAREABLE_TEXT_SEGMENTS
 
 config UCLIBC_PIE_SUPPORT
 	bool "Support ET_DYN in shared library loader"
-	depends on BUILD_UCLIBC_LDSO
-	select FORCE_SHAREABLE_TEXT_SEGMENTS
+	depends on HAVE_SHARED
+	depends on TARGET_i386 || TARGET_powerpc
+	select FORCE_SHAREABLE_TEXT_SEGMENTS if BUILD_UCLIBC_LDSO
 	default n
 	help
-	  If you answer Y here, the uClibc native shared library loader will
-	  support ET_DYN/PIE executables.
+	  If you answer Y here, Scrt1.o will be built to allow the creation of
+	  ET_DYN/PIE executables.
 	  It requires binutils-2.14.90.0.6 or later and the usage of the
 	  -pie option.
 	  More about ET_DYN/PIE binaries on <http://pax.grsecurity.net/> .
