@@ -78,7 +78,7 @@
 
 #include "gcc-uClibc.h"
 
-static char *usr_lib_path = "-L"UCLIBC_DEVEL_PREFIX"/lib";
+static char *our_usr_lib_path = "-L"UCLIBC_DEVEL_PREFIX"/lib";
 
 static char static_linking[] = "-static";
 static char nostdinc[] = "-nostdinc";
@@ -102,26 +102,10 @@ void xstrcat(char **string, ...)
 {
 	const char *c;
 	va_list p; 
-#if 0
-	int len = 0;
-
-	/* Calculate how big exerything will be */
-	va_start(p, string);
-	while(1) {
-	    if (!(c = va_arg(p, const char *)))
-		break;
-	    len+=strlen(c);
-	}
-	va_end(p);
-	va_start(p, string);
-	*string = xmalloc(len * sizeof(const char) + 2);
-#else
-	 /* This is faster.  */
 	/* Don't bother to calculate how big exerything 
 	 * will be, just be careful to not overflow...  */
 	va_start(p, string);
 	*string = xmalloc(BUFSIZ);
-#endif
 	**string = '\0';
 	while(1) {
 	    if (!(c = va_arg(p, const char *)))
@@ -137,10 +121,11 @@ int main(int argc, char **argv)
 	int use_stdinc = 1, use_start = 1, use_stdlib = 1;
 	int source_count = 0, use_rpath = 0, verbose = 0;
 	int ctor_dtor = 0, cplusplus = 0;
-	int i, j, k, l, m;
+	int i, j, k, l, m, n;
 	char ** gcc_argv;
 	char ** gcc_argument;
 	char ** libraries;
+	char ** libpath;
 	char *dlstr;
 	char *incstr;
 	char *devprefix;
@@ -151,7 +136,7 @@ int main(int argc, char **argv)
 	char *rpath_link[2];
 	char *rpath[2];
 	char *uClibc_inc[2];
-	char *lib_path[2];
+	char *our_lib_path[2];
 	char *crt0_path[2];
 	const char *s, *application_name = argv[0];
 	char *crti_path[2];
@@ -205,8 +190,8 @@ int main(int argc, char **argv)
 	xstrcat(&(crtn_path[0]), devprefix, "/lib/crtn.o", NULL);
 	xstrcat(&(crtn_path[1]), builddir, "/lib/crtn.o", NULL);
 
-	xstrcat(&(lib_path[0]), "-L", devprefix, "/lib", NULL);
-	xstrcat(&(lib_path[1]), "-L", builddir, "/lib", NULL);
+	xstrcat(&(our_lib_path[0]), "-L", devprefix, "/lib", NULL);
+	xstrcat(&(our_lib_path[1]), "-L", builddir, "/lib", NULL);
 
 	build_dlstr = "-Wl,--dynamic-linker," BUILD_DYNAMIC_LINKER;
 	dlstr = getenv("UCLIBC_GCC_DLOPT");
@@ -227,15 +212,13 @@ int main(int argc, char **argv)
 		use_rpath = 1;
 	}
 
-#if 1
 	m = 0;
 	libraries = __builtin_alloca(sizeof(char*) * (argc));
-#else
-	if (!(libraries = malloc(sizeof(char) * (argc)))) {
-		return EXIT_FAILURE;
-	}
-#endif
 	libraries[m] = '\0';
+
+	n = 0;
+	libpath = __builtin_alloca(sizeof(char*) * (argc));
+	libpath[n] = '\0';
 
 	for ( i = 1 ; i < argc ; i++ ) {
 		if (argv[i][0] == '-') { /* option */
@@ -248,9 +231,20 @@ int main(int argc, char **argv)
 				case 'M':	    /* generate dependencies */
 					linking = 0;
 					break;
+				case 'L': 		/* library */
+					libpath[n++] = argv[i];
+					libpath[n] = '\0';
+					if (argv[i][2] == 0) {
+					    argv[i] = '\0';
+					    libpath[n++] = argv[++i];
+					    libpath[n] = '\0';
+					}
+					argv[i] = '\0';
+					break;
 				case 'l': 		/* library */
 					libraries[m++] = argv[i];
 					libraries[m] = '\0';
+					argv[i] = '\0';
 					break;
 				case 'v':		/* verbose */
 					if (argv[i][2] == 0) verbose = 1;
@@ -285,7 +279,14 @@ int main(int argc, char **argv)
 					break;
 				case '-':
 					if (strstr(argv[i]+1,static_linking) != NULL) {
-						use_static_linking = 1;
+					    use_static_linking = 1;
+					    argv[i]='\0';
+					} else if (strcmp("--uclibc-use-build-dir",argv[i]) == 0) {
+					    use_build_dir = 1;
+					    argv[i]='\0';
+					} else if (strcmp("--uclibc-use-rpath",argv[i]) == 0) {
+					    use_rpath = 1;
+					    argv[i]='\0';
 					}
 					break;
 			}
@@ -294,17 +295,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-#if 1
 	gcc_argv = __builtin_alloca(sizeof(char*) * (argc + 20));
 	gcc_argument = __builtin_alloca(sizeof(char*) * (argc + 20));
-#else
-	if (!(gcc_argv = malloc(sizeof(char) * (argc + 20)))) {
-		return EXIT_FAILURE;
-	}
-	if (!(gcc_argument = malloc(sizeof(char) * (argc + 20)))) {
-		return EXIT_FAILURE;
-	}
-#endif
 
 	i = 0; k = 0;
 	if (cplusplus && GPLUSPLUS_BIN)
@@ -313,18 +305,8 @@ int main(int argc, char **argv)
 	    gcc_argv[i++] = GCC_BIN;
 	
 	for ( j = 1 ; j < argc ; j++ ) {
-		if (strcmp("--uclibc-use-build-dir",argv[j]) == 0) {
-			use_build_dir = 1;
-		} else if (strcmp("--uclibc-use-rpath",argv[j]) == 0) {
-			use_rpath = 1;
-		} else if (strncmp("-l",argv[j], 2) == 0) {
-			continue;
-		} else if (strstr(argv[j],static_linking) != NULL) {
-			continue;
-#if 0
-		} else if (strncmp("-v",argv[j], 2) == 0) {
+		if (argv[j]=='\0') {
 		    continue;
-#endif
 		} else {
 			gcc_argument[k++] = argv[j];
 			gcc_argument[k] = '\0';
@@ -348,12 +330,15 @@ int main(int argc, char **argv)
 		    gcc_argv[i++] = rpath[use_build_dir];
 		}
 	    }
+	    for ( l = 0 ; l < n ; l++ ) {
+		if (libpath[l]) gcc_argv[i++] = libpath[l];
+	    }
 	    gcc_argv[i++] = rpath_link[use_build_dir]; /* just to be safe */
 	    if( libstr )
 		gcc_argv[i++] = libstr;
-	    gcc_argv[i++] = lib_path[use_build_dir];
+	    gcc_argv[i++] = our_lib_path[use_build_dir];
 	    if (!use_build_dir) {
-		gcc_argv[i++] = usr_lib_path;
+		gcc_argv[i++] = our_usr_lib_path;
 	    }
 	}
 	if (use_stdinc && source_count) {
@@ -380,7 +365,7 @@ int main(int argc, char **argv)
 	    if (use_stdlib) {
 		//gcc_argv[i++] = "-Wl,--start-group";
 		gcc_argv[i++] = "-lgcc";
-		for ( l = m ; l >= 0 ; l-- ) {
+		for ( l = 0 ; l < m ; l++ ) {
 		    if (libraries[l]) gcc_argv[i++] = libraries[l];
 		}
 		gcc_argv[i++] = "-lc";
