@@ -29,10 +29,9 @@ typedef int heap_mutex_t;
 #endif
 
 
-
-/* The unit in which allocation is done, due to alignment constraints, etc.
-   All allocation requests are rounded up to a multiple of this size.
-   Must be a power of 2.  */
+/* The heap allocates in multiples of, and aligned to, HEAP_GRANULARITY.
+   HEAP_GRANULARITY must be a power of 2.  Malloc depends on this being the
+   same as MALLOC_ALIGNMENT.  */
 #define HEAP_GRANULARITY	(sizeof (double))
 
 
@@ -40,10 +39,11 @@ typedef int heap_mutex_t;
    of memory can be allocated.  */
 struct heap
 {
+  /* A list of memory in the heap available for allocation.  */
   struct heap_free_area *free_areas;
+
   heap_mutex_t lock;
 };
-
 #define HEAP_INIT 	{ 0, HEAP_MUTEX_INIT }
 
 
@@ -61,6 +61,8 @@ struct heap_free_area
 /* Return the address of the beginning of the frea area FA.  FA is
    evaulated multiple times.  */
 #define HEAP_FREE_AREA_START(fa) ((void *)((char *)(fa + 1) - (fa)->size))
+/* Return the size of the frea area FA.  */
+#define HEAP_FREE_AREA_SIZE(fa) ((fa)->size)
 
 
 /* Rounds SZ up to be a multiple of HEAP_GRANULARITY.  */
@@ -74,6 +76,8 @@ struct heap_free_area
   (sizeof (struct heap_free_area) + HEAP_ADJUST_SIZE (1))
 
 
+/* Change this to `#if 1' to cause the heap routines to emit debugging info
+   to stderr.  */
 #if 0
 #include <stdio.h>
 static void HEAP_DEBUG (struct heap *heap, const char *str)
@@ -81,18 +85,24 @@ static void HEAP_DEBUG (struct heap *heap, const char *str)
   static int recursed = 0;
   if (! recursed)
     {
-      struct heap_free_area *fa;
+      struct heap_free_area *fa, *prev;
       recursed = 1;
       fprintf (stderr, "  %s: heap @0x%lx:\n", str, (long)heap);
-      for (fa = heap->free_areas; fa; fa = fa->next)
-	fprintf (stderr,
-		 "    0x%lx:  0x%lx - 0x%lx  (%d)\tN=0x%lx, P=0x%lx\n",
-		 (long)fa,
-		 (long)HEAP_FREE_AREA_START (fa),
-		 (long)HEAP_FREE_AREA_END (fa),
-		 fa->size,
-		 (long)fa->prev,
-		 (long)fa->next);
+      for (prev = 0, fa = heap->free_areas; fa; prev = fa, fa = fa->next)
+	{
+	  fprintf (stderr,
+		   "    0x%lx:  0x%lx - 0x%lx  (%d)\tP=0x%lx, N=0x%lx\n",
+		   (long)fa,
+		   (long)HEAP_FREE_AREA_START (fa),
+		   (long)HEAP_FREE_AREA_END (fa),
+		   fa->size,
+		   (long)fa->prev,
+		   (long)fa->next);
+	  if (fa->prev != prev)
+	    fprintf (stderr,
+		     "      PREV POINTER CORRUPTED!!!!  P=0x%lx should be 0x%lx\n",
+		     (long)fa->prev, (long)prev);
+	}
       recursed = 0;
     }
 }
@@ -100,6 +110,18 @@ static void HEAP_DEBUG (struct heap *heap, const char *str)
 #define HEAP_DEBUG(heap, str) (void)0
 #endif
 
+
+/* Remove the free-area FA from HEAP.  */
+extern inline void
+__heap_unlink_free_area (struct heap *heap, struct heap_free_area *fa)
+{
+      if (fa->next)
+	fa->next->prev = fa->prev;
+      if (fa->prev)
+	fa->prev->next = fa->next;
+      else
+	heap->free_areas = fa->next;
+}
 
 /* Allocate SIZE bytes from the front of the free-area FA in HEAP, and
    return the amount actually allocated (which may be more than SIZE).  */
@@ -113,12 +135,7 @@ __heap_free_area_alloc (struct heap *heap,
     /* There's not enough room left over in FA after allocating the block, so
        just use the whole thing, removing it from the list of free areas.  */
     {
-      if (fa->next)
-	fa->next->prev = fa->prev;
-      if (fa->prev)
-	fa->prev->next = fa->next;
-      else
-	heap->free_areas = fa->next;
+      __heap_unlink_free_area (heap, fa);
       /* Remember that we've alloced the whole area.  */
       size = fa_size;
     }
@@ -139,10 +156,7 @@ extern void *__heap_alloc (struct heap *heap, size_t *size);
    allocated, or 0 if we failed.  */
 extern size_t __heap_alloc_at (struct heap *heap, void *mem, size_t size);
 
-/* Return the memory area MEM of size SIZE to HEAP.  */
-extern void __heap_free (struct heap *heap, void *mem, size_t size);
-
-/* If the memory area MEM, of size SIZE, immediately follows an existing
-   free-area in HEAP, use it to extend that free-area, and return true;
-   otherwise return false.  */
-extern int __heap_append_free (struct heap *heap, void *mem, size_t size);
+/* Return the memory area MEM of size SIZE to HEAP.
+   Returns the heap free area into which the memory was placed.  */
+extern struct heap_free_area *__heap_free (struct heap *heap,
+					   void *mem, size_t size);

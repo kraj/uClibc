@@ -25,7 +25,7 @@ void *realloc (void *mem, size_t new_size)
     return malloc (new_size);
   else
     {
-      void *base_mem = (size_t *)mem - 1;
+      void *base_mem = mem - MALLOC_ALIGNMENT;
       size_t size = *(size_t *)base_mem;
 
       MALLOC_DEBUG ("realloc: 0x%lx, %d (base = 0x%lx, total_size = %d)\n",
@@ -39,20 +39,7 @@ void *realloc (void *mem, size_t new_size)
 	  size_t ext_size = new_size - size;
 	  void *ext_addr = (char *)base_mem + ext_size;
 
-	  if (size >= MALLOC_MMAP_THRESHOLD)
-	    /* Try to extend this block in place using mmap.  */
-	    {
-	      ext_size += MALLOC_ROUND_UP_TO_PAGE_SIZE (ext_size);
-
-	      new_mem = mmap (ext_addr, ext_size, PROT_READ | PROT_WRITE,
-			      MAP_FIXED | MAP_SHARED | MAP_ANONYMOUS, 0, 0);
-	      if (new_mem == MAP_FAILED)
-		/* Can't do it.  */
-		ext_size = 0;
-	    }
-	  else
-	    ext_size = __heap_alloc_at (&__malloc_heap, ext_addr, ext_size);
-
+	  ext_size = __heap_alloc_at (&__malloc_heap, ext_addr, ext_size);
 	  if (! ext_size)
 	    /* Our attempts to extend MEM in place failed, just
 	       allocate-and-copy.  */

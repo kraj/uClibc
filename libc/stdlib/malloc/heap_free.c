@@ -17,7 +17,7 @@
 
 
 /* Return the memory area MEM of size SIZE to HEAP.  */
-void
+struct heap_free_area *
 __heap_free (struct heap *heap, void *mem, size_t size)
 {
   struct heap_free_area *prev_fa, *fa, *new_fa;
@@ -120,8 +120,12 @@ __heap_free (struct heap *heap, void *mem, size_t size)
   if (fa)
     fa->prev = new_fa;
 
+  fa = new_fa;
+
  done:
   HEAP_DEBUG (heap, "after __heap_free");
 
   __heap_unlock (heap);
+
+  return fa;
 }
