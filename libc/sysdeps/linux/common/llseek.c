@@ -49,15 +49,13 @@ loff_t __libc_lseek64(int fd, loff_t offset, int whence)
 	return(loff_t)(INLINE_SYSCALL (_llseek, 5, fd, (off_t) (offset >> 32), 
 				(off_t) (offset & 0xffffffff), &result, whence) ?: result);
 }
-weak_alias(__libc_lseek64, llseek);
-weak_alias(__libc_lseek64, lseek64);
 #else
 extern __off_t __libc_lseek(int fildes, off_t offset, int whence);
 loff_t __libc_lseek64(int fd, loff_t offset, int whence)
 {
 	return(loff_t)(__libc_lseek(fd, (off_t) (offset & 0xffffffff), whence));
 }
-weak_alias(__libc_lseek, llseek)
-weak_alias(__libc_lseek, lseek64)
 #endif
+weak_alias(__libc_lseek64, llseek);
+weak_alias(__libc_lseek64, lseek64);
 

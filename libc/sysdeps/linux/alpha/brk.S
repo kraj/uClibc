@@ -24,16 +24,17 @@
 #include <features.h>
 #define _ERRNO_H
 #include <bits/errno.h>
+#include <sys/syscall.h>
 
 #ifdef __PIC__
 .section .bss
 	.align 3
-	.globl __curbrk
-__curbrk: .skip 8
-	.type __curbrk,@object
-	.size __curbrk,8
+	.globl ___brk_addr
+___brk_addr: .skip 8
+	.type ___brk_addr,@object
+	.size ___brk_addr,8
 #else
-.comm __curbrk, 8
+.comm ___brk_addr, 8
 #endif
 
 	.text
@@ -70,9 +71,9 @@ __brk:
 	xor	$16, $0, $1
 	bne	$1, $err0
 
-	/* Update __curbrk and return cleanly.  */
+	/* Update ___brk_addr and return cleanly.  */
 	mov	$31, $0
-$ok:	stq	$16, __curbrk
+$ok:	stq	$16, ___brk_addr
 	addq	$30, 8, $30
 	ret
 
