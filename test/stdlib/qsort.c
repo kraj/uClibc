@@ -19,6 +19,7 @@ int main(void)
 
     int i, numdir;        
 
+    chdir("/");
     numdir = scandir(".", &array, select_files, NULL);
     printf("\nGot %d entries from scandir().\n", numdir);              
     for (i = 0; i < numdir; ++i) {      
