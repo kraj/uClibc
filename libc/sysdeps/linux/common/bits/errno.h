@@ -19,10 +19,7 @@
 
 #ifdef _ERRNO_H
 
-# undef EDOM
-# undef EILSEQ
-# undef ERANGE
-# include <linux/errno.h>
+# include <bits/errno_values.h>
 
 /* Linux has no ENOTSUP error code.  */
 # define ENOTSUP EOPNOTSUPP
@@ -52,11 +49,3 @@ extern int *__errno_location (void) __THROW __attribute__ ((__const__));
 # endif /* !__ASSEMBLER__ */
 #endif /* _ERRNO_H */
 
-#if !defined _ERRNO_H && defined __need_Emath
-/* This is ugly but the kernel header is not clean enough.  We must
-   define only the values EDOM, EILSEQ and ERANGE in case __need_Emath is
-   defined.  */
-# define EDOM	33	/* Math argument out of domain of function.  */
-# define EILSEQ	84	/* Illegal byte sequence.  */
-# define ERANGE	34	/* Math result not representable.  */
-#endif /* !_ERRNO_H && __need_Emath */
