@@ -170,9 +170,8 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	unsigned long insn_addr;
 	unsigned long *insns;
 	unsigned long new_addr;
+	char *symname;
 	int delta;
-
-	//DPRINTF("linux_resolver tpnt=%x reloc_entry=%x\n", tpnt, reloc_entry);
 
 	rel_addr = (ELF_RELOC *) (tpnt->dynamic_info[DT_JMPREL] + tpnt->loadaddr);
 
@@ -182,8 +181,10 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+	symname      = strtab + symtab[symtab_index].st_name;
 
 #if defined (__SUPPORT_LD_DEBUG__)
+	debug_sym(symtab,strtab,symtab_index);
 	debug_reloc(symtab,strtab,this_reloc);
 #endif
 
@@ -196,7 +197,10 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	insn_addr = (unsigned long) tpnt->loadaddr +
 		(unsigned long) this_reloc->r_offset;
 
-	//DPRINTF("Resolving symbol %s %x --> ", strtab + symtab[symtab_index].st_name, insn_addr);
+#if defined (__SUPPORT_LD_DEBUG__)
+	if(_dl_debug_reloc && _dl_debug_detail)
+		_dl_dprintf(_dl_debug_file, "\n\tResolving symbol %s %x --> ", symname, insn_addr);
+#endif
 
 	/* Get the address of the GOT entry */
 	new_addr = (unsigned long) _dl_find_hash(
@@ -204,10 +208,14 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		tpnt->symbol_scope, tpnt, resolver);
 	if (!new_addr) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", 
-			_dl_progname, strtab + symtab[symtab_index].st_name);
+			_dl_progname, symname);
 		_dl_exit(1);
 	};
-	//DPRINTF("%x\n", new_addr);
+
+#if defined (__SUPPORT_LD_DEBUG__)
+	if(_dl_debug_reloc && _dl_debug_detail)
+		_dl_dprintf(_dl_debug_file, "%x\n", new_addr);
+#endif
 
 	insns = (unsigned long *)insn_addr;
 	delta = new_addr - insn_addr;
@@ -442,7 +450,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 				break;
 #else
 				_dl_dprintf(2, "%s: symbol '%s' is type R_PPC_REL24\n\tCompile shared libraries with -fPIC!\n",
-						_dl_progname, strtab + symtab[symtab_index].st_name);
+						_dl_progname, symname);
 				_dl_exit(1);
 #endif
 			case R_PPC_RELATIVE:
