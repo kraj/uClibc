@@ -5,7 +5,6 @@
 #include <features.h>
 #include <asm/asm.h>
 #include <asm/unistd.h>
-#include <asm/mipsregs.h>
 #include <asm/regdef.h>
 
         .globl  pipe
