@@ -384,6 +384,9 @@ int __pthread_initialize_manager(void)
 		   | __pthread_initial_thread.p_eventbuf.eventmask.event_bits[idx]))
 	  != 0)
 	{
+
+         __pthread_lock(__pthread_manager_thread.p_lock, NULL);
+
 	  pid = clone(__pthread_manager_event,
 			(void **) __pthread_manager_thread_tos,
 			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND,
@@ -404,10 +407,9 @@ int __pthread_initialize_manager(void)
 
 	      /* Now call the function which signals the event.  */
 	      __linuxthreads_create_event ();
-
-	      /* Now restart the thread.  */
-	      __pthread_unlock(__pthread_manager_thread.p_lock);
 	    }
+	  /* Now restart the thread.  */
+	  __pthread_unlock(__pthread_manager_thread.p_lock);
 	}
     }
 
