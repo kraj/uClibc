@@ -27,9 +27,12 @@ include $(TOPDIR)Rules.mak
 
 DIRS = assert ctype dirent file fnmatch glob internals \
        mntent syslog time utmp sysvipc statfs \
-       error ttyent gnu search intl locale 
+       error ttyent gnu search intl locale
 ifeq ($(strip $(UCLIBC_HAS_REGEX)),y)
 DIRS += regex
+endif
+ifeq ($(strip $(UCLIBC_HAS_WORDEXP)),y)
+DIRS += wordexp
 endif
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 DIRS += pthread
