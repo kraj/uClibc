@@ -41,6 +41,16 @@ extern int __compare_and_swap (long int *p, long int oldval, long int newval);
 #define CURRENT_STACK_FRAME  stack_pointer
 register char * stack_pointer __asm__ ("r1");
 
+/* Register r2 (tp) is reserved by the ABI as "thread pointer". */
+struct _pthread_descr_struct;
+register struct _pthread_descr_struct *__thread_self __asm__("r2");
+
+/* Return the thread descriptor for the current thread.  */
+#define THREAD_SELF  __thread_self
+
+/* Initialize the thread-unique value.  */
+#define INIT_THREAD_SELF(descr, nr)  (__thread_self = (descr))
+
 /* Compare-and-swap for semaphores. */
 /* note that test-and-set(x) is the same as !compare-and-swap(x, 0, 1) */
 
