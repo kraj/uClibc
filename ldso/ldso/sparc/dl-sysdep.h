@@ -107,3 +107,6 @@ sparc_mod(unsigned long m, unsigned long p)
 #define elf_machine_type_class(type) \
   ((((type) == R_SPARC_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)			      \
    | (((type) == R_SPARC_COPY) * ELF_RTYPE_CLASS_COPY))
+
+/* The SPARC overlaps DT_RELA and DT_PLTREL.  */
+#define ELF_MACHINE_PLTREL_OVERLAP 1

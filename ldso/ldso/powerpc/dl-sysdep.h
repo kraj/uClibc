@@ -87,3 +87,7 @@ void _dl_init_got(unsigned long *lpnt,struct elf_resolve *tpnt);
     || (type) == R_PPC_REL24				\
     || (type) == R_PPC_ADDR24) * ELF_RTYPE_CLASS_PLT)	\
    | (((type) == R_PPC_COPY) * ELF_RTYPE_CLASS_COPY))
+
+/* The SVR4 ABI specifies that the JMPREL relocs must be inside the
+   DT_RELA table.  */
+#define ELF_MACHINE_PLTREL_OVERLAP 1

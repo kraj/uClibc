@@ -734,6 +734,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int flag)
 {
 	int goof = 0;
 	struct elf_resolve *tpnt;
+	unsigned long reloc_size;
 
 	if (rpnt->next)
 		goof += _dl_fixup(rpnt->next, flag);
@@ -754,13 +755,21 @@ int _dl_fixup(struct dyn_elf *rpnt, int flag)
 		return goof;
 	}
 
+/* On some machines, notably SPARC & PPC, DT_REL* includes DT_JMPREL in its
+   range.  Note that according to the ELF spec, this is completely legal! */
+#ifdef ELF_MACHINE_PLTREL_OVERLAP
+	reloc_size = tpnt->dynamic_info[DT_RELOC_TABLE_SIZE] - 
+		tpnt->dynamic_info [DT_PLTRELSZ];
+#else
+	reloc_size = tpnt->dynamic_info[DT_RELOC_TABLE_SIZE];
+#endif
 	if (tpnt->dynamic_info[DT_RELOC_TABLE_ADDR]) {
 		if (tpnt->init_flag & RELOCS_DONE)
 			return goof;
 		tpnt->init_flag |= RELOCS_DONE;
 		goof += _dl_parse_relocation_information(rpnt,
 				tpnt->dynamic_info[DT_RELOC_TABLE_ADDR],
-				tpnt->dynamic_info[DT_RELOC_TABLE_SIZE], 0);
+				reloc_size, 0);
 	}
 
 	if (tpnt->dynamic_info[DT_JMPREL]) {
