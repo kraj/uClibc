@@ -48,7 +48,7 @@ malloc (size_t size)
   /* First try to get memory that's already in our heap.  */
   mem = __heap_alloc (heap, &size);
 
-  if (__malloc_unlikely (! mem))
+  if (unlikely (! mem))
     /* We couldn't allocate from the heap, so grab some more
        from the system, add it to the heap, and try again.  */
     {
@@ -76,7 +76,7 @@ malloc (size_t size)
       /* Use sbrk we can, as it's faster than mmap, and guarantees
 	 contiguous allocation.  */
       block = sbrk (block_size);
-      if (__malloc_likely (block != (void *)-1))
+      if (likely (block != (void *)-1))
 	{
 	  /* Because sbrk can return results of arbitrary
 	     alignment, align the result to a MALLOC_ALIGNMENT boundary.  */
@@ -105,7 +105,7 @@ malloc (size_t size)
       /* Get back the main lock.  */
       __malloc_lock ();
 
-      if (__malloc_likely (block != (void *)-1))
+      if (likely (block != (void *)-1))
 	{
 	  MALLOC_DEBUG ("  adding memory: 0x%lx - 0x%lx (%d bytes)\n",
 			(long)block, (long)block + block_size, block_size);
@@ -120,7 +120,7 @@ malloc (size_t size)
 
   __malloc_unlock ();
 
-  if (__malloc_likely (mem))
+  if (likely (mem))
     /* Record the size of the block and get the user address.  */
     {
       mem = MALLOC_SETUP (mem, size);

@@ -27,7 +27,7 @@ free (void *mem)
   struct heap *heap = &__malloc_heap;
 
   /* Check for special cases.  */
-  if (__malloc_unlikely (! mem))
+  if (unlikely (! mem))
     return;
 
   /* Normal free.  */
