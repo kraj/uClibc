@@ -30,7 +30,7 @@ __sigsetjmp:
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
 	sfmea   f4, 4, [r0]!
 #else
-	sub     r0, r0, #48		/* skip the FP registers */
+	add     r0, r0, #48		/* skip the FP registers */
 #endif
 	stmia   r0, {v1-v6, sl, fp, sp, lr}
 
