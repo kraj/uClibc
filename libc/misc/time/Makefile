@@ -27,7 +27,8 @@ include $(TOPDIR)Rules.mak
 MSRC= time.c
 MOBJ= asctime.o asctime_r.o clock.o ctime.o ctime_r.o gmtime.o gmtime_r.o \
 	localtime.o localtime_r.o mktime.o strftime.o strptime.o tzset.o \
-	_time_t2tm.o __time_tm.o _time_mktime.o dysize.o timegm.o
+	_time_t2tm.o __time_tm.o _time_mktime.o dysize.o timegm.o \
+	_time_mktime_tzi.o _time_localtime_tzi.o
 MOBJx=
 
 ifeq ($(UCLIBC_HAS_FLOATS),y)
