@@ -59,6 +59,7 @@ config CONFIG_SH4
 
 config CONFIG_SH5
 	select UCLIBC_HAS_MMU
+	select UCLIBC_HAS_LFS
 	bool "SH5"
 
 endchoice
