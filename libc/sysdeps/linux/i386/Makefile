@@ -26,8 +26,7 @@ LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
 ASMSRC=syscalls.S
-#The file makefile.objs defines $(ASMOBJS)
-include makefile.objs
+ASMOBJS=$(shell ./list_syscalls.sh)
 
 SSRC=_start.S setjmp.S longjmp.S #fork.S #clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
