@@ -1,8 +1,8 @@
 /*
  * libc/sysdeps/linux/v850/longjmp.S -- `longjmp' for v850
  *
- *  Copyright (C) 2001  NEC Corporation
- *  Copyright (C) 2001  Miles Bader <miles@gnu.org>
+ *  Copyright (C) 2001,02  NEC Corporation
+ *  Copyright (C) 2001,02  Miles Bader <miles@gnu.org>
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
@@ -37,12 +37,6 @@ C_ENTRY(__longjmp):
 	mov	1, r10			// return val
 	jmp	[lp]
 C_END(__longjmp)
-
-.weak C_SYMBOL_NAME(longjmp)
-C_SYMBOL_NAME(longjmp) = C_SYMBOL_NAME(__longjmp)
-
-.weak C_SYMBOL_NAME(siglongjmp)
-C_SYMBOL_NAME(siglongjmp) = C_SYMBOL_NAME(__longjmp)
 
 .weak C_SYMBOL_NAME(__sigprocmask)
 C_SYMBOL_NAME(__sigprocmask) = C_SYMBOL_NAME(sigprocmask)
