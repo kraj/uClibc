@@ -83,7 +83,10 @@ extern int isxupper(int c) __THROW;	/* uClibc-specific. */
 /* Apparently, glibc implements things as macros if __NO_CTYPE isn't defined.
  * If we don't have locale support, we'll do the same.  Otherwise, we'll
  * only use macros for the supported-locale-invariant cases. */
-#ifndef __NO_CTYPE
+#if 0
+/* Currently broken, since masking macros, other than getc and putc, must
+ * evaluate their args exactly once.  Will be fixed by the next release.  mjn3 */
+/* #ifndef __NO_CTYPE */
 
 #define isdigit(c)	__isdigit(c)
 #define isxdigit(c)	__isxdigit(c)
