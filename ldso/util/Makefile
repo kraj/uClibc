@@ -25,9 +25,6 @@ include $(TOPDIR)Rules.mak
 TARGET_CC = $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 TARGETS = elf_header ldd readelf
-ifeq ($(strip $(CROSS)),)
-TARGETS += ldd.target readelf.target
-endif
 ifneq ($(strip $(LIBRARY_CACHE)),)
 TARGETS += ldconfig
 endif
