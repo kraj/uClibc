@@ -1,4 +1,4 @@
-/*  Copyright (C) 2002     Manuel Novoa III
+/*  Copyright (C) 2002,2003,2004     Manuel Novoa III
  *  My stdio library for linux and (soon) elks.
  *
  *  This library is free software; you can redistribute it and/or
@@ -80,6 +80,12 @@
  *
  * Nov 17, 2003
  * Fix the return value for fputs when passed an empty string.
+ *
+ * Jan 1, 2004
+ * Fix __freadable and __fwritable... were using '~' instead of '!'. (ugh)
+ * Fix (hopefully) a potential problem with failed freopen() calls.  The
+ *   fix isn't tested since I've been working on the replacement stdio
+ *   core code which will go in after the next release.
  */
 
 /* Before we include anything, convert L_ctermid to L_ctermid_function
@@ -984,7 +990,7 @@ int __fwriting(FILE * __restrict stream)
 
 int __freadable(FILE * __restrict stream)
 {
-	return ~(stream->modeflags & __FLAG_WRITEONLY);
+	return !(stream->modeflags & __FLAG_WRITEONLY);
 }
 
 #endif
@@ -995,7 +1001,7 @@ int __freadable(FILE * __restrict stream)
 
 int __fwritable(FILE * __restrict stream)
 {
-	return ~(stream->modeflags & __FLAG_READONLY);
+	return !(stream->modeflags & __FLAG_READONLY);
 }
 
 #endif
@@ -2352,9 +2358,6 @@ FILE *_stdio_fopen(const char * __restrict filename,
 			open_mode = (O_WRONLY | O_CREAT | O_APPEND);
 			if (*mode != 'a') {	/* not write (create or append) */
 				__set_errno(EINVAL); /* then illegal mode */
-				if (stream) {	/* If this is freopen, free the stream. */
-					goto FREE_STREAM;
-				}
 				return NULL;
 			}
 		}
@@ -2450,7 +2453,6 @@ FILE *_stdio_fopen(const char * __restrict filename,
 	}
 
 	if (stream->filedes < 0) {
-	FREE_STREAM:
 #ifdef __STDIO_BUFFERS
 		if (stream->modeflags & __FLAG_FREEBUF) {
 			free(stream->bufstart);
@@ -2543,8 +2545,8 @@ FILE *freopen(const char * __restrict filename, const char * __restrict mode,
 	 * supports this, so we don't here.
 	 *
 	 * NOTE: Whether or not the stream is free'd on failure is unclear
-	 *       w.r.t. ANSI/ISO.  This implementation chooses to free the
-	 *       stream and associated buffer if they were dynamically
+	 *       w.r.t. ANSI/ISO.  This implementation chooses to NOT free
+	 *       the stream and associated buffer if they were dynamically
 	 *       allocated.
 	 * TODO: Check the above.
 	 * TODO: Apparently linux allows setting append mode.  Implement?
@@ -2564,9 +2566,10 @@ FILE *freopen(const char * __restrict filename, const char * __restrict mode,
 
 	stream->modeflags &= ~(__FLAG_FREEBUF|__FLAG_FREEFILE);
 	fclose(stream);				/* Failures are ignored. */
-	stream->modeflags = dynmode;
 
 	fp = _stdio_fopen(filename, mode, stream, -1);
+
+	stream->modeflags |= dynmode;
 
 	__STDIO_THREADUNLOCK(stream);
 
