@@ -550,14 +550,14 @@ extern void *calloc (size_t __nmemb, size_t __size)
 /* Cope with autoconf's broken AC_FUNC_MALLOC macro, which
  * redefines malloc to rpl_malloc if it does not detect glibc
  * style returning-a-valid-pointer-for-malloc(0) behavior.  This
- * calls malloc() as usual, but if N is zero, we allocate and
+ * calls malloc() as usual, but if __size is zero, we allocate and
  * return a 1-byte block instead....  sigh... */ 
-static inline char * rpl_malloc (size_t N)
+static __inline char * rpl_malloc (size_t __size)
 {
-    if (N == 0) {
-	N++; 
+    if (__size == 0) {
+	__size++; 
     }
-    return malloc (N);
+    return malloc(__size);
 }   
 #endif
 
