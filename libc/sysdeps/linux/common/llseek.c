@@ -56,6 +56,7 @@ loff_t __libc_lseek64(int fd, loff_t offset, int whence)
 	return(loff_t)(__libc_lseek(fd, (off_t) (offset & 0xffffffff), whence));
 }
 #endif
+weak_alias(__libc_lseek64, _llseek);
 weak_alias(__libc_lseek64, llseek);
 weak_alias(__libc_lseek64, lseek64);
 
