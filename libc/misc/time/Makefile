@@ -24,13 +24,16 @@ TOPDIR=../
 include $(TOPDIR)Rules.make
 LIBC=$(TOPDIR)libc.a
 
-OBJ=localtime.o gmtime.o asctime.o ctime.o asc_conv.o tm_conv.o mktime.o \
-	localtime_r.o gmtime_r.o asctime_r.o ctime_r.o
+CSRC=localtime.c gmtime.c asctime.c ctime.c asc_conv.c tm_conv.c mktime.c \
+	localtime_r.c gmtime_r.c asctime_r.c ctime_r.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(OBJ) $(LIBC)
+all: $(COBJS) $(LIBC)
 
-$(LIBC): $(OBJ)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJ)
+$(LIBC): $(COBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(COBJS)
+
+$(COBJS): Makefile
 
 clean:
 	rm -f *.[oa] *~ core
