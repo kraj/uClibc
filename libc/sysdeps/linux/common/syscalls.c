@@ -1413,8 +1413,7 @@ _syscall4(ssize_t,sendfile, int, out_fd, int, in_fd, off_t *, offset, size_t, co
 #ifdef L_truncate64
 #ifdef __UCLIBC_HAVE_LFS__
 #include <bits/wordsize.h>
-/* We only implement truncate64/ftruncate64 on 64-bit systems, because 
- * Using _syscall2 to pass 64-bit arguments generally only works on 64-bit 
+/* Using _syscall2 to pass 64-bit arguments generally only works on 64-bit 
  * systems, so we only implement truncate64/ftruncate64 in that case.  Ports 
  * for processors with shorter word-lengths should define their own custom 
  * versions instead.  */
@@ -1429,8 +1428,7 @@ _syscall2(int, truncate64, const char *, path, __off64_t, length);
 #ifdef L_ftruncate64
 #ifdef __UCLIBC_HAVE_LFS__
 #include <bits/wordsize.h>
-/* We only implement truncate64/ftruncate64 on 64-bit systems, because 
- * Using _syscall2 to pass 64-bit arguments generally only works on 64-bit 
+/* Using _syscall2 to pass 64-bit arguments generally only works on 64-bit 
  * systems, so we only implement truncate64/ftruncate64 in that case.  Ports 
  * for processors with shorter word-lengths should define their own custom 
  * versions instead.  */
