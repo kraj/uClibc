@@ -144,14 +144,6 @@ void *dlopen(const char *libname, int flag)
 
 	from = (ElfW(Addr)) __builtin_return_address(0);
 
-	/* Have the dynamic linker use the regular malloc function now */
-	if (!dl_init) {
-		dl_init++;
-#if defined (__LIBDL_SHARED__)
-		_dl_malloc_function = malloc;
-#endif
-	}
-
 	/* Cover the trivial case first */
 	if (!libname)
 		return _dl_symbol_tables;

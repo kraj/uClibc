@@ -45,7 +45,7 @@ int _dl_secure                 = 1;		/* Are we dealing with setuid stuff? */
 int _dl_errno                  = 0;     /* We can't use the real errno in ldso */
 size_t _dl_pagesize            = 0;		/* Store the page size for use later */
 struct r_debug *_dl_debug_addr = NULL;  /* Used to communicate with the gdb debugger */
-
+void *(*_dl_malloc_function) (size_t size) = NULL;
 
 
 #ifdef __SUPPORT_LD_DEBUG__
@@ -776,6 +776,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	/* Notify the debugger that all objects are now mapped in.  */
 	_dl_debug_addr->r_state = RT_CONSISTENT;
 	_dl_debug_state();
+
+	/* Find the real malloc function and make ldso functions use that from now on */
+	 _dl_malloc_function = (void (*)(size_t)) (intptr_t) _dl_find_hash("malloc", _dl_symbol_tables, ELF_RTYPE_CLASS_PLT);
 }
 
 char *_dl_getenv(const char *symbol, char **envp)
@@ -827,7 +830,6 @@ static int _dl_suid_ok(void)
 	return 0;
 }
 
-void *(*_dl_malloc_function) (size_t size) = NULL;
 void *_dl_malloc(int size)
 {
 	void *retval;
