@@ -53,14 +53,9 @@ _start:
 
 	.data
 	.align 2
-	.global __errno, __environ
+	.global __environ
 	
 __environ:  .long 0
 .weak environ
 environ = __environ
-
-__errno:    .long 0
-.weak errno
-errno = __errno
-
 

@@ -24,7 +24,6 @@ Cambridge, MA 02139, USA.  */
 */
 
 .global __environ
-.global __errno
 .global _start
 .global exit
 .global main
@@ -115,9 +114,3 @@ __environ:
 .align  4
 environ = __environ
 
-.data
-__errno:
-        .long 0
-.weak errno
-.align  4
-errno = __errno
