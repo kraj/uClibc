@@ -42,8 +42,6 @@ all: $(COBJS) $(LIBC)
 $(LIBC): $(COBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(COBJS)
 
-$(COBJS): $(CSRC)
-
 clean:
 	rm -f *.[oa] *~ core
 

@@ -21,7 +21,7 @@
 # respective copyright holders.
 
 DIRS = error getent malloc misc regex stdio \
-	    string termios time sysdeps #rpc
+	    string termios time sysdeps shm #rpc
 all: libc.a
 
 libc.a: headers subdirs

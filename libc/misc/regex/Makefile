@@ -24,12 +24,15 @@ TOPDIR=../
 include $(TOPDIR)Rules.make
 LIBC=$(TOPDIR)libc.a
 
-OBJ=rx.o
+CSRC=rx.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(OBJ) $(LIBC)
+all: $(COBJS) $(LIBC)
 
-$(LIBC): $(OBJ)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJ)
+$(LIBC): $(COBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(COBJS)
+
+$(COBJS): Makefile
 
 clean:
 	rm -f *.[oa] *~ core
