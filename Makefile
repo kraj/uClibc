@@ -216,7 +216,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
 	done;
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	ln -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
+	$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
 		$(PREFIX)$(DEVEL_PREFIX)lib/libthread_db.so
 endif
 #	# If we build shared libraries then the static libs are PIC...
