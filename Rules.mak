@@ -79,7 +79,7 @@ check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; 
 AWK:=$(shell if [ -x /usr/bin/nawk ]; then echo "/usr/bin/nawk"; \
 	else echo "/usr/bin/awk"; fi)
 
-HOST_ARCH= $(shell uname -m | sed \
+HOST_ARCH:=$(shell uname -m | sed \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \
@@ -90,7 +90,7 @@ HOST_ARCH= $(shell uname -m | sed \
 		-e 's/mips.*/mips/' \
 		)
 ifeq ($(strip $(TARGET_ARCH)),)
-TARGET_ARCH=$(shell $(CC) -dumpmachine | sed -e s'/-.*//' \
+TARGET_ARCH:=$(shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \
@@ -178,7 +178,7 @@ endif
 ifeq ($(strip $(TARGET_ARCH)),cris)
 	CPU_LDFLAGS-$(CONFIG_CRIS)+=-mcrislinux
 	CPU_CFLAGS-$(CONFIG_CRIS)+=-mlinux
-	PICFLAG+=-fpic
+	PICFLAG=-fpic
 endif
 
 # use '-Os' optimization if available, else use -O2, allow Config to override
