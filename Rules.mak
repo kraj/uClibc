@@ -47,6 +47,9 @@ MALLOC = malloc
 # lfs.  This surrently does nothing...
 DOLFS = false
 
+# Enable stuff that is broken (to fix it of course....)
+DO_FIXME_STUFF = true
+
 # Disable this if your CPU has a memory management unit (MMU)
 HAS_MMU = true
 
@@ -90,6 +93,10 @@ endif
 
 ifneq ($(HAS_FLOATS),true)
     CFLAGS += -D__HAS_NO_FLOATS__
+endif
+
+ifneq ($(DO_FIXME_STUFF),true)
+    CFLAGS += -DFIXME
 endif
 
 
