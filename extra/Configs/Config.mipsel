@@ -54,7 +54,7 @@ WARNINGS = -Wall
 # can't do that. Similarly, if you compile uClibc vs Linux 2.4.x kernel headers,
 # but then run on Linux 2.0.x, lchown will be compiled into uClibc, but won't
 # work at all.  You have been warned.
-KERNEL_SOURCE = /usr/src/linux
+KERNEL_SOURCE = /opt/brcm/settop
 
 # Set this to `false' if your CPU doesn't have a memory management unit (MMU).
 # Set it to `true' otherwise.
@@ -168,7 +168,7 @@ BUILD_UCLIBC_LDSO = true
 # BIG FAT WARNING:  
 # If you do not have a shared library loader with the correct name
 # sitting in the directory this points to, your binaries will not run.
-SHARED_LIB_LOADER_PATH = $(DEVEL_PREFIX)/lib
+SHARED_LIB_LOADER_PATH = /lib
 
 # DEVEL_PREFIX is the directory into which the uClibc development
 # environment will be installed.   The result will look something 
@@ -187,7 +187,7 @@ DEVEL_PREFIX = /usr/$(TARGET_ARCH)-linux-uclibc
 # the 'make install' target, and is not compiled into anything.  This
 # defaults to $DEVEL_PREFIX/usr, but makers of .rpms and .debs will
 # want to set this to "/usr" instead.
-SYSTEM_DEVEL_PREFIX = $(DEVEL_PREFIX)
+SYSTEM_DEVEL_PREFIX = /usr
 
 # If you want 'make install' to install everything under a temporary
 # directory, then define PREFIX during the install step,

@@ -187,7 +187,7 @@ DEVEL_PREFIX = /usr/$(TARGET_ARCH)-linux-uclibc
 # the 'make install' target, and is not compiled into anything.  This
 # defaults to $DEVEL_PREFIX/usr, but makers of .rpms and .debs will
 # want to set this to "/usr" instead.
-SYSTEM_DEVEL_PREFIX = $(DEVEL_PREFIX)
+SYSTEM_DEVEL_PREFIX = /usr
 
 # If you want 'make install' to install everything under a temporary
 # directory, then define PREFIX during the install step,
