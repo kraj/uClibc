@@ -46,6 +46,10 @@ TODO list for the uClibc 1.0.0 release:
     *) __data_start needs to be added to any crt0.S files that don't
 	currently have it.  It is used by the boehm gc.  mjn3 has added
 	it to i386 and mips, but some archs are still missing it.
+    *)  It would nice if valgrind wouldn't complain about the atexit() malloc'd
+	memory for destructors, which happens since the dynamic linker calls
+	atexit(), which calls malloc() prior to valgrind starting, so valgrind
+	complains because it didn't see that memory allocated.
 
 
 -----------------------------------------------------------------------------
