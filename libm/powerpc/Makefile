@@ -27,7 +27,7 @@ TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 TARGET_CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
 ifeq ($(strip $(DO_C99_MATH)),true)
-CSRC =   ceilfloor.c  frexpldexp.c  logb.c  rndint.c  scalb.c  sign.c
+CSRC = s_ceil.c s_floor.c s_ldexp.c s_frexp.c s_logb.c s_modf.c w_scalb.c s_copysign.c s_rint.c
 else
 CSRC =
 endif

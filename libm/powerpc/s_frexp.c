@@ -38,15 +38,6 @@ typedef union
       double dbl;
       } DblInHex;       
 
-double ldexp ( double value, int exp ) 
-      {
-      if ( exp > SHRT_MAX ) 
-            exp = SHRT_MAX;
-      else if ( exp < -SHRT_MAX ) 
-            exp = -SHRT_MAX;
-      return scalb ( value, exp  );
-      }
-
 double frexp ( double value, int *eptr )
       {
       DblInHex argument;
