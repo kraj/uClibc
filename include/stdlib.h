@@ -45,11 +45,13 @@ typedef __compar_fn_t comparison_fn_t;
 extern double atof(const char *nptr);
 extern int atoi(const char *nptr);
 extern long atol(const char *nptr);
-extern long long atoll(const char *nptr);
 extern long strtol __P ((const char * nptr, char ** endptr, int base));
 extern unsigned long strtoul __P ((const char * nptr, char ** endptr, int base));
+#if defined __UCLIBC_HAS_LONG_LONG__
+extern long long atoll(const char *nptr);
 extern long long strtoll __P ((const char * nptr, char ** endptr, int base));
 extern unsigned long long strtoull __P ((const char * nptr, char ** endptr, int base));
+#endif
 #ifdef __UCLIBC_HAS_FLOATS__
 /*TODO: extern char * gcvt __P ((double number, size_t ndigit, char * buf)); */
 extern double strtod __P ((const char * nptr, char ** endptr));
