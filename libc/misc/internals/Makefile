@@ -24,7 +24,7 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-CSRC=ultostr.c ltostr.c
+CSRC=ultostr.c ltostr.c __uClibc_main.c
 ifeq ($(HAS_FLOATS),true)
 	CSRC += dtostr.c zoicheck.c
 endif

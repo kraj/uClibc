@@ -25,8 +25,8 @@ Cambridge, MA 02139, USA.  */
 #include <signal.h>
 #include <errno.h>
 
-typedef void (*vfuncp) ();
-extern vfuncp __cleanup;
+typedef void (*vfuncp) (void);
+extern vfuncp __uClibc_cleanup;
 extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
 
 /* Cause an abnormal program termination with core-dump.  */
@@ -38,8 +38,9 @@ void abort(void)
 		sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
 	}
 
-	if (__cleanup)
-		__cleanup();
+	if (__uClibc_cleanup) {		/* Not already executing __uClibc_cleanup. */
+		__uClibc_cleanup();
+	}
 
 	while (1)
 		if (raise(SIGABRT))

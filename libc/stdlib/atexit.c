@@ -4,45 +4,58 @@
  */
 
 /*
- * Manuel Novoa III       Dec 2000
+ * Dec 2000          Manuel Novoa III
  *
- * Modifications:
  *   Made atexit handling conform to standards... i.e. no args.
  *   Removed on_exit since it did not match gnu libc definition.
  *   Combined atexit and __do_exit into one object file.
+ *
+ * Feb 2000          Manuel Novoa III
+ *
+ *   Reworked file after addition of __uClibc_main.
+ *   Changed name of __do_exit to atexit_handler.
+ *   Changed name of __cleanup to __uClibc_cleanup.
+ *   Moved declaration of __uClibc_cleanup to __uClibc_main
+ *      where it is initialized with (possibly weak alias)
+ *      __stdio_close_all.
  */
 
 #include <stdlib.h>
 #include <errno.h>
 
 typedef void (*vfuncp) (void);
-extern vfuncp __cleanup;
+extern vfuncp __uClibc_cleanup;
 
 #ifdef L_atexit
+extern void __stdio_close_all(void);
+
 static vfuncp __atexit_table[__UCLIBC_MAX_ATEXIT];
 static int __atexit_count = 0;
 
-static void __do_exit(void)
+static void atexit_handler(void)
 {
-	int count = __atexit_count - 1;
+	int count;
 
-	__atexit_count = -1;		/* ensure no more will be added */
-	__cleanup = 0;				/* Calling exit won't re-do this */
+	/*
+	 * Guard against more functions being added and againt being reinvoked.
+	 */
+	__uClibc_cleanup = 0;
 
 	/* In reverse order */
-	for (; count >= 0; count--) {
+	for (count = __atexit_count ; count-- ; ) {
 		(*__atexit_table[count])();
 	}
+	__stdio_close_all();
 }
 
 int atexit(vfuncp ptr)
 {
-	if ((__atexit_count < 0) || (__atexit_count >= __UCLIBC_MAX_ATEXIT)) {
+	if ((__uClibc_cleanup == 0) || (__atexit_count >= __UCLIBC_MAX_ATEXIT)) {
 		errno = ENOMEM;
 		return -1;
 	}
 	if (ptr) {
-		__cleanup = __do_exit;
+		__uClibc_cleanup = atexit_handler;
 		__atexit_table[__atexit_count++] = ptr;
 	}
 	return 0;
@@ -50,12 +63,11 @@ int atexit(vfuncp ptr)
 #endif
 
 #ifdef L_exit
-vfuncp __cleanup = 0;
-
 void exit(int rv)
 {
-	if (__cleanup)
-		__cleanup();
+	if (__uClibc_cleanup) {		/* Not already executing __uClibc_cleanup. */
+		__uClibc_cleanup();
+	}
 	_exit(rv);
 }
 #endif

@@ -30,11 +30,7 @@ Cambridge, MA 02139, USA.  */
         NULL
 */
 
-.global __environ
 .global _start
-.global exit
-.global main
-.global _start_exit
 
 .text
 _start:
@@ -73,30 +69,5 @@ _start:
 	sub %ebx,%ebx
 	int $0x80
 
-	/* set up __environ */	
-	movl 8(%esp),%eax
-	movl %eax,__environ
-
-	/* Ok, now run main() */
-	call main
-	pushl %eax
-	call exit
-
-	/* Just in case _exit fails... We use int $0x80 for __exit().  */
-	popl %ebx
-	.align 4,0x90
-_start_exit:
-	movl $1,%eax
-	int $0x80
-	jmp _start_exit
-	.align 4,0x90
-_void_void_null_func:
-	ret
-
-.data
-__environ:
-        .long 0
-.weak environ
-.align  4
-environ = __environ
-
+	/* Ok, now run uClibc's main() -- shouldn't return */
+	call __uClibc_main
