@@ -468,7 +468,18 @@ void _ppfs_prepargs(register ppfs_t *ppfs, va_list arg)
 {
 	int i;
 
+#ifdef __va_copy
 	__va_copy(ppfs->arg, arg);
+#else
+	/* TODO -- maybe create a bits/vacopy.h for arch specific versions
+	 * to ensure we get the right behavior?  Either that or fall back
+	 * on the portable (but costly in size) method of using a va_list *.
+	 * That means a pointer derefs in the va_arg() invocations... */
+#warning __va_copy is not defined, using a simple copy instead...
+	/* the glibc manual suggests that this will usually suffice when
+        __va_copy doesn't exist.  */
+	ppfs->arg = arg;
+#endif
 
 	if ((i = ppfs->maxposarg) > 0)  { /* init for positional args */
 		ppfs->num_data_args = i;
