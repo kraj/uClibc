@@ -50,22 +50,22 @@ lex.zconf.o: lex.zconf.c $(lkc_deps)
 	$(NATIVE_CC) $(NATIVE_CFLAGS) -I. -c $< -o $@
 
 lkc_defs.h: lkc_proto.h
-	sed < $< > $@ 's/P(\([^,]*\),.*/#define \1 (\*\1_p)/'
+	@sed < $< > $@ 's/P(\([^,]*\),.*/#define \1 (\*\1_p)/'
 
 ###
 # The following requires flex/bison
 # By default we use the _shipped versions, uncomment the 
 # following line if you are modifying the flex/bison src.
-# LKC_GENPARSER := 1
+#LKC_GENPARSER := 1
 
-#ifdef LKC_GENPARSER
-#
-#%.tab.c %.tab.h: %.y
-#	bison -t -d -v -b $* -p $(notdir $*) $<
-#
-#lex.%.c: %.l
-#	flex -P$(notdir $*) -o$@ $<
-#else
+ifdef LKC_GENPARSER
+
+%.tab.c %.tab.h: %.y
+	bison -t -d -v -b $* -p $(notdir $*) $<
+
+lex.%.c: %.l
+	flex -P$(notdir $*) -o$@ $<
+else
 
 lex.zconf.c: lex.zconf.c_shipped
 	cp lex.zconf.c_shipped lex.zconf.c
@@ -75,7 +75,7 @@ zconf.tab.c: zconf.tab.c_shipped
 
 zconf.tab.h: zconf.tab.h_shipped
 	cp zconf.tab.h_shipped zconf.tab.h
-#endif
+endif
 
 clean:
 	rm -f *.o *~ core $(TARGETS) $(MCONF_OBJS) $(CONF_OBJS) \
