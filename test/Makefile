@@ -34,6 +34,9 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	DIRS += ldso
   endif	
 endif	
+ifeq ($(strip $(INCLUDE_THREADS)),true)
+    DIRS += pthread
+endif	
 
 all: subdirs
 
