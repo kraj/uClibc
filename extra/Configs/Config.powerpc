@@ -99,13 +99,8 @@ LOCALE_DIR = "/usr/share/uClibc-locale/"
 # It is actually smaller than "malloc", at least on i386.  Right now, it
 # only works on i386 (and maybe m68k) because it needs sbrk.
 #MALLOC = malloc-simple
-MALLOC = malloc 
-#MALLOC = malloc-930716
-
-# This architecture currently does not implement the brk syscall
-# Having brk allows one to use malloc-930716, which is an order
-# of magnitude faster then "malloc" for most allocations....
-EXCLUDE_BRK=true
+#MALLOC = malloc 
+MALLOC = malloc-930716
 
 # If you want to collect common syscall code into one function, set to this to
 # `true'.  Set it to false otherwise.
