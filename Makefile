@@ -143,7 +143,7 @@ headers: dummy
 	@cd $(TOPDIR); \
 	set -x -e; \
 	rm -f include/bits/sysnum.h; \
-	TOPDIR=$(TOPDIR) CC=$(CC) /bin/sh $(TOPDIR)/extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h
+	TOPDIR=. CC=$(CC) /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
 uClibc_config: Makefile Config
