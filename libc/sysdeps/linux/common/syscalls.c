@@ -312,7 +312,12 @@ _syscall1(int, dup, int, oldfd);
 //#define __NR_pipe             42
 #ifdef L_pipe
 #include <unistd.h>
+/*
+ * SH has a weird register calling mechanism for pipe, see pipe.c
+ */
+#if !defined(__sh__)
 _syscall1(int, pipe, int *, filedes);
+#endif
 #endif
 
 //#define __NR_times            43
