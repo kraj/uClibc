@@ -34,7 +34,7 @@ MOBJ=$(shell ./list_syscalls.sh)
 CSRC=divsi3.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(MOBJ) $(COBJS) $(SOBJS)  
+OBJS=$(SOBJS) $(MOBJ) $(COBJS)
 
 
 all: $(OBJS) $(LIBC)
