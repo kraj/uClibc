@@ -25,19 +25,19 @@ DEBUG_LIBS=X
 all: run
 
 test1: test1.c
-	$(CC) $(CFLAGS) -o test1 test1.c -ldl
+	$(CC) $(CFLAGS) $(LDFLAGS) -o test1 test1.c -ldl
 
 test2: test2.c
-	$(CC) $(CFLAGS) -o test2 test2.c -ldl
+	$(CC) $(CFLAGS) $(LDFLAGS) -o test2 test2.c -ldl
 
 test3: test3.c
-	$(CC) $(CFLAGS) -o test3 test3.c -ldl ./libtest1.so ./libtest2.so
+	$(CC) $(CFLAGS) $(LDFLAGS) -o test3 test3.c -ldl ./libtest1.so ./libtest2.so
 
 libtest1.o: libtest1.c
-	$(CC) $(CFLAGS) -fPIC -c libtest1.c -o libtest1.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -fPIC -c libtest1.c -o libtest1.o
 
 libtest2.o: libtest2.c
-	$(CC) $(CFLAGS) -fPIC -c libtest2.c -o libtest2.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -fPIC -c libtest2.c -o libtest2.o
 
 libtest1.so: libtest1.o
 	$(CC) $(CFLAGS) -fPIC -shared -o libtest1.so -Wl,-soname,libtest1.so libtest1.o ./libtest2.so
@@ -46,14 +46,14 @@ libtest2.so: libtest2.o
 	$(CC) $(CFLAGS) -fPIC -shared -o libtest2.so -Wl,-soname,libtest2.so libtest2.o
 
 dltest: dltest.c
-	$(CC) $(CFLAGS) -DLIBNAME="\"./libtest.so\"" dltest.c -ldl -lpthread -o dltest
+	$(CC) $(CFLAGS) $(LDFLAGS) -DLIBNAME="\"./libtest.so\"" dltest.c -ldl -lpthread -o dltest
 
 libtest.so: libtest.c
 	$(CC) $(CFLAGS) -fPIC -shared -Wl,-soname,libtest.so libtest.c -o libtest.so
 
 # Second time, directly link libtest3.so with libpthread
 dltest2: dltest.c
-	$(CC) $(CFLAGS) -DLIBNAME="\"./libtest3.so\"" dltest.c -ldl -lpthread -o dltest2
+	$(CC) $(CFLAGS) $(LDFLAGS) -DLIBNAME="\"./libtest3.so\"" dltest.c -ldl -lpthread -o dltest2
 
 libtest3.so: libtest.c
 	$(CC) $(CFLAGS) -fPIC -shared -Wl,-soname,libtest3.so libtest.c -o libtest3.so -lpthread
