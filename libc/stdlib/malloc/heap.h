@@ -68,6 +68,18 @@ struct heap_free_area
   HEAP_ADJUST_SIZE (sizeof (struct heap_free_area) + 32)
 
 
+/* branch-prediction macros; they may already be defined by libc.  */
+#ifndef likely
+#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96)
+#define likely(cond)	__builtin_expect(!!(int)(cond), 1)
+#define unlikely(cond)	__builtin_expect((int)(cond), 0)
+#else
+#define likely(cond)	(cond)
+#define unlikely(cond)	(cond)
+#endif
+#endif /* !likely */
+
+
 /* Define HEAP_DEBUGGING to cause the heap routines to emit debugging info
    to stderr.  */
 #ifdef HEAP_DEBUGGING
