@@ -49,6 +49,7 @@
 #include <cfgfile.h>
 #include <resolv.h>
 #include <netdb.h>
+#include <ctype.h>
 #include <arpa/nameser.h>
 
 #define MAX_RECURSE 5
@@ -59,16 +60,20 @@
 
 #undef DEBUG
 #ifdef DEBUG
-static inline void DPRINTF(const char *format, ...)
-{
-	va_list args;
-	va_start(args, format);
-	vfprintf(stderr, format, args);
-	va_end(args);
-}
+#define DPRINTF(X,args...) fprintf(stderr, X, ##args)
 #else
-static inline void DPRINTF(const char *format, ...) { }
-#endif
+#define DPRINTF(X,args...)
+#endif /* DEBUG */
+
+
+extern int nameservers;
+extern const char * nameserver[MAX_SERVERS];
+extern int searchdomains;
+extern const char * searchdomain[MAX_SEARCH];
+extern struct hostent * get_hosts_byname(const char * name);
+extern struct hostent * get_hosts_byaddr(const char * addr, int len, int type);
+extern struct hostent * read_etc_hosts(const char * name, int ip);
+
 
 #ifdef L_encodeh
 int encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
@@ -461,8 +466,6 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 	unsigned char * packet = malloc(PACKETSZ);
 	unsigned char * lookup = malloc(MAXDNAME);
 	int variant = 0;
-	extern int searchdomains;
-	extern const char * searchdomain[MAX_SEARCH];
 
 	fd = -1;
 
@@ -753,10 +756,6 @@ int resolve_mailbox(const char *address,
 }
 #endif
 
-extern int nameservers;
-extern const char * nameserver[MAX_SERVERS];
-extern int searchdomains;
-extern const char * searchdomain[MAX_SEARCH];
 
 #ifdef L_opennameservers
 
@@ -765,26 +764,57 @@ const char * nameserver[MAX_SERVERS];
 int searchdomains;
 const char * searchdomain[MAX_SEARCH];
 
+/*
+ *	we currently read formats not quite the same as that on normal
+ *	unix systems, we can have a list of nameservers after the keyword.
+ */
+
 int open_nameservers()
 {
 	FILE *fp;
-	char **arg;
 	int i;
+#define RESOLV_ARGS 5
+	char szBuffer[128], *p, *argv[RESOLV_ARGS];
+	int argc;
 
 	if (nameservers > 0) 
 	    return 0;
 
-	if ((fp = fopen("/etc/resolv.conf", "r"))) {
-		if (0 != (arg = cfgfind(fp, "nameserver"))) {
-			for (i=1; arg[i] && nameservers <= MAX_SERVERS; i++) {
-				nameserver[nameservers++] = strdup(arg[i]);
-				DPRINTF("adding nameserver %s\n",arg[i]);
+	if ((fp = fopen("/etc/resolv.conf", "r")) ||
+			(fp = fopen("/etc/config/resolv.conf", "r"))) {
+
+		while (fgets(szBuffer, sizeof(szBuffer), fp) != NULL) {
+
+			for (p = szBuffer; *p && isspace(*p); p++)
+				/* skip white space */;
+			if (*p == '\0' || *p == '\n' || *p == '#') /* skip comments etc */
+				continue;
+			argc = 0;
+			while (*p && argc < RESOLV_ARGS) {
+				argv[argc++] = p;
+				while (*p && !isspace(*p) && *p != '\n')
+					p++;
+				while (*p && (isspace(*p) || *p == '\n')) /* remove spaces */
+					*p++ = '\0';
 			}
-		}
-		if (0 != (arg = cfgfind(fp, "search"))) {
-			for (i=1; arg[i] && searchdomains <= MAX_SEARCH; i++) {
-				searchdomain[searchdomains++] = strdup(arg[i]);
-				DPRINTF("adding search %s\n",arg[i]);
+
+			if (strcmp(argv[0], "nameserver") == 0) {
+				for (i = 1; i < argc && nameservers < MAX_SERVERS; i++) {
+					nameserver[nameservers++] = strdup(argv[i]);
+					DPRINTF("adding nameserver %s\n", argv[i]);
+				}
+			}
+
+			/* domain and search are mutually exclusive, the last one wins */
+			if (strcmp(argv[0],"domain")==0 || strcmp(argv[0],"search")==0) {
+				while (searchdomains > 0) {
+					free(searchdomain[--searchdomains]);
+					searchdomain[searchdomains] = NULL;
+				}
+				for (i=1; i < argc && searchdomains < MAX_SEARCH; i++) {
+					searchdomain[searchdomains++] = strdup(argv[i]);
+					DPRINTF("adding search %s\n", argv[i]);
+				}
 			}
 		}
 		fclose(fp);
@@ -796,12 +826,19 @@ int open_nameservers()
 }
 #endif
 
+
 #ifdef L_closenameservers
+
 void close_nameservers(void)
 {
-
-	while (nameservers > 0)
-		free((void*)nameserver[--nameservers]);
+	while (nameservers > 0) {
+		free(nameserver[--nameservers]);
+		nameserver[nameservers] = NULL;
+	}
+	while (searchdomains > 0) {
+		free(searchdomain[--searchdomains]);
+		searchdomain[searchdomains] = NULL;
+	}
 }
 #endif
 
@@ -836,6 +873,7 @@ const char *resolve_name(const char *name, int mailbox)
 }
 #endif
 
+
 #ifdef L_gethostbyname
 
 struct hostent *gethostbyname(const char *name)
@@ -844,6 +882,7 @@ struct hostent *gethostbyname(const char *name)
 	static char namebuf[256];
 	static struct in_addr in;
 	static struct in_addr *addr_list[2];
+	struct hostent *hp;
 	unsigned char *packet;
 	struct resolv_answer a;
 	int i;
@@ -853,13 +892,16 @@ struct hostent *gethostbyname(const char *name)
 
 	if (!name)
 		return 0;
-	
+
+	if ((hp = get_hosts_byname(name))) /* do /etc/hosts first */
+		return(hp);
+
 	memset(&h, 0, sizeof(h));
 
 	addr_list[0] = &in;
 	addr_list[1] = 0;
 	
-	strcpy(namebuf, name);
+	strncpy(namebuf, name, sizeof(namebuf));
 
 	/* First check if this is already an address */
 	if (inet_aton(name, &in)) {
@@ -909,6 +951,66 @@ struct hostent *gethostbyname(const char *name)
 }
 #endif
 
+
+#ifdef L_getnetbyname
+
+struct netent * getnetbyname(const char * name)
+{
+	return NULL;
+}
+#endif
+
+
+#ifdef L_res_init
+
+int res_init()
+{
+	return(0);
+}
+#endif
+
+
+#ifdef L_res_query
+
+#ifndef MIN
+#define MIN(x, y)	((x) < (y) ? (x) : (y))
+#endif
+
+int res_query(const char *dname, int class, int type,
+              unsigned char *answer, int anslen)
+{
+	unsigned char * packet = 0;
+	struct resolv_answer a;
+	int i;
+
+	open_nameservers();
+	
+	if (!dname || class != 1 /* CLASS_IN */)
+		return(-1);
+		
+	memset((char *) &a, '\0', sizeof(a));
+
+	i = dns_lookup(dname, type, nameservers, nameserver, &packet, &a);
+	
+	if (i < 0)
+		return(-1);
+			
+	free(a.dotted);
+		
+	if (a.atype == type) { /* CNAME*/
+		if (anslen && answer)
+			memcpy(answer, a.rdata, MIN(anslen, a.rdlength));
+		if (packet)
+			free(packet);
+		return(MIN(anslen, a.rdlength));
+	}
+	if (packet)
+		free(packet);
+	return 0;
+}
+#endif
+
+
 #ifdef L_gethostbyaddr
 
 struct hostent *gethostbyaddr(const char *addr, int len, int type)
@@ -917,6 +1019,7 @@ struct hostent *gethostbyaddr(const char *addr, int len, int type)
 	static char namebuf[256];
 	static struct in_addr in;
 	static struct in_addr *addr_list[2];
+	struct hostent *hp;
 	unsigned char *packet;
 	struct resolv_answer a;
 	int i;
@@ -924,6 +1027,9 @@ struct hostent *gethostbyaddr(const char *addr, int len, int type)
 
 	if (!addr || (len != sizeof(in)) || (type != AF_INET))
 		return 0;
+
+	if ((hp = get_hosts_byaddr(addr, len, type))) /* do /etc/hosts first */
+		return(hp);
 
 	memcpy(&in.s_addr, addr, len);
 
@@ -978,3 +1084,96 @@ struct hostent *gethostbyaddr(const char *addr, int len, int type)
 	return &h;
 }
 #endif
+
+
+#ifdef L_read_etc_hosts
+
+struct hostent * read_etc_hosts(const char * name, int ip)
+{
+	static struct hostent	h;
+	static struct in_addr	in;
+	static struct in_addr	*addr_list[2];
+	static char				line[80];
+	FILE					*fp;
+	char					*cp;
+#define		 MAX_ALIAS		5
+	char					*alias[MAX_ALIAS];
+	int						aliases, i;
+
+	if ((fp = fopen("/etc/hosts", "r")) == NULL &&
+			(fp = fopen("/etc/config/hosts", "r")) == NULL)
+		return((struct hostent *) NULL);
+
+	while (fgets(line, sizeof(line), fp)) {
+		if ((cp = strchr(line, '#')))
+			*cp = '\0';
+		aliases = 0;
+
+		cp = line;
+		while (*cp) {
+			while (*cp && isspace(*cp))
+				*cp++ = '\0';
+			if (!*cp)
+				continue;
+			if (aliases < MAX_ALIAS)
+				alias[aliases++] = cp;
+			while (*cp && !isspace(*cp))
+				cp++;
+		}
+
+		if (aliases < 2)
+			continue; /* syntax error really */
+		
+		if (ip) {
+			if (strcmp(name, alias[0]) != 0)
+				continue;
+		} else {
+			for (i = 1; i < aliases; i++)
+				if (strcasecmp(name, alias[i]) == 0)
+					break;
+			if (i >= aliases)
+				continue;
+		}
+
+		if (inet_aton(alias[0], &in) == 0)
+			break; /* bad ip address */
+
+		addr_list[0] = &in;
+		addr_list[1] = 0;
+		h.h_name = alias[1];
+		h.h_addrtype = AF_INET;
+		h.h_length = sizeof(in);
+		h.h_addr_list = (char**) addr_list;
+		fclose(fp);
+		return(&h);
+	}
+	fclose(fp);
+	return((struct hostent *) NULL);
+}
+#endif
+
+
+#ifdef L_get_hosts_byname
+
+struct hostent * get_hosts_byname(const char * name)
+{
+	return(read_etc_hosts(name, 0));
+}
+#endif
+
+
+#ifdef L_get_hosts_byaddr
+
+struct hostent * get_hosts_byaddr(const char * addr, int len, int type)
+{
+	char	ipaddr[20];
+
+	if (type != AF_INET || len != sizeof(struct in_addr))
+		return((struct hostent *) NULL);
+
+	strcpy(ipaddr, inet_ntoa(* (struct in_addr *) addr));
+	return(read_etc_hosts(ipaddr, 1));
+}
+#endif
+
+
