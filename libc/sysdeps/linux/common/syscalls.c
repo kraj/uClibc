@@ -1586,7 +1586,7 @@ _syscall2(int, sigaltstack, const struct sigaltstack *, ss, struct sigaltstack *
 #ifdef L_sendfile
 #include <unistd.h>
 #include <sys/sendfile.h>
-_syscall4(ssize_t,sendfile, int, out_fd, int, in_fd, __off_t *, offset, size_t, count)
+_syscall4(ssize_t,sendfile, int, out_fd, int, in_fd, __off_t *, offset, size_t, count);
 #endif
 #endif
 
@@ -1672,7 +1672,7 @@ _syscall2(int, fstat64, int, filedes, struct stat64 *, buf);
 //#define __NR_pivot_root		217
 #ifdef __NR_pivot_root
 #ifdef L_pivot_root
-_syscall2(int, pivot_root, const char *, new_root, const char *, put_old)
+_syscall2(int, pivot_root, const char *, new_root, const char *, put_old);
 #endif
 #endif
 

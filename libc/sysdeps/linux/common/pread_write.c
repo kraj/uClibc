@@ -45,8 +45,6 @@
 static inline _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf, 
 		size_t, count, off_t, offset_hi, off_t, offset_lo);
 
-#define __NR___libc_pread __NR_pread
-
 ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 { 
 	return(__syscall_pread(fd,buf,count,__LONG_LONG_PAIR((off_t)0,offset)));
@@ -66,7 +64,6 @@ weak_alias (__libc_pread64, pread64)
 
 
 #ifdef __NR_pwrite
-#define __NR___libc_pwrite __NR_pwrite
 
 #define __NR___syscall_pwrite __NR_pwrite 
 static inline _syscall5(ssize_t, __syscall_pwrite, int, fd, const void *, buf, 

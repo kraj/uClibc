@@ -19,14 +19,16 @@
 #include <stdint.h>
 #include <sys/syscall.h>
 
-#if defined __UCLIBC_HAS_LFS__ && defined __NR_ftruncate64
+#if defined __NR_ftruncate64
 
-#if __WORDSIZE == 64
+#if __WORDSIZE == 64 || (defined(__powerpc__) && defined (__UCLIBC_HAS_LFS__))
 
 /* For a 64 bit machine, life is simple... */
 _syscall2(int, ftruncate64, int, fd, __off64_t, length);
 
 #elif __WORDSIZE == 32
+
+#if defined __UCLIBC_HAS_LFS__
 
 #ifndef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) __syscall_ftruncate64 (args)
@@ -42,11 +44,11 @@ int ftruncate64 (int fd, __off64_t length)
     uint32_t high = length >> 32;
     return INLINE_SYSCALL(ftruncate64, 3, fd, __LONG_LONG_PAIR (high, low));
 }
+#endif /* __UCLIBC_HAS_LFS__ */
 
-#else
+#else /* __WORDSIZE */
 #error Your machine is not 64 bit or 32 bit, I am dazed and confused.
 #endif /* __WORDSIZE */
 
-#endif /* __UCLIBC_HAS_LFS__ */
-
+#endif
 
