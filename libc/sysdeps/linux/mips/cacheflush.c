@@ -1,6 +1,5 @@
-/* brk system call for Linux/MIPS.
-   Copyright (C) 2000 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
+/* _flush_cache system call for Linux/MIPS.
+   Copyright (C) 2003 Christophe Massiot <cmassiot@freebox.fr>
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
