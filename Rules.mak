@@ -37,9 +37,11 @@ LIBC=$(TOPDIR)libc/libc.a
 BUILDTIME = ${shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z"}
 GCCINCDIR = ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp"}
 NATIVE_ARCH = ${shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
-		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g'}
+		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g' \
+		-e 's/v850.*/v850/g'}
 TARGET_ARCH=${shell $(CC) -dumpmachine | sed -e s'/-.*//' -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
-		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g'}
+		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g' \
+		-e 's/v850.*/v850/g'}
 
 # Some nice architecture specific optimizations
 ifndef OPTIMIZATION
