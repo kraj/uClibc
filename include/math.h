@@ -192,7 +192,7 @@ typedef struct
 
 
 /* Variable for error reporting.  See mtherr.c.  */
-extern int mtherr();
+extern int mtherr(char *name, int code);
 extern int merror;
 
 
