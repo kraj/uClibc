@@ -89,6 +89,23 @@ config MALLOC_930716
 
 endchoice
 
+config UCLIBC_DYNAMIC_ATEXIT
+	bool "Dynamic atexit() Support"
+	default y
+	help
+
+	  When this option is enabled, uClibc will support an infinite number,
+	  of atexit() and on_exit() functions, limited only by your available
+	  memory.  This can be important when uClibc is used with C++, since
+	  global destructors are implemented via atexit(), and it is quite
+	  possible to exceed the default number when this option is disabled.
+	  Enabling this option adds a few bytes, and more significantly makes
+	  atexit and on_exit depend on malloc, which can be bad when compiling 
+	  static executables.
+
+	  Unless you use uClibc with C++, you should probably answer N.
+
+
 config HAS_SHADOW
 	bool "Shadow Password Support"
 	default y

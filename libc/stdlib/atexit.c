@@ -52,8 +52,6 @@ extern pthread_mutex_t mylock;
 #endif
 
 
-#define __MAX_EXIT __UCLIBC_MAX_ATEXIT
-
 typedef void (*aefuncp) (void);         /* atexit function pointer */
 typedef void (*oefuncp) (int, void *);  /* on_exit function pointer */
 typedef enum {
@@ -65,9 +63,10 @@ typedef enum {
 extern void (*__exit_cleanup) (int);
 
 /* these are in the L___do_exit object */
+extern int __exit_slots;
 extern int __exit_count;
 extern void __exit_handler(int);
-extern struct exit_function {
+struct exit_function {
 	ef_type type;	/* ef_atexit or ef_on_exit */
 	union {
 		aefuncp atexit;
@@ -76,7 +75,12 @@ extern struct exit_function {
 			void *arg;
 		} on_exit;
 	} funcs;
-} __exit_function_table[__MAX_EXIT];
+};
+#ifdef __UCLIBC_DYNAMIC_ATEXIT__
+extern struct exit_function *__exit_function_table;
+#else
+extern struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT];
+#endif
 
 #ifdef L_atexit
 	/*
@@ -85,22 +89,34 @@ extern struct exit_function {
 	 */
 int atexit(aefuncp func)
 {
-	struct exit_function *efp;
+    struct exit_function *efp;
 
-	LOCK;
-	if (__exit_count >= __MAX_EXIT) {
+    LOCK;
+    if (func) {
+#ifdef __UCLIBC_DYNAMIC_ATEXIT__
+	/* If we are out of function table slots, make some more */
+	if (__exit_slots < __exit_count+1) {
+	    __exit_function_table=realloc(__exit_function_table, __exit_slots+20);
+	    if (__exit_function_table==NULL) {
 		UNLOCK;
 		__set_errno(ENOMEM);
 		return -1;
+	    }
 	}
-	if (func) {
-		__exit_cleanup = __exit_handler; /* enable cleanup */
-		efp = &__exit_function_table[__exit_count++];
-		efp->type = ef_atexit;
-		efp->funcs.atexit = func;
+#else
+	if (__exit_count >= __UCLIBC_MAX_ATEXIT) {
+	    UNLOCK;
+	    __set_errno(ENOMEM);
+	    return -1;
 	}
-	UNLOCK;
-	return 0;
+#endif
+	__exit_cleanup = __exit_handler; /* enable cleanup */
+	efp = &__exit_function_table[__exit_count++];
+	efp->type = ef_atexit;
+	efp->funcs.atexit = func;
+    }
+    UNLOCK;
+    return 0;
 }
 #endif
 
@@ -113,29 +129,48 @@ int atexit(aefuncp func)
  */
 int on_exit(oefuncp func, void *arg)
 {
-	struct exit_function *efp;
+    struct exit_function *efp;
 
-	LOCK;
-	if (__exit_count >= __MAX_EXIT) {
+    LOCK;
+    if (func) {
+#ifdef __UCLIBC_DYNAMIC_ATEXIT__
+	/* If we are out of function table slots, make some more */
+	if (__exit_slots < __exit_count+1) {
+	    __exit_function_table=realloc(__exit_function_table, __exit_slots+20);
+	    if (__exit_function_table==NULL) {
 		UNLOCK;
 		__set_errno(ENOMEM);
 		return -1;
+	    }
 	}
-	if (func) {
-		__exit_cleanup = __exit_handler; /* enable cleanup */
-		efp = &__exit_function_table[__exit_count++];
-		efp->type = ef_on_exit;
-		efp->funcs.on_exit.func = func;
-		efp->funcs.on_exit.arg = arg;
+#else
+	if (__exit_count >= __UCLIBC_MAX_ATEXIT) {
+	    UNLOCK;
+	    __set_errno(ENOMEM);
+	    return -1;
 	}
-	UNLOCK;
-	return 0;
+#endif
+
+	__exit_cleanup = __exit_handler; /* enable cleanup */
+	efp = &__exit_function_table[__exit_count++];
+	efp->type = ef_on_exit;
+	efp->funcs.on_exit.func = func;
+	efp->funcs.on_exit.arg = arg;
+    }
+    UNLOCK;
+    return 0;
 }
 #endif
 
 #ifdef L___exit_handler
-struct exit_function __exit_function_table[__MAX_EXIT];
 int __exit_count = 0; /* Number of registered exit functions */
+#ifdef __UCLIBC_DYNAMIC_ATEXIT__
+struct exit_function *__exit_function_table = NULL;
+int __exit_slots = 0; /* Size of __exit_function_table */
+#else
+struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT];
+#endif
+
 
 /*
  * Handle the work of executing the registered exit functions
@@ -162,6 +197,11 @@ void __exit_handler(int status)
 			break;
 		}
 	}
+#ifdef __UCLIBC_DYNAMIC_ATEXIT__
+	/* Free up memory used by the __exit_function_table structure */ 
+	if (__exit_function_table)
+	    free(__exit_function_table);
+#endif
 }
 #endif
 
