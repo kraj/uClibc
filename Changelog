@@ -1,3 +1,71 @@
+0.9.11	10 April 2002
+
+Release highlights:
+    o   Lots of bug fixes
+    o   Much better large file support
+    o   Several gcc wrapper bug fixes, so things like iproute2 and
+	XFree86 should now link properly.
+    o   Fixes a stdio thread locking bug that could cause random 
+	deadlocks on s*printf calls when threading was enabled.
+
+Erik Andersen:
+    o   Added a generic implementation of truncate64.c and ftruncate64.c
+    o   Added missing creat64, glob64, mkstemp64, getrlimit64, setrlimit64
+    o   Removed internal erroneous use of __USE_FILE_OFFSET64
+    o   Made libpthread compile on sparc and powerpc
+    o   Made libpthread soname and symlinks match the other libraries.
+    o   Added finite() to the C89 math lib, since some math functions use it.
+    o   Added missing function pointer to error.c (some apps wanted it)
+    o   Fixed initfini build for arches where gcc tries to be sneaky
+    o   Fixed m68k/bits/setjmp.h which I has broken in the last release.
+    o   Fixed a buffer overflow in the dynamic library loader
+    o   Fixed a stdio thread locking bug that could cause random 
+	deadlocks on s*printf calls when threading was enabled.
+    o   Implemented sqrtf(), needed for libstdc++ on arm
+Miles Bader:
+    o   Make clean fixes to not blindly wipe all symlinks
+    o   Re-enabled clnt_perror()
+    o   Re-implemented swab()
+Dwayne Fontenot:
+    o   Many updates to the uClibc Working Application List 
+Steven J. Hill:
+    o   Many updates to the mips dynamic loader.  Not yet working but
+	getting very close now.
+    o   Fixed locking bug in getttyent()
+    o   Support libpthread on mips
+Richard June:
+    o   Fixed several bugs in utmp code (pututline was only writing the 
+	first sizeof-a-pointer bytes to the utmpfile).
+    o   setutent() was only opening utmp readonly.
+m4@brecis.COM:
+    o   Fixed a silly typing problem with the getuid syscall.
+Manuel Novoa III:
+    o   Fixed stdio FILE read/write auto-transition bugs.
+    o   Better stdio errno handling
+    o   Changed setvbuf() to more closely match glibc's behavior
+    o   Fixed getpass() to not echo passwords to the console
+    o   Fixed locale ISblank flag.
+    o   Fixed an arg promotion handling bug in _do_one_spec for %c reported
+	by Ilguiz Latypov.
+Kensuke Otake:
+    o   Implemented swab()
+Yoshinori Sato:
+    o   Fixed h8300 architecture support for pthreads and changes to
+	the include files
+David Schleef:
+    o   Made powerpc assembly code PIC-compatible
+    o   Removed powerpc R_PPC_REL24 handling, since it was deceptively useless.
+Jim Treadway:
+    o   Eliminated use of alarm() from the DNS resolver by converting
+	it to use select instead (much cleaner).
+
+
+
+
+
+
+
+
 0.9.10	21 March 2002
 
 Major new features:
