@@ -57,6 +57,7 @@ extern int memcmp __P ((__const __ptr_t __s1, __const __ptr_t __s2,
 extern __ptr_t memmove __P ((__ptr_t __dest, __const __ptr_t __src,
 			     size_t __n));
 
+
 /* Minimal (very!) locale support */
 #define strcoll strcmp
 #define strxfrm strncpy
@@ -66,6 +67,10 @@ extern __ptr_t memmove __P ((__ptr_t __dest, __const __ptr_t __src,
 #define rindex strrchr
 
 /* Other common BSD functions */
+/* Set N bytes of S to 0.  */
+extern void bzero __P ((__ptr_t __s, size_t __n));
+/* Copy N bytes of SRC to DEST (like memmove, but args reversed).  */
+extern void bcopy __P ((__const __ptr_t __src, __ptr_t __dest, size_t __n));
 
 /* Compare S1 and S2, ignoring case.  */
 extern int strcasecmp __P ((__const char *__s1, __const char *__s2));
