@@ -1,64 +1,38 @@
 
-* Configuration:
-
-  ln -s ./extra/Configs/Config.<arch> ./Config
-
-Then edit ./Config for your setup.  In particular, modify CROSS and
-KERNEL_SOURCE as necessary.  You may also want to modify
-SHARED_LIB_LOADER_PATH, DEVEL_PREFIX, and SYSTEM_DEVEL_PREFIX depending
-on where you want to install the development environment.  By default,
-the development environment is installed into /usr/<arch>-linux-uclibc/.
+  uClibc - a small libc implementation
+  Erik Andersen <erik@codepoet.org>
 
 
-* Building:
+uClibc (aka µClibc/pronounced yew-see-lib-see) is size-optimized
+implementation of the standard C library.  The primary use is
+for developing embedded Linux systems.  It is much smaller then
+the GNU C Library (glibc), but nearly all applications supported
+by glibc also compile and work perfectly with uClibc.  Porting
+applications from glibc to uClibc typically involves just
+recompiling the source code.  uClibc even supports shared
+libraries and threading.  It currently runs on standard Linux
+and MMU-less Linux (also known as µClinux) systems on the
+following processors: ARM, i386, h8300, m68k, mips, mipsel,
+PowerPC, SH, SPARC, and v850.
 
-  make
+For installation instructions, see the file INSTALL.
+
+This distribution contains a wrapper for gcc and ld that allows
+you to use existing toolchains that were targetted for glibc.
+See extra/gcc-uClibc/ for information.
+
+uClibc strives to be standards compliant, which means that most
+documentation written for functions in glibc also apply to uClibc
+functions.  However, many GNU extensions are not supported
+because they have not been ported, or more importantly, would
+increase the size of uClibc disproportional to the added
+functionality.
+
+Additional information (recent releases, FAQ, mailing list, bugs,
+etc.) can be found at http://www.uclibc.org/.
+
+uClibc may be freely modified distributed under the terms of the
+GNU Library General Public License, which can be found in the
+file COPYING.LIB.
 
 
-* Installing the development environment:
-
-(As root, if necessary,)
-
-  make install
-
-This will install the header files, libraries, and the gcc
-wrapper into the directories defined in Config.
-
-
-* Installing the target runtime environment:
-
-(As root, if necessary,)
-
-   make PREFIX=<temporary path> install_target
-
-This installs only the files that are necessary to run binaries
-compiled against uClibc.  Hint: You probably do not want to install
-the target runtime environment on your host machine.
-
-
-* Using uClibc:
-
-To compile programs with uClibc,
-
-   export PATH={uClibc DEVEL_PREFIX}/bin:$PATH
-
-and then just ./configure and make as usual.
-
-Note: 
-
-	You may also want to look at extra/gcc-uclibc/gcc-uclibc.c for
-	additional information concerning what options and environment
-	variables the gcc wrapper handles.
-
-Note2: 
-
-	There is an unwholesomely huge amount of code out there that
-	depends on the presence of GNU libc header files.  We have GNU
-	libc header files.  So we have committed a horrible sin in
-	uClibc.  We _lie_ and claim to be GNU libc in order to force
-	many applications to work as their developers intended.  This
-	is IMHO, pardonable, since these defines are not really
-	intended to check for the presence of a particular library, but
-	rather are used to define an _interface_.  Some programs (such
-	as GNU binutils) are especially chummy with glibc, and need
-	this behavior disabled by adding CFLAGS+=-D__FORCE_NOGLIBC
