@@ -1,5 +1,5 @@
 /* Error constants.  Linux specific version.
-   Copyright (C) 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997, 1998, 1999, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -40,13 +40,14 @@ extern int *__errno_location (void) __THROW __attribute__ ((__const__));
 
 #  if defined _LIBC
 /* We wouldn't need a special macro anymore but it is history.  */
-#   define __set_errno(val) (*__errno_location ()) = (val)
+#   define __set_errno(val) ((errno) = (val))
 #  endif /* _LIBC */
 
-#  if !defined _LIBC || defined __UCLIBC_HAS_THREADS__
+#  if defined __UCLIBC_HAS_THREADS__
 /* When using threads, errno is a per-thread value.  */
 #   define errno (*__errno_location ())
 #  endif
+
 # endif /* !__ASSEMBLER__ */
 #endif /* _ERRNO_H */
 
