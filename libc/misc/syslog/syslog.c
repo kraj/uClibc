@@ -206,7 +206,15 @@ vsyslog( int pri, const char *fmt, va_list ap )
 		memmove(head_end + sizeof(truncate_msg), head_end,
 			end - head_end - sizeof(truncate_msg));
 		memcpy(head_end, truncate_msg, sizeof(truncate_msg));
-		p = end - 1;
+		if (p < head_end) {
+			while (p < end && *p) {
+				p++;
+			}
+		}
+		else {
+			p = end - 1;
+		}
+
 	}
 	last_chr = p;
 
