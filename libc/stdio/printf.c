@@ -36,6 +36,10 @@
  *    reported by Erik Andersen (andersen@codepoet.com)
  * Fix an arg promotion handling bug in _do_one_spec for %c. 
  *    reported by Ilguiz Latypov <ilatypov@superbt.com>
+ *
+ * 5-10-2002
+ * Remove __isdigit and use new ctype.h version.
+ * Add conditional setting of QUAL_CHARS for size_t and ptrdiff_t.
  */
 
 
@@ -173,12 +177,6 @@ enum {
  */
 
 /* TODO -- Fix the table below to take into account stdint.h. */
-#if PTRDIFF_MAX != INT_MAX
-#error fix QUAL_CHARS ptrdiff_t entry 't'!
-#endif
-#if SIZE_MAX != UINT_MAX
-#error fix QUAL_CHARS size_t entries 'z', 'Z'!
-#endif
 #ifndef LLONG_MAX
 #error fix QUAL_CHARS for no long long!  Affects 'L', 'j', 'q', 'll'.
 #else
@@ -187,11 +185,38 @@ enum {
 #endif
 #endif
 
+#ifdef PDS
+#error PDS already defined!
+#endif
+#ifdef SS
+#error SS already defined!
+#endif
+
+#if PTRDIFF_MAX == INT_MAX
+#define PDS		0
+#elif PTRDIFF_MAX == LONG_MAX
+#define PDS		4
+#elif defined(LLONG_MAX) && (PTRDIFF_MAX == LLONG_MAX)
+#define PDS		8
+#else
+#error fix QUAL_CHARS ptrdiff_t entry 't'!
+#endif
+
+#if SIZE_MAX == UINT_MAX
+#define SS		0
+#elif SIZE_MAX == ULONG_MAX
+#define SS		4
+#elif defined(LLONG_MAX) && (SIZE_MAX == ULLONG_MAX)
+#define SS		8
+#else
+#error fix QUAL_CHARS size_t entries 'z', 'Z'!
+#endif
+
 #define QUAL_CHARS		{ \
 	/* j:(u)intmax_t z:(s)size_t  t:ptrdiff_t  \0:int */ \
 	/* q:long_long  Z:(s)size_t */ \
 	'h',   'l',  'L',  'j',  'z',  't',  'q', 'Z',  0, \
-	 2,     4,    8,    8,    0,    0,    8,   0,   0, /* TODO -- fix!!! */\
+	 2,     4,    8,    8,   SS,  PDS,    8,  SS,   0, /* TODO -- fix!!! */\
      1,     8 \
 }
 
@@ -261,9 +286,6 @@ typedef struct {
 
 /* TODO: fix printf to return 0 and set errno if format error.  Standard says
    only returns -1 if sets error indicator for the stream. */
-
-/* TODO -- __isdigit() macro */
-#define __isdigit(c) (((unsigned int)(c - '0')) < 10)
 
 #ifdef __STDIO_PRINTF_FLOAT
 extern size_t _dtostr(FILE * fp, long double x, struct printf_info *info);

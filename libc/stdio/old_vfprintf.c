@@ -128,6 +128,7 @@
 #include <limits.h>
 #include <string.h>
 #include <errno.h>
+#include <ctype.h>
 
 #define __PRINTF_INFO_NO_BITFIELD
 #include <printf.h>
@@ -140,7 +141,7 @@
 /*  #undef WANT_FLOAT_ERROR */
 /*  #define WANT_FLOAT_ERROR      1 */
 
-#define __isdigit(c) (((unsigned int)(c - '0')) < 10)
+/*  #define __isdigit(c) (((unsigned int)(c - '0')) < 10) */
 
 extern size_t _dtostr(FILE * fp, long double x, struct printf_info *info);
 

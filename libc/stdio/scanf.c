@@ -165,7 +165,7 @@ static int valid_digit(char c, char base)
 	if (base == 16) {
 		return isxdigit(c);
 	} else {
-		return (isdigit(c) && (c < '0' + base));
+		return (__isdigit(c) && (c < '0' + base));
 	}
 }
 
@@ -321,7 +321,7 @@ va_list ap;
 				store = 0;
 				++fmt;
 			}
-			for (i = 0 ; isdigit(*fmt) ; sc.width = i) {
+			for (i = 0 ; __isdigit(*fmt) ; sc.width = i) {
 				i = (i * 10) + (*fmt++ - '0'); /* Get specified width. */
 			}
 			for (i = 0 ; i < sizeof(qual) ; i++) { /* Optional qualifier. */
@@ -348,7 +348,7 @@ va_list ap;
 				if (p-spec > 3) { /* skip white space if not c or [ */
 					do {
 						i = scan_getc_nw(&sc);
-					} while (isspace(i));
+					} while (__isspace(i));
 					scan_ungetc(&sc);
 				}
 				if (p-spec < 5) { /* [,c,s - string conversions */
@@ -360,7 +360,7 @@ va_list ap;
 						}
 					}
 					for (i=0 ; i<= UCHAR_MAX ; i++) {
-						scanset[i] = ((*p == 's') ? (isspace(i) == 0) : 0);
+						scanset[i] = ((*p == 's') ? (__isspace(i) == 0) : 0);
 					}
 					if (*p == '[') { /* need to build a scanset */
 						if (*++fmt == '^') {
@@ -588,10 +588,10 @@ va_list ap;
 			}
 			/* Unrecognized specifier! */
 			goto RETURN_cnt;
-		} if (isspace(*fmt)) {	/* Consume all whitespace. */
+		} if (__isspace(*fmt)) {	/* Consume all whitespace. */
 			do {
 				i = scan_getc_nw(&sc);
-			} while (isspace(i));
+			} while (__isspace(i));
 		} else {				/* Match the current fmt char. */
 		matchchar:
 			if (scan_getc_nw(&sc) != *fmt) {
@@ -660,7 +660,7 @@ int __strtold(long double *ld, struct scan_cookie *sc)
     since_decimal = INT_MIN;
 
  LOOP:
-    while (isdigit(c)) {		/* Process string of digits. */
+    while (__isdigit(c)) {		/* Process string of digits. */
 		++since_decimal;
 		if (num_digits < 0) {	/* First time through? */
 			++num_digits;		/* We've now seen a digit. */
@@ -707,7 +707,7 @@ int __strtold(long double *ld, struct scan_cookie *sc)
 
 		num_digits = 0;
 		exponent_temp = 0;
-		while (isdigit(c)) {	/* Process string of digits. */
+		while (__isdigit(c)) {	/* Process string of digits. */
 			if (exponent_temp < MAX_ALLOWED_EXP) { /* overflow check */
 				exponent_temp = exponent_temp * 10 + (c - '0');
 			}
