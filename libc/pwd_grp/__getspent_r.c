@@ -25,32 +25,29 @@
 
 int __getspent_r(struct spwd * spwd, char * line_buff, size_t buflen, int spwd_fd)
 {
-	char *endptr;
-	int line_len;
+    char *endptr;
+    int line_len;
 
-	/* We use the restart label to handle malformatted lines */
-  restart:
-	/* Read the shadow line into the static buffer using a minimal of
-	   syscalls. */
-	if ((line_len = read(spwd_fd, line_buff, buflen)) <= 0)
+    /* We use the restart label to handle malformatted lines */
+restart:
+    /* Read the shadow line into the buffer using a minimum of syscalls. */
+    if ((line_len = read(spwd_fd, line_buff, buflen)) <= 0)
+	return -1;
+    endptr = strchr(line_buff, '\n');
+    if (endptr != NULL)
+	lseek(spwd_fd, (long) (1 + endptr - (line_buff + line_len)), SEEK_CUR);
+    else {
+	/* The line is too long - skip it. :-\ */
+	do {
+	    if ((line_len = read(spwd_fd, line_buff, buflen)) <= 0)
 		return -1;
-	endptr = strchr(line_buff, '\n');
-	if (endptr != NULL)
-		lseek(spwd_fd, (long) (1 + endptr - (line_buff + line_len)),
-			  SEEK_CUR);
-	else {						/* The line is too long - skip it. :-\ */
+	} while (!(endptr = strchr(line_buff, '\n')));
+	lseek(spwd_fd, (long) (endptr - line_buff) - line_len + 1, SEEK_CUR);
+	goto restart;
+    }
 
-		do {
-			if ((line_len = read(spwd_fd, line_buff, buflen)) <= 0)
-				return -1;
-		} while (!(endptr = strchr(line_buff, '\n')));
-		lseek(spwd_fd, (long) (endptr - line_buff) - line_len + 1,
-			  SEEK_CUR);
-		goto restart;
-	}
+    if (__sgetspent_r(line_buff, spwd, line_buff, buflen) < 0)
+	goto restart;
 
-	if (__sgetspent_r(line_buff, spwd, line_buff, buflen) < 0)
-		goto restart;
-
-	return 0;
+    return 0;
 }

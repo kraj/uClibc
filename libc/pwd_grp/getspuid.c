@@ -17,10 +17,21 @@
  *
  */
 
+#include <features.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include "config.h"
+
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
+#else       
+# define LOCK
+# define UNLOCK
+#endif      
 
 int getspuid_r (uid_t uid, struct spwd *spwd,
 	char *buff, size_t buflen, struct spwd **crap)
@@ -39,9 +50,12 @@ struct spwd *getspuid(uid_t uid)
     static char line_buff[PWD_BUFFER_SIZE];
     static struct spwd spwd;
 
+    LOCK;
     if (getspuid_r(uid, &spwd, line_buff, sizeof(line_buff), NULL) != -1) {
+	UNLOCK;
 	return &spwd;
     }
+    UNLOCK;
     return NULL;
 }
 

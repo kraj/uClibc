@@ -18,9 +18,20 @@
  *
  */
 
+#include <features.h>
 #include <errno.h>
 #include <stdio.h>
 #include "config.h"
+
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
 
 int fgetpwent_r (FILE *file, struct passwd *password,
 	char *buff, size_t buflen, struct passwd **crap)
@@ -37,8 +48,11 @@ struct passwd *fgetpwent(FILE * file)
     static char line_buff[PWD_BUFFER_SIZE];
     static struct passwd pwd;
 
+    LOCK;
     if (fgetpwent_r(file, &pwd, line_buff, sizeof(line_buff), NULL) != -1) {
+	UNLOCK;
 	return &pwd;
     }
+    UNLOCK;
     return NULL;
 }

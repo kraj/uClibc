@@ -24,30 +24,47 @@
  * in together.
  */
 
+#include <features.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <paths.h>
 #include "config.h"
 
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
+#else       
+# define LOCK
+# define UNLOCK
+#endif      
+
 static int grp_fd = -1;
 
 void setgrent(void)
 {
-	if (grp_fd != -1)
-		close(grp_fd);
-	grp_fd = open(_PATH_GROUP, O_RDONLY);
+    LOCK;
+    if (grp_fd != -1)
+	close(grp_fd);
+    grp_fd = open(_PATH_GROUP, O_RDONLY);
+    UNLOCK;
 }
 
 void endgrent(void)
 {
-	if (grp_fd != -1)
-		close(grp_fd);
-	grp_fd = -1;
+    LOCK;
+    if (grp_fd != -1)
+	close(grp_fd);
+    grp_fd = -1;
+    UNLOCK;
 }
 
 struct group *getgrent(void)
 {
-	if (grp_fd == -1)
-		return NULL;
-	return __getgrent(grp_fd);
+    LOCK;
+    if (grp_fd == -1)
+	return NULL;
+    return __getgrent(grp_fd);
+    UNLOCK;
 }

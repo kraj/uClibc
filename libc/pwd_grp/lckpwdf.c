@@ -18,12 +18,23 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#include <features.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/file.h>
 #include <paths.h>
+
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
+#else       
+# define LOCK
+# define UNLOCK
+#endif      
 
 /* How long to wait for getting the lock before returning with an
    error.  */
@@ -50,10 +61,14 @@ int lckpwdf (void)
 	/* Still locked by own process.  */
 	return -1;
 
+    LOCK;
+
     lock_fd = open (_PATH_PASSWD, O_WRONLY);
-    if (lock_fd == -1)
+    if (lock_fd == -1) {
 	/* Cannot create lock file.  */
+	UNLOCK;
 	return -1;
+    }
 
     /* Make sure file gets correctly closed when process finished.  */
     flags = fcntl (lock_fd, F_GETFD, 0);
@@ -61,6 +76,7 @@ int lckpwdf (void)
 	/* Cannot get file flags.  */
 	close(lock_fd);
 	lock_fd = -1;
+	UNLOCK;
 	return -1;
     }
     flags |= FD_CLOEXEC;		/* Close on exit.  */
@@ -68,6 +84,7 @@ int lckpwdf (void)
 	/* Cannot set new flags.  */
 	close(lock_fd);
 	lock_fd = -1;
+	UNLOCK;
 	return -1;
     }
 
@@ -89,6 +106,7 @@ int lckpwdf (void)
 	/* Cannot install signal handler.  */
 	close(lock_fd);
 	lock_fd = -1;
+	UNLOCK;
 	return -1;
     }
 
@@ -99,6 +117,7 @@ int lckpwdf (void)
 	sigaction (SIGALRM, &saved_act, NULL);
 	close(lock_fd);
 	lock_fd = -1;
+	UNLOCK;
 	return -1;
     }
 
@@ -126,9 +145,11 @@ int lckpwdf (void)
     if (result < 0) {
 	close(lock_fd);
 	lock_fd = -1;
+	UNLOCK;
 	return -1;
     }
 
+    UNLOCK;
     return 0;
 }
 
@@ -142,10 +163,11 @@ int ulckpwdf (void)
 	result = -1;
     }
     else {
+	LOCK;
 	result = close (lock_fd);
-
 	/* Mark descriptor as unused.  */
 	lock_fd = -1;
+	UNLOCK;
     }
 
     return result;

@@ -17,11 +17,22 @@
  *
  */
 
+#include <features.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
 #include "config.h"
+
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
+#else       
+# define LOCK
+# define UNLOCK
+#endif      
 
 /*
  * setspent(), endspent(), and getspent() are included in the same object
@@ -34,25 +45,31 @@ static int spwd_fd = -1;
 
 void setspent(void)
 {
+    LOCK;
     if (spwd_fd != -1)
 	close(spwd_fd);
-
     spwd_fd = open(_PATH_SHADOW, O_RDONLY);
+    UNLOCK;
 }
 
 void endspent(void)
 {
+    LOCK;
     if (spwd_fd != -1)
 	close(spwd_fd);
     spwd_fd = -1;
+    UNLOCK;
 }
 
 int getspent_r (struct spwd *spwd, char *buff, 
 	size_t buflen, struct spwd **crap)
 {
+    LOCK;
     if (spwd_fd != -1 && __getspent_r(spwd, buff, buflen, spwd_fd) != -1) {
+	UNLOCK;
 	return 0;
     }
+    UNLOCK;
     return -1;
 }
 
@@ -61,9 +78,12 @@ struct spwd *getspent(void)
     static char line_buff[PWD_BUFFER_SIZE];
     static struct spwd spwd;
 
+    LOCK;
     if (getspent_r(&spwd, line_buff, sizeof(line_buff), NULL) != -1) {
+	UNLOCK;
 	return &spwd;
     }
+    UNLOCK;
     return NULL;
 }
 

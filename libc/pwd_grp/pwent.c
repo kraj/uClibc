@@ -18,12 +18,23 @@
  *
  */
 
+#include <features.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <paths.h>
 #include "config.h"
+
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
+#else       
+# define LOCK
+# define UNLOCK
+#endif      
 
 /*
  * setpwent(), endpwent(), and getpwent() are included in the same object
@@ -36,25 +47,32 @@ static int pw_fd = -1;
 
 void setpwent(void)
 {
+    LOCK;
     if (pw_fd != -1)
 	close(pw_fd);
 
     pw_fd = open(_PATH_PASSWD, O_RDONLY);
+    UNLOCK;
 }
 
 void endpwent(void)
 {
+    LOCK;
     if (pw_fd != -1)
 	close(pw_fd);
     pw_fd = -1;
+    UNLOCK;
 }
 
 int getpwent_r (struct passwd *password, char *buff, 
 	size_t buflen, struct passwd **crap)
 {
+    LOCK;
     if (pw_fd != -1 && __getpwent_r(password, buff, buflen, pw_fd) != -1) {
+	UNLOCK;
 	return 0;
     }
+    UNLOCK;
     return -1;
 }
 
@@ -62,9 +80,12 @@ struct passwd *getpwent(void)
 {
     static char line_buff[PWD_BUFFER_SIZE];
     static struct passwd pwd;
+    LOCK;
     if (getpwent_r(&pwd, line_buff, sizeof(line_buff), NULL) != -1) {
+	UNLOCK;
 	return &pwd;
     }
+    UNLOCK;
     return NULL;
 }
 

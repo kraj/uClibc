@@ -17,9 +17,20 @@
  *
  */
 
+#include <features.h>
 #include <errno.h>
 #include <stdio.h>
 #include "config.h"
+
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
+#else       
+# define LOCK
+# define UNLOCK
+#endif      
 
 int sgetspent_r (const char *string, struct spwd *spwd,
 	char *buff, size_t buflen, struct spwd **crap)
@@ -32,8 +43,11 @@ struct spwd *sgetspent(const char *string)
     static char line_buff[PWD_BUFFER_SIZE];
     static struct spwd spwd;
 
+    LOCK;
     if (sgetspent_r(string, &spwd, line_buff, sizeof(line_buff), NULL) != -1) {
+	UNLOCK;
 	return &spwd;
     }
+    UNLOCK;
     return NULL;
 }
