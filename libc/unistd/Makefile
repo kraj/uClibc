@@ -59,9 +59,15 @@ sysconf_$(TARGET_ARCH).c: sysconf.c
 	cp -f sysconf.c sysconf_$(TARGET_ARCH).c
 
 # We are compiling for the native platform, so build an optimized sysconf.c.
-sysconf_native: sysconf.c
-	$(CC) $(CFLAGS) -D_UCLIBC_GENERATE_SYSCONF_ARCH -c sysconf.c -o sysconf_tester.o
-	$(CC) $(CFLAGS) -D_UCLIBC_GENERATE_SYSCONF_ARCH -c ../sysdeps/linux/common/getpagesize.c -o getpagesize_tester.o
+getpagesize_tester.o:
+	$(CC) $(CFLAGS) -D_UCLIBC_GENERATE_SYSCONF_ARCH \
+	    -c ../sysdeps/linux/common/getpagesize.c -o getpagesize_tester.o
+
+sysconf_tester.o:
+	$(CC) $(CFLAGS) -D_UCLIBC_GENERATE_SYSCONF_ARCH -c sysconf.c \
+	    -o sysconf_tester.o
+
+gen_sysconf_tester.o: sysconf_tester.o getpagesize_tester.o
 	@ld -r -o gen_sysconf_tester.o sysconf_tester.o getpagesize_tester.o
 	@if nm -s gen_sysconf_tester.o | grep -v "U errno" | grep " U " ;\
 	then \
@@ -77,6 +83,8 @@ sysconf_native: sysconf.c
 			cp -f sysconf.c sysconf_$(NATIVE_ARCH).c ;\
 		fi ;\
 	fi
+
+sysconf_native: gen_sysconf_tester.o
 
 sysconf_src.c: sysconf_$(TARGET_ARCH).c
 	cp -f sysconf_$(TARGET_ARCH).c sysconf_src.c
@@ -101,7 +109,7 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 $(patsubst %, _dirclean_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
-.PHONY: dummy
+.PHONY: dummy sysconf_native
 dummy:
 
 clean:
