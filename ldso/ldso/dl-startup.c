@@ -411,19 +411,6 @@ found_got:
 	SEND_STDERR("done scanning DYNAMIC section\n");
 #endif
 
-	/* Get some more of the information that we will need to dynamicly link
-	   this module to itself */
-
-	hash_addr = (unsigned long *) (tpnt->dynamic_info[DT_HASH] + load_addr);
-	tpnt->nbucket = *hash_addr++;
-	tpnt->nchain = *hash_addr++;
-	tpnt->elf_buckets = hash_addr;
-	hash_addr += tpnt->nbucket;
-
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("done grabbing link information\n");
-#endif
-
 #ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
 	/* Ugly, ugly.  We need to call mprotect to change the protection of
 	   the text pages so that we can do the dynamic linking.  We can set the
