@@ -192,7 +192,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	} else {
 		char num[8];
 		int s2 = rresvport(&lport), s3;
-		size_t len = sizeof(from);
+		socklen_t len = sizeof(from);
 
 		if (s2 < 0)
 			goto bad;
@@ -541,7 +541,7 @@ __icheckhost (u_int32_t raddr, char *lhost, const char *rhost)
 	}
 
 	/* Try for raw ip address first. */
-	if (isdigit (*lhost) && (long) (laddr = inet_addr (lhost)) != -1)
+	if (isdigit (*lhost) && (laddr = inet_addr (lhost)) != INADDR_NONE)
 		return negate * (! (raddr ^ laddr));
 
 	/* Better be a hostname. */

@@ -31,7 +31,7 @@ int inet_aton(cp, addrptr)
 const char *cp;
 struct in_addr *addrptr;
 {
-	unsigned long addr;
+	in_addr_t addr;
 	int value;
 	int part;
 
@@ -78,12 +78,12 @@ struct in_addr *addrptr;
 #endif
 
 #ifdef L_inet_addr
-unsigned long inet_addr(const char *cp)
+in_addr_t inet_addr(const char *cp)
 {
 	struct in_addr a;
 
 	if (!inet_aton(cp, &a))
-		return -1;
+		return INADDR_NONE;
 	else
 		return a.s_addr;
 }
@@ -95,7 +95,7 @@ unsigned long inet_addr(const char *cp)
 
 char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
 {
-	unsigned long addr = ntohl(in.s_addr);
+	in_addr_t addr = ntohl(in.s_addr);
 	int i;
 	char *p, *q;
    
@@ -125,15 +125,15 @@ char *inet_ntoa(struct in_addr in)
  * Formulate an Internet address from network + host.  Used in
  * building addresses stored in the ifnet structure.
  */
-struct in_addr inet_makeaddr(unsigned long net, unsigned long host)
+struct in_addr inet_makeaddr(in_addr_t net, in_addr_t host)
 {
-        unsigned long addr;
+        in_addr_t addr;
 
         if (net < 128)
                 addr = (net << IN_CLASSA_NSHIFT) | (host & IN_CLASSA_HOST);
         else if (net < 65536)
                 addr = (net << IN_CLASSB_NSHIFT) | (host & IN_CLASSB_HOST);
-        else if (net < 16777216L)
+        else if (net < 16777216UL)
                 addr = (net << IN_CLASSC_NSHIFT) | (host & IN_CLASSC_HOST);
         else
                 addr = net | host;
@@ -149,9 +149,9 @@ struct in_addr inet_makeaddr(unsigned long net, unsigned long host)
  * internet address; handles class a/b/c network
  * number formats.
  */
-unsigned long inet_lnaof(struct in_addr in)
+in_addr_t inet_lnaof(struct in_addr in)
 {
-	unsigned long i = ntohl(in.s_addr);
+	in_addr_t i = ntohl(in.s_addr);
 
 	if (IN_CLASSA(i))
 		return ((i)&IN_CLASSA_HOST);
@@ -168,10 +168,10 @@ unsigned long inet_lnaof(struct in_addr in)
  * Return the network number from an internet
  * address; handles class a/b/c network #'s.
  */
-u_int32_t
+in_addr_t
 inet_netof(struct in_addr in)
 {
-        u_int32_t i = ntohl(in.s_addr);
+        in_addr_t i = ntohl(in.s_addr);
 
         if (IN_CLASSA(i))
                 return (((i)&IN_CLASSA_NET) >> IN_CLASSA_NSHIFT);

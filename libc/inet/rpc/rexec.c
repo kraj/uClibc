@@ -135,7 +135,7 @@ retry:
 			port = atoi(servbuff);
 		(void) sprintf(num, "%u", port);
 		(void) write(s, num, strlen(num)+1);
-		{ int len = sizeof (from);
+		{ socklen_t len = sizeof (from);
 		  s3 = accept(s2, (struct sockaddr *)&from, &len);
 		  close(s2);
 		  if (s3 < 0) {
