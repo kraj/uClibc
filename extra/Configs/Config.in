@@ -201,7 +201,6 @@ config FORCE_SHAREABLE_TEXT_SEGMENTS
 config UCLIBC_PIE_SUPPORT
 	bool "Support ET_DYN in shared library loader"
 	select FORCE_SHAREABLE_TEXT_SEGMENTS
-	select UCLIBC_COMPLETELY_PIC
 	default n
 	help
 	  If you answer Y here, the uClibc native shared library loader will
