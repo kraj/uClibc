@@ -94,8 +94,9 @@ $(LIBM): ar-target
 shared: all
 	@if [ -f $(LIBM) ] ; then \
 	    set -x -e; \
-	    $(TARGET_CC) $(TARGET_LDFLAGS) -nostdlib -shared -o $(LIBM_SHARED_FULLNAME) \
-		-Wl,-soname,$(LIBM_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBM) -lc; \
+	    $(LD) $(LDFLAGS) -o $(LIBM_SHARED_FULLNAME) \
+		-soname=$(LIBM_SHARED).$(MAJOR_VERSION) \
+		--whole-archive $(LIBM); \
 	    install -d $(TOPDIR)lib; \
 	    rm -f $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
 	    install -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib; \

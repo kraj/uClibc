@@ -48,8 +48,9 @@ $(OBJS): %.o : %.c
 $(OBJ): Makefile
 
 shared: all
-	$(TARGET_CC) $(TARGET_LDFLAGS) -nostdlib -shared -o $(LIBPTHREAD_SHARED_FULLNAME) \
-	    -Wl,-soname,$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBPTHREAD) -lc
+	$(LD) $(LDFLAGS) -o $(LIBPTHREAD_SHARED_FULLNAME) \
+	    -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
+	    --whole-archive $(LIBPTHREAD);
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib;

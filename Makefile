@@ -180,8 +180,9 @@ install_dev:
 	install -d $(PREFIX)$(DEVEL_PREFIX)/usr/lib
 	install -d $(PREFIX)$(DEVEL_PREFIX)/include
 	tar -chO include | tar -xC $(PREFIX)$(DEVEL_PREFIX);
-	chmod 755 `find  $(PREFIX)$(DEVEL_PREFIX) -type d` 
-	chmod 644 `find  $(PREFIX)$(DEVEL_PREFIX)/include -name '*.h'` 
+	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
+	    chmod -f 755 $$i; chmod -f 644 $$i/*.h; \
+	done;
 	(NAME=`whoami`; chown -R $$NAME.$$NAME $(PREFIX)$(DEVEL_PREFIX))
 ifeq ($(strip $(HAVE_SHARED)),true)
 	find lib/ -type l -name '*.so' -exec cp -a {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'

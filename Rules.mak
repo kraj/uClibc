@@ -80,13 +80,13 @@ NATIVE_CFLAGS=-O2 -Wall
 ifeq ($(strip $(DODEBUG)),true)
     CFLAGS += -g
     TARGET_CFLAGS += -g
-    LDFLAGS = -nostdlib -Wl,-warn-common 
+    LDFLAGS = -shared -nostdlib --warn-common --warn-once -z combreloc
     TARGET_LDFLAGS = --uclibc-use-build-dir -Wl,-warn-common
     STRIPTOOL = /bin/true -Since_we_are_debugging
 else
     CFLAGS  += -DNDEBUG #-fomit-frame-pointer
     TARGET_CFLAGS += -DNDEBUG #-fomit-frame-pointer
-    LDFLAGS  = -s -nostdlib -Wl,-warn-common
+    LDFLAGS  = -s -shared -nostdlib --warn-common --warn-once -z combreloc
     TARGET_LDFLAGS = --uclibc-use-build-dir -s -Wl,-warn-common
 endif
 ifeq ($(strip $(DOPIC)),true)

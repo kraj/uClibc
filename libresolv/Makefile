@@ -49,8 +49,9 @@ $(OBJS): %.o : %.c
 $(OBJ): Makefile
 
 shared: all
-	$(TARGET_CC) $(TARGET_LDFLAGS) -nostdlib -shared -o $(LIBRESOLV_SHARED_FULLNAME) \
-	    -Wl,-soname,$(LIBRESOLV_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive $(LIBRESOLV) -lc
+	$(LD) $(LDFLAGS) -o $(LIBRESOLV_SHARED_FULLNAME) \
+	    -soname=$(LIBRESOLV_SHARED).$(MAJOR_VERSION) \
+	    --whole-archive $(LIBRESOLV);
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRESOLV_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib;
