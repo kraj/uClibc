@@ -272,6 +272,8 @@ ifeq ($(DOPIC),y)
     CFLAGS += $(PICFLAG)
 endif
 
+ASFLAGS = $(CFLAGS)
+
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
 LIBGCC_DIR:=$(dir $(LIBGCC))

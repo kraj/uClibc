@@ -30,7 +30,7 @@ ar-target: $(SOBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(SOBJS)
 
 $(SOBJS): %.o : %.S
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(ASFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

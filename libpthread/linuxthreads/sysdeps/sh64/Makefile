@@ -31,13 +31,13 @@ OBJS = $(SOBJS) $(COBJS)
 
 all: $(OBJS) $(LIBC)
 
-$(LIBC): ar-target 
+$(LIBC): ar-target
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBPTHREAD) $(OBJS)
 
 $(SOBJS): %.o : %.S
-	$(CC) $(SFLAGS) -c $< -o $@
+	$(CC) $(ASFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c

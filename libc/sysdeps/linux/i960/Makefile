@@ -18,7 +18,6 @@
 
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
-ASFLAGS=$(CFLAGS)
 
 #FIXME -- this arch should include its own crti.S and crtn.S
 UCLIBC_CTOR_DTOR=n
@@ -44,11 +43,11 @@ ar-target: $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
 	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
 $(CRT0_OBJ): $(CRT0_SRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(CC) $(ASFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): %.o : %.S
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(ASFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c
@@ -57,14 +56,14 @@ $(COBJS): %.o : %.c
 
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 crti.o: crti.S
-	$(CC) $(CFLAGS) -c crti.S -o crti.o
+	$(CC) $(ASFLAGS) -c crti.S -o crti.o
 
 $(TOPDIR)lib/crti.o: crti.o
 	$(INSTALL) -d $(TOPDIR)lib/
 	cp crti.o $(TOPDIR)lib/
 
 crtn.o: crtn.S
-	$(CC) $(CFLAGS) -c crtn.S -o crtn.o
+	$(CC) $(ASFLAGS) -c crtn.S -o crtn.o
 
 $(TOPDIR)lib/crtn.o: crtn.o
 	$(INSTALL) -d $(TOPDIR)lib/

@@ -31,7 +31,7 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
 $(SOBJS): %.o : %.S
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(ASFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

@@ -19,7 +19,6 @@
 
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
-ASFLAGS=$(CFLAGS)
 
 CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o
@@ -49,25 +48,25 @@ ar-target: $(OBJS) $(CRT0_OBJ) $(SCRT0_OBJ) $(CTOR_TARGETS)
 	cp $(CRT0_OBJ) $(SCRT0_OBJ) $(CTOR_TARGETS) $(TOPDIR)lib/
 
 $(CRT0_OBJ): $(CRT0_SRC) crtreloc.o
-	$(CC) $(CFLAGS) -DL_$* -r -nostdlib $< crtreloc.o -o $*.o
+	$(CC) $(ASFLAGS) -DL_$* -r -nostdlib $< crtreloc.o -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 crtreloc.o: crtreloc.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(SCRT0_OBJ): $(CRT0_SRC) Scrtreloc.o
-	$(CC) $(CFLAGS) $(PIEFLAG) -DL_$* -r -nostdlib $< Scrtreloc.o -o $*.o
+	$(CC) $(ASFLAGS) $(PIEFLAG) -DL_$* -r -nostdlib $< Scrtreloc.o -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 Scrtreloc.o: crtreloc.c
 	$(CC) $(CFLAGS) $(PIEFLAG) -c $< -o $@
 
 $(CTOR_TARGETS): %.o : %.S
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(ASFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): %.o : %.S
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(ASFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c

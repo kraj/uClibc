@@ -22,6 +22,8 @@ include $(TOPDIR)Rules.mak
 LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 SSPFLAGS=$(call check_gcc,-fno-stack-protector,)
+# reset to initial (disabling predefined CFLAGS)
+ASFLAGS=
 
 XXFLAGS=$(XWARNINGS) $(SSPFLAGS)
 ifeq ($(DODEBUG),y)
@@ -77,7 +79,7 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(AOBJS): %.o : %.S
-	$(CC) $(XXFLAGS) -I../libdl -c $< -o $@
+	$(CC) $(XXFLAGS) $(ASFLAGS) -I../libdl -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 ldso.o: $(CSRC)
