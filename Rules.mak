@@ -105,10 +105,7 @@ export TARGET_ARCH
 
 ARFLAGS:=r
 
-# use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION:=
-OPTIMIZATION+=$(call check_gcc,-Os,-O2)
-
 # Some nice CPU specific optimizations
 ifeq ($(strip $(TARGET_ARCH)),i386)
 	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
@@ -159,9 +156,11 @@ ifeq ($(strip $(TARGET_ARCH)),cris)
 	CPU_CFLAGS-$(CONFIG_CRIS):="-mlinux"
 endif
 
+# use '-Os' optimization if available, else use -O2, allow Config to override
+OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 # Override optimization settings when debugging
 ifeq ($(DODEBUG),y)
-    OPTIMIZATION=$(call check_gcc,-Os,-O2)
+OPTIMIZATION=-O0
 endif
 
 
