@@ -121,8 +121,9 @@ char *_dl_preload = 0;			/* Things to be loaded before the libs. */
 #include "ld.so.h"			/* Pull in the name of ld.so */
 const char *_dl_progname=_dl_static_progname;
 static char *_dl_not_lazy = 0;
-static char *_dl_warn = 0;		/* Used by ldd */
+#ifdef DL_TRACE
 static char *_dl_trace_loaded_objects = 0;
+#endif
 static int (*_dl_elf_main) (int, char **, char **);
 static int (*_dl_elf_init) (void);
 void *(*_dl_malloc_function) (int size) = NULL;
@@ -213,7 +214,7 @@ DL_BOOT(unsigned long args)
 		aux_dat += 2;
 	}
 	
-	/* locate the ELF header.   We need this done as easly as possible 
+	/* locate the ELF header.   We need this done as soon as possible 
 	 * (esp since SEND_STDERR() needs this on some platforms... */
 	load_addr = auxv_t[AT_BASE].a_un.a_val;
 	header = (elfhdr *) auxv_t[AT_BASE].a_un.a_ptr;
@@ -593,8 +594,9 @@ found_got:
 		}
 	}
 
+#ifdef DL_TRACE
 	_dl_trace_loaded_objects = _dl_getenv("LD_TRACE_LOADED_OBJECTS", envp);
-
+#endif
 	/* OK, we now have the application in the list, and we have some
 	   basic stuff in place.  Now search through the list for other shared
 	   libraries that should be loaded, and insert them on the list in the
@@ -627,22 +629,28 @@ found_got:
 				{
 					tpnt1 = _dl_load_shared_library(_dl_secure, NULL, str);
 					if (!tpnt1) {
+#ifdef DL_TRACE
 						if (_dl_trace_loaded_objects)
-							_dl_fdprintf(1, "\t%s => not found\n", str);
+							_dl_fprintf(1, "\t%s => not found\n", str);
 						else {
-							_dl_fdprintf(2, "%s: can't load "
+#endif
+							_dl_fprintf(2, "%s: can't load "
 								"library '%s'\n", _dl_progname, str);
 							_dl_exit(15);
+#ifdef DL_TRACE
 						}
+#endif
 					} else {
+#ifdef DL_TRACE
 						if (_dl_trace_loaded_objects
 							&& !tpnt1->usage_count) {
 							/* this is a real hack to make ldd not print 
 							 * the library itself when run on a library. */
 							if (_dl_strcmp(_dl_progname, str) != 0)
-								_dl_fdprintf(1, "\t%s => %s (0x%x)\n", str, tpnt1->libname, 
+								_dl_fprintf(1, "\t%s => %s (0x%x)\n", str, tpnt1->libname, 
 									(unsigned) tpnt1->loadaddr);
 						}
+#endif
 						rpnt->next = (struct dyn_elf *)
 							_dl_malloc(sizeof(struct dyn_elf));
 						_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
@@ -667,14 +675,14 @@ found_got:
 
 			if (!_dl_stat(LDSO_PRELOAD, &st)) {
 				if ((fd = _dl_open(LDSO_PRELOAD, O_RDONLY)) < 0) {
-					_dl_fdprintf(2, "%s: can't open file '%s'\n", 
+					_dl_fprintf(2, "%s: can't open file '%s'\n", 
 						_dl_progname, LDSO_PRELOAD);
 				} else {
 					preload = (caddr_t) _dl_mmap(0, st.st_size + 1, 
 						PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 					_dl_close(fd);
 					if (preload == (caddr_t) - 1) {
-						_dl_fdprintf(2, "%s: can't map file '%s'\n", 
+						_dl_fprintf(2, "%s: can't map file '%s'\n", 
 							_dl_progname, LDSO_PRELOAD);
 					} else {
 						char c, *cp, *cp2;
@@ -705,19 +713,25 @@ found_got:
 
 							tpnt1 = _dl_load_shared_library(0, NULL, cp2);
 							if (!tpnt1) {
+#ifdef DL_TRACE
 								if (_dl_trace_loaded_objects)
-									_dl_fdprintf(1, "\t%s => not found\n", cp2);
+									_dl_fprintf(1, "\t%s => not found\n", cp2);
 								else {
-									_dl_fdprintf(2, "%s: can't load library '%s'\n", 
+#endif
+									_dl_fprintf(2, "%s: can't load library '%s'\n", 
 										_dl_progname, cp2);
 									_dl_exit(15);
-								}
+#ifdef DL_TRACE
+						}
+#endif
 							} else {
+#ifdef DL_TRACE
 								if (_dl_trace_loaded_objects
 									&& !tpnt1->usage_count) {
-									_dl_fdprintf(1, "\t%s => %s (0x%x)\n", cp2, 
+									_dl_fprintf(1, "\t%s => %s (0x%x)\n", cp2, 
 										tpnt1->libname, (unsigned) tpnt1->loadaddr);
 								}
+#endif
 								rpnt->next = (struct dyn_elf *)
 									_dl_malloc(sizeof(struct dyn_elf));
 								_dl_memset(rpnt->next, 0, 
@@ -751,10 +765,12 @@ found_got:
 						    _dl_get_last_path_component(tpnt->libname)) == 0) {
 						struct elf_resolve *ttmp;
 
+#ifdef DL_TRACE
 						if (_dl_trace_loaded_objects && !tpnt->usage_count) {
-						    _dl_fdprintf(1, "\t%s => %s (0x%x)\n", 
+						    _dl_fprintf(1, "\t%s => %s (0x%x)\n", 
 							    lpnt, tpnt->libname, (unsigned) tpnt->loadaddr);
 						}
+#endif
 						ttmp = _dl_loaded_modules;
 						while (ttmp->next)
 							ttmp = ttmp->next;
@@ -772,17 +788,23 @@ found_got:
 						continue;
 					}
 					if (!(tpnt1 = _dl_load_shared_library(0, tcurr, lpnt))) {
+#ifdef DL_TRACE
 						if (_dl_trace_loaded_objects)
-							_dl_fdprintf(1, "\t%s => not found\n", lpnt);
+							_dl_fprintf(1, "\t%s => not found\n", lpnt);
 						else {
-							_dl_fdprintf(2, "%s: can't load library '%s'\n", 
+#endif
+							_dl_fprintf(2, "%s: can't load library '%s'\n", 
 								_dl_progname, lpnt);
 							_dl_exit(16);
+#ifdef DL_TRACE
 						}
+#endif
 					} else {
+#ifdef DL_TRACE
 						if (_dl_trace_loaded_objects && !tpnt1->usage_count)
-							_dl_fdprintf(1, "\t%s => %s (0x%x)\n", lpnt, tpnt1->libname, 
+							_dl_fprintf(1, "\t%s => %s (0x%x)\n", lpnt, tpnt1->libname, 
 								(unsigned) tpnt1->loadaddr);
+#endif
 						rpnt->next = (struct dyn_elf *)
 							_dl_malloc(sizeof(struct dyn_elf));
 						_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
@@ -801,11 +823,14 @@ found_got:
 	_dl_unmap_cache();
 #endif
 	/* ldd uses uses this.  I am not sure how you pick up the other flags */
+#ifdef DL_TRACE
 	if (_dl_trace_loaded_objects) {
+		char *_dl_warn = 0;
 		_dl_warn = _dl_getenv("LD_WARN", envp);
 		if (!_dl_warn)
 			_dl_exit(0);
 	}
+#endif
 
 	/*
 	 * If the program interpreter is not in the module chain, add it.  This will
@@ -855,8 +880,10 @@ found_got:
 
 	if (_dl_symbol_tables)
 		goof += _dl_copy_fixups(_dl_symbol_tables);
+#ifdef DL_TRACE
 	if (goof || _dl_trace_loaded_objects)
 		_dl_exit(0);
+#endif
 
 	/* OK, at this point things are pretty much ready to run.  Now we
 	   need to touch up a few items that are required, and then
@@ -929,13 +956,13 @@ found_got:
 #undef DL_DEBUG
 #ifdef DL_DEBUG
 		else {
-			_dl_fdprintf(2, tpnt->libname);
-			_dl_fdprintf(2, ": ");
+			_dl_fprintf(2, tpnt->libname);
+			_dl_fprintf(2, ": ");
 			if (!_dl_atexit)
-				_dl_fdprintf(2, "The address is atexit () is 0x0.");
+				_dl_fprintf(2, "The address is atexit () is 0x0.");
 			if (!tpnt->dynamic_info[DT_FINI])
-				_dl_fdprintf(2, "Invalid .fini section.");
-			_dl_fdprintf(2, "\n");
+				_dl_fprintf(2, "Invalid .fini section.");
+			_dl_fprintf(2, "\n");
 		}
 #endif
 #undef DL_DEBUG
@@ -970,7 +997,7 @@ int _dl_fixup(struct elf_resolve *tpnt)
 		goof += _dl_fixup(tpnt->next);
 	if (tpnt->dynamic_info[DT_REL]) {
 #ifdef ELF_USES_RELOCA
-		_dl_fdprintf(2, "%s: can't handle REL relocation records\n", 
+		_dl_fprintf(2, "%s: can't handle REL relocation records\n", 
 			_dl_progname);
 		_dl_exit(17);
 #else
@@ -989,7 +1016,7 @@ int _dl_fixup(struct elf_resolve *tpnt)
 		goof += _dl_parse_relocation_information(tpnt, 
 			tpnt->dynamic_info[DT_RELA], tpnt->dynamic_info[DT_RELASZ], 0);
 #else
-		_dl_fdprintf(2, "%s: can't handle RELA relocation records\n", 
+		_dl_fprintf(2, "%s: can't handle RELA relocation records\n", 
 			_dl_progname);
 		_dl_exit(18);
 #endif
@@ -1028,7 +1055,7 @@ void *_dl_malloc(int size)
 		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size, 
 			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
-			_dl_fdprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
+			_dl_fprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
 			_dl_exit(20);
 		}
 	}
@@ -1205,5 +1232,79 @@ void * _dl_memset(void * str,int c,size_t len)
 		*a++ = c;
 
 	return str;
+}
+
+/* Minimum printf which handles only characters, %d's and %s's */
+void _dl_fprintf(int fd, const char *fmt, ...)
+{
+    int num;
+    va_list args;
+    char *start, *ptr, *string;
+    char buf[2048];
+
+    start = ptr = buf;
+    
+    if (!fmt)
+	return;
+
+    if (_dl_strlen(fmt) >= (sizeof(buf)-1))
+	_dl_write(fd, "(overflow)\n", 10);
+
+    _dl_strcpy(buf, fmt);
+    va_start(args, fmt);
+
+    while(start)
+    {
+	while(*ptr != '%' && *ptr) { 
+	    ptr++;
+	}
+
+	if(*ptr == '%')
+	{
+	    *ptr++ = '\0';
+	    _dl_write(fd, start, _dl_strlen(start));
+
+	    switch(*ptr++)
+	    {
+		case 's':
+		    string = va_arg(args, char *);
+		    if (!string)
+			_dl_write(fd, "(null)", 6);
+		    else
+			_dl_write(fd, string, _dl_strlen(string));
+		    break;
+
+		case 'i':
+		case 'd':
+		    {
+			char tmp[13];
+			num = va_arg(args, int);
+			string = _dl_simple_ltoa_inline(tmp, num);
+			_dl_write(fd, string, _dl_strlen(string));
+			break;
+		    }
+		case 'x':
+		case 'X':
+		    {
+			char tmp[13];
+			num = va_arg(args, int);
+			string = _dl_simple_ltoahex_inline(tmp, num);
+			_dl_write(fd, string, _dl_strlen(string));
+			break;
+		    }
+		default:
+			_dl_write(fd, "(null)", 6);
+			break;
+	    }
+
+	    start = ptr;
+	}
+	else
+	{
+	    _dl_write(fd, start, _dl_strlen(start));
+	    start = NULL;
+	}
+    }
+    return;
 }
 

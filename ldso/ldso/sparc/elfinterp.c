@@ -82,14 +82,14 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
   symtab =  (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
   strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 
-  _dl_fdprintf(2, "tpnt = %x\n", tpnt);
-  _dl_fdprintf(2, "reloc = %x\n", this_reloc);
-  _dl_fdprintf(2, "symtab = %x\n", symtab);
-  _dl_fdprintf(2, "strtab = %x\n", strtab);
+  _dl_fprintf(2, "tpnt = %x\n", tpnt);
+  _dl_fprintf(2, "reloc = %x\n", this_reloc);
+  _dl_fprintf(2, "symtab = %x\n", symtab);
+  _dl_fprintf(2, "strtab = %x\n", strtab);
 
 
   if (reloc_type != R_SPARC_JMP_SLOT) {
-    _dl_fdprintf(2, "%s: incorrect relocation type in jump relocations (%d)\n",
+    _dl_fprintf(2, "%s: incorrect relocation type in jump relocations (%d)\n",
 		  _dl_progname, reloc_type);
     _dl_exit(30);
   };
@@ -98,10 +98,10 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
   instr_addr  = ((int)this_reloc->r_offset  + (int)tpnt->loadaddr);
   got_addr = (char **) instr_addr;
 
-  _dl_fdprintf(2, "symtab_index %d\n", symtab_index);
+  _dl_fprintf(2, "symtab_index %d\n", symtab_index);
 
 #ifdef DEBUG
-  _dl_fdprintf(2, "Resolving symbol %s\n",
+  _dl_fprintf(2, "Resolving symbol %s\n",
 	strtab + symtab[symtab_index].st_name);
 #endif
 
@@ -109,14 +109,14 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
   new_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name, 
   			tpnt->symbol_scope, (int) got_addr, tpnt, 0);
   if(!new_addr) {
-    _dl_fdprintf(2, "%s: can't resolve symbol '%s'\n",
+    _dl_fprintf(2, "%s: can't resolve symbol '%s'\n",
 	       _dl_progname, strtab + symtab[symtab_index].st_name);
     _dl_exit(31);
   };
 /* #define DEBUG_LIBRARY */
 #ifdef DEBUG_LIBRARY
   if((unsigned int) got_addr < 0x40000000) {
-    _dl_fdprintf(2, "Calling library function: %s\n",
+    _dl_fprintf(2, "Calling library function: %s\n",
 	       strtab + symtab[symtab_index].st_name);
   } else {
     got_addr[1] = (char *) (0x03000000 | (((unsigned int) new_addr >> 10) & 0x3fffff));
@@ -126,7 +126,7 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
   got_addr[1] = (char *) (0x03000000 | (((unsigned int) new_addr >> 10) & 0x3fffff));
   got_addr[2] = (char *) (0x81c06000 | ((unsigned int) new_addr & 0x3ff));
 #endif
-  _dl_fdprintf(2, "Address = %x\n",new_addr);
+  _dl_fprintf(2, "Address = %x\n",new_addr);
     _dl_exit(32);
 
   return (unsigned int) new_addr;
@@ -166,11 +166,11 @@ void _dl_parse_lazy_relocation_information(struct elf_resolve * tpnt, int rel_ad
     case R_SPARC_JMP_SLOT:
       break;
     default:
-      _dl_fdprintf(2, "%s: (LAZY) can't handle reloc type ", _dl_progname);
+      _dl_fprintf(2, "%s: (LAZY) can't handle reloc type ", _dl_progname);
 #ifdef VERBOSE_DLINKER
-      _dl_fdprintf(2, "%s ", _dl_reltypes[reloc_type]);
+      _dl_fprintf(2, "%s ", _dl_reltypes[reloc_type]);
 #endif
-      if(symtab_index) _dl_fdprintf(2, "'%s'\n",
+      if(symtab_index) _dl_fprintf(2, "'%s'\n",
 				  strtab + symtab[symtab_index].st_name);
       _dl_exit(33);
     };
@@ -216,7 +216,7 @@ int _dl_parse_relocation_information(struct elf_resolve * tpnt, int rel_addr,
 
       if(!symbol_addr &&
 	 ELF32_ST_BIND(symtab [symtab_index].st_info) == STB_GLOBAL) {
-	_dl_fdprintf(2, "%s: can't resolve symbol '%s'\n",
+	_dl_fprintf(2, "%s: can't resolve symbol '%s'\n",
 		     _dl_progname, strtab + symtab[symtab_index].st_name);
 	goof++;
       };
@@ -260,21 +260,21 @@ int _dl_parse_relocation_information(struct elf_resolve * tpnt, int rel_addr,
       break;
     case R_SPARC_COPY:
 #if 0 /* This one is done later */
-      _dl_fdprintf(2, "Doing copy for symbol ");
-      if(symtab_index) _dl_fdprintf(2, strtab + symtab[symtab_index].st_name);
-      _dl_fdprintf(2, "\n");
+      _dl_fprintf(2, "Doing copy for symbol ");
+      if(symtab_index) _dl_fprintf(2, strtab + symtab[symtab_index].st_name);
+      _dl_fprintf(2, "\n");
       _dl_memcpy((void *) symtab[symtab_index].st_value,
 		 (void *) symbol_addr, 
 		 symtab[symtab_index].st_size);
 #endif
       break;
     default:
-      _dl_fdprintf(2, "%s: can't handle reloc type ", _dl_progname);
+      _dl_fprintf(2, "%s: can't handle reloc type ", _dl_progname);
 #ifdef VERBOSE_DLINKER
-      _dl_fdprintf(2, "%s ", _dl_reltypes[reloc_type]);
+      _dl_fprintf(2, "%s ", _dl_reltypes[reloc_type]);
 #endif
       if (symtab_index)
-	_dl_fdprintf(2, "'%s'\n", strtab + symtab[symtab_index].st_name);
+	_dl_fprintf(2, "'%s'\n", strtab + symtab[symtab_index].st_name);
       _dl_exit(34);
     };
 
@@ -331,7 +331,7 @@ int _dl_parse_copy_information(struct dyn_elf * xpnt, int rel_addr,
 	_dl_find_hash(strtab + symtab[symtab_index].st_name,
 			      xpnt->next, (int) reloc_addr, NULL, 1);
       if(!symbol_addr) {
-	_dl_fdprintf(2, "%s: can't resolve symbol '%s'\n",
+	_dl_fprintf(2, "%s: can't resolve symbol '%s'\n",
 		   _dl_progname, strtab + symtab[symtab_index].st_name);
 	goof++;
       };
