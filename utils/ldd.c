@@ -2,8 +2,7 @@
 /*
  * A small little ldd implementation for uClibc
  *
- * Copyright (C) 2000 by Lineo, inc and Erik Andersen
- * Copyright (C) 2000-2002 Erik Andersen <andersee@debian.org>
+ * Copyright (C) 2000-2004 Erik Andersen <andersee@debian.org>
  *
  * Several functions in this file (specifically, elf_find_section_type(),
  * elf_find_phdr_type(), and elf_find_dynamic(), were stolen from elflib.c from
@@ -70,7 +69,7 @@
 #define ELFCLASSM	ELFCLASS32
 #endif
 
-#if defined(__mc68000__) 
+#if defined(__mc68000__)
 #define MATCH_MACHINE(x) (x == EM_68K)
 #define ELFCLASSM	ELFCLASS32
 #endif
@@ -137,8 +136,6 @@ inline uint32_t byteswap32_to_host(uint32_t value)
 	}
 }
 
-
-
 Elf32_Shdr * elf_find_section_type( int key, Elf32_Ehdr *ehdr)
 {
 	int j;
@@ -164,8 +161,8 @@ Elf32_Phdr * elf_find_phdr_type( int type, Elf32_Ehdr *ehdr)
 	return NULL;
 }
 
-/* Returns value if return_val==1, ptr otherwise */ 
-void * elf_find_dynamic(int const key, Elf32_Dyn *dynp, 
+/* Returns value if return_val==1, ptr otherwise */
+void * elf_find_dynamic(int const key, Elf32_Dyn *dynp,
 	Elf32_Ehdr *ehdr, int return_val)
 {
 	Elf32_Phdr *pt_text = elf_find_phdr_type(PT_LOAD, ehdr);
@@ -194,12 +191,12 @@ static char * elf_find_rpath(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic)
 	}
 	return NULL;
 }
-    
+
 int check_elf_header(Elf32_Ehdr *const ehdr)
 {
-	if (! ehdr || strncmp((void *)ehdr, ELFMAG, SELFMAG) != 0 ||  
+	if (! ehdr || strncmp((void *)ehdr, ELFMAG, SELFMAG) != 0 ||
 			ehdr->e_ident[EI_CLASS] != ELFCLASS32 ||
-			ehdr->e_ident[EI_VERSION] != EV_CURRENT) 
+			ehdr->e_ident[EI_VERSION] != EV_CURRENT)
 	{
 		return 1;
 	}
@@ -219,7 +216,7 @@ int check_elf_header(Elf32_Ehdr *const ehdr)
 #else
 #error Unknown host byte order!
 #endif
-	
+
 	/* Be vary lazy, and only byteswap the stuff we use */
 	if (byteswap==1) {
 		ehdr->e_type=bswap_16(ehdr->e_type);
@@ -232,7 +229,7 @@ int check_elf_header(Elf32_Ehdr *const ehdr)
 	return 0;
 }
 
-/* This function's behavior must exactly match that 
+/* This function's behavior must exactly match that
  * in uClibc/ldso/ldso/readelflib1.c */
 static void search_for_named_library(char *name, char *result, const char *path_list)
 {
@@ -263,8 +260,8 @@ static void search_for_named_library(char *name, char *result, const char *path_
 	}
 	path_n = path;
 	for (i = 0; i < count; i++) {
-		strcpy(result, path_n); 
-		strcat(result, "/"); 
+		strcpy(result, path_n);
+		strcat(result, "/");
 		strcat(result, name);
 		if (stat (result, &filestat) == 0 && filestat.st_mode & S_IRUSR) {
 			free(path);
@@ -281,7 +278,7 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_suid, stru
 	char *buf;
 	char *path;
 	struct stat filestat;
-	
+
 	/* If this is a fully resolved name, our job is easy */
 	if (stat (lib->name, &filestat) == 0) {
 		lib->path = lib->name;
@@ -324,11 +321,11 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_suid, stru
 	}
 
 #ifdef USE_CACHE
-	/* FIXME -- add code to check the Cache here */ 
+	/* FIXME -- add code to check the Cache here */
 #endif
 
 
-	/* Next look for libraries wherever the shared library 
+	/* Next look for libraries wherever the shared library
 	 * loader was installed -- this is usually where we
 	 * should find things... */
 	if (interp_dir) {
@@ -342,14 +339,14 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_suid, stru
 	/* Lastly, search the standard list of paths for the library.
 	   This list must exactly match the list in uClibc/ldso/ldso/readelflib1.c */
 	path =	UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib:"
-			UCLIBC_RUNTIME_PREFIX "usr/lib:"
-			UCLIBC_RUNTIME_PREFIX "lib:"
-			"/usr/lib:"
-			"/lib";
+		UCLIBC_RUNTIME_PREFIX "usr/lib:"
+		UCLIBC_RUNTIME_PREFIX "lib:"
+		"/usr/lib:"
+		"/lib";
 	search_for_named_library(lib->name, buf, path);
 	if (*buf != '\0') {
 		lib->path = buf;
-	} else { 
+	} else {
 		free(buf);
 		lib->path = not_found;
 	}
@@ -363,7 +360,7 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_setuid, char
 	if (!s || !strlen(s))
 		return 1;
 
-	tmp = s; 
+	tmp = s;
 	while (*tmp) {
 		if (*tmp == '/')
 			s = tmp + 1;
@@ -380,7 +377,7 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_setuid, char
 
 	for (cur = lib_list; cur; cur=cur->next) {
 		/* Check if this library is already in the list */
-		tmp1 = tmp2 = cur->name; 
+		tmp1 = tmp2 = cur->name;
 		while (*tmp1) {
 			if (*tmp1 == '/')
 				tmp2 = tmp1 + 1;
@@ -415,7 +412,7 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_setuid, char
 	return 0;
 }
 
-static void find_needed_libraries(Elf32_Ehdr* ehdr, 
+static void find_needed_libraries(Elf32_Ehdr* ehdr,
 		Elf32_Dyn* dynamic, int is_setuid)
 {
 	Elf32_Dyn  *dyns;
@@ -424,12 +421,12 @@ static void find_needed_libraries(Elf32_Ehdr* ehdr,
 		if (DT_NEEDED == byteswap32_to_host(dyns->d_tag)) {
 			char *strtab;
 			strtab = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
-			add_library(ehdr, dynamic, is_setuid, 
+			add_library(ehdr, dynamic, is_setuid,
 					(char*)strtab + byteswap32_to_host(dyns->d_un.d_val));
 		}
 	}
 }
-    
+
 static struct library * find_elf_interpreter(Elf32_Ehdr* ehdr)
 {
 	Elf32_Phdr *phdr;
@@ -440,7 +437,7 @@ static struct library * find_elf_interpreter(Elf32_Ehdr* ehdr)
 	if (phdr) {
 		struct library *cur, *newlib=NULL;
 		char *s = (char*)ehdr + byteswap32_to_host(phdr->p_offset);
-	
+
 		char *tmp, *tmp1;
 		interp = strdup(s);
 		interp_dir = strdup(s);
@@ -476,7 +473,7 @@ static struct library * find_elf_interpreter(Elf32_Ehdr* ehdr)
 		newlib->path = newlib->name;
 		newlib->resolved = 1;
 		newlib->next = NULL;
-	
+
 #if 0
 		//printf("find_elf_interpreter is adding '%s' to '%s'\n", newlib->name, newlib->path);
 		if (!lib_list) {
@@ -552,11 +549,11 @@ foo:
 
 	interpreter_already_found=0;
 	interp = find_elf_interpreter(ehdr);
-			
+
 #ifdef __LDSO_LDD_SUPPORT
-	if (interp && ehdr->e_type == ET_EXEC && ehdr->e_ident[EI_CLASS] == ELFCLASSM && 
+	if (interp && ehdr->e_type == ET_EXEC && ehdr->e_ident[EI_CLASS] == ELFCLASSM &&
 			ehdr->e_ident[EI_DATA] == ELFDATAM
-		&& ehdr->e_ident[EI_VERSION] == EV_CURRENT && MATCH_MACHINE(ehdr->e_machine)) 
+			&& ehdr->e_ident[EI_VERSION] == EV_CURRENT && MATCH_MACHINE(ehdr->e_machine))
 	{
 		struct stat statbuf;
 		if (stat(interp->path, &statbuf) == 0 && S_ISREG(statbuf.st_mode)) {
@@ -570,7 +567,7 @@ foo:
 			};
 
 			if ((pid = fork()) == 0) {
-				/* Cool, it looks like we should be able to actually 
+				/* Cool, it looks like we should be able to actually
 				 * run this puppy.  Do so now... */
 				execle(filename, filename, NULL, environment);
 				_exit(0xdead);
@@ -594,11 +591,9 @@ foo:
 		dynamic = (Elf32_Dyn*)(byteswap32_to_host(dynsec->sh_offset) + (intptr_t)ehdr);
 		find_needed_libraries(ehdr, dynamic, is_suid);
 	}
-	
+
 	return 0;
 }
-
-
 
 int main( int argc, char** argv)
 {
