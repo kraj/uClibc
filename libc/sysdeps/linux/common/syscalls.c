@@ -1613,7 +1613,13 @@ _syscall3(int, chown, const char *, path, uid_t, owner, gid_t, group);
 #endif
 
 //#define __NR_getcwd                   183
-// See unistd/getcwd.c -- we don't use this syscall, even when it is available...
+#ifdef L_getcwd
+#	ifdef __NR_getcwd
+		_syscall2(int, getcwd, char *, buf, unsigned long, size);
+#	else
+// See unistd/getcwd.c if this syscall is not available...
+#	endif
+#endif
 
 //#define __NR_capget                   184
 #ifdef L_capget

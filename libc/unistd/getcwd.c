@@ -1,85 +1,25 @@
+/* These functions find the absolute path to the current working directory.  */
+
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <string.h>
+#include <sys/syscall.h>
+
+/* if the syscall is not present, we have to recurse up */
+#ifndef __NR_getcwd
 
 /* #undef FAST_DIR_SEARCH_POSSIBLE on Linux */
 
-
-/* These functions find the absolute path to the current working directory.  */
-
-static char *recurser();		/* Routine to go up tree */
-static char *search_dir();		/* Routine to find the step back down */
-static char *path_buf;
-static int path_size;
-
-static dev_t root_dev;
-static ino_t root_ino;
-
-static struct stat st;
-
-char *getcwd( char *buf, int size)
-{
-	path_size = size;
-
-	if (size < 3) {
-		__set_errno(ERANGE);
-		return NULL;
-	}
-
-	if (buf != NULL)
-	    path_buf = buf;
-	else
-	{
-	    path_buf = malloc (size);
-	    if (path_buf == NULL)
-		return NULL;
-	}
-
-	strcpy(path_buf, ".");
-
-	if (stat("/", &st) < 0)
-		return NULL;
-
-	root_dev = st.st_dev;
-	root_ino = st.st_ino;
-
-	return recurser();
-}
-
-static char *recurser()
-{
-	dev_t this_dev;
-	ino_t this_ino;
-
-	if (stat(path_buf, &st) < 0)
-		return 0;
-	this_dev = st.st_dev;
-	this_ino = st.st_ino;
-	if (this_dev == root_dev && this_ino == root_ino) {
-		strcpy(path_buf, "/");
-		return path_buf;
-	}
-	if (strlen(path_buf) + 4 > path_size) {
-		__set_errno(ERANGE);
-		return 0;
-	}
-	strcat(path_buf, "/..");
-	if (recurser() == 0)
-		return 0;
-
-	return search_dir(this_dev, this_ino);
-}
-
-static char *search_dir(this_dev, this_ino)
-dev_t this_dev;
-ino_t this_ino;
+/* Routine to find the step back down */
+static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path_size)
 {
 	DIR *dp;
 	struct dirent *d;
 	char *ptr;
 	int slen;
+	struct stat st;
 
 #ifdef FAST_DIR_SEARCH_POSSIBLE
 	/* The test is for ELKS lib 0.0.9, this should be fixed in the real kernel */
@@ -133,3 +73,59 @@ ino_t this_ino;
 	__set_errno(ENOENT);
 	return 0;
 }
+
+/* Routine to go up tree */
+static char *recurser(char *path_buf, int path_size, dev_t root_dev, ino_t root_ino)
+{
+	struct stat st;
+	dev_t this_dev;
+	ino_t this_ino;
+
+	if (stat(path_buf, &st) < 0)
+		return 0;
+	this_dev = st.st_dev;
+	this_ino = st.st_ino;
+	if (this_dev == root_dev && this_ino == root_ino) {
+		strcpy(path_buf, "/");
+		return path_buf;
+	}
+	if (strlen(path_buf) + 4 > path_size) {
+		__set_errno(ERANGE);
+		return 0;
+	}
+	strcat(path_buf, "/..");
+	if (recurser(path_buf, path_size, root_dev, root_ino) == 0)
+		return 0;
+
+	return search_dir(this_dev, this_ino, path_buf, path_size);
+}
+
+
+char *getcwd(char *buf, int size)
+{
+	struct stat st;
+
+	if (size == 0) {
+		__set_errno(EINVAL);
+		return NULL;
+	}
+	if (size < 3) {
+		__set_errno(ERANGE);
+		return NULL;
+	}
+
+	if (buf == NULL) {
+		buf = malloc (size);
+		if (buf == NULL)
+			return NULL;
+	}
+
+	strcpy(buf, ".");
+	if (stat("/", &st) < 0) {
+		return NULL;
+	}
+
+	return recurser(buf, size, st.st_dev, st.st_ino);
+}
+
+#endif
