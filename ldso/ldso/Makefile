@@ -21,20 +21,18 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-
-XXFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
-	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-	-fno-builtin -nostdinc -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
-
-ifeq ($(SUPPORT_LD_DEBUG),y)
-XXFLAGS=$(XWARNINGS) $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
-	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-	-fno-builtin -nostdinc -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
+XXFLAGS=$(XWARNINGS) $(LIBRARY_CACHE)
+ifeq ($(DODEBUG),y)
 # Not really much point in including debugging info, since gdb
 # can't really debug ldso, since gdb requires help from ldso to
 # debug things....
 XXFLAGS+=-Os #-g3
+else
+XXFLAGS+=$(OPTIMIZATION)
 endif
+XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
+	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
+	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
 
 # BEWARE!!! At least mips* will die if -O0 is used!!!
 XXFLAGS :=$(XXFLAGS:-O0=-O1)

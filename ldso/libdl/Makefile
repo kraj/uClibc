@@ -21,15 +21,15 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-XXFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) \
+XXFLAGS=$(XWARNINGS) $(LIBRARY_CACHE)
+ifeq ($(DODEBUG),y)
+XXFLAGS+=-O0 -g3
+else
+XXFLAGS+=$(OPTIMIZATION)
+endif
+XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso -I. -I$(TOPDIR)include
-
-ifeq ($(DODEBUG),y)
-XXFLAGS=$(XWARNINGS) -O0 -g3 $(XARCH_CFLAGS) $(CPU_CFLAGS) \
-	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso I. -I$(TOPDIR)include
-endif
 
 XXFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1include/gp")
 XXFLAGS_NOPIC:=$(XXFLAGS)
