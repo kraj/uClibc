@@ -5,7 +5,7 @@ include $(TOPDIR)Rules.make
 XCFLAGS = -Wall -Os -fomit-frame-pointer -fno-builtin -nostdinc \
 	-I$(TOPDIR)include -I/usr/include/linux
 XLDFLAGS = -nostdlib -s -gc-sections
-EXTRA_LIBS=/home/andersen/CVS/uC-libc/libc.a
+EXTRA_LIBS=$(TOPDIR)libc.a
 
 YCFLAGS = -Wall -Os -fomit-frame-pointer
 YLDFLAGS = -s --static 

@@ -8,7 +8,7 @@ include $(TOPDIR)Rules.make
 LIBC=../libc.a
 
 MSRC=alloc.c
-MOBJ=malloc.o free.o calloc.o malloc_dbg.o free_dbg.o calloc_dbg.o
+MOBJ=malloc.o realloc.o free.o calloc.o malloc_dbg.o free_dbg.o calloc_dbg.o
 
 OBJ=$(MOBJ)
 
