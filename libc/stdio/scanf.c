@@ -29,6 +29,10 @@
  * Sep 5, 2003
  * Bug fix: store flag wasn't respected if no positional args.
  * Implement vs{n}scanf for the non-buffered stdio no-wchar case.
+ *
+ * Sep 13, 2003
+ * Bug fix: Fix a problem reported by Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+ * for environments where long and long long are the same.
  */
 
 
@@ -92,7 +96,7 @@ typedef struct {
 
 extern void _store_inttype(void *dest, int desttype, uintmax_t val);
 
-#ifdef LLONG_MAX
+#if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
 extern unsigned long long
 _stdlib_strto_ll(register const char * __restrict str,
@@ -101,7 +105,7 @@ _stdlib_strto_ll(register const char * __restrict str,
 #define STRTOUIM(s,e,b,sf) _stdlib_strto_ll(s,e,b,sf)
 #endif
 
-#else  /* LLONG_MAX */
+#else  /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
 extern unsigned long
 _stdlib_strto_l(register const char * __restrict str,
@@ -111,7 +115,7 @@ _stdlib_strto_l(register const char * __restrict str,
 #define STRTOUIM(s,e,b,sf) _stdlib_strto_l(s,e,b,sf)
 #endif
 
-#endif /* LLONG_MAX */
+#endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
 #ifndef STRTOUIM
 #error STRTOUIM conversion function is undefined!
