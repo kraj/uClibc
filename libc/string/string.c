@@ -2,6 +2,9 @@
 /* Copyright (C) 1995,1996 Robert de Bath <rdebath@cix.compulink.co.uk>
  * This file is part of the Linux-8086 C library and is distributed
  * under the GNU Library General Public License.
+ *
+ * Many of the functions in this file have been rewritten for correctness
+ * (but not necessarily speed) by Erik Andersen <andersee@debian.org>
  */
 
 #include <string.h>
@@ -263,21 +266,16 @@ void *memchr(const void *str, int c, size_t len)
 #ifdef L_memcmp
 int memcmp(const void *s1, const void *s2, size_t len)
 {
-	unsigned register char c1 = '\0';
-	unsigned register char c2 = '\0';
+	unsigned char *c1 = (unsigned char *)s1;
+	unsigned char *c2 = (unsigned char *)s2;
 
-	register char *str1 = (char *) s1;
-	register char *str2 = (char *) s2;
-
-	while (len > 0) {
-		c1 = (unsigned char) *str1++;
-		c2 = (unsigned char) *str2++;
-		if (c1 == '\0' || c1 != c2)
-			return c1 - c2;
-		len--;
+	while (len--) {
+		if (*c1 != *c2) 
+			return *c1 - *c2;
+		c1++;
+		c2++;
 	}
-
-	return c1 - c2;
+	return 0;
 }
 #endif
 
