@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2002 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2002-2003 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -19,22 +19,22 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-LIBRESOLV=libnsl.a
-LIBRESOLV_SHARED=libnsl.so
-LIBRESOLV_SHARED_FULLNAME=libnsl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIBNSL=libnsl.a
+LIBNSL_SHARED=libnsl.so
+LIBNSL_SHARED_FULLNAME=libnsl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 CSRC = nsl.c
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(OBJS) $(LIBRESOLV)
+all: $(OBJS) $(LIBNSL)
 
-$(LIBRESOLV): ar-target
+$(LIBNSL): ar-target
 
 ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBRESOLV) $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBNSL) $(OBJS)
 	install -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBRESOLV)
-	install -m 644 $(LIBRESOLV) $(TOPDIR)lib
+	rm -f $(TOPDIR)lib/$(LIBNSL)
+	install -m 644 $(LIBNSL) $(TOPDIR)lib
 
 $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -43,16 +43,16 @@ $(OBJS): %.o : %.c
 $(OBJ): Makefile
 
 shared: all
-	$(LD) $(LDFLAGS) -soname=$(LIBRESOLV_SHARED).$(MAJOR_VERSION) \
-		-o $(LIBRESOLV_SHARED_FULLNAME) --whole-archive $(LIBRESOLV) \
+	$(LD) $(LDFLAGS) -soname=$(LIBNSL_SHARED).$(MAJOR_VERSION) \
+		-o $(LIBNSL_SHARED_FULLNAME) --whole-archive $(LIBNSL) \
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
 		-L$(TOPDIR)/lib -lc;
 	install -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRESOLV_SHARED).$(MAJOR_VERSION)
-	install -m 644 $(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib;
-	(cd $(TOPDIR)lib && ln -sf $(LIBRESOLV_SHARED_FULLNAME) $(LIBRESOLV_SHARED)); 
-	(cd $(TOPDIR)lib && ln -sf $(LIBRESOLV_SHARED_FULLNAME) $(LIBRESOLV_SHARED).$(MAJOR_VERSION)); 
+	rm -f $(TOPDIR)lib/$(LIBNSL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBNSL_SHARED).$(MAJOR_VERSION)
+	install -m 644 $(LIBNSL_SHARED_FULLNAME) $(TOPDIR)lib;
+	(cd $(TOPDIR)lib && ln -sf $(LIBNSL_SHARED_FULLNAME) $(LIBNSL_SHARED)); 
+	(cd $(TOPDIR)lib && ln -sf $(LIBNSL_SHARED_FULLNAME) $(LIBNSL_SHARED).$(MAJOR_VERSION)); 
 
 clean: 
-	rm -f *.[oa] *~ core $(LIBRESOLV_SHARED)* $(LIBRESOLV_SHARED_FULLNAME)*
+	rm -f *.[oa] *~ core $(LIBNSL_SHARED)* $(LIBNSL_SHARED_FULLNAME)*
 
