@@ -48,16 +48,9 @@ static char *_dl_reltypes[] =
    a more than adequate job of explaining everything required to get this
    working. */
 
-#include "linuxelf.h"
-#include "ld_hash.h"
-#include "ld_syscall.h"
-#include "ld_string.h"
 
-extern char *_dl_progname;
-
-unsigned int 
-_dl_linux_resolver (int dummy1, int dummy2,
-		    struct elf_resolve *tpnt, int reloc_entry)
+unsigned int _dl_linux_resolver (int dummy1, int dummy2, 
+	struct elf_resolve *tpnt, int reloc_entry)
 {
   int reloc_type;
   Elf32_Rela *this_reloc;

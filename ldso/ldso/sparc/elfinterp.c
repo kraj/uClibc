@@ -41,13 +41,6 @@ an ELF sharable library or a linux style of shared library. */
    a more than adequate job of explaining everything required to get this
    working. */
 
-#include "linuxelf.h"
-#include "ld_hash.h"
-#include "ld_syscall.h"
-#include "ld_string.h"
-
-extern char *_dl_progname;
-
 extern _dl_linux_resolve(void);
 
 unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)

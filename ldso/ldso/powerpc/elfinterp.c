@@ -48,11 +48,6 @@ static char *_dl_reltypes[] =
    a more than adequate job of explaining everything required to get this
    working. */
 
-#include "linuxelf.h"
-#include "ld_hash.h"
-#include "ld_syscall.h"
-#include "ld_string.h"
-#include <errno.h>
 
 #ifdef DEBUG
 static void debug_sym(Elf32_Sym *symtab,char *strtab,int symtab_index);
@@ -63,8 +58,6 @@ static void debug_reloc(ELF_RELOC *rpnt);
 #define debug_reloc(a)
 #define DPRINTF(fmt,args...)
 #endif
-
-extern char *_dl_progname;
 
 extern int _dl_linux_resolve(void);
 
