@@ -15,7 +15,12 @@
 #include <errno.h>
 
 /* ATEXIT.H */
-#define MAXONEXIT 20			/* AIUI Posix requires 10 */
+
+/*
+ * NOTE!!! The following should match the value returned by
+ *     by sysconf(_SC_ATEXIT_MAX) in unistd/sysconf.c
+ */
+#define MAXATEXIT 20			/* AIUI Posix requires 10 */
 
 typedef void (*vfuncp) (void);
 
@@ -23,7 +28,7 @@ extern vfuncp __cleanup;
 extern void __do_exit();
 extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
 
-extern vfuncp __atexit_table[MAXONEXIT];
+extern vfuncp __atexit_table[MAXATEXIT];
 extern int __atexit_count;
 
 /* End ATEXIT.H */
@@ -31,7 +36,7 @@ extern int __atexit_count;
 #ifdef L_atexit
 int atexit(vfuncp ptr)
 {
-	if ((__atexit_count < 0) || (__atexit_count >= MAXONEXIT)) {
+	if ((__atexit_count < 0) || (__atexit_count >= MAXATEXIT)) {
 		errno = ENOMEM;
 		return -1;
 	}
@@ -42,7 +47,7 @@ int atexit(vfuncp ptr)
 	return 0;
 }
 
-vfuncp __atexit_table[MAXONEXIT];
+vfuncp __atexit_table[MAXATEXIT];
 int __atexit_count = 0;
 
 void __do_exit(int rv)
