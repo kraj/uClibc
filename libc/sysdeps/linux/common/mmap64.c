@@ -22,6 +22,13 @@
 #include <sysdep.h>
 #include <sys/mman.h>
 
+/* Massivly hackd up for uClibc by Erik Andersen
+ * 
+ * This version is a stub that just chops off everything at the mmap 32 bit
+ * mmap() address space...  You need to add in an arch specific implementation
+ * to override this as there is not a generic way for me to implement this
+ * particular syscall. */
+
 #if defined __UCLIBC_HAS_LFS__
 
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
