@@ -37,6 +37,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <sys/user.h>
 #include "dl-elf.h"
 #include "readsoname.h"
 
@@ -186,7 +187,7 @@ char *is_shlib(const char *dir, const char *name, int *type,
     struct exec exec;
     ElfW(Ehdr) *elf_hdr;
     struct stat statbuf;
-    char buff[4096];
+    char buff[PAGE_SIZE];
 
     /* see if name is of the form *.so* */
     if (name[strlen(name)-1] != '~' && (cp = strstr(name, ".so")))
@@ -286,8 +287,8 @@ char *is_shlib(const char *dir, const char *name, int *type,
 void link_shlib(const char *dir, const char *file, const char *so)
 {
     int change = 1;
-    char libname[4096];
-    char linkname[4096];
+    char libname[PAGE_SIZE];
+    char linkname[PAGE_SIZE];
     struct stat libstat;
     struct stat linkstat;
 
@@ -612,7 +613,7 @@ void cache_write(void)
 {
     int cachefd;
     int stroffset = 0;
-    char tempfile[4096];
+    char tempfile[PAGE_SIZE];
     liblist_t *cur_lib;
 
     if (!magic.nlibs)
