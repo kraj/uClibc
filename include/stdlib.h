@@ -547,6 +547,7 @@ extern void *malloc (size_t __size) __THROW __attribute_malloc__;
 /* Allocate NMEMB elements of SIZE bytes each, all initialized to 0.  */
 extern void *calloc (size_t __nmemb, size_t __size)
      __THROW __attribute_malloc__;
+#if 0
 /* Cope with autoconf's broken AC_FUNC_MALLOC macro, which
  * redefines malloc to rpl_malloc if it does not detect glibc
  * style returning-a-valid-pointer-for-malloc(0) behavior.  This
@@ -559,6 +560,7 @@ static __inline void *rpl_malloc (size_t __size)
     }
     return malloc(__size);
 }   
+#endif
 #endif
 
 #ifndef __need_malloc_and_calloc
