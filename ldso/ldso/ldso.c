@@ -217,7 +217,7 @@ LD_BOOT(unsigned long args)
 	/* First obtain the information on the stack that tells us more about
 	   what binary is loaded, where it is loaded, etc, etc */
 	GET_ARGV(aux_dat, args);
-#if defined (__arm__) || defined (__mips__)
+#if defined (__arm__) || defined (__mips__) || defined (__cris__)
 	aux_dat += 1;
 #endif
 	argc = *(aux_dat - 1);
