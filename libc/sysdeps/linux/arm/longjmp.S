@@ -24,6 +24,7 @@
 /* __longjmp(jmpbuf, val) */
 
 .globl longjmp;
+.type longjmp,#function
 .align 4;                                                               \
 longjmp:
 	mov	ip, r0

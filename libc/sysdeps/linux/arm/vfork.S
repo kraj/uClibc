@@ -30,7 +30,7 @@
 
 .text
 .global vfork;
-.type vfork,%function
+.type vfork,#function
 .align 4;                                                               \
 
 

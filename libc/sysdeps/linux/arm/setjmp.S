@@ -23,13 +23,15 @@
 
 	/* Binary compatibility entry point.  */
 .globl setjmp;
-.align 4;                                                               \
+.type setjmp,#function
+.align 4;
 setjmp:
 	mov	r1, #0
 
 
 .globl __sigsetjmp;
-.align 4;                                                               \
+.type __sigsetjmp,#function
+.align 4;
 __sigsetjmp:
 	/* Save registers */
 	stmia	r0, {v1-v6, sl, fp, sp, lr}
