@@ -57,7 +57,7 @@
 #define MAX_SERVERS 3
 #define MAX_SEARCH 4
 
-#define DEBUG
+#undef DEBUG
 #ifdef DEBUG
 static inline void DPRINTF(const char *format, ...)
 {
