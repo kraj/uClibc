@@ -23,7 +23,7 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 LIBM=../libm.a
-TARGET_CC= $(TOPDIR)/extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
+TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 CSRC=acosh.c airy.c asin.c asinh.c atan.c atanh.c bdtr.c beta.c \
 	btdtr.c cbrt.c chbevl.c chdtr.c clog.c cmplx.c const.c \

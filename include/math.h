@@ -54,19 +54,6 @@
 
 #include <features.h>
 
-#ifndef __UCLIBC_HAS_FLOATS__
-    #define float int
-#endif
-#ifndef __UCLIBC_HAS_DOUBLE__
-    #define double int
-#endif
-#ifndef __UCLIBC_HAS_LONG_DOUBLE__
-    #define long
-    #ifndef double
-    #	define double int
-    #endif
-#endif
-
 /* Type of computer arithmetic */
 
 /* PDP-11, Pro350, VAX:
@@ -168,19 +155,23 @@
 #define ERANGE		34
 
 /* Complex numeral.  */
+#ifdef __UCLIBC_HAS_DOUBLE__
 typedef struct
 	{
 	double r;
 	double i;
 	} cmplx;
+#endif
 
+#ifdef __UCLIBC_HAS_FLOATS__
 typedef struct
 	{
 	float r;
 	float i;
 	} cmplxf;
+#endif
 
-#ifdef HAVE_LONG_DOUBLE
+#ifdef __UCLIBC_HAS_LONG_DOUBLE__
 /* Long double complex numeral.  */
 typedef struct
 	{
@@ -262,44 +253,46 @@ enum
   };
 
 /* Return number of classification appropriate for X.  */
-# ifdef __NO_LONG_DOUBLE_MATH
-#  define fpclassify(x) \
-     (sizeof (x) == sizeof (float) ? __fpclassifyf (x) : __fpclassify (x))
-# else
+#ifdef __UCLIBC_HAS_DOUBLE__
 #  define fpclassify(x) \
      (sizeof (x) == sizeof (float) ?					      \
         __fpclassifyf (x)						      \
       : sizeof (x) == sizeof (double) ?					      \
         __fpclassify (x) : __fpclassifyl (x))
-# endif
+#else
+#  define fpclassify(x) \
+     (sizeof (x) == sizeof (float) ? __fpclassifyf (x) : __fpclassify (x))
+#endif
 
+
+#ifdef __UCLIBC_HAS_DOUBLE__
 /* Return nonzero value if sign of X is negative.  */
-int signbit(double x);
-int signbitl(long double x);
-
+extern int signbit(double x);
 /* Return nonzero value if X is not +-Inf or NaN.  */
-int isfinite(double x);
-int isfinitel(long double x);
-
+extern int isfinite(double x);
 /* Return nonzero value if X is neither zero, subnormal, Inf, nor NaN.  */
 # define isnormal(x) (fpclassify (x) == FP_NORMAL)
-
 /* Return nonzero value if X is a NaN */
-int isnan(double x);
-int isnanl(long double x);
-
-/* Return nonzero value is X is positive or negative infinity.  */
-# ifdef __NO_LONG_DOUBLE_MATH
-#  define isinf(x) \
-     (sizeof (x) == sizeof (float) ? __isinff (x) : __isinf (x))
-# else
-#  define isinf(x) \
+extern int isnan(double x);
+#define isinf(x) \
      (sizeof (x) == sizeof (float) ?					      \
         __isinff (x)							      \
       : sizeof (x) == sizeof (double) ?					      \
         __isinf (x) : __isinfl (x))
+# else
+#  define isinf(x) \
+     (sizeof (x) == sizeof (float) ? __isinff (x) : __isinf (x))
 # endif
 
+
+# ifdef __UCLIBC_HAS_LONG_DOUBLE__
+/* Return nonzero value if sign of X is negative.  */
+extern int signbitl(long double x);
+/* Return nonzero value if X is not +-Inf or NaN.  */
+extern int isfinitel(long double x);
+/* Return nonzero value if X is a NaN */
+extern int isnanl(long double x);
+#endif
 
 
 /* Some useful constants.  */
@@ -336,239 +329,237 @@ int isnanl(long double x);
 
 
 
-
+#ifdef __UCLIBC_HAS_DOUBLE__
 /* 7.12.4 Trigonometric functions */
 extern double acos(double x);
-extern float acosf(float x);
-extern long double acosl(long double x);
-
 extern double asin(double x);
-extern float asinf(float x);
-extern long double asinl(long double x);
-
 extern double atan(double x);
-extern float atanf(float x);
-extern long double atanl(long double x);
-
-double atan2(double y, double x);
-float atan2f(float y, float x);
-long double atan2l(long double y, long double x);
-
-double cos(double x);
-float cosf(float x);
-long double cosl(long double x);
-
-double sin(double x);
-float sinf(float x);
-long double sinl(long double x);
-
-double tan(double x);
-float tanf(float x);
-long double tanl(long double x);
-
+extern double atan2(double y, double x);
+extern double cos(double x);
+extern double sin(double x);
+extern double tan(double x);
 
 /* 7.12.5 Hyperbolic functions */
-double acosh(double x);
-float acoshf(float x);
-long double acoshl(long double x);
-
-double asinh(double x);
-float asinhf(float x);
-long double asinhl(long double x);
-
-double atanh(double x);
-float atanhf(float x);
-long double atanhl(long double x);
-
-double cosh(double x);
-float coshf(float x);
-long double coshl(long double x);
-
-double sinh(double x);
-float sinhf(float x);
-long double sinhl(long double x);
-
-double tanh(double x);
-float tanhf(float x);
-long double tanhl(long double x);
-
+extern double acosh(double x);
+extern double asinh(double x);
+extern double atanh(double x);
+extern double cosh(double x);
+extern double sinh(double x);
+extern double tanh(double x);
 
 /* 7.12.6 Exponential and logarithmic functions */
-double exp(double x);
-float expf(float x);
-long double expl(long double x);
-
-double exp2(double x);
-float exp2f(float x);
-long double exp2l(long double x);
-
-double expm1(double x);
-float expm1f(float x);
-long double expm1l(long double x);
-
-double frexp(double value, int *exp);
-float frexpf(float value, int *exp);
-long double frexpl(long double value, int *exp);
-
-int ilogb(double x);
-int ilogbf(float x);
-int ilogbl(long double x);
-
-double ldexp(double x, int exp);
-float ldexpf(float x, int exp);
-long double ldexpl(long double x, int exp);
-
-double log(double x);
-float logf(float x);
-long double logl(long double x);
-
-double log10(double x);
-float log10f(float x);
-long double log10l(long double x);
-
-double log1p(double x);
-float log1pf(float x);
-long double log1pl(long double x);
-
-double log2(double x);
-float log2f(float x);
-long double log2l(long double x);
-
-double logb(double x);
-float logbf(float x);
-long double logbl(long double x);
-
-double modf(double value, double *iptr);
-float modff(float value, float *iptr);
-long double modfl(long double value, long double *iptr);
-
-double scalbn(double x, int n);
-float scalbnf(float x, int n);
-long double scalbnl(long double x, int n);
-double scalbln(double x, long int n);
-float scalblnf(float x, long int n);
-long double scalblnl(long double x, long int n);
+extern double exp(double x);
+extern double exp2(double x);
+extern double expm1(double x);
+extern double frexp(double value, int *exp);
+extern int ilogb(double x);
+extern double ldexp(double x, int exp);
+extern double log(double x);
+extern double log10(double x);
+extern double log1p(double x);
+extern double log2(double x);
+extern double logb(double x);
+extern double modf(double value, double *iptr);
+extern double scalbn(double x, int n);
+extern double scalbln(double x, long int n);
 
 /* 7.12.7 Power and absolute-value functions */
-double fabs(double x);
-float fabsf(float x);
-long double fabsl(long double x);
-
-double hypot(double x, double y);
-float hypotf(float x, float y);
-long double hypotl(long double x, long double y);
-
-double pow(double x, double y);
-float powf(float x, float y);
-long double powl(long double x, long double y);
-
-double sqrt(double x);
-float sqrtf(float x);
-long double sqrtl(long double x);
+extern double fabs(double x);
+extern double hypot(double x, double y);
+extern double pow(double x, double y);
+extern double sqrt(double x);
 
 /* 7.12.8 Error and gamma functions */
-double erf(double x);
-float erff(float x);
-long double erfl(long double x);
-
-double erfc(double x);
-float erfcf(float x);
-long double erfcl(long double x);
-
-double lgamma(double x);
-float lgammaf(float x);
-long double lgammal(long double x);
-
-double tgamma(double x);
-float tgammaf(float x);
-long double tgammal(long double x);
+extern double erf(double x);
+extern double erfc(double x);
+extern double lgamma(double x);
+extern double tgamma(double x);
 
 /* 7.12.9 Nearest integer functions */
-double ceil(double x);
-float ceilf(float x);
-long double ceill(long double x);
-
-double floor(double x);
-float floorf(float x);
-long double floorl(long double x);
-
-double nearbyint(double x);
-float nearbyintf(float x);
-long double nearbyintl(long double x);
-
-double rint(double x);
-float rintf(float x);
-long double rintl(long double x);
-
-long int lrint(double x);
-long int lrintf(float x);
-long int lrintl(long double x);
-long long int llrint(double x);
-long long int llrintf(float x);
-long long int llrintl(long double x);
-
-double round(double x);
-float roundf(float x);
-long double roundl(long double x);
-
-long int lround(double x);
-long int lroundf(float x);
-long int lroundl(long double x);
-long long int llround(double x);
-long long int llroundf(float x);
-long long int llroundl(long double x);
-
-double trunc(double x);
-float truncf(float x);
-long double truncl(long double x);
+extern double ceil(double x);
+extern double floor(double x);
+extern double nearbyint(double x);
+extern double rint(double x);
+extern long int lrint(double x);
+extern long long int llrint(double x);
+extern double round(double x);
+extern long int lround(double x);
+extern long long int llround(double x);
+extern double trunc(double x);
 
 /* 7.12.10 Remainder functions */
-double fmod(double x, double y);
-float fmodf(float x, float y);
-long double fmodl(long double x, long double y);
-
-double remainder(double x, double y);
-float remainderf(float x, float y);
-long double remainderl(long double x, long double y);
-
-double remquo(double x, double y, int *quo);
-float remquof(float x, float y, int *quo);
-long double remquol(long double x, long double y, int *quo);
+extern double fmod(double x, double y);
+extern double remainder(double x, double y);
+extern double remquo(double x, double y, int *quo);
 
 /* 7.12.11 Manipulation functions */
-double copysign(double x, double y);
-float copysignf(float x, float y);
-long double copysignl(long double x, long double y);
-
-double nan(const char *tagp);
-float nanf(const char *tagp);
-long double nanl(const char *tagp);
-
-double nextafter(double x, double y);
-float nextafterf(float x, float y);
-long double nextafterl(long double x, long double y);
-
-double nexttoward(double x, long double y);
-float nexttowardf(float x, long double y);
-long double nexttowardl(long double x, long double y);
+extern double copysign(double x, double y);
+extern double nan(const char *tagp);
+extern double nextafter(double x, double y);
 
 /* 7.12.12 Maximum, minimum, and positive difference functions */
-double fdim(double x, double y);
-float fdimf(float x, float y);
-long double fdiml(long double x, long double y);
-
-double fmax(double x, double y);
-float fmaxf(float x, float y);
-long double fmaxl(long double x, long double y);
-
-double fmin(double x, double y);
-float fminf(float x, float y);
-long double fminl(long double x, long double y);
+extern double fdim(double x, double y);
+extern double fmax(double x, double y);
+extern double fmin(double x, double y);
 
 /* 7.12.13 Floating multiply-add */
-double fma(double x, double y, double z);
-float fmaf(float x, float y, float z);
-long double fmal(long double x, long double y, long double z);
+extern double fma(double x, double y, double z);
+#endif	
+
+#ifdef __UCLIBC_HAS_FLOATS__
+/* 7.12.4 Trigonometric functions */
+extern float acosf(float x);
+extern float asinf(float x);
+extern float atanf(float x);
+extern float atan2f(float y, float x);
+extern float cosf(float x);
+extern float sinf(float x);
+extern float tanf(float x);
+
+/* 7.12.5 Hyperbolic functions */
+extern float acoshf(float x);
+extern float asinhf(float x);
+extern float atanhf(float x);
+extern float coshf(float x);
+extern float sinhf(float x);
+extern float tanhf(float x);
+
+/* 7.12.6 Exponential and logarithmic functions */
+extern float expf(float x);
+extern float exp2f(float x);
+extern float expm1f(float x);
+extern float frexpf(float value, int *exp);
+extern int ilogbf(float x);
+extern float ldexpf(float x, int exp);
+extern float logf(float x);
+extern float log10f(float x);
+extern float log1pf(float x);
+extern float log2f(float x);
+extern float logbf(float x);
+extern float modff(float value, float *iptr);
+extern float scalbnf(float x, int n);
+extern float scalblnf(float x, long int n);
+
+/* 7.12.7 Power and absolute-value functions */
+extern float fabsf(float x);
+extern float hypotf(float x, float y);
+extern float powf(float x, float y);
+extern float sqrtf(float x);
+
+/* 7.12.8 Error and gamma functions */
+extern float erff(float x);
+extern float erfcf(float x);
+extern float lgammaf(float x);
+extern float tgammaf(float x);
+
+/* 7.12.9 Nearest integer functions */
+extern float ceilf(float x);
+extern float floorf(float x);
+extern float nearbyintf(float x);
+extern float rintf(float x);
+extern long int lrintf(float x);
+extern long long int llrintf(float x);
+extern float roundf(float x);
+extern long int lroundf(float x);
+extern long long int llroundf(float x);
+extern float truncf(float x);
+
+/* 7.12.10 Remainder functions */
+extern float fmodf(float x, float y);
+extern float remainderf(float x, float y);
+extern float remquof(float x, float y, int *quo);
+
+/* 7.12.11 Manipulation functions */
+extern float copysignf(float x, float y);
+extern float nanf(const char *tagp);
+extern float nextafterf(float x, float y);
+
+/* 7.12.12 Maximum, minimum, and positive difference functions */
+extern float fdimf(float x, float y);
+extern float fmaxf(float x, float y);
+extern float fminf(float x, float y);
+
+/* 7.12.13 Floating multiply-add */
+extern float fmaf(float x, float y, float z);
+#endif	
+
+#ifdef __UCLIBC_HAS_LONG_DOUBLE__
+/* 7.12.4 Trigonometric functions */
+extern long double acosl(long double x);
+extern long double asinl(long double x);
+extern long double atanl(long double x);
+extern long double atan2l(long double y, long double x);
+extern long double cosl(long double x);
+extern long double sinl(long double x);
+extern long double tanl(long double x);
+
+/* 7.12.5 Hyperbolic functions */
+extern long double acoshl(long double x);
+extern long double asinhl(long double x);
+extern long double atanhl(long double x);
+extern long double coshl(long double x);
+extern long double sinhl(long double x);
+extern long double tanhl(long double x);
+
+/* 7.12.6 Exponential and logarithmic functions */
+extern long double expl(long double x);
+extern long double exp2l(long double x);
+extern long double expm1l(long double x);
+extern long double frexpl(long double value, int *exp);
+extern int ilogbl(long double x);
+extern long double ldexpl(long double x, int exp);
+extern long double logl(long double x);
+extern long double log10l(long double x);
+extern long double log1pl(long double x);
+extern long double log2l(long double x);
+extern long double logbl(long double x);
+extern long double modfl(long double value, long double *iptr);
+extern long double scalbnl(long double x, int n);
+extern long double scalblnl(long double x, long int n);
+
+/* 7.12.7 Power and absolute-value functions */
+extern long double fabsl(long double x);
+extern long double hypotl(long double x, long double y);
+extern long double powl(long double x, long double y);
+extern long double sqrtl(long double x);
+
+/* 7.12.8 Error and gamma functions */
+extern long double erfl(long double x);
+extern long double erfcl(long double x);
+extern long double lgammal(long double x);
+extern long double tgammal(long double x);
+
+/* 7.12.9 Nearest integer functions */
+extern long double ceill(long double x);
+extern long double floorl(long double x);
+extern long double nearbyintl(long double x);
+extern long double rintl(long double x);
+extern long int lrintl(long double x);
+extern long long int llrintl(long double x);
+extern long double roundl(long double x);
+extern long int lroundl(long double x);
+extern long long int llroundl(long double x);
+extern long double truncl(long double x);
+
+/* 7.12.10 Remainder functions */
+extern long double fmodl(long double x, long double y);
+extern long double remainderl(long double x, long double y);
+extern long double remquol(long double x, long double y, int *quo);
+
+/* 7.12.11 Manipulation functions */
+extern long double copysignl(long double x, long double y);
+extern long double nanl(const char *tagp);
+extern long double nextafterl(long double x, long double y);
+extern long double nexttowardl(long double x, long double y);
+
+/* 7.12.12 Maximum, minimum, and positive difference functions */
+extern long double fdiml(long double x, long double y);
+extern long double fmaxl(long double x, long double y);
+extern long double fminl(long double x, long double y);
+
+/* 7.12.13 Floating multiply-add */
+extern long double fmal(long double x, long double y, long double z);
+#endif
 
 /* 7.12.14 Comparison macros */
 # ifndef isgreater
@@ -617,18 +608,6 @@ long double fmal(long double x, long double y, long double z);
    ({ __typeof__(u) __u = (u); __typeof__(v) __v = (v);			      \
       fpclassify (__u) == FP_NAN || fpclassify (__v) == FP_NAN; }))
 # endif
-
-
-#ifndef __UCLIBC_HAS_FLOATS__
-    #undef float
-#endif
-#ifndef __UCLIBC_HAS_DOUBLE__
-    #undef double
-#endif
-#ifndef __UCLIBC_HAS_LONG_DOUBLE__
-    #undef long
-    #undef double
-#endif
 
 
 #endif /* math.h  */
