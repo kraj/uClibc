@@ -1,7 +1,43 @@
+Any takers?
+
 Fix regex so it isn't so stinking big
 Fix glob so it isn't so stinking big
 Integrate Jeff Garzik's key-value reading code for pwd/grp, /etc/hosts, etc
-Integrate the locale stuff from vodz
 Get the arm port of the shared lib loader working
 Get the powerpc port of the shared lib loader working
 Finish sparc port
+Standardize the style of the header files.
+Documentation
+Better configuration system
+
+-----------------------------------------------------------------------------
+Manuel's unsorted todo:
+
+Move the target-specific sysconf.c generator to extra (as it needs to be
+	run on the target) and fix libc/unistd/Makefile.
+
+Move the unified syscall stuff to extra, or find a way to generate the
+	the required header file without using an intermediate binary.
+
+Add a usage message to the gcc wrapper.
+
+Look at pre-cephes-addition floating point code and possibly rework.
+	(primarily nan and infinity handling)
+
+Make scanf and strtod aware of nan and inf.
+
+Add overflow error-checking to fread and fwrite.
+
+Document uClibc-specific extensions I know of or have implemented.
+	binary string conversion for printf
+	malloc-less stdio
+	optional printf unconfigured-for-type error messages
+
+Add binary string conversion to scanf to mirror printf?
+
+What to do about %m in printf?
+
+Make errno and endptr handling the default in the strto* functions and
+	document how to turn those off to save space.
+
+-----------------------------------------------------------------------------
