@@ -71,6 +71,8 @@ headers: dummy
 	    ln -fs $(KERNEL_SOURCE)/include/asm-v850 include/asm; \
 	elif [ $(TARGET_ARCH) = "mipsel" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-mips include/asm; \
+	elif [ $(TARGET_ARCH) = "h8300" ];then \
+	    ln -fs $(KERNEL_SOURCE)/include/asm-h8300 include/asm; \
 	else \
 	    if [ $(HAS_MMU) != "true" ]; then \
 			ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu include/asm;\

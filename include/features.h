@@ -344,7 +344,7 @@
 	asm (".stabs \"" msg "\",30,0,0,0\n\t" \
 	      ".stabs \"" #symbol "\",1,0,0,0\n");
 #   define weak_alias(name, aliasname) \
-	__asm__(".global alias\n.set alias,original");
+	__asm__(".global _" #aliasname "\n.set _" #aliasname ",_" #name);
 #endif
 
 #endif	/* features.h  */

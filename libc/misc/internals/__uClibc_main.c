@@ -90,6 +90,6 @@ void __uClibc_empty_func(void)
 }
 
 weak_alias(__environ, environ);
-weak_alias(__uClibc_empty_func, __init_stdio);
-weak_alias(__uClibc_empty_func, __stdio_close_all);
+/*weak_alias(__uClibc_empty_func, __init_stdio);*/
+/*weak_alias(__uClibc_empty_func, __stdio_close_all);*/
 #endif	
