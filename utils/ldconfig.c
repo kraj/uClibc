@@ -37,7 +37,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-#include <ld_elf.h>
+#include "dl-elf.h"
 #include "readsoname.h"
 
 struct exec

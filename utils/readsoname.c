@@ -7,7 +7,7 @@
 #include <link.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <ld_elf.h>
+#include "dl-elf.h"
 #include "readsoname.h"
 
 void warn(char *fmt, ...);
