@@ -38,6 +38,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include "elf.h"
+#ifdef DMALLOC
+#include <dmalloc.h>
+#endif
 
 struct library {
 	char *name;
@@ -252,7 +255,7 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int i
 	newlib = malloc(sizeof(struct library));
 	if (!newlib)
 		return 1;
-	newlib->name = malloc(strlen(s));
+	newlib->name = malloc(strlen(s)+1);
 	strcpy(newlib->name, s);
 	newlib->resolved = 0;
 	newlib->path = NULL;
@@ -317,7 +320,7 @@ static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *str
 			newlib = malloc(sizeof(struct library));
 		if (!newlib)
 			return;
-		newlib->name = malloc(strlen(s));
+		newlib->name = malloc(strlen(s)+1);
 		strcpy(newlib->name, s);
 		newlib->path = newlib->name;
 		newlib->resolved = 1;
