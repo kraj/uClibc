@@ -262,6 +262,14 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 #define SEND_STDERR(X) _dl_write(2, X, _dl_strlen(X));
 #endif
 
+/* Some targets may have to override this to something that doesn't
+   reference constant strings through the GOT.  This macro should be
+   preferred over SEND_STDERR for constant strings before we complete
+   bootstrap.  */
+#ifndef SEND_EARLY_STDERR
+# define SEND_EARLY_STDERR(S) SEND_STDERR(S)
+#endif
+
 #define SEND_ADDRESS_STDERR(X, add_a_newline) { \
     char tmp[22], *tmp1; \
     _dl_memset(tmp, 0, sizeof(tmp)); \

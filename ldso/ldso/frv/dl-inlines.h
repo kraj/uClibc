@@ -414,11 +414,11 @@ _dl_funcdesc_for (void *entry_point, void *got_value)
   return _dl_stabilize_funcdesc (*entry);
 }
 
-inline static void *
-_dl_lookup_address (void *address)
+inline static void const *
+_dl_lookup_address (void const *address)
 {
   struct elf_resolve *rpnt;
-  struct funcdesc_value *fd;
+  struct funcdesc_value const *fd;
 
   /* Make sure we don't make assumptions about its alignment.  */
   asm ("" : "+r" (address));
@@ -427,7 +427,7 @@ _dl_lookup_address (void *address)
     /* It's not a function descriptor.  */
     return address;
   
-  fd = (struct funcdesc_value *)address;
+  fd = (struct funcdesc_value const *)address;
 
   for (rpnt = _dl_loaded_modules; rpnt; rpnt = rpnt->next)
     {
@@ -439,9 +439,9 @@ _dl_lookup_address (void *address)
 
       address = htab_find_slot (rpnt->funcdesc_ht, (void*)fd->entry_point, 0);
 
-      if (address && *(struct funcdesc_value **)address == fd)
+      if (address && *(struct funcdesc_value *const*)address == fd)
 	{
-	  address = (*(struct funcdesc_value **)address)->entry_point;
+	  address = (*(struct funcdesc_value *const*)address)->entry_point;
 	  break;
 	}
       else

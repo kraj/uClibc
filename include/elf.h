@@ -1,5 +1,6 @@
 /* This file defines standard ELF types, structures, and macros.
-   Copyright (C) 1995-1999, 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1995-1999, 2000, 2001, 2002, 2003, 2004
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -1152,6 +1153,17 @@ typedef struct
 #define R_FRV_FUNCDESC		14
 /* Private function descriptor initialization.  */
 #define R_FRV_FUNCDESC_VALUE	18
+
+						/* gpr support */
+#define EF_FRV_GPR_MASK		0x00000003	/* mask for # of gprs */
+#define EF_FRV_GPR_32		0x00000001	/* -mgpr-32 */
+#define EF_FRV_GPR_64		0x00000002	/* -mgpr-64 */
+
+						/* fpr support */
+#define EF_FRV_FPR_MASK		0x0000000c	/* mask for # of fprs */
+#define EF_FRV_FPR_32		0x00000004	/* -mfpr-32 */
+#define EF_FRV_FPR_64		0x00000008	/* -mfpr-64 */
+#define EF_FRV_FPR_NONE		0x0000000c	/* -msoft-float */
 
 #define EF_FRV_PIC   0x00000100
 #define EF_FRV_FDPIC 0x00008000

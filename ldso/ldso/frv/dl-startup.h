@@ -145,7 +145,3 @@ struct elf32_fdpic_loadmap;
   /* _dl_dprintf(2, "entry point is (%x,%x)\n", dl_main_funcdesc->entry_point, dl_main_funcdesc->got_value); */ \
   return;								\
 } while (0)
-
-
-
-
