@@ -15,6 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+
+# The easiest way to use this script is to put something like this in
+# your Makefile for building uClibc...  Adjust config optiongs to 
+# taste of course....  And of course you will want to add some defines
+# into your Makefile to set ARCH, STAGING_DIR, KERNEL_DIR, and whatnot.
+#
+# $(UCLIBC_DIR)/extra/Configs/uClibc_config_fix.pl --arch=$(ARCH) --cross="$(CROSS)" \
+#        --devel_prefix=$(STAGING_DIR) --kernel_dir=$(KERNEL_DIR) --large_file=false \
+#        --rpc_support=true --c99_math=true --shared_support=true --ldso_path="/lib" \
+#        --shadow=true --file=$(UCLIBC_DIR)/extra/Configs/Config.$(ARCH) > $(UCLIBC_DIR)/Config;
+#
+# Have fun,
+#  -Erik
 #
 
 use strict;
