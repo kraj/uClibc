@@ -140,8 +140,7 @@ int main(int argc, char **argv)
 				}
 			} else {
 				if (DYNAMIC_LINKER[0]) { /* not empty string */
-					gcc_argv[i++] = "-Wl,--dynamic-linker";
-					gcc_argv[i++] = DYNAMIC_LINKER;
+					gcc_argv[i++] = "-Wl,--dynamic-linker,"DYNAMIC_LINKER;
 				}
 				if (debugging) {
 					gcc_argv[i++] = UCLIBC_SHAREDLIB_G;
@@ -150,9 +149,6 @@ int main(int argc, char **argv)
 				}
 			}
 			gcc_argv[i++] = GCC_LIB;
-			if (!use_static_linking && DYNAMIC_LINKER[0]) {
-			    gcc_argv[i++] = DYNAMIC_LINKER;
-			}
 		}
 	}
 	gcc_argv[i++] = NULL;
