@@ -40,10 +40,10 @@ XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
 XXFLAGS :=$(XXFLAGS:-O0=-O1)
 
 XXFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1include/gp")
-LDFLAGS=$(CPU_LDFLAGS-y) -shared --warn-common --export-dynamic --sort-common \
+LDFLAGS=$(CPU_LDFLAGS-y) -Bsymbolic -shared --warn-common --export-dynamic --sort-common \
 	-z combreloc --discard-locals --discard-all --no-undefined
 
-CSRC= ldso.c dl-startup.c
+CSRC= ldso.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 ASRC=$(shell ls $(TARGET_ARCH)/*.S)
 AOBJS=$(patsubst %.S,%.o, $(ASRC))
