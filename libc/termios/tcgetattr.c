@@ -17,7 +17,6 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <string.h>
-#include <termios.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -28,7 +27,7 @@
 #include "kernel_termios.h"
 
 /* Put the state of FD into *TERMIOS_P.  */
-int tcgetattr ( int fd, struct termios *termios_p)
+int tcgetattr ( int fd, struct libc_termios *termios_p)
 {
   struct __kernel_termios k_termios;
   int retval;

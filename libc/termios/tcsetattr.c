@@ -18,7 +18,6 @@
 
 #include <errno.h>
 #include <string.h>
-#include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 
@@ -47,11 +46,10 @@
 
 
 /* Set the state of FD to *TERMIOS_P.  */
-int
-tcsetattr (fd, optional_actions, termios_p)
+int tcsetattr (fd, optional_actions, termios_p)
      int fd;
      int optional_actions;
-     const struct termios *termios_p;
+     const struct libc_termios *termios_p;
 {
   struct __kernel_termios k_termios;
   unsigned long int cmd;
