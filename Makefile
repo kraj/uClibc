@@ -243,7 +243,7 @@ ifneq ($(strip $(UCLIBC_HAS_GNU_GETOPT)),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/getopt.h
 endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
-	    chmod -f 755 $$i; chmod -f 644 $$i/*.h; \
+	    chmod 755 $$i; chmod 644 $$i/*.h; \
 	done;
 	-find $(PREFIX)$(DEVEL_PREFIX) -name CVS | xargs $(RM) -r;
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
