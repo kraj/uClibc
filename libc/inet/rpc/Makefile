@@ -23,8 +23,9 @@
 
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
-#CFLAGS+=-Werror
+CFLAGS+=-I$(TOPDIR)libpthread/linuxthreads/sysdeps/pthread
 
+ifeq ($(strip $(INCLUDE_FULL_RPC)),true)
 CSRC :=auth_none.c auth_unix.c authunix_prot.c bindresvport.c \
 	clnt_generic.c clnt_perror.c clnt_raw.c clnt_simple.c clnt_tcp.c \
 	clnt_udp.c rpc_dtablesize.c get_myaddress.c getrpcent.c getrpcport.c \
@@ -34,8 +35,17 @@ CSRC :=auth_none.c auth_unix.c authunix_prot.c bindresvport.c \
 	svc_tcp.c svc_udp.c xdr.c xdr_array.c xdr_float.c xdr_mem.c \
 	xdr_rec.c xdr_reference.c xdr_stdio.c \
 	rtime.c clnt_unix.c svc_unix.c create_xid.c xdr_intXX_t.c rcmd.c \
-	rpc_thread.c
-#openchild.c xdr_sizeof.c
+	rexec.c sa_len.c ruserpass.c rpc_thread.c
+else
+# For now, only compile the stuff needed to do an NFS mount....
+CSRC:=create_xid.c pmap_clnt.c pmap_getmaps.c pmap_getport.c \
+	pmap_prot.c pmap_prot2.c clnt_simple.c clnt_perror.c \
+	clnt_tcp.c clnt_udp.c bindresvport.c authunix_prot.c \
+	auth_none.c auth_unix.c xdr.c xdr_array.c xdr_rec.c \
+	xdr_reference.c xdr_mem.c svc.c svc_auth.c svc_auth_unix.c \
+	rpc_callmsg.c rpc_prot.c rpc_dtablesize.c rpc_commondata.c \
+	rpc_thread.c rcmd.c rexec.c sa_len.c ruserpass.c rtime.c 
+endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 

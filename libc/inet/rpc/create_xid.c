@@ -27,7 +27,7 @@
 
 /* The RPC code is not threadsafe, but new code should be threadsafe. */
 
-#ifdef _RPC_THREAD_SAFE_ //__UCLIBC_HAS_THREADS__
+#ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 static pthread_mutex_t createxid_lock = PTHREAD_MUTEX_INITIALIZER;
 # define LOCK	pthread_mutex_lock(&createxid_lock)

@@ -42,12 +42,12 @@
 
 #include <errno.h>
 #include <unistd.h>
-#include <rpc/rpc.h>
+#include "rpc_private.h"
 #include <rpc/svc.h>
 #include <rpc/pmap_clnt.h>
 #include <sys/poll.h>
 
-#ifdef _RPC_THREAD_SAFE_
+#ifdef __UCLIBC_HAS_THREADS__
 #define xports ((SVCXPRT **)RPC_THREAD_VARIABLE(svc_xports_s))
 #else
 static SVCXPRT **xports;
@@ -66,7 +66,7 @@ struct svc_callout {
   rpcvers_t sc_vers;
   void (*sc_dispatch) (struct svc_req *, SVCXPRT *);
 };
-#ifdef _RPC_THREAD_SAFE_
+#ifdef __UCLIBC_HAS_THREADS__
 #define svc_head ((struct svc_callout *)RPC_THREAD_VARIABLE(svc_head_s))
 #else
 static struct svc_callout *svc_head;
@@ -478,7 +478,7 @@ svc_getreq_common (const int fd)
   while (stat == XPRT_MOREREQS);
 }
 
-#ifdef _RPC_THREAD_SAFE_
+#ifdef __UCLIBC_HAS_THREADS__
 
 void
 __rpc_thread_svc_cleanup (void)
@@ -489,4 +489,4 @@ __rpc_thread_svc_cleanup (void)
     svc_unregister (svcp->sc_prog, svcp->sc_vers);
 }
 
-#endif /* _RPC_THREAD_SAFE_ */
+#endif /* __UCLIBC_HAS_THREADS__ */

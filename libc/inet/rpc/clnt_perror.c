@@ -42,7 +42,7 @@ static char sccsid[] = "@(#)clnt_perror.c 1.15 87/10/07 Copyr 1984 Sun Micro";
 
 #include <stdio.h>
 #include <string.h>
-#include <rpc/rpc.h>
+#include "rpc_private.h"
 
 #ifdef USE_IN_LIBIO
 # include <wchar.h>
@@ -52,7 +52,7 @@ static char sccsid[] = "@(#)clnt_perror.c 1.15 87/10/07 Copyr 1984 Sun Micro";
 
 static char *auth_errmsg (enum auth_stat stat) internal_function;
 
-#ifdef _RPC_THREAD_SAFE_
+#ifdef __UCLIBC_HAS_THREADS__
 /*
  * Making buf a preprocessor macro requires renaming the local
  * buf variable in a few functions.  Overriding a global variable

@@ -42,7 +42,9 @@ static char sccsid[] = "@(#)clnt_raw.c 1.22 87/08/11 Copyr 1984 Sun Micro";
  * any interference from the kernel.
  */
 
-#include <rpc/rpc.h>
+#define __FORCE_GLIBC
+#include <features.h>
+#include "rpc_private.h"
 #include <rpc/svc.h>
 #include <rpc/xdr.h>
 
@@ -59,7 +61,7 @@ struct clntraw_private_s
     char mashl_callmsg[MCALL_MSG_SIZE];
     u_int mcnt;
   };
-#ifdef _RPC_THREAD_SAFE_
+#ifdef __UCLIBC_HAS_THREADS__
 #define clntraw_private ((struct clntraw_private_s *)RPC_THREAD_VARIABLE(clntraw_private_s))
 #else
 static struct clntraw_private_s *clntraw_private;

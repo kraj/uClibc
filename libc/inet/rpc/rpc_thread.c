@@ -1,20 +1,36 @@
 #define __FORCE_GLIBC
 #include <features.h>
-
 #include <stdio.h>
-#include <rpc/rpc.h>
 #include <assert.h>
-
-#ifdef _RPC_THREAD_SAFE_
-
-#include <bits/libc-lock.h>
 #include <bits/libc-tsd.h>
-
+#include "rpc_private.h"
 
 /* Variable used in non-threaded applications or for the first thread.  */
 static struct rpc_thread_variables __libc_tsd_RPC_VARS_mem;
 static struct rpc_thread_variables *__libc_tsd_RPC_VARS_data =
      &__libc_tsd_RPC_VARS_mem;
+
+#ifdef __UCLIBC_HAS_THREADS__
+
+
+extern int __pthread_once (pthread_once_t *__once_control,
+			   void (*__init_routine) (void));
+asm (".weak __pthread_once");
+
+
+# define __libc_once_define(CLASS, NAME) \
+  CLASS pthread_once_t NAME = PTHREAD_ONCE_INIT
+
+/* Call handler iff the first call.  */
+#define __libc_once(ONCE_CONTROL, INIT_FUNCTION) \
+  do {									      \
+    if (__pthread_once != NULL)						      \
+      __pthread_once (&(ONCE_CONTROL), (INIT_FUNCTION));		      \
+    else if ((ONCE_CONTROL) == PTHREAD_ONCE_INIT) {			      \
+      INIT_FUNCTION ();							      \
+      (ONCE_CONTROL) = !PTHREAD_ONCE_INIT;				      \
+    }									      \
+  } while (0)
 
 /*
  * Task-variable destructor
@@ -27,7 +43,7 @@ __rpc_thread_destroy (void)
 	if (tvp != NULL && tvp != &__libc_tsd_RPC_VARS_mem) {
 		__rpc_thread_svc_cleanup ();
 		__rpc_thread_clnt_cleanup ();
-		__rpc_thread_key_cleanup ();
+		//__rpc_thread_key_cleanup ();
 		free (tvp->authnone_private_s);
 		free (tvp->clnt_perr_buf_s);
 		free (tvp->clntraw_private_s);
@@ -39,6 +55,8 @@ __rpc_thread_destroy (void)
 }
 
 
+#if 0
+#warning fix multithreaded initialization...
 /*
  * Initialize RPC multi-threaded operation
  */
@@ -69,6 +87,12 @@ __rpc_thread_variables (void)
 	}
 	return tvp;
 }
+#else
+struct rpc_thread_variables * __rpc_thread_variables (void)
+{
+    return __libc_tsd_RPC_VARS_data;
+}
+#endif
 
 
 /* Global variables If we're single-threaded, or if this is the first
@@ -154,4 +178,5 @@ int * __rpc_thread_svc_max_pollfd (void)
     return &(svc_max_pollfd);
 }
 
-#endif /* _RPC_THREAD_SAFE_ */
+#endif /* __UCLIBC_HAS_THREADS__ */
+

@@ -35,7 +35,9 @@
  * credentials and verifiers to remote systems.
  */
 
-#include <rpc/rpc.h>
+#define __FORCE_GLIBC
+#include <features.h>
+#include "rpc_private.h"
 
 #define MAX_MARSHEL_SIZE 20
 
@@ -61,7 +63,7 @@ struct authnone_private_s {
   char marshalled_client[MAX_MARSHEL_SIZE];
   u_int mcnt;
 };
-#ifdef _RPC_THREAD_SAFE_
+#ifdef __UCLIBC_HAS_THREADS__
 #define authnone_private ((struct authnone_private_s *)RPC_THREAD_VARIABLE(authnone_private_s))
 #else
 static struct authnone_private_s *authnone_private;

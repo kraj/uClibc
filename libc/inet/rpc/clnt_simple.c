@@ -45,7 +45,7 @@ static char sccsid[] = "@(#)clnt_simple.c 1.35 87/08/11 Copyr 1984 Sun Micro";
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <rpc/rpc.h>
+#include "rpc_private.h"
 #include <sys/socket.h>
 #include <netdb.h>
 #include <string.h>
@@ -57,7 +57,7 @@ struct callrpc_private_s
     u_long oldprognum, oldversnum, valid;
     char *oldhost;
   };
-#ifdef _RPC_THREAD_SAFE_
+#ifdef __UCLIBC_HAS_THREADS__
 #define callrpc_private ((struct callrpc_private_s *)RPC_THREAD_VARIABLE(callrpc_private_s))
 #else
 static struct callrpc_private_s *callrpc_private;
@@ -149,7 +149,7 @@ callrpc (const char *host, u_long prognum, u_long versnum, u_long procnum,
   return (int) clnt_stat;
 }
 
-#ifdef _RPC_THREAD_SAFE_
+#ifdef __UCLIBC_HAS_THREADS__
 void
 __rpc_thread_clnt_cleanup (void)
 {
@@ -161,4 +161,4 @@ __rpc_thread_clnt_cleanup (void)
 		free (rcp);
 	}
 }
-#endif /* _RPC_THREAD_SAFE_ */
+#endif /* __UCLIBC_HAS_THREADS__ */

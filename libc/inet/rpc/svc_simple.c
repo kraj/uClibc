@@ -44,7 +44,7 @@ static char sccsid[] = "@(#)svc_simple.c 1.18 87/08/11 Copyr 1984 Sun Micro";
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <rpc/rpc.h>
+#include "rpc_private.h"
 #include <rpc/pmap_clnt.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -63,7 +63,7 @@ struct proglst_
     xdrproc_t p_inproc, p_outproc;
     struct proglst_ *p_nxt;
   };
-#ifdef _RPC_THREAD_SAFE_
+#ifdef __UCLIBC_HAS_THREADS__
 #define proglst ((struct proglst_ *)RPC_THREAD_VARIABLE(svcsimple_proglst_s))
 #else
 static struct proglst_ *proglst;
@@ -71,7 +71,7 @@ static struct proglst_ *proglst;
 
 
 static void universal (struct svc_req *rqstp, SVCXPRT *transp_s);
-#ifdef _RPC_THREAD_SAFE_
+#ifdef __UCLIBC_HAS_THREADS__
 #define transp ((SVCXPRT *)RPC_THREAD_VARIABLE(svcsimple_transp_s))
 #else
 static SVCXPRT *transp;

@@ -40,7 +40,9 @@ static char sccsid[] = "@(#)svc_raw.c 1.15 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#include <rpc/rpc.h>
+#define __FORCE_GLIBC
+#include <features.h>
+#include "rpc_private.h"
 #include <rpc/svc.h>
 
 /*
@@ -53,7 +55,7 @@ struct svcraw_private_s
     XDR xdr_stream;
     char verf_body[MAX_AUTH_BYTES];
   };
-#ifdef _RPC_THREAD_SAFE_
+#ifdef __UCLIBC_HAS_THREADS__
 #define svcraw_private ((struct svcraw_private_s *)RPC_THREAD_VARIABLE(svcraw_private_s))
 #else
 static struct svcraw_private_s *svcraw_private;
