@@ -59,12 +59,21 @@ Laligned:				@ here, we have a word in r2.  Does it
 	ldrne   r2, [r1], $4            @ and we continue to the next word
 	bne     Laligned                @
 Llastword:				@ drop through to here once we find a
-	tst     r2, $0x000000ff         @ word that has a zero byte in it
+#if __BYTE_ORDER == __BIG_ENDIAN
+	tst     r2, $0xff000000         @ word that has a zero byte in it
+	addne   r0, r0, $1              @
+	tstne   r2, $0x00ff0000         @ and add up to 3 bytes on to it
+	addne   r0, r0, $1              @
+	tstne   r2, $0x0000ff00         @ (if first three all non-zero, 4th
+	addne   r0, r0, $1              @  must be zero)
+#else
+	tst     r2, $0x000000ff         @
 	addne   r0, r0, $1              @
 	tstne   r2, $0x0000ff00         @ and add up to 3 bytes on to it
 	addne   r0, r0, $1              @
 	tstne   r2, $0x00ff0000         @ (if first three all non-zero, 4th
 	addne   r0, r0, $1              @  must be zero)
+#endif
 	mov	pc,lr
 
 .size strlen,.-strlen;
