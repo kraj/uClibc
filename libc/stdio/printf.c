@@ -403,7 +403,7 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 						p = __ultostr(tmp + sizeof(tmp) - 1, (unsigned long)
 									  ((lval)
 									   ? va_arg(ap, unsigned long)
-									   : va_arg(ap, unsigned short)),
+									   : va_arg(ap, unsigned int)),
 									  radix, upcase);
 #if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
 					}
@@ -439,7 +439,7 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 						p = __ltostr(tmp + sizeof(tmp) - 1, (long)
 									 ((lval)
 									  ? va_arg(ap, long)
-									  : va_arg(ap, short)), 10, 0);
+									  : va_arg(ap, int)), 10, 0);
 #if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
 					}
 #endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
