@@ -2408,9 +2408,13 @@ int setvbuf(register FILE * __restrict stream, register char * __restrict buf,
 	allocated_buf_flag = 0;
 	if ((!buf) && (size != (stream->bufend - stream->bufstart))) {
 		/* No buffer supplied and requested size different from current. */
-		allocated_buf_flag = __FLAG_FREEBUF;
 		/* If size == 0, create a (hopefully) bogus non-null pointer... */
-		if (!(buf = ((size > 0) ? malloc(size) : ((char *)NULL) + 1))) {
+		if (!(buf = ((size > 0)
+					 ? ((allocated_buf_flag = __FLAG_FREEBUF), malloc(size))
+					 : ((char *)NULL) + 1))
+			) {
+			/* TODO -- should we really keep current buffer if it was passed
+			 * to us earlier by the app? */
 			goto DONE;		/* Keep current buffer. */
 		}
 	}
