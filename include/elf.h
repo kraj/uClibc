@@ -2316,6 +2316,11 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_390_JMP_SLOT		11	/* Create PLT entry.  */
 #define R_390_RELATIVE		12	/* Adjust by program base.  */
 #define R_390_GOTOFF32		13	/* 32 bit offset to GOT.	 */
+
+/* Those crazy binutils folks changed their 
+ * abi.  Add this so older apps can cope. */
+#define R_390_GOTOFF R_390_GOTOFF32
+
 #define R_390_GOTPC		14	/* 32 bit PC relative offset to GOT.  */
 #define R_390_GOT16		15	/* 16 bit GOT offset.  */
 #define R_390_PC16		16	/* PC relative 16 bit.	*/
