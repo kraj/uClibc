@@ -34,18 +34,24 @@ DIRS=
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 	DIRS+=linuxthreads
 	LDFLAGS_THREAD:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc -z defs
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	DIRS+=linuxthreads_db
-	LDFLAGS_THREAD_DB:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 	LDFLAGS_THREAD+=-z relro
 endif
 ifeq ($(UCLIBC_BUILD_NOW),y)
 	LDFLAGS_THREAD+=-z now
 endif
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	DIRS+=linuxthreads_db
+	LDFLAGS_THREAD_DB:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
 endif
 ifeq ($(DODEBUG),n)
 	LDFLAGS_THREAD_DB+=-s
+ifeq ($(UCLIBC_BUILD_RELRO),y)
+       LDFLAGS_THREAD_DB+=-z relro
+endif
+ifeq ($(UCLIBC_BUILD_NOW),y)
+       LDFLAGS_THREAD_DB+=-z now
+endif
 endif
 endif
 
