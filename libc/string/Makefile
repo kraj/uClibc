@@ -35,7 +35,7 @@ endif
 MSRC1=strsignal.c
 MOBJ1=strsignal.o psignal.o
 
-CSRC=strpbrk.c strsep.c strstr.c strtok.c strtok_r.c strcspn.c config.c \
+CSRC=strpbrk.c strsep.c strstr.c strtok.c strtok_r.c strcspn.c \
 	strspn.c strcasecmp.c strncasecmp.c strerror.c bcopy.c bzero.c \
 	bcmp.c sys_errlist.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
