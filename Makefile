@@ -213,6 +213,8 @@ clean:
 	- find include -type l -exec rm -f {} \;
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core \) -exec rm -f {} \;
 	$(MAKE) -C ldso clean
+	$(MAKE) -C libc/sysdeps/linux/common clean
+	$(MAKE) -C libc/unistd clean
 
 .PHONY: dummy subdirs
 
