@@ -47,6 +47,7 @@ endif
 
 ifneq ($(DODYNAMIC),true)
     LDFLAGS +=--static
+    GLIBC_LDFLAGS +=--static
 endif
 CFLAGS+=--uclibc-use-build-dir
 LDFLAGS+=--uclibc-use-build-dir
