@@ -106,11 +106,14 @@ typedef struct __stdio_file FILE;
 #undef __need_FOPEN_MAX
 
 /* Standard streams (internal).  */
-extern FILE _stdio_streams[3];
+extern FILE *_stdin;
+extern FILE *_stdout;
+extern FILE *_stderr;
+
 /* C89/C99 say they're macros.  Make them happy.  */
-#define stdin  (_stdio_streams)
-#define stdout (_stdio_streams+1)
-#define stderr (_stdio_streams+2)
+#define stdin  _stdin
+#define stdout _stdout
+#define stderr _stderr
 
 /* Remove file FILENAME.  */
 extern int remove __P ((__const char *__filename));
@@ -209,6 +212,10 @@ extern int printf __P ((__const char *__restrict __format, ...));
 /* Write formatted output to S.  */
 extern int sprintf __P ((char *__restrict __s,
 			 __const char *__restrict __format, ...));
+
+/* Write formatted output to a file descriptor */
+extern int vdprintf __P((int fd, __const char *__restrict __format,
+						 va_list __arg));
 
 /* Write formatted output to a buffer S dynamically allocated by asprintf.  */
 extern int asprintf __P ((char **__restrict __s,
