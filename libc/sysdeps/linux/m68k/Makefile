@@ -29,10 +29,10 @@ ASFLAGS=$(CFLAGS)
 CRT0=crt0.S
 CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 
-SSRC=setjmp.S # longjmp.S _start.S clone.S
+SSRC=setjmp.S vfork.S # longjmp.S _start.S clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=ptrace.c vfork.c
+CSRC=ptrace.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
