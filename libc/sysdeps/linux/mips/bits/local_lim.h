@@ -28,8 +28,11 @@
 #ifndef LINK_MAX
 # define __undef_LINK_MAX
 #endif
+/* uClibc likes to have a definition of OPEN_MAX */
+#if 0
 #ifndef OPEN_MAX
 # define __undef_OPEN_MAX
+#endif
 #endif
 
 /* The kernel sources contain a file with all the needed information.  */

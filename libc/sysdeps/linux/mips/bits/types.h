@@ -136,6 +136,25 @@ typedef int __intptr_t;
 /* Duplicate info from sys/socket.h.  */
 typedef unsigned int __socklen_t;
 
+/* --- */
+/* Added by ds */
+/* I don't understand why these weren't here... */
+#define __NFDBITS	(8 * sizeof(__fd_mask))
+#define __FDELT(d)	((d) / __NFDBITS)
+#define __FDMASK(d)	((__fd_mask) 1 << ((d) % __NFDBITS))
+
+typedef unsigned long __fd_mask;
+typedef struct
+  {
+#ifdef __USE_XOPEN
+    __fd_mask fds_bits[__FD_SETSIZE / __NFDBITS];
+#define __FDS_BITS(set) ((set)->fds_bits)
+#else
+    __fd_mask __fds_bits[__FD_SETSIZE / __NFDBITS];
+#define __FDS_BITS(set) ((set)->__fds_bits)
+#endif
+  } __fd_set;
+/* --- */
 
 /* Now add the thread types.  */
 #if defined __USE_POSIX199506 || defined __USE_UNIX98

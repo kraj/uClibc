@@ -56,7 +56,7 @@ __BEGIN_DECLS
 
 /* The actual system call: all functions are multiplexed by this.  */
 extern int __ipc (int __call, int __first, int __second, int __third,
-		  void *__ptr) __THROW;
+		  void *__ptr);
 
 __END_DECLS
 

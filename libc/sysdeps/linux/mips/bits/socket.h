@@ -227,8 +227,10 @@ struct cmsghdr
 				   of cmsghdr structure.  */
     int cmsg_level;		/* Originating protocol.  */
     int cmsg_type;		/* Protocol specific type.  */
+#if 0
     __extension__ unsigned char __cmsg_data __flexarr; /* Ancillary data.  */
     /* XXX Perhaps this should be removed.  */
+#endif
   };
 
 /* Ancillary data object manipulation macros.  */
@@ -248,13 +250,13 @@ struct cmsghdr
 #define CMSG_LEN(len)   (CMSG_ALIGN (sizeof (struct cmsghdr)) + (len))
 
 extern struct cmsghdr *__cmsg_nxthdr (struct msghdr *__mhdr,
-				      struct cmsghdr *__cmsg) __THROW;
+				      struct cmsghdr *__cmsg);
 #ifdef __USE_EXTERN_INLINES
 # ifndef _EXTERN_INLINE
 #  define _EXTERN_INLINE extern __inline
 # endif
 _EXTERN_INLINE struct cmsghdr *
-__cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg) __THROW
+__cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg)
 {
   if ((size_t) __cmsg->cmsg_len < sizeof (struct cmsghdr))
     /* The kernel header does this so there may be a reason.  */
