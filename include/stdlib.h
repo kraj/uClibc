@@ -28,6 +28,10 @@ extern void * calloc __P ((size_t, size_t));
 extern void free __P ((void *));
 extern void * realloc __P ((void *, size_t));
 
+#if defined __USE_GNU || defined __USE_BSD || defined __USE_MISC
+# include <alloca.h>
+#endif /* Use GNU, BSD, or misc.  */
+
 #ifdef DEBUG_MALLOC
 
 extern void * malloc_dbg __P ((size_t, char* func, char* file, int line));
