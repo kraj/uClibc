@@ -179,7 +179,9 @@ int setttyent(void)
 	return (1);
     } else if ((tf = fopen(_PATH_TTYS, "r"))) {
 	/* We do the locking ourselves.  */
+#ifdef __UCLIBC_HAS_THREADS__
 	__fsetlocking (tf, FSETLOCKING_BYCALLER);
+#endif
 	return (1);
     }
     return (0);
