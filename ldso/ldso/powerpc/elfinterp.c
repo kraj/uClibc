@@ -48,14 +48,11 @@ static char *_dl_reltypes[] =
    a more than adequate job of explaining everything required to get this
    working. */
 
-#include <sys/types.h>
-#include <errno.h>
-#include "sysdep.h"
-#include <elf.h>
 #include "linuxelf.h"
-#include "hash.h"
-#include "syscall.h"
-#include "string.h"
+#include "ld_hash.h"
+#include "ld_syscall.h"
+#include "ld_string.h"
+#include <errno.h>
 
 #ifdef DEBUG
 static void debug_sym(Elf32_Sym *symtab,char *strtab,int symtab_index);

@@ -1,7 +1,7 @@
 #ifndef _HASH_H_
 #define _HASH_H_
 
-#include "elf.h"
+#include <elf.h>
 
 /* Header file that describes the internal data structures used by the
  * ELF dynamic linker.  */

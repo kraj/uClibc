@@ -49,11 +49,10 @@ static char *_dl_reltypes[] =
 
 #include <sys/types.h>
 #include <errno.h>
-#include "elf.h"
-#include "hash.h"
-#include "syscall.h"
-#include "string.h"
-#include "sysdep.h"
+#include "linuxelf.h"
+#include "ld_hash.h"
+#include "ld_syscall.h"
+#include "ld_string.h"
 
 extern char *_dl_progname;
 

@@ -20,13 +20,11 @@
 
 /* Various symbol table handling functions, including symbol lookup */
 
-#include "string.h"
 #include "dlfcn.h"
-#include "hash.h"
 #include "linuxelf.h"
-#include "syscall.h"
-#include "string.h"
-#include "sysdep.h"
+#include "ld_hash.h"
+#include "ld_syscall.h"
+#include "ld_string.h"
 
 /*
  * This is the start of the linked list that describes all of the files present

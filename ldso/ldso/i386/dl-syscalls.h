@@ -1,5 +1,3 @@
-#include <sys/types.h>
-
 /*
  * This file contains the system call macros and syscall 
  * numbers used by the shared library loader.

@@ -2,7 +2,7 @@
  * These are various helper routines that are needed to run an ELF image.
  */
 #define COMPILE_ASM
-#include "sysdep.h"
+#include "ld_sysdep.h"
 
 .text
 	.align 16

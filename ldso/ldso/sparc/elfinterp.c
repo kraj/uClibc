@@ -41,12 +41,10 @@ an ELF sharable library or a linux style of shared library. */
    a more than adequate job of explaining everything required to get this
    working. */
 
-#include <sys/types.h>
-#include "elf.h"
-#include "hash.h"
-#include "syscall.h"
-#include "string.h"
-#include "sysdep.h"
+#include "linuxelf.h"
+#include "ld_hash.h"
+#include "ld_syscall.h"
+#include "ld_string.h"
 
 extern char *_dl_progname;
 

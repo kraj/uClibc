@@ -1,4 +1,13 @@
-#include "syscalls.h"
+/* Pull in the arch specific type information */
+#include <sys/types.h>
+/* Pull in the arch specific syscall implementation */
+#include "ld_syscalls.h"
+/*  For MAP_ANONYMOUS -- differs between platforms */
+#include <sys/mman.h>			
+/* Pull in whatever this particular arch's kernel thinks the kernel version of
+ * struct stat should look like.  It turns out that each arch has a different
+ * opinion on the subject, and different kernel revs use different names... */
+#include <sys/stat.h> 
 
 
 /* Here are the definitions for some syscalls that are used
@@ -46,7 +55,6 @@ static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
 #endif
 #define _dl_mmap_check_error(__res)	\
 	(((int)__res) < 0 && ((int)__res) >= -_dl_MAX_ERRNO)
-#include <sys/mman.h>			// For MAP_ANONYMOUS -- differs between platforms
 #ifndef MAP_ANONYMOUS
 #ifdef __sparc__
 #define MAP_ANONYMOUS 0x20
@@ -74,10 +82,6 @@ static inline _syscall3(int, _dl_mprotect, const void *, addr, unsigned long, le
 
 
 
-/* Pull in whatever this particular arch's kernel thinks the kernel version of
- * struct stat should look like.  It turns out that each arch has a different
- * opinion on the subject, and different kernel revs use different names... */
-#include <sys/stat.h> 
 #define __NR__dl_stat __NR_stat
 static inline _syscall2(int, _dl_stat, const char *, file_name, struct stat *, buf);
 

@@ -1,6 +1,11 @@
 #ifndef LINUXELF_H
 #define LINUXELF_H
 
+
+#include <sys/types.h>
+#include "ld_sysdep.h" /* before elf.h to get ELF_USES_RELOCA right */
+#include <elf.h>
+
 /* Forward declarations for stuff defined in hash.h */
 struct dyn_elf;
 struct elf_resolve;
