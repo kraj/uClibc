@@ -227,6 +227,7 @@ int main(int argc, char **argv)
 					break;
 				case 'v':		/* verbose */
 					if (argv[i][2] == 0) verbose = 1;
+					printf("Invoked as %s\n", argv[0]);
 					break;
 				case 'n':
 					if (strcmp(nostdinc,argv[i]) == 0) {
@@ -245,7 +246,7 @@ int main(int argc, char **argv)
 						use_static_linking = 1;
 					}
 					break;
-			    case 'W':		/* -static could be passed directly to ld */
+				case 'W':		/* -static could be passed directly to ld */
 					if (strncmp("-Wl,",argv[i],4) == 0) {
 						if (strstr(argv[i],static_linking) != 0) {
 							use_static_linking = 1;
@@ -290,10 +291,10 @@ int main(int argc, char **argv)
 			continue;
 		} else if (strstr(argv[j],static_linking) != NULL) {
 			continue;
-		} else if (strncmp("-Wl,",argv[j], 2) == 0) {
-			if (strstr(argv[j],static_linking) != NULL) {
-				continue;
-			}
+		} else if (strncmp("-Wl,",argv[j], 4) == 0) {
+		    continue;
+		} else if (strncmp("-v",argv[j], 2) == 0) {
+		    continue;
 		} else {
 			gcc_argument[k++] = argv[j];
 			gcc_argument[k] = '\0';
@@ -368,12 +369,10 @@ int main(int argc, char **argv)
 	gcc_argv[i++] = NULL;
 
 	if (verbose) {
-		printf("Invoked as %s\n", argv[0]);
 		for ( j = 0 ; gcc_argv[j] ; j++ ) {
 			printf("arg[%2i] = %s\n", j, gcc_argv[j]);
 		}
 	}
-
 	//no need to free memory from xstrcat because we never return... 
 	return execvp(GCC_BIN, gcc_argv);
 }
