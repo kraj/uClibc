@@ -83,6 +83,7 @@ static char *our_usr_lib_path = "-L"UCLIBC_DEVEL_PREFIX"/lib";
 
 static char static_linking[] = "-static";
 static char nostdinc[] = "-nostdinc";
+static char nostdinc_plus[] = "-nostdinc++";
 static char nostartfiles[] = "-nostartfiles";
 static char nodefaultlibs[] = "-nodefaultlibs";
 static char nostdlib[] = "-nostdlib";
@@ -119,7 +120,7 @@ void xstrcat(char **string, ...)
 int main(int argc, char **argv)
 {
 	int use_build_dir = 0, linking = 1, use_static_linking = 0;
-	int use_stdinc = 1, use_start = 1, use_stdlib = 1, use_pic = 0;
+	int use_stdinc = 1, use_nostdinc_plus = 0, use_start = 1, use_stdlib = 1, use_pic = 0;
 	int source_count = 0, use_rpath = 0, verbose = 0;
 	int ctor_dtor = 0, cplusplus = 0;
 	int i, j, k, l, m, n;
@@ -166,6 +167,7 @@ int main(int argc, char **argv)
 	    }
 	    ctor_dtor = 1;
 	    cplusplus = 1;
+	    use_nostdinc_plus = 1;
 	}
 
 	devprefix = getenv("UCLIBC_DEVEL_PREFIX");
@@ -265,6 +267,10 @@ int main(int argc, char **argv)
 					} else if (strcmp(nostdlib,argv[i]) == 0) {
 						use_start = 0;
 						use_stdlib = 0;
+					} else if (strcmp(nostdinc_plus,argv[i]) == 0) {
+						if (cplusplus==1) {
+							use_nostdinc_plus = 0;
+						}
 					}
 					break;
 				case 's':
@@ -365,7 +371,13 @@ int main(int argc, char **argv)
 	    gcc_argv[i++] = nostdinc;
 	    if (cplusplus) {
 		char *cppinc;
+		if (use_nostdinc_plus) {
+			gcc_argv[i++] = nostdinc_plus;
+		}
 		xstrcat(&cppinc, uClibc_inc[use_build_dir], "g++/", NULL);
+		gcc_argv[i++] = "-isystem";
+		gcc_argv[i++] = cppinc;
+		xstrcat(&cppinc, uClibc_inc[use_build_dir], "g++-v3/", NULL);
 		gcc_argv[i++] = "-isystem";
 		gcc_argv[i++] = cppinc;
 	    }
