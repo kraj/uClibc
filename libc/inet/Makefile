@@ -42,7 +42,7 @@ MOBJ2=encodeh.o decodeh.o encoded.o decoded.o lengthd.o encodeq.o \
 	opennameservers.o closenameservers.o resolvename.o gethostbyname.o\
 	res_init.o res_query.o gethostbyaddr.o \
 	get_hosts_byname.o get_hosts_byaddr.o read_etc_hosts.o \
-	gethostbyname2.o getnameinfo.o
+	gethostbyname2.o getnameinfo.o gethostent.o sethostent.o endhostent.o 
 
 MSRC3=socketcalls.c
 MOBJ3= accept.o bind.o connect.o getpeername.o getsockname.o getsockopt.o \

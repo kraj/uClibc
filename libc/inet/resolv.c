@@ -41,6 +41,10 @@
  *   address family parameter and improved IPv6 support for get_hosts_byname
  *   and read_etc_hosts; getnameinfo() port from glibc; defined
  *   defined ip6addr_any and in6addr_loopback)
+ *
+ * 2-Feb-2002 Erik Andersen <andersee@debian.org>
+ * Added gethostent(), sethostent(), and endhostent()
+ *
  */
 
 #define __FORCE_GLIBC
@@ -103,13 +107,21 @@ struct resolv_answer {
 	int rdoffset;
 };
 
+enum etc_hosts_action {
+    GET_HOSTS_BYNAME = 0,
+    GETHOSTENT,
+    GET_HOSTS_BYADDR,
+};
+
+
 extern int nameservers;
 extern char * nameserver[MAX_SERVERS];
 extern int searchdomains;
 extern char * searchdomain[MAX_SEARCH];
 extern struct hostent * get_hosts_byname(const char * name, int type);
 extern struct hostent * get_hosts_byaddr(const char * addr, int len, int type);
-extern struct hostent * read_etc_hosts(const char * name, int type, int ip);
+extern void __open_etc_hosts(FILE *fp);
+extern struct hostent * read_etc_hosts(FILE *fp, const char * name, int type, enum etc_hosts_action action);
 extern int resolve_address(const char * address, int nscount, 
 	char ** nsip, struct in_addr * in);
 extern int resolve_mailbox(const char * address, int nscount, 
@@ -1315,7 +1327,15 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 
 #ifdef L_read_etc_hosts
 
-struct hostent * read_etc_hosts(const char * name, int type, int ip)
+void __open_etc_hosts(FILE *fp)
+{
+	if ((fp = fopen("/etc/hosts", "r")) == NULL) {
+		fp = fopen("/etc/config/hosts", "r");
+	}
+	return;
+}
+
+struct hostent * read_etc_hosts(FILE * fp, const char * name, int type, enum etc_hosts_action action)
 {
 	static struct hostent	h;
 	static struct in_addr	in;
@@ -1325,15 +1345,17 @@ struct hostent * read_etc_hosts(const char * name, int type, int ip)
 	static struct in6_addr	*addr_list6[2];
 #endif /* __UCLIBC_HAS_IPV6__ */
 	static char				line[80];
-	FILE					*fp;
 	char					*cp;
 #define		 MAX_ALIAS		5
 	char					*alias[MAX_ALIAS];
 	int						aliases, i;
 
-	if ((fp = fopen("/etc/hosts", "r")) == NULL &&
-			(fp = fopen("/etc/config/hosts", "r")) == NULL)
-		return((struct hostent *) NULL);
+	if (action!=GETHOSTENT) {
+		__open_etc_hosts(fp);
+		if (fp == NULL) {
+			return((struct hostent *)NULL);
+		}
+	}
 
 	while (fgets(line, sizeof(line), fp)) {
 		if ((cp = strchr(line, '#')))
@@ -1355,10 +1377,14 @@ struct hostent * read_etc_hosts(const char * name, int type, int ip)
 		if (aliases < 2)
 			continue; /* syntax error really */
 		
-		if (ip) {
+		if (action==GETHOSTENT) {
+			/* Return whatever the next entry happens to be. */
+			break;
+		} else if (action==GET_HOSTS_BYADDR) {
 			if (strcmp(name, alias[0]) != 0)
 				continue;
 		} else {
+			/* GET_HOSTS_BYNAME */
 			for (i = 1; i < aliases; i++)
 				if (strcasecmp(name, alias[i]) == 0)
 					break;
@@ -1386,20 +1412,67 @@ struct hostent * read_etc_hosts(const char * name, int type, int ip)
 			break; /* bad ip address */
         }
         
-		fclose(fp);
+		if (action!=GETHOSTENT) {
+			fclose(fp);
+		}
 		return(&h);
 	}
-	fclose(fp);
+	if (action!=GETHOSTENT) {
+		fclose(fp);
+	}
 	return((struct hostent *) NULL);
 }
 #endif
 
 
+#ifdef L_endhostent
+extern int __stay_open;
+extern FILE * __gethostent_fp;
+void endhostent (void)
+{
+    __stay_open = 0;
+    if (__gethostent_fp) {
+	fclose(__gethostent_fp);
+    }
+}
+#endif
+
+#ifdef L_sethostent
+extern int __stay_open;
+void sethostent (int stay_open)
+{
+    __stay_open = stay_open;
+}
+#endif
+
+#ifdef L_gethostent
+int __stay_open;
+FILE * __gethostent_fp;
+
+struct hostent *gethostent (void)
+{
+    struct hostent *host;
+
+    if (__gethostent_fp == NULL) {
+	__open_etc_hosts(__gethostent_fp);
+	if (__gethostent_fp == NULL) {
+	    return((struct hostent *)NULL);
+	}
+    }
+
+    host = read_etc_hosts(__gethostent_fp, NULL, AF_INET, GETHOSTENT);
+    if (__stay_open==0) {
+	fclose(__gethostent_fp);
+    }
+    return(host);
+}
+#endif
+
 #ifdef L_get_hosts_byname
 
 struct hostent * get_hosts_byname(const char * name, int type)
 {
-	return(read_etc_hosts(name, type, 0));
+	return(read_etc_hosts(NULL, name, type, GET_HOSTS_BYNAME));
 }
 #endif
 
@@ -1431,7 +1504,7 @@ struct hostent * get_hosts_byaddr(const char * addr, int len, int type)
 
 	inet_ntop(type, addr, ipaddr, sizeof(ipaddr));
 
-	return(read_etc_hosts(ipaddr, type, 1));
+	return(read_etc_hosts(NULL, ipaddr, type, GET_HOSTS_BYADDR));
 }
 #endif
 
