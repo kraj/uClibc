@@ -21,7 +21,7 @@ gcc gen_ctype_from_glibc.c -o gen_ctype_from_glibc
 
 mkdir tmp
 cd tmp
-../gen_ctype_from_glibc
+../gen_ctype_from_glibc -d /usr/share/locale -c
 
 Then just move the directory or directories you need (not the .c files)
 to the uClibc locale file directory you set in Config.
