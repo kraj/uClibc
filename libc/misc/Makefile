@@ -24,8 +24,8 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 
-DIRS = assert ctype dirent fnmatch glob internals lsearch mntent syslog \
-	time utmp tsearch locale regex sysvipc
+DIRS = assert ctype dirent file fnmatch glob internals lsearch \
+       mntent syslog time utmp tsearch locale regex sysvipc
 
 all: libc.a
 
