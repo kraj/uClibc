@@ -5,6 +5,7 @@
  */
 
 #include <stdlib.h>
+#include <features.h>
 #include "dlfcn.h"
 #include "sysdep.h"
 #include "syscall.h"
@@ -453,19 +454,11 @@ const char *_dlerror()
 }
 
 /* Generate the correct symbols that we need. */
-#if 1
-#pragma weak dlopen = _dlopen
-#pragma weak dlerror = _dlerror
-#pragma weak dlclose = _dlclose
-#pragma weak dlsym = _dlsym
-#pragma weak dladdr = _dladdr
-#else
-__asm__(".weak dlopen;dlopen=_dlopen");
-__asm__(".weak dlerror;dlerror=_dlerror");
-__asm__(".weak dlclose;dlclose=_dlclose");
-__asm__(".weak dlsym;dlsym=_dlsym");
-__asm__(".weak dladdr;dladdr=_dladdr");
-#endif
+weak_alias(dlopen, _dlopen);
+weak_alias(dlerror, _dlerror);
+weak_alias(dlclose, _dlclose);
+weak_alias(dlsym, _dlsym);
+weak_alias(dladdr, _dladdr);
 
 /* This is a real hack.  We need access to the dynamic linker, but we
 also need to make it possible to link against this library without any
@@ -474,47 +467,28 @@ possible, but at run time the normal symbols are accessed. */
 
 static void foobar()
 {
-	_dl_fdprintf(2, "libdl library not correctly linked\n");
+	_dl_fprintf(2, "libdl library not correctly linked\n");
 	_dl_exit(1);
 }
 
 static int __attribute__ ((unused)) foobar1 = (int) foobar;	/* Use as pointer */
 
-#if 1
-#pragma weak _dl_find_hash = foobar
-#pragma weak _dl_symbol_tables = foobar1
-#pragma weak _dl_handles = foobar1
-#pragma weak _dl_loaded_modules = foobar1
-#pragma weak _dl_debug_addr = foobar1
-#pragma weak _dl_error_number = foobar1
-#pragma weak _dl_load_shared_library = foobar
+weak_alias(_dl_find_hash, foobar);
+weak_alias(_dl_symbol_tables, foobar1);
+weak_alias(_dl_handles, foobar1);
+weak_alias(_dl_loaded_modules, foobar1);
+weak_alias(_dl_debug_addr, foobar1);
+weak_alias(_dl_error_number, foobar1);
+weak_alias(_dl_load_shared_library, foobar);
 #ifdef USE_CACHE
-#pragma weak _dl_map_cache = foobar
-#pragma weak _dl_unmap_cache = foobar
-#endif
-#pragma weak _dl_malloc_function = foobar1
-#pragma weak _dl_parse_relocation_information = foobar
-#pragma weak _dl_parse_lazy_relocation_information = foobar
-#pragma weak _dl_fdprintf = foobar
-#else
-__asm__(".weak _dl_find_hash; _dl_find_hash = foobar");
-__asm__(".weak _dl_symbol_tables; _dl_symbol_tables = foobar1");
-__asm__(".weak _dl_handles; _dl_handles = foobar1");
-__asm__(".weak _dl_loaded_modules; _dl_loaded_modules = foobar1");
-__asm__(".weak _dl_debug_addr; _dl_debug_addr = foobar1");
-__asm__(".weak _dl_error_number; _dl_error_number = foobar1");
-__asm__(".weak _dl_load_shared_library; _dl_load_shared_library = foobar");
-#ifdef USE_CACHE
-__asm__(".weak _dl_map_cache; _dl_map_cache = foobar");
-__asm__(".weak _dl_unmap_cache; _dl_unmap_cache = foobar");
-#endif
-__asm__(".weak _dl_malloc_function; _dl_malloc_function = foobar1");
-__asm__
-	(".weak _dl_parse_relocation_information; _dl_parse_relocation_information = foobar");
-__asm__
-	(".weak _dl_parse_lazy_relocation_information; _dl_parse_lazy_relocation_information = foobar");
-__asm__(".weak _dl_fdprintf; _dl_fdprintf = foobar");
-#endif
+weak_alias(_dl_map_cache, foobar);
+weak_alias(_dl_unmap_cache, foobar);
+#endif	
+weak_alias(_dl_malloc_function, foobar1);
+weak_alias(_dl_parse_relocation_information, foobar);
+weak_alias(_dl_parse_lazy_relocation_information, foobar);
+weak_alias(_dl_fprintf, foobar);
+
 
 /*
  * Dump information to stderrr about the current loaded modules
@@ -526,10 +500,10 @@ void _dlinfo()
 	struct elf_resolve *tpnt;
 	struct dyn_elf *rpnt, *hpnt;
 
-	_dl_fdprintf(2, "List of loaded modules\n");
+	_dl_fprintf(2, "List of loaded modules\n");
 	/* First start with a complete list of all of the loaded files. */
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) { 
-		_dl_fdprintf(2, "\t%8.8x %8.8x %8.8x %s %d %s\n", 
+		_dl_fprintf(2, "\t%x %x %x %s %d %s\n", 
 			(unsigned) tpnt->loadaddr, (unsigned) tpnt,
 			(unsigned) tpnt->symbol_scope,
 			type[tpnt->libtype],
@@ -537,15 +511,15 @@ void _dlinfo()
 	}
 
 	/* Next dump the module list for the application itself */
-	_dl_fdprintf(2, "\nModules for application (%x):\n",
+	_dl_fprintf(2, "\nModules for application (%x):\n",
 				 (unsigned) _dl_symbol_tables);
 	for (rpnt = _dl_symbol_tables; rpnt; rpnt = rpnt->next)
-		_dl_fdprintf(2, "\t%8.8x %s\n", (unsigned) rpnt->dyn, rpnt->dyn->libname);
+		_dl_fprintf(2, "\t%x %s\n", (unsigned) rpnt->dyn, rpnt->dyn->libname);
 
 	for (hpnt = _dl_handles; hpnt; hpnt = hpnt->next_handle) {
-		_dl_fdprintf(2, "Modules for handle %x\n", (unsigned) hpnt);
+		_dl_fprintf(2, "Modules for handle %x\n", (unsigned) hpnt);
 		for (rpnt = hpnt; rpnt; rpnt = rpnt->next)
-			_dl_fdprintf(2, "\t%8.8x %s\n", (unsigned) rpnt->dyn, 
+			_dl_fprintf(2, "\t%x %s\n", (unsigned) rpnt->dyn, 
 				rpnt->dyn->libname);
 	}
 }
@@ -565,7 +539,7 @@ int _dladdr(void *__address, Dl_info * __dlip)
 	pelf = NULL;
 
 #if 0
-	_dl_fdprintf(2, "dladdr( 0x%p, 0x%p )\n", __address, __dlip);
+	_dl_fprintf(2, "dladdr( 0x%p, 0x%p )\n", __address, __dlip);
 #endif
 
 	for (rpnt = _dl_loaded_modules; rpnt; rpnt = rpnt->next) {
@@ -573,7 +547,7 @@ int _dladdr(void *__address, Dl_info * __dlip)
 
 		tpnt = rpnt;
 #if 0
-		_dl_fdprintf(2, "Module \"%s\" at 0x%p\n", 
+		_dl_fprintf(2, "Module \"%s\" at 0x%p\n", 
 			tpnt->libname, tpnt->loadaddr);
 #endif
 		if (tpnt->loadaddr < (char *) __address
@@ -613,7 +587,7 @@ int _dladdr(void *__address, Dl_info * __dlip)
 					sf = 1;
 				}
 #if 0
-				_dl_fdprintf(2, "Symbol \"%s\" at 0x%p\n", 
+				_dl_fprintf(2, "Symbol \"%s\" at 0x%p\n", 
 					strtab + symtab[si].st_name, symbol_addr);
 #endif
 			}

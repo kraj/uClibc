@@ -43,6 +43,7 @@ ar-target: $(OBJS)
 	#rm -f $(TOPDIR)lib/$(LIBDL)
 	#install -m 644 $(LIBDL) $(TOPDIR)lib
 
+
 $(OBJS): %.o : %.c
 	$(TARGET_CC) -I../d-link -I../d-link/$(TARGET_ARCH) $(TARGET_CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
