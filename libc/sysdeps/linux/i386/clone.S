@@ -20,32 +20,20 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
-#include <asm/errno.h>
+#include <bits/errno.h>
+#include <sys/syscall.h>
 
-
-/* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
-
-        .text
-.globl __clone;
-.type	 __clone,@function
-.align 4;                                                               \
+.text
+.align 4
+.type	__clone,@function
+.globl	__clone;
 __clone:
 	/* Sanity check arguments.  */
-	movl	$-EINVAL,%eax
 	movl	4(%esp),%ecx		/* no NULL function pointers */
-#ifdef PIC
-	jecxz	SYSCALL_ERROR_LABEL
-#else
-	testl	%ecx,%ecx
-	jz	SYSCALL_ERROR_LABEL
-#endif
+	jecxz	CLONE_ERROR_LABEL
+
 	movl	8(%esp),%ecx		/* no NULL stack pointers */
-#ifdef PIC
-	jecxz	SYSCALL_ERROR_LABEL
-#else
-	testl	%ecx,%ecx
-	jz	SYSCALL_ERROR_LABEL
-#endif
+	jecxz	CLONE_ERROR_LABEL
 
 	/* Insert the argument onto the new stack.  */
 	subl	$8,%ecx
@@ -65,22 +53,35 @@ __clone:
 	popl	%ebx
 
 	test	%eax,%eax
-	jl	SYSCALL_ERROR_LABEL
-	jz	thread_start
+	jl	CLONE_ERROR_LABEL
+	jne	CLONE_RETURN_LABEL
 
-L(pseudo_end):
-	ret
-
-thread_start:
+	/* Start thread */
 	subl	%ebp,%ebp	/* terminate the stack frame */
 	call	*%ebx
+	pushl	%eax
+	call	_exit
+
+CLONE_ERROR_LABEL:
+	negl    %eax
+	pushl   %eax
 #ifdef PIC
 	call	L(here)
 L(here):
 	popl	%ebx
 	addl	$_GLOBAL_OFFSET_TABLE_+[.-L(here)], %ebx
+	call    __errno_location@PLT
+#else
+	call	__errno_location
 #endif
-	pushl	%eax
-	call	_exit
+	popl	%ecx
+	movl	%ecx, (%eax)
+	xorl	%eax, %eax
+	decl	%eax
 
+CLONE_RETURN_LABEL:
+	ret
+
+.globl	clone;
+    clone = __clone
 
