@@ -25,10 +25,10 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-PROJ_UCLINUX=/proj/soft2/uclinux
-
-# Cross compile on i386-pc-linux-gnu
-DESTDIR=$(PROJ_UCLINUX)/i386-pc-linux-gnu/v850e-linux
+# The root directory used for installation, corresponding to $(prefix)
+# for GNU packages.  This defaults to /usr/local, but makers of .rpms
+# and .debs will want to set this to "/usr" instead.
+INSTALL_ROOT = /usr/local
 
 NATIVE_CC = gcc
 
@@ -178,24 +178,19 @@ SHARED_LIB_LOADER_PATH=$(DEVEL_PREFIX)/lib
 # This value is used by the 'make install' Makefile target.  Since this
 # directory is compiled into the uclibc cross compiler spoofer, you
 # have to recompile if you change this value...
-DEVEL_PREFIX = /usr/$(TARGET_ARCH)-linux-uclibc
+DEVEL_PREFIX = $(INSTALL_ROOT)/$(TARGET_ARCH)-uclibc
 
 # SYSTEM_DEVEL_PREFIX is the directory prefix used when installing
 # bin/arch-uclibc-gcc, bin/arch-uclibc-ld, etc.   This is only used by
-# the 'make install' target, and is not compiled into anything.  This
-# defaults to $DEVEL_PREFIX/usr, but makers of .rpms and .debs will
-# want to set this to "/usr" instead.
-SYSTEM_DEVEL_PREFIX = $(DEVEL_PREFIX)
+# the 'make install' target, and is not compiled into anything.
+SYSTEM_DEVEL_PREFIX = $(INSTALL_ROOT)
 
 # DEVEL_TOOL_PREFIX is the directory prefix used when installing
 # bin/gcc, bin/ld, etc.   This is only used by the 'make install'
-# target, and is not compiled into anything.  This defaults to
-# $DEVEL_PREFIX/usr, but makers of .rpms and .debs may want to
-# set this to something else.
-DEVEL_TOOL_PREFIX = $(DEVEL_PREFIX)/usr
+# target, and is not compiled into anything.
+DEVEL_TOOL_PREFIX = $(DEVEL_PREFIX)
 
 # If you want 'make install' to install everything under a temporary
 # directory, the define PREFIX during the install step,
 # i.e., 'make PREFIX=/var/tmp/uClibc install'.
 #PREFIX = $(TOPDIR)/_install
-
