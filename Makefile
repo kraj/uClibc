@@ -161,12 +161,12 @@ uClibc_config: Makefile Config
 	else \
 	    echo "#undef __UCLIBC_HAS_IPV6__" >> include/bits/uClibc_config.h ; \
 	fi
-	 # [For now we make the assumption that a linux system without an
-	 # MMU must be uClinux, and must have a broken munmap (both
-	 # assumptions are a bit dodgy, but can be changed in the future).]
 	@if [ "$(HAS_MMU)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAS_MMU__ 1" >> include/bits/uClibc_config.h ; \
 	else \
+	    echo "For now we make the assumption that a linux system without an"; \
+	    echo "MMU must be uClinux, and must have a broken munmap (both"; \
+	    echo "assumptions are a bit dodgy, but can be changed in the future)."; \
 	    echo "#undef __UCLIBC_HAS_MMU__" >> include/bits/uClibc_config.h ; \
 	    echo "#define __UCLIBC_UCLINUX_BROKEN_MUNMAP__ 1" >> include/bits/uClibc_config.h ; \
 	fi
