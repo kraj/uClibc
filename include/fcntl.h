@@ -132,6 +132,11 @@ extern int lockf64 (int __fd, int __cmd, __off64_t __len) __THROW;
 # endif
 #endif
 
+
+#if 0
+
+/* FIXME -- uClibc should probably implement these... */
+
 #ifdef __USE_XOPEN2K
 /* Advice the system about the expected behaviour of the application with
    respect to the file associated with FD.  */
@@ -169,6 +174,7 @@ extern int __REDIRECT (posix_fallocate, (int __fd, __off64_t __offset,
 extern int posix_fallocate64 (int __fd, __off64_t __offset, size_t __len)
      __THROW;
 # endif
+#endif
 #endif
 
 __END_DECLS

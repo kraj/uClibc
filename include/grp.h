@@ -136,12 +136,6 @@ extern int fgetgrent_r (FILE *__restrict __stream,
 /* Set the group set for the current user to GROUPS (N of them).  */
 extern int setgroups (size_t __n, __const __gid_t *__groups) __THROW;
 
-/* Store at most *NGROUPS members of the group set for USER into
-   *GROUPS.  Also include GROUP.  The actual number of groups found is
-   returned in *NGROUPS.  Return -1 if the if *NGROUPS is too small.  */
-extern int getgrouplist (__const char *__user, __gid_t __group,
-			 __gid_t *__groups, int *__ngroups) __THROW;
-
 /* Initialize the group set for the current user
    by reading the group database and using all groups
    of which USER is a member.  Also include GROUP.  */

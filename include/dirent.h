@@ -200,10 +200,6 @@ extern long int telldir (DIR *__dirp) __THROW;
 /* Return the file descriptor used by DIRP.  */
 extern int dirfd (DIR *__dirp) __THROW;
 
-# if defined __OPTIMIZE__ && defined _DIR_dirfd
-#  define dirfd(dirp)	_DIR_dirfd (dirp)
-# endif
-
 # ifndef MAXNAMLEN
 /* Get the definitions of the POSIX.1 limits.  */
 #  include <bits/posix1_lim.h>
@@ -270,53 +266,6 @@ extern int alphasort64 (__const void *__e1, __const void *__e2)
      __THROW __attribute_pure__;
 # endif
 
-# ifdef __USE_GNU
-/* Function to compare two `struct dirent's by name & version.  */
-#  ifndef __USE_FILE_OFFSET64
-extern int versionsort (__const void *__e1, __const void *__e2)
-     __THROW __attribute_pure__;
-#  else
-#   ifdef __REDIRECT
-extern int __REDIRECT (versionsort,
-		       (__const void *__e1, __const void *__e2)
-		       __THROW,
-		       versionsort64) __attribute_pure__;
-#   else
-#    define versionsort versionsort64
-#   endif
-#  endif
-
-#  ifdef __USE_LARGEFILE64
-extern int versionsort64 (__const void *__e1, __const void *__e2)
-     __THROW __attribute_pure__;
-#  endif
-# endif
-
-/* Read directory entries from FD into BUF, reading at most NBYTES.
-   Reading starts at offset *BASEP, and *BASEP is updated with the new
-   position after reading.  Returns the number of bytes read; zero when at
-   end of directory; or -1 for errors.  */
-# ifndef __USE_FILE_OFFSET64
-extern __ssize_t getdirentries (int __fd, char *__restrict __buf,
-				size_t __nbytes,
-				__off_t *__restrict __basep) __THROW;
-# else
-#  ifdef __REDIRECT
-extern __ssize_t __REDIRECT (getdirentries,
-			     (int __fd, char *__restrict __buf,
-			      size_t __nbytes,
-			      __off64_t *__restrict __basep) __THROW,
-			     getdirentries64);
-#  else
-#   define getdirentries getdirentries64
-#  endif
-# endif
-
-# ifdef __USE_LARGEFILE64
-extern __ssize_t getdirentries64 (int __fd, char *__restrict __buf,
-				  size_t __nbytes,
-				  __off64_t *__restrict __basep) __THROW;
-# endif
 
 #endif /* Use BSD or misc.  */
 

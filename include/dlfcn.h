@@ -21,9 +21,12 @@
 #define	_DLFCN_H 1
 
 #include <features.h>
+#define __need_size_t
+#include <stddef.h>
 
 /* Collect various system dependent definitions and declarations.  */
 #include <bits/dlfcn.h>
+
 
 #ifdef __USE_GNU
 /* If the first argument of `dlsym' or `dlvsym' is set to RTLD_NEXT
@@ -53,14 +56,6 @@ extern int dlclose (void *__handle) __THROW;
 extern void *dlsym (void *__restrict __handle,
 		    __const char *__restrict __name) __THROW;
 
-#ifdef __USE_GNU
-/* Find the run-time address in the shared object HANDLE refers to
-   of the symbol called NAME with VERSION.  */
-extern void *dlvsym (void *__restrict __handle,
-		     __const char *__restrict __name,
-		     __const char *__restrict __version) __THROW;
-#endif
-
 /* When any of the above functions fails, call this function
    to return a string describing the error.  Each call resets
    the error string so that a following call returns null.  */
@@ -80,6 +75,10 @@ typedef struct
 /* Fill in *INFO with the following information about ADDRESS.
    Returns 0 iff no shared object's segments contain that address.  */
 extern int dladdr (const void *__address, Dl_info *__info) __THROW;
+
+/* Get information about the shared objects currently loaded */
+extern int dlinfo (void);
+
 #endif
 
 __END_DECLS

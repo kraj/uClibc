@@ -604,6 +604,7 @@ typedef struct
 #define NT_FPREGSET	2		/* Contains copy of fpregset struct */
 #define NT_PRPSINFO	3		/* Contains copy of prpsinfo struct */
 #define NT_PRXREG	4		/* Contains copy of prxregset struct */
+#define NT_TASKSTRUCT	4		/* Contains copy of task structure */
 #define NT_PLATFORM	5		/* String from sysinfo(SI_PLATFORM) */
 #define NT_AUXV		6		/* Contains copy of auxv array */
 #define NT_GWINDOWS	7		/* Contains copy of gwindows struct */
@@ -967,7 +968,14 @@ typedef struct
 
 /* A special ignored value for PPC, used by the kernel to control the
    interpretation of the AUXV. Must be > 16.  */
-#define AT_IGNOREPPC	22		/* Entry should be ignored */
+#define AT_IGNOREPPC	22		/* Entry should be ignored.  */
+
+#define	AT_SECURE	23		/* Boolean, was exec setuid-like?  */
+
+/* Pointer to the global system page used for system calls and other
+   nice things.  */
+#define AT_SYSINFO	32
+#define AT_SYSINFO_EHDR	33
 
 
 /* Note section contents.  Each entry in the note section begins with
@@ -1017,6 +1025,7 @@ typedef struct
 #define ELF_NOTE_OS_LINUX	0
 #define ELF_NOTE_OS_GNU		1
 #define ELF_NOTE_OS_SOLARIS2	2
+#define ELF_NOTE_OS_FREEBSD	3
 
 
 /* Move records.  */
