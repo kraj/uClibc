@@ -31,7 +31,7 @@ XXFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 	-fno-builtin -nostdinc -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
 
-ifeq ($(DODEBUG),y)
+ifeq ($(SUPPORT_LD_DEBUG),y)
 XXFLAGS=$(XWARNINGS) $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 	-fno-builtin -nostdinc -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
@@ -52,7 +52,7 @@ ASRC=$(shell ls $(TARGET_ARCH)/*.S)
 AOBJS=$(patsubst %.S,%.o, $(ASRC))
 OBJS=$(AOBJS) $(COBJS)
 
-ifneq ($(strip $(DODEBUG)),y)
+ifneq ($(strip $(SUPPORT_LD_DEBUG)),y)
 LDFLAGS+=-s
 endif
 
