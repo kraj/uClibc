@@ -534,7 +534,7 @@ void dlinfo(void)
 	}
 }
 
-int dladdr(void *__address, Dl_info * __dlip)
+int dladdr(const void *__address, Dl_info * __info)
 {
 	struct elf_resolve *pelf;
 	struct elf_resolve *rpnt;
@@ -547,7 +547,7 @@ int dladdr(void *__address, Dl_info * __dlip)
 	pelf = NULL;
 
 #if 0
-	fprintf(stderr, "dladdr( %x, %x )\n", __address, __dlip);
+	fprintf(stderr, "dladdr( %x, %x )\n", __address, __info);
 #endif
 
 	for (rpnt = _dl_loaded_modules; rpnt; rpnt = rpnt->next) {
@@ -603,10 +603,10 @@ int dladdr(void *__address, Dl_info * __dlip)
 		}
 
 		if (sf) {
-			__dlip->dli_fname = pelf->libname;
-			__dlip->dli_fbase = (void *)pelf->loadaddr;
-			__dlip->dli_sname = strtab + symtab[sn].st_name;
-			__dlip->dli_saddr = (void *)sa;
+			__info->dli_fname = pelf->libname;
+			__info->dli_fbase = (void *)pelf->loadaddr;
+			__info->dli_sname = strtab + symtab[sn].st_name;
+			__info->dli_saddr = (void *)sa;
 		}
 		return 1;
 	}
