@@ -138,7 +138,7 @@ int   _dl_debug_file = 2;
 #else
 #define _dl_debug_file 2
 #endif
-static char *_dl_malloc_addr, *_dl_mmap_zero;
+static unsigned char *_dl_malloc_addr, *_dl_mmap_zero;
 
 static char *_dl_trace_loaded_objects = 0;
 static int (*_dl_elf_main) (int, char **, char **);

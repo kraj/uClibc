@@ -859,7 +859,7 @@ void *_dl_malloc(int size)
 	 * Align memory to 4 byte boundary.  Some platforms require this, others
 	 * simply get better performance.
 	 */
-	_dl_malloc_addr = (char *) (((unsigned long) _dl_malloc_addr + 3) & ~(3));
+	_dl_malloc_addr = (unsigned char *) (((unsigned long) _dl_malloc_addr + 3) & ~(3));
 	return retval;
 }
 
