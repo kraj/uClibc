@@ -61,7 +61,6 @@ int   _dl_debug_file      = 2;
 #endif
 
 /* Forward function declarations */
-static void debug_fini (int status, void *arg);
 static int _dl_suid_ok(void);
 
 /*
