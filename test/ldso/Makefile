@@ -22,7 +22,7 @@ include $(TESTDIR)/Rules.mak
 CFLAGS+=--uclibc-ctors
 all: dltest2 dltest libhowdy.so run
 
-dltest2: dltest.c
+dltest2: dltest2.c
 	$(CC) $(CFLAGS) dltest2.c -o dltest2 -ldl
 	./dltest2
 
