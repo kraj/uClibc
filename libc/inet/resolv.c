@@ -45,6 +45,11 @@
  * 2-Feb-2002 Erik Andersen <andersee@debian.org>
  * Added gethostent(), sethostent(), and endhostent()
  *
+ * 17-Aug-2002 Manuel Novoa III <mjn3@codepoet.org>
+ *   Fixed __read_etc_hosts_r to return alias list, and modified buffer
+ *   allocation accordingly.  See MAX_ALIASES and ALIAS_DIM below.
+ *   This fixes the segfault in the Python 2.2.1 socket test.
+ *
  */
 
 #define __FORCE_GLIBC
@@ -72,6 +77,11 @@
 #define MAX_RETRIES 15
 #define MAX_SERVERS 3
 #define MAX_SEARCH 4
+
+#define MAX_ALIASES	5
+
+/* 1:ip + 1:full + MAX_ALIASES:aliases + 1:NULL */
+#define 	ALIAS_DIM		(2 + MAX_ALIASES + 1)
 
 #undef DEBUG
 /*#define DEBUG*/
@@ -910,7 +920,7 @@ struct hostent *gethostbyname(const char *name)
 	static struct hostent h;
 	static char buf[sizeof(struct in_addr) +
 			sizeof(struct in_addr *)*2 +
-			256/*namebuffer*/ + 32/* margin */];
+			sizeof(char *)*(ALIAS_DIM) + 256/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
 	gethostbyname_r(name, &h, buf, sizeof(buf), &hp, &h_errno);
@@ -937,7 +947,7 @@ struct hostent *gethostbyname2(const char *name, int family)
 	static struct hostent h;
 	static char buf[sizeof(struct in6_addr) +
 			sizeof(struct in6_addr *)*2 +
-			256/*namebuffer*/ + 32/* margin */];
+			sizeof(char *)*(ALIAS_DIM) + 256/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
 	gethostbyname2_r(name, family, &h, buf, sizeof(buf), &hp, &h_errno);
@@ -1067,7 +1077,6 @@ int res_query(const char *dname, int class, int type,
 }
 #endif
 
-
 #ifdef L_gethostbyaddr
 struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 {
@@ -1078,7 +1087,7 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 #else
 		sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
 #endif /* __UCLIBC_HAS_IPV6__ */
-		256/*namebuffer*/ + 32/* margin */];
+		sizeof(char *)*(ALIAS_DIM) + 256/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
 	gethostbyaddr_r(addr, len, type, &h, buf, sizeof(buf), &hp, &h_errno);
@@ -1112,10 +1121,15 @@ int __read_etc_hosts_r(FILE * fp, const char * name, int type,
 	struct in6_addr	**addr_list6=NULL;
 #endif /* __UCLIBC_HAS_IPV6__ */
 	char					*cp;
-#define		 MAX_ALIAS		5
-	char					*alias[MAX_ALIAS];
+	char					**alias;
 	int						aliases, i;
 	int		ret=HOST_NOT_FOUND;
+
+	if (buflen < sizeof(char *)*(ALIAS_DIM))
+		return ERANGE;
+	alias=(char **)buf;
+	buf+=sizeof(char **)*(ALIAS_DIM);
+	buflen-=sizeof(char **)*(ALIAS_DIM);
 
 	if (action!=GETHOSTENT) {
 #ifdef __UCLIBC_HAS_IPV6__
@@ -1153,6 +1167,7 @@ int __read_etc_hosts_r(FILE * fp, const char * name, int type,
 			buf=p;
 		}
 #endif /* __UCLIBC_HAS_IPV6__ */
+
 		if (buflen < 80)
 			return ERANGE;
 
@@ -1176,11 +1191,12 @@ int __read_etc_hosts_r(FILE * fp, const char * name, int type,
 				*cp++ = '\0';
 			if (!*cp)
 				continue;
-			if (aliases < MAX_ALIAS)
+			if (aliases < (2+MAX_ALIASES))
 				alias[aliases++] = cp;
 			while (*cp && !isspace(*cp))
 				cp++;
 		}
+		alias[aliases] = 0;
 
 		if (aliases < 2)
 			continue; /* syntax error really */
@@ -1208,6 +1224,7 @@ int __read_etc_hosts_r(FILE * fp, const char * name, int type,
 			result_buf->h_addrtype = AF_INET;
 			result_buf->h_length = sizeof(*in);
 			result_buf->h_addr_list = (char**) addr_list;
+			result_buf->h_aliases = alias + 2;
 			*result=result_buf;
 			ret=NETDB_SUCCESS;
 #ifdef __UCLIBC_HAS_IPV6__
@@ -1219,6 +1236,7 @@ int __read_etc_hosts_r(FILE * fp, const char * name, int type,
 			result_buf->h_addrtype = AF_INET6;
 			result_buf->h_length = sizeof(*in6);
 			result_buf->h_addr_list = (char**) addr_list6;
+			result_buf->h_aliases = alias + 2;
 			*result=result_buf;
 			ret=NETDB_SUCCESS;
 #endif /* __UCLIBC_HAS_IPV6__ */
@@ -1282,6 +1300,7 @@ struct hostent *gethostent (void)
 #else
 	    sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
 #endif /* __UCLIBC_HAS_IPV6__ */
+		sizeof(char *)*(ALIAS_DIM) +
 	    80/*namebuffer*/ + 2/* margin */];
     struct hostent *host;
 
