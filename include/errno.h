@@ -5,7 +5,7 @@
 #include <linux/errno.h>
 
 extern int sys_nerr;
-extern char *sys_errlist[];
+extern const char *const sys_errlist[];
 
 #define _sys_nerr sys_nerr
 #define _sys_errlist sys_errlist

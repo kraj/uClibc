@@ -5,9 +5,12 @@ include $(TOPDIR)Rules.mak
 LSFLAGS = $(shell if ls -sh >/dev/null 2>&1; \
     then echo "-sh"; else echo "-s" ; fi)
 
-XCFLAGS = -Wall -Os -fomit-frame-pointer -fno-builtin -nostdinc \
+#XCFLAGS = -Wall -Os -fomit-frame-pointer -fno-builtin -nostdinc \
+#	-I$(TOPDIR)include -I/usr/include/linux
+#XLDFLAGS = -nostdlib -s -gc-sections
+XCFLAGS = -Wall -g -fno-builtin -nostdinc \
 	-I$(TOPDIR)include -I/usr/include/linux
-XLDFLAGS = -nostdlib -s -gc-sections
+XLDFLAGS = -nostdlib -gc-sections
 EXTRA_LIBS=$(TOPDIR)libc.a -lgcc
 
 YCFLAGS = -Wall -Os -fomit-frame-pointer

@@ -778,7 +778,7 @@ FILE *fp;
 void setbuffer(fp, buf, size)
 FILE *fp;
 char *buf;
-int size;
+size_t size;
 {
 	fflush(fp);
 

@@ -3,14 +3,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-
-#ifdef __STDC__
 #include <stdarg.h>
-#define va_strt      va_start
-#else
-#include <varargs.h>
-#define va_strt(p,i) va_start(p)
-#endif
 
 #ifdef L_scanf
 #ifdef __STDC__
@@ -24,7 +17,7 @@ va_dcl
 	va_list ptr;
 	int rv;
 
-	va_strt(ptr, fmt);
+	va_start(ptr, fmt);
 	rv = vfscanf(stdin, fmt, ptr);
 	va_end(ptr);
 	return rv;
@@ -49,7 +42,7 @@ va_dcl
 	va_list ptr;
 	int rv;
 
-	va_strt(ptr, fmt);
+	va_start(ptr, fmt);
 	string->bufpos = (unsigned char *) ((void *) sp);
 	rv = vfscanf(string, fmt, ptr);
 	va_end(ptr);
@@ -70,7 +63,7 @@ va_dcl
 	va_list ptr;
 	int rv;
 
-	va_strt(ptr, fmt);
+	va_start(ptr, fmt);
 	rv = vfscanf(fp, fmt, ptr);
 	va_end(ptr);
 	return rv;

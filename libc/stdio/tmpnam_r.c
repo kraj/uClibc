@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /*
- * getline for uClibc
+ * tmpnam for uClibc
  *
  * Copyright (C) 2000 by Lineo, inc.  Written by Erik Andersen
  * <andersen@lineo.com>, <andersee@debian.org>
@@ -19,14 +19,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+ * Modified by Erik Andersen <anderse@debian.org> to be reentrant for
+ * the case when S != NULL...
  */
 
-#include <stddef.h>
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
-/* Basically getdelim() with the delimiter hard wired to '\n' */
-ssize_t getline(char **linebuf, size_t *n, FILE *file)
+
+/* Generate a unique filename in /tmp.
+ * If s is NULL return NULL, making this function thread safe.  */
+
+char * tmpnam_r (char *s)
 {
-  return (getdelim (linebuf, n, '\n', file));
+	if (s == NULL)
+		return NULL;
+	else
+		return (tmpnam(s));
 }
 

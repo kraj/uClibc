@@ -34,16 +34,26 @@
    NULL), pointing to *N characters of space.  It is realloc'd as
    necessary.  Returns the number of characters read (not including the
    null delimiter), or -1 on error or EOF.  */
-size_t getdelim(char **linebuf, size_t *linebufsz, int delimiter, FILE *file)
+ssize_t getdelim(char **linebuf, size_t *linebufsz, int delimiter, FILE *file)
 {
 	static const int GROWBY = 80; /* how large we will grow strings by */
 
 	int ch;
 	int idx = 0;
 
-	if (file == NULL || linebuf==NULL || *linebuf == NULL || linebufsz == NULL) {
+	if ((file == NULL || linebuf==NULL || *linebuf == NULL || *linebufsz == 0)
+			&& !(*linebuf == NULL && *linebufsz ==0 )) {
 	    errno=EINVAL;
 	    return -1;
+	}
+
+	if (*linebuf == NULL && *linebufsz == 0){
+		*linebuf = malloc(GROWBY);
+		if (!*linebuf) {
+			errno=ENOMEM;
+			return -1;
+		}
+		*linebufsz += GROWBY;
 	}
 
 	while (1) {
@@ -65,6 +75,8 @@ size_t getdelim(char **linebuf, size_t *linebufsz, int delimiter, FILE *file)
 
 	if (idx != 0)
 	    (*linebuf)[idx] = 0;
+	else if ( ch == EOF )
+		return -1;
 	return idx;
 }
 

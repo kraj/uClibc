@@ -34,10 +34,7 @@ int c;							/* defective option letter */
 	return '?';					/* erroneous-option marker */
 }
 
-int getopt(argc, argv, optstring) /* returns letter, '?', EOF */
-int argc;						/* argument count from main */
-char *argv[];					/* argument vector from main */
-char *optstring;				/* allowed args, e.g. "ab:c" */
+int getopt (int argc, char *const *argv, const char *optstring)
 {
 	static int sp = 1;			/* position within argument */
 	register int osp;			/* saved `sp' for param test */

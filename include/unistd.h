@@ -871,6 +871,7 @@ extern int brk __P ((__ptr_t __addr));
    If successful, returns the address the previous end of data space
    (i.e. the beginning of the new space, if DELTA > 0);
    returns (void *) -1 for errors (with errno set).  */
+#define ptrdiff_t       int
 extern __ptr_t __sbrk __P ((ptrdiff_t __delta));
 extern __ptr_t sbrk __P ((ptrdiff_t __delta));
 #endif
