@@ -197,21 +197,20 @@ weak_alias(strchr, index);
 /********************** Function strrchr ************************************/
 
 #ifdef L_strrchr
+
 char *strrchr(const char *str, int c)
 {
 	register char *prev = 0;
 	register char *ptr = (char *) str;
 
-	/* For null it's just like strlen */
-	if (c == '\0')
-		return ptr + strlen(ptr);
-
-	/* everything else just step along the string. */
-	while ((ptr = strchr(ptr, c)) != 0) {
-		prev = ptr;
+	while (*ptr != '\0') {
+		if (*ptr == c)
+			prev = ptr;
 		ptr++;
 	}
-	return prev;
+	if (c == '\0')
+		return(ptr);
+	return(prev);
 }
 
 weak_alias(strrchr, rindex);
