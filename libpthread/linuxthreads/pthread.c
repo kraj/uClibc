@@ -101,7 +101,7 @@ struct _pthread_descr_struct __pthread_initial_thread = {
   0                           /* int p_untracked_readlock_count; */
 #ifdef __UCLIBC_HAS_XLOCALE__
   ,
-  NULL,                       /* __locale_t locale; */
+  &__global_locale_data,      /* __locale_t locale; */
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 };
 
@@ -157,7 +157,7 @@ struct _pthread_descr_struct __pthread_manager_thread = {
   0                           /* int p_untracked_readlock_count; */
 #ifdef __UCLIBC_HAS_XLOCALE__
   ,
-  NULL,                       /* __locale_t locale; */
+  &__global_locale_data,      /* __locale_t locale; */
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 };
 
@@ -331,6 +331,17 @@ static void pthread_initialize(void)
   /* The locale of the main thread is the current locale in use. */
   __pthread_initial_thread.locale = __curlocale_var;
 #endif /* __UCLIBC_HAS_XLOCALE__ */
+
+ {			   /* uClibc-specific stdio initialization for threads. */
+	 FILE *fp;
+	 
+	 _stdio_user_locking = 0;	/* 2 if threading not initialized */
+	 for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen) {
+		 if (fp->__user_locking != 1) {
+			 fp->__user_locking = 0;
+		 }
+	 }
+ }
 
   /* Play with the stack size limit to make sure that no stack ever grows
      beyond STACK_SIZE minus two pages (one page for the thread descriptor

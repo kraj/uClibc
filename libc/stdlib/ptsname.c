@@ -17,7 +17,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define _STDIO_UTILITY			/* For _int10tostr. */
+#define _ISOC99_SOURCE
 #include <stdio.h>
 #include <errno.h>
 #include <paths.h>
@@ -28,6 +28,7 @@
 #include <sys/sysmacros.h>
 #include <termios.h>
 #include <unistd.h>
+#include <bits/uClibc_uintmaxtostr.h>
 
 
 #if !defined __UNIX98PTY_ONLY__

@@ -80,8 +80,8 @@ __END_NAMESPACE_STD
 #if 1
 typedef struct
 {
-	wchar_t mask;
-	wchar_t wc;
+	wchar_t __mask;
+	wchar_t __wc;
 } __mbstate_t;
 #else
 typedef struct

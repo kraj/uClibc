@@ -1,5 +1,5 @@
 
-/*  Copyright (C) 2002     Manuel Novoa III
+/*  Copyright (C) 2002, 2003, 2004     Manuel Novoa III
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -91,6 +91,9 @@
  *
  * Aug 18, 2003
  * Bug fix: _wchar_utf8sntowcs and _wchar_wcsntoutf8s now set errno if EILSEQ.
+ *
+ * Feb 11, 2004
+ * Bug fix: Fix size check for remaining output space in iconv().
  *
  * Manuel
  */
@@ -193,7 +196,7 @@ wint_t btowc(int c)
 
 	if (c != EOF) {
 		*buf = (unsigned char) c;
-		mbstate.mask = 0;		/* Initialize the mbstate. */
+		mbstate.__mask = 0;		/* Initialize the mbstate. */
 		if (mbrtowc(&wc, buf, 1, &mbstate) <= 1) {
 			return wc;
 		}
@@ -251,7 +254,7 @@ int wctob(wint_t c)
 
 int mbsinit(const mbstate_t *ps)
 {
-	return !ps || !ps->mask;
+	return !ps || !ps->__mask;
 }
 
 #endif
@@ -291,7 +294,8 @@ size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 		s = empty_string;
 		n = 1;
 	} else if (!n) {
-		return (ps->mask && (ps->wc == 0xffffU)) /* TODO: change error code? */
+		/* TODO: change error code? */
+		return (ps->__mask && (ps->__wc == 0xffffU))
 			? ((size_t) -1) : ((size_t) -2);
 	}
 
@@ -434,15 +438,15 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 		return 0;
 	}
 
-	if ((mask = (__uwchar_t) ps->mask) != 0) { /* A continuation... */
+	if ((mask = (__uwchar_t) ps->__mask) != 0) { /* A continuation... */
 #ifdef DECODER
-		wc = (__uwchar_t) ps->wc;
+		wc = (__uwchar_t) ps->__wc;
 		if (n) {
 			goto CONTINUE;
 		}
 		goto DONE;
 #else
-		if ((wc = (__uwchar_t) ps->wc) != 0xffffU) {
+		if ((wc = (__uwchar_t) ps->__wc) != 0xffffU) {
 			/* TODO: change error code here and below? */
 			if (n) {
 				goto CONTINUE;
@@ -472,8 +476,8 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 			wc = 0xfffdU;
 			goto COMPLETE;
 #else
-			ps->mask = mask;
-			ps->wc = 0xffffU;
+			ps->__mask = mask;
+			ps->__wc = 0xffffU;
 			__set_errno(EILSEQ);
 			return (size_t) -1;	/* Illegal start byte! */
 #endif
@@ -532,8 +536,8 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 				} while ((mask >>= 5) >= 0x40);
 				goto DONE;
 			}
-			ps->mask = (wchar_t) mask;
-			ps->wc = (wchar_t) wc;
+			ps->__mask = (wchar_t) mask;
+			ps->__wc = (wchar_t) wc;
 			*src = s;
 			return (size_t) -2;
 		}
@@ -552,8 +556,8 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 #endif
 
  DONE:
-	/* ps->wc is irrelavent here. */
-	ps->mask = 0;
+	/* ps->__wc is irrelavent here. */
+	ps->__mask = 0;
 	if (pwc != wcbuf) {
 		*src = s;
 	}
@@ -1037,7 +1041,7 @@ int wcswidth(const wchar_t *pwcs, size_t n)
 	else if (ENCODING == __ctype_encoding_8_bit) {
 		mbstate_t mbstate;
 
-		mbstate.mask = 0;			/* Initialize the mbstate. */
+		mbstate.__mask = 0;			/* Initialize the mbstate. */
 		if (__wcsnrtombs(NULL, &pwcs, n, SIZE_MAX, &mbstate) == ((size_t) - 1)) {
 			return -1;
 		}
@@ -1282,7 +1286,8 @@ iconv_t weak_function iconv_open(const char *tocode, const char *fromcode)
 			px->tobom0 = px->tobom = (tocodeset & 0x10) >> 4;
 			px->fromcodeset0 = px->fromcodeset = fromcodeset;
 			px->frombom0 = px->frombom = (fromcodeset & 0x10) >> 4;
-			px->skip_invalid_input = px->tostate.mask = px->fromstate.mask = 0;
+			px->skip_invalid_input = px->tostate.__mask
+				= px->fromstate.__mask = 0;
 			return (iconv_t) px;
 		}
 	} else {
@@ -1316,7 +1321,7 @@ size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
 		 * shift sequence to return to initial state! */
 		if ((px->fromcodeset & 0xf0) == 0xe0) {
 		}
-		px->tostate.mask = px->fromstate.mask = 0;
+		px->tostate.__mask = px->fromstate.__mask = 0;
 		px->fromcodeset = px->fromcodeset0;
 		px->tobom = px->tobom0;
 		px->frombom = px->frombom0;
@@ -1398,7 +1403,7 @@ size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
 					INVALID:
 						__set_errno(EINVAL);
 					} else {
-						px->fromstate.mask = 0;
+						px->fromstate.__mask = 0;
 						inci = 1;
 					ILLEGAL:
 						if (px->skip_invalid_input) {
@@ -1444,7 +1449,7 @@ size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
 
 		if (px->tocodeset >= IC_MULTIBYTE) {
 			inco = (px->tocodeset == IC_WCHAR_T) ? 4: (px->tocodeset & 6);
-			if (*outbytesleft < inci) goto TOO_BIG;
+			if (*outbytesleft < inco) goto TOO_BIG;
 			if (px->tocodeset != IC_WCHAR_T) {
 				if (((__uwchar_t) wc) > (((px->tocodeset & IC_UCS_4) == IC_UCS_4)
 										 ? 0x7fffffffUL : 0x10ffffUL)

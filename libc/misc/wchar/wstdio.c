@@ -57,7 +57,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#ifndef __STDIO_THREADSAFE
+#ifndef __UCLIBC_HAS_THREADS__
 
 #ifdef __BCC__
 #define UNLOCKED_STREAM(RETURNTYPE,NAME,PARAMS,ARGS,STREAM) \
@@ -85,7 +85,7 @@ void NAME PARAMS
 #define __STDIO_THREADLOCK_OPENLIST
 #define __STDIO_THREADUNLOCK_OPENLIST
 
-#else  /* __STDIO_THREADSAFE */
+#else  /* __UCLIBC_HAS_THREADS__ */
 
 #include <pthread.h>
 
@@ -121,7 +121,7 @@ void NAME##_unlocked PARAMS
 #define __STDIO_THREADTRYLOCK_OPENLIST \
 	__pthread_mutex_trylock(&_stdio_openlist_lock)
 
-#endif /* __STDIO_THREADSAFE */
+#endif /* __UCLIBC_HAS_THREADS__ */
 
 #ifndef __STDIO_BUFFERS
 #error stdio buffers are currently required for wide i/o
@@ -404,9 +404,9 @@ wint_t ungetwc(wint_t c, register FILE *stream)
 	/* If can't read or c == WEOF or ungot slots already filled, then fail. */
 	if ((stream->modeflags
 		 & (__MASK_UNGOT2|__FLAG_WRITEONLY
-#ifndef __STDIO_AUTO_RW_TRANSITION
+#ifndef __UCLIBC_HAS_STDIO_AUTO_RW_TRANSITION__
 			|__FLAG_WRITING		/* Note: technically no, but yes in spirit */
-#endif /* __STDIO_AUTO_RW_TRANSITION */
+#endif /* __UCLIBC_HAS_STDIO_AUTO_RW_TRANSITION__ */
 			))
 		|| ((stream->modeflags & __MASK_UNGOT1) && (stream->ungot[1]))
 		|| (c == WEOF) ) {
@@ -417,11 +417,11 @@ wint_t ungetwc(wint_t c, register FILE *stream)
 /*  ungot_width */
 
 #ifdef __STDIO_BUFFERS
-#ifdef __STDIO_AUTO_RW_TRANSITION
+#ifdef __UCLIBC_HAS_STDIO_AUTO_RW_TRANSITION__
 	if (stream->modeflags & __FLAG_WRITING) {
 		fflush_unlocked(stream); /* Commit any write-buffered chars. */
 	}
-#endif /* __STDIO_AUTO_RW_TRANSITION */
+#endif /* __UCLIBC_HAS_STDIO_AUTO_RW_TRANSITION__ */
 #endif /* __STDIO_BUFFERS */
 
 	/* Clear EOF and WRITING flags, and set READING FLAG */

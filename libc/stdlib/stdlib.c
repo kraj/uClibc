@@ -863,7 +863,7 @@ int mblen(register const char *s, size_t n)
 	size_t r;
 
 	if (!s) {
-		state.mask = 0;
+		state.__mask = 0;
 #ifdef __CTYPE_HAS_UTF_8_LOCALES
 		return ENCODING == __ctype_encoding_utf8;
 #else
@@ -873,7 +873,7 @@ int mblen(register const char *s, size_t n)
 
 	if ((r = mbrlen(s, n, &state)) == (size_t) -2) {
 		/* TODO: Should we set an error state? */
-		state.wc = 0xffffU;		/* Make sure we're in an error state. */
+		state.__wc = 0xffffU;	/* Make sure we're in an error state. */
 		return (size_t) -1;		/* TODO: Change error code above? */
 	}
 	return r;
@@ -889,7 +889,7 @@ int mbtowc(wchar_t *__restrict pwc, register const char *__restrict s, size_t n)
 	size_t r;
 
 	if (!s) {
-		state.mask = 0;
+		state.__mask = 0;
 #ifdef __CTYPE_HAS_UTF_8_LOCALES
 		return ENCODING == __ctype_encoding_utf8;
 #else
@@ -899,7 +899,7 @@ int mbtowc(wchar_t *__restrict pwc, register const char *__restrict s, size_t n)
 
 	if ((r = mbrtowc(pwc, s, n, &state)) == (size_t) -2) {
 		/* TODO: Should we set an error state? */
-		state.wc = 0xffffU;		/* Make sure we're in an error state. */
+		state.__wc = 0xffffU;	/* Make sure we're in an error state. */
 		return (size_t) -1;		/* TODO: Change error code above? */
 	}
 	return r;
@@ -932,7 +932,7 @@ size_t mbstowcs(wchar_t * __restrict pwcs, const char * __restrict s, size_t n)
 	mbstate_t state;
 	const char *e = s;			/* Needed because of restrict. */
 
-	state.mask = 0;				/* Always start in initial shift state. */
+	state.__mask = 0;			/* Always start in initial shift state. */
 	return mbsrtowcs(pwcs, &e, n, &state);
 }
 

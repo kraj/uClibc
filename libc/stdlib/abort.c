@@ -56,7 +56,6 @@ Cambridge, MA 02139, USA.  */
 #define ABORT_INSTRUCTION
 #endif
 
-extern void weak_function _stdio_term(void);
 extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
 static int been_there_done_that = 0;
 
@@ -84,13 +83,6 @@ void abort(void)
     if (__sigemptyset(&sigset) == 0 && __sigaddset(&sigset, SIGABRT) == 0) {
 	sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
     }
-
-    /* If we are using stdio, try to shut it down.  At the very least,
-	 * this will attempt to commit all buffered writes.  It may also
-	 * unbuffer all writable files, or close them outright.
-	 * Check the stdio routines for details. */
-    if (_stdio_term)
-		_stdio_term();
 
     while (1) {
 	/* Try to suicide with a SIGABRT.  */

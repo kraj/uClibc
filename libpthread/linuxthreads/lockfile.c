@@ -20,29 +20,8 @@
 #include <stdio.h>
 #include <pthread.h>
 
-void
-__flockfile (FILE *stream)
-{
-  pthread_mutex_lock(&stream->lock);
-}
-weak_alias (__flockfile, flockfile);
-
-
-void
-__funlockfile (FILE *stream)
-{
-  pthread_mutex_unlock(&stream->lock);
-}
-weak_alias (__funlockfile, funlockfile);
-
-
-int
-__ftrylockfile (FILE *stream)
-{
-  return pthread_mutex_trylock(&stream->lock);
-}
-weak_alias (__ftrylockfile, ftrylockfile);
-
+/* Note: glibc puts flockfile, funlockfile, and ftrylockfile in both
+ * libc and libpthread.  In uClibc, they are now in libc only.  */
 
 void
 __fresetlockfiles (void)
@@ -53,8 +32,8 @@ __fresetlockfiles (void)
   pthread_mutexattr_init(&attr);
   pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
 
-  for (fp = _stdio_openlist; fp != NULL; fp = fp->nextopen)
-    pthread_mutex_init(&fp->lock, &attr);
+  for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen)
+    pthread_mutex_init(&fp->__lock, &attr);
 
   pthread_mutexattr_destroy(&attr);
 }

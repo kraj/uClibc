@@ -1,34 +1,14 @@
-/* vi: set sw=4 ts=4: */
-/* getline for uClibc
+/* Copyright (C) 2004       Manuel Novoa III    <mjn3@codepoet.org>
  *
- * Copyright (C) 2000 by Lineo, inc. and Erik Andersen
- * Copyright (C) 2000,2001 by Erik Andersen <andersen@uclibc.org>
- * Written by Erik Andersen <andersen@uclibc.org>
+ * GNU Library General Public License (LGPL) version 2 or later.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Library General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License
- * for more details.
- *
- * You should have received a copy of the GNU Library General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
+ * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#include <stddef.h>
-#include <sys/types.h>
-#define __USE_GNU
-#include <stdio.h>
+#include "_stdio.h"
 
-/* Basically getdelim() with the delimiter hard wired to '\n' */
-ssize_t getline(char **linebuf, size_t *n, FILE *file)
+ssize_t getline(char **__restrict lineptr, size_t *__restrict n,
+				FILE *__restrict stream)
 {
-  return (getdelim (linebuf, n, '\n', file));
+	return __getdelim(lineptr, n, '\n', stream);
 }
-

@@ -316,6 +316,7 @@ typedef struct __uclibc_locale_struct {
 
 } __uclibc_locale_t;
 
+extern __uclibc_locale_t __global_locale_data;
 extern struct __uclibc_locale_struct * __global_locale;
 #endif
 

@@ -135,7 +135,6 @@
  */
 
 #define _GNU_SOURCE
-#define _STDIO_UTILITY
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -147,6 +146,7 @@
 #include <ctype.h>
 #include <langinfo.h>
 #include <locale.h>
+#include <bits/uClibc_uintmaxtostr.h>
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>

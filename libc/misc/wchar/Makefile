@@ -33,17 +33,17 @@ ifeq ($(UCLIBC_HAS_LOCALE),y)
 	MOBJ1 += iconv.o
 endif
 
-MSRC2=  wstdio.c
-MOBJ2=  fwide.o \
-	fgetwc.o getwchar.o fgetws.o \
-	fputwc.o putwchar.o fputws.o \
-	ungetwc.o
-# getwc (fgetwc alias) getwc_unlocked (fgetwc_unlocked alias)
-# putwc (fputwc alias) putwc_unlocked (fputwc_unlocked alias)
-
+# The stdio and time related wide functions are now built in the normal
+# directories.
+#
+# stdio: 
+#	fwide fgetwc getwchar fgetws fputwc putwchar fputws ungetwc
+#	getwc (fgetwc alias) getwc_unlocked (fgetwc_unlocked alias)
+#	putwc (fputwc alias) putwc_unlocked (fputwc_unlocked alias)
+# time:
 # wcsftime
 
-OBJS=$(MOBJ1) $(MOBJ2)
+OBJS=$(MOBJ1)
 
 all: $(OBJS) $(LIBC)
 

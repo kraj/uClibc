@@ -42,7 +42,7 @@ __BEGIN_DECLS
 #if !defined __FILE_defined && defined __need_FILE
 
 /* The opaque type of streams.  This is the definition used elsewhere.  */
-typedef struct _UC_FILE FILE;
+typedef struct __STDIO_FILE_STRUCT FILE;
 
 # define __FILE_defined	1
 #endif /* FILE not defined.  */
@@ -52,7 +52,7 @@ typedef struct _UC_FILE FILE;
 #if !defined ____FILE_defined && defined __need___FILE
 
 /* The opaque type of streams.  This is the definition used elsewhere.  */
-typedef struct _UC_FILE __FILE;
+typedef struct __STDIO_FILE_STRUCT __FILE;
 
 # define ____FILE_defined	1
 #endif /* __FILE not defined.  */
@@ -62,8 +62,6 @@ typedef struct _UC_FILE __FILE;
 #ifdef	_STDIO_H
 #undef _STDIO_USES_IOSTREAM
 
-#include <sys/types.h>
-
 #include <bits/uClibc_stdio.h>
 
 /* This define avoids name pollution if we're using GNU stdarg.h */
@@ -72,23 +70,23 @@ typedef struct _UC_FILE __FILE;
 
 /* The type of the second argument to `fgetpos' and `fsetpos'.  */
 #ifndef __USE_FILE_OFFSET64
-typedef _UC_fpos_t fpos_t;
+typedef __STDIO_fpos_t fpos_t;
 #else
-typedef _UC_fpos64_t fpos_t;
+typedef __STDIO_fpos64_t fpos_t;
 #endif
 #ifdef __USE_LARGEFILE64
-typedef _UC_fpos64_t fpos64_t;
+typedef __STDIO_fpos64_t fpos64_t;
 #endif
 
 /* The possibilities for the third argument to `setvbuf'.  */
-#define _IOFBF _UC_IOFBF 		/* Fully buffered.  */
-#define _IOLBF _UC_IOLBF		/* Line buffered.  */
-#define _IONBF _UC_IONBF		/* No buffering.  */
+#define _IOFBF __STDIO_IOFBF 		/* Fully buffered.  */
+#define _IOLBF __STDIO_IOLBF		/* Line buffered.  */
+#define _IONBF __STDIO_IONBF		/* No buffering.  */
 
 
 /* Default buffer size.  */
 #ifndef BUFSIZ
-# define BUFSIZ _UC_BUFSIZ
+# define BUFSIZ __STDIO_BUFSIZ
 #endif
 
 
@@ -125,9 +123,9 @@ typedef _UC_fpos64_t fpos64_t;
 
 
 /* Standard streams.  */
-extern FILE *stdin;		/* Standard input stream.  */
-extern FILE *stdout;		/* Standard output stream.  */
-extern FILE *stderr;		/* Standard error output stream.  */
+extern FILE *stdin;	        /* Standard input stream.  */
+extern FILE *stdout;        /* Standard output stream.  */
+extern FILE *stderr;        /* Standard error output stream.  */
 #ifdef __STDC__
 /* C89/C99 say they're macros.  Make them happy.  */
 #define stdin stdin
@@ -229,7 +227,7 @@ extern FILE *fdopen (int __fd, __const char *__modes) __THROW;
 #endif
 
 #ifdef	__USE_GNU
-#ifdef __STDIO_GLIBC_CUSTOM_STREAMS
+#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
 /* Create a new stream that refers to the given magic cookie,
    and uses the given functions for input and output.  */
 extern FILE *fopencookie (void *__restrict __magic_cookie,
@@ -355,11 +353,7 @@ extern int getchar (void) __THROW;
 
 /* The C standard explicitly says this is a macro, so we always do the
    optimization for it.  */
-#ifdef __UCLIBC_HAS_THREADS__
-#define getc(_fp) (getc)(_fp)	/* SUSv3 says getc must be threadsafe. */
-#else  /* __UCLIBC_HAS_THREADS__ */
 #define getc(_fp) __GETC(_fp)
-#endif /* __UCLIBC_HAS_THREADS__ */
 
 #if defined __USE_POSIX || defined __USE_MISC
 /* These are defined in POSIX.1:1996.  */
@@ -367,7 +361,7 @@ extern int getc_unlocked (FILE *__stream) __THROW;
 extern int getchar_unlocked (void) __THROW;
 
 /* SUSv3 allows getc_unlocked to be a macro */
-#define getc_unlocked(_fp) __GETC(_fp)
+#define getc_unlocked(_fp) __GETC_UNLOCKED(_fp)
 #endif /* Use POSIX or MISC.  */
 
 #ifdef __USE_MISC
@@ -385,11 +379,7 @@ extern int putchar (int __c) __THROW;
 
 /* The C standard explicitly says this can be a macro,
    so we always do the optimization for it.  */
-#ifdef __UCLIBC_HAS_THREADS__
-#define putc(_ch, _fp) (putc)(_ch, _fp)	/* SUSv3 says putc must be threadsafe. */
-#else  /* __UCLIBC_HAS_THREADS__ */
 #define putc(_ch, _fp) __PUTC(_ch, _fp)
-#endif /* __UCLIBC_HAS_THREADS__ */
 
 #ifdef __USE_MISC
 /* Faster version when locking is not necessary.  */
@@ -402,7 +392,7 @@ extern int putc_unlocked (int __c, FILE *__stream) __THROW;
 extern int putchar_unlocked (int __c) __THROW;
 
 /* SUSv3 allows putc_unlocked to be a macro */
-#define putc_unlocked(_ch, _fp) __PUTC(_ch, _fp)
+#define putc_unlocked(_ch, _fp) __PUTC_UNLOCKED(_ch, _fp)
 #endif /* Use POSIX or MISC.  */
 
 
@@ -645,6 +635,35 @@ extern void funlockfile (FILE *__stream) __THROW;
 #if 0
 /*  #ifdef __USE_EXTERN_INLINES */
 # include <bits/stdio.h>
+#elif 1
+
+#define fgetc(_fp)                   __FGETC(_fp)
+#define fputc(_ch, _fp)              __FPUTC(_ch, _fp)
+
+#ifdef __USE_MISC
+#define fgetc_unlocked(_fp)          __FGETC_UNLOCKED(_fp)
+#define fputc_unlocked(_ch, _fp)     __FPUTC_UNLOCKED(_ch, _fp)
+#endif
+
+#define getchar()                    __GETC(__stdin)
+#define putchar(_ch)                 __PUTC((_ch), __stdout)
+
+#if defined __USE_POSIX || defined __USE_MISC
+#define getchar_unlocked()           __GETC_UNLOCKED(__stdin)
+#define putchar_unlocked(_ch)        __PUTC_UNLOCKED((_ch), __stdout)
+#endif
+
+/* Clear the error and EOF indicators for STREAM.  */
+#define clearerr(_fp)                __CLEARERR(_fp)
+#define feof(_fp)                    __FEOF(_fp)
+#define ferror(_fp)                  __FERROR(_fp)
+
+#ifdef __USE_MISC
+#define clearerr_unlocked(_fp)       __CLEARERR_UNLOCKED(_fp)
+#define feof_unlocked(_fp)           __FEOF_UNLOCKED(_fp)
+#define ferror_unlocked(_fp)         __FERROR_UNLOCKED(_fp)
+#endif
+
 #endif
 
 __END_DECLS

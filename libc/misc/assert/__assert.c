@@ -27,10 +27,11 @@
  * and is useful in debugging the stdio code.
  */
 
-#define _STDIO_UTILITY	/* For _stdio_fdout and _int10tostr. */
+#define _ISOC99_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <bits/uClibc_uintmaxtostr.h>
 
 /* Get the prototype from assert.h as a double-check. */
 #undef NDEBUG
@@ -43,8 +44,6 @@
 #ifdef ASSERT_SHOW_PROGNAME
 extern const char *__progname;
 #endif
-
-#if 1
 
 static int in_assert;			/* bss inits to 0. */
 
@@ -69,31 +68,3 @@ void __assert(const char *assertion, const char * filename,
 	}
 	abort();
 }
-
-#else
-
-void __assert(const char *assertion, const char * filename,
-			  int linenumber, register const char * function)
-{
-	char buf[__BUFLEN_INT10TOSTR];
-
-	_stdio_fdout(STDERR_FILENO,
-#ifdef ASSERT_SHOW_PROGNAME
-				 __progname,
-				 ": ",
-#endif
-				 filename,
-				 ":",
-				 _int10tostr(buf+sizeof(buf)-1, linenumber),
-				 ": ",
-				 /* Function name isn't available with some compilers. */
-				 ((function == NULL) ? "?function?" : function),
-				 ":  Assertion `",
-				 assertion,
-				 "' failed.\n",
-				 NULL
-				 );
-	abort();
-}
-
-#endif

@@ -16,13 +16,14 @@
  * Changed to use _int10tostr.
  */
 
+#define _GNU_SOURCE
 #define __FORCE_GLIBC
 #include <features.h>
-#define _STDIO_UTILITY			/* For _int10tostr. */
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include <netinet/in.h>
+#include <bits/uClibc_uintmaxtostr.h>
 
 int inet_aton(const char *cp, struct in_addr *addrptr);
 

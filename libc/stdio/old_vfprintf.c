@@ -129,21 +129,22 @@
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE				/* for strnlen */
-#define _STDIO_UTILITY
-#include <stdio.h>
+#include "_stdio.h"
+/* #include <stdio.h> */
 #include <stdarg.h>
 #include <limits.h>
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
+#include <bits/uClibc_uintmaxtostr.h>
 
 #define __PRINTF_INFO_NO_BITFIELD
 #include <printf.h>
 
-#ifdef __STDIO_THREADSAFE
+#ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-#endif /* __STDIO_THREADSAFE */
+#endif /* __UCLIBC_HAS_THREADS__ */
 
 /*  #undef __UCLIBC_HAS_FLOATS__ */
 /*  #undef WANT_FLOAT_ERROR */
@@ -151,7 +152,7 @@
 
 /*  #define __isdigit(c) (((unsigned int)(c - '0')) < 10) */
 
-#ifdef __STDIO_PRINTF_M_SUPPORT
+#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
 #define WANT_GNU_ERRNO         1
 #else
 #define WANT_GNU_ERRNO         0
@@ -165,7 +166,7 @@
 
 #define PUTC(C,F)      putc_unlocked((C),(F))
 #define OUTNSTR        _outnstr
-#define _outnstr(stream, string, len)	_stdio_fwrite(string, len, stream)
+#define _outnstr(stream, string, len)	__stdio_fwrite(string, len, stream)
 
 #else  /* __STDIO_BUFFERS */
 
@@ -180,24 +181,22 @@ static void _outnstr(FILE *stream, const unsigned char *s, size_t n)
 {
 	__FILE_vsnprintf *f = (__FILE_vsnprintf *) stream;
 
-	if (f->f.filedes != -2) {
-		_stdio_fwrite(s, n, &f->f);
-	} else {
-		if (f->bufend > f->bufpos) {
-			size_t r = f->bufend - f->bufpos;
-			if (r > n) {
-				r = n;
-			}
-			memcpy(f->bufpos, s, r);
-			f->bufpos += r;
+	if (!__STDIO_STREAM_IS_FAKE_VSNPRINTF_NB(&f->f)) {
+		__stdio_fwrite(s, n, &f->f);
+	} else if (f->bufend > f->bufpos) {
+		size_t r = f->bufend - f->bufpos;
+		if (r > n) {
+			r = n;
 		}
+		memcpy(f->bufpos, s, r);
+		f->bufpos += r;
 	}
 }
 #endif
 
 static void putc_unlocked_sprintf(int c, __FILE_vsnprintf *f)
 {
-	if (f->f.filedes != -2) {
+	if (!__STDIO_STREAM_IS_FAKE_VSNPRINTF_NB(&f->f)) {
 		putc_unlocked(c, &f->f);
 	} else if (f->bufpos < f->bufend) {
 		*f->bufpos++ = c;
@@ -241,7 +240,9 @@ static void _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 		}
 		len = buflen;
 	}
-	OUTNSTR(fp, (const char *) buf, len);
+	if (len) {
+		OUTNSTR(fp, (const char *) buf, len);
+	}
 }
 
 #endif
@@ -359,10 +360,17 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 	int radix, dpoint /*, upcase*/;
 	char tmp[65];				/* TODO - determing needed size from headers */
 	char flag[sizeof(spec)];
+	__STDIO_AUTO_THREADLOCK_VAR;
 
-	__STDIO_THREADLOCK(op);
+	__STDIO_AUTO_THREADLOCK(op);
+
+	__STDIO_STREAM_VALIDATE(op);
 
 	cnt = 0;
+
+	if (__STDIO_STREAM_IS_NARROW_WRITING(op)
+		|| !__STDIO_STREAM_TRANS_TO_WRITE(op, __FLAG_NARROW)
+		) {
 
 	while (*fmt) {
 		if (*fmt == '%') {
@@ -691,9 +699,13 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 		++fmt;
 	}
 
-	i = (__FERROR(op)) ? -1 : cnt;
+	}
 
-	__STDIO_THREADUNLOCK(op);
+	i = (__FERROR_UNLOCKED(op)) ? -1 : cnt;
+
+	__STDIO_STREAM_VALIDATE(op);
+
+	__STDIO_AUTO_THREADUNLOCK(op);
 
 	return i;
 }

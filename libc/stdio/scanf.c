@@ -1,4 +1,4 @@
-/*  Copyright (C) 2002, 2003     Manuel Novoa III
+/*  Copyright (C) 2002-2004     Manuel Novoa III
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -48,7 +48,7 @@
 #define _GNU_SOURCE
 #define _STDIO_UTILITY
 #include <features.h>
-#include <stdio.h>
+#include "_stdio.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <ctype.h>
@@ -70,10 +70,10 @@
 #include <assert.h>
 #include <limits.h>
 
-#ifdef __STDIO_THREADSAFE
+#ifdef __UCLIBC_HAS_THREADS__
 #include <stdio_ext.h>
 #include <pthread.h>
-#endif /* __STDIO_THREADSAFE */
+#endif /* __UCLIBC_HAS_THREADS__ */
 
 #ifdef __UCLIBC_HAS_FLOATS__
 #include <float.h>
@@ -89,7 +89,7 @@
 #endif
 
 #undef __STDIO_HAS_VSSCANF
-#if defined(__STDIO_BUFFERS) || !defined(__UCLIBC_HAS_WCHAR__) || defined(__STDIO_GLIBC_CUSTOM_STREAMS)
+#if defined(__STDIO_BUFFERS) || !defined(__UCLIBC_HAS_WCHAR__) || defined(__UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__)
 #define __STDIO_HAS_VSSCANF 1
 
 #if !defined(__STDIO_BUFFERS) && !defined(__UCLIBC_HAS_WCHAR__)
@@ -205,70 +205,101 @@ int vscanf(const char * __restrict format, va_list arg)
 #ifdef L_vsscanf
 
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning WISHLIST: Implement vsscanf for non-buffered and no custom stream case.
+#warning WISHLIST: Implement vsscanf for non-buf and no custom stream case.
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
 #ifdef __STDIO_BUFFERS
 
 int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
-	FILE string[1];
+	FILE f;
 
-	string->filedes = -2;
-	string->modeflags = (__FLAG_NARROW|__FLAG_READONLY);
-	string->bufstart = string->bufpos = (unsigned char *) ((void *) sp);
-#ifdef __STDIO_GETC_MACRO
-	string->bufgetc = 
-#endif /* __STDIO_GETC_MACRO */
-	string->bufread = string->bufstart + strlen(sp);
-
-#ifdef __STDIO_MBSTATE
-	__INIT_MBSTATE(&(string->state));
-#endif /* __STDIO_MBSTATE */
-
-#ifdef __STDIO_THREADSAFE
-	string->user_locking = 0;
-	__stdio_init_mutex(&string->lock);
+/* 	__STDIO_STREAM_RESET_GCS(&f); */
+#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
+	f.__cookie = &(f.__filedes);
+	f.__gcs.read = NULL;
+	f.__gcs.write = NULL;
+	f.__gcs.seek = NULL;
+	f.__gcs.close = NULL;
 #endif
 
-	return vfscanf(string, fmt, ap);
+	f.__filedes = __STDIO_STREAM_FAKE_VSSCANF_FILEDES;
+	f.__modeflags = (__FLAG_NARROW|__FLAG_READONLY|__FLAG_READING);
+
+#ifdef __UCLIBC_HAS_WCHAR__
+	f.__ungot_width[0] = 0;
+#endif
+#ifdef __STDIO_MBSTATE
+	__INIT_MBSTATE(&(f.__state));
+#endif
+
+#ifdef __UCLIBC_HAS_THREADS__
+	f.__user_locking = 1;		/* Set user locking. */
+	__stdio_init_mutex(&f.__lock);
+#endif
+	f.__nextopen = NULL;
+
+	/* Set these last since __bufgetc initialization depends on
+	 * __user_locking and only gets set if user locking is on. */
+	f.__bufstart = 
+	f.__bufpos = (unsigned char *) ((void *) sp);
+	f.__bufread =
+	f.__bufend = f.__bufstart + strlen(sp);
+	__STDIO_STREAM_ENABLE_GETC(&f);
+	__STDIO_STREAM_DISABLE_PUTC(&f);
+
+	return vfscanf(&f, fmt, ap);
 }
 
 #elif !defined(__UCLIBC_HAS_WCHAR__)
 
 int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
-	__FILE_vsscanf string[1];
+	__FILE_vsscanf f;
 
-	string->f.filedes = -2;
-	string->f.modeflags = (__FLAG_NARROW|__FLAG_READONLY);
-	string->bufpos = (unsigned char *) ((void *) sp);
-	string->bufread = string->bufpos + strlen(sp);
+	f.bufpos = (unsigned char *) ((void *) sp);
+	f.bufread = f.bufpos + strlen(sp);
 
-#ifdef __STDIO_MBSTATE
-#error __STDIO_MBSTATE is defined!
-#endif /* __STDIO_MBSTATE */
-
-#ifdef __STDIO_THREADSAFE
-	string->user_locking = 0;
-	__stdio_init_mutex(&string->f.lock);
+/* 	__STDIO_STREAM_RESET_GCS(&f.f); */
+#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
+	f.f.__cookie = &(f.f.__filedes);
+	f.f.__gcs.read = NULL;
+	f.f.__gcs.write = NULL;
+	f.f.__gcs.seek = NULL;
+	f.f.__gcs.close = NULL;
 #endif
 
-	return vfscanf(&string->f, fmt, ap);
+	f.f.__filedes = __STDIO_STREAM_FAKE_VSSCANF_FILEDES_NB;
+	f.f.__modeflags = (__FLAG_NARROW|__FLAG_READONLY|__FLAG_READING);
+
+/* #ifdef __UCLIBC_HAS_WCHAR__ */
+/* 	f.f.__ungot_width[0] = 0; */
+/* #endif */
+#ifdef __STDIO_MBSTATE
+#error __STDIO_MBSTATE is defined!
+/* 	__INIT_MBSTATE(&(f.f.__state)); */
+#endif
+
+#ifdef __UCLIBC_HAS_THREADS__
+	f.f.__user_locking = 1;		/* Set user locking. */
+	__stdio_init_mutex(&f.f.__lock);
+#endif
+	f.f.__nextopen = NULL;
+
+	return vfscanf(&f.f, fmt, ap);
 }
 
-#elif defined(__STDIO_GLIBC_CUSTOM_STREAMS)
+#elif defined(__UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__)
 
 int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
 	FILE *f;
-	int rv;
+	int rv = EOF;
 
-	if ((f = fmemopen((char *)sp, strlen(sp), "r")) == NULL) {
-		return -1;
+	if ((f = fmemopen((char *)sp, strlen(sp), "r")) != NULL) {
+		rv = vfscanf(f, fmt, ap);
+		fclose(f);
 	}
-	rv = vfscanf(f, fmt, ap);
-	fclose(f);
 
 	return rv;
 }
@@ -354,16 +385,37 @@ int vswscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
 {
 	FILE f;
 
-	f.filedes = -3;				/* FAKE STREAM TO SUPPORT *wscanf! */
-	f.modeflags = (__FLAG_WIDE|__FLAG_READONLY|__FLAG_READING);
-	f.bufpos = (char *) str;
-	f.bufend = (char *)(str + wcslen(str));
-	f.ungot_width[0] = 0;
-#ifdef __STDIO_THREADSAFE
-	f.user_locking = 0;
-	__stdio_init_mutex(&f.lock);
+	f.__bufstart =
+	f.__bufpos = (char *) str;
+	f.__bufread =
+	f.__bufend = (char *)(str + wcslen(str));
+	__STDIO_STREAM_DISABLE_GETC(&f);
+	__STDIO_STREAM_DISABLE_PUTC(&f);
+
+/* 	__STDIO_STREAM_RESET_GCS(&f); */
+#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
+	f.__cookie = &(f.__filedes);
+	f.__gcs.read = NULL;
+	f.__gcs.write = NULL;
+	f.__gcs.seek = NULL;
+	f.__gcs.close = NULL;
 #endif
 
+	f.__filedes = __STDIO_STREAM_FAKE_VSWSCANF_FILEDES;
+	f.__modeflags = (__FLAG_WIDE|__FLAG_READONLY|__FLAG_READING);
+
+#ifdef __UCLIBC_HAS_WCHAR__
+	f.__ungot_width[0] = 0;
+#endif /* __UCLIBC_HAS_WCHAR__ */
+#ifdef __STDIO_MBSTATE
+	__INIT_MBSTATE(&(f.__state));
+#endif /* __STDIO_MBSTATE */
+
+#ifdef __UCLIBC_HAS_THREADS__
+	f.__user_locking = 1;		/* Set user locking. */
+	__stdio_init_mutex(&f.__lock);
+#endif
+	f.__nextopen = NULL;
 
 	return vfwscanf(&f, format, arg);
 }
@@ -624,7 +676,7 @@ void __init_scan_cookie(register struct scan_cookie *sc,
 	sc->fp = fp;
 	sc->nread = 0;
 	sc->ungot_flag = 0;
-	sc->app_ungot = ((fp->modeflags & __MASK_UNGOT) ? fp->ungot[1] : 0);
+	sc->app_ungot = ((fp->__modeflags & __FLAG_UNGOT) ? fp->__ungot[1] : 0);
 #ifdef __UCLIBC_HAS_WCHAR__
 	sc->ungot_wflag = 0;		/* vfwscanf */
 	sc->mb_fail = 0;
@@ -676,7 +728,7 @@ int __scan_getc(register struct scan_cookie *sc)
 
 	if (sc->ungot_flag == 0) {
 #if !defined(__STDIO_BUFFERS) && !defined(__UCLIBC_HAS_WCHAR__)
-		if (sc->fp->filedes != -2) {
+		if (!__STDIO_STREAM_IS_FAKE_VSSCANF_NB(sc->fp)) {
 			c = GETC(sc);
 		} else {
 			__FILE_vsscanf *fv = (__FILE_vsscanf *)(sc->fp);
@@ -684,7 +736,7 @@ int __scan_getc(register struct scan_cookie *sc)
 				c = *fv->bufpos++;
 			} else {
 				c = EOF;
-				sc->fp->modeflags |= __FLAG_EOF;
+				sc->fp->__modeflags |= __FLAG_EOF;
 			}
 		}
 		if (c == EOF) {
@@ -956,12 +1008,12 @@ static int sc_getc(register struct scan_cookie *sc)
 {
 	wint_t wc;
 
-	if (sc->fp->filedes == -3) {
-		if (sc->fp->bufpos < sc->fp->bufend) {
-			wc = *((wchar_t *)(sc->fp->bufpos));
-			sc->fp->bufpos += sizeof(wchar_t);
+	if (__STDIO_STREAM_IS_FAKE_VSWSCANF(sc->fp)) {
+		if (sc->fp->__bufpos < sc->fp->__bufend) {
+			wc = *((wchar_t *)(sc->fp->__bufpos));
+			sc->fp->__bufpos += sizeof(wchar_t);
 		} else {
-			sc->fp->modeflags |= __FLAG_EOF;
+			sc->fp->__modeflags |= __FLAG_EOF;
 			return EOF;
 		}
 	} else if ((wc = fgetwc_unlocked(sc->fp)) == WEOF) {
@@ -970,7 +1022,7 @@ static int sc_getc(register struct scan_cookie *sc)
 
 	sc->ungot_wflag = 1;
 	sc->ungot_wchar = wc;
-	sc->ungot_wchar_width = sc->fp->ungot_width[0];
+	sc->ungot_wchar_width = sc->fp->__ungot_width[0];
 
 #ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
 	if (wc == sc->thousands_sep_wc) {
@@ -1002,11 +1054,10 @@ static int scan_getwc(register struct scan_cookie *sc)
 	}
 
 	if (sc->ungot_flag == 0) {
-
-		if (sc->fp->filedes == -3) {
-			if (sc->fp->bufpos < sc->fp->bufend) {
-				wc = *((wchar_t *)(sc->fp->bufpos));
-				sc->fp->bufpos += sizeof(wchar_t);
+		if (__STDIO_STREAM_IS_FAKE_VSWSCANF(sc->fp)) {
+			if (sc->fp->__bufpos < sc->fp->__bufend) {
+				wc = *((wchar_t *)(sc->fp->__bufpos));
+				sc->fp->__bufpos += sizeof(wchar_t);
 			} else {
 				sc->ungot_flag |= 2;
 				return -1;
@@ -1017,7 +1068,7 @@ static int scan_getwc(register struct scan_cookie *sc)
 		}
 		sc->ungot_wflag = 1;
 		sc->ungot_char = wc;
-		sc->ungot_wchar_width = sc->fp->ungot_width[0];
+		sc->ungot_wchar_width = sc->fp->__ungot_width[0];
 	} else {
 		assert(sc->ungot_flag == 1);
 		sc->ungot_flag = 0;
@@ -1039,7 +1090,7 @@ static __inline void kill_scan_cookie(register struct scan_cookie *sc)
 
 	if (sc->ungot_flag & 1) {
 #if !defined(__STDIO_BUFFERS) && !defined(__UCLIBC_HAS_WCHAR__)
-		if (sc->fp->filedes != -2) {
+		if (!__STDIO_STREAM_IS_FAKE_VSSCANF_NB(sc->fp)) {
 			ungetc(sc->ungot_char, sc->fp);
 		}
 #else
@@ -1047,25 +1098,26 @@ static __inline void kill_scan_cookie(register struct scan_cookie *sc)
 #endif
 		/* Deal with distiction between user and scanf ungots. */
 		if (sc->nread == 0) {	/* Only one char was read... app ungot? */
-			sc->fp->ungot[1] = sc->app_ungot; /* restore ungot state. */
+			sc->fp->__ungot[1] = sc->app_ungot; /* restore ungot state. */
 		} else {
-			sc->fp->ungot[1] = 0;
+			sc->fp->__ungot[1] = 0;
 		}
 	}
 
 #else
 
 	if ((sc->ungot_flag & 1) && (sc->ungot_wflag & 1)
-		&& (sc->fp->filedes != -3) && (sc->fp->state.mask == 0)
+		&& !__STDIO_STREAM_IS_FAKE_VSWSCANF(sc->fp)
+		&& (sc->fp->__state.__mask == 0)
 		) {
 		ungetwc(sc->ungot_char, sc->fp);
 		/* Deal with distiction between user and scanf ungots. */
 		if (sc->nread == 0) {	/* Only one char was read... app ungot? */
-			sc->fp->ungot[1] = sc->app_ungot; /* restore ungot state. */
+			sc->fp->__ungot[1] = sc->app_ungot; /* restore ungot state. */
 		} else {
-			sc->fp->ungot[1] = 0;
+			sc->fp->__ungot[1] = 0;
 		}
-		sc->fp->ungot_width[1] = sc->ungot_wchar_width;
+		sc->fp->__ungot_width[1] = sc->ungot_wchar_width;
 	}
 
 #endif
@@ -1101,7 +1153,9 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 	int i;
 
-#warning fix MAX_DIGITS.  we do not do binary, so...!
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO: Fix MAX_DIGITS.  We do not do binary, so...!
+#endif
 #define MAX_DIGITS 65			/* Allow one leading 0. */
 	unsigned char buf[MAX_DIGITS+2];
 #ifdef L_vfscanf
@@ -1110,6 +1164,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 #endif /* L_vfscanf */
 	unsigned char fail;
 	unsigned char zero_conversions = 1;
+	__STDIO_AUTO_THREADLOCK_VAR;
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Make checking of the format string in C locale an option.
@@ -1120,7 +1175,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 	 * beginning and ending in its initial shift state. */
 	if (((__UCLIBC_CURLOCALE_DATA).encoding) != __ctype_encoding_7_bit) {
 		const char *p = format;
-		mbstate.mask = 0;		/* Initialize the mbstate. */
+		mbstate.__mask = 0;		/* Initialize the mbstate. */
 		if (mbsrtowcs(NULL, &p, SIZE_MAX, &mbstate) == ((size_t)(-1))) {
 			__set_errno(EINVAL); /* Format string is invalid. */
 			return 0;
@@ -1134,12 +1189,14 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 	memset(psfs.pos_args, 0, sizeof(psfs.pos_args));
 #endif /* defined(NL_ARGMAX) && (NL_ARGMAX > 0) */
 
-	__STDIO_THREADLOCK(fp);
+	__STDIO_AUTO_THREADLOCK(fp);
+
+	__STDIO_STREAM_VALIDATE(fp);
 
 	__init_scan_cookie(&sc,fp);
 #ifdef __UCLIBC_HAS_WCHAR__
 	sc.sc_getc = sc_getc;
-	sc.ungot_wchar_width = sc.fp->ungot_width[1];
+	sc.ungot_wchar_width = sc.fp->__ungot_width[1];
 
 #ifdef L_vfwscanf
 
@@ -1279,7 +1336,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 			if (psfs.conv_num == CONV_n) {
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning Should %n count as a conversion as far as EOF return value?
+#warning CONSIDER: Should %n count as a conversion as far as EOF return value?
 #endif
 /* 				zero_conversions = 0; */
 				if (psfs.store) {
@@ -1424,7 +1481,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 				wchar_t wbuf[1];
 				wchar_t *wb;
 
-				sc.mbstate.mask = 0;
+				sc.mbstate.__mask = 0;
 
 				wb = (psfs.store ? ((wchar_t *) psfs.cur_ptr) : wbuf);
 				fail = 1;
@@ -1497,7 +1554,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 				b = buf;
 				wb = wbuf;
 				if (psfs.conv_num >= CONV_c) {
-					mbstate.mask = 0;		/* Initialize the mbstate. */
+					mbstate.__mask = 0;		/* Initialize the mbstate. */
 					if (psfs.store) {
 						b = (unsigned char *) psfs.cur_ptr;
 					}
@@ -1662,19 +1719,21 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 	NEXT_FMT:
 		++fmt;
-		if (__FERROR(fp)) {
+		if (__FERROR_UNLOCKED(fp)) {
 			break;
 		}
 	}
 
  DONE:
-	if (__FERROR(fp) || (*fmt && zero_conversions && __FEOF(fp))) {
+	if (__FERROR_UNLOCKED(fp) || (*fmt && zero_conversions && __FEOF_UNLOCKED(fp))) {
 		psfs.cnt = EOF;			/* Yes, vfwscanf also returns EOF. */
 	}
 
 	kill_scan_cookie(&sc);
 
-	__STDIO_THREADUNLOCK(fp);
+	__STDIO_STREAM_VALIDATE(fp);
+
+	__STDIO_AUTO_THREADUNLOCK(fp);
 
 	return psfs.cnt;
 }
@@ -1693,16 +1752,20 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 #ifdef __UCLIBC_HAS_FLOATS__
 	int exp_adjust = 0;
 #endif
-#warning fix MAX_DIGITS.  we do not do binary, so...!
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO: Fix MAX_DIGITS.  We do not do binary, so...!
+#warning TODO: Fix buf!
+#endif
 #define MAX_DIGITS 65			/* Allow one leading 0. */
-#warning fix buf!
 	unsigned char buf[MAX_DIGITS+2+ 100];
 	unsigned char usflag, base;
 	unsigned char nonzero = 0;
 	unsigned char seendigit = 0;
 	
 
-#warning what should be returned for an invalid conversion specifier?
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning CONSIDER: What should be returned for an invalid conversion specifier?
+#endif
 #ifndef __UCLIBC_HAS_FLOATS__
 	if (psfs->conv_num > CONV_i) { /* floating point */
 		goto DONE;
@@ -2105,7 +2168,9 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 			__scan_getc(sc);
 		}
 
-#warning fix MAX_EXP_DIGITS!
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO: Fix MAX_EXP_DIGITS!
+#endif
 #define MAX_EXP_DIGITS 20
 		assert(seendigit);
 		seendigit = 0;

@@ -36,7 +36,6 @@
  *  mapping of signal strings (alpha, mips, hppa, sparc).
  */
 
-#define _STDIO_UTILITY
 #define _GNU_SOURCE
 #include <string.h>
 #include <strings.h>
@@ -48,6 +47,7 @@
 #include <signal.h>
 #include <assert.h>
 #include <locale.h>
+#include <bits/uClibc_uintmaxtostr.h>
 
 #ifdef WANT_WIDE
 #include <wchar.h>
@@ -2326,14 +2326,7 @@ void psignal(int signum, register const char *message)
 		message = (sep += 2);	/* or passed an empty string. */
 	}
 
-#if 1
 	fprintf(stderr, "%s%s%s\n", message, sep, strsignal(signum));
-#else
-	/* Note: Assumes stderr not closed or buffered. */
-	__STDIO_THREADLOCK(stderr);
-	_stdio_fdout(STDERR_FILENO, message, sep, strsignal(signum));
-	__STDIO_THREADUNLOCK(stderr);
-#endif
 }
 
 #endif

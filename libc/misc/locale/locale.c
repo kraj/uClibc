@@ -346,7 +346,7 @@ struct lconv *localeconv(void)
 /**********************************************************************/
 #if defined(L__locale_init) && !defined(__LOCALE_C_ONLY)
 
-static __uclibc_locale_t __global_locale_data;
+__uclibc_locale_t __global_locale_data;
 
 __locale_t __global_locale = &__global_locale_data;
 
@@ -1420,7 +1420,7 @@ int __locale_mbrtowc_l(wchar_t *__restrict dst,
 		mbstate_t ps;
 		const char *p = src;
 		size_t r;
-		ps.mask = 0;
+		ps.__mask = 0;
 		r = _wchar_utf8sntowcs(dst, 1, &p, SIZE_MAX, &ps, 1);
 		return (r == 1) ? (p-src) : r; /* Need to return 0 if nul char. */
 	}
