@@ -42,6 +42,7 @@ $(LIBNAME): halfclean headers uClibc_config.h subdirs
 shared: $(LIBNAME)
 	@rm -rf tmp
 	@mkdir tmp
+	@make -C ld.so-1/d-link
 	@(cd tmp; CC=$(CC) /bin/sh ../extra/scripts/get-needed-libgcc-objects.sh)
 	if [ -s ./tmp/libgcc-need.a ] ; then \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
