@@ -28,7 +28,7 @@
 
 __BEGIN_DECLS
 
-extern int sysmips (__const int cmd, __const int arg1,
+extern int sysmips (__const int cmd, __const long arg1,
 		    __const int arg2, __const int arg3) __THROW;
 
 __END_DECLS
