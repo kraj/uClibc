@@ -34,7 +34,9 @@
 #        make CROSS=mipsel-linux-
 # will build uClibc for 'mipsel'.
 
+ifndef CROSS
 CROSS=
+endif
 CC= $(CROSS)gcc
 AR= $(CROSS)ar
 LD= $(CROSS)ld
@@ -223,4 +225,17 @@ LIBGCC_DIR:=$(dir $(LIBGCC))
 #	                information go if you enabled LIBRARY_CACHE above>
 # Very few people will need to change this value from the default...
 TARGET_PREFIX = /
+
+########################################
+#
+# uClinux shared lib support
+#
+
+ifdef CONFIG_BINFMT_SHARED_FLAT
+  # For the shared version of this, we specify no stack and its library ID
+  FLTFLAGS += -s 0
+  LIBID=1
+  export LIBID FLTFLAGS
+  SHARED_TARGET = lib/libc
+endif
 

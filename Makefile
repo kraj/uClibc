@@ -41,7 +41,8 @@ all: headers subdirs shared utils finished
 # In this section, we need .config
 -include .config.cmd
 
-shared:
+.PHONY: $(SHARED_TARGET)
+shared: $(SHARED_TARGET)
 ifeq ($(strip $(HAVE_SHARED)),y)
 	@$(MAKE) -C libc shared
 	@$(MAKE) -C ldso shared
@@ -52,9 +53,30 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	@$(MAKE) -C libm shared
 	@$(MAKE) -C libpthread shared
 else
+ifeq ($(SHARED_TARGET),)
 	@echo
 	@echo Not building shared libraries...
 	@echo
+endif
+endif
+
+ifneq ($(SHARED_TARGET),)
+
+lib/main.o: $(ROOTDIR)/lib/libc/main.c
+	$(CC) $(CFLAGS) $(ARCH_CFLAGS) -c -o $@ $(ROOTDIR)/lib/libc/main.c
+
+bogus $(SHARED_TARGET): lib/libc.a lib/main.o
+	make -C $(ROOTDIR) relink
+	$(CC) -o $(SHARED_TARGET) $(ARCH_CFLAGS) -Wl,-elf2flt -nostdlib		\
+		-Wl,-shared-lib-id,${LIBID}				\
+		lib/main.o -Wl,--whole-archive,lib/libc.a,-lgcc,--no-whole-archive
+	$(OBJCOPY) -L _GLOBAL_OFFSET_TABLE_ -L main -L __main -L _start \
+		-L __uClibc_main -L lib_main -L _exit_dummy_ref		\
+		-L __do_global_dtors -L __do_global_ctors		\
+		-L __CTOR_LIST__ -L __DTOR_LIST__			\
+		-L _current_shared_library_a5_offset_			\
+		$(SHARED_TARGET).gdb
+	ln -sf $(SHARED_TARGET).gdb .
 endif
 
 finished: shared
@@ -65,16 +87,24 @@ finished: shared
 #
 # Target for uClinux distro
 #
+.PHONY: romfs
 romfs:
+	@if [ "$(CONFIG_BINFMT_SHARED_FLAT)" = "y" ]; then \
+		[ -e $(ROMFSDIR)/lib ] || mkdir -p $(ROMFSDIR)/lib; \
+		$(ROMFSINST) $(SHARED_TARGET) /lib/lib$(LIBID).so; \
+	fi
 ifeq ($(strip $(HAVE_SHARED)),y)
 	install -d $(ROMFSDIR)/lib
 	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(ROMFSDIR)/lib
-	cp -a lib/*.so.* $(ROMFSDIR)/lib
+	cp -fa lib/*.so.* $(ROMFSDIR)/lib/.
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	    		$(ROMFSDIR)/lib; \
+		$(ROMFSINST) -s \
+			/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+			/lib/ld-linux.so.2; \
 	fi;
 endif
 
@@ -148,7 +178,7 @@ headers: include/bits/uClibc_config.h
 	@cd $(TOPDIR); \
 	set -x -e; \
 	rm -f include/bits/sysnum.h; \
-	TOPDIR=. CC=$(CC) /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h
+	TOPDIR=. CC="$(CC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
