@@ -45,4 +45,31 @@ static inline unsigned long __fswab32(unsigned long x)
  ___swab32((x)) : \
  __fswab32((x)))
 
+#if defined __GNUC__ && __GNUC__ >= 2
+/* Swap bytes in 64 bit value.  */
+# define __bswap_constant_64(x) \
+     ((((x) & 0xff00000000000000ull) >> 56)                                   \
+      | (((x) & 0x00ff000000000000ull) >> 40)                                 \
+      | (((x) & 0x0000ff0000000000ull) >> 24)                                 \
+      | (((x) & 0x000000ff00000000ull) >> 8)                                  \
+      | (((x) & 0x00000000ff000000ull) << 8)                                  \
+      | (((x) & 0x0000000000ff0000ull) << 24)                                 \
+      | (((x) & 0x000000000000ff00ull) << 40)                                 \
+      | (((x) & 0x00000000000000ffull) << 56))
+
+# define __bswap_64(x) \
+     (__extension__                                                           \
+      ({ union { __extension__ unsigned long long int __ll;                   \
+                 unsigned int __l[2]; } __w, __r;                             \
+         if (__builtin_constant_p (x))                                        \
+           __r.__ll = __bswap_constant_64 (x);                                \
+         else                                                                 \
+           {                                                                  \
+             __w.__ll = (x);                                                  \
+             __r.__l[0] = __bswap_32 (__w.__l[1]);                            \
+             __r.__l[1] = __bswap_32 (__w.__l[0]);                            \
+           }                                                                  \
+         __r.__ll; }))
+#endif
+
 #endif /* _BITS_BYTESWAP_H */
