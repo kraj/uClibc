@@ -3,9 +3,13 @@ TOPDIR = ../../
 include $(TOPDIR)Rules.mak
 
 # NOTE: This may need to be modified on each system.
-# If your default dynamic linker works, comment this out.
-#DYNAMIC_LINKER = /lib/ld-linux.so.1
+ifeq ($(TARGET_ARCH), i386)
+# Right now, I'm using .1 since .2 pulls in libc6 on my system. Manuel
+DYNAMIC_LINKER = /lib/ld-linux.so.1
+else
+# For Erik's arm case.
 DYNAMIC_LINKER = $(shell ls /lib/ld*.so.[0-9] | sort | tail -n 1)
+endif
 
 UCLIBC_DIR = $(shell (cd ../.. ; /bin/pwd))
 GCC_BIN = $(CC)
