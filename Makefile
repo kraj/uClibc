@@ -197,10 +197,12 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	    set -x -e; \
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	    		$(PREFIX)$(DEVEL_PREFIX)/lib; \
-	    install -d $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
-	    ln -sf $(PREFIX)$(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
-			$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) || true; \
 	fi;
+	#@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
+	#    install -d $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
+	#    ln -sf $(PREFIX)$(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	#		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO); \
+	#fi;
 endif
 
 install_toolchain:
@@ -255,10 +257,12 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	    set -x -e; \
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	    		$(PREFIX)$(TARGET_PREFIX)/lib; \
-	    install -d $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
-	    ln -sf $(PREFIX)$(TARGET_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
-	    		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) || true; \
 	fi;
+	#@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
+	#    install -d $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
+	#    ln -sf $(PREFIX)$(TARGET_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	#    		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO); \
+	#fi;
 endif
 
 install_target_utils:
