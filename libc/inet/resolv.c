@@ -531,7 +531,7 @@ int __form_query(int id, const char *name, int type, unsigned char *packet,
 }
 #endif
 
-#ifdef L___connect_dns
+#ifdef L_connect_dns
 int __connect_dns(char *nsip)
 {
 	int fd, rc;
@@ -1046,7 +1046,7 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 #endif
 
 
-#ifdef L___read_etc_hosts_r
+#ifdef L_read_etc_hosts_r
 
 void __open_etc_hosts(FILE **fp)
 {
@@ -1263,7 +1263,7 @@ struct hostent *gethostent (void)
 }
 #endif
 
-#ifdef L___get_hosts_byname_r
+#ifdef L_get_hosts_byname_r
 
 int __get_hosts_byname_r(const char * name, int type,
 			    struct hostent * result_buf,
@@ -1275,7 +1275,7 @@ int __get_hosts_byname_r(const char * name, int type,
 }
 #endif
 
-#ifdef L___get_hosts_byaddr_r
+#ifdef L_get_hosts_byaddr_r
 
 int __get_hosts_byaddr_r(const char * addr, int len, int type,
 			    struct hostent * result_buf,
