@@ -1413,6 +1413,7 @@ weak_alias(modify_ldt, __modify_ldt);
 #include <sys/timex.h>
 _syscall1(int, adjtimex, struct timex *, buf);
 weak_alias(adjtimex, __adjtimex);
+weak_alias(adjtimex, ntp_adjtime);
 #endif
 
 //#define __NR_mprotect         125
