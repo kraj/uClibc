@@ -25,7 +25,7 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 DIRS = $(MALLOC)
-ALL_SUBDIRS = $(shell find * -type d -prune -name [a-z]\*)
+ALL_SUBDIRS = malloc malloc-930716 malloc-simple
 
 MSRC=strto_l.c
 MOBJ=strtol.o strtoul.o strto_l.o
