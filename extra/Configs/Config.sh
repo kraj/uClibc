@@ -59,7 +59,6 @@ config CONFIG_SH4
 
 config CONFIG_SH5
 	select UCLIBC_HAS_MMU
-	select HAS_NO_THREADS
 	select ARCH_HAS_NO_LDSO
 	bool "SH5"
 

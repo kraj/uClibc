@@ -1,6 +1,7 @@
 # Makefile for uClibc's pthread library
 #
 # Copyright (C) 2002 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2003 Paul Mundt <lethal@linux-sh.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -19,6 +20,8 @@
 
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
+
+DIRS = sysdeps
 
 #Adjust the soname version to avoid namespace collisions with glibc's libpthread
 LIBPTHREAD:=../libpthread.a
@@ -56,7 +59,7 @@ OBJS=$(COBJS)
 
 all: $(OBJS) $(LIBPTHREAD)
 
-$(LIBPTHREAD): ar-target
+$(LIBPTHREAD): ar-target subdirs
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBPTHREAD) $(OBJS)
@@ -69,7 +72,17 @@ else
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 endif
 
-clean:
+clean: subdirs_clean
 	$(RM) *.[oa] *~ core
 
+subdirs: $(patsubst %, _dir_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
+
+$(patsubst %, _dir_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dir_%, %, $@)
+
+$(patsubst %, _dirclean_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+
+.PHONY: dummy subdirs
 
