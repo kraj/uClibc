@@ -3,7 +3,7 @@
 
 topdir=$(pwd)
 today=$(date +%Y%m%d)
-version=0.9.10
+version=0.9.11
 dir=uclibc-${version}-cvs${today}
 
 mkdir -p ${topdir}/uclibc-tmp
