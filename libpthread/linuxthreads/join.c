@@ -56,12 +56,12 @@ PDEBUG("self=%p, pid=%d\n", self, self->p_pid);
 				   p_eventbuf.eventmask).event_bits[idx]))
 	  != 0)
 	{
-#if 0 /* Appears like DEATH event reporting is broken */
 	  /* Yep, we have to signal the death.  */
 	  THREAD_SETMEM(self, p_eventbuf.eventnum, TD_DEATH);
 	  THREAD_SETMEM(self, p_eventbuf.eventdata, self);
 	  __pthread_last_event = self;
 
+#if 0 /* Appears like DEATH event reporting is broken */
 	  /* Now call the function to signal the event.  */
 	  __linuxthreads_death_event();
 #endif
