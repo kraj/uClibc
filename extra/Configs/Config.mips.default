@@ -6,6 +6,7 @@
 # Target Architecture Features and Options
 #
 HAVE_ELF=y
+ARCH_CFLAGS="-fno-schedule-insns2"
 UCLIBC_HAS_MMU=y
 UCLIBC_HAS_FLOATS=y
 HAS_FPU=y
