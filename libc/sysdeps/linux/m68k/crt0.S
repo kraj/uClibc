@@ -50,8 +50,11 @@ __exit:
  */
 empty_func:
 	rts
+#if defined HAVE_ELF
 	.weak atexit
-atexit = empty_func
+#else
+	.set atexit,empty_func
+#endif
 
 /*
  *	a little bit of stuff to support C++

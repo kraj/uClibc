@@ -40,16 +40,6 @@ Installation:
 	run:
 		make install
 
-Usage:
-	Any program you compile should have this added to CFLAGS:
-
-		-D__VFORK_MACRO__ -Dconst= -D__const=
-	
-	(You need the equal sign so that const and __const are defined
-	as NULL instead of as '1')  The 'const' keyword is broken for
-	m68k-pic-coff-gcc 2.7.2.3-pic-060999.  There _was_ a fix
-	floating around, but apparently it didn't work.
-
 Problems:
 
 	I _may_ be able to help if you run into problems.  Create a

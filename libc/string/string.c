@@ -77,7 +77,7 @@ int strcmp(const char *s1, const char *s2)
 }
 
 #ifndef __UCLIBC_HAS_LOCALE__
-__asm__(".weak strcoll; strcoll = strcmp");
+weak_alias(strcmp, strcoll);
 #endif /* __UCLIBC_HAS_LOCALE__ */
 #endif
 
@@ -191,7 +191,7 @@ char *strchr(const char *str, int c)
 	return 0;
 }
 
-__asm__(".weak index; index = strchr");
+weak_alias(strchr, index);
 #endif
 
 /********************** Function strrchr ************************************/
@@ -214,7 +214,7 @@ char *strrchr(const char *str, int c)
 	return prev;
 }
 
-__asm__(".weak rindex; rindex = strrchr");
+weak_alias(strrchr, rindex);
 #endif
 
 /********************** Function strdup ************************************/

@@ -36,6 +36,13 @@ void __uClibc_empty_func(void)
 {
 }
 
+#ifdef HAVE_ELF
+weak_alias(__environ, environ);
+weak_alias(__uClibc_empty_func, __init_stdio);
+weak_alias(__uClibc_empty_func, __stdio_close_all);
+#endif	
+
+
 extern void __init_stdio(void);
 extern void __stdio_close_all(void);
 
@@ -80,7 +87,9 @@ void __uClibc_main(int argc, char **argv, char **envp)
 
 char **__environ = 0;
 
-__asm__(".weak environ;environ = __environ");
-__asm__(".weak __init_stdio; __init_stdio = __uClibc_empty_func");
-__asm__(".weak __stdio_close_all; __stdio_close_all = __uClibc_empty_func");
+#ifndef HAVE_ELF
+weak_alias(__environ, environ);
+weak_alias(__uClibc_empty_func, __init_stdio);
+weak_alias(__uClibc_empty_func, __stdio_close_all);
+#endif	
 

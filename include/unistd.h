@@ -649,7 +649,7 @@ extern int setegid __P ((__gid_t __gid));
 #ifdef __UCLIBC_HAS_MMU__
 extern __pid_t fork __P ((void));
 #else
-#define fork fork_not_available_on_mmuless_systems
+#define fork fork_not_available_on_mmuless_systems__use_vfork
 #endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
@@ -1006,10 +1006,6 @@ extern int rename __P ((__const char *__old, __const char *__new));
 extern int pthread_atfork __P ((void (*__prepare) (void),
 				void (*__parent) (void),
 				void (*__child) (void)));
-#endif
-
-#ifdef __VFORK_MACRO__
-#include <bits/vfork.h>
 #endif
 
 __END_DECLS

@@ -45,6 +45,10 @@
 # define __restrict     /* Ignore */
 #endif
 
+/* __extension__ is known in gcc 2.8 above. */
+#if !defined __GNUC__ || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 8)
+# define __extension__     /* Ignore */
+#endif
 
 #ifdef __STDC__
 
@@ -105,13 +109,20 @@
 #undef __need_uClibc_config_h
 
 
-#if 1	/* This only works with GNU ld, but that is what we use 'round these parts */
-#define link_warning(symbol, msg) \
-asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");  \
-static const char __evoke_link_warning_##symbol[]     \
-__attribute__ ((section (".gnu.warning." #symbol "\n\t#"))) = msg;
+/* Some nice features only work properly with ELF */
+#if defined HAVE_ELF	
+#   define link_warning(symbol, msg) \
+	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");  \
+	    static const char __evoke_link_warning_##symbol[]     \
+	    __attribute__ ((section (".gnu.warning." #symbol "\n\t#"))) = msg;
+#   define weak_alias(name, aliasname) \
+	extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
 #else
-# define link_warning(symbol, msg)
+#   define link_warning(symbol, msg) \
+	asm (".stabs \"" msg "\",30,0,0,0\n\t" \
+	      ".stabs \"" #symbol "\",1,0,0,0\n");
+#   define weak_alias(name, aliasname) \
+	__asm__(".global alias\n.set alias,original");
 #endif
 
 

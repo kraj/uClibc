@@ -30,7 +30,7 @@
 TOPDIR=./
 include Rules.mak
 
-ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
+ifeq ($(DO_SHARED),shared)
     LDSO_DIR = ldso
 endif
 DIRS = extra $(LDSO_DIR) libc libcrypt libresolv libutil libm  
@@ -120,15 +120,10 @@ uClibc_config.h: Config
 	else \
 	    echo "#undef __UCLIBC_HAS_LOCALE__" >> uClibc_config.h ; \
 	fi
-	@if [ "$(TARGET_ARCH)" = "m68k" ] ; then \
-	    echo "#define __VFORK_MACRO__ 1" >> uClibc_config.h ; \
-	    if [ `expr "$(CC)" : ".*\(m68k-elf-.*\)"`x = x ]; then \
-		echo "#define const" >> uClibc_config.h ; \
-		echo "#define __const" >> uClibc_config.h ; \
-		echo "#define __extension" >> uClibc_config.h ; \
-	    fi; \
+	@if [ "$(HAVE_ELF)" = "false" ] ; then \
+	    echo "#undef HAVE_ELF" >> uClibc_config.h ; \
 	else \
-	    echo "#undef __VFORK_MACRO__" >> uClibc_config.h ; \
+	    echo "#define HAVE_ELF 1" >> uClibc_config.h ; \
 	fi
 	@if [ "$(TARGET_ARCH)" = "sh" ] ; then \
 	    echo "#define NO_UNDERSCORES 1" >> uClibc_config.h ; \
@@ -156,14 +151,14 @@ install_target:
 ifeq ($(DO_SHARED),shared)
 	install -d $(TARGET_PREFIX)$(ROOT_DIR)/lib
 	cp -fa lib/*.so* $(TARGET_PREFIX)$(ROOT_DIR)/lib;
-endif
-ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
 	install -d $(TARGET_PREFIX)$(ROOT_DIR)/etc
 	install -d $(TARGET_PREFIX)$(ROOT_DIR)/sbin
 	install -d $(TARGET_PREFIX)$(ROOT_DIR)/usr/bin
 	cp -f ldso/util/ldd $(TARGET_PREFIX)$(ROOT_DIR)/usr/bin
 	cp -f ldso/util/ldconfig $(TARGET_PREFIX)$(ROOT_DIR)/sbin
-#	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
+ifeq ($(NATIVE_ARCH), $(TARGET_ARCH))
+	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
+endif
 endif
 
 # Installs development library and headers
@@ -171,19 +166,19 @@ endif
 # in $(DEVEL_PREFIX)$(ROOT_DIR)/include.  Probably true only if you're using
 # a packaging system.
 install_dev:
+	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/lib
+	cp -fa lib/*.[ao] $(DEVEL_PREFIX)$(ROOT_DIR)/usr/lib;
 ifeq ($(DO_SHARED),shared)
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/lib
 	cp -fa lib/*.so* $(DEVEL_PREFIX)$(ROOT_DIR)/lib;
-endif
-	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/lib
-	cp -fa lib/*.[ao] $(DEVEL_PREFIX)$(ROOT_DIR)/usr/lib;
-ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/etc
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/sbin
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/bin
 	cp -f ldso/util/ldd $(DEVEL_PREFIX)$(ROOT_DIR)/usr/bin
 	cp -f ldso/util/ldconfig $(DEVEL_PREFIX)$(ROOT_DIR)/sbin
-#	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
+ifeq ($(NATIVE_ARCH), $(TARGET_ARCH))
+	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
+endif
 endif
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/etc
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include
@@ -200,12 +195,10 @@ endif
 	$(MAKE) -C extra/gcc-uClibc install
 
 clean:
-	@rm -rf tmp lib
+	@rm -rf tmp lib include/bits/uClibc_config.h uClibc_config.h
 	- find include -type l -exec rm -f {} \;
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core \) -exec rm -f {} \;
-ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
 	$(MAKE) -C ldso clean
-endif
 
 .PHONY: dummy subdirs
 

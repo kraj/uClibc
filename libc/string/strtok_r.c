@@ -52,4 +52,4 @@ char *__strtok_r(char *s, const char *delim, char **save_ptr)
 	return token;
 }
 
-__asm__(".weak strtok_r; strtok_r = __strtok_r");
+weak_alias(__strtok_r, strtok_r);

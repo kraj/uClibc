@@ -140,7 +140,11 @@ grantpt (int fd)
   /* We have to use the helper program.  */
  helper:
 
+#ifdef __UCLIBC_HAS_MMU__
   pid = fork ();
+#else
+  pid = vfork ();
+#endif
   if (pid == -1)
     goto cleanup;
   else if (pid == 0)
