@@ -34,35 +34,36 @@ ifeq ($(strip $(HAS_MMU)),true)
 	DO_SHARED=shared
 endif
 
-all: libc.a $(DO_SHARED) done
+all: $(LIBNAME) $(DO_SHARED) done
 
-libc.a: halfclean headers uClibc_config.h subdirs
-	$(CROSS)ranlib libc.a
+$(LIBNAME): halfclean headers uClibc_config.h subdirs
+	$(CROSS)ranlib $(LIBNAME)
 
-shared: libc.a
+shared: $(LIBNAME)
+	@make -C ld.so-1
 	@rm -rf tmp
 	@mkdir tmp
 	@(cd tmp; CC=$(CC) /bin/sh ../extra/scripts/get-needed-libgcc-objects.sh)
 	if [ -s ./tmp/libgcc-need.a ] ; then \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
 		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
-		    ./libc.a ./tmp/libgcc-need.a ; \
+		    ./$(LIBNAME) ./tmp/libgcc-need.a ; \
 	else \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
 		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
-		    ./libc.a ; \
+		    ./$(LIBNAME) ; \
 	fi
 	@rm -rf tmp
 	ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME)
 	ln -sf $(SHARED_MAJORNAME) libc.so
 
-done: libc.a $(DO_SHARED)
+done: $(LIBNAME) $(DO_SHARED)
 	@echo
 	@echo Finally finished compiling...
 	@echo
 
 halfclean:
-	@rm -f libc.a crt0.o uClibc_config.h
+	@rm -f $(LIBNAME) crt0.o uClibc_config.h
 	@rm -f $(SHARED_FULLNAME) $(SHARED_MAJORNAME) libc.so
 
 headers: dummy
@@ -103,12 +104,15 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 $(patsubst %, _dirclean_%, $(DIRS) test) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
-install_new: install_runtime install_dev
+install: install_runtime install_dev install_ldso
 
 # Installs shared library
 install_runtime:
 ifneq ($(DO_SHARED),)
 	install -d $(INSTALL_DIR)/lib
+	rm -rf $(INSTALL_DIR)/lib/$(SHARED_FULLNAME)
+	rm -rf $(INSTALL_DIR)/lib/$(SHARED_MAJORNAME)
+	rm -rf $(INSTALL_DIR)/lib/libc.so
 	install -m 644 $(SHARED_FULLNAME) $(INSTALL_DIR)/lib/
 	(cd $(INSTALL_DIR)/lib;ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME))
 	(cd $(INSTALL_DIR)/lib;ln -sf $(SHARED_MAJORNAME) libc.so)
@@ -135,54 +139,19 @@ install_dev:
 	find include/bits/ -type f -depth -not -path "*CVS*" -exec install -D -m 644 {} $(INSTALL_DIR)/'{}' ';'
 	install -m 644 include/bits/uClibc_config.h $(INSTALL_DIR)/include/bits/
 	install -d $(INSTALL_DIR)/lib
-	rm -f $(INSTALL_DIR)/lib/libc.a
-	install -m 644 libc.a $(INSTALL_DIR)/lib/
+	rm -f $(INSTALL_DIR)/lib/$(LIBNAME)
+	install -m 644 $(LIBNAME) $(INSTALL_DIR)/lib/
 	@if [ -f crt0.o ] ; then install -m 644 crt0.o $(INSTALL_DIR)/lib/; fi
 	install -d $(INSTALL_DIR)/bin
 	@if [ -f extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc ] ; then install -m 755 extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc $(INSTALL_DIR)/bin/ ; fi
 
-install:
-	echo Consider using 'make install_new'
-	@if [ `id -u` -ne 0 ]; then \
-	    echo "Aborting install -- You must be root."; \
-	    /bin/false; \
-	fi;
-	@if [ -n "$(DO_SHARED)" ] ; then \
-	    set -x; \
-	    mv -f $(INSTALL_DIR)/lib/$(SHARED_NAME) \
-		$(INSTALL_DIR)/lib/$(SHARED_NAME).old > /dev/null 2>&1; \
-	    rm -f $(INSTALL_DIR)/lib/$(SHARED_NAME).old; \
-	    cp $(SHARED_NAME) $(INSTALL_DIR)/lib; \
-	    chmod 644 $(INSTALL_DIR)/lib/$(SHARED_NAME); \
-	    chown -R root.root $(INSTALL_DIR)/lib/$(SHARED_NAME); \
-	    rm -f $(INSTALL_DIR)/lib/libc.so; \
-	    ln -s $(INSTALL_DIR)/lib/$(SHARED_NAME) \
-		    $(INSTALL_DIR)/lib/libc.so; \
-	    /sbin/ldconfig; \
-	fi;
-	@if [ "$(HAS_MMU)" = "false" ] ; then \
-	    set -x; \
-	    rm -f $(INSTALL_DIR)/include/asm; \
-	    rm -f $(INSTALL_DIR)/include/linux; \
-	    mkdir -p $(INSTALL_DIR)/include/bits; \
-	    ln -s $(KERNEL_SOURCE)/include/asm $(INSTALL_DIR)/include/asm; \
-	    ln -s $(KERNEL_SOURCE)/include/linux $(INSTALL_DIR)/include/linux; \
-	    find include/ -type f -depth -print | cpio -pdmu $(INSTALL_DIR); \
-	    find include/bits/ -depth -print | cpio -pdmu $(INSTALL_DIR); \
-	    rm -f $(INSTALL_DIR)/lib/libc.a; \
-	    cp libc.a $(INSTALL_DIR)/lib; \
-	    chmod 644 $(INSTALL_DIR)/lib/libc.a; \
-	    chown -R root.root $(INSTALL_DIR)/lib/libc.a; \
-	    if [ -f crt0.o ] ; then \
-		rm -f $(INSTALL_DIR)/lib/crt0.o; \
-		cp crt0.o $(INSTALL_DIR)/lib ; \
-		chmod 644 $(INSTALL_DIR)/lib/crt0.o; \
-		chown -R root.root $(INSTALL_DIR)/lib/crt0.o; \
-	    fi; \
-	    chmod -R 775 `find $(INSTALL_DIR)/include -type d`; \
-	    chmod -R 644 `find $(INSTALL_DIR)/include -type f`; \
-	    chown -R root.root $(INSTALL_DIR)/include; \
-	fi;
+
+install_ldso:
+ifeq ($(strip $(DO_SHARED)),shared)
+	@make -C ld.so-1 install
+else
+	@echo "Skipping shared library support"
+endif
 
 uClibc_config.h: Config
 	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > uClibc_config.h
