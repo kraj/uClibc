@@ -162,7 +162,6 @@ __extension__ extern long long int atoll (__const char *__nptr)
      __THROW __attribute_pure__;
 __END_NAMESPACE_C99
 #endif
-#endif /* __UCLIBC_HAS_FLOATS__ */
 
 #ifdef __UCLIBC_HAS_FLOATS__
 __BEGIN_NAMESPACE_STD
@@ -181,6 +180,7 @@ extern long double strtold (__const char *__restrict __nptr,
 			    char **__restrict __endptr) __THROW;
 __END_NAMESPACE_C99
 #endif
+#endif /* __UCLIBC_HAS_FLOATS__ */
 
 __BEGIN_NAMESPACE_STD
 /* Convert a string to a long integer.  */
