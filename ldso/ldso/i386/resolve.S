@@ -6,7 +6,7 @@
  * _dl_linux_resolve.  When we get called the stack looks like this:
  *	reloc_entry
  *	tpnt
- 
+ *
  * This function saves all the registers, puts a copy of reloc_entry and tpnt
  * on the stack (as function arguments) then make the function call
  * _dl_linux_resolver(tpnt, reloc_entry).  _dl_linux_resolver() figures out
@@ -15,7 +15,9 @@
  * address. We then clean up after ourselves, put all the registers back how we
  * found them, then we jump to where the fixed up address, which is where the
  * jump symbol that got us here really wanted to jump to in the first place.
- *    -Erik Andersen
+ * found them, then we jump to the fixed up address, which is where the jump
+ * symbol that got us here really wanted to jump to in the first place.  
+ *  -Erik Andersen
  */
 
 .text
