@@ -4,6 +4,7 @@
 #include <stdarg.h>
 
 extern char **environ;
+extern int execvep(const char *path, char *__const argv[], char *__const envp[]);
 
 int execlp(__const char *file, __const char *arg, ...)
 {

@@ -17,8 +17,6 @@
    Boston, MA 02111-1307, USA.  */
 
 #include "errno.h"
-#define _EXTERN_INLINE
-#define __USE_EXTERN_INLINES   1
 #include "signal.h"
 
 /* Add SIGNO to SET.  */

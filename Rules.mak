@@ -41,10 +41,10 @@ CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS)
 
 ifeq ($(DODEBUG),true)
     CFLAGS += -Wall -g
-    LDFLAGS = -nostdlib 
+    LDFLAGS = -nostdlib -Wl,-warn-common 
 else
     CFLAGS  += -Wall #-fomit-frame-pointer
-    LDFLAGS  = -s -nostdlib
+    LDFLAGS  = -s -nostdlib -Wl,-warn-common
 endif
 
 ifndef $(PREFIX)

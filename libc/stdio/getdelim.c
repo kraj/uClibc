@@ -58,13 +58,13 @@ size_t getdelim(char **linebuf, size_t *linebufsz, int delimiter, FILE *file)
 				return -1;
 			}
 		}
-		*linebuf[idx++] = (char)ch;
+		(*linebuf)[idx++] = (char)ch;
 		if ((char)ch == delimiter)
 			break;
 	}
 
 	if (idx != 0)
-	    *linebuf[idx] = 0;
+	    (*linebuf)[idx] = 0;
 	return idx;
 }
 

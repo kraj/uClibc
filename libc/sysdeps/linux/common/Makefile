@@ -29,7 +29,8 @@ LIBC=$(TOPDIR)libc.a
 CSRC =closedir.o dirfd.o getdents.o getdnnm.o gethstnm.o getpagesize.o \
 	isatty.o kernel_version.o mkfifo.o opendir.o readdir.o rewinddir.o \
 	seekdir.o setegid.o seteuid.o setpgrp.o statfix.o tcgetatr.o tell.o \
-	telldir.o wait.o wait3.o _xmknod.o _fxstat.o _lxstat.o _xstat.o
+	telldir.o wait.o wait3.o _xmknod.o _fxstat.o _lxstat.o _xstat.o \
+	libc_init.o
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 

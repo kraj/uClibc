@@ -4,7 +4,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-void usleep(unsigned long usec)
+void usleep(unsigned int usec)
 {
 	struct timeval tv;
 

@@ -6,6 +6,7 @@
  * under the GNU Library General Public License.
  */
 
+#define USE_CTYPE_C_FUNCTIONS
 #include <ctype.h>
 
 int

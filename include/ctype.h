@@ -4,6 +4,10 @@
 #ifndef __CTYPE_H
 #define __CTYPE_H
 
+/* For now, just always use the functions instead of the macros...*/
+#define USE_CTYPE_C_FUNCTIONS
+
+
 #ifdef USE_CTYPE_C_FUNCTIONS
 /* function prototpes */ 
 extern int isalnum(int c);

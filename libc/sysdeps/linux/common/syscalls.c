@@ -44,13 +44,13 @@ _syscall0(pid_t, fork);
 //#define __NR_read             3
 #ifdef L_read
 #include <unistd.h>
-_syscall3(size_t, read, int, fd, char *, buf, size_t, count);
+_syscall3(ssize_t, read, int, fd, __ptr_t, buf, size_t, count);
 #endif
 
 //#define __NR_write            4
 #ifdef L_write
 #include <unistd.h>
-_syscall3(size_t, write, int, fd, const char *, buf, size_t, count);
+_syscall3(ssize_t, write, int, fd, const __ptr_t, buf, size_t, count);
 #endif
 
 //#define __NR_open             5

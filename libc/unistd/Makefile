@@ -25,7 +25,8 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 
-CSRC=execl.c execlp.c execv.c execvep.c execvp.c getcwd.c getopt.c sleep.c
+CSRC=execl.c execlp.c execv.c execvep.c execvp.c getcwd.c getopt.c \
+	sleep.c sysconf.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 

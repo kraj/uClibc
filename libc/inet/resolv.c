@@ -689,12 +689,12 @@ int resolve_mailbox(const char *address,
 #endif
 
 extern int nameservers;
-extern const char *__const nameserver[3];
+extern const char *nameserver[3];
 
 #ifdef L_opennameservers
 
 int nameservers;
-const char *__const nameserver[3];
+const char * nameserver[3];
 
 int open_nameservers()
 {

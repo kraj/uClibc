@@ -18,8 +18,6 @@
 
 #include <errno.h>
 #include <features.h>
-#define _EXTERN_INLINE
-#define __USE_EXTERN_INLINES   1
 #include "signal.h"
 
 

@@ -8,6 +8,8 @@
 #include <malloc.h>
 #include <signal.h>
 
+extern char *itoa(int i);
+
 const char *const sys_siglist[] = {
 	"Unknown signal",
 	"Hangup",

@@ -22,7 +22,8 @@
 
 #ifdef __STDC__
 
-#define __P(x) x
+#define __P(x)	    x
+#define __PMT(x)    x
 #define __const const
 
 /* Almost ansi */
@@ -53,7 +54,6 @@
 #define __USE_POSIX
 #define __USE_POSIX2
 #define __USE_XOPEN
-#define _POSIX_THREAD_SAFE_FUNCTIONS
 
 
 #include <sys/cdefs.h>

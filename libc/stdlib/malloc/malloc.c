@@ -101,12 +101,11 @@ typedef int mutex_t;
 #define mutex_unlock(x)
 #define mutex_init(x)
 #define MUTEX_INITIALIZER 0
+//static mutex_t malloc_lock = MUTEX_INITIALIZER;
 #endif
 
 static int mmalloc_initialized = -1;
  /* -1 == uninitialized, 0 == initializing, 1 == initialized */
-
-static mutex_t malloc_lock = MUTEX_INITIALIZER;
 
 #ifndef MAP_FAILED
 #define MAP_FAILED ((void*)-1)
