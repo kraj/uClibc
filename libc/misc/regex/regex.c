@@ -21,6 +21,7 @@
 
 /* To exclude some unwanted junk.... */
 #undef _LIBC
+#define _REGEX_RE_COMP
 
 /* AIX requires this to be the first thing in the file. */
 #if defined _AIX && !defined REGEX_MALLOC
