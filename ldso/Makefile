@@ -21,21 +21,18 @@ include $(TOPDIR)Rules.mak
 
 DIRS = ldso libdl
 
-all: ldso
+all: ldso libdl
 
+ifeq ($(strip $(BUILD_UCLIBC_LDSO)),y)
 ldso: headers
-ifeq ($(strip $(BUILD_UCLIBC_LDSO)),y)
 	$(MAKE) -C ldso
-else
-	echo "Not building ld-uClibc"
-endif
-
-shared: libdl
 libdl: ldso headers
-ifeq ($(strip $(BUILD_UCLIBC_LDSO)),y)
 	$(MAKE) -C libdl
+shared: libdl
+	$(MAKE) -C libdl shared
 else
-	echo "Not building libdl"
+ldso libdl shared:
+	echo "Skipping $@ target"
 endif
 
 HEADERS = $(patsubst %, include/%, elf.h dl-startup.h dl-syscalls.h dl-sysdep.h)
