@@ -1578,6 +1578,11 @@ int gethostbyname_r(const char * name,
 		case HOST_NOT_FOUND:
 		case NO_ADDRESS:
 			break;
+		case NETDB_INTERNAL:
+			if (errno == ENOENT) {
+			    break;
+			}
+			/* else fall through */
 		default:
 			return i;
 	}
