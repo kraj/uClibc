@@ -22,6 +22,7 @@
  */
 
 #include <errno.h>
+#include <unistd.h>
 #include <features.h>
 #include <sys/types.h>
 #include <sys/syscall.h>

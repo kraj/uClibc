@@ -26,12 +26,12 @@ ASFLAGS=$(CFLAGS)
 
 TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
 
-ifeq ($(TARGET_MACHINE_TYPE),arm-pic-elf)
+ifeq ($(DOPIC),true)
     CRT0=crt0pic.S
 else
     CRT0=crt0.S
 endif
-CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
+CRT0_OBJ=crt0.o
 
 SSRC=longjmp.S setjmp.S vfork.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
@@ -50,7 +50,7 @@ ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 	cp $(CRT0_OBJ) $(TOPDIR)libc/$(CRT0_OBJ)
 
-$(CRT0_OBJ): %.o : %.S
+$(CRT0_OBJ): $(CRT0)
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
