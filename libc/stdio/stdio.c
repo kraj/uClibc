@@ -203,11 +203,11 @@ void __stdio_flush_buffers(void)
 	if (WRITEABLE(fp)) {
 	    /* Set the underlying fd to non-block mode to ensure
 	     * that calls to _exit() and abort() will not block */
-	    long flags;
-	    fcntl(fp->fd, F_GETFL, &flags);
-	    fcntl(fp->fd, F_SETFL, flags|O_NONBLOCK);
+	    int opts;
+	    opts = fcntl(fp->fd, F_GETFL);
+	    fcntl(fp->fd, F_SETFL, opts|O_NONBLOCK);
 	    fflush(fp);
-	    fcntl(fp->fd, F_SETFL, flags);
+	    fcntl(fp->fd, F_SETFL, opts);
 	}
     }
 }
