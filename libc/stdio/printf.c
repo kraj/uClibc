@@ -88,8 +88,8 @@
 
 /* These are now set in the Makefile based on Config. */
 /*
-#define WANT_LONG_LONG         0
-#define WANT_DOUBLE            0
+#define __UCLIBC_HAS_LONG_LONG__         0
+#define __UCLIBC_HAS_FLOATS__            0
 */
 
 /*   2) An error message is inserted into the stream, an arg of the
@@ -101,7 +101,7 @@
  */
 
 #define WANT_LONG_LONG_ERROR   0
-#define WANT_DOUBLE_ERROR      0
+#define WANT_FLOAT_ERROR      0
 
 /*
  * Set to support GNU extension of %m to print string corresponding to errno.
@@ -317,21 +317,21 @@ enum {
 /* layout                   01234  */
 static const char spec[] = "+-#0 ";
 
-#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
+#if __UCLIBC_HAS_LONG_LONG__ || WANT_LONG_LONG_ERROR
 static const char qual[] = "hlLq";
 #else
 static const char qual[] = "hl";
 #endif
 
-#if !WANT_LONG_LONG && WANT_LONG_LONG_ERROR
+#if !__UCLIBC_HAS_LONG_LONG__ && WANT_LONG_LONG_ERROR
 static const char ll_err[] = "<LONG-LONG>";
 #endif
 
-#if !WANT_DOUBLE && WANT_DOUBLE_ERROR
+#if !__UCLIBC_HAS_FLOATS__ && WANT_FLOAT_ERROR
 static const char dbl_err[] = "<DOUBLE>";
 #endif
 
-#if WANT_DOUBLE || WANT_DOUBLE_ERROR
+#if __UCLIBC_HAS_FLOATS__ || WANT_FLOAT_ERROR
 /* layout                     012345678901234567   */
 static const char u_spec[] = "%nbopxXudicsfgGeEaA";
 #else
@@ -352,7 +352,7 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 	int preci, width;
 #define upcase i
 	int radix, dpoint /*, upcase*/;
-#if WANT_LONG_LONG
+#if __UCLIBC_HAS_LONG_LONG__
 	char tmp[65];
 #else
 	char tmp[33];
@@ -435,12 +435,12 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 				if (*p == *fmt) {
 					lval = p - qual;
 					++fmt;
-#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
+#if __UCLIBC_HAS_LONG_LONG__ || WANT_LONG_LONG_ERROR
 					if ((*p == 'l') && (*fmt == *p)) {
 						++lval;
 						++fmt;
 					}
-#endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
+#endif /* __UCLIBC_HAS_LONG_LONG__ || WANT_LONG_LONG_ERROR */
 				}
 			}
 
@@ -470,18 +470,18 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 						lval = (sizeof(char *) == sizeof(long));
 						upcase = 0;
 					}
-#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
+#if __UCLIBC_HAS_LONG_LONG__ || WANT_LONG_LONG_ERROR
 					if (lval >= 2) {
-#if WANT_LONG_LONG
+#if __UCLIBC_HAS_LONG_LONG__
 						p = __ulltostr(tmp + sizeof(tmp) - 1,
 									   va_arg(ap, unsigned long long),
 									   radix, upcase);
 #else
 						(void) va_arg(ap, unsigned long long);	/* cary on */
 						p = (char *) ll_err;
-#endif /* WANT_LONG_LONG */
+#endif /* __UCLIBC_HAS_LONG_LONG__ */
 					} else {
-#endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
+#endif /* __UCLIBC_HAS_LONG_LONG__ || WANT_LONG_LONG_ERROR */
 #if UINT_MAX != ULONG_MAX
 						/* sizeof(unsigned int) != sizeof(unsigned long) */
 						p = __ultostr(tmp + sizeof(tmp) - 1, (unsigned long)
@@ -495,9 +495,9 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 									  va_arg(ap, unsigned long),
 									  radix, upcase);
 #endif
-#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
+#if __UCLIBC_HAS_LONG_LONG__ || WANT_LONG_LONG_ERROR
 					}
-#endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
+#endif /* __UCLIBC_HAS_LONG_LONG__ || WANT_LONG_LONG_ERROR */
 					flag[FLAG_PLUS] = '\0';	/* meaningless for unsigned */
 					if (flag[FLAG_HASH] && (*p != '0')) { /* non-zero */
 						if (radix == 8) {
@@ -514,17 +514,17 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 						}
 					}
 				} else if (p-u_spec < 10) { /* signed conversion */
-#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
+#if __UCLIBC_HAS_LONG_LONG__ || WANT_LONG_LONG_ERROR
 					if (lval >= 2) {
-#if WANT_LONG_LONG
+#if __UCLIBC_HAS_LONG_LONG__
 						p = __lltostr(tmp + sizeof(tmp) - 1,
 									  va_arg(ap, long long), 10, 0);
 #else
 						(void) va_arg(ap, long long); /* carry on */
 						p = (char *) ll_err;
-#endif /* WANT_LONG_LONG */
+#endif /* __UCLIBC_HAS_LONG_LONG__ */
 					} else {
-#endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
+#endif /* __UCLIBC_HAS_LONG_LONG__ || WANT_LONG_LONG_ERROR */
 #if INT_MAX != LONG_MAX
 						/* sizeof(int) != sizeof(long) */
 						p = __ltostr(tmp + sizeof(tmp) - 1, (long)
@@ -536,9 +536,9 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 						p = __ltostr(tmp + sizeof(tmp) - 1, (long)
 									 va_arg(ap, long), 10, 0);
 #endif
-#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
+#if __UCLIBC_HAS_LONG_LONG__ || WANT_LONG_LONG_ERROR
 					}
-#endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
+#endif /* __UCLIBC_HAS_LONG_LONG__ || WANT_LONG_LONG_ERROR */
 				} else if (p-u_spec < 12) {	/* character or string */
 					flag[FLAG_PLUS] = '\0';
 					flag[FLAG_0_PAD] = ' ';
@@ -551,10 +551,10 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 							p = "(null)";
 						}
 					}
-#if WANT_DOUBLE || WANT_DOUBLE_ERROR
+#if __UCLIBC_HAS_FLOATS__ || WANT_FLOAT_ERROR
 				} else if (p-u_spec < 27) {		/* floating point */
-#endif /* WANT_DOUBLE || WANT_DOUBLE_ERROR */
-#if WANT_DOUBLE
+#endif /* __UCLIBC_HAS_FLOATS__ || WANT_FLOAT_ERROR */
+#if __UCLIBC_HAS_FLOATS__
 					if (preci < 0) {
 						preci = 6;
 					}
@@ -565,11 +565,11 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 									 : va_arg(ap, double)),
 									flag, width,  preci, *fmt);
 					goto nextfmt;
-#elif WANT_DOUBLE_ERROR
+#elif WANT_FLOAT_ERROR
 					(void) ((lval > 1) ? va_arg(ap, long double)
 							: va_arg(ap, double)); /* carry on */
 					p = (char *) dbl_err;
-#endif /* WANT_DOUBLE */
+#endif /* __UCLIBC_HAS_FLOATS__ */
 				}
 
 #if WANT_GNU_ERRNO

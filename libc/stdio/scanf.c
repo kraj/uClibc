@@ -135,26 +135,6 @@ _strto_ll(const char *str, char **endptr, int base, int uflag);
 extern unsigned long
 _strto_l(const char *str, char **endptr, int base, int uflag);
 
-/* #define	skip()	do{c=getc(fp); if (c<1) goto done;}while(isspace(c))*/
-
-#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
-static const char qual[] = "hl" /* "jtz" */ "Lq";
-/* char = -2, short = -1, int = 0, long = 1, long long = 2 */
-static const char qsz[] = { -1, 1,           2, 2 };
-#else
-static const char qual[] = "hl" /* "jtz" */;
-static const char qsz[] = { -1, 1,         };
-#endif
-
-#if WANT_DOUBLE || WANT_DOUBLE_ERROR
-						   /*01234567890123456 */
-static const char spec[]  = "%n[csoupxXidfeEgG";
-#else
-static const char spec[]  = "%n[csoupxXid";
-#endif
-/* radix[i] <-> spec[i+5]     o   u   p   x   X  i   d */
-static const char radix[] = { 8, 10, 16, 16, 16, 0, 10 };
-
 struct scan_cookie {
 	FILE *fp;
 	int nread;
@@ -163,7 +143,24 @@ struct scan_cookie {
 	int ungot_flag;
 };
 
+#if __UCLIBC_HAS_LONG_LONG__
+static const char qual[] = "hl" /* "jtz" */ "Lq";
+/* char = -2, short = -1, int = 0, long = 1, long long = 2 */
+static const char qsz[] = { -1, 1,           2, 2 };
+#else
+static const char qual[] = "hl" /* "jtz" */;
+static const char qsz[] = { -1, 1,         };
+#endif
+
+#if __UCLIBC_HAS_FLOATS__
 static int __strtold(long double *ld, struct scan_cookie *sc);
+						   /*01234567890123456 */
+static const char spec[]  = "%n[csoupxXidfeEgG";
+#else
+static const char spec[]  = "%n[csoupxXid";
+#endif
+/* radix[i] <-> spec[i+5]     o   u   p   x   X  i   d */
+static const char radix[] = { 8, 10, 16, 16, 16, 0, 10 };
 
 static void init_scan_cookie(struct scan_cookie *sc, FILE *fp)
 {
@@ -228,7 +225,7 @@ FILE *fp;
 const char *format;
 va_list ap;
 {
-#if WANT_LONG_LONG
+#if __UCLIBC_HAS_LONG_LONG__
 #define STRTO_L_(s,e,b,u) _strto_ll(s,e,b,u)
 #define MAX_DIGITS 64
 #define UV_TYPE unsigned long long
@@ -239,7 +236,7 @@ va_list ap;
 #define UV_TYPE unsigned long
 #define V_TYPE long
 #endif
-#if WANT_DOUBLE
+#if __UCLIBC_HAS_FLOATS__
 	long double ld;
 #endif
 	UV_TYPE uv;
@@ -429,7 +426,7 @@ va_list ap;
 						vp = va_arg(ap, void *);
 						switch (lval) {
 							case 2:	/* If no long long, treat as long . */
-#if WANT_LONG_LONG
+#if __UCLIBC_HAS_LONG_LONG__
 								*((unsigned long long *)vp) = uv;
 								break;
 #endif
@@ -437,7 +434,7 @@ va_list ap;
 #if ULONG_MAX == UINT_MAX
 							case 0:	/* int and long int are the same */
 #endif
-#if WANT_LONG_LONG
+#if __UCLIBC_HAS_LONG_LONG__
 								if (usflag) {
 									if (uv > ULONG_MAX) {
 										uv = ULONG_MAX;
@@ -495,7 +492,7 @@ va_list ap;
 					}
 					goto nextfmt;
 				}
-#if WANT_DOUBLE
+#if __UCLIBC_HAS_FLOATS__
 				else {			/* floating point */
 					if (sc.width <= 0) {
 						goto done;
@@ -555,7 +552,7 @@ va_list ap;
 }
 
 /*****************************************************************************/
-#if WANT_DOUBLE
+#if __UCLIBC_HAS_FLOATS__
 
 #include <float.h>
 
@@ -690,5 +687,5 @@ int __strtold(long double *ld, struct scan_cookie *sc)
 	scan_ungetc(sc);
 	return 0;
 }
-#endif /* WANT_DOUBLE */
+#endif /* __UCLIBC_HAS_FLOATS__ */
 #endif
