@@ -17,61 +17,44 @@
 #include <unistd.h>
 #include "malloc.h"
 
-#define MIN(x,y) ({ \
-	const typeof(x) _x = (x);       \
-	const typeof(y) _y = (y);       \
-	(void) (&_x == &_y);            \
-	_x < _y ? _x : _y; })
-
-
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-static pthread_mutex_t malloclock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	pthread_mutex_lock(&malloclock)
-# define UNLOCK	pthread_mutex_unlock(&malloclock);
+pthread_mutex_t __malloclock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK	pthread_mutex_lock(&__malloclock)
+# define UNLOCK	pthread_mutex_unlock(&__malloclock);
 #else
 # define LOCK
 # define UNLOCK
 #endif
+
+
+/* Stuff that is shared across .o files */
+
+/* Pointer to the base of the first block. */
+char *_heapbase;
+/* Block information table. */
+union info *_heapinfo;
+/* Search index in the info table. */
+size_t _heapindex;
+/* Limit of valid info table indices. */
+size_t _heaplimit;
+/* List of blocks allocated with memalign or valloc */
+struct alignlist *_aligned_blocks;
+
     
-static void * malloc_unlocked (size_t size);
-static void free_unlocked(void *ptr);
+
+/* Stuff that is local to this .o file only */
 
 /* How to really get more memory. */
 static void * __morecore(long size);
-
-/* Pointer to the base of the first block. */
-static char *_heapbase;
-
-/* Block information table. */
-static union info *_heapinfo;
-
 /* Number of info entries. */
 static size_t heapsize;
-
-/* Search index in the info table. */
-static size_t _heapindex;
-
-/* Limit of valid info table indices. */
-static size_t _heaplimit;
-
 /* Count of large blocks allocated for each fragment size. */
 static size_t _fragblocks[BLOCKLOG];
-
 /* Free lists for each fragment size. */
 static struct list _fraghead[BLOCKLOG];
-
 /* Are we experienced? */
 static int initialized;
-
-/* List of blocks allocated with memalign or valloc */
-struct alignlist
-{ 
-    struct alignlist *next;
-    __ptr_t aligned;	/* The address that memaligned returned.  */
-    __ptr_t exact;	/* The address that malloc returned.  */
-};
-static struct alignlist *_aligned_blocks;
 
 
 /* Aligned allocation.
@@ -141,7 +124,7 @@ static void * morecore(size_t size)
 	newinfo[BLOCK(oldinfo)].busy.info.size
 	    = BLOCKIFY(heapsize * sizeof (union info));
 	_heapinfo = newinfo;
-	free_unlocked(oldinfo);
+	__free_unlocked(oldinfo);
 	heapsize = newsize;
     }
 
@@ -166,12 +149,12 @@ void * malloc (size_t size)
 {
     void * ptr;
     LOCK;
-    ptr = malloc_unlocked(size);
+    ptr = __malloc_unlocked(size);
     UNLOCK;
     return(ptr);
 }
 
-static void * malloc_unlocked (size_t size)
+void * __malloc_unlocked (size_t size)
 {
     void *result;
     size_t log, block, blocks, i, lastblocks, start;
@@ -216,7 +199,7 @@ static void * malloc_unlocked (size_t size)
 	} else {
 	    /* No free fragments of the desired size, so get a new block
 	       and break it into fragments, returning the first. */
-	    result = malloc_unlocked(BLOCKSIZE);
+	    result = __malloc_unlocked(BLOCKSIZE);
 	    if (!result) {
 		return NULL;
 	    }
@@ -327,11 +310,11 @@ void free(void *ptr)
 	}
     }
 
-    free_unlocked(ptr);
+    __free_unlocked(ptr);
     UNLOCK;
 }
 
-static void free_unlocked(void *ptr)
+void __free_unlocked(void *ptr)
 {
     int block, blocks, i, type;
     struct list *prev, *next;
@@ -418,7 +401,7 @@ static void free_unlocked(void *ptr)
 		    next->prev = prev->prev;
 		_heapinfo[block].busy.type = 0;
 		_heapinfo[block].busy.info.size = 1;
-		free_unlocked(ADDRESS(block));
+		__free_unlocked(ADDRESS(block));
 	    } else if (_heapinfo[block].busy.info.frag.nfree) {
 		/* If some fragments of this block are free, link this fragment
 		   into the fragment list after the first free fragment of
@@ -447,153 +430,5 @@ static void free_unlocked(void *ptr)
 	    }
 	    break;
     }
-}
-
-/* Resize the given region to the new size, returning a pointer
-   to the (possibly moved) region.  This is optimized for speed;
-   some benchmarks seem to indicate that greater compactness is
-   achieved by unconditionally allocating and copying to a
-   new region. */
-void * realloc (void *ptr, size_t size)
-{
-    void *result, *previous;
-    size_t block, blocks, type;
-    size_t oldlimit;
-
-    if (!ptr)
-	return malloc(size);
-    if (!size) {
-	LOCK;
-	free_unlocked(ptr);
-	result = malloc_unlocked(0);
-	UNLOCK;
-	return(result);
-    }
-
-    LOCK;
-    block = BLOCK(ptr);
-
-    switch (type = _heapinfo[block].busy.type) {
-	case 0:
-	    /* Maybe reallocate a large block to a small fragment. */
-	    if (size <= BLOCKSIZE / 2) {
-		if ((result = malloc_unlocked(size)) != NULL) {
-		    memcpy(result, ptr, size);
-		    free_unlocked(ptr);
-		}
-		UNLOCK;
-		return result;
-	    }
-
-	    /* The new size is a large allocation as well; see if
-	       we can hold it in place. */
-	    blocks = BLOCKIFY(size);
-	    if (blocks < _heapinfo[block].busy.info.size) {
-		/* The new size is smaller; return excess memory
-		   to the free list. */
-		_heapinfo[block + blocks].busy.type = 0;
-		_heapinfo[block + blocks].busy.info.size
-		    = _heapinfo[block].busy.info.size - blocks;
-		_heapinfo[block].busy.info.size = blocks;
-		free_unlocked(ADDRESS(block + blocks));
-		UNLOCK;
-		return ptr;
-	    } else if (blocks == _heapinfo[block].busy.info.size) {
-		/* No size change necessary. */
-		UNLOCK;
-		return ptr;
-	    } else {
-		/* Won't fit, so allocate a new region that will.  Free
-		   the old region first in case there is sufficient adjacent
-		   free space to grow without moving. */
-		blocks = _heapinfo[block].busy.info.size;
-		/* Prevent free from actually returning memory to the system. */
-		oldlimit = _heaplimit;
-		_heaplimit = 0;
-		free_unlocked(ptr);
-		_heaplimit = oldlimit;
-		result = malloc_unlocked(size);
-		if (!result) {
-		    /* Now we're really in trouble.  We have to unfree
-		       the thing we just freed.  Unfortunately it might
-		       have been coalesced with its neighbors. */
-		    if (_heapindex == block)
-			malloc_unlocked(blocks * BLOCKSIZE);
-		    else {
-			previous = malloc_unlocked((block - _heapindex) * BLOCKSIZE);
-			malloc_unlocked(blocks * BLOCKSIZE);
-			free_unlocked(previous);
-		    }	    
-		    UNLOCK;
-		    return NULL;
-		}
-		if (ptr != result)
-		    memmove(result, ptr, blocks * BLOCKSIZE);
-		UNLOCK;
-		return result;
-	    }
-	    break;
-
-	default:
-	    /* Old size is a fragment; type is logarithm to base two of
-	       the fragment size. */
-	    if ((size > 1 << (type - 1)) && (size <= 1 << type)) {
-		/* New size is the same kind of fragment. */
-		UNLOCK;
-		return ptr;
-	    }
-	    else {
-		/* New size is different; allocate a new space, and copy
-		   the lesser of the new size and the old. */
-		result = malloc_unlocked(size);
-		if (!result) {
-		    UNLOCK;
-		    return NULL;
-		}
-		memcpy(result, ptr, MIN(size, (size_t)(1 << type)));
-		free_unlocked(ptr);
-		UNLOCK;
-		return result;
-	    }
-	    break;
-    }
-    UNLOCK;
-}
-
-__ptr_t memalign (size_t alignment, size_t size)
-{
-    __ptr_t result;
-    unsigned long int adj;
-
-    result = malloc (size + alignment - 1);
-    if (result == NULL)
-	return NULL;
-    adj = (unsigned long int) ((unsigned long int) ((char *) result -
-		(char *) NULL)) % alignment;
-    if (adj != 0)
-    {
-	struct alignlist *l;
-	LOCK;
-	for (l = _aligned_blocks; l != NULL; l = l->next)
-	    if (l->aligned == NULL)
-		/* This slot is free.  Use it.  */
-		break;
-	if (l == NULL)
-	{
-	    l = (struct alignlist *) malloc (sizeof (struct alignlist));
-	    if (l == NULL) {
-		free_unlocked (result);
-		UNLOCK;
-		return NULL;
-	    }
-	    l->next = _aligned_blocks;
-	    _aligned_blocks = l;
-	}
-	l->exact = result;
-	result = l->aligned = (char *) result + alignment - adj;
-	UNLOCK;
-    }
-
-    return result;
 }
 

@@ -10,6 +10,15 @@
 
 #include <sys/cdefs.h>
 
+
+#define MIN(x,y) ({ \
+	const typeof(x) _x = (x);       \
+	const typeof(y) _y = (y);       \
+	(void) (&_x == &_y);            \
+	_x < _y ? _x : _y; })
+
+
+
 /* The allocator divides the heap into blocks of fixed size; large
    requests receive one or more whole blocks, and small requests
    receive a fragment of a block.  Fragment sizes are powers of two,
@@ -59,4 +68,22 @@ struct list {
     struct list *next;
     struct list *prev;
 };
+
+/* List of blocks allocated with memalign or valloc */
+struct alignlist
+{ 
+    struct alignlist *next;
+    __ptr_t aligned;	/* The address that memaligned returned.  */
+    __ptr_t exact;	/* The address that malloc returned.  */
+};
+extern struct alignlist *_aligned_blocks;
+extern char *_heapbase;
+extern union info *_heapinfo;
+extern size_t _heapindex;
+extern size_t _heaplimit;
+
+
+extern void *__malloc_unlocked (size_t size);
+extern void __free_unlocked(void *ptr);
+
 
