@@ -32,9 +32,9 @@ asm(
 	"\tstwu	1,-32(1)\n"
 	"\tmtlr 0\n"
 	//"\tstw 0,0(1)\n"
-	"\tb _start2\n
-	
-	");
+/* XXX fixme.  We want this to be an internally resolved jump */
+//	"\tb _start2@xxx\n"
+	);
 
 
 /* Stick in a dummy reference to main(), so that if an application
