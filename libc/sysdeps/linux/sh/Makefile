@@ -61,6 +61,9 @@ $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
+headers:
+	# no arch-specific headers
+
 clean:
 	rm -f *.[oa] *~ core
 

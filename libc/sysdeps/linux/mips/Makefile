@@ -71,6 +71,9 @@ $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
+headers:
+	cd $(TOPDIR)/include;ln -s ../libc/sysdeps/linux/mipsel/sgidefs.h .
+
 clean:
 	rm -f *.[oa] *~ core
 

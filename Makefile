@@ -69,6 +69,7 @@ headers: dummy
 	@ln -s $(KERNEL_SOURCE)/include/linux include/linux
 	@ln -s ../libc/sysdeps/linux/$(TARGET_ARCH)/bits include/bits
 	(cd include/bits; ln -sf ../../../../../uClibc_config.h uClibc_config.h)
+	make -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
 uClibc_config.h: Config
 	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > uClibc_config.h
@@ -169,7 +170,7 @@ install_dev:
 
 clean:
 	@rm -rf tmp lib
-	rm -f include/asm include/linux include/bits uClibc_config.h
+	- find include -type l -exec rm -f {} \;
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core \) -exec rm -f {} \;
 
 .PHONY: dummy subdirs
