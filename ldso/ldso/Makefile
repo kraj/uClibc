@@ -1,8 +1,6 @@
 TOPDIR=../../
 include $(TOPDIR)/ld.so-1/Rules.mak
 
-DIRS = $(TARGET_ARCH)
-
 CFLAGS += -DNO_UNDERSCORE -DVERBOSE_DLINKER
 CFLAGS += -DUSE_CACHE -fPIC -D__PIC__ #-funroll-loops
 
@@ -12,7 +10,10 @@ OBJS=$(COBJS)
 
 ELF_LDFLAGS=--shared # using GNU ld
 
-all: lib
+all: sysdeps lib
+
+sysdeps:
+	make -C $(TARGET_ARCH)
 
 lib:: $(OBJS)
 	$(LD) -e _dl_boot $(ELF_LDFLAGS) -o $(DLINKER).$(LDSO_VMAJOR) \
@@ -28,3 +29,4 @@ realclean::
 clean::
 	$(RM) -f $(DLINKER)* core *.o *.a *.s *.i tmp_make foo *~
 
+.PHONY: sysdeps
