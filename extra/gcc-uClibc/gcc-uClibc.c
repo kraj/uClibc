@@ -136,8 +136,10 @@ int main(int argc, char **argv)
 	int use_build_dir = 0, linking = 1, use_static_linking = 0;
 	int use_stdinc = 1, use_start = 1, use_stdlib = 1;
 	int source_count = 0, use_rpath = 0, verbose = 0;
-	int i, j;
+	int i, j, k, l, m;
 	char ** gcc_argv;
+	char ** gcc_argument;
+	char ** libraries;
 	char *dlstr;
 	char *incstr;
 	char *devprefix;
@@ -198,6 +200,16 @@ int main(int argc, char **argv)
 		use_rpath = 1;
 	}
 
+#if 1
+	m = 0;
+	libraries = __builtin_alloca(sizeof(char*) * (argc));
+#else
+	if (!(libraries = malloc(sizeof(char) * (argc)))) {
+		return EXIT_FAILURE;
+	}
+#endif
+	libraries[m] = '\0';
+
 	for ( i = 1 ; i < argc ; i++ ) {
 		if (argv[i][0] == '-') { /* option */
 			switch (argv[i][1]) {
@@ -208,6 +220,10 @@ int main(int argc, char **argv)
 				case 'i':		/* partial-link */
 				case 'M':       /* map file generation */
 					if (argv[i][2] == 0) linking = 0;
+					break;
+				case 'l':       /* map file generation */
+					libraries[m++] = argv[i];
+					libraries[m] = '\0';
 					break;
 				case 'v':		/* verbose */
 					if (argv[i][2] == 0) verbose = 1;
@@ -225,7 +241,7 @@ int main(int argc, char **argv)
 					}
 					break;
 				case 's':
-					if (strcmp(static_linking,argv[i]) == 0) {
+					if (strstr(argv[i],static_linking) != NULL) {
 						use_static_linking = 1;
 					}
 					break;
@@ -240,7 +256,7 @@ int main(int argc, char **argv)
 					}
 					break;
 				case '-':
-					if (strcmp(static_linking,argv[i]+1) == 0) {
+					if (strstr(argv[i]+1,static_linking) != NULL) {
 						use_static_linking = 1;
 					}
 					break;
@@ -252,13 +268,17 @@ int main(int argc, char **argv)
 
 #if 1
 	gcc_argv = __builtin_alloca(sizeof(char*) * (argc + 20));
+	gcc_argument = __builtin_alloca(sizeof(char*) * (argc + 20));
 #else
 	if (!(gcc_argv = malloc(sizeof(char) * (argc + 20)))) {
 		return EXIT_FAILURE;
 	}
+	if (!(gcc_argument = malloc(sizeof(char) * (argc + 20)))) {
+		return EXIT_FAILURE;
+	}
 #endif
 
-	i = 0;
+	i = 0; k = 0;
 	gcc_argv[i++] = GCC_BIN;
 	
 	for ( j = 1 ; j < argc ; j++ ) {
@@ -266,21 +286,27 @@ int main(int argc, char **argv)
 			use_build_dir = 1;
 		} else if (strcmp("--uclibc-use-rpath",argv[j]) == 0) {
 			use_rpath = 1;
-		} 
-		else {
-			gcc_argv[i++] = argv[j];
+		} else if (strncmp("-l",argv[j], 2) == 0) {
+			continue;
+		} else if (strstr(argv[j],static_linking) != NULL) {
+			continue;
+		} else if (strncmp("-Wl,",argv[j], 2) == 0) {
+			if (strstr(argv[j],static_linking) != NULL) {
+				continue;
+			}
+		} else {
+			gcc_argument[k++] = argv[j];
+			gcc_argument[k] = '\0';
 		}
 	}
 
-	if (use_stdinc) {
-		gcc_argv[i++] = nostdinc;
-		gcc_argv[i++] = uClibc_inc[use_build_dir];
-		gcc_argv[i++] = GCC_INCDIR;
-		if( incstr )
-			gcc_argv[i++] = incstr;
-	}
-
 	if (linking && source_count) {
+		if (use_stdlib) {
+			gcc_argv[i++] = nostdlib;
+		}
+		if (use_static_linking) {
+			gcc_argv[i++] = static_linking;
+		}
 		if (!use_static_linking) {
 			if (dlstr && use_build_dir) {
 				gcc_argv[i++] = build_dlstr;
@@ -298,14 +324,46 @@ int main(int argc, char **argv)
 		if (!use_build_dir) {
 			gcc_argv[i++] = usr_lib_path;
 		}
+#ifdef ENABLE_CRTBE
+			gcc_argv[i++] = GCC_LIB_DIR "crtbegin.o" ;
+			//gcc_argv[i++] = GCC_LIB_DIR "crti.o" ;
+#endif
 		if (use_start) {
 			gcc_argv[i++] = crt0_path[use_build_dir];
 		}
-		if (use_stdlib) {
-			gcc_argv[i++] = nostdlib;
-			gcc_argv[i++] = "-lc";
-			gcc_argv[i++] = GCC_LIB;
+		for ( l = 0 ; l < k ; l++ ) {
+			if (gcc_argument[l]) gcc_argv[i++] = gcc_argument[l];
 		}
+		if (use_stdlib) {
+			//gcc_argv[i++] = "-Wl,--start-group";
+			gcc_argv[i++] = "-lgcc";
+			for ( l = m ; l >= 0 ; l-- ) {
+				if (libraries[l]) gcc_argv[i++] = libraries[l];
+			}
+			gcc_argv[i++] = "-lc";
+			gcc_argv[i++] = "-lgcc";
+			//gcc_argv[i++] = "-Wl,--end-group";
+		}
+#ifdef ENABLE_CRTBE
+		if (use_start) {
+			gcc_argv[i++] = GCC_LIB_DIR "crtend.o" ;
+			//gcc_argv[i++] = GCC_LIB_DIR "crtn.o" ;
+		}
+#endif
+	}
+	if (!linking) {
+	    if (use_stdinc) {
+		gcc_argv[i++] = nostdinc;
+		gcc_argv[i++] = uClibc_inc[use_build_dir];
+		gcc_argv[i++] = GCC_INCDIR;
+		if( incstr )
+		    gcc_argv[i++] = incstr;
+	    }
+	    if (source_count) {
+		for ( l = 0 ; l < k ; l++ ) {
+		    if (gcc_argument[l]) gcc_argv[i++] = gcc_argument[l];
+		}
+	    }
 	}
 	gcc_argv[i++] = NULL;
 
