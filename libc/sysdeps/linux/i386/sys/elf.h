@@ -1,4 +1,4 @@
-/* Copyright (C) 1999 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,9 +16,11 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#if defined __arch64__ || defined __sparcv9
-# define __WORDSIZE    64
-#else
-# define __WORDSIZE    32
-#endif
+#ifndef _SYS_ELF_H
+#define _SYS_ELF_H	1
 
+#warning "This header is obsolete; use <sys/procfs.h> instead."
+
+#include <sys/procfs.h>
+
+#endif	/* _SYS_ELF_H */

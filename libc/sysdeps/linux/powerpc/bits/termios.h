@@ -1,20 +1,20 @@
-/* Copyright (C) 1997, 1999 Free Software Foundation, Inc.
+/* Copyright (C) 1997, 1999, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _TERMIOS_H
 # error "Never include <bits/termios.h> directly; use <termios.h> instead."
@@ -24,31 +24,28 @@ typedef unsigned char	cc_t;
 typedef unsigned int	speed_t;
 typedef unsigned int	tcflag_t;
 
-/* note: this is fixed to be the same as the kernel, not glibc */
+/*
+ * termios type and macro definitions.  Be careful about adding stuff
+ * to this file since it's used in GNU libc and there are strict rules
+ * concerning namespace pollution.
+ */
 
-struct winsize {
-	unsigned short int ws_row;
-	unsigned short int ws_col;
-	unsigned short int ws_xpixel;
-	unsigned short int ws_ypixel;
-};
-
-#define NCCS 19
+#define NCCS 32
 struct termios {
 	tcflag_t c_iflag;		/* input mode flags */
 	tcflag_t c_oflag;		/* output mode flags */
 	tcflag_t c_cflag;		/* control mode flags */
 	tcflag_t c_lflag;		/* local mode flags */
+	cc_t c_line;			/* line discipline (== c_cc[19]) */
 	cc_t c_cc[NCCS];		/* control characters */
-	cc_t c_line;			/* line discipline */
 	speed_t c_ispeed;		/* input speed */
 	speed_t c_ospeed;		/* output speed */
 };
 
 /* c_cc characters */
-#define VINTR 	0
-#define VQUIT 	1
-#define VERASE 	2
+#define VINTR	0
+#define VQUIT	1
+#define VERASE	2
 #define VKILL	3
 #define VEOF	4
 #define VMIN	5
@@ -57,9 +54,9 @@ struct termios {
 #define VEOL2	8
 #define VSWTC	9
 
-#define VWERASE 	10
+#define VWERASE	10
 #define VREPRINT	11
-#define VSUSP 		12
+#define VSUSP		12
 #define VSTART		13
 #define VSTOP		14
 #define VLNEXT		15
@@ -77,12 +74,9 @@ struct termios {
 #define ICRNL	0000400
 #define IXON	0001000
 #define IXOFF	0002000
-/* POSIX.1 doesn't want these... */
-#ifdef __USE_BSD
-# define IXANY		0004000
-# define IUCLC		0010000
-# define IMAXBEL	0020000
-#endif
+#define IXANY	0004000
+#define IUCLC	0010000
+#define IMAXBEL	0020000
 
 /* c_oflag bits */
 #define OPOST	0000001
@@ -242,6 +236,23 @@ struct ltchars {
 #define TIOCPKT_NOSTOP		16
 #define TIOCPKT_DOSTOP		32
 
+struct winsize {
+	unsigned short ws_row;
+	unsigned short ws_col;
+	unsigned short ws_xpixel;
+	unsigned short ws_ypixel;
+};
+
+#define NCC 10
+struct termio {
+	unsigned short c_iflag;		/* input mode flags */
+	unsigned short c_oflag;		/* output mode flags */
+	unsigned short c_cflag;		/* control mode flags */
+	unsigned short c_lflag;		/* local mode flags */
+	unsigned char c_line;		/* line discipline */
+	unsigned char c_cc[NCC];	/* control characters */
+};
+
 /* c_cc characters */
 #define _VINTR	0
 #define _VQUIT	1
@@ -286,3 +297,4 @@ struct ltchars {
 #define N_SMSBLOCK	12	/* SMS block mode  */
 #define N_HDLC		13	/* synchronous HDLC  */
 #define N_SYNC_PPP	14	/* synchronous PPP  */
+#define	N_HCI		15	/* Bluetooth HCI UART  */

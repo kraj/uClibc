@@ -1,4 +1,5 @@
-/* Copyright (C) 1999 Free Software Foundation, Inc.
+/* Optimizing macros and inline functions for stdio functions.
+   Copyright (C) 1998, 2000, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,9 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#if defined __arch64__ || defined __sparcv9
-# define __WORDSIZE    64
-#else
-# define __WORDSIZE    32
+#ifndef _STDIO_H
+# error "Never include <bits/stdio.h> directly; use <stdio.h> instead."
 #endif
 

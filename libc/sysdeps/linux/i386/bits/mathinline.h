@@ -381,7 +381,7 @@ __sincosl (long double __x, long double *__sinx, long double *__cosx) __THROW
     ("fscale			# 2^int(x * log2(e))\n\t"		      \
      : "=t" (__temp) : "0" (1.0), "u" (__exponent));			      \
   __temp -= 1.0;							      \
-  return __temp + __value ?: __x
+  return __temp + __value ? __temp + __value : __x
 __inline_mathcodeNP_ (long double, __expm1l, __x, __expm1_code)
 
 

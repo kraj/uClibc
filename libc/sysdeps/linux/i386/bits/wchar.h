@@ -1,4 +1,5 @@
-/* Copyright (C) 1999 Free Software Foundation, Inc.
+/* wchar_t type related definitions.
+   Copyright (C) 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,9 +17,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#if defined __arch64__ || defined __sparcv9
-# define __WORDSIZE    64
-#else
-# define __WORDSIZE    32
-#endif
+#ifndef _BITS_WCHAR_H
+#define _BITS_WCHAR_H	1
 
+#define __WCHAR_MIN	(-2147483647l - 1l)
+#define __WCHAR_MAX	(2147483647l)
+
+#endif	/* bits/wchar.h */

@@ -1,4 +1,4 @@
-/* Copyright (C) 1999 Free Software Foundation, Inc.
+/* Copyright (C) 1998 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,9 +16,25 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#if defined __arch64__ || defined __sparcv9
-# define __WORDSIZE    64
-#else
-# define __WORDSIZE    32
-#endif
+#ifndef _SYS_USER_H
 
+#define _SYS_USER_H	1
+#include <features.h>
+
+#include <asm/ptrace.h>
+
+struct user {
+	struct pt_regs	regs;			/* entire machine state */
+	size_t		u_tsize;		/* text size (pages) */
+	size_t		u_dsize;		/* data size (pages) */
+	size_t		u_ssize;		/* stack size (pages) */
+	unsigned long	start_code;		/* text starting address */
+	unsigned long	start_data;		/* data starting address */
+	unsigned long	start_stack;		/* stack starting address */
+	long int	signal;			/* signal causing core dump */
+	struct regs *	u_ar0;			/* help gdb find registers */
+	unsigned long	magic;			/* identifies a core file */
+	char		u_comm[32];		/* user command name */
+};
+
+#endif  /* sys/user.h */

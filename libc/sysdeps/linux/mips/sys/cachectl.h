@@ -1,4 +1,4 @@
-/* Copyright (C) 1999 Free Software Foundation, Inc.
+/* Copyright (C) 1995, 1996, 1997, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,9 +16,27 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#if defined __arch64__ || defined __sparcv9
-# define __WORDSIZE    64
-#else
-# define __WORDSIZE    32
-#endif
+#ifndef _SYS_CACHECTL_H
+#define _SYS_CACHECTL_H 1
 
+#include <features.h>
+
+/*
+ * Get the kernel definition for the op bits.
+ */
+#include <asm/cachectl.h>
+
+__BEGIN_DECLS
+
+#ifdef __USE_MISC
+extern int cachectl (void *addr, __const int nbytes, __const int op) __THROW;
+#endif
+extern int __cachectl (void *addr, __const int nbytes, __const int op) __THROW;
+#ifdef __USE_MISC
+extern int cacheflush (void *addr, __const int nbytes, __const int op) __THROW;
+#endif
+extern int _flush_cache (char *addr, __const int nbytes, __const int op) __THROW;
+
+__END_DECLS
+
+#endif /* sys/cachectl.h */
