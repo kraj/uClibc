@@ -185,7 +185,7 @@ char *_dl_find_hash(char *name, struct dyn_elf *rpnt1,
 	   that any shared library data symbols referenced in the executable
 	   will be seen at the same address by the executable, shared libraries
 	   and dynamically loaded code. -Rob Ryan (robr@cmu.edu) */
-	if (copyrel!=caller_type && rpnt1) {
+	if (!caller_type && rpnt1) {
 		first = (*_dl_symbol_tables);
 		first.next = rpnt1;
 		rpnt1 = (&first);
@@ -299,6 +299,7 @@ char *_dl_find_hash(char *name, struct dyn_elf *rpnt1,
 						break;
 					}
 				  }
+#ifndef __mips__
 				  /*
 				   * References to the address of a function from an executable file and
 				   * the shared objects associated with it might not resolve to the same
@@ -316,6 +317,7 @@ char *_dl_find_hash(char *name, struct dyn_elf *rpnt1,
 				  {
 				      return (char*)symtab[si].st_value;
 				  }
+#endif
 				}
 			}
 		}
