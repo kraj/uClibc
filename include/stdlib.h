@@ -579,7 +579,12 @@ extern void abort (void) __THROW __attribute__ ((__noreturn__));
 extern int atexit (void (*__func) (void)) __THROW;
 
 /* The following is used by uClibc in atexit.c and sysconf.c */
-#define __UCLIBC_MAX_ATEXIT     20
+/* We have no limit when __UCLIBC_DYNAMIC_ATEXIT__ is enabled.  */
+#ifdef __UCLIBC_DYNAMIC_ATEXIT__
+# define __UCLIBC_MAX_ATEXIT     INT_MAX
+#else
+# define __UCLIBC_MAX_ATEXIT     20
+#endif
 
 
 #ifdef	__USE_MISC
