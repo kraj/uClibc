@@ -29,6 +29,7 @@ CSRC=	sleep.c usleep.c getpass.c sysconf.c getlogin.c \
 
 ifeq ($(strip $(UCLIBC_HAS_MMU)),y)
 	CSRC += daemon.c
+else
 	MOBJ1 += __exec_alloc.o
 endif
 
