@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <string.h>
 #include <malloc.h>
+#include <stdlib.h>
 
 
 #ifdef __UCLIBC_HAS_THREADS__
@@ -645,6 +646,8 @@ typedef struct malloc_chunk* mbinptr;
 #define unlink(P, BK, FD) {                                            \
   FD = P->fd;                                                          \
   BK = P->bk;                                                          \
+  if (FD->bk != P || BK->fd != P)                                      \
+      abort();                                                         \
   FD->bk = BK;                                                         \
   BK->fd = FD;                                                         \
 }
