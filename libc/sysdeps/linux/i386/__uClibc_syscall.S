@@ -1,39 +1,32 @@
-.globl __uClibc_syscall
-
 .text
 	.align 4
+.globl __uClibc_syscall
+	.type	 __uClibc_syscall,@function
 __uClibc_syscall:
-	pushl %ebp
-	movl %esp,%ebp
-	subl $8,%esp
 	pushl %edi
 	pushl %esi
 	pushl %ebx
-	/* movl $21,%eax */
 	and $0xff,%eax
-	movl 8(%ebp),%ebx
-	movl 12(%ebp),%ecx
-	movl 16(%ebp),%edx
-	movl 20(%ebp),%esi
-	movl 24(%ebp),%edi
+	movl 16(%esp),%ebx
+	movl 20(%esp),%ecx
+	movl 24(%esp),%edx
+	movl 28(%esp),%esi
+	movl 32(%esp),%edi
 #APP
 	int $0x80
 #NO_APP
-	movl %eax,-4(%ebp)
-	.p2align 4,,7
-	cmpl $-126,-4(%ebp)
+	cmpl $-4095,%eax
+	/* jae .L5 */
+	/* cmpl $-126,%eax */
 	jbe .L5
-	movl -4(%ebp),%eax
 	negl %eax
 	movl %eax,errno
-	movl $-1,-4(%ebp)
+	movl $-1,%eax
+	.p2align 4,,7
 .L5:
-	movl -4(%ebp),%edx
-	movl %edx,-8(%ebp)
-	movl -8(%ebp),%eax
-	leal -20(%ebp),%esp
 	popl %ebx
 	popl %esi
 	popl %edi
-	leave
 	ret
+.Lfe1:
+	.size	 __uClibc_syscall,.Lfe1-__uClibc_syscall
