@@ -217,7 +217,7 @@ typedef struct __res_state *res_state;
 /*			0x00008000	*/
 
 /* Things involving an internal (static) resolver context. */
-#if !defined _LIBC || defined _LIBC_REENTRANT
+#if !defined _LIBC || defined __UCLIBC_HAS_THREADS__
 __BEGIN_DECLS
 extern struct __res_state *__res_state(void) __attribute__ ((__const__));
 __END_DECLS

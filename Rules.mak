@@ -120,9 +120,6 @@ endif
 ifeq ($(strip $(DOPIC)),true)
     CFLAGS += -fPIC
 endif
-ifeq ($(strip $(INCLUDE_THREADS)),true)
-    CFLAGS  += -D_LIBC_REENTRANT
-endif
 # Currently locale support requires wide char support.
 ifeq ($(strip $(HAS_LOCALE)),true)
     HAS_WCHAR:=true

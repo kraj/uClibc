@@ -43,7 +43,7 @@ extern int *__errno_location (void) __THROW __attribute__ ((__const__));
 #   define __set_errno(val) (*__errno_location ()) = (val)
 #  endif /* _LIBC */
 
-#  if !defined _LIBC || defined _LIBC_REENTRANT
+#  if !defined _LIBC || defined __UCLIBC_HAS_THREADS__
 /* When using threads, errno is a per-thread value.  */
 #   define errno (*__errno_location ())
 #  endif

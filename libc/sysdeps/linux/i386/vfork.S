@@ -36,22 +36,22 @@ vfork:
 	addl $_GLOBAL_OFFSET_TABLE_+[.-.Lhere],%ebx
 	negl %eax
 	movl %eax,%ecx
-#ifdef _LIBC_REENTRANT
+#ifdef __UCLIBC_HAS_THREADS__
 	call __errno_location@PLT
 #else
 	movl errno@GOT(%ebx),%eax
-#endif /* _LIBC_REENTRANT */
+#endif /* __UCLIBC_HAS_THREADS__ */
 	movl %ecx,(%eax)
 	popl %ebx
 #else
 	negl %eax
-#ifdef _LIBC_REENTRANT
+#ifdef __UCLIBC_HAS_THREADS__
 	movl %eax,%ecx
 	call __errno_location
 	movl %ecx,(%eax)
 #else
 	movl %eax,errno
-#endif /* _LIBC_REENTRANT */
+#endif /* __UCLIBC_HAS_THREADS__ */
 
 #endif /* PIC */
 	
