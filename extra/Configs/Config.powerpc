@@ -9,6 +9,7 @@ config TARGET_ARCH
 config HAVE_ELF
 	bool
 	select UCLIBC_HAS_MMU
+	select ARCH_BIG_ENDIAN
 	default y
 
 config ARCH_CFLAGS
