@@ -67,9 +67,11 @@
 /* #if defined(_LIBC) && !defined(__LOCALE_C_ONLY) */
 #ifndef __LOCALE_C_ONLY
 
+#ifdef _LIBC
 #include <stddef.h>
 #include <stdint.h>
 #include <bits/uClibc_touplow.h>
+#endif
 
 #if defined(_LIBC) && !defined(__UCLIBC_GEN_LOCALE)
 #include <bits/uClibc_locale_data.h>
