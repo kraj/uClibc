@@ -33,7 +33,9 @@
 
 #else /* Not NDEBUG.  */
 
+__BEGIN_DECLS
 extern void __assert __P((const char *, const char *, int, const char *));
+__END_DECLS
 
 #define	assert(expr)							      \
   ((void) ((expr) ||							      \
