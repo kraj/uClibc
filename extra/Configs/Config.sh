@@ -46,11 +46,13 @@ choice
 config CONFIG_SH2
 	select ARCH_HAS_NO_FPU
 	select ARCH_HAS_NO_MMU
+	select ARCH_HAS_NO_LDSO
 	bool "SH2"
 
 config CONFIG_SH3
 	select HAS_FPU
 	select UCLIBC_HAS_MMU
+	select ARCH_HAS_NO_LDSO
 	bool "SH3"
 
 config CONFIG_SH4
@@ -61,6 +63,7 @@ config CONFIG_SH4
 config CONFIG_SH5
 	select HAS_FPU
 	select UCLIBC_HAS_MMU
+	select ARCH_HAS_NO_LDSO
 	bool "SH5"
 
 endchoice

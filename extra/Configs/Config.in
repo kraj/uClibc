@@ -144,9 +144,13 @@ config HAVE_SHARED
 	  answer Y here.  If you only want to build uClibc as a static library,
 	  then answer N.
 
+config ARCH_HAS_NO_LDSO
+	bool
+	default n
+
 config BUILD_UCLIBC_LDSO
 	bool "Compile native shared library loader"
-	depends on HAVE_SHARED
+	depends on HAVE_SHARED && !ARCH_HAS_NO_LDSO
 	default y
 	help
 	  uClibc has a native shared library loader for some architectures.
