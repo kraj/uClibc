@@ -27,7 +27,7 @@ endif
 
 p_dev=libuclibc-dev$(target_suffix)
 p_lib=libuclibc0$(target_suffix)
-p_gcc=uclibc$(target_suffix)-gcc
+p_gcc=uclibc$(target_suffix)-toolchain
 
 debian/control: debian/control.in debian/rules
 	sed s/_TARGET_/$(target_suffix)/ debian/control.in >debian/control
@@ -45,9 +45,10 @@ ifneq ($(target),$(DEB_HOST_GNU_CPU))
 	echo 'CROSS = $(target)-linux-'  >>Config
 endif
 	echo 'DOPIC = true'  >>Config
-	echo 'PREFIX = /usr'  >>Config
-	echo 'DEVEL_PREFIX = $$(PREFIX)/$$(TARGET_ARCH)-linux-uclibc'  >>Config
-	echo 'TARGET_PREFIX = /'  >>Config
+	echo 'SYSTEM_DEVEL_PREFIX = /'  >>Config
+	echo 'DEVEL_PREFIX = /usr/$$(TARGET_ARCH)-linux-uclibc'  >>Config
+	echo 'SHARED_LIB_LOADER_PATH = /lib'  >>Config
+	#echo 'TARGET_PREFIX = /'  >>Config
 ifeq ($(with_shared_libs),n)
 	echo 'HAVE_SHARED = false' >>Config
 endif
@@ -61,6 +62,8 @@ clean: debian/control
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
+
+	rm -f debian/$(p_dev)
 
 	# Add here commands to clean up after the build process.
 	-$(MAKE) clean
@@ -77,9 +80,9 @@ install: build debian/control
 	ln -s tmp debian/$(p_dev)
 
 	# Add here commands to install the package into debian/tmp.
-	$(MAKE) install_dev DESTDIR=`pwd`/debian/$(p_dev)
-	$(MAKE) install_runtime DESTDIR=`pwd`/debian/$(p_lib)
-	$(MAKE) install_gcc DESTDIR=`pwd`/debian/$(p_gcc)
+	$(MAKE) install_dev PREFIX=`pwd`/debian/$(p_dev)
+	$(MAKE) install_runtime PREFIX=`pwd`/debian/$(p_lib)
+	$(MAKE) install_gcc PREFIX=`pwd`/debian/$(p_gcc)
 
 	install -d debian/$(p_gcc)/usr/share/man/man1
 	install -m 644 debian/uclibc-gcc.1 \
@@ -104,13 +107,6 @@ ifeq ($(target),$(DEB_HOST_GNU_CPU))
 	  debian/$(p_lib)/lib/ld-uClibc.so.0
 endif
 endif
-	
-	install -d debian/$(p_gcc)/usr/bin
-	mv debian/$(p_gcc)/usr/$(target)-linux-uclibc/bin/$(target)-* \
-		debian/$(p_gcc)/usr/bin
-	install -d debian/$(p_lib)/usr/bin
-	mv debian/$(p_lib)/usr/$(target)-linux-uclibc/bin/$(target)-* \
-		debian/$(p_lib)/usr/bin
 
 # Build architecture-independent files here.
 binary-indep:
