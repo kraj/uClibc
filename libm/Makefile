@@ -74,6 +74,8 @@ CSRC+=   s_expm1.c s_scalbn.c s_copysign.c e_acos.c e_asin.c e_atan2.c \
 	 k_cos.c e_cosh.c e_exp.c e_fmod.c e_log.c e_log10.c e_pow.c \
 	 k_sin.c e_sinh.c e_sqrt.c k_tan.c e_rem_pio2.c k_rem_pio2.c \
 	 s_finite.c
+# We'll add sqrtf to avoid different configurations of libstdc++.
+CSRC+= w_sqrtf.c
 endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
