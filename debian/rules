@@ -16,7 +16,7 @@ version:=$(strip $(major)).$(strip $(minor))
 kernel_source=kernel-source-2.4.16
 
 target=$(DEB_HOST_GNU_CPU)
-#target=powerpc
+#target=arm
 
 with_shared_libs=y
 #ifeq ($(target),powerpc)
@@ -51,7 +51,10 @@ build-stamp: debian/control
 	# certainly wrong in most situations.
 #ifeq ($(target),arm)
 	ln -s arch-sa1100 $(kernel_source)/include/asm-arm/arch
+	ln -s proc-armo $(kernel_source)/include/asm-arm/proc
 #endif
+	
+	touch $(kernel_source)/include/linux/autoconf.h
 
 ifneq ($(target),mipsel)
 	cp extra/Configs/Config.$(target) Config
@@ -73,6 +76,8 @@ endif
 	#echo 'TARGET_PREFIX = /'  >>Config
 ifeq ($(with_shared_libs),n)
 	echo 'HAVE_SHARED = false' >>Config
+else
+	echo 'HAVE_SHARED = true' >>Config
 endif
 	echo 'KERNEL_SOURCE = '`pwd`/$(kernel_source) >>Config
 	echo 'HAS_MMU = true' >>Config
@@ -113,6 +118,7 @@ install: build debian/control
 	$(MAKE) install_dev PREFIX=`pwd`/debian/$(p_dev)
 	$(MAKE) install_runtime PREFIX=`pwd`/debian/$(p_lib)
 	$(MAKE) install_toolchain PREFIX=`pwd`/debian/$(p_gcc)
+	$(MAKE) install_utils PREFIX=`pwd`/debian/$(p_gcc)
 
 	install -d debian/$(p_gcc)/usr/share/man/man1
 	install -m 644 debian/uclibc-gcc.1 \

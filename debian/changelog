@@ -1,3 +1,19 @@
+uclibc (0.9.9-cvs20020221-2) unstable; urgency=low
+
+  * debian/rules: touch linux/autoconf.h.  Should make us buildable
+    on arm.
+  * add build-dep on bzip2
+
+ -- David Schleef <ds@schleef.org>  Sun, 24 Feb 2002 17:26:37 -0800
+
+uclibc (0.9.9-cvs20020221-1) unstable; urgency=low
+
+  * New upstream snapshot
+  * Add subarchitecture symlinks on arm
+  * Use mips config file on mipsel
+
+ -- David Schleef <ds@schleef.org>  Thu, 21 Feb 2002 23:11:23 -0800
+
 uclibc (0.9.9-cvs20020210-1) unstable; urgency=low
 
   * New upstream snapshot.
