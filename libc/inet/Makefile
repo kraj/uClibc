@@ -24,6 +24,8 @@ TOPDIR=../
 include $(TOPDIR)Rules.make
 LIBC=$(TOPDIR)libc.a
 
+DIRS = #rpc
+
 MSRC=addr.c
 MOBJ=inet_aton.o inet_addr.o inet_ntoa.o
 
@@ -34,9 +36,11 @@ MOBJ2=encodeh.o decodeh.o encoded.o decoded.o lengthd.o encodeq.o \
 	opennameservers.o closenameservers.o resolvename.o gethostbyname.o\
 	gethostbyaddr.o
 OBJS=$(MOBJ) $(MOBJ2)
+
+
 all: $(OBJS) $(LIBC)
 
-$(LIBC): ar-target
+$(LIBC): ar-target subdirs
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
@@ -49,6 +53,17 @@ $(MOBJ2): $(MSRC2)
 
 $(OBJS): Makefile
 
-clean:
-	rm -f *.[oa] *~ core
+clean: subdirs_clean
+	rm -f libc.a
+
+subdirs: $(patsubst %, _dir_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
+
+$(patsubst %, _dir_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dir_%, %, $@)
+
+$(patsubst %, _dirclean_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+
+.PHONY: dummy
 

@@ -36,7 +36,7 @@ MOBJ2=printf.o sprintf.o fprintf.o vprintf.o vsprintf.o vfprintf.o snprintf.o vs
 MSRC3=scanf.c
 MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
 
-CSRC=dputs.c
+CSRC=dputs.c popen.c perror.c remove.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
 

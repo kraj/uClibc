@@ -29,10 +29,14 @@ MOBJ=strlen.o strcat.o strcpy.o strcmp.o strncat.o strncpy.o strncmp.o \
 	strchr.o strrchr.o strdup.o memcpy.o memccpy.o memset.o \
 	memmove.o memcmp.o memchr.o
 
-CSRC=strpbrk.c strsep.c strstr.c strtok.c strcspn.c \
-	config.c strspn.c strcasecmp.c strncasecmp.c
+MSRC1=index.c
+MOBJ1=index.o rindex.o
+
+CSRC=strpbrk.c strsep.c strstr.c strtok.c strcspn.c config.c \
+	strspn.c strcasecmp.c strncasecmp.c strerror.c sys_siglist.c \
+	bcopy.c bzero.c bcmp.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(MOBJ) $(COBJS)
+OBJS=$(MOBJ) $(MOBJ1) $(COBJS)
 
 all: $(OBJS) $(LIBC)
 
@@ -42,6 +46,9 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
 $(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+
+$(MOBJ1): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 
 $(OBJS): Makefile

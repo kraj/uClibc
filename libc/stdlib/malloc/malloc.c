@@ -190,7 +190,13 @@ static void *hunk_alloc(int size)
   if ((p = free_h[size]) == NULL)
   {
     if ((p = (Hunk_t*)mmap(HUNK_MSTART,HUNK_MSIZE,PROT_READ|PROT_WRITE,
-	MAP_PRIVATE|MAP_ANON,0,0)) == (Hunk_t*)MAP_FAILED)
+#ifdef __HAS_NO_MMU__
+	MAP_PRIVATE|MAP_ANONYMOUS
+#else
+
+	MAP_SHARED|MAP_ANONYMOUS
+#endif
+	,0,0)) == (Hunk_t*)MAP_FAILED)
       return NULL;
     memset(p,0,HUNK_MSIZE);
     p->id = HUNK_ID;

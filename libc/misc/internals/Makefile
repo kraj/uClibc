@@ -24,12 +24,9 @@ TOPDIR=../../
 include $(TOPDIR)Rules.make
 LIBC=$(TOPDIR)libc.a
 
-CSRC=malloc.c
+CSRC=itoa.c ltoa.c ltostr.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-
-MSRC=alloc.c
-MOBJ=malloc_dbg.o free_dbg.o calloc_dbg.o
-OBJS=$(COBJS) $(MOBJ)
+OBJS=$(COBJS)
 
 all: $(OBJS) $(LIBC)
 
@@ -38,10 +35,7 @@ $(LIBC): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(MOBJ): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-
-$(OBJ): Makefile
+$(OBJS): Makefile
 
 clean:
 	rm -f *.[oa] *~ core

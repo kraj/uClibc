@@ -20,28 +20,33 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../../
+TOPDIR=../
 include $(TOPDIR)Rules.make
 LIBC=$(TOPDIR)libc.a
 
-CSRC=malloc.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-MSRC=alloc.c
-MOBJ=malloc_dbg.o free_dbg.o calloc_dbg.o
-OBJS=$(COBJS) $(MOBJ)
+CSRC=execl.c execlp.c execv.c execvep.c execvp.c getcwd.c getopt.c sleep.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(COBJS)
+
 
 all: $(OBJS) $(LIBC)
 
-$(LIBC): ar-target
+$(LIBC): ar-target subdirs
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(MOBJ): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-
 $(OBJ): Makefile
+
+subdirs: $(patsubst %, _dir_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
+
+$(patsubst %, _dir_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dir_%, %, $@)
+
+$(patsubst %, _dirclean_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 clean:
 	rm -f *.[oa] *~ core

@@ -24,23 +24,22 @@ TOPDIR=../
 include $(TOPDIR)Rules.make
 LIBC=$(TOPDIR)libc.a
 
-MSRC=aliases.c
-MOBJ=abs.o remove.o creat.o bcopy.o bzero.o # raise.o bcmp.o index.o rindex.o 
+DIRS = $(MALLOC)
+
 
 MSRC2=atexit.c
 MOBJ2=on_exit.o atexit.o __do_exit.o exit.o
 
-CSRC=atoi.c atol.c ltoa.c ltostr.c ctype.c qsort.c bsearch.c rand.c lsearch.c \
-	getopt.c glob.c fnmatch.c itoa.c strtod.c strtol.c crypt.c sleep.c \
-	mkstemp.c  mktemp.c realpath.c getenv.c putenv.c popen.c system.c \
-	getcwd.c setenv.c execl.c execv.c execlp.c execvp.c execvep.c
+
+CSRC =	abort.c getenv.c  mktemp.c  qsort.c  realpath.c strtod.c strtoul.c \
+	abs.c   bsearch.c mkstemp.c putenv.c rand.c setenv.c strtol.c system.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ2) $(COBJS)
 
 
 all: $(OBJS) $(LIBC)
 
-$(LIBC): ar-target
+$(LIBC): ar-target subdirs
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
@@ -53,6 +52,18 @@ $(MOBJ2): $(MSRC2)
 
 $(OBJ): Makefile
 
+subdirs: $(patsubst %, _dir_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
+
+$(patsubst %, _dir_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dir_%, %, $@)
+
+$(patsubst %, _dirclean_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+
 clean:
 	rm -f *.[oa] *~ core
+
+.PHONY: dummy
+
 

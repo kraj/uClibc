@@ -20,7 +20,7 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../
+TOPDIR=../../
 include $(TOPDIR)Rules.make
 LIBC=$(TOPDIR)libc.a
 CFLAGS+=-I$(TOPDIR)include/linux

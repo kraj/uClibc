@@ -106,6 +106,9 @@ extern div_t div __P ((int __numer, int __denom)) __attribute__ ((__const__));
 extern long int labs __P ((long int __x)) __attribute__ ((__const__));
 extern ldiv_t ldiv __P ((long int __numer, long int __denom)) __attribute__ ((__const__));
 
+/* Generate a unique temporary file name from TEMPLATE. */
+extern char *mktemp __P ((char *__template));
+extern int mkstemp __P ((char *__template));
 
 
 #endif /* __STDLIB_H */

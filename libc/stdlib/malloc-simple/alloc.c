@@ -67,8 +67,12 @@ void *calloc(size_t num, size_t size)
 void *malloc(size_t len)
 {
 	void *result = mmap((void *) 0, len, PROT_READ | PROT_WRITE,
-						//MAP_SHARED | MAP_ANONYMOUS, 0, 0);
-						MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+#ifdef __HAS_NO_MMU__
+						MAP_SHARED | MAP_ANONYMOUS, 0, 0
+#else
+						MAP_PRIVATE | MAP_ANONYMOUS, 0, 0
+#endif
+						    );
 
 	if (result == (void *) -1)
 		return 0;

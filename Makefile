@@ -20,11 +20,16 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-#MALLOC = malloc
-MALLOC = malloc-simple
+#--------------------------------------------------------
+#
+#There are a number of configurable options in Rules.make
+#
+#--------------------------------------------------------
 
-DIRS = error getent $(MALLOC) misc regex stdio \
-	    string termios time sysdeps shm #rpc
+
+
+DIRS = misc pwd_grp stdio string termios unistd net signal stdlib sysdeps
+
 all: libc.a
 
 libc.a: halfclean headers subdirs
