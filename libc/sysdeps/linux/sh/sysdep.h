@@ -17,7 +17,8 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-
+#define __need_uClibc_config_h 1
+#include <bits/uClibc_config.h>
 
 /* Define a macro we can use to construct the asm name for a C symbol.  */
 #ifdef	NO_UNDERSCORES
@@ -34,12 +35,20 @@
 #endif
 #endif
 
-
 /* Mark the end of function named SYM.  This is used on some platforms
    to generate correct debugging information.  */
 #ifndef END
 #define END(sym)
 #endif
+
+#ifndef ASM_GLOBAL_DIRECTIVE
+#define ASM_GLOBAL_DIRECTIVE .global
+#endif
+
+#ifndef C_SYMBOL_NAME
+#define C_SYMBOL_NAME(name)	name
+#endif
+
 #ifdef	__ASSEMBLER__
 
 /* Syntactic details of assembler.  */

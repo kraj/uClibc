@@ -21,6 +21,7 @@
 
 #include <unistd.h>
 #include <sys/mman.h>
+#include <sys/syscall.h>
 
 #ifdef HIOS
 
