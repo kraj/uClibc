@@ -22,9 +22,9 @@
    which contains no characters from REJECT.  */
 size_t strcspn( const char *s, const char *reject)
 {
-    register char *scan1;
-    register char *scan2;
-    size_t int count;
+    register const char *scan1;
+    register const char *scan2;
+    size_t count;
 
     count = 0;
     for (scan1 = s; *scan1 != '\0'; scan1++) {
