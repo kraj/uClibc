@@ -1,73 +1,103 @@
-/*
- * Resource control/accounting header file for linux-86
- */
+/* Copyright (C) 1992, 94, 96, 97, 98, 99, 2000 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#ifndef _SYS_RESOURCE_H
-#define _SYS_RESOURCE_H
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Library General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public
+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
+
+#ifndef	_SYS_RESOURCE_H
+#define	_SYS_RESOURCE_H	1
 
 #include <features.h>
-#include <sys/time.h>
-#include <limits.h>
 
-#define	RUSAGE_SELF	0
-#define	RUSAGE_CHILDREN	(-1)
-#define RUSAGE_BOTH	(-2)		/* sys_wait4() uses this */
+/* Get the system-dependent definitions of structures and bit values.  */
+#include <bits/resource.h>
 
-struct	rusage {
-	struct timeval ru_utime;	/* user time used */
-	struct timeval ru_stime;	/* system time used */
-	long	ru_maxrss;		/* maximum resident set size */
-	long	ru_ixrss;		/* integral shared memory size */
-	long	ru_idrss;		/* integral unshared data size */
-	long	ru_isrss;		/* integral unshared stack size */
-	long	ru_minflt;		/* page reclaims */
-	long	ru_majflt;		/* page faults */
-	long	ru_nswap;		/* swaps */
-	long	ru_inblock;		/* block input operations */
-	long	ru_oublock;		/* block output operations */
-	long	ru_msgsnd;		/* messages sent */
-	long	ru_msgrcv;		/* messages received */
-	long	ru_nsignals;		/* signals received */
-	long	ru_nvcsw;		/* voluntary context switches */
-	long	ru_nivcsw;		/* involuntary " */
-};
+#ifndef __id_t_defined
+typedef __id_t id_t;
+# define __id_t_defined
+#endif
 
-#define RLIM_INFINITY	((long)(~0UL>>1))
+__BEGIN_DECLS
 
-struct rlimit {
-	long	rlim_cur;
-	long	rlim_max;
-};
+/* The X/Open standard defines that all the functions below must use
+   `int' as the type for the first argument.  When we are compiling with
+   GNU extensions we change this slightly to provide better error
+   checking.  */
+#ifdef __USE_GNU
+typedef enum __rlimit_resource __rlimit_resource_t;
+typedef enum __rusage_who __rusage_who_t;
+typedef enum __priority_which __priority_which_t;
+#else
+typedef int __rlimit_resource_t;
+typedef int __rusage_who_t;
+typedef int __priority_which_t;
+#endif
 
-#define	PRIO_MIN	(-20)
-#define	PRIO_MAX	20
+/* Put the soft and hard limits for RESOURCE in *RLIMITS.
+   Returns 0 if successful, -1 if not (and sets errno).  */
+#ifndef __USE_FILE_OFFSET64
+extern int getrlimit (__rlimit_resource_t __resource,
+		      struct rlimit *__rlimits);
+#else
+# ifdef __REDIRECT
+extern int __REDIRECT (getrlimit, (__rlimit_resource_t __resource,
+				   struct rlimit *__rlimits) ,
+		       getrlimit64);
+# else
+#  define getrlimit getrlimit64
+# endif
+#endif
+#ifdef __USE_LARGEFILE64
+extern int getrlimit64 (__rlimit_resource_t __resource,
+			struct rlimit64 *__rlimits);
+#endif
 
-#define	PRIO_PROCESS	0
-#define	PRIO_PGRP	1
-#define	PRIO_USER	2
+/* Set the soft and hard limits for RESOURCE to *RLIMITS.
+   Only the super-user can increase hard limits.
+   Return 0 if successful, -1 if not (and sets errno).  */
+#ifndef __USE_FILE_OFFSET64
+extern int setrlimit (__rlimit_resource_t __resource,
+		      __const struct rlimit *__rlimits);
+#else
+# ifdef __REDIRECT
+extern int __REDIRECT (setrlimit, (__rlimit_resource_t __resource,
+				   __const struct rlimit *__rlimits) ,
+		       setrlimit64);
+# else
+#  define setrlimit setrlimit64
+# endif
+#endif
+#ifdef __USE_LARGEFILE64
+extern int setrlimit64 (__rlimit_resource_t __resource,
+			__const struct rlimit64 *__rlimits);
+#endif
 
-#define RLIMIT_CPU	0		/* CPU time in ms */
-#define RLIMIT_FSIZE	1		/* Maximum filesize */
-#define RLIMIT_DATA	2		/* max data size */
-#define RLIMIT_STACK	3		/* max stack size */
-#define RLIMIT_CORE	4		/* max core file size */
-#define RLIMIT_RSS	5		/* max resident set size */
-#define RLIMIT_NPROC	6		/* max number of processes */
-#define RLIMIT_NOFILE	7		/* max number of open files */
-#define RLIMIT_MEMLOCK	8		/* max locked-in-memory address space */
+/* Return resource usage information on process indicated by WHO
+   and put it in *USAGE.  Returns 0 for success, -1 for failure.  */
+extern int getrusage (__rusage_who_t __who, struct rusage *__usage);
 
-#define RLIM_NLIMITS	9
+/* Return the highest priority of any process specified by WHICH and WHO
+   (see above); if WHO is zero, the current process, process group, or user
+   (as specified by WHO) is used.  A lower priority number means higher
+   priority.  Priorities range from PRIO_MIN to PRIO_MAX (above).  */
+extern int getpriority (__priority_which_t __which, id_t __who);
 
-extern int	getrlimit __P ((int __resource,
-			struct rlimit *__rlp));
-extern int	setrlimit __P ((int __resource,
-			__const struct rlimit *__rlp));
+/* Set the priority of all processes specified by WHICH and WHO (see above)
+   to PRIO.  Returns 0 on success, -1 on errors.  */
+extern int setpriority (__priority_which_t __which, id_t __who, int __prio);
 
-extern int      getpriority __P((int __which, int __who));
-extern int      setpriority __P((int __which, int __who,
-			int __prio));
+__END_DECLS
 
-extern int	__getrusage __P ((int __who, struct rusage *__rusage));
-extern int	getrusage __P ((int __who, struct rusage *__rusage));
-
-#endif /* _SYS_RESOURCE_H */
+#endif	/* sys/resource.h  */
