@@ -27,7 +27,7 @@
 #include <bits/types.h>
 
 #ifndef __UCLIBC_HAS_WCHAR__
-#error Attempted to include wchar.h when uClibc built without wide char support.
+#error Attempted to include wctype.h when uClibc built without wide char support.
 #endif
 
 #ifndef __need_iswxxx
