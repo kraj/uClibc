@@ -54,13 +54,14 @@ offset	length	contents
    identify the earliest release of that OS that supports this ABI.
    See abi-tags (top level) for details. */
 
+#include <features.h>
 #include <abi-tag.h>		/* OS-specific ABI tag value */
 	
 /* The linker (GNU ld 2.8 and later) recognizes an allocated section whose
    name begins with `.note' and creates a PT_NOTE program header entry
    pointing at it. */
 
-#ifdef HAVE_ELF
+#ifdef __HAVE_ELF__
 	.section ".note.ABI-tag", "a"
 #else
 	.section .note
