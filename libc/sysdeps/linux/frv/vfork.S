@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Free Software Foudnation, Inc.
+/* Copyright (C) 2003, 2004 Free Software Foudnation, Inc.
    This file is part of the GNU C Library.
    Contributed by David Howells <dhowells@redhat.com>, 2003.
 
@@ -26,16 +26,17 @@
        .type vfork,@function
 /* int vfork(void) */
 vfork:
-       setlos  #__NR_vfork, gr7
-       tira    gr0, #0
+	setlos.p #__NR_vfork, gr7
+	setlos	#-4096, gr4
+	tra	gr0, gr0
 
-       cmp     gr8, gr0, icc0
-       bplr    icc0, #2
+	cmp	gr8, gr4, icc0
+	blslr	icc0, #2
 
-       sethi.p #gotofffuncdeschi(__syscall_error), gr14
-       setlo   #gotofffuncdesclo(__syscall_error), gr14
-       ldd     @(gr14, gr15), gr14
-       jmpl    @(gr14, gr0)
+	sethi.p	#gotofffuncdeschi(__syscall_error), gr14
+	setlo	#gotofffuncdesclo(__syscall_error), gr14
+	ldd	@(gr14, gr15), gr14
+	jmpl	@(gr14, gr0)
 
        .size   vfork,.-vfork
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Red Hat, Inc.
+/* Copyright (C) 2003, 2004 Red Hat, Inc.
    Contributed by Alexandre Oliva <aoliva@redhat.com>
 
 This file is part of uClibc.
@@ -27,28 +27,28 @@ extern int _dl_errno;
 
 /* The code below is extracted from libc/sysdeps/linux/frv/_mmap.c */
 
+#if DYNAMIC_LOADER_IN_SIMULATOR
 #define __NR___syscall_mmap2	    __NR_mmap2
 static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr, 
 	size_t, len, int, prot, int, flags, int, fd, off_t, offset);
+
+/* Make sure we don't get another definition of _dl_mmap from the
+   machine-independent code.  */
+#undef __NR_mmap
+#undef __NR_mmap2
 
 /* This is always 12, even on architectures where PAGE_SHIFT != 12.  */
 # ifndef MMAP2_PAGE_SHIFT
 #  define MMAP2_PAGE_SHIFT 12
 # endif
 
-#if DYNAMIC_LOADER_IN_SIMULATOR
 #include <asm/page.h> /* for PAGE_SIZE */
 inline static void *_dl_memset(void*,int,size_t);
 inline static ssize_t _dl_pread(int fd, void *buf, size_t count, off_t offset);
-#endif
 
-#ifndef DYNAMIC_LOADER_IN_SIMULATOR
-inline
-#endif
 static __ptr_t
 _dl_mmap(__ptr_t addr, size_t len, int prot, int flags, int fd, __off_t offset)
 {
-#ifdef DYNAMIC_LOADER_IN_SIMULATOR
   size_t plen = (len + PAGE_SIZE - 1) & -PAGE_SIZE;
 
 /* This is a hack to enable the dynamic loader to run within a
@@ -128,14 +128,12 @@ _dl_mmap(__ptr_t addr, size_t len, int prot, int flags, int fd, __off_t offset)
       flags |= MAP_FIXED;
       addr = ret;
     }
-#endif
     if (offset & ((1 << MMAP2_PAGE_SHIFT) - 1)) {
 #if 0
 	__set_errno (EINVAL);
 #endif
 	return MAP_FAILED;
     }
-#ifdef DYNAMIC_LOADER_IN_SIMULATOR
     if ((flags & MAP_FIXED) != 0)
       {
 	if (_dl_pread(fd, addr, len, offset) != (ssize_t)len)
@@ -144,9 +142,9 @@ _dl_mmap(__ptr_t addr, size_t len, int prot, int flags, int fd, __off_t offset)
 	  _dl_memset (addr + len, 0, plen - len);
 	return addr;
       }
-#endif
     return(__syscall_mmap2(addr, len, prot, flags, fd, (off_t) (offset >> MMAP2_PAGE_SHIFT)));
 }
+#endif
 
 #ifdef __NR_pread
 #ifdef DYNAMIC_LOADER_IN_SIMULATOR

@@ -1,4 +1,4 @@
-/* Copyright (C) 1999, 2000, 2001, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 1999, 2000, 2001, 2003, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -39,158 +39,158 @@ typedef greg_t gregset_t[NGREG];
 /* Number of each register is the `gregset_t' array.  */
 enum
 {
-  PSR = 0,
-#define PSR	PSR
-  ISR = 1,
-#define ISR	ISR
-  CCR = 2,
-#define CCR	CCR
-  CCCR = 3,
-#define CCCR	CCCR
-  LR = 4,
-#define LR	LR
-  LCR = 5,
-#define LCR	LCR
-  PC = 6,
-#define PC	PC
-  __STATUS = 7,
-#define __STATUS	__STATUS
-  SYSCALLNO = 8,
-#define SYSCALLNO	SYSCALLNO
-  ORIG_GR8 = 9,
-#define ORIG_GR8	ORIG_GR8
-  GNER0 = 10,
-#define GNER0	GNER0
-  GNER1 = 11,
-#define GNER1	GNER1
-  GR0 = 12,
-#define GR0	GR0
-  GR1 = 13,
-#define GR1	GR1
-  GR2 = 14,
-#define GR2	GR2
-  GR3 = 15,
-#define GR3	GR3
-  GR4 = 16,
-#define GR4	GR4
-  GR5 = 17,
-#define GR5	GR5
-  GR6 = 18,
-#define GR6	GR6
-  GR7 = 19,
-#define GR7	GR7
-  GR8 = 20,
-#define GR8	GR8
-  GR9 = 21,
-#define GR9	GR9
-  GR10 = 22,
-#define GR10	GR10
-  GR11 = 23,
-#define GR11	GR11
-  GR12 = 24,
-#define GR12	GR12
-  GR13 = 25,
-#define GR13	GR13
-  GR14 = 26,
-#define GR14	GR14
-  GR15 = 27,
-#define GR15	GR15
-  GR16 = 28,
-#define GR16	GR16
-  GR17 = 29,
-#define GR17	GR17
-  GR18 = 30,
-#define GR18	GR18
-  GR19 = 31,
-#define GR19	GR19
-  GR20 = 32,
-#define GR20	GR20
-  GR21 = 33,
-#define GR21	GR21
-  GR22 = 34,
-#define GR22	GR22
-  GR23 = 35,
-#define GR23	GR23
-  GR24 = 36,
-#define GR24	GR24
-  GR25 = 37,
-#define GR25	GR25
-  GR26 = 38,
-#define GR26	GR26
-  GR27 = 39,
-#define GR27	GR27
-  GR28 = 40,
-#define GR28	GR28
-  GR29 = 41,
-#define GR29	GR29
-  GR30 = 42,
-#define GR30	GR30
-  GR31 = 43,
-#define GR31	GR31
-  GR32 = 44,
-#define GR32	GR32
-  GR33 = 45,
-#define GR33	GR33
-  GR34 = 46,
-#define GR34	GR34
-  GR35 = 47,
-#define GR35	GR35
-  GR36 = 48,
-#define GR36	GR36
-  GR37 = 49,
-#define GR37	GR37
-  GR38 = 50,
-#define GR38	GR38
-  GR39 = 51,
-#define GR39	GR39
-  GR40 = 52,
-#define GR40	GR40
-  GR41 = 53,
-#define GR41	GR41
-  GR42 = 54,
-#define GR42	GR42
-  GR43 = 55,
-#define GR43	GR43
-  GR44 = 56,
-#define GR44	GR44
-  GR45 = 57,
-#define GR45	GR45
-  GR46 = 58,
-#define GR46	GR46
-  GR47 = 59,
-#define GR47	GR47
-  GR48 = 60,
-#define GR48	GR48
-  GR49 = 61,
-#define GR49	GR49
-  GR50 = 62,
-#define GR50	GR50
-  GR51 = 63,
-#define GR51	GR51
-  GR52 = 64,
-#define GR52	GR52
-  GR53 = 65,
-#define GR53	GR53
-  GR54 = 66,
-#define GR54	GR54
-  GR55 = 67,
-#define GR55	GR55
-  GR56 = 68,
-#define GR56	GR56
-  GR57 = 69,
-#define GR57	GR57
-  GR58 = 70,
-#define GR58	GR58
-  GR59 = 71,
-#define GR59	GR59
-  GR60 = 72,
-#define GR60	GR60
-  GR61 = 73,
-#define GR61	GR61
-  GR62 = 74,
-#define GR62	GR62
-  GR63 = 75,
-#define GR63	GR63
+  REG_PSR = 0,
+#define REG_PSR	REG_PSR
+  REG_ISR = 1,
+#define REG_ISR	REG_ISR
+  REG_CCR = 2,
+#define REG_CCR	REG_CCR
+  REG_CCCR = 3,
+#define REG_CCCR	REG_CCCR
+  REG_LR = 4,
+#define REG_LR	REG_LR
+  REG_LCR = 5,
+#define REG_LCR	REG_LCR
+  REG_PC = 6,
+#define REG_PC	REG_PC
+  REG___STATUS = 7,
+#define REG___STATUS	REG___STATUS
+  REG_SYSCALLNO = 8,
+#define REG_SYSCALLNO	REG_SYSCALLNO
+  REG_ORIG_GR8 = 9,
+#define REG_ORIG_GR8	REG_ORIG_GR8
+  REG_GNER0 = 10,
+#define REG_GNER0	REG_GNER0
+  REG_GNER1 = 11,
+#define REG_GNER1	REG_GNER1
+  REG_GR0 = 12,
+#define REG_GR0	REG_GR0
+  REG_GR1 = 13,
+#define REG_GR1	REG_GR1
+  REG_GR2 = 14,
+#define REG_GR2	REG_GR2
+  REG_GR3 = 15,
+#define REG_GR3	REG_GR3
+  REG_GR4 = 16,
+#define REG_GR4	REG_GR4
+  REG_GR5 = 17,
+#define REG_GR5	REG_GR5
+  REG_GR6 = 18,
+#define REG_GR6	REG_GR6
+  REG_GR7 = 19,
+#define REG_GR7	REG_GR7
+  REG_GR8 = 20,
+#define REG_GR8	REG_GR8
+  REG_GR9 = 21,
+#define REG_GR9	REG_GR9
+  REG_GR10 = 22,
+#define REG_GR10	REG_GR10
+  REG_GR11 = 23,
+#define REG_GR11	REG_GR11
+  REG_GR12 = 24,
+#define REG_GR12	REG_GR12
+  REG_GR13 = 25,
+#define REG_GR13	REG_GR13
+  REG_GR14 = 26,
+#define REG_GR14	REG_GR14
+  REG_GR15 = 27,
+#define REG_GR15	REG_GR15
+  REG_GR16 = 28,
+#define REG_GR16	REG_GR16
+  REG_GR17 = 29,
+#define REG_GR17	REG_GR17
+  REG_GR18 = 30,
+#define REG_GR18	REG_GR18
+  REG_GR19 = 31,
+#define REG_GR19	REG_GR19
+  REG_GR20 = 32,
+#define REG_GR20	REG_GR20
+  REG_GR21 = 33,
+#define REG_GR21	REG_GR21
+  REG_GR22 = 34,
+#define REG_GR22	REG_GR22
+  REG_GR23 = 35,
+#define REG_GR23	REG_GR23
+  REG_GR24 = 36,
+#define REG_GR24	REG_GR24
+  REG_GR25 = 37,
+#define REG_GR25	REG_GR25
+  REG_GR26 = 38,
+#define REG_GR26	REG_GR26
+  REG_GR27 = 39,
+#define REG_GR27	REG_GR27
+  REG_GR28 = 40,
+#define REG_GR28	REG_GR28
+  REG_GR29 = 41,
+#define REG_GR29	REG_GR29
+  REG_GR30 = 42,
+#define REG_GR30	REG_GR30
+  REG_GR31 = 43,
+#define REG_GR31	REG_GR31
+  REG_GR32 = 44,
+#define REG_GR32	REG_GR32
+  REG_GR33 = 45,
+#define REG_GR33	REG_GR33
+  REG_GR34 = 46,
+#define REG_GR34	REG_GR34
+  REG_GR35 = 47,
+#define REG_GR35	REG_GR35
+  REG_GR36 = 48,
+#define REG_GR36	REG_GR36
+  REG_GR37 = 49,
+#define REG_GR37	REG_GR37
+  REG_GR38 = 50,
+#define REG_GR38	REG_GR38
+  REG_GR39 = 51,
+#define REG_GR39	REG_GR39
+  REG_GR40 = 52,
+#define REG_GR40	REG_GR40
+  REG_GR41 = 53,
+#define REG_GR41	REG_GR41
+  REG_GR42 = 54,
+#define REG_GR42	REG_GR42
+  REG_GR43 = 55,
+#define REG_GR43	REG_GR43
+  REG_GR44 = 56,
+#define REG_GR44	REG_GR44
+  REG_GR45 = 57,
+#define REG_GR45	REG_GR45
+  REG_GR46 = 58,
+#define REG_GR46	REG_GR46
+  REG_GR47 = 59,
+#define REG_GR47	REG_GR47
+  REG_GR48 = 60,
+#define REG_GR48	REG_GR48
+  REG_GR49 = 61,
+#define REG_GR49	REG_GR49
+  REG_GR50 = 62,
+#define REG_GR50	REG_GR50
+  REG_GR51 = 63,
+#define REG_GR51	REG_GR51
+  REG_GR52 = 64,
+#define REG_GR52	REG_GR52
+  REG_GR53 = 65,
+#define REG_GR53	REG_GR53
+  REG_GR54 = 66,
+#define REG_GR54	REG_GR54
+  REG_GR55 = 67,
+#define REG_GR55	REG_GR55
+  REG_GR56 = 68,
+#define REG_GR56	REG_GR56
+  REG_GR57 = 69,
+#define REG_GR57	REG_GR57
+  REG_GR58 = 70,
+#define REG_GR58	REG_GR58
+  REG_GR59 = 71,
+#define REG_GR59	REG_GR59
+  REG_GR60 = 72,
+#define REG_GR60	REG_GR60
+  REG_GR61 = 73,
+#define REG_GR61	REG_GR61
+  REG_GR62 = 74,
+#define REG_GR62	REG_GR62
+  REG_GR63 = 75,
+#define REG_GR63	REG_GR63
 };
 #endif
 
@@ -203,164 +203,164 @@ typedef unsigned long freg_t;
 /* Number of each register is the `gregset_t' array.  */
 enum
 {
-  FR0 = 0,
-#define FR0	FR0
-  FR1 = 1,
-#define FR1	FR1
-  FR2 = 2,
-#define FR2	FR2
-  FR3 = 3,
-#define FR3	FR3
-  FR4 = 4,
-#define FR4	FR4
-  FR5 = 5,
-#define FR5	FR5
-  FR6 = 6,
-#define FR6	FR6
-  FR7 = 7,
-#define FR7	FR7
-  FR8 = 8,
-#define FR8	FR8
-  FR9 = 9,
-#define FR9	FR9
-  FR10 = 10,
-#define FR10	FR10
-  FR11 = 11,
-#define FR11	FR11
-  FR12 = 12,
-#define FR12	FR12
-  FR13 = 13,
-#define FR13	FR13
-  FR14 = 14,
-#define FR14	FR14
-  FR15 = 15,
-#define FR15	FR15
-  FR16 = 16,
-#define FR16	FR16
-  FR17 = 17,
-#define FR17	FR17
-  FR18 = 18,
-#define FR18	FR18
-  FR19 = 19,
-#define FR19	FR19
-  FR20 = 20,
-#define FR20	FR20
-  FR21 = 21,
-#define FR21	FR21
-  FR22 = 22,
-#define FR22	FR22
-  FR23 = 23,
-#define FR23	FR23
-  FR24 = 24,
-#define FR24	FR24
-  FR25 = 25,
-#define FR25	FR25
-  FR26 = 26,
-#define FR26	FR26
-  FR27 = 27,
-#define FR27	FR27
-  FR28 = 28,
-#define FR28	FR28
-  FR29 = 29,
-#define FR29	FR29
-  FR30 = 30,
-#define FR30	FR30
-  FR31 = 31,
-#define FR31	FR31
-  FR32 = 32,
-#define FR32	FR32
-  FR33 = 33,
-#define FR33	FR33
-  FR34 = 34,
-#define FR34	FR34
-  FR35 = 35,
-#define FR35	FR35
-  FR36 = 36,
-#define FR36	FR36
-  FR37 = 37,
-#define FR37	FR37
-  FR38 = 38,
-#define FR38	FR38
-  FR39 = 39,
-#define FR39	FR39
-  FR40 = 40,
-#define FR40	FR40
-  FR41 = 41,
-#define FR41	FR41
-  FR42 = 42,
-#define FR42	FR42
-  FR43 = 43,
-#define FR43	FR43
-  FR44 = 44,
-#define FR44	FR44
-  FR45 = 45,
-#define FR45	FR45
-  FR46 = 46,
-#define FR46	FR46
-  FR47 = 47,
-#define FR47	FR47
-  FR48 = 48,
-#define FR48	FR48
-  FR49 = 49,
-#define FR49	FR49
-  FR50 = 50,
-#define FR50	FR50
-  FR51 = 51,
-#define FR51	FR51
-  FR52 = 52,
-#define FR52	FR52
-  FR53 = 53,
-#define FR53	FR53
-  FR54 = 54,
-#define FR54	FR54
-  FR55 = 55,
-#define FR55	FR55
-  FR56 = 56,
-#define FR56	FR56
-  FR57 = 57,
-#define FR57	FR57
-  FR58 = 58,
-#define FR58	FR58
-  FR59 = 59,
-#define FR59	FR59
-  FR60 = 60,
-#define FR60	FR60
-  FR61 = 61,
-#define FR61	FR61
-  FR62 = 62,
-#define FR62	FR62
-  FR63 = 63,
-#define FR63	FR63
-  FNER0 = 64,
-#define FNER0	FNER0
-  FNER1 = 65,
-#define FNER1	FNER1
-  MSR0 = 66,
-#define MSR0	MSR0
-  MSR1 = 67,
-#define MSR1	MSR1
-  ACC0 = 68,
-#define ACC0	ACC0
-  ACC1 = 69,
-#define ACC1	ACC1
-  ACC2 = 70,
-#define ACC2	ACC2
-  ACC3 = 71,
-#define ACC3	ACC3
-  ACC4 = 72,
-#define ACC4	ACC4
-  ACC5 = 73,
-#define ACC5	ACC5
-  ACC6 = 74,
-#define ACC6	ACC6
-  ACC7 = 75,
-#define ACC7	ACC7
-  ACCG0123 = 76,
-#define ACCG0123	ACCG0123
-  ACCG4567 = 77,
-#define ACCG4567	ACCG4567
-  FSR0 = 78,
-#define FSR0	FSR0
+  REG_FR0 = 0,
+#define REG_FR0	REG_FR0
+  REG_FR1 = 1,
+#define REG_FR1	REG_FR1
+  REG_FR2 = 2,
+#define REG_FR2	REG_FR2
+  REG_FR3 = 3,
+#define REG_FR3	REG_FR3
+  REG_FR4 = 4,
+#define REG_FR4	REG_FR4
+  REG_FR5 = 5,
+#define REG_FR5	REG_FR5
+  REG_FR6 = 6,
+#define REG_FR6	REG_FR6
+  REG_FR7 = 7,
+#define REG_FR7	REG_FR7
+  REG_FR8 = 8,
+#define REG_FR8	REG_FR8
+  REG_FR9 = 9,
+#define REG_FR9	REG_FR9
+  REG_FR10 = 10,
+#define REG_FR10	REG_FR10
+  REG_FR11 = 11,
+#define REG_FR11	REG_FR11
+  REG_FR12 = 12,
+#define REG_FR12	REG_FR12
+  REG_FR13 = 13,
+#define REG_FR13	REG_FR13
+  REG_FR14 = 14,
+#define REG_FR14	REG_FR14
+  REG_FR15 = 15,
+#define REG_FR15	REG_FR15
+  REG_FR16 = 16,
+#define REG_FR16	REG_FR16
+  REG_FR17 = 17,
+#define REG_FR17	REG_FR17
+  REG_FR18 = 18,
+#define REG_FR18	REG_FR18
+  REG_FR19 = 19,
+#define REG_FR19	REG_FR19
+  REG_FR20 = 20,
+#define REG_FR20	REG_FR20
+  REG_FR21 = 21,
+#define REG_FR21	REG_FR21
+  REG_FR22 = 22,
+#define REG_FR22	REG_FR22
+  REG_FR23 = 23,
+#define REG_FR23	REG_FR23
+  REG_FR24 = 24,
+#define REG_FR24	REG_FR24
+  REG_FR25 = 25,
+#define REG_FR25	REG_FR25
+  REG_FR26 = 26,
+#define REG_FR26	REG_FR26
+  REG_FR27 = 27,
+#define REG_FR27	REG_FR27
+  REG_FR28 = 28,
+#define REG_FR28	REG_FR28
+  REG_FR29 = 29,
+#define REG_FR29	REG_FR29
+  REG_FR30 = 30,
+#define REG_FR30	REG_FR30
+  REG_FR31 = 31,
+#define REG_FR31	REG_FR31
+  REG_FR32 = 32,
+#define REG_FR32	REG_FR32
+  REG_FR33 = 33,
+#define REG_FR33	REG_FR33
+  REG_FR34 = 34,
+#define REG_FR34	REG_FR34
+  REG_FR35 = 35,
+#define REG_FR35	REG_FR35
+  REG_FR36 = 36,
+#define REG_FR36	REG_FR36
+  REG_FR37 = 37,
+#define REG_FR37	REG_FR37
+  REG_FR38 = 38,
+#define REG_FR38	REG_FR38
+  REG_FR39 = 39,
+#define REG_FR39	REG_FR39
+  REG_FR40 = 40,
+#define REG_FR40	REG_FR40
+  REG_FR41 = 41,
+#define REG_FR41	REG_FR41
+  REG_FR42 = 42,
+#define REG_FR42	REG_FR42
+  REG_FR43 = 43,
+#define REG_FR43	REG_FR43
+  REG_FR44 = 44,
+#define REG_FR44	REG_FR44
+  REG_FR45 = 45,
+#define REG_FR45	REG_FR45
+  REG_FR46 = 46,
+#define REG_FR46	REG_FR46
+  REG_FR47 = 47,
+#define REG_FR47	REG_FR47
+  REG_FR48 = 48,
+#define REG_FR48	REG_FR48
+  REG_FR49 = 49,
+#define REG_FR49	REG_FR49
+  REG_FR50 = 50,
+#define REG_FR50	REG_FR50
+  REG_FR51 = 51,
+#define REG_FR51	REG_FR51
+  REG_FR52 = 52,
+#define REG_FR52	REG_FR52
+  REG_FR53 = 53,
+#define REG_FR53	REG_FR53
+  REG_FR54 = 54,
+#define REG_FR54	REG_FR54
+  REG_FR55 = 55,
+#define REG_FR55	REG_FR55
+  REG_FR56 = 56,
+#define REG_FR56	REG_FR56
+  REG_FR57 = 57,
+#define REG_FR57	REG_FR57
+  REG_FR58 = 58,
+#define REG_FR58	REG_FR58
+  REG_FR59 = 59,
+#define REG_FR59	REG_FR59
+  REG_FR60 = 60,
+#define REG_FR60	REG_FR60
+  REG_FR61 = 61,
+#define REG_FR61	REG_FR61
+  REG_FR62 = 62,
+#define REG_FR62	REG_FR62
+  REG_FR63 = 63,
+#define REG_FR63	REG_FR63
+  REG_FNER0 = 64,
+#define REG_FNER0	REG_FNER0
+  REG_FNER1 = 65,
+#define REG_FNER1	REG_FNER1
+  REG_MSR0 = 66,
+#define REG_MSR0	REG_MSR0
+  REG_MSR1 = 67,
+#define REG_MSR1	REG_MSR1
+  REG_ACC0 = 68,
+#define REG_ACC0	REG_ACC0
+  REG_ACC1 = 69,
+#define REG_ACC1	REG_ACC1
+  REG_ACC2 = 70,
+#define REG_ACC2	REG_ACC2
+  REG_ACC3 = 71,
+#define REG_ACC3	REG_ACC3
+  REG_ACC4 = 72,
+#define REG_ACC4	REG_ACC4
+  REG_ACC5 = 73,
+#define REG_ACC5	REG_ACC5
+  REG_ACC6 = 74,
+#define REG_ACC6	REG_ACC6
+  REG_ACC7 = 75,
+#define REG_ACC7	REG_ACC7
+  REG_ACCG0123 = 76,
+#define REG_ACCG0123	REG_ACCG0123
+  REG_ACCG4567 = 77,
+#define REG_ACCG4567	REG_ACCG4567
+  REG_FSR0 = 78,
+#define REG_FSR0	REG_FSR0
 };
 #endif
 

@@ -19,15 +19,29 @@
 #ifndef __ASSEMBLER__
 
 /* user-visible error numbers are in the range -1 - -4095: see <asm-frv/errno.h> */
-#define __syscall_return(type, res) \
+#ifdef _LIBC
+# define __syscall_return(type, res) \
 do { \
         unsigned long __sr2 = (res);		    			    \
-	if ((unsigned long)(__sr2) >= (unsigned long)(-4095)) {		    \
-		__set_errno (-(__sr2));					    \
+	if (__builtin_expect ((unsigned long)(__sr2)			    \
+			      >= (unsigned long)(-4095), 0)) {		    \
+		extern int __syscall_error (int);			    \
+		return (type) __syscall_error (__sr2);		    	    \
+	}								    \
+	return (type) (__sr2); 						    \
+} while (0)
+#else
+# define __syscall_return(type, res) \
+do { \
+        unsigned long __sr2 = (res);		    			    \
+	if (__builtin_expect ((unsigned long)(__sr2)			    \
+			      >= (unsigned long)(-4095), 0)) {		    \
+		__set_errno (-__sr2);				    	    \
 		__sr2 = -1; 						    \
 	}								    \
 	return (type) (__sr2); 						    \
 } while (0)
+#endif
 
 /* XXX - _foo needs to be __foo, while __NR_bar could be _NR_bar. */
 

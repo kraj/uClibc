@@ -29,6 +29,8 @@ USA.  */
  */
 #undef ELF_USES_RELOCA
 
+#define DL_NO_COPY_RELOCS
+
 /*
  * Initialization sequence for a GOT.  Copy the resolver function
  * descriptor and the pointer to the elf_resolve/link_map data
@@ -62,10 +64,11 @@ extern int _dl_linux_resolve(void) __attribute__((__visibility__("hidden")));
 
 #define do_rem(result, n, base)  result = (n % base)
 
-/* 4096 bytes alignment */
-#define PAGE_ALIGN 0xfffff000
-#define ADDR_ALIGN 0xfff
-#define OFFS_ALIGN 0x7ffff000
+/* 16KiB page alignment.  Should perhaps be made dynamic using
+   getpagesize(), based on AT_PAGESZ from auxvt?  */
+#define PAGE_ALIGN 0xffffc000
+#define ADDR_ALIGN 0x3fff
+#define OFFS_ALIGN 0x7fffc000
 
 struct funcdesc_ht;
 

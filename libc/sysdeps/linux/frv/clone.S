@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Free Software Foudnation, Inc.
+/* Copyright (C) 2003, 2004 Free Software Foudnation, Inc.
    This file is part of the GNU C Library.
    Contributed by Alexandre Oliva <aoliva@redhat.com>, 2003.
 
@@ -41,9 +41,11 @@ __clone:
 	setlos	#__NR_clone, gr7
 	tra	gr0,gr0
 
-	cmp	gr8, gr0, icc0
-	bgtlr	icc0, #1
+	cmp.p	gr8, gr0, icc0
+	setlos #-4096, gr6
+	cmp.p	gr8, gr6, icc1
 	beq	icc0, #0, .Lthread_start
+	blslr	icc1, #2
 
 .Lsys_error:
 	sethi.p	#gotofffuncdeschi(__syscall_error), gr14
@@ -52,7 +54,7 @@ __clone:
 	jmpl	@(gr14, gr0)
 
 .Lerror:
-	setlos.p #-EINVAL, gr7
+	setlos.p #-EINVAL, gr8
 	bra	.Lsys_error
 
 ###############################################################################

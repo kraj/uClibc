@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2004 Free Software Foundation, Inc.
    written by Alexandre Oliva <aoliva@redhat.com>
 This file is part of the GNU C Library.
 
@@ -17,13 +17,9 @@ License along with the GNU C Library; see the file COPYING.LIB.  If
 not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
-#define _GNU_SOURCE
-#include <link.h>
-
+#define _GNU_SOURCE 1
 #include <sys/types.h>
-
-#include <elf.h>
-#include <bits/elf-fdpic.h>
+#include <link.h>
 
 /* This file is to be compiled into crt object files, to enable
    executables to easily self-relocate.  */
