@@ -223,9 +223,8 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	const char *pnt, *pnt1;
 	struct elf_resolve *tpnt1;
 	const char *libname;
-	const char libc6[] = "libc.so.6";
-	const char libc5[] = "libc.so.5";
-	const char aborted_wrong_lib[] = "%s: aborted attempt to load %s!\n";
+	static const char libc[] = "libc.so.";
+	static const char aborted_wrong_lib[] = "%s: aborted attempt to load %s!\n";
 
 	_dl_internal_error_number = 0;
 	libname = full_libname;
@@ -251,11 +250,11 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	/* Make sure they are not trying to load the wrong C library!
 	 * This sometimes happens esp with shared libraries when the
 	 * library path is somehow wrong! */
-	if ((pnt1 = libc6, (_dl_strcmp(libname, pnt1) == 0)) || 
-			(pnt1 = libc5, (_dl_strcmp(libname, pnt1) == 0)))
+	if ((_dl_strcmp(libname, libc) == 0) && 
+			( libname[8]=='6' || libname[8]=='5'))
 	{
 		if (!_dl_trace_loaded_objects) {
-			_dl_dprintf(2, aborted_wrong_lib, pnt1, _dl_progname);
+			_dl_dprintf(2, aborted_wrong_lib, libname, _dl_progname);
 		}
 		return NULL;
 	}
