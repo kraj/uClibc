@@ -14,12 +14,18 @@ LIBC=$(TOPDIR)libc.a
 .S.o:
 	$(CC) $(CFLAGS) -c -o $*.o $<
 
+SSRC=syscall.S
+OBJ= setjmp.o longjmp.o readdir.o _start.o _exit.o #select.o 
 include makefile.objs
 
 all: $(LIBC)
 
-$(LIBC): $(OBJ)
+$(LIBC): $(OBJ) $(LIBC)($(SOBJ))
 	$(AR) $(ARFLAGS) $@ $(OBJ)
+
+$(LIBC)($(SOBJ)): $(SSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(AR) $(ARFLAGS) $@ $*.o
 
 transfer:
 	-@rm -f ../include/stdio.h
