@@ -28,12 +28,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-
-#ifdef __UCLIBC_HAS_IPV6__
-#define INET_IPV6
-#define SPRINTF(a) sprintf a
 #include <ctype.h>
-#endif
 
 
 /*
@@ -95,13 +90,10 @@ inet_ntop4(const u_char *src, char *dst, size_t size)
  *	Paul Vixie, 1996.
  */
 
-#ifdef INET_IPV6
+#ifdef __UCLIBC_HAS_IPV6__
 
 static const char *
-inet_ntop6(src, dst, size)
-	const u_char *src;
-	char *dst;
-	size_t size;
+inet_ntop6(const u_char *src, char *dst, size_t size)
 {
 	/*
 	 * Note that int32_t and int16_t need only be "at least" large enough
@@ -169,7 +161,7 @@ inet_ntop6(src, dst, size)
 			tp += strlen(tp);
 			break;
 		}
-		tp += SPRINTF((tp, "%x", words[i]));
+		tp += sprintf(tp, "%x", words[i]);
 	}
 	/* Was it a trailing run of 0x00's? */
 	if (best.base != -1 && (best.base + best.len) == 8)
@@ -185,7 +177,7 @@ inet_ntop6(src, dst, size)
 	}
 	return strcpy(dst, tmp);
 }
-#endif /* INET_IPV6 */
+#endif /* __UCLIBC_HAS_IPV6__ */
 
 
 /* int
@@ -248,12 +240,17 @@ inet_pton4(const char *src, u_char *dst)
  *	Paul Vixie, 1996.
  */
 
-#ifdef INET_IPV6
+#ifdef __UCLIBC_HAS_IPV6__
+
+/* We cannot use the macro version of tolower() or very bad
+ * things happen when '*src++' gets evaluated multiple times.  
+ * So * undef it here so we get the function version of tolower
+ * instead.
+ */
+#undef tolower
 
 static int
-inet_pton6(src, dst)
-	const char *src;
-	u_char *dst;
+inet_pton6(const char *src, u_char *dst)
 {
 	static const char xdigits[] = "0123456789abcdef";
 	u_char tmp[16], *tp, *endp, *colonp;
@@ -338,7 +335,7 @@ inet_pton6(src, dst)
 	return (1);
 }
 
-#endif /* INET_IPV6 */
+#endif /* __UCLIBC_HAS_IPV6__ */
 
 
 
@@ -360,7 +357,7 @@ inet_ntop(af, src, dst, size)
 	switch (af) {
 	case AF_INET:
 		return (inet_ntop4(src, dst, size));
-#ifdef INET_IPV6
+#ifdef __UCLIBC_HAS_IPV6__
 	case AF_INET6:
 		return (inet_ntop6(src, dst, size));
 #endif
@@ -392,7 +389,7 @@ inet_pton(af, src, dst)
 	switch (af) {
 	case AF_INET:
 		return (inet_pton4(src, dst));
-#ifdef INET_IPV6
+#ifdef __UCLIBC_HAS_IPV6__
 	case AF_INET6:
 		return (inet_pton6(src, dst));
 #endif
