@@ -85,14 +85,14 @@ static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 static FILE *servf = NULL;
 static struct servent serv;
-static char *buf = NULL;
+static char *servbuf = NULL;
 static int serv_stayopen;
 
 static void __initbuf(void)
 {
-    if (!buf) {
-	buf = malloc(SBUFSIZE);
-	if (!buf)
+    if (!servbuf) {
+	servbuf = malloc(SBUFSIZE);
+	if (!servbuf)
 	    abort();
     }
 }
@@ -124,7 +124,7 @@ struct servent * getservent(void)
     struct servent *result;
 
     __initbuf();
-    getservent_r(&serv, buf, SBUFSIZE, &result);
+    getservent_r(&serv, servbuf, SBUFSIZE, &result);
     return result;
 }
 
@@ -134,7 +134,7 @@ struct servent *getservbyname(const char *name, const char *proto)
     struct servent *result;
 
     __initbuf();
-    getservbyname_r(name, proto, &serv, buf, SBUFSIZE, &result);
+    getservbyname_r(name, proto, &serv, servbuf, SBUFSIZE, &result);
     return result;
 }
 
@@ -144,7 +144,7 @@ struct servent * getservbyport(int port, const char *proto)
     struct servent *result;
 
     __initbuf();
-    getservbyport_r(port, proto, &serv, buf, SBUFSIZE, &result);
+    getservbyport_r(port, proto, &serv, servbuf, SBUFSIZE, &result);
     return result;
 }
 
