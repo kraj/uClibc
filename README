@@ -1,32 +1,29 @@
 
-  uClibc - a small libc implementation
-  Erik Andersen <erik@codepoet.org>
+  uClibc - a Small C Library for Linux
+  Erik Andersen <andersen@codepoet.org>
 
-
-uClibc (aka µClibc/pronounced yew-see-lib-see) is size-optimized
-implementation of the standard C library.  The primary use is
-for developing embedded Linux systems.  It is much smaller then
-the GNU C Library (glibc), but nearly all applications supported
-by glibc also compile and work perfectly with uClibc.  Porting
-applications from glibc to uClibc typically involves just
-recompiling the source code.  uClibc even supports shared
-libraries and threading.  It currently runs on standard Linux
-and MMU-less Linux (also known as µClinux) systems on the
-following processors: ARM, i386, h8300, m68k, mips, mipsel,
-PowerPC, SH, SPARC, and v850.
+uClibc (aka µClibc/pronounced yew-see-lib-see) is a size-optimized
+implementation of the standard C library.  It is primarily designed
+for developing embedded Linux systems.  It is much smaller then the
+GNU C Library, but nearly all applications supported by glibc also
+work perfectly with uClibc. Porting applications from glibc to
+uClibc typically involves just recompiling the source code. uClibc
+even supports shared libraries and threading. It currently runs on
+standard Linux and MMU-less (also known as µClinuxClinux) systems
+with support for ARM, i386, h8300, m68k, mips, mipsel, PowerPC, SH,
+SPARC, and v850 processors.
 
 For installation instructions, see the file INSTALL.
 
-This distribution contains a wrapper for gcc and ld that allows
-you to use existing toolchains that were targetted for glibc.
-See extra/gcc-uClibc/ for information.
+This distribution contains a wrapper for gcc and ld that allows you
+to use existing toolchains that were targetted for glibc.  See
+extra/gcc-uClibc/ for information.
 
 uClibc strives to be standards compliant, which means that most
 documentation written for functions in glibc also apply to uClibc
-functions.  However, many GNU extensions are not supported
-because they have not been ported, or more importantly, would
-increase the size of uClibc disproportional to the added
-functionality.
+functions.  However, many GNU extensions are not supported because
+they have not been ported, or more importantly, would increase the
+size of uClibc disproportional to the added functionality.
 
 Additional information (recent releases, FAQ, mailing list, bugs,
 etc.) can be found at http://www.uclibc.org/.
@@ -35,4 +32,17 @@ uClibc may be freely modified distributed under the terms of the
 GNU Library General Public License, which can be found in the
 file COPYING.LIB.
 
+Please Note:
+
+	There is an unwholesomely huge amount of code out there
+	that depends on the presence of GNU libc header files.
+	We have GNU libc header files.  So we have committed a
+	horrible sin in uClibc.  We _lie_ and claim to be GNU
+	libc in order to force these applications to work as their
+	developers intended.  This is IMHO, pardonable, since
+	these defines are not really intended to check for the
+	presence of a particular library, but rather are used to
+	define an _interface_.  Some programs (such as GNU
+	binutils) are especially chummy with glibc, and need this
+	behavior disabled by adding CFLAGS+=__FORCE_NOGLIBC
 
