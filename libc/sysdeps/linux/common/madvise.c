@@ -8,4 +8,6 @@
  */
 
 #include "syscalls.h"
+#ifdef __NR_madvise
 _syscall3(int, madvise, void *, __addr, size_t, __len, int, __advice);
+#endif
