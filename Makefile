@@ -31,13 +31,28 @@ include Rules.mak
 
 DIRS = misc pwd_grp stdio string termios unistd net signal stdlib sysdeps extra
 
-all: libc.a
+ifeq ($(HAS_MMU),true)
+	DO_SHARED=shared
+endif
+
+all: libc.a $(DO_SHARED) done
 
 libc.a: halfclean headers subdirs
+	$(CROSS)ranlib libc.a
+
+# Surely there is a better way to do this then dumping all 
+# the objects into a tmp dir.  Please -- someone enlighten me.
+shared: libc.a
+	@rm -rf tmp
+	@mkdir tmp
+	@(cd tmp; ar -x ../libc.a)
+	$(CC) -s -nostdlib -shared -o libuClibc.so.1 -Wl,-soname,libuClibc.so.1 tmp/*.o
+	@rm -rf tmp
+
+done: libc.a $(DO_SHARED)
 	@echo
 	@echo Finally finished compiling...
 	@echo
-	$(CROSS)ranlib libc.a
 
 halfclean:
 	@rm -f libc.a
@@ -66,6 +81,7 @@ tags:
 	ctags -R
 
 clean: subdirs_clean
+	@rm -rf tmp
 	rm -f libc.a libcrt0.o
 	rm -f include/asm include/linux include/bits
 
