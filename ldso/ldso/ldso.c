@@ -1046,16 +1046,35 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 				lpntstr = tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] +
 					dpnt->d_un.d_val;
 				if (_dl_strcmp(lpntstr, "libc.so.6") == 0) {
-					_dl_dprintf(2, "%s: linked against GNU libc!\n", _dl_progname);
+					char *name, *msg;
+					name = tcurr->libname;
+					while(*name == '/')
+						name++;
+					if (_dl_trace_loaded_objects) {
+						msg = "WARNING"; 
+					} else {
+						msg = "ERROR"; 
+					}
+					_dl_dprintf(2, "\t%s: %s is linked with GNU libc!\n", msg, --name);
+					/* If all we are doing is ldd, then we don't need to freak out... */
+					if (_dl_trace_loaded_objects) {
+						continue;
+					}
+					/* Time to freak out.  Make sure glibc linked libraries are not loaded */
 					_dl_exit(150);
 				}
-				if (tpnt && _dl_strcmp(lpntstr, _dl_get_last_path_component(tpnt->libname)) == 0) {
+				if (tpnt && _dl_strcmp(lpntstr, _dl_get_last_path_component(tpnt->libname)) == 0) 
+				{
 					struct elf_resolve *ttmp;
 
 #ifdef __LDSO_LDD_SUPPORT__
 					if (_dl_trace_loaded_objects && tpnt->usage_count==1) {
+						char *name;
+						name = tpnt->libname;
+						while(*name == '/')
+							name++;
 						_dl_dprintf(1, "\t%s => %s (0x%x)\n", 
-								lpntstr, tpnt->libname, (unsigned) tpnt->loadaddr);
+								lpntstr, --name, (unsigned) tpnt->loadaddr);
 					}
 #endif
 					ttmp = _dl_loaded_modules;
@@ -1091,9 +1110,14 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 					_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
 #ifdef __LDSO_LDD_SUPPORT__
-					if (_dl_trace_loaded_objects && tpnt1->usage_count==1)
-						_dl_dprintf(1, "\t%s => %s (0x%x)\n", lpntstr, tpnt1->libname, 
+					if (_dl_trace_loaded_objects && tpnt1->usage_count==1) {
+						char *name;
+						name = tpnt1->libname;
+						while(*name == '/')
+							name++;
+						_dl_dprintf(1, "\t%s => %s (0x%x)\n", lpntstr, --name, 
 								(unsigned) tpnt1->loadaddr);
+					}
 #endif
 				}
 			}
