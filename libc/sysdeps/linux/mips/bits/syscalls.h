@@ -34,7 +34,7 @@ __asm__ volatile ("li\t$2,%2\n\t" \
 if (__err == 0) \
 	return (type) __res; \
 __set_errno(__res); \
-return -1; \
+return (type)-1; \
 }
 
 /*
@@ -56,7 +56,7 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 if (__err == 0) \
 	return (type) __res; \
 __set_errno(__res); \
-return -1; \
+return (type)-1; \
 }
 
 #define _syscall2(type,name,atype,a,btype,b) \
@@ -77,7 +77,7 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 if (__err == 0) \
 	return (type) __res; \
 __set_errno(__res); \
-return -1; \
+return (type)-1; \
 }
 
 #define _syscall3(type,name,atype,a,btype,b,ctype,c) \
@@ -100,7 +100,7 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 if (__err == 0) \
 	return (type) __res; \
 __set_errno(__res); \
-return -1; \
+return (type)-1; \
 }
 
 #define _syscall4(type,name,atype,a,btype,b,ctype,c,dtype,d) \
@@ -125,7 +125,7 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 if (__err == 0) \
 	return (type) __res; \
 __set_errno(__res); \
-return -1; \
+return (type)-1; \
 }
 
 #define _syscall5(type,name,atype,a,btype,b,ctype,c,dtype,d,etype,e) \
@@ -155,7 +155,7 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 if (__err == 0) \
 	return (type) __res; \
 __set_errno(__res); \
-return -1; \
+return (type)-1; \
 }
 
 #define _syscall6(type,name,atype,a,btype,b,ctype,c,dtype,d,etype,e,ftype,f) \
@@ -188,7 +188,7 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 if (__err == 0) \
 	return (type) __res; \
 __set_errno(__res); \
-return -1; \
+return (type)-1; \
 }
 
 #define _syscall7(type,name,atype,a,btype,b,ctype,c,dtype,d,etype,e,ftype,f,gtype,g) \
@@ -224,7 +224,7 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 if (__err == 0) \
 	return (type) __res; \
 __set_errno(__res); \
-return -1; \
+return (type)-1; \
 }
 
 #endif /* __ASSEMBLER__ */
