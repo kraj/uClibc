@@ -18,6 +18,7 @@ echo "#define __NR__stat __NR_stat"
 echo "#define __NR__lstat __NR_lstat"
 echo "#define __NR__fstat __NR_fstat"
 echo "#define __NR__getdents __NR_getdents"
+echo "#define __NR___ptrace __NR_ptrace"
 echo
 sed -ne 's/^[^\/]*_syscall[0-9].*([^,]*, *\([^,)]*\).*/printf("#define __STR_NR_\1 \\\"%d\\\"\\n", __NR_\1);/gp' syscalls.c
 echo
