@@ -51,9 +51,9 @@ realloc (void *mem, size_t new_size)
     {
       size_t extra = new_size - size;
 
-      __malloc_lock ();
+      __heap_lock (heap);
       extra = __heap_alloc_at (&__malloc_heap, base_mem + size, extra);
-      __malloc_unlock ();
+      __heap_unlock (heap);
 
       if (extra)
 	/* Record the changed size.  */
@@ -74,9 +74,9 @@ realloc (void *mem, size_t new_size)
   else if (new_size + MALLOC_REALLOC_MIN_FREE_SIZE <= size)
     /* Shrink the block.  */
     {
-      __malloc_lock ();
+      __heap_lock (heap);
       __heap_free (&__malloc_heap, base_mem + new_size, size - new_size);
-      __malloc_unlock ();
+      __heap_unlock (heap);
       MALLOC_SET_SIZE (base_mem, new_size);
     }
 
