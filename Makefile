@@ -170,7 +170,7 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 tags:
 	ctags -R
 
-install: install_dev install_runtime install_gcc
+install: install_dev install_runtime install_toolchain
 
 
 # Installs header files and development library links.
@@ -198,11 +198,6 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	install -d $(PREFIX)$(DEVEL_PREFIX)/bin
 	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(DEVEL_PREFIX)/lib
 	cp -a lib/*.so.* $(PREFIX)$(DEVEL_PREFIX)/lib
-	install -m 755 ldso/util/ldd $(PREFIX)$(DEVEL_PREFIX)/bin
-	install -m 755 ldso/util/readelf $(PREFIX)$(DEVEL_PREFIX)/bin
-	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
-	ln -fs $(DEVEL_PREFIX)/bin/ldd $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
-	ln -fs $(DEVEL_PREFIX)/bin/readelf $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
 	    set -x -e; \
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(DEVEL_PREFIX)/lib; \
@@ -210,15 +205,21 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	    ln -s $(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so \
 	    		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) || true; \
 	fi;
+endif
+
+install_toolchain:
+	@$(MAKE) -C ldso shared
+	install -m 755 ldso/util/ldd $(PREFIX)$(DEVEL_PREFIX)/bin
+	install -m 755 ldso/util/readelf $(PREFIX)$(DEVEL_PREFIX)/bin
+	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
+	ln -fs $(DEVEL_PREFIX)/bin/ldd $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
+	ln -fs $(DEVEL_PREFIX)/bin/readelf $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf
 	@if [ -x ldso/util/ldconfig ] ; then \
 	    set -x -e; \
 	    install -d $(PREFIX)$(DEVEL_PREFIX)/etc; \
 	    install -m 755 ldso/util/ldconfig $(PREFIX)$(DEVEL_PREFIX)/bin; \
 	    ln -fs $(DEVEL_PREFIX)/sbin/ldconfig $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig; \
 	fi;
-endif
-
-install_gcc:
 	$(MAKE) -C extra/gcc-uClibc install
 
 

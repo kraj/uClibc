@@ -45,8 +45,7 @@ ALL_SUBDIRS = powerpc
 LIBM=libm.a
 LIBM_SHARED=libm.so
 LIBM_SHARED_FULLNAME=libm-$(MAJOR_VERSION).$(MINOR_VERSION).so
-TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
-TARGET_CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
+CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
 ifeq ($(strip $(DO_C99_MATH)),true)
 CSRC =   e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
@@ -108,7 +107,7 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBM) $(OBJS)
 
 $(COBJS): %.o : %.c
-	$(TARGET_CC) $(TARGET_CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile

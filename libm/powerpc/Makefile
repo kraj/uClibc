@@ -35,8 +35,7 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 LIBM=../libm.a
-TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
-TARGET_CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
+CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
 ifeq ($(strip $(DO_C99_MATH)),true)
 CSRC = s_ceil.c s_floor.c s_ldexp.c s_frexp.c s_logb.c s_modf.c w_scalb.c s_copysign.c s_rint.c
@@ -59,7 +58,7 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBM) $(OBJS)
 
 $(COBJS): %.o : %.c
-	$(TARGET_CC) $(TARGET_CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile

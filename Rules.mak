@@ -70,28 +70,17 @@ endif
 
 ARFLAGS=r
 
-CCFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D_LIBC
-TARGET_CCFLAGS=--uclibc-use-build-dir $(WARNINGS) $(OPTIMIZATION) $(CPUFLAGS)
-CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
-TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
-TARGET_CFLAGS=$(ARCH_CFLAGS) $(TARGET_CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
+CFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
+	-nostdinc -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D_LIBC $(ARCH_CFLAGS)
 NATIVE_CFLAGS=-O2 -Wall
 
 ifeq ($(strip $(DODEBUG)),true)
     CFLAGS += -g
-    TARGET_CFLAGS += -g
     LDFLAGS = -shared -nostdlib --warn-common --warn-once -z combreloc
-    TARGET_LDFLAGS = --uclibc-use-build-dir -Wl,-warn-common
     STRIPTOOL = /bin/true -Since_we_are_debugging
 else
     CFLAGS  += -DNDEBUG #-fomit-frame-pointer
-    TARGET_CFLAGS += -DNDEBUG #-fomit-frame-pointer
     LDFLAGS  = -s -shared -nostdlib --warn-common --warn-once -z combreloc
-    TARGET_LDFLAGS = --uclibc-use-build-dir -s -Wl,-warn-common
-endif
-ifeq ($(strip $(DOPIC)),true)
-    CFLAGS += -fPIC
-    TARGET_CFLAGS += -fPIC
 endif
 
 ifeq ($(strip $(HAVE_SHARED)),true)
@@ -105,6 +94,9 @@ else
 	DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
 	BUILD_DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
 endif
+endif
+ifeq ($(strip $(DOPIC)),true)
+    CFLAGS += -fPIC -D__PIC__
 endif
 
 # TARGET_PREFIX is the directory under which which the uClibc runtime

@@ -43,7 +43,7 @@ ar-target: $(OBJS)
 	install -m 644 $(LIBRESOLV) $(TOPDIR)lib
 
 $(OBJS): %.o : %.c
-	$(TARGET_CC) $(TARGET_CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
