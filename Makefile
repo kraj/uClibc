@@ -69,7 +69,7 @@ headers: dummy
 	    ln -fs $(KERNEL_SOURCE)/include/asm-ppc include/asm; \
 	elif [ $(TARGET_ARCH) = "v850" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-v850 include/asm; \
-	elif [ $(TARGET_ARCH) = "mipsel" ];then \
+	elif [ $(TARGET_ARCH) = "mips" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-mips include/asm; \
 	elif [ $(TARGET_ARCH) = "h8300" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-h8300 include/asm; \

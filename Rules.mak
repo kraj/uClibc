@@ -43,7 +43,8 @@ NATIVE_ARCH = ${shell uname -m | sed \
 		-e 's/m68k.*/m68k/' \
 		-e 's/ppc/powerpc/g' \
 		-e 's/v850.*/v850/g' \
-		-e 's/sh[234]/sh/' \
+		-e 's/sh[234].*/sh/' \
+		-e 's/mips.*/mips/' \
 		}
 ifeq ($(strip $(TARGET_ARCH)),)
 TARGET_ARCH=${shell $(CC) -dumpmachine | sed -e s'/-.*//' \
@@ -54,6 +55,7 @@ TARGET_ARCH=${shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		-e 's/ppc/powerpc/g' \
 		-e 's/v850.*/v850/g' \
 		-e 's/sh[234]/sh/' \
+		-e 's/mips.*/mips/' \
 		}
 endif
 
@@ -106,6 +108,7 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 BUILD_DYNAMIC_LINKER=${shell cd $(TOPDIR)lib && pwd}/$(UCLIBC_LDSO)
     else
     LDSO=$(SYSTEM_LDSO)
+    BUILD_UCLIBC_LDSO=false
     DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
     BUILD_DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
 endif
