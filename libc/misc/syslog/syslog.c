@@ -32,6 +32,7 @@
  */
 
 #define __FORCE_GLIBC
+#define _GNU_SOURCE
 #include <features.h>
 /*
  * SYSLOG -- print message on log file
