@@ -16,7 +16,7 @@ _dl_boot:
 	mov     r6, r0
 	mov     r0, r7
 	mov     pc, r6
-.previous\n\
+\n\
 ");
 
 #define _dl_boot _dl_boot2
