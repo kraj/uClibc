@@ -32,10 +32,11 @@
 #include <paths.h>
 #include <unistd.h>
 
+/* Note that this file should not be compiled in 
+ * unless __UCLIBC_HAS_MMU__ is defined */
 
 int daemon( int nochdir, int noclose )
 {
-#if __UCLIBC_HAS_MMU__
     int fd;
 
     switch (fork()) {
@@ -61,10 +62,6 @@ int daemon( int nochdir, int noclose )
 	    close(fd);
     }
     return(0);
-#else
-	fprintf(stderr, "Sorry, daemon() requires an MMU\n");
-    return(-1);
-#endif	
 }
 
 
