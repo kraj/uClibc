@@ -29,7 +29,7 @@
  */
 
 #if defined (__SUPPORT_LD_DEBUG__)
-static const char *_dl_reltypes[] =
+static const char *_dl_reltypes_tab[] =
 	{ "R_PPC_NONE", "R_PPC_ADDR32", "R_PPC_ADDR24", "R_PPC_ADDR16",
 	"R_PPC_ADDR16_LO", "R_PPC_ADDR16_HI", "R_PPC_ADDR16_HA",
 	"R_PPC_ADDR14", "R_PPC_ADDR14_BRTAKEN", "R_PPC_ADDR14_BRNTAKEN",
@@ -188,13 +188,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 #endif
 
 	if (reloc_type != R_PPC_JMP_SLOT) {
-#if defined (__SUPPORT_LD_DEBUG__)
-		_dl_dprintf(2, "%s: Incorrect relocation type [%s] in jump relocation\n",
-			_dl_progname,
-			(reloc_type<N_RELTYPES)?_dl_reltypes[reloc_type]:"unknown");
-#else
 		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocation\n", _dl_progname);
-#endif
 		_dl_exit(1);
 	};
 
