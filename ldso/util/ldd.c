@@ -53,6 +53,8 @@ struct library {
 };
 struct library *lib_list = NULL;
 char not_found[] = "not found";
+char *interp = NULL;
+char *interp_dir = NULL;
 int byteswap;
 
 inline uint32_t byteswap32_to_host(uint32_t value)
@@ -147,7 +149,7 @@ int check_elf_header(Elf32_Ehdr *const ehdr)
  * in uClibc/ldso/d-link/readelflib1.c */
 static void search_for_named_library(char *name, char *result, const char *path_list)
 {
-	int i, count = 0;
+	int i, count = 1;
 	char *path, *path_n;
 	struct stat filestat;
 
@@ -171,11 +173,9 @@ static void search_for_named_library(char *name, char *result, const char *path_
 			count++;
 		}
 	}
-
 	path_n = path;
 	for (i = 0; i < count; i++) {
-		*result = '\0';
-		strcat(result, path_n); 
+		strcpy(result, path_n); 
 		strcat(result, "/"); 
 		strcat(result, name);
 		if (stat (result, &filestat) == 0 && filestat.st_mode & S_IRUSR) {
@@ -188,8 +188,8 @@ static void search_for_named_library(char *name, char *result, const char *path_
 	*result = '\0';
 }
 
-void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_suid, 
-		struct library *lib, char *ldpath)
+void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, 
+		int is_suid, struct library *lib)
 {
 	char *buf;
 	char *path;
@@ -236,17 +236,19 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 		}
 	}
 
-	if (ldpath) {
-		search_for_named_library(lib->name, buf, ldpath);
-		if (*buf != '\0') {
-			lib->path = buf;
-			return;
-		}
-	}
-
 #ifdef USE_CACHE
 	/* FIXME -- add code to check the Cache here */ 
 #endif
+
+
+	/* Next look for libraries wherever the shared library 
+	 * loader was installed -- this is usually where we
+	 * should find things... */
+	search_for_named_library(lib->name, buf, interp_dir);
+	if (*buf != '\0') {
+		lib->path = buf;
+		return;
+	}
 
 	/* Lastly, search the standard list of paths for the library.
 	   This list must exactly match the list in uClibc/ldso/d-link/readelflib1.c */
@@ -265,7 +267,7 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 	}
 }
 
-static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid, char *s, char *ldpath)
+static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid, char *s)
 {
 	char *tmp, *tmp1, *tmp2;
 	struct library *cur, *newlib=lib_list;
@@ -309,7 +311,7 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int i
 	newlib->next = NULL;
 
 	/* Now try and locate where this library might be living... */
-	locate_library_file(ehdr, dynamic, strtab, is_setuid, newlib, ldpath);
+	locate_library_file(ehdr, dynamic, strtab, is_setuid, newlib);
 
 	//printf("add_library is adding '%s' to '%s'\n", newlib->name, newlib->path);
 	if (!lib_list) {
@@ -324,21 +326,12 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int i
 
 static void find_needed_libraries(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid)
 {
-	char * ldpath = NULL;
 	Elf32_Dyn  *dyns;
-	Elf32_Phdr *phdr;
-
-	/* Find the path where the shared lib loader lives */
-	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
-	if (phdr) {
-		ldpath = strdup((char*)ehdr + byteswap32_to_host(phdr->p_offset));
-		ldpath = basename(ldpath);
-	}
 
 	for (dyns=dynamic; byteswap32_to_host(dyns->d_tag)!=DT_NULL; ++dyns) {
 		if (DT_NEEDED == byteswap32_to_host(dyns->d_tag)) {
 			add_library(ehdr, dynamic, strtab, is_setuid, (char*)strtab + 
-					byteswap32_to_host(dyns->d_un.d_val), ldpath);
+					byteswap32_to_host(dyns->d_un.d_val));
 		}
 	}
 }
@@ -357,6 +350,11 @@ static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *str
 		char *s = (char*)ehdr + byteswap32_to_host(phdr->p_offset);
 	
 		char *tmp, *tmp1;
+		interp = strdup(s);
+		interp_dir = strdup(s);
+		tmp = strrchr(interp_dir, '/');
+		if (*tmp)
+			*tmp = '\0';
 		tmp1 = tmp = s;
 		while (*tmp) {
 			if (*tmp == '/')
@@ -383,6 +381,7 @@ static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *str
 		newlib->resolved = 1;
 		newlib->next = NULL;
 	
+#if 0
 		//printf("find_elf_interpreter is adding '%s' to '%s'\n", newlib->name, newlib->path);
 		if (!lib_list) {
 			lib_list = newlib;
@@ -390,6 +389,7 @@ static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *str
 			for (cur = lib_list;  cur->next; cur=cur->next); /* nothing */
 			cur->next = newlib;
 		}
+#endif
 	}
 }
 
@@ -449,12 +449,12 @@ foo:
 	}
 
 	dynsec = elf_find_section_type(SHT_DYNAMIC, ehdr);
+	find_elf_interpreter(ehdr, dynamic, dynstr, is_suid);
 	if (dynsec) {
 		dynamic = (Elf32_Dyn*)(byteswap32_to_host(dynsec->sh_offset) + (int)ehdr);
 		dynstr = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
 		find_needed_libraries(ehdr, dynamic, dynstr, is_suid);
 	}
-	find_elf_interpreter(ehdr, dynamic, dynstr, is_suid);
 	
 	return 0;
 }
@@ -495,6 +495,8 @@ int main( int argc, char** argv)
 		got_em_all=1;
 		printf("\t%s => %s\n", cur->name, cur->path);
 	}
+	if (got_em_all==1)
+		printf("\t%s => %s\n", interp, interp);
 	if (got_em_all==0)
 		printf("\tnot a dynamic executable\n");
 
