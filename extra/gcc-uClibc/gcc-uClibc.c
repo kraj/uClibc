@@ -118,8 +118,10 @@ int main(int argc, char **argv)
 	int i, j;
 	char ** gcc_argv;
 	char *dlstr;
+	char *build_dlstr;
 	char *ep;
 
+	build_dlstr = "-Wl,--dynamic-linker," BUILD_DYNAMIC_LINKER;
 	dlstr = getenv("UCLIBC_GCC_DLOPT");
 	if (!dlstr) {
 		dlstr = "-Wl,--dynamic-linker," DYNAMIC_LINKER;
@@ -216,7 +218,9 @@ int main(int argc, char **argv)
 	}
 	if (linking && source_count) {
 		if (!use_static_linking) {
-			if (dlstr) {
+			if (dlstr && use_build_dir) {
+				gcc_argv[i++] = build_dlstr;
+			} else if (dlstr) {
 				gcc_argv[i++] = dlstr;
 			}
 			if (use_rpath) {

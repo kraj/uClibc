@@ -274,6 +274,19 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	if (tpnt1)
 	    return tpnt1;
 
+	/* Bummer.  Nothing so far.  Check in <builddir>/lib */
+	pnt1 = UCLIBC_BUILD_DIR "/lib/";
+	pnt = mylibname;
+	while (*pnt1)
+	    *pnt++ = *pnt1++;
+	pnt1 = libname;
+	while (*pnt1)
+	    *pnt++ = *pnt1++;
+	*pnt++ = 0;
+	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
+	if (tpnt1)
+	    return tpnt1;
+
   goof:
 	/* Well, we shot our wad on that one.  All we can do now is punt */
 	if (_dl_internal_error_number)

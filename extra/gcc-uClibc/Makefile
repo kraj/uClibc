@@ -19,6 +19,7 @@ gcc-uClibc.h: $(TOPDIR)/Config
 	@echo "#define GCC_INCDIR " \"-I$(GCCINCDIR)/\" >> gcc-uClibc.h
 	@echo "#define TARGET_ARCH " \"$(TARGET_ARCH)\" >> gcc-uClibc.h
 	@echo "#define DYNAMIC_LINKER " \"$(DYNAMIC_LINKER)\" >> gcc-uClibc.h
+	@echo "#define BUILD_DYNAMIC_LINKER " \"$(BUILD_DYNAMIC_LINKER)\" >> gcc-uClibc.h
 
 gcc-uClibc: gcc-uClibc.h gcc-uClibc.c
 	gcc -Wall -O2 -s gcc-uClibc.c -o $(TARGET_ARCH)-uclibc-gcc
