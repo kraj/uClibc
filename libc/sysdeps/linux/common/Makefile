@@ -27,7 +27,7 @@ LIBC=$(TOPDIR)libc.a
 
 CSRC=	waitpid.c getdents.c kernel_version.c statfix.c getdnnm.c tell.c gethstnm.c \
 	mkfifo.c setegid.c wait.c errno.c getpagesize.c  seteuid.c wait3.c setpgrp.c \
-	getdtablesize.c
+	getdtablesize.c create_module.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 MSRC=syscalls.c

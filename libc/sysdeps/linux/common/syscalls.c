@@ -891,13 +891,21 @@ _syscall3(int, sigprocmask, int, how, const sigset_t *, set, sigset_t *,
 #endif
 
 //#define __NR_create_module    127
+//See sysdeps/linux/commom/create_module.c
 
 //#define __NR_init_module      128
+#ifdef L_init_module
+/* This may have 5 arguments (for old 2.0 kernels) or 2 arguments
+ * (for 2.2 and 2.4 kernels).  Use the greatest common denominator,
+ * and let the kernel cope with whatever it gets.  It's good at that. */
+_syscall5(int, init_module, void *, first, void *, second, void *, third, 
+			void *, fourth, void *, fifth);
+#endif
 
 //#define __NR_delete_module    129
 #ifdef L_delete_module
 #	ifdef __NR_delete_module
-		_syscall1(int, delete_module, const char *, name)
+		_syscall1(int, delete_module, const char *, name);
 #	endif
 #endif
 
