@@ -79,6 +79,13 @@ void sym_init(void)
 	sym->type = S_STRING;
 	sym->flags |= SYMBOL_AUTO;
 	sym_add_default(sym, uts.release);
+
+	sym = sym_lookup("TARGET_ARCH", 0);
+	sym->type = S_STRING;
+	sym->flags |= SYMBOL_AUTO;
+	p = getenv("TARGET_ARCH");
+	if (p)
+		sym_add_default(sym, p);
 }
 
 int sym_get_type(struct symbol *sym)
