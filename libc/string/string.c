@@ -121,9 +121,10 @@ char *strncpy(char *dst, const char *src, size_t len)
 #endif
 
 #ifdef L_strxfrm
-char *strncpy(char *dst, const char *src, size_t len)
+size_t strxfrm(char *dst, const char *src, size_t len)
 {
-	return( strncpy( dst, src, len));
+	strncpy( dst, src, len);
+	return( len);
 }
 #endif	
 
