@@ -84,11 +84,13 @@ static inline
 _syscall3(int, __syscall_open, const char *, fn, int, flags, __kernel_mode_t, mode);
 int __libc_open (const char * fn, int flags, ...)
 {
-	va_list ap;
 	mode_t mode;
-	va_start(ap, flags);
-	mode = va_arg(ap, mode_t);
-	va_end(ap);
+	if (flags & O_CREAT) {
+		va_list ap;
+		va_start(ap, flags);
+		mode = va_arg(ap, mode_t);
+		va_end(ap);
+	}
 	return __syscall_open(fn, flags, mode);
 }
 
@@ -114,7 +116,7 @@ weak_alias(__libc_close, close)
 _syscall2(int, __syscall_creat, const char *, file, __kernel_mode_t, mode);
 int creat (const char *file, mode_t mode)
 {
-	  return __syscall_creat (file, mode);
+	return __syscall_creat (file, mode);
 }
 #else
 extern int __libc_open (const char *file, int flags, mode_t mode);
@@ -177,8 +179,8 @@ time_t time (time_t *t)
 _syscall3(int, __syscall_mknod, const char *, path, __kernel_mode_t, mode, __kernel_dev_t, dev);
 int mknod(const char *path, mode_t mode, dev_t dev)
 { 
-	__kernel_dev_t k_dev;
 	/* We must convert the dev_t value to a __kernel_dev_t */
+	__kernel_dev_t k_dev;
 	k_dev = ((major(dev) & 0xff) << 8) | (minor(dev) & 0xff);
 	return __syscall_mknod(path, mode, k_dev);
 }
@@ -211,6 +213,12 @@ static inline
 _syscall3(int, __syscall_lchown, const char *, path, __kernel_uid_t, owner, __kernel_gid_t, group);
 int lchown(const char *path, uid_t owner, gid_t group)
 {
+	if (((owner + 1) > (uid_t) ((__kernel_uid_t) -1U))
+			|| ((group + 1) > (gid_t) ((__kernel_gid_t) -1U)))
+	{
+		__set_errno (EINVAL);
+		return -1;
+	}
 	return __syscall_lchown(path, owner, group);
 }
 #endif
@@ -262,7 +270,7 @@ static inline
 _syscall1(int, __syscall_setuid, __kernel_uid_t, uid);
 int setuid(uid_t uid)
 {
-	if (uid == (uid_t) ~0 || uid != (uid_t) ((int) uid)) {
+	if (uid == (uid_t) ~0 || uid != (uid_t) ((__kernel_uid_t) uid)) {
 		__set_errno (EINVAL);
 		return -1;
 	}
@@ -304,12 +312,7 @@ int stime(const time_t *when)
 #endif
 
 //#define __NR_ptrace           26
-#ifdef L___ptrace
-#include <sys/ptrace.h>
-#define __NR___ptrace __NR_ptrace
-_syscall4(long, __ptrace, enum __ptrace_request, request, __kernel_pid_t, pid,
-		void*, addr, void*, data);
-#endif
+//See ptrace.c
 
 
 //#define __NR_alarm            27
@@ -521,6 +524,12 @@ static inline
 _syscall1(int, __syscall_setgid, __kernel_gid_t, gid);
 int setgid(gid_t gid)
 {
+	if (gid == (gid_t) ~0
+			|| gid != (gid_t) ((__kernel_gid_t) gid))
+	{
+		__set_errno (EINVAL);
+		return -1;
+	}
 	return(__syscall_setgid(gid));
 }
 #endif
@@ -665,10 +674,10 @@ int setpgid(pid_t pid, pid_t pgid)
 #include <sys/stat.h>
 #define __NR___syscall_umask __NR_umask
 static inline 
-_syscall1(__kernel_mode_t, __syscall_umask, __kernel_mode_t, mask);
-mode_t umask(mode_t mask)
+_syscall1(__kernel_mode_t, __syscall_umask, __kernel_mode_t, mode);
+mode_t umask(mode_t mode)
 {
-	return(__syscall_umask(mask));
+	return(__syscall_umask(mode));
 }
 #endif
 
@@ -686,8 +695,8 @@ static inline
 _syscall2(int, __syscall_ustat, unsigned short int, kdev_t, struct ustat *, ubuf);
 int ustat(dev_t dev, struct ustat *ubuf)
 { 
-	__kernel_dev_t k_dev;
 	/* We must convert the dev_t value to a __kernel_dev_t */
+	__kernel_dev_t k_dev;
 	k_dev = ((major(dev) & 0xff) << 8) | (minor(dev) & 0xff);
 	return __syscall_ustat(k_dev, ubuf);
 }
@@ -748,6 +757,12 @@ static inline
 _syscall2(int, __syscall_setreuid, __kernel_uid_t, ruid, __kernel_uid_t, euid);
 int setreuid(uid_t ruid, uid_t euid)
 {
+	if (((ruid + 1) > (uid_t) ((__kernel_uid_t) -1U))
+			|| ((euid + 1) > (uid_t) ((__kernel_uid_t) -1U)))
+	{
+		__set_errno(EINVAL);
+		return -1;
+	}
 	return(__syscall_setreuid(ruid, euid));
 }
 #endif
@@ -760,6 +775,12 @@ static inline
 _syscall2(int, __syscall_setregid, __kernel_gid_t, rgid, __kernel_gid_t, egid);
 int setregid(gid_t rgid, gid_t egid)
 {
+	if (((rgid + 1) > (gid_t) ((__kernel_gid_t) -1U))
+			|| ((egid + 1) > (gid_t) ((__kernel_gid_t) -1U)))
+	{
+		__set_errno (EINVAL);
+		return -1;
+	}
 	return(__syscall_setregid(rgid, egid));
 }
 #endif
@@ -1040,6 +1061,12 @@ static inline
 _syscall3(int, __syscall_fchown, int, fd, __kernel_uid_t, owner, __kernel_gid_t, group);
 int fchown(int fd, uid_t owner, gid_t group)
 {
+	if (((owner + 1) > (uid_t) ((__kernel_uid_t) -1U))
+			|| ((group + 1) > (gid_t) ((__kernel_gid_t) -1U)))
+	{
+		__set_errno (EINVAL);
+		return -1;
+	}
 	return(__syscall_fchown(fd, owner, group));
 }
 #endif
@@ -1404,6 +1431,11 @@ static inline
 _syscall1(int, __syscall_setfsuid, __kernel_uid_t, uid);
 int setfsuid(uid_t uid)
 {
+	if (uid != (uid_t) ((__kernel_uid_t) uid))
+	{
+		__set_errno (EINVAL);
+		return -1;
+	}
 	return(__syscall_setfsuid(uid));
 }
 #endif
@@ -1418,6 +1450,11 @@ static inline
 _syscall1(int, __syscall_setfsgid, __kernel_gid_t, gid);
 int setfsgid(gid_t gid)
 {
+	if (gid != (gid_t) ((__kernel_gid_t) gid))
+	{
+		__set_errno (EINVAL);
+		return -1;
+	}
 	return(__syscall_setfsgid(gid));
 }
 #endif
@@ -1677,6 +1714,13 @@ static inline
 _syscall3(int, __syscall_setresuid, __kernel_uid_t, rgid, __kernel_uid_t, egid, __kernel_uid_t, sgid);
 int setresuid(uid_t ruid, uid_t euid, uid_t suid)
 {
+	if (((ruid + 1) > (uid_t) ((__kernel_uid_t) -1U))
+			|| ((euid + 1) > (uid_t) ((__kernel_uid_t) -1U))
+			|| ((suid + 1) > (uid_t) ((__kernel_uid_t) -1U)))
+	{
+		__set_errno (EINVAL);
+		return -1;
+	}
 	return(__syscall_setresuid(ruid, euid, suid));
 }
 #endif
@@ -1742,6 +1786,13 @@ static inline
 _syscall3(int, __syscall_setresgid, __kernel_gid_t, rgid, __kernel_gid_t, egid, __kernel_gid_t, sgid);
 int setresgid(gid_t rgid, gid_t egid, gid_t sgid)
 {
+	if (((rgid + 1) > (gid_t) ((__kernel_gid_t) -1U))
+			|| ((egid + 1) > (gid_t) ((__kernel_gid_t) -1U))
+			|| ((sgid + 1) > (gid_t) ((__kernel_gid_t) -1U)))
+	{
+		__set_errno (EINVAL);
+		return -1;
+	}
 	return(__syscall_setresgid(rgid, egid, sgid));
 }
 #endif
@@ -1891,6 +1942,12 @@ static inline
 _syscall3(int, __syscall_chown, const char *, path, __kernel_uid_t, owner, __kernel_gid_t, group);
 int chown(const char * path, uid_t owner, gid_t group)
 {
+	if (((owner + 1) > (uid_t) ((__kernel_uid_t) -1U))
+			|| ((group + 1) > (gid_t) ((__kernel_gid_t) -1U)))
+	{
+		__set_errno (EINVAL);
+		return -1;
+	}
 	return(__syscall_chown(path, owner, group));
 }
 #endif
