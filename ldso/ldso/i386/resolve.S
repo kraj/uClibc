@@ -1,5 +1,21 @@
 /*
- * These are various helper routines that are needed to run an ELF image.
+ * This function is _not_ called directly.  It is jumped to (so no return
+ * address is on the stack) when attempting to use a symbol that has not yet
+ * been resolved.  The first time a jump symbol (such as a function call inside
+ * a shared library) is used (before it gets resolved) it will jump here to
+ * _dl_linux_resolve.  When we get called the stack looks like this:
+ *	reloc_entry
+ *	tpnt
+ 
+ * This function saves all the registers, puts a copy of reloc_entry and tpnt
+ * on the stack (as function arguments) then make the function call
+ * _dl_linux_resolver(tpnt, reloc_entry).  _dl_linux_resolver() figures out
+ * where the jump symbol is _really_ supposed to have jumped to and returns
+ * that to us.  Once we have that, we overwrite tpnt with this fixed up
+ * address. We then clean up after ourselves, put all the registers back how we
+ * found them, then we jump to where the fixed up address, which is where the
+ * jump symbol that got us here really wanted to jump to in the first place.
+ *    -Erik Andersen
  */
 
 .text
