@@ -113,13 +113,13 @@ void NAME PARAMS \
 void NAME##_unlocked PARAMS
 
 #define __STDIO_THREADLOCK_OPENLIST \
-	pthread_mutex_lock(&_stdio_openlist_lock)
+	__pthread_mutex_lock(&_stdio_openlist_lock)
 
 #define __STDIO_THREADUNLOCK_OPENLIST \
-	pthread_mutex_unlock(&_stdio_openlist_lock)
+	__pthread_mutex_unlock(&_stdio_openlist_lock)
 
 #define __STDIO_THREADTRYLOCK_OPENLIST \
-	pthread_mutex_trylock(&_stdio_openlist_lock)
+	__pthread_mutex_trylock(&_stdio_openlist_lock)
 
 #endif /* __STDIO_THREADSAFE */
 

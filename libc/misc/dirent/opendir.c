@@ -52,7 +52,7 @@ DIR *opendir(const char *name)
 	}
 	ptr->dd_buf = buf;
 #ifdef __UCLIBC_HAS_THREADS__
-	pthread_mutex_init(&(ptr->dd_lock), NULL);
+	__pthread_mutex_init(&(ptr->dd_lock), NULL);
 #endif
 	return ptr;
 }

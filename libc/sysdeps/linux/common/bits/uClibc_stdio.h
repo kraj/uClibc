@@ -204,17 +204,17 @@
 
 #define __STDIO_THREADLOCK(STREAM) \
 	if ((STREAM)->user_locking == 0) { \
-		pthread_mutex_lock(&(STREAM)->lock); \
+		__pthread_mutex_lock(&(STREAM)->lock); \
 	}
 
 #define __STDIO_THREADUNLOCK(STREAM) \
 	if ((STREAM)->user_locking == 0) { \
-		pthread_mutex_unlock(&(STREAM)->lock); \
+		__pthread_mutex_unlock(&(STREAM)->lock); \
 	}
 
 #define __STDIO_THREADTRYLOCK(STREAM) \
 	if ((STREAM)->user_locking == 0) { \
-		pthread_mutex_trylock(&(STREAM)->lock); \
+		__pthread_mutex_trylock(&(STREAM)->lock); \
 	}
 
 #define __STDIO_SET_USER_LOCKING(STREAM)   	((STREAM)->user_locking = 1)

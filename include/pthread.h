@@ -24,6 +24,9 @@
 #include <signal.h>
 #include <bits/pthreadtypes.h>
 #include <bits/initspin.h>
+#ifdef _LIBC
+#include <bits/uClibc_pthread.h>
+#endif
 
 
 __BEGIN_DECLS

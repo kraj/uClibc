@@ -21,8 +21,8 @@
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 pthread_mutex_t __malloclock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	pthread_mutex_lock(&__malloclock)
-# define UNLOCK	pthread_mutex_unlock(&__malloclock);
+# define LOCK	__pthread_mutex_lock(&__malloclock)
+# define UNLOCK	__pthread_mutex_unlock(&__malloclock);
 #else
 # define LOCK
 # define UNLOCK

@@ -30,8 +30,8 @@
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 static pthread_mutex_t createxid_lock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	pthread_mutex_lock(&createxid_lock)
-# define UNLOCK	pthread_mutex_unlock(&createxid_lock);
+# define LOCK	__pthread_mutex_lock(&createxid_lock)
+# define UNLOCK	__pthread_mutex_unlock(&createxid_lock);
 #else
 # define LOCK
 # define UNLOCK

@@ -17,7 +17,7 @@ struct dirent *readdir(DIR * dir)
 	}
 
 #ifdef __UCLIBC_HAS_THREADS__
-	pthread_mutex_lock(&(dir->dd_lock));
+	__pthread_mutex_lock(&(dir->dd_lock));
 #endif
 
 	do {
@@ -45,7 +45,7 @@ struct dirent *readdir(DIR * dir)
 
 all_done:
 #ifdef __UCLIBC_HAS_THREADS__
-	pthread_mutex_unlock(&(dir->dd_lock));
+	__pthread_mutex_unlock(&(dir->dd_lock));
 #endif
 	return de;
 }

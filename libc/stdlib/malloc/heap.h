@@ -136,8 +136,8 @@ extern void __heap_check (struct heap *heap, const char *str);
 
 
 #ifdef HEAP_USE_LOCKING
-# define __heap_lock(heap)	pthread_mutex_lock (&(heap)->lock)
-# define __heap_unlock(heap)	pthread_mutex_unlock (&(heap)->lock)
+# define __heap_lock(heap)	__pthread_mutex_lock (&(heap)->lock)
+# define __heap_unlock(heap)	__pthread_mutex_unlock (&(heap)->lock)
 #else /* !__UCLIBC_HAS_THREADS__ */
 /* Without threads, mutex operations are a nop.  */
 # define __heap_lock(heap)	(void)0

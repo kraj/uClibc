@@ -202,8 +202,8 @@ typedef struct {
 
 extern pthread_mutex_t _time_tzlock;
 
-#define TZLOCK		pthread_mutex_lock(&_time_tzlock)
-#define TZUNLOCK	pthread_mutex_unlock(&_time_tzlock)
+#define TZLOCK		__pthread_mutex_lock(&_time_tzlock)
+#define TZUNLOCK	__pthread_mutex_unlock(&_time_tzlock)
 
 #else
 

@@ -34,8 +34,8 @@
    data.  */
 static pthread_mutex_t lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #else
-#define pthread_mutex_lock(x)
-#define pthread_mutex_unlock(x)
+#define __pthread_mutex_lock(x)
+#define __pthread_mutex_unlock(x)
 #endif
 
 /* An improved random number generation package.  In addition to the standard
@@ -184,9 +184,9 @@ static struct random_data unsafe_state =
    for default usage relies on values produced by this routine.  */
 void srandom (unsigned int x)
 {
-    pthread_mutex_lock(&lock);
+    __pthread_mutex_lock(&lock);
     srandom_r (x, &unsafe_state);
-    pthread_mutex_unlock(&lock);
+    __pthread_mutex_unlock(&lock);
 }
 weak_alias (srandom, srand)
 
@@ -205,10 +205,10 @@ char * initstate (unsigned int seed, char *arg_state, size_t n)
 {
     int32_t *ostate;
 
-    pthread_mutex_lock(&lock);
+    __pthread_mutex_lock(&lock);
     ostate = &unsafe_state.state[-1];
     initstate_r (seed, arg_state, n, &unsafe_state);
-    pthread_mutex_unlock(&lock);
+    __pthread_mutex_unlock(&lock);
     return (char *) ostate;
 }
 
@@ -224,11 +224,11 @@ char * setstate (char *arg_state)
 {
     int32_t *ostate;
 
-    pthread_mutex_lock(&lock);
+    __pthread_mutex_lock(&lock);
     ostate = &unsafe_state.state[-1];
     if (setstate_r (arg_state, &unsafe_state) < 0)
 	ostate = NULL;
-    pthread_mutex_unlock(&lock);
+    __pthread_mutex_unlock(&lock);
     return (char *) ostate;
 }
 
@@ -247,9 +247,9 @@ long int random ()
 {
   int32_t retval;
 
-  pthread_mutex_lock(&lock);
+  __pthread_mutex_lock(&lock);
   random_r (&unsafe_state, &retval);
-  pthread_mutex_unlock(&lock);
+  __pthread_mutex_unlock(&lock);
   return retval;
 }
 

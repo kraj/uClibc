@@ -136,8 +136,8 @@ typedef pthread_mutex_t malloc_mutex_t;
    things will break if these multiple calls are interleaved with another
    thread's use of sbrk!).  */
 extern malloc_mutex_t __malloc_sbrk_lock;
-#  define __malloc_lock_sbrk()	pthread_mutex_lock (&__malloc_sbrk_lock)
-#  define __malloc_unlock_sbrk() pthread_mutex_unlock (&__malloc_sbrk_lock)
+#  define __malloc_lock_sbrk()	__pthread_mutex_lock (&__malloc_sbrk_lock)
+#  define __malloc_unlock_sbrk() __pthread_mutex_unlock (&__malloc_sbrk_lock)
 # endif /* MALLOC_USE_SBRK */
 
 #else /* !__UCLIBC_HAS_THREADS__ */

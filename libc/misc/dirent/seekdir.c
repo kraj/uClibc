@@ -11,11 +11,11 @@ void seekdir(DIR * dir, long int offset)
 		return;
 	}
 #ifdef __UCLIBC_HAS_THREADS__
-	pthread_mutex_lock(&(dir->dd_lock));
+	__pthread_mutex_lock(&(dir->dd_lock));
 #endif
 	dir->dd_nextoff = lseek(dir->dd_fd, offset, SEEK_SET);
 	dir->dd_size = dir->dd_nextloc = 0;
 #ifdef __UCLIBC_HAS_THREADS__
-	pthread_mutex_unlock(&(dir->dd_lock));
+	__pthread_mutex_unlock(&(dir->dd_lock));
 #endif
 }

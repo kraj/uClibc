@@ -180,8 +180,8 @@ extern char * __searchdomain[MAX_SEARCH];
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 extern pthread_mutex_t __resolv_lock;
-# define BIGLOCK	pthread_mutex_lock(&__resolv_lock)
-# define BIGUNLOCK	pthread_mutex_unlock(&__resolv_lock);
+# define BIGLOCK	__pthread_mutex_lock(&__resolv_lock)
+# define BIGUNLOCK	__pthread_mutex_unlock(&__resolv_lock);
 #else
 # define BIGLOCK
 # define BIGUNLOCK
@@ -645,8 +645,8 @@ int __form_query(int id, const char *name, int type, unsigned char *packet,
 
 #ifdef __UCLIBC_HAS_THREADS__
 static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	pthread_mutex_lock(&mylock)
-# define UNLOCK	pthread_mutex_unlock(&mylock);
+# define LOCK	__pthread_mutex_lock(&mylock)
+# define UNLOCK	__pthread_mutex_unlock(&mylock);
 #else
 # define LOCK
 # define UNLOCK
@@ -1331,8 +1331,8 @@ int __read_etc_hosts_r(FILE * fp, const char * name, int type,
 
 #ifdef __UCLIBC_HAS_THREADS__
 static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	pthread_mutex_lock(&mylock)
-# define UNLOCK	pthread_mutex_unlock(&mylock);
+# define LOCK	__pthread_mutex_lock(&mylock)
+# define UNLOCK	__pthread_mutex_unlock(&mylock);
 #else
 # define LOCK
 # define UNLOCK

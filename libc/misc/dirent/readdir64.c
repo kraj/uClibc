@@ -32,7 +32,7 @@ struct dirent64 *readdir64(DIR * dir)
 	}
 
 #ifdef __UCLIBC_HAS_THREADS__
-	pthread_mutex_lock(&(dir->dd_lock));
+	__pthread_mutex_lock(&(dir->dd_lock));
 #endif
 
 	do {
@@ -60,7 +60,7 @@ struct dirent64 *readdir64(DIR * dir)
 
 all_done:
 #ifdef __UCLIBC_HAS_THREADS__
-	pthread_mutex_unlock(&(dir->dd_lock));
+	__pthread_mutex_unlock(&(dir->dd_lock));
 #endif
 
 	return de;

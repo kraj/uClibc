@@ -23,7 +23,6 @@
 #include "internals.h"
 #include "spinlock.h"
 #include "restart.h"
-#include <bits/libc-lock.h>
 
 
 /* Table of keys. */
