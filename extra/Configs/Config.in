@@ -172,14 +172,15 @@ config UCLIBC_HAS_WCHAR
 	  Most people will answer N.
 
 config UCLIBC_HAS_LOCALE
-	bool "Locale Support"
+	bool "Locale Support (experimental/incomplete)"
 	depends on UCLIBC_HAS_WCHAR
 	default n
 	help
 	  Answer Y to enable locale support.  This will make uClibc much
-	  bigger.
+	  bigger.  uClibc's locale support is still under development, and
+	  should be finished in the next several weeks (November 2002).
 
-	  Most people will answer N.
+	  Most people will wisely answer N.
 
 config USE_OLD_VFPRINTF
 	bool "Use the old vfprintf implementation"
