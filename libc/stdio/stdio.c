@@ -1723,10 +1723,12 @@ void _stdio_term(void)
 	}
 #endif /* __STDIO_THREADSAFE */
 
+#ifdef __STDIO_BUFFERS
 	/* TODO -- set an alarm and flush each file "by hand"? to avoid blocking? */
 
 	/* Now flush all streams. */
 	fflush(NULL);
+#endif /* __STDIO_BUFFERS */
 
 	/* Next close all custom streams in case of any special cleanup, but
 	 * don't use fclose() because that pulls in free and malloc.  Also,
@@ -2031,9 +2033,15 @@ int fflush_unlocked(register FILE *stream)
 
 #else  /* __STDIO_BUFFERS --------------------------------------- */
 
-	__stdio_validate_FILE(stream); /* debugging only */
+#ifndef NDEBUG
+	if ((stream != NULL) && (stream != (FILE *) &_stdio_openlist)) {
+		__stdio_validate_FILE(stream); /* debugging only */
+	}
+#endif
+
 	/* TODO -- check glibc behavior regarding error indicator */
-	return (stream->modeflags & (__FLAG_READONLY|__FLAG_READING)
+	return ((stream != NULL)
+			&& (stream->modeflags & (__FLAG_READONLY|__FLAG_READING))
 			? ((stream->modeflags |= __FLAG_ERROR), __set_errno(EBADF), EOF)
 			: 0 );
 
