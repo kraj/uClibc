@@ -46,3 +46,11 @@ int getlogin_r(char *name, size_t len)
 	return 0;
 }
 
+char *cuserid(char *name)
+{
+	char *name = getlogin();
+	if (s) {
+		return(strcpy(s, name ? name : ""));
+	}
+	return name;
+}
