@@ -423,13 +423,10 @@ extern int fchdir (int __fd) __THROW;
    big as necessary.  */
 extern char *getcwd (char *__buf, size_t __size) __THROW;
 
-#if 0
-/*#ifdef	__USE_GNU*/
 /* Return a malloc'd string containing the current directory name.
    If the environment variable `PWD' is set, and its value is correct,
    that value is used.  */
 extern char *get_current_dir_name (void) __THROW;
-#endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 /* Put the absolute pathname of the current working directory in BUF.
