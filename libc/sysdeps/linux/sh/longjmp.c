@@ -21,14 +21,22 @@
 #include <signal.h>
 
 
+#if 0
+extern void _longjmp_unwind (jmp_buf env, int val);
+#endif
+extern void __longjmp(__jmp_buf __env, int __val) 
+	 __attribute__ ((__noreturn__));
+
 /* Set the signal mask to the one specified in ENV, and jump
    to the position specified in ENV, causing the setjmp
    call there to return VAL, or 1 if VAL is 0.  */
 void
 __uClibc_siglongjmp (sigjmp_buf env, int val)
 {
+#if 0
   /* Perform any cleanups needed by the frames being unwound.  */
   _longjmp_unwind (env, val);
+#endif
 
   if (env[0].__mask_was_saved)
     /* Restore the saved signal mask.  */
@@ -39,20 +47,7 @@ __uClibc_siglongjmp (sigjmp_buf env, int val)
   __longjmp (env[0].__jmpbuf, val ?: 1);
 }
 
-//strong_alias (__uClibc_siglongjmp, __uClibc_longjmp)
-
-//_weak_alias (__uClibc_siglongjmp, _longjmp)
-asm(".weak _longjmp");
-asm("_longjmp = __uClibc_siglongjmp");
-
-//weak_alias (__uClibc_siglongjmp, longjmp)
-asm(".weak longjmp");
-asm("longjmp = __uClibc_siglongjmp");
-
-//weak_alias (__uClibc_siglongjmp, siglongjmp)
-asm(".weak siglongjmp");
-asm("siglongjmp = __uClibc_siglongjmp");
-
-asm(".weak __sigprocmask");
-asm("__sigprocmask = sigprocmask");
-
+__asm__(".weak longjmp; longjmp = __uClibc_siglongjmp");
+__asm__(".weak _longjmp; _longjmp = __uClibc_siglongjmp");
+__asm__(".weak siglongjmp; siglongjmp = __uClibc_siglongjmp");
+__asm__(".weak __sigprocmask; __sigprocmask = sigprocmask");

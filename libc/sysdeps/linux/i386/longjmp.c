@@ -21,7 +21,9 @@
 #include <signal.h>
 
 
+#if 0
 extern void _longjmp_unwind (jmp_buf env, int val);
+#endif
 extern void __longjmp(__jmp_buf __env, int __val) 
 	 __attribute__ ((__noreturn__));
 
