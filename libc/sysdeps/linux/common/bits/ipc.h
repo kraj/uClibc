@@ -51,6 +51,6 @@ struct ipc_perm
     __kernel_uid_t	cuid;
     __kernel_gid_t	cgid;
     __kernel_mode_t	mode; 
-    unsigned short	__seq;
+    unsigned long	seq;
 };
 
