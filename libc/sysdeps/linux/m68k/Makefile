@@ -36,7 +36,7 @@ CRT0=crt0.S
 CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 endif
 
-SSRC=setjmp.S vfork.S # longjmp.S _start.S clone.S
+SSRC= __longjmp.S bsd-_setjmp.S bsd-setjmp.S clone.S setjmp.S vfork.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=ptrace.c

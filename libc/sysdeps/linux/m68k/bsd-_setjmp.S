@@ -6,11 +6,11 @@
 #define _SETJMP_H
 #include <bits/setjmp.h>
 
-.globl __sigsetjmp;
-.type  __sigsetjmp,@function
+.globl _setjmp;
+.type  _setjmp,@function
 .align 4;
 
-__sigsetjmp:
+_setjmp:
 	moveal	%sp@(4), %a0
 	movel	%sp@(0), %a0@(JB_PC)
 	moveml	%d2-%d7/%a2-%a7, %a0@(JB_REGS)
@@ -18,6 +18,7 @@ __sigsetjmp:
 	fmovemx %fp2-%fp7, %a0@(JB_FPREGS)
 #endif
 	clrl	%d0
-	lea		__sigjmp_save-.-8, %a0
-	jmp		0(%pc, %a0)
+	movl	%d0, JB_SIZE(%a0) /* No signal mask set.  */
+	rts
+
 

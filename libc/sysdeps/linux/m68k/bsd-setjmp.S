@@ -6,11 +6,11 @@
 #define _SETJMP_H
 #include <bits/setjmp.h>
 
-.globl __sigsetjmp;
-.type  __sigsetjmp,@function
+.globl setjmp;
+.type  setjmp,@function
 .align 4;
 
-__sigsetjmp:
+setjmp:
 	moveal	%sp@(4), %a0
 	movel	%sp@(0), %a0@(JB_PC)
 	moveml	%d2-%d7/%a2-%a7, %a0@(JB_REGS)
