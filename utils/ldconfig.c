@@ -37,7 +37,6 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-#include <sys/user.h>
 #include "dl-elf.h"
 #include "readsoname.h"
 
