@@ -53,22 +53,9 @@ to the uClibc home page.</a>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
 
-    Currently uClibc runs on arm, i386, h8300, m68k, mips, mipsel, powerpc, 
-    sh, sparc, and v850.  
+    Currently uClibc runs on alpha, ARM, i386, i960, h8300, m68k, mips/mipsel,
+    PowerPC, SH, SPARC, and v850 processors.
     
-
-<p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    Does uClibc support shared libraries?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-    
-    Yes.  uClibc has shared library support on x86, arm, and powerpc.  
-    Shared Libraries are _not_ currently supported on MMU-less systems. 
-
-
 
 <p>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
@@ -78,22 +65,22 @@ to the uClibc home page.</a>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
 
-    For simplicity, uClibc is pronounced "yew-see-lib-see".  The letter
-    'u' is short for µ (the greek letter "mu").  µ is commonly used as
-    the abbreviation for the word "micro".  The capital "C" is short
-    for "controller".  So uClibc is sortof an abbreviation for "the
-    microcontroller C library".  This is partly historical, since
-    uClibc was originally created to support <a href="http://www.uclinux.org">µClinux</a>, a port of Linux
-    for MMU-less microcontrollers such as the Dragonball, Coldfire, and
-    ARM7TDMI.  These days, uClibc works just fine with normal Linux
-    system (like on x86, strongArm, and powerpc). 
-
-
+    The letter 'u' is short for µ (the greek letter "mu").  µ is commonly used
+    as the abbreviation for the word "micro".  The capital "C" is short for
+    "controller".  So the name uClibc is sortof an abbreviation for "the
+    microcontroller C library".  For simplicity, uClibc is pronounced
+    "yew-see-lib-see".  
+    <p>
+    The name is partly historical, since uClibc was originally
+    created to support <a href="http://www.uclinux.org">µClinux</a>, a port of
+    Linux for MMU-less microcontrollers such as the Dragonball, Coldfire, and
+    ARM7TDMI.  These days, uClibc also works just fine on normal Linux systems
+    (such as i386, ARM, and PowerPC), but we couldn't think of a better name.
 
 <p>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
     <B>
-    Can I use it on my desktop x86 system?
+    Can I use it on my desktop i386 system?
     </B>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
@@ -104,6 +91,25 @@ to the uClibc home page.</a>
     your target system.
 
 
+
+<p>
+<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
+    <B>
+    Does uClibc support shared libraries?
+    </B>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+    
+    Yes.  uClibc has native shared library support on i386, ARM, mips/mipsel, 
+    SH, and PowerPC processors.  Other architectures can use shared libraries
+    but will need to use the GNU libc shared library loader.
+    <p>
+    Shared Libraries are not currently supported by uClibc on MMU-less systems.  
+    <a href="http://www.snapgear.com/">SnapGear</a> has implemented
+    shared library support for MMU-less systems, however, so if you need MMU-less 
+    shared library support they may be able to help.
+
+
 <p>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
     <B>
@@ -112,20 +118,18 @@ to the uClibc home page.</a>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
 
-    Initially, the project began because glibc does not support
-    MMU-less systems.  But uClibc is also very useful because it is so
-    much smaller then the GNU C library.  The GNU C library is designed
-    with a very different set of goals then uClibc.  The GNU C library
-    is a great piece of software, make no mistake.  It is compliant to
-    just about every standard ever created, and runs on just about
-    every operating system and architecture -- no small task!  But
-    there is a price to be paid for that.  It is quite a large library,
-    and keeps getting larger with each release.  It does not even
-    pretend to target embedded systems.  To quote from Ulrich Drepper,
-    the maintainer of GNU libc: "...glibc is not the right thing for
-    [an embedded OS]. It is designed as a native library (as opposed to
-    embedded).  Many functions (e.g., printf) contain functionality
-    which is not wanted in embedded systems." 24 May 1999
+    Initially, the project began since the GNU C library lacks support for
+    MMU-less systems, and because glibc is very large.  The GNU C library is
+    designed with a very different set of goals then uClibc.  The GNU C library
+    is a great piece of software, make no mistake.  It is compliant with just
+    about every standard ever created, and runs on just about every operating
+    system and architecture -- no small task!  But there is a price to be paid
+    for that.  It is quite a large library, and keeps getting larger with each
+    release.  It does not even pretend to target embedded systems.  To quote
+    from Ulrich Drepper, the maintainer of GNU libc: "...glibc is not the right
+    thing for [an embedded OS]. It is designed as a native library (as opposed
+    to embedded).  Many functions (e.g., printf) contain functionality which is
+    not wanted in embedded systems." 24 May 1999
 
 
 
@@ -140,11 +144,11 @@ to the uClibc home page.</a>
 
     uClibc has been designed from the ground up to be a C library for
     embedded Linux.  We don't need to worry about things like MS-DOS
-    support, or Cygwin, or AmigaOs any other system.  This lets us cut out
+    support, or BeOS, or AmigaOs any other system.  This lets us cut out
     a lot of complexity and very carefully optimize for Linux.  By very
     careful design, we can also take a few shortcuts.  For example, glibc
     contains an implementation of the wordexp() function, in compliance
-    with the Single Unix Specification, version 2.  Well, standards are
+    with the Single Unix Specification, version 3.  Well, standards are
     important.  But so is pragmatism.  The wordexp function is huge, yet I
     am not aware of even one Linux application that uses it!  So uClibc
     doesn't provide wordexp().  There are many similar examples.  In other
@@ -180,25 +184,28 @@ to the uClibc home page.</a>
     using uClibc instead if glibc may be a very good idea.
 
     If you are trying to build a huge fileserver for your company that will
-    have 12 Terabytes of storage, then using glibc may make more sense... 
+    have 12 Terabytes of storage, then using glibc may make more sense.  
+    Unless, for example, that 12 Terabytes will be Network Attached Storage 
+    and you plan to burn Linux into the system's firmware...
 
 
 
 <p>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
     <B>
-    I want to create a closed source commercial application and  I want to
-    protect my intellectual property.  If I use uClibc, don't I have to 
-    release all my source code for free?  Is that legal?
+    If I use uClibc, do I have to release all my source code to the world for
+    free?  I want to create a closed source commercial application and I want
+    to protect my intellectual property.  
     </B>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
 
     No, you do not need to give away your source code just because you use
-    uClibc and/or run on Linux.  uClibc is licensed under the LGPL, just
-    like GNU libc.  If you are using uClibc as a shared library, then your
-    closed source application is 100% legal.  Please consider sharing some
-    of the money you make with us!  :-)
+    uClibc and/or run on Linux.  uClibc is licensed under the LGPL, just like
+    GNU libc.  Using shared libraries makes complying with the license easy.
+    If you are using uClibc as a shared library, then your closed source
+    application is 100% legal.  Please consider sharing some of the money you
+    make with us!  :-)
 
     <p>
     
@@ -210,7 +217,7 @@ to the uClibc home page.</a>
     uClibc.  This will (in theory) allow your customers to apply uClibc bug
     fixes to your application.  You do not need to make the application
     object file available to everyone, just to those you gave the fully
-    linked application.
+    linked application.  
 
 
 <p>
@@ -224,7 +231,52 @@ to the uClibc home page.</a>
     The easiest way is to use the compiler wrapper built by uClibc.  Instead of
     using your usual compiler or cross compiler, you can use i386-uclibc-gcc,
     (or whatever is appropriate for your target architecture) and your
-    applications will auto-magically link against uClibc.
+    applications will auto-magically link against uClibc.  You can also 
+    build your own native uClibc toolchain.  Just download the uClibc toolchain
+    builder from <a href="http://www.uclibc.org/downloads/toolchain/">
+    http://www.uclibc.org/downloads/toolchain/</a>, ajust the Makefile settings
+    to match your target system, and then run 'make'.
+
+
+
+<p>
+<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
+    <B>
+    I have code that uses constructors and destructors.  Why is it
+    when I use uClibc, the ctors/dtors do not run?
+    </B>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+    The uClibc compiler wrapper toolchain by default, does not
+    enable constructor and destructor support for C code.  It
+    only enables ctors/dtors support by default for C++ code.
+    If you have C code that uses ctors/dtors and you wish to use
+    the uClibc compiler wrapper toolchain, you will need to add
+    the <b>--uclibc-ctors</b> option to the gcc command line.  i.e.
+
+<PRE>
+	$ cat test.c 
+	#include <unistd.h>
+
+	void __attribute__((constructor)) my_ctor(void)
+	{
+	    char msg[]="I am a constructor!\n";
+	    write(2, msg, sizeof(msg));
+	}
+
+	int main(void)
+	{
+	    _exit(42);
+	}
+
+	$ /usr/i386-linux-uclibc/bin/i386-uclibc-gcc --uclibc-ctors ./test.c -o test
+	$ ./test 
+	I am a constructor!
+</PRE>
+
+    Another option is to build a native uClibc toolchain.  Native toolchains
+    always enable ctors/dtors support, even for C code.
 
 
 
@@ -254,8 +306,8 @@ to the uClibc home page.</a>
 
     Use the ldd that is built by uClibc, not your system's one.  When your
     system's ldd looks for library dependencies, it actually _runs_ that
-    program.  This works fine -- usually.  It doesn't work at all when you
-    have been cross compiling (which is why ldd segfaults).  The ldd
+    program.  This works fine -- usually.  It generally will not work at all 
+    when you have been cross compiling (which is why ldd segfaults).  The ldd
     program created by uClibc is cross platform and doesn't even try to run
     the target program (like your system one does).  So use the uClibc one
     and it will do the right thing, and it won't segfault even when you are
@@ -299,7 +351,7 @@ to the uClibc home page.</a>
 
     To start with, (with some initial help from <a
     href="http://www.uclinux.org/developers/index.html">D. Jeff Dionne</a>), I
-    ported it to run on x86.  I then grafted in the header files from glibc 2.1.3
+    ported it to run on i386.  I then grafted in the header files from glibc 2.1.3
     and cleaned up the resulting breakage.  This (plus some additional work) has
     made it almost completely independent of kernel headers, a large departure from
     its traditional tightly-coupled-to-the-kernel origins.  I have written and/or
