@@ -166,12 +166,12 @@ endif
 
 
 # Add a bunch of extra pedantic annoyingly strict checks
-XWARNINGS=-Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
 CPU_CFLAGS=$(subst ",, $(strip $(CPU_CFLAGS-y)))
 # Some nice CFLAGS to work with
-CFLAGS:=$(subst ",, $(strip $(WARNINGS))) $(XWARNINGS) $(OPTIMIZATION) \
-	-fno-builtin -nostdinc $(CPUFLAGS) -D_LIBC $(CPU_CFLAGS) \
-	$(subst ",, $(strip $(ARCH_CFLAGS))) -I$(TOPDIR)include -I.
+CFLAGS:=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) \
+	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
 
 ifeq ($(DODEBUG),y)
     CFLAGS += -g

@@ -13,7 +13,7 @@ BEGIN \
   omitcrti=0;
   omitcrtn=0;
   glb_idx = 0;
-  while(getline < "initfini.s")
+  while(getline < "initfini.S")
   { if(/\.endp/) {endp=1}
     if(/\.end/) {end=1}
     if(/\.align/) {alignval=$2}
@@ -27,7 +27,7 @@ BEGIN \
     }
     last = $1;
   }
-  close("initfini.s");
+  close("initfini.S");
 }
 # special rules for the SuperH targets (They do nothing on other targets)
 /SH_GLB_BEGINS/ && glb_idx==0 {omitcrti +=1}

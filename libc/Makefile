@@ -45,11 +45,14 @@ VERSION_SCRIPT:=${shell if [ -f sysdeps/linux/$(TARGET_ARCH)/libc.map ] ; then \
 
 all: halfclean subdirs $(LIBNAME) $(DO_SHARED)
 
-$(LIBNAME): subdirs
+ar-target:
 	$(CROSS)ranlib $(LIBNAME)
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBNAME)
 	install -m 644 $(LIBNAME) $(TOPDIR)lib
+
+$(LIBNAME): subdirs ar-target
+
 
 shared: $(TOPDIR)lib/$(LIBNAME)
 	@rm -rf tmp

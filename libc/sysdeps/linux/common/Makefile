@@ -41,7 +41,7 @@ MOBJ=$(shell ./list_syscalls.sh)
 
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
-SAFECFLAGS=$(WARNINGS) $(CPU_CFLAGS-y) $(OPTIMIZATION) -fno-builtin
+SAFECFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) -fno-builtin
 ifeq ($(strip $(DOPIC)),y)
 SAFECFLAGS+=-fPIC
 endif
@@ -64,11 +64,11 @@ $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-initfini.s: initfini.c
-	$(CC) $(SAFECFLAGS) -I$(TOPDIR)include -c initfini.c -S -o initfini.s
+initfini.S: initfini.c
+	$(CC) $(SAFECFLAGS) -I$(TOPDIR)include -c initfini.c -S -o initfini.S
 
-crti.S crtn.S: initfini.s $(TOPDIR)/extra/scripts/initfini.awk
-	$(AWK) -f $(TOPDIR)extra/scripts/initfini.awk initfini.s
+crti.S crtn.S: initfini.S $(TOPDIR)/extra/scripts/initfini.awk
+	$(AWK) -f $(TOPDIR)extra/scripts/initfini.awk initfini.S
 
 crti.o: crti.S
 	$(CC) $(SAFECFLAGS) -c crti.S -o crti.o
@@ -85,5 +85,5 @@ $(TOPDIR)lib/crtn.o: crtn.o
 	cp crtn.o $(TOPDIR)lib/
 
 clean:
-	rm -f *.[oa] *~ core crt[in].* initfini.s
+	rm -f *.[oa] *~ core crt[in].* *.S
 
