@@ -45,13 +45,9 @@ config UCLIBC_HAS_FLOATS
 	  Answering N to this option can reduce the size of uClibc.  Most people
 	  will answer Y.
 
-config ARCH_HAS_NO_FPU
-	bool
-	default n
-
 config HAS_FPU
 	bool "Target CPU has a floating point unit (FPU)"
-	depends on UCLIBC_HAS_FLOATS && !ARCH_HAS_NO_FPU
+	depends on UCLIBC_HAS_FLOATS
 	default y
 	help
 	  If your target CPU does not have a Floating Point Unit (FPU) or a

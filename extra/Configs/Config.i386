@@ -5,7 +5,6 @@
 
 config HAVE_ELF
 	bool
-	select HAS_FPU
 	select ARCH_LITTLE_ENDIAN
 	select UCLIBC_HAS_MMU
 	default y
@@ -61,7 +60,6 @@ config CONFIG_GENERIC_386
 	bool "Generic 386"
 
 config CONFIG_386
-	select ARCH_HAS_NO_FPU
 	bool "386"
 
 config CONFIG_486

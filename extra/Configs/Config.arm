@@ -40,53 +40,33 @@ choice
 	  If you don't know what to do, choose "Generic Arm".
 
 config CONFIG_GENERIC_ARM
-	select UCLIBC_HAS_MMU
-	select ARCH_HAS_NO_FPU
 	bool "Generic Arm"
 
 config CONFIG_ARM610
-	select ARCH_HAS_NO_MMU
-	select ARCH_HAS_NO_FPU
 	bool "Arm 610"
 
 config CONFIG_ARM710
-	select ARCH_HAS_NO_MMU
-	select ARCH_HAS_NO_FPU
 	bool "Arm 710"
 
 config CONFIG_ARM720T
-	select UCLIBC_HAS_MMU
-	select ARCH_HAS_NO_FPU
 	bool "Arm 720T"
 
 config CONFIG_ARM920T
-	select UCLIBC_HAS_MMU
-	select ARCH_HAS_NO_FPU
 	bool "Arm 920T"
 
 config CONFIG_ARM922T
-	select UCLIBC_HAS_MMU
-	select ARCH_HAS_NO_FPU
 	bool "Arm 922T"
 
 config CONFIG_ARM926T
-	select UCLIBC_HAS_MMU
-	select ARCH_HAS_NO_FPU
 	bool "Arm 926T"
 
 config CONFIG_ARM_SA110
-	select UCLIBC_HAS_MMU
-	select ARCH_HAS_NO_FPU
 	bool "Intel StrongArm SA-110"
 
 config CONFIG_ARM_SA1100
-	select UCLIBC_HAS_MMU
-	select ARCH_HAS_NO_FPU
 	bool "Intel StrongArm SA-1100"
 
 config CONFIG_ARM_XSCALE
-	select UCLIBC_HAS_MMU
-	select ARCH_HAS_NO_FPU
 	bool "Intel Xscale"
 
 endchoice

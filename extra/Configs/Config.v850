@@ -8,7 +8,6 @@ config TARGET_ARCH
 
 config HAVE_ELF
 	bool
-	select ARCH_HAS_NO_FPU
 	select ARCH_HAS_NO_MMU
 	select ARCH_LITTLE_ENDIAN
 	select ARCH_HAS_C_SYMBOL_PREFIX
