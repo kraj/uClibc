@@ -1,20 +1,20 @@
-/* Copyright (C) 1991, 1992, 1993, 1996, 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1991,92,93,96,98,2000,2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 /*
  *	POSIX Standard: 2.9.2 Minimum Values	Added to <limits.h>
@@ -73,7 +73,7 @@
 #define	_POSIX_NAME_MAX		14
 
 /* Number of bytes in a pathname.  */
-#define	_POSIX_PATH_MAX		255
+#define	_POSIX_PATH_MAX		256
 
 /* Number of bytes than can be written atomically to a pipe.  */
 #define	_POSIX_PIPE_BUF		512
@@ -97,7 +97,7 @@
 #define	_POSIX_STREAM_MAX	8
 
 /* Maximum length of a timezone name (element of `tzname').  */
-#define	_POSIX_TZNAME_MAX	3
+#define	_POSIX_TZNAME_MAX	6
 
 /* Maximum number of connections that can be queued on a socket.  */
 #define	_POSIX_QLIMIT		1

@@ -1,26 +1,27 @@
-/* Copyright (C) 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1995-1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _SYS_IPC_H
 # error "Never use <bits/ipc.h> directly; include <sys/ipc.h> instead."
 #endif
 
-#include <sys/types.h>
+#include <bits/types.h>
+#include <bits/wordsize.h>
 
 /* Mode bits for `msgget', `semget', and `shmget'.  */
 #define IPC_CREAT	01000		/* Create key if key does not exist. */
@@ -31,7 +32,9 @@
 #define IPC_RMID	0		/* Remove identifier.  */
 #define IPC_SET		1		/* Set `ipc_perm' options.  */
 #define IPC_STAT	2		/* Get `ipc_perm' options.  */
-#define IPC_INFO	3		/* See ipcs.  */
+#ifdef __USE_GNU
+# define IPC_INFO	3		/* See ipcs.  */
+#endif
 
 /* Special key values.  */
 #define IPC_PRIVATE	((__key_t) 0)	/* Private key.  */
@@ -41,10 +44,19 @@
 struct ipc_perm
   {
     __key_t __key;			/* Key.  */
-    unsigned short int uid;		/* Owner's user ID.  */
-    unsigned short int gid;		/* Owner's group ID.  */
-    unsigned short int cuid;		/* Creator's user ID.  */
-    unsigned short int cgid;		/* Creator's group ID.  */
+    __uid_t uid;			/* Owner's user ID.  */
+    __gid_t gid;			/* Owner's group ID.  */
+    __uid_t cuid;			/* Creator's user ID.  */
+    __gid_t cgid;			/* Creator's group ID.  */
+#if __WORDSIZE == 32
+    unsigned short int __pad1;
     unsigned short int mode;		/* Read/write permission.  */
+    unsigned short int __pad2;
+#else
+    __mode_t mode;			/* Read/write permission.  */
+    unsigned short int __pad1;
+#endif
     unsigned short int __seq;		/* Sequence number.  */
+    unsigned long long int __unused1;
+    unsigned long long int __unused2;
   };

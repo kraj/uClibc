@@ -1,20 +1,20 @@
-/* Copyright (C) 1991,92,94,95,96,97,98,99 Free Software Foundation, Inc.
+/* Copyright (C) 1991,92,1994-1999,2000,2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 /*
  * Never include this file directly; use <sys/types.h> instead.
@@ -73,7 +73,7 @@ typedef __u_quad_t __dev_t;		/* Type of device numbers.  */
 typedef __u_int __uid_t;		/* Type of user identifications.  */
 typedef __u_int __gid_t;		/* Type of group identifications.  */
 typedef __u_long __ino_t;		/* Type of file serial numbers.  */
-typedef __u_long __ino64_t;		/* Type of file serial numbers.  */
+typedef __u_quad_t __ino64_t;		/* Type of file serial numbers.  */
 typedef __u_int __mode_t;		/* Type of file attribute bitmasks.  */
 typedef __u_int __nlink_t; 		/* Type of file link counts.  */
 typedef long int __off_t;		/* Type of file sizes and offsets.  */
@@ -81,7 +81,7 @@ typedef __quad_t  __off64_t;		/*  "" (LFS) */
 typedef __quad_t __loff_t;		/* Type of file sizes and offsets.  */
 typedef int __pid_t;			/* Type of process identifications.  */
 #if __WORDSIZE == 64
-typedef long long int __ssize_t;	/* Type of a byte count, or error.  */
+typedef long int __ssize_t;		/* Type of a byte count, or error.  */
 #else
 typedef int __ssize_t;			/* Type of a byte count, or error.  */
 #endif
@@ -98,50 +98,34 @@ typedef struct
 typedef int __daddr_t;			/* The type of a disk address.  */
 typedef char *__caddr_t;
 typedef long int __time_t;
+typedef unsigned int __useconds_t;
+typedef int __suseconds_t;
 typedef long int __swblk_t;		/* Type of a swap block maybe?  */
 
 typedef long int __clock_t;
 
-/* One element in the file descriptor mask array.  */
-typedef unsigned long int __fd_mask;
+/* Clock ID used in clock and timer functions.  */
+typedef int __clockid_t;
 
-/* Due to incaution, we may have gotten these from a kernel header file.  */
-#undef __FD_SETSIZE
-#undef __NFDBITS
-#undef __FDMASK
+/* Timer ID returned by `timer_create'.  */
+typedef int __timer_t;
 
 /* Number of descriptors that can fit in an `fd_set'.  */
 #define __FD_SETSIZE	1024
-
-/* It's easier to assume 8-bit bytes than to get CHAR_BIT.  */
-#define __NFDBITS	(8 * sizeof (__fd_mask))
-#define	__FDELT(d)	((d) / __NFDBITS)
-#define	__FDMASK(d)	((__fd_mask) 1 << ((d) % __NFDBITS))
-
-/* fd_set for select and pselect.  */
-typedef struct
-  {
-    /* XPG4.2 requires this member name.  Otherwise avoid the name
-       from the user namespace.  */
-#ifdef __USE_XOPEN
-    __fd_mask fds_bits[__FD_SETSIZE / __NFDBITS];
-# define __FDS_BITS(set) ((set)->fds_bits)
-#else
-    __fd_mask __fds_bits[__FD_SETSIZE / __NFDBITS];
-# define __FDS_BITS(set) ((set)->__fds_bits)
-#endif
-  } __fd_set;
 
 
 typedef int __key_t;
 
 /* Used in `struct shmid_ds'.  */
 #if __WORDSIZE == 64
-typedef int               __ipc_pid_t;
+typedef int		   __ipc_pid_t;
 #else
 typedef unsigned short int __ipc_pid_t;
 #endif
 
+
+/* Type to represent block size.  */
+typedef long int __blksize_t;
 
 /* Types from the Large File Support interface.  */
 
@@ -168,9 +152,12 @@ typedef long int __intptr_t;
 typedef int      __intptr_t;
 #endif
 
+/* Duplicate info from sys/socket.h.  */
+typedef unsigned int __socklen_t;
+
 
 /* Now add the thread types.  */
-#ifdef __USE_UNIX98
+#if defined __USE_POSIX199506 || defined __USE_UNIX98
 # include <bits/pthreadtypes.h>
 #endif
 

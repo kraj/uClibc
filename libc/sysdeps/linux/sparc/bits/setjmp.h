@@ -1,20 +1,20 @@
-/* Copyright (C) 1997,1999 Free Software Foundation, Inc.
+/* Copyright (C) 1997,1999,2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 
 #ifndef _SETJMP_H
@@ -25,9 +25,35 @@
 
 #if __WORDSIZE == 64
 
-#include <sys/ucontext.h>
-
-typedef ucontext_t __jmp_buf[1];
+#ifndef _ASM
+typedef struct __sparc64_jmp_buf
+  {
+    struct __sparc64_jmp_buf	*uc_link;
+    unsigned long		uc_flags;
+    unsigned long		uc_sigmask;
+    struct __sparc64_jmp_buf_mcontext
+      {
+	unsigned long		mc_gregs[19];
+	unsigned long		mc_fp;
+	unsigned long		mc_i7;
+	struct __sparc64_jmp_buf_fpu
+	  {
+	    union
+	      {
+		unsigned int	sregs[32];
+		unsigned long	dregs[32];
+		long double	qregs[16];
+	      }			mcfpu_fpregs;
+	    unsigned long	mcfpu_fprs;
+	    unsigned long	mcfpu_gsr;
+	    void		*mcfpu_fq;
+	    unsigned char	mcfpu_qcnt;
+	    unsigned char	mcfpu_qentsz;
+	    unsigned char	mcfpu_enab;
+	  }			mc_fpregs;
+      }				uc_mcontext;
+  } __jmp_buf[1];
+#endif
 
 /* Test if longjmp to JMPBUF would unwind the frame
    containing a local variable at ADDRESS.  */

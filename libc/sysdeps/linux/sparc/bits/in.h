@@ -1,20 +1,20 @@
-/* Copyright (C) 1991,92,93,94,95,96,97,98,99 Free Software Foundation, Inc.
+/* Copyright (C) 1991-1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 /* Linux version.  */
 
@@ -99,7 +99,7 @@ struct in_pktinfo
 #define IPV6_PKTINFO		2
 #define IPV6_HOPOPTS		3
 #define IPV6_DSTOPTS		4
-#define IPV6_RXSRCRT		5
+#define IPV6_RTHDR		5
 #define IPV6_PKTOPTIONS		6
 #define IPV6_CHECKSUM		7
 #define IPV6_HOPLIMIT		8
@@ -109,14 +109,21 @@ struct in_pktinfo
 #define IPV6_MULTICAST_IF	17
 #define IPV6_MULTICAST_HOPS	18
 #define IPV6_MULTICAST_LOOP	19
-#define IPV6_ADD_MEMBERSHIP	20
-#define IPV6_DROP_MEMBERSHIP	21
+#define IPV6_JOIN_GROUP		20
+#define IPV6_LEAVE_GROUP	21
 #define IPV6_ROUTER_ALERT	22
+#define IPV6_MTU_DISCOVER	23
+#define IPV6_MTU		24
+#define IPV6_RECVERR		25
 
 #define SCM_SRCRT		IPV6_RXSRCRT
 
-#define IPV6_RXHOPOPTS		IPV6_HOPOPTS	/* obsolete name */
-#define IPV6_RXDSTOPTS		IPV6_DSTOPTS	/* obsolete name */
+/* Obsolete synonyms for the above.  */
+#define IPV6_RXHOPOPTS		IPV6_HOPOPTS
+#define IPV6_RXDSTOPTS		IPV6_DSTOPTS
+#define IPV6_ADD_MEMBERSHIP	IPV6_JOIN_GROUP
+#define IPV6_DROP_MEMBERSHIP	IPV6_LEAVE_GROUP
+
 
 /* IPV6_MTU_DISCOVER values.  */
 #define IPV6_PMTUDISC_DONT	0	/* Never send DF frames.  */
@@ -126,3 +133,9 @@ struct in_pktinfo
 /* Socket level values for IPv6.  */
 #define SOL_IPV6        41
 #define SOL_ICMPV6      58
+
+/* Routing header options for IPv6.  */
+#define IPV6_RTHDR_LOOSE	0	/* Hop doesn't need to be neighbour. */
+#define IPV6_RTHDR_STRICT	1	/* Hop must be a neighbour.  */
+
+#define IPV6_RTHDR_TYPE_0	0	/* IPv6 Routing header type 0.  */

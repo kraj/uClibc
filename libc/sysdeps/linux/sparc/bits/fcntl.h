@@ -3,22 +3,23 @@
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
-#ifndef _FCNTLBITS_H
-#define _FCNTLBITS_H	1
+#ifndef _FCNTL_H
+# error "Never use <bits/fcntl.h> directly; include <fcntl.h> instead."
+#endif
 
 #include <sys/types.h>
 #include <bits/wordsize.h>
@@ -52,6 +53,14 @@
 # endif
 #endif
 
+/* For now Linux has no synchronisity options for data and read
+   operations.  We define the symbols here but let them do the same as
+   O_SYNC since this is a superset.  */
+#if defined __USE_POSIX199309 || defined __USE_UNIX98
+# define O_DSYNC	O_SYNC	/* Synchronize data.  */
+# define O_RSYNC	O_SYNC	/* Synchronize read operations.  */
+#endif
+
 /* For now Linux has synchronisity options for data and read operations.
    We define the symbols here but let them do the same as O_SYNC since
    this is a superset.  */
@@ -66,23 +75,40 @@
 #define F_SETFD		2	/* Set file descriptor flags.  */
 #define F_GETFL		3	/* Get file status flags.  */
 #define F_SETFL		4	/* Set file status flags.  */
-#ifdef __USE_BSD
+#if defined __USE_BSD || defined __USE_XOPEN2K
 # define F_GETOWN	5	/* Get owner of socket (receiver of SIGIO).  */
 # define F_SETOWN	6	/* Set owner of socket (receiver of SIGIO).  */
 #endif
-#define F_GETLK		7	/* Get record locking info.  */
-#define F_SETLK		8	/* Set record locking info (non-blocking).  */
-#define F_SETLKW	9	/* Set record locking info (blocking).  */
+#ifndef __USE_FILE_OFFSET64
+# define F_GETLK	7	/* Get record locking info.  */
+# define F_SETLK	8	/* Set record locking info (non-blocking).  */
+# define F_SETLKW	9	/* Set record locking info (blocking).  */
+#else
+# define F_GETLK	F_GETLK64  /* Get record locking info.  */
+# define F_SETLK	F_SETLK64  /* Set record locking info (non-blocking).*/
+# define F_SETLKW	F_SETLKW64 /* Set record locking info (blocking).  */
+#endif
 
 #ifdef __USE_GNU
 # define F_SETSIG	10	/* Set number of signal to be sent.  */
 # define F_GETSIG	11	/* Get number of signal to be sent.  */
 #endif
 
-/* XXX missing */
-#define F_GETLK64	7	/* Get record locking info.  */
-#define F_SETLK64	8	/* Set record locking info (non-blocking).  */
-#define F_SETLKW64	9	/* Set record locking info (blocking).  */
+#ifdef __USE_GNU
+# define F_SETLEASE     1024	/* Set a lease.  */
+# define F_GETLEASE     1025	/* Enquire what lease is active.  */
+# define F_NOTIFY       1026	/* Request notfications on a directory.  */
+#endif
+
+#if __WORDSIZE == 64
+# define F_GETLK64	7	/* Get record locking info.  */
+# define F_SETLK64	8	/* Set record locking info (non-blocking).  */
+# define F_SETLKW64	9	/* Set record locking info (blocking).  */
+#else
+# define F_GETLK64	12	/* Get record locking info.  */
+# define F_SETLK64	13	/* Set record locking info (non-blocking).  */
+# define F_SETLKW64	14	/* Set record locking info (blocking).  */
+#endif
 
 /* for F_[GET|SET]FL */
 #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
@@ -103,6 +129,24 @@
 # define LOCK_NB	4	/* or'd with one of the above to prevent
 				   blocking */
 # define LOCK_UN	8	/* remove lock */
+#endif
+
+#ifdef __USE_GNU
+# define LOCK_MAND	32	/* This is a mandatory flock:	*/
+# define LOCK_READ	64	/* ... which allows concurrent read operations.	 */
+# define LOCK_WRITE	128	/* ... which allows concurrent write operations.  */
+# define LOCK_RW	192	/* ... Which allows concurrent read & write operations.	 */
+#endif
+
+#ifdef __USE_GNU
+/* Types of directory notifications that may be requested with F_NOTIFY.  */
+# define DN_ACCESS	0x00000001	/* File accessed.  */
+# define DN_MODIFY	0x00000002	/* File modified.  */
+# define DN_CREATE	0x00000004	/* File created.  */
+# define DN_DELETE	0x00000008	/* File removed.  */
+# define DN_RENAME	0x00000010	/* File renamed.  */
+# define DN_ATTRIB	0x00000020	/* File changed attibutes.  */
+# define DN_MULTISHOT	0x80000000	/* Don't remove notifier.  */
 #endif
 
 struct flock
@@ -142,4 +186,12 @@ struct flock64
 # define FNDELAY	O_NDELAY
 #endif /* Use BSD.  */
 
+/* Advise to `posix_fadvise'.  */
+#ifdef __USE_XOPEN2K
+# define POSIX_FADV_NORMAL	0 /* No further special treatment.  */
+# define POSIX_FADV_RANDOM	1 /* Expect random page references.  */
+# define POSIX_FADV_SEQUENTIAL	2 /* Expect sequential page references.  */
+# define POSIX_FADV_WILLNEED	3 /* Will need these pages.  */
+# define POSIX_FADV_DONTNEED	4 /* Don't need these pages.  */
+# define POSIX_FADV_NOREUSE	5 /* Data will be accessed once.  */
 #endif

@@ -1,21 +1,21 @@
-/* System-specific socket constants and types.  Linux version.
-   Copyright (C) 1991,92,94,95,96,97,98,99 Free Software Foundation, Inc.
+/* System-specific socket constants and types.  Linux/SPARC version.
+   Copyright (C) 1991,1992,1994-1999,2000,2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef __BITS_SOCKET_H
 #define __BITS_SOCKET_H
@@ -32,7 +32,10 @@
 #include <sys/types.h>
 
 /* Type for length arguments in socket calls.  */
-typedef unsigned int socklen_t;
+#ifndef __socklen_t_defined
+typedef __socklen_t socklen_t;
+# define __socklen_t_defined
+#endif
 
 /* Types of sockets.  */
 enum __socket_type
@@ -82,7 +85,10 @@ enum __socket_type
 #define	PF_ECONET	19	/* Acorn Econet.  */
 #define	PF_ATMSVC	20	/* ATM SVCs.  */
 #define	PF_SNA		22	/* Linux SNA Project */
-#define PF_IRDA		23	/* IRDA sockets.  */
+#define	PF_IRDA		23	/* IRDA sockets.  */
+#define	PF_PPPOX	24	/* PPPoX sockets.  */
+#define	PF_WANPIPE	25	/* Wanpipe API sockets.  */
+#define	PF_BLUETOOTH	31	/* Bluetooth sockets.  */
 #define	PF_MAX		32	/* For now..  */
 
 /* Address families.  */
@@ -111,7 +117,10 @@ enum __socket_type
 #define	AF_ECONET	PF_ECONET
 #define	AF_ATMSVC	PF_ATMSVC
 #define	AF_SNA		PF_SNA
-#define AF_IRDA		PF_IRDA
+#define	AF_IRDA		PF_IRDA
+#define	AF_PPPOX	PF_PPPOX
+#define	AF_WANPIPE	PF_WANPIPE
+#define	AF_BLUETOOTH	PF_BLUETOOTH
 #define	AF_MAX		PF_MAX
 
 /* Socket level values.  Others are defined in the appropriate headers.
@@ -152,7 +161,7 @@ struct sockaddr
 
 struct sockaddr_storage
   {
-    __SOCKADDR_COMMON (__ss_);	/* Address family, etc.  */
+    __SOCKADDR_COMMON (ss_);	/* Address family, etc.  */
     __ss_aligntype __ss_align;	/* Force desired alignment.  */
     char __ss_padding[_SS_PADSIZE];
   };
@@ -188,14 +197,16 @@ enum
 #define	MSG_FIN		MSG_FIN
     MSG_SYN		= 0x400,
 #define	MSG_SYN		MSG_SYN
-    MSG_URG		= 0x800,
-#define	MSG_URG		MSG_URG
+    MSG_CONFIRM		= 0x800, /* Confirm path validity.  */
+#define	MSG_CONFIRM	MSG_CONFIRM
     MSG_RST		= 0x1000,
 #define	MSG_RST		MSG_RST
     MSG_ERRQUEUE	= 0x2000, /* Fetch message from error queue.  */
 #define	MSG_ERRQUEUE	MSG_ERRQUEUE
-    MSG_NOSIGNAL	= 0x4000  /* Do not generate SIGPIPE.  */
+    MSG_NOSIGNAL	= 0x4000, /* Do not generate SIGPIPE.  */
 #define	MSG_NOSIGNAL	MSG_NOSIGNAL
+    MSG_MORE		= 0x8000  /* Sender will send more.  */
+#define	MSG_MORE	MSG_MORE
   };
 
 
@@ -203,15 +214,21 @@ enum
    `sendmsg' and received by `recvmsg'.  */
 struct msghdr
   {
-    __ptr_t msg_name;		/* Address to send to/receive from.  */
+    void *msg_name;		/* Address to send to/receive from.  */
     socklen_t msg_namelen;	/* Length of address data.  */
 
     struct iovec *msg_iov;	/* Vector of data to send/receive into.  */
+#if __WORDSIZE == 32
+    int msg_iovlen;		/* Number of elements in the vector.  */
+
+    void *msg_control;		/* Ancillary data (eg BSD filedesc passing). */
+    socklen_t msg_controllen;	/* Ancillary data buffer length.  */
+#else
     size_t msg_iovlen;		/* Number of elements in the vector.  */
 
-    __ptr_t msg_control;	/* Ancillary data (eg BSD filedesc passing). */
+    void *msg_control;		/* Ancillary data (eg BSD filedesc passing). */
     size_t msg_controllen;	/* Ancillary data buffer length.  */
-
+#endif
     int msg_flags;		/* Flags on received message.  */
   };
 
@@ -222,14 +239,13 @@ struct cmsghdr
 				   of cmsghdr structure.  */
     int cmsg_level;		/* Originating protocol.  */
     int cmsg_type;		/* Protocol specific type.  */
-#if !defined __STRICT_ANSI__ && defined __GNUC__ && __GNUC__ >= 2
-    unsigned char __cmsg_data[0]; /* Ancillary data.  */
-    /* XXX Perhaps this should be removed.  */
+#if (!defined __STRICT_ANSI__ && __GNUC__ >= 2) || __STDC_VERSION__ >= 199901L
+    __extension__ unsigned char __cmsg_data __flexarr; /* Ancillary data.  */
 #endif
   };
 
 /* Ancillary data object manipulation macros.  */
-#if !defined __STRICT_ANSI__ && defined __GNUC__ && __GNUC__ >= 2
+#if (!defined __STRICT_ANSI__ && __GNUC__ >= 2) || __STDC_VERSION__ >= 199901L
 # define CMSG_DATA(cmsg) ((cmsg)->__cmsg_data)
 #else
 # define CMSG_DATA(cmsg) ((unsigned char *) ((struct cmsghdr *) (cmsg) + 1))
@@ -239,19 +255,19 @@ struct cmsghdr
   ((size_t) (mhdr)->msg_controllen >= sizeof (struct cmsghdr)		      \
    ? (struct cmsghdr *) (mhdr)->msg_control : (struct cmsghdr *) NULL)
 #define CMSG_ALIGN(len) (((len) + sizeof (size_t) - 1) \
-			 & ~(sizeof (size_t) - 1))
+			 & (size_t) ~(sizeof (size_t) - 1))
 #define CMSG_SPACE(len) (CMSG_ALIGN (len) \
 			 + CMSG_ALIGN (sizeof (struct cmsghdr)))
 #define CMSG_LEN(len)   (CMSG_ALIGN (sizeof (struct cmsghdr)) + (len))
 
-extern struct cmsghdr *__cmsg_nxthdr __P ((struct msghdr *__mhdr,
-					   struct cmsghdr *__cmsg));
+extern struct cmsghdr *__cmsg_nxthdr (struct msghdr *__mhdr,
+				      struct cmsghdr *__cmsg) __THROW;
 #ifdef __USE_EXTERN_INLINES
 # ifndef _EXTERN_INLINE
 #  define _EXTERN_INLINE extern __inline
 # endif
 _EXTERN_INLINE struct cmsghdr *
-__cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg)
+__cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg) __THROW
 {
   if ((size_t) __cmsg->cmsg_len < sizeof (struct cmsghdr))
     /* The kernel header does this so there may be a reason.  */
@@ -262,7 +278,7 @@ __cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg)
   if ((unsigned char *) (__cmsg + 1) >= ((unsigned char *) __mhdr->msg_control
 					 + __mhdr->msg_controllen)
       || ((unsigned char *) __cmsg + CMSG_ALIGN (__cmsg->cmsg_len)
-	  >= ((unsigned char *) __mhdr->msg_control + __mhdr->msg_controllen)))
+	  > ((unsigned char *) __mhdr->msg_control + __mhdr->msg_controllen)))
     /* No more entries.  */
     return 0;
   return __cmsg;
