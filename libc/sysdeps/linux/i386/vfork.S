@@ -2,60 +2,62 @@
  * June 27, 2001             Manuel Novoa III
  *
  * Modified to (hopefully) be PIC and REENTRANT safe.
+ * Modified again to better follow the glibc implementation.
  *
  */
+
+#define _ERRNO_H	1
+#include <bits/errno.h>
+#include <sys/syscall.h>
+
+        .text
+	.globl __vfork;
+	.type __vfork,@function;
+	.align 1<<4;
 	
-.text
-	.align 4
-.globl vfork
-	.type	 vfork,@function
-vfork:
+__vfork:
+#ifdef __NR_vfork
 	popl %ecx
-	movl $190,%eax
-#ifdef __PIC__
-	pushl %ebx
-#endif
-#APP
+	movl $__NR_vfork,%eax
 	int $0x80
-#NO_APP
-#ifdef __PIC__
-	popl %ebx
-#endif
+	pushl %ecx
 	cmpl $-4095,%eax
 	jae .Lerror
-	jmp *%ecx
-	.p2align 4,,7
-.Lerror:
-	pushl %ecx
-
-#ifdef __PIC__
-	pushl %ebx
-	call .Lhere
-.Lhere:
-	popl %ebx
-	addl $_GLOBAL_OFFSET_TABLE_+[.-.Lhere],%ebx
-	negl %eax
-	movl %eax,%ecx
-#ifdef __UCLIBC_HAS_THREADS__
-	call __errno_location@PLT
-#else
-	movl errno@GOT(%ebx),%eax
-#endif /* __UCLIBC_HAS_THREADS__ */
-	movl %ecx,(%eax)
-	popl %ebx
-#else
-	negl %eax
-#ifdef __UCLIBC_HAS_THREADS__
-	movl %eax,%ecx
-	call __errno_location
-	movl %ecx,(%eax)
-#else
-	movl %eax,errno
-#endif /* __UCLIBC_HAS_THREADS__ */
-
-#endif /* __PIC__ */
-	
-	movl $-1,%eax
 	ret
+
+.Lerror:
+	cmpl  $-ENOSYS,%eax
+	jne   __syscall_error
+#endif	
+
+	/* Fall back on calling fork */
+	movl $__NR_fork,%eax
+	int $0x80
+	cmpl $-4095,%eax
+	jae __syscall_error
+	ret
+
+__syscall_error:
+	negl    %eax
+	pushl   %eax
+#ifdef __PIC__
+	call .Lthere
+.Lthere:
+	popl	%ebx
+	addl	$_GLOBAL_OFFSET_TABLE_+[.- .Lthere  ], %ebx
+	call    __errno_location@PLT
+#else
+	call	__errno_location
+#endif
+	popl	%ecx
+	movl	%ecx, (%eax)
+	xorl	%eax, %eax
+	decl	%eax
+
 .Lsize:
-	.size	 vfork,.Lsize-vfork
+	.size	 __vfork,.Lsize-__vfork
+
+
+.weak vfork ; vfork = __vfork
+
+
