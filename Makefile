@@ -97,7 +97,7 @@ $(patsubst %, _dirclean_%, $(DIRS) test) : dummy
 
 install:
 	@if [ `id -u` -ne 0 ]; then \
-	    echo "Aborting install -- you must be root."; \
+	    echo "Aborting install -- You must be root."; \
 	    /bin/false; \
 	fi;
 	rm -f $(INSTALL_DIR)/include/asm
