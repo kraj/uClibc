@@ -38,7 +38,7 @@ static __inline__ uint32_t bswap_32(uint32_t x)
        uint32_t res;
 
        swab((void*)&x, (void*)&res, sizeof(uint32_t));
-       
+
        return res;
      }
 
