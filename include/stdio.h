@@ -324,6 +324,7 @@ extern char *fgets __P ((char *__restrict __s, int __n,
 extern char *gets __P ((char *__s));
 
 
+#ifdef __USE_GNU
 /* Read up to (and including) a DELIMITER from STREAM into *LINEPTR
    (and null-terminate it). *LINEPTR is a pointer returned from malloc (or
    NULL), pointing to *N characters of space.  It is realloc'd as
@@ -340,6 +341,7 @@ extern ssize_t getdelim __P ((char **__restrict __lineptr,
 extern ssize_t getline __P ((char **__restrict __lineptr,
 				 size_t *__restrict __n,
 				 FILE *__restrict __stream));
+#endif
 
 
 /* Write a string to STREAM.  */
