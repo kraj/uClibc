@@ -76,7 +76,7 @@ _start_end:
 L_main:
 	.long   __uClibc_main /* in libuClibc.*.so */
 
-#else /* L_crt1 && __UCLIBC_CTOR_DTOR__ */
+#else /* (L_crt1 || L_gcrt1) && __UCLIBC_CTOR_DTOR__ */
 	/* Push the finip argument to __uClibc_start_main() onto the stack */
 	mov.l L_fini,r6
 	mov.l r6,@-r15
@@ -113,8 +113,7 @@ _init:
 	rts
 	nop
 
-.Lfe1:
-	.size   _init,.Lfe1-_init
+	.size   _init,.-_init
 	.weak   _fini
 	.set    _fini,_init
 
@@ -128,3 +127,6 @@ L_fini:
 L_abort: 
       .long   abort   
 
+#if defined L_gcrt1 && defined __UCLIBC_PROFILING__
+# include "./gmon-start.S"
+#endif
