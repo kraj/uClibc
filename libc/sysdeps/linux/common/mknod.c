@@ -28,6 +28,10 @@
 #include <sys/syscall.h>
 #include <asm/posix_types.h>
 
+#ifndef _MKNOD_VER
+# define _MKNOD_VER	0
+#endif
+
 #ifndef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) __syscall_mknod (args)
 #define __NR___syscall_mknod __NR_mknod 
@@ -49,5 +53,10 @@ int __xmknod (int version, const char * path, __mode_t mode, __dev_t *dev)
 			__set_errno(EINVAL);
 			return -1;
 	}
+}
+
+int mknod(const char *path, __mode_t mode, __dev_t dev)
+{
+	  return __xmknod(_MKNOD_VER, path, mode, &dev);
 }
 
