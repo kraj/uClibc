@@ -223,8 +223,8 @@ ifeq ($(HAVE_SHARED),y)
    endif
 endif
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
-    CFLAGS += -msoft-float
-    LDFLAGS+= -Wa,-mno-fpu
+    CFLAGS += $(call check_gcc,-msoft-float,)
+    #LDFLAGS+= -Wa,-mno-fpu
 endif
 
 CFLAGS_NOPIC:=$(CFLAGS)
