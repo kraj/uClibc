@@ -15,13 +15,14 @@
 */
 
 
+#define __FORCE_GLIBC
+#include <features.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <netinet/ether.h>
 #include <netinet/if_ether.h>
 
-#define __FORCE_GLIBC
 struct ether_addr *ether_aton(const char *asc)
 {
 	static struct ether_addr result;
