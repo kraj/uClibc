@@ -1,6 +1,8 @@
 /* CRIS can never use Elf32_Rel relocations. */
 #define ELF_USES_RELOCA
+
 #include <elf.h>
+
 /* Initialization sequence for the GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE)				\
 {								\
@@ -77,14 +79,14 @@ cris_mod(unsigned long m, unsigned long p)
    | (((type) == R_CRIS_COPY) * ELF_RTYPE_CLASS_COPY))
 
 static inline Elf32_Addr
-elf_machine_dynamic (void)
+elf_machine_dynamic(void)
 {
 	/* Don't just set this to an asm variable "r0" since that's not logical
 	   (like, the variable is uninitialized and the register is fixed) and
 	   may make GCC trip over itself doing register allocation.  Yes, I'm
 	   paranoid.  Why do you ask?  */
 	Elf32_Addr *got;
-	
+
 	__asm__ ("move.d $r0,%0" : "=rm" (got));
 	return *got;
 }
@@ -99,22 +101,25 @@ elf_machine_dynamic (void)
    GOT entry for.  */
 
 static inline Elf32_Addr
-elf_machine_load_address (void)
+elf_machine_load_address(void)
 {
 	Elf32_Addr gotaddr_diff;
+
 	__asm__ ("sub.d [$r0+_dl_parse:GOT16],$r0,%0\n\t"
-		 "add.d _dl_parse:GOTOFF,%0" : "=r" (gotaddr_diff));
+	         "add.d _dl_parse:GOTOFF,%0" : "=r" (gotaddr_diff));
 	return gotaddr_diff;
 }
 
 static inline void
-elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
-		      Elf32_Word relative_count)
+elf_machine_relative(Elf32_Addr load_off, const Elf32_Addr rel_addr,
+                     Elf32_Word relative_count)
 {
-	 Elf32_Rela * rpnt = (void *) (rel_addr + load_off);
+	Elf32_Rela *rpnt = (void *)(rel_addr + load_off);
+
 	--rpnt;
 	do {
-		Elf32_Addr *const reloc_addr = (void *) (load_off + (++rpnt)->r_offset);
+		Elf32_Addr *const reloc_addr =
+			(void *)(load_off + (++rpnt)->r_offset);
 
 		*reloc_addr =  load_off + rpnt->r_addend;
 	} while (--relative_count);
