@@ -13,6 +13,9 @@ run 'nm -D --size-sort -t d libuClibc-0.9.5.so' and work on the biggest things
     (i.e. stuff at the end of the list) to make them smaller.
 make inb/outb work (for lilo et all)
 make rint work (for ip et all)
+include/resolv.h does not define struct _res, and libc/inet/resolv.c
+    does not use this struct.  res_init does nothing.  the other res_* 
+    functions are not implemented.
 
 
 -----------------------------------------------------------------------------
