@@ -1,0 +1,83 @@
+0.9.9
+
+Erik Andersen:
+    o   Reworked all signal handling such that signal handling
+	now passes POSIX conformance tests.
+    o   Added missing syscalls: get_kernel_syms, fcntl64,
+	fdatasync, sched_setparam, sched_getparam,
+	sched_setscheduler, sched_getscheduler,
+	sched_get_priority_max, sched_get_priority_min,
+	sched_rr_get_interval, sigaltstack, sendfile, 
+	pivot_root, sigsuspend
+    o   Fixed fcntl to work when DOLFS is enabled
+    o   Made getopt behave the same when staticly linking
+	as when dynamicly linking.  It was using different
+	implementations depending on how apps were linked.
+    o   Added missing inttypes.h header file
+    o   Eliminate all C++ style comments from header files
+    o   Support statvfs and statfs
+    o   Support getmntent_r
+    o   Scandir and scandir64 were calling malloc without
+	checking for ENOMEM
+    o   Fixed stpcpy function declaration
+    o   Many large file support improvements.
+    o   Fixed termios code to do the Right Thing(tm)
+    o   Allow regex to be excluded at compile time
+    o   Implemented mempcpy
+    o   Build ldd and readelf for the target system and for the 
+	host system
+    o   Fix several cases where get-needed-libgcc-objects.sh
+	could fail, breaking the shared uClibc library.
+    o   Include all shared library loader objects into a
+	single C file, thereby producing smaller code.
+    o   Reworked the shared library linking process to be more 
+	flexible so that gcc and ld can more easily target the 
+	C library.
+    o   Better error checking in the Makefiles
+    o   We can now autodetect the target architecture
+    o   Fixed sleep and usleep to work correctly when
+	interrupted by signals.
+    o   Hide references to wchar_t so GNU autoconf
+	configure scripts won't get confused and try to 
+	enable wide char support. 
+    o   Fixed stdio.h so apps can use varargs.h if they want to.
+    o   Added brk/sbrk support to arm
+Miles Bader:
+    o   Fixes for the v850 architecture: crt0, setjmp, 
+	arch autodetection, etc.
+    o   Fixed `make install' to not build ldso stuff on
+	non-shared-library systems.
+Michael E Brown:
+    o   Allow the gcc wrapper to support setting DEVEL_PREFIX
+	and BUILD_DIR at runtime (no more need to recompile).
+M. R. Brown and Erik Andersen:
+    o   Fixed the SH port so it now works.  Tested and shown
+	working on an SH4 Dreamcast system.
+Kim Heino:
+    o   Made 'make clean' remove generated bits/syscall.h
+David McCullough:
+    o   SH architecture updates.  Added brk, sbrk,
+    o   Fixed simple malloc to work on systems with an MMU
+    o   Taught getutent to return NULL if utmp doesn't exist. 
+    o   Added insque/remque support
+    o   Fixed DNS resolver version number so apps won't get
+	confused and use the wrong API.
+    o   Added Config selectable shadow password support
+Cédric Schieli:
+    o   Add support for inet_netof, inet_lnaof, inet_makeaddr 
+	and hstrerror.             
+David Schleef:
+    o   Added libstrip, a nifty script to automagically
+	strip unneeded content from the uClibc shared 
+	libraries.
+Stefan Soucek:
+    o   Add rcmd support, i.e. rsh, rlogin, etc.
+    o   Fix rcmd to avoid alloca, which is dangerous
+	on mmu-less systems
+spudmonkey@racsa.co.cr:
+    o   Eliminate a buffer overflow in the shared library loader
+Brian Stafford:
+    o   Enable support for Unix98 PTYs, and add option
+	to disable old style PTYs.
+
+
