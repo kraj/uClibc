@@ -58,6 +58,21 @@ char *strcpy(char *dst, const char *src)
 }
 #endif
 
+/********************** Function stpcpy ************************************/
+
+#ifdef L_stpcpy
+char *stpcpy(char *dst, const char *src)
+{
+	register char *ptr = dst;
+
+	while (*src)
+		*dst++ = *src++;
+	*dst = '\0';
+
+	return dst;
+}
+#endif
+
 /********************** Function strcmp ************************************/
 
 #ifdef L_strcmp

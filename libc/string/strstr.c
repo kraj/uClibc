@@ -25,6 +25,7 @@
  * as much fun trying to understand it, as I had to write it :-).
  *
  * Stephen R. van den Berg, berg@pool.informatik.rwth-aachen.de	*/
+/* added strcasestr support, davidm@lineo.com */
 
 #if HAVE_CONFIG_H
 # include <config.h>
@@ -36,9 +37,26 @@
 
 typedef unsigned chartype;
 
+#if defined(L_strstr)
+
+#define VAL(x)	(x)
+#define FUNC strstr
 #undef strstr
 
-char *strstr( const char *phaystack, const char *pneedle)
+#elif defined(L_strcasestr)
+
+#include <ctype.h>
+#define VAL(x)	tolower(x)
+#define FUNC strcasestr
+#undef strcasestr
+
+#else
+
+#error "No target function defined."
+
+#endif
+
+char * FUNC ( const char *phaystack, const char *pneedle)
 {
 	register const unsigned char *haystack, *needle;
 	register chartype b, c;
@@ -54,7 +72,7 @@ char *strstr( const char *phaystack, const char *pneedle)
 			if (c == '\0')
 				goto ret0;
 		}
-		while (c != b);
+		while (VAL(c) != VAL(b));
 
 		c = *++needle;
 		if (c == '\0')
@@ -70,39 +88,39 @@ char *strstr( const char *phaystack, const char *pneedle)
 				a = *++haystack;
 				if (a == '\0')
 					goto ret0;
-				if (a == b)
+				if (VAL(a) == VAL(b))
 					break;
 				a = *++haystack;
 				if (a == '\0')
 					goto ret0;
 		  shloop:}
-			while (a != b);
+			while (VAL(a) != VAL(b));
 
 		  jin:a = *++haystack;
 			if (a == '\0')
 				goto ret0;
 
-			if (a != c)
+			if (VAL(a) != VAL(c))
 				goto shloop;
 
 			rhaystack = haystack-- + 1;
 			rneedle = needle;
 			a = *rneedle;
 
-			if (*rhaystack == a)
+			if (VAL(*rhaystack) == VAL(a))
 				do {
 					if (a == '\0')
 						goto foundneedle;
 					++rhaystack;
 					a = *++needle;
-					if (*rhaystack != a)
+					if (VAL(*rhaystack) != VAL(a))
 						break;
 					if (a == '\0')
 						goto foundneedle;
 					++rhaystack;
 					a = *++needle;
 				}
-				while (*rhaystack == a);
+				while (VAL(*rhaystack) == VAL(a));
 
 			needle = rneedle;	/* took the register-poor approach */
 

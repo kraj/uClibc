@@ -140,6 +140,35 @@ test_strcpy (void)
 }
 
 void
+test_stpcpy (void)
+{
+  int i;
+  it = "stpcpy";
+  check (stpcpy (one, "abcd") == one+4, 1); /* Returned value. */
+  equal (one, "abcd", 2);		/* Basic test. */
+
+  (void) stpcpy (one, "x");
+  equal (one, "x", 3);			/* Writeover. */
+  equal (one+2, "cd", 4);		/* Wrote too much? */
+
+  (void) stpcpy (two, "hi there");
+  (void) stpcpy (one, two);
+  equal (one, "hi there", 5);		/* Basic test encore. */
+  equal (two, "hi there", 6);		/* Stomped on source? */
+
+  (void) stpcpy (one, "");
+  equal (one, "", 7);			/* Boundary condition. */
+
+  for (i = 0; i < 16; i++)
+    {
+      (void) stpcpy (one + i, "hi there");	/* Unaligned destination. */
+      equal (one + i, "hi there", 8 + (i * 2));
+      (void) stpcpy (two, one + i);		/* Unaligned source. */
+      equal (two, "hi there", 9 + (i * 2));
+    }
+}
+
+void
 test_strcat (void)
 {
   it = "strcat";
@@ -440,6 +469,33 @@ test_strstr (void)
   check(strstr(one, "bca") == one+2, 15);	/* False start. */
   (void) strcpy(one, "bbbcabbca");
   check(strstr(one, "bbca") == one+1, 16);	/* With overlap. */
+}
+
+void
+test_strcasestr (void)
+{
+  it = "strcasestr";
+  check(strcasestr("abcd", "z") == NULL, 1);	/* Not found. */
+  check(strcasestr("abcd", "abx") == NULL, 2);	/* Dead end. */
+  (void) strcpy(one, "aBcD");
+  check(strcasestr(one, "c") == one+2, 3);	/* Basic test. */
+  check(strcasestr(one, "bc") == one+1, 4);	/* Multichar. */
+  check(strcasestr(one, "d") == one+3, 5);	/* End of string. */
+  check(strcasestr(one, "cd") == one+2, 6);	/* Tail of string. */
+  check(strcasestr(one, "abc") == one, 7);	/* Beginning. */
+  check(strcasestr(one, "abcd") == one, 8);	/* Exact match. */
+  check(strcasestr(one, "abcde") == NULL, 9);	/* Too long. */
+  check(strcasestr(one, "de") == NULL, 10);	/* Past end. */
+  check(strcasestr(one, "") == one, 11);	/* Finding empty. */
+  (void) strcpy(one, "aBaBa");
+  check(strcasestr(one, "ba") == one+1, 12);	/* Finding first. */
+  (void) strcpy(one, "");
+  check(strcasestr(one, "b") == NULL, 13);	/* Empty string. */
+  check(strcasestr(one, "") == one, 14);	/* Empty in empty string. */
+  (void) strcpy(one, "BcBcA");
+  check(strcasestr(one, "bca") == one+2, 15);	/* False start. */
+  (void) strcpy(one, "BbBcABBcA");
+  check(strcasestr(one, "bbca") == one+1, 16);	/* With overlap. */
 }
 
 void
@@ -913,6 +969,9 @@ main (void)
   /* Test strcpy next because we need it to set up other tests.  */
   test_strcpy ();
 
+  /* stpcpy */
+  test_stpcpy ();
+
   /* strcat.  */
   test_strcat ();
 
@@ -945,6 +1004,7 @@ main (void)
 
   /* strstr - somewhat like strchr.  */
   test_strstr ();
+  test_strcasestr ();
 
   /* strspn.  */
   test_strspn ();

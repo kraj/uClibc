@@ -19,6 +19,8 @@ extern char *strncat __P ((char *__restrict __dest,
 /* Copy SRC to DEST.  */
 extern char *strcpy __P ((char *__restrict __dest,
 			  __const char *__restrict __src));
+extern char *stpcpy __P ((char *__restrict __dest,
+			  __const char *__restrict __src));
 /* Copy no more than N characters of SRC to DEST.  */
 extern char *strncpy __P ((char *__restrict __dest,
 			   __const char *__restrict __src, size_t __n));
@@ -90,6 +92,7 @@ extern char *strsep __P ((char **__restrict __stringp,
 			  __const char *__restrict __delim));
 /* Find the first occurrence of NEEDLE in HAYSTACK.  */
 extern char *strstr __P ((__const char *__haystack, __const char *__needle));
+extern char *strcasestr __P((__const char *__haystack, __const char *__needle));
 /* Divide S into tokens separated by characters in DELIM.  */
 extern char *strtok __P ((char *__restrict __s,
 			  __const char *__restrict __delim));

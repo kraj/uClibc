@@ -26,7 +26,7 @@ include $(TOPDIR)Rules.mak
 MSRC=string.c
 MOBJ=strlen.o strcat.o strcpy.o strchr.o strcmp.o strncat.o strncpy.o \
 	strncmp.o strrchr.o strdup.o memcpy.o memccpy.o memset.o \
-	memmove.o memcmp.o memchr.o ffs.o strnlen.o strxfrm.o
+	memmove.o memcmp.o memchr.o ffs.o strnlen.o strxfrm.o stpcpy.o
 
 ifeq ($(HAS_LOCALE),true)
 	MOBJ += strcoll.o
@@ -35,11 +35,14 @@ endif
 MSRC1=strsignal.c
 MOBJ1=strsignal.o psignal.o
 
-CSRC=strpbrk.c strsep.c strstr.c strtok.c strtok_r.c strcspn.c \
+MSRC2=strstr.c
+MOBJ2=strstr.o strcasestr.o
+
+CSRC=strpbrk.c strsep.c strtok.c strtok_r.c strcspn.c \
 	strspn.c strcasecmp.c strncasecmp.c strerror.c bcopy.c bzero.c \
 	bcmp.c sys_errlist.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(MOBJ) $(MOBJ1) $(COBJS)
+OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(COBJS)
 
 all: $(OBJS) $(LIBC)
 
@@ -49,6 +52,10 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
 $(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
