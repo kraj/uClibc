@@ -30,7 +30,7 @@ TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
 CRT0=crt0.S
 CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 
-SSRC=bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S fork.S __uClibc_syscall.S
+SSRC=bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S fork.S syscall.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=__longjmp.c  brk.c vfork.c setjmp_aux.c _mmap.c pipe.c __syscall_error.c
