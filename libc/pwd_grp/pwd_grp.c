@@ -966,7 +966,11 @@ int __parsegrent(void *data, char *line)
 			/* NOTE: glibc difference - glibc allows omission of the
 			 * trailing colon when there is no member list.  We treat
 			 * this as an error. */
-			if (*endptr != ':') {
+
+			/* Make sure we had at least one digit, and that the
+			 * failing char is the next field seperator ':'.  See
+			 * glibc difference note above. */
+			if ((endptr == line) || (*endptr != ':')) {
 				break;
 			}
 
@@ -1104,8 +1108,6 @@ int __parsespent(void *data, char * line)
  * and for which the parser function succeeds.
  *
  * Returns 0 on success and ENOENT for end-of-file (glibc concession).
- * On error, it both sets errno to ERANGE and returns ERANGE.
- * (seems to be glibc behavior.)
  */
 
 int __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
