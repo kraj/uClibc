@@ -85,6 +85,8 @@
  *
  * Sep 5, 2003
  *    Convert to new floating point conversion routine.
+ *    Fix qualifier handling on integer and %n conversions.
+ *    Add support for vsnprintf when in non-buffered/no-wchar configuration.
  *
  */
 
@@ -125,11 +127,13 @@
 
 /**************************************************************************/
 
+#define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE				/* for strnlen */
 #define _STDIO_UTILITY
 #include <stdio.h>
 #include <stdarg.h>
 #include <limits.h>
+#include <stdint.h>
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
@@ -153,7 +157,60 @@
 #define WANT_GNU_ERRNO         0
 #endif
 
-#if defined(__UCLIBC_HAS_FLOATS__)
+#undef PUTC
+#undef OUTNSTR
+#undef _outnstr
+
+#ifdef __STDIO_BUFFERS
+
+#define PUTC(C,F)      putc_unlocked((C),(F))
+#define OUTNSTR        _outnstr
+#define _outnstr(stream, string, len)	_stdio_fwrite(string, len, stream)
+
+#else  /* __STDIO_BUFFERS */
+
+typedef struct {
+	FILE f;
+	unsigned char *bufend;		/* pointer to 1 past end of buffer */
+	unsigned char *bufpos;
+} __FILE_vsnprintf;
+
+#ifdef __UCLIBC_HAS_FLOATS__
+static void _outnstr(FILE *stream, const unsigned char *s, size_t n)
+{
+	__FILE_vsnprintf *f = (__FILE_vsnprintf *) stream;
+
+	if (f->f.filedes != -2) {
+		_stdio_fwrite(s, n, &f->f);
+	} else {
+		if (f->bufend > f->bufpos) {
+			size_t r = f->bufend - f->bufpos;
+			if (r > n) {
+				r = n;
+			}
+			memcpy(f->bufpos, s, r);
+			f->bufpos += r;
+		}
+	}
+}
+#endif
+
+static void putc_unlocked_sprintf(int c, __FILE_vsnprintf *f)
+{
+	if (f->f.filedes != -2) {
+		putc_unlocked(c, &f->f);
+	} else if (f->bufpos < f->bufend) {
+		*f->bufpos++ = c;
+	}
+}
+
+
+#define PUTC(C,F)      putc_unlocked_sprintf((C),(__FILE_vsnprintf *)(F))
+#define OUTNSTR        _outnstr
+
+#endif /* __STDIO_BUFFERS */
+
+#ifdef __UCLIBC_HAS_FLOATS__
 #include <float.h>
 #include <bits/uClibc_fpmax.h>
 
@@ -163,14 +220,10 @@ typedef void (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
 extern size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 						  __fp_outfunc_t fp_outfunc);
 
-#define FMT_TYPE char
-#define OUTNSTR _outnstr
-#define _outnstr(stream, string, len)	_stdio_fwrite(string, len, stream)
-
 static void _charpad(FILE * __restrict stream, int padchar, size_t numpad)
 {
 	/* TODO -- Use a buffer to cut down on function calls... */
-	FMT_TYPE pad[1];
+	char pad[1];
 
 	*pad = padchar;
 	while (numpad) {
@@ -191,8 +244,6 @@ static void _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 	OUTNSTR(fp, (const char *) buf, len);
 }
 
-
-
 #endif
 
 
@@ -207,7 +258,69 @@ enum {
 /* layout                   01234  */
 static const char spec[] = "+-#0 ";
 
-static const char qual[] = "hlLq";
+/**********************************************************************/
+
+extern void _store_inttype(void *dest, int desttype, uintmax_t val);
+extern uintmax_t _load_inttype(int desttype, const void *src, int uflag);
+
+/*
+ * In order to ease translation to what arginfo and _print_info._flags expect,
+ * we map:  0:int  1:char  2:longlong 4:long  8:short
+ * and then _flags |= (((q << 7) + q) & 0x701) and argtype |= (_flags & 0x701)
+ */
+
+#ifdef PDS
+#error PDS already defined!
+#endif
+#ifdef SS
+#error SS already defined!
+#endif
+#ifdef IMS
+#error IMS already defined!
+#endif
+
+#if PTRDIFF_MAX == INT_MAX
+#define PDS		0
+#elif PTRDIFF_MAX == LONG_MAX
+#define PDS		4
+#elif defined(LLONG_MAX) && (PTRDIFF_MAX == LLONG_MAX)
+#define PDS		8
+#else
+#error fix QUAL_CHARS ptrdiff_t entry 't'!
+#endif
+
+#if SIZE_MAX == UINT_MAX
+#define SS		0
+#elif SIZE_MAX == ULONG_MAX
+#define SS		4
+#elif defined(LLONG_MAX) && (SIZE_MAX == ULLONG_MAX)
+#define SS		8
+#else
+#error fix QUAL_CHARS size_t entries 'z', 'Z'!
+#endif
+
+#if INTMAX_MAX == INT_MAX
+#define IMS		0
+#elif INTMAX_MAX == LONG_MAX
+#define IMS		4
+#elif defined(LLONG_MAX) && (INTMAX_MAX == LLONG_MAX)
+#define IMS		8
+#else
+#error fix QUAL_CHARS intmax_t entry 'j'!
+#endif
+
+#define QUAL_CHARS		{ \
+	/* j:(u)intmax_t z:(s)size_t  t:ptrdiff_t  \0:int */ \
+	/* q:long_long  Z:(s)size_t */ \
+	'h',   'l',  'L',  'j',  'z',  't',  'q', 'Z',  0, \
+	 2,     4,    8,  IMS,   SS,  PDS,    8,  SS,   0, /* TODO -- fix!!! */\
+     1,     8 \
+}
+
+static const char qual_chars[] = QUAL_CHARS;
+
+/* static const char qual[] = "hlLq"; */
+/**********************************************************************/
 
 #if !defined(__UCLIBC_HAS_FLOATS__) && WANT_FLOAT_ERROR
 static const char dbl_err[] = "<DOUBLE>";
@@ -228,7 +341,17 @@ static const char u_radix[] = "\x02\x08\x10\x10\x10\x0a";
 int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 			 va_list ap)
 {
-	int i, cnt, lval, len;
+	union {
+#ifdef LLONG_MAX
+		long long ll;
+#endif
+#if LONG_MAX != INT_MAX
+		long l;
+#endif
+		int i;
+	} intarg;
+	int i, cnt, dataargtype, len;
+	const void *argptr;			/* This does not need to be initialized. */
 	register char *p;
 	const char *fmt0;
 	int preci, width;
@@ -249,11 +372,6 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 			preci = -5;			/* max string width or mininum digits */
 			radix = 10;			/* number base */
 			dpoint = 0;			/* found decimal point */
-#if INT_MAX != LONG_MAX
-			lval = 0;			/* sizeof(int) != sizeof(long) */
-#else
-			lval = 1;			/* sizeof(int) == sizeof(long) */
-#endif
 
 			/* init flags */
 			for (p =(char *) spec ; *p ; p++) {
@@ -305,16 +423,18 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 			} while ((*fmt == '.') && !dpoint );
 
 			/* process optional qualifier */
-			for (p = (char *) qual ; *p ; p++) {
-				if (*p == *fmt) {
-					lval = p - qual;
-					++fmt;		/* TODO - hh */
-					if ((*p == 'l') && (*fmt == *p)) {
-						++lval;
-						++fmt;
-					}
+			p = (char *) qual_chars;
+			do {
+				if (*fmt == *p) {
+					++fmt;
+					break;
 				}
+			} while (*++p);
+			if ((p - qual_chars < 2) && (*fmt == *p)) {
+				p += ((sizeof(qual_chars)-2) / 2);
+				++fmt;
 			}
+			dataargtype = ((int)(p[(sizeof(qual_chars)-2) / 2])) << 8;
 
 #if WANT_GNU_ERRNO
 			if (*fmt == 'm') {
@@ -332,23 +452,51 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 					goto charout;
 				}
 				if (p-u_spec < 2) {	/* store output count in int ptr */
-					*(va_arg(ap, int *)) = cnt;
+					_store_inttype(va_arg(ap, void *),
+								   dataargtype,
+								   (intmax_t) (cnt));
 					goto nextfmt;
 				}
+
+				if (p-u_spec < 10) {
+					if (*p == 'p') {
+#if INTPTR_MAX == INT_MAX
+						dataargtype = 0;
+#else
+#error Fix dataargtype for pointers!
+#endif
+					}
+
+					switch(dataargtype) {
+						case (PA_INT|PA_FLAG_LONG_LONG):
+#ifdef LLONG_MAX
+							intarg.ll = va_arg(ap, long long);
+							argptr = &intarg.ll;
+							break;
+#endif
+						case (PA_INT|PA_FLAG_LONG):
+#if LONG_MAX != INT_MAX
+							intarg.l = va_arg(ap, long);
+							argptr = &intarg.l;
+							break;
+#endif
+						default:
+							intarg.i = va_arg(ap, int);
+							argptr = &intarg.i;
+							break;
+					}
+				}
+
 				if (p-u_spec < 8) { /* unsigned conversion */
 					radix = u_radix[p-u_spec-2];
 					upcase = ((*p == 'x') ? __UIM_LOWER : __UIM_UPPER);
 					if (*p == 'p') {
-						lval = (sizeof(char *) == sizeof(long));
 						upcase = __UIM_LOWER;
 						flag[FLAG_HASH] = 'p';
 					}
-
-					p = _uintmaxtostr((tmp + sizeof(tmp) - 1),
-									  ((lval>1) /* TODO -- longlong/long/int/short/char */
-									   ? va_arg(ap, uintmax_t)
-									   : (uintmax_t)
-									   va_arg(ap, unsigned long)),
+					p = _uintmaxtostr(tmp + sizeof(tmp) - 1,
+									  (uintmax_t)
+									  _load_inttype(dataargtype, argptr, radix),
 									  radix, upcase);
 
 					flag[FLAG_PLUS] = '\0';	/* meaningless for unsigned */
@@ -371,12 +519,9 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 						p = "(nil)";
 					}
 				} else if (p-u_spec < 10) { /* signed conversion */
-
- 					p = _uintmaxtostr((tmp + sizeof(tmp) - 1),
-									  ((lval>1) /* TODO -- longlong/long/int/short/char */
-									   ? va_arg(ap, uintmax_t)
-									   : (uintmax_t) ((intmax_t) /* sign-extend! */
-													va_arg(ap, long))),
+					p = _uintmaxtostr(tmp + sizeof(tmp) - 1,
+									  (uintmax_t)
+									  _load_inttype(dataargtype, argptr, -radix),
 									  -radix, upcase);
 
 				} else if (p-u_spec < 12) {	/* character or string */
@@ -425,12 +570,21 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 					if (flag[FLAG_MINUS_LJUSTIFY]) {
 						PRINT_INFO_SET_FLAG(&info,left);
 					}
+#if 1
+					cnt += _fpmaxtostr(op, 
+									   (__fpmax_t)
+									   ((dataargtype == (8 << 8))
+										? va_arg(ap, long double)
+										: (long double) va_arg(ap, double)),
+									   &info, _fp_out_narrow);
+#else
 					cnt += _fpmaxtostr(op, 
 									   (__fpmax_t)
 									   ((lval > 1)
 										? va_arg(ap, long double)
 										: (long double) va_arg(ap, double)),
 									   &info, _fp_out_narrow);
+#endif
 					goto nextfmt;
 #elif WANT_FLOAT_ERROR
 					(void) ((lval > 1) ? va_arg(ap, long double)
@@ -520,7 +674,7 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 							--len;
 						}
 						++cnt;
-						putc(ch, op);
+						PUTC(ch, op);
 					}
 				}
 				goto nextfmt;
@@ -531,7 +685,7 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 
 	charout:
 		++cnt;
-		putc(*fmt, op);	/* normal char out */
+		PUTC(*fmt, op); /* normal char out */
 
 	nextfmt:
 		++fmt;

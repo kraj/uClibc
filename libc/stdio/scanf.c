@@ -25,6 +25,10 @@
  * Bug fix: scanf %lc,%ls,%l[ would always set mb_fail on eof or error,
  *   even when just starting a new mb char.
  * Bug fix: wscanf would incorrectly unget in certain situations.
+ *
+ * Sep 5, 2003
+ * Bug fix: store flag wasn't respected if no positional args.
+ * Implement vs{n}scanf for the non-buffered stdio no-wchar case.
  */
 
 
@@ -70,6 +74,20 @@
 #warning Forcing undef of __UCLIBC_HAS_SCANF_GLIBC_A_FLAG__ until implemented!
 #endif
 #undef __UCLIBC_HAS_SCANF_GLIBC_A_FLAG__
+#endif
+
+#undef __STDIO_HAS_VSSCANF
+#if defined(__STDIO_BUFFERS) || !defined(__UCLIBC_HAS_WCHAR__) || defined(__STDIO_GLIBC_CUSTOM_STREAMS)
+#define __STDIO_HAS_VSSCANF 1
+
+#if !defined(__STDIO_BUFFERS) && !defined(__UCLIBC_HAS_WCHAR__)
+typedef struct {
+	FILE f;
+	unsigned char *bufread;		/* pointer to 1 past end of buffer */
+	unsigned char *bufpos;
+} __FILE_vsscanf;
+#endif
+
 #endif
 
 extern void _store_inttype(void *dest, int desttype, uintmax_t val);
@@ -143,7 +161,7 @@ int scanf(const char * __restrict format, ...)
 /**********************************************************************/
 #ifdef L_sscanf
 
-#if defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS)
+#ifdef __STDIO_HAS_VSSCANF
 
 int sscanf(const char * __restrict str, const char * __restrict format, ...)
 {
@@ -157,9 +175,9 @@ int sscanf(const char * __restrict str, const char * __restrict format, ...)
 	return rv;
 }
 
-#else  /* defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS) */
-#warning Skipping sscanf since no buffering and no custom streams!
-#endif /* defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS) */
+#else  /* __STDIO_HAS_VSSCANF */
+#warning Skipping sscanf since no vsscanf!
+#endif /* __STDIO_HAS_VSSCANF */
 
 #endif
 /**********************************************************************/
@@ -179,6 +197,7 @@ int vscanf(const char * __restrict format, va_list arg)
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
 #ifdef __STDIO_BUFFERS
+
 int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
 	FILE string[1];
@@ -202,8 +221,32 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 
 	return vfscanf(string, fmt, ap);
 }
-#else  /* __STDIO_BUFFERS */
-#ifdef __STDIO_GLIBC_CUSTOM_STREAMS
+
+#elif !defined(__UCLIBC_HAS_WCHAR__)
+
+int vsscanf(__const char *sp, __const char *fmt, va_list ap)
+{
+	__FILE_vsscanf string[1];
+
+	string->f.filedes = -2;
+	string->f.modeflags = (__FLAG_NARROW|__FLAG_READONLY);
+	string->bufpos = (unsigned char *) ((void *) sp);
+	string->bufread = string->bufpos + strlen(sp);
+
+#ifdef __STDIO_MBSTATE
+#error __STDIO_MBSTATE is defined!
+#endif /* __STDIO_MBSTATE */
+
+#ifdef __STDIO_THREADSAFE
+	string->user_locking = 0;
+	__stdio_init_mutex(&string->f.lock);
+#endif
+
+	return vfscanf(&string->f, fmt, ap);
+}
+
+#elif defined(__STDIO_GLIBC_CUSTOM_STREAMS)
+
 int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
 	FILE *f;
@@ -217,10 +260,13 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 
 	return rv;
 }
-#else  /* __STDIO_GLIBC_CUSTOM_STREAMS */
-#warning Skipping vsscanf since no buffering and no custom streams!
-#endif /* __STDIO_GLIBC_CUSTOM_STREAMS */
-#endif /* __STDIO_BUFFERS */
+
+#else
+#warning Skipping vsscanf since no buffering, no custom streams, and wchar enabled!
+#ifdef __STDIO_HAS_VSSCANF
+#error WHOA! __STDIO_HAS_VSSCANF is defined!
+#endif
+#endif
 
 #endif
 /**********************************************************************/
@@ -617,10 +663,28 @@ int __scan_getc(register struct scan_cookie *sc)
 	}
 
 	if (sc->ungot_flag == 0) {
+#if !defined(__STDIO_BUFFERS) && !defined(__UCLIBC_HAS_WCHAR__)
+		if (sc->fp->filedes != -2) {
+			c = GETC(sc);
+		} else {
+			__FILE_vsscanf *fv = (__FILE_vsscanf *)(sc->fp);
+			if (fv->bufpos < fv->bufread) {
+				c = *fv->bufpos++;
+			} else {
+				c = EOF;
+				sc->fp->modeflags |= __FLAG_EOF;
+			}
+		}
+		if (c == EOF) {
+			sc->ungot_flag |= 2;
+			return -1;
+		}
+#else
 		if ((c = GETC(sc)) == EOF) {
 			sc->ungot_flag |= 2;
 			return -1;
 		}
+#endif
 		sc->ungot_char = c;
 	} else {
 		assert(sc->ungot_flag == 1);
@@ -962,7 +1026,13 @@ static __inline void kill_scan_cookie(register struct scan_cookie *sc)
 #ifdef L_vfscanf
 
 	if (sc->ungot_flag & 1) {
+#if !defined(__STDIO_BUFFERS) && !defined(__UCLIBC_HAS_WCHAR__)
+		if (sc->fp->filedes != -2) {
+			ungetc(sc->ungot_char, sc->fp);
+		}
+#else
 		ungetc(sc->ungot_char, sc->fp);
+#endif
 		/* Deal with distiction between user and scanf ungots. */
 		if (sc->nread == 0) {	/* Only one char was read... app ungot? */
 			sc->fp->ungot[1] = sc->app_ungot; /* restore ungot state. */
@@ -1146,8 +1216,8 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 			}
 			fmt += i;
 
-#if defined(NL_ARGMAX) && (NL_ARGMAX > 0)
 			if (psfs.store) {
+#if defined(NL_ARGMAX) && (NL_ARGMAX > 0)
 				if (psfs.num_pos_args == -2) {
 					psfs.cur_ptr = va_arg(arg, void *);
 				} else {
@@ -1156,10 +1226,10 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 					}
 					psfs.cur_ptr = psfs.pos_args[psfs.cur_pos_arg];
 				}
-			}
 #else  /* defined(NL_ARGMAX) && (NL_ARGMAX > 0) */
-			psfs.cur_ptr = va_arg(arg, void *);
+				psfs.cur_ptr = va_arg(arg, void *);
 #endif /* defined(NL_ARGMAX) && (NL_ARGMAX > 0) */
+			}
 
 		DO_CONVERSION:
 			/* First, consume white-space if not n, c, [, C, or l[. */

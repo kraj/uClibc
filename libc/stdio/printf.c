@@ -72,6 +72,9 @@
  *
  * Aug 31, 2003
  * Fix precision bug for %g conversion specifier when using %f style.
+ *
+ * Sep 5, 2003
+ * Implement *s*scanf for the non-buffered stdio case with old_vfprintf.
  */
 
 /* TODO:
@@ -144,6 +147,12 @@
 #else  /* __STDIO_PRINTF_FLOAT */
 #undef L__fpmaxtostr
 #endif /* __STDIO_PRINTF_FLOAT */
+
+
+#undef __STDIO_HAS_VSNPRINTF
+#if defined(__STDIO_BUFFERS) || defined(__USE_OLD_VFPRINTF__) || defined(__STDIO_GLIBC_CUSTOM_STREAMS)
+#define __STDIO_HAS_VSNPRINTF 1
+#endif
 
 /**********************************************************************/
 
@@ -1190,6 +1199,7 @@ int register_printf_function(int spec, printf_function handler,
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
 #ifdef __STDIO_BUFFERS
+
 int vsnprintf(char *__restrict buf, size_t size,
 			  const char * __restrict format, va_list arg)
 {
@@ -1238,8 +1248,59 @@ int vsnprintf(char *__restrict buf, size_t size,
 	}
 	return rv;
 }
-#else  /* __STDIO_BUFFERS */
-#ifdef __STDIO_GLIBC_CUSTOM_STREAMS
+
+#elif defined(__USE_OLD_VFPRINTF__)
+
+typedef struct {
+	FILE f;
+	unsigned char *bufend;		/* pointer to 1 past end of buffer */
+	unsigned char *bufpos;
+} __FILE_vsnprintf;
+
+int vsnprintf(char *__restrict buf, size_t size,
+			  const char * __restrict format, va_list arg)
+{
+	__FILE_vsnprintf f;
+	int rv;
+
+	f.bufpos = buf;
+
+	if (size > SIZE_MAX - (size_t) buf) {
+		size = SIZE_MAX - (size_t) buf;
+	}
+	f.bufend = buf + size;
+
+#if 0							/* shouldn't be necessary */
+/*  #ifdef __STDIO_GLIBC_CUSTOM_STREAMS */
+	f.f.cookie = &(f.f.filedes);
+	f.f.gcs.read = 0;
+	f.f.gcs.write = 0;
+	f.f.gcs.seek = 0;
+	f.f.gcs.close = 0;
+#endif
+	f.f.filedes = -2;				/* for debugging */
+	f.f.modeflags = (__FLAG_NARROW|__FLAG_WRITEONLY|__FLAG_WRITING);
+
+#ifdef __STDIO_MBSTATE
+	__INIT_MBSTATE(&(f.f.state));
+#endif /* __STDIO_MBSTATE */
+
+#ifdef __STDIO_THREADSAFE
+	f.f.user_locking = 0;
+	__stdio_init_mutex(&f.f.lock);
+#endif
+
+	rv = vfprintf((FILE *) &f, format, arg);
+	if (size) {
+		if (f.bufpos == f.bufend) {
+			--f.bufpos;
+		}
+		*f.bufpos = 0;
+	}
+	return rv;
+}
+
+#elif defined(__STDIO_GLIBC_CUSTOM_STREAMS)
 
 typedef struct {
 	size_t pos;
@@ -1314,10 +1375,13 @@ int vsnprintf(char *__restrict buf, size_t size,
 	return rv;
 }
 
-#else  /* __STDIO_GLIBC_CUSTOM_STREAMS */
-#warning Skipping vsnprintf since no buffering and no custom streams!
-#endif /* __STDIO_GLIBC_CUSTOM_STREAMS */
-#endif /* __STDIO_BUFFERS */
+#else
+#warning Skipping vsnprintf since no buffering, no custom streams, and not old vfprintf!
+#ifdef __STDIO_HAS_VSNPRINTF
+#error WHOA! __STDIO_HAS_VSNPRINTF is defined!
+#endif
+#endif
+
 #endif
 /**********************************************************************/
 #ifdef L_vdprintf
@@ -1366,8 +1430,8 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 /**********************************************************************/
 #ifdef L_vasprintf
 
-#if !defined(__STDIO_BUFFERS) && !defined(__STDIO_GLIBC_CUSTOM_STREAMS)
-#warning Skipping vasprintf since no buffering and no custom streams!
+#ifndef __STDIO_HAS_VSNPRINTF
+#warning Skipping vasprintf since no vsnprintf!
 #else
 
 int vasprintf(char **__restrict buf, const char * __restrict format,
@@ -1420,8 +1484,8 @@ int vprintf(const char * __restrict format, va_list arg)
 /**********************************************************************/
 #ifdef L_vsprintf
 
-#if !defined(__STDIO_BUFFERS) && !defined(__STDIO_GLIBC_CUSTOM_STREAMS)
-#warning Skipping vsprintf since no buffering and no custom streams!
+#ifndef __STDIO_HAS_VSNPRINTF
+#warning Skipping vsprintf since no vsnprintf!
 #else
 
 int vsprintf(char *__restrict buf, const char * __restrict format,
@@ -1451,8 +1515,8 @@ int fprintf(FILE * __restrict stream, const char * __restrict format, ...)
 /**********************************************************************/
 #ifdef L_snprintf
 
-#if !defined(__STDIO_BUFFERS) && !defined(__STDIO_GLIBC_CUSTOM_STREAMS)
-#warning Skipping snprintf since no buffering and no custom streams!
+#ifndef __STDIO_HAS_VSNPRINTF
+#warning Skipping snprintf since no vsnprintf!
 #else
 
 int snprintf(char *__restrict buf, size_t size,
@@ -1488,8 +1552,8 @@ int dprintf(int filedes, const char * __restrict format, ...)
 /**********************************************************************/
 #ifdef L_asprintf
 
-#if !defined(__STDIO_BUFFERS) && !defined(__STDIO_GLIBC_CUSTOM_STREAMS)
-#warning Skipping asprintf and __asprintf since no buffering and no custom streams!
+#ifndef __STDIO_HAS_VSNPRINTF
+#warning Skipping asprintf and __asprintf since no vsnprintf!
 #else
 
 weak_alias(__asprintf,asprintf)
@@ -1525,8 +1589,8 @@ int printf(const char * __restrict format, ...)
 /**********************************************************************/
 #ifdef L_sprintf
 
-#if !defined(__STDIO_BUFFERS) && !defined(__STDIO_GLIBC_CUSTOM_STREAMS)
-#warning Skipping sprintf since no buffering and no custom streams!
+#ifndef __STDIO_HAS_VSNPRINTF
+#warning Skipping sprintf since no vsnprintf!
 #else
 
 int sprintf(char *__restrict buf, const char * __restrict format, ...)
