@@ -277,6 +277,9 @@ int main(int argc, char **argv)
 					if (strstr(argv[i],static_linking) != NULL) {
 						use_static_linking = 1;
 					}
+					if (strcmp("-shared",argv[i]) == 0) {
+						use_pic = 1;
+					}
 					break;
 				case 'W':		/* -static could be passed directly to ld */
 					if (strncmp("-Wl,",argv[i],4) == 0) {
