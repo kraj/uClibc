@@ -13,8 +13,9 @@ major=$(shell grep '^MAJOR_VERSION' Rules.mak|sed 's/.*=//')
 minor=$(shell grep '^MINOR_VERSION' Rules.mak|sed 's/.*=//')
 version:=$(strip $(major)).$(strip $(minor))
 
-kernel_version=2.4.22
-kernel_source=kernel-source-$(kernel_version)
+kernel_version=2.4.25
+kernel_source=kernel-headers-$(kernel_version)
+kernel_source_dir=linux
 
 builddir=$(shell pwd)
 
@@ -46,8 +47,11 @@ build-stamp:
 	dh_testdir
 
 	# Brute force method of getting kernel headers
-	tar --bzip2 -xf /usr/src/$(kernel_source).tar.bz2 \
-	  $(kernel_source)/Makefile $(kernel_source)/include
+	if [ ! -f /usr/src/$(kernel_source).tar.bz2 ] ; then \
+		wget http://uclibc.org/downloads/$(kernel_source).tar.bz2 \
+		-O /usr/src/$(kernel_source).tar.bz2; \
+	fi;
+	tar --bzip2 -xf /usr/src/$(kernel_source).tar.bz2
 	
 
 	# Hack to get include/asm-arm/arch directory.  This should
@@ -55,11 +59,11 @@ build-stamp:
 	# it adds a link _in the kernel source_, which is almost
 	# certainly wrong in most situations.
 #ifeq ($(target),arm)
-	ln -s arch-sa1100 $(kernel_source)/include/asm-arm/arch
-	ln -s proc-armo $(kernel_source)/include/asm-arm/proc
+	ln -s arch-sa1100 $(kernel_source_dir)/include/asm-arm/arch
+	ln -s proc-armo $(kernel_source_dir)/include/asm-arm/proc
 #endif
 	
-	touch $(kernel_source)/include/linux/autoconf.h
+	touch $(kernel_source_dir)/include/linux/autoconf.h
 
 	# Various stupid programs use linux/version.h to find the
 	# Linux version.
@@ -67,7 +71,7 @@ build-stamp:
 		echo '#define UTS_RELEASE "$(kernel_version)"'; \
 		echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))'; \
 		echo '#define LINUX_VERSION_CODE KERNEL_VERSION($(shell echo $(kernel_version) | sed s/\\./,/g))'; \
-	) >$(kernel_source)/include/linux/version.h
+	) >$(kernel_source_dir)/include/linux/version.h
 	
 	cp debian/config .config
 
@@ -75,7 +79,7 @@ build-stamp:
 		.config
 	sed -i -e 's,^TARGET_ARCH.*,TARGET_ARCH=\"$(target)\",g' \
 		.config
-	sed -i -e 's,^KERNEL_SOURCE=.*,KERNEL_SOURCE=\"$(builddir)/$(kernel_source)\",g' \
+	sed -i -e 's,^KERNEL_SOURCE=.*,KERNEL_SOURCE=\"$(builddir)/$(kernel_source_dir)\",g' \
 		.config
 	sed -i -e 's,^RUNTIME_PREFIX=.*,RUNTIME_PREFIX=\"/\",g' \
 		.config
@@ -107,7 +111,7 @@ clean:
 	dh_testroot
 	rm -f build-stamp
 
-	rm -rf kernel-source-*
+	rm -rf $(kernel_source_dir)
 
 	# Add here commands to clean up after the build process.
 	-$(MAKE) distclean
