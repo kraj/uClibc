@@ -10,8 +10,7 @@
 #define	__UCLIBC_MINOR__	1
 
 /* __restrict is known in EGCS 1.2 and above. */
-#if !defined __GNUC__ || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ <
-	92)
+#if !defined __GNUC__ || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 92)
 # define __restrict     /* Ignore */
 #endif
 
