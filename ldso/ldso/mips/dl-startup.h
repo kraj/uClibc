@@ -1,54 +1,126 @@
 /* Any assmbly language/system dependent hacks needed to setup boot1.c so it
  * will work as expected and cope with whatever platform specific wierdness is
  * needed for this architecture.
+ * Copyright (C) 2005 by Joakim Tjernlund
  */
 
-asm("" \
-"	.text\n"			\
-"	.globl	_dl_boot\n"		\
-"_dl_boot:\n"				\
-"	.set noreorder\n"		\
-"	bltzal $0, 0f\n"		\
-"	nop\n"				\
-"0:	.cpload $31\n"			\
-"	.set reorder\n"			\
-"	la $4, _DYNAMIC\n"		\
-"	sw $4, -0x7ff0($28)\n"	        \
-"	move $4, $29\n"			\
-"	la $8, coff\n"			\
-"	.set noreorder\n"		\
-"	bltzal $0, coff\n"		\
-"	nop\n"				\
-"coff:	subu $8, $31, $8\n"		\
-"	.set reorder\n"			\
-"	la $25, _dl_boot2\n"	        \
-"	addu $25, $8\n"			\
-"	jalr $25\n"			\
-"	lw $4, 0($29)\n"		\
-"	la $5, 4($29)\n"		\
-"	sll $6, $4, 2\n"		\
-"	addu $6, $6, $5\n"		\
-"	addu $6, $6, 4\n"		\
-"	la $7, _dl_elf_main\n"		\
-"	lw $25, 0($7)\n"		\
-"	jr $25\n"			\
+#if 0
+asm(""
+    "	.text\n"
+    "	.globl	_start\n"
+    "	.type	_start,@function\n"
+    "_start:\n"
+    "	.set noreorder\n"
+    "	bltzal $0, 0f\n"
+    "	nop\n"
+    "0:	.cpload $31\n"
+    "	.set reorder\n"
+    "	la $4, _DYNAMIC\n"
+    "	sw $4, -0x7ff0($28)\n"
+    "	move $4, $29\n"
+    "	la $8, coff\n"
+    "	.set noreorder\n"
+    "	bltzal $0, coff\n"
+    "	nop\n"
+    "coff:	subu $8, $31, $8\n"
+    "	.set reorder\n"
+    "	la $25, _dl_start\n"
+    "	addu $25, $8\n"
+    "	jalr $25\n"
+    "	lw $4, 0($29)\n"
+    "	la $5, 4($29)\n"
+    "	sll $6, $4, 2\n"
+    "	addu $6, $6, $5\n"
+    "	addu $6, $6, 4\n"
+    "	la $7, _dl_elf_main\n"
+    "	lw $25, 0($7)\n"
+    "	jr $25\n"
+    "	.size	_start,.-_start\n"
+    "	.previous\n"
 );
-
-#define DL_BOOT(X)   static void __attribute_used__ _dl_boot2 (X)
+#endif
+#if 0
+asm(""
+    "	.text\n"
+    "	.globl	_start\n"
+    "	.type	_start,@function\n"
+    "_start:\n"
+    "	.set noreorder\n"
+    "	bltzal $0, 0f\n"
+    "	nop\n"
+    "0:	.cpload $31\n"
+    "	.set reorder\n"
+    "	la $4, _DYNAMIC\n"
+    "	sw $4, -0x7ff0($28)\n"
+    "	move $4, $29\n"
+    "	la $8, coff\n"
+    "	.set noreorder\n"
+    "	bltzal $0, coff\n"
+    "	nop\n"
+    "coff:	subu $8, $31, $8\n"
+    "	.set reorder\n"
+    "	la $25, _dl_start\n"
+    "	addu $25, $8\n"
+    "	jalr $25\n"
+    "	move $17, $2\n"
+    "	lw $4, 0($29)\n"
+    "	la $5, 4($29)\n"
+    "	sll $6, $4, 2\n"
+    "	addu $6, $6, $5\n"
+    "	addu $6, $6, 4\n"
+    "	move $25, $17\n"
+    "	jr $25\n"
+    "	.size	_start,.-_start\n"
+    "	.previous\n"
+);
+#endif
+asm(""
+    "	.text\n"
+    "	.globl	_start\n"
+    "	.type	_start,@function\n"
+    "_start:\n"
+    "	.set noreorder\n"
+    "	bltzal $0, 0f\n"
+    "	nop\n"
+    "0:	.cpload $31\n"
+    "	.set reorder\n"
+    "	la $4, _DYNAMIC\n"
+    "	sw $4, -0x7ff0($28)\n"
+    "	move $4, $29\n"
+    "	subu $29, 16\n"
+    "	la $8, coff\n"
+    "	.set noreorder\n"
+    "	bltzal $8, coff\n"
+    "coff:	subu $8, $31, $8\n"
+    "	.set reorder\n"
+    "	la $25, _dl_start\n"
+    "	addu $25, $8\n"
+    "	jalr $25\n"
+    "	move $17, $2\n"
+    "	lw $4, 0($29)\n"
+    "	la $5, 4($29)\n"
+    "	sll $6, $4, 2\n"
+    "	addu $6, $6, $5\n"
+    "	addu $6, $6, 4\n"
+    "	move $25, $17\n"
+    "	jr $25\n"
+    "	.size	_start,.-_start\n"
+    "	.previous\n"
+);
 
 /*
  * Get a pointer to the argv array.  On many platforms this can be just
  * the address if the first argument, on other platforms we need to
  * do something a little more subtle here.
  */
-#define GET_ARGV(ARGVP, ARGS) ARGVP = ((unsigned long *) ARGS)
+#define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long *) ARGS)+1)
 
 
 /*
  * Here is a macro to perform the GOT relocation. This is only
  * used when bootstrapping the dynamic loader.
  */
-#define PERFORM_BOOTSTRAP_GOT(got, tpnt)					\
+#define PERFORM_BOOTSTRAP_GOT(tpnt)						\
 do {										\
 	Elf32_Sym *sym;								\
 	Elf32_Addr i;								\
@@ -115,7 +187,4 @@ do {										\
  * because the stack doesn't get properly restored otherwise. Got look
  * at boot1_arch.h
  */
-#define START()
-
-
-
+#define START() return _dl_elf_main

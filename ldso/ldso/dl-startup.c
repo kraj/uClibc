@@ -3,6 +3,7 @@
  * Program to load an ELF binary on a linux system, and run it
  * after resolving ELF shared library symbols
  *
+ * Copyright (C) 2005 by Joakim Tjernlund
  * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
  *				David Engel, Hongjiu Lu and Mitch D'Souza
@@ -109,7 +110,7 @@ int (*_dl_elf_main) (int, char **, char **);
         NULL
 		auxvt[0...N]   Auxiliary Vector Table elements (mixed types)
 */
-DL_BOOT(unsigned long args)
+static void * __attribute_used__ _dl_start(unsigned long args)
 {
 	unsigned int argc;
 	char **argv, **envp;
@@ -123,11 +124,6 @@ DL_BOOT(unsigned long args)
 	Elf32_auxv_t auxvt[AT_EGID + 1];
 	Elf32_Dyn *dpnt;
 	int indx;
-#if defined(__i386__)
-	int status = 0;
-#endif
-
-
 
 	/* WARNING! -- we cannot make _any_ funtion calls until we have
 	 * taken care of fixing up our own relocations.  Making static
@@ -137,9 +133,6 @@ DL_BOOT(unsigned long args)
 	/* First obtain the information on the stack that tells us more about
 	   what binary is loaded, where it is loaded, etc, etc */
 	GET_ARGV(aux_dat, args);
-#if defined (__arm__) || defined (__mips__) || defined (__cris__)
-	aux_dat += 1;
-#endif
 	argc = *(aux_dat - 1);
 	argv = (char **) aux_dat;
 	aux_dat += argc;			/* Skip over the argv pointers */
@@ -327,12 +320,12 @@ found_got:
 		}
 	}
 #endif
-#if defined(__mips__)
+#ifdef PERFORM_BOOTSTRAP_GOT
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("About to do MIPS specific GOT bootstrap\n");
+	SEND_STDERR("About to do specific GOT bootstrap\n");
 #endif
 	/* For MIPS we have to do stuff to the GOT before we do relocations.  */
-	PERFORM_BOOTSTRAP_GOT(got, tpnt);
+	PERFORM_BOOTSTRAP_GOT(tpnt);
 #endif
 
 	/* OK, now do the relocations.  We do not do a lazy binding here, so

@@ -82,10 +82,10 @@ elf_machine_dynamic (void)
 static inline Elf32_Addr __attribute__ ((unused))
 elf_machine_load_address (void)
 {
-	extern void __dl_boot asm ("_dl_boot");
-	Elf32_Addr got_addr = (Elf32_Addr) &__dl_boot;
+	extern void __dl_start asm ("_dl_start");
+	Elf32_Addr got_addr = (Elf32_Addr) &__dl_start;
 	Elf32_Addr pcrel_addr;
-	asm ("adr %0, _dl_boot" : "=r" (pcrel_addr));
+	asm ("adr %0, _dl_start" : "=r" (pcrel_addr));
 	return pcrel_addr - got_addr;
 }
 

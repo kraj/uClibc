@@ -73,7 +73,7 @@ XXFLAGS := $(XXFLAGS:-fomit-frame-pointer=)
 all: $(LDSO_FULLNAME)
 
 $(LDSO_FULLNAME): $(OBJS) $(DLINK_OBJS)
-	$(LD) $(LDFLAGS) -e _dl_boot -soname=$(UCLIBC_LDSO) \
+	$(LD) $(LDFLAGS) -soname=$(UCLIBC_LDSO) \
 		-o $(LDSO_FULLNAME) $(OBJS) $(LIBGCC)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(INSTALL) -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib

@@ -58,8 +58,8 @@ static inline Elf32_Addr
 elf_machine_load_address (void)
 {
 	Elf32_Addr addr;
-	asm ("lea _dl_boot(%%pc), %0\n\t"
-	     "sub.l _dl_boot@GOT.w(%%a5), %0"
+	asm ("lea _dl_start(%%pc), %0\n\t"
+	     "sub.l _dl_start@GOT.w(%%a5), %0"
 	     : "=a" (addr));
 	return addr;
 }

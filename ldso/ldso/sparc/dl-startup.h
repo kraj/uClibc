@@ -3,9 +3,15 @@
  * needed for this architecture.  See arm/boot1_arch.h for an example of what
  * can be done.
  */
-
-#define DL_BOOT(X) __attribute_used__ void _dl_boot (X)
-
+asm(
+    "	.text\n"
+    "	.globl	_start\n"
+    "	.type	_start,@function\n"
+    "_start:\n"
+    "	.set	_start,_dl_start\n"
+    "	.size	_start,.-_start\n"
+    "	.previous\n"
+);
 
 /*
  * Get a pointer to the argv array.  On many platforms this can be just
@@ -56,7 +62,3 @@
 			   "restore %%g0,%%g0,%%g0\n\t" \
 		    	: /*"=r" (status) */ :	\
 		    	  "r" (_dl_elf_main): "g1", "o0", "o1")
-
-
-
-

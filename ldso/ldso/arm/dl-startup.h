@@ -4,29 +4,26 @@
  * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  */
 
-void* _dl_boot(void);
-/* Overrive the default _dl_boot function, and replace it with a bit of asm.
- * Then call the real _dl_boot function, which is now named _dl_boot2. */
-asm(""						\
-"	.text\n"				\
-"	.globl	_dl_boot\n"		\
-"_dl_boot:\n"				\
-"	mov	r7, sp\n"			\
-"	@ldr	r0, [sp], #4\n"	\
-"	mov	r0, sp\n"			\
-"	bl	_dl_boot2\n"		\
-"	mov	r6, r0\n"			\
-"	mov	r0, r7\n"			\
-"	mov	pc, r6\n"			\
+asm(
+    "	.text\n"
+    "	.globl	_start\n"
+    "	.type	_start,%function\n"
+    "_start:\n"
+    "	mov	r7, sp\n"
+    "	@ldr	r0, [sp], #4\n"
+    "	mov	r0, sp\n"
+    "	bl	_dl_start\n"
+    "	mov	r6, r0\n"
+    "	mov	r0, r7\n"
+    "	mov	pc, r6\n"
+    "	.size	_start,.-_start\n"
+    "	.previous\n"
 );
-
-#define DL_BOOT(X)   static __attribute_used__ void* _dl_boot2 (X)
-
 
 /* Get a pointer to the argv array.  On many platforms this can be just
  * the address if the first argument, on other platforms we need to
  * do something a little more subtle here.  */
-#define GET_ARGV(ARGVP, ARGS) ARGVP = ((unsigned long*)   ARGS)
+#define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long*)ARGS)+1)
 
 /* Handle relocation of the symbols in the dynamic loader. */
 static inline
@@ -91,5 +88,3 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
  * done.  This routine has to exit the current function, then call the
  * _dl_elf_main function.  */
 #define START()   return _dl_elf_main;
-
-

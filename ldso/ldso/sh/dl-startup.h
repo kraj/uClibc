@@ -2,23 +2,22 @@
  * will work as expected and cope with whatever platform specific wierdness is
  * needed for this architecture.  */
 
-asm("" \
-"	.text\n"			\
-"	.globl	_dl_boot\n"		\
-"_dl_boot:\n"				\
-"	mov	r15, r4\n"		\
-"	mov.l   .L_dl_boot2, r0\n"	\
-"	bsrf    r0\n"			\
-"	add	#4, r4\n"		\
-".jmp_loc:\n"				\
-"	jmp	@r0\n"			\
-"	 mov    #0, r4 	!call _start with arg == 0\n" \
-".L_dl_boot2:\n"			\
-"	.long   _dl_boot2-.jmp_loc\n"	\
-"	.previous\n"			\
+asm(
+    "	.globl	_start\n"
+    "	.type	_start,@function\n"
+    "_start:\n"
+    "	mov	r15, r4\n"
+    "	mov.l   .L_dl_start, r0\n"
+    "	bsrf    r0\n"
+    "	add	#4, r4\n"
+    ".jmp_loc:\n"
+    "	jmp	@r0\n"
+    "	mov    #0, r4 	!call _start with arg == 0\n"
+    ".L_dl_start:\n"
+    "	.long   _dl_start-.jmp_loc\n"
+    "	.size	_start,.-_start\n"
+    "	.previous\n"
 );
-
-#define DL_BOOT(X)   static void* __attribute_used__ _dl_boot2 (X)
 
 /*
  * Get a pointer to the argv array.  On many platforms this can be just

@@ -61,8 +61,8 @@ elf_machine_load_address (void)
 	   via the GOT to make sure the compiler initialized %ebx in time.  */
 	extern int _dl_errno;
 	Elf32_Addr addr;
-	asm ("leal _dl_boot@GOTOFF(%%ebx), %0\n"
-	     "subl _dl_boot@GOT(%%ebx), %0"
+	asm ("leal _dl_start@GOTOFF(%%ebx), %0\n"
+	     "subl _dl_start@GOT(%%ebx), %0"
 	     : "=r" (addr) : "m" (_dl_errno) : "cc");
 	return addr;
 }

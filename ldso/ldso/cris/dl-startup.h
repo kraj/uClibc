@@ -6,22 +6,25 @@
  * can find argc, argv and auxvt (Auxillary Vector Table).  */
 asm(""					\
 "	.text\n"			\
-"	.globl _dl_boot\n"		\
-"	.type _dl_boot,@function\n"	\
-"_dl_boot:\n"				\
+"	.globl _start\n"		\
+"	.type _start,@function\n"	\
+"_start:\n"				\
 "	move.d $sp,$r10\n"		\
 "	move.d $pc,$r9\n"		\
-"	add.d _dl_boot2 - ., $r9\n"	\
+"	add.d _dl_start - ., $r9\n"	\
 "	jsr $r9\n"			\
+"	moveq 0,$r8\n"			\
+"	move $r8,$srp\n"		\
+"	jump $r10\n"			\
+"	.size _start,.-_start\n"	\
+"	.previous\n"			\
 );
-
-#define DL_BOOT(X) static void __attribute_used__ _dl_boot2 (X)
 
 
 /* Get a pointer to the argv array.  On many platforms this can be just
  * the address if the first argument, on other platforms we need to
  * do something a little more subtle here.  */
-#define GET_ARGV(ARGVP, ARGS) ARGVP = ((unsigned long *) ARGS)
+#define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long *) ARGS)+1)
 
 /* Handle relocation of the symbols in the dynamic loader. */
 static inline
@@ -54,10 +57,4 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 /* Transfer control to the user's application, once the dynamic loader is
  * done.  This routine has to exit the current function, then call the
  * _dl_elf_main function.  */
-#define START() __asm__ volatile ("moveq 0,$r8\n\t" \
-				  "move $r8,$srp\n\t" \
-				  "move.d %1,$sp\n\t" \
-				  "jump %0\n\t" \
-				  : : "r" (_dl_elf_main), "r" (args))
-
-
+#define START()     return _dl_elf_main

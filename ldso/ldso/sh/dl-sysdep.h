@@ -120,8 +120,8 @@ elf_machine_load_address (void)
         bra 2f\n\
          sub r0,r2\n\
         .align 2\n\
-        1: .long _dl_boot@GOT\n\
-        3: .long _dl_boot@GOTOFF\n\
+        1: .long _dl_start@GOT\n\
+        3: .long _dl_start@GOTOFF\n\
         2: mov r2,%0"
 	     : "=r" (addr) : : "r0", "r1", "r2");
 	return addr;

@@ -3,6 +3,7 @@
  * Program to load an ELF binary on a linux system, and run it
  * after resolving ELF shared library symbols
  *
+ * Copyright (C) 2005 by Joakim Tjernlund
  * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
  *				David Engel, Hongjiu Lu and Mitch D'Souza
@@ -82,6 +83,8 @@ static void debug_fini (int status, void *arg)
 }
 #endif
 
+extern void _start(void);
+
 void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			  Elf32_auxv_t auxvt[AT_EGID + 1], char **envp,
 			  char **argv)
@@ -127,6 +130,11 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 */
 	if (argv[0]) {
 		_dl_progname = argv[0];
+	}
+
+	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_fcn) {
+		_dl_dprintf(2, "Standalone exection is not supported yet\n");
+		_dl_exit(1);
 	}
 
 	/* Start to build the tables of the modules that are required for

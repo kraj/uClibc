@@ -4,8 +4,15 @@
  * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  */
 
-/* For x86 we do not need any special setup so go right to _dl_boot() */
-#define DL_BOOT(X) __attribute_used__ void _dl_boot (X)
+asm(
+    "	.text\n"
+    "	.globl	_start\n"
+    "	.type	_start,@function\n"
+    "_start:\n"
+    "	.set	_start,_dl_start\n"
+    "	.size	_start,.-_start\n"
+    "	.previous\n"
+);
 
 /* Get a pointer to the argv array.  On many platforms this can be just
  * the address if the first argument, on other platforms we need to
@@ -40,7 +47,9 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 /* Transfer control to the user's application, once the dynamic loader is
  * done.  This routine has to exit the current function, then call the
  * _dl_elf_main function.  */
-#define START()											\
-	__asm__ volatile ("leave\n\t"						\
-		    "jmp *%%eax\n\t"							\
-		    : "=a" (status) :	"a" (_dl_elf_main))
+#define START() {							\
+	int status = 0;							\
+	__asm__ volatile ("leave\n\t"					\
+		    "jmp *%%eax\n\t"					\
+		    : "=a" (status) :	"a" (_dl_elf_main));		\
+}
