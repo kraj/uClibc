@@ -98,7 +98,7 @@ unsigned int _dl_linux_resolver (int dummy1, int dummy2,
 
   /* Get the address of the GOT entry.  */
   new_addr = _dl_find_hash (strtab + symtab[symtab_index].st_name,
-			    tpnt->symbol_scope, tpnt, resolver);
+			    tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
   if (!new_addr)
     {
       _dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
@@ -218,7 +218,7 @@ int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 	  symbol_addr = (unsigned int)
 	    _dl_find_hash (strtab + symtab[symtab_index].st_name,
 			   tpnt->symbol_scope,
-			   reloc_type == R_68K_JMP_SLOT ? tpnt : NULL, symbolrel);
+			   elf_machine_type_class(reloc_type));
 
 	  /* We want to allow undefined references to weak symbols -
 	     this might have been intentional.  We should not be
@@ -342,7 +342,7 @@ int _dl_parse_copy_information(struct dyn_elf *xpnt,
 	{
 	  symbol_addr = (unsigned int)
 	    _dl_find_hash (strtab + symtab[symtab_index].st_name,
-			   xpnt->next, NULL, copyrel);
+			   xpnt->next, ELF_RTYPE_CLASS_COPY);
 	  if (!symbol_addr)
 	    {
 	      _dl_dprintf (2, "%s: can't resolve symbol '%s'\n",

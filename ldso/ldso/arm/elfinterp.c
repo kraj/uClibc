@@ -118,6 +118,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	int reloc_type;
 	ELF_RELOC *this_reloc;
 	char *strtab;
+	char *symname;
 	Elf32_Sym *symtab;
 	ELF_RELOC *rel_addr;
 	int symtab_index;
@@ -133,6 +134,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+	symname = strtab + symtab[symtab_index].st_name;
 
 
 	if (reloc_type != R_ARM_JUMP_SLOT) {
@@ -147,11 +149,11 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	got_addr = (char **) instr_addr;
 
 	/* Get the address of the GOT entry */
-	new_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name,
-		tpnt->symbol_scope, tpnt, resolver);
+	new_addr = _dl_find_hash(symname,
+		tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
 	if (!new_addr) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
-			_dl_progname, strtab + symtab[symtab_index].st_name);
+			_dl_progname, symname);
 		_dl_exit(1);
 	};
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -159,8 +161,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	{
 		if (_dl_debug_bindings)
 		{
-			_dl_dprintf(_dl_debug_file, "\nresolve function: %s",
-					strtab + symtab[symtab_index].st_name);
+			_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
 			if(_dl_debug_detail) _dl_dprintf(_dl_debug_file,
 					"\tpatch %x ==> %x @ %x", *got_addr, new_addr, got_addr);
 		}
@@ -283,7 +284,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	if (symtab_index) {
 
 		symbol_addr = (unsigned long) _dl_find_hash(strtab + symtab[symtab_index].st_name,
-				scope, (reloc_type == R_ARM_JUMP_SLOT ? tpnt : NULL), symbolrel);
+				scope, elf_machine_type_class(reloc_type));
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -424,7 +425,7 @@ _dl_do_copy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 		symbol_addr = (unsigned long) _dl_find_hash(strtab +
 			symtab[symtab_index].st_name, scope,
-			NULL, copyrel);
+			ELF_RTYPE_CLASS_COPY);
 		if (!symbol_addr) goof++;
 	}
 	if (!goof) {

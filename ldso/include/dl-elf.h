@@ -92,6 +92,19 @@ extern int _dl_fixup(struct dyn_elf *rpnt, int flag);
 # define UNSUPPORTED_RELOC_STR	"RELA"
 #endif
 
+/* Reloc type classes as returned by elf_machine_type_class().
+   ELF_RTYPE_CLASS_PLT means this reloc should not be satisfied by
+   some PLT symbol, ELF_RTYPE_CLASS_COPY means this reloc should not be
+   satisfied by any symbol in the executable.  Some architectures do
+   not support copy relocations.  In this case we define the macro to
+   zero so that the code for handling them gets automatically optimized
+   out.  */
+#define ELF_RTYPE_CLASS_PLT 1
+#ifndef DL_NO_COPY_RELOCS
+# define ELF_RTYPE_CLASS_COPY 2
+#else
+# define ELF_RTYPE_CLASS_COPY 0
+#endif
 
 
 /* Convert between the Linux flags for page protections and the

@@ -168,3 +168,11 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
 #define ADDR_ALIGN 0xfff
 #define OFFS_ALIGN 0x7ffff000
 
+/* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry or
+   TLS variable, so undefined references should not be allowed to
+   define the value.
+   ELF_RTYPE_CLASS_NOCOPY iff TYPE should not be allowed to resolve to one
+   of the main executable's symbols, as for a COPY reloc.  */
+#define elf_machine_type_class(type) \
+  ((((type) == R_SH_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)	\
+   | (((type) == R_SH_COPY) * ELF_RTYPE_CLASS_COPY))

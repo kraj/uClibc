@@ -133,7 +133,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 	symname= strtab + symtab[symtab_index].st_name;
 
-	if (reloc_type != R_386_JMP_SLOT) {
+	if (unlikely(reloc_type != R_386_JMP_SLOT)) {
 		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n",
 				_dl_progname);
 		_dl_exit(1);
@@ -145,15 +145,11 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	got_addr = (char **) instr_addr;
 
 	/* Get the address of the GOT entry */
-	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, resolver);
-	if (!new_addr) {
-		new_addr = _dl_find_hash(symname, NULL, NULL, resolver);
-		if (new_addr) {
-			return (unsigned long) new_addr;
-		}
+	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
+	if (unlikely(!new_addr)) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
 		_dl_exit(1);
-	}
+	};
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if ((unsigned long) got_addr < 0x40000000)
@@ -263,7 +259,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	if (symtab_index) {
 
 		symbol_addr = (unsigned long) _dl_find_hash(symname, scope,
-				(reloc_type == R_386_JMP_SLOT ? tpnt : NULL), symbolrel);
+							    elf_machine_type_class(reloc_type));
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -377,7 +373,7 @@ _dl_do_copy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 	symname      = strtab + symtab[symtab_index].st_name;
 
 	if (symtab_index) {
-		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, NULL, copyrel);
+		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, ELF_RTYPE_CLASS_COPY);
 		if (!symbol_addr) goof++;
 	}
 	if (!goof) {

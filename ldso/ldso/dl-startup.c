@@ -513,11 +513,10 @@ found_got:
 				/* We only do a partial dynamic linking right now.  The user
 				   is not supposed to define any symbols that start with a
 				   '_dl', so we can do this with confidence. */
-				if (!symname || symname[0] != '_' ||
-						symname[1] != 'd' || symname[2] != 'l' || symname[3] != '_')
-				{
+				if (!symname || !_dl_symbol(symname)) {
 					continue;
 				}
+
 				symbol_addr = load_addr + symtab[symtab_index].st_value;
 
 				if (!symbol_addr) {

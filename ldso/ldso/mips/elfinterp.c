@@ -128,8 +128,13 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 	symname = strtab + sym->st_name;
 
-	new_addr = (unsigned long) _dl_find_hash(strtab + sym->st_name,
-		 tpnt->symbol_scope, tpnt, resolver);
+	new_addr = (unsigned long) _dl_find_hash(symname,
+			tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
+	if (!new_addr) {
+		_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
+				_dl_progname, symname);
+		_dl_exit (1);
+	}
 
 	/* Address of jump instruction to fix up */
 	instr_addr = (unsigned long) (got + local_gotno + sym_index - gotsym);
@@ -279,12 +284,12 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 					*got_entry = sym->st_value + (unsigned long) tpnt->loadaddr;
 				else {
 					*got_entry = (unsigned long) _dl_find_hash(strtab +
-						sym->st_name, tpnt->symbol_scope, NULL, copyrel);
+						sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_COPY);
 				}
 			}
 			else if (sym->st_shndx == SHN_COMMON) {
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
-					sym->st_name, tpnt->symbol_scope, NULL, copyrel);
+					sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_COPY);
 			}
 			else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&
 				*got_entry != sym->st_value)
@@ -295,7 +300,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 			}
 			else {
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
-					sym->st_name, tpnt->symbol_scope, NULL, copyrel);
+					sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_COPY);
 			}
 
 			got_entry++;

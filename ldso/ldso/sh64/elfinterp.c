@@ -190,13 +190,8 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 
 	/* Get the address of the GOT entry */
-	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, resolver);
+	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
 	if (!new_addr) {
-		new_addr = _dl_find_hash(symname, NULL, NULL, resolver);
-
-		if (new_addr)
-			return (unsigned long)new_addr;
-
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 			    _dl_progname, symname);
 		_dl_exit(1);
@@ -319,8 +314,7 @@ static int _dl_do_reloc(struct elf_resolve *tpnt,struct dyn_elf *scope,
 		int stb;
 
 		symbol_addr = (unsigned long)_dl_find_hash(symname, scope,
-				(reloc_type == R_SH_JMP_SLOT ? tpnt : NULL),
-				 symbolrel);
+							   elf_machine_type_class(reloc_type));
 
 		/*
 		 * We want to allow undefined references to weak symbols - this
@@ -492,7 +486,7 @@ static int _dl_do_copy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	if (symtab_index) {
 		symbol_addr = (unsigned long)
-			_dl_find_hash(symname, scope, NULL, copyrel);
+			_dl_find_hash(symname, scope, ELF_RTYPE_CLASS_COPY);
 
 		if (!symbol_addr)
 			goof++;

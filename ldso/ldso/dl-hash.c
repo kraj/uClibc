@@ -154,7 +154,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
  * relocations or when we call an entry in the PLT table for the first time.
  */
 char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
-	struct elf_resolve *f_tpnt, enum caller_type caller_type)
+		    int type_class)
 {
 	struct elf_resolve *tpnt;
 	int si;
@@ -163,22 +163,11 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 	Elf32_Sym *symtab;
 	unsigned long elf_hash_number, hn;
 	char *weak_result;
-	struct dyn_elf *rpnt, first;
+	struct dyn_elf *rpnt;
 	const ElfW(Sym) *sym;
 
 	weak_result = 0;
 	elf_hash_number = _dl_elf_hash(name);
-
-	/* A quick little hack to make sure that any symbol in the executable
-	   will be preferred to one in a shared library.  This is necessary so
-	   that any shared library data symbols referenced in the executable
-	   will be seen at the same address by the executable, shared libraries
-	   and dynamically loaded code. -Rob Ryan (robr@cmu.edu) */
-	if (_dl_symbol_tables && rpnt1) {
-		first = (*_dl_symbol_tables);
-		first.next = rpnt1;
-		rpnt1 = (&first);
-	}
 
 	/*
 	 * The passes are so that we can first search the regular symbols
@@ -187,39 +176,35 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 	 * starting the first dlopened module, and anything above that
 	 * is just the next one in the chain.
 	 */
+	if (rpnt1 == NULL)
+		rpnt1 = _dl_symbol_tables;
+
 	for (pass = 0; (1 == 1); pass++) {
 
 		/*
 		 * If we are just starting to search for RTLD_GLOBAL, setup
 		 * the pointer for the start of the search.
 		 */
-		if (pass == 1) {
+		if (pass == 1)
 			rpnt1 = _dl_handles;
-		}
 
 		/*
 		 * Anything after this, we need to skip to the next module.
 		 */
-		else if (pass >= 2) {
+		else if (pass >= 2)
 			rpnt1 = rpnt1->next_handle;
-		}
 
 		/*
-		 * Make sure we still have a module, and make sure that this
-		 * module was loaded with RTLD_GLOBAL.
+		 * Make sure we still have a module.
 		 */
-		if (pass != 0) {
 			if (rpnt1 == NULL)
 				break;
-			//if ((rpnt1->flags & RTLD_GLOBAL) == 0)
-				//continue;
-		}
 
-		for (rpnt = (rpnt1 ? rpnt1 : _dl_symbol_tables); rpnt; rpnt = rpnt->next) {
+		for (rpnt = rpnt1; rpnt; rpnt = rpnt->next) {
 			tpnt = rpnt->dyn;
 
 			/* Don't search the executable when resolving a copy reloc. */
-			if (tpnt->libtype == elf_executable && caller_type == copyrel)
+			if ((type_class &  ELF_RTYPE_CLASS_COPY) && tpnt->libtype == elf_executable)
 				continue;
 
 			/*
@@ -236,19 +221,25 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 					continue;
 				if (ELF32_ST_TYPE(sym->st_info) > STT_FUNC)
 					continue;
-				if (sym->st_shndx == SHN_UNDEF && caller_type != copyrel)
+				if (type_class & (sym->st_shndx == SHN_UNDEF))
 					continue;
 				if (_dl_strcmp(strtab + sym->st_name, name) != 0)
 					continue;
 
 				switch (ELF32_ST_BIND(sym->st_info)) {
 					case STB_WEAK:
-//Disable this to match current glibc behavior.  Of course,
-//this doesn't actually work yet and will cause segfaults...
-#if 1
+#ifndef __LIBDL_SHARED__
+/* 
+Due to a special hack in libdl.c, one must handle the _dl_ symbols
+according to the OLD weak symbol scheme. This stuff can be deleted
+once that hack has been fixed.
+*/
+
+						if(_dl_symbol((char *)name)) {
 						if (!weak_result)
 							weak_result = (char *)tpnt->loadaddr + sym->st_value;
 						break;
+						}
 #endif
 					case STB_GLOBAL:
 						return (char*)tpnt->loadaddr + sym->st_value;

@@ -109,7 +109,7 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
 
   /* Get the address of the GOT entry */
   new_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name,
-  			tpnt->symbol_scope, tpnt, resolver);
+  			tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
   if(!new_addr) {
     _dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 	       _dl_progname, strtab + symtab[symtab_index].st_name);
@@ -225,8 +225,7 @@ int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 
       symbol_addr = (unsigned int)
 	_dl_find_hash(strtab + symtab[symtab_index].st_name,
-			      tpnt->symbol_scope,
-		      (reloc_type == R_SPARC_JMP_SLOT ? tpnt : NULL), symbolrel);
+		      tpnt->symbol_scope, elf_machine_type_class(reloc_type);
 
       if(!symbol_addr &&
 	 ELF32_ST_BIND(symtab [symtab_index].st_info) == STB_GLOBAL) {
@@ -343,7 +342,7 @@ int _dl_parse_copy_information(struct dyn_elf *xpnt,
 
       symbol_addr = (unsigned int)
 	_dl_find_hash(strtab + symtab[symtab_index].st_name,
-			      xpnt->next, NULL, copyrel);
+		      xpnt->next,  ELF_RTYPE_CLASS_COPY);
       if(!symbol_addr) {
 	_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 		   _dl_progname, strtab + symtab[symtab_index].st_name);

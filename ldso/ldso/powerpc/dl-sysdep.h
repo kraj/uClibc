@@ -125,3 +125,16 @@ void _dl_init_got(unsigned long *lpnt,struct elf_resolve *tpnt);
 #define PAGE_ALIGN 0xfffff000
 #define ADDR_ALIGN 0xfff
 #define OFFS_ALIGN 0x7ffff000
+
+/* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry, so
+   PLT entries should not be allowed to define the value.
+   ELF_RTYPE_CLASS_NOCOPY iff TYPE should not be allowed to resolve to one
+   of the main executable's symbols, as for a COPY reloc.  */
+/* We never want to use a PLT entry as the destination of a
+   reloc, when what is being relocated is a branch. This is
+   partly for efficiency, but mostly so we avoid loops.  */
+#define elf_machine_type_class(type) \
+  ((((type) == R_PPC_JMP_SLOT				\
+    || (type) == R_PPC_REL24				\
+    || (type) == R_PPC_ADDR24) * ELF_RTYPE_CLASS_PLT)	\
+   | (((type) == R_PPC_COPY) * ELF_RTYPE_CLASS_COPY))

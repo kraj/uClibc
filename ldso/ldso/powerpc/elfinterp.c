@@ -209,8 +209,8 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 #endif
 
 	/* Get the address of the GOT entry */
-	finaladdr = (Elf32_Addr) _dl_find_hash(strtab + symtab[symtab_index].st_name,
-						tpnt->symbol_scope, tpnt, resolver);
+	finaladdr = (Elf32_Addr) _dl_find_hash(symname,
+			tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
 	if (!finaladdr) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
 		_dl_exit(1);
@@ -223,11 +223,8 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	delta = finaladdr - (Elf32_Word)reloc_addr;
 	if (delta<<6>>6 == delta) {
 		*reloc_addr = OPCODE_B(delta);
-#if 0
-	/* this will almost never be true */
-	} else if (finaladdr <= 0x01fffffc || finaladdr >= 0xfe000000) {
+	} else if (finaladdr <= 0x01fffffc) {
 		*reloc_addr = OPCODE_BA (finaladdr);
-#endif
 	} else {
 		/* Warning: we don't handle double-sized PLT entries */
 		Elf32_Word *plt, *data_words, index, offset;
@@ -261,7 +258,6 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	char *symname;
 	Elf32_Addr *reloc_addr;
 	Elf32_Addr finaladdr;
-	struct dyn_elf *sym_scope;
 
 	unsigned long symbol_addr;
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -278,19 +274,8 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symname      = strtab + symtab[symtab_index].st_name;
 
-#if 1
-	sym_scope = scope->dyn->symbol_scope;
-#else
-	/* Funny, this works too and appears to be much faster. */
-	sym_scope = scope;
-#endif
-	if (reloc_type == R_PPC_COPY) {
-		sym_scope = scope->next;
-		tpnt = NULL; /* To be or not to be ...*/
-	}
-	symbol_addr = (unsigned long) _dl_find_hash(symname, sym_scope,
-						    (reloc_type == R_PPC_JMP_SLOT ? tpnt : NULL),
-						    (reloc_type == R_PPC_COPY ? copyrel : symbolrel));
+	symbol_addr = (unsigned long) _dl_find_hash(symname, scope->dyn->symbol_scope,
+						    elf_machine_type_class(reloc_type));
 	/*
 	 * We want to allow undefined references to weak symbols - this might
 	 * have been intentional.  We should not be linking local symbols
@@ -320,11 +305,8 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 
 		if (delta<<6>>6 == delta) {
 			*reloc_addr = OPCODE_B(delta);
-#if 0
-		/* this will almost never be true */
-		} else if (finaladdr <= 0x01fffffc || finaladdr >= 0xfe000000) {
+		} else if (finaladdr <= 0x01fffffc) {
 			*reloc_addr = OPCODE_BA (finaladdr);
-#endif
 		} else {
 			/* Warning: we don't handle double-sized PLT entries */
 			Elf32_Word *plt, *data_words, index, offset;
@@ -384,7 +366,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		_dl_dprintf(2, "%s ", _dl_reltypes(reloc_type));
 #endif
 		if (symtab_index)
-			_dl_dprintf(2, "'%s'\n", strtab + symtab[symtab_index].st_name);
+			_dl_dprintf(2, "'%s'\n", symname);
 		return -1;
 	};
 

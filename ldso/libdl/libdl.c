@@ -30,7 +30,7 @@ static void __attribute__ ((unused)) foobar(void)
 
 static int __attribute__ ((unused)) foobar1 = (int) foobar;	/* Use as pointer */
 extern void _dl_dprintf(int, const char *, ...) __attribute__ ((__weak__, __alias__ ("foobar")));
-extern char *_dl_find_hash(const char *, struct dyn_elf *, struct elf_resolve *, enum caller_type)
+extern char *_dl_find_hash(const char *, struct dyn_elf *, int)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
 extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **, struct elf_resolve *, char *, int)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
@@ -179,6 +179,7 @@ void *_dlopen(const char *libname, int flag)
 	if(_dl_debug) 
 	_dl_dprintf(_dl_debug_file, "Trying to dlopen '%s'\n", (char*)libname);
 #endif
+	if (!(tpnt = _dl_check_if_named_library_is_loaded((char *)libname, 0)))
 	tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname, 0);
 	if (tpnt == NULL) {
 		_dl_unmap_cache();
@@ -219,6 +220,9 @@ void *_dlopen(const char *libname, int flag)
 				lpntstr = (char*) (tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] + 
 					dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
+
+				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name, 0)))
+					continue;
 
 #ifdef __SUPPORT_LD_DEBUG__
 				if(_dl_debug) 
@@ -381,7 +385,7 @@ void *_dlsym(void *vhandle, const char *name)
 		}
 	}
 
-	ret = _dl_find_hash((char*)name, handle, NULL, copyrel);
+	ret = _dl_find_hash((char*)name, handle, 0);
 
 	/*
 	 * Nothing found.

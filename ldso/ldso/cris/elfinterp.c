@@ -142,16 +142,10 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	got_addr = (char **) instr_addr;
 
 	/* Fetch the address of the GOT entry. */
-	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, resolver);
-
+	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
 	if (!new_addr) {
-		new_addr = _dl_find_hash(symname, NULL, NULL, resolver);
-
-		if (new_addr)
-			return (unsigned long) new_addr;
-
-		_dl_dprintf(2, "%s: Can't resolv symbol '%s'\n", _dl_progname, symname);
-		_dl_exit(1);
+	    _dl_dprintf(2, "%s: Can't resolv symbol '%s'\n", _dl_progname, symname);
+	    _dl_exit(1);
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -261,7 +255,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope, ELF_RELOC *rpnt,
 		}
 		else {
 			symbol_addr = (unsigned long) _dl_find_hash(symname, scope,
-				(reloc_type == R_CRIS_JUMP_SLOT ? tpnt : NULL), symbolrel);
+								    elf_machine_type_class(reloc_type));
 		}
 
 		if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_GLOBAL) {
@@ -366,7 +360,7 @@ _dl_do_copy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope, ELF_RELOC *rp
 	goof = 0;
 
 	if (symtab_index) {
-		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, NULL, copyrel);
+		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, ELF_RTYPE_CLASS_COPY);
 
 		if (!symbol_addr)
 			goof++;
