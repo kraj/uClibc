@@ -60,7 +60,7 @@ struct _UC_FILE {
 
   unsigned char mode;
   unsigned char ungot;
-  char unbuf[2];	   /* The buffer for 'unbuffered' streams */
+  unsigned char unbuf[2];	   /* The buffer for 'unbuffered' streams */
 };
 
 typedef struct _UC_FILE FILE;

@@ -842,8 +842,9 @@ void setbuffer(FILE *fp, char *buf, size_t size)
 #endif
 
 #ifdef L_setvbuf
-int setvbuf(FILE *fp, char *buf, int mode, size_t size)
+int setvbuf(FILE *fp, char *ubuf, int mode, size_t size)
 {
+	unsigned char *buf = ubuf;
 	int allocated_buf_flag;
 
 	if ((mode < 0) || (mode > 2)) {	/* Illegal mode. */
@@ -877,7 +878,7 @@ int setvbuf(FILE *fp, char *buf, int mode, size_t size)
 		}
 	}
 
-	if (buf && (buf != (char *) fp->bufstart)) { /* Want different buffer. */
+	if (buf && (buf != fp->bufstart)) { /* Want different buffer. */
 		_free_stdio_buffer_of_file(fp);	/* Free the old buffer. */
 		fp->mode |= allocated_buf_flag;	/* Allocated? or FILE's builtin. */
 		fp->bufstart = buf;
