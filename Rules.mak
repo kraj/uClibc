@@ -108,15 +108,15 @@ ifeq ($(strip $(HAVE_SHARED)),true)
     DOPIC:=true
     LIBRARY_CACHE:=#-DUSE_CACHE
     ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
-    LDSO:=$(TOPDIR)lib/$(UCLIBC_LDSO)
-    DYNAMIC_LINKER:=$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO)
-    BUILD_DYNAMIC_LINKER:=${shell cd $(TOPDIR)lib && pwd}/$(UCLIBC_LDSO)
+	LDSO:=$(TOPDIR)lib/$(UCLIBC_LDSO)
+	DYNAMIC_LINKER:=$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO)
+	BUILD_DYNAMIC_LINKER:=${shell cd $(TOPDIR) && pwd}/lib/$(UCLIBC_LDSO)
     else
-    LDSO:=$(SYSTEM_LDSO)
-    BUILD_UCLIBC_LDSO:=false
-    DYNAMIC_LINKER:=/lib/$(notdir $(SYSTEM_LDSO))
-    BUILD_DYNAMIC_LINKER:=/lib/$(notdir $(SYSTEM_LDSO))
-endif
+	LDSO:=$(SYSTEM_LDSO)
+	BUILD_UCLIBC_LDSO:=false
+	DYNAMIC_LINKER:=/lib/$(notdir $(SYSTEM_LDSO))
+	BUILD_DYNAMIC_LINKER:=/lib/$(notdir $(SYSTEM_LDSO))
+   endif
 endif
 ifeq ($(strip $(DOPIC)),true)
     CFLAGS += -fPIC
