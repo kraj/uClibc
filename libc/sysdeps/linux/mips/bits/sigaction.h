@@ -44,14 +44,6 @@ struct sigaction
 #endif
     /* Additional set of signals to be blocked.  */
     __sigset_t sa_mask;
-
-    /* The ABI says here are two unused ints following. */
-    /* Restore handler.  */
-    void (*sa_restorer) (void);
-
-#if _MIPS_ISA == _MIPS_ISA_MIPS1 || _MIPS_ISA == _MIPS_ISA_MIPS2
-    int sa_resv[1];
-#endif
   };
 
 /* Bits in `sa_flags'.  */
