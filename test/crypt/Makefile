@@ -21,7 +21,7 @@
 TESTDIR=../
 include $(TESTDIR)/Rules.mak
 
-TARGETS=diff
+TARGETS=diff md5c-test
 EXTRA_LIBS=-lcrypt
 
 all: $(TARGETS)
@@ -56,7 +56,18 @@ diff: crypt_glibc crypt
 	-diff -u crypt_glibc.out crypt.out
 	-@ echo " "
 
+md5c-test: md5c-test.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-./$@
+	-@ echo " "
+
 clean:
-	rm -f *.[oa] *~ core crypt_glibc crypt crypt_glibc.out crypt.out
+	rm -f *.[oa] *~ core crypt_glibc crypt crypt_glibc.out crypt.out md5c-test
 
 
