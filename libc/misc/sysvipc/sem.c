@@ -72,7 +72,7 @@ int
 semop (semid, sops, nsops)
     int semid;
     struct sembuf *sops;
-    unsigned int nsops;
+    size_t nsops;
 {
     return __ipc(IPCOP_semop, semid, (int) nsops, 0, sops);
 }
