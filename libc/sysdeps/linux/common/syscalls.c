@@ -208,9 +208,19 @@ _syscall1(int, umount, const char *, specialfile);
 #endif
 
 //#define __NR_setuid           23
-#ifdef L_setuid
+#ifdef L___setuid
+#define __NR___setuid __NR_setuid
 #include <unistd.h>
-_syscall1(int, setuid, uid_t, uid);
+static inline 
+_syscall1(int, __setuid, uid_t, uid);
+int setuid(uid_t uid)
+{
+	if (uid == (uid_t) ~0) {
+		__set_errno (EINVAL);
+		return -1;
+	}
+	return(__setuid(uid));
+}
 #endif
 
 //#define __NR_getuid           24
@@ -1035,10 +1045,20 @@ _syscall2(int, bdflush, int, __func, long int, __data);
 //#define __NR_afs_syscall      137
 
 //#define __NR_setfsuid         138
-//setfsuid	EXTRA	setfsuid	i:i	setfsuid
+#ifdef __NR_setfsuid
+#ifdef L_setfsuid
+#include <sys/fsuid.h>
+_syscall1(int, setfsuid, uid_t, uid);
+#endif
+#endif
 
 //#define __NR_setfsgid         139
-//setfsgid	EXTRA	setfsgid	i:i	setfsgid
+#ifdef __NR_setfsgid
+#ifdef L_setfsgid
+#include <sys/fsuid.h>
+_syscall1(int, setfsgid, gid_t, gid);
+#endif
+#endif
 
 //#define __NR__llseek          140
 #ifdef L__llseek
