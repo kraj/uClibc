@@ -318,7 +318,7 @@ config UCLIBC_STATIC_LDCONFIG
 	  Enable this option to statically link the ldconfig binary.
 
 	  Making ldconfig static can be beneficial if you have a library
-	  problem and need to used ldconfig to recover.  Sometimes, it is
+	  problem and need to use ldconfig to recover.  Sometimes, it is
 	  preferable to instead keep the size of the system down, in which
 	  case you should disable this option.
 
