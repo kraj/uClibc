@@ -747,6 +747,7 @@ __extension__ extern lldiv_t lldiv (long long int __numer,
 #endif
 
 
+#if 0
 #ifdef __UCLIBC_HAS_FLOATS__
 #if defined __USE_SVID || defined __USE_XOPEN_EXTENDED
 /* Convert floating point numbers to strings.  The returned values are
@@ -797,6 +798,7 @@ extern int qfcvt_r (long double __value, int __ndigit,
 # endif	/* misc */
 #endif	/* use MISC || use X/Open Unix */
 #endif /* __UCLIBC_HAS_FLOATS__ */
+#endif
 
 #ifdef __UCLIBC_HAS_WCHAR__
 /* Return the length of the multibyte character
