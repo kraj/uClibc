@@ -37,8 +37,13 @@ UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
 LIBC:=$(TOPDIR)libc/libc.a
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
 
+# A nifty macro to make testing gcc features easier
+check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
+	then echo "$(1)"; else echo "$(2)"; fi)
+
 # check if we have nawk, otherwise user awk
-AWK:= ${shell if [ -x /usr/bin/nawk ]; then echo "/usr/bin/nawk"; else echo "/usr/bin/awk"; fi}
+AWK:=$(shell if [ -x /usr/bin/nawk ]; then echo "/usr/bin/nawk"; \
+	else echo "/usr/bin/awk"; fi)
 
 NATIVE_ARCH:= ${shell uname -m | sed \
 		-e 's/i.86/i386/' \
@@ -74,25 +79,21 @@ ARFLAGS:=r
 ifndef OPTIMIZATION
 
 # use '-Os' optimization if available, else use -O2, allow Config to override
-OPTIMIZATION:= ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
-    then echo "-Os"; else echo "-O2" ; fi}
+OPTIMIZATION:=
+OPTIMIZATION+=${call check_gcc,-Os,-O2}
 ifeq ($(strip $(TARGET_ARCH)),arm)
 	OPTIMIZATION+=-fstrict-aliasing
 endif
 ifeq ($(strip $(TARGET_ARCH)),i386)
 	OPTIMIZATION+=-march=i386
-	OPTIMIZATION += ${shell if $(CC) -mpreferred-stack-boundary=2 -S -o /dev/null -xc \
-		/dev/null >/dev/null 2>&1; then echo "-mpreferred-stack-boundary=2"; fi}
-	OPTIMIZATION += ${shell if $(CC) -falign-functions=1 -falign-jumps=0 -falign-loops=0 \
-		-S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo \
-		"-falign-functions=1 -falign-jumps=0 -falign-loops=0"; else \
-		if $(CC) -malign-functions=0 -malign-jumps=0 -S -o /dev/null -xc \
-		/dev/null >/dev/null 2>&1; then echo "-malign-functions=0 -malign-jumps=0"; fi; fi}
+	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
+	OPTIMIZATION+=$(call check_gcc,-falign-functions=0 -falign-jumps=0 -falign-loops=0,\
+		-malign-functions=0 -malign-jumps=0 -malign-loops=0)
 endif
 endif
 
 # Add a bunch of extra pedantic annoyingly strict checks
-WARNINGS+=-Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+WARNINGS+=-Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
 
 
 CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
