@@ -10,7 +10,7 @@ include $(TESTDIR)Config
 
 
 NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
-	-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/')
+	-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/')
 
 # If you are running a cross compiler, you may want to set this
 # to something more interesting...
