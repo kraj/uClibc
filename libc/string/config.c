@@ -1,0 +1,93 @@
+/* config.c: Config file reader.
+ *
+ * Copyright 1999 D. Jeff Dionne, <jeff@rt-control.com>
+ *
+ * This is free software, under the LGPL V2.0
+ */
+
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <cfgfile.h>
+
+/* This is a quick and dirty config file parser.  It reads the file once for
+ * each request, there is no cache.  Each line must be less than 128bytes.
+ */
+
+static char *args[16];
+static char cfgbuf[128];
+
+static char *
+ws(char **buf)
+{
+  char *b = *buf;
+  char *p;
+
+  /* eat ws */
+  while (*b &&
+	 (*b == ' '  ||
+	  *b == '\n' ||
+	  *b == '\t')) b++;
+  p = b;
+
+  /* find the end */
+  while (*p &&
+	 !(*p == ' '  ||
+	   *p == '\n' ||
+	   *p == '\t')) p++;
+  *p = 0;
+  *buf = p+1;
+  return b;
+}
+
+char **
+cfgread(FILE *fp)
+{
+  char *ebuf;
+  char *p;
+  int i;
+  int j;
+
+  if (!fp) {
+    errno = EIO;
+    return (void *)0;
+  }
+  
+  while (fgets(cfgbuf, sizeof(cfgbuf), fp)) {
+
+    /* ship comment lines */
+    if (cfgbuf[0] == '#') continue;
+
+    ebuf = cfgbuf + strlen(cfgbuf);
+
+    p = cfgbuf;
+    for (i = 0; i < 16 && p < ebuf; i++) {
+      args[i] = ws(&p);
+    }
+    args[i] = (void *)0;
+
+    /* return if we found something */
+    if (strlen(args[0])) return args;
+  }
+  return (void *)0;
+}
+
+char **
+cfgfind(FILE *fp, char *var)
+{
+  char **ret;
+  char search[80];
+
+  if (!fp || !var) {
+    errno = EIO;
+    return (void *)0;
+  }
+
+  strncpy(search, var, sizeof(search));
+
+  fseek(fp, 0, SEEK_SET);
+  while (ret = cfgread(fp)) {
+    if (!strcmp(ret[0], search)) return ret;
+  }
+  return (void *)0;
+}
