@@ -68,6 +68,11 @@ finished: shared
 	@echo Finally finished compiling...
 	@echo
 
+#
+# dummy target for uClinux distro
+#
+romfs:
+
 headers: dummy
 	rm -f include/asm;
 	@if [ $(TARGET_ARCH) = "powerpc" ];then \
