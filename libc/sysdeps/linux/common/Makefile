@@ -57,6 +57,9 @@ CSRC=	__rt_sigtimedwait.c __socketcall.c __syscall_fcntl.c \
 ifneq ($(strip $(EXCLUDE_BRK)),y)
 CSRC+=sbrk.c
 endif
+ifeq ($(strip $(UCLIBC_PROFILING)),y)
+CSRC+=noophooks.c pcprofile.c
+endif
 ifeq ($(strip $(UCLIBC_PROPOLICE)),y)
 CSRC+=ssp.c
 endif
