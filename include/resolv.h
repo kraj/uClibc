@@ -216,17 +216,23 @@ typedef struct __res_state *res_state;
 #define RES_PRF_INIT	0x00004000
 /*			0x00008000	*/
 
+
 /* Things involving an internal (static) resolver context. */
-#if !defined _LIBC || defined __UCLIBC_HAS_THREADS__
+#if defined __UCLIBC_HAS_THREADS__
+
 __BEGIN_DECLS
 extern struct __res_state *__res_state(void) __attribute__ ((__const__));
 __END_DECLS
 #define _res (*__res_state())
-#else
+
+#else /* !__UCLIBC_HAS_THREADS__ */
+
 #ifndef __BIND_NOSTATIC
 extern struct __res_state _res;
 #endif
-#endif
+
+#endif /* __UCLIBC_HAS_THREADS__ */
+
 
 #ifndef __BIND_NOSTATIC
 #define fp_nquery		__fp_nquery
