@@ -374,7 +374,7 @@ distclean clean:
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi;
-	@if [ $(TARGET_ARCH) = "mipsel" -o $(TARGET_ARCH) = "mips" ]; then \
+	@if [ $(TARGET_ARCH) = "mipsel" ]; then \
 	    rm -f libc/sysdeps/linux/$(TARGET_ARCH); \
 	    rm -f ldso/ldso/$(TARGET_ARCH); \
 	    rm -f libpthread/linuxthreads/sysdeps/$(TARGET_ARCH); \
