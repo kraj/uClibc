@@ -18,11 +18,11 @@
 /*
  * Initialization sequence for a GOT.
  */
-#define INIT_GOT(GOT_BASE,MODULE) \
-{				\
-  GOT_BASE[2] = (unsigned long) _dl_linux_resolve; \
-  GOT_BASE[1] = (unsigned long) MODULE; \
-}
+#define INIT_GOT(GOT_BASE,MODULE)				\
+do {								\
+  GOT_BASE[2] = (unsigned long) _dl_linux_resolve;		\
+  GOT_BASE[1] = (unsigned long) MODULE;				\
+} while(0)
 
 /*
  * Here is a macro to perform a relocation.  This is only used when
@@ -31,23 +31,23 @@
  * SYMBOL is the symbol involved in the relocation, and LOAD is the
  * load address.
  */
-#define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD) \
-	switch(ELF32_R_TYPE((RELP)->r_info)){		\
-	case R_386_32:		\
-	  *REL += SYMBOL;		\
-	  break;		\
-	case R_386_PC32:		\
-	  *REL += SYMBOL - (unsigned long) REL;		\
-	  break;		\
-	case R_386_GLOB_DAT:		\
-	case R_386_JMP_SLOT:		\
-	  *REL = SYMBOL;		\
-	  break;		\
-	case R_386_RELATIVE:		\
-	  *REL += (unsigned long) LOAD;		\
-	  break;		\
-	default:		\
-	  _dl_exit(1);		\
+#define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB)	\
+	switch(ELF32_R_TYPE((RELP)->r_info)){			\
+	case R_386_32:						\
+	  *REL += SYMBOL;					\
+	  break;						\
+	case R_386_PC32:					\
+	  *REL += SYMBOL - (unsigned long) REL;			\
+	  break;						\
+	case R_386_GLOB_DAT:					\
+	case R_386_JMP_SLOT:					\
+	  *REL = SYMBOL;					\
+	  break;						\
+	case R_386_RELATIVE:					\
+	  *REL += (unsigned long) LOAD;				\
+	  break;						\
+	default:						\
+	  _dl_exit(1);						\
 	}
 
 
@@ -56,9 +56,9 @@
  * is done.  This routine has to exit the current function, then 
  * call the _dl_elf_main function.
  */
-#define START()		\
-	__asm__ volatile ("leave\n\t" \
-		    "jmp *%%eax\n\t"	\
+#define START()							\
+	__asm__ volatile ("leave\n\t"				\
+		    "jmp *%%eax\n\t"				\
 		    : "=a" (status) :	"a" (_dl_elf_main))
 
 

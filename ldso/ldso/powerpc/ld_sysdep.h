@@ -71,7 +71,7 @@
  * load address.
  */
 // finaladdr = LOAD ?
-#define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD) \
+#define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB) \
 	{int type=ELF32_R_TYPE((RELP)->r_info);		\
 	if(type==R_PPC_NONE){				\
 	}else if(type==R_PPC_ADDR32){			\

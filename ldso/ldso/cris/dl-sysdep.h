@@ -24,7 +24,7 @@
  * SYMBOL is the symbol involved in the relocation, and LOAD is the
  * load address.
  */
-#define PERFORM_BOOTSTRAP_RELOC(RELP, REL, SYMBOL, LOAD)		\
+#define PERFORM_BOOTSTRAP_RELOC(RELP, REL, SYMBOL, LOAD, SYMTAB)	\
 	switch (ELF32_R_TYPE((RELP)->r_info)) {				\
 		case R_CRIS_GLOB_DAT:					\
 		case R_CRIS_JUMP_SLOT:					\

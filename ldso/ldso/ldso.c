@@ -287,7 +287,7 @@ LD_BOOT(unsigned long args)
   __asm__("\tbl _GLOBAL_OFFSET_TABLE_-4@local\n\t":"=l"(got));
 #elif defined(__mips__)
   __asm__("\tmove %0, $28\n\tsubu %0,%0,0x7ff0\n\t":"=r"(got));
-#elif defined(__sh__)
+#elif defined(__sh__) && !defined(__SH5__)
   __asm__(
 "       mov.l    1f, %0\n"
 "       mova     1f, r0\n"
@@ -583,11 +583,13 @@ LD_BOOT(unsigned long args)
 				SEND_STDERR(strtab + symtab[symtab_index].st_name);
 				SEND_STDERR("\n");
 #endif  
+				PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, &symtab[symtab_index]);
+			} else {
+				/*
+				 * Use this machine-specific macro to perform the actual relocation.
+				 */
+				PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, NULL);
 			}
-			/*
-			 * Use this machine-specific macro to perform the actual relocation.
-			 */
-			PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr);
 		}
 	}
 

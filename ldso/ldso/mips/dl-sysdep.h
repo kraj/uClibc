@@ -86,7 +86,7 @@ do {																	\
  * Here is a macro to perform a relocation.  This is only used when
  * bootstrapping the dynamic loader.
  */
-#define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD)					\
+#define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB)			\
 	switch(ELF32_R_TYPE((RELP)->r_info)) {								\
 	case R_MIPS_REL32:													\
 		if (symtab_index) {												\
