@@ -234,15 +234,24 @@ config LDSO_CACHE_SUPPORT
 	  After updating this file, it is necessary to run 'ldconfig' to update
 	  the /etc/ld.so.cache shared library loader cache file.
 
+config LDSO_PRELOAD_FILE_SUPPORT
+	bool "Enable shared library loader preload file support"
+	depends on BUILD_UCLIBC_LDSO
+	default n
+	help
+	  Enable this to make use of /etc/ld.so.preload. This file contains a
+	    whitespace separated list of shared libraries to be loaded before
+	    the program.
+
 config LDSO_BASE_FILENAME
-	string "Shared library loader cache naming prefix"
-	depends on LDSO_CACHE_SUPPORT
+	string "Shared library loader naming prefix"
+	depends on LDSO_CACHE_SUPPORT || LDSO_PRELOAD_FILE_SUPPORT
 	default "ld.so"
 	help
 	  If you wish to support both uClibc and glibc on the same system, it
 	  is necessary to set this to something other than "ld.so" to avoid
 	  conflicts with glibc, which also uses "ld.so".  This prevents both
-	  libraries from using the same /etc/ld.so.cache file.  If you wish to
+	  libraries from using the same /etc/ld.so.* files.  If you wish to
 	  support both uClibc and glibc on the same system then you should set
 	  this to "ld-uClibc.so".
 
@@ -340,7 +349,6 @@ config PTHREADS_DEBUG_SUPPORT
 config UCLIBC_HAS_LFS
 	bool "Large File Support"
 	default y
-	depends on !CONFIG_CRIS
 	help
 	  If you wish to build uClibc with support for accessing large files 
 	  (i.e. files greater then 2 GiB) then answer Y.  Do not enable this 
