@@ -200,6 +200,11 @@ _syscall1(int, stime, time_t *, t);
 #endif
 
 //#define __NR_ptrace           26
+#include <sys/ptrace.h>
+#define __NR___ptrace __NR_ptrace
+_syscall4(long, __ptrace, enum __ptrace_request, request, pid_t, pid,
+		void*, addr, void*, data);
+
 
 //#define __NR_alarm            27
 #ifdef L_alarm
