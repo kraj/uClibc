@@ -10,8 +10,6 @@ include $(TOPDIR)Rules.mak
 UCLIBC_DIR = $(shell (cd ../.. ; /bin/pwd))
 GCC_BIN = $(shell which $(CC))
 LD_BIN = $(shell which $(LD))
-GCC_LIB = $(shell $(CC) -print-libgcc-file-name )
-GCC_LIB_DIR = $(dir $(shell $(CC) -print-libgcc-file-name ))
 GCCINCDIR:= ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp"}
 
 all: gcc-uClibc ld-uClibc
@@ -22,8 +20,7 @@ gcc-uClibc.h:
 	@echo "#define UCLIBC_DEVEL_PREFIX " \"$(DEVEL_PREFIX)\" >> gcc-uClibc.h
 	@echo "#define UCLIBC_BUILD_DIR " \"$(UCLIBC_DIR)\" >> gcc-uClibc.h
 	@echo "#define GCC_BIN " \"$(GCC_BIN)\" >> gcc-uClibc.h
-	@echo "#define GCC_LIB " \"$(GCC_LIB)\" >> gcc-uClibc.h
-	@echo "#define GCC_LIB_DIR " \"$(GCC_LIB_DIR)\" >> gcc-uClibc.h
+	@echo "#define LIBGCC_DIR " \"$(LIBGCC_DIR)\" >> gcc-uClibc.h
 	@echo "#define TARGET_ARCH " \"$(TARGET_ARCH)\" >> gcc-uClibc.h
 	@echo "#define DYNAMIC_LINKER " \"$(DYNAMIC_LINKER)\" >> gcc-uClibc.h
 	@echo "#define BUILD_DYNAMIC_LINKER " \"$(UCLIBC_DIR)/lib/$(UCLIBC_LDSO)\" >> gcc-uClibc.h

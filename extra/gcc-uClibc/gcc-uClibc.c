@@ -392,9 +392,9 @@ int main(int argc, char **argv)
 		if (ctor_dtor) {
 		    gcc_argv[i++] = crti_path[use_build_dir];
 		    if (use_pic) {
-			gcc_argv[i++] = GCC_LIB_DIR "crtbeginS.o" ;
+			gcc_argv[i++] = LIBGCC_DIR "crtbeginS.o" ;
 		    } else {
-			gcc_argv[i++] = GCC_LIB_DIR "crtbegin.o" ;
+			gcc_argv[i++] = LIBGCC_DIR "crtbegin.o" ;
 		    }
 		}
 		gcc_argv[i++] = crt0_path[use_build_dir];
@@ -420,9 +420,9 @@ int main(int argc, char **argv)
 	    }
 	    if (ctor_dtor) {
 		if (use_pic) {
-		    gcc_argv[i++] = GCC_LIB_DIR "crtendS.o" ;
+		    gcc_argv[i++] = LIBGCC_DIR "crtendS.o" ;
 		} else {
-		    gcc_argv[i++] = GCC_LIB_DIR "crtend.o" ;
+		    gcc_argv[i++] = LIBGCC_DIR "crtend.o" ;
 		}
 		gcc_argv[i++] = crtn_path[use_build_dir];
 	    }

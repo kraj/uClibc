@@ -52,6 +52,7 @@ UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
 LIBNAME:=libc.a
 LIBC:=$(TOPDIR)libc/$(LIBNAME)
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
+LIBGCC_DIR:=$(dir $(LIBGCC))
 
 # Pull in the user's uClibc configuration
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
