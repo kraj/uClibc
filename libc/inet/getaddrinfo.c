@@ -63,6 +63,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/utsname.h>
 #include <net/if.h>
 
+/* The following declarations and definitions have been removed from
+ *    the public header since we don't want people to use them.  */
+#define AI_V4MAPPED     0x0008  /* IPv4-mapped addresses are acceptable.  */
+#define AI_ALL          0x0010  /* Return both IPv4 and IPv6 addresses.  */
+#define AI_ADDRCONFIG   0x0020  /* Use configuration of this host to choose 
+				    returned address type.  */
+#define AI_DEFAULT    (AI_V4MAPPED | AI_ADDRCONFIG)
+
+
 #define GAIH_OKIFUNSPEC 0x0100
 #define GAIH_EAI        ~(GAIH_OKIFUNSPEC)
 
