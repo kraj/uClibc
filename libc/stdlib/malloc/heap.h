@@ -52,16 +52,25 @@ struct heap_free_area
 #define HEAP_ADJUST_SIZE(sz)  \
    (((sz) + HEAP_GRANULARITY - 1) & ~(HEAP_GRANULARITY - 1))
 
-/* The minimum size of a free area.  It must include at least enough room
-   to hold a struct heap_free_area, plus enough extra to be usefully
-   allocated.  */
+
+/* The minimum allocatable size.  */
+#define HEAP_MIN_SIZE	HEAP_ADJUST_SIZE (sizeof (struct heap_free_area))
+
+/* The minimum size of a free area; if allocating memory from a free-area
+   would make the free-area smaller than this, the allocation is simply
+   given the whole free-area instead.  It must include at least enough room
+   to hold a struct heap_free_area, plus some extra to avoid excessive heap
+   fragmentation (thus increasing speed).  This is only a heuristic -- it's
+   possible for smaller free-areas than this to exist (say, by realloc
+   returning the tail-end of a previous allocation), but __heap_alloc will
+   try to get rid of them when possible.  */
 #define HEAP_MIN_FREE_AREA_SIZE  \
-  (sizeof (struct heap_free_area) + HEAP_ADJUST_SIZE (1))
+  HEAP_ADJUST_SIZE (sizeof (struct heap_free_area) + 32)
 
 
-/* Change this to `#if 1' to cause the heap routines to emit debugging info
+/* Define HEAP_DEBUGGING to cause the heap routines to emit debugging info
    to stderr.  */
-#if 0
+#ifdef HEAP_DEBUGGING
 #include <stdio.h>
 static void HEAP_DEBUG (struct heap *heap, const char *str)
 {
