@@ -1,7 +1,8 @@
-#include <unistd.h>
-#include <sys/mman.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
 struct chunkControl {
 	size_t nodeCount;
@@ -33,7 +34,7 @@ calloc_dbg(size_t num, size_t size, char * function, char * file, int line)
 	void * ptr;
 	fprintf(stderr, "calloc of %d bytes at %s @%s:%d = ", num*size, function, file, line);
 	ptr = calloc(num,size);
-	fprtinf(stderr, "%p\n", ptr);
+	fprintf(stderr, "%p\n", ptr);
 	return ptr;
 }
 
