@@ -183,6 +183,10 @@ extern __pid_t vfork __P ((void));
    which is not necessarily the same as the hardware page size.  */
 extern int getpagesize __P ((void)) __attribute__ ((__const__));
 
+extern int truncate __P ((const char *path, off_t length));
+extern int ftruncate __P ((int fd, off_t length));
+
+
 #ifdef	__USE_POSIX2
 /* Get definitions and prototypes for functions to process the
    arguments in ARGV (ARGC of them, minus the program name) for
