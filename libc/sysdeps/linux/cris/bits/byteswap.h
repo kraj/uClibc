@@ -1,3 +1,6 @@
+#ifndef _BITS_BYTESWAP_H
+#define _BITS_BYTESWAP_H 1
+
 #define ___swab16(x) \
 ({ \
 	unsigned short __x = (x); \
@@ -42,6 +45,4 @@ static inline unsigned long __fswab32(unsigned long x)
  ___swab32((x)) : \
  __fswab32((x)))
 
-
-
-
+#endif /* _BITS_BYTESWAP_H */

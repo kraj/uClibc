@@ -3,12 +3,14 @@
 /* The first piece of initialized data.  */
 int __data_start = 0;
 
+static void start1 (int argc, char **argv) __attribute__ ((used, noreturn));
+
 /* 
  * It is important that this be the first function.
  * This file is the first thing in the text section.  
  */
 void
-_start ()
+_start (void)
 {
 	/* 
 	 * On the stack we have argc. We can calculate argv/envp

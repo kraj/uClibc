@@ -6,7 +6,7 @@
 #endif
 
 /* Include the __NR_<name> definitions. */
-#include <bits/syscall.h>
+#include <bits/sysnum.h>
 
 #if 0
 #ifndef __set_errno
