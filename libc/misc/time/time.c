@@ -69,8 +69,6 @@
  * TODO - Implement getdate? tzfile? struct tm extensions?
  *
  * TODO - Rework _time_mktime to remove the dependency on long long.
- *
- * TODO - Make tzset and _time_tzinfo refs threadsafe.
  */
 
 #define _GNU_SOURCE
@@ -119,6 +117,22 @@ typedef struct {
 	short rule_type;			/* J, M, \0 */
 	char tzname[TZNAME_MAX+1];
 } rule_struct;
+
+#ifdef __UCLIBC_HAS_THREADS__
+
+#include <pthread.h>
+
+extern pthread_mutex_t _time_tzlock;
+
+#define TZLOCK		pthread_mutex_lock(&_time_tzlock)
+#define TZUNLOCK	pthread_mutex_unlock(&_time_tzlock)
+
+#else
+
+#define TZLOCK		((void) 0)
+#define TZUNLOCK	((void) 0)
+
+#endif
 
 extern rule_struct _time_tzinfo[2];
 
@@ -409,7 +423,7 @@ struct tm *localtime(const time_t *timer)
 {
 	register struct tm *ptm = &__time_tm;
 
-	tzset();
+	/* In this implementation, tzset() is called by localtime_r().  */
 
 	localtime_r(timer, ptm);	/* Can return NULL... */
 
@@ -425,6 +439,8 @@ static const unsigned char day_cor[] = { /* non-leap */
 /* 	 0,  0,  3,  3,  4,  4,  5,  5,  5,  6,  6,  7,  7 */
 /*	    31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 */
 };
+
+/* Note: timezone locking is done by localtime_r. */
 
 static int tm_isdst(register const struct tm *__restrict ptm)
 {
@@ -494,6 +510,7 @@ static int tm_isdst(register const struct tm *__restrict ptm)
 			++r;
 		} while (++i < 2);
 	}
+
 	return (isdst & 1);
 }
 
@@ -503,6 +520,10 @@ struct tm *localtime_r(register const time_t *__restrict timer,
 	time_t x[1];
 	long offset;
 	int days, dst;
+
+	TZLOCK;
+
+	tzset();
 
 	dst = 0;
 	do {
@@ -522,6 +543,8 @@ struct tm *localtime_r(register const time_t *__restrict timer,
 		}
 		++dst;
 	} while ((result->tm_isdst = tm_isdst(result)) != 0);
+
+	TZUNLOCK;
 
 	return result;
 }
@@ -849,6 +872,8 @@ size_t strftime(char *__restrict s, size_t maxsize,
 					goto OUTPUT;
 				}
 
+				TZLOCK;
+
 				rsp = _time_tzinfo;
 				if (timeptr->tm_isdst > 0) {
 					++rsp;
@@ -863,6 +888,7 @@ size_t strftime(char *__restrict s, size_t maxsize,
 					}
 #endif
 					o_count = SIZE_MAX;
+					TZUNLOCK;
 					goto OUTPUT;
 				} else {		/* z */
 					*s = '+';
@@ -870,6 +896,7 @@ size_t strftime(char *__restrict s, size_t maxsize,
 						tzo = -tzo;
 						*s = '-';
 					}
+					TZUNLOCK;
 					++s;
 					--count;
 
@@ -1378,6 +1405,10 @@ int daylight = 0;
 long timezone = 0;
 char *tzname[2] = { (char *) UTC, (char *) (UTC-1) };
 
+#ifdef __UCLIBC_HAS_THREADS__
+pthread_mutex_t _time_tzlock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#endif
+
 rule_struct _time_tzinfo[2];
 
 static const char *getoffset(register const char *e, long *pn)
@@ -1450,6 +1481,8 @@ void tzset(void)
 	rule_struct new_rules[2];
 	int n, count, f;
 	char c;
+
+	TZLOCK;
 
 	if (!(e = getenv(TZ)) || !*e) { /* Not set or set to empty string. */
 	ILLEGAL:					/* TODO: Clean up the following... */
@@ -1583,6 +1616,8 @@ void tzset(void)
 	tzname[1] = _time_tzinfo[1].tzname;
 	daylight = !!new_rules[1].tzname[0];
 	timezone = new_rules[0].gmt_offset;
+
+	TZUNLOCK;
 }
 
 #endif
@@ -1823,8 +1858,8 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 	/* TODO - check */
 	d = p[5] - 1;
 	days = -719163L + d*365 + ((d/4) - (d/100) + (d/400) + p[3] + p[7]);
-	secs = p[0] + 60*( p[1] + 60*((long)(p[2])) );
-
+	secs = p[0] + 60*( p[1] + 60*((long)(p[2])) )
+		+ _time_tzinfo[timeptr->tm_isdst > 0].gmt_offset;
 	if (secs < 0) {
 		secs += 120009600L;
 		days -= 1389;
@@ -1834,6 +1869,7 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 	}
 	secs += (days * 86400L);
 #else
+	TZLOCK;
 	d = p[5] - 1;
 	d = -719163L + d*365 + (d/4) - (d/100) + (d/400);
 	secs = p[0]
@@ -1842,6 +1878,7 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 			   + 60*(p[2]
 					 + 24*(((146073L * ((long long)(p[6])) + d)
 							+ p[3]) + p[7])));
+	TZUNLOCK;
 	if (((unsigned long long)(secs - LONG_MIN))
 		> (((unsigned long long)LONG_MAX) - LONG_MIN)
 		) {
