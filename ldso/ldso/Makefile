@@ -24,12 +24,12 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-TARGET_CFLAGS += #-DUSE_CACHE #-DDL_DEBUG #-funroll-loops
+TARGET_CFLAGS += #-DDL_DEBUG #-funroll-loops
 
 
 
 LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
-TARGET_CFLAGS+=-fPIC -D__PIC__ -DUCLIBC_PREFIX=\"$(PREFIX)\" \
+TARGET_CFLAGS+=-fPIC -D__PIC__ -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 	-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 	-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR); pwd)\"
 CSRC= boot1.c hash.c readelflib1.c $(TARGET_ARCH)/elfinterp.c

@@ -454,41 +454,69 @@ const char *_dlerror()
 }
 
 /* Generate the correct symbols that we need. */
+#if 0
 weak_alias(_dlopen, dlopen);
 weak_alias(_dlerror, dlerror);
 weak_alias(_dlclose, dlclose);
 weak_alias(_dlsym, dlsym);
 weak_alias(_dladdr, dladdr);
+#endif
+asm(".weak dlopen;dlopen=_dlopen");
+asm(".weak dlerror;dlerror=_dlerror");
+asm(".weak dlclose;dlclose=_dlclose");
+asm(".weak dlsym;dlsym=_dlsym");
+asm(".weak dladdr;dladdr=_dladdr");
+
 
 /* This is a real hack.  We need access to the dynamic linker, but we
 also need to make it possible to link against this library without any
 unresolved externals.  We provide these weak symbols to make the link
 possible, but at run time the normal symbols are accessed. */
 
-static void foobar()
+static void __attribute__ ((unused)) foobar()
 {
 	_dl_fprintf(2, "libdl library not correctly linked\n");
 	_dl_exit(1);
 }
 
+asm(".weak _dl_fprintf; _dl_fprintf = foobar");
+asm(".weak _dl_find_hash; _dl_find_hash = foobar");
+asm(".weak _dl_load_shared_library; _dl_load_shared_library = foobar");
+asm(".weak _dl_parse_relocation_information; _dl_parse_relocation_information = foobar");
+asm(".weak _dl_parse_lazy_relocation_information; _dl_parse_lazy_relocation_information = foobar");
+#ifdef USE_CACHE
+asm(".weak _dl_map_cache; _dl_map_cache = foobar");
+asm(".weak _dl_unmap_cache; _dl_unmap_cache = foobar");
+#endif	
+
+#if 0
+weak_alias(_dl_fprintf, foobar);
+weak_alias(_dl_find_hash, foobar);
+weak_alias(_dl_load_shared_library, foobar);
+weak_alias(_dl_parse_relocation_information, foobar);
+weak_alias(_dl_parse_lazy_relocation_information, foobar);
+#ifdef USE_CACHE
+weak_alias(_dl_map_cache, foobar);
+weak_alias(_dl_unmap_cache, foobar);
+#endif	
+#endif	
+
 static int __attribute__ ((unused)) foobar1 = (int) foobar;	/* Use as pointer */
 
-weak_alias(_dl_find_hash, foobar);
+asm(".weak _dl_symbol_tables; _dl_symbol_tables = foobar1");
+asm(".weak _dl_handles; _dl_handles = foobar1");
+asm(".weak _dl_loaded_modules; _dl_loaded_modules = foobar1");
+asm(".weak _dl_debug_addr; _dl_debug_addr = foobar1");
+asm(".weak _dl_error_number; _dl_error_number = foobar1");
+asm(".weak _dl_malloc_function; _dl_malloc_function = foobar1");
+#if 0
 weak_alias(_dl_symbol_tables, foobar1);
 weak_alias(_dl_handles, foobar1);
 weak_alias(_dl_loaded_modules, foobar1);
 weak_alias(_dl_debug_addr, foobar1);
 weak_alias(_dl_error_number, foobar1);
-weak_alias(_dl_load_shared_library, foobar);
-#ifdef USE_CACHE
-weak_alias(_dl_map_cache, foobar);
-weak_alias(_dl_unmap_cache, foobar);
-#endif	
 weak_alias(_dl_malloc_function, foobar1);
-weak_alias(_dl_parse_relocation_information, foobar);
-weak_alias(_dl_parse_lazy_relocation_information, foobar);
-weak_alias(_dl_fprintf, foobar);
-
+#endif
 
 /*
  * Dump information to stderrr about the current loaded modules

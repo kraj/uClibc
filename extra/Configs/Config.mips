@@ -140,30 +140,29 @@ INCLUDE_IPV6 = false
 DOPIC = false
 
 # PREFIX is the directory prefix that is applied to all installed
-# files.  Typically, it is set to /usr or /usr/local, although it
-# could also be /opt/vendor_name_here/some/random/path/.  The
-# install_runtime makefile target installs a few symbolic links
-# based on PREFIX, not DEVEL_PREFIX.
+# files.  Typically, it is set to /usr or /usr/local, although it could
+# also be /opt/vendor_name_here/some/random/path/.  The install_runtime
+# makefile target installs a few symbolic links based on PREFIX, not
+# DEVEL_PREFIX.
 #
-# DEVEL_PREFIX is the directory into which the development environment
-# will be installed.  Include files are installed into
-# $(DEVEL_PREFIX)/include, libraries into $(DEVEL_PREFIX)/lib, etc.
-# This directory is compiled into the uclibc cross compiler spoofer.
-# Generally, DEVEL_PREFIX should be $(PREFIX)/$(TARGET_ARCH)-uclibc-linux.
-# DEVEL_PREFIX is used by the Makefile install targets install_gcc,
-# install_dev, and install_runtime.
-# 
+# DEVEL_PREFIX is the directory where the development environment will
+# be installed.  The uClibc header files are installed into
+# $(DEVEL_PREFIX)/include, static libraries are installed into
+# $(DEVEL_PREFIX)/lib, etc.  This directory is compiled into the uclibc
+# cross compiler spoofer.  Generally, DEVEL_PREFIX should be set to
+# the same thing as $(PREFIX).  DEVEL_PREFIX is used by the Makefile install 
+# targets install_gcc, install_dev, and install_runtime.
+#
 # TARGET_PREFIX is the directory into which the target runtime
-# environment is installed.  The target runtime environment is
-# what one would use for a embedded system where uclibc is the
-# native libaray.  This will typically be a staging area for
-# creating a root filesystem for the target system, so the default
-# is in the local directory.
+# environment is installed.  The target runtime environment is what one
+# would use for a embedded system where uclibc is the native libaray.
+# This will typically be a staging area for creating a root filesystem
+# for the target system, so the default is in the local directory.
 # 
-# If you want to install to a temporary directory before copying
-# files to their final location, you can change PREFIX after build
-# but before 'make install'.
-PREFIX = /usr
-DEVEL_PREFIX = $(PREFIX)/$(TARGET_ARCH)-linux-uclibc
-TARGET_PREFIX = $(TOPDIR)/_install
+# If you want to install to a temporary directory before copying files
+# to their final location, define DESTDIR during the install step,
+# i.e., 'make install DESTDIR=/home/foo/uclibc/_install'.
+PREFIX = /usr/$(TARGET_ARCH)-linux-uclibc
+DEVEL_PREFIX = $(PREFIX)
+TARGET_PREFIX = /
 

@@ -249,7 +249,7 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 #endif
 
 	/* Check in <prefix>/usr/lib */
-	pnt1 = UCLIBC_PREFIX "/usr/lib/";
+	pnt1 = UCLIBC_TARGET_PREFIX "/usr/lib/";
 	pnt = mylibname;
 	while (*pnt1)
 	    *pnt++ = *pnt1++;
@@ -262,7 +262,7 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	    return tpnt1;
 
 	/* Check in <prefix>/lib */
-	pnt1 = UCLIBC_PREFIX "/lib/";
+	pnt1 = UCLIBC_TARGET_PREFIX "/lib/";
 	pnt = mylibname;
 	while (*pnt1)
 	    *pnt++ = *pnt1++;

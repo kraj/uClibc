@@ -222,6 +222,10 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int i
 	if (!s || !strlen(s))
 		return 1;
 
+	/* We add libc.so.0 elsewhere */
+	if (strcmp(s, UCLIBC_LDSO)==0)
+		return 1;
+
 	for (cur = lib_list; cur; cur=cur->next) {
 		if(strcmp(cur->name, s)==0) {
 			/* Lib is already in the list */
@@ -396,9 +400,13 @@ int main( int argc, char** argv)
 
 	
 	/* Print the list */
+	got_em_all=0;
 	for (cur = lib_list; cur; cur=cur->next) {
+		got_em_all=1;
 		printf("\t%s => %s\n", cur->name, cur->path);
 	}
+	if (got_em_all==0)
+		printf("\tnot a dynamic executable\n");
 
 	return 0;
 }

@@ -43,9 +43,9 @@ Config:
 
 shared:
 	@$(MAKE) -C libc shared
-	@$(MAKE) -C ldso/util
+	@$(MAKE) -C $(LIBRARY_CACHE) ldso/util
 ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
-	@$(MAKE) -C ldso shared
+	@$(MAKE) -C $(LIBRARY_CACHE) ldso shared
 endif
 	@$(MAKE) -C libcrypt shared
 	@$(MAKE) -C libutil shared
@@ -178,16 +178,19 @@ install: install_dev install_runtime install_gcc
 # directory.
 install_target:
 ifeq ($(DO_SHARED),shared)
-	install -d $(TARGET_PREFIX)/lib
-	install -d $(TARGET_PREFIX)/etc
-	install -d $(TARGET_PREFIX)/sbin
-	install -d $(TARGET_PREFIX)/usr/bin
-	install -m 644 lib/lib*-0.9.5.so $(TARGET_PREFIX)/lib
-	cp -a lib/*.so.* $(TARGET_PREFIX)/lib
+	install -d $(DESTDIR)$(TARGET_PREFIX)/lib
+	install -d $(DESTDIR)$(TARGET_PREFIX)/etc
+	install -d $(DESTDIR)$(TARGET_PREFIX)/sbin
+	install -d $(DESTDIR)$(TARGET_PREFIX)/usr/bin
+	install -m 644 lib/lib*-0.9.5.so $(DESTDIR)$(TARGET_PREFIX)/lib
+	cp -a lib/*.so.* $(DESTDIR)$(TARGET_PREFIX)/lib
 ifeq ($(LDSO_PRESENT),$(TARGET_ARCH))
-	install -m 755 lib/ld-uClibc-0.9.5.so $(TARGET_PREFIX)/lib
-	install -m 755 ldso/util/ldd $(TARGET_PREFIX)/usr/bin
-	install -m 755 ldso/util/ldconfig $(TARGET_PREFIX)/sbin
+	install -m 755 lib/ld-uClibc-0.9.5.so $(DESTDIR)$(TARGET_PREFIX)/lib
+	install -m 755 ldso/util/ldd $(DESTDIR)$(TARGET_PREFIX)/usr/bin
+	install -m 755 ldso/util/readelf $(DESTDIR)$(TARGET_PREFIX)/usr/bin
+	if [ -x ldso/util/ldconfig ] ; then \
+	    install -m 755 ldso/util/ldconfig $(DESTDIR)$(TARGET_PREFIX)/sbin; \
+	fi;
 endif
 ifeq ($(NATIVE_ARCH), $(TARGET_ARCH))
 #	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
@@ -200,19 +203,22 @@ endif
 # libary as the primary libc.
 install_runtime:
 ifeq ($(DO_SHARED),shared)
-	install -d $(DEVEL_PREFIX)/lib
-	install -d $(DEVEL_PREFIX)/etc
-	install -d $(DEVEL_PREFIX)/bin
-	install -m 644 lib/lib*-0.9.5.so $(DEVEL_PREFIX)/lib
-	cp -a lib/*.so.* $(DEVEL_PREFIX)/lib
+	install -d $(DESTDIR)$(DEVEL_PREFIX)/lib
+	install -d $(DESTDIR)$(DEVEL_PREFIX)/etc
+	install -d $(DESTDIR)$(DEVEL_PREFIX)/bin
+	install -m 644 lib/lib*-0.9.5.so $(DESTDIR)$(DEVEL_PREFIX)/lib
+	cp -a lib/*.so.* $(DESTDIR)$(DEVEL_PREFIX)/lib
 ifeq ($(LDSO_PRESENT),$(TARGET_ARCH))
-	install -m 755 lib/ld-uClibc-0.9.5.so $(DEVEL_PREFIX)/lib
-	install -m 755 ldso/util/ldd $(DEVEL_PREFIX)/bin
-	install -m 755 ldso/util/ldconfig $(DEVEL_PREFIX)/bin
-	install -d $(TARGET_PREFIX)/bin
-	ln -fs $(DEVEL_PREFIX)/bin/ldd $(TARGET_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
-	install -d $(TARGET_PREFIX)/sbin
-	ln -fs $(DEVEL_PREFIX)/sbin/ldconfig $(TARGET_PREFIX)/sbin/$(TARGET_ARCH)-uclibc-ldconfig
+	install -m 755 lib/ld-uClibc-0.9.5.so $(DESTDIR)$(DEVEL_PREFIX)/lib
+	install -m 755 ldso/util/ldd $(DESTDIR)$(DEVEL_PREFIX)/bin
+	install -m 755 ldso/util/readelf $(DESTDIR)$(DEVEL_PREFIX)/bin
+	install -d $(DESTDIR)$(DEVEL_PREFIX)/bin
+	ln -fs $(DEVEL_PREFIX)/bin/ldd $(DESTDIR)$(DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
+	if [ -x ldso/util/ldconfig ] ; then \
+	    install -m 755 ldso/util/ldconfig $(DESTDIR)$(DEVEL_PREFIX)/bin; \
+	    install -d $(DESTDIR)$(DEVEL_PREFIX)/sbin; \
+	    ln -fs $(DEVEL_PREFIX)/sbin/ldconfig $(DESTDIR)$(DEVEL_PREFIX)/sbin/$(TARGET_ARCH)-uclibc-ldconfig; \
+	fi;
 endif
 endif
 
@@ -220,17 +226,17 @@ endif
 # Installs header files and development library links.
 # DEVEL_PREFIX should be $(PREFIX)/$(target)-linux-uclibc/
 install_dev:
-	install -d $(DEVEL_PREFIX)/lib
-	install -m 644 lib/*.[ao] $(DEVEL_PREFIX)/lib/
+	install -d $(DESTDIR)$(DEVEL_PREFIX)/lib
+	install -m 644 lib/*.[ao] $(DESTDIR)$(DEVEL_PREFIX)/lib/
 ifeq ($(DO_SHARED),shared)
-	find lib/ -type l -name '*.so' -exec cp -a {} $(DEVEL_PREFIX)/lib ';'
+	find lib/ -type l -name '*.so' -exec cp -a {} $(DESTDIR)$(DEVEL_PREFIX)/lib ';'
 ifeq ($(NATIVE_ARCH), $(TARGET_ARCH))
 #	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
 endif
 endif
-	install -d $(DEVEL_PREFIX)/include
+	install -d $(DESTDIR)$(DEVEL_PREFIX)/include
 	find include/ -name '*.h' -depth -follow -exec install \
-	    -D -m 644 {} $(DEVEL_PREFIX)/'{}' ';'
+	    -D -m 644 {} $(DESTDIR)$(DEVEL_PREFIX)/'{}' ';'
 
 install_gcc:
 	$(MAKE) -C extra/gcc-uClibc install

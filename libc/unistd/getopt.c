@@ -39,10 +39,7 @@ int c;							/* defective option letter */
 	return '?';					/* erroneous-option marker */
 }
 
-extern int getopt (int argc, char *const *argv, const char *optstring)
-	 __attribute__ ((__weak__));
-
-int getopt (int argc, char *const *argv, const char *optstring)
+int __attribute__ ((__weak__)) getopt (int argc, char *const *argv, const char *optstring)
 {
 	static int sp = 1;			/* position within argument */
 	register int osp;			/* saved `sp' for param test */

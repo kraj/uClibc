@@ -89,13 +89,14 @@ SYSTEM_LDSO=$(shell for each in `$(CC) -print-search-dirs|grep ^libraries|sed -e
 
 ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
 	LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
-	DYNAMIC_LINKER=/lib/$(UCLIBC_LDSO)
+	DYNAMIC_LINKER=$(DESTDIR)$(PREFIX)/lib/$(UCLIBC_LDSO)
 	BUILD_DYNAMIC_LINKER=$(shell cd $(TOPDIR)lib; pwd)/$(UCLIBC_LDSO)
 else
 	LDSO=$(SYSTEM_LDSO)
 	DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
 	BUILD_DYNAMIC_LINKER=$(shell cd $(TOPDIR)lib; pwd)/$(UCLIBC_LDSO)
 endif
+LIBRARY_CACHE=#-DUSE_CACHE
 
 # Disable libm if HAS_FLOATING_POINT isn't true.
 ifneq ($(HAS_FLOATING_POINT),true)
