@@ -21,10 +21,10 @@
 #include <stdio.h>
 #include <string.h>
 
-int opterr __attribute__ ((__weak__)) = 1; /* error => print message */
-int optind __attribute__ ((__weak__)) = 1; /* next argv[] index */
-int optopt __attribute__ ((__weak__)) = 1; /* Set for unknown arguments */
-char *optarg __attribute__ ((__weak__)) = NULL;	/* option parameter if any */
+extern int opterr;	/* error => print message */
+extern int optind;	/* next argv[] index */
+extern int optopt;	/* Set for unknown arguments */
+extern char *optarg;	/* option parameter if any */
 
 static int Err(name, mess, c) /* returns '?' */
 char *name;						/* program name argv[0] */
@@ -54,7 +54,16 @@ int getopt (int argc, char *const *argv, const char *optstring)
 	register char *cp;			/* -> option in `optstring' */
 
 	optarg = NULL;
-
+	
+	/* initialise getopt vars */
+	if (optind == 0)
+	  {
+	    optind = 1;
+	    opterr = 1;
+	    optopt = 1;
+	    optarg = NULL;
+	  }
+	  
 	if (sp == 1) {				/* fresh argument */
 		if (optind >= argc		/* no more arguments */
 			|| argv[optind][0] != '-'	/* no more options */

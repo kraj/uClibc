@@ -52,28 +52,12 @@ extern int _getopt_internal (int argc, char *const *argv,
 
 #ifdef L__gnu_getopt_internal
 
-/* For communication from `getopt' to the caller.
-   When `getopt' finds an option that takes an argument,
-   the argument value is returned here.
-   Also, when `ordering' is RETURN_IN_ORDER,
-   each non-option ARGV-element is returned here.  */
+/* external getopt vars */
 
-char *optarg = NULL;
-
-/* Index in ARGV of the next element to be scanned.
-   This is used for communication to and from the caller
-   and for communication between successive calls to `getopt'.
-
-   On entry to `getopt', zero means this is the first call; initialize.
-
-   When `getopt' returns EOF, this is the index of the first of the
-   non-option elements that the caller should itself scan.
-
-   Otherwise, `optind' communicates from one call to the next
-   how much of ARGV has been scanned so far.  */
-
-/* XXX 1003.2 says this must be 1 before any call.  */
-int optind = 0;
+extern int optind;
+extern int opterr;
+extern int optopt;
+extern char *optarg;
 
 /* The next char to be scanned in the option-element
    in which the last option character we returned was found.
@@ -83,17 +67,6 @@ int optind = 0;
    by advancing to the next ARGV-element.  */
 
 static char *nextchar;
-
-/* Callers store zero here to inhibit the error message
-   for unrecognized options.  */
-
-int opterr = 1;
-
-/* Set to an option character which was unrecognized.
-   This must be initialized on some systems to avoid linking in the
-   system's own getopt implementation.  */
-
-int optopt = '?';
 
 /* Describe how to deal with options that follow non-option ARGV-elements.
 
