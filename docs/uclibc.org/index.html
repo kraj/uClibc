@@ -47,14 +47,17 @@ uClibc. Porting applications from glibc to uClibc typically involves
 just recompiling the source code. uClibc even supports shared libraries
 and threading.  It currently runs on <a href="http://kernel.org/">standard Linux</a> 
 and <a href="http://www.uclinux.org">MMU-less (also known as µClinux)</a>
-systems with support for alpha, ARM, i386, i960, h8300, m68k, mips/mipsel, 
+systems with support for alpha, ARM, cris, i386, i960, h8300, m68k, mips/mipsel, 
 PowerPC, SH, SPARC, and v850 processors.
 <p>
 
-If you are building an embedded Linux system and you find that glibc is
-eating up too much space, you should consider using uClibc.  If you are
-building a huge fileserver with 12 Terabytes of storage, than using
-glibc may be a better choice...
+If you are building an embedded Linux system and you find that
+glibc is eating up too much space, you should consider using
+uClibc.  If you are building a huge fileserver with 12 Terabytes
+of storage, then using glibc may make more sense.  Unless, for
+example, that 12 Terabytes will be Network Attached Storage and
+you plan to burn Linux into the system's firmware...
+
 <p>
 
 uClibc is maintained by 

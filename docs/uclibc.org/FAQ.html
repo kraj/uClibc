@@ -53,8 +53,8 @@ to the uClibc home page.</a>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
 
-    Currently uClibc runs on alpha, ARM, i386, i960, h8300, m68k, mips/mipsel,
-    PowerPC, SH, SPARC, and v850 processors.
+    Currently uClibc runs on alpha, ARM, cris, h8300, i386, i960, m68k,
+    mips/mipsel, PowerPC, SH, SPARC, and v850 processors.
     
 
 <p>
@@ -166,10 +166,12 @@ to the uClibc home page.</a>
 
     <p>
 
-    If you are trying to build a huge fileserver for your company that will
-    have 12 Terabytes of storage, then using glibc may make more sense.  
-    Unless, for example, that 12 Terabytes will be Network Attached Storage 
-    and you plan to burn Linux into the system's firmware...
+    If you are building an embedded Linux system and you find that
+    glibc is eating up too much space, you should consider using
+    uClibc.  If you are building a huge fileserver with 12 Terabytes
+    of storage, then using glibc may make more sense.  Unless, for
+    example, that 12 Terabytes will be Network Attached Storage and
+    you plan to burn Linux into the system's firmware...
 
 
 
