@@ -497,7 +497,7 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 			goto fail;
 
 		strncpy(lookup,name,MAXDNAME);
-		if (variant < searchdomains)
+		if (variant < searchdomains && strchr(lookup, '.') == NULL)
 		{
 		    strncat(lookup,".", MAXDNAME);
 		    strncat(lookup,searchdomain[variant], MAXDNAME);
@@ -851,13 +851,26 @@ struct hostent *gethostbyname(const char *name)
 
 	if (!name)
 		return 0;
-
+	
 	memset(&h, 0, sizeof(h));
 
 	addr_list[0] = &in;
 	addr_list[1] = 0;
-
+	
 	strcpy(namebuf, name);
+
+	/* First check if this is already an address */
+	if (inet_aton(name, &in)) {
+	    i = inet_aton( name, &in);
+
+	    if (i >= 0) {	
+		h.h_name = namebuf;
+		h.h_addrtype = AF_INET;
+		h.h_length = sizeof(in);
+		h.h_addr_list = (char **) addr_list;
+		return &h;
+	    }
+	}
 
 	for (;;) {
 
