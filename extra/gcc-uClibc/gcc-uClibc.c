@@ -289,6 +289,7 @@ int main(int argc, char **argv)
 						use_static_linking = 1;
 					}
 					if (strcmp("-shared",argv[i]) == 0) {
+						use_start = 0;
 						use_pic = 1;
 					}
 					break;
@@ -444,13 +445,15 @@ int main(int argc, char **argv)
 		//gcc_argv[i++] = "-Wl,--end-group";
 	    }
 #ifdef __UCLIBC_CTOR_DTOR__
-	    if (ctor_dtor) {
-		if (use_pic) {
-		    gcc_argv[i++] = LIBGCC_DIR "crtendS.o" ;
-		} else {
-		    gcc_argv[i++] = LIBGCC_DIR "crtend.o" ;
+	    if (use_start) {
+		if (ctor_dtor) {
+		    if (use_pic) {
+			gcc_argv[i++] = LIBGCC_DIR "crtendS.o" ;
+		    } else {
+			gcc_argv[i++] = LIBGCC_DIR "crtend.o" ;
+		    }
+		    gcc_argv[i++] = crtn_path[use_build_dir];
 		}
-		gcc_argv[i++] = crtn_path[use_build_dir];
 	    }
 #endif
 	} else {
