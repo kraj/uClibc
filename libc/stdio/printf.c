@@ -336,7 +336,7 @@ static const char dbl_err[] = "<DOUBLE>";
 static const char u_spec[] = "%nbopxXudicsfgGeEaA";
 #else
 /* layout                     0123456789012   */
-static const char u_spec[] = "%nbopxXudics0";
+static const char u_spec[] = "%nbopxXudics";
 #endif
 
 /* WARNING: u_spec and u_radix need to stay in agreement!!! */
