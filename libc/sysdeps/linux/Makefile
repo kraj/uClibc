@@ -20,6 +20,9 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
+TOPDIR=../../
+include $(TOPDIR)Rules.mak
+
 DIRS = $(ARCH) common
 
 all: libc.a
