@@ -291,10 +291,10 @@ int main(int argc, char **argv)
 			continue;
 		} else if (strstr(argv[j],static_linking) != NULL) {
 			continue;
-		} else if (strncmp("-Wl,",argv[j], 4) == 0) {
-		    continue;
+#if 0
 		} else if (strncmp("-v",argv[j], 2) == 0) {
 		    continue;
+#endif
 		} else {
 			gcc_argument[k++] = argv[j];
 			gcc_argument[k] = '\0';
