@@ -25,7 +25,6 @@
 /* If the compiler does not know long long it is out of luck.  We are
    not going to hack weird hacks to support the dev_t representation
    they need.  */
-#ifdef __GLIBC_HAVE_LONG_LONG
 __extension__
 extern __inline unsigned int gnu_dev_major (unsigned long long int __dev)
      __THROW;
@@ -37,7 +36,7 @@ extern __inline unsigned long long int gnu_dev_makedev (unsigned int __major,
 							unsigned int __minor)
      __THROW;
 
-# if defined __GNUC__ && __GNUC__ >= 2
+#if defined __GNUC__ && __GNUC__ >= 2
 __extension__ extern __inline unsigned int
 gnu_dev_major (unsigned long long int __dev) __THROW
 {
@@ -57,13 +56,12 @@ gnu_dev_makedev (unsigned int __major, unsigned int __minor) __THROW
 	  | (((unsigned long long int) (__minor & ~0xff)) << 12)
 	  | (((unsigned long long int) (__major & ~0xfff)) << 32));
 }
-# endif
+#endif
 
 
 /* Access the functions with their traditional names.  */
-# define major(dev) gnu_dev_major (dev)
-# define minor(dev) gnu_dev_minor (dev)
-# define makedev(maj, min) gnu_dev_makedev (maj, min)
-#endif
+#define major(dev) gnu_dev_major (dev)
+#define minor(dev) gnu_dev_minor (dev)
+#define makedev(maj, min) gnu_dev_makedev (maj, min)
 
 #endif /* sys/sysmacros.h */
