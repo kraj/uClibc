@@ -11,8 +11,13 @@
 void swab (const void *source, void *dest, ssize_t count)
 {
     const unsigned short *from = source, *from_end = from + (count >> 1);
+    unsigned short junk;
     unsigned short *to = dest;
 
-    while (from < from_end)
-	*to++ = bswap_16 (*from++);
+    while (from < from_end) {
+	/* Don't put '*from++'into the bswap_16() macros
+	 * or mad things will happen on macro expansion */
+	junk=*from++;
+	*to++ = bswap_16 (junk);
+    }
 }
