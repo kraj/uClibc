@@ -376,6 +376,7 @@ static void pthread_initialize(void)
   sa.sa_flags = 0;
   __libc_sigaction(__pthread_sig_restart, &sa, NULL);
   sa.sa_handler = pthread_handle_sigcancel;
+  sigaddset(&sa.sa_mask, __pthread_sig_restart);
   // sa.sa_flags = 0;
   __libc_sigaction(__pthread_sig_cancel, &sa, NULL);
   if (__pthread_sig_debug > 0) {
@@ -388,6 +389,10 @@ static void pthread_initialize(void)
   sigemptyset(&mask);
   sigaddset(&mask, __pthread_sig_restart);
   sigprocmask(SIG_BLOCK, &mask, NULL);
+  /* And unblock __pthread_sig_cancel if it has been blocked. */
+  sigdelset(&mask, __pthread_sig_restart);
+  sigaddset(&mask, __pthread_sig_cancel);
+  sigprocmask(SIG_UNBLOCK, &mask, NULL);
   /* Register an exit function to kill all other threads. */
   /* Do it early so that user-registered atexit functions are called
      before pthread_onexit_process. */
