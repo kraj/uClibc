@@ -24,8 +24,8 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC = malloc.o free.o realloc.o calloc.o heap_alloc.o \
-	heap_alloc_at.o heap_free.o
+CSRC = malloc.o free.o realloc.o heap_alloc.o \
+	heap_alloc_at.o heap_free.o ../malloc-930716/calloc.o
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 

@@ -26,10 +26,7 @@ include $(TOPDIR)Rules.mak
 
 CSRC=calloc.c malloc.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-
-MSRC=../malloc/alloc.c
-MOBJ=#malloc_dbg.o free_dbg.o calloc_dbg.o
-OBJS=$(COBJS) $(MOBJ)
+OBJS=$(COBJS)
 
 all: $(OBJS) $(LIBC)
 
@@ -37,10 +34,6 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-
-$(MOBJ): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@

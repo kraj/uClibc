@@ -1,24 +1,39 @@
-/* calloc.c - C standard library routine.
-   Copyright (c) 1989, 1993  Michael J. Haertel
-   You may redistribute this library under the terms of the
-   GNU Library General Public License (version 2 or any later
-   version) as published by the Free Software Foundation.
-   THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY EXPRESS OR IMPLIED
-   WARRANTY.  IN PARTICULAR, THE AUTHOR MAKES NO REPRESENTATION OR
-   WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY OF THIS
-   SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE. */
+/* vi: set sw=4 ts=4: */
+/* calloc for uClibc
+ *
+ * Copyright (C) 2002 by Erik Andersen <andersen@uclibc.org>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Library General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
 
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
-/* Allocate space for the given number of elements of the given
-   size, initializing the whole region to binary zeroes. */
-void * calloc(size_t nelem, size_t size)
+void * calloc(size_t nmemb, size_t lsize)
 {
-    void *result;
+	void *result;
+	size_t size=lsize * nmemb;
 
-    result = malloc(size * nelem);
-    if (result)
-	memset(result, 0, nelem * size);
-    return result;
+	/* guard vs integer overflow */
+	if (lsize != (size / nmemb)) {
+		__set_errno(ENOMEM);
+		return NULL;
+	}
+	if ((result=malloc(size))) {
+		memset(result, 0, size);
+	}
+	return result;
 }
