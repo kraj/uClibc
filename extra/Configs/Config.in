@@ -944,7 +944,7 @@ config UCLIBC_HAS_SYS_SIGLIST
 
 config UCLIBC_HAS_GETTEXT_AWARENESS
 	bool "Include gettext awareness"
-	depends on UCLIBC_HAS_LOCALE
+	depends on UCLIBC_HAS_LOCALE && UCLIBC_MJN3_ONLY
 	default n
 	help
 	  NOTE!!!  Not yet integrated with strerror and strsignal.  NOTE!!!
