@@ -10,7 +10,9 @@ config HAVE_ELF
 	bool
 	select ARCH_HAS_NO_MMU
 	select ARCH_HAS_NO_FPU
+	select HAVE_NO_SHARED
 	select ARCH_HAS_NO_LDSO
+	select HAS_NO_THREADS
 	default n
 
 config ARCH_CFLAGS

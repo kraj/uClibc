@@ -135,9 +135,13 @@ config DOPIC
 	  answer Y here.  If you only want to build uClibc as a static library,
 	  then answer N.
 
+config HAVE_NO_SHARED
+	bool
+	default n
+
 config HAVE_SHARED
 	bool "Enable support for shared libraries"
-	depends on DOPIC
+	depends on DOPIC && !HAVE_NO_SHARED
 	default y
 	help
 	  If you wish to build uClibc with support for shared libraries then
@@ -238,8 +242,13 @@ config UCLIBC_PROFILING
 	  size and performance penalty to profiling your applications this way,
 	  so most people should answer N.
 
+config HAS_NO_THREADS
+	bool
+	default n
+
 config UCLIBC_HAS_THREADS
 	bool "POSIX Threading Support"
+	depends on !HAS_NO_THREADS
 	default y
 	help
 	  If you want to compile uClibc with pthread support, then answer Y.  
