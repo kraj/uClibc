@@ -65,20 +65,12 @@ HAS_MMU = true
 
 # Set this to `false' if you don't have/need basic floating point support
 # support in libc (strtod, printf, scanf).  Set it to `true' otherwise.
-# Note: If not true, Rules.mak disables libm as well.
+# If this is not true, then libm will not be built.
 HAS_FLOATING_POINT = true
 
-# Set this to `false' if you don't have/need float functions in libm.
-# Set it to `true' otherwise, and make sure HAS_FLOATING_POINT is true as well.
-HAS_LIBM_FLOAT = true
-
-# Set this to `false' if you don't have/need double functions in libm.
-# Set it to `true' otherwise, and make sure HAS_FLOATING_POINT is true as well.
-HAS_LIBM_DOUBLE = true
-
-# Set this to `false' if you don't have/need long double functions in libm.
-# Set it to `true' otherwise, and make sure HAS_FLOATING_POINT is true as well.
-HAS_LIBM_LONG_DOUBLE = false
+# Set to `true' if you want the math library to contain the full set
+# of C99 math library features.  Costs an extra 35k or so on x86. 
+DO_C99_MATH = false
 
 # Set this to `false' if you don't have/need "(unsigned) long long int" support.
 # Set it to `true' otherwise.
