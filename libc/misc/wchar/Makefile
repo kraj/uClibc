@@ -62,7 +62,7 @@ $(MOBJ2): $(MSRC2)
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 iconv.target: wchar.c
-	$(TARGET_CC) $(CFLAGS) -DL_iconv_main wchar.c -o $@
+	$(TARGET_CC) $(CFLAGS) -DL_iconv_main wchar.c -o $@ $(LDADD_LIBFLOAT)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 clean:

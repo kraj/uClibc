@@ -80,11 +80,9 @@ choice
 	  Endian, or Little Endian.
 
 config ARCH_LITTLE_ENDIAN
-	select ADD_LIBGCC_FUNCTIONS
 	bool "Little Endian"
 
 config ARCH_BIG_ENDIAN
-	select ADD_LIBGCC_FUNCTIONS
 	bool "Big Endian"
 
 endchoice

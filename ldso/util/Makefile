@@ -46,7 +46,7 @@ readelf:	readelf.c
 	strip -x -R .note -R .comment $@
 
 readelf.target: readelf.c
-	$(TARGET_CC) $(CFLAGS) -Wl,-s $^ -o $@
+	$(TARGET_CC) $(CFLAGS) -Wl,-s $^ -o $@ $(LDADD_LIBFLOAT)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 readsoname.o:	readsoname.c readsoname2.c
@@ -75,7 +75,7 @@ ldconfig.target:	ldconfig.c readsoname.c
 		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" -I. -I../include \
-		$^ -o $@
+		$^ -o $@ $(LDADD_LIBFLOAT)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldd:	ldd.c
@@ -91,7 +91,7 @@ ldd.target:	ldd.c
 		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" \
-		$^ -o $@
+		$^ -o $@ $(LDADD_LIBFLOAT)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 clean:

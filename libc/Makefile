@@ -36,12 +36,6 @@ else
 CRTOBJS=../../lib/crt0.o
 endif
 
-ifeq ($(strip $(ADD_LIBGCC_FUNCTIONS)),y)
-LIBGCC_NEED=./tmp/libgcc-need.a
-else
-LIBGCC=
-endif
-
 DIRS = misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd
 
 # Check if the target architecture has a version script for
@@ -60,25 +54,17 @@ ar-target:
 $(LIBNAME): subdirs ar-target
 
 
-shared: $(TOPDIR)lib/$(LIBNAME) $(LIBGCC_NEED)
+shared: $(TOPDIR)lib/$(LIBNAME)
 	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
-		--whole-archive $(LIBGCC_NEED) $(LIBNAME) \
+		--whole-archive $(LIBNAME) \
 		$(TOPDIR)/libc/misc/internals/interp.o --no-whole-archive \
-		-init __uClibc_init $(LIBGCC)
+		-init __uClibc_init
 	@true #$(RM) -r tmp
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(SHARED_FULLNAME)
 	$(INSTALL) -m 644 $(SHARED_FULLNAME) $(TOPDIR)lib
 	$(LN) -sf $(SHARED_FULLNAME) $(TOPDIR)lib/libc.so
 	$(LN) -sf $(SHARED_FULLNAME) $(TOPDIR)lib/$(SHARED_MAJORNAME)
-
-$(LIBGCC_NEED): $(TOPDIR)lib/$(LIBNAME)
-	@$(RM) -r tmp
-	@mkdir tmp
-	$(AR) rv $@
-	(cd tmp && CC="$(CC)" LD="$(LD)" LDFLAGS="$(CPU_LDFLAGS-y)" \
-		NM="$(NM)" AR="$(AR)" LIBGCC="$(LIBGCC)" CRTOBJS="$(CRTOBJS)" \
-		/bin/sh $(TOPDIR)../extra/scripts/get-needed-libgcc-objects.sh)
 
 halfclean:
 	@$(RM) $(LIBNAME) uClibc_config.h
