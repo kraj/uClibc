@@ -30,11 +30,10 @@ ifeq ($(SUPPORT_LD_DEBUG),y)
 XXFLAGS=$(XWARNINGS) $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 	-fno-builtin -nostdinc -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
-ifeq ($(TARGET_ARCH),powerpc)
-XXFLAGS+=-Os -g3
-else
-XXFLAGS+=-O0 -g3
-endif
+# Not really much point in including debugging info, since gdb
+# can't really debug ldso, since gdb requires help from ldso to
+# debug things....
+XXFLAGS+=-Os #-g3
 endif
 
 # BEWARE!!! At least mips* will die if -O0 is used!!!
