@@ -248,8 +248,8 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	}
 #endif
 
-	/* Check in <install-dir>/usr/lib */
-	pnt1 = UCLIBC_ROOT_DIR "/usr/lib/";
+	/* Check in <prefix>/usr/lib */
+	pnt1 = UCLIBC_PREFIX "/usr/lib/";
 	pnt = mylibname;
 	while (*pnt1)
 	    *pnt++ = *pnt1++;
@@ -261,8 +261,8 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	if (tpnt1)
 	    return tpnt1;
 
-	/* Check in <install-dir>/lib */
-	pnt1 = UCLIBC_ROOT_DIR "/lib/";
+	/* Check in <prefix>/lib */
+	pnt1 = UCLIBC_PREFIX "/lib/";
 	pnt = mylibname;
 	while (*pnt1)
 	    *pnt++ = *pnt1++;
@@ -274,8 +274,47 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	if (tpnt1)
 	    return tpnt1;
 
-	/* Bummer.  Nothing so far.  Check in <builddir>/lib */
+	/* Bummer.  Nothing so far.  Try <devel-dir>/lib */
+	pnt1 = UCLIBC_DEVEL_PREFIX "/lib/";
+	pnt = mylibname;
+	while (*pnt1)
+	    *pnt++ = *pnt1++;
+	pnt1 = libname;
+	while (*pnt1)
+	    *pnt++ = *pnt1++;
+	*pnt++ = 0;
+	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
+	if (tpnt1)
+	    return tpnt1;
+
+	/* Still nothing... Ok, try <builddir>/lib */
 	pnt1 = UCLIBC_BUILD_DIR "/lib/";
+	pnt = mylibname;
+	while (*pnt1)
+	    *pnt++ = *pnt1++;
+	pnt1 = libname;
+	while (*pnt1)
+	    *pnt++ = *pnt1++;
+	*pnt++ = 0;
+	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
+	if (tpnt1)
+	    return tpnt1;
+
+	/* Wow.  Still nothing.  Try /usr/lib */
+	pnt1 = "/usr/lib/";
+	pnt = mylibname;
+	while (*pnt1)
+	    *pnt++ = *pnt1++;
+	pnt1 = libname;
+	while (*pnt1)
+	    *pnt++ = *pnt1++;
+	*pnt++ = 0;
+	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
+	if (tpnt1)
+	    return tpnt1;
+
+	/* This is our last hope before giving up -- Try /lib */
+	pnt1 = "/lib/";
 	pnt = mylibname;
 	while (*pnt1)
 	    *pnt++ = *pnt1++;

@@ -683,8 +683,8 @@ int main(int argc, char **argv)
 		free(extpath);
 	    }
 
-	    scan_dir(UCLIBC_ROOT_DIR "/usr/lib");
-	    scan_dir(UCLIBC_ROOT_DIR "/lib");
+	    scan_dir(UCLIBC_PREFIX "/usr/lib");
+	    scan_dir(UCLIBC_PREFIX "/lib");
 	}
 
 	if (!nocache)

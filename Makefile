@@ -209,10 +209,10 @@ ifeq ($(LDSO_PRESENT),$(TARGET_ARCH))
 	install -m 755 lib/ld-uClibc-0.9.5.so $(DEVEL_PREFIX)/lib
 	install -m 755 ldso/util/ldd $(DEVEL_PREFIX)/bin
 	install -m 755 ldso/util/ldconfig $(DEVEL_PREFIX)/bin
-	install -d $(PREFIX)/bin
-	ln -fs $(DEVEL_PREFIX)/bin/ldd $(PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
-	install -d $(PREFIX)/sbin
-	ln -fs $(DEVEL_PREFIX)/sbin/ldconfig $(PREFIX)/sbin/$(TARGET_ARCH)-uclibc-ldconfig
+	install -d $(TARGET_PREFIX)/bin
+	ln -fs $(DEVEL_PREFIX)/bin/ldd $(TARGET_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
+	install -d $(TARGET_PREFIX)/sbin
+	ln -fs $(DEVEL_PREFIX)/sbin/ldconfig $(TARGET_PREFIX)/sbin/$(TARGET_ARCH)-uclibc-ldconfig
 endif
 endif
 

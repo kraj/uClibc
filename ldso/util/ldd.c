@@ -100,76 +100,42 @@ int check_elf_header(Elf32_Ehdr const *const ehdr)
 	return 0;
 }
 
-char * last_char_is(const char *s, int c)
+/* This function must exactly match that in uClibc/ldso/util/ldd.c */
+static void search_for_named_library(char *name, char *result, const char *path_list)
 {
-	char *sret;
-	if (!s)
-	    return NULL;
-	sret  = (char *)s+strlen(s)-1;
-	if (sret>=s && *sret == c) { 
-		return sret;
-	} else {
-		return NULL;
-	}
-}
-
-extern char *concat_path_file(const char *path, const char *filename)
-{
-	char *outbuf;
-	char *lc;
-
-	if (!path)
-	    path="";
-	lc = last_char_is(path, '/');
-	if (filename[0] == '/')
-		filename++;
-	outbuf = malloc(strlen(path)+strlen(filename)+1+(lc==NULL));
-	if (!outbuf) {
-		fprintf(stderr, "out of memory\n");
-		exit(EXIT_FAILURE);
-	}
-	sprintf(outbuf, "%s%s%s", path, (lc==NULL)? "/" : "", filename);
-
-	return outbuf;
-}
-
-char *do_which(char *name, char *path_list)
-{
-	char *path_n;
-	char *path_tmp;
+	int i, count = 0;
+	char *path, *path_n;
 	struct stat filestat;
-	int i, count=1;
-
-	if (!path_list) {
-		fprintf(stderr, "yipe!\n");
-		exit(EXIT_FAILURE);
-	}
 
 	/* We need a writable copy of this string */
-	path_tmp = strdup(path_list);
-	if (!path_tmp) {
-		fprintf(stderr, "yipe!\n");
+	path = strdup(path_list);
+	if (!path) {
+		fprintf(stderr, "Out of memory!\n");
 		exit(EXIT_FAILURE);
 	}
 
 	/* Replace colons with zeros in path_parsed and count them */
-	for(i=strlen(path_tmp); i > 0; i--) 
-		if (path_tmp[i]==':') {
-			path_tmp[i]=0;
+	for(i=strlen(path); i > 0; i--) {
+		if (path[i]==':') {
+			path[i]=0;
 			count++;
 		}
+	}
 
-	path_n = path_tmp;
+	path_n = path;
+	*result = '\0';
 	for (i = 0; i < count; i++) {
-		char *buf;
-		buf = concat_path_file(path_n, name);
-		if (stat (buf, &filestat) == 0 && filestat.st_mode & S_IRUSR) {
-			return(buf);
+		strcat(result, path_n); 
+		strcat(result, "/"); 
+		strcat(result, name);
+		if (stat (result, &filestat) == 0 && filestat.st_mode & S_IRUSR) {
+			free(path);
+			return;
 		}
-		free(buf);
 		path_n += (strlen(path_n) + 1);
 	}
-	return NULL;
+	free(path);
+	*result = '\0';
 }
 
 void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_suid, struct library *lib)
@@ -177,6 +143,8 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 	char *buf;
 	char *path;
 	struct stat filestat;
+	
+	
 
 	lib->path = "not found";
 
@@ -186,18 +154,25 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 		return;
 	}
 
+	/* We need some elbow room here.  Make some room...*/
+	buf = malloc(1024);
+	if (!buf) {
+		fprintf(stderr, "Out of memory!\n");
+		exit(EXIT_FAILURE);
+	}
+
 	/* This function must match the behavior of _dl_load_shared_library
 	 * in readelflib1.c or things won't work out as expected... */
 
-	/* The ABI specifies that RPATH is searched before LD_*_PATH or the
-	 * default path (such as /usr/lib).  So first, lets check the rpath
-	 * directories */
+	/* The ABI specifies that RPATH is searched first, so do that now.  */
 	path = (char *)elf_find_dynamic(DT_RPATH, dynamic, ehdr, 0);
 	if (path) {
-		buf = do_which(lib->name, path);
-		if (buf) {
+		search_for_named_library(lib->name, buf, path);
+		if (*buf != '\0') {
 			lib->path = buf;
 			return;
+		} else {
+			free(buf);
 		}
 	}
 
@@ -209,20 +184,29 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 	else
 		path = getenv("LD_LIBRARY_PATH");
 	if (path) {
-		buf = do_which(lib->name, path);
-		if (buf) {
+		search_for_named_library(lib->name, buf, path);
+		if (*buf != '\0') {
 			lib->path = buf;
 			return;
+		} else {
+			free(buf);
 		}
 	}
 
-	/* Fixme -- add code to check the Cache here */ 
+	/* FIXME -- add code to check the Cache here */ 
 
-	
-	buf = do_which(lib->name, UCLIBC_ROOT_DIR "/usr/lib/:" UCLIBC_ROOT_DIR 
-			"/lib/:" UCLIBC_BUILD_DIR "/lib/:/usr/lib:/lib");
-	if (buf) {
+	/* Lastly, search the standard list of paths for the library */
+	path =	UCLIBC_PREFIX "/usr/lib:"
+			UCLIBC_PREFIX "/lib:"
+			UCLIBC_DEVEL_PREFIX "/lib:"
+			UCLIBC_BUILD_DIR "/lib:"
+			"/usr/lib:"
+			"/lib";
+	search_for_named_library(lib->name, buf, path);
+	if (*buf != '\0') {
 		lib->path = buf;
+	} else { 
+		free(buf);
 	}
 }
 
