@@ -39,17 +39,18 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
 
 
-all: $(OBJS) $(CRT0_OBJ) $(LIBC)
 
-$(LIBC): ar-target
+all: $(OBJS) $(LIBC)
 
-ar-target: $(OBJS)
+$(LIBC): ar-target 
+
+ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+	cp $(CRT0_OBJ) $(TOPDIR)/$(CRT0_OBJ)
 
 $(CRT0_OBJ): %.o : %.S
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
-	cp $*.o $(TOPDIR)/libcrt0.o
 
 $(SOBJS): %.o : %.S
 	$(CC) $(CFLAGS) -c $< -o $@

@@ -55,7 +55,7 @@ done: libc.a $(DO_SHARED)
 	@echo
 
 halfclean:
-	@rm -f libc.a libuClibc.so.1 libcrt0.o
+	@rm -f libc.a libuClibc.so.1 crt0.o
 
 headers: dummy
 	@rm -f include/asm include/linux include/bits
@@ -82,7 +82,7 @@ tags:
 
 clean: subdirs_clean
 	@rm -rf tmp
-	rm -f libc.a libcrt0.o
+	rm -f libc.a crt0.o libuClibc.so.1
 	rm -f include/asm include/linux include/bits
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
@@ -95,16 +95,31 @@ $(patsubst %, _dirclean_%, $(DIRS) test) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 
-install: libc.a
+install:
+	@if [ `id -u` -ne 0 ]; then \
+	    echo "aborting install -- you are not root."; \
+	    /bin/false; \
+	fi;
 	rm -f $(INSTALL_DIR)/include/asm
 	rm -f $(INSTALL_DIR)/include/linux
+	mkdir -p $(INSTALL_DIR)/include/bits
 	ln -s $(KERNEL_SOURCE)/include/asm $(INSTALL_DIR)/include/asm
 	ln -s $(KERNEL_SOURCE)/include/linux $(INSTALL_DIR)/include/linux
-	mkdir -p $(INSTALL_DIR)/include/bits
 	find include/ -type f -depth -print | cpio -pdmu $(INSTALL_DIR)
 	find include/bits/ -depth -print | cpio -pdmu $(INSTALL_DIR)
+	rm -f $(INSTALL_DIR)/lib/libc.a
 	cp libc.a $(INSTALL_DIR)/lib
-	if [ -f crt0.o ] ; then cp crt0.o $(INSTALL_DIR)/lib ; fi
+	chmod 644 $(INSTALL_DIR)/lib/libc.a
+	chown -R root.root $(INSTALL_DIR)/lib/libc.a
+	if [ -f crt0.o ] ; then \
+	    rm -f $(INSTALL_DIR)/lib/crt0.o; \
+	    cp crt0.o $(INSTALL_DIR)/lib ; \
+	    chmod 644 $(INSTALL_DIR)/lib/crt0.o; \
+	    chown -R root.root $(INSTALL_DIR)/lib/crt0.o; \
+	fi;
+	chmod -R 775 `find $(INSTALL_DIR)/include -type d`
+	chmod -R 644 `find $(INSTALL_DIR)/include -type f`
+	chown -R root.root $(INSTALL_DIR)/include
 
 .PHONY: dummy
 

@@ -1005,8 +1005,10 @@ _syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t,
 
 //#define __NR_query_module             167
 #ifdef L_query_module
-_syscall5(int, query_module, const char *, name, int, which,
-		void *, buf, size_t, bufsize, size_t*, ret);
+#	ifdef __NR_query_module
+	_syscall5(int, query_module, const char *, name, int, which,
+			void *, buf, size_t, bufsize, size_t*, ret);
+#	endif	
 #endif	
 
 //#define __NR_poll                     168
