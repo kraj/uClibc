@@ -25,7 +25,7 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
-SSRC=longjmp.S setjmp.S #_start.S #clone.S
+SSRC=_start.S longjmp.S setjmp.S #_start.S #clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=readdir.c #select.c

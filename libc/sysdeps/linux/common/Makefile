@@ -25,8 +25,13 @@ TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-#The file makefile.objs defines $(COBJS)
-include makefile.objs
+
+CSRC =closedir.o dirfd.o getdnnm.o gethstnm.o getpagesize.o \
+isatty.o kernel_version.o mkfifo.o opendir.o rewinddir.o \
+seekdir.o setegid.o seteuid.o setpgrp.o tcgetatr.o tell.o \
+telldir.o wait.o wait3.o _fxstat.o _lxstat.o _xstat.o _xmknod.o
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+
 
 MSRC=syscalls.c
 MOBJ=$(shell ./list_syscalls.sh)
@@ -45,8 +50,8 @@ $(MOBJ): $(MSRC)
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS):
-	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
+	$(CC) $(CFLAGS) -g $< -c $*.c -o $*.o
+	#$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	rm -f *.[oa] *~ core

@@ -34,8 +34,9 @@ MOBJ2=on_exit.o atexit.o __do_exit.o exit.o
 CSRC =	abort.c getenv.c  mktemp.c  qsort.c  realpath.c strtod.c strtoul.c \
 	abs.c   bsearch.c mkstemp.c putenv.c rand.c setenv.c strtol.c system.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(MOBJ) $(MOBJ2) $(COBJS)
 
+
+OBJS=$(MOBJ) $(MOBJ2) $(COBJS)
 
 all: $(OBJS) $(LIBC)
 
