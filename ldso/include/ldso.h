@@ -18,6 +18,7 @@
 #endif
 
 /* Pull in compiler and arch stuff */
+#include <stdlib.h>
 #include <stdarg.h>
 /* Pull in the arch specific type information */
 #include <sys/types.h>
@@ -64,7 +65,6 @@ extern int   _dl_debug_file;
 #endif
 
 extern void *_dl_malloc(int size);
-extern void _dl_free(void *);
 extern char *_dl_getenv(const char *symbol, char **envp);
 extern void _dl_unsetenv(const char *symbol, char **envp);
 extern char *_dl_strdup(const char *string);

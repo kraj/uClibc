@@ -889,16 +889,6 @@ char *_dl_strdup(const char *string)
 }
 
 void *(*_dl_malloc_function) (size_t size) = NULL;
-union __align_type
-{
-  void *p;
-  void (*fp)(void);
-  long long ll;
-#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
-  double d;
-#endif
-};
-
 void *_dl_malloc(int size)
 {
 	void *retval;
@@ -912,29 +902,11 @@ void *_dl_malloc(int size)
 	if (_dl_malloc_function)
 		return (*_dl_malloc_function) (size);
 
-	if ((int)(_dl_malloc_addr - _dl_mmap_zero + size) > (int)_dl_pagesize) {
-		int rounded_size;
-
-		/* Since the above assumes we get a full page even if
-		   we request less than that, make sure we request a
-		   full page, since uClinux may give us less than than
-		   a full page.  We might round even
-		   larger-than-a-page sizes, but we end up never
-		   reusing _dl_mmap_zero/_dl_malloc_addr in that case,
-		   so we don't do it.
-
-		   The actual page size doesn't really matter; as long
-		   as we're self-consistent here, we're safe.  */
-		if (size < (int)_dl_pagesize)
-			rounded_size = (size + _dl_pagesize - 1) & _dl_pagesize;
-		else
-			rounded_size = size;
-
-
+	if (_dl_malloc_addr - _dl_mmap_zero + size > _dl_pagesize) {
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 		_dl_dprintf(2, "malloc: mmapping more memory\n");
 #endif
-		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, rounded_size,
+		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size,
 				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
 			_dl_dprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
@@ -944,15 +916,12 @@ void *_dl_malloc(int size)
 	retval = _dl_malloc_addr;
 	_dl_malloc_addr += size;
 
-	/* Align memory to 4 byte boundary.  Some platforms require this,
-	 * others simply get better performance.  */
-	_dl_malloc_addr = (unsigned char *) (((unsigned long) _dl_malloc_addr +
-		  __alignof__(union __align_type) - 1) & ~(__alignof__(union __align_type) - 1));
+	/*
+	 * Align memory to 4 byte boundary.  Some platforms require this, others
+	 * simply get better performance.
+	 */
+	_dl_malloc_addr = (unsigned char *) (((unsigned long) _dl_malloc_addr + 3) & ~(3));
 	return retval;
 }
 
-void (*_dl_free_function) (void *p) = NULL;
-void _dl_free (void *p) {
-	if (_dl_free_function)
-		(*_dl_free_function) (p);
-}
+
