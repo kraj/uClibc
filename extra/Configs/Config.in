@@ -241,8 +241,8 @@ config LDSO_PRELOAD_FILE_SUPPORT
 	default n
 	help
 	  Enable this to make use of /etc/ld.so.preload. This file contains a
-	    whitespace separated list of shared libraries to be loaded before
-	    the program.
+	  whitespace separated list of shared libraries to be loaded before
+	  the program.
 
 config LDSO_BASE_FILENAME
 	string "Shared library loader naming prefix"
@@ -257,6 +257,9 @@ config LDSO_BASE_FILENAME
 	  this to "ld-uClibc.so".
 
 	  Most people will leave this set to the default of "ld.so".
+
+	  WARNING: Changing the default prefix could cause problems with
+	           binutils' ld !
 
 config UCLIBC_CTOR_DTOR
 	bool "Support global constructors and destructors"

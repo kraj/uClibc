@@ -55,7 +55,7 @@ ldconfig:	ldconfig.c readsoname.c
 ldd:	ldd.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
+		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
 	$(STRIPTOOL) -x -R .note -R .comment $@
 

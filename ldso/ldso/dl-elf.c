@@ -358,7 +358,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	if ((tpnt1 = search_for_named_library(libname, secure,
 					UCLIBC_RUNTIME_PREFIX "lib:"
 					UCLIBC_RUNTIME_PREFIX "usr/lib"
-#if !defined (__LDSO_CACHE_SUPPORT__)
+#ifndef __LDSO_CACHE_SUPPORT__
 					":" UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib"
 #endif
 					, rpnt)

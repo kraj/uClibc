@@ -45,7 +45,7 @@
 #else
 #include "elf.h"
 #endif
-#include "dl-cache.h"
+#include "dl-defs.h"
 
 #ifdef DMALLOC
 #include <dmalloc.h>
@@ -439,7 +439,7 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_suid, stru
 	   This list must exactly match the list in uClibc/ldso/ldso/dl-elf.c */
 	path =	UCLIBC_RUNTIME_PREFIX "lib:"
 		UCLIBC_RUNTIME_PREFIX "usr/lib"
-#if !defined (__LDSO_CACHE_SUPPORT__)
+#ifndef __LDSO_CACHE_SUPPORT__
 		":" UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib"
 #endif
 		;

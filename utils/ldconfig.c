@@ -876,7 +876,7 @@ int main(int argc, char **argv)
 	{
 	    scan_dir(UCLIBC_RUNTIME_PREFIX "lib");
 	    scan_dir(UCLIBC_RUNTIME_PREFIX "usr/lib");
-#if !defined (__LDSO_CACHE_SUPPORT__)
+#ifndef __LDSO_CACHE_SUPPORT__
 	    scan_dir(UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib");
 #endif
 
@@ -884,21 +884,20 @@ int main(int argc, char **argv)
 	    if ((extpath = get_extpath()))
 	    {
 		for (cp = strtok(extpath, DIR_SEP); cp; cp = strtok(NULL, DIR_SEP)) {
-			/* strip traling slashes */
+			/* we do the redundancy check only if cache usage is enabled */
+#ifdef __LDSO_CACHE_SUPPORT__
+			/* strip trailing slashes */
 			int len = strlen(cp);
 			if (len) 
 				while (cp[--len] == '/' && len)
 					cp[len] = 0;
-			if (strcmp(UCLIBC_RUNTIME_PREFIX "lib", cp) == 0
-			    || strcmp(UCLIBC_RUNTIME_PREFIX "usr/lib", cp) == 0
-#if !defined (__LDSO_CACHE_SUPPORT__)
-			    || strcmp(UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib", cp) == 0
-#endif
-			    ) {
+			if (strcmp(UCLIBC_RUNTIME_PREFIX "lib", cp) == 0 ||
+			    strcmp(UCLIBC_RUNTIME_PREFIX "usr/lib", cp) == 0) {
 				if (verbose >= 0)
-					warnx("Path `%s' given more than once\n", cp);
+					warnx("Remove `%s' from `%s'\n", cp, LDSO_CONF);
 				continue;
 			}
+#endif
 		    scan_dir(cp);
 		}
 		free(extpath);
