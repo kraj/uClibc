@@ -199,8 +199,7 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	cp -a lib/*.so.* $(PREFIX)$(DEVEL_PREFIX)/lib
 	install -m 755 ldso/util/ldd $(PREFIX)$(DEVEL_PREFIX)/bin
 	install -m 755 ldso/util/readelf $(PREFIX)$(DEVEL_PREFIX)/bin
-	install -d $(PREFIX)$(DEVEL_PREFIX)/bin
-	install -d $(PREFIX)$(DEVEL_PREFIX)/usr/bin
+	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin
 	ln -fs $(DEVEL_PREFIX)/bin/ldd $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin/$(TARGET_ARCH)-uclibc-ldd
 	ln -fs $(DEVEL_PREFIX)/bin/readelf $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin/$(TARGET_ARCH)-uclibc-readelf
 	if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
