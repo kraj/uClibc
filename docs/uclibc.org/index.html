@@ -105,6 +105,48 @@ before asking questions on the mailing list...
 
 <ul>
     
+    <li> <b>9 August 2002, uClibc 0.9.13 Released</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.13.  After several days of testing, this release is looking very
+    solid.   This release fixes three security vulnerabilites in previous
+    releases.  There was an off-by-one buffer overflow in the group handling
+    code, and integer overflows in calloc() and xdr_array().  
+    <p>
+
+    This release adds native shared library support for the Hitachi
+    SuperH architecture, thanks to Stefan Allius and Edie C. Dost.  A 
+    new mmap based malloc was implemented by Miles Bader.  This is much 
+    smarter than the old "malloc-simple" and is now the default for 
+    mmu-less systems, where it should greatly help reduce memory
+    fragmentation and wastage.  In addition to these larger items, there
+    has been a <em>lot</em> of work done to make uClibc a cleaner, more
+    capable, library.  Most applications now compile and run without 
+    any trouble.
+    <p>
+    The 
+    <a href="http://www.us.kernel.org/pub/linux/libs/uclibc/Changelog">Changelog</a>
+    and <a href="http://www.us.kernel.org/pub/linux/libs/uclibc/uClibc-0.9.13.tar.bz2">source code</a> 
+    for this release are available <a href="http://www.us.kernel.org/pub/linux/libs/uclibc/">here</a>.
+    <p>
+    Have fun!
+    <p>
+
+    <li> <b>9 August 2002, uClibc now mirrored on kernel.org!</b>
+    <br>
+    uClibc is now available from the kernel.org mirrors!  This should make
+    uClibc downloads much faster.  The kernel.org mirrors will have all 
+    uClibc release versions (everything but the daily snapshots).
+    Here is a list of all the <a href="http://kernel.org/mirrors/">kernel.org mirror sites</a>.
+    Just pick the closest mirror site, and then go to "/pub/linux/libs/uclibc/"
+    to download uClibc.  For example, is you live the USA, you can go to
+    <a href="http://www.us.kernel.org/pub/linux/libs/uclibc/">
+    http://www.us.kernel.org/pub/linux/libs/uclibc/</a> to download the latest 
+    uClibc release from a nice fast system.
+    <p>
+
+
     <li> <b>11 July 2002, Native uClibc toolchains updated</b>
     <br>
     CodePoet Consulting (i.e. Erik) has released updated native
