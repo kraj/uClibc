@@ -114,14 +114,15 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	ELF_RELOC *this_reloc;
 	char *strtab;
 	Elf32_Sym *symtab;
-	ELF_RELOC *rel_addr;
 	int symtab_index;
+	char *rel_addr;
 	char *new_addr;
 	char **got_addr;
 	unsigned long instr_addr;
 	char *symname;
 
-	rel_addr = (ELF_RELOC *) (tpnt->dynamic_info[DT_JMPREL] + tpnt->loadaddr);
+	rel_addr = (char *) (tpnt->dynamic_info[DT_JMPREL] + tpnt->loadaddr);
+
 	this_reloc = (ELF_RELOC *)(intptr_t)(rel_addr + reloc_entry);
 	reloc_type = ELF32_R_TYPE(this_reloc->r_info);
 	symtab_index = ELF32_R_SYM(this_reloc->r_info);
