@@ -127,6 +127,10 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 	string->bufstart = string->bufrpos = (unsigned char *) ((void *) sp);
 	string->bufgetc = (char *) ((unsigned) -1);
 
+#ifdef __STDIO_THREADSAFE
+	__stdio_init_mutex(&string->lock);
+#endif
+
 	return vfscanf(string, fmt, ap);
 }
 #else  /* __STDIO_BUFFERS */

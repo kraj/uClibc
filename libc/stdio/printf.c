@@ -1265,6 +1265,10 @@ int vsnprintf(char *__restrict buf, size_t size,
 	f.filedes = -2;				/* for debugging */
 	f.modeflags = (__FLAG_NARROW|__FLAG_WRITEONLY|__FLAG_WRITING);
 
+#ifdef __STDIO_THREADSAFE
+	__stdio_init_mutex(&f.lock);
+#endif
+
 	rv = vfprintf(&f, format, arg);
 	if (size) {
 		if (f.bufwpos == f.bufend) {
@@ -1335,6 +1339,10 @@ int vsnprintf(char *__restrict buf, size_t size,
 	f.filedes = -1;				/* For debugging. */
 	f.modeflags = (__FLAG_NARROW|__FLAG_WRITEONLY|__FLAG_WRITING);
 
+#ifdef __STDIO_THREADSAFE
+	__stdio_init_mutex(&f.lock);
+#endif
+
 	rv = vfprintf(&f, format, arg);
 
 	return rv;
@@ -1372,6 +1380,10 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 #endif
 	f.filedes = filedes;
 	f.modeflags = (__FLAG_NARROW|__FLAG_WRITEONLY|__FLAG_WRITING);
+
+#ifdef __STDIO_THREADSAFE
+	__stdio_init_mutex(&f.lock);
+#endif
 
 	rv = vfprintf(&f, format, arg);
 
