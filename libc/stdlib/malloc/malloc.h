@@ -165,6 +165,9 @@ extern malloc_mutex_t __malloc_sbrk_lock;
    when the variable __malloc_debug is set to true. */
 #ifdef MALLOC_DEBUGGING
 
+/* The number of spaces in a malloc debug indent level.  */
+#define MALLOC_DEBUG_INDENT_SIZE 3
+
 extern int __malloc_debug, __malloc_check;
 
 # define MALLOC_DEBUG(indent, fmt, args...)				      \
@@ -178,7 +181,7 @@ extern int __malloc_debug_cur_indent;
    by a newline, and change the level by INDENT.  */
 extern void __malloc_debug_printf (int indent, const char *fmt, ...);
 
-/* Change the current debug print level by INDENT.  */
+/* Change the current debug print level by INDENT, and return the value.  */
 #define __malloc_debug_indent(indent) (__malloc_debug_cur_indent += indent)
 
 /* Set the current debug print level to LEVEL.  */

@@ -19,9 +19,7 @@
 #include "malloc.h"
 #include "heap.h"
 
-#ifdef MALLOC_DEBUGGING
 int __malloc_debug = 0, __malloc_check = 0;
-#endif
 
 #ifdef MALLOC_MMB_DEBUGGING
 int __malloc_mmb_debug = 0;
@@ -36,11 +34,14 @@ int __malloc_debug_cur_indent = 0;
 void
 __malloc_debug_printf (int indent, const char *fmt, ...)
 {
-  int i;
+  unsigned spaces = __malloc_debug_cur_indent * MALLOC_DEBUG_INDENT_SIZE;
   va_list val;
 
-  for (i = 0; i < __malloc_debug_cur_indent; i++)
-    fputs ("   ", stderr);
+  while (spaces > 0)
+    {
+      putc (' ', stderr);
+      spaces--;
+    }
 
   va_start (val, fmt);
   vfprintf (stderr, fmt, val);
@@ -58,13 +59,13 @@ __malloc_debug_init (void)
   if (ev)
     {
       int val = atoi (ev);
+
       if (val & 1)
 	__malloc_check = 1;
 
-#ifdef MALLOC_DEBUGGING
       if (val & 2)
 	__malloc_debug = 1;
-#endif
+
 #ifdef MALLOC_MMB_DEBUGGING
       if (val & 4)
 	__malloc_mmb_debug = 1;
