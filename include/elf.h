@@ -1,7 +1,6 @@
 /* This file defines standard ELF types, structures, and macros.
-   Copyright (C) 1995, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
+   Copyright (C) 1995-1999, 2000, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Contributed by Ian Lance Taylor <ian@cygnus.com>.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public License as
@@ -57,9 +56,9 @@ typedef uint64_t Elf64_Off;
 typedef uint16_t Elf32_Section;
 typedef uint16_t Elf64_Section;
 
-/* Type of symbol indices.  */
-typedef uint32_t Elf32_Symndx;
-typedef uint64_t Elf64_Symndx;
+/* Type for version symbol information.  */
+typedef Elf32_Half Elf32_Versym;
+typedef Elf64_Half Elf64_Versym;
 
 
 /* The ELF file header.  This appears at the start of every ELF file.  */
@@ -155,8 +154,10 @@ typedef struct
 #define ET_DYN		3		/* Shared object file */
 #define ET_CORE		4		/* Core file */
 #define	ET_NUM		5		/* Number of defined types */
-#define ET_LOPROC	0xff00		/* Processor-specific */
-#define ET_HIPROC	0xffff		/* Processor-specific */
+#define ET_LOOS		0xfe00		/* OS-specific range start */
+#define ET_HIOS		0xfeff		/* OS-specific range end */
+#define ET_LOPROC	0xff00		/* Processor-specific range start */
+#define ET_HIPROC	0xffff		/* Processor-specific range end */
 
 /* Legal values for e_machine (architecture).  */
 
@@ -166,24 +167,23 @@ typedef struct
 #define EM_386		 3		/* Intel 80386 */
 #define EM_68K		 4		/* Motorola m68k family */
 #define EM_88K		 5		/* Motorola m88k family */
-#define EM_486		 6		/* Intel 80486 */
 #define EM_860		 7		/* Intel 80860 */
 #define EM_MIPS		 8		/* MIPS R3000 big-endian */
-#define EM_S370		 9		/* Amdahl */
-#define EM_MIPS_RS4_BE	10		/* MIPS R4000 big-endian */
-#define EM_RS6000	11		/* RS6000 */
+#define EM_S370		 9		/* IBM System/370 */
+#define EM_MIPS_RS3_LE	10		/* MIPS R3000 little-endian */
 
 #define EM_PARISC	15		/* HPPA */
-#define EM_nCUBE	16		/* nCUBE */
 #define EM_VPP500	17		/* Fujitsu VPP500 */
 #define EM_SPARC32PLUS	18		/* Sun's "v8plus" */
 #define EM_960		19		/* Intel 80960 */
 #define EM_PPC		20		/* PowerPC */
+#define EM_PPC64	21		/* PowerPC 64-bit */
+#define EM_S390		22		/* IBM S390 */
 
 #define EM_V800		36		/* NEC V800 series */
 #define EM_FR20		37		/* Fujitsu FR20 */
-#define EM_RH32		38		/* TRW RH32 */
-#define EM_MMA		39		/* Fujitsu MMA */
+#define EM_RH32		38		/* TRW RH-32 */
+#define EM_RCE		39		/* Motorola RCE */
 #define EM_ARM		40		/* ARM */
 #define EM_FAKE_ALPHA	41		/* Digital Alpha */
 #define EM_SH		42		/* Hitachi SH */
@@ -198,7 +198,44 @@ typedef struct
 #define EM_MIPS_X	51		/* Stanford MIPS-X */
 #define EM_COLDFIRE	52		/* Motorola Coldfire */
 #define EM_68HC12	53		/* Motorola M68HC12 */
-#define EM_NUM		54
+#define EM_MMA		54		/* Fujitsu MMA Multimedia Accelerator*/
+#define EM_PCP		55		/* Siemens PCP */
+#define EM_NCPU		56		/* Sony nCPU embeeded RISC */
+#define EM_NDR1		57		/* Denso NDR1 microprocessor */
+#define EM_STARCORE	58		/* Motorola Start*Core processor */
+#define EM_ME16		59		/* Toyota ME16 processor */
+#define EM_ST100	60		/* STMicroelectronic ST100 processor */
+#define EM_TINYJ	61		/* Advanced Logic Corp. Tinyj emb.fam*/
+#define EM_X86_64	62		/* AMD x86-64 architecture */
+#define EM_PDSP		63		/* Sony DSP Processor */
+
+#define EM_FX66		66		/* Siemens FX66 microcontroller */
+#define EM_ST9PLUS	67		/* STMicroelectronics ST9+ 8/16 mc */
+#define EM_ST7		68		/* STmicroelectronics ST7 8 bit mc */
+#define EM_68HC16	69		/* Motorola MC68HC16 microcontroller */
+#define EM_68HC11	70		/* Motorola MC68HC11 microcontroller */
+#define EM_68HC08	71		/* Motorola MC68HC08 microcontroller */
+#define EM_68HC05	72		/* Motorola MC68HC05 microcontroller */
+#define EM_SVX		73		/* Silicon Graphics SVx */
+#define EM_AT19		74		/* STMicroelectronics ST19 8 bit mc */
+#define EM_VAX		75		/* Digital VAX */
+#define EM_CRIS		76		/* Axis Communications 32-bit embedded processor */
+#define EM_JAVELIN	77		/* Infineon Technologies 32-bit embedded processor */
+#define EM_FIREPATH	78		/* Element 14 64-bit DSP Processor */
+#define EM_ZSP		79		/* LSI Logic 16-bit DSP Processor */
+#define EM_MMIX		80		/* Donald Knuth's educational 64-bit processor */
+#define EM_HUANY	81		/* Harvard University machine-independent object files */
+#define EM_PRISM	82		/* SiTera Prism */
+#define EM_AVR		83		/* Atmel AVR 8-bit microcontroller */
+#define EM_FR30		84		/* Fujitsu FR30 */
+#define EM_D10V		85		/* Mitsubishi D10V */
+#define EM_D30V		86		/* Mitsubishi D30V */
+#define EM_V850		87		/* NEC v850 */
+#define EM_M32R		88		/* Mitsubishi M32R */
+#define EM_MN10300	89		/* Matsushita MN10300 */
+#define EM_MN10200	90		/* Matsushita MN10200 */
+#define EM_PJ		91		/* picoJava */
+#define EM_NUM		92
 
 /* If it is necessary to assign new unofficial EM_* values, please
    pick large random numbers (0x8523, 0xa7f2, etc.) to minimize the
@@ -248,45 +285,65 @@ typedef struct
 #define SHN_LORESERVE	0xff00		/* Start of reserved indices */
 #define SHN_LOPROC	0xff00		/* Start of processor-specific */
 #define SHN_HIPROC	0xff1f		/* End of processor-specific */
+#define SHN_LOOS	0xff20		/* Start of OS-specific */
+#define SHN_HIOS	0xff3f		/* End of OS-specific */
 #define SHN_ABS		0xfff1		/* Associated symbol is absolute */
 #define SHN_COMMON	0xfff2		/* Associated symbol is common */
+#define SHN_XINDEX	0xffff		/* Index is in extra table.  */
 #define SHN_HIRESERVE	0xffff		/* End of reserved indices */
 
 /* Legal values for sh_type (section type).  */
 
-#define SHT_NULL	 0		/* Section header table entry unused */
-#define SHT_PROGBITS	 1		/* Program data */
-#define SHT_SYMTAB	 2		/* Symbol table */
-#define SHT_STRTAB	 3		/* String table */
-#define SHT_RELA	 4		/* Relocation entries with addends */
-#define SHT_HASH	 5		/* Symbol hash table */
-#define SHT_DYNAMIC	 6		/* Dynamic linking information */
-#define SHT_NOTE	 7		/* Notes */
-#define SHT_NOBITS	 8		/* Program space with no data (bss) */
-#define SHT_REL		 9		/* Relocation entries, no addends */
-#define SHT_SHLIB	 10		/* Reserved */
-#define SHT_DYNSYM	 11		/* Dynamic linker symbol table */
-#define	SHT_NUM		 12		/* Number of defined types.  */
-#define SHT_LOOS	 0x60000000	/* Start OS-specific */
-#define SHT_LOSUNW	 0x6ffffffb	/* Sun-specific low bound.  */
-#define SHT_SUNW_COMDAT  0x6ffffffb
-#define SHT_SUNW_syminfo 0x6ffffffc
-#define SHT_GNU_verdef	 0x6ffffffd	/* Version definition section.  */
-#define SHT_GNU_verneed	 0x6ffffffe	/* Version needs section.  */
-#define SHT_GNU_versym	 0x6fffffff	/* Version symbol table.  */
-#define SHT_HISUNW	 0x6fffffff	/* Sun-specific high bound.  */
-#define SHT_HIOS	 0x6fffffff	/* End OS-specific type */
-#define SHT_LOPROC	 0x70000000	/* Start of processor-specific */
-#define SHT_HIPROC	 0x7fffffff	/* End of processor-specific */
-#define SHT_LOUSER	 0x80000000	/* Start of application-specific */
-#define SHT_HIUSER	 0x8fffffff	/* End of application-specific */
+#define SHT_NULL	  0		/* Section header table entry unused */
+#define SHT_PROGBITS	  1		/* Program data */
+#define SHT_SYMTAB	  2		/* Symbol table */
+#define SHT_STRTAB	  3		/* String table */
+#define SHT_RELA	  4		/* Relocation entries with addends */
+#define SHT_HASH	  5		/* Symbol hash table */
+#define SHT_DYNAMIC	  6		/* Dynamic linking information */
+#define SHT_NOTE	  7		/* Notes */
+#define SHT_NOBITS	  8		/* Program space with no data (bss) */
+#define SHT_REL		  9		/* Relocation entries, no addends */
+#define SHT_SHLIB	  10		/* Reserved */
+#define SHT_DYNSYM	  11		/* Dynamic linker symbol table */
+#define SHT_INIT_ARRAY	  14		/* Array of constructors */
+#define SHT_FINI_ARRAY	  15		/* Array of destructors */
+#define SHT_PREINIT_ARRAY 16		/* Array of pre-constructors */
+#define SHT_GROUP	  17		/* Section group */
+#define SHT_SYMTAB_SHNDX  18		/* Extended section indeces */
+#define	SHT_NUM		  19		/* Number of defined types.  */
+#define SHT_LOOS	  0x60000000	/* Start OS-specific */
+#define SHT_CHECKSUM	  0x6ffffff8	/* Checksum for DSO content.  */
+#define SHT_LOSUNW	  0x6ffffffa	/* Sun-specific low bound.  */
+#define SHT_SUNW_move	  0x6ffffffa
+#define SHT_SUNW_COMDAT   0x6ffffffb
+#define SHT_SUNW_syminfo  0x6ffffffc
+#define SHT_GNU_verdef	  0x6ffffffd	/* Version definition section.  */
+#define SHT_GNU_verneed	  0x6ffffffe	/* Version needs section.  */
+#define SHT_GNU_versym	  0x6fffffff	/* Version symbol table.  */
+#define SHT_HISUNW	  0x6fffffff	/* Sun-specific high bound.  */
+#define SHT_HIOS	  0x6fffffff	/* End OS-specific type */
+#define SHT_LOPROC	  0x70000000	/* Start of processor-specific */
+#define SHT_HIPROC	  0x7fffffff	/* End of processor-specific */
+#define SHT_LOUSER	  0x80000000	/* Start of application-specific */
+#define SHT_HIUSER	  0x8fffffff	/* End of application-specific */
 
 /* Legal values for sh_flags (section flags).  */
 
-#define SHF_WRITE	(1 << 0)	/* Writable */
-#define SHF_ALLOC	(1 << 1)	/* Occupies memory during execution */
-#define SHF_EXECINSTR	(1 << 2)	/* Executable */
-#define SHF_MASKPROC	0xf0000000	/* Processor-specific */
+#define SHF_WRITE	     (1 << 0)	/* Writable */
+#define SHF_ALLOC	     (1 << 1)	/* Occupies memory during execution */
+#define SHF_EXECINSTR	     (1 << 2)	/* Executable */
+#define SHF_MERGE	     (1 << 4)	/* Might be merged */
+#define SHF_STRINGS	     (1 << 5)	/* Contains nul-terminated strings */
+#define SHF_INFO_LINK	     (1 << 6)	/* `sh_info' contains SHT index */
+#define SHF_LINK_ORDER	     (1 << 7)	/* Preserve order after combining */
+#define SHF_OS_NONCONFORMING (1 << 8)	/* Non-standard OS specific handling
+					   required */
+#define SHF_MASKOS	     0x0ff00000	/* OS-specific.  */
+#define SHF_MASKPROC	     0xf0000000	/* Processor-specific */
+
+/* Section group handling.  */
+#define GRP_COMDAT	0x1		/* Mark group as COMDAT.  */
 
 /* Symbol table entry.  */
 
@@ -296,7 +353,7 @@ typedef struct
   Elf32_Addr	st_value;		/* Symbol value */
   Elf32_Word	st_size;		/* Symbol size */
   unsigned char	st_info;		/* Symbol type and binding */
-  unsigned char	st_other;		/* No defined meaning, 0 */
+  unsigned char	st_other;		/* Symbol visibility */
   Elf32_Section	st_shndx;		/* Section index */
 } Elf32_Sym;
 
@@ -304,7 +361,7 @@ typedef struct
 {
   Elf64_Word	st_name;		/* Symbol name (string tbl index) */
   unsigned char	st_info;		/* Symbol type and binding */
-  unsigned char st_other;		/* No defined meaning, 0 */
+  unsigned char st_other;		/* Symbol visibility */
   Elf64_Section	st_shndx;		/* Section index */
   Elf64_Addr	st_value;		/* Symbol value */
   Elf64_Xword	st_size;		/* Symbol size */
@@ -375,8 +432,9 @@ typedef struct
 #define STT_FUNC	2		/* Symbol is a code object */
 #define STT_SECTION	3		/* Symbol associated with a section */
 #define STT_FILE	4		/* Symbol's name is file name */
-#define	STT_NUM		5		/* Number of defined types.  */
-#define STT_LOOS	11		/* Start of OS-specific */
+#define STT_COMMON	5		/* Symbol is a common data object */
+#define	STT_NUM		6		/* Number of defined types.  */
+#define STT_LOOS	10		/* Start of OS-specific */
 #define STT_HIOS	12		/* End of OS-specific */
 #define STT_LOPROC	13		/* Start of processor-specific */
 #define STT_HIPROC	15		/* End of processor-specific */
@@ -387,6 +445,20 @@ typedef struct
    the end of a chain, meaning no further symbols are found in that bucket.  */
 
 #define STN_UNDEF	0		/* End of a chain.  */
+
+
+/* How to extract and insert information held in the st_other field.  */
+
+#define ELF32_ST_VISIBILITY(o)	((o) & 0x03)
+
+/* For ELF64 the definitions are the same.  */
+#define ELF64_ST_VISIBILITY(o)	ELF32_ST_VISIBILITY (o)
+
+/* Symbol visibility specification encoded in the st_other field.  */
+#define STV_DEFAULT	0		/* Default symbol visibility rules */
+#define STV_INTERNAL	1		/* Processor specific hidden class */
+#define STV_HIDDEN	2		/* Sym unavailable in other modules */
+#define STV_PROTECTED	3		/* Not preemptible, not exported */
 
 
 /* Relocation table entry without addend (in section of type SHT_REL).  */
@@ -432,7 +504,7 @@ typedef struct
 
 #define ELF64_R_SYM(i)			((i) >> 32)
 #define ELF64_R_TYPE(i)			((i) & 0xffffffff)
-#define ELF64_R_INFO(sym,type)		(((sym) << 32) + (type))
+#define ELF64_R_INFO(sym,type)		((((Elf64_Xword) (sym)) << 32) + (type))
 
 /* Program segment header.  */
 
@@ -469,7 +541,7 @@ typedef struct
 #define PT_NOTE		4		/* Auxiliary information */
 #define PT_SHLIB	5		/* Reserved */
 #define PT_PHDR		6		/* Entry for header table itself */
-#define	PT_NUM		7		/* Number of defined types.  */
+#define	PT_NUM		7		/* Number of defined types */
 #define PT_LOOS		0x60000000	/* Start of OS-specific */
 #define PT_HIOS		0x6fffffff	/* End of OS-specific */
 #define PT_LOPROC	0x70000000	/* Start of processor-specific */
@@ -480,6 +552,7 @@ typedef struct
 #define PF_X		(1 << 0)	/* Segment is executable */
 #define PF_W		(1 << 1)	/* Segment is writable */
 #define PF_R		(1 << 2)	/* Segment is readable */
+#define PF_MASKOS	0x0ff00000	/* OS-specific */
 #define PF_MASKPROC	0xf0000000	/* Processor-specific */
 
 /* Legal values for note segment descriptor types for core files. */
@@ -497,8 +570,9 @@ typedef struct
 #define NT_UTSNAME	15		/* Contains copy of utsname struct */
 #define NT_LWPSTATUS	16		/* Contains copy of lwpstatus struct */
 #define NT_LWPSINFO	17		/* Contains copy of lwpinfo struct */
+#define NT_PRFPXREG	20		/* Contains copy of fprxregset struct*/
 
-/* Legal values for the  note segment descriptor types for object files.  */
+/* Legal values for the note segment descriptor types for object files.  */
 
 #define NT_VERSION	1		/* Contains a version string.  */
 
@@ -542,7 +616,7 @@ typedef struct
 #define DT_INIT		12		/* Address of init function */
 #define DT_FINI		13		/* Address of termination function */
 #define DT_SONAME	14		/* Name of shared object */
-#define DT_RPATH	15		/* Library search path */
+#define DT_RPATH	15		/* Library search path (deprecated) */
 #define DT_SYMBOLIC	16		/* Start symbol search here */
 #define DT_REL		17		/* Address of Rel relocs */
 #define DT_RELSZ	18		/* Total size of Rel relocs */
@@ -556,7 +630,12 @@ typedef struct
 #define	DT_FINI_ARRAY	26		/* Array with addresses of fini fct */
 #define	DT_INIT_ARRAYSZ	27		/* Size in bytes of DT_INIT_ARRAY */
 #define	DT_FINI_ARRAYSZ	28		/* Size in bytes of DT_FINI_ARRAY */
-#define	DT_NUM		29		/* Number used */
+#define DT_RUNPATH	29		/* Library search path */
+#define DT_FLAGS	30		/* Flags for the object being loaded */
+#define DT_ENCODING	32		/* Start of encoded range */
+#define DT_PREINIT_ARRAY 32		/* Array with addresses of preinit fct*/
+#define DT_PREINIT_ARRAYSZ 33		/* size in bytes of DT_PREINIT_ARRAY */
+#define	DT_NUM		34		/* Number used */
 #define DT_LOOS		0x60000000	/* Start of OS-specific */
 #define DT_HIOS		0x6fffffff	/* End of OS-specific */
 #define DT_LOPROC	0x70000000	/* Start of processor-specific */
@@ -567,6 +646,11 @@ typedef struct
    Dyn.d_un.d_val field of the Elf*_Dyn structure.  This follows Sun's
    approach.  */
 #define DT_VALRNGLO	0x6ffffd00
+#define DT_CHECKSUM	0x6ffffdf8
+#define DT_PLTPADSZ	0x6ffffdf9
+#define DT_MOVEENT	0x6ffffdfa
+#define DT_MOVESZ	0x6ffffdfb
+#define DT_FEATURE_1	0x6ffffdfc	/* Feature selection (DTF_*).  */
 #define DT_POSFLAG_1	0x6ffffdfd	/* Flags for DT_* entries, effecting
 					   the following DT_* entry.  */
 #define DT_SYMINSZ	0x6ffffdfe	/* Size of syminfo table (in bytes) */
@@ -586,6 +670,9 @@ typedef struct
    GNU extension.  */
 #define DT_VERSYM	0x6ffffff0
 
+#define DT_RELACOUNT	0x6ffffff9
+#define DT_RELCOUNT	0x6ffffffa
+
 /* These were chosen by Sun.  */
 #define DT_FLAGS_1	0x6ffffffb	/* State flags, see DF_1_* below.  */
 #define	DT_VERDEF	0x6ffffffc	/* Address of version definition
@@ -604,6 +691,12 @@ typedef struct
 #define DT_EXTRATAGIDX(tag)	((Elf32_Word)-((Elf32_Sword) (tag) <<1>>1)-1)
 #define DT_EXTRANUM	3
 
+/* Values of `d_un.d_val' in the DT_FLAGS entry.  */
+#define DF_ORIGIN	0x00000001	/* Object may use DF_ORIGIN */
+#define DF_SYMBOLIC	0x00000002	/* Symbol resolutions starts here */
+#define DF_TEXTREL	0x00000004	/* Object contains text relocations */
+#define DF_BIND_NOW	0x00000008	/* No lazy binding for this object */
+
 /* State flags selectable in the `d_un.d_val' element of the DT_FLAGS_1
    entry in the dynamic section.  */
 #define DF_1_NOW	0x00000001	/* Set RTLD_NOW for this object.  */
@@ -613,6 +706,23 @@ typedef struct
 #define DF_1_LOADFLTR	0x00000010	/* Trigger filtee loading at runtime.*/
 #define DF_1_INITFIRST	0x00000020	/* Set RTLD_INITFIRST for this object*/
 #define DF_1_NOOPEN	0x00000040	/* Set RTLD_NOOPEN for this object.  */
+#define DF_1_ORIGIN	0x00000080	/* $ORIGIN must be handled.  */
+#define DF_1_DIRECT	0x00000100	/* Direct binding enabled.  */
+#define DF_1_TRANS	0x00000200
+#define DF_1_INTERPOSE	0x00000400	/* Object is used to interpose.  */
+#define DF_1_NODEFLIB	0x00000800	/* Ignore default lib search path.  */
+#define DF_1_NODUMP	0x00001000
+#define DF_1_CONFALT	0x00002000
+#define DF_1_ENDFILTEE	0x00004000
+
+/* Flags for the feature selection in DT_FEATURE_1.  */
+#define DTF_1_PARINIT	0x00000001
+#define DTF_1_CONFEXP	0x00000002
+
+/* Flags in the DT_POSFLAG_1 entry effecting only the next DT_* entry.  */
+#define DF_P1_LAZYLOAD	0x00000001	/* Lazyload following object.  */
+#define DF_P1_GROUPPERM	0x00000002	/* Symbols from next object are not
+					   generally available.  */
 
 /* Version definition sections.  */
 
@@ -772,6 +882,7 @@ typedef struct
 #define AT_EUID		12		/* Effective uid */
 #define AT_GID		13		/* Real gid */
 #define AT_EGID		14		/* Effective gid */
+#define AT_CLKTCK	17		/* Frequency of times() */
 
 /* Some more special a_type values describing the hardware.  */
 #define AT_PLATFORM	15		/* String identifying platform.  */
@@ -780,7 +891,16 @@ typedef struct
 
 /* This entry gives some information about the FPU initialization
    performed by the kernel.  */
-#define AT_FPUCW	17		/* Used FPU control word.  */
+#define AT_FPUCW	18		/* Used FPU control word.  */
+
+/* Cache block sizes.  */
+#define AT_DCACHEBSIZE	19		/* Data cache block size.  */
+#define AT_ICACHEBSIZE	20		/* Instruction cache block size.  */
+#define AT_UCACHEBSIZE	21		/* Unified cache block size.  */
+
+/* A special ignored value for PPC, used by the kernel to control the
+   interpretation of the AUXV. Must be > 16.  */
+#define AT_IGNOREPPC	22		/* Entry should be ignored */
 
 
 /* Note section contents.  Each entry in the note section begins with
@@ -832,7 +952,39 @@ typedef struct
 #define ELF_NOTE_OS_SOLARIS2	2
 
 
+/* Move records.  */
+typedef struct
+{
+  Elf32_Xword m_value;		/* Symbol value.  */
+  Elf32_Word m_info;		/* Size and index.  */
+  Elf32_Word m_poffset;		/* Symbol offset.  */
+  Elf32_Half m_repeat;		/* Repeat count.  */
+  Elf32_Half m_stride;		/* Stride info.  */
+} Elf32_Move;
+
+typedef struct
+{
+  Elf64_Xword m_value;		/* Symbol value.  */
+  Elf64_Xword m_info;		/* Size and index.  */
+  Elf64_Xword m_poffset;	/* Symbol offset.  */
+  Elf64_Half m_repeat;		/* Repeat count.  */
+  Elf64_Half m_stride;		/* Stride info.  */
+} Elf64_Move;
+
+/* Macro to construct move records.  */
+#define ELF32_M_SYM(info)	((info) >> 8)
+#define ELF32_M_SIZE(info)	((unsigned char) (info))
+#define ELF32_M_INFO(sym, size)	(((sym) << 8) + (unsigned char) (size))
+
+#define ELF64_M_SYM(info)	ELF32_M_SYM (info)
+#define ELF64_M_SIZE(info)	ELF32_M_SIZE (info)
+#define ELF64_M_INFO(sym, size)	ELF32_M_INFO (sym, size)
+
+
 /* Motorola 68k specific definitions.  */
+
+/* Values for Elf32_Ehdr.e_flags.  */
+#define EF_CPU32	0x00810000
 
 /* m68k relocs.  */
 
@@ -882,15 +1034,22 @@ typedef struct
 
 /* SUN SPARC specific definitions.  */
 
+/* Legal values for ST_TYPE subfield of st_info (symbol type).  */
+
+#define STT_REGISTER	13		/* Global register reserved to app. */
+
 /* Values for Elf64_Ehdr.e_flags.  */
 
 #define EF_SPARCV9_MM		3
 #define EF_SPARCV9_TSO		0
 #define EF_SPARCV9_PSO		1
 #define EF_SPARCV9_RMO		2
+#define EF_SPARC_LEDATA		0x800000 /* little endian data */
 #define EF_SPARC_EXT_MASK	0xFFFF00
-#define EF_SPARC_SUN_US1	0x000200
-#define EF_SPARC_HAL_R1		0x000400
+#define EF_SPARC_32PLUS		0x000100 /* generic V8+ features */
+#define EF_SPARC_SUN_US1	0x000200 /* Sun UltraSPARC1 extensions */
+#define EF_SPARC_HAL_R1		0x000400 /* HAL R1 extensions */
+#define EF_SPARC_SUN_US3	0x000800 /* Sun UltraSPARCIII extensions */
 
 /* SPARC relocs.  */
 
@@ -930,7 +1089,7 @@ typedef struct
 #define R_SPARC_10	30		/* Direct 10 bit */
 #define R_SPARC_11	31		/* Direct 11 bit */
 #define R_SPARC_64	32		/* Direct 64 bit */
-#define R_SPARC_OLO10	33		/* ?? */
+#define R_SPARC_OLO10	33		/* 10bit with secondary 13bit addend */
 #define R_SPARC_HH22	34		/* Top 22 bits of direct 64 bit */
 #define R_SPARC_HM10	35		/* High middle 10 bits of ... */
 #define R_SPARC_LM22	36		/* Low middle 22 bits of ... */
@@ -967,6 +1126,7 @@ typedef struct
 #define HWCAP_SPARC_SWAP	4
 #define HWCAP_SPARC_MULDIV	8
 #define HWCAP_SPARC_V9		16	/* The cpu is v9, so v8plus is ok.  */
+#define HWCAP_SPARC_ULTRA3	32
 
 /* MIPS R3000 specific definitions.  */
 
@@ -988,6 +1148,8 @@ typedef struct
 #define EF_MIPS_ARCH_3	    0x20000000	/* -mips3 code.  */
 #define EF_MIPS_ARCH_4	    0x30000000	/* -mips4 code.  */
 #define EF_MIPS_ARCH_5	    0x40000000	/* -mips5 code.  */
+#define EF_MIPS_ARCH_32	    0x60000000	/* MIPS32 code.  */
+#define EF_MIPS_ARCH_64	    0x70000000	/* MIPS64 code.  */
 
 /* The following are non-official names and should not be used.  */
 
@@ -996,13 +1158,15 @@ typedef struct
 #define E_MIPS_ARCH_3	  0x20000000	/* -mips3 code.  */
 #define E_MIPS_ARCH_4	  0x30000000	/* -mips4 code.  */
 #define E_MIPS_ARCH_5	  0x40000000	/* -mips5 code.  */
+#define E_MIPS_ARCH_32	  0x60000000	/* MIPS32 code.  */
+#define E_MIPS_ARCH_64	  0x70000000	/* MIPS64 code.  */
 
 /* Special section indices.  */
 
-#define SHN_MIPS_ACOMMON 0xff00		/* Allocated common symbols */
-#define SHN_MIPS_TEXT	 0xff01		/* Allocated test symbols.  */
-#define SHN_MIPS_DATA	 0xff02		/* Allocated data symbols.  */
-#define SHN_MIPS_SCOMMON 0xff03		/* Small common symbols */
+#define SHN_MIPS_ACOMMON    0xff00	/* Allocated common symbols */
+#define SHN_MIPS_TEXT	    0xff01	/* Allocated test symbols.  */
+#define SHN_MIPS_DATA	    0xff02	/* Allocated data symbols.  */
+#define SHN_MIPS_SCOMMON    0xff03	/* Small common symbols */
 #define SHN_MIPS_SUNDEFINED 0xff04	/* Small undefined symbols */
 
 /* Legal values for sh_type field of Elf32_Shdr.  */
@@ -1326,37 +1490,45 @@ typedef Elf32_Addr Elf32_Conflict;
 
 /* Legal values for e_flags field of Elf32_Ehdr.  */
 
-#define EF_PARISC_TRAPNL	1	/* Trap nil pointer dereference.  */
-#define EF_PARISC_EXT		2	/* Program uses arch. extensions.  */
-#define EF_PARISC_ARCH		0xffff0000 /* Architecture version.  */
-/* Defined values are:
-				0x020b	PA-RISC 1.0 big-endian
-				0x0210	PA-RISC 1.1 big-endian
-				0x028b	PA-RISC 1.0 little-endian
-				0x0290	PA-RISC 1.1 little-endian
-*/
+#define EF_PARISC_TRAPNIL	0x00010000 /* Trap nil pointer dereference.  */
+#define EF_PARISC_EXT		0x00020000 /* Program uses arch. extensions. */
+#define EF_PARISC_LSB		0x00040000 /* Program expects little endian. */
+#define EF_PARISC_WIDE		0x00080000 /* Program expects wide mode.  */
+#define EF_PARISC_NO_KABP	0x00100000 /* No kernel assisted branch
+					      prediction.  */
+#define EF_PARISC_LAZYSWAP	0x00400000 /* Allow lazy swapping.  */
+#define EF_PARISC_ARCH		0x0000ffff /* Architecture version.  */
+
+/* Defined values for `e_flags & EF_PARISC_ARCH' are:  */
+
+#define EFA_PARISC_1_0		    0x020b /* PA-RISC 1.0 big-endian.  */
+#define EFA_PARISC_1_1		    0x0210 /* PA-RISC 1.1 big-endian.  */
+#define EFA_PARISC_2_0		    0x0214 /* PA-RISC 2.0 big-endian.  */
+
+/* Additional section indeces.  */
+
+#define SHN_PARISC_ANSI_COMMON	0xff00	   /* Section for tenatively declared
+					      symbols in ANSI C.  */
+#define SHN_PARISC_HUGE_COMMON	0xff01	   /* Common blocks in huge model.  */
 
 /* Legal values for sh_type field of Elf32_Shdr.  */
 
-#define SHT_PARISC_GOT		0x70000000 /* GOT for external data.  */
-#define SHT_PARISC_ARCH		0x70000001 /* Architecture extensions.  */
-#define SHT_PARISC_GLOBAL	0x70000002 /* Definition of $global$.  */
-#define SHT_PARISC_MILLI	0x70000003 /* Millicode routines.  */
-#define SHT_PARISC_UNWIND	0x70000004 /* Unwind information.  */
-#define SHT_PARISC_PLT		0x70000005 /* Procedure linkage table.  */
-#define SHT_PARISC_SDATA	0x70000006 /* Short initialized data.  */
-#define SHT_PARISC_SBSS		0x70000007 /* Short uninitialized data.  */
-#define SHT_PARISC_SYMEXTN	0x70000008 /* Argument/relocation info.  */
-#define SHT_PARISC_STUBS	0x70000009 /* Linker stubs.  */
+#define SHT_PARISC_EXT		0x70000000 /* Contains product specific ext. */
+#define SHT_PARISC_UNWIND	0x70000001 /* Unwind information.  */
+#define SHT_PARISC_DOC		0x70000002 /* Debug info for optimized code. */
 
 /* Legal values for sh_flags field of Elf32_Shdr.  */
 
-#define SHF_PARISC_GLOBAL	0x10000000 /* Section defines dp.  */
 #define SHF_PARISC_SHORT	0x20000000 /* Section with short addressing. */
+#define SHF_PARISC_HUGE		0x40000000 /* Section far from gp.  */
+#define SHF_PARISC_SBP		0x80000000 /* Static branch prediction code. */
 
 /* Legal values for ST_TYPE subfield of st_info (symbol type).  */
 
 #define STT_PARISC_MILLICODE	13	/* Millicode function entry point.  */
+
+#define STT_HP_OPAQUE		(STT_LOOS + 0x1)
+#define STT_HP_STUB		(STT_LOOS + 0x2)
 
 /* HPPA relocs.  */
 
@@ -1364,26 +1536,124 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_PARISC_DIR32		1	/* Direct 32-bit reference.  */
 #define R_PARISC_DIR21L		2	/* Left 21 bits of eff. address.  */
 #define R_PARISC_DIR17R		3	/* Right 17 bits of eff. address.  */
-#define R_PARISC_DIR14R		4	/* Right 14 bits of eff. address.  */
-#define R_PARISC_PCREL21L	5	/* PC-relative, left 21 bits.  */
-#define R_PARISC_PCREL14R	6	/* PC-relative, right 14 bits.  */
-#define R_PARISC_PCREL17C	7	/* Conditional PC-relative, ignore
-					   if displacement > 17bits.  */
-#define R_PARISC_PCREL17F	8	/* Conditional PC-relative, must
-					   fit in 17bits.  */
-#define R_PARISC_DPREL21L	9	/* DP-relative, left 21 bits.  */
-#define R_PARISC_DPREL14R	10	/* DP-relative, right 14 bits.  */
-#define R_PARISC_DPREL14F	11	/* DP-relative, must bit in 14 bits. */
-#define R_PARISC_DLTREL21L	12	/* DLT-relative, left 21 bits.  */
-#define R_PARISC_DLTREL14R	13	/* DLT-relative, right 14 bits.  */
-#define R_PARISC_DLTREL14F	14	/* DLT-relative, must fit in 14 bits.*/
-#define R_PARISC_DLTIND21L	15	/* DLT-relative indirect, left
-					   21 bits.  */
-#define R_PARISC_DLTIND14R	16	/* DLT-relative indirect, right
-					   14 bits.  */
-#define R_PARISC_DLTIND14F	17	/* DLT-relative indirect, must fit
-					   int 14 bits.  */
-#define R_PARISC_PLABEL32	18	/* Direct 32-bit reference to proc.  */
+#define R_PARISC_DIR17F		4	/* 17 bits of eff. address.  */
+#define R_PARISC_DIR14R		6	/* Right 14 bits of eff. address.  */
+#define R_PARISC_PCREL32	9	/* 32-bit rel. address.  */
+#define R_PARISC_PCREL21L	10	/* Left 21 bits of rel. address.  */
+#define R_PARISC_PCREL17R	11	/* Right 17 bits of rel. address.  */
+#define R_PARISC_PCREL17F	12	/* 17 bits of rel. address.  */
+#define R_PARISC_PCREL14R	14	/* Right 14 bits of rel. address.  */
+#define R_PARISC_DPREL21L	18	/* Left 21 bits of rel. address.  */
+#define R_PARISC_DPREL14R	22	/* Right 14 bits of rel. address.  */
+#define R_PARISC_GPREL21L	26	/* GP-relative, left 21 bits.  */
+#define R_PARISC_GPREL14R	30	/* GP-relative, right 14 bits.  */
+#define R_PARISC_LTOFF21L	34	/* LT-relative, left 21 bits.  */
+#define R_PARISC_LTOFF14R	38	/* LT-relative, right 14 bits.  */
+#define R_PARISC_SECREL32	41	/* 32 bits section rel. address.  */
+#define R_PARISC_SEGBASE	48	/* No relocation, set segment base.  */
+#define R_PARISC_SEGREL32	49	/* 32 bits segment rel. address.  */
+#define R_PARISC_PLTOFF21L	50	/* PLT rel. address, left 21 bits.  */
+#define R_PARISC_PLTOFF14R	54	/* PLT rel. address, right 14 bits.  */
+#define R_PARISC_LTOFF_FPTR32	57	/* 32 bits LT-rel. function pointer. */
+#define R_PARISC_LTOFF_FPTR21L	58	/* LT-rel. fct ptr, left 21 bits. */
+#define R_PARISC_LTOFF_FPTR14R	62	/* LT-rel. fct ptr, right 14 bits. */
+#define R_PARISC_FPTR64		64	/* 64 bits function address.  */
+#define R_PARISC_PLABEL32	65	/* 32 bits function address.  */
+#define R_PARISC_PCREL64	72	/* 64 bits PC-rel. address.  */
+#define R_PARISC_PCREL22F	74	/* 22 bits PC-rel. address.  */
+#define R_PARISC_PCREL14WR	75	/* PC-rel. address, right 14 bits.  */
+#define R_PARISC_PCREL14DR	76	/* PC rel. address, right 14 bits.  */
+#define R_PARISC_PCREL16F	77	/* 16 bits PC-rel. address.  */
+#define R_PARISC_PCREL16WF	78	/* 16 bits PC-rel. address.  */
+#define R_PARISC_PCREL16DF	79	/* 16 bits PC-rel. address.  */
+#define R_PARISC_DIR64		80	/* 64 bits of eff. address.  */
+#define R_PARISC_DIR14WR	83	/* 14 bits of eff. address.  */
+#define R_PARISC_DIR14DR	84	/* 14 bits of eff. address.  */
+#define R_PARISC_DIR16F		85	/* 16 bits of eff. address.  */
+#define R_PARISC_DIR16WF	86	/* 16 bits of eff. address.  */
+#define R_PARISC_DIR16DF	87	/* 16 bits of eff. address.  */
+#define R_PARISC_GPREL64	88	/* 64 bits of GP-rel. address.  */
+#define R_PARISC_GPREL14WR	91	/* GP-rel. address, right 14 bits.  */
+#define R_PARISC_GPREL14DR	92	/* GP-rel. address, right 14 bits.  */
+#define R_PARISC_GPREL16F	93	/* 16 bits GP-rel. address.  */
+#define R_PARISC_GPREL16WF	94	/* 16 bits GP-rel. address.  */
+#define R_PARISC_GPREL16DF	95	/* 16 bits GP-rel. address.  */
+#define R_PARISC_LTOFF64	96	/* 64 bits LT-rel. address.  */
+#define R_PARISC_LTOFF14WR	99	/* LT-rel. address, right 14 bits.  */
+#define R_PARISC_LTOFF14DR	100	/* LT-rel. address, right 14 bits.  */
+#define R_PARISC_LTOFF16F	101	/* 16 bits LT-rel. address.  */
+#define R_PARISC_LTOFF16WF	102	/* 16 bits LT-rel. address.  */
+#define R_PARISC_LTOFF16DF	103	/* 16 bits LT-rel. address.  */
+#define R_PARISC_SECREL64	104	/* 64 bits section rel. address.  */
+#define R_PARISC_SEGREL64	112	/* 64 bits segment rel. address.  */
+#define R_PARISC_PLTOFF14WR	115	/* PLT-rel. address, right 14 bits.  */
+#define R_PARISC_PLTOFF14DR	116	/* PLT-rel. address, right 14 bits.  */
+#define R_PARISC_PLTOFF16F	117	/* 16 bits LT-rel. address.  */
+#define R_PARISC_PLTOFF16WF	118	/* 16 bits PLT-rel. address.  */
+#define R_PARISC_PLTOFF16DF	119	/* 16 bits PLT-rel. address.  */
+#define R_PARISC_LTOFF_FPTR64	120	/* 64 bits LT-rel. function ptr.  */
+#define R_PARISC_LTOFF_FPTR14WR	123	/* LT-rel. fct. ptr., right 14 bits. */
+#define R_PARISC_LTOFF_FPTR14DR	124	/* LT-rel. fct. ptr., right 14 bits. */
+#define R_PARISC_LTOFF_FPTR16F	125	/* 16 bits LT-rel. function ptr.  */
+#define R_PARISC_LTOFF_FPTR16WF	126	/* 16 bits LT-rel. function ptr.  */
+#define R_PARISC_LTOFF_FPTR16DF	127	/* 16 bits LT-rel. function ptr.  */
+#define R_PARISC_LORESERVE	128
+#define R_PARISC_COPY		128	/* Copy relocation.  */
+#define R_PARISC_IPLT		129	/* Dynamic reloc, imported PLT */
+#define R_PARISC_EPLT		130	/* Dynamic reloc, exported PLT */
+#define R_PARISC_TPREL32	153	/* 32 bits TP-rel. address.  */
+#define R_PARISC_TPREL21L	154	/* TP-rel. address, left 21 bits.  */
+#define R_PARISC_TPREL14R	158	/* TP-rel. address, right 14 bits.  */
+#define R_PARISC_LTOFF_TP21L	162	/* LT-TP-rel. address, left 21 bits. */
+#define R_PARISC_LTOFF_TP14R	166	/* LT-TP-rel. address, right 14 bits.*/
+#define R_PARISC_LTOFF_TP14F	167	/* 14 bits LT-TP-rel. address.  */
+#define R_PARISC_TPREL64	216	/* 64 bits TP-rel. address.  */
+#define R_PARISC_TPREL14WR	219	/* TP-rel. address, right 14 bits.  */
+#define R_PARISC_TPREL14DR	220	/* TP-rel. address, right 14 bits.  */
+#define R_PARISC_TPREL16F	221	/* 16 bits TP-rel. address.  */
+#define R_PARISC_TPREL16WF	222	/* 16 bits TP-rel. address.  */
+#define R_PARISC_TPREL16DF	223	/* 16 bits TP-rel. address.  */
+#define R_PARISC_LTOFF_TP64	224	/* 64 bits LT-TP-rel. address.  */
+#define R_PARISC_LTOFF_TP14WR	227	/* LT-TP-rel. address, right 14 bits.*/
+#define R_PARISC_LTOFF_TP14DR	228	/* LT-TP-rel. address, right 14 bits.*/
+#define R_PARISC_LTOFF_TP16F	229	/* 16 bits LT-TP-rel. address.  */
+#define R_PARISC_LTOFF_TP16WF	230	/* 16 bits LT-TP-rel. address.  */
+#define R_PARISC_LTOFF_TP16DF	231	/* 16 bits LT-TP-rel. address.  */
+#define R_PARISC_HIRESERVE	255
+
+/* Legal values for p_type field of Elf32_Phdr/Elf64_Phdr.  */
+
+#define PT_HP_TLS		(PT_LOOS + 0x0)
+#define PT_HP_CORE_NONE		(PT_LOOS + 0x1)
+#define PT_HP_CORE_VERSION	(PT_LOOS + 0x2)
+#define PT_HP_CORE_KERNEL	(PT_LOOS + 0x3)
+#define PT_HP_CORE_COMM		(PT_LOOS + 0x4)
+#define PT_HP_CORE_PROC		(PT_LOOS + 0x5)
+#define PT_HP_CORE_LOADABLE	(PT_LOOS + 0x6)
+#define PT_HP_CORE_STACK	(PT_LOOS + 0x7)
+#define PT_HP_CORE_SHM		(PT_LOOS + 0x8)
+#define PT_HP_CORE_MMF		(PT_LOOS + 0x9)
+#define PT_HP_PARALLEL		(PT_LOOS + 0x10)
+#define PT_HP_FASTBIND		(PT_LOOS + 0x11)
+#define PT_HP_OPT_ANNOT		(PT_LOOS + 0x12)
+#define PT_HP_HSL_ANNOT		(PT_LOOS + 0x13)
+#define PT_HP_STACK		(PT_LOOS + 0x14)
+
+#define PT_PARISC_ARCHEXT	0x70000000
+#define PT_PARISC_UNWIND	0x70000001
+
+/* Legal values for p_flags field of Elf32_Phdr/Elf64_Phdr.  */
+
+#define PF_PARISC_SBP		0x08000000
+
+#define PF_HP_PAGE_SIZE		0x00100000
+#define PF_HP_FAR_SHARED	0x00200000
+#define PF_HP_NEAR_SHARED	0x00400000
+#define PF_HP_CODE		0x01000000
+#define PF_HP_MODIFY		0x02000000
+#define PF_HP_LAZYSWAP		0x04000000
+#define PF_HP_SBP		0x08000000
+
 
 /* Alpha specific definitions.  */
 
@@ -1441,6 +1711,14 @@ typedef Elf32_Addr Elf32_Conflict;
 
 
 /* PowerPC specific declarations */
+
+/* Values for Elf32/64_Ehdr.e_flags.  */
+#define EF_PPC_EMB		0x80000000	/* PowerPC embedded flag */
+
+/* Cygnus local bits below */
+#define EF_PPC_RELOCATABLE	0x00010000	/* PowerPC -mrelocatable flag*/
+#define EF_PPC_RELOCATABLE_LIB	0x00008000	/* PowerPC -mrelocatable-lib
+						   flag */
 
 /* PowerPC relocations defined by the ABIs */
 #define R_PPC_NONE		0
@@ -1524,9 +1802,21 @@ typedef Elf32_Addr Elf32_Conflict;
 #define EF_ARM_APCS_26     0x08
 #define EF_ARM_APCS_FLOAT  0x10
 #define EF_ARM_PIC         0x20
-#define EF_ALIGN8          0x40		/* 8-bit structure alignment is in use */
-#define EF_NEW_ABI         0x80
-#define EF_OLD_ABI         0x100
+#define EF_ARM_ALIGN8      0x40		/* 8-bit structure alignment is in use */
+#define EF_ARM_NEW_ABI     0x80
+#define EF_ARM_OLD_ABI     0x100
+
+/* Other constants defined in the ARM ELF spec. version B-01.  */
+/* NB. These conflict with values defined above.  */
+#define EF_ARM_SYMSARESORTED	0x04
+#define EF_ARM_DYNSYMSUSESEGIDX 0x08
+#define EF_ARM_MAPSYMSFIRST	0x10
+#define EF_ARM_EABIMASK		0XFF000000
+
+#define EF_ARM_EABI_VERSION(flags) ((flags) & EF_ARM_EABIMASK)
+#define EF_ARM_EABI_UNKNOWN  0x00000000
+#define EF_ARM_EABI_VER1     0x01000000
+#define EF_ARM_EABI_VER2     0x02000000
 
 /* Additional symbol types for Thumb */
 #define STT_ARM_TFUNC      0xd
@@ -1566,6 +1856,12 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_ARM_GOTPC		25	/* 32 bit PC relative offset to GOT */
 #define R_ARM_GOT32		26	/* 32 bit GOT entry */
 #define R_ARM_PLT32		27	/* 32 bit PLT address */
+#define R_ARM_ALU_PCREL_7_0	32
+#define R_ARM_ALU_PCREL_15_8	33
+#define R_ARM_ALU_PCREL_23_15	34
+#define R_ARM_LDR_SBREL_11_0	35
+#define R_ARM_ALU_SBREL_19_12	36
+#define R_ARM_ALU_SBREL_27_20	37
 #define R_ARM_GNU_VTENTRY	100
 #define R_ARM_GNU_VTINHERIT	101
 #define R_ARM_THM_PC11		102	/* thumb unconditional branch */
@@ -1579,6 +1875,207 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_ARM_RBASE		255
 /* Keep this the last entry.  */
 #define R_ARM_NUM		256
+
+/* IA-64 specific declarations.  */
+
+/* Processor specific flags for the Ehdr e_flags field.  */
+#define EF_IA_64_MASKOS		0x0000000f	/* os-specific flags */
+#define EF_IA_64_ABI64		0x00000010	/* 64-bit ABI */
+#define EF_IA_64_ARCH		0xff000000	/* arch. version mask */
+
+/* Processor specific values for the Phdr p_type field.  */
+#define PT_IA_64_ARCHEXT	(PT_LOPROC + 0)	/* arch extension bits */
+#define PT_IA_64_UNWIND		(PT_LOPROC + 1)	/* ia64 unwind bits */
+
+/* Processor specific flags for the Phdr p_flags field.  */
+#define PF_IA_64_NORECOV	0x80000000	/* spec insns w/o recovery */
+
+/* Processor specific values for the Shdr sh_type field.  */
+#define SHT_IA_64_EXT		(SHT_LOPROC + 0) /* extension bits */
+#define SHT_IA_64_UNWIND	(SHT_LOPROC + 1) /* unwind bits */
+
+/* Processor specific flags for the Shdr sh_flags field.  */
+#define SHF_IA_64_SHORT		0x10000000	/* section near gp */
+#define SHF_IA_64_NORECOV	0x20000000	/* spec insns w/o recovery */
+
+/* Processor specific values for the Dyn d_tag field.  */
+#define DT_IA_64_PLT_RESERVE	(DT_LOPROC + 0)
+#define DT_IA_64_NUM		1
+
+/* IA-64 relocations.  */
+#define R_IA64_NONE		0x00	/* none */
+#define R_IA64_IMM14		0x21	/* symbol + addend, add imm14 */
+#define R_IA64_IMM22		0x22	/* symbol + addend, add imm22 */
+#define R_IA64_IMM64		0x23	/* symbol + addend, mov imm64 */
+#define R_IA64_DIR32MSB		0x24	/* symbol + addend, data4 MSB */
+#define R_IA64_DIR32LSB		0x25	/* symbol + addend, data4 LSB */
+#define R_IA64_DIR64MSB		0x26	/* symbol + addend, data8 MSB */
+#define R_IA64_DIR64LSB		0x27	/* symbol + addend, data8 LSB */
+#define R_IA64_GPREL22		0x2a	/* @gprel(sym + add), add imm22 */
+#define R_IA64_GPREL64I		0x2b	/* @gprel(sym + add), mov imm64 */
+#define R_IA64_GPREL32MSB	0x2c	/* @gprel(sym + add), data4 MSB */
+#define R_IA64_GPREL32LSB	0x2d	/* @gprel(sym + add), data4 LSB */
+#define R_IA64_GPREL64MSB	0x2e	/* @gprel(sym + add), data8 MSB */
+#define R_IA64_GPREL64LSB	0x2f	/* @gprel(sym + add), data8 LSB */
+#define R_IA64_LTOFF22		0x32	/* @ltoff(sym + add), add imm22 */
+#define R_IA64_LTOFF64I		0x33	/* @ltoff(sym + add), mov imm64 */
+#define R_IA64_PLTOFF22		0x3a	/* @pltoff(sym + add), add imm22 */
+#define R_IA64_PLTOFF64I	0x3b	/* @pltoff(sym + add), mov imm64 */
+#define R_IA64_PLTOFF64MSB	0x3e	/* @pltoff(sym + add), data8 MSB */
+#define R_IA64_PLTOFF64LSB	0x3f	/* @pltoff(sym + add), data8 LSB */
+#define R_IA64_FPTR64I		0x43	/* @fptr(sym + add), mov imm64 */
+#define R_IA64_FPTR32MSB	0x44	/* @fptr(sym + add), data4 MSB */
+#define R_IA64_FPTR32LSB	0x45	/* @fptr(sym + add), data4 LSB */
+#define R_IA64_FPTR64MSB	0x46	/* @fptr(sym + add), data8 MSB */
+#define R_IA64_FPTR64LSB	0x47	/* @fptr(sym + add), data8 LSB */
+#define R_IA64_PCREL60B		0x48	/* @pcrel(sym + add), brl */
+#define R_IA64_PCREL21B		0x49	/* @pcrel(sym + add), ptb, call */
+#define R_IA64_PCREL21M		0x4a	/* @pcrel(sym + add), chk.s */
+#define R_IA64_PCREL21F		0x4b	/* @pcrel(sym + add), fchkf */
+#define R_IA64_PCREL32MSB	0x4c	/* @pcrel(sym + add), data4 MSB */
+#define R_IA64_PCREL32LSB	0x4d	/* @pcrel(sym + add), data4 LSB */
+#define R_IA64_PCREL64MSB	0x4e	/* @pcrel(sym + add), data8 MSB */
+#define R_IA64_PCREL64LSB	0x4f	/* @pcrel(sym + add), data8 LSB */
+#define R_IA64_LTOFF_FPTR22	0x52	/* @ltoff(@fptr(s+a)), imm22 */
+#define R_IA64_LTOFF_FPTR64I	0x53	/* @ltoff(@fptr(s+a)), imm64 */
+#define R_IA64_LTOFF_FPTR32MSB	0x54	/* @ltoff(@fptr(s+a)), data4 MSB */
+#define R_IA64_LTOFF_FPTR32LSB	0x55	/* @ltoff(@fptr(s+a)), data4 LSB */
+#define R_IA64_LTOFF_FPTR64MSB	0x56	/* @ltoff(@fptr(s+a)), data8 MSB */
+#define R_IA64_LTOFF_FPTR64LSB	0x57	/* @ltoff(@fptr(s+a)), data8 LSB */
+#define R_IA64_SEGREL32MSB	0x5c	/* @segrel(sym + add), data4 MSB */
+#define R_IA64_SEGREL32LSB	0x5d	/* @segrel(sym + add), data4 LSB */
+#define R_IA64_SEGREL64MSB	0x5e	/* @segrel(sym + add), data8 MSB */
+#define R_IA64_SEGREL64LSB	0x5f	/* @segrel(sym + add), data8 LSB */
+#define R_IA64_SECREL32MSB	0x64	/* @secrel(sym + add), data4 MSB */
+#define R_IA64_SECREL32LSB	0x65	/* @secrel(sym + add), data4 LSB */
+#define R_IA64_SECREL64MSB	0x66	/* @secrel(sym + add), data8 MSB */
+#define R_IA64_SECREL64LSB	0x67	/* @secrel(sym + add), data8 LSB */
+#define R_IA64_REL32MSB		0x6c	/* data 4 + REL */
+#define R_IA64_REL32LSB		0x6d	/* data 4 + REL */
+#define R_IA64_REL64MSB		0x6e	/* data 8 + REL */
+#define R_IA64_REL64LSB		0x6f	/* data 8 + REL */
+#define R_IA64_LTV32MSB		0x74	/* symbol + addend, data4 MSB */
+#define R_IA64_LTV32LSB		0x75	/* symbol + addend, data4 LSB */
+#define R_IA64_LTV64MSB		0x76	/* symbol + addend, data8 MSB */
+#define R_IA64_LTV64LSB		0x77	/* symbol + addend, data8 LSB */
+#define R_IA64_PCREL21BI	0x79	/* @pcrel(sym + add), 21bit inst */
+#define R_IA64_PCREL22		0x7a	/* @pcrel(sym + add), 22bit inst */
+#define R_IA64_PCREL64I		0x7b	/* @pcrel(sym + add), 64bit inst */
+#define R_IA64_IPLTMSB		0x80	/* dynamic reloc, imported PLT, MSB */
+#define R_IA64_IPLTLSB		0x81	/* dynamic reloc, imported PLT, LSB */
+#define R_IA64_COPY		0x84	/* copy relocation */
+#define R_IA64_SUB		0x85	/* Addend and symbol difference */
+#define R_IA64_LTOFF22X		0x86	/* LTOFF22, relaxable.  */
+#define R_IA64_LDXMOV		0x87	/* Use of LTOFF22X.  */
+#define R_IA64_TPREL14		0x91	/* @tprel(sym + add), imm14 */
+#define R_IA64_TPREL22		0x92	/* @tprel(sym + add), imm22 */
+#define R_IA64_TPREL64I		0x93	/* @tprel(sym + add), imm64 */
+#define R_IA64_TPREL64MSB	0x96	/* @tprel(sym + add), data8 MSB */
+#define R_IA64_TPREL64LSB	0x97	/* @tprel(sym + add), data8 LSB */
+#define R_IA64_LTOFF_TPREL22	0x9a	/* @ltoff(@tprel(s+a)), imm2 */
+#define R_IA64_DTPMOD64MSB	0xa6	/* @dtpmod(sym + add), data8 MSB */
+#define R_IA64_DTPMOD64LSB	0xa7	/* @dtpmod(sym + add), data8 LSB */
+#define R_IA64_LTOFF_DTPMOD22	0xaa	/* @ltoff(@dtpmod(sym + add)), imm22 */
+#define R_IA64_DTPREL14		0xb1	/* @dtprel(sym + add), imm14 */
+#define R_IA64_DTPREL22		0xb2	/* @dtprel(sym + add), imm22 */
+#define R_IA64_DTPREL64I	0xb3	/* @dtprel(sym + add), imm64 */
+#define R_IA64_DTPREL32MSB	0xb4	/* @dtprel(sym + add), data4 MSB */
+#define R_IA64_DTPREL32LSB	0xb5	/* @dtprel(sym + add), data4 LSB */
+#define R_IA64_DTPREL64MSB	0xb6	/* @dtprel(sym + add), data8 MSB */
+#define R_IA64_DTPREL64LSB	0xb7	/* @dtprel(sym + add), data8 LSB */
+#define R_IA64_LTOFF_DTPREL22	0xba	/* @ltoff(@dtprel(s+a)), imm22 */
+
+/* SH specific declarations */
+
+/* SH relocs.  */
+#define	R_SH_NONE		0
+#define	R_SH_DIR32		1
+#define	R_SH_REL32		2
+#define	R_SH_DIR8WPN		3
+#define	R_SH_IND12W		4
+#define	R_SH_DIR8WPL		5
+#define	R_SH_DIR8WPZ		6
+#define	R_SH_DIR8BP		7
+#define	R_SH_DIR8W		8
+#define	R_SH_DIR8L		9
+#define	R_SH_SWITCH16		25
+#define	R_SH_SWITCH32		26
+#define	R_SH_USES		27
+#define	R_SH_COUNT		28
+#define	R_SH_ALIGN		29
+#define	R_SH_CODE		30
+#define	R_SH_DATA		31
+#define	R_SH_LABEL		32
+#define	R_SH_SWITCH8		33
+#define	R_SH_GNU_VTINHERIT	34
+#define	R_SH_GNU_VTENTRY	35
+#define	R_SH_GOT32		160
+#define	R_SH_PLT32		161
+#define	R_SH_COPY		162
+#define	R_SH_GLOB_DAT		163
+#define	R_SH_JMP_SLOT		164
+#define	R_SH_RELATIVE		165
+#define	R_SH_GOTOFF		166
+#define	R_SH_GOTPC		167
+/* Keep this the last entry.  */
+#define	R_SH_NUM		256
+
+/* Additional s390 relocs */
+
+#define R_390_NONE      0              /* No reloc.  */
+#define R_390_8         1              /* Direct 8 bit.  */
+#define R_390_12        2              /* Direct 12 bit.  */
+#define R_390_16        3              /* Direct 16 bit.  */
+#define R_390_32        4              /* Direct 32 bit.  */
+#define R_390_PC32      5              /* PC relative 32 bit.  */
+#define R_390_GOT12     6              /* 12 bit GOT offset.  */
+#define R_390_GOT32     7              /* 32 bit GOT offset.  */
+#define R_390_PLT32     8              /* 32 bit PC relative PLT address.  */
+#define R_390_COPY      9              /* Copy symbol at runtime.  */
+#define R_390_GLOB_DAT  10             /* Create GOT entry.  */
+#define R_390_JMP_SLOT  11             /* Create PLT entry.  */
+#define R_390_RELATIVE  12             /* Adjust by program base.  */
+#define R_390_GOTOFF    13             /* 32 bit offset to GOT.  */
+#define R_390_GOTPC     14             /* 32 bit PC relative offset to GOT.  */
+#define R_390_GOT16     15             /* 16 bit GOT offset.  */
+#define R_390_PC16      16             /* PC relative 16 bit.  */
+#define R_390_PC16DBL   17             /* PC relative 16 bit shifted by 1.  */
+#define R_390_PLT16DBL  18             /* 16 bit PC rel. PLT shifted by 1.  */
+#define R_390_PC32DBL   19             /* PC relative 32 bit shifted by 1.  */
+#define R_390_PLT32DBL  20             /* 32 bit PC rel. PLT shifted by 1.  */
+#define R_390_GOTPCDBL  21             /* 32 bit PC rel. GOT shifted by 1.  */
+#define R_390_64        22             /* Direct 64 bit.  */
+#define R_390_PC64      23             /* PC relative 64 bit.  */
+#define R_390_GOT64     24             /* 64 bit GOT offset.  */
+#define R_390_PLT64     25             /* 64 bit PC relative PLT address.  */
+#define R_390_GOTENT    26             /* 32 bit PC rel. to GOT entry >> 1. */
+
+/* Keep this the last entry.  */
+#define R_390_NUM       19
+
+/* CRIS relocations.  */
+#define R_CRIS_NONE		0
+#define R_CRIS_8		1
+#define R_CRIS_16		2
+#define R_CRIS_32		3
+#define R_CRIS_8_PCREL		4
+#define R_CRIS_16_PCREL		5
+#define R_CRIS_32_PCREL		6
+#define R_CRIS_GNU_VTINHERIT	7
+#define R_CRIS_GNU_VTENTRY	8
+#define R_CRIS_COPY		9
+#define R_CRIS_GLOB_DAT		10
+#define R_CRIS_JUMP_SLOT	11
+#define R_CRIS_RELATIVE		12
+#define R_CRIS_16_GOT		13
+#define R_CRIS_32_GOT		14
+#define R_CRIS_16_GOTPLT	15
+#define R_CRIS_32_GOTPLT	16
+#define R_CRIS_32_GOTREL	17
+#define R_CRIS_32_PLT_GOTREL	18
+#define R_CRIS_32_PLT_PCREL	19
+
+#define R_CRIS_NUM		20
 
 __END_DECLS
 

@@ -22,7 +22,8 @@
    library into memory and add the symbol table info to the chain. */
 
 #include <asm/mman.h>
-#include "elf.h"
+#include <elf.h>
+#include "linuxelf.h"
 #include "string.h"
 #include "hash.h"
 #include "sysdep.h"

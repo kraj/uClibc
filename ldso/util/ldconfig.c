@@ -38,9 +38,8 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <errno.h>
-
 #include "../config.h"
-#include "readelf.h"
+#include "readsoname.h"
 
 struct exec
 {

@@ -92,7 +92,8 @@
  */
 
 #include <stdarg.h>
-#include "elf.h"
+#include <elf.h>
+#include "linuxelf.h"
 #include "link.h"
 #include "sysdep.h"
 #include "hash.h"

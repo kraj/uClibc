@@ -23,9 +23,10 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/wait.h>
-#include "../d-link/elf.h"
+#include <elf.h>
+#include "../d-link/linuxelf.h"
 #include "../config.h"
-#include "readelf.h"
+#include "readsoname.h"
 
 struct exec
 {
