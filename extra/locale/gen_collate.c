@@ -3766,7 +3766,7 @@ static unsigned int add_range_rule(range_item_t *ri)
 	return  (ruletable_len / MAX_COLLATION_WEIGHTS)-1;
 }
 
-#define DUMPn(X) fprintf(stderr, "%10d-%-.20s", base_locale_array[n]. ## X, #X);
+#define DUMPn(X) fprintf(stderr, "%10d-%-.20s", base_locale_array[n]. X, #X);
 
 static void dump_base_locale(int n)
 {
@@ -3802,7 +3802,7 @@ static void dump_base_locale(int n)
 }
 
 #undef DUMPn
-#define DUMPn(X) fprintf(stderr, "%10d-%s", der_locale_array[n]. ## X, #X);
+#define DUMPn(X) fprintf(stderr, "%10d-%s", der_locale_array[n]. X, #X);
 
 static void dump_der_locale(int n)
 {
@@ -3859,7 +3859,7 @@ static void dump_collate(FILE *fp)
 	OUT_U16C(ruletable_len, "number of ruletable elements");
 
 #undef DUMPn
-#define DUMPn(X) fprintf(fp, "\t%10d, /* %8lu %s */\n", base_locale_array[n]. ## X, collate_pos++, #X);
+#define DUMPn(X) fprintf(fp, "\t%10d, /* %8lu %s */\n", base_locale_array[n]. X, collate_pos++, #X);
 	for (n=0 ; n < base_locale_len ; n++) {
 		unsigned wcs2colidt_offset_low = base_locale_array[n].wcs2colidt_offset & 0xffffU;
 		unsigned wcs2colidt_offset_hi = base_locale_array[n].wcs2colidt_offset >> 16;
@@ -3890,7 +3890,7 @@ static void dump_collate(FILE *fp)
 
 
 	fprintf(fp, "#define COL_IDX_C     %5d\n", 0);
-#define DUMPn(X) fprintf(fp, "\t%10d, /* %8lu %s */\n", der_locale_array[n]. ## X, collate_pos++, #X);
+#define DUMPn(X) fprintf(fp, "\t%10d, /* %8lu %s */\n", der_locale_array[n]. X, collate_pos++, #X);
 	for (n=0 ; n < der_locale_len ; n++) {
 		fprintf(fp, "#define COL_IDX_%s %5d\n", der_locale_array[n].name, n+1);
 		fprintf(fp, "\t/* Derived Locale %4d: %s (%.12s) */\n",
