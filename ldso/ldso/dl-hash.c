@@ -173,6 +173,8 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, int type_class)
 	for (; rpnt; rpnt = rpnt->next) {
 		tpnt = rpnt->dyn;
 
+		if (!(tpnt->rtld_flags & RTLD_GLOBAL))
+			continue;
 		/* Don't search the executable when resolving a copy reloc. */
 		if ((type_class &  ELF_RTYPE_CLASS_COPY) && tpnt->libtype == elf_executable)
 			continue;

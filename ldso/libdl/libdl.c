@@ -223,13 +223,14 @@ void *dlopen(const char *libname, int flag)
 				_dl_memset (dyn_ptr->next, 0, sizeof (struct dyn_elf));
 				dyn_ptr = dyn_ptr->next;
 				dyn_ptr->dyn = tpnt1;
-				tpnt->rtld_flags |= RTLD_GLOBAL;
 				if (!tpnt1) {
 					tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, 0);
+					dyn_ptr->dyn = tpnt1;
 					if (!tpnt1)
 						goto oops;
-					dyn_ptr->dyn = tpnt1;
+					tpnt1->rtld_flags |= RTLD_GLOBAL;
 				} else {
+					tpnt1->rtld_flags |= RTLD_GLOBAL;
 					tpnt1->usage_count++;
 				}
 			}
