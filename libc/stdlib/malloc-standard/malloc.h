@@ -136,7 +136,7 @@ extern pthread_mutex_t __malloc_lock;
 */
 #ifndef malloc_getpagesize
 #  include <unistd.h>
-#  define malloc_getpagesize sysconf(_SC_PAGE_SIZE)
+#  define malloc_getpagesize sysconf(_SC_PAGESIZE)
 #else /* just guess */
 #  define malloc_getpagesize (4096)
 #endif
