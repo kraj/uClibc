@@ -33,23 +33,33 @@ syscall:
 	move	a0, a1		/* Move the next three args up a register.  */
 	move	a1, a2
 	move	a2, a3
-     	/* Load the remaining possible args (up to 11) from the stack.  */
+     	/* Load the remaining possible args (up to 7) from the stack.  */
 #ifdef __mips64
-	ld	t0,4*8(sp)
-	ld	t1,5*8(sp)
-	ld	t2,6*8(sp)
-	ld	t3,7*8(sp)
-	ld	t4,8*8(sp)
-	ld	t5,9*8(sp)
-	ld	t6,10*8(sp)
+	move	a3, a4
+	move	a4, a5
+	move	a5, a6
+	move	a6, a7
+	daddiu	sp,sp,-16
+	sd	v0,0*8(sp)
+	ld	v0,0*8(sp)	/* for system call restarts */
 #else
-	lw	t0,4*4(sp)
-	lw	t1,5*4(sp)
-	lw	t2,6*4(sp)
-	lw	t3,7*4(sp)
-	lw	t4,8*4(sp)
-	lw	t5,9*4(sp)
-	lw	t6,10*4(sp)
+	lw	a3,4*4(sp)
+	lw	t0,5*4(sp)
+	lw	t1,6*4(sp)
+	lw	t2,7*4(sp)
+	addiu	sp,sp,-32
+	sw	t0,4*4(sp)
+	sw	t1,5*4(sp)
+	sw	t2,6*4(sp)
+	sw	v0,7*4(sp)
+	lw	v0,7*4(sp)	/* for system call restarts */
 #endif
 	syscall			/* Do the system call.  */
+#ifdef __mips64
+	daddiu	sp,sp,16
+#else
+	addiu	sp,sp,32
+#endif
      	j ra			/* Return to caller.  */
+.end    syscall
+.size   syscall,.-syscall
