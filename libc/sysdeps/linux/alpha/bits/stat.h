@@ -26,63 +26,18 @@
 #define _STAT_VER_GLIBC2_1	2
 #define _STAT_VER		_STAT_VER_GLIBC2_1
 
-/* Versions of the `xmknod' interface.  */
-#define _MKNOD_VER_LINUX	0
 
-struct stat
-  {
-    __dev_t st_dev;		/* Device.  */
-#ifdef __USE_FILE_OFFSET64
-    __ino64_t st_ino;		/* File serial number.  */
-#else
-    __ino_t st_ino;		/* File serial number.	*/
-    int __pad1;
-#endif
-    __mode_t st_mode;		/* File mode.  */
-    __nlink_t st_nlink;		/* Link count.  */
-    __uid_t st_uid;		/* User ID of the file's owner.	*/
-    __gid_t st_gid;		/* Group ID of the file's group.*/
-    __dev_t st_rdev;		/* Device number, if device.  */
-    __off_t st_size;		/* Size of file, in bytes.  */
-    __time_t st_atime;		/* Time of last access.  */
-    __time_t st_mtime;		/* Time of last modification.  */
-    __time_t st_ctime;		/* Time of last status change.  */
-#ifdef __USE_FILE_OFFSET64
-    __blkcnt64_t st_blocks;	/* Nr. 512-byte blocks allocated.  */
-#else
-    __blkcnt_t st_blocks;	/* Nr. 512-byte blocks allocated.  */
-    int __pad2;
-#endif
-    __blksize_t st_blksize;	/* Optimal block size for I/O.  */
-    unsigned int st_flags;
-    unsigned int st_gen;
-    int __pad3;
-    long __unused[4];
-  };
-
+/* Pull in whatever this particular arch's kernel thinks that struct stat 
+ * should look like.  It turns out that each arch has a different opinion 
+ * on the subject, and different kernel revs use different names... */
+#define new_stat stat
+#include <asm/stat.h>
 #ifdef __USE_LARGEFILE64
-/* Note stat64 is the same shape as stat.  */
-struct stat64
-  {
-    __dev_t st_dev;		/* Device.  */
-    __ino64_t st_ino;		/* File serial number.  */
-    __mode_t st_mode;		/* File mode.  */
-    __nlink_t st_nlink;		/* Link count.  */
-    __uid_t st_uid;		/* User ID of the file's owner.	*/
-    __gid_t st_gid;		/* Group ID of the file's group.*/
-    __dev_t st_rdev;		/* Device number, if device.  */
-    __off_t st_size;		/* Size of file, in bytes.  */
-    __time_t st_atime;		/* Time of last access.  */
-    __time_t st_mtime;		/* Time of last modification.  */
-    __time_t st_ctime;		/* Time of last status change.  */
-    __blkcnt64_t st_blocks;	/* Nr. 512-byte blocks allocated.  */
-    __blksize_t st_blksize;	/* Optimal block size for I/O.  */
-    unsigned int st_flags;
-    unsigned int st_gen;
-    int __pad3;
-    long __unused[4];
-  };
+#  ifdef __USE_FILE_OFFSET64
+#    define stat   stat64
+#  endif
 #endif
+
 
 /* Tell code we have these members.  */
 #define	_STATBUF_ST_BLKSIZE

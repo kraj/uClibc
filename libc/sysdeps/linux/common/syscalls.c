@@ -156,7 +156,11 @@ time_t time (time_t *t)
 #endif
 
 //#define __NR_mknod            14
-//See mknod.c
+#ifdef L_mknod
+#include <sys/stat.h>
+_syscall3(int, mknod, const char *, path, 
+		unsigned short int, mode, unsigned short int, dev);
+#endif
 
 //#define __NR_chmod            15
 #ifdef L_chmod
@@ -942,89 +946,32 @@ _syscall2(int, getitimer, __itimer_which_t, which, struct itimerval *, value);
 #endif
 
 //#define __NR_stat             106
-#ifdef L___stat
+#ifdef L_stat
 #include <unistd.h>
-#include "statfix.h"
-#define __NR___stat	__NR_stat
-extern int __stat(const char *file_name, struct kernel_stat *buf);
-_syscall2(int, __stat, const char *, file_name, struct kernel_stat *, buf);
-
-int __xstat(int version, const char * file_name, struct libc_stat * cstat)
-{
-	struct kernel_stat kstat;
-	int result = __stat(file_name, &kstat);
-
-	if (result == 0) { 
-		__statfix(cstat, &kstat);
-	}
-	return result;
-}
-
-int stat(const char *file_name, struct libc_stat *buf)
-{
-	return(__xstat(0, file_name, buf));
-}
+#include <sys/stat.h>
+_syscall2(int, stat, const char *, file_name, struct stat *, buf);
 #if ! defined __NR_stat64 && defined __UCLIBC_HAVE_LFS__
 weak_alias(stat, stat64);
-weak_alias(__xstat, __xstat64);
 #endif
 #endif
 
 //#define __NR_lstat            107
-#ifdef L___lstat
+#ifdef L_lstat
 #include <unistd.h>
-#include "statfix.h"
-#define __NR___lstat	__NR_lstat
-extern int __lstat(const char *file_name, struct kernel_stat *buf);
-_syscall2(int, __lstat, const char *, file_name, struct kernel_stat *, buf);
-
-int __lxstat(int version, const char * file_name, struct libc_stat * cstat)
-{
-	struct kernel_stat kstat;
-	int result = __lstat(file_name, &kstat);
-
-	if (result == 0) { 
-		__statfix(cstat, &kstat);
-	}
-	return result;
-}
-
-int lstat(const char *file_name, struct libc_stat *buf)
-{
-	return(__lxstat(0, file_name, buf));
-}
+#include <sys/stat.h>
+_syscall2(int, lstat, const char *, file_name, struct stat *, buf);
 #if ! defined __NR_lstat64 && defined __UCLIBC_HAVE_LFS__
 weak_alias(lstat, lstat64);
-weak_alias(__lxstat, __lxstat64);
 #endif
 #endif
 
 //#define __NR_fstat            108
-#ifdef L___fstat
+#ifdef L_fstat
 #include <unistd.h>
-#include "statfix.h"
-#define __NR___fstat	__NR_fstat
-extern int __fstat(int filedes, struct kernel_stat *buf);
-_syscall2(int, __fstat, int, filedes, struct kernel_stat *, buf);
-
-int __fxstat(int version, int fd, struct libc_stat * cstat)
-{
-	struct kernel_stat kstat;
-	int result = __fstat(fd, &kstat);
-
-	if (result == 0) { 
-		__statfix(cstat, &kstat);
-	}
-	return result;
-}
-
-int fstat(int filedes, struct libc_stat *buf)
-{
-	return(__fxstat(0, filedes, buf));
-}
+#include <sys/stat.h>
+_syscall2(int, fstat, int, filedes, struct stat *, buf);
 #if ! defined __NR_fstat64 && defined __UCLIBC_HAVE_LFS__
 weak_alias(fstat, fstat64);
-weak_alias(__fxstat, __fxstat64);
 #endif
 #endif
 
@@ -1611,83 +1558,29 @@ int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
 
 
 //#define __NR_stat64             195
-#ifdef L___stat64
+#ifdef L_stat64
 #if defined __NR_stat64 && defined __UCLIBC_HAVE_LFS__
 #include <unistd.h>
-#include "statfix64.h"
-#define __NR___stat64	__NR_stat64
-extern int __stat64(const char *file_name, struct kernel_stat64 *buf);
-_syscall2(int, __stat64, const char *, file_name, struct kernel_stat64 *, buf);
-
-int __xstat64(int version, const char * file_name, struct libc_stat64 * cstat)
-{
-	struct kernel_stat64 kstat;
-	int result = __stat64(file_name, &kstat);
-
-	if (result == 0) { 
-		__statfix64(cstat, &kstat);
-	}
-	return result;
-}
-
-int stat64(const char *file_name, struct libc_stat64 *buf)
-{
-	return(__xstat64(0, file_name, buf));
-}
+#include <sys/stat.h>
+_syscall2(int, stat64, const char *, file_name, struct stat64 *, buf);
 #endif /* __UCLIBC_HAVE_LFS__ */
 #endif
 
 //#define __NR_lstat64            196
-#ifdef L___lstat64
+#ifdef L_lstat64
 #if defined __NR_lstat64 && defined __UCLIBC_HAVE_LFS__
 #include <unistd.h>
-#include "statfix64.h"
-#define __NR___lstat64	__NR_lstat64
-extern int __lstat64(const char *file_name, struct kernel_stat64 *buf);
-_syscall2(int, __lstat64, const char *, file_name, struct kernel_stat64 *, buf);
-
-int __lxstat64(int version, const char * file_name, struct libc_stat64 * cstat)
-{
-	struct kernel_stat64 kstat;
-	int result = __lstat64(file_name, &kstat);
-
-	if (result == 0) { 
-		__statfix64(cstat, &kstat);
-	}
-	return result;
-}
-
-int lstat64(const char *file_name, struct libc_stat64 *buf)
-{
-	return(__lxstat64(0, file_name, buf));
-}
+#include <sys/stat.h>
+_syscall2(int, lstat64, const char *, file_name, struct stat64 *, buf);
 #endif /* __UCLIBC_HAVE_LFS__ */
 #endif
 
 //#define __NR_fstat64            197
-#ifdef L___fstat64
+#ifdef L_fstat64
 #if defined __NR_fstat64 && defined __UCLIBC_HAVE_LFS__
 #include <unistd.h>
-#include "statfix64.h"
-#define __NR___fstat64	__NR_fstat64
-extern int __fstat64(int filedes, struct kernel_stat64 *buf);
-_syscall2(int, __fstat64, int, filedes, struct kernel_stat64 *, buf);
-
-int __fxstat64(int version, int fd, struct libc_stat64 * cstat)
-{
-	struct kernel_stat64 kstat;
-	int result = __fstat64(fd, &kstat);
-
-	if (result == 0) { 
-		__statfix64(cstat, &kstat);
-	}
-	return result;
-}
-
-int fstat64(int filedes, struct libc_stat64 *buf)
-{
-	return(__fxstat64(0, filedes, buf));
-}
+#include <sys/stat.h>
+_syscall2(int, fstat64, int, filedes, struct stat64 *, buf);
 #endif /* __UCLIBC_HAVE_LFS__ */
 #endif
 

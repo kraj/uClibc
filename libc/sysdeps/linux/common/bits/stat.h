@@ -20,6 +20,9 @@
 # error "Never include <bits/stat.h> directly; use <sys/stat.h> instead."
 #endif
 
+#ifndef _BITS_STAT_H
+#define _BITS_STAT_H
+
 /* Versions of the `struct stat' data structure.  */
 #define _STAT_VER_LINUX_OLD	1
 #define _STAT_VER_KERNEL	1
@@ -32,74 +35,17 @@
 #define _MKNOD_VER_SVR4		2
 #define _MKNOD_VER		_MKNOD_VER_LINUX /* The bits defined below.  */
 
-
-struct stat
-  {
-    __dev_t st_dev;			/* Device.  */
-    unsigned short int __pad1;
-#ifndef __USE_FILE_OFFSET64
-    __ino_t st_ino;			/* File serial number.	*/
-#else
-    __ino_t __st_ino;			/* 32bit file serial number.	*/
-#endif
-    __mode_t st_mode;			/* File mode.  */
-    __nlink_t st_nlink;			/* Link count.  */
-    __uid_t st_uid;			/* User ID of the file's owner.	*/
-    __gid_t st_gid;			/* Group ID of the file's group.*/
-    __dev_t st_rdev;			/* Device number, if device.  */
-    unsigned short int __pad2;
-#ifndef __USE_FILE_OFFSET64
-    __off_t st_size;			/* Size of file, in bytes.  */
-#else
-    __off64_t st_size;			/* Size of file, in bytes.  */
-#endif
-    __blksize_t st_blksize;		/* Optimal block size for I/O.  */
-
-#ifndef __USE_FILE_OFFSET64
-    __blkcnt_t st_blocks;		/* Number 512-byte blocks allocated. */
-#else
-    __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
-#endif
-    __time_t st_atime;			/* Time of last access.  */
-    unsigned long int __unused1;
-    __time_t st_mtime;			/* Time of last modification.  */
-    unsigned long int __unused2;
-    __time_t st_ctime;			/* Time of last status change.  */
-    unsigned long int __unused3;
-#ifndef __USE_FILE_OFFSET64
-    unsigned long int __unused4;
-    unsigned long int __unused5;
-#else
-    __ino64_t st_ino;			/* File serial number.	*/
-#endif
-  };
-
+/* Pull in whatever this particular arch's kernel thinks that struct stat 
+ * should look like.  It turns out that each arch has a different opinion 
+ * on the subject, and different kernel revs use different names... */
+#define new_stat stat
+#include <asm/stat.h>
 #ifdef __USE_LARGEFILE64
-struct stat64
-  {
-    __dev_t st_dev;			/* Device.  */
-    unsigned int __pad1;
-
-    __ino_t __st_ino;			/* 32bit file serial number.	*/
-    __mode_t st_mode;			/* File mode.  */
-    __nlink_t st_nlink;			/* Link count.  */
-    __uid_t st_uid;			/* User ID of the file's owner.	*/
-    __gid_t st_gid;			/* Group ID of the file's group.*/
-    __dev_t st_rdev;			/* Device number, if device.  */
-    unsigned int __pad2;
-    __off64_t st_size;			/* Size of file, in bytes.  */
-    __blksize_t st_blksize;		/* Optimal block size for I/O.  */
-
-    __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
-    __time_t st_atime;			/* Time of last access.  */
-    unsigned long int __unused1;
-    __time_t st_mtime;			/* Time of last modification.  */
-    unsigned long int __unused2;
-    __time_t st_ctime;			/* Time of last status change.  */
-    unsigned long int __unused3;
-    __ino64_t st_ino;			/* File serial number.		*/
-  };
+#  ifdef __USE_FILE_OFFSET64
+#    define stat   stat64
+#  endif
 #endif
+
 
 /* Tell code we have these members.  */
 #define	_STATBUF_ST_BLKSIZE
@@ -132,3 +78,6 @@ struct stat64
 #define	__S_IREAD	0400	/* Read by owner.  */
 #define	__S_IWRITE	0200	/* Write by owner.  */
 #define	__S_IEXEC	0100	/* Execute by owner.  */
+
+#endif	/* _BITS_STAT_H */
+

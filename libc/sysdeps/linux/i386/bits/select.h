@@ -20,6 +20,10 @@
 # error "Never use <bits/select.h> directly; include <sys/select.h> instead."
 #endif
 
+#undef __FD_ZERO
+#undef __FD_SET
+#undef __FD_CLR
+#undef __FD_ISSET
 
 #if defined __GNUC__ && __GNUC__ >= 2
 
