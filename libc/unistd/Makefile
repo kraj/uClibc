@@ -28,9 +28,14 @@ DIRS:=
 CSRC=execl.c execlp.c execv.c execvep.c execvp.c execle.c \
 	sleep.c usleep.c getpass.c sysconf_src.c getlogin.c \
 	fpathconf.c confstr.c pathconf.c swab.c usershell.c \
-	getopt.c getsubopt.c
+	getsubopt.c
 ifeq ($(strip $(UCLIBC_HAS_MMU)),y)
     CSRC+=daemon.c
+endif
+ifeq ($(strip $(UCLIBC_HAS_GNU_GETOPT)),y)
+	CSRC += getopt.c
+else
+	CSRC += getopt-susv3.c
 endif
 
 # TESTING -- comment this out if it breaks for you

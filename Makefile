@@ -228,6 +228,10 @@ ifneq ($(strip $(UCLIBC_HAS_GLOB)),y)
 	# Remove glob header since glob support is disabled.
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/glob.h
 endif
+ifneq ($(strip $(UCLIBC_HAS_GNU_GETOPT)),y)
+	# Remove getopt header since gnu getopt support is disabled.
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/getopt.h
+endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod -f 755 $$i; chmod -f 644 $$i/*.h; \
 	done;

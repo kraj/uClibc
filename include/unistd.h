@@ -724,7 +724,7 @@ extern int setlogin (__const char *__name) __THROW;
    arguments in ARGV (ARGC of them, minus the program name) for
    options given in OPTS.  */
 # define __need_getopt
-# include <getopt.h>
+# include <bits/getopt.h>
 #endif
 
 

@@ -637,7 +637,7 @@ extern void funlockfile (FILE *__stream) __THROW;
    declared here which do not belong into this header.  But we have to
    follow.  In GNU mode we don't do this nonsense.  */
 # define __need_getopt
-# include <getopt.h>
+# include <bits/getopt.h>
 #endif	/* X/Open, but not issue 6 and not for GNU.  */
 
 /* If we are compiling with optimizing read this file.  It contains

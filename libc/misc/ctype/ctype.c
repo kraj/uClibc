@@ -42,6 +42,7 @@
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
 /**********************************************************************/
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
 #ifdef __UCLIBC_HAS_CTYPE_SIGNED__
 
@@ -65,6 +66,7 @@
 
 #endif /* __UCLIBC_HAS_CTYPE_SIGNED__ */
 
+#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
 /**********************************************************************/
 #ifdef __UCLIBC_MJN3_ONLY__
 #ifdef L_isspace
@@ -74,6 +76,11 @@
 #warning TODO: Optimize the isx*() funcs.
 #endif
 #endif /* __UCLIBC_MJN3_ONLY__ */
+/**********************************************************************/
+#undef PASTE2
+#define PASTE2(X,Y)    X ## Y
+
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
 #undef CTYPE_NAME
 #undef ISCTYPE
@@ -87,8 +94,6 @@
 #define ISCTYPE(C,F)   __isctype( C, F )
 #define CTYPE_ALIAS(NAME)
 #endif
-#undef PASTE2
-#define PASTE2(X,Y)    X ## Y
 
 
 #undef CTYPE_BODY
@@ -135,6 +140,18 @@ int CTYPE_NAME(NAME) (int c  __LOCALE_PARAM ) \
 CTYPE_ALIAS(NAME)
 
 
+#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
+#define C_MACRO(X)		PASTE2(__C_is,X)(c)
+#define CTYPE_NAME(X)  is ## X
+
+#define IS_FUNC_BODY(NAME) \
+int CTYPE_NAME(NAME) (int c) \
+{ \
+	return C_MACRO(NAME); \
+}
+
+#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
 /**********************************************************************/
 #ifdef L___ctype_assert
 #ifdef __UCLIBC_HAS_CTYPE_ENFORCED__
@@ -176,6 +193,8 @@ IS_FUNC_BODY(cntrl);
 /**********************************************************************/
 #if defined(L_isdigit) || defined(L_isdigit_l)
 
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
+
 /* The standards require EOF < 0. */
 #if EOF >= CHAR_MIN
 #define __isdigit_char_or_EOF(C)   __isdigit_char((C))
@@ -196,6 +215,12 @@ int CTYPE_NAME(digit) (int C   __LOCALE_PARAM)
 }
 
 CTYPE_ALIAS(digit)
+
+#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
+IS_FUNC_BODY(digit);
+
+#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
 #endif
 /**********************************************************************/
@@ -243,6 +268,8 @@ IS_FUNC_BODY(xdigit);
 /**********************************************************************/
 #ifdef L_tolower
 
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
+
 int tolower(int c)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
@@ -250,6 +277,15 @@ int tolower(int c)
 #endif
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? (__UCLIBC_CTYPE_TOLOWER)[c] : c;
 }
+
+#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
+int tolower(int c)
+{
+	return __C_tolower(c);
+}
+
+#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
 #endif
 /**********************************************************************/
@@ -272,6 +308,8 @@ weak_alias(__tolower_l, tolower_l)
 /**********************************************************************/
 #ifdef L_toupper
 
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
+
 int toupper(int c)
 {
 #if defined(__UCLIBC_HAS_CTYPE_ENFORCED__)
@@ -279,6 +317,15 @@ int toupper(int c)
 #endif
 	return __UCLIBC_CTYPE_IN_TO_DOMAIN(c) ? (__UCLIBC_CTYPE_TOUPPER)[c] : c;
 }
+
+#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
+int toupper(int c)
+{
+	return __C_toupper(c);
+}
+
+#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
 #endif
 /**********************************************************************/
@@ -301,6 +348,8 @@ weak_alias(__toupper_l, toupper_l)
 /**********************************************************************/
 #if defined(L_isascii) || defined(L_isascii_l)
 
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
+
 int __XL(isascii)(int c)
 {
 	return __isascii(c);		/* locale-independent */
@@ -308,9 +357,20 @@ int __XL(isascii)(int c)
 
 __XL_ALIAS(isascii)
 
+#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
+int isascii(int c)
+{
+	return __isascii(c);		/* locale-independent */
+}
+
+#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
 #endif
 /**********************************************************************/
 #if defined(L_toascii) || defined(L_toascii_l)
+
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
 int __XL(toascii)(int c)
 {
@@ -319,11 +379,22 @@ int __XL(toascii)(int c)
 
 __XL_ALIAS(toascii)
 
+#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
+int toascii(int c)
+{
+	return __toascii(c);		/* locale-independent */
+}
+
+#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
 #endif
 /**********************************************************************/
 /* old uClibc extensions */
 /**********************************************************************/
 #ifdef L_isxlower
+
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
 int isxlower(int C)
 {
@@ -341,9 +412,17 @@ int isxlower(int C)
 #endif
 }
 
+#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
+IS_FUNC_BODY(xlower);
+
+#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
 #endif
 /**********************************************************************/
 #ifdef L_isxupper
+
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
 int isxupper(int C)
 {
@@ -360,6 +439,12 @@ int isxupper(int C)
 #error Unknown type of ctype checking!
 #endif
 }
+
+#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
+IS_FUNC_BODY(xupper);
+
+#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
 #endif
 /**********************************************************************/

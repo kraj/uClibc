@@ -28,10 +28,13 @@ MSRC=ctype.c
 MOBJ=	isalnum.o isalpha.o isascii.o iscntrl.o isdigit.o \
 	isgraph.o islower.o isprint.o ispunct.o isspace.o \
 	isupper.o isxdigit.o toascii.o tolower.o toupper.o \
-	isblank.o isctype.o isxlower.o isxupper.o \
-	__C_ctype_b.o __C_ctype_tolower.o __C_ctype_toupper.o \
+	isblank.o isxlower.o isxupper.o
+
+ifeq ($(UCLIBC_HAS_CTYPE_TABLES),y)
+MOBJ += __C_ctype_b.o __C_ctype_tolower.o __C_ctype_toupper.o \
 	__ctype_b_loc.o __ctype_tolower_loc.o __ctype_toupper_loc.o \
-	__ctype_assert.o
+	__ctype_assert.o isctype.o
+endif
 
 MOBJx=	isalnum_l.o isalpha_l.o isascii_l.o iscntrl_l.o isdigit_l.o \
 	isgraph_l.o islower_l.o isprint_l.o ispunct_l.o isspace_l.o \

@@ -26,13 +26,13 @@ codesets.txt:
 	fi;
 
 gen_wc8bit: gen_wc8bit.c
-	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) $(CFLAGS_wc8bit) $^ -o $@
+	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) $(CFLAGS_wc8bit) -D__UCLIBC_GEN_LOCALE $^ -o $@
 
 c8tables.h: gen_wc8bit codesets.txt
 	./gen_wc8bit `cat codesets.txt`
 
 gen_wctype: gen_wctype.c
-	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) $^ -o $@
+	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) -D__UCLIBC_GEN_LOCALE $^ -o $@
 
 # Warning! Beware tr_TR toupper/tolower exceptions!
 wctables.h: gen_wctype

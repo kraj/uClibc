@@ -33,7 +33,7 @@
 #ifndef _BITS_CTYPE_H
 #define _BITS_CTYPE_H
 
-#warning uClibc_ctype.h is deprecated
+#ifdef __UCLIBC_GEN_LOCALE
 
 /* Taking advantage of the C99 mutual-exclusion guarantees for the various
  * (w)ctype classes, including the descriptions of printing and control
@@ -80,72 +80,9 @@ enum {
 /*  #define __CTYPE_isxdigit(D) -- isxdigit is untestable this way. 
  *  But that's ok as isxdigit() (and isdigit() too) are locale-invariant. */
 
-/* The values for wctype_t. */
-enum {
-	_CTYPE_unclassified = 0,
-	_CTYPE_isalnum,
-	_CTYPE_isalpha,
-	_CTYPE_isblank,
-	_CTYPE_iscntrl,
-	_CTYPE_isdigit,
-	_CTYPE_isgraph,
-	_CTYPE_islower,
-	_CTYPE_isprint,
-	_CTYPE_ispunct,
-	_CTYPE_isspace,
-	_CTYPE_isupper,
-	_CTYPE_isxdigit				/* _MUST_ be last of the standard classes! */
-};
+#else  /* __UCLIBC_GEN_LOCALE *****************************************/
 
-
-/* The following is used to implement wctype(), but it is defined
- * here because the ordering must agree with that of the enumeration
- * above (ignoring unclassified). */
-#define __CTYPE_TYPESTRING \
-	"\6alnum\0\6alpha\0\6blank\0\6cntrl\0\6digit\0\6graph\0\6lower\0" \
-	"\6print\0\6punct\0\6space\0\6upper\0\7xdigit\0\0"
-
-/* Used in implementing iswctype(), but defined here as it must agree
- * in ordering with the string above. */
-#define __CTYPE_RANGES \
-	0, -1,								/* unclassified */ \
-	1, __CTYPE_digit - 1,				/* alnum */ \
-	1, __CTYPE_alpha_upper - 1,			/* alpha */ \
-	__CTYPE_print_space_blank, 5,		/* blank -- also must be odd! */ \
-	__CTYPE_cntrl_space_nonblank, 2,	/* cntrl */ \
-	__CTYPE_digit, 0,					/* digit */ \
-	1, __CTYPE_graph - 1,				/* graph */ \
-	__CTYPE_alpha_lower, 1,				/* lower */ \
-	1, __CTYPE_print_space_blank - 1,	/* print */ \
-	__CTYPE_punct, 0,					/* punct */ \
-	__CTYPE_print_space_nonblank, 5, 	/* space */ \
-	__CTYPE_alpha_upper_lower, 1,		/* upper */ \
-	/* No entry for xdigit as it is handled specially. */
-
-#define _CTYPE_iswalnum		_CTYPE_isalnum
-#define _CTYPE_iswalpha		_CTYPE_isalpha
-#define _CTYPE_iswblank		_CTYPE_isblank
-#define _CTYPE_iswcntrl		_CTYPE_iscntrl
-#define _CTYPE_iswdigit		_CTYPE_isdigit
-#define _CTYPE_iswgraph		_CTYPE_isgraph
-#define _CTYPE_iswlower		_CTYPE_islower
-#define _CTYPE_iswprint		_CTYPE_isprint
-#define _CTYPE_iswpunct		_CTYPE_ispunct
-#define _CTYPE_iswspace		_CTYPE_isspace
-#define _CTYPE_iswupper		_CTYPE_isupper
-#define _CTYPE_iswxdigit	_CTYPE_isxdigit
-
-/* The following is used to implement wctrans(). */
-
-enum {
-	_CTYPE_tolower = 1,
-	_CTYPE_toupper,
-	_CTYPE_totitle
-};
-
-#define __CTYPE_TRANSTRING	"\10tolower\0\10toupper\0\10totitle\0\0"
-
-/* Now define some ctype macros valid for the C/POSIX locale. */
+/* Define some ctype macros valid for the C/POSIX locale. */
 
 /* ASCII ords of \t, \f, \n, \r, and \v are 9, 12, 10, 13, 11 respectively. */
 #define __C_isspace(c) \
@@ -207,46 +144,173 @@ enum {
 		 ? (((unsigned char)(((c)) - 'A')) < 6) \
 		 : (((unsigned int)(((c)) - 'A')) < 6)))
 
-/* TODO: Replace the above with expressions like the following? */
-/*  #define __C_isdigit(c) ((sizeof(c) == sizeof(char)) \ */
-/*  						? (((unsigned char)((c) - '0')) < 10) \ */
-/*  						: (((unsigned int)((c) - '0')) < 10)) */
+/**********************************************************************/
+__BEGIN_DECLS
 
-/* Similarly, define some wctype macros valid for the C/POSIX locale. */
+extern int isalnum(int c) __THROW;
+extern int isalpha(int c) __THROW;
+#ifdef __USE_ISOC99
+extern int isblank(int c) __THROW;
+#endif
+extern int iscntrl(int c) __THROW;
+extern int isdigit(int c) __THROW;
+extern int isgraph(int c) __THROW;
+extern int islower(int c) __THROW;
+extern int isprint(int c) __THROW;
+extern int ispunct(int c) __THROW;
+extern int isspace(int c) __THROW;
+extern int isupper(int c) __THROW;
+extern int isxdigit(int c) __THROW;
 
-/* First, we need some way to make sure the arg is in range. */
-#define __C_classed(c) \
-	((sizeof(c) <= sizeof(int)) || (c == ((unsigned char)c)))
+extern int tolower(int c) __THROW;
+extern int toupper(int c) __THROW;
 
-#define __C_iswspace(c)		(__C_classed(c) && __C_isspace(c))
-#define __C_iswblank(c)		(__C_classed(c) && __C_isblank(c))
-#define __C_iswdigit(c)		(__C_classed(c) && __C_isdigit(c))
-#define __C_iswxdigit(c)	(__C_classed(c) && __C_isxdigit(c))
-#define __C_iswcntrl(c)		(__C_classed(c) && __C_iscntrl(c))
-#define __C_iswalpha(c)		(__C_classed(c) && __C_isalpha(c))
-#define __C_iswalnum(c)		(__C_classed(c) && __C_isalnum(c))
-#define __C_iswprint(c)		(__C_classed(c) && __C_isprint(c))
-#define __C_iswlower(c)		(__C_classed(c) && __C_islower(c))
-#define __C_iswupper(c)		(__C_classed(c) && __C_isupper(c))
-#define __C_iswpunct(c)		(__C_classed(c) && __C_ispunct(c))
-#define __C_iswgraph(c)		(__C_classed(c) && __C_isgraph(c))
-#define __C_towlower(c) \
-	((__C_classed(c) && __C_isupper(c)) ? ((c) | 0x20) : (c))
-#define __C_towupper(c) \
-	((__C_classed(c) && __C_islower(c)) ? ((c) ^ 0x20) : (c))
+#if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
+extern int isascii(int c) __THROW;
+extern int toascii(int c) __THROW;
+#endif
 
-/* Now define some macros to aviod the extra wrapper-function call. */
-#define __iswalnum(c)		iswctype(c, _CTYPE_iswalnum)
-#define __iswalpha(c)		iswctype(c, _CTYPE_iswalpha)
-#define __iswblank(c)		iswctype(c, _CTYPE_iswblank)
-#define __iswcntrl(c)		iswctype(c, _CTYPE_iswcntrl)
-#define __iswgraph(c)		iswctype(c, _CTYPE_iswgraph)
-#define __iswlower(c)		iswctype(c, _CTYPE_iswlower)
-#define __iswprint(c)		iswctype(c, _CTYPE_iswprint)
-#define __iswpunct(c)		iswctype(c, _CTYPE_iswpunct)
-#define __iswspace(c)		iswctype(c, _CTYPE_iswspace)
-#define __iswupper(c)		iswctype(c, _CTYPE_iswupper)
-#define __iswdigit(c)		__C_iswdigit(c)
-#define __iswxdigit(c)		__C_iswxdigit(c)
+/* The following are included for compatibility with older versions of
+ * uClibc; but now they're only visible if MISC funcctionality is requested.
+ * However, as they are locale-independent, the hidden macro versions are
+ * always present. */
+#ifdef __USE_MISC
+extern int isxlower(int c) __THROW;	/* uClibc-specific. */
+extern int isxupper(int c) __THROW;	/* uClibc-specific. */
+
+/* isdigit() is really locale-invariant, so provide some small fast macros.
+ * These are uClibc-specific. */
+#define __isdigit_char(C)    (((unsigned char)((C) - '0')) <= 9)
+#define __isdigit_int(C)     (((unsigned int)((C) - '0')) <= 9)
+#endif
+
+/* Next, some ctype macros which are valid for all supported locales. */
+/* WARNING: isspace and isblank need to be reverified if more 8-bit codesets
+ * are added!!!  But isdigit and isxdigit are always valid. */
+
+/* #define __isspace(c)	__C_isspace(c) */
+/* #define __isblank(c)	__C_isblank(c) */
+
+/* #define __isdigit(c)	__C_isdigit(c) */
+/* #define __isxdigit(c)	__C_isxdigit(c) */
+
+/* Now some non-ansi/iso c99 macros. */
+
+#define __isascii(c) (((c) & ~0x7f) == 0)
+#define __toascii(c) ((c) & 0x7f)
+#define _toupper(c) ((c) ^ 0x20)
+#define _tolower(c) ((c) | 0x20)
+
+
+/* For compatibility with older versions of uClibc.  Are these ever used? */
+#if 0
+#define __isxlower(c)	__C_isxlower(c)	/* uClibc-specific. */
+#define __isxupper(c)	__C_isxupper(c)	/* uClibc-specific. */
+#endif
+
+/* Apparently, glibc implements things as macros if __NO_CTYPE isn't defined.
+ * If we don't have locale support, we'll do the same.  Otherwise, we'll
+ * only use macros for the supported-locale-invariant cases. */
+#ifndef __UCLIBC_HAS_LOCALE__
+
+#endif /*  __UCLIBC_HAS_LOCALE__ */
+
+__END_DECLS
+
+/**********************************************************************/
+#ifdef __GNUC__
+
+#define __isbody_C_macro(f,args)  __C_ ## f args
+
+#define __isbody(f,c) \
+	(__extension__ ({ \
+		int __res; \
+		if (sizeof(c) > sizeof(char)) { \
+			int __c = (c); \
+			__res = __isbody_C_macro(f,(__c)); \
+		} else { \
+			unsigned char __c = (c); \
+			__res = __isbody_C_macro(f,(__c)); \
+		} \
+		__res; \
+	}))
+
+#define __body_C_macro(f,args)  __C_ ## f args
+
+#define __body(f,c) \
+	(__extension__ ({ \
+		int __res; \
+		if (sizeof(c) > sizeof(char)) { \
+			int __c = (c); \
+			__res = __body_C_macro(f,(__c)); \
+		} else { \
+			unsigned char __c = (c); \
+			__res = __body_C_macro(f,(__c)); \
+		} \
+		__res; \
+	}))
+
+#define __isspace(c)		__body(isspace,c)
+#define __isblank(c)		__body(isblank,c)
+#define __isdigit(c)		__body(isdigit,c)
+#define __isxdigit(c)		__body(isxdigit,c)
+#define __iscntrl(c)		__body(iscntrl,c)
+#define __isalpha(c)		__body(isalpha,c)
+#define __isalnum(c)		__body(isalnum,c)
+#define __isprint(c)		__body(isprint,c)
+#define __islower(c)		__body(islower,c)
+#define __isupper(c)		__body(isupper,c)
+#define __ispunct(c)		__body(ispunct,c)
+#define __isgraph(c)		__body(isgraph,c)
+
+#define __isxlower(c)		__body(isxlower,c)
+#define __isxupper(c)		__body(isxupper,c)
+
+#define __tolower(c)		__body(tolower,c)
+#define __toupper(c)		__body(toupper,c)
+
+#if !defined __NO_CTYPE && !defined __cplusplus
+
+#define isspace(c)			__isspace(c)
+#define isblank(c)			__isblank(c)
+#define isdigit(c)			__isdigit(c)
+#define isxdigit(c)			__isxdigit(c)
+#define iscntrl(c)			__iscntrl(c)
+#define isalpha(c)			__isalpha(c)
+#define isalnum(c)			__isalnum(c)
+#define isprint(c)			__isprint(c)
+#define islower(c)			__islower(c)
+#define isupper(c)			__isupper(c)
+#define ispunct(c)			__ispunct(c)
+#define isgraph(c)			__isgraph(c)
+
+#define isxlower(c)			__isxlower(c)
+#define isxupper(c)			__isxupper(c)
+
+#define tolower(c)			__tolower(c)
+#define toupper(c)			__toupper(c)
+
+
+#endif
+
+#else  /* _GNUC__   ***************************************************/
+
+#if !defined __NO_CTYPE && !defined __cplusplus
+
+/* These macros should be safe from side effects. */
+
+#define isdigit(c)			__C_isdigit(c)
+#define isalpha(c)			__C_isalpha(c)
+#define isprint(c)			__C_isprint(c)
+#define islower(c)			__C_islower(c)
+#define isupper(c)			__C_isupper(c)
+#define isgraph(c)			__C_isgraph(c)
+
+#endif
+
+#endif /* __GNUC__ */
+/**********************************************************************/
+
+#endif  /* __UCLIBC_GEN_LOCALE */
 
 #endif /* _BITS_CTYPE_H */

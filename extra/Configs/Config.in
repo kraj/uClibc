@@ -359,8 +359,19 @@ endmenu
 
 menu "String and Stdio Support"
 
+config UCLIBC_HAS_CTYPE_TABLES
+	bool "Use Table Versions Of 'ctype.h' Functions."
+	default y
+	help
+	  Answer Y to use table versions of the 'ctype.h' functions.
+	  While the non-table versions are often smaller when building
+	  staticly linked apps, they work only in stub locale mode.
+	  
+	  Most people will answer Y.
+
 config UCLIBC_HAS_CTYPE_SIGNED
 	bool "Support Signed Characters In 'ctype.h' Functions."
+	depends UCLIBC_HAS_CTYPE_TABLES
 	default y
 	help
 	  Answer Y to enable support for passing signed char values to
@@ -373,6 +384,7 @@ config UCLIBC_HAS_CTYPE_SIGNED
 
 choice
 	prompt "ctype argument checking"
+	depends UCLIBC_HAS_CTYPE_TABLES
 	default UCLIBC_HAS_CTYPE_UNSAFE
 	help
 	  Please select the invalid arg behavior you want for the 'ctype' functions.
@@ -398,6 +410,7 @@ endchoice
 
 config UCLIBC_HAS_WCHAR
 	bool "Wide Character Support"
+	select UCLIBC_HAS_CTYPE_TABLES
 	default n
 	help
 	  Answer Y to enable wide character support.  This will make uClibc 
@@ -407,7 +420,7 @@ config UCLIBC_HAS_WCHAR
 
 config UCLIBC_HAS_LOCALE
 	bool "Locale Support (experimental/incomplete)"
-	depends on UCLIBC_HAS_WCHAR
+	select UCLIBC_HAS_WCHAR
 	default n
 	help
 	  Answer Y to enable locale support.  This will make uClibc much
@@ -428,6 +441,7 @@ config UCLIBC_HAS_XLOCALE
 
 config UCLIBC_HAS_HEXADECIMAL_FLOATS
 	bool "Support hexadecimal float notation"
+	depends UCLIBC_HAS_CTYPE_TABLES
 	depends on UCLIBC_HAS_FLOATS
 	default n
 	help
@@ -479,6 +493,7 @@ config UCLIBC_HAS_GLIBC_CUSTOM_PRINTF
 
 config USE_OLD_VFPRINTF
 	bool "Use the old vfprintf implementation"
+	depends on !UCLIBC_HAS_WCHAR
 	default n
 	help
 	  Set to true to use the old vfprintf instead of the new.  This is roughly
@@ -716,6 +731,15 @@ config UCLIBC_HAS_GETTEXT_AWARENESS
 	  to use gnu gettext.
 
 	  Most people will answer N.
+
+config UCLIBC_HAS_GNU_GETOPT
+	bool "Support gnu getopt"
+	default y
+	help
+	  Answer Y if you want to include full gnu getopt() instead of a
+	  (much smaller) SUSv3 compatible getopt().
+
+	  Most people will answer Y.
 
 endmenu
 
