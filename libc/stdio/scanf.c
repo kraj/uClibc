@@ -139,6 +139,7 @@ struct scan_cookie {
 	FILE *fp;
 	int nread;
 	int width;
+	int width_flag;
 	int ungot_char;
 	int ungot_flag;
 };
@@ -166,6 +167,7 @@ static void init_scan_cookie(struct scan_cookie *sc, FILE *fp)
 {
 	sc->fp = fp;
 	sc->nread = 0;
+	sc->width_flag = 0;
 	sc->ungot_flag = 0;
 	if ((sc->ungot_char = getc(fp)) > 0) { /* not EOF or EOS */
 		sc->ungot_flag = 1;
@@ -182,6 +184,7 @@ static int scan_getc_nw(struct scan_cookie *sc)
 	if (sc->ungot_char > 0) {
 		++sc->nread;
 	}
+	sc->width_flag = 0;
 	return sc->ungot_char;
 }
 
@@ -190,6 +193,7 @@ static int scan_getc(struct scan_cookie *sc)
 	if (sc->ungot_flag == 0) {
 		sc->ungot_char = getc(sc->fp);
 	}
+	sc->width_flag = 1;
 	if (--sc->width < 0) {
 		sc->ungot_flag = 1;
 		return 0;
@@ -206,6 +210,9 @@ static void scan_ungetc(struct scan_cookie *sc)
 	if (sc->ungot_flag != 0) {
 		assert(sc->width < 0);
 		return;
+	}
+	if (sc->width_flag) {
+		++sc->width;
 	}
 	sc->ungot_flag = 1;
 	if (sc->ungot_char > 0) {	/* not EOF or EOS */
