@@ -21,41 +21,23 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../../
+TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
+CSRC=obstack.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(COBJS)
 
-DIRS = assert ctype dirent file fnmatch glob internals lsearch \
-       mntent syslog time utmp tsearch locale sysvipc statfs \
-       error insremque ttyent gnu
-ifeq ($(strip $(INCLUDE_REGEX)),true)
-DIRS += regex
-endif
-ifeq ($(strip $(INCLUDE_THREADS)),true)
-DIRS += pthread
-endif
-ifeq ($(strip $(HAS_WCHAR)),true)
-DIRS += wctype wchar
-endif
+all: $(LIBC)
 
-all: libc.a
+$(LIBC): ar-target
 
-libc.a: subdirs
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-tags:
-	ctags -R
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-clean: subdirs_clean
+clean:
 	rm -f *.[oa] *~ core
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
-
-$(patsubst %, _dir_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-.PHONY: dummy
-
