@@ -27,6 +27,8 @@ SYSDEPS_DIR:=$(TARGET_ARCH)/sparc32
 else
 SYSDEPS_DIR:=$(TARGET_ARCH)
 endif
+#This stuff will not compile without at least -O1
+CFLAGS := $(subst -O0,-O1,$(CFLAGS))
 
 # set up system dependencies include dirs (NOTE: order matters!)
 PTDIR = $(TOPDIR)libpthread/linuxthreads/
