@@ -354,7 +354,8 @@ clean:
 	$(MAKE) -C libc/misc/wchar clean
 	$(MAKE) -C libc/unistd clean
 	$(MAKE) -C libc/sysdeps/linux/common clean
-	$(MAKE) -C extra/gcc-uClibc extra/locale clean
+	$(MAKE) -C extra/gcc-uClibc clean
+	$(MAKE) -C extra/locale clean
 	@set -e; \
 	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		rm -f include/sys/$$i; \
