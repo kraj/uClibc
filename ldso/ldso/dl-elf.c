@@ -21,13 +21,13 @@
 /* This file contains the helper routines to load an ELF sharable
    library into memory and add the symbol table info to the chain. */
 
-#include <asm/mman.h>
 #include <elf.h>
 #include "linuxelf.h"
 #include "string.h"
 #include "hash.h"
 #include "sysdep.h"
 #include "syscall.h"
+#include <sys/mman.h>
 #ifdef USE_CACHE
 #include "../config.h"
 #endif
