@@ -20,9 +20,6 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-# Figure out what arch to build...
-ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g')
-
 DIRS = $(ARCH) common
 
 all: libc.a

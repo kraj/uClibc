@@ -210,8 +210,16 @@ extern int vfscanf __P ((FILE *__restrict __s,
 /* Print a message describing the meaning of the value of errno.  */
 extern void perror __P ((__const char *__s));
 
+/* Read up to (and including) a DELIMITER from STREAM into *LINEPTR
+   (and null-terminate it). *LINEPTR is a pointer returned from malloc (or
+   NULL), pointing to *N characters of space.  It is realloc'd as
+   necessary.  Returns the number of characters read (not including the
+   null terminator), or -1 on error or EOF.  */
+extern size_t getdelim __P ((char **__restrict __lineptr,
+				  size_t *__restrict __n, int __delimiter,
+				  FILE *__restrict __stream));
 /* Like `getdelim', but reads up to a newline.  */
-extern int getline __P ((char **__restrict __lineptr,
+extern size_t getline __P ((char **__restrict __lineptr,
 				 size_t *__restrict __n,
 				 FILE *__restrict __stream));
 

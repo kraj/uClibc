@@ -26,7 +26,7 @@
 #
 #--------------------------------------------------------
 
-
+include Rules.mak
 
 DIRS = misc pwd_grp stdio string termios unistd net signal stdlib sysdeps
 
@@ -45,6 +45,7 @@ headers: dummy
 	@if [ ! -L "include/asm" ]; then ln -s /usr/include/asm include/asm ; fi
 	@if [ ! -L "include/net" ]; then ln -s /usr/include/net include/net ; fi
 	@if [ ! -L "include/linux" ]; then ln -s /usr/include/linux include/linux ; fi
+	@if [ ! -L "include/bits" ]; then ln -s ../sysdeps/linux/$(ARCH)/bits include/bits ; fi
 
 tags:
 	ctags -R

@@ -21,7 +21,7 @@
 # respective copyright holders.
 
 
-DIRS = assert crypt fnmatch glob internals lsearch syslog regex shm time
+DIRS = assert crypt fnmatch glob internals lsearch mntent syslog regex shm time
 
 ifeq ($(USE_CTYPE_C_FUNCTIONS),true)
     DIRS+=ctype

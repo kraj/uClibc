@@ -66,6 +66,9 @@ CROSS = #powerpc-linux-
 CC = $(CROSS)gcc
 STRIPTOOL = $(CROSS)strip
 
+# Figure out what arch to build...
+ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g')
+
 
 #--------------------------------------------------------
 # Nothing beyond this point should need be touched by mere 

@@ -1,76 +1,144 @@
-/* Copyright (C) 1995,1996 Robert de Bath <rdebath@cix.compulink.co.uk>
- * This file is part of the Linux-8086 C library and is distributed
- * under the GNU Library General Public License.
- */
-#include <string.h>
+/* Copyright (C) 1992, 1995 Free Software Foundation, Inc.
+This file is part of the GNU C Library.
+
+The GNU C Library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Library General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.
+
+The GNU C Library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Library General Public License for more details.
+
+You should have received a copy of the GNU Library General Public
+License along with the GNU C Library; see the file COPYING.LIB.  If
+not, write to the Free Software Foundation, Inc., 675 Mass Ave,
+Cambridge, MA 02139, USA.  */
+
 #include <stdlib.h>
-#include <malloc.h>
+#include <string.h>
+#include <unistd.h>
 
-extern char **environ;
+#if !defined(HAVE_GNU_LD) && !defined (__ELF__)
+#define	__environ	environ
+#endif
 
-#define ADD_NUM 4
+#if defined(_REENTRENT) || defined(_THREAD_SAFE)
+# include <pthread.h>
 
-int setenv(var, value, overwrite)
-const char *var;
-const char *value;
-int overwrite;
+/* We need to initialize the mutex.  For this we use a method provided
+   by pthread function 'pthread_once'.  For this we need a once block.  */
+static pthread_once__t _once_block = pthread_once_init;
+
+/* This is the mutex which protects the global environment of simultaneous
+   modifications.  */
+static pthread_mutex_t _setenv_mutex;
+
+static void
+DEFUN_VOID(_init_setenv_mutex)
 {
-	static char **mall_env = 0;
-	static int extras = 0;
-	char **p, **d;
-	char *t;
-	int len;
+  pthread_mutex_init(&_setenv_mutex, pthread_mutexattr_default);
+}
 
-	len = strlen(var);
+# define LOCK() \
+   do { pthread_once(&_once_block, _init_setenv_mutex);
+        pthread_mutex_lock(&_setenv_mutex); } while (0)
+# define UNLOCK() pthread_mutex_unlock(&_setenv_mutex)
 
-	if (!environ) {
-		environ = (char **) malloc(ADD_NUM * sizeof(char *));
-		memset(environ, 0, sizeof(char *) * ADD_NUM);
+#else /* !_REENTRENT && !_THREAD_SAFE */
 
-		extras = ADD_NUM;
+# define LOCK()
+# define UNLOCK()
+
+#endif /* _REENTRENT || _THREAD_SAFE */
+
+int setenv(const char *name, const char *value, int replace)
+{
+  register char **ep;
+  register size_t size;
+  const size_t namelen = strlen (name);
+  const size_t vallen = strlen (value);
+  int result = 0;
+
+  LOCK();
+
+  size = 0;
+  for (ep = __environ; *ep != NULL; ++ep)
+    if (!memcmp (*ep, name, namelen) && (*ep)[namelen] == '=')
+      break;
+    else
+      ++size;
+  
+  if (*ep == NULL)
+    {
+      static char **last_environ = NULL;
+      char **new_environ = (char **) malloc((size + 2) * sizeof(char *));
+      if (new_environ == NULL)
+	{
+	  result = -1;
+	  goto do_return;
 	}
+      (void) memcpy((__ptr_t) new_environ, (__ptr_t) __environ, size * sizeof(char *));
 
-	for (p = environ; *p; p++) {
-		if (memcmp(var, *p, len) == 0 && (*p)[len] == '=') {
-			if (!overwrite)
-				return -1;
-			/* Overwrite stuff */
-			while ((p[0] = p[1]))
-				p++;
-			extras++;
-			break;
-		}
+      new_environ[size] = malloc (namelen + 1 + vallen + 1);
+      if (new_environ[size] == NULL)
+	{
+	  free (new_environ);
+	  errno = ENOMEM;
+	  result = -1;
+	  goto do_return;
 	}
+      memcpy (new_environ[size], name, namelen);
+      new_environ[size][namelen] = '=';
+      memcpy (&new_environ[size][namelen + 1], value, vallen + 1);
 
-	if (extras <= 0) {			/* Need more space */
-		d = malloc((p - environ + 1 + ADD_NUM) * sizeof(char *));
+      new_environ[size + 1] = NULL;
 
-		if (d == 0)
-			return -1;
-
-		memcpy((void *) d, (void *) environ,
-
-			   (p - environ + 1) * sizeof(char *));
-		p = d + (p - environ);
-		extras = ADD_NUM;
-
-		if (mall_env)
-			free(mall_env);
-		environ = d;
-		mall_env = d;
+      if (last_environ != NULL)
+	free ((__ptr_t) last_environ);
+      last_environ = new_environ;
+      __environ = new_environ;
+    }
+  else if (replace)
+    {
+      size_t len = strlen (*ep);
+      if (len < namelen + 1 + vallen)
+	{
+	  char *new = malloc (namelen + 1 + vallen + 1);
+	  if (new == NULL)
+	    {
+	      result = -1;
+	      goto do_return;
+	    }
+	  *ep = new;
+	  memcpy (*ep, name, namelen);
+	  (*ep)[namelen] = '=';
 	}
+      memcpy (&(*ep)[namelen + 1], value, vallen + 1);
+    }
 
-	t = malloc(len + 1 + strlen(value) + 1);
-	if (!t)
-		return -1;
+do_return:
+  UNLOCK();
+  return result;
+}
 
-	strcpy(t, var);
-	strcat(t, "=");
-	strcat(t, value);
 
-	*p++ = (char *) t;
-	*p = '\0';
-	extras--;
+void unsetenv(const char *name)
+{
+  register char **ep;
+  register char **dp;
+  const size_t namelen = strlen (name);
 
-	return 0;
+  LOCK();
+
+  for (dp = ep = __environ; *ep != NULL; ++ep)
+    if (memcmp (*ep, name, namelen) || (*ep)[namelen] != '=')
+      {
+	*dp = *ep;
+	++dp;
+      }
+  *dp = NULL;
+
+  UNLOCK();
 }
