@@ -38,6 +38,10 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS) $(CRT0_OBJ)
 
+ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
+SAFECFLAGS += $(call check_gcc,-msoft-float,)
+endif
+
 all: $(OBJS) $(LIBC)
 
 $(LIBC): ar-target 

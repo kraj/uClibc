@@ -37,6 +37,10 @@ COBJS = $(patsubst %.c,%.o, $(CSRC))
 
 OBJS = $(SOBJS) $(COBJS)
 
+ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
+SAFECFLAGS += $(call check_gcc,-msoft-float,)
+endif
+
 
 all: $(OBJS) $(LIBC)
 
@@ -57,7 +61,6 @@ $(SOBJS): %.o : %.S
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
 
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 crti.o: crti.S

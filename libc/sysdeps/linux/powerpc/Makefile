@@ -37,6 +37,13 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)
 
+ifeq ($(strip $(UCLIBC_PROFILING)),y)
+SAFECFLAGS := $(filter-out -g,$(CFLAGS))
+endif
+ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
+SAFECFLAGS += $(call check_gcc,-msoft-float,)
+endif
+
 
 all: $(OBJS) $(LIBC)
 
@@ -59,10 +66,6 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 ifeq ($(strip $(UCLIBC_PROFILING)),y)
-SAFECFLAGS := $(filter-out -g,$(CFLAGS))
-ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
-SAFECFLAGS += $(call check_gcc,-msoft-float,)
-endif
 gmon-start.S: ../common/gmon-start.c
 	$(CC) $(SAFECFLAGS) -c $< -S -o $*.S
 gcrt1.o: $(CRT0_DEPS)
