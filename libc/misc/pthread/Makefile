@@ -29,7 +29,7 @@ SYSDEPINC = -I$(PTDIR)sysdeps/unix/sysv/linux \
             -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
 CFLAGS += $(SYSDEPINC) -D_GNU_SOURCE
 
-CSRC=no-tsd.c #weaks.c
+CSRC=no-tsd.c weaks.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
