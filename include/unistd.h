@@ -446,9 +446,7 @@ extern int dup2 __P ((int __fd, int __fd2));
 
 /* NULL-terminated array of "NAME=VALUE" environment variables.  */
 extern char **__environ;
-#ifdef __USE_GNU
 extern char **environ;
-#endif
 
 
 /* Replace the current process, executing PATH with arguments ARGV and
