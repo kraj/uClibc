@@ -100,6 +100,10 @@
 #define ELFCLASSM    ELFCLASS32
 #endif
 
+#if defined(__cris__)
+#define MATCH_MACHINE(x) (x == EM_CRIS)
+#define ELFCLASSM	ELFCLASS32
+#endif
 
 #ifndef MATCH_MACHINE
 #warning "You really should add a MATCH_MACHINE() macro for your architecture"
