@@ -378,7 +378,7 @@ int isctype(int c, int mask)
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 
-const uint16_t **__ctype_b_loc(void)
+const __ctype_mask_t **__ctype_b_loc(void)
 {
 	return &(__UCLIBC_CURLOCALE_DATA).__ctype_b;
 }
@@ -415,7 +415,7 @@ const __ctype_touplow_t **__ctype_toupper_loc(void)
 /**********************************************************************/
 #ifdef L___C_ctype_b
 
-const uint16_t __C_ctype_b_data[] = {
+const __ctype_mask_t __C_ctype_b_data[] = {
 #ifdef __UCLIBC_HAS_CTYPE_SIGNED__
 	/* -128  M-^@ */ 0,
 	/* -127  M-^A */ 0,
@@ -804,19 +804,11 @@ const uint16_t __C_ctype_b_data[] = {
 	/*  255  M-^? */ 0
 };
 
-const uint16_t *__C_ctype_b = __C_ctype_b_data + 1
-#ifdef __UCLIBC_HAS_CTYPE_SIGNED__
-	+ 127
-#endif
-	;
+const __ctype_mask_t *__C_ctype_b = __C_ctype_b_data + __UCLIBC_CTYPE_B_TBL_OFFSET;
 
 #ifndef __UCLIBC_HAS_XLOCALE__
 
-const uint16_t *__ctype_b = __C_ctype_b_data + 1
-#ifdef __UCLIBC_HAS_CTYPE_SIGNED__
-	+ 127
-#endif
-	;
+const __ctype_mask_t *__ctype_b = __C_ctype_b_data + __UCLIBC_CTYPE_B_TBL_OFFSET;
 
 #endif
 
@@ -926,18 +918,12 @@ const __ctype_touplow_t __C_ctype_tolower_data[] = {
 };
 
 const __ctype_touplow_t *__C_ctype_tolower = __C_ctype_tolower_data
-#ifdef __UCLIBC_HAS_CTYPE_SIGNED__
-	+ 128
-#endif
-	;
+											+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
 
 #ifndef __UCLIBC_HAS_XLOCALE__
 
 const __ctype_touplow_t *__ctype_tolower = __C_ctype_tolower_data
-#ifdef __UCLIBC_HAS_CTYPE_SIGNED__
-	+ 128
-#endif
-	;
+											+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
 
 #endif
 
@@ -1047,18 +1033,12 @@ const __ctype_touplow_t __C_ctype_toupper_data[] = {
 };
 
 const __ctype_touplow_t *__C_ctype_toupper = __C_ctype_toupper_data
-#ifdef __UCLIBC_HAS_CTYPE_SIGNED__
-	+ 128
-#endif
-	;
+											+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
 
 #ifndef __UCLIBC_HAS_XLOCALE__
 
 const __ctype_touplow_t *__ctype_toupper = __C_ctype_toupper_data
-#ifdef __UCLIBC_HAS_CTYPE_SIGNED__
-	+ 128
-#endif
-	;
+											+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
 
 #endif
 

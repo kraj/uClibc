@@ -141,10 +141,15 @@ typedef struct {
 
 typedef struct {
 #ifdef __UCLIBC_HAS_XLOCALE__
-	const __uint16_t *__ctype_b;
+	const __ctype_mask_t *__ctype_b;
 	const __ctype_touplow_t *__ctype_tolower;
 	const __ctype_touplow_t *__ctype_toupper;
 #endif
+
+	/* For now, just embed this in the structure. */
+	__ctype_mask_t __ctype_b_data[256 + __UCLIBC_CTYPE_B_TBL_OFFSET];
+	__ctype_touplow_t __ctype_tolower_data[256 + __UCLIBC_CTYPE_TO_TBL_OFFSET];
+	__ctype_touplow_t __ctype_toupper_data[256 + __UCLIBC_CTYPE_TO_TBL_OFFSET];
 
 /*  	int tables_loaded; */
 /*  	unsigned char lctypes[LOCALE_STRING_SIZE]; */

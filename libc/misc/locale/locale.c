@@ -54,7 +54,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
-#warning devel code
 #include <stdio.h>
 
 #undef __LOCALE_C_ONLY
@@ -639,6 +638,122 @@ int _locale_set_l(const unsigned char *p, __locale_t base)
 					base->idx8wc2c = c8b->idx8wc2c;
 					/* translit  */
 #endif /* __UCLIBC_HAS_WCHAR__ */
+
+					/* What follows is fairly bloated, but it is just a hack
+					 * to get the 8-bit codeset ctype stuff functioning.
+					 * All of this will be replaced in the next generation
+					 * of locale support anyway... */
+
+					memcpy(base->__ctype_b_data,
+						   __C_ctype_b - __UCLIBC_CTYPE_B_TBL_OFFSET,
+						   (256 + __UCLIBC_CTYPE_B_TBL_OFFSET)
+						   * sizeof(__ctype_mask_t));
+					memcpy(base->__ctype_tolower_data,
+						   __C_ctype_tolower - __UCLIBC_CTYPE_TO_TBL_OFFSET,
+						   (256 + __UCLIBC_CTYPE_TO_TBL_OFFSET)
+						   * sizeof(__ctype_touplow_t));
+					memcpy(base->__ctype_toupper_data,
+						   __C_ctype_toupper - __UCLIBC_CTYPE_TO_TBL_OFFSET,
+						   (256 + __UCLIBC_CTYPE_TO_TBL_OFFSET)
+						   * sizeof(__ctype_touplow_t));
+
+#define Cctype_TBL_MASK		((1 << __LOCALE_DATA_Cctype_IDX_SHIFT) - 1)
+#define Cctype_IDX_OFFSET	(128 >> __LOCALE_DATA_Cctype_IDX_SHIFT)
+
+					{
+						int u;
+						__ctype_mask_t m;
+
+						for (u=0 ; u < 128 ; u++) {
+#ifdef __LOCALE_DATA_Cctype_PACKED
+							c = base->tbl8ctype
+								[ ((int)(c8b->idx8ctype
+										 [(u >> __LOCALE_DATA_Cctype_IDX_SHIFT) ])
+								   << (__LOCALE_DATA_Cctype_IDX_SHIFT - 1))
+								  + ((u & Cctype_TBL_MASK) >> 1)];
+							c = (u & 1) ? (c >> 4) : (c & 0xf);
+#else
+							c = base->tbl8ctype
+								[ ((int)(c8b->idx8ctype
+										 [(u >> __LOCALE_DATA_Cctype_IDX_SHIFT) ])
+								   << __LOCALE_DATA_Cctype_IDX_SHIFT)
+								  + (u & Cctype_TBL_MASK) ];
+#endif
+
+							m = base->code2flag[c];
+
+							base->__ctype_b_data
+								[128 + __UCLIBC_CTYPE_B_TBL_OFFSET + u]
+								= m;
+
+#ifdef __UCLIBC_HAS_CTYPE_SIGNED__
+							if (((signed char)(128 + u)) != -1) {
+								base->__ctype_b_data[__UCLIBC_CTYPE_B_TBL_OFFSET
+													 + ((signed char)(128 + u))]
+									= m;
+							}
+#endif
+
+							base->__ctype_tolower_data
+								[128 + __UCLIBC_CTYPE_TO_TBL_OFFSET + u]
+								= 128 + u;
+							base->__ctype_toupper_data
+								[128 + __UCLIBC_CTYPE_TO_TBL_OFFSET + u]
+								= 128 + u;
+
+							if (m & (_ISlower|_ISupper)) {
+								c = base->tbl8uplow
+									[ ((int)(c8b->idx8uplow
+											 [u >> __LOCALE_DATA_Cuplow_IDX_SHIFT])
+									   << __LOCALE_DATA_Cuplow_IDX_SHIFT)
+									  + ((128 + u) 
+										 & ((1 << __LOCALE_DATA_Cuplow_IDX_SHIFT)
+											- 1)) ];
+								if (m & _ISlower) {
+									base->__ctype_toupper_data
+										[128 + __UCLIBC_CTYPE_TO_TBL_OFFSET + u]
+										= (unsigned char)(128 + u + c);
+#ifdef __UCLIBC_HAS_CTYPE_SIGNED__
+									if (((signed char)(128 + u)) != -1) {
+										base->__ctype_toupper_data
+											[__UCLIBC_CTYPE_TO_TBL_OFFSET
+											 + ((signed char)(128 + u))]
+											= (unsigned char)(128 + u + c);
+									}
+#endif
+								} else {
+									base->__ctype_tolower_data
+										[128 + __UCLIBC_CTYPE_TO_TBL_OFFSET + u]
+										= (unsigned char)(128 + u - c);
+#ifdef __UCLIBC_HAS_CTYPE_SIGNED__
+									if (((signed char)(128 + u)) != -1) {
+										base->__ctype_tolower_data
+											[__UCLIBC_CTYPE_TO_TBL_OFFSET
+											 + ((signed char)(128 + u))]
+											= (unsigned char)(128 + u - c);
+									}
+#endif
+								}
+							}
+						}
+					}
+
+#ifdef __UCLIBC_HAS_XLOCALE__
+					base->__ctype_b = base->__ctype_b_data
+						+ __UCLIBC_CTYPE_B_TBL_OFFSET;
+					base->__ctype_tolower = base->__ctype_tolower_data
+						+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
+					base->__ctype_toupper = base->__ctype_toupper_data
+						+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
+#else  /* __UCLIBC_HAS_XLOCALE__ */
+					__ctype_b = base->__ctype_b_data
+						+ __UCLIBC_CTYPE_B_TBL_OFFSET;
+					__ctype_tolower = base->__ctype_tolower_data
+						+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
+					__ctype_toupper = base->__ctype_toupper_data
+						+ __UCLIBC_CTYPE_TO_TBL_OFFSET;
+#endif /* __UCLIBC_HAS_XLOCALE__ */
+
 #endif /* __CTYPE_HAS_8_BIT_LOCALES */
 				}
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -741,11 +856,8 @@ void _locale_init_l(__locale_t base)
 	/* width?? */
 #endif /* __UCLIBC_HAS_WCHAR__ */
 
-
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning wrong for now, but always set ctype arrays to global C version
-#endif
+	/* Initially, set things up to use the global C ctype tables.
+	 * This is correct for C (ASCII) and UTF-8 based locales (except tr_TR). */
 #ifdef __UCLIBC_HAS_XLOCALE__
 	base->__ctype_b = __C_ctype_b;
 	base->__ctype_tolower = __C_ctype_tolower;

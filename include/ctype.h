@@ -32,7 +32,7 @@ __BEGIN_DECLS
 #ifndef _ISbit
 /* These are all the characteristics of characters.
    If there get to be more than 16 distinct characteristics,
-   many things must be changed that use `__uint16_t's. */
+   __ctype_mask_t will need to be adjusted. */
 
 # define _ISbit(bit)	(1 << (bit))
 
@@ -98,13 +98,13 @@ enum
  */
 
 /* Pointers to the default C-locale data. */
-extern const __uint16_t *__C_ctype_b;
+extern const __ctype_mask_t *__C_ctype_b;
 extern const __ctype_touplow_t *__C_ctype_toupper;
 extern const __ctype_touplow_t *__C_ctype_tolower;
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 
-extern __const __uint16_t **__ctype_b_loc (void)
+extern __const __ctype_mask_t **__ctype_b_loc (void)
      __attribute__ ((__const));
 extern __const __ctype_touplow_t **__ctype_tolower_loc (void)
      __attribute__ ((__const));
@@ -118,7 +118,7 @@ extern __const __ctype_touplow_t **__ctype_toupper_loc (void)
 #else  /* __UCLIBC_HAS_XLOCALE__ */
 
 /* Pointers to the current global locale data in use. */
-extern const __uint16_t *__ctype_b;
+extern const __ctype_mask_t *__ctype_b;
 extern const __ctype_touplow_t *__ctype_toupper;
 extern const __ctype_touplow_t *__ctype_tolower;
 
@@ -129,7 +129,7 @@ extern const __ctype_touplow_t *__ctype_tolower;
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
 #define __isctype(c, type) \
-  ((__UCLIBC_CTYPE_B)[(int) (c)] & (__uint16_t) type)
+  ((__UCLIBC_CTYPE_B)[(int) (c)] & (__ctype_mask_t) type)
 
 #define	__isascii(c)	(((c) & ~0x7f) == 0)	/* If C is a 7 bit value.  */
 #define	__toascii(c)	((c) & 0x7f)		/* Mask off high bits.  */
@@ -292,7 +292,7 @@ toupper (int __c) __THROW
 /* These definitions are similar to the ones above but all functions
    take as an argument a handle for the locale which shall be used.  */
 #  define __isctype_l(c, type, locale) \
-  ((locale)->__ctype_b[(int) (c)] & (__uint16_t) type)
+  ((locale)->__ctype_b[(int) (c)] & (__ctype_mask_t) type)
 
 # define __exctype_l(name) 						      \
   extern int name (int, __locale_t) __THROW

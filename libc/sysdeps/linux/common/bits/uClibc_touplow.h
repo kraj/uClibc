@@ -34,10 +34,20 @@
 
 /* glibc uses the equivalent of - typedef __int32_t __ctype_touplow_t; */
 
+typedef __uint16_t __ctype_mask_t;
+
 #ifdef __UCLIBC_HAS_CTYPE_SIGNED__
+
 typedef __int16_t __ctype_touplow_t;
+#define __UCLIBC_CTYPE_B_TBL_OFFSET       128
+#define __UCLIBC_CTYPE_TO_TBL_OFFSET      128
+
 #else  /* __UCLIBC_HAS_CTYPE_SIGNED__ */
+
 typedef unsigned char __ctype_touplow_t;
+#define __UCLIBC_CTYPE_B_TBL_OFFSET       1
+#define __UCLIBC_CTYPE_TO_TBL_OFFSET      0
+
 #endif /* __UCLIBC_HAS_CTYPE_SIGNED__ */
 
 #endif /* _UCLIBC_TOUPLOW_H */
