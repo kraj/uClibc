@@ -36,6 +36,7 @@ void *
 malloc (size_t size)
 {
   void *mem;
+  struct heap *heap = &__malloc_heap;
 
   MALLOC_DEBUG ("malloc: %d bytes\n", size);
 
@@ -44,7 +45,7 @@ malloc (size_t size)
 
   __malloc_lock ();
 
-  mem = __heap_alloc (&__malloc_heap, &size);
+  mem = __heap_alloc (heap, &size);
   if (! mem) 
     /* We couldn't allocate from the heap, so get some more memory
        from the system, add it to the heap, and try again.  */
@@ -108,10 +109,10 @@ malloc (size_t size)
 			(long)block, (long)block + block_size, block_size);
 
 	  /* Put BLOCK into the heap.  */
-	  __heap_free (&__malloc_heap, block, block_size);
+	  __heap_free (heap, block, block_size);
 
 	  /* Try again to allocate.  */
-	  mem = __heap_alloc (&__malloc_heap, &size);
+	  mem = __heap_alloc (heap, &size);
 	}
     }
 

@@ -31,13 +31,17 @@ __heap_free (struct heap *heap, void *mem, size_t size)
       size_t fa_size = fa->size;
       void *fa_mem = HEAP_FREE_AREA_START (fa);
 
-      if (end == fa_mem)
+      if (fa_mem > end)
+	/* We've reached the right spot in the free-list without finding an
+	   adjacent free-area, so continue below to add a new free area. */
+	break;
+      else if (fa_mem == end)
 	/* FA is just after MEM, grow down to encompass it. */
 	{
 	  fa_size += size;
 
 	  /* See if FA can now be merged with its predecessor. */
-	  if (prev_fa && fa_mem - size == HEAP_FREE_AREA_END (prev_fa))
+	  if (prev_fa && mem == HEAP_FREE_AREA_END (prev_fa))
 	    /* Yup; merge PREV_FA's info into FA.  */
 	    {
 	      fa_size += prev_fa->size;
@@ -56,7 +60,7 @@ __heap_free (struct heap *heap, void *mem, size_t size)
 	  fa_size += size;
 
 	  /* See if FA can now be merged with its successor. */
-	  if (next_fa && mem + size == HEAP_FREE_AREA_START (next_fa))
+	  if (next_fa && end == HEAP_FREE_AREA_START (next_fa))
 	    /* Yup; merge FA's info into NEXT_FA.  */
 	    {
 	      fa_size += next_fa->size;
@@ -78,10 +82,6 @@ __heap_free (struct heap *heap, void *mem, size_t size)
 
 	  goto done;
 	}
-      else if (fa_mem > mem)
-	/* We've reached the right spot in the free-list without finding an
-	   adjacent free-area, so continue below to add a new free area. */
-	break;
     }
 
   /* Make MEM into a new free-list entry.  */

@@ -26,6 +26,7 @@ free (void *mem)
     {
       size_t size;
       struct heap_free_area *fa;
+      struct heap *heap = &__malloc_heap;
 
       mem -= MALLOC_ALIGNMENT;
       size = *(size_t *)mem;
@@ -36,7 +37,7 @@ free (void *mem)
       __malloc_lock ();
 
       /* Put MEM back in the heap, and get the free-area it was placed in.  */
-      fa = __heap_free (&__malloc_heap, mem, size);
+      fa = __heap_free (heap, mem, size);
 
       /* See if the free-area FA has grown big enough that it should be
 	 unmapped.  */
@@ -79,7 +80,7 @@ free (void *mem)
 			start, end, end - start);
 
 	  /* Remove FA from the heap.  */
-	  __heap_unlink_free_area (&__malloc_heap, fa);
+	  __heap_unlink_free_area (heap, fa);
 
 	  if (!fa->next && !fa->prev)
 	    /* We want to avoid the heap from losing all memory, so reserve
@@ -90,7 +91,7 @@ free (void *mem)
 	      /* Put the reserved memory back in the heap; we asssume that
 		 MALLOC_UNMAP_THRESHOLD is greater than MALLOC_MIN_SIZE, so
 		 we use the latter unconditionally here.  */
-	      __heap_free (&__malloc_heap, (void *)start, MALLOC_MIN_SIZE);
+	      __heap_free (heap, (void *)start, MALLOC_MIN_SIZE);
 	      start += MALLOC_MIN_SIZE;
 	    }
 
@@ -119,13 +120,13 @@ free (void *mem)
 	    {
 	      if (unmap_start - start < HEAP_MIN_FREE_AREA_SIZE)
 		unmap_start += MALLOC_PAGE_SIZE;
-	      __heap_free (&__malloc_heap, (void *)start, unmap_start - start);
+	      __heap_free (heap, (void *)start, unmap_start - start);
 	    }
 	  if (end > unmap_end)
 	    {
 	      if (end - unmap_end < HEAP_MIN_FREE_AREA_SIZE)
 		unmap_end -= MALLOC_PAGE_SIZE;
-	      __heap_free (&__malloc_heap, (void *)unmap_end, end - unmap_end);
+	      __heap_free (heap, (void *)unmap_end, end - unmap_end);
 	    }
 
 	  /* Release the malloc lock before we do the system call.  */
