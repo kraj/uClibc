@@ -6,11 +6,11 @@ uClibc (aka µClibc/pronounced yew-see-lib-see) is a C library for
 developing embedded Linux systems.  It is much smaller than the
 GNU C Library, but nearly all applications supported by glibc
 also work perfectly with uClibc.  Porting applications from glibc
-to uClibc typically involves just recompiling the source code.  
+to uClibc typically involves just recompiling the source code.
 uClibc even supports shared libraries and threading.  It currently
 runs on standard Linux and MMU-less (also known as µClinux)
 systems with support for alpha, ARM, cris, e1, h8300, i386, i960,
-m68k, microblaze, mips/mipsel, PowerPC, SH, SPARC, and v850 
+m68k, microblaze, mips/mipsel, PowerPC, SH, SPARC, and v850
 processors.
 
 If you are building an embedded Linux system and you find that
@@ -38,12 +38,12 @@ uClibc functions.  However, many GNU extensions are not supported
 because they have not been ported, or more importantly, would
 increase the size of uClibc disproportional to the added
 functionality.  There is some discussion of these differences
-in the "docs" directory. 
+in the "docs" directory.
 
 Additional information (recent releases, FAQ, mailing list, bugs,
 etc.) can be found at http://www.uclibc.org/.
 
-uClibc may be freely modified and distributed under the terms of 
+uClibc may be freely modified and distributed under the terms of
 the GNU Library General Public License, which can be found in the
 file COPYING.LIB.
 
