@@ -32,6 +32,11 @@ ifeq ($(strip $(HAS_MMU)),true)
 else
 	@echo "#undef HAS_MMU" >> gcc-uClibc.h
 endif
+ifeq ($(strip $(HAS_ELF)),true)
+	@echo "#define HAS_ELF 1" >> gcc-uClibc.h
+else
+	@echo "#undef HAS_ELF" >> gcc-uClibc.h
+endif
 
 gcc-uClibc: gcc-uClibc.h gcc-uClibc.c
 	gcc -Wall -O2 -Wl,-s gcc-uClibc.c -o $(TARGET_ARCH)-uclibc-gcc
