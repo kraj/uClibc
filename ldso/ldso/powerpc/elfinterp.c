@@ -380,7 +380,7 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 			}
 			break;
 		case R_PPC_RELATIVE:
-			*reloc_addr += (unsigned long)tpnt->loadaddr + addend;
+			*reloc_addr = (unsigned long)tpnt->loadaddr + addend;
 			break;
 		case R_PPC_ADDR32:
 			*reloc_addr += symbol_addr;
