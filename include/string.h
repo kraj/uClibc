@@ -235,7 +235,7 @@ extern char *strerror (int __errnum) __THROW;
 #ifdef	__USE_MISC
 /* Reentrant version of `strerror'.  If a temporary buffer is required, at
    most BUFLEN bytes of BUF will be used.  */
-extern char *strerror_r (int __errnum, char *__buf, size_t __buflen) __THROW;
+extern int strerror_r (int __errnum, char *__buf, size_t buflen) __THROW;
 #endif
 
 /* We define this function always since `bzero' is sometimes needed when

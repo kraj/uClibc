@@ -32,6 +32,11 @@ Cambridge, MA 02139, USA.  */
  * Manuel Novoa III       Feb 2002
  *
  * Change to _int10tostr and fix a bug in end-of-buf arg.
+ *
+ * Erik Andersen          June 2002
+ *
+ * Added strerror_r (per SuSv3 which differs from glibc) and adapted
+ * strerror to match.
  */
 
 #define WANT_ERRORLIST     1
@@ -41,35 +46,51 @@ Cambridge, MA 02139, USA.  */
 #include <string.h>
 #include <errno.h>
 
+int strerror_r(int err, char *retbuf, size_t buflen)
+{
 #if WANT_ERRORLIST
-static char retbuf[48];
+    if (err < 0 ||  err >= sys_nerr || sys_errlist[err] == NULL) {
+	return -EINVAL;
+    }
+    if (retbuf==NULL || buflen < 1) {
+	return -ERANGE;
+    }
+    strncpy(retbuf, sys_errlist[err], buflen);
+    retbuf[buflen-1] = '\0';
+    return 0;
 #else
-#if __BUFLEN_INT10TOSTR > 12
-#error currently set up for 32 bit ints max!
+    char *pos;
+    static const char unknown_error[] = "Unknown Error: errno"; /* = */
+
+    if (err < 0 ||  err >= sys_nerr || sys_errlist[err] == NULL) {
+	return -EINVAL;
+    }
+    /* unknown error -- leave space for the '=' */
+    pos = _int10tostr(retbuf+sizeof(retbuf)-1, err) - sizeof(unknown_error);
+    strcpy(pos, unknown_error);
+    *(pos + sizeof(unknown_error) - 1) = '=';
+    return 0;
 #endif
-static char retbuf[33];			/* 33 is sufficient for 32 bit ints */
-#endif
-static const char unknown_error[] = "Unknown Error: errno"; /* = */
+}
 
 /* Return a string descibing the errno code in ERRNUM.
    The storage is good only until the next call to strerror.
    Writing to the storage causes undefined behavior.  */
 char *strerror(int err)
 {
-	char *pos;
-
 #if WANT_ERRORLIST
-	if ((err >= 0) && (err < sys_nerr)) {
-		strcpy(retbuf, sys_errlist[err]);
-		return retbuf;
-	}
+    static char retbuf[48];
+#else
+#if __BUFLEN_INT10TOSTR > 12
+#error currently set up for 32 bit ints max!
 #endif
-
-	/* unknown error -- leave space for the '=' */
-	pos = _int10tostr(retbuf+sizeof(retbuf)-1, err)	- sizeof(unknown_error);
-	strcpy(pos, unknown_error);
-	*(pos + sizeof(unknown_error) - 1) = '=';
-	return pos;
+    static char retbuf[33];			/* 33 is sufficient for 32 bit ints */
+#endif
+    
+    if (strerror_r(err, retbuf, sizeof(retbuf)) != 0) {
+	return NULL;
+    }
+    return(retbuf);
 }
 
 #ifdef CHECK_BUF
