@@ -13,8 +13,7 @@ _dl_linux_resolve:
 	lea	0x20(%esp),%eax		/* eax = tpnt and reloc_entry params */
 	pushl	4(%eax)			/* push copy of reloc_entry param */
 	pushl	(%eax)			/* push copy of tpnt param */
-	pushl	%eax			/* _dl_linux_resolver expects a dummy
-					 * param - this could be removed */
+					 
 #ifdef __PIC__
 	call	.L24
 .L24:
@@ -25,9 +24,9 @@ _dl_linux_resolve:
 #else
 	call _dl_linux_resolver
 #endif
-	movl	%eax,0x2C(%esp)		/* store func addr over original
+	movl	%eax,0x28(%esp)		/* store func addr over original
 					 * tpnt param */
-	addl	$0xC,%esp		/* remove copy parameters */
+	addl	$0x8,%esp		/* remove copy parameters */
 	popa				/* restore regs */
 	ret	$4			/* jump to func removing original
 					 * reloc_entry param from stack */

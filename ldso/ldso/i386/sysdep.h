@@ -75,6 +75,7 @@
 /* Used for error messages */
 #define ELF_TARGET "386"
 
-extern unsigned int _dl_linux_resolver(int dummy, int i);
+struct elf_resolve;
+extern unsigned int _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
 #define do_rem(result, n, base)  result = (n % base)

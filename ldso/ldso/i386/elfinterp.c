@@ -53,23 +53,17 @@ extern char *_dl_progname;
 
 extern int _dl_linux_resolve(void);
 
-unsigned int _dl_linux_resolver(int dummy, int i)
+unsigned int _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry)
 {
-  unsigned int * sp;
-  int reloc_entry;
   int reloc_type;
   struct elf32_rel * this_reloc;
   char * strtab;
   struct elf32_sym * symtab; 
   struct elf32_rel * rel_addr;
-  struct elf_resolve * tpnt;
   int symtab_index;
   char * new_addr;
   char ** got_addr;
   unsigned int instr_addr;
-  sp = &i;  
-  reloc_entry = sp[1];
-  tpnt = (struct elf_resolve *) sp[0];
 
   rel_addr = (struct elf32_rel *) (tpnt->dynamic_info[DT_JMPREL] + 
 				   tpnt->loadaddr);
