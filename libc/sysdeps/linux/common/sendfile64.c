@@ -24,12 +24,12 @@
 
 #if __WORDSIZE == 64 || (defined(__powerpc__) && defined (__UCLIBC_HAS_LFS__))
 /* For a 64 bit machine, life is simple... */
-_syscall4(ssize_t,sendfile64, int, out_fd, int, in_fd, __off64_t *, offset, size_t, count)
+_syscall4(ssize_t,sendfile64, int, out_fd, int, in_fd, __off64_t *, offset, size_t, count);
 
 #elif __WORDSIZE == 32
 
 #if defined __UCLIBC_HAS_LFS__
-_syscall4(ssize_t,sendfile64, int, out_fd, int, in_fd, __off64_t *, offset, size_t, count)
+_syscall4(ssize_t,sendfile64, int, out_fd, int, in_fd, __off64_t *, offset, size_t, count);
 #endif /* __UCLIBC_HAS_LFS__ */
 
 #else /* __WORDSIZE */
