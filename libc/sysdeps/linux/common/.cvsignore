@@ -1,4 +1,4 @@
 unified_syscall.h
-unified_syscall_arm.h
-unified_syscall_i386.h
-unified_syscall_m68k.h
+str_syscalls
+str_syscalls.c
+str_syscalls.h
