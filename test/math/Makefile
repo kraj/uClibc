@@ -18,74 +18,57 @@
 
 
 
-# Unix makefile for ieetst, eparanoi.
-# Set LARGEMEM 1 in qcalc.h for 32-bit memory addresses.
-# Define computer type and/or endianness in mconf.h.
-#
-# Configure eparanoi.c for desired arithmetic test;
-# also define appropriate version of setprec.o, or use a stub that
-# does no FPU setup.  To test native arithmetic, eparanoi uses
-# the system libraries only; compile simply by `cc eparanoi.c -lm'.
-#
-
 TESTDIR=../
 include $(TESTDIR)/Rules.mak
+CFLAGS+=-D_GNU_SOURCE -DNO_LONG_DOUBLE
+EXTRA_LIBS=-lm
+PERL=/usr/bin/perl
 
+TARGETS:=
+libm-tests:=
+libm-tests+= test-double test-idouble
+#libm-tests+= test-float test-ifloat
+#libm-tests+= test-ldouble test-ildouble
+libm-tests.o = $(addsuffix .o,$(libm-tests))
 
-#CC = gcc
-#CFLAGS= -O
-INCS= mconf.h ehead.h
-OBJS = ieee.o econst.o eexp.o elog.o epow.o etanh.o etodec.o mtherr.o #setprec.o
-TARGETS=ieetst eparanoi
+libm-tests-generated = libm-test-ulps.h libm-test.c
+generated += $(libm-tests-generated) libm-test.stmp
+TARGETS += $(libm-tests) #$(libm-tests-generated)
 
-all: $(TARGETS)
+all: libm-test.c $(TARGETS)
+	
+test-double: test-double.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	-./$@
+test-idouble: test-idouble.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	-./$@
+test-float: test-float.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	-./$@
+test-ifloat: test-ifloat.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	-./$@
+test-ldouble: test-ldouble.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	-./$@
+test-ildouble: test-ildoubl.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	-./$@
 
-ieetst: ieetst.o $(OBJS) drand.o $(INCS)
-	$(CC) -o ieetst ieetst.o $(OBJS) drand.o -lc -lm
+test-float.o: libm-test.c
+test-ifloat.o: libm-test.c 
+test-double.o: libm-test.c
+test-idouble.o: libm-test.c
+test-ldouble.o: libm-test.c
+test-ildoubl.o: libm-test.c
 
-eparanoi: eparanoi.o $(OBJS) $(INCS)
-	$(CC) -o eparanoi  eparanoi.o $(OBJS) -lc -lm
+ulps-file = $(firstword $(wildcard $(config-sysdirs:%=$(..)%/libm-test-ulps)))
 
-#setprec.o: setprec.387
-#	as -o setprec.o setprec.387
-
-#setprec.o: setprec.688
-#	as -o setprec.o setprec.688
-
-ieee.o: ieee.c $(INCS)
-	$(CC) $(CFLAGS) -c ieee.c
-
-econst.o: econst.c $(INCS)
-	$(CC) $(CFLAGS) -c econst.c
-
-elog.o: elog.c $(INCS)
-	$(CC) $(CFLAGS) -c elog.c
-
-eexp.o: eexp.c $(INCS)
-	$(CC) $(CFLAGS) -c eexp.c
-
-etanh.o: etanh.c $(INCS)
-	$(CC) $(CFLAGS) -c etanh.c
-
-epow.o: epow.c $(INCS)
-	$(CC) $(CFLAGS) -c epow.c
-
-mtherr.o: mtherr.c $(INCS)
-	$(CC) $(CFLAGS) -c mtherr.c
-
-ieetst.o: ieetst.c $(INCS)
-	$(CC) $(CFLAGS) -c ieetst.c
-
-drand.o: drand.c $(INCS)
-	$(CC) $(CFLAGS) -c drand.c
-
-etodec.o: etodec.c $(INCS)
-	$(CC) $(CFLAGS) -c etodec.c
-
-eparanoi.o: eparanoi.c $(INCS)
-	$(CC) $(CFLAGS) -c eparanoi.c
+libm-test.c: $(ulps-file) libm-test.inc gen-libm-test.pl
+	$(PERL) ./gen-libm-test.pl -u $< ./libm-test.inc -o "." 2>&1 > /dev/null
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS)
+	rm -f *.[oa] *~ core $(TARGETS) $(generated)
 
 
