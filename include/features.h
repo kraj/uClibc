@@ -19,6 +19,10 @@
 #ifndef	_FEATURES_H
 #define	_FEATURES_H	1
 
+/* For uClibc, always optimize for size -- this should disable
+ * a lot of expensive inlining... */
+#define __OPTIMIZE_SIZE__   1
+
 /* These are defined by the user (or the compiler)
    to specify the desired environment:
 
