@@ -18,6 +18,17 @@
  * fix this, I need to rework the "ungetc" machinery in stdio.c again.
  * I do have one reference though, that seems to imply scanf has a single
  * character of lookahead.
+ *
+ * May 20, 2001
+ *
+ * Quote from ANSI/ISO C99 standard:
+ *
+ *    fscanf pushes back at most one input character onto the input stream.
+ *    Therefore, some sequences that are acceptable to strtod, strtol, etc.,
+ *    are unacceptable to fscanf.
+ *
+ * So uClibc's *scanf functions conform to the standard, and glibc's
+ * implementation doesn't for the "100ergs" case mentioned above.
  */
 
 #include <stdlib.h>
