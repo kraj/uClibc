@@ -17,12 +17,18 @@
  * symbol that got us here really wanted to jump to in the first place.  
  *  -Erik Andersen
  */
+
+#define sl r10
+#define fp r11
+#define ip r12
+
 .text
 .globl _dl_linux_resolve
-.type _dl_linux_resolve,#function
-.align 2
+.type _dl_linux_resolve,%function
+.align 4;
+
 _dl_linux_resolve:
-	stmdb sp!,{r0-r3,sl,fp}
+	stmdb sp!, {r0, r1, r2, r3, sl, fp}
 	sub r1, ip, lr
 	sub r1, r1, #4
 	add r1, r1, r1
@@ -31,9 +37,7 @@ _dl_linux_resolve:
 
 	bl _dl_linux_resolver
 
-//	str r0, [lr, #-4]
 	mov ip, r0
-	ldmia sp!,{r0-r3,sl,fp,lr}
+	ldmia sp!, {r0, r1, r2, r3, sl, fp, lr}
 	mov pc,ip
 .size _dl_linux_resolve, .-_dl_linux_resolve
-
