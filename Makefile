@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000,2001,2002 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -186,9 +186,9 @@ install: install_dev install_runtime install_toolchain
 # Installs header files and development library links.
 install_dev:
 	install -d $(PREFIX)$(DEVEL_PREFIX)/lib
-	install -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
 	install -d $(PREFIX)$(DEVEL_PREFIX)/usr/lib
 	install -d $(PREFIX)$(DEVEL_PREFIX)/include
+	install -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
 	tar -chO include | tar -xC $(PREFIX)$(DEVEL_PREFIX);
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod -f 755 $$i; chmod -f 644 $$i/*.h; \
@@ -218,10 +218,14 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 endif
 
 install_toolchain:
+	install -d $(PREFIX)$(DEVEL_PREFIX)/lib
+	install -d $(PREFIX)$(DEVEL_PREFIX)/bin
+	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
+	$(MAKE) -C extra/gcc-uClibc install
+ifeq ($(strip $(HAVE_SHARED)),true)
 	@$(MAKE) -C ldso utils
 	install -m 755 ldso/util/ldd $(PREFIX)$(DEVEL_PREFIX)/bin
 	install -m 755 ldso/util/readelf $(PREFIX)$(DEVEL_PREFIX)/bin
-	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
 	ln -fs $(DEVEL_PREFIX)/bin/ldd $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
 	ln -fs $(DEVEL_PREFIX)/bin/readelf $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf
 	@if [ -x ldso/util/ldconfig ] ; then \
@@ -230,7 +234,7 @@ install_toolchain:
 	    install -m 755 ldso/util/ldconfig $(PREFIX)$(DEVEL_PREFIX)/bin; \
 	    ln -fs $(DEVEL_PREFIX)/sbin/ldconfig $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig; \
 	fi;
-	$(MAKE) -C extra/gcc-uClibc install
+endif
 
 
 # Installs run-time libraries and helper apps in preparation for
