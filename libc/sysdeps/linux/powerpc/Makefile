@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2002 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2003 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -20,8 +20,6 @@ TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 ASFLAGS=$(CFLAGS)
 
-TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
-
 CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o
 
@@ -31,7 +29,7 @@ SOBJS=$(patsubst %.S,%.o, $(SSRC))
 CSRC=_mmap.c vfork.c __syscall_error.c pread_write.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(SOBJS) $(MOBJ) $(COBJS)
+OBJS=$(SOBJS) $(COBJS)
 
 
 all: $(OBJS) $(LIBC)
@@ -55,6 +53,7 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 headers:
+
 
 clean:
 	rm -f *.[oa] *~ core
