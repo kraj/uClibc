@@ -159,7 +159,7 @@ void exit(int rv)
 	}
 
 	/* Clean up everything else */
-	if (__uClibc_cleanup) {
+	if (__uClibc_cleanup) 
 	    __uClibc_cleanup();
 
 	_exit(rv);
