@@ -24,31 +24,29 @@
 
 static const char *symbol_list_arr[] =
 {
-  [PTHREAD_THREADS_EVENTS] = "__pthread_threads_events",
-  [PTHREAD_LAST_EVENT] = "__pthread_last_event",
-  [PTHREAD_HANDLES_NUM] = "__pthread_handles_num",
-  [PTHREAD_HANDLES] = "__pthread_handles",
-  [PTHREAD_KEYS] = "pthread_keys",
-  [LINUXTHREADS_PTHREAD_THREADS_MAX] = "__linuxthreads_pthread_threads_max",
-  [LINUXTHREADS_PTHREAD_KEYS_MAX] = "__linuxthreads_pthread_keys_max",
-  [LINUXTHREADS_PTHREAD_SIZEOF_DESCR] = "__linuxthreads_pthread_sizeof_descr",
-  [LINUXTHREADS_CREATE_EVENT] = "__linuxthreads_create_event",
-  [LINUXTHREADS_DEATH_EVENT] = "__linuxthreads_death_event",
-  [LINUXTHREADS_REAP_EVENT] = "__linuxthreads_reap_event",
-  [NUM_MESSAGES] = NULL
+    [PTHREAD_THREADS_EVENTS] = "__pthread_threads_events",
+    [PTHREAD_LAST_EVENT] = "__pthread_last_event",
+    [PTHREAD_HANDLES_NUM] = "__pthread_handles_num",
+    [PTHREAD_HANDLES] = "__pthread_handles",
+    [PTHREAD_KEYS] = "pthread_keys",
+    [LINUXTHREADS_PTHREAD_THREADS_MAX] = "__pthread_threads_max",
+    [LINUXTHREADS_PTHREAD_KEYS_MAX] = "__linuxthreads_pthread_keys_max",
+    [LINUXTHREADS_PTHREAD_SIZEOF_DESCR] = "__linuxthreads_pthread_sizeof_descr",
+    [LINUXTHREADS_CREATE_EVENT] = "__linuxthreads_create_event",
+    [LINUXTHREADS_DEATH_EVENT] = "__linuxthreads_death_event",
+    [LINUXTHREADS_REAP_EVENT] = "__linuxthreads_reap_event",
+    [NUM_MESSAGES] = NULL
 };
 
 
-const char **
-td_symbol_list (void)
+const char ** td_symbol_list (void)
 {
-  return symbol_list_arr;
+    return symbol_list_arr;
 }
 
 
-int
-td_lookup (struct ps_prochandle *ps, int idx, psaddr_t *sym_addr)
+int td_lookup (struct ps_prochandle *ps, int idx, psaddr_t *sym_addr)
 {
-  assert (idx >= 0 && idx < NUM_MESSAGES);
-  return ps_pglobal_lookup (ps, LIBPTHREAD_SO, symbol_list_arr[idx], sym_addr);
+    assert (idx >= 0 && idx < NUM_MESSAGES);
+    return ps_pglobal_lookup (ps, LIBPTHREAD_SO, symbol_list_arr[idx], sym_addr);
 }
