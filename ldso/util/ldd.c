@@ -282,15 +282,19 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int i
 	if (!s || !strlen(s))
 		return 1;
 
-	/* We add libc.so.0 elsewhere */
-	if (strcmp(s, UCLIBC_LDSO)==0)
-		return 1;
-
 	tmp = s; 
 	while (*tmp) {
 		if (*tmp == '/')
 			s = tmp + 1;
 		tmp++;
+	}
+
+	/* We add libc.so.0 elsewhere */
+	if ((tmp=strrchr(interp, '/')) != NULL)
+	{
+		int len = strlen(interp_dir);
+		if (strcmp(s, interp+1+len)==0)
+			return 1;
 	}
 
 	for (cur = lib_list; cur; cur=cur->next) {
@@ -474,42 +478,70 @@ foo:
 
 int main( int argc, char** argv)
 {
+	int multi=0;
 	int got_em_all=1;
-	char *filename = argv[1];
+	char *filename = NULL;
 	struct library *cur;
 
-
-	if (!filename) {
-		fprintf(stderr, "No filename specified.\n");
+	if (argc < 2) {
+		fprintf(stderr, "ldd: missing file arguments\n");
+		fprintf(stderr, "Try `ldd --help' for more information.\n");
 		exit(EXIT_FAILURE);
 	}
+	if (argc > 2) {
+		multi++;
+	}
 
-	find_dependancies(filename);
-	
-	while(got_em_all) {
-		got_em_all=0;
-		/* Keep walking the list till everybody is resolved */
-		for (cur = lib_list; cur; cur=cur->next) {
-			if (cur->resolved == 0 && cur->path) {
-				got_em_all=1;
-				//printf("checking sub-depends for '%s\n", cur->path);
-				find_dependancies(cur->path);
-				cur->resolved = 1;
+	while (--argc > 0) {
+		++argv;
+
+		if(strcmp(*argv, "--")==0) {
+			/* Ignore "--" */
+			continue;
+		}
+
+		if(strcmp(*argv, "--help")==0) {
+			fprintf(stderr, "Usage: ldd [OPTION]... FILE...\n");
+			fprintf(stderr, "\t--help\t\tprint this help and exit\n");
+			exit(EXIT_FAILURE);
+		}
+
+		filename=*argv;
+		if (!filename) {
+			fprintf(stderr, "No filename specified.\n");
+			exit(EXIT_FAILURE);
+		}
+
+		find_dependancies(filename);
+
+		while(got_em_all) {
+			got_em_all=0;
+			/* Keep walking the list till everybody is resolved */
+			for (cur = lib_list; cur; cur=cur->next) {
+				if (cur->resolved == 0 && cur->path) {
+					got_em_all=1;
+					//printf("checking sub-depends for '%s\n", cur->path);
+					find_dependancies(cur->path);
+					cur->resolved = 1;
+				}
 			}
 		}
-	}
 
-	
-	/* Print the list */
-	got_em_all=0;
-	for (cur = lib_list; cur; cur=cur->next) {
-		got_em_all=1;
-		printf("\t%s => %s\n", cur->name, cur->path);
+
+		/* Print the list */
+		got_em_all=0;
+		if (multi) {
+			printf("%s:\n", *argv);
+		}
+		for (cur = lib_list; cur; cur=cur->next) {
+			got_em_all=1;
+			printf("\t%s => %s\n", cur->name, cur->path);
+		}
+		if (interp_dir && got_em_all==1)
+			printf("\t%s => %s\n", interp, interp);
+		if (got_em_all==0)
+			printf("\tnot a dynamic executable\n");
 	}
-	if (interp_dir && got_em_all==1)
-		printf("\t%s => %s\n", interp, interp);
-	if (got_em_all==0)
-		printf("\tnot a dynamic executable\n");
 
 	return 0;
 }
