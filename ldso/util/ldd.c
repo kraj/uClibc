@@ -244,10 +244,12 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab,
 	/* Next look for libraries wherever the shared library 
 	 * loader was installed -- this is usually where we
 	 * should find things... */
-	search_for_named_library(lib->name, buf, interp_dir);
-	if (*buf != '\0') {
-		lib->path = buf;
-		return;
+	if (interp_dir) {
+		search_for_named_library(lib->name, buf, interp_dir);
+		if (*buf != '\0') {
+			lib->path = buf;
+			return;
+		}
 	}
 
 	/* Lastly, search the standard list of paths for the library.
@@ -355,6 +357,10 @@ static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *str
 		tmp = strrchr(interp_dir, '/');
 		if (*tmp)
 			*tmp = '\0';
+		else {
+			free(interp_dir);
+			interp_dir = interp;
+		}
 		tmp1 = tmp = s;
 		while (*tmp) {
 			if (*tmp == '/')
@@ -495,7 +501,7 @@ int main( int argc, char** argv)
 		got_em_all=1;
 		printf("\t%s => %s\n", cur->name, cur->path);
 	}
-	if (got_em_all==1)
+	if (interp_dir && got_em_all==1)
 		printf("\t%s => %s\n", interp, interp);
 	if (got_em_all==0)
 		printf("\tnot a dynamic executable\n");
