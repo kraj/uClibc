@@ -1467,7 +1467,15 @@ _syscall1(int, fdatasync, int, fd);
 //#define __NR__sysctl          149
 #ifdef __NR__sysctl
 #ifdef L__sysctl
-#include <linux/sysctl.h>
+struct __sysctl_args {
+	int *name;
+	int nlen;
+	void *oldval;
+	size_t *oldlenp;
+	void *newval;
+	size_t newlen;
+	unsigned long __unused[4];
+};
 _syscall1(int, _sysctl, struct __sysctl_args *, args);
 int sysctl(int *name, int nlen, void *oldval, size_t *oldlenp,
 			void *newval, size_t newlen)
