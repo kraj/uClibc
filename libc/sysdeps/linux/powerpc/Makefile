@@ -21,9 +21,13 @@ include $(TOPDIR)Rules.mak
 ASFLAGS=$(CFLAGS)
 
 CRT0_SRC = crt0.S
-CRT0_OBJ = crt0.o crt1.o
+CRT0_OBJ = crt0.o crt1.o gcrt1.o
+CRT0_DEPS=gmon-start.S
 
 SSRC=__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S brk.S clone.S __uClibc_syscall.S
+ifeq ($(strip $(UCLIBC_PROFILING)),y)
+SSRC+=mcount.S
+endif
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=_mmap.c vfork.c __syscall_error.c pread_write.c ioctl.c
@@ -51,6 +55,13 @@ $(SOBJS): %.o : %.S
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+ifeq ($(strip $(UCLIBC_PROFILING)),y)
+SAFECFLAGS := $(subst -g,,$(CFLAGS))
+gmon-start.S: ../common/gmon-start.c
+	$(CC) $(SAFECFLAGS) -c $< -S -o $*.S
+gcrt1.o: $(CRT0_DEPS)
+endif
 
 headers:
 

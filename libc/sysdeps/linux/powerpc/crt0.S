@@ -68,18 +68,23 @@ _start:
 	add	r5,r5,r4
 
 	/* Ok, now run uClibc's main() -- shouldn't return */
-#if defined L_crt0 || ! defined __UCLIBC_CTOR_DTOR__
-	bl	__uClibc_main
-#else
+#if (defined L_crt1 || defined L_gcrt1 ) && defined __UCLIBC_CTOR_DTOR__
 	lis     r6,_init@ha	# load top 16 bits
 	addi    r6,r6,_init@l	# load bottom 16 bits
 	lis     r7,_fini@ha	# load top 16 bits of &msg
 	addi    r7,r7,_fini@l	# load bottom 16 bits
 	bl	__uClibc_start_main
+#else
+	bl	__uClibc_main
 #endif
 .size _start,.-_start
 
 	.section ".data"
 	.globl  __data_start
 __data_start:
+
+#if defined L_gcrt1 && defined __UCLIBC_PROFILING__
+# include "./gmon-start.S"
+#endif
+
 
