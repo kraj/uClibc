@@ -109,4 +109,20 @@ extern inline void * _dl_memset(void * str,int c,size_t len)
 	return str;
 }
 
+/* Early on, we can't call printf, so use this to print out
+ * numbers using the SEND_STDERR() macro */
+static inline char *_dl_simple_itol(unsigned long i)
+{
+	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
+	static char local[22];
+	char *p = &local[21];
+	*p-- = '\0';
+	do {
+		*p-- = '0' + i % 10;
+		i /= 10;
+	} while (i > 0);
+	return p + 1;
+}
+
+
 #endif

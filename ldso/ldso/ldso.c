@@ -75,12 +75,11 @@
  * someone has alpha patches), so for now everything is loaded writable.
  *
  * We do not have access to malloc and friends at the initial stages of dynamic
- * linking, and it would be handy to have some scratchpad memory available
- * for use as we set things up.  It is a bit of a kluge, but we mmap /dev/zero
- * to get one page of scratchpad.  A simpleminded _dl_malloc is provided so
- * that we have some memory that can be used for this purpose.  Typically
- * we would not want to use the same memory pool as malloc anyway - the user
- * might want to redefine malloc for example.
+ * linking, and it would be handy to have some scratchpad memory available for
+ * use as we set things up.  We mmap one page of scratch space, and have a
+ * simple _dl_malloc that uses this memory.  This is a good thing, since we do
+ * not want to use the same memory pool as malloc anyway - esp if the user
+ * redefines malloc to do something funky.
  *
  * Our first task is to perform a minimal linking so that we can call other
  * portions of the dynamic linker.  Once we have done this, we then build
@@ -92,7 +91,6 @@
  * can transfer control to the user's application.
  */
 
-#include <sys/mman.h>			// For MAP_ANONYMOUS -- differs between platforms
 #include <stdarg.h>
 #include "elf.h"
 #include "link.h"
@@ -100,39 +98,18 @@
 #include "hash.h"
 #include "syscall.h"
 #include "string.h"
-
 #include "../config.h"
 
 #define ALLOW_ZERO_PLTGOT
 
-static char *_dl_malloc_addr, *_dl_mmap_zero;
-char *_dl_library_path = 0;		/* Where we look for libraries */
-char *_dl_preload = 0;			/* Things to be loaded before the libs. */
-char *_dl_progname = "/lib/ld-linux-uclibc.so.1";
-static char *_dl_not_lazy = 0;
-static char *_dl_warn = 0;		/* Used by ldd */
-static char *_dl_trace_loaded_objects = 0;
-static int (*_dl_elf_main) (int, char **, char **);
-
-static int (*_dl_elf_init) (void);
-
-void *(*_dl_malloc_function) (int size) = NULL;
-
-struct r_debug *_dl_debug_addr = NULL;
-
-unsigned long *_dl_brkp;
-
-unsigned long *_dl_envp;
-
-#define DL_MALLOC(SIZE) ((void *) (malloc_buffer += SIZE, malloc_buffer - SIZE))
+/* This is a poor man's malloc, used prior to resolving our internal poor man's malloc */
+#define DL_MALLOC(SIZE) ((void *) (malloc_buffer += SIZE, malloc_buffer - SIZE)) ;  REALIGN();
 /*
  * Make sure that the malloc buffer is aligned on 4 byte boundary.  For 64 bit
  * platforms we may need to increase this to 8, but this is good enough for
  * now.  This is typically called after DL_MALLOC.
  */
 #define REALIGN() malloc_buffer = (char *) (((unsigned long) malloc_buffer + 3) & ~(3))
-
-
 
 #define ELF_HASH(RESULT,NAME) { \
   unsigned long hash = 0; \
@@ -145,25 +122,39 @@ unsigned long *_dl_envp;
   } \
   RESULT = hash; \
 }
-extern int _dl_linux_resolve(void);
-extern char *_dl_strdup(const char *);
-extern char *_dl_getenv(char *symbol, char **envp);
-extern void _dl_unsetenv(char *symbol, char **envp);
-extern int _dl_fixup(struct elf_resolve *tpnt);
 
-/*
- * This stub function is used by some debuggers.  The idea is that they
- * can set an internal breakpoint on it, so that we are notified when the
- * address mapping is changed in some way.
- */
-void _dl_debug_state()
-{
-	return;
-}
+static char *_dl_malloc_addr, *_dl_mmap_zero;
+char *_dl_library_path = 0;		/* Where we look for libraries */
+char *_dl_preload = 0;			/* Things to be loaded before the libs. */
+char *_dl_progname = "/lib/ld-linux-uclibc.so.1";
+static char *_dl_not_lazy = 0;
+static char *_dl_warn = 0;		/* Used by ldd */
+static char *_dl_trace_loaded_objects = 0;
+static int (*_dl_elf_main) (int, char **, char **);
+static int (*_dl_elf_init) (void);
+void *(*_dl_malloc_function) (int size) = NULL;
+struct r_debug *_dl_debug_addr = NULL;
+unsigned long *_dl_brkp;
+unsigned long *_dl_envp;
+char *_dl_getenv(char *symbol, char **envp);
+void _dl_unsetenv(char *symbol, char **envp);
+int _dl_fixup(struct elf_resolve *tpnt);
+void _dl_debug_state(void);
 
-void _dl_boot(unsigned long args)
+
+/* When we enter this piece of code, the program stack looks like this:
+        argc            argument counter (integer)
+        argv[0]         program name (pointer)
+        argv[1...N]     program args (pointers)
+        argv[argc-1]    end of args (integer)
+	NULL
+        env[0...N]      environment variables (pointers)
+        NULL
+	auxv_t[0...N]   Auxiliary Vector Table elements (mixed types)
+*/
+void _dl_boot(unsigned int args)
 {
-	unsigned long argc;
+	unsigned int argc;
 	char **argv, **envp;
 	int status;
 
@@ -176,10 +167,10 @@ void _dl_boot(unsigned long args)
 	struct dyn_elf *rpnt;
 	struct elf_resolve *app_tpnt;
 	unsigned long brk_addr;
-	unsigned long dl_data[AT_EGID + 1];
+	Elf32_auxv_t auxv_t[AT_EGID + 1];
 	unsigned char *malloc_buffer, *mmap_zero;
 	int (*_dl_atexit) (void *);
-	unsigned long *lpnt;
+	int *lpnt;
 	Elf32_Dyn *dpnt;
 	unsigned long *hash_addr;
 	struct r_debug *debug_addr;
@@ -199,60 +190,48 @@ void _dl_boot(unsigned long args)
 	while (*aux_dat)
 		aux_dat++;			/* Skip over the envp pointers */
 	aux_dat++;				/* Skip over NULL at end of envp */
-	dl_data[AT_UID] = -1;			/* check later to see if it is changed */
+
+	/* Place -1 here as a checkpoint.  We check later to see if it got changed 
+	 * when we read in the auxv_t */
+	auxv_t[AT_UID].a_type = -1;
+	
+	/* The junk on the stack immediately following the environment is  
+	 * the Auxiliary Vector Table.  Read out the elements of the auxv_t,
+	 * sort and store them in auxv_t for later use. */
 	while (*aux_dat) 
 	{
-		unsigned long *ad1;
+		Elf32_auxv_t *auxv_entry = (Elf32_auxv_t*) aux_dat;
 
-		ad1 = aux_dat + 1;
-		if (*aux_dat <= AT_EGID)
-			dl_data[*aux_dat] = *ad1;
+		if (auxv_entry->a_type <= AT_EGID) {
+			_dl_memcpy(&(auxv_t[auxv_entry->a_type]), auxv_entry, sizeof(Elf32_auxv_t));
+		}
 		aux_dat += 2;
 	}
 
 	/* Next, locate the GOT */
-
-	load_addr = dl_data[AT_BASE];
-
+	load_addr = auxv_t[AT_BASE].a_un.a_val;
 	GET_GOT(got);
 	dpnt = (Elf32_Dyn *) (*got + load_addr);
 
-	/* OK, time for another hack.  Now call mmap to get a page of writable
-	   memory that can be used for a temporary malloc.  We do not know brk
-	   yet, so we cannot use real malloc. */
-
-	{
-#define ZFILENO -1
-
-#ifndef MAP_ANONYMOUS
-#ifdef __sparc__
-#define MAP_ANONYMOUS 0x20
-#else
-#error MAP_ANONYMOUS not defined and suplementary value not known
-#endif
-#endif
-
-		/* See if we need to relocate this address */
-		mmap_zero = malloc_buffer = (unsigned char *) _dl_mmap((void *) 0, 4096, 
-			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, ZFILENO, 0);
-		if (_dl_mmap_check_error(mmap_zero)) {
-			SEND_STDERR("dl_boot: mmap of /dev/zero failed!\n");
-			_dl_exit(13);
-		}
+	
+	/* Call mmap to get a page of writable memory that can be used 
+	 * for _dl_malloc throughout the shared lib loader. */
+	mmap_zero = malloc_buffer = _dl_mmap((void *) 0, 4096, 
+		PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	if (_dl_mmap_check_error(mmap_zero)) {
+	    SEND_STDERR("dl_boot: mmap of a spare page failed!\n");
+	    _dl_exit(13);
 	}
 
 	tpnt = DL_MALLOC(sizeof(struct elf_resolve));
-	REALIGN();
 	_dl_memset(tpnt, 0, sizeof(*tpnt));
 	app_tpnt = DL_MALLOC(sizeof(struct elf_resolve));
-	REALIGN();
 	_dl_memset(app_tpnt, 0, sizeof(*app_tpnt));
 
 	/*
 	 * This is used by gdb to locate the chain of shared libraries that are currently loaded.
 	 */
 	debug_addr = DL_MALLOC(sizeof(struct r_debug));
-	REALIGN();
 	_dl_memset(debug_addr, 0, sizeof(*debug_addr));
 
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
@@ -269,8 +248,8 @@ void _dl_boot(unsigned long args)
 		elf_phdr *ppnt;
 		int i;
 
-		ppnt = (elf_phdr *) dl_data[AT_PHDR];
-		for (i = 0; i < dl_data[AT_PHNUM]; i++, ppnt++)
+		ppnt = (elf_phdr *) auxv_t[AT_PHDR].a_un.a_ptr;
+		for (i = 0; i < auxv_t[AT_PHNUM].a_un.a_val; i++, ppnt++)
 			if (ppnt->p_type == PT_DYNAMIC) {
 				dpnt = (Elf32_Dyn *) ppnt->p_vaddr;
 				while (dpnt->d_tag) {
@@ -280,7 +259,7 @@ void _dl_boot(unsigned long args)
 					}
 					app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
 					if (dpnt->d_tag == DT_DEBUG)
-						dpnt->d_un.d_val = (unsigned long) debug_addr;
+						dpnt->d_un.d_val = (int) debug_addr;
 					if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT)
 						app_tpnt->dynamic_info[DT_TEXTREL] = 1;
 					dpnt++;
@@ -308,8 +287,8 @@ void _dl_boot(unsigned long args)
 
 		/* First cover the shared library/dynamic linker. */
 		if (tpnt->dynamic_info[DT_TEXTREL]) {
-			header = (elfhdr *) dl_data[AT_BASE];
-			ppnt = (elf_phdr *) (dl_data[AT_BASE] + header->e_phoff);
+			header = (elfhdr *) auxv_t[AT_BASE].a_un.a_ptr;
+			ppnt = (elf_phdr *) (auxv_t[AT_BASE].a_un.a_ptr + header->e_phoff);
 			for (i = 0; i < header->e_phnum; i++, ppnt++) {
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
 					_dl_mprotect((void *) (load_addr + 
@@ -322,8 +301,8 @@ void _dl_boot(unsigned long args)
 
 		/* Now cover the application program. */
 		if (app_tpnt->dynamic_info[DT_TEXTREL]) {
-			ppnt = (elf_phdr *) dl_data[AT_PHDR];
-			for (i = 0; i < dl_data[AT_PHNUM]; i++, ppnt++) {
+			ppnt = (elf_phdr *) auxv_t[AT_PHDR].a_un.a_ptr;
+			for (i = 0; i < auxv_t[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
 					_dl_mprotect((void *) (ppnt->p_vaddr & 0xfffff000), 
 						(ppnt->p_vaddr & 0xfff) + 
@@ -428,7 +407,7 @@ void _dl_boot(unsigned long args)
    fixed up by now.  Still no function calls outside of this library ,
    since the dynamic resolver is not yet ready. */
 
-	lpnt = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT] + load_addr);
+	lpnt = (int *) (tpnt->dynamic_info[DT_PLTGOT] + load_addr);
 	INIT_GOT(lpnt, tpnt);
 
 	/* OK, this was a big step, now we need to scan all of the user images
@@ -443,7 +422,7 @@ void _dl_boot(unsigned long args)
 		elf_phdr *ppnt;
 		int i;
 
-		epnt = (elfhdr *) dl_data[AT_BASE];
+		epnt = (elfhdr *) auxv_t[AT_BASE].a_un.a_ptr;
 		tpnt->n_phent = epnt->e_phnum;
 		tpnt->ppnt = ppnt = (elf_phdr *) (load_addr + epnt->e_phoff);
 		for (i = 0; i < epnt->e_phnum; i++, ppnt++) {
@@ -468,8 +447,8 @@ void _dl_boot(unsigned long args)
 		elf_phdr *ppnt;
 		int i;
 
-		ppnt = (elf_phdr *) dl_data[AT_PHDR];
-		for (i = 0; i < dl_data[AT_PHNUM]; i++, ppnt++) {
+		ppnt = (elf_phdr *) auxv_t[AT_PHDR].a_un.a_ptr;
+		for (i = 0; i < auxv_t[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 			if (ppnt->p_type == PT_LOAD) {
 				if (ppnt->p_vaddr + ppnt->p_memsz > brk_addr)
 					brk_addr = ppnt->p_vaddr + ppnt->p_memsz;
@@ -484,15 +463,15 @@ void _dl_boot(unsigned long args)
 				app_tpnt = _dl_add_elf_hash_table("", 0, 
 					app_tpnt->dynamic_info, ppnt->p_vaddr, ppnt->p_filesz);
 				_dl_loaded_modules->libtype = elf_executable;
-				_dl_loaded_modules->ppnt = (elf_phdr *) dl_data[AT_PHDR];
-				_dl_loaded_modules->n_phent = dl_data[AT_PHNUM];
+				_dl_loaded_modules->ppnt = (elf_phdr *) auxv_t[AT_PHDR].a_un.a_ptr;
+				_dl_loaded_modules->n_phent = auxv_t[AT_PHNUM].a_un.a_val;
 				_dl_symbol_tables = rpnt =
 					(struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 				_dl_memset(rpnt, 0, sizeof(*rpnt));
 				rpnt->dyn = _dl_loaded_modules;
 				app_tpnt->usage_count++;
 				app_tpnt->symbol_scope = _dl_symbol_tables;
-				lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
+				lpnt = (int *) (app_tpnt->dynamic_info[DT_PLTGOT]);
 #ifdef ALLOW_ZERO_PLTGOT
 				if (lpnt)
 #endif
@@ -501,7 +480,7 @@ void _dl_boot(unsigned long args)
 			if (ppnt->p_type == PT_INTERP) {	/* OK, fill this in - we did not 
 								   have this before */
 				tpnt->libname = _dl_strdup((char *) ppnt->p_offset +
-							   (dl_data[AT_PHDR] & 0xfffff000));
+							   (auxv_t[AT_PHDR].a_un.a_val & 0xfffff000));
 			}
 		}
 	}
@@ -515,9 +494,10 @@ void _dl_boot(unsigned long args)
 	{
 		_dl_not_lazy = _dl_getenv("LD_BIND_NOW", envp);
 
-		if ((dl_data[AT_UID] == -1 && _dl_suid_ok()) ||
-			(dl_data[AT_UID] != -1 && dl_data[AT_UID] == dl_data[AT_EUID]
-			 && dl_data[AT_GID] == dl_data[AT_EGID])) {
+		if ((auxv_t[AT_UID].a_un.a_val == -1 && _dl_suid_ok()) ||
+			(auxv_t[AT_UID].a_un.a_val != -1 && 
+			 auxv_t[AT_UID].a_un.a_val == auxv_t[AT_EUID].a_un.a_val
+			 && auxv_t[AT_GID].a_un.a_val== auxv_t[AT_EGID].a_un.a_val)) {
 			_dl_secure = 0;
 			_dl_preload = _dl_getenv("LD_PRELOAD", envp);
 			_dl_library_path = _dl_getenv("LD_LIBRARY_PATH", envp);
@@ -889,13 +869,23 @@ void _dl_boot(unsigned long args)
 	}
 
 	/* OK we are done here.  Turn out the lights, and lock up. */
-	_dl_elf_main = (int (*)(int, char **, char **)) dl_data[AT_ENTRY];
+	_dl_elf_main = (int (*)(int, char **, char **)) auxv_t[AT_ENTRY].a_un.a_fcn;
 
 
 	/*
 	 * Transfer control to the application.
 	 */
 	START();
+}
+
+/*
+ * This stub function is used by some debuggers.  The idea is that they
+ * can set an internal breakpoint on it, so that we are notified when the
+ * address mapping is changed in some way.
+ */
+void _dl_debug_state()
+{
+	return;
 }
 
 int _dl_fixup(struct elf_resolve *tpnt)
@@ -952,14 +942,17 @@ void *_dl_malloc(int size)
 {
 	void *retval;
 
+	//SEND_STDERR("malloc: request for ");
+	//SEND_STDERR(_dl_simple_itol(size));
+	//SEND_STDERR(" bytes\n");
+
 	if (_dl_malloc_function)
 		return (*_dl_malloc_function) (size);
 
 	if (_dl_malloc_addr - _dl_mmap_zero + size > 4096) {
-		_dl_mmap_zero = _dl_malloc_addr =
-			(unsigned char *) _dl_mmap((void *) 0, size, 
-						   PROT_READ | PROT_WRITE, 
-						   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		//SEND_STDERR("malloc: mmapping more memory\n");
+		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size, 
+			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
 			_dl_fdprintf(2, "%s: can't map '/dev/zero'\n", _dl_progname);
 			_dl_exit(20);
