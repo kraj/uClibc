@@ -42,6 +42,10 @@
    easier to insert the necessary directives into crtn.S. */
 #define SECTION(x) asm (".section " x )
 
+/* Declare symbols as hidden. Hidden symbols are only seen by
+ * the link editor and not by the dynamic loader. */
+#define HIDDEN(func)  asm (".hidden  " #func )
+
 /* The initial common code ends here. */
 asm ("\n/*@HEADER_ENDS*/");
 
@@ -72,6 +76,7 @@ call_gmon_start(void)
 #endif
 
 SECTION (".init");
+HIDDEN(_init);
 extern void _init (void);
 void
 _init (void)
@@ -108,6 +113,7 @@ asm ("\n/*@_init_EPILOG_ENDS*/");
 asm ("\n/*@_fini_PROLOG_BEGINS*/");
 
 SECTION (".fini");
+HIDDEN(_fini);
 extern void _fini (void);
 void
 _fini (void)

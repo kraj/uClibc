@@ -11,6 +11,7 @@ my($endp)	    = 0;
 my($end)	    = 0;
 my($omitcrti)	    = 0;
 my($omitcrtn)	    = 0;
+my($discard)	    = 0;
 my($line);
 
 # Get commandline parameters
@@ -83,6 +84,10 @@ while(<INITFINI>) {
 	$omitcrtn = 0;
 	next;
     }
+    if (/^i_am_not_a_leaf/) {
+	$discard = 1;
+	next;
+    }
     if (/^_init:/ || /^_fini:/) {
 	$omitcrtn = 1;
     }
@@ -140,12 +145,13 @@ while(<INITFINI>) {
 	    s/ALIGN//;
 	}
     }
-    if (!$omitcrti) {
+    if (!$omitcrti && !$discard) {
 	print CRTI;
     }
-    if (!$omitcrtn) {
+    if (!$omitcrtn && !$discard) {
 	print CRTN;
     }
+    $discard = 0;
 }
 close(INITFINI);
 close(CRTI);
