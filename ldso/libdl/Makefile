@@ -34,7 +34,7 @@ endif
 XXFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1include/gp")
 XXFLAGS_NOPIC:=$(XXFLAGS)
 ifeq ($(DOPIC),y)
-    XXFLAGS += $(PICFLAG)
+    XXFLAGS += $(PICFLAG) -D__LIBDL_SHARED__
 endif
 ifeq ($(strip $(SUPPORT_LD_DEBUG)),y)
 XXFLAGS+=-D__SUPPORT_LD_DEBUG__

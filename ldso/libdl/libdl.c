@@ -16,7 +16,7 @@ int dladdr(void *, Dl_info *) __attribute__ ((__weak__, __alias__ ("_dladdr")));
 void _dlinfo(void);
 
 
-#ifdef __PIC__
+#if defined (__LIBDL_SHARED__)
 /* This is a real hack.  We need access to the dynamic linker, but we
 also need to make it possible to link against this library without any
 unresolved externals.  We provide these weak symbols to make the link
@@ -64,7 +64,7 @@ extern char *_dl_debug_bindings __attribute__ ((__weak__, __alias__ ("foobar1"))
 extern int   _dl_debug_file __attribute__ ((__weak__, __alias__ ("foobar1")));
 #endif
 
-#else	/* __PIC__ */
+#else	/* __LIBDL_SHARED__ */
 
 #ifdef __SUPPORT_LD_DEBUG__
 char *_dl_debug  = 0;
@@ -285,7 +285,7 @@ void *_dlopen(const char *libname, int flag)
 	_dlinfo();
 #endif
 
-#ifdef __PIC__
+#if defined (__LIBDL_SHARED__)
 	/* Find the last library so we can run things in the right order */
 	for (tpnt = dyn_chain->dyn; tpnt->next!=NULL; tpnt = tpnt->next)
 	    ;
