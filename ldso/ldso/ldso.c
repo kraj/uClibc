@@ -58,7 +58,6 @@ char *_dl_debug_bindings  = 0;
 int   _dl_debug_file      = 2;
 #endif
 
-extern attribute_hidden void _dl_boot(void);
 #include "dl-startup.c"
 /* Forward function declarations */
 static int _dl_suid_ok(void);
