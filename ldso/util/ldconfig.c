@@ -33,11 +33,12 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <link.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <sys/mman.h>
+#include <err.h>
 #include <errno.h>
-#include <ldso.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <ld_elf.h>
 #include "readsoname.h"
 
 struct exec
@@ -66,10 +67,6 @@ struct exec
 #define QMAGIC 0314
 /* Code indicating core file.  */
 #define CMAGIC 0421
-#ifdef __GNUC__
-void warn(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-void error(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-#endif
 
 char *___strtok = NULL;
 
@@ -100,46 +97,11 @@ void cache_print(void);
 void cache_dolib(const char *dir, const char *so, int libtype);
 void cache_write(void);
 
-void warn(const char *fmt, ...)
-{
-    va_list ap;
-
-    if (verbose < 0)
-        return;
-
-    fflush(stdout);    /* don't mix output and error messages */
-    fprintf(stderr, "%s: warning: ", prog);
-
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-
-    fprintf(stderr, "\n");
-
-    return;
-}
-
-void error(const char *fmt, ...)
-{
-    va_list ap;
-
-    fflush(stdout);    /* don't mix output and error messages */
-    fprintf(stderr, "%s: ", prog);
-
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-
-    fprintf(stderr, "\n");
-
-    exit(EXIT_FATAL);
-}
-
 void *xmalloc(size_t size)
 {
     void *ptr;
     if ((ptr = malloc(size)) == NULL)
-	error("out of memory");
+	err(EXIT_FATAL,"out of memory");
     return ptr;
 }
 
@@ -147,7 +109,7 @@ char *xstrdup(const char *str)
 {
     char *ptr;
     if ((ptr = strdup(str)) == NULL)
-	error("out of memory");
+	err(EXIT_FATAL,"out of memory");
     return ptr;
 }
 
@@ -470,8 +432,10 @@ void scan_dir(const char *name)
     {
         if (!lp->islink)
 	    link_shlib(name, lp->name, lp->so);
+#ifdef USE_CACHE
 	if (!nocache)
 	    cache_dolib(name, lp->so, lp->libtype);
+#endif
     }
 
     /* always try to clean up after ourselves */
@@ -520,11 +484,10 @@ char *get_extpath(void)
 void usage(void)
 {
     fprintf(stderr,
-	    "ldconfig - update shared library symlinks\n"
-	    "\n"
-	    "usage: ldconfig [-DvqnNX] [-f conf] [-C cache] [-r root] dir ...\n"
+	    "ldconfig - updates symlinks for shared libraries\n\n"
+	    "Usage: ldconfig [-DvqnNX] [-f conf] [-C cache] [-r root] dir ...\n"
 	    "       ldconfig -l [-Dv] lib ...\n"
-	    "       ldconfig -p\n"
+	    "       ldconfig -p\n\nOptions:\n"
 	    "\t-D:\t\tdebug mode, don't update links\n"
 	    "\t-v:\t\tverbose mode, print things as we go\n"
 	    "\t-q:\t\tquiet mode, don't print warnings\n"
@@ -537,9 +500,7 @@ void usage(void)
 	    "\t-C cache:\tuse cache instead of %s\n"
 	    "\t-r root :\tfirst, do a chroot to the indicated directory\n"
 	    "\tdir ... :\tdirectories to process\n"
-	    "\tlib ... :\tlibraries to link\n"
-	    "\n"
-	    "Copyright 1994-2000 David Engel and Mitch D'Souza\n",
+	    "\tlib ... :\tlibraries to link\n\n",
 	    LDSO_CONF, LDSO_CACHE
 	    );
     exit(EXIT_FATAL);
@@ -610,9 +571,9 @@ int main(int argc, char **argv)
 
     if (chroot_dir && *chroot_dir) {
 	if (chroot(chroot_dir) < 0)
-	    error("couldn't chroot to %s (%s)", chroot_dir, strerror(errno));
+	    err(EXIT_FATAL,"couldn't chroot to %s (%s)", chroot_dir, strerror(errno));
         if (chdir("/") < 0)
-	    error("couldn't chdir to / (%s)", strerror(errno));
+	    err(EXIT_FATAL,"couldn't chdir to / (%s)", strerror(errno));
     }
 
     /* allow me to introduce myself, hi, my name is ... */
@@ -622,7 +583,11 @@ int main(int argc, char **argv)
     if (printcache)
     {
 	/* print the cache -- don't you trust me? */
+#ifdef USE_CACHE
 	cache_print();
+#else
+	warnx("Cache support disabled\n");
+#endif
 	exit(EXIT_OK);
     }
     else if (libmode)
@@ -649,7 +614,7 @@ int main(int argc, char **argv)
 
 	    /* we'd better do a little bit of checking */
 	    if ((so = is_shlib(dir, cp, &libtype, &islink, LIB_ANY)) == NULL)
-		error("%s%s%s is not a shared library", dir,
+		err(EXIT_FATAL,"%s%s%s is not a shared library", dir,
 		      (*dir && strcmp(dir, "/")) ? "/" : "", cp);
 
 	    /* so far, so good, maybe he knows what he's doing */
@@ -687,13 +652,16 @@ int main(int argc, char **argv)
 	    scan_dir(UCLIBC_TARGET_PREFIX "/lib");
 	}
 
+#ifdef USE_CACHE
 	if (!nocache)
 	    cache_write();
+#endif
     }
 
     exit(EXIT_OK);
 }
 
+#ifdef USE_CACHE
 typedef struct liblist
 {
     int flags;
@@ -761,13 +729,13 @@ void cache_write(void)
     sprintf(tempfile, "%s~", cachefile);
 
     if (unlink(tempfile) && errno != ENOENT)
-        error("can't unlink %s (%s)", tempfile, strerror(errno));
+        err(EXIT_FATAL,"can't unlink %s (%s)", tempfile, strerror(errno));
 
     if ((cachefd = creat(tempfile, 0644)) < 0)
-	error("can't create %s (%s)", tempfile, strerror(errno));
+	err(EXIT_FATAL,"can't create %s (%s)", tempfile, strerror(errno));
 
     if (write(cachefd, &magic, sizeof (header_t)) != sizeof (header_t))
-	error("can't write %s (%s)", tempfile, strerror(errno));
+	err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
 
     for (cur_lib = lib_head; cur_lib != NULL; cur_lib = cur_lib->next)
     {
@@ -777,27 +745,27 @@ void cache_write(void)
 	stroffset += strlen(cur_lib->libname) + 1;
 	if (write(cachefd, cur_lib, sizeof (libentry_t)) !=
 	    sizeof (libentry_t))
-	    error("can't write %s (%s)", tempfile, strerror(errno));
+	    err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
     }
 
     for (cur_lib = lib_head; cur_lib != NULL; cur_lib = cur_lib->next)
     {
       if (write(cachefd, cur_lib->soname, strlen(cur_lib->soname) + 1)
 	  != strlen(cur_lib->soname) + 1)
-	  error("can't write %s (%s)", tempfile, strerror(errno));
+	  err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
       if (write(cachefd, cur_lib->libname, strlen(cur_lib->libname) + 1)
 	  != strlen(cur_lib->libname) + 1)
-	  error("can't write %s (%s)", tempfile, strerror(errno));
+	  err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
     }
 
     if (close(cachefd))
-        error("can't close %s (%s)", tempfile, strerror(errno));
+        err(EXIT_FATAL,"can't close %s (%s)", tempfile, strerror(errno));
 
     if (chmod(tempfile, 0644))
-	error("can't chmod %s (%s)", tempfile, strerror(errno));
+	err(EXIT_FATAL,"can't chmod %s (%s)", tempfile, strerror(errno));
 
     if (rename(tempfile, cachefile))
-	error("can't rename %s (%s)", tempfile, strerror(errno));
+	err(EXIT_FATAL,"can't rename %s (%s)", tempfile, strerror(errno));
 }
 
 void cache_print(void)
@@ -810,16 +778,16 @@ void cache_print(void)
     libentry_t *libent;
 
     if (stat(cachefile, &st) || (fd = open(cachefile, O_RDONLY))<0)
-	error("can't read %s (%s)", cachefile, strerror(errno));
+	err(EXIT_FATAL,"can't read %s (%s)", cachefile, strerror(errno));
     if ((c = mmap(0,st.st_size, PROT_READ, MAP_SHARED ,fd, 0)) == (caddr_t)-1)
-	error("can't map %s (%s)", cachefile, strerror(errno));
+	err(EXIT_FATAL,"can't map %s (%s)", cachefile, strerror(errno));
     close(fd);
 
     if (memcmp(((header_t *)c)->magic, LDSO_CACHE_MAGIC, LDSO_CACHE_MAGIC_LEN))
-	error("%s cache corrupt", cachefile);
+	err(EXIT_FATAL,"%s cache corrupt", cachefile);
 
     if (memcmp(((header_t *)c)->version, LDSO_CACHE_VER, LDSO_CACHE_VER_LEN))
-	error("wrong cache version - expected %s", LDSO_CACHE_VER);
+	err(EXIT_FATAL,"wrong cache version - expected %s", LDSO_CACHE_VER);
 
     header = (header_t *)c;
     libent = (libentry_t *)(c + sizeof (header_t));
@@ -853,4 +821,5 @@ void cache_print(void)
 
     munmap (c,st.st_size);
 }
+#endif
 

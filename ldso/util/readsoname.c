@@ -7,8 +7,7 @@
 #include <link.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include "elf.h"
-#include "../config.h"
+#include <ld_elf.h>
 #include "readsoname.h"
 
 void warn(char *fmt, ...);
@@ -21,6 +20,9 @@ struct needed_tab
 };
 
 struct needed_tab needed_tab[] = {
+  { "libc.so.0",    LIB_ELF_LIBC0 },
+  { "libm.so.0",    LIB_ELF_LIBC0 },
+  { "libdl.so.0",   LIB_ELF_LIBC0 },
   { "libc.so.5",    LIB_ELF_LIBC5 },
   { "libm.so.5",    LIB_ELF_LIBC5 },
   { "libdl.so.1",   LIB_ELF_LIBC5 },

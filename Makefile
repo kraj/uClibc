@@ -346,16 +346,13 @@ endif
 
 install_target_utils:
 ifeq ($(strip $(HAVE_SHARED)),y)
-	@$(MAKE) -C ldso/util ldd.target readelf.target #ldconfig.target
+	@$(MAKE) -C ldso/util ldd.target ldconfig.target #readelf.target
+	install -d $(PREFIX)$(TARGET_PREFIX)/etc;
+	install -d $(PREFIX)$(TARGET_PREFIX)/sbin;
 	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin;
 	install -m 755 ldso/util/ldd.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/ldd
-	install -m 755 ldso/util/readelf.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/readelf
-	@if [ -x ldso/util/ldconfig.target ] ; then \
-	    set -x -e; \
-	    install -d $(PREFIX)$(TARGET_PREFIX)/etc; \
-	    install -d $(PREFIX)$(TARGET_PREFIX)/sbin; \
-	    install -m 755 ldso/util/ldconfig.target $(PREFIX)$(TARGET_PREFIX)/sbin/ldconfig; \
-	fi;
+	install -m 755 ldso/util/ldconfig.target $(PREFIX)$(TARGET_PREFIX)/sbin/ldconfig;
+	#install -m 755 ldso/util/readelf.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/readelf;
 endif
 ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 	@$(MAKE) -C libc/misc/wchar iconv.target

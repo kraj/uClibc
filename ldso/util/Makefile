@@ -24,59 +24,77 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 TARGET_CC = $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
-TARGETS = ldd
+TARGETS = ldd ldconfig
 ifeq ($(OSTYPE),linux)
 TARGETS += readelf
 endif
-ifneq ($(strip $(LIBRARY_CACHE)),)
-TARGETS += ldconfig
-endif
-all: $(TARGETS)
+#ifneq ($(strip $(LIBRARY_CACHE)),)
+#TARGETS += ldconfig
+#endif
 
 ifeq ($(strip $(LDSO_LDD_SUPPORT)),y)
-XXFLAGS=-D__LDSO_LDD_SUPPORT
+XXFLAGS = -D__LDSO_LDD_SUPPORT
 endif
+
+all:	$(TARGETS)
 
 headers:
 	ln -fs $(TOPDIR)include/elf.h
 
-readelf: headers readelf.c
-	$(HOSTCC) $(HOSTCFLAGS) -I . readelf.c -o $@
+readelf:	readelf.c
+	$(HOSTCC) $(HOSTCFLAGS) -I. -I../include $^ -o $@
 	strip -x -R .note -R .comment $@
 
 readelf.target: readelf.c
-	$(TARGET_CC) $(CFLAGS) -Wl,-s readelf.c -o $@
+	$(TARGET_CC) $(CFLAGS) -Wl,-s $^ -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
-readsoname.o: headers readsoname.c readsoname2.c
-	$(HOSTCC) $(HOSTCFLAGS) -I . -c $< -o $@
-	strip -x -R .note -R .comment $*.o
-    
-ldconfig.o: headers ldconfig.c
-	$(HOSTCC) $(HOSTCFLAGS) -I . \
-		-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" -c $< -o $@
+readsoname.o:	readsoname.c readsoname2.c
+	$(HOSTCC) $(HOSTCFLAGS) -I. -I../include -c $< -o $@
 	strip -x -R .note -R .comment $*.o
 
-ldconfig: headers ldconfig.o readsoname.o
-	$(HOSTCC) $(HOSTCFLAGS) $^ -o $@
-	strip -x -R .note -R .comment $@
+#ldconfig.o:	ldconfig.c
+#	$(HOSTCC) $(HOSTCFLAGS) -I. -I../include \
+#		-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" -c $< -o $@
+#	strip -x -R .note -R .comment $*.o
 
-ldd: headers ldd.c
+#ldconfig:	ldconfig.o readsoname.o
+#	$(HOSTCC) $(HOSTCFLAGS) $^ -o $@
+#	strip -x -R .note -R .comment $@
+
+ldconfig:	ldconfig.c readsoname.c
 	$(HOSTCC) $(HOSTCFLAGS) $(XXFLAGS) -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
-		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" -I . \
-		ldd.c -o $@ 
+		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" -I. -I../include \
+		$^ -o $@
 	strip -x -R .note -R .comment $@
 
-ldd.target: ldd.c
+ldconfig.target:	ldconfig.c readsoname.c
+	$(TARGET_CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
+		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
+		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
+		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" -I. -I../include \
+		$^ -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
+
+ldd:	ldd.c
+	$(HOSTCC) $(HOSTCFLAGS) $(XXFLAGS) -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
+		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
+		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
+		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" -I. -I../include \
+		$^ -o $@
+	strip -x -R .note -R .comment $@
+
+ldd.target:	ldd.c
 	$(TARGET_CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" \
-		ldd.c -o $@
+		$^ -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 clean:
 	rm -f $(TARGETS) *.o *~ core *.target elf.h
 
+readelf.c readsoname.c ldconfig.c ldd.c:	headers

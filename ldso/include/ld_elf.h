@@ -19,9 +19,10 @@
 #define LIB_ANY	     -1
 #define LIB_DLL       0
 #define LIB_ELF       1
+#define LIB_ELF64     0x80
 #define LIB_ELF_LIBC5 2
 #define LIB_ELF_LIBC6 3
-#define LIB_ELF64     0x80
+#define LIB_ELF_LIBC0 4
 
 /* Forward declarations for stuff defined in ld_hash.h */
 struct dyn_elf;
