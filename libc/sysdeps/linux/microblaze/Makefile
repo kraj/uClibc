@@ -35,14 +35,14 @@ CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 SSRC = setjmp.S __longjmp.S vfork.S
 SOBJS = $(patsubst %.S,%.o, $(SSRC))
 
-CSRC = _mmap.c syscall.c clone.c
+CSRC = mmap.c syscall.c clone.c
 COBJS = $(patsubst %.c,%.o, $(CSRC))
 
 OBJS = $(SOBJS) $(COBJS)
 
 all: $(OBJS) $(LIBC)
 
-$(LIBC): ar-target 
+$(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)

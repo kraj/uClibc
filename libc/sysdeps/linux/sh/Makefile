@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2001 by Hewlett-Packard Australia
-# Copyright (C) 2000-2003 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2004 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -31,14 +31,14 @@ CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 SSRC=setjmp.S __longjmp.S vfork.S clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=_mmap.c longjmp.c pipe.c __init_brk.c brk.c sbrk.c syscall.c
+CSRC=mmap.c longjmp.c pipe.c __init_brk.c brk.c sbrk.c syscall.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
 
 all: $(OBJS) $(LIBC)
 
-$(LIBC): ar-target 
+$(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
