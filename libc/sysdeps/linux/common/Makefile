@@ -26,7 +26,8 @@ include $(TOPDIR)Rules.mak
 
 CSRC=	waitpid.c kernel_version.c statfix.c getdnnm.c gethstnm.c \
 	mkfifo.c setegid.c wait.c errno.c getpagesize.c seteuid.c \
-	wait3.c setpgrp.c getdtablesize.c create_module.c ptrace.c
+	wait3.c setpgrp.c getdtablesize.c create_module.c ptrace.c \
+	cmsg_nxthdr.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 MSRC=syscalls.c
