@@ -1,15 +1,10 @@
 0.9.9
 
 Erik Andersen:
-    o   Reworked all signal handling such that signal handling
-	now passes POSIX conformance tests.
-    o   Added missing syscalls: get_kernel_syms, fcntl64,
-	fdatasync, sched_setparam, sched_getparam,
-	sched_setscheduler, sched_getscheduler,
-	sched_get_priority_max, sched_get_priority_min,
-	sched_rr_get_interval, sigaltstack, sendfile, 
-	pivot_root, sigsuspend
-    o   Fixed fcntl to work when DOLFS is enabled
+    o   Reworked all signal handling such that it now passes 
+	POSIX conformance tests.
+    o   Fixed sleep and usleep to work correctly when
+	interrupted by signals.
     o   Made getopt behave the same when staticly linking
 	as when dynamicly linking.  It was using different
 	implementations depending on how apps were linked.
@@ -21,6 +16,7 @@ Erik Andersen:
 	checking for ENOMEM
     o   Fixed stpcpy function declaration
     o   Many large file support improvements.
+    o   Fixed fcntl to work when DOLFS is enabled
     o   Fixed termios code to do the Right Thing(tm)
     o   Allow regex to be excluded at compile time
     o   Implemented mempcpy
@@ -29,19 +25,23 @@ Erik Andersen:
     o   Fix several cases where get-needed-libgcc-objects.sh
 	could fail, breaking the shared uClibc library.
     o   Include all shared library loader objects into a
-	single C file, thereby producing smaller code.
+	single C file, thereby reducing its size further.
     o   Reworked the shared library linking process to be more 
-	flexible so that gcc and ld can more easily target the 
-	C library.
+	flexible so that gcc and ld can more easily be built to
+	target uClibc library.
     o   Better error checking in the Makefiles
     o   We can now autodetect the target architecture
-    o   Fixed sleep and usleep to work correctly when
-	interrupted by signals.
     o   Hide references to wchar_t so GNU autoconf
 	configure scripts won't get confused and try to 
 	enable wide char support. 
     o   Fixed stdio.h so apps can use varargs.h if they want to.
-    o   Added brk/sbrk support to arm
+    o   Added brk/sbrk support for ARM
+    o   Added missing syscalls: get_kernel_syms, fcntl64,
+	fdatasync, sched_setparam, sched_getparam,
+	sched_setscheduler, sched_getscheduler,
+	sched_get_priority_max, sched_get_priority_min,
+	sched_rr_get_interval, sigaltstack, sendfile, 
+	pivot_root, sigsuspend
 Miles Bader:
     o   Fixes for the v850 architecture: crt0, setjmp, 
 	arch autodetection, etc.
