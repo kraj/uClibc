@@ -19,12 +19,12 @@ BEGIN \
     if(/\.align/) {alignval=$2}
 # here comes some special stuff for the SuperH targets
 # Search for all labels
-    if(/_GLOBAL_OFFSET_TABLE_/) {
-      sub (":","",last);
-      glb_label[glb_idx] = last;
-      glb_idx += 1;
-      glb = $0;
-    }
+#    if(/_GLOBAL_OFFSET_TABLE_/) {
+#      sub (":","",last);
+#      glb_label[glb_idx] = last;
+#      glb_idx += 1;
+#      glb = $0;
+#    }
     last = $1;
   }
   close("initfini.s");
