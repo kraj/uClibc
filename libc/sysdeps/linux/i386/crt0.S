@@ -17,10 +17,15 @@ not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
 
-/*  If you don't know what is going on here, check out 
-    http://linuxassembly.org/startup.html
-    For a description of the stack layout.
-     -John Beppu, and Erik Andersen
+/*  Based on the code from GNU libc, but hacked up by John Beppu and Erik Andersen */
+
+    When we enter this piece of code, the program stack looks like this:
+        argc            argument counter (integer)
+        argv[0]         program name (pointer)
+        argv[1...N]     program args (pointers)
+        argv[argc-1]    end of args (integer)
+        env[0...N]      environment variables (pointers)
+        NULL
 */
 
 .global __environ
