@@ -1,341 +1,388 @@
+/* vi: set sw=4 ts=4: */
 /*
- * ldd - print shared library dependencies
+ * A small little ldd implementation for uClibc
  *
- * usage: ldd [-vVdr] prog ...
- *        -v: print ldd version
- *        -V: print ld.so version
- *	  -d: Perform relocations and report any missing functions. (ELF only).
- *	  -r: Perform relocations for both data objects and functions, and
- *	      report any missing objects (ELF only).
- *        prog ...: programs to check
+ * Copyright (C) 2001 by Lineo, inc.
+ * Written by Erik Andersen <andersen@lineo.com>, <andersee@debian.org>
  *
- * Copyright 1993-2000, David Engel
+ * Several functions in this file (specifically, elf_find_section_type(),
+ * elf_find_phdr_type(), and elf_find_dynamic(), were stolen from elflib.c from
+ * elfvector (http://www.BitWagon.com/elfvector.html) by John F. Reiser
+ * <jreiser@BitWagon.com>, and which is copyright 2000 BitWagon Software LLC
+ * (GPL2).
  *
- * This program may be used for any purpose as long as this
- * copyright notice is kept.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
  */
 
+
+#include <elf.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
-#include <getopt.h>
 #include <unistd.h>
-#include <errno.h>
-#include <sys/wait.h>
-#include <elf.h>
-#include "../d-link/linuxelf.h"
-#include "../config.h"
-#include "readsoname.h"
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
-struct exec
-{
-  unsigned long a_info;		/* Use macros N_MAGIC, etc for access */
-  unsigned a_text;		/* length of text, in bytes */
-  unsigned a_data;		/* length of data, in bytes */
-  unsigned a_bss;		/* length of uninitialized data area for file, in bytes */
-  unsigned a_syms;		/* length of symbol table data in file, in bytes */
-  unsigned a_entry;		/* start address */
-  unsigned a_trsize;		/* length of relocation info for text, in bytes */
-  unsigned a_drsize;		/* length of relocation info for data, in bytes */
+struct library {
+	char *name;
+	int resolved;
+	char *path;
+	struct library *next;
 };
-
-#if !defined (N_MAGIC)
-#define N_MAGIC(exec) ((exec).a_info & 0xffff)
-#endif
-/* Code indicating object file or impure executable.  */
-#define OMAGIC 0407
-/* Code indicating pure executable.  */
-#define NMAGIC 0410
-/* Code indicating demand-paged executable.  */
-#define ZMAGIC 0413
-/* This indicates a demand-paged executable with the header in the text. 
-   The first page is unmapped to help trap NULL pointer references */
-#define QMAGIC 0314
-/* Code indicating core file.  */
-#define CMAGIC 0421
+struct library *lib_list = NULL;
 
 
 
-extern int uselib(const char *library);
-
-#ifdef __GNUC__
-void warn(char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-void error(char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-#endif
-
-char *prog = NULL;
-
-void warn(char *fmt, ...)
+Elf32_Shdr * elf_find_section_type( int key, Elf32_Ehdr *ehdr)
 {
-    va_list ap;
-
-    fflush(stdout);    /* don't mix output and error messages */
-    fprintf(stderr, "%s: warning: ", prog);
-
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-
-    fprintf(stderr, "\n");
-
-    return;
-}
-
-void error(char *fmt, ...)
-{
-    va_list ap;
-
-    fflush(stdout);    /* don't mix output and error messages */
-    fprintf(stderr, "%s: ", prog);
-
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-
-    fprintf(stderr, "\n");
-
-    exit(1);
-}
-
-void *xmalloc(size_t size)
-{
-    void *ptr;
-    if ((ptr = malloc(size)) == NULL)
-	error("out of memory");
-    return ptr;
-}
-
-char *xstrdup(char *str)
-{
-    char *ptr;
-    if ((ptr = strdup(str)) == NULL)
-	error("out of memory");
-    return ptr;
-}
-
-/* see if prog is a binary file */
-int is_bin(char *argv0, char *prog)
-{
-    int res = 0;
-    FILE *file;
-    struct exec exec;
-    char *cp;
-    int libtype;
-
-    /* must be able to open it for reading */
-    if ((file = fopen(prog, "rb")) == NULL)
-	fprintf(stderr, "%s: can't open %s (%s)\n", argv0, prog,
-		strerror(errno));
-    else
-    {
-	/* then see if it's Z, Q or OMAGIC */
-	if (fread(&exec, sizeof exec, 1, file) < 1)
-	    fprintf(stderr, "%s: can't read header from %s\n", argv0, prog);
-	else if (N_MAGIC(exec) != ZMAGIC && N_MAGIC(exec) != QMAGIC &&
-                 N_MAGIC(exec) != OMAGIC)
-	{
-	    elfhdr elf_hdr;
-	    
- 	    rewind(file);
-	    fread(&elf_hdr, sizeof elf_hdr, 1, file);
-	    if (elf_hdr.e_ident[0] != 0x7f ||
-		strncmp(elf_hdr.e_ident+1, "ELF", 3) != 0)
-		fprintf(stderr, "%s: %s is not a.out or ELF\n", argv0, prog);
-	    else
-	    {
-		elf_phdr phdr;
-		int i;
-
-		/* Check its an exectuable, library or other */
-		switch (elf_hdr.e_type)
-		{
-		  case ET_EXEC:
-		    res = 3;
-		    /* then determine if it is dynamic ELF */
-		    for (i=0; i<elf_hdr.e_phnum; i++)
-		    {
-		        fread(&phdr, sizeof phdr, 1, file);
-			if (phdr.p_type == PT_DYNAMIC)
-			{
-			    res = 2;
-			    break;
-			}
-		    }
-		    break;
-		  case ET_DYN:
-		    if ((cp = readsoname(prog, file, LIB_ANY, &libtype, 
-			 elf_hdr.e_ident[EI_CLASS])) != NULL)
-		        free(cp);
-		    if (libtype == LIB_ELF_LIBC5)
-		        res = 5;
-		    else
-		        res = 4;
-		    break;
-		  default:
-		    res = 0;
-		    break;
+	int j;
+	Elf32_Shdr *shdr = (Elf32_Shdr *)(ehdr->e_shoff + (char *)ehdr);
+	for (j = ehdr->e_shnum; --j>=0; ++shdr) {
+		if (shdr->sh_type == key) {
+			return shdr;
 		}
-	    }
 	}
-	else
-	    res = 1; /* looks good */
-
-	fclose(file);
-    }
-    return res;
+	return NULL;
 }
 
-int main(int argc, char **argv, char **envp)
+Elf32_Phdr * elf_find_phdr_type( int type, Elf32_Ehdr *ehdr)
 {
-    int i;
-    int vprinted = 0;
-    int resolve = 0;
-    int bind = 0;
-    int bintype;
-    char *ld_preload;
-    int status = 0;
-
-    /* this must be volatile to work with -O, GCC bug? */
-    volatile loadptr loader = (loadptr)LDSO_ADDR;
-  
-    prog = argv[0];
-
-    while ((i = getopt(argc, argv, "drvV")) != EOF)
-	switch (i)
-	{
-	case 'v':
-	    /* print our version number */
-	    printf("%s: uClibc version\n", argv[0]);
-	    vprinted = 1;
-	    break;
-	case 'd':
-	    bind = 1;
-	    break;
-	case 'r':
-	    resolve = 1;
-	    break;
-	case 'V':
-	    /* print the version number of ld.so */
-	    if (uselib(LDSO_IMAGE))
-	    {
-		fprintf(stderr, "%s: can't load dynamic linker %s (%s)\n",
-			argv[0], LDSO_IMAGE, strerror(errno));
-		exit(1);
-	    }
-	    loader(FUNC_VERS, NULL);
-	    vprinted = 1;
-	    break;
+	int j;
+	Elf32_Phdr *phdr = (Elf32_Phdr *)(ehdr->e_phoff + (char *)ehdr);
+	for (j = ehdr->e_phnum; --j>=0; ++phdr) {
+		if (type==phdr->p_type) {
+			return phdr;
+		}
 	}
-
-    /* must specify programs if -v or -V not used */
-    if (optind >= argc && !vprinted)
-    {
-	printf("usage: %s [-vVdr] prog ...\n", argv[0]);
-	exit(0);
-    }
-
-    /* setup the environment for ELF binaries */
-    putenv("LD_TRACE_LOADED_OBJECTS=1");
-    if (resolve || bind)
-        putenv("LD_BIND_NOW=1");
-    if (resolve)
-        putenv("LD_WARN=1");
-    ld_preload = getenv("LD_PRELOAD");
-
-    /* print the dependencies for each program */
-    for (i = optind; i < argc; i++)
-    {
-	pid_t pid;
-	char buff[1024];
-
-	/* make sure it's a binary file */
-	if (!(bintype = is_bin(argv[0], argv[i])))
-	{
-	    status = 1;
-	    continue;
-	}
-
-	/* print the program name if doing more than one */
-	if (optind < argc-1)
-	{
-	    printf("%s:\n", argv[i]);
-	    fflush(stdout);
-	}
-
-	/* no need to fork/exec for static ELF program */
-	if (bintype == 3)
-	{
-	    printf("\tstatically linked (ELF)\n");
-	    continue;
-	}
-
-	/* now fork and exec prog with argc = 0 */
-	if ((pid = fork()) < 0)
-	{
-	    fprintf(stderr, "%s: can't fork (%s)\n", argv[0], strerror(errno));
-	    exit(1);
-	}
-	else if (pid == 0)
-	{
-	    switch (bintype)
-	    {
-	      case 1: /* a.out */
-	        /* save the name in the enviroment, ld.so may need it */
-	        snprintf(buff, sizeof buff, "%s=%s", LDD_ARGV0, argv[i]);
-		putenv(buff);
-		execl(argv[i], NULL);
-		break;
-	      case 2: /* ELF program */
-		execl(argv[i], argv[i], NULL);
-		break;
-	      case 4: /* ELF libc6 library */
-		/* try to use /lib/ld-linux.so.2 first */
-#if !defined(__mc68000__)
-		execl("/lib/ld-linux.so.2", "/lib/ld-linux.so.2", 
-		      "--list", argv[i], NULL);
-#else
-		execl("/lib/ld.so.1", "/lib/ld.so.1", 
-		      "--list", argv[i], NULL);
-#endif
-		/* fall through */
-	      case 5: /* ELF libc5 library */
-	        /* if that fails, add library to LD_PRELOAD and 
-		   then execute lddstub */
-		if (ld_preload && *ld_preload)
-		    snprintf(buff, sizeof buff, "LD_PRELOAD=%s:%s%s", 
-			     ld_preload, *argv[i] == '/' ? "" : "./", argv[i]);
-		else
-		    snprintf(buff, sizeof buff, "LD_PRELOAD=%s%s", 
-			     *argv[i] == '/' ? "" : "./", argv[i]);
-		putenv(buff);
-		execl(LDDSTUB, argv[i], NULL);
-		break;
-	      default:
-		fprintf(stderr, "%s: internal error, bintype = %d\n",
-			argv[0], bintype);
-		exit(1);
-	    }
-	    fprintf(stderr, "%s: can't execute %s (%s)\n", argv[0], argv[i],
-		    strerror(errno));
-	    exit(1);
-	}
-	else
-	{
-	    /* then wait for it to complete */
-	    int status;
-	    if (waitpid(pid, &status, 0) != pid)
-	    {
-	        fprintf(stderr, "%s: error waiting for %s (%s)\n", argv[0], 
-			argv[i], strerror(errno));
-	    }
-	    else if (WIFSIGNALED(status))
-	    {
-	        fprintf(stderr, "%s: %s exited with signal %d\n", argv[0], 
-			argv[i], WTERMSIG(status));
-	    }
-	}
-    }
-
-    exit(status);
+	return NULL;
 }
+
+/* Returns value if return_val==1, ptr otherwise */ 
+void * elf_find_dynamic(int const key, Elf32_Dyn *dynp, 
+	Elf32_Ehdr *ehdr, int return_val)
+{
+	Elf32_Phdr *pt_text = elf_find_phdr_type(PT_LOAD, ehdr);
+	unsigned tx_reloc = pt_text->p_vaddr - pt_text->p_offset;
+	for (; DT_NULL!=dynp->d_tag; ++dynp) {
+		if (dynp->d_tag == key) {
+			if (return_val == 1)
+				return (void *)dynp->d_un.d_val;
+			else
+				return (void *)(dynp->d_un.d_val - tx_reloc + (char *)ehdr );
+		}
+	}
+	return NULL;
+}
+
+int check_elf_header(Elf32_Ehdr const *const ehdr)
+{
+	if (! ehdr || strncmp((void *)ehdr, ELFMAG, SELFMAG) != 0 ||  
+			ehdr->e_ident[EI_CLASS] != ELFCLASS32 ||
+			ehdr->e_ident[EI_VERSION] != EV_CURRENT) 
+	{
+		return 1;
+	}
+	return 0;
+}
+
+char * last_char_is(const char *s, int c)
+{
+	char *sret;
+	if (!s)
+	    return NULL;
+	sret  = (char *)s+strlen(s)-1;
+	if (sret>=s && *sret == c) { 
+		return sret;
+	} else {
+		return NULL;
+	}
+}
+
+extern char *concat_path_file(const char *path, const char *filename)
+{
+	char *outbuf;
+	char *lc;
+
+	if (!path)
+	    path="";
+	lc = last_char_is(path, '/');
+	if (filename[0] == '/')
+		filename++;
+	outbuf = malloc(strlen(path)+strlen(filename)+1+(lc==NULL));
+	if (!outbuf) {
+		fprintf(stderr, "out of memory\n");
+		exit(EXIT_FAILURE);
+	}
+	sprintf(outbuf, "%s%s%s", path, (lc==NULL)? "/" : "", filename);
+
+	return outbuf;
+}
+
+char *do_which(char *name, char *path_list)
+{
+	char *path_n;
+	char *path_tmp;
+	struct stat filestat;
+	int i, count=1;
+
+	if (!path_list) {
+		fprintf(stderr, "yipe!\n");
+		exit(EXIT_FAILURE);
+	}
+
+	/* We need a writable copy of this string */
+	path_tmp = strdup(path_list);
+	if (!path_tmp) {
+		fprintf(stderr, "yipe!\n");
+		exit(EXIT_FAILURE);
+	}
+
+	/* Replace colons with zeros in path_parsed and count them */
+	for(i=strlen(path_tmp); i > 0; i--) 
+		if (path_tmp[i]==':') {
+			path_tmp[i]=0;
+			count++;
+		}
+
+	path_n = path_tmp;
+	for (i = 0; i < count; i++) {
+		char *buf;
+		buf = concat_path_file(path_n, name);
+		if (stat (buf, &filestat) == 0 && filestat.st_mode & S_IRUSR) {
+			return(buf);
+		}
+		free(buf);
+		path_n += (strlen(path_n) + 1);
+	}
+	return NULL;
+}
+
+void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_suid, struct library *lib)
+{
+	char *buf;
+	char *path;
+	struct stat filestat;
+
+	lib->path = "not found";
+
+	/* If this is a fully resolved name, our job is easy */
+	if (stat (lib->name, &filestat) == 0) {
+		lib->path = lib->name;
+		return;
+	}
+
+	/* This function must match the behavior of _dl_load_shared_library
+	 * in readelflib1.c or things won't work out as expected... */
+
+	/* The ABI specifies that RPATH is searched before LD_*_PATH or the
+	 * default path (such as /usr/lib).  So first, lets check the rpath
+	 * directories */
+	path = (char *)elf_find_dynamic(DT_RPATH, dynamic, ehdr, 0);
+	if (path) {
+		buf = do_which(lib->name, path);
+		if (buf) {
+			lib->path = buf;
+			return;
+		}
+	}
+
+	/* Next check LD_{ELF_}LIBRARY_PATH if specified and allowed.
+	 * Since this app doesn't actually run an executable I will skip
+	 * the suid check, and just use LD_{ELF_}LIBRARY_PATH if set */
+	if (is_suid==1)
+		path = NULL;
+	else
+		path = getenv("LD_LIBRARY_PATH");
+	if (path) {
+		buf = do_which(lib->name, path);
+		if (buf) {
+			lib->path = buf;
+			return;
+		}
+	}
+
+	/* Fixme -- add code to check the Cache here */ 
+
+	
+	buf = do_which(lib->name, UCLIBC_ROOT_DIR "/usr/lib/:" UCLIBC_ROOT_DIR 
+			"/lib/:" UCLIBC_BUILD_DIR "/lib/:/usr/lib:/lib");
+	if (buf) {
+		lib->path = buf;
+	}
+}
+
+static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid, const char *s)
+{
+	struct library *cur, *prev, *newlib=lib_list;
+
+	if (!s || !strlen(s))
+		return 1;
+
+	for (cur = lib_list; cur; cur=cur->next) {
+		if(strcmp(cur->name, s)==0) {
+			/* Lib is already in the list */
+			return 0;
+		}
+	}
+
+	/* Ok, this lib needs to be added to the list */
+	newlib = malloc(sizeof(struct library));
+	if (!newlib)
+		return 1;
+	newlib->name = malloc(strlen(s));
+	strcpy(newlib->name, s);
+	newlib->resolved = 0;
+	newlib->next = NULL;
+
+	/* Now try and locate where this library might be living... */
+	locate_library_file(ehdr, dynamic, strtab, is_setuid, newlib);
+
+	//printf("adding '%s' to '%s'\n", newlib->name, newlib->path);
+	if (!lib_list) {
+		lib_list = newlib;
+	} else {
+		for (cur = prev = lib_list;  cur->next; prev=cur, cur=cur->next); /* nothing */
+		cur = newlib;
+		prev->next = cur;
+	}
+	return 0;
+}
+
+
+static void find_needed_libraries(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid)
+{
+	Elf32_Dyn  *dyns;
+
+	for (dyns=dynamic; dyns->d_tag!=DT_NULL; ++dyns) {
+		if (dyns->d_tag == DT_NEEDED) {
+			add_library(ehdr, dynamic, strtab, is_setuid, (char*)strtab + dyns->d_un.d_val);
+		}
+	}
+}
+    
+static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid)
+{
+	Elf32_Phdr *phdr;
+	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
+	if (phdr) {
+		add_library(ehdr, dynamic, strtab, is_setuid, (char*)ehdr + phdr->p_offset);
+	}
+}
+
+/* map the .so, and locate interesting pieces */
+int find_dependancies(char* filename)
+{
+	int is_suid = 0;
+	FILE *thefile;
+	struct stat statbuf;
+	char *dynstr=NULL;
+	Elf32_Ehdr *ehdr = NULL;
+	Elf32_Shdr *dynsec = NULL;
+	Elf32_Dyn *dynamic = NULL;
+
+
+	if (!filename) {
+		fprintf(stderr, "No filename specified.\n");
+		exit(EXIT_FAILURE);
+	}
+	if (!(thefile = fopen(filename, "r"))) {
+		perror(filename);
+		exit(EXIT_FAILURE);
+	}
+	if (fstat(fileno(thefile), &statbuf) < 0) {
+		perror(filename);
+		exit(EXIT_FAILURE);
+	}
+
+	if (statbuf.st_size < sizeof(Elf32_Ehdr))
+		goto foo;
+
+	/* mmap the file to make reading stuff from it effortless */
+	ehdr = (Elf32_Ehdr *)mmap(0, statbuf.st_size, 
+			PROT_READ|PROT_WRITE, MAP_PRIVATE, fileno(thefile), 0);
+
+foo:
+	/* Check if this looks like a legit ELF file */
+	if (check_elf_header(ehdr)) {
+		fprintf(stderr, "%s: not an ELF file.\n", filename);
+		exit(EXIT_FAILURE);
+	}
+	/* Check if this is the right kind of ELF file */
+	if (ehdr->e_type != ET_EXEC && ehdr->e_type != ET_DYN) {
+		fprintf(stderr, "%s: not a dynamic executable\n", filename);
+		exit(EXIT_FAILURE);
+	}
+	if (ehdr->e_type == ET_EXEC) {
+		if (statbuf.st_mode & S_ISUID)
+			is_suid = 1;
+		if ((statbuf.st_mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP))
+			is_suid = 1;
+		/* FIXME */
+		if (is_suid)
+			fprintf(stderr, "%s: is setuid\n", filename);
+	}
+
+	dynsec = elf_find_section_type(SHT_DYNAMIC, ehdr);
+	if (dynsec) {
+		dynamic = (Elf32_Dyn*)(dynsec->sh_offset + (int)ehdr);
+		dynstr = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
+		find_needed_libraries(ehdr, dynamic, dynstr, is_suid);
+	}
+	find_elf_interpreter(ehdr, dynamic, dynstr, is_suid);
+	
+	return 0;
+}
+
+
+
+int main( int argc, char** argv)
+{
+	int got_em_all=1;
+	char *filename = argv[1];
+	struct library *cur;
+
+
+	if (!filename) {
+		fprintf(stderr, "No filename specified.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	find_dependancies(filename);
+	
+	while(got_em_all) {
+		got_em_all=0;
+		/* Keep walking the list till everybody is resolved */
+		for (cur = lib_list; cur; cur=cur->next) {
+			if (cur->resolved == 0 && cur->path) {
+				got_em_all=1;
+				//printf("checking sub-depends for '%s\n", cur->path);
+				find_dependancies(cur->path);
+				cur->resolved = 1;
+			}
+		}
+	}
+
+	
+	/* Print the list */
+	for (cur = lib_list; cur; cur=cur->next) {
+		printf("\t%s => %s\n", cur->name, cur->path);
+	}
+
+	return 0;
+}
+
