@@ -31,7 +31,6 @@
 
 __BEGIN_DECLS
 
-//#include <asm/signal.h>
 #include <bits/sigset.h>		/* __sigset_t, __sig_atomic_t.  */
 
 /* An integral type that can be modified atomically, without the
