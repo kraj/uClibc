@@ -151,29 +151,32 @@ static char *recurser(char *path_buf, int path_size, dev_t root_dev, ino_t root_
 
 char *getcwd(char *buf, int size)
 {
-	struct stat st;
+    struct stat st;
 
-	if (size == 0) {
-		__set_errno(EINVAL);
-		return NULL;
+    if (size == 0) {
+	if (buf != NULL) {
+	    __set_errno(EINVAL);
+	    return NULL;
 	}
-	if (size < 3) {
-		__set_errno(ERANGE);
-		return NULL;
-	}
+	size = PATH_MAX;
+    }
+    if (size < 3) {
+	__set_errno(ERANGE);
+	return NULL;
+    }
 
-	if (buf == NULL) {
-		buf = malloc (size);
-		if (buf == NULL)
-			return NULL;
-	}
+    if (buf == NULL) {
+	buf = malloc (size);
+	if (buf == NULL)
+	    return NULL;
+    }
 
-	strcpy(buf, ".");
-	if (stat("/", &st) < 0) {
-		return NULL;
-	}
+    strcpy(buf, ".");
+    if (stat("/", &st) < 0) {
+	return NULL;
+    }
 
-	return recurser(buf, size, st.st_dev, st.st_ino);
+    return recurser(buf, size, st.st_dev, st.st_ino);
 }
 
 #endif
