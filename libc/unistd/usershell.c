@@ -109,7 +109,9 @@ static char ** initshells(void)
 	goto cleanup;
     }
     /* No threads using this stream.  */
+#ifdef __UCLIBC_HAS_THREADS__
     __fsetlocking (fp, FSETLOCKING_BYCALLER);
+#endif
     sp = shells;
     cp = strings;
     flen = statb.st_size;
