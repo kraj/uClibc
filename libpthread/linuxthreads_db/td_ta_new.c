@@ -126,6 +126,10 @@ td_ta_new (struct ps_prochandle *ps, td_thragent_t **ta)
     {
       if (ps_pdread (ps, addr, &(*ta)->sizeof_descr, sizeof (int)) != PS_OK)
 	goto free_return;
+      /* Don't let bogons in the inferior make us mess ourselves.  */
+      if ((*ta)->sizeof_descr > sizeof (struct _pthread_descr_struct))
+	  (*ta)->sizeof_descr = sizeof (struct _pthread_descr_struct);
+
     }
 
   /* Now add the new agent descriptor to the list.  */
