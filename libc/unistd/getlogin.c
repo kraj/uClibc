@@ -2,7 +2,7 @@
 /* getlogin for uClibc
  *
  * Copyright (C) 2000 by Lineo, inc. and Erik Andersen
- * Copyright (C) 2000,2001 by Erik Andersen <andersen@uclibc.org>
+ * Copyright (C) 2000-2002 by Erik Andersen <andersen@uclibc.org>
  * Written by Erik Andersen <andersen@uclibc.org>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,11 +23,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* uClibc makes it policy to not mess with the utmp file whenever possible, *
- * since I consider utmp a complete wasts of time.  Since getlogin() should
- * never be used for security purposes, we kindly let the user specify whatever
- * they want via the LOGNAME environment variable, or we return NULL if
- * getenv() fails to find anything */
+/* uClibc makes it policy to not mess with the utmp file whenever
+ * possible, since I consider utmp a complete waste of time.  Since
+ * getlogin() should never be used for security purposes, we kindly let
+ * the user specify whatever they want via the LOGNAME environment
+ * variable, or we return NULL if getenv() fails to find anything */
 
 char * getlogin(void)
 {
@@ -42,6 +42,7 @@ int getlogin_r(char *name, size_t len)
 		return -1;
 
 	strncpy(name, foo, len);
+	name[len] = '\0';
 	return 0;
 }
 
