@@ -1,7 +1,7 @@
 TOPDIR=../../
 include $(TOPDIR)/ld.so-1/Rules.mak
 
-CFLAGS += -DNO_UNDERSCORE -DVERBOSE_DLINKER -DUSE_CACHE
+CFLAGS += -DUSE_CACHE
 CFLAGS += #-fPIC -D__PIC__ #-funroll-loops
 
 CSRC= dlib.c

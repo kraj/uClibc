@@ -1,4 +1,3 @@
-
 /*
  * Various assmbly language/system dependent  hacks that are required
  * so that we can minimize the amount of platform specific code.
@@ -73,9 +72,9 @@
 /* Here we define the magic numbers that this dynamic loader should accept */
 
 #define MAGIC1 EM_386
-#define MAGIC2 EM_486
+#undef  MAGIC2
 /* Used for error messages */
-#define ELF_TARGET "386/486"
+#define ELF_TARGET "386"
 
 extern unsigned int _dl_linux_resolver(int dummy, int i);
 
