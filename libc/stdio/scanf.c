@@ -346,8 +346,9 @@ va_list ap;
 					goto nextfmt;
 				}
 				if (p-spec > 3) { /* skip white space if not c or [ */
-					while (isspace(scan_getc_nw(&sc)))
-						{}
+					do {
+						i = scan_getc_nw(&sc);
+					} while (isspace(i));
 					scan_ungetc(&sc);
 				}
 				if (p-spec < 5) { /* [,c,s - string conversions */
@@ -588,8 +589,9 @@ va_list ap;
 			/* Unrecognized specifier! */
 			goto RETURN_cnt;
 		} if (isspace(*fmt)) {	/* Consume all whitespace. */
-			while (isspace(scan_getc_nw(&sc)))
-				{}
+			do {
+				i = scan_getc_nw(&sc);
+			} while (isspace(i));
 		} else {				/* Match the current fmt char. */
 		matchchar:
 			if (scan_getc_nw(&sc) != *fmt) {
