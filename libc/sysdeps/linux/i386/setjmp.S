@@ -54,7 +54,7 @@ __sigsetjmp:
 L(here):
 	popl %ecx
 	addl $_GLOBAL_OFFSET_TABLE_+[.-L(here)], %ecx
-	movl C_SYMBOL_NAME(__sigjmp_save@GOT)(%ecx), %ecx
+	movl (__sigjmp_save)(%ecx), %ecx
 	jmp *%ecx
 #else
 	jmp __sigjmp_save
