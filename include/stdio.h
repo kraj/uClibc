@@ -94,15 +94,15 @@ typedef struct __stdio_file FILE;
 #include <bits/stdio_lim.h>
 #undef __need_FOPEN_MAX
 
-/* Standard streams (internal).  */
-extern FILE *_stdin;
-extern FILE *_stdout;
-extern FILE *_stderr;
 
+/* Standard streams.  */
+extern FILE *stdin;		/* Standard input stream.  */
+extern FILE *stdout;		/* Standard output stream.  */
+extern FILE *stderr;		/* Standard error output stream.  */
 /* C89/C99 say they're macros.  Make them happy.  */
-#define stdin  _stdin
-#define stdout _stdout
-#define stderr _stderr
+#define stdin stdin
+#define stdout stdout
+#define stderr stderr
 
 /* Remove file FILENAME.  */
 extern int remove __P ((__const char *__filename));
@@ -287,7 +287,7 @@ extern int getchar __P ((void));
     (*(stream)->bufpos++))
 /* getchar() is equivalent to getc(stdin).  Since getc is a macro, 
  * that means that getchar() should be a macro too...  */
-#define getchar() getc(_stdin)
+#define getchar() getc(stdin)
 
 /* Write a character to STREAM.  */
 extern int fputc __P ((int __c, FILE *__stream));
@@ -302,7 +302,7 @@ extern int putchar __P ((int __c));
                           : (unsigned char) (*(stream)->bufpos++ = (c))	)
 /* putchar() is equivalent to putc(c,stdout).  Since putc is a macro,
  * that means that putchar() should be a macro too...  */
-#define putchar(c) putc((c), _stdout)
+#define putchar(c) putc((c), stdout)
 
 #if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
 /* Get a word (int) from STREAM.  */

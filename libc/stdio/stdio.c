@@ -177,9 +177,9 @@ FILE _stdio_streams[FIXED_STREAMS] = {
 	 2, _IONBF | __MODE_FREEFIL }
 };
 
-FILE *_stdin = _stdio_streams + 0;
-FILE *_stdout = _stdio_streams + 1;
-FILE *_stderr = _stdio_streams + 2;
+FILE *stdin = _stdio_streams + 0;
+FILE *stdout = _stdio_streams + 1;
+FILE *stderr = _stdio_streams + 2;
 
 /*
  * Note: the following forces linking of the __init_stdio function if
@@ -328,7 +328,7 @@ char *gets(char *str) /* This is an UNSAFE function! */
 	 *
 	 * Besides, this function is inherently unsafe and shouldn't be used.
 	 */
-	return fgets(str, INT_MAX, _stdin);
+	return fgets(str, INT_MAX, stdin);
 }
 #endif
 
@@ -352,8 +352,8 @@ int puts(const char *str)
 {
 	int n;
 
-	n = fputs(str, _stdout);	/* Let next fputc handle EOF or error. */
-	if (fputc('\n', _stdout) == EOF) { /* Don't use putc since we want to */
+	n = fputs(str, stdout);	/* Let next fputc handle EOF or error. */
+	if (fputc('\n', stdout) == EOF) { /* Don't use putc since we want to */
 		return EOF;				/* fflush stdout if it is line buffered. */
 	}
 	return n + 1;
@@ -396,8 +396,8 @@ off_t _uClibc_fread(unsigned char *buf, off_t bytes, FILE *fp)
 		fp->mode |= __MODE_ERR;
 	} else if (WRITING(fp)) {
 		fflush(fp);
-	} else if (fp->mode & _stdout->mode & __MODE_TIED) {
-		fflush(_stdout);
+	} else if (fp->mode & stdout->mode & __MODE_TIED) {
+		fflush(stdout);
 	}
 	if (EOF_OR_ERROR(fp) || (bytes <= 0)) {
 		return 0;
@@ -1001,7 +1001,7 @@ FILE *fdopen(int fd, __const char *mode)
 #undef getchar
 int getchar(void)
 {
-	return getc(_stdin);
+	return getc(stdin);
 }
 #endif
 
@@ -1009,7 +1009,7 @@ int getchar(void)
 #undef putchar
 int putchar(int c)
 {
-	return putc(c, _stdout);
+	return putc(c, stdout);
 }
 #endif
 
