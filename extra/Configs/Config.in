@@ -9,6 +9,7 @@ menu "General Library Settings"
 config DOPIC
 	bool "Generate Position Independent Code (PIC)"
 	default y
+	depends !HAVE_NO_PIC
 	help
 	  If you wish to build uClibc with support for shared libraries then
 	  answer Y here.  If you only want to build uClibc as a static library,
@@ -150,7 +151,7 @@ config UCLIBC_HAS_RPC
 config UCLIBC_HAS_FULL_RPC
 	bool "Full RPC support"
 	depends on UCLIBC_HAS_RPC
-	default n
+	default y if !HAVE_SHARED
 	help
 	  Normally we enable just enough RPC support for things like rshd and
 	  nfs mounts to work.  If you find you need the rest of the RPC stuff, 
@@ -214,7 +215,7 @@ config SHARED_LIB_LOADER_PATH
 
 config SYSTEM_LDSO
 	string "System shared library loader"
-	depends on !BUILD_UCLIBC_LDSO
+	depends on HAVE_SHARED && !BUILD_UCLIBC_LDSO
 	default "/lib/ld-linux.so.2"
 	help
 	  If you are using shared libraries, but do not want/have a native
@@ -276,6 +277,15 @@ config DODEBUG
 
 	  Otherwise, answer N.
 
+config DOASSERTS
+	bool "Build uClibc with run-time assertion testing"
+	default n
+	help
+	  Say Y here to include runtime assertion tests.
+	  This enables runtime assertion testing in some code, which can
+	  increase the size of the library and incur runtime overhead.
+	  If you say N, then this testing will be disabled.
+
 config SUPPORT_LD_DEBUG
 	bool "Build the shared library loader with debugging support"
 	depends on BUILD_UCLIBC_LDSO
@@ -325,6 +335,3 @@ config SUPPORT_LD_DEBUG_EARLY
 	  answer Y.  Mere mortals answer N.
 
 endmenu
-
-
-
