@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <paths.h>
+#include <errno.h>
 #include "config.h"
 
 #ifdef __UCLIBC_HAS_THREADS__
@@ -41,30 +42,32 @@ int getpwuid_r (uid_t uid, struct passwd *password,
     int passwd_fd;
 
     if ((passwd_fd = open(_PATH_PASSWD, O_RDONLY)) < 0)
-	return -1;
+	return errno;
 
-    while (__getpwent_r(password, buff, buflen, passwd_fd) != -1)
+    while (__getpwent_r(password, buff, buflen, passwd_fd) == 0)
 	if (password->pw_uid == uid) {
 	    close(passwd_fd);
 	    return 0;
 	}
 
     close(passwd_fd);
-    return -1;
+    return EINVAL;
 }
 
 struct passwd *getpwuid(uid_t uid)
 {
+    int ret;
     /* file descriptor for the password file currently open */
     static char line_buff[PWD_BUFFER_SIZE];
     static struct passwd pwd;
 
     LOCK;
-    if (getpwuid_r(uid, &pwd, line_buff,  sizeof(line_buff), NULL) != -1) {
+    if ((ret=getpwuid_r(uid, &pwd, line_buff,  sizeof(line_buff), NULL)) == 0) {
 	UNLOCK;
 	return &pwd;
     }
     UNLOCK;
+    __set_errno(ret);
     return NULL;
 }
 

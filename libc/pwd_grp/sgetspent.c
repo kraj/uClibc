@@ -40,14 +40,16 @@ int sgetspent_r (const char *string, struct spwd *spwd,
 
 struct spwd *sgetspent(const char *string)
 {
+    int ret;
     static char line_buff[PWD_BUFFER_SIZE];
     static struct spwd spwd;
 
     LOCK;
-    if (sgetspent_r(string, &spwd, line_buff, sizeof(line_buff), NULL) != -1) {
+    if ((ret = sgetspent_r(string, &spwd, line_buff, sizeof(line_buff), NULL)) == 0) {
 	UNLOCK;
 	return &spwd;
     }
+    __set_errno(ret);
     UNLOCK;
     return NULL;
 }

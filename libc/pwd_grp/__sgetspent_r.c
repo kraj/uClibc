@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 #include "config.h"
 
 
@@ -35,15 +36,18 @@ int __sgetspent_r(const char * string, struct spwd * spwd, char * line_buff, siz
 	char *flag_ptr=NULL;
 	int i;
 
+	if (buflen<PWD_BUFFER_SIZE)
+		return ERANGE;
+
 	if (string != line_buff) {
 		if (strlen(string) >= buflen)
-			return -1;
+			return ERANGE;
 		strcpy(line_buff, string);
 	}
 
 	if (*line_buff == '#' || *line_buff == ' ' || *line_buff == '\n' ||
 		*line_buff == '\t')
-		return -1;
+		return EINVAL;
 
 	field_begin = strchr(line_buff, '\n');
 	if (field_begin != NULL)
@@ -86,7 +90,7 @@ int __sgetspent_r(const char * string, struct spwd * spwd, char * line_buff, siz
 			if (field_begin == NULL) {
 				if (i==4 || i==7)
 					break;
-				return -1;
+				return EINVAL;
 			}
 			*field_begin++ = '\0';
 		}
@@ -97,7 +101,7 @@ int __sgetspent_r(const char * string, struct spwd * spwd, char * line_buff, siz
 	} else {
 		spwd->sp_lstchg = (gid_t) strtoul(lstchg_ptr, &endptr, 10);
 		if (*endptr != '\0')
-			return -1;
+			return EINVAL;
 	}
 
 	if (*min_ptr == '\0') {
@@ -105,7 +109,7 @@ int __sgetspent_r(const char * string, struct spwd * spwd, char * line_buff, siz
 	} else {
 		spwd->sp_min = (gid_t) strtoul(min_ptr, &endptr, 10);
 		if (*endptr != '\0')
-			return -1;
+			return EINVAL;
 	}
 
 	if (*max_ptr == '\0') {
@@ -113,7 +117,7 @@ int __sgetspent_r(const char * string, struct spwd * spwd, char * line_buff, siz
 	} else {
 		spwd->sp_max = (gid_t) strtoul(max_ptr, &endptr, 10);
 		if (*endptr != '\0')
-			return -1;
+			return EINVAL;
 	}
 
 	if (warn_ptr == NULL) {
@@ -129,7 +133,7 @@ int __sgetspent_r(const char * string, struct spwd * spwd, char * line_buff, siz
 		} else {
 			spwd->sp_warn = (gid_t) strtoul(warn_ptr, &endptr, 10);
 			if (*endptr != '\0')
-				return -1;
+				return EINVAL;
 		}
 
 		if (*inact_ptr == '\0') {
@@ -137,7 +141,7 @@ int __sgetspent_r(const char * string, struct spwd * spwd, char * line_buff, siz
 		} else {
 			spwd->sp_inact = (gid_t) strtoul(inact_ptr, &endptr, 10);
 			if (*endptr != '\0')
-				return -1;
+				return EINVAL;
 		}
 
 		if (*expire_ptr == '\0') {
@@ -145,7 +149,7 @@ int __sgetspent_r(const char * string, struct spwd * spwd, char * line_buff, siz
 		} else {
 			spwd->sp_expire = (gid_t) strtoul(expire_ptr, &endptr, 10);
 			if (*endptr != '\0')
-				return -1;
+				return EINVAL;
 		}
 
 		if (flag_ptr==NULL || *flag_ptr=='\0') {
@@ -153,7 +157,7 @@ int __sgetspent_r(const char * string, struct spwd * spwd, char * line_buff, siz
 		} else {
 			spwd->sp_flag = (gid_t) strtoul(flag_ptr, &endptr, 10);
 			if (*endptr != '\0')
-				return -1;
+				return EINVAL;
 		}
 	}
 

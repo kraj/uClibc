@@ -37,38 +37,43 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #endif      
 
 int getpwnam_r (const char *name, struct passwd *password,
-	char *buff, size_t buflen, struct passwd **crap)
+	char *buff, size_t buflen, struct passwd **result)
 {
+    int ret;
     int passwd_fd;
 
     if (name == NULL) {
-	__set_errno(EINVAL);
-	return -1;
+	return EINVAL;
     }
 
-    if ((passwd_fd = open(_PATH_PASSWD, O_RDONLY)) < 0)
-	return -1;
+    if ((passwd_fd = open(_PATH_PASSWD, O_RDONLY)) < 0) {
+	return ENOENT;
+    }
 
-    while (__getpwent_r(password, buff, buflen, passwd_fd) != -1)
+    while ((ret=__getpwent_r(password, buff, buflen, passwd_fd)) == 0) {
 	if (!strcmp(password->pw_name, name)) {
+	    *result=password;
 	    close(passwd_fd);
 	    return 0;
 	}
+    }
 
     close(passwd_fd);
-    return -1;
+    return ret;
 }
 
 struct passwd *getpwnam(const char *name)
 {
+    int ret;
     static char line_buff[PWD_BUFFER_SIZE];
-    static struct passwd pwd;
+    static struct passwd pwd, *result;
 
     LOCK;
-    if (getpwnam_r(name, &pwd, line_buff, sizeof(line_buff), NULL) != -1) {
+    if ((ret=getpwnam_r(name, &pwd, line_buff, sizeof(line_buff), &result)) == 0) {
 	UNLOCK;
 	return &pwd;
     }
+    __set_errno(ret);
     UNLOCK;
     return NULL;
 }

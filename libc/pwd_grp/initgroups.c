@@ -23,6 +23,7 @@
 #include <fcntl.h>
 #include <paths.h>
 #include <stdlib.h>
+#include <errno.h>
 #include "config.h"
 
 #ifdef __UCLIBC_HAS_THREADS__
@@ -49,7 +50,7 @@ int initgroups(__const char *user, gid_t gid)
 
 
     if ((grp_fd = open(_PATH_GROUP, O_RDONLY)) < 0)
-	return -1;
+	return errno;
 
     num_groups = 0;
     group_list = (gid_t *) realloc(group_list, 1);

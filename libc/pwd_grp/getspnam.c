@@ -40,34 +40,35 @@ int getspnam_r (const char *name, struct spwd *spwd,
     int spwd_fd;
 
     if (name == NULL) {
-	__set_errno(EINVAL);
-	return -1;
+	return EINVAL;
     }
 
     if ((spwd_fd = open(_PATH_SHADOW, O_RDONLY)) < 0)
-	return -1;
+	return errno;
 
-    while (__getspent_r(spwd, buff, buflen, spwd_fd) != -1)
+    while (__getspent_r(spwd, buff, buflen, spwd_fd) == 0)
 	if (!strcmp(spwd->sp_namp, name)) {
 	    close(spwd_fd);
 	    return 0;
 	}
 
     close(spwd_fd);
-    return -1;
+    return EINVAL;
 }
 
 struct spwd *getspnam(const char *name)
 {
+    int ret;
     static char line_buff[PWD_BUFFER_SIZE];
     static struct spwd spwd;
 
     LOCK;
-    if (getspnam_r(name, &spwd, line_buff,  sizeof(line_buff), NULL) != -1) {
+    if ((ret=getspnam_r(name, &spwd, line_buff,  sizeof(line_buff), NULL)) == 0) {
 	UNLOCK;
 	return &spwd;
     }
     UNLOCK;
+    __set_errno(ret);
     return NULL;
 }
 

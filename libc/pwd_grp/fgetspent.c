@@ -36,22 +36,23 @@ int fgetspent_r (FILE *file, struct spwd *spwd,
 	char *buff, size_t buflen, struct spwd **crap)
 {
     if (file == NULL) {
-	__set_errno(EINTR);
-	return -1;
+	return EINTR;
     }
     return(__getspent_r(spwd, buff, buflen, fileno(file)));
 }
 
 struct spwd *fgetspent(FILE * file)
 {
+    int ret;
     static char line_buff[PWD_BUFFER_SIZE];
     static struct spwd spwd;
 
     LOCK;
-    if (fgetspent_r(file, &spwd, line_buff, sizeof(line_buff), NULL) != -1) {
+    if ((ret=fgetspent_r(file, &spwd, line_buff, sizeof(line_buff), NULL)) == 0) {
 	UNLOCK;
 	return &spwd;
     }
     UNLOCK;
+    __set_errno(ret);
     return NULL;
 }

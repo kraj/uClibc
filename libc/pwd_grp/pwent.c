@@ -67,23 +67,27 @@ void endpwent(void)
 int getpwent_r (struct passwd *password, char *buff, 
 	size_t buflen, struct passwd **crap)
 {
+    int ret;
     LOCK;
-    if (pw_fd != -1 && __getpwent_r(password, buff, buflen, pw_fd) != -1) {
+    if (pw_fd != -1 && (ret=__getpwent_r(password, buff, buflen, pw_fd)) == 0) {
 	UNLOCK;
 	return 0;
     }
     UNLOCK;
-    return -1;
+    __set_errno(ret);
+    return ret;
 }
 
 struct passwd *getpwent(void)
 {
+    int ret;
     static char line_buff[PWD_BUFFER_SIZE];
     static struct passwd pwd;
 
-    if (getpwent_r(&pwd, line_buff, sizeof(line_buff), NULL) != -1) {
+    if ((ret=getpwent_r(&pwd, line_buff, sizeof(line_buff), NULL)) == 0) {
 	return &pwd;
     }
+    __set_errno(ret);
     return NULL;
 }
 

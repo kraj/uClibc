@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 #include "config.h"
 
 #ifdef __UCLIBC_HAS_THREADS__
@@ -34,28 +35,32 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #endif      
 
 int getspuid_r (uid_t uid, struct spwd *spwd,
-	char *buff, size_t buflen, struct spwd **crap)
+	char *buff, size_t buflen, struct spwd **result)
 {
+    int ret;
     char pwd_buff[PWD_BUFFER_SIZE];
     struct passwd password;
 
-    if (getpwuid_r(uid, &password, pwd_buff,  sizeof(pwd_buff), NULL) < 0)
-	return -1;
+    ret = getpwuid_r(uid, &password, pwd_buff,  sizeof(pwd_buff), NULL);
+    if (ret != 0)
+	return ret;
 
-    return getspnam_r(password.pw_name, spwd, buff, buflen, crap);
+    return getspnam_r(password.pw_name, spwd, buff, buflen, result);
 }
 
 struct spwd *getspuid(uid_t uid)
 {
+    int ret;
     static char line_buff[PWD_BUFFER_SIZE];
     static struct spwd spwd;
 
     LOCK;
-    if (getspuid_r(uid, &spwd, line_buff, sizeof(line_buff), NULL) != -1) {
+    if ((ret=getspuid_r(uid, &spwd, line_buff, sizeof(line_buff), NULL)) == 0) {
 	UNLOCK;
 	return &spwd;
     }
     UNLOCK;
+    __set_errno(ret);
     return NULL;
 }
 

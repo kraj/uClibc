@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
+#include <errno.h>
 #include "config.h"
 
 
@@ -42,12 +43,15 @@ int __getpwent_r(struct passwd * passwd, char * line_buff, size_t buflen, int pw
 	int line_len;
 	int i;
 
+	if (buflen<PWD_BUFFER_SIZE)
+		return ERANGE;
+
 	/* We use the restart label to handle malformatted lines */
-  restart:
-	/* Read the passwd line into the static buffer using a minimal of
+restart:
+	/* Read the passwd line into the static buffer using a minimum of
 	   syscalls. */
 	if ((line_len = read(pwd_fd, line_buff, buflen)) <= 0)
-		return -1;
+		return EIO;
 	field_begin = strchr(line_buff, '\n');
 	if (field_begin != NULL)
 		lseek(pwd_fd, (long) (1 + field_begin - (line_buff + line_len)),
@@ -56,7 +60,7 @@ int __getpwent_r(struct passwd * passwd, char * line_buff, size_t buflen, int pw
 
 		do {
 			if ((line_len = read(pwd_fd, line_buff, buflen)) <= 0)
-				return -1;
+				return EIO;
 		} while (!(field_begin = strchr(line_buff, '\n')));
 		lseek(pwd_fd, (long) (field_begin - line_buff) - line_len + 1,
 			  SEEK_CUR);
