@@ -232,7 +232,7 @@ install_dev:
 	install -d $(PREFIX)$(DEVEL_PREFIX)/lib
 	install -d $(PREFIX)$(DEVEL_PREFIX)/usr/lib
 	install -d $(PREFIX)$(DEVEL_PREFIX)/include
-	install -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
+	-install -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
 	tar -chf - include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX);
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod -f 755 $$i; chmod -f 644 $$i/*.h; \
@@ -240,7 +240,7 @@ install_dev:
 	-find $(PREFIX)$(DEVEL_PREFIX) -name CVS | xargs rm -rf;
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
 ifeq ($(strip $(HAVE_SHARED)),true)
-	find lib/ -type l -name '*.so' -exec cp -a {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
+	-find lib/ -type l -name '*.so' -exec cp -a {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
 endif
 
 
