@@ -21,7 +21,7 @@ build-stamp:
 	dh_testdir
 
 	# Add here commands to compile the package.
-	cp extra/Configs/Config.$(shell echo $(target)|sed 's/i386/x86/') Config
+	cp extra/Configs/Config.$(target) Config
 
 	echo '#Debian configuration overrides'  >>Config
 ifneq ($(target),$(DEB_HOST_GNU_CPU))
