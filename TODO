@@ -1,0 +1,7 @@
+Fix regex so it isn't so stinking big
+Fix glob so it isn't so stinking big
+Integrate Jeff Garzik's key-value reading code for pwd/grp, /etc/hosts, etc
+Integrate the locale stuff from vodz
+Get the arm port of the shared lib loader working
+Get the powerpc port of the shared lib loader working
+Finish sparc port
