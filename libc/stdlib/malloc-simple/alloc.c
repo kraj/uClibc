@@ -74,7 +74,7 @@ void *malloc(size_t len)
 #endif
 						    );
 
-	if (result == (void *) -1)
+	if (result == MAP_FAILED)
 		return 0;
 
 	return result;
