@@ -334,7 +334,7 @@ endif
 
 install_target_utils:
 ifeq ($(strip $(HAVE_SHARED)),true)
-	@$(MAKE) -C ldso/util ldd.target readelf.target ldconfig.target
+	@$(MAKE) -C ldso/util ldd.target readelf.target #ldconfig.target
 	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin;
 	install -m 755 ldso/util/ldd.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/ldd
 	install -m 755 ldso/util/readelf.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/readelf
