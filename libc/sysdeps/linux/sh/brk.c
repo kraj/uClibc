@@ -1,12 +1,12 @@
 /* From libc-5.3.12 */
 
+#include <errno.h>
 #include <unistd.h>
 #include <sys/syscall.h>
-#include <errno.h>
 
 extern void * ___brk_addr;
 
-extern int __init_brk ();
+extern int __init_brk (void);
 extern void *_brk(void *ptr);
 
 int brk(void * end_data_seg)

@@ -1,8 +1,8 @@
 /* From libc-5.3.12 */
 
+#include <errno.h>
 #include <unistd.h>
 #include <sys/syscall.h>
-#include <errno.h>
 
 void * ___brk_addr = 0;
 
@@ -10,7 +10,7 @@ void * ___brk_addr = 0;
 _syscall1(void *, _brk, void *, ptr);
 
 int
-__init_brk ()
+__init_brk (void)
 {
     if (___brk_addr == 0)
     {

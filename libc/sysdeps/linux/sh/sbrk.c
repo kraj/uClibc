@@ -1,8 +1,8 @@
 /* From libc-5.3.12 */
 
+#include <errno.h>
 #include <unistd.h>
 #include <sys/syscall.h>
-#include <errno.h>
 
 extern void * ___brk_addr;
 
@@ -14,7 +14,7 @@ sbrk(intptr_t increment)
 {
     if (__init_brk () == 0)
     {
-		void * tmp = ___brk_addr+increment;
+		char * tmp = (char*)___brk_addr+increment;
 		___brk_addr = _brk(tmp);
 		if (___brk_addr == tmp)
 			return tmp-increment;

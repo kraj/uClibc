@@ -144,6 +144,10 @@ INCLUDE_FULL_RPC = false
 # Protocol: IP version 6, enable this.  This is off by default.
 INCLUDE_IPV6 = false
 
+# If you want to include threads support, enable this.  The C library will
+# be compiled thread-safe, and the libpthread library will be built.
+INCLUDE_THREADS = true
+
 # If you want to support only Unix 98 PTYs enable this.  Some older
 # applications may need this disabled.  For most current programs, 
 # you can generally leave this true.
@@ -162,10 +166,10 @@ DOPIC = false
 
 # Enable support for shared libraries?  If this is false, you can
 # ignore all the rest of the options in this file...
-HAVE_SHARED = false
+HAVE_SHARED = true
 
 # uClibc has a native shared library loader for some architectures.
-BUILD_UCLIBC_LDSO=false
+BUILD_UCLIBC_LDSO= true
 
 # If you are using shared libraries, but do not want/have a native
 # uClibc shared library loader, please specify the name of your
