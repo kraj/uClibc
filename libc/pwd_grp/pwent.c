@@ -30,8 +30,12 @@
  * link them all in together.
  */
 
+#define PWD_BUFFER_SIZE 256
+
 /* file descriptor for the password file currently open */
 static int pw_fd = -1;
+static char line_buff[PWD_BUFFER_SIZE];
+static struct passwd pwd;
 
 void setpwent(void)
 {
@@ -48,9 +52,20 @@ void endpwent(void)
 	pw_fd = -1;
 }
 
+int getpwent_r (struct passwd *password, char *buff, 
+	size_t buflen, struct passwd **crap)
+{
+    if (pw_fd != -1 && __getpwent_r(password, buff, buflen, pw_fd) != -1) {
+	return 0;
+    }
+    return -1;
+}
+
 struct passwd *getpwent(void)
 {
-	if (pw_fd != -1)
-		return (__getpwent(pw_fd));
-	return NULL;
+    if (getpwent_r(&pwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
+	return &pwd;
+    }
+    return NULL;
 }
+

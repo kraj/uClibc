@@ -23,20 +23,36 @@
 #include <fcntl.h>
 #include <pwd.h>
 
-struct passwd *getpwuid(uid_t uid)
+
+#define PWD_BUFFER_SIZE 256
+
+/* file descriptor for the password file currently open */
+static char line_buff[PWD_BUFFER_SIZE];
+static struct passwd pwd;
+
+int getpwuid_r (uid_t uid, struct passwd *password,
+	char *buff, size_t buflen, struct passwd **crap)
 {
 	int passwd_fd;
-	struct passwd *passwd;
 
 	if ((passwd_fd = open("/etc/passwd", O_RDONLY)) < 0)
-		return NULL;
+		return -1;
 
-	while ((passwd = __getpwent(passwd_fd)) != NULL)
-		if (passwd->pw_uid == uid) {
+	while (__getpwent_r(password, buff, buflen, passwd_fd) != -1)
+		if (password->pw_uid == uid) {
 			close(passwd_fd);
-			return passwd;
+			return 0;
 		}
 
 	close(passwd_fd);
-	return NULL;
+	return -1;
 }
+
+struct passwd *getpwuid(uid_t uid)
+{
+    if (getpwuid_r(uid, &pwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
+	return &pwd;
+    }
+    return NULL;
+}
+

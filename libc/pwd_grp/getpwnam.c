@@ -25,25 +25,41 @@
 #include <pwd.h>
 
 
-struct passwd *getpwnam(const char *name)
+#define PWD_BUFFER_SIZE 256
+
+/* file descriptor for the password file currently open */
+static char line_buff[PWD_BUFFER_SIZE];
+static struct passwd pwd;
+
+
+int getpwnam_r (const char *name, struct passwd *password,
+	char *buff, size_t buflen, struct passwd **crap)
 {
 	int passwd_fd;
-	struct passwd *passwd;
 
 	if (name == NULL) {
 		errno = EINVAL;
-		return NULL;
+		return -1;
 	}
 
 	if ((passwd_fd = open("/etc/passwd", O_RDONLY)) < 0)
-		return NULL;
+		return -1;
 
-	while ((passwd = __getpwent(passwd_fd)) != NULL)
-		if (!strcmp(passwd->pw_name, name)) {
+	while (__getpwent_r(password, buff, buflen, passwd_fd) != -1)
+		if (!strcmp(password->pw_name, name)) {
 			close(passwd_fd);
-			return passwd;
+			return 0;
 		}
 
 	close(passwd_fd);
-	return NULL;
+	return -1;
 }
+
+struct passwd *getpwnam(const char *name)
+{
+    if (getpwnam_r(name, &pwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
+	return &pwd;
+    }
+    return NULL;
+}
+

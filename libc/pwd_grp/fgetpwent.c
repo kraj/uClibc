@@ -22,12 +22,26 @@
 #include <stdio.h>
 #include <pwd.h>
 
-struct passwd *fgetpwent(FILE * file)
+#define PWD_BUFFER_SIZE 256
+
+/* file descriptor for the password file currently open */
+static char line_buff[PWD_BUFFER_SIZE];
+static struct passwd pwd;
+
+int fgetpwent_r (FILE *file, struct passwd *password,
+	char *buff, size_t buflen, struct passwd **crap)
 {
 	if (file == NULL) {
 		errno = EINTR;
-		return NULL;
+		return -1;
 	}
+	return(__getpwent_r(password, buff, buflen, fileno(file)));
+}
 
-	return __getpwent(fileno(file));
+struct passwd *fgetpwent(FILE * file)
+{
+    if (fgetpwent_r(file, &pwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
+	return &pwd;
+    }
+    return NULL;
 }
