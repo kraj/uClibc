@@ -1,3 +1,31 @@
+0.9.22	13 November 2003
+
+See Changelog.full for the complete list of who did what. 
+
+Note:
+    This release is binary compatible with uClibc 0.9.21 and 0.9.22 as
+    long as you take care to avoid any configuraton changes that will
+    break things.  Enabling or disabling things like soft-float,
+    locale, wide wchar support, or changing cpu type are all good
+    examples of things that will break binary compatibility.
+
+Release highlights:
+    o Fixed several silly configuration problems that were
+	present in the 0.9.22 release.
+    o Fixed compilation problem with soft-float support on
+	several architectures.
+    o Lots of cleanup work on the powepc shared lib loader
+	thanks to Joakim Tjernlund.
+    o Updated the debian packaging for use in a standalone uClibc
+	system, rather than being a subordinate library under a
+	glibc based system.
+
+ -Erik
+
+
+
+
+
 0.9.22	8 November 2003
 
 See Changelog.full for the complete list of who did what. 
