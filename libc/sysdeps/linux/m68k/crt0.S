@@ -34,7 +34,9 @@ Cambridge, MA 02139, USA.  */
 	nop
 _start: /* put here so that references to _start work with elf-PIC */
 
+#ifndef __UCLIBC_HAS_MMU__
 	movea.l %d5, %a5	/* uClinux passes in data segment here */
+#endif
 /*
  *	argc, argv and envp are on the stack,  just call to main
  */
