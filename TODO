@@ -1,5 +1,9 @@
 Any takers?
 
+readdir64 (part of the LFS support) is broken and segfaults.
+On ARM, the kernel fp math emulator uses a funky byte ordering
+    that causes some of our math functions to produce bad results.
+    We need to fix up the things for the wierd ARM byte ordering.
 Fix regex so it isn't so stinking big
 Fix glob so it isn't so stinking big
 Integrate Jeff Garzik's key-value reading code for pwd/grp, /etc/hosts, etc
