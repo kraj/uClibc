@@ -56,10 +56,16 @@
 
 #undef DEBUG
 #ifdef DEBUG
-#define DPRINTF(X,args...) printf(X,args...)
+static inline void DPRINTF(const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	vfprintf(stderr, format, args);
+	va_end(args);
+}
 #else
-#define DPRINTF(X,args...)
-#endif							/* DEBUG */
+static inline void DPRINTF(const char *format, ...) { }
+#endif
 
 #ifdef L_encodeh
 int encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
@@ -481,7 +487,7 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 		h.qdcount = 1;
 		h.rd = 1;
 
-		DPRINTF("encoding header\n");
+		DPRINTF("encoding header\n", h.rd);
 
 		i = encode_header(&h, packet, PACKETSZ);
 		if (i < 0)
@@ -554,7 +560,7 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 			/* unsolicited */
 			goto again;
 
-		DPRINTF("Got response (i think)!\n");
+		DPRINTF("Got response %s\n", "(i think)!");
 		DPRINTF("qrcount=%d,ancount=%d,nscount=%d,arcount=%d\n",
 				h.qdcount, h.ancount, h.nscount, h.arcount);
 		DPRINTF("opcode=%d,aa=%d,tc=%d,rd=%d,ra=%d,rcode=%d\n",
@@ -778,7 +784,7 @@ int open_nameservers()
 		}
 		fclose(fp);
 	} else {
-	    DPRINTF("failed to open resolv.conf\n");
+	    DPRINTF("failed to open %s\n", "resolv.conf");
 	}
 	DPRINTF("nameservers = %d\n", nameservers);
 	return 0;

@@ -24,19 +24,27 @@
 
 #define __P(x)	    x
 #define __PMT(x)    x
+#ifndef __const
 #define __const const
+#endif
 
 /* Almost ansi */
 #if __STDC__ != 1
+#ifndef const
 #define const
+#endif
 #define volatile
 #endif
 
 #else /* K&R */
 
 #define __P(x) ()
+#ifndef __const
 #define __const
+#endif
+#ifndef const
 #define const
+#endif
 #define volatile
 
 #endif

@@ -495,7 +495,13 @@ static Block_t *bl_mapnew(size_t size)
 
 	map_size = PAGE_ALIGN(size);
 	pt = mmap(LARGE_MSTART, map_size, PROT_READ | PROT_WRITE | PROT_EXEC,
-			  MAP_PRIVATE | MAP_ANON, 0, 0);
+#ifdef __HAS_NO_MMU__
+							 MAP_SHARED | MAP_ANONYMOUS
+#else
+							 MAP_PRIVATE | MAP_ANONYMOUS
+#endif
+							 0, 0);
+
 	if (pt == MAP_FAILED)
 		return (Block_t *) NULL;
 
@@ -517,7 +523,12 @@ void __bl_uncommit(Block_t * b)
 
 #if M_DOTRIMMING
 	mmap(u_start, u_end - u_start, PROT_READ | PROT_WRITE | PROT_EXEC,
-		 MAP_PRIVATE | MAP_ANON | MAP_FIXED, 0, 0);
+#ifdef __HAS_NO_MMU__
+							 MAP_SHARED | MAP_ANONYMOUS |MAP_FIXED
+#else
+							 MAP_PRIVATE | MAP_ANONYMOUS |MAP_FIXED
+#endif
+							 0, 0);
 #endif
 }
 

@@ -58,6 +58,9 @@ ifneq ($(HAS_FLOATS),true)
     CFLAGS += -D__HAS_NO_FLOATS__
 endif
 
+ifeq ($(TARGET_ARCH),m68k)
+    CFLAGS += -D__VFORK_MACRO__ -Dconst= -D__const= -D__extension__= 
+endif
 
 # It turns out the currently, function-sections causes ldelf2flt to segfault.
 # So till further notice, this is disabled by default....

@@ -99,10 +99,12 @@ void *realloc(void *ptr, size_t size)
 
 	if (size > 0) {
 		newptr = malloc(size);
-		if (newptr && ptr)
+		if (newptr && ptr) {
 			memcpy(newptr, ptr, size);
+			free(ptr);
+		}
 	}
-	if (ptr)
+	else
 		free(ptr);
 	return newptr;
 }

@@ -1008,6 +1008,10 @@ extern int pthread_atfork __P ((void (*__prepare) (void),
 				void (*__child) (void)));
 #endif
 
+#ifdef __VFORK_MACRO__
+#include <bits/vfork.h>
+#endif
+
 __END_DECLS
 
 #endif /* unistd.h  */

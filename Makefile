@@ -72,5 +72,19 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 $(patsubst %, _dirclean_%, $(DIRS) test) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
+
+install: libc.a
+	rm -f $(INSTALL_DIR)/include/asm
+	rm -f $(INSTALL_DIR)/include/linux
+	rm -f $(INSTALL_DIR)/include/net
+	ln -s $(KERNEL_SOURCE)/include/asm $(INSTALL_DIR)/include/asm
+	ln -s $(KERNEL_SOURCE)/include/net $(INSTALL_DIR)/include/net
+	ln -s $(KERNEL_SOURCE)/include/linux $(INSTALL_DIR)/include/linux
+	mkdir -p $(INSTALL_DIR)/include/bits
+	find include/ -type f -depth -print | cpio -pdmu $(INSTALL_DIR)
+	find include/bits/ -depth -print | cpio -pdmu $(INSTALL_DIR)
+	cp libc.a $(INSTALL_DIR)/lib
+	if [ -f crt0.o ] ; then cp crt0.o $(INSTALL_DIR)/lib ; fi
+
 .PHONY: dummy
 
