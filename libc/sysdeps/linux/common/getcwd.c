@@ -7,10 +7,51 @@
 #include <string.h>
 #include <sys/syscall.h>
 
-/* if the syscall is not present, we have to recurse up */
-#ifndef __NR_getcwd
+#ifdef __NR_getcwd
+#define __NR___getcwd __NR_getcwd
+static inline _syscall2(int, __getcwd, char *, buf, unsigned long, size);
 
+char *getcwd(char *buf, int size)
+{
+	int olderrno, ret;
+	char *allocbuf;
+	
+	if (size == 0) {
+		__set_errno(EINVAL);
+		return NULL;
+	}
+	if (size < 3) {
+		__set_errno(ERANGE);
+		return NULL;
+	}
+	allocbuf=NULL;
+	olderrno = errno;
+	if (buf == NULL) {
+		buf = allocbuf = malloc (size);
+		if (buf == NULL)
+			return NULL;
+	}
+	ret = __getcwd(buf, size);
+	if (ret < 0) {
+	    if (allocbuf) {
+		free(allocbuf);
+	    }
+	    return NULL;
+	} 
+	__set_errno(olderrno);
+	return buf;
+}
+#else
+
+/* If the syscall is not present, we have to walk up the
+ * directory tree till we hit the root.  Now we _could_
+ * use /proc/self/cwd if /proc is mounted... That approach
+ * is left an an exercise for the reader... */
+
+
+/* Seems a few broken filesystems (like coda) don't like this */
 /* #undef FAST_DIR_SEARCH_POSSIBLE on Linux */
+
 
 /* Routine to find the step back down */
 static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path_size)

@@ -25,7 +25,7 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 DIRS:=
 
-CSRC=execl.c execlp.c execv.c execvep.c execvp.c execle.c getcwd.c \
+CSRC=execl.c execlp.c execv.c execvep.c execvp.c execle.c \
 	sleep.c usleep.c getpass.c sysconf_src.c getlogin.c \
 	fpathconf.c confstr.c pathconf.c swab.c usershell.c
 ifeq ($(strip $(HAS_MMU)),true)
