@@ -91,7 +91,7 @@ headers: dummy
 	fi;
 	@ln -fs $(KERNEL_SOURCE)/include/linux include/linux
 	@ln -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/bits include/bits
-	(cd include/bits; ln -sf ../../../../../uClibc_config.h uClibc_config.h)
+	(cd include/bits && ln -sf ../../../../../uClibc_config.h uClibc_config.h)
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
 uClibc_config.h: Makefile Config
