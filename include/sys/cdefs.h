@@ -149,8 +149,7 @@
 #if defined __GNUC__ && __GNUC__ >= 2
 
 # define __REDIRECT(name, proto, alias) name proto __asm__ (__ASMNAME (#alias))
-# define __ASMNAME(cname)  __ASMNAME2 (__USER_LABEL_PREFIX__, cname)
-# define __ASMNAME2(prefix, cname) __STRING (prefix) cname
+# define __ASMNAME(cname) __C_SYMBOL_PREFIX__ cname
 
 /*
 #elif __SOME_OTHER_COMPILER__
