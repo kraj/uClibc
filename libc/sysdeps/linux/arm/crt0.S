@@ -5,6 +5,11 @@
         argv[argc-1]    end of args (integer)
         env[0...N]      environment variables (pointers)
         NULL
+	
+   When we are done here, we want
+	a1=argc
+	a2=argv[0]
+	a3=argv[argc+1]
 
 This file now uses the register naming from the ARM Procedure Calling Standard
 
@@ -54,10 +59,10 @@ _start:
 	/* clear the frame pointer */
 	mov     fp, #0
 
-	/* Load argc into a1 -- its final resting place */
+	/* Load register a1 (argc) from the stack to its final resting place */
 	ldr     a1, [sp], #4
 
-	/* Load argv into a2 -- which its final resting place */
+	/* Copy argv pointer into a2 -- which its final resting place */
 	mov     a2, sp
 
 	/* Set up environ,  skip to the end of argv, and put 
