@@ -66,6 +66,8 @@ struct fstab
   };
 
 
+#if 0
+// Not yet implemented in uClibc
 __BEGIN_DECLS
 
 extern struct fstab *getfsent (void) __THROW;
@@ -75,5 +77,6 @@ extern int setfsent (void) __THROW;
 extern void endfsent (void) __THROW;
 
 __END_DECLS
+#endif
 
 #endif /* fstab.h */
