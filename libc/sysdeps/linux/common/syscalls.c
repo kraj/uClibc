@@ -271,12 +271,18 @@ int setuid(uid_t uid)
 #endif
 
 //#define __NR_getuid           24
-#ifdef L_getuid
+#ifdef L___syscall_getuid
 #include <unistd.h>
 #if defined (__alpha__)
 #define __NR_getuid     __NR_getxuid
 #endif
-_syscall0(uid_t, getuid);
+#define __NR___syscall_getuid __NR_getuid
+static inline 
+_syscall0(int, __syscall_getuid);
+uid_t getuid(void)
+{
+	return(__syscall_getuid());
+}
 #endif
 
 //#define __NR_stime            25
@@ -520,21 +526,33 @@ int setgid(gid_t gid)
 #endif
 
 //#define __NR_getgid           47
-#ifdef L_getgid
+#ifdef L___syscall_getgid
 #include <unistd.h>
+#define __NR___syscall_getgid __NR_getgid
 #if defined (__alpha__)
 #define __NR_getgid     __NR_getxgid
 #endif
-_syscall0(gid_t, getgid);
+static inline 
+_syscall0(int, __syscall_getgid);
+gid_t getgid(void)
+{
+	return(__syscall_getgid());
+}
 #endif
 
 //#define __NR_signal           48
 
 //#define __NR_geteuid          49
-#ifdef	L_geteuid
+#ifdef	L___syscall_geteuid
 #include <unistd.h>
 #	ifdef	__NR_geteuid
-	_syscall0(uid_t, geteuid);
+#define __NR___syscall_geteuid __NR_geteuid
+	static inline 
+	_syscall0(int, __syscall_geteuid);
+	uid_t geteuid(void)
+	{
+		return(__syscall_geteuid());
+	}
 #	else
 	uid_t geteuid(void)
 	{
@@ -544,10 +562,16 @@ _syscall0(gid_t, getgid);
 #endif
 
 //#define __NR_getegid          50
-#ifdef	L_getegid
+#ifdef	L___syscall_getegid
 #include <unistd.h>
 #	ifdef	__NR_getegid
-	_syscall0(gid_t, getegid);
+#define __NR___syscall_getegid __NR_getegid
+static inline 
+_syscall0(int, __syscall_getegid);
+gid_t getegid(void)
+{
+	return(__syscall_getegid());
+}
 #	else
 	gid_t getegid(void)
 	{
@@ -592,24 +616,25 @@ _syscall3(int, __syscall_ioctl, int, fd, int, request, void *, arg);
 #endif
 
 //#define __NR_fcntl            55
-#ifdef L__fcntl
+#ifdef L___syscall_fcntl
 #include <stdarg.h>
 #include <fcntl.h>
-#define __NR__fcntl __NR_fcntl
-extern int _fcntl(int fd, int cmd, long arg);
-
-_syscall3(int, _fcntl, int, fd, int, cmd, long, arg);
-
-int __libc_fcntl(int fd, int command, ...)
+#define __NR___syscall_fcntl __NR_fcntl
+static inline
+_syscall3(int, __syscall_fcntl, int, fd, int, cmd, long, arg);
+int __libc_fcntl(int fd, int cmd, ...)
 {
 	long arg;
 	va_list list;
-
-	va_start(list, command);
+	if (cmd == F_GETLK64 || cmd == F_SETLK64 || cmd == F_SETLKW64) 
+	{
+			__set_errno(ENOSYS);
+			return -1;
+	}
+	va_start(list, cmd);
 	arg = va_arg(list, long);
-
 	va_end(list);
-	return _fcntl(fd, command, arg);
+	return(__syscall_fcntl(fd, cmd, arg));
 }
 weak_alias(__libc_fcntl, fcntl)
 #endif
@@ -862,7 +887,7 @@ int getgroups(int n, gid_t *groups)
 		ngids = __syscall_getgroups(n, kernel_groups);
 		if (n != 0 && ngids > 0) {
 			for (i = 0; i < ngids; i++) {
-				(groups)[i] = kernel_groups[i];
+				groups[i] = kernel_groups[i];
 			}
 		}
 		return ngids;
@@ -1416,9 +1441,15 @@ weak_alias(_newselect, select);
 #endif
 
 //#define __NR_flock            143
-#ifdef L_flock
+#ifdef L___syscall_flock
 #include <sys/file.h>
-_syscall2(int,flock,int,fd, int,operation);
+#define __NR___syscall_flock __NR_flock
+static inline
+_syscall2(int, __syscall_flock, int, fd, int, operation);
+int flock(int fd, int operation)
+{
+	return(__syscall_flock(fd, operation));
+}
 #endif
 
 //#define __NR_msync            144
@@ -2042,41 +2073,25 @@ _syscall3(int, madvise, void*, __addr, size_t, __len, int, __advice);
 // See getdents64.c
 
 //#define __NR_fcntl64		221
-#ifdef L__fcntl64
+#ifdef L___syscall_fcntl64
 #ifdef __UCLIBC_HAS_LFS__
 #include <stdarg.h>
 #include <fcntl.h>
-#ifdef __NR_fcntl64
-#define __NR__fcntl64 __NR_fcntl64
-extern int _fcntl64(int fd, int cmd, long arg);
-
-_syscall3(int, _fcntl64, int, fd, int, cmd, long, arg);
-
-int fcntl64(int fd, int command, ...)
+#define __NR___syscall_fcntl64 __NR_fcntl64
+static inline
+_syscall3(int, __syscall_fcntl64, int, fd, int, cmd, long, arg);
+int __libc_fcntl64(int fd, int cmd, ...)
 {
 	long arg;
 	va_list list;
-
-	va_start(list, command);
+	va_start(list, cmd);
 	arg = va_arg(list, long);
-
 	va_end(list);
-	return _fcntl64(fd, command, arg);
+	return(__syscall_fcntl64(fd, cmd, arg));
 }
+weak_alias(__libc_fcntl64, fcntl64)
 #else
-extern int _fcntl(int fd, int cmd, long arg);
-int fcntl64(int fd, int command, ...)
-{
-	long arg;
-	va_list list;
-
-	va_start(list, command);
-	arg = va_arg(list, long);
-
-	va_end(list);
-	return _fcntl(fd, command, arg);
-}
-#endif
+weak_alias(__libc_fcntl64, __libc_fcntl)
 #endif
 #endif
 
