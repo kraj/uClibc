@@ -36,8 +36,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <endian.h>
-#include <byteswap.h>
+
+#include "bswap.h"
 #include "elf.h"
 
 
@@ -84,7 +84,7 @@ void * elf_find_dynamic(int const key, Elf32_Dyn *dynp,
 	for (; DT_NULL!=byteswap32_to_host(dynp->d_tag); ++dynp) {
 		if (key == byteswap32_to_host(dynp->d_tag)) {
 			if (return_val == 1)
-				return (void *)byteswap32_to_host(dynp->d_un.d_val);
+				return (void *)(intptr_t)byteswap32_to_host(dynp->d_un.d_val);
 			else
 				return (void *)(byteswap32_to_host(dynp->d_un.d_val) - tx_reloc + (char *)ehdr );
 		}
@@ -339,7 +339,7 @@ foo:
 
 	dynsec = elf_find_section_type(SHT_DYNAMIC, ehdr);
 	if (dynsec) {
-		dynamic = (Elf32_Dyn*)(byteswap32_to_host(dynsec->sh_offset) + (int)ehdr);
+		dynamic = (Elf32_Dyn*)(byteswap32_to_host(dynsec->sh_offset) + (intptr_t)ehdr);
 		dynstr = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
 		list_needed_libraries(dynamic, dynstr);
 	}
