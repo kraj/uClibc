@@ -524,7 +524,7 @@ extern FILE *__stdout;			/* For putchar() macro. */
 
 #  else
 
-#   undef  __FUTC
+#   undef  __FPUTC
 #   define __FPUTC(__c, __stream) 		__FPUTC_UNLOCKED((__c),(__stream))
 #   undef  __PUTC
 #   define __PUTC(__c, __stream) 		__FPUTC_UNLOCKED((__c),(__stream))
