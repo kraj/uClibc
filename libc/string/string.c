@@ -63,8 +63,6 @@ char *strcpy(char *dst, const char *src)
 #ifdef L_stpcpy
 char *stpcpy(char *dst, const char *src)
 {
-	register char *ptr = dst;
-
 	while (*src)
 		*dst++ = *src++;
 	*dst = '\0';
@@ -164,7 +162,11 @@ char *strncpy(char *dst, const char *src, size_t len)
 #ifdef L_strxfrm
 size_t strxfrm(char *dst, const char *src, size_t len)
 {
+	size_t length;
 	strncpy( dst, src, len);
+	length = strlen(src);
+	if (length<len)
+		return(length);
 	return( len);
 }
 #endif	
