@@ -374,6 +374,10 @@ _syscall0(gid_t, getgid);
 #endif
 
 //#define __NR_acct             51
+#ifdef L_acct
+#include <unistd.h>
+_syscall1(int, acct, const char *, filename);
+#endif
 
 //#define __NR_umount2          52
 #ifdef L_umount2
@@ -523,10 +527,16 @@ _syscall2(int, setregid, gid_t, rgid, gid_t, egid);
 #endif
 
 //#define __NR_sigsuspend       72
-#ifdef L_sigsuspend
+#define __NR__sigsuspend __NR_sigsuspend
+#ifdef L__sigsuspend
 #include <signal.h>
-#undef sigsuspend
-_syscall1(int, sigsuspend, const sigset_t *, mask);
+#undef _sigsuspend
+_syscall1(int, _sigsuspend, unsigned long int, mask);
+
+int sigsuspend (const sigset_t *set)
+{
+	return _sigsuspend(set->__val[0]);
+}
 #endif
 
 //#define __NR_sigpending       73
