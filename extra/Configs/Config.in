@@ -165,6 +165,7 @@ config PTHREADS_DEBUG_SUPPORT
 config UCLIBC_HAS_LFS
 	bool "Large File Support"
 	default y
+	depends on !CONFIG_CRIS
 	help
 	  If you wish to build uClibc with support for accessing large files 
 	  (i.e. files greater then 2 GiB) then answer Y.  Do not enable this 
