@@ -78,10 +78,7 @@ int strcmp(const char *s1, const char *s2)
 #endif
 
 #ifdef L_strcoll
-int strcoll(const char *s1, const char *s2)
-{
-	return( strcmp(s1, s2));
-}
+__asm__(".weak strcoll; strcoll = strcmp");
 #endif	
 
 /********************** Function strncat ************************************/
@@ -167,10 +164,7 @@ char *strchr(const char *str, int c)
 #endif
 
 #ifdef L_index
-char *index (const char *s, int c)
-{
-	    return( strchr(s, c));
-}
+__asm__(".weak index; index = strchr");
 #endif
 
 /********************** Function strrchr ************************************/
@@ -195,10 +189,7 @@ char *strrchr(const char *str, int c)
 #endif
 
 #ifdef L_rindex
-char *rindex (const char *s, int c)
-{
-	    return( strrchr(s, c));
-}
+__asm__(".weak rindex; rindex = strrchr");
 #endif
 
 /********************** Function strdup ************************************/
