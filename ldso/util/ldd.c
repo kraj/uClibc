@@ -221,7 +221,7 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 
 static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid, const char *s)
 {
-	struct library *cur, *prev, *newlib=lib_list;
+	struct library *cur, *newlib=lib_list;
 
 	if (!s || !strlen(s))
 		return 1;
@@ -254,9 +254,8 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int i
 	if (!lib_list) {
 		lib_list = newlib;
 	} else {
-		for (cur = prev = lib_list;  cur->next; prev=cur, cur=cur->next); /* nothing */
-		cur = newlib;
-		prev->next = cur;
+		for (cur = lib_list;  cur->next; cur=cur->next); /* nothing */
+		cur->next = newlib;
 	}
 	return 0;
 }
@@ -275,18 +274,17 @@ static void find_needed_libraries(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *st
     
 static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid)
 {
+	static int been_there_done_that=0;
 	Elf32_Phdr *phdr;
+
+	if (been_there_done_that==1)
+		return;
+	been_there_done_that=1;
 	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
 	if (phdr) {
-		struct library *cur, *prev, *newlib=lib_list;
+		struct library *cur, *newlib=lib_list;
 		char *s = (char*)ehdr + phdr->p_offset;
 
-		for (cur = lib_list; cur; cur=cur->next) {
-			if(strcmp(cur->name, s)==0) {
-				/* Lib is already in the list */
-				return;
-			}
-		}
 		newlib = malloc(sizeof(struct library));
 		if (!newlib)
 			return;
@@ -300,9 +298,8 @@ static void find_elf_interpreter(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *str
 		if (!lib_list) {
 			lib_list = newlib;
 		} else {
-			for (cur = prev = lib_list;  cur->next; prev=cur, cur=cur->next); /* nothing */
-			cur = newlib;
-			prev->next = cur;
+			for (cur = lib_list;  cur->next; cur=cur->next); /* nothing */
+			cur->next = newlib;
 		}
 	}
 }
