@@ -21,6 +21,8 @@
  * However, there is no need to waste space and support non-standard
  * tty names either.  So we compromise and use the following buffer
  * length.  (Erik and Manuel agreed that 32 was more than reasonable.)
+ *
+ * If you change this, also change _SC_TTY_NAME_MAX in libc/unistd/sysconf.c
  */
 #define TTYNAME_BUFLEN		32
 

@@ -103,11 +103,7 @@ long int __sysconf(int name)
 #endif
 
     case _SC_OPEN_MAX:
-#if 1
       RETURN_FUNCTION(getdtablesize());
-#else
-      RETURN_NEG_1;
-#endif
 
     case _SC_STREAM_MAX:
 #ifdef	STREAM_MAX
@@ -117,12 +113,7 @@ long int __sysconf(int name)
 #endif
 
     case _SC_TZNAME_MAX:
-#if 0
-      RETURN_FUNCTION(tzname_max ());
-#else
-/*       RETURN_NEG_1; */
       return _POSIX_TZNAME_MAX;
-#endif
 
     case _SC_JOB_CONTROL:
 #ifdef	_POSIX_JOB_CONTROL
@@ -559,46 +550,39 @@ long int __sysconf(int name)
 
       /* POSIX 1003.1c (POSIX Threads).  */
     case _SC_THREADS:
-#ifdef	_POSIX_THREADS
+#ifdef __UCLIBC_HAS_THREADS__
       return 1;
 #else
       RETURN_NEG_1;
 #endif
 
     case _SC_THREAD_SAFE_FUNCTIONS:
-#ifdef	_POSIX_THREAD_SAFE_FUNCTIONS
+#ifdef __UCLIBC_HAS_THREADS__
       return 1;
 #else
       RETURN_NEG_1;
 #endif
 
+/* If you change these, also change libc/pwd_grp/pwd_grp.c to match */
+#define PWD_BUFFER_SIZE 256
+#define GRP_BUFFER_SIZE 256
     case _SC_GETGR_R_SIZE_MAX:
-#ifdef	NSS_BUFLEN_GROUP
-      return NSS_BUFLEN_GROUP;
-#else
-      RETURN_NEG_1;
-#endif
+      return GRP_BUFFER_SIZE;
 
     case _SC_GETPW_R_SIZE_MAX:
-#ifdef	NSS_BUFLEN_PASSWD
-      return NSS_BUFLEN_PASSWD;
-#else
-      RETURN_NEG_1;
-#endif
+      return PWD_BUFFER_SIZE;
 
+/* getlogin() is a worthless interface.  In uClibc we let the user specify
+ * whatever they want via the LOGNAME environment variable, or we return NULL
+ * if getenv() fails to find anything.  So this is merely how large a env
+ * variable can be.  Lets use 256 */
     case _SC_LOGIN_NAME_MAX:
-#ifdef	_POSIX_LOGIN_NAME_MAX
-      return _POSIX_LOGIN_NAME_MAX;
-#else
-      RETURN_NEG_1;
-#endif
+      return 256;
 
+/* If you change this, also change _SC_TTY_NAME_MAX in libc/unistd/sysconf.c */
+#define TTYNAME_BUFLEN		32
     case _SC_TTY_NAME_MAX:
-#ifdef	_POSIX_TTY_NAME_MAX
-      return _POSIX_TTY_NAME_MAX;
-#else
-      RETURN_NEG_1;
-#endif
+      return TTYNAME_BUFLEN;
 
     case _SC_THREAD_DESTRUCTOR_ITERATIONS:
 #ifdef	_POSIX_THREAD_DESTRUCTOR_ITERATIONS

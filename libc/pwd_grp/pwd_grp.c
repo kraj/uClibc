@@ -49,6 +49,8 @@
 /**********************************************************************/
 /* Sizes for staticly allocated buffers. */
 
+/* If you change these values, also change _SC_GETPW_R_SIZE_MAX and
+ * _SC_GETGR_R_SIZE_MAX in libc/unistd/sysconf.c to match */
 #define PWD_BUFFER_SIZE 256
 #define GRP_BUFFER_SIZE 256
 
