@@ -32,7 +32,7 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 TOPDIR=./
 include Rules.mak
 
-DIRS = extra ldso libc libcrypt libresolv libutil libm libpthread
+DIRS = extra ldso libc libcrypt libresolv libnsl libutil libm libpthread
 
 ifdef include_config
 
@@ -47,6 +47,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	@$(MAKE) -C ldso shared
 	@$(MAKE) -C libcrypt shared
 	@$(MAKE) -C libresolv shared
+	@$(MAKE) -C libnsl shared
 	@$(MAKE) -C libutil shared
 	@$(MAKE) -C libm shared
 	@$(MAKE) -C libpthread shared
