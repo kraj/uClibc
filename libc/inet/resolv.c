@@ -32,6 +32,10 @@
  *
  *                              General cleanup
  *
+ * 20-Jun-2001 Michal Moskal <malekith@pld.org.pl>
+ *   partial IPv6 support (i.e. gethostbyname2() and resolve_address2()
+ *   functions added), IPv6 nameservers are also supported.
+ *
  */
 
 #define __FORCE_GLIBC__
@@ -59,6 +63,8 @@
 #define MAX_SEARCH 4
 
 #undef DEBUG
+/*#define DEBUG*/
+
 #ifdef DEBUG
 #define DPRINTF(X,args...) fprintf(stderr, X, ##args)
 #else
@@ -465,6 +471,9 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 	int i, j, len, fd, pos;
 	static int ns = 0;
 	struct sockaddr_in sa;
+#ifdef __UCLIBC_HAS_IPV6__
+	struct sockaddr_in6 sa6;
+#endif /* __UCLIBC_HAS_IPV6__ */
 	int oldalarm;
 	__sighandler_t oldhandler;
 	struct resolv_header h;
@@ -473,6 +482,9 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 	unsigned char * packet = malloc(PACKETSZ);
 	unsigned char * lookup = malloc(MAXDNAME);
 	int variant = 0;
+#ifdef __UCLIBC_HAS_IPV6__
+	int v6;
+#endif /* __UCLIBC_HAS_IPV6__ */
 
 	fd = -1;
 
@@ -484,11 +496,18 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 	ns %= nscount;
 
 	while (retries++ < MAX_RETRIES) {
+#ifdef __UCLIBC_HAS_IPV6__
+		v6 = (inet_pton(AF_INET6, nsip[ns], &sa6.sin6_addr) > 0);
+#endif /* __UCLIBC_HAS_IPV6__ */
 
 		if (fd != -1)
 			close(fd);
 
+#ifndef __UCLIBC_HAS_IPV6__
 		fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+#else /* __UCLIBC_HAS_IPV6__ */
+		fd = socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+#endif /* __UCLIBC_HAS_IPV6__ */
 
 		if (fd == -1)
 			goto fail;
@@ -526,11 +545,28 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 		DPRINTF("On try %d, sending query to port %d of machine %s\n",
 				retries, NAMESERVER_PORT, nsip[ns]);
 
+#ifndef __UCLIBC_HAS_IPV6__
 		sa.sin_family = AF_INET;
 		sa.sin_port = htons(NAMESERVER_PORT);
 		sa.sin_addr.s_addr = inet_addr(nsip[ns]);
+#else /* __UCLIBC_HAS_IPV6__ */
+		if (v6) {
+			sa6.sin6_family = AF_INET6;
+			sa6.sin6_port = htons(NAMESERVER_PORT);
+			/* sa6.sin6_addr is already here */
+		} else {
+			sa.sin_family = AF_INET;
+			sa.sin_port = htons(NAMESERVER_PORT);
+			sa.sin_addr.s_addr = inet_addr(nsip[ns]);
+		}
+#endif /* __UCLIBC_HAS_IPV6__ */
 
+#ifndef __UCLIBC_HAS_IPV6__
 		if (connect(fd, (struct sockaddr *) &sa, sizeof(sa)) == -1) {
+#else /* __UCLIBC_HAS_IPV6__ */
+		if (connect(fd, (struct sockaddr *) (v6 ? &sa6 : &sa), 
+			    v6 ? sizeof(sa6) : sizeof(sa)) == -1) {
+#endif /* __UCLIBC_HAS_IPV6__ */
 			if (errno == ENETUNREACH) {
 				/* routing error, presume not transient */
 				goto tryall;
@@ -958,6 +994,92 @@ struct hostent *gethostbyname(const char *name)
 }
 #endif
 
+#ifdef L_gethostbyname2
+
+struct hostent *gethostbyname2(const char *name, int family)
+{
+#ifndef __UCLIBC_HAS_IPV6__
+	return family == AF_INET ? gethostbyname(name) : (struct hostent*)0;
+#else /* __UCLIBC_HAS_IPV6__ */
+	static struct hostent h;
+	static char namebuf[256];
+	static struct in6_addr in;
+	static struct in6_addr *addr_list[2];
+	struct hostent *hp;
+	unsigned char *packet;
+	struct resolv_answer a;
+	int i;
+	int nest = 0;
+
+	if (family == AF_INET)
+		return gethostbyname(name);
+		
+	if (family != AF_INET6)
+		return NULL;
+		
+	open_nameservers();
+
+	if (!name)
+		return 0;
+
+	if ((hp = get_hosts_byname(name))) /* do /etc/hosts first */
+		return(hp);
+
+	memset(&h, 0, sizeof(h));
+
+	addr_list[0] = &in;
+	addr_list[1] = 0;
+	
+	strncpy(namebuf, name, sizeof(namebuf));
+
+	/* First check if this is already an address */
+	if (inet_pton(AF_INET6, name, &in)) {
+	    h.h_name = namebuf;
+	    h.h_addrtype = AF_INET6;
+	    h.h_length = sizeof(in);
+	    h.h_addr_list = (char **) addr_list;
+	    return &h;
+	}
+
+	for (;;) {
+
+		i = dns_lookup(namebuf, T_AAAA, nameservers, nameserver, &packet, &a);
+
+		if (i < 0)
+			return 0;
+
+		strncpy(namebuf, a.dotted, sizeof(namebuf));
+		free(a.dotted);
+
+
+		if (a.atype == T_CNAME) {		/* CNAME */
+			DPRINTF("Got a CNAME in gethostbyname()\n");
+			i = decode_dotted(packet, a.rdoffset, namebuf, sizeof(namebuf));
+			free(packet);
+
+			if (i < 0)
+				return 0;
+			if (++nest > MAX_RECURSE)
+				return 0;
+			continue;
+		} else if (a.atype == T_AAAA) {	/* ADDRESS */
+			memcpy(&in, a.rdata, sizeof(in));
+			h.h_name = namebuf;
+			h.h_addrtype = AF_INET6;
+			h.h_length = sizeof(in);
+			h.h_addr_list = (char **) addr_list;
+			free(packet);
+			break;
+		} else {
+			free(packet);
+			return 0;
+		}
+	}
+
+	return &h;
+#endif /* __UCLIBC_HAS_IPV6__ */
+}
+#endif
 
 #ifdef L_getnetbyname
 
@@ -1100,6 +1222,10 @@ struct hostent * read_etc_hosts(const char * name, int ip)
 	static struct hostent	h;
 	static struct in_addr	in;
 	static struct in_addr	*addr_list[2];
+#ifdef __UCLIBC_HAS_IPV6__
+	static struct in6_addr	in6;
+	static struct in6_addr	*addr_list6[2];
+#endif /* __UCLIBC_HAS_IPV6__ */
 	static char				line[80];
 	FILE					*fp;
 	char					*cp;
@@ -1142,8 +1268,24 @@ struct hostent * read_etc_hosts(const char * name, int ip)
 				continue;
 		}
 
+#ifndef __UCLIBC_HAS_IPV6__
 		if (inet_aton(alias[0], &in) == 0)
 			break; /* bad ip address */
+#else /* __UCLIBC_HAS_IPV6__ */
+		if (inet_aton(alias[0], &in) == 0) {
+			if (inet_pton(AF_INET6, alias[0], &in6) == 0) {
+				addr_list6[0] = &in6;
+				addr_list6[1] = 0;
+				h.h_name = alias[1];
+				h.h_addrtype = AF_INET6;
+				h.h_length = sizeof(in6);
+				h.h_addr_list = (char**) addr_list6;
+				fclose(fp);
+				return(&h);
+			} else
+				break; /* bad ip address */
+		}
+#endif /* __UCLIBC_HAS_IPV6__ */
 
 		addr_list[0] = &in;
 		addr_list[1] = 0;

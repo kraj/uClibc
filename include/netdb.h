@@ -153,6 +153,7 @@ void		endservent __P((void));
 void		endrpcent __P ((void));
 struct hostent	*gethostbyaddr __P((__const char *, int, int));
 struct hostent	*gethostbyname __P((__const char *));
+struct hostent	*gethostbyname2 __P((__const char *, int));
 struct hostent	*gethostent __P((void));
 struct netent	*getnetbyaddr __P((long, int)); /* u_long? */
 struct netent	*getnetbyname __P((__const char *));

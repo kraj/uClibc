@@ -98,6 +98,11 @@ uClibc_config.h: Makefile Config
 	@echo "#endif" >> uClibc_config.h
 	@echo "#define linux 1" >> uClibc_config.h 
 	@echo "#define __linux__ 1" >> uClibc_config.h 
+	@if [ "$(INCLUDE_IPV6)" = "true" ] ; then \
+	    echo "#define __UCLIBC_HAS_IPV6__ 1" >> uClibc_config.h ; \
+	else \
+	    echo "#undef __UCLIBC_HAS_IPV6__" >> uClibc_config.h ; \
+	fi
 	@if [ "$(HAS_MMU)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAS_MMU__ 1" >> uClibc_config.h ; \
 	else \

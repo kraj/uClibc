@@ -29,6 +29,13 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef __UCLIBC_HAS_IPV6__
+#define INET_IPV6
+#define SPRINTF(a) sprintf a
+#include <ctype.h>
+#endif
+
+
 /*
  * WARNING: Don't even consider trying to compile this on a system where
  * sizeof(int) < 4.  sizeof(int) > 4 is fine; all the world's not a VAX.
@@ -258,6 +265,7 @@ inet_pton6(src, dst)
 	const char *curtok;
 	int ch, saw_xdigit;
 	u_int val;
+
 
 	tp = memset(tmp, '\0', 16);
 	endp = tp + 16;
