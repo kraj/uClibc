@@ -21,6 +21,8 @@
 ***********************************************************************/
 
 #include     <features.h>
+#include     <sys/types.h>
+#include     <math.h>
 #include     "fp_private.h"
 
 #define SIGN_MASK 0x80000000
@@ -29,7 +31,7 @@
 #define FFRAC_MASK 0x007fffff
 
 /***********************************************************************
-   long int __fpclassifyf(float x) returns the classification code of the
+   int __fpclassifyf(float x) returns the classification code of the
    argument x, as defined in <fp.h>.
    
    Exceptions:  INVALID signaled if x is a signaling NaN; in this case,
@@ -38,12 +40,12 @@
    Calls:  none
 ***********************************************************************/
 
-long int __fpclassifyf ( float x )
+int __fpclassifyf ( float x )
 {
-   unsigned long int iexp;
+   unsigned int iexp;
    
    union {
-      unsigned long int lval;
+      u_int32_t lval;
       float fval;
    } z;
    
@@ -52,20 +54,17 @@ long int __fpclassifyf ( float x )
    
    if (iexp == FEXP_MASK) {                   /* NaN or INF case */
       if ((z.lval & 0x007fffff) == 0)
-         return (long int) FP_INFINITE;
-      else if ((z.lval & 0x00400000) != 0)
-         return (long int) FP_QNAN;
-      else
-         return (long int) FP_SNAN;
+         return FP_INFINITE;
+	return FP_NAN;
    }
    
    if (iexp != 0)                             /* normal float */
-      return (long int) FP_NORMAL;
+      return FP_NORMAL;
       
    if (x == 0.0)
-      return (long int) FP_ZERO;             /* zero */
+      return FP_ZERO;             /* zero */
    else
-      return (long int) FP_SUBNORMAL;        /* must be subnormal */
+      return FP_SUBNORMAL;        /* must be subnormal */
 }
    
 
@@ -79,9 +78,9 @@ long int __fpclassifyf ( float x )
    Calls:  none
 ***********************************************************************/
 
-long int __fpclassify ( double arg )
+int __fpclassify ( double arg )
 {
-	register unsigned long int exponent;
+	register unsigned int exponent;
       union
             {
             dHexParts hex;
@@ -94,23 +93,23 @@ long int __fpclassify ( double arg )
 	if ( exponent == dExpMask )
 		{
 		if ( ( ( x.hex.high & dHighMan ) | x.hex.low ) == 0 )
-			return (long int) FP_INFINITE;
+			return FP_INFINITE;
 		else
-            	return ( x.hex.high & 0x00080000 ) ? FP_QNAN : FP_SNAN; 
+            	return FP_NAN; 
 		}
 	else if ( exponent != 0)
-		return (long int) FP_NORMAL;
+		return FP_NORMAL;
 	else {
 		if ( arg == 0.0 )
-			return (long int) FP_ZERO;
+			return FP_ZERO;
 		else
-			return (long int) FP_SUBNORMAL;
+			return FP_SUBNORMAL;
 		}
 }
 
 
 /***********************************************************************
-   long int __isnormalf(float x) returns nonzero if and only if x is a
+   int __isnormalf(float x) returns nonzero if and only if x is a
    normalized float number and zero otherwise.
    
    Exceptions:  INVALID is raised if x is a signaling NaN; in this case,
@@ -119,11 +118,11 @@ long int __fpclassify ( double arg )
    Calls:  none
 ***********************************************************************/
 
-long int __isnormalf ( float x )
+int __isnormalf ( float x )
 {
-   unsigned long int iexp;
+   unsigned int iexp;
    union {
-      unsigned long int lval;
+      u_int32_t lval;
       float fval;
    } z;
    
@@ -133,14 +132,14 @@ long int __isnormalf ( float x )
 }
    
 
-long int __isnorma ( double x )
+int __isnormal ( double x )
 {
 	return ( __fpclassify ( x ) == FP_NORMAL ); 
 }
 
 
 /***********************************************************************
-   long int __isfinitef(float x) returns nonzero if and only if x is a
+   int __isfinitef(float x) returns nonzero if and only if x is a
    finite (normal, subnormal, or zero) float number and zero otherwise.
    
    Exceptions:  INVALID is raised if x is a signaling NaN; in this case,
@@ -149,10 +148,10 @@ long int __isnorma ( double x )
    Calls:  none
 ***********************************************************************/
 
-long int __finitef ( float x )
+int __finitef ( float x )
 {   
    union {
-      unsigned long int lval;
+      u_int32_t lval;
       float fval;
    } z;
    
@@ -160,14 +159,14 @@ long int __finitef ( float x )
    return ((z.lval & FEXP_MASK) != FEXP_MASK);
 }
    
-long int __finite ( double x )
+int __finite ( double x )
 {
 	return ( __fpclassify ( x ) >= FP_ZERO ); 
 }
 
 
 /***********************************************************************
-   long int __signbitf(float x) returns nonzero if and only if the sign
+   int __signbitf(float x) returns nonzero if and only if the sign
    bit of x is set and zero otherwise.
    
    Exceptions:  INVALID is raised if x is a signaling NaN.
@@ -175,10 +174,10 @@ long int __finite ( double x )
    Calls:  none
 ***********************************************************************/
 
-long int __signbitf ( float x )
+int __signbitf ( float x )
 {   
    union {
-      unsigned long int lval;
+      u_int32_t lval;
       float fval;
    } z;
    
@@ -194,14 +193,14 @@ long int __signbitf ( float x )
    Calls:  none
 ***********************************************************************/
 
-long int __signbit ( double arg )
+int __signbit ( double arg )
 {
       union
             {
             dHexParts hex;
             double dbl;
             } x;
-      long int sign;
+      int sign;
 
       x.dbl = arg;
       sign = ( ( x.hex.high & dSgnMask ) == dSgnMask ) ? 1 : 0;
@@ -210,15 +209,15 @@ long int __signbit ( double arg )
 
 
 /***********************************************************************
-* long int __isinff(float x) returns -1 if value represents  negative
+* int __isinff(float x) returns -1 if value represents  negative
 *	infinity,  1  if value represents positive infinity,
 *	and 0 otherwise.
 *
 * Calls:  __signbit
 * +***********************************************************************/
-long int __isinff ( float x )
+int __isinff ( float x )
 {
-    long int class = __fpclassifyf(x);
+    int class = __fpclassifyf(x);
     if ( class == FP_INFINITE ) {
 	return ( (__signbitf(x)) ? -1 : 1);
     }
@@ -226,9 +225,9 @@ long int __isinff ( float x )
 }
 weak_alias (__isinff, isinff)
 
-long int __isinf ( double x )
+int __isinf ( double x )
 {
-    long int class = __fpclassify(x);
+    int class = __fpclassify(x);
     if ( class == FP_INFINITE ) {
 	return ( (__signbit(x)) ? -1 : 1);
     }
@@ -237,21 +236,19 @@ long int __isinf ( double x )
 weak_alias (__isinf, isinf)
 
 #if 0
-long int __isinfl ( long double x )
+int __isinfl ( long double x )
 {
-    long int class = __fpclassify(x);
+    int class = __fpclassify(x);
     if ( class == FP_INFINITE ) {
 	return ( (__signbit(x)) ? -1 : 1);
     }
     return 0;
 }
 weak_alias (__isinfl, isinfl);
-#else
-weak_alias (__isinf, isinfl)
 #endif
 
 /***********************************************************************
-   long int __isnanf(float x) returns nonzero if and only if x is a
+   int __isnanf(float x) returns nonzero if and only if x is a
    NaN and zero otherwise.
    
    Exceptions:  INVALID is raised if x is a signaling NaN; in this case,
@@ -260,10 +257,10 @@ weak_alias (__isinf, isinfl)
    Calls:  none
 ***********************************************************************/
 
-long int __isnanf ( float x )
+int __isnanf ( float x )
 {   
    union {
-      unsigned long int lval;
+      u_int32_t lval;
       float fval;
    } z;
    
@@ -272,21 +269,19 @@ long int __isnanf ( float x )
 }
 weak_alias (__isnanf, isnanf);
 
-long int __isnan ( double x )
+int __isnan ( double x )
 {
-	long int class = __fpclassify(x);
-	return ( ( class == FP_SNAN ) || ( class == FP_QNAN ) ); 
+	int class = __fpclassify(x);
+	return ( class == FP_NAN ); 
 }
 weak_alias (__isnan, isnan);
 
 #if 0
-long int __isnanl ( long double x )
+int __isnanl ( long double x )
 {
-	long int class = __fpclassify(x);
-	return ( ( class == FP_SNAN ) || ( class == FP_QNAN ) ); 
+	int class = __fpclassify(x);
+	return ( class == FP_NAN ); 
 }
 weak_alias (__isnanl, isnanl);
-#else
-weak_alias (__isnan, isnanl);
 #endif
 
