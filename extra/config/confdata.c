@@ -1,6 +1,9 @@
 /*
  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
  * Released under the terms of the GNU GPL v2.0.
+ *
+ * Allow 'n' as a symbol value.
+ * 2002-11-05 Petr Baudis <pasky@ucw.cz>
  */
 
 #include <ctype.h>
@@ -145,13 +148,13 @@ int conf_read(const char *name)
 				break;
 			}
 			switch (sym->type) {
-			case S_BOOLEAN:
-				sym->def = symbol_yes.curr;
-				sym->flags &= ~SYMBOL_NEW;
-				break;
 			case S_TRISTATE:
 				if (p[0] == 'm')
 					sym->def = symbol_mod.curr;
+				else
+			case S_BOOLEAN:
+				if (p[0] == 'n')
+					sym->def = symbol_no.curr;
 				else
 					sym->def = symbol_yes.curr;
 				sym->flags &= ~SYMBOL_NEW;
