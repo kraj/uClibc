@@ -1,3 +1,4 @@
 ldd
+ldd.uclibc
 ldconfig
 readelf
