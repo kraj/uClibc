@@ -1,3 +1,17 @@
+2002-08-27  davidm  <davidm@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/sh/crt0.S:
+	Somehow the bit of code that add the offset of envp to argv got lost
+	and envp was a very small number and not an address.  I think this fixes
+	most of the SH platform.
+
+2002-08-27  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/docs/uclibc.org/index.html: update for release
+
+	* /var/cvs/uClibc/Changelog, /var/cvs/uClibc/Changelog.full:
+	Update changelog for release
+
 2002-08-27  Manuel Novoa III  <mjn3@dillweed>
 
 	* /var/cvs/uClibc/include/stdio.h:
