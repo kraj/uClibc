@@ -215,7 +215,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
 		_dl_exit(1);
 	};
-
+	finaladdr += this_reloc->r_addend;
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug_reloc && _dl_debug_detail)
 		_dl_dprintf(_dl_debug_file, "%x\n", finaladdr);
@@ -319,15 +319,13 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		break;
 	}
 	case R_PPC_COPY:
-		if (symbol_addr) {
 #if defined (__SUPPORT_LD_DEBUG__)
-			if(_dl_debug_move)
-				_dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
-					    symname, symtab[symtab_index].st_size,
-					    symbol_addr, reloc_addr);
+		if(_dl_debug_move)
+			_dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
+				    symname, symtab[symtab_index].st_size,
+				    symbol_addr, reloc_addr);
 #endif
-			_dl_memcpy((char *) reloc_addr, (char *) finaladdr, symtab[symtab_index].st_size);
-		}
+		_dl_memcpy((char *) reloc_addr, (char *) finaladdr, symtab[symtab_index].st_size);
 		goto out_nocode; /* No code code modified */
 	case R_PPC_ADDR16_HA:
 		finaladdr += 0x8000; /* fall through. */
