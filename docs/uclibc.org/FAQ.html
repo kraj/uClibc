@@ -238,7 +238,6 @@ to the uClibc home page.</a>
     to match your target system, and then run 'make'.
 
 
-
 <p>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
     <B>
@@ -312,6 +311,25 @@ to the uClibc home page.</a>
     the target program (like your system one does).  So use the uClibc one
     and it will do the right thing, and it won't segfault even when you are
     cross compiling.
+
+
+<p>
+<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
+    <B>
+    Why does localtime() return times in UTC even when I have my timezone set?
+    </B>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+
+    The uClibc time functions get timezone information from the TZ environment
+    variable, as described in the Single Unix Specification Version 3.  See
+     <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html">
+    http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html</a>
+    for details on valid settings of TZ.  For some additional examples, read
+    <a href="http://www.uclibc.org/lists/uclibc/2002-August/006261.html">
+    http://www.uclibc.org/lists/uclibc/2002-August/006261.html</a> in the uClibc
+    mailing list archive.
 
 
 <p>
