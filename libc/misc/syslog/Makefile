@@ -20,31 +20,25 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
+TOPDIR=../../
+include $(TOPDIR)Rules.mak
+LIBC=$(TOPDIR)libc.a
 
-DIRS = assert crypt fnmatch glob internals lsearch syslog regex shm time
+CSRC=syslog.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(COBJS)
 
-ifeq ($(USE_CTYPE_C_FUNCTIONS),true)
-    DIRS+=ctype
-endif
+all: $(OBJS) $(LIBC)
 
-all: libc.a
+$(LIBC): ar-target
 
-libc.a: subdirs
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-tags:
-	ctags -R
-	
-clean: subdirs_clean
-	rm -f libc.a
+$(COBJS):
+	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
-
-$(patsubst %, _dir_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-.PHONY: dummy
+clean:
+	rm -f *.[oa] *~ core
 
