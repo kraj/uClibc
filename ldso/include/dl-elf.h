@@ -102,9 +102,9 @@ extern int _dl_fixup(struct dyn_elf *rpnt, int flag);
 #ifdef DL_NO_COPY_RELOCS
 # define ELF_RTYPE_CLASS_COPY	(0x0)
 #else
-# define ELF_RTYPE_CLASS_COPY	(0x1)
+# define ELF_RTYPE_CLASS_COPY	(0x2)
 #endif
-#define ELF_RTYPE_CLASS_PLT	(0x2)
+#define ELF_RTYPE_CLASS_PLT	(0x1)
 
 
 /* Convert between the Linux flags for page protections and the
