@@ -20,7 +20,7 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-USE_CRT0_C=true
+USE_CRT0_C=false
 
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak

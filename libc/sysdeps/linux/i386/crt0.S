@@ -30,9 +30,12 @@ Cambridge, MA 02139, USA.  */
         NULL
 */
 
-.global _start
-
 .text
+	.align 4
+
+.globl _start
+	.type	 _start,@function
+
 _start:
 	/* First locate the start of the environment variables */
 	popl %ecx	/* Store argc into %ecx */
