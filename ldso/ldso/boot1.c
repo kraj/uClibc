@@ -687,6 +687,11 @@ void _dl_boot(unsigned int args)
 					if (tpnt && _dl_strcmp(lpnt, 
 						    _dl_get_last_path_component(tpnt->libname)) == 0) {
 						struct elf_resolve *ttmp;
+
+						if (_dl_trace_loaded_objects && !tpnt->usage_count) {
+						    _dl_fdprintf(1, "\t%s => %s (0x%x)\n", 
+							    lpnt, tpnt->libname, (unsigned) tpnt->loadaddr);
+						}
 						ttmp = _dl_loaded_modules;
 						while (ttmp->next)
 							ttmp = ttmp->next;
