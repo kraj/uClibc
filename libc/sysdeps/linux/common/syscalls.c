@@ -791,7 +791,7 @@ _syscall2(int, setgroups, size_t, size, const gid_t *, list);
 //#define __NR_select           82
 #ifdef L_select
 //Used as a fallback if _newselect isn't available...
-#ifndef _NR__newselect
+#ifndef __NR__newselect
 #include <unistd.h>
 extern int select(int n, fd_set *readfds, fd_set *writefds, 
 		fd_set *exceptfds, struct timeval *timeout);
@@ -1274,7 +1274,7 @@ _syscall3(int, getdents, int, fd, char *, dirp, size_t, count);
 //#define __NR__newselect       142
 #ifdef L__newselect
 //Used in preference to select when available...
-#ifdef _NR__newselect
+#ifdef __NR__newselect
 #include <unistd.h>
 extern int _newselect(int n, fd_set *readfds, fd_set *writefds,
 					  fd_set *exceptfds, struct timeval *timeout);
