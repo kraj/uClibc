@@ -28,10 +28,10 @@
    segment of the calling process.  SHMADDR and SHMFLG determine how
    and where the segment is attached.  */
 #if defined (__alpha__)
-#define __NR_osf_shmat __NR_shmat
+#define __NR_shmat  __NR_osf_shmat
 #endif
 #ifdef __NR_shmat
-_syscall3(void *, shmat, int shmid, const void *shmaddr, int shmflg);
+_syscall3(void *, shmat, int, shmid, const void *,shmaddr, int, shmflg);
 #else
 void * shmat (int shmid, const void *shmaddr, int shmflg)
 {
@@ -75,7 +75,7 @@ int shmdt (const void *shmaddr)
 /* Return an identifier for an shared memory segment of at least size SIZE
    which is associated with KEY.  */
 #ifdef __NR_shmget
-_syscall1(int, shmget, key_t, key, size_t, size, int, shmflg);
+_syscall3(int, shmget, key_t, key, size_t, size, int, shmflg);
 #else
 int shmget (key_t key, size_t size, int shmflg)
 {
