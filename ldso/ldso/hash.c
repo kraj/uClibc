@@ -1,12 +1,12 @@
 /* vi: set sw=4 ts=4: */
-/* Program to load an ELF binary on a linux system, and run it
+/*
+ * Program to load an ELF binary on a linux system, and run it
  * after resolving ELF shared library symbols
  *
- * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald, 
+ * Copyright (C) 2004 by Joakim Tjernlund <joakim.tjernlund@lumentis.se>
+ * Copyright (C) 2000-2004 by Erik Andersen <andersen@codpoet.org>
+ * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
  *				David Engel, Hongjiu Lu and Mitch D'Souza
- * Copyright (C) 2001-2002, Erik Andersen
- *
- * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,10 +35,9 @@
 
 /*
  * This is the start of the linked list that describes all of the files present
- * in the system with pointers to all of the symbol, string, and hash tables, 
+ * in the system with pointers to all of the symbol, string, and hash tables,
  * as well as all of the other good stuff in the binary.
  */
-
 struct elf_resolve *_dl_loaded_modules = NULL;
 
 /*
@@ -55,12 +54,9 @@ struct dyn_elf *_dl_symbol_tables = NULL;
 struct dyn_elf *_dl_handles = NULL;
 
 
-/*
- * This is the hash function that is used by the ELF linker to generate
- * the hash table that each executable and library is required to
- * have.  We need it to decode the hash table.
- */
-
+/* This is the hash function that is used by the ELF linker to generate the
+ * hash table that each executable and library is required to have.  We need
+ * it to decode the hash table.  */
 unsigned long _dl_elf_hash(const char *name)
 {
 	unsigned long hash = 0;
@@ -75,9 +71,7 @@ unsigned long _dl_elf_hash(const char *name)
 	return hash;
 }
 
-/*
- * Check to see if a library has already been added to the hash chain.
- */
+/* Check to see if a library has already been added to the hash chain.  */
 struct elf_resolve *_dl_check_hashed_files(const char *libname)
 {
 	struct elf_resolve *tpnt;
@@ -97,9 +91,8 @@ struct elf_resolve *_dl_check_hashed_files(const char *libname)
  * We add the relevant info to the symbol chain, so that we can resolve all
  * externals properly.
  */
-
-struct elf_resolve *_dl_add_elf_hash_table(const char *libname, 
-	char *loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr, 
+struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
+	char *loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
 	unsigned long dynamic_size)
 {
 	unsigned long *hash_addr;
@@ -107,8 +100,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	int i;
 
 	if (!_dl_loaded_modules) {
-		tpnt = _dl_loaded_modules = 
-		    (struct elf_resolve *) _dl_malloc(sizeof(struct elf_resolve));
+		tpnt = _dl_loaded_modules = (struct elf_resolve *) _dl_malloc(sizeof(struct elf_resolve));
 		_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
 	} else {
 		tpnt = _dl_loaded_modules;
@@ -161,21 +153,18 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
  * This function resolves externals, and this is either called when we process
  * relocations or when we call an entry in the PLT table for the first time.
  */
-
-char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1, 
+char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 	struct elf_resolve *f_tpnt, enum caller_type caller_type)
 {
 	struct elf_resolve *tpnt;
 	int si;
-	char *pnt;
 	int pass;
 	char *strtab;
 	Elf32_Sym *symtab;
 	unsigned long elf_hash_number, hn;
 	char *weak_result;
-	struct elf_resolve *first_def;
 	struct dyn_elf *rpnt, first;
-	char *data_result = 0;		/* nakao */
+	const ElfW(Sym) *sym;
 
 	weak_result = 0;
 	elf_hash_number = _dl_elf_hash(name);
@@ -185,7 +174,7 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 	   that any shared library data symbols referenced in the executable
 	   will be seen at the same address by the executable, shared libraries
 	   and dynamically loaded code. -Rob Ryan (robr@cmu.edu) */
-	if (_dl_symbol_tables && !caller_type && rpnt1) {
+	if (_dl_symbol_tables && rpnt1) {
 		first = (*_dl_symbol_tables);
 		first.next = rpnt1;
 		rpnt1 = (&first);
@@ -222,24 +211,16 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 		if (pass != 0) {
 			if (rpnt1 == NULL)
 				break;
-			if ((rpnt1->flags & RTLD_GLOBAL) == 0)
-				continue;
+			//if ((rpnt1->flags & RTLD_GLOBAL) == 0)
+				//continue;
 		}
 
 		for (rpnt = (rpnt1 ? rpnt1 : _dl_symbol_tables); rpnt; rpnt = rpnt->next) {
 			tpnt = rpnt->dyn;
 
-			/*
-			 * The idea here is that if we are using dlsym, we want to
-			 * first search the entire chain loaded from dlopen, and
-			 * return a result from that if we found anything.  If this
-			 * fails, then we continue the search into the stuff loaded
-			 * when the image was activated.  For normal lookups, we start
-			 * with rpnt == NULL, so we should never hit this.  
-			 */
-			if (tpnt->libtype == elf_executable && weak_result != 0) {
-				break;
-			}
+			/* Don't search the executable when resolving a copy reloc. */
+			if (tpnt->libtype == elf_executable && caller_type == copyrel)
+				continue;
 
 			/*
 			 * Avoid calling .urem here.
@@ -247,81 +228,35 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 			do_rem(hn, elf_hash_number, tpnt->nbucket);
 			symtab = (Elf32_Sym *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 			strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
-			/*
-			 * This crap is required because the first instance of a
-			 * symbol on the chain will be used for all symbol references.
-			 * Thus this instance must be resolved to an address that
-			 * contains the actual function, 
-			 */
 
-			first_def = NULL;
+			for (si = tpnt->elf_buckets[hn]; si != STN_UNDEF; si = tpnt->chains[si]) {
+				sym = &symtab[si];
 
-			for (si = tpnt->elf_buckets[hn]; si; si = tpnt->chains[si]) {
-				pnt = strtab + symtab[si].st_name;
+				if (sym->st_value == 0)
+					continue;
+				if (ELF32_ST_TYPE(sym->st_info) > STT_FUNC)
+					continue;
+				if (sym->st_shndx == SHN_UNDEF && caller_type != copyrel)
+					continue;
+				if (_dl_strcmp(strtab + sym->st_name, name) != 0)
+					continue;
 
-				if (_dl_strcmp(pnt, name) == 0 &&
-				    symtab[si].st_value != 0)
-				{
-				  if ((ELF32_ST_TYPE(symtab[si].st_info) == STT_FUNC ||
-				       ELF32_ST_TYPE(symtab[si].st_info) == STT_NOTYPE ||
-				       ELF32_ST_TYPE(symtab[si].st_info) == STT_OBJECT) &&
-				      symtab[si].st_shndx != SHN_UNDEF) {
-
-					/* Here we make sure that we find a module where the symbol is
-					 * actually defined.
-					 */
-
-					if (f_tpnt) {
-						if (!first_def)
-							first_def = tpnt;
-						if (first_def == f_tpnt
-							&& symtab[si].st_shndx == 0)
-							continue;
-					}
-
-					switch (ELF32_ST_BIND(symtab[si].st_info)) {
-					case STB_GLOBAL:
-						if (tpnt->libtype != elf_executable && 
-							ELF32_ST_TYPE(symtab[si].st_info) 
-							== STT_NOTYPE) 
-						{	/* nakao */
-							data_result = (char *)tpnt->loadaddr + 
-							    symtab[si].st_value;	/* nakao */
-							break;	/* nakao */
-						} else	/* nakao */
-							return (char*)tpnt->loadaddr + symtab[si].st_value;
-					case STB_WEAK:
-						if (!weak_result)
-							weak_result = (char *)tpnt->loadaddr + symtab[si].st_value;
-						break;
-					default:	/* Do local symbols need to be examined? */
-						break;
-					}
-				  }
-#ifndef __mips__
-				  /*
-				   * References to the address of a function from an executable file and
-				   * the shared objects associated with it might not resolve to the same
-				   * value. To allow comparisons of function addresses we must resolve
-				   * to the address of the plt entry of the executable instead of the
-				   * real function address.
-				   * see "TIS ELF Specification Version 1.2, Book 3, A-11 (Function
-				   * Adresses) 
-				   */				 
-				  if (resolver != caller_type &&
-				      NULL==f_tpnt && /*trick: don't  handle R_??_JMP_SLOT reloc type*/
-				      tpnt->libtype == elf_executable &&
-				      ELF32_ST_TYPE(symtab[si].st_info) == STT_FUNC &&
-				      symtab[si].st_shndx == SHN_UNDEF)
-				  {
-				      return (char*)symtab[si].st_value;
-				  }
+				switch (ELF32_ST_BIND(sym->st_info)) {
+				case STB_WEAK:
+//Disable this to match current glibc behavior.  Of course,
+//this doesn't actually work yet and will cause segfaults...
+#if 1
+					if (!weak_result)
+						weak_result = (char *)tpnt->loadaddr + sym->st_value;
+					break;
 #endif
+				case STB_GLOBAL:
+					return (char*)tpnt->loadaddr + sym->st_value;
+				default:	/* Local symbols not handled here */
+					break;
 				}
 			}
 		}
 	}
-	if (data_result)
-		return data_result;		/* nakao */
 	return weak_result;
 }
