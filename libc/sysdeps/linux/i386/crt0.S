@@ -19,6 +19,7 @@ Cambridge, MA 02139, USA.  */
 
 /*  Based on the code from GNU libc, but hacked up by John Beppu and Erik Andersen */
 
+/*
     When we enter this piece of code, the program stack looks like this:
         argc            argument counter (integer)
         argv[0]         program name (pointer)
