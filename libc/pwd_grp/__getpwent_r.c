@@ -47,6 +47,9 @@ int __getpwent_r(struct passwd * passwd, char * line_buff, size_t buflen, int pw
 		return ERANGE;
 	}
 
+	if (pw_fd == -1)
+		setpwent();
+
 	/* We use the restart label to handle malformatted lines */
 restart:
 	/* Read the passwd line into the buffer for processing */

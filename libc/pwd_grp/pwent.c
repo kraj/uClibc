@@ -72,7 +72,8 @@ int getpwent_r (struct passwd *password, char *buff,
 	int ret=EINVAL;
 	LOCK;
 	*result = NULL;
-	if (pw_fd != -1 && (ret=__getpwent_r(password, buff, buflen, pw_fd)) == 0) {
+
+	if ((ret=__getpwent_r(password, buff, buflen, pw_fd)) == 0) {
 		UNLOCK;
 		*result = password;
 		return 0;
