@@ -49,6 +49,7 @@ LIBM=libm.a
 LIBM_SHARED=libm.so
 LIBM_SHARED_FULLNAME=libm-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
+FL_MSRC = float_wrappers.c
 
 ifeq ($(strip $(DO_C99_MATH)),y)
 CSRC =   e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
@@ -65,7 +66,15 @@ CSRC =   e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
          w_cosh.c w_drem.c w_exp.c w_fmod.c w_gamma.c w_gamma_r.c\
          w_hypot.c w_j0.c w_j1.c w_jn.c w_lgamma.c w_lgamma_r.c\
          w_log.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c\
-         w_sqrt.c w_sqrtf.c fpmacros.c nan.c s_ceilf.c s_floorf.c
+         w_sqrt.c fpmacros.c nan.c s_ceilf.c s_floorf.c
+FL_MOBJ = acosf.o acoshf.o asinf.o asinhf.o atan2f.o atanf.o atanhf.o cbrtf.o \
+	ceilf.o copysignf.o cosf.o coshf.o erfcf.o erff.o exp2f.o expf.o \
+	expm1f.o fabsf.o fdimf.o floorf.o fmaf.o fmaxf.o fminf.o fmodf.o \
+	frexpf.o hypotf.o ilogbf.o ldexpf.o lgammaf.o log10f.o log1pf.o \
+	log2f.o logbf.o logf.o lrintf.o lroundf.o modff.o nearbyintf.o \
+	nextafterf.o powf.o remainderf.o remquof.o rintf.o roundf.o \
+	scalblnf.o scalbnf.o sinf.o sinhf.o sqrtf.o tanf.o tanhf.o \
+	tgammaf.o truncf.o
 else
 # This list of math functions was taken from POSIX/IEEE 1003.1b-1993
 CSRC =   w_acos.c w_asin.c s_atan.c w_atan2.c s_ceil.c s_cos.c \
@@ -76,11 +85,12 @@ CSRC+=   s_expm1.c s_scalbn.c s_copysign.c e_acos.c e_asin.c e_atan2.c \
 	 k_cos.c e_cosh.c e_exp.c e_fmod.c e_log.c e_log10.c e_pow.c \
 	 k_sin.c e_sinh.c e_sqrt.c k_tan.c e_rem_pio2.c k_rem_pio2.c \
 	 s_finite.c
-# We'll add sqrtf to avoid different configurations of libstdc++.
-CSRC+= w_sqrtf.c
+# We'll add sqrtf to avoid problems with libstdc++
+FL_MOBJ = sqrtf.o
 endif
+
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+OBJS=$(COBJS) $(FL_MOBJ)
 
 
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
@@ -115,6 +125,10 @@ endif
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(FL_MOBJ): $(FL_MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
