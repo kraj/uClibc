@@ -21,6 +21,9 @@
 #include <stdlib.h>
 #include <limits.h>
 
+extern int __drand48_iterate(unsigned short xsubi[3], 
+	struct drand48_data *buffer);
+
 
 int erand48_r (xsubi, buffer, result)
      unsigned short int xsubi[3];
