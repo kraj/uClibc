@@ -128,9 +128,9 @@ endif
 ifeq ($(strip $(TARGET_ARCH)),arm)
 	OPTIMIZATION+=-fstrict-aliasing
 	CPU_CFLAGS-$(CONFIG_GENERIC_ARM):=
-	CPU_CFLAGS-$(CONFIG_ARM7TDMI):="-mtune=arm7tdmi"
-	CPU_CFLAGS-$(CONFIG_STRONGARM):="-mtune=strongarm"
-	CPU_CFLAGS-$(CONFIG_XSCALE):="-mtune=xscale"
+	CPU_CFLAGS-$(CONFIG_ARM7TDMI):="-march=arm7tdmi"
+	CPU_CFLAGS-$(CONFIG_STRONGARM):="-march=strongarm"
+	CPU_CFLAGS-$(CONFIG_XSCALE):="-march=xscale"
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),sh)
