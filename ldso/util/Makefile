@@ -24,7 +24,7 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 TARGET_CC = $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
-TARGETS = elf_header ldd
+TARGETS = ldd
 ifeq ($(OSTYPE),linux)
 TARGETS += readelf
 endif
@@ -36,9 +36,6 @@ all: $(TARGETS)
 ifeq ($(strip $(LDSO_LDD_SUPPORT)),y)
 XXFLAGS=-D__LDSO_LDD_SUPPORT
 endif
-
-elf_header:
-	ln -fs $(TOPDIR)include/elf.h
 
 readelf: readelf.c
 	$(HOSTCC) $(HOSTCFLAGS) -I . readelf.c -o $@
@@ -78,5 +75,5 @@ ldd.target: ldd.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 clean:
-	rm -f $(TARGETS) *.o *~ core ./elf.h *.target
+	rm -f $(TARGETS) *.o *~ core *.target
 

@@ -1,2 +1,2 @@
 ld-uclibc.so*
-ldso.h
+_dl_progname.h

@@ -4,26 +4,16 @@
  * Functions required for dlopen et. al.
  */
 
-#include <stdlib.h>
-#include <features.h>
-#include "dlfcn.h"
-#include "linuxelf.h"
-#include "ld_syscall.h"
-#include "ld_hash.h"
-#include "ld_string.h"
+#include <ldso.h>
 
-extern struct r_debug *_dl_debug_addr;
 
-extern void *(*_dl_malloc_function) (size_t size);
-
-static int do_fixup(struct elf_resolve *tpnt, int flag);
-static int do_dlclose(void *, int need_fini);
-
+/* The public interfaces */
 void *dlopen(const char *, int) __attribute__ ((__weak__, __alias__ ("_dlopen")));
-const char *dlerror(void) __attribute__ ((__weak__, __alias__ ("_dlerror")));
-void *dlsym(void *, const char *) __attribute__ ((__weak__, __alias__ ("_dlsym")));
 int dlclose(void *) __attribute__ ((__weak__, __alias__ ("_dlclose")));
+void *dlsym(void *, const char *) __attribute__ ((__weak__, __alias__ ("_dlsym")));
+const char *dlerror(void) __attribute__ ((__weak__, __alias__ ("_dlerror")));
 int dladdr(void *, Dl_info *) __attribute__ ((__weak__, __alias__ ("_dladdr")));
+
 
 #ifdef __PIC__
 /* This is a real hack.  We need access to the dynamic linker, but we
@@ -43,10 +33,10 @@ extern char *_dl_find_hash(const char *, struct dyn_elf *, struct elf_resolve *,
 	__attribute__ ((__weak__, __alias__ ("foobar")));
 extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **, struct elf_resolve *, char *)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
-extern int _dl_parse_relocation_information(struct elf_resolve *, unsigned long, unsigned long, int)
-	__attribute__ ((__weak__, __alias__ ("foobar")));
-extern void _dl_parse_lazy_relocation_information(struct elf_resolve *, unsigned long, unsigned long, int)
-	__attribute__ ((__weak__, __alias__ ("foobar")));
+extern int _dl_fixup(struct elf_resolve *tpnt, int lazy)
+	 __attribute__ ((__weak__, __alias__ ("foobar")));
+extern int _dl_copy_fixups(struct dyn_elf * tpnt)
+	 __attribute__ ((__weak__, __alias__ ("foobar")));
 #ifdef __mips__
 extern void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
@@ -62,6 +52,9 @@ extern struct elf_resolve *_dl_loaded_modules __attribute__ ((__weak__, __alias_
 extern struct r_debug *_dl_debug_addr __attribute__ ((__weak__, __alias__ ("foobar1")));
 extern unsigned long _dl_error_number __attribute__ ((__weak__, __alias__ ("foobar1")));
 extern void *(*_dl_malloc_function)(size_t) __attribute__ ((__weak__, __alias__ ("foobar1")));
+#ifdef __SUPPORT_LD_DEBUG__
+#define _dl_debug_file 2
+#endif
 #else
 #ifdef __SUPPORT_LD_DEBUG__
 static char *_dl_debug  = 0;
@@ -79,10 +72,15 @@ char *_dl_library_path = 0;
 char *_dl_ldsopath = 0;
 struct r_debug *_dl_debug_addr = NULL;
 static char *_dl_malloc_addr, *_dl_mmap_zero;
-#include "../ldso/ldso.h"               /* Pull in the name of ld.so */
+#include "../ldso/_dl_progname.h"               /* Pull in the name of ld.so */
 #include "../ldso/hash.c"
 #include "../ldso/readelflib1.c"
+void *(*_dl_malloc_function) (size_t size);
+int _dl_fixup(struct elf_resolve *tpnt, int lazy);
 #endif
+
+static int do_dlclose(void *, int need_fini);
+
 
 static const char *dl_error_names[] = {
 	"",
@@ -237,7 +235,7 @@ void *_dlopen(const char *libname, int flag)
 	_dl_perform_mips_global_got_relocations(tpnt);
 #endif
 
-	if (do_fixup(tpnt, flag)) {
+	if (_dl_fixup(tpnt, (flag & RTLD_LAZY))) {
 		_dl_error_number = LD_NO_SYMBOL;
 		goto oops;
 	}
@@ -294,55 +292,6 @@ void *_dlopen(const char *libname, int flag)
 #endif
 	do_dlclose(dyn_chain, 0);
 	return NULL;
-}
-
-static int do_fixup(struct elf_resolve *tpnt, int flag)
-{
-	int goof = 0;
-
-	if (tpnt->next)
-		goof += do_fixup(tpnt->next, flag);
-
-	if (tpnt->dynamic_info[DT_REL]) {
-#ifdef ELF_USES_RELOCA
-		goof++;
-#else
-		if (tpnt->init_flag & RELOCS_DONE)
-			return goof;
-		tpnt->init_flag |= RELOCS_DONE;
-
-		goof += _dl_parse_relocation_information(tpnt, 
-			tpnt->dynamic_info[DT_REL], tpnt->dynamic_info[DT_RELSZ], 0);
-#endif
-	}
-	if (tpnt->dynamic_info[DT_RELA]) {
-#ifdef ELF_USES_RELOCA
-		if (tpnt->init_flag & RELOCS_DONE)
-			return goof;
-		tpnt->init_flag |= RELOCS_DONE;
-
-		goof += _dl_parse_relocation_information(tpnt, 
-			tpnt->dynamic_info[DT_RELA], tpnt->dynamic_info[DT_RELASZ], 0);
-#else
-		goof++;
-#endif
-	}
-	if (tpnt->dynamic_info[DT_JMPREL]) {
-		if (tpnt->init_flag & JMP_RELOCS_DONE)
-			return goof;
-		tpnt->init_flag |= JMP_RELOCS_DONE;
-
-		if (flag == RTLD_LAZY) {
-			_dl_parse_lazy_relocation_information(tpnt, 
-				tpnt->dynamic_info[DT_JMPREL], 
-				tpnt->dynamic_info[DT_PLTRELSZ], 0);
-		} else {
-			goof += _dl_parse_relocation_information(tpnt, 
-				tpnt->dynamic_info[DT_JMPREL], 
-				tpnt->dynamic_info[DT_PLTRELSZ], 0);
-		}
-	};
-	return goof;
 }
 
 void *_dlsym(void *vhandle, const char *name)
@@ -408,7 +357,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 {
 	struct dyn_elf *rpnt, *rpnt1;
 	struct dyn_elf *spnt, *spnt1;
-	elf_phdr *ppnt;
+	ElfW(Phdr) *ppnt;
 	struct elf_resolve *tpnt;
 	int (*dl_elf_fini) (void);
 	void (*dl_brk) (void);

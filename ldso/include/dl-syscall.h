@@ -1,9 +1,8 @@
-/* Pull in compiler and arch stuff */
-#include <stdarg.h>
-/* Pull in the arch specific type information */
-#include <sys/types.h>
+#ifndef _LD_SYSCALL_H_
+#define _LD_SYSCALL_H_
+
 /* Pull in the arch specific syscall implementation */
-#include "ld_syscalls.h"
+#include <ld_syscalls.h>
 /*  For MAP_ANONYMOUS -- differs between platforms */
 #include <asm/mman.h>			
 /* Pull in whatever this particular arch's kernel thinks the kernel version of
@@ -153,3 +152,6 @@ static inline int _dl_suid_ok(void)
 
 #define __NR__dl_readlink __NR_readlink
 static inline _syscall3(int, _dl_readlink, const char *, path, char *, buf, size_t, bufsiz);
+
+#endif /* _LD_SYSCALL_H_ */
+

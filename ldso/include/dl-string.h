@@ -1,8 +1,6 @@
 #ifndef _LINUX_STRING_H_
 #define _LINUX_STRING_H_
 
-#include <sys/types.h>	/* for size_t */
-
 extern void *_dl_malloc(int size);
 extern char *_dl_getenv(const char *symbol, char **envp);
 extern void _dl_unsetenv(const char *symbol, char **envp);

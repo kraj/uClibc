@@ -105,12 +105,8 @@
  * application.
  */
 
-#include "ld_syscall.h"
-#include "linuxelf.h"
-#include "ld_hash.h"
-#include "ld_string.h"
-#include "dlfcn.h"
-#include "../config.h"
+#include "ldso.h"
+
 
 #define ALLOW_ZERO_PLTGOT
 
@@ -129,7 +125,7 @@
 char *_dl_library_path = 0;		/* Where we look for libraries */
 char *_dl_preload = 0;			/* Things to be loaded before the libs. */
 char *_dl_ldsopath = 0;
-static char *_dl_not_lazy = 0;
+static int _dl_be_lazy = 1;
 #ifdef __SUPPORT_LD_DEBUG__
 static char *_dl_debug  = 0;
 static char *_dl_debug_symbols = 0;
@@ -150,15 +146,15 @@ static int (*_dl_elf_init) (void);
 struct r_debug *_dl_debug_addr = NULL;
 unsigned long *_dl_brkp;
 unsigned long *_dl_envp;
-int _dl_fixup(struct elf_resolve *tpnt);
+int _dl_fixup(struct elf_resolve *tpnt, int lazy);
 void _dl_debug_state(void);
 char *_dl_get_last_path_component(char *path);
 static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt, 
 		unsigned long load_addr, unsigned long *hash_addr, Elf32_auxv_t auxvt[AT_EGID + 1], 
 		char **envp, struct r_debug *debug_addr);
-#include "boot1_arch.h"
-#include "ldso.h"				/* Pull in the name of ld.so */
 
+#include "boot1_arch.h"
+#include "_dl_progname.h"				/* Pull in the value of _dl_progname */
 
 /* When we enter this piece of code, the program stack looks like this:
         argc            argument counter (integer)
@@ -202,7 +198,7 @@ LD_BOOT(unsigned long args)
 	unsigned long *got;
 	unsigned long *aux_dat;
 	int goof = 0;
-	elfhdr *header;
+	ElfW(Ehdr) *header;
 	struct elf_resolve *tpnt;
 	struct elf_resolve *app_tpnt;
 	Elf32_auxv_t auxvt[AT_EGID + 1];
@@ -253,7 +249,7 @@ LD_BOOT(unsigned long args)
 	/* locate the ELF header.   We need this done as soon as possible 
 	 * (esp since SEND_STDERR() needs this on some platforms... */
 	load_addr = auxvt[AT_BASE].a_un.a_val;
-	header = (elfhdr *) auxvt[AT_BASE].a_un.a_ptr;
+	header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_ptr;
 
 	/* Check the ELF header to make sure everything looks ok.  */
 	if (!header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
@@ -406,10 +402,10 @@ LD_BOOT(unsigned long args)
 	}
 
 	{
-		elf_phdr *ppnt;
+		ElfW(Phdr) *ppnt;
 		int i;
 
-		ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
+		ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
 			if (ppnt->p_type == PT_DYNAMIC) {
 				dpnt = (Elf32_Dyn *) ppnt->p_vaddr;
@@ -467,7 +463,7 @@ LD_BOOT(unsigned long args)
 	   protection back again once we are done */
 
 	{
-		elf_phdr *ppnt;
+		ElfW(Phdr) *ppnt;
 		int i;
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
@@ -476,8 +472,8 @@ LD_BOOT(unsigned long args)
 
 		/* First cover the shared library/dynamic linker. */
 		if (tpnt->dynamic_info[DT_TEXTREL]) {
-			header = (elfhdr *) auxvt[AT_BASE].a_un.a_ptr;
-			ppnt = (elf_phdr *) ((int)auxvt[AT_BASE].a_un.a_ptr + 
+			header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_ptr;
+			ppnt = (ElfW(Phdr) *) ((int)auxvt[AT_BASE].a_un.a_ptr + 
 					header->e_phoff);
 			for (i = 0; i < header->e_phnum; i++, ppnt++) {
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W)) {
@@ -493,7 +489,7 @@ LD_BOOT(unsigned long args)
 #endif
 		/* Now cover the application program. */
 		if (app_tpnt->dynamic_info[DT_TEXTREL]) {
-			ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
+			ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 			for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
 					_dl_mprotect((void *) (ppnt->p_vaddr & PAGE_ALIGN),
@@ -647,7 +643,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		unsigned long load_addr, unsigned long *hash_addr, Elf32_auxv_t auxvt[AT_EGID + 1], 
 		char **envp, struct r_debug *debug_addr)
 {
-	elf_phdr *ppnt;
+	ElfW(Phdr) *ppnt;
 	char *lpntstr;
 	int i, _dl_secure, goof = 0;
 	struct dyn_elf *rpnt;
@@ -685,13 +681,13 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	   and load them properly. */
 
 	{
-		elfhdr *epnt;
-		elf_phdr *myppnt;
+		ElfW(Ehdr) *epnt;
+		ElfW(Phdr) *myppnt;
 		int j;
 
-		epnt = (elfhdr *) auxvt[AT_BASE].a_un.a_ptr;
+		epnt = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_ptr;
 		tpnt->n_phent = epnt->e_phnum;
-		tpnt->ppnt = myppnt = (elf_phdr *) (load_addr + epnt->e_phoff);
+		tpnt->ppnt = myppnt = (ElfW(Phdr) *) (load_addr + epnt->e_phoff);
 		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {
 			if (myppnt->p_type == PT_DYNAMIC) {
 				tpnt->dynamic_addr = myppnt->p_vaddr + load_addr;
@@ -720,7 +716,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	   and figure out which libraries are supposed to be called.  Until
 	   we have this list, we will not be completely ready for dynamic linking */
 
-	ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
+	ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 	for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 		if (ppnt->p_type == PT_LOAD) {
 			if (ppnt->p_vaddr + ppnt->p_memsz > brk_addr)
@@ -751,7 +747,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 					app_tpnt->dynamic_info, ppnt->p_vaddr, ppnt->p_filesz);
 #endif
 			_dl_loaded_modules->libtype = elf_executable;
-			_dl_loaded_modules->ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
+			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
 			_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
@@ -805,7 +801,8 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	/* Now we need to figure out what kind of options are selected.
 	   Note that for SUID programs we ignore the settings in LD_LIBRARY_PATH */
 	{
-		_dl_not_lazy = _dl_getenv("LD_BIND_NOW", envp);
+		if (_dl_getenv("LD_BIND_NOW", envp))
+			_dl_be_lazy = 0;
 
 		if ((auxvt[AT_UID].a_un.a_val == -1 && _dl_suid_ok()) ||
 				(auxvt[AT_UID].a_un.a_val != -1 && 
@@ -905,9 +902,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	   libraries that should be loaded, and insert them on the list in the
 	   correct order. */
 
-#ifdef USE_CACHE
 	_dl_map_cache();
-#endif
 
 
 	if (_dl_preload) 
@@ -1124,9 +1119,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	}
 
 
-#ifdef USE_CACHE
 	_dl_unmap_cache();
-#endif
 
 	/*
 	 * If the program interpreter is not in the module chain, add it.  This will
@@ -1187,7 +1180,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	 * Now we go through and look for REL and RELA records that indicate fixups
 	 * to the GOT tables.  We need to do this in reverse order so that COPY
 	 * directives work correctly */
-	goof = _dl_loaded_modules ? _dl_fixup(_dl_loaded_modules) : 0;
+	goof = _dl_loaded_modules ? _dl_fixup(_dl_loaded_modules, _dl_be_lazy) : 0;
 
 
 	/* Some flavors of SVr4 do not generate the R_*_COPY directive,
@@ -1222,7 +1215,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
 	{
 		unsigned int j;
-		elf_phdr *myppnt;
+		ElfW(Phdr) *myppnt;
 
 		/* We had to set the protections of all pages to R/W for dynamic linking.
 		   Set text pages back to R/O */
@@ -1306,52 +1299,61 @@ void _dl_debug_state(void)
 {
 }
 
-int _dl_fixup(struct elf_resolve *tpnt)
+int _dl_fixup(struct elf_resolve *tpnt, int flag)
 {
 	int goof = 0;
 
 	if (tpnt->next)
-		goof += _dl_fixup(tpnt->next);
+		goof += _dl_fixup(tpnt->next, flag);
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) _dl_dprintf(_dl_debug_file,"\nrelocation processing: %s", tpnt->libname);	
 #endif    
 	
 	if (tpnt->dynamic_info[DT_REL]) {
 #ifdef ELF_USES_RELOCA
-		_dl_dprintf(2, "%s: can't handle REL relocation records\n",
-					_dl_progname);
-		_dl_exit(17);
+#if defined (__SUPPORT_LD_DEBUG__)
+		if(_dl_debug) _dl_dprintf(2, "%s: can't handle REL relocation records\n", _dl_progname);
+#endif    
+		goof++;
+		return goof;
 #else
 		if (tpnt->init_flag & RELOCS_DONE)
 			return goof;
 		tpnt->init_flag |= RELOCS_DONE;
-		goof += _dl_parse_relocation_information(tpnt, tpnt->dynamic_info[DT_REL], 
+		goof += _dl_parse_relocation_information(tpnt, 
+				tpnt->dynamic_info[DT_REL], 
 				tpnt->dynamic_info[DT_RELSZ], 0);
 #endif
 	}
 	if (tpnt->dynamic_info[DT_RELA]) {
-#ifdef ELF_USES_RELOCA
+#ifndef ELF_USES_RELOCA
+#if defined (__SUPPORT_LD_DEBUG__)
+		if(_dl_debug) _dl_dprintf(2, "%s: can't handle RELA relocation records\n", _dl_progname);
+#endif    
+		goof++;
+		return goof;
+#else
 		if (tpnt->init_flag & RELOCS_DONE)
 			return goof;
 		tpnt->init_flag |= RELOCS_DONE;
-		goof += _dl_parse_relocation_information(tpnt, tpnt->dynamic_info[DT_RELA], 
+		goof += _dl_parse_relocation_information(tpnt, 
+				tpnt->dynamic_info[DT_RELA], 
 				tpnt->dynamic_info[DT_RELASZ], 0);
-#else
-		_dl_dprintf(2, "%s: can't handle RELA relocation records\n",
-					_dl_progname);
-		_dl_exit(18);
 #endif
 	}
 	if (tpnt->dynamic_info[DT_JMPREL]) {
 		if (tpnt->init_flag & JMP_RELOCS_DONE)
 			return goof;
 		tpnt->init_flag |= JMP_RELOCS_DONE;
-		if (!_dl_not_lazy || *_dl_not_lazy == 0)
-			_dl_parse_lazy_relocation_information(tpnt, tpnt->dynamic_info[DT_JMPREL], 
+		if (flag & RTLD_LAZY) {
+			_dl_parse_lazy_relocation_information(tpnt, 
+					tpnt->dynamic_info[DT_JMPREL], 
 					tpnt->dynamic_info [DT_PLTRELSZ], 0);
-		else
-			goof += _dl_parse_relocation_information(tpnt, tpnt->dynamic_info[DT_JMPREL], 
+		} else {
+			goof += _dl_parse_relocation_information(tpnt, 
+					tpnt->dynamic_info[DT_JMPREL], 
 					tpnt->dynamic_info[DT_PLTRELSZ], 0);
+		}
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) {

@@ -37,8 +37,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <errno.h>
-#include "elf.h"
-#include "../config.h"
+#include <ldso.h>
 #include "readsoname.h"
 
 struct exec
@@ -546,6 +545,7 @@ void usage(void)
     exit(EXIT_FATAL);
 }
 
+#define DIR_SEP      ":, \t\n"
 int main(int argc, char **argv)
 {
     int i, c;
