@@ -868,7 +868,8 @@ int fstat(int filedes, struct libc_stat *buf)
 //#define __NR_iopl             110
 #ifdef L_iopl
 #include <sys/io.h>
-#	if defined __UCLIBC_HAS_MMU__ && defined __NR_iopl
+/* Tuns out the m68k unistd.h kernel header is broken */
+#	if defined __UCLIBC_HAS_MMU__ && defined __NR_iopl && ! defined(__mc68000__)
 		_syscall1(int, iopl, int, level);
 #	else
 		int iopl(int level)
