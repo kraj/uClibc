@@ -31,7 +31,9 @@ if $NM --undefined-only libc.ldr | grep -v "^main$" | grep -v "^_GLOBAL_OFFSET_T
 	    EXIT_WITH_ERROR=1
 	fi
     done
-    exit $EXIT_WITH_ERROR
+    if [ $EXIT_WITH_ERROR != 0 ]; then
+	exit $EXIT_WITH_ERROR
+    fi
 else
     echo No missing symbols found.
     exit 0
