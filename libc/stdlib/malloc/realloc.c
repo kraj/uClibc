@@ -73,7 +73,7 @@ realloc (void *mem, size_t new_size)
       if (mem)
 	MALLOC_DEBUG ("  realloc: returning 0x%lx"
 		      " (base:0x%lx, total_size:%d)\n",
-		      (long)new_mem, (long)new_mem - sizeof(size_t), size);
+		      (long)mem, (long)MALLOC_BASE(mem), (long)MALLOC_SIZE(mem));
 
       return mem;
     }

@@ -125,7 +125,7 @@ malloc (size_t size)
       MALLOC_SET_SIZE (mem, size);
 
       MALLOC_DEBUG ("  malloc: returning 0x%lx (base:0x%lx, total_size:%d)\n",
-		    (long)mem, (long)mem - MALLOC_ALIGNMENT, size);
+		    (long)mem, (long)MALLOC_BASE(mem), (long)MALLOC_SIZE(mem));
     }
 
   return mem;

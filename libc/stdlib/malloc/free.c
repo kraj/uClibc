@@ -32,7 +32,7 @@ free (void *mem)
       mem = MALLOC_BASE (mem);
 
       MALLOC_DEBUG ("free: 0x%lx (base = 0x%lx, total_size = %d)\n",
-		    (long)mem + MALLOC_ALIGNMENT, (long)mem, size);
+		    (long)MALLOC_ADDR (mem), (long)mem, size);
 
       __malloc_lock ();
 
@@ -68,7 +68,7 @@ free (void *mem)
 	     reasonably cheap.  */
 	  if ((void *)end != sbrk (0))
 	    {
-	      MALLOC_DEBUG ("  not unmapping: 0x%lx - 0x%lx (%d bytes)\n",
+	      MALLOC_DEBUG ("  not unmapping: 0x%lx - 0x%lx (%ld bytes)\n",
 			    start, end, end - start);
 	      __malloc_unlock_sbrk ();
 	      __malloc_unlock ();
