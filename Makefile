@@ -200,11 +200,6 @@ uClibc_config: Makefile Config
 	else \
 	    echo "#undef __UCLIBC_HAS_RPC__" >> include/bits/uClibc_config.h ; \
 	fi
-	@if [ "$(UNIFIED_SYSCALL)" = "true" ] ; then \
-	    echo "#define __UCLIBC_USE_UNIFIED_SYSCALL__ 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_USE_UNIFIED_SYSCALL__" >> include/bits/uClibc_config.h ; \
-	fi
 	@echo "#define C_SYMBOL_PREFIX "\""$(C_SYMBOL_PREFIX)"\" >> include/bits/uClibc_config.h
 	@if [ "$(DOLFS)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAVE_LFS__ 1" >> include/bits/uClibc_config.h ; \
@@ -257,6 +252,11 @@ install_dev:
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
 ifeq ($(strip $(HAVE_SHARED)),true)
 	-find lib/ -type l -name '*.so' -exec cp -a {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
+	# If we build shared libraries then the static libs are PIC...
+	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
+	for i in `find lib/  -type f -name '*.a' | sed -e 's/lib\///'` ; do \
+		ln -sf $$i $(PREFIX)$(DEVEL_PREFIX)/lib/`echo $$i | sed -e 's/\.a$$/_pic.a/'`; \
+	done
 endif
 
 
