@@ -19,7 +19,7 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-SSRC= memcpy.S memset.S strcpy.S
+SSRC= memcpy.S memset.S strcpy.S strlen.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 all: $(SOBJS) $(LIBC)
