@@ -58,4 +58,5 @@ dummy:
 clean:
 	-rm -f `find -name \*.[oa]` `find -name \*~` core
 	-rm -rf include/asm include/net include/linux
+	make -C test clean
 

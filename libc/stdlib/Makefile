@@ -4,56 +4,39 @@
 
 TOPDIR=../
 include $(TOPDIR)Rules.make
+LIBC=$(TOPDIR)libc.a
 
-LIBC=../libc.a
 
 MSRC=aliases.c
-MOBJ=abs.o remove.o creat.o bcopy.o bzero.o
-# raise.o bcmp.o index.o rindex.o 
+MOBJ=abs.o remove.o creat.o bcopy.o bzero.o 
+	# raise.o bcmp.o index.o rindex.o 
+
+MSRC2=atexit.c
+MOBJ2=on_exit.o atexit.o __do_exit.o exit.o
+
+CFILES=atoi.c atol.c ltoa.c ltostr.c ctype.c qsort.c bsearch.c rand.c lsearch.c \
+	getopt.c glob.c fnmatch.c itoa.c strtod.c strtol.c crypt.c sleep.c \
+	mkstemp.c  mktemp.c realpath.c getenv.c putenv.c popen.c system.c \
+	getcwd.c setenv.c execl.c execv.c execlp.c execvp.c execvep.c
+COBJS=$(patsubst %.c,%.o, $(CFILES))
 
 
-ESRC=atexit.c
-EOBJ=on_exit.o atexit.o __do_exit.o exit.o
 
-GOBJ=atoi.o atol.o ltoa.o ltostr.o \
-     ctype.o qsort.o bsearch.o rand.o lsearch.o getopt.o \
-     glob.o fnmatch.o itoa.o strtol.o crypt.o sleep.o mkstemp.o \
-     mktemp.o realpath.o
+all: $(COBJS) $(MOBJ) $(MOBJ2) $(LIBC)
 
-UOBJ=getenv.o putenv.o popen.o system.o getcwd.o setenv.o \
-     execl.o execv.o execlp.o execvp.o execvep.o
+$(COBJS): $(CFILES)
+	$(CC) $(CFLAGS) -c $*.c -o $@
 
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* -c $(MSRC) -o $@
 
-OBJ=$(MOBJ) $(EOBJ) $(GOBJ) $(UOBJ)
+$(MOBJ2): $(MSRC2)
+	$(CC) $(CFLAGS) -DL_$* -c $(MSRC2) -o $@
 
-## No ELKS strtod() until BCC does 16 bit FP...
-#ifneq ($(LIB_CPU),i86)
-#OBJ+=strtod.o
-#endif
-
-all: $(LIBC)
-
-$(LIBC): $(LIBC)($(OBJ))
-
-$(LIBC)($(MOBJ)): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(AR) $(ARFLAGS) $@ $*.o
-
-$(LIBC)($(EOBJ)): $(ESRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(AR) $(ARFLAGS) $@ $*.o
+$(LIBC): $(COBJS) $(MOBJ) $(MOBJ2)
+	$(AR) $(ARFLAGS) $(LIBC) $(COBJS) $(MOBJ) $(MOBJ2)
 
 clean:
-	rm -f *.o libc.a
+	rm -f *.o
 
-$(LIBC)(strtol.o): strtol.c
-	$(CC) -c -ansi $(ARCH) $(CCFLAGS) $(DEFS) $*.c
-	$(AR) $(ARFLAGS) $@ $*.o
 
-$(LIBC)(strtod.o): strtod.c
-	$(CC) -c -ansi $(ARCH) $(CCFLAGS) $(DEFS) $*.c
-	$(AR) $(ARFLAGS) $@ $*.o
-
-$(LIBC)(crypt.o): crypt.c
-	$(CC) -c -ansi $(ARCH) $(CCFLAGS) $(DEFS) $*.c
-	$(AR) $(ARFLAGS) $@ $*.o

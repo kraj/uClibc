@@ -4,28 +4,29 @@
 
 TOPDIR=../
 include $(TOPDIR)Rules.make
+LIBC=$(TOPDIR)libc.a
 
-LIBC=../libc.a
+MSRC=string.c
+MOBJ=strlen.o strcat.o strcpy.o strcmp.o strncat.o strncpy.o strncmp.o \
+	strchr.o strrchr.o strdup.o memcpy.o memccpy.o memchr.o memset.o \
+	memcmp.o memmove.o movedata.o
+CFILES=strpbrk.c strsep.c strstr.c strtok.c strcspn.c \
+    strspn.c strcasecmp.c strncasecmp.c config.c
+COBJS=$(patsubst %.c,%.o, $(CFILES))
 
-SSRC=string.c
-SOBJ=strlen.o strcat.o strcpy.o strcmp.o strncat.o strncpy.o strncmp.o	\
-    strchr.o strrchr.o strdup.o memcpy.o memccpy.o memchr.o memset.o	\
-    memcmp.o memmove.o movedata.o
 
-OBJ=strpbrk.o strsep.o strstr.o strtok.o strcspn.o	\
-    strspn.o strcasecmp.o strncasecmp.o config.o
+all: $(COBJS) $(MOBJ) $(LIBC)
 
-all: $(LIBC)
+$(COBJS): $(CFILES)
+	$(CC) $(CFLAGS) -c $*.c -o $@
 
-$(LIBC): $(LIBC)($(SOBJ)) $(OBJ) 
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* -c $(MSRC) -o $@
 
-$(LIBC)($(SOBJ)): $(SSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(AR) $(ARFLAGS) $@ $*.o
-
-transfer:
-	-@rm -f ../include/string.h
-	cp -p string.h ../include/.
+$(LIBC): $(COBJS) $(MOBJ)
+	$(AR) $(ARFLAGS) $(LIBC) $(COBJS) $(MOBJ)
 
 clean:
 	rm -f *.o
+
+

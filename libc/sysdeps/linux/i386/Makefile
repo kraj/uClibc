@@ -5,31 +5,31 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.make
 
+LIBC=$(TOPDIR)libc.a
 CFLAGS+= -D_GCC_LIMITS_H_
 
-LIBC=$(TOPDIR)libc.a
-
-.S.s:
-	$(CC) $(CFLAGS) -D__ASSEMBLY__ -traditional -E -o $*.s $<
-.S.o:
-	$(CC) $(CFLAGS) -c -o $*.o $<
-
-SSRC=syscalls.S
-OBJ= setjmp.o longjmp.o readdir.o _start.o _exit.o fork.o #select.o 
+MSRC=syscalls.S
 include makefile.objs
+SFILES=setjmp.S longjmp.S _start.S _exit.S #fork.o
+SOBJS=$(patsubst %.S,%.o, $(SFILES))
+CFILES=readdir.c #select.c
+COBJS=$(patsubst %.c,%.o, $(CFILES))
 
-all: $(LIBC)
 
-$(LIBC): $(OBJ) $(LIBC)($(SOBJ))
-	$(AR) $(ARFLAGS) $@ $(OBJ)
+all: $(SOBJS) $(COBJS) $(MOBJ) $(LIBC)
 
-$(LIBC)($(SOBJ)): $(SSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(AR) $(ARFLAGS) $@ $*.o
+$(SOBJS): $(SFILES)
+	$(CC) $(CFLAGS) -c $*.S -o $@
 
-transfer:
-	-@rm -f ../include/stdio.h
-	cp -p stdio.h ../include/.
+$(COBJS): $(CFILES)
+	$(CC) $(CFLAGS) -c $*.c -o $@
+
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* -c $(MSRC) -o $@
+
+$(LIBC): $(SOBJS) $(COBJS) $(MOBJ)
+	$(AR) $(ARFLAGS) $(LIBC) $(SOBJS) $(COBJS) $(MOBJ)
 
 clean:
 	rm -f *.o
+

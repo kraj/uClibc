@@ -30,6 +30,7 @@ extern void usleep __P ((unsigned long __microseconds));
 extern int pause __P ((void));
 extern char*    crypt __P((__const char *__key, __const char *__salt));
 extern int isatty __P ((int __fd));
+extern char *ttyname __P ((int __fd));
 extern int readlink __P ((__const char *__path, char *__buf, size_t __len));
 extern int link __P ((__const char *__from, __const char *__to));
 extern int symlink __P ((__const char *__from, __const char *__to));

@@ -172,6 +172,15 @@ extern int vfprintf __P ((FILE *__restrict __s,
 extern int vsprintf __P ((char *__restrict __s,
 			  __const char *__restrict __format,
 			  va_list __arg));
+/* Maximum chars of output to write in MAXLEN.  */
+extern int snprintf __P ((char *__restrict __s, size_t __maxlen,
+			  __const char *__restrict __format, ...))
+     __attribute__ ((__format__ (__printf__, 3, 4)));
+/* Maximum chars of output to write in MAXLEN.  */
+extern int vsnprintf __P ((char *__restrict __s, size_t __maxlen,
+			   __const char *__restrict __format,
+			   va_list __arg))
+     __attribute__ ((__format__ (__printf__, 3, 0)));
 
 
 
