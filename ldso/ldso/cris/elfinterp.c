@@ -69,7 +69,7 @@ debug_sym(Elf32_Sym *symtab, char *strtab, int symtab_index)
 				symtab[symtab_index].st_info,
 				symtab[symtab_index].st_other,
 				symtab[symtab_index].st_shndx);
-    	}
+		}
   	}
 } 
     
@@ -82,13 +82,18 @@ debug_reloc(Elf32_Sym *symtab, char *strtab, ELF_RELOC *rpnt)
 
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
 		sym = symtab_index ? strtab + symtab[symtab_index].st_name : "sym=0x0";
+
+		if (_dl_debug_symbols)
+			_dl_printf(_dl_debug_file, "\n\t");
+		else
+			_dl_printf(_dl_debug_file, "\n%s\n\t", sym);
         
 #ifdef ELF_USES_RELOCA
-		_dl_dprintf(_dl_debug_file, "\n%s\toffset=%x\taddend=%x %s",
-			_dl_reltypes(ELF32_R_TYPE(rpnt->r_info)), rpnt->r_offset, rpnt->r_addend, sym);
+		_dl_dprintf(_dl_debug_file, "\n%s\toffset=%x\taddend=%x",
+			_dl_reltypes(ELF32_R_TYPE(rpnt->r_info)), rpnt->r_offset, rpnt->r_addend);
 #else
-		_dl_dprintf(_dl_debug_file, "\n%s\toffset=%x %s", _dl_reltypes(ELF32_R_TYPE(rpnt->r_info)),
-			rpnt->r_offset, sym);
+		_dl_dprintf(_dl_debug_file, "\n%s\toffset=%x", _dl_reltypes(ELF32_R_TYPE(rpnt->r_info)),
+			rpnt->r_offset);
 #endif
 	}
 }
@@ -104,6 +109,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_offset)
 	int reloc_type;
 	int symtab_index;
 	char *strtab;
+	char *symname;
 	char *new_addr;
 	char **got_addr;
 	ELF_RELOC *reloc;
@@ -117,9 +123,10 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_offset)
 
 	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+	symname = strtab + symtab[symtab_index].st_name;
 
 	if (reloc_type != R_CRIS_JUMP_SLOT) {
-		_dl_dprintf(_dl_debug_file, "%s: Incorrect relocation type for jump relocations.\n", _dl_progname);
+		_dl_dprintf(2, "%s: Incorrect relocation type for jump relocations.\n", _dl_progname);
 		_dl_exit(1);
 	}
 
@@ -128,20 +135,23 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_offset)
 	got_addr = (char **) instr_addr;
 
 #ifdef DL_DEBUG_SYMBOLS
-	_dl_dprintf(_dl_debug_file, "Resolving symbol: %s\n", strtab + symtab[symtab_index].st_name);
+	_dl_dprintf(_dl_debug_file, "Resolving symbol: %s\n", symname);
 #endif
 
 	/* Fetch the address of the GOT entry. */
-	new_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name, tpnt->symbol_scope, tpnt, 0);
+	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, resolver);
 	
 	if (!new_addr) {
-		_dl_dprintf(_dl_debug_file, "%s: Can't resolv symbol '%s'\n", _dl_progname, strtab + symtab[symtab_index].st_name);
+		if ((new_addr = _dl_find_hash(symname, NULL, NULL, resolver)))
+			return (unsigned long) new_addr;
+
+		_dl_dprintf(2, "%s: Can't resolv symbol '%s'\n", _dl_progname, symname);
 		_dl_exit(1);
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_bindings) {
-		_dl_dprintf(_dl_debug_file, "\nresolve function: %s", strtab + symtab[symtab_index].st_name);
+		_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
 		
 		if (_dl_debug_detail)
 			_dl_dprintf(_dl_debug_file, "\tpatch %x ==> %x @ %x", *got_addr, new_addr, got_addr);
@@ -168,6 +178,7 @@ _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, unsigned long re
 	rel_size = rel_size / sizeof(ELF_RELOC);
 	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+	symname = strtab + symtab[symtab_index].st_name;
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
 		reloc_addr = (Elf32_Addr *) (tpnt->loadaddr + (Elf32_Addr) rpnt->r_offset);
@@ -181,7 +192,7 @@ _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, unsigned long re
 		if (!symtab_index && tpnt->libtype == program_interpreter)
 		 	continue;
 		if (symtab_index && tpnt->libtype == program_interpreter &&
-			_dl_symbol(strtab + symtab[symtab_index].st_name))
+			_dl_symbol(symname))
 			continue;
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -189,7 +200,6 @@ _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, unsigned long re
 		unsigned long old_val = *reloc_addr;
 
 #endif
-
 		switch (reloc_type) {
 			case R_CRIS_NONE:
 				break;
@@ -197,13 +207,13 @@ _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, unsigned long re
 				*reloc_addr += (Elf32_Addr) tpnt->loadaddr;
 				break;
 			default:
-				_dl_dprintf(_dl_debug_file, "%s: Can't handle relocation type (lazy).\n",
+				_dl_dprintf(2, "%s: Can't handle relocation type (lazy).\n",
 					_dl_progname);
 #ifdef __SUPPORT_LD_DEBUG__
 					_dl_dprintf(_dl_debug_file, "%s ", _dl_reltypes(reloc_type));
 #endif
 				if (symtab_index)
-					_dl_dprintf(_dl_debug_file, "'%s'\n", strtab + symtab[symtab_index].st_name);
+					_dl_dprintf(2, "'%s'\n", symname);
 
 				_dl_exit(1);
 		}
@@ -223,6 +233,7 @@ _dl_parse_relocation_information(struct elf_resolve *tpnt, unsigned long rel_add
 	int reloc_type;
 	int symtab_index;
 	char *strtab;
+	char *symname;
 	Elf32_Sym *symtab;
 	ELF_RELOC *rpnt;
 	Elf32_Addr *reloc_addr;
@@ -234,7 +245,8 @@ _dl_parse_relocation_information(struct elf_resolve *tpnt, unsigned long rel_add
 
 	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
-
+	symname = strtab + symtab[symtab_index].st_name;
+	
 	for (i = 0; i < rel_size; i++, rpnt++) {
 		reloc_addr = (Elf32_Addr *) (tpnt->loadaddr + (Elf32_Addr) rpnt->r_offset);
 		reloc_type = ELF32_R_TYPE(rpnt->r_info);
@@ -252,8 +264,8 @@ _dl_parse_relocation_information(struct elf_resolve *tpnt, unsigned long rel_add
 			if (symtab[symtab_index].st_shndx != SHN_UNDEF && ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_LOCAL)
 				symbol_addr = (Elf32_Addr) tpnt->loadaddr;
 			else
-				symbol_addr = (Elf32_Addr) _dl_find_hash(strtab + symtab[symtab_index].st_name,
-					tpnt->symbol_scope, (reloc_type == R_CRIS_JUMP_SLOT ? tpnt : NULL), 0);
+				symbol_addr = (Elf32_Addr) _dl_find_hash(symname, tpnt->symbol_scope,
+					(reloc_type == R_CRIS_JUMP_SLOT ? tpnt : NULL), 0);
 
 			/*
 			 * We want to allow undefined references to weak symbols - this
@@ -261,8 +273,7 @@ _dl_parse_relocation_information(struct elf_resolve *tpnt, unsigned long rel_add
 			 * symbols here, so all bases should be covered.
 			 */
 			if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_GLOBAL) {
-				_dl_dprintf(_dl_debug_file, "%s: Can't resolve '%s'\n",
-					_dl_progname, strtab + symtab[symtab_index].st_name);
+				_dl_dprintf(2, "%s: Can't resolve '%s'\n", _dl_progname, symname);
 				goof++;
 			}
 			
@@ -306,12 +317,12 @@ _dl_parse_relocation_information(struct elf_resolve *tpnt, unsigned long rel_add
 			case R_CRIS_NONE:
 				break;
 			default:
-				_dl_dprintf(_dl_debug_file, "%s: Can't handle relocation type ", _dl_progname);
+				_dl_dprintf(2, "%s: Can't handle relocation type ", _dl_progname);
 #ifdef __SUPPORT_LD_DEBUG__
 				_dl_dprintf(_dl_debug_file, "%s\n", _dl_reltypes(reloc_type));
 #endif
 				if (symtab_index) {
-					_dl_dprintf(_dl_debug_file, "'%s'\n", strtab + symtab[symtab_index].st_name);
+					_dl_dprintf(2, "'%s'\n", symname);
 					return -1;
 				}
 		}
@@ -337,6 +348,7 @@ _dl_parse_copy_information(struct dyn_elf *xpnt, unsigned long rel_addr, unsigne
 	int goof;
 	int symtab_index;
 	char *strtab;
+	char *symname;
 	struct elf_resolve *tpnt;
 	Elf32_Sym *symtab;
 	ELF_RELOC *rpnt;
@@ -351,6 +363,7 @@ _dl_parse_copy_information(struct dyn_elf *xpnt, unsigned long rel_addr, unsigne
 
 	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+	symname = strtab + symtab[symtab_index].st_name;
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
 		reloc_addr = (Elf32_Addr *) (tpnt->loadaddr + (Elf32_Addr) rpnt->r_offset);
@@ -366,16 +379,13 @@ _dl_parse_copy_information(struct dyn_elf *xpnt, unsigned long rel_addr, unsigne
 			continue;
 
 		if (symtab_index) {
-			if (tpnt->libtype == program_interpreter && 
-				_dl_symbol(strtab + symtab[symtab_index].st_name))
+			if (tpnt->libtype == program_interpreter && _dl_symbol(symname))
 				continue;
 
-			symbol_addr = (Elf32_Addr) _dl_find_hash(strtab + 
-				symtab[symtab_index].st_name, xpnt->next, NULL, 1);
+			symbol_addr = (Elf32_Addr) _dl_find_hash(symname, xpnt->next, NULL, 1);
 
 			if (!symbol_addr) {
-				_dl_dprintf(_dl_debug_file, "%s: Can't resolv symbol '%s'\n",
-					_dl_progname, strtab + symtab[symtab_index].st_name);
+				_dl_dprintf(2, "%s: Can't resolv symbol '%s'\n", _dl_progname, symname);
 				goof++;
 			}
 		}
