@@ -2,7 +2,7 @@ TOPDIR = ../../
 include $(TOPDIR)Rules.mak
 
 # NOTE: This may need to be modified for your system
-DYNAMIC_LINKER = /usr/$(TARGET_ARCH)-linux-uclibc/lib/ld-linux-uclibc.so.1
+DYNAMIC_LINKER = /usr/$(TARGET_ARCH)-linux-uclibc/lib/ld-linux-uclibc.so.0
 
 UCLIBC_DIR = $(shell (cd ../.. ; /bin/pwd))
 GCC_BIN = $(CC)
@@ -10,9 +10,6 @@ GCC_LIB = $(shell $(CC) -print-libgcc-file-name )
 #GCCINCDIR inherited from Rules.mak
 
 all: gcc-uClibc
-
-clean:
-	rm -f gcc-uClibc.h *-uclibc-gcc core
 
 gcc-uClibc.h: clean
 	@echo "/* this file is created by make */" > gcc-uClibc.h
@@ -26,4 +23,21 @@ gcc-uClibc.h: clean
 
 gcc-uClibc: gcc-uClibc.h gcc-uClibc.c
 	gcc -Wall -O2 -s gcc-uClibc.c -o $(TARGET_ARCH)-uclibc-gcc
+
+install:
+	@if [ -f $(TARGET_ARCH)-uclibc-gcc ] ; then \
+		install -m 755 $(TARGET_ARCH)-uclibc-gcc $(INSTALL_DIR)/bin/ ; \
+	fi
+	$(shell (for app in addr2line ar as gasp ld nm objcopy objdump ranlib size strings strip; do \
+		    ln -fs `which $(CROSS)$${app}` $(INSTALL_DIR)/bin/$${app}; \
+		    done)\
+	)
+	$(shell (for app in cc1 cc1plus; do \
+		    ln -fs $(CC1DIR)$${app} $(INSTALL_DIR)/bin/$${app}; \
+		    done)\
+	)
+
+clean:
+	rm -f gcc-uClibc.h *-uclibc-gcc core
+
 
