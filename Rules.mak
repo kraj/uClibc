@@ -24,19 +24,19 @@
 
 include $(TOPDIR)Config
 
-MAJOR_VERSION=0
-MINOR_VERSION=9.11
-VERSION=$(MAJOR_VERSION).$(MINOR_VERSION)
+MAJOR_VERSION:=0
+MINOR_VERSION:=9.11
+VERSION:=$(MAJOR_VERSION).$(MINOR_VERSION)
 
-LIBNAME=libc.a
-SHARED_FULLNAME=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
-SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION)
-UCLIBC_LDSO=ld-uClibc.so.$(MAJOR_VERSION)
-LIBC=$(TOPDIR)libc/libc.a
+LIBNAME:=libc.a
+SHARED_FULLNAME:=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
+SHARED_MAJORNAME:=libc.so.$(MAJOR_VERSION)
+UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
+LIBC:=$(TOPDIR)libc/libc.a
 
-BUILDTIME = ${shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z"}
-GCCINCDIR = ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp"}
-NATIVE_ARCH = ${shell uname -m | sed \
+BUILDTIME:= ${shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z"}
+GCCINCDIR:= ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp"}
+NATIVE_ARCH:= ${shell uname -m | sed \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \
@@ -47,7 +47,7 @@ NATIVE_ARCH = ${shell uname -m | sed \
 		-e 's/mips.*/mips/' \
 		}
 ifeq ($(strip $(TARGET_ARCH)),)
-TARGET_ARCH=${shell $(CC) -dumpmachine | sed -e s'/-.*//' \
+TARGET_ARCH:=${shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \
@@ -64,9 +64,9 @@ ifndef OPTIMIZATION
 
 
 # use '-Os' optimization if available, else use -O2, allow Config to override
-OPTIMIZATION += ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
+OPTIMIZATION:= ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
     then echo "-Os"; else echo "-O2" ; fi}
-OPTIMIZATION += ${shell if $(CC) -falign-functions=1 -S -o /dev/null -xc \
+OPTIMIZATION+= ${shell if $(CC) -falign-functions=1 -S -o /dev/null -xc \
 		/dev/null >/dev/null 2>&1; then echo "-falign-functions=1"; fi}
 ifeq ($(strip $(TARGET_ARCH)),arm)
 	OPTIMIZATION+=-fstrict-aliasing
@@ -78,39 +78,36 @@ ifeq ($(strip $(TARGET_ARCH)),i386)
 	OPTIMIZATION += ${shell if $(CC) -malign-functions=0 -malign-jumps=0 -malign-loops=0 \
 		-S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo \
 		"-malign-functions=0 -malign-jumps=0 -malign-loops=0"; fi}
-	CPUFLAGS+=-pipe
-else
-	CPUFLAGS+=-pipe
 endif
 endif
 
-ARFLAGS=r
+ARFLAGS:=r
 
-CFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
+CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
 	-nostdinc -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D_LIBC $(ARCH_CFLAGS)
-NATIVE_CFLAGS=-O2 -Wall
+NATIVE_CFLAGS:=-O2 -Wall
 
 ifeq ($(strip $(DODEBUG)),true)
     CFLAGS += -g
-    LDFLAGS = -shared --warn-common --warn-once -z combreloc
-    STRIPTOOL = /bin/true -Since_we_are_debugging
+    LDFLAGS:= -shared --warn-common --warn-once -z combreloc
+    STRIPTOOL:= /bin/true -Since_we_are_debugging
 else
     CFLAGS  += -DNDEBUG #-fomit-frame-pointer
-    LDFLAGS  = -s -shared --warn-common --warn-once -z combreloc
+    LDFLAGS := -s -shared --warn-common --warn-once -z combreloc
 endif
 
 ifeq ($(strip $(HAVE_SHARED)),true)
-    DOPIC=true
-    LIBRARY_CACHE=#-DUSE_CACHE
+    DOPIC:=true
+    LIBRARY_CACHE:=#-DUSE_CACHE
     ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
-    LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
-    DYNAMIC_LINKER=$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO)
-    BUILD_DYNAMIC_LINKER=${shell cd $(TOPDIR)lib && pwd}/$(UCLIBC_LDSO)
+    LDSO:=$(TOPDIR)lib/$(UCLIBC_LDSO)
+    DYNAMIC_LINKER:=$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO)
+    BUILD_DYNAMIC_LINKER:=${shell cd $(TOPDIR)lib && pwd}/$(UCLIBC_LDSO)
     else
-    LDSO=$(SYSTEM_LDSO)
-    BUILD_UCLIBC_LDSO=false
-    DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
-    BUILD_DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
+    LDSO:=$(SYSTEM_LDSO)
+    BUILD_UCLIBC_LDSO:=false
+    DYNAMIC_LINKER:=/lib/$(notdir $(SYSTEM_LDSO))
+    BUILD_DYNAMIC_LINKER:=/lib/$(notdir $(SYSTEM_LDSO))
 endif
 endif
 ifeq ($(strip $(DOPIC)),true)
