@@ -6,16 +6,16 @@
 #include <string.h>
 #include <ctype.h>
 
-int strcasecmp( const char *s, const char *d)
+int strcasecmp (const char *a, const char *b)
 {
-	for (;;) {
-		if (*s != *d) {
-			if (tolower(*s) != tolower(*d))
-				return *s - *d;
-		} else if (*s == '\0')
-			break;
-		s++;
-		d++;
-	}
-	return 0;
+    register int n;
+
+    while (*a == *b || (n = tolower (*a) - tolower (*b)) == 0)
+    {
+	if (*a == '\0')
+	    return 0;
+	a++, b++;
+    }
+    return n;
 }
+
