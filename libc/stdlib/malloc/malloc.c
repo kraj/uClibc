@@ -41,7 +41,7 @@ malloc (size_t size)
   MALLOC_DEBUG ("malloc: %d bytes\n", size);
 
   /* Include extra space to record the size of the allocated block.  */
-  size += MALLOC_ROUND_UP (sizeof (size_t), MALLOC_ALIGNMENT);
+  size += MALLOC_HEADER_SIZE;
 
   __malloc_lock ();
 
