@@ -31,19 +31,12 @@ MOBJW=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
 	strcmp.o strcpy.o strcspn.o strdup.o strlen.o strncasecmp.o strncat.o \
 	strncmp.o strncpy.o strndup.o strnlen.o strpbrk.o strrchr.o strsep.o \
 	strspn.o strstr.o strtok.o strtok_r.o \
-	 __xpg_basename.o # strcoll.o strerror.o strxfrm.o 
+	 __xpg_basename.o # strcoll.o strerror.o
 
 MOBJW2= wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
 	wcsdup.o wcslen.o wcsncasecmp.o wcsncat.o wcsncmp.o wcsncpy.o \
 	wcsnlen.o wcspbrk.o wcsrchr.o wcsspn.o wcsstr.o wcstok.o wmemchr.o \
 	wmemcmp.o wmemcpy.o wmemmove.o wmempcpy.o wmemset.o
-
-MSRC=string.c
-# MOBJ=strlen.o strcat.o strcpy.o strchr.o strcmp.o strncat.o strncpy.o \
-# 	strncmp.o strrchr.o strdup.o strndup.o memcpy.o memccpy.o memset.o \
-# 	memmove.o memcmp.o memchr.o ffs.o strnlen.o strxfrm.o stpcpy.o \
-# 	stpncpy.o memrchr.o mempcpy.o
-MOBJ=strxfrm.o
 
 # ifeq ($(HAS_LOCALE),true)
 # 	MOBJ += strcoll.o
@@ -59,7 +52,7 @@ MOBJ2=
 # CSRC=strpbrk.c strsep.c strtok.c strtok_r.c strcspn.c \
 # 	strspn.c strcasecmp.c strncasecmp.c strerror.c bcopy.c bzero.c \
 # 	bcmp.c sys_errlist.c dirname.c basename.c
-CSRC=strerror.c sys_errlist.c
+CSRC=strerror.c sys_errlist.c strxfrm.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(COBJS) $(MOBJW)
 
