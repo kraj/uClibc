@@ -25,7 +25,7 @@ do { \
 	/* Avoid using "res" which is declared to be in register r0; \
 	   errno might expand to a function call and clobber it.  */ \
 		int __err = -(res); \
-		__set_errno = __err; \
+		__set_errno(__err); \
 		res = -1; \
 	} \
 	return (type) (res); \
