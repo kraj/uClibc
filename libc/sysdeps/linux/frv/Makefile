@@ -36,13 +36,13 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)
 
-all: $(OBJS) $(LIBC)
+OBJ_LIST=../../../obj.sysdeps.$(TARGET_ARCH)
 
-$(LIBC): ar-target 
+all: $(OBJ_LIST)
 
-ar-target: $(OBJS) $(CRT0_OBJ) $(SCRT0_OBJ) $(CTOR_TARGETS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	$(INSTALL) -d $(TOPDIR)lib
+$(OBJ_LIST): $(OBJS) $(CRT0_OBJ) $(SCRT0_OBJ) $(CTOR_TARGETS)
+	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
+	$(INSTALL) -d $(TOPDIR)lib/
 	cp $(CRT0_OBJ) $(SCRT0_OBJ) $(CTOR_TARGETS) $(TOPDIR)lib/
 
 $(CRT0_OBJ): $(CRT0_SRC) crtreloc.o
@@ -75,6 +75,6 @@ headers:
 	$(LN) -fs ../libc/sysdeps/linux/frv/link.h $(TOPDIR)/include/
 
 clean:
-	rm -f *.[oa] *~ core
-	rm -f bits/sysnum.h
+	$(RM) *.[oa] *~ core
+	$(RM) bits/sysnum.h
 	$(RM) $(TOPDIR)/include/link.h
