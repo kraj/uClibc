@@ -8,12 +8,12 @@
  */
 
 #include "syscalls.h"
-#	ifdef __NR_delete_module
+#ifdef __NR_delete_module
 _syscall1(int, delete_module, const char *, name);
-#	else
+#else
 int delete_module(const char *name)
 {
 	__set_errno(ENOSYS);
 	return -1;
 }
-#	endif
+#endif

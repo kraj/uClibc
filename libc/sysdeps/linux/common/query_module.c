@@ -8,14 +8,14 @@
  */
 
 #include "syscalls.h"
-#	ifdef __NR_query_module
+#ifdef __NR_query_module
 _syscall5(int, query_module, const char *, name, int, which,
 		  void *, buf, size_t, bufsize, size_t *, ret);
-#	else
+#else
 int query_module(const char *name, int which,
 				 void *buf, size_t bufsize, size_t * ret)
 {
 	__set_errno(ENOSYS);
 	return -1;
 }
-#	endif
+#endif

@@ -66,5 +66,11 @@ unsigned long create_module(const char *name, size_t size)
 _syscall2(unsigned long, create_module, const char *, name, size_t, size);
 #endif
 
+#else
+unsigned long create_module(const char *name, size_t size)
+{
+	__set_errno(ENOSYS);
+	return (unsigned long)-1;
+}
 #endif
 
