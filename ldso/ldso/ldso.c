@@ -208,11 +208,13 @@ LD_BOOT(unsigned long args)
 	Elf32_auxv_t auxvt[AT_EGID + 1];
 	unsigned char *malloc_buffer, *mmap_zero;
 	Elf32_Dyn *dpnt;
-	Elf32_Dyn *dpnt_debug = NULL;
 	unsigned long *hash_addr;
 	struct r_debug *debug_addr;
 	int indx;
 	int status;
+#ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
+	Elf32_Dyn *dpnt_debug = NULL;
+#endif
 
 
 	/* WARNING! -- we cannot make _any_ funtion calls until we have
