@@ -19,6 +19,12 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+/* Stick in a dummy reference to main(), so that if an application
+ * is linking when the main() function is in a static library (.a)
+ * we can be sure that main() actually gets linked in */
+extern void main(int argc,void *argv,void *envp);
+void (*mainp)(int argc,void *argv,void *envp) = main;
+
 extern void __uClibc_main(int argc,void *argv,void *envp);
 
 
@@ -32,11 +38,6 @@ void _start(unsigned int first_arg)
 	argc = *(stack - 1);
 	argv = (char **) stack;
 	envp = (char **)stack + argc + 1;
-	
-	/* Stick in a dummy reference to main(), so that if an application
-	 * is linking when the main() function is in a static library (.a)
-	 * we can be sure that main() actually gets linked in */
-	volatile void (*mainp)(int argc,void *argv,void *envp) = main;
 
 	__uClibc_main(argc, argv, envp);
 }
