@@ -1,8 +1,8 @@
 /*
  * libc/stdlib/malloc/free.c -- free function
  *
- *  Copyright (C) 2002  NEC Corporation
- *  Copyright (C) 2002  Miles Bader <miles@gnu.org>
+ *  Copyright (C) 2002,03  NEC Electronics Corporation
+ *  Copyright (C) 2002,03  Miles Bader <miles@gnu.org>
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
@@ -209,6 +209,9 @@ free_to_heap (void *mem, struct heap *heap)
 			    start, end - start);
 	  __heap_free (heap, (void *)start, end - start);
 	}
+
+      /* Finally release the lock for good.  */
+      __heap_unlock (heap);
 
       MALLOC_MMB_DEBUG_INDENT (-1);
 
