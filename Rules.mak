@@ -39,9 +39,11 @@ GCCINCDIR = ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1incl
 NATIVE_ARCH = ${shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g' \
 		-e 's/v850.*/v850/g'}
+ifeq ($(strip $(TARGET_ARCH)),)
 TARGET_ARCH=${shell $(CC) -dumpmachine | sed -e s'/-.*//' -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g' \
 		-e 's/v850.*/v850/g'}
+endif
 
 # Some nice architecture specific optimizations
 ifndef OPTIMIZATION
@@ -73,6 +75,7 @@ TARGET_CCFLAGS=--uclibc-use-build-dir $(WARNINGS) $(OPTIMIZATION) $(CPUFLAGS)
 CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
 TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 TARGET_CFLAGS=$(ARCH_CFLAGS) $(TARGET_CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
+NATIVE_CFLAGS=-O2 -Wall
 
 ifeq ($(strip $(DODEBUG)),true)
     CFLAGS += -g
