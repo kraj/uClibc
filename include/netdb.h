@@ -123,14 +123,16 @@ struct rpcent {
 #define __NETDB_MAXALIASES	35
 #define __NETDB_MAXADDRS	35
 
+#endif
+
 /*
  * Error return codes from gethostbyname() and gethostbyaddr()
  * (left in extern int h_errno).
  */
-#define h_errno		(*__h_errno_location ())
-#else
-extern int h_errno;
-#endif
+
+/* uClibc reuses errno for h_errno. */
+#include <errno.h>
+#define h_errno errno
 
 #define	NETDB_INTERNAL -1 /* see errno */
 #define	NETDB_SUCCESS   0 /* no problem */
