@@ -2,22 +2,24 @@
    Copyright (C) 1999 Free Software Foundation, Inc.
    Copyright (C) 2001 Hewlett-Packard Australia
 
-   This file is part of the GNU C Library.
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Library General Public License as published by the Free
+ Software Foundation; either version 2 of the License, or (at your option) any
+ later version.
 
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
+ details.
 
-   The GNU C Library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+ You should have received a copy of the GNU Library General Public License
+ along with this program; if not, write to the Free Software Foundation, Inc.,
+ 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+ Derived in part from the Linux-8086 C library, the GNU C Library, and several
+ other sundry sources.  Files within this library are copyright by their
+ respective copyright holders.
+*/
 
 /* This is the canonical entry point, usually the first thing in the text
    segment.
@@ -60,6 +62,15 @@ _start:
 	shll2 r6
 	add r5,r6
 
+	!			Clear BSS area
+	mov.l	3f, r1
+	add	#4, r1
+	mov.l	4f, r2
+	mov	#0, r0
+9:	cmp/hs	r2, r1
+	bf/s	9b		! while (r1 < r2)
+	 mov.l	r0,@-r2
+
 	/* call main */
 	mov.l L_main,r1
 	jsr @r1
@@ -71,6 +82,9 @@ _start:
 	nop
 
 	.align	2
+
+3:	.long	__bss_start
+4:	.long	_end
 
 L_main:
 	.long	__uClibc_main

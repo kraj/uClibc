@@ -32,10 +32,10 @@ TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
 CRT0=crt0.S
 CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 
-SSRC=setjmp.S bsd-setjmp.S bsd-_setjmp.S __longjmp.S
+SSRC=setjmp.S bsd-setjmp.S bsd-_setjmp.S __longjmp.S vfork.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=vfork.c _mmap.c longjmp.c jmp-unwind.c
+CSRC=_mmap.c longjmp.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
