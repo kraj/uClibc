@@ -176,9 +176,10 @@ install_dev:
 	install -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
 	install -d $(PREFIX)$(DEVEL_PREFIX)/usr/lib
 	install -d $(PREFIX)$(DEVEL_PREFIX)/include
-	cp -LR include/ $(PREFIX)$(DEVEL_PREFIX)/
+	tar -chO include | tar -xC $(PREFIX)$(DEVEL_PREFIX);
 	chmod 755 `find  $(PREFIX)$(DEVEL_PREFIX) -type d` 
 	chmod 644 `find  $(PREFIX)$(DEVEL_PREFIX)/include -name '*.h'` 
+	(NAME=`whoami`; chown -R $$NAME.$$NAME $(PREFIX)$(DEVEL_PREFIX))
 ifeq ($(strip $(HAVE_SHARED)),true)
 	find lib/ -type l -name '*.so' -exec cp -a {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
 endif
