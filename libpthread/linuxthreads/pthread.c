@@ -349,8 +349,10 @@ int __pthread_initialize_manager(void)
   NOMMU_INITIAL_THREAD_BOUNDS(__pthread_manager_thread_tos,__pthread_manager_thread_bos);
   PDEBUG("manager stack: size=%d, bos=%p, tos=%p\n", THREAD_MANAGER_STACK_SIZE,
 	 __pthread_manager_thread_bos, __pthread_manager_thread_tos);
+#if 0
   PDEBUG("initial stack: estimate bos=%p, tos=%p\n",
-	 __pthread_initial_thread_bos, __pthread_initial_thread_tos);
+  	 __pthread_initial_thread_bos, __pthread_initial_thread_tos);
+#endif
 
   /* Setup pipe to communicate with thread manager */
   if (pipe(manager_pipe) == -1) {

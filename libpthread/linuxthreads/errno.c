@@ -20,15 +20,29 @@
 #include <netdb.h>
 #include "pthread.h"
 #include "internals.h"
+#include <stdio.h>
+extern int _errno;
+extern int _h_errno;
 
 int * __errno_location()
 {
-  pthread_descr self = thread_self();
-  return THREAD_GETMEM (self, p_errnop);
+  /* check, if the library is initilize */
+  if (__pthread_initial_thread_bos != NULL)
+  {
+    pthread_descr self = thread_self();
+    return THREAD_GETMEM (self, p_errnop);
+  }
+  return &_errno;
 }
 
 int * __h_errno_location()
 {
-  pthread_descr self = thread_self();
-  return THREAD_GETMEM (self, p_h_errnop);
+  /* check, if the library is initilize */
+  if (__pthread_initial_thread_bos != NULL)
+  {
+    pthread_descr self = thread_self();
+
+    return THREAD_GETMEM (self, p_h_errnop);
+  }
+  return &_h_errno;        
 }
