@@ -38,7 +38,6 @@ static __inline__ uint32_t bswap_32(uint32_t x)
        uint32_t res;
 
        swab((void*)&x, (void*)&res, sizeof(uint32_t));
-       printf ("bswap_32: %x > %x\n",x,res);
        
        return res;
      }
@@ -48,7 +47,6 @@ static __inline__ uint16_t bswap_16(uint16_t x)
        uint16_t res;
 
        swab((void*)&x, (void*)&res, sizeof(uint16_t));
-       printf ("bswap_32: %x > %x\n",x,res);
        return res;
      }
 #endif
