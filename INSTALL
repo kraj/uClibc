@@ -30,7 +30,7 @@ CONFIGURING uClibc:
 	"make defconfig"    Use defaults for all options.
 	"make randconfig"   Use random values for all options.
 	"make allyesconfig" Set all values to "yes" for all options.
-	"make allnoconfig"  Set all values to "yes" for all options.
+	"make allnoconfig"  Set all values to "no" for all options.
 
  - uClibc does not have proper dependancy checking (yet) so if you
     change your uClibc configuration, you must current rebuild the
