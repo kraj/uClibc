@@ -217,7 +217,7 @@ int setuid(uid_t uid)
 //#define __NR_getuid           24
 #ifdef L_getuid
 #include <unistd.h>
-_syscall0(gid_t, getuid);
+_syscall0(uid_t, getuid);
 #endif
 
 //#define __NR_stime            25
