@@ -31,6 +31,13 @@
  *
  *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
 
+/* 4-01-2002
+ * Initialize thread locks for fake files in vsnprintf and vdprintf.
+ *    reported by Erik Andersen (andersen@codepoet.com)
+ * Fix an arg promotion handling bug in _do_one_spec for %c. 
+ *    reported by Ilguiz Latypov <ilatypov@superbt.com>
+ */
+
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE
@@ -1074,7 +1081,7 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 	}
 #endif
 	{
-		register char *s;
+		register char *s;		/* TODO: Should s be unsigned char * ? */
 
 		if (ppfs->conv_num == CONV_n) {
 			_store_inttype(*(void **)*argptr,
@@ -1172,7 +1179,7 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 				}
 			} else {			/* char */
 				s = (char *) buf;
-				*s = *((const char *) *argptr);
+				*s = (unsigned char)(*((const int *) *argptr));
 				s[1] = 0;
 				slen = 1;
 			}
