@@ -3,7 +3,7 @@
  * Syscalls for uClibc
  *
  * Copyright (C) 2000 by Lineo, inc
- * Copyright (C) 2001 by Erik Andersen
+ * Copyright (C) 2001, 2002 by Erik Andersen
  * Written by Erik Andersen <andersen@codpoet.org>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -572,18 +572,20 @@ _syscall2(int, sethostname, const char *, name, size_t, len);
 #define __NR___setrlimit __NR_setrlimit
 #include <unistd.h>
 #include <sys/resource.h>
+#define RMIN(x, y) ((x) < (y) ? (x) : (y))
 _syscall2(int, __setrlimit, int, resource, const struct rlimit *, rlim);
-int setrlimit (enum __rlimit_resource resource, const struct rlimit *rlimits)
+int setrlimit (__rlimit_resource_t resource, const struct rlimit *rlimits)
 {
 	struct rlimit rlimits_small;
 	/* We might have to correct the limits values.  Since the old values
 	 * were signed the new values might be too large.  */
-	rlimits_small.rlim_cur = MIN ((unsigned long int) rlimits->rlim_cur,
-			RLIM_INFINITY >> 1);
-	rlimits_small.rlim_max = MIN ((unsigned long int) rlimits->rlim_max,
-			RLIM_INFINITY >> 1);
+	rlimits_small.rlim_cur = RMIN ((unsigned long int) rlimits->rlim_cur,
+				       RLIM_INFINITY >> 1);
+	rlimits_small.rlim_max = RMIN ((unsigned long int) rlimits->rlim_max,
+				       RLIM_INFINITY >> 1);
 	return(__setrlimit(resource, &rlimits_small));
 }
+#undef RMIN
 #endif
 #else /* We don't need to wrap setrlimit */
 #ifdef L_setrlimit
@@ -601,10 +603,10 @@ _syscall2(int, setrlimit, int, resource, const struct rlimit *, rlim);
 #include <unistd.h>
 #include <sys/resource.h>
 _syscall2(int, __getrlimit, int, resource, struct rlimit *, rlim);
-int getrlimit (enum __rlimit_resource resource, struct rlimit *rlim)
+int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
 {
 	int result;
-	result = __getrlimit(resource, rlim);
+	result = __getrlimit(resource, rlimits);
 
 	if (result == -1)
 		return result;
@@ -1446,6 +1448,7 @@ _syscall4(ssize_t,sendfile, int, out_fd, int, in_fd, __off_t *, offset, size_t, 
 
 //#define __NR_ugetrlimit		191	/* SuS compliant getrlimit */
 #ifdef L___ugetrlimit
+#ifdef __NR_ugetrlimit
 #define __NR___ugetrlimit __NR_ugetrlimit
 #include <unistd.h>
 #include <sys/resource.h>
@@ -1454,7 +1457,9 @@ int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
 {
 	return(__ugetrlimit(resource, rlimits));
 }
+#endif /* __NR_ugetrlimit */
 #endif
+
 
 //#define __NR_mmap2		192
 
