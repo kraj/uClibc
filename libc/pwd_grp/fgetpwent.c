@@ -32,7 +32,7 @@ int fgetpwent_r (FILE *file, struct passwd *password,
 	char *buff, size_t buflen, struct passwd **crap)
 {
 	if (file == NULL) {
-		errno = EINTR;
+		__set_errno(EINTR);
 		return -1;
 	}
 	return(__getpwent_r(password, buff, buflen, fileno(file)));

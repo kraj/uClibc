@@ -25,7 +25,7 @@
 struct group *fgetgrent(FILE * file)
 {
 	if (file == NULL) {
-		errno = EINTR;
+		__set_errno(EINTR);
 		return NULL;
 	}
 

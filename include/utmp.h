@@ -45,7 +45,7 @@ extern struct utmp *    getutline __P ((struct utmp *));
 extern struct utmp *    pututline __P ((struct utmp *));
 extern void             endutent __P ((void));
 
-#ifdef __LIBC__
+#ifdef _LIBC
 struct utmp *           __getutent __P ((int));
 #endif
 

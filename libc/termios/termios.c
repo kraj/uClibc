@@ -88,7 +88,7 @@ int tcsendbreak( int fd, int duration)
 	 * changed to use trickery (e.g. lower speed and send a '\0') to send
 	 * the break, but for now just return an error.
 	 */
-	errno = EINVAL;
+	__set_errno(EINVAL);
 	return -1;
 }
 #endif
@@ -151,7 +151,7 @@ int cfsetospeed  (struct termios *termios_p, speed_t speed)
     if ((speed & ~CBAUD) != 0
 	    && (speed < B57600 || speed > B460800))
     {
-	errno=EINVAL;
+	__set_errno(EINVAL);
 	return -1;
     }
 
@@ -172,7 +172,7 @@ int cfsetispeed ( struct termios *termios_p, speed_t speed)
     if ((speed & ~CBAUD) != 0
 	    && (speed < B57600 || speed > B460800))
     {
-	errno=EINVAL;
+	__set_errno(EINVAL);
 	return -1;
     }
 

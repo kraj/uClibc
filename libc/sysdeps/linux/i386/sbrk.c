@@ -20,15 +20,15 @@ sbrk(ptrdiff_t increment)
                           "int $0x80\n\t"
                           "popl %%ebx"
 		:"=a" (___brk_addr)
-		:"0" (SYS_brk),"c" (tmp));
+		:"0" (__NR_brk),"c" (tmp));
 #else
 	__asm__ volatile ("int $0x80"
 		:"=a" (___brk_addr)
-		:"0" (SYS_brk),"b" (tmp));
+		:"0" (__NR_brk),"b" (tmp));
 #endif
 	if (___brk_addr == tmp)
 		return tmp-increment;
-	errno = ENOMEM;
+	__set_errno(ENOMEM);
 	return ((void *) -1);
     }
     return ((void *) -1);

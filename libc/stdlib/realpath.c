@@ -60,7 +60,7 @@ char resolved_path[];
 
 	/* Make a copy of the source path since we may need to modify it. */
 	if (strlen(path) >= PATH_MAX - 2) {
-		errno = ENAMETOOLONG;
+		__set_errno(ENAMETOOLONG);
 		return NULL;
 	}
 	strcpy(copy_path, path);
@@ -110,7 +110,7 @@ char resolved_path[];
 		/* Safely copy the next pathname component. */
 		while (*path != '\0' && *path != '/') {
 			if (path > max_path) {
-				errno = ENAMETOOLONG;
+				__set_errno(ENAMETOOLONG);
 				return NULL;
 			}
 			*new_path++ = *path++;
@@ -118,7 +118,7 @@ char resolved_path[];
 #ifdef S_IFLNK
 		/* Protect against infinite loops. */
 		if (readlinks++ > MAX_READLINKS) {
-			errno = ELOOP;
+			__set_errno(ELOOP);
 			return NULL;
 		}
 		/* See if latest pathname component is a symlink. */
@@ -143,7 +143,7 @@ char resolved_path[];
 				while (*(--new_path) != '/');
 			/* Safe sex check. */
 			if (strlen(path) + n >= PATH_MAX - 2) {
-				errno = ENAMETOOLONG;
+				__set_errno(ENAMETOOLONG);
 				return NULL;
 			}
 			/* Insert symlink contents into path. */

@@ -18,15 +18,15 @@ int brk(void * end_data_seg)
 			  "int $0x80\n\t"
 			  "popl %%ebx"
 		:"=a" (___brk_addr)
-		:"0" (SYS_brk),"c" (end_data_seg));
+		:"0" (__NR_brk),"c" (end_data_seg));
 #else
 	__asm__ volatile ("int $0x80"
 		:"=a" (___brk_addr)
-		:"0" (SYS_brk),"b" (end_data_seg));
+		:"0" (__NR_brk),"b" (end_data_seg));
 #endif
 	if (___brk_addr == end_data_seg)
 		return 0;
-	errno = ENOMEM;
+	__set_errno(ENOMEM);
     }
     return -1;
 }

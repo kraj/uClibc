@@ -52,8 +52,8 @@
  *    a constant.  The pagesize on the target arch should not vary,
  *    so it should be safe to set this as 0.
  */
-#define RETURN_NEG_1 errno = ENOSYS; return -1
-#define RETURN_FUNCTION(f) errno = EISNAM ; return (long int) #f
+#define RETURN_NEG_1 __set_errno(ENOSYS); return -1
+#define RETURN_FUNCTION(f) __set_errno(EISNAM); return (long int) #f
 #define GETPAGESIZE_IS_DYNAMIC 0
 #else
 #define RETURN_NEG_1 return -1
@@ -66,7 +66,7 @@ long int sysconf(int name)
   switch (name)
     {
     default:
-      errno=EINVAL;
+      __set_errno(EINVAL);
       return -1;
 
     case _SC_ARG_MAX:
@@ -935,7 +935,7 @@ int main(void)
 	}
 
 	for (i=0; i<_UCLIBC_SYSCONF_NUM_VALID_ARGS ; i++) {
-		errno = 0;
+		__set_errno(0);
 		r = ret_vals[i] = sysconf(i);
 		switch(errno) {
 			case EINVAL:		/* we're missing a case! */

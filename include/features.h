@@ -15,7 +15,7 @@
  *  their developers intended.  This is IMHO, pardonable, since these defines
  *  are not really intended to check for the presence of a particular library,
  *  but rather are used to define an _interface_.  */
-#if !defined __LIBC__ || defined __FORCE_GLIBC__ 
+#if !defined _LIBC || defined __FORCE_GLIBC__ 
 #   define __GNU_LIBRARY__ 6
 #   define __GLIBC__       2
 #   define __GLIBC_MINOR__ 1

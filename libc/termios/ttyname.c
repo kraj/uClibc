@@ -17,7 +17,7 @@ int fd;
 	if (fstat(fd, &st) < 0)
 		return 0;
 	if (!isatty(fd)) {
-		errno = ENOTTY;
+		__set_errno(ENOTTY);
 		return 0;
 	}
 
@@ -32,11 +32,11 @@ int fd;
 		if (stat(name, &dst) == 0
 			&& st.st_dev == dst.st_dev && st.st_ino == dst.st_ino) {
 			closedir(fp);
-			errno = noerr;
+			__set_errno(noerr);
 			return name;
 		}
 	}
 	closedir(fp);
-	errno = noerr;
+	__set_errno(noerr);
 	return 0;
 }

@@ -137,7 +137,7 @@ unsigned long long _strto_ll(const char *str, char **endptr, int base, int uflag
 		negative = 0; /* since unsigned returns ULONG_LONG_MAX */
 	    }
 #if _STRTO_ERRNO
-	    errno = ERANGE;
+	    __set_errno(ERANGE);
 #endif
 	} else {
 	    number = number * base + digit;
@@ -155,7 +155,7 @@ unsigned long long _strto_ll(const char *str, char **endptr, int base, int uflag
     if (negative) {
 	if (!uflag && (number > ((unsigned long long)(-(1+LONG_LONG_MIN)))+1)) {
 #if _STRTO_ERRNO
-	    errno = ERANGE;
+	    __set_errno(ERANGE);
 #endif
 	    return (unsigned long long) LONG_LONG_MIN;
 	}
@@ -163,7 +163,7 @@ unsigned long long _strto_ll(const char *str, char **endptr, int base, int uflag
     } else {
 	if (!uflag && (number > (unsigned long long) LONG_LONG_MAX)) {
 #if _STRTO_ERRNO
-	    errno = ERANGE;
+	    __set_errno(ERANGE);
 #endif
 	    return LONG_LONG_MAX;
 	}

@@ -23,7 +23,7 @@
 int sigdelset ( sigset_t *set, int signo)
 {
   if (set == NULL || signo <= 0 || signo >= NSIG) {
-      errno = EINVAL;
+      __set_errno(EINVAL);
       return -1;
     }
 

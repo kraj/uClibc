@@ -14,7 +14,7 @@ struct dirent *readdir(DIR * dir)
 	struct dirent *de;
 
 	if (!dir) {
-		errno = EBADF;
+		__set_errno(EBADF);
 		return NULL;
 	}
 
@@ -37,7 +37,7 @@ struct dirent *readdir(DIR * dir)
 					dir->dd_getdents = no_getdents;
 					abort();
 				}
-				errno = result;
+				__set_errno(result);
 			}
 
 			return NULL;
@@ -63,7 +63,7 @@ struct dirent *readdir(DIR * dir)
 	if (strlen((char *) &de->d_type) > 10)
 		de->d_name[10] = 0;
 	strcpy(dir->dd_buf->d_name, (char *) &de->d_name);
-	errno = 0;
+	__set_errno(0);
 
 	return dir->dd_buf;
 }

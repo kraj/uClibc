@@ -17,7 +17,7 @@ int sethostid(long int new_id)
 	int fd;
 	int ret;
 
-	if (geteuid() || getuid()) return errno=EPERM;
+	if (geteuid() || getuid()) return __set_errno(EPERM);
 	if ((fd=open(HOSTID,O_CREAT|O_WRONLY,0644))<0) return -1;
 	ret = write(fd,(void *)&new_id,sizeof(new_id)) == sizeof(new_id)
 		? 0 : -1;

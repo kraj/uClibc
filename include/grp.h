@@ -27,7 +27,7 @@ extern int setgroups __P ((size_t n, __const gid_t * groups));
 extern int initgroups __P ((__const char * user, gid_t gid));
 
 
-#ifdef __LIBC__
+#ifdef _LIBC
 extern struct group * __getgrent __P ((int grp_fd));
 #endif
 

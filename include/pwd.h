@@ -47,7 +47,7 @@ extern int fgetpwent_r __P ((FILE *__restrict __stream,
 			     char *__restrict __buffer, size_t __buflen,
 			     struct passwd **__restrict __result));
 
-#ifdef __LIBC__
+#ifdef _LIBC
 /* This is used internally to uClibc */
 extern int __getpwent_r(struct passwd * passwd, char * line_buff, 
 	size_t buflen, int pwd_fd);

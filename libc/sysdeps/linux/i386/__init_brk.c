@@ -17,15 +17,15 @@ __init_brk ()
 			  "int $0x80\n\t"
 			  "popl %%ebx"
 		:"=a" (___brk_addr)
-		:"0" (SYS_brk));
+		:"0" (__NR_brk));
 #else
 	__asm__ volatile ("int $0x80"
 		:"=a" (___brk_addr)
-		:"0" (SYS_brk),"b" (0));
+		:"0" (__NR_brk),"b" (0));
 #endif
 	if (___brk_addr == 0)
 	{
-	  errno = ENOMEM;
+	  __set_errno(ENOMEM);
 	  return -1;
 	}
     }

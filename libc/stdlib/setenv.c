@@ -83,7 +83,7 @@ int setenv(const char *name, const char *value, int replace)
       if (new_environ[size] == NULL)
 	{
 	  free (new_environ);
-	  errno = ENOMEM;
+	  __set_errno(ENOMEM);
 	  result = -1;
 	  goto do_return;
 	}

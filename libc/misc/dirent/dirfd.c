@@ -4,7 +4,7 @@
 int dirfd(DIR * dir)
 {
 	if (!dir || dir->dd_fd == -1) {
-		errno = EBADF;
+		__set_errno(EBADF);
 		return -1;
 	}
 

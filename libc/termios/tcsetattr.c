@@ -69,7 +69,7 @@ tcsetattr (fd, optional_actions, termios_p)
       cmd = TCSETSF;
       break;
     default:
-      errno=EINVAL;
+      __set_errno(EINVAL);
       return -1;
     }
 
@@ -99,7 +99,7 @@ tcsetattr (fd, optional_actions, termios_p)
 	{
 	  /* We cannot verify if the setting is ok. We don't return
 	     an error (?). */
-	  errno=save;
+	  __set_errno(save);
 	  retval = 0;
 	}
       else if ((termios_p->c_cflag & (PARENB | CREAD))
@@ -111,7 +111,7 @@ tcsetattr (fd, optional_actions, termios_p)
 	  /* It looks like the Linux kernel silently changed the
 	     PARENB/CREAD/CSIZE bits in c_cflag. Report it as an
 	     error. */
-	  errno=EINVAL;
+	  __set_errno(EINVAL);
 	  retval = -1;
 	}
     }

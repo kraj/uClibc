@@ -42,7 +42,7 @@ char **cfgread(FILE * fp)
 	int i;
 
 	if (!fp) {
-		errno = EIO;
+		__set_errno(EIO);
 		return (void *) 0;
 	}
 
@@ -73,7 +73,7 @@ char **cfgfind(FILE * fp, char *var)
 	char search[80];
 
 	if (!fp || !var) {
-		errno = EIO;
+		__set_errno(EIO);
 		return (void *) 0;
 	}
 

@@ -8,7 +8,7 @@ off_t telldir(DIR * dir)
 	off_t offset;
 
 	if (!dir) {
-		errno = EBADF;
+		__set_errno(EBADF);
 		return -1;
 	}
 
@@ -27,7 +27,7 @@ off_t telldir(DIR * dir)
 		break;
 
 	default:
-		errno = EBADF;
+		__set_errno(EBADF);
 		offset = -1;
 	}
 

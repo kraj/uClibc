@@ -139,7 +139,7 @@ int _xmknod (int version, const char * path, mode_t mode, dev_t *dev)
 		case 1:
 			return mknod (path, mode, *dev);
 		default:
-			errno = EINVAL;
+			__set_errno(EINVAL);
 			return -1;
 	}
 }

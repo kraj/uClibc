@@ -15,13 +15,13 @@ char *template;
 	struct stat stbuf;
 
 	if (l < 6) {
-		errno = EINVAL;
+		__set_errno(EINVAL);
 		return 0;
 	}
 
 	for (i = l - 6; i < l; i++)
 		if (template[i] != 'X') {
-			errno = EINVAL;
+			__set_errno(EINVAL);
 			return 0;
 		}
 

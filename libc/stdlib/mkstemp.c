@@ -13,13 +13,13 @@ char *template;
 	int l = strlen(template);
 
 	if (l < 6) {
-		errno = EINVAL;
+		__set_errno(EINVAL);
 		return -1;
 	}
 
 	for (i = l - 6; i < l; i++)
 		if (template[i] != 'X') {
-			errno = EINVAL;
+			__set_errno(EINVAL);
 			return -1;
 		}
 

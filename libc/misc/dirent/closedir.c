@@ -9,13 +9,13 @@ int closedir(DIR * dir)
 	int fd;
 
 	if (!dir) {
-		errno = EBADF;
+		__set_errno(EBADF);
 		return -1;
 	}
 
 	/* We need to check dd_fd. */
 	if (dir->dd_fd == -1) {
-		errno = EBADF;
+		__set_errno(EBADF);
 		return -1;
 	}
 	fd = dir->dd_fd;

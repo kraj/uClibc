@@ -9,7 +9,7 @@ int seteuid(uid_t uid)
   case 2:
     if (uid == 65535)
     {
-      errno = EINVAL;
+      __set_errno(EINVAL);
       return -1;
     }
     break;

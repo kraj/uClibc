@@ -21,7 +21,7 @@ DIR *opendir(const char *name)
 	if (stat(name, &statbuf))
 		return NULL;
 	if (!S_ISDIR(statbuf.st_mode)) {
-		errno = ENOTDIR;
+		__set_errno(ENOTDIR);
 		return NULL;
 	}
 	if ((fd = open(name, O_RDONLY)) < 0)
@@ -33,7 +33,7 @@ DIR *opendir(const char *name)
 		return NULL;
 	if (!(ptr = malloc(sizeof(*ptr)))) {
 		close(fd);
-		errno = ENOMEM;
+		__set_errno(ENOMEM);
 		return NULL;
 	}
 
@@ -44,7 +44,7 @@ DIR *opendir(const char *name)
 	if (!(buf = malloc(ptr->dd_max))) {
 		close(fd);
 		free(ptr);
-		errno = ENOMEM;
+		__set_errno(ENOMEM);
 		return NULL;
 	}
 	ptr->dd_fd = fd;

@@ -21,7 +21,7 @@ FILE *popen (const char *command, const char *mode)
 
 	reading = (mode[0] == 'r');
 	if ((!reading && (mode[0] != 'w')) || mode[1]) {
-		errno = EINVAL;			/* Invalid mode arg. */
+		__set_errno(EINVAL);			/* Invalid mode arg. */
 	} else if (pipe(pipe_fd) == 0) {
 		pr = pipe_fd[reading];
 		pnr = pipe_fd[1-reading];

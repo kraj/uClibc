@@ -42,7 +42,7 @@ int flock( int fd, int operation)
 		lbuf.l_type = F_UNLCK;
 		break;
 	default:
-		errno = EINVAL;
+		__set_errno(EINVAL);
 		return -1;
 	}
 

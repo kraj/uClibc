@@ -43,14 +43,14 @@ ssize_t getdelim(char **linebuf, size_t *linebufsz, int delimiter, FILE *file)
 
 	if ((file == NULL || linebuf==NULL || *linebuf == NULL || *linebufsz == 0)
 			&& !(*linebuf == NULL && *linebufsz ==0 )) {
-	    errno=EINVAL;
+	    __set_errno(EINVAL);
 	    return -1;
 	}
 
 	if (*linebuf == NULL && *linebufsz == 0){
 		*linebuf = malloc(GROWBY);
 		if (!*linebuf) {
-			errno=ENOMEM;
+			__set_errno(ENOMEM);
 			return -1;
 		}
 		*linebufsz += GROWBY;
@@ -64,7 +64,7 @@ ssize_t getdelim(char **linebuf, size_t *linebufsz, int delimiter, FILE *file)
 		while (idx > *linebufsz-2) {
 			*linebuf = realloc(*linebuf, *linebufsz += GROWBY);
 			if (!*linebuf) {
-				errno=ENOMEM;
+				__set_errno(ENOMEM);
 				return -1;
 			}
 		}

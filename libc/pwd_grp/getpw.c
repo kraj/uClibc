@@ -28,7 +28,7 @@ int getpw(uid_t uid, char *buf)
 	struct passwd *passwd;
 
 	if (buf == NULL) {
-		errno = EINVAL;
+		__set_errno(EINVAL);
 		return -1;
 	}
 	if ((passwd = getpwuid(uid)) == NULL)
@@ -38,7 +38,7 @@ int getpw(uid_t uid, char *buf)
 		(buf, "%s:%s:%u:%u:%s:%s:%s", passwd->pw_name, passwd->pw_passwd,
 		 passwd->pw_gid, passwd->pw_uid, passwd->pw_gecos, passwd->pw_dir,
 		 passwd->pw_shell) < 0) {
-		errno = ENOBUFS;
+		__set_errno(ENOBUFS);
 		return -1;
 	}
 

@@ -25,7 +25,7 @@
 int putpwent(const struct passwd *passwd, FILE * f)
 {
 	if (passwd == NULL || f == NULL) {
-		errno = EINVAL;
+		__set_errno(EINVAL);
 		return -1;
 	}
 	if (fprintf

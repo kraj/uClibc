@@ -25,7 +25,7 @@ int
 sigemptyset ( sigset_t *set)
 {
   if (set == NULL) {
-      errno = EINVAL;
+      __set_errno(EINVAL);
       return -1;
     }
 

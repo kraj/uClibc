@@ -62,14 +62,14 @@ struct sockaddr_in *sin;
 		bzero(sin, sizeof(*sin));
 		sin->sin_family = AF_INET;
 	} else if (sin->sin_family != AF_INET) {
-		errno = EPFNOSUPPORT;
+		__set_errno(EPFNOSUPPORT);
 		return (-1);
 	}
 	if (port == 0) {
 		port = (getpid() % NPORTS) + STARTPORT;
 	}
 	res = -1;
-	errno = EADDRINUSE;
+	__set_errno(EADDRINUSE);
 	for (i = 0; i < NPORTS && res < 0 && errno == EADDRINUSE; i++) {
 		sin->sin_port = htons(port++);
 		if (port > ENDPORT) {

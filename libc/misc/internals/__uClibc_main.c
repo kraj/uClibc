@@ -64,7 +64,7 @@ void __uClibc_main(int argc, char **argv, char **envp)
 	 * have resulted in errno being set nonzero, so set it to 0 before
 	 * we call main.
 	 */
-	errno = 0;
+	__set_errno(0);
 
 	/*
 	 * Finally, invoke application's main and then exit.

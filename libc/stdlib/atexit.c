@@ -51,7 +51,7 @@ static void atexit_handler(void)
 int atexit(vfuncp ptr)
 {
 	if ((__uClibc_cleanup == 0) || (__atexit_count >= __UCLIBC_MAX_ATEXIT)) {
-		errno = ENOMEM;
+		__set_errno(ENOMEM);
 		return -1;
 	}
 	if (ptr) {

@@ -38,7 +38,7 @@ int getpwnam_r (const char *name, struct passwd *password,
 	int passwd_fd;
 
 	if (name == NULL) {
-		errno = EINVAL;
+		__set_errno(EINVAL);
 		return -1;
 	}
 

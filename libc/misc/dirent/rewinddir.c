@@ -7,7 +7,7 @@
 void rewinddir(DIR * dir)
 {
 	if (!dir) {
-		errno = EBADF;
+		__set_errno(EBADF);
 		return;
 	}
 	lseek(dir->dd_fd, 0, SEEK_SET);

@@ -17,7 +17,7 @@ __const char *src;
 	if (rv < 0 && errno == EISDIR)
 		rv = rmdir(src);
 	if (rv >= 0)
-		errno = er;
+		__set_errno(er);
 	return rv;
 }
 

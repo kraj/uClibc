@@ -248,7 +248,7 @@ double strtod(const char *str, char **endptr)
 
 #if _STRTOD_ERRNO
     if (_zero_or_inf_check(number)) {
-	errno=ERANGE;
+	__set_errno(ERANGE);
     }
 #endif
 

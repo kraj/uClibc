@@ -224,7 +224,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	 */
 
 	end = tbuf + sizeof(tbuf) - 1;
-	errno = saved_errno;
+	__set_errno(saved_errno);
 	p += vsnprintf(p, end - p, fmt, ap);
 	if (p >= end || p < head_end) {	/* Returned -1 in case of error... */
 		static char truncate_msg[12] = "[truncated] ";

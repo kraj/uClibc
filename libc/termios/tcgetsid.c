@@ -42,7 +42,7 @@ pid_t tcgetsid (int fd)
 	    if (errno == EINVAL)
 	    {
 		tiocgsid_does_not_work = 1;
-		errno=serrno;
+		__set_errno(serrno);
 	    }
 	    else
 		return (pid_t) -1;
@@ -58,7 +58,7 @@ pid_t tcgetsid (int fd)
 
     sid = getsid (pgrp);
     if (sid == -1 && errno == ESRCH)
-	errno=ENOTTY;
+	__set_errno(ENOTTY);
 
     return sid;
 }

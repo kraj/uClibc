@@ -42,7 +42,7 @@ unsigned long create_module(const char *name, size_t size)
 	/* Jump through hoops to fixup error return codes */
 	if (ret == -1 && errno > 125) {
 		ret = -errno;
-		errno = 0;
+		__set_errno(0);
 	}
 	return ret;
 }

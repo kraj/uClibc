@@ -9,14 +9,14 @@ gethostname(char *name, size_t len)
   struct utsname uts;
 
   if (name == NULL) {
-    errno = EINVAL;
+    __set_errno(EINVAL);
     return -1;
   }
 
   if (uname(&uts) == -1) return -1;
 
   if (strlen(uts.nodename)+1 > len) {
-    errno = EINVAL;
+    __set_errno(EINVAL);
     return -1;
   }
   strcpy(name, uts.nodename);

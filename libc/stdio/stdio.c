@@ -279,7 +279,7 @@ int fflush(FILE *fp)
 		 * ANSI says behavior in this case is undefined but also says you
 		 * shouldn't flush a stream you were reading from.
 		 */
-		errno = EBADF;			/* Should we set stream error indicator? */
+		__set_errno(EBADF);			/* Should we set stream error indicator? */
 		rv = -1;
 	}
 
@@ -560,7 +560,7 @@ int fseek(FILE *fp, long int offset, int ref)
 #endif
 
 	if ((ref < 0) || (ref > 2)) {
-		errno = EINVAL;
+		__set_errno(EINVAL);
 		return -1;
 	}
 
@@ -610,7 +610,7 @@ FILE *fp;
 			--pos;
 		}
 		if (pos < 0) {			/* ungetcs at start of file? */
-			errno = EIO;
+			__set_errno(EIO);
 			pos = -1;
 		}
 	}
@@ -666,7 +666,7 @@ const char *mode;
 			open_mode = (O_WRONLY | O_CREAT | O_APPEND);
 			break;
 		default:				/* illegal mode */
-			errno = EINVAL;
+			__set_errno(EINVAL);
 			goto _fopen_ERROR;
 	}
 
@@ -709,7 +709,7 @@ const char *mode;
 			fd = -1;
 		} else if (!(cur_mode & O_RDWR) 
 				   && ((cur_mode ^ open_mode) & O_ACCMODE)) {
-			errno = EINVAL;
+			__set_errno(EINVAL);
 			fd = -1;
 		}
 	}
@@ -1037,7 +1037,7 @@ int fgetpos(FILE *fp, fpos_t *pos)
 	fpos_t p;
 
 	if (!pos) {					/* NULL pointer. */
-		errno = EINVAL;
+		__set_errno(EINVAL);
 		return -1;
 	}
 
@@ -1056,7 +1056,7 @@ int fsetpos(FILE *fp, __const fpos_t *pos)
 	if (pos) {					/* Pointer ok. */
 		return fseek(fp, *pos, SEEK_SET);
 	}
-	errno = EINVAL;				/* NULL pointer. */
+	__set_errno(EINVAL);				/* NULL pointer. */
 	return EOF;
 }
 #endif

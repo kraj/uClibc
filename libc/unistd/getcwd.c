@@ -21,7 +21,7 @@ char *getcwd( char *buf, int size)
 	path_size = size;
 
 	if (size < 3) {
-		errno = ERANGE;
+		__set_errno(ERANGE);
 		return NULL;
 	}
 
@@ -59,7 +59,7 @@ static char *recurser()
 		return path_buf;
 	}
 	if (strlen(path_buf) + 4 > path_size) {
-		errno = ERANGE;
+		__set_errno(ERANGE);
 		return 0;
 	}
 	strcat(path_buf, "/..");
@@ -90,7 +90,7 @@ ino_t this_ino;
 	ptr = path_buf + slen - 1;
 	if (*ptr != '/') {
 		if (slen + 2 > path_size) {
-			errno = ERANGE;
+			__set_errno(ERANGE);
 			return 0;
 		}
 		strcpy(++ptr, "/");
@@ -105,7 +105,7 @@ ino_t this_ino;
 	while ((d = readdir(dp)) != 0) {
 		if (slow_search || this_ino == d->d_ino) {
 			if (slen + strlen(d->d_name) > path_size) {
-				errno = ERANGE;
+				__set_errno(ERANGE);
 				return 0;
 			}
 			strcpy(ptr + 1, d->d_name);
@@ -119,6 +119,6 @@ ino_t this_ino;
 	}
 
 	closedir(dp);
-	errno = ENOENT;
+	__set_errno(ENOENT);
 	return 0;
 }
