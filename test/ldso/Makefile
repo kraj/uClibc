@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2003 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -19,44 +19,26 @@
 TESTDIR=../
 include $(TESTDIR)/Rules.mak
 
-all: dltest2 dltest libhowdy.so run
-all: dlttest dlttest2 dltest2 dltest libhowdy.so run
+all: run
 
-dlttest.o: dlttest.c
-	$(CC) $(CFLAGS) -c dlttest.c -o dlttest.o
 
-dlttest2.o: dlttest.c
-	$(CC) $(CFLAGS) -DFORCE -c dlttest.c -o dlttest2.o
+dltest: dltest.c
+	$(CC) $(CFLAGS) -DLIBNAME="\"./libtest.so\"" dltest.c -ldl -lpthread -o dltest
 
-dltest2: dltest2.c
-	$(CC) $(CFLAGS) dltest2.c -o dltest2 -ldl
+libtest.so: libtest.c
+	$(CC) $(CFLAGS) -fPIC -shared -Wl,-soname,libtest.so libtest.c -o libtest.so
+
+# Second time, directly link libtest2.so with libpthread
+dltest2: dltest.c
+	$(CC) $(CFLAGS) -DLIBNAME="\"./libtest2.so\"" dltest.c -ldl -lpthread -o dltest2
+
+libtest2.so: libtest.c
+	$(CC) $(CFLAGS) -fPIC -shared -Wl,-soname,libtest2.so libtest.c -o libtest2.so -lpthread
+
+run: dltest libtest.so dltest2 libtest2.so
 	./dltest2
-
-dltest.o: dltest.c
-	$(CC) $(CFLAGS) -c dltest.c -o dltest.o
-
-howdy.o: howdy.c
-	$(CC) $(CFLAGS) -fPIC -c howdy.c -o howdy.o
-
-libhowdy.so: howdy.o
-	$(CC) $(CFLAGS) -shared -o libhowdy.so -Wl,-soname,libhowdy.so howdy.o
-
-dltest: dltest.o
-	$(CC) $(CFLAGS) -o dltest dltest.o -ldl
-
-dlttest: dlttest.o
-	$(CC) $(CFLAGS) -o dlttest dlttest.o -ldl -lpthread
-
-dlttest2: dlttest2.o
-	$(CC) $(CFLAGS) -o dlttest2 dlttest2.o -ldl -lpthread
-
-run: dltest dlttest dlttest2 libhowdy.so
-	@echo Running dltest
 	./dltest
-	@echo Running dlttest
-	./dlttest
-	@echo Running dlttest2
-	./dlttest2
 
 clean:
-	rm -f *.o *.so dltest2 dltest core libhowdy.so dlttest dlttest2
+	rm -f *.o dltest dltest2 libtest.so libtest2.so
+
