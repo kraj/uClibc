@@ -19,6 +19,7 @@
    modified for uClibc by Erik Andersen <andersen@codepoet.org>
    */
 
+#define _GNU_SOURCE
 #include <features.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -56,7 +57,7 @@ int __add_to_environ (const char *name, const char *value,
     const size_t namelen = strlen (name);
     const size_t vallen = value != NULL ? strlen (value) + 1 : 0;
 
-    pthread_mutex_lock(&envlock);
+    LOCK;
 
     /* We have to get the pointer now that we have the lock and not earlier
        since another thread might have created a new environment.  */

@@ -24,13 +24,19 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=localtime.c gmtime.c asctime.c ctime.c asc_conv.c tm_conv.c mktime.c \
-	localtime_r.c gmtime_r.c asctime_r.c ctime_r.c utimes.c adjtime.c \
-	clock.c difftime.c ftime.c strftime.c strptime.c __time_locale.c \
-	__time_static.c
+MSRC= time.c
+MOBJ= asctime.o asctime_r.o clock.o ctime.o ctime_r.o gmtime.o gmtime_r.o \
+	localtime.o localtime_r.o mktime.o strftime.o strptime.o tzset.o \
+	_time_t2tm.o __time_tm.o _time_mktime.o
 
+ifeq ($(HAS_FLOATING_POINT),true)
+	MOBJ += difftime.o 
+endif
+
+CSRC= adjtime.c ftime.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+
+OBJS=$(COBJS) $(MOBJ)
 
 all: $(OBJS) $(LIBC)
 
@@ -38,6 +44,10 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DTARGET_ARCH=$(TARGET_ARCH) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@

@@ -127,6 +127,7 @@ struct tm
   int tm_yday;			/* Days in year.[0-365]	*/
   int tm_isdst;			/* DST.		[-1/0/1]*/
 
+#if 0
 # ifdef	__USE_BSD
   long int tm_gmtoff;		/* Seconds east of UTC.  */
   __const char *tm_zone;	/* Timezone abbreviation.  */
@@ -134,6 +135,7 @@ struct tm
   long int __tm_gmtoff;		/* Seconds east of UTC.  */
   __const char *__tm_zone;	/* Timezone abbreviation.  */
 # endif
+#endif
 };
 
 
