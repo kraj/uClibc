@@ -64,7 +64,7 @@
 #include <sys/mman.h>
 #include <string.h>
 #include "malloc.h"
-
+#include <stdio.h>
 
 #define M_DOTRIMMING 1
 #define M_MULTITHREADED 0
@@ -168,8 +168,8 @@ void *__hunk_alloc(int size)
 	unsigned long *cpl;
 	int i, c;
 
-	if (size >= HUNK_THRESHOLD)
-		size = ALIGN(size);
+	//	if (size >= HUNK_THRESHOLD)
+	size = ALIGN(size);
 
 	/* Look for already allocated hunkblocks */
 	if ((p = __free_h[size]) == NULL) {
@@ -183,7 +183,10 @@ void *__hunk_alloc(int size)
 							 MAP_PRIVATE | MAP_ANONYMOUS
 #endif
 							 , 0, 0)) == (Hunk_t *) MAP_FAILED)
+		  // {
+		  //  printf("hunk_alloc failed: %d, %d\n", size, errno);
 			return NULL;
+		  // }
 		memset(p, 0, HUNK_MSIZE);
 		p->id = HUNK_ID;
 		p->total = __total_h[size];
@@ -195,31 +198,52 @@ void *__hunk_alloc(int size)
 	}
 
 	/* Locate free point in usagemap */
+	
+	/* First find a word where not all the bits are set */
 	for (cpl = (unsigned long *) usagemap(p); *cpl == 0xFFFFFFFF; cpl++);
+
+	/* Remember the byte position of that word */
 	i = ((unsigned char *) cpl) - usagemap(p);
+
+	/* Now find find a free bit in the word using binary search */
 	if (*(unsigned short *) cpl != 0xFFFF) {
+
 		if (*(unsigned char *) cpl == 0xFF) {
-			c = *(int *) (((unsigned char *) cpl) + 1);
+			c = *(((unsigned char *) cpl) + 1);
 			i++;
-		} else
-			c = *(int *) (unsigned char *) cpl;
+		}
+		else
+		  {
+		    c = *(unsigned char *) cpl;
+		  }
 	} else {
 		i += 2;
 		c = *(((unsigned char *) cpl) + 2);
 		if (c == 0xFF) {
-			c = *(int *) (((unsigned char *) cpl) + 3);
+			c = *(((unsigned char *) cpl) + 3);
 			i++;
 		}
 	}
+	
+	/*
+	 * Multiply i by 8 for the bit position
+	 * Further down, we divide by 8 again to find the byte position
+	 */
 	EMUL8(i);
+	
+	/* If bottom nibble is set, shift down the top nibble */
 	if ((c & 0xF) == 0xF) {
 		c >>= 4;
 		i += 4;
 	}
+	
+	/* If bottom 2 bits are set, shift down the top two */
 	if ((c & 0x3) == 0x3) {
 		c >>= 2;
 		i += 2;
 	}
+	
+	/* Check which one of the two bits is set */
 	if (c & 1)
 		i++;
 
@@ -230,6 +254,8 @@ void *__hunk_alloc(int size)
 		__free_h[p->size] = p->next;
 		p->next = NULL;
 	}
+	
+	// fprintf(stderr, "hunk_alloc: i=%d, p->size=%d, p=%p\n", i, p->size, p);
 	return hunk_ptr(p) + i * p->size;
 }
 #endif							/* L_malloc */
@@ -636,6 +662,7 @@ void __malloc_init(void)
 	}
 	mutex_init(&malloc_lock);
 	__malloc_initialized = 1;
+	// fprintf(stderr, "malloc_init: hunk_t=%d\n", sizeof(Hunk_t));
 }
 #endif							/* L__malloc_init */
 
@@ -662,6 +689,7 @@ void *malloc(size_t size)
 	if (__malloc_initialized)
 		mutex_unlock(&malloc_lock);
 
+	// fprintf(stderr, "malloc returning: s=%d, p=%p\n", size, p);
 	return p;
 }
 #endif							/* L_malloc */
