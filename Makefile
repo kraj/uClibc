@@ -182,7 +182,7 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 tags:
 	ctags -R
 
-install: install_dev install_runtime install_toolchain
+install: install_dev install_runtime install_toolchain install_utils
 
 
 # Installs header files and development library links.
@@ -224,6 +224,8 @@ install_toolchain:
 	install -d $(PREFIX)$(DEVEL_PREFIX)/bin
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
 	$(MAKE) -C extra/gcc-uClibc install
+
+install_utils:
 ifeq ($(strip $(HAVE_SHARED)),true)
 	@$(MAKE) -C ldso utils
 	install -m 755 ldso/util/ldd $(PREFIX)$(DEVEL_PREFIX)/bin
@@ -238,7 +240,6 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	fi;
 endif
 
-
 # Installs run-time libraries and helper apps in preparation for
 # deploying onto a target system, but installed below wherever
 # $PREFIX is set to, allowing you to package up the result for
@@ -250,8 +251,6 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin
 	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(TARGET_PREFIX)/lib
 	cp -a lib/*.so.* $(PREFIX)$(TARGET_PREFIX)/lib
-	install -m 755 ldso/util/ldd $(PREFIX)$(TARGET_PREFIX)/usr/bin
-	install -m 755 ldso/util/readelf $(PREFIX)$(TARGET_PREFIX)/usr/bin
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
 	    set -x -e; \
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(TARGET_PREFIX)/lib; \
@@ -259,10 +258,16 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	    ln -s $(TARGET_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so \
 	    		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) || true; \
 	fi;
-	@if [ -x ldso/util/ldconfig ] ; then \
+endif
+
+install_target_utils:
+ifeq ($(strip $(HAVE_SHARED)),true)
+	install -m 755 ldso/util/ldd.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/ldd
+	install -m 755 ldso/util/readelf.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/readelf
+	@if [ -x ldso/util/ldconfig.target ] ; then \
 	    set -x -e; \
 	    install -d $(PREFIX)$(TARGET_PREFIX)/etc; \
-	    install -m 755 ldso/util/ldconfig $(PREFIX)$(TARGET_PREFIX)/sbin; \
+	    install -m 755 ldso/util/ldconfig.target $(PREFIX)$(TARGET_PREFIX)/sbin/ldconfig; \
 	fi;
 endif
 
