@@ -24,6 +24,7 @@
 #include <features.h>
 #include <signal.h>
 #include <sys/procfs.h>
+#include <bits/sigcontext.h>
 
 typedef int greg_t;
 
