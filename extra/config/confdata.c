@@ -148,17 +148,24 @@ int conf_read(const char *name)
 				break;
 			}
 			switch (sym->type) {
-			case S_TRISTATE:
-				if (p[0] == 'm')
-					sym->def = symbol_mod.curr;
-				else
+  			case S_TRISTATE:
+				if (p[0] == 'm') {
+					S_TRI(sym->def) = mod;
+					sym->flags &= ~SYMBOL_NEW;
+					break;
+				}
 			case S_BOOLEAN:
-				if (p[0] == 'n')
-					sym->def = symbol_no.curr;
-				else
-					sym->def = symbol_yes.curr;
-				sym->flags &= ~SYMBOL_NEW;
-				break;
+				if (p[0] == 'y') {
+					S_TRI(sym->def) = yes;
+					sym->flags &= ~SYMBOL_NEW;
+					break;
+				}
+				if (p[0] == 'n') {
+					S_TRI(sym->def) = no;
+					sym->flags &= ~SYMBOL_NEW;
+					break;
+				}
+  				break;
 			case S_STRING:
 				if (*p++ != '"')
 					break;

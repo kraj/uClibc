@@ -61,24 +61,28 @@ void sym_init(void)
 
 	uname(&uts);
 
+#if 0
 	sym = sym_lookup("ARCH", 0);
 	sym->type = S_STRING;
 	sym->flags |= SYMBOL_AUTO;
 	p = getenv("ARCH");
 	if (p)
 		sym_add_default(sym, p);
+#endif
 
-	sym = sym_lookup("KERNELRELEASE", 0);
+	sym = sym_lookup("VERSION", 0);
 	sym->type = S_STRING;
 	sym->flags |= SYMBOL_AUTO;
-	p = getenv("KERNELRELEASE");
+	p = getenv("VERSION");
 	if (p)
 		sym_add_default(sym, p);
 
+#if 0
 	sym = sym_lookup("UNAME_RELEASE", 0);
 	sym->type = S_STRING;
 	sym->flags |= SYMBOL_AUTO;
 	sym_add_default(sym, uts.release);
+#endif
 
 	sym = sym_lookup("TARGET_ARCH", 0);
 	sym->type = S_STRING;
