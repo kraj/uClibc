@@ -26,7 +26,7 @@ DIRS:=
 
 CSRC=execl.c execlp.c execv.c execvep.c execvp.c execle.c getcwd.c getopt.c \
 	sleep.c getpass.c sysconf_src.c getopt_vars.c getlogin.c fpathconf.c \
-	confstr.c
+	confstr.c pathconf.c
 ifeq ($(strip $(HAS_MMU)),true)
     CSRC+=daemon.c
 endif
