@@ -80,11 +80,16 @@ weak_alias (__libc_write, __write)
 #ifdef L___syscall_open
 #define __NR___syscall_open __NR_open
 #include <stdarg.h>
-/* Do not include fcntl.h, so gcc doesn't whine the prototype */
+#include <fcntl.h>
 static inline
 _syscall3(int, __syscall_open, const char *, fn, int, flags, __kernel_mode_t, mode);
-int __libc_open (const char * fn, int flags, mode_t mode)
+int __libc_open (const char * fn, int flags, ...)
 {
+      va_list ap;
+      mode_t mode;
+      va_start(ap, flags);
+	  mode = va_arg(ap, mode_t);
+	  va_end(ap);
 	  return __syscall_open(fn, flags, mode);
 }
 
