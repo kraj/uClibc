@@ -50,6 +50,15 @@ TODO list for the uClibc 1.0.0 release:
 	memory for destructors, which happens since the dynamic linker calls
 	atexit(), which calls malloc() prior to valgrind starting, so valgrind
 	complains because it didn't see that memory allocated.
+    *) From the the ELF spec "...All shared object initializations happen
+	before the executable file gains control.  ...  Before the initialization
+	code for any object A is called, the initialization code for any other
+	objects that object A depends on are called.  For these purposes, an object
+	A depends on another object B, if B appears in Ads list of needed objects
+	(recorded in the DT_NEEDED entries of the dynamic structure). The order of
+	initialization for circular dependencies is undefined."  uClibc's shared
+	lib loader should be fixed to run ctors in the specified order.
+
 
 
 -----------------------------------------------------------------------------
