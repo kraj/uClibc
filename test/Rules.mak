@@ -48,8 +48,8 @@ ifeq ($(DODEBUG),true)
     GLIBC_LDFLAGS =-Wl,-warn-common 
     STRIPTOOL =/bin/true -Since_we_are_debugging
 else
-    CFLAGS  +=-fomit-frame-pointer
-    GLIBC_CFLAGS  +=-fomit-frame-pointer
+    CFLAGS  +=$(WARNINGS) $(OPTIMIZATION) -fomit-frame-pointer
+    GLIBC_CFLAGS  +=$(WARNINGS) $(OPTIMIZATION) -fomit-frame-pointer
     LDFLAGS  =-s -Wl,-warn-common
     GLIBC_LDFLAGS  =-s -Wl,-warn-common
     STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $(PROG)
