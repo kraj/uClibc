@@ -19,7 +19,6 @@ OBJ=$(TOBJ) ttyname.o
 #  ttyname.o
 
 all: $(LIBC)
-	@$(RM) $(OBJ)
 
 $(LIBC): $(LIBC)($(OBJ))
 

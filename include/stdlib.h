@@ -14,8 +14,14 @@
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
 
+/* Call all functions registered with `atexit' and `on_exit',
+ * in the reverse of the order in which they were registered
+ * perform stdio cleanup, and terminate program execution with STATUS.  */
 extern void exit __P ((int __status)) __attribute__ ((__noreturn__));
+/* Register a function to be called when `exit' is called.  */
 extern int atexit __P ((void (*__func) (void)));
+/* Abort execution and generate a core-dump.  */
+extern void abort __P ((void)) __attribute__ ((__noreturn__));
 
 extern void * malloc __P ((size_t));
 extern void * calloc __P ((size_t, size_t));

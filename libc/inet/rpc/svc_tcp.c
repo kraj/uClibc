@@ -41,13 +41,11 @@ static char sccsid[] = "@(#)svc_tcp.c 1.21 87/08/11 Copyr 1984 Sun Micro";
  * and a record/tcp stream.
  */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <rpc/rpc.h>
 #include <sys/socket.h>
 #include <errno.h>
-/*#ifndef linux*/
-extern bool_t abort();
-/*#endif*/
 extern errno;
 
 /*

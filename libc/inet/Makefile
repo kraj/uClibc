@@ -22,7 +22,6 @@ gethostbyaddr.o
 OBJ=$(AOBJ) $(ROBJ)
 
 all: $(LIBC)
-	@$(RM) $(OBJ)
 
 $(LIBC): $(LIBC)($(OBJ))
 

@@ -20,6 +20,7 @@ typedef void (*vfuncp) ();
 
 extern vfuncp __cleanup;
 extern void __do_exit();
+extern void _exit __P ((int __status)) __attribute__ ((__noreturn__));
 
 extern struct exit_table
 {

@@ -14,6 +14,10 @@
 #define STDERR_FILENO 2
 
 
+/* NULL-terminated array of "NAME=VALUE" environment variables.  */
+extern char **__environ;
+extern char **environ;
+
 
 extern int close __P ((int));
 extern size_t read __P ((int __fd, char * __buf, size_t __nbytes));

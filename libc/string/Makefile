@@ -16,7 +16,6 @@ OBJ=$(SOBJ) strpbrk.o strsep.o strstr.o strtok.o strcspn.o	\
     strspn.o strcasecmp.o strncasecmp.o config.o
 
 all: $(LIBC)
-	@$(RM) $(OBJ)
 
 $(LIBC): $(LIBC)($(OBJ))
 

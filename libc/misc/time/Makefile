@@ -13,7 +13,6 @@ OBJ=localtime.o gmtime.o asctime.o ctime.o asc_conv.o tm_conv.o mktime.o \
 	localtime_r.o gmtime_r.o asctime_r.o ctime_r.o
 
 all: $(LIBC)
-	@$(RM) $(OBJ)
 
 $(LIBC): $(LIBC)($(OBJ))
 

@@ -21,7 +21,6 @@ SOBJ=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
 OBJ= $(AOBJ) $(POBJ) $(SOBJ) dputs.o
 
 all: $(LIBC)
-	@$(RM) $(OBJ)
 
 $(LIBC): $(LIBC)($(OBJ))
 

@@ -21,9 +21,10 @@ UOBJ=utent.o
 OBJ=$(POBJ) $(GOBJ) $(UOBJ)
 
 all: $(LIBC)($(OBJ))
-	@$(RM) $(OBJ)
 
 $(LIBC)($(GOBJ)): config-grp.h
+
+$(LIBC): $(LIBC)($(OBJ))
 
 clean:
 	rm -f *.o libc.a
