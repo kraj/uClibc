@@ -389,7 +389,7 @@ uClibc was built without large file support enabled.
 #  define link_warning(symbol, msg)					      \
 	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");	      \
 	    static const char __evoke_link_warning_##symbol[]		      \
-	    __attribute__ ((section (".gnu.warning." #symbol "\n\t#"))) = msg;
+	    __attribute__ ((unused, section (".gnu.warning." #symbol "\n\t#"))) = msg;
 #else /* !defined __HAVE_ELF__ */
 #  define strong_alias(name, aliasname) _strong_alias (name, aliasname)
 #  define weak_alias(name, aliasname) _strong_alias (name, aliasname)
