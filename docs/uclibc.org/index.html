@@ -125,6 +125,30 @@ To subscribe, go and visit
 
 <ul>
 
+    <li> <b>21 March 2002, uClibc 0.9.10 Released!</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.10.  This release adds pthreads support (including pthreads
+    support for mmu-less systems).  Additionally, thanks to Manuel Novoa III,
+    we now have a completely new stdio library, which is small, standards
+    compliant, and supports pthreads, wide/narrow streams, large files, and can
+    even operate in a low-memory unbuffered mode.  Many, many bugs have been
+    fixed and a number of additional applications now compile and run
+    perfectly.  To make things more interesting, the release also adds support
+    for C++ constructors and destructors, and makes it easy to use uClibc to
+    create C++ by providing a uClibc wrapper for the GNU C++ compiler.
+    <p>
+    A native GNU toolchain (binutils/gcc) that targets uClibc 0.9.10 will
+    be released in the next couple of days, so stay tuned.
+    <p>
+    The <a href="downloads/Changelog">Changelog</a>
+    and <a href="downloads/uClibc-0.9.10.tar.bz2">Source code</a> 
+    for this release are available <a href="downloads/">here</a>.
+    <p>
+
+
+    <p>
     <li> <b>4 February 2002, uClibc 0.9.9 Released!</b>
     <br>
 
@@ -140,12 +164,6 @@ To subscribe, go and visit
     well underway, and will hopefully be moving into CVS in the next week or
     two.  Full pthreads support and rentrancy are on the TODO list
     and are expected to be complete in the next couple of months.
-    <p>
-    Another very nice change is that we can now build full GNU
-    toolchains (binutils/gcc) that target uClibc.  This brings
-    full C++ support to uClibc.  A C++ toolchain is currently being
-    tested, and will be publicly released in the next couple of days,
-    so stay tuned.
     <p>
     The <a href="downloads/Changelog">Changelog</a>
     and <a
