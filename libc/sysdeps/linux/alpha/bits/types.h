@@ -59,7 +59,7 @@ typedef __kernel_dev_t __dev_t;		/* Type of device numbers.  */
 typedef __kernel_uid_t __uid_t;		/* Type of user identifications.  */
 typedef __kernel_gid_t __gid_t;		/* Type of group identifications.  */
 typedef __kernel_ino_t __ino_t;		/* Type of file serial numbers.  */
-typedef __kernel_mode_t __mode_t;	/* Type of file attribute bitmasks.  */
+typedef __uint32_t __mode_t;		/* Type of file attribute bitmasks.  */
 typedef __kernel_nlink_t __nlink_t;	/* Type of file link counts.  */
 typedef __kernel_off_t __off_t;		/* Type of file sizes and offsets.  */
 typedef __kernel_loff_t __loff_t;	/* Type of file sizes and offsets.  */

@@ -158,8 +158,7 @@ time_t time (time_t *t)
 //#define __NR_mknod            14
 #ifdef L_mknod
 #include <sys/stat.h>
-_syscall3(int, mknod, const char *, path, 
-		unsigned short int, mode, unsigned short int, dev);
+_syscall3(int, mknod, const char *, path, mode_t, mode, dev_t, dev);
 #endif
 
 //#define __NR_chmod            15

@@ -109,13 +109,13 @@ CANCELABLE_SYSCALL (int, nanosleep, (const struct timespec *requested_time,
 
 /* open(2).  */
 CANCELABLE_SYSCALL_VA (int, open, (const char *pathname, int flags, ...),
-		       (pathname, flags, va_arg (ap, int)), flags)
+		       (pathname, flags, va_arg (ap, mode_t)), flags)
 
 
 #ifdef __UCLIBC_HAVE_LFS__
 /* open64(3).  */
 CANCELABLE_SYSCALL_VA (int, open64, (const char *pathname, int flags, ...),
-		       (pathname, flags, va_arg (ap, int)), flags)
+		       (pathname, flags, va_arg (ap, mode_t)), flags)
 #endif
 
 /* pause(2).  */
