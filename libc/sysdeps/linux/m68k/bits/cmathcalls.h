@@ -1,22 +1,22 @@
 /* Prototype declarations for complex math functions;
    helper file for <complex.h>.
-   Copyright (C) 1997, 1998 Free Software Foundation, Inc.
+   Copyright (C) 1997, 1998, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 /* NOTE: Because of the special way this file is used by <complex.h>, this
    file must NOT be protected from multiple inclusion as header files
@@ -47,7 +47,6 @@
 
 #define _Mdouble_complex_ _Mdouble_ _Complex
 
-__BEGIN_DECLS
 
 /* Trigonometric functions.  */
 
@@ -131,29 +130,29 @@ __MATHDECL (_Mdouble_,creal, (_Mdouble_complex_ __z));
 
 
 /* Now some optimized versions.  GCC has handy notations for these
-   functions.  */
-#if defined __GNUC__ && defined __OPTIMIZE__
+   functions.  Recent GCC handles these as builtin functions so does
+   not need inlines.  */
+#if defined __GNUC__ && !__GNUC_PREREQ (2, 97) && defined __OPTIMIZE__
 
 /* Imaginary part of Z.  */
 extern __inline _Mdouble_
-__MATH_PRECNAME(cimag) (_Mdouble_complex_ __z)
+__MATH_PRECNAME(cimag) (_Mdouble_complex_ __z) __THROW
 {
   return __imag__ __z;
 }
 
 /* Real part of Z.  */
 extern __inline _Mdouble_
-__MATH_PRECNAME(creal) (_Mdouble_complex_ __z)
+__MATH_PRECNAME(creal) (_Mdouble_complex_ __z) __THROW
 {
   return __real__ __z;
 }
 
 /* Complex conjugate of Z.  */
 extern __inline _Mdouble_complex_
-__MATH_PRECNAME(conj) (_Mdouble_complex_ __z)
+__MATH_PRECNAME(conj) (_Mdouble_complex_ __z) __THROW
 {
-  return ~__z;
+  return __extension__ ~__z;
 }
-#endif
 
-__END_DECLS
+#endif

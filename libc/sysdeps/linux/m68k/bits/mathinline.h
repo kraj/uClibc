@@ -1,27 +1,27 @@
 /* Definitions of inline math functions implemented by the m68881/2.
-   Copyright (C) 1991, 92, 93, 94, 96, 97, 98 Free Software Foundation, Inc.
+   Copyright (C) 1991,92,93,94,96,97,98,99,2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifdef	__GNUC__
 
-#ifdef __USE_ISOC9X
+#ifdef __USE_ISOC99
 
-/* ISO C 9X defines some macros to perform unordered comparisons.  The
+/* ISO C99 defines some macros to perform unordered comparisons.  The
    m68k FPU supports this with special opcodes and we should use them.
    These must not be inline functions since we have to be able to handle
    all floating-point types.  */
@@ -98,7 +98,7 @@
    suffixed with f and l for the float and long double version, resp).  OP
    is the name of the fpu operation (without leading f).  */
 
-#if defined __USE_MISC || defined __USE_ISOC9X
+#if defined __USE_MISC || defined __USE_ISOC99
 # define __inline_mathop(func, op)			\
   __inline_mathop1(double, func, op)			\
   __inline_mathop1(float, __CONCAT(func,f), op)		\
@@ -109,28 +109,12 @@
 #endif
 
 #define __inline_mathop1(float_type,func, op)				      \
-  __m81_defun (float_type, func, (float_type __mathop_x))		      \
+  __m81_defun (float_type, func, (float_type __mathop_x)) __THROW	      \
   {									      \
     float_type __result;						      \
     __asm("f" __STRING(op) "%.x %1, %0" : "=f" (__result) : "f" (__mathop_x));\
     return __result;							      \
   }
-
-#ifdef __LIBC_INTERNAL_MATH_INLINES
-/* ieee style elementary functions */
-/* These are internal to the implementation of libm.  */
-__inline_mathop(__ieee754_acos, acos)
-__inline_mathop(__ieee754_asin, asin)
-__inline_mathop(__ieee754_cosh, cosh)
-__inline_mathop(__ieee754_sinh, sinh)
-__inline_mathop(__ieee754_exp, etox)
-__inline_mathop(__ieee754_exp2, twotox)
-__inline_mathop(__ieee754_exp10, tentox)
-__inline_mathop(__ieee754_log10, log10)
-__inline_mathop(__ieee754_log, logn)
-__inline_mathop(__ieee754_sqrt, sqrt)
-__inline_mathop(__ieee754_atanh, atanh)
-#endif
 
 __inline_mathop(__atan, atan)
 __inline_mathop(__cos, cos)
@@ -139,7 +123,7 @@ __inline_mathop(__tan, tan)
 __inline_mathop(__tanh, tanh)
 __inline_mathop(__fabs, abs)
 
-#if defined __USE_MISC || defined __USE_XOPEN_EXTENDED || defined __USE_ISOC9X
+#if defined __USE_MISC || defined __USE_XOPEN_EXTENDED || defined __USE_ISOC99
 __inline_mathop(__rint, int)
 __inline_mathop(__expm1, etoxm1)
 __inline_mathop(__log1p, lognp1)
@@ -149,8 +133,7 @@ __inline_mathop(__log1p, lognp1)
 __inline_mathop(__significand, getman)
 #endif
 
-#ifdef __USE_ISOC9X
-__inline_mathop(__log2, log2)
+#ifdef __USE_ISOC99
 __inline_mathop(__trunc, intrz)
 #endif
 
@@ -162,7 +145,7 @@ __inline_mathop(sin, sin)
 __inline_mathop(tan, tan)
 __inline_mathop(tanh, tanh)
 
-# if defined __USE_MISC || defined __USE_XOPEN_EXTENDED || defined __USE_ISOC9X
+# if defined __USE_MISC || defined __USE_XOPEN_EXTENDED || defined __USE_ISOC99
 __inline_mathop(rint, int)
 __inline_mathop(expm1, etoxm1)
 __inline_mathop(log1p, lognp1)
@@ -172,63 +155,19 @@ __inline_mathop(log1p, lognp1)
 __inline_mathop(significand, getman)
 # endif
 
-# ifdef __USE_ISOC9X
-__inline_mathop(log2, log2)
+# ifdef __USE_ISOC99
 __inline_mathop(trunc, intrz)
 # endif
 
 #endif /* !__NO_MATH_INLINES && __OPTIMIZE__ */
 
 /* This macro contains the definition for the rest of the inline
-   functions, using __FLOAT_TYPE as the domain type and __S as the suffix
+   functions, using FLOAT_TYPE as the domain type and S as the suffix
    for the function names.  */
-
-#ifdef __LIBC_INTERNAL_MATH_INLINES
-/* Internally used functions.  */
-# define __internal_inline_functions(float_type, s)			     \
-__m81_defun (float_type, __CONCAT(__ieee754_remainder,s),		     \
-	     (float_type __x, float_type __y))				     \
-{									     \
-  float_type __result;							     \
-  __asm("frem%.x %1, %0" : "=f" (__result) : "f" (__y), "0" (__x));	     \
-  return __result;							     \
-}									     \
-									     \
-__m81_defun (float_type, __CONCAT(__ieee754_fmod,s),			     \
-	     (float_type __x, float_type __y))				     \
-{									     \
-  float_type __result;							     \
-  __asm("fmod%.x %1, %0" : "=f" (__result) : "f" (__y), "0" (__x));	     \
-  return __result;							     \
-}
-
-__internal_inline_functions (double,)
-__internal_inline_functions (float,f)
-__internal_inline_functions (long double,l)
-# undef __internal_inline_functions
-
-/* Get the m68881 condition codes, to quickly check multiple conditions.  */
-static __inline__ unsigned long
-__m81_test (long double __val)
-{
-  unsigned long __fpsr;
-  __asm ("ftst%.x %1; fmove%.l %/fpsr,%0" : "=dm" (__fpsr) : "f" (__val));
-  return __fpsr;
-}
-
-/* Bit values returned by __m81_test.  */
-# define __M81_COND_NAN (1 << 24)
-# define __M81_COND_INF (2 << 24)
-# define __M81_COND_ZERO (4 << 24)
-# define __M81_COND_NEG (8 << 24)
-
-#endif /* __LIBC_INTENRAL_MATH_INLINES */
-
-/* The rest of the functions are available to the user.  */
 
 #define __inline_functions(float_type, s)				  \
 __m81_inline float_type							  \
-__m81_u(__CONCAT(__frexp,s))(float_type __value, int *__expptr)		  \
+__m81_u(__CONCAT(__frexp,s))(float_type __value, int *__expptr)	__THROW	  \
 {									  \
   float_type __mantissa, __exponent;					  \
   int __iexponent;							  \
@@ -249,7 +188,7 @@ __m81_u(__CONCAT(__frexp,s))(float_type __value, int *__expptr)		  \
   return __mantissa;							  \
 }									  \
 									  \
-__m81_defun (float_type, __CONCAT(__floor,s), (float_type __x))		  \
+__m81_defun (float_type, __CONCAT(__floor,s), (float_type __x))	__THROW	  \
 {									  \
   float_type __result;							  \
   unsigned long int __ctrl_reg;						  \
@@ -265,7 +204,7 @@ __m81_defun (float_type, __CONCAT(__floor,s), (float_type __x))		  \
   return __result;							  \
 }									  \
 									  \
-__m81_defun (float_type, __CONCAT(__ceil,s), (float_type __x))		  \
+__m81_defun (float_type, __CONCAT(__ceil,s), (float_type __x)) __THROW	  \
 {									  \
   float_type __result;							  \
   unsigned long int __ctrl_reg;						  \
@@ -282,7 +221,7 @@ __m81_defun (float_type, __CONCAT(__ceil,s), (float_type __x))		  \
 }
 
 __inline_functions(double,)
-#if defined __USE_MISC || defined __USE_ISOC9X
+#if defined __USE_MISC || defined __USE_ISOC99
 __inline_functions(float,f)
 __inline_functions(long double,l)
 #endif
@@ -291,7 +230,7 @@ __inline_functions(long double,l)
 #ifdef __USE_MISC
 
 # define __inline_functions(float_type, s)				  \
-__m81_defun (int, __CONCAT(__isinf,s), (float_type __value))		  \
+__m81_defun (int, __CONCAT(__isinf,s), (float_type __value)) __THROW	  \
 {									  \
   /* There is no branch-condition for infinity,				  \
      so we must extract and examine the condition codes manually.  */	  \
@@ -301,7 +240,7 @@ __m81_defun (int, __CONCAT(__isinf,s), (float_type __value))		  \
   return (__fpsr & (2 << 24)) ? (__fpsr & (8 << 24) ? -1 : 1) : 0;	  \
 }									  \
 									  \
-__m81_defun (int, __CONCAT(__finite,s), (float_type __value))		  \
+__m81_defun (int, __CONCAT(__finite,s), (float_type __value)) __THROW	  \
 {									  \
   /* There is no branch-condition for infinity, so we must extract and	  \
      examine the condition codes manually.  */				  \
@@ -312,7 +251,7 @@ __m81_defun (int, __CONCAT(__finite,s), (float_type __value))		  \
 }									  \
 									  \
 __m81_defun (float_type, __CONCAT(__scalbn,s),				  \
-	     (float_type __x, int __n))					  \
+	     (float_type __x, int __n))	__THROW				  \
 {									  \
   float_type __result;							  \
   __asm ("fscale%.l %1, %0" : "=f" (__result) : "dmi" (__n), "0" (__x));  \
@@ -329,7 +268,7 @@ __inline_functions(long double,l)
 #if defined __USE_MISC || defined __USE_XOPEN
 
 # define __inline_functions(float_type, s)				  \
-__m81_defun (int, __CONCAT(__isnan,s), (float_type __value))		  \
+__m81_defun (int, __CONCAT(__isnan,s), (float_type __value)) __THROW	  \
 {									  \
   char __result;							  \
   __asm("ftst%.x %1\n"							  \
@@ -346,10 +285,10 @@ __inline_functions(long double,l)
 
 #endif
 
-#ifdef __USE_ISOC9X
+#ifdef __USE_ISOC99
 
 # define __inline_functions(float_type, s)				  \
-__m81_defun (int, __CONCAT(__signbit,s), (float_type __value))		  \
+__m81_defun (int, __CONCAT(__signbit,s), (float_type __value)) __THROW	  \
 {									  \
   /* There is no branch-condition for the sign bit, so we must extract	  \
      and examine the condition codes manually.  */			  \
@@ -360,12 +299,12 @@ __m81_defun (int, __CONCAT(__signbit,s), (float_type __value))		  \
 }									  \
 									  \
 __m81_defun (float_type, __CONCAT(__scalbln,s),				  \
-	     (float_type __x, long int __n))				  \
+	     (float_type __x, long int __n)) __THROW			  \
 {									  \
   return __CONCAT(__scalbn,s) (__x, __n);				  \
 }									  \
 									  \
-__m81_defun (float_type, __CONCAT(__nearbyint,s), (float_type __x))	  \
+__m81_defun (float_type, __CONCAT(__nearbyint,s), (float_type __x)) __THROW \
 {									  \
   float_type __result;							  \
   unsigned long int __ctrl_reg;						  \
@@ -379,7 +318,7 @@ __m81_defun (float_type, __CONCAT(__nearbyint,s), (float_type __x))	  \
   return __result;							  \
 }									  \
 									  \
-__m81_defun (long int, __CONCAT(__lrint,s), (float_type __x))		  \
+__m81_defun (long int, __CONCAT(__lrint,s), (float_type __x)) __THROW	  \
 {									  \
   long int __result;							  \
   __asm ("fmove%.l %1, %0" : "=dm" (__result) : "f" (__x));		  \
@@ -388,7 +327,7 @@ __m81_defun (long int, __CONCAT(__lrint,s), (float_type __x))		  \
 									  \
 __m81_inline float_type							  \
 __m81_u(__CONCAT(__fma,s))(float_type __x, float_type __y,		  \
-			   float_type __z)				  \
+			   float_type __z) __THROW			  \
 {									  \
   return (__x * __y) + __z;						  \
 }
@@ -405,7 +344,7 @@ __inline_functions (long double,l)
 # define __inline_functions(float_type, s)				\
 __m81_inline void							\
 __m81_u(__CONCAT(__sincos,s))(float_type __x, float_type *__sinx,	\
-			      float_type *__cosx)			\
+			      float_type *__cosx) __THROW		\
 {									\
   __asm ("fsincos%.x %2,%1:%0"						\
 	 : "=f" (*__sinx), "=f" (*__cosx) : "f" (__x));			\
@@ -426,13 +365,13 @@ __inline_functions (long double,l)
    NAME, to make token pasting work correctly with -traditional.  */
 # define __inline_forward_c(rettype, name, args1, args2)	\
 extern __inline rettype __attribute__((__const__))	\
-name args1						\
+name args1 __THROW					\
 {							\
   return __CONCAT(__,name) args2;			\
 }
 
 # define __inline_forward(rettype, name, args1, args2)	\
-extern __inline rettype name args1			\
+extern __inline rettype name args1 __THROW		\
 {							\
   return __CONCAT(__,name) args2;			\
 }
@@ -442,18 +381,18 @@ __inline_forward(double,frexp, (double __value, int *__expptr),
 __inline_forward_c(double,floor, (double __x), (__x))
 __inline_forward_c(double,ceil, (double __x), (__x))
 # ifdef __USE_MISC
-#  ifndef __USE_ISOC9X /* Conflict with macro of same name.  */
+#  ifndef __USE_ISOC99 /* Conflict with macro of same name.  */
 __inline_forward_c(int,isinf, (double __value), (__value))
 #  endif
 __inline_forward_c(int,finite, (double __value), (__value))
 __inline_forward_c(double,scalbn, (double __x, int __n), (__x, __n))
 # endif
 # if defined __USE_MISC || defined __USE_XOPEN
-#  ifndef __USE_ISOC9X /* Conflict with macro of same name.  */
+#  ifndef __USE_ISOC99 /* Conflict with macro of same name.  */
 __inline_forward_c(int,isnan, (double __value), (__value))
 #  endif
 # endif
-# ifdef __USE_ISOC9X
+# ifdef __USE_ISOC99
 __inline_forward_c(double,scalbln, (double __x, long int __n), (__x, __n))
 __inline_forward_c(double,nearbyint, (double __value), (__value))
 __inline_forward_c(long int,lrint, (double __value), (__value))
@@ -465,7 +404,7 @@ __inline_forward(void,sincos, (double __x, double *__sinx, double *__cosx),
 		 (__x, __sinx, __cosx))
 # endif
 
-# if defined __USE_MISC || defined __USE_ISOC9X
+# if defined __USE_MISC || defined __USE_ISOC99
 
 __inline_forward(float,frexpf, (float __value, int *__expptr),
 		 (__value, __expptr))
@@ -477,7 +416,7 @@ __inline_forward_c(int,finitef, (float __value), (__value))
 __inline_forward_c(float,scalbnf, (float __x, int __n), (__x, __n))
 __inline_forward_c(int,isnanf, (float __value), (__value))
 #  endif
-# ifdef __USE_ISOC9X
+# ifdef __USE_ISOC99
 __inline_forward_c(float,scalblnf, (float __x, long int __n), (__x, __n))
 __inline_forward_c(float,nearbyintf, (float __value), (__value))
 __inline_forward_c(long int,lrintf, (float __value), (__value))
@@ -499,7 +438,7 @@ __inline_forward_c(int,finitel, (long double __value), (__value))
 __inline_forward_c(long double,scalbnl, (long double __x, int __n), (__x, __n))
 __inline_forward_c(int,isnanl, (long double __value), (__value))
 # endif
-# ifdef __USE_ISOC9X
+# ifdef __USE_ISOC99
 __inline_forward_c(long double,scalblnl, (long double __x, long int __n),
 		   (__x, __n))
 __inline_forward_c(long double,nearbyintl, (long double __value), (__value))
@@ -514,7 +453,7 @@ __inline_forward(void,sincosl,
 		 (__x, __sinx, __cosx))
 # endif
 
-#endif /* Use misc or ISO C9X */
+#endif /* Use misc or ISO C99 */
 
 #undef __inline_forward
 #undef __inline_forward_c
