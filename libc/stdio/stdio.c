@@ -50,6 +50,15 @@
  *  Added internal function _wstdio_fwrite.
  *  Jan 3, 2003
  *  Fixed a bug in _wstdio_fwrite.
+ *
+ *  Jan 22, 2003
+ *  Fixed a bug related file position in append mode.  _stdio_fwrite now
+ *     seeks to the end of the stream when append mode is set and we are
+ *     transitioning to write mode, so that subsequent ftell() return
+ *     values are correct.
+ *  Also fix _stdio_fopen to support fdopen() with append specified when
+ *     the underlying file didn't have O_APPEND set.  It now sets the
+ *     O_APPEND flag as recommended by SUSv3 and is done by glibc.
  */
 
 /* Before we include anything, convert L_ctermid to L_ctermid_function
@@ -1507,8 +1516,8 @@ size_t _stdio_fread(unsigned char *buffer, size_t bytes, register FILE *stream)
  * error flag before/after the write process, but it doesn't seem worth
  * the trouble. */
 
-/* Like standard write, but always does a full write unless error plus
- *deals correctly with bufsize > SSIZE_MAX... not much on an issue on linux
+/* Like standard write, but always does a full write unless error, plus
+ * deals correctly with bufsize > SSIZE_MAX... not much on an issue on linux
  * but definitly could be on Elks.  Also on Elks, always loops for EINTR..
  * Returns number of bytes written, so a short write indicates an error */
 static size_t _stdio_WRITE(register FILE *stream,
@@ -1592,8 +1601,18 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 		stream->bufgetc =
 #endif /* __STDIO_GETC_MACRO */
 		stream->bufpos = stream->bufread = stream->bufstart;
-	}
+	} else
 #endif
+	if ((stream->modeflags & (__FLAG_WRITING|__FLAG_APPEND)) == __FLAG_APPEND) {
+		/* Append mode, but not currently writing.  Need to seek to end for proper
+		 * ftell() return values.  Don't worry if the stream isn't seekable. */
+		__offmax_t pos[1];
+		*pos = 0;
+		if (_stdio_lseek(stream, pos, SEEK_END) && (errno != EPIPE)) { /* Too big? */
+			stream->modeflags |= __FLAG_ERROR;
+			return 0;
+		}
+	}
 
 #ifdef __STDIO_PUTC_MACRO
 	/* We need to disable putc macro in case of error */
@@ -1716,6 +1735,19 @@ size_t _stdio_fwrite(const unsigned char *buffer, size_t bytes,
 
 	/* We always clear the reading flag in case at EOF. */
 	stream->modeflags &= ~(__FLAG_READING);
+
+	if ((stream->modeflags & (__FLAG_WRITING|__FLAG_APPEND)) == __FLAG_APPEND) {
+		/* Append mode, but not currently writing.  Need to seek to end for proper
+		 * ftell() return values.  Don't worry if the stream isn't seekable. */
+		__offmax_t pos[1];
+		*pos = 0;
+		if (_stdio_lseek(stream, pos, SEEK_END) && (errno != EPIPE)) { /* Too big? */
+			stream->modeflags |= __FLAG_ERROR;
+			return 0;
+		}
+	}
+
+
 	/* Unlike the buffered case, we set the writing flag now since we don't
 	 * need to do anything here for fflush(). */
 	stream->modeflags |= __FLAG_WRITING;
@@ -2322,17 +2354,26 @@ FILE *_stdio_fopen(const char * __restrict filename,
 	}
 
 	if (filedes >= 0) {			/* Handle fdopen trickery. */
-		/*
-		 * NOTE: it is insufficient to just check R/W/RW agreement.
-		 * We must also check for append mode agreement, as well as
-		 * largefile agreement if applicable.
-		 */
-		int i = (open_mode & (O_ACCMODE|O_APPEND|O_LARGEFILE)) + 1;
+		/* NOTE: it is insufficient to just check R/W/RW agreement.
+		 * We must also check largefile compatibility if applicable.
+		 * Also, if append mode is desired for fdopen but O_APPEND isn't
+		 * currently set, then set it as recommended by SUSv3.  However,
+		 * if append mode is not specified for fdopen but O_APPEND is set,
+		 * leave it set (glibc compat). */
+		int i = (open_mode & (O_ACCMODE|O_LARGEFILE)) + 1;
 
-		if ((i & (((int) filename) + 1)) != i) {
+		if (((i & (((int) filename) + 1)) != i)	/* Check basic agreement. */
+			|| (((open_mode & O_APPEND)
+				 && !(((int) filename) & O_APPEND)
+				 && fcntl(filedes, F_SETFL, O_APPEND)))	/* Need O_APPEND. */
+			) {
 			__set_errno(EINVAL);
 			filedes = -1;
 		}
+#ifdef __STDIO_LARGE_FILES
+		/* For later... to reflect largefile setting in stream flags. */
+		open_mode |= (((int) filename) & O_LARGEFILE);
+#endif /* __STDIO_LARGE_FILES */
 		stream->filedes = filedes;
 	} else {
 #ifdef __STDIO_LARGE_FILES
