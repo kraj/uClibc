@@ -636,28 +636,28 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 
 	{
 		elfhdr *epnt;
-		elf_phdr *ppnt;
-		int i;
+		elf_phdr *myppnt;
+		int j;
 
 		epnt = (elfhdr *) auxvt[AT_BASE].a_un.a_ptr;
 		tpnt->n_phent = epnt->e_phnum;
-		tpnt->ppnt = ppnt = (elf_phdr *) (load_addr + epnt->e_phoff);
-		for (i = 0; i < epnt->e_phnum; i++, ppnt++) {
-			if (ppnt->p_type == PT_DYNAMIC) {
-				tpnt->dynamic_addr = ppnt->p_vaddr + load_addr;
+		tpnt->ppnt = myppnt = (elf_phdr *) (load_addr + epnt->e_phoff);
+		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {
+			if (myppnt->p_type == PT_DYNAMIC) {
+				tpnt->dynamic_addr = myppnt->p_vaddr + load_addr;
 #if defined(__mips__)
 				{
-					int i = 1;
+					int k = 1;
 					Elf32_Dyn *dpnt = (Elf32_Dyn *) tpnt->dynamic_addr;
 
 					while(dpnt->d_tag) {
 						dpnt++;
-						i++;
+						k++;
 					}
-					tpnt->dynamic_size = i * sizeof(Elf32_Dyn);
+					tpnt->dynamic_size = k * sizeof(Elf32_Dyn);
 				}
 #else
-				tpnt->dynamic_size = ppnt->p_filesz;
+				tpnt->dynamic_size = myppnt->p_filesz;
 #endif
 			}
 		}
@@ -1008,8 +1008,6 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	 * dynamic linker.
 	 */
 	if (tpnt) {
-		struct elf_resolve *tcurr;
-
 		tcurr = _dl_loaded_modules;
 		if (tcurr)
 			while (tcurr->next)
@@ -1099,16 +1097,16 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 
 #ifdef DO_MPROTECT_HACKS
 	{
-		int i;
-		elf_phdr *ppnt;
+		int j;
+		elf_phdr *myppnt;
 
 		/* We had to set the protections of all pages to R/W for dynamic linking.
 		   Set text pages back to R/O */
 		for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-			for (ppnt = tpnt->ppnt, i = 0; i < tpnt->n_phent; i++, ppnt++) {
-				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W) && tpnt->dynamic_info[DT_TEXTREL]) {
-					_dl_mprotect((void *) (tpnt->loadaddr + (ppnt->p_vaddr & PAGE_ALIGN)), 
-							(ppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) ppnt->p_filesz, LXFLAGS(ppnt->p_flags));
+			for (myppnt = tpnt->ppnt, j = 0; j < tpnt->n_phent; j++, myppnt++) {
+				if (myppnt->p_type == PT_LOAD && !(myppnt->p_flags & PF_W) && tpnt->dynamic_info[DT_TEXTREL]) {
+					_dl_mprotect((void *) (tpnt->loadaddr + (myppnt->p_vaddr & PAGE_ALIGN)), 
+							(myppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) myppnt->p_filesz, LXFLAGS(myppnt->p_flags));
 				}
 			}
 		}
