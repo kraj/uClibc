@@ -34,26 +34,24 @@ SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION)
 UCLIBC_LDSO=ld-uClibc.so.$(MAJOR_VERSION)
 LIBC=$(TOPDIR)libc/libc.a
 
-BUILDTIME = $(shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z")
-
-GCCINCDIR = $(shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp")
+BUILDTIME = ${shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z"}
+GCCINCDIR = ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp"}
+NATIVE_ARCH = ${shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
+		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g'}
 
 # use '-Os' optimization if available, else use -O2, allow Config to override
 ifndef OPTIMIZATION
-OPTIMIZATION = $(shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
-    then echo "-Os"; else echo "-O2" ; fi)
+OPTIMIZATION = ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
+    then echo "-Os"; else echo "-O2" ; fi}
 endif
 
 ARFLAGS=r
 
 CCFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D_LIBC
 TARGET_CCFLAGS=--uclibc-use-build-dir $(WARNINGS) $(OPTIMIZATION) $(CPUFLAGS)
-
 CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
 TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 TARGET_CFLAGS=$(ARCH_CFLAGS) $(TARGET_CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
-NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
-		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g')
 
 ifeq ($(strip $(DODEBUG)),true)
     CFLAGS += -g
