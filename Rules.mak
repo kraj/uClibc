@@ -71,8 +71,8 @@ endif
 
 NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g')
 
-ifeq ($(strip $(HAS_MMU)),true)
-	DO_SHARED=shared
+ifeq ($(strip $(HAVE_SHARED)),true)
+    DO_SHARED=shared
 endif
 
 LDSO_PRESENT=$(strip $(shell cd $(TOPDIR)/ldso/d-link; ls -d $(TARGET_ARCH) 2>/dev/null))

@@ -82,7 +82,7 @@ headers: dummy
 	(cd include/bits; ln -sf ../../../../../uClibc_config.h uClibc_config.h)
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
-uClibc_config.h: Config
+uClibc_config.h: Makefile Config
 	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > uClibc_config.h
 	@echo "#if !defined __FEATURES_H && !defined __need_uClibc_config_h" >> uClibc_config.h
 	@echo "#error Never include <bits/uClibc_config.h> directly; use <features.h> instead." >> uClibc_config.h
@@ -129,6 +129,11 @@ uClibc_config.h: Config
 	    echo "#undef HAVE_ELF" >> uClibc_config.h ; \
 	else \
 	    echo "#define HAVE_ELF 1" >> uClibc_config.h ; \
+	fi
+	@if [ "$(HAVE_SHARED)" = "false" ] ; then \
+	    echo "#undef HAVE_SHARED" >> uClibc_config.h ; \
+	else \
+	    echo "#define HAVE_SHARED 1" >> uClibc_config.h ; \
 	fi
 	@if [ "$(TARGET_ARCH)" = "sh" ] ; then \
 	    echo "#define NO_UNDERSCORES 1" >> uClibc_config.h ; \

@@ -60,8 +60,17 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 headers:
-	# no arch-specific headers
+ifeq ($(strip $(HAVE_ELF)),false)
+		echo "Working around compiler bug in the m68k-pic-coff toolchain"
+		cd $(TOPDIR)/include;ln -fs ../libc/sysdeps/linux/m68k/float.h .
+else
+		# no arch-specific headers
+endif
+
 
 clean:
 	rm -f *.[oa] *~ core
+ifeq ($(strip $(HAVE_ELF)),false)
+	rm -f $(TOPDIR)/include/float.h
+endif
 
