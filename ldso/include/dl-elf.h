@@ -99,12 +99,12 @@ extern int _dl_fixup(struct dyn_elf *rpnt, int flag);
    not support copy relocations.  In this case we define the macro to
    zero so that the code for handling them gets automatically optimized
    out.  */
-#define ELF_RTYPE_CLASS_PLT 1
-#ifndef DL_NO_COPY_RELOCS
-# define ELF_RTYPE_CLASS_COPY 2
+#ifdef DL_NO_COPY_RELOCS
+# define ELF_RTYPE_CLASS_COPY	(0x0)
 #else
-# define ELF_RTYPE_CLASS_COPY 0
+# define ELF_RTYPE_CLASS_COPY	(0x1)
 #endif
+#define ELF_RTYPE_CLASS_PLT	(0x2)
 
 
 /* Convert between the Linux flags for page protections and the
