@@ -27,7 +27,11 @@ include $(TOPDIR)Rules.mak
 CSRC=__uClibc_main.c tempname.c errno.c __errno_location.c __h_errno_location.c
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+
+SSRC=abi-note.S
+SOBJS=$(patsubst %.S,%.o, $(SSRC))
+
+OBJS=$(COBJS) $(SOBJS)
 
 all: $(OBJS) interp.o $(LIBC)
 
@@ -44,6 +48,10 @@ interp.c: Makefile
 	echo "#endif" >> interp.c
 
 $(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(SOBJS): %.o : %.S
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
