@@ -53,17 +53,18 @@ setjmp:
 	.globl	__sigsetjmp;
 __sigsetjmp:
 	mov     r0, r1
+	nop		/* align this guy */
 __sigsetjmp_intern:
 	/* Save registers */
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
-	add	#(JB_SIZE*4), r4
+	add	#(JB_SIZE), r4
 	fmov.s	fr15, @-r4
 	fmov.s	fr14, @-r4
 	fmov.s	fr13, @-r4
 	fmov.s	fr12, @-r4
 	sts.l   fpscr, @-r4
 #else
-	add	#(JB_SIZE-5*4), r4 /* this code doesn't do FP yet */
+	add	#(JB_SIZE-(5*4)), r4 /* this code doesn't do FP yet */
 #endif		
 	stc.l	gbr, @-r4
 	sts.l	pr, @-r4
