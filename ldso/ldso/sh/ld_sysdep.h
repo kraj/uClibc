@@ -83,11 +83,9 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
 static __inline__ unsigned int
 _dl_urem(unsigned int n, unsigned int base)
 {
-register unsigned int __r0 __asm__ ("r0");
-register unsigned int __r4 __asm__ ("r4") = n;
-register unsigned int __r5 __asm__ ("r5") = base;
-
-	__asm__ ("" \
+  int res;
+  
+	__asm__ (""\
 		"mov	#0, r0\n\t" \
 		"div0u\n\t" \
 		"" \
@@ -95,49 +93,47 @@ register unsigned int __r5 __asm__ ("r5") = base;
 		"! bit and divide it by whats in %2.  Put the answer bit\n\t" \
 		"! into the T bit so it can come out again at the bottom\n\t" \
 		""				\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
 		""				\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
 		""				\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
  		""				\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4 ; div1 r5, r0\n\t"	\
-		"rotcl	r4\n\t"			\
-		"mov  r4, r0\n\t"
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1 ; div1 %2, r0\n\t"	\
+		"rotcl	%1\n\t"
+		: "=r" (res)
+		: "0" (n), "r" (base)
+		: "r0","cc");
 
-		: "=r" (__r0)
-		: "r" (__r4), "r" (__r5)
-		: "r4", "cc");
-
-	return n - (base * __r0);
+	return n - (base * res);
 }
 
 #define do_rem(result, n, base)     ((result) = _dl_urem((n), (base)))

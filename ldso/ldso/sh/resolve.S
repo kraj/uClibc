@@ -49,10 +49,14 @@ _dl_linux_resolve:
 	mov     r2, r0          ! link map address in r2 (SH PIC ABI)
 1:
 	mov     r0, r4          ! link map address in r0 (GNUs PLT)
+	mova    .LG, r0
+	mov.l   .LG, r5
+	add     r5, r0
 	mov.l   3f, r5
-	bsrf    r5
-	mov	r1, r5		! Reloc offset
-.jmp_loc:
+	mov.l   @(r0, r5),r5
+	jsr     @r5
+	 mov	r1, r5		! Reloc offset
+
 	lds.l	@r15+, pr	! Get register content back
 
 #ifdef HAVE_FPU
@@ -78,7 +82,10 @@ _dl_linux_resolve:
 	 mov.l	@r15+, r3
 
 	.balign	4
+
 3:
-	.long   _dl_linux_resolver@PLT-(.jmp_loc-(.))
+	.long   _dl_linux_resolver@GOT
+.LG:
+	.long	_GLOBAL_OFFSET_TABLE_
 	.size	_dl_linux_resolve, . - _dl_linux_resolve
 
