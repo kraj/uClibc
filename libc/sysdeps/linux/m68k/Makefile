@@ -72,10 +72,10 @@ $(COBJS): %.o : %.c
 
 headers:
 	@(TOPDIR=$(TOPDIR) CC=$(CC) /bin/sh $(TOPDIR)/extra/scripts/gen_bits_syscall_h.sh > bits/syscall.h ) 
-	cd $(TOPDIR)/include/sys;ln -fs ../../libc/sysdeps/linux/m68k/reg.h .
+	cd $(TOPDIR)/include/sys && ln -fs ../../libc/sysdeps/linux/m68k/reg.h .
 ifeq ($(strip $(HAVE_ELF)),false)
 	echo "Working around compiler bug in the m68k-pic-coff toolchain"
-	cd $(TOPDIR)/include;ln -fs ../libc/sysdeps/linux/m68k/float.h .
+	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/m68k/float.h .
 endif
 
 

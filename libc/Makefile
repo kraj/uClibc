@@ -43,7 +43,7 @@ $(LIBNAME): subdirs
 shared: $(TOPDIR)lib/$(LIBNAME)
 	@rm -rf tmp
 	@mkdir tmp
-	@(cd tmp; CC=$(CC) LD=$(LD) NM=$(NM) AR=$(AR) /bin/sh ../../extra/scripts/get-needed-libgcc-objects.sh)
+	@(cd tmp && CC=$(CC) LD=$(LD) NM=$(NM) AR=$(AR) /bin/sh ../../extra/scripts/get-needed-libgcc-objects.sh)
 	if [ -s ./tmp/libgcc-need.a ] ; then \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
 		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
@@ -58,8 +58,8 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(SHARED_FULLNAME)
 	install -m 644 $(SHARED_FULLNAME) $(TOPDIR)lib
-	(cd ../lib; ln -sf $(SHARED_FULLNAME) libc.so);
-	(cd ../lib; ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME));
+	(cd ../lib && ln -sf $(SHARED_FULLNAME) libc.so);
+	(cd ../lib && ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME));
 
 
 halfclean:

@@ -32,7 +32,7 @@ TARGET_CFLAGS += #-DDL_DEBUG #-funroll-loops
 LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
 TARGET_CFLAGS+=-fPIC -D__PIC__ -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 	-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
-	-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR); pwd)\"
+	-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\"
 CSRC= boot1.c hash.c readelflib1.c $(TARGET_ARCH)/elfinterp.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 ASRC=$(shell ls $(TARGET_ARCH)/*.S)
@@ -47,7 +47,7 @@ lib:: ld.so.h $(OBJS) $(DLINK_OBJS)
 	    -Wl,-soname,$(UCLIBC_LDSO) $(OBJS)
 	install -d $(TOPDIR)lib 
 	install -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
-	(cd $(TOPDIR)lib;ln -sf $(LDSO_FULLNAME) $(UCLIBC_LDSO))
+	(cd $(TOPDIR)lib && ln -sf $(LDSO_FULLNAME) $(UCLIBC_LDSO))
 
 ld.so.h: Makefile
 	echo "#define _dl_static_progname \""$(UCLIBC_LDSO)"\"" > ld.so.h

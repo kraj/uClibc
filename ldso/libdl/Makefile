@@ -55,8 +55,8 @@ shared: all
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib;
-	(cd $(TOPDIR)lib; ln -sf $(LIBDL_SHARED_FULLNAME) $(LIBDL_SHARED)); 
-	(cd $(TOPDIR)lib; ln -sf $(LIBDL_SHARED_FULLNAME) $(LIBDL_SHARED).$(MAJOR_VERSION)); 
+	(cd $(TOPDIR)lib && ln -sf $(LIBDL_SHARED_FULLNAME) $(LIBDL_SHARED)); 
+	(cd $(TOPDIR)lib && ln -sf $(LIBDL_SHARED_FULLNAME) $(LIBDL_SHARED).$(MAJOR_VERSION)); 
 
 clean:
 	$(RM) -f .depend $(LIBDL_SHARED)* $(LIBDL_SHARED_FULLNAME) core *.o *.a *.s *.i tmp_make foo *~
