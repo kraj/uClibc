@@ -30,7 +30,7 @@ __start:
 	addu a2, a0, 1	    /* argv[0] program name (ordinal->cardinal) */
         sll  a2, a2, 2	    /* multiple by 4 */
 	add  a2, a2, a1	    /* a2 now points to start of envp */
-#ifdef __UCLIBC_CTOR_DTOR__
+#if defined L_crt1 && defined __UCLIBC_CTOR_DTOR__
 	la   a3, _init	    /* a3 is address of _init */
 	addiu sp, sp, -24   /* 16 + 4 rounded up to multiple of 8 */
 			    /* multiple of 8 for longlong/double support */

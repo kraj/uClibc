@@ -55,7 +55,6 @@ $(LIBC): ar-target
 
 ar-target: $(OBJ) $(CTOR_TARGETS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJ)
-	(cd $(TOPDIR)lib/; ln -fs crt0.o crt1.o)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o

@@ -21,20 +21,12 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-USE_CRT0_C=false
-
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 ASFLAGS=$(CFLAGS)
 
-ifeq ($(USE_CRT0_C),true)
-CRT0=crt0.c
-CRT0_OBJ=$(patsubst %.c,%.o, $(CRT0))
-else
-CRT0=crt0.S
-CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
-endif
-
+CRT0_SRC = crt0.S
+CRT0_OBJ = crt0.o crt1.o
 
 SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
 	bsd-_setjmp.S syscall.S
@@ -52,14 +44,10 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)lib/$(CRT0_OBJ)
+	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
-ifeq ($(USE_CRT0_C),true)
-$(CRT0_OBJ): %.o : %.c
-else
-$(CRT0_OBJ): %.o : %.S
-endif
-	$(CC) $(CFLAGS) -c $< -o $@
+$(CRT0_OBJ): $(CRT0_SRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): %.o : %.S

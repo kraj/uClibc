@@ -25,12 +25,10 @@ TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
 CFLAGS+= -I../
-SFLAGS= $(CFLAGS) -D__ASSEMBLER__ -DASM_GLOBAL_DIRECTIVE=.globl
+SFLAGS= $(CFLAGS) -D__ASSEMBLER__
 
-TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
-
-CRT0=crt0.S
-CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
+CRT0_SRC = crt0.S
+CRT0_OBJ = crt0.o crt1.o
 
 SSRC=setjmp.S __longjmp.S vfork.S clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
@@ -47,10 +45,10 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)lib/$(CRT0_OBJ)
+	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
-$(CRT0_OBJ): %.o : %.S
-	$(CC) $(SFLAGS) -c $< -o $@
+$(CRT0_OBJ): $(CRT0_SRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): %.o : %.S

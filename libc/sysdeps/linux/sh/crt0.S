@@ -49,7 +49,7 @@ _start:
 	mov.l @r15+,r4
 	mov r15, r5
 
-#if ! defined __UCLIBC_CTOR_DTOR__
+#if defined L_crt0 || ! defined __UCLIBC_CTOR_DTOR__
 	/*
 	 * Setup the value for the environment pointer:
 	 * r6 = (argc + 1) * 4
@@ -58,12 +58,11 @@ _start:
 	mov r4,r6
 	add #1,r6
 	shll2 r6
-	add r5, r6
 
 	/* jump to __uClibc_main (argc, argv, envp) */
 	mov.l L_main, r0
 	jsr @r0
-	nop /* delay slot */
+	add r5, r6 /* delay slot */
 
 	/* We should not get here. */
 	mov.l L_abort, r0
@@ -76,7 +75,7 @@ _start_end:
 L_main:
 	.long   __uClibc_main /* in libuClibc.*.so */
 
-#else /* __UCLIBC_CTOR_DTOR__ */
+#else /* L_crt1 && __UCLIBC_CTOR_DTOR__ */
 	/* Push the finip argument to __uClibc_start_main() onto the stack */
 	mov.l L_fini,r6
 	mov.l r6,@-r15
