@@ -28,16 +28,16 @@ void (*mainp)(int argc,void *argv,void *envp) = main;
 extern void __uClibc_main(int argc,void *argv,void *envp);
 
 
-void _start(unsigned int first_arg)
+void _start(void)
 {
 	unsigned int argc;
 	char **argv, **envp;
 	unsigned long *stack;
 
-	stack = (unsigned long*) &first_arg;
-	argc = *(stack - 1);
-	argv = (char **) stack;
-	envp = (char **)stack + argc + 1;
+	stack = ((unsigned long*)__builtin_frame_address(0))+16;
+	argc = *stack;
+	argv = (char **)stack + 1;
+	envp = (char **)stack + argc + 2;
 
 	__uClibc_main(argc, argv, envp);
 }
