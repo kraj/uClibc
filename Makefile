@@ -37,7 +37,7 @@ endif
 
 all: $(STATIC_NAME) $(DO_SHARED) done
 
-$(STATIC_NAME): halfclean headers subdirs
+$(STATIC_NAME): halfclean headers uClibc_config.h subdirs
 	$(CROSS)ranlib $(STATIC_NAME)
 
 # Surely there is a better way to do this then dumping all 
@@ -45,9 +45,12 @@ $(STATIC_NAME): halfclean headers subdirs
 shared: $(STATIC_NAME)
 	@rm -rf tmp
 	@mkdir tmp
-	@(cd tmp; ar -x ../$(STATIC_NAME))
 	@(cd tmp; CC=$(CC) /bin/sh ../extra/scripts/get-needed-libgcc-objects.sh)
-	$(CC) -g $(LDFLAGS) -shared -o $(SHARED_NAME) -Wl,-soname,$(SHARED_NAME) tmp/*.o
+	if [ -s ./tmp/libgcc-need.a ] ; then \
+		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_NAME) -Wl,-soname,$(SHARED_NAME) -Wl,--whole-archive ./libc.a ./tmp/libgcc-need.a ; \
+	else \
+		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_NAME) -Wl,-soname,$(SHARED_NAME) -Wl,--whole-archive ./libc.a ; \
+	fi
 	@rm -rf tmp
 
 done: $(STATIC_NAME) $(DO_SHARED)
@@ -56,7 +59,7 @@ done: $(STATIC_NAME) $(DO_SHARED)
 	@echo
 
 halfclean:
-	@rm -f $(STATIC_NAME) $(SHARED_NAME) crt0.o
+	@rm -f $(STATIC_NAME) $(SHARED_NAME) crt0.o uClibc_config.h
 
 headers: dummy
 	@rm -f include/asm include/linux include/bits
@@ -77,13 +80,15 @@ headers: dummy
 	fi;
 	@ln -s $(KERNEL_SOURCE)/include/linux include/linux
 	@ln -s ../sysdeps/linux/$(TARGET_ARCH)/bits include/bits
+	@ln -sf ../../../../uClibc_config.h sysdeps/linux/$(TARGET_ARCH)/bits/uClibc_config.h
+
 
 tags:
 	ctags -R
 
 clean: subdirs_clean
 	@rm -rf tmp
-	rm -f $(STATIC_NAME) crt0.o $(SHARED_NAME)
+	rm -f $(STATIC_NAME) crt0.o $(SHARED_NAME) uClibc_config.h
 	rm -f include/asm include/linux include/bits
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
@@ -136,6 +141,33 @@ install:
 	    chmod -R 644 `find $(INSTALL_DIR)/include -type f`; \
 	    chown -R root.root $(INSTALL_DIR)/include; \
 	fi;
+
+uClibc_config.h: Config
+	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > uClibc_config.h
+	@echo "#if !defined __FEATURES_H && !defined __need_uClibc_config_h" >> uClibc_config.h
+	@echo "#error Never include <bits/uClibc_config.h> directly; use <features.h> instead." >> uClibc_config.h
+	@echo "#endif" >> uClibc_config.h
+	@if [ "$(HAS_MMU)" = "true" ] ; then \
+	    echo "#define __UCLIBC_HAS_MMU__ 1" >> uClibc_config.h ; \
+	else \
+	    echo "#define __UCLIBC_HAS_MMU__ 0" >> uClibc_config.h ; \
+	fi
+	@if [ "$(HAS_FLOATS)" = "true" ] ; then \
+	    echo "#define __UCLIBC_HAS_FLOATS__ 1" >> uClibc_config.h ; \
+	else \
+	    echo "#define __UCLIBC_HAS_FLOATS__ 0" >> uClibc_config.h ; \
+	fi
+	@if [ "$(HAS_LONG_LONG)" = "true" ] ; then \
+	    echo "#define __UCLIBC_HAS_LONG_LONG__ 1" >> uClibc_config.h ; \
+	else \
+	    echo "#define __UCLIBC_HAS_LONG_LONG__ 0" >> uClibc_config.h ; \
+	fi
+	@if [ "$(HAS_LOCALE)" = "true" ] ; then \
+	    echo "#define __UCLIBC_HAS_LOCALE__ 1" >> uClibc_config.h ; \
+	    echo "#define __UCLIBC_LOCALE_DIR \""$(LOCALE_DIR)"\"" >> uClibc_config.h ; \
+	else \
+	    echo "#define __UCLIBC_HAS_LOCALE__ 0" >> uClibc_config.h ; \
+	fi
 
 .PHONY: dummy
 

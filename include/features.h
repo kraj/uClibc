@@ -86,6 +86,9 @@
 
 #include <sys/cdefs.h>
 
+#define __need_uClibc_config_h
+#include <bits/uClibc_config.h>
+#undef __need_uClibc_config_h
 
 #endif
 
