@@ -71,7 +71,9 @@
 #include <stdint.h>
 #include <bits/uClibc_touplow.h>
 
+#if defined(_LIBC) && !defined(__UCLIBC_GEN_LOCALE)
 #include <bits/uClibc_locale_data.h>
+#endif
 
 extern void _locale_set(const unsigned char *p);
 extern void _locale_init(void);
@@ -96,6 +98,7 @@ enum {
   * In particular, C/POSIX locale is '#' + "\x80\x01"}*LC_ALL + nul.
   */
 
+#if defined(_LIBC) && !defined(__UCLIBC_GEN_LOCALE)
 typedef struct {
 	uint16_t num_weights;
 	uint16_t num_starters;
@@ -139,7 +142,7 @@ typedef struct {
 
 /*  static unsigned char cur_locale[LOCALE_STRING_SIZE]; */
 
-typedef struct {
+typedef struct __uclibc_locale_struct {
 #ifdef __UCLIBC_HAS_XLOCALE__
 	const __ctype_mask_t *__ctype_b;
 	const __ctype_touplow_t *__ctype_tolower;
@@ -311,10 +314,10 @@ typedef struct {
 
 } __uclibc_locale_t;
 
-typedef __uclibc_locale_t *__locale_t;
+extern struct __uclibc_locale_struct * __global_locale;
+#endif
 
-extern __locale_t __global_locale;
-
+typedef struct __uclibc_locale_struct *__locale_t;
 
 extern int __locale_mbrtowc_l(wchar_t *__restrict dst,
 							  const char *__restrict src,

@@ -7,12 +7,13 @@
 #include <wctype.h>
 #include <limits.h>
 
-#ifndef __UCLIBC__
+#ifndef _CTYPE_H
+#define _CTYPE_H
+#endif
 #ifndef _WCTYPE_H
 #define _WCTYPE_H
 #endif
 #include "../../libc/sysdeps/linux/common/bits/uClibc_ctype.h"
-#endif
 
 
 /*  #define CTYPE_PACKED */
