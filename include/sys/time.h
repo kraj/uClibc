@@ -23,7 +23,6 @@
 
 #include <time.h>
 
-#if defined __USE_MISC || defined __USE_GNU
 /* POSIX.4 structure for a time value.  This is like a `struct timeval' but
    has nanoseconds instead of microseconds.  */
 struct timespec
@@ -31,7 +30,6 @@ struct timespec
     long int tv_sec;		/* Seconds.  */
     long int tv_nsec;		/* Nanoseconds.  */
   };
-#endif
 
 #include <sys/select.h>
 
