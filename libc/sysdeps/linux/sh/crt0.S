@@ -134,6 +134,12 @@ __data_start:
 	.long 0
 	.weak data_start
 	data_start = __data_start
+#if defined __CONFIG_SH4__
+       .global __fpscr_values
+__fpscr_values:
+       .long   0
+       .long   0x80000
+#endif
 
 #if defined L_gcrt1 && defined __UCLIBC_PROFILING__
 # include "./gmon-start.S"
