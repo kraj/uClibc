@@ -103,7 +103,42 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 $(patsubst %, _dirclean_%, $(DIRS) test) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
+install_new: install_runtime install_dev
+
+# Installs shared library
+install_runtime:
+ifneq ($(DO_SHARED),)
+	install -d $(INSTALL_DIR)/lib
+	install -m 644 $(SHARED_NAME) $(INSTALL_DIR)/lib/
+	(cd $(INSTALL_DIR)/lib;ln -sf $(SHARED_NAME) libuClibc.so)
+# ldconfig is really not necessary, and impossible to cross
+ifeq ($(INSTALL_DIR),)
+	/sbin/ldconfig -n $(INSTALL_DIR)/lib
+endif
+else
+	echo shared library not installed
+endif
+
+# Installs development library and headers
+# This is done with the assumption that it can blow away anything
+# in $(INSTALL_DIR)/include.  Probably true only if you're using
+# a packaging system.
+install_dev:
+	install -d $(INSTALL_DIR)/include
+	install -d $(INSTALL_DIR)/include/bits
+	rm -f $(INSTALL_DIR)/include/asm
+	rm -f $(INSTALL_DIR)/include/linux
+	ln -s $(KERNEL_SOURCE)/include/asm $(INSTALL_DIR)/include/asm
+	ln -s $(KERNEL_SOURCE)/include/linux $(INSTALL_DIR)/include/linux
+	find include/ -type f -depth -exec install -m 644 {} $(INSTALL_DIR)/include/ ';'
+	find include/bits/ -type f -depth -exec install -m 644 {} $(INSTALL_DIR)/include/bits/ ';'
+	install -d $(INSTALL_DIR)/lib
+	rm -f $(INSTALL_DIR)/lib/$(STATIC_NAME)
+	install -m 644 $(STATIC_NAME) $(INSTALL_DIR)/lib/
+	@if [ -f crt0.o ] ; then install -m 644 crt0.o $(INSTALL_DIR)/lib/; fi
+
 install:
+	echo Consider using 'make install_new'
 	@if [ `id -u` -ne 0 ]; then \
 	    echo "Aborting install -- You must be root."; \
 	    /bin/false; \
