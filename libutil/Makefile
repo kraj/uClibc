@@ -26,7 +26,7 @@ LIBC=$(TOPDIR)libc.a
 
 LIBUTIL=libutil.a
 LIBUTIL_SHARED=libutil.so
-TARGET_CC= ../extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
+TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 CSRC=forkpty.c login.c login_tty.c logout.c logwtmp.c openpty.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))

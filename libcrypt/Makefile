@@ -25,7 +25,7 @@ include $(TOPDIR)Rules.mak
 
 LIBCRYPT=libcrypt.a
 LIBCRYPT_SHARED=libcrypt.so
-TARGET_CC= ../extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
+TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 CSRC = crypt.c des.c md5.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
