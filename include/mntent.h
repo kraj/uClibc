@@ -1,110 +1,98 @@
-#ifndef _MNTENT_H
-#define _MNTENT_H
+/* Utilities for reading/writing fstab, mtab, etc.
+   Copyright (C) 1995, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+#ifndef	_MNTENT_H
+#define	_MNTENT_H	1
 
 #include <features.h>
-
-#define MNTTAB "/etc/fstab"
-#define MOUNTED "/etc/mtab"
-
-#define MNTMAXSTR	512
-
-#define MNTTYPE_COHERENT	"coherent"	/* Coherent file system */
-#define MNTTYPE_EXT		"ext"		/* Extended file system */
-#define MNTTYPE_EXT2		"ext2"		/* Second Extended file system */
-#define MNTTYPE_HPFS		"hpfs"		/* OS/2's high performance file system */
-#define MNTTYPE_ISO9660		"iso9660"	/* ISO CDROM file system */
-#define MNTTYPE_MINIX		"minix"		/* MINIX file system */
-#define MNTTYPE_MSDOS		"msdos"		/* MS-DOS file system */
-#define	MNTTYPE_VFAT		"vfat"		/* VFAT (Win95) file system */
-#define MNTTYPE_SYSV		"sysv"		/* System V file system */
-#define MNTTYPE_UMSDOS		"umsdos"	/* U MS-DOS file system */
-#define MNTTYPE_XENIX		"xenix"		/* Xenix file system */
-#define MNTTYPE_XIAFS		"xiafs"		/* Frank Xia's file system */
-#define MNTTYPE_NFS		"nfs"		/* Network file system */
-#define MNTTYPE_PROC		"proc"		/* Linux process file system */
-#define MNTTYPE_IGNORE		"ignore"	/* Ignore this entry */
-#define MNTTYPE_SWAP		"swap"		/* Swap device */
-
-/* generic mount options */
-#define MNTOPT_DEFAULTS		"defaults"	/* use all default opts */
-#define MNTOPT_RO		"ro"		/* read only */
-#define MNTOPT_RW		"rw"		/* read/write */
-#define MNTOPT_SUID		"suid"		/* set uid allowed */
-#define MNTOPT_NOSUID		"nosuid"	/* no set uid allowed */
-#define MNTOPT_NOAUTO		"noauto"	/* don't auto mount */
-
-/* ext2 and msdos options */
-#define	MNTOPT_CHECK		"check"		/* filesystem check level */
-
-/* ext2 specific options */
-#define	MNTOPT_BSDDF		"bsddf"		/* disable MINIX compatibility disk free counting */
-#define	MNTOPT_BSDGROUPS	"bsdgroups"	/* set BSD group usage */
-#define	MNTOPT_ERRORS		"errors"	/* set behaviour on error */
-#define	MNTOPT_GRPID		"grpid"		/* set BSD group usage */
-#define	MNTOPT_MINIXDF		"minixdf"	/* enable MINIX compatibility disk free counting */
-#define	MNTOPT_NOCHECK		"nocheck"	/* reset filesystem checks */
-#define	MNTOPT_NOGRPID		"nogrpid"	/* set SYSV group usage */
-#define	MNTOPT_RESGID		"resgid"	/* group to consider like root for reserved blocks */
-#define	MNTOPT_RESUID		"resuid"	/* user to consider like root for reserved blocks */
-#define	MNTOPT_SB		"sb"		/* set used super block */
-#define	MNTOPT_SYSVGROUPS	"sysvgroups"	/* set SYSV group usage */
-
-/* options common to hpfs, isofs, and msdos */
-#define	MNTOPT_CONV		"conv"		/* convert specified types of data */
-#define	MNTOPT_GID		"gid"		/* use given gid */
-#define	MNTOPT_UID		"uid"		/* use given uid */
-#define	MNTOPT_UMASK		"umask"		/* use given umask, not isofs */
-
-/* hpfs specific options */
-#define	MNTOPT_CASE		"case"		/* case conversation */
-
-/* isofs specific options */
-#define	MNTOPT_BLOCK		"block"		/* use given block size */
-#define	MNTOPT_CRUFT		"cruft"		/* ??? */
-#define	MNTOPT_MAP		"map"		/* ??? */
-#define	MNTOPT_NOROCK		"norock"	/* not rockwell format ??? */
-
-/* msdos specific options */
-#define	MNTOPT_FAT		"fat"		/* set FAT size */
-#define	MNTOPT_QUIET		"quiet"		/* ??? */
-
-/* swap specific options */
-
-/* options common to ext, ext2, minix, xiafs, sysv, xenix, coherent */
-#define MNTOPT_NOQUOTA		"noquota"	/* don't use any quota on this partition */
-#define MNTOPT_USRQUOTA		"usrquota"	/* use userquota on this partition */
-#define MNTOPT_GRPQUOTA		"grpquota"	/* use groupquota on this partition */
-
-/* none defined yet */
-
-__BEGIN_DECLS
-
-struct mntent{
-	char *mnt_fsname;
-	char *mnt_dir;
-	char *mnt_type;
-	char *mnt_opts;
-	int  mnt_freq;
-	int  mnt_passno;
-};
-
-__END_DECLS
-
-#define __need_file
+#define __need_FILE
 #include <stdio.h>
+#include <paths.h>
+
+
+/* File listing canonical interesting mount points.  */
+#define	MNTTAB		_PATH_MNTTAB	/* Deprecated alias.  */
+
+/* File listing currently active mount points.  */
+#define	MOUNTED		_PATH_MOUNTED	/* Deprecated alias.  */
+
+
+/* General filesystem types.  */
+#define MNTTYPE_IGNORE	"ignore"	/* Ignore this entry.  */
+#define MNTTYPE_NFS	"nfs"		/* Network file system.  */
+#define MNTTYPE_SWAP	"swap"		/* Swap device.  */
+
+
+/* Generic mount options.  */
+#define MNTOPT_DEFAULTS	"defaults"	/* Use all default options.  */
+#define MNTOPT_RO	"ro"		/* Read only.  */
+#define MNTOPT_RW	"rw"		/* Read/write.  */
+#define MNTOPT_SUID	"suid"		/* Set uid allowed.  */
+#define MNTOPT_NOSUID	"nosuid"	/* No set uid allowed.  */
+#define MNTOPT_NOAUTO	"noauto"	/* Do not auto mount.  */
+
 
 __BEGIN_DECLS
 
-extern FILE	*setmntent __P ((__const char *__filep,
-			__const char *__type));
-extern struct mntent
-		*getmntent __P ((FILE *__filep));
-extern int	addmntent __P ((FILE *__filep,
-			__const struct mntent *__mnt));
-extern char	*hasmntopt __P ((__const struct mntent *__mnt,
-			__const char *__opt));
-extern int	endmntent __P ((FILE *__filep));
+/* Structure describing a mount table entry.  */
+struct mntent
+  {
+    char *mnt_fsname;		/* Device or server for filesystem.  */
+    char *mnt_dir;		/* Directory mounted on.  */
+    char *mnt_type;		/* Type of filesystem: ufs, nfs, etc.  */
+    char *mnt_opts;		/* Comma-separated options for fs.  */
+    int mnt_freq;		/* Dump frequency (in days).  */
+    int mnt_passno;		/* Pass number for `fsck'.  */
+  };
+
+
+/* Prepare to begin reading and/or writing mount table entries from the
+   beginning of FILE.  MODE is as for `fopen'.  */
+extern FILE *setmntent (__const char *__file, __const char *__mode) __THROW;
+
+/* Read one mount table entry from STREAM.  Returns a pointer to storage
+   reused on the next call, or null for EOF or error (use feof/ferror to
+   check).  */
+extern struct mntent *getmntent (FILE *__stream) __THROW;
+
+#ifdef __USE_MISC
+/* Reentrant version of the above function.  */
+extern struct mntent *getmntent_r (FILE *__restrict __stream,
+				   struct mntent *__restrict __result,
+				   char *__restrict __buffer,
+				   int __bufsize) __THROW;
+#endif
+
+/* Write the mount table entry described by MNT to STREAM.
+   Return zero on success, nonzero on failure.  */
+extern int addmntent (FILE *__restrict __stream,
+		      __const struct mntent *__restrict __mnt) __THROW;
+
+/* Close a stream opened with `setmntent'.  */
+extern int endmntent (FILE *__stream) __THROW;
+
+/* Search MNT->mnt_opts for an option matching OPT.
+   Returns the address of the substring, or null if none found.  */
+extern char *hasmntopt (__const struct mntent *__mnt,
+			__const char *__opt) __THROW;
+
 
 __END_DECLS
 
-#endif /* _MNTENT_H */
+#endif	/* mntent.h */

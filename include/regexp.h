@@ -3,19 +3,19 @@
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _REGEXP_H
 #define _REGEXP_H	1
@@ -206,14 +206,14 @@ compile (char *__restrict instring, char *__restrict expbuf,
    found in the buffer starting at EXPBUF.  `loc1' will return the
    first character matched and `loc2' points to the next unmatched
    character.  */
-extern int step __P ((__const char *__restrict __string,
-		      __const char *__restrict __expbuf));
+extern int step (__const char *__restrict __string,
+		 __const char *__restrict __expbuf) __THROW;
 
 /* Match the beginning of STRING with the compiled regular expression
    in EXPBUF.  If the match is successful `loc2' will contain the
    position of the first unmatched character.  */
-extern int advance __P ((__const char *__restrict __string,
-			 __const char *__restrict __expbuf));
+extern int advance (__const char *__restrict __string,
+		    __const char *__restrict __expbuf) __THROW;
 
 
 __END_DECLS

@@ -2,19 +2,19 @@
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef	_SYS_TIMEX_H
 #define	_SYS_TIMEX_H	1
@@ -116,11 +116,11 @@ struct timex
 
 __BEGIN_DECLS
 
-extern int __adjtimex __P ((struct timex *__ntx));
-extern int adjtimex __P ((struct timex *__ntx));
+extern int __adjtimex (struct timex *__ntx) __THROW;
+extern int adjtimex (struct timex *__ntx) __THROW;
 
-extern int ntp_gettime __P ((struct ntptimeval *__ntv));
-extern int ntp_adjtime __P ((struct timex *__tntx));
+extern int ntp_gettime (struct ntptimeval *__ntv) __THROW;
+extern int ntp_adjtime (struct timex *__tntx) __THROW;
 
 __END_DECLS
 

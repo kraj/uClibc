@@ -1,4 +1,4 @@
-/* Copyright (C) 1998, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 1999, 2000, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -23,81 +23,50 @@
    too much into it.  Don't use it for anything other than GDB unless
    you know what you are doing.  */
 
-struct user_fpregs_struct
+struct user_fpregs
 {
-  long int cwd;
-  long int swd;
-  long int twd;
-  long int fip;
-  long int fcs;
-  long int foo;
-  long int fos;
-  long int st_space [20];
+  struct fp_reg
+  {
+    unsigned int sign1:1;
+    unsigned int unused:15;
+    unsigned int sign2:1;
+    unsigned int exponent:14;
+    unsigned int j:1;
+    unsigned int mantissa1:31;
+    unsigned int mantissa0:32;
+  } fpregs[8];
+  unsigned int fpsr:32;
+  unsigned int fpcr:32;
+  unsigned char ftype[8];
+  unsigned int init_flag;
 };
 
-struct user_fpxregs_struct
+struct user_regs
 {
-  unsigned short int cwd;
-  unsigned short int swd;
-  unsigned short int twd;
-  unsigned short int fop;
-  long int fip;
-  long int fcs;
-  long int foo;
-  long int fos;
-  long int mxcsr;
-  long int reserved;
-  long int st_space[32];   /* 8*16 bytes for each FP-reg = 128 bytes */
-  long int xmm_space[32];  /* 8*16 bytes for each XMM-reg = 128 bytes */
-  long int padding[56];
-};
-
-struct user_regs_struct
-{
-  long int ebx;
-  long int ecx;
-  long int edx;
-  long int esi;
-  long int edi;
-  long int ebp;
-  long int eax;
-  long int xds;
-  long int xes;
-  long int xfs;
-  long int xgs;
-  long int orig_eax;
-  long int eip;
-  long int xcs;
-  long int eflags;
-  long int esp;
-  long int xss;
+  unsigned long int uregs[18];
 };
 
 struct user
 {
-  struct user_regs_struct	regs;
-  int				u_fpvalid;
-  struct user_fpregs_struct	i387;
-  unsigned long int		u_tsize;
-  unsigned long int		u_dsize;
-  unsigned long int		u_ssize;
-  unsigned long			start_code;
-  unsigned long			start_stack;
-  long int			signal;
-  int				reserved;
-  struct user_regs_struct*	u_ar0;
-  struct user_fpregs_struct*	u_fpstate;
-  unsigned long int		magic;
-  char				u_comm [32];
-  int				u_debugreg [8];
+  struct user_regs regs;	/* General registers */
+  int u_fpvalid;		/* True if math co-processor being used. */
+
+  unsigned long int u_tsize;	/* Text segment size (pages). */
+  unsigned long int u_dsize;	/* Data segment size (pages). */
+  unsigned long int u_ssize;	/* Stack segment size (pages). */
+
+  unsigned long start_code;	/* Starting virtual address of text. */
+  unsigned long start_stack;	/* Starting virtual address of stack. */
+
+  long int signal;     		/* Signal that caused the core dump. */
+  int reserved;			/* No longer used */
+  struct user_regs *u_ar0;	/* help gdb to find the general registers. */
+
+  unsigned long magic;		/* uniquely identify a core file */
+  char u_comm[32];		/* User command that was responsible */
+  int u_debugreg[8];
+  struct user_fpregs u_fp;	/* Floating point registers */
+  struct user_fpregs *u_fp0;	/* help gdb to find the FP registers. */
 };
 
-#define PAGE_SHIFT		12
-#define PAGE_SIZE		(1UL << PAGE_SHIFT)
-#define PAGE_MASK		(~(PAGE_SIZE-1))
-#define NBPG			PAGE_SIZE
-#define UPAGES			1
-#define HOST_TEXT_START_ADDR	(u.start_code)
-#define HOST_STACK_END_ADDR	(u.start_stack + u.u_ssize * NBPG)
-
-#endif	/* _SYS_USER_H */
+#endif  /* sys/user.h */

@@ -2,19 +2,19 @@
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _RPC_AUTH_DES_H
 #define _RPC_AUTH_DES_H	1
@@ -86,26 +86,25 @@ struct authdes_verf
 #define adv_nickname   adv_int_u
 
 /* Map a des credential into a unix cred. */
-extern int authdes_getucred __P ((__const struct authdes_cred * __adc,
-				  uid_t * __uid, gid_t * __gid,
-				  short *__grouplen, gid_t * __groups));
+extern int authdes_getucred (__const struct authdes_cred * __adc,
+			     uid_t * __uid, gid_t * __gid,
+			     short *__grouplen, gid_t * __groups) __THROW;
 
 /* Get the public key for NAME and place it in KEY.  NAME can only be
    up to MAXNETNAMELEN bytes long and the destination buffer KEY should
    have HEXKEYBYTES + 1 bytes long to fit all characters from the key.  */
-extern int getpublickey __P ((__const char *__name, char *__key));
+extern int getpublickey (__const char *__name, char *__key) __THROW;
 
 /* Get the secret key for NAME and place it in KEY.  PASSWD is used to
    decrypt the encrypted key stored in the database.  NAME can only be
    up to MAXNETNAMELEN bytes long and the destination buffer KEY
    should have HEXKEYBYTES + 1 bytes long to fit all characters from
    the key.  */
-extern int getsecretkey __P ((__const char *__name, char *__key,
-			      __const char *__passwd));
+extern int getsecretkey (__const char *__name, char *__key,
+			 __const char *__passwd) __THROW;
 
-extern int rtime __P ((struct sockaddr_in *__addrp,
-		       struct rpc_timeval *__timep,
-		       struct rpc_timeval *__timeout));
+extern int rtime (struct sockaddr_in *__addrp, struct rpc_timeval *__timep,
+		  struct rpc_timeval *__timeout) __THROW;
 
 __END_DECLS
 

@@ -1,20 +1,20 @@
-/* Copyright (C) 1991, 92, 93, 94, 95, 96, 97 Free Software Foundation, Inc.
+/* Copyright (C) 1991,92,93,94,95,96,97,2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _NETINET_ICMP6_H
 #define _NETINET_ICMP6_H 1
@@ -36,18 +36,18 @@ struct icmp6_filter
     uint32_t data[8];
   };
 
-struct icmp6_hdr 
+struct icmp6_hdr
   {
     uint8_t     icmp6_type;   /* type field */
     uint8_t     icmp6_code;   /* code field */
     uint16_t    icmp6_cksum;  /* checksum field */
-    union 
+    union
       {
 	uint32_t  icmp6_un_data32[1]; /* type-specific field */
 	uint16_t  icmp6_un_data16[2]; /* type-specific field */
 	uint8_t   icmp6_un_data8[4];  /* type-specific field */
       } icmp6_dataun;
-  }; 
+  };
 
 #define icmp6_data32    icmp6_dataun.icmp6_un_data32
 #define icmp6_data16    icmp6_dataun.icmp6_un_data16
@@ -135,6 +135,7 @@ struct nd_router_advert       /* router advertisement */
 #define nd_ra_flags_reserved     nd_ra_hdr.icmp6_data8[1]
 #define ND_RA_FLAG_MANAGED       0x80
 #define ND_RA_FLAG_OTHER         0x40
+#define ND_RA_FLAG_HOME_AGENT    0x20
 #define nd_ra_router_lifetime    nd_ra_hdr.icmp6_data16[1]
 
 struct nd_neighbor_solicit    /* neighbor solicitation */
@@ -177,7 +178,7 @@ struct nd_redirect            /* redirect */
     struct in6_addr   nd_rd_dst;    /* destination address */
     /* could be followed by options */
   };
- 
+
 #define nd_rd_type               nd_rd_hdr.icmp6_type
 #define nd_rd_code               nd_rd_hdr.icmp6_code
 #define nd_rd_cksum              nd_rd_hdr.icmp6_cksum
@@ -195,6 +196,8 @@ struct nd_opt_hdr             /* Neighbor discovery option header */
 #define  ND_OPT_PREFIX_INFORMATION    3
 #define  ND_OPT_REDIRECTED_HEADER     4
 #define  ND_OPT_MTU                   5
+#define  ND_OPT_RTR_ADV_INTERVAL      7
+#define  ND_OPT_HOME_AGENT_INFO       8
 
 struct nd_opt_prefix_info     /* prefix information */
   {
@@ -210,6 +213,7 @@ struct nd_opt_prefix_info     /* prefix information */
 
 #define ND_OPT_PI_FLAG_ONLINK        0x80
 #define ND_OPT_PI_FLAG_AUTO          0x40
+#define ND_OPT_PI_FLAG_RADDR         0x20
 
 struct nd_opt_rd_hdr          /* redirected header */
   {
@@ -228,5 +232,23 @@ struct nd_opt_mtu             /* MTU option */
     uint32_t  nd_opt_mtu_mtu;
   };
 
+/* Mobile IPv6 extension: Advertisement Interval.  */
+struct nd_opt_adv_interval
+  {
+    uint8_t   nd_opt_adv_interval_type;
+    uint8_t   nd_opt_adv_interval_len;
+    uint16_t  nd_opt_adv_interval_reserved;
+    uint32_t  nd_opt_adv_interval_ival;
+  };
+
+/* Mobile IPv6 extension: Home Agent Info.  */
+struct nd_opt_home_agent_info
+  {
+    uint8_t   nd_opt_home_agent_info_type;
+    uint8_t   nd_opt_home_agent_info_len;
+    uint16_t  nd_opt_home_agent_info_reserved;
+    int16_t   nd_opt_home_agent_info_preference;
+    uint16_t  nd_opt_home_agent_info_lifetime;
+  };
 
 #endif /* netinet/icmpv6.h */

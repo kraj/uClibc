@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -37,7 +33,7 @@
 #define _SYS_SYSLOG_H 1
 
 #include <features.h>
-// #define __need___va_list
+#define __need___va_list
 #include <stdarg.h>
 
 
@@ -173,22 +169,23 @@ CODE facilitynames[] =
 __BEGIN_DECLS
 
 /* Close desriptor used to write to system logger.  */
-extern void closelog __P ((void));
+extern void closelog (void) __THROW;
 
 /* Open connection to system logger.  */
-extern void openlog __P ((__const char *__ident, int __option,
-			  int __facility));
+extern void openlog (__const char *__ident, int __option, int __facility)
+     __THROW;
 
 /* Set the log mask level.  */
-extern int setlogmask __P ((int __mask));
+extern int setlogmask (int __mask) __THROW;
 
 /* Generate a log message using FMT string and option arguments.  */
-extern void syslog __P ((int __pri, __const char *__fmt, ...));
+extern void syslog (int __pri, __const char *__fmt, ...) __THROW
+     __attribute__ ((__format__(__printf__, 2, 3)));
 
 #ifdef __USE_BSD
 /* Generate a log message using FMT and using arguments pointed to by AP.  */
-extern void vsyslog __P ((int __pri, __const char *__fmt,
-			  va_list __ap));
+extern void vsyslog (int __pri, __const char *__fmt, __gnuc_va_list __ap)
+     __THROW __attribute__ ((__format__(__printf__, 2, 0)));
 #endif
 
 __END_DECLS

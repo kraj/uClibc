@@ -1,31 +1,32 @@
-/* Copyright (C) 1997, 1998, 1999 Free Software Foundation, Inc.
+/* Copyright (C) 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 /*
- *	ISO C 9X: 7.18 Integer types <stdint.h>
+ *	ISO C99: 7.18 Integer types <stdint.h>
  */
 
 #ifndef _STDINT_H
 #define _STDINT_H	1
 
 #include <features.h>
-#define __need_wchar_t
+//#define __need_wchar_t
 #include <stddef.h>
+//#include <bits/wchar.h>
 #include <bits/wordsize.h>
 
 /* Exact integral types.  */
@@ -49,7 +50,10 @@ typedef long long int		int64_t;
 /* Unsigned.  */
 typedef unsigned char		uint8_t;
 typedef unsigned short int	uint16_t;
+#ifndef __uint32_t_defined
 typedef unsigned int		uint32_t;
+# define __uint32_t_defined
+#endif
 #if __WORDSIZE == 64
 typedef unsigned long int	uint64_t;
 #else
@@ -114,15 +118,15 @@ typedef unsigned long long int	uint_fast64_t;
 
 /* Types for `void *' pointers.  */
 #if __WORDSIZE == 64
-# ifndef intptr_t
+# ifndef __intptr_t_defined
 typedef long int		intptr_t;
-#  define intptr_t intptr_t
+#  define __intptr_t_defined
 # endif
 typedef unsigned long int	uintptr_t;
 #else
-# ifndef intptr_t
+# ifndef __intptr_t_defined
 typedef int			intptr_t;
-#  define intptr_t intptr_t
+#  define __intptr_t_defined
 # endif
 typedef unsigned int		uintptr_t;
 #endif
@@ -140,7 +144,7 @@ typedef unsigned long long int	uintmax_t;
 #endif
 
 
-/* The ISO C 9X standard specifies that in C++ implementations these
+/* The ISO C99 standard specifies that in C++ implementations these
    macros should only be defined if explicitly requested.  */
 #if !defined __cplusplus || defined __STDC_LIMIT_MACROS
 
@@ -166,8 +170,8 @@ typedef unsigned long long int	uintmax_t;
 # define INT64_MAX		(__INT64_C(9223372036854775807))
 
 /* Maximum of unsigned integral types.  */
-# define UINT8_MAX		(255U)
-# define UINT16_MAX		(65535U)
+# define UINT8_MAX		(255)
+# define UINT16_MAX		(65535)
 # define UINT32_MAX		(4294967295U)
 # define UINT64_MAX		(__UINT64_C(18446744073709551615))
 
@@ -184,8 +188,8 @@ typedef unsigned long long int	uintmax_t;
 # define INT_LEAST64_MAX	(__INT64_C(9223372036854775807))
 
 /* Maximum of unsigned integral types having a minimum size.  */
-# define UINT_LEAST8_MAX	(255U)
-# define UINT_LEAST16_MAX	(65535U)
+# define UINT_LEAST8_MAX	(255)
+# define UINT_LEAST16_MAX	(65535)
 # define UINT_LEAST32_MAX	(4294967295U)
 # define UINT_LEAST64_MAX	(__UINT64_C(18446744073709551615))
 
@@ -212,7 +216,7 @@ typedef unsigned long long int	uintmax_t;
 # define INT_FAST64_MAX		(__INT64_C(9223372036854775807))
 
 /* Maximum of fast unsigned integral types having a minimum size.  */
-# define UINT_FAST8_MAX		(255U)
+# define UINT_FAST8_MAX		(255)
 # if __WORDSIZE == 64
 #  define UINT_FAST16_MAX	(18446744073709551615UL)
 #  define UINT_FAST32_MAX	(18446744073709551615UL)
@@ -269,18 +273,18 @@ typedef unsigned long long int	uintmax_t;
 /* Limits of `wchar_t'.  */
 # ifndef WCHAR_MIN
 /* These constants might also be defined in <wchar.h>.  */
-#  define WCHAR_MIN		(0)
-#  define WCHAR_MAX		(2147483647)
+#  define WCHAR_MIN		__WCHAR_MIN
+#  define WCHAR_MAX		__WCHAR_MAX
 # endif
 
 /* Limits of `wint_t'.  */
-# define WINT_MIN		(0)
-# define WINT_MAX		(2147483647)
+# define WINT_MIN		(0u)
+# define WINT_MAX		(4294967295u)
 
 #endif	/* C++ && limit macros */
 
 
-/* The ISO C 9X standard specifies that in C++ implementations these
+/* The ISO C99 standard specifies that in C++ implementations these
    should only be defined if explicitly requested.  */
 #if !defined __cplusplus || defined __STDC_CONSTANT_MACROS
 

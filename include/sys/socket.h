@@ -3,19 +3,19 @@
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef	_SYS_SOCKET_H
 #define	_SYS_SOCKET_H	1
@@ -97,50 +97,50 @@ typedef union { __SOCKADDR_ALLTYPES
 /* Create a new socket of type TYPE in domain DOMAIN, using
    protocol PROTOCOL.  If PROTOCOL is zero, one is chosen automatically.
    Returns a file descriptor for the new socket, or -1 for errors.  */
-extern int socket (int __domain, int __type, int __protocol) ;
+extern int socket (int __domain, int __type, int __protocol) __THROW;
 
 /* Create two new sockets, of type TYPE in domain DOMAIN and using
    protocol PROTOCOL, which are connected to each other, and put file
    descriptors for them in FDS[0] and FDS[1].  If PROTOCOL is zero,
    one will be chosen automatically.  Returns 0 on success, -1 for errors.  */
 extern int socketpair (int __domain, int __type, int __protocol,
-		       int __fds[2]) ;
+		       int __fds[2]) __THROW;
 
 /* Give the socket FD the local address ADDR (which is LEN bytes long).  */
 extern int bind (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len)
-     ;
+     __THROW;
 
 /* Put the local address of FD into *ADDR and its length in *LEN.  */
 extern int getsockname (int __fd, __SOCKADDR_ARG __addr,
-			socklen_t *__restrict __len) ;
+			socklen_t *__restrict __len) __THROW;
 
 /* Open a connection on socket FD to peer at ADDR (which LEN bytes long).
    For connectionless socket types, just set the default address to send to
    and the only address from which to accept transmissions.
    Return 0 on success, -1 for errors.  */
 extern int connect (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len)
-     ;
+     __THROW;
 
 /* Put the address of the peer connected to socket FD into *ADDR
    (which is *LEN bytes long), and its actual length into *LEN.  */
 extern int getpeername (int __fd, __SOCKADDR_ARG __addr,
-			socklen_t *__restrict __len) ;
+			socklen_t *__restrict __len) __THROW;
 
 
 /* Send N bytes of BUF to socket FD.  Returns the number sent or -1.  */
 extern ssize_t send (int __fd, __const void *__buf, size_t __n, int __flags)
-     ;
+     __THROW;
 
 /* Read N bytes into BUF from socket FD.
    Returns the number read or -1 for errors.  */
 extern ssize_t recv (int __fd, void *__buf, size_t __n, int __flags)
-     ;
+     __THROW;
 
 /* Send N bytes of BUF on socket FD to peer at address ADDR (which is
    ADDR_LEN bytes long).  Returns the number sent, or -1 for errors.  */
 extern ssize_t sendto (int __fd, __const void *__buf, size_t __n,
 		       int __flags, __CONST_SOCKADDR_ARG __addr,
-		       socklen_t __addr_len) ;
+		       socklen_t __addr_len) __THROW;
 
 /* Read N bytes into BUF through socket FD.
    If ADDR is not NULL, fill in *ADDR_LEN bytes of it with tha address of
@@ -148,18 +148,18 @@ extern ssize_t sendto (int __fd, __const void *__buf, size_t __n,
    Returns the number of bytes read or -1 for errors.  */
 extern ssize_t recvfrom (int __fd, void *__restrict __buf, size_t __n, int __flags,
 			 __SOCKADDR_ARG __addr, socklen_t *__restrict __addr_len)
-     ;
+     __THROW;
 
 
 /* Send a message described MESSAGE on socket FD.
    Returns the number of bytes sent, or -1 for errors.  */
 extern ssize_t sendmsg (int __fd, __const struct msghdr *__message, int __flags)
-     ;
+     __THROW;
 
 /* Receive a message as described by MESSAGE from socket FD.
    Returns the number of bytes read or -1 for errors.  */
 extern ssize_t recvmsg (int __fd, struct msghdr *__message, int __flags)
-     ;
+     __THROW;
 
 
 /* Put the current value for socket FD's option OPTNAME at protocol level LEVEL
@@ -167,19 +167,19 @@ extern ssize_t recvmsg (int __fd, struct msghdr *__message, int __flags)
    actual length.  Returns 0 on success, -1 for errors.  */
 extern int getsockopt (int __fd, int __level, int __optname,
 		       void *__restrict __optval,
-		       socklen_t *__restrict __optlen) ;
+		       socklen_t *__restrict __optlen) __THROW;
 
 /* Set socket FD's option OPTNAME at protocol level LEVEL
    to *OPTVAL (which is OPTLEN bytes long).
    Returns 0 on success, -1 for errors.  */
 extern int setsockopt (int __fd, int __level, int __optname,
-		       __const void *__optval, socklen_t __optlen) ;
+		       __const void *__optval, socklen_t __optlen) __THROW;
 
 
 /* Prepare to accept connections on socket FD.
    N connection requests will be queued before further requests are refused.
    Returns 0 on success, -1 for errors.  */
-extern int listen (int __fd, int __n) ;
+extern int listen (int __fd, int __n) __THROW;
 
 /* Await a connection on socket FD.
    When a connection arrives, open a new socket to communicate with it,
@@ -188,7 +188,7 @@ extern int listen (int __fd, int __n) ;
    new socket's descriptor, or -1 for errors.  */
 extern int accept (int __fd, __SOCKADDR_ARG __addr,
 		   socklen_t *__restrict __addr_len)
-     ;
+     __THROW;
 
 /* Shut down all or part of the connection open on socket FD.
    HOW determines what to shut down:
@@ -196,14 +196,20 @@ extern int accept (int __fd, __SOCKADDR_ARG __addr,
      SHUT_WR   = No more transmissions;
      SHUT_RDWR = No more receptions or transmissions.
    Returns 0 on success, -1 for errors.  */
-extern int shutdown (int __fd, int __how) ;
+extern int shutdown (int __fd, int __how) __THROW;
+
+
+#ifdef __USE_XOPEN2K
+/* Determine wheter socket is at a out-of-band mark.  */
+extern int sockatmark (int __fd) __THROW;
+#endif
 
 
 #ifdef __USE_MISC
 /* FDTYPE is S_IFSOCK or another S_IF* macro defined in <sys/stat.h>;
    returns 1 if FD is open on an object of the indicated type, 0 if not,
    or -1 for errors (setting errno).  */
-extern int isfdtype (int __fd, int __fdtype) ;
+extern int isfdtype (int __fd, int __fdtype) __THROW;
 #endif
 
 __END_DECLS

@@ -1,21 +1,21 @@
 /* `ptrace' debugger support interface.  Linux version.
-   Copyright (C) 1996, 1997, 1998 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _SYS_PTRACE_H
 #define _SYS_PTRACE_H	1
@@ -98,9 +98,19 @@ enum __ptrace_request
   PTRACE_DETACH = 17,
 #define PT_DETACH PTRACE_DETACH
 
+  /* Get all extended floating point registers used by a processes.
+     This is not supported on all machines.  */
+   PTRACE_GETFPXREGS = 18,
+#define PT_GETFPXREGS PTRACE_GETFPXREGS
+
+  /* Set all extended floating point registers used by a processes.
+     This is not supported on all machines.  */
+   PTRACE_SETFPXREGS = 19,
+#define PT_SETFPXREGS PTRACE_SETFPXREGS
+
   /* Continue and stop at the next (return from) syscall.  */
   PTRACE_SYSCALL = 24
-#define PTRACE_SYSCALL PTRACE_SYSCALL
+#define PT_SYSCALL PTRACE_SYSCALL
 };
 
 /* Perform process tracing functions.  REQUEST is one of the values
@@ -112,7 +122,7 @@ enum __ptrace_request
    appear (those that are used for the particular request) as:
      pid_t PID, void *ADDR, int DATA, void *ADDR2
    after REQUEST.  */
-extern long int ptrace __P ((enum __ptrace_request __request, ...));
+extern long int ptrace (enum __ptrace_request __request, ...) __THROW;
 
 __END_DECLS
 

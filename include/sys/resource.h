@@ -2,25 +2,24 @@
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef	_SYS_RESOURCE_H
 #define	_SYS_RESOURCE_H	1
 
 #include <features.h>
-#include <sys/types.h>
 
 /* Get the system-dependent definitions of structures and bit values.  */
 #include <bits/resource.h>
@@ -50,11 +49,11 @@ typedef int __priority_which_t;
    Returns 0 if successful, -1 if not (and sets errno).  */
 #ifndef __USE_FILE_OFFSET64
 extern int getrlimit (__rlimit_resource_t __resource,
-		      struct rlimit *__rlimits);
+		      struct rlimit *__rlimits) __THROW;
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (getrlimit, (__rlimit_resource_t __resource,
-				   struct rlimit *__rlimits) ,
+				   struct rlimit *__rlimits) __THROW,
 		       getrlimit64);
 # else
 #  define getrlimit getrlimit64
@@ -62,7 +61,7 @@ extern int __REDIRECT (getrlimit, (__rlimit_resource_t __resource,
 #endif
 #ifdef __USE_LARGEFILE64
 extern int getrlimit64 (__rlimit_resource_t __resource,
-			struct rlimit64 *__rlimits);
+			struct rlimit64 *__rlimits) __THROW;
 #endif
 
 /* Set the soft and hard limits for RESOURCE to *RLIMITS.
@@ -70,11 +69,11 @@ extern int getrlimit64 (__rlimit_resource_t __resource,
    Return 0 if successful, -1 if not (and sets errno).  */
 #ifndef __USE_FILE_OFFSET64
 extern int setrlimit (__rlimit_resource_t __resource,
-		      __const struct rlimit *__rlimits);
+		      __const struct rlimit *__rlimits) __THROW;
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (setrlimit, (__rlimit_resource_t __resource,
-				   __const struct rlimit *__rlimits) ,
+				   __const struct rlimit *__rlimits) __THROW,
 		       setrlimit64);
 # else
 #  define setrlimit setrlimit64
@@ -82,22 +81,23 @@ extern int __REDIRECT (setrlimit, (__rlimit_resource_t __resource,
 #endif
 #ifdef __USE_LARGEFILE64
 extern int setrlimit64 (__rlimit_resource_t __resource,
-			__const struct rlimit64 *__rlimits);
+			__const struct rlimit64 *__rlimits) __THROW;
 #endif
 
 /* Return resource usage information on process indicated by WHO
    and put it in *USAGE.  Returns 0 for success, -1 for failure.  */
-extern int getrusage (__rusage_who_t __who, struct rusage *__usage);
+extern int getrusage (__rusage_who_t __who, struct rusage *__usage) __THROW;
 
 /* Return the highest priority of any process specified by WHICH and WHO
    (see above); if WHO is zero, the current process, process group, or user
    (as specified by WHO) is used.  A lower priority number means higher
    priority.  Priorities range from PRIO_MIN to PRIO_MAX (above).  */
-extern int getpriority (__priority_which_t __which, id_t __who);
+extern int getpriority (__priority_which_t __which, id_t __who) __THROW;
 
 /* Set the priority of all processes specified by WHICH and WHO (see above)
    to PRIO.  Returns 0 on success, -1 on errors.  */
-extern int setpriority (__priority_which_t __which, id_t __who, int __prio);
+extern int setpriority (__priority_which_t __which, id_t __who, int __prio)
+     __THROW;
 
 __END_DECLS
 

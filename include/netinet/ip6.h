@@ -1,20 +1,20 @@
-/* Copyright (C) 1991, 92, 93, 94, 95, 96, 97 Free Software Foundation, Inc.
+/* Copyright (C) 1991-1997, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _NETINET_IP6_H
 #define _NETINET_IP6_H 1
@@ -22,18 +22,19 @@
 #include <inttypes.h>
 #include <netinet/in.h>
 
-struct ip6_hdr 
+struct ip6_hdr
   {
-    union 
+    union
       {
-	struct ip6_hdrctl 
+	struct ip6_hdrctl
 	  {
-	    uint32_t ip6_un1_flow;   /* 24 bits of flow-ID */
+	    uint32_t ip6_un1_flow;   /* 4 bits version, 8 bits TC,
+					20 bits flow-ID */
 	    uint16_t ip6_un1_plen;   /* payload length */
 	    uint8_t  ip6_un1_nxt;    /* next header */
 	    uint8_t  ip6_un1_hlim;   /* hop limit */
 	  } ip6_un1;
-	uint8_t ip6_un2_vfc;       /* 4 bits version, 4 bits priority */
+	uint8_t ip6_un2_vfc;       /* 4 bits version, top 4 bits tclass */
       } ip6_ctlun;
     struct in6_addr ip6_src;      /* source address */
     struct in6_addr ip6_dst;      /* destination address */
@@ -47,7 +48,7 @@ struct ip6_hdr
 #define ip6_hops  ip6_ctlun.ip6_un1.ip6_un1_hlim
 
 /* Hop-by-Hop options header.  */
-struct ip6_hbh 
+struct ip6_hbh
   {
     uint8_t  ip6h_nxt;        /* next hesder.  */
     uint8_t  ip6h_len;        /* length in units of 8 octets.  */
@@ -55,7 +56,7 @@ struct ip6_hbh
   };
 
 /* Destination options header */
-struct ip6_dest 
+struct ip6_dest
   {
     uint8_t  ip6d_nxt;        /* next header */
     uint8_t  ip6d_len;        /* length in units of 8 octets */
@@ -63,7 +64,7 @@ struct ip6_dest
   };
 
 /* Routing header */
-struct ip6_rthdr 
+struct ip6_rthdr
   {
     uint8_t  ip6r_nxt;        /* next header */
     uint8_t  ip6r_len;        /* length in units of 8 octets */
@@ -73,7 +74,7 @@ struct ip6_rthdr
   };
 
 /* Type 0 Routing header */
-struct ip6_rthdr0 
+struct ip6_rthdr0
   {
     uint8_t  ip6r0_nxt;       /* next header */
     uint8_t  ip6r0_len;       /* length in units of 8 octets */
@@ -85,7 +86,7 @@ struct ip6_rthdr0
   };
 
 /* Fragment header */
-struct ip6_frag 
+struct ip6_frag
   {
     uint8_t   ip6f_nxt;       /* next header */
     uint8_t   ip6f_reserved;  /* reserved field */

@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -72,11 +68,11 @@ struct fstab
 
 __BEGIN_DECLS
 
-extern struct fstab *getfsent __P ((void));
-extern struct fstab *getfsspec __P ((__const char *__name));
-extern struct fstab *getfsfile __P ((__const char *__name));
-extern int setfsent __P ((void));
-extern void endfsent __P ((void));
+extern struct fstab *getfsent (void) __THROW;
+extern struct fstab *getfsspec (__const char *__name) __THROW;
+extern struct fstab *getfsfile (__const char *__name) __THROW;
+extern int setfsent (void) __THROW;
+extern void endfsent (void) __THROW;
 
 __END_DECLS
 

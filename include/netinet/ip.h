@@ -1,20 +1,20 @@
-/* Copyright (C) 1991, 92, 93, 95, 96, 97, 98 Free Software Foundation, Inc.
+/* Copyright (C) 1991,92,93,95,96,97,98,99,2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef __NETINET_IP_H
 #define __NETINET_IP_H 1
@@ -40,29 +40,6 @@ struct timestamp
 # error	"Please fix <bits/endian.h>"
 #endif
     u_int32_t data[9];
-  };
-
-struct ip_options
-  {
-    u_int32_t faddr;		/* Saved first hop address */
-    u_int8_t optlen;
-    u_int8_t srr;
-    u_int8_t rr;
-    u_int8_t ts;
-    unsigned int is_setbyuser:1;   /* Set by setsockopt?		  */
-    unsigned int is_data:1;	   /* Options in __data, rather than skb  */
-    unsigned int is_strictroute:1; /* Strict source route		  */
-    unsigned int srr_is_hit:1;	   /* Packet destination addr was our one */
-    unsigned int is_changed:1;	   /* IP checksum more not valid	  */
-    unsigned int rr_needaddr:1;	   /* Need to record addr of outgoing dev */
-    unsigned int ts_needtime:1;	   /* Need to record timestamp		  */
-    unsigned int ts_needaddr:1;	   /* Need to record addr of outgoing dev */
-    u_int8_t router_alert;
-    u_int8_t __pad1;
-    u_int8_t __pad2;
-#ifdef __GNUC__
-    u_int8_t __data[0];
-#endif
   };
 
 struct iphdr
@@ -101,10 +78,6 @@ struct iphdr
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.

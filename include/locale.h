@@ -6,6 +6,8 @@
 
 #include <features.h>
 
+__BEGIN_DECLS
+
 #ifndef NULL
 #ifdef __cplusplus
 #define NULL    0
@@ -70,12 +72,12 @@ struct lconv
   char n_sign_posn;
 };
 
-__BEGIN_DECLS
 
-extern char *setlocale(int __category, __const char *__locale);
+/* Set and/or return the current locale.  */
+extern char *setlocale (int __category, __const char *__locale) __THROW;
 
 /* Return the numeric/monetary information for the current locale.  */
-extern struct lconv *localeconv __P ((void));
+extern struct lconv *localeconv (void) __THROW;
 
 __END_DECLS
 

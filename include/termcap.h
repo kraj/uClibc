@@ -1,25 +1,75 @@
+/****************************************************************************
+ * Copyright (c) 1998,2000 Free Software Foundation, Inc.                   *
+ *                                                                          *
+ * Permission is hereby granted, free of charge, to any person obtaining a  *
+ * copy of this software and associated documentation files (the            *
+ * "Software"), to deal in the Software without restriction, including      *
+ * without limitation the rights to use, copy, modify, merge, publish,      *
+ * distribute, distribute with modifications, sublicense, and/or sell       *
+ * copies of the Software, and to permit persons to whom the Software is    *
+ * furnished to do so, subject to the following conditions:                 *
+ *                                                                          *
+ * The above copyright notice and this permission notice shall be included  *
+ * in all copies or substantial portions of the Software.                   *
+ *                                                                          *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS  *
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF               *
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.   *
+ * IN NO EVENT SHALL THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,   *
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR    *
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR    *
+ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
+ *                                                                          *
+ * Except as contained in this notice, the name(s) of the above copyright   *
+ * holders shall not be used in advertising or otherwise to promote the     *
+ * sale, use or other dealings in this Software without prior written       *
+ * authorization.                                                           *
+ ****************************************************************************/
 
-#ifndef _TERMCAP_H
-#define _TERMCAP_H
+/****************************************************************************
+ *  Author: Zeyd M. Ben-Halim <zmbenhal@netcom.com> 1992,1995               *
+ *     and: Eric S. Raymond <esr@snark.thyrsus.com>                         *
+ ****************************************************************************/
 
-#include <features.h>
+/* $Id: termcap.h,v 1.3 2001/09/27 05:21:09 andersen Exp $ */
+
+#ifndef _NCU_TERMCAP_H
+#define _NCU_TERMCAP_H	1
+
+#undef  NCURSES_VERSION
+#define NCURSES_VERSION "5.2"
+
+#include <ncurses_dll.h>
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
+
 #include <sys/types.h>
 
-__BEGIN_DECLS
+#undef  NCURSES_CONST 
+#define NCURSES_CONST const 
 
-extern char PC;
-extern char *UP;
-extern char *BC;
-extern int ospeed;
+#undef  NCURSES_OSPEED 
+#define NCURSES_OSPEED short 
 
-extern int tgetent __P((char *, const char *));
-extern int tgetflag __P((const char *));
-extern int tgetnum __P((const char *));
-extern char *tgetstr __P((const char *, char **));
+extern NCURSES_EXPORT_VAR(char) PC;
+extern NCURSES_EXPORT_VAR(char *) UP;
+extern NCURSES_EXPORT_VAR(char *) BC;
+extern NCURSES_EXPORT_VAR(NCURSES_OSPEED) ospeed; 
 
-extern int tputs __P((const char *, int, int (*)(int)));
-extern char *tgoto __P((const char *, int, int));
+#if !defined(_NCU_TERM_H)
+extern NCURSES_EXPORT(char *) tgetstr (NCURSES_CONST char *, char **);
+extern NCURSES_EXPORT(char *) tgoto (const char *, int, int);
+extern NCURSES_EXPORT(int) tgetent (char *, const char *);
+extern NCURSES_EXPORT(int) tgetflag (NCURSES_CONST char *);
+extern NCURSES_EXPORT(int) tgetnum (NCURSES_CONST char *);
+extern NCURSES_EXPORT(int) tputs (const char *, int, int (*)(int));
+#endif
 
-__END_DECLS
+#ifdef __cplusplus
+}
+#endif
 
-#endif /* _TERMCAP_H */
+#endif /* _NCU_TERMCAP_H */

@@ -1,54 +1,56 @@
-/* Copyright (C) 1991, 92, 93, 94, 96, 97, 98 Free Software Foundation, Inc.
+/* Copyright (C) 1991-1994,96,97,98,99,2000,2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _SYS_TIME_H
 #define _SYS_TIME_H	1
 
 #include <features.h>
 
-/* POSIX.4 structure for a time value.  This is like a `struct timeval' but
-   has nanoseconds instead of microseconds.  */
-struct timespec
-  {
-    long int tv_sec;		/* Seconds.  */
-    long int tv_nsec;		/* Nanoseconds.  */
-  };
-
+#include <bits/types.h>
+#define __need_time_t
 #include <time.h>
-#include <sys/select.h>
-
 #define __need_timeval
 #include <bits/time.h>
+
+#include <sys/select.h>
+
+#ifndef __suseconds_t_defined
+typedef __suseconds_t suseconds_t;
+# define __suseconds_t_defined
+#endif
 
 
 __BEGIN_DECLS
 
+#ifdef __USE_GNU
 /* Macros for converting between `struct timeval' and `struct timespec'.  */
-#define TIMEVAL_TO_TIMESPEC(tv, ts) {                                   \
+# define TIMEVAL_TO_TIMESPEC(tv, ts) {                                   \
         (ts)->tv_sec = (tv)->tv_sec;                                    \
         (ts)->tv_nsec = (tv)->tv_usec * 1000;                           \
 }
-#define TIMESPEC_TO_TIMEVAL(tv, ts) {                                   \
+# define TIMESPEC_TO_TIMEVAL(tv, ts) {                                   \
         (tv)->tv_sec = (ts)->tv_sec;                                    \
         (tv)->tv_usec = (ts)->tv_nsec / 1000;                           \
 }
+#endif
 
 
+#ifdef __USE_BSD
 /* Structure crudely representing a timezone.
    This is obsolete and should never be used.  */
 struct timezone
@@ -57,25 +59,32 @@ struct timezone
     int tz_dsttime;		/* Nonzero if DST is ever in effect.  */
   };
 
+typedef struct timezone *__restrict __timezone_ptr_t;
+#else
+typedef void *__restrict __timezone_ptr_t;
+#endif
+
 /* Get the current time of day and timezone information,
    putting it into *TV and *TZ.  If TZ is NULL, *TZ is not filled.
    Returns 0 on success, -1 on errors.
    NOTE: This form of timezone information is obsolete.
    Use the functions and variables declared in <time.h> instead.  */
-extern int gettimeofday __P ((struct timeval *__tv,
-			      struct timezone *__tz));
+extern int gettimeofday (struct timeval *__restrict __tv,
+			 __timezone_ptr_t __tz) __THROW;
 
+#ifdef __USE_BSD
 /* Set the current time of day and timezone information.
    This call is restricted to the super-user.  */
-extern int settimeofday __P ((__const struct timeval *__tv,
-			      __const struct timezone *__tz));
+extern int settimeofday (__const struct timeval *__tv,
+			 __const struct timezone *__tz) __THROW;
 
 /* Adjust the current time of day by the amount in DELTA.
    If OLDDELTA is not NULL, it is filled in with the amount
    of time adjustment remaining to be done from the last `adjtime' call.
    This call is restricted to the super-user.  */
-extern int adjtime __P ((__const struct timeval *__delta,
-			 struct timeval *__olddelta));
+extern int adjtime (__const struct timeval *__delta,
+		    struct timeval *__olddelta) __THROW;
+#endif
 
 
 /* Values for the first argument to `getitimer' and `setitimer'.  */
@@ -103,32 +112,42 @@ struct itimerval
     struct timeval it_value;
   };
 
+#if defined __USE_GNU && !defined __cplusplus
+/* Use the nicer parameter type only in GNU mode and not for C++ since the
+   strict C++ rules prevent the automatic promotion.  */
+typedef enum __itimer_which __itimer_which_t;
+#else
+typedef int __itimer_which_t;
+#endif
+
 /* Set *VALUE to the current setting of timer WHICH.
    Return 0 on success, -1 on errors.  */
-extern int getitimer __P ((enum __itimer_which __which,
-			   struct itimerval *__value));
+extern int getitimer (__itimer_which_t __which,
+		      struct itimerval *__value) __THROW;
 
 /* Set the timer WHICH to *NEW.  If OLD is not NULL,
    set *OLD to the old value of timer WHICH.
    Returns 0 on success, -1 on errors.  */
-extern int setitimer __P ((enum __itimer_which __which,
-			   __const struct itimerval *__new,
-			   struct itimerval *__old));
+extern int setitimer (__itimer_which_t __which,
+		      __const struct itimerval *__restrict __new,
+		      struct itimerval *__restrict __old) __THROW;
 
 /* Change the access time of FILE to TVP[0] and
    the modification time of FILE to TVP[1].  */
-extern int utimes __P ((__const char *__file, struct timeval __tvp[2]));
+extern int utimes (__const char *__file, __const struct timeval __tvp[2])
+     __THROW;
 
 
+#ifdef __USE_BSD
 /* Convenience macros for operations on timevals.
    NOTE: `timercmp' does not work for >= or <=.  */
-#define	timerisset(tvp)		((tvp)->tv_sec || (tvp)->tv_usec)
-#define	timerclear(tvp)		((tvp)->tv_sec = (tvp)->tv_usec = 0)
-#define	timercmp(a, b, CMP) 						      \
+# define timerisset(tvp)	((tvp)->tv_sec || (tvp)->tv_usec)
+# define timerclear(tvp)	((tvp)->tv_sec = (tvp)->tv_usec = 0)
+# define timercmp(a, b, CMP) 						      \
   (((a)->tv_sec == (b)->tv_sec) ? 					      \
    ((a)->tv_usec CMP (b)->tv_usec) : 					      \
    ((a)->tv_sec CMP (b)->tv_sec))
-#define	timeradd(a, b, result)						      \
+# define timeradd(a, b, result)						      \
   do {									      \
     (result)->tv_sec = (a)->tv_sec + (b)->tv_sec;			      \
     (result)->tv_usec = (a)->tv_usec + (b)->tv_usec;			      \
@@ -138,7 +157,7 @@ extern int utimes __P ((__const char *__file, struct timeval __tvp[2]));
 	(result)->tv_usec -= 1000000;					      \
       }									      \
   } while (0)
-#define	timersub(a, b, result)						      \
+# define timersub(a, b, result)						      \
   do {									      \
     (result)->tv_sec = (a)->tv_sec - (b)->tv_sec;			      \
     (result)->tv_usec = (a)->tv_usec - (b)->tv_usec;			      \
@@ -147,6 +166,7 @@ extern int utimes __P ((__const char *__file, struct timeval __tvp[2]));
       (result)->tv_usec += 1000000;					      \
     }									      \
   } while (0)
+#endif	/* BSD */
 
 __END_DECLS
 

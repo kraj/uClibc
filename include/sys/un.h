@@ -1,27 +1,25 @@
-/* Copyright (C) 1991, 1995, 1996 Free Software Foundation, Inc.
+/* Copyright (C) 1991, 1995, 1996, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef	_SYS_UN_H
 #define	_SYS_UN_H	1
 
 #include <sys/cdefs.h>
-
-#include <string.h>		/* For prototype of `strlen'.  */
 
 /* Get the definition of the macro to define the common sockaddr members.  */
 #include <bits/sockaddr.h>
@@ -36,9 +34,13 @@ struct sockaddr_un
   };
 
 
+#ifdef __USE_MISC
+# include <string.h>		/* For prototype of `strlen'.  */
+
 /* Evaluate to actual length of the `sockaddr_un' structure.  */
-#define SUN_LEN(ptr) ((size_t) (((struct sockaddr_un *) 0)->sun_path)	      \
+# define SUN_LEN(ptr) ((size_t) (((struct sockaddr_un *) 0)->sun_path)	      \
 		      + strlen ((ptr)->sun_path))
+#endif
 
 __END_DECLS
 

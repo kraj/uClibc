@@ -1,20 +1,20 @@
-/* Copyright (C) 1991, 92, 94, 95, 96, 97, 98 Free Software Foundation, Inc.
+/* Copyright (C) 1991,92,94,95,96,97,98,99,2000,2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 /*
  *	POSIX Standard: 6.5 File Control Operations	<fcntl.h>
@@ -57,42 +57,40 @@ __BEGIN_DECLS
 
 /* Do the file control operation described by CMD on FD.
    The remaining arguments are interpreted depending on CMD.  */
-extern int __fcntl __P ((int __fd, int __cmd, ...));
-extern int fcntl __P ((int __fd, int __cmd, ...));
+extern int fcntl (int __fd, int __cmd, ...) __THROW;
 
 /* Open FILE and return a new file descriptor for it, or -1 on error.
    OFLAG determines the type of access used.  If O_CREAT is on OFLAG,
    the third argument is taken as a `mode_t', the mode of the created file.  */
-extern int __open __P ((__const char *__file, int __oflag, mode_t mode));
 #ifndef __USE_FILE_OFFSET64
-extern int open __P ((__const char *__file, int __oflag, ...));
+extern int open (__const char *__file, int __oflag, ...) __THROW;
 #else
 # ifdef __REDIRECT
-extern int __REDIRECT (open, __P ((__const char *__file, int __oflag, ...)),
+extern int __REDIRECT (open, (__const char *__file, int __oflag, ...) __THROW,
 		       open64);
 # else
 #  define open open64
 # endif
 #endif
 #ifdef __USE_LARGEFILE64
-extern int open64 __P ((__const char *__file, int __oflag, ...));
+extern int open64 (__const char *__file, int __oflag, ...) __THROW;
 #endif
 
 /* Create and open FILE, with mode MODE.
    This takes an `int' MODE argument because that is
    what `mode_t' will be widened to.  */
 #ifndef __USE_FILE_OFFSET64
-extern int creat __P ((__const char *__file, __mode_t __mode));
+extern int creat (__const char *__file, __mode_t __mode) __THROW;
 #else
 # ifdef __REDIRECT
-extern int __REDIRECT (creat, __P ((__const char *__file, __mode_t __mode)),
+extern int __REDIRECT (creat, (__const char *__file, __mode_t __mode) __THROW,
 		       creat64);
 # else
 #  define creat creat64
 # endif
 #endif
 #ifdef __USE_LARGEFILE64
-extern int creat64 __P ((__const char *__file, __mode_t __mode));
+extern int creat64 (__const char *__file, __mode_t __mode) __THROW;
 #endif
 
 #if !defined F_LOCK && (defined __USE_MISC || (defined __USE_XOPEN_EXTENDED \
@@ -111,17 +109,56 @@ extern int creat64 __P ((__const char *__file, __mode_t __mode));
 # define F_TEST  3	/* Test a region for other processes locks.  */
 
 # ifndef __USE_FILE_OFFSET64
-extern int lockf __P ((int __fd, int __cmd, __off_t __len));
+extern int lockf (int __fd, int __cmd, __off_t __len) __THROW;
 # else
 # ifdef __REDIRECT
-extern int __REDIRECT (lockf, __P ((int __fd, int __cmd, __off64_t __len)),
+extern int __REDIRECT (lockf, (int __fd, int __cmd, __off64_t __len) __THROW,
 		       lockf64);
 # else
 #  define lockf lockf64
 # endif
 # endif
 # ifdef __USE_LARGEFILE64
-extern int lockf64 __P ((int __fd, int __cmd, __off64_t __len));
+extern int lockf64 (int __fd, int __cmd, __off64_t __len) __THROW;
+# endif
+#endif
+
+#ifdef __USE_XOPEN2K
+/* Advice the system about the expected behaviour of the application with
+   respect to the file associated with FD.  */
+# ifndef __USE_FILE_OFFSET64
+extern int posix_fadvise (int __fd, __off_t __offset, size_t __len,
+			  int __advise) __THROW;
+# else
+# ifdef __REDIRECT
+extern int __REDIRECT (posix_fadvise, (int __fd, __off64_t __offset,
+				       size_t __len, int __advise) __THROW,
+		       posix_fadvise64);
+# else
+#  define posix_fadvise posix_fadvise64
+# endif
+# endif
+# ifdef __USE_LARGEFILE64
+extern int posix_fadvise64 (int __fd, __off64_t __offset, size_t __len,
+			    int __advise) __THROW;
+# endif
+
+
+/* Reserve storage for the data of the file associated with FD.  */
+# ifndef __USE_FILE_OFFSET64
+extern int posix_fallocate (int __fd, __off_t __offset, size_t __len) __THROW;
+# else
+# ifdef __REDIRECT
+extern int __REDIRECT (posix_fallocate, (int __fd, __off64_t __offset,
+					 size_t __len) __THROW,
+		       posix_fallocate64);
+# else
+#  define posix_fallocate posix_fallocate64
+# endif
+# endif
+# ifdef __USE_LARGEFILE64
+extern int posix_fallocate64 (int __fd, __off64_t __offset, size_t __len)
+     __THROW;
 # endif
 #endif
 

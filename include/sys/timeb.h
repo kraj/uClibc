@@ -29,16 +29,17 @@ __BEGIN_DECLS
 
 /* Structure returned by the `ftime' function.  */
 
-struct timeb {
-	time_t time;			/* Seconds since epoch, as from `time'.  */
-	unsigned short int millitm;	/* Additional milliseconds.  */
-	short int timezone;		/* Minutes west of GMT.  */
-	short int dstflag;		/* Nonzero if Daylight Savings Time used.  */
-};
+struct timeb
+  {
+    time_t time;		/* Seconds since epoch, as from `time'.  */
+    unsigned short int millitm;	/* Additional milliseconds.  */
+    short int timezone;		/* Minutes west of GMT.  */
+    short int dstflag;		/* Nonzero if Daylight Savings Time used.  */
+  };
 
 /* Fill in TIMEBUF with information about the current time.  */
 
-extern int ftime(struct timeb *__timebuf);
+extern int ftime (struct timeb *__timebuf);
 
 __END_DECLS
 

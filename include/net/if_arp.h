@@ -1,22 +1,22 @@
 /* Definitions for Address Resolution Protocol.
-   Copyright (C) 1997, 1999 Free Software Foundation, Inc.
+   Copyright (C) 1997, 1999, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 /* Based on the 4.4BSD and Linux version of this file.  */
 
@@ -93,10 +93,13 @@ struct arphdr
 #define ARPHRD_ADAPT	264
 #define ARPHRD_ROSE	270
 #define ARPHRD_X25	271		/* CCITT X.25.  */
+#define ARPHDR_HWX25	272		/* Boards with X.25 in firmware.  */
 #define ARPHRD_PPP	512
-#define ARPHRD_HDLC	513		/* (Cisco) HDLC.  */
+#define ARPHRD_CISCO	513		/* Cisco HDLC.  */
+#define ARPHRD_HDLC	ARPHRD_CISCO
 #define ARPHRD_LAPB	516		/* LAPB.  */
 #define ARPHRD_DDCMP	517		/* Digital's DDCMP.  */
+#define	ARPHRD_RAWHDLC	518		/* Raw HDLC.  */
 
 #define ARPHRD_TUNNEL	768		/* IPIP tunnel.  */
 #define ARPHRD_TUNNEL6	769		/* IPIP6 tunnel.  */
@@ -113,13 +116,13 @@ struct arphdr
 #define ARPHRD_HIPPI	780		/* High Performance Parallel I'face. */
 #define ARPHRD_ASH	781		/* (Nexus Electronics) Ash.  */
 #define ARPHRD_ECONET	782		/* Acorn Econet.  */
-#define ARPHRD_IRDA	783		/* Linux/IR.  */
+#define ARPHRD_IRDA	783		/* Linux-IrDA.  */
 #define ARPHRD_FCPP	784		/* Point to point fibrechanel.  */
 #define ARPHRD_FCAL	785		/* Fibrechanel arbitrated loop.  */
 #define ARPHRD_FCPL	786		/* Fibrechanel public loop.  */
 #define ARPHRD_FCPFABRIC 787		/* Fibrechanel fabric.  */
 #define ARPHRD_IEEE802_TR 800		/* Magic type ident for TR.  */
-
+#define ARPHRD_IEEE80211 801		/* IEEE 802.11.  */
 
 /* ARP ioctl request.  */
 struct arpreq

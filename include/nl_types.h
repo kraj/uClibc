@@ -2,19 +2,19 @@
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _NL_TYPES_H
 #define _NL_TYPES_H 1
@@ -37,15 +37,15 @@ typedef void *nl_catd;
 typedef int nl_item;
 
 /* Open message catalog for later use, returning descriptor.  */
-extern nl_catd catopen (__const char *__cat_name, int __flag);
+extern nl_catd catopen (__const char *__cat_name, int __flag) __THROW;
 
 /* Return translation with NUMBER in SET of CATALOG; if not found
    return STRING.  */
 extern char *catgets (nl_catd __catalog, int __set, int __number,
-		      __const char *__string);
+		      __const char *__string) __THROW;
 
 /* Close message CATALOG.  */
-extern int catclose (nl_catd __catalog);
+extern int catclose (nl_catd __catalog) __THROW;
 
 __END_DECLS
 

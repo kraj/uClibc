@@ -1,60 +1,97 @@
-/* utmp.h */
+/* Copyright (C) 1993, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#ifndef __UTMP_H
-#define __UTMP_H
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+#ifndef	_UTMP_H
+#define	_UTMP_H	1
 
 #include <features.h>
+
 #include <sys/types.h>
-#include <paths.h>
-#include <time.h>
 
-#define UT_UNKNOWN 0
-#define UT_LINESIZE 12
-#define UT_NAMESIZE 8
-#define UT_HOSTSIZE 16
-
-#define RUN_LVL 1
-#define BOOT_TIME 2
-#define NEW_TIME 3
-#define OLD_TIME 4
-
-#define INIT_PROCESS 5
-#define LOGIN_PROCESS 6
-#define USER_PROCESS 7
-#define DEAD_PROCESS 8
 
 __BEGIN_DECLS
 
-struct utmp
-{
-  short   ut_type;                 /* type of login */
-  pid_t   ut_pid;                  /* pid of login-process */
-  char    ut_line[UT_LINESIZE];    /* devicename of tty -"/dev/", null-term */
-  char    ut_id[2];                /* abbrev. ttyname, as 01, s1 etc. */
-  time_t  ut_time;                 /* login time */
-#define ut_name ut_user                /* Backwards compatibility hack  */
-  char    ut_user[UT_NAMESIZE];    /* username, not null-term */
-  char    ut_host[UT_HOSTSIZE];    /* hostname for remote login... */
-  long    ut_addr;                 /* IP addr of remote host */
+/* Get system dependent values and data structures.  */
+#include <bits/utmp.h>
 
-};
+/* Compatibility names for the strings of the canonical file names.  */
+#define UTMP_FILE	_PATH_UTMP
+#define UTMP_FILENAME	_PATH_UTMP
+#define WTMP_FILE	_PATH_WTMP
+#define WTMP_FILENAME	_PATH_WTMP
 
-extern void             setutent __P ((void));
-extern void             utmpname __P ((__const char *));
-extern struct utmp *    getutent __P ((void));
-extern struct utmp *    getutid __P ((struct utmp *));
-extern struct utmp *    getutline __P ((struct utmp *));
-extern struct utmp *    pututline __P ((struct utmp *));
-extern void             endutent __P ((void));
-extern int login_tty (int __fd);
-extern void login (const struct utmp *entry);
-extern void logwtmp (const char *line, const char *name, const char *host);
 
-#ifdef _LIBC
-struct utmp *           __getutent __P ((int));
-#endif
+
+/* Make FD be the controlling terminal, stdin, stdout, and stderr;
+   then close FD.  Returns 0 on success, nonzero on error.  */
+extern int login_tty (int __fd) __THROW;
+
+
+/* Write the given entry into utmp and wtmp.  */
+extern void login (__const struct utmp *__entry) __THROW;
+
+/* Write the utmp entry to say the user on UT_LINE has logged out.  */
+extern int logout (__const char *__ut_line) __THROW;
+
+/* Append to wtmp an entry for the current time and the given info.  */
+extern void logwtmp (__const char *__ut_line, __const char *__ut_name,
+		     __const char *__ut_host) __THROW;
+
+/* Append entry UTMP to the wtmp-like file WTMP_FILE.  */
+extern void updwtmp (__const char *__wtmp_file, __const struct utmp *__utmp)
+     __THROW;
+
+/* Change name of the utmp file to be examined.  */
+extern int utmpname (__const char *__file) __THROW;
+
+/* Read next entry from a utmp-like file.  */
+extern struct utmp *getutent (void) __THROW;
+
+/* Reset the input stream to the beginning of the file.  */
+extern void setutent (void) __THROW;
+
+/* Close the current open file.  */
+extern void endutent (void) __THROW;
+
+/* Search forward from the current point in the utmp file until the
+   next entry with a ut_type matching ID->ut_type.  */
+extern struct utmp *getutid (__const struct utmp *__id) __THROW;
+
+/* Search forward from the current point in the utmp file until the
+   next entry with a ut_line matching LINE->ut_line.  */
+extern struct utmp *getutline (__const struct utmp *__line) __THROW;
+
+/* Write out entry pointed to by UTMP_PTR into the utmp file.  */
+extern struct utmp *pututline (__const struct utmp *__utmp_ptr) __THROW;
+
+
+#ifdef	__USE_MISC
+/* Reentrant versions of the file for handling utmp files.  */
+extern int getutent_r (struct utmp *__buffer, struct utmp **__result) __THROW;
+
+extern int getutid_r (__const struct utmp *__id, struct utmp *__buffer,
+		      struct utmp **__result) __THROW;
+
+extern int getutline_r (__const struct utmp *__line,
+			struct utmp *__buffer, struct utmp **__result) __THROW;
+
+#endif	/* Use misc.  */
 
 __END_DECLS
 
-#endif /* __UTMP_H */
-
+#endif /* utmp.h  */

@@ -2,19 +2,19 @@
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _SYS_MSG_H
 #define _SYS_MSG_H
@@ -57,18 +57,18 @@ struct msgbuf
 __BEGIN_DECLS
 
 /* Message queue control operation.  */
-extern int msgctl (int __msqid, int __cmd, struct msqid_ds *__buf);
+extern int msgctl (int __msqid, int __cmd, struct msqid_ds *__buf) __THROW;
 
 /* Get messages queue.  */
-extern int msgget (key_t __key, int __msgflg);
+extern int msgget (key_t __key, int __msgflg) __THROW;
 
 /* Receive message from message queue.  */
 extern int msgrcv (int __msqid, void *__msgp, size_t __msgsz,
-		   long int __msgtyp, int __msgflg);
+		   long int __msgtyp, int __msgflg) __THROW;
 
 /* Send message to message queue.  */
 extern int msgsnd (int __msqid, __const void *__msgp, size_t __msgsz,
-		   int __msgflg);
+		   int __msgflg) __THROW;
 
 __END_DECLS
 

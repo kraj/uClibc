@@ -1,21 +1,21 @@
 /* `fd_set' type and related macros, and `select'/`pselect' declarations.
-   Copyright (C) 1996, 1997, 1998 Free Software Foundation, Inc.
+   Copyright (C) 1996,1997,1998,1999,2000,2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 /*	POSIX 1003.1g: 6.2 Select from File Descriptor Sets <sys/select.h>  */
 
@@ -33,61 +33,80 @@
 /* Get __sigset_t.  */
 #include <bits/sigset.h>
 
+#ifndef __sigset_t_defined
+# define __sigset_t_defined
+typedef __sigset_t sigset_t;
+#endif
+
 /* Get definition of timer specification structures.  */
 #define __need_timespec
 #include <time.h>
+#define __need_timeval
+#include <bits/time.h>
 
-__BEGIN_DECLS
 
-/* This declaration puts `struct timeval' in global scope even if
-   <sys/time.h> has not been included to define it.  That way the
-   `select' prototype below will not conflict with a later definition
-   of `struct timeval'.  */
-struct timeval;
+/* The fd_set member is required to be an array of longs.  */
+typedef long int __fd_mask;
 
-typedef __fd_mask fd_mask;
+/* It's easier to assume 8-bit bytes than to get CHAR_BIT.  */
+#define __NFDBITS	(8 * sizeof (__fd_mask))
+#define	__FDELT(d)	((d) / __NFDBITS)
+#define	__FDMASK(d)	((__fd_mask) 1 << ((d) % __NFDBITS))
 
-/* Representation of a set of file descriptors.  */
-typedef __fd_set fd_set;
+/* fd_set for select and pselect.  */
+typedef struct
+  {
+    /* XPG4.2 requires this member name.  Otherwise avoid the name
+       from the global namespace.  */
+#ifdef __USE_XOPEN
+    __fd_mask fds_bits[__FD_SETSIZE / __NFDBITS];
+# define __FDS_BITS(set) ((set)->fds_bits)
+#else
+    __fd_mask __fds_bits[__FD_SETSIZE / __NFDBITS];
+# define __FDS_BITS(set) ((set)->__fds_bits)
+#endif
+  } fd_set;
 
 /* Maximum number of file descriptors in `fd_set'.  */
 #define	FD_SETSIZE		__FD_SETSIZE
 
 #ifdef __USE_MISC
+/* Sometimes the fd_set member is assumed to have this type.  */
+typedef __fd_mask fd_mask;
+
 /* Number of bits per word of `fd_set' (some code assumes this is 32).  */
 # define NFDBITS		__NFDBITS
 #endif
 
 
 /* Access macros for `fd_set'.  */
-#define	FD_SET(fd, fdsetp)	__FD_SET ((fd), (fdsetp))
-#define	FD_CLR(fd, fdsetp)	__FD_CLR ((fd), (fdsetp))
-#define	FD_ISSET(fd, fdsetp)	__FD_ISSET ((fd), (fdsetp))
+#define	FD_SET(fd, fdsetp)	__FD_SET (fd, fdsetp)
+#define	FD_CLR(fd, fdsetp)	__FD_CLR (fd, fdsetp)
+#define	FD_ISSET(fd, fdsetp)	__FD_ISSET (fd, fdsetp)
 #define	FD_ZERO(fdsetp)		__FD_ZERO (fdsetp)
 
+
+__BEGIN_DECLS
 
 /* Check the first NFDS descriptors each in READFDS (if not NULL) for read
    readiness, in WRITEFDS (if not NULL) for write readiness, and in EXCEPTFDS
    (if not NULL) for exceptional conditions.  If TIMEOUT is not NULL, time out
    after waiting the interval specified therein.  Returns the number of ready
    descriptors, or -1 for errors.  */
-extern int __select __P ((int __nfds, __fd_set *__readfds,
-			  __fd_set *__writefds, __fd_set *__exceptfds,
-			  struct timeval *__timeout));
-extern int select __P ((int __nfds, __fd_set *__readfds,
-			__fd_set *__writefds, __fd_set *__exceptfds,
-			struct timeval *__timeout));
+extern int select (int __nfds, fd_set *__restrict __readfds,
+		   fd_set *__restrict __writefds,
+		   fd_set *__restrict __exceptfds,
+		   struct timeval *__restrict __timeout) __THROW;
 
-#ifdef __USE_GNU
-/* XXX Once/if POSIX.1g gets official this prototype will be available
-   when defining __USE_POSIX.  */
+#ifdef __USE_XOPEN2K
 /* Same as above only that the TIMEOUT value is given with higher
    resolution and a sigmask which is been set temporarily.  This version
    should be used.  */
-extern int pselect __P ((int __nfds, __fd_set *__readfds,
-			 __fd_set *__writefds, __fd_set *__exceptfds,
-			 const struct timespec *__timeout,
-			 const __sigset_t *__sigmask));
+extern int pselect (int __nfds, fd_set *__restrict __readfds,
+		    fd_set *__restrict __writefds,
+		    fd_set *__restrict __exceptfds,
+		    const struct timespec *__restrict __timeout,
+		    const __sigset_t *__restrict __sigmask) __THROW;
 #endif
 
 __END_DECLS
