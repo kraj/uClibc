@@ -1,4 +1,6 @@
 gcc-uClibc.h
-gcc-uClibc-i386
-gcc-uClibc-m68k
-gcc-uClibc-arm
+i386-gcc-uclibc
+m68k-gcc-uclibc
+arm-gcc-uclibc
+sh-gcc-uclibc
+powerpc-gcc-uclibc
