@@ -69,6 +69,7 @@ main ( void )
 		i = (i+1) % numfuncs;
 	}
 	printf("%d functions registered with atexit.\n", count);
-	/* implicit exit */
+
+	return 0;
 }
 
