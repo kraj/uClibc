@@ -32,6 +32,11 @@
  * Bug in duplocale... collation data wasn't copied.
  * Bug in newlocale... translate 1<<LC_ALL to LC_ALL_MASK.
  * Bug in _wchar_utf8sntowcs... fix cut-n-paste error.
+ *
+ * Aug 31, 2003
+ * Hack around bg_BG bug; grouping specified but no thousands separator.
+ * Also, disable the locale link_warnings for now, as they generate a
+ * lot of noise when using libstd++.
  */
 
 
@@ -55,6 +60,14 @@
 #include <errno.h>
 #include <ctype.h>
 #include <stdio.h>
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#ifdef L_setlocale
+#warning TODO: Make the link_warning()s a config option?
+#endif
+#endif
+#undef link_warning
+#define link_warning(A,B)
 
 #undef __LOCALE_C_ONLY
 #ifndef __UCLIBC_HAS_LOCALE__
@@ -778,8 +791,19 @@ int _locale_set_l(const unsigned char *p, __locale_t base)
 					base->thousands_sep_len
 						= __locale_mbrtowc_l(&base->thousands_sep_wc,
 											 base->thousands_sep, base);
+#if 1
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO: Remove hack involving grouping without a thousep char (bg_BG).
+#endif
+					assert(base->thousands_sep_len >= 0);
+					if (base->thousands_sep_len == 0) {
+						base->grouping = base->thousands_sep; /* empty string */
+					}
+					assert(base->thousands_sep[base->thousands_sep_len] == 0);
+#else
 					assert(base->thousands_sep_len > 0);
 					assert(base->thousands_sep[base->thousands_sep_len] == 0);
+#endif
 				}					
 
 /* 			} else if (i == LC_COLLATE) { */
