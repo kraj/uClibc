@@ -350,7 +350,7 @@ int vfscanf(FILE *fp, const char *format, va_list ap)
 				if (p-spec < 5) { /* [,c,s - string conversions */
 					invert = 0;
 					if (*p == 'c') {
-						invert = 0;
+						invert = 1;
 						if (sc.width == INT_MAX) {
 							sc.width = 1;
 						}
