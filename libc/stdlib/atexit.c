@@ -218,6 +218,10 @@ void (*__exit_cleanup) (int) = 0;
 pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
+#ifdef __UCLIBC_CTOR_DTOR__
+extern void (*__app_fini)(void);
+#endif
+
 /*
  * Normal program termination
  */
@@ -229,6 +233,11 @@ void exit(int rv)
 		__exit_cleanup(rv);
 	}
 	UNLOCK;
+
+#ifdef __UCLIBC_CTOR_DTOR__
+	if (__app_fini != NULL)
+		(__app_fini)();
+#endif
 
     /* If we are using stdio, try to shut it down.  At the very least,
 	 * this will attempt to commit all buffered writes.  It may also

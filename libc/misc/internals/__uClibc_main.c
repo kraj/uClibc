@@ -101,6 +101,9 @@ void __uClibc_init(void)
 
 }
 
+#ifdef __UCLIBC_CTOR_DTOR__
+void (*__app_fini)(void) = NULL;
+#endif
 
 /* __uClibc_start_main is the new main stub for uClibc. This function is 
  * called from crt0 (version 0.9.16 or newer), after ALL shared libraries 
@@ -128,9 +131,7 @@ __uClibc_start_main(int argc, char **argv, char **envp,
 
 #ifdef __UCLIBC_CTOR_DTOR__
     /* Arrange for the application's dtors to run before we exit.  */
-    if (app_fini!=NULL) {
-	atexit(app_fini);
-    }
+	__app_fini = app_fini;
 
     /* Run all the application's ctors now.  */
     if (app_init!=NULL) {
