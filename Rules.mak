@@ -35,7 +35,7 @@
 # will build uClibc for 'arm'.
 
 ifndef CROSS
-CROSS=/mnt/src/jocke/bb5/buildroot/build_powerpc_nofpu/staging_dir/bin/powerpc-linux-uclibc-
+CROSS=
 endif
 CC= $(CROSS)gcc
 AR= $(CROSS)ar
