@@ -21,7 +21,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <grp.h>
 #include <paths.h>
 #include "config.h"
 

@@ -21,41 +21,39 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <shadow.h>
-
-#define PWD_BUFFER_SIZE 256
+#include "config.h"
 
 int getspnam_r (const char *name, struct spwd *spwd,
 	char *buff, size_t buflen, struct spwd **crap)
 {
-	int spwd_fd;
+    int spwd_fd;
 
-	if (name == NULL) {
-		__set_errno(EINVAL);
-		return -1;
+    if (name == NULL) {
+	__set_errno(EINVAL);
+	return -1;
+    }
+
+    if ((spwd_fd = open(_PATH_SHADOW, O_RDONLY)) < 0)
+	return -1;
+
+    while (__getspent_r(spwd, buff, buflen, spwd_fd) != -1)
+	if (!strcmp(spwd->sp_namp, name)) {
+	    close(spwd_fd);
+	    return 0;
 	}
 
-	if ((spwd_fd = open(_PATH_SHADOW, O_RDONLY)) < 0)
-		return -1;
-
-	while (__getspent_r(spwd, buff, buflen, spwd_fd) != -1)
-		if (!strcmp(spwd->sp_namp, name)) {
-			close(spwd_fd);
-			return 0;
-		}
-
-	close(spwd_fd);
-	return -1;
+    close(spwd_fd);
+    return -1;
 }
 
 struct spwd *getspnam(const char *name)
 {
-	static char line_buff[PWD_BUFFER_SIZE];
-	static struct spwd spwd;
+    static char line_buff[PWD_BUFFER_SIZE];
+    static struct spwd spwd;
 
-	if (getspnam_r(name, &spwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
-		return &spwd;
-	}
-	return NULL;
+    if (getspnam_r(name, &spwd, line_buff,  sizeof(line_buff), NULL) != -1) {
+	return &spwd;
+    }
+    return NULL;
 }
 

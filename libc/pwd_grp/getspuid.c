@@ -20,31 +20,28 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <pwd.h>
-#include <shadow.h>
-
-#define PWD_BUFFER_SIZE 256
+#include "config.h"
 
 int getspuid_r (uid_t uid, struct spwd *spwd,
 	char *buff, size_t buflen, struct spwd **crap)
 {
-	char pwd_buff[PWD_BUFFER_SIZE];
-	struct passwd password;
+    char pwd_buff[PWD_BUFFER_SIZE];
+    struct passwd password;
 
-	if (getpwuid_r(uid, &password, pwd_buff, PWD_BUFFER_SIZE, NULL) < 0)
-		return -1;
+    if (getpwuid_r(uid, &password, pwd_buff,  sizeof(pwd_buff), NULL) < 0)
+	return -1;
 
-	return getspnam_r(password.pw_name, spwd, buff, buflen, crap);
+    return getspnam_r(password.pw_name, spwd, buff, buflen, crap);
 }
 
 struct spwd *getspuid(uid_t uid)
 {
-	static char line_buff[PWD_BUFFER_SIZE];
-	static struct spwd spwd;
+    static char line_buff[PWD_BUFFER_SIZE];
+    static struct spwd spwd;
 
-	if (getspuid_r(uid, &spwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
-		return &spwd;
-	}
-	return NULL;
+    if (getspuid_r(uid, &spwd, line_buff, sizeof(line_buff), NULL) != -1) {
+	return &spwd;
+    }
+    return NULL;
 }
 

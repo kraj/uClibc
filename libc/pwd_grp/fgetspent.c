@@ -19,9 +19,7 @@
 
 #include <errno.h>
 #include <stdio.h>
-#include <shadow.h>
-
-#define PWD_BUFFER_SIZE 256
+#include "config.h"
 
 int fgetspent_r (FILE *file, struct spwd *spwd,
 	char *buff, size_t buflen, struct spwd **crap)
@@ -38,7 +36,7 @@ struct spwd *fgetspent(FILE * file)
 	static char line_buff[PWD_BUFFER_SIZE];
 	static struct spwd spwd;
 
-	if (fgetspent_r(file, &spwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
+	if (fgetspent_r(file, &spwd, line_buff, sizeof(line_buff), NULL) != -1) {
 		return &spwd;
 	}
 	return NULL;

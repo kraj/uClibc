@@ -24,7 +24,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
-#include <pwd.h>
+#include "config.h"
 
 
 /* This isn't as flash as my previous version -- it doesn't dynamically

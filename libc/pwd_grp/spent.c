@@ -20,8 +20,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <shadow.h>
 #include <fcntl.h>
+#include "config.h"
 
 /*
  * setspent(), endspent(), and getspent() are included in the same object
@@ -29,43 +29,41 @@
  * link them all in together.
  */
 
-#define PWD_BUFFER_SIZE 256
-
 /* file descriptor for the password file currently open */
 static int spwd_fd = -1;
 
 void setspent(void)
 {
-	if (spwd_fd != -1)
-		close(spwd_fd);
+    if (spwd_fd != -1)
+	close(spwd_fd);
 
-	spwd_fd = open(_PATH_SHADOW, O_RDONLY);
+    spwd_fd = open(_PATH_SHADOW, O_RDONLY);
 }
 
 void endspent(void)
 {
-	if (spwd_fd != -1)
-		close(spwd_fd);
-	spwd_fd = -1;
+    if (spwd_fd != -1)
+	close(spwd_fd);
+    spwd_fd = -1;
 }
 
 int getspent_r (struct spwd *spwd, char *buff, 
 	size_t buflen, struct spwd **crap)
 {
-	if (spwd_fd != -1 && __getspent_r(spwd, buff, buflen, spwd_fd) != -1) {
-		return 0;
-	}
-	return -1;
+    if (spwd_fd != -1 && __getspent_r(spwd, buff, buflen, spwd_fd) != -1) {
+	return 0;
+    }
+    return -1;
 }
 
 struct spwd *getspent(void)
 {
-	static char line_buff[PWD_BUFFER_SIZE];
-	static struct spwd spwd;
+    static char line_buff[PWD_BUFFER_SIZE];
+    static struct spwd spwd;
 
-	if (getspent_r(&spwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
-		return &spwd;
-	}
-	return NULL;
+    if (getspent_r(&spwd, line_buff, sizeof(line_buff), NULL) != -1) {
+	return &spwd;
+    }
+    return NULL;
 }
 

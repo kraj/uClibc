@@ -21,7 +21,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <pwd.h>
 #include <fcntl.h>
 #include <paths.h>
 #include "config.h"
@@ -32,26 +31,22 @@
  * link them all in together.
  */
 
-#define PWD_BUFFER_SIZE 256
-
 /* file descriptor for the password file currently open */
 static int pw_fd = -1;
-static char line_buff[PWD_BUFFER_SIZE];
-static struct passwd pwd;
 
 void setpwent(void)
 {
-	if (pw_fd != -1)
-		close(pw_fd);
+    if (pw_fd != -1)
+	close(pw_fd);
 
-	pw_fd = open(_PATH_PASSWD, O_RDONLY);
+    pw_fd = open(_PATH_PASSWD, O_RDONLY);
 }
 
 void endpwent(void)
 {
-	if (pw_fd != -1)
-		close(pw_fd);
-	pw_fd = -1;
+    if (pw_fd != -1)
+	close(pw_fd);
+    pw_fd = -1;
 }
 
 int getpwent_r (struct passwd *password, char *buff, 
@@ -65,7 +60,9 @@ int getpwent_r (struct passwd *password, char *buff,
 
 struct passwd *getpwent(void)
 {
-    if (getpwent_r(&pwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
+    static char line_buff[PWD_BUFFER_SIZE];
+    static struct passwd pwd;
+    if (getpwent_r(&pwd, line_buff, sizeof(line_buff), NULL) != -1) {
 	return &pwd;
     }
     return NULL;

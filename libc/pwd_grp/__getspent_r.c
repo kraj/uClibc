@@ -20,7 +20,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
-#include <shadow.h>
+#include "config.h"
 
 
 int __getspent_r(struct spwd * spwd, char * line_buff, size_t buflen, int spwd_fd)

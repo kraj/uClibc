@@ -19,23 +19,21 @@
 
 #include <errno.h>
 #include <stdio.h>
-#include <shadow.h>
-
-#define PWD_BUFFER_SIZE 256
+#include "config.h"
 
 int sgetspent_r (const char *string, struct spwd *spwd,
 	char *buff, size_t buflen, struct spwd **crap)
 {
-	return(__sgetspent_r(string, spwd, buff, buflen));
+    return(__sgetspent_r(string, spwd, buff, buflen));
 }
 
 struct spwd *sgetspent(const char *string)
 {
-	static char line_buff[PWD_BUFFER_SIZE];
-	static struct spwd spwd;
+    static char line_buff[PWD_BUFFER_SIZE];
+    static struct spwd spwd;
 
-	if (sgetspent_r(string, &spwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
-		return &spwd;
-	}
-	return NULL;
+    if (sgetspent_r(string, &spwd, line_buff, sizeof(line_buff), NULL) != -1) {
+	return &spwd;
+    }
+    return NULL;
 }

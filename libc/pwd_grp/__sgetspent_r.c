@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <shadow.h>
+#include "config.h"
 
 
 int __sgetspent_r(const char * string, struct spwd * spwd, char * line_buff, size_t buflen)

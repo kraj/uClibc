@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <stdio.h>
-#include <pwd.h>
+#include "config.h"
 
 int getpw(uid_t uid, char *buf)
 {

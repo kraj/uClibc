@@ -19,7 +19,6 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <fcntl.h>
-#include <shadow.h>
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>
@@ -37,127 +36,123 @@ static int lock_fd = -1;
 static void noop_handler __P ((int __sig));
 
 
-int
-lckpwdf ()
+int lckpwdf (void)
 {
-	int flags;
-	sigset_t saved_set;         /* Saved set of caught signals.  */
-	struct sigaction saved_act; /* Saved signal action.  */
-	sigset_t new_set;           /* New set of caught signals.  */
-	struct sigaction new_act;   /* New signal action.  */
-	struct flock fl;            /* Information struct for locking.  */
-	int result;
+    int flags;
+    sigset_t saved_set;         /* Saved set of caught signals.  */
+    struct sigaction saved_act; /* Saved signal action.  */
+    sigset_t new_set;           /* New set of caught signals.  */
+    struct sigaction new_act;   /* New signal action.  */
+    struct flock fl;            /* Information struct for locking.  */
+    int result;
 
-	if (lock_fd != -1)
-		/* Still locked by own process.  */
-		return -1;
+    if (lock_fd != -1)
+	/* Still locked by own process.  */
+	return -1;
 
-	lock_fd = open (_PATH_PASSWD, O_WRONLY);
-	if (lock_fd == -1)
-		/* Cannot create lock file.  */
-		return -1;
+    lock_fd = open (_PATH_PASSWD, O_WRONLY);
+    if (lock_fd == -1)
+	/* Cannot create lock file.  */
+	return -1;
 
-	/* Make sure file gets correctly closed when process finished.  */
-	flags = fcntl (lock_fd, F_GETFD, 0);
-	if (flags == -1) {
-		/* Cannot get file flags.  */
-		close(lock_fd);
-		lock_fd = -1;
-		return -1;
-	}
-	flags |= FD_CLOEXEC;		/* Close on exit.  */
-	if (fcntl (lock_fd, F_SETFD, flags) < 0) {
-		/* Cannot set new flags.  */
-		close(lock_fd);
-		lock_fd = -1;
-		return -1;
-	}
+    /* Make sure file gets correctly closed when process finished.  */
+    flags = fcntl (lock_fd, F_GETFD, 0);
+    if (flags == -1) {
+	/* Cannot get file flags.  */
+	close(lock_fd);
+	lock_fd = -1;
+	return -1;
+    }
+    flags |= FD_CLOEXEC;		/* Close on exit.  */
+    if (fcntl (lock_fd, F_SETFD, flags) < 0) {
+	/* Cannot set new flags.  */
+	close(lock_fd);
+	lock_fd = -1;
+	return -1;
+    }
 
-	/* Now we have to get exclusive write access.  Since multiple
-	   process could try this we won't stop when it first fails.
-	   Instead we set a timeout for the system call.  Once the timer
-	   expires it is likely that there are some problems which cannot be
-	   resolved by waiting.
-	   
-	   It is important that we don't change the signal state.  We must
-	   restore the old signal behaviour.  */
-	memset (&new_act, '\0', sizeof (struct sigaction));
-	new_act.sa_handler = noop_handler;
-	sigfillset (&new_act.sa_mask);
-	new_act.sa_flags = 0ul;
+    /* Now we have to get exclusive write access.  Since multiple
+       process could try this we won't stop when it first fails.
+       Instead we set a timeout for the system call.  Once the timer
+       expires it is likely that there are some problems which cannot be
+       resolved by waiting.
 
-	/* Install new action handler for alarm and save old.  */
-	if (sigaction (SIGALRM, &new_act, &saved_act) < 0) {
-		/* Cannot install signal handler.  */
-		close(lock_fd);
-		lock_fd = -1;
-		return -1;
-	}
+       It is important that we don't change the signal state.  We must
+       restore the old signal behaviour.  */
+    memset (&new_act, '\0', sizeof (struct sigaction));
+    new_act.sa_handler = noop_handler;
+    sigfillset (&new_act.sa_mask);
+    new_act.sa_flags = 0ul;
 
-	/* Now make sure the alarm signal is not blocked.  */
-	sigemptyset (&new_set);
-	sigaddset (&new_set, SIGALRM);
-	if (sigprocmask (SIG_UNBLOCK, &new_set, &saved_set) < 0) {
-		sigaction (SIGALRM, &saved_act, NULL);
-		close(lock_fd);
-		lock_fd = -1;
-		return -1;
-	}
+    /* Install new action handler for alarm and save old.  */
+    if (sigaction (SIGALRM, &new_act, &saved_act) < 0) {
+	/* Cannot install signal handler.  */
+	close(lock_fd);
+	lock_fd = -1;
+	return -1;
+    }
 
-	/* Start timer.  If we cannot get the lock in the specified time we
-	   get a signal.  */
-	alarm (TIMEOUT);
-
-	/* Try to get the lock.  */
-	memset (&fl, '\0', sizeof (struct flock));
-	fl.l_type = F_WRLCK;
-	fl.l_whence = SEEK_SET;
-	result = fcntl (lock_fd, F_SETLKW, &fl);
-
-	/* Clear alarm.  */
-	alarm (0);
-
-	/* Restore old set of handled signals.  We don't need to know
-	   about the current one.*/
-	sigprocmask (SIG_SETMASK, &saved_set, NULL);
-
-	/* Restore old action handler for alarm.  We don't need to know
-	   about the current one.  */
+    /* Now make sure the alarm signal is not blocked.  */
+    sigemptyset (&new_set);
+    sigaddset (&new_set, SIGALRM);
+    if (sigprocmask (SIG_UNBLOCK, &new_set, &saved_set) < 0) {
 	sigaction (SIGALRM, &saved_act, NULL);
+	close(lock_fd);
+	lock_fd = -1;
+	return -1;
+    }
 
-	if (result < 0) {
-		close(lock_fd);
-		lock_fd = -1;
-		return -1;
-	}
+    /* Start timer.  If we cannot get the lock in the specified time we
+       get a signal.  */
+    alarm (TIMEOUT);
 
-	return 0;
+    /* Try to get the lock.  */
+    memset (&fl, '\0', sizeof (struct flock));
+    fl.l_type = F_WRLCK;
+    fl.l_whence = SEEK_SET;
+    result = fcntl (lock_fd, F_SETLKW, &fl);
+
+    /* Clear alarm.  */
+    alarm (0);
+
+    /* Restore old set of handled signals.  We don't need to know
+       about the current one.*/
+    sigprocmask (SIG_SETMASK, &saved_set, NULL);
+
+    /* Restore old action handler for alarm.  We don't need to know
+       about the current one.  */
+    sigaction (SIGALRM, &saved_act, NULL);
+
+    if (result < 0) {
+	close(lock_fd);
+	lock_fd = -1;
+	return -1;
+    }
+
+    return 0;
 }
 
 
-int
-ulckpwdf ()
+int ulckpwdf (void)
 {
-	int result;
-	
-	if (lock_fd == -1) {
-		/* There is no lock set.  */
-		result = -1;
-	}
-	else {
-		result = close (lock_fd);
-		
-		/* Mark descriptor as unused.  */
-		lock_fd = -1;
-	}
+    int result;
 
-	return result;
+    if (lock_fd == -1) {
+	/* There is no lock set.  */
+	result = -1;
+    }
+    else {
+	result = close (lock_fd);
+
+	/* Mark descriptor as unused.  */
+	lock_fd = -1;
+    }
+
+    return result;
 }
 
 
-static void
-noop_handler (sig)
-	int sig;
+static void noop_handler (int sig)
 {
-	/* We simply return which makes the `fcntl' call return with an error.  */
+    /* We simply return which makes the `fcntl' call return with an error.  */
 }

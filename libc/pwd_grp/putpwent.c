@@ -20,7 +20,7 @@
 
 #include <stdio.h>
 #include <errno.h>
-#include <pwd.h>
+#include "config.h"
 
 int putpwent(const struct passwd *passwd, FILE * f)
 {

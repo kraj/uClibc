@@ -24,12 +24,21 @@
 
 #include <pwd.h>
 #include <grp.h>
+#include <shadow.h>
 
 /* These are used internally to uClibc */
 extern struct group * __getgrent __P ((int grp_fd));
 
 extern int __getpwent_r(struct passwd * passwd, char * line_buff, 
 	size_t buflen, int pwd_fd);
+extern int __getspent_r(struct spwd * spwd, char * line_buff, 
+	size_t buflen, int spwd_fd);
+extern int __sgetspent_r(const char * string, struct spwd * spwd, 
+	char * line_buff, size_t buflen);
+
+
+#define PWD_BUFFER_SIZE 256
+
   
 /*
  * Define GR_SCALE_DYNAMIC if you want grp to dynamically scale its read buffer
