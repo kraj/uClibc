@@ -83,11 +83,11 @@ headers: dummy
 	    ln -fs $(KERNEL_SOURCE)/include/asm-mips include/asm; \
 	elif [ $(TARGET_ARCH) = "mipsel" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-mips include/asm; \
-	    cd $(PWD)/libc/sysdeps/linux; \
+	    cd $(shell pwd)/libc/sysdeps/linux; \
 	    ln -fs mips mipsel; \
-	    cd $(PWD)/ldso/ldso; \
+	    cd $(shell pwd)/ldso/ldso; \
 	    ln -fs mips mipsel; \
-	    cd $(PWD)/libpthread/linuxthreads/sysdeps; \
+	    cd $(shell pwd)/libpthread/linuxthreads/sysdeps; \
 	    ln -fs mips mipsel; \
 	elif [ $(TARGET_ARCH) = "h8300" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-h8300 include/asm; \
@@ -352,8 +352,6 @@ dist release: distclean
 	cd ..;					\
 	rm -rf uClibc-$(VERSION);		\
 	cp -a uClibc uClibc-$(VERSION);		\
-	find uClibc-$(VERSION)/ -type d		\
-	    -name CVS -exec rm -rf {} \; ;	\
 	find uClibc-$(VERSION)/ -type d		\
 	    -name .\#* -exec rm -rf {} \; ;	\
 						\
