@@ -20,6 +20,7 @@ endif
 STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $@
 
 TARGETS=string string_glibc
+TARGETS+=testcopy testcopy_glibc
 
 all: $(TARGETS)
 
@@ -34,6 +35,26 @@ string: string.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 
 string_glibc: string.c Makefile $(TOPDIR)libc.a
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs GNU libc: "
+	-@ echo " "
+	$(CC) $(YCFLAGS) -c $< -o $@.o
+	$(CC) $(YLDFLAGS) --static $@.o -o $@
+	-./$@
+	-@ echo " "
+
+testcopy: testcopy.c Makefile $(TOPDIR)libc.a
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uCLibc: "
+	-@ echo " "
+	$(CC) $(XCFLAGS) -c $< -o $@.o
+	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	-./$@
+	-@ echo " "
+
+testcopy_glibc: testcopy.c Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "

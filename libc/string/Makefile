@@ -26,11 +26,13 @@ LIBC=$(TOPDIR)libc.a
 
 MSRC=string.c
 MOBJ=strlen.o strcat.o strcpy.o strcmp.o strncat.o strncpy.o strncmp.o \
-	strchr.o strrchr.o strdup.o memcpy.o memccpy.o memchr.o memset.o \
-	memcmp.o memmove.o movedata.o
+	strchr.o strrchr.o strdup.o memcpy.o memccpy.o memset.o \
+	memmove.o
+
 CSRC=strpbrk.c strsep.c strstr.c strtok.c strcspn.c \
-    strspn.c strcasecmp.c strncasecmp.c config.c
-COBJS=$(patsubst %.c,%.o, $(CFILES))
+	config.c memcmp.c memchr.c strspn.c strcasecmp.c \
+	strncasecmp.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 all: $(MOBJ) $(COBJS) $(LIBC)
 

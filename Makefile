@@ -24,7 +24,7 @@ DIRS = error getent malloc misc regex stdio \
 	    string termios time sysdeps #rpc
 all: libc.a
 
-libc.a: subdirs headers
+libc.a: headers subdirs
 	@echo
 	@echo Finally finished compiling...
 	@echo
@@ -32,9 +32,9 @@ libc.a: subdirs headers
 
 
 headers: dummy
-	@if [ ! -L "include/asm" ]; then ln -s /usr/src/linux/include/asm include/asm ; fi
-	@if [ ! -L "include/net" ]; then ln -s /usr/src/linux/include/net include/net ; fi
-	@if [ ! -L "include/linux" ]; then ln -s /usr/src/linux/include/linux include/linux ; fi
+	@if [ ! -L "include/asm" ]; then ln -s /usr/include/asm include/asm ; fi
+	@if [ ! -L "include/net" ]; then ln -s /usr/include/net include/net ; fi
+	@if [ ! -L "include/linux" ]; then ln -s /usr/include/linux include/linux ; fi
 
 tags:
 	ctags -R
