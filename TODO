@@ -16,6 +16,7 @@ make inb/outb work (for lilo et all)
 include/resolv.h does not define struct _res, and libc/inet/resolv.c
     does not use this struct.  res_init does nothing.  the other res_* 
     functions are not implemented.
+scandir.c doesn't check returns on malloc and realloc.
 
 
 -----------------------------------------------------------------------------
@@ -26,6 +27,7 @@ Move the target-specific sysconf.c generator to extra (as it needs to be
 
 Move the unified syscall stuff to extra, or find a way to generate the
 	the required header file without using an intermediate binary.
+	Update: should be easy now that Erik has added bits/syscalls.h.
 
 Add a usage message to the gcc wrapper.
 
