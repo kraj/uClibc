@@ -1,5 +1,5 @@
-
-/* Copyright (C) 1992, 1997 Free Software Foundation, Inc.
+/* `long long int' divison with remainder.
+   Copyright (C) 1992, 1996, 1997 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,15 +17,16 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define _GNU_SOURCE
 #include <features.h>
 #include <stdlib.h>
 
 
-/* Return the `ldiv_t' representation of NUMER over DENOM.  */
-ldiv_t
-ldiv (long int numer, long int denom)
+/* Return the `lldiv_t' representation of NUMER over DENOM.  */
+lldiv_t
+lldiv (long long int numer, long long int denom)
 {
-    ldiv_t result;
+    lldiv_t result;
 
     result.quot = numer / denom;
     result.rem = numer % denom;
@@ -55,8 +56,8 @@ ldiv (long int numer, long int denom)
     return result;
 }
 
-#if __WORDSIZE == 64
+#if __WORDSIZE != 64
 #undef imaxdiv
-weak_alias (ldiv, imaxdiv);
+weak_alias (lldiv, imaxdiv);
 #endif
 
