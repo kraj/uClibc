@@ -27,10 +27,8 @@
  * SUCH DAMAGE.
  */
 
-#if 0
-static char sccsid[] = "@(#)getttyent.c	8.1 (Berkeley) 6/4/93";
-#endif
-
+#define _GNU_SOURCE
+#include <features.h>
 #include <ttyent.h>
 #include <stdio.h>
 #include <stdio_ext.h>
@@ -39,9 +37,10 @@ static char sccsid[] = "@(#)getttyent.c	8.1 (Berkeley) 6/4/93";
 
 static char zapchar;
 static FILE *tf;
+static struct ttyent tty;
 
-struct ttyent *
-getttynam(const char *tty)
+
+struct ttyent * getttynam(const char *tty)
 {
     register struct ttyent *t;
 
@@ -53,16 +52,54 @@ getttynam(const char *tty)
     return (t);
 }
 
-static char *skip __P((char *));
-static char *value __P((char *));
 
-struct ttyent * getttyent()
+/* Skip over the current field, removing quotes, and return 
+ * a pointer to the next field.
+ */
+#define	QUOTED	1
+static char * skip(register char *p)
 {
-    static struct ttyent tty;
+    register char *t;
+    register int c, q;
+
+    for (q = 0, t = p; (c = *p) != '\0'; p++) {
+	if (c == '"') {
+	    q ^= QUOTED;	/* obscure, but nice */
+	    continue;
+	}
+	if (q == QUOTED && *p == '\\' && *(p+1) == '"')
+	    p++;
+	*t++ = *p;
+	if (q == QUOTED)
+	    continue;
+	if (c == '#') {
+	    zapchar = c;
+	    *p = 0;
+	    break;
+	}
+	if (c == '\t' || c == ' ' || c == '\n') {
+	    zapchar = c;
+	    *p++ = 0;
+	    while ((c = *p) == '\t' || c == ' ' || c == '\n')
+		p++;
+	    break;
+	}
+    }
+    *--t = '\0';
+    return (p);
+}
+
+static char * value(register char *p)
+{
+
+    return ((p = index(p, '=')) ? ++p : NULL);
+}
+
+struct ttyent * getttyent(void)
+{
     register int c;
     register char *p;
-#define	MAXLINELENGTH	100
-    static char line[MAXLINELENGTH];
+    static char line[BUFSIZ];
 
     if (!tf && !setttyent())
 	return (NULL);
@@ -125,50 +162,6 @@ struct ttyent * getttyent()
     if ((p = index(p, '\n')))
 	*p = '\0';
     return (&tty);
-}
-
-#define	QUOTED	1
-
-/*
- * Skip over the current field, removing quotes, and return a pointer to
- * the next field.
- */
-static char * skip(register char *p)
-{
-    register char *t;
-    register int c, q;
-
-    for (q = 0, t = p; (c = *p) != '\0'; p++) {
-	if (c == '"') {
-	    q ^= QUOTED;	/* obscure, but nice */
-	    continue;
-	}
-	if (q == QUOTED && *p == '\\' && *(p+1) == '"')
-	    p++;
-	*t++ = *p;
-	if (q == QUOTED)
-	    continue;
-	if (c == '#') {
-	    zapchar = c;
-	    *p = 0;
-	    break;
-	}
-	if (c == '\t' || c == ' ' || c == '\n') {
-	    zapchar = c;
-	    *p++ = 0;
-	    while ((c = *p) == '\t' || c == ' ' || c == '\n')
-		p++;
-	    break;
-	}
-    }
-    *--t = '\0';
-    return (p);
-}
-
-static char * value(register char *p)
-{
-
-    return ((p = index(p, '=')) ? ++p : NULL);
 }
 
 int setttyent(void)
