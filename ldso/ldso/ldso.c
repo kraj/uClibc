@@ -211,7 +211,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 					 */
 					Elf32_Addr mpa = (ppnt->p_vaddr + app_tpnt->loadaddr) & ~(_dl_pagesize - 1);
 					Elf32_Word mps = ((ppnt->p_vaddr + app_tpnt->loadaddr) - mpa) + ppnt->p_memsz;
-					if(_dl_mprotect(mpa, mps, PROT_READ | PROT_WRITE | PROT_EXEC)) {
+					if(_dl_mprotect((void *)mpa, mps, PROT_READ | PROT_WRITE | PROT_EXEC)) {
 						SEND_STDERR("Couldn't mprotect .dynamic segment to rwx.\n");
 						_dl_exit(0);
 					}
@@ -773,7 +773,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	_dl_debug_state();
 
 	/* Find the real malloc function and make ldso functions use that from now on */
-	 _dl_malloc_function = (void (*)(size_t)) (intptr_t) _dl_find_hash("malloc", _dl_symbol_tables, ELF_RTYPE_CLASS_PLT);
+	 _dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash("malloc", _dl_symbol_tables, ELF_RTYPE_CLASS_PLT);
 }
 
 char *_dl_getenv(const char *symbol, char **envp)
