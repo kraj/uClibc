@@ -61,7 +61,7 @@ testcopy_diff: testcopy testcopy_glibc
 	-@ echo " "
 
 
-strerror: ../../string/strerror.c $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+strerror: ../../libc/string/strerror.c $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -72,7 +72,7 @@ strerror: ../../string/strerror.c $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTC
 	-./$@
 	-@ echo " "
 
-strsignal: ../../string/strsignal.c
+strsignal: ../../libc/string/strsignal.c
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
