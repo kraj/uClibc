@@ -47,9 +47,12 @@ shared: $(STATIC_NAME)
 	@mkdir tmp
 	@(cd tmp; CC=$(CC) /bin/sh ../extra/scripts/get-needed-libgcc-objects.sh)
 	if [ -s ./tmp/libgcc-need.a ] ; then \
-		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_NAME) -Wl,-soname,$(SHARED_NAME) -Wl,--whole-archive ./libc.a ./tmp/libgcc-need.a ; \
+		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_NAME) \
+		    -Wl,-soname,$(SHARED_NAME) -Wl,--whole-archive \
+		    ./libc.a ./tmp/libgcc-need.a ; \
 	else \
-		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_NAME) -Wl,-soname,$(SHARED_NAME) -Wl,--whole-archive ./libc.a ; \
+		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_NAME) \
+		    -Wl,-soname,$(SHARED_NAME) -Wl,--whole-archive ./libc.a ; \
 	fi
 	@rm -rf tmp
 
