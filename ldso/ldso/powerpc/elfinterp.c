@@ -27,6 +27,7 @@
  * SUCH DAMAGE.
  */
 
+/* FIXME -- Disable this when __SUPPORT_LD_DEBUG__ is undefined */
 #if defined (__SUPPORT_LD_DEBUG__)
 static const char *_dl_reltypes[] =
 	{ "R_PPC_NONE", "R_PPC_ADDR32", "R_PPC_ADDR24", "R_PPC_ADDR16",
@@ -151,9 +152,13 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	//debug_reloc(this_reloc);
 
 	if (reloc_type != R_PPC_JMP_SLOT) {
-		_dl_dprintf(2, "%s: Incorrect relocation type [%s] in jump relocations\n",
+#if defined (__SUPPORT_LD_DEBUG__)
+		_dl_dprintf(2, "%s: Incorrect relocation type [%s] in jump relocation\n",
 			_dl_progname,
 			(reloc_type<N_RELTYPES)?_dl_reltypes[reloc_type]:"unknown");
+#else
+		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocation\n", _dl_progname);
+#endif
 		_dl_exit(1);
 	};
 
