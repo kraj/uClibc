@@ -189,7 +189,6 @@ install: install_dev install_runtime install_utils finished2
 # Installs header files and development library links.
 install_dev:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/lib
-	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/usr/lib
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/include
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
 	tar -chf - include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX);
@@ -275,11 +274,21 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	fi;
 endif
 
-install_toolchain:
-	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/lib
-	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/bin
+install_toolchain: install_utils
 	$(INSTALL) -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin
 	$(INSTALL) -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
+	$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd \
+		$(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ldd
+	$(INSTALL) -m 755 ldso/util/ldd \
+		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
+	$(INSTALL) -m 755 ldso/util/ldconfig \
+		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig;
+	$(INSTALL) -m 755 ldso/util/ldconfig \
+		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig;
+	# For now, don't bother with readelf since surely the host
+	# system has binutils, or we couldn't have gotten this far...
+	#$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf \
+	#	$(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/readelf
 	$(MAKE) -C extra/gcc-uClibc install
 
 ifeq ($(strip $(HAVE_SHARED)),y)
@@ -291,25 +300,16 @@ endif
 
 install_utils: utils
 ifeq ($(strip $(HAVE_SHARED)),y)
-	$(INSTALL) -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin;
+	$(INSTALL) -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/sbin
+	$(INSTALL) -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin
 	$(INSTALL) -m 755 ldso/util/ldd \
-		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
-	$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd \
-		$(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ldd
+		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin/ldd
+	$(INSTALL) -m 755 ldso/util/ldconfig \
+		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/sbin/ldconfig;
 	# For now, don't bother with readelf since surely the host
 	# system has binutils, or we couldn't have gotten this far...
 	#$(INSTALL) -m 755 ldso/util/readelf \
-	#	$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf
-	#$(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf \
-	#	$(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/readelf
-	@if [ -x ldso/util/ldconfig ] ; then \
-	    set -x -e; \
-	    $(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/etc; \
-	    $(INSTALL) -m 755 ldso/util/ldconfig \
-		    $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig; \
-	    $(LN) -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig \
-		    $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ldconfig; \
-	fi;
+	#	$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin/readelf
 endif
 
 # Installs run-time libraries and helper apps in preparation for
