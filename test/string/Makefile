@@ -51,7 +51,7 @@ testcopy: testcopy.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	-./$@ > testcopy.out
 	-@ echo " "
 
 testcopy_glibc: testcopy.c Makefile $(TOPDIR)libc.a
@@ -61,8 +61,17 @@ testcopy_glibc: testcopy.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
-	-./$@
+	-./$@ > testcopy.gnu.out
 	-@ echo " "
+
+testcopy_diff: testcopy testcopy_glibc
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Diffing output: "
+	-@ echo " "
+	-diff -u testcopy.gnu.out testcopy.out
+	-@ echo " "
+
 
 clean:
 	rm -f *.[oa] *~ core $(TARGETS)

@@ -1,5 +1,5 @@
 TOPDIR=../../
-include $(TOPDIR)Rules.make
+include $(TOPDIR)Rules.mak
 
 # Check if 'ls -sh' works or not 
 LSFLAGS = $(shell if ls -sh >/dev/null 2>&1; \
@@ -30,6 +30,7 @@ assert: assert.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	-@ echo "This is supposed to core dump on test #3"
 	-./$@
 	-@ echo " "
 
@@ -40,6 +41,7 @@ assert_glibc: assert.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
+	-@ echo "This is supposed to core dump on test #3"
 	-./$@
 	-@ echo " "
 
