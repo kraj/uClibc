@@ -130,11 +130,8 @@ DOPIC = false
 #
 # ARCH_CFLAGS if your have something special to add to the CFLAGS
 #
-ARCH_CFLAGS  = -Wa,--bitwise-or -msoft-float
+ARCH_CFLAGS  = -Wa,--bitwise-or -msoft-float -I$(KERNEL_SOURCE)/include
 #
-# this is needed for 2.4 m68knommu builds
-#
-ARCH_CFLAGS2 = -I$(KERNEL_SOURCE)/include
 #
 # get this from elsewhere, maybe
 #
