@@ -299,10 +299,13 @@ va_list ap;
 					scan_ungetc(&sc);
 				}
 				if (p-spec < 5) { /* [,c,s - string conversions */
-					if ((*p == 'c') && (sc.width == INT_MAX)) {
-						sc.width = 1;
-					}
 					invert = 0;
+					if (*p == 'c') {
+						invert = 1;
+						if (sc.width == INT_MAX) {
+							sc.width = 1;
+						}
+					}
 					for (i=0 ; i<= UCHAR_MAX ; i++) {
 						scanset[i] = ((*p == 's') ? (isspace(i) == 0) : 0);
 					}
