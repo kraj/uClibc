@@ -27,7 +27,8 @@ DIRS:=
 
 CSRC=execl.c execlp.c execv.c execvep.c execvp.c execle.c \
 	sleep.c usleep.c getpass.c sysconf_src.c getlogin.c \
-	fpathconf.c confstr.c pathconf.c swab.c usershell.c
+	fpathconf.c confstr.c pathconf.c swab.c usershell.c \
+	getopt.c
 ifeq ($(strip $(HAS_MMU)),true)
     CSRC+=daemon.c
 endif
@@ -40,11 +41,7 @@ else
 endif
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-
-MSRC=getopt.c
-MOBJ=_gnu_getopt_internal.o gnu_getopt_long.o gnu_getopt_long_only.o
-
-OBJS=$(COBJS) $(MOBJ)
+OBJS=$(COBJS)
 
 all: $(SYSCONF) $(OBJS) $(LIBC)
 
@@ -96,10 +93,6 @@ sysconf_src.c: sysconf_$(TARGET_ARCH).c
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(MOBJ): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
