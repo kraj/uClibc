@@ -53,12 +53,17 @@ all: halfclean $(LIBNAME_TARGET) $(DO_SHARED)
 # target is evaluated.  That means if you run `rm obj.* ; make`, the wildcard 
 # will evaluate to no files :(.
 $(LIBNAME) ar-target: subdirs
-	objs=`cat obj.*` ; $(AR) $(ARFLAGS) $(LIBNAME) $$objs
-	objs=`cat obj.*` ; $(AR) dN 2 $(LIBNAME) $$objs
-	@for objfile in obj.signal obj.string.generic obj.string \
-	               obj.sysdeps.$(TARGET_ARCH) obj.sysdeps.common ; do \
-		echo $(AR) $(ARFLAGS) $(LIBNAME) $$objfile ; \
-		objs=`cat $$objfile` ; \
+	objs=`cat obj.*` ; \
+	$(AR) $(ARFLAGS) $(LIBNAME) $$objs && \
+	$(AR) dN 2 $(LIBNAME) $$objs && \
+	$(AR) dN 2 $(LIBNAME) $$objs
+	@for objfile in obj.signal \
+	                obj.string.generic obj.string.$(TARGET_ARCH) obj.string \
+	                obj.sysdeps.common obj.sysdeps.$(TARGET_ARCH) ; do \
+		if [ -e $$objfile ] ; then \
+			echo $(AR) $(ARFLAGS) $(LIBNAME) $$objfile ; \
+			objs=`cat $$objfile` ; \
+		fi ; \
 		$(AR) $(ARFLAGS) $(LIBNAME) $$objs || exit 1 ; \
 	done
 	$(RANLIB) $(LIBNAME)
