@@ -19,6 +19,7 @@
 #include <features.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "../misc/internals/tempname.h"
 
 /* This returns a new stream opened on a temporary file (generated
    by tmpnam).  The file is opened with mode "w+b" (binary read/write).

@@ -17,6 +17,7 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <stdio.h>
+#include "../misc/internals/tempname.h"
 
 /* Generate a unique filename in P_tmpdir.  If S is NULL return NULL.
    This makes this function thread safe.  */

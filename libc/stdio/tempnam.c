@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "../misc/internals/tempname.h"
 
 /* Generate a unique temporary filename using up to five characters of PFX
    if it is not NULL.  The directory to put this file in is searched for

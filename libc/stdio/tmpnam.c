@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "../misc/internals/tempname.h"
 
 static char tmpnam_buffer[L_tmpnam];
 

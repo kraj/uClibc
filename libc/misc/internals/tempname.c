@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include "tempname.h"
 
 
 /* Return nonzero if DIR is an existent directory.  */
