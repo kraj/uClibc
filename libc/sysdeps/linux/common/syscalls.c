@@ -1533,6 +1533,29 @@ _syscall3(int, getdents64, int, fd, char *, dirp, size_t, count);
 #endif /* __UCLIBC_HAVE_LFS__ */
 
 //#define __NR_fcntl64		221
+#ifdef __UCLIBC_HAVE_LFS__
+#define __NR__fcntl64 __NR_fcntl64
+#ifdef L__fcntl64
+#include <stdarg.h>
+#include <fcntl.h>
+extern int _fcntl64(int fd, int cmd, long arg);
+
+_syscall3(int, _fcntl64, int, fd, int, cmd, long, arg);
+
+int fcntl64(int fd, int command, ...)
+{
+	long arg;
+	va_list list;
+
+	va_start(list, command);
+	arg = va_arg(list, long);
+
+	va_end(list);
+	return _fcntl64(fd, command, arg);
+}
+#endif
+#endif
+
 //#define __NR_security		223	/* syscall for security modules */
 //#define __NR_gettid		224
 //#define __NR_readahead		225

@@ -57,7 +57,16 @@ __BEGIN_DECLS
 
 /* Do the file control operation described by CMD on FD.
    The remaining arguments are interpreted depending on CMD.  */
+#ifndef __USE_FILE_OFFSET64
 extern int fcntl (int __fd, int __cmd, ...) __THROW;
+#else
+# ifdef __REDIRECT
+extern int __REDIRECT (fcntl, (int __fd, int __cmd, ...) __THROW,
+		       fcntl64);
+# else
+#  define fcntl fcntl64
+# endif
+#endif
 
 /* Open FILE and return a new file descriptor for it, or -1 on error.
    OFLAG determines the type of access used.  If O_CREAT is on OFLAG,
