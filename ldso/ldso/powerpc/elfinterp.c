@@ -1,3 +1,4 @@
+#define DEBUG
 /* Run an ELF binary on a linux system.
 
    Copyright (C) 1993, Eric Youngdale.
@@ -101,35 +102,14 @@ _dl_fdprintf(2,"data_words %08x\n",data_words);
 	tramp[8] = OPCODE_ADDIS_HI(12,12,(unsigned long)tpnt);
 	tramp[9] = OPCODE_BCTR();
 
-#if 0
-	offset = PLT_INITIAL_ENTRY_WORDS;
-	i = 0;
-	if(n_plt_entries >= PLT_DOUBLE_SIZE){
-		_dl_fdprintf(2,"PLT table too large (%d>=%d)\n",
-				n_plt_entries,PLT_DOUBLE_SIZE);
-		_dl_exit(1);
-	}
-	for(i=0;i<n_plt_entries;i++){
-		plt[offset] = OPCODE_LI (11,i*4);
-		plt[offset+1] = OPCODE_B ((PLT_TRAMPOLINE_ENTRY_WORDS + 2
-				- (offset + 1)) *4);
-		offset+=2;
-	}
-
-	for(i=0;i<rel_offset_words;i+=4){
-_dl_fdprintf(2,"%d %08lx\n",i,(unsigned long)(plt+i));
-		//PPC_DCBST(plt+i);
-		//PPC_SYNC;
-		//PPC_ICBI(plt+i);
-	}
-#if 0
-	PPC_DCBST(plt + rel_offset_words - 1);
+	PPC_DCBST(plt);
+	PPC_DCBST(plt+4);
+	PPC_DCBST(plt+8);
 	PPC_SYNC;
 	PPC_ICBI(plt);
-	PPC_ICBI(plt+rel_offset_words-1);
-#endif
-	//PPC_ISYNC;
-#endif
+	PPC_ICBI(plt+4);
+	PPC_ICBI(plt+8);
+	PPC_ISYNC;
 }
 
 unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
@@ -167,10 +147,11 @@ _dl_fdprintf(2,"linux_resolver tpnt=%08x reloc_entry=%08x\n",tpnt,reloc_entry);
 		(unsigned long) tpnt->loadaddr);
 	got_addr = (char **) instr_addr;
 
-//#ifdef DEBUG
-	_dl_fdprintf(2, "Resolving symbol %s\n", 
-		strtab + symtab[symtab_index].st_name);
-//#endif
+#ifdef DEBUG
+	_dl_fdprintf(2, "Resolving symbol %s %08x --> ", 
+		strtab + symtab[symtab_index].st_name,
+		instr_addr);
+#endif
 
 	/* Get the address of the GOT entry */
 	new_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name, 
@@ -180,6 +161,10 @@ _dl_fdprintf(2,"linux_resolver tpnt=%08x reloc_entry=%08x\n",tpnt,reloc_entry);
 			_dl_progname, strtab + symtab[symtab_index].st_name);
 		_dl_exit(1);
 	};
+#ifdef DEBUG
+	_dl_fdprintf(2, "%08x\n", new_addr);
+#endif
+
 /* #define DEBUG_LIBRARY */
 #ifdef DEBUG_LIBRARY
 	if ((unsigned long) got_addr < 0x40000000) {
@@ -207,8 +192,10 @@ void _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt,
 	unsigned long *plt;
 	int index;
 
-_dl_fdprintf(2,"parse_lazy tpnt=%08x rel_addr=%08x rel_size=%08x, type=%d\n",
+#ifdef DEBUG
+_dl_fdprintf(2,"_dl_parse_lazy_relocation_information(tpnt=%08x, rel_addr=%08x, rel_size=%08x, type=%d)\n",
 		tpnt,rel_addr,rel_size,type);
+#endif
 	/* Now parse the relocation information */
 	rpnt = (ELF_RELOC *) (rel_addr + tpnt->loadaddr);
 	rel_size = rel_size / sizeof(ELF_RELOC);
@@ -231,12 +218,10 @@ _dl_fdprintf(2,"parse_lazy tpnt=%08x rel_addr=%08x rel_size=%08x, type=%d\n",
 			_dl_symbol(strtab + symtab[symtab_index].st_name))
 			continue;
 
-#if 0
-_dl_fdprintf(2, "(lazy) resolving ");
-		if (symtab_index)
-			_dl_fdprintf(2, "'%s'\n", strtab + symtab[symtab_index].st_name);
-_dl_fdprintf(2, "reloc_addr %08x addr %08x old %08x\n", reloc_addr, symtab[symtab_index].st_value, *reloc_addr);
-_dl_fdprintf(2, "plt %08x\n",(unsigned long)plt);
+#ifdef DEBUG
+_dl_fdprintf(2, "L %08x %-16s %-20s %08x %08x\n",
+	reloc_addr, _dl_reltypes[reloc_type],
+	symtab_index?strtab + symtab[symtab_index].st_name:"",0,0);
 #endif
 
 
@@ -254,8 +239,9 @@ _dl_fdprintf(2, "plt %08x\n",(unsigned long)plt);
 				(unsigned long)(plt+PLT_INITIAL_ENTRY_WORDS))
 				/sizeof(unsigned long);
 			index /= 2;
-//_dl_fdprintf(2, "index %08x\n",index);
-//_dl_fdprintf(2, "delta %08x\n",delta);
+#ifdef DEBUG
+_dl_fdprintf(2, "        index %08x delta %08x\n",index,delta);
+#endif
 			reloc_addr[0] = OPCODE_LI(11,index*4);
 			reloc_addr[1] = OPCODE_B(delta);
 			break;
@@ -293,29 +279,24 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 	unsigned long addend;
 	unsigned long *plt;
 
-//_dl_fdprintf(2,"parse_reloc tpnt=%08x rel_addr=%08x rel_size=%08x, type=%d\n",
-//		tpnt,rel_addr,rel_size,type);
+#ifdef DEBUG
+_dl_fdprintf(2,"_dl_parse_relocation_information(tpnt=%08x, rel_addr=%08x, rel_size=%08x, type=%d)\n",
+		tpnt,rel_addr,rel_size,type);
+#endif
 	/* Now parse the relocation information */
 
 	rpnt = (ELF_RELOC *) (rel_addr + tpnt->loadaddr);
 	rel_size = rel_size / sizeof(ELF_RELOC);
-//_dl_fdprintf(2,"rpnt=%08x\n",rpnt);
 
 	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
-//_dl_fdprintf(2,"symtab=%08x\n",symtab);
-//_dl_fdprintf(2,"strtab=%08x\n",strtab);
 	plt = (unsigned long *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
 		reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
-//_dl_fdprintf(2,"reloc_addr=%08x\n",reloc_addr);
 		reloc_type = ELF32_R_TYPE(rpnt->r_info);
-//_dl_fdprintf(2,"reloc_type=%08x\n",reloc_type);
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
-//_dl_fdprintf(2,"symtab_index=%08x\n",symtab_index);
 		addend = rpnt->r_addend;
-//_dl_fdprintf(2,"addend=%08x\n",rpnt->r_addend);
 		symbol_addr = 0;
 
 		if (!symtab_index && tpnt->libtype == program_interpreter)
@@ -343,12 +324,22 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 				goof++;
 			}
 		}
+#ifdef DEBUG
+_dl_fdprintf(2, "  %08x %-16s %-20s %08x %08x\n",
+	reloc_addr, _dl_reltypes[reloc_type],
+	symtab_index?strtab + symtab[symtab_index].st_name:"",
+	symbol_addr, addend);
+#endif
 		switch (reloc_type) {
 		case R_PPC_NONE:
 			break;
 		case R_PPC_REL24:
 			{
 			int delta = symbol_addr - (unsigned long)reloc_addr;
+			if(delta<<6>>6 != delta){
+				_dl_fdprintf(2,"R_PPC_REL24: Reloc out of range\n");
+				_dl_exit(1);
+			}
 			*reloc_addr &= 0xfc000003;
 			*reloc_addr |= delta&0x03fffffc;
 			}
@@ -358,6 +349,16 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 			break;
 		case R_PPC_ADDR32:
 			*reloc_addr += symbol_addr;
+			break;
+		case R_PPC_ADDR16_HA:
+			/* XXX is this correct? */
+			*(short *)reloc_addr += (symbol_addr+0x8000)>>16;
+			break;
+		case R_PPC_ADDR16_HI:
+			*(short *)reloc_addr += symbol_addr>>16;
+			break;
+		case R_PPC_ADDR16_LO:
+			*(short *)reloc_addr += symbol_addr;
 			break;
 		case R_PPC_JMP_SLOT:
 			{
@@ -379,18 +380,11 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 		(unsigned long)(plt+PLT_INITIAL_ENTRY_WORDS))
 		/sizeof(unsigned long);
 	index /= 2;
-//_dl_fdprintf(2, "index %08x\n",index);
-//_dl_fdprintf(2, "delta %08x\n",delta);
+#ifdef DEBUG
+_dl_fdprintf(2, "        index %08x delta %08x\n",index,delta);
+#endif
 	reloc_addr[0] = OPCODE_LI(11,index*4);
 	reloc_addr[1] = OPCODE_B(delta);
-#if 0
-_dl_fdprintf(2, "resolving ");
-		if (symtab_index)
-			_dl_fdprintf(2, "'%s'\n", strtab + symtab[symtab_index].st_name);
-_dl_fdprintf(2, "type %d reloc_addr %08x addr %08x addend %08x old %08x\n",
-	reloc_type, reloc_addr, symbol_addr, addend, *reloc_addr);
-				_dl_fdprintf(2, "need to create PLT\n");
-#endif
 	}
 			}
 			break;

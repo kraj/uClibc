@@ -117,7 +117,7 @@
 #define START()		\
 	__asm__ volatile ("mtlr %0\n\t" \
 		    "blrl\n\t"	\
-		    : "=r" (status) :	"r" (_dl_elf_main))
+		    : :	"r" (_dl_elf_main))
 
 
 
