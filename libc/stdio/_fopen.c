@@ -165,9 +165,8 @@ FILE *_stdio_fopen(intptr_t fname_or_mode,
 			stream->__modeflags |= __FLAG_FREEBUF;
 		} else {
 # if __STDIO_BUILTIN_BUF_SIZE > 0
-#warning if builtin buffer, then need probably want to test vs that too
-			stream->__bufstart = stream->unbuf;
-			stream->__bufend = stream->unbuf + sizeof(stream->unbuf);
+			stream->__bufstart = stream->__builtinbuf;
+			stream->__bufend = stream->__builtinbuf + sizeof(stream->__builtinbuf);
 # else  /* __STDIO_BUILTIN_BUF_SIZE > 0 */
 			stream->__bufend = stream->__bufstart;
 # endif /* __STDIO_BUILTIN_BUF_SIZE > 0 */
