@@ -1130,6 +1130,16 @@ config SSP_QUICK_CANARY
 	  /dev/*random.
 	  Most people will answer N.
 
+config SSP_USE_ERANDOM
+	bool "Propolice uses /dev/erandom as canary source"
+	depends on UCLIBC_HAS_SSP && !SSP_QUICK_CANARY
+	default n
+	help
+	  Propolice uses /dev/erandom as canary source.
+	  This requires a modified kernel.
+	  For more info see http://frandom.sourceforge.net/.
+	  Most people will answer N.
+
 choice
 	prompt "Propolice protection blocking signal"
 	depends on UCLIBC_HAS_SSP
@@ -1160,7 +1170,6 @@ endchoice
 
 config UCLIBC_BUILD_SSP
 	bool "Build uClibc with propolice protection"
-	depends on UCLIBC_SECURITY
 	depends on UCLIBC_HAS_SSP
 	default n
 	help
