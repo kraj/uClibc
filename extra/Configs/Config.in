@@ -145,6 +145,23 @@ config UCLIBC_HAS_THREADS
 
 	  If your applications require pthreads, answer Y.
 
+config PTHREADS_DEBUG_SUPPORT
+	bool "Build pthreads debugging support"
+	default n
+	depends on UCLIBC_HAS_THREADS
+	help
+	  Say Y here if you wish to be able to debug applications that use
+	  uClibc's pthreads library.  By enabling this option, a library 
+	  named libthread_db will be built.  This library will be dlopen()'d
+	  by gdb and will allow gdb to debug the threads in your application.
+
+	  IMPORTANT NOTE!  Because gdb must dlopen() the libthread_db library,
+	  you must compile gdb with uClibc in order for pthread debugging to
+	  work properly.
+
+	  If you are doing development and want to debug applications using
+	  uClibc's pthread library, answer Y.  Otherwise, answer N.
+
 config UCLIBC_HAS_LFS
 	bool "Large File Support"
 	default y
