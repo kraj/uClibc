@@ -21,6 +21,7 @@ have additions to this FAQ document, we would love to add them,
   <li><a href="#shared"> Does uClibc support shared libraries?</a>
 
     <li><a href="#compiling">How do I compile programs with uClibc?</a>
+    <li><a href="#dev_systems">Is a pre-compiled uClibc development system available?</a>
     <li><a href="#job_control">Why do I keep getting "sh: can't access tty; job control 
 	    turned off" errors?  Why doesn't Control-C work within my shell?</a>
     <li><a href="#autoconf">How do I make autoconf and automake behave?</a>
@@ -230,15 +231,25 @@ How could it be smaller and not suck?</a></h2>
     <a href="/cgi-bin/cvsweb/buildroot/">uClibc buildroot system</a>.
     Simply adjust the Makefile settings to match your target system,
     and then run 'make'.
-    <p>
+
+<hr />
+<p>
+<h2><a name="dev_systems">Is a pre-compiled uClibc development system available?</a></h2>
+<p>
+
     If you want to be <em>really</em> lazy and start using uClibc right
     away without needing to compile your own toolchain or anything, you can
     grab a copy of the uClibc development systems, currently available for
     <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_i386.bz2">i386</a>,
     <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_powerpc.bz2">powerpc</a>,
-    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_mipsel.bz2">mipsel</a>,
-    and
-    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_arm.bz2">arm</a>.
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_arm.bz2">arm</a>,
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_mips.bz2">mips</a>,
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_mipsel.bz2">mipsel</a>, and
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_sh4.bz2">sh4</a>.
+    The powerpc dev system mostly works, but there is still some sortof
+    problem with the shared library loader that has not yet been resolved.
+
+    <p>
     These are pre-built uClibc only development systems (created using 
     <a href="/cgi-bin/cvsweb/buildroot/">buildroot</a>), and provide a 
     really really easy way to get started.  These are about bzip2 compressed
