@@ -1,5 +1,4 @@
-/* System specific type definitions for networking code.
-   Copyright (C) 1997 Free Software Foundation, Inc.
+/* Copyright (C) 1996 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,25 +16,19 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#ifndef _NETINET_IN_SYSTM_H
-#define _NETINET_IN_SYSTM_H 1
+#ifndef	_SYS_KLOG_H
 
-#include <sys/cdefs.h>
-#include <sys/types.h>
+#define	_SYS_KLOG_H	1
+#include <features.h>
 
 __BEGIN_DECLS
 
-/*
- * Network order versions of various data types. Unfortunately, BSD
- * assumes specific sizes for shorts (16 bit) and longs (32 bit) which
- * don't hold in general. As a consequence, the network order versions
- * may not reflect the actual size of the native data types.
- */
-
-typedef u_int16_t n_short;      /* short as received from the net */
-typedef u_int32_t n_long;       /* long as received from the net  */
-typedef u_int32_t n_time;       /* ms since 00:00 GMT, byte rev   */
+/* Control the kernel's logging facility.  This corresponds exactly to
+   the kernel's syslog system call, but that name is easily confused
+   with the user-level syslog facility, which is something completely
+   different.  */
+extern int klogctl __P ((int __type, char *__bufp, int __len));
 
 __END_DECLS
 
-#endif /* netinet/in_systm.h */
+#endif /* _SYS_KLOG_H */

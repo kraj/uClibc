@@ -1,5 +1,4 @@
-/* System specific type definitions for networking code.
-   Copyright (C) 1997 Free Software Foundation, Inc.
+/* Copyright (C) 1997 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,25 +16,26 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#ifndef _NETINET_IN_SYSTM_H
-#define _NETINET_IN_SYSTM_H 1
+#ifndef _NETINET_IF_TR_H
+#define	_NETINET_IF_TR_H 1
 
 #include <sys/cdefs.h>
 #include <sys/types.h>
+#include <asm/types.h>
 
-__BEGIN_DECLS
+#include <linux/if_tr.h>
 
-/*
- * Network order versions of various data types. Unfortunately, BSD
- * assumes specific sizes for shorts (16 bit) and longs (32 bit) which
- * don't hold in general. As a consequence, the network order versions
- * may not reflect the actual size of the native data types.
- */
+#ifdef __USE_BSD
 
-typedef u_int16_t n_short;      /* short as received from the net */
-typedef u_int32_t n_long;       /* long as received from the net  */
-typedef u_int32_t n_time;       /* ms since 00:00 GMT, byte rev   */
+struct trn_hdr {
+  u_int8_t trn_ac;                /* access control field */
+  u_int8_t trn_fc;                /* field control field */
+  u_int8_t trn_dhost[TR_ALEN];    /* destination host */
+  u_int8_t trn_shost[TR_ALEN];    /* source host */
+  u_int16_t trn_rcf;              /* route control field */
+  u_int16_t trn_rseg[8];          /* routing registers */
+};
 
-__END_DECLS
+#endif
 
-#endif /* netinet/in_systm.h */
+#endif	/* netinet/if_tr.h */

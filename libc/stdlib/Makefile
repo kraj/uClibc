@@ -18,7 +18,7 @@ EOBJ=on_exit.o atexit.o __do_exit.o exit.o
 GOBJ=atoi.o atol.o ltoa.o ltostr.o \
      ctype.o qsort.o bsearch.o rand.o lsearch.o getopt.o \
      glob.o fnmatch.o itoa.o strtol.o crypt.o sleep.o mkstemp.o \
-     mktemp.o
+     mktemp.o realpath.o
 
 UOBJ=getenv.o putenv.o popen.o system.o getcwd.o setenv.o \
      execl.o execv.o execlp.o execvp.o execvep.o

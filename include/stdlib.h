@@ -61,9 +61,28 @@ extern int setenv __P ((__const char *__name, __const char *__value,
 
 extern int system __P ((__const char *__command));
 
-extern int qsort __P ((char *base, int num, int size, int (*cmp)()));
-
 extern char * gcvt __P ((float number, size_t ndigit, char * buf));
+
+#if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
+/* Return the canonical absolute name of file NAME.  The last file name
+ * component need not exist, and may be a symlink to a nonexistent file.
+ * If RESOLVED is null, the result is malloc'd; otherwise, if the canonical
+ * name is PATH_MAX chars or more, returns null with `errno' set to
+ * ENAMETOOLONG; if the name fits in fewer than PATH_MAX chars, returns the
+ * name in RESOLVED.  */
+extern char *realpath __P ((__const char *__restrict __name,
+	    char *__restrict __resolved));
+#endif
+
+
+/* Shorthand for type of comparison functions.  */
+typedef int (*__compar_fn_t) __P ((__const __ptr_t, __const __ptr_t));
+typedef __compar_fn_t comparison_fn_t;
+/* Sort NMEMB elements of BASE, of SIZE bytes each,
+   using COMPAR to perform the comparisons.  */
+extern void qsort __P ((__ptr_t __base, size_t __nmemb, size_t __size,
+			  __compar_fn_t __compar));
+
 
 #define atof(x) strtod((x),(char**)0)
 #define atoi(x) (int)strtol((x),(char**)0,10)
@@ -83,5 +102,7 @@ typedef struct
     long int quot;		/* Quotient.  */
     long int rem;		/* Remainder.  */
   } ldiv_t;
+
+
 
 #endif /* __STDLIB_H */

@@ -56,9 +56,9 @@ struct	tftphdr {
 		unsigned short	tu_block;	/* block # */
 		short	tu_code;		/* error code */
 		char	tu_stuff[1];		/* request packet stuff */
-	} th_u;
+	} __attribute__ ((__packed__)) th_u;
 	char	th_data[1];			/* data or error string */
-};
+} __attribute__ ((__packed__));
 
 #define	th_block	th_u.tu_block
 #define	th_code		th_u.tu_code

@@ -77,23 +77,15 @@
 
 /*
  *      @(#)nameser.h	8.1 (Berkeley) 6/2/93
- *	$Id: nameser.h,v 1.2 2000/05/14 06:07:30 erik Exp $
+ *	$Id: nameser.h,v 1.3 2000/07/09 06:39:14 andersen Exp $
  */
 
-#ifndef _NAMESER_H_
-#define	_NAMESER_H_
+#ifndef _ARPA_NAMESER_H
+#define	_ARPA_NAMESER_H 1
 
+#include <features.h>
 #include <sys/param.h>
-#if (!defined(BSD)) || (BSD < 199306)
-# include <sys/bitypes.h>
-#else
-# include <sys/types.h>
-#endif
-#include <sys/cdefs.h>
-
-#ifdef _AUX_SOURCE
-# include <sys/types.h>
-#endif
+#include <sys/types.h>
 
 /*
  * revision information.  this is the release date in YYYYMMDD format.
@@ -254,46 +246,10 @@
 #define CONV_BADCKSUM	(-3)
 #define CONV_BADBUFLEN	(-4)
 
-#ifndef BYTE_ORDER
-#if (BSD >= 199103)
-# include <machine/endian.h>
-#else
-#ifdef __linux__
-# include <endian.h>
-#else
-#define LITTLE_ENDIAN	1234	/* least-significant byte first (vax, pc) */
-#define BIG_ENDIAN	4321	/* most-significant byte first (IBM, net) */
-#define PDP_ENDIAN	3412	/* LSB first in word, MSW first in long (pdp)*/
+/* glibc always has byte order info in <endian.h> */
+#include <endian.h>
 
-#if defined(vax) || defined(ns32000) || defined(sun386) || defined(i386) || \
-    defined(MIPSEL) || defined(_MIPSEL) || defined(BIT_ZERO_ON_RIGHT) || \
-    defined(__alpha__) || defined(__alpha)
-#define BYTE_ORDER	LITTLE_ENDIAN
-#endif
-
-#if defined(sel) || defined(pyr) || defined(mc68000) || defined(sparc) || \
-    defined(is68k) || defined(tahoe) || defined(ibm032) || defined(ibm370) || \
-    defined(MIPSEB) || defined(_MIPSEB) || defined(_IBMR2) || defined(DGUX) ||\
-    defined(apollo) || defined(__convex__) || defined(_CRAY) || \
-    defined(__hppa) || defined(__hp9000) || \
-    defined(__hp9000s300) || defined(__hp9000s700) || \
-    defined (BIT_ZERO_ON_LEFT) || defined(m68k)
-#define BYTE_ORDER	BIG_ENDIAN
-#endif
-#endif /* __linux__ */
-#endif /* BSD */
-#endif /* BYTE_ORDER */
-
-#if !defined(BYTE_ORDER) || \
-    (BYTE_ORDER != BIG_ENDIAN && BYTE_ORDER != LITTLE_ENDIAN && \
-    BYTE_ORDER != PDP_ENDIAN)
-	/* you must determine what the correct bit order is for
-	 * your compiler - the next line is an intentional error
-	 * which will force your compiles to bomb until you fix
-	 * the above macros.
-	 */
-  error "Undefined or invalid BYTE_ORDER";
-#endif
+__BEGIN_DECLS
 
 /*
  * Structure for query header.  The order of the fields is machine- and
@@ -389,4 +345,6 @@ extern	u_int32_t	_getlong __P((const u_char *));
 	(cp) += INT32SZ; \
 }
 
-#endif /* !_NAMESER_H_ */
+__END_DECLS
+
+#endif /* arpa/nameser.h */

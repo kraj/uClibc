@@ -1,4 +1,4 @@
-DIRS = headers error getent malloc-simple misc regexp stdio2 \
+DIRS = headers error getent malloc-simple misc regex stdio2 \
 	    string sysdeps termios time #rpc
 
 all: libc.a
@@ -29,8 +29,8 @@ misc: dummy
 net: dummy
 	make -C net
 
-regexp: dummy
-	make -C regexp
+regex: dummy
+	make -C regex
 
 rpc: dummy
 	make -C rpc
