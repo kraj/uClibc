@@ -1755,6 +1755,7 @@ int gethostbyname_r(const char * name,
 	}
 
 	*result=result_buf;
+	*h_errnop = NETDB_SUCCESS;
 	return NETDB_SUCCESS;
 }
 #endif
@@ -1882,6 +1883,7 @@ int gethostbyname2_r(const char *name, int family,
 	}
 
 	*result=result_buf;
+	*h_errnop = NETDB_SUCCESS;
 	return NETDB_SUCCESS;
 #endif /* __UCLIBC_HAS_IPV6__ */
 }
@@ -2064,6 +2066,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 	}
 
 	*result=result_buf;
+	*h_errnop = NETDB_SUCCESS;
 	return NETDB_SUCCESS;
 }
 #endif
