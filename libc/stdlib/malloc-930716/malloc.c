@@ -179,15 +179,6 @@ static void * malloc_unlocked (size_t size)
     if (size < sizeof (struct list))
 	size = sizeof (struct list);
 
-#if 1
-    /* Some programs will call malloc (0).  Lets be strict and return NULL */
-    if (size == 0)
-	return NULL;
-#endif
-
-    if (size < sizeof (struct list))
-	size = sizeof (struct list);
-
     if (!initialized && !initialize()) {
 	return NULL;
     }
