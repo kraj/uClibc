@@ -99,6 +99,10 @@ struct _pthread_descr_struct __pthread_initial_thread = {
   NULL,	                      /* pthread_readlock_info *p_readlock_list; */
   NULL,                       /* pthread_readlock_info *p_readlock_free; */
   0                           /* int p_untracked_readlock_count; */
+#ifdef __UCLIBC_HAS_XLOCALE__
+  ,
+  NULL,                       /* __locale_t locale; */
+#endif /* __UCLIBC_HAS_XLOCALE__ */
 };
 
 /* Descriptor of the manager thread; none of this is used but the error
@@ -151,6 +155,10 @@ struct _pthread_descr_struct __pthread_manager_thread = {
   NULL,	                      /* pthread_readlock_info *p_readlock_list; */
   NULL,                       /* pthread_readlock_info *p_readlock_free; */
   0                           /* int p_untracked_readlock_count; */
+#ifdef __UCLIBC_HAS_XLOCALE__
+  ,
+  NULL,                       /* __locale_t locale; */
+#endif /* __UCLIBC_HAS_XLOCALE__ */
 };
 
 /* Pointer to the main thread (the father of the thread manager thread) */
@@ -318,6 +326,12 @@ static void pthread_initialize(void)
   /* The errno/h_errno variable of the main thread are the global ones.  */
   __pthread_initial_thread.p_errnop = &_errno;
   __pthread_initial_thread.p_h_errnop = &_h_errno;
+
+#ifdef __UCLIBC_HAS_XLOCALE__
+  /* The locale of the main thread is the current locale in use. */
+  __pthread_initial_thread.locale = __curlocale_var;
+#endif /* __UCLIBC_HAS_XLOCALE__ */
+
   /* Play with the stack size limit to make sure that no stack ever grows
      beyond STACK_SIZE minus two pages (one page for the thread descriptor
      immediately beyond, and one page to act as a guard page). */

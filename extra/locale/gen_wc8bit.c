@@ -111,8 +111,8 @@ int main(int argc, char **argv)
 		fprintf(out, "#endif\n");
 		fprintf(out, "#undef __CTYPE_HAS_8_BIT_LOCALES\n\n");
 
-		fprintf(out, "#define NUM_CODESETS\t\t0\n");
-		fprintf(out, "#define CODESET_LIST\t\t\"\"\n");
+		fprintf(out, "#define __LOCALE_DATA_NUM_CODESETS\t\t0\n");
+		fprintf(out, "#define __LOCALE_DATA_CODESET_LIST\t\t\"\"\n");
 		fclose(out);
 		return EXIT_SUCCESS;
 	}
@@ -124,30 +124,30 @@ int main(int argc, char **argv)
 	if (argc == 1) {
 		fprintf(out, "#undef __CTYPE_HAS_8_BIT_LOCALES\n\n");
 
-		fprintf(out, "#define NUM_CODESETS\t\t0\n");
-		fprintf(out, "#define CODESET_LIST\t\t\"\"\n");
+		fprintf(out, "#define __LOCALE_DATA_NUM_CODESETS\t\t0\n");
+		fprintf(out, "#define __LOCALE_DATA_CODESET_LIST\t\t\"\"\n");
 	} else {
 		fprintf(out, "#define __CTYPE_HAS_8_BIT_LOCALES\t\t1\n\n");
 	}
 
-	fprintf(out, "#define Cctype_IDX_SHIFT\t%d\n", CTYPE_IDX_SHIFT);
-	fprintf(out, "#define Cctype_IDX_LEN\t\t%d\n", CTYPE_IDX_LEN);
+	fprintf(out, "#define __LOCALE_DATA_Cctype_IDX_SHIFT\t%d\n", CTYPE_IDX_SHIFT);
+	fprintf(out, "#define __LOCALE_DATA_Cctype_IDX_LEN\t\t%d\n", CTYPE_IDX_LEN);
 #ifdef CTYPE_PACKED
-	fprintf(out, "#define Cctype_ROW_LEN\t\t%d\n", CTYPE_ROW_LEN >> 1);
-	fprintf(out, "#define Cctype_PACKED\t\t1\n");
+	fprintf(out, "#define __LOCALE_DATA_Cctype_ROW_LEN\t\t%d\n", CTYPE_ROW_LEN >> 1);
+	fprintf(out, "#define __LOCALE_DATA_Cctype_PACKED\t\t1\n");
 #else
-	fprintf(out, "#define Cctype_ROW_LEN\t\t%d\n", CTYPE_ROW_LEN);
-	fprintf(out, "#undef Cctype_PACKED\n");
+	fprintf(out, "#define __LOCALE_DATA_Cctype_ROW_LEN\t\t%d\n", CTYPE_ROW_LEN);
+	fprintf(out, "#undef __LOCALE_DATA_Cctype_PACKED\n");
 #endif
 
-	fprintf(out, "\n#define Cuplow_IDX_SHIFT\t%d\n", UPLOW_IDX_SHIFT);
-	fprintf(out, "#define Cuplow_IDX_LEN\t\t%d\n", UPLOW_IDX_LEN);
-	fprintf(out, "#define Cuplow_ROW_LEN\t\t%d\n", UPLOW_ROW_LEN);
+	fprintf(out, "\n#define __LOCALE_DATA_Cuplow_IDX_SHIFT\t%d\n", UPLOW_IDX_SHIFT);
+	fprintf(out, "#define __LOCALE_DATA_Cuplow_IDX_LEN\t\t%d\n", UPLOW_IDX_LEN);
+	fprintf(out, "#define __LOCALE_DATA_Cuplow_ROW_LEN\t\t%d\n", UPLOW_ROW_LEN);
 
 #ifdef DO_WIDE_CHAR
-	fprintf(out, "\n#define Cc2wc_IDX_LEN\t\t%d\n", C2WC_IDX_LEN);
-	fprintf(out, "#define Cc2wc_IDX_SHIFT\t\t%d\n", C2WC_IDX_SHIFT);
-	fprintf(out, "#define Cc2wc_ROW_LEN\t\t%d\n", C2WC_ROW_LEN);
+	fprintf(out, "\n#define __LOCALE_DATA_Cc2wc_IDX_LEN\t\t%d\n", C2WC_IDX_LEN);
+	fprintf(out, "#define __LOCALE_DATA_Cc2wc_IDX_SHIFT\t\t%d\n", C2WC_IDX_SHIFT);
+	fprintf(out, "#define __LOCALE_DATA_Cc2wc_ROW_LEN\t\t%d\n", C2WC_ROW_LEN);
 #endif
 
 	fprintf(out, "\ntypedef struct {\n");
@@ -157,10 +157,10 @@ int main(int argc, char **argv)
 	fprintf(out, "\tunsigned char idx8c2wc[%d];\n", C2WC_IDX_LEN);
 	fprintf(out, "\tunsigned char idx8wc2c[%d];\n", II_LEN);
 #endif
-	fprintf(out, "} codeset_8_bit_t;\n\n");
+	fprintf(out, "} __codeset_8_bit_t;\n\n");
 
 	fprintf(out, "#ifdef WANT_DATA\n\n");
-	fprintf(out, "static const codeset_8_bit_t codeset_8_bit[%d] = {\n", argc-1);
+	fprintf(out, "static const __codeset_8_bit_t codeset_8_bit[%d] = {\n", argc-1);
 
 	max_wchar = 0x7f;
 	numsets = 0;
@@ -514,19 +514,19 @@ int main(int argc, char **argv)
 
 #ifdef DO_WIDE_CHAR
 	fprintf(out, "\n");
-	fprintf(out, "#define Cwc2c_DOMAIN_MAX\t%#x\n", RANGE);
-	fprintf(out, "#define Cwc2c_TI_SHIFT\t\t%d\n", TI_SHIFT);
-	fprintf(out, "#define Cwc2c_TT_SHIFT\t\t%d\n", TT_SHIFT);
-	fprintf(out, "#define Cwc2c_II_LEN\t\t%d\n", II_LEN);
-	fprintf(out, "#define Cwc2c_TI_LEN\t\t%d\n", ti_num << TI_SHIFT);
-	fprintf(out, "#define Cwc2c_TT_LEN\t\t%d\n", tt_num << TT_SHIFT);
+	fprintf(out, "#define __LOCALE_DATA_Cwc2c_DOMAIN_MAX\t%#x\n", RANGE);
+	fprintf(out, "#define __LOCALE_DATA_Cwc2c_TI_SHIFT\t\t%d\n", TI_SHIFT);
+	fprintf(out, "#define __LOCALE_DATA_Cwc2c_TT_SHIFT\t\t%d\n", TT_SHIFT);
+	fprintf(out, "#define __LOCALE_DATA_Cwc2c_II_LEN\t\t%d\n", II_LEN);
+	fprintf(out, "#define __LOCALE_DATA_Cwc2c_TI_LEN\t\t%d\n", ti_num << TI_SHIFT);
+	fprintf(out, "#define __LOCALE_DATA_Cwc2c_TT_LEN\t\t%d\n", tt_num << TT_SHIFT);
 	fprintf(out, "\n");
 
-	fprintf(out, "\n#define Cwc2c_TBL_LEN\t\t%d\n",
+	fprintf(out, "\n#define __LOCALE_DATA_Cwc2c_TBL_LEN\t\t%d\n",
 			(ti_num << TI_SHIFT) + (tt_num << TT_SHIFT));
 
 	fprintf(out, "#ifdef WANT_DATA\n\n");
-	fprintf(out, "static const unsigned char Cwc2c_data[%d] = {\n",
+	fprintf(out, "static const unsigned char __LOCALE_DATA_Cwc2c_data[%d] = {\n",
 			(ti_num << TI_SHIFT) + (tt_num << TT_SHIFT));
 	fprintf(out, "\t/* ti_table */\n\t");
 	for (i=0 ; i < ti_num << TI_SHIFT ; i++) {
@@ -548,11 +548,11 @@ int main(int argc, char **argv)
 	fprintf(out, "\n#endif /* WANT_DATA */\n");
 #endif /* DO_WIDE_CHAR */
 
-	fprintf(out, "\n#define Cuplow_TBL_LEN\t\t%d\n",
+	fprintf(out, "\n#define __LOCALE_DATA_Cuplow_TBL_LEN\t\t%d\n",
 			n_uplow_rows * UPLOW_ROW_LEN);
 	fprintf(out, "\n#ifdef WANT_DATA\n\n");
 
-	fprintf(out, "\nstatic const unsigned char Cuplow_data[%d] = {\n",
+	fprintf(out, "\nstatic const unsigned char __LOCALE_DATA_Cuplow_data[%d] = {\n",
 			n_uplow_rows * UPLOW_ROW_LEN);
 	p = uplow_tbl;
 	for (j=0 ; j < n_uplow_rows ; j++) {
@@ -566,7 +566,7 @@ int main(int argc, char **argv)
 	fprintf(out, "};\n");
 
 	fprintf(out, "\n#endif /* WANT_DATA */\n");
-	fprintf(out, "\n#define Cctype_TBL_LEN\t\t%d\n",
+	fprintf(out, "\n#define __LOCALE_DATA_Cctype_TBL_LEN\t\t%d\n",
 #ifdef CTYPE_PACKED
 			n_ctype_rows * CTYPE_ROW_LEN / 2
 #else
@@ -576,7 +576,7 @@ int main(int argc, char **argv)
 	fprintf(out, "\n#ifdef WANT_DATA\n\n");
 
 
-	fprintf(out, "\nstatic const unsigned char Cctype_data[%d] = {\n",
+	fprintf(out, "\nstatic const unsigned char __LOCALE_DATA_Cctype_data[%d] = {\n",
 #ifdef CTYPE_PACKED
 			n_ctype_rows * CTYPE_ROW_LEN / 2
 #else
@@ -603,11 +603,11 @@ int main(int argc, char **argv)
 
 #ifdef DO_WIDE_CHAR
 
-	fprintf(out, "\n#define Cc2wc_TBL_LEN\t\t%d\n",
+	fprintf(out, "\n#define __LOCALE_DATA_Cc2wc_TBL_LEN\t\t%d\n",
 			n_c2wc_rows * C2WC_ROW_LEN);
 	fprintf(out, "\n#ifdef WANT_DATA\n\n");
 
-	fprintf(out, "\nstatic const unsigned short Cc2wc_data[%d] = {\n",
+	fprintf(out, "\nstatic const unsigned short __LOCALE_DATA_Cc2wc_data[%d] = {\n",
 			n_c2wc_rows * C2WC_ROW_LEN);
 	p = (char *) c2wc_tbl;
 	for (j=0 ; j < n_c2wc_rows ; j++) {
@@ -623,8 +623,8 @@ int main(int argc, char **argv)
 #endif /* DO_WIDE_CHAR */
 	fprintf(out, "\n\n");
 
-	fprintf(out, "#define NUM_CODESETS\t\t%d\n", numsets);
-	fprintf(out, "#define CODESET_LIST \\\n\t\"");
+	fprintf(out, "#define __LOCALE_DATA_NUM_CODESETS\t\t%d\n", numsets);
+	fprintf(out, "#define __LOCALE_DATA_CODESET_LIST \\\n\t\"");
 	for (i=0 ; i < numsets ; i++) {
 		fprintf(out, "\\x%02x", numsets + 1 + (unsigned char) codeset_index[i]);
 		if (((i & 7) == 7) && (i + 1 < numsets)) {

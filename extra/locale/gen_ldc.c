@@ -17,10 +17,10 @@
 /* #define __CTYPE_HAS_8_BIT_LOCALES */
 #endif
 
-/*  #define Cctype_TBL_LEN 328 */
-/*  #define Cuplow_TBL_LEN 400 */
-/*  #define Cc2wc_TBL_LEN 1448 */
-/*  #define Cwc2c_TBL_LEN 3744 */
+/*  #define __LOCALE_DATA_Cctype_TBL_LEN 328 */
+/*  #define __LOCALE_DATA_Cuplow_TBL_LEN 400 */
+/*  #define __LOCALE_DATA_Cc2wc_TBL_LEN 1448 */
+/*  #define __LOCALE_DATA_Cwc2c_TBL_LEN 3744 */
 
 #define WANT_WCctype_data
 #define WANT_WCuplow_data
@@ -34,9 +34,9 @@
 /* #undef WANT_WCcomb_data */
 /*  #undef WANT_WCwidth_data */
 
- #define WCctype_TBL_LEN		(WCctype_II_LEN + WCctype_TI_LEN + WCctype_UT_LEN)
- #define WCuplow_TBL_LEN		(WCuplow_II_LEN + WCuplow_TI_LEN + WCuplow_UT_LEN)
- #define WCuplow_diff_TBL_LEN (2 * WCuplow_diffs)
+ #define __LOCALE_DATA_WCctype_TBL_LEN		(__LOCALE_DATA_WCctype_II_LEN + __LOCALE_DATA_WCctype_TI_LEN + __LOCALE_DATA_WCctype_UT_LEN)
+ #define __LOCALE_DATA_WCuplow_TBL_LEN		(__LOCALE_DATA_WCuplow_II_LEN + __LOCALE_DATA_WCuplow_TI_LEN + __LOCALE_DATA_WCuplow_UT_LEN)
+ #define __LOCALE_DATA_WCuplow_diff_TBL_LEN (2 * __LOCALE_DATA_WCuplow_diffs)
 /*  #define WCcomb_TBL_LEN		(WCcomb_II_LEN + WCcomb_TI_LEN + WCcomb_UT_LEN) */
 
 #include "locale_collate.h"
@@ -50,7 +50,7 @@
 /*  #define __PASTE3(A,B,C)		A ## B ## C */
 
 
-/*  #define MAGIC_SIZE 64 */
+/*  #define __LOCALE_DATA_MAGIC_SIZE 64 */
 
 /*  #define COMMON_MMAP(X) \ */
 /*  	unsigned char	__PASTE3(lc_,X,_data)[__PASTE3(__lc_,X,_data_LEN)]; */
@@ -69,7 +69,7 @@
 	offsetof(__locale_mmap_t, __PASTE3(lc_,X,_data)) \
 
 
-static const size_t common_tbl_offsets[CATEGORIES*4] = {
+static const size_t common_tbl_offsets[__LOCALE_DATA_CATEGORIES*4] = {
 	COMMON_OFFSETS(ctype),
 	COMMON_OFFSETS(numeric),
 	COMMON_OFFSETS(monetary),
@@ -152,9 +152,11 @@ int main(void)
 {
 	FILE *lso;					/* static object */
 	int i;
-	unsigned char magic[MAGIC_SIZE];
+#ifdef __LOCALE_DATA_MAGIC_SIZE
+	unsigned char magic[__LOCALE_DATA_MAGIC_SIZE];
 
-	memset(magic, 0, MAGIC_SIZE);
+	memset(magic, 0, __LOCALE_DATA_MAGIC_SIZE);
+#endif /* __LOCALE_DATA_MAGIC_SIZE */
 
 	if (!(lso = fopen("locale_data.c", "w"))) {
 		printf("can't open locale_data.c!\n");
@@ -174,20 +176,22 @@ int main(void)
 			"#include \"locale_mmap.h\"\n\n"
 			"static const __locale_mmap_t locale_mmap = {\n\n"
 			);
-	out_uc(lso, magic, MAGIC_SIZE, "magic");
+#ifdef __LOCALE_DATA_MAGIC_SIZE
+	out_uc(lso, magic, __LOCALE_DATA_MAGIC_SIZE, "magic");
+#endif /* __LOCALE_DATA_MAGIC_SIZE */
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
-	out_uc(lso, Cctype_data, Cctype_TBL_LEN, "tbl8ctype");
-	out_uc(lso, Cuplow_data, Cuplow_TBL_LEN, "tbl8uplow");
+	out_uc(lso, __LOCALE_DATA_Cctype_data, __LOCALE_DATA_Cctype_TBL_LEN, "tbl8ctype");
+	out_uc(lso, __LOCALE_DATA_Cuplow_data, __LOCALE_DATA_Cuplow_TBL_LEN, "tbl8uplow");
 #ifdef __WCHAR_ENABLED
-	out_u16(lso, Cc2wc_data, Cc2wc_TBL_LEN, "tbl8c2wc");
-	out_uc(lso, Cwc2c_data, Cwc2c_TBL_LEN, "tbl8wc2c");
+	out_u16(lso, __LOCALE_DATA_Cc2wc_data, __LOCALE_DATA_Cc2wc_TBL_LEN, "tbl8c2wc");
+	out_uc(lso, __LOCALE_DATA_Cwc2c_data, __LOCALE_DATA_Cwc2c_TBL_LEN, "tbl8wc2c");
 	/* translit  */
 #endif /* __WCHAR_ENABLED */
 #endif /* __CTYPE_HAS_8_BIT_LOCALES */
 #ifdef __WCHAR_ENABLED
-	out_uc(lso, WCctype_data, WCctype_TBL_LEN, "tblwctype");
-	out_uc(lso, WCuplow_data, WCuplow_TBL_LEN, "tblwuplow");
-	out_i16(lso, WCuplow_diff_data, WCuplow_diff_TBL_LEN, "tblwuplow_diff");
+	out_uc(lso, __LOCALE_DATA_WCctype_data, __LOCALE_DATA_WCctype_TBL_LEN, "tblwctype");
+	out_uc(lso, __LOCALE_DATA_WCuplow_data, __LOCALE_DATA_WCuplow_TBL_LEN, "tblwuplow");
+	out_i16(lso, __LOCALE_DATA_WCuplow_diff_data, __LOCALE_DATA_WCuplow_diff_TBL_LEN, "tblwuplow_diff");
 /* 	const unsigned char tblwcomb[WCcomb_TBL_LEN]; */
 	/* width?? */
 #endif /* __WCHAR_ENABLED */
@@ -200,12 +204,12 @@ int main(void)
 
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
 	fprintf(lso, "{ /* codeset_8_bit array */\n");
-	for (i = 0 ; i < NUM_CODESETS ; i++) {
+	for (i = 0 ; i < __LOCALE_DATA_NUM_CODESETS ; i++) {
 		fprintf(lso, "{ /* codeset_8_bit[%d] */\n", i);
-		out_uc(lso, codeset_8_bit[i].idx8ctype, Cctype_IDX_LEN, "idx8ctype");
-		out_uc(lso, codeset_8_bit[i].idx8uplow, Cuplow_IDX_LEN, "idx8uplow");
-		out_uc(lso, codeset_8_bit[i].idx8c2wc, Cc2wc_IDX_LEN, "idx8c2wc");
-		out_uc(lso, codeset_8_bit[i].idx8wc2c, Cwc2c_II_LEN, "idx8wc2c");
+		out_uc(lso, codeset_8_bit[i].idx8ctype, __LOCALE_DATA_Cctype_IDX_LEN, "idx8ctype");
+		out_uc(lso, codeset_8_bit[i].idx8uplow, __LOCALE_DATA_Cuplow_IDX_LEN, "idx8uplow");
+		out_uc(lso, codeset_8_bit[i].idx8c2wc, __LOCALE_DATA_Cc2wc_IDX_LEN, "idx8c2wc");
+		out_uc(lso, codeset_8_bit[i].idx8wc2c, __LOCALE_DATA_Cwc2c_II_LEN, "idx8wc2c");
 		fprintf(lso, "},\n");
 	}
 	fprintf(lso, "},\n");
@@ -237,7 +241,7 @@ int main(void)
 	
 
 	{
-		unsigned char co_buf[CATEGORIES] = {
+		unsigned char co_buf[__LOCALE_DATA_CATEGORIES] = {
 			__lc_ctype_item_offsets_LEN,
 			__lc_numeric_item_offsets_LEN,
 			__lc_monetary_item_offsets_LEN,
@@ -245,26 +249,26 @@ int main(void)
 			0,
 			__lc_messages_item_offsets_LEN
 		};
-		out_uc(lso, co_buf, CATEGORIES, "lc_common_item_offsets_LEN");
+		out_uc(lso, co_buf, __LOCALE_DATA_CATEGORIES, "lc_common_item_offsets_LEN");
 	}
 	
-	out_size_t(lso, common_tbl_offsets, CATEGORIES * 4, "lc_common_tbl_offsets");
+	out_size_t(lso, common_tbl_offsets, __LOCALE_DATA_CATEGORIES * 4, "lc_common_tbl_offsets");
 	/* offsets from start of locale_mmap_t */
 	/* rows, item_offsets, item_idx, data */
 
-#ifdef NUM_LOCALES
-	out_uc(lso, __locales, NUM_LOCALES * WIDTH_LOCALES, "locales");
-	out_uc(lso, __locale_names5, 5 * NUM_LOCALE_NAMES, "locale_names5");
-#ifdef LOCALE_AT_MODIFIERS_LENGTH
-	out_uc(lso, __locale_at_modifiers, LOCALE_AT_MODIFIERS_LENGTH, "locale_at_modifiers");
+#ifdef __LOCALE_DATA_NUM_LOCALES
+	out_uc(lso, __locales, __LOCALE_DATA_NUM_LOCALES * __LOCALE_DATA_WIDTH_LOCALES, "locales");
+	out_uc(lso, __locale_names5, 5 * __LOCALE_DATA_NUM_LOCALE_NAMES, "locale_names5");
+#ifdef __LOCALE_DATA_AT_MODIFIERS_LENGTH
+	out_uc(lso, __locale_at_modifiers, __LOCALE_DATA_AT_MODIFIERS_LENGTH, "locale_at_modifiers");
 #else
-#error LOCALE_AT_MODIFIERS_LENGTH not defined!
-#endif /* LOCALE_AT_MODIFIERS_LENGTH */
-#endif /* NUM_LOCALES */
+#error __LOCALE_DATA_AT_MODIFIERS_LENGTH not defined!
+#endif /* __LOCALE_DATA_AT_MODIFIERS_LENGTH */
+#endif /* __LOCALE_DATA_NUM_LOCALES */
 
-	out_uc(lso, lc_names, lc_names_LEN, "lc_names");
+	out_uc(lso, lc_names, __lc_names_LEN, "lc_names");
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
-	out_uc(lso, (const unsigned char*) CODESET_LIST, sizeof(CODESET_LIST), "codeset_list");
+	out_uc(lso, (const unsigned char*) __LOCALE_DATA_CODESET_LIST, sizeof(__LOCALE_DATA_CODESET_LIST), "codeset_list");
 #endif /* __CTYPE_HAS_8_BIT_LOCALES */
 
 	fprintf(lso,

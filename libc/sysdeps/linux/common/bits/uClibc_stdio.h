@@ -44,6 +44,79 @@
 #define __STDIO_WIDE
 #endif
 
+#define __STDIO_BUFFERS
+/* ANSI/ISO mandate at least 256. */
+#if defined(__UCLIBC_HAS_STDIO_BUFSIZ_NONE__)
+/* Fake this because some apps use stdio.h BUFSIZ. */
+#define _STDIO_BUFSIZ			256
+#undef __STDIO_BUFFERS
+#elif defined(__UCLIBC_HAS_STDIO_BUFSIZ_256__)
+#define _STDIO_BUFSIZ			256
+#elif defined(__UCLIBC_HAS_STDIO_BUFSIZ_512__)
+#define _STDIO_BUFSIZ			512
+#elif defined(__UCLIBC_HAS_STDIO_BUFSIZ_1024__)
+#define _STDIO_BUFSIZ		   1024
+#elif defined(__UCLIBC_HAS_STDIO_BUFSIZ_2048__)
+#define _STDIO_BUFSIZ		   2048
+#elif defined(__UCLIBC_HAS_STDIO_BUFSIZ_4096__)
+#define _STDIO_BUFSIZ		   4096
+#elif defined(__UCLIBC_HAS_STDIO_BUFSIZ_8192__)
+#define _STDIO_BUFSIZ		   8192
+#else
+#error config seems to be out of sync regarding bufsiz options
+#endif
+
+#ifdef __UCLIBC_HAS_STDIO_GETC_MACRO__
+#define __STDIO_GETC_MACRO
+#endif
+
+#ifdef __UCLIBC_HAS_STDIO_PUTC_MACRO__
+#define __STDIO_PUTC_MACRO
+#endif
+
+#ifdef __UCLIBC_HAS_STDIO_AUTO_RW_TRANSITION__
+#define __STDIO_AUTO_RW_TRANSITION
+#endif
+
+#ifdef __UCLIBC_HAS_FOPEN_LARGEFILE_MODE__
+#define __STDIO_FOPEN_LARGEFILE_MODE
+#endif
+
+#ifdef __UCLIBC_HAS_FOPEN_LARGEFILE_MODE__
+#define __STDIO_FOPEN_EXCLUSIVE_MODE
+#endif
+
+#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
+#define __STDIO_PRINTF_M_SUPPORT
+#endif
+
+#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
+#define __STDIO_GLIBC_CUSTOM_STREAMS
+#endif
+
+#ifdef __UCLIBC_HAS_STDIO_BUFSIZ_NONE__
+#define _STDIO_BUILTIN_BUF_SIZE		0
+#else  /* __UCLIBC_HAS_STDIO_BUFSIZ_NONE__ */
+#if defined(__UCLIBC_HAS_STDIO_BUILTIN_BUFFER_NONE__)
+#define _STDIO_BUILTIN_BUF_SIZE		0
+#elif defined(__UCLIBC_HAS_STDIO_BUILTIN_BUFFER_4__)
+#define _STDIO_BUILTIN_BUF_SIZE		4
+#elif defined(__UCLIBC_HAS_STDIO_BUILTIN_BUFFER_8__)
+#define _STDIO_BUILTIN_BUF_SIZE		8
+#else
+#error config seems to be out of sync regarding builtin buffer size
+#endif
+#endif /* __UCLIBC_HAS_STDIO_BUFSIZ_NONE__ */
+
+#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__
+#define __STDIO_GLIBC_CUSTOM_PRINTF
+#endif
+
+
+/* Currently unimplemented/untested */
+/* #define __STDIO_FLEXIBLE_SETVBUF */
+
+
 /* Make sure defines related to large files are consistent. */
 #ifdef _LIBC
 
@@ -81,32 +154,23 @@
 #include <wchar.h>
 #endif
 
-#define __STDIO_BUFFERS
-#define __STDIO_GETC_MACRO
-#define __STDIO_PUTC_MACRO
 
 /* For uClibc, these are currently handled above. */
-/*  #define __STDIO_LARGE_FILES */
-/*  #define __STDIO_THREADSAFE */
-
-/* L mode extension for fopen. */
-#define __STDIO_FOPEN_LARGEFILE_MODE
-
-/* size of builtin buf -- only tested with 0 */
-#define _STDIO_BUILTIN_BUF_SIZE		0
-
-/* TODO - enable features based on __STDIO_GLIBC_FEATURES */
-
-/*  #define __STDIO_GLIBC_FEATURES */
-#define __STDIO_AUTO_RW_TRANSITION
-#define __STDIO_FOPEN_EXCLUSIVE_MODE
-#define __STDIO_PRINTF_M_SPEC
-#define __STDIO_GLIBC_CUSTOM_STREAMS
-
-
+/* #define __STDIO_BUFFERS */
+/* #define __STDIO_GETC_MACRO */
+/* #define __STDIO_PUTC_MACRO */
+/* #define __STDIO_LARGE_FILES */
+/* #define __STDIO_THREADSAFE */
 /* ANSI/ISO mandate at least 256. */
-#define _STDIO_BUFSIZ			256
-
+/* #define _STDIO_BUFSIZ			256 */
+/* #define __STDIO_AUTO_RW_TRANSITION */
+/* #define __STDIO_FOPEN_EXCLUSIVE_MODE */
+/* #define __STDIO_PRINTF_M_SPEC */
+/* #define __STDIO_GLIBC_CUSTOM_STREAMS */
+/* L mode extension for fopen. */
+/* #define __STDIO_FOPEN_LARGEFILE_MODE */
+/* size of builtin buf -- only tested with 0 */
+/* #define _STDIO_BUILTIN_BUF_SIZE		0 */
 /* Currently unimplemented/untested */
 /* #define __STDIO_FLEXIBLE_SETVBUF */
 
@@ -173,7 +237,10 @@
 typedef struct {
 	__off_t __pos;
 #ifdef __STDIO_MBSTATE
-  __mbstate_t __mbstate;
+	__mbstate_t __mbstate;
+#endif
+#ifdef __STDIO_WIDE
+	int mblen_pending;
 #endif
 } __stdio_fpos_t;
 
@@ -181,7 +248,10 @@ typedef struct {
 typedef struct {
 	__off64_t __pos;
 #ifdef __STDIO_MBSTATE
-  __mbstate_t __mbstate;
+	__mbstate_t __mbstate;
+#endif
+#ifdef __STDIO_WIDE
+	int mblen_pending;
 #endif
 } __stdio_fpos64_t;
 #endif
@@ -234,6 +304,7 @@ typedef _IO_cookie_io_functions_t cookie_io_functions_t;
  * 0 1   one user (unused ungot is 1) or one scanf (unused ungot is 0)
  * 1 0   must be scanf[0] and user[1]
  * 1 1   illegal -- could be used to signal safe for setbuf
+ *         but if used, need to fix _stdio_adjpos at least!
  */
 
 #ifdef __UCLIBC__
@@ -244,8 +315,8 @@ struct __stdio_file_struct {
 	unsigned short modeflags;
 	/* There could be a hole here, but modeflags is used most.*/
 #ifdef __STDIO_WIDE
-	/* TOOD - ungot_width could be combined with ungot.  But what about hole? */
-	unsigned char ungot_width[2];
+	/* TODO - ungot_width could be combined with ungot.  But what about hole? */
+	unsigned char ungot_width[2]; /* 0 is current (building) char, 1 is scanf */
 	wchar_t ungot[2];
 #else  /* __STDIO_WIDE */
 	unsigned char ungot[2];

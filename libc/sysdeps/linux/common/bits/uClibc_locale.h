@@ -1,4 +1,4 @@
-/*  Copyright (C) 2002     Manuel Novoa III
+/*  Copyright (C) 2002, 2003     Manuel Novoa III
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -32,18 +32,17 @@
 /**********************************************************************/
 /* uClibc compatibilty stuff */
 
-#ifdef __UCLIBC_HAS_WCHAR__
-#define __WCHAR_ENABLED
-#endif
-
-
 #ifdef __UCLIBC_HAS_LOCALE__
 
 #undef __LOCALE_C_ONLY
 
 #else  /* __UCLIBC_HAS_LOCALE__ */
 
-#define __LOCALE_C_ONLY
+#define __LOCALE_C_ONLY 
+
+#define __XL(N) N
+#define __LOCALE_PARAM
+#define __LOCALE_ARG
 
 #endif /* __UCLIBC_HAS_LOCALE__ */
 
@@ -63,42 +62,17 @@
 #define __LC_ALL			6
 
 /**********************************************************************/
-#if defined(_LIBC) && defined(__WCHAR_ENABLED)
-
-/* TODO: This really needs to be somewhere else... */
-#include <limits.h>
-#include <stdint.h>
-
-#if WCHAR_MIN == 0
-typedef wchar_t				__uwchar_t;
-#elif WCHAR_MAX <= USHRT_MAX
-typedef unsigned short		__uwchar_t;
-#elif WCHAR_MAX <= UINT_MAX
-typedef unsigned int		__uwchar_t;
-#elif WCHAR_MAX <= ULONG_MAX
-typedef unsigned long		__uwchar_t;
-#elif defined(ULLONG_MAX) && (WCHAR_MAX <= ULLONG_MAX)
-typedef unsigned long long	__uwchar_t;
-#elif WCHAR_MAX <= UINT_MAX
-typedef uintmax_t			__uwchar_t;
-#else
-#error Can not determine an appropriate type for __uwchar_t!
-#endif
-
-#endif
-
-/**********************************************************************/
-#if defined(_LIBC) && !defined(__LOCALE_C_ONLY)
+/* #if defined(_LIBC) && !defined(__LOCALE_C_ONLY) */
+#ifndef __LOCALE_C_ONLY
 
 #include <stddef.h>
 #include <stdint.h>
-#include <bits/uClibc_locale_data.h>
+#include <bits/uClibc_touplow.h>
 
+#include <bits/uClibc_locale_data.h>
 
 extern void _locale_set(const unsigned char *p);
 extern void _locale_init(void);
-
-/* TODO: assumes 8-bit chars!!! */
 
 enum {
 	__ctype_encoding_7_bit,		/* C/POSIX */
@@ -164,6 +138,12 @@ typedef struct {
 /*  static unsigned char cur_locale[LOCALE_STRING_SIZE]; */
 
 typedef struct {
+#ifdef __UCLIBC_HAS_XLOCALE__
+	const __uint16_t *__ctype_b;
+	const __ctype_touplow_t *__ctype_tolower;
+	const __ctype_touplow_t *__ctype_toupper;
+#endif
+
 /*  	int tables_loaded; */
 /*  	unsigned char lctypes[LOCALE_STRING_SIZE]; */
 	unsigned char cur_locale[LOCALE_STRING_SIZE];
@@ -185,21 +165,30 @@ typedef struct {
 	const unsigned char *tbl8ctype;
 	const unsigned char *idx8uplow;
     const unsigned char *tbl8uplow;
-#ifdef __WCHAR_ENABLED
+#ifdef __UCLIBC_HAS_WCHAR__
 	const unsigned char *idx8c2wc;
 	const uint16_t *tbl8c2wc;	/* char > 0x7f to wide char */
 	const unsigned char *idx8wc2c;
 	const unsigned char *tbl8wc2c;
 	/* translit  */
-#endif /* __WCHAR_ENABLED */
+#endif /* __UCLIBC_HAS_WCHAR__ */
 #endif /* __CTYPE_HAS_8_BIT_LOCALES */
-#ifdef __WCHAR_ENABLED
+#ifdef __UCLIBC_HAS_WCHAR__
+
+	const uint16_t *code2flag;
+
 	const unsigned char *tblwctype;
 	const unsigned char *tblwuplow;
 /* 	const unsigned char *tblwcomb; */
 	const int16_t *tblwuplow_diff; /* yes... signed */
 	/* width?? */
-#endif /* __WCHAR_ENABLED */
+
+	wchar_t decimal_point_wc;
+	wchar_t thousands_sep_wc;
+	int decimal_point_len;
+	int thousands_sep_len;
+
+#endif /* __UCLIBC_HAS_WCHAR__ */
 
 	/* ctype */
 	const char *outdigit0_mb;
@@ -313,10 +302,68 @@ typedef struct {
 	/* collate is at the end */
 	__collate_t collate;
 
-} __locale_t;
+} __uclibc_locale_t;
+
+typedef __uclibc_locale_t *__locale_t;
 
 extern __locale_t __global_locale;
 
+
+extern int __locale_mbrtowc_l(wchar_t *__restrict dst,
+							  const char *__restrict src,
+							  __locale_t loc );
+
+#ifdef L_setlocale
+/* so we only get the warning once... */
+#warning need thread version of CUR_LOCALE!
+#endif
+/**********************************************************************/
+#ifdef __UCLIBC_HAS_XLOCALE__
+
+extern __locale_t __curlocale_var;
+
+#ifdef __UCLIBC_HAS_THREADS__
+
+extern __locale_t __curlocale(void)  __THROW __attribute__ ((__const__));
+extern __locale_t __curlocale_set(__locale_t new);
+#define __UCLIBC_CURLOCALE           (__curlocale())
+#define __UCLIBC_CURLOCALE_DATA      (*__curlocale())
+
+#else  /* __UCLIBC_HAS_THREADS__ */
+
+#define __UCLIBC_CURLOCALE           (__curlocale_var)
+#define __UCLIBC_CURLOCALE_DATA      (*__curlocale_var)
+
+#endif /* __UCLIBC_HAS_THREADS__ */
+
+#elif defined(__UCLIBC_HAS_LOCALE__)
+
+#define __UCLIBC_CURLOCALE           (__global_locale)
+#define __UCLIBC_CURLOCALE_DATA      (*__global_locale)
+
+#endif
+/**********************************************************************/
+#if defined(__UCLIBC_HAS_XLOCALE__) && defined(__UCLIBC_DO_XLOCALE)
+
+#define __XL(N) N ## _l
+#define __LOCALE_PARAM    , __locale_t locale_arg
+#define __LOCALE_ARG      , locale_arg
+#define __LOCALE_PTR      locale_arg
+
+#else  /* defined(__UCLIBC_HAS_XLOCALE__) && defined(__STDLIB_DO_XLOCALE) */
+
+#define __XL(N) N
+#define __LOCALE_PARAM
+#define __LOCALE_ARG
+#define __LOCALE_PTR      __UCLIBC_CURLOCALE
+
+#endif /* defined(__UCLIBC_HAS_XLOCALE__) && defined(__STDLIB_DO_XLOCALE) */
+/**********************************************************************/
+
+extern __locale_t __newlocale(int category_mask, const char *locale, __locale_t base)
+	 __THROW;
+
 #endif /* defined(_LIBC) && !defined(__LOCALE_C_ONLY) */
+/**********************************************************************/
 
 #endif /* _UCLIBC_LOCALE_H */

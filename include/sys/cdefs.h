@@ -1,4 +1,4 @@
-/* Copyright (C) 1992,93,94,95,96,97,98,99,2000,2001,2002 Free Software Foundation, Inc.
+/* Copyright (C) 1992-2001, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -85,6 +85,31 @@
 #endif
 
 
+/* The standard library needs the functions from the ISO C90 standard
+   in the std namespace.  At the same time we want to be safe for
+   future changes and we include the ISO C99 code in the non-standard
+   namespace __c99.  The C++ wrapper header take case of adding the
+   definitions to the global namespace.  */
+#if defined __cplusplus && defined _GLIBCPP_USE_NAMESPACES
+# define __BEGIN_NAMESPACE_STD	namespace std {
+# define __END_NAMESPACE_STD	}
+# define __USING_NAMESPACE_STD(name) using std::name;
+# define __BEGIN_NAMESPACE_C99	namespace __c99 {
+# define __END_NAMESPACE_C99	}
+# define __USING_NAMESPACE_C99(name) using __c99::name;
+#else
+/* For compatibility we do not add the declarations into any
+   namespace.  They will end up in the global namespace which is what
+   old code expects.  */
+# define __BEGIN_NAMESPACE_STD
+# define __END_NAMESPACE_STD
+# define __USING_NAMESPACE_STD(name)
+# define __BEGIN_NAMESPACE_C99
+# define __END_NAMESPACE_C99
+# define __USING_NAMESPACE_C99(name)
+#endif
+
+
 /* Support for bounded pointers.  */
 #ifndef __BOUNDED_POINTERS__
 # define __bounded	/* nothing */
@@ -124,7 +149,8 @@
 #if defined __GNUC__ && __GNUC__ >= 2
 
 # define __REDIRECT(name, proto, alias) name proto __asm__ (__ASMNAME (#alias))
-# define __ASMNAME(cname) __C_SYMBOL_PREFIX__ cname
+# define __ASMNAME(cname)  __ASMNAME2 (__USER_LABEL_PREFIX__, cname)
+# define __ASMNAME2(prefix, cname) __STRING (prefix) cname
 
 /*
 #elif __SOME_OTHER_COMPILER__
@@ -157,6 +183,24 @@
 # define __attribute_pure__ __attribute__ ((__pure__))
 #else
 # define __attribute_pure__ /* Ignore */
+#endif
+
+/* At some point during the gcc 3.1 development the `used' attribute
+   for functions was introduced.  We don't want to use it unconditionally
+   (although this would be possible) since it generates warnings.  */
+#if __GNUC_PREREQ (3,1)
+# define __attribute_used__ __attribute__ ((__used__))
+# define __attribute_noinline__ __attribute__ ((__noinline__))
+#else
+# define __attribute_used__ __attribute__ ((__unused__))
+# define __attribute_noinline__ /* Ignore */
+#endif
+
+/* gcc allows marking deprecated functions.  */
+#if __GNUC_PREREQ (3,2)
+# define __attribute_deprecated__ __attribute__ ((__deprecated__))
+#else
+# define __attribute_deprecated__ /* Ignore */
 #endif
 
 /* At some point during the gcc 2.8 development the `format_arg' attribute

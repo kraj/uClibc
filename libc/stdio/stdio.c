@@ -352,7 +352,7 @@ UNLOCKED(int,fileno,(register FILE *stream),(stream))
 
 FILE *fdopen(int filedes, const char *mode)
 {
-	register char *cur_mode;	/* TODO -- replace by intptr_t?? */
+	register char *cur_mode;	/* TODO -- use intptr_t?? (also fopencookie) */
 
 	return (((int)(cur_mode = (char *) fcntl(filedes, F_GETFL))) != -1)
 		? _stdio_fopen(cur_mode, mode, NULL, filedes) 
@@ -491,7 +491,10 @@ static ssize_t fmo_read(register void *cookie, char *buf, size_t bufsize)
 {
 	size_t count = COOKIE->len - COOKIE->pos;
 
-	/* Note: bufsize < SSIZE_MAX because of _stdio_READ. */
+	/* Note: 0 < bufsize < SSIZE_MAX because of _stdio_READ. */
+	if (!count) {				/* EOF! */
+		return 0;
+	}
 
 	if (bufsize > count) {
 		bufsize = count;
@@ -838,8 +841,6 @@ FILE *open_memstream(char **__restrict bufloc, size_t *__restrict sizeloc)
  * When compiled without large file support, the offset pointer for the
  * cookie_seek function is off_t * and not off64_t * as for glibc. */
 
-/* TODO: rewrite _stdio_fopen() to avoid the fopencookie() kludge. */
-
 /* Currently no real reentrancy issues other than a possible double close(). */
 
 #ifndef __BCC__
@@ -848,12 +849,14 @@ FILE *fopencookie(void * __restrict cookie, const char * __restrict mode,
 				  cookie_io_functions_t io_functions)
 {
 	FILE *stream;
-	int fd;
 
-	if ((stream = _stdio_fopen("/dev/null", mode, NULL, -1)) != NULL) {
-		fd = stream->filedes;
+	/* Fake an fdopen guaranteed to pass the _stdio_fopen basic agreement
+	 * check without an fcntl call. */
+	if ((stream = _stdio_fopen(((char *)(INT_MAX-1)),
+							   mode, NULL, INT_MAX)) /* TODO: use intptr_t? */
+		!= NULL
+		) {
 		stream->filedes = -1;
-		close(fd);
 		stream->gcs = io_functions;
 		stream->cookie = cookie;
 	}
@@ -886,10 +889,13 @@ FILE *_fopencookie(void * __restrict cookie, const char * __restrict mode,
 {
 	register FILE *stream;
 
-	if ((stream = _stdio_fopen("/dev/null", mode, NULL, -1)) != NULL) {
-		int fd = stream->filedes;
+	/* Fake an fdopen guaranteed to pass the _stdio_fopen basic agreement
+	 * check without an fcntl call. */
+	if ((stream = _stdio_fopen(((char *)(INT_MAX-1)),
+							   mode, NULL, INT_MAX)) /* TODO: use intptr_t? */
+		!= NULL
+		) {
 		stream->filedes = -1;
-		close(fd);
 		stream->gcs.read  = io_functions->read;
 		stream->gcs.write = io_functions->write;
 		stream->gcs.seek  = io_functions->seek;
@@ -1019,7 +1025,7 @@ void __fpurge(register FILE * __restrict stream)
 /* Not reentrant. */
 
 #ifdef __STDIO_WIDE
-#warning unlike the glibc version, this __fpending returns bytes in buffer for wide streams too!
+#warning Unlike the glibc version, this __fpending returns bytes in buffer for wide streams too!
 
 link_warning(__fpending, "This version of __fpending returns bytes remaining in buffer for both narrow and wide streams.  glibc's version returns wide chars in buffer for the wide stream case.")
 
@@ -1220,12 +1226,17 @@ FILE *_stdio_fsfopen(const char * __restrict filename,
 /* stdio internal functions */
 /**********************************************************************/
 #ifdef L__stdio_adjpos
-/*
- * ANSI/ISO p. 370: The file positioning indicator is unspecified after
- * a successful call to ungetwc.
+
+/* According to the ANSI/ISO C99 definition of ungetwc()
+ *     For a text or binary stream, the value of its file position indicator
+ *     after a successful call to the ungetwc function is unspecified until
+ *     all pushed­back wide characters are read or discarded.
  * Note however, that this applies only to _user_ calls to ungetwc.  We
- * need to allow for internal calls by scanf.  So we store the byte count
- * of the first ungot wide char in ungot0_bytes.  If it is 0 (user case)
+ * need to allow for internal calls by scanf.
+
+
+ *  So we store the byte count
+ * of the first ungot wide char in ungot_width.  If it is 0 (user case)
  * then the file position is treated as unknown.
  */
 
@@ -1236,16 +1247,23 @@ int _stdio_adjpos(register FILE * __restrict stream, register __offmax_t *pos)
 	__offmax_t r;
 	int cor = stream->modeflags & __MASK_UNGOT;	/* handle ungots */
 
+	assert(cor <= 2);
+
 #ifdef __STDIO_WIDE
 	/* Assumed narrow stream so correct if wide. */
 	if (cor && (stream->modeflags & __FLAG_WIDE)) {
-		cor = cor - 1 + stream->ungot_width[0];
-		if (((stream->modeflags & __MASK_UNGOT) > 1) || stream->ungot[1]) {
+		if ((((stream->modeflags & __MASK_UNGOT) > 1) || stream->ungot[1])) {
 			return -1; /* App did ungetwc, so position is indeterminate. */
 		}
-		assert(stream->ungot_width[0] > 0);
+		if (stream->modeflags & __MASK_UNGOT) {
+			cor = cor - 1 + stream->ungot_width[1];
+		}
+		if (stream->state.mask > 0) { /* Incomplete character (possible bad) */
+			cor -= stream->ungot_width[0];
+		}
 	}
 #endif /* __STDIO_WIDE */
+
 #ifdef __STDIO_BUFFERS
 	if (stream->modeflags & __FLAG_WRITING) {
 		cor -= (stream->bufpos - stream->bufstart); /* pending writes */
@@ -1415,8 +1433,13 @@ size_t _stdio_fread(unsigned char *buffer, size_t bytes, register FILE *stream)
 			*p++ = *stream->bufpos++;
 		}
 
-		if ((bytes > 0) && (stream->filedes != -2)) {
+		if (bytes > 0) {
 			ssize_t len;
+
+			if (stream->filedes == -2) {
+				stream->modeflags |= __FLAG_EOF;
+				goto DONE;
+			}
 
 			/* The buffer is exhausted, but we still need chars.  */
 			stream->bufpos = stream->bufread = stream->bufstart;
@@ -1449,6 +1472,7 @@ size_t _stdio_fread(unsigned char *buffer, size_t bytes, register FILE *stream)
 		}
 #endif
 
+	DONE:
 		__stdio_validate_FILE(stream); /* debugging only */
 		return (p - (unsigned char *)buffer);
 	}
@@ -2086,7 +2110,9 @@ int fclose(register FILE *stream)
 	/* At this point, any dangling refs to the stream are the result of
 	 * a programming bug... so free the unlocked stream. */
 	if (stream->modeflags & __FLAG_FREEFILE) {
+#ifdef __STDIO_GLIBC_CUSTOM_STREAMS
 	    stream->cookie = NULL;	/* To aid debugging... */
+#endif
 		free(stream);
 	}
 
@@ -2118,7 +2144,9 @@ int fclose(register FILE *stream)
 	/* At this point, any dangling refs to the stream are the result of
 	 * a programming bug... so free the unlocked stream. */
 	if (stream->modeflags & __FLAG_FREEFILE) {
+#ifdef __STDIO_GLIBC_CUSTOM_STREAMS
 	    stream->cookie = NULL;	/* To aid debugging... */
+#endif
 		free(stream);
 	}
 
@@ -2213,7 +2241,7 @@ int fflush_unlocked(register FILE *stream)
 			rv = -1;			/* Not all chars written. */
 		}
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning add option to test for undefined behavior of fflush
+#warning WISHLIST: Add option to test for undefined behavior of fflush.
 #endif /* __UCLIBC_MJN3_ONLY__ */
 #if 0
 	} else if (stream->modeflags & (__FLAG_READING|__FLAG_READONLY)) {
@@ -2242,7 +2270,7 @@ int fflush_unlocked(register FILE *stream)
 #endif
 
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning add option to test for undefined behavior of fflush
+#warning WISHLIST: Add option to test for undefined behavior of fflush.
 #endif /* __UCLIBC_MJN3_ONLY__ */
 #if 0
 	return ((stream != NULL)
@@ -2317,16 +2345,18 @@ FILE *_stdio_fopen(const char * __restrict filename,
 		open_mode |= O_RDWR;
 	}
 
-#if defined(__STDIO_GNU_FEATURE) || defined(__STDIO_FOPEN_LARGEFILE_MODE)
-	while (*mode) {				/* ignore everything else except ... */
+#if defined(__STDIO_FOPEN_EXCLUSIVE_MODE) || defined(__STDIO_FOPEN_LARGEFILE_MODE)
+	for ( ; *mode ; ++mode) {  /* ignore everything else except ... */
 #ifdef __STDIO_FOPEN_EXCLUSIVE_MODE
-		if (*mode++ == 'x') {	/* open exclusive -- glibc extension */
+		if (*mode == 'x') {	   /* open exclusive -- glibc extension */
 			open_mode |= O_EXCL;
+			continue;
 		}
 #endif /* __STDIO_FOPEN_EXCLUSIVE_MODE */
 #ifdef __STDIO_FOPEN_LARGEFILE_MODE
-		if (*mode++ == 'F') {	/* open large file */
+		if (*mode == 'F') {		/* open large file */
 			open_mode |= O_LARGEFILE;
+			continue;
 		}
 #endif /* __STDIO_FOPEN_LARGEFILE_MODE */
 	}
@@ -2371,6 +2401,7 @@ FILE *_stdio_fopen(const char * __restrict filename,
 		 * leave it set (glibc compat). */
 		int i = (open_mode & (O_ACCMODE|O_LARGEFILE)) + 1;
 
+		/* NOTE: fopencookie needs changing if the basic check changes! */
 		if (((i & (((int) filename) + 1)) != i)	/* Check basic agreement. */
 			|| (((open_mode & O_APPEND)
 				 && !(((int) filename) & O_APPEND)
@@ -2445,6 +2476,9 @@ FILE *_stdio_fopen(const char * __restrict filename,
 	stream->gcs.close = _cs_close;
 #endif /* __STDIO_GLIBC_CUSTOM_STREAMS */
 
+#ifdef __STDIO_WIDE
+	stream->ungot_width[0] = 0;
+#endif /* __STDIO_WIDE */
 #ifdef __STDIO_MBSTATE
 	__INIT_MBSTATE(&(stream->state));
 #endif /* __STDIO_MBSTATE */
@@ -2797,6 +2831,7 @@ UNLOCKED(int,fputs,
 /**********************************************************************/
 #ifdef L_getc
 #undef getc
+#undef getc_unlocked
 
 /* Reentrancy handled by UNLOCKED() macro. */
 
@@ -2855,6 +2890,7 @@ char *gets(char *s)				/* WARNING!!! UNSAFE FUNCTION!!! */
 /**********************************************************************/
 #ifdef L_putc
 #undef putc
+#undef putc_unlocked
 
 /* Reentrancy handled by UNLOCKED() macro. */
 
@@ -2931,8 +2967,7 @@ int ungetc(int c, register FILE *stream)
 	stream->modeflags |= __FLAG_NARROW;
 #endif /* __STDIO_WIDE */
 
-	/* If can't read or there's been an error, or c == EOF, or ungot slots
-	 * already filled, then return EOF */
+	/* If can't read or c == EOF or ungot slots already filled, then fail. */
 	if ((stream->modeflags
 		 & (__MASK_UNGOT2|__FLAG_WRITEONLY
 #ifndef __STDIO_AUTO_RW_TRANSITION
@@ -2946,14 +2981,18 @@ int ungetc(int c, register FILE *stream)
 	}
 
 #ifdef __STDIO_BUFFERS
-								/* TODO: shouldn't allow writing??? */
+#ifdef __STDIO_AUTO_RW_TRANSITION
 	if (stream->modeflags & __FLAG_WRITING) {
 		fflush_unlocked(stream); /* Commit any write-buffered chars. */
 	}
+#endif /* __STDIO_AUTO_RW_TRANSITION */
 #endif /* __STDIO_BUFFERS */
 
 	/* Clear EOF and WRITING flags, and set READING FLAG */
 	stream->modeflags &= ~(__FLAG_EOF|__FLAG_WRITING);
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning CONSIDER: Is setting the reading flag after an ungetc necessary?
+#endif /* __UCLIBC_MJN3_ONLY__ */
 	stream->modeflags |= __FLAG_READING;
 	stream->ungot[1] = 1;		/* Flag as app ungetc call; scanf fixes up. */
 	stream->ungot[(stream->modeflags++) & __MASK_UNGOT] = c;
@@ -3047,22 +3086,35 @@ UNLOCKED(size_t,fwrite,
 
 int fgetpos64(FILE * __restrict stream, register fpos64_t * __restrict pos)
 {
-#ifdef __STDIO_MBSTATE
-	int retval;
+	int retval = -1;
 
-	__STDIO_THREADLOCK(stream);
+#ifdef __STDIO_WIDE
 
-	retval = ((pos != NULL) && ((pos->__pos = ftello64(stream)) >= 0))
-		? (__COPY_MBSTATE(&(pos->__mbstate), &(stream->state)), 0)
-		: (__set_errno(EINVAL), -1);
+	if (pos == NULL) {
+		__set_errno(EINVAL);
+	} else {
+		__STDIO_THREADLOCK(stream);
 
-	__STDIO_THREADUNLOCK(stream);
+		if ((pos->__pos = ftello64(stream)) >= 0) {
+			__COPY_MBSTATE(&(pos->__mbstate), &(stream->state));
+			pos->mblen_pending = stream->ungot_width[0];
+			retval = 0;
+		}
+
+		__STDIO_THREADUNLOCK(stream);
+	}
+
+#else  /* __STDIO_WIDE */
+
+	if (pos == NULL) {
+		__set_errno(EINVAL);
+	} else if ((pos->__pos = ftello64(stream)) >= 0) {
+		retval = 0;
+	}
+
+#endif /* __STDIO_WIDE */
 
 	return retval;
-#else
-	return ((pos != NULL) && ((pos->__pos = ftello64(stream)) >= 0))
-		? 0 : (__set_errno(EINVAL), -1);
-#endif
 }
 
 #ifndef L_fgetpos64
@@ -3137,10 +3189,19 @@ int fseeko64(register FILE *stream, __off64_t offset, int whence)
 	stream->modeflags &=
 		~(__FLAG_READING|__FLAG_WRITING|__FLAG_EOF|__MASK_UNGOT);
 
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning CONSIDER: How do we deal with fseek to an ftell position for incomplete or error wide?  Right now, we clear all multibyte state info.  If we do not clear, then fix rewind() to do so if fseek() succeeds.
+#endif /* __UCLIBC_MJN3_ONLY__ */
+
+#ifdef __STDIO_WIDE
+	/* TODO: don't clear state if don't move? */
+	stream->ungot_width[0] = 0;
+#endif /* __STDIO_WIDE */
 #ifdef __STDIO_MBSTATE
 	/* TODO: don't clear state if don't move? */
 	__INIT_MBSTATE(&(stream->state));
 #endif /* __STDIO_MBSTATE */
+
 	__stdio_validate_FILE(stream); /* debugging only */
 
 	retval = 0;
@@ -3178,7 +3239,7 @@ int fsetpos64(FILE *stream, register const fpos64_t *pos)
 		__set_errno(EINVAL);
 		return EOF;
 	}
-#ifdef __STDIO_MBSTATE
+#ifdef __STDIO_WIDE
 	{
 		int retval;
 
@@ -3186,15 +3247,19 @@ int fsetpos64(FILE *stream, register const fpos64_t *pos)
 
 		if ((retval = fseeko64(stream, pos->__pos, SEEK_SET)) == 0) {
 			__COPY_MBSTATE(&(stream->state), &(pos->__mbstate));
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning CONSIDER: Moving mblen_pending into some mbstate field might be useful.  But we would need to modify all the mb<->wc funcs.
+#endif /* __UCLIBC_MJN3_ONLY__ */
+			stream->ungot_width[0] = pos->mblen_pending;
 		}
 
 		__STDIO_THREADUNLOCK(stream);
 
 		return retval;
 	}
-#else  /* __STDIO_MBSTATE */
+#else  /* __STDIO_WIDE */
 	return fseeko64(stream, pos->__pos, SEEK_SET);
-#endif /* __STDIO_MBSTATE */
+#endif /* __STDIO_WIDE */
 }
 
 #ifndef L_fsetpos64
@@ -3257,10 +3322,6 @@ void rewind(register FILE *stream)
 
 	__CLEARERR(stream);			/* Clear errors first and then seek */
 	fseek(stream, 0L, SEEK_SET); /* in case there is an error seeking. */
-#ifdef __STDIO_MBSTATE
-	/* TODO: Is it correct to re-init the stream's state?  I think so... */
-	__INIT_MBSTATE(&(stream->state));
-#endif /* __STDIO_MBSTATE */
 
 	__STDIO_THREADUNLOCK(stream);
 }
@@ -3371,14 +3432,7 @@ void _stdio_fdout(int fd, ...)
 #define INTERNAL_DIV_MOD
 #endif
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: move _uintmaxtostr to locale.c???
-#endif
 #include <locale.h>
-
-#ifndef __LOCALE_C_ONLY
-#define CUR_LOCALE			(__global_locale)
-#endif /* __LOCALE_C_ONLY */
 
 char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 					int base, __UIM_CASE alphacase)
@@ -3410,14 +3464,10 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 	grouping = -1;
 	outdigit = 0x80 & alphacase;
 	alphacase ^= outdigit;
-#ifdef __UCLIBC_MJN3_ONLY_
-#warning implement outdigit... need digit lengths!  (put it in locale struct)
-#endif
 	if (alphacase == __UIM_GROUP) {
 		assert(base == 10);
-		if (*(g = CUR_LOCALE.grouping)
-			&& ((gslen = strlen(CUR_LOCALE.thousands_sep)) > 0)
-			) {
+		if (*(g = __UCLIBC_CURLOCALE_DATA.grouping)) {
+			gslen = strlen(__UCLIBC_CURLOCALE_DATA.thousands_sep);
 			grouping = *g;
 		}
 	}
@@ -3430,15 +3480,15 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 #ifndef __LOCALE_C_ONLY
 		if (!grouping) {		/* Finished a group. */
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: decide about memcpy in _uintmaxtostr
-#endif
+#warning TODO: Decide about memcpy in _uintmaxtostr.
+#endif /* __UCLIBC_MJN3_ONLY__ */
 #if 0
 			bufend -= gslen;
-			memcpy(bufend, CUR_LOCALE.thousands_sep, gslen);
+			memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep, gslen);
 #else
 			grouping = gslen;
 			do {
-				*--bufend = CUR_LOCALE.thousands_sep[--grouping];
+				*--bufend = __UCLIBC_CURLOCALE_DATA.thousands_sep[--grouping];
 			} while (grouping);
 #endif
 			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
@@ -3456,9 +3506,9 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 
 #ifndef __LOCALE_C_ONLY
 		if (outdigit) {
-			outdigit = CUR_LOCALE.outdigit_length[digit];
+			outdigit = __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
 			do {
-				*--bufend = (&CUR_LOCALE.outdigit0_mb)[digit][--outdigit];
+				*--bufend = (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit][--outdigit];
 			} while (outdigit);
 			outdigit = 1;
 		} else
@@ -3483,15 +3533,15 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 #ifndef __LOCALE_C_ONLY
 		if (!grouping) {		/* Finished a group. */
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: decide about memcpy in _uintmaxtostr
-#endif
+#warning TODO: Decide about memcpy in _uintmaxtostr
+#endif /* __UCLIBC_MJN3_ONLY__ */
 #if 0
 			bufend -= gslen;
-			memcpy(bufend, CUR_LOCALE.thousands_sep, gslen);
+			memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep, gslen);
 #else
 			grouping = gslen;
 			do {
-				*--bufend = CUR_LOCALE.thousands_sep[--grouping];
+				*--bufend = __UCLIBC_CURLOCALE_DATA.thousands_sep[--grouping];
 			} while (grouping);
 #endif
 			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
@@ -3513,9 +3563,9 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 		
 #ifndef __LOCALE_C_ONLY
 		if (outdigit) {
-			outdigit = CUR_LOCALE.outdigit_length[digit];
+			outdigit = __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
 			do {
-				*--bufend = (&CUR_LOCALE.outdigit0_mb)[digit][--outdigit];
+				*--bufend = (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit][--outdigit];
 			} while (outdigit);
 			outdigit = 1;
 		} else
@@ -3548,7 +3598,7 @@ size_t _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
 	char buf[64];
 	const wchar_t *pw;
 
-#ifdef __STDIO_BUFFERS
+#if defined(__STDIO_WIDE) && defined(__STDIO_BUFFERS)
 	if (stream->filedes == -3) { /* Special case to support {v}swprintf. */
 		count = ((wchar_t *)(stream->bufend)) - ((wchar_t *)(stream->bufpos));
 		if (count > n) {
@@ -3560,7 +3610,7 @@ size_t _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
 		}
 		return n;
 	}
-#endif
+#endif /* defined(__STDIO_WIDE) && defined(__STDIO_BUFFERS) */
 
 	if (stream->modeflags & __FLAG_NARROW) {
 		stream->modeflags |= __FLAG_ERROR;

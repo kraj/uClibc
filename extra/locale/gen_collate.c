@@ -1274,7 +1274,7 @@ static void error_msg(const char *fmt, ...)
 
 static void pushfile(char *filename)
 {
-	static fbuf[PATH_MAX];
+	static char fbuf[PATH_MAX];
 
 	snprintf(fbuf, PATH_MAX, "collation/%s", filename);
 
@@ -2894,28 +2894,28 @@ static void finalize_base(void)
 				unsigned int u = 0xe40;
 				table_data *tbl = &table;
 
-#define WCctype_TI_MASK ((1 << tbl->ti_shift)-1)
-#define WCctype_TI_SHIFT (tbl->ti_shift)
-#define WCctype_TI_LEN (tbl->ti_len)
-#define WCctype_II_MASK ((1 << tbl->ii_shift)-1)
-#define WCctype_II_SHIFT (tbl->ii_shift)
-#define WCctype_II_LEN (tbl->ii_len)
+#define __LOCALE_DATA_WCctype_TI_MASK ((1 << tbl->ti_shift)-1)
+#define __LOCALE_DATA_WCctype_TI_SHIFT (tbl->ti_shift)
+#define __LOCALE_DATA_WCctype_TI_LEN (tbl->ti_len)
+#define __LOCALE_DATA_WCctype_II_MASK ((1 << tbl->ii_shift)-1)
+#define __LOCALE_DATA_WCctype_II_SHIFT (tbl->ii_shift)
+#define __LOCALE_DATA_WCctype_II_LEN (tbl->ii_len)
 
-				sc = u & WCctype_TI_MASK;
-				u >>= WCctype_TI_SHIFT;
-				n = u & WCctype_II_MASK;
-				u >>= WCctype_II_SHIFT;
+				sc = u & __LOCALE_DATA_WCctype_TI_MASK;
+				u >>= __LOCALE_DATA_WCctype_TI_SHIFT;
+				n = u & __LOCALE_DATA_WCctype_II_MASK;
+				u >>= __LOCALE_DATA_WCctype_II_SHIFT;
 
 				i0 = tbl->ii[u];
 				fprintf(stderr, "i0 = %d\n", i0);
-				i0 <<= WCctype_II_SHIFT;
-				i1 = tbl->ii[WCctype_II_LEN + i0 + n];
+				i0 <<= __LOCALE_DATA_WCctype_II_SHIFT;
+				i1 = tbl->ii[__LOCALE_DATA_WCctype_II_LEN + i0 + n];
 				/* 	i1 = tbl->ti[i0 + n]; */
 				fprintf(stderr, "i1 = %d\n", i1);
-				i1 <<= WCctype_TI_SHIFT;
-				/* 	return *(uint16_t *)(&(tbl->ii[WCctype_II_LEN + WCctype_TI_LEN + i1 + sc])); */
-				fprintf(stderr, "i2 = %d\n", WCctype_II_LEN + WCctype_TI_LEN + i1 + sc);
-				fprintf(stderr, "val = %d\n",  tbl->ii[WCctype_II_LEN + WCctype_TI_LEN + i1 + sc]);
+				i1 <<= __LOCALE_DATA_WCctype_TI_SHIFT;
+				/* 	return *(uint16_t *)(&(tbl->ii[__LOCALE_DATA_WCctype_II_LEN + __LOCALE_DATA_WCctype_TI_LEN + i1 + sc])); */
+				fprintf(stderr, "i2 = %d\n", __LOCALE_DATA_WCctype_II_LEN + __LOCALE_DATA_WCctype_TI_LEN + i1 + sc);
+				fprintf(stderr, "val = %d\n",  tbl->ii[__LOCALE_DATA_WCctype_II_LEN + __LOCALE_DATA_WCctype_TI_LEN + i1 + sc]);
 				/* 	return tbl->ut[i1 + sc]; */
 
 

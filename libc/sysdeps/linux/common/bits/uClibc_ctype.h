@@ -33,6 +33,8 @@
 #ifndef _BITS_CTYPE_H
 #define _BITS_CTYPE_H
 
+#warning uClibc_ctype.h is deprecated
+
 /* Taking advantage of the C99 mutual-exclusion guarantees for the various
  * (w)ctype classes, including the descriptions of printing and control
  * (w)chars, we can place each in one of the following mutually-exlusive

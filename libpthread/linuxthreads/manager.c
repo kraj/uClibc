@@ -134,6 +134,11 @@ int __pthread_manager(void *arg)
   __pthread_manager_thread.p_errnop = &__pthread_manager_thread.p_errno;
   __pthread_manager_thread.p_h_errnop = &__pthread_manager_thread.p_h_errno;
 
+#ifdef __UCLIBC_HAS_XLOCALE__
+  /* Initialize thread's locale to the global locale. */
+  __pthread_manager_thread.locale = __global_locale;
+#endif /* __UCLIBC_HAS_XLOCALE__ */
+
   /* Block all signals except __pthread_sig_cancel and SIGTRAP */
   sigfillset(&manager_mask);
   sigdelset(&manager_mask, __pthread_sig_cancel); /* for thread termination */
@@ -506,6 +511,10 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   new_thread->p_canceltype = PTHREAD_CANCEL_DEFERRED;
   new_thread->p_errnop = &new_thread->p_errno;
   new_thread->p_h_errnop = &new_thread->p_h_errno;
+#ifdef __UCLIBC_HAS_XLOCALE__
+  /* Initialize thread's locale to the global locale. */
+  new_thread->locale = __global_locale;
+#endif /* __UCLIBC_HAS_XLOCALE__ */
   new_thread->p_guardaddr = guardaddr;
   new_thread->p_guardsize = guardsize;
   new_thread->p_self = new_thread;

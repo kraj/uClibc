@@ -26,14 +26,29 @@ include $(TOPDIR)Rules.mak
 
 MSRC= locale.c
 MOBJ= setlocale.o localeconv.o _locale_init.o nl_langinfo.o
-
-OBJS= $(MOBJ)
+MOBJx=
 
 ifeq ($(UCLIBC_HAS_LOCALE),y)
-	OBJS += locale_data.o
+	MOBJ += newlocale.o __locale_mbrtowc_l.o
 endif
 
-all: data $(OBJS) $(LIBC)
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+	MOBJx += nl_langinfo_l.o duplocale.o freelocale.o uselocale.o __curlocale.o
+endif
+
+OBJS= $(MOBJ) $(MOBJx)
+
+ifeq ($(UCLIBC_HAS_LOCALE),y)
+	OBJS += $(COBJS) locale_data.o
+endif
+
+DATA=
+ifeq ($(UCLIBC_HAS_LOCALE),y)
+	DATA += locale_data.o
+endif
+
+all: $(DATA) $(OBJS) $(LIBC)
+
 
 $(LIBC): ar-target
 
@@ -44,12 +59,14 @@ $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
+$(MOBJx): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
 $(OBJS): Makefile
 
-data:
-ifeq ($(UCLIBC_HAS_LOCALE),y)
-	make -C $(TOPDIR)/extra/locale
-endif
+# locale_data.o:
+# 	make -C $(TOPDIR)/extra/locale
 
 clean:
 	rm -f *.[oa] *~ core

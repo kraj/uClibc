@@ -51,10 +51,15 @@ MSRC2= printf.c
 MOBJ2=  vsnprintf.o vdprintf.o vasprintf.o vprintf.o vsprintf.o \
 	fprintf.o  snprintf.o  dprintf.o  asprintf.o  printf.o  sprintf.o
 
+MSRC3=scanf.c
+MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o \
+	__scan_cookie.o __psfs_parse_spec.o __psfs_do_numeric.o
+
 ifeq ($(UCLIBC_HAS_WCHAR),y)
 	MOBJ += _wstdio_fwrite.o
 	MOBJ2 += fwprintf.o wprintf.o swprintf.o vwprintf.o vswprintf.o \
 		vfwprintf.o
+	MOBJ3 += wscanf.o swscanf.o fwscanf.o vwscanf.o vswscanf.o vfwscanf.o
 endif
 
 ifneq ($(USE_OLD_VFPRINTF),y)
@@ -63,15 +68,10 @@ ifneq ($(USE_OLD_VFPRINTF),y)
 		 _store_inttype.o _load_inttype.o \
 		 register_printf_function.o parse_printf_format.o
 endif
-# _do_one_spec.o 
-
 
 ifeq ($(UCLIBC_HAS_FLOATS),y)
-	MOBJ2 += _dtostr.o
+	MOBJ2 += _fpmaxtostr.o
 endif
-
-MSRC3=scanf.c
-MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
 
 CSRC=popen.c tmpfile.c tmpnam.c tmpnam_r.c tempnam.c
 ifeq ($(USE_OLD_VFPRINTF),y)

@@ -37,15 +37,21 @@
 #include <assert.h>
 #undef assert
 
+
+#define ASSERT_SHOW_PROGNAME 1
+
+#ifdef ASSERT_SHOW_PROGNAME
+extern const char *__progname;
+#endif
+
 #if 1
 
 void __assert(const char *assertion, const char * filename,
 			  int linenumber, register const char * function)
 {
 	fprintf(stderr,
-#if 0
-			/* TODO: support program_name like glibc? */
-			"%s: %s: %d: %s: Assertion `%s' failed.\n", program_name,
+#ifdef ASSERT_SHOW_PROGNAME
+			"%s: %s: %d: %s: Assertion `%s' failed.\n", __progname,
 #else
 			"%s: %d: %s: Assertion `%s' failed.\n",
 #endif
@@ -66,8 +72,8 @@ void __assert(const char *assertion, const char * filename,
 	char buf[__BUFLEN_INT10TOSTR];
 
 	_stdio_fdout(STDERR_FILENO,
-#if 0
-				 program_name,	/* TODO: support program_name like glibc? */
+#ifdef ASSERT_SHOW_PROGNAME
+				 __progname,
 				 ": ",
 #endif
 				 filename,

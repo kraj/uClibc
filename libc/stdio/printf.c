@@ -1,4 +1,4 @@
-/*  Copyright (C) 2002     Manuel Novoa III
+/*  Copyright (C) 2002, 2003     Manuel Novoa III
  *  My stdio library for linux and (soon) elks.
  *
  *  This library is free software; you can redistribute it and/or
@@ -63,6 +63,12 @@
  * Nov 21, 2002
  * Add *wprintf functions.  Currently they don't support floating point
  *   conversions.  That will wait until the rewrite of _dtostr.
+ *
+ * Aug 1, 2003
+ * Optional hexadecimal float notation support for %a/%A.
+ * Floating point output now works for *wprintf.
+ * Support for glibc locale-specific digit grouping for floats.
+ * Misc bug fixes.
  */
 
 /* TODO:
@@ -90,6 +96,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <errno.h>
+#include <locale.h>
 
 #define __PRINTF_INFO_NO_BITFIELD
 #include <printf.h>
@@ -103,11 +110,22 @@
 #include <wchar.h>
 #endif /* __UCLIBC_HAS_WCHAR__ */
 
-/**********************************************************************/
+/* Some older or broken gcc toolchains define LONG_LONG_MAX but not
+ * LLONG_MAX.  Since LLONG_MAX is part of the standard, that's what
+ * we use.  So complain if we do not have it but should.
+ */
+#if !defined(LLONG_MAX) && defined(LONG_LONG_MAX)
+#error Apparently, LONG_LONG_MAX is defined but LLONG_MAX is not.  You need to fix your toolchain headers to support the standard macros for (unsigned) long long.
+#endif
 
+/**********************************************************************/
 /* These provide some control over printf's feature set */
-#define __STDIO_PRINTF_FLOAT
-#define __STDIO_PRINTF_M_SUPPORT
+
+/* This is undefined below depeding on uClibc's configuration. */
+#define __STDIO_PRINTF_FLOAT 1
+
+/* Now controlled by uClibc_stdio.h. */
+/* #define __STDIO_PRINTF_M_SUPPORT */
 
 
 /**********************************************************************/
@@ -120,27 +138,58 @@
 #undef __STDIO_PRINTF_FLOAT
 #endif
 
-#ifndef __STDIO_PRINTF_FLOAT
-#undef L__dtostr
-#endif
+#ifdef __STDIO_PRINTF_FLOAT
+#include <float.h>
+#include <bits/uClibc_fpmax.h>
+#else  /* __STDIO_PRINTF_FLOAT */
+#undef L__fpmaxtostr
+#endif /* __STDIO_PRINTF_FLOAT */
 
 /**********************************************************************/
 
-#define __STDIO_GLIBC_CUSTOM_PRINTF
+/* Now controlled by uClibc_stdio.h. */
+/* #define __STDIO_GLIBC_CUSTOM_PRINTF */
 
 /* TODO -- move these to a configuration section? */
 #define MAX_FIELD_WIDTH		4095
-#define MAX_USER_SPEC 10
-#define MAX_POS_ARGS 10
 
-/* TODO - fix the defs below */
-#define MAX_ARGS_PER_SPEC   (MAX_POS_ARGS-2)
-
-#if MAX_ARGS_PER_SPEC + 2 > MAX_POS_ARGS
-#define MAX_ARGS		MAX_ARGS_PER_SPEC + 2
-#else
-#define MAX_ARGS		MAX_POS_ARGS
+#ifdef __UCLIBC_MJN3_ONLY__
+#ifdef L_register_printf_function
+/* emit only once */
+#warning WISHLIST: Make MAX_USER_SPEC configurable?
+#warning WISHLIST: Make MAX_ARGS_PER_SPEC configurable?
 #endif
+#endif /* __UCLIBC_MJN3_ONLY__ */
+
+#ifdef __STDIO_GLIBC_CUSTOM_PRINTF
+
+#define MAX_USER_SPEC       10
+#define MAX_ARGS_PER_SPEC    5
+
+#else  /* __STDIO_GLIBC_CUSTOM_PRINTF */
+
+#undef MAX_USER_SPEC
+#define MAX_ARGS_PER_SPEC    1
+
+#endif /* __STDIO_GLIBC_CUSTOM_PRINTF */
+
+#if MAX_ARGS_PER_SPEC < 1
+#error MAX_ARGS_PER_SPEC < 1!
+#undef MAX_ARGS_PER_SPEC
+#define MAX_ARGS_PER_SPEC    1
+#endif
+
+#if defined(NL_ARGMAX) && (NL_ARGMAX < 9)
+#error NL_ARGMAX < 9!
+#endif
+
+#if defined(NL_ARGMAX) && (NL_ARGMAX >= (MAX_ARGS_PER_SPEC + 2))
+#define MAX_ARGS        NL_ARGMAX
+#else
+/* N for spec itself, plus 1 each for width and precision */
+#define MAX_ARGS        (MAX_ARGS_PER_SPEC + 2)
+#endif
+
 
 /**********************************************************************/
 /* Deal with pre-C99 compilers. */
@@ -154,7 +203,7 @@
 	 * to ensure we get the right behavior?  Either that or fall back
 	 * on the portable (but costly in size) method of using a va_list *.
 	 * That means a pointer derefs in the va_arg() invocations... */
-#warning neither va_copy or __va_copy is defined.  using a simple copy instead...
+#warning Neither va_copy (C99/SUSv3) or __va_copy is defined.  Using a simple copy instead.  But you should really check that this is appropriate...
 	/* the glibc manual suggests that this will usually suffice when
         __va_copy doesn't exist.  */
 #define va_copy(A,B)	A = B
@@ -167,9 +216,11 @@
 #define __PA_FLAG_INTMASK \
 	(__PA_FLAG_CHAR|PA_FLAG_SHORT|__PA_FLAG_INT|PA_FLAG_LONG|PA_FLAG_LONG_LONG)
 
+#ifdef __STDIO_GLIBC_CUSTOM_PRINTF
 extern printf_function _custom_printf_handler[MAX_USER_SPEC];
 extern printf_arginfo_function *_custom_printf_arginfo[MAX_USER_SPEC];
 extern char *_custom_printf_spec;
+#endif /* __STDIO_GLIBC_CUSTOM_PRINTF */
 
 /**********************************************************************/
 
@@ -282,7 +333,7 @@ enum {
 #elif defined(LLONG_MAX) && (INTMAX_MAX == LLONG_MAX)
 #define IMS		8
 #else
-#error fix QUAL_CHARS ptrdiff_t entry 't'!
+#error fix QUAL_CHARS intmax_t entry 'j'!
 #endif
 
 #define QUAL_CHARS		{ \
@@ -340,7 +391,9 @@ typedef union {
 typedef struct {
 	const char *fmtpos;			/* TODO: move below struct?? */
 	struct printf_info info;
+#ifdef NL_ARGMAX
 	int maxposarg;				/* > 0 if args are positional, 0 if not, -1 if unknown */
+#endif /* NL_ARGMAX */
 	int num_data_args;			/* TODO: use sentinal??? */
 	unsigned int conv_num;
 	unsigned char argnumber[4]; /* width | prec | 1st data | unused */
@@ -349,6 +402,7 @@ typedef struct {
 #ifdef __va_arg_ptr
 	void *argptr[MAX_ARGS];
 #else
+/* if defined(NL_ARGMAX) || defined(__STDIO_GLIBC_CUSTOM_PRINTF) */
 	/* While this is wasteful of space in the case where pos args aren't
 	 * enabled, it is also needed to support custom printf handlers. */
 	argvalue_t argvalue[MAX_ARGS];
@@ -361,7 +415,11 @@ typedef struct {
    only returns -1 if sets error indicator for the stream. */
 
 #ifdef __STDIO_PRINTF_FLOAT
-extern size_t _dtostr(FILE * fp, long double x, struct printf_info *info);
+typedef void (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
+							  intptr_t buf);
+
+extern size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+						  __fp_outfunc_t fp_outfunc);
 #endif
 
 extern int _ppfs_init(ppfs_t *ppfs, const char *fmt0); /* validates */
@@ -390,6 +448,7 @@ size_t parse_printf_format(register const char *template,
 	size_t count = 0;
 
 	if (_ppfs_init(&ppfs, template) >= 0) {
+#ifdef NL_ARGMAX
 		if (ppfs.maxposarg > 0)  { /* Using positional args. */
 			count = ppfs.maxposarg;
 			if (n > count) {
@@ -399,6 +458,7 @@ size_t parse_printf_format(register const char *template,
 				*argtypes++ = ppfs.argtype[i];
 			}
 		} else {				/* Not using positional args. */
+#endif /* NL_ARGMAX */
 			while (*template) {
 				if ((*template == '%') && (*++template != '%')) {
 					ppfs.fmtpos = template;
@@ -431,7 +491,9 @@ size_t parse_printf_format(register const char *template,
 					++template;
 				}
 			}
+#ifdef NL_ARGMAX
 		}
+#endif /* NL_ARGMAX */
 	}
 
 	return count;
@@ -443,17 +505,23 @@ size_t parse_printf_format(register const char *template,
 
 int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 {
-#ifdef __UCLIBC_HAS_WCHAR__
-	static const char invalid_mbs[] = "Invalid multibyte format string.";
-#endif /* __UCLIBC_HAS_WCHAR__ */
 	int r;
 
 	/* First, zero out everything... argnumber[], argtype[], argptr[] */
 	memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
+#ifdef NL_ARGMAX
 	--ppfs->maxposarg;			/* set to -1 */
+#endif /* NL_ARGMAX */
 	ppfs->fmtpos = fmt0;
-#ifdef __UCLIBC_HAS_WCHAR__
-	{
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO: Make checking of the format string in C locale an option.
+#endif
+#ifdef __UCLIBC_HAS_LOCALE__
+	/* To support old programs, don't check mb validity if in C locale. */
+	if (((__UCLIBC_CURLOCALE_DATA).encoding) != __ctype_encoding_7_bit) {
+		/* ANSI/ISO C99 requires format string to be a valid multibyte string
+		 * beginning and ending in its initial shift state. */
+		static const char invalid_mbs[] = "Invalid multibyte format string.";
 		mbstate_t mbstate;
 		const char *p;
 		mbstate.mask = 0;	/* Initialize the mbstate. */
@@ -463,7 +531,7 @@ int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 			return -1;
 		}
 	}
-#endif /* __UCLIBC_HAS_WCHAR__ */
+#endif /* __UCLIBC_HAS_LOCALE__ */
 	/* now set all argtypes to no-arg */
 	{
 #if 1
@@ -506,6 +574,7 @@ int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 		ppfs->fmtpos = fmt0;		/* rewind */
 	}
 
+#ifdef NL_MAX_ARG
 	/* If we have positional args, make sure we know all the types. */
 	{
 		register int *p = ppfs->argtype;
@@ -517,6 +586,7 @@ int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 			++p;
 		}
 	}
+#endif /* NL_MAX_ARG */
 
 	return 0;
 }
@@ -529,12 +599,14 @@ void _ppfs_prepargs(register ppfs_t *ppfs, va_list arg)
 
 	va_copy(ppfs->arg, arg);
 
+#ifdef NL_ARGMAX
 	if ((i = ppfs->maxposarg) > 0)  { /* init for positional args */
 		ppfs->num_data_args = i;
 		ppfs->info.width = ppfs->info.prec = ppfs->maxposarg = 0;
 		_ppfs_setargs(ppfs);
 		ppfs->maxposarg = i;
 	}
+#endif /* NL_ARGMAX */
 }
 #endif
 /**********************************************************************/
@@ -549,7 +621,9 @@ void _ppfs_setargs(register ppfs_t *ppfs)
 #endif
 	int i;
 
+#ifdef NL_ARGMAX
 	if (ppfs->maxposarg == 0) {	/* initing for or no pos args */
+#endif /* NL_ARGMAX */
 		if (ppfs->info.width == INT_MIN) {
 			ppfs->info.width =
 #ifdef __va_arg_ptr
@@ -615,6 +689,7 @@ void _ppfs_setargs(register ppfs_t *ppfs)
 			}
 			++p;
 		}
+#ifdef NL_ARGMAX
 	} else {
 		if (ppfs->info.width == INT_MIN) {
 			ppfs->info.width
@@ -625,6 +700,7 @@ void _ppfs_setargs(register ppfs_t *ppfs)
 				= (int) GET_ARG_VALUE(p + ppfs->argnumber[1] - 1,u,unsigned int);
 		}
 	}
+#endif /* NL_ARGMAX */
 
 	/* Now we know the width and precision. */
 	if (ppfs->info.width < 0) {
@@ -741,12 +817,14 @@ static int _is_equal_or_bigger_arg(int curtype, int newtype)
 
 #endif
 
+#ifdef __STDIO_GLIBC_CUSTOM_PRINTF
 /* TODO - do this differently? */
 static char _bss_custom_printf_spec[MAX_USER_SPEC]; /* 0-init'd for us.  */
 
 char *_custom_printf_spec = _bss_custom_printf_spec;
 printf_arginfo_function *_custom_printf_arginfo[MAX_USER_SPEC];
 printf_function _custom_printf_handler[MAX_USER_SPEC];
+#endif /* __STDIO_GLIBC_CUSTOM_PRINTF */
 
 extern int _ppfs_parsespec(ppfs_t *ppfs)
 {
@@ -758,12 +836,13 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 	int dataargtype;
 	int i;
 	int dpoint;
+#ifdef NL_ARGMAX
 	int maxposarg;
+#endif /* NL_ARGMAX */
 	int p_m_spec_chars;
 	int n;
 	int argtype[MAX_ARGS_PER_SPEC+2];
 	int argnumber[3];			/* width, precision, 1st data arg */
-	unsigned int conv_num;		/* This does not need to be initialized. */
 	static const char spec_flags[] = SPEC_FLAGS;
 	static const char spec_chars[] = SPEC_CHARS;/* TODO: b? */
 	static const char spec_ranges[] = SPEC_RANGES;
@@ -781,7 +860,10 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 	argnumber[1] = 0;
 	argtype[0] = __PA_NOARG;
 	argtype[1] = __PA_NOARG;
+#ifdef NL_ARGMAX
 	maxposarg = ppfs->maxposarg;
+#endif /* NL_ARGMAX */
+
 #ifdef __UCLIBC_HAS_WCHAR__
 	/* This is somewhat lame, but saves a lot of code.  If we're dealing with
 	 * a wide stream, that means the format is a wchar string.  So, copy it
@@ -820,7 +902,7 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 		++fmt;
 	}
 	i = 0;
-	while (__isdigit(*fmt)) {
+	while (isdigit(*fmt)) {
 		if (i < MAX_FIELD_WIDTH) { /* Avoid overflow. */
 			i = (i * 10) + (*fmt - '0');
 		}
@@ -830,6 +912,7 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 
 		/* TODO: if val not in range, then error */
 
+#ifdef NL_ARGMAX
 		if ((*fmt == '$') && (i > 0)) {/* Positional spec. */
 			++fmt;
 			if (maxposarg == 0) {
@@ -846,7 +929,7 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 #warning TODO: Support prec and width for %m when positional args used
 				/* Actually, positional arg processing will fail in general
 				 * for specifiers that don't require an arg. */
-#endif
+#endif /* __UCLIBC_MJN3_ONLY__ */
 				if (*fmt == 'm') {
 					goto PREC_WIDTH;
 				}
@@ -862,6 +945,18 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 			fmt = p;			/* Back up for possible '0's flag. */
 			/* Now fall through to check flags. */
 		}
+#else  /* NL_ARGMAX */
+		if (*fmt == '$') {		/* Positional spec. */
+			return -1;
+		}
+
+		if ((fmt > p) && (*p != '0')) {
+			goto PREC_WIDTH;
+		}
+
+		fmt = p;			/* Back up for possible '0's flag. */
+		/* Now fall through to check flags. */
+#endif /* NL_ARGMAX */
 
 	restart_flags:		/* Process flags. */
 		i = 1;
@@ -889,13 +984,16 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 	}
  PREC_WIDTH:
 	if (*p == '*') {			/* Prec or width takes an arg. */
+#ifdef NL_ARGMAX
 		if (maxposarg) {
 			if ((*fmt++ != '$') || (i <= 0)) {
 				/* Using pos args and no $ or invalid arg number. */
 				return -1;
 			}
 			argnumber[-dpoint] = i;
-		} else if (++p != fmt) {
+		} else
+#endif /* NL_ARGMAX */
+		if (++p != fmt) {
 			 /* Not using pos args but digits followed *. */
 			return -1;
 		}
@@ -943,7 +1041,7 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 				p_m_spec_chars -= 2; /* lc -> C and ls -> S */
 			}
 
-			conv_num = p_m_spec_chars;
+			ppfs->conv_num = p_m_spec_chars;
 			p = spec_ranges-1;
 			while (p_m_spec_chars > *++p) {}
 
@@ -962,18 +1060,17 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 	ppfs->num_data_args = 1;
 
 	if (!*p) {
-#ifdef __STDIO_GLIBC_CUSTOM_PRINTF
-		/* TODO -- gnu %m support build option. */
 #ifdef __STDIO_PRINTF_M_SUPPORT
 		if (*fmt == 'm') {
-			conv_num = CONV_m;
+			ppfs->conv_num = CONV_m;
 			ppfs->num_data_args = 0;
 			goto DONE;
 		}
 #endif
+#ifdef __STDIO_GLIBC_CUSTOM_PRINTF
 
 		/* Handle custom arg -- WARNING -- overwrites p!!! */
-		conv_num = CONV_custom0;
+		ppfs->conv_num = CONV_custom0;
 		p = _custom_printf_spec;
 		do {
 			if (*p == *fmt) {
@@ -991,10 +1088,11 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 		return -1;
 	}
 		
-#ifdef __STDIO_GLIBC_CUSTOM_PRINTF
+#if defined(__STDIO_GLIBC_CUSTOM_PRINTF) || defined(__STDIO_PRINTF_M_SUPPORT)
  DONE:
 #endif
 
+#ifdef NL_ARGMAX
 	if (maxposarg > 0) {
 		i = 0;
 		do {
@@ -1014,12 +1112,14 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 			}
 		} while (++i < ppfs->num_data_args + 2);
 	} else {
+#endif /* NL_ARGMAX */
 		ppfs->argnumber[2] = 1;
 		memcpy(ppfs->argtype, argtype + 2, ppfs->num_data_args * sizeof(int));
+#ifdef NL_ARGMAX
 	}
 
 	ppfs->maxposarg = maxposarg;
-	ppfs->conv_num = conv_num;
+#endif /* NL_ARGMAX */
 
 #ifdef __UCLIBC_HAS_WCHAR__
 	if ((flags = ppfs->info._flags & FLAG_WIDESTREAM) == 0) {
@@ -1038,6 +1138,8 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 #endif
 /**********************************************************************/
 #ifdef L_register_printf_function
+
+#ifdef __STDIO_GLIBC_CUSTOM_PRINTF
 
 int register_printf_function(int spec, printf_function handler,
 							 printf_arginfo_function arginfo)
@@ -1076,9 +1178,16 @@ int register_printf_function(int spec, printf_function handler,
 	}
 	return -1;
 }
+
+#endif
+
 #endif
 /**********************************************************************/
 #ifdef L_vsnprintf
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning WISHLIST: Implement vsnprintf for non-buffered and no custom stream case.
+#endif /* __UCLIBC_MJN3_ONLY__ */
 
 #ifdef __STDIO_BUFFERS
 int vsnprintf(char *__restrict buf, size_t size,
@@ -1206,7 +1315,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 }
 
 #else  /* __STDIO_GLIBC_CUSTOM_STREAMS */
-#warning skipping vsnprintf since no buffering and no custom streams!
+#warning Skipping vsnprintf since no buffering and no custom streams!
 #endif /* __STDIO_GLIBC_CUSTOM_STREAMS */
 #endif /* __STDIO_BUFFERS */
 #endif
@@ -1258,7 +1367,7 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 #ifdef L_vasprintf
 
 #if !defined(__STDIO_BUFFERS) && !defined(__STDIO_GLIBC_CUSTOM_STREAMS)
-#warning skipping vasprintf since no buffering and no custom streams!
+#warning Skipping vasprintf since no buffering and no custom streams!
 #else
 
 int vasprintf(char **__restrict buf, const char * __restrict format,
@@ -1312,7 +1421,7 @@ int vprintf(const char * __restrict format, va_list arg)
 #ifdef L_vsprintf
 
 #if !defined(__STDIO_BUFFERS) && !defined(__STDIO_GLIBC_CUSTOM_STREAMS)
-#warning skipping vsprintf since no buffering and no custom streams!
+#warning Skipping vsprintf since no buffering and no custom streams!
 #else
 
 int vsprintf(char *__restrict buf, const char * __restrict format,
@@ -1343,7 +1452,7 @@ int fprintf(FILE * __restrict stream, const char * __restrict format, ...)
 #ifdef L_snprintf
 
 #if !defined(__STDIO_BUFFERS) && !defined(__STDIO_GLIBC_CUSTOM_STREAMS)
-#warning skipping snprintf since no buffering and no custom streams!
+#warning Skipping snprintf since no buffering and no custom streams!
 #else
 
 int snprintf(char *__restrict buf, size_t size,
@@ -1380,7 +1489,7 @@ int dprintf(int filedes, const char * __restrict format, ...)
 #ifdef L_asprintf
 
 #if !defined(__STDIO_BUFFERS) && !defined(__STDIO_GLIBC_CUSTOM_STREAMS)
-#warning skipping asprintf and __asprintf since no buffering and no custom streams!
+#warning Skipping asprintf and __asprintf since no buffering and no custom streams!
 #else
 
 weak_alias(__asprintf,asprintf)
@@ -1417,7 +1526,7 @@ int printf(const char * __restrict format, ...)
 #ifdef L_sprintf
 
 #if !defined(__STDIO_BUFFERS) && !defined(__STDIO_GLIBC_CUSTOM_STREAMS)
-#warning skipping sprintf since no buffering and no custom streams!
+#warning Skipping sprintf since no buffering and no custom streams!
 #else
 
 int sprintf(char *__restrict buf, const char * __restrict format, ...)
@@ -1492,7 +1601,7 @@ int vswprintf(wchar_t *__restrict buf, size_t size,
 	return rv;
 }
 #else  /* __STDIO_BUFFERS */
-#warning skipping vswprintf since no buffering!
+#warning Skipping vswprintf since no buffering!
 #endif /* __STDIO_BUFFERS */
 #endif
 /**********************************************************************/
@@ -1512,7 +1621,7 @@ int swprintf(wchar_t *__restrict buf, size_t size,
 }
 
 #else  /* __STDIO_BUFFERS */
-#warning skipping vsWprintf since no buffering!
+#warning Skipping vsWprintf since no buffering!
 #endif /* __STDIO_BUFFERS */
 #endif
 /**********************************************************************/
@@ -1553,174 +1662,249 @@ int wprintf(const wchar_t * __restrict format, ...)
 }
 #endif
 /**********************************************************************/
-#ifdef L__dtostr
-/*
- * Copyright (C) 2000, 2001 Manuel Novoa III
+#ifdef L__fpmaxtostr
+
+/* Copyright (C) 2000, 2001, 2003      Manuel Novoa III
  *
- * Function:  size_t _dtostr(FILE *fp, long double x, struct printf_info *info)
+ * Function: 
  *
- * This was written for uClibc to provide floating point support for
- * the printf functions.  It handles +/- infinity and nan on i386.
+ *     size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+ *                         __fp_outfunc_t fp_outfunc);
+ *
+ * This is derived from the old _dtostr, whic I wrote for uClibc to provide
+ * floating point support for the printf functions.  It handles +/- infinity,
+ * nan, and signed 0 assuming you have ieee arithmetic.  It also now handles
+ * digit grouping (for the uClibc supported locales) and hexadecimal float
+ * notation.  Finally, via the fp_outfunc parameter, it now supports wide
+ * output.
  *
  * Notes:
  *
- * At most MAX_DIGITS significant digits are kept.  Any trailing digits
+ * At most DECIMAL_DIG significant digits are kept.  Any trailing digits
  * are treated as 0 as they are really just the results of rounding noise
  * anyway.  If you want to do better, use an arbitary precision arithmetic
  * package.  ;-)
  *
- * It should also be fairly portable, as not assumptions are made about the
- * bit-layout of doubles.
+ * It should also be fairly portable, as no assumptions are made about the
+ * bit-layout of doubles.  Of course, that does make it less efficient than
+ * it could be.
  *
- * It should be too difficult to convert this to handle long doubles on i386.
- * For information, see the comments below.
- *
- * TODO: 
- *   long double and/or float version?  (note: for float can trim code some).
- *   
- *   Decrease the size.  This is really much bigger than I'd like.
  */
 
 /*****************************************************************************/
 /* Don't change anything that follows unless you know what you're doing.     */
 /*****************************************************************************/
-
-/*
- * Configuration for the scaling power table.  Ignoring denormals, you
- * should have 2**EXP_TABLE_SIZE >= LDBL_MAX_EXP >= 2**(EXP_TABLE_SIZE-1).
- * The minimum for standard C is 6.  For IEEE 8bit doubles, 9 suffices.
- * For long doubles on i386, use 13.
- */
-#define EXP_TABLE_SIZE       13
-
-/* 
- * Set this to the maximum number of digits you want converted.
- * Conversion is done in blocks of DIGITS_PER_BLOCK (9 by default) digits.
- * (20) 17 digits suffices to uniquely determine a (long) double on i386.
- */
-#define MAX_DIGITS          20
-
-/*
- * Set this to the smallest integer type capable of storing a pointer.
- */
-#define INT_OR_PTR int
-
-/*
- * This is really only used to check for infinities.  The macro produces
- * smaller code for i386 and, since this is tested before any floating point
- * calculations, it doesn't appear to suffer from the excess precision problem
- * caused by the FPU that strtod had.  If it causes problems, call the function
- * and compile zoicheck.c with -ffloat-store.
- */
-#define _zero_or_inf_check(x) ( x == (x/4) )
-
-/*
- * Fairly portable nan check.  Bitwise for i386 generated larger code.
+/* Fairly portable nan check.  Bitwise for i386 generated larger code.
  * If you have a better version, comment this out.
  */
-#define isnan(x) (x != x)
+#define isnan(x)             ((x) != (x))
+
+/* Without seminumerical functions to examine the sign bit, this is
+ * about the best we can do to test for '-0'.
+ */
+#define zeroisnegative(x)    ((1./(x)) < 0)
 
 /*****************************************************************************/
 /* Don't change anything that follows peroid!!!  ;-)                         */
 /*****************************************************************************/
-
-#include <float.h>
-
-/*****************************************************************************/
-
-/*
- * Set things up for the scaling power table.
- */
-
-#if EXP_TABLE_SIZE < 6
-#error EXP_TABLE_SIZE should be at least 6 to comply with standards
+#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
+#if FLT_RADIX != 2
+#error FLT_RADIX != 2 is not currently supported
 #endif
+#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
 
-#define EXP_TABLE_MAX      (1U<<(EXP_TABLE_SIZE-1))
+#define NUM_HEX_DIGITS      ((FPMAX_MANT_DIG + 3)/ 4)
 
-/*
- * Only bother checking if this is too small.
- */
-
-#if LDBL_MAX_10_EXP/2 > EXP_TABLE_MAX
-#error larger EXP_TABLE_SIZE needed
-#endif
-
-/*
- * With 32 bit ints, we can get 9 digits per block.
- */
+/* WARNING: Adjust _fp_out_wide() below if this changes! */
+/* With 32 bit ints, we can get 9 decimal digits per block. */
 #define DIGITS_PER_BLOCK     9
+#define HEX_DIGITS_PER_BLOCK 8
 
-#if INT_MAX >= 2147483647L
-#define DIGIT_BLOCK_TYPE     int
-#define DB_FMT               "%.*d"
-#elif LONG_MAX >= 2147483647L
-#define DIGIT_BLOCK_TYPE     long
-#define DB_FMT               "%.*ld"
-#else
-#warning need at least 32 bit longs
-#endif
-
-/* Maximum number of calls to fnprintf to output double. */
+/* Maximum number of subcases to output double is...
+ *  0 - sign
+ *  1 - padding and initial digit
+ *  2 - digits left of the radix
+ *  3 - 0s left of the radix        or   radix
+ *  4 - radix                       or   digits right of the radix
+ *  5 - 0s right of the radix
+ *  6 - exponent
+ *  7 - trailing space padding
+ * although not all cases may occur.
+ */
 #define MAX_CALLS 8
 
 /*****************************************************************************/
 
-#define NUM_DIGIT_BLOCKS   ((MAX_DIGITS+DIGITS_PER_BLOCK-1)/DIGITS_PER_BLOCK)
+#define NUM_DIGIT_BLOCKS   ((DECIMAL_DIG+DIGITS_PER_BLOCK-1)/DIGITS_PER_BLOCK)
+#define NUM_HEX_DIGIT_BLOCKS \
+   ((NUM_HEX_DIGITS+HEX_DIGITS_PER_BLOCK-1)/HEX_DIGITS_PER_BLOCK)
+
+/* WARNING: Adjust _fp_out_wide() below if this changes! */
 
 /* extra space for '-', '.', 'e+###', and nul */
 #define BUF_SIZE  ( 3 + NUM_DIGIT_BLOCKS * DIGITS_PER_BLOCK )
-/*****************************************************************************/
-
-static const char *fmts[] = {
-	"%0*d", "%.*s", ".", "inf", "INF", "nan", "NAN", "%*s"
-};
 
 /*****************************************************************************/
-#include <locale.h>
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: implement grouping for floating point
+static const char fmt[] = "inf\0INF\0nan\0NAN\0.\0,";
+
+#define INF_OFFSET        0		/* must be 1st */
+#define NAN_OFFSET        8		/* must be 2nd.. see hex sign handling */
+#define DECPT_OFFSET     16
+#define THOUSEP_OFFSET   18
+
+#define EMPTY_STRING_OFFSET 3
+
+/*****************************************************************************/
+#if FPMAX_MAX_10_EXP < -FPMAX_MIN_10_EXP
+#error scaling code can not handle FPMAX_MAX_10_EXP < -FPMAX_MIN_10_EXP
 #endif
 
-#ifndef __LOCALE_C_ONLY
-#define CUR_LOCALE			(__global_locale)
-#endif /* __LOCALE_C_ONLY */
-
-size_t _dtostr(FILE * fp, long double x, struct printf_info *info)
+static const __fpmax_t exp10_table[] =
 {
-	long double exp_table[EXP_TABLE_SIZE];
-	long double p10;
-	DIGIT_BLOCK_TYPE digit_block; /* int of at least 32 bits */
+	1e1L, 1e2L, 1e4L, 1e8L, 1e16L, 1e32L,	/* floats */
+#if FPMAX_MAX_10_EXP < 32
+#error unsupported FPMAX_MAX_10_EXP (< 32).  ANSI/ISO C requires >= 37.
+#endif
+#if FPMAX_MAX_10_EXP >= 64
+	1e64L,
+#endif
+#if FPMAX_MAX_10_EXP >= 128
+	1e128L,
+#endif
+#if FPMAX_MAX_10_EXP >= 256
+	1e256L,
+#endif
+#if FPMAX_MAX_10_EXP >= 512
+	1e512L,
+#endif
+#if FPMAX_MAX_10_EXP >= 1024
+	1e1024L,
+#endif
+#if FPMAX_MAX_10_EXP >= 2048
+	1e2048L,
+#endif
+#if FPMAX_MAX_10_EXP >= 4096
+	1e4096L
+#endif
+#if FPMAX_MAX_10_EXP >= 8192
+#error unsupported FPMAX_MAX_10_EXP.  please increase table
+#endif
+};
+
+#define EXP10_TABLE_SIZE     (sizeof(exp10_table)/sizeof(exp10_table[0]))
+#define EXP10_TABLE_MAX      (1U<<(EXP10_TABLE_SIZE-1))
+
+/*****************************************************************************/
+#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
+
+#if FLT_RADIX != 2
+#error FLT_RADIX != 2 is not currently supported
+#endif
+
+#if FPMAX_MAX_EXP < -FPMAX_MIN_EXP
+#error scaling code can not handle FPMAX_MAX_EXP < -FPMAX_MIN_EXP
+#endif
+
+static const __fpmax_t exp16_table[] = {
+	0x1.0p4L, 0x1.0p8L, 0x1.0p16L, 0x1.0p32L, 0x1.0p64L,
+#if FPMAX_MAX_EXP >= 128
+	0x1.0p128L,
+#endif
+#if FPMAX_MAX_EXP >= 256
+	0x1.0p256L,
+#endif
+#if FPMAX_MAX_EXP >= 512
+	0x1.0p512L,
+#endif
+#if FPMAX_MAX_EXP >= 1024
+	0x1.0p1024L,
+#endif
+#if FPMAX_MAX_EXP >= 2048
+	0x1.0p2048L,
+#endif
+#if FPMAX_MAX_EXP >= 4096
+	0x1.0p4096L,
+#endif
+#if FPMAX_MAX_EXP >= 8192
+	0x1.0p8192L,
+#endif
+#if FPMAX_MAX_EXP >= 16384
+	0x1.0p16384L
+#endif
+#if FPMAX_MAX_EXP >= 32768 
+#error unsupported FPMAX_MAX_EXP.  please increase table
+#endif
+};
+
+#define EXP16_TABLE_SIZE     (sizeof(exp16_table)/sizeof(exp16_table[0]))
+#define EXP16_TABLE_MAX      (1U<<(EXP16_TABLE_SIZE-1))
+
+#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
+/*****************************************************************************/
+
+#define FPO_ZERO_PAD    (0x80 | '0')
+#define FPO_STR_WIDTH   (0x80 | ' ');
+#define FPO_STR_PREC    'p'
+
+size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+				   __fp_outfunc_t fp_outfunc)
+{
+#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
+	__fpmax_t lower_bnd;
+	__fpmax_t upper_bnd = 1e9;
+#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
+	uint_fast32_t digit_block;
+#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
+	uint_fast32_t base = 10;
+	const __fpmax_t *power_table;
+	int dpb = DIGITS_PER_BLOCK;
+	int ndb = NUM_DIGIT_BLOCKS;
+	int nd = DECIMAL_DIG;
+	int sufficient_precision = 0;
+#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
+#ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
+	int num_groups = 0;
+	int initial_group;	   /* This does not need to be initialized. */
+	int tslen;			   /* This does not need to be initialized. */
+	int nblk2;			   /* This does not need to be initialized. */
+	const char *ts;		   /* This does not need to be initialized. */
+#endif /* __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__ */
 	int i, j;
 	int round, o_exp;
 	int exp, exp_neg;
 	int width, preci;
+	int cnt;
 	char *s;
 	char *e;
+	intptr_t pc_fwi[3*MAX_CALLS];
+	intptr_t *ppc;
+	intptr_t *ppc_last;
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO: The size of exp_buf[] should really be determined by the float constants.
+#endif /* __UCLIBC_MJN3_ONLY__ */
+	char exp_buf[16];
 	char buf[BUF_SIZE];
-	INT_OR_PTR pc_fwi[2*MAX_CALLS];
-	INT_OR_PTR *ppc;
-	char exp_buf[8];
-	char drvr[8];
-	char *pdrvr;
-	int npc;
-	int cnt;
-	char sign_str[2];
+	char sign_str[6];			/* Last 2 are for 1st digit + nul. */
 	char o_mode;
 	char mode;
 
-	/* check that INT_OR_PTR is sufficiently large */
-	assert( sizeof(INT_OR_PTR) == sizeof(char *) );
 
 	width = info->width;
 	preci = info->prec;
 	mode = info->spec;
-	if (mode == 'a') {
-		mode = 'g';			/* TODO -- fix */
-	}
-	if (mode == 'A') {
-		mode = 'G';			/* TODO -- fix */
+
+	*exp_buf = 'e';
+	if ((mode|0x20) == 'a') {
+#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
+		*exp_buf = 'p';
+		if (preci < 0) {
+			preci = NUM_HEX_DIGITS;
+			sufficient_precision = 1;
+		}
+#else
+		mode += ('g' - 'a');
+#endif
 	}
 
 	if (preci < 0) {
@@ -1733,134 +1917,196 @@ size_t _dtostr(FILE * fp, long double x, struct printf_info *info)
 	} else if (PRINT_INFO_FLAG_VAL(info,space)) {
 		*sign_str = ' ';
 	}
-/*  	*sign_str = flag[FLAG_PLUS]; */
+
 	*(sign_str+1) = 0;
-	if (isnan(x)) {				/* nan check */
-		pdrvr = drvr + 1;
-		*pdrvr++ = 5 + (mode < 'a');
-		pc_fwi[2] = 3;
-		info->pad = ' ';
-/*  		flag[FLAG_0_PAD] = 0; */
-		goto EXIT_SPECIAL;
+	pc_fwi[5] = INF_OFFSET;
+	if (isnan(x)) {				/* First, check for nan. */
+		pc_fwi[5] = NAN_OFFSET;
+		goto INF_NAN;
 	}
 
-	if (x == 0) {				/* handle 0 now to avoid false positive */
+	if (x == 0) {				/* Handle 0 now to avoid false positive. */
+#if 1
+		if (zeroisnegative(x)) { /* Handle 'signed' zero. */
+			*sign_str = '-';
+		}
+#endif
 		exp = -1;
 		goto GENERATE_DIGITS;
 	}
 
-	if (x < 0) {				/* convert negatives to positives */
+	if (x < 0) {				/* Convert negatives to positives. */
 		*sign_str = '-';
 		x = -x;
 	}
 
-	if (_zero_or_inf_check(x)) { /* must be inf since zero handled above */
-		pdrvr = drvr + 1;
-		*pdrvr++ = 3 +  + (mode < 'a');
-		pc_fwi[2] = 3;
+	if (__FPMAX_ZERO_OR_INF_CHECK(x)) {	/* Inf since zero handled above. */
+	INF_NAN:
 		info->pad = ' ';
-/*  		flag[FLAG_0_PAD] = 0; */
+		ppc = pc_fwi + 6;
+		pc_fwi[3] = FPO_STR_PREC;
+		pc_fwi[4] = 3;
+		if (mode < 'a') {
+			pc_fwi[5] += 4;
+		}
+		pc_fwi[5] = (intptr_t)(fmt + pc_fwi[5]);
 		goto EXIT_SPECIAL;
 	}
 
-	/* need to build the scaling table */
-	for (i = 0, p10 = 10 ; i < EXP_TABLE_SIZE ; i++) {
-		exp_table[i] = p10;
-		p10 *= p10;
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO: Clean up defines when hexadecimal float notation is unsupported.
+#endif /* __UCLIBC_MJN3_ONLY__ */
+
+#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
+
+	if ((mode|0x20) == 'a') {
+		lower_bnd = 0x1.0p31L;
+		upper_bnd = 0x1.0p32L;
+		power_table = exp16_table;
+		exp = HEX_DIGITS_PER_BLOCK - 1;
+		i = EXP16_TABLE_SIZE;
+		j = EXP16_TABLE_MAX;
+		dpb = HEX_DIGITS_PER_BLOCK;
+		ndb = NUM_HEX_DIGIT_BLOCKS;
+		nd = NUM_HEX_DIGITS;
+		base = 16;
+	} else {
+		lower_bnd = 1e8;
+/* 		upper_bnd = 1e9; */
+		power_table = exp10_table;
+		exp = DIGITS_PER_BLOCK - 1;
+		i = EXP10_TABLE_SIZE;
+		j = EXP10_TABLE_MAX;
+/* 		dpb = DIGITS_PER_BLOCK; */
+/* 		ndb = NUM_DIGIT_BLOCKS; */
+/* 		base = 10; */
 	}
 
+
+
+#else  /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
+
+#define lower_bnd    1e8
+#define upper_bnd    1e9
+#define power_table  exp10_table
+#define dpb          DIGITS_PER_BLOCK
+#define base         10
+#define ndb          NUM_DIGIT_BLOCKS
+#define nd           DECIMAL_DIG
+
+	exp = DIGITS_PER_BLOCK - 1;
+	i = EXP10_TABLE_SIZE;
+	j = EXP10_TABLE_MAX;
+
+#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
+
 	exp_neg = 0;
-	if (x < 1e8) {				/* do we need to scale up or down? */
+	if (x < lower_bnd) {		/* Do we need to scale up or down? */
 		exp_neg = 1;
 	}
 
-	exp = DIGITS_PER_BLOCK - 1;
-
-	i = EXP_TABLE_SIZE;
-	j = EXP_TABLE_MAX;
-	while ( i-- ) {				/* scale x such that 1e8 <= x < 1e9 */
+	do {
+		--i;
 		if (exp_neg) {
-			if (x * exp_table[i] < 1e9) {
-				x *= exp_table[i];
+			if (x * power_table[i] < upper_bnd) {
+				x *= power_table[i];
 				exp -= j;
 			}
 		} else {
-			if (x / exp_table[i] >= 1e8) {
-				x /= exp_table[i];
+			if (x / power_table[i] >= lower_bnd) {
+				x /= power_table[i];
 				exp += j;
 			}
 		}
 		j >>= 1;
-	}
-	if (x >= 1e9) {				/* handle bad rounding case */
-		x /= 10;
+	} while (i);
+	if (x >= upper_bnd) {		/* Handle bad rounding case. */
+		x /= power_table[0];
 		++exp;
 	}
-	assert(x < 1e9);
+	assert(x < upper_bnd);
 
  GENERATE_DIGITS:
-	s = buf + 2; /* leave space for '\0' and '0' */
-#if 1
-#define ONE_E_NINE 1000000000L
-#else
-#define ONE_E_NINE 1e9
-#endif   
-	for (i = 0 ; i < NUM_DIGIT_BLOCKS ; ++i ) {
-		digit_block = (DIGIT_BLOCK_TYPE) x;
-		x = (x - digit_block) * ONE_E_NINE;
-		s += sprintf(s, DB_FMT, DIGITS_PER_BLOCK, digit_block);
-	}
+	s = buf + 2;				/* Leave space for '\0' and '0'. */
+	i = 0;
+	do {
+		digit_block = (uint_fast32_t) x;
+		assert(digit_block < upper_bnd);
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning CONSIDER: Can rounding be a problem?
+#endif /* __UCLIBC_MJN3_ONLY__ */
+		x = (x - digit_block) * upper_bnd;
+		s += dpb;
+		j = 0;
+		do {
+			s[- ++j] = '0' + (digit_block % base);
+			digit_block /= base;
+		} while (j < dpb);
+	} while (++i < ndb);
 
 	/*************************************************************************/
 
-	*exp_buf = 'e';
 	if (mode < 'a') {
-		*exp_buf = 'E';
+		*exp_buf -= ('a' - 'A'); /* e->E and p->P */
 		mode += ('a' - 'A');
 	} 
 
 	o_mode = mode;
-
-	round = preci;
-
-	if ((mode == 'g') && (round > 0)){
-		--round;
+	if ((mode == 'g') && (preci > 0)){
+		--preci;
 	}
+	round = preci;
 
 	if (mode == 'f') {
 		round += exp;
 		if (round < -1) {
-			memset(buf, '0', MAX_DIGITS);
+			memset(buf, '0', DECIMAL_DIG); /* OK, since 'f' -> decimal case. */
 		    exp = -1;
 		    round = -1;
 		}
 	}
 
 	s = buf;
-	*s++ = 0;					/* terminator for rounding and 0-triming */
-	*s = '0';					/* space to round */
+	*s++ = 0;					/* Terminator for rounding and 0-triming. */
+	*s = '0';					/* Space to round. */
 
 	i = 0;
-	e = s + MAX_DIGITS + 1;
-	if (round < MAX_DIGITS) {
+	e = s + nd + 1;
+	if (round < nd) {
 		e = s + round + 2;
-		if (*e >= '5') {
+		if (*e >= '0' + (base/2)) {	/* NOTE: We always round away from 0! */
 			i = 1;
 		}
 	}
 
-	do {						/* handle rounding and trim trailing 0s */
-		*--e += i;				/* add the carry */
-	} while ((*e == '0') || (*e > '9'));
+	do {						/* Handle rounding and trim trailing 0s. */
+		*--e += i;				/* Add the carry. */
+	} while ((*e == '0') || (*e > '0' - 1 + base));
+
+#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
+	if ((mode|0x20) == 'a') {
+		char *q;
+			
+		for (q = e ; *q ; --q) {
+			if (*q > '9') {
+				*q += (*exp_buf - ('p' - 'a') - '9' - 1);
+			}
+		}
+
+		if (e > s) {
+			exp *= 4;			/* Change from base 16 to base 2. */
+		}
+	}
+#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
 
 	o_exp = exp;
-	if (e <= s) {				/* we carried into extra digit */
+	if (e <= s) {				/* We carried into an extra digit. */
 		++o_exp;
-		e = s;					/* needed if all 0s */
+		e = s;					/* Needed if all 0s. */
 	} else {
 		++s;
 	}
-	*++e = 0;					/* ending nul char */
+	*++e = 0;					/* Terminating nul char. */
 
 	if ((mode == 'g') && ((o_exp >= -4) && (o_exp <= round))) {
 		mode = 'f';
@@ -1871,34 +2117,73 @@ size_t _dtostr(FILE * fp, long double x, struct printf_info *info)
 		o_exp = 0;
 	}
 
-	if (o_exp < 0) {
-		*--s = '0';				/* fake the first digit */
+	if (o_exp < 0) {			/* Exponent is < 0, so */
+		*--s = '0';				/* fake the first 0 digit. */
 	}
 
-	pdrvr = drvr+1;
-	ppc = pc_fwi+2;
+	pc_fwi[3] = FPO_ZERO_PAD;
+	pc_fwi[4] = 1;
+	pc_fwi[5] = (intptr_t)(sign_str + 4);
+	sign_str[4] = *s++;
+	sign_str[5] = 0;
+	ppc = pc_fwi + 6;
 
-	*pdrvr++ = 0;
-	*ppc++ = 1;
-	*ppc++ = (INT_OR_PTR)(*s++ - '0');
-
-	i = e - s;					/* total digits */
+	i = e - s;					/* Total digits is 'i'. */
 	if (o_exp >= 0) {
+#ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
+
+		const char *p;
+
+		if (PRINT_INFO_FLAG_VAL(info,group)
+			&& *(p = __UCLIBC_CURLOCALE_DATA.grouping)
+			) {
+			int nblk1;
+
+			nblk2 = nblk1 = *p;
+			if (*++p) {
+				nblk2 = *p;
+				assert(!*++p);
+			}
+
+			if (o_exp >= nblk1) {
+				num_groups = (o_exp - nblk1) / nblk2 + 1;
+				initial_group = (o_exp - nblk1) % nblk2;
+
+#ifdef __UCLIBC_HAS_WCHAR__
+				if (PRINT_INFO_FLAG_VAL(info,wide)) {
+					/* _fp_out_wide() will fix this up. */
+					ts = fmt + THOUSEP_OFFSET;
+					tslen = 1;
+				} else {
+#endif /* __UCLIBC_HAS_WCHAR__ */
+					ts = __UCLIBC_CURLOCALE_DATA.thousands_sep;
+					tslen = __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
+#ifdef __UCLIBC_HAS_WCHAR__
+				}
+#endif /* __UCLIBC_HAS_WCHAR__ */
+
+				width -= num_groups * tslen;
+			}
+		}
+
+
+#endif /* __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__ */
+		ppc[0] = FPO_STR_PREC;
+		ppc[2] = (intptr_t)(s);
 		if (o_exp >= i) {		/* all digit(s) left of decimal */
-			*pdrvr++ = 1;
-			*ppc++ = i;
-			*ppc++ = (INT_OR_PTR)(s);
+			ppc[1] = i;
+			ppc += 3;
 			o_exp -= i;
 			i = 0;
 			if (o_exp>0) {		/* have 0s left of decimal */
-				*pdrvr++ = 0;
-				*ppc++ = o_exp;
-				*ppc++ = 0;
+				ppc[0] = FPO_ZERO_PAD;
+				ppc[1] = o_exp;
+				ppc[2] = (intptr_t)(fmt + EMPTY_STRING_OFFSET);
+				ppc += 3;
 			}
 		} else if (o_exp > 0) {	/* decimal between digits */
-			*pdrvr++ = 1;
-			*ppc++ = o_exp;
-			*ppc++ = (INT_OR_PTR)(s);
+			ppc[1] = o_exp;
+			ppc += 3;
 			s += o_exp;
 			i -= o_exp;
 		}
@@ -1906,105 +2191,221 @@ size_t _dtostr(FILE * fp, long double x, struct printf_info *info)
 	}
 
 	if (PRINT_INFO_FLAG_VAL(info,alt)
-/*  		flag[FLAG_HASH] */
-		|| (i) || ((o_mode != 'g') && (preci > 0))) {
+		|| (i)
+		|| ((o_mode != 'g')
+#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
+			&& (o_mode != 'a')
+#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
+			&& (preci > 0))
+		) {
+		ppc[0] = FPO_STR_PREC;
 #ifdef __LOCALE_C_ONLY
-		*pdrvr++ = 2;			/* need decimal */
-		*ppc++ = 1;				/* needed for width calc */
-		ppc++;
+		ppc[1] = 1;
+		ppc[2] = (intptr_t)(fmt + DECPT_OFFSET);
 #else  /* __LOCALE_C_ONLY */
-		*pdrvr++ = 1;
-		*ppc++ = strlen(CUR_LOCALE.decimal_point);
-		*ppc++ = (INT_OR_PTR)(CUR_LOCALE.decimal_point);
+#ifdef __UCLIBC_HAS_WCHAR__
+			if (PRINT_INFO_FLAG_VAL(info,wide)) {
+				/* _fp_out_wide() will fix this up. */
+				ppc[1] = 1;
+				ppc[2] = (intptr_t)(fmt + DECPT_OFFSET);
+			} else {
+#endif /* __UCLIBC_HAS_WCHAR__ */
+				ppc[1] = __UCLIBC_CURLOCALE_DATA.decimal_point_len;
+				ppc[2] = (intptr_t)(__UCLIBC_CURLOCALE_DATA.decimal_point);
+#ifdef __UCLIBC_HAS_WCHAR__
+			}
+#endif /* __UCLIBC_HAS_WCHAR__ */
 #endif /* __LOCALE_C_ONLY */
+			ppc += 3;
 	}
 
-	if (++o_exp < 0) {			/* have 0s right of decimal */
-		*pdrvr++ = 0;
-		*ppc++ = -o_exp;
-		*ppc++ = 0;
+	if (++o_exp < 0) {			/* Have 0s right of decimal. */
+		ppc[0] = FPO_ZERO_PAD;
+		ppc[1] = -o_exp;
+		ppc[2] = (intptr_t)(fmt + EMPTY_STRING_OFFSET);
+		ppc += 3;
 	}
-	if (i) {					/* have digit(s) right of decimal */
-		*pdrvr++ = 1;
-		*ppc++ = i;
-		*ppc++ = (INT_OR_PTR)(s);
+	if (i) {					/* Have digit(s) right of decimal. */
+		ppc[0] = FPO_STR_PREC;
+		ppc[1] = i;
+		ppc[2] = (intptr_t)(s);
+		ppc += 3;
 	}
 
-	if (o_mode != 'g') {
+	if (((o_mode != 'g') || PRINT_INFO_FLAG_VAL(info,alt))
+#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
+		&& !sufficient_precision
+#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
+		) {
 		i -= o_exp;
-		if (i < preci) {		/* have 0s right of digits */
+		if (i < preci) {		/* Have 0s right of digits. */
 			i = preci - i;
-			*pdrvr++ = 0;
-			*ppc++ = i;
-			*ppc++ = 0;
+			ppc[0] = FPO_ZERO_PAD;
+			ppc[1] = i;
+			ppc[2] = (intptr_t)(fmt + EMPTY_STRING_OFFSET);
+			ppc += 3;
 		}
 	}
 
-	/* build exponent string */
+	/* Build exponent string. */
 	if (mode != 'f') {
-		*pdrvr++ = 1;
-		*ppc++ = sprintf(exp_buf,"%c%+.2d", *exp_buf, exp);
-		*ppc++ = (INT_OR_PTR) exp_buf;
+		char *p = exp_buf + sizeof(exp_buf);
+		char exp_char = *exp_buf;
+		char exp_sign = '+';
+#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
+		int min_exp_dig_plus_2 = ((o_mode != 'a') ? (2+2) : (2+1));
+#else  /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
+#define min_exp_dig_plus_2  (2+2)
+#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
+
+		if (exp < 0) {
+			exp_sign = '-';
+			exp = -exp;
+		}
+
+		*--p = 0;			/* nul-terminate */
+		j = 2;				/* Count exp_char and exp_sign. */
+		do {
+			*--p = '0' + (exp % 10);
+			exp /= 10;
+		} while ((++j < min_exp_dig_plus_2) || exp); /* char+sign+mindigits */
+		*--p = exp_sign;
+		*--p = exp_char;
+
+		ppc[0] = FPO_STR_PREC;
+		ppc[1] = j;
+		ppc[2] = (intptr_t)(p);
+		ppc += 3;
 	}
 
  EXIT_SPECIAL:
-	npc = pdrvr - drvr;
-	ppc = pc_fwi + 2;
-	for (i=1 ; i< npc ; i++) {
-		width -= *(ppc++);
-		ppc++;
+	ppc_last = ppc;
+	ppc = pc_fwi + 4;	 /* Need width fields starting with second. */
+	do {
+		width -= *ppc;
+		ppc += 3;
+	} while (ppc < ppc_last);
+
+	ppc = pc_fwi;
+	ppc[0] = FPO_STR_WIDTH;
+	ppc[1] = i = ((*sign_str) != 0);
+	ppc[2] = (intptr_t) sign_str;
+
+#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
+	if (((mode|0x20) == 'a') && (pc_fwi[3] >= 16)) { /* Hex sign handling. */
+		/* Hex and not inf or nan, so prefix with 0x. */
+		char *h = sign_str + i;
+		*h = '0';
+		*++h = 'x' - 'p' + *exp_buf;
+		*++h = 0;
+		ppc[1] = (i += 2);
 	}
-	i = 0;
-	if (*sign_str) {
-		i = 1;
-	}
-	width -= i;
-	if (width <= 0) {
-		width = 0;
-	} else {
-		if (PRINT_INFO_FLAG_VAL(info,left)) { /* padding on right */
-/*  			flag[FLAG_MINUS_LJUSTIFY] */
-			++npc;
-			*pdrvr++ = 7;
-			*ppc = width;
-			*++ppc = (INT_OR_PTR)("");
-			width = 0;
+#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
+
+	if ((width -= i) > 0) {
+		if (PRINT_INFO_FLAG_VAL(info,left)) { /* Left-justified. */
+			ppc_last[0] = FPO_STR_WIDTH;
+			ppc_last[1] = width;
+			ppc_last[2] = (intptr_t)(fmt + EMPTY_STRING_OFFSET);
+			ppc_last += 3;
 		} else if (info->pad == '0') { /* 0 padding */
-/*  			(flag[FLAG_0_PAD] == '0') */
-			pc_fwi[2] += width;
-			width = 0;
+			ppc[4] += width;	/* Pad second field. */
+		} else {
+			ppc[1] += width;	/* Pad first (sign) field. */
 		}
 	}
-	*drvr = 7;
-	ppc = pc_fwi;
-	*ppc++ = width + i;
-	*ppc = (INT_OR_PTR) sign_str;
 
-	pdrvr = drvr;
-	ppc = pc_fwi;
 	cnt = 0;
-	for (i=0 ; i<npc ; i++) {
-#if 1
-		fprintf(fp, fmts[(int)(*pdrvr++)], (INT_OR_PTR)(*(ppc)), 
-				 (INT_OR_PTR)(*(ppc+1)));
-#else
-		j = fprintf(fp, fmts[(int)(*pdrvr++)], (INT_OR_PTR)(*(ppc)), 
-					  (INT_OR_PTR)(*(ppc+1)));
-		assert(j == *ppc);
-#endif
-/*  		if (size > *ppc) { */
-/*  			size -= *ppc; */
-/*  		} */
-		cnt += *ppc;			/* to avoid problems if j == -1 */
-		ppc += 2;
-	}
+
+	do {
+#ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
+
+		if ((ppc == pc_fwi + 6) && num_groups) {
+			const char *gp = (const char *) ppc[2];
+			int len = ppc[1];
+			int blk = initial_group;
+
+			cnt += num_groups * tslen; /* Adjust count now for sep chars. */
+
+/* 			printf("\n"); */
+			do {
+				if (!blk) {		/* Initial group could be 0 digits long! */
+					blk = nblk2;
+				} else if (len >= blk) { /* Enough digits for a group. */
+/* 					printf("norm:  len=%d blk=%d  \"%.*s\"\n", len, blk, blk, gp); */
+					fp_outfunc(fp, *ppc, blk, (intptr_t) gp);
+					assert(gp);
+					if (*gp) {
+						gp += blk;
+					}
+					len -= blk;
+				} else {		/* Transition to 0s. */
+/* 					printf("trans: len=%d blk=%d  \"%.*s\"\n", len, blk, len, gp); */
+					if (len) {
+/* 						printf("len\n"); */
+						fp_outfunc(fp, *ppc, len, (intptr_t) gp);
+						gp += len;
+					}
+
+					if (ppc[3] == FPO_ZERO_PAD) { /* Need to group 0s */
+/* 						printf("zeropad\n"); */
+						cnt += ppc[1];
+						ppc += 3;
+						gp = (const char *) ppc[2];
+						blk -= len;	/* blk > len, so blk still > 0. */
+						len = ppc[1];
+						continue; /* Don't decrement num_groups here. */
+					} else {
+						assert(num_groups == 0);
+						break;
+					}
+				}
+
+				if (num_groups <= 0) {
+					break;
+				}
+				--num_groups;
+
+				fp_outfunc(fp, FPO_STR_PREC, tslen, (intptr_t) ts);
+				blk = nblk2;
+
+/* 				printf("num_groups=%d   blk=%d\n", num_groups, blk); */
+
+			} while (1);
+		} else
+
+#endif /* __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__ */
+
+		fp_outfunc(fp, *ppc, ppc[1], ppc[2]); /* NOTE: Remember 'else' above! */
+
+		cnt += ppc[1];
+		ppc += 3;
+	} while (ppc < ppc_last);
 
 	return cnt;
 }
+
 #endif
 /**********************************************************************/
 #ifdef L__store_inttype
-/* TODO -- right now, assumes intmax_t is either long or long long */
+
+/* Right now, we assume intmax_t is either long or long long */
+
+#ifdef INTMAX_MAX
+
+#ifdef LLONG_MAX
+
+#if INTMAX_MAX > LLONG_MAX
+#error INTMAX_MAX > LLONG_MAX!  The printf code needs to be updated!
+#endif
+
+#elif INTMAX_MAX > LONG_MAX
+
+#error No LLONG_MAX and INTMAX_MAX > LONG_MAX!  The printf code needs to be updated!
+
+#endif /* LLONG_MAX */
+
+#endif /* INTMAX_MAX */
 
 /* We assume int may be short or long, but short and long are different. */
 
@@ -2107,6 +2508,7 @@ extern uintmax_t _load_inttype(int desttype, register const void *src,
  * In other words, we don't currently support glibc's 'I' flag.
  * We do accept it, but it is currently ignored. */
 
+static void _charpad(FILE * __restrict stream, int padchar, size_t numpad);
 
 #ifdef L_vfprintf
 
@@ -2117,6 +2519,23 @@ extern uintmax_t _load_inttype(int desttype, register const void *src,
 #define _PPFS_init _ppfs_init
 #define OUTPUT(F,S)			fputs(S,F)
 #define _outnstr(stream, string, len)	_stdio_fwrite(string, len, stream)
+#define FP_OUT _fp_out_narrow
+
+#ifdef __STDIO_PRINTF_FLOAT
+
+static void _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
+{
+	if (type & 0x80) {			/* Some type of padding needed. */
+		int buflen = strlen((const char *) buf);
+		if ((len -= buflen) > 0) {
+			_charpad(fp, (type & 0x7f), len);
+		}
+		len = buflen;
+	}
+	OUTNSTR(fp, (const char *) buf, len);
+}
+
+#endif /* __STDIO_PRINTF_FLOAT */
 
 #else  /* L_vfprintf */
 
@@ -2127,6 +2546,7 @@ extern uintmax_t _load_inttype(int desttype, register const void *src,
 #define _PPFS_init _ppwfs_init
 #define OUTPUT(F,S)			fputws(S,F)
 #define _outnwcs(stream, wstring, len)	_wstdio_fwrite(wstring, len, stream)
+#define FP_OUT _fp_out_wide
 
 static void _outnstr(FILE *stream, const char *s, size_t wclen)
 {
@@ -2139,12 +2559,68 @@ static void _outnstr(FILE *stream, const char *s, size_t wclen)
 	todo = wclen;
 	
 	while (todo) {
-		r = mbsrtowcs(wbuf, &s, sizeof(wbuf)/sizeof(wbuf[0]), &mbstate);
+		r = mbsrtowcs(wbuf, &s,
+					  ((todo <= sizeof(wbuf)/sizeof(wbuf[0]))
+					   ? todo
+					   : sizeof(wbuf)/sizeof(wbuf[0])),
+					  &mbstate);
 		assert(((ssize_t)r) > 0);
 		_outnwcs(stream, wbuf, r);
 		todo -= r;
 	}
 }
+
+#ifdef __STDIO_PRINTF_FLOAT
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO: Move defines from _fpmaxtostr.  Put them in a common header.
+#endif
+
+/* The following defines are from _fpmaxtostr.*/
+#define DIGITS_PER_BLOCK     9
+#define NUM_DIGIT_BLOCKS   ((DECIMAL_DIG+DIGITS_PER_BLOCK-1)/DIGITS_PER_BLOCK)
+#define BUF_SIZE  ( 3 + NUM_DIGIT_BLOCKS * DIGITS_PER_BLOCK )
+
+static void _fp_out_wide(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
+{
+	wchar_t wbuf[BUF_SIZE];
+	const char *s = (const char *) buf;
+	int i;
+
+	if (type & 0x80) {			/* Some type of padding needed */
+		int buflen = strlen(s);
+		if ((len -= buflen) > 0) {
+			_charpad(fp, (type & 0x7f), len);
+		}
+		len = buflen;
+	}
+
+	if (len > 0) {
+		i = 0;
+		do {
+#ifdef __LOCALE_C_ONLY
+			wbuf[i] = s[i];
+#else  /* __LOCALE_C_ONLY */
+
+#ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
+			if (s[i] == ',') {
+				wbuf[i] = __UCLIBC_CURLOCALE_DATA.thousands_sep_wc;
+			} else
+#endif /* __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__ */
+			if (s[i] == '.') {
+				wbuf[i] = __UCLIBC_CURLOCALE_DATA.decimal_point_wc;
+			} else {
+				wbuf[i] = s[i];
+			}
+#endif /* __LOCALE_C_ONLY */
+
+		} while (++i < len);
+
+		OUTNSTR(fp, wbuf, len);
+	}
+}
+
+#endif /* __STDIO_PRINTF_FLOAT */
 
 static int _ppwfs_init(register ppfs_t *ppfs, const wchar_t *fmt0)
 {
@@ -2153,7 +2629,9 @@ static int _ppwfs_init(register ppfs_t *ppfs, const wchar_t *fmt0)
 
 	/* First, zero out everything... argnumber[], argtype[], argptr[] */
 	memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
+#ifdef NL_ARGMAX
 	--ppfs->maxposarg;			/* set to -1 */
+#endif /* NL_ARGMAX */
 	ppfs->fmtpos = (const char *) fmt0;
 	ppfs->info._flags = FLAG_WIDESTREAM;
 
@@ -2210,6 +2688,7 @@ static int _ppwfs_init(register ppfs_t *ppfs, const wchar_t *fmt0)
 		ppfs->fmtpos = (const char *) fmt0; /* rewind */
 	}
 
+#ifdef NL_ARGMAX
 	/* If we have positional args, make sure we know all the types. */
 	{
 		register int *p = ppfs->argtype;
@@ -2221,6 +2700,7 @@ static int _ppwfs_init(register ppfs_t *ppfs, const wchar_t *fmt0)
 			++p;
 		}
 	}
+#endif /* NL_ARGMAX */
 
 	return 0;
 }
@@ -2283,8 +2763,8 @@ static int _do_one_spec(FILE * __restrict stream,
 	int prefix_num = PREFIX_NONE;
 	char padchar = ' ';
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: buf size
-#endif
+#warning TODO: Determine appropriate buf size.
+#endif /* __UCLIBC_MJN3_ONLY__ */
 	/* TODO: buf needs to be big enough for any possible error return strings
 	 * and also for any locale-grouped long long integer strings generated.
 	 * This should be large enough for any of the current archs/locales, but
@@ -2304,24 +2784,28 @@ static int _do_one_spec(FILE * __restrict stream,
 	/* Deal with the argptr vs argvalue issue. */
 #ifdef __va_arg_ptr
 	argptr = (const void * const *) ppfs->argptr;
+#ifdef NL_ARGMAX
 	if (ppfs->maxposarg > 0) {	/* Using positional args... */
 		argptr += ppfs->argnumber[2] - 1;
 	}
+#endif /* NL_ARGMAX */
 #else
 	/* Need to build a local copy... */
 	{
 		register argvalue_t *p = ppfs->argvalue;
 		int i;
+#ifdef NL_ARGMAX
 		if (ppfs->maxposarg > 0) {	/* Using positional args... */
 			p += ppfs->argnumber[2] - 1;
 		}
+#endif /* NL_ARGMAX */
 		for (i = 0 ; i < ppfs->num_data_args ; i++ ) {
 			argptr[i] = (void *) p++;
 		}
 	}
 #endif
 	{
-		register char *s;		/* TODO: Should s be unsigned char * ? */
+		register char *s = NULL; /* TODO: Should s be unsigned char * ? */
 
 		if (ppfs->conv_num == CONV_n) {
 			_store_inttype(*(void **)*argptr,
@@ -2331,7 +2815,12 @@ static int _do_one_spec(FILE * __restrict stream,
 		}
 		if (ppfs->conv_num <= CONV_i) {	/* pointer or (un)signed int */
 			alphacase = __UIM_LOWER;
-#ifndef __LOCALE_C_ONLY
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#ifdef L_vfprintf
+#warning CONSIDER: Should we ignore these flags if stub locale?  What about custom specs?
+#endif
+#endif /* __UCLIBC_MJN3_ONLY__ */
 			if ((base = spec_base[(int)(ppfs->conv_num - CONV_p)]) == 10) {
 				if (PRINT_INFO_FLAG_VAL(&(ppfs->info),group)) {
 					alphacase = __UIM_GROUP;
@@ -2340,7 +2829,7 @@ static int _do_one_spec(FILE * __restrict stream,
 					alphacase |= 0x80;
 				}
 			}
-#endif /* __LOCALE_C_ONLY */
+
 			if (ppfs->conv_num <= CONV_u) { /* pointer or unsigned int */
 				if (ppfs->conv_num == CONV_X) {
 					alphacase = __UIM_UPPER;
@@ -2356,8 +2845,10 @@ static int _do_one_spec(FILE * __restrict stream,
 				padchar = ppfs->info.pad;
 			}
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning if using outdigits and/or grouping, how should we interpret precision?
+#ifdef L_vfprintf
+#warning CONSIDER: If using outdigits and/or grouping, how should we interpret precision?
 #endif
+#endif /* __UCLIBC_MJN3_ONLY__ */
 			s = _uintmaxtostr(buf + sizeof(buf) - 1,
 							  (uintmax_t)
 							  _load_inttype(*argtype & __PA_INTMASK,
@@ -2413,23 +2904,18 @@ static int _do_one_spec(FILE * __restrict stream,
 			}
 			numfill = ((numfill > SLEN) ? numfill - SLEN : 0);
 		} else if (ppfs->conv_num <= CONV_A) {	/* floating point */
-#ifdef L_vfwprintf
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning fix dtostr
-#endif
-			return -1;
-#else  /* L_vfwprintf */
 #ifdef __STDIO_PRINTF_FLOAT
-			*count += _dtostr(stream,
-							  (PRINT_INFO_FLAG_VAL(&(ppfs->info),is_long_double)
-							   ? *(long double *) *argptr
-							   : (long double) (* (double *) *argptr)),
-							  &ppfs->info);
+			*count +=
+				_fpmaxtostr(stream,
+							(__fpmax_t)
+							(PRINT_INFO_FLAG_VAL(&(ppfs->info),is_long_double)
+							 ? *(long double *) *argptr
+							 : (long double) (* (double *) *argptr)),
+							&ppfs->info, FP_OUT );
 			return 0;
 #else  /* __STDIO_PRINTF_FLOAT */
 			return -1;			/* TODO -- try to continue? */
 #endif /* __STDIO_PRINTF_FLOAT */
-#endif /* L_vfwprintf */
 		} else if (ppfs->conv_num <= CONV_S) {	/* wide char or string */
 #ifdef L_vfprintf
 
@@ -2467,7 +2953,9 @@ static int _do_one_spec(FILE * __restrict stream,
 			if (ppfs->conv_num == CONV_s) { /* string */
 				s = *((char **) (*argptr));
 				if (s) {
+#ifdef __STDIO_PRINTF_M_SUPPORT
 				SET_STRING_LEN:
+#endif
 					slen = strnlen(s, ((ppfs->info.prec >= 0)
 									   ? ppfs->info.prec : SIZE_MAX));
 				} else {
@@ -2505,11 +2993,13 @@ static int _do_one_spec(FILE * __restrict stream,
 
 			if (ppfs->conv_num == CONV_s) { /* string */
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning Fix %s for vfwprintf... output upto illegal sequence?
-#endif
+#warning TODO: Fix %s for vfwprintf... output upto illegal sequence?
+#endif /* __UCLIBC_MJN3_ONLY__ */
 				s = *((char **) (*argptr));
 				if (s) {
+#ifdef __STDIO_PRINTF_M_SUPPORT
 				SET_STRING_LEN:
+#endif
 					/* We use an awful uClibc-specific hack here, passing
 					 * (wchar_t*) &mbstate as the conversion destination.
 					 *  This signals uClibc's mbsrtowcs that we want a
@@ -2544,6 +3034,7 @@ static int _do_one_spec(FILE * __restrict stream,
 			goto SET_STRING_LEN;
 #endif
 		} else {
+#ifdef __STDIO_GLIBC_CUSTOM_PRINTF
 			assert(ppfs->conv_num == CONV_custom0);
 
 			s = _custom_printf_spec;
@@ -2561,13 +3052,16 @@ static int _do_one_spec(FILE * __restrict stream,
 					return 0;
 				}
 			} while (++s < (_custom_printf_spec + MAX_USER_SPEC));
+#endif /* __STDIO_GLIBC_CUSTOM_PRINTF */
 			assert(0);
 			return -1;
 		}
 
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning if using outdigits and/or grouping, how should we pad?
+#ifdef L_vfprintf
+#warning CONSIDER: If using outdigits and/or grouping, how should we pad?
 #endif
+#endif /* __UCLIBC_MJN3_ONLY__ */
 		{
 			size_t t;
 
@@ -2595,6 +3089,7 @@ static int _do_one_spec(FILE * __restrict stream,
 
 #ifdef __UCLIBC_HAS_WCHAR__
 		if (!ws) {
+			assert(s);
 			_outnstr(stream, s, slen);
 		} else {				/* wide string */
 			size_t t;
@@ -2606,7 +3101,6 @@ static int _do_one_spec(FILE * __restrict stream,
 				_outnstr(stream, buf, t);
 				slen -= t;
 			}
-			ws = NULL;			/* Reset ws. */
 		}
 #else  /* __UCLIBC_HAS_WCHAR__ */
 		_outnstr(stream, s, slen);
@@ -2615,10 +3109,10 @@ static int _do_one_spec(FILE * __restrict stream,
 #else  /* L_vfprintf */
 
 		if (!ws) {
+			assert(s);
 			_outnstr(stream, s, SLEN);
 		} else {
 			_outnwcs(stream, ws, SLEN);
-			ws = NULL;			/* Reset ws. */
 		}
 
 #endif /* L_vfprintf */
@@ -2644,6 +3138,9 @@ int VFPRINTF (FILE * __restrict stream,
 	if (_PPFS_init(&ppfs, format) < 0) { /* Bad format string. */
 		OUTNSTR(stream, (const FMT_TYPE *) ppfs.fmtpos,
 				STRLEN((const FMT_TYPE *)(ppfs.fmtpos)));
+#if defined(L_vfprintf) && !defined(NDEBUG)
+		fprintf(stderr,"\nIMbS: \"%s\"\n\n", format);
+#endif
 		count = -1;
 	} else {
 		_ppfs_prepargs(&ppfs, arg);	/* This did a va_copy!!! */

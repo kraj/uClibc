@@ -49,6 +49,7 @@
 #ifdef WANT_WIDE
 #include <wchar.h>
 #include <wctype.h>
+#include <bits/uClibc_uwchar.h>
 
 #define Wvoid			wchar_t
 #define Wchar			wchar_t
@@ -77,12 +78,22 @@ typedef unsigned char	__string_uchar_t;
 #define _SYS_NERR			126
 #endif
 
+#ifdef __UCLIBC_HAS_ERRNO_MESSAGES__
 #define _SYS_ERRMSG_MAXLEN	 50
+#else  /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
+#define _SYS_ERRMSG_MAXLEN	 0
+#endif /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
+
 
 extern const char _string_syserrmsgs[];
 
 #define _SYS_NSIG			32
+
+#ifdef __UCLIBC_HAS_SIGNUM_MESSAGES__
 #define _SYS_SIGMSG_MAXLEN	25
+#else  /* __UCLIBC_HAS_SIGNUM_MESSAGES__ */
+#define _SYS_SIGMSG_MAXLEN	0
+#endif /* __UCLIBC_HAS_SIGNUM_MESSAGES__ */
 
 extern const char _string_syssigmsgs[];
 
@@ -93,14 +104,14 @@ extern const char _string_syssigmsgs[];
 #define _STRERROR_BUFSIZE _SYS_ERRMSG_MAXLEN
 #endif
 
-#if _SYS_SIGMSG_MAXLEN < __UIM_BUFLEN_INT + 14
-#define _STRSIGNAL_BUFSIZE (__UIM_BUFLEN_INT + 14)
+#if _SYS_SIGMSG_MAXLEN < __UIM_BUFLEN_INT + 15
+#define _STRSIGNAL_BUFSIZE (__UIM_BUFLEN_INT + 15)
 #else
 #define _STRSIGNAL_BUFSIZE _SYS_SIGMSG_MAXLEN
 #endif
 
 /**********************************************************************/
-#ifdef L__string_syserrmsgs
+#if defined(L__string_syserrmsgs) && defined(__UCLIBC_HAS_ERRNO_MESSAGES__)
 
 const char _string_syserrmsgs[] = {
 	/*   0:    0,  8 */ "Success\0"
@@ -238,7 +249,7 @@ const char _string_syserrmsgs[] = {
 
 #endif
 /**********************************************************************/
-#ifdef L_sys_errlist
+#if defined(L_sys_errlist) && defined(__UCLIBC_HAS_SYS_ERRLIST__)
 
 link_warning(_sys_errlist, "sys_nerr and sys_errlist are obsolete and uClibc support for them (in at least some configurations) will probably be unavailable in the near future.")
 
@@ -1070,54 +1081,104 @@ int ffs(int i)
 
 #endif
 /**********************************************************************/
-#ifdef L_wcscasecmp
-#define L_strcasecmp
-#define Wstrcasecmp wcscasecmp
+#if defined(L_strcasecmp) || defined(L_strcasecmp_l) || defined(L_wcscasecmp) || defined(L_wcscasecmp_l)
+
+#if defined(L_wcscasecmp) || defined(L_wcscasecmp_l)
+
+#define strcasecmp wcscasecmp
+#define strcasecmp_l wcscasecmp_l
+#ifdef __UCLIBC_DO_XLOCALE
+#define TOLOWER(C) towlower_l((C), locale_arg)
 #else
-#define Wstrcasecmp strcasecmp
+#define TOLOWER(C) towlower((C))
 #endif
 
-#ifdef L_strcasecmp
+#else  /* defined(L_wcscasecmp) || defined(L_wcscasecmp_l) */
 
-int Wstrcasecmp(register const Wchar *s1, register const Wchar *s2)
+#ifdef __UCLIBC_DO_XLOCALE
+#define TOLOWER(C) tolower_l((C), locale_arg)
+#else
+#define TOLOWER(C) tolower((C))
+#endif
+
+#endif /* defined(L_wcscasecmp) || defined(L_wcscasecmp_l) */
+
+
+#if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
+
+int strcasecmp(register const Wchar *s1, register const Wchar *s2)
+{
+	return strcasecmp_l(s1, s2, __UCLIBC_CURLOCALE);
+}
+
+#else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
+
+int __XL(strcasecmp)(register const Wchar *s1, register const Wchar *s2
+					  __LOCALE_PARAM )
 {
 #ifdef WANT_WIDE
-	while ((*s1 == *s2) || (towlower(*s1) == towlower(*s2))) {
+	while ((*s1 == *s2) || (TOLOWER(*s1) == TOLOWER(*s2))) {
 		if (!*s1++) {
 			return 0;
 		}
 		++s2;
 	}
 
-	return (((Wuchar)towlower(*s1)) < ((Wuchar)towlower(*s2))) ? -1 : 1;
+	return (((Wuchar)TOLOWER(*s1)) < ((Wuchar)TOLOWER(*s2))) ? -1 : 1;
 	/* TODO -- should wide cmp funcs do wchar or Wuchar compares? */
 #else
 	int r = 0;
 
 	while ( ((s1 == s2) ||
-			 !(r = ((int)( tolower(*((Wuchar *)s1))))
-			   - tolower(*((Wuchar *)s2))))
+			 !(r = ((int)( TOLOWER(*((Wuchar *)s1))))
+			   - TOLOWER(*((Wuchar *)s2))))
 			&& (++s2, *s1++));
 
 	return r;
 #endif
 }
 
+#endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
+
 #endif
 /**********************************************************************/
-#ifdef L_wcsncasecmp
-#define L_strncasecmp
-#define Wstrncasecmp wcsncasecmp
+#if defined(L_strncasecmp) || defined(L_strncasecmp_l) || defined(L_wcsncasecmp) || defined(L_wcsncasecmp_l)
+
+#if defined(L_wcsncasecmp) || defined(L_wcsncasecmp_l)
+
+#define strncasecmp wcsncasecmp
+#define strncasecmp_l wcsncasecmp_l
+#ifdef __UCLIBC_DO_XLOCALE
+#define TOLOWER(C) towlower_l((C), locale_arg)
 #else
-#define Wstrncasecmp strncasecmp
+#define TOLOWER(C) towlower((C))
 #endif
 
-#ifdef L_strncasecmp
+#else  /* defined(L_wcsncasecmp) || defined(L_wcsncasecmp_l) */
 
-int Wstrncasecmp(register const Wchar *s1, register const Wchar *s2, size_t n)
+#ifdef __UCLIBC_DO_XLOCALE
+#define TOLOWER(C) tolower_l((C), locale_arg)
+#else
+#define TOLOWER(C) tolower((C))
+#endif
+
+#endif /* defined(L_wcsncasecmp) || defined(L_wcsncasecmp_l) */
+
+
+#if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
+
+int strncasecmp(register const Wchar *s1, register const Wchar *s2, size_t n)
+{
+	return strncasecmp_l(s1, s2, n, __UCLIBC_CURLOCALE);
+}
+
+#else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
+
+int __XL(strncasecmp)(register const Wchar *s1, register const Wchar *s2,
+					  size_t n   __LOCALE_PARAM )
 {
 #ifdef WANT_WIDE
-	while (n && ((*s1 == *s2) || (towlower(*s1) == towlower(*s2)))) {
+	while (n && ((*s1 == *s2) || (TOLOWER(*s1) == TOLOWER(*s2)))) {
 		if (!*s1++) {
 			return 0;
 		}
@@ -1127,19 +1188,22 @@ int Wstrncasecmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 
 	return (n == 0)
 		? 0
-		: ((((Wuchar)towlower(*s1)) < ((Wuchar)towlower(*s2))) ? -1 : 1);
+		: ((((Wuchar)TOLOWER(*s1)) < ((Wuchar)TOLOWER(*s2))) ? -1 : 1);
 	/* TODO -- should wide cmp funcs do wchar or Wuchar compares? */
 #else
 	int r = 0;
 
 	while ( n
 			&& ((s1 == s2) ||
-				!(r = ((int)( tolower(*((unsigned char *)s1))))
-				  - tolower(*((unsigned char *)s2))))
+				!(r = ((int)( TOLOWER(*((unsigned char *)s1))))
+				  - TOLOWER(*((unsigned char *)s2))))
 			&& (--n, ++s2, *s1++));
 	return r;
 #endif
 }
+
+#endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
+
 #endif
 /**********************************************************************/
 #ifdef L_wcsnlen
@@ -1220,7 +1284,7 @@ Wchar *Wstrdup(register const Wchar *s1)
 
 char *strerror(int errnum)
 {
-    static char buf[_SYS_ERRMSG_MAXLEN];
+    static char buf[_STRERROR_BUFSIZE];
 
 	_susv3_strerror_r(errnum, buf, sizeof(buf));
 
@@ -1233,6 +1297,7 @@ char *strerror(int errnum)
 /**********************************************************************/
 #ifdef L__susv3_strerror_r
 
+#ifdef __UCLIBC_HAS_ERRNO_MESSAGES__
 #if defined(__alpha__) || defined(__mips__) || defined(__sparc__)
 
 static const unsigned char estridx[] = {
@@ -1372,18 +1437,19 @@ static const unsigned char estridx[] = {
 
 #endif
 
-
 int _susv3_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {
     register char *s;
     int i, retval;
-    char buf[_SYS_ERRMSG_MAXLEN];
-    static const char unknown[14] = {
+    char buf[_STRERROR_BUFSIZE];
+    static const char unknown[] = {
 		'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 'e', 'r', 'r', 'o', 'r', ' '
     };
 
     retval = EINVAL;
 
+
+#ifdef __UCLIBC_HAS_ERRNO_MESSAGES__
 
 #if defined(__alpha__) || defined(__mips__) || defined(__sparc__)
 	/* Need to translate errno to string index. */
@@ -1420,6 +1486,8 @@ int _susv3_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 		}
     }
 
+#endif /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
+
     s = _int10tostr(buf+sizeof(buf)-1, errnum) - sizeof(unknown);
     memcpy(s, unknown, sizeof(unknown));
 
@@ -1444,6 +1512,45 @@ int _susv3_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 
     return retval;
 }
+
+#else  /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
+
+int _susv3_strerror_r(int errnum, char *strerrbuf, size_t buflen)
+{
+    register char *s;
+    int i, retval;
+    char buf[_STRERROR_BUFSIZE];
+    static const char unknown[] = {
+		'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 'e', 'r', 'r', 'o', 'r', ' '
+    };
+
+    s = _int10tostr(buf+sizeof(buf)-1, errnum) - sizeof(unknown);
+    memcpy(s, unknown, sizeof(unknown));
+
+    if (!strerrbuf) {		/* SUSv3  */
+		buflen = 0;
+    }
+
+    retval = EINVAL;
+
+	i = buf + sizeof(buf) - s;
+
+    if (i > buflen) {
+		i = buflen;
+		retval = ERANGE;
+    }
+
+    if (i) {
+		memcpy(strerrbuf, s, i);
+		strerrbuf[i-1] = 0;	/* In case buf was too small. */
+    }
+
+	__set_errno(retval);
+
+    return retval;
+}
+
+#endif /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
 
 #endif
 /**********************************************************************/
@@ -1993,7 +2100,7 @@ size_t Wstrlcpy(register Wchar *__restrict dst,
 
 #endif
 /**********************************************************************/
-#ifdef L__string_syssigmsgs
+#if defined(L__string_syssigmsgs) && defined(__UCLIBC_HAS_SIGNUM_MESSAGES__)
 
 const char _string_syssigmsgs[] = {
 	/*   0:    0,  1 */ "\0"
@@ -2033,7 +2140,7 @@ const char _string_syssigmsgs[] = {
 #endif
 
 /**********************************************************************/
-#ifdef L_sys_siglist
+#if defined(L_sys_siglist) && defined(__UCLIBC_HAS_SYS_SIGLIST__)
 
 const char *const sys_siglist[_NSIG] = {
 	NULL,
@@ -2108,12 +2215,14 @@ const char *const sys_siglist[_NSIG] = {
 
 /* TODO: make a threadsafe version? */
 
+#ifdef __UCLIBC_HAS_SIGNUM_MESSAGES__
+
 char *strsignal(int signum)
 {
     register char *s;
     int i;
     static char buf[_STRSIGNAL_BUFSIZE];
-    static const char unknown[15] = {
+    static const char unknown[] = {
 		'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 's', 'i', 'g', 'n', 'a', 'l', ' '
     };
 
@@ -2138,6 +2247,22 @@ char *strsignal(int signum)
  DONE:
 	return s;
 }
+
+#else  /* __UCLIBC_HAS_SIGNUM_MESSAGES__ */
+
+char *strsignal(int signum)
+{
+    static char buf[_STRSIGNAL_BUFSIZE];
+    static const char unknown[] = {
+		'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 's', 'i', 'g', 'n', 'a', 'l', ' '
+    };
+
+    return (char *) memcpy(_int10tostr(buf+sizeof(buf)-1, signum)
+						   - sizeof(unknown),
+						   unknown, sizeof(unknown));
+}
+
+#endif /* __UCLIBC_HAS_SIGNUM_MESSAGES__ */
 
 #endif
 /**********************************************************************/
@@ -2171,6 +2296,7 @@ void psignal(int signum, register const char *message)
 #endif
 /**********************************************************************/
 #ifndef __LOCALE_C_ONLY
+#if defined(L_strxfrm) || defined(L_strxfrm_l) || defined(L_wcsxfrm) || defined(L_wcsxfrm_l)
 
 #ifdef L_strxfrm
 #ifndef WANT_WIDE
@@ -2179,11 +2305,16 @@ void psignal(int signum, register const char *message)
 #ifdef L_wcsxfrm
 #error L_wcsxfrm already defined for L_strxfrm
 #endif
+#endif /* L_strxfrm */
 
-#define wcscoll strcoll
-#define L_wcsxfrm
+#if defined(L_strxfrm) || defined(L_strxfrm_l)
+
+#define wcscoll   strcoll
+#define wcscoll_l strcoll_l
+#define wcsxfrm   strxfrm
+#define wcsxfrm_l strxfrm_l
+
 #undef WANT_WIDE
-
 #undef Wvoid
 #undef Wchar
 #undef Wuchar
@@ -2191,13 +2322,28 @@ void psignal(int signum, register const char *message)
 
 #define Wchar char
 
-#endif /* L_strxfrm */
+#endif /* defined(L_strxfrm) || defined(L_strxfrm_l) */
+
+#if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
+
+int wcscoll (const Wchar *s0, const Wchar *s1)
+{
+	return wcscoll_l(s0, s1, __UCLIBC_CURLOCALE );
+}
+
+size_t wcsxfrm(Wchar *__restrict ws1, const Wchar *__restrict ws2, size_t n)
+{
+	return wcsxfrm_l(ws1, ws2, n, __UCLIBC_CURLOCALE );
+}
+
+#else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
 
-
-#ifdef L_wcsxfrm
-
-#define CUR_COLLATE (&__global_locale.collate)
+#if 0
+#define CUR_COLLATE (&__UCLIBC_CURLOCALE_DATA.collate)
+#else
+#define CUR_COLLATE (& __LOCALE_PTR->collate)
+#endif
 
 #define MAX_PENDING 8
 
@@ -2246,7 +2392,7 @@ typedef struct {
 #define TRACE(X)	((void)0)
 #endif
 
-static int lookup(wchar_t wc)
+static int lookup(wchar_t wc   __LOCALE_PARAM )
 {
 	unsigned int sc, n, i0, i1;
 
@@ -2276,7 +2422,7 @@ static void init_col_state(col_state_t *cs, const Wchar *wcs)
 	cs->bbe = cs->back_buf + (cs->bb_size -1);
 }
 
-static void next_weight(col_state_t *cs, int pass)
+static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 {
 	int r, w, ru, ri, popping_backup_stack;
 	ssize_t n;
@@ -2285,12 +2431,10 @@ static void next_weight(col_state_t *cs, int pass)
 #define WC (*cs->s)
 #define N (1)
 #else  /* WANT_WIDE */
-	mbstate_t mbstate;
 	wchar_t WC;
 	size_t n0, nx;
 #define N n0
 
-	mbstate.mask = 0;
 #endif /* WANT_WIDE */
 
 	do {
@@ -2343,15 +2487,15 @@ static void next_weight(col_state_t *cs, int pass)
 		BACK_LOOP:
 #ifdef WANT_WIDE
 			n = 1;
-			cs->colitem = r = lookup(*cs->s);
+			cs->colitem = r = lookup(*cs->s   __LOCALE_ARG );
 #else  /* WANT_WIDE */
-			n = n0 = mbrtowc(&WC, cs->s, SIZE_MAX, &mbstate);
+			n = n0 = __locale_mbrtowc_l(&WC, cs->s, __LOCALE_PTR);
 			if (n < 0) {
 				__set_errno(EILSEQ);
 				cs->weight = 0;
 				return;
 			}
-			cs->colitem = r = lookup(WC);
+			cs->colitem = r = lookup(WC   __LOCALE_ARG );
 #endif /* WANT_WIDE */
 
 			TRACE((" r=%d WC=%#lx\n", r, (unsigned long)(WC)));
@@ -2370,7 +2514,7 @@ static void next_weight(col_state_t *cs, int pass)
 						}
 #ifdef WANT_WIDE
 						/* the lookup check here is safe since we're assured that *p is a valid colidx */
-						if (!cs->s[n] || (lookup(cs->s[n]) != *p)) {
+						if (!cs->s[n] || (lookup(cs->s[n]   __LOCALE_ARG ) != *p)) {
 							do {} while (*p++);
 							break;
 						}
@@ -2378,19 +2522,19 @@ static void next_weight(col_state_t *cs, int pass)
 						++n;
 #else  /* WANT_WIDE */
 						if (cs->s[n]) {
-							nx = mbrtowc(&WC, cs->s + n, SIZE_MAX, &mbstate);
+							nx = __locale_mbrtowc_l(&WC, cs->s + n, __LOCALE_PTR);
 							if (nx < 0) {
 								__set_errno(EILSEQ);
 								cs->weight = 0;
 								return;
 							}
 						}
-						if (!cs->s[n] || (lookup(WC) != *p)) {
+						if (!cs->s[n] || (lookup(WC   __LOCALE_ARG ) != *p)) {
 							do {} while (*p++);
 							break;
 						}
 						++p;
-						n += nx;
+						n += nx; /* Only gets here if cs->s[n] != 0, so nx is set. */
 #endif /* WANT_WIDE */
 					} while (1);
 				} while (1);
@@ -2628,7 +2772,7 @@ static void next_weight(col_state_t *cs, int pass)
 	} while (1);
 }
 
-int wcscoll (const Wchar *s0, const Wchar *s1)
+int __XL(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
 {
 	col_state_t ws[2];
 	int pass;
@@ -2647,8 +2791,8 @@ int wcscoll (const Wchar *s0, const Wchar *s1)
 		init_col_state(ws+1, s1);
 		do {					/* loop through the strings */
 			/* for each string, get the next weight */
-			next_weight(ws, pass);
-			next_weight(ws+1, pass);
+			next_weight(ws, pass   __LOCALE_ARG );
+			next_weight(ws+1, pass   __LOCALE_ARG );
 			TRACE(("w0=%lu  w1=%lu\n",
 				   (unsigned long) ws[0].weight,
 				   (unsigned long) ws[1].weight));
@@ -2664,7 +2808,8 @@ int wcscoll (const Wchar *s0, const Wchar *s1)
 
 #ifdef WANT_WIDE
 
-size_t wcsxfrm(wchar_t *__restrict ws1, const wchar_t *__restrict ws2, size_t n)
+size_t __XL(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
+					 size_t n   __LOCALE_PARAM )
 {
 	col_state_t cs;
 	size_t count;
@@ -2682,7 +2827,7 @@ size_t wcsxfrm(wchar_t *__restrict ws1, const wchar_t *__restrict ws2, size_t n)
 	do {						/* loop through the weights levels */
 		init_col_state(&cs, ws2);
 		do {					/* loop through the string */
-			next_weight(&cs, pass);
+			next_weight(&cs, pass   __LOCALE_ARG );
 			TRACE(("weight=%lu (%#lx)\n", (unsigned long) cs.weight, (unsigned long) cs.weight));
 			if (count < n) {
 				ws1[count] = cs.weight +1;
@@ -2743,7 +2888,8 @@ static size_t store(unsigned char *s, size_t count, size_t n, __uwchar_t weight)
 	return r;
 }
 
-size_t strxfrm(char *__restrict ws1, const char *__restrict ws2, size_t n)
+size_t __XL(strxfrm)(char *__restrict ws1, const char *__restrict ws2, size_t n
+					 __LOCALE_PARAM )
 {
 	col_state_t cs;
 	size_t count, inc;
@@ -2761,7 +2907,7 @@ size_t strxfrm(char *__restrict ws1, const char *__restrict ws2, size_t n)
 	do {						/* loop through the weights levels */
 		init_col_state(&cs, ws2);
 		do {					/* loop through the string */
-			next_weight(&cs, pass);
+			next_weight(&cs, pass   __LOCALE_ARG );
 			TRACE(("weight=%lu (%#lx)\n", (unsigned long) cs.weight, (unsigned long) cs.weight));
 			inc = store((unsigned char *)ws1, count, n, cs.weight + 1);
 			count += inc;
@@ -2780,11 +2926,11 @@ size_t strxfrm(char *__restrict ws1, const char *__restrict ws2, size_t n)
 	return count-1;
 }
 
-
 #endif /* WANT_WIDE */
 
-#endif /* wcscoll */
+#endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
+
+#endif /* defined(L_strxfrm) || defined(L_strxfrm_l) || defined(L_wcsxfrm) || defined(L_wcsxfrm_l) */
 
 #endif /* __LOCALE_C_ONLY */
 /**********************************************************************/
-

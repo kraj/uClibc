@@ -42,7 +42,6 @@ MOBJ2=  fwide.o \
 # getwc (fgetwc alias) getwc_unlocked (fgetwc_unlocked alias)
 # putwc (fputwc alias) putwc_unlocked (fputwc_unlocked alias)
 
-# fwscanf  wscanf  swscanf  vfwscanf  vwscanf  vswscanf
 # wcsftime
 
 OBJS=$(MOBJ1) $(MOBJ2)

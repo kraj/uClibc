@@ -86,6 +86,9 @@
  * Add a couple of ugly hacks to support *wprintf.
  * Add a mini iconv() and iconv implementation (requires locale support).
  *
+ * Aug 1, 2003
+ * Bug fix for mbrtowc.
+ *
  * Manuel
  */
 
@@ -101,13 +104,39 @@
 #include <assert.h>
 #include <locale.h>
 #include <wchar.h>
+#include <bits/uClibc_uwchar.h>
 
+/**********************************************************************/
 #ifdef __UCLIBC_HAS_LOCALE__
-#define ENCODING (__global_locale.encoding)
+#ifdef __UCLIBC_MJN3_ONLY__
+#ifdef L_iswspace
+/* generates one warning */
+#warning TODO: Fix Cc2wc* and Cwc2c* defines!
+#endif
+#endif /* __UCLIBC_MJN3_ONLY__ */
+
+#define ENCODING		((__UCLIBC_CURLOCALE_DATA).encoding)
+
+#define Cc2wc_IDX_SHIFT		__LOCALE_DATA_Cc2wc_IDX_SHIFT
+#define Cc2wc_ROW_LEN		__LOCALE_DATA_Cc2wc_ROW_LEN
+#define Cwc2c_DOMAIN_MAX	__LOCALE_DATA_Cwc2c_DOMAIN_MAX
+#define Cwc2c_TI_SHIFT		__LOCALE_DATA_Cwc2c_TI_SHIFT
+#define Cwc2c_TT_SHIFT		__LOCALE_DATA_Cwc2c_TT_SHIFT
+#define Cwc2c_TI_LEN		__LOCALE_DATA_Cwc2c_TI_LEN
+
 #ifndef __CTYPE_HAS_UTF_8_LOCALES
 #warning __CTYPE_HAS_UTF_8_LOCALES not set!
 #endif
-#else
+
+#else  /* __UCLIBC_HAS_LOCALE__ */
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#ifdef L_btowc
+/* emit only once */
+#warning fix preprocessor logic testing locale settings
+#endif
+#endif
+
 #define ENCODING (__ctype_encoding_7_bit)
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
 #error __CTYPE_HAS_8_BIT_LOCALES is defined!
@@ -117,7 +146,9 @@
 #endif
 #undef L__wchar_utf8sntowcs
 #undef L__wchar_wcsntoutf8s
-#endif
+
+#endif /* __UCLIBC_HAS_LOCALE__ */
+/**********************************************************************/
 
 #if WCHAR_MAX > 0xffffUL
 #define UTF_8_MAX_LEN 6
@@ -266,10 +297,17 @@ size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 #ifdef __CTYPE_HAS_UTF_8_LOCALES
 	/* Need to do this here since mbsrtowcs doesn't allow incompletes. */
 	if (ENCODING == __ctype_encoding_utf8) {
+		if (!pwc) {
+			pwc = wcbuf;
+		}
 		r = _wchar_utf8sntowcs(pwc, 1, &p, n, ps, 1);
 		return (r == 1) ? (p-s) : r; /* Need to return 0 if nul char. */
 	}
 #endif
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO: This adds a trailing nul!
+#endif /* __UCLIBC_MJN3_ONLY__ */
 
 	r = __mbsnrtowcs(wcbuf, &p, SIZE_MAX, 1, ps);
 
@@ -291,7 +329,10 @@ size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 size_t wcrtomb(register char *__restrict s, wchar_t wc,
 			   mbstate_t *__restrict ps)
 {
-	wchar_t wcbuf[2];
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO: Should wcsnrtombs nul-terminate unconditionally?  Check glibc.
+#endif /* __UCLIBC_MJN3_ONLY__ */
+	wchar_t wcbuf[1];
 	const wchar_t *pwc;
 	size_t r;
 	char buf[MB_LEN_MAX];
@@ -303,9 +344,8 @@ size_t wcrtomb(register char *__restrict s, wchar_t wc,
 
 	pwc = wcbuf;
 	wcbuf[0] = wc;
-	wcbuf[1] = 0;
 
-	r = __wcsnrtombs(s, &pwc, SIZE_MAX, MB_LEN_MAX, ps);
+	r = __wcsnrtombs(s, &pwc, 1, MB_LEN_MAX, ps);
 	return (r != 0) ? r : 1;
 }
 
@@ -418,7 +458,7 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 		if ((wc = ((unsigned char) *s++)) >= 0x80) { /* Not ASCII... */
 			mask = 0x40;
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning fix range for 16 bit wides
+#warning TODO: Fix range for 16 bit wchar_t case.
 #endif
 			if ( ((unsigned char)(s[-1] - 0xc0)) < (0xfe - 0xc0) ) {
 				goto START;
@@ -495,7 +535,6 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 	COMPLETE:
 		*pwc = wc;
 		pwc += incr;
-
 	}
 #ifdef DECODER
 	while (--count);
@@ -684,8 +723,8 @@ size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 		while (count) {
 			if ((wc = ((unsigned char)(*s))) >= 0x80) {	/* Non-ASCII... */
 				wc -= 0x80;
-				wc = __global_locale.tbl8c2wc[
-						  (__global_locale.idx8c2wc[wc >> Cc2wc_IDX_SHIFT]
+				wc = __UCLIBC_CURLOCALE_DATA.tbl8c2wc[
+						  (__UCLIBC_CURLOCALE_DATA.idx8c2wc[wc >> Cc2wc_IDX_SHIFT]
 						   << Cc2wc_IDX_SHIFT) + (wc & (Cc2wc_ROW_LEN - 1))];
 				if (!wc) {
 					goto BAD;
@@ -797,12 +836,12 @@ size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 			} else {
 				u = 0;
 				if (wc <= Cwc2c_DOMAIN_MAX) {
-					u = __global_locale.idx8wc2c[wc >> (Cwc2c_TI_SHIFT
+					u = __UCLIBC_CURLOCALE_DATA.idx8wc2c[wc >> (Cwc2c_TI_SHIFT
 														+ Cwc2c_TT_SHIFT)];
-					u = __global_locale.tbl8wc2c[(u << Cwc2c_TI_SHIFT)
+					u = __UCLIBC_CURLOCALE_DATA.tbl8wc2c[(u << Cwc2c_TI_SHIFT)
 									+ ((wc >> Cwc2c_TT_SHIFT)
 									   & ((1 << Cwc2c_TI_SHIFT)-1))];
-					u = __global_locale.tbl8wc2c[Cwc2c_TI_LEN
+					u = __UCLIBC_CURLOCALE_DATA.tbl8wc2c[Cwc2c_TI_LEN
 									+ (u << Cwc2c_TT_SHIFT)
 									+ (wc & ((1 << Cwc2c_TT_SHIFT)-1))];
 				}
@@ -859,7 +898,8 @@ size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 #ifdef L_wcswidth
 
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning if we start doing translit, wcwidth and wcswidth will need updating.
+#warning REMINDER: If we start doing translit, wcwidth and wcswidth will need updating.
+#warning TODO: Update wcwidth to match latest by Kuhn.
 #endif
 
 #if defined(__UCLIBC_HAS_LOCALE__) && \
@@ -1163,7 +1203,7 @@ enum {
  *
  */
 
-const unsigned char codesets[] =
+const unsigned char __iconv_codesets[] =
 	"\x0a\xe0""WCHAR_T\x00"		/* superset of UCS-4 but platform-endian */
 #if __BYTE_ORDER == __BIG_ENDIAN
 	"\x08\xec""UCS-4\x00"		/* always BE */
@@ -1201,7 +1241,7 @@ static int find_codeset(const char *name)
 	const unsigned char *s;
 	int codeset;
 
-	for (s = codesets ; *s ; s += *s) {
+	for (s = __iconv_codesets ; *s ; s += *s) {
 		if (!strcasecmp(s+2, name)) {
 			return s[1];
 		}
@@ -1212,10 +1252,10 @@ static int find_codeset(const char *name)
 	/* TODO: maybe CODESET_LIST + *s ??? */
 	/* 7bit is 1, UTF-8 is 2, 8-bit is >= 3 */
 	codeset = 2;
-	s = CODESET_LIST;
+	s = __LOCALE_DATA_CODESET_LIST;
 	do {
 		++codeset;		/* Increment codeset first. */
-		if (!strcasecmp(CODESET_LIST+*s, name)) {
+		if (!strcasecmp(__LOCALE_DATA_CODESET_LIST+*s, name)) {
 			return codeset;
 		}
 	} while (*++s);
@@ -1223,7 +1263,7 @@ static int find_codeset(const char *name)
 	return 0;			/* No matching codeset! */
 }
 
-iconv_t iconv_open(const char *tocode, const char *fromcode)
+iconv_t weak_function iconv_open(const char *tocode, const char *fromcode)
 {
 	register _UC_iconv_t *px;
 	int tocodeset, fromcodeset;
@@ -1244,16 +1284,17 @@ iconv_t iconv_open(const char *tocode, const char *fromcode)
 	return (iconv_t)(-1);
 }
 
-int iconv_close(iconv_t cd)
+int weak_function iconv_close(iconv_t cd)
 {
 	free(cd);
 
 	return 0;
 }
 
-size_t iconv(iconv_t cd, char **__restrict inbuf,
-			 size_t *__restrict inbytesleft,
-		     char **__restrict outbuf, size_t *__restrict outbytesleft)
+size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
+						   size_t *__restrict inbytesleft,
+						   char **__restrict outbuf,
+						   size_t *__restrict outbytesleft)
 {
 	_UC_iconv_t *px = (_UC_iconv_t *) cd;
 	size_t nrcount, r;
@@ -1362,9 +1403,9 @@ size_t iconv(iconv_t cd, char **__restrict inbuf,
 					return (size_t)(-1);
 				}
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning optimize this
+#warning TODO: optimize this.
 #endif
-				if (p != NULL) { /* incomplet char case */
+				if (p != NULL) { /* incomplete char case */
 					goto INVALID;
 				}
 				p = *inbuf + 1;	/* nul */
@@ -1374,10 +1415,10 @@ size_t iconv(iconv_t cd, char **__restrict inbuf,
 			if (px->fromcodeset == IC_ASCII) { /* US-ASCII codeset */
 				goto ILLEGAL;
 			} else {			/* some other 8-bit ascii-extension codeset */
-				const codeset_8_bit_t *c8b
+				const __codeset_8_bit_t *c8b
 					= __locale_mmap->codeset_8_bit + px->fromcodeset - 3;
 				wc -= 0x80;
-				wc = __global_locale.tbl8c2wc[
+				wc = __UCLIBC_CURLOCALE_DATA.tbl8c2wc[
 							 (c8b->idx8c2wc[wc >> Cc2wc_IDX_SHIFT]
 							  << Cc2wc_IDX_SHIFT) + (wc & (Cc2wc_ROW_LEN - 1))];
 				if (!wc) {
@@ -1439,7 +1480,7 @@ size_t iconv(iconv_t cd, char **__restrict inbuf,
 				r = _wchar_wcsntoutf8s(*outbuf, *outbytesleft, &pw, 1);
 				if (r != (size_t)(-1)) {
 #ifdef __UCLIBC_MJN3_ONLY__
-#warning what happens for a nul?
+#warning TODO: What happens for a nul?
 #endif
 					if (r == 0) {
 						if (wc != 0) {
@@ -1458,14 +1499,14 @@ size_t iconv(iconv_t cd, char **__restrict inbuf,
 				**outbuf = wc;
 		} else {
 			if ((px->tocodeset != 0x01) && (wc <= Cwc2c_DOMAIN_MAX)) {
-				const codeset_8_bit_t *c8b
+				const __codeset_8_bit_t *c8b
 					= __locale_mmap->codeset_8_bit + px->tocodeset - 3;
 				__uwchar_t u;
 				u = c8b->idx8wc2c[wc >> (Cwc2c_TI_SHIFT + Cwc2c_TT_SHIFT)];
-				u = __global_locale.tbl8wc2c[(u << Cwc2c_TI_SHIFT)
+				u = __UCLIBC_CURLOCALE_DATA.tbl8wc2c[(u << Cwc2c_TI_SHIFT)
 						 + ((wc >> Cwc2c_TT_SHIFT)
 							& ((1 << Cwc2c_TI_SHIFT)-1))];
-				wc = __global_locale.tbl8wc2c[Cwc2c_TI_LEN
+				wc = __UCLIBC_CURLOCALE_DATA.tbl8wc2c[Cwc2c_TI_LEN
 						 + (u << Cwc2c_TT_SHIFT)
 						 + (wc & ((1 << Cwc2c_TT_SHIFT)-1))];
 				if (wc) {
@@ -1497,7 +1538,7 @@ size_t iconv(iconv_t cd, char **__restrict inbuf,
 #include <stdarg.h>
 #include <libgen.h>
 
-extern const unsigned char codesets[];
+extern const unsigned char __iconv_codesets[];
 
 #define IBUF BUFSIZ
 #define OBUF BUFSIZ
@@ -1572,12 +1613,12 @@ int main(int argc, char **argv)
 
 	if (opts[5]) {				/* -l */
 		fprintf(stderr, "Recognized codesets:\n");
-		for (s = codesets ; *s ; s += *s) {
+		for (s = __iconv_codesets ; *s ; s += *s) {
 			fprintf(stderr,"  %s\n", s+2);
 		}
-		s = CODESET_LIST;
+		s = __LOCALE_DATA_CODESET_LIST;
 		do {
-			fprintf(stderr,"  %s\n", CODESET_LIST+ (unsigned char)(*s));
+			fprintf(stderr,"  %s\n", __LOCALE_DATA_CODESET_LIST+ (unsigned char)(*s));
 		} while (*++s);
 
 		return EXIT_SUCCESS;

@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-1999, 2000, 2001 Free Software Foundation, Inc.
+/* Copyright (C) 1991-1999,2000,2001,2002,2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -55,8 +55,13 @@ __BEGIN_DECLS
 
 # include <bits/types.h>
 
+__BEGIN_NAMESPACE_STD
 /* Returned by `clock'.  */
 typedef __clock_t clock_t;
+__END_NAMESPACE_STD
+#if defined __USE_XOPEN || defined __USE_POSIX || defined __USE_MISC
+__USING_NAMESPACE_STD(clock_t)
+#endif
 
 #endif /* clock_t not defined and <time.h> or need clock_t.  */
 #undef	__need_clock_t
@@ -66,8 +71,13 @@ typedef __clock_t clock_t;
 
 # include <bits/types.h>
 
+__BEGIN_NAMESPACE_STD
 /* Returned by `time'.  */
 typedef __time_t time_t;
+__END_NAMESPACE_STD
+#if defined __USE_POSIX || defined __USE_MISC || defined __USE_SVID
+__USING_NAMESPACE_STD(time_t)
+#endif
 
 #endif /* time_t not defined and <time.h> or need time_t.  */
 #undef	__need_time_t
@@ -97,15 +107,17 @@ typedef __timer_t timer_t;
 #undef	__need_timer_t
 
 
-#if !defined __timespec_defined && \
-    ((defined _TIME_H && defined __USE_POSIX199309) || defined __need_timespec)
+#if !defined __timespec_defined &&				\
+    ((defined _TIME_H &&					\
+      (defined __USE_POSIX199309 || defined __USE_MISC)) ||	\
+      defined __need_timespec)
 # define __timespec_defined	1
 
 /* POSIX.1b structure for a time value.  This is like a `struct timeval' but
    has nanoseconds instead of microseconds.  */
 struct timespec
   {
-    long int tv_sec;		/* Seconds.  */
+    __time_t tv_sec;		/* Seconds.  */
     long int tv_nsec;		/* Nanoseconds.  */
   };
 
@@ -114,6 +126,7 @@ struct timespec
 
 
 #ifdef	_TIME_H
+__BEGIN_NAMESPACE_STD
 /* Used by other time functions.  */
 struct tm
 {
@@ -128,15 +141,20 @@ struct tm
   int tm_isdst;			/* DST.		[-1/0/1]*/
 
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
-# ifdef	__USE_BSD
+#ifdef	__USE_BSD
   long int tm_gmtoff;		/* Seconds east of UTC.  */
-  __const char tm_zone[8];	/* Timezone abbreviation.  */
-# else
+  __const char *tm_zone;	/* Timezone abbreviation.  */
+#else
   long int __tm_gmtoff;		/* Seconds east of UTC.  */
-  __const char __tm_zone[8];/* Timezone abbreviation.  */
-# endif
+  __const char *__tm_zone;	/* Timezone abbreviation.  */
+#endif
+  char __tm_tzname[8];		/* In uClibc, tm_zone points to __tm_tzname. */
 #endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
 };
+__END_NAMESPACE_STD
+#if defined __USE_XOPEN || defined __USE_POSIX || defined __USE_MISC
+__USING_NAMESPACE_STD(tm)
+#endif
 
 
 #ifdef __USE_POSIX199309
@@ -160,6 +178,7 @@ typedef __pid_t pid_t;
 #endif
 
 
+__BEGIN_NAMESPACE_STD
 /* Time used by the program so far (user time + system time).
    The result / CLOCKS_PER_SECOND is program time in seconds.  */
 extern clock_t clock (void) __THROW;
@@ -181,6 +200,7 @@ extern time_t mktime (struct tm *__tp) __THROW;
 extern size_t strftime (char *__restrict __s, size_t __maxsize,
 			__const char *__restrict __format,
 			__const struct tm *__restrict __tp) __THROW;
+__END_NAMESPACE_STD
 
 # ifdef __USE_XOPEN
 /* Parse S according to FORMAT and store binary time information in TP.
@@ -190,7 +210,25 @@ extern char *strptime (__const char *__restrict __s,
      __THROW;
 # endif
 
+#ifdef __UCLIBC_HAS_XLOCALE__
+# ifdef __USE_GNU
+/* Similar to the two functions above but take the information from
+   the provided locale and not the global locale.  */
+# include <xlocale.h>
 
+extern size_t strftime_l (char *__restrict __s, size_t __maxsize,
+			  __const char *__restrict __format,
+			  __const struct tm *__restrict __tp,
+			  __locale_t __loc) __THROW;
+
+extern char *strptime_l (__const char *__restrict __s,
+			 __const char *__restrict __fmt, struct tm *__tp,
+			 __locale_t __loc) __THROW;
+# endif
+#endif
+
+
+__BEGIN_NAMESPACE_STD
 /* Return the `struct tm' representation of *TIMER
    in Universal Coordinated Time (aka Greenwich Mean Time).  */
 extern struct tm *gmtime (__const time_t *__timer) __THROW;
@@ -198,6 +236,7 @@ extern struct tm *gmtime (__const time_t *__timer) __THROW;
 /* Return the `struct tm' representation
    of *TIMER in the local timezone.  */
 extern struct tm *localtime (__const time_t *__timer) __THROW;
+__END_NAMESPACE_STD
 
 # if defined __USE_POSIX || defined __USE_MISC
 /* Return the `struct tm' representation of *TIMER in UTC,
@@ -211,12 +250,14 @@ extern struct tm *localtime_r (__const time_t *__restrict __timer,
 			       struct tm *__restrict __tp) __THROW;
 # endif	/* POSIX or misc */
 
+__BEGIN_NAMESPACE_STD
 /* Return a string of the form "Day Mon dd hh:mm:ss yyyy\n"
    that is the representation of TP in this format.  */
 extern char *asctime (__const struct tm *__tp) __THROW;
 
 /* Equivalent to `asctime (localtime (timer))'.  */
 extern char *ctime (__const time_t *__timer) __THROW;
+__END_NAMESPACE_STD
 
 # if defined __USE_POSIX || defined __USE_MISC
 /* Reentrant versions of the above functions.  */
@@ -281,9 +322,12 @@ extern int dysize (int __year) __THROW  __attribute__ ((__const__));
 
 
 # ifdef __USE_POSIX199309
-/* Pause execution for a number of nanoseconds.  */
+/* Pause execution for a number of nanoseconds.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
 extern int nanosleep (__const struct timespec *__requested_time,
-		      struct timespec *__remaining) __THROW;
+		      struct timespec *__remaining);
 
 
 /* Get resolution of clock CLOCK_ID.  */
@@ -297,10 +341,13 @@ extern int clock_settime (clockid_t __clock_id, __const struct timespec *__tp)
      __THROW;
 
 #  ifdef __USE_XOPEN2K
-/* High-resolution sleep with the specified clock.  */
+/* High-resolution sleep with the specified clock.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
 extern int clock_nanosleep (clockid_t __clock_id, int __flags,
 			    __const struct timespec *__req,
-			    struct timespec *__rem) __THROW;
+			    struct timespec *__rem);
 
 /* Return clock ID for CPU-time clock.  */
 extern int clock_getcpuclockid (pid_t __pid, clockid_t *__clock_id) __THROW;
@@ -346,8 +393,11 @@ extern int getdate_err;
 /* Parse the given string as a date specification and return a value
    representing the value.  The templates from the file identified by
    the environment variable DATEMSK are used.  In case of an error
-   `getdate_err' is set.  */
-extern struct tm *getdate (__const char *__string) __THROW;
+   `getdate_err' is set.
+
+   This function is a possible cancellation points and therefore not
+   marked with __THROW.  */
+extern struct tm *getdate (__const char *__string);
 # endif
 
 # ifdef __USE_GNU
@@ -355,11 +405,15 @@ extern struct tm *getdate (__const char *__string) __THROW;
    and the static buffer to return the result in, we provide a thread-safe
    variant.  The functionality is the same.  The result is returned in
    the buffer pointed to by RESBUFP and in case of an error the return
-   value is != 0 with the same values as given above for `getdate_err'.  */
-extern int getdate_r (__const char *__restrict __string,
-		      struct tm *__restrict __resbufp) __THROW;
-# endif
+   value is != 0 with the same values as given above for `getdate_err'.
 
+   This function is not part of POSIX and therefore no official
+   cancellation point.  But due to similarity with an POSIX interface
+   or due to the implementation it is a cancellation point and
+   therefore not marked with __THROW.  */
+extern int getdate_r (__const char *__restrict __string,
+		      struct tm *__restrict __resbufp);
+# endif
 
 __END_DECLS
 

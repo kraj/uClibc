@@ -25,17 +25,26 @@ TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
 MSRC=ctype.c
-MOBJ= isalnum.o isalpha.o isascii.o iscntrl.o isdigit.o isgraph.o \
-	islower.o isprint.o ispunct.o isspace.o isupper.o isxdigit.o \
-	isxlower.o isxupper.o toascii.o tolower.o toupper.o isblank.o \
-	__isctype_loc.o
+MOBJ=	isalnum.o isalpha.o isascii.o iscntrl.o isdigit.o \
+	isgraph.o islower.o isprint.o ispunct.o isspace.o \
+	isupper.o isxdigit.o toascii.o tolower.o toupper.o \
+	isblank.o isctype.o isxlower.o isxupper.o \
+	__C_ctype_b.o __C_ctype_tolower.o __C_ctype_toupper.o \
+	__ctype_b_loc.o __ctype_tolower_loc.o __ctype_toupper_loc.o \
+	__ctype_assert.o
 
-CSRC=junk.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+MOBJx=	isalnum_l.o isalpha_l.o isascii_l.o iscntrl_l.o isdigit_l.o \
+	isgraph_l.o islower_l.o isprint_l.o ispunct_l.o isspace_l.o \
+	isupper_l.o isxdigit_l.o toascii_l.o tolower_l.o toupper_l.o \
+	isblank_l.o # isxlower_l.o isxupper_l.o
 
+OBJS=$(MOBJ)
 
-OBJS=$(MOBJ) $(COBJS)
-all: $(MOBJ) $(LIBC)
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+	OBJS += $(MOBJx)
+endif
+
+all: $(OBJS) $(LIBC)
 
 $(LIBC): ar-target
 
@@ -46,8 +55,8 @@ $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(MOBJx): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJS): Makefile

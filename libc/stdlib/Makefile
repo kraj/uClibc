@@ -38,31 +38,57 @@ MOBJ = abs.o labs.o atoi.o atol.o strtol.o strtoul.o _stdlib_strto_l.o \
        qsort.o bsearch.o \
        llabs.o atoll.o strtoll.o strtoull.o _stdlib_strto_ll.o
 # (aliases) strtoq.o strtouq.o
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+
+MOBJx =
+MOBJx += strtol_l.o strtoul_l.o _stdlib_strto_l_l.o \
+	 strtoll_l.o strtoull_l.o _stdlib_strto_ll_l.o
+endif
+
+MSRC1 = strtod.c
+MOBJ1 = 
+MOBJ1x =
+
 ifeq ($(UCLIBC_HAS_FLOATS),y)
 	MOBJ += atof.o
+	MOBJ1 += strtod.o strtof.o strtold.o __strtofpmax.o __fp_range_check.o
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+	MOBJ1x += strtod_l.o strtof_l.o strtold_l.o __strtofpmax_l.o
+endif
+ifeq ($(UCLIBC_HAS_WCHAR),y)
+	MOBJ1 += wcstod.o wcstof.o wcstold.o __wcstofpmax.o
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+	MOBJ1x += wcstod_l.o wcstof_l.o wcstold_l.o __wcstofpmax_l.o
+endif
+endif
 endif
 
 ifeq ($(UCLIBC_HAS_WCHAR),y)
 	MOBJ += mblen.o mbtowc.o wctomb.o mbstowcs.o wcstombs.o \
 		_stdlib_mb_cur_max.o _stdlib_wcsto_l.o _stdlib_wcsto_ll.o \
 		wcstol.o wcstoul.o wcstoll.o wcstoull.o
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+	MOBJx += _stdlib_wcsto_l_l.o _stdlib_wcsto_ll_l.o \
+		 wcstol_l.o wcstoul_l.o wcstoll_l.o wcstoull_l.o
+endif
+endif
 # (aliases) wcstoq.o wcstouq.o
 # wcstod wcstof wcstold
-endif
 
-MSRC2=atexit.c
-MOBJ2=atexit.o on_exit.o __exit_handler.o exit.o
+MSRC2 = atexit.c
+MOBJ2 = atexit.o on_exit.o __exit_handler.o exit.o
+
 CSRC =	abort.c getenv.c mkdtemp.c mktemp.c realpath.c mkstemp.c mkstemp64.c \
 	rand.c random.c random_r.c setenv.c system.c div.c ldiv.c getpt.c \
 	ptsname.c grantpt.c unlockpt.c gcvt.c drand48-iter.c jrand48.c \
 	jrand48_r.c lrand48.c lrand48_r.c mrand48.c mrand48_r.c nrand48.c \
 	nrand48_r.c rand_r.c srand48.c srand48_r.c calloc.c valloc.c
 ifeq ($(UCLIBC_HAS_FLOATS),y)
-	CSRC += strtod.c strtof.c strtold.c drand48.c drand48_r.c erand48.c erand48_r.c
+	CSRC += drand48.c drand48_r.c erand48.c erand48_r.c
 endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(MOBJ) $(MOBJ2) $(COBJS)
+OBJS=$(MOBJ) $(MOBJx) $(MOBJ1) $(MOBJ1x) $(MOBJ2) $(COBJS)
 
 all: $(OBJS) $(LIBC)
 
@@ -73,6 +99,18 @@ ar-target: $(OBJS)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJx): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ1): $(MSRC1)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ1x): $(MSRC1)
+	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ2): $(MSRC2)

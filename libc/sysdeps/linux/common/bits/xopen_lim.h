@@ -68,7 +68,13 @@
 
 /* Maximum value of `digit' in calls to the `printf' and `scanf'
    functions.  Posix dictates this should be a minimum of 9 */
+#if !defined(__UCLIBC_PRINTF_SCANF_POSITIONAL_ARGS__) || (__UCLIBC_PRINTF_SCANF_POSITIONAL_ARGS__ <= 1)
+#undef NL_ARGMAX
+#elif __UCLIBC_PRINTF_SCANF_POSITIONAL_ARGS__ < 9
 #define NL_ARGMAX	9
+#else
+#define NL_ARGMAX	__UCLIBC_PRINTF_SCANF_POSITIONAL_ARGS__
+#endif
 
 /* Maximum number of bytes in a `LANG' name.  We have no limit.  */
 #define NL_LANGMAX	_POSIX2_LINE_MAX

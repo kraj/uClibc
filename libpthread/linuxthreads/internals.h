@@ -28,6 +28,9 @@
 #include "pt-machine.h"
 #include "semaphore.h"
 #include "../linuxthreads_db/thread_dbP.h"
+#ifdef __UCLIBC_HAS_XLOCALE__
+#include <bits/uClibc_locale.h>
+#endif /* __UCLIBC_HAS_XLOCALE__ */
 
 /* Use a funky version in a probably vein attempt at preventing gdb 
  * from dlopen()'ing glibc's libthread_db library... */
@@ -172,6 +175,9 @@ struct _pthread_descr_struct {
   pthread_readlock_info *p_readlock_free;  /* Free list of structs */
   int p_untracked_readlock_count;	/* Readlocks not tracked by list */
   /* New elements must be added at the end.  */
+#ifdef __UCLIBC_HAS_XLOCALE__
+  __locale_t locale; /* thread-specific locale from uselocale() only! */
+#endif /* __UCLIBC_HAS_XLOCALE__ */
 } __attribute__ ((aligned(32))); /* We need to align the structure so that
 				    doubles are aligned properly.  This is 8
 				    bytes on MIPS and 16 bytes on MIPS64.

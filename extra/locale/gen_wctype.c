@@ -159,17 +159,17 @@ void output_table(FILE *fp, const char *name, table_data *tbl)
 {
 	size_t i;
 
-	fprintf(fp, "#define WC%s_II_LEN    %7u\n", name, tbl->ii_len);
-	fprintf(fp, "#define WC%s_TI_LEN    %7u\n", name, tbl->ti_len);
-	fprintf(fp, "#define WC%s_UT_LEN    %7u\n", name, tbl->ut_len);
+	fprintf(fp, "#define __LOCALE_DATA_WC%s_II_LEN    %7u\n", name, tbl->ii_len);
+	fprintf(fp, "#define __LOCALE_DATA_WC%s_TI_LEN    %7u\n", name, tbl->ti_len);
+	fprintf(fp, "#define __LOCALE_DATA_WC%s_UT_LEN    %7u\n", name, tbl->ut_len);
 
-	fprintf(fp, "#define WC%s_II_SHIFT  %7u\n", name, tbl->ii_shift);
-	fprintf(fp, "#define WC%s_TI_SHIFT  %7u\n", name, tbl->ti_shift);
+	fprintf(fp, "#define __LOCALE_DATA_WC%s_II_SHIFT  %7u\n", name, tbl->ii_shift);
+	fprintf(fp, "#define __LOCALE_DATA_WC%s_TI_SHIFT  %7u\n", name, tbl->ti_shift);
 
 	fprintf(fp, "\n#ifdef WANT_WC%s_data\n", name);
 
 	i = tbl->ii_len + tbl->ti_len + tbl->ut_len;
-	fprintf(fp, "\nstatic const unsigned char WC%s_data[%zu] = {", name, i);
+	fprintf(fp, "\nstatic const unsigned char __LOCALE_DATA_WC%s_data[%zu] = {", name, i);
 	for (i=0 ; i < tbl->ii_len ; i++) {
 		if (i % 12 == 0) {
 			fprintf(fp, "\n");
@@ -730,16 +730,16 @@ int main(int argc, char **argv)
 			return EXIT_FAILURE;
 		}
 
-		fprintf(fp, "#define WC_TABLE_DOMAIN_MAX  %#8lx\n\n",
+		fprintf(fp, "#define __LOCALE_DATA_WC_TABLE_DOMAIN_MAX  %#8lx\n\n",
 				(unsigned long) RANGE);
 		output_table(fp, "ctype", &cttable);
 		output_table(fp, "uplow", &ultable);
 	
 
 #warning fix the upper bound on the upper/lower tables... save 200 bytes or so
-		fprintf(fp, "#define WCuplow_diffs  %7u\n", ul_count);
+		fprintf(fp, "#define __LOCALE_DATA_WCuplow_diffs  %7u\n", ul_count);
 		fprintf(fp, "\n#ifdef WANT_WCuplow_diff_data\n\n");
-		fprintf(fp, "\nstatic const short WCuplow_diff_data[%zu] = {",
+		fprintf(fp, "\nstatic const short __LOCALE_DATA_WCuplow_diff_data[%zu] = {",
 			   2 * (size_t) ul_count);
 		for (i=0 ; i < ul_count ; i++) {
 			if (i % 4 == 0) {

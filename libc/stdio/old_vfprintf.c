@@ -117,7 +117,8 @@
  * strerror and the corresponding string table which together are about 3.8k.
  */
 
-#define WANT_GNU_ERRNO         0
+/* Now controlled by uClibc_stdio.h and set below. */
+/* #define WANT_GNU_ERRNO         0 */
 
 /**************************************************************************/
 
@@ -142,6 +143,12 @@
 /*  #define WANT_FLOAT_ERROR      1 */
 
 /*  #define __isdigit(c) (((unsigned int)(c - '0')) < 10) */
+
+#ifdef __STDIO_PRINTF_M_SUPPORT
+#define WANT_GNU_ERRNO         1
+#else
+#define WANT_GNU_ERRNO         0
+#endif
 
 #if defined(__UCLIBC_HAS_FLOATS__)
 extern size_t _dtostr(FILE * fp, long double x, struct printf_info *info);

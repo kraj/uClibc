@@ -13,7 +13,7 @@
 #include "c8tables.h"
 
 
-#define CATEGORIES 6
+#define __LOCALE_DATA_CATEGORIES 6
 
 /* must agree with ordering of gen_mmap! */
 static const unsigned char *lc_names[] = {
@@ -23,15 +23,15 @@ static const unsigned char *lc_names[] = {
 	"LC_TIME",
 	"LC_COLLATE",
 	"LC_MESSAGES",
-#if CATEGORIES == 12
+#if __LOCALE_DATA_CATEGORIES == 12
 	"LC_PAPER",
 	"LC_NAME",
 	"LC_ADDRESS",
 	"LC_TELEPHONE",
 	"LC_MEASUREMENT",
 	"LC_IDENTIFICATION",
-#elif CATEGORIES != 6
-#error unsupported CATEGORIES value!
+#elif __LOCALE_DATA_CATEGORIES != 6
+#error unsupported __LOCALE_DATA_CATEGORIES value!
 #endif
 };
 
@@ -48,8 +48,8 @@ typedef struct {
 	unsigned char lc_monetary_row;
 	unsigned char lc_messages_row;
 	unsigned char lc_ctype_row;
-#if CATEGORIES != 6
-#error unsupported CATEGORIES value
+#if __LOCALE_DATA_CATEGORIES != 6
+#error unsupported __LOCALE_DATA_CATEGORIES value
 #endif
 } locale_entry;
 
@@ -99,17 +99,17 @@ static void do_locale_names(void)
 	if (num_locales <= 1) {
 /*  		printf("error - only C locale?\n"); */
 /*  		exit(EXIT_FAILURE); */
-		fprintf(ofp, "static const unsigned char __locales[%d];\n", (3 + CATEGORIES));
+		fprintf(ofp, "static const unsigned char __locales[%d];\n", (3 + __LOCALE_DATA_CATEGORIES));
 		fprintf(ofp, "static const unsigned char __locale_names5[5];\n");
 	} else {
 		if (default_utf8) {
 			fprintf(ofp, "#define __CTYPE_HAS_UTF_8_LOCALES\t\t\t1\n");
 		}
-		fprintf(ofp, "#define CATEGORIES\t\t\t%d\n", CATEGORIES);
-		fprintf(ofp, "#define WIDTH_LOCALES\t\t\t%d\n", 3+CATEGORIES);
-		fprintf(ofp, "#define NUM_LOCALES\t\t\t%d\n", num_locales);
+		fprintf(ofp, "#define __LOCALE_DATA_CATEGORIES\t\t\t%d\n", __LOCALE_DATA_CATEGORIES);
+		fprintf(ofp, "#define __LOCALE_DATA_WIDTH_LOCALES\t\t\t%d\n", 3+__LOCALE_DATA_CATEGORIES);
+		fprintf(ofp, "#define __LOCALE_DATA_NUM_LOCALES\t\t\t%d\n", num_locales);
 		fprintf(ofp, "static const unsigned char __locales[%d] = {\n",
-				(num_locales) * (3 + CATEGORIES));
+				(num_locales) * (3 + __LOCALE_DATA_CATEGORIES));
 		for (i=0 ; i < num_locales ; i++) {
 			if (memcmp(locales[i].name, locales[i-1].name, 5) != 0) {
 				locales[i].idx_name = uniq;
@@ -143,7 +143,7 @@ static void do_locale_names(void)
 		}
 		fprintf(ofp, "};\n\n");
 
-		fprintf(ofp, "#define NUM_LOCALE_NAMES\t\t%d\n", uniq );
+		fprintf(ofp, "#define __LOCALE_DATA_NUM_LOCALE_NAMES\t\t%d\n", uniq );
 		fprintf(ofp, "static const unsigned char __locale_names5[%d] = \n\t", uniq * 5);
 		uniq = 0;
 		for (i=1 ; i < num_locales ; i++) {
@@ -167,7 +167,7 @@ static void do_locale_names(void)
 				p += 1 + (unsigned char) *p;
 			}
 			/* len, char, string\0 */
-			fprintf(ofp, "#define LOCALE_AT_MODIFIERS_LENGTH\t\t%d\n",
+			fprintf(ofp, "#define __LOCALE_DATA_AT_MODIFIERS_LENGTH\t\t%d\n",
 					i + (at_strings_end - at_strings));
 			fprintf(ofp, "static const unsigned char __locale_at_modifiers[%d] = {",
 					i + (at_strings_end - at_strings));
@@ -188,41 +188,41 @@ static void do_locale_names(void)
 		}
 
 		{
-			int pos[CATEGORIES];
-			pos[0] = CATEGORIES;
-			for (i=0 ; i < CATEGORIES ; i++) {
+			int pos[__LOCALE_DATA_CATEGORIES];
+			pos[0] = __LOCALE_DATA_CATEGORIES;
+			for (i=0 ; i < __LOCALE_DATA_CATEGORIES ; i++) {
 				fprintf(ofp, "#define __%s\t\t%d\n", lc_names[i], i);
-				if (i + 1 < CATEGORIES) {
+				if (i + 1 < __LOCALE_DATA_CATEGORIES) {
 					pos[i+1] = 1 + strlen(lc_names[i]) + pos[i];
 				}
 			}
-			if (pos[CATEGORIES-1] > 255) {
-				printf("error - lc_names is too big (%d)\n", pos[CATEGORIES-1]);
+			if (pos[__LOCALE_DATA_CATEGORIES-1] > 255) {
+				printf("error - lc_names is too big (%d)\n", pos[__LOCALE_DATA_CATEGORIES-1]);
 				exit(EXIT_FAILURE);
 			}
 			fprintf(ofp, "#define __LC_ALL\t\t%d\n\n", i);
 
-			fprintf(ofp, "#define lc_names_LEN\t\t%d\n",
-					pos[CATEGORIES-1] + strlen(lc_names[CATEGORIES-1]) + 1);
-			total_size += pos[CATEGORIES-1] + strlen(lc_names[CATEGORIES-1]) + 1;
+			fprintf(ofp, "#define __lc_names_LEN\t\t%d\n",
+					pos[__LOCALE_DATA_CATEGORIES-1] + strlen(lc_names[__LOCALE_DATA_CATEGORIES-1]) + 1);
+			total_size += pos[__LOCALE_DATA_CATEGORIES-1] + strlen(lc_names[__LOCALE_DATA_CATEGORIES-1]) + 1;
 
 			fprintf(ofp, "static unsigned const char lc_names[%d] =\n",
-					pos[CATEGORIES-1] + strlen(lc_names[CATEGORIES-1]) + 1);
+					pos[__LOCALE_DATA_CATEGORIES-1] + strlen(lc_names[__LOCALE_DATA_CATEGORIES-1]) + 1);
 			fprintf(ofp, "\t\"");
-			for (i=0 ; i < CATEGORIES ; i++) {
+			for (i=0 ; i < __LOCALE_DATA_CATEGORIES ; i++) {
 				fprintf(ofp, "\\x%02x", (unsigned char) pos[i]);
 			}
 			fprintf(ofp, "\"");
-			for (i=0 ; i < CATEGORIES ; i++) {
+			for (i=0 ; i < __LOCALE_DATA_CATEGORIES ; i++) {
 				fprintf(ofp, "\n\t\"%s\\0\"", lc_names[i]);
 			}
 			fprintf(ofp, ";\n\n");
 		}
 
 		printf("locale data = %d  name data = %d for %d uniq\n",
-			   num_locales * (3 + CATEGORIES), uniq * 5, uniq);
+			   num_locales * (3 + __LOCALE_DATA_CATEGORIES), uniq * 5, uniq);
 
-		total_size += num_locales * (3 + CATEGORIES) + uniq * 5;
+		total_size += num_locales * (3 + __LOCALE_DATA_CATEGORIES) + uniq * 5;
 	}
 
 }
@@ -343,19 +343,19 @@ static void read_enable_disable(void)
 	} while (1);
 }
 
-#ifdef CODESET_LIST
+#ifdef __LOCALE_DATA_CODESET_LIST
 
 static int find_codeset_num(const char *cs)
 {
 	int r = 2;
-	char *s = CODESET_LIST;
+	char *s = __LOCALE_DATA_CODESET_LIST;
 
 	/* 7-bit is 1, UTF-8 is 2, 8-bits are > 2 */
 
 	if (strcmp(cs, "UTF-8") != 0) {
 		++r;
-		while (*s && strcmp(CODESET_LIST+ ((unsigned char) *s), cs)) {
-/*  			printf("tried %s\n", CODESET_LIST + ((unsigned char) *s)); */
+		while (*s && strcmp(__LOCALE_DATA_CODESET_LIST+ ((unsigned char) *s), cs)) {
+/*  			printf("tried %s\n", __LOCALE_DATA_CODESET_LIST + ((unsigned char) *s)); */
 			++r;
 			++s;
 		}

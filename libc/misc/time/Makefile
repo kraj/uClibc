@@ -28,15 +28,22 @@ MSRC= time.c
 MOBJ= asctime.o asctime_r.o clock.o ctime.o ctime_r.o gmtime.o gmtime_r.o \
 	localtime.o localtime_r.o mktime.o strftime.o strptime.o tzset.o \
 	_time_t2tm.o __time_tm.o _time_mktime.o dysize.o timegm.o
+MOBJx=
 
 ifeq ($(UCLIBC_HAS_FLOATS),y)
 	MOBJ += difftime.o 
+endif
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+	MOBJx += strftime_l.o strptime_l.o
+endif
+
+ifeq ($(UCLIBC_HAS_WCHAR),y)
 endif
 
 CSRC= adjtime.c ftime.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(COBJS) $(MOBJ)
+OBJS=$(COBJS) $(MOBJ) $(MOBJx)
 
 all: $(OBJS) $(LIBC)
 
@@ -47,6 +54,10 @@ ar-target: $(OBJS)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJx): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c

@@ -38,11 +38,6 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #define __FORCE_GLIBC
 #include <features.h>
 
-#ifdef __UCLIBC_HAS_THREADS__
-#undef __UCLIBC_HAS_THREADS__
-#warning FIXME I am not reentrant yet...
-#endif
-
 #define __USE_GNU
 #include <ctype.h>
 #include <stdio.h>
@@ -62,10 +57,10 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-
-
-/* hmm. uClibc seems to have that, but it doesn't work for some reason */
-#define getc_unlocked getc 
+#ifdef __UCLIBC_HAS_THREADS__
+#undef __UCLIBC_HAS_THREADS__
+#warning FIXME I am not reentrant yet...
+#endif
 
 
 /* some forward declarations */

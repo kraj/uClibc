@@ -25,52 +25,42 @@ I'm currently working on completing the wide char and locale support.
 
   1) Little things that need fixing:
   ----------------------------------
-  *) Fix bug in *printf: outdigit precison bug
-  a) Use locale decimal point in *printf() and strto*d() -- slightly
-     complicated by the fact that at least one locale uses a wchar
-     radix that does not map to a single byte in UTF-8.
-  b) Use locale digit grouping in *printf() flosting point.
-  c) Deal with mb format string issues in scanf and strftime (at least).
-  d) Support gnu/bsd extension members tm_gmtoff and tm_zone in struct tm.
+  a) Fix the ctype support for 8-bit locales.
+  b) Fix bug in *printf: outdigit precison bug
+  c) Check that gnu/bsd extension members tm_gmtoff and tm_zone in struct tm
+     are respected where they should be.
+  d) Implement the obstack printf funcs for glibc compat.
+  e) Implement glibc 'a' flag for scanf string conversions.
+  f) Allow use of the older non-table-based ctype functions when using
+     stub locale support. (smaller)
   
-  2) Implement wide char floating point conversion functions -- wcsto*().
-  
-  3) Reimplement scanf for narrow and wide streams.
-  -------------------------------------------------
-     The current char version of scanf() needs some cleanup.  Also,
-     modifying the char version of scanf() to create the wchar versions
-     will require reworking the implementation of matching char sets
-     (enclosed in []).
-  
-  4) Additional str{f|p}time issues.
+  2) Additional str{f|p}time issues.
   ----------------------------------
   a) Spacing issue wrt strptime.
   b) Support locale specific alternate digits.  (data is in place)
   c) Support locale era in year designations.   (data is in place)
+  d) Deal with mb format string issues in strftime.
+  e) Implement wcsftime.
   
-  5) Other locale issues (my implementation):
+  3) Other locale issues (my implementation):
   -------------------------------------------
-  a) Additional clean up of ctype and wctype, primarily to allow for mmap'd
-     locales and updateable locale data.
-  b) Build a C-only locale object for linking and allow full locale data to
-     be mmap'd in later, to allow updating and to make locale support useful
-     for staticly linked apps.
-  c) Adapt regex lib to use my collation data and add the necessary collating
+  a) Do a little more clean up of ctype and wctype.
+  b) Rework of the locale data organization to make using locales reasonable
+     when staticly linking.  (mmap)
+  c) Rewrite the locale data generation tools to process the text specifications
+     rather than relying on glibc.
+  d) Adapt regex lib to use my collation data and add the necessary collating
      item tables to support SUSv3 required features.
-  d) transliteration of unsupported wchars in 8-bit locales (like glibc).
-  e) Support ISO/IEC 14652 draft locale extensions (LC_PAPER, etc).
+  e) transliteration of unsupported wchars in 8-bit locales (like glibc).
+  f) Support ISO/IEC 14652 draft locale extensions (LC_PAPER, etc).
+  g) Implement strfrom.
+  h) Shift-state codeset locale support?
 
 
 Other stuff:
 
-Reimplement _dtostr to correct its deficiencies (%A support!) and hopefully
-	reduce its size.
-
 Move the target-specific sysconf.c generator to extra (as it needs to be
 	run on the target) and fix libc/unistd/Makefile.
-
-Make errno and endptr handling the default in the strto* functions and
-	document how to turn those off to save space.
 
 -----------------------------------------------------------------------------
 ds's list:

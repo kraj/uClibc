@@ -355,12 +355,19 @@ extern int getchar (void) __THROW;
 
 /* The C standard explicitly says this is a macro, so we always do the
    optimization for it.  */
+#ifdef __UCLIBC_HAS_THREADS__
+#define getc(_fp) (getc)(_fp)	/* SUSv3 says getc must be threadsafe. */
+#else  /* __UCLIBC_HAS_THREADS__ */
 #define getc(_fp) __GETC(_fp)
+#endif /* __UCLIBC_HAS_THREADS__ */
 
 #if defined __USE_POSIX || defined __USE_MISC
 /* These are defined in POSIX.1:1996.  */
 extern int getc_unlocked (FILE *__stream) __THROW;
 extern int getchar_unlocked (void) __THROW;
+
+/* SUSv3 allows getc_unlocked to be a macro */
+#define getc_unlocked(_fp) __GETC(_fp)
 #endif /* Use POSIX or MISC.  */
 
 #ifdef __USE_MISC
@@ -378,7 +385,11 @@ extern int putchar (int __c) __THROW;
 
 /* The C standard explicitly says this can be a macro,
    so we always do the optimization for it.  */
+#ifdef __UCLIBC_HAS_THREADS__
+#define putc(_ch, _fp) (putc)(_ch, _fp)	/* SUSv3 says putc must be threadsafe. */
+#else  /* __UCLIBC_HAS_THREADS__ */
 #define putc(_ch, _fp) __PUTC(_ch, _fp)
+#endif /* __UCLIBC_HAS_THREADS__ */
 
 #ifdef __USE_MISC
 /* Faster version when locking is not necessary.  */
@@ -389,6 +400,9 @@ extern int fputc_unlocked (int __c, FILE *__stream) __THROW;
 /* These are defined in POSIX.1:1996.  */
 extern int putc_unlocked (int __c, FILE *__stream) __THROW;
 extern int putchar_unlocked (int __c) __THROW;
+
+/* SUSv3 allows putc_unlocked to be a macro */
+#define putc_unlocked(_ch, _fp) __PUTC(_ch, _fp)
 #endif /* Use POSIX or MISC.  */
 
 
@@ -544,6 +558,7 @@ extern int ferror_unlocked (FILE *__stream) __THROW;
 /* Print a message describing the meaning of the value of errno.  */
 extern void perror (__const char *__s) __THROW;
 
+#ifdef __UCLIBC_HAS_SYS_ERRLIST__
 /* These variables normally should not be used directly.  The `strerror'
    function provides all the needed functionality.  */
 #ifdef	__USE_BSD
@@ -555,6 +570,7 @@ extern __const char *__const sys_errlist[];
 extern int _sys_nerr;
 extern __const char *__const _sys_errlist[];
 #endif
+#endif /* __UCLIBC_HAS_SYS_ERRLIST__ */
 
 
 #ifdef	__USE_POSIX

@@ -171,7 +171,6 @@ UNLOCKED(wint_t,fgetwc,(register FILE *stream),(stream))
 	size_t r;
 	unsigned char c[1];
 	unsigned char sbuf[1];
-	unsigned char ungot_width;	/* Support ftell after wscanf ungetwc. */
 
 	wi = WEOF;					/* Prepare for failure. */
 
@@ -183,8 +182,18 @@ UNLOCKED(wint_t,fgetwc,(register FILE *stream),(stream))
 	stream->modeflags |= __FLAG_WIDE;
 
 	if (stream->modeflags & __MASK_UNGOT) {/* Any ungetwc()s? */
-		assert( (stream->modeflags & (__FLAG_READING|__FLAG_ERROR))
-				== __FLAG_READING);
+
+		assert(stream->modeflags & __FLAG_READING);
+
+/* 		assert( (stream->modeflags & (__FLAG_READING|__FLAG_ERROR)) */
+/* 				== __FLAG_READING); */
+
+		if ((((stream->modeflags & __MASK_UNGOT) > 1) || stream->ungot[1])) {
+			stream->ungot_width[0] = 0;	/* Application ungot... */
+		} else {
+			stream->ungot_width[0] = stream->ungot_width[1]; /* scanf ungot */
+		}
+
 		wi = stream->ungot[(--stream->modeflags) & __MASK_UNGOT];
 		stream->ungot[1] = 0;
 		goto DONE;
@@ -196,7 +205,9 @@ UNLOCKED(wint_t,fgetwc,(register FILE *stream),(stream))
 		++stream->bufend;
 	}
 
-	ungot_width = 0;
+	if (stream->state.mask == 0) { /* If last was a complete char */
+		stream->ungot_width[0] = 0;	/* then reset the width. */
+	}
 
  LOOP:
 	if ((n = stream->bufread - stream->bufpos) == 0) {
@@ -204,12 +215,12 @@ UNLOCKED(wint_t,fgetwc,(register FILE *stream),(stream))
 	}
 
 	r = mbrtowc(wc, stream->bufpos, n, &stream->state);
-	if (((ssize_t) r) >= 0) {	/* Single byte... */
+	if (((ssize_t) r) >= 0) {	/* Success... */
 		if (r == 0) {			/* Nul wide char... means 0 byte for us so */
 			++r;				/* increment r and handle below as single. */
 		}
 		stream->bufpos += r;
-		stream->ungot_width[0] = ungot_width + r;
+		stream->ungot_width[0] += r;
 		wi = *wc;
 		goto DONE;
 	}
@@ -217,7 +228,7 @@ UNLOCKED(wint_t,fgetwc,(register FILE *stream),(stream))
 	if (r == ((size_t) -2)) {
 		/* Potentially valid but incomplete and no more buffered. */
 		stream->bufpos += n;	/* Update bufpos for stream. */
-		ungot_width += n;
+		stream->ungot_width[0] += n;
 	FILL_BUFFER:
 		if (_stdio_fread(c, (size_t) 1, stream) > 0) {
 			assert(stream->bufpos == stream->bufstart + 1);
@@ -371,7 +382,8 @@ UNLOCKED(int,fputws,(const wchar_t *__restrict ws,
 #ifdef L_ungetwc
 /*
  * Note: This is the application-callable ungetwc.  If wscanf calls this, it
- * should also set stream->ungot[1] to 0 if this is the only ungot.
+ * should also set stream->ungot[1] to 0 if this is the only ungot, as well
+ * as reset stream->ungot_width[1] for use by _stdio_adjpos().
  */
 
 /* Reentrant. */
@@ -389,8 +401,7 @@ wint_t ungetwc(wint_t c, register FILE *stream)
 	}
 	stream->modeflags |= __FLAG_WIDE;
 
-	/* If can't read or there's been an error, or c == EOF, or ungot slots
-	 * already filled, then return EOF */
+	/* If can't read or c == WEOF or ungot slots already filled, then fail. */
 	if ((stream->modeflags
 		 & (__MASK_UNGOT2|__FLAG_WRITEONLY
 #ifndef __STDIO_AUTO_RW_TRANSITION
@@ -406,14 +417,18 @@ wint_t ungetwc(wint_t c, register FILE *stream)
 /*  ungot_width */
 
 #ifdef __STDIO_BUFFERS
-								/* TODO: shouldn't allow writing??? */
+#ifdef __STDIO_AUTO_RW_TRANSITION
 	if (stream->modeflags & __FLAG_WRITING) {
 		fflush_unlocked(stream); /* Commit any write-buffered chars. */
 	}
+#endif /* __STDIO_AUTO_RW_TRANSITION */
 #endif /* __STDIO_BUFFERS */
 
 	/* Clear EOF and WRITING flags, and set READING FLAG */
 	stream->modeflags &= ~(__FLAG_EOF|__FLAG_WRITING);
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning CONSIDER: Is setting the reading flag after an ungetwc necessary?
+#endif /* __UCLIBC_MJN3_ONLY__ */
 	stream->modeflags |= __FLAG_READING;
 	stream->ungot[1] = 1;		/* Flag as app ungetc call; wscanf fixes up. */
 	stream->ungot[(stream->modeflags++) & __MASK_UNGOT] = c;

@@ -1,4 +1,4 @@
-/* Copyright (C) 1991,92,1995-1999,2000,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1991,92,95-99,2000,01,02 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -39,13 +39,15 @@ __BEGIN_DECLS
 #define LC_COLLATE        __LC_COLLATE
 #define LC_MONETARY       __LC_MONETARY
 #define LC_MESSAGES       __LC_MESSAGES
-/*  #define LC_PAPER          __LC_PAPER */
-/*  #define LC_NAME           __LC_NAME */
-/*  #define LC_ADDRESS        __LC_ADDRESS */
-/*  #define LC_TELEPHONE	  __LC_TELEPHONE */
-/*  #define LC_MEASUREMENT	  __LC_MEASUREMENT */
-/*  #define LC_IDENTIFICATION __LC_IDENTIFICATION */
-#define	LC_ALL            __LC_ALL
+#if 0
+#define LC_PAPER	  __LC_PAPER
+#define LC_NAME		  __LC_NAME
+#define LC_ADDRESS	  __LC_ADDRESS
+#define LC_TELEPHONE	  __LC_TELEPHONE
+#define LC_MEASUREMENT	  __LC_MEASUREMENT
+#define LC_IDENTIFICATION __LC_IDENTIFICATION
+#endif
+#define	LC_ALL		  __LC_ALL
 
 
 /* Structure giving information about numeric and monetary notation.  */
@@ -119,14 +121,18 @@ struct lconv
 };
 
 
+__BEGIN_NAMESPACE_STD
+
 /* Set and/or return the current locale.  */
 extern char *setlocale (int __category, __const char *__locale) __THROW;
 
 /* Return the numeric/monetary information for the current locale.  */
 extern struct lconv *localeconv (void) __THROW;
 
-#if 0
-/*  #ifdef	__USE_GNU */
+__END_NAMESPACE_STD
+
+
+#if defined(__USE_GNU) && defined(__UCLIBC_HAS_XLOCALE__)
 /* The concept of one static locale per category is not very well
    thought out.  Many applications will need to process its data using
    information from several different locales.  Another application is
@@ -141,22 +147,77 @@ extern struct lconv *localeconv (void) __THROW;
 /* Get locale datatype definition.  */
 # include <xlocale.h>
 
+typedef __locale_t locale_t;
+
 /* Return a reference to a data structure representing a set of locale
    datasets.  Unlike for the CATEGORY parameter for `setlocale' the
-   CATEGORY_MASK parameter here uses a single bit for each category.
-   I.e., 1 << LC_CTYPE means to load data for this category.  If
-   BASE is non-null the appropriate category information in the BASE
-   record is replaced.  */
-extern __locale_t __newlocale (int __category_mask, __const char *__locale,
-			       __locale_t __base) __THROW;
+   CATEGORY_MASK parameter here uses a single bit for each category,
+   made by OR'ing together LC_*_MASK bits above.  */
+extern __locale_t newlocale (int __category_mask, __const char *__locale,
+			     __locale_t __base) __THROW;
+
+/* These are the bits that can be set in the CATEGORY_MASK argument to
+   `newlocale'.  In the GNU implementation, LC_FOO_MASK has the value
+   of (1 << LC_FOO), but this is not a part of the interface that
+   callers can assume will be true.  */
+# define LC_CTYPE_MASK		(1 << __LC_CTYPE)
+# define LC_NUMERIC_MASK	(1 << __LC_NUMERIC)
+# define LC_TIME_MASK		(1 << __LC_TIME)
+# define LC_COLLATE_MASK	(1 << __LC_COLLATE)
+# define LC_MONETARY_MASK	(1 << __LC_MONETARY)
+# define LC_MESSAGES_MASK	(1 << __LC_MESSAGES)
+#ifdef L_newlocale
+#warning mask defines for extra locale categories
+#endif /* L_newlocale - uClibc note */
+#ifdef LC_PAPER
+# define LC_PAPER_MASK		(1 << __LC_PAPER)
+# define LC_NAME_MASK		(1 << __LC_NAME)
+# define LC_ADDRESS_MASK	(1 << __LC_ADDRESS)
+# define LC_TELEPHONE_MASK	(1 << __LC_TELEPHONE)
+# define LC_MEASUREMENT_MASK	(1 << __LC_MEASUREMENT)
+# define LC_IDENTIFICATION_MASK	(1 << __LC_IDENTIFICATION)
+# define LC_ALL_MASK		(LC_CTYPE_MASK \
+				 | LC_NUMERIC_MASK \
+				 | LC_TIME_MASK \
+				 | LC_COLLATE_MASK \
+				 | LC_MONETARY_MASK \
+				 | LC_MESSAGES_MASK \
+				 | LC_PAPER_MASK \
+				 | LC_NAME_MASK \
+				 | LC_ADDRESS_MASK \
+				 | LC_TELEPHONE_MASK \
+				 | LC_MEASUREMENT_MASK \
+				 | LC_IDENTIFICATION_MASK \
+				 )
+#else  /* LC_PAPER */
+# define LC_ALL_MASK		(LC_CTYPE_MASK \
+				 | LC_NUMERIC_MASK \
+				 | LC_TIME_MASK \
+				 | LC_COLLATE_MASK \
+				 | LC_MONETARY_MASK \
+				 | LC_MESSAGES_MASK \
+				 )
+#endif /* LC_PAPER */
 
 /* Return a duplicate of the set of locale in DATASET.  All usage
    counters are increased if necessary.  */
-extern __locale_t __duplocale (__locale_t __dataset) __THROW;
+extern __locale_t duplocale (__locale_t __dataset) __THROW;
 
 /* Free the data associated with a locale dataset previously returned
    by a call to `setlocale_r'.  */
-extern void __freelocale (__locale_t __dataset) __THROW;
+extern void freelocale (__locale_t __dataset) __THROW;
+
+/* Switch the current thread's locale to DATASET.
+   If DATASET is null, instead just return the current setting.
+   The special value LC_GLOBAL_LOCALE is the initial setting
+   for all threads and can also be installed any time, meaning
+   the thread uses the global settings controlled by `setlocale'.  */
+extern __locale_t uselocale (__locale_t __dataset) __THROW;
+
+/* This value can be passed to `uselocale' and may be returned by it.
+   Passing this value to any other function has undefined behavior.  */
+# define LC_GLOBAL_LOCALE	((__locale_t) -1L)
+
 #endif
 
 __END_DECLS

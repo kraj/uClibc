@@ -25,11 +25,21 @@ TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
 MSRC= wctype.c
-MOBJ=  iswalnum.o iswalpha.o iswcntrl.o iswdigit.o iswgraph.o iswlower.o \
-	iswprint.o iswpunct.o iswspace.o iswupper.o iswxdigit.o towlower.o \
-	towupper.o iswblank.o wctype.o iswctype.o wctrans.o towctrans.o
+MOBJ=	iswalnum.o iswalpha.o iswcntrl.o iswdigit.o iswgraph.o \
+	iswlower.o iswprint.o iswpunct.o iswspace.o iswupper.o \
+	iswxdigit.o iswblank.o wctrans.o towctrans.o \
+	wctype.o iswctype.o towlower.o towupper.o
+
+MOBJx=	iswalnum_l.o iswalpha_l.o iswcntrl_l.o iswdigit_l.o iswgraph_l.o \
+	iswlower_l.o iswprint_l.o iswpunct_l.o iswspace_l.o iswupper_l.o \
+	iswxdigit_l.o iswblank_l.o \
+	wctype_l.o iswctype_l.o wctrans_l.o towctrans_l.o towlower_l.o towupper_l.o
 
 OBJS=$(MOBJ)
+
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+	OBJS += $(MOBJx)
+endif
 
 all: $(OBJS) $(LIBC)
 
@@ -40,6 +50,10 @@ ar-target: $(OBJS)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJx): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
