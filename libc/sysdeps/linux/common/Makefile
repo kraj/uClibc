@@ -68,7 +68,7 @@ $(NIOBJS):
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 str_syscalls:
-	./str_syscalls.sh > str_syscalls.c
+	/bin/sh ./str_syscalls.sh > str_syscalls.c
 	gcc str_syscalls.c -o str_syscalls
 	./str_syscalls > str_syscalls.h
 
