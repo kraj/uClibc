@@ -1,224 +1,221 @@
-/*
- * regexp.h -- old-style regexp compile and step (emulated with POSIX regex)
- * Copyright (C) 1993 Rick Sladkey <jrs@world.std.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Library Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Library Public License for more details.
- */
+/* Copyright (C) 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+   Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
 
-/*
- * Think really hard before you intentionally include this file.
- * You should really be using the POSIX regex interface instead.
- * This emulation file is intended solely for compiling old code.
- *
- * A program that uses this file must define six macros: INIT,
- * GETC, PEEKC, UNGETC, RETURN, and ERROR.  This interface is
- * so arcane that VMS hackers point at it in ridicule.
- */
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Library General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public
+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
 
 #ifndef _REGEXP_H
-#define _REGEXP_H
+#define _REGEXP_H	1
 
-#include <sys/types.h>			/* regex.h needs size_t */
-#include <regex.h>			/* POSIX.2 regexp routines */
-#include <stdlib.h>			/* for malloc, realloc and free */
+/* The contents of this header file was first standardized in X/Open
+   System Interface and Headers Issue 2, originally coming from SysV.
+   In issue 4, version 2, it is marked as TO BE WITDRAWN.
 
-/*
- * These three advertised external variables record state information
- * for compile and step.  They are so gross, I'm choking as I write this.
- */
-char *loc1;				/* the beginning of a match */
-char *loc2;				/* the end of a match */
-int circf;				/* current pattern begins with '^' */
+   This code shouldn't be used in any newly written code.  It is
+   included only for compatibility reasons.  Use the POSIX definition
+   in <regex.h> for portable applications and a reasonable interface.  */
 
-/*
- * These are the other variables mentioned in the regexp.h manpage.
- * Since we don't emulate them (whatever they do), we want errors if
- * they are referenced.  Therefore they are commented out here.
- */
-#if 0
-char *locs;
-int sed;
-int nbra;
-#endif
+#include <features.h>
+#include <alloca.h>
+#include <regex.h>
+#include <stdlib.h>
+#include <string.h>
 
-/*
- * We need to stuff a regex_t into an arbitrary buffer so align it.
- * GCC make this easy.  For the others we have to guess.
- */
-#ifdef __GNUC__
-#define __REGEX_T_ALIGN (__alignof__(regex_t))
-#else /* !__GNUC__ */
-#define __REGEX_T_ALIGN 8
-#endif /* !__GNUC__ */
+/* The implementation provided here emulates the needed functionality
+   by mapping to the POSIX regular expression matcher.  The interface
+   for the here included function is weird (this really is a harmless
+   word).
 
-#define __regex_t_align(p)						\
-	((regex_t *) ((((unsigned long) p) + __REGEX_T_ALIGN - 1)	\
-		/ __REGEX_T_ALIGN * __REGEX_T_ALIGN))
+   The user has to provide six macros before this header file can be
+   included:
 
-/*
- * We just slurp the whole pattern into a string and then compile
- * it `normally'.  With this implementation we never use the PEEKC
- * macro.  Please feel free to die laughing when we translate
- * error symbols into hard-coded numbers.
- */
+   INIT		Declarations vor variables which can be used by the
+		other macros.
+
+   GETC()	Return the value of the next character in the regular
+		expression pattern.  Successive calls should return
+		successive characters.
+
+   PEEKC()	Return the value of the next character in the regular
+		expression pattern.  Immediately successive calls to
+		PEEKC() should return the same character which should
+		also be the next character returned by GETC().
+
+   UNGETC(c)	Cause `c' to be returned by the next call to GETC() and
+		PEEKC().
+
+   RETURN(ptr)	Used for normal exit of the `compile' function.  `ptr'
+		is a pointer to the character after the last character of
+		the compiled regular expression.
+
+   ERROR(val)	Used for abnormal return from `compile'.  `val' is the
+		error number.  The error codes are:
+		11	Range endpoint too large.
+		16	Bad number.
+		25	\digit out of range.
+		36	Illegal or missing delimiter.
+		41	No remembered search string.
+		42	\( \) imbalance.
+		43	Too many \(.
+		44	More tan two numbers given in \{ \}.
+		45	} expected after \.
+		46	First number exceeds second in \{ \}.
+		49	[ ] imbalance.
+		50	Regular expression overflow.
+
+  */
+
+__BEGIN_DECLS
+
+/* Interface variables.  They contain the results of the successful
+   calls to `setp' and `advance'.  */
+extern char *loc1;
+extern char *loc2;
+
+/* The use of this variable in the `advance' function is not
+   supported.  */
+extern char *locs;
+
+
+#ifndef __DO_NOT_DEFINE_COMPILE
+/* Get and compile the user supplied pattern up to end of line or
+   string or until EOF is seen, whatever happens first.  The result is
+   placed in the buffer starting at EXPBUF and delimited by ENDBUF.
+
+   This function cannot be defined in the libc itself since it depends
+   on the macros.  */
 char *
-compile(char *instring, char *expbuf, char *endbuf, int eof)
+compile (char *__restrict instring, char *__restrict expbuf,
+	 __const char *__restrict endbuf, int eof)
 {
-	int __c;
-	int __len;
-	char *__buf;
-	int __buflen;
-	int __error;
-	regex_t *__preg;
-	INIT;
+  char *__input_buffer = NULL;
+  size_t __input_size = 0;
+  size_t __current_size = 0;
+  int __ch;
+  int __error;
+  INIT
 
-	__buflen = 128;
-	__buf = malloc(__buflen);
-	if (!__buf) {
-		ERROR(50);
-		return 0;
+  /* Align the expression buffer according to the needs for an object
+     of type `regex_t'.  Then check for minimum size of the buffer for
+     the compiled regular expression.  */
+  regex_t *__expr_ptr;
+# if defined __GNUC__ && __GNUC__ >= 2
+  const size_t __req = __alignof__ (regex_t *);
+# else
+  /* How shall we find out?  We simply guess it and can change it is
+     this really proofs to be wrong.  */
+  const size_t __req = 8;
+# endif
+  expbuf += __req;
+  expbuf -= (expbuf - ((char *) 0)) % __req;
+  if (endbuf < expbuf + sizeof (regex_t))
+    {
+      ERROR (50);
+    }
+  __expr_ptr = (regex_t *) expbuf;
+  /* The remaining space in the buffer can be used for the compiled
+     pattern.  */
+  __expr_ptr->buffer = expbuf + sizeof (regex_t);
+  __expr_ptr->allocated = endbuf -  (char *) __expr_ptr->buffer;
+
+  while ((__ch = (GETC ())) != eof)
+    {
+      if (__ch == '\0' || __ch == '\n')
+	{
+	  UNGETC (__ch);
+	  break;
 	}
-	__len = 0;
-	circf = 0;
-	for (;;) {
-		__c = GETC();
-		if (__c == eof)
-			break;
-		if (__c == '\0' || __c == '\n') {
-			UNGETC(__c);
-			break;
-		}
-		if (__len + 2 > __buflen) {
-			__buflen *= 2;
-			__buf = realloc(__buf, __buflen);
-			if (!__buf) {
-				ERROR(50);
-				return 0;
-			}
-		}
-		if (__len == 0 && !circf && __c == '^')
-			circf = 1;
-		else
-			__buf[__len++] = __c;
+
+      if (__current_size + 1 >= __input_size)
+	{
+	  size_t __new_size = __input_size ? 2 * __input_size : 128;
+	  char *__new_room = (char *) alloca (__new_size);
+	  /* See whether we can use the old buffer.  */
+	  if (__new_room + __new_size == __input_buffer)
+	    {
+	      __input_size += __new_size;
+	      __input_buffer = (char *) memcpy (__new_room, __input_buffer,
+					       __current_size);
+	    }
+	  else if (__input_buffer + __input_size == __new_room)
+	    __input_size += __new_size;
+	  else
+	    {
+	      __input_size = __new_size;
+	      __input_buffer = (char *) memcpy (__new_room, __input_buffer,
+						__current_size);
+	    }
 	}
-	if (__len == 0 && !circf) {
-		free(__buf);
-		ERROR(41);
-		return 0;
-	}
-	__buf[__len] = '\0';
-	if (endbuf <= expbuf + sizeof(regex_t)) {
-		free(__buf);
-		ERROR(50);
-		return 0;
-	}
-	__preg = __regex_t_align(expbuf);
-	__preg->buffer = (char *) (__preg + 1);
-	__preg->allocated = endbuf - (char *) __preg->buffer;
-	__error = regcomp(__preg, __buf, REG_NEWLINE);
-	free(__buf);
-	switch (__error) {
-	case 0:
-		break;
-	case REG_BADRPT:
-		__error = 36; /* poor fit */
-		break;
-	case REG_BADBR:
-		__error = 16;
-		break;
-	case REG_EBRACE:
-		__error = 44; /* poor fit */
-		break;
-	case REG_EBRACK:
-		__error = 49;
-		break;
-	case REG_ERANGE:
-		__error = 36; /* poor fit */
-		break;
-	case REG_ECTYPE:
-		__error = 36; /* poor fit */
-		break;
-	case REG_EPAREN:
-		__error = 42;
-		break;
-	case REG_ESUBREG:
-		__error = 36; /* poor fit */
-		break;
-	case REG_EEND:
-		__error = 36; /* poor fit */
-		break;
-	case REG_EESCAPE:
-		__error = 36;
-		break;
-	case REG_BADPAT:
-		__error = 36; /* poor fit */
-		break;
-	case REG_ESIZE:
-		__error = 50;
-		break;
-	case REG_ESPACE:
-		__error = 50;
-		break;
-	default:
-		__error = 36; /* as good as any */
-		break;
-	}
-	if (__error) {
-		ERROR(__error);
-		return 0;
-	}
-#ifdef _RX_H
-	RETURN((__preg->buffer + __preg->rx.allocated - __preg->rx.reserved));
-#else
-	RETURN((__preg->buffer + __preg->used));
+      __input_buffer[__current_size++] = __ch;
+    }
+  __input_buffer[__current_size++] = '\0';
+
+  /* Now compile the pattern.  */
+  __error = regcomp (__expr_ptr, __input_buffer, REG_NEWLINE);
+  if (__error != 0)
+    /* Oh well, we have to translate POSIX error codes.  */
+    switch (__error)
+      {
+      case REG_BADPAT:
+      case REG_ECOLLATE:
+      case REG_ECTYPE:
+      case REG_EESCAPE:
+      case REG_BADRPT:
+      case REG_EEND:
+      case REG_ERPAREN:
+      default:
+	/* There is no matching error code.  */
+	RETURN (36);
+      case REG_ESUBREG:
+	RETURN (25);
+      case REG_EBRACK:
+	RETURN (49);
+      case REG_EPAREN:
+	RETURN (42);
+      case REG_EBRACE:
+	RETURN (44);
+      case REG_BADBR:
+	RETURN (46);
+      case REG_ERANGE:
+	RETURN (11);
+      case REG_ESPACE:
+      case REG_ESIZE:
+	ERROR (50);
+      }
+
+  /* Everything is ok.  */
+  RETURN ((char *) (__expr_ptr->buffer + __expr_ptr->used));
+}
 #endif
-}
 
-/*
- * Note how we carefully emulate the gross `circf' hack.  Otherwise,
- * this just looks like an ordinary matching call that records the
- * starting and ending match positions.
- */
-int
-step(char *string, char *expbuf)
-{
-	int __result;
-	regmatch_t __pmatch[1];
 
-	__result = regexec(__regex_t_align(expbuf), string, 1, __pmatch, 0);
-	if (circf && __pmatch[0].rm_so != 0)
-		__result = REG_NOMATCH;
-	if (__result == 0) {
-		loc1 = string + __pmatch[0].rm_so;
-		loc2 = string + __pmatch[0].rm_eo;
-	}
-	return __result == 0;
-}
+/* Find the next match in STRING.  The compiled regular expression is
+   found in the buffer starting at EXPBUF.  `loc1' will return the
+   first character matched and `loc2' points to the next unmatched
+   character.  */
+extern int step __P ((__const char *__restrict __string,
+		      __const char *__restrict __expbuf));
 
-/*
- * For advance we are only supposed to match at the beginning of the
- * string.  You have to read the man page really carefully to find this
- * one.  We'll match them kludge-for-kludge.
- */
-int
-advance(char *string, char *expbuf)
-{
-	int __old_circf;
-	int __result;
+/* Match the beginning of STRING with the compiled regular expression
+   in EXPBUF.  If the match is successful `loc2' will contain the
+   position of the first unmatched character.  */
+extern int advance __P ((__const char *__restrict __string,
+			 __const char *__restrict __expbuf));
 
-	__old_circf = circf;
-	circf = 1;
-	__result = step(string, expbuf);
-	circf = __old_circf;
-	return __result;
-}
 
-#endif /* _REGEXP_H */
+__END_DECLS
+
+#endif /* regexp.h */
