@@ -230,7 +230,8 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		}
 		else if (res >0)
 		{
-		        _dl_dprintf(2, "can't resolve symbol '%s'\n");
+			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
+					_dl_progname, strtab + symtab[symtab_index].st_name);
 			goof += res;
 		}
 	  }
