@@ -1,8 +1,8 @@
 /*
  * libc/sysdeps/linux/v850/crt0.S -- Initial program entry point for linux/v850
  *
- *  Copyright (C) 2001,2002  NEC Corporation
- *  Copyright (C) 2001,2002  Miles Bader <miles@gnu.org>
+ *  Copyright (C) 2001,02,03  NEC Electronics Corporation
+ *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
@@ -37,6 +37,7 @@ C_ENTRY(start):
 	mov	hilo(C_SYMBOL_NAME(_gp)), gp
 
 	// tail-call uclibc's startup routine
+	addi	-24, sp, sp		// Stack space reserved for args
 	jr	C_SYMBOL_NAME(__uClibc_main)
 
 
