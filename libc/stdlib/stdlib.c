@@ -25,6 +25,11 @@
  *
  *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
 
+/* Oct 29, 2002
+ *
+ * Fix a couple of 'restrict' bugs in mbstowcs and wcstombs.
+ */
+
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE
 #include <limits.h>
@@ -748,10 +753,10 @@ int wctomb(register char *__restrict s, wchar_t swc)
 size_t mbstowcs(wchar_t * __restrict pwcs, const char * __restrict s, size_t n)
 {
 	mbstate_t state;
+	const char *e = s;			/* Needed because of restrict. */
 
 	state.mask = 0;				/* Always start in initial shift state. */
-
-	return mbsrtowcs(pwcs, &s, n, &state);
+	return mbsrtowcs(pwcs, &e, n, &state);
 }
 
 #endif
@@ -762,7 +767,9 @@ size_t mbstowcs(wchar_t * __restrict pwcs, const char * __restrict s, size_t n)
 
 size_t wcstombs(char * __restrict s, const wchar_t * __restrict pwcs, size_t n)
 {
-	return wcsrtombs(s, &pwcs, n, NULL);
+	const wchar_t *e = pwcs;	/* Needed because of restrict. */
+
+	return wcsrtombs(s, &e, n, NULL);
 }
 
 #endif
