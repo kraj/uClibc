@@ -24,5 +24,3 @@ int rand (void)
     return((int)random());
 }
 
-__asm__(".weak srand; srand = srandom");
-

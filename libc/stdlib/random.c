@@ -34,3 +34,5 @@ void srandom(unsigned int seed)
 	seed3 = seed % 31656 + 1;
 }
 
+__asm__(".weak srand; srand = srandom");
+
