@@ -90,3 +90,4 @@ extern int __rt_sigaction (int, const struct kernel_sigaction *__unbounded,
 extern int __sigaction (int, const struct old_kernel_sigaction *__unbounded,
 	struct old_kernel_sigaction *__unbounded);
 
+#endif /* _BITS_STAT_STRUCT_H */
