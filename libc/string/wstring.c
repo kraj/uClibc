@@ -1462,6 +1462,40 @@ char *_glibc_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 
 #endif
 /**********************************************************************/
+#ifdef L_memmem
+
+void *memmem(const void *haystack, size_t haystacklen,
+		     const void *needle, size_t needlelen)
+{
+	register const char *ph;
+	register const char *pn;
+	const char *plast;
+	size_t n;
+
+	if (needlelen == 0) {
+		return (void *) haystack;
+	}
+
+	if (haystacklen >= needlelen) {
+		ph = (const char *) haystack;
+		pn = (const char *) needle;
+		plast = ph + (haystacklen - needlelen);
+
+		do {
+			n = 0;
+			while (ph[n] == pn[n]) {
+				if (++n == needlelen) {
+					return (void *) ph;
+				}
+			}
+		} while (++ph <= plast);
+	}
+
+	return NULL;
+}
+
+#endif
+/**********************************************************************/
 #ifdef L_wmempcpy
 #define L_mempcpy
 #define Wmempcpy wmempcpy
