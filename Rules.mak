@@ -178,6 +178,17 @@ OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
 XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
 CPU_CFLAGS=$(subst ",, $(strip $(CPU_CFLAGS-y)))
+
+LDADD_LIBFLOAT=
+ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
+# Add -msoft-float to the CPU_FLAGS since ldso and libdl ignore CFLAGS.
+# If -msoft-float isn't supported, we want an error anyway.
+    CPU_CFLAGS += -msoft-float
+ifeq ($(strip $(TARGET_ARCH)),arm)
+    LDADD_LIBFLOAT=-lfloat
+endif
+endif
+
 # Some nice CFLAGS to work with
 CFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
@@ -208,15 +219,6 @@ ifeq ($(HAVE_SHARED),y)
 	LDSO:=$(SYSTEM_LDSO)
 	DYNAMIC_LINKER:=/lib/$(strip $(subst ",, $(notdir $(SYSTEM_LDSO))))
    endif
-endif
-
-LDADD_LIBFLOAT=
-ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
-    CFLAGS += $(call check_gcc,-msoft-float,CAN_NOT_SET_SOFT_FLOAT)
-    #LDFLAGS+= -Wa,-mno-fpu
-ifeq ($(strip $(TARGET_ARCH)),arm)
-    LDADD_LIBFLOAT=-lfloat
-endif
 endif
 
 CFLAGS_NOPIC:=$(CFLAGS)
