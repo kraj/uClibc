@@ -27,8 +27,7 @@ LIBC=$(TOPDIR)libc.a
 MSRC=string.c
 MOBJ=strlen.o strcat.o strcpy.o strchr.o strcmp.o strncat.o strncpy.o \
 	strncmp.o strrchr.o strdup.o memcpy.o memccpy.o memset.o \
-	memmove.o memcmp.o memchr.o ffs.o strnlen.o index.o rindex.o \
-	strxfrm.o strcoll.o
+	memmove.o memcmp.o memchr.o ffs.o strnlen.o strxfrm.o
 
 MSRC1=strsignal.c
 MOBJ1=strsignal.o psignal.o

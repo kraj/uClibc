@@ -16,20 +16,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
-#if defined _LIBC || HAVE_STRING_H
-# include <string.h>
-#else
-# include <strings.h>
-# ifndef strchr
-#  define strchr index
-# endif
-#endif
-
-#undef strcspn
+#include <string.h>
 
 /* Return the length of the maximum initial segment of S
    which contains no characters from REJECT.  */
