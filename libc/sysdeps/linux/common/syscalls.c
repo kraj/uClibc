@@ -620,7 +620,9 @@ _syscall3(int, __syscall_ioctl, int, fd, int, request, void *, arg);
 #include <stdarg.h>
 #include <fcntl.h>
 #define __NR___syscall_fcntl __NR_fcntl
+#ifdef __UCLIBC_HAS_LFS__
 static inline
+#endif
 _syscall3(int, __syscall_fcntl, int, fd, int, cmd, long, arg);
 int __libc_fcntl(int fd, int cmd, ...)
 {
