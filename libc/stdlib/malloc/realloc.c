@@ -61,7 +61,7 @@ realloc (void *mem, size_t new_size)
 	      mem = new_mem;
 	    }
 	}
-      else if (new_size + HEAP_MIN_FREE_AREA_SIZE <= size)
+      else if (new_size + MALLOC_REALLOC_MIN_FREE_SIZE <= size)
 	/* Shrink the block.  */
 	{
 	  __malloc_lock ();
