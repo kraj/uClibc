@@ -42,11 +42,11 @@ install: all
 		ln -fs $(TARGET_ARCH)-uclibc-gcc $(DEVEL_PREFIX)$(ROOT_DIR)/usr/bin/$(TARGET_ARCH)-uclibc-cc; \
 	fi;
 	for app in addr2line ar as cpp gasp nm objcopy \
-	objdump ranlib readelf size strings strip; do \
+	objdump ranlib size strings strip; do \
 	    ln -fs `which $(CROSS)$${app}` $(DEVEL_PREFIX)$(ROOT_DIR)/bin/$${app}; \
 	done;
 	for app in addr2line ar as cpp gasp nm objcopy \
-	objdump ranlib readelf size strings strip; do \
+	objdump ranlib size strings strip; do \
 	    ln -fs `which $(CROSS)$${app}` $(DEVEL_PREFIX)$(ROOT_DIR)/usr/bin/$(TARGET_ARCH)-uclibc-$${app}; \
 	done;
 
