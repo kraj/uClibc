@@ -675,14 +675,16 @@ long int __sysconf(int name)
 #if 0
       RETURN_FUNCTION(get_nprocs_conf());
 #else
-      RETURN_NEG_1;
+      /* this is a hack.  for now always claim we have exactly one cpu */
+      return 1;
 #endif
 
     case _SC_NPROCESSORS_ONLN:
 #if 0
       RETURN_FUNCTION(get_nprocs());
 #else
-      RETURN_NEG_1;
+      /* this is a hack.  for now always claim we have exactly one cpu */
+      return 1;
 #endif
 
     case _SC_PHYS_PAGES:
