@@ -36,6 +36,8 @@ XXFLAGS+= -DDL_TRACE
 # Enable this to enable debugging output from ld.so
 #XXFLAGS+= -DDL_DEBUG
 #XXFLAGS+= -DDL_DEBUG_SYMBOLS
+#Enable this to never actually fixup symbols so you can watch each call...
+#XXFLAGS+= -DDL_NEVER_FIXUP_SYMBOLS
 
 XXFLAGS+=-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 	-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \

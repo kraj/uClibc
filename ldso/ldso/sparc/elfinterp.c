@@ -104,7 +104,7 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
 	       _dl_progname, strtab + symtab[symtab_index].st_name);
     _dl_exit(31);
   };
-#ifdef DL_DEBUG_SYMBOLS
+#ifdef DL_NEVER_FIXUP_SYMBOLS
   if((unsigned int) got_addr < 0x40000000) {
     _dl_dprintf(2, "Calling library function: %s\n",
 	       strtab + symtab[symtab_index].st_name);

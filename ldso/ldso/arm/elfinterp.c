@@ -95,7 +95,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 			_dl_progname, strtab + symtab[symtab_index].st_name);
 		_dl_exit(1);
 	};
-#ifdef DL_DEBUG_SYMBOLS
+#ifdef DL_NEVER_FIXUP_SYMBOLS
 	if ((unsigned long) got_addr < 0x40000000) {
 		_dl_dprintf(2, "Calling library function: %s\n", 
 			strtab + symtab[symtab_index].st_name);

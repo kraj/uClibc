@@ -97,13 +97,16 @@ unsigned int _dl_linux_resolver (int dummy1, int dummy2,
 		    _dl_progname, strtab + symtab[symtab_index].st_name);
       _dl_exit (1);
     }
-#ifdef DL_DEBUG_SYMBOLS
-  if ((unsigned int) got_addr < 0x40000000)
-    _dl_dprintf (2, "Calling library function: %s\n",
-		  strtab + symtab[symtab_index].st_name);
-  else
+#ifdef DL_NEVER_FIXUP_SYMBOLS
+  if ((unsigned int) got_addr < 0x40000000) {
+      _dl_dprintf (2, "Calling library function: %s\n",
+	      strtab + symtab[symtab_index].st_name);
+  } else {
+      *got_addr = new_addr;
+  }
+#else
+  *got_addr = new_addr;
 #endif
-    *got_addr = new_addr;
   return (unsigned int) new_addr;
 }
 
