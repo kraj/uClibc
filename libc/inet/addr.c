@@ -24,19 +24,16 @@
 #include <ctype.h>
 #include <netinet/in.h>
 
-int inet_aton(const char *cp, struct in_addr *inp);
+int inet_aton(const char *cp, struct in_addr *addrptr);
 
 #ifdef L_inet_aton
-int inet_aton(cp, inp)
+int inet_aton(cp, addrptr)
 const char *cp;
-struct in_addr *inp;
+struct in_addr *addrptr;
 {
 	unsigned long addr;
 	int value;
 	int part;
-
-	if (!inp)
-		return 0;
 
 	addr = 0;
 	for (part = 1; part <= 4; part++) {
@@ -65,7 +62,16 @@ struct in_addr *inp;
 		addr |= value;
 	}
 
-	inp->s_addr = htonl(addr);
+	/*  W. Richard Stevens in his book UNIX Network Programming,
+	 *  Volume 1, second edition, on page 71 says:
+	 *
+	 *  An undocumented feature of inet_aton is that if addrptr is
+	 *  a null pointer, the function still performs it validation
+	 *  of the input string, but does not store the result.
+	 */
+	if (addrptr) {
+	    addrptr->s_addr = htonl(addr);
+	}
 
 	return 1;
 }
