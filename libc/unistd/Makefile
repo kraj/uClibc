@@ -71,7 +71,7 @@ sysconf_tester.o: sysconf.c
 
 gen_sysconf_tester.o: sysconf_tester.o getpagesize_tester.o
 	@ld -r -o gen_sysconf_tester.o sysconf_tester.o getpagesize_tester.o
-	@if [ nm -s gen_sysconf_tester.o | grep -v "U errno" | grep " U " ] ; then \
+	@if nm -s gen_sysconf_tester.o | grep -v "U errno" | grep " U "; then \
 		set -e -x; \
 		echo warning: missing symbols in gen_sysconf_tester.o so using generic sysconf.c ;\
 		cp -f sysconf.c sysconf_src.c ;\
