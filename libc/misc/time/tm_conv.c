@@ -95,7 +95,7 @@ time_t offset;
 	register int y;
 	register const unsigned short int *ip;
 
-	timezone = offset;
+	timezone = -offset;
 
 	days = *t / SECS_PER_DAY;
 	rem = *t % SECS_PER_DAY;
