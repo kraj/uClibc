@@ -976,10 +976,18 @@ config UCLIBC_MALLOC_DEBUGGING
 	default n
 	help
 	  Answer Y here to compile extra debugging support code into malloc.
-	  Malloc debugging output may then be enabled at runtime using
-	  the MALLOC_DEBUG environment variable.  Because this increases
-	  the size of malloc appreciably (due to strings etc), you
-	  should say N unless you need to debug a malloc problem.
+	  Malloc debugging output may then be enabled at runtime using the
+	  MALLOC_DEBUG environment variable.
+
+	  The value of MALLOC_DEBUG should be an integer, which is interpreted as
+	  a bitmask with the following bits:
+		  1   -  do extra consistency checking
+		  2   -  output messages for malloc/free calls and OS allocation calls
+		  4   -  output messages for the `MMB' layer
+		  8   -  output messages for internal malloc heap manipulation calls
+	  
+	  Because this increases the size of malloc appreciably (due to strings
+	  etc), you should say N unless you need to debug a malloc problem.
 
 config UCLIBC_MJN3_ONLY
 	bool "Manuel's hidden warnings"
