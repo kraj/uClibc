@@ -112,3 +112,69 @@ struct in_addr in;
 	return p+1;
 }
 #endif
+
+#ifdef L_inet_makeaddr
+/*
+ * Formulate an Internet address from network + host.  Used in
+ * building addresses stored in the ifnet structure.
+ */
+struct in_addr inet_makeaddr(net, host)
+unsigned long net, host;
+{
+        unsigned long addr;
+
+        if (net < 128)
+                addr = (net << IN_CLASSA_NSHIFT) | (host & IN_CLASSA_HOST);
+        else if (net < 65536)
+                addr = (net << IN_CLASSB_NSHIFT) | (host & IN_CLASSB_HOST);
+        else if (net < 16777216L)
+                addr = (net << IN_CLASSC_NSHIFT) | (host & IN_CLASSC_HOST);
+        else
+                addr = net | host;
+        addr = htonl(addr);
+        return (*(struct in_addr *)&addr);
+}
+
+#endif
+
+#ifdef L_inet_lnaof
+/*
+ * Return the local network address portion of an
+ * internet address; handles class a/b/c network
+ * number formats.
+ */
+unsigned long inet_lnaof(in)
+struct in_addr in;
+{
+	unsigned long i = ntohl(in.s_addr);
+
+	if (IN_CLASSA(i))
+		return ((i)&IN_CLASSA_HOST);
+	else if (IN_CLASSB(i))
+		return ((i)&IN_CLASSB_HOST);
+	else
+		return ((i)&IN_CLASSC_HOST);
+}
+#endif
+
+#ifdef L_inet_netof
+
+/*
+ * Return the network number from an internet
+ * address; handles class a/b/c network #'s.
+ */
+u_int32_t
+inet_netof(in)
+        struct in_addr in;
+{
+        u_int32_t i = ntohl(in.s_addr);
+
+        if (IN_CLASSA(i))
+                return (((i)&IN_CLASSA_NET) >> IN_CLASSA_NSHIFT);
+        else if (IN_CLASSB(i))
+                return (((i)&IN_CLASSB_NET) >> IN_CLASSB_NSHIFT);
+        else
+                return (((i)&IN_CLASSC_NET) >> IN_CLASSC_NSHIFT);
+}
+
+#endif

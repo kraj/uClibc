@@ -23,6 +23,8 @@
 #include <string.h>
 #include <netdb.h>
 
+#ifdef L_herror
+
 static const char *const h_errlist[] = {
 	"Error 0",
 	"Unknown host",				/* 1 HOST_NOT_FOUND */
@@ -51,3 +53,12 @@ void herror(const char *s)
 	}
 	fprintf(stderr, "%s%s%s\n", s, c, p);
 }
+
+#endif
+
+#ifdef L_hstrerror
+const char *hstrerror(int err)
+{
+	return(strerror(err));
+}
+#endif

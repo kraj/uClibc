@@ -32,7 +32,8 @@ endif
 ALL_SUBDIRS = rpc
 
 MSRC=addr.c
-MOBJ=inet_aton.o inet_addr.o inet_ntoa.o
+MOBJ=inet_aton.o inet_addr.o inet_ntoa.o inet_makeaddr.o inet_lnaof.o \
+	inet_netof.o
 
 MSRC2=resolv.c
 MOBJ2=encodeh.o decodeh.o encoded.o decoded.o lengthd.o encodeq.o \
@@ -48,12 +49,15 @@ MOBJ3= accept.o bind.o connect.o getpeername.o getsockname.o getsockopt.o \
 	listen.o recv.o recvfrom.o recvmsg.o send.o sendmsg.o sendto.o \
 	setsockopt.o shutdown.o socket.o socketpair.o 
 
+MSRC4=herror.c
+MOBJ4=herror.o hstrerror.o
+
 CSRC =getservice.c getproto.c hostid.c getnetent.c getnetbynm.c getnetbyad.c \
-	herror.c inet_net.c ntop.c
+	inet_net.c ntop.c
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
+OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(MOBJ4) $(COBJS)
 
 
 all: $(OBJS) $(LIBC)
@@ -72,6 +76,10 @@ $(MOBJ2): $(MSRC2)
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ3): $(MSRC3)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ4): $(MSRC4)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
