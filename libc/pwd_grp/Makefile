@@ -26,7 +26,7 @@ include $(TOPDIR)Rules.mak
 
 CSRC= pwent.c getpwnam.c getpwuid.c putpwent.c getpw.c fgetpwent.c \
 	__getgrent_r.c grent.c getgrnam.c getgrgid.c fgetgrent.c \
-	initgroups.c __getpwent_r.c
+	initgroups.c __getpwent_r.c putgrent.c
 
 ifeq ($(HAS_SHADOW),y)
 CSRC+= lckpwdf.c spent.c getspnam.c getspuid.c putspent.c sgetspent.c \
