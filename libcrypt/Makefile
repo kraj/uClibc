@@ -23,7 +23,7 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 LIBCRYPT=libcrypt.a
-SHARED_NAME=libcrypt.so.1
+SHARED_NAME=libcrypt.so.$(MAJOR_VERSION)
 TARGET_CC= ../extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 CSRC = crypt.c des.c md5.c
