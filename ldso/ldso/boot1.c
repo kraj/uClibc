@@ -103,6 +103,9 @@
 
 #define ALLOW_ZERO_PLTGOT
 
+/*  Some arches may need to override this in boot1_arch.h */
+#define	    ELFMAGIC	ELFMAG
+
 /* This is a poor man's malloc, used prior to resolving our internal poor man's malloc */
 #define DL_MALLOC(SIZE) ((void *) (malloc_buffer += SIZE, malloc_buffer - SIZE)) ;  REALIGN();
 /*
@@ -132,6 +135,8 @@ int _dl_fixup(struct elf_resolve *tpnt);
 void _dl_debug_state(void);
 char *_dl_get_last_path_component(char *path);
 
+#include "boot1_arch.h"
+
 
 /* When we enter this piece of code, the program stack looks like this:
         argc            argument counter (integer)
@@ -143,12 +148,11 @@ char *_dl_get_last_path_component(char *path);
         NULL
 	auxv_t[0...N]   Auxiliary Vector Table elements (mixed types)
 */
-void _dl_boot(unsigned int args)
+
+DL_BOOT(unsigned long args)
 {
 	unsigned int argc;
 	char **argv, **envp;
-	int status;
-
 	unsigned long load_addr;
 	unsigned long *got;
 	unsigned long *aux_dat;
@@ -168,6 +172,7 @@ void _dl_boot(unsigned int args)
 	unsigned long *chains;
 	int indx;
 	int _dl_secure;
+	int status;
 
 
 	/* WARNING! -- we cannot make _any_ funtion calls until we have
@@ -177,9 +182,12 @@ void _dl_boot(unsigned int args)
 
 	/* First obtain the information on the stack that tells us more about
 	   what binary is loaded, where it is loaded, etc, etc */
-	GET_ARGV(aux_dat, args);
+	GET_ARGV(aux_dat,args);
+#if defined(__arm__)
+	aux_dat+=1;
+#endif	
 	argc = *(aux_dat - 1);
-	argv = (char **) aux_dat;
+        argv = (char **) aux_dat;
 	aux_dat += argc;			/* Skip over the argv pointers */
 	aux_dat++;				/* Skip over NULL at end of argv */
 	envp = (char **) aux_dat;
@@ -187,7 +195,7 @@ void _dl_boot(unsigned int args)
 		aux_dat++;			/* Skip over the envp pointers */
 	aux_dat++;				/* Skip over NULL at end of envp */
 
-	/* Place -1 here as a checkpoint.  We check later to see if it was changed 
+	/* Place -1 here as a checkpoint.  We later check if it was changed
 	 * when we read in the auxv_t */
 	auxv_t[AT_UID].a_type = -1;
 	
@@ -199,7 +207,8 @@ void _dl_boot(unsigned int args)
 		Elf32_auxv_t *auxv_entry = (Elf32_auxv_t*) aux_dat;
 
 		if (auxv_entry->a_type <= AT_EGID) {
-			_dl_memcpy_inline(&(auxv_t[auxv_entry->a_type]), auxv_entry, sizeof(Elf32_auxv_t));
+			_dl_memcpy_inline(&(auxv_t[auxv_entry->a_type]), 
+				auxv_entry, sizeof(Elf32_auxv_t));
 		}
 		aux_dat += 2;
 	}
@@ -208,13 +217,13 @@ void _dl_boot(unsigned int args)
 	 * (esp since SEND_STDERR() needs this on some platforms... */
 	load_addr = auxv_t[AT_BASE].a_un.a_val;
 	header = (elfhdr *) auxv_t[AT_BASE].a_un.a_ptr;
-	
-	/* check the ELF header to make sure everything looks ok.  */
+
+	/* Check the ELF header to make sure everything looks ok.  */
 	if (! header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
 		header->e_ident[EI_VERSION] != EV_CURRENT || 
-		_dl_strncmp_inline((void *)header, ELFMAG, SELFMAG) != 0)
+		_dl_strncmp_inline((void *)header, ELFMAGIC, SELFMAG) != 0)
 	{
-	    SEND_STDERR("invalid ELF header\n");
+	    SEND_STDERR("Invalid ELF header\n");
 	    _dl_exit(0);
 	}
 #ifdef DL_DEBUG
@@ -222,16 +231,19 @@ void _dl_boot(unsigned int args)
 	SEND_ADDRESS_STDERR(load_addr, 1);
 #endif	
 
+
 	/* Locate the global offset table.  Since this code must be PIC  
 	 * we can take advantage of the magic offset register, if we
 	 * happen to know what that is for this architecture.  If not,
-	 * we can always read stuff out of the ELF file to fine it... */
+	 * we can always read stuff out of the ELF file to find it... */
 #if defined(__i386__)
 	__asm__("\tmovl %%ebx,%0\n\t" : "=a" (got));
 #elif defined(__m68k__)
 	__asm__ ("movel %%a5,%0" : "=g" (got))
 #elif defined(__sparc__)
 	__asm__("\tmov %%l7,%0\n\t" : "=r" (got))
+#elif defined(__arm__)
+	__asm__("\tmov %0, r10\n\t" : "=r"(got));
 #else
 	/* Do things the slow way in C */
 	{
@@ -786,7 +798,6 @@ found_got:
 #ifdef USE_CACHE
 	_dl_unmap_cache();
 #endif
-
 	/* ldd uses uses this.  I am not sure how you pick up the other flags */
 	if (_dl_trace_loaded_objects) {
 		_dl_warn = _dl_getenv("LD_WARN", envp);
@@ -833,8 +844,6 @@ found_got:
 	 * Now we go through and look for REL and RELA records that indicate fixups
 	 * to the GOT tables.  We need to do this in reverse order so that COPY
 	 * directives work correctly */
-
-
 	goof = _dl_loaded_modules ? _dl_fixup(_dl_loaded_modules) : 0;
 
 
@@ -842,10 +851,8 @@ found_got:
 	   and we have to manually search for entries that require fixups. 
 	   Solaris gets this one right, from what I understand.  */
 
-
 	if (_dl_symbol_tables)
 		goof += _dl_copy_fixups(_dl_symbol_tables);
-
 	if (goof || _dl_trace_loaded_objects)
 		_dl_exit(0);
 
@@ -865,7 +872,6 @@ found_got:
 
 	if (_dl_envp)
 		*_dl_envp = (unsigned long) envp;
-
 	{
 		int i;
 		elf_phdr *ppnt;
@@ -940,6 +946,7 @@ found_got:
 	/*
 	 * Transfer control to the application.
 	 */
+	status = 0; /* Used on x86, but not on other arches */
 	START();
 }
 
@@ -956,10 +963,9 @@ void _dl_debug_state()
 int _dl_fixup(struct elf_resolve *tpnt)
 {
 	int goof = 0;
-
+	
 	if (tpnt->next)
 		goof += _dl_fixup(tpnt->next);
-
 	if (tpnt->dynamic_info[DT_REL]) {
 #ifdef ELF_USES_RELOCA
 		_dl_fdprintf(2, "%s: can't handle REL relocation records\n", 
@@ -969,7 +975,6 @@ int _dl_fixup(struct elf_resolve *tpnt)
 		if (tpnt->init_flag & RELOCS_DONE)
 			return goof;
 		tpnt->init_flag |= RELOCS_DONE;
-
 		goof += _dl_parse_relocation_information(tpnt, 
 			tpnt->dynamic_info[DT_REL], tpnt->dynamic_info[DT_RELSZ], 0);
 #endif
@@ -979,7 +984,6 @@ int _dl_fixup(struct elf_resolve *tpnt)
 		if (tpnt->init_flag & RELOCS_DONE)
 			return goof;
 		tpnt->init_flag |= RELOCS_DONE;
-
 		goof += _dl_parse_relocation_information(tpnt, 
 			tpnt->dynamic_info[DT_RELA], tpnt->dynamic_info[DT_RELASZ], 0);
 #else
@@ -992,7 +996,6 @@ int _dl_fixup(struct elf_resolve *tpnt)
 		if (tpnt->init_flag & JMP_RELOCS_DONE)
 			return goof;
 		tpnt->init_flag |= JMP_RELOCS_DONE;
-
 		if (!_dl_not_lazy || *_dl_not_lazy == 0)
 			_dl_parse_lazy_relocation_information(tpnt, 
 				tpnt->dynamic_info[DT_JMPREL], tpnt->dynamic_info[DT_PLTRELSZ], 0);
