@@ -75,6 +75,9 @@
  *
  * Sep 5, 2003
  * Implement *s*scanf for the non-buffered stdio case with old_vfprintf.
+ *
+ * Sep 23, 2003
+ * vfprintf was not always checking for narrow stream orientation.
  */
 
 /* TODO:
@@ -3200,6 +3203,18 @@ int VFPRINTF (FILE * __restrict stream,
 	count = 0;
 	s = format;
 
+#if defined(L_vfprintf) && defined(__UCLIBC_HAS_WCHAR__)
+	/* Sigh... I forgot that by calling _stdio_fwrite, vfprintf doesn't
+	 * always check the stream's orientation.  This is just a temporary
+	 * fix until I rewrite the stdio core work routines. */
+	if (stream->modeflags & __FLAG_WIDE) {
+		stream->modeflags |= __FLAG_ERROR;
+		count = -1;
+		goto DONE;
+	}
+	stream->modeflags |= __FLAG_NARROW;
+#endif
+
 	if (_PPFS_init(&ppfs, format) < 0) { /* Bad format string. */
 		OUTNSTR(stream, (const FMT_TYPE *) ppfs.fmtpos,
 				STRLEN((const FMT_TYPE *)(ppfs.fmtpos)));
@@ -3244,6 +3259,10 @@ int VFPRINTF (FILE * __restrict stream,
 
 		va_end(ppfs.arg);		/* Need to clean up after va_copy! */
 	}
+
+#if defined(L_vfprintf) && defined(__UCLIBC_HAS_WCHAR__)
+ DONE:
+#endif
 
 	__STDIO_THREADUNLOCK(stream);
 
