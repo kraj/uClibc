@@ -1,41 +1,34 @@
-#include <string.h>
-#include <features.h>
-#include <errno.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
+/* Copyright (C) 1998 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-char *mktemp(template)
-char *template;
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Library General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public
+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+extern int __gen_tempname (char *tmpl, int openit);
+
+/* Generate a unique temporary file name from TEMPLATE.
+   The last six characters of TEMPLATE must be "XXXXXX";
+   they are replaced with a string that makes the filename unique.  */
+char * mktemp (char *template)
 {
-	int i;
-	int num __attribute__ ((unused));	/* UNINITIALIZED */
-	int n2;
-	int l = strlen(template);
-	struct stat stbuf;
+    if (__gen_tempname (template, 0) < 0)
+	/* We return the null string if we can't find a unique file name.  */
+	template[0] = '\0';
 
-	if (l < 6) {
-		__set_errno(EINVAL);
-		return 0;
-	}
-
-	for (i = l - 6; i < l; i++)
-		if (template[i] != 'X') {
-			__set_errno(EINVAL);
-			return 0;
-		}
-
-  again:
-	n2 = num;
-	for (i = l - 1; i >= l - 6; i--) {
-		template[i] = '0' + n2 % 10;
-		n2 /= 10;
-	}
-
-	if (stat(template, &stbuf) == 0) {
-		num++;
-		goto again;
-	}
-
-	return template;
+    return template;
 }

@@ -17,35 +17,35 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <stdio.h>
-#include <string.h>
+#include <unistd.h>
 
 extern int __path_search (char *tmpl, size_t tmpl_len, const char *dir, const char *pfx,
 	       int try_tmpdir);
 extern int __gen_tempname (char *tmpl, int openit);
 
-static char tmpnam_buffer[L_tmpnam];
-
-/* Generate a unique filename in P_tmpdir.
-
-   This function is *not* thread safe when S == NULL!  */
-char * tmpnam (char *s)
+/* This returns a new stream opened on a temporary file (generated
+   by tmpnam).  The file is opened with mode "w+b" (binary read/write).
+   If we couldn't generate a unique filename or the file couldn't
+   be opened, NULL is returned.  */
+FILE * tmpfile (void)
 {
-    /* By using two buffers we manage to be thread safe in the case
-       where S != NULL.  */
-    char tmpbuf[L_tmpnam];
+    char buf[FILENAME_MAX];
+    int fd;
+    FILE *f;
 
-    /* In the following call we use the buffer pointed to by S if
-       non-NULL although we don't know the size.  But we limit the size
-       to L_tmpnam characters in any case.  */
-    if (__path_search (s ? : tmpbuf, L_tmpnam, NULL, NULL, 0))
+    if (__path_search (buf, FILENAME_MAX, NULL, "tmpf", 0))
+	return NULL;
+    fd = __gen_tempname (buf, 1);
+    if (fd < 0)
 	return NULL;
 
-    if (__gen_tempname (s ? : tmpbuf, 0))
-	return NULL;
+    /* Note that this relies on the Unix semantics that
+       a file is not really removed until it is closed.  */
+    (void) remove (buf);
 
-    if (s == NULL)
-	return (char *) memcpy (tmpnam_buffer, tmpbuf, L_tmpnam);
+    if ((f = fdopen (fd, "w+b")) == NULL)
+	close (fd);
 
-    return s;
+    return f;
 }
 
