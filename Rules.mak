@@ -41,6 +41,7 @@ CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS)
 ifeq ($(DODEBUG),true)
     CFLAGS += -Wall -g
     LDFLAGS = -nostdlib -Wl,-warn-common 
+    STRIPTOOL = /bin/true -Since_we_are_debugging
 else
     CFLAGS  += -Wall #-fomit-frame-pointer
     LDFLAGS  = -s -nostdlib -Wl,-warn-common

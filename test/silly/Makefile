@@ -13,11 +13,6 @@ EXTRA_LIBS=$(TOPDIR)libc.a -lgcc
 YCFLAGS = -Wall -Os -fomit-frame-pointer
 YLDFLAGS = -s --static 
 
-# Allow alternative stripping tools to be used...
-ifndef $(STRIPTOOL)
-	STRIPTOOL = strip
-endif
-STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $@
 
 TARGETS=hello_source hello hello_glibc
 
@@ -38,7 +33,7 @@ hello: hello.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	$(STRIP)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
 	ls $(LSFLAGS) $@
 	-./$@
@@ -51,7 +46,7 @@ hello_glibc: hello.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
-	$(STRIP)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
 	ls $(LSFLAGS) $@
 	-./$@

@@ -13,11 +13,6 @@ EXTRA_LIBS=$(TOPDIR)libc.a -lgcc
 YCFLAGS = -Wall -Os -fomit-frame-pointer
 YLDFLAGS = -s --static 
 
-# Allow alternative stripping tools to be used...
-ifndef $(STRIPTOOL)
-	STRIPTOOL = strip
-endif
-STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $@
 
 TARGETS=assert assert_glibc
 
@@ -30,6 +25,7 @@ assert: assert.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo "This was supposed to core dump on test #3"
 	-@rm -f core
@@ -42,6 +38,7 @@ assert_glibc: assert.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo "This was supposed to core dump on test #3"
 	-@rm -f core

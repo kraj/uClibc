@@ -13,11 +13,6 @@ EXTRA_LIBS=$(TOPDIR)libc.a -lgcc
 YCFLAGS = -Wall -Os -fomit-frame-pointer
 YLDFLAGS = -s --static 
 
-# Allow alternative stripping tools to be used...
-ifndef $(STRIPTOOL)
-	STRIPTOOL = strip
-endif
-STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $@
 
 TARGETS=testmalloc testmalloc_glibc 
 TARGETS=mallocbug mallocbug_glibc
@@ -39,7 +34,7 @@ testmalloc: testmalloc.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	$(STRIP)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
 	ls $(LSFLAGS) $@
 	-./$@
@@ -52,7 +47,7 @@ testmalloc_glibc: testmalloc.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
-	$(STRIP)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
 	ls $(LSFLAGS) $@
 	-./$@
@@ -65,7 +60,7 @@ mallocbug: mallocbug.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	$(STRIP)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
 	ls $(LSFLAGS) $@
 	-./$@
@@ -78,7 +73,7 @@ mallocbug_glibc: mallocbug.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
-	$(STRIP)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
 	ls $(LSFLAGS) $@
 	-./$@
@@ -98,7 +93,7 @@ teststrtol: teststrtol.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	$(STRIP)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
 	ls -sh $@
 	-./$@ > $@.out
@@ -111,7 +106,7 @@ teststrtol_glibc: teststrtol.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
-	$(STRIP)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-ldd $@
 	ls -sh $@
 	-./$@ > $@.out

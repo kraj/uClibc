@@ -13,11 +13,6 @@ EXTRA_LIBS=$(TOPDIR)libc.a -lgcc
 YCFLAGS = -Wall -Os -fomit-frame-pointer
 YLDFLAGS = -s --static 
 
-# Allow alternative stripping tools to be used...
-ifndef $(STRIPTOOL)
-	STRIPTOOL = strip
-endif
-STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $@
 
 TARGETS=test_pwd test_pwd_glibc
 TARGETS+=test_grp test_grp_glibc
@@ -32,6 +27,7 @@ test_pwd: test_pwd.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ 2>&1 >test_pwd.out
 	-@ echo " "
 
@@ -42,6 +38,7 @@ test_pwd_glibc: test_pwd.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ 2>&1 >test_pwd_glibc.out
 	-@ echo " "
 
@@ -52,6 +49,7 @@ test_grp: test_grp.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ 2>&1 >test_grp.out
 	-@ echo " "
 
@@ -62,6 +60,7 @@ test_grp_glibc: test_grp.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ 2>&1 >test_grp_glibc.out
 	-@ echo " "
 

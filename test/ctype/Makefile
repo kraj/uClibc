@@ -13,11 +13,6 @@ EXTRA_LIBS=$(TOPDIR)libc.a -lgcc
 YCFLAGS = -Wall -Os -fomit-frame-pointer
 YLDFLAGS = -s --static 
 
-# Allow alternative stripping tools to be used...
-ifndef $(STRIPTOOL)
-	STRIPTOOL = strip
-endif
-STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $@
 
 TARGETS=ctype ctype_glibc
 
@@ -30,6 +25,7 @@ ctype: ctype.c ../testsuite.h Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	./$@
 	-@ echo " "
 
@@ -40,6 +36,7 @@ ctype_glibc: ctype.c ../testsuite.h Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo " "
 

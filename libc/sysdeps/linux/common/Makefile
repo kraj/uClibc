@@ -51,7 +51,7 @@ $(MOBJ): $(MSRC)
 
 $(COBJS):
 	$(CC) $(CFLAGS) -g $< -c $*.c -o $*.o
-	#$(STRIPTOOL) -x -R .note -R .comment $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	rm -f *.[oa] *~ core

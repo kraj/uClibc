@@ -16,11 +16,6 @@ EXTRA_LIBS=$(TOPDIR)libc.a -lgcc
 YCFLAGS = -Wall -Os -fomit-frame-pointer
 YLDFLAGS = -s --static 
 
-# Allow alternative stripping tools to be used...
-ifndef $(STRIPTOOL)
-	STRIPTOOL = strip
-endif
-STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $@
 
 TARGETS=string string_glibc
 TARGETS+=testcopy testcopy_glibc
@@ -34,6 +29,7 @@ string: string.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo " "
 
@@ -44,6 +40,7 @@ string_glibc: string.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo " "
 
@@ -54,6 +51,7 @@ testcopy: testcopy.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ > testcopy.out
 	-@ echo " "
 
@@ -64,6 +62,7 @@ testcopy_glibc: testcopy.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(YCFLAGS) -c $< -o $@.o
 	$(CC) $(YLDFLAGS) --static $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ > testcopy.gnu.out
 	-@ echo " "
 
