@@ -31,10 +31,9 @@ LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SU
 DIRS=
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 	DIRS+=linuxthreads
-	LDFLAGS_PTHREADS:= $(LDFLAGS)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	DIRS+=linuxthreads_db
-	LDFLAGS_PTHREADS:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
+	LDFLAGS_THREAD_DB:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
 endif
 endif
 
@@ -73,7 +72,7 @@ $(OBJ): Makefile
 shared: all
 	if [ -f $(LIBPTHREAD) ] ; then \
 		set -e; \
-		$(LD) $(LDFLAGS_PTHREADS) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
+		$(LD) $(LDFLAGS) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
 			-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD) \
 			--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 			-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
@@ -89,7 +88,7 @@ shared: all
 	fi;
 	if [ -f $(LIBTHREAD_DB) ] ; then \
 		set -e; \
-		$(LD) $(LDFLAGS) -soname=$(LIBTHREAD_DB_SHARED).1 \
+		$(LD) $(LDFLAGS_THREAD_DB) -soname=$(LIBTHREAD_DB_SHARED).1 \
 			-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \
 			--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 			-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
