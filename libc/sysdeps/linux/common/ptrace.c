@@ -19,10 +19,14 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/ptrace.h>
+#include <sys/syscall.h>
 #include <stdarg.h>
 
 
-extern long int __ptrace (enum __ptrace_request, pid_t, void *, void *);
+#define __NR___syscall_ptrace __NR_ptrace
+
+static _syscall4(long, __syscall_ptrace, enum __ptrace_request, request, 
+		__kernel_pid_t, pid, void*, addr, void*, data);
 
 long int
 ptrace (enum __ptrace_request request, ...)
@@ -41,7 +45,7 @@ ptrace (enum __ptrace_request request, ...)
   if (request > 0 && request < 4)
     data = &ret;
 
-  res = __ptrace(request, pid, addr, data);
+  res = __syscall_ptrace(request, pid, addr, data);
   if (res >= 0 && request > 0 && request < 4) {
       __set_errno(0);
       return ret;
