@@ -78,12 +78,12 @@ __sigsetjmp_intern:
 	mov.l	r8, @-r4
 
 #if defined __HAVE_ELF__ && defined __HAVE_SHARED__ 
-	mov.l	.LG, r12
+	mov.l	.LG, r2
 	mova	.LG, r0
-	add	r0, r12
+	add	r0, r2
 	/* Make a tail call to __sigjmp_save; it takes the same args.  */
 	mov.l	.L1, r0
-	mov.l   @(r0,r12),r0
+	mov.l   @(r0,r2),r0
 	jmp	@r0
 	 mov     r1, r0
 	.align	2
