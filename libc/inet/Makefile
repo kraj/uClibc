@@ -24,7 +24,12 @@ TOPDIR=../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-DIRS = rpc
+ifeq ($(strip $(INCLUDE_RPC)),true)
+	DIRS=rpc
+else
+	DIRS=
+endif
+ALL_SUBDIRS = $(shell find * -type d -prune -name [a-z]\*)
 
 MSRC=addr.c
 MOBJ=inet_aton.o inet_addr.o inet_ntoa.o
@@ -78,12 +83,12 @@ clean: subdirs_clean
 	rm -f *.[oa] *~ core
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 
 $(patsubst %, _dir_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
+$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy

@@ -206,6 +206,11 @@ uClibc_config.h: Config
 	else \
 	    echo "#undef NO_UNDERSCORES" >> uClibc_config.h ; \
 	fi
+	@if [ "$(INCLUDE_RPC)" = "true" ] ; then \
+	    echo "#define __UCLIBC_HAS_RPC__ 1" >> uClibc_config.h ; \
+	else \
+	    echo "#undef __UCLIBC_HAS_RPC__" >> uClibc_config.h ; \
+	fi
 
 .PHONY: dummy subdirs
 
