@@ -24,6 +24,12 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
+DIRS = 
+ifeq ($(TARGET_ARCH),$(wildcard $(TARGET_ARCH)))
+DIRS = $(TARGET_ARCH)
+endif
+ALL_SUBDIRS = i386
+
 MSRC= wstring.c
 MOBJ=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
 	memcpy.o memmove.o mempcpy.o memrchr.o 	memset.o rawmemchr.o stpcpy.o \
@@ -58,7 +64,7 @@ ifeq ($(UCLIBC_HAS_WCHAR),y)
 	OBJS += $(MOBJW) $(MOBJWx)
 endif
 
-all: $(OBJS) $(LIBC)
+all: $(OBJS) $(LIBC) subdirs
 
 $(LIBC): ar-target
 
@@ -85,6 +91,17 @@ $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-clean:
+clean: subdirs_clean
 	$(RM) *.[oa] *~ core
+
+subdirs: $(patsubst %, _dir_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
+
+$(patsubst %, _dir_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dir_%, %, $@)
+
+$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
+	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+
+.PHONY: dummy
 
