@@ -37,14 +37,7 @@ XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
 
 # BEWARE!!! At least mips* will die if -O0 is used!!!
-XXFLAGS :=$(XXFLAGS:-O0=-O1)
-
-ifeq ($(PIEFLAG),)
-PIEFLAG=-fPIC
-endif
-
-XXFLAGS+=$(PIEFLAG)
-
+XXFLAGS:=$(XXFLAGS:-O0=-O1)
 XXFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 LDFLAGS=$(CPU_LDFLAGS-y) -z now -Bsymbolic -shared --warn-common --export-dynamic --sort-common \
 	-z combreloc --discard-locals --discard-all --no-undefined
