@@ -23,6 +23,12 @@ include $(TOPDIR)Rules.mak
 
 TARGETS = ldd ldconfig readelf
 
+ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
+TARGET_ICONV = iconv
+else
+TARGET_ICONV =
+endif
+
 XXFLAGS=
 ifeq ($(strip $(LDSO_LDD_SUPPORT)),y)
 XXFLAGS= -D__LDSO_LDD_SUPPORT
@@ -31,20 +37,20 @@ XXFLAGS=
 endif
 
 ifeq ($(strip $(HAVE_SHARED)),y)
-all:	$(TARGETS)
+all:	$(TARGETS) $(TARGET_ICONV)
 else
-all:
+all:	$(TARGET_ICONV)
 endif
 
 headers:
 	$(LN) -fs $(TOPDIR)include/elf.h
 
 readelf: readelf.c
-	$(CC) $(CFLAGS) -Wl,-s $^ -o $@ $(LDADD_LIBFLOAT)
+	$(CC) $(CFLAGS) -Wl,-s $^ -o $@ $(LDADD_LIBFLOAT) -L../lib
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldconfig:	ldconfig.c readsoname.c
-	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s \
+	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -static \
 		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@ $(LDADD_LIBFLOAT)
@@ -54,11 +60,16 @@ ldd:	ldd.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
-		$^ -o $@ $(LDADD_LIBFLOAT)
+		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
+	$(STRIPTOOL) -x -R .note -R .comment $@
+
+iconv: ../libc/misc/wchar/wchar.c
+	$(CC) $(CFLAGS) -DL_iconv_main ../libc/misc/wchar/wchar.c -o $@ \
+		$(LDADD_LIBFLOAT) -L../lib
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 clean:
-	$(RM) $(TARGETS) *.o *~ core *.target elf.h
+	$(RM) $(TARGETS) *.o *~ core *.target elf.h iconv
 
 
 readelf.c readsoname.c ldconfig.c ldd.c:	headers
@@ -73,4 +84,6 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	# system has binutils, or we couldn't have gotten this far...
 	#$(INSTALL) -m 755 readelf $(PREFIX)$(RUNTIME_PREFIX)usr/bin/readelf
 endif
-
+ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
+	$(INSTALL) -m 755 iconv $(PREFIX)$(RUNTIME_PREFIX)usr/bin/iconv
+endif
