@@ -84,14 +84,14 @@ double atof(const char *nptr)
 /**********************************************************************/
 #ifdef L_abs
 
-#if UINT_MAX < ULONG_MAX
+#if INT_MAX < LONG_MAX
 
 int abs(int j)
 {
 	return (j >= 0) ? j : -j;
 }
 
-#endif /* UINT_MAX < ULONG_MAX */
+#endif /* INT_MAX < LONG_MAX */
 
 #endif
 /**********************************************************************/
@@ -118,7 +118,7 @@ long int labs(long int j)
 /**********************************************************************/
 #ifdef L_llabs
 
-#if defined(ULLONG_MAX) && (ULLONG_MAX > ULONG_MAX)
+#if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
 #if (ULLONG_MAX == UINTMAX_MAX)
 strong_alias(llabs,imaxabs)
@@ -129,20 +129,20 @@ long long int llabs(long long int j)
 	return (j >= 0) ? j : -j;
 }
 
-#endif /* defined(ULLONG_MAX) && (ULLONG_MAX > ULONG_MAX) */
+#endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
 #endif
 /**********************************************************************/
 #ifdef L_atoi
 
-#if UINT_MAX < ULONG_MAX 
+#if INT_MAX < LONG_MAX 
 
 int atoi(const char *nptr)
 {
 	return (int) strtol(nptr, (char **) NULL, 10);
 }
 
-#endif /* UINT_MAX < ULONG_MAX  */
+#endif /* INT_MAX < LONG_MAX  */
 
 #endif
 /**********************************************************************/
@@ -165,14 +165,14 @@ long atol(const char *nptr)
 /**********************************************************************/
 #ifdef L_atoll
 
-#if defined(ULLONG_MAX) && (ULLONG_MAX > ULONG_MAX)
+#if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
 long long atoll(const char *nptr)
 {
 	return strtoll(nptr, (char **) NULL, 10);
 }
 
-#endif /* defined(ULLONG_MAX) && (ULLONG_MAX > ULONG_MAX) */
+#endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
 #endif
 /**********************************************************************/
@@ -195,7 +195,7 @@ long strtol(const char * __restrict str, char ** __restrict endptr, int base)
 /**********************************************************************/
 #ifdef L_strtoll
 
-#if defined(ULLONG_MAX) && (ULLONG_MAX > ULONG_MAX)
+#if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
 #if (ULLONG_MAX == UINTMAX_MAX)
 strong_alias(strtoll,strtoimax)
@@ -207,7 +207,7 @@ long long strtoll(const char * __restrict str,
     return (long long) _stdlib_strto_ll(str, endptr, base, 1);
 }
 
-#endif /* defined(ULLONG_MAX) && (ULLONG_MAX > ULONG_MAX) */
+#endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
 #endif
 /**********************************************************************/
@@ -231,7 +231,7 @@ unsigned long strtoul(const char * __restrict str,
 /**********************************************************************/
 #ifdef L_strtoull
 
-#if defined(ULLONG_MAX) && (ULLONG_MAX > ULONG_MAX)
+#if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
 #if (ULLONG_MAX == UINTMAX_MAX)
 strong_alias(strtoull,strtoumax)
@@ -243,7 +243,7 @@ unsigned long long strtoull(const char * __restrict str,
     return _stdlib_strto_ll(str, endptr, base, 0);
 }
 
-#endif /* defined(ULLONG_MAX) && (ULLONG_MAX > ULONG_MAX) */
+#endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
 #endif
 /**********************************************************************/
@@ -366,7 +366,7 @@ unsigned long _stdlib_strto_l(register const char * __restrict str,
 /**********************************************************************/
 #ifdef L__stdlib_strto_ll
 
-#if defined(ULLONG_MAX) && (ULLONG_MAX > ULONG_MAX)
+#if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
 /* This is the main work fuction which handles both strtoll (sflag = 1) and
  * strtoull (sflag = 0). */
@@ -473,7 +473,7 @@ unsigned long long _stdlib_strto_ll(register const char * __restrict str,
 	return negative ? (unsigned long long)(-((long long)number)) : number;
 }
 
-#endif /* defined(ULLONG_MAX) && (ULLONG_MAX > ULONG_MAX) */
+#endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
 #endif
 /**********************************************************************/
@@ -632,7 +632,7 @@ void ssort (void  *base,
 
 /* TODO: clean up the following... */
 
-#if WCHAR_MAX > 0xffffU
+#if WCHAR_MAX > 0xffffUL
 #define UTF_8_MAX_LEN 6
 #else
 #define UTF_8_MAX_LEN 3

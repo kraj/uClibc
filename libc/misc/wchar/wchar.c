@@ -85,7 +85,7 @@
 #undef L__wchar_wcsntoutf8s
 #endif
 
-#if WCHAR_MAX > 0xffffU
+#if WCHAR_MAX > 0xffffUL
 #define UTF_8_MAX_LEN 6
 #else
 #define UTF_8_MAX_LEN 3

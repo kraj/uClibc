@@ -427,35 +427,35 @@ extern void __stdio_validate_FILE(FILE *stream);
 #include <limits.h>
 #include <stdint.h>
 
-#if UINTMAX_MAX <= 4294967295UL
+#if INTMAX_MAX <= 2147483647L
 #define __UIM_BUFLEN			12 /* 10 digits + 1 nul + 1 sign */
-#elif UINTMAX_MAX <= 18446744073709551615ULL
+#elif INTMAX_MAX <= 9223372036854775807LL
 #define __UIM_BUFLEN			22 /* 20 digits + 1 nul + 1 sign */
 #else
 #error unknown number of digits for intmax_t!
 #endif
 
-#ifdef ULLONG_MAX				/* --------------- */
-#if ULLONG_MAX <= 4294967295UL
+#ifdef LLONG_MAX				/* --------------- */
+#if LLONG_MAX <= 2147483647L
 #define __UIM_BUFLEN_LLONG		12 /* 10 digits + 1 nul + 1 sign */
-#elif ULLONG_MAX <= 18446744073709551615ULL
+#elif LLONG_MAX <= 9223372036854775807LL
 #define __UIM_BUFLEN_LLONG		22 /* 20 digits + 1 nul + 1 sign */
 #else
 #error unknown number of digits for long long!
 #endif
 #endif /* ULLONG_MAX ----------------------------- */
 
-#if ULONG_MAX <= 4294967295UL
+#if LONG_MAX <= 2147483647L
 #define __UIM_BUFLEN_LONG		12 /* 10 digits + 1 nul + 1 sign */
-#elif ULONG_MAX <= 18446744073709551615ULL
+#elif LONG_MAX <= 9223372036854775807LL
 #define __UIM_BUFLEN_LONG		22 /* 20 digits + 1 nul + 1 sign */
 #else
 #error unknown number of digits for long!
 #endif
 
-#if UINT_MAX <= 65536U
+#if INT_MAX <= 32767
 #define __UIM_BUFLEN_INT		7 /* 10 digits + 1 nul + 1 sign */
-#elif UINT_MAX <= 4294967295UL
+#elif INT_MAX <= 2147483647L
 #define __UIM_BUFLEN_INT		12 /* 10 digits + 1 nul + 1 sign */
 #else
 #error unknown number of digits for int!

@@ -876,6 +876,9 @@ Wchar *Wstrstr(const Wchar *s1, const Wchar *s2)
 
 #endif
 /**********************************************************************/
+#undef Wstrspn
+#undef Wstrpbrk
+
 #ifdef L_wcstok
 #define L_strtok_r
 #define Wstrtok_r wcstok
@@ -1160,6 +1163,9 @@ void *memccpy(void * __restrict s1, const void * __restrict s2, int c, size_t n)
 
 #endif
 /**********************************************************************/
+#undef Wstrlen
+#undef Wstrcpy
+
 #ifdef L_wcsdup
 #define L_strdup
 #define Wstrdup wcsdup

@@ -95,7 +95,7 @@
 
 #ifndef __STDIO_THREADSAFE
 
-#ifdef __BCC__
+#if defined(__BCC__) && 0
 #define UNLOCKED_STREAM(RETURNTYPE,NAME,PARAMS,ARGS,STREAM) \
 asm(".text\nexport _" "NAME" "_unlocked\n_" "NAME" "_unlocked = _" "NAME"); \
 RETURNTYPE NAME PARAMS
@@ -108,7 +108,7 @@ RETURNTYPE NAME PARAMS
 #define UNLOCKED(RETURNTYPE,NAME,PARAMS,ARGS) \
 	UNLOCKED_STREAM(RETURNTYPE,NAME,PARAMS,ARGS,stream)
 
-#ifdef __BCC__
+#if defined(__BCC__) && 0
 #define UNLOCKED_VOID_RETURN(NAME,PARAMS,ARGS) \
 asm(".text\nexport _" "NAME" "_unlocked\n_" "NAME" "_unlocked = _" "NAME"); \
 void NAME PARAMS
@@ -3274,7 +3274,7 @@ void _stdio_fdout(int fd, ...)
 
 /* Avoid using long long / and % operations to cut down dependencies on
  * libgcc.a.  Definitely helps on i386 at least. */
-#if (UINTMAX_MAX > UINT_MAX) && ((UINTMAX_MAX/UINT_MAX) - 2 <= UINT_MAX)
+#if (INTMAX_MAX > INT_MAX) && (((INTMAX_MAX/INT_MAX)/2) - 2 <= INT_MAX)
 #define INTERNAL_DIV_MOD
 #endif
 

@@ -764,7 +764,7 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 	int n;
 	int argtype[MAX_ARGS_PER_SPEC+2];
 	int argnumber[3];			/* width, precision, 1st data arg */
-	unsigned int conv_num = 0;
+	unsigned int conv_num;		/* This does not need to be initialized. */
 	static const char spec_flags[] = SPEC_FLAGS;
 	static const char spec_chars[] = SPEC_CHARS;/* TODO: b? */
 	static const char spec_ranges[] = SPEC_RANGES;
@@ -1723,14 +1723,14 @@ int sprintf(char *__restrict buf, const char * __restrict format, ...)
  */
 #define DIGITS_PER_BLOCK     9
 
-#if UINT_MAX >= 4294967295UL
+#if INT_MAX >= 2147483647L
 #define DIGIT_BLOCK_TYPE     int
 #define DB_FMT               "%.*d"
-#elif LONG_MAX >= 4294967295UL
+#elif LONG_MAX >= 2147483647L
 #define DIGIT_BLOCK_TYPE     long
 #define DB_FMT               "%.*ld"
 #else
-#error need at least 32 bit longs
+#warning need at least 32 bit longs
 #endif
 
 /* Maximum number of calls to fnprintf to output double. */

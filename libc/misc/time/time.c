@@ -449,7 +449,8 @@ static int tm_isdst(register const struct tm *__restrict ptm)
 {
 	register rule_struct *r = _time_tzinfo;
 	long sec;
-	int i, isdst, isleap, day, day0, monlen, mday, oday;
+	int i, isdst, isleap, day, day0, monlen, mday;
+	int oday;					/* Note: oday can be uninitialized. */
 
 	isdst = 0;
 	if (r[1].tzname[0] != 0) {
@@ -1681,7 +1682,7 @@ struct tm *_time_t2tm(const time_t *__restrict timer,
 {
 	register int *p;
 	time_t t1, t, v;
-	int wday;
+	int wday;					/* Note: wday can be uninitialized. */
 
 	{
 		register const uint16_t *vp;
