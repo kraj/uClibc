@@ -214,7 +214,6 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 		lib->path = buf;
 	} else { 
 		free(buf);
-		printf("bad stuff\n");
 		lib->path = not_found;
 	}
 }
