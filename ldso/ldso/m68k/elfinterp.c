@@ -29,10 +29,7 @@
  * SUCH DAMAGE.
  */
 
-#ifndef VERBOSE_DLINKER
-#define VERBOSE_DLINKER
-#endif
-#ifdef VERBOSE_DLINKER
+#if defined (__SUPPORT_LD_DEBUG__)
 static const char *_dl_reltypes[] =
 {
   "R_68K_NONE",
@@ -93,9 +90,10 @@ unsigned int _dl_linux_resolver (int dummy1, int dummy2,
   instr_addr = (int) this_reloc->r_offset + (int) tpnt->loadaddr;
   got_addr = (char **) instr_addr;
 
-#ifdef LD_DEBUG_SYMBOLS
-  _dl_dprintf (2, "Resolving symbol %s\n",
-		strtab + symtab[symtab_index].st_name);
+#ifdef __SUPPORT_LD_DEBUG__
+  if (_dl_debug_symbols) {
+	  _dl_dprintf (2, "Resolving symbol %s\n", strtab + symtab[symtab_index].st_name);
+  }
 #endif
 
   /* Get the address of the GOT entry.  */
@@ -107,16 +105,24 @@ unsigned int _dl_linux_resolver (int dummy1, int dummy2,
 		    _dl_progname, strtab + symtab[symtab_index].st_name);
       _dl_exit (1);
     }
-#ifdef LD_NEVER_FIXUP_SYMBOLS
-  if ((unsigned int) got_addr < 0x40000000) {
-      _dl_dprintf (2, "Calling library function: %s\n",
-	      strtab + symtab[symtab_index].st_name);
-  } else {
-      *got_addr = new_addr;
-  }
+#if defined (__SUPPORT_LD_DEBUG__)
+	if ((unsigned long) got_addr < 0x40000000)
+	{
+		if (_dl_debug_bindings)
+		{
+			_dl_dprintf(_dl_debug_file, "\nresolve function: %s",
+					strtab + symtab[symtab_index].st_name);
+			if(_dl_debug_detail) _dl_dprintf(_dl_debug_file, 
+					"\tpatch %x ==> %x @ %x", *got_addr, new_addr, got_addr);
+		}
+	}
+	if (!_dl_debug_nofixups) {
+		*got_addr = new_addr;
+	}
 #else
-  *got_addr = new_addr;
+	*got_addr = new_addr;
 #endif
+
   return (unsigned int) new_addr;
 }
 
@@ -162,7 +168,7 @@ _dl_parse_lazy_relocation_information (struct elf_resolve *tpnt,
 	  break;
 	default:
 	  _dl_dprintf (2, "%s: (LAZY) can't handle reloc type ", _dl_progname);
-#ifdef VERBOSE_DLINKER
+#if defined (__SUPPORT_LD_DEBUG__)
 	  _dl_dprintf (2, "%s ", _dl_reltypes[reloc_type]);
 #endif
 	  if (symtab_index)
@@ -274,7 +280,7 @@ _dl_parse_relocation_information (struct elf_resolve *tpnt,
 	  break;
 	default:
 	  _dl_dprintf (2, "%s: can't handle reloc type ", _dl_progname);
-#ifdef VERBOSE_DLINKER
+#if defined (__SUPPORT_LD_DEBUG__)
 	  _dl_dprintf (2, "%s ", _dl_reltypes[reloc_type]);
 #endif
 	  if (symtab_index)

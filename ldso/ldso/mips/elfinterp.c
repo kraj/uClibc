@@ -56,7 +56,7 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 
 	*(got + local_gotno + sym_index - gotsym) = value;
 
-#ifdef LD_DEBUG
+#if defined (__SUPPORT_LD_DEBUG__)
 	_dl_dprintf(2, "---RESOLVER---\n");
 	_dl_dprintf(2, "SYMTAB INDEX: %i\n", sym_index);
 	_dl_dprintf(2, "      GOTSYM: %i\n", gotsym);
@@ -164,7 +164,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 
 		/* Relocate the global GOT entries for the object */
 		while(i--) {
-#ifdef LD_DEBUG
+#if defined (__SUPPORT_LD_DEBUG__)
 			_dl_dprintf(2,"BEFORE: %s=%x\n", strtab + sym->st_name,
 				*got_entry);
 #endif
@@ -192,7 +192,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 					sym->st_name, tpnt->symbol_scope, NULL, copyrel);
 			}
 
-#ifdef LD_DEBUG
+#if defined (__SUPPORT_LD_DEBUG__)
 			if (*got_entry == 0)
 				_dl_dprintf(2,"ZERO: %s\n", strtab + sym->st_name);
 			else

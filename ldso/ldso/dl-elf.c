@@ -193,8 +193,8 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		pnt++;
 	}
 
-#ifdef LD_DEBUG
-	    _dl_dprintf(_dl_debug_file, "searching for library: '%s'\n", libname);
+#if defined (__SUPPORT_LD_DEBUG__)
+	if(_dl_debug) _dl_dprintf(_dl_debug_file, "searching for library: '%s'\n", libname);
 #endif
 	/* If the filename has any '/', try it straight and leave it at that.
 	   For IBCS2 compatibility under linux, we substitute the string 
@@ -217,8 +217,8 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 			if (pnt) {
 				pnt += (unsigned long) tpnt->loadaddr +
 					tpnt->dynamic_info[DT_STRTAB];
-#ifdef LD_DEBUG
-				_dl_dprintf(_dl_debug_file, "searching RPATH: '%s'\n", pnt);
+#if defined (__SUPPORT_LD_DEBUG__)
+				if(_dl_debug) _dl_dprintf(_dl_debug_file, "searching RPATH: '%s'\n", pnt);
 #endif
 				if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL) 
 				{
@@ -230,8 +230,8 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 
 	/* Check in LD_{ELF_}LIBRARY_PATH, if specified and allowed */
 	if (_dl_library_path) {
-#ifdef LD_DEBUG
-	    _dl_dprintf(_dl_debug_file, "searching _dl_library_path: '%s'\n", _dl_library_path);
+#if defined (__SUPPORT_LD_DEBUG__)
+		if(_dl_debug) _dl_dprintf(_dl_debug_file, "searching _dl_library_path: '%s'\n", _dl_library_path);
 #endif
 	    if ((tpnt1 = search_for_named_library(libname, secure, _dl_library_path, rpnt)) != NULL) 
 	    {
@@ -264,8 +264,8 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 
 	/* Look for libraries wherever the shared library loader
 	 * was installed */
-#ifdef LD_DEBUG
-	_dl_dprintf(_dl_debug_file, "searching in ldso dir: %s\n", _dl_ldsopath);
+#if defined (__SUPPORT_LD_DEBUG__)
+	if(_dl_debug) _dl_dprintf(_dl_debug_file, "searching in ldso dir: %s\n", _dl_ldsopath);
 #endif
 	if ((tpnt1 = search_for_named_library(libname, secure, _dl_ldsopath, rpnt)) != NULL) 
 	{
@@ -275,8 +275,8 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 
 	/* Lastly, search the standard list of paths for the library.
 	   This list must exactly match the list in uClibc/ldso/util/ldd.c */
-#ifdef LD_DEBUG
-	    _dl_dprintf(_dl_debug_file, "searching full lib path list\n");
+#if defined (__SUPPORT_LD_DEBUG__)
+	if(_dl_debug) _dl_dprintf(_dl_debug_file, "searching full lib path list\n");
 #endif
 	if ((tpnt1 = search_for_named_library(libname, secure, 
 			UCLIBC_TARGET_PREFIX "/usr/lib:"
@@ -296,8 +296,8 @@ goof:
 		_dl_error_number = _dl_internal_error_number;
 	else
 		_dl_error_number = LD_ERROR_NOFILE;
-#ifdef LD_DEBUG
-	    _dl_dprintf(2, "Bummer: could not find '%s'!\n", libname);
+#if defined (__SUPPORT_LD_DEBUG__)
+	if(_dl_debug) _dl_dprintf(2, "Bummer: could not find '%s'!\n", libname);
 #endif
 	return NULL;
 }
@@ -643,7 +643,7 @@ int _dl_copy_fixups(struct dyn_elf *rpnt)
 		return goof;
 	tpnt->init_flag |= COPY_RELOCS_DONE;
 
-#if defined (SUPPORT_LD_DEBUG)
+#if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) _dl_dprintf(_dl_debug_file,"\nrelocation copy fixups: %s", tpnt->libname);	
 #endif    
 
@@ -656,7 +656,7 @@ int _dl_copy_fixups(struct dyn_elf *rpnt)
 		tpnt->dynamic_info[DT_RELSZ], 0);
 
 #endif
-#if defined (SUPPORT_LD_DEBUG)
+#if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) _dl_dprintf(_dl_debug_file,"\nrelocation copy fixups: %s; finished\n\n", tpnt->libname);	
 #endif    
 	return goof;

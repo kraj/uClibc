@@ -33,12 +33,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef VERBOSE_DLINKER
-#define VERBOSE_DLINKER
-#endif
-
 /* Support for the LD_DEBUG variable. */
-#if defined (SUPPORT_LD_DEBUG) || defined (LD_DEBUG_SYMBOLS)
+#if defined (__SUPPORT_LD_DEBUG__)
 static const char *_dl_reltypes_tab[] = {
 	[0]		"R_CRIS_NONE", "R_CRIS_8", "R_CRIS_16", "R_CRIS_32",
 	[4]		"R_CRIS_8_PCREL", "R_CRIS_16_PCREL", "R_CRIS_32_PCREL", "R_CRIS_GNU_VTINHERIT",
@@ -143,7 +139,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_offset)
 		_dl_exit(1);
 	}
 
-#if defined (SUPPORT_LD_DEBUG)
+#if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_bindings) {
 		_dl_dprintf(_dl_debug_file, "\nresolve function: %s", strtab + symtab[symtab_index].st_name);
 		
@@ -188,7 +184,7 @@ _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, unsigned long re
 			_dl_symbol(strtab + symtab[symtab_index].st_name))
 			continue;
 
-#if defined (SUPPORT_LD_DEBUG) || defined (LD_DEBUG_SYMBOLS)
+#if defined (__SUPPORT_LD_DEBUG__)
 	{
 		unsigned long old_val = *reloc_addr;
 
@@ -203,7 +199,7 @@ _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, unsigned long re
 			default:
 				_dl_dprintf(_dl_debug_file, "%s: Can't handle relocation type (lazy).\n",
 					_dl_progname);
-#ifdef SUPPORT_LD_DEBUG
+#ifdef __SUPPORT_LD_DEBUG__
 					_dl_dprintf(_dl_debug_file, "%s ", _dl_reltypes(reloc_type));
 #endif
 				if (symtab_index)
@@ -211,7 +207,7 @@ _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, unsigned long re
 
 				_dl_exit(1);
 		}
-#if defined(SUPPORT_LD_DEBUG)
+#if defined(__SUPPORT_LD_DEBUG__)
 		if (_dl_debug_reloc && _dl_debug_detail)
 			_dl_dprintf(_dl_debug_file, "\tpatch: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
 	}
@@ -273,7 +269,7 @@ _dl_parse_relocation_information(struct elf_resolve *tpnt, unsigned long rel_add
 			symbol_addr += rpnt->r_addend;
 		}
 
-#if defined(SUPPORT_LD_DEBUG)
+#if defined(__SUPPORT_LD_DEBUG__)
 	{
 		unsigned long old_val = *reloc_addr;
 		debug_sym(symtab,strtab,symtab_index);
@@ -311,7 +307,7 @@ _dl_parse_relocation_information(struct elf_resolve *tpnt, unsigned long rel_add
 				break;
 			default:
 				_dl_dprintf(_dl_debug_file, "%s: Can't handle relocation type ", _dl_progname);
-#ifdef SUPPORT_LD_DEBUG
+#ifdef __SUPPORT_LD_DEBUG__
 				_dl_dprintf(_dl_debug_file, "%s\n", _dl_reltypes(reloc_type));
 #endif
 				if (symtab_index) {
@@ -319,7 +315,7 @@ _dl_parse_relocation_information(struct elf_resolve *tpnt, unsigned long rel_add
 					return -1;
 				}
 		}
-#if defined(SUPPORT_LD_DEBUG)
+#if defined(__SUPPORT_LD_DEBUG__)
 		if (_dl_debug_reloc && _dl_debug_detail)
 			_dl_dprintf(_dl_debug_file, "\tpatch: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
 	}
@@ -385,7 +381,7 @@ _dl_parse_copy_information(struct dyn_elf *xpnt, unsigned long rel_addr, unsigne
 		}
 
 		if (!goof) {
-#if defined(SUPPORT_LD_DEBUG)
+#if defined(__SUPPORT_LD_DEBUG__)
 			if (_dl_debug_move)
 				_dl_dprintf(_dl_debug_file, "\n%s move %x bytes from %x to %x",
 					strtab + symtab[symtab_index].st_name,

@@ -33,6 +33,17 @@ config BUILD_UCLIBC_LDSO
 	  be built for your target architecture.  If this option is available,
 	  to you, then you almost certainly want to answer Y.
 
+config LDSO_LDD_SUPPORT
+	bool "Native shared library loader 'ldd' support"
+	depends on BUILD_UCLIBC_LDSO
+	default y
+	help
+	  Enable this to enable all the code needed to support traditional ldd,
+	  which executes the shared library loader to resolve all dependancies
+	  and then provide a list of shared libraries that are required for an
+	  application to function.  Disabling this option will makes uClibc's
+	  shared library loader a little bit smaller.  Most people will answer Y.
+
 config UCLIBC_HAS_THREADS
 	bool "POSIX Threading Support"
 	default y
@@ -264,6 +275,55 @@ config DODEBUG
 	  If you are doing development and want to debug uClibc, answer Y.
 
 	  Otherwise, answer N.
+
+config SUPPORT_LD_DEBUG
+	bool "Build the shared library loader with debugging support"
+	depends on BUILD_UCLIBC_LDSO
+	default y
+	help
+	  Answer Y here to enable all the extra code needed to debug the uClibc
+	  native shared library loader.  The level of debugging noise that is
+	  generated depends on the LD_DEBUG environment variable...  Just set
+	  LD_DEBUG to something like: 'LD_DEBUG=token1,token2,..  prog' to
+	  debug your application.  Diagnostic messages will then be printed to
+	  the stderr.
+
+	  For now these debugging tokens are available:
+	    detail        provide more information for some options
+	    move          display copy processings
+	    symbols       display symbol table processing
+	    reloc         display relocation processing; detail shows the relocation patch
+	    nofixups      never fixes up jump relocations
+	    bindings      displays the resolve processing (function calls); detail shows the relocation patch
+	    all           Enable everything!
+
+	  The additional environment variable:
+	    LD_DEBUG_OUTPUT=file
+	  redirects the diagnostics to an output file created using
+	  the specified name and the process id as a suffix.
+
+	  An excellent start is simply:
+	    $ LD_DEBUG=binding,move,symbols,reloc,detail ./appname
+	  or to log everything to a file named 'logfile', try this
+	    $ LD_DEBUG=all LD_DEBUG_OUTPUT=logfile ./appname
+
+	  If you are doing development and want to debug uClibc's shared library
+	  loader, answer Y.  Mere mortals answer N.
+
+config SUPPORT_LD_DEBUG_EARLY
+	bool "Build the shared library loader with early debugging support"
+	depends on BUILD_UCLIBC_LDSO
+	default y
+	help
+	  Answer Y here to if you find the uClibc shared library loader is
+	  crashing or otherwise not working very early on.  This is typical
+	  only when starting a new port when you havn't figured out how to
+	  properly get the values for argc, argv, environ, etc.  This method
+	  allows a degree of visibility into the very early shared library
+	  loader initialization process.  If you are doing development and want
+	  to debug the uClibc shared library loader early initialization,
+	  answer Y.  Mere mortals answer N.
+
 endmenu
 
 

@@ -27,10 +27,7 @@
  * SUCH DAMAGE.
  */
 
-#ifndef VERBOSE_DLINKER
-#define VERBOSE_DLINKER
-#endif
-#ifdef VERBOSE_DLINKER
+#if defined (__SUPPORT_LD_DEBUG__)
 static const char *_dl_reltypes[] =
 	{ "R_PPC_NONE", "R_PPC_ADDR32", "R_PPC_ADDR24", "R_PPC_ADDR16",
 	"R_PPC_ADDR16_LO", "R_PPC_ADDR16_HI", "R_PPC_ADDR16_HA",
@@ -59,10 +56,10 @@ static const char *_dl_reltypes[] =
    working. */
 
 
-#ifdef LD_DEBUG_SYMBOLS
+#ifdef __SUPPORT_LD_DEBUG__
 static void debug_sym(Elf32_Sym *symtab,char *strtab,int symtab_index);
 static void debug_reloc(ELF_RELOC *rpnt);
-#define DPRINTF(fmt,args...) _dl_dprintf(2,fmt,args)
+#define DPRINTF(fmt,args...) if (_dl_debug) _dl_dprintf(2,fmt,args)
 #else
 #define debug_sym(a,b,c)
 #define debug_reloc(a)
@@ -286,7 +283,7 @@ void _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt,
 		default:
 			_dl_dprintf(2, "%s: (LAZY) can't handle reloc type ", 
 				_dl_progname);
-#ifdef VERBOSE_DLINKER
+#if defined (__SUPPORT_LD_DEBUG__)
 			_dl_dprintf(2, "%s ", _dl_reltypes[reloc_type]);
 #endif
 			if (symtab_index)
@@ -434,7 +431,7 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 			break;
 		default:
 			_dl_dprintf(2, "%s: can't handle reloc type ", _dl_progname);
-#ifdef VERBOSE_DLINKER
+#if defined (__SUPPORT_LD_DEBUG__)
 			_dl_dprintf(2, "%s ", _dl_reltypes[reloc_type]);
 #endif
 			if (symtab_index)
@@ -561,29 +558,33 @@ static void fixup_jmpslot(unsigned long reloc_addr, unsigned long targ_addr)
 #endif
 
 
-#ifdef LD_DEBUG_SYMBOLS
+#ifdef __SUPPORT_LD_DEBUG__
 static void debug_sym(Elf32_Sym *symtab,char *strtab,int symtab_index)
 {
-	if(symtab_index){
-		_dl_dprintf(2, "sym: name=%s value=%x size=%x info=%x other=%x shndx=%x\n",
-			strtab + symtab[symtab_index].st_name,
-			symtab[symtab_index].st_value,
-			symtab[symtab_index].st_size,
-			symtab[symtab_index].st_info,
-			symtab[symtab_index].st_other,
-			symtab[symtab_index].st_shndx);
-	}else{
-		_dl_dprintf(2, "sym: null\n");
+	if (_dl_debug_symbols) {
+		if(symtab_index){
+			_dl_dprintf(2, "sym: name=%s value=%x size=%x info=%x other=%x shndx=%x\n",
+					strtab + symtab[symtab_index].st_name,
+					symtab[symtab_index].st_value,
+					symtab[symtab_index].st_size,
+					symtab[symtab_index].st_info,
+					symtab[symtab_index].st_other,
+					symtab[symtab_index].st_shndx);
+		}else{
+			_dl_dprintf(2, "sym: null\n");
+		}
 	}
 }
 
 static void debug_reloc(ELF_RELOC *rpnt)
 {
-	_dl_dprintf(2, "reloc: offset=%x type=%x sym=%x addend=%x\n",
-		rpnt->r_offset,
-		ELF32_R_TYPE(rpnt->r_info),
-		ELF32_R_SYM(rpnt->r_info),
-		rpnt->r_addend);
+	if (_dl_debug_reloc) {
+		_dl_dprintf(2, "reloc: offset=%x type=%x sym=%x addend=%x\n",
+				rpnt->r_offset,
+				ELF32_R_TYPE(rpnt->r_info),
+				ELF32_R_SYM(rpnt->r_info),
+				rpnt->r_addend);
+	}
 }
 
 #endif
