@@ -1451,7 +1451,6 @@ int vasprintf(char **__restrict buf, const char * __restrict format,
 		return -1;
 	}
 	rv = vfprintf(f, format, arg);
-	if (rv >= 0) fputc('\0', f);
 	fclose(f);
 	if (rv < 0) {
 		free(*buf);

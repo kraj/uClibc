@@ -643,6 +643,7 @@ static ssize_t oms_write(void *cookie, const char *buf, size_t bufsize)
 
 	if (COOKIE->pos > COOKIE->eof) {
 		*COOKIE->sizeloc = COOKIE->eof = COOKIE->pos;
+		COOKIE->buf[COOKIE->eof] = 0; /* Need to nul-terminate. */
 	}
 
 	return bufsize;
