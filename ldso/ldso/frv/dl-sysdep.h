@@ -30,24 +30,6 @@ USA.  */
 #undef ELF_USES_RELOCA
 
 /*
- * Get a pointer to the argv array.  On many platforms this can be just
- * the address if the first argument, on other platforms we need to
- * do something a little more subtle here.
- */
-#define GET_ARGV(ARGVP, ARGS) ARGVP = ((unsigned long*) ARGS)
-
-/*
- * Compute the GOT address.  On several platforms, we use assembly
- * here.  on FR-V FDPIC, there's no way to compute the GOT address,
- * since the offset between text and data is not fixed, so we arrange
- * for the assembly _dl_boot to pass this value as an argument to
- * _dl_boot.  */
-#define DL_BOOT_COMPUTE_GOT(got) ((got) = dl_boot_got_pointer)
-
-#define DL_BOOT_COMPUTE_DYN(dpnt, got, load_addr) \
-  ((dpnt) = dl_boot_ldso_dyn_pointer)
-
-/*
  * Initialization sequence for a GOT.  Copy the resolver function
  * descriptor and the pointer to the elf_resolve/link_map data
  * structure.  Initialize the got_value in the module while at that.
@@ -60,52 +42,10 @@ USA.  */
   GOT_BASE[2] = (unsigned long) MODULE; \
 }
 
-/*
- * Here is a macro to perform a relocation.  This is only used when
- * bootstrapping the dynamic loader.  RELP is the relocation that we
- * are performing, REL is the pointer to the address we are relocating.
- * SYMBOL is the symbol involved in the relocation, and LOAD is the
- * load address.
- */
-#define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB) \
-	switch(ELF32_R_TYPE((RELP)->r_info)){				\
-	case R_FRV_32:							\
-	  *(REL) += (SYMBOL);						\
-	  break;							\
-	case R_FRV_FUNCDESC_VALUE:					\
-	  {								\
-	    struct funcdesc_value fv = {				\
-	      (void*)((SYMBOL) + *(REL)),				\
-	      (LOAD).got_value						\
-	    };								\
-	    *(struct funcdesc_value volatile *)(REL) = fv;		\
-	    break;							\
-	  }								\
-	default:							\
-	  _dl_exit(1);							\
-	}
-
-/*
- * Transfer control to the user's application, once the dynamic loader
- * is done.  We return the address of the function's entry point to
- * _dl_boot, see boot1_arch.h.
- */
-#define START()	do {							\
-  struct elf_resolve *exec_mod = _dl_loaded_modules;			\
-  dl_main_funcdesc->entry_point = _dl_elf_main;				\
-  while (exec_mod->libtype != elf_executable)				\
-    exec_mod = exec_mod->next;						\
-  dl_main_funcdesc->got_value = exec_mod->loadaddr.got_value;		\
-  /* _dl_dprintf(2, "entry point is (%x,%x)\n", dl_main_funcdesc->entry_point, dl_main_funcdesc->got_value); */ \
-  return;								\
-} while (0)
-
-
-
 /* Here we define the magic numbers that this dynamic loader should accept */
-
 #define MAGIC1 EM_CYGNUS_FRV
 #undef  MAGIC2
+
 /* Used for error messages */
 #define ELF_TARGET "FR-V"
 
