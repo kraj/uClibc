@@ -147,7 +147,7 @@ install_runtime:
 #ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
 	ln -sf $(INSTALL_DIR)/lib/$(UCLIBC_LDSO) /lib/$(UCLIBC_LDSO);
 	install -d $(INSTALL_DIR)/etc
-	ldso/util/ldconfig
+	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
 #endif
 
 # Installs development library and headers
