@@ -118,32 +118,8 @@ malloc_from_heap (size_t size, struct heap *heap)
       if (likely (block != (void *)-1))
 	{
 #if !defined(MALLOC_USE_SBRK) && defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)
-	  struct malloc_mmb *mmb, *prev_mmb;
-	  struct malloc_mmb *new_mmb
-	    = malloc_from_heap (sizeof *new_mmb, &__malloc_mmb_heap);
-
-	  /* Insert a record of this allocation in sorted order into the
-	     __malloc_mmapped_blocks list.  */
-
-	  for (prev_mmb = 0, mmb = __malloc_mmapped_blocks;
-	       mmb;
-	       prev_mmb = mmb, mmb = mmb->next)
-	    if (block < mmb->mem)
-	      break;
-
-	  new_mmb->next = mmb;
-	  new_mmb->mem = block;
-	  new_mmb->size = block_size;
-
-	  if (prev_mmb)
-	    prev_mmb->next = new_mmb;
-	  else
-	    __malloc_mmapped_blocks = new_mmb;
-
-	  MALLOC_MMB_DEBUG ("  new mmb at 0x%x: 0x%x[%d]\n",
-			    (unsigned)new_mmb,
-			    (unsigned)new_mmb->mem, block_size);
-#endif /* !MALLOC_USE_SBRK && __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
+	  struct malloc_mmb *mmb, *prev_mmb, *new_mmb;
+#endif
 
 	  MALLOC_DEBUG ("  adding memory: 0x%lx - 0x%lx (%d bytes)\n",
 			(long)block, (long)block + block_size, block_size);
@@ -158,6 +134,31 @@ malloc_from_heap (size_t size, struct heap *heap)
 	  mem = __heap_alloc (heap, &size);
 
 	  __heap_unlock (heap);
+
+#if !defined(MALLOC_USE_SBRK) && defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)
+	  /* Insert a record of BLOCK in sorted order into the
+	     __malloc_mmapped_blocks list.  */
+
+	  for (prev_mmb = 0, mmb = __malloc_mmapped_blocks;
+	       mmb;
+	       prev_mmb = mmb, mmb = mmb->next)
+	    if (block < mmb->mem)
+	      break;
+
+	  new_mmb = malloc_from_heap (sizeof *new_mmb, &__malloc_mmb_heap);
+	  new_mmb->next = mmb;
+	  new_mmb->mem = block;
+	  new_mmb->size = block_size;
+
+	  if (prev_mmb)
+	    prev_mmb->next = new_mmb;
+	  else
+	    __malloc_mmapped_blocks = new_mmb;
+
+	  MALLOC_MMB_DEBUG ("  new mmb at 0x%x: 0x%x[%d]\n",
+			    (unsigned)new_mmb,
+			    (unsigned)new_mmb->mem, block_size);
+#endif /* !MALLOC_USE_SBRK && __UCLIBC_UCLINUX_BROKEN_MUNMAP__ */
 	}
     }
 
