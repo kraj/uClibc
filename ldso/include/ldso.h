@@ -2,6 +2,21 @@
 #define _LDSO_H_
 
 #include <features.h>
+
+/* Prepare for the case that `__builtin_expect' is not available.  */
+#if __GNUC__ == 2 && __GNUC_MINOR__ < 96
+#define __builtin_expect(x, expected_value) (x)
+#endif
+#ifndef likely
+# define likely(x)	__builtin_expect((!!(x)),1)
+#endif
+#ifndef unlikely
+# define unlikely(x)	__builtin_expect((!!(x)),0)
+#endif
+#ifndef __LINUX_COMPILER_H
+#define __LINUX_COMPILER_H
+#endif
+
 /* Pull in compiler and arch stuff */
 #include <stdlib.h>
 #include <stdarg.h>
@@ -19,21 +34,6 @@
 /* Now the ldso specific headers */
 #include <dl-elf.h>
 #include <dl-hash.h>
-
-/* Prepare for the case that `__builtin_expect' is not available.  */
-#if __GNUC__ == 2 && __GNUC_MINOR__ < 96
-#define __builtin_expect(x, expected_value) (x)
-#endif
-#ifndef likely
-# define likely(x)	__builtin_expect((!!(x)),1)
-#endif
-#ifndef unlikely
-# define unlikely(x)	__builtin_expect((!!(x)),0)
-#endif
-#ifndef __LINUX_COMPILER_H
-#define __LINUX_COMPILER_H
-#endif
-
 
 /* Global variables used within the shared library loader */
 extern char *_dl_library_path;         /* Where we look for libraries */
