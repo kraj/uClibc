@@ -33,7 +33,7 @@ include Rules.mak
 
 DIRS = extra ldso libc libcrypt libresolv libutil libm libpthread
 
-all: headers uClibc_config.h subdirs shared finished
+all: headers uClibc_config subdirs shared finished
 
 Config:
 	@echo
@@ -64,13 +64,19 @@ finished: shared
 	@echo
 
 headers: dummy
-	@rm -f include/asm include/linux include/bits
+	@- find include -type l -exec rm -f {} \;
 	@if [ $(TARGET_ARCH) = "powerpc" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-ppc include/asm; \
 	elif [ $(TARGET_ARCH) = "v850" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-v850 include/asm; \
 	elif [ $(TARGET_ARCH) = "mips" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-mips include/asm; \
+	elif [ $(TARGET_ARCH) = "mipsel" ];then \
+	    ln -fs $(KERNEL_SOURCE)/include/asm-mips include/asm; \
+	    cd $(PWD)/libc/sysdeps/linux; \
+	    ln -fs mips mipsel; \
+	    cd $(PWD)/ldso/ldso; \
+	    ln -fs mips mipsel; \
 	elif [ $(TARGET_ARCH) = "h8300" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-h8300 include/asm; \
 	else \
@@ -89,7 +95,7 @@ headers: dummy
 	    echo " "; \
 	    /bin/false; \
 	fi;
-	@if [ $(HAS_MMU) != "true" ]  && [ $(TARGET_ARCH) = "i386" ] ; then \
+	@if [ $(HAS_MMU) != "true" -a $(TARGET_ARCH) = "i386" ] ; then \
 	    set -e; \
 	    echo "WARNING: I bet your x86 system really has an MMU, right?"; \
 	    echo "         malloc and friends won't work unless you fix \`Config'"; \
@@ -97,88 +103,111 @@ headers: dummy
 	    sleep 10; \
 	fi;
 	@ln -fs $(KERNEL_SOURCE)/include/linux include/linux
-	@ln -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/bits include/bits
-	(cd include/bits && ln -sf ../../../../../uClibc_config.h uClibc_config.h)
+	rm -rf include/bits
+	mkdir -p include/bits
+	@cd include/bits; \
+	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
+		ln -fs $$i .; \
+	done; \
+	if [ -d ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits ] ; then \
+		for i in `ls ../../libc/sysdeps/linux/$(TARGET_ARCH)/bits/*.h` ; do \
+			ln -fs $$i .; \
+		done; \
+	fi
+	@cd include/sys; \
+	for i in ../../libc/sysdeps/linux/common/sys/*.h ; do \
+		ln -fs $$i .; \
+	done; \
+	if [ -d ../../libc/sysdeps/linux/$(TARGET_ARCH)/sys ] ; then \
+		for i in ../../libc/sysdeps/linux/$(TARGET_ARCH)/sys/*.h ; do \
+			ln -fs $$i .; \
+		done; \
+	fi
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
-uClibc_config.h: Makefile Config
-	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > uClibc_config.h
-	@echo "#if !defined __FEATURES_H && !defined __need_uClibc_config_h" >> uClibc_config.h
-	@echo "#error Never include <bits/uClibc_config.h> directly; use <features.h> instead." >> uClibc_config.h
-	@echo "#endif" >> uClibc_config.h
-	@echo "#define linux 1" >> uClibc_config.h 
-	@echo "#define __linux__ 1" >> uClibc_config.h 
+uClibc_config: Makefile Config
+	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > include/bits/uClibc_config.h
+	@echo "#if !defined __FEATURES_H && !defined __need_include/bits/uClibc_config.h" >> include/bits/uClibc_config.h
+	@echo "#error Never include <bits/include/bits/uClibc_config.h> directly; use <features.h> instead." >> include/bits/uClibc_config.h
+	@echo "#endif" >> include/bits/uClibc_config.h
+	@echo "#define linux 1" >> include/bits/uClibc_config.h 
+	@echo "#define __linux__ 1" >> include/bits/uClibc_config.h 
 	@if [ "$(INCLUDE_IPV6)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_IPV6__ 1" >> uClibc_config.h ; \
+	    echo "#define __UCLIBC_HAS_IPV6__ 1" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#undef __UCLIBC_HAS_IPV6__" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_HAS_IPV6__" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(HAS_MMU)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_MMU__ 1" >> uClibc_config.h ; \
+	    echo "#define __UCLIBC_HAS_MMU__ 1" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#undef __UCLIBC_HAS_MMU__" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_HAS_MMU__" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(HAS_FLOATING_POINT)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_FLOATS__ 1" >> uClibc_config.h ; \
+	    echo "#define __UCLIBC_HAS_FLOATS__ 1" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#undef __UCLIBC_HAS_FLOATS__" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_HAS_FLOATS__" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(HAS_LONG_LONG)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_LONG_LONG__ 1" >> uClibc_config.h ; \
+	    echo "#define __UCLIBC_HAS_LONG_LONG__ 1" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#undef __UCLIBC_HAS_LONG_LONG__" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_HAS_LONG_LONG__" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(HAS_LOCALE)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_LOCALE__ 1" >> uClibc_config.h ; \
-	    echo "#define __UCLIBC_LOCALE_DIR \""$(LOCALE_DIR)"\"" >> uClibc_config.h ; \
+	    echo "#define __UCLIBC_HAS_LOCALE__ 1" >> include/bits/uClibc_config.h ; \
+	    echo "#define __UCLIBC_LOCALE_DIR \""$(LOCALE_DIR)"\"" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#undef __UCLIBC_HAS_LOCALE__" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_HAS_LOCALE__" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(HAVE_ELF)" = "false" ] ; then \
-	    echo "#undef HAVE_ELF" >> uClibc_config.h ; \
+	    echo "#undef HAVE_ELF" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#define HAVE_ELF 1" >> uClibc_config.h ; \
+	    echo "#define HAVE_ELF 1" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(HAVE_SHARED)" = "false" ] ; then \
-	    echo "#undef HAVE_SHARED" >> uClibc_config.h ; \
+	    echo "#undef HAVE_SHARED" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#define HAVE_SHARED 1" >> uClibc_config.h ; \
+	    echo "#define HAVE_SHARED 1" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(TARGET_ARCH)" = "sh" ] ; then \
-	    echo "#define NO_UNDERSCORES 1" >> uClibc_config.h ; \
+	    echo "#define NO_UNDERSCORES 1" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#undef NO_UNDERSCORES" >> uClibc_config.h ; \
+	    echo "#undef NO_UNDERSCORES" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(INCLUDE_RPC)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_RPC__ 1" >> uClibc_config.h ; \
+	    echo "#define __UCLIBC_HAS_RPC__ 1" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#undef __UCLIBC_HAS_RPC__" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_HAS_RPC__" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(UNIFIED_SYSCALL)" = "true" ] ; then \
-	    echo "#define __UCLIBC_USE_UNIFIED_SYSCALL__ 1" >> uClibc_config.h ; \
+	    echo "#define __UCLIBC_USE_UNIFIED_SYSCALL__ 1" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#undef __UCLIBC_USE_UNIFIED_SYSCALL__" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_USE_UNIFIED_SYSCALL__" >> include/bits/uClibc_config.h ; \
 	fi
-	@echo "#define C_SYMBOL_PREFIX "\""$(C_SYMBOL_PREFIX)"\" >> uClibc_config.h
+	@echo "#define C_SYMBOL_PREFIX "\""$(C_SYMBOL_PREFIX)"\" >> include/bits/uClibc_config.h
 	@if [ "$(DOLFS)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAVE_LFS__ 1" >> uClibc_config.h ; \
+	    echo "#define __UCLIBC_HAVE_LFS__ 1" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#undef __UCLIBC_HAVE_LFS__" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_HAVE_LFS__" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(INCLUDE_THREADS)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_THREADS__ 1" >> uClibc_config.h ; \
+	    echo "#define __UCLIBC_HAS_THREADS__ 1" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#undef __UCLIBC_HAS_THREADS__" >> uClibc_config.h ; \
+	    echo "#undef __UCLIBC_HAS_THREADS__" >> include/bits/uClibc_config.h ; \
+	fi
+	@if [ "$(INCLUDE_REGEX)" = "true" ] ; then \
+	    echo "#define __UCLIBC_HAS_REGEX__ 1" >> include/bits/uClibc_config.h ; \
+	else \
+	    echo "#undef __UCLIBC_HAS_REGEX__" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(UNIX98PTY_ONLY)" = "true" ] ; then \
-	    echo "#define UNIX98PTY_ONLY 1" >> uClibc_config.h ; \
+	    echo "#define UNIX98PTY_ONLY 1" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#undef UNIX98PTY_ONLY" >> uClibc_config.h ; \
+	    echo "#undef UNIX98PTY_ONLY" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(ASSUME_DEVPTS)" = "true" ] ; then \
-	    echo "#define ASSUME_DEVPTS 1" >> uClibc_config.h ; \
+	    echo "#define ASSUME_DEVPTS 1" >> include/bits/uClibc_config.h ; \
 	else \
-	    echo "#undef ASSUME_DEVPTS" >> uClibc_config.h ; \
+	    echo "#undef ASSUME_DEVPTS" >> include/bits/uClibc_config.h ; \
 	fi
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
@@ -287,7 +316,7 @@ finished2:
 
 
 distclean clean:
-	@rm -rf tmp lib include/bits/uClibc_config.h uClibc_config.h libc/tmp
+	@rm -rf tmp lib include/bits libc/tmp _install
 	- find include -type l -exec rm -f {} \;
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec rm -f {} \;
 	$(MAKE) -C test clean
@@ -296,6 +325,7 @@ distclean clean:
 	$(MAKE) -C libc/sysdeps/linux/common clean
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean
 	$(MAKE) -C extra/gcc-uClibc clean
+	find . -name mipsel -exec rm -rf {} \;
 
 dist release: distclean
 	cd ..;					\
