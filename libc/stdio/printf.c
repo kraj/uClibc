@@ -443,9 +443,9 @@ size_t parse_printf_format(register const char *template,
 
 int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 {
-#if defined(__UCLIBC_HAS_WCHAR__) && defined(__UCLIBC_HAS_LOCALE__)
+#ifdef __UCLIBC_HAS_WCHAR__
 	static const char invalid_mbs[] = "Invalid multibyte format string.";
-#endif /* defined(__UCLIBC_HAS_WCHAR__) && defined(__UCLIBC_HAS_LOCALE__) */
+#endif /* __UCLIBC_HAS_WCHAR__ */
 	int r;
 
 	/* First, zero out everything... argnumber[], argtype[], argptr[] */
