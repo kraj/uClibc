@@ -8,12 +8,14 @@
 
 #ifdef L_calloc_dbg
 
-void *
-calloc_dbg(size_t num, size_t size, char * function, char * file, int line)
+void *calloc_dbg(size_t num, size_t size, char *function, char *file,
+				 int line)
 {
-	void * ptr;
-	fprintf(stderr, "calloc of %ld bytes at %s @%s:%d = ", (long)(num*size), function, file, line);
-	ptr = calloc(num,size);
+	void *ptr;
+
+	fprintf(stderr, "calloc of %ld bytes at %s @%s:%d = ",
+			(long) (num * size), function, file, line);
+	ptr = calloc(num, size);
 	fprintf(stderr, "%p\n", ptr);
 	return ptr;
 }
@@ -22,13 +24,14 @@ calloc_dbg(size_t num, size_t size, char * function, char * file, int line)
 
 #ifdef L_malloc_dbg
 
-void *
-malloc_dbg(size_t len, char * function, char * file, int line)
+void *malloc_dbg(size_t len, char *function, char *file, int line)
 {
-	void * result;
-	fprintf(stderr, "malloc of %ld bytes at %s @%s:%d = ", (long)len, function, file, line);
+	void *result;
+
+	fprintf(stderr, "malloc of %ld bytes at %s @%s:%d = ", (long) len,
+			function, file, line);
 	result = malloc(len);
-	fprintf(stderr, "%p\n", result);    
+	fprintf(stderr, "%p\n", result);
 	return result;
 }
 
@@ -36,13 +39,11 @@ malloc_dbg(size_t len, char * function, char * file, int line)
 
 #ifdef L_free_dbg
 
-void
-free_dbg(void * ptr, char * function, char * file, int line)
+void free_dbg(void *ptr, char *function, char *file, int line)
 {
-	fprintf(stderr, "free of %p at %s @%s:%d\n", ptr, function, file, line);
-  	free(ptr);
+	fprintf(stderr, "free of %p at %s @%s:%d\n", ptr, function, file,
+			line);
+	free(ptr);
 }
 
 #endif
-
-

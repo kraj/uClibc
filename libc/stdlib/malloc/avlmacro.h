@@ -2,9 +2,21 @@
 /* COPYRIGHT (C) 1998 VALERY SHCHEDRIN                               */
 /* IT IS DISTRIBUTED UNDER GLPL (GNU GENERAL LIBRARY PUBLIC LICENSE) */
 
-#define balance(objname, pr, root, ht_changed) \
+/*
+ * Manuel Novoa III       Jan 2001
+ *
+ * Modified to decrease object size.
+ *   Tree balancing is now done in a fuction rather than inline.
+ *   Removed common code in balance by use of a goto.
+ *   Added macro Avl_Tree_no_replace since ptrs_replace was not used.
+ *   Prepended may symbols with "__" for possible conversion to extern.
+ */
+
+#define __Avl_balance_proto(objname, pr, root) \
+  static int __Avl_##objname##pr##balance(objname **root) \
   { \
     objname *p; \
+    int ht_changed; \
     p = *root; \
     if (p->bal_##pr < -1) \
     { \
@@ -14,12 +26,7 @@
 	pp=p->l_##pr; *root=p->l_##pr->r_##pr; p->l_##pr = (*root)->r_##pr; \
 	(*root)->r_##pr = p; pp->r_##pr = (*root)->l_##pr; \
 	p = *root; p->l_##pr = pp; \
-	if (p->bal_##pr > 0) p->l_##pr ->bal_##pr = -p->bal_##pr ; \
-	else p->l_##pr ->bal_##pr = 0; \
-	if (p->bal_##pr < 0) p->r_##pr ->bal_##pr = -p->bal_##pr ; \
-	else p->r_##pr ->bal_##pr = 0; \
-	p->bal_##pr = 0; \
-	ht_changed = 1; \
+    goto pr_common_ht_changed; \
       } \
       else \
       { \
@@ -37,6 +44,7 @@
 	pp=p->r_##pr ; *root=p->r_##pr ->l_##pr ; p->r_##pr =(*root)->l_##pr ; \
 	(*root)->l_##pr = p; pp->l_##pr = (*root)->r_##pr ; \
 	p = *root; p->r_##pr = pp; \
+    pr_common_ht_changed: \
 	if (p->bal_##pr > 0) p->l_##pr ->bal_##pr = -p->bal_##pr ; \
 	else p->l_##pr ->bal_##pr = 0; \
 	if (p->bal_##pr < 0) p->r_##pr ->bal_##pr = -p->bal_##pr ; \
@@ -52,58 +60,61 @@
 	p->bal_##pr = - (--((*root)->bal_##pr )); \
       } \
     } else ht_changed = 0; \
+   return ht_changed; \
   }
 
-#define Avl_r_insert_proto(objname, pr, COMPARE) \
-  static int Avl_##objname##pr##_r_insert(objname **root) \
+#define balance(objname, pr, root) \
+  __Avl_##objname##pr##balance(root)
+
+#define __Avl_r_insert_proto(objname, pr, COMPARE) \
+  static int __Avl_##objname##pr##_r_insert(objname **root) \
   { \
     int i; /* height increase */ \
     if (!*root) \
     { \
-      *root = Avl_##objname##pr##_new_node; \
-      Avl_##objname##pr##_new_node = NULL; \
+      *root = __Avl_##objname##pr##_new_node; \
+      __Avl_##objname##pr##_new_node = NULL; \
       return 1; \
     } \
-    COMPARE(i, Avl_##objname##pr##_new_node, *root); \
+    COMPARE(i, __Avl_##objname##pr##_new_node, *root); \
     \
     if (i < 0) \
     { /* insert into the left subtree */ \
-      i = -Avl_##objname##pr##_r_insert(&((*root)->l_##pr)); \
-      if (Avl_##objname##pr##_new_node != NULL) return 0; /* already there */ \
+      i = -__Avl_##objname##pr##_r_insert(&((*root)->l_##pr)); \
+      if (__Avl_##objname##pr##_new_node != NULL) return 0; /* already there */ \
     } \
     else if (i > 0) \
     { /* insert into the right subtree */ \
-      i = Avl_##objname##pr##_r_insert(&((*root)->r_##pr)); \
-      if (Avl_##objname##pr##_new_node != NULL) return 0; /* already there */ \
+      i = __Avl_##objname##pr##_r_insert(&((*root)->r_##pr)); \
+      if (__Avl_##objname##pr##_new_node != NULL) return 0; /* already there */ \
     } \
     else \
     { /* found */ \
-      Avl_##objname##pr##_new_node = *root; \
+      __Avl_##objname##pr##_new_node = *root; \
       return 0; \
     } \
     if (!i) return 0; \
     (*root)->bal_##pr += i; /* update balance factor */ \
     if ((*root)->bal_##pr) \
     { \
-      balance(objname,pr,root,i); \
-      return 1-i; \
+      return 1 - balance(objname,pr,root); \
     } \
     else return 0; \
   }
 
-#define Avl_r_delete_proto(objname,pr,COMPARE) \
-  static int Avl_##objname##pr##_r_delete(objname **root) \
+#define __Avl_r_delete_proto(objname,pr,COMPARE) \
+  static int __Avl_##objname##pr##_r_delete(objname **root) \
   { \
     int i; /* height decrease */ \
     \
     if (!*root) return 0; /* not found */ \
     \
-    COMPARE(i, Avl_##objname##pr##_new_node, *root); \
+    COMPARE(i, __Avl_##objname##pr##_new_node, *root); \
     \
     if (i < 0) \
-      i = -Avl_##objname##pr##_r_delete(&((*root)->l_##pr)); \
+      i = -__Avl_##objname##pr##_r_delete(&((*root)->l_##pr)); \
     else if (i > 0) \
-      i =  Avl_##objname##pr##_r_delete(&((*root)->r_##pr)); \
+      i =  __Avl_##objname##pr##_r_delete(&((*root)->r_##pr)); \
     else \
     { \
       if (!(*root)->l_##pr) \
@@ -118,69 +129,67 @@
       } \
       else \
       { \
-	i = Avl_##objname##pr##_r_delfix(&((*root)->r_##pr)); \
-	Avl_##objname##pr##_new_node->l_##pr = (*root)->l_##pr; \
-	Avl_##objname##pr##_new_node->r_##pr = (*root)->r_##pr; \
-	Avl_##objname##pr##_new_node->bal_##pr = (*root)->bal_##pr; \
-	*root = Avl_##objname##pr##_new_node; \
+	i = __Avl_##objname##pr##_r_delfix(&((*root)->r_##pr)); \
+	__Avl_##objname##pr##_new_node->l_##pr = (*root)->l_##pr; \
+	__Avl_##objname##pr##_new_node->r_##pr = (*root)->r_##pr; \
+	__Avl_##objname##pr##_new_node->bal_##pr = (*root)->bal_##pr; \
+	*root = __Avl_##objname##pr##_new_node; \
       } \
     } \
     if (!i) return 0; \
     (*root)->bal_##pr -= i; \
     if ((*root)->bal_##pr) \
     { \
-      balance(objname,pr,root,i); \
-      return i; \
+      return balance(objname,pr,root); \
     } \
     return 1; \
   }
 
-#define Avl_r_delfix_proto(objname,pr) \
-  static int Avl_##objname##pr##_r_delfix(objname **root) \
+#define __Avl_r_delfix_proto(objname,pr) \
+  static int __Avl_##objname##pr##_r_delfix(objname **root) \
   { \
     int i; /* height decrease */ \
     \
     if (!(*root)->l_##pr) \
     { \
-      Avl_##objname##pr##_new_node = *root; \
+      __Avl_##objname##pr##_new_node = *root; \
       *root = (*root)->r_##pr; \
       return 1; \
     } \
-    i = -Avl_##objname##pr##_r_delfix(&((*root)->l_##pr)); \
+    i = -__Avl_##objname##pr##_r_delfix(&((*root)->l_##pr)); \
     if (!i) return 0; \
     (*root)->bal_##pr -= i; \
     if ((*root)->bal_##pr) \
     { \
-      balance(objname,pr,root,i); \
-      return i; \
+      return balance(objname,pr,root); \
     } \
     return 1; \
   }
 
-#define Avl_ins_proto(alias,objname,pr) \
-  static objname *##alias##_ins(objname *data) \
+#define __Avl_ins_proto(alias,objname,pr) \
+  objname *__##alias##_ins(objname *data) \
   { \
-    Avl_##objname##pr##_new_node = data; \
+    __Avl_##objname##pr##_new_node = data; \
     (data)->l_##pr = NULL; \
     (data)->r_##pr = NULL; \
     (data)->bal_##pr = 0; \
-    Avl_##objname##pr##_r_insert(&Avl_##objname##pr##_tree); \
-    if (Avl_##objname##pr##_new_node) \
-      return Avl_##objname##pr##_new_node; \
+    __Avl_##objname##pr##_r_insert(&__Avl_##objname##pr##_tree); \
+    if (__Avl_##objname##pr##_new_node) \
+      return __Avl_##objname##pr##_new_node; \
     return NULL; \
   }
 
-#define Avl_del_proto(alias,objname,pr) \
-  static void alias##_del(objname *data) \
+#define __Avl_del_proto(alias,objname,pr) \
+  void __##alias##_del(objname *data) \
   { \
-    Avl_##objname##pr##_new_node = data; \
-    Avl_##objname##pr##_r_delete(&Avl_##objname##pr##_tree); \
+    __Avl_##objname##pr##_new_node = data; \
+    __Avl_##objname##pr##_r_delete(&__Avl_##objname##pr##_tree); \
   }
 
-#define Avl_replace_proto(alias,objname,pr,COMPARE) \
-  static void alias##_replace(objname *data) \
+#define __Avl_replace_proto(alias,objname,pr,COMPARE) \
+  void __##alias##_replace(objname *data) \
   { \
-    objname **p = &Avl_##objname##pr##_tree; \
+    objname **p = &__Avl_##objname##pr##_tree; \
     int cmp; \
     while (*p) \
     { \
@@ -200,15 +209,18 @@
     } \
   }
 
-#define Avl_Root(objname,pr) Avl_##objname##pr##_tree
+#define Avl_Root(objname,pr) __Avl_##objname##pr##_tree
+
+#define Avl_Tree_no_replace(alias,objname,pr,COMPARE) \
+objname *__Avl_##objname##pr##_tree = NULL; \
+static objname *__Avl_##objname##pr##_new_node; \
+__Avl_balance_proto(objname, pr, root) \
+__Avl_r_insert_proto(objname,pr,COMPARE) \
+__Avl_r_delfix_proto(objname,pr) \
+__Avl_r_delete_proto(objname,pr,COMPARE) \
+__Avl_ins_proto(alias,objname,pr) \
+__Avl_del_proto(alias,objname,pr)
 
 #define Avl_Tree(alias,objname,pr,COMPARE) \
-static objname *Avl_##objname##pr##_tree = NULL; \
-static objname *Avl_##objname##pr##_new_node; \
-Avl_r_insert_proto(objname,pr,COMPARE) \
-Avl_r_delfix_proto(objname,pr) \
-Avl_r_delete_proto(objname,pr,COMPARE) \
-Avl_ins_proto(alias,objname,pr) \
-Avl_del_proto(alias,objname,pr) \
-Avl_replace_proto(alias,objname,pr,COMPARE)
-
+Avl_Tree_no_replace(alias,objname,pr,COMPARE) \
+__Avl_replace_proto(alias,objname,pr,COMPARE)
