@@ -69,14 +69,16 @@
 *                        Types used in the auxiliary functions.                *
 *******************************************************************************/
 
+#include <stdint.h>
+
 typedef struct                   /*      Hex representation of a double.      */
       {
 #if defined(__BIG_ENDIAN__)
-      u_int32_t high;
-      u_int32_t low;
+      uint32_t high;
+      uint32_t low;
 #else
-      u_int32_t low;
-      u_int32_t high;
+      uint32_t low;
+      uint32_t high;
 #endif
       } dHexParts;
 
