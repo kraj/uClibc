@@ -75,7 +75,7 @@ headers: dummy
 	@ln -s $(KERNEL_SOURCE)/include/linux include/linux
 	@ln -s ../libc/sysdeps/linux/$(TARGET_ARCH)/bits include/bits
 	(cd include/bits; ln -sf ../../../../../uClibc_config.h uClibc_config.h)
-	make -C libc/sysdeps/linux/$(TARGET_ARCH) headers
+	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
 uClibc_config.h: Config
 	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > uClibc_config.h
@@ -122,7 +122,7 @@ uClibc_config.h: Config
 	fi
 	@if [ "$(TARGET_ARCH)" = "m68k" ] ; then \
 	    echo "#define __VFORK_MACRO__ 1" >> uClibc_config.h ; \
-	    if [ `expr match "$(CC)" ".*\(m68k-elf-.*\)"`x = x ]; then \
+	    if [ `expr "$(CC)" : ".*\(m68k-elf-.*\)"`x = x ]; then \
 		echo "#define const" >> uClibc_config.h ; \
 		echo "#define __const" >> uClibc_config.h ; \
 		echo "#define __extension" >> uClibc_config.h ; \
@@ -204,7 +204,7 @@ clean:
 	- find include -type l -exec rm -f {} \;
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core \) -exec rm -f {} \;
 ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
-	make -C ldso clean
+	$(MAKE) -C ldso clean
 endif
 
 .PHONY: dummy subdirs
