@@ -640,7 +640,9 @@ void ssort (void  *base,
 
 #ifdef __UCLIBC_HAS_LOCALE__
 #define ENCODING (__global_locale.encoding)
+#ifdef __UCLIBC_MJN3_ONLY__
 #warning implement __CTYPE_HAS_UTF_8_LOCALES!
+#endif
 #define __CTYPE_HAS_UTF_8_LOCALES
 #else
 #define ENCODING (__ctype_encoding_7_bit)
@@ -661,7 +663,9 @@ size_t _stdlib_mb_cur_max(void)
 	return __global_locale.mb_cur_max;
 #else
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
+#ifdef __UCLIBC_MJN3_ONLY__
 #warning need to change this when/if transliteration is implemented
+#endif
 #endif
 	return 1;
 #endif

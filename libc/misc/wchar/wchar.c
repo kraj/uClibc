@@ -76,7 +76,9 @@
 
 #ifdef __UCLIBC_HAS_LOCALE__
 #define ENCODING (__global_locale.encoding)
+#ifdef __UCLIBC_MJN3_ONLY__
 #warning implement __CTYPE_HAS_UTF_8_LOCALES!
+#endif
 #define __CTYPE_HAS_UTF_8_LOCALES
 #else
 #undef __CTYPE_HAS_8_BIT_LOCALES
@@ -363,7 +365,9 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 		--n;
 		if ((wc = ((unsigned char) *s++)) >= 0x80) { /* Not ASCII... */
 			mask = 0x40;
+#ifdef __UCLIBC_MJN3_ONLY__
 #warning fix range for 16 bit wides
+#endif
 			if ( ((unsigned char)(s[-1] - 0xc0)) < (0xfe - 0xc0) ) {
 				goto START;
 			}

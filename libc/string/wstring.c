@@ -366,7 +366,7 @@ const char *const sys_errlist[] = {
 #endif
 
 #if EWOULDBLOCK != EAGAIN
-#warning EWOULDBLOCK does not equal EAGAIN
+#error EWOULDBLOCK does not equal EAGAIN
 #endif
 
 	/* For now, ignore the other arch-specific errors.  glibc only maps EPROCLIM. */
@@ -628,7 +628,9 @@ int Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
 #ifdef L_strcmp
 
 #ifndef L_wcscmp
+#ifdef __UCLIBC_MJN3_ONLY__
 #warning implement strcoll and remove weak alias (or enable for C locale only)
+#endif
 weak_alias(strcmp,strcoll);
 #endif
 
@@ -1750,14 +1752,19 @@ char *strsep(char ** __restrict s1, const char * __restrict s2)
 /**********************************************************************/
 #ifdef L_wcschrnul
 #define L_strchrnul
+#define __Wstrchrnul __wcschrnul
 #define Wstrchrnul wcschrnul
 #else
+#define __Wstrchrnul __strchrnul
 #define Wstrchrnul strchrnul
 #endif
 
 #ifdef L_strchrnul
 
-Wchar *Wstrchrnul(register const Wchar *s, Wint c)
+extern Wchar *__Wstrchrnul(register const Wchar *s, Wint c);
+weak_alias(__Wstrchrnul, Wstrchrnul);
+
+Wchar *__Wstrchrnul(register const Wchar *s, Wint c)
 {
 	--s;
 	while (*++s && (*s != ((Wchar)c)));

@@ -62,8 +62,7 @@ extern int memcmp (__const void *__s1, __const void *__s2, size_t __n)
 extern void *memchr (__const void *__s, int __c, size_t __n)
       __THROW __attribute_pure__;
 
-/*#ifdef __USE_GNU*/
-#if 0
+#ifdef __USE_GNU
 /* Search in S for C.  This is similar to `memchr' but there is no
    length limit.  */
 extern void *rawmemchr (__const void *__s, int __c) __THROW __attribute_pure__;
@@ -158,8 +157,7 @@ extern char *strchr (__const char *__s, int __c) __THROW __attribute_pure__;
 /* Find the last occurrence of C in S.  */
 extern char *strrchr (__const char *__s, int __c) __THROW __attribute_pure__;
 
-#if 0
-/*#ifdef __USE_GNU*/
+#ifdef __USE_GNU
 /* This funciton is similar to `strchr'.  But it returns a pointer to
    the closing NUL byte in case C is not found in S.  */
 extern char *strchrnul (__const char *__s, int __c) __THROW __attribute_pure__;

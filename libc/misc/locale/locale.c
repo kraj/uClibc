@@ -46,7 +46,7 @@
 
 #ifdef __LOCALE_C_ONLY
 
-link_warning(setlocale,"the 'setlocale' function supports only C|POSIX locales");
+link_warning(setlocale,"the 'setlocale' function supports only C|POSIX locales")
 
 static const char C_string[] = "C";
 
@@ -272,8 +272,7 @@ char *setlocale(int category, const char *locale)
 
 #ifdef __LOCALE_C_ONLY
 
-#warning localeconv is hardwired for C/POSIX locale only
-link_warning(localeconv,"the 'localeconv' function is hardwired for C/POSIX locale only");
+link_warning(localeconv,"the 'localeconv' function is hardwired for C/POSIX locale only")
 
 static struct lconv the_lconv;
 
@@ -431,7 +430,9 @@ void _locale_set(const unsigned char *p)
 					r = CODESET_LIST;
 					__global_locale.codeset = r + r[c -= 3];
 					__global_locale.encoding = __ctype_encoding_8_bit;
+#ifdef __UCLIBC_MJN3_ONLY__
 #warning REMINDER: update 8 bit mb_cur_max when trasnlit implemented!
+#endif
 					/* TODO - update when translit implemented! */
 					__global_locale.mb_cur_max = 1;
 					c8b = __locale_mmap->codeset_8_bit + c;

@@ -295,11 +295,15 @@ wctype_t wctype(const char *property)
 /**********************************************************************/
 #ifdef L_iswctype
 
+#ifdef __UCLIBC_MJN3_ONLY__
 #warning duh... replace the range-based classification with table lookup!
+#endif
 
 #ifdef __WCTYPE_WITH_LOCALE
 
+#ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: need to fix locale ctype table lookup stuff
+#endif
 #if 0
 extern const char ctype_range[];
 #else
@@ -308,7 +312,9 @@ static const char ctype_range[] = {
 };
 #endif
 
+#ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: need to handle combining class!
+#endif
 
 #define WCctype_TI_MASK		((1 << WCctype_TI_SHIFT) - 1)
 #define WCctype_II_MASK		((1 << WCctype_II_SHIFT) - 1)
