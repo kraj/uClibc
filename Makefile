@@ -149,6 +149,11 @@ uClibc_config.h: Makefile Config
 	else \
 	    echo "#undef __UCLIBC_HAS_RPC__" >> uClibc_config.h ; \
 	fi
+	@if [ "$(UNIFIED_SYSCALL)" = "true" ] ; then \
+	    echo "#define __UCLIBC_USE_UNIFIED_SYSCALL__ 1" >> uClibc_config.h ; \
+	else \
+	    echo "#undef __UCLIBC_USE_UNIFIED_SYSCALL__" >> uClibc_config.h ; \
+	fi
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 
@@ -213,7 +218,6 @@ clean:
 	- find include -type l -exec rm -f {} \;
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core \) -exec rm -f {} \;
 	$(MAKE) -C ldso clean
-	$(MAKE) -C libc/sysdeps/linux/common clean
 	$(MAKE) -C libc/unistd clean
 
 .PHONY: dummy subdirs

@@ -34,16 +34,7 @@ MOBJ=$(shell ./list_syscalls.sh)
 
 OBJ=$(COBJS) $(MOBJ)
 
-UNIFIED_SYSCALL_HEADER = /dev/null
-STR_SYSCALLS =
-ifeq ($(UNIFIED_SYSCALL),true)
-	ifeq ($(TARGET_ARCH), i386)
-		UNIFIED_SYSCALL_HEADER = unified_syscall_i386.h
-		STR_SYSCALLS = str_syscalls
-	endif
-endif
-
-all: $(STR_SYSCALLS) unified_syscall.h $(OBJ) $(LIBC)
+all: $(STR_SYSCALLS) $(OBJ) $(LIBC)
 
 $(LIBC): ar-target
 
@@ -58,14 +49,6 @@ $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-str_syscalls:
-	/bin/sh ./str_syscalls.sh > str_syscalls.c
-	gcc str_syscalls.c -o str_syscalls
-	./str_syscalls > str_syscalls.h
-
-unified_syscall.h:
-	cat $(UNIFIED_SYSCALL_HEADER) > unified_syscall.h
-
 clean:
-	rm -f *.[oa] *~ core unified_syscall.h str_syscalls.[ch] str_syscalls
+	rm -f *.[oa] *~ core
 

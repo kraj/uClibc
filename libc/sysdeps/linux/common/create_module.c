@@ -31,6 +31,9 @@
 
 #if defined(__i386__) || defined(__m68k__) || defined(__arm__)
 #define __NR___create_module  __NR_create_module
+#ifdef __STR_NR_create_module
+#define __STR_NR___create_module  __STR_NR_create_module
+#endif
 _syscall2(long, __create_module, const char *, name, size_t, size);
 /* By checking the value of errno, we know if we have been fooled 
  * by the syscall2 macro making a very high address look like a 

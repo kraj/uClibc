@@ -4,6 +4,10 @@
  * a difference.   Regardless, including asm/unistd.h is hereby officially
  * forbidden.  Don't do it.  It is bad for you.  */ 
 
+#include <features.h>
+
+#ifndef __UCLIBC_USE_UNIFIED_SYSCALL__
+
 #undef __syscall_return
 #define __syscall_return(type, res) \
 do { \
@@ -157,3 +161,38 @@ __syscall_return(type,__res); \
 #endif /* __PIC__ */
 
 
+#else
+
+#define unified_syscall_body(name) \
+__asm__ ( \
+".text\n.align 4\n.global "###name"\n.type "###name",@function\n" \
+#name":\nmovb $"__STR_NR_##name \
+",%al;\n jmp __uClibc_syscall\n.Lfe1"###name":\n.size "###name \
+",.Lfe1"###name"-"###name \
+)
+
+#undef _syscall0
+#define _syscall0(type,name) \
+unified_syscall_body(name)
+
+#undef _syscall1
+#define _syscall1(type,name,type1,arg1) \
+unified_syscall_body(name)
+
+#undef _syscall2
+#define _syscall2(type,name,type1,arg1,type2,arg2) \
+unified_syscall_body(name)
+
+#undef _syscall3
+#define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
+unified_syscall_body(name)
+
+#undef _syscall4
+#define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
+unified_syscall_body(name)
+
+#undef _syscall5
+#define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5) \
+unified_syscall_body(name)
+
+#endif

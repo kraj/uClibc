@@ -26,13 +26,14 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-#include "unified_syscall.h"
-
 //#define __NR_exit             1
 #ifdef L__exit
 /* Do not include unistd.h, so gcc doesn't whine about 
  * _exit returning.  It really doesn't return... */
 #define __NR__exit __NR_exit
+#ifdef __STR_NR_exit
+#define __STR_NR__exit __STR_NR_exit
+#endif
 _syscall1(void, _exit, int, status);
 #endif
 
@@ -67,6 +68,9 @@ _syscall3(ssize_t, write, int, fd, const __ptr_t, buf, size_t, count);
 #include <stdarg.h>
 #include <fcntl.h>
 #define __NR___open __NR_open
+#ifdef __STR_NR_open
+#define __STR_NR___open __STR_NR_open
+#endif
 _syscall3(int, __open, const char *, fn, int, flags, mode_t, mode);
 
 int open(const char *file, int oflag, ...)
@@ -223,6 +227,9 @@ _syscall1(int, stime, time_t *, t);
 #ifdef L___ptrace
 #include <sys/ptrace.h>
 #define __NR___ptrace __NR_ptrace
+#ifdef __STR_NR_ptrace
+#define __STR_NR___ptrace __STR_NR_ptrace
+#endif
 _syscall4(long, __ptrace, enum __ptrace_request, request, pid_t, pid,
 		void*, addr, void*, data);
 #endif
@@ -381,6 +388,9 @@ _syscall0(gid_t, getgid);
 #include <stdarg.h>
 #include <sys/ioctl.h>
 #define __NR__ioctl __NR_ioctl
+#ifdef __STR_NR_ioctl
+#define __STR_NR__ioctl __STR_NR_ioctl
+#endif
 extern int _ioctl(int fd, int request, void *arg);
 
 _syscall3(int, _ioctl, int, fd, int, request, void *, arg);
@@ -403,6 +413,9 @@ int ioctl(int fd, unsigned long int request, ...)
 #include <stdarg.h>
 #include <fcntl.h>
 #define __NR__fcntl __NR_fcntl
+#ifdef __STR_NR_fcntl
+#define __STR_NR__fcntl __STR_NR_fcntl
+#endif
 extern int _fcntl(int fd, int cmd, long arg);
 
 _syscall3(int, _fcntl, int, fd, int, cmd, long, arg);
@@ -596,6 +609,9 @@ _syscall2(int, swapon, const char *, path, int, swapflags);
 //#define __NR_reboot           88
 #ifdef L__reboot
 #define __NR__reboot __NR_reboot
+#ifdef __STR_NR_reboot
+#define __STR_NR__reboot __STR_NR_reboot
+#endif
 extern int _reboot(int magic, int magic2, int flag);
 
 _syscall3(int, _reboot, int, magic, int, magic2, int, flag);
@@ -611,6 +627,9 @@ int reboot(int flag)
 //#define __NR_mmap             90
 #ifdef L__mmap
 #define __NR__mmap __NR_mmap
+#ifdef __STR_NR_mmap
+#define __STR_NR__mmap __STR_NR_mmap
+#endif
 #include <unistd.h>
 #include <sys/mman.h>
 extern __ptr_t _mmap(unsigned long *buffer);
@@ -712,6 +731,9 @@ _syscall2(int, socketcall, int, call, unsigned long *, args);
 #ifdef L__syslog
 #include <unistd.h>
 #define __NR__syslog		__NR_syslog
+#ifdef __STR_NR_syslog
+#define __STR_NR__syslog	__STR_NR_syslog
+#endif
 extern int _syslog(int type, char *buf, int len);
 
 _syscall3(int, _syslog, int, type, char *, buf, int, len);
@@ -741,6 +763,9 @@ _syscall2(int, getitimer, enum __itimer_which, which, struct itimerval *, value)
 #include <unistd.h>
 #include "statfix.h"
 #define __NR___stat	__NR_stat
+#ifdef __STR_NR_stat
+#define __STR_NR___stat	__STR_NR_stat
+#endif
 extern int __stat(const char *file_name, struct kernel_stat *buf);
 _syscall2(int, __stat, const char *, file_name, struct kernel_stat *, buf);
 
@@ -766,6 +791,9 @@ int stat(const char *file_name, struct libc_stat *buf)
 #include <unistd.h>
 #include "statfix.h"
 #define __NR___lstat	__NR_lstat
+#ifdef __STR_NR_lstat
+#define __STR_NR___lstat	__STR_NR_lstat
+#endif
 extern int __lstat(const char *file_name, struct kernel_stat *buf);
 _syscall2(int, __lstat, const char *, file_name, struct kernel_stat *, buf);
 
@@ -791,6 +819,9 @@ int lstat(const char *file_name, struct libc_stat *buf)
 #include <unistd.h>
 #include "statfix.h"
 #define __NR___fstat	__NR_fstat
+#ifdef __STR_NR_fstat
+#define __STR_NR___fstat	__STR_NR_fstat
+#endif
 extern int __fstat(int filedes, struct kernel_stat *buf);
 _syscall2(int, __fstat, int, filedes, struct kernel_stat *, buf);
 
@@ -858,6 +889,9 @@ _syscall1(int, sysinfo, struct sysinfo *, info);
 //#define __NR_ipc              117
 #ifdef L___ipc
 #define __NR___ipc __NR_ipc
+#ifdef __STR_NR_ipc
+#define __STR_NR___ipc __STR_NR_ipc
+#endif
 _syscall5(int, __ipc, unsigned int, call, int, first, int, second, int, third, void *, ptr);
 #endif
 

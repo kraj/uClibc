@@ -25,10 +25,6 @@ Manuel's unsorted todo:
 Move the target-specific sysconf.c generator to extra (as it needs to be
 	run on the target) and fix libc/unistd/Makefile.
 
-Move the unified syscall stuff to extra, or find a way to generate the
-	the required header file without using an intermediate binary.
-	Update: should be easy now that Erik has added bits/syscalls.h.
-
 Add a usage message to the gcc wrapper.
 
 Look at pre-cephes-addition floating point code and possibly rework.
@@ -53,3 +49,8 @@ Make errno and endptr handling the default in the strto* functions and
 	document how to turn those off to save space.
 
 -----------------------------------------------------------------------------
+
+PORTING
+-------
+
+bits/dirent.h currently differs from the glibc version (d_type unsupported)
