@@ -35,7 +35,7 @@ __brk:
 	li 0, __NR_brk;   
 	sc
 	lwz     r6,8(r1)
-#ifdef PIC
+#ifdef __PIC__
 	mflr    r4
 	bl      _GLOBAL_OFFSET_TABLE_@local-4
 	mflr    r5
