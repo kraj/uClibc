@@ -99,6 +99,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	struct r_debug *debug_addr;
 	unsigned long brk_addr, *lpnt;
 	int (*_dl_atexit) (void *);
+	unsigned long *_dl_brkp;		/* The end of the data segment for brk and sbrk */
+	unsigned long *_dl_envp;		/* The environment address */
 #if defined (__SUPPORT_LD_DEBUG__)
 	int (*_dl_on_exit) (void (*FUNCTION)(int STATUS, void *ARG),void*);
 #endif
@@ -688,6 +690,14 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	   the dynamic linker itself is not guaranteed to be fully
 	   dynamicly linked if we are using ld.so.1, so we have to look
 	   up each symbol individually. */
+
+	_dl_brkp = (unsigned long *) (intptr_t) _dl_find_hash("__curbrk", _dl_symbol_tables, 0);
+	if (_dl_brkp)
+		*_dl_brkp = brk_addr;
+
+	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash("__environ", _dl_symbol_tables, 0);
+	if (_dl_envp)
+		*_dl_envp = (unsigned long) envp;
 
 #ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
 	{
