@@ -47,6 +47,7 @@
 # define O_DIRECT	040000	/* Direct disk access.  */
 # define O_DIRECTORY	0100000	/* Must be a directory.  */
 # define O_NOFOLLOW	0200000	/* Do not follow links.  */
+# define O_STREAMING	04000000/* streaming access */
 #endif
 
 #ifdef __USE_LARGEFILE64

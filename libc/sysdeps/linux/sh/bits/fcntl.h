@@ -45,6 +45,7 @@
 # define O_DIRECT	 040000	/* Direct disk access.  */
 # define O_DIRECTORY	0200000	/* Must be a directory.  */
 # define O_NOFOLLOW	0400000	/* Do not follow links.  */
+# define O_STREAMING	04000000/* streaming access */
 #endif
 
 /* For now Linux has synchronisity options for data and read operations.

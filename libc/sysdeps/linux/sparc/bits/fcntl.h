@@ -43,6 +43,7 @@
 #ifdef __USE_GNU
 # define O_DIRECTORY	0x10000 /* must be a directory */
 # define O_NOFOLLOW	0x20000 /* don't follow links */
+# define O_STREAMING	04000000/* streaming access */
 #endif
 
 #ifdef __USE_LARGEFILE64
