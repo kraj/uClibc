@@ -503,6 +503,9 @@ int find_dependancies(char* filename)
 	if ((size_t)statbuf.st_size < sizeof(Elf32_Ehdr))
 		goto foo;
 
+	if (!S_ISREG(statbuf.st_mode))
+		goto foo;
+
 	/* mmap the file to make reading stuff from it effortless */
 	ehdr = (Elf32_Ehdr *)mmap(0, statbuf.st_size, 
 			PROT_READ|PROT_WRITE, MAP_PRIVATE, fileno(thefile), 0);
