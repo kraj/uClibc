@@ -45,6 +45,7 @@
 #else
 #include "elf.h"
 #endif
+#include "dl-cache.h"
 
 #ifdef DMALLOC
 #include <dmalloc.h>
@@ -229,6 +230,89 @@ int check_elf_header(Elf32_Ehdr *const ehdr)
 	return 0;
 }
 
+#ifdef __LDSO_CACHE_SUPPORT__
+static caddr_t cache_addr = NULL;
+static size_t cache_size = 0;
+
+int map_cache(void)
+{
+	int fd;
+	struct stat st;
+	header_t *header;
+	libentry_t *libent;
+	int i, strtabsize;
+
+	if (cache_addr == (caddr_t) - 1)
+		return -1;
+	else if (cache_addr != NULL)
+		return 0;
+
+	if (stat(LDSO_CACHE, &st)
+			|| (fd = open(LDSO_CACHE, O_RDONLY, 0)) < 0) {
+		dprintf(2, "ldd: can't open cache '%s'\n", LDSO_CACHE);
+		cache_addr = (caddr_t) - 1;	/* so we won't try again */
+		return -1;
+	}
+
+	cache_size = st.st_size;
+	cache_addr = (caddr_t) mmap(0, cache_size, PROT_READ, MAP_SHARED, fd, 0);
+	close(fd);
+	if (cache_addr == MAP_FAILED) {
+		dprintf(2, "ldd: can't map cache '%s'\n", LDSO_CACHE);
+		return -1;
+	}
+
+	header = (header_t *) cache_addr;
+
+	if (cache_size < sizeof(header_t) ||
+			memcmp(header->magic, LDSO_CACHE_MAGIC, LDSO_CACHE_MAGIC_LEN)
+			|| memcmp(header->version, LDSO_CACHE_VER, LDSO_CACHE_VER_LEN)
+			|| cache_size <
+			(sizeof(header_t) + header->nlibs * sizeof(libentry_t))
+			|| cache_addr[cache_size - 1] != '\0')
+	{
+		dprintf(2, "ldd: cache '%s' is corrupt\n", LDSO_CACHE);
+		goto fail;
+	}
+
+	strtabsize = cache_size - sizeof(header_t) -
+		header->nlibs * sizeof(libentry_t);
+	libent = (libentry_t *) & header[1];
+
+	for (i = 0; i < header->nlibs; i++) {
+		if (libent[i].sooffset >= strtabsize ||
+				libent[i].liboffset >= strtabsize)
+		{
+			dprintf(2, "ldd: cache '%s' is corrupt\n", LDSO_CACHE);
+			goto fail;
+		}
+	}
+
+	return 0;
+
+fail:
+	munmap(cache_addr, cache_size);
+	cache_addr = (caddr_t) - 1;
+	return -1;
+}
+
+int unmap_cache(void)
+{
+	if (cache_addr == NULL || cache_addr == (caddr_t) - 1)
+		return -1;
+
+#if 1
+	munmap(cache_addr, cache_size);
+	cache_addr = NULL;
+#endif
+
+	return 0;
+}
+#else
+static inline void map_cache(void) { }
+static inline void unmap_cache(void) { }
+#endif
+
 /* This function's behavior must exactly match that
  * in uClibc/ldso/ldso/dl-elf.c */
 static void search_for_named_library(char *name, char *result, const char *path_list)
@@ -320,8 +404,23 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_suid, stru
 		}
 	}
 
-#ifdef USE_CACHE
-	/* FIXME -- add code to check the Cache here */
+#ifdef __LDSO_CACHE_SUPPORT__
+	if (cache_addr != NULL && cache_addr != (caddr_t) - 1) {
+		int i;
+		header_t *header = (header_t *) cache_addr;
+		libentry_t *libent = (libentry_t *) & header[1];
+		char *strs = (char *) &libent[header->nlibs];
+
+		for (i = 0; i < header->nlibs; i++) {
+			if ((libent[i].flags == LIB_ELF ||
+			    libent[i].flags == LIB_ELF_LIBC0 ||
+			    libent[i].flags == LIB_ELF_LIBC5) &&
+			    strcmp(lib->name, strs + libent[i].sooffset) == 0) {
+				lib->path = strdup(strs + libent[i].liboffset);
+				return;
+			}
+		}
+	}
 #endif
 
 
@@ -339,7 +438,11 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_suid, stru
 	/* Lastly, search the standard list of paths for the library.
 	   This list must exactly match the list in uClibc/ldso/ldso/dl-elf.c */
 	path =	UCLIBC_RUNTIME_PREFIX "lib:"
-		UCLIBC_RUNTIME_PREFIX "usr/lib";
+		UCLIBC_RUNTIME_PREFIX "usr/lib"
+#if !defined (__LDSO_CACHE_SUPPORT__)
+		":" UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib"
+#endif
+		;
 	search_for_named_library(lib->name, buf, path);
 	if (*buf != '\0') {
 		lib->path = buf;
@@ -644,6 +747,8 @@ int main( int argc, char** argv)
 			printf("%s:\n", *argv);
 		}
 
+		map_cache();
+
 		if (find_dependancies(filename)!=0)
 			continue;
 
@@ -660,6 +765,7 @@ int main( int argc, char** argv)
 			}
 		}
 
+		unmap_cache();
 
 		/* Print the list */
 		got_em_all=0;

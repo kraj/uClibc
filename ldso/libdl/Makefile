@@ -21,7 +21,7 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-XXFLAGS=$(XWARNINGS) $(LIBRARY_CACHE)
+XXFLAGS=$(XWARNINGS)
 ifeq ($(DODEBUG),y)
 XXFLAGS+=-O0 -g3
 else

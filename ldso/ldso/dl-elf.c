@@ -32,7 +32,7 @@
 
 #include "ldso.h"
 
-#ifdef USE_CACHE
+#ifdef __LDSO_CACHE_SUPPORT__
 
 static caddr_t _dl_cache_addr = NULL;
 static size_t _dl_cache_size = 0;
@@ -317,7 +317,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	 * ABI, so we have some flexibility here.  For now, search it before
 	 * the hard coded paths that follow (i.e before /lib and /usr/lib).
 	 */
-#ifdef USE_CACHE
+#ifdef __LDSO_CACHE_SUPPORT__
 	if (_dl_cache_addr != NULL && _dl_cache_addr != (caddr_t) - 1) {
 		int i;
 		header_t *header = (header_t *) _dl_cache_addr;
@@ -358,6 +358,9 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	if ((tpnt1 = search_for_named_library(libname, secure,
 					UCLIBC_RUNTIME_PREFIX "lib:"
 					UCLIBC_RUNTIME_PREFIX "usr/lib"
+#if !defined (__LDSO_CACHE_SUPPORT__)
+					":" UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib"
+#endif
 					, rpnt)
 		) != NULL)
 	{

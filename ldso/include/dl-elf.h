@@ -5,15 +5,10 @@
 #include <elf.h>
 #include <link.h>
 
-#ifdef DEBUG
-#  define LDSO_CONF  "../util/ld.so.conf"
-#  define LDSO_CACHE "../util/ld.so.cache"
-#  define LDSO_PRELOAD "../util/ld.so.preload"
-#else
-#  define LDSO_CONF  UCLIBC_RUNTIME_PREFIX "etc/ld.so.conf"
-#  define LDSO_CACHE UCLIBC_RUNTIME_PREFIX "etc/ld.so.cache"
-#  define LDSO_PRELOAD UCLIBC_RUNTIME_PREFIX "etc/ld.so.preload"
-#endif
+#define LDSO_BASE_PATH UCLIBC_RUNTIME_PREFIX "etc/" __LDSO_BASE_FILENAME__
+#define LDSO_CONF    LDSO_BASE_PATH ".conf"
+#define LDSO_CACHE   LDSO_BASE_PATH ".cache"
+#define LDSO_PRELOAD LDSO_BASE_PATH ".preload"
 
 
 #define LIB_ANY	     -1
@@ -30,7 +25,7 @@ struct elf_resolve;
 
 
 /* Definitions and prototypes for cache stuff */
-#ifdef USE_CACHE
+#ifdef __LDSO_CACHE_SUPPORT__
 extern int _dl_map_cache(void);
 extern int _dl_unmap_cache(void);
 

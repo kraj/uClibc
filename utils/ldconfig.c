@@ -503,7 +503,7 @@ void scan_dir(const char *rawname)
     {
 	if (!lp->islink)
 	    link_shlib(name, lp->name, lp->so);
-#ifdef USE_CACHE
+#ifdef __LDSO_CACHE_SUPPORT__
 	if (!nocache)
 	    cache_dolib(name, lp->so, lp->libtype);
 #endif
@@ -553,7 +553,7 @@ char *get_extpath(void)
     return res;
 }
 
-#ifdef USE_CACHE
+#ifdef __LDSO_CACHE_SUPPORT__
 typedef struct liblist
 {
     int flags;
@@ -876,6 +876,9 @@ int main(int argc, char **argv)
 	{
 	    scan_dir(UCLIBC_RUNTIME_PREFIX "lib");
 	    scan_dir(UCLIBC_RUNTIME_PREFIX "usr/lib");
+#if !defined (__LDSO_CACHE_SUPPORT__)
+	    scan_dir(UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib");
+#endif
 
 	    /* I guess the defaults aren't good enough */
 	    if ((extpath = get_extpath()))
@@ -886,8 +889,12 @@ int main(int argc, char **argv)
 			if (len) 
 				while (cp[--len] == '/' && len)
 					cp[len] = 0;
-			if (strcmp(UCLIBC_RUNTIME_PREFIX "lib", cp) == 0 ||
-			    strcmp(UCLIBC_RUNTIME_PREFIX "usr/lib", cp) == 0) {
+			if (strcmp(UCLIBC_RUNTIME_PREFIX "lib", cp) == 0
+			    || strcmp(UCLIBC_RUNTIME_PREFIX "usr/lib", cp) == 0
+#if !defined (__LDSO_CACHE_SUPPORT__)
+			    || strcmp(UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib", cp) == 0
+#endif
+			    ) {
 				if (verbose >= 0)
 					warnx("Path `%s' given more than once\n", cp);
 				continue;
@@ -898,7 +905,7 @@ int main(int argc, char **argv)
 	    }
 	}
 
-#ifdef USE_CACHE
+#ifdef __LDSO_CACHE_SUPPORT__
 	if (!nocache)
 	    cache_write();
 #endif

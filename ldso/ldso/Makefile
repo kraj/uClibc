@@ -23,7 +23,7 @@ LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 SSPFLAGS=$(call check_gcc,-fno-stack-protector,)
 
-XXFLAGS=$(XWARNINGS) $(LIBRARY_CACHE) $(SSPFLAGS)
+XXFLAGS=$(XWARNINGS) $(SSPFLAGS)
 ifeq ($(DODEBUG),y)
 # Not really much point in including debugging info, since gdb
 # can't really debug ldso, since gdb requires help from ldso to

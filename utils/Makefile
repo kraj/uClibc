@@ -29,7 +29,7 @@ else
 TARGET_ICONV =
 endif
 
-XXFLAGS=$(LIBRARY_CACHE)
+XXFLAGS=
 ifeq ($(strip $(LDSO_LDD_SUPPORT)),y)
 XXFLAGS+= -D__LDSO_LDD_SUPPORT
 endif

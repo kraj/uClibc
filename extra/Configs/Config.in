@@ -200,6 +200,7 @@ config FORCE_SHAREABLE_TEXT_SEGMENTS
 
 config UCLIBC_PIE_SUPPORT
 	bool "Support ET_DYN in shared library loader"
+	depends on BUILD_UCLIBC_LDSO
 	select FORCE_SHAREABLE_TEXT_SEGMENTS
 	default n
 	help
@@ -222,6 +223,30 @@ config LDSO_LDD_SUPPORT
 	  and then provide a list of shared libraries that are required for an
 	  application to function.  Disabling this option will makes uClibc's
 	  shared library loader a little bit smaller.  Most people will answer Y.
+
+config LDSO_CACHE_SUPPORT
+	bool "Enable shared library loader cache"
+	depends on BUILD_UCLIBC_LDSO
+	default y
+	help
+	  Enable this to make use of /etc/ld.so.conf, the shared library loader
+	  cache configuration file to support for non-standard library paths.
+	  After updating this file, it is necessary to run 'ldconfig' to update
+	  the /etc/ld.so.cache shared library loader cache file.
+
+config LDSO_BASE_FILENAME
+	string "Shared library loader cache naming prefix"
+	depends on LDSO_CACHE_SUPPORT
+	default "ld.so"
+	help
+	  If you wish to support both uClibc and glibc on the same system, it
+	  is necessary to set this to something other than "ld.so" to avoid
+	  conflicts with glibc, which also uses "ld.so".  This prevents both
+	  libraries from using the same /etc/ld.so.cache file.  If you wish to
+	  support both uClibc and glibc on the same system then you should set
+	  this to "ld-uClibc.so".
+
+	  Most people will leave this set to the default of "ld.so".
 
 config UCLIBC_CTOR_DTOR
 	bool "Support global constructors and destructors"

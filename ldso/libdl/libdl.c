@@ -54,7 +54,7 @@ extern struct elf_resolve *_dl_loaded_modules __attribute__ ((__weak__));
 extern struct r_debug *_dl_debug_addr __attribute__ ((__weak__));
 extern unsigned long _dl_error_number __attribute__ ((__weak__));
 extern void *(*_dl_malloc_function)(size_t) __attribute__ ((__weak__));
-#ifdef USE_CACHE
+#ifdef __LDSO_CACHE_SUPPORT__
 int _dl_map_cache(void) __attribute__ ((__weak__));
 int _dl_unmap_cache(void) __attribute__ ((__weak__));
 #endif
