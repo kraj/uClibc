@@ -1773,8 +1773,8 @@ void _stdio_init(void)
 {
 #ifdef __STDIO_BUFFERS
 	/* stdin and stdout uses line buffering when connected to a tty. */
-	_stdio_streams[0].modeflags ^= isatty(0) * __FLAG_LBF;
-	_stdio_streams[1].modeflags ^= isatty(1) * __FLAG_LBF;
+	_stdio_streams[0].modeflags &= isatty(0) * __FLAG_LBF;
+	_stdio_streams[1].modeflags &= isatty(1) * __FLAG_LBF;
 #endif /* __STDIO_BUFFERS */
 #ifndef __UCLIBC__
 /* __stdio_term is automatically when exiting if stdio is used.
