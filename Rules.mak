@@ -81,7 +81,10 @@ check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; 
 
 # check if we have nawk, otherwise user awk
 AWK:=$(shell if [ -x /usr/bin/nawk ]; then echo "/usr/bin/nawk"; \
-	else echo "/usr/bin/awk"; fi)
+	else if [ -x /usr/bin/awk ]; then echo "/usr/bin/awk"; \
+	else if [ -x /bin/awk ]; then echo "/bin/awk"; \
+	else echo "awk"; fi; fi; fi)
+
 
 # Make certain these contain a final "/", but no "//"s.
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
