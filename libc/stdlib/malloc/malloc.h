@@ -32,6 +32,12 @@
    MALLOC_MIN_SIZE, will cause us not to reserve anything.  */
 #define MALLOC_MIN_SIZE		(2*MALLOC_PAGE_SIZE)
 
+/* When realloc shrinks an allocation, it only does so if more than this
+   many bytes will be freed; it must at at least HEAP_MIN_SIZE.  Larger
+   values increase speed (by reducing heap fragmentation) at the expense of
+   space.  */
+#define MALLOC_REALLOC_MIN_FREE_SIZE  (HEAP_MIN_SIZE + 16)
+
 
 /* For systems with an MMU, use sbrk to map/unmap memory for the malloc
    heap, instead of mmap/munmap.  This is a tradeoff -- sbrk is faster than
@@ -103,8 +109,8 @@ extern malloc_mutex_t __malloc_sbrk_lock;
 #endif /* __UCLIBC_HAS_THREADS__ */
 
 
-/* Change this to `#if 1' to cause malloc to emit debugging info to stderr.  */
-#if 0
+/* Define MALLOC_DEBUGGING to cause malloc to emit debugging info to stderr.  */
+#ifdef MALLOC_DEBUGGING
 #include <stdio.h>
 #define MALLOC_DEBUG(fmt, args...) fprintf (stderr, fmt , ##args)
 #else
