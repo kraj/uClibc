@@ -45,8 +45,11 @@ headers: dummy
 	@rm -f include/asm include/net include/linux include/bits
 	@ln -s $(KERNEL_SOURCE)/include/asm-$(ARCH_DIR) include/asm
 	@if [ ! -f include/asm/unistd.h ] ; then \
-	    echo "You didn't set KERNEL_SOURCE, TARGET_ARCH or HAS_MMU correctly in Config"; \
+	    echo " "; \
 	    echo "The path '$(KERNEL_SOURCE)/include/asm-$(ARCH_DIR)' doesn't exist."; \
+	    echo "I bet you didn't set KERNEL_SOURCE, TARGET_ARCH or HAS_MMU in \`Config'"; \
+	    echo "correctly.  Please edit \`Config' and fix these settings."; \
+	    echo " "; \
 	    /bin/false; \
 	fi;
 	@ln -s $(KERNEL_SOURCE)/include/net include/net
