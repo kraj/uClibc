@@ -25,6 +25,19 @@
 #include <paths.h>
 #include "config.h"
 
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
+static char *line_buff = NULL;
+static char **members = NULL;
+
+
 struct group *getgrnam(const char *name)
 {
 	int grp_fd;
@@ -38,12 +51,15 @@ struct group *getgrnam(const char *name)
 	if ((grp_fd = open(_PATH_GROUP, O_RDONLY)) < 0)
 		return NULL;
 
-	while ((group = __getgrent(grp_fd)) != NULL)
+	LOCK;
+	while ((group = __getgrent(grp_fd, line_buff, members)) != NULL)
 		if (!strcmp(group->gr_name, name)) {
 			close(grp_fd);
+			UNLOCK;
 			return group;
 		}
 
 	close(grp_fd);
+	UNLOCK;
 	return NULL;
 }

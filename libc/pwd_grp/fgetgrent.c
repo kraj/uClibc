@@ -21,13 +21,30 @@
 #include <stdio.h>
 #include <errno.h>
 #include "config.h"
+    
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
+static char *line_buff = NULL;
+static char **members = NULL;
 
 struct group *fgetgrent(FILE * file)
 {
-	if (file == NULL) {
-		__set_errno(EINTR);
-		return NULL;
-	}
+    struct group *grp;
 
-	return __getgrent(fileno(file));
+    if (file == NULL) {
+	__set_errno(EINTR);
+	return NULL;
+    }
+
+    LOCK;
+    grp = __getgrent(fileno(file), line_buff, members);
+    UNLOCK;
+    return grp;
 }

@@ -39,17 +39,10 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
  * getgrent() except that it is passed a file descriptor.  getgrent()
  * is just a wrapper for this function.
  */
-struct group *__getgrent(int grp_fd)
+struct group *__getgrent(int grp_fd, char *line_buff, char **members)
 {
-#ifdef GR_SCALE_DYNAMIC
-    static char *line_buff = NULL;
-    static char **members = NULL;
     short line_index;
     short buff_size;
-#else
-    static char line_buff[GR_MAX_LINE_LEN];
-    static char *members[GR_MAX_MEMBERS];
-#endif
     static struct group group;
     register char *ptr;
     char *field_begin;
@@ -58,21 +51,15 @@ struct group *__getgrent(int grp_fd)
     int line_len;
 
 
-    LOCK;
-
     /* We use the restart label to handle malformatted lines */
 restart:
-#ifdef GR_SCALE_DYNAMIC
     line_index = 0;
     buff_size = 256;
-#endif
 
-#ifdef GR_SCALE_DYNAMIC
     line_buff = realloc(line_buff, buff_size);
     while (1) {
 	if ((line_len = read(grp_fd, line_buff + line_index,
 			buff_size - line_index)) <= 0) {
-	    UNLOCK;
 	    return NULL;
 	}
 	field_begin = strchr(line_buff, '\n');
@@ -92,33 +79,6 @@ restart:
 	    line_buff = realloc(line_buff, buff_size);
 	}
     }
-#else
-    /* Read the line into the static buffer */
-    if ((line_len = read(grp_fd, line_buff, GR_MAX_LINE_LEN)) <= 0) {
-	UNLOCK;
-	return NULL;
-    }
-    field_begin = strchr(line_buff, '\n');
-    if (field_begin != NULL)
-	lseek(grp_fd, (long) (1 + field_begin - (line_buff + line_len)),
-		SEEK_CUR);
-    else {						/* The line is too long - skip it :-\ */
-
-	do {
-	    if ((line_len = read(grp_fd, line_buff, GR_MAX_LINE_LEN)) <= 0) {
-		UNLOCK;
-		return NULL;
-	    }
-	} while (!(field_begin = strchr(line_buff, '\n')));
-	lseek(grp_fd, (long) ((field_begin - line_buff) - line_len + 1),
-		SEEK_CUR);
-	goto restart;
-    }
-    if (*line_buff == '#' || *line_buff == ' ' || *line_buff == '\n' ||
-	    *line_buff == '\t')
-	goto restart;
-    *field_begin = '\0';
-#endif							/* GR_SCALE_DYNAMIC */
 
     /* Now parse the line */
     group.gr_name = line_buff;
@@ -146,7 +106,6 @@ restart:
     member_num = 0;
     field_begin = ptr;
 
-#ifdef GR_SCALE_DYNAMIC
     if (members != NULL)
 	free(members);
     members = (char **) malloc((member_num + 1) * sizeof(char *));
@@ -159,22 +118,6 @@ restart:
     }
     members[member_num] = NULL;
 
-#else
-    while ((ptr = strchr(ptr, ',')) != NULL) {
-	*ptr = '\0';
-	ptr++;
-	members[member_num] = field_begin;
-	field_begin = ptr;
-	member_num++;
-    }
-    if (*field_begin == '\0')
-	members[member_num] = NULL;
-    else {
-	members[member_num] = field_begin;
-	members[member_num + 1] = NULL;
-    }
-#endif
     group.gr_mem = members;
-    UNLOCK;
     return &group;
 }

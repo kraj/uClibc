@@ -27,9 +27,11 @@
 #include <grp.h>
 #include <shadow.h>
 
-/* These are used internally to uClibc */
-extern struct group * __getgrent __P ((int grp_fd));
+#define PWD_BUFFER_SIZE 256
 
+
+/* These are used internally to uClibc */
+extern struct group *__getgrent(int grp_fd, char *line_buff, char **members);
 extern int __getpwent_r(struct passwd * passwd, char * line_buff, 
 	size_t buflen, int pwd_fd);
 extern int __getspent_r(struct spwd * spwd, char * line_buff, 
@@ -37,54 +39,5 @@ extern int __getspent_r(struct spwd * spwd, char * line_buff,
 extern int __sgetspent_r(const char * string, struct spwd * spwd, 
 	char * line_buff, size_t buflen);
 
-
-#define PWD_BUFFER_SIZE 256
-
-
-/*
- * Define GR_SCALE_DYNAMIC if you want grp to dynamically scale its read buffer
- * so that lines of any length can be used.  On very very small systems,
- * you may want to leave this undefined becasue it will make the grp functions
- * somewhat larger (because of the inclusion of malloc and the code necessary).
- * On larger systems, you will want to define this, because grp will _not_
- * deal with long lines gracefully (they will be skipped).
- */
-/*
- * Define GR_DYNAMIC_GROUP_LIST to make initgroups() dynamically allocate
- * space for it's GID array before calling setgroups().  This is probably
- * unnecessary scalage, so it's undefined by default.
- */
-#ifdef __UCLIBC_HAS_MMU__
-#define GR_SCALE_DYNAMIC 1
-#define GR_DYNAMIC_GROUP_LIST 1
-#else
-#undef GR_SCALE_DYNAMIC
-#undef GR_DYNAMIC_GROUP_LIST
-#endif
-
-
-
-#ifndef GR_SCALE_DYNAMIC
-/*
- * If scaling is not dynamic, the buffers will be statically allocated, and
- * maximums must be chosen.  GR_MAX_LINE_LEN is the maximum number of
- * characters per line in the group file.  GR_MAX_MEMBERS is the maximum
- * number of members of any given group.
- */
-#define GR_MAX_LINE_LEN 128
-/* GR_MAX_MEMBERS = (GR_MAX_LINE_LEN-(24+3+6))/9 */
-#define GR_MAX_MEMBERS 11
-
-#endif /* !GR_SCALE_DYNAMIC */
-
-
-#ifndef GR_DYNAMIC_GROUP_LIST
-/*
- * GR_MAX_GROUPS is the size of the static array initgroups() uses for
- * its static GID array if GR_DYNAMIC_GROUP_LIST isn't defined.
- */
-#define GR_MAX_GROUPS 64
-
-#endif /* !GR_DYNAMIC_GROUP_LIST */
 
 #endif /* !_CONFIG_GRP_H */

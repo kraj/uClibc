@@ -41,6 +41,8 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #endif      
 
 static int grp_fd = -1;
+static char *line_buff = NULL;
+static char **members = NULL;
 
 void setgrent(void)
 {
@@ -69,7 +71,7 @@ struct group *getgrent(void)
 	UNLOCK;
 	return NULL;
     }
-    r = __getgrent(grp_fd);
+    r = __getgrent(grp_fd, line_buff, members);
     UNLOCK;
     return r;
 }

@@ -25,15 +25,24 @@
 #include <stdlib.h>
 #include "config.h"
 
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
+#else       
+# define LOCK
+# define UNLOCK
+#endif      
+
+static char *line_buff = NULL;
+static char **members = NULL;
+
 int initgroups(__const char *user, gid_t gid)
 {
     register struct group *group;
 
-#ifndef GR_DYNAMIC_GROUP_LIST
-    gid_t group_list[GR_MAX_GROUPS];
-#else
     gid_t *group_list = NULL;
-#endif
     register char **tmp_mem;
     int num_groups;
     int grp_fd;
@@ -43,33 +52,26 @@ int initgroups(__const char *user, gid_t gid)
 	return -1;
 
     num_groups = 0;
-#ifdef GR_DYNAMIC_GROUP_LIST
     group_list = (gid_t *) realloc(group_list, 1);
-#endif
     group_list[num_groups] = gid;
-#ifndef GR_DYNAMIC_GROUP_LIST
-    while (num_groups < GR_MAX_GROUPS &&
-	    (group = __getgrent(grp_fd)) != NULL)
-#else
-	while ((group = __getgrent(grp_fd)) != NULL)
-#endif
+    LOCK;
+    while ((group = __getgrent(grp_fd, line_buff, members)) != NULL)
+    {
+	if (group->gr_gid != gid);
 	{
-	    if (group->gr_gid != gid);
-	    {
-		tmp_mem = group->gr_mem;
-		while (*tmp_mem != NULL) {
-		    if (!strcmp(*tmp_mem, user)) {
-			num_groups++;
-#ifdef GR_DYNAMIC_GROUP_LIST
-			group_list = (gid_t *) realloc(group_list, num_groups *
-				sizeof(gid_t *));
-#endif
-			group_list[num_groups-1] = group->gr_gid;
-		    }
-		    tmp_mem++;
+	    tmp_mem = group->gr_mem;
+	    while (*tmp_mem != NULL) {
+		if (!strcmp(*tmp_mem, user)) {
+		    num_groups++;
+		    group_list = (gid_t *) realloc(group_list, num_groups *
+			    sizeof(gid_t *));
+		    group_list[num_groups-1] = group->gr_gid;
 		}
+		tmp_mem++;
 	    }
 	}
+    }
     close(grp_fd);
+    UNLOCK;
     return setgroups(num_groups, group_list);
 }
