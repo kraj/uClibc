@@ -5,20 +5,18 @@
 TOPDIR=../
 include $(TOPDIR)Rules.make
 
-LIBC=../libc.a
+LIBC=$(TOPDIR)libc.a
 
 MSRC=alloc.c
 MOBJ=malloc.o realloc.o free.o calloc.o malloc_dbg.o free_dbg.o calloc_dbg.o
 
-CFLAGS=$(ARCH) $(CCFLAGS) $(DEFS)
+all: $(LIBC)($(MOBJ))
 
-all: $(LIBC)
+$(LIBC): $(MOBJ)
 
-$(LIBC): $(LIBC)($(MOBJ))
-
-$(LIBC)($(MOBJ)): $(MSRC)
+$(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(AR) $(ARFLAGS) $@ $*.o
+	$(AR) $(ARFLAGS) $(LIBC) $*.o
 
 clean:
 	rm -f *.o libc.a
