@@ -172,7 +172,7 @@ int __gen_tempname (char *tmpl, int kind)
 	XXXXXX[i] = letters[k];
     }
 
-    for (count = 0; count < TMP_MAX; value += 7777, ++count)
+    for (count = 0; count < TMP_MAX; ++count)
     {
 	switch(kind) {
 	    case __GT_NOCREATE:
