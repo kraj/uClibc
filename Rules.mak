@@ -88,11 +88,11 @@ NATIVE_CFLAGS=-O2 -Wall
 
 ifeq ($(strip $(DODEBUG)),true)
     CFLAGS += -g
-    LDFLAGS = -shared -nostdlib --warn-common --warn-once -z combreloc
+    LDFLAGS = -shared --warn-common --warn-once -z combreloc
     STRIPTOOL = /bin/true -Since_we_are_debugging
 else
     CFLAGS  += -DNDEBUG #-fomit-frame-pointer
-    LDFLAGS  = -s -shared -nostdlib --warn-common --warn-once -z combreloc
+    LDFLAGS  = -s -shared --warn-common --warn-once -z combreloc
 endif
 
 ifeq ($(strip $(HAVE_SHARED)),true)

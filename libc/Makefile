@@ -46,9 +46,8 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 	$(AR) rv ./tmp/libgcc-need.a
 	@(cd tmp && CC=$(CC) LD=$(LD) NM=$(NM) AR=$(AR) \
 		/bin/sh ../../extra/scripts/get-needed-libgcc-objects.sh)
-	$(LD) $(LDFLAGS) -o $(SHARED_FULLNAME) -soname=$(SHARED_MAJORNAME) \
-		--dynamic-linker $(DYNAMIC_LINKER) --whole-archive $(LIBNAME) \
-		./tmp/libgcc-need.a -Bdynamic $(LDSO)
+	$(LD) $(LDFLAGS) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
+		--whole-archive ./tmp/libgcc-need.a $(LIBNAME) --no-whole-archive $(LDSO)
 	@/bin/true #rm -rf tmp
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(SHARED_FULLNAME)

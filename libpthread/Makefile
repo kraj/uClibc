@@ -48,9 +48,9 @@ $(OBJS): %.o : %.c
 $(OBJ): Makefile
 
 shared: all
-	$(LD) $(LDFLAGS) -o $(LIBPTHREAD_SHARED_FULLNAME) \
-	    -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
-	    --whole-archive $(LIBPTHREAD) -Bdynamic -L$(TOPDIR)/lib -lc;
+	$(LD) $(LDFLAGS) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
+		-o $(LIBPTHREAD_SHARED_FULLNAME) --whole-archive $(LIBPTHREAD) \
+		--no-whole-archive -L$(TOPDIR)/lib -lc;
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib;

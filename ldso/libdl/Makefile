@@ -50,9 +50,9 @@ $(OBJS): %.o : %.c
 $(OBJ): Makefile
 
 shared: all
-	$(LD) $(LDFLAGS) -o $(LIBDL_SHARED_FULLNAME) \
-	    -soname=$(LIBDL_SHARED).$(MAJOR_VERSION) \
-	    --whole-archive $(LIBDL) -Bdynamic -L$(TOPDIR)/lib -lc;
+	$(LD) $(LDFLAGS) -soname=$(LIBDL_SHARED).$(MAJOR_VERSION) \
+		-o $(LIBDL_SHARED_FULLNAME) --whole-archive $(LIBDL) \
+		--no-whole-archive -L$(TOPDIR)/lib -lc;
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib;

@@ -49,9 +49,9 @@ $(OBJS): %.o : %.c
 $(OBJ): Makefile
 
 shared: all
-	$(LD) $(LDFLAGS) -o $(LIBRESOLV_SHARED_FULLNAME) \
-	    -soname=$(LIBRESOLV_SHARED).$(MAJOR_VERSION) \
-	    --whole-archive $(LIBRESOLV) -Bdynamic -L$(TOPDIR)/lib -lc;
+	$(LD) $(LDFLAGS) -soname=$(LIBRESOLV_SHARED).$(MAJOR_VERSION) \
+		-o $(LIBRESOLV_SHARED_FULLNAME) --whole-archive $(LIBRESOLV) \
+		--no-whole-archive -L$(TOPDIR)/lib -lc;
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRESOLV_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib;
