@@ -130,7 +130,7 @@ void syslog( int, const char *, ...);
 void vsyslog( int, const char *, va_list );
 void openlog( const char *, int, int );
 void closelog( void );
-int setlogmask( int );
+void setlogmask( int );
 
 static void 
 closelog_intern(int to_default)
@@ -335,7 +335,7 @@ closelog( void )
 /*
  * SETLOGMASK -- set the log mask level
  */
-int
+void
 setlogmask( int pmask )
 {
 	int omask;
@@ -345,5 +345,4 @@ setlogmask( int pmask )
 	if (pmask != 0)
 		LogMask = pmask;
 	UNLOCK();
-	return (omask);
 }
