@@ -77,6 +77,10 @@ install: build
 	install -m 644 debian/uclibc-ldconfig.1 \
 	  debian/libuclibc0/usr/share/man/man1/$(target)-uclibc-ldconfig.1
 
+	mkdir -p debian/libuclibc0/lib/
+	ln -sf /usr/$(target)-uclibc-linux/lib/ld-uclibc.so.0 \
+	  debian/libuclibc0/lib/ld-uclibc.so.0
+
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
