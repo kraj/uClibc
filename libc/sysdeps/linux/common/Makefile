@@ -24,6 +24,11 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
+SAFECFLAGS=-Os -fno-builtin
+ifeq ($(strip $(DOPIC)),true)
+SAFECFLAGS+=-fPIC
+endif
+
 CSRC=	waitpid.c kernel_version.c statfix.c getdnnm.c gethstnm.c \
 	mkfifo.c setegid.c wait.c getpagesize.c seteuid.c \
 	wait3.c setpgrp.c getdtablesize.c create_module.c ptrace.c \
@@ -54,17 +59,17 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 initfini.s: initfini.c
-	$(CC) -Os -fno-builtin -c initfini.c -S -o initfini.s
+	$(CC) $(SAFECFLAGS) -c initfini.c -S -o initfini.s
 
 crti.S crtn.S: initfini.s
 	$(TOPDIR)/extra/scripts/initfini.pl
 
 crti.o: crti.S
-	$(CC) -Os -fno-builtin -c crti.S -o crti.o
+	$(CC) $(SAFECFLAGS) -c crti.S -o crti.o
 	cp crti.o $(TOPDIR)lib/
 
 crtn.o: crtn.S
-	$(CC) -Os -fno-builtin -c crtn.S -o crtn.o
+	$(CC) $(SAFECFLAGS) -c crtn.S -o crtn.o
 	cp crtn.o $(TOPDIR)lib/
 
 clean:
