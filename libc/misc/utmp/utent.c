@@ -32,7 +32,7 @@ void setutent(void)
 {
 	if (ut_fd != -1)
 		close(ut_fd);
-	if ((ut_fd = open(ut_name, O_RDONLY)) < 0) {
+	if ((ut_fd = open(ut_name, O_RDWR)) < 0) {
 		ut_fd = -1;
 	}
 }
