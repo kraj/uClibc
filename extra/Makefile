@@ -26,7 +26,7 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 
-DIRS = gcc-uClibc
+DIRS = gcc-uClibc config
 
 all: subdirs
 

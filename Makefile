@@ -338,7 +338,7 @@ clean:
 	$(MAKE) -C libc/misc/internals clean
 	$(MAKE) -C libc/unistd clean
 	$(MAKE) -C libc/sysdeps/linux/common clean
-	$(MAKE) -C extra/gcc-uClibc clean
+	$(MAKE) -C extra clean
 	@set -e; \
 	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		rm -f include/sys/$$i; \
