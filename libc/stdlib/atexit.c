@@ -96,12 +96,14 @@ int atexit(aefuncp func)
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
 	/* If we are out of function table slots, make some more */
 	if (__exit_slots < __exit_count+1) {
-	    __exit_function_table=realloc(__exit_function_table, __exit_slots+20);
+	    __exit_function_table=realloc(__exit_function_table, 
+		    (__exit_slots+20)*sizeof(struct exit_function));
 	    if (__exit_function_table==NULL) {
 		UNLOCK;
 		__set_errno(ENOMEM);
 		return -1;
 	    }
+	    __exit_slots+=20;
 	}
 #else
 	if (__exit_count >= __UCLIBC_MAX_ATEXIT) {
@@ -136,12 +138,14 @@ int on_exit(oefuncp func, void *arg)
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
 	/* If we are out of function table slots, make some more */
 	if (__exit_slots < __exit_count+1) {
-	    __exit_function_table=realloc(__exit_function_table, __exit_slots+20);
+	    __exit_function_table=realloc(__exit_function_table, 
+		    (__exit_slots+20)*sizeof(struct exit_function));
 	    if (__exit_function_table==NULL) {
 		UNLOCK;
 		__set_errno(ENOMEM);
 		return -1;
 	    }
+	    __exit_slots+=20;
 	}
 #else
 	if (__exit_count >= __UCLIBC_MAX_ATEXIT) {
