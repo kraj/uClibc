@@ -133,7 +133,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	}
 
 	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_fcn) {
-		_dl_dprintf(2, "Standalone exection is not supported yet\n");
+		_dl_dprintf(2, "Standalone execution is not supported yet\n");
 		_dl_exit(1);
 	}
 
