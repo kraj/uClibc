@@ -684,7 +684,7 @@ config UCLIBC_HAS_SCANF_GLIBC_A_FLAG
 
 choice
 	prompt "Stdio buffer size"
-	default UCLIBC_HAS_STDIO_BUFSIZ_256
+	default UCLIBC_HAS_STDIO_BUFSIZ_4096
 	help
 	  Please select a value for BUFSIZ.  This will be used by the
 	  stdio subsystem as the default buffer size for a file, and
