@@ -54,6 +54,7 @@ endif
 	@$(MAKE) -C libcrypt shared
 	@$(MAKE) -C libutil shared
 	@$(MAKE) -C libm shared
+	@$(MAKE) -C libresolv shared
 
 done: $(DO_SHARED)
 	@echo
