@@ -16,6 +16,12 @@ version:=$(strip $(major)).$(strip $(minor))
 target=$(DEB_HOST_GNU_CPU)
 #target=powerpc
 
+with_shared_libs=y
+#ifeq ($(target),powerpc)
+#with_shared_libs=n
+#endif
+
+
 build: build-stamp
 build-stamp:
 	dh_testdir
@@ -32,7 +38,7 @@ endif
 	echo 'PREFIX = $$(DESTDIR)/usr'  >>Config
 	echo 'DEVEL_PREFIX = $$(PREFIX)/$$(TARGET_ARCH)-linux-uclibc'  >>Config
 	echo 'TARGET_PREFIX = $$(DESTDIR)/'  >>Config
-ifeq ($(target),powerpc)
+ifeq ($(with_shared_libs),n)
 	echo 'HAVE_SHARED = false' >>Config
 endif
 
@@ -77,9 +83,11 @@ install: build
 	install -m 644 debian/uclibc-ldconfig.1 \
 	  debian/libuclibc0/usr/share/man/man1/$(target)-uclibc-ldconfig.1
 
+ifeq ($(with_shared_libs),y)
 	mkdir -p debian/libuclibc0/lib/
 	ln -sf /usr/$(target)-uclibc-linux/lib/ld-uclibc.so.0 \
 	  debian/libuclibc0/lib/ld-uclibc.so.0
+endif
 
 # Build architecture-independent files here.
 binary-indep: build install
