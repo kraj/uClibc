@@ -16,16 +16,16 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <sys/times.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/times.h>
 
 /* Return the time used by the program so far (user time + system time).  */
 clock_t
 clock (void)
 {
   struct tms buf;
-  long clk_tck = sysconf (_SC_CLK_TCK);
+  long clk_tck = CLK_TCK;
 
   /* We don't check for errors here.  The only error the kernel
      returns is EFAULT if the value cannot be written to the struct we
@@ -37,9 +37,7 @@ clock (void)
   times (&buf);
 
   return
-    (clk_tck <= CLOCKS_PER_SEC)
-    ? ((unsigned long) buf.tms_utime + buf.tms_stime) * (CLOCKS_PER_SEC
-							 / clk_tck)
-    : ((unsigned long) buf.tms_utime + buf.tms_stime) / (clk_tck
-							 / CLOCKS_PER_SEC);
+      (clk_tck <= CLOCKS_PER_SEC) ? 
+      ((unsigned long) buf.tms_utime + buf.tms_stime) * (CLOCKS_PER_SEC / clk_tck) : 
+      ((unsigned long) buf.tms_utime + buf.tms_stime) / (clk_tck / CLOCKS_PER_SEC);
 }

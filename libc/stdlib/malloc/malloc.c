@@ -134,45 +134,7 @@ int __malloc_initialized = -1;
 #endif
 
 /* guess pagesize */
-#ifndef M_PAGESIZE
-#ifdef _SC_PAGESIZE
-#ifndef _SC_PAGE_SIZE
-#define _SC_PAGE_SIZE _SC_PAGESIZE
-#endif
-#endif
-#ifdef _SC_PAGE_SIZE
-#define M_PAGESIZE sysconf(_SC_PAGE_SIZE)
-#else							/* !_SC_PAGESIZE */
-#if defined(BSD) || defined(DGUX) || defined(HAVE_GETPAGESIZE)
-extern size_t getpagesize();
-
 #define M_PAGESIZE getpagesize()
-#else							/* !HAVE_GETPAGESIZE */
-#include <sys/param.h>
-#ifdef EXEC_PAGESIZE
-#define M_PAGESIZE EXEC_PAGESIZE
-#else							/* !EXEC_PAGESIZE */
-#ifdef NBPG
-#ifndef CLSIZE
-#define M_PAGESIZE NBPG
-#else							/* !CLSIZE */
-#define M_PAGESIZE (NBPG*CLSIZE)
-#endif							/* CLSIZE */
-#else
-#ifdef NBPC
-#define M_PAGESIZE NBPC
-#else							/* !NBPC */
-#ifdef PAGESIZE
-#define M_PAGESIZE PAGESIZE
-#else							/* !PAGESIZE */
-#define M_PAGESIZE 4096
-#endif							/* PAGESIZE */
-#endif							/* NBPC */
-#endif							/* NBPG */
-#endif							/* EXEC_PAGESIZE */
-#endif							/* HAVE_GETPAGESIZE */
-#endif							/* _SC_PAGE_SIZE */
-#endif							/* defined(M_PAGESIZE) */
 
 /* HUNK MANAGER */
 
