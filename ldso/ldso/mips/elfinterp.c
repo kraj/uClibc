@@ -156,7 +156,7 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size, int type)
 {
 	/* Nothing to do */
-	return 0;
+	return;
 }
 
 int _dl_parse_copy_information(struct dyn_elf *rpnt,
@@ -167,17 +167,20 @@ int _dl_parse_copy_information(struct dyn_elf *rpnt,
 }
 
 
-int _dl_parse_relocation_information(struct dyn_elf *rpnt,
+int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 	unsigned long rel_addr, unsigned long rel_size, int type)
 {
 	Elf32_Sym *symtab;
 	Elf32_Rel *rpnt;
 	char *strtab;
 	unsigned long *got;
-	unsigned long *reloc_addr=NULL, old_val=0;
+	unsigned long *reloc_addr=NULL;
 	unsigned long symbol_addr;
 	int i, reloc_type, symtab_index;
-	struct elf_resolve *tpnt = rpnt->dyn;
+	struct elf_resolve *tpnt = xpnt->dyn;
+#if defined (__SUPPORT_LD_DEBUG__)
+	unsigned long old_val=0;
+#endif
 
 	/* Now parse the relocation information */
 	rel_size = rel_size / sizeof(Elf32_Rel);
