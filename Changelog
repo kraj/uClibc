@@ -1,3 +1,34 @@
+0.9.21	9 September 2003
+
+See Changelog.full for the complete list of who did what. 
+
+Note:
+    This release is not binary compatible with earlier releases.
+    Sorry about that.  We have never promised to provide binary
+    compatibility untill we hit version 1.0, and even then, if
+    you change your configuration.
+
+Release highlights:
+    o uClibc now has full ansi/iso C99 locale support (except
+	for wcsftime() and collating items in regex).
+    o Added support for using pre-generated locale data, making
+	it easy for mere mortals to use uClibc w/locale support.
+    o Lots of new tuning options added to trade size 
+	for features, allowing for smaller static binaries.
+    o The "dlopen()'ing libraries that depend on libraries"
+	problem was fixed.
+    o A new scanf implementation.  Well tested, but
+	brand new so watch for obscure bugs...
+    o Reworked and updated the Config system, adding several
+	nice new features which we now use.
+    o Lots and lots of sundry bug fixes and cleanups.
+
+ -Erik
+
+
+
+
+
 0.9.20	30 June 2003
 
 See Changelog.full for the complete list of who did what. 
