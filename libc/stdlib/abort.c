@@ -46,7 +46,7 @@ Cambridge, MA 02139, USA.  */
 #define ABORT_INSTRUCTION
 #endif
 
-extern void __stdio_flush_buffers(void);
+extern void weak_function __stdio_flush_buffers(void);
 extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
 static int been_there_done_that = 0;
 

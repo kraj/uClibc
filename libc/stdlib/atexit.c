@@ -44,8 +44,6 @@ typedef enum {
 	ef_on_exit
 } ef_type; /* exit function types */
 
-extern void __stdio_flush_buffers(void);
-
 /* this is in the L_exit object */
 extern void (*__exit_cleanup) (int);
 
@@ -143,7 +141,7 @@ void __exit_handler(int status)
 #endif
 
 #ifdef L_exit
-extern void __stdio_flush_buffers(void);
+extern void weak_function __stdio_flush_buffers(void);
 void (*__exit_cleanup) (int) = 0;
 
 /*
