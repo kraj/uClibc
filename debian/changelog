@@ -1,3 +1,13 @@
+uclibc (0.9.11-cvs20020419-1) unstable; urgency=low
+
+  * new upstream snapshot
+    - should fix build on sparc and m68kk (Closes: #142708)
+  * I wanted to have a debian package for the 0.9.11 release, but
+    that was rather broken on PowerPC.
+  * Updated kernel source to 2.4.18
+
+ -- David Schleef <ds@schleef.org>  Fri, 19 Apr 2002 10:15:59 -0700
+
 uclibc (0.9.10-cvs20020406-1) unstable; urgency=low
 
   * new upstream snapshot
