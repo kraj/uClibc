@@ -37,6 +37,17 @@ Cambridge, MA 02139, USA.  */
 
 	.globl _start
 	.type _start,@function
+#if defined L_crt0 || ! defined __UCLIBC_CTOR_DTOR__
+	.type	__uClibc_main,%function
+#else
+	.weak	_init
+	.weak	_fini
+	.type	__uClibc_start_main,%function
+#endif
+/* Stick in a dummy reference to main(), so that if an application
+ * is linking when the main() function is in a static library (.a)
+ * we can be sure that main() actually gets linked in */
+	.type	main,%function
 
 _start:
 	/* locate the start of the environment variables */
@@ -86,10 +97,5 @@ _start:
 
 	/* Crash if somehow `exit' returns anyways.  */
 	hlt
-
-/* Stick in a dummy reference to main(), so that if an application
- * is linking when the main() function is in a static library (.a)
- * we can be sure that main() actually gets linked in */
-L_dummy_main_reference:
-	.long	main
+.size _start,.-_start
 
