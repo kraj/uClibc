@@ -9,6 +9,7 @@
 
 #include "syscalls.h"
 #include <sys/stat.h>
+#include <sys/sysmacros.h>
 
 #define __NR___syscall_mknod __NR_mknod
 static inline _syscall3(int, __syscall_mknod, const char *, path,

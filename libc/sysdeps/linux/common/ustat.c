@@ -9,6 +9,7 @@
 
 #include "syscalls.h"
 #include <sys/ustat.h>
+#include <sys/sysmacros.h>
 
 #define __NR___syscall_ustat __NR_ustat
 static inline _syscall2(int, __syscall_ustat,
