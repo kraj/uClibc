@@ -134,8 +134,9 @@ void *dlopen(const char *libname, int flag)
 	struct elf_resolve *tpnt1;
 	void (*dl_brk) (void);
 	int now_flag;
-	struct init_fini_list *init_list;
 	struct init_fini_list *tmp;
+	int nlist, i;
+	struct elf_resolve **init_fini_list;
 
 	/* A bit of sanity checking... */
 	if (!(flag & (RTLD_LAZY|RTLD_NOW))) {
@@ -194,19 +195,14 @@ void *dlopen(const char *libname, int flag)
 	if(_dl_debug)
 		fprintf(stderr, "Looking for needed libraries\n");
 #endif
-	init_list = NULL;
-
-	tmp =  malloc(sizeof(struct init_fini_list));
-	tmp->tpnt = tpnt;
-	tmp->next = NULL;
-	tmp->prev = init_list;
-	init_list = tmp;
-
-	dyn_chain->init_fini = init_list;
+	nlist = 0;
 	for (tcurr = tpnt; tcurr; tcurr = tcurr->next)
 	{
 		Elf32_Dyn *dpnt;
 		char *lpntstr;
+
+		nlist++;
+		tcurr->init_fini = NULL; /* clear any previous dependcies */
 		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++) {
 			if (dpnt->d_tag == DT_NEEDED) {
 				char *name;
@@ -234,15 +230,58 @@ void *dlopen(const char *libname, int flag)
 					tpnt1->rtld_flags |= RTLD_GLOBAL;
 					tpnt1->usage_count++;
 				}
-				tmp =  malloc(sizeof(struct init_fini_list));
+				tmp = alloca(sizeof(struct init_fini_list)); /* Allocates on stack, no need to free this memory */
 				tmp->tpnt = tpnt1;
-				tmp->next = NULL;
-				tmp->prev = init_list;
-				init_list->next = tmp;
-				init_list = init_list->next;;
+				tmp->next = tcurr->init_fini;
+				tcurr->init_fini = tmp;
 			}
 		}
 	}
+	init_fini_list = malloc(nlist * sizeof(struct elf_resolve *));
+	dyn_chain->init_fini.init_fini = init_fini_list;
+	dyn_chain->init_fini.nlist = nlist;
+	i = 0;
+	for (tcurr = tpnt; tcurr; tcurr = tcurr->next) {
+		init_fini_list[i++] = tcurr;
+	}
+	/* Sort the INIT/FINI list in dependency order. */
+	for (tcurr = tpnt; tcurr; tcurr = tcurr->next) {
+		int j, k;
+		for (j = 0; init_fini_list[j] != tcurr; ++j)
+			/* Empty */;
+		for (k = j + 1; k < nlist; ++k) {
+			struct init_fini_list *runp = init_fini_list[k]->init_fini;
+
+			for (; runp; runp = runp->next) {
+				if (runp->tpnt == tcurr) {
+					struct elf_resolve *here = init_fini_list[k];
+#ifdef __SUPPORT_LD_DEBUG__
+					if(_dl_debug)
+						fprintf(stderr, "Move %s from pos %d to %d in INIT/FINI list.\n", here->libname, k, j);
+#endif
+					for (i = (k - j); i; --i)
+						init_fini_list[i+j] = init_fini_list[i+j-1];
+					init_fini_list[j] = here;
+					++j;
+					break;
+				}
+			}
+		}
+	}
+#ifdef __SUPPORT_LD_DEBUG__
+	if(_dl_debug) {
+		fprintf(stderr, "\nINIT/FINI order and dependencies:\n");
+		for (i=0;i < nlist;i++) {
+			struct init_fini_list *tmp;
+
+			fprintf(stderr, "lib: %s has deps:\n", init_fini_list[i]->libname);
+			tmp = init_fini_list[i]->init_fini;
+			for ( ;tmp; tmp = tmp->next)
+				printf(" %s ", tmp->tpnt->libname);
+			printf("\n");
+		}
+	}
+#endif
 
 	if (dyn_chain->dyn->init_flag & INIT_FUNCS_CALLED) {
 		/* If the init and fini stuff has already been run, that means
@@ -290,10 +329,8 @@ void *dlopen(const char *libname, int flag)
 
 #if defined (__LIBDL_SHARED__)
 	/* Run the ctors and setup the dtors */
-	for (; init_list; init_list = init_list->prev) {
-		/* Apparently crt1 for the application is responsible for handling this.
-		 * We only need to run the init/fini for shared libraries. */
-		tpnt = init_list->tpnt;
+	for (i = nlist; i; --i) {
+		tpnt = init_fini_list[i-1];
 		if (tpnt->init_flag & INIT_FUNCS_CALLED)
 			continue;
 		tpnt->init_flag |= INIT_FUNCS_CALLED;
@@ -384,7 +421,6 @@ static int do_dlclose(void *vhandle, int need_fini)
 	struct dyn_elf *handle;
 	unsigned int end;
 	int i = 0;
-	struct init_fini_list *fini_list, *tmp;
 
 	handle = (struct dyn_elf *) vhandle;
 	rpnt1 = NULL;
@@ -403,9 +439,8 @@ static int do_dlclose(void *vhandle, int need_fini)
 	else
 		_dl_handles = rpnt->next_handle;
 	if (need_fini) {
-		for (fini_list = handle->init_fini; fini_list; ) {
-			tpnt = fini_list->tpnt;
-			tmp = NULL;
+		for (i = 0; i < handle->init_fini.nlist; ++i) {
+			tpnt = handle->init_fini.init_fini[i];
 			if (tpnt->dynamic_info[DT_FINI] && tpnt->usage_count == 1 &&
 			    !(tpnt->init_flag & FINI_FUNCS_CALLED)) {
 				tpnt->init_flag |= FINI_FUNCS_CALLED;
@@ -415,12 +450,10 @@ static int do_dlclose(void *vhandle, int need_fini)
 					fprintf(stderr, "running dtors for library %s at '%x'\n", tpnt->libname, dl_elf_fini);
 #endif
 				(*dl_elf_fini) ();
-				tmp = fini_list;
 			}
-			fini_list = fini_list->next;
-			free(tmp);
 		}
 	}
+	free(handle->init_fini.init_fini);
 	/* OK, this is a valid handle - now close out the file */
 	for (rpnt = handle; rpnt; rpnt = rpnt->next) {
 		tpnt = rpnt->dyn;

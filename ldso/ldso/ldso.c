@@ -91,7 +91,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	ElfW(Phdr) *ppnt;
 	Elf32_Dyn *dpnt;
 	char *lpntstr;
-	int i, goof = 0, unlazy = 0, trace_loaded_objects = 0;
+	int i, nlist, goof = 0, unlazy = 0, trace_loaded_objects = 0;
+	struct elf_resolve **init_fini_list;
 	struct dyn_elf *rpnt;
 	struct elf_resolve *tcurr;
 	struct elf_resolve *tpnt1;
@@ -104,7 +105,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 #if defined (__SUPPORT_LD_DEBUG__)
 	int (*_dl_on_exit) (void (*FUNCTION)(int STATUS, void *ARG),void*);
 #endif
-	struct init_fini_list *init_list;
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	/* Wahoo!!! */
@@ -567,9 +567,11 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		}
 	}
 #endif
-	init_list = NULL;
+	nlist = 0;
 	for (tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next) {
 		Elf32_Dyn *dpnt;
+
+		nlist++;
 		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++) {
 			if (dpnt->d_tag == DT_NEEDED) {
 				char *name;
@@ -599,10 +601,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 					}
 				}
 				tmp = alloca(sizeof(struct init_fini_list)); /* Allocates on stack, no need to free this memory */
-				/* Don't set the tmp->next ptr, it is not used */
 				tmp->tpnt = tpnt1;
-				tmp->prev = init_list;
-				init_list = tmp;
+				tmp->next = tcurr->init_fini;
+				tcurr->init_fini = tmp;
+
 				tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 				_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
@@ -615,8 +617,57 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			}
 		}
 	}
-
 	_dl_unmap_cache();
+
+	--nlist; /* Exclude the application. */
+
+	/* As long as atexit() is used to run the FINI functions, we can
+	 use alloca here. The use of atexit() should go away at some time as that
+	 will make Valgring happy. */
+	init_fini_list = alloca(nlist * sizeof(struct elf_resolve *));
+	i = 0;
+	for (tcurr = _dl_loaded_modules->next; tcurr; tcurr = tcurr->next) {
+		init_fini_list[i++] = tcurr;
+	}
+	/* Sort the INIT/FINI list in dependency order. */
+	for (tcurr = _dl_loaded_modules->next; tcurr; tcurr = tcurr->next) {
+		int j, k;
+
+		for (j = 0; init_fini_list[j] != tcurr; ++j)
+			/* Empty */;
+		for (k = j + 1; k < nlist; ++k) {
+			struct init_fini_list *runp = init_fini_list[k]->init_fini;
+
+			for (; runp; runp = runp->next) {
+				if (runp->tpnt == tcurr) {
+					struct elf_resolve *here = init_fini_list[k];
+#ifdef __SUPPORT_LD_DEBUG__
+					if(_dl_debug)
+						_dl_dprintf(2, "Move %s from pos %d to %d in INIT/FINI list.\n", here->libname, k, j);
+#endif
+					for (i = (k - j); i; --i)
+						init_fini_list[i+j] = init_fini_list[i+j-1];
+					init_fini_list[j] = here;
+					++j;
+					break;
+				}
+			}
+		}
+	}
+#ifdef __SUPPORT_LD_DEBUG__
+	if(_dl_debug) {
+		_dl_dprintf(2, "\nINIT/FINI order and dependencies:\n");
+		for (i=0;i < nlist;i++) {
+			struct init_fini_list *tmp;
+
+			_dl_dprintf(2, "lib: %s has deps:\n", init_fini_list[i]->libname);
+			tmp = init_fini_list[i]->init_fini;
+			for ( ;tmp; tmp = tmp->next)
+				_dl_dprintf(2, " %s ", tmp->tpnt->libname);
+			_dl_dprintf(2, "\n");
+		}
+	}
+#endif
 
 	/*
 	 * If the program interpreter is not in the module chain, add it.  This will
@@ -722,8 +773,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	/* Notify the debugger we have added some objects. */
 	_dl_debug_addr->r_state = RT_ADD;
 	_dl_debug_state();
-	for (; init_list; init_list = init_list->prev) {
-		tpnt = init_list->tpnt;
+	for (i = nlist; i; --i) {
+		tpnt = init_fini_list[i-1];
+		tpnt->init_fini = NULL; /* Clear, since alloca was used */
 		if (tpnt->init_flag & INIT_FUNCS_CALLED)
 			continue;
 		tpnt->init_flag |= INIT_FUNCS_CALLED;

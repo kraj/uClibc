@@ -31,10 +31,9 @@
 #include <dl-elf.h>
 #include <dl-hash.h>
 
-/* For INIT/FINI handling */
+/* For INIT/FINI dependency sorting. */
 struct init_fini_list {
 	struct init_fini_list *next;
-	struct init_fini_list *prev;
 	struct elf_resolve *tpnt;
 };
 

@@ -5,10 +5,15 @@
 #define RTLD_NEXT	((void*)-1)
 #endif
 
+struct init_fini {
+	struct elf_resolve **init_fini;
+	unsigned long nlist; /* Number of entries in init_fini */
+};
+
 struct dyn_elf{
   struct elf_resolve * dyn;
   struct dyn_elf * next_handle;  /* Used by dlopen et al. */
-  struct init_fini_list *init_fini;
+  struct init_fini init_fini;
   struct dyn_elf * next;
   struct dyn_elf * prev;
 };
@@ -29,6 +34,8 @@ struct elf_resolve{
   unsigned long rtld_flags; /* RTLD_GLOBAL, RTLD_NOW etc. */
   unsigned int nbucket;
   unsigned long * elf_buckets;
+  struct init_fini_list *init_fini;
+
   /*
    * These are only used with ELF style shared libraries
    */
