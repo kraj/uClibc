@@ -33,6 +33,7 @@ typedef unsigned int	__kernel_uid32_t;
 typedef unsigned int	__kernel_gid32_t;
 typedef unsigned int	__kernel_old_uid_t;
 typedef unsigned int	__kernel_old_gid_t;
+typedef __kernel_dev_t	__kernel_old_dev_t;
 #else
 typedef unsigned int	__kernel_dev_t;
 typedef unsigned int	__kernel_ino_t;
@@ -57,6 +58,7 @@ typedef unsigned int	__kernel_uid32_t;
 typedef unsigned int	__kernel_gid32_t;
 typedef unsigned int	__kernel_old_uid_t;
 typedef unsigned int	__kernel_old_gid_t;
+typedef __kernel_dev_t	__kernel_old_dev_t;
 typedef long long	__kernel_loff_t;
 #endif
 
