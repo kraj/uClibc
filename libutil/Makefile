@@ -52,8 +52,8 @@ $(OBJS): %.o : %.c
 shared: all
 	$(LD) $(LDFLAGS) -soname=$(LIBUTIL_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBUTIL_SHARED_FULLNAME) --whole-archive $(LIBUTIL) \
-		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
-		-L$(TOPDIR)/lib -lc;
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc;
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBUTIL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBUTIL_SHARED).$(MAJOR_VERSION)
 	$(INSTALL) -m 644 $(LIBUTIL_SHARED_FULLNAME) $(TOPDIR)lib

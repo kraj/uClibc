@@ -57,7 +57,7 @@ $(LIBNAME): subdirs ar-target
 shared: $(TOPDIR)lib/$(LIBNAME)
 	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
 		--whole-archive $(LIBNAME) \
-		$(TOPDIR)/libc/misc/internals/interp.o --no-whole-archive \
+		$(TOPDIR)libc/misc/internals/interp.o --no-whole-archive \
 		-init __uClibc_init
 	@true #$(RM) -r tmp
 	$(INSTALL) -d $(TOPDIR)lib

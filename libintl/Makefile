@@ -53,8 +53,8 @@ $(MOBJ): $(MSRC)
 shared: all
 	$(LD) $(LDFLAGS) -soname=$(LIBINTL_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBINTL_SHARED_FULLNAME) --whole-archive $(LIBINTL) \
-		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
-		-L$(TOPDIR)/lib -lc;
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc;
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBINTL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBINTL_SHARED).$(MAJOR_VERSION)
 	$(INSTALL) -m 644 $(LIBINTL_SHARED_FULLNAME) $(TOPDIR)lib

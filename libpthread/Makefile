@@ -80,8 +80,8 @@ shared: all
 		set -e; \
 		$(LD) $(LDFLAGS_PTHREADS) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
 			-o $(LIBPTHREAD_SHARED_FULLNAME) $(START_FILES) --whole-archive $(LIBPTHREAD) \
-			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
-			-L$(TOPDIR)/lib -lc $(END_FILES); \
+			--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+			-L$(TOPDIR)lib -lc $(END_FILES); \
 		$(INSTALL) -d $(TOPDIR)lib; \
 		$(RM) $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) \
 			$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION); \
@@ -95,8 +95,8 @@ shared: all
 		set -e; \
 		$(LD) $(LDFLAGS) -soname=$(LIBTHREAD_DB_SHARED).1 \
 			-o $(LIBTHREAD_DB_SHARED_FULLNAME) $(START_FILES) --whole-archive $(LIBTHREAD_DB) \
-			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
-			-L$(TOPDIR)/lib -lc $(END_FILES); \
+			--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+			-L$(TOPDIR)lib -lc $(END_FILES); \
 		$(INSTALL) -d $(TOPDIR)lib; \
 		$(RM) $(TOPDIR)lib/$(LIBTHREAD_DB_SHARED_FULLNAME) \
 			$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).$(MAJOR_VERSION); \

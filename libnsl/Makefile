@@ -45,8 +45,8 @@ $(OBJ): Makefile
 shared: all
 	$(LD) $(LDFLAGS) -soname=$(LIBNSL_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBNSL_SHARED_FULLNAME) --whole-archive $(LIBNSL) \
-		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
-		-L$(TOPDIR)/lib -lc;
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc;
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBNSL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBNSL_SHARED).$(MAJOR_VERSION)
 	$(INSTALL) -m 644 $(LIBNSL_SHARED_FULLNAME) $(TOPDIR)lib
