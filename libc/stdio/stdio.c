@@ -588,15 +588,16 @@ int fseek(FILE *fp, long int offset, int ref)
 				--offset;			/* adjust offset (clear flag below). */
 			}
 		}
-		fp->bufpos = fp->bufread = fp->bufstart;
 	}
 
 	if ((fp->mode & __MODE_ERR) || 
 		(((ref != SEEK_CUR) || offset) && (lseek(fp->fd, offset, ref) < 0))) {
-		fp->mode |= __MODE_ERR;	/* Possibly redundant, but doesn't hurt. */
 		return -1;
 	}
 
+	if (READING(fp)) {
+		fp->bufpos = fp->bufread = fp->bufstart;
+	}
 	fp->mode &=	~(__MODE_EOF | __MODE_UNGOT);
 
 	return 0;
