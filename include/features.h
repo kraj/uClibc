@@ -360,7 +360,8 @@ uClibc was built without large file support enabled.
 #endif
 
 /* Some nice features only work properly with ELF */
-#if defined _LIBC && defined HAVE_ELF	
+#if defined _LIBC 
+#if defined HAVE_ELF	
 /* Define ALIASNAME as a weak alias for NAME. */
 #  define weak_alias(name, aliasname) _weak_alias (name, aliasname)
 #  define _weak_alias(name, aliasname) \
@@ -389,11 +390,6 @@ uClibc was built without large file support enabled.
 	      ".stabs \"" #symbol "\",1,0,0,0\n");
 #endif
 
-/* --- this is added to integrate linuxthreads */
-
-#define __USE_UNIX98            1
-
-
 #ifndef weak_function
 /* If we do not have the __attribute__ ((weak)) syntax, there is no way we
    can define functions as weak symbols.  The compiler will emit a `.globl'
@@ -417,6 +413,11 @@ uClibc was built without large file support enabled.
 
 #define likely(x)       __builtin_expect((x),1)
 #define unlikely(x)     __builtin_expect((x),0)
+
+/* --- this is added to integrate linuxthreads */
+#define __USE_UNIX98            1
+
+#endif /* _LIBC only stuff */
 
 
 #endif	/* features.h  */
