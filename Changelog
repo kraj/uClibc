@@ -1,3 +1,33 @@
+0.9.22	8 November 2003
+
+See Changelog.full for the complete list of who did what. 
+
+Note:
+    This release is binary compatible with the 0.9.21 release
+    if you take care to avoid any configuraton changes that
+    might break things for you (i.e. enabling or disabling things
+    like soft-float, locale, wide wchar support, or changing cpu
+    type are all good examples of binary incompatible config options).
+
+Release highlights:
+    o Added e1, microblaze, and sh64 architectures.
+    o Much improved soft-float support
+    o Rewrote the passwd and group handing functions
+	and implemented all SuSv3 required reentrant
+	versions.
+    o Reworked and updated the Config system.  You now
+	get to select your target architecture with the
+	config system.
+    o Fixed pthreads for mmuless m68k systems
+    o Added some x86 optimized string functions.
+    o Lots and lots of bugs fixed.
+
+ -Erik
+
+
+
+
+
 0.9.21	9 September 2003
 
 See Changelog.full for the complete list of who did what. 

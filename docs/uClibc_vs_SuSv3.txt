@@ -28,8 +28,7 @@ and the requirements of the SuSv3.
     Functions listed by SuSv3 but not (yet) included in uClibc:
 
         fmtmsg			<not implemented>
-        getgrgid_r		<not implemented>
-        getgrnam_r		<not implemented>
+        <others?>
 
 
 More to follow when we think of it...

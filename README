@@ -9,8 +9,9 @@ also work perfectly with uClibc. Porting applications from glibc
 to uClibc typically involves just recompiling the source code.
 uClibc even supports shared libraries and threading. It currently
 runs on standard Linux and MMU-less (also known as µClinux)
-systems with support for alpha, ARM, cris, h8300, i386, i960,
-m68k, mips/mipsel, PowerPC, SH, SPARC, and v850 processors.
+systems with support for alpha, ARM, cris, e1, h8300, i386, i960,
+m68k, microblaze, mips/mipsel, PowerPC, SH, SPARC, and v850 
+processors.
 
 If you are building an embedded Linux system and you find that
 glibc is eating up too much space, you should consider using
@@ -24,28 +25,26 @@ GNU LIBRARY GENERAL PUBLIC LICENSE . This license allows you to
 make closed source commercial applications using an unmodified
 version of uClibc (Please consider sharing some of the money you
 make ;-). You do not need to give away all your source code just
-because you use uClibc and/or run on Linux. 
+because you use uClibc and/or run on Linux.  You should, however,
+carefuly review the license and make certain you understand and
+abide by it strictly.
 
 
 For installation instructions, see the file INSTALL.
-
-This distribution contains a wrapper for gcc and ld that allows
-you to use existing toolchains that were targetted for glibc.
-There are limits as to what this wrapper can do, so it is
-recommended that you instead build a full binutils/gcc toolchain.
 
 uClibc strives to be standards compliant, which means that most
 documentation written for SuSv3, or for glibc also applies to
 uClibc functions.  However, many GNU extensions are not supported
 because they have not been ported, or more importantly, would
 increase the size of uClibc disproportional to the added
-functionality.
+functionality.  There is some discussion of these differences
+in the "docs" directory. 
 
 Additional information (recent releases, FAQ, mailing list, bugs,
 etc.) can be found at http://www.uclibc.org/.
 
-uClibc may be freely modified distributed under the terms of the
-GNU Library General Public License, which can be found in the
+uClibc may be freely modified and distributed under the terms of 
+the GNU Library General Public License, which can be found in the
 file COPYING.LIB.
 
 Please Note:
@@ -62,3 +61,13 @@ Please Note:
 	are especially chummy with glibc, and may need this
 	behavior disabled by adding CFLAGS+=-D__FORCE_NOGLIBC
 
+	If you want to make special exceptions in your code which are
+	specifically for uClibc, you can make certain to include features.h,
+	and then have your code check for uClibc as follows:
+
+	    #ifdef __UCLIBC__
+		    do_something_special();
+	    #endif
+	
+And most of all, but sure to have some fun!
+ -Erik

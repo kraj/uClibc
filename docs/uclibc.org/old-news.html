@@ -53,6 +53,63 @@
 	<ul>
 
     <p>
+    <li> <b>9 September 2003, uClibc 0.9.21 Released</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.21.  This release has been brewing for several months now, and
+    provides quite a lot of additional functionality and quite a few bug fixes
+    as well.  Many people will be pleased that this release fixes the
+    "dlopen()'ing libraries that depend on libraries" problem.
+
+    <p>
+    
+    The biggest thing in this release (and I do mean that literally) is that
+    uClibc now has full ANSI/ISO C99 locale support.  Well, except for
+    wcsftime() and collating items in regex, which are not done yet.   Adding
+    support for the default set of locales (169 UTF-8 locales and 144 locales
+    using other codesets) will enlarge uClibc by around 300k.  Still, if you
+    need locale support, that is still much better than the roughly 30MB the
+    comparable set of locale date occupies with glibc.  And you can of course
+    reduce the 300k by reducing the number of supported locales.
+
+    <p>
+
+    As usual, this release has many improvements, both large and small.  At
+    this point, most applications that compile and work with glibc will also
+    compile and run with uClibc.  Both Perl and Python pass all the tests in
+    their test suites (both with and without locale support enabled).  We
+    invite you to grab a copy of the latest <a
+    href="http://ltp.sourceforge.net/"> Linux Test Project test suite</a> and
+    give uClibc some abuse.  We are not yet perfect, but we are getting pretty
+    darn close.
+
+    <p>
+    
+    This release is not binary compatible with earlier releases.  Depending on
+    your configuration, you may actually still be binary compatible, but it
+    would be a good idea to recompile your applications when moving to the
+    uClibc 0.9.21 release.  We are sorry about that, but we have never promised
+    to provide binary compatibility until we hit version 1.0.  And even then,
+    if you change your uClibc configuration, you still still generally need to
+    recompile...
+
+    <p>
+
+    As usual, the 
+    <a href="http://www.uclibc.org/downloads/Changelog">Changelog</a>, 
+    <a href="http://www.uclibc.org/downloads/Changelog.full">detailed changelog</a>, 
+    and <a href="http://www.uclibc.org/downloads/uClibc-0.9.21.tar.bz2">source code for this release</a> 
+    are available <a href="http://www.uclibc.org/downloads/">here</a>.
+
+    <p>
+
+    Updated uClibc development systems using uClibc 0.9.21 will be made
+    available within a few days.
+    <p>
+    
+
+    <p>
     <li> <b>30 June 2003, uClibc 0.9.20 Released</b>
     <br>
 
