@@ -85,12 +85,6 @@
    but are implied by the other feature-test macros defined (or by the
    lack of any definitions) are defined by the file.  */
 
-/* First, record if user requested some form of large file support. */
-#if defined(_LARGEFILE_SOURCE) || defined(_LARGEFILE64_SOURCE) \
-    || (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64)
-# define __USER_REQUESTED_LFS_OPTION 1
-#endif
-
 /* Undefine everything, so we get a clean slate.  */
 #undef	__USE_ISOC99
 #undef	__USE_POSIX
@@ -338,31 +332,35 @@
 
 /* Make sure users large file options agree with uClibc's configuration. */
 #ifndef __UCLIBC_HAVE_LFS__
+
 /* If uClibc was built without large file support, output an error if
- * large file functions are requested. */
-#ifdef __USER_REQUESTED_LFS_OPTION
-#error uClibc was configured without large file support...
-/* Since _LARGEFILE_SOURCE and _LARGEFILE64_SOURCE can be turned by
- *  other options, disable them with a warning if they were enabled. */
-#elif defined(_LARGEFILE_SOURCE) || defined(_LARGEFILE64_SOURCE)
-#warning uClibc was configured without large file support...
+ * and 64-bit file offsets were requested, output an error.
+ * NOTE: This is probably incorrect on a 64-bit arch... */
+#ifdef __USE_FILE_OFFSET64
+#error It appears you have defined _FILE_OFFSET_BITS=64.  Unfortunately, \
+uClibc was built without large file support enabled.
 #endif
-#undef	_LARGEFILE_SOURCE
-#undef	_LARGEFILE64_SOURCE
-#undef	_FILE_OFFSET_BITS
-#undef	__USE_LARGEFILE
-#undef	__USE_LARGEFILE64
-#undef	__USE_FILE_OFFSET64
+
+/* If uClibc was built without large file support and _LARGEFILE64_SOURCE
+ * is defined, undefine it. */
+#if defined(_LARGEFILE64_SOURCE)
+#undef _LARGEFILE64_SOURCE
+#undef __USE_LARGEFILE64
+#endif
+
 /* If we're actually building uClibc with large file support,
- * define __USE_LARGEFILE64 only. */
+ * define __USE_LARGEFILE64 and __USE_LARGEFILE. */
 #elif defined(_LIBC)
-#undef	_LARGEFILE_SOURCE
-#undef	_LARGEFILE64_SOURCE
-#undef	_FILE_OFFSET_BITS
-#undef	__USE_LARGEFILE
-#undef	__USE_LARGEFILE64
-#undef	__USE_FILE_OFFSET64
-#define	__USE_LARGEFILE64	1
+#undef _LARGEFILE_SOURCE
+#undef _LARGEFILE64_SOURCE
+#undef _FILE_OFFSET_BITS
+#undef __USE_LARGEFILE
+#undef __USE_LARGEFILE64
+#undef __USE_FILE_OFFSET64
+#define _LARGEFILE_SOURCE       1
+#define _LARGEFILE64_SOURCE     1
+#define __USE_LARGEFILE         1
+#define __USE_LARGEFILE64       1
 #endif
 
 /* Some nice features only work properly with ELF */
