@@ -178,6 +178,7 @@ int main(int argc, char **argv)
 	int use_build_dir = 0, linking = 1, use_static_linking = 0;
 	int use_stdinc = 1, use_start = 1, use_stdlib = 1, use_pic = 0;
 	int source_count = 0, use_rpath = 0, verbose = 0;
+	int minusx = 0;
 	int i, j, k, l, m, n;
 	char ** gcc_argv;
 	char ** gcc_argument;
@@ -316,7 +317,7 @@ int main(int argc, char **argv)
 	libpath[n] = '\0';
 
 	for ( i = 1 ; i < argc ; i++ ) {
-		if (argv[i][0] == '-') { /* option */
+		if (argv[i][0] == '-' && argv[i][1] != 0) { /* option */
 			switch (argv[i][1]) {
 				case 'c':		/* compile or assemble */
 				case 'S':		/* generate assembler code */
@@ -338,6 +339,9 @@ int main(int argc, char **argv)
 					libraries[m++] = argv[i];
 					libraries[m] = '\0';
 					argv[i] = '\0';
+					break;
+				case 'x': 		/* Set target language */
+					minusx = 1;
 					break;
 				case 'v':		/* verbose */
 					if (argv[i][2] == 0) verbose = 1;
@@ -435,6 +439,9 @@ int main(int argc, char **argv)
 #endif
 					break;
 			}
+		} else if (argv[i][0] == '-' && argv[i][1] == 0){
+			/* Reading code from stdin - crazy eh? */
+			++source_count;
 		} else {				/* assume it is an existing source file */
 			++source_count;
 		}
@@ -623,6 +630,10 @@ crash_n_burn:
 		}
 #ifdef __UCLIBC_CTOR_DTOR__
 		if (ctor_dtor) {
+			if (minusx != 0){
+				gcc_argv[i ++] = "-x";
+				gcc_argv[i ++] = "none";
+			}
 			if (use_pic) {
 				gcc_argv[i++] = crtend_path[1];
 			} else {
