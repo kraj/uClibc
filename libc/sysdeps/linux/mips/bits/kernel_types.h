@@ -36,7 +36,17 @@ typedef long long      __kernel_loff_t;
 typedef unsigned int	__kernel_dev_t;
 typedef unsigned long	__kernel_ino_t;
 typedef unsigned int	__kernel_mode_t;
-typedef unsigned long	__kernel_nlink_t;
+
+/* Linux 2.4.20 include/asm-mips/posix_types.h has this:
+but apparently that is an error?!?!?
+*/
+#if 0
+typedef int            __kernel_nlink_t;
+#else
+/* So use this instead */
+typedef unsigned long  __kernel_nlink_t;
+#endif
+
 typedef long		__kernel_off_t;
 typedef int		__kernel_pid_t;
 typedef int		__kernel_ipc_pid_t;
@@ -58,6 +68,7 @@ typedef __kernel_uid_t	__kernel_old_uid_t;
 typedef __kernel_gid_t	__kernel_old_gid_t;
 typedef long long      __kernel_loff_t;
 #endif
+
 
 typedef struct {
 	long val[2];
