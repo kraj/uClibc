@@ -26,7 +26,7 @@ LIBC=$(TOPDIR)libc.a
 
 CSRC=bsd_sig.c raise.c sigblock.c siggtmsk.c sigjmp.c signal.c sigintr.c\
 	sigpause.c sigstmsk.c sigaddset.c sigdelset.c sigismem.c \
-	sigemptyset.c sigfillset.c
+	sigemptyset.c sigfillset.c killpg.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(COBJS)
