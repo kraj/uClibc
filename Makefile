@@ -145,6 +145,8 @@ headers: include/bits/uClibc_config.h
 		ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
 	    fi; \
 	fi;
+	rm -f include/asm-generic;
+	ln -fs $(KERNEL_SOURCE)/include/asm-generic include/asm-generic; 
 	@if [ ! -f include/asm/unistd.h ] ; then \
 	    set -e; \
 	    echo " "; \
