@@ -8,6 +8,7 @@
 	.type	_dl_linux_resolve, @function
 	.balign	16
 _dl_linux_resolve:
+	mov.l	r2, @-r15	! see Note2 below
 	mov.l	r3, @-r15
 	mov.l	r4, @-r15
 	mov.l	r5, @-r15
@@ -42,6 +43,11 @@ _dl_linux_resolve:
    greater than or equal to 12.
 
    Found in binutils/bfd/elf32-sh.c by Stefan Allius <allius@atecom.com>
+
+   Note2 - we also have to preserve r2 on the stack as the call into
+   C code (_dl_linux_resolver) will use r2 as a scratch register and we
+   need it for the address for returning structures,
+   David McCullough <davidm@snapgear.com>.
  */
 	mov     #8 ,r5
 	cmp/gt  r5, r0
@@ -78,8 +84,9 @@ _dl_linux_resolve:
 	mov.l	@r15+, r6
 	mov.l	@r15+, r5
 	mov.l	@r15+, r4
+	mov.l	@r15+, r3
 	jmp	@r0		! Jump to function address
-	 mov.l	@r15+, r3
+	 mov.l	@r15+, r2	! see Note2 above
 
 	.balign	4
 
