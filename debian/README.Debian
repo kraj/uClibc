@@ -1,7 +1,5 @@
 
-Known issues:
+The script mksnapshot will automatically download a new snapshot
+from the uClibc CVS server.
 
-- When building, doesn't depend correctly on kernel source.  It
-  just takes whatever is in /usr/src/linux, which is wrong.
- 
 
