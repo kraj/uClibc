@@ -1,6 +1,5 @@
 /*
- * getpwnam.c - This file is part of the libc-8086/pwd package for ELKS,
- * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * getspnam.c - Based on getpwnam.c
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -22,45 +21,41 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <pwd.h>
-#include <paths.h>
-#include "config.h"
+#include <shadow.h>
 
 #define PWD_BUFFER_SIZE 256
 
-/* file descriptor for the password file currently open */
-static char line_buff[PWD_BUFFER_SIZE];
-static struct passwd pwd;
-
-
-int getpwnam_r (const char *name, struct passwd *password,
-	char *buff, size_t buflen, struct passwd **crap)
+int getspnam_r (const char *name, struct spwd *spwd,
+	char *buff, size_t buflen, struct spwd **crap)
 {
-	int passwd_fd;
+	int spwd_fd;
 
 	if (name == NULL) {
 		__set_errno(EINVAL);
 		return -1;
 	}
 
-	if ((passwd_fd = open(_PATH_PASSWD, O_RDONLY)) < 0)
+	if ((spwd_fd = open(_PATH_SHADOW, O_RDONLY)) < 0)
 		return -1;
 
-	while (__getpwent_r(password, buff, buflen, passwd_fd) != -1)
-		if (!strcmp(password->pw_name, name)) {
-			close(passwd_fd);
+	while (__getspent_r(spwd, buff, buflen, spwd_fd) != -1)
+		if (!strcmp(spwd->sp_namp, name)) {
+			close(spwd_fd);
 			return 0;
 		}
 
-	close(passwd_fd);
+	close(spwd_fd);
 	return -1;
 }
 
-struct passwd *getpwnam(const char *name)
+struct spwd *getspnam(const char *name)
 {
-    if (getpwnam_r(name, &pwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
-	return &pwd;
-    }
-    return NULL;
+	static char line_buff[PWD_BUFFER_SIZE];
+	static struct spwd spwd;
+
+	if (getspnam_r(name, &spwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
+		return &spwd;
+	}
+	return NULL;
 }
 

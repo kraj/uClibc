@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <grp.h>
+#include <paths.h>
 #include "config.h"
 
 static int grp_fd = -1;
@@ -35,7 +36,7 @@ void setgrent(void)
 {
 	if (grp_fd != -1)
 		close(grp_fd);
-	grp_fd = open("/etc/group", O_RDONLY);
+	grp_fd = open(_PATH_GROUP, O_RDONLY);
 }
 
 void endgrent(void)

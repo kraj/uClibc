@@ -63,6 +63,9 @@
 #define _PATH_UTMP	"/var/run/utmp"
 #define	_PATH_VI	"/usr/bin/vi"
 #define _PATH_WTMP	"/var/log/wtmp"
+#define _PATH_LOCALE	"/usr/lib/locale"
+#define _PATH_PASSWD	"/etc/passwd"
+#define _PATH_GROUP	"/etc/group"
 
 /* Provide trailing slash, since mostly used for building pathnames. */
 #define	_PATH_DEV	"/dev/"

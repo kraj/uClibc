@@ -1,6 +1,5 @@
 /*
- * getpwnam.c - This file is part of the libc-8086/pwd package for ELKS,
- * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * spent.c - Based on pwent.c
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -19,48 +18,54 @@
  */
 
 #include <unistd.h>
-#include <string.h>
+#include <stdlib.h>
 #include <errno.h>
+#include <shadow.h>
 #include <fcntl.h>
-#include <pwd.h>
-#include <paths.h>
-#include "config.h"
+
+/*
+ * setspent(), endspent(), and getspent() are included in the same object
+ * file, since one cannot be used without the other two, so it makes sense to
+ * link them all in together.
+ */
 
 #define PWD_BUFFER_SIZE 256
 
 /* file descriptor for the password file currently open */
-static char line_buff[PWD_BUFFER_SIZE];
-static struct passwd pwd;
+static int spwd_fd = -1;
 
-
-int getpwnam_r (const char *name, struct passwd *password,
-	char *buff, size_t buflen, struct passwd **crap)
+void setspent(void)
 {
-	int passwd_fd;
+	if (spwd_fd != -1)
+		close(spwd_fd);
 
-	if (name == NULL) {
-		__set_errno(EINVAL);
-		return -1;
+	spwd_fd = open(_PATH_SHADOW, O_RDONLY);
+}
+
+void endspent(void)
+{
+	if (spwd_fd != -1)
+		close(spwd_fd);
+	spwd_fd = -1;
+}
+
+int getspent_r (struct spwd *spwd, char *buff, 
+	size_t buflen, struct spwd **crap)
+{
+	if (spwd_fd != -1 && __getspent_r(spwd, buff, buflen, spwd_fd) != -1) {
+		return 0;
 	}
-
-	if ((passwd_fd = open(_PATH_PASSWD, O_RDONLY)) < 0)
-		return -1;
-
-	while (__getpwent_r(password, buff, buflen, passwd_fd) != -1)
-		if (!strcmp(password->pw_name, name)) {
-			close(passwd_fd);
-			return 0;
-		}
-
-	close(passwd_fd);
 	return -1;
 }
 
-struct passwd *getpwnam(const char *name)
+struct spwd *getspent(void)
 {
-    if (getpwnam_r(name, &pwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
-	return &pwd;
-    }
-    return NULL;
+	static char line_buff[PWD_BUFFER_SIZE];
+	static struct spwd spwd;
+
+	if (getspent_r(&spwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
+		return &spwd;
+	}
+	return NULL;
 }
 

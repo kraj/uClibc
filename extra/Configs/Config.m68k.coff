@@ -73,6 +73,9 @@ DO_C99_MATH = false
 # Also omits strto(u)ll, and (u)lltostr from the library if `false'.
 HAS_LONG_LONG = true
 
+# Set this to 'false if you don't need shadow password support.
+HAS_SHADOW = false
+
 # Set this to `false' if you don't have/need locale support; `true' otherwise.
 # Note: Currently only affects the ctype functions.  You must also generate
 # a locale file for anything but the C locale.  See directory extra/locale for

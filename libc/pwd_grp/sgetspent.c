@@ -1,6 +1,5 @@
 /*
- * getgrnam.c - This file is part of the libc-8086/grp package for ELKS,
- * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * sgetspent.c
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -18,33 +17,25 @@
  *
  */
 
-#include <unistd.h>
-#include <string.h>
 #include <errno.h>
-#include <fcntl.h>
-#include <grp.h>
-#include <paths.h>
-#include "config.h"
+#include <stdio.h>
+#include <shadow.h>
 
-struct group *getgrnam(const char *name)
+#define PWD_BUFFER_SIZE 256
+
+int sgetspent_r (const char *string, struct spwd *spwd,
+	char *buff, size_t buflen, struct spwd **crap)
 {
-	int grp_fd;
-	struct group *group;
+	return(__sgetspent_r(string, spwd, buff, buflen));
+}
 
-	if (name == NULL) {
-		__set_errno(EINVAL);
-		return NULL;
+struct spwd *sgetspent(const char *string)
+{
+	static char line_buff[PWD_BUFFER_SIZE];
+	static struct spwd spwd;
+
+	if (sgetspent_r(string, &spwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
+		return &spwd;
 	}
-
-	if ((grp_fd = open(_PATH_GROUP, O_RDONLY)) < 0)
-		return NULL;
-
-	while ((group = __getgrent(grp_fd)) != NULL)
-		if (!strcmp(group->gr_name, name)) {
-			close(grp_fd);
-			return group;
-		}
-
-	close(grp_fd);
 	return NULL;
 }

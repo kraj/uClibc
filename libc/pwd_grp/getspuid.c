@@ -1,6 +1,5 @@
 /*
- * getpwuid.c - This file is part of the libc-8086/pwd package for ELKS,
- * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * getspuid.c - Based on getpwuid.c
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -22,38 +21,30 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <pwd.h>
-#include <paths.h>
-#include "config.h"
+#include <shadow.h>
 
 #define PWD_BUFFER_SIZE 256
 
-/* file descriptor for the password file currently open */
-static char line_buff[PWD_BUFFER_SIZE];
-static struct passwd pwd;
-
-int getpwuid_r (uid_t uid, struct passwd *password,
-	char *buff, size_t buflen, struct passwd **crap)
+int getspuid_r (uid_t uid, struct spwd *spwd,
+	char *buff, size_t buflen, struct spwd **crap)
 {
-	int passwd_fd;
+	char pwd_buff[PWD_BUFFER_SIZE];
+	struct passwd password;
 
-	if ((passwd_fd = open(_PATH_PASSWD, O_RDONLY)) < 0)
+	if (getpwuid_r(uid, &password, pwd_buff, PWD_BUFFER_SIZE, NULL) < 0)
 		return -1;
 
-	while (__getpwent_r(password, buff, buflen, passwd_fd) != -1)
-		if (password->pw_uid == uid) {
-			close(passwd_fd);
-			return 0;
-		}
-
-	close(passwd_fd);
-	return -1;
+	return getspnam_r(password.pw_name, spwd, buff, buflen, crap);
 }
 
-struct passwd *getpwuid(uid_t uid)
+struct spwd *getspuid(uid_t uid)
 {
-    if (getpwuid_r(uid, &pwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
-	return &pwd;
-    }
-    return NULL;
+	static char line_buff[PWD_BUFFER_SIZE];
+	static struct spwd spwd;
+
+	if (getspuid_r(uid, &spwd, line_buff, PWD_BUFFER_SIZE, NULL) != -1) {
+		return &spwd;
+	}
+	return NULL;
 }
 

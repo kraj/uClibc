@@ -27,6 +27,12 @@ include $(TOPDIR)Rules.mak
 CSRC= pwent.c getpwnam.c getpwuid.c putpwent.c getpw.c fgetpwent.c \
 	__getgrent.c grent.c getgrnam.c getgrgid.c fgetgrent.c \
 	initgroups.c __getpwent_r.c
+
+ifeq ($(HAS_SHADOW),true)
+CSRC+= lckpwdf.c spent.c getspnam.c getspuid.c putspent.c sgetspent.c \
+	fgetspent.c __getspent_r.c __sgetspent_r.c
+endif
+
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
