@@ -60,8 +60,8 @@ ldd:	ldd.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 iconv: ../libc/misc/wchar/wchar.c
-	$(CC) $(CFLAGS) -DL_iconv_main ../libc/misc/wchar/wchar.c -o $@ \
-		$(LDADD_LIBFLOAT) -L../lib
+	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -DL_iconv_main \
+		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 hostutils: ldd.host ldconfig.host readelf.host
@@ -69,7 +69,7 @@ hostutils: ldd.host ldconfig.host readelf.host
 ldd.host:	ldd.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
+		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 
 ldconfig.host:	ldconfig.c readsoname.c
