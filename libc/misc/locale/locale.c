@@ -23,8 +23,6 @@
 #undef TEST_LOCALE
 
 
-#ifdef L_setlocale
-
 #ifdef __UCLIBC_HAS_LOCALE__
 
 static char C_LOCALE_NAME[]="C";
@@ -161,4 +159,3 @@ char *setlocale(int category, const char *locale)
 
 #endif
 
-#endif /* L_setlocale */
