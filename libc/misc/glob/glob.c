@@ -15,6 +15,7 @@ License along with this library; see the file COPYING.LIB.  If
 not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
+#include <features.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -27,11 +28,11 @@ Cambridge, MA 02139, USA.  */
 #include <glob.h>
 
 extern __ptr_t (*__glob_opendir_hook) __P ((const char *directory));
+extern int glob_pattern_p __P ((__const char *__pattern, int __quote));
 extern void (*__glob_closedir_hook) __P ((__ptr_t stream));
 extern const char *(*__glob_readdir_hook) __P ((__ptr_t stream));
 
 
-static int glob_pattern_p __P ((const char *pattern, int quote));
 static int glob_in_dir __P ((const char *pattern, const char *directory,
 			     int flags,
 			     int (*errfunc) __P ((const char *, int)),
@@ -333,10 +334,7 @@ prefix_array (dirname, array, n, add_slash)
 
 /* Return nonzero if PATTERN contains any metacharacters.
    Metacharacters can be quoted with backslashes if QUOTE is nonzero.  */
-static int
-glob_pattern_p (pattern, quote)
-     const char *pattern;
-     int quote;
+int glob_pattern_p(const char *pattern, int quote)
 {
   register const char *p;
   int open = 0;
