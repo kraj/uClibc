@@ -286,7 +286,7 @@ install_toolchain:
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
 	$(MAKE) -C extra/gcc-uClibc install
 
-util: install_dev
+util:
 ifeq ($(strip $(HAVE_SHARED)),true)
 	@$(MAKE) -C ldso utils
 endif
