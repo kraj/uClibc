@@ -25,7 +25,7 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 DIRS = $(MALLOC)
-ALL_SUBDIRS = malloc malloc-930716 malloc-simple
+ALL_SUBDIRS = malloc malloc-930716
 
 MSRC = stdlib.c
 MOBJ = abs.o labs.o atoi.o atol.o strtol.o strtoul.o _stdlib_strto_l.o \
