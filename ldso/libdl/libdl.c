@@ -130,7 +130,6 @@ void *dlopen(const char *libname, int flag)
 	struct elf_resolve *tpnt, *tfrom, *tcurr;
 	struct dyn_elf *dyn_chain, *rpnt = NULL, *dyn_ptr;
 	struct dyn_elf *dpnt;
-	static int dl_init = 0;
 	ElfW(Addr) from;
 	struct elf_resolve *tpnt1;
 	void (*dl_brk) (void);
