@@ -62,7 +62,11 @@ done: $(DO_SHARED)
 
 headers: dummy
 	@rm -f include/asm include/linux include/bits
-	@ln -s $(KERNEL_SOURCE)/include/asm include/asm
+	@if [ $(TARGET_ARCH) = "powerpc" ];then \
+	    ln -s $(KERNEL_SOURCE)/include/asm-ppc include/asm; \
+	else \
+	    ln -s $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
+	fi;
 	@if [ ! -f include/asm/unistd.h ] ; then \
 	    echo " "; \
 	    echo "The path '$(KERNEL_SOURCE)/include/asm' doesn't exist."; \
