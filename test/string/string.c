@@ -616,15 +616,25 @@ test_strsep (void)
 void
 test_memcmp (void)
 {
-  it = "memcmp";
-  check(memcmp("a", "a", 1) == 0, 1);		/* Identity. */
-  check(memcmp("abc", "abc", 3) == 0, 2);	/* Multicharacter. */
-  check(memcmp("abcd", "abce", 4) < 0, 3);	/* Honestly unequal. */
-  check(memcmp("abce", "abcd", 4) > 0, 4);
-  check(memcmp("alph", "beta", 4) < 0, 5);
-  check(memcmp("a\203", "a\003", 2) > 0, 6);
-  check(memcmp("abce", "abcd", 3) == 0, 7);	/* Count limited. */
-  check(memcmp("abc", "def", 0) == 0, 8);	/* Zero count. */
+    int foo[6] = {'\0','0','1','2','3','4'};
+    int bar[6] = {'\0','0','1','2','3','5'};
+
+    it = "memcmp";
+    check(memcmp("a", "a", 1) == 0, 1);		/* Identity. */
+    check(memcmp("abc", "abc", 3) == 0, 2);	/* Multicharacter. */
+    check(memcmp("abcd", "abce", 4) < 0, 3);	/* Honestly unequal. */
+    check(memcmp("abce", "abcd", 4) > 0, 4);
+    check(memcmp("alph", "beta", 4) < 0, 5);
+    check(memcmp("a\203", "a\003", 2) > 0, 6);
+    check(memcmp("abce", "abcd", 3) == 0, 7);	/* Count limited. */
+    check(memcmp("abc", "def", 0) == 0, 8);	/* Zero count. */
+
+    check(memcmp(foo, bar, 5*(sizeof(int))) == 0, 9);  /* non-string test 
+							  case (both begin 
+							  with a NULL) */
+    check(memcmp(foo, bar, 6*(sizeof(int))) < 0, 10);  /* non-string test 
+							  case (both begin 
+							  with a NULL) */
 }
 
 void
