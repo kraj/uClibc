@@ -288,7 +288,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin
 	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(PREFIX)$(TARGET_PREFIX)/lib
-	cp -a lib/*.so.* $(PREFIX)$(TARGET_PREFIX)/lib
+	cp -af lib/*.so.* $(PREFIX)$(TARGET_PREFIX)/lib
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
