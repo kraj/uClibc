@@ -1,5 +1,5 @@
 /* Define POSIX options for Linux.
-   Copyright (C) 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
+   Copyright (C) 1996,1997,1998,1999,2000,2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -67,13 +67,13 @@
 #define _XOPEN_REALTIME	1
 
 /* X/Open realtime thread support is available.  */
-#define _XOPEN_REALTIME_THREADS	1
+#undef _XOPEN_REALTIME_THREADS	1
 
 /* XPG4.2 shared memory is supported.  */
 #define	_XOPEN_SHM	1
 
 /* Tell we have POSIX threads.  */
-#define _POSIX_THREADS	1
+#undef _POSIX_THREADS	1
 
 /* We have the reentrant functions described in POSIX.  */
 #define _POSIX_REENTRANT_FUNCTIONS      1
@@ -89,13 +89,14 @@
 #define _POSIX_THREAD_ATTR_STACKADDR	1
 
 /* We support POSIX.1b semaphores, but only the non-shared form for now.  */
-/*#define _POSIX_SEMAPHORES	1	XXX We are not quite there now.  */
+#define _POSIX_SEMAPHORES	1
 
 /* Real-time signals are supported.  */
 #define _POSIX_REALTIME_SIGNALS	1
 
 /* We support asynchronous I/O.  */
 #define _POSIX_ASYNCHRONOUS_IO	1
+#define _POSIX_ASYNC_IO		1
 /* Alternative name for Unix98.  */
 #define _LFS_ASYNCHRONOUS_IO	1
 
@@ -106,5 +107,35 @@
 #define _LFS_LARGEFILE		1
 #define _LFS64_LARGEFILE	1
 #define _LFS64_STDIO		1
+
+/* POSIX shared memory objects are implemented.  */
+#define _POSIX_SHARED_MEMORY_OBJECTS	1
+
+/* GNU libc provides regular expression handling.  */
+#define _POSIX_REGEXP	1
+
+/* Reader/Writer locks are available.  */
+#define _POSIX_READER_WRITER_LOCKS	200912L
+
+/* We have a POSIX shell.  */
+#define _POSIX_SHELL	1
+
+/* We support the Timeouts option.  */
+#define _POSIX_TIMEOUTS	200912L
+
+/* We support spinlocks.  */
+#define _POSIX_SPIN_LOCKS	200912L
+
+/* The `spawn' function family is supported.  */
+#define _POSIX_SPAWN	200912L
+
+/* We have POSIX timers.  */
+#define _POSIX_TIMERS	1
+
+/* The barrier functions are available.  */
+#define _POSIX_BARRIERS	200912L
+
+/* POSIX message queues are not yet supported.  */
+#undef	_POSIX_MESSAGE_PASSING
 
 #endif /* posix_opt.h */

@@ -46,7 +46,7 @@ STRIPTOOL = $(CROSS)strip
 
 # Set the following to `true' to make a debuggable build, and `false' for
 # production builds.
-DODEBUG = true
+DODEBUG = false
 
 # Compiler warnings you want to see 
 WARNINGS=-Wall

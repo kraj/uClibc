@@ -24,22 +24,22 @@
 
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
-ASFLAGS=$(CFLAGS)
 
-CFLAGS+= -I../ -D__ASSEMBLER__ -DASM_GLOBAL_DIRECTIVE=.globl
+CFLAGS += -I..
+SFLAGS = $(CFLAGS) -D__ASSEMBLER -DASM_GLOBAL_DIRECTIVE=.globl
 
 TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
 
-CRT0=crt0.S
-CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
+CRT0 = crt0.S
+CRT0_OBJ = $(patsubst %.S,%.o, $(CRT0))
 
-SSRC=setjmp.S longjmp.S vfork.S
-SOBJS=$(patsubst %.S,%.o, $(SSRC))
+SSRC = setjmp.S longjmp.S vfork.S
+SOBJS = $(patsubst %.S,%.o, $(SSRC))
 
-CSRC=_mmap.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+CSRC = _mmap.c
+COBJS = $(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(SOBJS) $(MOBJ) $(COBJS)
+OBJS = $(SOBJS) $(COBJS)
 
 
 all: $(OBJS) $(LIBC)
@@ -51,11 +51,11 @@ ar-target: $(OBJS) $(CRT0_OBJ)
 	cp $(CRT0_OBJ) $(TOPDIR)libc/$(CRT0_OBJ)
 
 $(CRT0_OBJ): %.o : %.S
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(SFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): %.o : %.S
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(SFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c

@@ -36,13 +36,13 @@ C_ENTRY(__longjmp):
 	sld.w	48[ep], r29
 	mov	1, r10			// return val
 	jmp	[lp]
-C_END(__sigsetjmp)
+C_END(__longjmp)
 
-.weak C_SYMBOL_NAME(_longjmp)
-C_SYMBOL_NAME(_longjmp) = C_SYMBOL_NAME(longjmp)
+.weak C_SYMBOL_NAME(longjmp)
+C_SYMBOL_NAME(longjmp) = C_SYMBOL_NAME(__longjmp)
 
 .weak C_SYMBOL_NAME(siglongjmp)
-C_SYMBOL_NAME(siglongjmp) = C_SYMBOL_NAME(longjmp)
+C_SYMBOL_NAME(siglongjmp) = C_SYMBOL_NAME(__longjmp)
 
 .weak C_SYMBOL_NAME(__sigprocmask)
 C_SYMBOL_NAME(__sigprocmask) = C_SYMBOL_NAME(sigprocmask)
