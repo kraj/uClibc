@@ -17,16 +17,16 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#ifdef __NR_poll
-
 #include "syscalls.h"
 #include <sys/poll.h>
+
+#ifdef __NR_poll
+
 _syscall3(int, poll, struct pollfd *, fds,
 	unsigned long int, nfds, int, timeout);
 #else
 
 #include <alloca.h>
-#include <sys/poll.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <string.h>
