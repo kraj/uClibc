@@ -1,6 +1,8 @@
+/* vi: set sw=4 ts=4: */
 /*
  * initgroups.c - This file is part of the libc-8086/grp package for ELKS,
  * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -28,51 +30,46 @@
 
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-extern pthread_mutex_t __getgrent_lock;
-# define LOCK   pthread_mutex_lock(&__getgrent_lock)
-# define UNLOCK pthread_mutex_unlock(&__getgrent_lock);
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
 #else
 # define LOCK
 # define UNLOCK
 #endif
 
-static char *line_buff = NULL;
-static char **members = NULL;
-
 int initgroups(__const char *user, gid_t gid)
 {
-    register struct group *group;
+	gid_t *group_list = NULL;
+	register char **tmp_mem;
+	int num_groups;
+	int grp_fd;
+	static struct group group;
+	static char line_buff[PWD_BUFFER_SIZE];
 
-    gid_t *group_list = NULL;
-    register char **tmp_mem;
-    int num_groups;
-    int grp_fd;
+	if ((grp_fd = open(_PATH_GROUP, O_RDONLY)) < 0)
+		return errno;
 
-
-    if ((grp_fd = open(_PATH_GROUP, O_RDONLY)) < 0)
-	return errno;
-
-    num_groups = 0;
-    group_list = (gid_t *) realloc(group_list, 1);
-    group_list[num_groups] = gid;
-    LOCK;
-    while ((group = __getgrent(grp_fd, line_buff, members)) != NULL)
-    {
-	if (group->gr_gid != gid)
+	num_groups = 0;
+	group_list = (gid_t *) realloc(group_list, 1);
+	group_list[num_groups] = gid;
+	LOCK;
+	while (__getgrent_r(&group, line_buff, sizeof(line_buff), grp_fd) == 0)
 	{
-	    tmp_mem = group->gr_mem;
-	    while (*tmp_mem != NULL) {
-		if (!strcmp(*tmp_mem, user)) {
-		    num_groups++;
-		    group_list = (gid_t *) realloc(group_list, num_groups *
-			    sizeof(gid_t *));
-		    group_list[num_groups-1] = group->gr_gid;
+		if (group.gr_gid != gid)
+		{
+			tmp_mem = group.gr_mem;
+			while (*tmp_mem != NULL) {
+				if (!strcmp(*tmp_mem, user)) {
+					num_groups++;
+					group_list = (gid_t *) realloc(group_list, num_groups * sizeof(gid_t *));
+					group_list[num_groups-1] = group.gr_gid;
+				}
+				tmp_mem++;
+			}
 		}
-		tmp_mem++;
-	    }
 	}
-    }
-    close(grp_fd);
-    UNLOCK;
-    return setgroups(num_groups, group_list);
+	close(grp_fd);
+	UNLOCK;
+	return setgroups(num_groups, group_list);
 }

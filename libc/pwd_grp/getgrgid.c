@@ -1,6 +1,8 @@
+/* vi: set sw=4 ts=4: */
 /*
  * getgrgid.c - This file is part of the libc-8086/grp package for ELKS,
  * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -22,48 +24,56 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <paths.h>
+#include <errno.h>
 #include "config.h"
 
 
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-extern pthread_mutex_t __getgrent_lock;
-# define LOCK   pthread_mutex_lock(&__getgrent_lock)
-# define UNLOCK pthread_mutex_unlock(&__getgrent_lock);
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
 #else
 # define LOCK
 # define UNLOCK
 #endif
-static char *line_buff = NULL;
-static char **members = NULL;
 
+
+/* Search for an entry with a matching group ID.  */
+int getgrgid_r (gid_t gid, struct group *group, char *buffer, 
+	size_t buflen, struct group **result)
+{
+	int grp_fd;
+	if ((grp_fd = open(_PATH_GROUP, O_RDONLY)) < 0)
+		return errno;
+
+	*result = NULL;
+	while (__getgrent_r(group, buffer, buflen, grp_fd) == 0) {
+		if (group->gr_gid == gid) {
+			close(grp_fd);
+			*result = group;
+			return 0;
+		}
+	}
+
+	close(grp_fd);
+	return EINVAL;
+}
 
 struct group *getgrgid(const gid_t gid)
 {
-    struct group *group;
-    int grp_fd;
+	int ret;
+	struct group *result;
+	static struct group grp;
+	static char line_buff[GRP_BUFFER_SIZE];
 
-    if ((grp_fd = open(_PATH_GROUP, O_RDONLY)) < 0)
-	return NULL;
-
-    LOCK;
-    while ((group = __getgrent(grp_fd, line_buff, members)) != NULL)
-	if (group->gr_gid == gid) {
-	    close(grp_fd);
-	    UNLOCK;
-	    return group;
+	LOCK;
+	if ((ret=getgrgid_r(gid, &grp, line_buff,  sizeof(line_buff), &result)) == 0) {
+		UNLOCK;
+		return &grp;
 	}
-
-    close(grp_fd);
-    UNLOCK;
-    return NULL;
+	UNLOCK;
+	__set_errno(ret);
+	return NULL;
 }
 
-#if 0
-/* Search for an entry with a matching group ID.  */
-int getgrgid_r (gid_t gid, struct group *resultbuf, char *buffer, 
-	size_t buflen, struct group **result)
-{
-
-}
-#endif

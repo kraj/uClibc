@@ -1,6 +1,8 @@
+/* vi: set sw=4 ts=4: */
 /*
  * getgrnam.c - This file is part of the libc-8086/grp package for ELKS,
  * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -18,6 +20,7 @@
  *
  */
 
+#include <features.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
@@ -27,39 +30,57 @@
 
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-extern pthread_mutex_t __getgrent_lock;
-# define LOCK   pthread_mutex_lock(&__getgrent_lock)
-# define UNLOCK pthread_mutex_unlock(&__getgrent_lock);
-#else
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
+#else       
 # define LOCK
 # define UNLOCK
-#endif
-static char *line_buff = NULL;
-static char **members = NULL;
+#endif      
 
+int getgrnam_r (const char *name, struct group *group,
+	char *buff, size_t buflen, struct group **result)
+{
+	int ret;
+	int group_fd;
+
+	*result = NULL;
+
+	if (name == NULL) {
+		return EINVAL;
+	}
+
+	if ((group_fd = open(_PATH_GROUP, O_RDONLY)) < 0) {
+		return ENOENT;
+	}
+
+	while ((ret=__getgrent_r(group, buff, buflen, group_fd)) == 0) {
+		if (!strcmp(group->gr_name, name)) {
+			close(group_fd);
+			*result = group;
+			return 0;
+		}
+	}
+
+	close(group_fd);
+	return ret;
+}
 
 struct group *getgrnam(const char *name)
 {
-	int grp_fd;
-	struct group *group;
-
-	if (name == NULL) {
-		__set_errno(EINVAL);
-		return NULL;
-	}
-
-	if ((grp_fd = open(_PATH_GROUP, O_RDONLY)) < 0)
-		return NULL;
+	int ret;
+	static char line_buff[PWD_BUFFER_SIZE];
+	static struct group grp;
+	struct group *result;
 
 	LOCK;
-	while ((group = __getgrent(grp_fd, line_buff, members)) != NULL)
-		if (!strcmp(group->gr_name, name)) {
-			close(grp_fd);
-			UNLOCK;
-			return group;
-		}
-
-	close(grp_fd);
+	if ((ret=getgrnam_r(name, &grp, line_buff, sizeof(line_buff), &result)) == 0) {
+		UNLOCK;
+		return &grp;
+	}
+	__set_errno(ret);
 	UNLOCK;
 	return NULL;
 }
+
+

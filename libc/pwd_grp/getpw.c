@@ -1,6 +1,8 @@
+/* vi: set sw=4 ts=4: */
 /*
  * getpw.c - This file is part of the libc-8086/pwd package for ELKS,
  * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -35,9 +37,9 @@ int getpw(uid_t uid, char *buf)
 		return -1;
 
 	if (sprintf
-		(buf, "%s:%s:%u:%u:%s:%s:%s", passwd->pw_name, passwd->pw_passwd,
-		 passwd->pw_gid, passwd->pw_uid, passwd->pw_gecos, passwd->pw_dir,
-		 passwd->pw_shell) < 0) {
+			(buf, "%s:%s:%u:%u:%s:%s:%s", passwd->pw_name, passwd->pw_passwd,
+			 passwd->pw_gid, passwd->pw_uid, passwd->pw_gecos, passwd->pw_dir,
+			 passwd->pw_shell) < 0) {
 		__set_errno(ENOBUFS);
 		return -1;
 	}

@@ -1,5 +1,7 @@
+/* vi: set sw=4 ts=4: */
 /*
  * __sgetspent_r.c - Based on __getpwent_r.c
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -46,7 +48,7 @@ int __sgetspent_r(const char * string, struct spwd * spwd, char * line_buff, siz
 	}
 
 	if (*line_buff == '#' || *line_buff == ' ' || *line_buff == '\n' ||
-		*line_buff == '\t')
+			*line_buff == '\t')
 		return EINVAL;
 
 	field_begin = strchr(line_buff, '\n');
@@ -57,33 +59,33 @@ int __sgetspent_r(const char * string, struct spwd * spwd, char * line_buff, siz
 	field_begin = line_buff;
 	for (i = 0; i < 9; i++) {
 		switch (i) {
-		case 0:
-			spwd->sp_namp = field_begin;
-			break;
-		case 1:
-			spwd->sp_pwdp = field_begin;
-			break;
-		case 2:
-			lstchg_ptr = field_begin;
-			break;
-		case 3:
-			min_ptr = field_begin;
-			break;
-		case 4:
-			max_ptr = field_begin;
-			break;
-		case 5:
-			warn_ptr = field_begin;
-			break;
-		case 6:
-			inact_ptr = field_begin;
-			break;
-		case 7:
-			expire_ptr = field_begin;
-			break;
-		case 8:
-			flag_ptr = field_begin;
-			break;
+			case 0:
+				spwd->sp_namp = field_begin;
+				break;
+			case 1:
+				spwd->sp_pwdp = field_begin;
+				break;
+			case 2:
+				lstchg_ptr = field_begin;
+				break;
+			case 3:
+				min_ptr = field_begin;
+				break;
+			case 4:
+				max_ptr = field_begin;
+				break;
+			case 5:
+				warn_ptr = field_begin;
+				break;
+			case 6:
+				inact_ptr = field_begin;
+				break;
+			case 7:
+				expire_ptr = field_begin;
+				break;
+			case 8:
+				flag_ptr = field_begin;
+				break;
 		}
 		if (i < 8) {
 			field_begin = strchr(field_begin, ':');

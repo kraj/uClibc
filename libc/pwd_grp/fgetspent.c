@@ -1,5 +1,7 @@
+/* vi: set sw=4 ts=4: */
 /*
  * fgetspent.c - Based on fgetpwent.c
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -35,29 +37,29 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 int fgetspent_r (FILE *file, struct spwd *spwd,
 	char *buff, size_t buflen, struct spwd **result)
 {
-    int res;
-    if (file == NULL) {
-	return EINTR;
-    }
-    *result = NULL;
-    res = __getspent_r(spwd, buff, buflen, fileno(file));
-    *result = spwd;
-    return res;
+	int res;
+	if (file == NULL) {
+		return EINTR;
+	}
+	*result = NULL;
+	res = __getspent_r(spwd, buff, buflen, fileno(file));
+	*result = spwd;
+	return res;
 }
 
 struct spwd *fgetspent(FILE * file)
 {
-    int ret;
-    static char line_buff[PWD_BUFFER_SIZE];
-    static struct spwd spwd;
-    struct spwd *result;
+	int ret;
+	static char line_buff[PWD_BUFFER_SIZE];
+	static struct spwd spwd;
+	struct spwd *result;
 
-    LOCK;
-    if ((ret=fgetspent_r(file, &spwd, line_buff, sizeof(line_buff), &result)) == 0) {
+	LOCK;
+	if ((ret=fgetspent_r(file, &spwd, line_buff, sizeof(line_buff), &result)) == 0) {
+		UNLOCK;
+		return &spwd;
+	}
 	UNLOCK;
-	return &spwd;
-    }
-    UNLOCK;
-    __set_errno(ret);
-    return NULL;
+	__set_errno(ret);
+	return NULL;
 }

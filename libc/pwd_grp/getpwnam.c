@@ -1,6 +1,8 @@
+/* vi: set sw=4 ts=4: */
 /*
  * getpwnam.c - This file is part of the libc-8086/pwd package for ELKS,
  * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -39,46 +41,45 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 int getpwnam_r (const char *name, struct passwd *password,
 	char *buff, size_t buflen, struct passwd **result)
 {
-    int ret;
-    int passwd_fd;
+	int ret;
+	int passwd_fd;
 
-    *result = NULL;
+	*result = NULL;
 
-    if (name == NULL) {
-	return EINVAL;
-    }
-
-    if ((passwd_fd = open(_PATH_PASSWD, O_RDONLY)) < 0) {
-	return ENOENT;
-    }
-
-    while ((ret=__getpwent_r(password, buff, buflen, passwd_fd)) == 0) {
-	if (!strcmp(password->pw_name, name)) {
-	    *result=password;
-	    close(passwd_fd);
-	    *result = password;
-	    return 0;
+	if (name == NULL) {
+		return EINVAL;
 	}
-    }
 
-    close(passwd_fd);
-    return ret;
+	if ((passwd_fd = open(_PATH_PASSWD, O_RDONLY)) < 0) {
+		return ENOENT;
+	}
+
+	while ((ret=__getpwent_r(password, buff, buflen, passwd_fd)) == 0) {
+		if (!strcmp(password->pw_name, name)) {
+			close(passwd_fd);
+			*result = password;
+			return 0;
+		}
+	}
+
+	close(passwd_fd);
+	return ret;
 }
 
 struct passwd *getpwnam(const char *name)
 {
-    int ret;
-    static char line_buff[PWD_BUFFER_SIZE];
-    static struct passwd pwd;
-    struct passwd *result;
+	int ret;
+	static char line_buff[PWD_BUFFER_SIZE];
+	static struct passwd pwd;
+	struct passwd *result;
 
-    LOCK;
-    if ((ret=getpwnam_r(name, &pwd, line_buff, sizeof(line_buff), &result)) == 0) {
+	LOCK;
+	if ((ret=getpwnam_r(name, &pwd, line_buff, sizeof(line_buff), &result)) == 0) {
+		UNLOCK;
+		return &pwd;
+	}
+	__set_errno(ret);
 	UNLOCK;
-	return &pwd;
-    }
-    __set_errno(ret);
-    UNLOCK;
-    return NULL;
+	return NULL;
 }
 

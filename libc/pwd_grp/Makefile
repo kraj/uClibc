@@ -25,7 +25,7 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 CSRC= pwent.c getpwnam.c getpwuid.c putpwent.c getpw.c fgetpwent.c \
-	__getgrent.c grent.c getgrnam.c getgrgid.c fgetgrent.c \
+	__getgrent_r.c grent.c getgrnam.c getgrgid.c fgetgrent.c \
 	initgroups.c __getpwent_r.c
 
 ifeq ($(HAS_SHADOW),y)
@@ -49,7 +49,7 @@ $(COBJS): %.o : %.c
 
 $(OBJ): Makefile
 
-__getgrent.c: config.h
+__getgrent_r.c: config.h
 initgroups.c: config.h
 
 clean:

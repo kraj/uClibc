@@ -1,6 +1,8 @@
+/* vi: set sw=4 ts=4: */
 /*
  * fgetgrent.c - This file is part of the libc-8086/grp package for ELKS,
  * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -24,28 +26,49 @@
     
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-extern pthread_mutex_t __getgrent_lock;
-# define LOCK   pthread_mutex_lock(&__getgrent_lock)
-# define UNLOCK pthread_mutex_unlock(&__getgrent_lock);
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK   pthread_mutex_lock(&mylock)
+# define UNLOCK pthread_mutex_unlock(&mylock);
 #else
 # define LOCK
 # define UNLOCK
 #endif
 
-static char *line_buff = NULL;
-static char **members = NULL;
+
+int fgetgrent_r (FILE *__restrict file, struct group *__restrict grp,
+			char *__restrict buff, size_t buflen,
+			struct group **__restrict result)
+{
+	int ret;
+	if (file == NULL) {
+		return EINTR;
+	}
+	*result = NULL;
+	flockfile(file);
+	ret = __getgrent_r(grp, buff, buflen, fileno(file));
+	funlockfile(file);
+	if (ret == 0) {
+		*result = grp;
+		return 0;
+	}
+	__set_errno(ret);
+	return ret;
+}
 
 struct group *fgetgrent(FILE * file)
 {
-    struct group *grp;
+	int ret;
+	struct group *result;
+	static struct group grp;
+	static char line_buff[PWD_BUFFER_SIZE];
 
-    if (file == NULL) {
-	__set_errno(EINTR);
+	LOCK;
+	ret=fgetgrent_r(file, &grp, line_buff, sizeof(line_buff), &result);
+	if (ret == 0) {
+		UNLOCK;
+		return result;
+	}
+	UNLOCK;
+	__set_errno(ret);
 	return NULL;
-    }
-
-    LOCK;
-    grp = __getgrent(fileno(file), line_buff, members);
-    UNLOCK;
-    return grp;
 }

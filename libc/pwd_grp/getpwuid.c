@@ -1,6 +1,8 @@
+/* vi: set sw=4 ts=4: */
 /*
  * getpwuid.c - This file is part of the libc-8086/pwd package for ELKS,
  * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -39,38 +41,37 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 int getpwuid_r (uid_t uid, struct passwd *password,
 	char *buff, size_t buflen, struct passwd **result)
 {
-    int passwd_fd;
+	int passwd_fd;
+	if ((passwd_fd = open(_PATH_PASSWD, O_RDONLY)) < 0)
+		return errno;
 
-    if ((passwd_fd = open(_PATH_PASSWD, O_RDONLY)) < 0)
-	return errno;
-
-    *result = NULL;
-    while (__getpwent_r(password, buff, buflen, passwd_fd) == 0)
-	if (password->pw_uid == uid) {
-	    close(passwd_fd);
-	    *result = password;
-	    return 0;
+	*result = NULL;
+	while (__getpwent_r(password, buff, buflen, passwd_fd) == 0) {
+		if (password->pw_uid == uid) {
+			close(passwd_fd);
+			*result = password;
+			return 0;
+		}
 	}
 
-    close(passwd_fd);
-    return EINVAL;
+	close(passwd_fd);
+	return EINVAL;
 }
 
 struct passwd *getpwuid(uid_t uid)
 {
-    int ret;
-    /* file descriptor for the password file currently open */
-    static char line_buff[PWD_BUFFER_SIZE];
-    static struct passwd pwd;
-    struct passwd *result;
+	int ret;
+	struct passwd *result;
+	static struct passwd pwd;
+	static char line_buff[PWD_BUFFER_SIZE];
 
-    LOCK;
-    if ((ret=getpwuid_r(uid, &pwd, line_buff,  sizeof(line_buff), &result)) == 0) {
+	LOCK;
+	if ((ret=getpwuid_r(uid, &pwd, line_buff,  sizeof(line_buff), &result)) == 0) {
+		UNLOCK;
+		return &pwd;
+	}
 	UNLOCK;
-	return &pwd;
-    }
-    UNLOCK;
-    __set_errno(ret);
-    return NULL;
+	__set_errno(ret);
+	return NULL;
 }
 

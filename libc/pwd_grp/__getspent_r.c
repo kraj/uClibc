@@ -1,4 +1,6 @@
+/* vi: set sw=4 ts=4: */
 /* __getspent_r.c - Based on __getpwent_r.c
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -26,32 +28,32 @@
 
 int __getspent_r(struct spwd * spwd, char * line_buff, size_t buflen, int spwd_fd)
 {
-    char *endptr;
-    int line_len;
+	char *endptr;
+	int line_len;
 
-    if (buflen<PWD_BUFFER_SIZE)
-	return ERANGE;
+	if (buflen<PWD_BUFFER_SIZE)
+		return ERANGE;
 
-    /* We use the restart label to handle malformatted lines */
+	/* We use the restart label to handle malformatted lines */
 restart:
-    /* Read the shadow line into the buffer using a minimum of syscalls. */
-    if ((line_len = read(spwd_fd, line_buff, buflen)) <= 0)
-	return EIO;
-    endptr = strchr(line_buff, '\n');
-    if (endptr != NULL)
-	lseek(spwd_fd, (long) (1 + endptr - (line_buff + line_len)), SEEK_CUR);
-    else {
-	/* The line is too long - skip it. :-\ */
-	do {
-	    if ((line_len = read(spwd_fd, line_buff, buflen)) <= 0)
+	/* Read the shadow line into the buffer using a minimum of syscalls. */
+	if ((line_len = read(spwd_fd, line_buff, buflen)) <= 0)
 		return EIO;
-	} while (!(endptr = strchr(line_buff, '\n')));
-	lseek(spwd_fd, (long) (endptr - line_buff) - line_len + 1, SEEK_CUR);
-	goto restart;
-    }
+	endptr = strchr(line_buff, '\n');
+	if (endptr != NULL)
+		lseek(spwd_fd, (long) (1 + endptr - (line_buff + line_len)), SEEK_CUR);
+	else {
+		/* The line is too long - skip it. :-\ */
+		do {
+			if ((line_len = read(spwd_fd, line_buff, buflen)) <= 0)
+				return EIO;
+		} while (!(endptr = strchr(line_buff, '\n')));
+		lseek(spwd_fd, (long) (endptr - line_buff) - line_len + 1, SEEK_CUR);
+		goto restart;
+	}
 
-    if (__sgetspent_r(line_buff, spwd, line_buff, buflen) != 0)
-	goto restart;
+	if (__sgetspent_r(line_buff, spwd, line_buff, buflen) != 0)
+		goto restart;
 
-    return 0;
+	return 0;
 }

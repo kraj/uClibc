@@ -1,6 +1,8 @@
+/* vi: set sw=4 ts=4: */
 /*
  * pwent.c - This file is part of the libc-8086/pwd package for ELKS,
  * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -47,50 +49,50 @@ static int pw_fd = -1;
 
 void setpwent(void)
 {
-    LOCK;
-    if (pw_fd != -1)
-	close(pw_fd);
+	LOCK;
+	if (pw_fd != -1)
+		close(pw_fd);
 
-    pw_fd = open(_PATH_PASSWD, O_RDONLY);
-    UNLOCK;
+	pw_fd = open(_PATH_PASSWD, O_RDONLY);
+	UNLOCK;
 }
 
 void endpwent(void)
 {
-    LOCK;
-    if (pw_fd != -1)
-	close(pw_fd);
-    pw_fd = -1;
-    UNLOCK;
+	LOCK;
+	if (pw_fd != -1)
+		close(pw_fd);
+	pw_fd = -1;
+	UNLOCK;
 }
 
 int getpwent_r (struct passwd *password, char *buff, 
 	size_t buflen, struct passwd **result)
 {
-    int ret=EINVAL;
-    LOCK;
-    *result = NULL;
-    if (pw_fd != -1 && (ret=__getpwent_r(password, buff, buflen, pw_fd)) == 0) {
+	int ret=EINVAL;
+	LOCK;
+	*result = NULL;
+	if (pw_fd != -1 && (ret=__getpwent_r(password, buff, buflen, pw_fd)) == 0) {
+		UNLOCK;
+		*result = password;
+		return 0;
+	}
 	UNLOCK;
-	*result = password;
-	return 0;
-    }
-    UNLOCK;
-    __set_errno(ret);
-    return ret;
+	__set_errno(ret);
+	return ret;
 }
 
 struct passwd *getpwent(void)
 {
-    int ret;
-    static char line_buff[PWD_BUFFER_SIZE];
-    static struct passwd pwd;
-    struct passwd *result;
+	int ret;
+	static char line_buff[PWD_BUFFER_SIZE];
+	static struct passwd pwd;
+	struct passwd *result;
 
-    if ((ret=getpwent_r(&pwd, line_buff, sizeof(line_buff), &result)) == 0) {
-	return &pwd;
-    }
-    __set_errno(ret);
-    return NULL;
+	if ((ret=getpwent_r(&pwd, line_buff, sizeof(line_buff), &result)) == 0) {
+		return &pwd;
+	}
+	__set_errno(ret);
+	return NULL;
 }
 

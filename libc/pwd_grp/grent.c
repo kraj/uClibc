@@ -1,6 +1,8 @@
+/* vi: set sw=4 ts=4: */
 /*
  * grent.c - This file is part of the libc-8086/grp package for ELKS,
  * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -28,6 +30,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <paths.h>
+#include <errno.h>
 #include "config.h"
 
 #ifdef __UCLIBC_HAS_THREADS__
@@ -40,50 +43,43 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 # define UNLOCK
 #endif      
 
-#ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
-extern pthread_mutex_t __getgrent_lock;
-# define GRENT_LOCK   pthread_mutex_lock(&__getgrent_lock)
-# define GRENT_UNLOCK pthread_mutex_unlock(&__getgrent_lock);
-#else
-# define GRENT_LOCK
-# define GRENT_UNLOCK
-#endif
-
 static int grp_fd = -1;
-static char *line_buff = NULL;
-static char **members = NULL;
 
 void setgrent(void)
 {
-    LOCK;
-    if (grp_fd != -1)
-	close(grp_fd);
-    grp_fd = open(_PATH_GROUP, O_RDONLY);
-    UNLOCK;
+	LOCK;
+	if (grp_fd != -1)
+		close(grp_fd);
+	grp_fd = open(_PATH_GROUP, O_RDONLY);
+	UNLOCK;
 }
 
 void endgrent(void)
 {
-    LOCK;
-    if (grp_fd != -1)
-	close(grp_fd);
-    grp_fd = -1;
-    UNLOCK;
+	LOCK;
+	if (grp_fd != -1)
+		close(grp_fd);
+	grp_fd = -1;
+	UNLOCK;
 }
 
 struct group *getgrent(void)
 {
-    struct group *r;
+	int ret;
+	static struct group grp;
+	static char line_buff[PWD_BUFFER_SIZE];
 
-    LOCK;
-    if (grp_fd == -1) {
+	LOCK;
+	if (grp_fd == -1) {
+		UNLOCK;
+		return NULL;
+	}
+	ret = __getgrent_r(&grp, line_buff, sizeof(line_buff), grp_fd);
+	if (ret == 0) {
+		UNLOCK;
+		return &grp;
+	}
 	UNLOCK;
+	__set_errno(ret);
 	return NULL;
-    }
-    UNLOCK;
-    GRENT_LOCK;
-    r = __getgrent(grp_fd, line_buff, members);
-    GRENT_UNLOCK;
-    return r;
 }

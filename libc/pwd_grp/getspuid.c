@@ -1,5 +1,7 @@
+/* vi: set sw=4 ts=4: */
 /*
  * getspuid.c - Based on getpwuid.c
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -37,34 +39,34 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 int getspuid_r (uid_t uid, struct spwd *spwd,
 	char *buff, size_t buflen, struct spwd **result)
 {
-    int ret;
-    char pwd_buff[PWD_BUFFER_SIZE];
-    struct passwd password;
+	int ret;
+	char pwd_buff[PWD_BUFFER_SIZE];
+	struct passwd password;
 
-    *result = NULL;
-    ret = getpwuid_r(uid, &password, pwd_buff,  sizeof(pwd_buff), NULL);
-    if (ret != 0)
+	*result = NULL;
+	ret = getpwuid_r(uid, &password, pwd_buff,  sizeof(pwd_buff), NULL);
+	if (ret != 0)
+		return ret;
+
+	ret = getspnam_r(password.pw_name, spwd, buff, buflen, result);
+	*result = spwd;
 	return ret;
-
-    ret = getspnam_r(password.pw_name, spwd, buff, buflen, result);
-    *result = spwd;
-    return ret;
 }
 
 struct spwd *getspuid(uid_t uid)
 {
-    int ret;
-    static char line_buff[PWD_BUFFER_SIZE];
-    static struct spwd spwd;
-    struct spwd *result;
+	int ret;
+	static char line_buff[PWD_BUFFER_SIZE];
+	static struct spwd spwd;
+	struct spwd *result;
 
-    LOCK;
-    if ((ret=getspuid_r(uid, &spwd, line_buff, sizeof(line_buff), &result)) == 0) {
+	LOCK;
+	if ((ret=getspuid_r(uid, &spwd, line_buff, sizeof(line_buff), &result)) == 0) {
+		UNLOCK;
+		return &spwd;
+	}
 	UNLOCK;
-	return &spwd;
-    }
-    UNLOCK;
-    __set_errno(ret);
-    return NULL;
+	__set_errno(ret);
+	return NULL;
 }
 

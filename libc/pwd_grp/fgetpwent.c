@@ -1,6 +1,8 @@
+/* vi: set sw=4 ts=4: */
 /*
  * fgetpwent.c - This file is part of the libc-8086/pwd package for ELKS,
  * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -36,29 +38,29 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 int fgetpwent_r (FILE *file, struct passwd *password,
 	char *buff, size_t buflen, struct passwd **result)
 {
-    int res;
-    if (file == NULL) {
-	return EINTR;
-    }
-    *result = NULL;
-    res = __getpwent_r(password, buff, buflen, fileno(file));
-    *result = password;
-    return res;
+	int res;
+	if (file == NULL) {
+		return EINTR;
+	}
+	*result = NULL;
+	res = __getpwent_r(password, buff, buflen, fileno(file));
+	*result = password;
+	return res;
 }
 
 struct passwd *fgetpwent(FILE * file)
 {
-    int ret;
-    static char line_buff[PWD_BUFFER_SIZE];
-    static struct passwd pwd;
-    struct passwd *result;
+	int ret;
+	static char line_buff[PWD_BUFFER_SIZE];
+	static struct passwd pwd;
+	struct passwd *result;
 
-    LOCK;
-    if ((ret=fgetpwent_r(file, &pwd, line_buff, sizeof(line_buff), &result)) == 0) {
+	LOCK;
+	if ((ret=fgetpwent_r(file, &pwd, line_buff, sizeof(line_buff), &result)) == 0) {
+		UNLOCK;
+		return &pwd;
+	}
 	UNLOCK;
-	return &pwd;
-    }
-    UNLOCK;
-    __set_errno(ret);
-    return NULL;
+	__set_errno(ret);
+	return NULL;
 }

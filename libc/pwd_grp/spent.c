@@ -1,5 +1,7 @@
+/* vi: set sw=4 ts=4: */
 /*
  * spent.c - Based on pwent.c
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -45,51 +47,51 @@ static int spwd_fd = -1;
 
 void setspent(void)
 {
-    LOCK;
-    if (spwd_fd != -1)
-	close(spwd_fd);
-    spwd_fd = open(_PATH_SHADOW, O_RDONLY);
-    UNLOCK;
+	LOCK;
+	if (spwd_fd != -1)
+		close(spwd_fd);
+	spwd_fd = open(_PATH_SHADOW, O_RDONLY);
+	UNLOCK;
 }
 
 void endspent(void)
 {
-    LOCK;
-    if (spwd_fd != -1)
-	close(spwd_fd);
-    spwd_fd = -1;
-    UNLOCK;
+	LOCK;
+	if (spwd_fd != -1)
+		close(spwd_fd);
+	spwd_fd = -1;
+	UNLOCK;
 }
 
 int getspent_r (struct spwd *spwd, char *buff, 
 	size_t buflen, struct spwd **result)
 {
-    int ret=EINVAL;
-    LOCK;
-    *result = NULL;
-    if (spwd_fd != -1 && (ret=__getspent_r(spwd, buff, buflen, spwd_fd)) == 0) {
+	int ret=EINVAL;
+	LOCK;
+	*result = NULL;
+	if (spwd_fd != -1 && (ret=__getspent_r(spwd, buff, buflen, spwd_fd)) == 0) {
+		UNLOCK;
+		*result = spwd;
+		return 0;
+	}
 	UNLOCK;
-	*result = spwd;
-	return 0;
-    }
-    UNLOCK;
-    return ret;
+	return ret;
 }
 
 struct spwd *getspent(void)
 {
-    int ret;
-    static char line_buff[PWD_BUFFER_SIZE];
-    static struct spwd spwd;
-    struct spwd *result;
+	int ret;
+	static char line_buff[PWD_BUFFER_SIZE];
+	static struct spwd spwd;
+	struct spwd *result;
 
-    LOCK;
-    if ((ret=getspent_r(&spwd, line_buff, sizeof(line_buff), &result)) == 0) {
+	LOCK;
+	if ((ret=getspent_r(&spwd, line_buff, sizeof(line_buff), &result)) == 0) {
+		UNLOCK;
+		return &spwd;
+	}
 	UNLOCK;
-	return &spwd;
-    }
-    UNLOCK;
-    __set_errno(ret);
-    return NULL;
+	__set_errno(ret);
+	return NULL;
 }
 

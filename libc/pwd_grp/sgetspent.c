@@ -1,5 +1,7 @@
+/* vi: set sw=4 ts=4: */
 /*
  * sgetspent.c
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -35,26 +37,26 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 int sgetspent_r (const char *string, struct spwd *spwd,
 	char *buff, size_t buflen, struct spwd **result)
 {
-    int ret;
-    *result = NULL;
-    ret = __sgetspent_r(string, spwd, buff, buflen);
-    *result = spwd;
-    return ret;
+	int ret;
+	*result = NULL;
+	ret = __sgetspent_r(string, spwd, buff, buflen);
+	*result = spwd;
+	return ret;
 }
 
 struct spwd *sgetspent(const char *string)
 {
-    int ret;
-    static char line_buff[PWD_BUFFER_SIZE];
-    static struct spwd spwd;
-    struct spwd *result;
+	int ret;
+	static char line_buff[PWD_BUFFER_SIZE];
+	static struct spwd spwd;
+	struct spwd *result;
 
-    LOCK;
-    if ((ret = sgetspent_r(string, &spwd, line_buff, sizeof(line_buff), &result)) == 0) {
+	LOCK;
+	if ((ret = sgetspent_r(string, &spwd, line_buff, sizeof(line_buff), &result)) == 0) {
+		UNLOCK;
+		return &spwd;
+	}
+	__set_errno(ret);
 	UNLOCK;
-	return &spwd;
-    }
-    __set_errno(ret);
-    UNLOCK;
-    return NULL;
+	return NULL;
 }

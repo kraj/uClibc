@@ -28,10 +28,12 @@
 #include <shadow.h>
 
 #define PWD_BUFFER_SIZE 256
+#define GRP_BUFFER_SIZE 256
 
 
 /* These are used internally to uClibc */
-extern struct group *__getgrent(int grp_fd, char *line_buff, char **members);
+extern int __getgrent_r (struct group *__restrict group, 
+	char *__restrict line_buff, size_t buflen, int grp_fd);
 extern int __getpwent_r(struct passwd * passwd, char * line_buff, 
 	size_t buflen, int pwd_fd);
 extern int __getspent_r(struct spwd * spwd, char * line_buff, 

@@ -1,6 +1,8 @@
+/* vi: set sw=4 ts=4: */
 /*
  * putpwent.c - This file is part of the libc-8086/pwd package for ELKS,
  * Copyright (C) 1995, 1996 Nat Friedman <ndf@linux.mit.edu>.
+ * Copyright (C) 2001-2003 Erik Andersen <andersee@debian.org>
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
@@ -29,9 +31,9 @@ int putpwent(const struct passwd *passwd, FILE * f)
 		return -1;
 	}
 	if (fprintf
-		(f, "%s:%s:%u:%u:%s:%s:%s\n", passwd->pw_name, passwd->pw_passwd,
-		 passwd->pw_uid, passwd->pw_gid, passwd->pw_gecos, passwd->pw_dir,
-		 passwd->pw_shell) < 0)
+			(f, "%s:%s:%u:%u:%s:%s:%s\n", passwd->pw_name, passwd->pw_passwd,
+			 passwd->pw_uid, passwd->pw_gid, passwd->pw_gecos, passwd->pw_dir,
+			 passwd->pw_shell) < 0)
 		return -1;
 
 	return 0;
