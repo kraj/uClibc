@@ -27,7 +27,7 @@ include $(TOPDIR)Rules.mak
 
 DIRS = assert ctype dirent file fnmatch glob internals lsearch \
        mntent syslog time utmp tsearch locale sysvipc statfs \
-       error insremque
+       error insremque ttyent
 ifeq ($(strip $(INCLUDE_REGEX)),true)
 DIRS += regex
 endif
