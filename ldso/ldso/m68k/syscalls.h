@@ -1,4 +1,3 @@
-#include <linux/types.h>
 #include <asm/unistd.h>
 
 /* Here are the macros which define how this platform makes

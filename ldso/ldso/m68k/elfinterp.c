@@ -48,20 +48,12 @@ static char *_dl_reltypes[] =
    a more than adequate job of explaining everything required to get this
    working. */
 
-#include <linux/types.h>
-#include <linux/errno.h>
-#include <linux/unistd.h>
-/*#include <stdlib.h>*/
-#include "string.h"
-#include <linux/unistd.h>
-#include <linux/fcntl.h>
-#include <linux/elf.h>
-
+#include <sys/types.h>
+#include "elf.h"
 #include "hash.h"
-#include "linuxelf.h"
+#include "syscall.h"
+#include "string.h"
 #include "sysdep.h"
-#include "../syscall.h"
-#include "../string.h"
 
 extern char *_dl_progname;
 
@@ -70,9 +62,9 @@ _dl_linux_resolver (int dummy1, int dummy2,
 		    struct elf_resolve *tpnt, int reloc_entry)
 {
   int reloc_type;
-  struct elf32_rela *this_reloc;
+  Elf32_Rela *this_reloc;
   char *strtab;
-  struct elf32_sym *symtab;
+  Elf32_Sym *symtab;
   char *rel_addr;
   int symtab_index;
   char *new_addr;
@@ -80,11 +72,11 @@ _dl_linux_resolver (int dummy1, int dummy2,
   unsigned int instr_addr;
 
   rel_addr = tpnt->loadaddr + tpnt->dynamic_info[DT_JMPREL];
-  this_reloc = (struct elf32_rela *) (rel_addr + reloc_entry);
+  this_reloc = (Elf32_Rela *) (rel_addr + reloc_entry);
   reloc_type = ELF32_R_TYPE (this_reloc->r_info);
   symtab_index = ELF32_R_SYM (this_reloc->r_info);
 
-  symtab = (struct elf32_sym *) (tpnt->dynamic_info[DT_SYMTAB]
+  symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB]
 				 + tpnt->loadaddr);
   strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 
@@ -133,15 +125,15 @@ _dl_parse_lazy_relocation_information (struct elf_resolve *tpnt, int rel_addr,
   char *strtab;
   int reloc_type;
   int symtab_index;
-  struct elf32_sym *symtab;
-  struct elf32_rela *rpnt;
+  Elf32_Sym *symtab;
+  Elf32_Rela *rpnt;
   unsigned int *reloc_addr;
 
   /* Now parse the relocation information.  */
-  rpnt = (struct elf32_rela *) (rel_addr + tpnt->loadaddr);
-  rel_size = rel_size / sizeof (struct elf32_rela);
+  rpnt = (Elf32_Rela *) (rel_addr + tpnt->loadaddr);
+  rel_size = rel_size / sizeof (Elf32_Rela);
 
-  symtab = (struct elf32_sym *) (tpnt->dynamic_info[DT_SYMTAB]
+  symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB]
 				 + tpnt->loadaddr);
   strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 
@@ -186,17 +178,17 @@ _dl_parse_relocation_information (struct elf_resolve *tpnt, int rel_addr,
   char *strtab;
   int reloc_type;
   int goof = 0;
-  struct elf32_sym *symtab;
-  struct elf32_rela *rpnt;
+  Elf32_Sym *symtab;
+  Elf32_Rela *rpnt;
   unsigned int *reloc_addr;
   unsigned int symbol_addr;
   int symtab_index;
   /* Now parse the relocation information */
 
-  rpnt = (struct elf32_rela *) (rel_addr + tpnt->loadaddr);
-  rel_size = rel_size / sizeof (struct elf32_rela);
+  rpnt = (Elf32_Rela *) (rel_addr + tpnt->loadaddr);
+  rel_size = rel_size / sizeof (Elf32_Rela);
 
-  symtab = (struct elf32_sym *) (tpnt->dynamic_info[DT_SYMTAB]
+  symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB]
 				 + tpnt->loadaddr);
   strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 
@@ -309,8 +301,8 @@ _dl_parse_copy_information (struct dyn_elf *xpnt, int rel_addr,
   char *strtab;
   int reloc_type;
   int goof = 0;
-  struct elf32_sym *symtab;
-  struct elf32_rela *rpnt;
+  Elf32_Sym *symtab;
+  Elf32_Rela *rpnt;
   unsigned int *reloc_addr;
   unsigned int symbol_addr;
   struct elf_resolve *tpnt;
@@ -319,10 +311,10 @@ _dl_parse_copy_information (struct dyn_elf *xpnt, int rel_addr,
 
   tpnt = xpnt->dyn;
 
-  rpnt = (struct elf32_rela *) (rel_addr + tpnt->loadaddr);
-  rel_size = rel_size / sizeof (struct elf32_rela);
+  rpnt = (Elf32_Rela *) (rel_addr + tpnt->loadaddr);
+  rel_size = rel_size / sizeof (Elf32_Rela);
 
-  symtab = (struct elf32_sym *) (tpnt->dynamic_info[DT_SYMTAB]
+  symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB]
 				 + tpnt->loadaddr);
   strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 

@@ -41,6 +41,7 @@ static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
 
 
 #define __NR__dl_open __NR_open
+#define O_RDONLY        0x0000
 static inline _syscall2(int, _dl_open, const char *, fn, int, flags);
 
 #define __NR__dl_write __NR_write
@@ -66,6 +67,7 @@ static inline _syscall3(int, _dl_mprotect, const void *, addr, unsigned long, le
 #include <asm/stat.h> 
 #undef new_stat
 #undef stat
+#define S_ISUID       04000   /* Set user ID on execution.  */
 static inline _syscall2(int, _dl_stat, const char *, file_name, struct kernel_stat *, buf);
 
 

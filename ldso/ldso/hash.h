@@ -35,7 +35,7 @@ struct elf_resolve{
 
   unsigned int dynamic_size;
   unsigned int n_phent;
-  struct elf_phdr * ppnt;
+  Elf32_Phdr * ppnt;
 };
 
 #if 0

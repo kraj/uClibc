@@ -12,7 +12,6 @@
 #include <stdarg.h>
 #include "string.h"
 #include "hash.h"
-#include <linux/unistd.h>
 #include "syscall.h"
 
 /* we use this so that we can do without the ctype library */
