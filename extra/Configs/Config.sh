@@ -72,6 +72,10 @@ ifeq ($(strip $(TARGET_PROC)),SH3_LITTLE_UCLINUX)
 ARCH_CFLAGS += -ml
 HAS_MMU = false
 endif
+ifeq ($(strip $(TARGET_PROC)),SH3_BIG)
+ARCH_CFLAGS += -mb -m3 -D__BIG_ENDIAN__
+HAS_MMU = true
+endif
 ifeq ($(strip $(TARGET_PROC)),SH3)
 ARCH_CFLAGS += -ml
 HAS_MMU = true
