@@ -21,6 +21,8 @@
  *
  */
 
+#include <errno.h>
+
 asm(
 	"\t.global _start\n"
 	"\t_start:\n"
@@ -67,4 +69,3 @@ void _start2(void)
 
 	__uClibc_main(argc,p+1,p+2+argc);
 }
-
