@@ -849,7 +849,7 @@ void *_dl_malloc(int size)
 
 #if 0
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-	_dl_dprintf(_dl_debug_file, "malloc: request for %d bytes\n", size);
+	_dl_dprintf(2, "malloc: request for %d bytes\n", size);
 #endif
 #endif
 
@@ -858,7 +858,7 @@ void *_dl_malloc(int size)
 
 	if (_dl_malloc_addr - _dl_mmap_zero + size > 4096) {
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-		_dl_dprintf(_dl_debug_file, "malloc: mmapping more memory\n");
+		_dl_dprintf(2, "malloc: mmapping more memory\n");
 #endif
 		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size, 
 				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
