@@ -892,7 +892,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int flag)
 		if (tpnt->init_flag & RELOCS_DONE)
 			return goof;
 		tpnt->init_flag |= RELOCS_DONE;
-		goof += _dl_parse_relocation_information(tpnt,
+		goof += _dl_parse_relocation_information(rpnt,
 				tpnt->dynamic_info[DT_RELOC_TABLE_ADDR],
 				tpnt->dynamic_info[DT_RELOC_TABLE_SIZE], 0);
 	}
@@ -902,11 +902,11 @@ int _dl_fixup(struct dyn_elf *rpnt, int flag)
 			return goof;
 		tpnt->init_flag |= JMP_RELOCS_DONE;
 		if (flag & RTLD_LAZY) {
-			_dl_parse_lazy_relocation_information(tpnt,
+			_dl_parse_lazy_relocation_information(rpnt,
 					tpnt->dynamic_info[DT_JMPREL],
 					tpnt->dynamic_info [DT_PLTRELSZ], 0);
 		} else {
-			goof += _dl_parse_relocation_information(tpnt,
+			goof += _dl_parse_relocation_information(rpnt,
 					tpnt->dynamic_info[DT_JMPREL],
 					tpnt->dynamic_info[DT_PLTRELSZ], 0);
 		}

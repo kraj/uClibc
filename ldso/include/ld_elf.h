@@ -54,19 +54,19 @@ typedef struct {
 #else
 static inline void _dl_map_cache(void) { }
 static inline void _dl_unmap_cache(void) { }
-#endif	
+#endif
 
 
 /* Function prototypes for non-static stuff in readelflib1.c */
 extern int _dl_parse_copy_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size, int type);
-extern void _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt,
+extern void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size, int type);
-extern int _dl_parse_relocation_information(struct elf_resolve *tpnt,
+extern int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size, int type);
-extern struct elf_resolve * _dl_load_shared_library(int secure, 
+extern struct elf_resolve * _dl_load_shared_library(int secure,
 	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname);
-extern struct elf_resolve * _dl_load_elf_shared_library(int secure, 
+extern struct elf_resolve * _dl_load_elf_shared_library(int secure,
 	struct dyn_elf **rpnt, char *libname);
 extern struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libname);
 extern int _dl_linux_resolve(void);

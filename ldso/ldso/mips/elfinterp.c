@@ -48,9 +48,9 @@ static const char *_dl_reltypes_tab[] =
 static const char *
 _dl_reltypes(int type)
 {
-  static char buf[22];  
+  static char buf[22];
   const char *str;
-  
+
   if (type >= (int)(sizeof (_dl_reltypes_tab)/sizeof(_dl_reltypes_tab[0])) ||
       NULL == (str = _dl_reltypes_tab[type]))
   {
@@ -59,7 +59,7 @@ _dl_reltypes(int type)
   return str;
 }
 
-static 
+static
 void debug_sym(Elf32_Sym *symtab,char *strtab,int symtab_index)
 {
   if(_dl_debug_symbols)
@@ -84,7 +84,7 @@ static void debug_reloc(Elf32_Sym *symtab,char *strtab, ELF_RELOC *rpnt)
     const char *sym;
     symtab_index = ELF32_R_SYM(rpnt->r_info);
     sym = symtab_index ? strtab + symtab[symtab_index].st_name : "sym=0x0";
-    
+
   if(_dl_debug_symbols)
 	  _dl_dprintf(_dl_debug_file, "\n\t");
   else
@@ -130,16 +130,16 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 
 	new_addr = (unsigned long) _dl_find_hash(strtab + sym->st_name,
 		 tpnt->symbol_scope, tpnt, resolver);
-	 
+
 	/* Address of jump instruction to fix up */
-	instr_addr = (unsigned long) (got + local_gotno + sym_index - gotsym); 
+	instr_addr = (unsigned long) (got + local_gotno + sym_index - gotsym);
 	got_addr = (char **) instr_addr;
-	 
+
 #if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_bindings)
 	{
 		_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
-		if(_dl_debug_detail) _dl_dprintf(_dl_debug_file, 
+		if(_dl_debug_detail) _dl_dprintf(_dl_debug_file,
 				"\n\tpatched %x ==> %x @ %x\n", *got_addr, new_addr, got_addr);
 	}
 	if (!_dl_debug_nofixups) {
@@ -152,22 +152,22 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 	return new_addr;
 }
 
-void _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, 
+void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size, int type)
 {
 	/* Nothing to do */
-	return;
+	return 0;
 }
 
-int _dl_parse_copy_information(struct dyn_elf *xpnt, unsigned long rel_addr, 
-	unsigned long rel_size, int type)
+int _dl_parse_copy_information(struct dyn_elf *rpnt,
+	unsigned long rel_addr, unsigned long rel_size, int type)
 {
 	/* Nothing to do */
 	return 0;
 }
 
 
-int _dl_parse_relocation_information(struct elf_resolve *tpnt, 
+int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size, int type)
 {
 	Elf32_Sym *symtab;
@@ -177,6 +177,7 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 	unsigned long *reloc_addr=NULL, old_val=0;
 	unsigned long symbol_addr;
 	int i, reloc_type, symtab_index;
+	struct elf_resolve *tpnt = rpnt->dyn;
 
 	/* Now parse the relocation information */
 	rel_size = rel_size / sizeof(Elf32_Rel);
@@ -232,7 +233,7 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 				_dl_dprintf(2, "can't handle reloc type %s\n ", _dl_reltypes(reloc_type));
 #else
 				_dl_dprintf(2, "can't handle reloc type %x\n", reloc_type);
-#endif			
+#endif
 				_dl_exit(1);
 			}
 		};

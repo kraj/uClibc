@@ -1,8 +1,8 @@
 /* vi: set sw=4 ts=4: */
 /* powerpc shared library loader suppport
  *
- * Copyright (C) 2001-2002,  David A. Schleef
- * Copyright (C) 2003, Erik Andersen
+ * Copyright (C) 2001-2002 David A. Schleef
+ * Copyright (C) 2003-2004 Erik Andersen
  *
  * All rights reserved.
  *
@@ -46,9 +46,9 @@ static const char *_dl_reltypes_tab[] =
 static const char *
 _dl_reltypes(int type)
 {
-  static char buf[22];  
+  static char buf[22];
   const char *str;
-  
+
   if (type >= (int)(sizeof (_dl_reltypes_tab)/sizeof(_dl_reltypes_tab[0])) ||
       NULL == (str = _dl_reltypes_tab[type]))
   {
@@ -57,7 +57,7 @@ _dl_reltypes(int type)
   return str;
 }
 
-static 
+static
 void debug_sym(Elf32_Sym *symtab,char *strtab,int symtab_index)
 {
   if(_dl_debug_symbols)
@@ -74,7 +74,7 @@ void debug_sym(Elf32_Sym *symtab,char *strtab,int symtab_index)
   }
 }
 
-static 
+static
 void debug_reloc(Elf32_Sym *symtab,char *strtab, ELF_RELOC *rpnt)
 {
   if(_dl_debug_reloc)
@@ -83,7 +83,7 @@ void debug_reloc(Elf32_Sym *symtab,char *strtab, ELF_RELOC *rpnt)
     const char *sym;
     symtab_index = ELF32_R_SYM(rpnt->r_info);
     sym = symtab_index ? strtab + symtab[symtab_index].st_name : "sym=0x0";
-    
+
   if(_dl_debug_symbols)
 	  _dl_dprintf(_dl_debug_file, "\n\t");
   else
@@ -208,7 +208,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 #endif
 
 	/* Get the address of the GOT entry */
-	finaladdr = (Elf32_Addr) _dl_find_hash(strtab + symtab[symtab_index].st_name, 
+	finaladdr = (Elf32_Addr) _dl_find_hash(strtab + symtab[symtab_index].st_name,
 						tpnt->symbol_scope, tpnt, resolver);
 	if (!finaladdr) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
@@ -272,9 +272,9 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	  for (i = 0; i < rel_size; i++, rpnt++) {
 	        int res;
-	    
+
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
-		
+
 		/* When the dynamic linker bootstrapped itself, it resolved some symbols.
 		   Make sure we do not do them again */
 		if (!symtab_index && tpnt->libtype == program_interpreter)
@@ -293,10 +293,10 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		if (res==0) continue;
 
 		_dl_dprintf(2, "\n%s: ",_dl_progname);
-		
+
 		if (symtab_index)
 		  _dl_dprintf(2, "symbol '%s': ", strtab + symtab[symtab_index].st_name);
-		  
+
 		if (res <0)
 		{
 		        int reloc_type = ELF32_R_TYPE(rpnt->r_info);
@@ -304,7 +304,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			_dl_dprintf(2, "can't handle reloc type %s\n ", _dl_reltypes(reloc_type));
 #else
 			_dl_dprintf(2, "can't handle reloc type %x\n", reloc_type);
-#endif			
+#endif
 			_dl_exit(-res);
 		}
 		else if (res >0)
@@ -341,7 +341,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symname      = strtab + symtab[symtab_index].st_name;
 
-	symbol_addr = (unsigned long) _dl_find_hash(symname, scope, 
+	symbol_addr = (unsigned long) _dl_find_hash(symname, scope,
 						    (reloc_type == R_PPC_JMP_SLOT ? tpnt : NULL), symbolrel);
 	/*
 	 * We want to allow undefined references to weak symbols - this might
@@ -369,7 +369,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	case R_PPC_JMP_SLOT:
 	{
 		Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
-		
+
 		if (delta<<6>>6 == delta) {
 			*reloc_addr = OPCODE_B(delta);
 #if 0
@@ -458,7 +458,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
    a bug in the handling of _COPY by SVr4, and this may in fact be what he
    was talking about.  Sigh. */
 static int
-_dl_do_copy (struct elf_resolve *tpnt, struct dyn_elf *scope,
+_dl_do_copy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 	     ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
 {
 	int reloc_type;
@@ -467,15 +467,15 @@ _dl_do_copy (struct elf_resolve *tpnt, struct dyn_elf *scope,
 	unsigned long symbol_addr;
 	int goof = 0;
 	char *symname;
-	  
+
 	reloc_addr = (unsigned long *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type = ELF32_R_TYPE(rpnt->r_info);
-	if (reloc_type != R_PPC_COPY) 
+	if (reloc_type != R_PPC_COPY)
 		return 0;
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr = 0;
 	symname      = strtab + symtab[symtab_index].st_name;
-		
+
 	if (symtab_index) {
 		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, NULL, copyrel);
 		if (!symbol_addr) goof++;
@@ -494,9 +494,10 @@ _dl_do_copy (struct elf_resolve *tpnt, struct dyn_elf *scope,
 	return goof;
 }
 
-void _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, 
+void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size, int type)
 {
+	struct elf_resolve *tpnt = rpnt->dyn;
 	Elf32_Word *plt, offset, i,  num_plt_entries, rel_offset_words;
 
 	(void) type;
@@ -525,7 +526,7 @@ void _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt,
 	   (In a multiprocessor system, the effect is more complex.)
 	   Most of the PLT shouldn't be in the instruction cache, but
 	   there may be a little overlap at the start and the end.
-	   
+
 	   Assumes that dcbst and icbi apply to lines of 16 bytes or
 	   more.  Current known line sizes are 16, 32, and 128 bytes.  */
 	for (i = 0; i < rel_offset_words; i += 4)
@@ -537,16 +538,16 @@ void _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt,
 	PPC_ISYNC;
 }
 
-int _dl_parse_relocation_information(struct elf_resolve *tpnt, 
+int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size, int type)
 {
-	(void) type;
-	return _dl_parse(tpnt, tpnt->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
+	return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
 }
 
-int _dl_parse_copy_information(struct dyn_elf *xpnt, unsigned long rel_addr, 
-	unsigned long rel_size, int type)
+int _dl_parse_copy_information(struct dyn_elf *rpnt,
+	unsigned long rel_addr, unsigned long rel_size, int type)
 {
-	(void) type;
-	return _dl_parse(xpnt->dyn, xpnt->next, rel_addr, rel_size, _dl_do_copy);
+	return _dl_parse(rpnt->dyn, rpnt->next, rel_addr, rel_size, _dl_do_copy_reloc);
 }
+
+

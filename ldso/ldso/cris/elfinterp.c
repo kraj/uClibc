@@ -54,16 +54,16 @@ _dl_reltypes(int type)
 	if (type >= (sizeof(_dl_reltypes_tab)/sizeof(_dl_reltypes_tab[0])) ||
 		NULL == (str = _dl_reltypes_tab[type]))
 		str = _dl_simple_ltoa(buf, (unsigned long) (type));
-	
+
 	return str;
 }
 
-static void 
+static void
 debug_sym(Elf32_Sym *symtab, char *strtab, int symtab_index)
-{ 
-	if (_dl_debug_symbols) { 
+{
+	if (_dl_debug_symbols) {
 		if (symtab_index) {
-			_dl_dprintf(_dl_debug_file, 
+			_dl_dprintf(_dl_debug_file,
 				"\n%s\tvalue=%x\tsize=%x\tinfo=%x\tother=%x\tshndx=%x",
 				strtab + symtab[symtab_index].st_name,
 				symtab[symtab_index].st_value,
@@ -157,7 +157,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 #if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_bindings) {
 		_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
-		
+
 		if (_dl_debug_detail)
 			_dl_dprintf(_dl_debug_file, "\tpatch %x ==> %x @ %x", *got_addr, new_addr, got_addr);
 	}
@@ -169,7 +169,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 static int
 _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope, unsigned long rel_addr,
-	unsigned long rel_size, int (*reloc_fnc)(struct elf_resolve *tpnt, struct dyn_elf *scope, 
+	unsigned long rel_size, int (*reloc_fnc)(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	                            ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab))
 {
 	int symtab_index;
@@ -189,7 +189,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope, unsigned long rel_add
 	for (i = 0; i < rel_size; i++, rpnt++) {
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
 
-		/* 
+		/*
 		 * Make sure the same symbols that the linker resolved when it
 		 * bootstapped itself isn't resolved again.
 		 */
@@ -255,7 +255,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope, ELF_RELOC *rpnt,
 	symname = strtab + symtab[symtab_index].st_name;
 
 	if (symtab_index) {
-		if (symtab[symtab_index].st_shndx != SHN_UNDEF && 
+		if (symtab[symtab_index].st_shndx != SHN_UNDEF &&
 			ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_LOCAL) {
 			symbol_addr = (unsigned long) tpnt->loadaddr;
 		}
@@ -359,7 +359,7 @@ _dl_do_copy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope, ELF_RELOC *rp
 
 	if (reloc_type != R_CRIS_COPY)
 		return 0;
-	
+
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symbol_addr = 0;
 	symname = strtab + symtab[symtab_index].st_name;
@@ -387,28 +387,27 @@ _dl_do_copy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope, ELF_RELOC *rp
 
 /* External interface to the generic part of the dynamic linker. */
 
-int
-_dl_parse_relocation_information(struct elf_resolve *tpnt, unsigned long rel_addr,
-	unsigned long rel_size, int type)
+void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
+	unsigned long rel_addr, unsigned long rel_size, int type)
 {
 	/* Keep the compiler happy. */
 	(void) type;
-	return _dl_parse(tpnt, tpnt->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
-}
-void
-_dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, unsigned long rel_addr,
-	unsigned long rel_size, int type)
-{
-	/* Keep the compiler happy. */
-	(void) type;
-	_dl_parse(tpnt, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
+	(void)_dl_parse(rpnt->dyn, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
 }
 
-int
-_dl_parse_copy_information(struct dyn_elf *xpnt, unsigned long rel_addr,
-	unsigned long rel_size, int type)
+int _dl_parse_relocation_information(struct dyn_elf *rpnt,
+	unsigned long rel_addr, unsigned long rel_size, int type)
 {
 	/* Keep the compiler happy. */
 	(void) type;
-	return _dl_parse(xpnt->dyn, xpnt->next, rel_addr, rel_size, _dl_do_copy_reloc);
+	return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
 }
+
+int _dl_parse_copy_information(struct dyn_elf *rpnt,
+	unsigned long rel_addr, unsigned long rel_size, int type)
+{
+	/* Keep the compiler happy. */
+	(void) type;
+	return _dl_parse(rpnt->dyn, rpnt->next, rel_addr, rel_size, _dl_do_copy_reloc);
+}
+

@@ -1,7 +1,7 @@
 /* vi: set sw=4 ts=4: */
 /* m68k ELF shared library loader suppport
  *
- * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald, 
+ * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
  *				David Engel, Hongjiu Lu and Mitch D'Souza
  * Adapted to ELF/68k by Andreas Schwab.
  *
@@ -56,7 +56,7 @@ static const char *_dl_reltypes[] =
    working. */
 
 
-unsigned int _dl_linux_resolver (int dummy1, int dummy2, 
+unsigned int _dl_linux_resolver (int dummy1, int dummy2,
 	struct elf_resolve *tpnt, int reloc_entry)
 {
   int reloc_type;
@@ -112,7 +112,7 @@ unsigned int _dl_linux_resolver (int dummy1, int dummy2,
 		{
 			_dl_dprintf(_dl_debug_file, "\nresolve function: %s",
 					strtab + symtab[symtab_index].st_name);
-			if(_dl_debug_detail) _dl_dprintf(_dl_debug_file, 
+			if(_dl_debug_detail) _dl_dprintf(_dl_debug_file,
 					"\tpatch %x ==> %x @ %x", *got_addr, new_addr, got_addr);
 		}
 	}
@@ -126,9 +126,8 @@ unsigned int _dl_linux_resolver (int dummy1, int dummy2,
   return (unsigned int) new_addr;
 }
 
-void
-_dl_parse_lazy_relocation_information (struct elf_resolve *tpnt,
-                       unsigned long rel_addr, unsigned long rel_size, int type)
+void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
+	unsigned long rel_addr, unsigned long rel_size, int type)
 {
   int i;
   char *strtab;
@@ -137,6 +136,7 @@ _dl_parse_lazy_relocation_information (struct elf_resolve *tpnt,
   Elf32_Sym *symtab;
   Elf32_Rela *rpnt;
   unsigned int *reloc_addr;
+  struct elf_resolve *tpnt = rpnt->dyn;
 
   /* Now parse the relocation information.  */
   rpnt = (Elf32_Rela *) (rel_addr + tpnt->loadaddr);
@@ -179,9 +179,8 @@ _dl_parse_lazy_relocation_information (struct elf_resolve *tpnt,
     }
 }
 
-int 
-_dl_parse_relocation_information (struct elf_resolve *tpnt,
-                  unsigned long rel_addr, unsigned long rel_size, int type)
+int _dl_parse_relocation_information(struct dyn_elf *rpnt,
+	unsigned long rel_addr, unsigned long rel_size, int type)
 {
   int i;
   char *strtab;
@@ -192,6 +191,7 @@ _dl_parse_relocation_information (struct elf_resolve *tpnt,
   unsigned int *reloc_addr;
   unsigned int symbol_addr;
   int symtab_index;
+  struct elf_resolve *tpnt = rpnt->dyn;
   /* Now parse the relocation information */
 
   rpnt = (Elf32_Rela *) (rel_addr + tpnt->loadaddr);
@@ -302,9 +302,8 @@ _dl_parse_relocation_information (struct elf_resolve *tpnt,
 /* No, there are cases where the SVr4 linker fails to emit COPY relocs
    at all.  */
 
-int 
-_dl_parse_copy_information (struct dyn_elf *xpnt, unsigned long rel_addr,
-			    unsigned long rel_size, int type)
+int _dl_parse_copy_information(struct dyn_elf *xpnt,
+	unsigned long rel_addr, unsigned long rel_size, int type)
 {
   int i;
   char *strtab;
