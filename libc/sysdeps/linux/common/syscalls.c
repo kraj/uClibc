@@ -88,14 +88,6 @@ _syscall3(int, __syscall_open, const char *, file, int, flags, __kernel_mode_t, 
 int __libc_open (const char * file, int flags, ...)
 {
 	mode_t mode;
-	if (unlikely(file==NULL || *file=='\0')) {
-		__set_errno(ENOENT);
-		return -1;
-	}
-	if (unlikely(((strlen(file)+1) > NAME_MAX))) {
-		__set_errno(ENAMETOOLONG);
-		return -1;
-	}
 	if (flags & O_CREAT) {
 		va_list ap;
 		va_start(ap, flags);
@@ -147,18 +139,7 @@ _syscall1(int, unlink, const char *, pathname);
 static inline
 _syscall3(int, __syscall_execve, const char *, filename, 
 		char *const *, argv, char *const *, envp);
-int execve(const char *filename, char *const *argv, char *const *envp)
-{ 
-	if (unlikely(filename==NULL || *filename=='\0')) {
-		__set_errno(ENOENT);
-		return -1;
-	}
-	if (unlikely(((strlen(filename)+1) > NAME_MAX))) {
-		__set_errno(ENAMETOOLONG);
-		return -1;
-	}
-	return __syscall_execve(filename, argv, envp);
-}
+weak_alias(__syscall_execve, execve)
 #endif
 
 //#define __NR_chdir            12
@@ -168,18 +149,7 @@ int execve(const char *filename, char *const *argv, char *const *envp)
 #include <sys/param.h>
 static inline
 _syscall1(int, __syscall_chdir, const char *, path);
-int chdir(const char *path)
-{ 
-	if (unlikely(path==NULL || *path=='\0')) {
-		__set_errno(ENOENT);
-		return -1;
-	}
-	if (unlikely(((strlen(path)+1) > NAME_MAX))) {
-		__set_errno(ENAMETOOLONG);
-		return -1;
-	}
-	return __syscall_chdir(path);
-}
+weak_alias(__syscall_chdir, chdir)
 #endif
 
 //#define __NR_time             13
@@ -509,22 +479,7 @@ int kill(pid_t pid, int sig)
 #include <stdio.h>
 static inline
 _syscall2(int, __syscall_rename, const char *, oldpath, const char *, newpath);
-int rename(const char *oldpath, const char *newpath)
-{ 
-	if (unlikely((oldpath==NULL || newpath==NULL ||
-					*oldpath=='\0' || *newpath=='\0'))) 
-	{
-		__set_errno(ENOENT);
-		return -1;
-	}
-	if (unlikely(((strlen(oldpath)+1) >= NAME_MAX) || 
-				((strlen(newpath)+1) >= NAME_MAX))) 
-	{
-		__set_errno(ENAMETOOLONG);
-		return -1;
-	}
-	return __syscall_rename(oldpath, newpath);
-}
+weak_alias(__syscall_rename, rename)
 #endif
 
 //#define __NR_mkdir            39
@@ -743,18 +698,7 @@ mode_t umask(mode_t mode)
 #include <sys/param.h>
 static inline
 _syscall1(int, __syscall_chroot, const char *, path);
-int chroot(const char *path)
-{ 
-	if (unlikely(path==NULL || *path=='\0')) {
-		__set_errno(ENOENT);
-		return -1;
-	}
-	if (unlikely(((strlen(path)+1) > NAME_MAX))) {
-		__set_errno(ENAMETOOLONG);
-		return -1;
-	}
-	return __syscall_chroot(path);
-}
+weak_alias(__syscall_chroot, chroot)
 #endif
 
 //#define __NR_ustat            62
@@ -1176,18 +1120,7 @@ _syscall3(int, setpriority, __priority_which_t, which, id_t, who, int, prio);
 #include <sys/vfs.h>
 static inline
 _syscall2(int, __syscall_statfs, const char *, path, struct statfs *, buf);
-int statfs(const char *path, struct statfs *buf)
-{ 
-	if (unlikely(path==NULL || *path=='\0')) {
-		__set_errno(ENOENT);
-		return -1;
-	}
-	if (unlikely(((strlen(path)+1) > NAME_MAX))) {
-		__set_errno(ENAMETOOLONG);
-		return -1;
-	}
-	return __syscall_statfs(path, buf);
-}
+weak_alias(__syscall_statfs, statfs)
 #endif
 
 //#define __NR_fstatfs          100
