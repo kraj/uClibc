@@ -131,7 +131,7 @@ static void __attribute__ ((destructor)) dl_cleanup(void)
 void *dlopen(const char *libname, int flag)
 {
 	struct elf_resolve *tpnt, *tfrom, *tcurr;
-	struct dyn_elf *dyn_chain, *rpnt = NULL;
+	struct dyn_elf *dyn_chain, *rpnt = NULL, *dyn_ptr;
 	struct dyn_elf *dpnt;
 	static int dl_init = 0;
 	ElfW(Addr) from;
@@ -175,7 +175,7 @@ void *dlopen(const char *libname, int flag)
 				&& (tfrom == NULL || tfrom->loadaddr < tpnt->loadaddr))
 			tfrom = tpnt;
 	}
-
+	for(rpnt = _dl_symbol_tables; rpnt->next; rpnt=rpnt->next);
 	/* Try to load the specified library */
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
@@ -192,19 +192,9 @@ void *dlopen(const char *libname, int flag)
 	_dl_memset(dyn_chain, 0, sizeof(struct dyn_elf));
 	dyn_chain->dyn = tpnt;
 	dyn_chain->flags = flag;
-	if (!tpnt->symbol_scope)
-		tpnt->symbol_scope = dyn_chain;
 
 	dyn_chain->next_handle = _dl_handles;
-	_dl_handles = rpnt = dyn_chain;
-
-	if (tpnt->init_flag & INIT_FUNCS_CALLED) {
-		/* If the init and fini stuff has already been run, that means
-		 * the dlopen'd library has already been loaded, and nothing
-		 * further needs to be done. */
-		return (void *) dyn_chain;
-	}
-
+	_dl_handles = dyn_ptr = dyn_chain;
 
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
@@ -222,35 +212,32 @@ void *dlopen(const char *libname, int flag)
 				lpntstr = (char*) (tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] +
 						dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
-
-				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name, 0)))
-					continue;
-
+				tpnt1 = _dl_check_if_named_library_is_loaded(name, 0);
 #ifdef __SUPPORT_LD_DEBUG__
 				if(_dl_debug)
 					fprintf(stderr, "Trying to load '%s', needed by '%s'\n",
 							lpntstr, tcurr->libname);
 #endif
-
-				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, 0))) {
-					goto oops;
+				dyn_ptr->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
+				_dl_memset (dyn_ptr->next, 0, sizeof (struct dyn_elf));
+				dyn_ptr = dyn_ptr->next;
+				dyn_ptr->dyn = tpnt1;
+				if (!tpnt1) {
+					tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, 0);
+					if (!tpnt1)
+						goto oops;
+					dyn_ptr->dyn = tpnt1;
 				}
-
-				rpnt->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
-				_dl_memset (rpnt->next, 0, sizeof (struct dyn_elf));
-				rpnt = rpnt->next;
-				if (!tpnt1->symbol_scope) tpnt1->symbol_scope = rpnt;
-				rpnt->dyn = tpnt1;
-
 			}
 		}
 	}
 
-	/*
-	 * OK, now attach the entire chain at the end
-	 */
-	rpnt->next = _dl_symbol_tables;
-
+	if (dyn_chain->dyn->init_flag & INIT_FUNCS_CALLED) {
+		/* If the init and fini stuff has already been run, that means
+		 * the dlopen'd library has already been loaded, and nothing
+		 * further needs to be done. */
+		return (void *) dyn_chain;
+	}
 #ifdef __mips__
 	/*
 	 * Relocation of the GOT entries for MIPS have to be done

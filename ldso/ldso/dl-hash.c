@@ -153,89 +153,60 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
  * This function resolves externals, and this is either called when we process
  * relocations or when we call an entry in the PLT table for the first time.
  */
-char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1, int type_class)
+char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, int type_class)
 {
 	struct elf_resolve *tpnt;
 	int si;
-	int pass;
 	char *strtab;
 	Elf32_Sym *symtab;
 	unsigned long elf_hash_number, hn;
-	struct dyn_elf *rpnt;
 	const ElfW(Sym) *sym;
 	char *weak_result = NULL;
 
 	elf_hash_number = _dl_elf_hash(name);
 
-	/*
-	 * The passes are so that we can first search the regular symbols
-	 * for whatever module was specified, and then search anything
-	 * loaded with RTLD_GLOBAL.  When pass is 1, it means we are just
-	 * starting the first dlopened module, and anything above that
-	 * is just the next one in the chain.
-	 */
-	if (rpnt1 == NULL)
-		rpnt1 = _dl_symbol_tables;
+	/* 
+	   NOTE! RTLD_LOCAL handling for dlopen not implemented yet.
+	   Everything is treated as RTLD_GLOBAL.
+	*/
+	   
+	for (; rpnt; rpnt = rpnt->next) {
+		tpnt = rpnt->dyn;
 
-	for (pass = 0; (1 == 1); pass++) {
+		/* Don't search the executable when resolving a copy reloc. */
+		if ((type_class &  ELF_RTYPE_CLASS_COPY) && tpnt->libtype == elf_executable)
+			continue;
 
-		/*
-		 * If we are just starting to search for RTLD_GLOBAL, setup
-		 * the pointer for the start of the search.
-		 */
-		if (pass == 1)
-			rpnt1 = _dl_handles;
+		/* Avoid calling .urem here. */
+		do_rem(hn, elf_hash_number, tpnt->nbucket);
+		symtab = (Elf32_Sym *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
+		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
 
-		/*
-		 * Anything after this, we need to skip to the next module.
-		 */
-		else if (pass >= 2)
-			rpnt1 = rpnt1->next_handle;
+		for (si = tpnt->elf_buckets[hn]; si != STN_UNDEF; si = tpnt->chains[si]) {
+			sym = &symtab[si];
 
-		/*
-		 * Make sure we still have a module.
-		 */
-			if (rpnt1 == NULL)
-				break;
-
-		for (rpnt = rpnt1; rpnt; rpnt = rpnt->next) {
-			tpnt = rpnt->dyn;
-
-			/* Don't search the executable when resolving a copy reloc. */
-			if ((type_class &  ELF_RTYPE_CLASS_COPY) && tpnt->libtype == elf_executable)
+			if (type_class & (sym->st_shndx == SHN_UNDEF))
+				continue;
+			if (_dl_strcmp(strtab + sym->st_name, name) != 0)
+				continue;
+			if (sym->st_value == 0)
+				continue;
+			if (ELF32_ST_TYPE(sym->st_info) > STT_FUNC)
 				continue;
 
-			/* Avoid calling .urem here. */
-			do_rem(hn, elf_hash_number, tpnt->nbucket);
-			symtab = (Elf32_Sym *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
-			strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
-
-			for (si = tpnt->elf_buckets[hn]; si != STN_UNDEF; si = tpnt->chains[si]) {
-				sym = &symtab[si];
-
-				if (type_class & (sym->st_shndx == SHN_UNDEF))
-					continue;
-				if (_dl_strcmp(strtab + sym->st_name, name) != 0)
-					continue;
-				if (sym->st_value == 0)
-					continue;
-				if (ELF32_ST_TYPE(sym->st_info) > STT_FUNC)
-					continue;
-
-				switch (ELF32_ST_BIND(sym->st_info)) {
-					case STB_WEAK:
+			switch (ELF32_ST_BIND(sym->st_info)) {
+			case STB_WEAK:
 #if 0
 /* Perhaps we should support old style weak symbol handling
  * per what glibc does when you export LD_DYNAMIC_WEAK */
-						if (!weak_result)
-							weak_result = (char *)tpnt->loadaddr + sym->st_value;
-						break;
+				if (!weak_result)
+					weak_result = (char *)tpnt->loadaddr + sym->st_value;
+				break;
 #endif
-					case STB_GLOBAL:
-						return (char*)tpnt->loadaddr + sym->st_value;
-					default:	/* Local symbols not handled here */
-						break;
-				}
+			case STB_GLOBAL:
+				return (char*)tpnt->loadaddr + sym->st_value;
+			default:	/* Local symbols not handled here */
+				break;
 			}
 		}
 	}
