@@ -173,10 +173,6 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	if (LogFile < 0 || !connected)
 		openlog(LogTag, LogStat | LOG_NDELAY, 0);
 
-	/* Set default facility if none specified. */
-	if ((pri & LOG_FACMASK) == 0)
-		pri |= LogFacility;
-
 	/* Build the message. We know the starting part of the message can take
 	 * no longer than 64 characters plus length of the LogTag. So it's
 	 * safe to test only LogTag and use normal sprintf everywhere else.
