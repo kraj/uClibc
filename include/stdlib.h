@@ -93,7 +93,8 @@ extern int setenv __P ((__const char *__name, __const char *__value,
 extern int system __P ((__const char *__command));
 extern void unsetenv __P ((__const char *__name));
 
-
+/* The following is used by uClibc in atexit.c and sysconf.c */
+#define __UCLIBC_MAX_ATEXIT     20
 
 /* Search and sort functions */
 extern __ptr_t bsearch __P ((__const __ptr_t __key, __const __ptr_t __base,

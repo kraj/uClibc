@@ -34,11 +34,16 @@ For now the file can be distributed under the LGPL.  */
 #define __need_NULL
 #include <stddef.h>
 
+/* Get __compar_fn_t from stdlib.h */
+#include <stdlib.h>
+
 __BEGIN_DECLS
 
+#if 0
 #ifndef __COMPAR_FN_T
 #define __COMPAR_FN_T
 typedef int (*__compar_fn_t) __P ((__const __ptr_t, __const __ptr_t));
+#endif
 #endif
 
 /* for use with hsearch(3) */

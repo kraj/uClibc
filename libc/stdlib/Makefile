@@ -45,7 +45,10 @@ endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 
-OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(COBJS)
+OBJS=$(MOBJ) $(MOBJ2) $(COBJS)
+ifeq ($(HAS_LONG_LONG),true)
+	OBJS += $(MOBJ1)
+endif
 
 all: $(OBJS) $(LIBC)
 

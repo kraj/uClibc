@@ -22,6 +22,7 @@
 #include <pwd.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
 #include <sys/sysinfo.h>
@@ -658,8 +659,7 @@ long int sysconf(int name)
 #endif
 
     case _SC_ATEXIT_MAX:
-      /* See stdlib/atexit.c  */
-      return 20;
+      return __UCLIBC_MAX_ATEXIT;
 
     case _SC_PASS_MAX:
       /* We have no limit but since the return value might be used to

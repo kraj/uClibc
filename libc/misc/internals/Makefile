@@ -24,9 +24,12 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-CSRC=ultostr.c ltostr.c ulltostr.c lltostr.c zoicheck.c
+CSRC=ultostr.c ltostr.c
 ifeq ($(HAS_FLOATS),true)
-	CSRC += dtostr.c
+	CSRC += dtostr.c zoicheck.c
+endif
+ifeq ($(HAS_LONG_LONG),true)
+	CSRC += ulltostr.c lltostr.c 
 endif
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))

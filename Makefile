@@ -46,6 +46,7 @@ shared: libc.a
 	@rm -rf tmp
 	@mkdir tmp
 	@(cd tmp; ar -x ../libc.a)
+	@(cd tmp; CC=$(CC) /bin/sh ../extra/scripts/get-needed-libgcc-objects.sh)
 	$(CC) -s -nostdlib -shared -o libuClibc.so.1 -Wl,-soname,libuClibc.so.1 tmp/*.o
 	@rm -rf tmp
 
