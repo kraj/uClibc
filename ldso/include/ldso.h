@@ -67,8 +67,7 @@ extern void _dl_unsetenv(const char *symbol, char **envp);
 extern char *_dl_strdup(const char *string);
 extern void _dl_dprintf(int, const char *, ...);
 
-extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt,
-		unsigned long load_addr, unsigned long *hash_addr,
+extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		Elf32_auxv_t auxvt[AT_EGID + 1], char **envp, struct r_debug *debug_addr,
 		unsigned char *malloc_buffer, unsigned char *mmap_zero, char **argv);
 

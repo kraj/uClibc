@@ -127,7 +127,6 @@ DL_BOOT(unsigned long args)
 	int goof = 0;
 	ElfW(Ehdr) *header;
 	struct elf_resolve *tpnt;
-	struct elf_resolve *app_tpnt;
 	Elf32_auxv_t auxvt[AT_EGID + 1];
 	unsigned char *malloc_buffer, *mmap_zero;
 	Elf32_Dyn *dpnt;
@@ -299,28 +298,6 @@ found_got:
 
 	tpnt = LD_MALLOC(sizeof(struct elf_resolve));
 	_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
-	app_tpnt = LD_MALLOC(sizeof(struct elf_resolve));
-	_dl_memset(app_tpnt, 0, sizeof(struct elf_resolve));
-
-	/* Find the runtime load address of the main executable, this may be
-	 * different from what the ELF header says for ET_DYN/PIE executables.
-	 */
-	{
-		int i;
-		ElfW(Phdr) *ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
-		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
-			if (ppnt->p_type == PT_PHDR) {
-				app_tpnt->loadaddr = (ElfW(Addr)) (auxvt[AT_PHDR].a_un.a_val - ppnt->p_vaddr);
-				break;
-			}
-
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-		if (app_tpnt->loadaddr) {
-			SEND_STDERR("Position Independent Executable: app_tpnt->loadaddr=");
-			SEND_ADDRESS_STDERR(app_tpnt->loadaddr, 1);
-		}
-#endif
-	}
 
 	/*
 	 * This is used by gdb to locate the chain of shared libraries that are currently loaded.
@@ -350,62 +327,6 @@ found_got:
 		}
 		dpnt++;
 	}
-
-	{
-		ElfW(Phdr) *ppnt;
-		int i;
-
-		ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
-		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
-			if (ppnt->p_type == PT_DYNAMIC) {
-				dpnt = (Elf32_Dyn *) (ppnt->p_vaddr + app_tpnt->loadaddr);
-				while (dpnt->d_tag) {
-#if defined(__mips__)
-					if (dpnt->d_tag == DT_MIPS_GOTSYM)
-						app_tpnt->mips_gotsym =
-							(unsigned long) dpnt->d_un.d_val;
-					if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO)
-						app_tpnt->mips_local_gotno =
-							(unsigned long) dpnt->d_un.d_val;
-					if (dpnt->d_tag == DT_MIPS_SYMTABNO)
-						app_tpnt->mips_symtabno =
-							(unsigned long) dpnt->d_un.d_val;
-					if (dpnt->d_tag > DT_JMPREL) {
-						dpnt++;
-						continue;
-					}
-					app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-
-					if (dpnt->d_tag == DT_DEBUG) {
-						/* Allow writing debug_addr into the .dynamic segment.
-						 * Even though the program header is marked RWE, the kernel gives
-						 * it to us rx.
-						 */
-						Elf32_Addr mpa = (ppnt->p_vaddr + app_tpnt->loadaddr) & ~(pagesize - 1);
-						Elf32_Word mps = ((ppnt->p_vaddr + app_tpnt->loadaddr) - mpa) + ppnt->p_memsz;
-						if(_dl_mprotect(mpa, mps, PROT_READ | PROT_WRITE | PROT_EXEC)) {
-							SEND_STDERR("Couldn't mprotect .dynamic segment to rwx.\n");
-							_dl_exit(0);
-						}
-						dpnt->d_un.d_val = (unsigned long) debug_addr;
-					}
-#else
-					if (dpnt->d_tag > DT_JMPREL) {
-						dpnt++;
-						continue;
-					}
-					app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-					if (dpnt->d_tag == DT_DEBUG) {
-						dpnt->d_un.d_val = (unsigned long) debug_addr;
-					}
-#endif
-					if (dpnt->d_tag == DT_TEXTREL)
-						app_tpnt->dynamic_info[DT_TEXTREL] = 1;
-					dpnt++;
-				}
-			}
-	}
-
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	SEND_STDERR("done scanning DYNAMIC section\n");
 #endif
@@ -436,24 +357,8 @@ found_got:
 				}
 			}
 		}
-
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-		SEND_STDERR("calling mprotect on the application program\n");
-#endif
-		/* Now cover the application program. */
-		if (app_tpnt->dynamic_info[DT_TEXTREL]) {
-			ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
-			for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
-				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
-				_dl_mprotect((void *) ((ppnt->p_vaddr + app_tpnt->loadaddr) & PAGE_ALIGN),
-						((ppnt->p_vaddr + app_tpnt->loadaddr) & ADDR_ALIGN) +
-						(unsigned long) ppnt->p_filesz,
-						PROT_READ | PROT_WRITE | PROT_EXEC);
-			}
-		}
 	}
 #endif
-
 #if defined(__mips__)
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	SEND_STDERR("About to do MIPS specific GOT bootstrap\n");
@@ -527,8 +432,8 @@ found_got:
 	   free to start using global variables, since these things have all been
 	   fixed up by now.  Still no function calls outside of this library ,
 	   since the dynamic resolver is not yet ready. */
-	_dl_get_ready_to_run(tpnt, app_tpnt, load_addr, 0,
-			auxvt, envp, debug_addr, malloc_buffer, mmap_zero, argv);
+	_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp,
+			     debug_addr, malloc_buffer, mmap_zero, argv);
 
 
 	/* Transfer control to the application.  */

@@ -84,17 +84,19 @@ static void debug_fini (int status, void *arg)
 }
 #endif
 
-void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt,
-		unsigned long load_addr, unsigned long *hash_addr,
+void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		Elf32_auxv_t auxvt[AT_EGID + 1], char **envp, struct r_debug *debug_addr,
 		unsigned char *malloc_buffer, unsigned char *mmap_zero, char **argv)
 {
 	ElfW(Phdr) *ppnt;
+	Elf32_Dyn *dpnt;
 	char *lpntstr;
 	int i, goof = 0, unlazy = 0, trace_loaded_objects = 0;
 	struct dyn_elf *rpnt;
 	struct elf_resolve *tcurr;
 	struct elf_resolve *tpnt1;
+	struct elf_resolve app_tpnt_tmp;
+	struct elf_resolve *app_tpnt = &app_tpnt_tmp;
 	unsigned long brk_addr, *lpnt;
 	int (*_dl_atexit) (void *);
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -152,6 +154,27 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	   and figure out which libraries are supposed to be called.  Until
 	   we have this list, we will not be completely ready for dynamic linking */
 
+	/* Find the runtime load address of the main executable, this may be
+	 * different from what the ELF header says for ET_DYN/PIE executables.
+	 */
+	{
+		int i;
+		ElfW(Phdr) *ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
+		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
+			if (ppnt->p_type == PT_PHDR) {
+				app_tpnt->loadaddr = (ElfW(Addr)) (auxvt[AT_PHDR].a_un.a_val - ppnt->p_vaddr);
+				break;
+			}
+
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+		if (app_tpnt->loadaddr) {
+			SEND_STDERR("Position Independent Executable: app_tpnt->loadaddr=");
+			SEND_ADDRESS_STDERR(app_tpnt->loadaddr, 1);
+		}
+#endif
+	}
+
+
 	ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 	for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 		if (ppnt->p_type == PT_LOAD) {
@@ -159,6 +182,71 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 				brk_addr = ppnt->p_vaddr + app_tpnt->loadaddr + ppnt->p_memsz;
 		}
 		if (ppnt->p_type == PT_DYNAMIC) {
+			dpnt = (Elf32_Dyn *) (ppnt->p_vaddr + app_tpnt->loadaddr);
+			while (dpnt->d_tag) {
+#if defined(__mips__)
+				if (dpnt->d_tag == DT_MIPS_GOTSYM)
+					app_tpnt->mips_gotsym =
+						(unsigned long) dpnt->d_un.d_val;
+				if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO)
+					app_tpnt->mips_local_gotno =
+						(unsigned long) dpnt->d_un.d_val;
+				if (dpnt->d_tag == DT_MIPS_SYMTABNO)
+					app_tpnt->mips_symtabno =
+						(unsigned long) dpnt->d_un.d_val;
+				if (dpnt->d_tag > DT_JMPREL) {
+					dpnt++;
+					continue;
+				}
+				app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
+				
+				if (dpnt->d_tag == DT_DEBUG) {
+					/* Allow writing debug_addr into the .dynamic segment.
+					 * Even though the program header is marked RWE, the kernel gives
+					 * it to us rx.
+					 */
+					Elf32_Addr mpa = (ppnt->p_vaddr + app_tpnt->loadaddr) & ~(pagesize - 1);
+					Elf32_Word mps = ((ppnt->p_vaddr + app_tpnt->loadaddr) - mpa) + ppnt->p_memsz;
+					if(_dl_mprotect(mpa, mps, PROT_READ | PROT_WRITE | PROT_EXEC)) {
+						SEND_STDERR("Couldn't mprotect .dynamic segment to rwx.\n");
+						_dl_exit(0);
+					}
+					dpnt->d_un.d_val = (unsigned long) debug_addr;
+				}
+#else
+				if (dpnt->d_tag > DT_JMPREL) {
+						dpnt++;
+						continue;
+				}
+				app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
+				if (dpnt->d_tag == DT_DEBUG) {
+					dpnt->d_un.d_val = (unsigned long) debug_addr;
+				}
+#endif
+				if (dpnt->d_tag == DT_TEXTREL)
+					app_tpnt->dynamic_info[DT_TEXTREL] = 1;
+				dpnt++;
+			}
+#ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
+			/* Ugly, ugly.  We need to call mprotect to change the protection of
+			   the text pages so that we can do the dynamic linking.  We can set the
+			   protection back again once we are done */
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+			SEND_STDERR("calling mprotect on the application program\n");
+#endif
+			/* Now cover the application program. */
+			if (app_tpnt->dynamic_info[DT_TEXTREL]) {
+				ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
+				for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
+					if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
+						_dl_mprotect((void *) ((ppnt->p_vaddr + app_tpnt->loadaddr) & PAGE_ALIGN),
+							     ((ppnt->p_vaddr + app_tpnt->loadaddr) & ADDR_ALIGN) +
+							     (unsigned long) ppnt->p_filesz,
+							     PROT_READ | PROT_WRITE | PROT_EXEC);
+				}
+			}
+#endif
+
 #ifndef ALLOW_ZERO_PLTGOT
 			/* make sure it's really there. */
 			if (app_tpnt->dynamic_info[DT_PLTGOT] == 0)
