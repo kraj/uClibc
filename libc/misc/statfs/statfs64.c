@@ -19,23 +19,24 @@
 
 #include <features.h>
 
-#ifdef __UCLIBC_HAVE_LFS__
-
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
 #undef _FILE_OFFSET_BITS
 #define	_FILE_OFFSET_BITS   64
 #endif
-#ifndef __USE_FILE_OFFSET64
-# define __USE_FILE_OFFSET64	1
-#endif
 #ifndef __USE_LARGEFILE64
 # define __USE_LARGEFILE64	1
 #endif
+/* We absolutely do _NOT_ want interfaces silently
+ * renamed under us or very bad things will happen... */
+#ifdef __USE_FILE_OFFSET64
+# undef __USE_FILE_OFFSET64
+#endif
 
-#include <errno.h>
 #include <string.h>
-#include <sys/statfs.h>
 #include <stddef.h>
+#include <sys/statfs.h>
+
+#if defined __UCLIBC_HAVE_LFS__
 
 /* Return information about the filesystem on which FILE resides.  */
 int statfs64 (const char *file, struct statfs64 *buf)
