@@ -20,7 +20,7 @@ echo "    partial linking..."
 rm -f libc.ldr
 $LD $LDFLAGS -r -o libc.ldr $CRTOBJS --whole-archive ../libc.a
 
-if $NM --undefined-only libc.ldr 2>&1 | grep -v "^main$" | grep -v "^_GLOBAL_OFFSET_TABLE_$" | grep -v "_gp_disp" | grep -v "^etext$" | grep -v "^__gmon_start__$" > sym.need ; then
+if $NM --undefined-only libc.ldr 2>&1 | grep -v "main$" | grep -v "_GLOBAL_OFFSET_TABLE_$" | grep -v "_gp_disp" | grep -v "^etext$" | grep -v "^__gmon_start__$" > sym.need ; then
     EXIT_WITH_ERROR=0
     rm -f obj.need
     touch obj.need
