@@ -168,7 +168,7 @@ BUILD_UCLIBC_LDSO = true
 # BIG FAT WARNING:  
 # If you do not have a shared library loader with the correct name
 # sitting in the directory this points to, your binaries will not run.
-SHARED_LIB_LOADER_PATH = $(DEVEL_PREFIX)/lib
+SHARED_LIB_LOADER_PATH = /lib
 
 # DEVEL_PREFIX is the directory into which the uClibc development
 # environment will be installed.   The result will look something 
@@ -198,5 +198,4 @@ DEVEL_TOOL_PREFIX = $(DEVEL_PREFIX)/usr
 # If you want 'make install' to install everything under a temporary
 # directory, the define PREFIX during the install step,
 # i.e., 'make PREFIX=/var/tmp/uClibc install'.
-#PREFIX = $(TOPDIR)/_install
-
+PREFIX = $(TOPDIR)/_install

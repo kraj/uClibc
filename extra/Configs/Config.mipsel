@@ -54,7 +54,7 @@ WARNINGS = -Wall
 # can't do that. Similarly, if you compile uClibc vs Linux 2.4.x kernel headers,
 # but then run on Linux 2.0.x, lchown will be compiled into uClibc, but won't
 # work at all.  You have been warned.
-KERNEL_SOURCE = /opt/brcm/settop
+KERNEL_SOURCE = /usr/src/linux
 
 # Set this to `false' if your CPU doesn't have a memory management unit (MMU).
 # Set it to `true' otherwise.
@@ -198,5 +198,4 @@ DEVEL_TOOL_PREFIX = $(DEVEL_PREFIX)/usr
 # If you want 'make install' to install everything under a temporary
 # directory, the define PREFIX during the install step,
 # i.e., 'make PREFIX=/var/tmp/uClibc install'.
-#PREFIX = $(TOPDIR)/_install
-
+PREFIX = $(TOPDIR)/_install
