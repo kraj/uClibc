@@ -29,14 +29,16 @@ LIBC=$(TOPDIR)libc.a
 CSRC =closedir.c dirfd.c getdents.c getdnnm.c gethstnm.c getpagesize.c \
 	isatty.c kernel_version.c mkfifo.c opendir.c readdir.c rewinddir.c \
 	seekdir.c setegid.c seteuid.c setpgrp.c statfix.c tell.c telldir.c \
-	wait.c wait3.c _xmknod.c _fxstat.c _lxstat.c _xstat.c libc_init.c tcgetatr.c
+	wait.c wait3.c _xmknod.c libc_init.c tcgetatr.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
+NISRC= _fxstat.c _lxstat.c _xstat.c
+NIOBJS=$(patsubst %.c,%.o, $(NISRC))
 
 MSRC=syscalls.c
 MOBJ=$(shell ./list_syscalls.sh)
 
-OBJ=$(COBJS) $(MOBJ)
+OBJ=$(COBJS) $(NIOBJS) $(MOBJ)
 
 all: $(OBJ) $(LIBC)
 
@@ -51,6 +53,10 @@ $(MOBJ): $(MSRC)
 
 $(COBJS):
 	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(NIOBJS):
+	$(CC) $(CFLAGS) $< -c $*.c -o $*.o -fno-inline
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

@@ -17,10 +17,91 @@
  * -RDB
  */
 
+/*
+ *                    Manuel Novoa III   Dec 2000
+ *
+ * The previous vfprintf routine was almost completely rewritten with the
+ * goal of fixing some shortcomings and reducing object size.
+ *
+ * The summary of changes:
+ *
+ * Converted print conversion specification parsing from one big switch
+ *   to a method using string tables.  This new method verifies that the
+ *   conversion flags, field width, precision, qualifier, and specifier
+ *   appear in the correct order.  Many questionable specifications were
+ *   accepted by the previous code.  This new method also resulted in a
+ *   substantial reduction in object size of about 330 bytes (20%) from
+ *   the old version (1627 bytes) on i386, even with the following
+ *   improvements.
+ *
+ *     Implemented %n specifier as required by the standards.
+ *     Implemented proper handling of precision for int types.
+ *     Implemented # for hex and pointer, fixed error for octal rep of 0.
+ *     Implemented return of -1 on stream error.
+ *
+ * Added optional support for the GNU extension %m which prints the string
+ *   corresponding the errno.
+ *
+ * Added optional support for long long ints and unsigned long long ints
+ *   using the conversion qualifiers "ll", "L", or "q" (like glibc).
+ *
+ * Added optional support for doubles in a very limited form.  None of
+ *   the formating options are obeyed.  The string returned by __dtostr
+ *   is printed directly.
+ *
+ * Converted to use my (un)signed long (long) to string routines, which are
+ * smaller than the previous functions and don't require static buffers.
+ *
+ */
+
+/*****************************************************************************/
+/*                            OPTIONS                                        */
+/*****************************************************************************/
+/* The optional support for long longs and doubles comes in two forms.
+ *
+ *   1) Normal (or partial for doubles) output support.  Set to 1 to turn on.
+ *      Adds about 54 byes and about 217 bytes for long longss to the base size
+ *      of 1298.  (Bizarre: both turned on is smaller than WANT_LONG_LONG only.)
+ */
+
+#define WANT_LONG_LONG         0
+#define WANT_DOUBLE            0
+
+/*   2) An error message is inserted into the stream, an arg of the
+ *      appropriate size is removed from the arglist, and processing
+ *      continues.  This is adds less code and may be useful in some
+ *      cases.  Set to 1 to turn on.  Adds about 31 bytes for doubles
+ *      and about 54 bytes for long longs to the base size of 1298.
+ */
+
+#define WANT_LONG_LONG_ERROR   0
+#define WANT_DOUBLE_ERROR      0
+
+/*
+ * Set to support GNU extension of %m to print string corresponding to errno.
+ *
+ * Warning: This adds about 50 bytes (i386) to the code but it also pulls in
+ * strerror and the corresponding string table which together are about 3.8k.
+ */
+
+#define WANT_GNU_ERRNO         0
+
+/*
+ * Use fputc instead of macro putc.  Slower but saves about 36 bytes.
+ */
+
+#define WANT_FPUTC             0
+
+/**************************************************************************/
+
 #include <sys/types.h>
 #include <fcntl.h>
 #include <string.h>
 #include <stdlib.h>
+
+#if WANT_GNU_ERRNO
+#include <errno.h>
+#endif
 
 #ifdef __STDC__
 #include <stdarg.h>
@@ -32,12 +113,14 @@
 
 #include "stdio.h"
 
+#if WANT_FPUTC
+#undef putc
+#define putc(c,s) fputc(c,s)
+#endif
 
 
 extern int vfnprintf(FILE * op, size_t max_size,
 					 register __const char *fmt, register va_list ap);
-
-
 
 
 #ifdef L_printf
@@ -150,93 +233,64 @@ int vsnprintf(char *sp, size_t size, __const char *fmt, va_list ap)
 
 #ifdef L_vfprintf
 
-#if FLOATS
-int _vfprintf_fp_ref = 1;
+extern char *__ultostr(char *buf, unsigned long uval, int base, int uppercase);
+extern char *__ltostr(char *buf, long val, int base, int uppercase);
+extern char *__ulltostr(char *buf, unsigned long long uval, int base, int uppercase);
+extern char *__lltostr(char *buf, long long val, int base, int uppercase);
+extern char *__dtostr(char *buf, double x);
+
+enum {
+	FLAG_PLUS = 0,
+	FLAG_MINUS_LJUSTIFY,
+	FLAG_HASH,
+	FLAG_0_PAD,
+	FLAG_SPACE,
+};
+
+/* layout                   01234  */
+static const char spec[] = "+-#0 ";
+
+#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
+static const char qual[] = "hlLq";
 #else
-int _vfprintf_fp_ref = 0;
+static const char qual[] = "hl";
 #endif
 
-static int
-printfield(op, buf, ljustf, sign, pad, width, preci, buffer_mode, max_size,
-		   current_size)
-register FILE *op;
-register unsigned char *buf;
-int ljustf;
-register char sign;
-char pad;
-register int width;
-int preci;
-int buffer_mode;
-size_t max_size;
-size_t current_size;
+#if !WANT_LONG_LONG && WANT_LONG_LONG_ERROR
+static const char ll_err[] = "<LONG-LONG>";
+#endif
 
-/*
- * Output the given field in the manner specified by the arguments. Return
- * the number of characters output.
- */
+#if !WANT_DOUBLE && WANT_DOUBLE_ERROR
+static const char dbl_err[] = "<DOUBLE>";
+#endif
+
+#if WANT_DOUBLE || WANT_DOUBLE_ERROR
+/* layout                     012345678901234567   */
+static const char u_spec[] = "%nbopxXudicsfgGeEaA";
+#else
+/* layout                     0123456789012   */
+static const char u_spec[] = "%nbopxXudics0";
+#endif
+
+/* WARNING: u_spec and u_radix need to stay in agreement!!! */
+/* u_radix[i] <-> u_spec[i+2] for unsigned entries only */
+static const char u_radix[] = "\x02\x08\x10\x10\x10\x0a";
+
+int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 {
-	register int cnt = 0, len;
-	register unsigned char ch;
-
-	len = strlen(buf);
-
-	if (*buf == '-')
-		sign = *buf++;
-	else if (sign)
-		len++;
-
-	if ((preci != -1) && (len > preci))	/* limit max data width */
-		len = preci;
-
-	if (width < len)			/* flexible field width or width overflow */
-		width = len;
-
-	/*
-	 * at this point: width = total field width len   = actual data width
-	 * (including possible sign character)
-	 */
-	cnt = width;
-	width -= len;
-
-	while (width || len) {
-		if (!ljustf && width) {	/* left padding */
-			if (len && sign && (pad == '0'))
-				goto showsign;
-			ch = pad;
-			--width;
-		} else if (len) {
-			if (sign) {
-			  showsign:ch = sign;
-								/* sign */
-				sign = '\0';
-			} else
-				ch = *buf++;	/* main field */
-			--len;
-		} else {
-			ch = pad;			/* right padding */
-			--width;
-		}
-		current_size++;
-		if (max_size > 0 && current_size < max_size)
-			putc(ch, op);
-		if (ch == '\n' && buffer_mode == _IOLBF)
-			fflush(op);
-	}
-
-	return (cnt);
-}
-
-
-
-int vfnprintf(FILE * op, size_t max_size, register __const char *fmt,
-			  register va_list ap)
-{
-	register int i, cnt = 0, ljustf, lval;
-	int preci, dpoint, width;
-	char pad, sign, radix, hash;
-	register char *ptmp;
-	char tmp[64], *ltostr(), *ultostr();
+	int i, cnt = 0, lval;
+	char *p;
+	const char *fmt0;
 	int buffer_mode;
+	int preci, width;
+#define upcase i
+	int radix, dpoint /*, upcase*/;
+#if WANT_LONG_LONG
+	char tmp[65];
+#else
+	char tmp[33];
+#endif
+	char flag[sizeof(spec)];
 
 	/* This speeds things up a bit for unbuffered */
 	buffer_mode = (op->mode & __MODE_BUF);
@@ -244,172 +298,296 @@ int vfnprintf(FILE * op, size_t max_size, register __const char *fmt,
 
 	while (*fmt) {
 		if (*fmt == '%') {
-			if (buffer_mode == _IONBF)
+			fmt0 = fmt;			/* save our position in case of bad format */
+			++fmt;
+			if (buffer_mode == _IONBF) {
 				fflush(op);
-			ljustf = 0;			/* left justify flag */
-			sign = '\0';		/* sign char & status */
-			pad = ' ';			/* justification padding char */
+			}
 			width = -1;			/* min field width */
-			dpoint = 0;			/* found decimal point */
-			preci = -1;			/* max data width */
+			preci = -5;			/* max string width or mininum digits */
 			radix = 10;			/* number base */
-			ptmp = tmp;			/* pointer to area to print */
-			hash = 0;
+			dpoint = 0;			/* found decimal point */
 			lval = (sizeof(int) == sizeof(long));	/* long value flaged */
 
-		  fmtnxt:
-			i = 0;
-			for (;;) {
-				++fmt;
-				if (*fmt < '0' || *fmt > '9')
-					break;
-				i = (i * 10) + (*fmt - '0');
-				if (dpoint)
-					preci = i;
-				else if (!i && (pad == ' ')) {
-					pad = '0';
-					goto fmtnxt;
-				} else
-					width = i;
+			tmp[1] = 0;			/* set things up for %c -- better done here */
+
+			/* init flags */
+			for (p =(char *) spec ; *p ; p++) {
+				flag[p-spec] = '\0';
+			}
+			flag[FLAG_0_PAD] = ' ';
+
+			/* process optional flags */
+			for (p = (char *)spec ; *p ; p++) {
+				if (*fmt == *p) {
+					flag[p-spec] = *fmt++;
+					p = (char *)spec; /* restart scan */
+				}
+			}
+			
+			if (!flag[FLAG_PLUS]) {
+				flag[FLAG_PLUS] = flag[FLAG_SPACE];
 			}
 
-			switch (*fmt) {
-			case '\0':			/* early EOS */
-				--fmt;
-				goto charout;
-
-			case '-':			/* left justification */
-				ljustf = 1;
-				goto fmtnxt;
-
-			case ' ':
-			case '+':			/* leading sign flag */
-				sign = *fmt;
-				goto fmtnxt;
-
-			case '*':			/* parameter width value */
-				i = va_arg(ap, int);
-
-				if (dpoint)
-					preci = i;
-				else
-					width = i;
-				goto fmtnxt;
-
-			case '.':			/* secondary width field */
-				dpoint = 1;
-				goto fmtnxt;
-
-			case 'l':			/* long data */
-				lval = 1;
-				goto fmtnxt;
-
-			case 'h':			/* short data */
-				lval = 0;
-				goto fmtnxt;
-
-			case 'd':			/* Signed decimal */
-			case 'i':
-				ptmp = ltostr((long) ((lval)
-									  ? va_arg(ap, long)
-									  : va_arg(ap, short)), 10, 0);
-
-				goto printit;
-
-			case 'b':			/* Unsigned binary */
-				radix = 2;
-				goto usproc;
-
-			case 'o':			/* Unsigned octal */
-				radix = 8;
-				goto usproc;
-
-			case 'p':			/* Pointer */
-				lval = (sizeof(char *) == sizeof(long));
-
-				pad = '0';
-				width = 6;
-				preci = 8;
-				/* fall thru */
-
-			case 'x':			/* Unsigned hexadecimal */
-			case 'X':
-				radix = 16;
-				/* fall thru */
-
-			case 'u':			/* Unsigned decimal */
-			  usproc:
-				ptmp = ultostr((unsigned long) ((lval)
-												? va_arg(ap, unsigned long)
-												: va_arg(ap,
-														 unsigned short)),
-							   radix, (*fmt == 'X') ? 1 : 0);
-
-				if (hash && radix == 8) {
-					width = strlen(ptmp) + 1;
-					pad = '0';
+			/* process optional width and precision */
+			do {
+				if (*fmt == '.') {
+					++fmt;
+					dpoint = 1;
 				}
-				goto printit;
+				if (*fmt == '*') {	/* parameter width value */
+					++fmt;
+					i = va_arg(ap, int);
+				} else {
+					for ( i = 0 ; (*fmt >= '0') && (*fmt <= '9') ; ++fmt ) {
+						i = (i * 10) + (*fmt - '0');
+					}
+				}
 
-			case '#':
-				hash = 1;
-				goto fmtnxt;
+				if (dpoint) {
+					preci = i;
+					if (i<0) {
+						preci = 0;
+					}
+				} else {
+					width = i;
+					if (i<0) {
+						width = -i;
+						flag[FLAG_MINUS_LJUSTIFY] = 1;
+					}
+				}
+			} while ((*fmt == '.') && !dpoint );
 
-			case 'c':			/* Character */
-				ptmp[0] = va_arg(ap, int);
+			/* process optional qualifier */
+			for (p = (char *) qual ; *p ; p++) {
+				if (*p == *fmt) {
+					lval = p - qual;
+					++fmt;
+#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
+					if ((*p == 'l') && (*fmt == *p)) {
+						++lval;
+						++fmt;
+					}
+#endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
+				}
+			}
 
-				ptmp[1] = '\0';
-				goto nopad;
-
-			case 's':			/* String */
-				ptmp = va_arg(ap, char *);
-
-			  nopad:
-				sign = '\0';
-				pad = ' ';
-			  printit:
-				cnt += printfield(op, ptmp, ljustf, sign, pad, width,
-								  preci, buffer_mode, max_size, cnt);
-				break;
-
-#if FLOATS
-			case 'e':			/* float */
-			case 'f':
-			case 'g':
-			case 'E':
-			case 'G':
-				fprintf(stderr, "LIBM:PRINTF");
-				gcvt(va_arg(ap, double), preci, ptmp);
-
-				preci = -1;
-				goto printit;
-#else
-			case 'e':			/* float */
-			case 'f':
-			case 'g':
-			case 'E':
-			case 'G':
-				fprintf(stderr, "LIBC:PRINTF");
-				exit(-1);
+#if WANT_GNU_ERRNO
+			if (*fmt == 'm') {
+				flag[FLAG_PLUS] = '\0';
+				flag[FLAG_0_PAD] = ' ';
+				p = strerror(errno);
+				goto print;
+			}
 #endif
 
-			default:			/* unknown character */
-				goto charout;
+			/* process format specifier */
+			for (p = (char *) u_spec ; *p ; p++) {
+				if (*fmt != *p) continue;
+				if (p-u_spec < 1) {	/* print a % */
+					goto charout;
+				}
+				if (p-u_spec < 2) {	/* store output count in int ptr */
+					*(va_arg(ap, int *)) = cnt;
+					goto nextfmt;
+				}
+				if (p-u_spec < 8) { /* unsigned conversion */
+					radix = u_radix[p-u_spec-2];
+					upcase = ((int)'x') - *p;
+					if (*p == 'p') {
+						lval = (sizeof(char *) == sizeof(long));
+						upcase = 0;
+					}
+#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
+					if (lval >= 2) {
+#if WANT_LONG_LONG
+						p = __ulltostr(tmp + sizeof(tmp) - 1,
+									   va_arg(ap, unsigned long long),
+									   radix, upcase);
+#else
+						(void) va_arg(ap, unsigned long long);	/* cary on */
+						p = (char *) ll_err;
+#endif /* WANT_LONG_LONG */
+					} else {
+#endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
+						p = __ultostr(tmp + sizeof(tmp) - 1, (unsigned long)
+									  ((lval)
+									   ? va_arg(ap, unsigned long)
+									   : va_arg(ap, unsigned short)),
+									  radix, upcase);
+#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
+					}
+#endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
+					flag[FLAG_PLUS] = '\0';	/* meaningless for unsigned */
+					if (flag[FLAG_HASH]) {
+						switch (radix) {
+							case 16:
+								flag[FLAG_PLUS] = '0';
+								*--p = 'x';
+								if (*fmt == 'X') {
+									*p = 'X';
+								}
+								break;
+							case 8:
+								if (*p != '0') { /* if not zero */
+									*--p = '0';	/* add leadding zero */
+								}
+						}
+					}
+				} else if (p-u_spec < 10) { /* signed conversion */
+#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
+					if (lval >= 2) {
+#if WANT_LONG_LONG
+						p = __lltostr(tmp + sizeof(tmp) - 1,
+									  va_arg(ap, long long), 10, 0);
+#else
+						(void) va_arg(ap, long long); /* carry on */
+						p = (char *) ll_err;
+#endif /* WANT_LONG_LONG */
+					} else {
+#endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
+						p = __ltostr(tmp + sizeof(tmp) - 1, (long)
+									 ((lval)
+									  ? va_arg(ap, long)
+									  : va_arg(ap, short)), 10, 0);
+#if WANT_LONG_LONG || WANT_LONG_LONG_ERROR
+					}
+#endif /* WANT_LONG_LONG || WANT_LONG_LONG_ERROR */
+				} else if (p-u_spec < 12) {	/* character or string */
+					flag[FLAG_PLUS] = '\0';
+					flag[FLAG_0_PAD] = ' ';
+					if (*p == 'c') {	/* character */
+						p = tmp;
+						*p = va_arg(ap, int);
+					} else {	/* string */
+						p = va_arg(ap, char *);
+					}
+#if WANT_DOUBLE || WANT_DOUBLE_ERROR
+				} else if (p-u_spec < 27) {		/* floating point */
+#endif /* WANT_DOUBLE || WANT_DOUBLE_ERROR */
+#if WANT_DOUBLE
+					p = __dtostr(tmp + sizeof(tmp) - 1, va_arg(ap, double));
+#elif WANT_DOUBLE_ERROR
+					(void) va_arg(ap,double); /* carry on */
+					p = (char *) dbl_err;
+#endif /* WANT_DOUBLE */
+				}
+
+#if WANT_GNU_ERRNO
+			print:
+#endif
+				{				/* this used to be printfield */
+					int len;
+
+					/* cheaper than strlen call */
+					for ( len = 0 ; p[len] ; len++ ) { }
+
+					if ((*p == '-')
+#if WANT_GNU_ERRNO
+						&& (*fmt != 'm')
+#endif
+						&& (*fmt != 's')) {
+						flag[FLAG_PLUS] = *p++;
+						--len;
+					}
+				    if (flag[FLAG_PLUS]) {
+						++len;
+						++preci;
+						if (flag[FLAG_PLUS] == '0') { /* base 16 */
+							++preci; /* account for x or X */
+						}
+					}
+
+					if (preci >= 0) {
+						if ((*fmt == 's')
+#if WANT_GNU_ERRNO
+						|| (*fmt == 'm')
+#endif
+						) {
+							len = preci;
+						}
+						preci -= len;
+						if (preci < 0) {
+							preci = 0;
+						}
+						width -= preci;
+					}
+
+					width -= len;
+					if (width < 0) {
+						width = 0;
+					}
+
+					if (preci < 0) {
+						preci = 0;
+						if (flag[FLAG_PLUS]
+							&& !flag[FLAG_MINUS_LJUSTIFY]
+							&& (flag[FLAG_0_PAD] == '0')) { 
+							preci = width;
+							width = 0;
+						}
+					}
+
+					while (width + len + preci) {
+						unsigned char ch;
+						/* right padding || left padding */
+						if ((!len && !preci)
+							|| (width && !flag[FLAG_MINUS_LJUSTIFY])) {
+							ch = ' ';
+							--width;
+						} else if (flag[FLAG_PLUS]) {
+							ch = flag[FLAG_PLUS]; /* sign */
+							if (flag[FLAG_PLUS]=='0') {	/* base 16 case */
+								flag[FLAG_PLUS] = *p++;	/* get the x|X */
+							} else {
+								flag[FLAG_PLUS] = '\0';
+							}
+							--len;
+						} else if (preci) {
+							ch = '0';
+							--preci;
+						} else {
+							ch = *p++;	/* main field */
+							--len;
+						}
+
+						if (++cnt < max_size) {
+							putc(ch, op);
+						}
+						if ((ch == '\n') && (buffer_mode == _IOLBF)) {
+							fflush(op);
+						}
+					}
+				}
+				goto nextfmt;
 			}
-		} else {
-		  charout:
-			if (max_size > 0 && ++cnt < max_size)
-				putc(*fmt, op);	/* normal char out */
-			if (*fmt == '\n' && buffer_mode == _IOLBF)
-				fflush(op);
+
+			fmt = fmt0;	/* this was an illegal format */
 		}
+
+		charout:
+		if (++cnt < max_size) {
+			putc(*fmt, op);	/* normal char out */
+		}
+		if ((*fmt == '\n') && (buffer_mode == _IOLBF)) {
+			fflush(op);
+		}
+
+	nextfmt:
 		++fmt;
 	}
+
 	op->mode |= buffer_mode;
-	if (buffer_mode == _IONBF)
+	if (buffer_mode == _IONBF) {
 		fflush(op);
-	if (buffer_mode == _IOLBF)
+	}
+	if (buffer_mode == _IOLBF) {
 		op->bufwrite = op->bufstart;
+	}
+
+	if (ferror(op)) {
+		cnt = -1;
+	}
 	return (cnt);
 }
 

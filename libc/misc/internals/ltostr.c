@@ -1,52 +1,39 @@
-/* Copyright (C) 1995,1996 Robert de Bath <rdebath@cix.compulink.co.uk>
- * This file is part of the Linux-8086 C library and is distributed
- * under the GNU Library General Public License.
+/*
+ * Copyright (C) 2000 Manuel Novoa III
+ *
+ * Note: buf is a pointer to the END of the buffer passed.
+ * Call like this:
+ *     char buf[SIZE], *p;
+ *     p = __ltostr(buf + sizeof(buf) - 1, ...)
+ *
+ * For longs of 32 bits, appropriate buffer sizes are:
+ *     base =  2      34  = 1 (possible -) sign + 32 digits + 1 nul
+ *     base = 10      12  = 1 (possible -) sign + 10 digits + 1 nul
+ *     base = 16      10  = 1 (possible -) sign + 8 hex digits + 1 nul
  */
 
-static char buf[34];
+extern char *__ultostr(char *buf, unsigned long uval, int base, int uppercase);
 
-extern char *ultostr();
-
-char *ltostr(val, radix, uppercase)
-long val;
-int radix;
-int uppercase;
+char *__ltostr(char *buf, long val, int base, int uppercase)
 {
-	char *p;
-	int flg = 0;
+	unsigned long uval;
+	char *pos;
+    int negative;
 
-	if (val < 0) {
-		flg++;
-		val = -val;
+	negative = 0;
+    if (val < 0) {
+		negative = 1;
+		uval = ((unsigned long)(-(1+val))) + 1;
+    } else {
+		uval = val;
 	}
-	p = ultostr(val, radix, uppercase);
-	if (p && flg)
-		*--p = '-';
-	return p;
-}
 
-char *ultostr(val, radix, uppercase)
-unsigned long val;
-int radix;
-int uppercase;
-{
-	register char *p;
-	register int c;
 
-	if (radix > 36 || radix < 2)
-		return 0;
+    pos = __ultostr(buf, uval, base, uppercase);
 
-	p = buf + sizeof(buf);
-	*--p = '\0';
+    if (pos && negative) {
+		*--pos = '-';
+    }
 
-	do {
-		c = val % radix;
-		val /= radix;
-		if (c > 9)
-			*--p = (uppercase ? 'A' : 'a') - 10 + c;
-		else
-			*--p = '0' + c;
-	}
-	while (val);
-	return p;
+    return pos;
 }

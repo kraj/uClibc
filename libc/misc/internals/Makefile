@@ -24,7 +24,7 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-CSRC=itoa.c ltoa.c ltostr.c
+CSRC=ultostr.c ltostr.c ulltostr.c lltostr.c zoicheck.c dtostr.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 

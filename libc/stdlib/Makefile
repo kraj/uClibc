@@ -26,13 +26,15 @@ LIBC=$(TOPDIR)libc.a
 
 DIRS = $(MALLOC)
 
+MSRC=strto_l.c
+MOBJ=strtol.o strtoul.o strto_l.o
 
 MSRC2=atexit.c
 MOBJ2=on_exit.o atexit.o __do_exit.o exit.o
 
 
-CSRC =	abort.c getenv.c  mktemp.c  qsort.c  realpath.c strtod.c strtoul.c \
-	abs.c   bsearch.c mkstemp.c putenv.c rand.c setenv.c strtol.c system.c
+CSRC =	abort.c getenv.c  mktemp.c  qsort.c  realpath.c strtod.c \
+	abs.c   bsearch.c mkstemp.c putenv.c rand.c setenv.c  system.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 

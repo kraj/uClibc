@@ -3,6 +3,15 @@
  * under the GNU Library General Public License.
  */
 
+/*
+ * Manuel Novoa III       Dec 2000
+ *
+ * Converted to use my new (un)signed long (long) to string routines, which
+ * are smaller than the previous functions and don't require static buffers.
+ * In the process, removed the reference to strcat and cut object size of
+ * inet_ntoa in half (from 190 bytes down to 94).
+ */
+
 #include <string.h>
 #include <ctype.h>
 #include <netinet/in.h>
@@ -63,22 +72,35 @@ const char *cp;
 
 #ifdef L_inet_ntoa
 
-extern char *itoa(int);
+#include <limits.h>
+
+#if (ULONG_MAX >> 32)
+/* We're set up for 32 bit unsigned longs */
+#error need to check size allocation for static buffer 'buf'
+#endif
+
+extern char *__ultostr(char *buf, unsigned long uval, int base, int uppercase);
 
 char *inet_ntoa(in)
 struct in_addr in;
 {
-	static char buf[18];
+	static char buf[16];		/* max 12 digits + 3 '.'s + 1 nul */
+
 	unsigned long addr = ntohl(in.s_addr);
+	int i;
+	char *p, *q;
+   
+	q = 0;
+	p = buf + sizeof(buf) - 1;
+	for (i=0 ; i < 4 ; i++ ) {
+		p = __ultostr(p, addr & 0xff, 10, 0 ) - 1;
+		addr >>= 8;
+		if (q) {
+			*q = '.';
+		}
+		q = p;
+	}
 
-	strcpy(buf, itoa((addr >> 24) & 0xff));
-	strcat(buf, ".");
-	strcat(buf, itoa((addr >> 16) & 0xff));
-	strcat(buf, ".");
-	strcat(buf, itoa((addr >> 8) & 0xff));
-	strcat(buf, ".");
-	strcat(buf, itoa(addr & 0xff));
-
-	return buf;
+	return p+1;
 }
 #endif

@@ -28,6 +28,11 @@ typedef struct {
 #define M_SQRT1_2	0.70710678118654752440	/* 1/sqrt(2) */
 
 
+#if 1
+extern double sin(double);
+extern double cos(double);
+extern double sqrt(double);
+#else
 extern float acos ( float x );
 extern float acosh ( float xx );
 extern int airy ( float xx, float *ai, float *aip, float *bi, float *bip );
@@ -168,3 +173,4 @@ extern float yn ( int nn, float xx );
 extern float yv ( float vv, float xx );
 extern float zetac ( float xx );
 extern float zeta ( float xx, float qq );
+#endif

@@ -46,8 +46,8 @@ typedef __compar_fn_t comparison_fn_t;
 extern long strtol __P ((const char * nptr, char ** endptr, int base));
 extern unsigned long strtoul __P ((const char * nptr, char ** endptr, int base));
 #ifndef __HAS_NO_FLOATS__
-extern char * gcvt __P ((float number, size_t ndigit, char * buf));
-extern float strtod __P ((const char * nptr, char ** endptr));
+/*TODO: extern char * gcvt __P ((double number, size_t ndigit, char * buf)); */
+extern double strtod __P ((const char * nptr, char ** endptr));
 #endif
 
 
