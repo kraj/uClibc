@@ -10,15 +10,18 @@
 #undef uClibc_syscall_exit
 #define uClibc_syscall_exit(type,name,type1,arg1) \
 __asm__ ( \
-".text\n.align 4\n.global "###name"\n"#name":;\npushl %ebp;\n" \
+".text\n.align 4\n.global "###name"\n.type "###name",@function\n" \
+#name":;\npushl %ebp;\n" \
 "movl %esp,%ebp;\nsubl $4,%esp;\npushl %ebx;\nmovl 8(%ebp),%ebx;\n" \
-"jmp _start_exit" \
+"jmp _start_exit\n.Lfe1"###name":\n.size "###name",.Lfe1"###name"-"###name \
 )
 
 #define unified_syscall_body(name) \
 __asm__ ( \
-".text\n.align 4\n.global "###name"\n"#name":\nmovb $"__STR_NR_##name \
-",%al;\n jmp __uClibc_syscall" \
+".text\n.align 4\n.global "###name"\n.type "###name",@function\n" \
+#name":\nmovb $"__STR_NR_##name \
+",%al;\n jmp __uClibc_syscall\n.Lfe1"###name":\n.size "###name \
+",.Lfe1"###name"-"###name \
 )
 
 #define _syscall0(type,name) \
