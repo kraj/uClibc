@@ -1862,16 +1862,7 @@ int query_module(const char *name, int which,
 #endif
 
 //#define __NR_poll                     168
-#ifdef L_poll
-#ifdef __NR_poll
-#include <sys/poll.h>
-_syscall3(int, poll, struct pollfd *, fds, unsigned long int, nfds, int,
-		  timeout);
-#else
-/* uClinux 2.0 doesn't have poll, emulate it using select */
-#include "poll.c"
-#endif
-#endif
+// See poll.c
 
 //#define __NR_nfsservctl               169
 //nfsservctl    EXTRA   nfsservctl  i:ipp   nfsservctl

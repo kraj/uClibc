@@ -17,6 +17,14 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#ifdef __NR_poll
+
+#include "syscalls.h"
+#include <sys/poll.h>
+_syscall3(int, poll, struct pollfd *, fds,
+	unsigned long int, nfds, int, timeout);
+#else
+
 #include <alloca.h>
 #include <sys/poll.h>
 #include <sys/types.h>
@@ -25,6 +33,8 @@
 #include <sys/time.h>
 #include <sys/param.h>
 #include <unistd.h>
+
+/* uClinux 2.0 doesn't have poll, emulate it using select */
 
 /* Poll the file descriptors described by the NFDS structures starting at
    FDS.  If TIMEOUT is nonzero and not -1, allow TIMEOUT milliseconds for
@@ -189,4 +199,6 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 
     return ready;
 }
+
+#endif
 
