@@ -206,26 +206,15 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				if (dpnt->d_tag == DT_MIPS_SYMTABNO)
 					app_tpnt->mips_symtabno =
 						(unsigned long) dpnt->d_un.d_val;
+				/* Remember... DT_MIPS_RLD_MAP > DT_JMPREL. */
+				if (dpnt->d_tag == DT_MIPS_RLD_MAP) {
+					*(ElfW(Addr) *)(dpnt->d_un.d_ptr) =  (ElfW(Addr)) debug_addr;
+				}
 				if (dpnt->d_tag > DT_JMPREL) {
 					dpnt++;
 					continue;
 				}
 				app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-
-				if (dpnt->d_tag == DT_DEBUG) {
-					/* Allow writing debug_addr into the
-					 * .dynamic segment.  Even though the
-					 * program header is marked RWE, the
-					 * kernel gives it to us rx.
-					 */
-					Elf32_Addr mpa = (ppnt->p_vaddr + app_tpnt->loadaddr) & ~(_dl_pagesize - 1);
-					Elf32_Word mps = ((ppnt->p_vaddr + app_tpnt->loadaddr) - mpa) + ppnt->p_memsz;
-					if (_dl_mprotect((void *)mpa, mps, PROT_READ | PROT_WRITE | PROT_EXEC)) {
-						SEND_STDERR("Couldn't mprotect .dynamic segment to rwx.\n");
-						_dl_exit(0);
-					}
-					dpnt->d_un.d_val = (unsigned long) debug_addr;
-				}
 #else
 				if (dpnt->d_tag > DT_JMPREL) {
 						dpnt++;
