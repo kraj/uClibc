@@ -307,8 +307,6 @@ int main( int argc, char** argv)
 	Elf32_Shdr *dynsec;
 	Elf32_Dyn *dynamic;
 
-        fprintf (stderr," argc:%d argv:'%s' '%s'\n",argc, argv[0], argv[1]);
-
 	if (argc < 2 || !thefilename) {
 		fprintf(stderr, "No filename specified.\n");
 		exit(EXIT_FAILURE);
