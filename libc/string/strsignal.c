@@ -8,7 +8,7 @@
 #include <malloc.h>
 #include <signal.h>
 
-const char *const sys_siglist[NSIG] = {
+const char *const sys_siglist[] = {
 	"Unknown signal",
 	"Hangup",
 	"Interrupt",
@@ -32,20 +32,21 @@ const char *const sys_siglist[NSIG] = {
 	"Stopped",
 	"Stopped (tty input)",
 	"Stopped (tty output)",
-	"Possible I/O",
+	"Urgent condition",
 	"CPU time limit exceeded",
 	"File size limit exceeded",
 	"Virtual time alarm",
 	"Profile signal",
 	"Window size changed",
-	"File lock lost",
+	"Possible I/O",
 	"Power failure",
-	"Unused signal"
+	"Unused signal",
+	NULL
 };
 
 /********************** Function strsignal ************************************/
 
-char *strsignal (int sig)
+char *strsignal(int sig)
 {
 	static char retbuf[80];
 

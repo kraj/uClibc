@@ -35,7 +35,12 @@ MOBJ2=encodeh.o decodeh.o encoded.o decoded.o lengthd.o encodeq.o \
 	formquery.o dnslookup.o resolveaddress.o resolvemailbox.o \
 	opennameservers.o closenameservers.o resolvename.o gethostbyname.o\
 	gethostbyaddr.o
-OBJS=$(MOBJ) $(MOBJ2)
+
+MSRC3=socketcalls.c
+MOBJ3= accept.o bind.o connect.o getpeername.o getsockname.o getsockopt.o \
+	listen.o recv.o recvfrom.o recvmsg.o send.o sendmsg.o sendto.o \
+	setsockopt.o shutdown.o socket.o socketpair.o 
+OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3)
 
 
 all: $(OBJS) $(LIBC)
@@ -50,6 +55,10 @@ $(MOBJ): $(MSRC)
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ2): $(MSRC2)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ3): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 

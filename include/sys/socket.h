@@ -117,8 +117,6 @@ extern int getsockname __P ((int __fd, __SOCKADDR_ARG __addr,
    For connectionless socket types, just set the default address to send to
    and the only address from which to accept transmissions.
    Return 0 on success, -1 for errors.  */
-extern int __connect __P ((int __fd,
-			   __CONST_SOCKADDR_ARG __addr, socklen_t __len));
 extern int connect __P ((int __fd,
 			 __CONST_SOCKADDR_ARG __addr, socklen_t __len));
 
@@ -129,8 +127,6 @@ extern int getpeername __P ((int __fd, __SOCKADDR_ARG __addr,
 
 
 /* Send N bytes of BUF to socket FD.  Returns the number sent or -1.  */
-extern int __send __P ((int __fd, __const __ptr_t __buf, size_t __n,
-			int __flags));
 extern int send __P ((int __fd, __const __ptr_t __buf, size_t __n,
 		      int __flags));
 

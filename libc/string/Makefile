@@ -34,7 +34,7 @@ MOBJ1=index.o rindex.o
 
 CSRC=strpbrk.c strsep.c strstr.c strtok.c strcspn.c config.c strspn.c \
 	strcasecmp.c strncasecmp.c strerror.c bcopy.c bzero.c bcmp.c \
-	strsignal.c
+	strsignal.c sys_errlist.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ1) $(COBJS)
 

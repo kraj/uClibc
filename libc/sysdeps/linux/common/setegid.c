@@ -2,5 +2,5 @@
 
 int setegid(gid_t gid)
 {
-	return __setregid(-1, gid);
+	return setregid(-1, gid);
 }
