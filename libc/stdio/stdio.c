@@ -790,7 +790,8 @@ void _free_stdio_stream(FILE *fp)
 
 	/* Note: we generally won't bother checking for bad pointers here. */
 	if ((fp >= _stdio_streams) && (fp < _stdio_streams + FIXED_STREAMS)) {
-		assert( (fp - _stdio_streams) % sizeof(_stdio_streams[0]) == 0 );
+		assert( (fp - _stdio_streams) % ((_stdio_streams+1) -_stdio_streams)
+				== 0 );
 		fp->next = _free_file_list;
 		_free_file_list = fp;
 		return;
