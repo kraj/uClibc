@@ -25,7 +25,7 @@
 include $(TOPDIR)Config
 
 MAJOR_VERSION=0
-MINOR_VERSION=95
+MINOR_VERSION=9.5
 
 LIBNAME=libc.a
 SHARED_FULLNAME=uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
@@ -73,5 +73,4 @@ NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 
 #    CFLAGS += -ffunction-sections -fdata-sections
 #    LDFLAGS += --gc-sections
 #endif
-
 

@@ -12,6 +12,6 @@ CFLAGS	+= -DVERSION=\"$(LDSO_VERSION)\"
 
 CC = $(TOPDIR)extra/gcc-uClibc/$(NATIVE_ARCH)-uclibc-gcc
 ifeq ($(DEVEL),true)
-	CFLAGS += -DUCLIBC_INSTALL_DIR=\"/usr/$(TARGET_ARCH)-linux-uclibc\"
+	CFLAGS += -DUCLIBC_INSTALL_DIR=\"$(INSTALL_DIR)\"
 	CFLAGS += -DUCLIBC_DEVEL
 endif
