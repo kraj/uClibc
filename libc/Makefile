@@ -37,18 +37,15 @@ DIRS = misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd
 VERSION_SCRIPT:=${shell if [ -f sysdeps/linux/$(TARGET_ARCH)/libc.map ] ; then \
         echo "--version-script sysdeps/linux/$(TARGET_ARCH)/libc.map"; fi}
 
-all: halfclean subdirs $(LIBNAME) $(DO_SHARED)
+all: halfclean $(LIBNAME) $(DO_SHARED)
 
-ar-target:
+$(LIBNAME) ar-target: subdirs
 	$(RANLIB) $(LIBNAME)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBNAME)
 	$(INSTALL) -m 644 $(LIBNAME) $(TOPDIR)lib
 
-$(LIBNAME): subdirs ar-target
-
-
-shared: $(TOPDIR)lib/$(LIBNAME)
+shared: $(LIBNAME)
 	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
 		--whole-archive $(LIBNAME) \
 		$(TOPDIR)libc/misc/internals/interp.o --no-whole-archive \
