@@ -428,6 +428,7 @@ config UCLIBC_HAS_XLOCALE
 
 config UCLIBC_HAS_HEXADECIMAL_FLOATS
 	bool "Support hexadecimal float notation"
+	depends on UCLIBC_HAS_FLOATS
 	default n
 	help
 	  Answer Y to enable support for hexadecimal float notation in the
@@ -440,6 +441,7 @@ config UCLIBC_HAS_HEXADECIMAL_FLOATS
 config UCLIBC_HAS_GLIBC_DIGIT_GROUPING
 	bool "Support glibc's \"'\" flag for allowing locale-specific digit grouping"
 	depends on UCLIBC_HAS_LOCALE
+	depends on UCLIBC_HAS_FLOATS
 	default n
 	help
 	  Answer Y to enable support for glibc's \"'\" flag for allowing locale-specific
@@ -462,6 +464,7 @@ config UCLIBC_HAS_SCANF_LENIENT_DIGIT_GROUPING
 
 config UCLIBC_HAS_GLIBC_CUSTOM_PRINTF
 	bool "Support glibc's register_printf_function() (glibc-compat)"
+	depends on !USE_OLD_VFPRINTF
 	default n
 	help
 	  Answer Y to support glibc's register_printf_function() to allow an
@@ -479,12 +482,8 @@ config USE_OLD_VFPRINTF
 	default n
 	help
 	  Set to true to use the old vfprintf instead of the new.  This is roughly
-	  C89 compliant, but doesn't deal with qualifiers on %n and doesn't deal with
-	  %h correctly or %hh at all on the integer conversions.  But on i386 it is
-	  over 1.5k smaller than the new code.  Of course, the new code fixes the
-	  above mentioned deficiencies and adds custom specifier support similar to
-	  glibc, as well as handling positional args.  This will be rewritten at some 
-	  point to bring it to full C89 standards compliance.
+	  C89 compliant with some extensions, and is much smaller.  However, it does
+	  not support wide chars, positional args, or glibc custom printf specifiers.
 
 	  Most people will answer N.
 
