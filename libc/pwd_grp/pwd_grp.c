@@ -803,6 +803,7 @@ int putgrent(const struct group *__restrict p, FILE *__restrict f)
 				if (fprintf(f, fmt, *m) < 0) {
 					break;
 				}
+				++m;
 				fmt = format;
 			} while (1);
 
