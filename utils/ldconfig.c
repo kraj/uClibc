@@ -90,14 +90,13 @@ char *prog = NULL;
 int debug = 0;			/* debug mode */
 int verbose = 0;		/* verbose mode */
 int libmode = 0;		/* library mode */
-int nocache = 0;		/* don't build cache */
 int nolinks = 0;		/* don't update links */
-
+int nocache = 0;		/* don't build cache */
 char *conffile = LDSO_CONF;	/* default conf file */
 char *cachefile = LDSO_CACHE;	/* default cache file */
 void cache_print(void);
-void cache_dolib(const char *dir, const char *so, int libtype);
 void cache_write(void);
+void cache_dolib(const char *dir, const char *so, int libtype);
 
 /* These two are used internally -- you shouldn't need to use them */
 static void verror_msg(const char *s, va_list p)
@@ -506,10 +505,8 @@ void scan_dir(const char *rawname)
     {
 	if (!lp->islink)
 	    link_shlib(name, lp->name, lp->so);
-#ifdef __LDSO_CACHE_SUPPORT__
 	if (!nocache)
 	    cache_dolib(name, lp->so, lp->libtype);
-#endif
     }
 
     /* always try to clean up after ourselves */
@@ -526,6 +523,20 @@ void scan_dir(const char *rawname)
     return;
 }
 
+#ifndef __LDSO_CACHE_SUPPORT__
+void cache_print(void)
+{
+    printf("Library cache disabled\n");
+}
+void cache_dolib(const char *dir, const char *so, int libtype)
+{
+    return;
+}
+void cache_write(void)
+{
+    return;
+}
+#else
 /* return the list of system-specific directories */
 char *get_extpath(void)
 {
@@ -556,7 +567,6 @@ char *get_extpath(void)
     return res;
 }
 
-#ifdef __LDSO_CACHE_SUPPORT__
 typedef struct liblist
 {
     int flags;
@@ -719,20 +729,21 @@ void cache_print(void)
 
     munmap (c,st.st_size);
 }
-#else
-void cache_print(void)
-{
-    warnx("Cache support disabled\n");
-}
 #endif
 
 void usage(void)
 {
     fprintf(stderr,
-	    "ldconfig - updates symlinks for shared libraries\n\n"
+#ifdef __LDSO_CACHE_SUPPORT__
+	    "ldconfig - updates symlinks and cache for shared libraries\n\n"
 	    "Usage: ldconfig [-DvqnNX] [-f conf] [-C cache] [-r root] dir ...\n"
 	    "       ldconfig -l [-Dv] lib ...\n"
 	    "       ldconfig -p\n\nOptions:\n"
+#else
+	    "ldconfig - updates symlinks for shared libraries\n\n"
+	    "Usage: ldconfig [-DvqnX] [-r root] dir ...\n"
+	    "       ldconfig -l [-Dv] lib ...\n\nOptions:\n"
+#endif
 	    "\t-D:\t\tdebug mode, don't update links\n"
 	    "\t-v:\t\tverbose mode, print things as we go\n"
 	    "\t-q:\t\tquiet mode, don't print warnings\n"
@@ -745,8 +756,12 @@ void usage(void)
 	    "\t-C cache:\tuse cache instead of %s\n"
 	    "\t-r root :\tfirst, do a chroot to the indicated directory\n"
 	    "\tdir ... :\tdirectories to process\n"
+#ifdef __LDSO_CACHE_SUPPORT__
 	    "\tlib ... :\tlibraries to link\n\n",
 	    LDSO_CONF, LDSO_CACHE
+#else
+	    "\tlib ... :\tlibraries to link\n\n"
+#endif
 	   );
     exit(EXIT_FATAL);
 }
@@ -756,11 +771,11 @@ int main(int argc, char **argv)
 {
     int i, c;
     int nodefault = 0;
-    int printcache = 0;
     char *cp, *dir, *so;
-    char *extpath;
     int libtype, islink;
     char *chroot_dir = NULL;
+    int printcache = 0;
+    char *extpath;
 
     prog = argv[0];
     opterr = 0;
@@ -884,8 +899,7 @@ int main(int argc, char **argv)
 	    scan_dir(UCLIBC_RUNTIME_PREFIX "usr/lib");
 #ifndef __LDSO_CACHE_SUPPORT__
 	    scan_dir(UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib");
-#endif
-
+#else
 	    /* I guess the defaults aren't good enough */
 	    if ((extpath = get_extpath()))
 	    {
@@ -896,24 +910,21 @@ int main(int argc, char **argv)
 				while (cp[--len] == '/' && len)
 					cp[len] = 0;
 			/* we do the redundancy check only if cache usage is enabled */
-#ifdef __LDSO_CACHE_SUPPORT__
 			if (strcmp(UCLIBC_RUNTIME_PREFIX "lib", cp) == 0 ||
 			    strcmp(UCLIBC_RUNTIME_PREFIX "usr/lib", cp) == 0) {
 				if (verbose >= 0)
 					warnx("Remove `%s' from `%s'\n", cp, LDSO_CONF);
 				continue;
 			}
-#endif
 		    scan_dir(cp);
 		}
 		free(extpath);
 	    }
+#endif
 	}
 
-#ifdef __LDSO_CACHE_SUPPORT__
 	if (!nocache)
 	    cache_write();
-#endif
     }
 
     exit(EXIT_OK);
