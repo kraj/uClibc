@@ -583,6 +583,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 #if __UCLIBC_HAS_IPV6__
 	if (req->ai_family == 0 || req->ai_family == AF_INET6)
 	{
+	    extern const struct in6_addr __in6addr_loopback;
 	    at->family = AF_INET6;
 	    if ((req->ai_flags & AI_PASSIVE) == 0)
 		memcpy (at->addr, &__in6addr_loopback, sizeof (struct in6_addr));
