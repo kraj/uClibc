@@ -49,5 +49,4 @@ adjtime(const struct timeval * itv, struct timeval * otv)
   }
   return 0;
 }
-weak_alias(adjtime, __adjtime);
 
