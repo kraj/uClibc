@@ -27,30 +27,33 @@ codesets.txt:
 
 gen_wc8bit: gen_wc8bit.c
 	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) $(CFLAGS_wc8bit) $^ -o $@
-#gen_wc8bit.c -o gen_wc8bit
 
 c8tables.h: gen_wc8bit codesets.txt
 	./gen_wc8bit `cat codesets.txt`
 
 gen_wctype: gen_wctype.c
 	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) $^ -o $@
-#gen_wctype.c -o gen_wctype
 
 # Warning! Beware tr_TR toupper/tolower exceptions!
-# Warning! Ignore the width table.  It will go away.
 wctables.h: gen_wctype
 	./gen_wctype en_US
 
 gen_locale: gen_locale.c c8tables.h
 	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) gen_locale.c -o $@
-#gen_locale.c -o gen_locale
 
 # TODO: if no wide char support, we should auto-disable all UTF-8 locales
 locale_tables.h: gen_locale locales.txt
 	./gen_locale locales.txt
 
-lt_defines.h: locale_tables.h
+lt_defines.h: locale_tables.h locale_collate.h
 	grep "^#define" locale_tables.h > lt_defines.h
+	grep "^#define __lc" locale_collate.h >> lt_defines.h
+
+gen_collate: gen_collate.c
+	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) gen_collate.c -o $@
+
+locale_collate.h: gen_collate locale_tables.h
+	grep COL_IDX_ locale_tables.h | sed -e "s/^.*COL_IDX_\([^, ]*\).*$$/\1/" | sort | uniq | xargs ./gen_collate
 
 locales.txt:
 	@if [ ! -f locales.txt ] ; then \
@@ -89,7 +92,7 @@ locales.txt:
 # locale_data.c: lmmtolso locale.mmap
 # 	./lmmtolso
 
-gen_ldc: gen_ldc.c c8tables.h wctables.h locale_tables.h
+gen_ldc: gen_ldc.c c8tables.h wctables.h locale_tables.h locale_collate.h
 	$(HOSTCC) $(HOSTCFLAGS) $(NATIVE_LDFLAGS) $(CFLAGS_mmap) gen_ldc.c -o $@
 #gen_ldc.c -o gen_ldc
 
@@ -110,8 +113,8 @@ links-target: locale_data.o uClibc_locale_data.h
 
 clean:
 	rm -f *.[oa] *~ core
-	rm -f gen_wc8bit gen_wctype gen_locale gen_ldc
-	rm -f c8tables.h wctables.h locale_tables.h lt_defines.h
+	rm -f gen_wc8bit gen_wctype gen_locale gen_ldc gen_collate
+	rm -f c8tables.h wctables.h locale_tables.h lt_defines.h locale_collate.h
 	rm -f gen_mmap locale.mmap lmmtolso
 	rm -f locale_data.c locale_data.o  uClibc_locale_data.h
 

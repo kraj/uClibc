@@ -120,6 +120,46 @@ enum {
   * In particular, C/POSIX locale is '#' + "\x80\x01"}*LC_ALL + nul.
   */
 
+typedef struct {
+	uint16_t num_weights;
+	uint16_t num_starters;
+	uint16_t ii_shift;
+	uint16_t ti_shift;
+	uint16_t ii_len;
+	uint16_t ti_len;
+	uint16_t max_weight;
+	uint16_t num_col_base;
+	uint16_t max_col_index;
+	uint16_t undefined_idx;
+	uint16_t range_low;
+	uint16_t range_count;
+	uint16_t range_base_weight;
+	uint16_t range_rule_offset; /* change name to index? */
+
+	uint16_t ii_mask;
+	uint16_t ti_mask;
+
+	const uint16_t *index2weight_tbl;
+	const uint16_t *index2ruleidx_tbl;
+	const uint16_t *multistart_tbl;
+	/*	 uint16_t wcs2colidt_offset_low; */
+	/*	 uint16_t wcs2colidt_offset_hi; */
+	const uint16_t *wcs2colidt_tbl;
+
+	/*	 uint16_t undefined_idx; */
+	const uint16_t *overrides_tbl;
+	/*	 uint16_t *multistart_tbl; */
+
+	const uint16_t *weightstr;
+	const uint16_t *ruletable;
+
+
+	uint16_t *index2weight;
+	uint16_t *index2ruleidx;
+
+	uint16_t MAX_WEIGHTS;
+} __collate_t;
+
 
 /*  static unsigned char cur_locale[LOCALE_STRING_SIZE]; */
 
@@ -138,8 +178,7 @@ typedef struct {
 	/* ctype */
 	unsigned char encoding;		/* C/POSIX, 8-bit, UTF-8 */
 	unsigned char mb_cur_max;	/* determined by encoding _AND_ translit!!! */
-
-	const char *codeset;
+	const unsigned char outdigit_length[10];
 
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
 	const unsigned char *idx8ctype;
@@ -161,6 +200,19 @@ typedef struct {
 	const int16_t *tblwuplow_diff; /* yes... signed */
 	/* width?? */
 #endif /* __WCHAR_ENABLED */
+
+	/* ctype */
+	const char *outdigit0_mb;
+	const char *outdigit1_mb;
+	const char *outdigit2_mb;
+	const char *outdigit3_mb;
+	const char *outdigit4_mb;
+	const char *outdigit5_mb;
+	const char *outdigit6_mb;
+	const char *outdigit7_mb;
+	const char *outdigit8_mb;
+	const char *outdigit9_mb;
+	const char *codeset;		/* MUST BE LAST!!! */
 
 	/* numeric */
 	const char *decimal_point;
@@ -250,11 +302,16 @@ typedef struct {
 	const char *era_d_t_fmt;
 	const char *era_t_fmt;
 
-	/* collate */
+	/* collate is at the end */
 
 	/* messages */
 	const char *yesexpr;
 	const char *noexpr;
+	const char *yesstr;
+	const char *nostr;
+
+	/* collate is at the end */
+	__collate_t collate;
 
 } __locale_t;
 

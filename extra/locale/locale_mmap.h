@@ -45,12 +45,11 @@ typedef struct {
 	/* width?? */
 #endif /* __WCHAR_ENABLED */
 
+	COMMON_MMAP(ctype);
 	COMMON_MMAP(numeric);
 	COMMON_MMAP(monetary);
 	COMMON_MMAP(time);
-
-	/* TODO -- collate*/
-
+	/* collate is different */
 	COMMON_MMAP(messages);
 
 
@@ -58,14 +57,14 @@ typedef struct {
 	const codeset_8_bit_t codeset_8_bit[NUM_CODESETS];
 #endif /* __CTYPE_HAS_8_BIT_LOCALES */
 
+	COMMON_MMIDX(ctype);
 	COMMON_MMIDX(numeric);
 	COMMON_MMIDX(monetary);
 	COMMON_MMIDX(time);
-
-	/* TODO -- collate*/
-
+	/* collate is different */
 	COMMON_MMIDX(messages);
 
+	const uint16_t collate_data[__lc_collate_data_LEN];
 
 	unsigned char lc_common_item_offsets_LEN[CATEGORIES];
     size_t lc_common_tbl_offsets[CATEGORIES * 4];

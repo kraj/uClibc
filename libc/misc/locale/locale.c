@@ -22,6 +22,10 @@
  *   query locale settings should now work... at the cost of almost
  *   doubling the size of the setlocale object code.
  * Fixed a bug in the internal fixed-size-string locale specifier code.
+ *
+ * Dec 20, 2002
+ *
+ * Added in collation support and updated stub nl_langinfo.
  */
 
 
@@ -415,6 +419,189 @@ struct lconv *localeconv(void)
 
 __locale_t __global_locale;
 
+typedef struct {
+	uint16_t num_base;
+	uint16_t num_der;
+	uint16_t MAX_WEIGHTS;
+	uint16_t num_index2weight;
+#define num_index2ruleidx num_index2weight
+	uint16_t num_weightstr;
+	uint16_t num_multistart;
+	uint16_t num_override;
+	uint16_t num_ruletable;
+} coldata_header_t;
+
+typedef struct {
+	uint16_t num_weights;
+	uint16_t num_starters;
+	uint16_t ii_shift;
+	uint16_t ti_shift;
+	uint16_t ii_len;
+	uint16_t ti_len;
+	uint16_t max_weight;
+	uint16_t num_col_base;
+	uint16_t max_col_index;
+	uint16_t undefined_idx;
+	uint16_t range_low;
+	uint16_t range_count;
+	uint16_t range_base_weight;
+	uint16_t range_rule_offset;
+
+	uint16_t index2weight_offset;
+	uint16_t index2ruleidx_offset;
+	uint16_t multistart_offset;
+	uint16_t wcs2colidt_offset_low;
+	uint16_t wcs2colidt_offset_hi;
+} coldata_base_t;
+
+typedef struct {
+	uint16_t base_idx;
+	uint16_t undefined_idx;
+	uint16_t overrides_offset;
+	uint16_t multistart_offset;
+} coldata_der_t;
+
+static int init_cur_collate(int der_num)
+{
+	__collate_t *cur_collate = &__global_locale.collate;
+	const uint16_t *__locale_collate_tbl = __locale_mmap->collate_data;
+	coldata_header_t *cdh;
+	coldata_base_t *cdb;
+	coldata_der_t *cdd;
+	const uint16_t *p;
+	size_t n;
+	uint16_t i, w;
+
+	assert(sizeof(coldata_base_t) == 19*2);
+	assert(sizeof(coldata_der_t) == 4*2);
+	assert(sizeof(coldata_header_t) == 8*2);
+
+	if (!der_num) { 			/* C locale... special */
+		cur_collate->num_weights = 0;
+		return 1;
+	}
+
+	--der_num;
+
+	cdh = (coldata_header_t *) __locale_collate_tbl;
+
+	if (der_num >= cdh->num_der) {
+		return 0;
+	}
+
+	cdd = (coldata_der_t *)(__locale_collate_tbl
+							+ (sizeof(coldata_header_t)
+							   + cdh->num_base * sizeof(coldata_base_t)
+							   + der_num * sizeof(coldata_der_t)
+							   )/2 );
+
+	cdb = (coldata_base_t *)(__locale_collate_tbl
+							 + (sizeof(coldata_header_t)
+								+ cdd->base_idx * sizeof(coldata_base_t)
+								)/2 );
+
+	memcpy(cur_collate, cdb, offsetof(coldata_base_t,index2weight_offset));
+	cur_collate->undefined_idx = cdd->undefined_idx;
+
+	cur_collate->ti_mask = (1 << cur_collate->ti_shift)-1;
+	cur_collate->ii_mask = (1 << cur_collate->ii_shift)-1;
+
+/*	 printf("base=%d  num_col_base: %d  %d\n", cdd->base_idx ,cur_collate->num_col_base, cdb->num_col_base); */
+
+	n = (sizeof(coldata_header_t) + cdh->num_base * sizeof(coldata_base_t)
+		 + cdh->num_der * sizeof(coldata_der_t))/2;
+
+/*	 printf("n   = %d\n", n); */
+	cur_collate->index2weight_tbl = __locale_collate_tbl + n + cdb->index2weight_offset;
+/*	 printf("i2w = %d\n", n + cdb->index2weight_offset); */
+	n += cdh->num_index2weight;
+	cur_collate->index2ruleidx_tbl = __locale_collate_tbl + n + cdb->index2ruleidx_offset;
+/*	 printf("i2r = %d\n", n + cdb->index2ruleidx_offset); */
+	n += cdh->num_index2ruleidx;
+	cur_collate->multistart_tbl = __locale_collate_tbl + n + cdd->multistart_offset;
+/*	 printf("mts = %d\n", n + cdb->multistart_offset); */
+	n += cdh->num_multistart;
+	cur_collate->overrides_tbl = __locale_collate_tbl + n + cdd->overrides_offset;
+/*	 printf("ovr = %d\n", n + cdd->overrides_offset); */
+	n += cdh->num_override;
+	cur_collate->ruletable = __locale_collate_tbl + n;
+/*	 printf("rtb = %d\n", n); */
+	n += cdh->num_ruletable;
+	cur_collate->weightstr = __locale_collate_tbl + n;
+/*	 printf("wts = %d\n", n); */
+	n += cdh->num_weightstr;
+	cur_collate->wcs2colidt_tbl = __locale_collate_tbl + n
+		+ (((unsigned long)(cdb->wcs2colidt_offset_hi)) << 16)
+		+ cdb->wcs2colidt_offset_low;
+/*	 printf("wcs = %lu\n", n	+ (((unsigned long)(cdb->wcs2colidt_offset_hi)) << 16) */
+/* 		   + cdb->wcs2colidt_offset_low); */
+
+	cur_collate->MAX_WEIGHTS = cdh->MAX_WEIGHTS;
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning if calloc fails, this is WRONG.  there is also a memory leak here at the moment
+#warning fix the +1 by increasing max_col_index?
+#endif
+	cur_collate->index2weight = calloc(2*cur_collate->max_col_index+2, sizeof(uint16_t));
+	if (!cur_collate->index2weight) {
+		return 0;
+	}
+	cur_collate->index2ruleidx = cur_collate->index2weight + cur_collate->max_col_index + 1;
+
+	memcpy(cur_collate->index2weight, cur_collate->index2weight_tbl,
+		   cur_collate->num_col_base * sizeof(uint16_t));
+	memcpy(cur_collate->index2ruleidx, cur_collate->index2ruleidx_tbl,
+		   cur_collate->num_col_base * sizeof(uint16_t));
+
+	/* now do the overrides */
+	p = cur_collate->overrides_tbl;
+	while (*p > 1) {
+/* 		fprintf(stderr, "processing override -- count = %d\n", *p); */
+		n = *p++;
+		w = *p++;
+		do {
+			i = *p++;
+/* 			fprintf(stderr, "	i=%d w=%d *p=%d\n", i, w, *p); */
+			cur_collate->index2weight[i-1] = w++;
+			cur_collate->index2ruleidx[i-1] = *p++;
+		} while (--n);
+	}
+	while (*++p) {
+		i = *p;
+		cur_collate->index2weight[i-1] = *++p;
+		cur_collate->index2ruleidx[i-1] = *++p;
+	}
+
+
+	for (i=0 ; i < cur_collate->multistart_tbl[0] ; i++) {
+		p = cur_collate->multistart_tbl;
+/* 		fprintf(stderr, "%2d of %2d: %d ", i,  cur_collate->multistart_tbl[0], p[i]); */
+		p += p[i];
+
+		do {
+			n = *p++;
+			do {
+				if (!*p) {		/* found it */
+/* 					fprintf(stderr, "found: n=%d (%#lx) |%.*ls|\n", n, (int) *cs->s, n, cs->s); */
+/* 					fprintf(stderr, ": %d - single\n", n); */
+					goto FOUND;
+ 				}
+				/* the lookup check here is safe since we're assured that *p is a valid colidex */
+/* 				fprintf(stderr, "lookup(%lc)==%d  *p==%d\n", cs->s[n], lookup(cs->s[n]), (int) *p); */
+/* 				fprintf(stderr, ": %d - ", n); */
+				do {
+/* 					fprintf(stderr, "%d|",  *p); */
+				} while (*p++);
+				break;
+			} while (1);
+		} while (1);
+	FOUND:
+		continue;
+	}
+
+	return 1;
+}
+
 void _locale_init(void)
 {
 	/* TODO: mmap the locale file  */
@@ -427,7 +614,8 @@ void _locale_init(void)
 		   __locale_mmap->lc_common_item_offsets_LEN,
 		   LC_ALL);
 
-	__global_locale.category_offsets[0] = offsetof(__locale_t, codeset);
+	++__global_locale.category_item_count[0]; /* Increment for codeset entry. */
+	__global_locale.category_offsets[0] = offsetof(__locale_t, outdigit0_mb);
 	__global_locale.category_offsets[1] = offsetof(__locale_t, decimal_point);
 	__global_locale.category_offsets[2] = offsetof(__locale_t, int_curr_symbol);
 	__global_locale.category_offsets[3] = offsetof(__locale_t, abday_1);
@@ -489,6 +677,22 @@ void _locale_set(const unsigned char *p)
 			*s = *p;
 			s[1] = p[1];
 
+			if ((i != LC_COLLATE)
+				&& ((len = __locale_mmap->lc_common_item_offsets_LEN[i]) != 0)
+				) {
+				crow = __locale_mmap->locales[ WIDTH_LOCALES * row + 3 + i ]
+					* len;
+				x = (const char **)(((char *) &__global_locale)
+									+ __global_locale.category_offsets[i]);
+				stp = __locale_mmap->lc_common_tbl_offsets + 4*i;
+				r = (const unsigned char *)( ((char *)__locale_mmap) + *stp );
+				io = (const uint16_t *)( ((char *)__locale_mmap) + *++stp );
+				ii = (const uint16_t *)( ((char *)__locale_mmap) + *++stp );
+				d = (const unsigned char *)( ((char *)__locale_mmap) + *++stp );
+				for (c=0 ; c < len ; c++) {
+					*(x + c) = d + ii[ r[crow + c] + io[c] ];
+				}
+			}
 			if (i == LC_CTYPE) {
 				c = __locale_mmap->locales[ WIDTH_LOCALES * row + 2 ]; /* codeset */
 				if (c <= 2) {
@@ -524,22 +728,18 @@ void _locale_set(const unsigned char *p)
 #endif /* __WCHAR_ENABLED */
 #endif /* __CTYPE_HAS_8_BIT_LOCALES */
 				}
-
-			} else if ((len = __locale_mmap->lc_common_item_offsets_LEN[i]) != 0) {
-				crow = __locale_mmap->locales[ WIDTH_LOCALES * row + 3 + i ]
-					* len;
-				x = (const char **)(((char *) &__global_locale)
-									+ __global_locale.category_offsets[i]);
-				stp = __locale_mmap->lc_common_tbl_offsets + 4*i;
-				r = (const unsigned char *)( ((char *)__locale_mmap) + *stp );
-				io = (const uint16_t *)( ((char *)__locale_mmap) + *++stp );
-				ii = (const uint16_t *)( ((char *)__locale_mmap) + *++stp );
-				d = (const unsigned char *)( ((char *)__locale_mmap) + *++stp );
-				for (c=0 ; c < len ; c++) {
-					*(x + c) = d + ii[ r[crow + c] + io[c] ];
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning might want to just put this in the locale_mmap object
+#endif
+				d = __global_locale.outdigit_length;
+				x = &__global_locale.outdigit0_mb;
+				for (c = 0 ; c < 10 ; c++) {
+					((unsigned char *)d)[c] = strlen(x[c]);
+					assert(d[c] > 0);
 				}
+			} else if (i == LC_COLLATE) {
+				init_cur_collate(__locale_mmap->locales[ WIDTH_LOCALES * row + 3 + i ]);
 			}
-
 		}
 		++i;
 		p += 2;
@@ -558,10 +758,10 @@ void _locale_set(const unsigned char *p)
 
 #ifdef __LOCALE_C_ONLY
 
-/* We need to index 300 bytes of data, so you might initially think we
+/* We need to index 320 bytes of data, so you might initially think we
  * need to store the offsets in shorts.  But since the offset of the
- * 64th item is 231, we'll store "offset - 64" for all items >= 64
- * and always calculate the data offset as "offset[i] + (i & 64)".
+ * 64th item is 182, we'll store "offset - 2*64" for all items >= 64
+ * and always calculate the data offset as "offset[i] + 2*(i & 64)".
  * This allows us to pack the data offsets in an unsigned char while
  * also avoiding an "if".
  *
@@ -574,63 +774,67 @@ void _locale_set(const unsigned char *p)
 /* Combine the data to avoid size penalty for seperate char arrays when
  * compiler aligns objects.  The original code is left in as documentation. */
 #define cat_start nl_data
-#define C_locale_data (nl_data + C_LC_ALL + 1 + 78)
+#define C_locale_data (nl_data + C_LC_ALL + 1 + 90)
 
-static const unsigned char nl_data[C_LC_ALL + 1 + 78 + 300] = {
-/*  static const unsigned char cat_start[C_LC_ALL + 1] = { */
-	'\x00', '\x01', '\x04', '\x1a', '\x4c', '\x4c', '\x4e', 
-/*  }; */
-/*  static const unsigned char item_offset[78] = { */
-	'\x00', '\x06', '\x07', '\x07', '\x07', '\x07', '\x07', '\x07', 
-	'\x07', '\x07', '\x07', '\x08', '\x08', '\x08', '\x08', '\x08', 
-	'\x08', '\x08', '\x08', '\x08', '\x08', '\x08', '\x08', '\x08', 
-	'\x08', '\x0a', '\x0c', '\x10', '\x14', '\x18', '\x1c', '\x20', 
-	'\x24', '\x28', '\x2f', '\x36', '\x3e', '\x48', '\x51', '\x58', 
-	'\x61', '\x65', '\x69', '\x6d', '\x71', '\x75', '\x79', '\x7d', 
-	'\x81', '\x85', '\x89', '\x8d', '\x91', '\x99', '\xa2', '\xa8', 
-	'\xae', '\xb2', '\xb7', '\xbc', '\xc3', '\xcd', '\xd5', '\xde', 
-	'\xa7', '\xaa', '\xad', '\xc2', '\xcb', '\xd4', '\xdf', '\xdf', 
-	'\xdf', '\xdf', '\xdf', '\xdf', '\xe0', '\xe6', 
-/*  }; */
-/*  static const unsigned char C_locale_data[300] = { */
-	   'A',    'S',    'C',    'I',    'I', '\x00',    '.', '\x00', 
-	'\x7f', '\x00',    '-', '\x00',    'S',    'u',    'n', '\x00', 
-	   'M',    'o',    'n', '\x00',    'T',    'u',    'e', '\x00', 
-	   'W',    'e',    'd', '\x00',    'T',    'h',    'u', '\x00', 
-	   'F',    'r',    'i', '\x00',    'S',    'a',    't', '\x00', 
-	   'S',    'u',    'n',    'd',    'a',    'y', '\x00',    'M', 
-	   'o',    'n',    'd',    'a',    'y', '\x00',    'T',    'u', 
-	   'e',    's',    'd',    'a',    'y', '\x00',    'W',    'e', 
-	   'd',    'n',    'e',    's',    'd',    'a',    'y', '\x00', 
-	   'T',    'h',    'u',    'r',    's',    'd',    'a',    'y', 
-	'\x00',    'F',    'r',    'i',    'd',    'a',    'y', '\x00', 
-	   'S',    'a',    't',    'u',    'r',    'd',    'a',    'y', 
-	'\x00',    'J',    'a',    'n', '\x00',    'F',    'e',    'b', 
-	'\x00',    'M',    'a',    'r', '\x00',    'A',    'p',    'r', 
-	'\x00',    'M',    'a',    'y', '\x00',    'J',    'u',    'n', 
-	'\x00',    'J',    'u',    'l', '\x00',    'A',    'u',    'g', 
-	'\x00',    'S',    'e',    'p', '\x00',    'O',    'c',    't', 
-	'\x00',    'N',    'o',    'v', '\x00',    'D',    'e',    'c', 
-	'\x00',    'J',    'a',    'n',    'u',    'a',    'r',    'y', 
-	'\x00',    'F',    'e',    'b',    'r',    'u',    'a',    'r', 
-	   'y', '\x00',    'M',    'a',    'r',    'c',    'h', '\x00', 
-	   'A',    'p',    'r',    'i',    'l', '\x00',    'M',    'a', 
-	   'y', '\x00',    'J',    'u',    'n',    'e', '\x00',    'J', 
-	   'u',    'l',    'y', '\x00',    'A',    'u',    'g',    'u', 
-	   's',    't', '\x00',    'S',    'e',    'p',    't',    'e', 
-	   'm',    'b',    'e',    'r', '\x00',    'O',    'c',    't', 
-	   'o',    'b',    'e',    'r', '\x00',    'N',    'o',    'v', 
-	   'e',    'm',    'b',    'e',    'r', '\x00',    'D',    'e', 
-	   'c',    'e',    'm',    'b',    'e',    'r', '\x00',    'A', 
-	   'M', '\x00',    'P',    'M', '\x00',    '%',    'a',    ' ', 
-	   '%',    'b',    ' ',    '%',    'e',    ' ',    '%',    'H', 
-	   ':',    '%',    'M',    ':',    '%',    'S',    ' ',    '%', 
-	   'Y', '\x00',    '%',    'm',    '/',    '%',    'd',    '/', 
-	   '%',    'y', '\x00',    '%',    'H',    ':',    '%',    'M', 
-	   ':',    '%',    'S', '\x00',    '%',    'I',    ':',    '%', 
-	   'M',    ':',    '%',    'S',    ' ',    '%',    'p', '\x00', 
-	   '^',    '[',    'y',    'Y',    ']', '\x00',    '^',    '[', 
-	   'n',    'N',    ']', '\x00', 
+static const unsigned char nl_data[C_LC_ALL + 1 + 90 + 320] = {
+/* static const char cat_start[LC_ALL + 1] = { */
+        '\x00', '\x0b', '\x0e', '\x24', '\x56', '\x56', '\x5a', 
+/* }; */
+/* static const char item_offset[90] = { */
+	'\x00', '\x02', '\x04', '\x06', '\x08', '\x0a', '\x0c', '\x0e', 
+	'\x10', '\x12', '\x14', '\x1a', '\x1b', '\x1b', '\x1b', '\x1b', 
+	'\x1b', '\x1b', '\x1b', '\x1b', '\x1b', '\x1c', '\x1c', '\x1c', 
+	'\x1c', '\x1c', '\x1c', '\x1c', '\x1c', '\x1c', '\x1c', '\x1c', 
+	'\x1c', '\x1c', '\x1c', '\x1e', '\x20', '\x24', '\x28', '\x2c', 
+	'\x30', '\x34', '\x38', '\x3c', '\x43', '\x4a', '\x52', '\x5c', 
+	'\x65', '\x6c', '\x75', '\x79', '\x7d', '\x81', '\x85', '\x89', 
+	'\x8d', '\x91', '\x95', '\x99', '\x9d', '\xa1', '\xa5', '\xad', 
+	'\x36', '\x3c', '\x42', '\x46', '\x4b', '\x50', '\x57', '\x61', 
+	'\x69', '\x72', '\x7b', '\x7e', '\x81', '\x96', '\x9f', '\xa8', 
+	'\xb3', '\xb3', '\xb3', '\xb3', '\xb3', '\xb3', '\xb4', '\xba', 
+	'\xbf', '\xbf', 
+/* }; */
+/* static const char C_locale_data[320] = { */
+	   '0', '\x00',    '1', '\x00',    '2', '\x00',    '3', '\x00', 
+	   '4', '\x00',    '5', '\x00',    '6', '\x00',    '7', '\x00', 
+	   '8', '\x00',    '9', '\x00',    'A',    'S',    'C',    'I', 
+	   'I', '\x00',    '.', '\x00', '\x7f', '\x00',    '-', '\x00', 
+	   'S',    'u',    'n', '\x00',    'M',    'o',    'n', '\x00', 
+	   'T',    'u',    'e', '\x00',    'W',    'e',    'd', '\x00', 
+	   'T',    'h',    'u', '\x00',    'F',    'r',    'i', '\x00', 
+	   'S',    'a',    't', '\x00',    'S',    'u',    'n',    'd', 
+	   'a',    'y', '\x00',    'M',    'o',    'n',    'd',    'a', 
+	   'y', '\x00',    'T',    'u',    'e',    's',    'd',    'a', 
+	   'y', '\x00',    'W',    'e',    'd',    'n',    'e',    's', 
+	   'd',    'a',    'y', '\x00',    'T',    'h',    'u',    'r', 
+	   's',    'd',    'a',    'y', '\x00',    'F',    'r',    'i', 
+	   'd',    'a',    'y', '\x00',    'S',    'a',    't',    'u', 
+	   'r',    'd',    'a',    'y', '\x00',    'J',    'a',    'n', 
+	'\x00',    'F',    'e',    'b', '\x00',    'M',    'a',    'r', 
+	'\x00',    'A',    'p',    'r', '\x00',    'M',    'a',    'y', 
+	'\x00',    'J',    'u',    'n', '\x00',    'J',    'u',    'l', 
+	'\x00',    'A',    'u',    'g', '\x00',    'S',    'e',    'p', 
+	'\x00',    'O',    'c',    't', '\x00',    'N',    'o',    'v', 
+	'\x00',    'D',    'e',    'c', '\x00',    'J',    'a',    'n', 
+	   'u',    'a',    'r',    'y', '\x00',    'F',    'e',    'b', 
+	   'r',    'u',    'a',    'r',    'y', '\x00',    'M',    'a', 
+	   'r',    'c',    'h', '\x00',    'A',    'p',    'r',    'i', 
+	   'l', '\x00',    'M',    'a',    'y', '\x00',    'J',    'u', 
+	   'n',    'e', '\x00',    'J',    'u',    'l',    'y', '\x00', 
+	   'A',    'u',    'g',    'u',    's',    't', '\x00',    'S', 
+	   'e',    'p',    't',    'e',    'm',    'b',    'e',    'r', 
+	'\x00',    'O',    'c',    't',    'o',    'b',    'e',    'r', 
+	'\x00',    'N',    'o',    'v',    'e',    'm',    'b',    'e', 
+	   'r', '\x00',    'D',    'e',    'c',    'e',    'm',    'b', 
+	   'e',    'r', '\x00',    'A',    'M', '\x00',    'P',    'M', 
+	'\x00',    '%',    'a',    ' ',    '%',    'b',    ' ',    '%', 
+	   'e',    ' ',    '%',    'H',    ':',    '%',    'M',    ':', 
+	   '%',    'S',    ' ',    '%',    'Y', '\x00',    '%',    'm', 
+	   '/',    '%',    'd',    '/',    '%',    'y', '\x00',    '%', 
+	   'H',    ':',    '%',    'M',    ':',    '%',    'S', '\x00', 
+	   '%',    'I',    ':',    '%',    'M',    ':',    '%',    'S', 
+	   ' ',    '%',    'p', '\x00',    '^',    '[',    'y',    'Y', 
+	   ']', '\x00',    '^',    '[',    'n',    'N',    ']', '\x00', 
 };
 
 char *nl_langinfo(nl_item item)
@@ -641,7 +845,7 @@ char *nl_langinfo(nl_item item)
 	if ((c = _NL_ITEM_CATEGORY(item)) < C_LC_ALL) {
 		if ((i = cat_start[c] + _NL_ITEM_INDEX(item)) < cat_start[c+1]) {
 /*  			return (char *) C_locale_data + item_offset[i] + (i & 64); */
-			return (char *) C_locale_data + nl_data[C_LC_ALL+1+i] + (i & 64);
+			return (char *) C_locale_data + nl_data[C_LC_ALL+1+i] + 2*(i & 64);
 		}
 	}
 	return (char *) cat_start;	/* Conveniently, this is the empty string. */

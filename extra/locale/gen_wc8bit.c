@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 {
 	FILE *fp;
 	FILE *out;
-	charset_data csd[20];
+	charset_data csd[30];
 	unsigned long max_wchar;
 	unsigned char *p;
 	int numsets;

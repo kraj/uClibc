@@ -2331,11 +2331,16 @@ static int _do_one_spec(FILE * __restrict stream,
 		}
 		if (ppfs->conv_num <= CONV_i) {	/* pointer or (un)signed int */
 			alphacase = __UIM_LOWER;
-			if (((base = spec_base[(int)(ppfs->conv_num - CONV_p)]) == 10)
-				&& (PRINT_INFO_FLAG_VAL(&(ppfs->info),group))
-				) {
-				alphacase = __UIM_GROUP;
+#ifndef __LOCALE_C_ONLY
+			if ((base = spec_base[(int)(ppfs->conv_num - CONV_p)]) == 10) {
+				if (PRINT_INFO_FLAG_VAL(&(ppfs->info),group)) {
+					alphacase = __UIM_GROUP;
+				}
+				if (PRINT_INFO_FLAG_VAL(&(ppfs->info),i18n)) {
+					alphacase |= 0x80;
+				}
 			}
+#endif /* __LOCALE_C_ONLY */
 			if (ppfs->conv_num <= CONV_u) { /* pointer or unsigned int */
 				if (ppfs->conv_num == CONV_X) {
 					alphacase = __UIM_UPPER;
@@ -2350,6 +2355,9 @@ static int _do_one_spec(FILE * __restrict stream,
 			if (ppfs->info.prec < 0) { /* Ignore '0' flag if prec specified. */
 				padchar = ppfs->info.pad;
 			}
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning if using outdigits and/or grouping, how should we interpret precision?
+#endif
 			s = _uintmaxtostr(buf + sizeof(buf) - 1,
 							  (uintmax_t)
 							  _load_inttype(*argtype & __PA_INTMASK,
@@ -2557,6 +2565,9 @@ static int _do_one_spec(FILE * __restrict stream,
 			return -1;
 		}
 
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning if using outdigits and/or grouping, how should we pad?
+#endif
 		{
 			size_t t;
 

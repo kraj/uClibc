@@ -33,13 +33,14 @@ MOBJW=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
 	strspn.o strstr.o strtok.o strtok_r.o strerror.o _susv3_strerror_r.o \
 	_string_syserrmsgs.o _glibc_strerror_r.o \
 	_string_syssigmsgs.o sys_siglist.o strsignal.o psignal.o \
-	 __xpg_basename.o strlcat.o strlcpy.o sys_errlist.o # strcoll.o
+	 __xpg_basename.o strlcat.o strlcpy.o sys_errlist.o
 
 MOBJW2= wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
 	wcsdup.o wcslen.o wcsncasecmp.o wcsncat.o wcsncmp.o wcsncpy.o \
 	wcsnlen.o wcspbrk.o wcsrchr.o wcsspn.o wcsstr.o wcstok.o wmemchr.o \
 	wmemcmp.o wmemcpy.o wmemmove.o wmempcpy.o wmemset.o wcpcpy.o wcpncpy.o \
-	wcsxfrm.o # wcscoll
+	__wcslcpy.o \
+	wcsxfrm.o strxfrm.o # wcscoll strcoll.o
 
 OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(MOBJW)
 

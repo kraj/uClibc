@@ -319,11 +319,11 @@ int putw(int w, FILE *stream)
 UNLOCKED(int,fileno,(register FILE *stream),(stream))
 {
 #ifdef __STDIO_GLIBC_CUSTOM_STREAMS
-	return ( ((stream->cookie == &(stream->filedes)) && (stream->filedes >= 0))
+	return ( (stream && (stream->cookie == &(stream->filedes)) && (stream->filedes >= 0))
 			 ? stream->filedes
 			 : (__set_errno(EBADF), -1) );
 #else  /* __STDIO_GLIBC_CUSTOM_STREAMS */
-	return (stream->filedes >= 0) ? stream->filedes : (__set_errno(EBADF), -1);
+	return ((stream && stream->filedes >= 0)) ? stream->filedes : (__set_errno(EBADF), -1);
 #endif /* __STDIO_GLIBC_CUSTOM_STREAMS */
 }
 
@@ -3331,7 +3331,7 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 	unsigned int H, L, high, low, rh;
 #endif
 #ifndef __LOCALE_C_ONLY
-	int grouping;
+	int grouping, outdigit;
 	size_t gslen;		   /* This does not need to be initialized. */
 	const char *g;		   /* This does not need to be initialized. */
 #endif /* __LOCALE_C_ONLY */
@@ -3350,6 +3350,11 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 
 #ifndef __LOCALE_C_ONLY
 	grouping = -1;
+	outdigit = 0x80 & alphacase;
+	alphacase ^= outdigit;
+#ifdef __UCLIBC_MJN3_ONLY_
+#warning implement outdigit... need digit lengths!  (put it in locale struct)
+#endif
 	if (alphacase == __UIM_GROUP) {
 		assert(base == 10);
 		if (*(g = CUR_LOCALE.grouping)
@@ -3391,7 +3396,18 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 		digit = uval % base;
 		uval /= base;
 
-		*--bufend = ( (digit < 10) ? digit + '0' : digit + alphacase );
+#ifndef __LOCALE_C_ONLY
+		if (outdigit) {
+			outdigit = CUR_LOCALE.outdigit_length[digit];
+			do {
+				*--bufend = (&CUR_LOCALE.outdigit0_mb)[digit][--outdigit];
+			} while (outdigit);
+			outdigit = 1;
+		} else
+#endif
+		{
+			*--bufend = ( (digit < 10) ? digit + '0' : digit + alphacase );
+		}
     } while (uval);
 
 #else  /* ************************************************** */
@@ -3437,7 +3453,18 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 		low = (low / base) + (H * rh) + (digit / base);
 		digit %= base;
 		
-		*--bufend = ( (digit < 10) ? digit + '0' : digit + alphacase );
+#ifndef __LOCALE_C_ONLY
+		if (outdigit) {
+			outdigit = CUR_LOCALE.outdigit_length[digit];
+			do {
+				*--bufend = (&CUR_LOCALE.outdigit0_mb)[digit][--outdigit];
+			} while (outdigit);
+			outdigit = 1;
+		} else
+#endif
+		{
+			*--bufend = ( (digit < 10) ? digit + '0' : digit + alphacase );
+		}
     } while (low | high);
 
 #endif /******************************************************/

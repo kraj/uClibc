@@ -356,7 +356,17 @@ enum
   _NL_CTYPE_EXTRA_MAP_14,
   _NL_NUM_LC_CTYPE,
 #else  /* 0 */
-  _NL_CTYPE_CODESET_NAME = _NL_ITEM (__LC_CTYPE, 0),
+  _NL_CTYPE_OUTDIGIT0_MB = _NL_ITEM (__LC_CTYPE, 0),
+  _NL_CTYPE_OUTDIGIT1_MB,
+  _NL_CTYPE_OUTDIGIT2_MB,
+  _NL_CTYPE_OUTDIGIT3_MB,
+  _NL_CTYPE_OUTDIGIT4_MB,
+  _NL_CTYPE_OUTDIGIT5_MB,
+  _NL_CTYPE_OUTDIGIT6_MB,
+  _NL_CTYPE_OUTDIGIT7_MB,
+  _NL_CTYPE_OUTDIGIT8_MB,
+  _NL_CTYPE_OUTDIGIT9_MB,
+  _NL_CTYPE_CODESET_NAME,	/* uClibc note: MUST BE LAST ENTRY!!! */
   CODESET = _NL_CTYPE_CODESET_NAME,
 #define CODESET			CODESET
 #endif /* 0 */
@@ -509,7 +519,6 @@ enum
 #define YESEXPR			__YESEXPR
   __NOEXPR,			/* Regex matching ``no'' input.  */
 #define NOEXPR			__NOEXPR
-#if 0
   __YESSTR,			/* Output string for ``yes''.  */
 #if defined __USE_GNU || (defined __USE_XOPEN && !defined __USE_XOPEN2K)
 # define YESSTR			__YESSTR
@@ -518,6 +527,7 @@ enum
 #if defined __USE_GNU || (defined __USE_XOPEN && !defined __USE_XOPEN2K)
 # define NOSTR			__NOSTR
 #endif
+#if 0
   _NL_MESSAGES_CODESET,
 #endif
   _NL_NUM_LC_MESSAGES,
