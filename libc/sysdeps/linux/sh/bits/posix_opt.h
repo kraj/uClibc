@@ -67,13 +67,13 @@
 #define _XOPEN_REALTIME	1
 
 /* X/Open realtime thread support is available.  */
-#define _XOPEN_REALTIME_THREADS	1
+#undef _XOPEN_REALTIME_THREADS
 
 /* XPG4.2 shared memory is supported.  */
 #define	_XOPEN_SHM	1
 
 /* Tell we have POSIX threads.  */
-#define _POSIX_THREADS	1
+#undef _POSIX_THREADS
 
 /* We have the reentrant functions described in POSIX.  */
 #define _POSIX_REENTRANT_FUNCTIONS      1
