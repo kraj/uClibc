@@ -418,6 +418,13 @@ uClibc was built without large file support enabled.
 #define __LINUX_COMPILER_H
 #endif
 
+/* Arrange to hide uClibc internals */
+#if __GNUC_PREREQ (3, 3)
+# define attribute_hidden __attribute__ ((visibility ("hidden")))
+#else
+# define attribute_hidden
+#endif
+
 /* Pull in things like __attribute_used__ */
 #include <sys/cdefs.h>
 
