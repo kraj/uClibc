@@ -33,6 +33,9 @@ endif
 ifeq ($(strip $(UCLIBC_PROFILING)),y)
 CSRC+=gmon.c
 endif
+ifeq ($(strip $(UCLIBC_PROPOLICE)),y)
+CSRC+=ssp.c
+endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 MSRC=syscalls.c

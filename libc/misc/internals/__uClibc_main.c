@@ -15,6 +15,9 @@
 #include <features.h>
 #include <unistd.h>
 #include <stdlib.h>
+#ifdef __UCLIBC_PROPOLICE__
+extern void __guard_setup(void);
+#endif
 
 
 /*
@@ -137,6 +140,10 @@ __uClibc_start_main(int argc, char **argv, char **envp,
     if (app_init!=NULL) {
 	app_init();
     }
+#endif
+
+#ifdef __UCLIBC_PROPOLICE__
+     __guard_setup ();
 #endif
 
     /* Note: It is possible that any initialization done above could

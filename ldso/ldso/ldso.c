@@ -371,6 +371,28 @@ LD_BOOT(unsigned long args)
 	app_tpnt = LD_MALLOC(sizeof(struct elf_resolve));
 	_dl_memset(app_tpnt, 0, sizeof(struct elf_resolve));
 
+#ifdef __UCLIBC_PIE_SUPPORT__
+	/* Find the runtime load address of the main executable, this may be
+         * different from what the ELF header says for ET_DYN/PIE executables.
+	 */
+	{
+		ElfW(Phdr) *ppnt;
+		int i;
+
+		ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
+		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
+			if (ppnt->p_type == PT_PHDR) {
+				app_tpnt->loadaddr = (ElfW(Addr)) (auxvt[AT_PHDR].a_un.a_val - ppnt->p_vaddr);
+				break;
+			}
+	}
+
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+	SEND_STDERR("app_tpnt->loadaddr=");
+	SEND_ADDRESS_STDERR(app_tpnt->loadaddr, 1);
+#endif
+#endif
+
 	/*
 	 * This is used by gdb to locate the chain of shared libraries that are currently loaded.
 	 */
@@ -407,7 +429,11 @@ LD_BOOT(unsigned long args)
 		ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
 			if (ppnt->p_type == PT_DYNAMIC) {
+#ifndef __UCLIBC_PIE_SUPPORT__
 				dpnt = (Elf32_Dyn *) ppnt->p_vaddr;
+#else
+				dpnt = (Elf32_Dyn *) (ppnt->p_vaddr + app_tpnt->loadaddr);
+#endif
 				while (dpnt->d_tag) {
 #if defined(__mips__)
 					if (dpnt->d_tag == DT_MIPS_GOTSYM)
@@ -501,8 +527,13 @@ LD_BOOT(unsigned long args)
 			ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 			for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
+#ifndef __UCLIBC_PIE_SUPPORT__
 					_dl_mprotect((void *) (ppnt->p_vaddr & PAGE_ALIGN),
 								 (ppnt->p_vaddr & ADDR_ALIGN) +
+#else
+					_dl_mprotect((void *) ((ppnt->p_vaddr + app_tpnt->loadaddr) & PAGE_ALIGN),
+								 ((ppnt->p_vaddr + app_tpnt->loadaddr) & ADDR_ALIGN) +
+#endif
 								 (unsigned long) ppnt->p_filesz,
 								 PROT_READ | PROT_WRITE | PROT_EXEC);
 			}
@@ -717,8 +748,13 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 	for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 		if (ppnt->p_type == PT_LOAD) {
+#ifndef __UCLIBC_PIE_SUPPORT__
 			if (ppnt->p_vaddr + ppnt->p_memsz > brk_addr)
 				brk_addr = ppnt->p_vaddr + ppnt->p_memsz;
+#else
+			if (ppnt->p_vaddr + app_tpnt->loadaddr + ppnt->p_memsz > brk_addr)
+				brk_addr = ppnt->p_vaddr + app_tpnt->loadaddr + ppnt->p_memsz;
+#endif
 		}
 		if (ppnt->p_type == PT_DYNAMIC) {
 #ifndef ALLOW_ZERO_PLTGOT
@@ -727,8 +763,13 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 				continue;
 #endif
 			/* OK, we have what we need - slip this one into the list. */
+#ifndef __UCLIBC_PIE_SUPPORT__
 			app_tpnt = _dl_add_elf_hash_table("", 0, 
 					app_tpnt->dynamic_info, ppnt->p_vaddr, ppnt->p_filesz);
+#else
+			app_tpnt = _dl_add_elf_hash_table("", (char *)app_tpnt->loadaddr,
+					app_tpnt->dynamic_info, ppnt->p_vaddr + app_tpnt->loadaddr, ppnt->p_filesz);
+#endif
 			_dl_loaded_modules->libtype = elf_executable;
 			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
@@ -737,7 +778,11 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			rpnt->dyn = _dl_loaded_modules;
 			app_tpnt->usage_count++;
 			app_tpnt->symbol_scope = _dl_symbol_tables;
+#ifndef __UCLIBC_PIE_SUPPORT__
 			lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
+#else
+			lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT] + app_tpnt->loadaddr);
+#endif
 #ifdef ALLOW_ZERO_PLTGOT
 			if (lpnt)
 #endif

@@ -22,6 +22,9 @@ ASFLAGS=$(CFLAGS)
 
 CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o gcrt1.o
+ifeq ($(strip $(UCLIBC_PIE_SUPPORT)),y)
+CRT0_OBJ += Scrt0.o Scrt1.o
+endif
 CRT0_DEPS=gmon-start.S
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
@@ -44,6 +47,13 @@ $(LIBC): ar-target
 ar-target: $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 	cp $(CRT0_OBJ) $(TOPDIR)lib/
+ifeq ($(strip $(UCLIBC_PIE_SUPPORT)),y)
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+	$(RM) $(TOPDIR)lib/Scrt0.o
+else
+	mv $(TOPDIR)lib/Scrt0.o $(TOPDIR)lib/Scrt1.o
+endif
+endif
 
 $(CRT0_OBJ): $(CRT0_SRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o

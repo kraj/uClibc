@@ -177,6 +177,20 @@ config FORCE_SHAREABLE_TEXT_SEGMENTS
 	  little bit smaller and guarantee that no memory will be wasted by badly
 	  coded shared libraries.
 
+config UCLIBC_PIE_SUPPORT
+	bool "Support ET_DYN in shared library loader"
+	select FORCE_SHAREABLE_TEXT_SEGMENTS
+	default n
+	help
+	  If you answer Y here, the uClibc native shared library loader will
+	  support ET_DYN/PIE executables.
+	  It requires binutils-2.14.90.0.6 or later and the usage of the
+	  -pie option.
+	  More about ET_DYN/PIE binaries on <http://pageexec.virtualave.net/> .
+	  WARNING: This option also enables FORCE_SHAREABLE_TEXT_SEGMENTS, so all
+		libraries have to be built with -fPIC or -fpic, and all assembler
+		functions must be written as position independent code (PIC).
+
 config LDSO_LDD_SUPPORT
 	bool "Native shared library loader 'ldd' support"
 	depends on BUILD_UCLIBC_LDSO
@@ -204,6 +218,17 @@ config UCLIBC_CTOR_DTOR
 	  then you definitely want to answer Y here.  If you don't need ctors
 	  or dtors and want your binaries to be as small as possible, then
 	  answer N.
+	  
+config UCLIBC_PROPOLICE
+	bool "Support for propolice stack protection"
+	default n
+	help
+	  Propolice stack protection.
+	  More about it on <http://www.research.ibm.com/trl/projects/security/ssp> .
+	  To be able to use it, you'll also need a propolice patched gcc,
+	  supporting the -fstack-protector[-all] options. It is a specially patched
+	  gcc version, were __guard and __stack_smash_handler are removed from libgcc.
+	  Most people will answer N.
 
 config UCLIBC_PROFILING
 	bool "Support gprof profiling"

@@ -18,6 +18,7 @@ Cambridge, MA 02139, USA.  */
 
 
 /*  Based on the code from GNU libc, but hacked up by John Beppu and Erik Andersen */
+/*  adapted by PaX Team for ET_DYN/PIE binaries */
 
 /*
     When we enter this piece of code, the program stack looks like this:
@@ -37,7 +38,7 @@ Cambridge, MA 02139, USA.  */
 
 	.global	_start
 	.type	_start,%function
-#if defined L_crt0 || ! defined __UCLIBC_CTOR_DTOR__
+#if defined L_crt0 || defined L_Scrt0 || ! defined __UCLIBC_CTOR_DTOR__
 	.type	__uClibc_main,%function
 #else
 	.weak	_init
@@ -74,10 +75,22 @@ _start:
 	pushl %ebp      /* callers %ebp (frame pointer) */
 	movl %esp,%ebp  /* mark callers stack frame as invalid */
 
-#if (defined L_crt1 || defined L_gcrt1 ) && defined __UCLIBC_CTOR_DTOR__
+#if defined L_Scrt0 || defined L_Scrt1
+	call .L0
+.L0:
+	pop %edx
+	addl $_GLOBAL_OFFSET_TABLE_+[.-.L0],%edx
+#endif
+
+#if (defined L_crt1 || defined L_Scrt1 || defined L_gcrt1 ) && defined __UCLIBC_CTOR_DTOR__
 	/* Push .init and .fini arguments to __uClibc_start_main() on the stack */
+#ifdef L_Scrt1
+	pushl _fini@GOT(%edx)
+	pushl _init@GOT(%edx)
+#else
 	pushl $_fini
 	pushl $_init
+#endif
 
 	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */ 
 	pushl %eax	/* Environment pointer */
@@ -85,14 +98,22 @@ _start:
 	pushl %ecx	/* And the argument count */
 
 	/* Ok, now run uClibc's main() -- shouldn't return */
+#ifdef L_Scrt1
+	call *__uClibc_start_main@GOT(%edx)
+#else
 	call __uClibc_start_main
+#endif
 #else
 	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */ 
 	pushl %eax	/* Environment pointer */
 	pushl %ebx	/* Argument pointer */
 	pushl %ecx	/* And the argument count */
 
+#ifdef L_Scrt0
+	call *__uClibc_main@GOT(%edx)
+#else
 	call __uClibc_main
+#endif
 #endif
 
 	/* Crash if somehow `exit' returns anyways.  */
