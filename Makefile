@@ -140,6 +140,11 @@ install: install_runtime install_dev
 install_runtime:
 	install -d $(INSTALL_DIR)/lib
 	cp -fa lib/* $(INSTALL_DIR)/lib;
+#ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
+	ln -sf $(INSTALL_DIR)/lib/$(UCLIBC_LDSO) /lib/$(UCLIBC_LDSO);
+	install -d $(INSTALL_DIR)/etc
+	ldso/util/ldconfig
+#endif
 
 # Installs development library and headers
 # This is done with the assumption that it can blow away anything
