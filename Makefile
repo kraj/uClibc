@@ -174,9 +174,13 @@ uClibc_config: Makefile Config
 	fi
 	@if [ "$(HAS_LOCALE)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAS_LOCALE__ 1" >> include/bits/uClibc_config.h ; \
-	    echo "#define __UCLIBC_LOCALE_DIR \""$(LOCALE_DIR)"\"" >> include/bits/uClibc_config.h ; \
 	else \
 	    echo "#undef __UCLIBC_HAS_LOCALE__" >> include/bits/uClibc_config.h ; \
+	fi
+	@if [ "$(HAS_WCHAR)" = "true" ] ; then \
+	    echo "#define __UCLIBC_HAS_WCHAR__ 1" >> include/bits/uClibc_config.h ; \
+	else \
+	    echo "#undef __UCLIBC_HAS_WCHAR__" >> include/bits/uClibc_config.h ; \
 	fi
 	@if [ "$(HAVE_ELF)" = "false" ] ; then \
 	    echo "#undef HAVE_ELF" >> include/bits/uClibc_config.h ; \

@@ -23,7 +23,7 @@
 /* Get the type definition.  */
 #include <nl_types.h>
 
-#include <bits/locale.h>	/* Define the __LC_* category names.  */
+#include <bits/uClibc_locale.h>	/* Define the __LC_* category names.  */
 
 
 __BEGIN_DECLS
@@ -32,11 +32,12 @@ __BEGIN_DECLS
    (LC_*) and an item index within the category.  Some code may depend on
    the item values within a category increasing monotonically with the
    indices.  */
-#define _NL_ITEM(category, index)	(((category) << 16) | (index))
+#define _NL_ITEM(category, index) \
+	(((category) << __NL_ITEM_CATEGORY_SHIFT) | (index))
 
 /* Extract the category and item index from a constructed `nl_item' value.  */
-#define _NL_ITEM_CATEGORY(item)		((int) (item) >> 16)
-#define _NL_ITEM_INDEX(item)		((int) (item) & 0xffff)
+#define _NL_ITEM_CATEGORY(item)		((int) (item) >> __NL_ITEM_CATEGORY_SHIFT)
+#define _NL_ITEM_INDEX(item)		((int) (item) & __NL_ITEM_INDEX_MASK)
 
 
 /* Enumeration of locale items that can be queried with `nl_langinfo'.  */
@@ -157,6 +158,7 @@ enum
   ERA_T_FMT,			/* Time in alternate era format.  */
 #define ERA_T_FMT		ERA_T_FMT
 
+#if 0
   _NL_TIME_ERA_NUM_ENTRIES,	/* Number entries in the era arrays.  */
   _NL_TIME_ERA_ENTRIES,		/* Structure with era entries in usable form.*/
 
@@ -232,12 +234,14 @@ enum
   _NL_W_DATE_FMT,
 
   _NL_TIME_CODESET,
+#endif /* 0 */
 
   _NL_NUM_LC_TIME,	/* Number of indices in LC_TIME category.  */
 
   /* LC_COLLATE category: text sorting.
      This information is accessed by the strcoll and strxfrm functions.
      These `nl_langinfo' names are used only internally.  */
+#if 0
   _NL_COLLATE_NRULES = _NL_ITEM (__LC_COLLATE, 0),
   _NL_COLLATE_RULESETS,
   _NL_COLLATE_TABLEMB,
@@ -258,10 +262,12 @@ enum
   _NL_COLLATE_COLLSEQWC,
   _NL_COLLATE_CODESET,
   _NL_NUM_LC_COLLATE,
+#endif
 
   /* LC_CTYPE category: character classification.
      This information is accessed by the functions in <ctype.h>.
      These `nl_langinfo' names are used only internally.  */
+#if 0
   _NL_CTYPE_CLASS = _NL_ITEM (__LC_CTYPE, 0),
   _NL_CTYPE_TOUPPER,
   _NL_CTYPE_GAP1,
@@ -349,6 +355,11 @@ enum
   _NL_CTYPE_EXTRA_MAP_13,
   _NL_CTYPE_EXTRA_MAP_14,
   _NL_NUM_LC_CTYPE,
+#else  /* 0 */
+  _NL_CTYPE_CODESET_NAME = _NL_ITEM (__LC_CTYPE, 0),
+  CODESET = _NL_CTYPE_CODESET_NAME,
+#define CODESET			CODESET
+#endif /* 0 */
 
   /* LC_MONETARY category: formatting of monetary quantities.
      These items each correspond to a member of `struct lconv',
@@ -413,8 +424,6 @@ enum
 #ifdef __USE_GNU
 # define N_SIGN_POSN		__N_SIGN_POSN
 #endif
-  _NL_MONETARY_CRNCYSTR,
-#define CRNCYSTR		_NL_MONETARY_CRNCYSTR
   __INT_P_CS_PRECEDES,
 #ifdef __USE_GNU
 # define INT_P_CS_PRECEDES	__INT_P_CS_PRECEDES
@@ -439,6 +448,11 @@ enum
 #ifdef __USE_GNU
 # define INT_N_SIGN_POSN	__INT_N_SIGN_POSN
 #endif
+
+  _NL_MONETARY_CRNCYSTR,
+#define CRNCYSTR		_NL_MONETARY_CRNCYSTR
+
+#if 0
   _NL_MONETARY_DUO_INT_CURR_SYMBOL,
   _NL_MONETARY_DUO_CURRENCY_SYMBOL,
   _NL_MONETARY_DUO_INT_FRAC_DIGITS,
@@ -463,6 +477,7 @@ enum
   _NL_MONETARY_DECIMAL_POINT_WC,
   _NL_MONETARY_THOUSANDS_SEP_WC,
   _NL_MONETARY_CODESET,
+#endif /* 0 */
   _NL_NUM_LC_MONETARY,
 
   /* LC_NUMERIC category: formatting of numbers.
@@ -483,15 +498,18 @@ enum
 #ifdef __USE_GNU
 # define GROUPING		__GROUPING
 #endif
+#if 0
   _NL_NUMERIC_DECIMAL_POINT_WC,
   _NL_NUMERIC_THOUSANDS_SEP_WC,
   _NL_NUMERIC_CODESET,
+#endif
   _NL_NUM_LC_NUMERIC,
 
   __YESEXPR = _NL_ITEM (__LC_MESSAGES, 0), /* Regex matching ``yes'' input.  */
 #define YESEXPR			__YESEXPR
   __NOEXPR,			/* Regex matching ``no'' input.  */
 #define NOEXPR			__NOEXPR
+#if 0
   __YESSTR,			/* Output string for ``yes''.  */
 #if defined __USE_GNU || (defined __USE_XOPEN && !defined __USE_XOPEN2K)
 # define YESSTR			__YESSTR
@@ -501,8 +519,10 @@ enum
 # define NOSTR			__NOSTR
 #endif
   _NL_MESSAGES_CODESET,
+#endif
   _NL_NUM_LC_MESSAGES,
 
+#if 0
   _NL_PAPER_HEIGHT = _NL_ITEM (__LC_PAPER, 0),
   _NL_PAPER_WIDTH,
   _NL_PAPER_CODESET,
@@ -560,7 +580,7 @@ enum
   _NL_IDENTIFICATION_CATEGORY,
   _NL_IDENTIFICATION_CODESET,
   _NL_NUM_LC_IDENTIFICATION,
-
+#endif
   /* This marks the highest value used.  */
   _NL_NUM
 };
@@ -585,7 +605,7 @@ extern char *nl_langinfo (nl_item __item) __THROW;
 
 /* Just like nl_langinfo but get the information from the locale object L.  */
 extern char *__nl_langinfo_l (nl_item __item, __locale_t l);
-#endif
+#endif /* 0 */
 
 __END_DECLS
 

@@ -26,7 +26,6 @@ __BEGIN_DECLS
 /* Return directory part of PATH or "." if none is available.  */
 extern char *dirname (char *__path) __THROW;
 
-#if 0
 /* Return final component of PATH.
 
    This is the weird XPG version of this function.  It sometimes will
@@ -35,7 +34,6 @@ extern char *dirname (char *__path) __THROW;
    version available under the real name.  */
 extern char *__xpg_basename (char *__path) __THROW;
 #define basename	__xpg_basename
-#endif
 
 __END_DECLS
 

@@ -1,341 +1,329 @@
-/* ctype.c
- * Character classification and conversion
- * Copyright (C) 2000 Lineo, Inc.
- * Written by Erik Andersen
- * This file is part of the uClibc C library and is distributed
- * under the GNU Library General Public License.
+/*  Copyright (C) 2002     Manuel Novoa III
  *
- * not C-locale only code
- * written by Vladimir Oleynik (c) vodz@usa.net
- * and Manuel Novoa III <mnovoa3@bellsouth.net>
- * used ideas is part of the GNU C Library.
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Library General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Library General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Library General Public
+ *  License along with this library; if not, write to the Free
+ *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#define __USE_CTYPE_MACROS
+/*  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!
+ *
+ *  Besides uClibc, I'm using this code in my libc for elks, which is
+ *  a 16-bit environment with a fairly limited compiler.  It would make
+ *  things much easier for me if this file isn't modified unnecessarily.
+ *  In particular, please put any new or replacement functions somewhere
+ *  else, and modify the makefile to use your version instead.
+ *  Thanks.  Manuel
+ *
+ *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
+
+#define _GNU_SOURCE
+#define __NO_CTYPE
+
 #include <ctype.h>
-
-#ifdef L_isascii
-#undef isascii
-int
-isascii( int c )
-{
-    return (c > 0 && c <= 0x7f);
-}
-#endif
-
-#ifdef L_isdigit
-#undef isdigit
-int
-isdigit( int c )
-{
-    return (c >= '0' && c <= '9');
-}
-#endif
-
-#ifdef L_toascii
-#undef toascii
-int
-toascii( int c )
-{
-    return (c & 0x7f);
-}
-#endif
-
-#ifdef L_isblank
-#undef isblank
-int
-isblank( int c )
-{
-    return ((c == ' ') || (c == '\t'));
-}
-#endif
-
-/* locale depended */
-#ifndef __UCLIBC_HAS_LOCALE__
-
-#ifdef L_isalpha
-#undef isalpha
-int
-isalpha( int c )
-{
-    return (isupper(c) || islower(c));
-}
-#endif
-
-#ifdef L_isalnum
-#undef isalnum
-int
-isalnum( int c )
-{
-    return (isalpha(c) || isdigit(c));
-}
-#endif
-
-#ifdef L_iscntrl
-#undef iscntrl
-int
-iscntrl( int c )
-{
-    return ((c >= 0) && ((c <= 0x1f) || (c == 0x7f)));
-}
-#endif
-
-#ifdef L_isgraph
-#undef isgraph
-int
-isgraph( int c )
-{
-    return (c > ' ' && isprint(c));
-}
-#endif
-
-#ifdef L_islower
-#undef islower
-int
-islower( int c )
-{
-    return (c >=  'a' && c <= 'z');
-}
-#endif
-
-#ifdef L_isprint
-#undef isprint
-int
-isprint( int c )
-{
-    return (c >= ' ' && c <= '~');
-}
-#endif
-
-#ifdef L_ispunct
-#undef ispunct
-int
-ispunct( int c )
-{
-    return ((c > ' ' && c <= '~') && !isalnum(c));
-}
-#endif
-
-#ifdef L_isspace
-#undef isspace
-int
-isspace( int c )
-{
-    return (c == ' ' || c == '\f' || c == '\n' || c == '\r' ||
-	    c == '\t' || c == '\v');
-}
-#endif
-
-#ifdef L_isupper
-#undef isupper
-int
-isupper( int c )
-{
-    return (c >=  'A' && c <= 'Z');
-}
-#endif
-
-#ifdef L_isxdigit
-#undef isxdigit
-int
-isxdigit( int c )
-{
-    return (isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
-}
-#endif
-
-#ifdef L_isxlower
-#undef isxlower
-int
-isxlower( int c )
-{
-    return (isdigit(c) || (c >= 'a' && c <= 'f'));
-}
-#endif
-
-#ifdef L_isxupper
-#undef isxupper
-int
-isxupper( int c )
-{
-    return (isdigit(c) || (c >= 'A' && c <= 'F'));
-}
-#endif
-
-#ifdef L_tolower
-#undef tolower
-int
-tolower( int c )
-{
-    return (isupper(c) ? (c - 'A' + 'a') : (c));
-}
-#endif
-
-#ifdef L_toupper
-#undef toupper
-int
-toupper( int c )
-{
-    return (islower(c) ? (c - 'a' + 'A') : (c));
-}
-#endif
-
-#else   /* __UCLIBC_HAS_LOCALE__ */
-
+#include <stdio.h>
 #include <limits.h>
-#include "../locale/_locale.h"
+#include <assert.h>
+#include <locale.h>
 
-#define _UC_ISCTYPE(c, type) \
-((c != -1) && ((_uc_ctype_b[(int)((unsigned char)c)] & type) != 0))
+/**********************************************************************/
 
-#define _UC_ISCTYPE2(c, type, type2) \
-((c != -1) && ((_uc_ctype_b[(int)((unsigned char)c)] & type) == type2))
+extern int __isctype_loc(int c, int ct);
 
+/* Some macros used throughout the file. */
+#define U		((unsigned char)c)
+/*  #define LCT		(__cur_locale->ctype) */
+#define LCT		(&__global_locale)
 
-#ifdef L_ctype_C
+/**********************************************************************/
 
-/* startup setlocale(LC_TYPE, "C"); */
-#include "ctype_C.c"
-
-const unsigned char *_uc_ctype_b     = _uc_ctype_b_C;
-const unsigned char *_uc_ctype_trans = _uc_ctype_b_C+LOCALE_BUF_SIZE/2;
-
-#endif  /* L_ctype_C */
-
-#ifdef L_isalpha
-#undef isalpha
-int
-isalpha( int c )
-{
-    return _UC_ISCTYPE(c, ISalpha);
-}
+#ifndef __PASTE
+#define __PASTE(X,Y)		X ## Y
 #endif
 
+#define C_MACRO(X)		__PASTE(__C_,X)(c)
+
+#define CT_MACRO(X)		__PASTE(__ctype_,X)(c)
+
+/**********************************************************************/
+
+#ifndef __CTYPE_HAS_8_BIT_LOCALES
+
+#define IS_FUNC_BODY(NAME) \
+int NAME (int c) \
+{ \
+	return C_MACRO(NAME); \
+}
+
+#else
+
+/* It may be worth defining __isctype_loc over the whole range of char. */
+/*  #define IS_FUNC_BODY(NAME) \ */
+/*  int NAME (int c) \ */
+/*  { \ */
+/*  	return __isctype_loc(c, __PASTE(_CTYPE_,NAME)); \ */
+/*  } */
+
+#define IS_FUNC_BODY(NAME) \
+int NAME (int c) \
+{ \
+	if (((unsigned int) c) <= 0x7f) { \
+		return C_MACRO(NAME); \
+	} \
+	return __isctype_loc(c, __PASTE(_CTYPE_,NAME)); \
+}
+
+#endif /* __CTYPE_HAS_8_BIT_LOCALES */
+
+/**********************************************************************/
 #ifdef L_isalnum
-#undef isalnum
-int
-isalnum( int c )
-{
-    return _UC_ISCTYPE(c, (ISalpha|ISxdigit));
-}
-#endif
 
+IS_FUNC_BODY(isalnum);
+
+#endif
+/**********************************************************************/
+#ifdef L_isalpha
+
+IS_FUNC_BODY(isalpha);
+
+#endif
+/**********************************************************************/
+#ifdef L_isblank
+
+/* Warning!!! This is correct for all the currently supported 8-bit locales.
+ * If any are added though, this will need to be verified. */
+
+int isblank(int c)
+{
+	return __isblank(c);
+}
+
+#endif
+/**********************************************************************/
 #ifdef L_iscntrl
-#undef iscntrl
-int
-iscntrl( int c )
-{
-    return _UC_ISCTYPE(c, IScntrl);
-}
-#endif
 
+IS_FUNC_BODY(iscntrl);
+
+#endif
+/**********************************************************************/
+#ifdef L_isdigit
+
+int isdigit(int c)
+{
+	return __isdigit(c);
+}
+
+#endif
+/**********************************************************************/
 #ifdef L_isgraph
-#undef isgraph
-int
-isgraph( int c )
-{
-    return _UC_ISCTYPE2(c, (ISprint|ISspace), ISprint);
-}
-#endif
 
+IS_FUNC_BODY(isgraph);
+
+#endif
+/**********************************************************************/
 #ifdef L_islower
-#undef islower
-int
-islower( int c )
-{
-    return _UC_ISCTYPE(c, ISlower);
-}
-#endif
 
+IS_FUNC_BODY(islower);
+
+#endif
+/**********************************************************************/
 #ifdef L_isprint
-#undef isprint
-int
-isprint( int c )
-{
-    return _UC_ISCTYPE(c, ISprint);
-}
-#endif
 
+IS_FUNC_BODY(isprint);
+
+#endif
+/**********************************************************************/
 #ifdef L_ispunct
-#undef ispunct
-int
-ispunct( int c )
-{
-    return _UC_ISCTYPE(c, ISpunct);
-}
-#endif
 
+IS_FUNC_BODY(ispunct);
+
+#endif
+/**********************************************************************/
 #ifdef L_isspace
-#undef isspace
-int
-isspace( int c )
-{
-    return _UC_ISCTYPE(c, ISspace);
-}
-#endif
 
+/* Warning!!! This is correct for all the currently supported 8-bit locales.
+ * If any are added though, this will need to be verified. */
+
+int isspace(int c)
+{
+	return __isspace(c);
+}
+
+#endif
+/**********************************************************************/
 #ifdef L_isupper
-#undef isupper
-int
-isupper( int c )
-{
-    return _UC_ISCTYPE(c, ISupper);
-}
-#endif
 
+IS_FUNC_BODY(isupper);
+
+#endif
+/**********************************************************************/
 #ifdef L_isxdigit
-#undef isxdigit
-int
-isxdigit( int c )
-{
-    return _UC_ISCTYPE(c, ISxdigit);
-}
-#endif
 
-#ifdef L_isxlower
-#undef isxlower
-int
-isxlower( int c )
+int isxdigit(int c)
 {
-    return _UC_ISCTYPE2(c, (ISxdigit|ISupper), ISxdigit);
+	return __isxdigit(c);
 }
-#endif
 
-#ifdef L_isxupper
-#undef isxupper
-int
-isxupper( int c )
-{
-    return _UC_ISCTYPE2(c, (ISxdigit|ISlower), ISxdigit);
-}
 #endif
-
+/**********************************************************************/
 #ifdef L_tolower
-#undef tolower
-int
-tolower( int c )
-{
-    if((c < CHAR_MIN) || (c > UCHAR_MAX))
-		return c;
-    if(isupper(c))
-		return _uc_ctype_trans[(int)((unsigned char)c)];
-    else
-		return c;
-}
-#endif
 
+#ifdef __CTYPE_HAS_8_BIT_LOCALES
+
+int tolower(int c)
+{
+	return ((((unsigned int) c) <= 0x7f)
+			|| (LCT->encoding != __ctype_encoding_8_bit))
+		? __C_tolower(c)
+		: ( __isctype_loc(c, _CTYPE_isupper)
+			? (unsigned char)
+			( U - LCT->tbl8uplow[ ((int)
+								   (LCT->idx8uplow[(U & 0x7f)
+												  >> Cuplow_IDX_SHIFT])
+								   << Cuplow_IDX_SHIFT)
+								+ (U & ((1 << Cuplow_IDX_SHIFT) - 1)) ])
+			: c );
+}
+
+#else  /* __CTYPE_HAS_8_BIT_LOCALES */
+
+int tolower(int c)
+{
+	return __C_tolower(c);
+}
+
+#endif /* __CTYPE_HAS_8_BIT_LOCALES */
+
+#endif
+/**********************************************************************/
 #ifdef L_toupper
-#undef toupper
-int
-toupper( int c )
+
+#ifdef __CTYPE_HAS_8_BIT_LOCALES
+
+int toupper(int c)
 {
-    if((c < CHAR_MIN) || (c > UCHAR_MAX))
-		return c;
-    if(islower(c))
-		return _uc_ctype_trans[(int)((unsigned char)c)];
-    else
-		return c;
+	return ((((unsigned int) c) <= 0x7f)
+			|| (LCT->encoding != __ctype_encoding_8_bit))
+		? __C_toupper(c)
+		: ( __isctype_loc(c, _CTYPE_islower)
+			? (unsigned char)
+			( U + LCT->tbl8uplow[ ((int)
+								   (LCT->idx8uplow[(U & 0x7f)
+												  >> Cuplow_IDX_SHIFT])
+								   << Cuplow_IDX_SHIFT)
+								+ (U & ((1 << Cuplow_IDX_SHIFT) - 1)) ])
+			: c );
 }
-#endif
+
+#else  /* __CTYPE_HAS_8_BIT_LOCALES */
+
+int toupper(int c)
+{
+	return __C_toupper(c);
+}
+
+#endif /* __CTYPE_HAS_8_BIT_LOCALES */
 
 #endif
+/**********************************************************************/
+#ifdef L_isascii
+
+int isascii(int c)
+{
+	return __isascii(c);
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_toascii
+
+int toascii(int c)
+{
+	return __toascii(c);
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_isxlower
+
+int isxlower(int c)
+{
+	return __isxlower(c);
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_isxupper
+
+int isxupper(int c)
+{
+	return __isxupper(c);
+}
+
+#endif
+/**********************************************************************/
+#ifdef L___isctype_loc
+#ifdef __CTYPE_HAS_8_BIT_LOCALES
+
+/* This internal routine is similar to iswctype(), but it doesn't
+ * work for any non-standard types, itdoesn't work for "xdigit"s,
+ * and it doesn't work for chars between 0 and 0x7f (although that
+ * may change). */
+
+static const char ctype_range[] = {
+	__CTYPE_RANGES
+};
+
+int __isctype_loc(int c, int ct)
+{
+	unsigned char d;
+
+	assert(((unsigned int)ct) < _CTYPE_isxdigit);
+	assert(((unsigned int)c) > 0x7f);
+
+#if (CHAR_MIN == 0)				/* We don't have signed chars... */
+	if ((LCT->encoding != __ctype_encoding_8_bit)
+		|| (((unsigned int) c) > UCHAR_MAX)
+		) {
+		return 0;
+	}
+#else
+	/* Allow non-EOF negative char values for glibc compatiblity. */
+	if ((LCT->encoding != __ctype_encoding_8_bit) || (c == EOF) 
+		|| ( ((unsigned int)(c - CHAR_MIN)) > (UCHAR_MAX - CHAR_MIN))
+		) {
+		return 0;
+	}
+#endif
+
+	/* TODO - test assumptions??? 8-bit chars -- or ensure in generator. */
+
+#define Cctype_TBL_MASK		((1 << Cctype_IDX_SHIFT) - 1)
+#define Cctype_IDX_OFFSET	(128 >> Cctype_IDX_SHIFT)
+
+	c &= 0x7f;
+#ifdef Cctype_PACKED
+	d = LCT->tbl8ctype[ ((int)(LCT->idx8ctype[(U >> Cctype_IDX_SHIFT) ])
+						 << (Cctype_IDX_SHIFT - 1))
+					  + ((U & Cctype_TBL_MASK) >> 1)];
+	d = (U & 1) ? (d >> 4) : (d & 0xf);
+#else
+	d = LCT->tbl8ctype[ ((int)(LCT->idx8ctype[(U >> Cctype_IDX_SHIFT) ])
+						 << Cctype_IDX_SHIFT)
+					  + (U & Cctype_TBL_MASK) ];
+#endif
+	return ( ((unsigned char)(d - ctype_range[2*ct])) <= ctype_range[2*ct+1] );
+}
+
+#endif /* __CTYPE_HAS_8_BIT_LOCALES */
+#endif
+/**********************************************************************/

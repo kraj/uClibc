@@ -27,30 +27,44 @@
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE
-#include <stdlib.h>
 #include <limits.h>
 #include <stdint.h>
 #include <inttypes.h>
 #include <ctype.h>
 #include <errno.h>
 #include <assert.h>
+#include <unistd.h>
+
+/* Work around gcc's refusal to create aliases. */
+#define atoi __ignore_atoi
+#define abs __ignore_abs
+#include <stdlib.h>
+#undef atoi
+#undef abs
 
 extern unsigned long
 _stdlib_strto_l(register const char * __restrict str,
 				char ** __restrict endptr, int base, int sflag);
+
+#if defined(ULLONG_MAX)
 extern unsigned long long
 _stdlib_strto_ll(register const char * __restrict str,
 				 char ** __restrict endptr, int base, int sflag);
+#endif
 
-/* TODO: gcc reports an error due to prototype conflicts.  Don't include
- * the header for the problem cases? */
-#define HEADER_ALIAS_PROBLEM
+/**********************************************************************/
+#ifdef L_atof
 
+double atof(const char *nptr)
+{
+	return strtod(nptr, (char **) NULL);
+}
+
+#endif
 /**********************************************************************/
 #ifdef L_abs
 
-#ifdef HEADER_ALIAS_PROBLEM
-/*  #if UINT_MAX < ULONG_MAX */
+#if UINT_MAX < ULONG_MAX
 
 int abs(int j)
 {
@@ -63,8 +77,7 @@ int abs(int j)
 /**********************************************************************/
 #ifdef L_labs
 
-#ifndef HEADER_ALIAS_PROBLEM
-/*  #if UINT_MAX == ULONG_MAX */
+#if UINT_MAX == ULONG_MAX
 strong_alias(labs,abs)
 #endif
 
@@ -102,8 +115,7 @@ long long int llabs(long long int j)
 /**********************************************************************/
 #ifdef L_atoi
 
-#ifdef HEADER_ALIAS_PROBLEM
-/*  #if UINT_MAX < ULONG_MAX  */
+#if UINT_MAX < ULONG_MAX 
 
 int atoi(const char *nptr)
 {
@@ -116,8 +128,7 @@ int atoi(const char *nptr)
 /**********************************************************************/
 #ifdef L_atol
 
-#ifndef HEADER_ALIAS_PROBLEM
-/*  #if UINT_MAX == ULONG_MAX */
+#if UINT_MAX == ULONG_MAX
 strong_alias(atol,atoi)
 #endif
 
@@ -443,6 +454,152 @@ unsigned long long _stdlib_strto_ll(register const char * __restrict str,
 }
 
 #endif /* defined(ULLONG_MAX) && (ULLONG_MAX > ULONG_MAX) */
+
+#endif
+/**********************************************************************/
+/* Made _Exit() an alias for _exit(), as per C99. */
+/*  #ifdef L__Exit */
+
+/*  void _Exit(int status) */
+/*  { */
+/*  	_exit(status); */
+/*  } */
+
+/*  #endif */
+/**********************************************************************/
+#ifdef L_bsearch
+
+void *bsearch(const void *key, const void *base, size_t /* nmemb */ high,
+			  size_t size, int (*compar)(const void *, const void *))
+{
+	register char *p;
+	size_t low;
+	size_t mid;
+	int r;
+
+	if (size > 0) {				/* TODO: change this to an assert?? */
+		low = 0;
+		while (low < high) {
+			mid = low + ((high - low) >> 1); /* Avoid possible overflow here. */
+			p = ((char *)base) + mid * size; /* Could overflow here... */
+			r = (*compar)(key, p); /* but that's an application problem! */
+			if (r > 0) {
+				low = mid + 1;
+			} else if (r < 0) {
+				high = mid;
+			} else {
+				return p;
+			}
+		}
+	}
+	return NULL;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_qsort
+
+/* This code is derived from a public domain shell sort routine by
+ * Ray Gardner and found in Bob Stout's snippets collection.  The
+ * original code is included below in an #if 0/#endif block.
+ *
+ * I modified it to avoid the possibility of overflow in the wgap
+ * calculation, as well as to reduce the generated code size with
+ * bcc and gcc. */
+
+void qsort (void  *base,
+            size_t nel,
+            size_t width,
+            int (*comp)(const void *, const void *))
+{
+	size_t wgap, i, j, k;
+	char tmp;
+
+	if ((nel > 1) && (width > 0)) {
+		assert( nel <= ((size_t)(-1)) / width ); /* check for overflow */
+		wgap = 0;
+		do {
+			wgap = 3 * wgap + 1;
+		} while (wgap < (nel-1)/3);
+		/* From the above, we know that either wgap == 1 < nel or */
+		/* ((wgap-1)/3 < (int) ((nel-1)/3) <= (nel-1)/3 ==> wgap <  nel. */
+		wgap *= width;			/* So this can not overflow if wnel doesn't. */
+		nel *= width;			/* Convert nel to 'wnel' */
+		do {
+			i = wgap;
+			do {
+				j = i;
+				do {
+					register char *a;
+					register char *b;
+
+					j -= wgap;
+					a = j + ((char *)base);
+					b = a + wgap;
+					if ( (*comp)(a, b) <= 0 ) {
+						break;
+					}
+					k = width;
+					do {
+						tmp = *a;
+						*a++ = *b;
+						*b++ = tmp;
+					} while ( --k );
+				} while (j >= wgap);
+				i += width;
+			} while (i < nel);
+			wgap = (wgap - width)/3;
+		} while (wgap);
+	}
+}
+
+/* ---------- original snippets version below ---------- */
+
+#if 0
+/*
+**  ssort()  --  Fast, small, qsort()-compatible Shell sort
+**
+**  by Ray Gardner,  public domain   5/90
+*/
+
+#include <stddef.h>
+
+void ssort (void  *base,
+            size_t nel,
+            size_t width,
+            int (*comp)(const void *, const void *))
+{
+      size_t wnel, gap, wgap, i, j, k;
+      char *a, *b, tmp;
+
+      wnel = width * nel;
+      for (gap = 0; ++gap < nel;)
+            gap *= 3;
+      while ( gap /= 3 )
+      {
+            wgap = width * gap;
+            for (i = wgap; i < wnel; i += width)
+            {
+                  for (j = i - wgap; ;j -= wgap)
+                  {
+                        a = j + (char *)base;
+                        b = a + wgap;
+                        if ( (*comp)(a, b) <= 0 )
+                              break;
+                        k = width;
+                        do
+                        {
+                              tmp = *a;
+                              *a++ = *b;
+                              *b++ = tmp;
+                        } while ( --k );
+                        if (j < wgap)
+                              break;
+                  }
+            }
+      }
+}
+#endif
 
 #endif
 /**********************************************************************/

@@ -24,9 +24,14 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=locale.c localeconv.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+MSRC= locale.c
+MOBJ= setlocale.o localeconv.o _locale_init.o nl_langinfo.o
+
+OBJS= $(MOBJ)
+
+ifeq ($(HAS_LOCALE),true)
+	OBJS += locale_data.o
+endif
 
 all: $(OBJS) $(LIBC)
 
@@ -35,8 +40,8 @@ $(LIBC): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJS): Makefile

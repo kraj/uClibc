@@ -34,6 +34,9 @@ extern void weak_function _stdio_init(void);
 extern void weak_function _stdio_term(void);
 extern int *weak_const_function __errno_location(void);
 extern int *weak_const_function __h_errno_location(void);
+#ifdef __UCLIBC_HAS_LOCALE__
+extern void weak_function _locale_init(void);
+#endif
 #else
 /*
  * Define an empty function and use it as a weak alias for the stdio
@@ -62,6 +65,9 @@ extern int atexit(void (*function)(void));
 extern int *__errno_location(void);
 //weak_alias(__uClibc_empty_func, __h_errno_location);
 extern int *__h_errno_location(void);
+#ifdef __UCLIBC_HAS_LOCALE__
+extern void _locale_init(void);
+#endif
 #endif
 
 /*
@@ -93,6 +99,12 @@ __uClibc_main(int argc, char **argv, char **envp)
 	if (unlikely (__libc_enable_secure))
 	    __libc_check_standard_fds ();
 #endif
+
+#ifdef __UCLIBC_HAS_LOCALE__
+	/* Initialize the global locale structure. */
+	if (likely(_locale_init)) _locale_init();
+#endif
+
 	/*
 	 * Initialize stdio here.  In the static library case, this will
 	 * be bypassed if not needed because of the weak alias above.

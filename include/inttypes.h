@@ -27,7 +27,7 @@
 /* Get the type definitions.  */
 #include <stdint.h>
 
-#if 0
+#if __UCLIBC_HAS_WCHAR__
 /* Get a definition for wchar_t.  But we must not define wchar_t itself.  */
 #ifndef ____gwchar_t_defined
 # ifdef __cplusplus
@@ -311,7 +311,7 @@ extern intmax_t strtoimax (__const char *__restrict __nptr,
 extern uintmax_t strtoumax (__const char *__restrict __nptr,
 			    char ** __restrict __endptr, int __base) __THROW;
 
-#if 0
+#if __UCLIBC_HAS_WCHAR__
 /* Like `wcstol' but convert to `intmax_t'.  */
 extern intmax_t wcstoimax (__const __gwchar_t *__restrict __nptr,
 			   __gwchar_t **__restrict __endptr, int __base)

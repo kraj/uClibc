@@ -34,6 +34,9 @@ endif
 ifeq ($(strip $(INCLUDE_THREADS)),true)
 DIRS += pthread
 endif
+ifeq ($(strip $(HAS_WCHAR)),true)
+DIRS += wctype # wchar
+endif
 
 all: libc.a
 

@@ -27,7 +27,7 @@
 /* Get size_t, wchar_t and NULL from <stddef.h>.  */
 #define		__need_size_t
 #ifndef __need_malloc_and_calloc
-#if 0
+#ifdef __UCLIBC_HAS_WCHAR__
 # define	__need_wchar_t
 #endif
 # define	__need_NULL
@@ -130,10 +130,10 @@ __extension__ typedef struct
 #define	EXIT_SUCCESS	0	/* Successful exit status.  */
 
 
-#if 0
+#ifdef __UCLIBC_HAS_WCHAR__
 /* Maximum length of a multibyte character in the current locale.  */
-#define	MB_CUR_MAX	(__ctype_get_mb_cur_max ())
-extern size_t __ctype_get_mb_cur_max (void) __THROW;
+#define	MB_CUR_MAX	(_stdlib_mb_cur_max ())
+extern size_t _stdlib_mb_cur_max (void) __THROW;
 #endif
 
 /* Convert a string to a floating-point number.  */
@@ -776,7 +776,7 @@ extern int qfcvt_r (long double __value, int __ndigit,
 # endif	/* misc */
 #endif	/* use MISC || use X/Open Unix */
 
-#if 0
+#ifdef __UCLIBC_HAS_WCHAR__
 /* Return the length of the multibyte character
    in S, which is no longer than N.  */
 extern int mblen (__const char *__s, size_t __n) __THROW;
@@ -796,7 +796,7 @@ extern size_t mbstowcs (wchar_t *__restrict  __pwcs,
 extern size_t wcstombs (char *__restrict __s,
 			__const wchar_t *__restrict __pwcs, size_t __n)
      __THROW;
-#endif
+#endif /* def __UCLIBC_HAS_WCHAR__ */
 
 #ifdef __USE_SVID
 /* Determine whether the string value of RESPONSE matches the affirmation

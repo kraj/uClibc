@@ -24,11 +24,9 @@
 #define _STDINT_H	1
 
 #include <features.h>
-#if 0
-/*#define __need_wchar_t*/
-#include <stddef.h>
-#endif
-/*#include <bits/wchar.h>*/
+#ifdef __UCLIBC_HAS_WCHAR__
+#include <bits/wchar.h>
+#endif /* __UCLIBC_HAS_WCHAR__ */
 #include <bits/wordsize.h>
 
 /* Exact integral types.  */
@@ -280,18 +278,18 @@ typedef unsigned long long int	uintmax_t;
 #  define SIZE_MAX		(4294967295U)
 # endif
 
-#if 0
+#ifdef __UCLIBC_HAS_WCHAR__
 /* Limits of `wchar_t'.  */
 # ifndef WCHAR_MIN
 /* These constants might also be defined in <wchar.h>.  */
 #  define WCHAR_MIN		__WCHAR_MIN
 #  define WCHAR_MAX		__WCHAR_MAX
 # endif
-#endif
 
 /* Limits of `wint_t'.  */
 # define WINT_MIN		(0u)
 # define WINT_MAX		(4294967295u)
+#endif /* __UCLIBC_HAS_WCHAR__ */
 
 #endif	/* C++ && limit macros */
 

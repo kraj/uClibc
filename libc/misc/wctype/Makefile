@@ -24,18 +24,14 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-MSRC=ctype.c
-MOBJ= isalnum.o isalpha.o isascii.o iscntrl.o isdigit.o isgraph.o \
-	islower.o isprint.o ispunct.o isspace.o isupper.o isxdigit.o \
-	isxlower.o isxupper.o toascii.o tolower.o toupper.o isblank.o \
-	__isctype_loc.o
+MSRC= wctype.c
+MOBJ=  iswalnum.o iswalpha.o iswcntrl.o iswdigit.o iswgraph.o iswlower.o \
+	iswprint.o iswpunct.o iswspace.o iswupper.o iswxdigit.o towlower.o \
+	towupper.o iswblank.o wctype.o iswctype.o wctrans.o towctrans.o
 
-CSRC=junk.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(MOBJ)
 
-
-OBJS=$(MOBJ) $(COBJS)
-all: $(MOBJ) $(LIBC)
+all: $(OBJS) $(LIBC)
 
 $(LIBC): ar-target
 
@@ -45,12 +41,6 @@ ar-target: $(OBJS)
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(OBJS): Makefile
 
 clean:
 	rm -f *.[oa] *~ core

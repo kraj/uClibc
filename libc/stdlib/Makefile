@@ -28,7 +28,8 @@ DIRS = $(MALLOC)
 ALL_SUBDIRS = malloc malloc-930716 malloc-simple
 
 MSRC = stdlib.c
-MOBJ = abs.o labs.o atoi.o atol.o strtol.o strtoul.o _stdlib_strto_l.o
+MOBJ = abs.o labs.o atoi.o atol.o strtol.o strtoul.o _stdlib_strto_l.o \
+       qsort.o bsearch.o
 
 ifeq ($(HAS_LONG_LONG),true)
 	MOBJ +=  llabs.o atoll.o strtoll.o strtoull.o _stdlib_strto_ll.o
@@ -37,7 +38,7 @@ endif
 MSRC2=atexit.c
 MOBJ2=atexit.o on_exit.o __exit_handler.o exit.o
 
-CSRC =	abort.c getenv.c mktemp.c qsort.c realpath.c bsearch.c \
+CSRC =	abort.c getenv.c mktemp.c realpath.c \
 	mkstemp.c mkstemp64.c putenv.c rand.c random.c random_r.c setenv.c \
 	system.c div.c ldiv.c getpt.c ptsname.c grantpt.c unlockpt.c gcvt.c
 CSRC+=  drand48.c drand48-iter.c drand48_r.c erand48.c erand48_r.c \
