@@ -48,6 +48,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include "gcc-uClibc.h"
 
@@ -84,7 +85,7 @@ static char nostdlib[] = "-nostdlib";
 
 int main(int argc, char **argv)
 {
-	int use_build_dir = 0, linking = 1, use_static_linking = 0;
+	int linking = 1, use_static_linking = 0;
 	int use_stdinc = 1, use_start = 1, use_stdlib = 1;
 	int source_count = 0, use_rpath = 0, verbose = 0;
 	int i, j;
@@ -94,10 +95,6 @@ int main(int argc, char **argv)
 	ep = getenv("UCLIBC_GCC");
 	if (!ep) {
 		ep = "";
-	}
-
-	if ((strstr(argv[0],"build") != 0) || (strstr(ep,"build") != 0)) {
-		use_build_dir = 1;
 	}
 
 	if ((strstr(argv[0],"rpath") != 0) || (strstr(ep,"rpath") != 0)) {
@@ -181,7 +178,8 @@ int main(int argc, char **argv)
 	}
 	if (use_stdinc) {
 		gcc_argv[i++] = nostdinc;
-		gcc_argv[i++] = uClibc_inc[use_build_dir];
+		gcc_argv[i++] = uClibc_inc[0];
+		gcc_argv[i++] = uClibc_inc[1];
 		gcc_argv[i++] = GCC_INCDIR;
 	}
 	if (linking && source_count) {
@@ -192,14 +190,22 @@ int main(int argc, char **argv)
 					use_rpath = 0; /* so -rpath not needed for normal case */
 				}
 			}
-			if (use_build_dir || use_rpath) {
-				gcc_argv[i++] = rpath[use_build_dir];
+			if (use_rpath) {
+				gcc_argv[i++] = rpath[0];
+				gcc_argv[i++] = rpath[1];
 			}
 		}
-		gcc_argv[i++] = rpath_link[use_build_dir]; /* just to be safe */
-		gcc_argv[i++] = lib_path[use_build_dir];
+		gcc_argv[i++] = rpath_link[0]; /* just to be safe */
+		gcc_argv[i++] = rpath_link[1]; /* just to be safe */
+		gcc_argv[i++] = lib_path[0];
+		gcc_argv[i++] = lib_path[1];
 		if (use_start) {
-			gcc_argv[i++] = crt0_path[use_build_dir];
+			struct stat buf;
+			if (stat(crt0_path[0], &buf) >= 0) {
+				gcc_argv[i++] = crt0_path[0];
+			} else {
+				gcc_argv[i++] = crt0_path[1];
+			}
 		}
 		if (use_stdlib) {
 			gcc_argv[i++] = nostdlib;

@@ -2,7 +2,7 @@ TOPDIR = ../../
 include $(TOPDIR)Rules.mak
 
 # NOTE: This may need to be modified for your system
-DYNAMIC_LINKER = /usr/$(TARGET_ARCH)-linux-uclibc/lib/ld-linux-uclibc.so.$(MAJOR_VERSION)
+DYNAMIC_LINKER = $(INSTALL_DIR)/lib/ld-linux-uclibc.so.$(MAJOR_VERSION)
 
 UCLIBC_DIR = $(shell (cd ../.. ; /bin/pwd))
 GCC_BIN = $(CC)
@@ -26,9 +26,11 @@ gcc-uClibc: gcc-uClibc.h gcc-uClibc.c
 
 install:
 	@if [ -f $(TARGET_ARCH)-uclibc-gcc ] ; then \
-		install -m 755 $(TARGET_ARCH)-uclibc-gcc $(INSTALL_DIR)/bin/ ; \
+		mkdir -p $(INSTALL_DIR)/usr/bin ; \
+		install -m 755 $(TARGET_ARCH)-uclibc-gcc $(INSTALL_DIR)/usr/bin/ ; \
 	fi
-	$(shell (for app in addr2line ar as gasp ld nm objcopy objdump ranlib size strings strip; do \
+	$(shell (for app in addr2line ar as gasp ld nm objcopy objdump \
+						ranlib size strings strip; do \
 		    ln -fs `which $(CROSS)$${app}` $(INSTALL_DIR)/bin/$${app}; \
 		    done)\
 	)
