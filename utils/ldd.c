@@ -460,7 +460,8 @@ static struct library * find_elf_interpreter(Elf32_Ehdr* ehdr)
 				//printf("find_elf_interpreter is replacing '%s' (already in list)\n", cur->name);
 				newlib = cur;
 				free(newlib->name);
-				free(newlib->path);
+				if (newlib->path != not_found) {
+					free(newlib->path);
 				newlib->name = NULL;
 				newlib->path = NULL;
 				return NULL;
@@ -515,6 +516,7 @@ int find_dependancies(char* filename)
 	}
 	if (fstat(fileno(thefile), &statbuf) < 0) {
 		perror(filename);
+		flose(thefile);
 		return -1;
 	}
 
@@ -529,6 +531,8 @@ int find_dependancies(char* filename)
 			PROT_READ|PROT_WRITE, MAP_PRIVATE, fileno(thefile), 0);
 
 foo:
+	flose(thefile);
+
 	/* Check if this looks like a legit ELF file */
 	if (check_elf_header(ehdr)) {
 		fprintf(stderr, "%s: not an ELF file.\n", filename);
