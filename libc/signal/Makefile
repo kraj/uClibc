@@ -24,7 +24,7 @@ TOPDIR=../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-CSRC=raise.c
+CSRC=raise.c sys_siglist.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 

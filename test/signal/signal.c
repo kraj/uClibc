@@ -1,21 +1,25 @@
-/* Tester for string functions.
-   Copyright (C) 1995, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
-
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
-
-   The GNU C Library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
-
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+/* vi: set sw=4 ts=4: */
+/*
+ * signal testing function for uC-Libc
+ *
+ * Copyright (C) 2000 by Lineo, inc.
+ * Written by Erik Andersen <andersen@lineo.com>, <andersee@debian.org>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ */
 
 
 #include <errno.h>
@@ -30,21 +34,20 @@
 /* -------------------------------------------------*/
 /* This stuff is common to all the testing routines */
 /* -------------------------------------------------*/
-const char *it = "<UNSET>";	/* Routine name for message routines. */
+const char *it = "<UNSET>";		/* Routine name for message routines. */
 size_t errors = 0;
 
-void check (int thing, int number)
+void check(int thing, int number)
 {
-  if (!thing)
-    {
-      printf("%s flunked test %d\n", it, number);
-      ++errors;
-    }
+	if (!thing) {
+		printf("%s: flunked test %d\n", it, number);
+		++errors;
+	}
 }
 
-void equal (const char *a, const char *b, int number)
+void equal(const char *a, const char *b, int number)
 {
-  check(a != NULL && b != NULL && (strcmp(a, b)==0), number);
+	check(a != NULL && b != NULL && (strcmp(a, b) == 0), number);
 }
 
 
@@ -56,43 +59,42 @@ int global_int = 0;
 
 void set_global_int_to_one(int signum)
 {
-    printf("entering set_global_int_to_one\n");
-    global_int = 1;
-    return;
+	printf ("Received signal %d (%s).\n", signum, strsignal(signum));
+	global_int = 1;
+	return;
 }
 
-void
-signal_test_1 (void)
+void signal_test_1(void)
 {
-  global_int = 0;
+	global_int = 0;
 
-  signal(SIGUSR1, set_global_int_to_one);
-  raise( SIGUSR1);
-  /* This should have first jumped to the signal handler */
-  check ( (global_int == 0), 0);
+	it = "global variable set from signal handler";
+	signal(SIGUSR1, set_global_int_to_one);
+	raise(SIGUSR1);
 
-  signal(SIGUSR1, SIG_DFL);
-  raise( SIGUSR1);
-  printf("Here I am.\n");
+	/* This should already have jumped to the signal handler */
+	check((global_int == 1), 1);
+
+	global_int = 0;
+	signal(SIGUSR1, SIG_IGN);
+	raise(SIGUSR1);
+	/* This should not go to the signal handler this time since we  */
+	check((global_int == 0), 1);
 }
 
 
-int
-main (void)
+int main(void)
 {
-  int status;
+	int status;
 
-  signal_test_1 ();
+	signal_test_1();
 
-  if (errors == 0)
-    {
-      status = EXIT_SUCCESS;
-      printf("No errors.\n");
-    }
-  else
-    {
-      status = EXIT_FAILURE;
-      printf("%d errors.\n", errors);
-    }
-  exit(status);
+	if (errors == 0) {
+		status = EXIT_SUCCESS;
+		printf("No errors.\n");
+	} else {
+		status = EXIT_FAILURE;
+		printf("%d errors.\n", errors);
+	}
+	exit(status);
 }

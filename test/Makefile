@@ -20,7 +20,7 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-DIRS = assert ctype silly stdlib string 
+DIRS = assert ctype pwd_grp signal silly stdlib string 
 all: subdirs
 
 tags:

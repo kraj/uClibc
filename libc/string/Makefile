@@ -32,9 +32,9 @@ MOBJ=strlen.o strcat.o strcpy.o strchr.o strcmp.o strncat.o strncpy.o \
 MSRC1=index.c
 MOBJ1=index.o rindex.o
 
-CSRC=strpbrk.c strsep.c strstr.c strtok.c strcspn.c config.c \
-	strspn.c strcasecmp.c strncasecmp.c strerror.c sys_siglist.c \
-	bcopy.c bzero.c bcmp.c 
+CSRC=strpbrk.c strsep.c strstr.c strtok.c strcspn.c config.c strspn.c \
+	strcasecmp.c strncasecmp.c strerror.c bcopy.c bzero.c bcmp.c \
+	strsignal.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ1) $(COBJS)
 

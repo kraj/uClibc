@@ -95,6 +95,8 @@ extern size_t strcspn __P ((__const char *__s, __const char *__reject));
    consists entirely of characters in ACCEPT.  */
 extern size_t strspn __P ((__const char *__s, __const char *__accept));
 
+/* Return a string describing the meaning of the signal number in SIG.  */
+extern char *strsignal __P ((int __sig));
 
 /* More BSD compatabilty */
 #define bcmp	memcmp

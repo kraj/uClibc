@@ -32,14 +32,14 @@ char *strerror(int err)
 	if (sys_nerr) {
 		if (err < 0 || err >= sys_nerr)
 			goto unknown;
-		return sys_errlist[err];
+		strcpy(retbuf, sys_errlist[err]);
+		return retbuf;
 	}
 
 	if (err <= 0)
 		goto unknown;
 
   unknown:
-	printf("sys_nerr=%d\n", sys_nerr);
 	strcpy(retbuf, "Unknown Error: errno=");
 	strcat(retbuf, (char *) itoa(err));
 	return retbuf;
