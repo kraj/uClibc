@@ -6,32 +6,33 @@
  * may copy or modify Sun RPC without charge, but are not authorized
  * to license or distribute it to anyone else except as part of a product or
  * program developed by the user.
- * 
+ *
  * SUN RPC IS PROVIDED AS IS WITH NO WARRANTIES OF ANY KIND INCLUDING THE
  * WARRANTIES OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE, OR ARISING FROM A COURSE OF DEALING, USAGE OR TRADE PRACTICE.
- * 
+ *
  * Sun RPC is provided with no support and without any obligation on the
  * part of Sun Microsystems, Inc. to assist in its use, correction,
  * modification or enhancement.
- * 
+ *
  * SUN MICROSYSTEMS, INC. SHALL HAVE NO LIABILITY WITH RESPECT TO THE
  * INFRINGEMENT OF COPYRIGHTS, TRADE SECRETS OR ANY PATENTS BY SUN RPC
  * OR ANY PART THEREOF.
- * 
+ *
  * In no event will Sun Microsystems, Inc. be liable for any lost revenue
  * or profits or other special, indirect and consequential damages, even if
  * Sun has been advised of the possibility of such damages.
- * 
+ *
  * Sun Microsystems, Inc.
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
-#define __FORCE_GLIBC
-#include <features.h>
+#if !defined(lint) && defined(SCCSIDS)
+static char sccsid[] = "@(#)xdr_array.c 1.10 87/08/11 Copyr 1984 Sun Micro";
+#endif
 
 /*
- * xdr_array.c, Generic XDR routines impelmentation.
+ * xdr_array.c, Generic XDR routines implementation.
  *
  * Copyright (C) 1984, Sun Microsystems, Inc.
  *
@@ -39,11 +40,18 @@
  * arrays.  See xdr.h for more info on the interface to xdr.
  */
 
+#define __FORCE_GLIBC
+#define _GNU_SOURCE
+#include <features.h>
+
 #include <stdio.h>
 #include <string.h>
-
 #include <rpc/types.h>
 #include <rpc/xdr.h>
+
+#ifdef USE_IN_LIBIO
+# include <wchar.h>
+#endif
 
 #define LASTUNSIGNED	((u_int)0-1)
 
@@ -55,68 +63,82 @@
  * elsize is the size (in bytes) of each element, and elproc is the
  * xdr procedure to call to handle each element of the array.
  */
-bool_t xdr_array(xdrs, addrp, sizep, maxsize, elsize, elproc)
-register XDR *xdrs;
-caddr_t *addrp;					/* array pointer */
-u_int *sizep;					/* number of elements */
-u_int maxsize;					/* max numberof elements */
-u_int elsize;					/* size in bytes of each element */
-xdrproc_t elproc;				/* xdr routine to handle each element */
+bool_t
+xdr_array (xdrs, addrp, sizep, maxsize, elsize, elproc)
+     XDR *xdrs;
+     caddr_t *addrp;		/* array pointer */
+     u_int *sizep;		/* number of elements */
+     u_int maxsize;		/* max numberof elements */
+     u_int elsize;		/* size in bytes of each element */
+     xdrproc_t elproc;		/* xdr routine to handle each element */
 {
-	register u_int i;
-	register caddr_t target = *addrp;
-	register u_int c;			/* the actual element count */
-	register bool_t stat = TRUE;
-	register u_int nodesize;
+  u_int i;
+  caddr_t target = *addrp;
+  u_int c;		/* the actual element count */
+  bool_t stat = TRUE;
+  u_int nodesize;
 
-	/* like strings, arrays are really counted arrays */
-	if (!xdr_u_int(xdrs, sizep)) {
-		return (FALSE);
-	}
-	c = *sizep;
-	if ((c > maxsize) && (xdrs->x_op != XDR_FREE)) {
-		return (FALSE);
-	}
-	nodesize = c * elsize;
+  /* like strings, arrays are really counted arrays */
+  if (!xdr_u_int (xdrs, sizep))
+    {
+      return FALSE;
+    }
+  c = *sizep;
+  if ((c > maxsize) && (xdrs->x_op != XDR_FREE))
+    {
+      return FALSE;
+    }
+  nodesize = c * elsize;
 
-	/*
-	 * if we are deserializing, we may need to allocate an array.
-	 * We also save time by checking for a null array if we are freeing.
-	 */
+  /*
+   * if we are deserializing, we may need to allocate an array.
+   * We also save time by checking for a null array if we are freeing.
+   */
+  if (target == NULL)
+    switch (xdrs->x_op)
+      {
+      case XDR_DECODE:
+	if (c == 0)
+	  return TRUE;
+	*addrp = target = mem_alloc (nodesize);
 	if (target == NULL)
-		switch (xdrs->x_op) {
-		case XDR_DECODE:
-			if (c == 0)
-				return (TRUE);
-			*addrp = target = mem_alloc(nodesize);
-			if (target == NULL) {
-				(void) fprintf(stderr, "xdr_array: out of memory\n");
-				return (FALSE);
-			}
-			bzero(target, nodesize);
-			break;
+	  {
+#ifdef USE_IN_LIBIO
+	    if (_IO_fwide (stderr, 0) > 0)
+	      (void) __fwprintf (stderr, L"%s",
+				 _("xdr_array: out of memory\n"));
+	    else
+#endif
+	      (void) fputs (_("xdr_array: out of memory\n"), stderr);
+	    return FALSE;
+	  }
+	bzero (target, nodesize);
+	break;
 
-		case XDR_FREE:
-			return (TRUE);
-		default:				/* silence the warnings */
-		}
+      case XDR_FREE:
+	return TRUE;
+      default:
+	break;
+      }
 
-	/*
-	 * now we xdr each element of array
-	 */
-	for (i = 0; (i < c) && stat; i++) {
-		stat = (*elproc) (xdrs, target, LASTUNSIGNED);
-		target += elsize;
-	}
+  /*
+   * now we xdr each element of array
+   */
+  for (i = 0; (i < c) && stat; i++)
+    {
+      stat = (*elproc) (xdrs, target, LASTUNSIGNED);
+      target += elsize;
+    }
 
-	/*
-	 * the array may need freeing
-	 */
-	if (xdrs->x_op == XDR_FREE) {
-		mem_free(*addrp, nodesize);
-		*addrp = NULL;
-	}
-	return (stat);
+  /*
+   * the array may need freeing
+   */
+  if (xdrs->x_op == XDR_FREE)
+    {
+      mem_free (*addrp, nodesize);
+      *addrp = NULL;
+    }
+  return stat;
 }
 
 /*
@@ -129,22 +151,25 @@ xdrproc_t elproc;				/* xdr routine to handle each element */
  * > elemsize: size of each element
  * > xdr_elem: routine to XDR each element
  */
-bool_t xdr_vector(xdrs, basep, nelem, elemsize, xdr_elem)
-register XDR *xdrs;
-register char *basep;
-register u_int nelem;
-register u_int elemsize;
-register xdrproc_t xdr_elem;
+bool_t
+xdr_vector (xdrs, basep, nelem, elemsize, xdr_elem)
+     XDR *xdrs;
+     char *basep;
+     u_int nelem;
+     u_int elemsize;
+     xdrproc_t xdr_elem;
 {
-	register u_int i;
-	register char *elptr;
+  u_int i;
+  char *elptr;
 
-	elptr = basep;
-	for (i = 0; i < nelem; i++) {
-		if (!(*xdr_elem) (xdrs, elptr, LASTUNSIGNED)) {
-			return (FALSE);
-		}
-		elptr += elemsize;
+  elptr = basep;
+  for (i = 0; i < nelem; i++)
+    {
+      if (!(*xdr_elem) (xdrs, elptr, LASTUNSIGNED))
+	{
+	  return FALSE;
 	}
-	return (TRUE);
+      elptr += elemsize;
+    }
+  return TRUE;
 }

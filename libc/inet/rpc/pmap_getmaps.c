@@ -6,29 +6,30 @@
  * may copy or modify Sun RPC without charge, but are not authorized
  * to license or distribute it to anyone else except as part of a product or
  * program developed by the user.
- * 
+ *
  * SUN RPC IS PROVIDED AS IS WITH NO WARRANTIES OF ANY KIND INCLUDING THE
  * WARRANTIES OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE, OR ARISING FROM A COURSE OF DEALING, USAGE OR TRADE PRACTICE.
- * 
+ *
  * Sun RPC is provided with no support and without any obligation on the
  * part of Sun Microsystems, Inc. to assist in its use, correction,
  * modification or enhancement.
- * 
+ *
  * SUN MICROSYSTEMS, INC. SHALL HAVE NO LIABILITY WITH RESPECT TO THE
  * INFRINGEMENT OF COPYRIGHTS, TRADE SECRETS OR ANY PATENTS BY SUN RPC
  * OR ANY PART THEREOF.
- * 
+ *
  * In no event will Sun Microsystems, Inc. be liable for any lost revenue
  * or profits or other special, indirect and consequential damages, even if
  * Sun has been advised of the possibility of such damages.
- * 
+ *
  * Sun Microsystems, Inc.
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
-#define __FORCE_GLIBC
-#include <features.h>
+#if !defined(lint) && defined(SCCSIDS)
+static char sccsid[] = "@(#)pmap_getmaps.c 1.10 87/08/11 Copyr 1984 Sun Micro";
+#endif
 
 /*
  * pmap_getmap.c
@@ -45,39 +46,35 @@
 #include <netdb.h>
 #include <stdio.h>
 #include <errno.h>
-//#include <net/if.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#define NAMELEN 255
-#define MAX_BROADCAST_SIZE 1400
-
-extern int errno;
 
 /*
  * Get a copy of the current port maps.
  * Calls the pmap service remotely to do get the maps.
  */
-struct pmaplist *pmap_getmaps(address)
-struct sockaddr_in *address;
+struct pmaplist *
+pmap_getmaps (struct sockaddr_in *address)
 {
-	struct pmaplist *head = (struct pmaplist *) NULL;
-	int socket = -1;
-	struct timeval minutetimeout;
-	register CLIENT *client;
+  struct pmaplist *head = (struct pmaplist *) NULL;
+  int socket = -1;
+  struct timeval minutetimeout;
+  CLIENT *client;
 
-	minutetimeout.tv_sec = 60;
-	minutetimeout.tv_usec = 0;
-	address->sin_port = htons(PMAPPORT);
-	client = clnttcp_create(address, PMAPPROG, PMAPVERS, &socket, 50, 500);
-	if (client != (CLIENT *) NULL) {
-		if (CLNT_CALL(client, PMAPPROC_DUMP, (xdrproc_t) xdr_void, NULL, 
-					  (xdrproc_t) xdr_pmaplist, (caddr_t) &head,
-					  minutetimeout) != RPC_SUCCESS) {
-			clnt_perror(client, "pmap_getmaps rpc problem");
-		}
-		CLNT_DESTROY(client);
+  minutetimeout.tv_sec = 60;
+  minutetimeout.tv_usec = 0;
+  address->sin_port = htons (PMAPPORT);
+  client = clnttcp_create (address, PMAPPROG,
+			   PMAPVERS, &socket, 50, 500);
+  if (client != (CLIENT *) NULL)
+    {
+      if (CLNT_CALL (client, PMAPPROC_DUMP, (xdrproc_t)xdr_void, NULL,
+		     (xdrproc_t)xdr_pmaplist, (caddr_t)&head,
+		     minutetimeout) != RPC_SUCCESS)
+	{
+	  clnt_perror (client, _("pmap_getmaps rpc problem"));
 	}
-	(void) close(socket);
-	address->sin_port = 0;
-	return (head);
+      CLNT_DESTROY (client);
+    }
+  /* (void)close(socket); CLNT_DESTROY already closed it */
+  address->sin_port = 0;
+  return head;
 }
