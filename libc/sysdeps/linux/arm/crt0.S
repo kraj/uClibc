@@ -92,17 +92,3 @@ _start:
 	/* Ok, now run uClibc's main() -- shouldn't return */
 	bl	__uClibc_main
 
-#if 0 /* this is already provided by crtbegin/crtend in the arm-elf compiler */
-/* a little bit of stuff to support C++ */
-	.section .ctors,"aw"
-	.align 4
-	.global __CTOR_LIST__
-__CTOR_LIST__:
-	.long -1
-
-	.section .dtors,"aw"
-	.align 4
-	.global __DTOR_LIST__
-__DTOR_LIST__:
-	.long -1
-#endif
