@@ -49,19 +49,18 @@ CSRC=libdl.c
 OBJS=libdl.o
 PIC_OBJS=libdl_pic.o
 
-all: $(OBJS) $(LIBDL) shared
+all: $(LIBDL) $(LIBDL_PIC)
 
-$(LIBDL): ar-target
+ar-target: $(LIBDL) $(LIBDL_PIC)
 
-$(LIBDL_PIC): ar-target
-
-ar-target: $(OBJS) $(PIC_OBJS)
+$(LIBDL): $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBDL) ../ldso/$(TARGET_ARCH)/resolve.o $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBDL_PIC) $(PIC_OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBDL)
 	$(INSTALL) -m 644 $(LIBDL) $(TOPDIR)lib
 
+$(LIBDL_PIC): $(PIC_OBJS)
+	$(AR) $(ARFLAGS) $(LIBDL_PIC) $(PIC_OBJS)
 
 libdl.o: libdl.c
 	$(CC) $(XXFLAGS_NOPIC) -c libdl.c -o libdl.o
@@ -70,8 +69,6 @@ libdl.o: libdl.c
 libdl_pic.o: libdl.c
 	$(CC) $(XXFLAGS) -c libdl.c -o libdl_pic.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(OBJ): Makefile
 
 shared: $(LIBDL_PIC)
 	$(LD) $(LDFLAGS) -soname=$(LIBDL_SHARED).$(MAJOR_VERSION) \
