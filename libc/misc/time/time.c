@@ -128,6 +128,10 @@
  *   Fix a dst-related bug which resulted in use of uninitialized data.
  *
  * Nov 15, 2003 I forgot to update the thread locking in the last dst fix.
+ *
+ * Dec 14, 2003 Fix some dst issues in _time_mktime().
+ *   Normalize the tm_isdst value to -1, 0, or 1.
+ *   If no dst for this timezone, then reset tm_isdst to 0.
  */
 
 #define _GNU_SOURCE
@@ -2108,11 +2112,14 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 
 	memcpy(p, timeptr, sizeof(struct tm));
 
-	if ((default_dst = p[8]) < 0) {	/* Try to determing if dst? */
-		default_dst = 1;		/* Assume advancing. */
-		if (!_time_tzinfo[1].tzname[0]) { /* Oops... no dst. */
-			default_dst = p[8] = 0;
-		}
+	if (!_time_tzinfo[1].tzname[0]) { /* No dst in this timezone, */
+		p[8] = 0;				/* so set tm_isdst to 0. */
+	}
+
+	default_dst = 0;
+	if (p[8]) {					/* Either dst or unknown? */
+		default_dst = 1;		/* Assume advancing (even if unknown). */
+		p[8] = ((p[8] > 0) ? 1 : -1); /* Normalize so abs() <= 1. */
 	}
 
 	d = 400;
