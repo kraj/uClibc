@@ -35,7 +35,7 @@
 	.section ".text"
 	.globl	_start
 	.type	_start,@function
-#if defined L_crt0 || ! defined __UCLIBC_CTOR_DTOR__
+#if defined L_crt0 || L_Scrt0 || ! defined __UCLIBC_CTOR_DTOR__
 	.type	__uClibc_main,%function
 #else
 	.weak	_init
@@ -66,16 +66,29 @@ _start:
 	addi	r5,r5,1
 	rlwinm	r5,r5,2,0,29
 	add	r5,r5,r4
-
+#if defined L_Scrt0 || defined L_Scrt1
+	bl	_GLOBAL_OFFSET_TABLE_-4@local
+	mflr	r31
+#endif
 	/* Ok, now run uClibc's main() -- shouldn't return */
-#if (defined L_crt1) && defined __UCLIBC_CTOR_DTOR__
+#if (defined L_crt1 || defined L_Scrt1) && defined __UCLIBC_CTOR_DTOR__
+# ifdef L_Scrt1
+	lwz	r6,_init@got(r31)
+	lwz	r7,_fini@got(r31)
+	bl	__uClibc_start_main@plt
+# else
 	lis     r6,_init@ha	# load top 16 bits
 	addi    r6,r6,_init@l	# load bottom 16 bits
 	lis     r7,_fini@ha	# load top 16 bits of &msg
 	addi    r7,r7,_fini@l	# load bottom 16 bits
 	bl	__uClibc_start_main
+# endif
 #else
+# ifdef L_Scrt0
+	bl	__uClibc_main@plt
+# else
 	bl	__uClibc_main
+# endif
 #endif
 .size _start,.-_start
 
