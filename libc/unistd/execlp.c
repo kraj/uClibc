@@ -28,7 +28,7 @@ int execlp(__const char *file, __const char *arg, ...)
 	if (i <= 16)
 		argv = shortargv;
 	else {
-		argv = (const char **) malloc(sizeof(char *) * i);
+		argv = (const char **) alloca(sizeof(char *) * i);
 	}
 
 	argv[0] = arg;
