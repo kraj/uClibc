@@ -95,7 +95,6 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 $(patsubst %, _dirclean_%, $(DIRS) test) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
-
 install:
 	@if [ `id -u` -ne 0 ]; then \
 	    echo "Aborting install -- You must be root."; \
