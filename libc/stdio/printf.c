@@ -69,6 +69,9 @@
  * Floating point output now works for *wprintf.
  * Support for glibc locale-specific digit grouping for floats.
  * Misc bug fixes.
+ *
+ * Aug 31, 2003
+ * Fix precision bug for %g conversion specifier when using %f style.
  */
 
 /* TODO:
@@ -77,9 +80,6 @@
  *   strings in the current locale?  ANSI/ISO C99 seems to imply this
  *   and Plauger's printf implementation in his Standard C Library book
  *   treats this as an error.
- *
- * Implement %a, %A, and locale-specific grouping for the printf floating
- *   point conversions.  To be done in the rewrite of _dtostr().
  */
 
 
@@ -2110,6 +2110,7 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 
 	if ((mode == 'g') && ((o_exp >= -4) && (o_exp <= round))) {
 		mode = 'f';
+		preci = round - o_exp;
 	}
 
 	exp = o_exp;
