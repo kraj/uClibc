@@ -39,7 +39,7 @@ long syscall(long sysnum, long a, long b, long c, long d, long e, long f)
 	    : "i"(__NR_syscall), "r"(_r0), "r"(_r1),
 	      "r"(_r2), "r"(_r3), "r"(_r4), "r"(_r5),
 	      "r"(_r6)
-	    : "r0", "memory");
+	    : "memory");
     if(_r0 >=(unsigned long) -4095) {
 	(*__errno_location())=(-_r0);
 	_r0=(unsigned long) -1;

@@ -18,7 +18,7 @@
 
 /*
    Some of the sneaky macros in the code were taken from 
-   glibc-2.2.5/sysdeps/unix/sysv/linux/arm/sysdep.h
+   glibc-2.3.2/sysdeps/unix/sysv/linux/arm/sysdep.h
 */
 
 #ifndef __ASSEMBLER__
@@ -84,7 +84,20 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 
 
 #undef INLINE_SYSCALL
-#define INLINE_SYSCALL(name, nr, args...)			\
+#define INLINE_SYSCALL(name, nr, args...)				\
+  ({ unsigned int _sys_result = INTERNAL_SYSCALL (name, , nr, args);	\
+     if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_sys_result, ), 0))	\
+       {								\
+	 __set_errno (INTERNAL_SYSCALL_ERRNO (_sys_result, ));		\
+	 _sys_result = (unsigned int) -1;				\
+       }								\
+     (int) _sys_result; })
+
+#undef INTERNAL_SYSCALL_DECL
+#define INTERNAL_SYSCALL_DECL(err) do { } while (0)
+
+#undef INTERNAL_SYSCALL
+#define INTERNAL_SYSCALL(name, err, nr, args...)		\
   ({ unsigned int _sys_result;					\
      {								\
        register int _a1 asm ("a1");				\
@@ -92,15 +105,17 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
        asm volatile ("swi	%1	@ syscall " #name	\
 		     : "=r" (_a1)				\
 		     : "i" (SYS_ify(name)) ASM_ARGS_##nr	\
-		     : "a1", "memory");				\
+		     : "memory");				\
        _sys_result = _a1;					\
      }								\
-     if (_sys_result >= (unsigned int) -4095)			\
-       {							\
-	 __set_errno (-_sys_result);				\
-	 _sys_result = (unsigned int) -1;			\
-       }							\
      (int) _sys_result; })
+
+#undef INTERNAL_SYSCALL_ERROR_P
+#define INTERNAL_SYSCALL_ERROR_P(val, err) \
+  ((unsigned int) (val) >= 0xfffff001u)
+
+#undef INTERNAL_SYSCALL_ERRNO
+#define INTERNAL_SYSCALL_ERRNO(val, err)	(-(val))
 
 #define LOAD_ARGS_0()
 #define ASM_ARGS_0
@@ -132,6 +147,7 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
   register int _v3 asm ("v3") = (int) (a7);	\
   LOAD_ARGS_6 (a1, a2, a3, a4, a5, a6)
 #define ASM_ARGS_7	ASM_ARGS_6, "r" (_v3)
+
 
 #endif /* __ASSEMBLER__ */
 #endif /* _BITS_SYSCALLS_H */
