@@ -35,7 +35,7 @@ CSRC=acosh.c airy.c asin.c asinh.c atan.c atanh.c bdtr.c beta.c \
 	polevl.c polmisc.c polylog.c polyn.c pow.c powi.c psi.c rgamma.c round.c \
 	shichi.c sici.c sin.c sindg.c sinh.c spence.c stdtr.c struve.c \
 	tan.c tandg.c tanh.c unity.c yn.c zeta.c zetac.c \
-	sqrt.c floor.c setprec.c mtherr.c
+	sqrt.c floor.c setprec.c mtherr.c noncephes.c
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
