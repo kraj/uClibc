@@ -4,6 +4,9 @@
 #include <dirent.h>
 #include <string.h>
 
+/* #undef FAST_DIR_SEARCH_POSSIBLE on Linux */
+
+
 /* These functions find the absolute path to the current working directory.  */
 
 static char *recurser();		/* Routine to go up tree */
@@ -78,13 +81,17 @@ ino_t this_ino;
 	char *ptr;
 	int slen;
 
+#ifdef FAST_DIR_SEARCH_POSSIBLE
 	/* The test is for ELKS lib 0.0.9, this should be fixed in the real kernel */
 	int slow_search = (sizeof(ino_t) != sizeof(d->d_ino));
+#endif
 
 	if (stat(path_buf, &st) < 0)
 		return 0;
+#ifdef FAST_DIR_SEARCH_POSSIBLE
 	if (this_dev != st.st_dev)
 		slow_search = 1;
+#endif
 
 	slen = strlen(path_buf);
 	ptr = path_buf + slen - 1;
@@ -103,7 +110,9 @@ ino_t this_ino;
 		return 0;
 
 	while ((d = readdir(dp)) != 0) {
+#ifdef FAST_DIR_SEARCH_POSSIBLE
 		if (slow_search || this_ino == d->d_ino) {
+#endif
 			if (slen + strlen(d->d_name) > path_size) {
 				__set_errno(ERANGE);
 				return 0;
@@ -115,7 +124,9 @@ ino_t this_ino;
 				closedir(dp);
 				return path_buf;
 			}
+#ifdef FAST_DIR_SEARCH_POSSIBLE
 		}
+#endif
 	}
 
 	closedir(dp);
