@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <elf.h>
-#include <asm/page.h>
+#include <sys/user.h>
 #ifdef __UCLIBC_PROPOLICE__
 extern void __guard_setup(void);
 #endif
