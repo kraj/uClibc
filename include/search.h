@@ -67,7 +67,7 @@ typedef enum { preorder, postorder, endorder, leaf } VISIT;
 extern void *tsearch __P((__const void * __key, void **__rootp,
 		__compar_fn_t compar));
 
-extern void *tfind __P((__const void * __key, __const void ** __rootp,
+extern void *tfind __P((__const void * __key, void * __const * __rootp,
 		__compar_fn_t compar));
 
 extern void *tdelete __P((__const void * __key, void ** __rootp,
