@@ -108,8 +108,45 @@ const struct tm *tp;
 }
 
 
-static time_t localtime_offset;
+/* This structure contains all the information about a
+   timezone given in the POSIX standard TZ envariable.  */
+typedef struct
+  {
+    const char *name;
 
+    /* When to change.  */
+    enum { J0, J1, M } type;	/* Interpretation of:  */
+    unsigned short int m, n, d;	/* Month, week, day.  */
+    unsigned int secs;		/* Time of day.  */
+
+    long int offset;		/* Seconds east of GMT (west if < 0).  */
+
+    /* We cache the computed time of change for a
+       given year so we don't have to recompute it.  */
+    time_t change;	/* When to change to this zone.  */
+    int computed_for;	/* Year above is computed for.  */
+  } tz_rule;
+
+/* tz_rules[0] is standard, tz_rules[1] is daylight.  */
+static tz_rule tz_rules[2];
+
+/* Warning -- this function is a stub andd always does UTC
+ * no matter what it is given */
+void tzset (void)
+{
+    tz_rules[0].name = tz_rules[1].name = "UTC";
+    tz_rules[0].type = tz_rules[1].type = J0;
+    tz_rules[0].m = tz_rules[0].n = tz_rules[0].d = 0;
+    tz_rules[1].m = tz_rules[1].n = tz_rules[1].d = 0;
+    tz_rules[0].secs = tz_rules[1].secs = 0;
+    tz_rules[0].offset = tz_rules[1].offset = 0L;
+    tz_rules[0].change = tz_rules[1].change = (time_t) -1;
+    tz_rules[0].computed_for = tz_rules[1].computed_for = 0;
+}
+
+
+
+static time_t localtime_offset;
 
 /* Convert *TP to a time_t value.  */
 time_t mktime(tp)
@@ -119,7 +156,7 @@ struct tm *tp;
 	/* POSIX.1 8.1.1 requires that whenever mktime() is called, the
 	   time zone names contained in the external variable `tzname' shall
 	   be set as if the tzset() function had been called.  */
-	__tzset();
+	tzset();
 #endif
 
 	return __mktime_internal(tp, localtime_r, &localtime_offset);
