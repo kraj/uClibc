@@ -42,6 +42,7 @@ extern void weak_function __pthread_initialize_minimal(void);
  */
 
 char **__environ = 0;
+const char *__progname = 0;
 weak_alias(__environ, environ);
 
 
@@ -122,6 +123,8 @@ __uClibc_start_main(int argc, char **argv, char **envp,
      * may have already been completed by the shared lib loader.  We call 
      * __uClibc_init() regardless, to be sure the right thing happens. */
     __uClibc_init();
+
+    __progname = *argv;
 
 #ifdef __UCLIBC_CTOR_DTOR__
     /* Arrange for the application's dtors to run before we exit.  */
