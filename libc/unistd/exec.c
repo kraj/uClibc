@@ -17,6 +17,8 @@
 
 /* Jan 1, 2004
  *   Initial version of a SUSv3 compliant exec*() functions.
+ * Feb 17, 2004
+ *   Sigh... Fall back to alloca() if munmap() is broken on uClinux.
  */
 
 /* NOTE: Strictly speaking, there could be problems from accessing
@@ -41,10 +43,10 @@
 extern char *__strchrnul(const char *s, int c);
 
 /**********************************************************************/
-#ifdef __ARCH_HAS_MMU__
+#if defined(__ARCH_HAS_MMU__) || defined(__UCLIBC_UCLINUX_BROKEN_MUNMAP__)
 
 /* We have an MMU, so use alloca() to grab space for buffers and
- * arg lists. */
+ * arg lists.  Also fall back to alloca() if munmap() is broken. */
 
 # define EXEC_ALLOC_SIZE(VAR)	/* nothing to do */
 # define EXEC_ALLOC(SIZE,VAR)	alloca((SIZE))
@@ -65,11 +67,7 @@ extern char *__strchrnul(const char *s, int c);
 extern void *__exec_alloc(size_t size);
 extern void __exec_free(void *ptr, size_t size);
 
-#endif
-/**********************************************************************/
-#ifdef L___exec_alloc
-
-#ifndef __ARCH_HAS_MMU__
+# ifdef L___exec_alloc
 
 void *__exec_alloc(size_t size)
 {
@@ -87,7 +85,7 @@ void __exec_free(void *ptr, size_t size)
 	}
 }
 
-#endif
+# endif
 
 #endif
 /**********************************************************************/
