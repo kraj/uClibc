@@ -37,7 +37,6 @@ UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
 LIBC:=$(TOPDIR)libc/libc.a
 
 BUILDTIME:= ${shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z"}
-GCCINCDIR:= ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp"}
 NATIVE_ARCH:= ${shell uname -m | sed \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
@@ -86,7 +85,7 @@ endif
 ARFLAGS:=r
 
 CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
-	-nostdinc -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D_LIBC $(ARCH_CFLAGS)
+	-nostdinc -I$(TOPDIR)include -iwithprefix include -I. -D_LIBC $(ARCH_CFLAGS)
 NATIVE_CFLAGS:=-O2 -Wall
 
 ifeq ($(strip $(DODEBUG)),true)
