@@ -91,11 +91,12 @@
  * can transfer control to the user's application.
  */
 
-#include "linuxelf.h"
 #include <stdarg.h>
+#include "linuxelf.h"
 #include "ld_hash.h"
 #include "ld_syscall.h"
 #include "ld_string.h"
+#include "dlfcn.h"
 #include "../config.h"
 
 #define ALLOW_ZERO_PLTGOT
@@ -115,8 +116,6 @@
 static char *_dl_malloc_addr, *_dl_mmap_zero;
 char *_dl_library_path = 0;		/* Where we look for libraries */
 char *_dl_preload = 0;			/* Things to be loaded before the libs. */
-#include "ld-uClibc.h"			/* Pull in the name of ld.so */
-const char *_dl_progname=_dl_static_progname;
 static char *_dl_not_lazy = 0;
 #ifdef DL_TRACE
 static char *_dl_trace_loaded_objects = 0;
@@ -134,6 +133,7 @@ void _dl_debug_state(void);
 char *_dl_get_last_path_component(char *path);
 
 #include "boot1_arch.h"
+#include "ldso.h"			/* Pull in the name of ld.so */
 
 
 /* When we enter this piece of code, the program stack looks like this:
@@ -1210,3 +1210,5 @@ void _dl_dprintf(int fd, const char *fmt, ...)
     return;
 }
 
+#include "hash.c"
+#include "readelflib1.c"

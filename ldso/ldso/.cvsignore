@@ -1,2 +1,2 @@
 ld-uclibc.so*
-ld-uClibc.h
+ldso.h

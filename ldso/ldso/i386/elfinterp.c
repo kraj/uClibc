@@ -39,13 +39,6 @@ static char *_dl_reltypes[] =
    a more than adequate job of explaining everything required to get this
    working. */
 
-#include "linuxelf.h"
-#include "ld_hash.h"
-#include "ld_syscall.h"
-#include "ld_string.h"
-
-extern char *_dl_progname;
-
 extern int _dl_linux_resolve(void);
 
 unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)

@@ -21,17 +21,6 @@
 /* This file contains the helper routines to load an ELF sharable
    library into memory and add the symbol table info to the chain. */
 
-#include "linuxelf.h"
-#include "ld_hash.h"
-#include "ld_syscall.h"
-#include "ld_string.h"
-#include <sys/mman.h>
-#ifdef USE_CACHE
-#include "../config.h"
-#endif
-
-extern char *_dl_progname;
-
 #ifdef USE_CACHE
 
 static caddr_t _dl_cache_addr = NULL;
