@@ -153,6 +153,15 @@ endif
 # Add a bunch of extra pedantic annoyingly strict checks
 WARNINGS+=-Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
 
+ifeq ($(DODEBUG),y)
+    CFLAGS += -g
+    LDFLAGS:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
+    STRIPTOOL:= true -Since_we_are_debugging
+    OPTIMIZATION=$(call check_gcc,-Os,-O2)
+else
+    LDFLAGS := $(CPU_LDFLAGS-y) -s -shared --warn-common --warn-once -z combreloc
+endif
+
 # Some nice CFLAGS to work with
 CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
 	-D_LIBC $(CPU_CFLAGS-y) $(ARCH_CFLAGS) -I$(TOPDIR)include -I.
@@ -162,20 +171,13 @@ CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
 CFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1include/gp")
 
 
-ifeq ($(strip $(DODEBUG)),y)
-    CFLAGS += -g
-    LDFLAGS:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
-    STRIPTOOL:= true -Since_we_are_debugging
-else
-    LDFLAGS := $(CPU_LDFLAGS-y) -s -shared --warn-common --warn-once -z combreloc
-endif
-ifneq ($(strip $(DOASSERTS)),y)
+ifneq ($(DOASSERTS),y)
     CFLAGS += -DNDEBUG
 endif
 
-ifeq ($(strip $(HAVE_SHARED)),y)
+ifeq ($(HAVE_SHARED),y)
     LIBRARY_CACHE:=#-DUSE_CACHE
-    ifeq ($(strip $(BUILD_UCLIBC_LDSO)),y)
+    ifeq ($(BUILD_UCLIBC_LDSO),y)
 	LDSO:=$(TOPDIR)lib/$(UCLIBC_LDSO)
 	DYNAMIC_LINKER:=$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO)
 	BUILD_DYNAMIC_LINKER:=$(shell cd $(TOPDIR) && pwd)/lib/$(UCLIBC_LDSO)
@@ -185,10 +187,10 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	BUILD_DYNAMIC_LINKER:=/lib/$(notdir $(SYSTEM_LDSO))
    endif
 endif
-ifeq ($(strip $(DOPIC)),y)
+ifeq ($(DOPIC),y)
     CFLAGS += -fPIC
 endif
-ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
+ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
     CFLAGS += $(call check_gcc,-msoft-float,)
 endif
 
