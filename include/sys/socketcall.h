@@ -19,4 +19,4 @@
 #define SYS_SENDMSG	16
 #define SYS_RECVMSG	17
 
-#endif _SYS_SOCKETCALL_H
+#endif /* _SYS_SOCKETCALL_H */
