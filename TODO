@@ -62,6 +62,8 @@ TODO list for the uClibc 1.0.0 release:
     *) Rework the build system Makefile to eliminate recursive make.
     *) Build both pic and non-pic objects where appropriate, so that
 	static libs need not pay the pic size penalty.
+    *) Cleanup/scrub all the Makefile copyright junk
+    *) Fix syscall() on mips
 
 
 TODO list for AFTER the uClibc 1.0.0 release:
