@@ -93,7 +93,7 @@ typedef __ino64_t ino64_t;
 #endif
 
 
-#ifdef __USE_BSD
+#if defined __USE_BSD && defined _DIRENT_HAVE_D_TYPE
 /* File types for `d_type'.  */
 enum
   {
