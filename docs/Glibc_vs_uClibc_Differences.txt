@@ -24,6 +24,14 @@ as implementation-defined by SuSv3, so both libraries are equally correct.
 This difference also applies to realloc(NULL, 0).  I personally feel glibc's
 behavior is not particularly safe.
 
+4.1) glibc's malloc() implementation has behavior that is tunable via the
+MALLOC_CHECK_ environment variable.  This is primarily used to provide extra
+malloc debugging features.  These extended malloc debugging features are not
+available within uClibc.  There are many good malloc debugging libraries
+available for Linux (dmalloc, electric fence, valgrind, etc) that work much
+better than the glibc extended malloc debugging.  So our omitting this
+functionality from uClibc is not a great loss.
+
 5) uClibc does not provide a database library (libdb).
 
 6) uClibc does not support NSS (/lib/libnss_*), which allows glibc to easily
