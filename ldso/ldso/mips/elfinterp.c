@@ -301,7 +301,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 			}
 			else {
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
-					sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_COPY);
+					sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
 			}
 
 			got_entry++;
