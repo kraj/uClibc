@@ -32,7 +32,7 @@ include $(TOPDIR)Rules.mak
 
 DIRS = misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd
 
-all: halfclean subdirs $(LIBNAME) $(DO_SHARED) done
+all: halfclean subdirs $(LIBNAME) $(DO_SHARED)
 
 $(LIBNAME): subdirs
 	$(CROSS)ranlib $(LIBNAME)
@@ -43,7 +43,7 @@ $(LIBNAME): subdirs
 shared: $(TOPDIR)lib/$(LIBNAME)
 	@rm -rf tmp
 	@mkdir tmp
-	@(cd tmp; CC=$(CC) LD=$(LD) /bin/sh ../../extra/scripts/get-needed-libgcc-objects.sh)
+	@(cd tmp; CC=$(CC) LD=$(LD) NM=$(NM) AR=$(AR) /bin/sh ../../extra/scripts/get-needed-libgcc-objects.sh)
 	if [ -s ./tmp/libgcc-need.a ] ; then \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
 		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
@@ -62,36 +62,9 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 	(cd ../lib; ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME));
 
 
-done: $(LIBNAME) $(DO_SHARED)
-	@echo
-	@echo Finally finished compiling...
-	@echo
-
 halfclean:
 	@rm -f $(LIBNAME) crt0.o uClibc_config.h
 	@rm -f $(SHARED_FULLNAME) $(SHARED_MAJORNAME) uClibc-0.* libc.so*
-
-headers: dummy
-	@rm -f include/asm include/linux include/bits
-	@ln -s $(KERNEL_SOURCE)/include/asm include/asm
-	@if [ ! -f include/asm/unistd.h ] ; then \
-	    echo " "; \
-	    echo "The path '$(KERNEL_SOURCE)/include/asm' doesn't exist."; \
-	    echo "I bet you didn't set KERNEL_SOURCE, TARGET_ARCH or HAS_MMU in \`Config'"; \
-	    echo "correctly.  Please edit \`Config' and fix these settings."; \
-	    echo " "; \
-	    /bin/false; \
-	fi;
-	@if [ $(HAS_MMU) != "true" ]  && [ $(TARGET_ARCH) = "i386" ] ; then \
-	    echo "WARNING: I bet your x86 system really has an MMU, right?"; \
-	    echo "         malloc and friends won't work unless you fix \`Config'"; \
-	    echo " "; \
-	    sleep 10; \
-	fi;
-	@ln -s $(KERNEL_SOURCE)/include/linux include/linux
-	@ln -s ../sysdeps/linux/$(TARGET_ARCH)/bits include/bits
-	@ln -sf ../../../../uClibc_config.h sysdeps/linux/$(TARGET_ARCH)/bits/uClibc_config.h
-
 
 tags:
 	ctags -R
