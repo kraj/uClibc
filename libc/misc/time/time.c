@@ -1,30 +1,9 @@
-/*  Copyright (C) 2002     Manuel Novoa III
+/* Copyright (C) 2002-2004   Manuel Novoa III    <mjn3@codepoet.org>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public
- *  License as published by the Free Software Foundation; either
- *  version 2 of the License, or (at your option) any later version.
+ * GNU Library General Public License (LGPL) version 2 or later.
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Library General Public License for more details.
- *
- *  You should have received a copy of the GNU Library General Public
- *  License along with this library; if not, write to the Free
- *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
-
-/*  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!
- *
- *  Besides uClibc, I'm using this code in my libc for elks, which is
- *  a 16-bit environment with a fairly limited compiler.  It would make
- *  things much easier for me if this file isn't modified unnecessarily.
- *  In particular, please put any new or replacement functions somewhere
- *  else, and modify the makefile to use your version instead.
- *  Thanks.  Manuel
- *
- *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
 
 /* June 15, 2002     Initial Notes:
  *
@@ -132,6 +111,13 @@
  * Dec 14, 2003 Fix some dst issues in _time_mktime().
  *   Normalize the tm_isdst value to -1, 0, or 1.
  *   If no dst for this timezone, then reset tm_isdst to 0.
+ *
+ * May 7, 2004
+ *   Change clock() to allow wrapping.
+ *   Add timegm() function.
+ *   Make lookup_tzname() static (as it should have been).
+ *   Have strftime() get timezone information from the passed struct
+ *     for the %z and %Z conversions when using struct tm extensions.
  */
 
 #define _GNU_SOURCE
@@ -218,6 +204,13 @@ extern struct tm *_time_t2tm(const time_t *__restrict timer,
 							 int offset, struct tm *__restrict result);
 
 extern time_t _time_mktime(struct tm *timeptr, int store_on_success);
+
+extern struct tm *__time_localtime_tzi(const time_t *__restrict timer,
+									   struct tm *__restrict result,
+									   rule_struct *tzi);
+
+extern time_t _time_mktime_tzi(struct tm *timeptr, int store_on_success,
+							   rule_struct *tzi);
 
 /**********************************************************************/
 #ifdef L_asctime
@@ -376,17 +369,30 @@ char *asctime_r(register const struct tm *__restrict ptm,
 
 #include <sys/times.h>
 
-/* Note: According to glibc...
- *    CAE XSH, Issue 4, Version 2: <time.h>
- *    The value of CLOCKS_PER_SEC is required to be 1 million on all
- *    XSI-conformant systems.
- */
-
 #ifndef __BCC__
 #if CLOCKS_PER_SEC != 1000000L
 #error unexpected value for CLOCKS_PER_SEC!
 #endif
 #endif
+
+#ifdef __UCLIBC_CLK_TCK_CONST
+# if __UCLIBC_CLK_TCK_CONST > CLOCKS_PER_SEC
+#  error __UCLIBC_CLK_TCK_CONST > CLOCKS_PER_SEC!
+# elif __UCLIBC_CLK_TCK_CONST < 1
+#  error __UCLIBC_CLK_TCK_CONST < 1!
+# endif
+#endif
+
+/* Note: SUSv3 notes
+ *
+ *   On XSI-conformant systems, CLOCKS_PER_SEC is defined to be one million.
+ *
+ *   The value returned by clock() may wrap around on some implementations.
+ *   For example, on a machine with 32-bit values for clock_t, it wraps
+ *   after 2147 seconds.
+ *
+ * This implies that we should bitwise and with LONG_MAX.
+ */
 
 clock_t clock(void)
 {
@@ -394,33 +400,32 @@ clock_t clock(void)
 	unsigned long t;
 
 	times(&xtms);
+
 	t = ((unsigned long) xtms.tms_utime) + xtms.tms_stime;
 
 #ifndef __UCLIBC_CLK_TCK_CONST
-#error __UCLIBC_CLK_TCK_CONST not defined!
-#endif
 
-#undef CLK_TCK
-#define CLK_TCK __UCLIBC_CLK_TCK_CONST
+# error __UCLIBC_CLK_TCK_CONST not defined!
 
-#if CLK_TCK > CLOCKS_PER_SEC
-#error __UCLIBC_CLK_TCK_CONST > CLOCKS_PER_SEC!
-#elif CLK_TCK < 1
-#error __UCLIBC_CLK_TCK_CONST < 1!
-#endif
+#elif ((CLOCKS_PER_SEC % __UCLIBC_CLK_TCK_CONST) == 0)
 
-#if (CLK_TCK == CLOCKS_PER_SEC)
-	return (t <= LONG_MAX) ? t : -1;
-#elif (CLOCKS_PER_SEC % CLK_TCK) == 0
-	return (t <= (LONG_MAX / (CLOCKS_PER_SEC/CLK_TCK)))
-		? t * (CLOCKS_PER_SEC/CLK_TCK)
-		: -1;
+	/* CLOCKS_PER_SEC == k * __UCLIBC_CLK_TCK_CONST for some integer k >= 1. */
+	return ((t * (CLOCKS_PER_SEC/__UCLIBC_CLK_TCK_CONST)) & LONG_MAX);
+
 #else
-	return (t <= ((LONG_MAX / CLOCKS_PER_SEC) * CLK_TCK
-				  + ((LONG_MAX % CLOCKS_PER_SEC) * CLK_TCK) / CLOCKS_PER_SEC))
-		? (((t / CLK_TCK) * CLOCKS_PER_SEC)
-		   + (((t % CLK_TCK) * CLOCKS_PER_SEC) / CLK_TCK))
-		: -1;
+
+	/* Unlike the previous case, the scaling factor is not an integer.
+	 * So when tms_utime, tms_stime, or their sum wraps, some of the
+	 * "visible" bits in the return value are affected.  Nothing we
+	 * can really do about this though other than handle tms_utime and
+	 * tms_stime seperately and then sum.  But since that doesn't really
+	 * buy us much, we don't bother. */
+
+	return ((((t / __UCLIBC_CLK_TCK_CONST) * CLOCKS_PER_SEC)
+			 + ((((t % __UCLIBC_CLK_TCK_CONST) * CLOCKS_PER_SEC)
+				 / __UCLIBC_CLK_TCK_CONST))
+			 ) & LONG_MAX);
+
 #endif
 }
 
@@ -525,6 +530,24 @@ struct tm *localtime(const time_t *timer)
 /**********************************************************************/
 #ifdef L_localtime_r
 
+struct tm *localtime_r(register const time_t *__restrict timer,
+					   register struct tm *__restrict result)
+{
+	TZLOCK;
+
+	tzset();
+
+	__time_localtime_tzi(timer, result, _time_tzinfo);
+
+	TZUNLOCK;
+
+	return result;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L__time_localtime_tzi
+
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
 
 struct ll_tzname_item;
@@ -539,7 +562,7 @@ static ll_tzname_item_t ll_tzname[] = {
 	{ NULL, "???" }		  /* Always 2nd. (invalid or out-of-memory) */
 };
 
-const char *lookup_tzname(const char *key)
+static const char *lookup_tzname(const char *key)
 {
 	ll_tzname_item_t *p;
 
@@ -574,9 +597,9 @@ static const unsigned char day_cor[] = { /* non-leap */
 
 /* Note: timezone locking is done by localtime_r. */
 
-static int tm_isdst(register const struct tm *__restrict ptm)
+static int tm_isdst(register const struct tm *__restrict ptm,
+					register rule_struct *r)
 {
-	register rule_struct *r = _time_tzinfo;
 	long sec;
 	int i, isdst, isleap, day, day0, monlen, mday;
 	int oday;					/* Note: oday can be uninitialized. */
@@ -647,21 +670,18 @@ static int tm_isdst(register const struct tm *__restrict ptm)
 	return (isdst & 1);
 }
 
-struct tm *localtime_r(register const time_t *__restrict timer,
-					   register struct tm *__restrict result)
+struct tm *__time_localtime_tzi(register const time_t *__restrict timer,
+								register struct tm *__restrict result,
+								rule_struct *tzi)
 {
 	time_t x[1];
 	long offset;
 	int days, dst;
 
-	TZLOCK;
-
-	tzset();
-
 	dst = 0;
 	do {
 		days = -7;
-		offset = 604800L - _time_tzinfo[dst].gmt_offset;
+		offset = 604800L - tzi[dst].gmt_offset;
 		if (*timer > (LONG_MAX - 604800L)) {
 			days = -days;
 			offset = -offset;
@@ -671,12 +691,11 @@ struct tm *localtime_r(register const time_t *__restrict timer,
 		_time_t2tm(x, days, result);
 		result->tm_isdst = dst;
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
-		result->tm_gmtoff = - _time_tzinfo[dst].gmt_offset;
-		result->tm_zone = lookup_tzname(_time_tzinfo[dst].tzname);
+		result->tm_gmtoff = - tzi[dst].gmt_offset;
+		result->tm_zone = lookup_tzname(tzi[dst].tzname);
 #endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
-	} while ((++dst < 2) && ((result->tm_isdst = tm_isdst(result)) != 0));
-
-	TZUNLOCK;
+	} while ((++dst < 2)
+			 && ((result->tm_isdst = tm_isdst(result, tzi)) != 0));
 
 	return result;
 }
@@ -694,6 +713,20 @@ time_t mktime(struct tm *timeptr)
 	return  _time_mktime(timeptr, 1);
 }
 
+#endif
+/**********************************************************************/
+#ifdef L_timegm
+/* Like `mktime' but timeptr represents Universal Time, not local time. */
+
+time_t timegm(struct tm *timeptr)
+{
+	rule_struct gmt_tzinfo[2];
+
+	memset(gmt_tzinfo, 0, sizeof(gmt_tzinfo));
+	strcpy(gmt_tzinfo[0].tzname, "GMT"); /* Match glibc behavior here. */
+
+	return  _time_mktime_tzi(timeptr, 1, gmt_tzinfo);
+}
 
 #endif
 /**********************************************************************/
@@ -913,7 +946,9 @@ size_t __XL(strftime)(char *__restrict s, size_t maxsize,
 	long tzo;
 	register const char *p;
 	register const char *o;
+#ifndef __UCLIBC_HAS_TM_EXTENSIONS__
 	const rule_struct *rsp;
+#endif
 	const char *stack[MAX_PUSH];
 	size_t count;
 	size_t o_count;
@@ -1027,15 +1062,28 @@ size_t __XL(strftime)(char *__restrict s, size_t maxsize,
 					goto OUTPUT;
 				}
 
+#ifdef __UCLIBC_HAS_TM_EXTENSIONS__
+
+#define RSP_TZUNLOCK	((void) 0)
+#define RSP_TZNAME		timeptr->tm_zone
+#define RSP_GMT_OFFSET	timeptr->tm_gmtoff
+
+#else
+
+#define RSP_TZUNLOCK	TZUNLOCK
+#define RSP_TZNAME		rsp->tzname
+#define RSP_GMT_OFFSET	rsp->gmt_offset
+
 				TZLOCK;
 
 				rsp = _time_tzinfo;
 				if (timeptr->tm_isdst > 0) {
 					++rsp;
 				}
+#endif
 
 				if (*p == 'Z') {
-					o = rsp->tzname;
+					o = RSP_TZNAME;
 					assert(o != NULL);
 #if 0
 					if (!o) {	/* PARANOIA */
@@ -1043,15 +1091,15 @@ size_t __XL(strftime)(char *__restrict s, size_t maxsize,
 					}
 #endif
 					o_count = SIZE_MAX;
-					TZUNLOCK;
+					RSP_TZUNLOCK;
 					goto OUTPUT;
 				} else {		/* z */
 					*s = '+';
-					if ((tzo = -rsp->gmt_offset) < 0) {
+					if ((tzo = -RSP_GMT_OFFSET) < 0) {
 						tzo = -tzo;
 						*s = '-';
 					}
-					TZUNLOCK;
+					RSP_TZUNLOCK;
 					++s;
 					--count;
 
@@ -1060,6 +1108,7 @@ size_t __XL(strftime)(char *__restrict s, size_t maxsize,
 			
 					i = 16 + 6;	/* 0-fill, width = 4 */
 				}
+
 			} else {
 				/* TODO: don't need year for U, W */
 				for (i=0 ; i < 3 ; i++) {
@@ -2087,12 +2136,32 @@ struct tm __time_tm;	/* Global shared by gmtime() and localtime(). */
 /**********************************************************************/
 #ifdef L__time_mktime
 
+time_t _time_mktime(struct tm *timeptr, int store_on_success)
+{
+	time_t t;
+
+	TZLOCK;
+
+	tzset();
+
+	t = _time_mktime_tzi(timeptr, store_on_success, _time_tzinfo);
+
+	TZUNLOCK;
+
+	return t;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L__time_mktime_tzi
+
 static const unsigned char vals[] = {
 	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, /* non-leap */
 	    29,
 };
 
-time_t _time_mktime(struct tm *timeptr, int store_on_success)
+time_t _time_mktime_tzi(struct tm *timeptr, int store_on_success,
+						rule_struct *tzi)
 {
 #ifdef __BCC__
 	long days, secs;
@@ -2106,13 +2175,9 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 	register const unsigned char *s;
 	int d, default_dst;
 
-	TZLOCK;
-
-	tzset();
-
 	memcpy(p, timeptr, sizeof(struct tm));
 
-	if (!_time_tzinfo[1].tzname[0]) { /* No dst in this timezone, */
+	if (!tzi[1].tzname[0]) { /* No dst in this timezone, */
 		p[8] = 0;				/* so set tm_isdst to 0. */
 	}
 
@@ -2150,7 +2215,7 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 	d = p[5] - 1;
 	days = -719163L + ((long)d)*365 + ((d/4) - (d/100) + (d/400) + p[3] + p[7]);
 	secs = p[0] + 60*( p[1] + 60*((long)(p[2])) )
-		+ _time_tzinfo[default_dst].gmt_offset;
+		+ tzi[default_dst].gmt_offset;
  DST_CORRECT:
 	if (secs < 0) {
 		secs += 120009600L;
@@ -2165,7 +2230,7 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 	d = p[5] - 1;
 	d = -719163L + d*365 + (d/4) - (d/100) + (d/400);
 	secs = p[0]
-		+ _time_tzinfo[default_dst].gmt_offset
+		+ tzi[default_dst].gmt_offset
 		+ 60*( p[1]
 			   + 60*(p[2]
 					 + 24*(((146073L * ((long long)(p[6])) + d)
@@ -2183,7 +2248,7 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 	d = ((struct tm *)p)->tm_isdst;
 	t = secs;
 
-	localtime_r(&t, (struct tm *)p);
+	__time_localtime_tzi(&t, (struct tm *)p, tzi);
 
 	if (t == ((time_t)(-1))) {	/* Remember, time_t can be unsigned. */
 	    goto DONE;
@@ -2193,8 +2258,8 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 #ifdef __BCC__
 		secs -= (days * 86400L);
 #endif
-		secs += (_time_tzinfo[1-default_dst].gmt_offset
-				 - _time_tzinfo[default_dst].gmt_offset);
+		secs += (tzi[1-default_dst].gmt_offset
+				 - tzi[default_dst].gmt_offset);
 		goto DST_CORRECT;
 	}
 
@@ -2205,8 +2270,6 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 
 
  DONE:
-	TZUNLOCK;
-
 	return t;
 }
 
@@ -2254,7 +2317,3 @@ int dysize(int year)
 
 #endif
 /**********************************************************************/
-/* Like `mktime', but for TP represents Universal Time, not local time.  */
-/* time_t timegm(struct tm *tp) */
-
-

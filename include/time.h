@@ -322,10 +322,8 @@ extern int stime (__const time_t *__when) __THROW;
 /* Miscellaneous functions many Unices inherited from the public domain
    localtime package.  These are included only for compatibility.  */
 
-#if 0
 /* Like `mktime', but for TP represents Universal Time, not local time.  */
 extern time_t timegm (struct tm *__tp) __THROW;
-#endif
 
 /* Another name for `mktime'.  */
 extern time_t timelocal (struct tm *__tp) __THROW;
