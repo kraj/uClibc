@@ -10,7 +10,6 @@ HAVE_DOT_HIDDEN=y
 # CONFIG_SH2 is not set
 # CONFIG_SH3 is not set
 CONFIG_SH4=y
-# CONFIG_SH5 is not set
 ARCH_LITTLE_ENDIAN=y
 # ARCH_BIG_ENDIAN is not set
 UCLIBC_HAS_MMU=y

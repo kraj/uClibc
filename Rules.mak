@@ -146,7 +146,15 @@ ifeq ($(strip $(TARGET_ARCH)),sh)
 	CPU_CFLAGS-$(CONFIG_SH2)+="-m2"
 	CPU_CFLAGS-$(CONFIG_SH3)+="-m3"
 	CPU_CFLAGS-$(CONFIG_SH4)+="-m4"
-	CPU_CFLAGS-$(CONFIG_SH5)+="-m5"
+endif
+
+ifeq ($(strip $(TARGET_ARCH)),sh64)
+	OPTIMIZATION+=-fstrict-aliasing
+	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN):="-EL"
+	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN):="-EB"
+	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN):="-ml"
+	CPU_CFLAGS-$(ARCH_BIG_ENDIAN):="-mb"
+	CPU_CFLAGS-$(CONFIG_SH5)+="-m5-32media"
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),h8300)

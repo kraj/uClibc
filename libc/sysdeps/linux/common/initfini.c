@@ -51,7 +51,7 @@
 #  define HIDDEN(func)
 #endif
 
-#if defined(__sh__)
+#if defined(__sh__) && !defined(__SH5__)
   /* The macro insert this sh specific stuff:
      @_SH_GLB_BEGINS
           bra     1f
