@@ -648,7 +648,7 @@ found_got:
 
 		{
 			int fd;
-			struct kernel_stat st;
+			struct stat st;
 			char *preload;
 
 			if (!_dl_stat(LDSO_PRELOAD, &st)) {

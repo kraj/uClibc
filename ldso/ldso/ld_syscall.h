@@ -1,4 +1,3 @@
-#include <sys/types.h>
 #include "syscalls.h"
 
 
@@ -70,21 +69,16 @@ static inline _syscall3(int, _dl_mprotect, const void *, addr, unsigned long, le
 /* Pull in whatever this particular arch's kernel thinks the kernel version of
  * struct stat should look like.  It turns out that each arch has a different
  * opinion on the subject, and different kernel revs use different names... */
-#define __NR__dl_stat	__NR_stat
-#define stat kernel_stat
-#define new_stat kernel_stat
-#include <asm/stat.h> 
-#undef new_stat
-#undef stat
-#define S_ISUID       04000   /* Set user ID on execution.  */
-static inline _syscall2(int, _dl_stat, const char *, file_name, struct kernel_stat *, buf);
+#include <sys/stat.h> 
+#define __NR__dl_stat __NR_stat
+static inline _syscall2(int, _dl_stat, const char *, file_name, struct stat *, buf);
 
 
 #define __NR__dl_munmap __NR_munmap
 static inline _syscall2(int, _dl_munmap, void *, start, unsigned long, length);
 
 #define __NR__dl_getuid __NR_getuid
-static inline _syscall0(gid_t, _dl_getuid);
+static inline _syscall0(uid_t, _dl_getuid);
 
 #define __NR__dl_geteuid __NR_geteuid
 static inline _syscall0(uid_t, _dl_geteuid);

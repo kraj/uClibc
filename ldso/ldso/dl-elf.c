@@ -321,7 +321,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	   we don't load the library if it isn't setuid. */
 
 	if (secure) {
-		struct kernel_stat st;
+		struct stat st;
 
 		if (_dl_stat(libname, &st) || !(st.st_mode & S_ISUID))
 			return NULL;

@@ -1,12 +1,24 @@
-#include <asm/unistd.h>
+#include <sys/types.h>
 
-#undef __syscall_return
-#undef _syscall0
-#undef _syscall1
-#undef _syscall2
-#undef _syscall3
-#undef _syscall4
-#undef _syscall5
+/*
+ * This file contains the system call macros and syscall 
+ * numbers used by the shared library loader.
+ */
+
+#define __NR_exit		  1
+#define __NR_read		  3
+#define __NR_write		  4
+#define __NR_open		  5
+#define __NR_close		  6
+#define __NR_getuid		 24
+#define __NR_geteuid		 49
+#define __NR_getgid		 47
+#define __NR_getegid		 50
+#define __NR_mmap		 90
+#define __NR_munmap		 91
+#define __NR_stat		106
+#define __NR_mprotect		125
+
 
 /* Here are the macros which define how this platform makes
  * system calls.  This particular variant does _not_ set 
