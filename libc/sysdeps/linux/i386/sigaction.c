@@ -96,15 +96,13 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 	kact.sa_flags = act->sa_flags | SA_RESTORER;
 	kact.sa_restorer = &restore;
     }
-    result = __syscall_sigaction(sig, act ? __ptrvalue (&kact) : NULL,
-	    oact ? __ptrvalue (&koact) : NULL);
 
     asm volatile ("pushl %%ebx\n"
 	    "movl %2, %%ebx\n"
 	    "int $0x80\n"
 	    "popl %%ebx"
 	    : "=a" (result)
-	    : "0" (SYS_ify (sigaction)), "mr" (sig),
+	    : "0" (__NR_sigaction), "mr" (sig),
 	    "c" (act ? __ptrvalue (&kact) : 0),
 	    "d" (oact ? __ptrvalue (&koact) : 0));
 
