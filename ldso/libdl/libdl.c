@@ -20,11 +20,11 @@ extern void *(*_dl_malloc_function) (size_t size);
 static int do_fixup(struct elf_resolve *tpnt, int flag);
 static int do_dlclose(void *, int need_fini);
 
-void *_dlopen(char *filename, int flag);
-const char *_dlerror(void);
-void *_dlsym(void *, char *);
-int _dlclose(void *);
-int _dladdr(void *__address, Dl_info * __dlip);
+void *dlopen(const char *, int) __attribute__ ((__weak__, __alias__ ("_dlopen")));
+const char *dlerror(void) __attribute__ ((__weak__, __alias__ ("_dlerror")));
+void *dlsym(void *, const char *) __attribute__ ((__weak__, __alias__ ("_dlsym")));
+int dlclose(void *) __attribute__ ((__weak__, __alias__ ("_dlclose")));
+int dladdr(void *, Dl_info *) __attribute__ ((__weak__, __alias__ ("_dladdr")));
 
 static const char *dl_error_names[] = {
 	"",
@@ -65,7 +65,7 @@ static void dl_cleanup(void)
 		}
 }
 
-void *_dlopen(char *libname, int flag)
+void *_dlopen(const char *libname, int flag)
 {
 	struct elf_resolve *tpnt, *tfrom;
 	struct dyn_elf *rpnt;
@@ -108,7 +108,7 @@ void *_dlopen(char *libname, int flag)
 			tfrom = tpnt;
 	}
 
-	if (!(tpnt = _dl_load_shared_library(0, &rpnt, tfrom, libname))) {
+	if (!(tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname))) {
 #ifdef USE_CACHE
 		_dl_unmap_cache();
 #endif
@@ -260,7 +260,7 @@ static int do_fixup(struct elf_resolve *tpnt, int flag)
 	return goof;
 }
 
-void *_dlsym(void *vhandle, char *name)
+void *_dlsym(void *vhandle, const char *name)
 {
 	struct elf_resolve *tpnt, *tfrom;
 	struct dyn_elf *handle;
@@ -304,7 +304,7 @@ void *_dlsym(void *vhandle, char *name)
 		}
 	}
 
-	ret = _dl_find_hash(name, handle, NULL, 1);
+	ret = _dl_find_hash((char*)name, handle, NULL, 1);
 
 	/*
 	 * Nothing found.
@@ -452,21 +452,6 @@ const char *_dlerror()
 	return retval;
 }
 
-/* Generate the correct symbols that we need. */
-#if 0
-weak_alias(_dlopen, dlopen);
-weak_alias(_dlerror, dlerror);
-weak_alias(_dlclose, dlclose);
-weak_alias(_dlsym, dlsym);
-weak_alias(_dladdr, dladdr);
-#endif
-asm(".weak dlopen;dlopen=_dlopen");
-asm(".weak dlerror;dlerror=_dlerror");
-asm(".weak dlclose;dlclose=_dlclose");
-asm(".weak dlsym;dlsym=_dlsym");
-asm(".weak dladdr;dladdr=_dladdr");
-
-
 /* This is a real hack.  We need access to the dynamic linker, but we
 also need to make it possible to link against this library without any
 unresolved externals.  We provide these weak symbols to make the link
@@ -478,44 +463,28 @@ static void __attribute__ ((unused)) foobar()
 	_dl_exit(1);
 }
 
-asm(".weak _dl_dprintf; _dl_dprintf = foobar");
-asm(".weak _dl_find_hash; _dl_find_hash = foobar");
-asm(".weak _dl_load_shared_library; _dl_load_shared_library = foobar");
-asm(".weak _dl_parse_relocation_information; _dl_parse_relocation_information = foobar");
-asm(".weak _dl_parse_lazy_relocation_information; _dl_parse_lazy_relocation_information = foobar");
-#ifdef USE_CACHE
-asm(".weak _dl_map_cache; _dl_map_cache = foobar");
-asm(".weak _dl_unmap_cache; _dl_unmap_cache = foobar");
-#endif	
-
-#if 0
-weak_alias(_dl_dprintf, foobar);
-weak_alias(_dl_find_hash, foobar);
-weak_alias(_dl_load_shared_library, foobar);
-weak_alias(_dl_parse_relocation_information, foobar);
-weak_alias(_dl_parse_lazy_relocation_information, foobar);
-#ifdef USE_CACHE
-weak_alias(_dl_map_cache, foobar);
-weak_alias(_dl_unmap_cache, foobar);
-#endif	
-#endif	
-
 static int __attribute__ ((unused)) foobar1 = (int) foobar;	/* Use as pointer */
 
-asm(".weak _dl_symbol_tables; _dl_symbol_tables = foobar1");
-asm(".weak _dl_handles; _dl_handles = foobar1");
-asm(".weak _dl_loaded_modules; _dl_loaded_modules = foobar1");
-asm(".weak _dl_debug_addr; _dl_debug_addr = foobar1");
-asm(".weak _dl_error_number; _dl_error_number = foobar1");
-asm(".weak _dl_malloc_function; _dl_malloc_function = foobar1");
-#if 0
-weak_alias(_dl_symbol_tables, foobar1);
-weak_alias(_dl_handles, foobar1);
-weak_alias(_dl_loaded_modules, foobar1);
-weak_alias(_dl_debug_addr, foobar1);
-weak_alias(_dl_error_number, foobar1);
-weak_alias(_dl_malloc_function, foobar1);
-#endif
+void _dl_dprintf(int, const char *, ...) __attribute__ ((__weak__, __alias__ ("foobar")));
+char *_dl_find_hash(char *, struct dyn_elf *, struct elf_resolve *, int)
+	__attribute__ ((__weak__, __alias__ ("foobar")));
+struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **, struct elf_resolve *, char *)
+	__attribute__ ((__weak__, __alias__ ("foobar")));
+int _dl_parse_relocation_information(struct elf_resolve *, unsigned long, unsigned long, int)
+	__attribute__ ((__weak__, __alias__ ("foobar")));
+void _dl_parse_lazy_relocation_information(struct elf_resolve *, unsigned long, unsigned long, int)
+	__attribute__ ((__weak__, __alias__ ("foobar")));
+#ifdef USE_CACHE
+int _dl_map_cache(void) __attribute__ ((__weak__, __alias__ ("foobar")));
+int _dl_unmap_cache(void) __attribute__ ((__weak__, __alias__ ("foobar")));
+#endif	
+
+extern struct dyn_elf *_dl_symbol_tables __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern struct dyn_elf *_dl_handles __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern struct elf_resolve *_dl_loaded_modules __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern struct r_debug *_dl_debug_addr __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern int _dl_error_number __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern void *(*_dl_malloc_function)(size_t) __attribute__ ((__weak__, __alias__ ("foobar1")));
 
 /*
  * Dump information to stderrr about the current loaded modules
