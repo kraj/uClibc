@@ -1,21 +1,49 @@
+/* When we enter this piece of code, the program stack looks like this:
+        argc            argument counter (integer)
+        argv[0]         program name (pointer)
+        argv[1...N]     program args (pointers)
+        argv[argc-1]    end of args (integer)
+	NULL
+        env[0...N]      environment variables (pointers)
+        NULL
+	
+   When we are done here, we want
+	a1=argc
+	a2=argv[0]
+	a3=argv[argc+1]
+
+ARM register quick reference:
+
+    Name    Number      APCS Role
+
+    a1      0           argument 1 / integer result / scratch register / argc
+    a2      1           argument 2 / scratch register / argv
+    a3      2           argument 3 / scratch register / envp
+    a4      3           argument 4 / scratch register
+    v1      4           register variable
+    v2      5           register variable
+    v3      6           register variable
+    v4      7           register variable
+    v5      8           register variable
+    sb/v6   9           static base / register variable
+    sl/v7   10          stack limit / stack chunk handle / reg. variable
+    fp      11          frame pointer
+    ip      12          scratch register / new-sb in inter-link-unit calls
+    sp      13          lower end of current stack frame
+    lr      14          link address / scratch register
+    pc      15          program counter
+*/
+
 .text
 	.align 2
 	.global __environ
 	.global _start
 	.global exit
 	.global main
-	.global __libc_init
-	.global __init_stdio
-	.global __stdio_close_all
-	.global _void_void_null_func
 
 	.type   _start,%function
 	.type   exit,%function
 	.type   main,%function
-	.type   __libc_init,%function
-	.type   __init_stdio,%function
-	.type   __stdio_close_all,%function
-	.type   _void_void_null_func,%function
 
 
 
@@ -23,21 +51,18 @@
 @ r1 = argv
 @ r2 = envp
 @ sl = data segment
+#define BASEREG	    r9
 
 .text
 _start:
 	@ adjust the data segment base pointer
 	ldr r3,=__data_start
 	sub sl,sl,r3
-	mov r9,sl
+	mov BASEREG,sl
 
 	ldr r3, .L3
-	str r2,[r9,r3]
+	str r2,[BASEREG,r3]
 	
-	/* Tell libc to initialize whatever it needs */
-        bl __libc_init		    
-        bl __init_stdio
-
 	/* pull argc, argv and envp off the stack */
 	ldr r0,[sp, #0]
 	ldr r1,[sp, #4]
@@ -47,21 +72,9 @@ _start:
 /*	ldr r0,=0  */
 	bl      exit
 
-_void_void_null_func:
-	mov     pc, lr
-
-.weak __libc_init
-__libc_init = _void_void_null_func
-
-.weak __init_stdio
-__init_stdio = _void_void_null_func
-
-.weak __stdio_close_all
-__stdio_close_all = _void_void_null_func
-
 .align 2
 .L3:
-	.word environ
+	.word __environ
 
 
 .data

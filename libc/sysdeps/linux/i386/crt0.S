@@ -25,6 +25,7 @@ Cambridge, MA 02139, USA.  */
         argv[0]         program name (pointer)
         argv[1...N]     program args (pointers)
         argv[argc-1]    end of args (integer)
+	NULL
         env[0...N]      environment variables (pointers)
         NULL
 */
@@ -33,8 +34,6 @@ Cambridge, MA 02139, USA.  */
 .global _start
 .global exit
 .global main
-.global __stdio_close_all
-.global _void_void_null_func
 .global _start_exit
 
 .text
@@ -78,11 +77,6 @@ _start:
 	movl 8(%esp),%eax
 	movl %eax,__environ
 
-	/* Tell libc to initialize anything it needs to do */
-	call __libc_init
-	/* call __malloc_init */
-	call __init_stdio
-
 	/* Ok, now run main() */
 	call main
 	pushl %eax
@@ -99,20 +93,6 @@ _start_exit:
 _void_void_null_func:
 	ret
 
-.weak __libc_init
-__libc_init = _void_void_null_func
-
-/*
-.weak __malloc_init
-__malloc_init = _void_void_null_func
-*/
-
-.weak __init_stdio
-__init_stdio = _void_void_null_func
-
-.weak __stdio_close_all
-__stdio_close_all = _void_void_null_func
-	
 .data
 __environ:
         .long 0

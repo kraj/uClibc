@@ -121,9 +121,16 @@ void __stdio_close_all(void)
 
 void __init_stdio(void)
 {
+	static int stdio_initialized = 0;
 #if FIXED_BUFFERS > 2
 	int i;
+#endif
 
+	if (stdio_initialized!=0)
+	    return;
+	stdio_initialized++;
+
+#if FIXED_BUFFERS > 2
 	for ( i = 2 ; i < FIXED_BUFFERS ; i++ ) {
 		_fixed_buffers[i].used = 0;
 	}
@@ -135,7 +142,7 @@ void __init_stdio(void)
 	if (isatty(1)) {
 		stdout->mode |= _IOLBF;
 	}
-#if 0
+#if 1
 	/* Taken care of in _start.S and atexit.c now. */
 	atexit(__stdio_close_all);
 #endif
@@ -148,6 +155,8 @@ int ch;
 FILE *fp;
 {
 	register int v;
+
+	 __init_stdio();
 
 	v = fp->mode;
 	/* If last op was a read ... */
@@ -194,6 +203,8 @@ FILE *fp;
 {
 	int ch;
 
+	 __init_stdio();
+
 	if (fp->mode & __MODE_WRITING)
 		fflush(fp);
 
@@ -235,6 +246,8 @@ FILE *fp;
 {
 	int len, cc, rv = 0;
 	char *bstart;
+
+	 __init_stdio();
 
 	if (fp == NULL) {			/* On NULL flush the lot. */
 		if (fflush(stdin))
@@ -314,6 +327,8 @@ FILE *f;
 	register size_t i;
 	register int ch;
 
+	 __init_stdio();
+
 	ret = s;
 	for (i = count-1; i > 0; i--) {
 		ch = getc(f);
@@ -343,6 +358,8 @@ char *str;
 	register char *p = str;
 	register int c;
 
+	 __init_stdio();
+
 	while (((c = getc(stdin)) != EOF) && (c != '\n'))
 		*p++ = c;
 	*p = '\0';
@@ -356,6 +373,8 @@ const char *str;
 FILE *fp;
 {
 	register int n = 0;
+
+	 __init_stdio();
 
 	while (*str) {
 		if (putc(*str++, fp) == EOF)
@@ -371,6 +390,8 @@ int puts(str)
 const char *str;
 {
 	register int n;
+
+	 __init_stdio();
 
 	if (((n = fputs(str, stdout)) == EOF)
 		|| (putc('\n', stdout) == EOF))
@@ -396,6 +417,8 @@ FILE *fp;
 {
 	int len, v;
 	unsigned bytes, got = 0;
+
+	 __init_stdio();
 
 	v = fp->mode;
 
@@ -452,6 +475,8 @@ FILE *fp;
 	register int v;
 	int len;
 	unsigned bytes, put;
+
+	 __init_stdio();
 
 #ifdef STUB_FWRITE
 	bytes = size * nelm;
@@ -524,6 +549,8 @@ FILE *fp;
 void rewind(fp)
 FILE *fp;
 {
+	 __init_stdio();
+
 	fseek(fp, (long) 0, 0);
 	clearerr(fp);
 }
@@ -599,6 +626,8 @@ const char *mode;
 #endif
 	int fopen_mode = 0;
 	FILE *nfp = 0;
+
+	 __init_stdio();
 
 	/* If we've got an fp close the old one (freopen) */
 	if (fp) {
@@ -710,6 +739,8 @@ FILE *fp;
 {
 	int rv = 0;
 
+	 __init_stdio();
+
 	if (fp == 0) {
 		errno = EINVAL;
 		return EOF;
@@ -817,6 +848,8 @@ int ungetc(c, fp)
 int c;
 FILE *fp;
 {
+	 __init_stdio();
+
 	if (fp->mode & __MODE_WRITING)
 		fflush(fp);
 

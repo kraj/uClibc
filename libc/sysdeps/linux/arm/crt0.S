@@ -3,6 +3,7 @@
         argv[0]         program name (pointer)
         argv[1...N]     program args (pointers)
         argv[argc-1]    end of args (integer)
+	NULL
         env[0...N]      environment variables (pointers)
         NULL
 	
@@ -40,18 +41,10 @@ This file now uses the register naming from the ARM Procedure Calling Standard
 	.global _start
 	.global exit
 	.global main
-	.global __libc_init
-	.global __init_stdio
-	.global __stdio_close_all
-	.global _void_void_null_func
 
 	.type   _start,%function
 	.type   exit,%function
 	.type   main,%function
-	.type   __libc_init,%function
-	.type   __init_stdio,%function
-	.type   __stdio_close_all,%function
-	.type   _void_void_null_func,%function
 
 .text
 _start:
@@ -73,27 +66,12 @@ _start:
 	add     a3, a3, #4
 	str     a3, [a4, #0]
 
-	/* Tell libc to initialize whatever it needs */
-        bl __libc_init		    
-        bl __init_stdio
 	bl      main
 	bl      exit
 
-_void_void_null_func:
-	mov     pc, lr
-
-.weak __libc_init
-__libc_init = _void_void_null_func
-
-.weak __init_stdio
-__init_stdio = _void_void_null_func
-
-.weak __stdio_close_all
-__stdio_close_all = _void_void_null_func
-
 .align 2
 .L3:
-	.word environ
+	.word __environ
 
 
 .data

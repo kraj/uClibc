@@ -50,15 +50,12 @@ int atexit(vfuncp ptr)
 #endif
 
 #ifdef L_exit
-void __stdio_close_all(void);	/* note: see _start.S - could be faked */
-
 vfuncp __cleanup = 0;
 
 void exit(int rv)
 {
 	if (__cleanup)
 		__cleanup();
-	__stdio_close_all();
 	_exit(rv);
 }
 #endif
