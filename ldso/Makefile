@@ -3,10 +3,7 @@ include Rules.mak
 
 SUBDIRS = util d-link libdl # man
 
-all:
-	@if [ -d $(TOPDIR)ldso/d-link/$(TARGET_ARCH) ] ; then \
-		$(MAKE) -C d-link; \
-	fi;
+all: shared
 
 shared:
 	@if [ -d $(TOPDIR)ldso/d-link/$(TARGET_ARCH) ] ; then \

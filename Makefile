@@ -30,10 +30,7 @@
 TOPDIR=./
 include Rules.mak
 
-ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
-    LDSO_DIR = ldso
-endif
-DIRS = extra $(LDSO_DIR) libc libcrypt libresolv libutil libm  
+DIRS = extra libc libcrypt libresolv libutil libm  
 
 ifndef $(TARGET_PREFIX)
 	TARGET_PREFIX = `pwd`/_install
@@ -43,7 +40,9 @@ all: headers uClibc_config.h subdirs $(DO_SHARED) done
 
 shared:
 	@$(MAKE) -C libc shared
+ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
 	@$(MAKE) -C ldso shared
+endif
 	@$(MAKE) -C libcrypt shared
 	@$(MAKE) -C libutil shared
 	@$(MAKE) -C libm shared
