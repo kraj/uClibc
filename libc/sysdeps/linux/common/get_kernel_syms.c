@@ -8,5 +8,14 @@
  */
 
 #include "syscalls.h"
+
+#ifdef __NR_get_kernel_syms
 struct kernel_sym;
 _syscall1(int, get_kernel_syms, struct kernel_sym *, table);
+#else
+int get_kernel_syms(struct kernel_sym *table)
+{
+	__set_errno(ENOSYS);
+	return (unsigned long)-1;
+}
+#endif
