@@ -28,12 +28,12 @@
 NATIVE_CC = gcc
 
 # Specify the target
-TARGET_ARCH=mips
+TARGET_ARCH=mipsel
 
 # If you are running a cross compiler, you may want to set this
 # to something more interesting...  Target architecture is determined
 # by asking this compiler what arch it compiles stuff for.
-CROSS = mips-linux-
+CROSS = mipsel-linux-
 CC = $(CROSS)gcc
 AR = $(CROSS)ar
 LD = $(CROSS)ld
