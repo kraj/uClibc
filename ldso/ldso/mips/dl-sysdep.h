@@ -42,6 +42,8 @@ do {										\
 unsigned long _dl_linux_resolver(unsigned long sym_index,
 	unsigned long old_gpreg);
 
+struct elf_resolve;
+void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt);
 
 #define do_rem(result, n, base)  result = (n % base)
 

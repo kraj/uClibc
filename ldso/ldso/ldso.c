@@ -275,6 +275,11 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				INIT_GOT(lpnt, _dl_loaded_modules);
 		}
 
+#if defined(__mips__)
+		/* Relocate any global GOT entries for the application */
+		_dl_perform_mips_global_got_relocations(app_tpnt);
+#endif
+
 		/* OK, fill this in - we did not have this before */
 		if (ppnt->p_type == PT_INTERP) {
 			int readsize = 0;
