@@ -30,6 +30,7 @@ struct utmp
   char    ut_line[UT_LINESIZE];    /* devicename of tty -"/dev/", null-term */
   char    ut_id[2];                /* abbrev. ttyname, as 01, s1 etc. */
   time_t  ut_time;                 /* login time */
+#define ut_name ut_user                /* Backwards compatibility hack  */
   char    ut_user[UT_NAMESIZE];    /* username, not null-term */
   char    ut_host[UT_HOSTSIZE];    /* hostname for remote login... */
   long    ut_addr;                 /* IP addr of remote host */
