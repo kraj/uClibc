@@ -1,3 +1,93 @@
+0.9.17	25 January 2003
+
+See Changelog.full for the complete list of who did what. 
+
+Note:
+
+    I have always reserved the right to make binary incompatible changes as
+    needed prior to the "1.0" release.  This release is a good example of
+    that.  A few bugs turned up that needed to be fixed and the only good way
+    to fix them was to change some fundamental data structure sizes.  So I did
+    just that.  As a result, this release is _NOT_ binary compatible with
+    earlier releases -- you will need to recompile your applications.
+
+
+Release highlights:
+    Stefan Allius
+	o fixed a number of shared library loader bugs
+	o setjmp, longjmp, clone, and vfork cleanups for the SH architecture
+	o Don't build the config system with ncurses unless asked to
+    Tobias Anderberg
+	o cris architecture updates
+    Erik Andersen
+	o Changed 'struct stat' and 'struct stat64' so they use types that
+	    are consistant with use elsewhere in the library.  Without this,
+	    subtle bugs would occur due to comparing signed and unsigned
+	    types (for example, GNU tar wouldn't work)
+	o Fixed dlopen so it works with staticly linked apps
+	o Fixed sigaction on arm architecture so sa_restorer works properly
+	o Fixed sigaction on x86 architecture for (fixed debugging threads)
+	o Fixed a wide char related segfault in the regular expression code
+	o Powerpc pread and pwrite are now implemented correctly
+	o Powerpc syscall mechanism reimplemented
+	o Sparc architecture and syscall mechanism fixed up so things compile
+	o usershell reimplemented
+	o Fixed global destructors for staticly linked applications
+	o Added dynamic atexit support (needed for full C++ ctor/dtor support)
+	o The ldd utility now acts more like the GNU utility
+	o Added a stub libnsl library to make stupid configure scripts bahave
+	o Always build crt1.o as well as crt0.o to minimize the need to mess
+	    with the compiler
+	o Rewrote powerpc crt0.S to properly handle ctors/dtors
+	o Removed unimplemented and legacy stuff from our header files to
+	    make configure behave better
+	o Made the lib loader also support libs in /usr/X11R6/lib by default
+	o Config system updates
+	o networking function updates
+	o Large file support updates
+	o Lots of other little bug fixes and cleanups
+    Nick Fedchik
+	o Support ether_aton
+    Nathan Field
+	o Fixed pthread_mutex_lock and pthread_mutex_unlock so they
+	    actually work as advertised on mips
+	o Fixed several nasty pthread bugs fixing debugging
+    Brett Hunt
+	o Fixed potential segfaults during 'make menuconfig'
+    Jay Kulpinski
+	o Fixed a subtle problem in the DNS resolver that prevented
+	    uncompressed DNS lookup responses from working
+    David McCullough
+	o Fixed pclose error handling
+    David Meggy
+	o fixed the problem where arm binaries would crash on start
+	  that Erik stupidly caused right before the last release.
+    Manuel Novoa III
+	o Major locale support update!
+	o Allow people to use pregenerated locale data instead of generating
+	    approx 40Mb of glibc locales to get the 300+ locales currently
+	    supported.
+	o locale dependent collation support
+	o Fixed locale support tools to work when cross-compiling
+	o Added the *wprintf functions
+	o Added the wcsto{inttype} functions
+	o Added iconv() and a mini iconv utility
+	o Added hsearch and hsearch_r
+	o Fixed a silly bug allowing wprintf %s to work correctly.
+	o Fixed fdopen when used with "a" (append).
+	o Fixed stdio file position handing to be sure fell() always
+	    gives correct results
+    Luc Van Oostenryck
+	o Fixed a buffer overflow in getlogin_r
+    Yoshinori Sato
+	o Hitachi h8300 architecture update
+    Ronald Wahl
+	o Powerpc shared library relocation fixes
+
+ -Erik
+
+
+
 0.9.16	8 November 2002
 
 See Changelog.full for the complete list of who did what. 
