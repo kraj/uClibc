@@ -33,17 +33,21 @@ MOBJ2=encodeh.o decodeh.o encoded.o decoded.o lengthd.o encodeq.o \
 	formquery.o dnslookup.o resolveaddress.o resolvemailbox.o \
 	opennameservers.o closenameservers.o resolvename.o gethostbyname.o\
 	gethostbyaddr.o
+OBJS=$(MOBJ) $(MOBJ2)
+all: $(OBJS) $(LIBC)
 
-all: $(MOBJ) $(MOBJ2) $(LIBC)
+$(LIBC): ar-target
 
-$(LIBC): $(MOBJ) $(MOBJ2)
-	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ) $(MOBJ2)
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 
 $(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+
+$(OBJS): Makefile
 
 clean:
 	rm -f *.[oa] *~ core

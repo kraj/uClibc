@@ -38,12 +38,15 @@ MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
 
 CSRC=dputs.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
 
 
-all: $(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS) $(LIBC)
+all: $(OBJS) $(LIBC)
 
-$(LIBC): $(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
+$(LIBC): ar-target
+
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -53,6 +56,8 @@ $(MOBJ2): $(MSRC2)
 
 $(MOBJ3): $(MSRC3)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+
+$(OBJS): Makefile
 
 clean:
 	rm -f *.[oa] *~ core

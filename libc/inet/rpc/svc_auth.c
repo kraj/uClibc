@@ -1,5 +1,7 @@
 #if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] = "@(#)svc_auth.c	2.1 88/08/07 4.0 RPCSRC; from 1.19 87/08/11 Copyr 1984 Sun Micro";
+static char sccsid[] =
+
+	"@(#)svc_auth.c	2.1 88/08/07 4.0 RPCSRC; from 1.19 87/08/11 Copyr 1984 Sun Micro";
 #endif
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for
@@ -54,18 +56,19 @@ static char sccsid[] = "@(#)svc_auth.c	2.1 88/08/07 4.0 RPCSRC; from 1.19 87/08/
  *
  */
 
-enum auth_stat _svcauth_null();		/* no authentication */
-enum auth_stat _svcauth_unix();		/* unix style (uid, gids) */
+enum auth_stat _svcauth_null();	/* no authentication */
+enum auth_stat _svcauth_unix();	/* unix style (uid, gids) */
 enum auth_stat _svcauth_short();	/* short hand unix style */
 
 static struct {
-	enum auth_stat (*authenticator)();
+	enum auth_stat (*authenticator) ();
 } svcauthsw[] = {
-	_svcauth_null,			/* AUTH_NULL */
-	_svcauth_unix,			/* AUTH_UNIX */
-	_svcauth_short,			/* AUTH_SHORT */
+	_svcauth_null,				/* AUTH_NULL */
+		_svcauth_unix,			/* AUTH_UNIX */
+		_svcauth_short,			/* AUTH_SHORT */
 };
-#define	AUTH_MAX	2		/* HIGHEST AUTH NUMBER */
+
+#define	AUTH_MAX	2			/* HIGHEST AUTH NUMBER */
 
 
 /*
@@ -86,10 +89,9 @@ static struct {
  * There is an assumption that any flavour less than AUTH_NULL is
  * invalid.
  */
-enum auth_stat
-_authenticate(rqst, msg)
-	register struct svc_req *rqst;
-	struct rpc_msg *msg;
+enum auth_stat _authenticate(rqst, msg)
+register struct svc_req *rqst;
+struct rpc_msg *msg;
 {
 	register int cred_flavor;
 
@@ -98,16 +100,15 @@ _authenticate(rqst, msg)
 	rqst->rq_xprt->xp_verf.oa_length = 0;
 	cred_flavor = rqst->rq_cred.oa_flavor;
 	if ((cred_flavor <= AUTH_MAX) && (cred_flavor >= AUTH_NULL)) {
-		return ((*(svcauthsw[cred_flavor].authenticator))(rqst, msg));
+		return ((*(svcauthsw[cred_flavor].authenticator)) (rqst, msg));
 	}
 
 	return (AUTH_REJECTEDCRED);
 }
 
-enum auth_stat
-_svcauth_null(/*rqst, msg*/)
+enum auth_stat _svcauth_null( /*rqst, msg */ )
 	/*struct svc_req *rqst;
-	struct rpc_msg *msg;*/
+	   struct rpc_msg *msg; */
 {
 
 	return (AUTH_OK);

@@ -21,9 +21,8 @@
    and invokes a function in the right context after its all over.  */
 
 #include <sysdep.h>
-#define _ERRNO_H	1
-#include <bits/errno.h>
-#include <asm-syntax.h>
+#include <asm/errno.h>
+
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
@@ -59,7 +58,7 @@ ENTRY(__clone)
 	/* Do the system call */
 	pushl	%ebx
 	movl	16(%esp),%ebx
-	movl	$SYS_ify(clone),%eax
+	movl	$__NR_clone,%eax
 	int	$0x80
 	popl	%ebx
 
@@ -80,8 +79,6 @@ L(here):
 	addl	$_GLOBAL_OFFSET_TABLE_+[.-L(here)], %ebx
 #endif
 	pushl	%eax
-	call	JUMPTARGET (_exit)
+	call	_exit
 
-PSEUDO_END (__clone)
 
-weak_alias (__clone, clone)

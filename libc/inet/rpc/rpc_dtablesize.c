@@ -28,7 +28,9 @@
  * Mountain View, California  94043
  */
 #if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] = "@(#)rpc_dtablesize.c 1.2 87/08/11 Copyr 1987 Sun Micro";
+static char sccsid[] =
+
+	"@(#)rpc_dtablesize.c 1.2 87/08/11 Copyr 1987 Sun Micro";
 #endif
 
 /*
@@ -38,7 +40,7 @@ static char sccsid[] = "@(#)rpc_dtablesize.c 1.2 87/08/11 Copyr 1987 Sun Micro";
 _rpc_dtablesize()
 {
 	static int size;
-	
+
 	if (size == 0) {
 		size = getdtablesize();
 	}

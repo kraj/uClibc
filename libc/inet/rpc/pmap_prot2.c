@@ -28,7 +28,9 @@
  * Mountain View, California  94043
  */
 #if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] = "@(#)pmap_prot2.c 1.3 87/08/11 Copyr 1984 Sun Micro";
+static char sccsid[] =
+
+	"@(#)pmap_prot2.c 1.3 87/08/11 Copyr 1984 Sun Micro";
 #endif
 
 /*
@@ -81,10 +83,9 @@ static char sccsid[] = "@(#)pmap_prot2.c 1.3 87/08/11 Copyr 1984 Sun Micro";
  * the net, yet is the data that the pointer points to which is interesting;
  * this sounds like a job for xdr_reference!
  */
-bool_t
-xdr_pmaplist(xdrs, rp)
-	register XDR *xdrs;
-	register struct pmaplist **rp;
+bool_t xdr_pmaplist(xdrs, rp)
+register XDR *xdrs;
+register struct pmaplist **rp;
 {
 	/*
 	 * more_elements is pre-computed in case the direction is
@@ -96,21 +97,22 @@ xdr_pmaplist(xdrs, rp)
 	register struct pmaplist **next;
 
 	while (TRUE) {
-		more_elements = (bool_t)(*rp != NULL);
-		if (! xdr_bool(xdrs, &more_elements))
+		more_elements = (bool_t) (*rp != NULL);
+		if (!xdr_bool(xdrs, &more_elements))
 			return (FALSE);
-		if (! more_elements)
-			return (TRUE);  /* we are done */
+		if (!more_elements)
+			return (TRUE);		/* we are done */
 		/*
 		 * the unfortunate side effect of non-recursion is that in
 		 * the case of freeing we must remember the next object
 		 * before we free the current object ...
 		 */
 		if (freeing)
-			next = &((*rp)->pml_next); 
-		if (! xdr_reference(xdrs, (caddr_t *)rp,
-		    (u_int)sizeof(struct pmaplist), xdr_pmap))
+			next = &((*rp)->pml_next);
+		if (!xdr_reference(xdrs, (caddr_t *) rp,
+						   (u_int) sizeof(struct pmaplist), xdr_pmap))
 			return (FALSE);
+
 		rp = (freeing) ? next : &((*rp)->pml_next);
 	}
 }

@@ -35,18 +35,23 @@ CSRC=atoi.c atol.c ltoa.c ltostr.c ctype.c qsort.c bsearch.c rand.c lsearch.c \
 	mkstemp.c  mktemp.c realpath.c getenv.c putenv.c popen.c system.c \
 	getcwd.c setenv.c execl.c execv.c execlp.c execvp.c execvep.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(MOBJ) $(MOBJ2) $(COBJS)
 
 
-all: $(MOBJ) $(MOBJ2) $(COBJS) $(LIBC)
+all: $(OBJS) $(LIBC)
 
-$(LIBC): $(MOBJ) $(MOBJ2) $(COBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ) $(MOBJ2) $(COBJS)
+$(LIBC): ar-target
+
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 
 $(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+
+$(OBJ): Makefile
 
 clean:
 	rm -f *.[oa] *~ core

@@ -26,13 +26,16 @@ LIBC=$(TOPDIR)libc.a
 
 CSRC=rx.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(COBJS)
 
-all: $(COBJS) $(LIBC)
+all: $(OBJS) $(LIBC)
 
-$(LIBC): $(COBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(COBJS)
+$(LIBC): ar-target
 
-$(COBJS): Makefile
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+
+$(OBJS): Makefile
 
 clean:
 	rm -f *.[oa] *~ core

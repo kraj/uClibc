@@ -28,7 +28,9 @@
  * Mountain View, California  94043
  */
 #if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] = "@(#)pmap_getport.c 1.9 87/08/11 Copyr 1984 Sun Micro";
+static char sccsid[] =
+
+	"@(#)pmap_getport.c 1.9 87/08/11 Copyr 1984 Sun Micro";
 #endif
 
 /*
@@ -52,12 +54,11 @@ static struct timeval tottimeout = { 60, 0 };
  * Calls the pmap service remotely to do the lookup.
  * Returns 0 if no map exists.
  */
-u_short
-pmap_getport(address, program, version, protocol)
-	struct sockaddr_in *address;
-	u_long program;
-	u_long version;
-	u_int protocol;
+u_short pmap_getport(address, program, version, protocol)
+struct sockaddr_in *address;
+u_long program;
+u_long version;
+u_int protocol;
 {
 	u_short port = 0;
 	int socket = -1;
@@ -66,14 +67,15 @@ pmap_getport(address, program, version, protocol)
 
 	address->sin_port = htons(PMAPPORT);
 	client = clntudp_bufcreate(address, PMAPPROG,
-	    PMAPVERS, timeout, &socket, RPCSMALLMSGSIZE, RPCSMALLMSGSIZE);
-	if (client != (CLIENT *)NULL) {
+							   PMAPVERS, timeout, &socket, RPCSMALLMSGSIZE,
+							   RPCSMALLMSGSIZE);
+	if (client != (CLIENT *) NULL) {
 		parms.pm_prog = program;
 		parms.pm_vers = version;
 		parms.pm_prot = protocol;
-		parms.pm_port = 0;  /* not needed or used */
+		parms.pm_port = 0;		/* not needed or used */
 		if (CLNT_CALL(client, PMAPPROC_GETPORT, xdr_pmap, &parms,
-		    xdr_u_short, &port, tottimeout) != RPC_SUCCESS){
+					  xdr_u_short, &port, tottimeout) != RPC_SUCCESS) {
 			rpc_createerr.cf_stat = RPC_PMAPFAILURE;
 			clnt_geterr(client, &rpc_createerr.cf_error);
 		} else if (port == 0) {
@@ -81,7 +83,7 @@ pmap_getport(address, program, version, protocol)
 		}
 		CLNT_DESTROY(client);
 	}
-	(void)close(socket);
+	(void) close(socket);
 	address->sin_port = 0;
 	return (port);
 }

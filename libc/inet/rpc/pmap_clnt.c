@@ -28,7 +28,9 @@
  * Mountain View, California  94043
  */
 #if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] = "@(#)pmap_clnt.c 1.37 87/08/11 Copyr 1984 Sun Micro";
+static char sccsid[] =
+
+	"@(#)pmap_clnt.c 1.37 87/08/11 Copyr 1984 Sun Micro";
 #endif
 
 /*
@@ -52,12 +54,11 @@ void clnt_perror();
  * Set a mapping between program,version and port.
  * Calls the pmap service remotely to do the mapping.
  */
-bool_t
-pmap_set(program, version, protocol, port)
-	u_long program;
-	u_long version;
-	int protocol;
-	u_short port;
+bool_t pmap_set(program, version, protocol, port)
+u_long program;
+u_long version;
+int protocol;
+u_short port;
 {
 	struct sockaddr_in myaddress;
 	int socket = -1;
@@ -67,20 +68,21 @@ pmap_set(program, version, protocol, port)
 
 	get_myaddress(&myaddress);
 	client = clntudp_bufcreate(&myaddress, PMAPPROG, PMAPVERS,
-	    timeout, &socket, RPCSMALLMSGSIZE, RPCSMALLMSGSIZE);
-	if (client == (CLIENT *)NULL)
+							   timeout, &socket, RPCSMALLMSGSIZE,
+							   RPCSMALLMSGSIZE);
+	if (client == (CLIENT *) NULL)
 		return (FALSE);
 	parms.pm_prog = program;
 	parms.pm_vers = version;
 	parms.pm_prot = protocol;
 	parms.pm_port = port;
 	if (CLNT_CALL(client, PMAPPROC_SET, xdr_pmap, &parms, xdr_bool, &rslt,
-	    tottimeout) != RPC_SUCCESS) {
+				  tottimeout) != RPC_SUCCESS) {
 		clnt_perror(client, "Cannot register service");
 		return (FALSE);
 	}
 	CLNT_DESTROY(client);
-	(void)close(socket);
+	(void) close(socket);
 	return (rslt);
 }
 
@@ -88,10 +90,9 @@ pmap_set(program, version, protocol, port)
  * Remove the mapping between program,version and port.
  * Calls the pmap service remotely to do the un-mapping.
  */
-bool_t
-pmap_unset(program, version)
-	u_long program;
-	u_long version;
+bool_t pmap_unset(program, version)
+u_long program;
+u_long version;
 {
 	struct sockaddr_in myaddress;
 	int socket = -1;
@@ -101,15 +102,16 @@ pmap_unset(program, version)
 
 	get_myaddress(&myaddress);
 	client = clntudp_bufcreate(&myaddress, PMAPPROG, PMAPVERS,
-	    timeout, &socket, RPCSMALLMSGSIZE, RPCSMALLMSGSIZE);
-	if (client == (CLIENT *)NULL)
+							   timeout, &socket, RPCSMALLMSGSIZE,
+							   RPCSMALLMSGSIZE);
+	if (client == (CLIENT *) NULL)
 		return (FALSE);
 	parms.pm_prog = program;
 	parms.pm_vers = version;
 	parms.pm_port = parms.pm_prot = 0;
 	CLNT_CALL(client, PMAPPROC_UNSET, xdr_pmap, &parms, xdr_bool, &rslt,
-	    tottimeout);
+			  tottimeout);
 	CLNT_DESTROY(client);
-	(void)close(socket);
+	(void) close(socket);
 	return (rslt);
 }

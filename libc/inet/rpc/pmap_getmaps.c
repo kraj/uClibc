@@ -28,7 +28,9 @@
  * Mountain View, California  94043
  */
 #if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] = "@(#)pmap_getmaps.c 1.10 87/08/11 Copyr 1984 Sun Micro";
+static char sccsid[] =
+
+	"@(#)pmap_getmaps.c 1.10 87/08/11 Copyr 1984 Sun Micro";
 #endif
 
 /*
@@ -57,11 +59,10 @@ extern int errno;
  * Get a copy of the current port maps.
  * Calls the pmap service remotely to do get the maps.
  */
-struct pmaplist *
-pmap_getmaps(address)
-	 struct sockaddr_in *address;
+struct pmaplist *pmap_getmaps(address)
+struct sockaddr_in *address;
 {
-	struct pmaplist *head = (struct pmaplist *)NULL;
+	struct pmaplist *head = (struct pmaplist *) NULL;
 	int socket = -1;
 	struct timeval minutetimeout;
 	register CLIENT *client;
@@ -69,16 +70,15 @@ pmap_getmaps(address)
 	minutetimeout.tv_sec = 60;
 	minutetimeout.tv_usec = 0;
 	address->sin_port = htons(PMAPPORT);
-	client = clnttcp_create(address, PMAPPROG,
-	    PMAPVERS, &socket, 50, 500);
-	if (client != (CLIENT *)NULL) {
+	client = clnttcp_create(address, PMAPPROG, PMAPVERS, &socket, 50, 500);
+	if (client != (CLIENT *) NULL) {
 		if (CLNT_CALL(client, PMAPPROC_DUMP, xdr_void, NULL, xdr_pmaplist,
-		    &head, minutetimeout) != RPC_SUCCESS) {
+					  &head, minutetimeout) != RPC_SUCCESS) {
 			clnt_perror(client, "pmap_getmaps rpc problem");
 		}
 		CLNT_DESTROY(client);
 	}
-	(void)close(socket);
+	(void) close(socket);
 	address->sin_port = 0;
 	return (head);
 }

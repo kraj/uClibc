@@ -1,4 +1,6 @@
-static  char sccsid[] = "@(#)bindresvport.c	2.2 88/07/29 4.0 RPCSRC 1.8 88/02/08 SMI";
+static char sccsid[] =
+
+	"@(#)bindresvport.c	2.2 88/07/29 4.0 RPCSRC 1.8 88/02/08 SMI";
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for
  * unrestricted use provided that this legend is included on all tape
@@ -41,8 +43,8 @@ static  char sccsid[] = "@(#)bindresvport.c	2.2 88/07/29 4.0 RPCSRC 1.8 88/02/08
  * Bind a socket to a privileged IP port
  */
 bindresvport(sd, sin)
-	int sd;
-	struct sockaddr_in *sin;
+int sd;
+struct sockaddr_in *sin;
 {
 	int res;
 	static short port;
@@ -54,9 +56,9 @@ bindresvport(sd, sin)
 #define ENDPORT (IPPORT_RESERVED - 1)
 #define NPORTS	(ENDPORT - STARTPORT + 1)
 
-	if (sin == (struct sockaddr_in *)0) {
+	if (sin == (struct sockaddr_in *) 0) {
 		sin = &myaddr;
-		bzero(sin, sizeof (*sin));
+		bzero(sin, sizeof(*sin));
 		sin->sin_family = AF_INET;
 	} else if (sin->sin_family != AF_INET) {
 		errno = EPFNOSUPPORT;

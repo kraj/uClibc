@@ -14,20 +14,18 @@
 #include <errno.h>
 
 /* ATEXIT.H */
-#define MAXONEXIT 20		/* AIUI Posix requires 10 */
+#define MAXONEXIT 20			/* AIUI Posix requires 10 */
 
 typedef void (*vfuncp) ();
 
 extern vfuncp __cleanup;
 extern void __do_exit();
-extern void _exit __P ((int __status)) __attribute__ ((__noreturn__));
+extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
 
-extern struct exit_table
-{
-   vfuncp called;
-   void *argument;
-}
-__on_exit_table[MAXONEXIT];
+extern struct exit_table {
+	vfuncp called;
+	void *argument;
+} __on_exit_table[MAXONEXIT];
 
 extern int __on_exit_count;
 
@@ -36,83 +34,75 @@ extern int __on_exit_count;
 #ifdef L_atexit
 vfuncp __cleanup;
 
-int
-atexit(ptr)
+int atexit(ptr)
 vfuncp ptr;
 {
-   if( __on_exit_count < 0 || __on_exit_count >= MAXONEXIT)
-   {
-      errno = ENOMEM;
-      return -1;
-   }
-   __cleanup = __do_exit;
-   if( ptr )
-   {
-      __on_exit_table[__on_exit_count].called = ptr;
-      __on_exit_table[__on_exit_count].argument = 0;
-      __on_exit_count++;
-   }
-   return 0;
+	if (__on_exit_count < 0 || __on_exit_count >= MAXONEXIT) {
+		errno = ENOMEM;
+		return -1;
+	}
+	__cleanup = __do_exit;
+	if (ptr) {
+		__on_exit_table[__on_exit_count].called = ptr;
+		__on_exit_table[__on_exit_count].argument = 0;
+		__on_exit_count++;
+	}
+	return 0;
 }
 
 #endif
 
 #ifdef L_on_exit
-int
-on_exit(ptr, arg)
+int on_exit(ptr, arg)
 vfuncp ptr;
 void *arg;
 {
-   if( __on_exit_count < 0 || __on_exit_count >= MAXONEXIT)
-   {
-      errno = ENOMEM;
-      return -1;
-   }
-   __cleanup = __do_exit;
-   if( ptr )
-   {
-      __on_exit_table[__on_exit_count].called = ptr;
-      __on_exit_table[__on_exit_count].argument = arg;
-      __on_exit_count++;
-   }
-   return 0;
+	if (__on_exit_count < 0 || __on_exit_count >= MAXONEXIT) {
+		errno = ENOMEM;
+		return -1;
+	}
+	__cleanup = __do_exit;
+	if (ptr) {
+		__on_exit_table[__on_exit_count].called = ptr;
+		__on_exit_table[__on_exit_count].argument = arg;
+		__on_exit_count++;
+	}
+	return 0;
 }
 
 #endif
 
 #ifdef L___do_exit
 
-int   __on_exit_count = 0;
+int __on_exit_count = 0;
 struct exit_table __on_exit_table[MAXONEXIT];
 
-void
-__do_exit(rv)
-int   rv;
+void __do_exit(rv)
+int rv;
 {
-   register int   count = __on_exit_count-1;
-   register vfuncp ptr;
-   __on_exit_count = -1;		/* ensure no more will be added */
-   __cleanup = 0;			/* Calling exit won't re-do this */
+	register int count = __on_exit_count - 1;
+	register vfuncp ptr;
 
-   /* In reverse order */
-   for (; count >= 0; count--)
-   {
-      ptr = __on_exit_table[count].called;
-      (*ptr) (rv, __on_exit_table[count].argument);
-   }
+	__on_exit_count = -1;		/* ensure no more will be added */
+	__cleanup = 0;				/* Calling exit won't re-do this */
+
+	/* In reverse order */
+	for (; count >= 0; count--) {
+		ptr = __on_exit_table[count].called;
+		(*ptr) (rv, __on_exit_table[count].argument);
+	}
 }
 
 #endif
 
 #ifdef L_exit
 
-void
-exit(rv)
-int	rv;
+void exit(rv)
+int rv;
 {
-   if (__cleanup)
-      __cleanup();
-   _exit(rv);
+	if (__cleanup)
+		__cleanup();
+	_exit(rv);
 }
 
 #endif

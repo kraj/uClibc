@@ -28,14 +28,16 @@ CSRC=__getpwent.c pwent.c getpwnam.c getpwuid.c putpwent.c getpw.c fgetpwent.c \
 	__getgrent.c grent.c getgrnam.c getgrgid.c fgetgrent.c initgroups.c \
 	utent.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(COBJS)
 
+all: $(OBJS) $(LIBC)
 
-all: $(COBJS) $(LIBC)
+$(LIBC): ar-target
 
-$(LIBC): $(COBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(COBJS)
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(COBJS): Makefile
+$(OBJS): Makefile
 __getgrent.c: config.h
 initgroups.c: config.h
 

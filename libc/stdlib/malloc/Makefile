@@ -27,13 +27,22 @@ LIBC=$(TOPDIR)libc.a
 CSRC=malloc.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
+MSRC=alloc.c
+MOBJ=malloc_dbg.o free_dbg.o calloc_dbg.o
+OBJS=$(COBJS) $(MOBJ)
 
-all: $(COBJS) $(LIBC)
+all: $(OBJS) $(LIBC)
 
-$(LIBC): $(COBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(COBJS)
+$(LIBC): ar-target
 
-$(COBJS): Makefile
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+
+$(OBJ): Makefile
 
 clean:
 	rm -f *.[oa] *~ core
+

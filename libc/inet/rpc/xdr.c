@@ -62,22 +62,20 @@ static char xdr_zero[BYTES_PER_XDR_UNIT] = { 0, 0, 0, 0 };
  * Free a data structure using XDR
  * Not a filter, but a convenient utility nonetheless
  */
-void
-xdr_free(proc, objp)
-	xdrproc_t proc;
-	char *objp;
+void xdr_free(proc, objp)
+xdrproc_t proc;
+char *objp;
 {
 	XDR x;
-	
+
 	x.x_op = XDR_FREE;
-	(*proc)(&x, objp);
+	(*proc) (&x, objp);
 }
 
 /*
  * XDR nothing
  */
-bool_t
-xdr_void(/* xdrs, addr */)
+bool_t xdr_void( /* xdrs, addr */ )
 	/* XDR *xdrs; */
 	/* caddr_t addr; */
 {
@@ -88,20 +86,19 @@ xdr_void(/* xdrs, addr */)
 /*
  * XDR integers
  */
-bool_t
-xdr_int(xdrs, ip)
-	XDR *xdrs;
-	int *ip;
+bool_t xdr_int(xdrs, ip)
+XDR *xdrs;
+int *ip;
 {
 
 #ifdef lint
-	(void) (xdr_short(xdrs, (short *)ip));
-	return (xdr_long(xdrs, (long *)ip));
+	(void) (xdr_short(xdrs, (short *) ip));
+	return (xdr_long(xdrs, (long *) ip));
 #else
-	if (sizeof (int) == sizeof (long)) {
-		return (xdr_long(xdrs, (long *)ip));
+	if (sizeof(int) == sizeof(long)) {
+		return (xdr_long(xdrs, (long *) ip));
 	} else {
-		return (xdr_short(xdrs, (short *)ip));
+		return (xdr_short(xdrs, (short *) ip));
 	}
 #endif
 }
@@ -109,20 +106,19 @@ xdr_int(xdrs, ip)
 /*
  * XDR unsigned integers
  */
-bool_t
-xdr_u_int(xdrs, up)
-	XDR *xdrs;
-	u_int *up;
+bool_t xdr_u_int(xdrs, up)
+XDR *xdrs;
+u_int *up;
 {
 
 #ifdef lint
-	(void) (xdr_short(xdrs, (short *)up));
-	return (xdr_u_long(xdrs, (u_long *)up));
+	(void) (xdr_short(xdrs, (short *) up));
+	return (xdr_u_long(xdrs, (u_long *) up));
 #else
-	if (sizeof (u_int) == sizeof (u_long)) {
-		return (xdr_u_long(xdrs, (u_long *)up));
+	if (sizeof(u_int) == sizeof(u_long)) {
+		return (xdr_u_long(xdrs, (u_long *) up));
 	} else {
-		return (xdr_short(xdrs, (short *)up));
+		return (xdr_short(xdrs, (short *) up));
 	}
 #endif
 }
@@ -131,10 +127,9 @@ xdr_u_int(xdrs, up)
  * XDR long integers
  * same as xdr_u_long - open coded to save a proc call!
  */
-bool_t
-xdr_long(xdrs, lp)
-	register XDR *xdrs;
-	long *lp;
+bool_t xdr_long(xdrs, lp)
+register XDR *xdrs;
+long *lp;
 {
 
 	if (xdrs->x_op == XDR_ENCODE)
@@ -153,16 +148,15 @@ xdr_long(xdrs, lp)
  * XDR unsigned long integers
  * same as xdr_long - open coded to save a proc call!
  */
-bool_t
-xdr_u_long(xdrs, ulp)
-	register XDR *xdrs;
-	u_long *ulp;
+bool_t xdr_u_long(xdrs, ulp)
+register XDR *xdrs;
+u_long *ulp;
 {
 
 	if (xdrs->x_op == XDR_DECODE)
-		return (XDR_GETLONG(xdrs, (long *)ulp));
+		return (XDR_GETLONG(xdrs, (long *) ulp));
 	if (xdrs->x_op == XDR_ENCODE)
-		return (XDR_PUTLONG(xdrs, (long *)ulp));
+		return (XDR_PUTLONG(xdrs, (long *) ulp));
 	if (xdrs->x_op == XDR_FREE)
 		return (TRUE);
 	return (FALSE);
@@ -171,10 +165,9 @@ xdr_u_long(xdrs, ulp)
 /*
  * XDR short integers
  */
-bool_t
-xdr_short(xdrs, sp)
-	register XDR *xdrs;
-	short *sp;
+bool_t xdr_short(xdrs, sp)
+register XDR *xdrs;
+short *sp;
 {
 	long l;
 
@@ -200,17 +193,16 @@ xdr_short(xdrs, sp)
 /*
  * XDR unsigned short integers
  */
-bool_t
-xdr_u_short(xdrs, usp)
-	register XDR *xdrs;
-	u_short *usp;
+bool_t xdr_u_short(xdrs, usp)
+register XDR *xdrs;
+u_short *usp;
 {
 	u_long l;
 
 	switch (xdrs->x_op) {
 
 	case XDR_ENCODE:
-		l = (u_long) *usp;
+		l = (u_long) * usp;
 		return (XDR_PUTLONG(xdrs, &l));
 
 	case XDR_DECODE:
@@ -230,10 +222,9 @@ xdr_u_short(xdrs, usp)
 /*
  * XDR a char
  */
-bool_t
-xdr_char(xdrs, cp)
-	XDR *xdrs;
-	char *cp;
+bool_t xdr_char(xdrs, cp)
+XDR *xdrs;
+char *cp;
 {
 	int i;
 
@@ -248,10 +239,9 @@ xdr_char(xdrs, cp)
 /*
  * XDR an unsigned char
  */
-bool_t
-xdr_u_char(xdrs, cp)
-	XDR *xdrs;
-	char *cp;
+bool_t xdr_u_char(xdrs, cp)
+XDR *xdrs;
+char *cp;
 {
 	u_int u;
 
@@ -266,10 +256,9 @@ xdr_u_char(xdrs, cp)
 /*
  * XDR booleans
  */
-bool_t
-xdr_bool(xdrs, bp)
-	register XDR *xdrs;
-	bool_t *bp;
+bool_t xdr_bool(xdrs, bp)
+register XDR *xdrs;
+bool_t *bp;
 {
 	long lb;
 
@@ -295,10 +284,9 @@ xdr_bool(xdrs, bp)
 /*
  * XDR enumerations
  */
-bool_t
-xdr_enum(xdrs, ep)
-	XDR *xdrs;
-	enum_t *ep;
+bool_t xdr_enum(xdrs, ep)
+XDR *xdrs;
+enum_t *ep;
 {
 #ifndef lint
 	enum sizecheck { SIZEVAL };	/* used to find the size of an enum */
@@ -306,16 +294,16 @@ xdr_enum(xdrs, ep)
 	/*
 	 * enums are treated as ints
 	 */
-	if (sizeof (enum sizecheck) == sizeof (long)) {
-		return (xdr_long(xdrs, (long *)ep));
-	} else if (sizeof (enum sizecheck) == sizeof (short)) {
-		return (xdr_short(xdrs, (short *)ep));
+	if (sizeof(enum sizecheck) == sizeof(long)) {
+		return (xdr_long(xdrs, (long *) ep));
+	} else if (sizeof(enum sizecheck) == sizeof(short)) {
+		return (xdr_short(xdrs, (short *) ep));
 	} else {
 		return (FALSE);
 	}
 #else
-	(void) (xdr_short(xdrs, (short *)ep));
-	return (xdr_long(xdrs, (long *)ep));
+	(void) (xdr_short(xdrs, (short *) ep));
+	return (xdr_long(xdrs, (long *) ep));
 #endif
 }
 
@@ -324,11 +312,10 @@ xdr_enum(xdrs, ep)
  * Allows the specification of a fixed size sequence of opaque bytes.
  * cp points to the opaque object and cnt gives the byte length.
  */
-bool_t
-xdr_opaque(xdrs, cp, cnt)
-	register XDR *xdrs;
-	caddr_t cp;
-	register u_int cnt;
+bool_t xdr_opaque(xdrs, cp, cnt)
+register XDR *xdrs;
+caddr_t cp;
+register u_int cnt;
 {
 	register u_int rndup;
 	static crud[BYTES_PER_XDR_UNIT];
@@ -376,20 +363,19 @@ xdr_opaque(xdrs, cp, cnt)
  * *cpp is a pointer to the bytes, *sizep is the count.
  * If *cpp is NULL maxsize bytes are allocated
  */
-bool_t
-xdr_bytes(xdrs, cpp, sizep, maxsize)
-	register XDR *xdrs;
-	char **cpp;
-	register u_int *sizep;
-	u_int maxsize;
+bool_t xdr_bytes(xdrs, cpp, sizep, maxsize)
+register XDR *xdrs;
+char **cpp;
+register u_int *sizep;
+u_int maxsize;
 {
-	register char *sp = *cpp;  /* sp is the actual string pointer */
+	register char *sp = *cpp;	/* sp is the actual string pointer */
 	register u_int nodesize;
 
 	/*
 	 * first deal with the length since xdr bytes are counted
 	 */
-	if (! xdr_u_int(xdrs, sizep)) {
+	if (!xdr_u_int(xdrs, sizep)) {
 		return (FALSE);
 	}
 	nodesize = *sizep;
@@ -407,7 +393,7 @@ xdr_bytes(xdrs, cpp, sizep, maxsize)
 			return (TRUE);
 		}
 		if (sp == NULL) {
-			*cpp = sp = (char *)mem_alloc(nodesize);
+			*cpp = sp = (char *) mem_alloc(nodesize);
 		}
 		if (sp == NULL) {
 			(void) fprintf(stderr, "xdr_bytes: out of memory\n");
@@ -431,10 +417,9 @@ xdr_bytes(xdrs, cpp, sizep, maxsize)
 /*
  * Implemented here due to commonality of the object.
  */
-bool_t
-xdr_netobj(xdrs, np)
-	XDR *xdrs;
-	struct netobj *np;
+bool_t xdr_netobj(xdrs, np)
+XDR *xdrs;
+struct netobj *np;
 {
 
 	return (xdr_bytes(xdrs, &np->n_bytes, &np->n_len, MAX_NETOBJ_SZ));
@@ -451,20 +436,19 @@ xdr_netobj(xdrs, np)
  * routine may be called.
  * If there is no specific or default routine an error is returned.
  */
-bool_t
-xdr_union(xdrs, dscmp, unp, choices, dfault)
-	register XDR *xdrs;
-	enum_t *dscmp;		/* enum to decide which arm to work on */
-	char *unp;		/* the union itself */
-	struct xdr_discrim *choices;	/* [value, xdr proc] for each arm */
-	xdrproc_t dfault;	/* default xdr routine */
+bool_t xdr_union(xdrs, dscmp, unp, choices, dfault)
+register XDR *xdrs;
+enum_t *dscmp;					/* enum to decide which arm to work on */
+char *unp;						/* the union itself */
+struct xdr_discrim *choices;	/* [value, xdr proc] for each arm */
+xdrproc_t dfault;				/* default xdr routine */
 {
 	register enum_t dscm;
 
 	/*
 	 * we deal with the discriminator;  it's an enum
 	 */
-	if (! xdr_enum(xdrs, dscmp)) {
+	if (!xdr_enum(xdrs, dscmp)) {
 		return (FALSE);
 	}
 	dscm = *dscmp;
@@ -475,14 +459,14 @@ xdr_union(xdrs, dscmp, unp, choices, dfault)
 	 */
 	for (; choices->proc != NULL_xdrproc_t; choices++) {
 		if (choices->value == dscm)
-			return ((*(choices->proc))(xdrs, unp, LASTUNSIGNED));
+			return ((*(choices->proc)) (xdrs, unp, LASTUNSIGNED));
 	}
 
 	/*
 	 * no match - execute the default xdr routine if there is one
 	 */
 	return ((dfault == NULL_xdrproc_t) ? FALSE :
-	    (*dfault)(xdrs, unp, LASTUNSIGNED));
+			(*dfault) (xdrs, unp, LASTUNSIGNED));
 }
 
 
@@ -500,13 +484,12 @@ xdr_union(xdrs, dscmp, unp, choices, dfault)
  * storage is allocated.  The last parameter is the max allowed length
  * of the string as specified by a protocol.
  */
-bool_t
-xdr_string(xdrs, cpp, maxsize)
-	register XDR *xdrs;
-	char **cpp;
-	u_int maxsize;
+bool_t xdr_string(xdrs, cpp, maxsize)
+register XDR *xdrs;
+char **cpp;
+u_int maxsize;
 {
-	register char *sp = *cpp;  /* sp is the actual string pointer */
+	register char *sp = *cpp;	/* sp is the actual string pointer */
 	u_int size;
 	u_int nodesize;
 
@@ -516,14 +499,14 @@ xdr_string(xdrs, cpp, maxsize)
 	switch (xdrs->x_op) {
 	case XDR_FREE:
 		if (sp == NULL) {
-			return(TRUE);	/* already free */
+			return (TRUE);		/* already free */
 		}
 		/* fall through... */
 	case XDR_ENCODE:
 		size = strlen(sp);
 		break;
 	}
-	if (! xdr_u_int(xdrs, &size)) {
+	if (!xdr_u_int(xdrs, &size)) {
 		return (FALSE);
 	}
 	if (size > maxsize) {
@@ -541,7 +524,7 @@ xdr_string(xdrs, cpp, maxsize)
 			return (TRUE);
 		}
 		if (sp == NULL)
-			*cpp = sp = (char *)mem_alloc(nodesize);
+			*cpp = sp = (char *) mem_alloc(nodesize);
 		if (sp == NULL) {
 			(void) fprintf(stderr, "xdr_string: out of memory\n");
 			return (FALSE);
@@ -564,10 +547,9 @@ xdr_string(xdrs, cpp, maxsize)
  * Wrapper for xdr_string that can be called directly from 
  * routines like clnt_call
  */
-bool_t
-xdr_wrapstring(xdrs, cpp)
-	XDR *xdrs;
-	char **cpp;
+bool_t xdr_wrapstring(xdrs, cpp)
+XDR *xdrs;
+char **cpp;
 {
 	if (xdr_string(xdrs, cpp, LASTUNSIGNED)) {
 		return (TRUE);

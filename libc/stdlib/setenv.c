@@ -6,69 +6,71 @@
 #include <stdlib.h>
 #include <malloc.h>
 
-extern char ** environ;
+extern char **environ;
+
 #define ADD_NUM 4
 
-int
-setenv(var, value, overwrite)
-const char * var;
-const char * value;
+int setenv(var, value, overwrite)
+const char *var;
+const char *value;
 int overwrite;
 {
-static char ** mall_env = 0;
-static int extras = 0;
-   char **p, **d;
-   char * t;
-   int len;
+	static char **mall_env = 0;
+	static int extras = 0;
+	char **p, **d;
+	char *t;
+	int len;
 
-   len = strlen(var);
+	len = strlen(var);
 
-   if (!environ) {
-   	environ = (char**)malloc(ADD_NUM * sizeof(char*));
-   	memset(environ, 0, sizeof(char*)*ADD_NUM);
-   	extras = ADD_NUM;
-   }
+	if (!environ) {
+		environ = (char **) malloc(ADD_NUM * sizeof(char *));
+		memset(environ, 0, sizeof(char *) * ADD_NUM);
 
-   for(p=environ; *p; p++)
-   {
-      if( memcmp(var, *p, len) == 0 && (*p)[len] == '=' )
-      {
-         if (!overwrite)
-         	return -1;
-	 /* Overwrite stuff */
-         while( (p[0] = p[1]) ) p++;
-         extras++;
-         break;
-      }
-   }
+		extras = ADD_NUM;
+	}
 
-   if( extras <= 0 )	/* Need more space */
-   {
-      d = malloc((p-environ+1+ADD_NUM)*sizeof(char*));
-      if( d == 0 ) return -1;
+	for (p = environ; *p; p++) {
+		if (memcmp(var, *p, len) == 0 && (*p)[len] == '=') {
+			if (!overwrite)
+				return -1;
+			/* Overwrite stuff */
+			while ((p[0] = p[1]))
+				p++;
+			extras++;
+			break;
+		}
+	}
 
-      memcpy((void*) d, (void*) environ, (p-environ+1)*sizeof(char*));
-      p = d + (p-environ);
-      extras=ADD_NUM;
+	if (extras <= 0) {			/* Need more space */
+		d = malloc((p - environ + 1 + ADD_NUM) * sizeof(char *));
 
-      if( mall_env ) free(mall_env);
-      environ = d;
-      mall_env = d;
-   }
+		if (d == 0)
+			return -1;
 
-   t = malloc(len + 1 + strlen(value) + 1);
-   if (!t)
-   	return -1;
+		memcpy((void *) d, (void *) environ,
 
-   strcpy(t, var);
-   strcat(t, "=");
-   strcat(t, value);
+			   (p - environ + 1) * sizeof(char *));
+		p = d + (p - environ);
+		extras = ADD_NUM;
 
-   *p++ = (char*)t;
-   *p = '\0';
-   extras--;
+		if (mall_env)
+			free(mall_env);
+		environ = d;
+		mall_env = d;
+	}
 
-   return 0;
+	t = malloc(len + 1 + strlen(value) + 1);
+	if (!t)
+		return -1;
+
+	strcpy(t, var);
+	strcat(t, "=");
+	strcat(t, value);
+
+	*p++ = (char *) t;
+	*p = '\0';
+	extras--;
+
+	return 0;
 }
-
-

@@ -25,28 +25,33 @@ include $(TOPDIR)Rules.make
 LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
-MSRC=syscalls.S
+ASMSRC=syscalls.S
+#The file makefile.objs defines $(ASMOBJS)
 include makefile.objs
 
-SSRC=setjmp.S longjmp.S _start.S _exit.S #fork.S
+SSRC=_start.S setjmp.S longjmp.S #fork.S #clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=readdir.c #select.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(SOBJS) $(ASMOBJS) $(COBJS)
 
 
-all: $(MOBJ) $(SOBJS) $(COBJS) $(LIBC)
+all: $(OBJS) $(LIBC)
 
-$(LIBC): $(MOBJ) $(SOBJS) $(COBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ) $(SOBJS) $(COBJS)
+$(LIBC): ar-target
 
-$(MOBJ): $(MSRC)
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+
+$(ASMOBJS): $(ASMSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 
 $(SOBJS): $(SSRC)
 
 $(COBJS): $(CSRC)
 
+$(OBJS): Makefile
 
 clean:
 	rm -f *.[oa] *~ core

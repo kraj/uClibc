@@ -32,14 +32,19 @@ MOBJ=strlen.o strcat.o strcpy.o strcmp.o strncat.o strncpy.o strncmp.o \
 CSRC=strpbrk.c strsep.c strstr.c strtok.c strcspn.c \
 	config.c strspn.c strcasecmp.c strncasecmp.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(MOBJ) $(COBJS)
 
-all: $(MOBJ) $(COBJS) $(LIBC)
+all: $(OBJS) $(LIBC)
 
-$(LIBC): $(MOBJ) $(COBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ) $(COBJS)
+$(LIBC): ar-target
+
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+
+$(OBJS): Makefile
 
 clean:
 	rm -f *.[oa] *~ core

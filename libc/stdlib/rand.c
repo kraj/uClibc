@@ -12,13 +12,13 @@ static unsigned int sseed = 0;
 
 int rand()
 {
-   return ( sseed = (((sseed+1L)*75L)%65537L)-1 ) & MAXINT;
+	return (sseed = (((sseed + 1L) * 75L) % 65537L) - 1) & MAXINT;
 }
 
 void srand(seed)
 unsigned int seed;
 {
-   sseed=seed;
+	sseed = seed;
 }
 
 #else
@@ -32,6 +32,7 @@ unsigned int seed;
 static int seed1 = 1;
 static int seed2 = 1;
 static int seed3 = 1;
+
 #define MAXINT (((unsigned)-1)>>1)
 
 #define CRANK(a,b,c,m,s) 	\
@@ -41,21 +42,22 @@ static int seed3 = 1;
 
 int rand()
 {
-   register int q;
-   CRANK(206, 157,  31, 32363, seed1);
-   CRANK(217, 146,  45, 31727, seed2);
-   CRANK(222, 142, 133, 31657, seed3);
+	register int q;
 
-   return seed1^seed2^seed3;
+	CRANK(206, 157, 31, 32363, seed1);
+	CRANK(217, 146, 45, 31727, seed2);
+	CRANK(222, 142, 133, 31657, seed3);
+
+	return seed1 ^ seed2 ^ seed3;
 }
 
 void srand(seed)
 unsigned int seed;
 {
-   seed &= MAXINT;
-   seed1= seed%32362 + 1;
-   seed2= seed%31726 + 1;
-   seed3= seed%31656 + 1;
+	seed &= MAXINT;
+	seed1 = seed % 32362 + 1;
+	seed2 = seed % 31726 + 1;
+	seed3 = seed % 31656 + 1;
 }
 
 #endif

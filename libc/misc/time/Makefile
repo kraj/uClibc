@@ -27,13 +27,16 @@ LIBC=$(TOPDIR)libc.a
 CSRC=localtime.c gmtime.c asctime.c ctime.c asc_conv.c tm_conv.c mktime.c \
 	localtime_r.c gmtime_r.c asctime_r.c ctime_r.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(COBJS)
 
-all: $(COBJS) $(LIBC)
+all: $(OBJS) $(LIBC)
 
-$(LIBC): $(COBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(COBJS)
+$(LIBC): ar-target
 
-$(COBJS): Makefile
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+
+$(OBJS): Makefile
 
 clean:
 	rm -f *.[oa] *~ core

@@ -19,8 +19,9 @@ ifndef $(STRIPTOOL)
 endif
 STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $@
 
-TARGETS=testmalloc_source testmalloc testmalloc_glibc 
-TARGETS+=teststrtol_source teststrtol teststrtol_glibc teststrtol_diff
+TARGETS=testmalloc testmalloc_glibc 
+TARGETS=mallocbug mallocbug_glibc
+TARGETS+=teststrtol teststrtol_glibc teststrtol_diff
 
 all: $(TARGETS)
 
@@ -45,6 +46,32 @@ testmalloc: testmalloc.c Makefile $(TOPDIR)libc.a
 	-@ echo " "
 
 testmalloc_glibc: testmalloc.c Makefile $(TOPDIR)libc.a
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs GNU libc: "
+	-@ echo " "
+	$(CC) $(YCFLAGS) -c $< -o $@.o
+	$(CC) $(YLDFLAGS) --static $@.o -o $@
+	$(STRIP)
+	-ldd $@
+	ls $(LSFLAGS) $@
+	-./$@
+	-@ echo " "
+
+mallocbug: mallocbug.c Makefile $(TOPDIR)libc.a
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uC-Libc: "
+	-@ echo " "
+	$(CC) -g $(XCFLAGS) -c $< -o $@.o
+	$(CC) -g $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIP)
+	-ldd $@
+	ls $(LSFLAGS) $@
+	-./$@
+	-@ echo " "
+
+mallocbug_glibc: mallocbug.c Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "

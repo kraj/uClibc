@@ -28,7 +28,9 @@
  * Mountain View, California  94043
  */
 #if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] = "@(#)svc_simple.c 1.18 87/08/11 Copyr 1984 Sun Micro";
+static char sccsid[] =
+
+	"@(#)svc_simple.c 1.18 87/08/11 Copyr 1984 Sun Micro";
 #endif
 
 /* 
@@ -44,9 +46,9 @@ static char sccsid[] = "@(#)svc_simple.c 1.18 87/08/11 Copyr 1984 Sun Micro";
 #include <netdb.h>
 
 static struct proglst {
-	char *(*p_progname)();
-	int  p_prognum;
-	int  p_procnum;
+	char *(*p_progname) ();
+	int p_prognum;
+	int p_procnum;
 	xdrproc_t p_inproc, p_outproc;
 	struct proglst *p_nxt;
 } *proglst;
@@ -55,13 +57,13 @@ static SVCXPRT *transp;
 struct proglst *pl;
 
 registerrpc(prognum, versnum, procnum, progname, inproc, outproc)
-	char *(*progname)();
-	xdrproc_t inproc, outproc;
+char *(*progname) ();
+xdrproc_t inproc, outproc;
 {
-	
+
 	if (procnum == NULLPROC) {
 		(void) fprintf(stderr,
-		    "can't reassign procedure number %d\n", NULLPROC);
+					   "can't reassign procedure number %d\n", NULLPROC);
 		return (-1);
 	}
 	if (transp == 0) {
@@ -71,14 +73,15 @@ registerrpc(prognum, versnum, procnum, progname, inproc, outproc)
 			return (-1);
 		}
 	}
-	(void) pmap_unset((u_long)prognum, (u_long)versnum);
-	if (!svc_register(transp, (u_long)prognum, (u_long)versnum, 
-	    universal, IPPROTO_UDP)) {
-	    	(void) fprintf(stderr, "couldn't register prog %d vers %d\n",
-		    prognum, versnum);
+	(void) pmap_unset((u_long) prognum, (u_long) versnum);
+	if (!svc_register(transp, (u_long) prognum, (u_long) versnum,
+					  universal, IPPROTO_UDP)) {
+		(void) fprintf(stderr, "couldn't register prog %d vers %d\n",
+					   prognum, versnum);
 		return (-1);
 	}
-	pl = (struct proglst *)malloc(sizeof(struct proglst));
+	pl = (struct proglst *) malloc(sizeof(struct proglst));
+
 	if (pl == NULL) {
 		(void) fprintf(stderr, "registerrpc: out of memory\n");
 		return (-1);
@@ -93,10 +96,9 @@ registerrpc(prognum, versnum, procnum, progname, inproc, outproc)
 	return (0);
 }
 
-static void
-universal(rqstp, transp)
-	struct svc_req *rqstp;
-	SVCXPRT *transp;
+static void universal(rqstp, transp)
+struct svc_req *rqstp;
+SVCXPRT *transp;
 {
 	int prog, proc;
 	char *outdata;
@@ -107,7 +109,7 @@ universal(rqstp, transp)
 	 * enforce "procnum 0 is echo" convention
 	 */
 	if (rqstp->rq_proc == NULLPROC) {
-		if (svc_sendreply(transp, xdr_void, (char *)NULL) == FALSE) {
+		if (svc_sendreply(transp, xdr_void, (char *) NULL) == FALSE) {
 			(void) fprintf(stderr, "xxx\n");
 			exit(1);
 		}
@@ -118,26 +120,25 @@ universal(rqstp, transp)
 	for (pl = proglst; pl != NULL; pl = pl->p_nxt)
 		if (pl->p_prognum == prog && pl->p_procnum == proc) {
 			/* decode arguments into a CLEAN buffer */
-			bzero(xdrbuf, sizeof(xdrbuf)); /* required ! */
+			bzero(xdrbuf, sizeof(xdrbuf));	/* required ! */
 			if (!svc_getargs(transp, pl->p_inproc, xdrbuf)) {
 				svcerr_decode(transp);
 				return;
 			}
-			outdata = (*(pl->p_progname))(xdrbuf);
+			outdata = (*(pl->p_progname)) (xdrbuf);
 			if (outdata == NULL && pl->p_outproc != xdr_void)
 				/* there was an error */
 				return;
 			if (!svc_sendreply(transp, pl->p_outproc, outdata)) {
 				(void) fprintf(stderr,
-				    "trouble replying to prog %d\n",
-				    pl->p_prognum);
+							   "trouble replying to prog %d\n",
+							   pl->p_prognum);
 				exit(1);
 			}
 			/* free the decoded arguments */
-			(void)svc_freeargs(transp, pl->p_inproc, xdrbuf);
+			(void) svc_freeargs(transp, pl->p_inproc, xdrbuf);
 			return;
 		}
 	(void) fprintf(stderr, "never registered prog %d\n", prog);
 	exit(1);
 }
-

@@ -4,46 +4,44 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-int
-system(command)
-char * command;
+int system(command)
+char *command;
 {
-   int wait_val, pid;
-   __sighandler_t save_quit, save_int, save_chld;
+	int wait_val, pid;
+	__sighandler_t save_quit, save_int, save_chld;
 
-   if( command == 0 ) return 1;
+	if (command == 0)
+		return 1;
 
-   save_quit = signal(SIGQUIT, SIG_IGN);
-   save_int  = signal(SIGINT,  SIG_IGN);
-   save_chld = signal(SIGCHLD, SIG_DFL);
+	save_quit = signal(SIGQUIT, SIG_IGN);
+	save_int = signal(SIGINT, SIG_IGN);
+	save_chld = signal(SIGCHLD, SIG_DFL);
 
-   if( (pid=vfork()) < 0 )
-   {
-      signal(SIGQUIT, save_quit);
-      signal(SIGINT,  save_int);
-      signal(SIGCHLD, save_chld);
-      return -1;
-   }
-   if( pid == 0 )
-   {
-      signal(SIGQUIT, SIG_DFL);
-      signal(SIGINT,  SIG_DFL);
-      signal(SIGCHLD, SIG_DFL);
+	if ((pid = vfork()) < 0) {
+		signal(SIGQUIT, save_quit);
+		signal(SIGINT, save_int);
+		signal(SIGCHLD, save_chld);
+		return -1;
+	}
+	if (pid == 0) {
+		signal(SIGQUIT, SIG_DFL);
+		signal(SIGINT, SIG_DFL);
+		signal(SIGCHLD, SIG_DFL);
 
-      execl("/bin/sh", "sh", "-c", command, (char*)0);
-      _exit(127);
-   }
-   /* Signals are not absolutly guarenteed with vfork */
-   signal(SIGQUIT, SIG_IGN);
-   signal(SIGINT,  SIG_IGN);
-   
-   printf("Waiting for child %d\n", pid);
+		execl("/bin/sh", "sh", "-c", command, (char *) 0);
+		_exit(127);
+	}
+	/* Signals are not absolutly guarenteed with vfork */
+	signal(SIGQUIT, SIG_IGN);
+	signal(SIGINT, SIG_IGN);
 
-   if (wait4(pid, &wait_val, 0, 0) == -1)
-      wait_val = -1;
+	printf("Waiting for child %d\n", pid);
 
-   signal(SIGQUIT, save_quit);
-   signal(SIGINT,  save_int);
-   signal(SIGCHLD, save_chld);
-   return wait_val;
+	if (wait4(pid, &wait_val, 0, 0) == -1)
+		wait_val = -1;
+
+	signal(SIGQUIT, save_quit);
+	signal(SIGINT, save_int);
+	signal(SIGCHLD, save_chld);
+	return wait_val;
 }

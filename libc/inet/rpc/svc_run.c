@@ -39,14 +39,13 @@ static char sccsid[] = "@(#)svc_run.c 1.1 87/10/13 Copyr 1984 Sun Micro";
 #include <rpc/rpc.h>
 #include <sys/errno.h>
 
-void
-svc_run()
+void svc_run()
 {
 #ifdef FD_SETSIZE
 	fd_set readfds;
 #else
-      int readfds;
-#endif /* def FD_SETSIZE */
+	int readfds;
+#endif							/* def FD_SETSIZE */
 	extern int errno;
 
 	for (;;) {
@@ -54,9 +53,9 @@ svc_run()
 		readfds = svc_fdset;
 #else
 		readfds = svc_fds;
-#endif /* def FD_SETSIZE */
-		switch (select(_rpc_dtablesize(), &readfds, (int *)0, (int *)0,
-			       (struct timeval *)0)) {
+#endif							/* def FD_SETSIZE */
+		switch (select(_rpc_dtablesize(), &readfds, (int *) 0, (int *) 0,
+					   (struct timeval *) 0)) {
 		case -1:
 			if (errno == EINTR) {
 				continue;

@@ -50,12 +50,12 @@ extern int errno;
 /*
  * UDP bases client side rpc operations
  */
-static enum clnt_stat	clntudp_call();
-static void		clntudp_abort();
-static void		clntudp_geterr();
-static bool_t		clntudp_freeres();
-static bool_t           clntudp_control();
-static void		clntudp_destroy();
+static enum clnt_stat clntudp_call();
+static void clntudp_abort();
+static void clntudp_geterr();
+static bool_t clntudp_freeres();
+static bool_t clntudp_control();
+static void clntudp_destroy();
 
 static struct clnt_ops udp_ops = {
 	clntudp_call,
@@ -70,19 +70,19 @@ static struct clnt_ops udp_ops = {
  * Private data kept per client handle
  */
 struct cu_data {
-	int		   cu_sock;
-	bool_t		   cu_closeit;
+	int cu_sock;
+	bool_t cu_closeit;
 	struct sockaddr_in cu_raddr;
-	int		   cu_rlen;
-	struct timeval	   cu_wait;
-	struct timeval     cu_total;
-	struct rpc_err	   cu_error;
-	XDR		   cu_outxdrs;
-	u_int		   cu_xdrpos;
-	u_int		   cu_sendsz;
-	char		   *cu_outbuf;
-	u_int		   cu_recvsz;
-	char		   cu_inbuf[1];
+	int cu_rlen;
+	struct timeval cu_wait;
+	struct timeval cu_total;
+	struct rpc_err cu_error;
+	XDR cu_outxdrs;
+	u_int cu_xdrpos;
+	u_int cu_sendsz;
+	char *cu_outbuf;
+	u_int cu_recvsz;
+	char cu_inbuf[1];
 };
 
 /*
@@ -101,22 +101,22 @@ struct cu_data {
  * sendsz and recvsz are the maximum allowable packet sizes that can be
  * sent and received.
  */
-CLIENT *
-clntudp_bufcreate(raddr, program, version, wait, sockp, sendsz, recvsz)
-	struct sockaddr_in *raddr;
-	u_long program;
-	u_long version;
-	struct timeval wait;
-	register int *sockp;
-	u_int sendsz;
-	u_int recvsz;
+CLIENT *clntudp_bufcreate(raddr, program, version, wait, sockp, sendsz,
+						  recvsz)
+struct sockaddr_in *raddr;
+u_long program;
+u_long version;
+struct timeval wait;
+register int *sockp;
+u_int sendsz;
+u_int recvsz;
 {
 	CLIENT *cl;
 	register struct cu_data *cu;
 	struct timeval now;
 	struct rpc_msg call_msg;
 
-	cl = (CLIENT *)mem_alloc(sizeof(CLIENT));
+	cl = (CLIENT *) mem_alloc(sizeof(CLIENT));
 	if (cl == NULL) {
 		(void) fprintf(stderr, "clntudp_create: out of memory\n");
 		rpc_createerr.cf_stat = RPC_SYSTEMERROR;
@@ -125,7 +125,7 @@ clntudp_bufcreate(raddr, program, version, wait, sockp, sendsz, recvsz)
 	}
 	sendsz = ((sendsz + 3) / 4) * 4;
 	recvsz = ((recvsz + 3) / 4) * 4;
-	cu = (struct cu_data *)mem_alloc(sizeof(*cu) + sendsz + recvsz);
+	cu = (struct cu_data *) mem_alloc(sizeof(*cu) + sendsz + recvsz);
 	if (cu == NULL) {
 		(void) fprintf(stderr, "clntudp_create: out of memory\n");
 		rpc_createerr.cf_stat = RPC_SYSTEMERROR;
@@ -134,19 +134,20 @@ clntudp_bufcreate(raddr, program, version, wait, sockp, sendsz, recvsz)
 	}
 	cu->cu_outbuf = &cu->cu_inbuf[recvsz];
 
-	(void)gettimeofday(&now, (struct timezone *)0);
+	(void) gettimeofday(&now, (struct timezone *) 0);
 	if (raddr->sin_port == 0) {
 		u_short port;
+
 		if ((port =
-		    pmap_getport(raddr, program, version, IPPROTO_UDP)) == 0) {
+			 pmap_getport(raddr, program, version, IPPROTO_UDP)) == 0) {
 			goto fooy;
 		}
 		raddr->sin_port = htons(port);
 	}
 	cl->cl_ops = &udp_ops;
-	cl->cl_private = (caddr_t)cu;
+	cl->cl_private = (caddr_t) cu;
 	cu->cu_raddr = *raddr;
-	cu->cu_rlen = sizeof (cu->cu_raddr);
+	cu->cu_rlen = sizeof(cu->cu_raddr);
 	cu->cu_wait = wait;
 	cu->cu_total.tv_sec = -1;
 	cu->cu_total.tv_usec = -1;
@@ -157,9 +158,8 @@ clntudp_bufcreate(raddr, program, version, wait, sockp, sendsz, recvsz)
 	call_msg.rm_call.cb_rpcvers = RPC_MSG_VERSION;
 	call_msg.rm_call.cb_prog = program;
 	call_msg.rm_call.cb_vers = version;
-	xdrmem_create(&(cu->cu_outxdrs), cu->cu_outbuf,
-	    sendsz, XDR_ENCODE);
-	if (! xdr_callhdr(&(cu->cu_outxdrs), &call_msg)) {
+	xdrmem_create(&(cu->cu_outxdrs), cu->cu_outbuf, sendsz, XDR_ENCODE);
+	if (!xdr_callhdr(&(cu->cu_outxdrs), &call_msg)) {
 		goto fooy;
 	}
 	cu->cu_xdrpos = XDR_GETPOS(&(cu->cu_outxdrs));
@@ -173,9 +173,9 @@ clntudp_bufcreate(raddr, program, version, wait, sockp, sendsz, recvsz)
 			goto fooy;
 		}
 		/* attempt to bind to prov port */
-		(void)bindresvport(*sockp, (struct sockaddr_in *)0);
+		(void) bindresvport(*sockp, (struct sockaddr_in *) 0);
 		/* the sockets rpc controls are non-blocking */
-		(void)ioctl(*sockp, FIONBIO, (char *) &dontblock);
+		(void) ioctl(*sockp, FIONBIO, (char *) &dontblock);
 		cu->cu_closeit = TRUE;
 	} else {
 		cu->cu_closeit = FALSE;
@@ -183,83 +183,82 @@ clntudp_bufcreate(raddr, program, version, wait, sockp, sendsz, recvsz)
 	cu->cu_sock = *sockp;
 	cl->cl_auth = authnone_create();
 	return (cl);
-fooy:
+  fooy:
 	if (cu)
-		mem_free((caddr_t)cu, sizeof(*cu) + sendsz + recvsz);
+		mem_free((caddr_t) cu, sizeof(*cu) + sendsz + recvsz);
 	if (cl)
-		mem_free((caddr_t)cl, sizeof(CLIENT));
-	return ((CLIENT *)NULL);
+		mem_free((caddr_t) cl, sizeof(CLIENT));
+	return ((CLIENT *) NULL);
 }
 
-CLIENT *
-clntudp_create(raddr, program, version, wait, sockp)
-	struct sockaddr_in *raddr;
-	u_long program;
-	u_long version;
-	struct timeval wait;
-	register int *sockp;
+CLIENT *clntudp_create(raddr, program, version, wait, sockp)
+struct sockaddr_in *raddr;
+u_long program;
+u_long version;
+struct timeval wait;
+register int *sockp;
 {
 
-	return(clntudp_bufcreate(raddr, program, version, wait, sockp,
-	    UDPMSGSIZE, UDPMSGSIZE));
+	return (clntudp_bufcreate(raddr, program, version, wait, sockp,
+							  UDPMSGSIZE, UDPMSGSIZE));
 }
 
-static enum clnt_stat 
+static enum clnt_stat
 clntudp_call(cl, proc, xargs, argsp, xresults, resultsp, utimeout)
-	register CLIENT	*cl;		/* client handle */
-	u_long		proc;		/* procedure number */
-	xdrproc_t	xargs;		/* xdr routine for args */
-	caddr_t		argsp;		/* pointer to args */
-	xdrproc_t	xresults;	/* xdr routine for results */
-	caddr_t		resultsp;	/* pointer to results */
-	struct timeval	utimeout;	/* seconds to wait before giving up */
+register CLIENT *cl;			/* client handle */
+u_long proc;					/* procedure number */
+xdrproc_t xargs;				/* xdr routine for args */
+caddr_t argsp;					/* pointer to args */
+xdrproc_t xresults;				/* xdr routine for results */
+caddr_t resultsp;				/* pointer to results */
+struct timeval utimeout;		/* seconds to wait before giving up */
 {
-	register struct cu_data *cu = (struct cu_data *)cl->cl_private;
+	register struct cu_data *cu = (struct cu_data *) cl->cl_private;
 	register XDR *xdrs;
 	register int outlen;
 	register int inlen;
 	int fromlen;
+
 #ifdef FD_SETSIZE
 	fd_set readfds;
 	fd_set mask;
 #else
 	int readfds;
 	register int mask;
-#endif /* def FD_SETSIZE */
+#endif							/* def FD_SETSIZE */
 	struct sockaddr_in from;
 	struct rpc_msg reply_msg;
 	XDR reply_xdrs;
 	struct timeval time_waited;
 	bool_t ok;
-	int nrefreshes = 2;	/* number of times to refresh cred */
+	int nrefreshes = 2;			/* number of times to refresh cred */
 	struct timeval timeout;
 
 	if (cu->cu_total.tv_usec == -1) {
-		timeout = utimeout;     /* use supplied timeout */
+		timeout = utimeout;		/* use supplied timeout */
 	} else {
-		timeout = cu->cu_total; /* use default timeout */
+		timeout = cu->cu_total;	/* use default timeout */
 	}
 
 	time_waited.tv_sec = 0;
 	time_waited.tv_usec = 0;
-call_again:
+  call_again:
 	xdrs = &(cu->cu_outxdrs);
 	xdrs->x_op = XDR_ENCODE;
 	XDR_SETPOS(xdrs, cu->cu_xdrpos);
 	/*
 	 * the transaction is the first thing in the out buffer
 	 */
-	(*(u_short *)(cu->cu_outbuf))++;
-	if ((! XDR_PUTLONG(xdrs, (long *)&proc)) ||
-	    (! AUTH_MARSHALL(cl->cl_auth, xdrs)) ||
-	    (! (*xargs)(xdrs, argsp)))
+	(*(u_short *) (cu->cu_outbuf))++;
+	if ((!XDR_PUTLONG(xdrs, (long *) &proc)) ||
+		(!AUTH_MARSHALL(cl->cl_auth, xdrs)) || (!(*xargs) (xdrs, argsp)))
 		return (cu->cu_error.re_status = RPC_CANTENCODEARGS);
-	outlen = (int)XDR_GETPOS(xdrs);
+	outlen = (int) XDR_GETPOS(xdrs);
 
-send_again:
+  send_again:
 	if (sendto(cu->cu_sock, cu->cu_outbuf, outlen, 0,
-	    (struct sockaddr *)&(cu->cu_raddr), cu->cu_rlen)
-	    != outlen) {
+			   (struct sockaddr *) &(cu->cu_raddr), cu->cu_rlen)
+		!= outlen) {
 		cu->cu_error.re_errno = errno;
 		return (cu->cu_error.re_status = RPC_CANTSEND);
 	}
@@ -283,11 +282,11 @@ send_again:
 	FD_SET(cu->cu_sock, &mask);
 #else
 	mask = 1 << cu->cu_sock;
-#endif /* def FD_SETSIZE */
+#endif							/* def FD_SETSIZE */
 	for (;;) {
 		readfds = mask;
-		switch (select(_rpc_dtablesize(), &readfds, (int *)NULL, 
-			       (int *)NULL, &(cu->cu_wait))) {
+		switch (select(_rpc_dtablesize(), &readfds, (int *) NULL,
+					   (int *) NULL, &(cu->cu_wait))) {
 
 		case 0:
 			time_waited.tv_sec += cu->cu_wait.tv_sec;
@@ -298,37 +297,38 @@ send_again:
 			}
 			if ((time_waited.tv_sec < timeout.tv_sec) ||
 				((time_waited.tv_sec == timeout.tv_sec) &&
-				(time_waited.tv_usec < timeout.tv_usec)))
-				goto send_again;	
+				 (time_waited.tv_usec < timeout.tv_usec)))
+				goto send_again;
 			return (cu->cu_error.re_status = RPC_TIMEDOUT);
 
-		/*
-		 * buggy in other cases because time_waited is not being
-		 * updated.
-		 */
+			/*
+			 * buggy in other cases because time_waited is not being
+			 * updated.
+			 */
 		case -1:
 			if (errno == EINTR)
-				continue;	
+				continue;
 			cu->cu_error.re_errno = errno;
 			return (cu->cu_error.re_status = RPC_CANTRECV);
 		}
 		do {
 			fromlen = sizeof(struct sockaddr);
-			inlen = recvfrom(cu->cu_sock, cu->cu_inbuf, 
-				(int) cu->cu_recvsz, 0,
-				(struct sockaddr *)&from, &fromlen);
+
+			inlen = recvfrom(cu->cu_sock, cu->cu_inbuf,
+							 (int) cu->cu_recvsz, 0,
+							 (struct sockaddr *) &from, &fromlen);
 		} while (inlen < 0 && errno == EINTR);
 		if (inlen < 0) {
 			if (errno == EWOULDBLOCK)
-				continue;	
+				continue;
 			cu->cu_error.re_errno = errno;
 			return (cu->cu_error.re_status = RPC_CANTRECV);
 		}
 		if (inlen < sizeof(u_long))
-			continue;	
+			continue;
 		/* see if reply transaction id matches sent id */
-		if (*((u_long *)(cu->cu_inbuf)) != *((u_long *)(cu->cu_outbuf)))
-			continue;	
+		if (*((u_long *) (cu->cu_inbuf)) != *((u_long *) (cu->cu_outbuf)))
+			continue;
 		/* we now assume we have the proper reply */
 		break;
 	}
@@ -336,107 +336,102 @@ send_again:
 	/*
 	 * now decode and validate the response
 	 */
-	xdrmem_create(&reply_xdrs, cu->cu_inbuf, (u_int)inlen, XDR_DECODE);
+	xdrmem_create(&reply_xdrs, cu->cu_inbuf, (u_int) inlen, XDR_DECODE);
 	ok = xdr_replymsg(&reply_xdrs, &reply_msg);
 	/* XDR_DESTROY(&reply_xdrs);  save a few cycles on noop destroy */
 	if (ok) {
 		_seterr_reply(&reply_msg, &(cu->cu_error));
 		if (cu->cu_error.re_status == RPC_SUCCESS) {
-			if (! AUTH_VALIDATE(cl->cl_auth,
-				&reply_msg.acpted_rply.ar_verf)) {
+			if (!AUTH_VALIDATE(cl->cl_auth,
+							   &reply_msg.acpted_rply.ar_verf)) {
 				cu->cu_error.re_status = RPC_AUTHERROR;
 				cu->cu_error.re_why = AUTH_INVALIDRESP;
 			}
 			if (reply_msg.acpted_rply.ar_verf.oa_base != NULL) {
 				xdrs->x_op = XDR_FREE;
-				(void)xdr_opaque_auth(xdrs,
-				    &(reply_msg.acpted_rply.ar_verf));
-			} 
-		}  /* end successful completion */
+				(void) xdr_opaque_auth(xdrs,
+									   &(reply_msg.acpted_rply.ar_verf));
+			}
+		} /* end successful completion */
 		else {
 			/* maybe our credentials need to be refreshed ... */
 			if (nrefreshes > 0 && AUTH_REFRESH(cl->cl_auth)) {
 				nrefreshes--;
 				goto call_again;
 			}
-		}  /* end of unsuccessful completion */
-	}  /* end of valid reply message */
+		}						/* end of unsuccessful completion */
+	} /* end of valid reply message */
 	else {
 		cu->cu_error.re_status = RPC_CANTDECODERES;
 	}
 	return (cu->cu_error.re_status);
 }
 
-static void
-clntudp_geterr(cl, errp)
-	CLIENT *cl;
-	struct rpc_err *errp;
+static void clntudp_geterr(cl, errp)
+CLIENT *cl;
+struct rpc_err *errp;
 {
-	register struct cu_data *cu = (struct cu_data *)cl->cl_private;
+	register struct cu_data *cu = (struct cu_data *) cl->cl_private;
 
 	*errp = cu->cu_error;
 }
 
 
-static bool_t
-clntudp_freeres(cl, xdr_res, res_ptr)
-	CLIENT *cl;
-	xdrproc_t xdr_res;
-	caddr_t res_ptr;
+static bool_t clntudp_freeres(cl, xdr_res, res_ptr)
+CLIENT *cl;
+xdrproc_t xdr_res;
+caddr_t res_ptr;
 {
-	register struct cu_data *cu = (struct cu_data *)cl->cl_private;
+	register struct cu_data *cu = (struct cu_data *) cl->cl_private;
 	register XDR *xdrs = &(cu->cu_outxdrs);
 
 	xdrs->x_op = XDR_FREE;
-	return ((*xdr_res)(xdrs, res_ptr));
+	return ((*xdr_res) (xdrs, res_ptr));
 }
 
-static void 
-clntudp_abort(/*h*/)
-	/*CLIENT *h;*/
+static void clntudp_abort( /*h */ )
+	/*CLIENT *h; */
 {
 }
 
-static bool_t
-clntudp_control(cl, request, info)
-	CLIENT *cl;
-	int request;
-	char *info;
+static bool_t clntudp_control(cl, request, info)
+CLIENT *cl;
+int request;
+char *info;
 {
-	register struct cu_data *cu = (struct cu_data *)cl->cl_private;
+	register struct cu_data *cu = (struct cu_data *) cl->cl_private;
 
 	switch (request) {
 	case CLSET_TIMEOUT:
-		cu->cu_total = *(struct timeval *)info;
+		cu->cu_total = *(struct timeval *) info;
 		break;
 	case CLGET_TIMEOUT:
-		*(struct timeval *)info = cu->cu_total;
+		*(struct timeval *) info = cu->cu_total;
 		break;
 	case CLSET_RETRY_TIMEOUT:
-		cu->cu_wait = *(struct timeval *)info;
+		cu->cu_wait = *(struct timeval *) info;
 		break;
 	case CLGET_RETRY_TIMEOUT:
-		*(struct timeval *)info = cu->cu_wait;
+		*(struct timeval *) info = cu->cu_wait;
 		break;
 	case CLGET_SERVER_ADDR:
-		*(struct sockaddr_in *)info = cu->cu_raddr;
+		*(struct sockaddr_in *) info = cu->cu_raddr;
 		break;
 	default:
 		return (FALSE);
 	}
 	return (TRUE);
 }
-	
-static void
-clntudp_destroy(cl)
-	CLIENT *cl;
+
+static void clntudp_destroy(cl)
+CLIENT *cl;
 {
-	register struct cu_data *cu = (struct cu_data *)cl->cl_private;
+	register struct cu_data *cu = (struct cu_data *) cl->cl_private;
 
 	if (cu->cu_closeit) {
-		(void)close(cu->cu_sock);
+		(void) close(cu->cu_sock);
 	}
 	XDR_DESTROY(&(cu->cu_outxdrs));
-	mem_free((caddr_t)cu, (sizeof(*cu) + cu->cu_sendsz + cu->cu_recvsz));
-	mem_free((caddr_t)cl, sizeof(CLIENT));
+	mem_free((caddr_t) cu, (sizeof(*cu) + cu->cu_sendsz + cu->cu_recvsz));
+	mem_free((caddr_t) cl, sizeof(CLIENT));
 }

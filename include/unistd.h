@@ -25,7 +25,7 @@ extern size_t write __P ((int __fd, __const char * __buf, size_t __n));
 extern off_t lseek __P ((int __fd, off_t __n, int __whence));
 extern int pipe __P ((int __pipedes[2]));
 extern unsigned int alarm __P ((unsigned int __seconds));
-extern int sleep __P ((unsigned int __seconds));
+extern unsigned int sleep __P ((unsigned int __seconds));
 extern void usleep __P ((unsigned long __microseconds));
 extern int pause __P ((void));
 extern char*    crypt __P((__const char *__key, __const char *__salt));
@@ -163,7 +163,6 @@ extern void _exit __P ((int __status)) __attribute__ ((__noreturn__));
 /* Clone the calling process, creating an exact copy.
  *    Return -1 for errors, 0 to the new process,
  *       and the process ID of the new process to the old process.  */
-extern __pid_t __fork __P ((void));
 extern __pid_t fork __P ((void));
 
 /* Clone the calling process, but without copying the whole address space.

@@ -20,77 +20,64 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-float
-strtod(const char *nptr, char ** endptr)
+float strtod(const char *nptr, char **endptr)
 {
-  unsigned short negative;
-  float number;
-  float fp_part;
-  int exponent;
-  unsigned short exp_negative;
+	unsigned short negative;
+	float number;
+	float fp_part;
+	int exponent;
+	unsigned short exp_negative;
 
-  /* advance beyond any leading whitespace */
-  while (isspace(*nptr))
-    nptr++;
+	/* advance beyond any leading whitespace */
+	while (isspace(*nptr))
+		nptr++;
 
-  /* check for optional '+' or '-' */
-  negative=0;
-  if (*nptr=='-')
-    {
-      negative=1;
-      nptr++;
-    }
-  else
-    if (*nptr=='+')
-      nptr++;
+	/* check for optional '+' or '-' */
+	negative = 0;
+	if (*nptr == '-') {
+		negative = 1;
+		nptr++;
+	} else if (*nptr == '+')
+		nptr++;
 
-  number=0;
-  while (isdigit(*nptr))
-    {
-      number=number*10+(*nptr-'0');
-      nptr++;
-    }
-
-  if (*nptr=='.')
-    {
-      nptr++;
-      fp_part=0;
-      while (isdigit(*nptr))
-	{
-	  fp_part=fp_part/10.0 + (*nptr-'0')/10.0;
-	  nptr++;
+	number = 0;
+	while (isdigit(*nptr)) {
+		number = number * 10 + (*nptr - '0');
+		nptr++;
 	}
-      number+=fp_part;
-    }
 
-  if (*nptr=='e' || *nptr=='E')
-    {
-      nptr++;
-      exp_negative=0;
-      if (*nptr=='-')
-	{
-	  exp_negative=1;
-	  nptr++;
+	if (*nptr == '.') {
+		nptr++;
+		fp_part = 0;
+		while (isdigit(*nptr)) {
+			fp_part = fp_part / 10.0 + (*nptr - '0') / 10.0;
+			nptr++;
+		}
+		number += fp_part;
 	}
-      else
-	if (*nptr=='+')
-	  nptr++;
 
-      exponent=0;
-      while (isdigit(*nptr))
-	{
-	  exponent=exponent*10+(*nptr-'0');
-	  exponent++;
+	if (*nptr == 'e' || *nptr == 'E') {
+		nptr++;
+		exp_negative = 0;
+		if (*nptr == '-') {
+			exp_negative = 1;
+			nptr++;
+		} else if (*nptr == '+')
+			nptr++;
+
+		exponent = 0;
+		while (isdigit(*nptr)) {
+			exponent = exponent * 10 + (*nptr - '0');
+			exponent++;
+		}
 	}
-    }
 
-  while (exponent)
-    {
-      if (exp_negative)
-	number/=10;
-      else
-	number*=10;
-      exponent--;
-    }
-  return (negative ? -number:number);
+	while (exponent) {
+		if (exp_negative)
+			number /= 10;
+		else
+			number *= 10;
+		exponent--;
+	}
+	return (negative ? -number : number);
 }

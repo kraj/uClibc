@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
-#include <limits.h>			/* for PATH_MAX */
+#include <limits.h>				/* for PATH_MAX */
 #include <sys/param.h>			/* for MAXPATHLEN */
 #include <errno.h>
 
@@ -43,23 +43,23 @@
 #define MAX_READLINKS 32
 
 #ifdef __STDC__
-char *realpath(const char *path, char resolved_path [])
+char *realpath(const char *path, char resolved_path[])
 #else
 char *realpath(path, resolved_path)
 const char *path;
-char resolved_path [];
+char resolved_path[];
 #endif
 {
 	char copy_path[PATH_MAX];
 	char link_path[PATH_MAX];
-	char got_path [PATH_MAX];
+	char got_path[PATH_MAX];
 	char *new_path = got_path;
 	char *max_path;
 	int readlinks = 0;
 	int n;
 
 	/* Make a copy of the source path since we may need to modify it. */
-	if (strlen(path)>=PATH_MAX-2) {
+	if (strlen(path) >= PATH_MAX - 2) {
 		errno = ENAMETOOLONG;
 		return NULL;
 	}
@@ -78,8 +78,7 @@ char resolved_path [];
 		new_path += strlen(new_path);
 		if (new_path[-1] != '/')
 			*new_path++ = '/';
-	}
-	else {
+	} else {
 		*new_path++ = '/';
 		path++;
 	}
@@ -103,8 +102,7 @@ char resolved_path [];
 					if (new_path == got_path + 1)
 						continue;
 					/* Handle ".." by backing up. */
-					while ((--new_path)[-1] != '/')
-						;
+					while ((--new_path)[-1] != '/');
 					continue;
 				}
 			}
@@ -131,11 +129,10 @@ char resolved_path [];
 			if (errno != EINVAL) {
 				/* Make sure it's null terminated. */
 				*new_path = '\0';
-				strcpy (resolved_path, got_path);
+				strcpy(resolved_path, got_path);
 				return NULL;
 			}
-		}
-		else {
+		} else {
 			/* Note: readlink doesn't add the null byte. */
 			link_path[n] = '\0';
 			if (*link_path == '/')
@@ -143,10 +140,9 @@ char resolved_path [];
 				new_path = got_path;
 			else
 				/* Otherwise back up over this component. */
-				while (*(--new_path) != '/')
-					;
+				while (*(--new_path) != '/');
 			/* Safe sex check. */
-			if (strlen(path) + n >= PATH_MAX-2) {
+			if (strlen(path) + n >= PATH_MAX - 2) {
 				errno = ENAMETOOLONG;
 				return NULL;
 			}
@@ -155,7 +151,7 @@ char resolved_path [];
 			strcpy(copy_path, link_path);
 			path = copy_path;
 		}
-#endif /* S_IFLNK */
+#endif							/* S_IFLNK */
 		*new_path++ = '/';
 	}
 	/* Delete trailing slash but don't whomp a lone slash. */
@@ -163,6 +159,6 @@ char resolved_path [];
 		new_path--;
 	/* Make sure it's null terminated. */
 	*new_path = '\0';
-	strcpy (resolved_path, got_path);
+	strcpy(resolved_path, got_path);
 	return resolved_path;
 }

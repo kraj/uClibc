@@ -7,3 +7,5 @@ teststrtol_glibc
 teststrtol.o
 teststrtol.out
 teststrtol_glibc.out
+mallocbug
+mallocbug_glibc

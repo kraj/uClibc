@@ -28,7 +28,9 @@
  * Mountain View, California  94043
  */
 #if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] = "@(#)clnt_perror.c 1.15 87/10/07 Copyr 1984 Sun Micro";
+static char sccsid[] =
+
+	"@(#)clnt_perror.c 1.15 87/10/07 Copyr 1984 Sun Micro";
 #endif
 
 /*
@@ -50,22 +52,20 @@ extern char *strcpy();
 
 static char *buf;
 
-static char *
-_buf()
+static char *_buf()
 {
 
 	if (buf == 0)
-		buf = (char *)malloc(256);
+		buf = (char *) malloc(256);
 	return (buf);
 }
 
 /*
  * Print reply error info
  */
-char *
-clnt_sperror(rpch, s)
-	CLIENT *rpch;
-	char *s;
+char *clnt_sperror(rpch, s)
+CLIENT *rpch;
+char *s;
 {
 #if 0
 	struct rpc_err e;
@@ -78,17 +78,17 @@ clnt_sperror(rpch, s)
 		return (0);
 	CLNT_GETERR(rpch, &e);
 
-	(void) sprintf(str, "%s: ", s);  
+	(void) sprintf(str, "%s: ", s);
 	str += strlen(str);
 
-	(void) strcpy(str, clnt_sperrno(e.re_status));  
+	(void) strcpy(str, clnt_sperrno(e.re_status));
 	str += strlen(str);
 
 	switch (e.re_status) {
 	case RPC_SUCCESS:
 	case RPC_CANTENCODEARGS:
 	case RPC_CANTDECODERES:
-	case RPC_TIMEDOUT:     
+	case RPC_TIMEDOUT:
 	case RPC_PROGUNAVAIL:
 	case RPC_PROCUNAVAIL:
 	case RPC_CANTDECODEARGS:
@@ -102,57 +102,54 @@ clnt_sperror(rpch, s)
 
 	case RPC_CANTSEND:
 	case RPC_CANTRECV:
-		(void) sprintf(str, "; errno = %s",
-		    sys_errlist[e.re_errno]); 
+		(void) sprintf(str, "; errno = %s", sys_errlist[e.re_errno]);
 		str += strlen(str);
 		break;
 
 	case RPC_VERSMISMATCH:
 		(void) sprintf(str,
-			"; low version = %lu, high version = %lu", 
-			e.re_vers.low, e.re_vers.high);
+					   "; low version = %lu, high version = %lu",
+					   e.re_vers.low, e.re_vers.high);
 		str += strlen(str);
 		break;
 
 	case RPC_AUTHERROR:
 		err = auth_errmsg(e.re_why);
-		(void) sprintf(str,"; why = ");
+		(void) sprintf(str, "; why = ");
 		str += strlen(str);
 		if (err != NULL) {
-			(void) sprintf(str, "%s",err);
+			(void) sprintf(str, "%s", err);
 		} else {
 			(void) sprintf(str,
-				"(unknown authentication error - %d)",
-				(int) e.re_why);
+						   "(unknown authentication error - %d)",
+						   (int) e.re_why);
 		}
 		str += strlen(str);
 		break;
 
 	case RPC_PROGVERSMISMATCH:
-		(void) sprintf(str, 
-			"; low version = %lu, high version = %lu", 
-			e.re_vers.low, e.re_vers.high);
+		(void) sprintf(str,
+					   "; low version = %lu, high version = %lu",
+					   e.re_vers.low, e.re_vers.high);
 		str += strlen(str);
 		break;
 
-	default:	/* unknown */
-		(void) sprintf(str, 
-			"; s1 = %lu, s2 = %lu", 
-			e.re_lb.s1, e.re_lb.s2);
+	default:					/* unknown */
+		(void) sprintf(str,
+					   "; s1 = %lu, s2 = %lu", e.re_lb.s1, e.re_lb.s2);
 		str += strlen(str);
 		break;
 	}
 	(void) sprintf(str, "\n");
-	return(strstart) ;
+	return (strstart);
 #endif
 }
 
-void
-clnt_perror(rpch, s)
-	CLIENT *rpch;
-	char *s;
+void clnt_perror(rpch, s)
+CLIENT *rpch;
+char *s;
 {
-	(void) fprintf(stderr,"%s",clnt_sperror(rpch,s));
+	(void) fprintf(stderr, "%s", clnt_sperror(rpch, s));
 }
 
 
@@ -160,58 +157,58 @@ struct rpc_errtab {
 	enum clnt_stat status;
 	char *message;
 };
+
 #if 0
-static struct rpc_errtab  rpc_errlist[] = {
-	{ RPC_SUCCESS, 
-		"RPC: Success" }, 
-	{ RPC_CANTENCODEARGS, 
-		"RPC: Can't encode arguments" },
-	{ RPC_CANTDECODERES, 
-		"RPC: Can't decode result" },
-	{ RPC_CANTSEND, 
-		"RPC: Unable to send" },
-	{ RPC_CANTRECV, 
-		"RPC: Unable to receive" },
-	{ RPC_TIMEDOUT, 
-		"RPC: Timed out" },
-	{ RPC_VERSMISMATCH, 
-		"RPC: Incompatible versions of RPC" },
-	{ RPC_AUTHERROR, 
-		"RPC: Authentication error" },
-	{ RPC_PROGUNAVAIL, 
-		"RPC: Program unavailable" },
-	{ RPC_PROGVERSMISMATCH, 
-		"RPC: Program/version mismatch" },
-	{ RPC_PROCUNAVAIL, 
-		"RPC: Procedure unavailable" },
-	{ RPC_CANTDECODEARGS, 
-		"RPC: Server can't decode arguments" },
-	{ RPC_SYSTEMERROR, 
-		"RPC: Remote system error" },
-	{ RPC_UNKNOWNHOST, 
-		"RPC: Unknown host" },
-	{ RPC_UNKNOWNPROTO,
-		"RPC: Unknown protocol" },
-	{ RPC_PMAPFAILURE, 
-		"RPC: Port mapper failure" },
-	{ RPC_PROGNOTREGISTERED, 
-		"RPC: Program not registered"},
-	{ RPC_FAILED, 
-		"RPC: Failed (unspecified error)"}
+static struct rpc_errtab rpc_errlist[] = {
+	{RPC_SUCCESS,
+	 "RPC: Success"},
+	{RPC_CANTENCODEARGS,
+	 "RPC: Can't encode arguments"},
+	{RPC_CANTDECODERES,
+	 "RPC: Can't decode result"},
+	{RPC_CANTSEND,
+	 "RPC: Unable to send"},
+	{RPC_CANTRECV,
+	 "RPC: Unable to receive"},
+	{RPC_TIMEDOUT,
+	 "RPC: Timed out"},
+	{RPC_VERSMISMATCH,
+	 "RPC: Incompatible versions of RPC"},
+	{RPC_AUTHERROR,
+	 "RPC: Authentication error"},
+	{RPC_PROGUNAVAIL,
+	 "RPC: Program unavailable"},
+	{RPC_PROGVERSMISMATCH,
+	 "RPC: Program/version mismatch"},
+	{RPC_PROCUNAVAIL,
+	 "RPC: Procedure unavailable"},
+	{RPC_CANTDECODEARGS,
+	 "RPC: Server can't decode arguments"},
+	{RPC_SYSTEMERROR,
+	 "RPC: Remote system error"},
+	{RPC_UNKNOWNHOST,
+	 "RPC: Unknown host"},
+	{RPC_UNKNOWNPROTO,
+	 "RPC: Unknown protocol"},
+	{RPC_PMAPFAILURE,
+	 "RPC: Port mapper failure"},
+	{RPC_PROGNOTREGISTERED,
+	 "RPC: Program not registered"},
+	{RPC_FAILED,
+	 "RPC: Failed (unspecified error)"}
 };
 #endif
 
 /*
  * This interface for use by clntrpc
  */
-char *
-clnt_sperrno(stat)
-	enum clnt_stat stat;
+char *clnt_sperrno(stat)
+enum clnt_stat stat;
 {
 #if 0
 	int i;
 
-	for (i = 0; i < sizeof(rpc_errlist)/sizeof(struct rpc_errtab); i++) {
+	for (i = 0; i < sizeof(rpc_errlist) / sizeof(struct rpc_errtab); i++) {
 		if (rpc_errlist[i].status == stat) {
 			return (rpc_errlist[i].message);
 		}
@@ -220,17 +217,15 @@ clnt_sperrno(stat)
 	return ("RPC: (unknown error code)");
 }
 
-void
-clnt_perrno(num)
-	enum clnt_stat num;
+void clnt_perrno(num)
+enum clnt_stat num;
 {
-	(void) fprintf(stderr,"%s",clnt_sperrno(num));
+	(void) fprintf(stderr, "%s", clnt_sperrno(num));
 }
 
 
-char *
-clnt_spcreateerror(s)
-	char *s;
+char *clnt_spcreateerror(s)
+char *s;
 {
 #if 0
 	extern int sys_nerr;
@@ -238,25 +233,24 @@ clnt_spcreateerror(s)
 	char *str = _buf();
 
 	if (str == 0)
-		return(0);
+		return (0);
 	(void) sprintf(str, "%s: ", s);
 	(void) strcat(str, clnt_sperrno(rpc_createerr.cf_stat));
 	switch (rpc_createerr.cf_stat) {
 	case RPC_PMAPFAILURE:
 		(void) strcat(str, " - ");
-		(void) strcat(str,
-		    clnt_sperrno(rpc_createerr.cf_error.re_status));
+		(void) strcat(str, clnt_sperrno(rpc_createerr.cf_error.re_status));
 		break;
 
 	case RPC_SYSTEMERROR:
 		(void) strcat(str, " - ");
 		if (rpc_createerr.cf_error.re_errno > 0
-		    && rpc_createerr.cf_error.re_errno < sys_nerr)
+			&& rpc_createerr.cf_error.re_errno < sys_nerr)
 			(void) strcat(str,
-			    sys_errlist[rpc_createerr.cf_error.re_errno]);
+						  sys_errlist[rpc_createerr.cf_error.re_errno]);
 		else
 			(void) sprintf(&str[strlen(str)], "Error %d",
-			    rpc_createerr.cf_error.re_errno);
+						   rpc_createerr.cf_error.re_errno);
 		break;
 	}
 	(void) strcat(str, "\n");
@@ -264,47 +258,45 @@ clnt_spcreateerror(s)
 #endif
 }
 
-void
-clnt_pcreateerror(s)
-	char *s;
+void clnt_pcreateerror(s)
+char *s;
 {
-	(void) fprintf(stderr,"%s",clnt_spcreateerror(s));
+	(void) fprintf(stderr, "%s", clnt_spcreateerror(s));
 }
 
 struct auth_errtab {
-	enum auth_stat status;	
+	enum auth_stat status;
 	char *message;
 };
 
 static struct auth_errtab auth_errlist[] = {
-	{ AUTH_OK,
-		"Authentication OK" },
-	{ AUTH_BADCRED,
-		"Invalid client credential" },
-	{ AUTH_REJECTEDCRED,
-		"Server rejected credential" },
-	{ AUTH_BADVERF,
-		"Invalid client verifier" },
-	{ AUTH_REJECTEDVERF,
-		"Server rejected verifier" },
-	{ AUTH_TOOWEAK,
-		"Client credential too weak" },
-	{ AUTH_INVALIDRESP,
-		"Invalid server verifier" },
-	{ AUTH_FAILED,
-		"Failed (unspecified error)" },
+	{AUTH_OK,
+	 "Authentication OK"},
+	{AUTH_BADCRED,
+	 "Invalid client credential"},
+	{AUTH_REJECTEDCRED,
+	 "Server rejected credential"},
+	{AUTH_BADVERF,
+	 "Invalid client verifier"},
+	{AUTH_REJECTEDVERF,
+	 "Server rejected verifier"},
+	{AUTH_TOOWEAK,
+	 "Client credential too weak"},
+	{AUTH_INVALIDRESP,
+	 "Invalid server verifier"},
+	{AUTH_FAILED,
+	 "Failed (unspecified error)"},
 };
 
-static char *
-auth_errmsg(stat)
-	enum auth_stat stat;
+static char *auth_errmsg(stat)
+enum auth_stat stat;
 {
 	int i;
 
-	for (i = 0; i < sizeof(auth_errlist)/sizeof(struct auth_errtab); i++) {
+	for (i = 0; i < sizeof(auth_errlist) / sizeof(struct auth_errtab); i++) {
 		if (auth_errlist[i].status == stat) {
-			return(auth_errlist[i].message);
+			return (auth_errlist[i].message);
 		}
 	}
-	return(NULL);
+	return (NULL);
 }

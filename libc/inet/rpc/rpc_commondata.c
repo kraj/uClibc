@@ -33,9 +33,10 @@
  * by public interfaces 
  */
 struct opaque_auth _null_auth;
+
 #ifdef FD_SETSIZE
 fd_set svc_fdset;
 #else
 int svc_fds;
-#endif /* def FD_SETSIZE */
+#endif							/* def FD_SETSIZE */
 struct rpc_createerr rpc_createerr;

@@ -31,15 +31,20 @@ MOBJ=tcsetattr.o tcgetattr.o tcdrain.o tcflow.o tcflush.o tcsendbreak.o	\
 
 CSRC=ttyname.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(MOBJ) $(COBJS)
 
 
-all: $(MOBJ) $(COBJS) $(LIBC)
+all: $(OBJS) $(LIBC)
 
-$(LIBC): $(MOBJ) $(COBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ) $(COBJS)
+$(LIBC): ar-target
+
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+
+$(OBJS): Makefile
 
 clean:
 	rm -f *.[oa] *~ core

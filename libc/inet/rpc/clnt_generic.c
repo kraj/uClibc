@@ -43,12 +43,11 @@ static char sccsid[] = "@(#)clnt_generic.c 1.4 87/08/11 (C) 1987 SMI";
  * returns client handle. Default options are set, which the user can 
  * change using the rpc equivalent of ioctl()'s.
  */
-CLIENT *
-clnt_create(hostname, prog, vers, proto)
-	char *hostname;
-	unsigned prog;
-	unsigned vers;
-	char *proto;
+CLIENT *clnt_create(hostname, prog, vers, proto)
+char *hostname;
+unsigned prog;
+unsigned vers;
+char *proto;
 {
 	struct hostent *h;
 	struct protoent *p;
@@ -67,7 +66,7 @@ clnt_create(hostname, prog, vers, proto)
 		 * Only support INET for now
 		 */
 		rpc_createerr.cf_stat = RPC_SYSTEMERROR;
-		rpc_createerr.cf_error.re_errno = EAFNOSUPPORT; 
+		rpc_createerr.cf_error.re_errno = EAFNOSUPPORT;
 		return (NULL);
 	}
 #ifdef __linux__
@@ -78,11 +77,11 @@ clnt_create(hostname, prog, vers, proto)
 #ifndef __linux__
 	bzero(sin.sin_zero, sizeof(sin.sin_zero));
 #endif
-	bcopy(h->h_addr, (char*)&sin.sin_addr, h->h_length);
+	bcopy(h->h_addr, (char *) &sin.sin_addr, h->h_length);
 	p = getprotobyname(proto);
 	if (p == NULL) {
 		rpc_createerr.cf_stat = RPC_UNKNOWNPROTO;
-		rpc_createerr.cf_error.re_errno = EPFNOSUPPORT; 
+		rpc_createerr.cf_error.re_errno = EPFNOSUPPORT;
 		return (NULL);
 	}
 	sock = RPC_ANYSOCK;
@@ -108,7 +107,7 @@ clnt_create(hostname, prog, vers, proto)
 		break;
 	default:
 		rpc_createerr.cf_stat = RPC_SYSTEMERROR;
-		rpc_createerr.cf_error.re_errno = EPFNOSUPPORT; 
+		rpc_createerr.cf_error.re_errno = EPFNOSUPPORT;
 		return (NULL);
 	}
 	return (client);

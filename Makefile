@@ -20,16 +20,21 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-DIRS = error getent malloc misc regex stdio \
+#MALLOC = malloc
+MALLOC = malloc-simple
+
+DIRS = error getent $(MALLOC) misc regex stdio \
 	    string termios time sysdeps shm #rpc
 all: libc.a
 
-libc.a: headers subdirs
+libc.a: halfclean headers subdirs
 	@echo
 	@echo Finally finished compiling...
 	@echo
-	$(CROSS)ranlib $@
+	$(CROSS)ranlib libc.a
 
+halfclean:
+	@rm -f libc.a
 
 headers: dummy
 	@if [ ! -L "include/asm" ]; then ln -s /usr/include/asm include/asm ; fi

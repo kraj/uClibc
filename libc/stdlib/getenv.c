@@ -6,26 +6,22 @@
 #include <stdlib.h>
 #include <malloc.h>
 
-extern char ** environ;
+extern char **environ;
 
-char *
-getenv(var)
-const char * var;
+char *getenv(var)
+const char *var;
 {
-   char **p;
-   int len;
+	char **p;
+	int len;
 
-   len = strlen(var);
-   
-   if (!environ)
-      return 0;
+	len = strlen(var);
 
-   for(p=environ; *p; p++)
-   {
-      if( memcmp(var, *p, len) == 0 && (*p)[len] == '=' )
-         return *p + len + 1;
-   }
-   return 0;
+	if (!environ)
+		return 0;
+
+	for (p = environ; *p; p++) {
+		if (memcmp(var, *p, len) == 0 && (*p)[len] == '=')
+			return *p + len + 1;
+	}
+	return 0;
 }
-
-

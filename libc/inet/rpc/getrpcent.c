@@ -1,6 +1,8 @@
 /* @(#)getrpcent.c	2.2 88/07/29 4.0 RPCSRC */
 #if !defined(lint) && defined(SCCSIDS)
-static  char sccsid[] = "@(#)getrpcent.c 1.9 87/08/11  Copyr 1984 Sun Micro";
+static char sccsid[] =
+
+	"@(#)getrpcent.c 1.9 87/08/11  Copyr 1984 Sun Micro";
 #endif
 
 /*
@@ -46,43 +48,43 @@ static  char sccsid[] = "@(#)getrpcent.c 1.9 87/08/11  Copyr 1984 Sun Micro";
  * Internet version.
  */
 struct rpcdata {
-	FILE	*rpcf;
-	char	*current;
-	int	currentlen;
-	int	stayopen;
+	FILE *rpcf;
+	char *current;
+	int currentlen;
+	int stayopen;
 #define	MAXALIASES	35
-	char	*rpc_aliases[MAXALIASES];
-	struct	rpcent rpc;
-	char	line[BUFSIZ+1];
-	char	*domain;
+	char *rpc_aliases[MAXALIASES];
+	struct rpcent rpc;
+	char line[BUFSIZ + 1];
+	char *domain;
 } *rpcdata, *_rpcdata();
 
-static	struct rpcent *interpret();
-struct	hostent *gethostent();
-char	*inet_ntoa();
+static struct rpcent *interpret();
+struct hostent *gethostent();
+char *inet_ntoa();
+
 #ifndef __linux__
-static	char *index();
+static char *index();
 #else
 char *index();
 #endif
 
 static char RPCDB[] = "/etc/rpc";
 
-static struct rpcdata *
-_rpcdata()
+static struct rpcdata *_rpcdata()
 {
 	register struct rpcdata *d = rpcdata;
 
 	if (d == 0) {
-		d = (struct rpcdata *)calloc(1, sizeof (struct rpcdata));
+		d = (struct rpcdata *) calloc(1, sizeof(struct rpcdata));
+
 		rpcdata = d;
 	}
 	return (d);
 }
 
-struct rpcent *
-getrpcbynumber(number)
-	register int number;
+struct rpcent *getrpcbynumber(number)
+register int number;
 {
 	register struct rpcdata *d = _rpcdata();
 	register struct rpcent *p;
@@ -106,14 +108,14 @@ struct rpcent *
 getrpcbyname(const char *name)
 #else
 getrpcbyname(name)
-	char *name;
+char *name;
 #endif
 {
 	struct rpcent *rpc;
 	char **rp;
 
 	setrpcent(0);
-	while(rpc = getrpcent()) {
+	while (rpc = getrpcent()) {
 		if (strcmp(rpc->r_name, name) == 0)
 			return (rpc);
 		for (rp = rpc->r_aliases; *rp != NULL; rp++) {
@@ -129,7 +131,7 @@ getrpcbyname(name)
 void
 #endif
 setrpcent(f)
-	int f;
+int f;
 {
 	register struct rpcdata *d = _rpcdata();
 
@@ -164,8 +166,7 @@ endrpcent()
 	}
 }
 
-struct rpcent *
-getrpcent()
+struct rpcent *getrpcent()
 {
 	struct rpcent *hp;
 	int reason;
@@ -174,17 +175,16 @@ getrpcent()
 	register struct rpcdata *d = _rpcdata();
 
 	if (d == 0)
-		return(NULL);
+		return (NULL);
 	if (d->rpcf == NULL && (d->rpcf = fopen(RPCDB, "r")) == NULL)
 		return (NULL);
-    if (fgets(d->line, BUFSIZ, d->rpcf) == NULL)
+	if (fgets(d->line, BUFSIZ, d->rpcf) == NULL)
 		return (NULL);
 	return interpret(d->line, strlen(d->line));
 }
 
 #ifdef __linux__
-static char *
-firstwhite(s)
+static char *firstwhite(s)
 char *s;
 {
 	char *s1, *s2;
@@ -196,14 +196,12 @@ char *s;
 			return (s1 < s2) ? s1 : s2;
 		else
 			return s1;
-	}
-	else
+	} else
 		return s2;
 }
 #endif
 
-static struct rpcent *
-interpret(val, len)
+static struct rpcent *interpret(val, len)
 {
 	register struct rpcdata *d = _rpcdata();
 	char *p;
@@ -217,8 +215,7 @@ interpret(val, len)
 	if (*p == '#')
 		return (getrpcent());
 	cp = index(p, '#');
-	if (cp == NULL)
-    {
+	if (cp == NULL) {
 		cp = index(p, '\n');
 		if (cp == NULL)
 			return (getrpcent());
@@ -231,8 +228,7 @@ interpret(val, len)
 		return (getrpcent());
 #else
 	cp = index(p, ' ');
-	if (cp == NULL)
-    {
+	if (cp == NULL) {
 		cp = index(p, '\t');
 		if (cp == NULL)
 			return (getrpcent());
@@ -252,8 +248,7 @@ interpret(val, len)
 	cp = index(p, ' ');
 	if (cp != NULL)
 		*cp++ = '\0';
-	else
-    {
+	else {
 		cp = index(p, '\t');
 		if (cp != NULL)
 			*cp++ = '\0';
@@ -273,8 +268,7 @@ interpret(val, len)
 		cp = index(p, ' ');
 		if (cp != NULL)
 			*cp++ = '\0';
-		else
-	    {
+		else {
 			cp = index(p, '\t');
 			if (cp != NULL)
 				*cp++ = '\0';

@@ -58,21 +58,20 @@ extern void srand __P ((unsigned int seed));
 
 
 /* Memory management functions */
-extern __ptr_t alloca __P ((size_t __size));
 extern __ptr_t calloc __P ((size_t, size_t));
 extern __ptr_t malloc __P ((size_t));
 extern __ptr_t realloc __P ((__ptr_t, size_t));
 extern void free __P ((__ptr_t));
 
 #ifdef DEBUG_MALLOC
-extern __ptr_t malloc_dbg __P ((size_t, char* func, char* file, int line));
 extern __ptr_t calloc_dbg __P ((size_t, size_t, char* func, char* file, int line));
-extern void free_dbg __P ((__ptr_t, char* func, char* file, int line));
+extern __ptr_t malloc_dbg __P ((size_t, char* func, char* file, int line));
 extern __ptr_t realloc_dbg __P ((__ptr_t, size_t, char* func, char* file, int line));
-#define malloc(x) malloc_dbg((x),__FUNCTION__,__FILE__,__LINE__)
+extern void free_dbg __P ((__ptr_t, char* func, char* file, int line));
 #define calloc(x,y) calloc_dbg((x),(y),__FUNCTION__,__FILE__,__LINE__)
-#define free(x) free_dbg((x),__FUNCTION__,__FILE__,__LINE__)
+#define malloc(x) malloc_dbg((x),__FUNCTION__,__FILE__,__LINE__)
 #define realloc(x) realloc((x),__FUNCTION__,__FILE__,__LINE__)
+#define free(x) free_dbg((x),__FUNCTION__,__FILE__,__LINE__)
 #endif
 
 

@@ -1,6 +1,6 @@
 /* @(#)getrpcport.c	2.1 88/07/29 4.0 RPCSRC */
 #if !defined(lint) && defined(SCCSIDS)
-static  char sccsid[] = "@(#)getrpcport.c 1.3 87/08/11 SMI";
+static char sccsid[] = "@(#)getrpcport.c 1.3 87/08/11 SMI";
 #endif
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for
@@ -41,7 +41,7 @@ static  char sccsid[] = "@(#)getrpcport.c 1.3 87/08/11 SMI";
 #include <sys/socket.h>
 
 getrpcport(host, prognum, versnum, proto)
-	char *host;
+char *host;
 {
 	struct sockaddr_in addr;
 	struct hostent *hp;
@@ -50,6 +50,6 @@ getrpcport(host, prognum, versnum, proto)
 		return (0);
 	bcopy(hp->h_addr, (char *) &addr.sin_addr, hp->h_length);
 	addr.sin_family = AF_INET;
-	addr.sin_port =  0;
+	addr.sin_port = 0;
 	return (pmap_getport(&addr, prognum, versnum, proto));
 }

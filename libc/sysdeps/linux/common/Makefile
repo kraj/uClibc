@@ -25,12 +25,19 @@ TOPDIR=../../../
 include $(TOPDIR)Rules.make
 LIBC=$(TOPDIR)libc.a
 
+#The file makefile.objs defines $(COBJS)
 include makefile.objs
+
+OBJ=$(COBJS)
 
 all: $(OBJ) $(LIBC)
 
-$(LIBC): $(OBJ)
+$(LIBC): ar-target
+
+ar-target: $(OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJ)
+
+$(OBJ): Makefile
 
 clean:
 	rm -f *.[oa] *~ core

@@ -28,7 +28,9 @@
  * Mountain View, California  94043
  */
 #if !defined(lint) && defined(SCCSIDS)
-static char sccsid[] = "@(#)pmap_prot.c 1.17 87/08/11 Copyr 1984 Sun Micro";
+static char sccsid[] =
+
+	"@(#)pmap_prot.c 1.17 87/08/11 Copyr 1984 Sun Micro";
 #endif
 
 /*
@@ -43,15 +45,14 @@ static char sccsid[] = "@(#)pmap_prot.c 1.17 87/08/11 Copyr 1984 Sun Micro";
 #include <rpc/pmap_prot.h>
 
 
-bool_t
-xdr_pmap(xdrs, regs)
-	XDR *xdrs;
-	struct pmap *regs;
+bool_t xdr_pmap(xdrs, regs)
+XDR *xdrs;
+struct pmap *regs;
 {
 
-	if (xdr_u_long(xdrs, &regs->pm_prog) && 
-		xdr_u_long(xdrs, &regs->pm_vers) && 
+	if (xdr_u_long(xdrs, &regs->pm_prog) &&
+		xdr_u_long(xdrs, &regs->pm_vers) &&
 		xdr_u_long(xdrs, &regs->pm_prot))
-		return (xdr_u_long(xdrs, &regs->pm_port));
+			return (xdr_u_long(xdrs, &regs->pm_port));
 	return (FALSE);
 }
