@@ -19,3 +19,4 @@ teston_exit
 teston_exit.out
 teston_exit_glibc
 teston_exit_glibc.out
+ptytest

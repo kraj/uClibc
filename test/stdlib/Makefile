@@ -25,6 +25,7 @@ TARGETS+=teststrtol teststrtol_glibc teststrtol_diff
 TARGETS+=qsort qsort_glibc qsort_diff
 TARGETS+=teston_exit teston_exit_glibc teston_exit_diff
 TARGETS+=testatexit testatexit_glibc testatexit_diff
+TARGETS+=ptytest
 
 all: $(TARGETS)
 
@@ -169,6 +170,19 @@ testatexit_diff: testatexit_glibc testatexit
 	-@ echo "Diffing output: "
 	-@ echo " "
 	-diff -u testatexit_glibc.out testatexit.out
+	-@ echo " "
+
+ptytest: ptytest.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-$(LDD) $@
+	ls -l $@
+	-./$@
 	-@ echo " "
 
 
