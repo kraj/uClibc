@@ -117,10 +117,9 @@
  * application.
  */
 
-#include <stdarg.h>
+#include "ld_syscall.h"
 #include "linuxelf.h"
 #include "ld_hash.h"
-#include "ld_syscall.h"
 #include "ld_string.h"
 #include "dlfcn.h"
 #include "../config.h"
@@ -218,7 +217,7 @@ DL_BOOT(unsigned long args)
 
 	/* WARNING! -- we cannot make _any_ funtion calls until we have
 	 * taken care of fixing up our own relocations.  Making static
-	 * lnline calls is ok, but _no_ function calls.  Not yet
+	 * inline calls is ok, but _no_ function calls.  Not yet
 	 * anyways. */
 
 	/* First obtain the information on the stack that tells us more about
@@ -654,27 +653,37 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #endif
 				INIT_GOT(lpnt, _dl_loaded_modules);
 		}
-		if (ppnt->p_type == PT_INTERP) {	/* OK, fill this in - we did not 
-											   have this before */
-			tpnt->libname = _dl_strdup((char *) ppnt->p_offset +
-					(auxvt[AT_PHDR].a_un.a_val & 0xfffff000));
-		}
-	}
-	/* Store the path where the shared lib loader was found for 
-	 * later use */
-	{
-		char *pnt, *pnt1;
-		pnt = _dl_strdup(tpnt->libname);
-		pnt1 = _dl_strrchr(pnt, '/');
-		if (pnt != pnt1) {
-			*pnt1 = '\0';
-			_dl_ldsopath = pnt;
-		}
-	}
+		/* OK, fill this in - we did not have this before */
+		if (ppnt->p_type == PT_INTERP) {
+			int readsize = 0;
+			char *libname, *pnt, *pnt1, buf[1024];
 
+			libname = (char *) (ppnt->p_offset + 
+					(auxvt[AT_PHDR].a_un.a_val & 0xfffff000));
+
+			/* Store the path where the shared lib loader was found for 
+			 * later use */
+			readsize = _dl_readlink(libname, buf, sizeof(buf));
+			if (readsize > 0 && readsize < sizeof(buf)-1) {
+				buf[readsize] = '\0';
 #ifdef DL_DEBUG
-	_dl_dprintf(2, "Lib Loader:\t(%x) %s\n", tpnt->loadaddr, tpnt->libname);
+				_dl_dprintf(2, "Lib Loader '%s'\nis a symlink to '%s'\n", libname, buf);
 #endif
+				tpnt->libname = _dl_strdup(buf);
+			} else {
+				tpnt->libname = _dl_strdup(libname);
+			}
+			pnt = _dl_strdup(tpnt->libname);
+			pnt1 = _dl_strrchr(pnt, '/');
+			if (pnt != pnt1) {
+				*pnt1 = '\0';
+			}
+			_dl_ldsopath = pnt;
+#ifdef DL_DEBUG
+			_dl_dprintf(2, "Lib Loader:\t(%x) %s\n", tpnt->loadaddr, tpnt->libname);
+#endif
+		}
+	}
 
 
 	/* Now we need to figure out what kind of options are selected.
@@ -945,9 +954,6 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #ifdef DL_TRACE
 	if (_dl_trace_loaded_objects) {
 		char *_dl_warn = 0;
-
-		_dl_dprintf(1, "\t%s => %s (0x%x)\n", tpnt->libname + (_dl_strlen(_dl_ldsopath)) + 1, 
-				tpnt->libname, tpnt->loadaddr);  
 		_dl_warn = _dl_getenv("LD_WARN", envp);
 		if (!_dl_warn)
 			_dl_exit(0);
@@ -988,6 +994,14 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		rpnt->dyn = tpnt;
 		tpnt = NULL;
 	}
+#ifdef DL_TRACE
+	if (_dl_trace_loaded_objects) {
+		_dl_dprintf(1, "\t%s => %s (0x%x)\n", rpnt->dyn->libname + (_dl_strlen(_dl_ldsopath)) + 1, 
+				rpnt->dyn->libname, rpnt->dyn->loadaddr);  
+		_dl_exit(0);
+	}
+#endif
+
 #ifdef DL_DEBUG
 	_dl_dprintf(2, "Beginning relocation fixups\n");
 #endif
