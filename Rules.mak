@@ -158,10 +158,6 @@ endif
 
 # use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
-# Override optimization settings when debugging
-ifeq ($(DODEBUG),y)
-OPTIMIZATION=-O0
-endif
 
 
 # Add a bunch of extra pedantic annoyingly strict checks
