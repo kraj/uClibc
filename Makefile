@@ -42,7 +42,7 @@ $(LIBNAME): subdirs
 shared: $(LIBNAME)
 	@rm -rf tmp
 	@mkdir tmp
-	@make -C ld.so-1/d-link
+	@$(MAKE) -C ld.so-1/d-link
 	@(cd tmp; CC=$(CC) /bin/sh ../extra/scripts/get-needed-libgcc-objects.sh)
 	if [ -s ./tmp/libgcc-need.a ] ; then \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
@@ -57,8 +57,8 @@ shared: $(LIBNAME)
 	@rm -rf tmp
 	ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME)
 	ln -sf $(SHARED_MAJORNAME) libc.so
-	@make -C crypt shared
-	@make -C ld.so-1
+	@$(MAKE) -C crypt shared
+	@$(MAKE) -C ld.so-1
 
 done: $(LIBNAME) $(DO_SHARED)
 	@echo
@@ -97,7 +97,7 @@ tags:
 clean: subdirs_clean halfclean
 	@rm -rf tmp
 	rm -f include/asm include/linux include/bits
-	@make -C ld.so-1 clean
+	@$(MAKE) -C ld.so-1 clean
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS) test)
@@ -112,7 +112,7 @@ install: install_runtime install_dev install_ldso
 
 # Installs shared library
 install_runtime:
-	@make -C crypt install
+	@$(MAKE) -C crypt install
 ifneq ($(DO_SHARED),)
 	install -d $(INSTALL_DIR)/lib
 	rm -rf $(INSTALL_DIR)/lib/$(SHARED_FULLNAME)
@@ -148,12 +148,12 @@ install_dev:
 	install -m 644 $(LIBNAME) $(INSTALL_DIR)/lib/
 	@if [ -f crt0.o ] ; then install -m 644 crt0.o $(INSTALL_DIR)/lib/; fi
 	install -d $(INSTALL_DIR)/bin
-	@if [ -f extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc ] ; then install -m 755 extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc $(INSTALL_DIR)/bin/ ; fi
+	$(MAKE) -C extra/gcc-uClibc install
 
 
 install_ldso:
 ifeq ($(strip $(DO_SHARED)),shared)
-	@make -C ld.so-1 install
+	@$(MAKE) -C ld.so-1 install
 	$(TOPDIR)ld.so-1/util/ldconfig
 else
 	@echo "Skipping shared library support"
