@@ -8,13 +8,12 @@
    WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY OF THIS
    SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE. */
 
+#include <stdlib.h>
 #include <string.h>
-#include "malloc.h"
 
 /* Allocate space for the given number of elements of the given
    size, initializing the whole region to binary zeroes. */
-void *
-calloc(size_t nelem, size_t size)
+void * calloc(size_t nelem, size_t size)
 {
     void *result;
 
