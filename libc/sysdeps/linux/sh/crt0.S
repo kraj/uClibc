@@ -42,49 +42,38 @@
 		...
 					NULL
 */
-
 	.text
 	.globl _start
-	
+	.type _start,@function
+	.size _start,_start_end - _start
 _start:
-	/* Clear the frame pointer since this is the outermost frame.  */
+	/* Clear the frame pointer since this is the outermost frame. (in delay slot) */
 	mov #0, r14
 
 	/* Pop argc off the stack and save a pointer to argv */
 	mov.l @r15+,r4
 	mov r15, r5
 
-	/* set up the value for the environment pointer
-	   r6 = (argc+1)*4+argv
-	*/
+	/*
+	 * Setup the value for the environment pointer:
+	 * r6 = (argc + 1) * 4
+	 * r6 += argv (in delay slot)
+	 */
 	mov r4,r6
 	add #1,r6
 	shll2 r6
-	add r5,r6
-
-	!			Clear BSS area
-	mov.l	3f, r1
-	add	#4, r1
-	mov.l	4f, r2
-	mov	#0, r0
-9:	cmp/hs	r2, r1
-	bf/s	9b		! while (r1 < r2)
-	 mov.l	r0,@-r2
 
 	/* call main */
-	mov.l L_main,r1
-	jsr @r1
-	nop
+	mov.l L_main, r0
+	jsr @r0
 
-	/* should never get here....*/
-	mov.l L_abort,r1
-	jsr @r1
+	/* We should not get here. */
+	mov.l L_abort, r0
+	jsr @r0
 	nop
-
+_start_end:	
 	.align	2
 
-3:	.long	__bss_start
-4:	.long	_end
 
 L_main:
 	.long	__uClibc_main

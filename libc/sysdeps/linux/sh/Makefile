@@ -45,13 +45,27 @@ all: $(OBJS) $(LIBC)
 
 $(LIBC): ar-target 
 
-ar-target: $(OBJS) $(CRT0_OBJ)
+ar-target: $(OBJS) $(CRT0_OBJ) $(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 	cp $(CRT0_OBJ) $(TOPDIR)lib/$(CRT0_OBJ)
 
 $(CRT0_OBJ): %.o : %.S
 	$(CC) $(SFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+crti.o: crti.S
+	$(CC) $(SAFECFLAGS) -c crti.S -o crti.o
+
+$(TOPDIR)lib/crti.o: crti.o
+	mkdir -p $(TOPDIR)lib/
+	cp crti.o $(TOPDIR)lib/
+
+crtn.o: crtn.S
+	$(CC) $(SAFECFLAGS) -c crtn.S -o crtn.o
+
+$(TOPDIR)lib/crtn.o: crtn.o
+	mkdir -p $(TOPDIR)lib/
+	cp crtn.o $(TOPDIR)lib/
 
 $(SOBJS): %.o : %.S
 	$(CC) $(SFLAGS) -c $< -o $@
