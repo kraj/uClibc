@@ -24,6 +24,8 @@
 #endif
 #include <search.h>
 
+#ifdef L_insque
+
 /* Insert ELEM into a doubly-linked list, after PREV.  */
 
 void
@@ -37,6 +39,9 @@ insque (void *elem, void *prev)
   ((struct qelem *) elem)->q_back = (struct qelem *) prev;
 }
 
+#endif
+
+#ifdef L_remque
 /* Unlink ELEM from the doubly-linked list that it is in.  */
 
 void
@@ -49,3 +54,5 @@ remque (void *elem)
   if (prev != NULL)
     prev->q_forw = (struct qelem *) next;
 }
+
+#endif

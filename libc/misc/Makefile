@@ -25,9 +25,9 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 
-DIRS = assert ctype dirent file fnmatch glob internals lsearch \
-       mntent syslog time utmp tsearch locale sysvipc statfs \
-       error insremque ttyent gnu
+DIRS = assert ctype dirent file fnmatch glob internals \
+       mntent syslog time utmp locale sysvipc statfs \
+       error ttyent gnu search
 ifeq ($(strip $(UCLIBC_HAS_REGEX)),y)
 DIRS += regex
 endif

@@ -24,18 +24,47 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-MSRC=tsearch.c
-MOBJ=tsearch.o tfind.o tdelete.o twalk.o
+MSRC1=tsearch.c
+MOBJ1=tsearch.o tfind.o tdelete.o twalk.o
 
-all: $(MOBJ) $(LIBC)
+MSRC2=lsearch.c
+MOBJ2=lfind.o lsearch.o
+
+MSRC3=insremque.c
+MOBJ3=insque.o remque.o
+
+MSRC4=hsearch_r.c
+MOBJ4=hcreate_r.o hdestroy_r.o hsearch_r.o
+
+CSRC=hsearch.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(COBJS)
+
+all: $(MOBJ1) $(MOBJ2) $(MOBJ3) $(MOBJ4) $(OBJS) $(LIBC)
 
 $(LIBC): ar-target
 
 ar-target: $(MOBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ)
 
-$(MOBJ): $(MSRC)
+$(MOBJ1): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ2): $(MSRC2)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ3): $(MSRC3)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ4): $(MSRC4)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <search.h>
 
+#ifdef L_lfind
+
 void *lfind(const void *key, const void *base, size_t *nmemb,
 	size_t size, int (*compar)(const void *, const void *))
 {
@@ -25,6 +27,10 @@ void *lfind(const void *key, const void *base, size_t *nmemb,
 	return (NULL);
 }
 
+#endif
+
+#ifdef L_lsearch
+
 void *lsearch(const void *key, void *base, size_t *nmemb, 
 	size_t size, int (*compar)(const void *, const void *))
 {
@@ -36,3 +42,5 @@ void *lsearch(const void *key, void *base, size_t *nmemb,
 	}
 	return (p);
 }
+
+#endif
