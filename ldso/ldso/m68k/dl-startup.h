@@ -4,8 +4,15 @@
  * Copyright (C) 2005 by Erik Andersen <andersen@codepoet.org>
  */
 
-/* For m68k we do not need any special setup so go right to _dl_boot() */
-#define DL_BOOT(X) __attribute_used__ void _dl_boot (X)
+asm(
+    "	.text\n"
+    "	.globl	_start\n"
+    "	.type	_start,@function\n"
+    "_start:\n"
+    "	.set	_start,_dl_start\n"
+    "	.size	_start,.-_start\n"
+    "	.previous\n"
+);
 
 /* Get a pointer to the argv array.  On many platforms this can be just
  * the address if the first argument, on other platforms we need to
