@@ -1,5 +1,6 @@
 ldd
 ldd.target
-ldconfig
 readelf
 readelf.target
+ldconfig
+elf.h

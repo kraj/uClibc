@@ -24,20 +24,14 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 TARGET_CC = $(TOPDIR)extra/gcc-uClibc/$(NATIVE_ARCH)-uclibc-gcc
 
-TARGETS=ldconfig ldd ldd.target readelf readelf.target
+TARGETS=elf_header ldconfig ldd ldd.target readelf readelf.target
 all: $(TARGETS)
 
-readsoname.o: readsoname.c readsoname2.c
-	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-    
-ldconfig.o: ldconfig.c
-	$(CC) $(CFLAGS) -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
-		-c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
+elf_header:
+	ln -fs $(TOPDIR)include/elf.h
 
 readelf: readelf.c
-	$(NATIVE_CC) $(NATIVE_CFLAGS) readelf.c -o $@
+	$(NATIVE_CC) $(NATIVE_CFLAGS) -I . readelf.c -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 readelf.target: readelf.c
@@ -48,8 +42,17 @@ ifeq ($(strip $(LIBRARY_CACHE)),)
 ldconfig: 
 	echo "LIBRARY_CACHE disabled -- not building ldconfig"
 else
+readsoname.o: readsoname.c readsoname2.c
+	$(NATIVE_CC) $(NATIVE_CFLAGS) -I . -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+    
+ldconfig.o: ldconfig.c
+	$(NATIVE_CC) $(NATIVE_CFLAGS) -I . \
+		-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
 ldconfig: ldconfig.o readsoname.o
-	$(CC) $(CFLAGS) $^ -o $@
+	$(NATIVE_CC) $(NATIVE_CFLAGS) $^ -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 endif
 
@@ -57,7 +60,7 @@ ldd: ldd.c
 	$(NATIVE_CC) $(NATIVE_CFLAGS) -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
-		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" \
+		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" -I . \
 		ldd.c -o $@ 
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
@@ -70,5 +73,5 @@ ldd.target: ldd.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 clean:
-	rm -f $(TARGETS) *.o *~ core
+	rm -f $(TARGETS) *.o *~ core ./elf.h
 

@@ -33,11 +33,11 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <link.h>
-#include <elf.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <errno.h>
+#include "elf.h"
 #include "../config.h"
 #include "readsoname.h"
 

@@ -5,9 +5,9 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <link.h>
-#include <elf.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include "elf.h"
 #include "../config.h"
 #include "readsoname.h"
 
