@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Header: /var/cvs/uClibc/extra/scripts/getent,v 1.1 2004/11/11 14:50:52 vapier Exp $
+# $Header: /var/cvs/uClibc/extra/scripts/getent,v 1.2 2005/02/02 14:18:01 solar Exp $
 
 search_entry() {
   if [ -e "$1" ] ; then
@@ -16,12 +16,16 @@ string="dummy"
 
 #aliases|ethers|group|hosts|netgroup|networks|passwd|protocols|rpc|services|shadow)
 # dns based search is not supported for hosts|networks
-# networks searches ^string
-# protocols|rpc|services searches string anywhere
-# ethers|netgroup ?
+# ethers|netgroup (not done, needed)?
 # it returns only the first match
 case $1 in
-  group|passwd|shadow)
+  passwd)
+    string="(^\<$2\>:|^.*:.*:\<$2\>:.*:.*:.*:.*)"
+    ;;
+  group)
+    string="(^|:)\<$2\>:"
+    ;;
+  shadow)
     string="^\<$2\>:"
     ;;
   aliases)
@@ -35,7 +39,7 @@ case $1 in
   networks)
     string="^\<$2\>"
     ;;
-  hosts|protocol|rpc|services)
+  hosts|protocols|rpc|services)
     string="\<$2\>"
     ;;
   *)
