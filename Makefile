@@ -102,7 +102,7 @@ headers: dummy
 	    echo "I bet you didn't set KERNEL_SOURCE, TARGET_ARCH or HAS_MMU in \`Config'"; \
 	    echo "correctly.  Please edit \`Config' and fix these settings."; \
 	    echo " "; \
-	    /bin/false; \
+	    false; \
 	fi;
 	rm -f include/linux include/scsi
 	ln -fs $(KERNEL_SOURCE)/include/linux include/linux

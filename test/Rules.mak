@@ -59,7 +59,7 @@ ifeq ($(DODEBUG),true)
     GLIBC_CFLAGS +=$(WARNINGS) $(OPTIMIZATION) -g
     LDFLAGS =-Wl,-warn-common
     GLIBC_LDFLAGS =-Wl,-warn-common 
-    STRIPTOOL =/bin/true -Since_we_are_debugging
+    STRIPTOOL =true -Since_we_are_debugging
 else
     CFLAGS  +=$(WARNINGS) $(OPTIMIZATION) -fomit-frame-pointer
     GLIBC_CFLAGS  +=$(WARNINGS) $(OPTIMIZATION) -fomit-frame-pointer

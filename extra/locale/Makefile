@@ -22,7 +22,7 @@ codesets.txt:
 	    echo -e "        $(EXTRA_LOCALE_DIR)/codesets.txt"; \
 	    echo "and then edit that file to disable/enable the codesets you wish to support. "; \
 	    echo " "; \
-	    /bin/false; \
+	    false; \
 	fi;
 
 gen_wc8bit: gen_wc8bit.c
@@ -61,7 +61,7 @@ locales.txt:
 	    echo "then edit locales.txt to disable/enable the locales you wish "; \
 	    echo "to support. "; \
 	    echo " "; \
-	    /bin/false; \
+	    false; \
 	fi;
 
 ifneq ($(TARGET_ARCH),$(NATIVE_ARCH))

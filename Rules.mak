@@ -99,7 +99,7 @@ NATIVE_CFLAGS:=-O2 -Wall
 ifeq ($(strip $(DODEBUG)),true)
     CFLAGS += -g
     LDFLAGS:= -shared --warn-common --warn-once -z combreloc
-    STRIPTOOL:= /bin/true -Since_we_are_debugging
+    STRIPTOOL:= true -Since_we_are_debugging
 else
     CFLAGS  += -DNDEBUG #-fomit-frame-pointer
     LDFLAGS := -s -shared --warn-common --warn-once -z combreloc
