@@ -535,7 +535,8 @@ foo:
 	interp = find_elf_interpreter(ehdr);
 			
 #ifdef __LDSO_LDD_SUPPORT
-	if (interp && ehdr->e_ident[EI_CLASS] == ELFCLASSM && ehdr->e_ident[EI_DATA] == ELFDATAM
+	if (interp && ehdr->e_type == ET_EXEC && ehdr->e_ident[EI_CLASS] == ELFCLASSM && 
+			ehdr->e_ident[EI_DATA] == ELFDATAM
 		&& ehdr->e_ident[EI_VERSION] == EV_CURRENT && MATCH_MACHINE(ehdr->e_machine)) 
 	{
 		struct stat statbuf;
@@ -558,7 +559,7 @@ foo:
 
 			/* Wait till it returns */
 			waitpid(pid, &status, 0);
-			if (WIFEXITED(status)!=0xdead) {
+			if (WIFEXITED(status) && WEXITSTATUS(status)==0) {
 				return 1;
 			}
 
