@@ -40,6 +40,10 @@
  * 5-10-2002
  * Remove __isdigit and use new ctype.h version.
  * Add conditional setting of QUAL_CHARS for size_t and ptrdiff_t.
+ *
+ * 8-16-2002
+ * Fix two problems that showed up with the python 2.2.1 tests; one
+ *    involving %o and one involving %f.
  */
 
 
@@ -1164,7 +1168,7 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 				if (ppfs->conv_num == CONV_X) {
 					prefix_num = PREFIX_UPR_X;
 				}
-				if ((ppfs->conv_num == CONV_o) && (numfill < slen)) {
+				if ((ppfs->conv_num == CONV_o) && (numfill <= slen)) {
 					numfill = ((*s == '0') ? 1 : slen + 1);
 				}
 			}
@@ -1896,6 +1900,11 @@ size_t _dtostr(FILE * fp, long double x, struct printf_info *info)
 
 	if (mode == 'f') {
 		round += exp;
+		if (round < -1) {
+			memset(buf, '0', MAX_DIGITS);
+		    exp = -1;
+		    round = -1;
+		}
 	}
 
 	s = buf;
