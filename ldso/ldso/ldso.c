@@ -672,7 +672,7 @@ found_got:
 			struct stat st;
 			char *preload;
 
-			if (!_dl_stat(LDSO_PRELOAD, &st)) {
+			if (!_dl_stat(LDSO_PRELOAD, &st) && st.st_size > 0) {
 				if ((fd = _dl_open(LDSO_PRELOAD, O_RDONLY)) < 0) {
 					_dl_fprintf(2, "%s: can't open file '%s'\n", 
 						_dl_progname, LDSO_PRELOAD);
