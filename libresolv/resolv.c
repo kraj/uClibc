@@ -21,8 +21,11 @@
  *
  */
 
+#include <features.h>
 
 void stub(void)
 {
 	return;
 }
+link_warning (gets, "the `libresolv' library is a stub.  Do you really need it?")
+
