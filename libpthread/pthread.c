@@ -110,12 +110,12 @@ int pthread_join (pthread_t thread, void **thread_return)
 	/* Fixme -- wait for thread and get its return value */
 	retval = EXIT_SUCCESS;
 	if (thread_return)
-		*thread_return = retval;
+		(int)*thread_return = retval;
 	_exit(retval);
 }
 link_warning(pthread_join, "pthread_join is a stub and does not behave properly");
 
 void pthread_exit (void *retval)
 {
-	_exit(retval);
+	_exit(*(int *)retval);
 }
