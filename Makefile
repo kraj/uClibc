@@ -378,6 +378,7 @@ distclean clean:
 	    rm -f libc/sysdeps/linux/$(TARGET_ARCH); \
 	    rm -f ldso/ldso/$(TARGET_ARCH); \
 	    rm -f libpthread/linuxthreads/sysdeps/$(TARGET_ARCH); \
+	    find . -type l -exec rm -f {} \; ; \
 	fi;
 
 dist release: distclean
