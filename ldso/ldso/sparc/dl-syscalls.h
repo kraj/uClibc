@@ -5,13 +5,7 @@
  * system calls.  This particular variant does _not_ set 
  * errno (note how it is disabled in __syscall_return) since
  * these will get called before the errno symbol is dynamicly 
- * linked.
-   by the dynamic linker.  The idea is that we want to be able
-   to call these before the errno symbol is dynamicly linked, so
-   we use our own version here.  Note that we cannot assume any
-   dynamic linking at all, so we cannot return any error codes.
-   We just punt if there is an error. */
-
+ * linked. */
 
 #define _syscall0(type,name) \
 type name(void) \
