@@ -171,8 +171,8 @@ struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libnam
 	const char *pnt, *pnt1;
 	struct elf_resolve *tpnt1;
 	const char *libname, *libname2;
-	static const char *libc = "libc.so.";
-	static const char *aborted_wrong_lib = "%s: aborted attempt to load %s!\n";
+	static const char libc[] = "libc.so.";
+	static const char aborted_wrong_lib[] = "%s: aborted attempt to load %s!\n";
 
 	pnt = libname = full_libname;
 
