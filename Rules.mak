@@ -36,7 +36,6 @@ SHARED_MAJORNAME:=libc.so.$(MAJOR_VERSION)
 UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
 LIBC:=$(TOPDIR)libc/libc.a
 
-BUILDTIME:= ${shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z"}
 NATIVE_ARCH:= ${shell uname -m | sed \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
