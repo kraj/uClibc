@@ -867,7 +867,7 @@ SYSCALL__(setfsuid, 1)
 #endif
 //#define __NR__llseek          140
 #ifdef L__llseek
-	_syscall5(int, _llseek, int, fd, off_t, hoff, off_t, loff, loff_t *, res,
+_syscall5(int, _llseek, int, fd, off_t, hoff, off_t, loff, loff_t *, res,
 		  int, whence);
 
 loff_t llseek(int fd, loff_t offset, int whence)
@@ -883,16 +883,17 @@ loff_t llseek(int fd, loff_t offset, int whence)
 #endif
 
 //#define __NR_getdents         141
-#ifdef L_getdents
+#ifdef L__getdents
+#define __NR__getdents __NR_getdents
 #include <unistd.h>
 #include <dirent.h>
-_syscall3(int, getdents, unsigned int, fd, struct dirent *, dirp, unsigned int, count);
+_syscall3(int, _getdents, int, fd, char *, dirp, size_t, count);
 #endif
 
 //#define __NR__newselect       142
 #ifdef L__newselect
 #include <unistd.h>
-	_syscall5(int, _newselect, int, n, fd_set *, readfds, fd_set *, writefds,
+_syscall5(int, _newselect, int, n, fd_set *, readfds, fd_set *, writefds,
 		  fd_set *, exceptfds, struct timeval *, timeout);
 
 int select(int n, fd_set * readfds, fd_set * writefds, fd_set * exceptfds,
