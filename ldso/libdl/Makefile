@@ -49,7 +49,7 @@ $(OBJS): %.o : %.c
 
 $(OBJ): Makefile
 
-shared: all
+shared:
 	$(LD) $(LDFLAGS) -soname=$(LIBDL_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBDL_SHARED_FULLNAME) --whole-archive $(LIBDL) \
 		--no-whole-archive -L$(TOPDIR)/lib -lc;
