@@ -347,6 +347,7 @@ void *dlopen(const char *libname, int flag)
 		}
 	}
 #endif
+	_dl_unmap_cache();
 	return (void *) dyn_chain;
 
 oops:
