@@ -33,6 +33,7 @@ choice
 config CONFIG_CRIS
 	select UCLIBC_HAS_MMU
 	select ARCH_HAS_NO_FPU
+	select ARCH_LITTLE_ENDIAN
 	bool "CRIS"
 
 endchoice
