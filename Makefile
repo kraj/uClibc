@@ -29,7 +29,7 @@
 TOPDIR=./
 include Rules.mak
 
-DIRS = extra misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd crypt libutil
+DIRS = extra misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd crypt libutil libm
 
 ifeq ($(strip $(HAS_MMU)),true)
 	DO_SHARED=shared
@@ -60,6 +60,7 @@ shared: $(LIBNAME)
 	ln -sf $(SHARED_MAJORNAME) libc.so
 	@$(MAKE) -C crypt shared
 	@$(MAKE) -C libutil shared
+	@$(MAKE) -C libm shared
 	@$(MAKE) -C ld.so-1
 
 done: $(LIBNAME) $(DO_SHARED)
@@ -116,6 +117,7 @@ install: install_runtime install_dev install_ldso
 install_runtime:
 	@$(MAKE) -C crypt install
 	@$(MAKE) -C libutil install
+	@$(MAKE) -C libm install
 ifneq ($(DO_SHARED),)
 	install -d $(INSTALL_DIR)/lib
 	rm -rf $(INSTALL_DIR)/lib/$(SHARED_FULLNAME)
@@ -179,6 +181,16 @@ uClibc_config.h: Config
 	    echo "#define __UCLIBC_HAS_FLOATS__ 1" >> uClibc_config.h ; \
 	else \
 	    echo "#undef __UCLIBC_HAS_FLOATS__" >> uClibc_config.h ; \
+	fi
+	@if [ "$(HAS_DOUBLE)" = "true" ] ; then \
+	    echo "#define __UCLIBC_HAS_DOUBLE__ 1" >> uClibc_config.h ; \
+	else \
+	    echo "#undef __UCLIBC_HAS_DOUBLE__" >> uClibc_config.h ; \
+	fi
+	@if [ "$(HAS_LONG_DOUBLE)" = "true" ] ; then \
+	    echo "#define __UCLIBC_HAS_LONG_DOUBLE__ 1" >> uClibc_config.h ; \
+	else \
+	    echo "#undef __UCLIBC_HAS_LONG_DOUBLE__" >> uClibc_config.h ; \
 	fi
 	@if [ "$(HAS_LONG_LONG)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAS_LONG_LONG__ 1" >> uClibc_config.h ; \

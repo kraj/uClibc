@@ -1,0 +1,42 @@
+The actual routines included in this math library are derived almost
+exclusively from the Cephes Mathematical Library, which "is copyrighted by the
+author [and] may be used freely but ... comes with no support or guarantee"
+
+It has been ported to fit into uClibc and generally behave 
+by Erik Andersen <andersen@lineo.com>, <andersee@debian.org>
+  5 May, 2001
+
+--------------------------------------------------
+
+   Some software in this archive may be from the book _Methods and
+Programs for Mathematical Functions_ (Prentice-Hall, 1989) or
+from the Cephes Mathematical Library, a commercial product. In
+either event, it is copyrighted by the author.  What you see here
+may be used freely but it comes with no support or guarantee.
+
+   The two known misprints in the book are repaired here in the
+source listings for the gamma function and the incomplete beta
+integral.
+
+
+   Stephen L. Moshier
+   moshier@world.std.com
+
+--------------------------------------------------
+
+19 November 1992
+
+ZIP archive constructed and index compiled.
+
+To reconstruct the original directory structure, use the -d switch:
+
+	C:\CEPHES>pkunzip -d cephes
+
+This archive includes all the programs in the /netlib/cephes directory
+on research.att.com as of 17 Nov 92.  The file "index" will tell you in
+what directory and file each function can be found.  If there is
+something else mentioned in cephes.doc that you need, you can check
+research.att.com to see whether it has been added.  Failing that, you
+can contact Stephen Moshier.
+
+                                      Jim Van Zandt <jrv@mbunix.mitre.org>
