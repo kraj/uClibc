@@ -7,10 +7,8 @@
 #include <stdarg.h>
 /* Pull in the arch specific type information */
 #include <sys/types.h>
-/* Now the ldso specific headers */
-#include <dl-elf.h>
+/* Pull in the ldso syscalls and string functions */
 #include <dl-syscall.h>
-#include <dl-hash.h>
 #include <dl-string.h>
 /* Pull in the arch specific page size */
 #include <asm/page.h>
@@ -18,6 +16,9 @@
 #  define PAGE_SHIFT		12
 #  define PAGE_SIZE		(1UL << PAGE_SHIFT)
 #endif
+/* Now the ldso specific headers */
+#include <dl-elf.h>
+#include <dl-hash.h>
 
 /* Prepare for the case that `__builtin_expect' is not available.  */
 #if __GNUC__ == 2 && __GNUC_MINOR__ < 96
