@@ -80,6 +80,9 @@
 # define __KERNEL_STRICT_NAMES
 #endif
 
+#ifdef  _GNU_SOURCE
+# define __USE_GNU      1
+#endif
 
 #include <sys/cdefs.h>
 
