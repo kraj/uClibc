@@ -65,10 +65,6 @@
 #include <sys/file.h>
 #include <sys/signal.h>
 #include <sys/syslog.h>
-#if 0
-#include "syslog.h"
-#include "pathnames.h"
-#endif
 
 #include <sys/uio.h>
 #include <sys/wait.h>
@@ -84,36 +80,15 @@
 #include <signal.h>
 
 
-#if defined(_REENTRENT) || defined(_THREAD_SAFE)
-# include <pthread.h>
-
-extern int __writev( int, const struct iovec *, size_t);
-
-/* We need to initialize the mutex.  For this we use a method provided
-   by pthread function 'pthread_once'.  For this we need a once block.  */
-static pthread_once__t _once_block = pthread_once_init;
-
-/* This is the mutex which protects the global environment of simultaneous
-   modifications.  */
-static pthread_mutex_t _syslog_mutex;
-
-static void
-DEFUN_VOID(_init_syslog_mutex)
-{
-  pthread_mutex_init(&_syslog_mutex, pthread_mutexattr_default);
-}
-
-# define LOCK() \
-   do { pthread_once(&_once_block, _init_syslog_mutex);
-        pthread_mutex_lock(&_syslog_mutex); } while (0)
-# define UNLOCK() pthread_mutex_unlock(&_syslog_mutex)
-
-#else /* !_REENTRENT && !_THREAD_SAFE */
-
-# define LOCK()
-# define UNLOCK()
-
-#endif /* _REENTRENT || _THREAD_SAFE */
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK	pthread_mutex_lock(&mylock)
+# define UNLOCK	pthread_mutex_unlock(&mylock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
 
 
 static int	LogFile = -1;		/* fd for log */
@@ -122,6 +97,7 @@ static int	LogStat = 0;		/* status bits, set by openlog() */
 static const char *LogTag = "syslog";	/* string to tag the entry with */
 static int	LogFacility = LOG_USER;	/* default facility code */
 static int	LogMask = 0xff;		/* mask of priorities to be logged */
+static struct sockaddr SyslogAddr;	/* AF_UNIX address of local logger */
 
 static void closelog_intern( int );
 void syslog( int, const char *, ...);
@@ -133,7 +109,7 @@ int setlogmask(int pmask);
 static void 
 closelog_intern(int to_default)
 {
-	LOCK();
+	LOCK;
 	(void) close(LogFile);
 	LogFile = -1;
 	connected = 0;
@@ -144,7 +120,7 @@ closelog_intern(int to_default)
 		LogFacility = LOG_USER;
 		LogMask = 0xff;
 	}
-	UNLOCK();
+	UNLOCK;
 }
 
 static void
@@ -186,7 +162,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 
 	saved_errno = errno;
 
-	LOCK();
+	LOCK;
 
 	/* See if we should just throw out this message. */
 	if (!(LogMask & LOG_MASK(LOG_PRI(pri))) || (pri &~ (LOG_PRIMASK|LOG_FACMASK)))
@@ -227,7 +203,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	__set_errno(saved_errno);
 	p += vsnprintf(p, end - p, fmt, ap);
 	if (p >= end || p < head_end) {	/* Returned -1 in case of error... */
-		static char truncate_msg[12] = "[truncated] ";
+		static const char truncate_msg[12] = "[truncated] ";
 		memmove(head_end + sizeof(truncate_msg), head_end,
 			end - head_end - sizeof(truncate_msg));
 		memcpy(head_end, truncate_msg, sizeof(truncate_msg));
@@ -275,20 +251,19 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	}
 
 getout:
-	UNLOCK();
+	UNLOCK;
 	if (sigpipe == 0)
 		sigaction (SIGPIPE, &oldaction,
 			(struct sigaction *) NULL);
 }
 
-static struct sockaddr SyslogAddr;	/* AF_UNIX address of local logger */
 /*
  * OPENLOG -- open system log
  */
 void
 openlog( const char *ident, int logstat, int logfac )
 {
-        LOCK();
+        LOCK;
 
 	if (ident != NULL)
 		LogTag = ident;
@@ -301,7 +276,7 @@ openlog( const char *ident, int logstat, int logfac )
 		    sizeof(SyslogAddr.sa_data));
 		if (LogStat & LOG_NDELAY) {
 		        if ((LogFile = socket(AF_UNIX, SOCK_STREAM, 0)) == -1){
-			        UNLOCK();
+			        UNLOCK;
 				return;
 			}
 /*			fcntl(LogFile, F_SETFD, 1); */
@@ -318,7 +293,7 @@ openlog( const char *ident, int logstat, int logfac )
 #endif
 		connected = 1;
 
-        UNLOCK();
+        UNLOCK;
 }
 
 /*
@@ -336,10 +311,10 @@ int setlogmask(int pmask)
     int omask;
 
     omask = LogMask;
-    LOCK();
+    LOCK;
     if (pmask != 0)
 	LogMask = pmask;
-    UNLOCK();
+    UNLOCK;
     return (omask);
 }
 
