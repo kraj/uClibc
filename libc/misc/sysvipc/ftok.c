@@ -20,10 +20,7 @@
 #include <sys/ipc.h>
 #include <sys/stat.h>
 
-key_t
-ftok (pathname, proj_id)
-     const char *pathname;
-     int proj_id;
+key_t ftok (const char *pathname, int proj_id)
 {
   struct stat st;
   key_t key;

@@ -67,8 +67,8 @@ void __stack_smash_handler (char func[], int damaged)
   write (STDERR_FILENO, buf+3, len-3);
 #if defined(HAVE_SYSLOG)
   if ((LogFile = socket(AF_UNIX, SOCK_DGRAM, 0)) != -1) {
-                                                                                                                     
-    /*                                                                                                               
+
+    /*
      * Send "found" message to the "/dev/log" path
      */
     SyslogAddr.sun_family = AF_UNIX;
