@@ -67,10 +67,12 @@ _start:
 	pushl %ebx       /* Argument pointer */
 	pushl %ecx      /* And the argument count */
 
+#if 0
 	/* Make sure we are not using iBCS2 personality. (i.e. force linux).  */
 	movl $136,%eax
 	sub %ebx,%ebx
 	int $0x80
+#endif
 
 	/* Ok, now run uClibc's main() -- shouldn't return */
 	call __uClibc_main
