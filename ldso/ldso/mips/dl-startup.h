@@ -51,33 +51,34 @@ asm("" \
 #define PERFORM_BOOTSTRAP_GOT(got, tpnt)					\
 do {										\
 	Elf32_Sym *sym;								\
-	Elf32_Addr i;							\
-	Elf32_Addr *mipsgot = (void *) got;					\
+	Elf32_Addr i;								\
+	register ElfW(Addr) gp __asm__ ("$28");					\
+	Elf32_Addr *mipsgot = elf_mips_got_from_gpreg (gp);			\
 										\
 	/* Add load address displacement to all local GOT entries */		\
 	i = 2;									\
 	while (i < tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX])			\
-		mipsgot[i++] += load_addr;					\
+		mipsgot[i++] += tpnt->loadaddr;					\
 										\
 	/* Handle global GOT entries */						\
 	mipsgot += tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX];			\
 	sym = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] +			\
-		 load_addr) + tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];		\
+		 tpnt->loadaddr) + tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];	\
 	i = tpnt->dynamic_info[DT_MIPS_SYMTABNO_IDX] - tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];\
 										\
 	while (i--) {								\
 		if (sym->st_shndx == SHN_UNDEF ||				\
 			sym->st_shndx == SHN_COMMON)				\
-			*mipsgot = load_addr + sym->st_value;			\
+			*mipsgot = tpnt->loadaddr + sym->st_value;		\
 		else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&		\
 			*mipsgot != sym->st_value)				\
-			*mipsgot += load_addr;					\
+			*mipsgot += tpnt->loadaddr;				\
 		else if (ELF32_ST_TYPE(sym->st_info) == STT_SECTION) {		\
 			if (sym->st_other == 0)					\
-				*mipsgot += load_addr;				\
+				*mipsgot += tpnt->loadaddr;			\
 		}								\
 		else								\
-			*mipsgot = load_addr + sym->st_value;			\
+			*mipsgot = tpnt->loadaddr + sym->st_value;		\
 										\
 		mipsgot++;							\
 		sym++;								\
