@@ -1,17 +1,28 @@
-#ifdef _SYS_DIRENT_H
-#error "Can't include both sys/dir.h and sys/dirent.h"
-#define _SYS_DIR_H
-#endif
+/* Copyright (C) 1991, 1996 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#ifndef _SYS_DIR_H
-#define _SYS_DIR_H
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Library General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public
+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
+
+#ifndef	_SYS_DIR_H
+#define	_SYS_DIR_H	1
+
+#include <features.h>
 
 #include <dirent.h>
 
-#define direct	dirent
+#define	direct	dirent
 
-#undef DIRSIZ
-#define DIRSIZ(dp)	((sizeof (struct direct) - (MAXNAMLEN+1)) + \
-			 (((dp)->d_namlen+1 + 3) &~ 3))
-
-#endif
+#endif	/* sys/dir.h  */
