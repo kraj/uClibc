@@ -11,6 +11,11 @@
 #define _BITS_SYSCALL_H
 #include <asm/unistd.h>
 
+/* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
+ * header files.  It also defines the traditional `SYS_<name>' macros for older
+ * programs.  */
+#include <bits/syscall.h>
+
 /* The kernel includes don't provide _syscall6, so provide our own */
 #undef _syscall6
 #define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6) \
