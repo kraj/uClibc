@@ -1,8 +1,8 @@
-uclibc (0.9.5-cvs20010630-2) unstable; urgency=low
+uclibc (0.9.5-cvs20010702-1) unstable; urgency=low
 
-  * Create cross-compiling packages
+  * Build from CVS
 
- -- David Schleef <ds@schleef.org>  Sat, 30 Jun 2001 17:12:41 -0700
+ -- David Schleef <ds@schleef.org>  Mon,  2 Jul 2001 23:16:20 -0700
 
 uclibc (0.9.5-cvs20010630-1) unstable; urgency=low
 

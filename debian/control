@@ -1,11 +1,9 @@
-
 Source: uclibc
 Section: devel
 Priority: optional
 Maintainer: David Schleef <ds@schleef.org>
 Build-Depends: debhelper
-Standards-Version: 3.0.1
-
+Standards-Version: 3.5.2
 
 Package: libuclibc-dev
 Section: devel
@@ -29,10 +27,9 @@ Description: A small implementation of the C library
 Package: uclibc-gcc
 Section: devel
 Architecture: any
-Depends: c-compiler, binutils, ${shlibs:Depends}
+Depends: gcc|c-compiler, binutils, ${shlibs:Depends}
 Description: A compiler wrapper for uClibc
  This is a small wrapper for gcc, ld, and other toolchain utilities
  to do compilation against uClibc instead of the native libc.
  This package is used for cross compiling.
-
 

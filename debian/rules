@@ -24,7 +24,7 @@ build-stamp:
 	cp extra/Configs/Config.$(shell echo $(target)|sed 's/i386/x86/') Config
 
 	echo '#Debian configuration overrides'  >>Config
-ifneq ($(TARGET),native)
+ifneq ($(target),$(DEB_HOST_GNU_CPU))
 	echo 'TARGET_ARCH = $(target)'  >>Config
 	echo 'CROSS = $(target)-linux-'  >>Config
 endif
@@ -32,6 +32,9 @@ endif
 	echo 'PREFIX = $$(DESTDIR)/usr'  >>Config
 	echo 'DEVEL_PREFIX = $$(PREFIX)/$$(TARGET_ARCH)-linux-uclibc'  >>Config
 	echo 'TARGET_PREFIX = $$(DESTDIR)/'  >>Config
+ifeq ($(target),powerpc)
+	echo 'HAVE_SHARED = false' >>Config
+endif
 
 	$(MAKE)
 
@@ -55,7 +58,7 @@ install: build
 
 	# Add here commands to install the package into debian/tmp.
 	$(MAKE) install_dev DESTDIR=`pwd`/debian/tmp
-	$(MAKE) install_target DESTDIR=`pwd`/debian/libuclibc0
+	$(MAKE) install_runtime DESTDIR=`pwd`/debian/libuclibc0
 	$(MAKE) install_gcc DESTDIR=`pwd`/debian/uclibc-gcc
 
 	install -m 644 debian/uclibc-gcc.1 \
@@ -73,46 +76,6 @@ install: build
 
 	install -m 644 debian/uclibc-ldconfig.1 \
 	  debian/libuclibc0/usr/share/man/man1/$(target)-uclibc-ldconfig.1
-
-	# some hacks here
-ifeq ($(TARGET),native)
-	(cd debian/libuclibc0/usr/bin;mv ldd $(target)-uclibc-ldd)
-	(cd debian/libuclibc0/sbin;mv ldconfig $(target)-uclibc-ldconfig)
-
-	(cd debian/tmp/usr/$(target)-linux-uclibc/bin; \
-	  rm ldd; \
-	  ln -sf ../../bin/$(target)-uclibc-ldd ldd;)
-
-	(cd debian/tmp/usr/$(target)-linux-uclibc/sbin; \
-	  rm ldconfig; \
-	  ln -sf /sbin/$(target)-uclibc-ldconfig ldconfig;)
-endif
-
-	(cd debian/tmp/usr/$(target)-linux-uclibc/lib; \
-	  rm ld-uclibc-$(version).so; \
-	  for x in util c m dl crypt;do \
-	    rm libuClib$$x-$(version).so; \
-	    rm lib$$x.so; \
-	    ln -sf /lib/libuClib$$x-$(version).so lib$$x.so ; \
-	    rm libuClib$$x.so; \
-	    ln -sf /lib/libuClib$$x-$(version).so libuClib$$x.so ; \
-	  done)
-
-	(cd debian/tmp/usr/lib; \
-	  for x in util c m dl crypt;do \
-	    ln -sf /lib/libuClib$$x-$(version).so libuClib$$x.so ; \
-	  done)
-	  
-	(cd debian/libuclibc0/lib; \
-	  for x in util c m dl crypt;do \
-	    rm lib$$x.so; \
-	    rm lib$$x.so.0; \
-	    rm libuClib$$x.so; \
-	  done)
-
-	#(cd debian/tmp/usr/$(target)-linux-uclibc/lib; \
-	  for x in libutil libc libm libdl libcrypt;do \
-	    rm $$x.so;done)
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -139,13 +102,13 @@ binary-arch: build install
 	dh_link
 	dh_strip
 	dh_compress
-	dh_fixperms
+	dh_fixperms -Xld-uclibc
 	# You may want to make some executables suid here.
 #	dh_suidregister
 #	dh_makeshlibs
 	dh_installdeb
 #	dh_perl
-	dh_shlibdeps --exclude=ld_uclibc -ldebian/libuclibc0/lib
+	dh_shlibdeps --exclude=ld_uclibc -ldebian/libuclibc0/usr/$(target)-linux-uclibc/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
