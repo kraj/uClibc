@@ -1,12 +1,48 @@
+0.9.25	15 December 2003
+
+See Changelog.full for the complete list of who did what.
+
+Note:
+    This release remains binary compatible with uClibc 0.9.21-24 as long as
+    you take care to avoid any configuraton changes that will break things.
+    We _were_ planning to break binary compatibilty in this release, but
+    decided to hold those changes so we could push out a bugfix release.
+
+    We _will_ break binary compatibilty in the upcoming 0.9.26 release to
+    implement a few things we have been postponing.  That should hopefully be
+    the last ABI change before we freeze the ABI for the upcoming 1.0.x
+    stable uClibc series.
+
+Release highlights:
+    o Fixed a ton of problems found using the LTP and NIST test suites.
+	The few remaining test failures are obscure corner cases, such as
+	a few functions that fail (correctly) with incorrect errno values.
+    o Fixed a longstanding pthreads bug -- amoung other things, you no
+	longer need to explicitly add -lpthread for perl to work.
+    o Added some sh optimized string functions
+    o Added sh64 shared library support
+    o The default malloc implementation has been replaced, and will
+	now actually free memory when told to do so.
+    o Both popen() and exec*() now behave themselves per SuSv3
+    o Better 2.6.x kernel header support
+    o Added support for Position Independent Executables (PIE) on x86
+    o Lots of other minor cleanups
+
+ -Erik
+
+
+
+
+
 0.9.24	15 December 2003
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 
 Note:
     This release remains binary compatible with uClibc 0.9.21-23 as
     long as you take care to avoid any configuraton changes that will
-    break things.  
-    
+    break things.
+
     We currently plan to break binary compatibilty in the upcoming 0.9.25 to
     implement a few things we have been postponing, which will hopefully be
     the last change....
@@ -24,7 +60,7 @@ Release highlights:
 
 0.9.23	13 November 2003
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 
 Note:
     This release is binary compatible with uClibc 0.9.21 and 0.9.22 as
@@ -52,7 +88,7 @@ Release highlights:
 
 0.9.22	8 November 2003
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 
 Note:
     This release is binary compatible with the 0.9.21 release
@@ -82,7 +118,7 @@ Release highlights:
 
 0.9.21	9 September 2003
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 
 Note:
     This release is not binary compatible with earlier releases.
@@ -113,7 +149,7 @@ Release highlights:
 
 0.9.20	30 June 2003
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 
 Note:
     This release remains binary compatible with 0.9.18 and 0.9.19.
@@ -141,7 +177,7 @@ Release highlights:
 
 0.9.19	3 March 2003
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 
 Note:
     This release remains binary compatible with 0.9.18 (except
@@ -190,7 +226,7 @@ Release highlights:
 
 0.9.18	12 February 2003
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 
 Note:
 
@@ -241,7 +277,7 @@ Release highlights:
 
 0.9.17	25 January 2003
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 
 Note:
 
@@ -331,7 +367,7 @@ Release highlights:
 
 0.9.16	8 November 2002
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 
 Release highlights:
     o   CRIS architecture and shared library support from Tobias Anderberg 
@@ -356,7 +392,7 @@ Release highlights:
 
 This is a minor bugfix release.
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 Release highlights:
     o   Eliminated the HAS_LONG_LONG option.  gcc always supports 
 	long long, and the option never excluded all long long anyways.
@@ -380,7 +416,7 @@ Release highlights:
 
 This is a minor bugfix release.
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 Release highlights:
     o   Fix a compile error when RPC and Pthread support
 	were both enabled.
@@ -406,7 +442,7 @@ Security Fixes
     o   There was an integer overflow bug in the xdr_array 
 	RPC code, per http://online.securityfocus.com/bid/5356
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 Release highlights:
     o   Add full shared library support for Hitachi SuperH (sh)
 	thanks to Stefan Allius and Edie C. Dost 
@@ -433,7 +469,7 @@ Release highlights:
 
 0.9.12	20 June 2002
 
-See Changelog.full for the complete list of who did what. 
+See Changelog.full for the complete list of who did what.
 Release highlights:
     o   Add full shared library support for mips (big and little
 	endian), thanks to a lot of hard work from Steven J. Hill
