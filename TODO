@@ -1,6 +1,5 @@
 Any takers?
 
-readdir64 (part of the LFS support) is broken and segfaults.
 On ARM, the kernel fp math emulator uses a funky byte ordering
     that causes some of our math functions to produce bad results.
     We need to fix up the things for the wierd ARM byte ordering.
