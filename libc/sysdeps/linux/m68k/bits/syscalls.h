@@ -188,7 +188,7 @@ type name(atype a, btype b, ctype c, dtype d, etype e, ftype f) \
 		  "a" ((long)b), \
 		  "a" ((long)c), \
 		  "a" ((long)d), \
-		  "a" ((long)e), \
+		  "g" ((long)e), \
 		  "g" ((long)f) \
 		: "cc", "%d0", "%d1", "%d2", "%d3", \
 		  "%d4", "%d5", "%a0"); \
