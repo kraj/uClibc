@@ -171,11 +171,11 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	Elf32_Sym *symtab;
 	ELF_RELOC *rel_addr;
 	int symtab_index;
+	char *symname;
 	unsigned long insn_addr;
 	unsigned long *insns;
 	unsigned long new_addr;
-	char *symname;
-	int delta;
+	unsigned long delta;
 
 	rel_addr = (ELF_RELOC *) (tpnt->dynamic_info[DT_JMPREL] + tpnt->loadaddr);
 
@@ -253,7 +253,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		//PPC_ICBI(ptr+index);
 		//PPC_ISYNC;
 
-		insns[0] = OPCODE_B(delta - 4);
+		insns[0] = OPCODE_B(delta);
 
 	}
 
@@ -357,7 +357,8 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 			break;
 		case R_PPC_JMP_SLOT:
 			{
-				int index, delta;
+				int index;
+				unsigned long delta;
 				unsigned long *plt;
 				unsigned long *insns;
 
@@ -453,7 +454,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 			case R_PPC_REL24:
 #if 0
 				{
-					int delta = symbol_addr - (unsigned long)reloc_addr;
+					unsigned long delta = symbol_addr - (unsigned long)reloc_addr;
 					if(delta<<6>>6 != delta){
 						_dl_dprintf(2,"R_PPC_REL24: Reloc out of range\n");
 						_dl_exit(1);
@@ -486,30 +487,30 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 			case R_PPC_JMP_SLOT:
 				{
 					unsigned long targ_addr = (unsigned long)*reloc_addr;
-					int delta = targ_addr - (unsigned long)reloc_addr;
+					unsigned long delta = targ_addr - (unsigned long)reloc_addr;
 					if(delta<<6>>6 == delta){
 						*reloc_addr = OPCODE_B(delta);
 					}else if (targ_addr <= 0x01fffffc || targ_addr >= 0xfe000000){
 						*reloc_addr = OPCODE_BA (targ_addr);
 					}else{
 						{
-							int delta;
 							int index;
+							unsigned long delta2;
 							unsigned long *plt, *ptr;
 							plt = (unsigned long *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
 
-							delta = (unsigned long)(plt+PLT_LONGBRANCH_ENTRY_WORDS)
+							delta2 = (unsigned long)(plt+PLT_LONGBRANCH_ENTRY_WORDS)
 								- (unsigned long)(reloc_addr+1);
 
 							index = ((unsigned long)reloc_addr -
 									(unsigned long)(plt+PLT_INITIAL_ENTRY_WORDS))
 								/sizeof(unsigned long);
 							index /= 2;
-							//DPRINTF("        index %x delta %x\n",index,delta);
+							//DPRINTF("        index %x delta %x\n",index,delta2);
 							ptr = (unsigned long *)tpnt->data_words;
 							ptr[index] = targ_addr;
 							reloc_addr[0] = OPCODE_LI(11,index*4);
-							reloc_addr[1] = OPCODE_B(delta);
+							reloc_addr[1] = OPCODE_B(delta2);
 
 							/* instructions were modified */
 							PPC_DCBST(reloc_addr+1);
