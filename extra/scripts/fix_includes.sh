@@ -1,0 +1,154 @@
+#!/bin/sh
+# Copyright (C) 2003 Erik Andersen <andersen@uclibc.org>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU Library General
+# Public License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+# Boston, MA 02111-1307 USA
+
+usage () {
+    echo ""
+    echo "usage: "`basename $0`" -k KERNEL_SOURCE_DIRECTORY -t TARGET_ARCH"
+    echo ""
+    echo "This utility scans the KERNEL_SOURCE_DIRECTORY directory and"
+    echo "checks that it contains well formed kernel headers suitable"
+    echo "for inclusion as the include/linux/ directory provided by"
+    echo "uClibc."
+    echo ""
+    echo "If the specified kernel headers present and already"
+    echo "configured for the architecture specified by TARGET_ARCH,"
+    echo "they will be used as-is."
+    echo ""
+    echo "If the specified kernel headers are entirely missing, this"
+    echo "script returns an error."
+    echo ""
+    echo "If the specified kernel headers are present, but are either"
+    echo "not yet configured or are configured for an architecture"
+    echo "different than that specified by TARGET_ARCH, this script"
+    echo "will attempt to 'fix' the kernel headers and make them"
+    echo "suitable for use by uClibc.  This fixing process may fail."
+    echo "It is therefore best to always provide kernel headers that"
+    echo "are already configured for the selected architecture."
+    echo ""
+    echo "Most Linux distributions provide 'kernel-headers' packages"
+    echo "that are well suited for use by uClibc."
+    echo ""
+    echo ""
+    exit 1;
+}
+
+HAS_MMU="y";
+while [ "$1" ]; do
+    case $1 in
+	-k ) shift; if [ "$1" ]; then KERNEL_SOURCE=$1; shift; else usage; fi; ;;
+	-t ) shift; if [ "$1" ]; then TARGET_ARCH=$1; shift; else usage; fi; ;;
+	-n ) shift; if [ "$1" ]; then HAS_MMU="n"; shift; else usage; fi; ;;
+	-* ) usage; ;;
+	* ) usage; ;;
+    esac;
+done;
+
+if [ ! -d "$KERNEL_SOURCE" ]; then 
+    echo "$KERNEL_SOURCE is not a directory"; 
+    exit 1;
+fi;
+
+if [ ! -f "$KERNEL_SOURCE/include/linux/version.h" ]; then 
+    echo "The file $KERNEL_SOURCE/include/linux/version.h is missing\!";
+    echo "Perhaps you forgot to configure your kernel source?"
+    exit 1;
+fi;
+
+KVER=`gcc -I$KERNEL_SOURCE/include -E -dM $KERNEL_SOURCE/include/linux/version.h | grep UTS_RELEASE | awk '{ print $3 }' | sed 's/\"//g'`
+
+if [ -z "$KVER" ] ; then
+    echo "Unable to determine kernel version."
+    echo "Perhaps your kernel source tree is broken?"
+    exit 1;
+fi;
+
+
+echo -e "\n"
+echo "Using kernel headers from $KVER for architecture '$TARGET_ARCH'"
+echo -e "\tprovided in directory $KERNEL_SOURCE"
+echo -e "\n"
+
+# Create a symlink to include/asm
+rm -f include/asm
+if [ ! -L "$KERNEL_SOURCE/include/asm" ]; then 
+    echo "";
+    echo "The symlink $KERNEL_SOURCE/include/asm is missing\!";
+    echo "Perhaps you forgot to configure your kernel source?";
+    echo "You really should configure your kernel source tree so I";
+    echo "do not have to try and guess about this sort of thing.";
+    echo ""
+    echo "Attempting to guess a usable value....";  
+    echo ""
+    sleep 1;
+
+    if [ "$TARGET_ARCH" = "powerpc" ];then
+	set -x;
+	ln -fs $KERNEL_SOURCE/include/asm-ppc include/asm;
+	unset -x;
+    elif [ "$TARGET_ARCH" = "mips" ];then
+	set -x;
+	ln -fs $KERNEL_SOURCE/include/asm-mips include/asm;
+	unset -x;
+    elif [ "$TARGET_ARCH" = "arm" ];then
+	set -x;
+	ln -fs $KERNEL_SOURCE/include/asm-arm include/asm;
+	unset -x;
+	if [ ! -L $KERNEL_SOURCE/include/asm-arm/proc ] ; then 
+	    if [ ! -L proc ] ; then
+		(cd include/asm;
+		ln -fs proc-armv proc;
+		ln -fs arch-ebsa285 arch);
+	    fi
+	fi;
+    elif [ "$TARGET_ARCH" = "mipsel" ];then
+	set -x;
+	ln -fs $KERNEL_SOURCE/include/asm-mips include/asm;
+	unset -x;
+    elif [ "$TARGET_ARCH)" = "cris" ]; then
+	set -x;
+	ln -fs $KERNEL_SOURCE/include/asm-cris include/asm;
+	unset -x;
+    elif [ "$HAS_MMU" != "y" ]; then
+	    if [ -d $KERNEL_SOURCE/include/asm-${TARGET_ARCH}nommu ] ; then
+		set -x;
+		ln -fs $KERNEL_SOURCE/include/asm-${TARGET_ARCH}nommu include/asm;
+		unset -x;
+	    else
+		set -x;
+		ln -fs $KERNEL_SOURCE/include/asm-$TARGET_ARCH include/asm;
+		unset -x;
+	    fi;
+    else
+	set -x;
+	ln -fs $KERNEL_SOURCE/include/asm-$TARGET_ARCH include/asm;
+	unset -x;
+    fi;
+else
+# No guessing required.....
+ln -fs $KERNEL_SOURCE/include/asm include/asm
+fi;
+
+
+
+# Create the include/linux and include/scsi symlinks.
+rm -f include/linux
+ln -fs $KERNEL_SOURCE/include/linux include/linux
+rm -f include/scsi
+ln -fs $KERNEL_SOURCE/include/scsi include/scsi
+

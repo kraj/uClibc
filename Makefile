@@ -1,26 +1,22 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2002 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2003 Erik Andersen <andersen@uclibc.org>
 #
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later
+# version.
 #
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
-# details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Library General Public License for more details.
 #
-# You should have received a copy of the GNU Library General Public License
-# along with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-# Makefile for uClibc
-#
-# Derived in part from the Linux-8086 C library, the GNU C Library, and several
-# other sundry sources.  Files within this library are copyright by their
-# respective copyright holders.
+# You should have received a copy of the GNU Library General
+# Public License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+# Boston, MA 02111-1307 USA
 
 
 #--------------------------------------------------------------
@@ -120,46 +116,19 @@ include/bits/uClibc_config.h: .config
 	@./extra/config/conf -o extra/Configs/Config.$(TARGET_ARCH)
 
 headers: include/bits/uClibc_config.h
-	rm -f include/asm;
-	@if [ "$(TARGET_ARCH)" = "powerpc" ];then \
-	    ln -fs $(KERNEL_SOURCE)/include/asm-ppc include/asm; \
-	elif [ "$(TARGET_ARCH)" = "mips" ];then \
-	    ln -fs $(KERNEL_SOURCE)/include/asm-mips include/asm; \
-	elif [ "$(TARGET_ARCH)" = "mipsel" ];then \
-	    ln -fs $(KERNEL_SOURCE)/include/asm-mips include/asm; \
-	    cd $(shell pwd)/libc/sysdeps/linux; \
-	    ln -fs mips mipsel; \
-	    cd $(shell pwd)/ldso/ldso; \
-	    ln -fs mips mipsel; \
-	    cd $(shell pwd)/libpthread/linuxthreads/sysdeps; \
-	    ln -fs mips mipsel; \
-	elif [ "$(TARGET_ARCH)" = "cris" ];then \
-		ln -fs $(KERNEL_SOURCE)/include/asm-cris include/asm; \
-	else \
-	    if [ "$(UCLIBC_HAS_MMU)" != "y" ]; then \
-	    	if [ -d $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu ] ; then \
-		    ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu include/asm;\
-		else \
-		    ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
-		fi; \
-	    else \
-		ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
-	    fi; \
+ifeq ($(strip $(UCLIBC_HAS_MMU)),y)
+	@./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH)
+else
+	@./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH) -n
+endif
+	@if [ "$(TARGET_ARCH)" = "mipsel" ]; then \
+	    (cd libc/sysdeps/linux; \
+	    ln -fs mips mipsel); \
+	    (cd ldso/ldso; \
+	    ln -fs mips mipsel); \
+	    (cd libpthread/linuxthreads/sysdeps; \
+	    ln -fs mips mipsel); \
 	fi;
-	rm -f include/asm-generic;
-	ln -fs $(KERNEL_SOURCE)/include/asm-generic include/asm-generic; 
-	@if [ ! -f include/asm/unistd.h ] ; then \
-	    set -e; \
-	    echo " "; \
-	    echo "The path '$(KERNEL_SOURCE)/include/asm' doesn't exist."; \
-	    echo "I bet you did not set KERNEL_SOURCE, TARGET_ARCH or UCLIBC_HAS_MMU"; \
-	    echo "correctly when you configured uClibc.  Please fix these settings."; \
-	    echo " "; \
-	    false; \
-	fi;
-	rm -f include/linux include/scsi
-	ln -fs $(KERNEL_SOURCE)/include/linux include/linux
-	ln -fs $(KERNEL_SOURCE)/include/scsi include/scsi
 	@cd include/bits; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
