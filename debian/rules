@@ -29,11 +29,11 @@ p_dev=libuclibc-dev$(target_suffix)
 p_lib=libuclibc0$(target_suffix)
 p_gcc=uclibc$(target_suffix)-gcc
 
-debian/control: debian/control.in
+debian/control: debian/control.in debian/rules
 	sed s/_TARGET_/$(target_suffix)/ debian/control.in >debian/control
 
 build: build-stamp
-build-stamp:
+build-stamp: debian/control
 	dh_testdir
 
 	# Add here commands to compile the package.
@@ -45,18 +45,19 @@ ifneq ($(target),$(DEB_HOST_GNU_CPU))
 	echo 'CROSS = $(target)-linux-'  >>Config
 endif
 	echo 'DOPIC = true'  >>Config
-	echo 'PREFIX = $$(DESTDIR)/usr'  >>Config
+	echo 'PREFIX = /usr'  >>Config
 	echo 'DEVEL_PREFIX = $$(PREFIX)/$$(TARGET_ARCH)-linux-uclibc'  >>Config
-	echo 'TARGET_PREFIX = $$(DESTDIR)/'  >>Config
+	echo 'TARGET_PREFIX = /'  >>Config
 ifeq ($(with_shared_libs),n)
 	echo 'HAVE_SHARED = false' >>Config
 endif
+	echo 'KERNEL_SOURCE = /usr/src/kernel-headers-2.4.5' >>Config
 
 	$(MAKE)
 
 	touch build-stamp
 
-clean:
+clean: debian/control
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
