@@ -1,4 +1,5 @@
 ldd
-ldd.uclibc
+ldd.target
 ldconfig
 readelf
+readelf.target

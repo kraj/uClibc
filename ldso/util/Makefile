@@ -41,7 +41,7 @@ readelf: readelf.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 readelf.target: readelf.c
-	$(TARGET_CC) $(CFLAGS) -static -s readelf.c -o $@
+	$(TARGET_CC) $(CFLAGS) -static --uclibc-use-build-dir -s readelf.c -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ifeq ($(strip $(LIBRARY_CACHE)),)
@@ -62,7 +62,7 @@ ldd: ldd.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldd.target: ldd.c
-	$(TARGET_CC) $(CFLAGS) -static -s -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
+	$(TARGET_CC) $(CFLAGS) -static --uclibc-use-build-dir -s -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" \
