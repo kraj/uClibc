@@ -76,7 +76,38 @@ int strcmp(const char *s1, const char *s2)
 	return c1 - c2;
 }
 
+#ifndef __UCLIBC_HAS_LOCALE__
 __asm__(".weak strcoll; strcoll = strcmp");
+#endif /* __UCLIBC_HAS_LOCALE__ */
+#endif
+
+/***** Function strcoll (locale only, as non-locale is alias of strcmp *****/
+
+#ifdef L_strcoll
+#ifdef __UCLIBC_HAS_LOCALE__
+
+#include "../misc/locale/_locale.h"
+
+const unsigned char *_uc_collate_b;  /* NULL for no collate, strcoll->strcmp */
+
+int strcoll(const char *s1, const char *s2)
+{
+	unsigned char c1, c2;
+
+	while(1) {
+		c1 = (unsigned char) *s1;
+		c2 = (unsigned char) *s2;
+		if(_uc_collate_b) {     /* setuped non-C locale? */
+			c1 = _uc_collate_b[c1];
+			c2 = _uc_collate_b[c2];
+		}
+		if (*s1 == '\0' || c1 != c2)
+			return c1 - c2;
+		s1++;
+		s2++;
+	}
+}
+#endif /* __UCLIBC_HAS_LOCALE__ */
 #endif
 
 /********************** Function strncat ************************************/

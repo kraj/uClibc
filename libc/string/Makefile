@@ -28,6 +28,10 @@ MOBJ=strlen.o strcat.o strcpy.o strchr.o strcmp.o strncat.o strncpy.o \
 	strncmp.o strrchr.o strdup.o memcpy.o memccpy.o memset.o \
 	memmove.o memcmp.o memchr.o ffs.o strnlen.o strxfrm.o
 
+ifeq ($(HAS_LOCALE),true)
+	MOBJ += strcoll.o
+endif
+
 MSRC1=strsignal.c
 MOBJ1=strsignal.o psignal.o
 

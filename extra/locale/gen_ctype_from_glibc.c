@@ -19,8 +19,9 @@
 #include <string.h>
 #include <getopt.h>
 #include <unistd.h>
+#include <errno.h>
 
-#include "../../misc/ctype/ctype.h"
+#include "../../libc/misc/locale/_locale.h"
 
 
 #define DEFAULT_LOCALE_DIR      "/usr/share/locale/"
@@ -229,7 +230,7 @@ Defaults:\n\
       printf("setlocale(LC_CTYPE, %s) returned %s\n", ln, t);
       if(t==0)
 		continue;
-      if(mkdir(ln, 0755)) {
+      if(mkdir(ln, 0755)!=0 && errno!=EEXIST) {
 		fprintf(stderr, "Can`t create directory `%s'\n", ln);
 		continue;
       }

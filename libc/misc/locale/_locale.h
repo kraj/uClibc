@@ -19,3 +19,4 @@ enum
   ISxdigit = ISbit (7),        /* 128 Hexnumeric.        */
 };
 
+extern const unsigned char *_uc_collate_b;

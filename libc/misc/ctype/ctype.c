@@ -157,7 +157,7 @@ toupper( int c )
 #else   /* __UCLIBC_HAS_LOCALE__ */
 
 #include <limits.h>
-#include "./ctype.h"
+#include "../locale/_locale.h"
 
 #define _UC_ISCTYPE(c, type) \
 ((c != -1) && ((_uc_ctype_b[(int)((unsigned char)c)] & type) != 0))
