@@ -151,7 +151,6 @@ unsigned int * _dl_envp;
   RESULT = hash; \
 }
 extern int _dl_linux_resolve(void);
-extern int _dl_interpreter_exit(int);
 extern char * _dl_strdup(const char *);
 extern char * _dl_getenv(char * symbol, char ** envp);
 extern void _dl_unsetenv(char * symbol, char ** envp);
@@ -997,9 +996,3 @@ char * _dl_strdup(const char * string){
   return retval;
 }
 
-/* In principle we could do the .fini stuff here, but we already
-   registered this stuff with atexit */
-int _dl_interpreter_exit(int exitcode){
-/*  _dl_fdprintf(2, "Hey, look where I am!\n"); */
-  return 0;
-}

@@ -58,14 +58,13 @@
 
 /*
  * Transfer control to the user's application, once the dynamic loader
- * is done.
+ * is done.  This routine has to exit the current function, then 
+ * call the _dl_elf_main function.
  */
-
 #define START()		\
 	__asm__ volatile ("leave\n\t" \
 		    "jmp *%%eax\n\t"	\
-		    : "=a" (status) :	\
-		    "d" (_dl_interpreter_exit), "a" (_dl_elf_main))
+		    : "=a" (status) :	"a" (_dl_elf_main))
 
 
 
