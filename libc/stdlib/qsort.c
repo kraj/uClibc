@@ -29,6 +29,7 @@
 
 
 #include <stdlib.h>
+#include <assert.h>
 
 void qsort (void  *base,
             size_t nel,
@@ -38,10 +39,8 @@ void qsort (void  *base,
 	size_t wgap, i, j, k;
 	char *a, *b, tmp;
 
-#if 0
 	/* Note: still conceivable that nel * width could overflow! */
 	assert(width > 0);
-#endif
 
 	if (nel > 1) {
 		for (wgap = 0; ++wgap < (nel-1)/3 ; wgap *= 3) {}
