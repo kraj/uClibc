@@ -364,15 +364,3 @@ _dl_parse_relocation_information(struct dyn_elf *rpnt,
 {
 	return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
 }
-
-int
-_dl_parse_copy_information(struct dyn_elf *rpnt,
-			   unsigned long rel_addr,
-			   unsigned long rel_size)
-{
-	(void)rpnt;
-	(void)rel_addr;
-	(void)rel_size;
-
-	return 0;
-}
