@@ -60,9 +60,14 @@ TARGET_ARCH:=${shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		}
 endif
 
+# Ensure consistent filename sort order
+LC_COLLATE      := C
+export LC_COLLATE
+
+ARFLAGS:=r
+
 # Some nice architecture specific optimizations
 ifndef OPTIMIZATION
-
 
 # use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION:= ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
@@ -82,7 +87,9 @@ ifeq ($(strip $(TARGET_ARCH)),i386)
 endif
 endif
 
-ARFLAGS:=r
+# Add a bunch of extra pedantic annoyingly strict checks
+WARNINGS+=-Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+
 
 CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
 	-I$(TOPDIR)include -iwithprefix include -I. -D_LIBC $(ARCH_CFLAGS)
