@@ -33,6 +33,14 @@
  * Sep 13, 2003
  * Bug fix: Fix a problem reported by Atsushi Nemoto <anemo@mba.ocn.ne.jp>
  * for environments where long and long long are the same.
+ *
+ * Sep 21, 2003
+ * Ugh... EOF handling by scanf was completely broken.  :-(  Regretably,
+ * I got my mind fixed in one mode and didn't comply with the standards.
+ * Things should be fixed now, but comparision testing is difficult when
+ * glibc's scanf is broken and they stubbornly refuse to even acknowledge
+ * that it is... even when confronted by specific examples from the C99
+ * standards and from an official C standard defect report.
  */
 
 
@@ -884,7 +892,7 @@ int __psfs_parse_spec(register psfs_t *psfs)
 #ifdef L_vfscanf
 static int sc_getc(register struct scan_cookie *sc)
 {
-	return getc(sc->fp);
+	return (getc_unlocked)(sc->fp);	/* Disable the macro. */
 }
 
 static int scan_getwc(register struct scan_cookie *sc)
@@ -1101,6 +1109,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 	unsigned char invert;		/* Careful!  Meaning changes. */
 #endif /* L_vfscanf */
 	unsigned char fail;
+	unsigned char zero_conversions = 1;
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Make checking of the format string in C locale an option.
@@ -1188,6 +1197,8 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 		if (*fmt == '%') {		/* Conversion specification. */
 			if (*++fmt == '%') { /* Remember, '%' eats whitespace too. */
+				/* Note: The standard says no conversion occurs.
+				 * So do not reset zero_conversions flag. */
 				psfs.conv_num = CONV_percent;
 				goto DO_CONVERSION;
 			}
@@ -1267,6 +1278,10 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
  			}
 
 			if (psfs.conv_num == CONV_n) {
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning Should %n count as a conversion as far as EOF return value?
+#endif
+/* 				zero_conversions = 0; */
 				if (psfs.store) {
 					_store_inttype(psfs.cur_ptr, psfs.dataargtype,
 								   (uintmax_t) sc.nread);
@@ -1275,21 +1290,19 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 			}
 
 			if (psfs.conv_num <= CONV_A) { /* pointer, integer, or float spec */
-#ifdef L_vfscanf
-				if (__psfs_do_numeric(&psfs, &sc) < 0) { /* Num conv failed! */
-					goto DONE;
-				}
-				goto NEXT_FMT;
-#else
 				int r = __psfs_do_numeric(&psfs, &sc);
+#ifndef L_vfscanf
 				if (sc.ungot_wflag == 1) {	/* fix up  '?', '.', and ',' hacks */
 					sc.cc = sc.ungot_char = sc.ungot_wchar;
+				}
+#endif
+				if (r != -1) {	/* Either success or a matching failure. */
+					zero_conversions = 0;
 				}
 				if (r < 0) {
 					goto DONE;
 				}
 				goto NEXT_FMT;
-#endif
 			}
 
 			/* Do string conversions here since they are not common code. */
@@ -1314,6 +1327,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 					}
 
 					while (__scan_getc(&sc) >= 0) {
+						zero_conversions = 0;
 						*b = sc.cc;
 						b += psfs.store;
 					}
@@ -1328,6 +1342,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 				if (psfs.conv_num == CONV_s) {
 					/* Yes, believe it or not, a %s conversion can store nuls. */
 					while ((__scan_getc(&sc) >= 0) && !isspace(sc.cc)) {
+						zero_conversions = 0;
 						*b = sc.cc;
 						b += psfs.store;
 						fail = 0;
@@ -1383,6 +1398,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 
 					while (__scan_getc(&sc) >= 0) {
+						zero_conversions = 0;
 						if (!scanset[sc.cc]) {
 							break;
 						}
@@ -1419,6 +1435,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 					}
 
 					while (scan_getwc(&sc) >= 0) {
+						zero_conversions = 0;
 						assert(sc.width >= 0);
 						*wb = sc.wc;
 						wb += psfs.store;
@@ -1435,10 +1452,11 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 				if (psfs.conv_num == CONV_S) {
 					/* Yes, believe it or not, a %s conversion can store nuls. */
-					while ((scan_getwc(&sc) >= 0)
-						   && ((((__uwchar_t)(sc.wc)) > UCHAR_MAX)
-							   || !isspace(sc.wc))
-						   ) {
+					while (scan_getwc(&sc) >= 0) {
+						zero_conversions = 0;
+						if ((((__uwchar_t)(sc.wc)) <= UCHAR_MAX) && isspace(sc.wc)) {
+							break;
+						}
 						*wb = sc.wc;
 						wb += psfs.store;
 						fail = 0;
@@ -1447,6 +1465,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 					assert(psfs.conv_num == CONV_LEFTBRACKET);
 
 					while (scan_getwc(&sc) >= 0) {
+						zero_conversions = 0;
 						if (((__uwchar_t) sc.wc) <= UCHAR_MAX) {
 							if (!scanset[sc.wc]) {
 								break;
@@ -1496,6 +1515,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 					}
 
 					while (scan_getwc(&sc) >= 0) {
+						zero_conversions = 0;
 						if (psfs.conv_num == CONV_C) {
 							*wb = sc.wc;
 							wb += psfs.store;
@@ -1519,7 +1539,11 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 				if ((psfs.conv_num == CONV_S) || (psfs.conv_num == CONV_s)) {
 					/* Yes, believe it or not, a %s conversion can store nuls. */
-					while ((scan_getwc(&sc) >= 0) && !iswspace(sc.wc)) {
+					while (scan_getwc(&sc) >= 0) {
+						zero_conversions = 0;
+						if  (iswspace(sc.wc)) {
+							break;
+						}
 						if (psfs.conv_num == CONV_S) {
 							*wb = sc.wc;
 							wb += psfs.store;
@@ -1564,6 +1588,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 					/* Ok... a valid scanset spec. */
 
 					while (scan_getwc(&sc) >= 0) {
+						zero_conversions = 0;
 						ssp = sss;
 						do {	/* We know sss < fmt. */
 							if (*ssp == '-') { /* possible range... */
@@ -1637,16 +1662,18 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 
 	NEXT_FMT:
 		++fmt;
+		if (__FERROR(fp)) {
+			break;
+		}
 	}
 
  DONE:
-	if ((psfs.cnt == 0) && (*fmt) && __FEOF_OR_FERROR(fp)) {
+	if (__FERROR(fp) || (*fmt && zero_conversions && __FEOF(fp))) {
 		psfs.cnt = EOF;			/* Yes, vfwscanf also returns EOF. */
 	}
 
 	kill_scan_cookie(&sc);
 
-/*  RETURN_cnt: */
 	__STDIO_THREADUNLOCK(fp);
 
 	return psfs.cnt;
@@ -1662,6 +1689,7 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 {
 	unsigned char *b;
 	const unsigned char *p;
+
 #ifdef __UCLIBC_HAS_FLOATS__
 	int exp_adjust = 0;
 #endif
@@ -1674,6 +1702,7 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 	unsigned char seendigit = 0;
 	
 
+#warning what should be returned for an invalid conversion specifier?
 #ifndef __UCLIBC_HAS_FLOATS__
 	if (psfs->conv_num > CONV_i) { /* floating point */
 		goto DONE;
@@ -1690,10 +1719,10 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 		do {
 			if ((__scan_getc(sc) < 0) || (*p != sc->cc)) {
 				__scan_ungetc(sc);
-				if (p > nil_string) { /* failed */
+				if (p > nil_string) {
 					/* We matched at least the '(' so even if we
 					 * are at eof,  we can not match a pointer. */
-					goto DONE;
+					return -2;	/* Matching failure */
 				}
 				break;
 			}
@@ -1713,6 +1742,10 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 	}
 
 	__scan_getc(sc);
+	if (sc->cc < 0) {
+		return -1;				/* Input failure (nothing read yet). */
+	}
+
 	if ((sc->cc == '+') || (sc->cc == '-')) { /* Handle leading sign.*/
 		*b++ = sc->cc;
 		__scan_getc(sc);
@@ -1722,17 +1755,13 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 		if (sc->cc == '0') {	/* Possibly set base and handle prefix. */
 			__scan_getc(sc);
 			if ((sc->cc|0x20) == 'x') { /* Assumes ascii.. x or X. */
-				if ((__scan_getc(sc) < 0)
-#ifdef __UCLIBC_HAS_WCHAR__
-					&& !sc->ungot_wflag	/* wc outside char range */
-#endif /* __UCLIBC_HAS_WCHAR__ */
-					) {
-					/* Note! 'x' at end of file|field is special.
-					 * While this looks like I'm 'unget'ing twice,
-					 * EOF and end of field are handled specially
-					 * by the scan_* funcs. */
-					__scan_ungetc(sc);
-					goto DO_NO_0X;
+				if (__scan_getc(sc) < 0) {
+					/* Either EOF or error (including wc outside char range).
+					 * If EOF or error, this is a matching failure (we read 0x).
+					 * If wc outside char range, this is also a matching failure.
+					 * Hence, we do an unget (although not really necessary here
+					 * and fail. */
+					goto DONE_DO_UNGET;	/* matching failure */
 				}
 				base = 16; /* Base 16 for sure now. */
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
@@ -1741,7 +1770,6 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 				*b++ = 'x';
 #endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
 			} else { /* oops... back up */
-			DO_NO_0X:
 				__scan_ungetc(sc);
 				sc->cc = '0';	/* NASTY HACK! */
 
@@ -1776,7 +1804,7 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 			if (nbmax < nblk2) {
 				nbmax = nblk2;
 			}
-			assert(!*++p);
+			assert(!p[1]);
 		}
 
 		/* Note: for printf, if 0 and \' flags appear then
@@ -1823,7 +1851,7 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 					}
 #endif
 					if (nbmax > nblk1) {
-						goto DONE_DO_UNGET;
+						goto DONE_DO_UNGET;	/* matching failure */
 					}
 					goto DONE_GROUPING_DO_UNGET; /* nbmax == nblk1 */
 				}
@@ -1904,33 +1932,11 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 					/* got an inner group */
 					goto DONE_GROUPING_DO_UNGET;
 				}
-				if (i > nblk1) {
-					/* An inner group if we can back up a bit. */
-					if ((i - nblk1) <= (sc->ungot_flag ^ 1)) {
-						assert(sc->cc < 0);
-						--b;
-						goto DO_RECOVER_GROUP;
-					}
-				}
-
-				/* (0 < i < nblk1) && (pass > 0) so prev group char
-				 * So we have an unrecoverable situation. */
-				goto DONE_DO_UNGET;
+				goto DONE_DO_UNGET;	/* Matching failure. */
 			} /* i != 0 */
 
 			assert(pass);
 
-			/* No next group.  Can we back up past grouping mb char? */
-			if ((pass == 1) || (nblk1 == nblk2)) { 
-				if (!i && (sc->tslen == 1) && (sc->cc < 0)) {
-					/* No digits, grouping mb char is len 1, and EOF*/
-				DO_RECOVER_GROUP:
-					if (sc->ungot_flag & 2) {
-						__scan_ungetc(sc);
-					}
-					goto DONE_GROUPING_DO_UNGET;
-				}
-			}
 			goto DONE_DO_UNGET;
 		} while (1);
 
@@ -2005,12 +2011,7 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 		}
 		if (*p != sc->cc) {
 			if (p > sc->fake_decpt) {
-				if ((sc->cc >= 0) && (p > sc->fake_decpt + 1)) {
-					goto DONE_DO_UNGET;	/* failed */
-				}
-
-				__scan_ungetc(sc);
-
+				goto DONE_DO_UNGET;	/* matching failure (read some of decpt) */
 			}
 			goto DO_DIGIT_CHECK;
 		}
@@ -2048,7 +2049,7 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 		static const unsigned char nan_inf_str[] = "an\0nfinity";
 
 		if (base == 16) {		/* We had a prefix, but no digits! */
-			goto DONE_DO_UNGET;
+			goto DONE_DO_UNGET;	/* matching failure */
 		}
 
 		/* Avoid tolower problems for INFINITY in the tr_TR locale. (yuk)*/
@@ -2095,9 +2096,8 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 		*b++ = sc->cc;
 
 		__scan_getc(sc);
-		if (sc->cc < 0) {		/* EOF... recoverable */
-			--b;
-			goto GOT_FLOAT;
+		if (sc->cc < 0) {
+			goto DONE_DO_UNGET;	/* matching failure.. no exponent digits */
 		}
 
 		if ((sc->cc == '+') || (sc->cc == '-')) { /* Signed exponent? */
@@ -2118,7 +2118,7 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 				__scan_getc(sc);
 			} while (sc->cc == '0');
 		}
-			
+
 		while (__isdigit_char_or_EOF(sc->cc)) { /* Exponent digits (base 10).*/
 			if (seendigit < MAX_EXP_DIGITS) {
 				++seendigit;
@@ -2134,7 +2134,6 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 
 
  GOT_FLOAT:
-
 	*b = 0;
 	{
 		__fpmax_t x;
@@ -2159,7 +2158,7 @@ int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
  DONE_DO_UNGET:
 	__scan_ungetc(sc);
  DONE:
-	return -1;
+	return -2;					/* Matching failure. */
 
 }
 #endif
