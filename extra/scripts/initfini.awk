@@ -12,18 +12,29 @@ BEGIN \
   system("/bin/rm -f crt[in].S");
   omitcrti=0;
   omitcrtn=0;
+  glb_idx = 0;
   while(getline < "initfini.s")
   { if(/\.endp/) {endp=1}
     if(/\.end/) {end=1}
     if(/\.align/) {alignval=$2}
+# here comes some special stuff for the SuperH targets
+# Search for all labels
+    if(/_GLOBAL_OFFSET_TABLE_/) {
+      sub (":","",last);
+      glb_label[glb_idx] = last;
+      glb_idx += 1;
+      glb = $0;
+    }
+    last = $1;
   }
   close("initfini.s");
 }
 
+/^_init:/{omitcrtn=1;if (glb_idx>0) print glb_label[0] ":" glb >> "crti.S";}
+/^_fini:/{omitcrtn=1;if (glb_idx>1) print glb_label[1] ":" glb >> "crti.S";}
 /HEADER_ENDS/{omitcrti=1;omitcrtn=1;getline}
 /PROLOG_BEGINS/{omitcrti=0;omitcrtn=0;getline}
 /i_am_not_a_leaf/{getline}
-/_init:/||/_fini:/{omitcrtn=1}
 /PROLOG_PAUSES/{omitcrti=1;getline}
 /PROLOG_UNPAUSES/{omitcrti=0;getline}
 /PROLOG_ENDS/{omitcrti=1;getline}
@@ -67,6 +78,10 @@ BEGIN \
   { gsub("ALIGN","",$0)
   }
 }
+# substitude all label references of the _GLOBAL_OFFSET_TABLE_
+# .L10  ==> .L10b etc.
+glb_idx>0 { gsub (glb_label[0],sprintf("%sb",glb_label[0]),$0)}
+glb_idx>1 { gsub (glb_label[1],sprintf("%sb",glb_label[1]),$0)}
 
 omitcrti==0 {print >> "crti.S"}
 omitcrtn==0 {print >> "crtn.S"}
