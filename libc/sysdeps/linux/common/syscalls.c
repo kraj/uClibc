@@ -870,9 +870,22 @@ _syscall3(int, fchown, int, fd, uid_t, owner, gid_t, group);
 #endif
 
 //#define __NR_getpriority      96
-#ifdef L_getpriority
+#ifdef L___syscall_getpriority
 #include <sys/resource.h>
-_syscall2(int, getpriority, __priority_which_t, which, id_t, who);
+#define __NR___syscall_getpriority __NR_getpriority
+_syscall2(int, __syscall_getpriority, __priority_which_t, which, id_t, who);
+/* The return value of __syscall_getpriority is biased by this value
+ * to avoid returning negative values.  */
+#define PZERO 20
+int getpriority (enum __priority_which which, id_t who)
+{
+	int res;
+
+	res = __syscall_getpriority(which, who);
+	if (res >= 0)
+		res = PZERO - res;
+	return res;
+}
 #endif
 
 //#define __NR_setpriority      97
