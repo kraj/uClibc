@@ -46,14 +46,14 @@ typedef unsigned long __sigset_t;
 # define __sigmask(sig) (1L << ((sig) - 1))
 
 # if defined __GNUC__ && __GNUC__ >= 2
-#  define __sigemptyset(set) (*(set) = 0)
-#  define __sigfillset(set) (*(set) = ~0)
+#  define __sigemptyset(set) (*((sigset_t *) set) = 0)
+#  define __sigfillset(set) (*((sigset_t *) set) = ~0)
 
 #  ifdef __USE_GNU
 /* The POSIX does not specify for handling the whole signal set in one
    command.  This is often wanted and so we define three more functions
    here.  */
-#   define __sigisemptyset(set) (*(set) == 0)
+#   define __sigisemptyset(set) (*((sigset_t *) set) == 0)
 #   define __sigandset(dest, left, right) (*(dest) = *(left) & *(right))
 #   define __sigorset(dest, left, right) (*(dest) = *(left) | *(right))
 #  endif
@@ -62,8 +62,8 @@ typedef unsigned long __sigset_t;
 /* These functions needn't check for a bogus signal number -- error
    checking is done in the non __ versions.  */
 
-# define __sigismember(set, sig) (*(set) & (1L << ((sig)-1)))
-# define __sigaddset(set, sig) (*(set) |= (1L << ((sig)-1)))
-# define __sigdelset(set, sig) (*(set) &= ~(1L << ((sig)-1)))
+# define __sigismember(set, sig) (*((sigset_t *) set) & (1L << ((sig)-1)))
+# define __sigaddset(set, sig) (*((sigset_t *) set) |= (1L << ((sig)-1)))
+# define __sigdelset(set, sig) (*((sigset_t *) set) &= ~(1L << ((sig)-1)))
 
 #endif /* ! _SIGSET_H_fns.  */
