@@ -189,31 +189,36 @@ BUILD_UCLIBC_LDSO=false
 # sitting in the directory this points to, your binaries will not run.
 #SHARED_LIB_LOADER_PATH=$(DEVEL_PREFIX)/lib
 
+# C defiend symbols prefix charactor
+C_SYMBOL_PREFIX = _
+
 # DEVEL_PREFIX is the directory into which the uClibc development
 # environment will be installed.   The result will look something 
 # like the following:
 #   DEVEL_PREFIX/
-#	bin/            <contains gcc, ld, etc>
 #	lib/            <contains all runtime and static libs>
 #	include/        <Where all the header files go>
 # This value is used by the 'make install' Makefile target.  Since this
 # directory is compiled into the uclibc cross compiler spoofer, you
 # have to recompile if you change this value...
-DEVEL_PREFIX = /usr/local/cross-compilers/i960-intel-coff
+DEVEL_PREFIX = /usr/$(TARGET_ARCH)-linux-uclibc
 
 # SYSTEM_DEVEL_PREFIX is the directory prefix used when installing
-# usr/bin/arch-uclibc-gcc, usr/bin/arch-uclibc-ld, etc.   This is only
-# used by the 'make install' target, and is not compiled into anything.
-# This defaults to $DEVEL_PREFIX, but makers of .rpms and .debs will
-# want to set this to "/" instead.
-#SYSTEM_DEVEL_PREFIX = $(DEVEL_PREFIX)
-SYSTEM_DEVEL_PREFIX = /tmp/uclibc-trashed
+# bin/arch-uclibc-gcc, bin/arch-uclibc-ld, etc.   This is only used by
+# the 'make install' target, and is not compiled into anything.  This
+# defaults to $DEVEL_PREFIX/usr, but makers of .rpms and .debs will
+# want to set this to "/usr" instead.
+SYSTEM_DEVEL_PREFIX = $(DEVEL_PREFIX)
+
+# DEVEL_TOOL_PREFIX is the directory prefix used when installing
+# bin/gcc, bin/ld, etc.   This is only used by the 'make install'
+# target, and is not compiled into anything.  This defaults to
+# $DEVEL_PREFIX/usr, but makers of .rpms and .debs may want to
+# set this to something else.
+DEVEL_TOOL_PREFIX = $(DEVEL_PREFIX)/usr
 
 # If you want 'make install' to install everything under a temporary
 # directory, the define PREFIX during the install step,
 # i.e., 'make PREFIX=/var/tmp/uClibc install'.
 #PREFIX = $(TOPDIR)/_install
-
-# C defiend symbols prefix charactor
-C_SYMBOL_PREFIX = _
 
