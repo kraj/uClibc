@@ -55,7 +55,7 @@ _start:
 	mov     r1, sp
 
 	/* Skip to the end of argv and put a pointer to whatever 
-	   we find there (hopefully the environment) in a3 */
+	   we find there (hopefully the environment) in r2 */
 	add     r2, r1, r0, lsl #2
 	add     r2, r2, #4
 
