@@ -22,11 +22,12 @@
 
 #--------------------------------------------------------
 #
-#There are a number of configurable options in Rules.mak
+#There are a number of configurable options in "Config"
 #
 #--------------------------------------------------------
 
 include Rules.mak
+
 
 DIRS = misc pwd_grp stdio string termios unistd net signal stdlib sysdeps extra
 
@@ -51,6 +52,12 @@ headers: dummy
 	    echo "correctly.  Please edit \`Config' and fix these settings."; \
 	    echo " "; \
 	    /bin/false; \
+	fi;
+	@if [ $(HAS_MMU) != "true" ]  && [ $(TARGET_ARCH) = "i386" ] ; then \
+	    echo "WARNING: I bet your x86 system really has an MMU, right?"; \
+	    echo "         malloc and friends won't work unless you fix \`Config'"; \
+	    echo " "; \
+	    sleep 10; \
 	fi;
 	@ln -s $(KERNEL_SOURCE)/include/net include/net
 	@ln -s $(KERNEL_SOURCE)/include/linux include/linux
