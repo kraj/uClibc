@@ -316,7 +316,7 @@ static inline int invalid_handle(pthread_handle h, pthread_t id)
 
 /* The page size we can get from the system.  This should likely not be
    changed by the machine file but, you never know.  */
-extern size_t _dl_pagesize;
+extern size_t __pagesize;
 #include <bits/uClibc_page.h>
 #ifndef PAGE_SIZE
 #define PAGE_SIZE  (sysconf (_SC_PAGESIZE))
@@ -329,19 +329,19 @@ extern size_t _dl_pagesize;
 #ifdef __ARCH_HAS_MMU__
 #define STACK_SIZE  (2 * 1024 * 1024)
 #else
-#define STACK_SIZE  (4 * _dl_pagesize)
+#define STACK_SIZE  (4 * __pagesize)
 #endif
 #endif
 
 /* The initial size of the thread stack.  Must be a multiple of PAGE_SIZE.  */
 #ifndef INITIAL_STACK_SIZE
-#define INITIAL_STACK_SIZE  (4 * _dl_pagesize)
+#define INITIAL_STACK_SIZE  (4 * __pagesize)
 #endif
 
 /* Size of the thread manager stack. The "- 32" avoids wasting space
    with some malloc() implementations. */
 #ifndef THREAD_MANAGER_STACK_SIZE
-#define THREAD_MANAGER_STACK_SIZE  (2 * _dl_pagesize - 32)
+#define THREAD_MANAGER_STACK_SIZE  (2 * __pagesize - 32)
 #endif
 
 /* The base of the "array" of thread stacks.  The array will grow down from

@@ -15,7 +15,8 @@
 #define MALLOC_ALIGNMENT	(sizeof (double))
 
 /* The system pagesize... */
-#define MALLOC_PAGE_SIZE	_dl_pagesize
+extern size_t __pagesize;
+#define MALLOC_PAGE_SIZE	__pagesize
 
 /* The minimum size of block we request from the the system to extend the
    heap for small allocations (we may request a bigger block if necessary to

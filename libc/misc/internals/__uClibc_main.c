@@ -48,9 +48,7 @@ extern void weak_function __pthread_initialize_minimal(void);
  */
 
 extern int _dl_secure;
-extern size_t _dl_pagesize;
-size_t __dl_pagesize = 0;
-weak_alias(__dl_pagesize, _dl_pagesize);
+size_t __pagesize = 0;
 
 char **__environ = 0;
 const char *__progname = 0;
@@ -140,9 +138,9 @@ __uClibc_start_main(int argc, char **argv, char **envp,
 	}
 	aux_dat += 2;
     }
-    _dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+    __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 #else
-    _dl_pagesize = PAGE_SIZE;
+    __pagesize = PAGE_SIZE;
 #endif
 
     /* If we are dynamically linked the shared lib loader already

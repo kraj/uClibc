@@ -19,13 +19,13 @@
 #include <unistd.h>
 #include <features.h>
 #include <sys/param.h>
-extern size_t _dl_pagesize;
+extern size_t __pagesize;
 
 /* Return the system page size.  */
 int __getpagesize(void)
 {
-  if (_dl_pagesize != 0)
-    return _dl_pagesize;
+  if (__pagesize != 0)
+    return __pagesize;
 
 #ifdef	EXEC_PAGESIZE
   return EXEC_PAGESIZE;
