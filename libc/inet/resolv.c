@@ -344,7 +344,7 @@ int encode_question(struct resolv_question *q,
 int decode_question(unsigned char *message, int offset,
 					struct resolv_question *q)
 {
-	char temp[BUFSIZ];
+	char temp[256];
 	int i;
 
 	i = decode_dotted(message, offset, temp, sizeof(temp));
@@ -409,7 +409,7 @@ int encode_answer(struct resolv_answer *a, unsigned char *dest, int maxlen)
 int decode_answer(unsigned char *message, int offset,
 				  struct resolv_answer *a)
 {
-	char temp[BUFSIZ];
+	char temp[256];
 	int i;
 
 	i = decode_dotted(message, offset, temp, sizeof(temp));
@@ -531,10 +531,25 @@ int form_query(int id, const char *name, int type, unsigned char *packet,
 
 #ifdef L_dnslookup
 
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK	pthread_mutex_lock(&mylock)
+# define UNLOCK	pthread_mutex_unlock(&mylock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
+
+/* Just for the record, having to lock dns_lookup() just for these two globals
+ * is pretty lame.  Sometime I should work on making the locking a bit more
+ * careful to avoid needless blocking...  */
+static int ns=0, id=1;
+
 int dns_lookup(const char *name, int type, int nscount, char **nsip,
 			   unsigned char **outpacket, struct resolv_answer *a)
 {
-	int i, j, len, fd, pos, id, ns;
+	int i, j, len, fd, pos;
 	struct sockaddr_in sa;
 #ifdef __UCLIBC_HAS_IPV6__
 	struct sockaddr_in6 sa6;
@@ -558,6 +573,7 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 
 	DPRINTF("Looking up type %d answer for '%s'\n", type, name);
 
+	LOCK;
 	ns %= nscount;
 
 	while (retries++ < MAX_RETRIES) {
@@ -580,8 +596,7 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 		memset(packet, 0, PACKETSZ);
 
 		memset(&h, 0, sizeof(h));
-		id = (int) random();
-		h.id = id;
+		h.id = ++id;
 		h.qdcount = 1;
 		h.rd = 1;
 
@@ -721,6 +736,7 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 		else
 			free(packet);
 		free(lookup);
+		UNLOCK;
 		return (0);				/* success! */
 
 	  tryall:
@@ -743,6 +759,7 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 	}
 
 fail:
+	UNLOCK;
 	if (fd != -1)
 	    close(fd);
 	if (lookup)
