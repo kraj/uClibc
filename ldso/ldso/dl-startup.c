@@ -185,16 +185,16 @@ DL_BOOT(unsigned long args)
 
 	/* Check the ELF header to make sure everything looks ok.  */
 	if (!header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
-		header->e_ident[EI_VERSION] != EV_CURRENT
+			header->e_ident[EI_VERSION] != EV_CURRENT
 #if !defined(__powerpc__) && !defined(__mips__) && !defined(__sh__)
-		|| _dl_strncmp((void *) header, ELFMAGIC, SELFMAG) != 0
+			|| _dl_strncmp((void *) header, ELFMAGIC, SELFMAG) != 0
 #else
-	        || header->e_ident[EI_MAG0] != ELFMAG0
-	        || header->e_ident[EI_MAG1] != ELFMAG1
-	        || header->e_ident[EI_MAG2] != ELFMAG2
-	        || header->e_ident[EI_MAG3] != ELFMAG3
+			|| header->e_ident[EI_MAG0] != ELFMAG0
+			|| header->e_ident[EI_MAG1] != ELFMAG1
+			|| header->e_ident[EI_MAG2] != ELFMAG2
+			|| header->e_ident[EI_MAG3] != ELFMAG3
 #endif
-		) {
+	   ) {
 		SEND_STDERR("Invalid ELF header\n");
 		_dl_exit(0);
 	}
@@ -209,28 +209,28 @@ DL_BOOT(unsigned long args)
 	 * happen to know what that is for this architecture.  If not,
 	 * we can always read stuff out of the ELF file to find it... */
 #if defined(__i386__)
-  __asm__("\tmovl %%ebx,%0\n\t":"=a"(got));
+	__asm__("\tmovl %%ebx,%0\n\t":"=a"(got));
 #elif defined(__m68k__)
-  __asm__("movel %%a5,%0":"=g"(got));
+	__asm__("movel %%a5,%0":"=g"(got));
 #elif defined(__sparc__)
-  __asm__("\tmov %%l7,%0\n\t":"=r"(got));
+	__asm__("\tmov %%l7,%0\n\t":"=r"(got));
 #elif defined(__arm__)
-  __asm__("\tmov %0, r10\n\t":"=r"(got));
+	__asm__("\tmov %0, r10\n\t":"=r"(got));
 #elif defined(__powerpc__)
-  __asm__("\tbl _GLOBAL_OFFSET_TABLE_-4@local\n\t":"=l"(got));
+	__asm__("\tbl _GLOBAL_OFFSET_TABLE_-4@local\n\t":"=l"(got));
 #elif defined(__mips__)
-  __asm__("\tmove %0, $28\n\tsubu %0,%0,0x7ff0\n\t":"=r"(got));
+	__asm__("\tmove %0, $28\n\tsubu %0,%0,0x7ff0\n\t":"=r"(got));
 #elif defined(__sh__) && !defined(__SH5__)
-  __asm__(
-"       mov.l    1f, %0\n"
-"       mova     1f, r0\n"
-"       bra      2f\n"
-"       add r0,  %0\n"
-"       .balign  4\n"
-"1:     .long    _GLOBAL_OFFSET_TABLE_\n"
-"2:" : "=r" (got) : : "r0");
+	__asm__(
+			"       mov.l    1f, %0\n"
+			"       mova     1f, r0\n"
+			"       bra      2f\n"
+			"       add r0,  %0\n"
+			"       .balign  4\n"
+			"1:     .long    _GLOBAL_OFFSET_TABLE_\n"
+			"2:" : "=r" (got) : : "r0");
 #elif defined(__cris__)
-  __asm__("\tmove.d $pc,%0\n\tsub.d .:GOTOFF,%0\n\t":"=r"(got));
+	__asm__("\tmove.d $pc,%0\n\tsub.d .:GOTOFF,%0\n\t":"=r"(got));
 #else
 	/* Do things the slow way in C */
 	{
@@ -252,7 +252,7 @@ DL_BOOT(unsigned long args)
 		SEND_STDERR("missing dynamic linking information section \n");
 		_dl_exit(0);
 
-	  found_dynamic:
+found_dynamic:
 		dynamic = (Elf32_Dyn *) (shdr->sh_offset + (char *) header);
 
 		/* Find where PT_LOAD is hiding */
@@ -265,7 +265,7 @@ DL_BOOT(unsigned long args)
 		SEND_STDERR("missing loadable program segment\n");
 		_dl_exit(0);
 
-	  found_pt_load:
+found_pt_load:
 		/* Now (finally) find where DT_PLTGOT is hiding */
 		tx_reloc = pt_load->p_vaddr - pt_load->p_offset;
 		for (; DT_NULL != dynamic->d_tag; ++dynamic) {
@@ -276,7 +276,7 @@ DL_BOOT(unsigned long args)
 		SEND_STDERR("missing global offset table\n");
 		_dl_exit(0);
 
-	  found_got:
+found_got:
 		got = (unsigned long *) (dynamic->d_un.d_val - tx_reloc +
 				(char *) header);
 	}
@@ -306,7 +306,7 @@ DL_BOOT(unsigned long args)
 
 #ifdef __UCLIBC_PIE_SUPPORT__
 	/* Find the runtime load address of the main executable, this may be
-         * different from what the ELF header says for ET_DYN/PIE executables.
+	 * different from what the ELF header says for ET_DYN/PIE executables.
 	 */
 	{
 		ElfW(Phdr) *ppnt;
@@ -462,14 +462,14 @@ DL_BOOT(unsigned long args)
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
 #ifndef __UCLIBC_PIE_SUPPORT__
 					_dl_mprotect((void *) (ppnt->p_vaddr & PAGE_ALIGN),
-								 (ppnt->p_vaddr & ADDR_ALIGN) +
-								 (unsigned long) ppnt->p_filesz,
-								 PROT_READ | PROT_WRITE | PROT_EXEC);
+							(ppnt->p_vaddr & ADDR_ALIGN) +
+							(unsigned long) ppnt->p_filesz,
+							PROT_READ | PROT_WRITE | PROT_EXEC);
 #else
-					_dl_mprotect((void *) ((ppnt->p_vaddr + app_tpnt->loadaddr) & PAGE_ALIGN),
-								 ((ppnt->p_vaddr + app_tpnt->loadaddr) & ADDR_ALIGN) +
-								 (unsigned long) ppnt->p_filesz,
-								 PROT_READ | PROT_WRITE | PROT_EXEC);
+				_dl_mprotect((void *) ((ppnt->p_vaddr + app_tpnt->loadaddr) & PAGE_ALIGN),
+						((ppnt->p_vaddr + app_tpnt->loadaddr) & ADDR_ALIGN) +
+						(unsigned long) ppnt->p_filesz,
+						PROT_READ | PROT_WRITE | PROT_EXEC);
 #endif
 			}
 		}
@@ -501,9 +501,9 @@ DL_BOOT(unsigned long args)
 
 
 		rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
-			 dynamic_info[DT_RELOC_TABLE_ADDR]);
+				dynamic_info[DT_RELOC_TABLE_ADDR]);
 		rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] : tpnt->
-			 dynamic_info[DT_RELOC_TABLE_SIZE]);
+				dynamic_info[DT_RELOC_TABLE_SIZE]);
 
 		if (!rel_addr)
 			continue;

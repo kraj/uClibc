@@ -104,8 +104,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-    /* Wahoo!!! */
-    SEND_STDERR("Cool, we managed to make a function call.\n");
+	/* Wahoo!!! */
+	SEND_STDERR("Cool, we managed to make a function call.\n");
 #endif
 
 	/* Make it so _dl_malloc can use the page of memory we have already
@@ -188,7 +188,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 #endif
 			/* OK, we have what we need - slip this one into the list. */
 #ifndef __UCLIBC_PIE_SUPPORT__
-			app_tpnt = _dl_add_elf_hash_table("", 0, 
+			app_tpnt = _dl_add_elf_hash_table("", 0,
 					app_tpnt->dynamic_info, ppnt->p_vaddr, ppnt->p_filesz);
 #else
 			app_tpnt = _dl_add_elf_hash_table("", (char *)app_tpnt->loadaddr,
@@ -214,12 +214,12 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 		}
 
 		/* OK, fill this in - we did not have this before */
-		if (ppnt->p_type == PT_INTERP) {	
+		if (ppnt->p_type == PT_INTERP) {
 			int readsize = 0;
 			char *pnt, *pnt1, buf[1024];
 			tpnt->libname = _dl_strdup((char *) ppnt->p_offset +
 					(auxvt[AT_PHDR].a_un.a_val & PAGE_ALIGN));
-			
+
 			/* Determine if the shared lib loader is a symlink */
 			_dl_memset(buf, 0, sizeof(buf));
 			readsize = _dl_readlink(tpnt->libname, buf, sizeof(buf));
@@ -233,7 +233,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 				}
 			}
 
-			/* Store the path where the shared lib loader was found for 
+			/* Store the path where the shared lib loader was found for
 			 * later use */
 			pnt = _dl_strdup(tpnt->libname);
 			pnt1 = _dl_strrchr(pnt, '/');
@@ -257,7 +257,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 			be_lazy = 0;
 
 		if ((auxvt[AT_UID].a_un.a_val == -1 && _dl_suid_ok()) ||
-				(auxvt[AT_UID].a_un.a_val != -1 && 
+				(auxvt[AT_UID].a_un.a_val != -1 &&
 				 auxvt[AT_UID].a_un.a_val == auxvt[AT_EUID].a_un.a_val
 				 && auxvt[AT_GID].a_un.a_val== auxvt[AT_EGID].a_un.a_val)) {
 			_dl_secure = 0;
@@ -277,55 +277,55 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	_dl_debug    = _dl_getenv("LD_DEBUG", envp);
 	if (_dl_debug)
 	{
-	  if (_dl_strstr(_dl_debug, "all")) {
-	  	_dl_debug_detail = _dl_debug_move = _dl_debug_symbols
-			= _dl_debug_reloc = _dl_debug_bindings = _dl_debug_nofixups = _dl_strstr(_dl_debug, "all");
-	  }
-	  else {
-	  	_dl_debug_detail   = _dl_strstr(_dl_debug, "detail");
-	  	_dl_debug_move     = _dl_strstr(_dl_debug, "move");
-	  	_dl_debug_symbols  = _dl_strstr(_dl_debug, "sym");
-	  	_dl_debug_reloc    = _dl_strstr(_dl_debug, "reloc");
-	  	_dl_debug_nofixups = _dl_strstr(_dl_debug, "nofix");
-	  	_dl_debug_bindings = _dl_strstr(_dl_debug, "bind");
-	  }
+		if (_dl_strstr(_dl_debug, "all")) {
+			_dl_debug_detail = _dl_debug_move = _dl_debug_symbols
+				= _dl_debug_reloc = _dl_debug_bindings = _dl_debug_nofixups = _dl_strstr(_dl_debug, "all");
+		}
+		else {
+			_dl_debug_detail   = _dl_strstr(_dl_debug, "detail");
+			_dl_debug_move     = _dl_strstr(_dl_debug, "move");
+			_dl_debug_symbols  = _dl_strstr(_dl_debug, "sym");
+			_dl_debug_reloc    = _dl_strstr(_dl_debug, "reloc");
+			_dl_debug_nofixups = _dl_strstr(_dl_debug, "nofix");
+			_dl_debug_bindings = _dl_strstr(_dl_debug, "bind");
+		}
 	}
 	{
-	  const char *dl_debug_output;
-	  
-	  dl_debug_output = _dl_getenv("LD_DEBUG_OUTPUT", envp);
+		const char *dl_debug_output;
 
-	  if (dl_debug_output)
-	  {
-	    char tmp[22], *tmp1, *filename;
-	    int len1, len2;
-	    
-	    _dl_memset(tmp, 0, sizeof(tmp));
-	    tmp1=_dl_simple_ltoa( tmp, (unsigned long)_dl_getpid());
+		dl_debug_output = _dl_getenv("LD_DEBUG_OUTPUT", envp);
 
-	    len1 = _dl_strlen(dl_debug_output);
-	    len2 = _dl_strlen(tmp1);
+		if (dl_debug_output)
+		{
+			char tmp[22], *tmp1, *filename;
+			int len1, len2;
 
-	    filename = _dl_malloc(len1+len2+2);
+			_dl_memset(tmp, 0, sizeof(tmp));
+			tmp1=_dl_simple_ltoa( tmp, (unsigned long)_dl_getpid());
 
-	    if (filename)
-	    {
-	      _dl_strcpy (filename, dl_debug_output);
-	      filename[len1] = '.';
-	      _dl_strcpy (&filename[len1+1], tmp1);
+			len1 = _dl_strlen(dl_debug_output);
+			len2 = _dl_strlen(tmp1);
 
-	      _dl_debug_file= _dl_open (filename, O_WRONLY|O_CREAT, 0644);
-	      if (_dl_debug_file<0)
-	      {
-			  _dl_debug_file = 2;
-			  _dl_dprintf (2, "can't open file: '%s'\n",filename);
-	      }
-	    }
-	  }
+			filename = _dl_malloc(len1+len2+2);
+
+			if (filename)
+			{
+				_dl_strcpy (filename, dl_debug_output);
+				filename[len1] = '.';
+				_dl_strcpy (&filename[len1+1], tmp1);
+
+				_dl_debug_file= _dl_open (filename, O_WRONLY|O_CREAT, 0644);
+				if (_dl_debug_file<0)
+				{
+					_dl_debug_file = 2;
+					_dl_dprintf (2, "can't open file: '%s'\n",filename);
+				}
+			}
+		}
 	}
-	
-	
-#endif	
+
+
+#endif
 	if (_dl_getenv("LD_TRACE_LOADED_OBJECTS", envp) != NULL) {
 		trace_loaded_objects++;
 	}
@@ -359,28 +359,28 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	_dl_map_cache();
 
 
-	if (_dl_preload) 
+	if (_dl_preload)
 	{
 		char c, *str, *str2;
 
 		str = _dl_preload;
 		while (*str == ':' || *str == ' ' || *str == '\t')
 			str++;
-		while (*str) 
+		while (*str)
 		{
 			str2 = str;
 			while (*str2 && *str2 != ':' && *str2 != ' ' && *str2 != '\t')
 				str2++;
 			c = *str2;
 			*str2 = '\0';
-			if (!_dl_secure || _dl_strchr(str, '/') == NULL) 
+			if (!_dl_secure || _dl_strchr(str, '/') == NULL)
 			{
-				if ((tpnt1 = _dl_check_if_named_library_is_loaded(str, trace_loaded_objects))) 
+				if ((tpnt1 = _dl_check_if_named_library_is_loaded(str, trace_loaded_objects)))
 				{
 					continue;
 				}
 #if defined (__SUPPORT_LD_DEBUG__)
-				if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfile='%s';  needed by '%s'\n", 
+				if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfile='%s';  needed by '%s'\n",
 						str, _dl_progname);
 #endif
 				tpnt1 = _dl_load_shared_library(_dl_secure, &rpnt, NULL, str, trace_loaded_objects);
@@ -388,7 +388,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 #ifdef __LDSO_LDD_SUPPORT__
 					if (trace_loaded_objects)
 						_dl_dprintf(1, "\t%s => not found\n", str);
-					else 
+					else
 #endif
 					{
 						_dl_dprintf(2, "%s: can't load " "library '%s'\n", _dl_progname, str);
@@ -400,10 +400,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 #endif
 #ifdef __LDSO_LDD_SUPPORT__
 					if (trace_loaded_objects && tpnt1->usage_count==1) {
-						/* this is a real hack to make ldd not print 
+						/* this is a real hack to make ldd not print
 						 * the library itself when run on a library. */
 						if (_dl_strcmp(_dl_progname, str) != 0)
-							_dl_dprintf(1, "\t%s => %s (%x)\n", str, tpnt1->libname, 
+							_dl_dprintf(1, "\t%s => %s (%x)\n", str, tpnt1->libname,
 									(unsigned) tpnt1->loadaddr);
 					}
 #endif
@@ -423,14 +423,14 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 		char *preload;
 		if (!_dl_stat(LDSO_PRELOAD, &st) && st.st_size > 0) {
 			if ((fd = _dl_open(LDSO_PRELOAD, O_RDONLY)) < 0) {
-				_dl_dprintf(2, "%s: can't open file '%s'\n", 
+				_dl_dprintf(2, "%s: can't open file '%s'\n",
 						_dl_progname, LDSO_PRELOAD);
 			} else {
-				preload = (caddr_t) _dl_mmap(0, st.st_size + 1, 
+				preload = (caddr_t) _dl_mmap(0, st.st_size + 1,
 						PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 				_dl_close(fd);
 				if (preload == (caddr_t) - 1) {
-					_dl_dprintf(2, "%s: can't map file '%s'\n", 
+					_dl_dprintf(2, "%s: can't map file '%s'\n",
 							_dl_progname, LDSO_PRELOAD);
 				} else {
 					char c, *cp, *cp2;
@@ -459,12 +459,12 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 						c = *cp;
 						*cp = '\0';
 
-						if ((tpnt1 = _dl_check_if_named_library_is_loaded(cp2, trace_loaded_objects))) 
+						if ((tpnt1 = _dl_check_if_named_library_is_loaded(cp2, trace_loaded_objects)))
 						{
 							continue;
 						}
 #if defined (__SUPPORT_LD_DEBUG__)
-						if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfile='%s';  needed by '%s'\n", 
+						if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfile='%s';  needed by '%s'\n",
 								cp2, _dl_progname);
 #endif
 						tpnt1 = _dl_load_shared_library(0, &rpnt, NULL, cp2, trace_loaded_objects);
@@ -472,7 +472,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 #ifdef __LDSO_LDD_SUPPORT__
 							if (trace_loaded_objects)
 								_dl_dprintf(1, "\t%s => not found\n", cp2);
-							else 
+							else
 #endif
 							{
 								_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, cp2);
@@ -484,7 +484,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 #endif
 #ifdef __LDSO_LDD_SUPPORT__
 							if (trace_loaded_objects && tpnt1->usage_count==1) {
-								_dl_dprintf(1, "\t%s => %s (%x)\n", cp2, 
+								_dl_dprintf(1, "\t%s => %s (%x)\n", cp2,
 										tpnt1->libname, (unsigned) tpnt1->loadaddr);
 							}
 #endif
@@ -503,23 +503,23 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	}
 #endif
 
-	for (tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next) 
+	for (tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next)
 	{
 		Elf32_Dyn *dpnt;
-		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++) 
+		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++)
 		{
-			if (dpnt->d_tag == DT_NEEDED) 
+			if (dpnt->d_tag == DT_NEEDED)
 			{
 				char *name;
 				lpntstr = (char*) (tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] + dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
 
-				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name, trace_loaded_objects))) 
+				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name, trace_loaded_objects)))
 				{
 					continue;
 				}
 #if defined (__SUPPORT_LD_DEBUG__)
-				if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfile='%s';  needed by '%s'\n", 
+				if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfile='%s';  needed by '%s'\n",
 						lpntstr, _dl_progname);
 #endif
 				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, trace_loaded_objects)))
@@ -528,7 +528,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 					if (trace_loaded_objects) {
 						_dl_dprintf(1, "\t%s => not found\n", lpntstr);
 						continue;
-					} else 
+					} else
 #endif
 					{
 						_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, lpntstr);
@@ -540,7 +540,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 #endif
 #ifdef __LDSO_LDD_SUPPORT__
 					if (trace_loaded_objects && tpnt1->usage_count==1) {
-						_dl_dprintf(1, "\t%s => %s (%x)\n", lpntstr, tpnt1->libname, 
+						_dl_dprintf(1, "\t%s => %s (%x)\n", lpntstr, tpnt1->libname,
 								(unsigned) tpnt1->loadaddr);
 					}
 #endif
@@ -554,7 +554,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 
 	/*
 	 * If the program interpreter is not in the module chain, add it.  This will
-	 * be required for dlopen to be able to access the internal functions in the 
+	 * be required for dlopen to be able to access the internal functions in the
 	 * dynamic linker.
 	 */
 	if (tpnt) {
@@ -588,8 +588,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 #ifdef __LDSO_LDD_SUPPORT__
 	/* End of the line for ldd.... */
 	if (trace_loaded_objects) {
-		_dl_dprintf(1, "\t%s => %s (%x)\n", rpnt->dyn->libname + (_dl_strlen(_dl_ldsopath)) + 1, 
-				rpnt->dyn->libname, rpnt->dyn->loadaddr);  
+		_dl_dprintf(1, "\t%s => %s (%x)\n", rpnt->dyn->libname + (_dl_strlen(_dl_ldsopath)) + 1,
+				rpnt->dyn->libname, rpnt->dyn->loadaddr);
 		_dl_exit(0);
 	}
 #endif
@@ -624,7 +624,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 
 
 	_dl_brkp = (unsigned long *) (intptr_t) _dl_find_hash("___brk_addr", NULL, NULL, symbolrel);
-	
+
 	if (_dl_brkp) {
 		*_dl_brkp = brk_addr;
 	}
@@ -644,7 +644,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 		for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
 			for (myppnt = tpnt->ppnt, j = 0; j < tpnt->n_phent; j++, myppnt++) {
 				if (myppnt->p_type == PT_LOAD && !(myppnt->p_flags & PF_W) && tpnt->dynamic_info[DT_TEXTREL]) {
-					_dl_mprotect((void *) (tpnt->loadaddr + (myppnt->p_vaddr & PAGE_ALIGN)), 
+					_dl_mprotect((void *) (tpnt->loadaddr + (myppnt->p_vaddr & PAGE_ALIGN)),
 							(myppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) myppnt->p_filesz, LXFLAGS(myppnt->p_flags));
 				}
 			}
@@ -654,7 +654,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 #endif
 	_dl_atexit = (int (*)(void *)) (intptr_t) _dl_find_hash("atexit", NULL, NULL, symbolrel);
 #if defined (__SUPPORT_LD_DEBUG__)
-	_dl_on_exit = (int (*)(void (*)(int, void *),void*)) 
+	_dl_on_exit = (int (*)(void (*)(int, void *),void*))
 		(intptr_t) _dl_find_hash("on_exit", NULL, NULL, symbolrel);
 #endif
 
@@ -663,19 +663,19 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	_dl_debug_state();
 
 	for (rpnt = _dl_symbol_tables; rpnt!=NULL&& rpnt->next!=NULL; rpnt=rpnt->next)
-	  ;
-	  
+		;
+
 	for (;rpnt!=NULL; rpnt=rpnt->prev)
 	{
-  	        tpnt = rpnt->dyn;
+		tpnt = rpnt->dyn;
 
-	        if (tpnt->libtype == program_interpreter)
+		if (tpnt->libtype == program_interpreter)
 			continue;
 
 		/* Apparently crt0/1 for the application is responsible for handling this.
 		 * We only need to run the init/fini for shared libraries
 		 */
-	        if (tpnt->libtype == elf_executable)
+		if (tpnt->libtype == elf_executable)
 			break;      /* at this point all shared libs are initialized !! */
 
 		if (tpnt->init_flag & INIT_FUNCS_CALLED)
@@ -686,8 +686,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 			void (*dl_elf_func) (void);
 			dl_elf_func = (void (*)(void)) (intptr_t) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
 #if defined (__SUPPORT_LD_DEBUG__)
-			if(_dl_debug) _dl_dprintf(_dl_debug_file,"\ncalling init: %s\n\n", tpnt->libname);	
-#endif    
+			if(_dl_debug) _dl_dprintf(_dl_debug_file,"\ncalling init: %s\n\n", tpnt->libname);
+#endif
 			(*dl_elf_func) ();
 		}
 		if (_dl_atexit && tpnt->dynamic_info[DT_FINI]) {
@@ -766,6 +766,7 @@ static int _dl_suid_ok(void)
 	}
 	return 0;
 }
+
 
 #include "hash.c"
 #include "readelflib1.c"

@@ -79,7 +79,7 @@ struct elf_resolve *_dl_check_hashed_files(const char *libname)
 
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
 		if (_dl_strncmp(tpnt->libname, libname, len) == 0 &&
-			(tpnt->libname[len] == '\0' || tpnt->libname[len] == '.'))
+				(tpnt->libname[len] == '\0' || tpnt->libname[len] == '.'))
 			return tpnt;
 	}
 
@@ -242,18 +242,18 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1,
 					continue;
 
 				switch (ELF32_ST_BIND(sym->st_info)) {
-				case STB_WEAK:
+					case STB_WEAK:
 //Disable this to match current glibc behavior.  Of course,
 //this doesn't actually work yet and will cause segfaults...
 #if 1
-					if (!weak_result)
-						weak_result = (char *)tpnt->loadaddr + sym->st_value;
-					break;
+						if (!weak_result)
+							weak_result = (char *)tpnt->loadaddr + sym->st_value;
+						break;
 #endif
-				case STB_GLOBAL:
-					return (char*)tpnt->loadaddr + sym->st_value;
-				default:	/* Local symbols not handled here */
-					break;
+					case STB_GLOBAL:
+						return (char*)tpnt->loadaddr + sym->st_value;
+					default:	/* Local symbols not handled here */
+						break;
 				}
 			}
 		}
