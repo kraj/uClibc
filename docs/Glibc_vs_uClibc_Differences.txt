@@ -36,7 +36,8 @@ provided by glibc's libresolv is provided internal to uClibc.  Other functions
 are not at all implemented.
 
 8) uClibc does not provide libnsl.so.1, and has no support for Network
-Information Service (NIS). 
+Information Service (NIS).  We therefore, also do not provide any of the 
+headers files provided by glibc under /usr/include/rpcsvc.
 
 9) uClibc's locale support is not 100% complete yet.  We are working on it.
 
