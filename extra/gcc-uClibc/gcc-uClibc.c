@@ -132,11 +132,11 @@ int main(int argc, char **argv)
 		ep = "";
 	}
 
-	if ((strstr(argv[0],"build") != 0) || (strstr(ep,"build") != 0)) {
+	if (strstr(ep,"build") != 0) {
 		use_build_dir = 1;
 	}
 
-	if ((strstr(argv[0],"rpath") != 0) || (strstr(ep,"rpath") != 0)) {
+	if (strstr(ep,"rpath") != 0) {
 		use_rpath = 1;
 	}
 
