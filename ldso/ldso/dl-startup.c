@@ -133,10 +133,12 @@ DL_BOOT(unsigned long args)
 	Elf32_Dyn *dpnt;
 	unsigned long *hash_addr;
 	struct r_debug *debug_addr = NULL;
+	size_t _dl_pagesize;
 	int indx;
 #if defined(__i386__)
 	int status = 0;
 #endif
+
 
 
 	/* WARNING! -- we cannot make _any_ funtion calls until we have
@@ -288,7 +290,8 @@ found_got:
 
 	/* Call mmap to get a page of writable memory that can be used
 	 * for _dl_malloc throughout the shared lib loader. */
-	mmap_zero = malloc_buffer = _dl_mmap((void *) 0, PAGE_SIZE,
+	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : 4096;
+	mmap_zero = malloc_buffer = _dl_mmap((void *) 0, _dl_pagesize,
 			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(mmap_zero)) {
 		SEND_STDERR("dl_boot: mmap of a spare page failed!\n");

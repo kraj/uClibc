@@ -46,6 +46,7 @@ unsigned char *_dl_mmap_zero   = 0;		/* Also used by _dl_malloc */
 unsigned long *_dl_brkp        = 0;		/* The end of the data segment for brk and sbrk */
 unsigned long *_dl_envp        = 0;		/* The environment address */
 int _dl_secure                 = 1;		/* Are we dealing with setuid stuff? */
+size_t _dl_pagesize            = 0;		/* Store the page size for use later */
 
 
 
@@ -102,7 +103,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	int (*_dl_on_exit) (void (*FUNCTION)(int STATUS, void *ARG),void*);
 #endif
 
-
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	/* Wahoo!!! */
 	SEND_STDERR("Cool, we managed to make a function call.\n");
@@ -113,6 +113,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	 * be first since things like _dl_dprintf() use _dl_malloc().... */
 	_dl_malloc_addr = malloc_buffer;
 	_dl_mmap_zero = mmap_zero;
+
+	/* Store the page size for later use */
+	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : 4096;
 
 	/* Now we have done the mandatory linking of some things.  We are now
 	 * free to start using global variables, since these things have all been

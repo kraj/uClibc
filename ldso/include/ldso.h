@@ -45,6 +45,7 @@ extern unsigned char *_dl_mmap_zero;   /* Also used by _dl_malloc */
 extern unsigned long *_dl_brkp;        /* The end of the data segment for brk and sbrk */
 extern unsigned long *_dl_envp;        /* The environment address */
 extern int _dl_secure;                 /* Are we dealing with setuid stuff? */
+extern size_t _dl_pagesize;            /* Store the page size for use later */
 
 #ifdef __SUPPORT_LD_DEBUG__
 extern char *_dl_debug;

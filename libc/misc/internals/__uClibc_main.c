@@ -1,6 +1,6 @@
 /*
  * Manuel Novoa III           Feb 2001
- * Erik Andersen              Mar 2002
+ * Erik Andersen              2002-2004
  *
  * __uClibc_main is the routine to be called by all the arch-specific
  * versions of crt0.S in uClibc.
@@ -15,6 +15,8 @@
 #include <features.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
+#include <elf.h>
 #ifdef __UCLIBC_PROPOLICE__
 extern void __guard_setup(void);
 #endif
@@ -43,6 +45,9 @@ extern void weak_function __pthread_initialize_minimal(void);
  * Note: Apparently we must initialize __environ to ensure that the weak
  * environ symbol is also included.
  */
+
+extern int _dl_secure;
+extern size_t _dl_pagesize;
 
 char **__environ = 0;
 const char *__progname = 0;
@@ -116,6 +121,23 @@ void __attribute__ ((__noreturn__))
 __uClibc_start_main(int argc, char **argv, char **envp,
 	void (*app_init)(void), void (*app_fini)(void))
 {
+    unsigned long *aux_dat;
+    Elf32_auxv_t auxvt[AT_EGID + 1];
+
+    /* Pull stuff from the ELF header when possible */
+    aux_dat = (unsigned long*)envp;
+    while (*aux_dat) {
+	aux_dat++;
+    }
+    aux_dat++;
+    while (*aux_dat) {
+	Elf32_auxv_t *auxv_entry = (Elf32_auxv_t *) aux_dat;
+	if (auxv_entry->a_type <= AT_EGID) {
+	    memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(Elf32_auxv_t));
+	}
+	aux_dat += 2;
+    }
+    _dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : 4096;
 
     /* If we are dynamically linked the shared lib loader already
      * did this for us.  But if we are statically linked, we need
@@ -134,7 +156,7 @@ __uClibc_start_main(int argc, char **argv, char **envp,
 
 #ifdef __UCLIBC_CTOR_DTOR__
     /* Arrange for the application's dtors to run before we exit.  */
-	__app_fini = app_fini;
+    __app_fini = app_fini;
 
     /* Run all the application's ctors now.  */
     if (app_init!=NULL) {
@@ -143,7 +165,7 @@ __uClibc_start_main(int argc, char **argv, char **envp,
 #endif
 
 #ifdef __UCLIBC_PROPOLICE__
-     __guard_setup ();
+    __guard_setup ();
 #endif
 
     /* Note: It is possible that any initialization done above could
