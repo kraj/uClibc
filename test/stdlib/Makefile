@@ -54,8 +54,8 @@ teststrtol_glibc: teststrtol.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
-	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
@@ -88,8 +88,8 @@ qsort_glibc: qsort.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
-	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
@@ -122,8 +122,8 @@ teston_exit_glibc: teston_exit.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
-	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
@@ -156,8 +156,8 @@ testatexit_glibc: testatexit.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
-	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@

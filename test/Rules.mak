@@ -9,19 +9,11 @@
 -include $(TESTDIR)../.config
 include $(TESTDIR)Config
 
+#--------------------------------------------------------
+# Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc. 
+LC_ALL:= C
+export LC_ALL
 
-# Use HOST_ARCH here since running these test is not
-# even possible when cross compiling...
-HOST_ARCH:= $(shell uname -m | sed \
-		-e 's/i.86/i386/' \
-		-e 's/sparc.*/sparc/' \
-		-e 's/arm.*/arm/g' \
-		-e 's/m68k.*/m68k/' \
-		-e 's/ppc/powerpc/g' \
-		-e 's/v850.*/v850/g' \
-		-e 's/sh[234].*/sh/' \
-		-e 's/mips.*/mips/' \
-		)
 ifeq ($(strip $(TARGET_ARCH)),)
 TARGET_ARCH:=$(shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		-e 's/i.86/i386/' \
@@ -38,41 +30,62 @@ TARGET_ARCH:=$(shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 endif
 export TARGET_ARCH
 
-# If you are running a cross compiler, you may want to set this
-# to something more interesting...
-CC = ../$(TESTDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
-HOST_CC = gcc
+
+#--------------------------------------------------------
+# If you are running a cross compiler, you will want to set 'CROSS'
+# to something more interesting...  Target architecture is determined
+# by asking the CC compiler what arch it compiles things for, so unless
+# your compiler is broken, you should not need to specify TARGET_ARCH
+#
+# Most people will set this stuff on the command line, i.e.
+#        make CROSS=mipsel-linux-
+# will build uClibc for 'mipsel'.
+
+CROSS=../$(TESTDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-
+CC= $(CROSS)gcc
 STRIPTOOL=strip
-LDD = ../$(TESTDIR)ldso/util/ldd
+LDD=../$(TESTDIR)ldso/util/ldd
+
+# Select the compiler needed to build binaries for your development system
+HOSTCC=gcc
+HOSTCFLAGS=-O2 -Wall
 
 
+#--------------------------------------------------------
 # Check if 'ls -sh' works or not
 LSFLAGS = -l
 
-# turn all the warnings on
-WARNINGS=-Wall
+# A nifty macro to make testing gcc features easier
+check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
+	then echo "$(1)"; else echo "$(2)"; fi)
 
-# use '-Os' optimization if available, else use -O2
-OPTIMIZATION = ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
-    then echo "-Os"; else echo "-O2" ; fi}
+# use '-Os' optimization if available, else use -O2, allow Config to override
+OPTIMIZATION+=$(call check_gcc,-Os,-O2)
+# Override optimization settings when debugging
+ifeq ($(DODEBUG),y)
+OPTIMIZATION=-O0
+endif
+
+XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
+CFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS)
+GLIBC_CFLAGS+=$(XWARNINGS) $(OPTIMIZATION)
 
 ifeq ($(DODEBUG),true)
-    CFLAGS +=$(WARNINGS) $(OPTIMIZATION) -g
-    GLIBC_CFLAGS +=$(WARNINGS) $(OPTIMIZATION) -g
+    CFLAGS+=-g
+    GLIBC_CFLAGS+=-g
     LDFLAGS =-Wl,-warn-common
     GLIBC_LDFLAGS =-Wl,-warn-common 
     STRIPTOOL =true -Since_we_are_debugging
 else
-    CFLAGS  +=$(WARNINGS) $(OPTIMIZATION) -fomit-frame-pointer
-    GLIBC_CFLAGS  +=$(WARNINGS) $(OPTIMIZATION) -fomit-frame-pointer
     LDFLAGS  =-s -Wl,-warn-common
     GLIBC_LDFLAGS  =-s -Wl,-warn-common
     STRIP    = $(STRIPTOOL) --remove-section=.note --remove-section=.comment $(PROG)
 endif
 
 ifneq ($(DODYNAMIC),true)
-    LDFLAGS +=--static
-    GLIBC_LDFLAGS +=--static
+    LDFLAGS +=-static
+    GLIBC_LDFLAGS +=-static
 endif
 CFLAGS+=--uclibc-use-build-dir
 LDFLAGS+=--uclibc-use-build-dir

@@ -62,8 +62,8 @@ testmalloc_glibc: testmalloc.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
-	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
@@ -88,8 +88,8 @@ mallocbug_glibc: mallocbug.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
-	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
@@ -114,8 +114,8 @@ realloc0_glibc: realloc0.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
-	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@

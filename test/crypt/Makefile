@@ -40,10 +40,10 @@ crypt: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 crypt_glibc: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling vs glibc: "
 	-@ echo " "
-	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
-	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ < crypt.input > $@.out 2>&1
 	-@ echo " "

@@ -6,3 +6,7 @@ test-float
 test-ifloat
 test-ldouble
 test-ildouble
+rint
+rint.out
+rint_glibc
+rint_glibc.out

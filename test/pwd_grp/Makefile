@@ -42,8 +42,8 @@ test_pwd_glibc: test_pwd.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
-	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ 2>&1 >test_pwd_glibc.out
 	-@ echo " "
@@ -64,8 +64,8 @@ test_grp_glibc: test_grp.c Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
-	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@ 2>&1 >test_grp_glibc.out
 	-@ echo " "

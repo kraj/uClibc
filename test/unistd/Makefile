@@ -51,8 +51,8 @@ fork_glibc: fork.c ../testsuite.h Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
-	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo " "
@@ -73,8 +73,8 @@ vfork_glibc: vfork.c ../testsuite.h Makefile
 	-@ echo " "
 	-@ echo "Compiling vs GNU libc: "
 	-@ echo " "
-	$(HOST_CC) $(GLIBC_CFLAGS) -c $< -o $@.o
-	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo " "

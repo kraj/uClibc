@@ -1,7 +1,4 @@
 # Configuration for uClibc test apps.
-#
-# Copyright (C) 2001 by Lineo, inc.
-#
 
 # Set the following to `true' to make a debuggable build.
 DODEBUG = false

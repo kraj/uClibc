@@ -25,8 +25,9 @@ EXTRA_LIBS=-lm
 PERL=/usr/bin/perl
 
 TARGETS:=
-libm-tests:=
+libm-tests=libm-test.c
 libm-tests+= test-double test-idouble
+libm-tests+= diff
 #libm-tests+= test-float test-ifloat
 #libm-tests+= test-ldouble test-ildouble
 libm-tests.o = $(addsuffix .o,$(libm-tests))
@@ -35,7 +36,7 @@ libm-tests-generated = libm-test-ulps.h libm-test.c
 generated += $(libm-tests-generated) libm-test.stmp
 TARGETS += $(libm-tests) #$(libm-tests-generated)
 
-all: libm-test.c $(TARGETS)
+all: $(TARGETS)
 	
 test-double: test-double.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -56,6 +57,36 @@ test-ildouble: test-ildoubl.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	-./$@
 
+rint: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-./$@ > $@.out 2>&1
+	-@ echo " "
+
+rint_glibc: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs glibc: "
+	-@ echo " "
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-./$@ > $@.out 2>&1
+	-@ echo " "
+
+diff: rint_glibc rint
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Diffing output: "
+	-@ echo " "
+	-diff -u rint_glibc.out rint.out
+	-@ echo " "
+
 test-float.o: libm-test.c
 test-ifloat.o: libm-test.c 
 test-double.o: libm-test.c
@@ -69,6 +100,6 @@ libm-test.c: $(ulps-file) libm-test.inc gen-libm-test.pl
 	$(PERL) ./gen-libm-test.pl -u $< ./libm-test.inc -o "." 2>&1 > /dev/null
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS) $(generated)
+	rm -f *.[oa] *~ core $(TARGETS) $(generated) rint_glibc.out rint.out
 
 
