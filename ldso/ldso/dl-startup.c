@@ -114,7 +114,7 @@ DL_BOOT(unsigned long args)
 	unsigned int argc;
 	char **argv, **envp;
 	unsigned long load_addr;
-	unsigned long *got;
+	Elf32_Addr got;
 	unsigned long *aux_dat;
 	int goof = 0;
 	ElfW(Ehdr) *header;
@@ -167,6 +167,8 @@ DL_BOOT(unsigned long args)
 
 	/* locate the ELF header.   We need this done as soon as possible
 	 * (esp since SEND_STDERR() needs this on some platforms... */
+	if (!auxvt[AT_BASE].a_un.a_val)
+		auxvt[AT_BASE].a_un.a_val = elf_machine_load_address();
 	load_addr = auxvt[AT_BASE].a_un.a_val;
 	header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_ptr;
 
@@ -194,6 +196,7 @@ DL_BOOT(unsigned long args)
 	 * we can take advantage of the magic offset register, if we
 	 * happen to know what that is for this architecture.  If not,
 	 * we can always read stuff out of the ELF file to find it... */
+#if 0 /* to be deleted */
 #if defined(__i386__)
 	__asm__("\tmovl %%ebx,%0\n\t":"=a"(got));
 #elif defined(__m68k__)
@@ -270,12 +273,15 @@ found_got:
 
 	/* Now, finally, fix up the location of the dynamic stuff */
 	dpnt = (Elf32_Dyn *) (*got + load_addr);
+#endif
+	got = elf_machine_dynamic();
+	dpnt = (Elf32_Dyn *) (got + load_addr);
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	SEND_STDERR("First Dynamic section entry=");
 	SEND_ADDRESS_STDERR(dpnt, 1);
 #endif
 	_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
-
+	tpnt->loadaddr = load_addr;
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
@@ -342,12 +348,13 @@ found_got:
 	goof = 0;
 	for (indx = 0; indx < INDX_MAX; indx++) {
 		unsigned int i;
-		ELF_RELOC *rpnt;
 		unsigned long *reloc_addr;
 		unsigned long symbol_addr;
 		int symtab_index;
-		unsigned long rel_addr, rel_size;
 		Elf32_Sym *sym;
+		ELF_RELOC *rpnt;
+		unsigned long rel_addr, rel_size;
+		Elf32_Word relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
 
 		rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
 				dynamic_info[DT_RELOC_TABLE_ADDR]);
@@ -358,6 +365,15 @@ found_got:
 			continue;
 
 		/* Now parse the relocation information */
+		/* Since ldso is linked with -Bsymbolic, all relocs will be RELATIVE(for those archs that have
+		   RELATIVE relocs) which means that the for(..) loop below has noting to do and can be deleted.
+		   Possibly one should add a HAVE_RELATIVE_RELOCS directive and #ifdef away some code. */
+		if (!indx && relative_count) {
+			rel_size -= relative_count * sizeof(ELF_RELOC);
+			elf_machine_relative (load_addr, rel_addr, relative_count);
+			rel_addr += relative_count * sizeof(ELF_RELOC);;
+		}
+
 		rpnt = (ELF_RELOC *) (rel_addr + load_addr);
 		for (i = 0; i < rel_size; i += sizeof(ELF_RELOC), rpnt++) {
 			reloc_addr = (unsigned long *) (load_addr + (unsigned long) rpnt->r_offset);

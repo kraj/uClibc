@@ -4,7 +4,7 @@
 
 /* Define this if the system uses RELOCA.  */
 #define ELF_USES_RELOCA
-
+#include <elf.h>
 /* Initialization sequence for a GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE)		\
 {						\
@@ -37,3 +37,38 @@ extern unsigned int _dl_linux_resolver (int, int, struct elf_resolve *, int);
 #define elf_machine_type_class(type) \
   ((((type) == R_68K_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)	\
    | (((type) == R_68K_COPY) * ELF_RTYPE_CLASS_COPY))
+
+/* Return the link-time address of _DYNAMIC.  Conveniently, this is the
+   first element of the GOT.  This must be inlined in a function which
+   uses global data.  */
+static inline Elf32_Addr
+elf_machine_dynamic (void)
+{
+	register Elf32_Addr *got asm ("%a5");
+	return *got;
+}
+
+
+/* Return the run-time load address of the shared object.  */
+static inline Elf32_Addr
+elf_machine_load_address (void)
+{
+	Elf32_Addr addr;
+	asm ("lea _dl_boot(%%pc), %0\n\t"
+	     "sub.l _dl_boot@GOT.w(%%a5), %0"
+	     : "=a" (addr));
+	return addr;
+}
+
+static inline void
+elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
+		      Elf32_Word relative_count)
+{
+	 Elf32_Rela * rpnt = (void *) (rel_addr + load_off);
+	--rpnt;
+	do {
+		Elf32_Addr *const reloc_addr = (void *) (load_off + (++rpnt)->r_offset);
+
+		*reloc_addr = load_off + rpnt->r_addend;
+	} while (--relative_count);
+}

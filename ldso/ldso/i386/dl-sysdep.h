@@ -7,7 +7,7 @@
 
 /* Define this if the system uses RELOCA.  */
 #undef ELF_USES_RELOCA
-
+#include <elf.h>
 /* Initialization sequence for the GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE)							\
 do {														\
@@ -40,3 +40,42 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
 #define elf_machine_type_class(type) \
   ((((type) == R_386_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)			      \
    | (((type) == R_386_COPY) * ELF_RTYPE_CLASS_COPY))
+
+/* Return the link-time address of _DYNAMIC.  Conveniently, this is the
+   first element of the GOT.  This must be inlined in a function which
+   uses global data.  */
+static inline Elf32_Addr __attribute__ ((unused))
+elf_machine_dynamic (void)
+{
+	register Elf32_Addr *got asm ("%ebx");
+	return *got;
+}
+
+
+/* Return the run-time load address of the shared object.  */
+static inline Elf32_Addr __attribute__ ((unused))
+elf_machine_load_address (void)
+{
+	/* It doesn't matter what variable this is, the reference never makes
+	   it to assembly.  We need a dummy reference to some global variable
+	   via the GOT to make sure the compiler initialized %ebx in time.  */
+	extern int _dl_argc;
+	Elf32_Addr addr;
+	asm ("leal _dl_boot@GOTOFF(%%ebx), %0\n"
+	     "subl _dl_boot@GOT(%%ebx), %0"
+	     : "=r" (addr) : "m" (_dl_argc) : "cc");
+	return addr;
+}
+
+static inline void
+elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
+		      Elf32_Word relative_count)
+{
+	Elf32_Rel * rpnt = (void *) (rel_addr + load_off);
+	--rpnt;
+	do {
+		Elf32_Addr *const reloc_addr = (void *) (load_off + (++rpnt)->r_offset);
+
+		*reloc_addr =  load_off;
+	} while (--relative_count);
+}

@@ -7,7 +7,7 @@
 
 /* Define this if the system uses RELOCA.  */
 #undef ELF_USES_RELOCA
-
+#include <elf.h>
 #define ARCH_NUM 3
 #define DT_MIPS_GOTSYM_IDX	(DT_NUM + OS_NUM)
 #define DT_MIPS_LOCAL_GOTNO_IDX	(DT_NUM + OS_NUM +1)
@@ -71,3 +71,52 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 #define elf_machine_type_class(type)		ELF_RTYPE_CLASS_PLT
 /* MIPS does not have COPY relocs */
 #define DL_NO_COPY_RELOCS
+
+#define OFFSET_GP_GOT 0x7ff0
+
+static inline ElfW(Addr) *
+elf_mips_got_from_gpreg (ElfW(Addr) gpreg)
+{
+	/* FIXME: the offset of gp from GOT may be system-dependent. */
+	return (ElfW(Addr) *) (gpreg - OFFSET_GP_GOT);
+}
+
+/* Return the link-time address of _DYNAMIC.  Conveniently, this is the
+   first element of the GOT.  This must be inlined in a function which
+   uses global data.  We assume its $gp points to the primary GOT.  */
+static inline ElfW(Addr)
+elf_machine_dynamic (void)
+{
+	register ElfW(Addr) gp __asm__ ("$28");
+	return *elf_mips_got_from_gpreg (gp);
+}
+
+#define STRINGXP(X) __STRING(X)
+#define STRINGXV(X) STRINGV_(X)
+#define STRINGV_(...) # __VA_ARGS__
+#define PTR_LA               la
+#define PTR_SUBU     subu
+
+/* Return the run-time load address of the shared object.  */
+static inline ElfW(Addr)
+elf_machine_load_address (void)
+{
+	ElfW(Addr) addr;
+	asm ("        .set noreorder\n"
+	     "        " STRINGXP (PTR_LA) " %0, 0f\n"
+	     "        bltzal $0, 0f\n"
+	     "        nop\n"
+	     "0:      " STRINGXP (PTR_SUBU) " %0, $31, %0\n"
+	     "        .set reorder\n"
+	     :        "=r" (addr)
+	     :        /* No inputs */
+	     :        "$31");
+	return addr;
+}
+
+static inline void
+elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
+		      Elf32_Word relative_count)
+{
+	/* No REALTIVE relocs in MIPS? */
+}

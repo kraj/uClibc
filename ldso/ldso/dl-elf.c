@@ -726,7 +726,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 {
 	int goof = 0;
 	struct elf_resolve *tpnt;
-	unsigned long reloc_size;
+	Elf32_Word reloc_size, reloc_addr, relative_count;
 
 	if (rpnt->next)
 		goof += _dl_fixup(rpnt->next, now_flag);
@@ -757,8 +757,15 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 	if (tpnt->dynamic_info[DT_RELOC_TABLE_ADDR] &&
 	    !(tpnt->init_flag & RELOCS_DONE)) {
 		tpnt->init_flag |= RELOCS_DONE;
+		reloc_addr = tpnt->dynamic_info[DT_RELOC_TABLE_ADDR];
+		relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
+		if (relative_count) { /* Optimize the XX_RELATIVE relocations if possible */
+			reloc_size -= relative_count * sizeof(ELF_RELOC);
+			elf_machine_relative (tpnt->loadaddr, reloc_addr, relative_count);
+			reloc_addr += relative_count * sizeof(ELF_RELOC);
+		}
 		goof += _dl_parse_relocation_information(rpnt,
-				tpnt->dynamic_info[DT_RELOC_TABLE_ADDR],
+				reloc_addr,
 				reloc_size);
 	}
 	if (tpnt->dynamic_info[DT_BIND_NOW])

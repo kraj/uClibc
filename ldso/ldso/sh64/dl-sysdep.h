@@ -6,7 +6,7 @@
 
 /* Define this if the system uses RELOCA.  */
 #define ELF_USES_RELOCA
-
+#include <elf.h>
 /*
  * Initialization sequence for a GOT.
  */
@@ -40,3 +40,79 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
 #define elf_machine_type_class(type) \
   ((((type) == R_SH_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)	\
    | (((type) == R_SH_COPY) * ELF_RTYPE_CLASS_COPY))
+
+/* Return the link-time address of _DYNAMIC.  Conveniently, this is the
+   first element of the GOT.  This must be inlined in a function which
+   uses global data.  */
+static inline Elf32_Addr __attribute__ ((unused))
+elf_machine_dynamic (void)
+{
+	register Elf32_Addr *got;
+	asm ("mov r12,%0" :"=r" (got));
+	return *got;
+}
+
+/* Return the run-time load address of the shared object.  */
+static inline Elf32_Addr __attribute__ ((unused))
+elf_machine_load_address (void)
+{
+	Elf32_Addr addr;
+	asm ("mov.l 1f,r0\n\
+        mov.l 3f,r2\n\
+        add r12,r2\n\
+        mov.l @(r0,r12),r0\n\
+        bra 2f\n\
+         sub r0,r2\n\
+        .align 2\n\
+        1: .long _dl_boot@GOT\n\
+        3: .long _dl_boot@GOTOFF\n\
+        2: mov r2,%0"
+	     : "=r" (addr) : : "r0", "r1", "r2");
+	return addr;
+}
+
+#define COPY_UNALIGNED_WORD(swp, twp, align) \
+  { \
+    void *__s = (swp), *__t = (twp); \
+    unsigned char *__s1 = __s, *__t1 = __t; \
+    unsigned short *__s2 = __s, *__t2 = __t; \
+    unsigned long *__s4 = __s, *__t4 = __t; \
+    switch ((align)) \
+    { \
+    case 0: \
+      *__t4 = *__s4; \
+      break; \
+    case 2: \
+      *__t2++ = *__s2++; \
+      *__t2 = *__s2; \
+      break; \
+    default: \
+      *__t1++ = *__s1++; \
+      *__t1++ = *__s1++; \
+      *__t1++ = *__s1++; \
+      *__t1 = *__s1; \
+      break; \
+    } \
+  }
+
+static inline void
+elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
+		      Elf32_Word relative_count)
+{
+	Elf32_Addr value;
+	Elf32_Rela * rpnt = (void *) (rel_addr + load_off);
+
+	do {
+		Elf32_Addr *const reloc_addr = (void *) (load_off + rpnt->r_offset);
+
+		if (rpnt->r_addend)
+			value = load_off + rpnt->r_addend;
+		else {
+			COPY_UNALIGNED_WORD (reloc_addr, &value, (int) reloc_addr & 3);
+			value += load_off;
+		}
+		COPY_UNALIGNED_WORD (&value, reloc_addr, (int) reloc_addr & 3);
+		rpnt++;
+	} while (--relative_count);
+#undef COPY_UNALIGNED_WORD
+}

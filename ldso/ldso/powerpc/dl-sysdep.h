@@ -7,7 +7,7 @@
  * Define this if the system uses RELOCA.
  */
 #define ELF_USES_RELOCA
-
+#include <elf.h>
 /*
  * Initialization sequence for a GOT.
  */
@@ -91,3 +91,78 @@ void _dl_init_got(unsigned long *lpnt,struct elf_resolve *tpnt);
 /* The SVR4 ABI specifies that the JMPREL relocs must be inside the
    DT_RELA table.  */
 #define ELF_MACHINE_PLTREL_OVERLAP 1
+
+/* Return the link-time address of _DYNAMIC, stored as
+   the first value in the GOT. */
+static inline Elf32_Addr
+elf_machine_dynamic (void)
+{
+  Elf32_Addr *got;
+  asm (" bl _GLOBAL_OFFSET_TABLE_-4@local"
+       : "=l"(got));
+  return *got;
+}
+
+/* Return the run-time load address of the shared object.  */
+static inline Elf32_Addr
+elf_machine_load_address (void)
+{
+  unsigned int *got;
+  unsigned int *branchaddr;
+
+  /* This is much harder than you'd expect.  Possibly I'm missing something.
+     The 'obvious' way:
+
+       Apparently, "bcl 20,31,$+4" is what should be used to load LR
+       with the address of the next instruction.
+       I think this is so that machines that do bl/blr pairing don't
+       get confused.
+
+     asm ("bcl 20,31,0f ;"
+	  "0: mflr 0 ;"
+	  "lis %0,0b@ha;"
+	  "addi %0,%0,0b@l;"
+	  "subf %0,%0,0"
+	  : "=b" (addr) : : "r0", "lr");
+
+     doesn't work, because the linker doesn't have to (and in fact doesn't)
+     update the @ha and @l references; the loader (which runs after this
+     code) will do that.
+
+     Instead, we use the following trick:
+
+     The linker puts the _link-time_ address of _DYNAMIC at the first
+     word in the GOT. We could branch to that address, if we wanted,
+     by using an @local reloc; the linker works this out, so it's safe
+     to use now. We can't, of course, actually branch there, because
+     we'd cause an illegal instruction exception; so we need to compute
+     the address ourselves. That gives us the following code: */
+
+  /* Get address of the 'b _DYNAMIC@local'...  */
+  asm ("bl 0f ;"
+       "b _DYNAMIC@local;"
+       "0:"
+       : "=l"(branchaddr));
+
+  /* ... and the address of the GOT.  */
+  asm (" bl _GLOBAL_OFFSET_TABLE_-4@local"
+       : "=l"(got));
+
+  /* So now work out the difference between where the branch actually points,
+     and the offset of that location in memory from the start of the file.  */
+  return ((Elf32_Addr)branchaddr - *got
+	  + ((int)(*branchaddr << 6 & 0xffffff00) >> 6));
+}
+
+static inline void
+elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
+		      Elf32_Word relative_count)
+{
+	 Elf32_Rela * rpnt = (void *) (rel_addr + load_off);
+	--rpnt;
+	do {     /* PowerPC handles pre increment/decrement better */ 
+		Elf32_Addr *const reloc_addr = (void *) (load_off + (++rpnt)->r_offset);
+
+		*reloc_addr = load_off + rpnt->r_addend;
+	} while (--relative_count);
+}
