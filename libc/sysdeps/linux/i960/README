@@ -39,7 +39,6 @@ To:
 gcc integration
 ---------------------------------------------------------------------------
 
-I'm personnaly not using the gcc-uClibc wrapper.
 I've preferred modifying the specs file so that the i960-intel-coff compiler
 directly compiles with uClibc.
 
