@@ -51,5 +51,5 @@ headers: include/dl-progname.h
 clean:
 	set -e ; for d in $(ALL_SUBDIRS) ; do $(MAKE) -C $$d $@ ; done
 	-find . -name '*~' | xargs $(RM)
-	$(RM) include/elf.h include/boot1_arch.h include/ld_syscalls.h \
-		include/ld_sysdep.h include/dl-progname.h
+	$(RM) include/elf.h include/dl-startup.h include/dl-syscalls.h \
+		include/dl-sysdep.h include/dl-progname.h
