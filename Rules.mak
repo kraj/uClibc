@@ -127,7 +127,7 @@ ifeq ($(strip $(TARGET_ARCH)),arm)
 	CPU_CFLAGS-$(CONFIG_ARM_XSCALE)+=-march=armv4 -Wa,-mcpu=xscale
 endif
 
-ifeq ($(strip $(TARGET_ARCH)),"sh")
+ifeq ($(strip $(TARGET_ARCH)),sh)
 	OPTIMIZATION+=-fstrict-aliasing
 	OPTIMIZATION+= $(call check_gcc,-mprefergot,)
 	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-EL
