@@ -1215,7 +1215,7 @@ endmenu
 
 menu "uClibc development/debugging options"
 
-config CROSS_COMPILE
+config CROSS_COMPILER_PREFIX
 	string "Cross-compiling toolchain prefix"
 	default ""
 	help

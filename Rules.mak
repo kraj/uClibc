@@ -85,7 +85,7 @@ ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 endif
 
 ifndef CROSS
-CROSS=$(subst ",, $(strip $(CROSS_COMPILE)))
+CROSS=$(subst ",, $(strip $(CROSS_COMPILER_PREFIX))) #"
 endif
 
 # A nifty macro to make testing gcc features easier
