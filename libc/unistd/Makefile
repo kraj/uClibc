@@ -26,7 +26,7 @@ LIBC=$(TOPDIR)libc.a
 DIRS:=
 
 CSRC=execl.c execlp.c execv.c execvep.c execvp.c getcwd.c getopt.c \
-	sleep.c getpass.c sysconf_src.c getopt_vars.c
+	sleep.c getpass.c sysconf_src.c getopt_vars.c daemon.c
 
 # TESTING -- comment this out if it breaks for you
 ifeq ($(TARGET_ARCH), $(NATIVE_ARCH))
