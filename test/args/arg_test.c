@@ -29,6 +29,16 @@ int main( int argc, char **argv)
 {
 	int i=0;
 	char** index=__environ;
+
+#ifdef __powerpc__
+	{
+		unsigned long sp;
+		sp = (unsigned long) __builtin_frame_address(0);
+		if(sp&0xf){
+			fprintf(stderr, "stack pointer is unaligned! (%08lx)\n", sp);
+		}
+	}
+#endif
 	
 	fprintf(stderr, "argc=%d\n", argc);
 
