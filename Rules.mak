@@ -116,7 +116,7 @@ WARNINGS+=-Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
 
 
 CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
-	-I$(TOPDIR)include -iwithprefix include -I. -D_LIBC $(ARCH_CFLAGS)
+	-I$(TOPDIR)include -iwithprefix include -I. -D_LIBC $(CPU_CFLAGS) $(ARCH_CFLAGS)
 NATIVE_CFLAGS:=-O2 -Wall
 
 ifeq ($(strip $(DODEBUG)),y)

@@ -19,17 +19,15 @@ choice
 
 	  Here are the settings recommended for greatest speed:
 	  - "386" for the AMD/Cyrix/Intel 386DX/DXL/SL/SLC/SX, Cyrix/TI
-	    486DLC/DLC2, UMC 486SX-S and NexGen Nx586.  Only "386" kernels
-	    will run on a 386 class machine.
+	     486DLC/DLC2, UMC 486SX-S and NexGen Nx586.  Only "386" kernels
+	     will run on a 386 class machine.
 	  - "486" for the AMD/Cyrix/IBM/Intel 486DX/DX2/DX4 or
-	    SL/SLC/SLC2/SLC3/SX/SX2 and UMC U5D or U5S.
-	  - "586" for generic Pentium CPUs lacking the TSC
-	    (time stamp counter) register.
-	  - "Pentium-Classic" for the Intel Pentium.
+	     SL/SLC/SLC2/SLC3/SX/SX2 and UMC U5D or U5S.
+	  - "586" for Intel Pentium and other generic Pentium CPUs
 	  - "Pentium-MMX" for the Intel Pentium MMX.
 	  - "Pentium-Pro" for the Intel Pentium Pro/Celeron/Pentium II.
 	  - "Pentium-III" for the Intel Pentium III
-	    and Celerons based on the Coppermine core.
+	     and Celerons based on the Coppermine core.
 	  - "Pentium-4" for the Intel Pentium 4.
 	  - "K6" for the AMD K6, K6-II and K6-III (aka K6-3D).
 	  - "Athlon" for the AMD K7 family (Athlon/Duron/Thunderbird).
@@ -48,10 +46,7 @@ config CONFIG_486
 	bool "486"
 
 config CONFIG_586
-	bool "586/K5/5x86/6x86/6x86MX"
-
-config CONFIG_586TSC
-	bool "Pentium-Classic"
+	bool "Pentium/586/K5/5x86/6x86/6x86MX/Winchip-2A/Winchip-3"
 
 config CONFIG_586MMX
 	bool "Pentium-MMX"
@@ -71,9 +66,6 @@ config CONFIG_K6
 config CONFIG_K7
 	bool "Athlon/Duron/K7"
 
-config CONFIG_ELAN
-	bool "Elan"
-
 config CONFIG_CRUSOE
 	bool "Crusoe"
 
@@ -83,105 +75,30 @@ config CONFIG_WINCHIPC6
 config CONFIG_WINCHIP2
 	bool "Winchip-2"
 
-config CONFIG_WINCHIP3D
-	bool "Winchip-2A/Winchip-3"
-
 config CONFIG_CYRIXIII
 	bool "CyrixIII/VIA-C3"
 
 endchoice
 
-config UCLIBC_HAS_MMU
-	bool "Target CPU has a memory management unit (MMU)"
-	default y
-	help
-	  If your target CPU does not have a memory management unit (MMU), 
-	  then answer N here.  Normally, Linux runs on systems with an MMU.  
-	  If you are building a uClinux system, answer N.
-
-	  Most people will answer Y.
-
-config UCLIBC_HAS_FLOATS
-	bool "Enable floating point number support"
-	default y
-	help
-	  This option allows you to entirely omit all floating point number
-	  support from uClibc.  This will cause floating point functions like
-	  strtod() to be entirely omitted from uClibc.  Other functions, such
-	  as printf() and scanf() will still be included in the library, but
-	  will not contain support for floating point numbers.
-
-	  Answering N to this option can reduce the size of uClibc.  Most people
-	  will answer Y.
-
-config HAS_FPU
-	bool "Target CPU has a floating point unit (FPU)"
-	depends on UCLIBC_HAS_FLOATS
-	default y
-	help
-	  If your target CPU does not have a floating management unit (FPU),
-	  but you wish to support floating point functions, then uClibc will
-	  need to be compiled with soft floating point support (-msoft-float).
-	  If your target CPU does not have an FPU or an FPU emulator within the
-	  Linux kernel, then you should answer N.
-
-	  Most people will answer Y.
-
-config DO_C99_MATH
-	bool "Enable full C99 math library support"
-	depends on UCLIBC_HAS_FLOATS
-	default n
-	help
-	  If you want the uClibc math library to contain the full set C99
-	  math library features, then answer Y.  If you leave this set to
-	  N the math library will contain only the math functions that were
-	  listed as part of the traditionla POSIX/IEEE 1003.1b-1993 standard.
-	  Leaving this option set to N will save around 35k on an x86 system.
-
-	  If your applications require the newer C99 math library functions, 
-	  then answer Y.
-
-config WARNINGS
-	string "Compiler Warnings"
-	default "-Wall"
-	help
-	  Set this to the set of gcc warnings you wish to see while compiling.
-
-config KERNEL_SOURCE
-	string "Linux kernel header location"
-	default "/usr/src/linux"
-	help
-	  The kernel source you use to compile with should be the same as the
-	  Linux kernel you run your apps on.  uClibc doesn't even try to achieve binary
-	  compatibility across kernel versions.  So don't expect, for example, uClibc
-	  compiled with Linux kernel 2.0.x to implement lchown properly, since 2.0.x
-	  can't do that. Similarly, if you compile uClibc vs Linux 2.4.x kernel headers,
-	  but then run on Linux 2.0.x, lchown will be compiled into uClibc, but won't
-	  work at all.  You have been warned.
-
-config C_SYMBOL_PREFIX
+config CPU_CFLAGS
 	string
-	default ""
+	default "-march=i386" if CONFIG_386
+	default "-march=i486" if CONFIG_486
+	default "-march=i586" if CONFIG_586
+	default "$(call check_gcc,-march=pentium-mmx,-march=i586)" if CONFIG_586MMX
+	default "-march=i686" if CONFIG_686
+	default "$(call check_gcc,-march=pentium3,-march=i686)" if CONFIG_PENTIUMIII
+	default "$(call check_gcc,-march=pentium4,-march=i686)" if CONFIG_PENTIUM4
+	default "$(call check_gcc,-march=k6,-march=i586)" if CONFIG_K6
+	default "$(call check_gcc,-march=athlon,-march=i686 -malign-functions=4)" if CONFIG_K7
+	default "-march=i686 -malign-functions=0 -malign-jumps=0 -malign-loops=0" if CONFIG_CRUSOE
+	default "$(call check_gcc,-march=winchip-c6,-march=i586)" if CONFIG_WINCHIPC6
+	default "$(call check_gcc,-march=winchip2,-march=i586)" if CONFIG_WINCHIP2
+	default "$(call check_gcc,-march=c3,-march=i586)" if CONFIG_CYRIXIII
 
-config UCLIBC_UCLINUX_BROKEN_MUNMAP
-	bool
-	depends on !HAS_MMU
-	default y
-
-config HAVE_ELF
-	bool
-	default y
-
-config NO_UNDERSCORES
-	bool
-	default n
-
-config HAVE_DOT_HIDDEN
-	bool
-	default n
+source "extra/Configs/Config.in.arch"
 
 endmenu
 
 source "extra/Configs/Config.in"
-
 
