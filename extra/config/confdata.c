@@ -7,7 +7,6 @@
  */
 
 #include <ctype.h>
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +16,6 @@
 #include "lkc.h"
 
 const char conf_def_filename[] = ".config";
-char conf_filename[PATH_MAX+1];
 
 const char conf_defname[] = "extra/Configs/Config.$TARGET_ARCH.default";
 
@@ -71,8 +69,6 @@ int conf_read(const char *name)
 
 	if (name) {
 		in = fopen(name, "r");
-		if (in)
-			strcpy(conf_filename, name);
 	} else {
 		const char **names = conf_confnames;
 		while ((name = *names++)) {
@@ -91,16 +87,17 @@ int conf_read(const char *name)
 		return 1;
 
 	for_all_symbols(i, sym) {
-		sym->flags |= SYMBOL_NEW;
+		sym->flags |= SYMBOL_NEW | SYMBOL_CHANGED;
+		sym->flags &= ~SYMBOL_VALID;
 		switch (sym->type) {
 		case S_INT:
 		case S_HEX:
 		case S_STRING:
-			if (S_VAL(sym->def)) {
+			if (S_VAL(sym->def))
 				free(S_VAL(sym->def));
-				S_VAL(sym->def) = NULL;
-			}
 		default:
+			S_VAL(sym->def) = NULL;
+			S_TRI(sym->def) = no;
 			;
 		}
 	}
@@ -372,7 +369,6 @@ int conf_write(const char *name)
 	rename(name, oldname);
 	if (rename(".tmpconfig", name))
 		return 1;
-	strcpy(conf_filename, name);
 
 	sym_change_count = 0;
 
