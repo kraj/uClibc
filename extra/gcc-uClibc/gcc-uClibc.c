@@ -51,6 +51,7 @@
 
 #include "gcc-uClibc.h"
 
+#if 0
 static char *rpath_link[] = {
 	"-Wl,-rpath-link,"UCLIBC_INSTALL_DIR"lib",
 	"-Wl,-rpath-link,"UCLIBC_BUILD_DIR"lib"
@@ -60,6 +61,7 @@ static char *rpath[] = {
 	"-Wl,-rpath,"UCLIBC_INSTALL_DIR"lib",
 	"-Wl,-rpath,"UCLIBC_BUILD_DIR"lib"
 };
+#endif
 
 static char *uClibc_inc[] = {
 	"-I"UCLIBC_INSTALL_DIR"usr/include/",
@@ -193,11 +195,15 @@ int main(int argc, char **argv)
 				gcc_argv[i++] = dlstr;
 #endif
 			}
+#if 0
 			if (use_build_dir || use_rpath) {
 				gcc_argv[i++] = rpath[use_build_dir];
 			}
+#endif
 		}
+#if 0
 		gcc_argv[i++] = rpath_link[use_build_dir]; /* just to be safe */
+#endif
 		gcc_argv[i++] = lib_path[use_build_dir];
 		if (!use_build_dir) {
 			gcc_argv[i++] = usr_lib_path;
