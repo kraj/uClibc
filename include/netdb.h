@@ -186,6 +186,8 @@ extern struct netent *getnetbyaddr (uint32_t __net, int __type)
 /* Return entry from network data base for network with NAME.  */
 extern struct netent *getnetbyname (__const char *__name) __THROW;
 
+#if 0
+/* FIXME */
 #ifdef	__USE_MISC
 /* Reentrant versions of the functions above.  The additional
    arguments specify a buffer of BUFLEN starting at BUF.  The last
@@ -209,6 +211,7 @@ extern int getnetbyname_r (__const char *__restrict __name,
 			   struct netent **__restrict __result,
 			   int *__restrict __h_errnop) __THROW;
 #endif	/* misc */
+#endif
 
 
 /* Description of data base entry for a single service.  */
@@ -307,31 +310,6 @@ extern int getprotobynumber_r (int __proto,
 #endif	/* misc */
 
 
-/* Establish network group NETGROUP for enumeration.  */
-extern int setnetgrent (__const char *__netgroup) __THROW;
-
-/* Free all space allocated by previous `setnetgrent' call.  */
-extern void endnetgrent (void) __THROW;
-
-/* Get next member of netgroup established by last `setnetgrent' call
-   and return pointers to elements in HOSTP, USERP, and DOMAINP.  */
-extern int getnetgrent (char **__restrict __hostp,
-			char **__restrict __userp,
-			char **__restrict __domainp) __THROW;
-
-#ifdef	__USE_MISC
-/* Test whether NETGROUP contains the triple (HOST,USER,DOMAIN).  */
-extern int innetgr (__const char *__netgroup, __const char *__host,
-		    __const char *__user, __const char *domain) __THROW;
-
-/* Reentrant version of `getnetgrent' where result is placed in BUFFER.  */
-extern int getnetgrent_r (char **__restrict __hostp,
-			  char **__restrict __userp,
-			  char **__restrict __domainp,
-			  char *__restrict __buffer, size_t __buflen) __THROW;
-#endif	/* misc */
-
-
 #ifdef __USE_BSD
 /* Call `rshd' at port RPORT on remote machine *AHOST to execute CMD.
    The local user is LOCUSER, on the remote machine the command is
@@ -345,6 +323,8 @@ extern int rcmd (char **__restrict __ahost, unsigned short int __rport,
 		 __const char *__restrict __cmd, int *__restrict __fd2p)
      __THROW;
 
+#if 0
+/* FIXME */
 /* This is the equivalent function where the protocol can be selected
    and which therefore can be used for IPv6.  */
 extern int rcmd_af (char **__restrict __ahost, unsigned short int __rport,
@@ -352,6 +332,7 @@ extern int rcmd_af (char **__restrict __ahost, unsigned short int __rport,
 		    __const char *__restrict __remuser,
 		    __const char *__restrict __cmd, int *__restrict __fd2p,
 		    sa_family_t __af) __THROW;
+#endif
 
 /* Call `rexecd' at port RPORT on remote machine *AHOST to execute
    CMD.  The process runs at the remote machine using the ID of user
@@ -378,20 +359,26 @@ extern int rexec_af (char **__restrict __ahost, int __rport,
 extern int ruserok (__const char *__rhost, int __suser,
 		    __const char *__remuser, __const char *__locuser) __THROW;
 
+#if 0
+/* FIXME */
 /* This is the equivalent function where the protocol can be selected
    and which therefore can be used for IPv6.  */
 extern int ruserok_af (__const char *__rhost, int __suser,
 		       __const char *__remuser, __const char *__locuser,
 		       sa_family_t __af) __THROW;
+#endif
 
 /* Try to allocate reserved port, returning a descriptor for a socket opened
    at this port or -1 if unsuccessful.  The search for an available port
    will start at ALPORT and continues with lower numbers.  */
 extern int rresvport (int *__alport) __THROW;
 
+#if 0
+/* FIXME */
 /* This is the equivalent function where the protocol can be selected
    and which therefore can be used for IPv6.  */
 extern int rresvport_af (int *__alport, sa_family_t __af) __THROW;
+#endif
 #endif
 
 
@@ -410,24 +397,6 @@ struct addrinfo
   struct addrinfo *ai_next;	/* Pointer to next in list.  */
 };
 
-# ifdef __USE_GNU
-/* Structure used as control block for asynchronous lookup.  */
-struct gaicb
-{
-  const char *ar_name;		/* Name to look up.  */
-  const char *ar_service;	/* Service name.  */
-  const struct addrinfo *ar_request; /* Additional request specification.  */
-  struct addrinfo *ar_result;	/* Pointer to result.  */
-  /* The following are internal elements.  */
-  int __return;
-  int __unused[5];
-};
-
-/* Lookup mode.  */
-#  define GAI_WAIT	0
-#  define GAI_NOWAIT	1
-# endif
-
 /* Possible values for `ai_flags' field in `addrinfo' structure.  */
 # define AI_PASSIVE	0x0001	/* Socket address is intended for `bind'.  */
 # define AI_CANONNAME	0x0002	/* Request for canonical name.  */
@@ -445,13 +414,6 @@ struct gaicb
 # define EAI_ADDRFAMILY	  -9	/* Address family for NAME not supported.  */
 # define EAI_MEMORY	  -10	/* Memory allocation failure.  */
 # define EAI_SYSTEM	  -11	/* System error returned in `errno'.  */
-# ifdef __USE_GNU
-#  define EAI_INPROGRESS  -100	/* Processing request in progress.  */
-#  define EAI_CANCELED	  -101	/* Request canceled.  */
-#  define EAI_NOTCANCELED -102	/* Request not canceled.  */
-#  define EAI_ALLDONE	  -103	/* All requests done.  */
-#  define EAI_INTR	  -104	/* Interrupted by a signal.  */
-# endif
 
 # define NI_MAXHOST      1025
 # define NI_MAXSERV      32
@@ -481,26 +443,6 @@ extern int getnameinfo (__const struct sockaddr *__restrict __sa,
 			socklen_t __hostlen, char *__restrict __serv,
 			socklen_t __servlen, unsigned int __flags) __THROW;
 
-# ifdef __USE_GNU
-/* Enqueue ENT requests from the LIST.  If MODE is GAI_WAIT wait until all
-   requests are handled.  If WAIT is GAI_NOWAIT return immediately after
-   queueing the requests and signal completion according to SIG.  */
-extern int getaddrinfo_a (int __mode, struct gaicb *__list[__restrict_arr],
-			  int __ent, struct sigevent *__restrict __sig)
-     __THROW;
-
-/* Suspend execution of the thread until at least one of the ENT requests
-   in LIST is handled.  If TIMEOUT is not a null pointer it specifies the
-   longest time the function keeps waiting before returning with an error.  */
-extern int gai_suspend (__const struct gaicb *__const __list[], int __ent,
-			__const struct timespec *__timeout) __THROW;
-
-/* Get the error status of the request REQ.  */
-extern int gai_error (struct gaicb *__req) __THROW;
-
-/* Cancel the requests associated with GAICBP.  */
-extern int gai_cancel (struct gaicb *__gaicbp) __THROW;
-# endif	/* GNU */
 #endif	/* POSIX */
 
 __END_DECLS
