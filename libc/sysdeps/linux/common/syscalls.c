@@ -26,10 +26,6 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-#define uClibc_syscall_exit(void, _exit, int, status) \
-_syscall1(void, _exit, int, status)
-
-
 #include "unified_syscall.h"
 
 //#define __NR_exit             1
@@ -37,11 +33,16 @@ _syscall1(void, _exit, int, status)
 /* Do not include unistd.h, so gcc doesn't whine about 
  * _exit returning.  It really doesn't return... */
 #define __NR__exit __NR_exit
-uClibc_syscall_exit(void, _exit, int, status);
+_syscall1(void, _exit, int, status);
 #endif
 
 //#define __NR_fork             2
-//See architecture specific implementation...
+#ifdef L_fork
+#ifndef __HAS_NO_MMU__
+#include <unistd.h>
+_syscall0(pid_t, fork);
+#endif
+#endif
 
 //#define __NR_read             3
 #ifdef L_read
