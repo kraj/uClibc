@@ -304,27 +304,25 @@ found_got:
 	app_tpnt = LD_MALLOC(sizeof(struct elf_resolve));
 	_dl_memset(app_tpnt, 0, sizeof(struct elf_resolve));
 
-#ifdef __UCLIBC_PIE_SUPPORT__
 	/* Find the runtime load address of the main executable, this may be
 	 * different from what the ELF header says for ET_DYN/PIE executables.
 	 */
 	{
-		ElfW(Phdr) *ppnt;
 		int i;
-
-		ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
+		ElfW(Phdr) *ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
 			if (ppnt->p_type == PT_PHDR) {
 				app_tpnt->loadaddr = (ElfW(Addr)) (auxvt[AT_PHDR].a_un.a_val - ppnt->p_vaddr);
 				break;
 			}
-	}
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("app_tpnt->loadaddr=");
-	SEND_ADDRESS_STDERR(app_tpnt->loadaddr, 1);
+		if (app_tpnt->loadaddr) {
+			SEND_STDERR("Position Independent Executable: app_tpnt->loadaddr=");
+			SEND_ADDRESS_STDERR(app_tpnt->loadaddr, 1);
+		}
 #endif
-#endif
+	}
 
 	/*
 	 * This is used by gdb to locate the chain of shared libraries that are currently loaded.
@@ -362,11 +360,7 @@ found_got:
 		ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
 			if (ppnt->p_type == PT_DYNAMIC) {
-#ifndef __UCLIBC_PIE_SUPPORT__
-				dpnt = (Elf32_Dyn *) ppnt->p_vaddr;
-#else
 				dpnt = (Elf32_Dyn *) (ppnt->p_vaddr + app_tpnt->loadaddr);
-#endif
 				while (dpnt->d_tag) {
 #if defined(__mips__)
 					if (dpnt->d_tag == DT_MIPS_GOTSYM)
@@ -460,17 +454,10 @@ found_got:
 			ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 			for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
-#ifndef __UCLIBC_PIE_SUPPORT__
-					_dl_mprotect((void *) (ppnt->p_vaddr & PAGE_ALIGN),
-							(ppnt->p_vaddr & ADDR_ALIGN) +
-							(unsigned long) ppnt->p_filesz,
-							PROT_READ | PROT_WRITE | PROT_EXEC);
-#else
 				_dl_mprotect((void *) ((ppnt->p_vaddr + app_tpnt->loadaddr) & PAGE_ALIGN),
 						((ppnt->p_vaddr + app_tpnt->loadaddr) & ADDR_ALIGN) +
 						(unsigned long) ppnt->p_filesz,
 						PROT_READ | PROT_WRITE | PROT_EXEC);
-#endif
 			}
 		}
 	}
