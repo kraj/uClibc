@@ -209,7 +209,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 					 * Even though the program header is marked RWE, the kernel gives
 					 * it to us rx.
 					 */
-					Elf32_Addr mpa = (ppnt->p_vaddr + app_tpnt->loadaddr) & ~(pagesize - 1);
+					Elf32_Addr mpa = (ppnt->p_vaddr + app_tpnt->loadaddr) & ~(_dl_pagesize - 1);
 					Elf32_Word mps = ((ppnt->p_vaddr + app_tpnt->loadaddr) - mpa) + ppnt->p_memsz;
 					if(_dl_mprotect(mpa, mps, PROT_READ | PROT_WRITE | PROT_EXEC)) {
 						SEND_STDERR("Couldn't mprotect .dynamic segment to rwx.\n");
