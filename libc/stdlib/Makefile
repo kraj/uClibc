@@ -48,9 +48,6 @@ $(MOBJ): $(MSRC)
 $(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 
-$(COBJS): $(CSRC)
-
-
 clean:
 	rm -f *.[oa] *~ core
 
