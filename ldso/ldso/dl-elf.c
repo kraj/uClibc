@@ -164,13 +164,13 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	char *libname;
 
 	_dl_internal_error_number = 0;
+	pnt = libname = full_libname;
 
 	/* quick hack to ensure mylibname buffer doesn't overflow.  don't 
 	   allow full_libname or any directory to be longer than 1024. */
 	if (_dl_strlen(full_libname) > 1024)
 		goto goof;
 
-	pnt = libname = full_libname;
 	while (*pnt) {
 		if (*pnt == '/')
 			libname = pnt + 1;
