@@ -5,7 +5,7 @@
 # under the GNU Library General Public License.
 
 TOPDIR=../
-include Rules.make
+include $(TOPDIR)Rules.make
 
 LIBC=../libc.a
 

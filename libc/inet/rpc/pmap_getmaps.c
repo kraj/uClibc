@@ -46,7 +46,7 @@ static char sccsid[] = "@(#)pmap_getmaps.c 1.10 87/08/11 Copyr 1984 Sun Micro";
 #include <netdb.h>
 #include <stdio.h>
 #include <errno.h>
-#include <net/if.h>
+//#include <net/if.h>
 #include <sys/ioctl.h>
 #define NAMELEN 255
 #define MAX_BROADCAST_SIZE 1400

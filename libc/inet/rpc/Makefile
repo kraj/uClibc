@@ -1,5 +1,6 @@
 TOPDIR=../
 include $(TOPDIR)Rules.make
+CFLAGS+=-I$(TOPDIR)include/linux
 
 OBJS = auth_none.o auth_unix.o authunix_prot.o \
 	bindresvport.o clnt_generic.o clnt_perror.o \

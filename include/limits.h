@@ -39,10 +39,7 @@ Cambridge, MA 02139, USA.  */
  * #include_next.
 #if	__GNUC__ >= 2 && __STDC__
  */
-#if	__GNUC__ >= 2
-
- /* Have we done that? */
-# if !defined(_GCC_LIMITS_H_) && !defined(_GCC_LIMITS_H)
+#if	__GNUC__ >= 2 && !defined(_GCC_LIMITS_H_) && !defined(_GCC_LIMITS_H)
   /* Get the compiler's limits.h, which defines all the ANSI
    * constants.
    */
@@ -50,7 +47,6 @@ Cambridge, MA 02139, USA.  */
 # define _LIBC_LIMITS_H
 # define _LIBC_LIMITS_H_
 # include_next <limits.h>
-# endif
 
 #else	/* Not GCC 2.  */
 

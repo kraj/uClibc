@@ -60,5 +60,5 @@ dummy:
 
 clean:
 	-rm -f `find -name \*.[oa]` `find -name \*~` core
-	-rm include/asm include/net include/linux
+	-rm -f include/asm include/net include/linux
 

@@ -5,7 +5,7 @@
 TOPDIR=../
 include $(TOPDIR)Rules.make
 
-CFLAGS+=-I$(TOPDIR)/include/linux
+CFLAGS+=-I$(TOPDIR)include/linux
 
 LIBC=../libc.a
 
