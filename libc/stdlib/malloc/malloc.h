@@ -110,14 +110,16 @@ extern malloc_mutex_t __malloc_sbrk_lock;
 #endif /* __UCLIBC_HAS_THREADS__ */
 
 
-/* Use branch-prediction macros from libc if defined.  */
-#ifdef likely
-#define __malloc_likely(c)	likely(c)
-#define __malloc_unlikely(c)	unlikely(c)
+/* branch-prediction macros; they may already be defined by libc.  */
+#ifndef likely
+#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96)
+#define likely(cond)	__builtin_expect(!!(int)(cond), 1)
+#define unlikely(cond)	__builtin_expect((int)(cond), 0)
 #else
-#define __malloc_likely(c)	(c)
-#define __malloc_unlikely(c)	(c)
+#define likely(cond)	(cond)
+#define unlikely(cond)	(cond)
 #endif
+#endif /* !likely */
 
 
 /* Define MALLOC_DEBUGGING to cause malloc to emit debugging info to stderr.  */
