@@ -30,7 +30,7 @@ ctype: ctype.c ../testsuite.h Makefile $(TOPDIR)libc.a
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 	-@ echo " "
 
 ctype_glibc: ctype.c ../testsuite.h Makefile $(TOPDIR)libc.a

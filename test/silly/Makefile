@@ -41,7 +41,7 @@ hello: hello.c Makefile $(TOPDIR)libc.a
 	$(STRIP)
 	-ldd $@
 	ls $(LSFLAGS) $@
-	-./$@
+	./$@
 	-@ echo " "
 
 hello_glibc: hello.c Makefile $(TOPDIR)libc.a
