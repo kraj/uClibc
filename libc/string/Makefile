@@ -35,9 +35,9 @@ MOBJ1=index.o rindex.o
 MSRC2=strsignal.c
 MOBJ2=strsignal.o psignal.o
 
-CSRC=strpbrk.c strsep.c strstr.c strtok.c strcspn.c config.c strspn.c \
-	strcasecmp.c strncasecmp.c strerror.c bcopy.c bzero.c bcmp.c \
-	sys_errlist.c
+CSRC=strpbrk.c strsep.c strstr.c strtok.c strtok_r.c strcspn.c config.c \
+	strspn.c strcasecmp.c strncasecmp.c strerror.c bcopy.c bzero.c \
+	bcmp.c sys_errlist.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(COBJS)
 
