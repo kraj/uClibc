@@ -27,13 +27,15 @@ void * calloc(size_t nmemb, size_t lsize)
 	void *result;
 	size_t size=lsize * nmemb;
 
-	/* guard vs integer overflow */
-	if (lsize != (size / nmemb)) {
+	/* guard vs integer overflow, but allow nmemb
+	 * to fall through and call malloc(0) */
+	if (nmemb && lsize != (size / nmemb)) {
 		__set_errno(ENOMEM);
 		return NULL;
 	}
-	if ((result=malloc(size))) {
+	if ((result=malloc(size)) != NULL) {
 		memset(result, 0, size);
 	}
 	return result;
 }
+

@@ -24,7 +24,8 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=calloc.c malloc.c
+# calloc.c can be found at uClibc/libc/stdlib/calloc.c 
+CSRC=malloc.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
