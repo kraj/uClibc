@@ -175,6 +175,7 @@ install_dev:
 	-find $(PREFIX)$(DEVEL_PREFIX) -name CVS | xargs rm -rf;
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
 ifeq ($(strip $(HAVE_SHARED)),y)
+	-install -m 644 lib/*.so $(PREFIX)$(DEVEL_PREFIX)/lib/
 	-find lib/ -type l -name '*.so' -exec cp -a {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
 	# If we build shared libraries then the static libs are PIC...
 	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
