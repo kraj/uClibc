@@ -1,63 +1,28 @@
-#ifdef ZX81_RNG
-/*
- * This is my favorite tiny RNG, If you had a ZX81 you may recognise it :-)
- *								(RdeBath)
- */
+/* rand.c
+ *
+ * Written by Erik Andersen <andersee@debian.org> 
+ *
+ * This library is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Library General Public License as 
+ * published by the Free Software Foundation; either version 2 of the 
+ * License, or (at your option) any later version.  
+ *
+ * This library is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+ * Library General Public License for more details.  
+ *
+ * You should have received a copy of the GNU Library General Public 
+ * License along with this library; see the file COPYING.LIB.  If not, 
+ * write to the Free Software Foundation, Inc., 675 Mass Ave, 
+ * Cambridge, MA 02139, USA.  */
 
 #include <stdlib.h>
 
-#define MAXINT (((unsigned)-1)>>1)
-
-static unsigned int sseed = 0;
-
-int rand()
+int rand (void) 
 {
-	return (sseed = (((sseed + 1L) * 75L) % 65537L) - 1) & MAXINT;
+    return((int)random());
 }
 
-void srand(seed)
-unsigned int seed;
-{
-	sseed = seed;
-}
+__asm__(".weak srand; srand = srandom");
 
-#else
-
-/*
- * This generator is a combination of three linear congruential generators
- * with periods or 2^15-405, 2^15-1041 and 2^15-1111. It has a period that
- * is the product of these three numbers.
- */
-
-static int seed1 = 1;
-static int seed2 = 1;
-static int seed3 = 1;
-
-#define MAXINT (((unsigned)-1)>>1)
-
-#define CRANK(a,b,c,m,s) 	\
-	q = s/a;		\
-	s = b*(s-a*q) - c*q;	\
-	if(s<0) s+=m;
-
-int rand()
-{
-	register int q;
-
-	CRANK(206, 157, 31, 32363, seed1);
-	CRANK(217, 146, 45, 31727, seed2);
-	CRANK(222, 142, 133, 31657, seed3);
-
-	return seed1 ^ seed2 ^ seed3;
-}
-
-void srand(seed)
-unsigned int seed;
-{
-	seed &= MAXINT;
-	seed1 = seed % 32362 + 1;
-	seed2 = seed % 31726 + 1;
-	seed3 = seed % 31656 + 1;
-}
-
-#endif

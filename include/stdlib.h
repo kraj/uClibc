@@ -17,7 +17,7 @@
 #define EXIT_SUCCESS    0       /* Successful exit status.  */
 
 /* The largest number rand will return */
-#define RAND_MAX        INT_MIN
+#define RAND_MAX        INT_MAX
 
 /* Maximum length of a multibyte character in the current locale.  */
 #define MB_CUR_MAX  1
@@ -58,7 +58,8 @@ extern double strtod __P ((const char * nptr, char ** endptr));
 /* Random number functions */
 extern int rand __P ((void));
 extern void srand __P ((unsigned int seed));
-
+extern long int random(void);
+extern void srandom(unsigned int seed);
 
 /* Memory management functions */
 extern __ptr_t calloc __P ((size_t, size_t));
