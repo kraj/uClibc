@@ -41,26 +41,17 @@ extern void encrypt (char *__block, int __edflag);
 
 /* Reentrant versions of the functions above.  The additional argument
    points to a structure where the results are placed in.  */
+struct block {
+	unsigned char b_data[64];
+};
 struct crypt_data
 {
-    /* The C and D arrays used to calculate the key schedule. */
-    char C[28];
-    char D[28];
-    /* The key schedule. Generated from the key. */
-    char KS[16][48];
-    /* The E bit-selection table. */
-    char E[48];
-    /* The current block, divided into 2 halves. */
-    char L[32], R[32];
-    char tempL[32];
-    char f[32];
-    /* The combination of the key and the input, before selection. */
-    char preS[48];
-    char block[66];
-    char iobuf[16];
-    /* Some stuff used by the md5 routines */
+    /* Stuff used by the des based routines */
+    struct block key;
+    /* Stuff used by the md5 based routines */
     char *p;
     const char *sp,*ep;
+    char KS[16][48];
 };
 
 extern char *crypt_r (const char *__key, const char *__salt,
