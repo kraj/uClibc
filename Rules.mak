@@ -149,8 +149,10 @@ ifeq ($(strip $(TARGET_ARCH)),sh)
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),h8300)
-	CPU_LDFLAGS-y:=-mh8300h
-	CPU_CFLAGS-y+=-mh -mint32 -fsigned-char
+	CPU_LDFLAGS-$(CONFIG_H8300H):= -ms8300h
+	CPU_LDFLAGS-$(CONFIG_H8S)   := -ms8300s
+	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32 -fsigned-char
+	CPU_CFLAGS-$(CONFIG_H8S)    += -ms -mint32 -fsigned-char
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),cris)
@@ -231,7 +233,7 @@ TARGET_PREFIX = /
 # uClinux shared lib support
 #
 
-ifdef CONFIG_BINFMT_SHARED_FLAT
+ifeq ($(CONFIG_BINFMT_SHARED_FLAT),y)
   # For the shared version of this, we specify no stack and its library ID
   FLTFLAGS += -s 0
   LIBID=1

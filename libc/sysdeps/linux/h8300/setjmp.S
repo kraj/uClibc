@@ -1,10 +1,16 @@
-.h8300h
-.text
+#ifdef __H8300S__
+	.h8300s
+#else
+	.h8300h
+#endif
+	.text
 	
 .global __setjmp
-.global _longjmp
+.global ___sigsetjmp
+.global ___longjmp
 
 __setjmp:
+___sigsetjmp:
 	add.l	#20,er0
 	mov.l	er6,@er0
 	mov.l	er5,@-er0
@@ -18,7 +24,7 @@ __setjmp:
 	sub.l	er0,er0
 	rts
 
-_longjmp:
+___longjmp:
 	mov.l	er1,er1
 	bne	1f
 	sub.l	er1,er1

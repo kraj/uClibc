@@ -7,9 +7,23 @@ mainmenu "uClibc C Library Configuration"
 
 menu "Target Architecture Features and Options"
 
+choice
+	prompt "Target Processor"
+	default CONFIG_H8300H
+	help
+	  This is the processor type of your CPU.
+
+config CONFIG_H8300H
+	bool "H8300H"
+
+config CONFIG_H8S
+	bool "H8S (edosk2674)"
+
+endchoice
+
 config HAVE_ELF
 	bool
-	default n
+	default y
 
 config ARCH_CFLAGS
 	string

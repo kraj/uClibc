@@ -5,7 +5,11 @@
 #define __NR_vfork __NR_fork /* uClinux-2.0 only has fork which is vfork */
 #endif
 
+#ifdef __H8300S__
+	.h8300s
+#else
 	.h8300h
+#endif
 	.text
 	.align 2
 	.globl _errno

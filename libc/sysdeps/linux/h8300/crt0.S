@@ -24,7 +24,11 @@ Cambridge, MA 02139, USA.  */
 	.global atexit
 	.global main
 
+#ifdef __H8300S__
+	.h8300s
+#else
 	.h8300h
+#endif
 	.text
 
 _start: /* put here so that references to _start work with elf-PIC */
