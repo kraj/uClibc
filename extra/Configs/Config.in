@@ -1110,6 +1110,15 @@ config UCLIBC_HAS_SSP
 	  gcc version, where __guard and __stack_smash_handler are removed from libgcc.
 	  Most people will answer N.
 
+config SSP_QUICK_CANARY
+	bool "Simple propolice canary w/o accessing /dev/*random"
+	depends on UCLIBC_HAS_SSP
+	default n
+	help
+	  Propolice uses a simplified version of the canary, without accessing
+	  /dev/*random.
+	  Most people will answer N.
+
 choice
 	prompt "Propolice protection blocking signal"
 	depends on UCLIBC_HAS_SSP
