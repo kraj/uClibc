@@ -123,10 +123,10 @@ void __attribute__ ((__noreturn__))
 __uClibc_start_main(int argc, char **argv, char **envp,
 	void (*app_init)(void), void (*app_fini)(void))
 {
+    /* Pull stuff from the ELF header when possible */
+#ifdef __ARCH_HAS_MMU__
     unsigned long *aux_dat;
     Elf32_auxv_t auxvt[AT_EGID + 1];
-
-    /* Pull stuff from the ELF header when possible */
     aux_dat = (unsigned long*)envp;
     while (*aux_dat) {
 	aux_dat++;
@@ -140,6 +140,9 @@ __uClibc_start_main(int argc, char **argv, char **envp,
 	aux_dat += 2;
     }
     _dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : 4096;
+#else
+    _dl_pagesize = 4096;
+#endif
 
     /* If we are dynamically linked the shared lib loader already
      * did this for us.  But if we are statically linked, we need
