@@ -51,6 +51,9 @@ endif
 ifeq ($(strip $(UCLIBC_PROFILING)),y)
 SAFECFLAGS+=-DGMON_SUPPORT
 endif
+ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
+SAFECFLAGS += $(call check_gcc,-msoft-float,)
+endif
 
 OBJ=$(COBJS) $(MOBJ)
 
