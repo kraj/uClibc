@@ -1,8 +1,14 @@
 0.9.9
 
 Erik Andersen:
-    o   Reworked all signal handling such that it now passes 
-	POSIX conformance tests.
+    o   A bunch of doc updates.  Major update to the working
+	apps list.
+    o   Added a configurator script (extra/Configs/uClibc_config_fix.pl)
+	which can simplify configuring uClibc.
+    o   Fixed setjmp/longjmp on x86,arm,powerpc,mips,and sparc.
+	Hitting ^C in ash kills client apps now, not ash. 
+    o   Reworked signal handling code so it now passes POSIX 
+	conformance tests.
     o   Fixed sleep and usleep to work correctly when
 	interrupted by signals.
     o   Made getopt behave the same when staticly linking
@@ -29,19 +35,26 @@ Erik Andersen:
     o   Reworked the shared library linking process to be more 
 	flexible so that gcc and ld can more easily be built to
 	target uClibc library.
-    o   Better error checking in the Makefiles
+    o   Better error checking in the Makefiles.  Be more pedantic
+	about tar, chmod, etc to avoid system dependent failures.
     o   We can now autodetect the target architecture
     o   Hide references to wchar_t so GNU autoconf
 	configure scripts won't get confused and try to 
 	enable wide char support. 
     o   Fixed stdio.h so apps can use varargs.h if they want to.
-    o   Added brk/sbrk support for ARM
+    o   Added brk/sbrk support for ARM, powerpc, mips, and sparc
+	and set them to default to the much faster brk using malloc
     o   Added missing syscalls: get_kernel_syms, fcntl64,
 	fdatasync, sched_setparam, sched_getparam,
 	sched_setscheduler, sched_getscheduler,
 	sched_get_priority_max, sched_get_priority_min,
 	sched_rr_get_interval, sigaltstack, sendfile, 
-	pivot_root, sigsuspend
+	pivot_root, sigsuspend, setfsuid, and setfsgid
+    o   Force DOPIC be true when HAVE_SHARED is true.
+    o   Fixed hstrerror()
+    o   Implemented gethostent(), sethostent(), and endhostent()
+    o   Added arch specific support so that sparc and mips actually 
+	compile and work
 Miles Bader:
     o   Fixes for the v850 architecture: crt0, setjmp, 
 	arch autodetection, etc.
@@ -63,6 +76,8 @@ David McCullough:
     o   Fixed DNS resolver version number so apps won't get
 	confused and use the wrong API.
     o   Added Config selectable shadow password support
+Yoshinori Sato
+    o   Contributed support for the Hitach H8/300H architecture 
 Cédric Schieli:
     o   Add support for inet_netof, inet_lnaof, inet_makeaddr 
 	and hstrerror.             
@@ -70,6 +85,10 @@ David Schleef:
     o   Added libstrip, a nifty script to automagically
 	strip unneeded content from the uClibc shared 
 	libraries.
+Martin Sieper
+    o   Added getw() and putw()
+    o   Added missing header files -- lastlog.h, sgtty.h, 
+	netipx/ipx.h, sys/perm.h
 Stefan Soucek:
     o   Add rcmd support, i.e. rsh, rlogin, etc.
     o   Fix rcmd to avoid alloca, which is dangerous
