@@ -454,11 +454,11 @@ const char *_dlerror()
 }
 
 /* Generate the correct symbols that we need. */
-weak_alias(dlopen, _dlopen);
-weak_alias(dlerror, _dlerror);
-weak_alias(dlclose, _dlclose);
-weak_alias(dlsym, _dlsym);
-weak_alias(dladdr, _dladdr);
+weak_alias(_dlopen, dlopen);
+weak_alias(_dlerror, dlerror);
+weak_alias(_dlclose, dlclose);
+weak_alias(_dlsym, dlsym);
+weak_alias(_dladdr, dladdr);
 
 /* This is a real hack.  We need access to the dynamic linker, but we
 also need to make it possible to link against this library without any

@@ -24,7 +24,7 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-TARGET_CFLAGS += -DUSE_CACHE #-DDL_DEBUG #-funroll-loops
+TARGET_CFLAGS += #-DUSE_CACHE #-DDL_DEBUG #-funroll-loops
 
 
 
