@@ -662,7 +662,7 @@ foo:
 	interpreter_already_found=0;
 	interp = find_elf_interpreter(ehdr);
 
-#ifdef __LDSO_LDD_SUPPORT
+#ifdef __LDSO_LDD_SUPPORT__
 	if (interp && (ehdr->e_type == ET_EXEC || ehdr->e_type == ET_DYN) && ehdr->e_ident[EI_CLASS] == ELFCLASSM &&
 			ehdr->e_ident[EI_DATA] == ELFDATAM
 			&& ehdr->e_ident[EI_VERSION] == EV_CURRENT && MATCH_MACHINE(ehdr->e_machine))

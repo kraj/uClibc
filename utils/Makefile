@@ -29,10 +29,8 @@ else
 TARGET_ICONV =
 endif
 
+# do we really need to reset XXFLAGS?
 XXFLAGS=
-ifeq ($(strip $(LDSO_LDD_SUPPORT)),y)
-XXFLAGS+= -D__LDSO_LDD_SUPPORT
-endif
 
 ifeq ($(strip $(HAVE_SHARED)),y)
 all:	$(TARGETS) $(TARGET_ICONV)
