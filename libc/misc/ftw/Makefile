@@ -23,6 +23,10 @@ CSRC=ftw.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
+MSRC=ftw.c
+MOBJ=ftw.o ftw64.o
+OBJS=$(MOBJ)
+
 all: $(OBJS) $(LIBC)
 
 $(LIBC): ar-target
@@ -30,8 +34,8 @@ $(LIBC): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

@@ -21,9 +21,13 @@
 #define _GNU_SOURCE
 #include <features.h>
 
+#ifdef __UCLIBC_HAS_LFS__
+
+#ifdef L_ftw64
+#define L_ftw
+
 /* If Large file support is enabled, transparently remap
  * things to use the 64-bit interfaces */
-#ifdef __UCLIBC_HAS_LFS__
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
 #undef _FILE_OFFSET_BITS
 #define	_FILE_OFFSET_BITS   64
@@ -34,7 +38,29 @@
 #ifndef __USE_FILE_OFFSET64
 # define __USE_FILE_OFFSET64  1
 #endif
+
+#define FTW_NAME ftw64
+#define NFTW_NAME nftw64
+#define INO_T ino64_t
+#define STAT stat64
+#define LSTAT lstat64
+#define XSTAT stat64
+#define FTW_FUNC_T __ftw64_func_t
+#define NFTW_FUNC_T __nftw64_func_t
+#else
+
+#define FTW_NAME ftw
+#define NFTW_NAME nftw
+#define INO_T ino_t
+#define STAT stat
+#define LSTAT lstat
+#define XSTAT stat
+#define FTW_FUNC_T __ftw_func_t
+#define NFTW_FUNC_T __nftw_func_t
 #endif
+#endif
+
+#ifdef L_ftw
 
 #include <alloca.h>
 #include <errno.h>
@@ -66,7 +92,7 @@ struct dir_data
 struct known_object
 {
     dev_t dev;
-    ino_t ino;
+    INO_T ino;
 };
 
 struct ftw_data
@@ -93,7 +119,7 @@ struct ftw_data
     const int *cvt_arr;
 
     /* Callback function.  We always use the `nftw' form.  */
-    __nftw_func_t func;
+    NFTW_FUNC_T func;
 
     /* Device of starting point.  Needed for FTW_MOUNT.  */
     dev_t dev;
@@ -117,7 +143,7 @@ static const int ftw_arr[] =
 };
 
 /* Forward declarations of local functions.  */
-static int ftw_dir (struct ftw_data *data, struct stat *st) internal_function;
+static int ftw_dir (struct ftw_data *data, struct STAT *st) internal_function;
 
 
 static int
@@ -136,7 +162,7 @@ object_compare (const void *p1, const void *p2)
 
 
 static inline int
-add_object (struct ftw_data *data, struct stat *st)
+add_object (struct ftw_data *data, struct STAT *st)
 {
     struct known_object *newp = malloc (sizeof (struct known_object));
     if (newp == NULL)
@@ -148,7 +174,7 @@ add_object (struct ftw_data *data, struct stat *st)
 
 
 static inline int
-find_object (struct ftw_data *data, struct stat *st)
+find_object (struct ftw_data *data, struct STAT *st)
 {
     struct known_object obj;
     obj.dev = st->st_dev;
@@ -253,7 +279,7 @@ static int
 internal_function
 process_entry (struct ftw_data *data, struct dir_data *dir, const char *name, size_t namlen)
 {
-    struct stat st;
+    struct STAT st;
     int result = 0;
     int flag = 0;
     size_t new_buflen;
@@ -282,13 +308,13 @@ process_entry (struct ftw_data *data, struct dir_data *dir, const char *name, si
 	name = data->dirbuf;
 
     if (((data->flags & FTW_PHYS)
-		? lstat (name, &st)
-		: stat (name, &st)) < 0)
+		? LSTAT (name, &st)
+		: XSTAT (name, &st)) < 0)
     {
 	if (errno != EACCES && errno != ENOENT)
 	    result = -1;
 	else if (!(data->flags & FTW_PHYS)
-		&& lstat (name, &st) == 0
+		&& LSTAT (name, &st) == 0
 		&& S_ISLNK (st.st_mode))
 	    flag = FTW_SLN;
 	else
@@ -349,7 +375,7 @@ process_entry (struct ftw_data *data, struct dir_data *dir, const char *name, si
 
 static int
 internal_function
-ftw_dir (struct ftw_data *data, struct stat *st)
+ftw_dir (struct ftw_data *data, struct STAT *st)
 {
     struct dir_data dir;
     struct dirent *d;
@@ -462,7 +488,7 @@ internal_function
 ftw_startup (const char *dir, int is_nftw, void *func, int descriptors, int flags)
 {
     struct ftw_data data;
-    struct stat st;
+    struct STAT st;
     int result = 0;
     int save_err;
     char *cwd = NULL;
@@ -507,7 +533,7 @@ ftw_startup (const char *dir, int is_nftw, void *func, int descriptors, int flag
        every case the callback using the format of the `nftw' version
        and get the correct result since the stack layout for a function
        call in C allows this.  */
-    data.func = (__nftw_func_t) func;
+    data.func = (NFTW_FUNC_T) func;
 
     /* Since we internally use the complete set of FTW_* values we need
        to reduce the value range before calling a `ftw' callback.  */
@@ -549,12 +575,12 @@ ftw_startup (const char *dir, int is_nftw, void *func, int descriptors, int flag
 		: data.dirbuf);
 
 	if (((flags & FTW_PHYS)
-		    ? lstat (name, &st)
-		    : stat (name, &st)) < 0)
+		    ? LSTAT (name, &st)
+		    : XSTAT (name, &st)) < 0)
 	{
 	    if (!(flags & FTW_PHYS)
 		    && errno == ENOENT
-		    && lstat (name, &st) == 0
+		    && LSTAT (name, &st) == 0
 		    && S_ISLNK (st.st_mode))
 		result = (*data.func) (data.dirbuf, &st, data.cvt_arr[FTW_SLN],
 			&data.ftw);
@@ -610,12 +636,13 @@ ftw_startup (const char *dir, int is_nftw, void *func, int descriptors, int flag
 
 /* Entry points.  */
 
-int ftw (const char *path, __ftw_func_t func, int descriptors)
+int FTW_NAME (const char *path, FTW_FUNC_T func, int descriptors)
 {
     return ftw_startup (path, 0, func, descriptors, 0);
 }
 
-int nftw (const char *path, __nftw_func_t func, int descriptors, int flags)
+int NFTW_NAME (const char *path, NFTW_FUNC_T func, int descriptors, int flags)
 {
     return ftw_startup (path, 1, func, descriptors, flags);
 }
+#endif
