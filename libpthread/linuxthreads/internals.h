@@ -317,7 +317,7 @@ static inline int invalid_handle(pthread_handle h, pthread_t id)
 /* The page size we can get from the system.  This should likely not be
    changed by the machine file but, you never know.  */
 #ifndef PAGE_SIZE
-#define PAGE_SIZE  (sysconf (_SC_PAGE_SIZE))
+#define PAGE_SIZE  (sysconf (_SC_PAGESIZE))
 #endif
 
 /* The max size of the thread stack segments.  If the default
