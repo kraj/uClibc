@@ -271,11 +271,17 @@ int main(int argc, char **argv)
 					if (strcmp(nostdinc,argv[i]) == 0) {
 						use_stdinc = 0;
 					} else if (strcmp(nostartfiles,argv[i]) == 0) {
+#ifdef __UCLIBC_CTOR_DTOR__
+						ctor_dtor = 0;
+#endif
 						use_start = 0;
 					} else if (strcmp(nodefaultlibs,argv[i]) == 0) {
 						use_stdlib = 0;
 						argv[i] = '\0';
 					} else if (strcmp(nostdlib,argv[i]) == 0) {
+#ifdef __UCLIBC_CTOR_DTOR__
+						ctor_dtor = 0;
+#endif
 						use_start = 0;
 						use_stdlib = 0;
 					} 
@@ -413,17 +419,18 @@ int main(int argc, char **argv)
 	}
 
 	if (linking && source_count) {
-	    if (use_start) {
+
 #ifdef __UCLIBC_CTOR_DTOR__
-		if (ctor_dtor) {
-		    gcc_argv[i++] = crti_path[use_build_dir];
-		    if (use_pic) {
-			gcc_argv[i++] = LIBGCC_DIR "crtbeginS.o" ;
-		    } else {
-			gcc_argv[i++] = LIBGCC_DIR "crtbegin.o" ;
-		    }
+	    if (ctor_dtor) {
+	        gcc_argv[i++] = crti_path[use_build_dir];
+	        if (use_pic) {
+	      	    gcc_argv[i++] = LIBGCC_DIR "crtbeginS.o" ;
+		} else {
+		    gcc_argv[i++] = LIBGCC_DIR "crtbegin.o" ;
 		}
+	    }
 #endif
+	    if (use_start) {
 		gcc_argv[i++] = crt0_path[use_build_dir];
 	    }
 	    for ( l = 0 ; l < k ; l++ ) {
@@ -448,16 +455,14 @@ int main(int argc, char **argv)
 		//gcc_argv[i++] = "-Wl,--end-group";
 	    }
 #ifdef __UCLIBC_CTOR_DTOR__
-	    if (use_start) {
-		if (ctor_dtor) {
-		    if (use_pic) {
-			gcc_argv[i++] = LIBGCC_DIR "crtendS.o" ;
-		    } else {
-			gcc_argv[i++] = LIBGCC_DIR "crtend.o" ;
-		    }
-		    gcc_argv[i++] = crtn_path[use_build_dir];
-		}
-	    }
+ 	    if (ctor_dtor) {
+		if (use_pic) {
+		    gcc_argv[i++] = LIBGCC_DIR "crtendS.o" ;
+		} else {
+		    gcc_argv[i++] = LIBGCC_DIR "crtend.o" ;
+		}    
+	        gcc_argv[i++] = crtn_path[use_build_dir];
+  	    }
 #endif
 	} else {
 	    for ( l = 0 ; l < k ; l++ ) {
