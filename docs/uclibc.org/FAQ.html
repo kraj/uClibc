@@ -234,8 +234,30 @@ to the uClibc home page.</a>
     applications will auto-magically link against uClibc.  You can also 
     build your own native uClibc toolchain.  Just download the uClibc toolchain
     builder from <a href="http://www.uclibc.org/downloads/toolchain/">
-    http://www.uclibc.org/downloads/toolchain/</a>, ajust the Makefile settings
-    to match your target system, and then run 'make'.
+    http://www.uclibc.org/downloads/toolchain/</a>, or the uClibc buildroot
+    system from <a href="http://www.uclibc.org/downloads/buildroot/">
+        http://www.uclibc.org/downloads/buildroot/</a>, ajust the Makefile 
+    settings to match your target system, and then run 'make'.
+
+<p>
+<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
+    <B>
+    Why do I keep getting "sh: can't access tty; job control turned off" errors?
+    Why doesn't Control-C work within my shell?
+    </B>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+    This isn't really a uClibc question, but I'll answer it here anyways.  Job
+    control will be turned off since your shell can not obtain a controlling
+    terminal.  This typically happens when you run your shell on /dev/console.
+    The kernel will not provide a controlling terminal on the /dev/console
+    device.  Your should run your shell on a normal tty such as tty1 or ttyS0
+    and everything will work perfectly.  If you <em>REALLY</em> want your shell
+    to run on /dev/console, then you can hack your kernel (if you are into that
+    sortof thing) by changing drivers/char/tty_io.c to change the lines where
+    it sets "noctty = 1;" to instead set it to "0".  I recommend you instead
+    run your shell on a real console...
 
 
 <p>
