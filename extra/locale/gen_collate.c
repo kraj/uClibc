@@ -31,7 +31,6 @@
 #include <assert.h>
 #include <search.h>
 
-
 typedef struct {
 	char *name;					/*  */
 
@@ -629,21 +628,21 @@ static void do_weight(char *t)
 
 	switch(order_state) {
 		case 0:
-/* 			printf("no-order weight: %s\n", t); */
+/* 			fprintf(stdout, "no-order weight: %s\n", t); */
 /* 			break; */
 		case IN_ORDER:
 			/* in a section */
-/* 			printf("weight: %s\n", t); */
+/* 			fprintf(stdout, "weight: %s\n", t); */
 			wi = add_weight(t);
 			lli = new_ll_item(DT_WEIGHTED, wi);
 			if (!cur_section->itm_list) {
-/* 				printf("creating new item list: %s\n", wi->symbol); */
+/* 				fprintf(stdout, "creating new item list: %s  %s  %p\n", wi->symbol, cur_section->name, lli); */
 				cur_section->itm_list = lli;
 				lli->prev = lli->next = lli;
 				++cur_section->num_items;
 			} else {
 				insque(lli, cur_section->itm_list->prev);
-/* 				printf("adding item to list: %d - %s\n", ll_len(cur_section->itm_list), wi->symbol); */
+/* 				fprintf(stdout, "adding item to list: %d - %s  %p\n", ll_len(cur_section->itm_list), wi->symbol, lli); */
 				++cur_section->num_items;
 			}
 			add_wi_index(lli);
@@ -653,7 +652,7 @@ static void do_weight(char *t)
 			wi = add_weight(t);
 			lli = new_ll_item(DT_WEIGHTED, wi);
 			mark_reordered(wi->symbol);
-/* 			printf("reorder: %s\n", t); */
+/* 			fprintf(stdout, "reorder: %s  %s  %p\n", t, cur_section->name, lli); */
 			if (!cur_section->itm_list) {
 				cur_section->itm_list = lli;
 				lli->prev = lli->next = lli;
@@ -683,7 +682,7 @@ static void do_weight(char *t)
 				lli = lli->next;
 			} while (lli);
 			error_msg("reorder_sections_after for non-base item currently not supported: %s", t);
-/* 			fprintf(stderr, "reorder_secitons: %s\n", t); */
+/* 			fprintf(stdout, "reorder_secitons: %s\n", t); */
 			break;
 		default:
 			error_msg("invalid order_state %d", order_state);
@@ -717,7 +716,7 @@ static void processfile(void)
 	}
 
 	if (tfind(cur_col, &root_col_locale, col_locale_cmp)) {
-		error_msg("attempt to readd locale: %s", cur_col->name);
+		error_msg("attempt to read locale: %s", cur_col->name);
 	}
 	if (!tsearch(cur_col, &root_col_locale, col_locale_cmp)) {
 		error_msg("OUT OF MEMORY!");
@@ -766,7 +765,14 @@ static void processfile(void)
 			 * definitions in the supported locales derived from iso14651_t1. */
 			if (!strcmp(cur_base->name, "iso14651_t1")) {
 				fprintf(stderr, "Warning: adding UNDEFINED entry for %s\n", cur_col->name);
-				strcpy(linebuf, "order_start forward;backward;forward;forward,position\n");
+				strcpy(linebuf, "script <UNDEFINED_SECTION>\n");
+				pos_e = NULL;
+				pos = linebuf;
+				t = next_token();
+				assert(t);
+				assert(t == pos);
+				do_script();
+				strcpy(linebuf, "order_start <UNDEFINED_SECTION>;forward;backward;forward;forward,position\n");
 				pos_e = NULL;
 				pos = linebuf;
 				t = next_token();
@@ -780,6 +786,13 @@ static void processfile(void)
 				assert(t);
 				assert(t == pos);
 				do_weight(t);
+				strcpy(linebuf, "order_end\n");
+				pos_e = NULL;
+				pos = linebuf;
+				t = next_token();
+				assert(t);
+				assert(t == pos);
+				do_order_end();
 			} else {
 				error_msg("no definition of UNDEFINED for %s", cur_col->name);
 			}
@@ -1782,14 +1795,18 @@ static void do_order_start(void)
 	} else {					/* need an anonymous section */
 		if ((*cur_section->name != '<') && (cur_section->num_items == 0)) { /* already in an empty anonymous section */
 			sect = cur_section;
+/* 			fprintf(stdout, "using empty anon section %s\n", sect->name); */
 		} else {
 			sect = new_section(NULL);
 			l = find_ll_last(cur_col->section_list);
-			insque(new_ll_item(DT_SECTION, new_section(s)), l);
+			insque(new_ll_item(DT_SECTION, sect), l);
+/* 			fprintf(stdout, "adding order section after section %s\n", ((section_t *)(l->data))->name); */
+/* 			fprintf(stdout, "    last section is %s\n", ((section_t *)(l->next->data))->name); */
 		}
 		sect->num_rules = 0;	/* setting this below so nix default */
 	}
 	cur_section = sect;
+/* 	fprintf(stdout, "cur_section now %s\n", cur_section->name); */
 
 #warning need to add section to weight list?
 
@@ -3090,8 +3107,10 @@ static void finalize_base(void)
 			}
 			/* we do this in two passes... first all sequences, then all single reorders */
 			for (s = cl->section_list ; s ; s = s->next) {
+/* 				fprintf(stderr, "doing section %s\n", ((section_t *)(s->data))->name); */
 				h = lli = ((section_t *)(s->data))->itm_list;
 				if (!lli) {
+/* 					fprintf(stdout, "EMPTY ITEM LIST IN SECTION %s\n", ((section_t *)(s->data))->name ); */
 					continue;
 				}
 				assert(u16_buf_len +4 < sizeof(u16_buf)/sizeof(u16_buf[0]));
@@ -3106,6 +3125,7 @@ static void finalize_base(void)
 						u16_buf[u16_buf_len++] = lli->idx; /* start weight */
 					}
 					do {
+						assert(lli->data_type & DT_WEIGHTED);
 						if (lli->data_type & DT_WEIGHTED) {
 /* 							fprintf(stdout, "%11s: S %6d %6d %s\n", */
 /* 									cl->name, lli->idx, */
