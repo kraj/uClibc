@@ -38,7 +38,8 @@ all: headers uClibc_config.h subdirs shared done
 Config:
 	@echo
 	@echo "You didn't read the README, did you... =)"
-	@echo "Choose a configuration file in extras/Config/ and copy it to ./Config"
+	@echo "Choose a configuration file in extras/Config/ and then run"
+	@echo "  ln -s ./extra/Configs/Config.<arch> ./Config"
 	@echo
 	@exit 1
 

@@ -1,7 +1,7 @@
 
 * Configuration:
 
-  cp ./extra/Configs/Config.<target arch> ./Config
+  ln -s ./extra/Configs/Config.<arch> ./Config
 
 Then edit ./Config for your setup.  In particular, modify CROSS and
 KERNEL_SOURCE as necessary.  You may also want to modify
