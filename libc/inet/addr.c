@@ -84,14 +84,17 @@ unsigned long inet_addr(const char *cp)
 #endif
 
 #ifdef L_inet_ntoa
-char *inet_ntoa_r(struct in_addr in, char buf[16])
+
+#define INET_NTOA_MAX_LEN	16	/* max 12 digits + 3 '.'s + 1 nul */
+
+char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
 {
 	unsigned long addr = ntohl(in.s_addr);
 	int i;
 	char *p, *q;
    
 	q = 0;
-	p = buf + sizeof(buf) - 1;
+	p = buf + INET_NTOA_MAX_LEN - 1; /* cannot use sizeof(buf) here */
 	for (i=0 ; i < 4 ; i++ ) {
 		p = _int10tostr(p, addr & 0xff) - 1;
 		addr >>= 8;
@@ -106,7 +109,7 @@ char *inet_ntoa_r(struct in_addr in, char buf[16])
 
 char *inet_ntoa(struct in_addr in)
 {
-	static char buf[16];		/* max 12 digits + 3 '.'s + 1 nul */
+	static char buf[INET_NTOA_MAX_LEN];
 	return(inet_ntoa_r(in, buf));
 }
 #endif
