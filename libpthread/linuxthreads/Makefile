@@ -55,7 +55,6 @@ ar-target: $(OBJS)
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $*.o
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $*.o
 else
