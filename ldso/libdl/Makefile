@@ -75,7 +75,7 @@ shared:
 	$(LD) $(LDFLAGS) -soname=$(LIBDL_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBDL_SHARED_FULLNAME) --whole-archive $(LIBDL_PIC) \
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
-		-L$(TOPDIR)/lib -lc;
+		-L$(TOPDIR)/lib -lc $(LDADD_LIBFLOAT) $(LIBGCC);
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED).$(MAJOR_VERSION)
 	$(INSTALL) -m 644 $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib

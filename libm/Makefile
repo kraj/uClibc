@@ -99,7 +99,7 @@ shared: all
 	    $(LD) $(LDFLAGS) -soname=$(LIBM_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBM_SHARED_FULLNAME) --whole-archive $(LIBM) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-		-L$(TOPDIR)lib -lc; \
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC); \
 	    $(INSTALL) -d $(TOPDIR)lib; \
 	    $(RM) $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
 	    $(INSTALL) -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib; \
