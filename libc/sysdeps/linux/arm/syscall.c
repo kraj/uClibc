@@ -41,7 +41,8 @@ long syscall(long sysnum, long a, long b, long c, long d, long e, long f)
 	      "r"(_r6)
 	    : "memory");
     if(_r0 >=(unsigned long) -4095) {
-	(*__errno_location())=(-_r0);
+	long err = _r0;
+	(*__errno_location())=(-err);
 	_r0=(unsigned long) -1;
     }
     return (long) _r0;
