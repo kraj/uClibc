@@ -1,19 +1,15 @@
 TODO list for the uClibc 0.9.27 release:
 -------------------------------------------------
-    *) Implement some mechanism (perhaps encoded in the .so name,
-	perhaps using an abi tag magically embedded into each object)
-	for flagging config options that break the ABI.  Options
-	such as UCLIBC_HAS_SOFT_FLOAT, UCLIBC_HAS_THREADS, UCLIBC_HAS_LOCALE,
-	and perhaps others (finalize list) produce a lib with a differing
-	ABI.  Make it so apps cannot use an ABI mis-matched uClibc.
     *) Fix syscall() on mips
-    *) Finish up current ldso cleanups
-    *) Fix dlopen, for both static and dynamic cases, and make it
-	actually comply with SuSv3
     *) Fix use of __secure in __uClibc_init() for so that we prevent
 	starting staticly linked SUID binaries where the standard file
 	descriptors are not opened.  For dynamically linked binaries,
 	ldso does this for us.
+    *) Audit header files.  Remove prototypes for all functions that
+	are not supported -- especially needed for the libm headers.
+    *) Audit header files.  When options are disabled, also disable
+	them in the include files as well by checking for the proper
+	define from include/bits/uClibc_config.h (pulled in from features.h)
 
 
 TODO list for the uClibc 1.0.0 release:
@@ -29,20 +25,19 @@ TODO list for the uClibc 1.0.0 release:
 	    *) Update docs/uClibc_vs_SuSv3.txt document
 	    *) Update docs/threads.txt document
 	    *) Write man pages for ldd and ldconfig utility binaries
+    *) Implement some mechanism (perhaps encoded in the .so name,
+	perhaps using an abi tag magically embedded into each object)
+	for flagging config options that break the ABI.  Options
+	such as UCLIBC_HAS_SOFT_FLOAT, UCLIBC_HAS_THREADS, UCLIBC_HAS_LOCALE,
+	and perhaps others (finalize list) produce a lib with a differing
+	ABI.  Make it so apps cannot use an ABI mis-matched uClibc.
+	This is most easily done using symbol versioning...
     *) Perhaps implement glibc style frame-unwinding, so that gcc need
 	not be built with --enable-sjlj-exceptions for C++ exception handling
 	to work.
     *) Implement the float and long double versions of math funcs
 	using wrappers on top of the double versions (size / precision
 	trade off where size clearly wins).
-    *) Fix profiling by adding missing stub functions per
-	http://uclibc.org/lists/uclibc/2004-February/008167.html
-	and used by, i.e. http://www710.univ-lyon1.fr/~yperret/fnccheck/
-    *) Audit header files.  Remove prototypes for all functions that
-	are not supported -- especially needed for the libm headers.
-    *) Audit header files.  When options are disabled, also disable
-	them in the include files as well by checking for the proper
-	define from include/bits/uClibc_config.h (pulled in from features.h)
     *) Make all small objects (>~50 bytes) into either inlines or
 	into a static library
     *) Cleanup / rewrite sysconf.c.  It should get some information
@@ -53,14 +48,6 @@ TODO list for the uClibc 1.0.0 release:
 	memory for destructors, which happens since the dynamic linker calls
 	atexit(), which calls malloc() prior to valgrind starting, so valgrind
 	complains because it didn't see that memory allocated.
-    *) From the the ELF spec "...All shared object initializations happen
-	before the executable file gains control.  ...  Before the initialization
-	code for any object A is called, the initialization code for any other
-	objects that object A depends on are called.  For these purposes, an object
-	A depends on another object B, if B appears in Ads list of needed objects
-	(recorded in the DT_NEEDED entries of the dynamic structure). The order of
-	initialization for circular dependencies is undefined."  uClibc's shared
-	lib loader should be fixed to run ctors in the specified order.
     *) poll emulation using select() for old 2.0.x uClinux kernels
 	in libc/sysdeps/linux/common/poll.c fails some python self-tests.
 	Of course, modern systems using the actuall poll() syscall work fine.
@@ -68,9 +55,10 @@ TODO list for the uClibc 1.0.0 release:
     *) Build both pic and non-pic objects where appropriate, so that
 	static libs need not pay the pic size penalty.
     *) Cleanup/scrub all the Makefile copyright junk
-    *) Debugging pthreads with gdb does not work at all on mips
-    *) Debugging pthreads with gdb initially appears to work, but
-	fails to function correctly on arm
+    *) Debugging pthreads with gdb does not work at all on mips unless
+	the application is staticly linked.
+    *) Fix dlopen, for both static and dynamic cases, and make it
+	fully comply with SuSv3
 
 
 TODO list for AFTER the uClibc 1.0.0 release:
