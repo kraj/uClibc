@@ -3,9 +3,9 @@
  * indicated in register t8 and jumps to the resolved address. Shamelessly
  * ripped from 'sysdeps/mips/dl-machine.h' in glibc-2.2.5.
  *
- * This file is subject to the terms and conditions of the GNU General Public
- * License.  See the file "COPYING.LIB" in the main directory of this archive
- * for more details.
+ * This file is subject to the terms and conditions of the GNU Lesser General
+ * Public License.  See the file "COPYING.LIB" in the main directory of this
+ * archive for more details.
  *
  * Copyright (C) 1996-2001 Kazumoto Kojima <kkojima@info.kanagawa-u.ac.jp>
  * Copyright (C) 2002 Steven J. Hill <sjhill@realitydiluted.com>
