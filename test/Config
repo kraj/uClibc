@@ -1,7 +1,7 @@
 # Configuration for uClibc test apps.
 
 # Set the following to `true' to make a debuggable build.
-DODEBUG = false
+DODEBUG = true
 
 # If you want to compile using uClibc as a shared library, turn this on.
 DODYNAMIC = true

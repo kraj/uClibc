@@ -62,20 +62,21 @@ check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; 
 # use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 # Override optimization settings when debugging
-ifeq ($(DODEBUG),y)
+ifeq ($(DODEBUG),true)
 OPTIMIZATION=-O0
 endif
 
-XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes
 XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
-CFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS)
+CFLAGS=--uclibc-use-build-dir $(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS)
 GLIBC_CFLAGS+=$(XWARNINGS) $(OPTIMIZATION)
+LDFLAGS=--uclibc-use-build-dir
 
 ifeq ($(DODEBUG),true)
     CFLAGS+=-g
     GLIBC_CFLAGS+=-g
-    LDFLAGS =-Wl,-warn-common
-    GLIBC_LDFLAGS =-Wl,-warn-common 
+    LDFLAGS = -g -Wl,-warn-common
+    GLIBC_LDFLAGS =-g -Wl,-warn-common 
     STRIPTOOL =true -Since_we_are_debugging
 else
     LDFLAGS  =-s -Wl,-warn-common
@@ -87,5 +88,3 @@ ifneq ($(DODYNAMIC),true)
     LDFLAGS +=-static
     GLIBC_LDFLAGS +=-static
 endif
-CFLAGS+=--uclibc-use-build-dir
-LDFLAGS+=--uclibc-use-build-dir
