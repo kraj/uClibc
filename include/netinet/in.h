@@ -103,10 +103,11 @@ enum
 
 
 /* Internet address.  */
+typedef uint32_t in_addr_t;
 struct in_addr
-  {
-    uint32_t s_addr;
-  };
+{
+    in_addr_t s_addr;
+};
 
 
 /* Definitions of the bits in an Internet address integer.
