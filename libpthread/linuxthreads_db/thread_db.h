@@ -1,20 +1,20 @@
-/* Copyright (C) 1999 Free Software Foundation, Inc.
+/* Copyright (C) 1999, 2001, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _THREAD_DB_H
 #define _THREAD_DB_H	1
@@ -51,7 +51,9 @@ typedef enum
   TD_NOTSD,	  /* No thread-specific data available.  */
   TD_MALLOC,	  /* Out of memory.  */
   TD_PARTIALREG,  /* Not entire register set was read or written.  */
-  TD_NOXREGS	  /* X register set not available for given thread.  */
+  TD_NOXREGS,	  /* X register set not available for given thread.  */
+  TD_NOTALLOC,	  /* TLS memory not yet allocated.  */
+  TD_VERSION	  /* Version if libpthread and libthread_db do not match.  */
 } td_err_e;
 
 
@@ -90,6 +92,10 @@ typedef struct td_thrhandle
   td_thragent_t *th_ta_p;
   psaddr_t th_unique;
 } td_thrhandle_t;
+
+
+/* Forward declaration of a type defined by and for the dynamic linker.  */
+struct link_map;
 
 
 /* Flags for `td_ta_thr_iter'.  */
@@ -289,6 +295,9 @@ extern td_err_e td_init (void);
 /* Historical relict.  Should not be used anymore.  */
 extern td_err_e td_log (void);
 
+/* Return list of symbols the library can request.  */
+extern const char **td_symbol_list (void);
+
 /* Generate new thread debug library handle for process PS.  */
 extern td_err_e td_ta_new (struct ps_prochandle *__ps, td_thragent_t **__ta);
 
@@ -341,7 +350,7 @@ extern td_err_e td_ta_clear_event (const td_thragent_t *__ta,
 
 /* Return information about last event.  */
 extern td_err_e td_ta_event_getmsg (const td_thragent_t *__ta,
-				    td_event_msg_t *msg);
+				    td_event_msg_t *__msg);
 
 
 /* Set suggested concurrency level for process associated with TA.  */
@@ -391,6 +400,12 @@ extern td_err_e td_thr_setgregs (const td_thrhandle_t *__th,
 /* Set extended register contents of process running thread TH.  */
 extern td_err_e td_thr_setxregs (const td_thrhandle_t *__th,
 				 const void *__addr);
+
+
+/* Get address of thread local variable.  */
+extern td_err_e td_thr_tls_get_addr (const td_thrhandle_t *__th,
+				     void *__map_address, size_t __offset,
+				     void **__address);
 
 
 /* Enable reporting for EVENT for thread TH.  */

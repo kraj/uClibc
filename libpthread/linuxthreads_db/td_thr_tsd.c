@@ -1,5 +1,5 @@
 /* Get a thread-specific data pointer for a thread.
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2001, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1999.
 
@@ -19,6 +19,7 @@
    02111-1307 USA.  */
 
 #include "thread_dbP.h"
+#include "../linuxthreads/internals.h"
 
 
 td_err_e
@@ -33,7 +34,12 @@ td_thr_tsd (const td_thrhandle_t *th, const thread_key_t tk, void **data)
   unsigned int idx2nd;
   void *p;
 
-  LOG (__FUNCTION__);
+  LOG ("td_thr_tsd");
+
+  /* If there is no thread descriptor there cannot be any thread
+     specific data.  */
+  if (th->th_unique == NULL)
+    return TD_BADKEY;
 
   /* Get the thread descriptor.  */
   if (ps_pdread (th->th_ta_p->ph, th->th_unique, &pds,
@@ -45,7 +51,7 @@ td_thr_tsd (const td_thrhandle_t *th, const thread_key_t tk, void **data)
     return TD_BADKEY;
 
   /* Get the key entry.  */
-  if (ps_pdread (th->th_ta_p->ph, keys, &key,
+  if (ps_pdread (th->th_ta_p->ph, &keys[tk], &key,
 		 sizeof (struct pthread_key_struct)) != PS_OK)
     return TD_ERR;	/* XXX Other error value?  */
 

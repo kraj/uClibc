@@ -16,6 +16,7 @@
 
 #define __FORCE_GLIBC
 #include <features.h>
+#define __USE_GNU
 #include <errno.h>
 #include <netdb.h>	/* for h_errno */
 #include <stddef.h>
@@ -90,8 +91,10 @@ struct _pthread_descr_struct __pthread_initial_thread = {
   0,                          /* Always index 0 */
   0,                          /* int p_report_events */
   {{{0, }}, 0, NULL},         /* td_eventbuf_t p_eventbuf */
-  ATOMIC_INITIALIZER,         /* struct pthread_atomic p_resume_count */
+  __ATOMIC_INITIALIZER,         /* struct pthread_atomic p_resume_count */
   0,                          /* char p_woken_by_cancel */
+  0,                          /* char p_condvar_avail */
+  0,                          /* char p_sem_avail */
   NULL,                       /* struct pthread_extricate_if *p_extricate */
   NULL,	                      /* pthread_readlock_info *p_readlock_list; */
   NULL,                       /* pthread_readlock_info *p_readlock_free; */
@@ -140,8 +143,10 @@ struct _pthread_descr_struct __pthread_manager_thread = {
   1,                          /* Always index 1 */
   0,                          /* int p_report_events */
   {{{0, }}, 0, NULL},         /* td_eventbuf_t p_eventbuf */
-  ATOMIC_INITIALIZER,         /* struct pthread_atomic p_resume_count */
+  __ATOMIC_INITIALIZER,         /* struct pthread_atomic p_resume_count */
   0,                          /* char p_woken_by_cancel */
+  0,                          /* char p_condvar_avail */
+  0,                          /* char p_sem_avail */
   NULL,                       /* struct pthread_extricate_if *p_extricate */
   NULL,	                      /* pthread_readlock_info *p_readlock_list; */
   NULL,                       /* pthread_readlock_info *p_readlock_free; */
@@ -189,45 +194,79 @@ int __pthread_exit_code = 0;
 
 const int __pthread_threads_max = PTHREAD_THREADS_MAX;
 const int __pthread_sizeof_handle = sizeof(struct pthread_handle_struct);
-const int __pthread_offsetof_descr = offsetof(struct pthread_handle_struct,
-                                              h_descr);
+const int __pthread_offsetof_descr = offsetof(struct pthread_handle_struct, h_descr);
 const int __pthread_offsetof_pid = offsetof(struct _pthread_descr_struct,
                                             p_pid);
 const int __linuxthreads_pthread_sizeof_descr
   = sizeof(struct _pthread_descr_struct);
 
+const int __linuxthreads_initial_report_events;
+
+const char __linuxthreads_version[] = VERSION;
 
 /* Forward declarations */
-
-static void pthread_exit_process(int retcode, void *arg);
-#ifndef __i386__
+static void pthread_onexit_process(int retcode, void *arg);
 static void pthread_handle_sigcancel(int sig);
 static void pthread_handle_sigrestart(int sig);
-#else
-static void pthread_handle_sigcancel(int sig, struct sigcontext ctx);
-static void pthread_handle_sigrestart(int sig, struct sigcontext ctx);
-#endif
 static void pthread_handle_sigdebug(int sig);
+int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstime);
 
 /* Signal numbers used for the communication.
    In these variables we keep track of the used variables.  If the
    platform does not support any real-time signals we will define the
    values to some unreasonable value which will signal failing of all
    the functions below.  */
-#ifdef __NR_rt_sigaction
+#ifndef __NR_rt_sigaction
+static int current_rtmin = -1;
+static int current_rtmax = -1;
+int __pthread_sig_restart = SIGUSR1;
+int __pthread_sig_cancel = SIGUSR2;
+int __pthread_sig_debug;
+#else
+
+#if __SIGRTMAX - __SIGRTMIN >= 3
+static int current_rtmin = __SIGRTMIN + 3;
+static int current_rtmax = __SIGRTMAX;
 int __pthread_sig_restart = __SIGRTMIN;
 int __pthread_sig_cancel = __SIGRTMIN + 1;
 int __pthread_sig_debug = __SIGRTMIN + 2;
 void (*__pthread_restart)(pthread_descr) = __pthread_restart_new;
 void (*__pthread_suspend)(pthread_descr) = __pthread_wait_for_restart_signal;
+int (*__pthread_timedsuspend)(pthread_descr, const struct timespec *) = __pthread_timedsuspend_new;
 #else
+static int current_rtmin = __SIGRTMIN;
+static int current_rtmax = __SIGRTMAX;
 int __pthread_sig_restart = SIGUSR1;
 int __pthread_sig_cancel = SIGUSR2;
-int __pthread_sig_debug = 0;
-/* Pointers that select new or old suspend/resume functions
-   based on availability of rt signals. */
+int __pthread_sig_debug;
 void (*__pthread_restart)(pthread_descr) = __pthread_restart_old;
 void (*__pthread_suspend)(pthread_descr) = __pthread_suspend_old;
+int (*__pthread_timedsuspend)(pthread_descr, const struct timespec *) = __pthread_timedsuspend_old;
+
+#endif
+
+/* Return number of available real-time signal with highest priority.  */
+int __libc_current_sigrtmin (void)
+{
+    return current_rtmin;
+}
+
+/* Return number of available real-time signal with lowest priority.  */
+int __libc_current_sigrtmax (void)
+{
+    return current_rtmax;
+}
+
+/* Allocate real-time signal with highest/lowest available
+   priority.  Please note that we don't use a lock since we assume
+   this function to be called at program start.  */
+int __libc_allocate_rtsig (int high)
+{
+    if (current_rtmin == -1 || current_rtmin > current_rtmax)
+	/* We don't have anymore signal available.  */
+	return -1;
+    return high ? current_rtmin++ : current_rtmax--;
+}
 #endif
 
 /* Initialize the pthread library.
@@ -307,39 +346,27 @@ static void pthread_initialize(void)
   /* Setup signal handlers for the initial thread.
      Since signal handlers are shared between threads, these settings
      will be inherited by all other threads. */
-#ifndef __i386__
   sa.sa_handler = pthread_handle_sigrestart;
-#else
-  sa.sa_handler = (__sighandler_t) pthread_handle_sigrestart;
-#endif
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
   __libc_sigaction(__pthread_sig_restart, &sa, NULL);
-#ifndef __i386__
   sa.sa_handler = pthread_handle_sigcancel;
-#else
-  sa.sa_handler = (__sighandler_t) pthread_handle_sigcancel;
-#endif
-  sa.sa_flags = 0;
+  // sa.sa_flags = 0;
   __libc_sigaction(__pthread_sig_cancel, &sa, NULL);
   if (__pthread_sig_debug > 0) {
-    sa.sa_handler = pthread_handle_sigdebug;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    __libc_sigaction(__pthread_sig_debug, &sa, NULL);
+      sa.sa_handler = pthread_handle_sigdebug;
+      sigemptyset(&sa.sa_mask);
+      // sa.sa_flags = 0;
+      __libc_sigaction(__pthread_sig_debug, &sa, NULL);
   }
   /* Initially, block __pthread_sig_restart. Will be unblocked on demand. */
   sigemptyset(&mask);
   sigaddset(&mask, __pthread_sig_restart);
-PDEBUG("block mask = %x\n", mask);
   sigprocmask(SIG_BLOCK, &mask, NULL);
   /* Register an exit function to kill all other threads. */
   /* Do it early so that user-registered atexit functions are called
-     before pthread_exit_process. */
-  on_exit(pthread_exit_process, NULL);
-#ifdef __NR_rt_sigaction
-  __pthread_init_condvar(1);
-#endif
+     before pthread_onexit_process. */
+  on_exit(pthread_onexit_process, NULL);
 }
 
 void __pthread_initialize(void)
@@ -351,6 +378,7 @@ int __pthread_initialize_manager(void)
 {
   int manager_pipe[2];
   int pid;
+  int report_events;
   struct pthread_request request;
 
   /* If basic initialization not done yet (e.g. we're called from a
@@ -379,7 +407,18 @@ int __pthread_initialize_manager(void)
   }
   /* Start the thread manager */
   pid = 0;
-  if (__pthread_initial_thread.p_report_events)
+#ifdef USE_TLS
+  if (__linuxthreads_initial_report_events != 0)
+    THREAD_SETMEM (((pthread_descr) NULL), p_report_events,
+		   __linuxthreads_initial_report_events);
+  report_events = THREAD_GETMEM (((pthread_descr) NULL), p_report_events);
+#else
+  if (__linuxthreads_initial_report_events != 0)
+    __pthread_initial_thread.p_report_events
+      = __linuxthreads_initial_report_events;
+  report_events = __pthread_initial_thread.p_report_events;
+#endif
+  if (__builtin_expect (report_events, 0))
     {
       /* It's a bit more complicated.  We have to report the creation of
 	 the manager thread.  */
@@ -391,7 +430,7 @@ int __pthread_initialize_manager(void)
 	  != 0)
 	{
 
-         __pthread_lock(__pthread_manager_thread.p_lock, NULL);
+	 __pthread_lock(__pthread_manager_thread.p_lock, NULL);
 
 	  pid = clone(__pthread_manager_event,
 			(void **) __pthread_manager_thread_tos,
@@ -405,7 +444,7 @@ int __pthread_initialize_manager(void)
 	         the new thread do this since we don't know whether it was
 	         already scheduled when we send the event.  */
 	      __pthread_manager_thread.p_eventbuf.eventdata =
-		&__pthread_manager_thread;
+		  &__pthread_manager_thread;
 	      __pthread_manager_thread.p_eventbuf.eventnum = TD_CREATE;
 	      __pthread_last_event = &__pthread_manager_thread;
 	      __pthread_manager_thread.p_tid = 2* PTHREAD_THREADS_MAX + 1;
@@ -434,6 +473,7 @@ int __pthread_initialize_manager(void)
   __pthread_manager_reader = manager_pipe[0]; /* reading end */
   __pthread_manager_thread.p_tid = 2* PTHREAD_THREADS_MAX + 1;
   __pthread_manager_thread.p_pid = pid;
+
   /* Make gdb aware of new thread manager */
   if (__pthread_threads_debug && __pthread_sig_debug > 0)
     {
@@ -445,7 +485,8 @@ int __pthread_initialize_manager(void)
   /* Synchronize debugging of the thread manager */
 PDEBUG("send REQ_DEBUG to manager thread\n");
   request.req_kind = REQ_DEBUG;
-  __libc_write(__pthread_manager_request, (char *) &request, sizeof(request));
+  TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+	      (char *) &request, sizeof(request)));
   return 0;
 }
 
@@ -467,7 +508,8 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
   sigprocmask(SIG_SETMASK, (const sigset_t *) NULL,
               &request.req_args.create.mask);
   PDEBUG("write REQ_CREATE to manager thread\n");
-  __libc_write(__pthread_manager_request, (char *) &request, sizeof(request));
+  TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+	      (char *) &request, sizeof(request)));
 PDEBUG("before suspend(self)\n");
   suspend(self);
 PDEBUG("after suspend(self)\n");
@@ -562,45 +604,39 @@ int pthread_getschedparam(pthread_t thread, int *policy,
 
 /* Process-wide exit() request */
 
-static void pthread_exit_process(int retcode, void *arg)
+static void pthread_onexit_process(int retcode, void *arg)
 {
-  struct pthread_request request;
-  pthread_descr self = thread_self();
+    struct pthread_request request;
+    pthread_descr self = thread_self();
 
-  if (__pthread_manager_request >= 0) {
-    request.req_thread = self;
-    request.req_kind = REQ_PROCESS_EXIT;
-    request.req_args.exit.code = retcode;
-    __libc_write(__pthread_manager_request,
-		 (char *) &request, sizeof(request));
-    suspend(self);
-    /* Main thread should accumulate times for thread manager and its
-       children, so that timings for main thread account for all threads. */
-    if (self == __pthread_main_thread)
-      waitpid(__pthread_manager_thread.p_pid, NULL, __WCLONE);
-  }
+    if (__pthread_manager_request >= 0) {
+	request.req_thread = self;
+	request.req_kind = REQ_PROCESS_EXIT;
+	request.req_args.exit.code = retcode;
+	TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+		    (char *) &request, sizeof(request)));
+	suspend(self);
+	/* Main thread should accumulate times for thread manager and its
+	   children, so that timings for main thread account for all threads. */
+	if (self == __pthread_main_thread) {
+	    waitpid(__pthread_manager_thread.p_pid, NULL, __WCLONE);
+	    /* Since all threads have been asynchronously terminated
+	     * (possibly holding locks), free cannot be used any more.  */
+	    __pthread_manager_thread_bos = __pthread_manager_thread_tos = NULL;
+	}
+    }
 }
 
 /* The handler for the RESTART signal just records the signal received
    in the thread descriptor, and optionally performs a siglongjmp
    (for pthread_cond_timedwait). */
 
-#ifndef __i386__
 static void pthread_handle_sigrestart(int sig)
 {
-  pthread_descr self = thread_self();
-  PDEBUG("got called in non-i386 mode for %u\n", self);
-#else
-static void pthread_handle_sigrestart(int sig, struct sigcontext ctx)
-{
-  pthread_descr self;
-  asm volatile ("movw %w0,%%gs" : : "r" (ctx.gs));
-  self = thread_self();
-  PDEBUG("got called in i386-mode for %u\n", self);
-#endif
-  THREAD_SETMEM(self, p_signal, sig);
-  if (THREAD_GETMEM(self, p_signal_jmp) != NULL)
-    siglongjmp(*THREAD_GETMEM(self, p_signal_jmp), 1);
+    pthread_descr self = thread_self();
+    THREAD_SETMEM(self, p_signal, sig);
+    if (THREAD_GETMEM(self, p_signal_jmp) != NULL)
+	siglongjmp(*THREAD_GETMEM(self, p_signal_jmp), 1);
 }
 
 /* The handler for the CANCEL signal checks for cancellation
@@ -608,33 +644,48 @@ static void pthread_handle_sigrestart(int sig, struct sigcontext ctx)
    For the thread manager thread, redirect the signal to
    __pthread_manager_sighandler. */
 
-#ifndef __i386__
 static void pthread_handle_sigcancel(int sig)
 {
   pthread_descr self = thread_self();
   sigjmp_buf * jmpbuf;
-#else
-static void pthread_handle_sigcancel(int sig, struct sigcontext ctx)
-{
-  pthread_descr self;
-  sigjmp_buf * jmpbuf;
-  asm volatile ("movw %w0,%%gs" : : "r" (ctx.gs));
-  self = thread_self();
-#endif
+  
 
   if (self == &__pthread_manager_thread)
     {
+#ifdef THREAD_SELF
+      /* A new thread might get a cancel signal before it is fully
+	 initialized, so that the thread register might still point to the
+	 manager thread.  Double check that this is really the manager
+	 thread.  */
+      pthread_descr real_self = thread_self_stack();
+      if (real_self == &__pthread_manager_thread)
+	{
+	  __pthread_manager_sighandler(sig);
+	  return;
+	}
+      /* Oops, thread_self() isn't working yet..  */
+      self = real_self;
+# ifdef INIT_THREAD_SELF
+      INIT_THREAD_SELF(self, self->p_nr);
+# endif
+#else
       __pthread_manager_sighandler(sig);
       return;
+#endif
     }
-  if (__pthread_exit_requested) {
+  if (__builtin_expect (__pthread_exit_requested, 0)) {
     /* Main thread should accumulate times for thread manager and its
        children, so that timings for main thread account for all threads. */
-    if (self == __pthread_main_thread)
+    if (self == __pthread_main_thread) {
+#ifdef USE_TLS
+      waitpid(__pthread_manager_thread->p_pid, NULL, __WCLONE);
+#else
       waitpid(__pthread_manager_thread.p_pid, NULL, __WCLONE);
+#endif
+    }
     _exit(__pthread_exit_code);
   }
-  if (THREAD_GETMEM(self, p_canceled)
+  if (__builtin_expect (THREAD_GETMEM(self, p_canceled), 0)
       && THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE) {
     if (THREAD_GETMEM(self, p_canceltype) == PTHREAD_CANCEL_ASYNCHRONOUS)
       pthread_exit(PTHREAD_CANCELED);
@@ -698,7 +749,7 @@ void __pthread_kill_other_threads_np(void)
 {
   struct sigaction sa;
   /* Terminate all other threads and thread manager */
-  pthread_exit_process(0, NULL);
+  pthread_onexit_process(0, NULL);
   /* Make current thread the main thread in case the calling thread
      changes its mind, does not exec(), and creates new threads instead. */
   __pthread_reset_main_thread();
@@ -732,65 +783,188 @@ int __pthread_getconcurrency(void)
 }
 weak_alias (__pthread_getconcurrency, pthread_getconcurrency)
 
-void __pthread_set_own_extricate_if(pthread_descr self, pthread_extricate_if *peif)
-{
-  __pthread_lock(self->p_lock, self);
-  THREAD_SETMEM(self, p_extricate, peif);
-  __pthread_unlock(self->p_lock);
-}
 
 /* Primitives for controlling thread execution */
 
 void __pthread_wait_for_restart_signal(pthread_descr self)
 {
-  sigset_t mask;
+    sigset_t mask;
 
-  sigprocmask(SIG_SETMASK, NULL, &mask); /* Get current signal mask */
-  sigdelset(&mask, __pthread_sig_restart); /* Unblock the restart signal */
-  do {
-    self->p_signal = 0;
-    PDEBUG("temporary block mask = %x\n", mask);
-    sigsuspend(&mask);                   /* Wait for signal */
-    PDEBUG(" *** after sigsuspend *** \n");
-  } while (self->p_signal !=__pthread_sig_restart );
+    sigprocmask(SIG_SETMASK, NULL, &mask); /* Get current signal mask */
+    sigdelset(&mask, __pthread_sig_restart); /* Unblock the restart signal */
+    THREAD_SETMEM(self, p_signal, 0);
+    do {
+	sigsuspend(&mask);                   /* Wait for signal */
+    } while (THREAD_GETMEM(self, p_signal) !=__pthread_sig_restart);
+
+    READ_MEMORY_BARRIER(); /* See comment in __pthread_restart_new */
 }
 
-#ifdef __NR_rt_sigaction
-void __pthread_restart_new(pthread_descr th)
-{
-    kill(th->p_pid, __pthread_sig_restart);
-}
-
-/* There is no __pthread_suspend_new because it would just
-   be a wasteful wrapper for __pthread_wait_for_restart_signal */
-#if 0
-void __pthread_suspend_new(pthread_descr th)
-{
-    __pthread_wait_for_restart_signal(th);
-}
-#endif
-
-#else
-/* The _old variants are for 2.0 and early 2.1 kernels which don't have RT signals.
+#ifndef __NR_rt_sigaction
+/* The _old variants are for 2.0 and early 2.1 kernels which don't have RT
+   signals.
    On these kernels, we use SIGUSR1 and SIGUSR2 for restart and cancellation.
    Since the restart signal does not queue, we use an atomic counter to create
    queuing semantics. This is needed to resolve a rare race condition in
    pthread_cond_timedwait_relative. */
+
 void __pthread_restart_old(pthread_descr th)
 {
-  if (atomic_increment(&th->p_resume_count) == -1)
-    kill(th->p_pid, __pthread_sig_restart);
+    if (atomic_increment(&th->p_resume_count) == -1)
+	kill(th->p_pid, __pthread_sig_restart);
 }
 
 void __pthread_suspend_old(pthread_descr self)
 {
-  if (atomic_decrement(&self->p_resume_count) <= 0)
-    __pthread_wait_for_restart_signal(self);
+    if (atomic_decrement(&self->p_resume_count) <= 0)
+	__pthread_wait_for_restart_signal(self);
+}
+
+int
+__pthread_timedsuspend_old(pthread_descr self, const struct timespec *abstime)
+{
+  sigset_t unblock, initial_mask;
+  int was_signalled = 0;
+  sigjmp_buf jmpbuf;
+
+  if (atomic_decrement(&self->p_resume_count) == 0) {
+    /* Set up a longjmp handler for the restart signal, unblock
+       the signal and sleep. */
+
+    if (sigsetjmp(jmpbuf, 1) == 0) {
+      THREAD_SETMEM(self, p_signal_jmp, &jmpbuf);
+      THREAD_SETMEM(self, p_signal, 0);
+      /* Unblock the restart signal */
+      sigemptyset(&unblock);
+      sigaddset(&unblock, __pthread_sig_restart);
+      sigprocmask(SIG_UNBLOCK, &unblock, &initial_mask);
+
+      while (1) {
+	struct timeval now;
+	struct timespec reltime;
+
+	/* Compute a time offset relative to now.  */
+	__gettimeofday (&now, NULL);
+	reltime.tv_nsec = abstime->tv_nsec - now.tv_usec * 1000;
+	reltime.tv_sec = abstime->tv_sec - now.tv_sec;
+	if (reltime.tv_nsec < 0) {
+	  reltime.tv_nsec += 1000000000;
+	  reltime.tv_sec -= 1;
+	}
+
+	/* Sleep for the required duration. If woken by a signal,
+	   resume waiting as required by Single Unix Specification.  */
+	if (reltime.tv_sec < 0 || __libc_nanosleep(&reltime, NULL) == 0)
+	  break;
+      }
+
+      /* Block the restart signal again */
+      sigprocmask(SIG_SETMASK, &initial_mask, NULL);
+      was_signalled = 0;
+    } else {
+      was_signalled = 1;
+    }
+    THREAD_SETMEM(self, p_signal_jmp, NULL);
+  }
+
+  /* Now was_signalled is true if we exited the above code
+     due to the delivery of a restart signal.  In that case,
+     we know we have been dequeued and resumed and that the
+     resume count is balanced.  Otherwise, there are some
+     cases to consider. First, try to bump up the resume count
+     back to zero. If it goes to 1, it means restart() was
+     invoked on this thread. The signal must be consumed
+     and the count bumped down and everything is cool. We
+     can return a 1 to the caller.
+     Otherwise, no restart was delivered yet, so a potential
+     race exists; we return a 0 to the caller which must deal
+     with this race in an appropriate way; for example by
+     atomically removing the thread from consideration for a
+     wakeup---if such a thing fails, it means a restart is
+     being delivered. */
+
+  if (!was_signalled) {
+    if (atomic_increment(&self->p_resume_count) != -1) {
+      __pthread_wait_for_restart_signal(self);
+      atomic_decrement(&self->p_resume_count); /* should be zero now! */
+      /* woke spontaneously and consumed restart signal */
+      return 1;
+    }
+    /* woke spontaneously but did not consume restart---caller must resolve */
+    return 0;
+  }
+  /* woken due to restart signal */
+  return 1;
+}
+#endif /* __NR_rt_sigaction */
+
+
+#ifdef __NR_rt_sigaction
+void __pthread_restart_new(pthread_descr th)
+{
+    /* The barrier is proabably not needed, in which case it still documents
+       our assumptions. The intent is to commit previous writes to shared
+       memory so the woken thread will have a consistent view.  Complementary
+       read barriers are present to the suspend functions. */
+    WRITE_MEMORY_BARRIER();
+    kill(th->p_pid, __pthread_sig_restart);
+}
+
+int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstime)
+{
+    sigset_t unblock, initial_mask;
+    int was_signalled = 0;
+    sigjmp_buf jmpbuf;
+
+    if (sigsetjmp(jmpbuf, 1) == 0) {
+	THREAD_SETMEM(self, p_signal_jmp, &jmpbuf);
+	THREAD_SETMEM(self, p_signal, 0);
+	/* Unblock the restart signal */
+	sigemptyset(&unblock);
+	sigaddset(&unblock, __pthread_sig_restart);
+	sigprocmask(SIG_UNBLOCK, &unblock, &initial_mask);
+
+	while (1) {
+	    struct timeval now;
+	    struct timespec reltime;
+
+	    /* Compute a time offset relative to now.  */
+	    gettimeofday (&now, NULL);
+	    reltime.tv_nsec = abstime->tv_nsec - now.tv_usec * 1000;
+	    reltime.tv_sec = abstime->tv_sec - now.tv_sec;
+	    if (reltime.tv_nsec < 0) {
+		reltime.tv_nsec += 1000000000;
+		reltime.tv_sec -= 1;
+	    }
+
+	    /* Sleep for the required duration. If woken by a signal,
+	       resume waiting as required by Single Unix Specification.  */
+	    if (reltime.tv_sec < 0 || __libc_nanosleep(&reltime, NULL) == 0)
+		break;
+	}
+
+	/* Block the restart signal again */
+	sigprocmask(SIG_SETMASK, &initial_mask, NULL);
+	was_signalled = 0;
+    } else {
+	was_signalled = 1;
+    }
+    THREAD_SETMEM(self, p_signal_jmp, NULL);
+
+    /* Now was_signalled is true if we exited the above code
+       due to the delivery of a restart signal.  In that case,
+       everything is cool. We have been removed from whatever
+       we were waiting on by the other thread, and consumed its signal.
+
+       Otherwise we this thread woke up spontaneously, or due to a signal other
+       than restart. This is an ambiguous case  that must be resolved by
+       the caller; the thread is still eligible for a restart wakeup
+       so there is a race. */
+
+    READ_MEMORY_BARRIER(); /* See comment in __pthread_restart_new */
+    return was_signalled;
 }
 #endif
-
-/* There is no __pthread_suspend_new because it would just
-   be a wasteful wrapper for __pthread_wait_for_restart_signal */
 
 /* Debugging aid */
 
@@ -805,7 +979,7 @@ void __pthread_message(char * fmt, ...)
   va_start(args, fmt);
   vsnprintf(buffer + 8, sizeof(buffer) - 8, fmt, args);
   va_end(args);
-  __libc_write(2, buffer, strlen(buffer));
+  TEMP_FAILURE_RETRY(__libc_write(2, buffer, strlen(buffer)));
 }
 
 #endif

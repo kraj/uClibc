@@ -1,27 +1,34 @@
 /* Machine-dependent pthreads configuration and inline functions.
    SuperH version.
-   Copyright (C) 1999, 2000, 2001 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2001, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Niibe Yutaka <gniibe@m17n.org>.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
+   modify it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
    License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
+   You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; see the file COPYING.LIB.  If not,
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#ifndef _PT_MACHINE_H
+#define _PT_MACHINE_H   1
+
+#ifndef __ASSEMBLER__
 #ifndef PT_EI
 # define PT_EI extern inline
 #endif
+
+extern long int testandset (int *spinlock);
+extern int __compare_and_swap (long int *p, long int oldval, long int newval);
 
 /* Spinlock implementation; required.  */
 PT_EI long int
@@ -39,6 +46,11 @@ testandset (int *spinlock)
   return (ret == 0);
 }
 
+/* We want the OS to assign stack addresses.  */
+#define FLOATING_STACKS 1
+
+/* Maximum size of the stack if the rlimit is unlimited.  */
+#define ARCH_STACK_MAX_SIZE     32*1024*1024
 
 /* Get some notion of the current stack.  Need not be exactly the top
    of the stack, just something somewhere in the current frame.  */
@@ -53,4 +65,13 @@ struct _pthread_descr_struct;
 
 /* Initialize the thread-unique value.  */
 #define INIT_THREAD_SELF(descr, nr) \
-  ({ __asm__("ldc %0,gbr" : : "r" (descr));})
+  ({ __asm__ __volatile__("ldc %0,gbr" : : "r" (descr));})
+
+/* Access to data in the thread descriptor is easy.  */
+#define THREAD_GETMEM(descr, member) THREAD_SELF->member
+#define THREAD_GETMEM_NC(descr, member) THREAD_SELF->member
+#define THREAD_SETMEM(descr, member, value) THREAD_SELF->member = (value)
+#define THREAD_SETMEM_NC(descr, member, value) THREAD_SELF->member = (value)
+#endif /* __ASSEMBLER__ */
+
+#endif /* pt-machine.h */

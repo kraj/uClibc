@@ -25,22 +25,6 @@
 #include "queue.h"
 #include "restart.h"
 
-static int pthread_cond_timedwait_relative_old(pthread_cond_t *,
-    pthread_mutex_t *, const struct timespec *);
-
-static int pthread_cond_timedwait_relative_new(pthread_cond_t *,
-    pthread_mutex_t *, const struct timespec *);
-
-static int (*pthread_cond_tw_rel)(pthread_cond_t *, pthread_mutex_t *,
-    const struct timespec *) = pthread_cond_timedwait_relative_old;
-
-/* initialize this module */
-void __pthread_init_condvar(int rt_sig_available)
-{
-  if (rt_sig_available)
-    pthread_cond_tw_rel = pthread_cond_timedwait_relative_new;
-}
-
 int pthread_cond_init(pthread_cond_t *cond,
                       const pthread_condattr_t *cond_attr)
 {
@@ -76,12 +60,20 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
   volatile pthread_descr self = thread_self();
   pthread_extricate_if extr;
   int already_canceled = 0;
+  int spurious_wakeup_count;
+
+  /* Check whether the mutex is locked and owned by this thread.  */
+  if (mutex->__m_kind != PTHREAD_MUTEX_TIMED_NP
+      && mutex->__m_kind != PTHREAD_MUTEX_ADAPTIVE_NP
+      && mutex->__m_owner != self)
+    return EINVAL;
 
   /* Set up extrication interface */
   extr.pu_object = cond;
   extr.pu_extricate_func = cond_extricate_func;
 
   /* Register extrication interface */
+  THREAD_SETMEM(self, p_condvar_avail, 0);
   __pthread_set_own_extricate_if(self, &extr);
 
   /* Atomically enqueue thread for waiting, but only if it is not
@@ -106,7 +98,21 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
 
   pthread_mutex_unlock(mutex);
 
-  suspend(self);
+  spurious_wakeup_count = 0;
+  while (1)
+    {
+      suspend(self);
+      if (THREAD_GETMEM(self, p_condvar_avail) == 0
+	  && (THREAD_GETMEM(self, p_woken_by_cancel) == 0
+	      || THREAD_GETMEM(self, p_cancelstate) != PTHREAD_CANCEL_ENABLE))
+	{
+	  /* Count resumes that don't belong to us. */
+	  spurious_wakeup_count++;
+	  continue;
+	}
+      break;
+    }
+
   __pthread_set_own_extricate_if(self, 0);
 
   /* Check for cancellation again, to provide correct cancellation
@@ -119,31 +125,36 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
     pthread_exit(PTHREAD_CANCELED);
   }
 
+  /* Put back any resumes we caught that don't belong to us. */
+  while (spurious_wakeup_count--)
+    restart(self);
+
   pthread_mutex_lock(mutex);
   return 0;
 }
 
-/* The following function is used on kernels that don't have rt signals.
-   SIGUSR1 is used as the restart signal. The different code is needed
-   because that ordinary signal does not queue. */
-
 static int
-pthread_cond_timedwait_relative_old(pthread_cond_t *cond,
+pthread_cond_timedwait_relative(pthread_cond_t *cond,
 				pthread_mutex_t *mutex,
 				const struct timespec * abstime)
 {
   volatile pthread_descr self = thread_self();
-  sigset_t unblock, initial_mask;
   int already_canceled = 0;
-  int was_signalled = 0;
-  sigjmp_buf jmpbuf;
   pthread_extricate_if extr;
+  int spurious_wakeup_count;
+
+  /* Check whether the mutex is locked and owned by this thread.  */
+  if (mutex->__m_kind != PTHREAD_MUTEX_TIMED_NP
+      && mutex->__m_kind != PTHREAD_MUTEX_ADAPTIVE_NP
+      && mutex->__m_owner != self)
+    return EINVAL;
 
   /* Set up extrication interface */
   extr.pu_object = cond;
   extr.pu_extricate_func = cond_extricate_func;
 
   /* Register extrication interface */
+  THREAD_SETMEM(self, p_condvar_avail, 0);
   __pthread_set_own_extricate_if(self, &extr);
 
   /* Enqueue to wait on the condition and check for cancellation. */
@@ -162,78 +173,39 @@ pthread_cond_timedwait_relative_old(pthread_cond_t *cond,
 
   pthread_mutex_unlock(mutex);
 
-  if (atomic_decrement(&self->p_resume_count) == 0) {
-    /* Set up a longjmp handler for the restart signal, unblock
-       the signal and sleep. */
+  spurious_wakeup_count = 0;
+  while (1)
+    {
+      if (!timedsuspend(self, abstime)) {
+	int was_on_queue;
 
-    if (sigsetjmp(jmpbuf, 1) == 0) {
-      THREAD_SETMEM(self, p_signal_jmp, &jmpbuf);
-      THREAD_SETMEM(self, p_signal, 0);
-      /* Unblock the restart signal */
-      sigemptyset(&unblock);
-      sigaddset(&unblock, __pthread_sig_restart);
-      sigprocmask(SIG_UNBLOCK, &unblock, &initial_mask);
+	/* __pthread_lock will queue back any spurious restarts that
+	   may happen to it. */
 
-      while (1) {
-	struct timeval now;
-	struct timespec reltime;
+	__pthread_lock(&cond->__c_lock, self);
+	was_on_queue = remove_from_queue(&cond->__c_waiting, self);
+	__pthread_unlock(&cond->__c_lock);
 
-	/* Compute a time offset relative to now.  */
-	gettimeofday (&now, NULL);
-	reltime.tv_nsec = abstime->tv_nsec - now.tv_usec * 1000;
-	reltime.tv_sec = abstime->tv_sec - now.tv_sec;
-	if (reltime.tv_nsec < 0) {
-	  reltime.tv_nsec += 1000000000;
-	  reltime.tv_sec -= 1;
+	if (was_on_queue) {
+	  __pthread_set_own_extricate_if(self, 0);
+	  pthread_mutex_lock(mutex);
+	  return ETIMEDOUT;
 	}
 
-	/* Sleep for the required duration. If woken by a signal, resume waiting
-	   as required by Single Unix Specification.  */
-	if (reltime.tv_sec < 0 || __libc_nanosleep(&reltime, NULL) == 0)
-	  break;
+	/* Eat the outstanding restart() from the signaller */
+	suspend(self);
       }
 
-      /* Block the restart signal again */
-      sigprocmask(SIG_SETMASK, &initial_mask, NULL);
-      was_signalled = 0;
-    } else {
-      was_signalled = 1;
+      if (THREAD_GETMEM(self, p_condvar_avail) == 0
+	  && (THREAD_GETMEM(self, p_woken_by_cancel) == 0
+	      || THREAD_GETMEM(self, p_cancelstate) != PTHREAD_CANCEL_ENABLE))
+	{
+	  /* Count resumes that don't belong to us. */
+	  spurious_wakeup_count++;
+	  continue;
+	}
+      break;
     }
-    THREAD_SETMEM(self, p_signal_jmp, NULL);
-  }
-
-  /* Now was_signalled is true if we exited the above code
-     due to the delivery of a restart signal.  In that case,
-     we know we have been dequeued and resumed and that the
-     resume count is balanced.  Otherwise, there are some
-     cases to consider. First, try to bump up the resume count
-     back to zero. If it goes to 1, it means restart() was
-     invoked on this thread. The signal must be consumed
-     and the count bumped down and everything is cool.
-     Otherwise, no restart was delivered yet, so we remove
-     the thread from the queue. If this succeeds, it's a clear
-     case of timeout. If we fail to remove from the queue, then we
-     must wait for a restart. */
-
-  if (!was_signalled) {
-    if (atomic_increment(&self->p_resume_count) != -1) {
-      __pthread_wait_for_restart_signal(self);
-      atomic_decrement(&self->p_resume_count); /* should be zero now! */
-    } else {
-      int was_on_queue;
-      __pthread_lock(&cond->__c_lock, self);
-      was_on_queue = remove_from_queue(&cond->__c_waiting, self);
-      __pthread_unlock(&cond->__c_lock);
-
-      if (was_on_queue) {
-	__pthread_set_own_extricate_if(self, 0);
-	pthread_mutex_lock(mutex);
-	return ETIMEDOUT;
-      }
-
-      suspend(self);
-    }
-  }
 
   __pthread_set_own_extricate_if(self, 0);
 
@@ -247,128 +219,9 @@ pthread_cond_timedwait_relative_old(pthread_cond_t *cond,
     pthread_exit(PTHREAD_CANCELED);
   }
 
-  pthread_mutex_lock(mutex);
-  return 0;
-}
-
-/* The following function is used on new (late 2.1 and 2.2 and higher) kernels
-   that have rt signals which queue. */
-
-static int
-pthread_cond_timedwait_relative_new(pthread_cond_t *cond,
-				pthread_mutex_t *mutex,
-				const struct timespec * abstime)
-{
-  volatile pthread_descr self = thread_self();
-  sigset_t unblock, initial_mask;
-  int already_canceled = 0;
-  int was_signalled = 0;
-  sigjmp_buf jmpbuf;
-  pthread_extricate_if extr;
-
-  /* Set up extrication interface */
-  extr.pu_object = cond;
-  extr.pu_extricate_func = cond_extricate_func;
-
-  /* Register extrication interface */
-  __pthread_set_own_extricate_if(self, &extr);
-
-  /* Enqueue to wait on the condition and check for cancellation. */
-  __pthread_lock(&cond->__c_lock, self);
-  if (!(THREAD_GETMEM(self, p_canceled)
-      && THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE))
-    enqueue(&cond->__c_waiting, self);
-  else
-    already_canceled = 1;
-  __pthread_unlock(&cond->__c_lock);
-
-  if (already_canceled) {
-    __pthread_set_own_extricate_if(self, 0);
-    pthread_exit(PTHREAD_CANCELED);
-  }
-
-  pthread_mutex_unlock(mutex);
-
-  /* Set up a longjmp handler for the restart signal, unblock
-     the signal and sleep. */
-
-  if (sigsetjmp(jmpbuf, 1) == 0) {
-    THREAD_SETMEM(self, p_signal_jmp, &jmpbuf);
-    THREAD_SETMEM(self, p_signal, 0);
-    /* Unblock the restart signal */
-    sigemptyset(&unblock);
-    sigaddset(&unblock, __pthread_sig_restart);
-    sigprocmask(SIG_UNBLOCK, &unblock, &initial_mask);
-
-    while (1) {
-	struct timeval now;
-	struct timespec reltime;
-
-	/* Compute a time offset relative to now.  */
-	gettimeofday (&now, NULL);
-	reltime.tv_nsec = abstime->tv_nsec - now.tv_usec * 1000;
-	reltime.tv_sec = abstime->tv_sec - now.tv_sec;
-	if (reltime.tv_nsec < 0) {
-	  reltime.tv_nsec += 1000000000;
-	  reltime.tv_sec -= 1;
-	}
-
-	/* Sleep for the required duration. If woken by a signal,
-	   resume waiting as required by Single Unix Specification.  */
-	if (reltime.tv_sec < 0 || __libc_nanosleep(&reltime, NULL) == 0)
-	  break;
-      }
-
-    /* Block the restart signal again */
-    sigprocmask(SIG_SETMASK, &initial_mask, NULL);
-    was_signalled = 0;
-  } else {
-    was_signalled = 1;
-  }
-  THREAD_SETMEM(self, p_signal_jmp, NULL);
-
-  /* Now was_signalled is true if we exited the above code
-     due to the delivery of a restart signal.  In that case,
-     everything is cool. We have been removed from the queue
-     by the other thread, and consumed its signal.
-
-     Otherwise we this thread woke up spontaneously, or due to a signal other
-     than restart. The next thing to do is to try to remove the thread
-     from the queue. This may fail due to a race against another thread
-     trying to do the same. In the failed case, we know we were signalled,
-     and we may also have to consume a restart signal. */
-
-  if (!was_signalled) {
-    int was_on_queue;
-
-    /* __pthread_lock will queue back any spurious restarts that
-       may happen to it. */
-
-    __pthread_lock(&cond->__c_lock, self);
-    was_on_queue = remove_from_queue(&cond->__c_waiting, self);
-    __pthread_unlock(&cond->__c_lock);
-
-    if (was_on_queue) {
-      __pthread_set_own_extricate_if(self, 0);
-      pthread_mutex_lock(mutex);
-      return ETIMEDOUT;
-    }
-
-    /* Eat the outstanding restart() from the signaller */
-    suspend(self);
-  }
-
-  __pthread_set_own_extricate_if(self, 0);
-
-  /* The remaining logic is the same as in other cancellable waits,
-     such as pthread_join sem_wait or pthread_cond wait. */
-
-  if (THREAD_GETMEM(self, p_woken_by_cancel)
-      && THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE) {
-    THREAD_SETMEM(self, p_woken_by_cancel, 0);
-    pthread_mutex_lock(mutex);
-    pthread_exit(PTHREAD_CANCELED);
-  }
+  /* Put back any resumes we caught that don't belong to us. */
+  while (spurious_wakeup_count--)
+    restart(self);
 
   pthread_mutex_lock(mutex);
   return 0;
@@ -378,7 +231,7 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
                            const struct timespec * abstime)
 {
   /* Indirect call through pointer! */
-  return pthread_cond_tw_rel(cond, mutex, abstime);
+  return pthread_cond_timedwait_relative(cond, mutex, abstime);
 }
 
 int pthread_cond_signal(pthread_cond_t *cond)
@@ -388,7 +241,11 @@ int pthread_cond_signal(pthread_cond_t *cond)
   __pthread_lock(&cond->__c_lock, NULL);
   th = dequeue(&cond->__c_waiting);
   __pthread_unlock(&cond->__c_lock);
-  if (th != NULL) restart(th);
+  if (th != NULL) {
+    th->p_condvar_avail = 1;
+    WRITE_MEMORY_BARRIER();
+    restart(th);
+  }
   return 0;
 }
 
@@ -402,7 +259,11 @@ int pthread_cond_broadcast(pthread_cond_t *cond)
   cond->__c_waiting = NULL;
   __pthread_unlock(&cond->__c_lock);
   /* Now signal each process in the queue */
-  while ((th = dequeue(&tosignal)) != NULL) restart(th);
+  while ((th = dequeue(&tosignal)) != NULL) {
+    th->p_condvar_avail = 1;
+    WRITE_MEMORY_BARRIER();
+    restart(th);
+  }
   return 0;
 }
 
@@ -418,19 +279,18 @@ int pthread_condattr_destroy(pthread_condattr_t *attr)
 
 int pthread_condattr_getpshared (const pthread_condattr_t *attr, int *pshared)
 {
-    *pshared = PTHREAD_PROCESS_PRIVATE;
-    return 0;
+  *pshared = PTHREAD_PROCESS_PRIVATE;
+  return 0;
 }
 
 int pthread_condattr_setpshared (pthread_condattr_t *attr, int pshared)
 {
-    if (pshared != PTHREAD_PROCESS_PRIVATE && pshared != PTHREAD_PROCESS_SHARED)
-	return EINVAL;
+  if (pshared != PTHREAD_PROCESS_PRIVATE && pshared != PTHREAD_PROCESS_SHARED)
+    return EINVAL;
 
-    /* For now it is not possible to share a conditional variable.  */
-    if (pshared != PTHREAD_PROCESS_PRIVATE)
-	return ENOSYS;
+  /* For now it is not possible to shared a conditional variable.  */
+  if (pshared != PTHREAD_PROCESS_PRIVATE)
+    return ENOSYS;
 
-    return 0;
+  return 0;
 }
-

@@ -1,5 +1,5 @@
 /* Iterate over a process's threads.
-   Copyright (C) 1999, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2001, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1999.
 
@@ -19,6 +19,7 @@
    02111-1307 USA.  */
 
 #include "thread_dbP.h"
+#include "../linuxthreads/internals.h"
 #include <alloca.h>
 
 static int
@@ -29,6 +30,37 @@ handle_descr (const td_thragent_t *ta, td_thr_iter_f *callback,
   struct _pthread_descr_struct pds;
   size_t sizeof_descr = ta->sizeof_descr;
   td_thrhandle_t th;
+
+  if (descr == NULL)
+    {
+      /* No descriptor (yet).  */
+      if (cnt == 0)
+	{
+	  /* This is the main thread.  Create a fake descriptor.  */
+	  memset (&pds, '\0', sizeof (pds));
+
+	  /* Empty thread descriptor the thread library would create.  */
+	  pds.p_self = &pds;
+	  pds.p_nextlive = pds.p_prevlive = &pds;
+	  pds.p_tid = PTHREAD_THREADS_MAX;
+	  /* The init code also sets up p_lock, p_errnop, p_herrnop, and
+	     p_userstack but this should not be necessary here.  */
+
+	  th.th_ta_p = (td_thragent_t *) ta;
+	  th.th_unique = NULL;
+	  if (callback (&th, cbdata_p) != 0)
+	    return TD_DBERR;
+
+	  /* All done successfully.  */
+	  return TD_OK;
+	}
+      else if (cnt == 1)
+	/* The manager is not yet started.  No big deal.  */
+	return TD_OK;
+      else
+	/* For every other thread this should not happen.  */
+	return TD_ERR;
+    }
 
   if (ps_pdread (ta->ph, descr, &pds, sizeof_descr) != PS_OK)
     return TD_ERR;	/* XXX Other error value?  */
@@ -86,7 +118,7 @@ td_ta_thr_iter (const td_thragent_t *ta, td_thr_iter_f *callback,
 # define num 1
 #endif
 
-  LOG (__FUNCTION__);
+  LOG ("td_ta_thr_iter");
 
   /* Test whether the TA parameter is ok.  */
   if (! ta_ok (ta))

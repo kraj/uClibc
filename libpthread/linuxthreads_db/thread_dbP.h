@@ -2,7 +2,10 @@
 #ifndef _THREAD_DBP_H
 #define _THREAD_DBP_H	1
 
+#define __FORCE_GLIBC
+#include <features.h>
 #include <string.h>
+#include <unistd.h>
 #include "proc_service.h"
 #include "thread_db.h"
 #include "../linuxthreads/internals.h"
@@ -22,6 +25,8 @@ enum
     LINUXTHREADS_CREATE_EVENT,
     LINUXTHREADS_DEATH_EVENT,
     LINUXTHREADS_REAP_EVENT,
+    LINUXTHREADS_INITIAL_REPORT_EVENTS,
+    LINUXTHREADS_VERSION,
     NUM_MESSAGES
   };
 

@@ -29,6 +29,9 @@
 #include "semaphore.h"
 #include "../linuxthreads_db/thread_dbP.h"
 
+/* Pretend to be glibc 2.3 as far as gdb is concerned */
+#define VERSION "2.3"
+
 #ifndef THREAD_GETMEM
 # define THREAD_GETMEM(descr, member) descr->member
 #endif
@@ -159,6 +162,8 @@ struct _pthread_descr_struct {
   struct pthread_atomic p_resume_count; /* number of times restart() was
 					   called on thread */
   char p_woken_by_cancel;       /* cancellation performed wakeup */
+  char p_condvar_avail;         /* flag if conditional variable became avail */
+  char p_sem_avail;             /* flag if semaphore became available */
   pthread_extricate_if *p_extricate; /* See above */
   pthread_readlock_info *p_readlock_list;  /* List of readlock info structs */
   pthread_readlock_info *p_readlock_free;  /* Free list of structs */
@@ -186,7 +191,7 @@ struct pthread_request {
   pthread_descr req_thread;     /* Thread doing the request */
   enum {                        /* Request kind */
     REQ_CREATE, REQ_FREE, REQ_PROCESS_EXIT, REQ_MAIN_THREAD_EXIT,
-    REQ_POST, REQ_DEBUG
+    REQ_POST, REQ_DEBUG, REQ_KICK
   } req_kind;
   union {                       /* Arguments for request */
     struct {                    /* For REQ_CREATE: */
@@ -337,6 +342,21 @@ static inline int invalid_handle(pthread_handle h, pthread_t id)
 #define CURRENT_STACK_FRAME  ({ char __csf; &__csf; })
 #endif
 
+/* If MEMORY_BARRIER isn't defined in pt-machine.h, assume the
+   architecture doesn't need a memory barrier instruction (e.g. Intel
+   x86).  Still we need the compiler to respect the barrier and emit
+   all outstanding operations which modify memory.  Some architectures
+   distinguish between full, read and write barriers.  */
+#ifndef MEMORY_BARRIER
+#define MEMORY_BARRIER() asm ("" : : : "memory")
+#endif
+#ifndef READ_MEMORY_BARRIER
+#define READ_MEMORY_BARRIER() MEMORY_BARRIER()
+#endif
+#ifndef WRITE_MEMORY_BARRIER
+#define WRITE_MEMORY_BARRIER() MEMORY_BARRIER()
+#endif
+
 /* Recover thread descriptor for the current thread */
 
 extern pthread_descr __pthread_find_self (void) __attribute__ ((const));
@@ -425,7 +445,6 @@ void __pthread_manager_sighandler(int sig);
 void __pthread_reset_main_thread(void);
 void __fresetlockfiles(void);
 void __pthread_manager_adjust_prio(int thread_prio);
-void __pthread_set_own_extricate_if(pthread_descr self, pthread_extricate_if *peif);
 void __pthread_initialize_minimal (void);
 
 extern int __pthread_attr_setguardsize __P ((pthread_attr_t *__attr,
@@ -446,15 +465,15 @@ extern int __pthread_mutexattr_gettype __P ((__const pthread_mutexattr_t *__attr
 					     int *__kind));
 extern void __pthread_kill_other_threads_np __P ((void));
 
-void __pthread_restart_old(pthread_descr th);
-void __pthread_suspend_old(pthread_descr self);
+extern void __pthread_restart_old(pthread_descr th);
+extern void __pthread_suspend_old(pthread_descr self);
+extern int __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abs);
 
-void __pthread_restart_new(pthread_descr th);
-void __pthread_suspend_new(pthread_descr self);
+extern void __pthread_restart_new(pthread_descr th);
+extern void __pthread_suspend_new(pthread_descr self);
+extern int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abs);
 
-void __pthread_wait_for_restart_signal(pthread_descr self);
-
-void __pthread_init_condvar(int rt_sig_available);
+extern void __pthread_wait_for_restart_signal(pthread_descr self);
 
 /* Global pointers to old or new suspend functions */
 

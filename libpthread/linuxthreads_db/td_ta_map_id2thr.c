@@ -1,5 +1,5 @@
 /* Map thread ID to thread handle.
-   Copyright (C) 1999, 2001 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2001, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1999.
 
@@ -19,6 +19,7 @@
    02111-1307 USA.  */
 
 #include "thread_dbP.h"
+#include "../linuxthreads/internals.h"
 
 
 td_err_e
@@ -28,7 +29,7 @@ td_ta_map_id2thr (const td_thragent_t *ta, pthread_t pt, td_thrhandle_t *th)
   struct _pthread_descr_struct pds;
   int pthread_threads_max;
 
-  LOG (__FUNCTION__);
+  LOG ("td_ta_map_id2thr");
 
   /* Test whether the TA parameter is ok.  */
   if (! ta_ok (ta))
@@ -44,7 +45,19 @@ td_ta_map_id2thr (const td_thragent_t *ta, pthread_t pt, td_thrhandle_t *th)
 
   /* Test whether this entry is in use.  */
   if (phc.h_descr == NULL)
-    return TD_BADTH;
+    {
+      if (pt % pthread_threads_max == 0)
+	{
+	  /* The initial thread always exists but the thread library
+	     might not yet be initialized.  */
+	  th->th_ta_p = (td_thragent_t *) ta;
+	  th->th_unique = NULL;
+
+	  return TD_OK;
+	}
+
+      return TD_BADTH;
+    }
 
   /* Next test: get the descriptor to see whether this is not an old
      thread handle.  */

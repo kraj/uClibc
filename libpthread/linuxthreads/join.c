@@ -14,9 +14,12 @@
 
 /* Thread termination and joining */
 
+#include <features.h>
+#define __USE_GNU
 #include <errno.h>
 #include <sched.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include "pthread.h"
 #include "internals.h"
 #include "spinlock.h"
@@ -74,8 +77,13 @@ PDEBUG("joining = %p, pid=%d\n", joining, joining->p_pid);
   if (self == __pthread_main_thread && __pthread_manager_request >= 0) {
     request.req_thread = self;
     request.req_kind = REQ_MAIN_THREAD_EXIT;
-    __libc_write(__pthread_manager_request, (char *)&request, sizeof(request));
+    TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+		(char *)&request, sizeof(request)));
     suspend(self);
+    /* Main thread flushes stdio streams and runs atexit functions.
+     * It also calls a handler within LinuxThreads which sends a process exit
+     * request to the thread manager. */
+    exit(0);
   }
   /* Exit the process (but don't flush stdio streams, and don't run
      atexit functions). */
@@ -168,8 +176,8 @@ PDEBUG("after suspend\n");
     request.req_thread = self;
     request.req_kind = REQ_FREE;
     request.req_args.free.thread_id = thread_id;
-    __libc_write(__pthread_manager_request,
-		 (char *) &request, sizeof(request));
+    TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+		(char *) &request, sizeof(request)));
   }
   return 0;
 }
@@ -206,8 +214,8 @@ int pthread_detach(pthread_t thread_id)
     request.req_thread = thread_self();
     request.req_kind = REQ_FREE;
     request.req_args.free.thread_id = thread_id;
-    __libc_write(__pthread_manager_request,
-		 (char *) &request, sizeof(request));
+    TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+		(char *) &request, sizeof(request)));
   }
   return 0;
 }

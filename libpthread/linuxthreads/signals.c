@@ -127,7 +127,7 @@ static void pthread_sighandler_rt(int signo, struct siginfo *si,
 
 /* The wrapper around sigaction.  Install our own signal handler
    around the signal. */
-int sigaction(int sig, const struct sigaction * act,
+int __sigaction(int sig, const struct sigaction * act,
               struct sigaction * oact)
 {
   struct sigaction newact;
@@ -171,6 +171,7 @@ printf(__FUNCTION__": signahdler installed, __sigaction successful\n");
     }
   return 0;
 }
+strong_alias(__sigaction, sigaction)
 
 /* A signal handler that does nothing */
 static void pthread_null_sighandler(int sig) { }

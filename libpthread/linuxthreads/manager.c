@@ -18,6 +18,8 @@
 #define __getpid getpid
 #define __getpagesize getpagesize
 
+#include <features.h>
+#define __USE_GNU
 #include <errno.h>
 #include <sched.h>
 #include <stddef.h>
@@ -50,8 +52,8 @@
 
 /* Array of active threads. Entry 0 is reserved for the initial thread. */
 struct pthread_handle_struct __pthread_handles[PTHREAD_THREADS_MAX] =
-{ { LOCK_INITIALIZER, &__pthread_initial_thread, 0},
-  { LOCK_INITIALIZER, &__pthread_manager_thread, 0}, /* All NULLs */ };
+{ { __LOCK_INITIALIZER, &__pthread_initial_thread, 0},
+  { __LOCK_INITIALIZER, &__pthread_manager_thread, 0}, /* All NULLs */ };
 
 /* For debugging purposes put the maximum number of threads in a variable.  */
 const int __linuxthreads_pthread_threads_max = PTHREAD_THREADS_MAX;
@@ -120,7 +122,7 @@ int __pthread_manager(void *arg)
 #else
   struct pollfd ufd;
 #endif
-  sigset_t mask;
+  sigset_t manager_mask;
   int n;
   struct pthread_request request;
 
@@ -131,15 +133,19 @@ int __pthread_manager(void *arg)
   /* Set the error variable.  */
   __pthread_manager_thread.p_errnop = &__pthread_manager_thread.p_errno;
   __pthread_manager_thread.p_h_errnop = &__pthread_manager_thread.p_h_errno;
+
   /* Block all signals except __pthread_sig_cancel and SIGTRAP */
-  sigfillset(&mask);
-  sigdelset(&mask, __pthread_sig_cancel); /* for thread termination */
-  sigdelset(&mask, SIGTRAP);            /* for debugging purposes */
-  sigprocmask(SIG_SETMASK, &mask, NULL);
+  sigfillset(&manager_mask);
+  sigdelset(&manager_mask, __pthread_sig_cancel); /* for thread termination */
+  sigdelset(&manager_mask, SIGTRAP);            /* for debugging purposes */
+  if (__pthread_threads_debug && __pthread_sig_debug > 0)
+      sigdelset(&manager_mask, __pthread_sig_debug);
+  sigprocmask(SIG_SETMASK, &manager_mask, NULL);
   /* Raise our priority to match that of main thread */
   __pthread_manager_adjust_prio(__pthread_main_thread->p_priority);
   /* Synchronize debugging of the thread manager */
-  n = __libc_read(reqfd, (char *)&request, sizeof(request));
+  n = TEMP_FAILURE_RETRY(__libc_read(reqfd, (char *)&request,
+				     sizeof(request)));
   ASSERT(n == sizeof(request) && request.req_kind == REQ_DEBUG);
 #ifndef USE_SELECT
   ufd.fd = reqfd;
@@ -201,17 +207,25 @@ PDEBUG("got REQ_FREE\n");
         break;
       case REQ_PROCESS_EXIT:
 PDEBUG("got REQ_PROCESS_EXIT from %d, exit code = %d\n", 
-       request.req_thread, request.req_args.exit.code);
+		request.req_thread, request.req_args.exit.code);
         pthread_handle_exit(request.req_thread,
                             request.req_args.exit.code);
         break;
       case REQ_MAIN_THREAD_EXIT:
 PDEBUG("got REQ_MAIN_THREAD_EXIT\n");
         main_thread_exiting = 1;
+	/* Reap children in case all other threads died and the signal handler
+	   went off before we set main_thread_exiting to 1, and therefore did
+	   not do REQ_KICK. */
+	pthread_reap_children();
+
         if (__pthread_main_thread->p_nextlive == __pthread_main_thread) {
           restart(__pthread_main_thread);
-          return 0;
-        }
+	  /* The main thread will now call exit() which will trigger an
+	     __on_exit handler, which in turn will send REQ_PROCESS_EXIT
+	     to the thread manager. In case you are wondering how the
+	     manager terminates from its loop here. */
+	}
         break;
       case REQ_POST:
 PDEBUG("got REQ_POST\n");
@@ -221,10 +235,14 @@ PDEBUG("got REQ_POST\n");
 PDEBUG("got REQ_DEBUG\n");
 	/* Make gdb aware of new thread and gdb will restart the
 	   new thread when it is ready to handle the new thread. */
-	if (__pthread_threads_debug && __pthread_sig_debug > 0)
+	if (__pthread_threads_debug && __pthread_sig_debug > 0) {
 PDEBUG("about to call raise(__pthread_sig_debug)\n");
 	  raise(__pthread_sig_debug);
-        break;
+	}
+      case REQ_KICK:
+	/* This is just a prod to get the manager to reap some
+	   threads right away, avoiding a potential delay at shutdown. */
+	break;
       }
     }
   }
@@ -246,8 +264,9 @@ int __pthread_manager_event(void *arg)
 }
 
 /* Process creation */
-
-static int pthread_start_thread(void *arg)
+static int
+__attribute__ ((noreturn))
+pthread_start_thread(void *arg)
 {
   pthread_descr self = (pthread_descr) arg;
   struct pthread_request request;
@@ -282,8 +301,8 @@ PDEBUG("\n");
   if (__pthread_threads_debug && __pthread_sig_debug > 0) {
     request.req_thread = self;
     request.req_kind = REQ_DEBUG;
-    __libc_write(__pthread_manager_request,
-                 (char *) &request, sizeof(request));
+    TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+		(char *) &request, sizeof(request)));
     suspend(self);
   }
   /* Run the thread code */
@@ -291,10 +310,11 @@ PDEBUG("\n");
 							   p_start_args.arg));
   /* Exit with the given return value */
   pthread_exit(outcome);
-  return 0;
 }
 
-static int pthread_start_thread_event(void *arg)
+static int
+__attribute__ ((noreturn))
+pthread_start_thread_event(void *arg)
 {
   pthread_descr self = (pthread_descr) arg;
 
@@ -310,7 +330,7 @@ static int pthread_start_thread_event(void *arg)
   __pthread_unlock (THREAD_GETMEM(self, p_lock));
 
   /* Continue with the real function.  */
-  return pthread_start_thread (arg);
+  pthread_start_thread (arg);
 }
 
 static int pthread_allocate_stack(const pthread_attr_t *attr,
@@ -454,6 +474,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   char *guardaddr = NULL;
   size_t guardsize = 0;
   int pagesize = __getpagesize();
+  int saved_errno = 0;
 
   /* First check whether we have to change the policy and if yes, whether
      we can  do this.  Normally this should be done by examining the
@@ -549,8 +570,10 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 
 	  /* We have to report this event.  */
 	  pid = clone(pthread_start_thread_event, (void **) new_thread,
-		        CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
-		        __pthread_sig_cancel, new_thread);
+			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
+			__pthread_sig_cancel, new_thread);
+
+	  saved_errno = errno;
 	  if (pid != -1)
 	    {
 	      /* Now fill in the information about the new thread in
@@ -577,9 +600,10 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   if (pid == 0)
     {
 PDEBUG("cloning new_thread = %p\n", new_thread);
-    pid = clone(pthread_start_thread, (void **) new_thread,
-		  CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
-		  __pthread_sig_cancel, new_thread);
+      pid = clone(pthread_start_thread, (void **) new_thread,
+		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
+		    __pthread_sig_cancel, new_thread);
+      saved_errno = errno;
     }
   /* Check if cloning succeeded */
   if (pid == -1) {
@@ -714,15 +738,15 @@ static void pthread_exited(pid_t pid)
       /* If we have to signal this event do it now.  */
       if (th->p_report_events)
 	{
-	  /* See whether TD_DEATH is in any of the mask.  */
+	  /* See whether TD_REAP is in any of the mask.  */
 	  int idx = __td_eventword (TD_REAP);
 	  uint32_t mask = __td_eventmask (TD_REAP);
 
 	  if ((mask & (__pthread_threads_events.event_bits[idx]
 		       | th->p_eventbuf.eventmask.event_bits[idx])) != 0)
 	    {
-	      /* Yep, we have to signal the death.  */
-	      th->p_eventbuf.eventnum = TD_DEATH;
+	      /* Yep, we have to signal the reapage.  */
+	      th->p_eventbuf.eventnum = TD_REAP;
 	      th->p_eventbuf.eventdata = th;
 	      __pthread_last_event = th;
 
@@ -742,7 +766,7 @@ static void pthread_exited(pid_t pid)
   if (main_thread_exiting &&
       __pthread_main_thread->p_nextlive == __pthread_main_thread) {
     restart(__pthread_main_thread);
-    _exit(0);
+    /* Same logic as REQ_MAIN_THREAD_EXIT. */
   }
 }
 
@@ -837,7 +861,23 @@ static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode)
 
 void __pthread_manager_sighandler(int sig)
 {
-  terminated_children = 1;
+    int kick_manager = terminated_children == 0 && main_thread_exiting;
+    terminated_children = 1;
+
+    /* If the main thread is terminating, kick the thread manager loop
+       each time some threads terminate. This eliminates a two second
+       shutdown delay caused by the thread manager sleeping in the
+       call to __poll(). Instead, the thread manager is kicked into
+       action, reaps the outstanding threads and resumes the main thread
+       so that it can complete the shutdown. */
+
+    if (kick_manager) {
+	struct pthread_request request;
+	request.req_thread = 0;
+	request.req_kind = REQ_KICK;
+	TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+		    (char *) &request, sizeof(request)));
+    }
 }
 
 /* Adjust priority of thread manager so that it always run at a priority
