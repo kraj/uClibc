@@ -42,8 +42,7 @@ $(LIBC): $(MOBJ) $(COBJS)
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 
-$(COBJS): $(CSRC)
-
+memcmp.o: memcopy.h
 
 clean:
 	rm -f *.[oa] *~ core
