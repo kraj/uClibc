@@ -2,6 +2,15 @@
 #include <time.h>
 #include <sys/time.h>
 
+/* These globals are exported by the C library */
+char *__tzname[2] = { (char *) "GMT", (char *) "GMT" };
+int __daylight = 0;
+long int __timezone = 0L;
+weak_alias (__tzname, tzname);
+weak_alias (__daylight, daylight);
+weak_alias (__timezone, timezone);
+
+
 extern void __tm_conv();
 
 struct tm *localtime(timep)

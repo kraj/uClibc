@@ -145,10 +145,8 @@ size_t strftime( char *s , size_t maxsize , const char *format , register const 
 #if HAVE_TM_ZONE
   zone = (const char *) tp->tm_zone;
 #endif
-#if HAVE_TZNAME
   if (!(zone && *zone) && tp->tm_isdst >= 0)
     zone = tzname[tp->tm_isdst];
-#endif
   if (!(zone && *zone))
     zone = "???";
 
