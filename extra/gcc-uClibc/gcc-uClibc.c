@@ -6,32 +6,75 @@
  * It was originally written to work around ./configure for ext2fs-utils.
  * It certainly can be improved, but it works for me in the normal cases.
  *
+ * April 7, 2001
+ *
+ * A bug was fixed in building the gcc command line when dynamic linking.
+ * The functions dlopen, etc. now work.  At this time, you must make sure
+ * the correct libdl.so is included however.  It is safest to, for example,
+ * add /lib/libdl.so.1 if using ld-linux.so.1 rather than adding -ldl to the
+ * command line.
+ *
+ * Note: This is only a problem if devel and target archs are the same.  To
+ * avoid the problem, you can use a customized dynamic linker.
+ *
+ *
+ * April 18, 2001
+ *
+ * The wrapper now works with either installed and uninstalled uClibc versions.
+ * If you want to use the uninstalled header files and libs, either include
+ * the string "build" in the invocation name such as
+ *       'ln -s <ARCH>-uclibc-gcc <ARCH>-uclibc-gcc-build'
+ * or include it in the environment variable setting of UCLIBC_GCC.
+ * Note: This automatically enables the "rpath" behavior described below.
+ *
+ * The wrapper will now pass the location of the uClibc shared libs used to
+ * the linker with the "-rpath" option if the invocation name includes the
+ * string "rpath" or if the environment variable UCLIBC_GCC include it (as
+ * with "build" above).  This is primarily intended to be used on devel
+ * platforms of the same arch as the target.  A good place to use this feature
+ * would be in the uClibc/test directory.
+ *
+ * The wrapper now displays the command line passed to gcc when '-v' is used.
+ *
+ */
+
+/*
+ *
  * TODO:
  * Check/modify gcc-specific environment variables?
  */
 
-#ifdef DEBUG
 #include <stdio.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #include "gcc-uClibc.h"
 
-#define UCLIBC_CRT0 UCLIBC_DIR"crt0.o"
-#define UCLIBC_CRT0_G UCLIBC_CRT0
-#define UCLIBC_LIB UCLIBC_DIR"libc.a"
-#define UCLIBC_SHAREDLIB "-luClibc"
-#if 1
-#define UCLIBC_LIB_G UCLIBC_LIB
-#define UCLIBC_SHAREDLIB_G UCLIBC_SHAREDLIB
-#else
-#define UCLIBC_LIB_G UCLIBC_DIR"libc.a-debug"
+static char *rpath_link[] = {
+	"-Wl,-rpath-link,"UCLIBC_INSTALL_DIR"lib",
+	"-Wl,-rpath-link,"UCLIBC_BUILD_DIR
+};
 
-#endif
-#define UCLIBC_INC "-I"UCLIBC_DIR"include/"
+static char *rpath[] = {
+	"-Wl,-rpath,"UCLIBC_INSTALL_DIR"lib",
+	"-Wl,-rpath,"UCLIBC_BUILD_DIR
+};
+
+static char *uClibc_inc[] = {
+	"-I"UCLIBC_INSTALL_DIR"include/",
+	"-I"UCLIBC_BUILD_DIR"include/"
+};
+
+static char *crt0_path[] = {
+	UCLIBC_INSTALL_DIR"lib/crt0.o",
+	UCLIBC_BUILD_DIR"crt0.o"
+};
+
+static char *lib_path[] = {
+	"-L"UCLIBC_INSTALL_DIR"lib",
+	"-L"UCLIBC_BUILD_DIR
+};
 
 static char static_linking[] = "-static";
 static char nostdinc[] = "-nostdinc";
@@ -41,13 +84,30 @@ static char nostdlib[] = "-nostdlib";
 
 int main(int argc, char **argv)
 {
-	int debugging = 0, linking = 1, use_static_linking = 0;
+	int use_build_dir = 0, linking = 1, use_static_linking = 0;
 	int use_stdinc = 1, use_start = 1, use_stdlib = 1;
+	int source_count = 0, use_rpath = 0, verbose = 0;
 	int i, j;
-	int source_count;
 	char ** gcc_argv;
+	char *ep;
 
-	source_count = 0;
+	ep = getenv("UCLIBC_GCC");
+	if (!ep) {
+		ep = "";
+	}
+
+	if ((strstr(argv[0],"build") != 0) || (strstr(ep,"build") != 0)) {
+		use_build_dir = 1;
+	}
+
+	if ((strstr(argv[0],"rpath") != 0) || (strstr(ep,"rpath") != 0)) {
+		use_rpath = 1;
+	}
+
+#if 0
+	/* Erik added this stuff in.  Disabled but kept in case the new changes */
+	/* don't do what he needed. */
+
 	/* FIXME: We need to work out the install vs use-in-built-dir
 	 * issue..*/
 	/* Apparently gcc doesn't accept this stuff via the command line */
@@ -55,19 +115,21 @@ int main(int argc, char **argv)
 	setenv("LIBRARY_PATH", UCLIBC_DIR"lib/", 1);
 	/* The double '/' works around a gcc bug */
 	setenv("GCC_EXEC_PREFIX", UCLIBC_DIR"extra/gcc-uClibc//", 1); 
-
+#endif
 
 	for ( i = 1 ; i < argc ; i++ ) {
 		if (argv[i][0] == '-') { /* option */
 			switch (argv[i][1]) {
-				case 'c':
-				case 'S':
-				case 'E':
-				case 'r':
+				case 'c':		/* compile or assemble */
+				case 'S':		/* generate assembler code */
+				case 'E':		/* preprocess only */
+				case 'r':		/* partial-link */
+				case 'i':		/* partial-link */
+				case 'M':       /* map file generation */
 					if (argv[i][2] == 0) linking = 0;
 					break;
-				case 'g':
-					if (argv[i][2] == 0) debugging = 1;
+				case 'v':		/* verbose */
+					if (argv[i][2] == 0) verbose = 1;
 					break;
 				case 'n':
 					if (strcmp(nostdinc,argv[i]) == 0) {
@@ -86,7 +148,7 @@ int main(int argc, char **argv)
 						use_static_linking = 1;
 					}
 					break;
-			    case 'W':
+			    case 'W':		/* -static could be passed directly to ld */
 					if (strncmp("-Wl,",argv[i],4) == 0) {
 						if (strstr(argv[i],static_linking) != 0) {
 							use_static_linking = 1;
@@ -119,50 +181,40 @@ int main(int argc, char **argv)
 	}
 	if (use_stdinc) {
 		gcc_argv[i++] = nostdinc;
-		gcc_argv[i++] = UCLIBC_INC;
+		gcc_argv[i++] = uClibc_inc[use_build_dir];
 		gcc_argv[i++] = GCC_INCDIR;
 	}
 	if (linking && source_count) {
-		if (use_start) {
-			if (debugging) {
-				gcc_argv[i++] = UCLIBC_CRT0_G;
-			} else {
-				gcc_argv[i++] = UCLIBC_CRT0;
+		if (!use_static_linking) {
+			if (DYNAMIC_LINKER[0]) { /* not empty string */
+				gcc_argv[i++] = "-Wl,--dynamic-linker,"DYNAMIC_LINKER;
+				if (strstr(DYNAMIC_LINKER,"uclibc") != 0) {	/* custom linker */
+					use_rpath = 0; /* so -rpath not needed for normal case */
+				}
 			}
+			if (use_build_dir || use_rpath) {
+				gcc_argv[i++] = rpath[use_build_dir];
+			}
+		}
+		gcc_argv[i++] = rpath_link[use_build_dir]; /* just to be safe */
+		gcc_argv[i++] = lib_path[use_build_dir];
+		if (use_start) {
+			gcc_argv[i++] = crt0_path[use_build_dir];
 		}
 		if (use_stdlib) {
 			gcc_argv[i++] = nostdlib;
-			if (use_static_linking) {
-				if (debugging) {
-					gcc_argv[i++] = UCLIBC_LIB_G;
-				} else {
-					gcc_argv[i++] = UCLIBC_LIB;
-				}
-			} else {
-				if (DYNAMIC_LINKER[0]) { /* not empty string */
-					gcc_argv[i++] = "-Wl,--dynamic-linker,"DYNAMIC_LINKER;
-				}
-				if (debugging) {
-					gcc_argv[i++] = UCLIBC_SHAREDLIB_G;
-				} else {
-					gcc_argv[i++] = UCLIBC_SHAREDLIB;
-				}
-			}
+			gcc_argv[i++] = "-lc";
 			gcc_argv[i++] = GCC_LIB;
 		}
 	}
 	gcc_argv[i++] = NULL;
 
-#ifdef DEBUG
-	for ( j = 0 ; gcc_argv[j] ; j++ ) {
-		printf("arg[%2i] = %s\n", j, gcc_argv[j]);
+	if (verbose) {
+		printf("Invoked as %s\n", argv[0]);
+		for ( j = 0 ; gcc_argv[j] ; j++ ) {
+			printf("arg[%2i] = %s\n", j, gcc_argv[j]);
+		}
 	}
-	return EXIT_SUCCESS;
-#else
-	return execvp(GCC_BIN, gcc_argv);
-#endif
-}
-  
 
-  
-  
+	return execvp(GCC_BIN, gcc_argv);
+}

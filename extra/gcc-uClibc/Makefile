@@ -5,6 +5,7 @@ include $(TOPDIR)Rules.mak
 ifeq ($(TARGET_ARCH), i386)
 # Right now, I'm using .1 since .2 pulls in libc6 on my system. Manuel
 DYNAMIC_LINKER = /lib/ld-linux.so.1
+#DYNAMIC_LINKER = /lib/ld-linux-uclibc.so.1
 else
 # For Erik's arm case.
 DYNAMIC_LINKER = $(shell ls /lib/ld*.so.[0-9] | sort | tail -n 1)
@@ -18,11 +19,12 @@ GCC_LIB = $(shell $(CC) -print-libgcc-file-name )
 all: gcc-uClibc
 
 clean:
-	rm -f gcc-uClibc.h *-gcc-uclibc core
+	rm -f gcc-uClibc.h *-uclibc-gcc core
 
 gcc-uClibc.h: clean
 	@echo "/* this file is created by make */" > gcc-uClibc.h
-	@echo "#define UCLIBC_DIR " \"$(UCLIBC_DIR)/\" >> gcc-uClibc.h
+	@echo "#define UCLIBC_INSTALL_DIR " \"$(INSTALL_DIR)/\" >> gcc-uClibc.h
+	@echo "#define UCLIBC_BUILD_DIR " \"$(UCLIBC_DIR)/\" >> gcc-uClibc.h
 	@echo "#define GCC_BIN " \"$(GCC_BIN)\" >> gcc-uClibc.h
 	@echo "#define GCC_LIB " \"$(GCC_LIB)\" >> gcc-uClibc.h
 	@echo "#define GCC_INCDIR " \"-I$(GCCINCDIR)/\" >> gcc-uClibc.h
