@@ -6,7 +6,7 @@
 #endif
 
 #ifndef __BYTE_ORDER
-#ifdef linux
+#ifdef __linux__
 #include <endian.h>
 #else
 #define	__LITTLE_ENDIAN	1234	/* least-significant byte first (vax, pc) */
@@ -21,7 +21,7 @@
 #define	__BYTE_ORDER	__BIG_ENDIAN
 #endif
 
-#endif /* linux */
+#endif /* __linux__ */
 #endif /* __BYTE_ORDER */
 
 
@@ -29,7 +29,7 @@
 # error "Undefined __BYTE_ORDER"
 #endif
 
-#ifdef linux
+#ifdef __linux__
 #include <byteswap.h>
 #else
 #include <string.h>
