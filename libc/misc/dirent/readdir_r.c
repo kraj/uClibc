@@ -8,15 +8,17 @@
 extern int getdents __P ((unsigned int fd, struct dirent *dirp, unsigned int count));
 
 
-struct dirent *readdir(DIR * dir)
+int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 {
+	int ret;
 	ssize_t bytes;
 	struct dirent *de;
 
 	if (!dir) {
-		__set_errno(EBADF);
-		return NULL;
+	    __set_errno(EBADF);
+	    return(EBADF);
 	}
+	de = NULL;
 
 #ifdef _POSIX_THREADS
 	pthread_mutex_lock(dir->dd_lock);
@@ -27,7 +29,8 @@ struct dirent *readdir(DIR * dir)
 		/* read dir->dd_max bytes of directory entries. */
 		bytes = getdents(dir->dd_fd, dir->dd_buf, dir->dd_max);
 		if (bytes <= 0) {
-		    de = NULL;
+		    *result = NULL;
+		    ret = errno;
 		    goto all_done;
 		}
 		dir->dd_size = bytes;
@@ -41,13 +44,20 @@ struct dirent *readdir(DIR * dir)
 
 	    /* We have to save the next offset here. */
 	    dir->dd_nextoff = de->d_off;
-
 	    /* Skip deleted files.  */
 	} while (de->d_ino == 0);
 
+	if (de == NULL) {
+	    *result = NULL;
+	} else {
+	    *result = memcpy (entry, de, de->d_reclen);
+	}
+	ret = 0;
+
 all_done:
+
 #ifdef _POSIX_THREADS
 	pthread_mutex_unlock(dir->dd_lock);
 #endif
-	return de;
+        return((de != NULL)? 0 : ret);
 }

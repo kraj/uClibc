@@ -25,7 +25,7 @@ extern int getdents64 __P ((unsigned int fd, struct dirent64 *dirp, unsigned int
 
 struct dirent64 *readdir64(DIR * dir)
 {
-	int result;
+	ssize_t bytes;
 	struct dirent64 *de;
 
 	if (!dir) {
@@ -33,42 +33,37 @@ struct dirent64 *readdir64(DIR * dir)
 		return NULL;
 	}
 
-	/* Are we running an old kernel? */
-	if (dir->dd_getdents == no_getdents) {
-		abort();
-	}
+#ifdef _POSIX_THREADS
+	pthread_mutex_lock(dir->dd_lock);
+#endif
 
-	if (dir->dd_size <= dir->dd_nextloc) {
+	do {
+	    if (dir->dd_size <= dir->dd_nextloc) {
 		/* read dir->dd_max bytes of directory entries. */
-		result = getdents64(dir->dd_fd, dir->dd_buf, dir->dd_max);
-
-		/* We assume we have getdents64 (). */
-		dir->dd_getdents = have_getdents;
-		if (result <= 0) {
-			result = -result;
-			if (result > 0) {
-				/* Are we right? */
-				if (result == ENOSYS) {
-					dir->dd_getdents = no_getdents;
-					abort();
-				}
-				__set_errno(result);
-			}
-
-			return NULL;
+		bytes = getdents64(dir->dd_fd, dir->dd_buf, dir->dd_max);
+		if (bytes <= 0) {
+		    de = NULL;
+		    goto all_done;
 		}
-
-		dir->dd_size = result;
+		dir->dd_size = bytes;
 		dir->dd_nextloc = 0;
-	}
+	    }
 
-	de = (struct dirent64 *) (((char *) dir->dd_buf) + dir->dd_nextloc);
+	    de = (struct dirent64 *) (((char *) dir->dd_buf) + dir->dd_nextloc);
 
-	/* Am I right? H.J. */
-	dir->dd_nextloc += de->d_reclen;
+	    /* Am I right? H.J. */
+	    dir->dd_nextloc += de->d_reclen;
 
-	/* We have to save the next offset here. */
-	dir->dd_nextoff = de->d_off;
+	    /* We have to save the next offset here. */
+	    dir->dd_nextoff = de->d_off;
+
+	    /* Skip deleted files.  */
+	} while (dir->d_ino == 0);
+
+all_done:
+#ifdef _POSIX_THREADS
+	pthread_mutex_unlock(dir->dd_lock);
+#endif
 
 	return de;
 }

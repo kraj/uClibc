@@ -30,17 +30,6 @@ Cambridge, MA 02139, USA.  */
 #include <pthread.h>
 #endif
 
-
-#ifdef __UCLIBC_HAVE_LFS__
-#ifndef __USE_LARGEFILE64
-# define __USE_LARGEFILE64
-#endif
-# define stuff_t    __off64_t
-#else
-# define stuff_t    __off_t
-#endif
-
-
 /* For now, syscall readdir () only supports one entry at a time. It
  * will be changed in the future.
 #define NUMENT		3
@@ -59,22 +48,20 @@ struct __dirstream {
   int dd_fd;
 
   /* offset of the next dir entry in buffer */
-  stuff_t dd_nextloc;
+  size_t dd_nextloc;
 
   /* bytes of valid entries in buffer */
-  stuff_t dd_size;
+  size_t dd_size;
 
   /* -> directory buffer */
   void *dd_buf;
 
   /* offset of the next dir entry in directory. */
-  stuff_t dd_nextoff;
+  off_t dd_nextoff;
 
   /* total size of buffer */
-  stuff_t dd_max;
+  size_t dd_max;
  
-  enum {unknown, have_getdents, no_getdents} dd_getdents;
-
   /* lock */
 #ifdef _POSIX_THREADS
   pthread_mutex_t *dd_lock;

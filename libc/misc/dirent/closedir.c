@@ -19,8 +19,14 @@ int closedir(DIR * dir)
 		__set_errno(EBADF);
 		return -1;
 	}
+#ifdef _POSIX_THREADS
+	pthread_mutex_lock(dir->dd_lock);
+#endif
 	fd = dir->dd_fd;
 	dir->dd_fd = -1;
+#ifdef _POSIX_THREADS
+	pthread_mutex_unlock(dir->dd_lock);
+#endif
 	free(dir->dd_buf);
 	free(dir);
 	return close(fd);

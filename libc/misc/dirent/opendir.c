@@ -39,7 +39,6 @@ DIR *opendir(const char *name)
 
 	ptr->dd_fd = fd;
 	ptr->dd_nextloc = ptr->dd_size = ptr->dd_nextoff = 0;
-	ptr->dd_getdents = unknown;
 
 	ptr->dd_max = statbuf.st_blksize;
 	if (ptr->dd_max < 512)
@@ -52,5 +51,8 @@ DIR *opendir(const char *name)
 		return NULL;
 	}
 	ptr->dd_buf = buf;
+#ifdef _POSIX_THREADS
+	pthread_mutex_init(ptr->dd_lock, NULL);
+#endif
 	return ptr;
 }
