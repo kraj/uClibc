@@ -317,7 +317,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	 * the hard coded paths that follow (i.e before /lib and /usr/lib).
 	 */
 #ifdef __LDSO_CACHE_SUPPORT__
-	if (!_dl_secure && _dl_cache_addr != NULL && _dl_cache_addr != (caddr_t) - 1) {
+	if (_dl_cache_addr != NULL && _dl_cache_addr != (caddr_t) - 1) {
 		int i;
 		header_t *header = (header_t *) _dl_cache_addr;
 		libentry_t *libent = (libentry_t *) & header[1];
