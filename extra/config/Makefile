@@ -104,6 +104,9 @@ ncurses:
 		echo ">>" ;\
 		echo ">> You must have Ncurses installed in order" ;\
 		echo ">> to use 'make menuconfig'" ;\
+		echo ">>" ;\
+		echo ">> Maybe you want to try 'make config', which" ;\
+		echo ">> doesn't depend on the Ncurses libraries." ;\
 		echo ;\
 		exit 1 ;\
 	fi

@@ -26,7 +26,8 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 
-DIRS = gcc-uClibc config
+DIRS = gcc-uClibc
+EXTRA_DIRS_TO_CLEAN = config
 
 all: subdirs
 
@@ -37,12 +38,12 @@ clean: subdirs_clean
 	rm -f *.[oa] *~ core
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS) $(EXTRA_DIRS_TO_CLEAN))
 
 $(patsubst %, _dir_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
+$(patsubst %, _dirclean_%, $(DIRS) $(EXTRA_DIRS_TO_CLEAN)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy
