@@ -39,7 +39,7 @@ endif
 include/dl-progname.h: Makefile
 	echo "const char *_dl_progname=\""$(UCLIBC_LDSO)"\";" \
 		> include/dl-progname.h
-	echo -e "#include \"$(TARGET_ARCH)/elfinterp.c\"" \
+	echo "#include \"$(TARGET_ARCH)/elfinterp.c\"" \
 		>> include/dl-progname.h
 
 headers: include/dl-progname.h
