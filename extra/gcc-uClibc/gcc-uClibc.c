@@ -218,10 +218,10 @@ int main(int argc, char **argv)
 				case 'E':		/* preprocess only */
 				case 'r':		/* partial-link */
 				case 'i':		/* partial-link */
-				case 'M':       /* map file generation */
-					if (argv[i][2] == 0) linking = 0;
+				case 'M':	    /* generate dependencies */
+					linking = 0;
 					break;
-				case 'l':       /* map file generation */
+				case 'l': 		/* library */
 					libraries[m++] = argv[i];
 					libraries[m] = '\0';
 					break;
