@@ -92,6 +92,16 @@ extern char *strstr __P ((__const char *__haystack, __const char *__needle));
 /* Divide S into tokens separated by characters in DELIM.  */
 extern char *strtok __P ((char *__restrict __s,
 			  __const char *__restrict __delim));
+/* Divide S into tokens separated by characters in DELIM.  Information
+   passed between calls are stored in SAVE_PTR.  */
+extern char *__strtok_r __P ((char *__restrict __s,
+                              __const char *__restrict __delim,
+                              char **__restrict __save_ptr));
+#if defined __USE_POSIX || defined __USE_MISC
+extern char *strtok_r __P ((char *__restrict __s,
+                            __const char *__restrict __delim,
+                            char **__restrict __save_ptr));
+#endif
 /* Return the length of the initial segment of S which
    consists entirely of characters not in REJECT.  */
 extern size_t strcspn __P ((__const char *__s, __const char *__reject));
