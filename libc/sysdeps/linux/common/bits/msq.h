@@ -35,22 +35,20 @@ typedef unsigned long int msglen_t;
 
 /* Structure of record for one message inside the kernel.
    The type `struct msg' is opaque.  */
-struct msqid_ds
-{
-  struct ipc_perm msg_perm;	/* structure describing operation permission */
-  __time_t msg_stime;		/* time of last msgsnd command */
-  unsigned long int __unused1;
-  __time_t msg_rtime;		/* time of last msgrcv command */
-  unsigned long int __unused2;
-  __time_t msg_ctime;		/* time of last change */
-  unsigned long int __unused3;
-  unsigned long int __msg_cbytes; /* current number of bytes on queue */
-  msgqnum_t msg_qnum;		/* number of messages currently on queue */
-  msglen_t msg_qbytes;		/* max number of bytes allowed on queue */
-  __pid_t msg_lspid;		/* pid of last msgsnd() */
-  __pid_t msg_lrpid;		/* pid of last msgrcv() */
-  unsigned long int __unused4;
-  unsigned long int __unused5;
+struct msqid_ds {
+    struct ipc_perm msg_perm;
+    struct msg *msg_first;		/* first message on queue,unused  */
+    struct msg *msg_last;		/* last message in queue,unused */
+    __kernel_time_t msg_stime;	/* last msgsnd time */
+    __kernel_time_t msg_rtime;	/* last msgrcv time */
+    __kernel_time_t msg_ctime;	/* last change time */
+    unsigned long  msg_lcbytes;	/* Reuse junk fields for 32 bit */
+    unsigned long  msg_lqbytes;	/* ditto */
+    unsigned short msg_cbytes;	/* current number of bytes on queue */
+    unsigned short msg_qnum;	/* number of messages in queue */
+    unsigned short msg_qbytes;	/* max number of bytes on queue */
+    __kernel_ipc_pid_t msg_lspid;	/* pid of last msgsnd */
+    __kernel_ipc_pid_t msg_lrpid;	/* last receive pid */
 };
 
 #ifdef __USE_MISC
