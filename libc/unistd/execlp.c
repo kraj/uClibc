@@ -44,8 +44,5 @@ int execlp(__const char *file, __const char *arg, ...)
 
 	i = execvep(file, (char *const *) argv, __environ);
 
-	if (argv != shortargv)
-		free(argv);
-
 	return i;
 }

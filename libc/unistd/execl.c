@@ -42,8 +42,5 @@ int execl(__const char *path, __const char *arg, ...)
 
 	i = execve(path, (char *const *) argv, __environ);
 
-	if (argv != shortargv)
-		free(argv);
-
 	return i;
 }

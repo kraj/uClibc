@@ -46,8 +46,5 @@ int execle(const char *file, const char *arg, ...)
 
 	i = execvep(file, (char *const *) argv, (char *const *) envp);
 
-	if (argv != shortargv)
-		free(argv);
-
 	return i;
 }
