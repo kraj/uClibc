@@ -33,16 +33,18 @@ ld-uClibc:
 
 install: all
 	install -d $(DESTDIR)$(DEVEL_PREFIX)/bin;
-	install -m 755 $(TARGET_ARCH)-uclibc-gcc $(DESTDIR)$(DEVEL_PREFIX)/bin/
-	install -m 755 $(TARGET_ARCH)-uclibc-ld $(DESTDIR)$(DEVEL_PREFIX)/bin/
-	ln -fs $(TARGET_ARCH)-uclibc-gcc $(DESTDIR)$(DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-cc
-	ln -fs $(DESTDIR)$(DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(DESTDIR)$(DEVEL_PREFIX)/bin/gcc
-	ln -fs $(DESTDIR)$(DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(DESTDIR)$(DEVEL_PREFIX)/bin/cc
-	ln -fs $(DESTDIR)$(DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ld $(DESTDIR)$(DEVEL_PREFIX)/bin/ld
+	install -d $(DESTDIR)$(DEVEL_PREFIX)/usr/bin;
+	ln -fs ../include $(DESTDIR)$(DEVEL_PREFIX)/usr/include
+	install -m 755 $(TARGET_ARCH)-uclibc-gcc $(DESTDIR)$(DEVEL_PREFIX)/usr/bin/
+	install -m 755 $(TARGET_ARCH)-uclibc-ld $(DESTDIR)$(DEVEL_PREFIX)/usr/bin/
+	ln -fs $(TARGET_ARCH)-uclibc-gcc $(DESTDIR)$(DEVEL_PREFIX)/usr/bin/$(TARGET_ARCH)-uclibc-cc
+	ln -fs $(DESTDIR)$(DEVEL_PREFIX)/usr/bin/$(TARGET_ARCH)-uclibc-gcc $(DESTDIR)$(DEVEL_PREFIX)/bin/gcc
+	ln -fs $(DESTDIR)$(DEVEL_PREFIX)/usr/bin/$(TARGET_ARCH)-uclibc-gcc $(DESTDIR)$(DEVEL_PREFIX)/bin/cc
+	ln -fs $(DESTDIR)$(DEVEL_PREFIX)/usr/bin/$(TARGET_ARCH)-uclibc-ld $(DESTDIR)$(DEVEL_PREFIX)/bin/ld
 	for app in addr2line ar as cpp gasp nm objcopy \
 	    objdump ranlib size strings strip; do \
 	  ln -fs `which $(CROSS)$${app}` $(DESTDIR)$(DEVEL_PREFIX)/bin/$${app}; \
-	  ln -fs `which $(CROSS)$${app}` $(DESTDIR)$(DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-$${app}; \
+	  ln -fs `which $(CROSS)$${app}` $(DESTDIR)$(DEVEL_PREFIX)/usr/bin/$(TARGET_ARCH)-uclibc-$${app}; \
 	done
 
 clean:
