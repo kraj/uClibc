@@ -15,12 +15,10 @@
 #Enable this when debugging
 #set -x
 
-LIBGCC=`$CC -print-libgcc-file-name`
-
 echo Finding missing symbols in libc.a ...
 echo "    partial linking..."
 rm -f libc.ldr
-$LD -r -o libc.ldr ../../lib/crt0.o ../../lib/crti.o ../../lib/crtn.o --whole-archive ../libc.a
+$LD $LDFLAGS -r -o libc.ldr ../../lib/crt0.o ../../lib/crti.o ../../lib/crtn.o --whole-archive ../libc.a
 
 if $NM --undefined-only libc.ldr 2>&1 | grep -v "^main$" | grep -v "^_GLOBAL_OFFSET_TABLE_$" | grep -v "_gp_disp" > sym.need ; then
     EXIT_WITH_ERROR=0
@@ -54,9 +52,9 @@ touch obj.need.0
 
 cmp -s obj.need obj.need.0 ; state=$?
 while [ -s obj.need ] && [ $state -ne 0 ] ; do
-    (cd tmp-gcc && cat ../obj.need | sort | uniq | xargs $LD -r -o ../libgcc.ldr)
+    (cd tmp-gcc && cat ../obj.need | sort | uniq | xargs $LD $LDFLAGS -r -o ../libgcc.ldr)
     cp obj.need obj.need.0
-    if $NM --undefined-only libgcc.ldr > sym.need 2>&1 ; then
+    if $NM --undefined-only libgcc.ldr | grep -v "^_GLOBAL_OFFSET_TABLE_$" > sym.need 2>&1 ; then
 	for SYM in `cat sym.need | sed -e 's/ U //g'` ; do
 	    if $NM -s $LIBGCC 2>&1 | grep -q $SYM" in " ; then
 		$NM -s $LIBGCC 2>&1 | grep $SYM" in " | cut -d' ' -f3 >> obj.need

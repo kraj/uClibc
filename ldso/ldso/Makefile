@@ -31,7 +31,7 @@ LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 XXFLAGS+=-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 	-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 	-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\"
-LDFLAGS=-shared --warn-common --export-dynamic --sort-common \
+LDFLAGS=$(CPU_LDFLAGS-y) -shared --warn-common --export-dynamic --sort-common \
 	-z combreloc --discard-locals --discard-all
 CSRC= ldso.c #hash.c readelflib1.c $(TARGET_ARCH)/elfinterp.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
