@@ -49,6 +49,7 @@
 #define HIBITL		MINLONG
 
 
+#ifdef __UCLIBC_HAS_FLOATS__
 #include <float.h>
 
 #define	MAXDOUBLE	DBL_MAX
@@ -59,6 +60,7 @@
 #define	FMINEXP		FLT_MIN_EXP
 #define	DMAXEXP		DBL_MAX_EXP
 #define	FMAXEXP		FLT_MAX_EXP
+#endif /* __UCLIBC_HAS_FLOATS__ */
 
 
 #ifdef __USE_MISC

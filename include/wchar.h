@@ -394,6 +394,7 @@ extern int wcswidth (__const wchar_t *__s, size_t __n) __THROW;
 
 
 __BEGIN_NAMESPACE_C99
+#ifdef __UCLIBC_HAS_FLOATS__
 /* Convert initial portion of the wide string NPTR to `double'
    representation.  */
 extern double wcstod (__const wchar_t *__restrict __nptr,
@@ -406,6 +407,7 @@ extern float wcstof (__const wchar_t *__restrict __nptr,
 extern long double wcstold (__const wchar_t *__restrict __nptr,
 			    wchar_t **__restrict __endptr) __THROW;
 #endif /* C99 */
+#endif /* __UCLIBC_HAS_FLOATS__ */
 
 
 /* Convert initial portion of wide string NPTR to `long int'
@@ -505,6 +507,7 @@ extern unsigned long long int __wcstoull_l (__const wchar_t *__restrict __nptr,
 					  int __base, __locale_t __loc)
      __THROW;
 
+#ifdef __UCLIBC_HAS_FLOATS__
 extern double wcstod_l (__const wchar_t *__restrict __nptr,
 			wchar_t **__restrict __endptr, __locale_t __loc)
      __THROW;
@@ -525,11 +528,13 @@ extern long double wcstold_l (__const wchar_t *__restrict __nptr,
 extern long double __wcstold_l (__const wchar_t *__restrict __nptr,
 			      wchar_t **__restrict __endptr,
 			      __locale_t __loc) __THROW;
+#endif /* __UCLIBC_HAS_FLOATS__ */
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 #endif /* GNU */
 
 
 #if 0
+#ifdef __UCLIBC_HAS_FLOATS__
 /* The internal entry points for `wcstoX' take an extra flag argument
    saying whether or not to parse locale-dependent number grouping.  */
 extern double __wcstod_internal (__const wchar_t *__restrict __nptr,
@@ -541,6 +546,7 @@ extern float __wcstof_internal (__const wchar_t *__restrict __nptr,
 extern long double __wcstold_internal (__const wchar_t *__restrict __nptr,
 				       wchar_t **__restrict __endptr,
 				       int __group) __THROW;
+#endif /* __UCLIBC_HAS_FLOATS__ */
 
 #ifndef __wcstol_internal_defined
 extern long int __wcstol_internal (__const wchar_t *__restrict __nptr,

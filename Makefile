@@ -182,6 +182,14 @@ install_dev:
 	install -d $(PREFIX)$(DEVEL_PREFIX)/include
 	-install -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
 	tar -chf - include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX);
+ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
+	# Remove floating point related headers since float support is disabled.
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/complex.h
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/fpu_control.h
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/ieee754.h
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/math.h
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/tgmath.h
+endif
 ifneq ($(strip $(UCLIBC_HAS_WCHAR)),y)
 	# Remove wide char headers since wide char support is disabled.
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/wctype.h
@@ -190,6 +198,10 @@ endif
 ifneq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 	# Remove iconv header since locale support is disabled.
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/iconv.h
+endif
+ifneq ($(strip $(UCLIBC_HAS_GLIBC_CUSTOM_PRINTF)),y)
+	# Remove printf header since custom print specifier support is disabled.
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/printf.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_XLOCALE)),y)
 	# Remove xlocale header since extended locale support is disabled.
