@@ -63,6 +63,10 @@
 #define	_PATH_VI	"/usr/bin/vi"
 #define	_PATH_WTMP	"/var/log/wtmp"
 #define	_PATH_LOCALE	"/usr/lib/locale"
+#define	_PATH_LASTLOG	"/var/log/lastlog"
+#define	_PATH_SHADOW	"/etc/shadow"
+#define	_PATH_PASSWD	"/etc/passwd"
+#define	_PATH_GROUP	"/etc/group"
 
 /* Provide trailing slash, since mostly used for building pathnames. */
 #define	_PATH_DEV	"/dev/"
@@ -70,10 +74,5 @@
 #define	_PATH_VARDB	"/var/lib/misc/"
 #define	_PATH_VARRUN	"/var/run/"
 #define	_PATH_VARTMP	"/var/tmp/"
-#define	_PATH_LASTLOG	"/var/log/lastlog"
-#define	_PATH_LOCALE	"/usr/lib/locale"
-#define	_PATH_SHADOW	"/etc/shadow"
-#define	_PATH_PASSWD	"/etc/passwd"
-#define	_PATH_GROUP	"/etc/group"
 
 #endif /* !_PATHS_H_ */
