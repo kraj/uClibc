@@ -131,8 +131,8 @@ headers: headers1
 
 uClibc_config: Makefile Config
 	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > include/bits/uClibc_config.h
-	@echo "#if !defined __FEATURES_H && !defined __need_include/bits/uClibc_config.h" >> include/bits/uClibc_config.h
-	@echo "#error Never include <bits/include/bits/uClibc_config.h> directly; use <features.h> instead." >> include/bits/uClibc_config.h
+	@echo "#if !defined __FEATURES_H && !defined __need_uClibc_config_h" >> include/bits/uClibc_config.h
+	@echo "#error Never include <bits/uClibc_config.h> directly; use <features.h> instead." >> include/bits/uClibc_config.h
 	@echo "#endif" >> include/bits/uClibc_config.h
 	@echo "#define linux 1" >> include/bits/uClibc_config.h 
 	@echo "#define __linux__ 1" >> include/bits/uClibc_config.h 
