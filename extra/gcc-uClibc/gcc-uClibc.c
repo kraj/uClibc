@@ -263,6 +263,7 @@ int main(int argc, char **argv)
 						use_start = 0;
 					} else if (strcmp(nodefaultlibs,argv[i]) == 0) {
 						use_stdlib = 0;
+						argv[i] = '\0';
 					} else if (strcmp(nostdlib,argv[i]) == 0) {
 						use_start = 0;
 						use_stdlib = 0;
@@ -339,9 +340,7 @@ int main(int argc, char **argv)
 #if defined HAVE_ELF && ! defined HAS_MMU
 	    gcc_argv[i++] = "-Wl,-elf2flt";
 #endif
-	    if (use_stdlib) {
-		gcc_argv[i++] = nostdlib;
-	    }
+	    gcc_argv[i++] = nostdlib;
 	    if (use_static_linking) {
 		gcc_argv[i++] = static_linking;
 	    }
@@ -406,9 +405,11 @@ int main(int argc, char **argv)
 	    if (use_stdlib) {
 		//gcc_argv[i++] = "-Wl,--start-group";
 		gcc_argv[i++] = "-lgcc";
-		for ( l = 0 ; l < m ; l++ ) {
-		    if (libraries[l]) gcc_argv[i++] = libraries[l];
-		}
+	    }
+	    for ( l = 0 ; l < m ; l++ ) {
+		if (libraries[l]) gcc_argv[i++] = libraries[l];
+	    }
+	    if (use_stdlib) {
 		if (cplusplus) {
 		    gcc_argv[ i++ ] = "-lstdc++";
 		    gcc_argv[ i++ ] = "-lm";
