@@ -225,22 +225,22 @@ install_gcc:
 # deployment onto your target system.
 install_target:
 ifeq ($(strip $(HAVE_SHARED)),true)
-	install -d $(PREFIX)/lib
-	install -d $(PREFIX)/sbin
-	install -d $(PREFIX)/usr/bin
-	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)/lib
-	cp -a lib/*.so.* $(PREFIX)/lib
-	install -m 755 ldso/util/ldd $(PREFIX)/usr/bin
-	install -m 755 ldso/util/readelf $(PREFIX)/usr/bin
+	install -d $(PREFIX)$(TARGET_PREFIX)/lib
+	install -d $(PREFIX)$(TARGET_PREFIX)/sbin
+	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin
+	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(TARGET_PREFIX)/lib
+	cp -a lib/*.so.* $(PREFIX)$(TARGET_PREFIX)/lib
+	install -m 755 ldso/util/ldd $(PREFIX)$(TARGET_PREFIX)/usr/bin
+	install -m 755 ldso/util/readelf $(PREFIX)$(TARGET_PREFIX)/usr/bin
 	if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
-	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)/lib; \
+	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(TARGET_PREFIX)/lib; \
 	    mkdir -p $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
 	    ln -s $(TARGET_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so \
 	    		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) || true; \
 	fi;
 	if [ -x ldso/util/ldconfig ] ; then \
-	    install -d $(PREFIX)/etc; \
-	    install -m 755 ldso/util/ldconfig $(PREFIX)/sbin; \
+	    install -d $(PREFIX)$(TARGET_PREFIX)/etc; \
+	    install -m 755 ldso/util/ldconfig $(PREFIX)$(TARGET_PREFIX)/sbin; \
 	fi;
 endif
 
