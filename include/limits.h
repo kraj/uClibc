@@ -45,10 +45,6 @@
 #define MB_LEN_MAX	6
 
 
-/* If we are not using GNU CC we have to define all the symbols ourself.
-   Otherwise use gcc's definitions (see below).  */
-#if !defined __GNUC__ || __GNUC__ < 2
-
 /* We only protect from multiple inclusion here, because all the other
    #include's protect themselves, and in GCC 2 we may #include_next through
    multiple copies of this file before we get to GCC's.  */
@@ -118,7 +114,6 @@
 #  endif
 
 # endif	/* limits.h  */
-#endif	/* GCC 2.  */
 
 #endif	/* !_LIBC_LIMITS_H_ */
 

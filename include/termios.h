@@ -3,7 +3,8 @@
 
 #include <features.h>
 #include <sys/types.h>
-#include <linux/termios.h>
+#include <sys/termios.h>
+#include <asm/termbits.h>
 
 extern speed_t cfgetispeed __P ((struct termios *__termios_p));
 extern speed_t cfgetospeed __P ((struct termios *__termios_p));
