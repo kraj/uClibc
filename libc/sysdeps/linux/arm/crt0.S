@@ -80,7 +80,7 @@ _start:
 	bl      exit
 
 _void_void_null_func:
-	nop
+	mov     pc, lr
 
 .weak __libc_init
 __libc_init = _void_void_null_func
