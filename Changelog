@@ -1,4 +1,28 @@
-0.9.22	13 November 2003
+0.9.24	8 December 2003
+
+See Changelog.full for the complete list of who did what. 
+
+Note:
+    This release remains binary compatible with uClibc 0.9.21-23 as
+    long as you take care to avoid any configuraton changes that will
+    break things.  
+    
+    We currently plan to break binary compatibilty in the upcoming 0.9.25 to
+    implement a few things we have been postponing, which will hopefully be
+    the last change....
+
+Release highlights:
+    o Fixed several silly configuration problems
+    o Added arm optimized string functions
+    o Lots of minor cleanups
+
+ -Erik
+
+
+
+
+
+0.9.23	13 November 2003
 
 See Changelog.full for the complete list of who did what. 
 
