@@ -1,5 +1,8 @@
 /* Stat structure for linux/v850 */
 
+#ifndef _BITS_STAT_STRUCT_H
+#define _BITS_STAT_STRUCT_H
+
 struct kernel_stat
 {
   __kernel_dev_t	st_dev;
@@ -56,3 +59,4 @@ struct kernel_stat64
   unsigned long		__unused7; /* high 32 bits of ctime someday */
 };
 
+#endif	/*  _BITS_STAT_STRUCT_H */
