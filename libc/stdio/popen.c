@@ -64,7 +64,8 @@ int pclose(FILE *fd)
 	if (fclose(fd) != 0) {
 		return EOF;
 	}
-	wait(&waitstat);
+	if (wait(&waitstat) == -1)
+		return -1;
 	return waitstat;
 }
 
