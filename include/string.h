@@ -311,13 +311,11 @@ extern int strverscmp (__const char *__s1, __const char *__s2)
 /* Return a string describing the meaning of the signal number in SIG.  */
 extern char *strsignal (int __sig) __THROW;
 
-#if 0
 /* Copy SRC to DEST, returning the address of the terminating '\0' in DEST.  */
 extern char *__stpcpy (char *__restrict __dest, __const char *__restrict __src)
      __THROW;
 extern char *stpcpy (char *__restrict __dest, __const char *__restrict __src)
      __THROW;
-#endif
 
 /* Copy no more than N characters of SRC to DEST, returning the address of
    the last character written into DEST.  */
