@@ -114,8 +114,9 @@ headers: dummy
 	    echo " "; \
 	    sleep 10; \
 	fi;
-	rm -f include/linux
+	rm -f include/linux include/scsi
 	ln -fs $(KERNEL_SOURCE)/include/linux include/linux
+	ln -fs $(KERNEL_SOURCE)/include/scsi include/scsi
 	rm -rf include/bits
 	mkdir -p include/bits
 	@cd include/bits; \
@@ -336,17 +337,32 @@ finished2:
 
 
 distclean clean:
+	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec rm -f {} \;
 	@rm -rf tmp lib include/bits libc/tmp _install
 	$(MAKE) -C test clean
 	$(MAKE) -C ldso clean
-	$(MAKE) -C libc/misc clean
+	$(MAKE) -C libc/misc/internals clean
 	$(MAKE) -C libc/unistd clean
 	$(MAKE) -C libc/sysdeps/linux/common clean
 	$(MAKE) -C extra/gcc-uClibc clean
+	@set -e; \
+	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \
+		rm -f include/sys/$$i; \
+	done; \
+	if [ -d libc/sysdeps/linux/$(TARGET_ARCH)/sys ] ; then \
+		for i in `(cd libc/sysdeps/linux/$(TARGET_ARCH)/sys; ls *.h)` ; do \
+			rm -f include/sys/$$i; \
+		done; \
+	fi;
+	@rm -f include/linux include/scsi include/asm
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi;
-	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec rm -f {} \;
+	@if [ $(TARGET_ARCH) = "mipsel" -o $(TARGET_ARCH) = "mips" ]; then \
+	    rm -f libc/sysdeps/linux/$(TARGET_ARCH); \
+	    rm -f ldso/ldso/$(TARGET_ARCH); \
+	    rm -f libpthread/linuxthreads/sysdeps/$(TARGET_ARCH); \
+	fi;
 
 dist release: distclean
 	cd ..;					\
