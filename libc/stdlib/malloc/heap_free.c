@@ -37,7 +37,7 @@ __heap_free (struct heap *heap, void *mem, size_t size)
       break;
 
   if (fa && HEAP_FREE_AREA_START (fa) <= end)
-    /* The free-list FA is adjacent to the new block, merge them.  */
+    /* The free-area FA is adjacent to the new block, merge them.  */
     {
       size_t fa_size = fa->size + size;
 
