@@ -1,5 +1,5 @@
 /* This file defines standard ELF types, structures, and macros.
-   Copyright (C) 1995-1999, 2000, 2001 Free Software Foundation, Inc.
+   Copyright (C) 1995-1999, 2000, 2001, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -245,6 +245,10 @@ typedef struct
    chances of collision with official or non-GNU unofficial values.  */
 
 #define EM_ALPHA	0x9026
+
+/* V850 backend magic number.  Written in the absense of an ABI.  */
+#define EM_CYGNUS_V850	0x9080
+
 
 /* Legal values for e_version (version).  */
 
