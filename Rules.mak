@@ -67,6 +67,7 @@ else
 endif
 ifeq ($(strip $(DOPIC)),true)
     CFLAGS += -fPIC
+    TARGET_CFLAGS += -fPIC
 endif
 
 ifeq ($(strip $(HAVE_SHARED)),true)
