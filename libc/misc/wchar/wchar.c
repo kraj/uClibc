@@ -58,6 +58,16 @@
  * Enabled building of a C/POSIX-locale-only version, so full locale support
  *    no longer needs to be enabled.
  *
+ * Nov 4, 2002
+ *
+ * Fixed a bug in _wchar_wcsntoutf8s().  Don't store wcs position if dst is NULL.
+ * Also, introduce an awful hack into _wchar_wcsntoutf8s() and wcsrtombs() in
+ *   order to support %ls in printf.  See comments below for details.
+ * Change behaviour of wc<->mb functions when in the C locale.  Now they do
+ *   a 1-1 map for the range 0x80-UCHAR_MAX.  This is for backwards compatibility
+ *   and consistency with the stds requirements that a printf format string by
+ *   a valid multibyte string beginning and ending in it's initial shift state.
+ *
  * Manuel
  */
 
@@ -481,9 +491,19 @@ size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 	char m;
 
 	store = 1;
-	if (!s) {
-		s = buf;
-		n = SIZE_MAX;
+	/* NOTE: The following is an AWFUL HACK!  In order to support %ls in
+	 * printf, we need to be able to compute the number of bytes needed
+	 * for the mbs conversion, not to exceed the precision specified.
+	 * But if dst is NULL, the return value is the length assuming a
+	 * sufficiently sized buffer.  So, we allow passing of (char *) src
+	 * as dst in order to flag that we really want the length, subject
+	 * to the restricted buffer size and no partial conversions.
+	 * See wcsnrtombs() as well. */
+	if (!s || (s == ((char *) src))) {
+		if (!s) {
+			n = SIZE_MAX;
+		}
+	    s = buf;
 		store = 0;
 	}
 
@@ -553,7 +573,9 @@ size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 		}
 	}
 
-	*src = (const wchar_t *) swc;
+	if (store) {
+		*src = (const wchar_t *) swc;
+	}
 
 	return n - t;
 }
@@ -614,7 +636,8 @@ size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 						  (__global_locale.idx8c2wc[wc >> Cc2wc_IDX_SHIFT]
 						   << Cc2wc_IDX_SHIFT) + (wc & (Cc2wc_ROW_LEN - 1))];
 				if (!wc) {
-					goto BAD;
+					__set_errno(EILSEQ);
+					return (size_t) -1;
 				}
 			}
 			if (!(*dst = wc)) {
@@ -640,13 +663,6 @@ size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 		if ((*dst = (unsigned char) *s) == 0) {
 			s = NULL;
 			break;
-		}
-		if (*dst >= 0x80) {
-#ifdef __CTYPE_HAS_8_BIT_LOCALES
-		BAD:
-#endif
-			__set_errno(EILSEQ);
-			return (size_t) -1;
 		}
 		++s;
 		dst += incr;
@@ -686,9 +702,19 @@ size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 #endif /* __CTYPE_HAS_UTF_8_LOCALES */
 
 	incr = 1;
-	if (!dst) {
+	/* NOTE: The following is an AWFUL HACK!  In order to support %ls in
+	 * printf, we need to be able to compute the number of bytes needed
+	 * for the mbs conversion, not to exceed the precision specified.
+	 * But if dst is NULL, the return value is the length assuming a
+	 * sufficiently sized buffer.  So, we allow passing of (char *) src
+	 * as dst in order to flag that we really want the length, subject
+	 * to the restricted buffer size and no partial conversions.
+	 * See _wchar_wcsntoutf8s() as well. */
+	if (!dst || (dst == ((char *) src))) {
+		if (!dst) {
+			len = SIZE_MAX;
+		}
 		dst = buf;
-		len = SIZE_MAX;
 		incr = 0;
 	}
 
@@ -749,7 +775,7 @@ size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 #endif
 
 	while (count) {
-		if (*s >= 0x80) {
+		if (*s > UCHAR_MAX) {
 #if defined(__CTYPE_HAS_8_BIT_LOCALES) && !defined(__WCHAR_REPLACEMENT_CHAR)
 		BAD:
 #endif

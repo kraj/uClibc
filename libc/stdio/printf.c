@@ -31,25 +31,45 @@
  *
  *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
 
-/* 4-01-2002
+
+/* April 1, 2002
  * Initialize thread locks for fake files in vsnprintf and vdprintf.
  *    reported by Erik Andersen (andersen@codepoet.com)
  * Fix an arg promotion handling bug in _do_one_spec for %c. 
  *    reported by Ilguiz Latypov <ilatypov@superbt.com>
  *
- * 5-10-2002
+ * May 10, 2002
  * Remove __isdigit and use new ctype.h version.
  * Add conditional setting of QUAL_CHARS for size_t and ptrdiff_t.
  *
- * 8-16-2002
+ * Aug 16, 2002
  * Fix two problems that showed up with the python 2.2.1 tests; one
  *    involving %o and one involving %f.
  *
- * 10-28-2002
+ * Oct 28, 2002
  * Fix a problem in vasprintf (reported by vodz a while back) when built
  *    without custom stream support.  In that case, it is necessary to do
  *    a va_copy.
  * Make sure each va_copy has a matching va_end, as required by C99.
+ *
+ * Nov 4, 2002
+ * Add locale-specific grouping support for integer decimal conversion.
+ * Add locale-specific decimal point support for floating point conversion.
+ *   Note: grouping will have to wait for _dtostr() rewrite.
+ * Add printf wchar support for %lc (%C) and %ls (%S).
+ * Require printf format strings to be valid multibyte strings beginning and
+ *   ending in their initial shift state, as per the stds.
+ */
+
+/* TODO:
+ *
+ * Should we validate that *printf format strings are valid multibyte
+ *   strings in the current locale?  ANSI/ISO C99 seems to imply this
+ *   and Plauger's printf implementation in his Standard C Library book
+ *   treats this as an error.
+ *
+ * Implement %a, %A, and locale-specific grouping for the printf floating
+ *   point conversions.  To be done in the rewrite of _dtostr().
  */
 
 
@@ -74,6 +94,10 @@
 #include <stdio_ext.h>
 #include <pthread.h>
 #endif /* __STDIO_THREADSAFE */
+
+#ifdef __UCLIBC_HAS_WCHAR__
+#include <wchar.h>
+#endif /* __UCLIBC_HAS_WCHAR__ */
 
 /**********************************************************************/
 
@@ -335,7 +359,7 @@ typedef struct {
 extern size_t _dtostr(FILE * fp, long double x, struct printf_info *info);
 #endif
 
-#define _outnstr(stream, string, len)	_stdio_fwrite(s, len, stream)	/* TODO */
+#define _outnstr(stream, string, len)	_stdio_fwrite(string, len, stream)	/* TODO */
 
 extern int _do_one_spec(FILE * __restrict stream, ppfs_t *ppfs, int *count);
 
@@ -431,7 +455,7 @@ int vfprintf(FILE * __restrict stream, register const char * __restrict format,
 	s = format;
 
 	if (_ppfs_init(&ppfs, format) < 0) { /* Bad format string. */
-		_outnstr(stream, format, strlen(format));
+		_outnstr(stream, ppfs.fmtpos, strlen(ppfs.fmtpos));
 		count = -1;
 	} else {
 		_ppfs_prepargs(&ppfs, arg);	/* This did a va_copy!!! */
@@ -481,11 +505,29 @@ int vfprintf(FILE * __restrict stream, register const char * __restrict format,
 
 int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 {
+#if defined(__UCLIBC_HAS_WCHAR__) && defined(__UCLIBC_HAS_LOCALE__)
+	static const char invalid_mbs[] = "Invalid multibyte format string.";
+#endif /* defined(__UCLIBC_HAS_WCHAR__) && defined(__UCLIBC_HAS_LOCALE__) */
 	int r;
 
 	/* First, zero out everything... argnumber[], argtype[], argptr[] */
 	memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
 	--ppfs->maxposarg;			/* set to -1 */
+	ppfs->fmtpos = fmt0;
+#if defined(__UCLIBC_HAS_WCHAR__) && defined(__UCLIBC_HAS_LOCALE__)
+	/* Note: We don't need to check if we don't have wide chars or we only
+	 * support the C locale. */
+	{
+		mbstate_t mbstate;
+		const char *p;
+		mbstate.mask = 0;	/* Initialize the mbstate. */
+		p = fmt0;
+		if (mbsrtowcs(NULL, &p, SIZE_MAX, &mbstate) == ((size_t)(-1))) {
+			ppfs->fmtpos = invalid_mbs;
+			return -1;
+		}
+	}
+#endif /* defined(__UCLIBC_HAS_WCHAR__) && defined(__UCLIBC_HAS_LOCALE__) */
 	/* now set all argtypes to no-arg */
 	{
 #if 1
@@ -1098,6 +1140,10 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 	const void * argptr[MAX_ARGS_PER_SPEC];
 #endif
 	int *argtype;
+#ifdef __UCLIBC_HAS_WCHAR__
+	const wchar_t *ws = NULL;
+	mbstate_t mbstate;
+#endif /* __UCLIBC_HAS_WCHAR__ */
 	size_t slen;
 	int base;
 	int numpad;
@@ -1223,18 +1269,39 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 							  &ppfs->info);
 			return 0;
 #else  /* __STDIO_PRINTF_FLOAT */
-			return -1;			/* TODO -- try ton continue? */
+			return -1;			/* TODO -- try to continue? */
 #endif /* __STDIO_PRINTF_FLOAT */
 		} else if (ppfs->conv_num <= CONV_S) {	/* wide char or string */
-#if 1
-			return -1;			/* TODO -- wide */
-#else
+#ifdef __UCLIBC_HAS_WCHAR__
+			mbstate.mask = 0;	/* Initialize the mbstate. */
 			if (ppfs->conv_num == CONV_S) { /* wide string */
-
+				if (!(ws = *((const wchar_t **) *argptr))) {
+					goto NULL_STRING;
+				}
+				/* We use an awful uClibc-specific hack here, passing
+				 * (char*) &ws as the conversion destination.  This signals
+				 * uClibc's wcsrtombs that we want a "restricted" length
+				 * such that the mbs fits in a buffer of the specified
+				 * size with no partial conversions. */
+				if ((slen = wcsrtombs((char *) &ws, &ws, /* Use awful hack! */
+									  ((ppfs->info.prec >= 0)
+									   ? ppfs->info.prec
+									   : SIZE_MAX), &mbstate))
+					== ((size_t)-1)
+					) {
+					return -1;	/* EILSEQ */
+				}
 			} else {			/* wide char */
-				
+				s = buf;
+				slen = wcrtomb(s, (*((const wchar_t *) *argptr)), &mbstate);
+				if (slen == ((size_t)-1)) {
+					return -1;	/* EILSEQ */
+				}
+				s[slen] = 0;	/* TODO - Is this necessary? */
 			}
-#endif
+#else  /* __UCLIBC_HAS_WCHAR__ */
+			return -1;
+#endif /* __UCLIBC_HAS_WCHAR__ */
 		} else if (ppfs->conv_num <= CONV_s) {	/* char or string */
 			if (ppfs->conv_num == CONV_s) { /* string */
 				s = *((char **) (*argptr));
@@ -1243,11 +1310,12 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 					slen = strnlen(s, ((ppfs->info.prec >= 0)
 									   ? ppfs->info.prec : SIZE_MAX));
 				} else {
+				NULL_STRING:
 					s = "(null)";
 					slen = 6;
 				}
 			} else {			/* char */
-				s = (char *) buf;
+				s = buf;
 				*s = (unsigned char)(*((const int *) *argptr));
 				s[1] = 0;
 				slen = 1;
@@ -1301,7 +1369,24 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 		}
 		output(stream, prefix + prefix_num);
 		_charpad(stream, '0', numfill);
+#ifdef __UCLIBC_HAS_WCHAR__
+		if (!ws) {
+			_outnstr(stream, s, slen);
+		} else {				/* wide string */
+			size_t t;
+			mbstate.mask = 0;	/* Initialize the mbstate. */
+			while (slen) {
+				t = (slen <= sizeof(buf)) ? slen : sizeof(buf);
+				t = wcsrtombs(buf, &ws, t, &mbstate);
+				assert (t != ((size_t)(-1)));
+				_outnstr(stream, buf, t);
+				slen -= t;
+			}
+			ws = NULL;			/* Reset ws. */
+		}
+#else  /* __UCLIBC_HAS_WCHAR__ */
 		_outnstr(stream, s, slen);
+#endif /* __UCLIBC_HAS_WCHAR__ */
 		_charpad(stream, ' ', numpad);
 	}
 
