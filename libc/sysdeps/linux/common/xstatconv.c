@@ -50,6 +50,7 @@ void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
     buf->st_ctime = kbuf->st_ctime;
 }
 
+#if defined __UCLIBC_HAS_LFS__
 void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 {
     /* Convert to current kernel version of `struct stat64'.  */
@@ -70,4 +71,5 @@ void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
     buf->st_mtime = kbuf->st_mtime;
     buf->st_ctime = kbuf->st_ctime;
 }
+#endif
 
