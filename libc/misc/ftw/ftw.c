@@ -486,7 +486,7 @@ ftw_startup (const char *dir, int is_nftw, void *func, int descriptors, int flag
     data.dirbuf = (char *) malloc (data.dirbufsize);
     if (data.dirbuf == NULL)
 	return -1;
-    cp = __stpcpy (data.dirbuf, dir);
+    cp = stpcpy (data.dirbuf, dir);
     /* Strip trailing slashes.  */
     while (cp > data.dirbuf + 1 && cp[-1] == '/')
 	--cp;

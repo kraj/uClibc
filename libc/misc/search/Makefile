@@ -25,7 +25,7 @@ TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
 MSRC1=tsearch.c
-MOBJ1=tsearch.o tfind.o tdelete.o twalk.o
+MOBJ1=tsearch.o tfind.o tdelete.o twalk.o tdestroy.o
 
 MSRC2=lsearch.c
 MOBJ2=lfind.o lsearch.o

@@ -28,6 +28,7 @@ Cambridge, MA 02139, USA.  */
  */
 /*LINTLIBRARY*/
 
+#define _GNU_SOURCE
 #include <search.h>
 #include <stdlib.h>
 
@@ -187,4 +188,30 @@ void twalk(__const void *vroot, __action_fn_t action)
 }
 #endif
 
+#ifdef L_tdestroy
+/* The standardized functions miss an important functionality: the
+   tree cannot be removed easily.  We provide a function to do this.  */
+static void
+internal_function
+tdestroy_recurse (node *root, __free_fn_t freefct)
+{
+    if (root->left != NULL)
+	tdestroy_recurse (root->left, freefct);
+    if (root->right != NULL)
+	tdestroy_recurse (root->right, freefct);
+    (*freefct) ((void *) root->key);
+    /* Free the node itself.  */
+    free (root);
+}
+
+void tdestroy (void *vroot, __free_fn_t freefct)
+{
+    node *root = (node *) vroot;
+    if (root != NULL) {
+	tdestroy_recurse (root, freefct);
+    }
+}
+#endif
+
 /* tsearch.c ends here */
+
