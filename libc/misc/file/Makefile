@@ -24,7 +24,11 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=lockf.c lockf64.c
+ifeq ($(strip $(UCLIBC_HAS_LFS)),y)
+CSRC = lockf.c lockf64.c
+else
+CSRC = lockf.c
+endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
