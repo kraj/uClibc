@@ -170,7 +170,7 @@ void _dl_boot(unsigned int args)
 	Elf32_auxv_t auxv_t[AT_EGID + 1];
 	unsigned char *malloc_buffer, *mmap_zero;
 	int (*_dl_atexit) (void *);
-	int *lpnt;
+	unsigned long *lpnt;
 	Elf32_Dyn *dpnt;
 	unsigned long *hash_addr;
 	struct r_debug *debug_addr;
@@ -210,8 +210,24 @@ void _dl_boot(unsigned int args)
 
 	/* Next, locate the GOT */
 	load_addr = auxv_t[AT_BASE].a_un.a_val;
+#ifdef DL_DEBUG
+	SEND_STDERR("load_addr=");
+	SEND_STDERR(_dl_simple_ltoahex(load_addr));
+	SEND_STDERR("\n");
+#endif	
+//	__asm__("\tmovl %%ebx,%0\n\t" : "=a" (X))
 	GET_GOT(got);
+#ifdef DL_DEBUG
+	SEND_STDERR("Found got=");
+	SEND_STDERR(_dl_simple_ltoahex((unsigned long)*got));
+	SEND_STDERR("\n");
+#endif	
 	dpnt = (Elf32_Dyn *) (*got + load_addr);
+#ifdef DL_DEBUG
+	SEND_STDERR("First Dynamic section entry=");
+	SEND_STDERR(_dl_simple_ltoahex((unsigned long)dpnt));
+	SEND_STDERR("\n");
+#endif	
 
 	
 	/* Call mmap to get a page of writable memory that can be used 
@@ -259,7 +275,7 @@ void _dl_boot(unsigned int args)
 					}
 					app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
 					if (dpnt->d_tag == DT_DEBUG)
-						dpnt->d_un.d_val = (int) debug_addr;
+						dpnt->d_un.d_val = (unsigned long) debug_addr;
 					if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT)
 						app_tpnt->dynamic_info[DT_TEXTREL] = 1;
 					dpnt++;
@@ -396,18 +412,14 @@ void _dl_boot(unsigned int args)
 	   We start with the basic executable, and then go from there.  Eventually
 	   we will run across ourself, and we will need to properly deal with that
 	   as well. */
-
 	_dl_malloc_addr = malloc_buffer;
-
 	_dl_mmap_zero = mmap_zero;
-/*  tpnt = _dl_malloc(sizeof(struct elf_resolve)); */
 
-/* Now we have done the mandatory linking of some things.  We are now
-   free to start using global variables, since these things have all been
-   fixed up by now.  Still no function calls outside of this library ,
-   since the dynamic resolver is not yet ready. */
-
-	lpnt = (int *) (tpnt->dynamic_info[DT_PLTGOT] + load_addr);
+	/* Now we have done the mandatory linking of some things.  We are now
+	   free to start using global variables, since these things have all been
+	   fixed up by now.  Still no function calls outside of this library ,
+	   since the dynamic resolver is not yet ready. */
+	lpnt = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT] + load_addr);
 	INIT_GOT(lpnt, tpnt);
 
 	/* OK, this was a big step, now we need to scan all of the user images
@@ -471,7 +483,7 @@ void _dl_boot(unsigned int args)
 				rpnt->dyn = _dl_loaded_modules;
 				app_tpnt->usage_count++;
 				app_tpnt->symbol_scope = _dl_symbol_tables;
-				lpnt = (int *) (app_tpnt->dynamic_info[DT_PLTGOT]);
+				lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
 #ifdef ALLOW_ZERO_PLTGOT
 				if (lpnt)
 #endif
@@ -942,19 +954,23 @@ void *_dl_malloc(int size)
 {
 	void *retval;
 
-	//SEND_STDERR("malloc: request for ");
-	//SEND_STDERR(_dl_simple_itol(size));
-	//SEND_STDERR(" bytes\n");
+#ifdef DL_DEBUG
+	SEND_STDERR("malloc: request for ");
+	SEND_STDERR(_dl_simple_itoa(size));
+	SEND_STDERR(" bytes\n");
+#endif	
 
 	if (_dl_malloc_function)
 		return (*_dl_malloc_function) (size);
 
 	if (_dl_malloc_addr - _dl_mmap_zero + size > 4096) {
-		//SEND_STDERR("malloc: mmapping more memory\n");
+#ifdef DL_DEBUG
+		SEND_STDERR("malloc: mmapping more memory\n");
+#endif	
 		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size, 
 			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
-			_dl_fdprintf(2, "%s: can't map '/dev/zero'\n", _dl_progname);
+			_dl_fdprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
 			_dl_exit(20);
 		}
 	}
