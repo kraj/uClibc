@@ -4,20 +4,25 @@
 
 /* Overrive the default _dl_boot function, and replace it with a bit of asm.
  * Then call the real _dl_boot function, which is now named _dl_boot2. */
-
-asm("" \
-"	.text\n"			\
-"	.globl	_dl_boot\n"		\
-"_dl_boot:\n"				\
-"	mr	3,1\n"		\
-"	li	4,0\n"			\
-"	addi	1,1,-16\n"		\
-"	stw	4,0(1)\n"		\
-"	bl      _dl_boot2\n"		\
-".previous\n"				\
+asm(
+    "	.text\n"
+    "	.globl	_dl_boot\n"
+    "	.type	_dl_boot,@function\n"
+    "_dl_boot:\n"
+    "	mr	3,1\n" /* Pass SP to _dl_boot2 in r3 */
+    "	addi	1,1,-16\n" /* Make room on stack for _dl_boot2 to store LR */
+    "	li	4,0\n"
+    "	stw	4,0(1)\n" /* Clear Stack frame */
+    "	bl	_dl_boot2@local\n" /* Perform relocation */
+    "	addi	1,1,16\n" /* Restore SP */
+    "	mtctr	3\n" /* Load applications entry point */
+    "	bctr\n" /* Jump to entry point */
+    "	.size	_dl_boot,.-_dl_boot\n"
+    "	.previous\n"
 );
 
-#define DL_BOOT(X) static void __attribute_used__ _dl_boot2(X)
+
+#define DL_BOOT(X) static void* __attribute_used__ _dl_boot2(X)
 
 /*
  * Get a pointer to the argv array.  On many platforms this can be just
@@ -53,17 +58,4 @@ asm("" \
  * is done.  This routine has to exit the current function, then
  * call the _dl_elf_main function.
  */
-
-/*
- * Use "b"(Address base register) operand for %1 since "b" excludes
- * r0 which is important for the addi instruction in this case. 
- */
-#define START()		\
-	__asm__ volatile ( \
-		    "addi 1,%1,0\n\t" \
-		    "mtlr %0\n\t" \
-		    "blrl\n\t"	\
-		    : : "r" (_dl_elf_main), "b" (args))
-
-
-
+#define START()	    return _dl_elf_main
