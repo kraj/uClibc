@@ -78,12 +78,12 @@ struct heap_free_area
 #define HEAP_DECLARE_STATIC_FREE_AREA(name, size)			      \
   static struct								      \
   {									      \
-    HEAP_GRANULARITY_TYPE space[((size)					      \
-				 - sizeof (struct heap_free_area)	      \
-				 + (HEAP_GRANULARITY - 1))		      \
-				/ HEAP_GRANULARITY];			      \
+    HEAP_GRANULARITY_TYPE aligned_space;				      \
+    char space[HEAP_ADJUST_SIZE(size)					      \
+	       - sizeof (struct heap_free_area)				      \
+	       - HEAP_GRANULARITY];					      \
     struct heap_free_area _fa;						      \
-  } name = { { (HEAP_GRANULARITY_TYPE)0 }, { (size), 0, 0 } }
+  } name = { (HEAP_GRANULARITY_TYPE)0, "", { HEAP_ADJUST_SIZE(size), 0, 0 } }
 
 
 /* Rounds SZ up to be a multiple of HEAP_GRANULARITY.  */
