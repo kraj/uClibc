@@ -138,7 +138,7 @@ struct utmp *getutid (const struct utmp *utmp_entry)
 		 utmp_entry->ut_type == DEAD_PROCESS ||
 		 utmp_entry->ut_type == LOGIN_PROCESS ||
 		 utmp_entry->ut_type == USER_PROCESS) &&
-		!strcmp(lutmp->ut_id, utmp_entry->ut_id)) 
+		!strncmp(lutmp->ut_id, utmp_entry->ut_id, sizeof(lutmp->ut_id))) 
 	{
 	    return lutmp;
 	}
