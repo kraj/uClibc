@@ -30,7 +30,7 @@
 TOPDIR=./
 include Rules.mak
 
-ifeq ($(DO_SHARED),shared)
+ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
     LDSO_DIR = ldso
 endif
 DIRS = extra $(LDSO_DIR) libc libcrypt libresolv libutil libm  
@@ -154,14 +154,14 @@ install_target:
 ifeq ($(DO_SHARED),shared)
 	install -d $(TARGET_PREFIX)$(ROOT_DIR)/lib
 	cp -fa lib/*.so* $(TARGET_PREFIX)$(ROOT_DIR)/lib;
+endif
 ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
 	install -d $(TARGET_PREFIX)$(ROOT_DIR)/etc
 	install -d $(TARGET_PREFIX)$(ROOT_DIR)/sbin
 	install -d $(TARGET_PREFIX)$(ROOT_DIR)/usr/bin
-	cp ldso/util/ldd $(TARGET_PREFIX)$(ROOT_DIR)/usr/bin
-	cp ldso/util/ldconfig $(TARGET_PREFIX)$(ROOT_DIR)/sbin
+	cp -f ldso/util/ldd $(TARGET_PREFIX)$(ROOT_DIR)/usr/bin
+	cp -f ldso/util/ldconfig $(TARGET_PREFIX)$(ROOT_DIR)/sbin
 #	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
-endif
 endif
 
 # Installs development library and headers
@@ -179,8 +179,8 @@ ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/etc
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/sbin
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/bin
-	cp ldso/util/ldd $(DEVEL_PREFIX)$(ROOT_DIR)/usr/bin
-	cp ldso/util/ldconfig $(DEVEL_PREFIX)$(ROOT_DIR)/sbin
+	cp -f ldso/util/ldd $(DEVEL_PREFIX)$(ROOT_DIR)/usr/bin
+	cp -f ldso/util/ldconfig $(DEVEL_PREFIX)$(ROOT_DIR)/sbin
 #	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
 endif
 	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/etc
@@ -201,7 +201,7 @@ clean:
 	@rm -rf tmp lib
 	- find include -type l -exec rm -f {} \;
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core \) -exec rm -f {} \;
-ifeq ($(DO_SHARED),shared)
+ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
 	make -C ldso clean
 endif
 
