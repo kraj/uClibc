@@ -60,6 +60,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
@@ -76,9 +77,8 @@ static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #define	MAXALIASES	35
 
 static FILE *protof = NULL;
-static char line[BUFSIZ+1];
 static struct protoent proto;
-static char *proto_aliases[MAXALIASES];
+static char static_aliases[BUFSIZ+1 + sizeof(char *)*MAXALIASES];
 static int proto_stayopen;
 
 void setprotoent(int f)
@@ -103,20 +103,43 @@ void endprotoent(void)
     UNLOCK;
 }
 
-struct protoent * getprotoent(void)
+int getprotoent_r(struct protoent *result_buf,
+		  char *buf, size_t buflen,
+		  struct protoent **result)
 {
     char *p;
     register char *cp, **q;
+    char **proto_aliases;
+    char *line;
 
+    *result = NULL;
+
+    if (buflen < sizeof(*proto_aliases)*MAXALIASES) {
+	errno=ERANGE;
+	return errno;
+    }
     LOCK;
+    proto_aliases=(char **)buf;
+    buf+=sizeof(*proto_aliases)*MAXALIASES;
+    buflen-=sizeof(*proto_aliases)*MAXALIASES;
+
+    if (buflen < BUFSIZ+1) {
+	UNLOCK;
+	errno=ERANGE;
+	return errno;
+    }
+    line=buf;
+    buf+=BUFSIZ+1;
+    buflen-=BUFSIZ+1;
+
     if (protof == NULL && (protof = fopen(_PATH_PROTOCOLS, "r" )) == NULL) {
 	UNLOCK;
-	return (NULL);
+	return errno;
     }
 again:
     if ((p = fgets(line, BUFSIZ, protof)) == NULL) {
 	UNLOCK;
-	return (NULL);
+	return TRY_AGAIN;
     }
 
     if (*p == '#')
@@ -125,7 +148,7 @@ again:
     if (cp == NULL)
 	goto again;
     *cp = '\0';
-    proto.p_name = p;
+    result_buf->p_name = p;
     cp = strpbrk(p, " \t");
     if (cp == NULL)
 	goto again;
@@ -135,8 +158,8 @@ again:
     p = strpbrk(cp, " \t");
     if (p != NULL)
 	*p++ = '\0';
-    proto.p_proto = atoi(cp);
-    q = proto.p_aliases = proto_aliases;
+    result_buf->p_proto = atoi(cp);
+    q = result_buf->p_aliases = proto_aliases;
     if (p != NULL) {
 	cp = p;
 	while (cp && *cp) {
@@ -152,22 +175,33 @@ again:
 	}
     }
     *q = NULL;
+    *result=result_buf;
     UNLOCK;
-    return (&proto);
+    return 0;
+}
+
+struct protoent * getprotoent(void)
+{
+    struct protoent *result;
+    getprotoent_r(&proto, static_aliases, sizeof(static_aliases), &result);
+    return result;
 }
 
 
-struct protoent * getprotobyname(const char *name)
+int getprotobyname_r(const char *name,
+		    struct protoent *result_buf,
+		    char *buf, size_t buflen,
+		    struct protoent **result)
 {
-    register struct protoent *p;
     register char **cp;
+    int ret;
 
     LOCK;
     setprotoent(proto_stayopen);
-    while ((p = getprotoent()) != NULL) {
-	if (strcmp(p->p_name, name) == 0)
+    while (!(ret=getprotoent_r(result_buf, buf, buflen, result))) {
+	if (strcmp(result_buf->p_name, name) == 0)
 	    break;
-	for (cp = p->p_aliases; *cp != 0; cp++)
+	for (cp = result_buf->p_aliases; *cp != 0; cp++)
 	    if (strcmp(*cp, name) == 0)
 		goto found;
     }
@@ -175,20 +209,40 @@ found:
     if (!proto_stayopen)
 	endprotoent();
     UNLOCK;
-    return (p);
+    return *result?0:ret;
 }
 
-struct protoent * getprotobynumber(int proto)
+
+struct protoent * getprotobyname(const char *name)
 {
-    register struct protoent *p;
+    struct protoent *result;
+    getprotobyname_r(name, &proto, static_aliases, sizeof(static_aliases), &result);
+    return result;
+}
+
+
+int getprotobynumber_r (int proto_num,
+			struct protoent *result_buf,
+			char *buf, size_t buflen,
+			struct protoent **result)
+{
+    int ret;
 
     LOCK;
     setprotoent(proto_stayopen);
-    while ((p = getprotoent()) != NULL)
-	if (p->p_proto == proto)
+    while (!(ret=getprotoent_r(result_buf, buf, buflen, result)))
+	if (result_buf->p_proto == proto_num)
 	    break;
     if (!proto_stayopen)
 	endprotoent();
     UNLOCK;
-    return (p);
+    return *result?0:ret;
 }
+
+struct protoent * getprotobynumber(int proto_num)
+{
+    struct protoent *result;
+    getprotobynumber_r(proto_num, &proto, static_aliases, sizeof(static_aliases), &result);
+    return result;
+}
+
