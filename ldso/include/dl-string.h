@@ -158,6 +158,33 @@ static inline int _dl_memcmp(const void * s1,const void * s2,size_t len)
 	return 0;
 }
 
+#if defined(powerpc)
+/* Will generate smaller and faster code due to loop unrolling.*/
+static inline void *_dl_memset(void *to, int c, size_t n)
+{
+        unsigned long chunks;
+        unsigned long *tmp_to;
+	unsigned char *tmp_char;
+
+        chunks = n / 4;
+        tmp_to = to + n;
+        c = c << 8 | c;
+        c = c << 16 | c;
+        if (!chunks)
+                goto lessthan4;
+        do {
+                *--tmp_to = c;
+        } while (--chunks);
+ lessthan4:
+        n = n % 4;
+        if (!n ) return to;
+        tmp_char = (unsigned char *)tmp_to;
+        do {
+                *--tmp_char = c;
+        } while (--n);
+        return to;
+}
+#else
 static inline void * _dl_memset(void * str,int c,size_t len)
 {
 	register char *a = str;
@@ -167,6 +194,7 @@ static inline void * _dl_memset(void * str,int c,size_t len)
 
 	return str;
 }
+#endif
 
 static inline char *_dl_get_last_path_component(char *path)
 {
