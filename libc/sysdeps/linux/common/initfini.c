@@ -84,6 +84,16 @@ _init (void)
      module which has a constructor; but then user code's constructors
      would come first, and not be profiled.  */
   call_gmon_start ();
+#else
+  asm ("\n/*@_init_PROLOG_PAUSES*/");
+  {
+    /* Let GCC know that _init is not a leaf function by having a dummy
+     * function call here.  We arrange for this call to be omitted from
+     * either crt file.  */
+    extern void i_am_not_a_leaf (void);
+    i_am_not_a_leaf ();
+  }
+  asm ("\n/*@_init_PROLOG_UNPAUSES*/");
 #endif
 
   asm ("ALIGN");

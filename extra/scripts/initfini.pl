@@ -81,6 +81,14 @@ while(<INITFINI>) {
 	$omitcrti = 0;
 	next;
     }
+    if (/PROLOG_PAUSES/) {
+	$omitcrti = 1;
+	next;
+    }
+    if (/PROLOG_UNPAUSES/) {
+	$omitcrti = 0;
+	next;
+    }
     if (/PROLOG_ENDS/) {
 	$omitcrti = 1;
 	next;
