@@ -16,15 +16,12 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sysdep.h>
-
 /* Please consult the file sysdeps/unix/sysv/linux/x86-64/sysdep.h for
    more information about the value -4095 used below.  */
 
 /* Usage: long syscall (syscall_number, arg1, arg2, arg3, arg4, arg5, arg6)
    We need to do some arg shifting, the syscall_number will be in
    rax.  */
-
 
 .globl syscall;
 .type	syscall,@function;
