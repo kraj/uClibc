@@ -50,48 +50,6 @@
 #define IO_ADDR(port)	(IO_BASE + ((port) << IO_SHIFT))
 
 
-#define MAX_PORT	0x10000
-int ioperm(unsigned long int from, unsigned long int num, int turn_on)
-{
-    /* this test isn't as silly as it may look like; consider overflows! */
-    if (from >= MAX_PORT || from + num > MAX_PORT) {
-	__set_errno (EINVAL);
-	return -1;
-    }
-
-    if (turn_on)
-    {
-	int fd;
-	unsigned long int base;
-
-	fd = open ("/dev/mem", O_RDWR);
-	if (fd < 0)
-	    return -1;
-
-	base = (unsigned long int) mmap (0, MAX_PORT << IO_SHIFT, 
-		PROT_READ | PROT_WRITE, 
-		MAP_SHARED, fd, IO_BASE);
-	close (fd);
-	if ((long) base == -1)
-	    return -1;
-    }
-
-    return 0;
-}
-
-
-int iopl (unsigned int level)
-{
-    if (level > 3) {
-	__set_errno (EINVAL);
-	return -1;
-    }
-    if (level) {
-	return ioperm (0, MAX_PORT, 1);
-    }
-    return 0;
-}
-
 void outb (unsigned char b, unsigned long int port)
 {
   *((volatile unsigned char *)(IO_ADDR (port))) = b;
