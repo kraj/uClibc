@@ -288,7 +288,9 @@ install_toolchain:
 	$(MAKE) -C extra/gcc-uClibc install
 
 utils: $(TOPDIR)ldso/util/ldd
+ifeq ($(strip $(HAVE_SHARED)),true)
 	$(MAKE) -C ldso utils
+endif
 
 install_utils: utils
 ifeq ($(strip $(HAVE_SHARED)),true)
