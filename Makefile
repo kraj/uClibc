@@ -193,7 +193,6 @@ uClibc_config: Makefile Config
 	else \
 	    echo "#undef __UCLIBC_HAS_RPC__" >> include/bits/uClibc_config.h ; \
 	fi
-	@echo "#define C_SYMBOL_PREFIX "\""$(C_SYMBOL_PREFIX)"\" >> include/bits/uClibc_config.h
 	@if [ "$(DOLFS)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAVE_LFS__ 1" >> include/bits/uClibc_config.h ; \
 	else \
@@ -218,6 +217,12 @@ uClibc_config: Makefile Config
 	    echo "#define ASSUME_DEVPTS 1" >> include/bits/uClibc_config.h ; \
 	else \
 	    echo "#undef ASSUME_DEVPTS" >> include/bits/uClibc_config.h ; \
+	fi
+	@echo "#define C_SYMBOL_PREFIX "\""$(C_SYMBOL_PREFIX)"\" >> include/bits/uClibc_config.h
+	@if [ "$(HAVE_DOT_HIDDEN)" = "true" ] ; then \
+	    echo "#define HAVE_DOT_HIDDEN 1" >> include/bits/uClibc_config.h ; \
+	else \
+	    echo "#undef HAVE_DOT_HIDDEN" >> include/bits/uClibc_config.h ; \
 	fi
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))

@@ -217,3 +217,5 @@ DEVEL_TOOL_PREFIX = $(DEVEL_PREFIX)/usr
 # i.e., 'make PREFIX=/var/tmp/uClibc install'.
 #PREFIX = $(TOPDIR)/_install
 
+#Enable .hidden asm directives
+HAVE_DOT_HIDDEN=true

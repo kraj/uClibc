@@ -36,15 +36,21 @@
    * crtn.s puts the corresponding function epilogues
    in the .init and .fini sections. */
 
+#include <features.h>
+
 #undef GMON_SUPPORT
 
 /* We use embedded asm for .section unconditionally, as this makes it
    easier to insert the necessary directives into crtn.S. */
-#define SECTION(x) asm (".section " x )
+#define SECTION(x) asm (".section " x );
 
 /* Declare symbols as hidden. Hidden symbols are only seen by
  * the link editor and not by the dynamic loader. */
-#define HIDDEN(func)  asm (".hidden  " #func )
+#ifdef HAVE_DOT_HIDDEN
+#  define HIDDEN(func)  asm (".hidden  " #func );
+#else
+#  define HIDDEN(func)
+#endif
 
 /* The initial common code ends here. */
 asm ("\n/*@HEADER_ENDS*/");
@@ -75,11 +81,11 @@ call_gmon_start(void)
 }
 #endif
 
-SECTION (".init");
-HIDDEN(_init);
+SECTION (".init")
+HIDDEN(_init)
+
 extern void _init (void);
-void
-_init (void)
+void _init (void)
 {
 #ifdef GMON_SUPPORT
   /* We cannot use the normal constructor mechanism in gcrt1.o because it
@@ -112,11 +118,11 @@ _init (void)
 asm ("\n/*@_init_EPILOG_ENDS*/");
 asm ("\n/*@_fini_PROLOG_BEGINS*/");
 
-SECTION (".fini");
-HIDDEN(_fini);
+SECTION (".fini")
+HIDDEN(_fini)
+
 extern void _fini (void);
-void
-_fini (void)
+void _fini (void)
 {
 
   /* End of the _fini prolog. */
