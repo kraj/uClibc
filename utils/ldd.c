@@ -367,7 +367,7 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_setuid, char
 		tmp++;
 	}
 
-	/* We add libc.so.0 elsewhere */
+	/* We add ldso elsewhere */
 	if (interpreter_already_found && (tmp=strrchr(interp, '/')) != NULL)
 	{
 		int len = strlen(interp_dir);
@@ -523,7 +523,7 @@ int find_dependancies(char* filename)
 		goto foo;
 
 	/* mmap the file to make reading stuff from it effortless */
-	ehdr = (Elf32_Ehdr *)mmap(0, statbuf.st_size, 
+	ehdr = (Elf32_Ehdr *)mmap(0, statbuf.st_size,
 			PROT_READ|PROT_WRITE, MAP_PRIVATE, fileno(thefile), 0);
 
 foo:
@@ -658,9 +658,9 @@ int main( int argc, char** argv)
 			got_em_all=1;
 			printf("\t%s => %s (0x00000000)\n", cur->name, cur->path);
 		}
-		if (interp_dir && got_em_all==1)
+		if (interp && interpreter_already_found==1)
 			printf("\t%s => %s (0x00000000)\n", interp, interp);
-		if (got_em_all==0)
+		else
 			printf("\tnot a dynamic executable\n");
 
 		for (cur = lib_list; cur; cur=cur->next) {
