@@ -96,8 +96,8 @@ HAS_WCHAR = false
 # can be lots faster and safer IMHO.
 #
 # "malloc-930716" is from libc-5.3.12 and was/is the standard gnu malloc.
-# It is actually smaller than "malloc", at least on i386.  Right now, it
-# only works on i386 (and maybe m68k) because it needs sbrk.
+# It is actually smaller than "malloc", but because it is based on brk/sbrk
+# it will only work on systems with an MMU.
 MALLOC = malloc-simple
 #MALLOC = malloc 
 #MALLOC = malloc-930716
