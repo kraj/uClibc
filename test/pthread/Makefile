@@ -8,7 +8,7 @@ EXTRA_LIBS += -lpthread
 TARGETS=ex1 ex2 ex3 ex4 ex5 ex6 ex7
 all: $(TARGETS)
 
-ex1: ex1.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+ex1: ex1.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -19,7 +19,7 @@ ex1: ex1.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-./$@
 	-@ echo " "
 
-ex2: ex2.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+ex2: ex2.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -30,7 +30,7 @@ ex2: ex2.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-./$@
 	-@ echo " "
 
-ex3: ex3.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+ex3: ex3.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -41,7 +41,7 @@ ex3: ex3.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-./$@
 	-@ echo " "
 
-ex4: ex4.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+ex4: ex4.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -52,7 +52,7 @@ ex4: ex4.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-./$@
 	-@ echo " "
 
-ex5: ex5.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+ex5: ex5.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -63,7 +63,7 @@ ex5: ex5.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-./$@
 	-@ echo " "
 
-ex6: ex6.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+ex6: ex6.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -74,7 +74,7 @@ ex6: ex6.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-./$@
 	-@ echo " "
 
-ex7: ex7.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+ex7: ex7.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

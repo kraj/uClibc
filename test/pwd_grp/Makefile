@@ -29,7 +29,7 @@ TARGETS+=test_pwd_diff test_grp_diff pwcat_diff grcat_diff getgroups_diff
 
 all: $(TARGETS)
 
-test_pwd: test_pwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+test_pwd: test_pwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -51,7 +51,7 @@ test_pwd_glibc: test_pwd.c Makefile
 	-./$@ 2>&1 >test_pwd_glibc.out
 	-@ echo " "
 
-test_grp: test_grp.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+test_grp: test_grp.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -73,7 +73,7 @@ test_grp_glibc: test_grp.c Makefile
 	-./$@ 2>&1 >test_grp_glibc.out
 	-@ echo " "
 
-pwcat: pwcat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+pwcat: pwcat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -95,7 +95,7 @@ pwcat_glibc: pwcat.c Makefile
 	-./$@ 2>&1 >pwcat_glibc.out
 	-@ echo " "
 
-grcat: grcat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+grcat: grcat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -117,7 +117,7 @@ grcat_glibc: grcat.c Makefile
 	-./$@ 2>&1 >grcat_glibc.out
 	-@ echo " "
 
-getgroups: getgroups.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+getgroups: getgroups.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

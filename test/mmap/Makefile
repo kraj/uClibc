@@ -23,7 +23,7 @@ include $(TESTDIR)/Rules.mak
 TARGETS=mmap
 all: $(TARGETS)
 
-mmap: mmap.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+mmap: mmap.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

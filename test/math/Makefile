@@ -57,7 +57,7 @@ test-ildouble: test-ildoubl.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	-./$@
 
-rint: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+rint: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -68,7 +68,7 @@ rint: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-./$@ > $@.out 2>&1
 	-@ echo " "
 
-rint_glibc: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+rint_glibc: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs glibc: "

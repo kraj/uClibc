@@ -23,7 +23,7 @@ include $(TESTDIR)/Rules.mak
 TARGETS=setjmp_test
 all: $(TARGETS)
 
-setjmp_test: setjmp_test.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+setjmp_test: setjmp_test.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

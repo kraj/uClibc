@@ -26,7 +26,7 @@ TARGETS+=mallocbug mallocbug_glibc
 TARGETS+=realloc0 realloc0_glibc
 all: $(TARGETS)
 
-malloc: malloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+malloc: malloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -44,7 +44,7 @@ testmalloc_source:
 	-@ cat testmalloc.c
 	-@ echo " "
 
-testmalloc: testmalloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+testmalloc: testmalloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -70,7 +70,7 @@ testmalloc_glibc: testmalloc.c Makefile
 	-./$@
 	-@ echo " "
 
-mallocbug: mallocbug.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+mallocbug: mallocbug.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -96,7 +96,7 @@ mallocbug_glibc: mallocbug.c Makefile
 	-./$@
 	-@ echo " "
 
-realloc0: realloc0.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+realloc0: realloc0.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

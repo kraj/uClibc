@@ -23,7 +23,7 @@ include $(TESTDIR)/Rules.mak
 TARGETS=arg_test
 all: $(TARGETS)
 
-arg_test: arg_test.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+arg_test: arg_test.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

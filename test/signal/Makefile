@@ -24,7 +24,7 @@ CFLAGS += -D_GNU_SOURCE
 TARGETS=signal signal_glibc sigchld sigchld_glibc 
 all: $(TARGETS)
 
-signal: signal.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+signal: signal.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -46,7 +46,7 @@ signal_glibc: signal.c Makefile
 	-./$@
 	-@ echo " "
 
-sigchld: sigchld.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+sigchld: sigchld.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

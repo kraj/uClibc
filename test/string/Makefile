@@ -26,7 +26,7 @@ TARGETS+=#strerror #strsignal
 
 all: $(TARGETS)
 
-string: string.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+string: string.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -48,7 +48,7 @@ string_glibc: string.c Makefile
 	-./$@
 	-@ echo " "
 
-testcopy: testcopy.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+testcopy: testcopy.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -79,7 +79,7 @@ testcopy_diff: testcopy testcopy_glibc
 	-@ echo " "
 
 
-strerror: ../../libc/string/strerror.c $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+strerror: ../../libc/string/strerror.c $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

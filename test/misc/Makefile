@@ -24,7 +24,7 @@ CFLAGS64=-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 TARGETS=sem fdopen dirent_diff dirent64_diff #outb
 all: $(TARGETS)
 
-outb: outb.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+outb: outb.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -35,7 +35,7 @@ outb: outb.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC
 	./$@
 	-@ echo " "
 
-sem: sem.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+sem: sem.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -46,7 +46,7 @@ sem: sem.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-./$@
 	-@ echo " "
 
-fdopen: fdopen.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+fdopen: fdopen.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -65,7 +65,7 @@ dirent_source:
 	-@ cat dirent.c
 	-@ echo " "
 
-dirent: dirent.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+dirent: dirent.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -95,7 +95,7 @@ dirent_diff: dirent dirent_glibc
 	-diff -u dirent_glibc.out dirent.out
 	-@ echo " "
 
-dirent64: dirent.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+dirent64: dirent.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

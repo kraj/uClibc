@@ -25,7 +25,7 @@ TARGETS=termios termios_glibc
 
 all: $(TARGETS)
 
-termios: termios.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+termios: termios.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

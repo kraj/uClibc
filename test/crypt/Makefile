@@ -26,7 +26,7 @@ EXTRA_LIBS=-lcrypt
 
 all: $(TARGETS)
 
-crypt: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+crypt: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -37,7 +37,7 @@ crypt: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-./$@ < crypt.input #> $@.out 2>&1
 	-@ echo " "
 
-crypt_glibc: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+crypt_glibc: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs glibc: "
@@ -56,7 +56,7 @@ diff: crypt_glibc crypt
 	-diff -u crypt_glibc.out crypt.out
 	-@ echo " "
 
-md5c-test: md5c-test.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+md5c-test: md5c-test.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

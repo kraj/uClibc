@@ -33,7 +33,7 @@ hello_source:
 	-@ cat hello.c
 	-@ echo " "
 
-hello: hello.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+hello: hello.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -60,7 +60,7 @@ hello_glibc: hello.c Makefile
 	-@ echo " "
 
 
-tiny: tiny.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+tiny: tiny.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

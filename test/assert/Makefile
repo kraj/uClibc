@@ -23,7 +23,7 @@ include $(TESTDIR)/Rules.mak
 TARGETS=assert
 all: $(TARGETS)
 
-assert: assert.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+assert: assert.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

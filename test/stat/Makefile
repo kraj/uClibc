@@ -34,7 +34,7 @@ stat_source:
 	-@ cat stat.c
 	-@ echo " "
 
-stat: stat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+stat: stat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -64,7 +64,7 @@ stat_diff: stat stat_glibc
 	-diff -u stat_glibc.out stat.out
 	-@ echo " "
 
-stat64: stat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+stat64: stat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

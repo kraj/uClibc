@@ -24,7 +24,7 @@ include $(TESTDIR)/Rules.mak
 TARGETS=fork fork_glibc vfork vfork_glibc getcwd getopt getopt_long preadwrite 
 all: $(TARGETS)
 
-getcwd: getcwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+getcwd: getcwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -35,7 +35,7 @@ getcwd: getcwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	./$@
 	-@ echo " "
 
-fork: fork.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+fork: fork.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -57,7 +57,7 @@ fork_glibc: fork.c ../testsuite.h Makefile
 	-./$@
 	-@ echo " "
 
-vfork: vfork.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+vfork: vfork.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -79,21 +79,21 @@ vfork_glibc: vfork.c ../testsuite.h Makefile
 	-./$@
 	-@ echo " "
 
-getopt: getopt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+getopt: getopt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	./$@ -abcXXX -9
 	-@ echo " "
 
-getopt_long: getopt_long.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+getopt_long: getopt_long.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	./$@ --add XXX --delete YYY --verbose
 	-@ echo " "
 
-preadwrite: preadwrite.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+preadwrite: preadwrite.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
