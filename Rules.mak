@@ -66,7 +66,6 @@ LIBC:=$(TOPDIR)libc/$(LIBNAME)
 
 # Pull in the user's uClibc configuration
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
-include_config := 1
 -include $(TOPDIR).config
 endif
 

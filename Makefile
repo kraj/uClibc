@@ -34,7 +34,7 @@ include Rules.mak
 
 DIRS = extra ldso libc libcrypt libresolv libnsl libutil libm libpthread
 
-ifdef include_config
+ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
 all: headers subdirs shared utils finished
 
@@ -80,7 +80,7 @@ endif
 
 include/bits/uClibc_config.h: .config
 	@if [ ! -x ./extra/config/conf ] ; then \
-	    make -C extra/config; \
+	    make -C extra/config conf; \
 	fi;
 	rm -rf include/bits
 	mkdir -p include/bits
@@ -290,18 +290,21 @@ finished2:
 	@echo Finished installing...
 	@echo
 
-else # ifdef include_config
+else # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
 all: menuconfig
-
-ifeq ($(filter-out $(noconfig_targets),$(MAKECMDGOALS)),)
-# Targets which don't need .config
 
 # configuration
 # ---------------------------------------------------------------------------
 
-extra/config/conf extra/config/mconf:
-	make -C extra/config
+extra/config/conf:
+	make -C extra/config conf
+	-@if [ ! -f .config ] ; then \
+		cp extra/Configs/Config.$(TARGET_ARCH).default .config; \
+	fi
+
+extra/config/mconf:
+	make -C extra/config ncurses conf mconf
 	-@if [ ! -f .config ] ; then \
 		cp extra/Configs/Config.$(TARGET_ARCH).default .config; \
 	fi
@@ -384,8 +387,7 @@ release: distclean
 						\
 	tar -cvzf uClibc-$(VERSION).tar.gz --exclude CVS uClibc-$(VERSION)/;
 
-endif # ifeq ($(filter-out $(noconfig_targets),$(MAKECMDGOALS)),)
-endif # ifdef include_config
+endif # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
 .PHONY: dummy subdirs release distclean clean config oldconfig menuconfig
 

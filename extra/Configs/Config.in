@@ -2,6 +2,9 @@
 # For a description of the syntax of this configuration file,
 # see extra/config/Kconfig-language.txt
 #
+config HAVE_DOT_CONFIG
+	bool
+	default y
 
 
 menu "General Library Settings"
