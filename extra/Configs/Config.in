@@ -239,6 +239,16 @@ config SYSTEM_DEVEL_PREFIX
 	  defaults to $(DEVEL_PREFIX)/usr, but makers of .rpms and .debs will
 	  want to set this to "/usr" instead.
 
+config DEVEL_TOOL_PREFIX
+	string "uClibc development environment system directory"
+	default "$(DEVEL_PREFIX)/usr"
+	help
+	  DEVEL_TOOL_PREFIX is the directory prefix used when installing
+	  bin/gcc, bin/ld, etc.   This is only used by the 'make install'
+	  target, and is not compiled into anything.  This defaults to
+	  $(DEVEL_PREFIX)/usr, but makers of .rpms and .debs may want to
+	  set this to something else.
+
 endmenu
 
 menu "uClibc hacking options"
