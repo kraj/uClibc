@@ -14,6 +14,9 @@
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
 
+extern void exit __P ((int __status)) __attribute__ ((__noreturn__));
+extern int atexit __P ((void (*__func) (void)));
+
 extern void * malloc __P ((size_t));
 extern void * calloc __P ((size_t, size_t));
 extern void free __P ((void *));
