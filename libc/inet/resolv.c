@@ -1846,6 +1846,7 @@ int gethostbyname_r(const char * name,
 {
 	struct in_addr *in;
 	struct in_addr **addr_list;
+	char **alias;
 	unsigned char *packet;
 	struct resolv_answer a;
 	int i;
@@ -1899,10 +1900,19 @@ int gethostbyname_r(const char * name,
 
 	addr_list[0] = in;
 	addr_list[1] = 0;
-	
+
+	if (buflen < sizeof(char *)*(ALIAS_DIM))
+		return ERANGE;
+	alias=(char **)buf;
+	buf+=sizeof(char **)*(ALIAS_DIM);
+	buflen-=sizeof(char **)*(ALIAS_DIM);
+
 	if (buflen<256)
 		return ERANGE;
 	strncpy(buf, name, buflen);
+
+	alias[0] = buf;
+	alias[1] = NULL;
 
 	/* First check if this is already an address */
 	if (inet_aton(name, in)) {
@@ -1910,6 +1920,7 @@ int gethostbyname_r(const char * name,
 	    result_buf->h_addrtype = AF_INET;
 	    result_buf->h_length = sizeof(*in);
 	    result_buf->h_addr_list = (char **) addr_list;
+	    result_buf->h_aliases = alias;
 	    *result=result_buf;
 	    *h_errnop = NETDB_SUCCESS;
 	    return NETDB_SUCCESS;
@@ -1954,6 +1965,10 @@ int gethostbyname_r(const char * name,
 			result_buf->h_addrtype = AF_INET;
 			result_buf->h_length = sizeof(*in);
 			result_buf->h_addr_list = (char **) addr_list;
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO -- generate the full list
+#endif
+			result_buf->h_aliases = alias; /* TODO: generate the full list */
 			free(packet);
 			break;
 		} else {
