@@ -29,6 +29,7 @@ extern int __sigjmp_save (sigjmp_buf, int);
 int
 __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
 {
+#ifndef __mips_soft_float
   /* Store the floating point callee-saved registers...  */
   asm volatile ("s.d $f20, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[0]));
   asm volatile ("s.d $f22, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[1]));
@@ -36,6 +37,7 @@ __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
   asm volatile ("s.d $f26, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[3]));
   asm volatile ("s.d $f28, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[4]));
   asm volatile ("s.d $f30, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[5]));
+#endif
 
   /* .. and the PC;  */
   asm volatile ("sw $31, %0" : : "m" (env[0].__jmpbuf[0].__pc));

@@ -38,6 +38,7 @@ __longjmp (env, val_arg)
   register int val asm ("a1");
 
   /* Pull back the floating point callee-saved registers.  */
+#ifndef __mips_soft_float
   asm volatile ("l.d $f20, %0" : : "m" (env[0].__fpregs[0]));
   asm volatile ("l.d $f22, %0" : : "m" (env[0].__fpregs[1]));
   asm volatile ("l.d $f24, %0" : : "m" (env[0].__fpregs[2]));
@@ -48,6 +49,7 @@ __longjmp (env, val_arg)
   /* Get and reconstruct the floating point csr.  */
   asm volatile ("lw $2, %0" : : "m" (env[0].__fpc_csr));
   asm volatile ("ctc1 $2, $31");
+#endif
 
   /* Get the GP. */
   asm volatile ("lw $gp, %0" : : "m" (env[0].__gp));
