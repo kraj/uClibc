@@ -43,7 +43,7 @@ $(LIBNAME): subdirs
 shared: $(LIBNAME)
 	@rm -rf tmp
 	@mkdir tmp
-	@$(MAKE) -C ld.so-1 d-link
+	@$(MAKE) -C ld.so-1 ldso
 	@(cd tmp; CC=$(CC) /bin/sh ../extra/scripts/get-needed-libgcc-objects.sh)
 	if [ -s ./tmp/libgcc-need.a ] ; then \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
@@ -60,7 +60,6 @@ shared: $(LIBNAME)
 	ln -sf $(SHARED_MAJORNAME) libc.so
 	@$(MAKE) -C crypt shared
 	@$(MAKE) -C ld.so-1
-	echo "Using $(LDSO) for the shared library loader"
 
 done: $(LIBNAME) $(DO_SHARED)
 	@echo
@@ -155,7 +154,8 @@ install_dev:
 
 install_ldso:
 ifeq ($(strip $(DO_SHARED)),shared)
-	@$(MAKE) -C ld.so-1 install
+	$(MAKE) -C ld.so-1 install
+	install -d $(INSTALL_DIR)/etc
 	$(TOPDIR)ld.so-1/util/ldconfig
 else
 	@echo "Skipping shared library support"
