@@ -26,16 +26,18 @@ include $(TOPDIR)Config
 
 GCCINCDIR = $(shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp")
 
-# use '-Os' optimization if available, else use -O2
+# use '-Os' optimization if available, else use -O2, allow Config to override
+ifndef OPTIMIZATION
 OPTIMIZATION = $(shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
     then echo "-Os"; else echo "-O2" ; fi)
+endif
 
 ARFLAGS=r
 
 
 CCFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -Dlinux -D__linux__ -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D__LIBC__
 
-CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS)
+CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
 
 ifeq ($(DODEBUG),true)
     CFLAGS += -g
