@@ -375,10 +375,9 @@ distclean clean:
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi;
 	@if [ $(TARGET_ARCH) = "mipsel" ]; then \
-	    rm -f libc/sysdeps/linux/$(TARGET_ARCH); \
-	    rm -f ldso/ldso/$(TARGET_ARCH); \
-	    rm -f libpthread/linuxthreads/sysdeps/$(TARGET_ARCH); \
-	    find . -type l -exec rm -f {} \; ; \
+	    rm -f ldso/ldso/mipsel; \
+	    rm -f libc/sysdeps/linux/mipsel; \
+	    rm -f libpthread/linuxthreads/sysdeps/mipsel; \
 	fi;
 
 dist release: distclean
