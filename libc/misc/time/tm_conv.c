@@ -81,10 +81,6 @@ static const unsigned short int __mon_lengths[2][12] = {
 	/* Leap years.  */
 	{31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 };
-/* This global is exported to the wide world in keeping
- * with the interface in time.h */
-long int timezone;
-
 
 void __tm_conv(tmbuf, t, offset)
 struct tm *tmbuf;
