@@ -31,6 +31,7 @@
  *
  *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
 
+
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE
 #define _STDIO_UTILITY			/* We're using _uintmaxtostr. */
@@ -54,7 +55,12 @@
 
 /**********************************************************************/
 
+/* These provide some control over printf's feature set */
 #define __STDIO_PRINTF_FLOAT
+#define __STDIO_PRINTF_M_SUPPORT
+
+
+/**********************************************************************/
 
 #if defined(__UCLIBC__) && !defined(__UCLIBC_HAS_FLOATS__)
 #undef __STDIO_PRINTF_FLOAT
@@ -118,7 +124,9 @@ enum {
 	CONV_x, CONV_X,	CONV_o,	CONV_u,	CONV_d,	CONV_i,
 	CONV_f, CONV_F, CONV_e, CONV_E, CONV_g, CONV_G, CONV_a, CONV_A,
 	CONV_C, CONV_S, CONV_c, CONV_s,
+#ifdef __STDIO_PRINTF_M_SUPPORT
 	CONV_m,
+#endif
 	CONV_custom0				/* must be last */
 };
 
@@ -878,11 +886,13 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 	if (!*p) {
 #ifdef __STDIO_GLIBC_CUSTOM_PRINTF
 		/* TODO -- gnu %m support build option. */
+#ifdef __STDIO_PRINTF_M_SUPPORT
 		if (*fmt == 'm') {
 			conv_num = CONV_m;
 			ppfs->num_data_args = 0;
 			goto DONE;
 		}
+#endif
 
 		/* Handle custom arg -- WARNING -- overwrites p!!! */
 		conv_num = CONV_custom0;
@@ -1166,9 +1176,11 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 				s[1] = 0;
 				slen = 1;
 			}
+#ifdef __STDIO_PRINTF_M_SUPPORT
 		} else if (ppfs->conv_num == CONV_m) {
 			s = strerror(errno);
 			goto SET_STRING_LEN;
+#endif
 		} else {
 			assert(ppfs->conv_num == CONV_custom0);
 
