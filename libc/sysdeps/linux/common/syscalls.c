@@ -575,25 +575,16 @@ _syscall1(int, acct, const char *, filename);
 //#define __NR_lock             53
 
 //#define __NR_ioctl            54
-#ifdef L__ioctl
+#ifdef L___syscall_ioctl
 #include <stdarg.h>
 #include <sys/ioctl.h>
-#define __NR__ioctl __NR_ioctl
-extern int _ioctl(int fd, int request, void *arg);
-
-_syscall3(int, _ioctl, int, fd, int, request, void *, arg);
-
-int ioctl(int fd, unsigned long int request, ...)
-{
-	void *arg;
-	va_list list;
-
-	va_start(list, request);
-	arg = va_arg(list, void *);
-
-	va_end(list);
-	return _ioctl(fd, request, arg);
-}
+#define __NR___syscall_ioctl __NR_ioctl
+extern int __syscall_ioctl(int fd, int request, void *arg);
+_syscall3(int, __syscall_ioctl, int, fd, int, request, void *, arg);
+#if !defined (__powerpc__)
+#include "ioctl.c"
+/* Also see ioctl.c and powerpc/ioctl.c */
+#endif
 #endif
 
 //#define __NR_fcntl            55

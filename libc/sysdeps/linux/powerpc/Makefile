@@ -26,7 +26,7 @@ CRT0_OBJ = crt0.o crt1.o
 SSRC=__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S brk.S clone.S __uClibc_syscall.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=_mmap.c vfork.c __syscall_error.c pread_write.c
+CSRC=_mmap.c vfork.c __syscall_error.c pread_write.c ioctl.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)

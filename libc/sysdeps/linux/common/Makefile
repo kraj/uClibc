@@ -19,11 +19,11 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=	waitpid.c getdnnm.c gethstnm.c getcwd.c \
+CSRC=	waitpid.c getdnnm.c gethstnm.c getcwd.c ptrace.c \
 	mkfifo.c setegid.c wait.c getpagesize.c seteuid.c \
-	wait3.c setpgrp.c getdtablesize.c create_module.c ptrace.c \
-	cmsg_nxthdr.c longjmp.c open64.c ftruncate64.c \
-	truncate64.c getrlimit64.c setrlimit64.c creat64.c mmap64.c \
+	wait3.c setpgrp.c getdtablesize.c create_module.c \
+	cmsg_nxthdr.c longjmp.c open64.c ftruncate64.c mmap64.c \
+	truncate64.c getrlimit64.c setrlimit64.c creat64.c \
 	llseek.c pread_write.c _exit.c sync.c getdirname.c \
 	sendfile64.c xstatconv.c getdents.c getdents64.c
 ifneq ($(strip $(EXCLUDE_BRK)),y)
