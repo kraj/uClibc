@@ -29,17 +29,8 @@ C_ENTRY(start):
 	shl	2, r10			// Convert to byte-count to skip
 	add	r10, r8
 
-	// Zero bss area, since we can't rely upon any loader to do so
-	mov	hilo(C_SYMBOL_NAME(edata)), ep
-	mov	hilo(C_SYMBOL_NAME(end)), r10
-2:	cmp	ep, r10
-	be	3f
-	sst.w	r0, 0[ep]
-	add	4, ep
-	br	2b
-
 	// Load CTBP register
-3:	mov	hilo(C_SYMBOL_NAME(_ctbp)), r19
+	mov	hilo(C_SYMBOL_NAME(_ctbp)), r19
 	ldsr	r19, ctbp
 
 	// Load GP
