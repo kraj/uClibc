@@ -58,6 +58,7 @@ char *_dl_debug_bindings  = 0;
 int   _dl_debug_file      = 2;
 #endif
 
+extern attribute_hidden void _dl_boot(void);
 #include "dl-startup.c"
 /* Forward function declarations */
 static int _dl_suid_ok(void);
@@ -261,38 +262,18 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 		/* OK, fill this in - we did not have this before */
 		if (ppnt->p_type == PT_INTERP) {
-			int readsize = 0;
-			char *pnt, *pnt1, buf[1024];
+			char *ptmp;
 
-			tpnt->libname = _dl_strdup((char *) ppnt->p_offset +
-					(auxvt[AT_PHDR].a_un.a_val & PAGE_ALIGN));
-
-			/* Determine if the shared lib loader is a symlink */
-			_dl_memset(buf, 0, sizeof(buf));
-			readsize = _dl_readlink(tpnt->libname, buf, sizeof(buf));
-			if (readsize > 0 && readsize < (int)(sizeof(buf)-1)) {
-				pnt1 = _dl_strrchr(buf, '/');
-				if (pnt1 && buf != pnt1) {
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-					_dl_dprintf(_dl_debug_file,
-						    "changing tpnt->libname from '%s' to '%s'\n",
-						    tpnt->libname, buf);
-#endif
-					tpnt->libname = _dl_strdup(buf);
-				}
-			}
+			tpnt->libname = (char *) ppnt->p_vaddr + app_tpnt->loadaddr;
 
 			/* Store the path where the shared lib loader was found
 			 * for later use
 			 */
-			pnt = _dl_strdup(tpnt->libname);
-			pnt1 = _dl_strrchr(pnt, '/');
-			if (pnt != pnt1) {
-				*pnt1 = '\0';
-				_dl_ldsopath = pnt;
-			} else {
-				_dl_ldsopath = tpnt->libname;
-			}
+			_dl_ldsopath = _dl_strdup(tpnt->libname);
+			ptmp = _dl_strrchr(_dl_ldsopath, '/');
+			if (ptmp != _dl_ldsopath)
+				*ptmp = '\0';
+
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 			_dl_dprintf(_dl_debug_file, "Lib Loader:\t(%x) %s\n",
 				    tpnt->loadaddr, tpnt->libname);
