@@ -89,9 +89,12 @@ else
 all: $(LIBM) subdirs
 endif
 
-$(LIBM) ar-target: $(OBJS)
-ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
+ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
+$(LIBM) ar-target:
+else
+ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBM) $(OBJS)
+$(LIBM): ar-target
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBM)
 	$(INSTALL) -m 644 $(LIBM) $(TOPDIR)lib
@@ -125,7 +128,7 @@ clean: subdirs_clean
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 
-$(patsubst %, _dir_%, $(DIRS)): $(LIBM)
+$(patsubst %, _dir_%, $(DIRS)): ar-target
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)): dummy
