@@ -3,3 +3,4 @@ readelf
 ldconfig
 elf.h
 iconv
+*.host
