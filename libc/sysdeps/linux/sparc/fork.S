@@ -22,7 +22,7 @@
 #include <sys/syscall.h>
 
 .text;
-.global	fork;
+.global	__libc_fork;
 .align 4;
 .type	__libc_fork,@function;
 
@@ -44,4 +44,5 @@ __libc_fork:
 	and	%o0, %o1, %o0
 
 .size __libc_fork,.-__libc_fork;
+.weak fork; fork = __libc_fork
 
