@@ -26,6 +26,8 @@
 #include <sys/file.h>
 
 
+#if 0
+/* This is enabled in uClibc/libutil/logwtmp.c */
 void logwtmp (const char *line, const char *name, const char *host)
 {
     struct utmp lutmp;
@@ -40,9 +42,8 @@ void logwtmp (const char *line, const char *name, const char *host)
 
     updwtmp(_PATH_WTMP, &(lutmp));
 }
+#endif
 
-#if 0
-/* This is enabled in uClibc/libc/misc/utmp/wtent.c */
 extern void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
 {
     int fd;
@@ -56,4 +57,4 @@ extern void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
 	}
     }
 }
-#endif
+

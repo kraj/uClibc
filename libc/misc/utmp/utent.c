@@ -5,9 +5,14 @@
 
    Note that because of the way this stupid stupid standard works, you
    have to call endutent() to close the file even if you've not called
-   setutent -- getutid and family use the same file descriptor. */
+   setutent -- getutid and family use the same file descriptor. 
 
+   Modified by Erik Andersen for uClibc...
+*/
+
+#include <features.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <paths.h>
@@ -15,132 +20,187 @@
 #include <string.h>
 #include <utmp.h>
 
-static const char *ut_name = _PATH_UTMP;
 
-static int ut_fd = -1;
 
-struct utmp *__getutent(int utmp_fd)
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t utmplock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK	pthread_mutex_lock(&utmplock)
+# define UNLOCK	pthread_mutex_unlock(&utmplock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
+
+
+
+/* Some global crap */
+static int static_fd = -1;
+static struct utmp static_utmp;
+static const char default_file_name[] = _PATH_UTMP;
+static const char *static_ut_name = (const char *) default_file_name;
+
+
+
+static struct utmp *__getutent(int utmp_fd)
+
 {
-	static struct utmp utmp;
-	if (read(utmp_fd, (char *) &utmp, sizeof(struct utmp)) !=
-		sizeof(struct utmp)) return NULL;
+    if (utmp_fd == -1) {
+	setutent();
+    }
+    if (utmp_fd == -1) {
+	return NULL;
+    }
 
-	return &utmp;
+    LOCK;
+    if (read(utmp_fd, (char *) &static_utmp, sizeof(struct utmp)) != sizeof(struct utmp)) 
+    {
+	return NULL;
+    }
+
+    UNLOCK;
+    return &static_utmp;
 }
 
 void setutent(void)
 {
-	if (ut_fd != -1)
-		close(ut_fd);
-	if ((ut_fd = open(ut_name, O_RDWR)) < 0) {
-		ut_fd = -1;
+    int ret;
+
+    LOCK;
+    if (static_fd == -1) {
+	if ((static_fd = open(static_ut_name, O_RDWR)) < 0) {
+	    if ((static_fd = open(static_ut_name, O_RDONLY)) < 0) {
+		goto bummer;
+	    }
 	}
+	/* Make sure the file will be closed on exec()  */
+	ret = fcntl(static_fd, F_GETFD, 0);
+	if (ret >= 0) {
+	    ret = fcntl(static_fd, F_GETFD, 0);
+	}
+	if (ret < 0) {
+bummer:
+	    UNLOCK;
+	    static_fd = -1;
+	    close(static_fd);
+	    return;
+	}
+    }
+    lseek(static_fd, 0, SEEK_SET);
+    UNLOCK;
+    return;
 }
 
 void endutent(void)
 {
-	if (ut_fd != -1)
-		close(ut_fd);
-	ut_fd = -1;
+    LOCK;
+    if (static_fd != -1) {
+	close(static_fd);
+    }
+    static_fd = -1;
+    UNLOCK;
 }
 
+/* Locking is done in __getutent */
 struct utmp *getutent(void)
 {
-	if (ut_fd == -1)
-		setutent();
-	if (ut_fd == -1)
-		return NULL;
-	return __getutent(ut_fd);
+    return __getutent(static_fd);
 }
-
-struct utmp *getutid (const struct utmp *utmp_entry)
-{
-	struct utmp *utmp;
-
-	if (ut_fd == -1)
-		setutent();
-	if (ut_fd == -1)
-		return NULL;
-
-	while ((utmp = __getutent(ut_fd)) != NULL) {
-		if ((utmp_entry->ut_type == RUN_LVL ||
-			 utmp_entry->ut_type == BOOT_TIME ||
-			 utmp_entry->ut_type == NEW_TIME ||
-			 utmp_entry->ut_type == OLD_TIME) &&
-			utmp->ut_type == utmp_entry->ut_type) return utmp;
-		if ((utmp_entry->ut_type == INIT_PROCESS ||
-			 utmp_entry->ut_type == DEAD_PROCESS ||
-			 utmp_entry->ut_type == LOGIN_PROCESS ||
-			 utmp_entry->ut_type == USER_PROCESS) &&
-			!strcmp(utmp->ut_id, utmp_entry->ut_id)) return utmp;
-	}
-
-	return NULL;
-}
-
-struct utmp *getutline(const struct utmp *utmp_entry)
-{
-	struct utmp *utmp;
-
-	if (ut_fd == -1)
-		setutent();
-	if (ut_fd == -1)
-		return NULL;
 
 #if 0
-	/* This is driving me nuts.  It's not an implementation problem -
-	   it's a matter of how things _SHOULD_ behave.  Groan. */
-	lseek(ut_fd, SEEK_CUR, -sizeof(struct utmp));
+struct utmp * getutent(void)
+{
+    struct utmp *result;
+    static struct utmp buffer;
+
+    if (getutent_r(&buffer, &result) < 0)
+	return NULL;
+
+    return result;
+}
 #endif
 
-	while ((utmp = __getutent(ut_fd)) != NULL) {
-		if ((utmp->ut_type == USER_PROCESS ||
-			 utmp->ut_type == LOGIN_PROCESS) &&
-			!strcmp(utmp->ut_line, utmp_entry->ut_line)) return utmp;
-	}
+/* Locking is done in __getutent */
+struct utmp *getutid (const struct utmp *utmp_entry)
+{
+    struct utmp *lutmp;
 
-	return NULL;
+    while ((lutmp = __getutent(static_fd)) != NULL) {
+	if (	(utmp_entry->ut_type == RUN_LVL ||
+		 utmp_entry->ut_type == BOOT_TIME ||
+		 utmp_entry->ut_type == NEW_TIME ||
+		 utmp_entry->ut_type == OLD_TIME) &&
+		lutmp->ut_type == utmp_entry->ut_type)  
+	{
+	    return lutmp;
+	}
+	if (	(utmp_entry->ut_type == INIT_PROCESS ||
+		 utmp_entry->ut_type == DEAD_PROCESS ||
+		 utmp_entry->ut_type == LOGIN_PROCESS ||
+		 utmp_entry->ut_type == USER_PROCESS) &&
+		!strcmp(lutmp->ut_id, utmp_entry->ut_id)) 
+	{
+	    return lutmp;
+	}
+    }
+
+    return NULL;
+}
+
+/* Locking is done in __getutent */
+struct utmp *getutline(const struct utmp *utmp_entry)
+{
+    struct utmp *lutmp;
+
+    while ((lutmp = __getutent(static_fd)) != NULL) {
+	if ((lutmp->ut_type == USER_PROCESS || lutmp->ut_type == LOGIN_PROCESS) &&
+		!strcmp(lutmp->ut_line, utmp_entry->ut_line))
+	{
+	    return lutmp;
+	}
+    }
+
+    return NULL;
 }
 
 struct utmp *pututline (const struct utmp *utmp_entry)
 {
-	struct utmp *ut;
+    LOCK;
+    /* Ignore the return value.  That way, if they've already positioned
+       the file pointer where they want it, everything will work out. */
+    lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
 
-	/* Ignore the return value.  That way, if they've already positioned
-	   the file pointer where they want it, everything will work out. */
-	(void) lseek(ut_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
+    if (getutid(utmp_entry) != NULL) {
+	lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
+	if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
+	    return NULL;
+    } else {
+	lseek(static_fd, (off_t) 0, SEEK_END);
+	if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
+	    return NULL;
+    }
 
-	if ((ut = getutid(utmp_entry)) != NULL) {
-		lseek(ut_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
-		if (write(ut_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
-			return NULL;
-	} else {
-		lseek(ut_fd, (off_t) 0, SEEK_END);
-		if (write(ut_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
-			return NULL;
-	}
-
-	return (struct utmp *)utmp_entry;
+    UNLOCK;
+    return (struct utmp *)utmp_entry;
 }
 
 int utmpname (const char *new_ut_name)
 {
-	if (new_ut_name != NULL)
-		ut_name = new_ut_name;
-
-	if (ut_fd != -1)
-		close(ut_fd);
-	return 0;
-}
-
-extern void updwtmp(const char *wtmp_file, const struct utmp *ut)
-{
-	int fd;
-
-	fd = open(wtmp_file, O_APPEND | O_WRONLY, 0);
-	if (fd >= 0) {
-		write(fd, (const char *) ut, sizeof(*ut));
-		close(fd);
+    LOCK;
+    if (new_ut_name != NULL) {
+	if (static_ut_name != default_file_name)
+	    free((char *)static_ut_name);
+	static_ut_name = strdup(new_ut_name);
+	if (static_ut_name == NULL) {
+	    /* We should probably whine about out-of-memory 
+	     * errors here...  Instead just reset to the default */
+	    static_ut_name = default_file_name;
 	}
+    }
+
+    if (static_fd != -1)
+	close(static_fd);
+    UNLOCK;
+    return 0;
 }
 

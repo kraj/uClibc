@@ -24,7 +24,7 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=utent.c
+CSRC=utent.c wtent.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
