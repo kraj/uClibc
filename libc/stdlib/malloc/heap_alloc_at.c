@@ -1,5 +1,5 @@
 /*
- * libc/stdlib/malloc-zarg/heap_alloc_at.c -- allocate at a specific address
+ * libc/stdlib/malloc/heap_alloc_at.c -- allocate at a specific address
  *
  *  Copyright (C) 2002  NEC Corporation
  *  Copyright (C) 2002  Miles Bader <miles@gnu.org>
@@ -26,7 +26,7 @@ __heap_alloc_at (struct heap *heap, void *mem, size_t size)
 
   size = HEAP_ADJUST_SIZE (size);
 
-  mutex_lock (heap->lock);
+  __heap_lock (heap);
 
   HEAP_DEBUG (heap, "before __heap_alloc_at");
 
@@ -45,7 +45,7 @@ __heap_alloc_at (struct heap *heap, void *mem, size_t size)
 
   HEAP_DEBUG (heap, "after __heap_alloc_at");
 
-  mutex_unlock (heap->lock);
+  __heap_unlock (heap);
 
   return alloced;
 }

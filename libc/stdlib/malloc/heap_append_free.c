@@ -1,5 +1,5 @@
 /*
- * libc/stdlib/malloc-zarg/heap_append_free.c -- append to heap free area
+ * libc/stdlib/malloc/heap_append_free.c -- append memory to a heap free area
  *
  *  Copyright (C) 2002  NEC Corporation
  *  Copyright (C) 2002  Miles Bader <miles@gnu.org>
@@ -25,7 +25,7 @@ __heap_append_free (struct heap *heap, void *mem, size_t size)
   int success = 0;
   struct heap_free_area *fa;
 
-  mutex_lock (heap->lock);
+  __heap_lock (heap);
 
   HEAP_DEBUG (heap, "before __heap_append_free");
 
@@ -65,7 +65,7 @@ __heap_append_free (struct heap *heap, void *mem, size_t size)
 
   HEAP_DEBUG (heap, "after __heap_append_free");
 
-  mutex_unlock (heap->lock);
+  __heap_unlock (heap);
 
   return success;
 }

@@ -1,5 +1,5 @@
 /*
- * libc/stdlib/malloc-zarg/heap_free.c -- return memory to a heap
+ * libc/stdlib/malloc/heap_free.c -- return memory to a heap
  *
  *  Copyright (C) 2002  NEC Corporation
  *  Copyright (C) 2002  Miles Bader <miles@gnu.org>
@@ -23,7 +23,7 @@ __heap_free (struct heap *heap, void *mem, size_t size)
   struct heap_free_area *prev_fa, *fa, *new_fa;
   void *end = (char *)mem + size;
 
-  mutex_lock (heap->lock);
+  __heap_lock (heap);
 
   HEAP_DEBUG (heap, "before __heap_free");
 
@@ -123,5 +123,5 @@ __heap_free (struct heap *heap, void *mem, size_t size)
  done:
   HEAP_DEBUG (heap, "after __heap_free");
 
-  mutex_unlock (heap->lock);
+  __heap_unlock (heap);
 }

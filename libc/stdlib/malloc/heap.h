@@ -1,5 +1,5 @@
 /*
- * libc/stdlib/malloc-zarg/heap.h -- heap allocator used for malloc
+ * libc/stdlib/malloc/heap.h -- heap allocator used for malloc
  *
  *  Copyright (C) 2002  NEC Corporation
  *  Copyright (C) 2002  Miles Bader <miles@gnu.org>
@@ -16,16 +16,16 @@
 
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-typedef pthread_mutex_t mutex_t;
-# define MUTEX_INITIALIZER  PTHREAD_MUTEX_INITIALIZER
-# define mutex_lock(x)	    pthread_mutex_lock(&(x))
-# define mutex_unlock(x)    pthread_mutex_unlock(&(x));
+typedef pthread_mutex_t heap_mutex_t;
+# define HEAP_MUTEX_INIT	PTHREAD_MUTEX_INITIALIZER
+# define __heap_lock(heap)	pthread_mutex_lock (&(heap)->lock)
+# define __heap_unlock(heap)	pthread_mutex_unlock (&(heap)->lock);
 #else
-/* Mutex operations are currently a nop.  */
-typedef int mutex_t;
-# define MUTEX_INITIALIZER 0
-# define mutex_lock(x)
-# define mutex_unlock(x)
+/* Without threads, Mutex operations are a nop.  */
+typedef int heap_mutex_t;
+# define HEAP_MUTEX_INIT	0
+# define __heap_lock(heap)
+# define __heap_unlock(heap)
 #endif
 
 
@@ -36,13 +36,15 @@ typedef int mutex_t;
 #define HEAP_GRANULARITY	(sizeof (double))
 
 
+/* A heap is a collection of memory blocks, from which smaller blocks
+   of memory can be allocated.  */
 struct heap
 {
   struct heap_free_area *free_areas;
-  mutex_t lock;
+  heap_mutex_t lock;
 };
 
-#define HEAP_INIT 	{ 0, MUTEX_INITIALIZER }
+#define HEAP_INIT 	{ 0, HEAP_MUTEX_INIT }
 
 
 /* A free-list area `header'.  These are actually stored at the _ends_ of

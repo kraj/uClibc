@@ -1,5 +1,5 @@
 /*
- * libc/stdlib/malloc-zarg/heap_alloc.c -- allocate from a heap
+ * libc/stdlib/malloc/heap_alloc.c -- allocate memory from a heap
  *
  *  Copyright (C) 2002  NEC Corporation
  *  Copyright (C) 2002  Miles Bader <miles@gnu.org>
@@ -33,7 +33,7 @@ __heap_alloc (struct heap *heap, size_t *size)
        we must make sure that every allocated block can hold one.  */
     _size = HEAP_ADJUST_SIZE (sizeof (struct heap_free_area));
 
-  mutex_lock (heap->lock);
+  __heap_lock (heap);
 
   HEAP_DEBUG (heap, "before __heap_alloc");
 
@@ -49,7 +49,7 @@ __heap_alloc (struct heap *heap, size_t *size)
 
   HEAP_DEBUG (heap, "after __heap_alloc");
 
-  mutex_unlock (heap->lock);
+  __heap_unlock (heap);
 
   return mem;
 }
