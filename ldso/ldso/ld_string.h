@@ -193,7 +193,7 @@ static inline char *_dl_get_last_path_component(char *path)
 static inline char *_dl_simple_ltoa(char * local, unsigned long i)
 {
 	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
-	char *p = &local[21];
+	char *p = &local[22];
 	*p-- = '\0';
 	do {
 		*p-- = '0' + i % 10;
@@ -205,7 +205,7 @@ static inline char *_dl_simple_ltoa(char * local, unsigned long i)
 static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 {
 	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
-	char *p = &local[21];
+	char *p = &local[22];
 	*p-- = '\0';
 	do {
 		char temp = i % 0x10;
@@ -234,7 +234,7 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 #endif
 
 #define SEND_ADDRESS_STDERR(X, add_a_newline) { \
-    char tmp[13], *tmp1; \
+    char tmp[22], *tmp1; \
     _dl_memset(tmp, 0, sizeof(tmp)); \
     tmp1=_dl_simple_ltoahex( tmp, (unsigned long)(X)); \
     _dl_write(2, tmp1, _dl_strlen(tmp1)); \
@@ -245,7 +245,7 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 };
 
 #define SEND_NUMBER_STDERR(X, add_a_newline) { \
-    char tmp[13], *tmp1; \
+    char tmp[22], *tmp1; \
     _dl_memset(tmp, 0, sizeof(tmp)); \
     tmp1=_dl_simple_ltoahex( tmp, (unsigned long)(X)); \
     _dl_write(2, tmp1, _dl_strlen(tmp1)); \
