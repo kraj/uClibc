@@ -39,6 +39,7 @@ my($arch)	    = "";
 my($cross)	    = "";
 my($xcc)	    = "";
 my($native_cc)	    = "";
+my($debug)	    = "";
 my($mmu)	    = "";
 my($large_file)	    = "";
 my($rpc_support)    = "";
@@ -63,6 +64,7 @@ Getopt::Long::Configure("no_ignore_case", "bundling");
 		"native_cc=s" => \$native_cc,
 		"devel_prefix=s" => \$devel_prefix,
 		"kernel_dir=s" => \$kernel_dir,
+		"debug=s" => \$debug,
 		"mmu=s" => \$mmu,
 		"large_file=s" => \$large_file,
 		"rpc_support=s" => \$rpc_support,
@@ -81,6 +83,7 @@ chomp($xcc);
 chomp($native_cc);
 chomp($devel_prefix);
 chomp($kernel_dir);
+chomp($debug);
 chomp($mmu);
 chomp($large_file);
 chomp($rpc_support);
@@ -125,6 +128,10 @@ while($line = <FILE>) {
     }
     if ($kernel_dir && $line =~ /^KERNEL_SOURCE.*/) {
 	print "KERNEL_SOURCE=$kernel_dir\n";
+	next;
+    }
+    if ($debug && $line =~ /^DODEBUG.*/) {
+	print "DODEBUG=$debug\n";
 	next;
     }
     if ($mmu && $line =~ /^HAS_MMU.*/) {
