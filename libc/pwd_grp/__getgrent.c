@@ -30,14 +30,14 @@
  */
 struct group *__getgrent(int grp_fd)
 {
-#ifndef GR_SCALE_DYNAMIC
-	static char line_buff[GR_MAX_LINE_LEN];
-	static char *members[GR_MAX_MEMBERS];
-#else
+#ifdef GR_SCALE_DYNAMIC
 	static char *line_buff = NULL;
 	static char **members = NULL;
 	short line_index;
 	short buff_size;
+#else
+	static char line_buff[GR_MAX_LINE_LEN];
+	static char *members[GR_MAX_MEMBERS];
 #endif
 	static struct group group;
 	register char *ptr;
@@ -54,30 +54,7 @@ struct group *__getgrent(int grp_fd)
 	buff_size = 256;
 #endif
 
-#ifndef GR_SCALE_DYNAMIC
-	/* Read the line into the static buffer */
-	if ((line_len = read(grp_fd, line_buff, GR_MAX_LINE_LEN)) <= 0)
-		return NULL;
-	field_begin = strchr(line_buff, '\n');
-	if (field_begin != NULL)
-		lseek(grp_fd, (long) (1 + field_begin - (line_buff + line_len)),
-			  SEEK_CUR);
-	else {						/* The line is too long - skip it :-\ */
-
-		do {
-			if ((line_len = read(grp_fd, line_buff, GR_MAX_LINE_LEN)) <= 0)
-				return NULL;
-		} while (!(field_begin = strchr(line_buff, '\n')));
-		lseek(grp_fd, (long) ((field_begin - line_buff) - line_len + 1),
-			  SEEK_CUR);
-		goto restart;
-	}
-	if (*line_buff == '#' || *line_buff == ' ' || *line_buff == '\n' ||
-		*line_buff == '\t')
-		goto restart;
-	*field_begin = '\0';
-
-#else							/* !GR_SCALE_DYNAMIC */
+#ifdef GR_SCALE_DYNAMIC
 	line_buff = realloc(line_buff, buff_size);
 	while (1) {
 		if ((line_len = read(grp_fd, line_buff + line_index,
@@ -100,6 +77,28 @@ struct group *__getgrent(int grp_fd)
 			line_buff = realloc(line_buff, buff_size);
 		}
 	}
+#else
+	/* Read the line into the static buffer */
+	if ((line_len = read(grp_fd, line_buff, GR_MAX_LINE_LEN)) <= 0)
+		return NULL;
+	field_begin = strchr(line_buff, '\n');
+	if (field_begin != NULL)
+		lseek(grp_fd, (long) (1 + field_begin - (line_buff + line_len)),
+			  SEEK_CUR);
+	else {						/* The line is too long - skip it :-\ */
+
+		do {
+			if ((line_len = read(grp_fd, line_buff, GR_MAX_LINE_LEN)) <= 0)
+				return NULL;
+		} while (!(field_begin = strchr(line_buff, '\n')));
+		lseek(grp_fd, (long) ((field_begin - line_buff) - line_len + 1),
+			  SEEK_CUR);
+		goto restart;
+	}
+	if (*line_buff == '#' || *line_buff == ' ' || *line_buff == '\n' ||
+		*line_buff == '\t')
+		goto restart;
+	*field_begin = '\0';
 #endif							/* GR_SCALE_DYNAMIC */
 
 	/* Now parse the line */
@@ -128,7 +127,20 @@ struct group *__getgrent(int grp_fd)
 	member_num = 0;
 	field_begin = ptr;
 
-#ifndef GR_SCALE_DYNAMIC
+#ifdef GR_SCALE_DYNAMIC
+	if (members != NULL)
+	    free(members);
+	members = (char **) malloc((member_num + 1) * sizeof(char *));
+	for ( ; field_begin && *field_begin != '\0'; field_begin = ptr) {
+	    if ((ptr = strchr(field_begin, ',')) != NULL)
+		*ptr++ = '\0';
+	    members[member_num++] = field_begin;
+	    members = (char **) realloc(members,
+		    (member_num + 1) * sizeof(char *));
+	}
+	members[member_num] = NULL;
+
+#else
 	while ((ptr = strchr(ptr, ',')) != NULL) {
 		*ptr = '\0';
 		ptr++;
@@ -142,20 +154,7 @@ struct group *__getgrent(int grp_fd)
 		members[member_num] = field_begin;
 		members[member_num + 1] = NULL;
 	}
-#else							/* !GR_SCALE_DYNAMIC */
-	if (members != NULL)
-	    free(members);
-	members = (char **) malloc((member_num + 1) * sizeof(char *));
-	for ( ; field_begin && *field_begin != '\0'; field_begin = ptr) {
-	    if ((ptr = strchr(field_begin, ',')) != NULL)
-		*ptr++ = '\0';
-	    members[member_num++] = field_begin;
-	    members = (char **) realloc(members,
-		    (member_num + 1) * sizeof(char *));
-	}
-	members[member_num] = NULL;
-#endif							/* GR_SCALE_DYNAMIC */
-
+#endif
 	group.gr_mem = members;
 	return &group;
 }

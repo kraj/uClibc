@@ -26,18 +26,27 @@
 
 struct group *getgrgid(const gid_t gid)
 {
-	struct group *group;
-	int grp_fd;
+    struct group *group;
+    int grp_fd;
 
-	if ((grp_fd = open(_PATH_GROUP, O_RDONLY)) < 0)
-		return NULL;
-
-	while ((group = __getgrent(grp_fd)) != NULL)
-		if (group->gr_gid == gid) {
-			close(grp_fd);
-			return group;
-		}
-
-	close(grp_fd);
+    if ((grp_fd = open(_PATH_GROUP, O_RDONLY)) < 0)
 	return NULL;
+
+    while ((group = __getgrent(grp_fd)) != NULL)
+	if (group->gr_gid == gid) {
+	    close(grp_fd);
+	    return group;
+	}
+
+    close(grp_fd);
+    return NULL;
 }
+
+#if 0
+/* Search for an entry with a matching group ID.  */
+int getgrgid_r (gid_t gid, struct group *resultbuf, char *buffer, 
+	size_t buflen, struct group **result)
+{
+
+}
+#endif
