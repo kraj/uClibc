@@ -126,11 +126,6 @@ ifeq ($(strip $(UCLIBC_HAS_MMU)),y)
 else
 	@set -x; ./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH) -n
 endif
-	@if [ "$(TARGET_ARCH)" = "mipsel" ]; then \
-	    $(LN) -fs mips libc/sysdeps/linux/mipsel; \
-	    $(LN) -fs mips ldso/ldso/mipsel; \
-	    $(LN) -fs mips libpthread/linuxthreads/sysdeps/mipsel; \
-	fi;
 	@cd include/bits; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
@@ -405,12 +400,6 @@ clean:
 	@$(RM) include/linux include/scsi include/asm
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
-	fi;
-	@if [ "$(TARGET_ARCH)" = "mipsel" ]; then \
-	    $(MAKE) -C libc/sysdeps/linux/mips clean; \
-	    $(RM) ldso/ldso/mipsel; \
-	    $(RM) libc/sysdeps/linux/mipsel; \
-	    $(RM) libpthread/linuxthreads/sysdeps/mipsel; \
 	fi;
 
 distclean: clean

@@ -4,8 +4,7 @@
 #
 
 config TARGET_ARCH
-	default "mips" if ARCH_BIG_ENDIAN
-	default "mipsel" if ARCH_LITTLE_ENDIAN
+	default "mips"
 
 config HAVE_ELF
 	bool

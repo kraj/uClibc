@@ -31,8 +31,8 @@
 # your compiler is broken, you should not need to specify TARGET_ARCH
 #
 # Most people will set this stuff on the command line, i.e.
-#        make CROSS=mipsel-linux-
-# will build uClibc for 'mipsel'.
+#        make CROSS=arm-linux-
+# will build uClibc for 'arm'.
 
 ifndef CROSS
 CROSS=

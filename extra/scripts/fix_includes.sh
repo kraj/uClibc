@@ -130,10 +130,6 @@ if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then
 		ln -fs arch-ebsa285 arch);
 	    fi
 	fi;
-    elif [ "$TARGET_ARCH" = "mipsel" ];then
-	set -x;
-	ln -fs $KERNEL_SOURCE/include/asm-mips include/asm;
-	set +x;
     elif [ "$TARGET_ARCH)" = "cris" ]; then
 	set -x;
 	ln -fs $KERNEL_SOURCE/include/asm-cris include/asm;
