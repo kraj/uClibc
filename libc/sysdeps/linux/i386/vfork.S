@@ -1,8 +1,5 @@
 /*
- * June 27, 2001             Manuel Novoa III
- *
- * Modified to (hopefully) be PIC and REENTRANT safe.
- * Modified again to better follow the glibc implementation.
+ * June 3, 2003             Erik Andersen
  *
  */
 
@@ -10,29 +7,23 @@
 #include <bits/errno.h>
 #include <sys/syscall.h>
 
+#ifndef __NR_vfork
+
+/* No vfork so use fork instead */
+.weak vfork ; vfork = __libc_fork
+
+#else
+
         .text
 	.globl __vfork;
 	.type __vfork,@function;
 	.align 1<<4;
 	
 __vfork:
-#ifdef __NR_vfork
 	popl %ecx
 	movl $__NR_vfork,%eax
 	int $0x80
 	pushl %ecx
-	cmpl $-4095,%eax
-	jae .Lerror
-	ret
-
-.Lerror:
-	cmpl  $-ENOSYS,%eax
-	jne   __syscall_error
-#endif	
-
-	/* Fall back on calling fork */
-	movl $__NR_fork,%eax
-	int $0x80
 	cmpl $-4095,%eax
 	jae __syscall_error
 	ret
@@ -59,5 +50,4 @@ __syscall_error:
 
 
 .weak vfork ; vfork = __vfork
-
-
+#endif
