@@ -1,13 +1,17 @@
-To build uClibc,
+To build and install the uClibc development environment,
 
 1) cp ./extra/Configs/Config.<your arch> ./Config
 2) Edit ./Config for your setup.
 3) make
-4) As root, make install
+4) make install_dev (as root if necessary, depending on your Config)
+
+
+To install the runtime environment,
+   make install_target  (again, as root if necessary)
 
 To compile programs with uClibc,
 
-export PATH={uClibc DEVEL_PREFIX/ROOT_DIR}/bin:$PATH
+   export PATH={uClibc DEVEL_PREFIX/ROOT_DIR}/bin:$PATH
 
 and then just ./configure and make as usual.
 

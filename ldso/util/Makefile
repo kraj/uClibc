@@ -1,7 +1,7 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-CFLAGS=-Wall -Os -I- -I../../include -I.
+CFLAGS=-Wall -Os -I- -I. --uclibc-use-build-dir
 CC = $(TOPDIR)extra/gcc-uClibc/$(NATIVE_ARCH)-uclibc-gcc
 
 all: ldconfig ldd readelf
@@ -23,7 +23,7 @@ readelf: readelf.c
 	$(CC) $(CFLAGS) readelf.c -o $@
 
 ldconfig: ldconfig.o readsoname.o
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) -static $^ -o $@
 
 ldd:	ldd.o readsoname.o
 	$(CC) $(CFLAGS) $^ -o $@
