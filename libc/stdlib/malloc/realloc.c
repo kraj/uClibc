@@ -57,7 +57,7 @@ realloc (void *mem, size_t new_size)
 
       if (extra)
 	/* Record the changed size.  */
-	MALLOC_SET_SIZE (base_mem, new_size);
+	MALLOC_SET_SIZE (base_mem, size + extra);
       else
 	/* Our attempts to extend MEM in place failed, just
 	   allocate-and-copy.  */
