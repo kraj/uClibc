@@ -36,6 +36,21 @@ __longjmp:
 	mov.l	@r4+, r13
 	mov.l	@r4+, r14
 	mov.l	@r4+, r15
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
+	lds.l	@r4+, pr
+	ldc.l	@r4+, gbr
+	lds.l	@r4+, fpscr
+	fmov.s	@r4+, fr12
+	fmov.s	@r4+, fr13
+	mov	r5, r0		/* get the return value in place */
+	tst	r0, r0
+	bf.s	1f
+	 fmov.s	@r4+, fr14
+	mov	#1,r0		/* can't let setjmp() return zero! */
+1:
+	rts
+	 fmov.s	@r4+, fr15
+#else
 	mov	r5, r0		/* get the return value in place */
 	tst	r0, r0
 	bf.s	1f
@@ -44,5 +59,6 @@ __longjmp:
 1:
 	rts
 	 ldc.l	@r4+, gbr
+#endif		
 .size __longjmp,.-__longjmp;
 
