@@ -245,6 +245,18 @@ config UCLIBC_HAS_REGEX
 	  Of course, if you only staticly link, leave this on, since it will
 	  only be included in your apps if you use regular expressions.
 
+config UCLIBC_HAS_WORDEXP
+	bool "Support the wordexp() interface"
+	default n
+	help
+	  The SuSv3 wordexp() interface performs word expansions per the  Shell
+	  and Utilities volume of IEEE Std 1003.1-2001, Section 2.6.  It is
+	  intended for use by applications that want to implement all of the
+	  standard Bourne shell expansions on input data.
+
+	  This interface is rarely used, and very large.  Unless you have a
+	  pressing need for wordexp(), you should probably answer N.
+
 config UNIX98PTY_ONLY
 	bool "Support only Unix 98 PTYs"
 	default y
