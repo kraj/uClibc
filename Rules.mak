@@ -202,9 +202,13 @@ LDADD_LIBFLOAT=
 ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
 # Add -msoft-float to the CPU_FLAGS since ldso and libdl ignore CFLAGS.
 # If -msoft-float isn't supported, we want an error anyway.
+# Hmm... might need to revisit this for arm since it has 2 different
+# soft float encodings.
     CPU_CFLAGS += -msoft-float
 ifeq ($(strip $(TARGET_ARCH)),arm)
-    LDADD_LIBFLOAT=-lfloat
+# No longer needed with current toolchains, but leave it here for now.
+# If anyone is actually still using gcc 2.95 (say), they can uncomment it.
+#    LDADD_LIBFLOAT=-lfloat
 endif
 endif
 
