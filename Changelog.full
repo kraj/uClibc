@@ -1,813 +1,890 @@
-2002-06-20  Erik Andersen  <andersen@dillweed>
+2002-08-09  Erik Andersen  <andersen@dillweed>
 
-	* /var/cvs/uClibc/docs/uclibc.org/index.html:
-	Update the webpage for release
+	* /var/cvs/uClibc/TODO: Update todo list a bit
+
+	* /var/cvs/uClibc/ldso/ldso/arm/ld_sysdep.h:
+	Ok, bad idea.  didn't work.
 	 -Erik
 
-	* /var/cvs/uClibc/extra/gcc-uClibc/Makefile, /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
-	Add support for doing the mmu-less thing
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile:
+	Add in __uClibc_syscall
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/__uClibc_syscall.S:
+	Initial piece of unified syscall support from Brecis Communications
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/mips/fork.S:
+	New and improved fork for mips, thanks to the fine folks
+	at Brecis Communications.
+
+2002-08-09  davidm  <davidm@dillweed>
+
+	* /var/cvs/uClibc/include/stdio.h:
+	Fix some more warnings for non-thread-enabled compiles.
+
+2002-08-09  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/ldso/ldso/sparc/DEFS.h, /var/cvs/uClibc/ldso/ldso/sparc/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/sparc/sdiv.S, /var/cvs/uClibc/ldso/ldso/sparc/udiv.S, /var/cvs/uClibc/ldso/ldso/sparc/umul.S, /var/cvs/uClibc/ldso/ldso/sparc/urem.S, /var/cvs/uClibc/ldso/ldso/sh/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/arm/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/Makefile:
+	Link ldso vs libgcc.a and eliminate baggage caused by
+	not previously linking vs libgcc
 	 -Erik
+
+2002-08-09  davidm  <davidm@dillweed>
+
+	* /var/cvs/uClibc/libm/e_asin.c, /var/cvs/uClibc/libm/e_exp.c, /var/cvs/uClibc/libm/e_rem_pio2.c, /var/cvs/uClibc/libm/s_expm1.c, /var/cvs/uClibc/libc/sysdeps/linux/sh/longjmp.c, /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c, /var/cvs/uClibc/libc/stdio/printf.c, /var/cvs/uClibc/include/features.h:
+	Fix a number of compile time warnings so that uClibc will build with -Werror using
+	a 3.0.4 version of the sh-linux-gcc compiler.
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/pread_write.c:
+	pread and pwrite were broken in several ways:
+
+		* pwrite was using the write system call.
+
+		* SYSCALL_INLINE was only defined for pread and reused by pwrite
+		  meaning pwrite did a pread :-).
+
+		* The kernel pread/pwrite interfaces always take a 64bit value.  So
+		  the libc versions must do the LONG_LONG_PAIR stuff otherwise the
+		  pread/pwrite calls will not work.
+
+	These guys are working now for SH at least (and I can format my
+	DiskOnChip again ;-)
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/initfini.c:
+	At some stage I was getting conflicts on the SH platform with
+	the two i_am_not_a_leaf functions,  changing the name of one is harmless
+	and fixed the problem at the time.  Not entirely sure it's still required.
+
+	* /var/cvs/uClibc/libc/inet/rpc/rpc_thread.c:
+	Changes so that this file builds if we are not using threads.
+
+2002-08-09  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/Makefile: Be more path independent
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/syscalls.h:
+	Doh!  I broke it.  oops.  Patch from Stefan Allius to fix it.
+
+	* /var/cvs/uClibc/ldso/ldso/arm/ld_syscalls.h, /var/cvs/uClibc/ldso/ldso/i386/ld_syscalls.h, /var/cvs/uClibc/ldso/ldso/mips/ld_syscalls.h, /var/cvs/uClibc/ldso/ldso/sh/ld_syscalls.h:
+	Patch from Stefan Allius, avoid compiler warnings (unused variable)
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/syscalls.h:
+	Cleanup error returns to avoid warnings
+	 -Erik
+
+	* /var/cvs/uClibc/ldso/util/bswap.h:
+	Patch from Stefan Allius to remove obsolete printfs
+
+	* /var/cvs/uClibc/ldso/ldso/hash.c:
+	Disable this code for mips, which does things quite differently...
+	 -Erik
+
+	* /var/cvs/uClibc/ldso/ldso/ld_syscall.h:
+	Fix a stupid typo messing up powerpc support
+	 -Erik
+
+2002-08-08  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/ldso/libdl/dlib.c:
+	For some perverse reason we were not registering destructors
+	for dlopen'd libraries.  This fixes that.
+	 -Erik
+
+2002-08-08  Manuel Novoa III  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/docs/uclibc.org/FAQ.html:
+	Add an entry regarding localtime(), TZ, and timezone support.
+
+2002-08-08  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/inet/rpc/ruserpass.c: Oops.  missed a spot.
+	 -Erik
+
+	* /var/cvs/uClibc/ldso/ldso/powerpc/ld_syscalls.h:
+	Make powerpc compile once again
+	 -Erik
+
+	* /var/cvs/uClibc/docs/uclibc.org/FAQ.html: Update the FAQ
+
+	* /var/cvs/uClibc/Rules.mak: Bump version to 0.9.13
+
+	* /var/cvs/uClibc/ldso/libdl/dlib.c: Move destructor attribute tag
 
 	* /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c:
-	Cleanup the function pointer comparisions
+	Shuffle things around a bit.  Looks a little cleaner.
 	 -Erik
 
-	* /var/cvs/uClibc/Rules.mak:
-	Some Rules cleanups, better gcc-3.1 support.
+	* /var/cvs/uClibc/test/ldso/Makefile, /var/cvs/uClibc/test/ldso/howdy.c:
+	Add a simple test for shared lib ctor/dtors
 	 -Erik
 
-	* /var/cvs/uClibc/extra/gcc-uClibc/Makefile, /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
-	Fix a bug reported by Michael Weiser <michael@weiser.saale-net.de>
-	which could cause incorrect invocations of g++.  Cleanup a few things.
-	Add a new --uclibc-ctors flag allowing one to apply ctor/dtor support
-	to regular C code.
+	* /var/cvs/uClibc/libpthread/linuxthreads/errno.c, /var/cvs/uClibc/libpthread/linuxthreads/pthread.c:
+	Patch from Stefan Allius and Edie C. Dost:
+	In linuxthreads/errno.h the functions __errno_location and
+	__h_errno_location wasn't safe against calling before the
+	library is initialized.
+
+	* /var/cvs/uClibc/ldso/libdl/dlib.c: Missed a spot
 	 -Erik
 
-	* /var/cvs/uClibc/test/string/Makefile, /var/cvs/uClibc/test/Rules.mak:
-	Several test case cleanups
+	* /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/sh/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/sh/crti.S, /var/cvs/uClibc/libc/sysdeps/linux/sh/crtn.S:
+	I reworked syscalls.h to match how I'm doing other arches.  Stefan Allius and
+	Edie C. Dost has some concerns about the perl script used to general crti.o and
+	crtn.o and added their own versions.  These versions will win since they are
+	built last,
+
+	* /var/cvs/uClibc/libpthread/pthread.c:
+	Fix license.  I meant to say LGPL...
+	 -Erik
+
+	* /var/cvs/uClibc/ldso/ldso/sparc/boot1_arch.h, /var/cvs/uClibc/ldso/ldso/sparc/elfinterp.c, /var/cvs/uClibc/ldso/ldso/sh/boot1_arch.h, /var/cvs/uClibc/ldso/ldso/sh/elfinterp.c, /var/cvs/uClibc/ldso/ldso/sh/ld_syscalls.h, /var/cvs/uClibc/ldso/ldso/sh/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/sh/resolve.S, /var/cvs/uClibc/ldso/ldso/powerpc/boot1_arch.h, /var/cvs/uClibc/ldso/ldso/powerpc/elfinterp.c, /var/cvs/uClibc/ldso/ldso/mips/boot1_arch.h, /var/cvs/uClibc/ldso/ldso/mips/elfinterp.c, /var/cvs/uClibc/ldso/ldso/m68k/boot1_arch.h, /var/cvs/uClibc/ldso/ldso/m68k/elfinterp.c, /var/cvs/uClibc/ldso/ldso/i386/boot1_arch.h, /var/cvs/uClibc/ldso/ldso/i386/elfinterp.c, /var/cvs/uClibc/ldso/ldso/arm/boot1_arch.h, /var/cvs/uClibc/ldso/ldso/arm/elfinterp.c, /var/cvs/uClibc/ldso/ldso/ldso.c, /var/cvs/uClibc/ldso/ldso/readelflib1.c, /var/cvs/uClibc/ldso/ldso/Makefile, /var/cvs/uClibc/ldso/ldso/hash.c, /var/cvs/uClibc/ldso/ldso/ld_hash.h, /var/cvs/uClibc/ldso/ldso/ld_string.h, /var/cvs/uClibc/ldso/ldso/ld_syscall.h:
+	Patch from Stefan Allius and Edie C. Dost to add SuperH
+	shared library support.  This also adds some cleaner error
+	handling, which I (Erik) then ported over to x86 and arm.
+	In addition Stefan added the following fixes:
+
+	- in hash.c was the lvalue handling of global library functions wrong.
+	   To fix this I had to change the prototype of _dl_find_hash. (==> TIS and
+	   ELF spec. Vers. 1.2)
+
+	- in ldso.c was the order of the .init sections calls wrong. Before we call
+	  the initialization code of a library we have to check that all dependend
+	  libraries are already initialized. This can easily made by calling it in the
+	  revers loading order. For this I added a previous pointer chain.
+
+	- in ldso.c the ELF magics wasn't checked fo PPC, MIPS and SH architecture
+
+	* /var/cvs/uClibc/ldso/util/bswap.h, /var/cvs/uClibc/ldso/util/ldd.c, /var/cvs/uClibc/ldso/util/readelf.c, /var/cvs/uClibc/ldso/util/Makefile:
+	Patch from Stefan Allius and Edie C. Dost to let ldd and
+	readelf compile under solaris.
+
+	* /var/cvs/uClibc/include/netpacket/packet.h:
+	Make pump happy.  Add in this header.
+	 -Erik
+
+	* /var/cvs/uClibc/libpthread/linuxthreads_db/td_symbol_list.c, /var/cvs/uClibc/libpthread/linuxthreads_db/Makefile:
+	I missed a file
+
+	* /var/cvs/uClibc/libc/inet/rpc/ruserpass.c:
+	Fix a silly bug with using fstat64 instead of just fstat.  No
+	reason for 64bit stuff just to check perms.
+	 -Erik
+
+	* /var/cvs/uClibc/Makefile:
+	Remove unified syscall support (it should just be a per-arch
+	decision, with syscalls.h adjusted to match).  Add symlinks
+	to make tools like mklibs.py be happy.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/i960/Makefile:
+	Disable unused unifed stuff
+	 -Erik
+
+	* /var/cvs/uClibc/extra/Configs/Config.mipsel, /var/cvs/uClibc/extra/Configs/Config.powerpc, /var/cvs/uClibc/extra/Configs/Config.sh, /var/cvs/uClibc/extra/Configs/Config.sparc, /var/cvs/uClibc/extra/Configs/Config.v850e, /var/cvs/uClibc/extra/Configs/Config.alpha, /var/cvs/uClibc/extra/Configs/Config.arm, /var/cvs/uClibc/extra/Configs/Config.cross.arm.uclinux, /var/cvs/uClibc/extra/Configs/Config.h8300, /var/cvs/uClibc/extra/Configs/Config.i386, /var/cvs/uClibc/extra/Configs/Config.i960, /var/cvs/uClibc/extra/Configs/Config.m68k, /var/cvs/uClibc/extra/Configs/Config.m68k.coff, /var/cvs/uClibc/extra/Configs/Config.mips:
+	Update default config files
+
+	* /var/cvs/uClibc/docs/threads.txt: Update status of reentrance support
+
+	* /var/cvs/uClibc/ldso/ldso/sparc/elfinterp.c, /var/cvs/uClibc/ldso/ldso/powerpc/elfinterp.c, /var/cvs/uClibc/ldso/ldso/m68k/elfinterp.c, /var/cvs/uClibc/ldso/ldso/arm/elfinterp.c, /var/cvs/uClibc/ldso/ldso/i386/elfinterp.c:
+	Make some strings const
+	 -Erik
+
+	* /var/cvs/uClibc/libc/pwd_grp/initgroups.c, /var/cvs/uClibc/libc/pwd_grp/lckpwdf.c, /var/cvs/uClibc/libc/pwd_grp/pwent.c, /var/cvs/uClibc/libc/pwd_grp/sgetspent.c, /var/cvs/uClibc/libc/pwd_grp/spent.c, /var/cvs/uClibc/libc/pwd_grp/__getgrent.c, /var/cvs/uClibc/libc/pwd_grp/__getspent_r.c, /var/cvs/uClibc/libc/pwd_grp/fgetpwent.c, /var/cvs/uClibc/libc/pwd_grp/fgetspent.c, /var/cvs/uClibc/libc/pwd_grp/getpwnam.c, /var/cvs/uClibc/libc/pwd_grp/getpwuid.c, /var/cvs/uClibc/libc/pwd_grp/getspnam.c, /var/cvs/uClibc/libc/pwd_grp/getspuid.c, /var/cvs/uClibc/libc/pwd_grp/grent.c:
+	Fix locking
+	 -Erik
+
+	* /var/cvs/uClibc/libc/stdlib/abort.c: Fix locking
+
+	* /var/cvs/uClibc/libc/misc/lsearch/lsearch.c:
+	Cleanup warnings and fix prototypes
+	 -Erik
+
+	* /var/cvs/uClibc/libc/pwd_grp/initgroups.c: Add missing include file
+
+	* /var/cvs/uClibc/libc/stdlib/drand48-iter.c, /var/cvs/uClibc/libc/stdlib/erand48_r.c, /var/cvs/uClibc/libc/stdlib/jrand48_r.c, /var/cvs/uClibc/libc/stdlib/nrand48_r.c, /var/cvs/uClibc/libc/stdlib/system.c:
+	Cleanup some silly warnings
+
+	* /var/cvs/uClibc/libc/unistd/swab.c:
+	Avoid bad things happening on macro expansion...
+	 -Erik
+
+	* /var/cvs/uClibc/ldso/libdl/dlib.c:
+	Cleanup to avoid some undefined behavior
+	 -Erik
+
+2002-08-07  sjhill  <sjhill@dillweed>
+
+	* /var/cvs/uClibc/extra/scripts/get-needed-libgcc-objects.sh:
+	Ignore symbol '_gp_disp' if it's missing from 'libgcc.a'. That's okay for
+	MIPS platforms.
+
+2002-08-07  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/inet/rpc/Makefile:
+	Add getrpcent.c to default rpc build
+
+	* /var/cvs/uClibc/libcrypt/crypt.c, /var/cvs/uClibc/libcrypt/des.c, /var/cvs/uClibc/libcrypt/md5.c, /var/cvs/uClibc/include/crypt.h:
+	Cleanup crypt and remove the crypt_r stuff, since SuSv3
+	(IEEE Std 1003.1-2001) states that crypt need not be reentrant.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/misc/utmp/utent.c: Remove some noise
+
+	* /var/cvs/uClibc/libc/stdlib/getenv.c:
+	Changed my mind.  Keep this separate.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/stdlib/getenv.c: Rewrite getenv
+
+	* /var/cvs/uClibc/libc/unistd/getopt.c, /var/cvs/uClibc/libc/unistd/Makefile:
+	rework getopt.  no read need to split this one up since
+	the parts are so tightly coupled.
+
+	* /var/cvs/uClibc/test/unistd/.cvsignore: missed a file
+
+	* /var/cvs/uClibc/test/unistd/.cvsignore, /var/cvs/uClibc/test/unistd/Makefile, /var/cvs/uClibc/test/unistd/getopt.c, /var/cvs/uClibc/test/unistd/getopt_long.c:
+	getopt tests
+
+	* /var/cvs/uClibc/docs/uclibc.org/uClibc-apps.html:
+	Updates to the working apps list from Kagan Kongar.  Thanks!
+
+	* /var/cvs/uClibc/libc/inet/rpc/xdr_array.c:
+	Apply integer overflow security fix for "CERT Advisory CA-2002-25 Integer
+	Overflow In XDR Library" http://www.cert.org/advisories/CA-2002-25.html
+	Patch from Solar Designer <solar@openwall.com>.
+
+	* /var/cvs/uClibc/include/libintl.h:
+	Message catalog support for internationalization is not currently
+	provided by uClibc, and here I have added macros to disable it.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/stdlib/malloc-930716/Makefile, /var/cvs/uClibc/libc/stdlib/malloc-930716/calloc.c, /var/cvs/uClibc/libc/stdlib/malloc/Makefile, /var/cvs/uClibc/libc/stdlib/Makefile, /var/cvs/uClibc/libc/stdlib/calloc.c:
+	Per suggestion from Miles Bader, move calloc.c to libc/stdlib.
+	Also, Manuel notices that I forgot to check for when nmemb=0,
+	which would result in a segfault, so fix that case as well.
+	 -Erik
+
+2002-08-06  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/extra/scripts/get-needed-libgcc-objects.sh:
+	When symbols are missing, its supposed to be an error...
+	 -Erik
+
+	* /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_getgregs.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_getxregs.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_getxregsize.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_set_event.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_setfpregs.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_setgregs.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_setprio.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_setsigpending.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_setxregs.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_sigsetmask.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_tsd.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_validate.c, /var/cvs/uClibc/libpthread/linuxthreads_db/thread_dbP.h, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_new.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_reset_stats.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_set_event.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_setconcurrency.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_thr_iter.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_tsd_iter.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_clear_event.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_dbresume.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_dbsuspend.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_event_enable.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_event_getmsg.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_get_info.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_getfpregs.c, /var/cvs/uClibc/libpthread/linuxthreads_db/Makefile, /var/cvs/uClibc/libpthread/linuxthreads_db/td_init.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_log.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_clear_event.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_delete.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_enable_stats.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_event_addr.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_event_getmsg.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_get_nthreads.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_get_ph.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_get_stats.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_map_id2thr.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_map_lwp2thr.c, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/pthread/bits/libc-tsd.h, /var/cvs/uClibc/libpthread/linuxthreads/Makefile, /var/cvs/uClibc/libpthread/linuxthreads/cancel.c, /var/cvs/uClibc/libpthread/linuxthreads/no-tsd.c, /var/cvs/uClibc/libpthread/linuxthreads/specific.c, /var/cvs/uClibc/libpthread/Makefile:
+	Several pthreads updates.  Enable linuxthreads_db.  Several fixes
+	related to thread local storage.
 	 -Erik
 
 	* /var/cvs/uClibc/libc/inet/resolv.c:
-	Fix DNS resolution so that it once again works.  I'd broken it
-	when adding some locking code.
+	Fixup the last missing pieces of thread locking
 	 -Erik
 
-2002-06-19  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/extra/Configs/Config.arm, /var/cvs/uClibc/extra/Configs/Config.cross.arm.uclinux, /var/cvs/uClibc/extra/Configs/Config.h8300, /var/cvs/uClibc/extra/Configs/Config.i386, /var/cvs/uClibc/extra/Configs/Config.i960, /var/cvs/uClibc/extra/Configs/Config.m68k, /var/cvs/uClibc/extra/Configs/Config.m68k.coff, /var/cvs/uClibc/extra/Configs/Config.mips, /var/cvs/uClibc/extra/Configs/Config.mipsel, /var/cvs/uClibc/extra/Configs/Config.powerpc, /var/cvs/uClibc/extra/Configs/Config.sh, /var/cvs/uClibc/extra/Configs/Config.sparc, /var/cvs/uClibc/extra/Configs/Config.v850e, /var/cvs/uClibc/extra/Configs/Config.alpha:
-	Fix incorrect comment re malloc-930716
+	* /var/cvs/uClibc/libc/inet/rpc/Makefile, /var/cvs/uClibc/libc/inet/rpc/auth_none.c, /var/cvs/uClibc/libc/inet/rpc/clnt_perror.c, /var/cvs/uClibc/libc/inet/rpc/clnt_raw.c, /var/cvs/uClibc/libc/inet/rpc/clnt_simple.c, /var/cvs/uClibc/libc/inet/rpc/create_xid.c, /var/cvs/uClibc/libc/inet/rpc/rexec.c, /var/cvs/uClibc/libc/inet/rpc/rpc_private.h, /var/cvs/uClibc/libc/inet/rpc/rpc_thread.c, /var/cvs/uClibc/libc/inet/rpc/ruserpass.c, /var/cvs/uClibc/libc/inet/rpc/sa_len.c, /var/cvs/uClibc/libc/inet/rpc/svc.c, /var/cvs/uClibc/libc/inet/rpc/svc_raw.c, /var/cvs/uClibc/libc/inet/rpc/svc_simple.c:
+	Rework RPC code once again.  By default, only enable the
+	stuff needed for NFS mounts, rsh, and similar.
 	 -Erik
+
+2002-08-06  Manuel Novoa III  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/include/stdlib.h: Enable getpt prototype.
+
+	* /var/cvs/uClibc/libc/stdio/stdio.c:
+	Changed fflush() behavior to no-op for r/w streams in read-mode.
+	   This falls under undefined behavior wrt ANSI/ISO C99, but
+	   SUSv3 seems to treat it as a no-op and it occurs in some apps.
+	Fixed a problem with _stdio_fwrite() not checking for underlying
+	   write() failures.
+	Fixed both _stdio_fwrite() and _stdio_fread() to make sure that
+	   the putc and getc macros were disabled if the stream was in
+	   and error state.
+
+	The above changes should take care of a problem initially reported
+	by "Steven J. Hill" <sjhill@realitydiluted.com>.
+
+2002-08-06  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/malloc-930716/Makefile, /var/cvs/uClibc/libc/stdlib/malloc-930716/calloc.c, /var/cvs/uClibc/libc/stdlib/malloc/Makefile, /var/cvs/uClibc/libc/stdlib/malloc/calloc.c:
+	Unify calloc (its the same thing regardless of the underlying
+	malloc implementation).  Fix problem reported to bugtraq about
+	problems with integer overflow that can occur during the
+	computation of the memory region size by calloc (and similar
+	functions) which could result in a subsequent buffer overflow.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/i386/crt0.S:
+	Just in case, crash if somehow `exit' returns anyways
+	 -Erik
+
+2002-08-05  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/Rules.mak: remove BUILDTIME since it is not used
+
+2002-08-03  Manuel Novoa III  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/libc/misc/time/Makefile, /var/cvs/uClibc/libc/stdio/stdio.c:
+	A couple of little cleanups I forgot to check in.
+
+2002-08-03  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/misc/wchar/wchar.c:
+	When DODEBUG and HAS_WCHAR were enabled and HAS_LOCALE was disabled,
+	wchar.c wouldn't compile:
+	    wchar.c: In function `__mbsnrtowcs':
+	    wchar.c:631: `__ctype_encoding_7_bit' undeclared (first use in this function)
+	This fixes it by keeping the locale specific asserts hidden when not relevant.
+	 -Erik
+
+2002-08-01  miles  <miles@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/realloc.c:
+	Use MALLOC_REALLOC_MIN_FREE_SIZE.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/malloc.h (MALLOC_REALLOC_MIN_FREE_SIZE):
+	New macro.
+	Enable debugging if MALLOC_DEBUGGING is defined.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/heap.h (HEAP_MIN_SIZE): New macro.
+	(HEAP_MIN_FREE_AREA_SIZE): Increase size.
+	Enable debugging if HEAP_DEBUGGING is defined.
+
+2002-08-01  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/pwd_grp/initgroups.c:
+	Joseph Chiu <josephc@idealab.com> found an off-by-one bug.  oops!
+
+2002-07-31  miles  <miles@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/realloc.c:
+	In the allocate-and-copy case, don't include the malloc header in our
+	size calculations.
+
+2002-07-31  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/Makefile: Sigh.  A bit more cleanup.
+
+2002-07-31  miles  <miles@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/free.c, /var/cvs/uClibc/libc/stdlib/malloc/malloc.c, /var/cvs/uClibc/libc/stdlib/malloc/realloc.c:
+	Update debugging printfs.
+
+2002-07-31  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/stdio/popen.c, /var/cvs/uClibc/libc/stdlib/system.c, /var/cvs/uClibc/libc/stdlib/unix_grantpt.c:
+	Per discussion on the mailing list, simply vfork -> fork mapping to only apply
+	iff we do not have vfork available, which is simpler and more reasonable.
+	 -Erik
+
+	* /var/cvs/uClibc/include/elf.h: More i960 support
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/create_module.c:
+	Patch from Martin Proulx <mproulx@okiok.com> to fix i960
+	create_module() support.
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
+	Patch from Alexander Pevzner <pzz@pzz.msk.ru> to fixup things when invoked as
+	the C++ compiler to to automagically add include/g++ into the include search
+	path, and automagically add -lstdc++ and -lm into the set of automatically
+	linked libraries.
+
+	* /var/cvs/uClibc/Makefile: You fool foolish.  Goodbye level 2.
+
+	* /var/cvs/uClibc/Makefile: Always build utils by default
+	 -Erik
+
+2002-07-31  miles  <miles@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/realloc.c:
+	Account for MALLOC_HEADER_SIZE when calculating new size.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/malloc.c: Use MALLOC_HEADER_SIZE.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/malloc.h (MALLOC_HEADER_SIZE):
+	New macro.
+	(MALLOC_BASE, MALLOC_ADDR): Use it.
+
+2002-07-30  miles  <miles@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/realloc.c:
+	Make sure NEW_SIZE is a multiple of HEAP_GRANULARITY.
+	Calculate amount freed when shrinking correctly.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/realloc.c:
+	Update the size of grown/shrunk allocations.
+	MALLOC_SET_SIZE now takes the user-address rather than the base-address.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/malloc.c:
+	MALLOC_SET_SIZE now takes the user-address rather than the base-address.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/malloc.h:
+	Define MALLOC_SET_SIZE to take the user-address rather than the base-address.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/realloc.c: Implement shrinking.
+	Fix bug when growing an allocation.
+	Use new malloc header macros.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/free.c, /var/cvs/uClibc/libc/stdlib/malloc/malloc.c:
+	Use new malloc header macros.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/malloc.h:
+	Add macros to abstract the malloc header format a bit.
+
+2002-07-27  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/include/sys/sysinfo.h:
+	Avoid errors in case some loon has explicitly included
+	linux/kernel.h (even though doing so is very dumb).
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/mknod.c:
+	Oops.  I accidentally omitted the actual mknod() function.
+	 -Erik
+
+2002-07-26  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile:
+	Ok, I get it.  sjhill kept adding the 'find' command since
+	include/sgidefs.h wasn't getting scrubbed.  Fix it so this
+	symlink gets properly scrubbed, even for mipsel.
+	 -Erik
+
+	* /var/cvs/uClibc/Makefile:
+	Kill ill advised find command that was not doing anything
+	productive, but did annoying things instead.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/syscalls.h:
+	The __set_errno macro _must_ match that defined in include/bits/errno.h.  We
+	can't tack in the return -1 since then when people include errno.h, the return
+	-1 mysteriously vanishes...  Setting the __set_errno back and restoring the
+	'return -1;' calls to each _syscall[0-n] macro makes mips syscalls work again.
+	 -Erik
+
+2002-07-25  sjhill  <sjhill@dillweed>
+
+	* /var/cvs/uClibc/Makefile:
+	Addition to 'distclean' for little endian MIPS.
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/syscalls.h, /var/cvs/uClibc/ldso/ldso/mips/README, /var/cvs/uClibc/ldso/ldso/mips/ld_syscalls.h:
+	ldso specific syscalls and userspace syscalls all in one file now.
+
+2002-07-25  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/Rules.mak:
+	Cleanup from Neal Crook fixing some formatting and eliminating
+	some "sh: cd: ./lib: No such file or directory" errors.
+
+	* /var/cvs/uClibc/ldso/Makefile:
+	Kill cruft.  Build ldd for the host system by default.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/arm/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/arm/syscall.c:
+	Implement syscall() for arm
+	 -Erik
+
+2002-07-25  miles  <miles@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/free.c, /var/cvs/uClibc/libc/stdlib/malloc/heap_free.c, /var/cvs/uClibc/libc/stdlib/malloc/malloc.c:
+	Size tweaks.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/free.c, /var/cvs/uClibc/libc/stdlib/malloc/malloc.c:
+	Miscellaneous tidying-up.
+
+2002-07-25  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/ldso/ldso/i386/ld_syscalls.h, /var/cvs/uClibc/ldso/ldso/arm/ld_syscalls.h:
+	Take advantage of the new syscall stuff on x86 and arm to kill
+	the ldso specific syscalls and use the generic ones instead.
+	 -Erik
+
+2002-07-25  miles  <miles@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/free.c, /var/cvs/uClibc/libc/stdlib/malloc/heap.h, /var/cvs/uClibc/libc/stdlib/malloc/heap_alloc.c, /var/cvs/uClibc/libc/stdlib/malloc/heap_alloc_at.c, /var/cvs/uClibc/libc/stdlib/malloc/heap_free.c, /var/cvs/uClibc/libc/stdlib/malloc/malloc.c, /var/cvs/uClibc/libc/stdlib/malloc/malloc.h, /var/cvs/uClibc/libc/stdlib/malloc/realloc.c:
+	Redo the locking, so that it may actually work.  Now locking is done at
+	the malloc/free level, not within the heap abstraction, and there's a
+	separate lock to control sbrk access.
+
+	Also, get rid of the separate `unmap_free_area' function in free.c, and
+	just put the code in the `free' function directly, which saves a bunch
+	of space (even compared to using an inline function) for some reason.
+
+2002-07-24  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/i386/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/i386/__uClibc_syscall.S, /var/cvs/uClibc/libc/sysdeps/linux/i386/syscall.S:
+	Add support for people calling syscall()
+	 -Erik
+
+2002-07-24  sjhill  <sjhill@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile:
+	Remove source files that, well, no longer exist :).
+
+	* /var/cvs/uClibc/Makefile:
+	This rule is only necessary for little endian MIPS.
+
+2002-07-24  miles  <miles@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/heap.h, /var/cvs/uClibc/libc/stdlib/malloc/heap_free.c:
+	Factor out some common code sequences into inline functions.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/free.c, /var/cvs/uClibc/libc/stdlib/malloc/malloc.c, /var/cvs/uClibc/libc/stdlib/malloc/realloc.c:
+	Misc small cleanups.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/.indent.pro:
+	Remove, since it's entirely incorrect
+
+	* /var/cvs/uClibc/include/sys/cdefs.h (__ASMNAME): Use C_SYMBOL_PREFIX.
+	(__ASMNAME2): Macro removed.
+
+2002-07-23  miles  <miles@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/Makefile, /var/cvs/uClibc/libc/stdlib/malloc/free.c, /var/cvs/uClibc/libc/stdlib/malloc/heap.h, /var/cvs/uClibc/libc/stdlib/malloc/heap_append_free.c, /var/cvs/uClibc/libc/stdlib/malloc/heap_free.c, /var/cvs/uClibc/libc/stdlib/malloc/malloc.c, /var/cvs/uClibc/libc/stdlib/malloc/malloc.h, /var/cvs/uClibc/libc/stdlib/malloc/realloc.c:
+	* Automatically try to unmap heap free-areas when they get very big.
+
+	* Instead of using mmap/munmap directly for large allocations, just use
+	  the heap for everything (this is reasonable now that heap memory can
+	  be unmapped).
+
+	* Use sbrk instead of mmap/munmap on systems with an MMU.
+
+2002-07-22  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/_exit.c, /var/cvs/uClibc/libc/sysdeps/linux/common/llseek.c, /var/cvs/uClibc/libc/sysdeps/linux/common/mknod.c, /var/cvs/uClibc/libc/sysdeps/linux/common/setuid.c, /var/cvs/uClibc/libc/sysdeps/linux/common/sync.c:
+	Add some syscalls which I moved out of syscalls.c
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/mips/setjmp_aux.c, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/i960/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/common/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/common/ftruncate64.c, /var/cvs/uClibc/libc/sysdeps/linux/common/getcwd.c, /var/cvs/uClibc/libc/sysdeps/linux/common/getpagesize.c, /var/cvs/uClibc/libc/sysdeps/linux/common/pread_write.c, /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c, /var/cvs/uClibc/libc/sysdeps/linux/common/truncate64.c, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/syscalls.h, /var/cvs/uClibc/extra/scripts/gen_bits_syscall_h.sh, /var/cvs/uClibc/include/sys/syscall.h:
+	Rework syscall handling.  Rewrite syscall handlers for x86 and ARM.
+	Prepare to kill the UNIFIED_SYSCALL option and instead have it be
+	a per arch thing that is either enabled or not for that arch.
+	 -Erik
+
+2002-07-19  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libpthread/linuxthreads/condvar.c: Fix spelling
+
+2002-07-19  miles  <miles@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/calloc.c, /var/cvs/uClibc/libc/stdlib/malloc/free.c:
+	Doc fix.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/heap.h, /var/cvs/uClibc/libc/stdlib/malloc/heap_alloc.c, /var/cvs/uClibc/libc/stdlib/malloc/heap_alloc_at.c, /var/cvs/uClibc/libc/stdlib/malloc/heap_append_free.c, /var/cvs/uClibc/libc/stdlib/malloc/heap_free.c:
+	Rename mutex stuff to use heap-specific names.
+	Doc fix.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/malloc.c, /var/cvs/uClibc/libc/stdlib/malloc/malloc.h, /var/cvs/uClibc/libc/stdlib/malloc/realloc.c:
+	Doc fix.
+
+2002-07-18  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/Makefile, /var/cvs/uClibc/libc/stdlib/malloc/alloc.c, /var/cvs/uClibc/libc/stdlib/malloc/avlmacro.h, /var/cvs/uClibc/libc/stdlib/malloc/calloc.c, /var/cvs/uClibc/libc/stdlib/malloc/free.c, /var/cvs/uClibc/libc/stdlib/malloc/heap.h, /var/cvs/uClibc/libc/stdlib/malloc/heap_alloc.c, /var/cvs/uClibc/libc/stdlib/malloc/heap_alloc_at.c, /var/cvs/uClibc/libc/stdlib/malloc/heap_append_free.c, /var/cvs/uClibc/libc/stdlib/malloc/heap_free.c, /var/cvs/uClibc/libc/stdlib/malloc/malloc.c, /var/cvs/uClibc/libc/stdlib/malloc/malloc.h, /var/cvs/uClibc/libc/stdlib/malloc/realloc.c, /var/cvs/uClibc/extra/Configs/Config.powerpc, /var/cvs/uClibc/extra/Configs/Config.sh, /var/cvs/uClibc/extra/Configs/Config.sparc, /var/cvs/uClibc/extra/Configs/Config.v850e, /var/cvs/uClibc/extra/Configs/Config.alpha, /var/cvs/uClibc/extra/Configs/Config.arm, /var/cvs/uClibc/extra/Configs/Config.cross.arm.uclinux, /var/cvs/uClibc/extra/Configs/Config.h8300, /var/cvs/uClibc/extra/Configs/Config.i386, /var/cvs/uClibc/extra/Configs/Config.i960, /var/cvs/uClibc/extra/Configs/Config.m68k, /var/cvs/uClibc/extra/Configs/Config.m68k.coff, /var/cvs/uClibc/extra/Configs/Config.mips, /var/cvs/uClibc/extra/Configs/Config.mipsel:
+	Miles Bader implemented a new mmap based malloc which is much
+	smarter than the old "malloc-simple", and actually works, unlike
+	the old "malloc".  So kill the old "malloc-simple" and the old
+	"malloc" and replace them with Miles' new malloc implementation.
+	Update Config files to match.  Thanks Miles!
+
+2002-07-16  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/termios/termios.c:
+	Fix from "Gerhard Uttenthaler" <uttenthaler@ems-wuensche.com> so
+	that cfsetspeed would actually be compiled in.
+
+	* /var/cvs/uClibc/libc/stdlib/malloc/Makefile:
+	We don't need the debug versions
+
+	* /var/cvs/uClibc/libc/stdlib/malloc-930716/malloc.c:
+	__morecore need not be a function pointer
+
+	* /var/cvs/uClibc/libc/stdlib/malloc-930716/malloc.c:
+	Odd.  Got a copy of junk in here.
+
+	* /var/cvs/uClibc/libc/misc/utmp/utent.c:
+	Do not assume NULL termination on the ut_id field.  Thanks
+	to mac12@po.cwru.edu for spotting this one.
+
+2002-07-15  Manuel Novoa III  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/time.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/time.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/uClibc_clk_tck.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/time.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_clk_tck.h, /var/cvs/uClibc/libc/unistd/sysconf.c, /var/cvs/uClibc/libc/misc/time/time.c:
+	Clean up CLK_TCK situation.  clock() and sysconf() now use an
+	arch-specific constant value defined in bits/uClibc_clk_tck.h.
+	Default is 100 (common/bits) but alpha uses 1024 following glibc.
+	Override per arch as necessary.
+
+2002-07-15  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/pread_write.c:
+	stupid cut-n-paste bug
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/powerpc/brk.S:
+	Patch for a silly bug from David Blythe
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/statfix.c, /var/cvs/uClibc/libc/sysdeps/linux/common/statfix64.c:
+	Silence a couple of silly warnings
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/common/pread_write.c, /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
+	Rework pread and pwrite support so it should actually work.
+	Add support for pread64 and pwrite64.  Fixup llseek a bit.
+	 -Erik
+
+2002-07-14  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libpthread/linuxthreads/mutex.c:
+	Add both pthread_mutexattr_setpshared() and
+	pthread_mutexattr_getpshared(), which were
+	missing
+	 -Erik
+
+	* /var/cvs/uClibc/libpthread/linuxthreads/condvar.c:
+	Add missing pthread_condattr_getpshared and pthread_condattr_setpshared
+	 -Erik
+
+2002-07-11  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/mips/fork.S:
+	Kill this stale file
+
+	* /var/cvs/uClibc/docs/uclibc.org/index.html:
+	Note updated toolchains are available
+	 -Erik
+
+2002-07-11  miles  <miles@dillweed>
+
+	* /var/cvs/uClibc/extra/Configs/Config.v850e: Grumble...
+
+2002-07-10  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/extra/Configs/Config.mips, /var/cvs/uClibc/extra/Configs/Config.mipsel:
+	The mips config files were broken, and failed to define NM
+	for some reason...
+
+	* /var/cvs/uClibc/libc/misc/syslog/syslog.c:
+	Tobias Anderberg <tobias.anderberg@axis.com> noticed that
+	we were opening the socket() as SOCK_STREAM instead of
+	using SOCK_DGRAM like we should have done.
+
+	* /var/cvs/uClibc/libc/inet/ntop.c:
+	Per bug report from Ronald Wahl <rwa@peppercon.com>:
+	    ...inet_pton breaks since tolower is implemented as
+	    a macro and its argument is evaluated more than once:
+
+		while ((ch = tolower (*src++)) != '\0') {
+
+	So I fixed it by just undefining tolower() so we use the
+	function version, not the macro.
+	 -Erik
+
+	* /var/cvs/uClibc/include/stropts.h: Add missing stropts.h
+
+2002-07-08  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/docs/uclibc.org/index.html: Fix a typo
+
+2002-07-08  Manuel Novoa III  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/libc/string/strsignal.c: Remove obsolete code.
+
+	* /var/cvs/uClibc/libc/string/Makefile, /var/cvs/uClibc/libc/string/wstring.c:
+	Fix a preprocessor buglet.  Redo sys_siglist/strsignal/psignal.
+
+2002-07-08  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/inet/resolv.c:
+	Finer grained locking in __connect_dns() so we don't hold the
+	lock while sending packets out onto the wire.
+	 -Erik
+
+2002-07-07  Manuel Novoa III  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/libc/string/Makefile: Obligatory forgotten file.
+
+	* /var/cvs/uClibc/libc/stdio/old_vfprintf.c, /var/cvs/uClibc/libc/stdio/printf.c, /var/cvs/uClibc/libc/stdio/stdio.c, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_stdio.h, /var/cvs/uClibc/libc/string/strerror.c, /var/cvs/uClibc/libc/string/sys_errlist.c, /var/cvs/uClibc/libc/string/wstring.c, /var/cvs/uClibc/include/string.h:
+	Attempt to clean up the strerror_r situation.
+
+2002-07-07  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/inet/Makefile, /var/cvs/uClibc/libc/inet/resolv.c:
+	Doh!  search-n-replace strikes again
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/statfix.c, /var/cvs/uClibc/libc/sysdeps/linux/common/statfix.h, /var/cvs/uClibc/libc/sysdeps/linux/common/statfix64.c, /var/cvs/uClibc/libc/sysdeps/linux/common/statfix64.h, /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
+	Fix namespace pollution by hiding statfix and statfix64 by
+	prepending an __ to the name.  Not perfect but better.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c, /var/cvs/uClibc/libc/inet/addr.c, /var/cvs/uClibc/libc/inet/ntop.c, /var/cvs/uClibc/libc/inet/resolv.c, /var/cvs/uClibc/libc/inet/socketcalls.c:
+	Cleanup namespace leaks by prepending __ to global stuff to
+	indicate it is (alledgedly) private.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/inet/rpc/getrpcent.c, /var/cvs/uClibc/libc/inet/rpc/rcmd.c, /var/cvs/uClibc/libc/inet/rpc/rpc_commondata.c, /var/cvs/uClibc/libc/inet/rpc/rpc_thread.c:
+	Kill namespace pollution in getrpcent.c.  Silence other rpc warnings
+	by fixing prototypes.  Fix global stuff so it should behave itself
+	properly now,
+	 -Erik
+
+	* /var/cvs/uClibc/libc/inet/resolv.c:
+	Patch from Larry Doolittle <ldoolitt@recycle.lbl.gov> to cleanup
+	connect_dns() and simplify IPV6 support by reducing the number of
+	ifdefs sprinkled about.
+
+2002-07-06  Erik Andersen  <andersen@dillweed>
 
 	* /var/cvs/uClibc/libc/termios/ttyname.c:
-	Oops.  Looks like I broke ttyname.  Fix it.
+	Stupid filesystems like cramfs fail to guarantee that st_ino and st_dev
+	uniquely identify a file, contrary to SuSv3, so we cannot be quite so
+	precise as to require an exact match.  Settle for something less...
+	Grumble...
 	 -Erik
 
-2002-06-18  Erik Andersen  <andersen@dillweed>
+2002-07-05  Erik Andersen  <andersen@dillweed>
 
-	* /var/cvs/uClibc/test/unistd/Makefile, /var/cvs/uClibc/test/unistd/getcwd.c:
-	A simple test for getcwd
+	* /var/cvs/uClibc/extra/gcc-uClibc/Makefile, /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
+	Only enable elf2flt support when using elf toolchains
 	 -Erik
 
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/common/getcwd.c, /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c, /var/cvs/uClibc/libc/unistd/Makefile, /var/cvs/uClibc/libc/unistd/getcwd.c:
-	Cleanup the getcwd implementation (again) since I broke it
-	last night.  Restore malloc-ing when buf=NULL for the syscall
-	version...  Move getcwd to libc/sysdeps/linux/common and out
-	of syscalls.c so there is just one getcwd.o object present.
+2002-07-05  Manuel Novoa III  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/libc/misc/wchar/wstdio.c:
+	Add copyright message and remove dead code.
+
+	* /var/cvs/uClibc/include/string.h:
+	Update header for strlcat and strlcpy.
+
+	* /var/cvs/uClibc/libc/string/Makefile, /var/cvs/uClibc/libc/string/wstring.c:
+	Add two missing glibc wide string funcs as well as OpenBSD string funcs
+	strlcat and strlcpy.
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_locale.h:
+	Only define __uwchar_t if wide char support is enabled.
+
+2002-07-04  Manuel Novoa III  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/TODO: Update my todo list entries.
+
+2002-07-03  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/string/strsignal.c:
+	Add a weak to make apache happy
 	 -Erik
 
-	* /var/cvs/uClibc/libc/inet/rpc/svc_udp.c, /var/cvs/uClibc/libc/inet/rpc/xdr.c, /var/cvs/uClibc/libc/inet/rpc/xdr_array.c, /var/cvs/uClibc/libc/inet/rpc/xdr_float.c, /var/cvs/uClibc/libc/inet/rpc/xdr_reference.c, /var/cvs/uClibc/libc/inet/rpc/clnt_perror.c, /var/cvs/uClibc/libc/inet/rpc/clnt_raw.c, /var/cvs/uClibc/libc/inet/rpc/clnt_simple.c, /var/cvs/uClibc/libc/inet/rpc/clnt_tcp.c, /var/cvs/uClibc/libc/inet/rpc/clnt_udp.c, /var/cvs/uClibc/libc/inet/rpc/get_myaddress.c, /var/cvs/uClibc/libc/inet/rpc/getrpcport.c, /var/cvs/uClibc/libc/inet/rpc/pmap_getmaps.c, /var/cvs/uClibc/libc/inet/rpc/pmap_getport.c, /var/cvs/uClibc/libc/inet/rpc/pmap_prot.c, /var/cvs/uClibc/libc/inet/rpc/pmap_prot2.c, /var/cvs/uClibc/libc/inet/rpc/pmap_rmt.c, /var/cvs/uClibc/libc/inet/rpc/rcmd.c, /var/cvs/uClibc/libc/inet/rpc/rpc_callmsg.c, /var/cvs/uClibc/libc/inet/rpc/rpc_dtablesize.c, /var/cvs/uClibc/libc/inet/rpc/rpc_prot.c, /var/cvs/uClibc/libc/inet/rpc/rtime.c, /var/cvs/uClibc/libc/inet/rpc/svc_auth.c, /var/cvs/uClibc/libc/inet/rpc/svc_raw.c, /var/cvs/uClibc/libc/inet/rpc/svc_simple.c, /var/cvs/uClibc/libc/inet/rpc/svc_tcp.c:
-	Make sure the sccsid tags never get compiled in.
+2002-07-03  Manuel Novoa III  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/Rules.mak:
+	For now, have locale support automaticly enable wide char support.
+	Things currently won't build otherwise.
+
+	* /var/cvs/uClibc/extra/Configs/Config.mipsel, /var/cvs/uClibc/extra/Configs/Config.powerpc, /var/cvs/uClibc/extra/Configs/Config.sh, /var/cvs/uClibc/extra/Configs/Config.sparc, /var/cvs/uClibc/extra/Configs/Config.v850e, /var/cvs/uClibc/extra/Configs/Config.alpha, /var/cvs/uClibc/extra/Configs/Config.arm, /var/cvs/uClibc/extra/Configs/Config.cross.arm.uclinux, /var/cvs/uClibc/extra/Configs/Config.h8300, /var/cvs/uClibc/extra/Configs/Config.i386, /var/cvs/uClibc/extra/Configs/Config.i960, /var/cvs/uClibc/extra/Configs/Config.m68k, /var/cvs/uClibc/extra/Configs/Config.m68k.coff, /var/cvs/uClibc/extra/Configs/Config.mips:
+	Update Config files for current locale and wide char configuration options.
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_locale.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_stdio.h, /var/cvs/uClibc/libc/string/wstring.c, /var/cvs/uClibc/libc/string/Makefile, /var/cvs/uClibc/libc/stdlib/stdlib.c, /var/cvs/uClibc/libc/stdio/old_vfprintf.c, /var/cvs/uClibc/libc/stdio/printf.c, /var/cvs/uClibc/libc/stdio/scanf.c, /var/cvs/uClibc/libc/stdio/stdio.c, /var/cvs/uClibc/libc/stdio/Makefile, /var/cvs/uClibc/libc/misc/wctype/wctype.c, /var/cvs/uClibc/libc/misc/wchar/Makefile, /var/cvs/uClibc/libc/misc/wchar/wchar.c, /var/cvs/uClibc/libc/misc/wchar/wstdio.c, /var/cvs/uClibc/libc/misc/time/time.c, /var/cvs/uClibc/libc/misc/locale/locale.c, /var/cvs/uClibc/libc/misc/assert/__assert.c, /var/cvs/uClibc/include/printf.h, /var/cvs/uClibc/include/stdlib.h, /var/cvs/uClibc/Rules.mak:
+	Enable WCHAR support for C/POSIX stub locales.
+	Implemented unformatted wide i/o functions. (ungetwc still needs testing)
+	Fix a few bugs in wchar.c.
+	Modifications for bcc/elks support.
+
+2002-07-03  sjhill  <sjhill@dillweed>
+
+	* /var/cvs/uClibc/extra/Configs/Config.mips, /var/cvs/uClibc/extra/Configs/Config.mipsel:
+	Change default config files for MIPS platforms. Nothing major.
+
+2002-07-03  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/mips/__syscall_error.c:
+	Make clone work, part 2.
 	 -Erik
 
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c, /var/cvs/uClibc/libc/unistd/getcwd.c:
-	Eliminate all the pointless globals from getcwd().  Default
-	to using the getcwd syscall instead, when it is present.
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/mips/clone.S:
+	Fix clone so it compiles
 	 -Erik
 
-	* /var/cvs/uClibc/docs/threads.txt:
-	update as far as i've double checked things thus far
-	 -Erik
+2002-07-02  Erik Andersen  <andersen@dillweed>
 
-2002-06-18  Manuel Novoa III  <mjn3@dillweed>
-
-	* /var/cvs/uClibc/libc/misc/time/time.c:
-	Add in thread locking for tzset() and associated data.  Also, fix a bug so
-	that localtime_r() calls tzset() to initialize/update timezone data.
-
-2002-06-18  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/common/kernel_version.c:
-	Kill kernel_version.c, which is completely meaningless crap
-	and didn't even work.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/stdlib/malloc-930716/memalign.c, /var/cvs/uClibc/libc/stdlib/malloc-930716/morecore.c, /var/cvs/uClibc/libc/stdlib/malloc-930716/realloc.c, /var/cvs/uClibc/libc/stdlib/malloc-930716/valloc.c, /var/cvs/uClibc/libc/stdlib/malloc-930716/Makefile, /var/cvs/uClibc/libc/stdlib/malloc-930716/calloc.c, /var/cvs/uClibc/libc/stdlib/malloc-930716/free.c, /var/cvs/uClibc/libc/stdlib/malloc-930716/malloc.c, /var/cvs/uClibc/libc/stdlib/malloc-930716/malloc.h:
-	Rework, reduce the size, add proper locking
-	 -Erik
-
-2002-06-18  Manuel Novoa III  <mjn3@dillweed>
-
-	* /var/cvs/uClibc/libc/stdlib/bsearch.c, /var/cvs/uClibc/libc/stdlib/qsort.c:
-	Remove obsolete files.
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_stdio.h, /var/cvs/uClibc/libc/stdio/Makefile, /var/cvs/uClibc/libc/stdio/old_vfprintf.c, /var/cvs/uClibc/libc/stdio/printf.c, /var/cvs/uClibc/libc/stdio/stdio.c:
-	Fix perror() and printf("%m") to not call strerror(), as required by the
-	standards.  Temporarily added a utility function to wrap Erik's strerror_r
-	so that "Unknown error xxx" strings can be generated for errno's which
-	cause strerror_r to fail.  That utility function will eventually be merged
-	in with the strerror/strerror_r functions when I change over to optionallly
-	mmap'ing the system error strings to provide for lower mem comsumption on
-	non-MMU platforms, as well as locale-specific system error messages.
-
-2002-06-18  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/stdlib/setenv.c: Silly name change
-
-	* /var/cvs/uClibc/libc/stdlib/bsearch.c:
-	Rework and kill pointless static variable
+	* /var/cvs/uClibc/libc/misc/syslog/syslog.c: Oops.  missed a spot
 	 -Erik
 
 	* /var/cvs/uClibc/libc/misc/syslog/syslog.c:
-	Fix thread locking so it works
+	openlog could deadlock when called from vsyslog, so
+	allow recursive locking,
 	 -Erik
 
-	* /var/cvs/uClibc/libc/misc/mntent/mntent.c: Fix locking.  Kill
-
-	* /var/cvs/uClibc/libc/misc/internals/tempname.c: Some commentary
-	 -Erik
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/i960/sys/ucontext.h, /var/cvs/uClibc/libc/sysdeps/linux/i960/sys/procfs.h, /var/cvs/uClibc/libc/sysdeps/linux/i960/bits/endian.h, /var/cvs/uClibc/libc/sysdeps/linux/i960/bits/fcntl.h, /var/cvs/uClibc/libc/sysdeps/linux/i960/bits/mman.h, /var/cvs/uClibc/libc/sysdeps/linux/i960/bits/setjmp.h, /var/cvs/uClibc/libc/sysdeps/linux/i960/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/i960/bits/wordsize.h, /var/cvs/uClibc/libc/sysdeps/linux/i960/clone.S, /var/cvs/uClibc/libc/sysdeps/linux/i960/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/i960/setjmp.S, /var/cvs/uClibc/libc/sysdeps/linux/i960/specs.uclinux.gcc-2.95.i960-intel-coff, /var/cvs/uClibc/libc/sysdeps/linux/i960/vfork.S, /var/cvs/uClibc/extra/Configs/Config.i960, /var/cvs/uClibc/libc/sysdeps/linux/i960/AUTHORS, /var/cvs/uClibc/libc/sysdeps/linux/i960/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/i960/README, /var/cvs/uClibc/libc/sysdeps/linux/i960/_mmap.S:
-	Patch from Martin Proulx <mproulx@okiok.com> to support
-	the i960 architecture.
-
-2002-06-17  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/include/rpc/auth.h, /var/cvs/uClibc/include/rpc/rpc.h, /var/cvs/uClibc/include/rpc/types.h, /var/cvs/uClibc/include/rpc/xdr.h, /var/cvs/uClibc/include/protocols/routed.h, /var/cvs/uClibc/include/protocols/rwhod.h, /var/cvs/uClibc/include/protocols/talkd.h, /var/cvs/uClibc/include/protocols/timed.h:
-	Update rpc headers.  Add missing some headers
-	 -Erik
-
-	* /var/cvs/uClibc/libc/inet/Makefile: kill cruft
-
-	* /var/cvs/uClibc/libc/inet/addr.c, /var/cvs/uClibc/libc/inet/getnetent.c, /var/cvs/uClibc/libc/inet/getproto.c, /var/cvs/uClibc/libc/inet/getservice.c, /var/cvs/uClibc/libc/inet/resolv.c:
-	Make things more re-entrany, kill some cruft.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/inet/rpc/svc_unix.c, /var/cvs/uClibc/libc/inet/rpc/xdr.c, /var/cvs/uClibc/libc/inet/rpc/xdr_array.c, /var/cvs/uClibc/libc/inet/rpc/xdr_float.c, /var/cvs/uClibc/libc/inet/rpc/xdr_intXX_t.c, /var/cvs/uClibc/libc/inet/rpc/xdr_mem.c, /var/cvs/uClibc/libc/inet/rpc/xdr_rec.c, /var/cvs/uClibc/libc/inet/rpc/xdr_reference.c, /var/cvs/uClibc/libc/inet/rpc/xdr_stdio.c, /var/cvs/uClibc/libc/inet/rpc/clnt_unix.c, /var/cvs/uClibc/libc/inet/rpc/create_xid.c, /var/cvs/uClibc/libc/inet/rpc/errqueue.h, /var/cvs/uClibc/libc/inet/rpc/get_myaddress.c, /var/cvs/uClibc/libc/inet/rpc/getrpcport.c, /var/cvs/uClibc/libc/inet/rpc/pmap_clnt.c, /var/cvs/uClibc/libc/inet/rpc/pmap_getmaps.c, /var/cvs/uClibc/libc/inet/rpc/pmap_getport.c, /var/cvs/uClibc/libc/inet/rpc/pmap_prot.c, /var/cvs/uClibc/libc/inet/rpc/pmap_prot2.c, /var/cvs/uClibc/libc/inet/rpc/pmap_rmt.c, /var/cvs/uClibc/libc/inet/rpc/rpc_callmsg.c, /var/cvs/uClibc/libc/inet/rpc/rpc_commondata.c, /var/cvs/uClibc/libc/inet/rpc/rpc_dtablesize.c, /var/cvs/uClibc/libc/inet/rpc/rpc_prot.c, /var/cvs/uClibc/libc/inet/rpc/rpc_thread.c, /var/cvs/uClibc/libc/inet/rpc/rtime.c, /var/cvs/uClibc/libc/inet/rpc/svc.c, /var/cvs/uClibc/libc/inet/rpc/svc_auth.c, /var/cvs/uClibc/libc/inet/rpc/svc_auth_unix.c, /var/cvs/uClibc/libc/inet/rpc/svc_raw.c, /var/cvs/uClibc/libc/inet/rpc/svc_run.c, /var/cvs/uClibc/libc/inet/rpc/svc_simple.c, /var/cvs/uClibc/libc/inet/rpc/svc_tcp.c, /var/cvs/uClibc/libc/inet/rpc/svc_udp.c, /var/cvs/uClibc/libc/inet/rpc/Makefile, /var/cvs/uClibc/libc/inet/rpc/auth_none.c, /var/cvs/uClibc/libc/inet/rpc/auth_unix.c, /var/cvs/uClibc/libc/inet/rpc/authunix_prot.c, /var/cvs/uClibc/libc/inet/rpc/bindresvport.c, /var/cvs/uClibc/libc/inet/rpc/clnt_generic.c, /var/cvs/uClibc/libc/inet/rpc/clnt_perror.c, /var/cvs/uClibc/libc/inet/rpc/clnt_raw.c, /var/cvs/uClibc/libc/inet/rpc/clnt_simple.c, /var/cvs/uClibc/libc/inet/rpc/clnt_tcp.c, /var/cvs/uClibc/libc/inet/rpc/clnt_udp.c:
-	Re-backport all the rpc stuff from glibc 2.2.5.  This allows us to make this
-	junk (and I do mean that ;-) thread safe without undue pain.  Adds 12k worth to
-	the code size I'm afraid, but since I never use NFS and therefore never include
-	this stuff, I guess thats acceptable.  I still need to enable the multi-threaded
-	bits...
-	 -Erik
-
-	* /var/cvs/uClibc/libc/string/strerror.c, /var/cvs/uClibc/include/string.h:
-	Implement strerror_r.  This is per SuSv3, not glibc which does
-	something different.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/misc/ttyent/getttyent.c:
-	Shuffle the logic around a bit
-	 -Erik
-
-	* /var/cvs/uClibc/libc/pwd_grp/__getgrent.c, /var/cvs/uClibc/libc/pwd_grp/getgrgid.c:
-	Shuffle the logic around a bit
-
-	* /var/cvs/uClibc/libc/misc/utmp/Makefile, /var/cvs/uClibc/libc/misc/utmp/wtent.c, /var/cvs/uClibc/libc/misc/utmp/utent.c, /var/cvs/uClibc/libutil/logwtmp.c:
-	Some cleanups so utmp/wtmp behaves.  Fix potential use of
-	uninitialized memory.  Prepare to reentrantify the utmp
-	stuff.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c:
-	Ah kant spel mi name
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
-	Add support for sigtimedwait and sigwaitinfo
-	 -Erik
-
-2002-06-17  Manuel Novoa III  <mjn3@dillweed>
-
-	* /var/cvs/uClibc/libc/stdlib/setenv.c, /var/cvs/uClibc/libc/misc/time/tm_conv.c, /var/cvs/uClibc/libc/misc/time/utimes.c, /var/cvs/uClibc/libc/misc/time/ctime.c, /var/cvs/uClibc/libc/misc/time/ctime_r.c, /var/cvs/uClibc/libc/misc/time/difftime.c, /var/cvs/uClibc/libc/misc/time/gmtime.c, /var/cvs/uClibc/libc/misc/time/gmtime_r.c, /var/cvs/uClibc/libc/misc/time/localtime.c, /var/cvs/uClibc/libc/misc/time/localtime_r.c, /var/cvs/uClibc/libc/misc/time/mktime.c, /var/cvs/uClibc/libc/misc/time/strftime.c, /var/cvs/uClibc/libc/misc/time/strptime.c, /var/cvs/uClibc/libc/misc/time/time.c, /var/cvs/uClibc/libc/misc/time/Makefile, /var/cvs/uClibc/libc/misc/time/README, /var/cvs/uClibc/libc/misc/time/__time_locale.c, /var/cvs/uClibc/libc/misc/time/__time_static.c, /var/cvs/uClibc/libc/misc/time/asc_conv.c, /var/cvs/uClibc/libc/misc/time/asctime.c, /var/cvs/uClibc/libc/misc/time/asctime_r.c, /var/cvs/uClibc/libc/misc/time/clock.c, /var/cvs/uClibc/include/time.h:
-	Commit the new time stuff, even though I haven't made it threadsafe yet.
-	At least people can play with it.  Also, fix a buglet in setenv.c.
-
-	* /var/cvs/uClibc/include/wchar.h:
-	I guess nobody's tried this stuff.  I apparently checked in the wrong version
-	several weeks ago.
-
-2002-06-15  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/misc/time/time.c, /var/cvs/uClibc/libc/misc/time/Makefile:
-	time() is implemented in syscalls.c
-	 -Erik
-
-	* /var/cvs/uClibc/libc/termios/ttyname.c: Implement ttyname_r
-	 -Erik
-
-	* /var/cvs/uClibc/libc/unistd/getlogin.c: Prevent buffer overflow
-
-	* /var/cvs/uClibc/extra/Configs/uClibc_config_fix.pl:
-	Fix a silly bug...
-
-2002-06-13  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/signal/allocrtsig.c, /var/cvs/uClibc/libpthread/linuxthreads/pthread.c:
-	Fix pthreads to use the rt signals if present
-	 -Erik
-
-	* /var/cvs/uClibc/libcrypt/des.c:
-	Begin efforts at reentrance by seperating out the stuff that isn't
-	reentrant and labeling it, and making everything else const.
-	 -Erik
-
-2002-06-12  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/pwd_grp/config.h:
-	Don't use fixed buffers if we have an mmu such that malloc
-	and realloc are cheap.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/pwd_grp/putspent.c, /var/cvs/uClibc/libc/pwd_grp/pwent.c, /var/cvs/uClibc/libc/pwd_grp/sgetspent.c, /var/cvs/uClibc/libc/pwd_grp/spent.c, /var/cvs/uClibc/libc/pwd_grp/__getgrent.c, /var/cvs/uClibc/libc/pwd_grp/__getpwent_r.c, /var/cvs/uClibc/libc/pwd_grp/__getspent_r.c, /var/cvs/uClibc/libc/pwd_grp/__sgetspent_r.c, /var/cvs/uClibc/libc/pwd_grp/config.h, /var/cvs/uClibc/libc/pwd_grp/fgetgrent.c, /var/cvs/uClibc/libc/pwd_grp/fgetpwent.c, /var/cvs/uClibc/libc/pwd_grp/fgetspent.c, /var/cvs/uClibc/libc/pwd_grp/getgrgid.c, /var/cvs/uClibc/libc/pwd_grp/getgrnam.c, /var/cvs/uClibc/libc/pwd_grp/getpw.c, /var/cvs/uClibc/libc/pwd_grp/getpwnam.c, /var/cvs/uClibc/libc/pwd_grp/getpwuid.c, /var/cvs/uClibc/libc/pwd_grp/getspnam.c, /var/cvs/uClibc/libc/pwd_grp/getspuid.c, /var/cvs/uClibc/libc/pwd_grp/grent.c, /var/cvs/uClibc/libc/pwd_grp/initgroups.c, /var/cvs/uClibc/libc/pwd_grp/lckpwdf.c, /var/cvs/uClibc/libc/pwd_grp/putpwent.c:
-	Silence warnings, clean things up.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/string/Makefile, /var/cvs/uClibc/libc/string/basename.c, /var/cvs/uClibc/libc/string/bcmp.c, /var/cvs/uClibc/libc/string/bcopy.c, /var/cvs/uClibc/libc/string/bzero.c, /var/cvs/uClibc/libc/string/dirname.c, /var/cvs/uClibc/libc/string/strcasecmp.c, /var/cvs/uClibc/libc/string/strcspn.c, /var/cvs/uClibc/libc/string/string.c, /var/cvs/uClibc/libc/string/strncasecmp.c, /var/cvs/uClibc/libc/string/strpbrk.c, /var/cvs/uClibc/libc/string/strsep.c, /var/cvs/uClibc/libc/string/strspn.c, /var/cvs/uClibc/libc/string/strstr.c, /var/cvs/uClibc/libc/string/strtok.c, /var/cvs/uClibc/libc/string/strtok_r.c, /var/cvs/uClibc/libc/string/wstring.c:
-	Cleanup the mess, remove now obsolete files
-	 -Erik
-
-	* /var/cvs/uClibc/libc/string/Makefile, /var/cvs/uClibc/libc/string/strxfrm.c:
-	Write a new strxfrm that doesn't make function calls.  Uses the same logic as
-	before but unrolls the func calls and thereby eliminates some steps and some
-	bytes.  Now adds just 40 bytes to .text.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/inet/socketcalls.c:
-	Yipe.  As Joseph Chiu noticed, sockvec is supposed to be an int*
-	not an int.
-
-2002-06-11  Manuel Novoa III  <mjn3@dillweed>
-
-	* /var/cvs/uClibc/libc/stdio/printf.c, /var/cvs/uClibc/libc/stdio/stdio.c:
-	Revert Erik's patch to vasprintf and fix the real issue.
-	The writer for the stream returned by open_memstream was supposed to
-	keep the buffer nul-terminated.  I apparently left out a statement.
-
-2002-06-11  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/stdio/printf.c:
-	This patch from Rik Faith <faith@alephnull.com> fixes a potentially
-	non-NULL terminated string problem that could result from the use
-	of open_memstream().  Manuel may have a better solution, but this
-	one works for me, since with this plus the popen fix I can now run
-	things like gdb properly.  Thanks Rik!
-
-	* /var/cvs/uClibc/libc/stdio/popen.c:
-	A patch from Ted Phelps to fix popen().  Ted writes:
-	    There is a minor bug in the implementation of popen().  In the case
-	    where the file descriptor returned from its call to pipe() is the same
-	    as the file descriptor that it is meant to be (where the dup2() branch
-	    is not taken), the end of the pipe is still closed by close(reading)
-	    even though it shouldn't be.
-	Thanks Ted!
-
-2002-06-10  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/stdlib/setenv.c, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/pthread/bits/libc-lock.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/pthread/bits/stdio-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/libc-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/stdio-lock.h:
-	Kill the libc-lock headers, which we do not use and which are
-	not correct for uClibc.  Fix setenv locking to behave itself.
-	 -Erik
-
-2002-06-09  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/unistd/Makefile:
-	Oops.  Forgot to check this in.  Thanks Martin Volf for noticing
-	 -Erik
-
-2002-06-08  Manuel Novoa III  <mjn3@dillweed>
-
-	* /var/cvs/uClibc/libc/misc/locale/locale.c:
-	Added a version of nl_langinfo for the stub C/POSIX locale support.
-
-2002-06-05  sjhill  <sjhill@dillweed>
-
-	* /var/cvs/uClibc/ldso/libdl/dlib.c, /var/cvs/uClibc/ldso/ldso/linuxelf.h, /var/cvs/uClibc/ldso/ldso/readelflib1.c:
-	Fix up of '_dlopen' call and removal of unneeded argument in call '_dl_load_elf_shared_library'.
-
-2002-06-04  sjhill  <sjhill@dillweed>
-
-	* /var/cvs/uClibc/ldso/util/Makefile:
-	If we are cross-compiling, don't even try to build the target utilities.
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/mips/bsd-_setjmp.S, /var/cvs/uClibc/libc/sysdeps/linux/mips/bsd-setjmp.S, /var/cvs/uClibc/libc/sysdeps/linux/mips/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/mips/setjmp.S, /var/cvs/uClibc/libc/sysdeps/linux/mips/sys/regdef.h:
-	Changes so that 'regdef.h' gets included in the development environment.
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/mips/regdef.h:
-	Moved to 'sys' directory.
-
-2002-06-01  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/stdlib/setenv.c: Doh!
-
-2002-05-31  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/unistd/usershell.c:
-	Patch from Robert Griebl <griebl@gmx.de> to support
-	getusershell() and friends.
-
-2002-05-30  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/stdlib/Makefile, /var/cvs/uClibc/libc/stdlib/getenv.c, /var/cvs/uClibc/libc/stdlib/putenv.c, /var/cvs/uClibc/libc/stdlib/setenv.c:
-	Rework setenv, getenv and friends per the latest glibc code, but cleaned
-	up for readability.   Merge in putenv.  Add clearenv as a side effect.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/signal/allocrtsig.c: -#ifdef _POSIX_THREADS
-	+#ifdef __UCLIBC_HAS_THREADS__
-
-	* /var/cvs/uClibc/libc/misc/dirent/closedir.c, /var/cvs/uClibc/libc/misc/dirent/dirstream.h, /var/cvs/uClibc/libc/misc/dirent/opendir.c, /var/cvs/uClibc/libc/misc/dirent/readdir.c, /var/cvs/uClibc/libc/misc/dirent/readdir64.c, /var/cvs/uClibc/libc/misc/dirent/readdir_r.c, /var/cvs/uClibc/libc/misc/dirent/rewinddir.c, /var/cvs/uClibc/libc/misc/dirent/seekdir.c:
-	Fixup totally broken locking code...  No storage for the mutex,
-	wrong ifdef macro..
-	 -Erik
-
-	* /var/cvs/uClibc/Makefile: Fix dependancy.  again.
-
-	* /var/cvs/uClibc/Makefile: Fix dependancy for util target
-	 -Erik
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
-	Doh!  A silly typo broke select...
-	 -Erik
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/alpha/crt0.S:
-	And with this, the alpha port is not basically working.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/inet/rpc/Makefile:
-	don't include the linux dir.  Pointless and broken.
-	 -Erik
-
-	* /var/cvs/uClibc/extra/gcc-uClibc/Makefile:
-	Put GCCINCDIR here, which is the only place it is needed.
+	* /var/cvs/uClibc/Makefile: Disable ldconfig.target for now
 	 -Erik
 
 	* /var/cvs/uClibc/Rules.mak:
-	Cool.  An even better way to get the gcc include dir which eliminates
-	several external program calls, thanks to a suggestion from rmk.
+	Add a bunch of extra pedantic annoyingly strict checks
 	 -Erik
 
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/statfix.h, /var/cvs/uClibc/libc/sysdeps/linux/common/statfix64.h:
-	Make these properly cope with 64bit systems
+	* /var/cvs/uClibc/extra/Configs/Config.arm, /var/cvs/uClibc/extra/Configs/Config.cross.arm.uclinux, /var/cvs/uClibc/extra/Configs/Config.h8300, /var/cvs/uClibc/extra/Configs/Config.i386, /var/cvs/uClibc/extra/Configs/Config.i960, /var/cvs/uClibc/extra/Configs/Config.m68k, /var/cvs/uClibc/extra/Configs/Config.m68k.coff, /var/cvs/uClibc/extra/Configs/Config.mips, /var/cvs/uClibc/extra/Configs/Config.mipsel, /var/cvs/uClibc/extra/Configs/Config.powerpc, /var/cvs/uClibc/extra/Configs/Config.sh, /var/cvs/uClibc/extra/Configs/Config.sparc, /var/cvs/uClibc/extra/Configs/Config.v850e, /var/cvs/uClibc/extra/Configs/Config.alpha:
+	Resync the install defines
 	 -Erik
 
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
-	Fixup some silly bugs I added earlier
+	* /var/cvs/uClibc/ldso/ldso/ldso.c: Fixup where locals shadowed globals
 	 -Erik
 
-	* /var/cvs/uClibc/libc/sysdeps/linux/alpha/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/alpha/divl.S, /var/cvs/uClibc/libc/sysdeps/linux/alpha/divq.S, /var/cvs/uClibc/libc/sysdeps/linux/alpha/divrem.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/reml.S, /var/cvs/uClibc/libc/sysdeps/linux/alpha/remq.S:
-	Needed for the alpha port
+	* /var/cvs/uClibc/include/getopt.h:
+	fix this header so it behaves itself
 	 -Erik
 
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
-	Make syscalls.c way more generic.  Now works on alpha...
+	* /var/cvs/uClibc/extra/gcc-uClibc/Makefile, /var/cvs/uClibc/Makefile:
+	Change the default structure of the installed toolchain
 	 -Erik
 
-	* /var/cvs/uClibc/libc/misc/sysvipc/msgq.c, /var/cvs/uClibc/libc/misc/sysvipc/sem.c, /var/cvs/uClibc/libc/misc/sysvipc/shm.c:
-	Cope with systems that don't glob all these together, but use
-	separate syscalls.
-	 -Erik
+2002-07-01  Erik Andersen  <andersen@dillweed>
 
-2002-05-29  Erik Andersen  <andersen@dillweed>
+	* /var/cvs/uClibc/include/pthread.h, /var/cvs/uClibc/libpthread/linuxthreads/mutex.c:
+	Patch from Ronald Wahl <rwa@peppercon.com> -- kill references to
+	the obsolete PTHREAD_MUTEX_FAST_NP, and change the default mutex
+	type to adaptive
+
+	* /var/cvs/uClibc/libc/stdlib/malloc-930716/malloc.c:
+	This patch, from Ronald Wahl <rwa@peppercon.com>, fixes the
+	spots where I screwed up and forgot to fix realloc to use
+	free_unlocked() instead of free().  Thanks Ronald!
+
+2002-06-26  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libm/s_log1p.c, /var/cvs/uClibc/libm/e_exp.c, /var/cvs/uClibc/libm/e_j0.c, /var/cvs/uClibc/libm/e_j1.c, /var/cvs/uClibc/libm/e_jn.c, /var/cvs/uClibc/libm/e_lgamma_r.c, /var/cvs/uClibc/libm/e_rem_pio2.c, /var/cvs/uClibc/libm/math_private.h, /var/cvs/uClibc/libm/s_expm1.c, /var/cvs/uClibc/include/regex.h, /var/cvs/uClibc/libc/sysdeps/linux/common/statfix.c, /var/cvs/uClibc/libc/sysdeps/linux/common/statfix64.c, /var/cvs/uClibc/libc/sysdeps/linux/mips/bsd-setjmp.S:
+	Several cleanups/fixes from Marshall M. Midden <m4@brecis.com>
+
+2002-06-24  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/include/paths.h:
+	Per "Marshall M. Midden" <m4@brecis.com>, remove double
+	define of _PATH_LOCALE.
+
+2002-06-23  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/Makefile: Fixup target util handling
+	 -Erik
 
 	* /var/cvs/uClibc/ldso/util/Makefile:
-	Silly me.  ldd.target is for the target system, so don't
-	use-build-dir when compiling...
+	Don't try to compile the target utils unless told to do so.
 	 -Erik
-
-	* /var/cvs/uClibc/Makefile: Now that was silly
-
-	* /var/cvs/uClibc/docs/uclibc.org/index.html, /var/cvs/uClibc/docs/uclibc.org/old-news.html:
-	Update content a bit
-
-2002-05-28  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/include/features.h, /var/cvs/uClibc/extra/Configs/Config.h8300:
-	Patch from Yoshinori Sato <qzb04471@nifty.ne.jp> to use
-	C_SYMBOL_PREFIX for confused compilers, such as for v850
-	and h8300, per suggestion from Miles Bader.
-
-	* /var/cvs/uClibc/include/features.h, /var/cvs/uClibc/Makefile, /var/cvs/uClibc/Rules.mak, /var/cvs/uClibc/libutil/Makefile, /var/cvs/uClibc/libresolv/Makefile, /var/cvs/uClibc/libpthread/linuxthreads_db/Makefile, /var/cvs/uClibc/libpthread/Makefile, /var/cvs/uClibc/libm/Makefile, /var/cvs/uClibc/libcrypt/Makefile, /var/cvs/uClibc/ldso/libdl/Makefile, /var/cvs/uClibc/ldso/ldso/Makefile:
-	Fixup and unifiy version numbering.  Automate versioning updates.
-	Propagate fixes across makefiles.
-	 -Erik
-
-	* /var/cvs/uClibc/ldso/ldso/sparc/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/powerpc/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/mips/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/m68k/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/i386/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/arm/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/ldso.c, /var/cvs/uClibc/ldso/ldso/readelflib1.c:
-	Patch from Tobias Anderberg <tobias.anderberg@axis.com> to abstract
-	out page alignment issues.  As we we were assuming 4k pages, which
-	need not be the case...
-
-2002-05-24  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/ldso/util/ldd.c:
-	Fix a couple of silly bugs I'd left in while fixing things
-	 -Erik
-
-	* /var/cvs/uClibc/libcrypt/des.c:
-	Fix libcrypt, thanks to Vadim Berkgaut <berk@rc.ru>
-
-	* /var/cvs/uClibc/ldso/util/ldd.c:
-	Fix ldd so it correctly handles search paths of just one entry
-	(per fix in ldso a while back), and correctly matches the search
-	order in the shared lib loader.
-	 -Erik
-
-	* /var/cvs/uClibc/ldso/util/Makefile: Pass the -s to the linker
-
-	* /var/cvs/uClibc/extra/gcc-uClibc/Makefile: Send the -s to the linker
-
-2002-05-23  Manuel Novoa III  <mjn3@dillweed>
-
-	* /var/cvs/uClibc/libc/misc/Makefile:
-	Obligatory forgotten file during commit...
-
-	* /var/cvs/uClibc/libc/misc/wchar/Makefile, /var/cvs/uClibc/libc/misc/wchar/wchar.c, /var/cvs/uClibc/libc/stdlib/Makefile, /var/cvs/uClibc/libc/stdlib/stdlib.c:
-	Multibyte and wide char conversion functions.  Some work still to do, but
-	they're quite solid now and Erik needs them for the gcc port.  Comments at
-	the head of wchar.c.
-
-2002-05-23  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/h8300/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c, /var/cvs/uClibc/extra/Configs/Config.h8300, /var/cvs/uClibc/include/features.h:
-	Several h8300 updates from Yoshinori Sato <qzb04471@nifty.ne.jp>
-
-	* /var/cvs/uClibc/libc/misc/time/asc_conv.c: Cleanup slightly
-
-2002-05-21  sjhill  <sjhill@dillweed>
-
-	* /var/cvs/uClibc/extra/Configs/Config.mips, /var/cvs/uClibc/extra/Configs/Config.mipsel:
-	Changed path where cross development tools are installed.
-
-2002-05-20  sjhill  <sjhill@dillweed>
-
-	* /var/cvs/uClibc/ldso/ldso/mips/elfinterp.c: Added more debug code.
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/initfini.c, /var/cvs/uClibc/extra/scripts/initfini.pl:
-	Changes needed for MIPS with regards to the .init and .fini sections.
-
-	* /var/cvs/uClibc/ldso/ldso/mips/boot1_arch.h, /var/cvs/uClibc/ldso/ldso/mips/elfinterp.c, /var/cvs/uClibc/ldso/ldso/mips/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/ldso.c, /var/cvs/uClibc/ldso/ldso/readelflib1.c, /var/cvs/uClibc/extra/Configs/Config.mips, /var/cvs/uClibc/extra/Configs/Config.mipsel:
-	Fixed MIPS dynamic linker by removing link order dependency bug.
-
-2002-05-12  Manuel Novoa III  <mjn3@dillweed>
-
-	* /var/cvs/uClibc/libc/stdlib/stdlib.c:
-	Revert Erik's previous patch and fix what I believe he was trying to, while
-	preserving the space-saving aliases.
-
-2002-05-12  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/misc/sysvipc/ipc.h: Add a missing #include
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/sparc/sys/sysmacros.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/sys/sysmacros.h:
-	Use the default version in include/sys instead
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/statfix64.h:
-	Fixes for 64 bit arches
-
-	* /var/cvs/uClibc/libc/stdio/printf.c, /var/cvs/uClibc/libc/stdlib/stdlib.c:
-	Several bugfixes for problems that showed up on alpha
-	 -Erik
-
-	* /var/cvs/uClibc/libc/inet/socketcalls.c:
-	Fix some silly bugs and type problems
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/open64.c:
-	Small cleanups for alpha
-
-	* /var/cvs/uClibc/libc/misc/sysvipc/shm.c: Fix this one up so it works
-
-	* /var/cvs/uClibc/extra/Configs/Config.alpha:
-	Add a config file for alpha
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/bits/syscalls.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/dirent.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/syscalls.h:
-	Add a default syscalls.h that will just error out.
-	Add in syscalls.h for alpha.
-
-2002-05-11  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/inet/socketcalls.c:
-	Fix the defines which I had backwards
-
-	* /var/cvs/uClibc/libc/misc/sysvipc/shm.c:
-	Fixup for architectures that do not supply the ipc system
-	call, but implement the ipc functions as separate system calls.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/inet/socketcalls.c:
-	Majorly rework to also cope with architectures which do not use
-	the socketcall system call, but instead implement each fundamental
-	networking function directly as a system call.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/misc/dirent/readdir64.c: Oops.  Stupid typo.
-
-2002-05-11  Manuel Novoa III  <mjn3@dillweed>
-
-	* /var/cvs/uClibc/libc/stdio/old_vfprintf.c, /var/cvs/uClibc/libc/stdio/printf.c, /var/cvs/uClibc/libc/stdio/scanf.c:
-	Adjust preprocessor logic to initialize QUAL_CHARS correctly for Erik's alpha
-	port.  Also, explicitly use the macro versions of isdigit and isspace in the
-	printf and scanf code.
-
-2002-05-11  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/misc/time/__time_locale.c, /var/cvs/uClibc/libc/misc/time/__time_static.c, /var/cvs/uClibc/libc/misc/time/asc_conv.c, /var/cvs/uClibc/libc/misc/time/asctime.c, /var/cvs/uClibc/libc/misc/time/asctime_r.c, /var/cvs/uClibc/libc/misc/time/ctime.c, /var/cvs/uClibc/libc/misc/time/ctime_r.c, /var/cvs/uClibc/libc/misc/time/difftime.c, /var/cvs/uClibc/libc/misc/time/gmtime.c, /var/cvs/uClibc/libc/misc/time/localtime.c, /var/cvs/uClibc/libc/misc/time/mktime.c, /var/cvs/uClibc/libc/misc/time/strftime.c, /var/cvs/uClibc/libc/misc/time/strptime.c, /var/cvs/uClibc/libc/misc/time/tm_conv.c, /var/cvs/uClibc/libc/misc/time/Makefile:
-	Begin the process of reworking the time functions for proper
-	time zone and locale support (in theory).  More work is
-	still needed.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/misc/dirent/Makefile, /var/cvs/uClibc/libc/misc/dirent/closedir.c, /var/cvs/uClibc/libc/misc/dirent/dirstream.h, /var/cvs/uClibc/libc/misc/dirent/opendir.c, /var/cvs/uClibc/libc/misc/dirent/readdir.c, /var/cvs/uClibc/libc/misc/dirent/readdir64.c, /var/cvs/uClibc/libc/misc/dirent/readdir_r.c, /var/cvs/uClibc/libc/misc/dirent/rewinddir.c, /var/cvs/uClibc/libc/misc/dirent/seekdir.c, /var/cvs/uClibc/libc/misc/dirent/telldir.c:
-	Implement readdir_r.  Audit for proper thread safety and locking.
-	 -Erik
-
-2002-05-10  Manuel Novoa III  <mjn3@dillweed>
-
-	* /var/cvs/uClibc/libc/stdio/scanf.c: Protect against ctype macros.
-
-2002-05-10  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/alpha/sys/acct.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/sys/io.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/sys/procfs.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/sys/sysmacros.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/sys/ucontext.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/sys/user.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/ipc.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/msq.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/netdb.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/resource.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/sem.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/setjmp.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/shm.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/sigaction.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/siginfo.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/signum.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/sigstack.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/socket.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/stat.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/statvfs.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/termios.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/types.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/wordsize.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/elfclass.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/endian.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bits/fcntl.h, /var/cvs/uClibc/libc/sysdeps/linux/alpha/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/alpha/__longjmp.S, /var/cvs/uClibc/libc/sysdeps/linux/alpha/brk.S, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bsd-_setjmp.S, /var/cvs/uClibc/libc/sysdeps/linux/alpha/bsd-setjmp.S, /var/cvs/uClibc/libc/sysdeps/linux/alpha/clone.S, /var/cvs/uClibc/libc/sysdeps/linux/alpha/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/alpha/setjmp.S, /var/cvs/uClibc/libc/sysdeps/linux/alpha/sysdep.c:
-	First pass attempt at an alpha port
-
-2002-05-09  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/ldso/ldso/mips/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/mips/resolve.S, /var/cvs/uClibc/ldso/ldso/ldso.c, /var/cvs/uClibc/ldso/ldso/readelflib1.c, /var/cvs/uClibc/ldso/ldso/hash.c:
-	Another mips patch from Steven J. Hill:
-
-	    Uh, this patch fixes a few bugs that I overlooked. Shoot, even BusyBox
-	    wouldn't work until these are applied. Erik, plop this into CVS please.
-	    Thanks.
-
-	* /var/cvs/uClibc/include/fpu_control.h, /var/cvs/uClibc/include/tgmath.h, /var/cvs/uClibc/libm/Makefile, /var/cvs/uClibc/libm/fpmacros.c, /var/cvs/uClibc/libm/nan.c, /var/cvs/uClibc/include/complex.h:
-	Fill a few little holes in the math library
-
-	* /var/cvs/uClibc/test/math/test-ildoubl.c, /var/cvs/uClibc/test/math/test-ldouble.c, /var/cvs/uClibc/test/math/eparanoi.c, /var/cvs/uClibc/test/math/epow.c, /var/cvs/uClibc/test/math/etanh.c, /var/cvs/uClibc/test/math/etodec.c, /var/cvs/uClibc/test/math/gen-libm-test.pl, /var/cvs/uClibc/test/math/ieee.c, /var/cvs/uClibc/test/math/ieetst.c, /var/cvs/uClibc/test/math/ieetst.doc, /var/cvs/uClibc/test/math/libm-test.inc, /var/cvs/uClibc/test/math/mconf.h, /var/cvs/uClibc/test/math/mtherr.c, /var/cvs/uClibc/test/math/test-double.c, /var/cvs/uClibc/test/math/test-float.c, /var/cvs/uClibc/test/math/test-idouble.c, /var/cvs/uClibc/test/math/test-ifloat.c, /var/cvs/uClibc/test/math/.cvsignore, /var/cvs/uClibc/test/math/Makefile, /var/cvs/uClibc/test/math/drand.c, /var/cvs/uClibc/test/math/econst.c, /var/cvs/uClibc/test/math/eexp.c, /var/cvs/uClibc/test/math/ehead.h, /var/cvs/uClibc/test/math/elog.c:
-	Rework the math library tests per the glibc math test code, with
-	many unsupported tests disabled for the moment.
-	 -Erik
-
-	* /var/cvs/uClibc/libm/e_asin.c: Add missing braces
-
-	* /var/cvs/uClibc/ldso/ldso/readelflib1.c: Fix funky use of brackets
-
-2002-05-07  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/misc/locale/Makefile, /var/cvs/uClibc/extra/locale/Makefile:
-	Fixup build a bit more
-
-	* /var/cvs/uClibc/extra/locale/Makefile:
-	When it is going to fail silently anyways, whine loudly and
-	abort early with instructions on what to do...
-	 -Erik
-
-2002-05-06  Manuel Novoa III  <mjn3@dillweed>
-
-	* /var/cvs/uClibc/extra/Configs/Config.i386:
-	Forgot to change the Config templates.  Changed one... the others are
-	similar, but don't have time to take care of them.
-
-	* /var/cvs/uClibc/TODO: Update my TODO entries.
-
-	* /var/cvs/uClibc/libc/misc/locale/.cvsignore, /var/cvs/uClibc/include/wchar.h, /var/cvs/uClibc/include/wctype.h, /var/cvs/uClibc/extra/locale/Makefile:
-	The obligatory forgotten files...
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/bits/.cvsignore, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_ctype.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_locale.h, /var/cvs/uClibc/libc/string/Makefile, /var/cvs/uClibc/libc/string/wstring.c, /var/cvs/uClibc/libc/stdlib/Makefile, /var/cvs/uClibc/libc/stdlib/stdlib.c, /var/cvs/uClibc/libc/misc/wctype/Makefile, /var/cvs/uClibc/libc/misc/wctype/wctype.c, /var/cvs/uClibc/libc/misc/locale/Makefile, /var/cvs/uClibc/libc/misc/locale/_locale.h, /var/cvs/uClibc/libc/misc/locale/locale.c, /var/cvs/uClibc/libc/misc/locale/localeconv.c, /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c, /var/cvs/uClibc/libc/misc/ctype/Makefile, /var/cvs/uClibc/libc/misc/ctype/ctype.c, /var/cvs/uClibc/libc/misc/ctype/ctype_C.c, /var/cvs/uClibc/libc/misc/Makefile, /var/cvs/uClibc/include/stdlib.h, /var/cvs/uClibc/include/ctype.h, /var/cvs/uClibc/include/inttypes.h, /var/cvs/uClibc/include/langinfo.h, /var/cvs/uClibc/include/libgen.h, /var/cvs/uClibc/include/locale.h, /var/cvs/uClibc/include/stdint.h, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-4.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-5.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-6.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-7.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-8.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-9.pairs, /var/cvs/uClibc/extra/locale/charmaps/KOI8-R.pairs, /var/cvs/uClibc/extra/locale/charmaps/KOI8-U.pairs, /var/cvs/uClibc/extra/locale/charmaps/TIS-620.pairs, /var/cvs/uClibc/extra/locale/charmaps/ASCII.pairs, /var/cvs/uClibc/extra/locale/charmaps/CP1251.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-1.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-10.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-13.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-14.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-15.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-16.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-2.pairs, /var/cvs/uClibc/extra/locale/charmaps/ISO-8859-3.pairs, /var/cvs/uClibc/extra/locale/LOCALES, /var/cvs/uClibc/extra/locale/README, /var/cvs/uClibc/extra/locale/gen_collate_from_glibc.c, /var/cvs/uClibc/extra/locale/gen_ctype_from_glibc.c, /var/cvs/uClibc/extra/locale/gen_locale.c, /var/cvs/uClibc/extra/locale/gen_mmap.c, /var/cvs/uClibc/extra/locale/gen_wc8bit.c, /var/cvs/uClibc/extra/locale/gen_wctype.c, /var/cvs/uClibc/extra/locale/lmmtolso.c, /var/cvs/uClibc/extra/locale/locale_mmap.h, /var/cvs/uClibc/extra/locale/.cvsignore, /var/cvs/uClibc/Makefile, /var/cvs/uClibc/Rules.mak:
-	New locale support (in development).  Supports LC_CTYPE, LC_NUMERIC,
-	  LC_TIME, LC_MONETARY, and LC_MESSAGES for the SUSv3 items.  Also,
-	  nl_langinfo() when real locale support is enabled.
-	New implementation of ctype.h.
-	New implementation of wctype.h.
-	New implementation of most of the string functions (smaller).
-	New implementation of the wcs/wmem functions.  These are untested, but
-	  they're also just preprocessor-modified versions ot the corresponding
-	  str/mem functions.
-	Tweaked qsort and new bsearch.
-
-	Stuff still pending:
-	stdlib.h and wchar.h  mb<->wc functions.  I actually have working
-	   versions of the stdlib ones, but the reentrant versions from
-	   wchar.h require some reworking.
-	Basic replacement and translit support for wc->mb conversions.
-	   (groundwork laid).
-	Simple-minded collate support such as was provided by the previous
-	   locale implementation.  (mostly done -- 8-bit codesets only)
-	Shared mmaping of the locale data and strerror message text.
-
-2002-05-03  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/ldso/util/Makefile:
-	No real need to make ldd.target and readelf.target be static...
 
 	* /var/cvs/uClibc/Rules.mak:
-	Speed things up by eliminating lots of needless exec calls
+	Rework compiler optimization code to be smarter
 	 -Erik
 
-2002-05-02  Erik Andersen  <andersen@dillweed>
+2002-06-21  Erik Andersen  <andersen@dillweed>
 
-	* /var/cvs/uClibc/Makefile:
-	Ensure that make clean really cleans up after itself
+	* /var/cvs/uClibc/README: Fix spelling
 
-	* /var/cvs/uClibc/include/sys/queue.h, /var/cvs/uClibc/include/sys/sysctl.h:
-	Add missing sysctl.h and queue.h
+	* /var/cvs/uClibc/docs/uclibc.org/index.html: Fix silly spelling error
 
-	* /var/cvs/uClibc/ldso/libdl/dlib.c:
-	Patch from Tobias Anderberg <tobias.anderberg@axis.com> to
-	remove the .asm calls
-
-	* /var/cvs/uClibc/ldso/ldso/powerpc/elfinterp.c, /var/cvs/uClibc/ldso/ldso/sparc/elfinterp.c, /var/cvs/uClibc/ldso/libdl/dlib.c, /var/cvs/uClibc/ldso/ldso/arm/elfinterp.c, /var/cvs/uClibc/ldso/ldso/arm/resolve.S, /var/cvs/uClibc/ldso/ldso/hash.c, /var/cvs/uClibc/ldso/ldso/i386/elfinterp.c, /var/cvs/uClibc/ldso/ldso/ld_hash.h, /var/cvs/uClibc/ldso/ldso/ldso.c, /var/cvs/uClibc/ldso/ldso/linuxelf.h, /var/cvs/uClibc/ldso/ldso/m68k/elfinterp.c, /var/cvs/uClibc/ldso/ldso/mips/README, /var/cvs/uClibc/ldso/ldso/mips/boot1_arch.h, /var/cvs/uClibc/ldso/ldso/mips/elfinterp.c, /var/cvs/uClibc/ldso/ldso/mips/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/mips/resolve.S, /var/cvs/uClibc/ldso/ldso/readelflib1.c:
-	Patch from Steven J. Hill <sjhill@realitydiluted.com>:
-
-	    I am very pleased to announce that the MIPS dynamic linker/loader
-	    for uClibc is now working. It works on big and little endian
-	    platforms.
-
-	A few minor changes were needed to avoid breaking ldd, and since this
-	makes some non-trivial changes, I have tested on x86, arm, and powerpc
-	to be sure thoese arches didn't get broken.  Excellent work Steven!
-
-	* /var/cvs/uClibc/ldso/util/ldd.c, /var/cvs/uClibc/ldso/util/readelf.c:
-	Make ldd and readelf work even with byte swapped binaries
-
-2002-04-25  miles  <miles@dillweed>
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/mmap64.c:
-	Use __off64_t instead of off64_t.
-
-2002-04-25  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
-	Stupid libgcc.a from gcc 2.95.x uses __write in pure.o
-	which is a blatent GNU libc-ism...  Cope.
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c, /var/cvs/uClibc/ldso/ldso/ld_syscall.h:
+	Fix support for 2.0.x linux kernels.  Oops.
 	 -Erik
 
-2002-04-25  miles  <miles@dillweed>
+2002-06-20  Erik Andersen  <andersen@dillweed>
 
-	* /var/cvs/uClibc/libc/sysdeps/linux/v850/crt0.S:
-	Don't bother zeroing BSS, since actually we _can_ rely on the loader to do it.
+	* /var/cvs/uClibc/docs/uclibc.org/index.html: Fix spelling
 
-2002-04-25  Erik Andersen  <andersen@dillweed>
+	* /var/cvs/uClibc/docs/uclibc.org/index.html: Remove noise
 
-	* /var/cvs/uClibc/libcrypt/Makefile, /var/cvs/uClibc/libcrypt/crypt.c, /var/cvs/uClibc/libcrypt/des.c, /var/cvs/uClibc/libcrypt/md5.c:
-	Rework libcrypt based on the openbsd crypt implementation so that it passes the
-	DES validation suite.  setkey_r, encrypt_r, and __des_crypt_r are not really
-	reentrant now, and that should be fixed (or we should drop crypt_r and friends
-	which are not supported by SuSv3).
-	 -Erik
+	* /var/cvs/uClibc/Changelog: Last Changelog update
 
-2002-04-24  Erik Andersen  <andersen@dillweed>
+2002-06-20  Manuel Novoa III  <mjn3@dillweed>
 
-	* /var/cvs/uClibc/docs/uclibc.org/cvs_anon.html:
-	Bah.  Fix (non)password issue.
-
-	* /var/cvs/uClibc/Makefile: Don't use $(PWD), use $(shell pwd) instead
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/common/mmap64.c:
-	Add support for mmap64
-	 -Erik
-
-2002-04-22  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/INSTALL, /var/cvs/uClibc/README: Minor updates.
-
-2002-04-20  ds  <ds@dillweed>
-
-	* /var/cvs/uClibc/INSTALL, /var/cvs/uClibc/README:
-	Moved old README to INSTALL, and wrote a new README that is much more
-	like an introduction to the project.
-
-	* /var/cvs/uClibc/debian/changelog, /var/cvs/uClibc/debian/rules:
-	Make sure that CROSS="" for native building.
-
-2002-04-19  ds  <ds@dillweed>
-
-	* /var/cvs/uClibc/debian/changelog: uploading new snapshot
-
-	* /var/cvs/uClibc/debian/control, /var/cvs/uClibc/debian/rules:
-	updated kernel source package to 2.4.18
-
-	* /var/cvs/uClibc/debian/mksnapshot: updated to 0.9.11
-
-2002-04-17  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libm/fpmacros.c:
-	Patch from Axel Barnitzke <barney@xkontor.com> to fix handling
-	of the isinf() macro, which was a casulty of my grafting the
-	glibc header onto out math library.
-
-	* /var/cvs/uClibc/libc/inet/resolv.c:
-	Patch from Axel Barnitzke <barney@xkontor.com> to add basic
-	support for struct _res.  This is a minimalist implementation,
-	but should work for most anything out there.
-
-	* /var/cvs/uClibc/libc/inet/resolv.c:
-	Patch from Mike McDonald to make gethostbyname_r() not fail for things like
-	gethostbyname("192.168.0.1"), which should work even when the /etc/hosts and
-	/etc/config/hosts files do not exist.
-
-	* /var/cvs/uClibc/libc/misc/internals/Makefile:
-	Patch from Martin Proulx to not do ELFish things when not ELF.
-
-	* /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c:
-	Patch from Martin Proulx to remove weak_aliases for non ELF compilers in
-	__uClibc_main for the _stdio_init and _stdio_term functions.  Since
-	weak_aliases are defined as hard aliases for non ELF compilers, these 2 symbols
-	ended up to be multiply defined, as those two are defined in stdio.c.
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
-	Stub out pread and pwrite when not available
-
-2002-04-17  ds  <ds@dillweed>
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/powerpc/crt0.c:
-	Change branch to fallthrough.  Unclean, but it removes last R_PPC_REL24.
-
-2002-04-17  miles  <miles@dillweed>
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/v850/crt0.S:
-	Just tail-call __uClibc_main.  There's no real point to calling abort if
-	exit failed, and abort drags in some unecessary grot.
-
-2002-04-17  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libpthread/linuxthreads/wrapsyscall.c:
-	Remove strong aliases to symbols that we don't define in uClibc
-
-2002-04-15  miles  <miles@dillweed>
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/v850/crt0.S (L_dummy_main_reference):
-	Reference the C symbol `main', not the linker
-	symbol `main'.
-
-2002-04-14  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/sparc/crt0.c, /var/cvs/uClibc/libc/sysdeps/linux/m68k/crt0.c, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/crt0.c, /var/cvs/uClibc/libc/sysdeps/linux/i386/crt0.c:
-	Fix dummy main reference so it works...
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/v850/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/mips/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/h8300/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/sparc/crt0.c, /var/cvs/uClibc/libc/sysdeps/linux/sh/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/m68k/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/m68k/crt0.c, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/crt0.c, /var/cvs/uClibc/libc/sysdeps/linux/i386/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/i386/crt0.c, /var/cvs/uClibc/libc/sysdeps/linux/arm/crt0.S:
-	Manuel and I were looking into a problem with applications failing to link
-	(undefined reference to `main') when the .o file containing main was contained
-	in an static library(a '.a' ar archive).  It turns out that due to its single
-	pass nature, GNU ld was failing to pull it into the build.  This sticks a dummy
-	reference to main() into crt0.o, so that when an application is linked with the
-	main() function in a static library, we can be sure that main() actually gets
-	linked in.
-	 -Erik
-
-2002-04-13  ds  <ds@dillweed>
-
-	* /var/cvs/uClibc/debian/rules:
-	use uClibc_config_fix.pl for configuration
-
-	* /var/cvs/uClibc/debian/mksnapshot: use ds account on cvs.uclibc.org
-
-2002-04-13  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/libc/string/string.c:
-	Fixed stpncpy() implementation from Manuel
-
-	* /var/cvs/uClibc/libc/pwd_grp/__getgrent.c:
-	Patch from Jim Treadway <jim@stardot-tech.com>:
-	    The internal __getgrent function doesn't allocate enough memory to hold
-	    the trailing NULL pointer in the gr_mem member of the returned 'struct
-	    group *'.
-
-2002-04-11  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/TODO: Update TODO list
-
-2002-04-11  davidm  <davidm@dillweed>
-
-	* /var/cvs/uClibc/libc/unistd/Makefile:
-	Fixed broken shell syntax.
-
-	* /var/cvs/uClibc/Makefile:
-	Added a dummy romfs target so this stuff slots nicely into the
-	uClinux distro.
-
-2002-04-10  Erik Andersen  <andersen@dillweed>
-
-	* /var/cvs/uClibc/docs/uclibc.org/index.html: Minor doc update
-
-	* /var/cvs/uClibc/Changelog: A last minute addition
-
-	* /var/cvs/uClibc/BUGS, /var/cvs/uClibc/docs/uclibc.org/index.html, /var/cvs/uClibc/docs/uclibc.org/uClibc-apps.html, /var/cvs/uClibc/TODO:
-	Add a list of known bugs.  Update the docs in preparation for a release.
-	 -Erik
-
-	* /var/cvs/uClibc/ldso/ldso/ld_string.h:
-	SEND_NUMBER_STDERR is supposed to be calling _dl_simple_ltoa(),
-	not _dl_simple_ltoahex().  Numbers are not supposed to be in hex.
-	 -Erik
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/types.h:
-	John Traill <john.traill@motorola.com> noticed that on powerpc
-	a dev_t is _not_ a quad type, but a simple int.  Doh!  We fixed
-	that months ago, but subsequently lost the fix, so this restores
-	things.
-
-	* /var/cvs/uClibc/Changelog, /var/cvs/uClibc/Changelog.full:
-	Update Changelog
-
-	* /var/cvs/uClibc/ldso/ldso/powerpc/elfinterp.c:
-	Teach powerpc to whine loudly about using -fPIC when a R_PPC_REL24
-	is encountered...
-	 -Erik
-
-	* /var/cvs/uClibc/extra/Configs/Config.sparc:
-	Mention pthreads for sparc
-
-	* /var/cvs/uClibc/libpthread/linuxthreads/Makefile:
-	Fix libpthread compile for sparc
-
-	* /var/cvs/uClibc/libc/sysdeps/linux/common/ftruncate64.c, /var/cvs/uClibc/libc/sysdeps/linux/common/truncate64.c:
-	Some minor updates per discussion with Miles Bader
-	 -Erik
+	* /var/cvs/uClibc/TODO: Update my todo list.
 

@@ -1,5 +1,41 @@
+0.9.13	9 August 2002
+
+Security Fixes
+    o   There was an off-by-one buffer overflow in the group 
+	handling code, fix thanks to Joseph Chiu. 
+    o   There was an integer overflow bug in calloc, per
+	    http://online.securityfocus.com/bid/5398
+    o   There was an integer overflow bug in the xdr_array 
+	RPC code, per http://online.securityfocus.com/bid/5356
+
+See Changelog.full for the complete list of who did what. 
+Release highlights:
+    o   Add full shared library support for Hitachi SuperH (sh)
+	thanks to Stefan Allius and Edie C. Dost 
+    o   Lots of reentrance cleanups (we should now be fully
+	reentrant when compiled with pthread support).
+    o   Miles Bader implemented a new mmap based malloc which is much
+	smarter than the old "malloc-simple", and actually works, unlike
+	the old "malloc".  This is now the default for mmu-less systems
+	and should greatly help reduce memory fragmentation and wastage.
+    o   Reworked syscall handling for i386 and ARM, smaller and cleaner.
+    o   Support for the syscall() function on i386 and ARM
+    o   The uClibc g++ wrapper now  automagically adds the proper include
+	search path and and libraries.
+    o   Lots of shared library loader updates
+    o   dlopen'd shred libraries not properly run destructors
+	when ctor/dtor support is enabled
+    o   pread/pwrite/pread64/pwrite64 now all work as expected
+    o   Lots and lots of other bug fixes and cleanups.
+
+ -Erik
+
+
+
+
 0.9.12	20 June 2002
 
+See Changelog.full for the complete list of who did what. 
 Release highlights:
     o   Add full shared library support for mips (big and little
 	endian), thanks to a lot of hard work from Steven J. Hill
@@ -17,9 +53,7 @@ Release highlights:
     o   Completely new time handling functions also by Manuel
     o   Lots of other bug fixes and cleanups.
 
-See Changelog.full for the complete list of who did what. 
  -Erik
- 20 June 2002
 
 
 
