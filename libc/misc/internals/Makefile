@@ -35,17 +35,26 @@ endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
-all: $(OBJS) $(LIBC)
+all: $(OBJS) interp.o $(LIBC)
 
-$(LIBC): ar-target
+$(LIBC): interp.c ar-target
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+
+interp.c: Makefile
+	echo "/* Force shared libraries to know about the correct library loader */" > interp.c
+	echo "const char __dl_ldso__[] __attribute__ ((section " \
+		"(\".interp\"))) =\""$(DYNAMIC_LINKER)"\";" >> interp.c
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
+interp.o: %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
 clean:
-	rm -f *.[oa] *~ core
+	rm -f *.[oa] interp.c *~ core
 

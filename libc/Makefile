@@ -47,7 +47,8 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 	@(cd tmp && CC=$(CC) LD=$(LD) NM=$(NM) AR=$(AR) \
 		/bin/sh ../../extra/scripts/get-needed-libgcc-objects.sh)
 	$(LD) $(LDFLAGS) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
-		--whole-archive ./tmp/libgcc-need.a $(LIBNAME) --no-whole-archive $(LDSO)
+		--whole-archive ./tmp/libgcc-need.a $(LIBNAME) --no-whole-archive \
+		$(TOPDIR)/libc/misc/internals/interp.o
 	@/bin/true #rm -rf tmp
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(SHARED_FULLNAME)

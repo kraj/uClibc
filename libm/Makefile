@@ -94,8 +94,9 @@ shared: all
 	@if [ -f $(LIBM) ] ; then \
 	    set -x -e; \
 	    $(LD) $(LDFLAGS) -soname=$(LIBM_SHARED).$(MAJOR_VERSION) \
-		    -o $(LIBM_SHARED_FULLNAME) --whole-archive $(LIBM) \
-		    --no-whole-archive -L$(TOPDIR)/lib -lc; \
+		-o $(LIBM_SHARED_FULLNAME) --whole-archive $(LIBM) \
+		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
+		-L$(TOPDIR)/lib -lc; \
 	    install -d $(TOPDIR)lib; \
 	    rm -f $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
 	    install -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib; \
