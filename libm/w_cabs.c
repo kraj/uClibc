@@ -12,9 +12,7 @@ struct complex {
 	double y;
 };
 
-double
-cabs(z)
-	struct complex z;
+double cabs(struct complex z)
 {
 	return hypot(z.x, z.y);
 }
