@@ -52,13 +52,14 @@ tags:
 	ctags -R
 	
 shared: all
-	@if [ -f $(LIBM) ] ; then \
+	if [ -f $(LIBM) ] ; then \
 		$(TARGET_CC) $(LDFLAGS) -shared -o $(LIBM_SHARED_FULLNAME) \
 		    -Wl,-soname,$(LIBM_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive \
 		    $(LIBM) $(TOPDIR)lib/$(SHARED_FULLNAME); \
 		install -d $(TOPDIR)lib; \
 		rm -f $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
 		install -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib; \
+		(cd $(TOPDIR)lib; ln -sf $(LIBM_SHARED_FULLNAME) $(LIBM_SHARED)); \
 		(cd $(TOPDIR)lib; ln -sf $(LIBM_SHARED_FULLNAME) $(LIBM_SHARED).$(MAJOR_VERSION)); \
 	fi;
 

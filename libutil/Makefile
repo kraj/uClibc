@@ -53,6 +53,7 @@ shared: all
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBUTIL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBUTIL_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBUTIL_SHARED_FULLNAME) $(TOPDIR)lib/;
+	(cd $(TOPDIR)lib; ln -sf $(LIBUTIL_SHARED_FULLNAME) $(LIBUTIL_SHARED)); 
 	(cd $(TOPDIR)lib; ln -sf $(LIBUTIL_SHARED_FULLNAME) $(LIBUTIL_SHARED).$(MAJOR_VERSION)); 
 
 clean:

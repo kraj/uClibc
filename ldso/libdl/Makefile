@@ -34,15 +34,15 @@ OBJS=$(patsubst %.c,%.o, $(CSRC))
 
 CFLAGS += -DUSE_CACHE #-fPIC -D__PIC__ #-funroll-loops
 
-all: $(OBJS) $(LIBDL)
+all: $(OBJS) $(LIBDL) shared
 
 $(LIBDL): ar-target
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBDL) $(OBJS)
-	install -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBDL)
-	install -m 644 $(LIBDL) $(TOPDIR)lib
+	#install -d $(TOPDIR)lib
+	#rm -f $(TOPDIR)lib/$(LIBDL)
+	#install -m 644 $(LIBDL) $(TOPDIR)lib
 
 $(OBJS): %.o : %.c
 	$(TARGET_CC) -I../d-link -I../d-link/$(TARGET_ARCH) $(CFLAGS) -c $< -o $@
@@ -57,6 +57,7 @@ shared: all
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib;
+	(cd $(TOPDIR)lib; ln -sf $(LIBDL_SHARED_FULLNAME) $(LIBDL_SHARED)); 
 	(cd $(TOPDIR)lib; ln -sf $(LIBDL_SHARED_FULLNAME) $(LIBDL_SHARED).$(MAJOR_VERSION)); 
 
 clean:
