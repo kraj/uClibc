@@ -1040,20 +1040,20 @@ _syscall1(int, setfsgid, gid_t, gid);
 #ifdef L__llseek
 #ifdef __UCLIBC_HAVE_LFS__
 extern int _llseek(int fd, __off_t offset_hi, __off_t offset_lo, 
-		l__off_t *result, int whence);
+		__loff_t *result, int whence);
 
 _syscall5(int, _llseek, int, fd, __off_t, offset_hi, __off_t, offset_lo, 
-		l__off_t *, result, int, whence);
+		__loff_t *, result, int, whence);
 
-l__off_t __libc_lseek64(int fd, l__off_t offset, int whence)
+__loff_t __libc_lseek64(int fd, __loff_t offset, int whence)
 {
 	int ret;
-	l__off_t result;
+	__loff_t result;
 
 	ret = _llseek(fd, (__off_t) (offset >> 32),
 				  (__off_t) (offset & 0xffffffff), &result, whence);
 
-	return ret ? (l__off_t) ret : result;
+	return ret ? (__loff_t) ret : result;
 }
 weak_alias(__libc_lseek64, llseek);
 weak_alias(__libc_lseek64, lseek64);
