@@ -205,7 +205,7 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 	__fpmax_t lower_bnd;
 	__fpmax_t upper_bnd = 1e9;
 #endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
-	uint_fast32_t digit_block;
+	volatile uint_fast32_t digit_block;
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
 	uint_fast32_t base = 10;
 	const __fpmax_t *power_table;
@@ -221,9 +221,9 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 	int nblk2;			   /* This does not need to be initialized. */
 	const char *ts;		   /* This does not need to be initialized. */
 #endif /* __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__ */
-	int i, j;
+	volatile int i, j;
 	int round, o_exp;
-	int exp, exp_neg;
+	volatile int exp, exp_neg;
 	int width, preci;
 	int cnt;
 	char *s;
