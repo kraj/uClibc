@@ -51,7 +51,7 @@ struct __stdio_file {
 typedef struct __stdio_file FILE;
 
 /* Default buffer size.  */
-#define BUFSIZ	    (500) /* should get us a fully used kmalloc bucket */
+#define BUFSIZ	    (512)
 
 /* Define EOF and NULL */
 #define EOF	(-1)
