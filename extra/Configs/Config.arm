@@ -43,6 +43,10 @@ NM = $(CROSS)nm
 STRIPTOOL = $(CROSS)strip
 #STRIPTOOL = /bin/true
 
+#
+# just in case someone wants to use it
+ARCH_CFLAGS=
+
 # Set the following to `true' to make a debuggable build, and `false' for
 # production builds.
 DODEBUG = false
