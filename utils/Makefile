@@ -43,33 +43,50 @@ all:	$(TARGET_ICONV)
 endif
 
 headers:
-	$(LN) -fs $(TOPDIR)include/elf.h
+	@$(LN) -fs $(TOPDIR)include/elf.h
 
 readelf: readelf.c
-	$(CC) $(CFLAGS) -Wl,-s $^ -o $@ $(LDADD_LIBFLOAT) -L../lib
+	$(CC) $(CFLAGS) -Wl,-s $^ -o $@ $(LDADD_LIBFLOAT) 
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldconfig:	ldconfig.c readsoname.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -static \
 		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
-		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
+		$^ -o $@ $(LDADD_LIBFLOAT) 
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldd:	ldd.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
-		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
+		$^ -o $@ $(LDADD_LIBFLOAT) 
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 iconv: ../libc/misc/wchar/wchar.c
 	$(CC) $(CFLAGS) -DL_iconv_main ../libc/misc/wchar/wchar.c -o $@ \
-		$(LDADD_LIBFLOAT) -L../lib
+		$(LDADD_LIBFLOAT) 
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
+hostutils: ldd.host ldconfig.host readelf.host
+
+ldd.host:	ldd.c
+	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
+		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
+		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
+		$^ -o $@
+
+ldconfig.host:	ldconfig.c readsoname.c
+	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
+		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
+		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
+		$^ -o $@
+
+readelf.host: readelf.c
+	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s $^ -o $@
+
 clean:
-	$(RM) $(TARGETS) *.o *~ core *.target elf.h iconv
+	$(RM) $(TARGETS) *.o *~ core *.target elf.h iconv *.host
 
 
 readelf.c readsoname.c ldconfig.c ldd.c:	headers
