@@ -51,9 +51,9 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 	$(AR) rv ./tmp/libgcc-need.a
 	@(cd tmp && CC=$(CC) LD=$(LD) NM=$(NM) AR=$(AR) \
 		/bin/sh $(TOPDIR)../extra/scripts/get-needed-libgcc-objects.sh)
-	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
-		--whole-archive ./tmp/libgcc-need.a $(LIBNAME) --no-whole-archive \
-		-init __uClibc_init $(TOPDIR)/libc/misc/internals/interp.o \
+	$(CC) $(LDFLAGS) $(VERSION_SCRIPT) -Wl,-soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
+		-Wl,--whole-archive ./tmp/libgcc-need.a $(LIBNAME) -Wl,--no-whole-archive \
+		-Wl,-init,__uClibc_init $(TOPDIR)/libc/misc/internals/interp.o \
 		$(LIBGCC)
 	@true #rm -rf tmp
 	install -d $(TOPDIR)lib
