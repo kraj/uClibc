@@ -34,7 +34,7 @@ CSRC = auth_none.c auth_unix.c authunix_prot.c \
 	rpc_dtablesize.c rpc_prot.c svc.c svc_auth.c \
 	svc_auth_unix.c svc_raw.c svc_run.c svc_simple.c \
 	svc_tcp.c svc_udp.c xdr.c xdr_array.c xdr_float.c \
-	xdr_mem.c xdr_rec.c xdr_reference.c xdr_stdio.c
+	xdr_mem.c xdr_rec.c xdr_reference.c xdr_stdio.c rcmd.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
