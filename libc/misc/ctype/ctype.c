@@ -11,9 +11,11 @@
  * used ideas is part of the GNU C Library.
  */
 
+#define __USE_CTYPE_C_MACROS
 #include <ctype.h>
 
 #ifdef L_isascii
+#undef isascii
 int
 isascii( int c )
 {
@@ -22,6 +24,7 @@ isascii( int c )
 #endif
 
 #ifdef L_isdigit
+#undef isdigit
 int
 isdigit( int c )
 {
@@ -30,6 +33,7 @@ isdigit( int c )
 #endif
 
 #ifdef L_toascii
+#undef toascii
 int
 toascii( int c )
 {
@@ -42,6 +46,7 @@ toascii( int c )
 #ifndef __UCLIBC_HAS_LOCALE__
 
 #ifdef L_isalpha
+#undef isalpha
 int
 isalpha( int c )
 {
@@ -50,6 +55,7 @@ isalpha( int c )
 #endif
 
 #ifdef L_isalnum
+#undef isalnum
 int
 isalnum( int c )
 {
@@ -58,6 +64,7 @@ isalnum( int c )
 #endif
 
 #ifdef L_iscntrl
+#undef iscntrl
 int
 iscntrl( int c )
 {
@@ -66,6 +73,7 @@ iscntrl( int c )
 #endif
 
 #ifdef L_isgraph
+#undef isgraph
 int
 isgraph( int c )
 {
@@ -74,6 +82,7 @@ isgraph( int c )
 #endif
 
 #ifdef L_islower
+#undef islower
 int
 islower( int c )
 {
@@ -82,6 +91,7 @@ islower( int c )
 #endif
 
 #ifdef L_isprint
+#undef isprint
 int
 isprint( int c )
 {
@@ -90,6 +100,7 @@ isprint( int c )
 #endif
 
 #ifdef L_ispunct
+#undef ispunct
 int
 ispunct( int c )
 {
@@ -98,6 +109,7 @@ ispunct( int c )
 #endif
 
 #ifdef L_isspace
+#undef isspace
 int
 isspace( int c )
 {
@@ -107,6 +119,7 @@ isspace( int c )
 #endif
 
 #ifdef L_isupper
+#undef isupper
 int
 isupper( int c )
 {
@@ -115,6 +128,7 @@ isupper( int c )
 #endif
 
 #ifdef L_isxdigit
+#undef isxdigit
 int
 isxdigit( int c )
 {
@@ -123,6 +137,7 @@ isxdigit( int c )
 #endif
 
 #ifdef L_isxlower
+#undef isxlower
 int
 isxlower( int c )
 {
@@ -131,6 +146,7 @@ isxlower( int c )
 #endif
 
 #ifdef L_isxupper
+#undef isxupper
 int
 isxupper( int c )
 {
@@ -139,6 +155,7 @@ isxupper( int c )
 #endif
 
 #ifdef L_tolower
+#undef tolower
 int
 tolower( int c )
 {
@@ -147,6 +164,7 @@ tolower( int c )
 #endif
 
 #ifdef L_toupper
+#undef toupper
 int
 toupper( int c )
 {
@@ -177,6 +195,7 @@ const unsigned char *_uc_ctype_trans = _uc_ctype_b_C+LOCALE_BUF_SIZE/2;
 #endif  /* L_ctype_C */
 
 #ifdef L_isalpha
+#undef isalpha
 int
 isalpha( int c )
 {
@@ -185,6 +204,7 @@ isalpha( int c )
 #endif
 
 #ifdef L_isalnum
+#undef isalnum
 int
 isalnum( int c )
 {
@@ -193,6 +213,7 @@ isalnum( int c )
 #endif
 
 #ifdef L_iscntrl
+#undef iscntrl
 int
 iscntrl( int c )
 {
@@ -201,6 +222,7 @@ iscntrl( int c )
 #endif
 
 #ifdef L_isgraph
+#undef isgraph
 int
 isgraph( int c )
 {
@@ -209,6 +231,7 @@ isgraph( int c )
 #endif
 
 #ifdef L_islower
+#undef islower
 int
 islower( int c )
 {
@@ -217,6 +240,7 @@ islower( int c )
 #endif
 
 #ifdef L_isprint
+#undef isprint
 int
 isprint( int c )
 {
@@ -225,6 +249,7 @@ isprint( int c )
 #endif
 
 #ifdef L_ispunct
+#undef ispunct
 int
 ispunct( int c )
 {
@@ -233,6 +258,7 @@ ispunct( int c )
 #endif
 
 #ifdef L_isspace
+#undef isspace
 int
 isspace( int c )
 {
@@ -241,6 +267,7 @@ isspace( int c )
 #endif
 
 #ifdef L_isupper
+#undef isupper
 int
 isupper( int c )
 {
@@ -249,6 +276,7 @@ isupper( int c )
 #endif
 
 #ifdef L_isxdigit
+#undef isxdigit
 int
 isxdigit( int c )
 {
@@ -257,6 +285,7 @@ isxdigit( int c )
 #endif
 
 #ifdef L_isxlower
+#undef isxlower
 int
 isxlower( int c )
 {
@@ -265,6 +294,7 @@ isxlower( int c )
 #endif
 
 #ifdef L_isxupper
+#undef isxupper
 int
 isxupper( int c )
 {
@@ -273,6 +303,7 @@ isxupper( int c )
 #endif
 
 #ifdef L_tolower
+#undef tolower
 int
 tolower( int c )
 {
@@ -286,6 +317,7 @@ tolower( int c )
 #endif
 
 #ifdef L_toupper
+#undef toupper
 int
 toupper( int c )
 {

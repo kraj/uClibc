@@ -8,15 +8,9 @@
 
 __BEGIN_DECLS
 
-/* For now, just always use the functions instead of the macros...*/
-#define __USE_CTYPE_C_FUNCTIONS
-
 /* Locale-compatible macros/inlines have yet to be implemented. */
-#if defined(__UCLIBC_HAS_LOCALE__) && !defined(__USE_CTYPE_C_FUNCTIONS)
-#define __USE_CTYPE_C_FUNCTIONS
-#endif
+#if defined(__UCLIBC_HAS_LOCALE__) && !defined(__USE_CTYPE_C_MACROS)
 
-#ifdef __USE_CTYPE_C_FUNCTIONS
 /* function prototpes */ 
 extern int isalnum(int c);
 extern int isalpha(int c);
