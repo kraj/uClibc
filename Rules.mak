@@ -30,6 +30,7 @@ MINOR_VERSION=9.5
 LIBNAME=libc.a
 SHARED_FULLNAME=uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
 SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION)
+UCLIBC_LDSO=ld-linux-uclibc.so.$(MAJOR_VERSION)
 
 BUILDTIME = $(shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z")
 
@@ -60,7 +61,23 @@ ifndef $(PREFIX)
     PREFIX = `pwd`/_install
 endif
 
-NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g' -e 's/m68k.*/m68k/')
+NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g')
+
+LDSO_PRESENT=$(strip $(shell cd $(TOPDIR)/ld.so-1/d-link; ls -d $(TARGET_ARCH) 2>/dev/null))
+
+ifeq ($(NATIVE_ARCH), $(TARGET_ARCH))
+	SYSTEM_LDSO=$(shell ldd `which $(CC)` | sed -ne /ld/p | sed -e s/\ =.*//g)
+else
+	SYSTEM_LDSO=/lib/ld-linux.so.2
+endif
+
+ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
+	LDSO=ld.so-1/d-link/$(UCLIBC_LDSO)
+else
+	LDSO=$(SYSTEM_LDSO)
+endif
+	
+
 
 # It turns out the currently, function-sections causes ldelf2flt to segfault.
 # So till further notice, this is disabled by default....

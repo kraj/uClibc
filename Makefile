@@ -26,6 +26,7 @@
 #
 #--------------------------------------------------------
 
+TOPDIR=./
 include Rules.mak
 
 DIRS = extra misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd crypt
@@ -42,23 +43,24 @@ $(LIBNAME): subdirs
 shared: $(LIBNAME)
 	@rm -rf tmp
 	@mkdir tmp
-	@$(MAKE) -C ld.so-1/d-link
+	@$(MAKE) -C ld.so-1 d-link
 	@(cd tmp; CC=$(CC) /bin/sh ../extra/scripts/get-needed-libgcc-objects.sh)
 	if [ -s ./tmp/libgcc-need.a ] ; then \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
 		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
 		    ./$(LIBNAME) ./tmp/libgcc-need.a \
-		    ld.so-1/d-link/ld-linux-uclibc.so.0; \
+		    $(LDSO) ; \
 	else \
 		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
 		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
-		    ./$(LIBNAME) ld.so-1/d-link/ld-linux-uclibc.so.0; \
+		    ./$(LIBNAME) $(LDSO) ; \
 	fi
 	@rm -rf tmp
 	ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME)
 	ln -sf $(SHARED_MAJORNAME) libc.so
 	@$(MAKE) -C crypt shared
 	@$(MAKE) -C ld.so-1
+	echo "Using $(LDSO) for the shared library loader"
 
 done: $(LIBNAME) $(DO_SHARED)
 	@echo
