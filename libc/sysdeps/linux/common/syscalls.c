@@ -991,8 +991,10 @@ weak_alias(fstat, fstat64);
 
 //#define __NR_iopl             110
 #ifdef L_iopl
+/* For arm there is a totally different implementation */
+#if !defined(__arm__)
 /* Tuns out the m68k unistd.h kernel header is broken */
-#	if defined __UCLIBC_HAS_MMU__ && defined __NR_iopl && ! defined(__mc68000__)
+#	if defined __UCLIBC_HAS_MMU__ && defined __NR_iopl && ( !defined(__mc68000__))
 		_syscall1(int, iopl, int, level);
 #	else
 		int iopl(int level)
@@ -1001,6 +1003,7 @@ weak_alias(fstat, fstat64);
 			return -1;
 		}
 #	endif
+# endif
 #endif
 
 //#define __NR_vhangup          111
