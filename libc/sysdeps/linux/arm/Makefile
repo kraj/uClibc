@@ -23,6 +23,7 @@ ASFLAGS=$(CFLAGS)
 CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o gcrt1.o
 CRT0_DEPS=gmon-start.S
+CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
 	bsd-_setjmp.S sigrestorer.S mmap64.S
@@ -38,7 +39,7 @@ all: $(OBJS) $(LIBC)
 
 $(LIBC): ar-target 
 
-ar-target: $(OBJS) $(CRT0_OBJ)
+ar-target: $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
@@ -63,6 +64,30 @@ gmon-start.S: ../common/gmon-start.c
 	$(CC) $(SAFECFLAGS) -c $< -S -o $*.S
 gcrt1.o: $(CRT0_DEPS)
 endif
+
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+crti.o: crti.S
+	$(CC) $(SAFECFLAGS) -c crti.S -o crti.o
+
+$(TOPDIR)lib/crti.o: crti.o
+	$(INSTALL) -d $(TOPDIR)lib/
+	cp crti.o $(TOPDIR)lib/
+
+crtn.o: crtn.S
+	$(CC) $(SAFECFLAGS) -c crtn.S -o crtn.o
+
+$(TOPDIR)lib/crtn.o: crtn.o
+	$(INSTALL) -d $(TOPDIR)lib/
+	cp crtn.o $(TOPDIR)lib/
+else
+$(TOPDIR)lib/crti.o:
+	$(INSTALL) -d $(TOPDIR)lib/
+	$(AR) $(ARFLAGS) $(TOPDIR)lib/crti.o
+$(TOPDIR)lib/crtn.o:
+	$(INSTALL) -d $(TOPDIR)lib/
+	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
+endif
+
 
 headers:
 	$(LN) -fs ../libc/sysdeps/linux/arm/fpu_control.h $(TOPDIR)/include/
