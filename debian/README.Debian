@@ -1,0 +1,7 @@
+
+Known issues:
+
+- When building, doesn't depend correctly on kernel source.  It
+  just takes whatever is in /usr/src/linux, which is wrong.
+ 
+

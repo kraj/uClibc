@@ -1,0 +1,66 @@
+#if 0
+Macros used:
+CROSS - defined if we are building cross compiling packages.  This does
+  not mean that we are cross-building _this_ package.
+_HOST_ - suffix for the arch we are compiling
+_TARGET_ - suffix for the arch that the package will target
+#endif
+
+Source: uclibc
+Section: devel
+Priority: optional
+Maintainer: David Schleef <ds@schleef.org>
+Build-Depends: debhelper
+Standards-Version: 3.0.1
+
+#ifndef CROSS
+Package: libuclibc-dev
+Section: devel
+Architecture: any
+Depends: libuclibc0, ${shlibs:Depends}
+Conflicts: libuclibc-dev_HOST_
+Description: A small implementation of the C library
+ uClibc is an implementation of the standard C library that is
+ much smaller than glibc, which makes it useful for embedded
+ systems.
+
+Package: libuclibc0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: A small implementation of the C library
+ uClibc is an implementation of the standard C library that is
+ much smaller than glibc, which makes it useful for embedded
+ systems.
+
+Package: uclibc-gcc
+Section: devel
+Architecture: any
+Depends: c-compiler, binutils, ${shlibs:Depends}
+Description: A compiler wrapper for uClibc
+ This is a small wrapper for gcc, ld, and other toolchain utilities
+ to do compilation against uClibc instead of the native libc.
+ This package is used for cross compiling.
+#endif
+
+Package: libuclibc-dev_TARGET_
+Section: devel
+Architecture: all
+Depends: 
+Suggests: uclibc-gcc_TARGET_
+Description: A small implementation of the C library
+ uClibc is an implementation of the standard C library that is
+ much smaller than glibc, which makes it useful for embedded
+ systems.  This package is used for cross compiling.
+
+#ifdef CROSS
+Package: uclibc-gcc_TARGET_
+Section: devel
+Architecture: any
+Depends: c-compiler_TARGET_, binutils, ${shlibs:Depends}
+Description: A compiler wrapper for uClibc
+ This is a small wrapper for gcc, ld, and other toolchain utilities
+ to do compilation against uClibc instead of the native libc.
+ This package is used for cross compiling.
+#endif
+

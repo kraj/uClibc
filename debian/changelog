@@ -1,0 +1,28 @@
+uclibc (0.9.5-cvs20010630-2) unstable; urgency=low
+
+  * Create cross-compiling packages
+
+ -- David Schleef <ds@schleef.org>  Sat, 30 Jun 2001 17:12:41 -0700
+
+uclibc (0.9.5-cvs20010630-1) unstable; urgency=low
+
+  * No, really.  Initial Release.  I mean it this time.
+  * Clean up patch.
+
+ -- David Schleef <ds@schleef.org>  Sat, 30 Jun 2001 17:12:41 -0700
+
+uclibc (0.9.5-cvs20010626-1) unstable; urgency=low
+
+  * No, really.  Initial Release.
+
+ -- David Schleef <ds@schleef.org>  Thu, 28 Jun 2001 16:49:25 -0700
+
+uclibc (0.9.5-cvs20010625-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- David Schleef <ds@schleef.org>  Mon, 25 Jun 2001 22:13:43 -0700
+
+Local variables:
+mode: debian-changelog
+End:

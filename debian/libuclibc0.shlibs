@@ -1,0 +1,6 @@
+libuClibc 0 libuclibc0 (>> 0.9.5-0)
+libuClibm 0 libuclibc0 (>> 0.9.5-0)
+ld-uclibc 0 libuclibc0 (>> 0.9.5-0)
+libuClibdl 0 libuclibc0 (>> 0.9.5-0)
+libuClibcrypt 0 libuclibc0 (>> 0.9.5-0)
+libuClibutil 0 libuclibc0 (>> 0.9.5-0)
