@@ -12,6 +12,7 @@ BEGIN \
   system("/bin/rm -f crt[in].S");
   omitcrti=0;
   omitcrtn=0;
+  do_sh_specials = 0;
   glb_idx = 0;
   while(getline < "initfini.S")
   { if(/\.endp/) {endp=1}
@@ -30,11 +31,11 @@ BEGIN \
   close("initfini.S");
 }
 # special rules for the SuperH targets (They do nothing on other targets)
-/SH_GLB_BEGINS/ && glb_idx==0 {omitcrti +=1}
+/SH_GLB_BEGINS/ && glb_idx==0 {omitcrti +=1;do_sh_specials++}
 /_init_SH_GLB/  && glb_idx>=1 {print glb_label[0] glb >> "crti.S"}
 /_fini_SH_GLB/  && glb_idx>=2 {print glb_label[1] glb >> "crti.S"}
 /SH_GLB_ENDS/   && glb_idx==0 {omitcrti -=1}
-/SH_GLB/ || /_GLOBAL_OFFSET_TABLE_/{getline}
+/SH_GLB/ || /_GLOBAL_OFFSET_TABLE_/ && do_sh_specials>=1 {getline}
 # special rules for H8/300 (sorry quick hack)
 /.h8300h/ {end=0}
 
@@ -49,6 +50,10 @@ BEGIN \
 /EPILOG_BEGINS/{omitcrtn=0;getline}
 /EPILOG_ENDS/{omitcrtn=1;getline}
 /TRAILER_BEGINS/{omitcrti=0;omitcrtn=0;getline}
+/GMON_STUFF_BEGINS/{omitcrtn=1;getline}
+/GMON_STUFF_PAUSES/{omitcrtn=0;getline}
+/GMON_STUFF_UNPAUSES/{omitcrtn=1;getline}
+/GMON_STUFF_ENDS/{omitcrtn=0;getline}
 
 /END_INIT/ \
 { if(endp)

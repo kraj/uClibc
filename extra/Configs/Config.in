@@ -97,6 +97,43 @@ config UCLIBC_CTOR_DTOR
 	  or dtors and want your binaries to be as small as possible, then
 	  answer N.
 
+config UCLIBC_PROFILING
+	bool "Support gprof profiling"
+	default y
+	help
+	  If you wish to build uClibc with support for application profiling
+	  using the gprof tool, then you should enable this feature.  Then in
+	  addition to building uClibc with profiling support, you will also
+	  need to recompile all your shared libraries with the profiling
+	  enabled version of uClibc.  To add profiling support to your
+	  applications, you must compile things using the gcc options
+	  "-fprofile-arcs  -pg".  Then when you run your applications, a
+	  gmon.out file will be generated which can then be analyzed by
+	  'gprof'.  
+
+	  These exist a number of less invasive alternatives that do not
+	  require your to specially instrument your application, and recompile
+	  and relink everything.  
+	  
+	  Many people have had good results using the combination of Valgrind 
+	  to generate profiling information and KCachegrind for analysis:
+		  http://developer.kde.org/~sewardj/
+		  http://kcachegrind.sourceforge.net/
+
+	  The OProfile system-wide profiler is another alternative:
+		  http://oprofile.sourceforge.net/
+
+	  Prospect is another alternative based on OProfile:
+		  http://prospect.sourceforge.net/
+
+	  And the Linux Trace Toolkit (LTT) is also a fine tool:
+		http://www.opersys.com/LTT/
+
+	  If none of these tools do what you need, you can of course enable
+	  this option, rebuild everything, and use 'gprof'.  There is both a
+	  size and performance penelty to profiling your applications this way,
+	  so most people should answer N.
+
 config UCLIBC_HAS_THREADS
 	bool "POSIX Threading Support"
 	default y

@@ -36,6 +36,11 @@ else
 endif
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 	@echo "#define __UCLIBC_CTOR_DTOR__ 1" >> gcc-uClibc.h
+ifeq ($(strip $(UCLIBC_PROFILING)),y)
+	@echo "#define __UCLIBC_PROFILING__ 1" >> gcc-uClibc.h
+else
+	@echo "#undef __UCLIBC_PROFILING__" >> gcc-uClibc.h
+endif
 else
 	@echo "#undef __UCLIBC_CTOR_DTOR__" >> gcc-uClibc.h
 endif

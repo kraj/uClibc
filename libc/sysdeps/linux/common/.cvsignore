@@ -1,3 +1,4 @@
 crti.S
 crtn.S
 initfini.S
+gmon-start.S

@@ -149,6 +149,10 @@ int main(int argc, char **argv)
 	int ctor_dtor = 1, cplusplus = 0, use_nostdinc_plus = 0;
 	char *GPLUSPLUS_BIN = NULL;
 #endif
+#ifdef __UCLIBC_PROFILING__
+	int profile = 0;
+	char *gcrt1_path[2];
+#endif
 
 	application_name = basename(argv[0]);
 	if (application_name[0] == '-')
@@ -207,6 +211,10 @@ int main(int argc, char **argv)
 #else
 	xstrcat(&(crt0_path[0]), devprefix, "/lib/crt0.o", NULL);
 	xstrcat(&(crt0_path[1]), builddir, "/lib/crt0.o", NULL);
+#endif
+#ifdef __UCLIBC_PROFILING__
+	xstrcat(&(gcrt1_path[0]), devprefix, "/lib/gcrt1.o", NULL);
+	xstrcat(&(gcrt1_path[1]), builddir, "/lib/gcrt1.o", NULL);
 #endif
 
 	xstrcat(&(our_lib_path[0]), "-L", devprefix, "/lib", NULL);
@@ -312,13 +320,25 @@ int main(int argc, char **argv)
 						}
 					}
 					break;
+#ifdef __UCLIBC_PROFILING__
+				case 'p':
+					if (strcmp("-pg",argv[i]) == 0) {
+					    profile = 1;
+					}
+					break;
+#endif
 				case 'f':
 					/* Check if we are doing PIC */
 					if (strcmp("-fPIC",argv[i]) == 0) {
 					    use_pic = 1;
 					} else if (strcmp("-fpic",argv[i]) == 0) {
 					    use_pic = 1;
+					} 
+#ifdef __UCLIBC_PROFILING__
+					else if (strcmp("-fprofile-arcs",argv[i]) == 0) {
+					    profile = 1;
 					}
+#endif
 					break;
 
 				case '-':
@@ -420,6 +440,11 @@ int main(int argc, char **argv)
 
 	if (linking && source_count) {
 
+#ifdef __UCLIBC_PROFILING__
+	    if (profile) {
+		gcc_argv[i++] = gcrt1_path[use_build_dir];
+	    }
+#endif
 #ifdef __UCLIBC_CTOR_DTOR__
 	    if (ctor_dtor) {
 	        gcc_argv[i++] = crti_path[use_build_dir];
@@ -431,7 +456,12 @@ int main(int argc, char **argv)
 	    }
 #endif
 	    if (use_start) {
-		gcc_argv[i++] = crt0_path[use_build_dir];
+#ifdef __UCLIBC_PROFILING__
+		if (!profile)
+#endif
+		{
+		    gcc_argv[i++] = crt0_path[use_build_dir];
+		}
 	    }
 	    for ( l = 0 ; l < k ; l++ ) {
 		if (gcc_argument[l]) gcc_argv[i++] = gcc_argument[l];

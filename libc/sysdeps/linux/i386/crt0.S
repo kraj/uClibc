@@ -74,7 +74,7 @@ _start:
 	pushl %ebp      /* callers %ebp (frame pointer) */
 	movl %esp,%ebp  /* mark callers stack frame as invalid */
 
-#if defined L_crt1 && defined __UCLIBC_CTOR_DTOR__
+#if (defined L_crt1 || defined L_gcrt1 ) && defined __UCLIBC_CTOR_DTOR__
 	/* Push .init and .fini arguments to __uClibc_start_main() on the stack */
 	pushl $_fini
 	pushl $_init
@@ -98,4 +98,9 @@ _start:
 	/* Crash if somehow `exit' returns anyways.  */
 	hlt
 .size _start,.-_start
+
+
+#if defined L_gcrt1
+# include "./gmon-start.S"
+#endif
 

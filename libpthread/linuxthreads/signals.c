@@ -21,7 +21,7 @@
 #include "internals.h"
 #include "spinlock.h"
 #include <ucontext.h>
-#include <sigcontextinfo.h>
+#include <bits/sigcontextinfo.h>
 
 /* mods for uClibc: __libc_sigaction is not in any standard headers */
 extern int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact);

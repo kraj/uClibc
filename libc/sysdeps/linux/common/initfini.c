@@ -38,7 +38,6 @@
 
 #include <features.h>
 
-#undef GMON_SUPPORT
 
 /* We use embedded asm for .section unconditionally, as this makes it
    easier to insert the necessary directives into crtn.S. */
@@ -87,6 +86,7 @@ dummy (void (*foo) (void))
 asm ("\n/*@_init_PROLOG_BEGINS*/");
 
 #ifdef GMON_SUPPORT
+asm ("\n/*@_init_GMON_STUFF_BEGINS*/");
 static void
 call_gmon_start(void)
 {
@@ -96,6 +96,7 @@ call_gmon_start(void)
   if (gmon_start)
     gmon_start ();
 }
+asm ("\n/*@_init_GMON_STUFF_PAUSES*/");
 #endif
 
 SECTION (".init")
@@ -106,6 +107,7 @@ extern void _init (void);
 void _init (void)
 {
 #ifdef GMON_SUPPORT
+asm ("\n/*@_init_GMON_STUFF_UNPAUSES*/");
   /* We cannot use the normal constructor mechanism in gcrt1.o because it
      appears before crtbegin.o in the link, so the header elt of .ctors
      would come after the elt for __gmon_start__.  One approach is for
@@ -113,6 +115,7 @@ void _init (void)
      module which has a constructor; but then user code's constructors
      would come first, and not be profiled.  */
   call_gmon_start ();
+asm ("\n/*@_init_GMON_STUFF_ENDS*/");
 #else
   asm ("\n/*@_init_PROLOG_PAUSES*/");
   {

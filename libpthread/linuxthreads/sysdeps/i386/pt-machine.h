@@ -35,6 +35,52 @@ extern int __compare_and_swap (long int *p, long int oldval, long int newval);
 #define CURRENT_STACK_FRAME  __builtin_frame_address (0)
 
 
+/* See if we can optimize for newer cpus... */
+#if defined __GNUC__ && __GNUC__ >= 2 && defined __i486__ || defined __pentium__ || defined __pentiumpro__
+
+/* Spinlock implementation; required.  */
+PT_EI long int
+testandset (int *spinlock)
+{
+  long int ret;
+
+  __asm__ __volatile__ (
+	"xchgl %0, %1"
+	: "=r" (ret), "=m" (*spinlock)
+	: "0" (1), "m" (*spinlock)
+	: "memory");
+
+  return ret;
+}
+
+/* Compare-and-swap for semaphores.  It's always available on i686.  */
+#define HAS_COMPARE_AND_SWAP
+
+PT_EI int
+__compare_and_swap (long int *p, long int oldval, long int newval)
+{
+  char ret;
+  long int readval;
+
+  __asm__ __volatile__ ("lock; cmpxchgl %3, %1; sete %0"
+			: "=q" (ret), "=m" (*p), "=a" (readval)
+			: "r" (newval), "m" (*p), "a" (oldval)
+			: "memory");
+  return ret;
+}
+
+#if __ASSUME_LDT_WORKS > 0
+#include "../useldt.h"
+#endif
+
+/* The P4 and above really want some help to prevent overheating.  */
+#define BUSY_WAIT_NOP	__asm__ ("rep; nop")
+
+
+#else /* Generic i386 implementation */
+
+
+
 /* Spinlock implementation; required.  */
 PT_EI long int
 testandset (int *spinlock)
@@ -103,6 +149,8 @@ compare_and_swap_is_available (void)
      Otherwise, it's a 486 or above and it has cmpxchg.  */
   return changed != 0;
 }
+#endif /* Generic i386 implementation */
+
 #endif /* __ASSEMBLER__ */
 
 #endif /* pt-machine.h */

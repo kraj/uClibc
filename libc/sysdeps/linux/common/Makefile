@@ -29,6 +29,9 @@ CSRC=	waitpid.c getdnnm.c gethstnm.c getcwd.c ptrace.c \
 ifneq ($(strip $(EXCLUDE_BRK)),y)
 CSRC+=sbrk.c
 endif
+ifeq ($(strip $(UCLIBC_PROFILING)),y)
+CSRC+=gmon.c
+endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 MSRC=syscalls.c
@@ -43,6 +46,9 @@ SAFECFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) -fno-built
 SAFECFLAGS := $(subst -g,,$(SAFECFLAGS))
 ifeq ($(strip $(DOPIC)),y)
 SAFECFLAGS+=-fPIC
+endif
+ifeq ($(strip $(UCLIBC_PROFILING)),y)
+SAFECFLAGS+=-DGMON_SUPPORT
 endif
 
 OBJ=$(COBJS) $(MOBJ)
