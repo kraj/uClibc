@@ -143,10 +143,7 @@ void __init_stdio(void)
 	if (isatty(1)) {
 		stdout->mode |= _IOLBF;
 	}
-#if 1
-	/* Taken care of in _start.S and atexit.c now. */
 	atexit(__stdio_close_all);
-#endif
 }
 #endif
 
