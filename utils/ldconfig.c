@@ -874,18 +874,28 @@ int main(int argc, char **argv)
 	/* look ma, no defaults */
 	if (!nodefault)
 	{
+	    scan_dir(UCLIBC_RUNTIME_PREFIX "lib");
+	    scan_dir(UCLIBC_RUNTIME_PREFIX "usr/lib");
+
 	    /* I guess the defaults aren't good enough */
 	    if ((extpath = get_extpath()))
 	    {
-		for (cp = strtok(extpath, DIR_SEP); cp;
-			cp = strtok(NULL, DIR_SEP))
+		for (cp = strtok(extpath, DIR_SEP); cp; cp = strtok(NULL, DIR_SEP)) {
+			/* strip traling slashes */
+			int len = strlen(cp);
+			if (len) 
+				while (cp[--len] == '/' && len)
+					cp[len] = 0;
+			if (strcmp(UCLIBC_RUNTIME_PREFIX "lib", cp) == 0 ||
+			    strcmp(UCLIBC_RUNTIME_PREFIX "usr/lib", cp) == 0) {
+				if (verbose >= 0)
+					warnx("Path `%s' given more than once\n", cp);
+				continue;
+			}
 		    scan_dir(cp);
+		}
 		free(extpath);
 	    }
-
-	    scan_dir(UCLIBC_RUNTIME_PREFIX "/usr/X11R6/lib");
-	    scan_dir(UCLIBC_RUNTIME_PREFIX "/usr/lib");
-	    scan_dir(UCLIBC_RUNTIME_PREFIX "/lib");
 	}
 
 #ifdef USE_CACHE
