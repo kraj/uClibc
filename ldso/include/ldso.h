@@ -11,3 +11,7 @@
 #include <ld_string.h>
 /* Pull in the arch specific page size */
 #include <asm/page.h>
+#ifndef PAGE_SIZE
+#  define PAGE_SHIFT		12
+#  define PAGE_SIZE		(1UL << PAGE_SHIFT)
+#endif
