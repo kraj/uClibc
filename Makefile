@@ -28,41 +28,42 @@
 
 include Rules.mak
 
-
 DIRS = misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd extra
 
 ifeq ($(strip $(HAS_MMU)),true)
 	DO_SHARED=shared
 endif
 
-all: $(STATIC_NAME) $(DO_SHARED) done
+all: libc.a $(DO_SHARED) done
 
-$(STATIC_NAME): halfclean headers uClibc_config.h subdirs
-	$(CROSS)ranlib $(STATIC_NAME)
+libc.a: halfclean headers uClibc_config.h subdirs
+	$(CROSS)ranlib libc.a
 
-# Surely there is a better way to do this then dumping all 
-# the objects into a tmp dir.  Please -- someone enlighten me.
-shared: $(STATIC_NAME)
+shared: libc.a
 	@rm -rf tmp
 	@mkdir tmp
 	@(cd tmp; CC=$(CC) /bin/sh ../extra/scripts/get-needed-libgcc-objects.sh)
 	if [ -s ./tmp/libgcc-need.a ] ; then \
-		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_NAME) \
-		    -Wl,-soname,$(SHARED_NAME) -Wl,--whole-archive \
+		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
+		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
 		    ./libc.a ./tmp/libgcc-need.a ; \
 	else \
-		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_NAME) \
-		    -Wl,-soname,$(SHARED_NAME) -Wl,--whole-archive ./libc.a ; \
+		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
+		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
+		    ./libc.a ; \
 	fi
 	@rm -rf tmp
+	ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME)
+	ln -sf $(SHARED_MAJORNAME) libc.so
 
-done: $(STATIC_NAME) $(DO_SHARED)
+done: libc.a $(DO_SHARED)
 	@echo
 	@echo Finally finished compiling...
 	@echo
 
 halfclean:
-	@rm -f $(STATIC_NAME) $(SHARED_NAME) crt0.o uClibc_config.h
+	@rm -f libc.a crt0.o uClibc_config.h
+	@rm -f $(SHARED_FULLNAME) $(SHARED_MAJORNAME) libc.so
 
 headers: dummy
 	@rm -f include/asm include/linux include/bits
@@ -89,9 +90,8 @@ headers: dummy
 tags:
 	ctags -R
 
-clean: subdirs_clean
+clean: subdirs_clean halfclean
 	@rm -rf tmp
-	rm -f $(STATIC_NAME) crt0.o $(SHARED_NAME) uClibc_config.h
 	rm -f include/asm include/linux include/bits
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
@@ -109,12 +109,13 @@ install_new: install_runtime install_dev
 install_runtime:
 ifneq ($(DO_SHARED),)
 	install -d $(INSTALL_DIR)/lib
-	install -m 644 $(SHARED_NAME) $(INSTALL_DIR)/lib/
-	(cd $(INSTALL_DIR)/lib;ln -sf $(SHARED_NAME) libuClibc.so)
+	install -m 644 $(SHARED_FULLNAME) $(INSTALL_DIR)/lib/
+	(cd $(INSTALL_DIR)/lib;ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME))
+	(cd $(INSTALL_DIR)/lib;ln -sf $(SHARED_MAJORNAME) libc.so)
 # ldconfig is really not necessary, and impossible to cross
-ifeq ($(INSTALL_DIR),)
-	/sbin/ldconfig -n $(INSTALL_DIR)/lib
-endif
+#ifeq ($(INSTALL_DIR),)
+#	/sbin/ldconfig -n $(INSTALL_DIR)/lib
+#endif
 else
 	echo shared library not installed
 endif
@@ -130,12 +131,15 @@ install_dev:
 	rm -f $(INSTALL_DIR)/include/linux
 	ln -s $(KERNEL_SOURCE)/include/asm $(INSTALL_DIR)/include/asm
 	ln -s $(KERNEL_SOURCE)/include/linux $(INSTALL_DIR)/include/linux
-	find include/ -type f -depth -exec install -m 644 {} $(INSTALL_DIR)/include/ ';'
-	find include/bits/ -type f -depth -exec install -m 644 {} $(INSTALL_DIR)/include/bits/ ';'
+	find include/ -type f -depth -not -path "*CVS*" -exec install -D -m 644 {} $(INSTALL_DIR)/'{}' ';'
+	find include/bits/ -type f -depth -not -path "*CVS*" -exec install -D -m 644 {} $(INSTALL_DIR)/'{}' ';'
+	install -m 644 include/bits/uClibc_config.h $(INSTALL_DIR)/include/bits/
 	install -d $(INSTALL_DIR)/lib
-	rm -f $(INSTALL_DIR)/lib/$(STATIC_NAME)
-	install -m 644 $(STATIC_NAME) $(INSTALL_DIR)/lib/
+	rm -f $(INSTALL_DIR)/lib/libc.a
+	install -m 644 libc.a $(INSTALL_DIR)/lib/
 	@if [ -f crt0.o ] ; then install -m 644 crt0.o $(INSTALL_DIR)/lib/; fi
+	install -d $(INSTALL_DIR)/bin
+	@if [ -f extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc ] ; then install -m 755 extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc $(INSTALL_DIR)/bin/ ; fi
 
 install:
 	echo Consider using 'make install_new'
@@ -151,9 +155,9 @@ install:
 	    cp $(SHARED_NAME) $(INSTALL_DIR)/lib; \
 	    chmod 644 $(INSTALL_DIR)/lib/$(SHARED_NAME); \
 	    chown -R root.root $(INSTALL_DIR)/lib/$(SHARED_NAME); \
-	    rm -f $(INSTALL_DIR)/lib/libuClibc.so; \
+	    rm -f $(INSTALL_DIR)/lib/libc.so; \
 	    ln -s $(INSTALL_DIR)/lib/$(SHARED_NAME) \
-		    $(INSTALL_DIR)/lib/libuClibc.so; \
+		    $(INSTALL_DIR)/lib/libc.so; \
 	    /sbin/ldconfig; \
 	fi;
 	@if [ "$(HAS_MMU)" = "false" ] ; then \
@@ -165,10 +169,10 @@ install:
 	    ln -s $(KERNEL_SOURCE)/include/linux $(INSTALL_DIR)/include/linux; \
 	    find include/ -type f -depth -print | cpio -pdmu $(INSTALL_DIR); \
 	    find include/bits/ -depth -print | cpio -pdmu $(INSTALL_DIR); \
-	    rm -f $(INSTALL_DIR)/lib/$(STATIC_NAME); \
-	    cp $(STATIC_NAME) $(INSTALL_DIR)/lib; \
-	    chmod 644 $(INSTALL_DIR)/lib/$(STATIC_NAME); \
-	    chown -R root.root $(INSTALL_DIR)/lib/$(STATIC_NAME); \
+	    rm -f $(INSTALL_DIR)/lib/libc.a; \
+	    cp libc.a $(INSTALL_DIR)/lib; \
+	    chmod 644 $(INSTALL_DIR)/lib/libc.a; \
+	    chown -R root.root $(INSTALL_DIR)/lib/libc.a; \
 	    if [ -f crt0.o ] ; then \
 		rm -f $(INSTALL_DIR)/lib/crt0.o; \
 		cp crt0.o $(INSTALL_DIR)/lib ; \

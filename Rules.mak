@@ -24,6 +24,14 @@
 
 include $(TOPDIR)Config
 
+MAJOR_VERSION=0
+MINOR_VERSION=95
+
+SHARED_FULLNAME=uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
+SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION)
+
+BUILDTIME = $(shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z")
+
 GCCINCDIR = $(shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp")
 
 # use '-Os' optimization if available, else use -O2, allow Config to override
