@@ -2,7 +2,7 @@ TOPDIR = ../../
 include $(TOPDIR)Rules.mak
 
 # NOTE: This may need to be modified for your system
-DYNAMIC_LINKER = /usr/$(TARGET_ARCH)-linux-uclibc/lib/ld-linux-uclibc.so.0
+DYNAMIC_LINKER = /usr/$(TARGET_ARCH)-linux-uclibc/lib/ld-linux-uclibc.so.$(MAJOR_VERSION)
 
 UCLIBC_DIR = $(shell (cd ../.. ; /bin/pwd))
 GCC_BIN = $(CC)
