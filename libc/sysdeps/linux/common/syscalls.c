@@ -802,7 +802,7 @@ int fstat(int filedes, struct libc_stat *buf)
 
 //#define __NR_olduname         109
 
-#ifdef __UCLIBC_HAS_MMU__
+#if defined __UCLIBC_HAS_MMU__ && defined __NR_iopl
 //#define __NR_iopl             110
 #ifdef L_iopl
 #include <sys/io.h>
