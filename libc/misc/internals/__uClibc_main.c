@@ -19,19 +19,22 @@
  */
 
 extern int main(int argc, char **argv, char **envp);
-extern void __uClibc_empty_func(void);
 
 void __uClibc_main(int argc, char **argv, char **envp)
 	 __attribute__ ((__noreturn__));
 
+
+
 #ifdef HAVE_ELF
 weak_alias(__environ, environ);
-weak_symbol(__init_stdio);
-weak_symbol(__stdio_close_all);
-#endif	
-
+extern void weak_function __init_stdio(void);
+extern void weak_function __stdio_close_all(void);
+extern void weak_function __pthread_initialize_minimal (void);
+#else
 extern void __init_stdio(void);
 extern void __stdio_close_all(void);
+extern void __pthread_initialize_minimal (void);
+#endif	
 
 typedef void (*vfuncp) (void);
 vfuncp __uClibc_cleanup = __stdio_close_all;
@@ -47,6 +50,19 @@ void __uClibc_main(int argc, char **argv, char **envp)
 	 */
 	__environ = envp;
 
+	/* Initialize the thread library at least a bit so at least
+	 * errno will be properly setup */
+	if (__pthread_initialize_minimal)
+	    __pthread_initialize_minimal ();
+
+#if 0
+	/* Some security at this point.  Prevent starting a SUID binary
+	 * where the standard file descriptors are not opened.  We have
+	 * to do this only for statically linked applications since
+	 * otherwise the dynamic loader did the work already.  */
+	if (__builtin_expect (__libc_enable_secure, 0))
+	    __libc_check_standard_fds ();
+#endif
 	/*
 	 * Initialize stdio here.  In the static library case, this will
 	 * be bypassed if not needed because of the weak alias above.
@@ -85,11 +101,12 @@ char **__environ = 0;
  * NOTE!!! This is only true for the _static_ case!!!
  */
 
+weak_alias(__environ, environ);
+#if 0
 void __uClibc_empty_func(void)
 {
 }
-
-weak_alias(__environ, environ);
-/*weak_alias(__uClibc_empty_func, __init_stdio);*/
-/*weak_alias(__uClibc_empty_func, __stdio_close_all);*/
+weak_alias(__uClibc_empty_func, __init_stdio);
+weak_alias(__uClibc_empty_func, __stdio_close_all);
+#endif
 #endif	

@@ -333,28 +333,31 @@
 
 /* Some nice features only work properly with ELF */
 #if defined _LIBC && defined HAVE_ELF	
+/* Define ALIASNAME as a weak alias for NAME. */
 #  define weak_alias(name, aliasname) _weak_alias (name, aliasname)
+#  define _weak_alias(name, aliasname) \
+      extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
+/* Define ALIASNAME as a strong alias for NAME.  */
+# define strong_alias(name, aliasname) _strong_alias(name, aliasname)
+# define _strong_alias(name, aliasname) \
+  extern __typeof (name) aliasname __attribute__ ((alias (#name)));
+/* This comes between the return type and function name in
+ *    a function definition to make that definition weak.  */
+# define weak_function __attribute__ ((weak))
+/* Tacking on "\n\t#" to the section name makes gcc put it's bogus
+ * section attributes on what looks like a comment to the assembler. */
 #  define link_warning(symbol, msg)					      \
 	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");	      \
 	    static const char __evoke_link_warning_##symbol[]		      \
 	    __attribute__ ((section (".gnu.warning." #symbol "\n\t#"))) = msg;
-#  define _weak_alias(name, aliasname) \
-      extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
-/*
-#   define _weak_alias(name, aliasname)					      \
-	asm(".global " C_SYMBOL_PREFIX #name ";"			      \
-	    ".weak " C_SYMBOL_PREFIX #aliasname ";"			      \
-	    C_SYMBOL_PREFIX #aliasname "="  C_SYMBOL_PREFIX #name ";");
-*/
-#   define weak_symbol(name)						      \
-	asm(".weak " C_SYMBOL_PREFIX #name ";");
 #else
-#  define weak_alias(name, aliasname) _weak_alias (name, aliasname)
+#  define strong_alias(name, aliasname) _strong_alias (name, aliasname)
+#  define weak_alias(name, aliasname) _strong_alias (name, aliasname)
+#  define _strong_alias(name, aliasname) \
+	__asm__(".global _" #aliasname "\n.set _" #aliasname ",_" #name);
 #  define link_warning(symbol, msg) \
 	asm (".stabs \"" msg "\",30,0,0,0\n\t" \
 	      ".stabs \"" #symbol "\",1,0,0,0\n");
-#  define _weak_alias(name, aliasname) \
-	__asm__(".global _" #aliasname "\n.set _" #aliasname ",_" #name);
 #endif
 
 /* --- this is added to integrate linuxthreads */
