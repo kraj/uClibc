@@ -132,6 +132,12 @@ void *_dlopen(const char *libname, int flag)
 	int (*dl_elf_init) (void);
 #endif
 
+	/* A bit of sanity checking... */
+	if (!(flag & RTLD_LAZY|RTLD_NOW)) {
+		_dl_error_number = LD_BAD_HANDLE;
+		return NULL;
+	}
+
 	from = __builtin_return_address(0);
 
 	/* Have the dynamic linker use the regular malloc function now */
@@ -320,14 +326,15 @@ static int do_fixup(struct elf_resolve *tpnt, int flag)
 			return goof;
 		tpnt->init_flag |= JMP_RELOCS_DONE;
 
-		if (flag == RTLD_LAZY)
+		if (flag == RTLD_LAZY) {
 			_dl_parse_lazy_relocation_information(tpnt, 
 				tpnt->dynamic_info[DT_JMPREL], 
 				tpnt->dynamic_info[DT_PLTRELSZ], 0);
-		else
+		} else {
 			goof += _dl_parse_relocation_information(tpnt, 
 				tpnt->dynamic_info[DT_JMPREL], 
 				tpnt->dynamic_info[DT_PLTRELSZ], 0);
+		}
 	};
 	return goof;
 }
