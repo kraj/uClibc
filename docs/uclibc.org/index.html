@@ -112,18 +112,46 @@ you might want to search the mailing list archives...
 <ul>
 
     <p>
+    <li> <b>12 February 2003, uClibc 0.9.18 Released</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.18.  This is primarily a bug-fix release, as there were a few
+    directory handling problem that could cause application using uClibc 0.9.17
+    to either segfault or lose the first character when reading directry names.
+    Unfortunately, once again, this release is _NOT_ binary compatible with
+    earlier uClibc releases.  I _think this will be the last time (with the
+    possible exception of some future changes to our locale support...)
+
+    <p>
+    As usual, the 
+    <a href="http://www.uclibc.org/downloads/Changelog">Changelog</a>
+    and <a href="http://www.uclibc.org/downloads/uClibc-0.9.17.tar.bz2">source code</a> 
+    for this release are available <a href="http://www.uclibc.org/downloads/">here</a>.
+    You might want to download uClibc from the closest 
+    <a href="http://kernel.org/mirrors/">kernel.org mirror site</a>.
+    Just pick the closest mirror site, and then go to 
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/">
+    http://www.XX.kernel.org/pub/linux/libs/uclibc/</a>
+    to download uClibc, where XX is your two letter country code.
+    <p>
+    <p>
+
+<!-- 
+    <p>
     <li> <b>10 February 2003, development system updates</b>
     <br>
 
     A few problems have turned up in both uClibc and the development
     systems since the last release.  The development systems for
-    <a href="http://www.uclibc.org/downloads/root_fs_0.9.17-i386.bz2">i386</a>, 
-    <a href="http://www.uclibc.org/downloads/root_fs_0.9.17-arm.bz2">arm</a>
+    <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">i386</a>, 
+    <a href="http://www.uclibc.org/downloads/root_fs-arm.bz2">arm</a>
     and
-    <a href="http://www.uclibc.org/downloads/root_fs_0.9.17-powerpc.bz2">powerpc</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs-powerpc.bz2">powerpc</a>,
     have been updated to address these issues.  The arm image also includes
     the recent fix allowing gdb to properly debug arm binaries...  Have Fun.
     <p>
+-->
 
 
     <p>
@@ -169,9 +197,9 @@ you might want to search the mailing list archives...
 
     <p>
     As usual, the 
-    <a href="http://www.kernel.org/pub/linux/libs/uclibc/Changelog">Changelog</a>
-    and <a href="http://www.kernel.org/pub/linux/libs/uclibc/uClibc-0.9.17.tar.bz2">source code</a> 
-    for this release are available <a href="http://www.kernel.org/pub/linux/libs/uclibc/">here</a>.
+    <a href="http://www.uclibc.org/downloads/Changelog">Changelog</a>
+    and <a href="http://www.uclibc.org/downloads/uClibc-0.9.17.tar.bz2">source code</a> 
+    for this release are available <a href="http://www.uclibc.org/downloads/">here</a>.
     You might want to download uClibc from the closest 
     <a href="http://kernel.org/mirrors/">kernel.org mirror site</a>.
     Just pick the closest mirror site, and then go to 
@@ -188,12 +216,12 @@ you might want to search the mailing list archives...
 
     A number of additional problems have been fixed and the arm build 
     is now, finally, compiling and working as expected.  As such, 
-    I have updated the <a href="http://www.uclibc.org/downloads/root_fs_0.9.17-i386.bz2">
+    I have updated the <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">
     i386 development system image</a>, the 
-    <a href="http://www.uclibc.org/downloads/root_fs_0.9.17-powerpc.bz2">
+    <a href="http://www.uclibc.org/downloads/root_fs-powerpc.bz2">
     powerpc development system image</a>, and I am also releasing
     upon an unsuspecting world the brand new
-    <a href="http://www.uclibc.org/downloads/root_fs_0.9.17-arm.bz2">
+    <a href="http://www.uclibc.org/downloads/root_fs-arm.bz2">
     arm development system image</a>!  
     Have fun!
     <p>
@@ -223,9 +251,9 @@ you might want to search the mailing list archives...
 
     A few problems showed up in yesterday's development system release
     (adduser was broken, gdb didn't work, libstdc++ shared libs were missing,
-    etc).  So I've updated the <a href="http://www.uclibc.org/downloads/root_fs_0.9.17-i386.bz2">
+    etc).  So I've updated the <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">
     i386 development system image</a> to fix these problems.
-    Also, the <a href="http://www.uclibc.org/downloads/root_fs_0.9.17-powerpc.bz2">
+    Also, the <a href="http://www.uclibc.org/downloads/root_fs-powerpc.bz2">
     powerpc development system image</a> has finally finished compiling
     and is now released upon an unsuspecting world.  Have fun!
     <p>
@@ -250,7 +278,7 @@ you might want to search the mailing list archives...
 
     <p>
 
-    The <a href="http://www.uclibc.org/downloads/root_fs_0.9.17-i386.bz2">
+    The <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">
     uClibc development system is an 18MB bzip2 compressed ext2 filesystem</a>,
     so be prepared to wait if you are on a slow link.  If you wish to have more
     space, you can loop mount it and 'cp -a' the contents to their own
@@ -260,7 +288,7 @@ you might want to search the mailing list archives...
     hard drive (in my case /dev/hdg but you'll want to adapt this to your own 
     needs), so I partitioned it with a single ext2 partition filling the drive 
     (in my case /dev/hdg1).  Then I ran:<PRE>
-    bzcat root_fs_0.9.17-i386.bz2 | dd of=/dev/hdg1
+    bzcat root_fs-i386.bz2 | dd of=/dev/hdg1
     e2fsck -f /dev/hdg1
     resize2fs -p /dev/hdg1</PRE>
 
