@@ -67,7 +67,7 @@ finished: shared
 
 include/bits/uClibc_config.h: .config
 	@if [ ! -x ./extra/config/conf ] ; then \
-	    make -C extra/config conf; \
+	    $(MAKE) -C extra/config conf; \
 	fi;
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
@@ -124,7 +124,7 @@ ifeq ($(strip $(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA)),y)
 endif
 ifeq ($(strip $(UCLIBC_PREGENERATED_LOCALE_DATA)),y)
 	(cd extra/locale; zcat $(LOCALE_DATA_FILENAME) | tar -xvf -)
-	make -C extra/locale pregen
+	$(MAKE) -C extra/locale pregen
 endif
 
 
@@ -268,10 +268,10 @@ all: menuconfig
 # configuration
 # ---------------------------------------------------------------------------
 extra/config/conf:
-	make -C extra/config conf
+	$(MAKE) -C extra/config conf
 
 extra/config/mconf:
-	make -C extra/config ncurses mconf
+	$(MAKE) -C extra/config ncurses mconf
 
 menuconfig: extra/config/mconf
 	$(RM) -r include/bits
