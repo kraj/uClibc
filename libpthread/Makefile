@@ -50,7 +50,7 @@ $(OBJ): Makefile
 shared: all
 	$(LD) $(LDFLAGS) -o $(LIBPTHREAD_SHARED_FULLNAME) \
 	    -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
-	    --whole-archive $(LIBPTHREAD);
+	    --whole-archive $(LIBPTHREAD) -L$(TOPDIR)/lib -lc;
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
 	install -m 644 $(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib;

@@ -95,7 +95,7 @@ shared: all
 	    set -x -e; \
 	    $(LD) $(LDFLAGS) -o $(LIBM_SHARED_FULLNAME) \
 		-soname=$(LIBM_SHARED).$(MAJOR_VERSION) \
-		--whole-archive $(LIBM); \
+		--whole-archive $(LIBM) -L$(TOPDIR)/lib -lc; \
 	    install -d $(TOPDIR)lib; \
 	    rm -f $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION); \
 	    install -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib; \
