@@ -106,6 +106,7 @@ headers1: dummy
 	rm -rf include/bits
 	mkdir -p include/bits
 	@cd include/bits; \
+	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
 		ln -fs $$i .; \
 	done; \
@@ -115,6 +116,7 @@ headers1: dummy
 		done; \
 	fi
 	@cd include/sys; \
+	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/sys/*.h` ; do \
 		ln -fs $$i .; \
 	done; \
@@ -124,7 +126,7 @@ headers1: dummy
 		done; \
 	fi
 
-headers:
+headers: headers1
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
 uClibc_config: Makefile Config
