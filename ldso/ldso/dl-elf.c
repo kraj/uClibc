@@ -159,7 +159,7 @@ extern char *_dl_ldsopath;
 struct elf_resolve *_dl_load_shared_library(int secure, 
 	struct elf_resolve *tpnt, char *full_libname)
 {
-	char *pnt, *pnt1;
+	char *pnt;
 	struct elf_resolve *tpnt1;
 	char *libname;
 
