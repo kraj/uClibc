@@ -24,6 +24,7 @@
 #ifndef _LINUX_KERNEL_H
 /* Include our own copy of struct sysinfo to avoid binary compatability
  * problems with Linux 2.4, which changed things.  Grumble, grumble. */
+#define SI_LOAD_SHIFT	16
 struct sysinfo {
 	long uptime;			/* Seconds since boot */
 	unsigned long loads[3];		/* 1, 5, and 15 minute load averages */
