@@ -51,7 +51,7 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 		  "move\t%0, $2\n\t" \
 		  "move\t%1, $7" \
 		  : "=r" (__res), "=r" (__err) \
-		  : "i" (__NR_##name),"r" ((long)(a)) \
+		  : "i" (__NR_##name),"r" ((unsigned long)(a)) \
 		  : "$2","$4","$7","$8","$9","$10","$11","$12","$13","$14","$15","$24","memory"); \
 if (__err == 0) \
 	return (type) __res; \
@@ -70,8 +70,8 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 		  "move\t%0, $2\n\t" \
 		  "move\t%1, $7" \
                   : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name),"r" ((long)(a)), \
-                                      "r" ((long)(b)) \
+                  : "i" (__NR_##name),"r" ((unsigned long)(a)), \
+                                      "r" ((unsigned long)(b)) \
                   : "$2","$4","$5","$7","$8","$9","$10","$11","$12","$13", \
 		    "$14","$15", "$24","memory"); \
 if (__err == 0) \
@@ -92,9 +92,9 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 		  "move\t%0, $2\n\t" \
 		  "move\t%1, $7" \
                   : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name),"r" ((long)(a)), \
-                                      "r" ((long)(b)), \
-                                      "r" ((long)(c)) \
+                  : "i" (__NR_##name),"r" ((unsigned long)(a)), \
+                                      "r" ((unsigned long)(b)), \
+                                      "r" ((unsigned long)(c)) \
                   : "$2","$4","$5","$6","$7","$8","$9","$10","$11","$12", \
 		    "$13","$14","$15","$24","memory"); \
 if (__err == 0) \
@@ -116,10 +116,10 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 		  "move\t%0, $2\n\t" \
 		  "move\t%1, $7" \
                   : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name),"r" ((long)(a)), \
-                                      "r" ((long)(b)), \
-                                      "r" ((long)(c)), \
-                                      "r" ((long)(d)) \
+                  : "i" (__NR_##name),"r" ((unsigned long)(a)), \
+                                      "r" ((unsigned long)(b)), \
+                                      "r" ((unsigned long)(c)), \
+                                      "r" ((unsigned long)(d)) \
                   : "$2","$4","$5","$6","$7","$8","$9","$10","$11","$12", \
 		    "$13","$14","$15","$24","memory"); \
 if (__err == 0) \
@@ -132,7 +132,7 @@ return (type)-1; \
 type name (atype a,btype b,ctype c,dtype d,etype e) \
 { \
 long __res, __err; \
-const unsigned long *constE = (unsigned long) e; \
+const unsigned long *constE = (unsigned long *) e; \
 __asm__ volatile ("move\t$4,%3\n\t" \
                   "move\t$5,%4\n\t" \
                   "move\t$6,%5\n\t" \
@@ -146,11 +146,11 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 		  "move\t%1, $7\n\t" \
 		  "addiu\t$29,24" \
                   : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name),"r" ((long)(a)), \
-                                      "r" ((long)(b)), \
-                                      "r" ((long)(c)), \
-                                      "r" ((long)(d)), \
-                                      "m" (constE) \
+                  : "i" (__NR_##name),"r" ((unsigned long)(a)), \
+                                      "r" ((unsigned long)(b)), \
+                                      "r" ((unsigned long)(c)), \
+                                      "r" ((unsigned long)(d)), \
+                                      "m" ((constE)) \
                   : "$2","$4","$5","$6","$7","$8","$9","$10","$11","$12", \
                     "$13","$14","$15","$24","memory"); \
 if (__err == 0) \
@@ -163,8 +163,8 @@ return (type)-1; \
 type name (atype a,btype b,ctype c,dtype d,etype e,ftype f) \
 { \
 long __res, __err; \
-const unsigned long *constE = (unsigned long) e; \
-const unsigned long *constF = (unsigned long) f; \
+const unsigned long *constE = (unsigned long *) e; \
+const unsigned long *constF = (unsigned long *) f; \
 __asm__ volatile ("move\t$4,%3\n\t" \
                   "move\t$5,%4\n\t" \
                   "move\t$6,%5\n\t" \
@@ -180,12 +180,12 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 		  "move\t%1, $7\n\t" \
 		  "addiu\t$29,24" \
                   : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name),"r" ((long)(a)), \
-                                      "r" ((long)(b)), \
-                                      "r" ((long)(c)), \
-                                      "r" ((long)(d)), \
-                                      "m" (constE), \
-                                      "m" (constF) \
+                  : "i" (__NR_##name),"r" ((unsigned long)(a)), \
+                                      "r" ((unsigned long)(b)), \
+                                      "r" ((unsigned long)(c)), \
+                                      "r" ((unsigned long)(d)), \
+                                      "m" ((constE)), \
+                                      "m" ((constF)) \
                   : "$2","$3","$4","$5","$6","$7","$8","$9","$10","$11", \
                     "$12","$13","$14","$15","$24","memory"); \
 if (__err == 0) \
@@ -198,9 +198,9 @@ return (type)-1; \
 type name (atype a,btype b,ctype c,dtype d,etype e,ftype f,gtype g) \
 { \
 long __res, __err; \
-const unsigned long *constE = (unsigned long) e; \
-const unsigned long *constF = (unsigned long) f; \
-const unsigned long *constG = (unsigned long) g; \
+const unsigned long *constE = (unsigned long *) e; \
+const unsigned long *constF = (unsigned long *) f; \
+const unsigned long *constG = (unsigned long *) g; \
 __asm__ volatile ("move\t$4,%3\n\t" \
                   "move\t$5,%4\n\t" \
                   "move\t$6,%5\n\t" \
@@ -218,13 +218,13 @@ __asm__ volatile ("move\t$4,%3\n\t" \
 		  "move\t%1, $7\n\t" \
 		  "addiu\t$29,32" \
                   : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name),"r" ((long)(a)), \
-                                      "r" ((long)(b)), \
-                                      "r" ((long)(c)), \
-                                      "r" ((long)(d)), \
-                                      "m" (constE), \
-                                      "m" (constF) \
-                                      "m" (constG) \
+                  : "i" (__NR_##name),"r" ((unsigned long)(a)), \
+                                      "r" ((unsigned long)(b)), \
+                                      "r" ((unsigned long)(c)), \
+                                      "r" ((unsigned long)(d)), \
+                                      "m" ((constE)), \
+                                      "m" ((constF)), \
+                                      "m" ((constG)) \
                   : "$2","$3","$4","$5","$6","$7","$8","$9","$10","$11", \
                     "$12","$13","$14","$15","$24","memory"); \
 if (__err == 0) \
