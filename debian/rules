@@ -100,7 +100,7 @@ install: build debian/control
 ifeq ($(with_shared_libs),y)
 ifeq ($(target),$(DEB_HOST_GNU_CPU))
 	mkdir -p debian/$(p_lib)/lib/
-	ln -sf /usr/$(target)-uclibc-linux/lib/ld-uClibc.so.0 \
+	ln -sf /usr/$(target)-linux-uclibc/lib/ld-uClibc.so.0 \
 	  debian/$(p_lib)/lib/ld-uClibc.so.0
 endif
 endif
