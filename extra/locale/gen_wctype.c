@@ -442,8 +442,8 @@ int main(int argc, char **argv)
 			}
 			wct[c/2] |= d;
 
-			l = towlower(c) - c;
-			u = towupper(c) - c;
+			l = (long)(int) towlower(c) - c;
+			u = (long)(int) towupper(c) - c;
 			ult[c] = 0;
 			if (l || u) {
 				if ((l != (short)l) || (u != (short)u)) {
