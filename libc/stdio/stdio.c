@@ -52,17 +52,8 @@ extern off_t _uClibc_fwrite(const unsigned char *buf, off_t bytes, FILE *fp);
 extern off_t _uClibc_fread(unsigned char *buf, off_t bytes, FILE *fp);
 
 /* Note: This def of READING is ok since 1st ungetc puts in buf. */
-#if 0
-#define READING(fp) (fp->bufpos < fp->bufread)
-#else
 #define READING(fp) (fp->bufstart < fp->bufread)
-#endif
-
-#if 1
 #define WRITING(fp) (fp->bufwrite > fp->bufstart)
-#else
-#define WRITING(fp) ((fp->bufpos > fp->bufread) && (fp->bufpos > fp->bufstart))
-#endif
 
 #define READABLE(fp) (fp->bufread != 0)
 #define WRITEABLE(fp) (fp->bufwrite != 0)
@@ -657,6 +648,7 @@ FILE *fp;
 const char *mode;
 {
 	FILE *nfp;
+	unsigned char *p;
 	int open_mode;
 	int cur_mode;
 
@@ -729,8 +721,9 @@ const char *mode;
 		nfp->next = __IO_list;	/* use newly created FILE and */
 		__IO_list = nfp;		/* add it to the list of open files. */
 
-		if ((nfp->bufstart = _alloc_stdio_buffer(BUFSIZ)) != 0) {
-			nfp->bufend = nfp->bufstart + BUFSIZ;
+		if ((p = _alloc_stdio_buffer(BUFSIZ)) != 0) {
+			nfp->bufstart = p;
+			nfp->bufend = p + BUFSIZ;
 			nfp->mode |= __MODE_FREEBUF;
 		}
 	}
