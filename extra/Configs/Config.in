@@ -23,6 +23,9 @@ config TARGET_cris
 config TARGET_e1
 	bool "e1"
 
+config TARGET_frv
+	bool "frv"
+
 config TARGET_h8300
 	bool "h8300"
 
@@ -72,6 +75,10 @@ endif
 
 if TARGET_e1
 source "extra/Configs/Config.e1"
+endif
+
+if TARGET_frv
+source "extra/Configs/Config.frv"
 endif
 
 if TARGET_h8300

@@ -1,5 +1,5 @@
 /* This file defines standard ELF types, structures, and macros.
-   Copyright (C) 1995-1999, 2000, 2001, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1995-1999, 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -253,6 +253,9 @@ typedef struct
 /* If it is necessary to assign new unofficial EM_* values, please
    pick large random numbers (0x8523, 0xa7f2, etc.) to minimize the
    chances of collision with official or non-GNU unofficial values.  */
+
+/* Fujitsu FR-V.  */
+#define EM_CYGNUS_FRV	0x5441
 
 #define EM_ALPHA	0x9026
 
@@ -1115,6 +1118,17 @@ typedef struct
 #define R_386_TLS_TPOFF32  37		/* Negated offset in static TLS block */
 /* Keep this the last entry.  */
 #define R_386_NUM	   38
+
+/* FR-V specific definitions.  */
+#define R_FRV_NONE		0	/* No reloc.  */
+#define R_FRV_32		1	/* Direct 32 bit.  */
+/* Canonical function descriptor address.  */
+#define R_FRV_FUNCDESC		14
+/* Private function descriptor initialization.  */
+#define R_FRV_FUNCDESC_VALUE	18
+
+#define EF_FRV_PIC   0x00000100
+#define EF_FRV_FDPIC 0x00008000
 
 /* SUN SPARC specific definitions.  */
 

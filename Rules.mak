@@ -170,6 +170,20 @@ ifeq ($(strip $(TARGET_ARCH)),cris)
 	PICFLAG=-fpic
 endif
 
+ifeq ($(strip $(TARGET_ARCH)),frv)
+	CPU_LDFLAGS-$(CONFIG_FRV)+=-melf32frvfd
+	CPU_CFLAGS-$(CONFIG_FRV)+=-mfdpic
+	PICFLAG=-fPIC -DPIC
+	PIEFLAG=-fpie
+	# Using -pie causes the program to have an interpreter, which is
+	# forbidden, so we must make do with -shared.  Unfortunately,
+	# -shared by itself would get us global function descriptors
+	# and calls through PLTs, dynamic resolution of symbols, etc,
+	# which would break as well, but -Bsymbolic comes to the rescue.
+	LDPIEFLAG=-shared -Bsymbolic
+	UCLIBC_LDSO=ld.so.1
+endif
+
 # Use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 # Use the gcc 3.4 -funit-at-a-time optimization when available
