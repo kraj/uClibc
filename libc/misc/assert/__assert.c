@@ -46,21 +46,27 @@ extern const char *__progname;
 
 #if 1
 
+static int in_assert;			/* bss inits to 0. */
+
 void __assert(const char *assertion, const char * filename,
 			  int linenumber, register const char * function)
 {
-	fprintf(stderr,
+	if (!in_assert) {
+		in_assert = 1;
+
+		fprintf(stderr,
 #ifdef ASSERT_SHOW_PROGNAME
-			"%s: %s: %d: %s: Assertion `%s' failed.\n", __progname,
+				"%s: %s: %d: %s: Assertion `%s' failed.\n", __progname,
 #else
-			"%s: %d: %s: Assertion `%s' failed.\n",
+				"%s: %d: %s: Assertion `%s' failed.\n",
 #endif
-			filename,
-			linenumber,
-			/* Function name isn't available with some compilers. */
-			((function == NULL) ? "?function?" : function),
-			assertion
-			);
+				filename,
+				linenumber,
+				/* Function name isn't available with some compilers. */
+				((function == NULL) ? "?function?" : function),
+				assertion
+				);
+	}
 	abort();
 }
 
