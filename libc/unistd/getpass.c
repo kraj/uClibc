@@ -45,7 +45,7 @@ getpass (prompt)
   /* Try to write to and read from the terminal if we can.
      If we can't open the terminal, use stderr and stdin.  */
 
-  in = fopen ("/dev/tty", "w+");
+  in = fopen ("/dev/tty", "r+");
   if (in == NULL)
     {
       in = stdin;
@@ -61,7 +61,7 @@ getpass (prompt)
       /* Save the old one. */
       s = t;
       /* Tricky, tricky. */
-      t.c_lflag &= ~(ECHO|ISIG);
+      t.c_lflag &= ~(ECHO|ICANON|ISIG);
       tty_changed = (tcsetattr (fileno (in), TCSAFLUSH|TCSASOFT, &t) == 0);
     }
   else
