@@ -133,11 +133,11 @@ LOOP:
 			if (*last != '/') {
 				goto DOT;
 			}
-			if ((*++last == '/') && (last[1] == 0)) {
+			if ((*++last == '/') && (last[1] == '\0')) {
 				++last;
 			}
 		}
-		*last = 0;
+		*last = '\0';
 		return path;
 	}
 DOT:
@@ -165,9 +165,7 @@ void xstrcat(char **string, ...)
 	va_start(p, string);
 	*string = xmalloc(BUFSIZ);
 	**string = '\0';
-	while(1) {
-		if (!(c = va_arg(p, const char *)))
-			break;
+	while ((c = va_arg(p, const char *))) {
 		strcat(*string, c); 
 	}
 	va_end(p);
@@ -189,7 +187,7 @@ int main(int argc, char **argv)
 	char *devprefix;
 	char *builddir;
 	char *libstr;
-	char *build_dlstr = 0;
+	char *build_dlstr = NULL;
 	char *cc;
 	char *ep;
 	char *rpath_link[2];
@@ -213,8 +211,8 @@ int main(int argc, char **argv)
 	char *gcrt1_path[2];
 #endif
 
-	cc     = getenv("UCLIBC_CC");
-	if (cc==NULL) {
+	cc = getenv("UCLIBC_CC");
+	if (cc == NULL) {
 		cc = GCC_BIN;
 #ifdef __UCLIBC_CTOR_DTOR__
 		findlibgcc = 0;
@@ -232,13 +230,13 @@ int main(int argc, char **argv)
 	 * like /opt/c++/gcc-3.1/bin/arm-linux-g++ or some similar 
 	 * perversion...  */
 	len = strlen(application_name);
-	if ((strcmp(application_name+len-3, "g++")==0) ||
-			(strcmp(application_name+len-3, "c++")==0)) {
+	if ((strcmp(application_name+len-3, "g++") == 0) ||
+	    (strcmp(application_name+len-3, "c++") == 0)) {
 		len = strlen(cc);
-		if (strcmp(cc+len-3, "gcc")==0) {
+		if (strcmp(cc+len-3, "gcc") == 0) {
 			cpp = strdup(cc);
-			cpp[len-1]='+';
-			cpp[len-2]='+';
+			cpp[len-1] = '+';
+			cpp[len-2] = '+';
 		}
 		cplusplus = 1;
 		use_nostdinc_plus = 1;
@@ -263,11 +261,11 @@ int main(int argc, char **argv)
 		ep = "";
 	}
 
-	if (strstr(ep,"build") != 0) {
+	if (strstr(ep,"build") != NULL) {
 		use_build_dir = 1;
 	}
 
-	if (strstr(ep,"rpath") != 0) {
+	if (strstr(ep,"rpath") != NULL) {
 		use_rpath = 1;
 	}
 
@@ -310,14 +308,14 @@ int main(int argc, char **argv)
 
 	m = 0;
 	libraries = __builtin_alloca(sizeof(char*) * (argc));
-	libraries[m] = '\0';
+	libraries[m] = NULL;
 
 	n = 0;
 	libpath = __builtin_alloca(sizeof(char*) * (argc));
-	libpath[n] = '\0';
+	libpath[n] = NULL;
 
 	for ( i = 1 ; i < argc ; i++ ) {
-		if (argv[i][0] == '-' && argv[i][1] != 0) { /* option */
+		if (argv[i][0] == '-' && argv[i][1] != '\0') { /* option */
 			switch (argv[i][1]) {
 				case 'c':		/* compile or assemble */
 				case 'S':		/* generate assembler code */
@@ -327,38 +325,39 @@ int main(int argc, char **argv)
 					break;
 				case 'L': 		/* library */
 					libpath[n++] = argv[i];
-					libpath[n] = '\0';
-					if (argv[i][2] == 0) {
-						argv[i] = '\0';
+					libpath[n] = NULL;
+					if (argv[i][2] == '\0') {
+						argv[i] = NULL;
 						libpath[n++] = argv[++i];
-						libpath[n] = '\0';
+						libpath[n] = NULL;
 					}
-					argv[i] = '\0';
+					argv[i] = NULL;
 					break;
 				case 'l': 		/* library */
 					libraries[m++] = argv[i];
-					libraries[m] = '\0';
-					argv[i] = '\0';
+					libraries[m] = NULL;
+					argv[i] = NULL;
 					break;
 				case 'x': 		/* Set target language */
 					minusx = 1;
+					i++;
 					break;
 				case 'v':		/* verbose */
-					if (argv[i][2] == 0) verbose = 1;
+					if (argv[i][2] == '\0') verbose = 1;
 					printf("Invoked as %s\n", argv[0]);
 					break;
 				case 'n':
-					if (strcmp(nostdinc,argv[i]) == 0) {
+					if (strcmp(nostdinc, argv[i]) == 0) {
 						use_stdinc = 0;
-					} else if (strcmp(nostartfiles,argv[i]) == 0) {
+					} else if (strcmp(nostartfiles, argv[i]) == 0) {
 #ifdef __UCLIBC_CTOR_DTOR__
 						ctor_dtor = 0;
 #endif
 						use_start = 0;
-					} else if (strcmp(nodefaultlibs,argv[i]) == 0) {
+					} else if (strcmp(nodefaultlibs, argv[i]) == 0) {
 						use_stdlib = 0;
-						argv[i] = '\0';
-					} else if (strcmp(nostdlib,argv[i]) == 0) {
+						argv[i] = NULL;
+					} else if (strcmp(nostdlib, argv[i]) == 0) {
 #ifdef __UCLIBC_CTOR_DTOR__
 						ctor_dtor = 0;
 #endif
@@ -366,80 +365,80 @@ int main(int argc, char **argv)
 						use_stdlib = 0;
 					} 
 #ifdef __UCLIBC_CTOR_DTOR__
-					else if (strcmp(nostdinc_plus,argv[i]) == 0) {
-						if (cplusplus==1) {
+					else if (strcmp(nostdinc_plus, argv[i]) == 0) {
+						if (cplusplus) {
 							use_nostdinc_plus = 0;
 						}
 					}
 #endif
 					break;
 				case 's':
-					if (strstr(argv[i],static_linking) != NULL) {
+					if (strstr(argv[i], static_linking) != NULL) {
 						use_static_linking = 1;
 					}
-					if (strcmp("-shared",argv[i]) == 0) {
+					if (strcmp("-shared", argv[i]) == 0) {
 						use_start = 0;
 						use_pic = 1;
 					}
 					break;
 				case 'W':		/* -static could be passed directly to ld */
-					if (strncmp("-Wl,",argv[i],4) == 0) {
-						if (strstr(argv[i],static_linking) != 0) {
+					if (strncmp("-Wl,", argv[i], 4) == 0) {
+						if (strstr(argv[i], static_linking) != NULL) {
 							use_static_linking = 1;
 						}
-						if (strstr(argv[i],"--dynamic-linker") != 0) {
-							dlstr = 0;
+						if (strstr(argv[i], "--dynamic-linker") != NULL) {
+							dlstr = NULL;
 						}
 					}
 					break;
 #ifdef __UCLIBC_PROFILING__
 				case 'p':
-					if (strcmp("-pg",argv[i]) == 0) {
+					if (strcmp("-pg", argv[i]) == 0) {
 						profile = 1;
 					}
 					break;
 #endif
 				case 'f':
 					/* Check if we are doing PIC */
-					if (strcmp("-fPIC",argv[i]) == 0) {
+					if (strcmp("-fPIC", argv[i]) == 0) {
 						use_pic = 1;
-					} else if (strcmp("-fpic",argv[i]) == 0) {
+					} else if (strcmp("-fpic", argv[i]) == 0) {
 						use_pic = 1;
 					} 
 #ifdef __UCLIBC_PROFILING__
-					else if (strcmp("-fprofile-arcs",argv[i]) == 0) {
+					else if (strcmp("-fprofile-arcs", argv[i]) == 0) {
 						profile = 1;
 					}
 #endif
 					break;
 
 				case '-':
-					if (strstr(argv[i]+1,static_linking) != NULL) {
+					if (strstr(argv[i]+1, static_linking) != NULL) {
 						use_static_linking = 1;
-						argv[i]='\0';
-					} else if (strcmp("--uclibc-use-build-dir",argv[i]) == 0) {
+						argv[i] = NULL;
+					} else if (strcmp("--uclibc-use-build-dir", argv[i]) == 0) {
 						use_build_dir = 1;
-						argv[i]='\0';
-					} else if (strcmp("--uclibc-use-rpath",argv[i]) == 0) {
+						argv[i] = NULL;
+					} else if (strcmp("--uclibc-use-rpath", argv[i]) == 0) {
 						use_rpath = 1;
-						argv[i]='\0';
+						argv[i] = NULL;
 					} else if (strcmp ("--uclibc-cc", argv[i]) == 0 && argv[i + 1]) {
 						cc = argv[i + 1];
-						argv[i] = 0;
-						argv[i + 1] = 0;
+						argv[i++] = NULL;
+						argv[i] = NULL;
 					} else if (strncmp ("--uclibc-cc=", argv[i], 12) == 0) {
 						cc = argv[i] + 12;
-						argv[i] = 0;
+						argv[i] = NULL;
 					}
 #ifdef __UCLIBC_CTOR_DTOR__
 					else if (strcmp("--uclibc-no-ctors",argv[i]) == 0) {
 						ctor_dtor = 0;
-						argv[i]='\0';
+						argv[i] = NULL;
 					}
 #endif
 					break;
 			}
-		} else if (argv[i][0] == '-' && argv[i][1] == 0){
+		} else if (argv[i][0] == '-' && argv[i][1] == '\0') {
 			/* Reading code from stdin - crazy eh? */
 			++source_count;
 		} else {				/* assume it is an existing source file */
@@ -454,8 +453,8 @@ int main(int argc, char **argv)
 #ifdef __UCLIBC_CTOR_DTOR__
 	if (ctor_dtor) {
 		struct stat statbuf;
-		if (findlibgcc==1 || stat(LIBGCC_DIR, &statbuf)!=0 || 
-				!S_ISDIR(statbuf.st_mode))
+		if (findlibgcc || stat(LIBGCC_DIR, &statbuf) < 0 ||
+		    !S_ISDIR(statbuf.st_mode))
 		{
 			/* Bummer, gcc is hiding from us. This is going
 			 * to really slow things down... bummer.  */
@@ -477,7 +476,7 @@ int main(int argc, char **argv)
 				close(gcc_pipe[1]);
 				_exit(EXIT_FAILURE);
 			}
-			wpid=0;
+			wpid = 0;
 			while (wpid != pid) {
 				wpid = wait(&status);
 			}
@@ -521,13 +520,11 @@ crash_n_burn:
 		gcc_argv[i++] = cc;
 
 	for ( j = 1 ; j < argc ; j++ ) {
-		if (argv[j]=='\0') {
-			continue;
-		} else {
+		if (argv[j] != NULL) {
 			gcc_argument[k++] = argv[j];
-			gcc_argument[k] = '\0';
 		}
 	}
+	gcc_argument[k] = NULL;
 
 	if (linking && source_count) {
 #if defined __HAVE_ELF__ && ! defined __UCLIBC_HAS_MMU__
@@ -551,7 +548,7 @@ crash_n_burn:
 			if (libpath[l]) gcc_argv[i++] = libpath[l];
 		}
 		gcc_argv[i++] = rpath_link[use_build_dir]; /* just to be safe */
-		if( libstr )
+		if (libstr)
 			gcc_argv[i++] = libstr;
 		gcc_argv[i++] = our_lib_path[use_build_dir];
 		if (!use_build_dir) {
@@ -578,7 +575,7 @@ crash_n_burn:
 		gcc_argv[i++] = uClibc_inc[use_build_dir];
 		gcc_argv[i++] = "-iwithprefix";
 		gcc_argv[i++] = "include";
-		if( incstr )
+		if (incstr)
 			gcc_argv[i++] = incstr;
 	}
 
@@ -620,8 +617,8 @@ crash_n_burn:
 		if (use_stdlib) {
 #ifdef __UCLIBC_CTOR_DTOR__
 			if (cplusplus) {
-				gcc_argv[ i++ ] = "-lstdc++";
-				gcc_argv[ i++ ] = "-lm";
+				gcc_argv[i++] = "-lstdc++";
+				gcc_argv[i++] = "-lm";
 			}
 #endif
 			gcc_argv[i++] = "-lc";
@@ -630,9 +627,9 @@ crash_n_burn:
 		}
 #ifdef __UCLIBC_CTOR_DTOR__
 		if (ctor_dtor) {
-			if (minusx != 0){
-				gcc_argv[i ++] = "-x";
-				gcc_argv[i ++] = "none";
+			if (minusx) {
+				gcc_argv[i++] = "-x";
+				gcc_argv[i++] = "none";
 			}
 			if (use_pic) {
 				gcc_argv[i++] = crtend_path[1];
