@@ -24,7 +24,8 @@ TARGETS=test_pwd test_pwd_glibc
 TARGETS+=test_grp test_grp_glibc
 TARGETS+=pwcat pwcat_glibc
 TARGETS+=grcat grcat_glibc
-TARGETS+=test_pwd_diff test_grp_diff pwcat_diff grcat_diff
+TARGETS+=getgroups getgroups_glibc
+TARGETS+=test_pwd_diff test_grp_diff pwcat_diff grcat_diff getgroups_diff
 
 all: $(TARGETS)
 
@@ -116,6 +117,28 @@ grcat_glibc: grcat.c Makefile
 	-./$@ 2>&1 >grcat_glibc.out
 	-@ echo " "
 
+getgroups: getgroups.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-./$@ 2>&1 >getgroups.out
+	-@ echo " "
+
+getgroups_glibc: getgroups.c Makefile
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs GNU libc: "
+	-@ echo " "
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-./$@ 2>&1 >getgroups_glibc.out
+	-@ echo " "
+
 test_pwd_diff: test_pwd_glibc test_pwd
 	-@ echo "-------"
 	-@ echo " "
@@ -146,6 +169,14 @@ grcat_diff: grcat_glibc grcat
 	-@ echo "Diffing output: "
 	-@ echo " "
 	-diff -u grcat_glibc.out grcat.out
+	-@ echo " "
+
+getgroups_diff: getgroups_glibc getgroups
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Diffing output: "
+	-@ echo " "
+	-diff -u getgroups_glibc.out getgroups.out
 	-@ echo " "
 
 clean:
