@@ -2,10 +2,11 @@
 # vi: set ts=4:
 
 
-@LINKS=`find . -type l|xargs ls -l`;
+@LINKS=`find . -type l|LC_ALL=C xargs ls -l`;
 
 #print @LINKS;
 
+#$debug = 1;
 
 while($_ = shift @LINKS){
 	chomp;
@@ -34,7 +35,7 @@ while($_ = shift @LINKS){
 			pop(@newcomponents);
 
 			while($comp = shift @linkcomponents){
-				#print "path: ",join(':',@newcomponents)," -- $comp -- ", join(':',@linkcomponents),"\n";
+				$debug && print "path: ",join(':',@newcomponents)," -- $comp -- ", join(':',@linkcomponents),"\n";
 
 				if($comp eq ""){
 					# ignore
@@ -57,8 +58,8 @@ while($_ = shift @LINKS){
 		#print "to ",join('/',@newcomponents),"\n";
 
 		if($newcomponents[0] eq $pathcomponents[0]){
-			#print $newcomponents[0],", ",$pathcomponents[0];
-			#print "should be relative\n";
+			$debug && print $newcomponents[0],", ",$pathcomponents[0];
+			$debug && print "should be relative\n";
 			while($newcomponents[0] eq $pathcomponents[0]){
 				shift(@newcomponents);
 				shift(@pathcomponents);
@@ -68,7 +69,7 @@ while($_ = shift @LINKS){
 				unshift(@newcomponents,"..");
 			}
 		}else{
-			#print "should be absolute\n";
+			$debug && print "should be absolute\n";
 			unshift(@newcomponents,"");
 		}
 		$newlink=join('/',@newcomponents);

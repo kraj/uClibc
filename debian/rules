@@ -6,15 +6,17 @@
 #export DH_VERBOSE=1
 
 # This is the debhelper compatability version to use.
-export DH_COMPAT=1
+export DH_COMPAT=3
 
 #include version
 major=$(shell grep '^MAJOR_VERSION' Rules.mak|sed 's/.*=//')
 minor=$(shell grep '^MINOR_VERSION' Rules.mak|sed 's/.*=//')
 version:=$(strip $(major)).$(strip $(minor))
 
-kernel_version=2.4.18
+kernel_version=2.4.20
 kernel_source=kernel-source-$(kernel_version)
+
+builddir=$(shell pwd)
 
 target=$(DEB_HOST_GNU_CPU)
 #target=arm
@@ -34,12 +36,6 @@ ifneq ($(target),$(DEB_HOST_GNU_CPU))
 target_suffix=-$(target)
 endif
 
-ifneq ($(target),mipsel)
-config_orig = extra/Configs/Config.$(target)
-else
-config_orig = extra/Configs/Config.mips
-endif
-
 ifneq ($(target),$(DEB_HOST_GNU_CPU))
 cross_options = --cross="$(target)-linux-"
 else
@@ -52,7 +48,7 @@ p_gcc=uclibc$(target_suffix)-toolchain
 
 debian/control: debian/control.in debian/rules
 	sed -e s/_TARGET_/$(target_suffix)/ \
-	  -e "s/_ARCHS_/arm i386 m68k mips mipsel powerpc sh sparc/" \
+	  -e "s/_ARCHS_/alpha arm i386 m68k mips mipsel powerpc sh sparc/" \
 	  -e "s/_KERNEL_/$(kernel_source)/" \
 	  debian/control.in >debian/control
 
@@ -82,55 +78,21 @@ build-stamp: debian/control
 		echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))'; \
 		echo '#define LINUX_VERSION_CODE KERNEL_VERSION($(shell echo $(kernel_version) | sed s/\\./,/g))'; \
 	) >$(kernel_source)/include/linux/version.h
-
-	extra/Configs/uClibc_config_fix.pl \
-		--arch=$(target) \
-		$(cross_options) \
-		--devel_prefix=/usr/$(target)-linux-uclibc \
-		--system_devel_prefix=/usr \
-		--kernel_dir=`pwd`/$(kernel_source) \
-		--large_file=true \
-		--rpc_support=true \
-		--c99_math=true \
-		--threads=true \
-		--long_long=true \
-		--float=true \
-		--shadow=true \
-		--mmu=true \
-		--ldso_path="/lib" \
-		--shared_support=$(shared_libs_true) \
-		--file=$(config_orig) \
-		>Config
-
-ifeq (yes,no)
-	echo '#Debian configuration overrides'  >>Config
-ifneq ($(target),$(DEB_HOST_GNU_CPU))
-	echo 'TARGET_ARCH = $(target)'  >>Config
-	echo 'CROSS = $(target)-linux-'  >>Config
-else
-	echo 'CROSS = '  >>Config
+	
+	cp debian/config .config
+	echo CONFIG_386=y >>.config
+ifeq ($(findstring $(target),alpha m68k sparc),$(target))
+	echo BUILD_UCLIBC_LDSO=n >>.config
 endif
-	echo 'DOPIC = true'  >>Config
-	echo 'SYSTEM_DEVEL_PREFIX = /usr'  >>Config
-	echo 'DEVEL_PREFIX = /usr/$$(TARGET_ARCH)-linux-uclibc'  >>Config
-	echo 'SHARED_LIB_LOADER_PATH = /lib'  >>Config
-	#echo 'TARGET_PREFIX = /'  >>Config
-ifeq ($(with_shared_libs),n)
-	echo 'HAVE_SHARED = false' >>Config
-else
-	echo 'HAVE_SHARED = true' >>Config
-endif
-	echo 'KERNEL_SOURCE = '`pwd`/$(kernel_source) >>Config
-	echo 'HAS_MMU = true' >>Config
-	echo 'HAS_FLOATING_POINT = true' >>Config
-	echo 'DO_C99_MATH = true' >>Config
-	echo 'DODEBUG = false' >>Config
-	echo 'INCLUDE_THREADS = true' >>Config
-endif
+	echo SHARED_LIB_LOADER_PATH=\"/lib\" >>.config
+	echo KERNEL_SOURCE=\"$(builddir)/$(kernel_source)\" >>.config
+	echo 'DEVEL_TOOL_PREFIX="$$(DEVEL_PREFIX)"' >>.config
+	echo 'SYSTEM_DEVEL_PREFIX="/usr"' >>.config
+	yes '' | make oldconfig
 
 	mkdir -p lib
 
-	$(MAKE)
+	$(MAKE) TARGET_ARCH=$(target)
 
 	touch build-stamp
 
@@ -139,14 +101,12 @@ clean: debian/control
 	dh_testroot
 	rm -f build-stamp
 
-	rm -f debian/$(p_dev)
-
 	rm -rf kernel-source-*
 
 	# Add here commands to clean up after the build process.
-	-$(MAKE) clean
+	-$(MAKE) distclean
 
-	-rm Config
+	-rm -f Config
 
 	dh_clean
 
@@ -156,44 +116,38 @@ install: build debian/control
 	dh_clean -k
 	dh_installdirs
 
-	-rm debian/$(p_dev)
-	ln -s tmp debian/$(p_dev)
+	-rm debian/tmp
+	-mkdir debian/tmp
+	#ln -s tmp debian/tmp
 
 	# Add here commands to install the package into debian/tmp.
-	$(MAKE) install_dev PREFIX=`pwd`/debian/$(p_dev)
-	$(MAKE) install_runtime PREFIX=`pwd`/debian/$(p_lib)
-	$(MAKE) install_toolchain PREFIX=`pwd`/debian/$(p_gcc)
-	$(MAKE) install_utils PREFIX=`pwd`/debian/$(p_gcc)
+	$(MAKE) install PREFIX=`pwd`/debian/tmp
+	$(MAKE) install_runtime PREFIX=`pwd`/debian/tmp
 
-	install -d debian/$(p_gcc)/usr/share/man/man1
+	install -d debian/tmp/usr/share/man/man1
 	install -m 644 debian/uclibc-gcc.1 \
-	  debian/$(p_gcc)/usr/share/man/man1/$(target)-uclibc-gcc.1
-	(cd debian/$(p_gcc)/usr/share/man/man1; \
+	  debian/tmp/usr/share/man/man1/$(target)-uclibc-gcc.1
+	(cd debian/tmp/usr/share/man/man1; \
 	  ln -sf $(target)-uclibc-gcc.1.gz $(target)-uclibc-cc.1.gz; \
 	  ln -sf $(target)-uclibc-gcc.1.gz $(target)-uclibc-ld.1.gz; \
-	  for x in addr2line ar as cpp gasp nm objcopy objdump ranlib \
+	  for x in addr2line ar as cpp nm objcopy objdump ranlib \
 	  size strings strip;do \
 	    ln -sf $$x.1.gz $(target)-uclibc-$$x.1.gz;done)
 	
-	install -d debian/$(p_lib)/usr/share/man/man1
+	install -d debian/tmp/usr/share/man/man1
 	install -m 644 debian/uclibc-ldd.1 \
-	  debian/$(p_lib)/usr/share/man/man1/$(target)-uclibc-ldd.1
+	  debian/tmp/usr/share/man/man1/$(target)-uclibc-ldd.1
 	install -m 644 debian/uclibc-ldconfig.1 \
-	  debian/$(p_lib)/usr/share/man/man1/$(target)-uclibc-ldconfig.1
+	  debian/tmp/usr/share/man/man1/$(target)-uclibc-ldconfig.1
 	install -m 644 debian/uclibc-readelf.1 \
-	  debian/$(p_lib)/usr/share/man/man1/$(target)-uclibc-readelf.1
+	  debian/tmp/usr/share/man/man1/$(target)-uclibc-readelf.1
+	
+	mkdir debian/tmp/lib/
+	cd debian/tmp/lib && ln -sf /usr/$(target)-linux-uclibc/lib/ld-uClibc.so.0 .
 
-	(cd debian/$(p_dev); find . -name '.*' -exec rm -f '{}' ';')
-	(cd debian/$(p_lib); find . -name '.*' -exec rm -f '{}' ';')
-	(cd debian/$(p_gcc); find . -name '.*' -exec rm -f '{}' ';')
+	cd debian/tmp && ../fixlinks
 
-ifeq ($(with_shared_libs),y)
-ifeq ($(target),$(DEB_HOST_GNU_CPU))
-	mkdir -p debian/$(p_lib)/lib/
-	ln -sf /usr/$(target)-linux-uclibc/lib/ld-uClibc.so.0 \
-	  debian/$(p_lib)/lib/ld-uClibc.so.0
-endif
-endif
+	(cd debian/tmp; find . -name '.*' -exec rm -f '{}' ';')
 
 # Build architecture-independent files here.
 binary-indep:
@@ -204,6 +158,7 @@ binary-arch: build install
 	dh_testdir
 	dh_testroot
 
+	dh_movefiles
 #	dh_installdebconf	
 	dh_installdocs
 	dh_installexamples
@@ -217,9 +172,6 @@ binary-arch: build install
 #	dh_undocumented
 	dh_installchangelogs 
 	dh_link
-	cd debian/libuclibc0 && ../fixlinks
-	cd debian/libuclibc-dev && ../fixlinks
-	cd debian/uclibc-toolchain && ../fixlinks
 	dh_strip
 	dh_compress
 	dh_fixperms -Xld-uClibc
@@ -228,11 +180,11 @@ binary-arch: build install
 #	dh_makeshlibs
 	dh_installdeb
 #	dh_perl
-ifeq ($(target),$(DEB_HOST_GNU_CPU))
-	dh_shlibdeps --exclude=ld_uclibc -ldebian/$(p_lib)/usr/$(target)-linux-uclibc/lib
-else
+#ifeq ($(target),$(DEB_HOST_GNU_CPU))
+#	dh_shlibdeps --exclude=ld_uclibc -ldebian/$(p_lib)/usr/$(target)-linux-uclibc/lib
+#else
 	dh_shlibdeps --exclude=lib
-endif
+#endif
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

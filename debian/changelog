@@ -1,3 +1,59 @@
+uclibc (0.9.18-1) unstable; urgency=low
+
+  * New upstream release
+  * Update to kernel-source-2.4.20
+  * Upgrade .shlib dependencies
+  * Enable IPv6 and other options (Closes: #174092)
+  * Remove build directory from ld script (Closes: #161474)
+  * Add/fix /lib/ld-uClibc.so.0 symlink
+
+ -- David Schleef <ds@schleef.org>  Wed, 12 Feb 2003 12:40:38 -0800
+
+uclibc (0.9.16-6) unstable; urgency=low
+
+  * Reenable FPU and C99 math support that were accidentally
+    disabled in the move to 0.9.16. (Closes: #171359, #172686)
+  * Fix ${arch}-uclibc-xx installation directory (should be /usr/bin)
+  * Make ldd work with dh_shlibdeps (Closes: #171282, #171287)
+
+ -- David Schleef <ds@schleef.org>  Wed, 11 Dec 2002 15:55:52 -0800
+
+uclibc (0.9.16-5) unstable; urgency=low
+
+  * (Attempt #2) Removed some default flags on sparc.
+
+ -- David Schleef <ds@schleef.org>  Wed, 27 Nov 2002 13:56:39 -0800
+
+uclibc (0.9.16-4) unstable; urgency=low
+
+  * Removed some default flags on m68k and sparc, since they don't
+    work with the standard gcc.
+  * Stripped quotes around ARCH_CFLAGS
+
+ -- David Schleef <ds@schleef.org>  Fri, 22 Nov 2002 15:15:25 -0800
+
+uclibc (0.9.16-3) unstable; urgency=low
+
+  * Got the last change wrong.
+  * Enabled alpha build.
+
+ -- David Schleef <ds@schleef.org>  Thu, 21 Nov 2002 16:24:27 -0800
+
+uclibc (0.9.16-2) unstable; urgency=low
+
+  * Disable shared lib loader on m68k and sparc
+
+ -- David Schleef <ds@schleef.org>  Wed, 20 Nov 2002 19:45:31 -0800
+
+uclibc (0.9.16-1) unstable; urgency=low
+
+  * New upstream release (Closes: #169650, #169547)
+  * Rewrote much of the installation code to use dh_ more
+  * Removed gasp man page link (Closes: #169648)
+  * Upstream uses new configuration method (Closes: #169513)
+
+ -- David Schleef <ds@schleef.org>  Mon, 18 Nov 2002 11:32:43 -0800
+
 uclibc (0.9.12-2) unstable; urgency=low
 
   * Make sure MAS_MMU=true on m68k
