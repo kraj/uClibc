@@ -132,6 +132,7 @@ return (type)-1; \
 type name (atype a,btype b,ctype c,dtype d,etype e) \
 { \
 long __res, __err; \
+const unsigned long *constE = (unsigned long) e; \
 __asm__ volatile ("move\t$4,%3\n\t" \
                   "move\t$5,%4\n\t" \
                   "move\t$6,%5\n\t" \
@@ -149,7 +150,7 @@ __asm__ volatile ("move\t$4,%3\n\t" \
                                       "r" ((long)(b)), \
                                       "r" ((long)(c)), \
                                       "r" ((long)(d)), \
-                                      "m" ((long)(e)) \
+                                      "m" (constE) \
                   : "$2","$4","$5","$6","$7","$8","$9","$10","$11","$12", \
                     "$13","$14","$15","$24","memory"); \
 if (__err == 0) \
@@ -162,6 +163,8 @@ return (type)-1; \
 type name (atype a,btype b,ctype c,dtype d,etype e,ftype f) \
 { \
 long __res, __err; \
+const unsigned long *constE = (unsigned long) e; \
+const unsigned long *constF = (unsigned long) f; \
 __asm__ volatile ("move\t$4,%3\n\t" \
                   "move\t$5,%4\n\t" \
                   "move\t$6,%5\n\t" \
@@ -181,8 +184,8 @@ __asm__ volatile ("move\t$4,%3\n\t" \
                                       "r" ((long)(b)), \
                                       "r" ((long)(c)), \
                                       "r" ((long)(d)), \
-                                      "m" ((long)(e)), \
-                                      "m" ((long)(f)) \
+                                      "m" (constE), \
+                                      "m" (constF) \
                   : "$2","$3","$4","$5","$6","$7","$8","$9","$10","$11", \
                     "$12","$13","$14","$15","$24","memory"); \
 if (__err == 0) \
@@ -195,6 +198,9 @@ return (type)-1; \
 type name (atype a,btype b,ctype c,dtype d,etype e,ftype f,gtype g) \
 { \
 long __res, __err; \
+const unsigned long *constE = (unsigned long) e; \
+const unsigned long *constF = (unsigned long) f; \
+const unsigned long *constG = (unsigned long) g; \
 __asm__ volatile ("move\t$4,%3\n\t" \
                   "move\t$5,%4\n\t" \
                   "move\t$6,%5\n\t" \
@@ -216,9 +222,9 @@ __asm__ volatile ("move\t$4,%3\n\t" \
                                       "r" ((long)(b)), \
                                       "r" ((long)(c)), \
                                       "r" ((long)(d)), \
-                                      "m" ((long)(e)), \
-                                      "m" ((long)(f)), \
-                                      "m" ((long)(g)) \
+                                      "m" (constE), \
+                                      "m" (constF) \
+                                      "m" (constG) \
                   : "$2","$3","$4","$5","$6","$7","$8","$9","$10","$11", \
                     "$12","$13","$14","$15","$24","memory"); \
 if (__err == 0) \
