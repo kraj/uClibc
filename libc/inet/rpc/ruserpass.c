@@ -179,7 +179,7 @@ next:
 			break;
 		case PASSWD:
 			if (strcmp(*aname, "anonymous") &&
-			    fstat64(fileno(cfile), &stb) >= 0 &&
+			    fstat(fileno(cfile), &stb) >= 0 &&
 			    (stb.st_mode & 077) != 0) {
 	printf(_("Error: .netrc file is readable by others."));
 	printf(_("Remove password or make file unreadable by others."));
@@ -198,7 +198,7 @@ next:
 			break;
 		case ACCOUNT:
 #if 0
-			if (fstat64(fileno(cfile), &stb) >= 0
+			if (fstat(fileno(cfile), &stb) >= 0
 			    && (stb.st_mode & 077) != 0) {
 	printf("Error: .netrc file is readable by others.");
 	printf("Remove account or make file unreadable by others.");
