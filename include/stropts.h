@@ -16,6 +16,12 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+/* uClibc does not provide _any_ support for STREAMS.  So this header file is
+ * here for applications that foolishly include stropts.h but do not use it...
+ * Any application that actually _uses_ stropts.h needs to be fixed.
+ */
+
+#if 0
 #ifndef _STROPTS_H
 #define _STROPTS_H	1
 
@@ -77,5 +83,6 @@ extern int fattach (int __fildes, __const char *__path) __THROW;
 extern int fdetach (__const char *__path) __THROW;
 
 __END_DECLS
-
 #endif /* stropts.h */
+#endif	/* if 0 */
+
