@@ -5,7 +5,6 @@
 
 choice
 	prompt "Target Processor Endianness"
-	default ARCH_LITTLE_ENDIAN
 	help
 	  This is the endianness you wish to build use.  Choose either Big
 	  Endian, or Little Endian.
