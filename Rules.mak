@@ -84,11 +84,8 @@ endif
 LDSO_PRESENT=$(strip $(shell cd $(TOPDIR)/ldso/d-link; ls -d $(TARGET_ARCH) 2>/dev/null))
 
 # NOTE: This may need to be modified for your system
-ifeq ($(NATIVE_ARCH), $(TARGET_ARCH))
-	SYSTEM_LDSO=$(strip $(shell ldd `which $(CC)` | sed -ne /ld/p | sed -e s/\ =.*//g))
-else
-	SYSTEM_LDSO=/lib/ld-linux.so.2
-endif
+SYSTEM_LDSO=$(shell for each in `$(CC) -print-search-dirs|grep ^libraries|sed -e 's/^libraries: //' -e 's/:/ /g'`;do ls $$each/ld.so.* 2>/dev/null;done)
+#SYSTEM_LDSO=/lib/ld-linux.so.2
 
 ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
 	LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
@@ -96,7 +93,7 @@ ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
 	BUILD_DYNAMIC_LINKER=$(shell cd $(TOPDIR)lib; pwd)/$(UCLIBC_LDSO)
 else
 	LDSO=$(SYSTEM_LDSO)
-	DYNAMIC_LINKER=$(SYSTEM_LDSO)
+	DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
 	BUILD_DYNAMIC_LINKER=$(shell cd $(TOPDIR)lib; pwd)/$(UCLIBC_LDSO)
 endif
 
