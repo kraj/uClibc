@@ -419,18 +419,28 @@ LD_BOOT(unsigned long args)
 					if (dpnt->d_tag == DT_MIPS_SYMTABNO)
 						app_tpnt->mips_symtabno =
 							(unsigned long) dpnt->d_un.d_val;
-#endif
 					if (dpnt->d_tag > DT_JMPREL) {
 						dpnt++;
 						continue;
 					}
 					app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-#if !defined(__mips__)
+
+#warning "Debugging threads on mips won't work till someone fixes this..."
+#if 0
 					if (dpnt->d_tag == DT_DEBUG) {
 						dpnt->d_un.d_val = (unsigned long) debug_addr;
 					}
+#endif
+
 #else
-#warning "Debugging threads on mips won't work till someone fixes this..."
+					if (dpnt->d_tag > DT_JMPREL) {
+						dpnt++;
+						continue;
+					}
+					app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
+					if (dpnt->d_tag == DT_DEBUG) {
+						dpnt->d_un.d_val = (unsigned long) debug_addr;
+					}
 #endif
 					if (dpnt->d_tag == DT_TEXTREL)
 						app_tpnt->dynamic_info[DT_TEXTREL] = 1;
@@ -690,20 +700,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {
 			if (myppnt->p_type == PT_DYNAMIC) {
 				tpnt->dynamic_addr = (ElfW(Dyn) *)myppnt->p_vaddr + load_addr;
-#if defined(__mips__)
-				{
-					int k = 1;
-					ElfW(Dyn) *dpnt = (ElfW(Dyn) *) tpnt->dynamic_addr;
-
-					while(dpnt->d_tag) {
-						dpnt++;
-						k++;
-					}
-					tpnt->dynamic_size = k * sizeof(ElfW(Dyn));
-				}
-#else
 				tpnt->dynamic_size = myppnt->p_filesz;
-#endif
 			}
 		}
 	}
@@ -728,23 +725,8 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 				continue;
 #endif
 			/* OK, we have what we need - slip this one into the list. */
-#if defined(__mips__)
-			{
-				int i = 1;
-				Elf32_Dyn *dpnt = (Elf32_Dyn *) tpnt->dynamic_addr;
-
-				while(dpnt->d_tag) {
-					dpnt++;
-					i++;
-				}
-				app_tpnt = _dl_add_elf_hash_table("", 0, 
-					app_tpnt->dynamic_info, ppnt->p_vaddr,
-					(i * sizeof(Elf32_Dyn)));
-			}
-#else
 			app_tpnt = _dl_add_elf_hash_table("", 0, 
 					app_tpnt->dynamic_info, ppnt->p_vaddr, ppnt->p_filesz);
-#endif
 			_dl_loaded_modules->libtype = elf_executable;
 			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
