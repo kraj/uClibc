@@ -23,7 +23,6 @@
 
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
-CFLAGS+=-I$(TOPDIR)include/linux
 
 CSRC = auth_none.c auth_unix.c authunix_prot.c \
 	bindresvport.c clnt_generic.c clnt_perror.c \
