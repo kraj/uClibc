@@ -42,7 +42,7 @@ static size_t _dl_cache_size = 0;
 int _dl_map_cache(void)
 {
 	int fd;
-	struct kernel_stat st;
+	struct stat st;
 	header_t *header;
 	libentry_t *libent;
 	int i, strtabsize;
