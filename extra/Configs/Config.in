@@ -163,11 +163,11 @@ endmenu
 menu "String and Stdio Support"
 
 config UCLIBC_HAS_WCHAR
-	bool "Wide Charactor Support"
+	bool "Wide Character Support"
 	default n
 	help
-	  Answer Y to enable wide char support.  This will make uClibc much
-	  bigger.
+	  Answer Y to enable wide character support.  This will make uClibc 
+	  much larger.
 
 	  Most people will answer N.
 
@@ -253,7 +253,7 @@ config SYSTEM_DEVEL_PREFIX
 	  want to set this to "/usr" instead.
 
 config DEVEL_TOOL_PREFIX
-	string "uClibc development environment system directory"
+	string "uClibc development environment tool directory"
 	default "$(DEVEL_PREFIX)/usr"
 	help
 	  DEVEL_TOOL_PREFIX is the directory prefix used when installing
