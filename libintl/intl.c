@@ -17,6 +17,9 @@
 
 /*
  *  Stub version of libintl.
+ *
+ *  Aug 30, 2003
+ *  Add some hidden names to support locale-enabled libstd++.
  */
 
 #include <stdlib.h>
@@ -44,26 +47,26 @@ char *__dgettext(const char *domainname,
 	return (char *) msgid;
 }
 
-weak_alias (__dgettext, dgettext)
+strong_alias(__dgettext, dgettext)
 
 #endif
 /**********************************************************************/
 #ifdef L_dcgettext
 
-char * __dcgettext(const char *domainname,
-				   const char *msgid, int category)
+char *__dcgettext(const char *domainname,
+				  const char *msgid, int category)
 {
 	return (char *) msgid;
 }
 
-weak_alias (__dcgettext, dcgettext)
+strong_alias(__dcgettext, dcgettext)
 
 #endif
 /**********************************************************************/
 #ifdef L_ngettext
 
 char *ngettext(const char *msgid1, const char *msgid2,
-							 unsigned long int n)
+			   unsigned long int n)
 {
 	return (char *) ((n == 1) ? msgid1 : msgid2);
 }
@@ -73,7 +76,7 @@ char *ngettext(const char *msgid1, const char *msgid2,
 #ifdef L_dngettext
 
 char *dngettext(const char *domainname, const char *msgid1,
-							  const char *msgid2, unsigned long int n)
+				const char *msgid2, unsigned long int n)
 {
 	return (char *) ((n == 1) ? msgid1 : msgid2);
 }
@@ -83,8 +86,8 @@ char *dngettext(const char *domainname, const char *msgid1,
 #ifdef L_dcngettext
 
 char *dcngettext(const char *domainname, const char *msgid1,
-							   const char *msgid2, unsigned long int n,
-							   int category)
+				 const char *msgid2, unsigned long int n,
+				 int category)
 {
 	return (char *) ((n == 1) ? msgid1 : msgid2);
 }
@@ -93,7 +96,7 @@ char *dcngettext(const char *domainname, const char *msgid1,
 /**********************************************************************/
 #ifdef L_textdomain
 
-char *textdomain(const char *domainname)
+char *__textdomain(const char *domainname)
 {
 	static const char default_str[] = "messages";
 
@@ -104,11 +107,13 @@ char *textdomain(const char *domainname)
 	return (char *) default_str;
 }
 
+strong_alias(__textdomain, textdomain)
+
 #endif
 /**********************************************************************/
 #ifdef L_bindtextdomain
 
-char *bindtextdomain(const char *domainname, const char *dirname)
+char *__bindtextdomain(const char *domainname, const char *dirname)
 {
 	static const char dir[] = "/";
 
@@ -127,6 +132,8 @@ char *bindtextdomain(const char *domainname, const char *dirname)
 
 	return (char *) dir;
 }
+
+strong_alias(__bindtextdomain, bindtextdomain)
 
 #endif
 /**********************************************************************/
@@ -151,7 +158,7 @@ char *bind_textdomain_codeset(const char *domainname,
 
 const char *_nl_expand_alias(const char * name)
 {
-	return NULL;				/* uClibc does not support locale aliases. */
+	return NULL;		 /* uClibc does not support locale aliases. */
 }
 
 #endif

@@ -17,6 +17,9 @@
 
 /*
  *  Supply some weaks for use by strerror*(), etc.
+ *
+ *  Aug 30, 2003
+ *  Add some hidden names to support locale-enabled libstd++.
  */
 
 #include <stdlib.h>
@@ -35,19 +38,62 @@ char *__uClibc_dgettext(const char *domainname,
 	return (char *) msgid;
 }
 
-weak_alias (__uClibc_dgettext, __dgettext)
+weak_alias(__uClibc_dgettext, __dgettext)
 
 #endif
 /**********************************************************************/
 #ifdef L___uClibc_dcgettext
 
-char * __uClibc_dcgettext(const char *domainname,
-						  const char *msgid, int category)
+char *__uClibc_dcgettext(const char *domainname,
+						 const char *msgid, int category)
 {
 	return (char *) msgid;
 }
 
-weak_alias (__uClibc_dcgettext, __dcgettext)
+weak_alias(__uClibc_dcgettext, __dcgettext)
+
+#endif
+/**********************************************************************/
+#ifdef L___uClibc_textdomain
+
+char *__uClibc_textdomain(const char *domainname)
+{
+	static const char default_str[] = "messages";
+
+	if (domainname && *domainname && strcmp(domainname, default_str)) {
+		__set_errno(EINVAL);
+		return NULL;
+	}
+	return (char *) default_str;
+}
+
+weak_alias(__uClibc_textdomain, __textdomain)
+
+#endif
+/**********************************************************************/
+#ifdef L___uClibc_bindtextdomain
+
+char *__uClibc_bindtextdomain(const char *domainname, const char *dirname)
+{
+	static const char dir[] = "/";
+
+	if (!domainname || !*domainname
+		|| (dirname
+#if 1
+			&& ((dirname[0] != '/') || dirname[1])
+#else
+			&& strcmp(dirname, dir)
+#endif
+			)
+		) {
+		__set_errno(EINVAL);
+		return NULL;
+	}
+
+	return (char *) dir;
+}
+
+weak_alias(__uClibc_bindtextdomain, __bindtextdomain)
 
 #endif
 /**********************************************************************/
