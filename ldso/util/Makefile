@@ -1,6 +1,5 @@
 TOPDIR=../../
-include $(TOPDIR)Rules.mak
-include ../Config.mk
+include $(TOPDIR)/ld.so-1/Rules.mak
 
 CFLAGS += -DLDSO_ADDR="0x62f00020" # needed by ldd.o
 CFLAGS += -I./ -I../../include/

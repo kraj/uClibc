@@ -1,6 +1,5 @@
 TOPDIR=../
-include $(TOPDIR)Rules.mak
-include Config.mk
+include Rules.mak
 
 SUBDIRS = util d-link libdl # man
 TARGETDIR=/usr/$(TARGET_ARCH)-linux-uclibc
