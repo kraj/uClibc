@@ -28,8 +28,11 @@ DIRS:=
 ifeq ($(MALLOC),y)
     DIRS+=malloc
 endif
-ifeq ($(MALLOC_930716),y)
-    DIRS+=malloc-930716
+ifeq ($(MALLOC_SIMPLE),y)
+    DIRS+=malloc-simple
+endif
+ifeq ($(MALLOC_STANDARD),y)
+    DIRS+=malloc-standard
 endif
 
 
@@ -83,7 +86,7 @@ CSRC =	abort.c getenv.c mkdtemp.c mktemp.c realpath.c mkstemp.c mkstemp64.c \
 	ptsname.c grantpt.c unlockpt.c gcvt.c drand48-iter.c jrand48.c \
 	jrand48_r.c lrand48.c lrand48_r.c mrand48.c mrand48_r.c nrand48.c \
 	nrand48_r.c rand_r.c srand48.c srand48_r.c seed48.c seed48_r.c \
-	calloc.c valloc.c
+	valloc.c
 ifeq ($(UCLIBC_HAS_FLOATS),y)
 	CSRC += drand48.c drand48_r.c erand48.c erand48_r.c
 endif

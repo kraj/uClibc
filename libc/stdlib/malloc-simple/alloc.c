@@ -31,14 +31,14 @@ void *malloc(size_t size)
 
 #ifdef __UCLIBC_HAS_MMU__
     result = mmap((void *) 0, size + sizeof(size_t), PROT_READ | PROT_WRITE,
-	    MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (result == MAP_FAILED)
 	return 0;
     * (size_t *) result = size;
     return(result + sizeof(size_t));
 #else
     result = mmap((void *) 0, size, PROT_READ | PROT_WRITE,
-	    MAP_SHARED | MAP_ANONYMOUS, 0, 0);
+	    MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     if (result == MAP_FAILED)
 	return 0;
     return(result);
@@ -47,12 +47,27 @@ void *malloc(size_t size)
 #endif
 
 #ifdef L_calloc
-void *calloc(size_t num, size_t size)
+void * calloc(size_t nmemb, size_t lsize)
 {
-    void *ptr = malloc(num * size);
-    if (ptr)
-	memset(ptr, 0, num * size);
-    return ptr;
+	void *result;
+	size_t size=lsize * nmemb;
+
+	/* guard vs integer overflow, but allow nmemb
+	 * to fall through and call malloc(0) */
+	if (nmemb && lsize != (size / nmemb)) {
+		__set_errno(ENOMEM);
+		return NULL;
+	}
+	result=malloc(size);
+#if 0
+	/* Standard unix mmap using /dev/zero clears memory so calloc
+	 * doesn't need to actually zero anything....
+	 */
+	if (result != NULL) {
+		memset(result, 0, size);
+	}
+#endif
+	return result;
 }
 #endif
 

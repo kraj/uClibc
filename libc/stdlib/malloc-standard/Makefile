@@ -24,9 +24,14 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-# calloc.c can be found at uClibc/libc/stdlib/calloc.c 
-# valloc.c can be found at uClibc/libc/stdlib/valloc.c 
-CSRC=malloc.c memalign.c realloc.c
+# Turn on malloc debugging if requested
+ifeq ($(UCLIBC_MALLOC_DEBUGGING),y)
+CFLAGS += -D__MALLOC_DEBUGGING
+endif
+
+# calloc.c can be found at uClibc/libc/stdlib/calloc.c
+# valloc.c can be found at uClibc/libc/stdlib/valloc.c
+CSRC=malloc.c calloc.c realloc.c free.c memalign.c mallopt.c mallinfo.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 

@@ -287,24 +287,36 @@ config UCLIBC_HAS_LFS
 
 choice
 	prompt "Malloc Implementation"
-	default MALLOC_930716
+	default MALLOC if ! UCLIBC_HAS_MMU
+	default MALLOC_STANDARD if UCLIBC_HAS_MMU
 	help
 	  "malloc" use mmap for all allocations and so works very well on MMU-less
 	  systems that do not support the brk() system call.   It is pretty smart
 	  about reusing already allocated memory, and minimizing memory wastage.
+	  This is the default for uClinux MMU-less systems.
 
-	  "malloc-930716" is derived from libc-5.3.12 and uses the brk() system call
-	  for all memory allocations.  This makes it very fast.  It is also pretty
-	  smart about reusing already allocated memory, and minimizing memory wastage.
-	  Because this uses brk() it will not work on uClinux MMU-less systems.
+	  "malloc-simple" was written from scratch for uClibc, and is the
+	  simplest possible (and therefore smallest) malloc implementation.
+	  It is rather dumb, and certainly isn't the fastest.  But it is 100%
+	  standards compliant, thread safe, and very small.
 
-	  If unsure, answer "malloc".
+	  "malloc-standard" is derived from the public domain dlmalloc
+	  implementation by Doug Lea.  It is quite fast, and is pretty smart
+	  about reusing already allocated memory, and minimizing memory
+	  wastage.  This uses brk() for small allocations, while using mmap()
+	  for larger allocations.  This is the default malloc implementation
+	  for uClibc.
+
+	  If unsure, answer "malloc-standard".
 
 config MALLOC
 	bool "malloc"
 
-config MALLOC_930716
-	bool "malloc-930716"
+config MALLOC_SIMPLE
+	bool "malloc-simple"
+
+config MALLOC_STANDARD
+	bool "malloc-standard"
 	depends on UCLIBC_HAS_MMU
 
 endchoice

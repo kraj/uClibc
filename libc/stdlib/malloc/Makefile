@@ -24,8 +24,7 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-# calloc.c can be found at uClibc/libc/stdlib/calloc.c 
-CSRC = malloc.c free.c realloc.c memalign.c \
+CSRC = malloc.c calloc.c free.c realloc.c memalign.c \
 	heap_alloc.c heap_alloc_at.c heap_free.c
 
 # Turn on malloc debugging if requested
