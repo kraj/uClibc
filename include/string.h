@@ -59,12 +59,13 @@ extern __ptr_t memmove __P ((__ptr_t __dest, __const __ptr_t __src,
 
 
 /* Minimal (very!) locale support */
-#define strcoll strcmp
-#define strxfrm strncpy
+extern int strcoll __P ((__const char *__s1, __const char *__s2));
+extern size_t strxfrm __P ((char *__restrict __dest,
+			    __const char *__restrict __src, size_t __n));
 
 /* BSDisms */
-#define index strchr
-#define rindex strrchr
+extern char *index __P ((__const char *__s, int __c));
+extern char *rindex __P ((__const char *__s, int __c));
 
 /* Return the position of the first bit set in I, or 0 if none are set.
    The least-significant bit is position 1, the most-significant 32.  */
