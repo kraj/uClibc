@@ -131,7 +131,6 @@ DL_BOOT(unsigned long args)
 	Elf32_auxv_t auxvt[AT_EGID + 1];
 	unsigned char *malloc_buffer, *mmap_zero;
 	Elf32_Dyn *dpnt;
-	unsigned long *hash_addr;
 	struct r_debug *debug_addr = NULL;
 	size_t pagesize;
 	int indx;
@@ -528,7 +527,7 @@ found_got:
 	   free to start using global variables, since these things have all been
 	   fixed up by now.  Still no function calls outside of this library ,
 	   since the dynamic resolver is not yet ready. */
-	_dl_get_ready_to_run(tpnt, app_tpnt, load_addr, hash_addr,
+	_dl_get_ready_to_run(tpnt, app_tpnt, load_addr, 0,
 			auxvt, envp, debug_addr, malloc_buffer, mmap_zero, argv);
 
 
