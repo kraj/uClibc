@@ -627,12 +627,17 @@ int Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
 
 #ifdef L_strcmp
 
-#ifndef L_wcscmp
+#ifdef L_wcscmp
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning implement wcscoll and remove weak alias (or enable for C locale only)
+#endif
+weak_alias(wcscmp,wcscoll);
+#else  /* L_wcscmp */
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning implement strcoll and remove weak alias (or enable for C locale only)
 #endif
 weak_alias(strcmp,strcoll);
-#endif
+#endif /* L_wcscmp */
 
 int Wstrcmp(register const Wchar *s1, register const Wchar *s2)
 {
@@ -1918,18 +1923,31 @@ size_t strlcat(register char *__restrict dst,
 
 #endif
 /**********************************************************************/
+#ifdef L_wcsxfrm
+#define L_strlcpy
+#define Wstrlcpy wcsxfrm
+#endif
+
 #ifdef L_strlcpy
+
+#ifndef L_wcsxfrm
+#define Wstrlcpy strlcpy
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning implement wcscoll and remove weak alias (or enable for C locale only)
+#endif
+weak_alias(strlcpy,strxfrm);
+#endif
 
 /* OpenBSD function:
  * Copy at most n-1 chars from src to dst and nul-terminate dst.
  * Returns strlen(src), so truncation occurred if the return value is >= n. */
 
-size_t strlcpy(register char *__restrict dst,
-			   register const char *__restrict src,
-			   size_t n)
+size_t Wstrlcpy(register Wchar *__restrict dst,
+				register const Wchar *__restrict src,
+				size_t n)
 {
-	const char *src0 = src;
-	char dummy[1];
+	const Wchar *src0 = src;
+	Wchar dummy[1];
 
 	if (!n) {
 		dst = dummy;

@@ -38,13 +38,10 @@ MOBJW=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
 MOBJW2= wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
 	wcsdup.o wcslen.o wcsncasecmp.o wcsncat.o wcsncmp.o wcsncpy.o \
 	wcsnlen.o wcspbrk.o wcsrchr.o wcsspn.o wcsstr.o wcstok.o wmemchr.o \
-	wmemcmp.o wmemcpy.o wmemmove.o wmempcpy.o wmemset.o wcpcpy.o wcpncpy.o
+	wmemcmp.o wmemcpy.o wmemmove.o wmempcpy.o wmemset.o wcpcpy.o wcpncpy.o \
+	wcsxfrm.o # wcscoll
 
-# wcscoll wcsxfrm
-
-CSRC=strxfrm.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(COBJS) $(MOBJW)
+OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(MOBJW)
 
 ifeq ($(UCLIBC_HAS_WCHAR),y)
 	OBJS += $(MOBJW2)
