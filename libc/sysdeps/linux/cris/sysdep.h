@@ -17,6 +17,9 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#ifndef _SYSDEP_H_
+#define _SYSDEP_H_
+
 #ifndef C_LABEL
 
 /* Define a macro we can use to construct the asm name for a C symbol.  */
@@ -138,4 +141,5 @@
 #define	syscall_error	__syscall_error
 #define mcount		_mcount
 
-#endif	/* __ASSEMBLER__ */
+#endif /* __ASSEMBLER__ */
+#endif /* _SYSDEP_H_ */

@@ -11,10 +11,10 @@ int
 __init_brk (void)
 {
     if (___brk_addr == 0) {
-	    /* Notice that we don't need to save/restore the GOT
-	     * register since that is not call clobbered by the syscall
+	    /* 
+		 * Notice that we don't need to save/restore the GOT
+	     * register since that is not call clobbered by the syscall.
 	     */
-	    
 	    asm ("clear.d $r10\n\t"
 		 "movu.w " STR(__NR_brk) ",$r9\n\t"
 		 "break 13\n\t"

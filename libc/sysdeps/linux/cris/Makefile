@@ -53,7 +53,6 @@ $(COBJS): %.o : %.c
 
 headers:
 	@(TOPDIR=$(TOPDIR) CC=$(CC) /bin/sh $(TOPDIR)/extra/scripts/gen_bits_syscall_h.sh > bits/syscall.h ) 
-#	cd $(TOPDIR)/include/sys && ln -fs ../../libc/sysdeps/linux/m68k/reg.h .
 
 clean:
 	rm -f *.[oa] *~ core
