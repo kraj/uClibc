@@ -11,21 +11,14 @@ config HAVE_ELF
 	bool
 	default y
 
-config C_SYMBOL_PREFIX
-	string
-	default ""
-
 config ARCH_CFLAGS
 	string
-	default ""
 
 config ARCH_LDFLAGS
 	string
-	default ""
 
 config LIBGCC_CFLAGS
 	string
-	default ""
 
 choice
 	prompt "Target Processor Type"
@@ -65,13 +58,6 @@ endchoice
 config ARCH_HAS_NO_MMU
 	bool
 	default y if CONFIG_ARM7TDMI
-
-config CPU_CFLAGS
-	string
-	default "" if CONFIG_GENERIC_ARM
-	default "-march=arm7tdmi" if CONFIG_ARM7TDMI
-	default "-march=strongarm" if CONFIG_STRONGARM
-	default "$(call check_gcc,-march=xscale,-march=strongarm)" if CONFIG_XSCALE
 
 source "extra/Configs/Config.in.arch"
 

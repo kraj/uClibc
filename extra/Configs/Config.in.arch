@@ -82,3 +82,8 @@ config EXCLUDE_BRK
 	depends on !UCLIBC_HAS_MMU
 	default y
 
+config C_SYMBOL_PREFIX
+	string
+	default "_" if ARCH_HAS_C_SYMBOL_PREFIX
+	default "" if !ARCH_HAS_C_SYMBOL_PREFIX
+

@@ -11,21 +11,14 @@ config HAVE_ELF
 	bool
 	default y
 
-config C_SYMBOL_PREFIX
-	string
-	default ""
-
 config ARCH_CFLAGS
 	string
-	default ""
 
 config ARCH_LDFLAGS
 	string
-	default ""
 
 config LIBGCC_CFLAGS
 	string
-	default ""
 
 choice
 	prompt "Target Processor Type"
@@ -99,22 +92,6 @@ config CONFIG_CYRIXIII
 	bool "CyrixIII/VIA-C3"
 
 endchoice
-
-config CPU_CFLAGS
-	string
-	default "-march=i386" if CONFIG_386
-	default "-march=i486" if CONFIG_486
-	default "-march=i586" if CONFIG_586
-	default "$(call check_gcc,-march=pentium-mmx,-march=i586)" if CONFIG_586MMX
-	default "-march=i686" if CONFIG_686
-	default "$(call check_gcc,-march=pentium3,-march=i686)" if CONFIG_PENTIUMIII
-	default "$(call check_gcc,-march=pentium4,-march=i686)" if CONFIG_PENTIUM4
-	default "$(call check_gcc,-march=k6,-march=i586)" if CONFIG_K6
-	default "$(call check_gcc,-march=athlon,-march=i686 -malign-functions=4)" if CONFIG_K7
-	default "-march=i686 -malign-functions=0 -malign-jumps=0 -malign-loops=0" if CONFIG_CRUSOE
-	default "$(call check_gcc,-march=winchip-c6,-march=i586)" if CONFIG_WINCHIPC6
-	default "$(call check_gcc,-march=winchip2,-march=i586)" if CONFIG_WINCHIP2
-	default "$(call check_gcc,-march=c3,-march=i586)" if CONFIG_CYRIXIII
 
 source "extra/Configs/Config.in.arch"
 

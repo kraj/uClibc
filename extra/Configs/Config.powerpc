@@ -11,21 +11,14 @@ config HAVE_ELF
 	bool
 	default y
 
-config C_SYMBOL_PREFIX
-	string
-	default ""
-
 config ARCH_CFLAGS
 	string
-	default ""
 
 config ARCH_LDFLAGS
 	string
-	default ""
 
 config LIBGCC_CFLAGS
 	string
-	default ""
 
 source "extra/Configs/Config.in.arch"
 

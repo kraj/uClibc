@@ -11,10 +11,6 @@ config HAVE_ELF
 	bool
 	default y
 
-config C_SYMBOL_PREFIX
-	string
-	default ""
-
 config ARCH_CFLAGS
 	string
 	default "-fpic -mlinux -D__USE_WEAK_ALIASES"

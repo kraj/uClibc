@@ -94,20 +94,45 @@ export LC_COLLATE
 
 ARFLAGS:=r
 
-# Some nice architecture specific optimizations
-ifndef OPTIMIZATION
-
 # use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION:=
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
-ifeq ($(strip $(TARGET_ARCH)),arm)
-	OPTIMIZATION+=-fstrict-aliasing
-endif
+
+# Some nice CPU specific optimizations
 ifeq ($(strip $(TARGET_ARCH)),i386)
 	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
-	OPTIMIZATION+=$(call check_gcc,-falign-functions=0 -falign-jumps=0 -falign-loops=0,\
-		-malign-functions=0 -malign-jumps=0 -malign-loops=0)
+	OPTIMIZATION+=$(call check_gcc,-falign-jumps=0 -falign-loops=0,-malign-jumps=0 -malign-loops=0)
+	CPU_CFLAGS-$(CONFIG_386):="-march=i386"
+	CPU_CFLAGS-$(CONFIG_486):="-march=i486"
+	CPU_CFLAGS-$(CONFIG_586):="-march=i586"
+	CPU_CFLAGS-$(CONFIG_586MMX):="$(call check_gcc,-march=pentium-mmx,-march=i586)"
+	CPU_CFLAGS-$(CONFIG_686):="-march=i686"
+	CPU_CFLAGS-$(CONFIG_PENTIUMIII):="$(call check_gcc,-march=pentium3,-march=i686)"
+	CPU_CFLAGS-$(CONFIG_PENTIUM4):="$(call check_gcc,-march=pentium4,-march=i686)"
+	CPU_CFLAGS-$(CONFIG_K6):="$(call check_gcc,-march=k6,-march=i586)"
+	CPU_CFLAGS-$(CONFIG_K7):="$(call check_gcc,-march=athlon,-malign-functions=4 -march=i686)"
+	CPU_CFLAGS-$(CONFIG_CRUSOE):="-march=i686 -malign-functions=0 -malign-jumps=0 -malign-loops=0"
+	CPU_CFLAGS-$(CONFIG_WINCHIPC6):="$(call check_gcc,-march=winchip-c6,-march=i586)"
+	CPU_CFLAGS-$(CONFIG_WINCHIP2):="$(call check_gcc,-march=winchip2,-march=i586)"
+	CPU_CFLAGS-$(CONFIG_CYRIXIII):="$(call check_gcc,-march=c3,-march=i586)"
 endif
+
+ifeq ($(strip $(TARGET_ARCH)),arm)
+	OPTIMIZATION+=-fstrict-aliasing
+	CPU_CFLAGS-$(CONFIG_GENERIC_ARM):=
+	CPU_CFLAGS-$(CONFIG_ARM7TDMI):="-march=arm7tdmi"
+	CPU_CFLAGS-$(CONFIG_STRONGARM):="-march=strongarm"
+	CPU_CFLAGS-$(CONFIG_XSCALE):="$(call check_gcc,-march=xscale,-march=strongarm)"
+endif
+
+ifeq ($(strip $(TARGET_ARCH)),sh)
+	OPTIMIZATION+=-fstrict-aliasing
+	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN):="-ml"
+	CPU_CFLAGS-$(ARCH_BIG_ENDIAN):="-mb"
+	CPU_CFLAGS-$(CONFIG_SH2)+="-m2"
+	CPU_CFLAGS-$(CONFIG_SH3)+="-m3"
+	CPU_CFLAGS-$(CONFIG_SH4)+="-m4"
+	CPU_CFLAGS-$(CONFIG_SH5)+="-m5"
 endif
 
 # Add a bunch of extra pedantic annoyingly strict checks
@@ -115,7 +140,7 @@ WARNINGS+=-Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
 
 
 CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
-	-I$(TOPDIR)include -iwithprefix include -I. -D_LIBC $(CPU_CFLAGS) $(ARCH_CFLAGS)
+	-I$(TOPDIR)include -iwithprefix include -I. -D_LIBC $(CPU_CFLAGS-y) $(ARCH_CFLAGS)
 NATIVE_CFLAGS:=-O2 -Wall
 
 ifeq ($(strip $(DODEBUG)),y)

@@ -11,21 +11,14 @@ config HAVE_ELF
 	bool
 	default y
 
-config C_SYMBOL_PREFIX
-	string
-	default ""
-
 config ARCH_CFLAGS
 	string
-	default ""
 
 config ARCH_LDFLAGS
 	string
-	default ""
 
 config LIBGCC_CFLAGS
 	string
-	default ""
 
 config HAVE_DOT_HIDDEN
         bool
@@ -79,17 +72,6 @@ endchoice
 config ARCH_HAS_NO_MMU
 	bool
 	default y if CONFIG_SH2 || CONFIG_SH3
-
-config CPU_CFLAGS
-	string
-	default "-ml -m2" if CONFIG_SH2 && ARCH_LITTLE_ENDIAN
-	default "-mb -m2" if CONFIG_SH2 && ARCH_BIG_ENDIAN
-	default "-ml -m3" if CONFIG_SH3 && ARCH_LITTLE_ENDIAN
-	default "-mb -m3" if CONFIG_SH3 && ARCH_BIG_ENDIAN
-	default "-ml -m4" if CONFIG_SH4 && ARCH_LITTLE_ENDIAN
-	default "-mb -m4" if CONFIG_SH4 && ARCH_BIG_ENDIAN
-	default "-ml -m5" if CONFIG_SH5 && ARCH_LITTLE_ENDIAN
-	default "-mb -m5" if CONFIG_SH5 && ARCH_BIG_ENDIAN
 
 source "extra/Configs/Config.in.arch"
 
