@@ -41,11 +41,12 @@
 #include <rpc/rpc.h>
 #include <netdb.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 
 /*
  * Internet version.
  */
-struct rpcdata {
+static struct rpcdata {
 	FILE *rpcf;
 	char *current;
 	int currentlen;
@@ -58,12 +59,10 @@ struct rpcdata {
 } *rpcdata;
 
 static struct rpcent *interpret(const char *val, int len);
-struct hostent *gethostent();
-char *inet_ntoa();
 
 static char RPCDB[] = "/etc/rpc";
 
-static struct rpcdata *_rpcdata()
+static struct rpcdata *_rpcdata(void)
 {
 	register struct rpcdata *d = rpcdata;
 
@@ -169,8 +168,7 @@ struct rpcent *getrpcent()
 }
 
 #ifdef __linux__
-static char *firstwhite(s)
-char *s;
+static char *firstwhite(char *s)
 {
 	char *s1, *s2;
 

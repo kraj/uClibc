@@ -487,10 +487,7 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 }
 
 /* This is the exported version.  */
-int iruserok (raddr, superuser, ruser, luser)
-     u_int32_t raddr;
-     int superuser;
-     const char *ruser, *luser;
+int iruserok (u_int32_t raddr, int superuser, const char * ruser, const char * luser)
 {
 	return iruserok2 (raddr, superuser, ruser, luser, "-");
 }
@@ -508,10 +505,7 @@ int iruserok (raddr, superuser, ruser, luser)
  * Returns 0 if ok, -1 if not ok.
  */
 int
-__ivaliduser(hostf, raddr, luser, ruser)
-	FILE *hostf;
-	u_int32_t raddr;
-	const char *luser, *ruser;
+__ivaliduser(FILE *hostf, u_int32_t raddr, const char *luser, const char *ruser)
 {
 	return __ivaliduser2(hostf, raddr, luser, ruser, "-");
 }
@@ -519,10 +513,7 @@ __ivaliduser(hostf, raddr, luser, ruser)
 
 /* Returns 1 on positive match, 0 on no match, -1 on negative match.  */
 static int
-__icheckhost (raddr, lhost, rhost)
-	u_int32_t raddr;
-	char *lhost;
-	const char *rhost;
+__icheckhost (u_int32_t raddr, char *lhost, const char *rhost)
 {
 	struct hostent *hp;
 	u_int32_t laddr;
@@ -589,8 +580,7 @@ __icheckhost (raddr, lhost, rhost)
 
 /* Returns 1 on positive match, 0 on no match, -1 on negative match.  */
 static int
-__icheckuser (luser, ruser)
-	const char *luser, *ruser;
+__icheckuser (const char *luser, const char *ruser)
 {
 
     /*
@@ -623,8 +613,7 @@ __icheckuser (luser, ruser)
  * Returns 1 for blank lines (or only comment lines) and 0 otherwise
  */
 static int
-__isempty(p)
-	char *p;
+__isempty(char *p)
 {
     while (*p && isspace (*p)) {
 	++p;

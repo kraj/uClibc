@@ -125,6 +125,11 @@ __rpc_thread_svc_max_pollfd (void)
 }
 #else
 
+#undef svc_fdset
+#undef rpc_createerr
+#undef svc_pollfd
+#undef svc_max_pollfd
+
 fd_set * __rpc_thread_svc_fdset (void)
 {
     extern fd_set svc_fdset;
