@@ -26,6 +26,15 @@ XXFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) \
 	-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 	-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
+
+ifeq ($(DODEBUG),y)
+XXFLAGS=$(XWARNINGS) -O0 -g3 $(XARCH_CFLAGS) $(CPU_CFLAGS) \
+	-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
+	-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
+	-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
+	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
+endif
+
 XXFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1include/gp")
 XXFLAGS_NOPIC:=$(XXFLAGS)
 ifeq ($(DOPIC),y)
