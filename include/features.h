@@ -388,10 +388,14 @@ uClibc was built without large file support enabled.
 # define weak_const_function __attribute__ ((weak, __const__))
 /* Tacking on "\n\t#" to the section name makes gcc put it's bogus
  * section attributes on what looks like a comment to the assembler. */
-#  define link_warning(symbol, msg)					      \
+#  if defined(__cris__) 
+#    define link_warning(symbol, msg)
+#  else
+#    define link_warning(symbol, msg)					      \
 	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");	      \
 	    static const char __evoke_link_warning_##symbol[]		      \
 	    __attribute__ ((unused, section (".gnu.warning." #symbol "\n\t#"))) = msg;
+#endif
 #else /* !defined __HAVE_ELF__ */
 #  define strong_alias(name, aliasname) _strong_alias (name, aliasname)
 #  define weak_alias(name, aliasname) _strong_alias (name, aliasname)
