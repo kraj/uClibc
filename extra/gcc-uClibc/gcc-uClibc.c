@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 			}
 		}
 		if (use_stdlib) {
-			gcc_argv[i++] = "-nostdlib";
+			gcc_argv[i++] = nostdlib;
 			if (use_static_linking) {
 				if (debugging) {
 					gcc_argv[i++] = UCLIBC_LIB_G;
@@ -131,6 +131,10 @@ int main(int argc, char **argv)
 					gcc_argv[i++] = UCLIBC_LIB;
 				}
 			} else {
+				if (DYNAMIC_LINKER[0]) { /* not empty string */
+					gcc_argv[i++] = "-Wl,--dynamic-linker";
+					gcc_argv[i++] = DYNAMIC_LINKER;
+				}
 				if (debugging) {
 					gcc_argv[i++] = UCLIBC_SHAREDLIB_G;
 				} else {

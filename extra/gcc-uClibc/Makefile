@@ -2,6 +2,10 @@
 TOPDIR = ../../
 include $(TOPDIR)Rules.mak
 
+# NOTE: This may need to be modified on each system.
+# If your default dynamic linker works, comment this out.
+DYNAMIC_LINKER = /lib/ld-linux.so.1
+
 UCLIBC_DIR = $(shell (cd ../.. ; /bin/pwd))
 GCC_BIN = $(CC)
 GCC_LIB = $(shell $(CC) -print-libgcc-file-name )
@@ -25,6 +29,7 @@ gcc-uClibc.h: clean
 	echo "#define GCC_LIB " \"$(GCC_LIB)\" >> gcc-uClibc.h
 	echo "#define GCC_INCDIR " \"-I$(GCCINCDIR)/\" >> gcc-uClibc.h
 	echo "#define TARGET_ARCH " \"$(TARGET_ARCH)\" >> gcc-uClibc.h
+	echo "#define DYNAMIC_LINKER " \"$(DYNAMIC_LINKER)\" >> gcc-uClibc.h
 
 gcc-uClibc-native: gcc-uClibc.h gcc-uClibc.c
 	# uClibc built for native environment, so why not use it ;-)
