@@ -117,6 +117,39 @@ To subscribe, go and visit
 	You might want to take a look.
     
     
+<!-- Begin Latest News section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="news">
+    <BIG><B>
+    Latest News</A> 
+    </B></BIG>
+    </A>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+<ul>
+
+    <li> <b>22 December 2001, uClibc 0.9.8 Released!</b>
+    <br>
+    After many months of initial development, we are pleased to announce the
+    release of uClibc 0.9.8.  This release should be quite solid, and is very
+    usable.  This also marks a transition from a slow incubation phase to a more
+    methodical release cycle.  For now one, there should be approximately one release
+    per month.  
+    <p>
+    You can find the source code for this release 
+	<a href="http://uclibc.org/downloads/">here</a>.
+
+    <p> <li> <b>Old News</b>
+    <br>
+
+    <a href="http://uclibc.org/old-news.html">Click here to read older news</a>.
+    <p>
+
+
+</ul>
+
 <!-- Begin Download section -->
 
 <TR><TD BGCOLOR="#ccccc0" ALIGN=center>
@@ -173,149 +206,6 @@ To subscribe, go and visit
     you can avoid online payments), hardware donations, support requests, etc., you can 
     contact <a href="http://codepoet-consulting.com/">CodePoet Consulting</a> here.
     
-
-<!-- Begin Latest News section -->
-
-<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="news">
-    <BIG><B>
-    Latest News</A> 
-    </B></BIG>
-    </A>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-
-<ul>
-
-    <li> <b>26 November 2001, powerpc shared libraries fully working</b>
-    <br>
-    Dave Schleef finished off the the work needed for shared library support on
-    powerpc.  There had been a few problems remaining, and those are now squashed.
-    So shared libs on powerpc should be working fully now.
-
-    <p>
-    <li> <b>14 November 2001, m68 compiles again, Large file support working</b>
-    <br>
-	About a month ago I synced the header files with glibc 2.2.4 for better
-	C++ support and better standards compliance.  I forgot to sync up m68k,
-	sparc, powerpc, and mipsel.  Dave Schleef fixed powerpc while he was fixing
-	up the shared lib loader.  I just fixed up m68k, sparc, and mipsel so they
-	should all compile again.
-	<p>
-	I also finished up fixing large file support (just enable DOLFS in your
-	Config file to enable it) and it is working just great, and greatly increases
-	the number of glibc applications that will work "out-of-the-tarball" without
-	needing any changes.
-
-
-    <li> <b>12 November 2001, powerpc shared lib support</b>
-    <br>
-	Thanks to David Schleef, uClibc now has full shared library support 
-	on powerpc.  This brings full shared library support to x86, ARM, and 
-	now powerpc.  Thanks Dave!
-
-
-    <p>
-    <li> <b>7 November 2001, uClibc application list</b>
-    <br>
-	uClibc now has a <a href="http://uclibc.org/uClibc-apps.html">list of applications</a> 
-	that are known to work.  If you have any applications to add to the
-	list, submissions are welcome!
-
-
-    <p>
-    <li> <b>18 October 2001, buildroot uClibc example system</b>
-    <br>
-
-	Those wanting an easy way to test out uClibc and give it
-	a test drive can download and compile 
-	<a href="ftp://uclibc.org/buildroot.tar.gz">buildroot.tar.gz</a>.   This
-	is a nifty buildsystem that will automagically download and build
-	a <a href="http://user-mode-linux.sourceforge.net/">User-Mode Linux</a>
-	kernel, and will then download source for and compile up a fully
-	working uClibc based root filesystem.  This should make it easy for
-	people to create their own projects.  I hope that this build system
-	will allow people to more easily use and build uClibc based systems.
-	As an example of how nicely this works, the 
-	<a href="http://tuxscreen.net/">Tuxscreen Project</a> is using a
-	<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/tuxscreen/buildroot-tux/">slightly adjusted variant of the buildroot system</a> to cross 
-	compile the blob bootloader, linux kernel, and a uClibc based jffs2
-	root filesystem (busybox, tinylogin, udhcp, lrzsz, pcmcia-cs and 
-	microwindows) for ARM.  Pretty cool.
-
-
-
-    <p>
-    <li> <b>11 October 2001, v850 architecture support</b>
-    <br>
-
-	Miles Bader has contributed support for the v850 architecture.
-
-
-    <p>
-    <li> <b>25 Spetember 2001, header files updated</b>
-    <br>
-
-	uClibc's header files are now in sync with glibc 2.2.4,
-    allowing better standards compliance, better portibility, and 
-    better C++ support.
-    
-    <p>
-    <li> <b>4 July 2001, ARM shared library support</b>
-    <br>
-
-	uClibc now has full shared library support on ARM.
-
-
-    <p>
-    <li> <b>9 May 2001, libm added</b>
-    <br>
-
-	uClibc now has a very complete math library.
-
-
-    <p>
-    <p> <li> <b>9 May 2001, ld.so added</b>
-    <br>
-
-	uClibc now has a native ld.so.  It currently is only ported to work on x86,
-	but porting to other architectures should not be too difficult.
-
-
-    <p> <li> <b>15 March 2001, powerpc port added</b>
-    <br>
-
-	David Schleef contributed a powerpc port, which is now in CVS.
-
-    <p> <li> <b>19 February 2001, SH port added</b>
-    <br>
-
-	Jean-Yves Avenard contributed an SH port.  See his email 
-	with the initial patch <a href="http://uclibc.org/lists/uclibc/2001-February/000409.html">here</a>.
-
-    <p> <li> <b>16 January 2001, uClibc as a shared library</b>
-    <br>
-
-	 As if January 16, uClibc can now be used (at least on x86) as a shared
-	library.  See the <a href="http://uclibc.org/lists/uclibc/2001-January/000126.html">email</a>
-	announcing this achievement.
-
-    <p> <li> <b>11 January 2001, gcc wrapper added</b>
-    <br>
-
-	Manuel Novoa III has created a wrapper for gcc that makes compiling apps vs uClibc
-	as simple as just setting "CC" to gcc-uClibc-&lt arch&gt.  This even works when cross
-	compiling!  Very cool.
-
-    <p> <li> <b>3 January 2001, uClibc now has a web page</b>
-    <br>
-
-	 A lot of work has been going on under the hood with uClibc,
-	 so I decided to put together this webpage to let the world know
-	 that it exists and is getting to be very usable. 
-
-
-</ul>
 
 <!-- Begin TODO section -->
 
