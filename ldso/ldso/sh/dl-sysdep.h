@@ -85,52 +85,52 @@ register unsigned int __r0 __asm__ ("r0");
 register unsigned int __r4 __asm__ ("r4") = n;
 register unsigned int __r5 __asm__ ("r5") = base;
 
-	__asm__ ("
-		mov	#0, r0
-		div0u
+	__asm__ ("" \
+		"mov	#0, r0\n\t" \
+		"div0u\n\t" \
+		"" \
+		"! get one bit from the msb of the numerator into the T\n\t" \
+		"! bit and divide it by whats in %2.  Put the answer bit\n\t" \
+		"! into the T bit so it can come out again at the bottom\n\t" \
+		""				\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		""				\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		""				\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+ 		""				\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4 ; div1 r5, r0\n\t"	\
+		"rotcl	r4\n\t"			\
+		"mov  r4, r0\n\t"
 
-		! get one bit from the msb of the numerator into the T
-		! bit and divide it by whats in %2.  Put the answer bit
-		! into the T bit so it can come out again at the bottom
-
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
- 
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4 ; div1 r5, r0
-		rotcl	r4
-		mov  r4, r0
-"
 		: "=r" (__r0)
 		: "r" (__r4), "r" (__r5)
 		: "r4", "cc");
