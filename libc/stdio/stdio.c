@@ -376,7 +376,6 @@ FILE *fp;
 	q = p + (size * nelm);
 
 	while ((p < q) && !EOF_OR_ERROR(fp)) {
-		fprintf(stderr,"X\n");
 		p += _uClibc_fread(p, q - p, fp);
 	}
 	return (p - (unsigned char *) buf)/size;
