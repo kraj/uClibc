@@ -153,8 +153,10 @@ ifeq ($(strip $(DODEBUG)),y)
     LDFLAGS:= -shared --warn-common --warn-once -z combreloc
     STRIPTOOL:= true -Since_we_are_debugging
 else
-    CFLAGS  += -DNDEBUG #-fomit-frame-pointer
     LDFLAGS := -s -shared --warn-common --warn-once -z combreloc
+endif
+ifneq ($(strip $(DOASSERTS)),y)
+    CFLAGS += -DNDEBUG
 endif
 
 ifeq ($(strip $(HAVE_SHARED)),y)
@@ -172,7 +174,7 @@ endif
 ifeq ($(strip $(DOPIC)),y)
     CFLAGS += -fPIC
 endif
-ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
+ifeq ($(strip $(USE_GCC_SOFT_FLOAT_OPTION)),y)
     CFLAGS += -msoft-float
 endif
 
