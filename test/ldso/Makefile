@@ -7,7 +7,7 @@ dltest.o: dltest.c
 	$(CC) $(CFLAGS) -c dltest.c -o dltest.o
 
 howdy.o: howdy.c
-	$(CC) $(CFLAGS) -c howdy.c -o howdy.o
+	$(CC) $(CFLAGS) -fPIC -c howdy.c -o howdy.o
 
 libhowdy.so: howdy.o
 	$(CC) $(CFLAGS) -shared -o libhowdy.so -Wl,-soname,libhowdy.so howdy.o
