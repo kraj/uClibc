@@ -67,12 +67,6 @@ HAS_FLOATING_POINT = true
 # of C99 math library features.  Costs an extra 35k or so on x86. 
 DO_C99_MATH = false
 
-# Set this to `false' if you don't have/need "(unsigned) long long int" support.
-# Set it to `true' otherwise.
-# Affects *printf and *scanf functions.
-# Also omits strto(u)ll, and (u)lltostr from the library if `false'.
-HAS_LONG_LONG = true
-
 # Set this to 'false if you don't need shadow password support.
 HAS_SHADOW = false
 

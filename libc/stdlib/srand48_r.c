@@ -32,13 +32,7 @@ int srand48_r (seedval, buffer)
     buffer->__x[1] = seedval & 0xffffl;
     buffer->__x[0] = 0x330e;
 
-#ifdef __UCLIBC_HAS_LONG_LONG__
     buffer->__a = 0x5deece66dull;
-#else
-    buffer->__a1 = 0x5;
-    buffer->__a0 = 0xdeece66d;
-#endif
-
     buffer->__c = 0xb;
     buffer->__init = 1;
 

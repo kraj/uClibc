@@ -190,14 +190,9 @@ struct scan_cookie {
 	int app_ungot;
 };
 
-#ifdef __UCLIBC_HAS_LONG_LONG__
 static const char qual[] = "hl" /* "jtz" */ "Lq";
 /* char = -2, short = -1, int = 0, long = 1, long long = 2 */
 static const char qsz[] = { -1, 1,           2, 2 };
-#else
-static const char qual[] = "hl" /* "jtz" */;
-static const char qsz[] = { -1, 1,         };
-#endif
 
 #ifdef __UCLIBC_HAS_FLOATS__
 static int __strtold(long double *ld, struct scan_cookie *sc);
@@ -280,17 +275,10 @@ static void kill_scan_cookie(register struct scan_cookie *sc)
 
 int vfscanf(FILE *fp, const char *format, va_list ap)
 {
-#ifdef __UCLIBC_HAS_LONG_LONG__
 #define STRTO_L_(s,e,b,sf) _stdlib_strto_ll(s,e,b,sf)
 #define MAX_DIGITS 64
 #define UV_TYPE unsigned long long
 #define V_TYPE long long
-#else
-#define STRTO_L_(s,e,b,sf) _stdlib_strto_l(s,e,b,sf)
-#define MAX_DIGITS 32
-#define UV_TYPE unsigned long
-#define V_TYPE long
-#endif
 #ifdef __UCLIBC_HAS_FLOATS__
 	long double ld;
 #endif
@@ -490,15 +478,12 @@ int vfscanf(FILE *fp, const char *format, va_list ap)
 						vp = va_arg(ap, void *);
 						switch (lval) {
 							case 2:	/* If no long long, treat as long . */
-#ifdef __UCLIBC_HAS_LONG_LONG__
 								*((unsigned long long *)vp) = uv;
 								break;
-#endif
 							case 1:
 #if ULONG_MAX == UINT_MAX
 							case 0:	/* int and long int are the same */
 #endif
-#ifdef __UCLIBC_HAS_LONG_LONG__
 								if (usflag) {
 									if (uv > ULONG_MAX) {
 										uv = ULONG_MAX;
@@ -508,7 +493,6 @@ int vfscanf(FILE *fp, const char *format, va_list ap)
 								} else if (((V_TYPE)uv) < LONG_MIN) {
 									uv = (UV_TYPE) LONG_MIN;
 								}
-#endif
 								*((unsigned long *)vp) = (unsigned long)uv;
 								break;
 #if ULONG_MAX != UINT_MAX

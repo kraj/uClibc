@@ -44,7 +44,6 @@ my($mmu)	    = "";
 my($large_file)	    = "";
 my($rpc_support)    = "";
 my($c99_math)	    = "";
-my($long_long)	    = "";
 my($float)	    = "";
 my($threads)	    = "";
 my($shadow)	    = "";
@@ -69,7 +68,6 @@ Getopt::Long::Configure("no_ignore_case", "bundling");
 		"large_file=s" => \$large_file,
 		"rpc_support=s" => \$rpc_support,
 		"c99_math=s" => \$c99_math,
-		"long_long=s" => \$long_long,
 		"float=s" => \$float,
 		"threads=s" => \$threads,
 		"shadow=s" => \$shadow,
@@ -88,7 +86,6 @@ chomp($mmu);
 chomp($large_file);
 chomp($rpc_support);
 chomp($c99_math);
-chomp($long_long);
 chomp($float);
 chomp($threads);
 chomp($shadow);
@@ -152,10 +149,6 @@ while($line = <FILE>) {
     }
     if ($c99_math && $line =~ /^DO_C99_MATH.*/) {
 	print "DO_C99_MATH=$c99_math\n";
-	next;
-    }
-    if ($long_long && $line =~ /^HAS_LONG_LONG.*/) {
-	print "HAS_LONG_LONG=$long_long\n";
 	next;
     }
     if ($float && $line =~ /^HAS_FLOATING_POINT.*/) {

@@ -30,10 +30,7 @@ ALL_SUBDIRS = malloc malloc-930716 malloc-simple
 MSRC = stdlib.c
 MOBJ = abs.o labs.o atoi.o atol.o strtol.o strtoul.o _stdlib_strto_l.o \
        qsort.o bsearch.o
-
-ifeq ($(HAS_LONG_LONG),true)
-	MOBJ +=  llabs.o atoll.o strtoll.o strtoull.o _stdlib_strto_ll.o
-endif
+MOBJ +=  llabs.o atoll.o strtoll.o strtoull.o _stdlib_strto_ll.o
 
 ifeq ($(HAS_WCHAR),true)
 	MOBJ += mblen.o mbtowc.o wctomb.o mbstowcs.o wcstombs.o \

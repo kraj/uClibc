@@ -109,7 +109,6 @@ typedef struct
 # define __ldiv_t_defined	1
 #endif
 
-#ifdef __UCLIBC_HAS_LONG_LONG__
 #if defined __USE_ISOC99 && !defined __lldiv_t_defined
 /* Returned by `lldiv'.  */
 __extension__ typedef struct
@@ -119,7 +118,6 @@ __extension__ typedef struct
   } lldiv_t;
 # define __lldiv_t_defined	1
 #endif
-#endif /* __UCLIBC_HAS_LONG_LONG__ */
 
 
 /* The largest number rand will return (same as INT_MAX).  */
@@ -147,13 +145,11 @@ extern int atoi (__const char *__nptr) __THROW __attribute_pure__;
 /* Convert a string to a long integer.  */
 extern long int atol (__const char *__nptr) __THROW __attribute_pure__;
 
-#ifdef __UCLIBC_HAS_LONG_LONG__
 #if defined __USE_ISOC99 || (defined __GNUC__ && defined __USE_MISC)
 /* Convert a string to a long long integer.  */
 __extension__ extern long long int atoll (__const char *__nptr)
      __THROW __attribute_pure__;
 #endif
-#endif /* __UCLIBC_HAS_LONG_LONG__ */
 
 #ifdef __UCLIBC_HAS_FLOATS__
 /* Convert a string to a floating-point number.  */
@@ -178,7 +174,6 @@ extern unsigned long int strtoul (__const char *__restrict __nptr,
 				  char **__restrict __endptr, int __base)
      __THROW;
 
-#ifdef __UCLIBC_HAS_LONG_LONG__
 #if defined __GNUC__ && defined __USE_BSD
 /* Convert a string to a quadword integer.  */
 __extension__
@@ -204,7 +199,6 @@ extern unsigned long long int strtoull (__const char *__restrict __nptr,
 					char **__restrict __endptr, int __base)
      __THROW;
 #endif /* ISO C99 or GCC and use MISC.  */
-#endif /* __UCLIBC_HAS_LONG_LONG__ */
 
 
 #if 0
@@ -284,7 +278,6 @@ extern unsigned long int __strtoul_internal (__const char *__restrict __nptr,
 					     int __base, int __group) __THROW;
 # define __strtoul_internal_defined	1
 #endif
-#ifdef __UCLIBC_HAS_LONG_LONG__
 #if defined __GNUC__ || defined __USE_ISOC99
 # ifndef __strtoll_internal_defined
 __extension__
@@ -303,7 +296,6 @@ extern unsigned long long int __strtoull_internal (__const char *
 #  define __strtoull_internal_defined	1
 # endif
 #endif /* GCC */
-#endif /* __UCLIBC_HAS_LONG_LONG__ */
 
 #ifdef __USE_EXTERN_INLINES
 /* Define inline functions which call the internal entry points.  */
@@ -503,11 +495,7 @@ struct drand48_data
     unsigned short int __old_x[3]; /* Old state.  */
     unsigned short int __c;	/* Additive const. in congruential formula.  */
     unsigned short int __init;	/* Flag for initializing.  */
-#ifdef __UCLIBC_HAS_LONG_LONG__
     unsigned long long int __a;	/* Factor in congruential formula.  */
-#else
-    unsigned long __a0, __a1;
-#endif /* __UCLIBC_HAS_LONG_LONG__ */
   };
 
 #ifdef __UCLIBC_HAS_FLOATS__
@@ -729,12 +717,10 @@ extern void qsort (void *__base, size_t __nmemb, size_t __size,
 /* Return the absolute value of X.  */
 extern int abs (int __x) __THROW __attribute__ ((__const__));
 extern long int labs (long int __x) __THROW __attribute__ ((__const__));
-#ifdef __UCLIBC_HAS_LONG_LONG__
 #ifdef __USE_ISOC99
 __extension__ extern long long int llabs (long long int __x)
      __THROW __attribute__ ((__const__));
 #endif
-#endif /* #ifdef __UCLIBC_HAS_LONG_LONG__ */
 
 
 /* Return the `div_t', `ldiv_t' or `lldiv_t' representation
@@ -744,13 +730,11 @@ extern div_t div (int __numer, int __denom)
      __THROW __attribute__ ((__const__));
 extern ldiv_t ldiv (long int __numer, long int __denom)
      __THROW __attribute__ ((__const__));
-#ifdef __UCLIBC_HAS_LONG_LONG__
 #ifdef __USE_ISOC99
 __extension__ extern lldiv_t lldiv (long long int __numer,
 				    long long int __denom)
      __THROW __attribute__ ((__const__));
 #endif
-#endif /* __UCLIBC_HAS_LONG_LONG__ */
 
 
 #ifdef __UCLIBC_HAS_FLOATS__

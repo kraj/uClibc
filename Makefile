@@ -158,11 +158,6 @@ uClibc_config: Makefile Config
 	else \
 	    echo "#undef __UCLIBC_HAS_FLOATS__" >> include/bits/uClibc_config.h ; \
 	fi
-	@if [ "$(HAS_LONG_LONG)" = "true" ] ; then \
-	    echo "#define __UCLIBC_HAS_LONG_LONG__ 1" >> include/bits/uClibc_config.h ; \
-	else \
-	    echo "#undef __UCLIBC_HAS_LONG_LONG__" >> include/bits/uClibc_config.h ; \
-	fi
 	@if [ "$(HAS_LOCALE)" = "true" ] ; then \
 	    echo "#define __UCLIBC_HAS_LOCALE__ 1" >> include/bits/uClibc_config.h ; \
 	else \
