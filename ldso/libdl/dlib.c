@@ -288,7 +288,6 @@ void *_dlopen(const char *libname, int flag)
 	
 
 	/* Notify the debugger we have added some objects. */
-	_dl_debug_addr->r_state = RT_ADD;
 	if (_dl_debug_addr) {
 		dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
 		if (dl_brk != NULL) {
