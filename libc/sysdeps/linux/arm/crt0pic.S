@@ -33,13 +33,16 @@ _start:
 
 	ldr r3, .L3
 	str r2,[r9,r3]
-	ldr r0,[sp, #0]
-	ldr r1,[sp, #4]
-	ldr r2,[sp, #8]
 	
 	/* Tell libc to initialize whatever it needs */
         bl __libc_init		    
         bl __init_stdio
+
+	/* pull argc, argv and envp off the stack */
+	ldr r0,[sp, #0]
+	ldr r1,[sp, #4]
+	ldr r2,[sp, #8]
+
 	bl      main
 /*	ldr r0,=0  */
 	bl      exit
