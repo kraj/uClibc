@@ -1,3 +1,23 @@
+0.9.27	12 January 2005
+
+    This has been a long time in the making...  Release highlights:
+	o New stdio implementation
+	o New optimized string functions
+	o Major improvements to the shared lib loader
+	o Shared libraries work properly on powerpc
+	o Debugging works on mips
+	o New architectures: frv, nios, nios2, bfin
+	o Linux 2.6.x kernel support
+	o Lots and lots of bug fixes
+
+    This release is NOT binary compatible with uClibc 0.9.26 or any earlier
+    release, so be prepared to recompile your software if you are still using
+    an old version of uClibc.
+
+ -Erik
+
+
+
 0.9.26	3 January 2004
 
     This simply adds a fix for a pthread bug that was noticed a few hours

@@ -227,7 +227,7 @@ How could it be smaller and not suck?</a></h2>
     You will need to have your own uClibc toolchain.  A toolchain consists
     of <a href="http://sources.redhat.com/binutils/">GNU binutils</a>,
     <a href="http://gcc.gnu.org/">the gcc compiler</a>, and uClibc, all
-    built to produce binaries linked with uClibc for your target system.
+    built to produce binaries for your target system linked with uClibc.
     You can build your own native uClibc toolchain using the
     <a href="/cgi-bin/cvsweb/buildroot/">uClibc buildroot system</a>.
 
@@ -314,17 +314,13 @@ How could it be smaller and not suck?</a></h2>
     without needing to compile your own toolchain or anything, you can grab a
     pre-compiled uClibc development system.  These are currently available for
 
-    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_i386.bz2">i386</a>,
-    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_powerpc.bz2">powerpc</a>,
-    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_arm.bz2">arm</a>,
-    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_mips.bz2">mips</a>,
-    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_mipsel.bz2">mipsel</a>, and
-    <a href="http://www.kernel.org/pub/linux/libs/uclibc/root_fs_sh4.bz2">sh4</a>.
-
-    <p>
-
-    Each of these uClibc development systems was created using
-    <a href="/cgi-bin/cvsweb/buildroot/">buildroot</a>.
+    <a href="http://www.uclibc.org/downloads/root_fs_arm.ext2.bz2">arm</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs_armeb.ext2.bz2">armeb</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs_i386.ext2.bz2">i386</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs_mips.ext2.bz2">mips</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs_mipsel.ext2.bz2">mipsel</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs_powerpc.ext2.bz2">powerpc</a>, and
+    <a href="http://www.uclibc.org/downloads/root_fs_sh4.ext2.bz2">sh4</a>.
 
     <p>
 
@@ -335,11 +331,18 @@ How could it be smaller and not suck?</a></h2>
 
     <p>
 
-    This should be pretty much everything you need to get started building your
-    own applications with uClibc.  Once you download one of these systems, you
-    can then boot into it, loop mount it, dd it to a spare drive and use a tool
-    such as resize2fs to make it fill a partition...  Whatever works best for
-    you.
+    Each of these uClibc development systems was created using
+    <a href="/cgi-bin/cvsweb/buildroot/">buildroot</a>, specifically,
+    <a href="http://www.uclibc.org/downloads/buildroot.tar.bz2">buildroot.tar.bz2</a>
+    along with <a href="http://www.uclibc.org/downloads/buildroot-sources">these sources</a>.
+
+    <p>
+
+    These development systems should provide pretty much everything you need to get
+    started building your own applications with uClibc.  Once you download one of
+    these systems, you can then boot into it, loop mount it, dd it to a spare drive
+    and use a tool such as resize2fs to make it fill a partition...  Whatever works
+    best for you.
 
     <p>
     The quickest way to get started using a root_fs image (using the i386
