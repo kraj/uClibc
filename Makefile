@@ -199,6 +199,19 @@ ifneq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
 	# Remove libintl header if no gettext support.
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/libintl.h
 endif
+ifneq ($(strip $(UCLIBC_HAS_REGEX)),y)
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/regex.h
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/regexp.h
+endif
+ifneq ($(strip $(UCLIBC_HAS_WORDEXP)),y)
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/wordexp.h
+endif
+ifneq ($(strip $(UCLIBC_HAS_FTW)),y)
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/ftw.h
+endif
+ifneq ($(strip $(UCLIBC_HAS_GLOB)),y)
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/glob.h
+endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod -f 755 $$i; chmod -f 644 $$i/*.h; \
 	done;
