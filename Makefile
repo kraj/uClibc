@@ -63,7 +63,7 @@ finished: shared
 	@echo Finally finished compiling...
 	@echo
 
-headers: dummy
+headers1: dummy
 	@- find include -type l -exec rm -f {} \;
 	@if [ $(TARGET_ARCH) = "powerpc" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-ppc include/asm; \
@@ -115,14 +115,16 @@ headers: dummy
 		done; \
 	fi
 	@cd include/sys; \
-	for i in ../../libc/sysdeps/linux/common/sys/*.h ; do \
+	for i in `ls ../../libc/sysdeps/linux/common/sys/*.h` ; do \
 		ln -fs $$i .; \
 	done; \
 	if [ -d ../../libc/sysdeps/linux/$(TARGET_ARCH)/sys ] ; then \
-		for i in ../../libc/sysdeps/linux/$(TARGET_ARCH)/sys/*.h ; do \
+		for i in `ls ../../libc/sysdeps/linux/$(TARGET_ARCH)/sys/*.h` ; do \
 			ln -fs $$i .; \
 		done; \
 	fi
+
+headers:
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
 uClibc_config: Makefile Config
