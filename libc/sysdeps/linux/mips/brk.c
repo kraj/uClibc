@@ -21,9 +21,9 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
-void *__curbrk = 0;
+void *___brk_addr = 0;
 
-int __brk (void *addr)
+int brk (void *addr)
 {
   void *newbrk;
 
@@ -37,7 +37,7 @@ int __brk (void *addr)
 	 : "$4", "$7");
     newbrk = (void *) res;
   }
-  __curbrk = newbrk;
+  ___brk_addr = newbrk;
 
   if (newbrk < addr)
     {

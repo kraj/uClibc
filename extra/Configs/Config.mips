@@ -97,9 +97,9 @@ LOCALE_DIR = "/usr/share/uClibc-locale/"
 # "malloc-930716" is from libc-5.3.12 and was/is the standard gnu malloc.
 # It is actually smaller than "malloc", at least on i386.  Right now, it
 # only works on i386 (and maybe m68k) because it needs sbrk.
-MALLOC = malloc-simple
+#MALLOC = malloc-simple
 #MALLOC = malloc 
-#MALLOC = malloc-930716
+MALLOC = malloc-930716
 
 # If you want to collect common syscall code into one function, set to this to
 # `true'.  Set it to false otherwise.
