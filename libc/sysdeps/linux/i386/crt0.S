@@ -30,6 +30,8 @@ Cambridge, MA 02139, USA.  */
         NULL
 */
 
+#include <features.h>
+
 .text
 	.align 4
 
