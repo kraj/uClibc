@@ -97,7 +97,6 @@
 
 /* These are now set in uClibc_config.h based on Config. */
 /*
-#define __UCLIBC_HAS_LONG_LONG__         1
 #define __UCLIBC_HAS_FLOATS__            1
 */
 
@@ -109,7 +108,6 @@
  *      to the base code size of 1163 on i386.
  */
 
-#define WANT_LONG_LONG_ERROR   0
 #define WANT_FLOAT_ERROR      0
 
 /*
@@ -123,200 +121,29 @@
 
 /**************************************************************************/
 
-#include <sys/types.h>
-#include <fcntl.h>
-#include <string.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <assert.h>
-
-#if WANT_GNU_ERRNO
-#include <errno.h>
-#endif
-
-#ifdef __STDC__
+#define _GNU_SOURCE				/* for strnlen */
+#define _STDIO_UTILITY
+#include <stdio.h>
 #include <stdarg.h>
-#define va_strt      va_start
-#else
-#include <varargs.h>
-#define va_strt(p,i) va_start(p)
-#endif
+#include <limits.h>
+#include <string.h>
+#include <errno.h>
 
-#include "stdio.h"
+#define __PRINTF_INFO_NO_BITFIELD
+#include <printf.h>
 
-extern int vfnprintf(FILE * op, size_t max_size,
-					 register __const char *fmt, register va_list ap);
+#ifdef __STDIO_THREADSAFE
+#include <pthread.h>
+#endif /* __STDIO_THREADSAFE */
 
-#ifdef L_printf
-int printf(const char *fmt, ...)
-{
-	va_list ptr;
-	int rv;
+/*  #undef __UCLIBC_HAS_FLOATS__ */
+/*  #undef WANT_FLOAT_ERROR */
+/*  #define WANT_FLOAT_ERROR      1 */
 
-	va_strt(ptr, fmt);
-	rv = vfnprintf(stdout, -1, fmt, ptr);
-	va_end(ptr);
-	return rv;
-}
-#endif
+#define __isdigit(c) (((unsigned int)(c - '0')) < 10)
 
-#ifdef L_asprintf
-int asprintf(char **app, const char *fmt, ...)
-{
-	va_list ptr;
-	int rv;
-	char *p;
+extern size_t _dtostr(FILE * fp, long double x, struct printf_info *info);
 
-	/*
-	 * First iteration - find out size of buffer required and allocate it.
-	 */
-	va_strt(ptr, fmt);
-	rv = vsnprintf(NULL, 0, fmt, ptr);
-	va_end(ptr);
-
-	p = malloc(++rv);			/* allocate the buffer */
-	*app = p;
-	if (!p) {
-		return -1;
-	}
-
-	/*
-	 * Second iteration - actually produce output.
-	 */
-	va_strt(ptr, fmt);
-	rv = vsnprintf(p, rv, fmt, ptr);
-	va_end(ptr);
-
-	return rv;
-}
-#endif
-
-#ifdef L_sprintf
-int sprintf(char *sp, const char *fmt, ...)
-{
-	va_list ptr;
-	int rv;
-
-	va_strt(ptr, fmt);
-	rv = vsnprintf(sp, -1, fmt, ptr);
-	va_end(ptr);
-	return rv;
-}
-#endif
-
-
-#ifdef L_snprintf
-int snprintf(char *sp, size_t size, const char *fmt, ...)
-{
-	va_list ptr;
-	int rv;
-
-	va_strt(ptr, fmt);
-	rv = vsnprintf(sp, size, fmt, ptr);
-	va_end(ptr);
-	return rv;
-}
-#endif
-
-#ifdef L_fprintf
-int fprintf(FILE * fp, const char *fmt, ...)
-{
-	va_list ptr;
-	int rv;
-
-	va_strt(ptr, fmt);
-	rv = vfnprintf(fp, -1, fmt, ptr);
-	va_end(ptr);
-	return rv;
-}
-#endif
-
-#ifdef L_fnprintf
-int fnprintf(FILE * fp, size_t size, const char *fmt, ...)
-{
-	va_list ptr;
-	int rv;
-
-	va_strt(ptr, fmt);
-	rv = vfnprintf(fp, size, fmt, ptr);
-	va_end(ptr);
-	return rv;
-}
-#endif
-
-#ifdef L_vprintf
-int vprintf(const char *fmt, va_list ap)
-{
-	return vfprintf(stdout, fmt, ap);
-}
-#endif
-
-#ifdef L_vfprintf
-
-int vfprintf(FILE * op, register __const char *fmt, register va_list ap)
-{
-	return vfnprintf(op, -1, fmt, ap);
-}
-
-#endif
-
-#ifdef L_vsprintf
-int vsprintf(char *sp, __const char *fmt, va_list ap)
-{
-	return vsnprintf(sp, -1, fmt, ap);
-}
-#endif
-
-#ifdef L_vsnprintf
-int vsnprintf(char *sp, size_t size, __const char *fmt, va_list ap)
-{
-	int rv;
-	FILE f;
-
-	/*
-	 * As we're only using the putc macro in vfnprintf, we don't need to
-	 * initialize all FILE f's fields.
-	 */
-	f.bufwrite = (char *) ((unsigned) -1);
-	f.bufpos = sp;
-	f.mode = _IOFBF;
-
-	rv = vfnprintf(&f, size, fmt, ap);
-	if (size) {					/* If this is going to a buffer, */
-		*(f.bufpos) = 0;		/* don't forget to nul-terminate. */
-	}
-	return rv;
-}
-#endif
-
-#ifdef L_vdprintf
-/*
- * Note: If fd has an associated buffered FILE, bad things happen.
- */
-extern int vdprintf(int fd, const char *fmt, va_list ap)
-{
-	char buf[BUFSIZ];
-	FILE f = {buf, 0, buf+sizeof(buf), buf, buf+sizeof(buf), 0, fd, _IOFBF};
-	int rv;
-
-	rv = vfnprintf(&f, -1, fmt, ap);
-
-	if (fflush(&f)) {
-		return -1;
-	}
-
-	return rv;
-}
-#endif
-
-#ifdef L_vfnprintf
-
-extern char *__ultostr(char *buf, unsigned long uval, int base, int uppercase);
-extern char *__ltostr(char *buf, long val, int base, int uppercase);
-extern char *__ulltostr(char *buf, unsigned long long uval, int base, int uppercase);
-extern char *__lltostr(char *buf, long long val, int base, int uppercase);
-extern int __dtostr(FILE * fp, size_t size, long double x,
-				  char flag[], int width, int preci, char mode);
 
 enum {
 	FLAG_PLUS = 0,
@@ -329,15 +156,7 @@ enum {
 /* layout                   01234  */
 static const char spec[] = "+-#0 ";
 
-#if defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR
 static const char qual[] = "hlLq";
-#else
-static const char qual[] = "hl";
-#endif
-
-#if !defined(__UCLIBC_HAS_LONG_LONG__) && WANT_LONG_LONG_ERROR
-static const char ll_err[] = "<LONG-LONG>";
-#endif
 
 #if !defined(__UCLIBC_HAS_FLOATS__) && WANT_FLOAT_ERROR
 static const char dbl_err[] = "<DOUBLE>";
@@ -355,27 +174,21 @@ static const char u_spec[] = "%nbopxXudics";
 /* u_radix[i] <-> u_spec[i+2] for unsigned entries only */
 static const char u_radix[] = "\x02\x08\x10\x10\x10\x0a";
 
-int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
+int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
+			 va_list ap)
 {
 	int i, cnt, lval, len;
 	char *p;
 	const char *fmt0;
-	int buffer_mode;
 	int preci, width;
 #define upcase i
 	int radix, dpoint /*, upcase*/;
-#if defined(__UCLIBC_HAS_LONG_LONG__)
-	char tmp[65];
-#else
-	char tmp[33];
-#endif
+	char tmp[65];				/* TODO - determing needed size from headers */
 	char flag[sizeof(spec)];
 
-	cnt = 0;
+	__STDIO_THREADLOCK(op);
 
-	/* This speeds things up a bit for line unbuffered */
-	buffer_mode = (op->mode & __MODE_BUF);
-	op->mode &= (~__MODE_BUF);
+	cnt = 0;
 
 	while (*fmt) {
 		if (*fmt == '%') {
@@ -390,8 +203,6 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 #else
 			lval = 1;			/* sizeof(int) == sizeof(long) */
 #endif
-
-			tmp[1] = 0;			/* set things up for %c -- better done here */
 
 			/* init flags */
 			for (p =(char *) spec ; *p ; p++) {
@@ -446,13 +257,11 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 			for (p = (char *) qual ; *p ; p++) {
 				if (*p == *fmt) {
 					lval = p - qual;
-					++fmt;
-#if defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR
+					++fmt;		/* TODO - hh */
 					if ((*p == 'l') && (*fmt == *p)) {
 						++lval;
 						++fmt;
 					}
-#endif /* defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR */
 				}
 			}
 
@@ -477,40 +286,20 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 				}
 				if (p-u_spec < 8) { /* unsigned conversion */
 					radix = u_radix[p-u_spec-2];
-					upcase = ((int)'x') - *p;
+					upcase = ((*p == 'x') ? __UIM_LOWER : __UIM_UPPER);
 					if (*p == 'p') {
 						lval = (sizeof(char *) == sizeof(long));
-						upcase = 0;
+						upcase = __UIM_LOWER;
 						flag[FLAG_HASH] = 'p';
 					}
-#if defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR
-					if (lval >= 2) {
-#if defined(__UCLIBC_HAS_LONG_LONG__)
-						p = __ulltostr(tmp + sizeof(tmp) - 1,
-									   va_arg(ap, unsigned long long),
-									   radix, upcase);
-#else
-						(void) va_arg(ap, unsigned long long);	/* cary on */
-						p = (char *) ll_err;
-#endif /* defined(__UCLIBC_HAS_LONG_LONG__) */
-					} else {
-#endif /* defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR */
-#if UINT_MAX != ULONG_MAX
-						/* sizeof(unsigned int) != sizeof(unsigned long) */
-						p = __ultostr(tmp + sizeof(tmp) - 1, (unsigned long)
-									  ((lval)
-									   ? va_arg(ap, unsigned long)
-									   : va_arg(ap, unsigned int)),
+
+					p = _uintmaxtostr((tmp + sizeof(tmp) - 1),
+									  ((lval>1) /* TODO -- longlong/long/int/short/char */
+									   ? va_arg(ap, uintmax_t)
+									   : (uintmax_t)
+									   va_arg(ap, unsigned long)),
 									  radix, upcase);
-#else
-						/* sizeof(unsigned int) == sizeof(unsigned long) */
-						p = __ultostr(tmp + sizeof(tmp) - 1, (unsigned long)
-									  va_arg(ap, unsigned long),
-									  radix, upcase);
-#endif
-#if defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR
-					}
-#endif /* defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR */
+
 					flag[FLAG_PLUS] = '\0';	/* meaningless for unsigned */
 					if (*p != '0') { /* non-zero */
 						if (flag[FLAG_HASH]) {
@@ -531,31 +320,14 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 						p = "(nil)";
 					}
 				} else if (p-u_spec < 10) { /* signed conversion */
-#if defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR
-					if (lval >= 2) {
-#if defined(__UCLIBC_HAS_LONG_LONG__)
-						p = __lltostr(tmp + sizeof(tmp) - 1,
-									  va_arg(ap, long long), 10, 0);
-#else
-						(void) va_arg(ap, long long); /* carry on */
-						p = (char *) ll_err;
-#endif /* defined(__UCLIBC_HAS_LONG_LONG__) */
-					} else {
-#endif /* defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR */
-#if INT_MAX != LONG_MAX
-						/* sizeof(int) != sizeof(long) */
-						p = __ltostr(tmp + sizeof(tmp) - 1, (long)
-									 ((lval)
-									  ? va_arg(ap, long)
-									  : va_arg(ap, int)), 10, 0);
-#else
-						/* sizeof(int) == sizeof(long) */
-						p = __ltostr(tmp + sizeof(tmp) - 1, (long)
-									 va_arg(ap, long), 10, 0);
-#endif
-#if defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR
-					}
-#endif /* defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR */
+
+ 					p = _uintmaxtostr((tmp + sizeof(tmp) - 1),
+									  ((lval>1) /* TODO -- longlong/long/int/short/char */
+									   ? va_arg(ap, uintmax_t)
+									   : (uintmax_t) ((long long) /* sign-extend! */
+													va_arg(ap, long))),
+									  -radix, upcase);
+
 				} else if (p-u_spec < 12) {	/* character or string */
 					flag[FLAG_PLUS] = '\0';
 					flag[FLAG_0_PAD] = ' ';
@@ -569,21 +341,44 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 						p = va_arg(ap, char *);
 						if (!p) {
 							p = "(null)";
+							preci = 6;
+						} else {
+							if (preci < 0) {
+								preci = INT_MAX;
+							}
 						}
+						len = strnlen(p, preci);
+						goto print_len_set;
 					}
 #if defined(__UCLIBC_HAS_FLOATS__) || WANT_FLOAT_ERROR
 				} else if (p-u_spec < 27) {		/* floating point */
 #endif /* defined(__UCLIBC_HAS_FLOATS__) || WANT_FLOAT_ERROR */
 #if defined(__UCLIBC_HAS_FLOATS__)
+					struct printf_info info;
 					if (preci < 0) {
 						preci = 6;
 					}
-					cnt += __dtostr(op, 
-									(max_size > cnt ? max_size - cnt : 0),
-									(long double) ((lval > 1)
-									 ? va_arg(ap, long double)
-									 : va_arg(ap, double)),
-									flag, width,  preci, *fmt);
+					info.width = width;
+					info.prec = preci;
+					info.spec = *fmt;
+					info.pad = flag[FLAG_0_PAD];
+					info._flags = 0;
+					if (flag[FLAG_PLUS] == '+') {
+						PRINT_INFO_SET_FLAG(&info,showsign);
+					} else if (flag[FLAG_PLUS] == ' ') {
+						PRINT_INFO_SET_FLAG(&info,space);
+					}
+					if (flag[FLAG_HASH]) {
+						PRINT_INFO_SET_FLAG(&info,alt);
+					}
+					if (flag[FLAG_MINUS_LJUSTIFY]) {
+						PRINT_INFO_SET_FLAG(&info,left);
+					}
+					cnt += _dtostr(op, 
+								   ((lval > 1)
+									? va_arg(ap, long double)
+									: (long double) va_arg(ap, double)),
+								   &info);
 					goto nextfmt;
 #elif WANT_FLOAT_ERROR
 					(void) ((lval > 1) ? va_arg(ap, long double)
@@ -597,7 +392,8 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 #endif
 				{				/* this used to be printfield */
 					/* cheaper than strlen call */
-					for ( len = 0 ; p[len] ; len++ ) { }
+/*  					for ( len = 0 ; p[len] ; len++ ) { } */
+					len = strnlen(p, SIZE_MAX);
 				print_len_set:
 					if ((*p == '-')
 #if WANT_GNU_ERRNO
@@ -671,13 +467,8 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 							ch = *p++; /* main field */
 							--len;
 						}
-
-						if (++cnt < max_size) {
-							putc(ch, op);
-						}
-						if ((ch == '\n') && (buffer_mode == _IOLBF)) {
-							fflush(op);
-						}
+						++cnt;
+						putc(ch, op);
 					}
 				}
 				goto nextfmt;
@@ -686,28 +477,17 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 			fmt = fmt0;	/* this was an illegal format */
 		}
 
-		charout:
-		if (++cnt < max_size) {
-			putc(*fmt, op);	/* normal char out */
-		}
-		if ((*fmt == '\n') && (buffer_mode == _IOLBF)) {
-			fflush(op);
-		}
+	charout:
+		++cnt;
+		putc(*fmt, op);	/* normal char out */
 
 	nextfmt:
 		++fmt;
 	}
 
-	op->mode |= buffer_mode;
-	if (buffer_mode == _IOLBF) {
-		op->bufwrite = op->bufpos;
-	}
+	i = (__FERROR(op)) ? -1 : cnt;
 
-	if (ferror(op)) {
-		cnt = -1;
-	}
-	return (cnt);
+	__STDIO_THREADLOCK(op);
+
+	return i;
 }
-
-#endif
-

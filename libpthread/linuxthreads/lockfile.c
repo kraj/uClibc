@@ -17,72 +17,45 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <bits/libc-lock.h>
+/*  #include <bits/libc-lock.h> */
 #include <stdio.h>
 #include <pthread.h>
-
-#ifdef USE_IN_LIBIO
-#include "../libio/libioP.h"
-#endif
 
 void
 __flockfile (FILE *stream)
 {
-#ifdef USE_IN_LIBIO
-  __pthread_mutex_lock (stream->_lock);
-#else
-#endif
+  pthread_mutex_lock(&stream->lock);
 }
-#ifdef USE_IN_LIBIO
-#undef _IO_flockfile
-strong_alias (__flockfile, _IO_flockfile)
-#endif
 weak_alias (__flockfile, flockfile);
 
 
 void
 __funlockfile (FILE *stream)
 {
-#ifdef USE_IN_LIBIO
-  __pthread_mutex_unlock (stream->_lock);
-#else
-#endif
+  pthread_mutex_unlock(&stream->lock);
 }
-#ifdef USE_IN_LIBIO
-#undef _IO_funlockfile
-strong_alias (__funlockfile, _IO_funlockfile)
-#endif
 weak_alias (__funlockfile, funlockfile);
 
 
 int
 __ftrylockfile (FILE *stream)
 {
-#ifdef USE_IN_LIBIO
-  return __pthread_mutex_trylock (stream->_lock);
-#else
-  return 0;
-#endif
+  return pthread_mutex_trylock(&stream->lock);
 }
-#ifdef USE_IN_LIBIO
-strong_alias (__ftrylockfile, _IO_ftrylockfile)
-#endif
 weak_alias (__ftrylockfile, ftrylockfile);
 
 
 void
 __fresetlockfiles (void)
 {
-#ifdef USE_IN_LIBIO
-  _IO_FILE *fp;
+  FILE *fp;
   pthread_mutexattr_t attr;
 
-  __pthread_mutexattr_init (&attr);
-  __pthread_mutexattr_settype (&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+  pthread_mutexattr_init(&attr);
+  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
 
-  for (fp = _IO_list_all; fp != NULL; fp = fp->_chain)
-    __pthread_mutex_init (fp->_lock, &attr);
+  for (fp = _stdio_openlist; fp != NULL; fp = fp->nextopen)
+    pthread_mutex_init(&fp->lock, &attr);
 
-  __pthread_mutexattr_destroy (&attr);
-#endif
+  pthread_mutexattr_destroy(&attr);
 }

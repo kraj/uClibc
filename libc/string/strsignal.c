@@ -34,22 +34,23 @@
  *
  * Added the option WANT_SIGLIST for low-memory applications to omit the
  * signal message strings and only output the signal number.
+ *
+ * Manuel Novoa III       Feb 2002
+ *
+ * Change to use _int10tostr and fix a bug in end-of-buf arg.
  */
 
 #define WANT_SIGLIST       1
+
+#define _STDIO_UTILITY			/* For _int10tostr. */
+#include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
 #include <signal.h>
-#include <limits.h>
+#ifndef __USE_GNU
 #define __USE_GNU
-#include <string.h>
-
-#if (INT_MAX >> 31)
-/* We're set up for 32 bit ints */
-#error need to check size allocation for static buffer 'retbuf'
 #endif
-
-extern char *__ltostr(char *buf, long uval, int base, int uppercase);
+#include <string.h>
 
 /********************** Function strsignal ************************************/
 #ifdef L_strsignal
@@ -96,6 +97,10 @@ const char *const sys_siglist[] = {
 
 #define NUM_KNOWN_SIGNALS    32
 
+#if __BUFLEN_INT10TOSTR > 12
+#error currently set up for 32 bit ints max!
+#endif
+
 static char retbuf[28];			/* 28 is sufficient for 32 bit ints */
 static const char unknown_signal[] = "Unknown Signal:";
 
@@ -112,8 +117,7 @@ char *strsignal(int sig)
 	}
 #endif
 
-	pos = __ltostr(retbuf + sizeof(unknown_signal) + 1, sig, 10, 0)
-		- sizeof(unknown_signal);
+	pos = _int10tostr(retbuf+sizeof(retbuf)-1, sig) - sizeof(unknown_signal);
 	strcpy(pos, unknown_signal);
 	*(pos + sizeof(unknown_signal) - 1) = ' ';
 	return pos;
@@ -122,8 +126,6 @@ char *strsignal(int sig)
 #endif
 /********************** Function psignal ************************************/
 #ifdef L_psignal
-
-#include <stdio.h>
 
 void psignal(int sig, const char *s)
 {
@@ -161,7 +163,7 @@ int main(void)
 #endif
 
 	p = strsignal(INT_MIN);
-	j = strlen(p)+1;
+	j = retbuf+sizeof(retbuf) - p;
 	if (j > max) max = j;
 	/*printf("strsignal.c - Test of INT_MIN: <%s>  %d\n", p, j);*/
 

@@ -17,6 +17,8 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#define _STDIO_UTILITY			/* For _int10tostr. */
+#include <stdio.h>
 #include <errno.h>
 #include <paths.h>
 #include <stdlib.h>
@@ -26,6 +28,7 @@
 #include <sys/sysmacros.h>
 #include <termios.h>
 #include <unistd.h>
+
 
 #if !defined UNIX98PTY_ONLY
 
@@ -54,8 +57,6 @@ extern const char _ptyname2[];
 
 /* Directory where we can find the slave pty nodes.  */
 #define _PATH_DEVPTS "/dev/pts/"
-
-extern char *__ultostr(char *buf, unsigned long uval, int base, int uppercase);
 
 /* Store at most BUFLEN characters of the pathname of the slave pseudo
    terminal associated with the master FD is open on in BUF.
@@ -86,14 +87,12 @@ int ptsname_r (int fd, char *buf, size_t buflen)
 #ifdef TIOCGPTN
   if (ioctl (fd, TIOCGPTN, &ptyno) == 0)
     {
-      /* Buffer we use to print the number in.  For a maximum size for
-         `int' of 8 bytes we never need more than 20 digits.  */
-      char numbuf[21];
+      /* Buffer we use to print the number in. */
+      char numbuf[__BUFLEN_INT10TOSTR];
       static const char devpts[] = _PATH_DEVPTS;
       char *p;
 
-      numbuf[20] = '\0';
-      p = __ultostr (&numbuf[sizeof numbuf - 1], ptyno, 10, 0);
+      p = _int10tostr(&numbuf[sizeof numbuf - 1], ptyno);
 
       if (buflen < sizeof devpts + &numbuf[sizeof numbuf - 1] - p)
 	{

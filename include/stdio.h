@@ -1,4 +1,4 @@
-/* Define ISO C stdio on top of C++ iostreams.
+/*
    Copyright (C) 1991, 1994-1999, 2000, 2001, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -37,32 +37,11 @@ __BEGIN_DECLS
 # define __need_FILE
 # define __need___FILE
 #endif /* Don't need FILE.  */
-#include <sys/types.h>
 
 
 #if !defined __FILE_defined && defined __need_FILE
 
 /* The opaque type of streams.  This is the definition used elsewhere.  */
-
-/* when you add or change fields here, be sure to change the initialization
- * in stdio_init and fopen */
-
-struct _UC_FILE {
-  unsigned char *bufpos;   /* the next byte to write to or read from */
-  unsigned char *bufread;  /* the end of data returned by last read() */
-  unsigned char *bufwrite; /* 1 + highest address writable by macro */
-  unsigned char *bufstart; /* the start of the buffer */
-  unsigned char *bufend;   /* the end of the buffer; ie the byte after the last
-                              malloc()ed byte */
-  struct _UC_FILE * next;
-
-  int fd; /* the file descriptor associated with the stream */
-
-  unsigned char mode;
-  unsigned char ungot;
-  unsigned char unbuf[2];	   /* The buffer for 'unbuffered' streams */
-};
-
 typedef struct _UC_FILE FILE;
 
 # define __FILE_defined	1
@@ -83,39 +62,33 @@ typedef struct _UC_FILE __FILE;
 #ifdef	_STDIO_H
 #undef _STDIO_USES_IOSTREAM
 
+#include <sys/types.h>
+
+#include <bits/uClibc_stdio.h>
+
 /* This define avoids name pollution if we're using GNU stdarg.h */
 # define __need___va_list
 #include <stdarg.h>
 
-
 /* The type of the second argument to `fgetpos' and `fsetpos'.  */
 #ifndef __USE_FILE_OFFSET64
-typedef __off_t fpos_t;
+typedef _UC_fpos_t fpos_t;
 #else
-typedef __off64_t fpos_t;
+typedef _UC_fpos64_t fpos_t;
 #endif
 #ifdef __USE_LARGEFILE64
-typedef __off64_t fpos64_t;
+typedef _UC_fpos64_t fpos64_t;
 #endif
 
 /* The possibilities for the third argument to `setvbuf'.  */
-#define _IOFBF 0 		/* Fully buffered.  */
-#define _IOLBF 1		/* Line buffered.  */
-#define _IONBF 2		/* No buffering.  */
-
-/* Possible states for a file stream -- internal use only */
-#define __MODE_BUF		0x03	/* Modal buffering dependent on isatty */
-#define __MODE_FREEBUF	0x04	/* Buffer allocated by stdio code, can free */
-#define __MODE_FREEFIL	0x08	/* FILE allocated by stdio code, can free */
-#define __MODE_UNGOT	0x10	/* Buffer has been polluted by ungetc */
-#define __MODE_TIED 	0x20	/* FILE is tied with stdin/stdout */
-#define __MODE_EOF		0x40	/* EOF status */
-#define __MODE_ERR		0x80	/* Error status */
+#define _IOFBF _UC_IOFBF 		/* Fully buffered.  */
+#define _IOLBF _UC_IOLBF		/* Line buffered.  */
+#define _IONBF _UC_IONBF		/* No buffering.  */
 
 
 /* Default buffer size.  */
 #ifndef BUFSIZ
-# define BUFSIZ	    (512)
+# define BUFSIZ _UC_BUFSIZ
 #endif
 
 
@@ -155,10 +128,12 @@ typedef __off64_t fpos64_t;
 extern FILE *stdin;		/* Standard input stream.  */
 extern FILE *stdout;		/* Standard output stream.  */
 extern FILE *stderr;		/* Standard error output stream.  */
+#ifdef __STDC__
 /* C89/C99 say they're macros.  Make them happy.  */
 #define stdin stdin
 #define stdout stdout
 #define stderr stderr
+#endif
 
 /* Remove file FILENAME.  */
 extern int remove (__const char *__filename) __THROW;
@@ -212,8 +187,7 @@ extern int fflush (FILE *__stream) __THROW;
 extern int fflush_unlocked (FILE *__stream) __THROW;
 #endif
 
-#if 0
-/*#ifdef __USE_GNU*/
+#ifdef __USE_GNU
 /* Close all streams.  */
 extern int fcloseall (void) __THROW;
 #endif
@@ -254,8 +228,8 @@ extern FILE *freopen64 (__const char *__restrict __filename,
 extern FILE *fdopen (int __fd, __const char *__modes) __THROW;
 #endif
 
-#if 0
-/*#ifdef	__USE_GNU*/
+#ifdef	__USE_GNU
+#ifdef __STDIO_GLIBC_CUSTOM_STREAMS
 /* Create a new stream that refers to the given magic cookie,
    and uses the given functions for input and output.  */
 extern FILE *fopencookie (void *__restrict __magic_cookie,
@@ -270,6 +244,7 @@ extern FILE *fmemopen (void *__s, size_t __len, __const char *__modes) __THROW;
    and the number of characters written on fflush or fclose.  */
 extern FILE *open_memstream (char **__restrict __bufloc,
 			     size_t *__restrict __sizeloc) __THROW;
+#endif
 #endif
 
 
@@ -380,9 +355,7 @@ extern int getchar (void) __THROW;
 
 /* The C standard explicitly says this is a macro, so we always do the
    optimization for it.  */
-#define getc(stream)	\
-  (((stream)->bufpos >= (stream)->bufread) ? fgetc(stream):		\
-    (*(stream)->bufpos++))
+#define getc(_fp) __GETC(_fp)
 
 #if defined __USE_POSIX || defined __USE_MISC
 /* These are defined in POSIX.1:1996.  */
@@ -405,9 +378,7 @@ extern int putchar (int __c) __THROW;
 
 /* The C standard explicitly says this can be a macro,
    so we always do the optimization for it.  */
-#define putc(c, stream)	\
-    (((stream)->bufpos >= (stream)->bufwrite) ? fputc((c), (stream))	\
-                          : (unsigned char) (*(stream)->bufpos++ = (c))	)
+#define putc(_ch, _fp) __PUTC(_ch, _fp)
 
 #ifdef __USE_MISC
 /* Faster version when locking is not necessary.  */
@@ -434,8 +405,7 @@ extern int putw (int __w, FILE *__stream) __THROW;
 extern char *fgets (char *__restrict __s, int __n, FILE *__restrict __stream)
      __THROW;
 
-#if 0
-/*#ifdef __USE_GNU*/
+#ifdef __USE_GNU
 /* This function does the same as `fgets' but does not lock the stream.  */
 extern char *fgets_unlocked (char *__restrict __s, int __n,
 			     FILE *__restrict __stream) __THROW;
@@ -452,15 +422,15 @@ extern char *gets (char *__s) __THROW;
    NULL), pointing to *N characters of space.  It is realloc'd as
    necessary.  Returns the number of characters read (not including the
    null terminator), or -1 on error or EOF.  */
-extern ssize_t __getdelim (char **__restrict __lineptr,
+extern __ssize_t __getdelim (char **__restrict __lineptr,
 			       size_t *__restrict __n, int __delimiter,
 			       FILE *__restrict __stream) __THROW;
-extern ssize_t getdelim (char **__restrict __lineptr,
+extern __ssize_t getdelim (char **__restrict __lineptr,
 			     size_t *__restrict __n, int __delimiter,
 			     FILE *__restrict __stream) __THROW;
 
 /* Like `getdelim', but reads up to a newline.  */
-extern ssize_t getline (char **__restrict __lineptr,
+extern __ssize_t getline (char **__restrict __lineptr,
 			    size_t *__restrict __n,
 			    FILE *__restrict __stream) __THROW;
 #endif
@@ -470,8 +440,7 @@ extern ssize_t getline (char **__restrict __lineptr,
 extern int fputs (__const char *__restrict __s, FILE *__restrict __stream)
      __THROW;
 
-#if 0
-/*#ifdef __USE_GNU*/
+#ifdef __USE_GNU
 /* This function does the same as `fputs' but does not lock the stream.  */
 extern int fputs_unlocked (__const char *__restrict __s,
 			   FILE *__restrict __stream) __THROW;
@@ -582,7 +551,7 @@ extern int sys_nerr;
 extern __const char *__const sys_errlist[];
 #endif
 #if 0
-/*#ifdef	__USE_GNU*/
+/*  #ifdef	__USE_GNU */
 extern int _sys_nerr;
 extern __const char *__const _sys_errlist[];
 #endif
@@ -591,8 +560,6 @@ extern __const char *__const _sys_errlist[];
 #ifdef	__USE_POSIX
 /* Return the system file descriptor for STREAM.  */
 extern int fileno (FILE *__stream) __THROW;
-/* Only use the macro below if you know fp is a valid FILE for a valid fd. */
-#define __fileno(fp)	((fp)->fd)
 #endif /* Use POSIX.  */
 
 #ifdef __USE_MISC
@@ -624,7 +591,7 @@ extern char *cuserid (char *__s) __THROW;
 
 
 #if 0
-/*#ifdef	__USE_GNU*/
+/*  #ifdef	__USE_GNU */
 struct obstack;			/* See <obstack.h>.  */
 
 /* Write formatted output to an obstack.  */
@@ -636,7 +603,7 @@ extern int obstack_vprintf (struct obstack *__restrict __obstack,
 #endif /* Use GNU.  */
 
 
-#if defined __USE_POSIX || defined __USE_MISC
+#if (defined __USE_POSIX || defined __USE_MISC) && defined __UCLIBC_HAS_THREADS__
 /* These are defined in POSIX.1:1996.  */
 
 /* Acquire ownership of STREAM.  */
@@ -660,7 +627,8 @@ extern void funlockfile (FILE *__stream) __THROW;
 
 /* If we are compiling with optimizing read this file.  It contains
    several optimizing inline functions and macros.  */
-#ifdef __USE_EXTERN_INLINES
+#if 0
+/*  #ifdef __USE_EXTERN_INLINES */
 # include <bits/stdio.h>
 #endif
 

@@ -31,13 +31,23 @@
  * implementation doesn't for the "100ergs" case mentioned above.
  */
 
+#define _GNU_SOURCE
+#include <features.h>
+#if defined(__UCLIBC__) && !defined(__USE_ISOC99)
+#define __USE_ISOC99
+#endif
+
+#define _STDIO_UTILITY
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#define __USE_ISOC99
-#include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdarg.h>
+
+#ifdef __STDIO_THREADSAFE
+#include <pthread.h>
+#endif /* __STDIO_THREADSAFE */
 
 #ifdef L_scanf
 #ifdef __STDC__
@@ -59,29 +69,22 @@ va_dcl
 #endif
 
 #ifdef L_sscanf
-#ifdef __STDC__
-int sscanf(const char *sp, const char *fmt, ...)
+#if !defined(__STDIO_BUFFERS) && !defined(__STDIO_GLIBC_CUSTOM_STREAMS)
+#warning skipping sscanf since no buffering and no custom streams!
 #else
-int sscanf(sp, fmt, va_alist)
-__const char *sp;
-__const char *fmt;
-va_dcl
-#endif
-{
-	FILE string[1] = {
-		{0, (unsigned char *) ((unsigned) -1), 0, 0, (char *) ((unsigned) -1),
-		 0, -1, _IOFBF}
-	};
 
+int sscanf(const char *sp, const char *fmt, ...)
+{
 	va_list ptr;
 	int rv;
 
-	string->bufpos = (unsigned char *) ((void *) sp);
 	va_start(ptr, fmt);
-	rv = vfscanf(string, fmt, ptr);
+	rv = vsscanf(sp, fmt, ptr);
 	va_end(ptr);
 	return rv;
 }
+
+#endif
 #endif
 
 #ifdef L_fscanf
@@ -114,16 +117,37 @@ va_list ap;
 #endif
 
 #ifdef L_vsscanf
+#ifdef __STDIO_BUFFERS
 int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 {
-	FILE string[1] = {
-		{0, (unsigned char *) ((unsigned) -1), 0, 0, (char *) ((unsigned) -1),
-		 0, -1, _IOFBF}
-	};
+	FILE string[1];
 
-	string->bufpos = (unsigned char *) sp;
+	string->filedes = -2;		/* for debugging */
+	string->modeflags = (__FLAG_NARROW|__FLAG_READONLY);
+	string->bufstart = string->bufrpos = (unsigned char *) ((void *) sp);
+	string->bufgetc = (char *) ((unsigned) -1);
+
 	return vfscanf(string, fmt, ap);
 }
+#else  /* __STDIO_BUFFERS */
+#ifdef __STDIO_GLIBC_CUSTOM_STREAMS
+int vsscanf(__const char *sp, __const char *fmt, va_list ap)
+{
+	FILE *f;
+	int rv;
+
+	if ((f = fmemopen((char *)sp, strlen(sp), "r")) == NULL) {
+		return -1;
+	}
+	rv = vfscanf(f, fmt, ap);
+	fclose(f);
+
+	return rv;
+}
+#else  /* __STDIO_GLIBC_CUSTOM_STREAMS */
+#warning skipping vsscanf since no buffering and no custom streams!
+#endif /* __STDIO_GLIBC_CUSTOM_STREAMS */
+#endif /* __STDIO_BUFFERS */
 #endif
 
 #ifdef L_vfscanf
@@ -154,6 +178,7 @@ struct scan_cookie {
 	int width_flag;
 	int ungot_char;
 	int ungot_flag;
+	int app_ungot;
 };
 
 #ifdef __UCLIBC_HAS_LONG_LONG__
@@ -181,7 +206,10 @@ static void init_scan_cookie(struct scan_cookie *sc, FILE *fp)
 	sc->nread = 0;
 	sc->width_flag = 0;
 	sc->ungot_flag = 0;
+	sc->app_ungot = ((fp->modeflags & __MASK_UNGOT) ? fp->ungot[1] : 0);
 }
+
+/* TODO -- what about literal '\0' chars in a file??? */
 
 static int scan_getc_nw(struct scan_cookie *sc)
 {
@@ -233,6 +261,10 @@ static void kill_scan_cookie(struct scan_cookie *sc)
 {
 	if (sc->ungot_flag) {
 		ungetc(sc->ungot_char,sc->fp);
+		/* Deal with distiction between user and scanf ungots. */
+		if (sc->nread == 0) {	/* Only one char was read... app ungot? */
+			sc->fp->ungot[1] = sc->app_ungot; /* restore ungot state. */
+		}
 	}
 }
 
@@ -266,6 +298,8 @@ va_list ap;
 	unsigned char store, usflag, base, invert, r0, r1;
 	unsigned char buf[MAX_DIGITS+2];
 	unsigned char scanset[UCHAR_MAX + 1];
+
+	__STDIO_THREADLOCK(fp);
 
 	init_scan_cookie(&sc,fp);
 
@@ -547,7 +581,7 @@ va_list ap;
 				goto done;
 			}
 			/* Unrecognized specifier! */
-			goto done;
+			goto RETURN_cnt;
 		} if (isspace(*fmt)) {	/* Consume all whitespace. */
 			while (isspace(scan_getc_nw(&sc)))
 				{}
@@ -567,8 +601,11 @@ va_list ap;
 	kill_scan_cookie(&sc);
 
 	if ((sc.ungot_char <= 0) && (cnt == 0) && (*fmt)) {
-		return (EOF);
+		cnt = EOF;
 	}
+
+ RETURN_cnt:
+	__STDIO_THREADUNLOCK(fp);
 
 	return (cnt);
 }

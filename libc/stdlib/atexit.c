@@ -17,7 +17,7 @@
  *   Changed name of __cleanup to __uClibc_cleanup.
  *   Moved declaration of __uClibc_cleanup to __uClibc_main
  *      where it is initialized with (possibly weak alias)
- *      __stdio_flush_buffers.
+ *      _stdio_term.
  *
  * Jul 2001          Steve Thayer
  * 
@@ -141,7 +141,7 @@ void __exit_handler(int status)
 #endif
 
 #ifdef L_exit
-extern void weak_function __stdio_flush_buffers(void);
+extern void weak_function _stdio_term(void);
 void (*__exit_cleanup) (int) = 0;
 
 /*
@@ -154,9 +154,12 @@ void exit(int rv)
 		__exit_cleanup(rv);
 	}
 
-	/* Clean up everything else */
-	if (__stdio_flush_buffers) 
-	    __stdio_flush_buffers();
+    /* If we are using stdio, try to shut it down.  At the very least,
+	 * this will attempt to commit all buffered writes.  It may also
+	 * unbuffer all writable files, or close them outright.
+	 * Check the stdio routines for details. */
+	if (_stdio_term) 
+	    _stdio_term();
 
 	_exit(rv);
 }

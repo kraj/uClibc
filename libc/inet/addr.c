@@ -10,10 +10,16 @@
  * are smaller than the previous functions and don't require static buffers.
  * In the process, removed the reference to strcat and cut object size of
  * inet_ntoa in half (from 190 bytes down to 94).
+ *
+ * Manuel Novoa III       Feb 2002
+ *
+ * Changed to use _int10tostr.
  */
 
 #define __FORCE_GLIBC
 #include <features.h>
+#define _STDIO_UTILITY			/* For _int10tostr. */
+#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include <netinet/in.h>
@@ -80,15 +86,6 @@ const char *cp;
 
 #ifdef L_inet_ntoa
 
-#include <limits.h>
-
-#if (ULONG_MAX >> 32)
-/* We're set up for 32 bit unsigned longs */
-#error need to check size allocation for static buffer 'buf'
-#endif
-
-extern char *__ultostr(char *buf, unsigned long uval, int base, int uppercase);
-
 char *inet_ntoa(in)
 struct in_addr in;
 {
@@ -101,7 +98,7 @@ struct in_addr in;
 	q = 0;
 	p = buf + sizeof(buf) - 1;
 	for (i=0 ; i < 4 ; i++ ) {
-		p = __ultostr(p, addr & 0xff, 10, 0 ) - 1;
+		p = _int10tostr(p, addr & 0xff) - 1;
 		addr >>= 8;
 		if (q) {
 			*q = '.';

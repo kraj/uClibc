@@ -16,6 +16,11 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+/* March 11, 2002       Manuel Novoa III
+ *
+ * Modify code to remove dependency on libgcc long long arith support funcs.
+ */
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -117,8 +122,11 @@ int __gen_tempname (char *tmpl, int openit)
     char *XXXXXX;
     static uint64_t value;
     struct timeval tv;
+	uint32_t high, low, rh;
+	unsigned int k;
     int count, fd;
     int save_errno = errno;
+	int i;
 
     len = strlen (tmpl);
     if (len < 6 || strcmp (&tmpl[len - 6], "XXXXXX"))
@@ -136,20 +144,21 @@ int __gen_tempname (char *tmpl, int openit)
 
     for (count = 0; count < TMP_MAX; value += 7777, ++count)
     {
-	uint64_t v = value;
+	low = value & UINT32_MAX;
+	high = value >> 32;
 
-	/* Fill in the random bits.  */
-	XXXXXX[0] = letters[v % 62];
-	v /= 62;
-	XXXXXX[1] = letters[v % 62];
-	v /= 62;
-	XXXXXX[2] = letters[v % 62];
-	v /= 62;
-	XXXXXX[3] = letters[v % 62];
-	v /= 62;
-	XXXXXX[4] = letters[v % 62];
-	v /= 62;
-	XXXXXX[5] = letters[v % 62];
+	for (i = 0 ; i < 6 ; i++) {
+		rh = high % 62;
+		high /= 62;
+#define L ((UINT32_MAX % 62 + 1) % 62)
+		k = (low % 62) + (L * rh);
+#undef L
+#define H ((UINT32_MAX / 62) + ((UINT32_MAX % 62 + 1) / 62))
+		low = (low / 62) + (H * rh) + (k / 62);
+#undef H
+		k %= 62;
+		XXXXXX[i] = letters[k];
+	}
 
 	if (openit)
 	{

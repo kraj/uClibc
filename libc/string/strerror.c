@@ -28,26 +28,25 @@ Cambridge, MA 02139, USA.  */
  *
  * Added the option WANT_ERRORLIST for low-memory applications to omit the
  * error message strings and only output the error number.
+ *
+ * Manuel Novoa III       Feb 2002
+ *
+ * Change to _int10tostr and fix a bug in end-of-buf arg.
  */
 
 #define WANT_ERRORLIST     1
 
+#define _STDIO_UTILITY			/* For _int10tostr. */
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
-#include <limits.h>
-
-#if (INT_MAX >> 31)
-/* We're set up for 32 bit ints */
-#error need to check size allocation for static buffer 'retbuf'
-#endif
-
-extern char *__ltostr(char *buf, long uval, int base, int uppercase);
-
 #if WANT_ERRORLIST
 static char retbuf[48];
 #else
+#if __BUFLEN_INT10TOSTR > 12
+#error currently set up for 32 bit ints max!
+#endif
 static char retbuf[33];			/* 33 is sufficient for 32 bit ints */
 #endif
 static const char unknown_error[] = "Unknown Error: errno"; /* = */
@@ -66,9 +65,8 @@ char *strerror(int err)
 	}
 #endif
 
-	/* unknown error */
-	pos = __ltostr(retbuf + sizeof(retbuf) + 1, err, 10, 0)
-		- sizeof(unknown_error); /* leave space for the '=' */
+	/* unknown error -- leave space for the '=' */
+	pos = _int10tostr(retbuf+sizeof(retbuf)-1, err)	- sizeof(unknown_error);
 	strcpy(pos, unknown_error);
 	*(pos + sizeof(unknown_error) - 1) = '=';
 	return pos;
@@ -97,8 +95,8 @@ int main(void)
 #endif
 
 	p = strerror(INT_MIN);
-	j = strlen(p)+1;
-	if (j > max) {
+	j = retbuf+sizeof(retbuf) - p;
+	if ( > max) {
 	    max = j;
 	    printf("strerror.c - Test of INT_MIN: <%s>  %d\n", p, j);
 	}

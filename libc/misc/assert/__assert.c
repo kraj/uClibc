@@ -1,49 +1,52 @@
-/* Copyright (C) 1996 Robert de Bath <rdebath@cix.compulink.co.uk>
- * This file is part of the Linux-8086 C library and is distributed
- * under the GNU Library General Public License.
- */
-
-/*
- * Manuel Novoa III       Dec 2000
+/*  Copyright (C) 2002     Manuel Novoa III
+ *  An __assert() function compatible with the modified glibc assert.h
+ *  that is used by uClibc.
  *
- * Converted to use my new (un)signed long (long) to string routines, which
- * are smaller than the previous functions and don't require static buffers.
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Library General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Library General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Library General Public
+ *  License along with this library; if not, write to the Free
+ *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <unistd.h>
-#include <string.h>
+#define _STDIO_UTILITY	/* For _stdio_fdout and _int10tostr. */
+#include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
+#include <unistd.h>
 
-#if (INT_MAX >> 31)
-/* We're set up for 32 bit ints */
-#error need to check size allocation for buffer 'buf'
+/* Get the prototype from assert.h as a double-check. */
+#undef NDEBUG
+#include <assert.h>
+#undef assert
+
+void __assert(const char *assertion, const char * filename,
+			  int linenumber, const char * function)
+{
+	char buf[__BUFLEN_INT10TOSTR];
+
+	_stdio_fdout(STDERR_FILENO,
+#if 0
+				 program_name,	/* TODO: support program_name like glibc? */
+				 ": ",
 #endif
-
-extern char *__ltostr(char *buf, unsigned long uval, int base, int uppercase);
-
-static void errput(str)
-const char *str;
-{
-	write(2, str, strlen(str));
-}
-
-void __assert(assertion, filename, linenumber, function)
-const char *assertion;
-const char *filename;
-int linenumber;
-const char *function;
-{
-	char buf[12];
-
-	errput(filename);
-	errput(":");
-	errput(__ltostr(buf + sizeof(buf) - 1, linenumber, 10, 0));
-	errput(function ? ": " : "");
-	errput(function ? function : "");
-	errput(function ? "() " : "");
-	errput(": Assertion \"");
-	errput(assertion);
-	errput("\" failed.\n");
+				 filename,
+				 ":",
+				 _int10tostr(buf+sizeof(buf)-1, linenumber),
+				 ": ",
+				 /* Function name isn't available with some compilers. */
+				 ((function == NULL) ? "?function?" : function),
+				 ":  Assertion `",
+				 assertion,
+				 "' failed.\n",
+				 NULL
+				 );
 	abort();
 }
