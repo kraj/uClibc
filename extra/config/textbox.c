@@ -317,7 +317,7 @@ dialog_textbox (const char *title, const char *file, int height, int width)
     delwin (dialog);
     free (buf);
     close (fd);
-    return -1;			/* ESC pressed */
+    return 1;			/* ESC pressed */
 }
 
 /*

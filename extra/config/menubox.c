@@ -93,7 +93,7 @@ print_item (WINDOW * win, const char *item, int choice, int selected, int hotkey
     }
     if (selected) {
 	wmove (win, choice, item_x+1);
-	wrefresh (win);
+	wnoutrefresh (win);
     }
 }
 
@@ -165,8 +165,7 @@ print_buttons (WINDOW *win, int height, int width, int selected)
 int
 dialog_menu (const char *title, const char *prompt, int height, int width,
 		int menu_height, const char *current, int item_no,
-		const char * const * items)
-
+		struct dialog_list_item ** items)
 {
     int i, j, x, y, box_x, box_y;
     int key = 0, button = 0, scroll = 0, choice = 0, first_item = 0, max_choice;
@@ -230,8 +229,8 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
      */
     item_x = 0;
     for (i = 0; i < item_no; i++) {
-	item_x = MAX (item_x, MIN(menu_width, strlen (items[i * 2 + 1]) + 2));
-	if (strcmp(current, items[i*2]) == 0) choice = i;
+	item_x = MAX (item_x, MIN(menu_width, strlen (items[i]->name) + 2));
+	if (strcmp(current, items[i]->tag) == 0) choice = i;
     }
 
     item_x = (menu_width - item_x) / 2;
@@ -261,8 +260,8 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
 
     /* Print the menu */
     for (i=0; i < max_choice; i++) {
-	print_item (menu, items[(first_item + i) * 2 + 1], i, i == choice,
-                    (items[(first_item + i)*2][0] != ':'));
+	print_item (menu, items[first_item + i]->name, i, i == choice,
+                    (items[first_item + i]->tag[0] != ':'));
     }
 
     wnoutrefresh (menu);
@@ -283,14 +282,14 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
 		i = max_choice;
 	else {
         for (i = choice+1; i < max_choice; i++) {
-		j = first_alpha(items[(scroll+i)*2+1], "YyNnMm");
-		if (key == tolower(items[(scroll+i)*2+1][j]))
+		j = first_alpha(items[scroll + i]->name, "YyNnMm>");
+		if (key == tolower(items[scroll + i]->name[j]))
                 	break;
 	}
 	if (i == max_choice)
        		for (i = 0; i < max_choice; i++) {
-			j = first_alpha(items[(scroll+i)*2+1], "YyNnMm");
-			if (key == tolower(items[(scroll+i)*2+1][j]))
+			j = first_alpha(items[scroll + i]->name, "YyNnMm>");
+			if (key == tolower(items[scroll + i]->name[j]))
                 		break;
 		}
 	}
@@ -300,8 +299,8 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
             key == '-' || key == '+' ||
             key == KEY_PPAGE || key == KEY_NPAGE) {
 
-            print_item (menu, items[(scroll+choice)*2+1], choice, FALSE,
-                       (items[(scroll+choice)*2][0] != ':'));
+            print_item (menu, items[scroll + choice]->name, choice, FALSE,
+                       (items[scroll + choice]->tag[0] != ':'));
 
 	    if (key == KEY_UP || key == '-') {
                 if (choice < 2 && scroll) {
@@ -312,15 +311,15 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
 
                     scroll--;
 
-                    print_item (menu, items[scroll * 2 + 1], 0, FALSE,
-                               (items[scroll*2][0] != ':'));
+                    print_item (menu, items[scroll * 2]->name, 0, FALSE,
+                               (items[scroll * 2]->tag[0] != ':'));
 		} else
 		    choice = MAX(choice - 1, 0);
 
 	    } else if (key == KEY_DOWN || key == '+')  {
 
-		print_item (menu, items[(scroll+choice)*2+1], choice, FALSE,
-                                (items[(scroll+choice)*2][0] != ':'));
+		print_item (menu, items[scroll + choice]->name, choice, FALSE,
+                                (items[scroll + choice]->tag[0] != ':'));
 
                 if ((choice > max_choice-3) &&
                     (scroll + max_choice < item_no)
@@ -332,9 +331,9 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
 
                     scroll++;
 
-                    print_item (menu, items[(scroll+max_choice-1)*2+1],
+                    print_item (menu, items[scroll + max_choice - 1]->name,
                                max_choice-1, FALSE,
-                               (items[(scroll+max_choice-1)*2][0] != ':'));
+                               (items[scroll + max_choice - 1]->tag[0] != ':'));
                 } else
                     choice = MIN(choice+1, max_choice-1);
 
@@ -344,8 +343,8 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
                     if (scroll > 0) {
                 	wscrl (menu, -1);
                 	scroll--;
-                	print_item (menu, items[scroll * 2 + 1], 0, FALSE,
-                	(items[scroll*2][0] != ':'));
+                	print_item (menu, items[scroll * 2]->name, 0, FALSE,
+                	(items[scroll * 2]->tag[0] != ':'));
                     } else {
                         if (choice > 0)
                             choice--;
@@ -360,9 +359,9 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
 			scroll(menu);
 			scrollok (menu, FALSE);
                 	scroll++;
-                	print_item (menu, items[(scroll+max_choice-1)*2+1],
+                	print_item (menu, items[scroll + max_choice - 1]->name,
 			            max_choice-1, FALSE,
-			            (items[(scroll+max_choice-1)*2][0] != ':'));
+			            (items[scroll + max_choice - 1]->tag[0] != ':'));
 		    } else {
 			if (choice+1 < max_choice)
 			    choice++;
@@ -372,8 +371,8 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
             } else
                 choice = i;
 
-            print_item (menu, items[(scroll+choice)*2+1], choice, TRUE,
-                       (items[(scroll+choice)*2][0] != ':'));
+            print_item (menu, items[scroll + choice]->name, choice, TRUE,
+                       (items[scroll + choice]->tag[0] != ':'));
 
             print_arrows(dialog, item_no, scroll,
                          box_y, box_x+item_x+1, menu_height);
@@ -405,7 +404,7 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
 		fclose(f);
 	    }
 	    delwin (dialog);
-            fprintf(stderr, "%s\n", items[(scroll + choice) * 2]);
+            items[scroll + choice]->selected = 1;
             switch (key) {
             case 's': return 3;
             case 'y': return 3;
@@ -419,13 +418,7 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
 	    button = 2;
 	case '\n':
 	    delwin (dialog);
-	    if (button == 2) 
-            	fprintf(stderr, "%s \"%s\"\n", 
-			items[(scroll + choice) * 2],
-			items[(scroll + choice) * 2 + 1] +
-			first_alpha(items[(scroll + choice) * 2 + 1],""));
-	    else
-            	fprintf(stderr, "%s\n", items[(scroll + choice) * 2]);
+	    items[scroll + choice]->selected = 1;
 
 	    remove("lxdialog.scrltmp");
 	    return button;

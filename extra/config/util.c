@@ -25,7 +25,7 @@
 /* use colors by default? */
 bool use_colors = 1;
 
-const char *backtitle = NULL;
+char *backtitle = NULL;
 
 const char *dialog_result;
 
@@ -356,4 +356,20 @@ first_alpha(const char *string, const char *exempt)
 	}
 
 	return 0;
+}
+
+/*
+ * Get the first selected item in the dialog_list_item list.
+ */
+struct dialog_list_item *
+first_sel_item(int item_no, struct dialog_list_item ** items)
+{
+	int i;
+
+	for (i = 0; i < item_no; i++) {
+		if (items[i]->selected)
+			return items[i];
+	}
+
+	return NULL;
 }

@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef CURSES_LOC
 #include CURSES_LOC
 
 /*
@@ -125,29 +126,35 @@
  * Global variables
  */
 extern bool use_colors;
-extern bool use_shadow;
 
 extern chtype attributes[];
+#endif
 
-extern const char *backtitle;
+extern char *backtitle;
+
+struct dialog_list_item {
+	char *name;
+	int namelen;
+	char *tag;
+	int selected; /* Set to 1 by dialog_*() function. */
+};
 
 /*
  * Function prototypes
  */
-extern void create_rc (const char *filename);
-extern int parse_rc (void);
-
 
 void init_dialog (void);
 void end_dialog (void);
-void attr_clear (WINDOW * win, int height, int width, chtype attr);
 void dialog_clear (void);
+#ifdef CURSES_LOC
+void attr_clear (WINDOW * win, int height, int width, chtype attr);
 void color_setup (void);
 void print_autowrap (WINDOW * win, const char *prompt, int width, int y, int x);
 void print_button (WINDOW * win, const char *label, int y, int x, int selected);
 void draw_box (WINDOW * win, int y, int x, int height, int width, chtype box,
 		chtype border);
 void draw_shadow (WINDOW * win, int y, int x, int height, int width);
+#endif
 
 int first_alpha (const char *string, const char *exempt);
 int dialog_yesno (const char *title, const char *prompt, int height, int width);
@@ -156,13 +163,16 @@ int dialog_msgbox (const char *title, const char *prompt, int height,
 int dialog_textbox (const char *title, const char *file, int height, int width);
 int dialog_menu (const char *title, const char *prompt, int height, int width,
 		int menu_height, const char *choice, int item_no, 
-		const char * const * items);
+		struct dialog_list_item ** items);
 int dialog_checklist (const char *title, const char *prompt, int height,
 		int width, int list_height, int item_no,
-		const char * const * items, int flag);
+		struct dialog_list_item ** items, int flag);
 extern unsigned char dialog_input_result[];
 int dialog_inputbox (const char *title, const char *prompt, int height,
 		int width, const char *init);
+
+struct dialog_list_item *first_sel_item(int item_no,
+		struct dialog_list_item ** items);
 
 /*
  * This is the base for fictitious keys, which activate
@@ -173,7 +183,9 @@ int dialog_inputbox (const char *title, const char *prompt, int height,
  *   -- the lowercase are used to signal mouse-enter events (M_EVENT + 'o')
  *   -- uppercase chars are used to invoke the button (M_EVENT + 'O')
  */
+#ifdef CURSES_LOC
 #define M_EVENT (KEY_MAX+1)
+#endif
 
 
 /*

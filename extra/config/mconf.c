@@ -4,6 +4,9 @@
  *
  * Introduced single menu mode (show all sub-menus in one large tree).
  * 2002-11-06 Petr Baudis <pasky@ucw.cz>
+ *
+ * Directly use liblxdialog library routines.
+ * 2002-11-14 Petr Baudis <pasky@ucw.cz>
  */
 
 #include <sys/ioctl.h>
@@ -20,10 +23,11 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include "dialog.h"
+
 #define LKC_DIRECT_LINK
 #include "lkc.h"
 
-static char menu_backtitle[128];
 static const char menu_instructions[] =
 	"Arrow keys navigate the menu.  "
 	"<Enter> selects submenus --->.  "
@@ -82,17 +86,16 @@ save_config_help[] =
 	"leave this blank.\n"
 ;
 
-static char buf[4096], *bufptr = buf;
-static char input_buf[4096];
 static char filename[PATH_MAX+1] = ".config";
-static char *args[1024], **argptr = args;
 static int indent = 0;
 static struct termios ios_org;
 static int rows, cols;
 static struct menu *current_menu;
 static int child_count;
-static int do_resize;
 static int single_menu_mode;
+
+static struct dialog_list_item *items[16384]; /* FIXME: This ought to be dynamic. */
+static int item_no;
 
 static void conf(struct menu *menu);
 static void conf_choice(struct menu *menu);
@@ -103,11 +106,6 @@ static void show_textbox(const char *title, const char *text, int r, int c);
 static void show_helptext(const char *title, const char *text);
 static void show_help(struct menu *menu);
 static void show_readme(void);
-
-static void cprint_init(void);
-static int cprint1(const char *fmt, ...);
-static void cprint_done(void);
-static int cprint(const char *fmt, ...);
 
 static void init_wsize(void)
 {
@@ -131,135 +129,63 @@ static void init_wsize(void)
 	cols -= 5;
 }
 
-static void cprint_init(void)
+static void cinit(void)
 {
-	bufptr = buf;
-	argptr = args;
-	memset(args, 0, sizeof(args));
-	indent = 0;
-	child_count = 0;
-	cprint("./extra/config/lxdialog/lxdialog");
-	cprint("--backtitle");
-	cprint(menu_backtitle);
+	item_no = 0;
 }
 
-static int cprint1(const char *fmt, ...)
+static void cmake(void)
+{
+	items[item_no] = malloc(sizeof(struct dialog_list_item));
+	memset(items[item_no], 0, sizeof(struct dialog_list_item));
+	items[item_no]->tag = malloc(32); items[item_no]->tag[0] = 0;
+	items[item_no]->name = malloc(512); items[item_no]->name[0] = 0;
+	items[item_no]->namelen = 0;
+	item_no++;
+}
+  
+static int cprint_name(const char *fmt, ...)
 {
 	va_list ap;
 	int res;
 
-	if (!*argptr)
-		*argptr = bufptr;
+	if (!item_no)
+		cmake();
 	va_start(ap, fmt);
-	res = vsprintf(bufptr, fmt, ap);
+	res = vsnprintf(items[item_no - 1]->name + items[item_no - 1]->namelen,
+			512 - items[item_no - 1]->namelen, fmt, ap);
+	if (res > 0)
+		items[item_no - 1]->namelen += res;
 	va_end(ap);
-	bufptr += res;
 
 	return res;
 }
-
-static void cprint_done(void)
-{
-	*bufptr++ = 0;
-	argptr++;
-}
-
-static int cprint(const char *fmt, ...)
+  
+static int cprint_tag(const char *fmt, ...)
 {
 	va_list ap;
 	int res;
 
-	*argptr++ = bufptr;
+	if (!item_no)
+		cmake();
 	va_start(ap, fmt);
-	res = vsprintf(bufptr, fmt, ap);
+	res = vsnprintf(items[item_no - 1]->tag, 32, fmt, ap);
 	va_end(ap);
-	bufptr += res;
-	*bufptr++ = 0;
 
 	return res;
 }
-
-pid_t pid;
-
-static void winch_handler(int sig)
+  
+static void cdone(void)
 {
-	if (!do_resize) {
-		kill(pid, SIGINT);
-		do_resize = 1;
-	}
-}
+	int i;
 
-static int exec_conf(void)
-{
-	int pipefd[2], stat, size;
-	struct sigaction sa;
-	sigset_t sset, osset;
-
-	sigemptyset(&sset);
-	sigaddset(&sset, SIGINT);
-	sigprocmask(SIG_BLOCK, &sset, &osset);
-
-	signal(SIGINT, SIG_DFL);
-
-	sa.sa_handler = winch_handler;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-	sigaction(SIGWINCH, &sa, NULL);
-
-	*argptr++ = NULL;
-
-	pipe(pipefd);
-	pid = fork();
-	if (pid == 0) {
-		sigprocmask(SIG_SETMASK, &osset, NULL);
-		dup2(pipefd[1], 2);
-		close(pipefd[0]);
-		close(pipefd[1]);
-		execv(args[0], args);
-		_exit(EXIT_FAILURE);
+	for (i = 0; i < item_no; i++) {
+		free(items[i]->tag);
+		free(items[i]->name);
+		free(items[i]);
 	}
 
-	close(pipefd[1]);
-	bufptr = input_buf;
-	while (1) {
-		size = input_buf + sizeof(input_buf) - bufptr;
-		size = read(pipefd[0], bufptr, size);
-		if (size <= 0) {
-			if (size < 0) {
-				if (errno == EINTR || errno == EAGAIN)
-					continue;
-				perror("read");
-			}
-			break;
-		}
-		bufptr += size;
-	}
-	*bufptr++ = 0;
-	close(pipefd[0]);
-	waitpid(pid, &stat, 0);
-
-	if (do_resize) {
-		init_wsize();
-		do_resize = 0;
-		sigprocmask(SIG_SETMASK, &osset, NULL);
-		return -1;
-	}
-	if (WIFSIGNALED(stat)) {
-		printf("\finterrupted(%d)\n", WTERMSIG(stat));
-		exit(1);
-	}
-#if 0
-	printf("\fexit state: %d\nexit data: '%s'\n", WEXITSTATUS(stat), input_buf);
-	sleep(1);
-#endif
-	sigpending(&sset);
-	if (sigismember(&sset, SIGINT)) {
-		printf("\finterrupted\n");
-		exit(1);
-	}
-	sigprocmask(SIG_SETMASK, &osset, NULL);
-
-	return WEXITSTATUS(stat);
+	item_no = 0;
 }
 
 static void build_conf(struct menu *menu)
@@ -282,27 +208,28 @@ static void build_conf(struct menu *menu)
 			switch (prop->type) {
 			case P_MENU:
 				child_count++;
-				cprint("m%p", menu);
+				cmake();
+				cprint_tag("m%p", menu);
 
 				if (single_menu_mode) {
-					cprint1("%s%*c%s",
+					cprint_name("%s%*c%s",
 						menu->data ? "-->" : "++>",
 						indent + 1, ' ', prompt);
 				} else {
 					if (menu->parent != &rootmenu)
-						cprint1("   %*c", indent + 1, ' ');
-					cprint1("%s  --->", prompt);
+						cprint_name("   %*c", indent + 1, ' ');
+					cprint_name("%s  --->", prompt);
 				}
 
-				cprint_done();
 				if (single_menu_mode && menu->data)
 					goto conf_childs;
 				return;
 			default:
 				if (prompt) {
 					child_count++;
-					cprint(":%p", menu);
-					cprint("---%*c%s", indent + 1, ' ', prompt);
+					cmake();
+					cprint_tag(":%p", menu);
+					cprint_name("---%*c%s", indent + 1, ' ', prompt);
 				}
 			}
 		} else
@@ -310,6 +237,7 @@ static void build_conf(struct menu *menu)
 		goto conf_childs;
 	}
 
+	cmake();
 	type = sym_get_type(sym);
 	if (sym_is_choice(sym)) {
 		struct symbol *def_sym = sym_get_choice_value(sym);
@@ -323,10 +251,10 @@ static void build_conf(struct menu *menu)
 
 		val = sym_get_tristate_value(sym);
 		if (sym_is_changable(sym)) {
-			cprint("t%p", menu);
+			cprint_tag("t%p", menu);
 			switch (type) {
 			case S_BOOLEAN:
-				cprint1("[%c]", val == no ? ' ' : '*');
+				cprint_name("[%c]", val == no ? ' ' : '*');
 				break;
 			case S_TRISTATE:
 				switch (val) {
@@ -334,66 +262,61 @@ static void build_conf(struct menu *menu)
 				case mod: ch = 'M'; break;
 				default:  ch = ' '; break;
 				}
-				cprint1("<%c>", ch);
+				cprint_name("<%c>", ch);
 				break;
 			}
 		} else {
-			cprint("%c%p", def_menu ? 't' : ':', menu);
-			cprint1("   ");
+			cprint_tag("%c%p", def_menu ? 't' : ':', menu);
+			cprint_name("   ");
 		}
 
-		cprint1("%*c%s", indent + 1, ' ', menu_get_prompt(menu));
+		cprint_name("%*c%s", indent + 1, ' ', menu_get_prompt(menu));
 		if (val == yes) {
 			if (def_menu) {
-				cprint1(" (%s)", menu_get_prompt(def_menu));
-				cprint1("  --->");
-				cprint_done();
+				cprint_name(" (%s)", menu_get_prompt(def_menu));
+				cprint_name("  --->");
 				if (def_menu->list) {
 					indent += 2;
 					build_conf(def_menu);
 					indent -= 2;
 				}
-			} else
-				cprint_done();
+			}
 			return;
 		}
-		cprint_done();
 	} else {
 		child_count++;
 		val = sym_get_tristate_value(sym);
 		if (sym_is_choice_value(sym) && val == yes) {
-			cprint(":%p", menu);
-			cprint1("   ");
+			cprint_tag(":%p", menu);
+			cprint_name("   ");
 		} else {
 			switch (type) {
 			case S_BOOLEAN:
-				cprint("t%p", menu);
-				cprint1("[%c]", val == no ? ' ' : '*');
+				cprint_tag("t%p", menu);
+				cprint_name("[%c]", val == no ? ' ' : '*');
 				break;
 			case S_TRISTATE:
-				cprint("t%p", menu);
+				cprint_tag("t%p", menu);
 				switch (val) {
 				case yes: ch = '*'; break;
 				case mod: ch = 'M'; break;
 				default:  ch = ' '; break;
 				}
-				cprint1("<%c>", ch);
+				cprint_name("<%c>", ch);
 				break;
 			default:
-				cprint("s%p", menu);
-				tmp = cprint1("(%s)", sym_get_string_value(sym));
+				cprint_tag("s%p", menu);
+				tmp = cprint_name("(%s)", sym_get_string_value(sym));
 				tmp = indent - tmp + 4;
 				if (tmp < 0)
 					tmp = 0;
-				cprint1("%*c%s%s", tmp, ' ', menu_get_prompt(menu),
+				cprint_name("%*c%s%s", tmp, ' ', menu_get_prompt(menu),
 					sym_has_value(sym) ? "" : " (NEW)");
-				cprint_done();
 				goto conf_childs;
 			}
 		}
-		cprint1("%*c%s%s", indent + 1, ' ', menu_get_prompt(menu),
+		cprint_name("%*c%s%s", indent + 1, ' ', menu_get_prompt(menu),
 			sym_has_value(sym) ? "" : " (NEW)");
-		cprint_done();
 	}
 
 conf_childs:
@@ -405,57 +328,51 @@ conf_childs:
 
 static void conf(struct menu *menu)
 {
+	struct dialog_list_item *active_item = NULL;
 	struct menu *submenu;
 	const char *prompt = menu_get_prompt(menu);
 	struct symbol *sym;
 	char active_entry[40];
-	int stat, type, i;
+	int stat, type;
 
 	unlink("lxdialog.scrltmp");
 	active_entry[0] = 0;
 	while (1) {
-		cprint_init();
-		cprint("--title");
-		cprint("%s", prompt ? prompt : "Main Menu");
-		cprint("--menu");
-		cprint(menu_instructions);
-		cprint("%d", rows);
-		cprint("%d", cols);
-		cprint("%d", rows - 10);
-		cprint("%s", active_entry);
-		current_menu = menu;
+		indent = 0;
+		child_count = 0;
+  		current_menu = menu;
+		cdone(); cinit();
 		build_conf(menu);
 		if (!child_count)
 			break;
 		if (menu == &rootmenu) {
-			cprint(":");
-			cprint("--- ");
-			cprint("L");
-			cprint("Load an Alternate Configuration File");
-			cprint("S");
-			cprint("Save Configuration to an Alternate File");
+			cmake(); cprint_tag(":"); cprint_name("--- ");
+			cmake(); cprint_tag("L"); cprint_name("Load an Alternate Configuration File");
+			cmake(); cprint_tag("S"); cprint_name("Save Configuration to an Alternate File");
 		}
-		stat = exec_conf();
+		dialog_clear();
+		stat = dialog_menu(prompt ? prompt : "Main Menu",
+				menu_instructions, rows, cols, rows - 10,
+				active_entry, item_no, items);
 		if (stat < 0)
-			continue;
+			return;
 
 		if (stat == 1 || stat == 255)
 			break;
 
-		type = input_buf[0];
+		active_item = first_sel_item(item_no, items);
+		if (!active_item)
+			continue;
+		active_item->selected = 0;
+		strncpy(active_entry, active_item->tag, sizeof(active_entry));
+		active_entry[sizeof(active_entry)-1] = 0;
+		type = active_entry[0];
 		if (!type)
 			continue;
 
-		for (i = 0; input_buf[i] && !isspace((int)input_buf[i]); i++)
-			;
-		if (i >= sizeof(active_entry))
-			i = sizeof(active_entry) - 1;
-		input_buf[i] = 0;
-		strcpy(active_entry, input_buf);
-
 		sym = NULL;
 		submenu = NULL;
-		if (sscanf(input_buf + 1, "%p", &submenu) == 1)
+		if (sscanf(active_entry + 1, "%p", &submenu) == 1)
 			sym = submenu->sym;
 
 		switch (stat) {
@@ -521,17 +438,8 @@ static void show_textbox(const char *title, const char *text, int r, int c)
 	fd = creat(".help.tmp", 0777);
 	write(fd, text, strlen(text));
 	close(fd);
-	do {
-		cprint_init();
-		if (title) {
-			cprint("--title");
-			cprint("%s", title);
-		}
-		cprint("--textbox");
-		cprint(".help.tmp");
-		cprint("%d", r);
-		cprint("%d", c);
-	} while (exec_conf() < 0);
+	while (dialog_textbox(title, ".help.tmp", r, c) < 0)
+		;
 	unlink(".help.tmp");
 }
 
@@ -560,13 +468,8 @@ static void show_help(struct menu *menu)
 
 static void show_readme(void)
 {
-	do {
-		cprint_init();
-		cprint("--textbox");
-		cprint("scripts/README.Menuconfig");
-		cprint("%d", rows);
-		cprint("%d", cols);
-	} while (exec_conf() == -1);
+	while (dialog_textbox(NULL, "scripts/README.Menuconfig", rows, cols) < 0)
+		;
 }
 
 static void conf_choice(struct menu *menu)
@@ -574,32 +477,25 @@ static void conf_choice(struct menu *menu)
 	const char *prompt = menu_get_prompt(menu);
 	struct menu *child;
 	struct symbol *active;
-	int stat;
 
 	while (1) {
-		cprint_init();
-		cprint("--title");
-		cprint("%s", prompt ? prompt : "Main Menu");
-		cprint("--radiolist");
-		cprint(radiolist_instructions);
-		cprint("15");
-		cprint("70");
-		cprint("6");
-
 		current_menu = menu;
 		active = sym_get_choice_value(menu->sym);
+		cdone(); cinit();
 		for (child = menu->list; child; child = child->next) {
 			if (!menu_is_visible(child))
 				continue;
-			cprint("%p", child);
-			cprint("%s", menu_get_prompt(child));
-			cprint(child->sym == active ? "ON" : "OFF");
+			cmake();
+			cprint_tag("%p", child);
+			cprint_name("%s", menu_get_prompt(child));
+			items[item_no - 1]->selected = (child->sym == active);
 		}
 
-		stat = exec_conf();
-		switch (stat) {
+		switch (dialog_checklist(prompt ? prompt : "Main Menu",
+					radiolist_instructions, 15, 70, 6,
+					item_no, items, FLAG_RADIO)) {
 		case 0:
-			if (sscanf(input_buf, "%p", &menu) != 1)
+			if (sscanf(first_sel_item(item_no, items)->tag, "%p", &menu) != 1)
 				break;
 			sym_set_tristate_value(menu->sym, yes);
 			return;
@@ -615,33 +511,30 @@ static void conf_choice(struct menu *menu)
 static void conf_string(struct menu *menu)
 {
 	const char *prompt = menu_get_prompt(menu);
-	int stat;
 
 	while (1) {
-		cprint_init();
-		cprint("--title");
-		cprint("%s", prompt ? prompt : "Main Menu");
-		cprint("--inputbox");
+		char *heading;
+
 		switch (sym_get_type(menu->sym)) {
 		case S_INT:
-			cprint(inputbox_instructions_int);
+			heading = (char *) inputbox_instructions_int;
 			break;
 		case S_HEX:
-			cprint(inputbox_instructions_hex);
+			heading = (char *) inputbox_instructions_hex;
 			break;
 		case S_STRING:
-			cprint(inputbox_instructions_string);
+			heading = (char *) inputbox_instructions_string;
 			break;
 		default:
+			heading = "Internal mconf error!";
 			/* panic? */;
 		}
-		cprint("10");
-		cprint("75");
-		cprint("%s", sym_get_string_value(menu->sym));
-		stat = exec_conf();
-		switch (stat) {
+
+		switch (dialog_inputbox(prompt ? prompt : "Main Menu",
+					heading, 10, 75,
+					sym_get_string_value(menu->sym))) {
 		case 0:
-			if (sym_set_string_value(menu->sym, input_buf))
+			if (sym_set_string_value(menu->sym, dialog_input_result))
 				return;
 			show_textbox(NULL, "You have made an invalid entry.", 5, 43);
 			break;
@@ -656,21 +549,13 @@ static void conf_string(struct menu *menu)
 
 static void conf_load(void)
 {
-	int stat;
-
 	while (1) {
-		cprint_init();
-		cprint("--inputbox");
-		cprint(load_config_text);
-		cprint("11");
-		cprint("55");
-		cprint("%s", filename);
-		stat = exec_conf();
-		switch(stat) {
+		switch (dialog_inputbox(NULL, load_config_text, 11, 55,
+					filename)) {
 		case 0:
-			if (!input_buf[0])
+			if (!dialog_input_result[0])
 				return;
-			if (!conf_read(input_buf))
+			if (!conf_read(dialog_input_result))
 				return;
 			show_textbox(NULL, "File does not exist!", 5, 38);
 			break;
@@ -685,21 +570,13 @@ static void conf_load(void)
 
 static void conf_save(void)
 {
-	int stat;
-
 	while (1) {
-		cprint_init();
-		cprint("--inputbox");
-		cprint(save_config_text);
-		cprint("11");
-		cprint("55");
-		cprint("%s", filename);
-		stat = exec_conf();
-		switch(stat) {
+		switch (dialog_inputbox(NULL, save_config_text, 11, 55,
+					filename)) {
 		case 0:
-			if (!input_buf[0])
+			if (!dialog_input_result[0])
 				return;
-			if (!conf_write(input_buf))
+			if (!conf_write(dialog_input_result))
 				return;
 			show_textbox(NULL, "Can't create file!  Probably a nonexistent directory.", 5, 60);
 			break;
@@ -719,18 +596,43 @@ static void conf_cleanup(void)
 	unlink("lxdialog.scrltmp");
 }
 
+static void winch_handler(int sig)
+{
+	struct winsize ws;
+
+	if (ioctl(1, TIOCGWINSZ, &ws) == -1) {
+		rows = 24;
+		cols = 80;
+	} else {
+		rows = ws.ws_row;
+		cols = ws.ws_col;
+	}
+
+	if (rows < 19 || cols < 80) {
+		end_dialog();
+		fprintf(stderr, "Your display is too small to run Menuconfig!\n");
+		fprintf(stderr, "It must be at least 19 lines by 80 columns.\n");
+		exit(1);
+	}
+
+	rows -= 4;
+	cols -= 5;
+
+}
+
 int main(int ac, char **av)
 {
-	struct symbol *sym;
-	char *mode;
 	int stat;
+	char *mode;
+	struct symbol *sym;
 
 	conf_parse(av[1]);
 	conf_read(NULL);
 
+	backtitle = malloc(128);
 	sym = sym_lookup("VERSION", 0);
 	sym_calc_value(sym);
-	sprintf(menu_backtitle, "uClibc v%s Configuration",
+	snprintf(backtitle, 128, "uClibc v%s Configuration",
 		sym_get_string_value(sym));
 
 	mode = getenv("MENUCONFIG_MODE");
@@ -742,16 +644,18 @@ int main(int ac, char **av)
 	tcgetattr(1, &ios_org);
 	atexit(conf_cleanup);
 	init_wsize();
+	init_dialog();
+	signal(SIGWINCH, winch_handler); 
 	conf(&rootmenu);
+	end_dialog();
 
+	/* Restart dialog to act more like when lxdialog was still separate */
+	init_dialog();
 	do {
-		cprint_init();
-		cprint("--yesno");
-		cprint("Do you wish to save your new uClibc configuration?");
-		cprint("5");
-		cprint("60");
-		stat = exec_conf();
+		stat = dialog_yesno(NULL, 
+				"Do you wish to save your new uClibc configuration?", 5, 60);
 	} while (stat < 0);
+	end_dialog();
 
 	if (stat == 0) {
 		conf_write(NULL);

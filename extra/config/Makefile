@@ -20,21 +20,37 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 
-all: conf mconf
+all: ncurses conf mconf
 
-NATIVE_CFLAGS=-Wall -g -O0
+#NATIVE_CFLAGS=-Wall -g -O0
+LIBS = -lncurses
+ifeq (/usr/include/ncurses/ncurses.h, $(wildcard /usr/include/ncurses/ncurses.h))
+	NATIVE_CFLAGS += -I/usr/include/ncurses -DCURSES_LOC="<ncurses.h>"
+else
+ifeq (/usr/include/ncurses/curses.h, $(wildcard /usr/include/ncurses/curses.h))
+	NATIVE_CFLAGS += -I/usr/include/ncurses -DCURSES_LOC="<ncurses/curses.h>"
+else
+ifeq (/usr/include/ncurses.h, $(wildcard /usr/include/ncurses.h))
+	NATIVE_CFLAGS += -DCURSES_LOC="<ncurses.h>"
+else
+	NATIVE_CFLAGS += -DCURSES_LOC="<curses.h>"
+endif
+endif
+endif
 
 
 CONF_SRC  =conf.c zconf.tab.c
 MCONF_SRC =mconf.c zconf.tab.c
+LXDLG_SRC =checklist.c menubox.c textbox.c yesno.c inputbox.c util.c msgbox.c
 CONF_OBJS =$(patsubst %.c,%.o, $(CONF_SRC))
 MCONF_OBJS=$(patsubst %.c,%.o, $(MCONF_SRC))
+LXDLG_OBJS=$(patsubst %.c,%.o, $(LXDLG_SRC))
 
 conf: $(CONF_OBJS) 
 	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) $^ -o $@
 
-mconf: $(MCONF_OBJS)
-	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) $^ -o $@
+mconf: $(MCONF_OBJS) $(LXDLG_OBJS)
+	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) $^ -o $@ $(LIBS)
 
 lkc_deps:=lkc.h lkc_proto.h lkc_defs.h expr.h zconf.tab.h
 
@@ -77,8 +93,24 @@ zconf.tab.h: zconf.tab.h_shipped
 	cp zconf.tab.h_shipped zconf.tab.h
 endif
 
+.PHONY: ncurses
+
+ncurses:
+	@echo "main() {}" > lxtemp.c
+	@if $(NATIVE_CC) lxtemp.c $(LIBS) ; then \
+		rm -f lxtemp.c a.out; \
+	else \
+		rm -f lxtemp.c; \
+		echo -e "\007" ;\
+		echo ">> Unable to find the Ncurses libraries." ;\
+		echo ">>" ;\
+		echo ">> You must have Ncurses installed in order" ;\
+		echo ">> to use 'make menuconfig'" ;\
+		echo ;\
+		exit 1 ;\
+	fi
+
 clean:
 	rm -f *.o *~ core $(TARGETS) $(MCONF_OBJS) $(CONF_OBJS) \
 		conf mconf zconf.tab.c zconf.tab.h lex.zconf.c lkc_defs.h
-	$(MAKE) -C lxdialog clean
 
