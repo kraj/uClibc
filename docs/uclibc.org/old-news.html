@@ -53,6 +53,70 @@
 	<ul>
 
     <p>
+    <li> <b>30 June 2003, uClibc 0.9.20 Released</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.20.  This is primarily a bug-fix release.  This release remains
+    binary compatible with 0.9.18 and 0.9.19 (as long as you leave the
+    new UCLIBC_HAS_TM_EXTENSIONS option disabled), so you don't have to recompile
+    everything if you don't really feel like it.
+    <p>
+
+    This release has many small improvements.  At this point, most applications
+    that compile and work with glibc will also compile and run with uClibc.
+    Perl and Python even pass all the tests in their test suites.  
+    <p>
+
+    There is currently one notable exception.  Applications that use dlopen()
+    to load libraries that themselves depend on other libraries, may have weak
+    symbols within those depended-upon libraries resolved incorrectly.  This
+    problem is currently being worked on.  Other than that, everything seems 
+    to now be working as expected....
+
+    <p>
+    As usual, the 
+    <a href="http://www.uclibc.org/downloads/Changelog">Changelog</a>, 
+    <a href="http://www.uclibc.org/downloads/Changelog.full">detailed changelog</a>, 
+    and <a href="http://www.uclibc.org/downloads/uClibc-0.9.20.tar.bz2">source code for this release</a> 
+    are available <a href="http://www.uclibc.org/downloads/">here</a>.
+    <p>
+    
+
+    <p>
+    <li> <b>30 June 2003, dev systems updated to uClibc 0.9.20</b>
+    <br>
+
+    The uClibc development systems for
+    <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">i386</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs-powerpc.bz2">powerpc</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs-arm.bz2">arm</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs-mipsel.bz2">mips</a>,
+    have been updated to uClibc 0.9.20.  Several problems have been fixed up,
+    gcc has been updated to version 3.3, and Perl 5.8.0 is now included.
+    <p>
+
+    This is a 150 MB ext2 filesystem that runs natively on the specified
+    architecture.  It contains all the development software you need to build
+    your own uClibc applications, including bash, coreutils, findutils,
+    diffutils, patch, sed, ed, flex, bison, file, gawk, tar, grep gdb, strace,
+    make, gcc, g++,  autoconf, automake, ncurses, zlib, openssl, openssh perl, 
+    and more.   And of course, everything is dynamically linked against uClibc.  By
+    using a uClibc only system, you can avoid all the painful
+    cross-configuration problems that have made using uClibc somewhat painful
+    in the past.  If you want to quickly get started with testing or using
+    uClibc you should give these images a try.  You can loop mount and then
+    chroot into them, you can boot into them using user-mode Linux, and you can
+    even 'dd' them to a spare partition and use resize2fs to make them fill the
+    drive.  Whatever works for you.
+
+    <p> If you would like to build your own custom uClibc system, you can
+	use <a href="/cgi-bin/cvsweb/buildroot/">buildroot</a>, which is
+	how the uClibc development systems were created.
+    <p>
+
+
+    <p>
     <li> <b>6 March 2003, development system updates</b>
     <br>
 

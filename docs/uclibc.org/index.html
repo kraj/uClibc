@@ -113,68 +113,61 @@ you might want to search the mailing list archives...
 <ul>
 
     <p>
-    <li> <b>30 June 2003, uClibc 0.9.20 Released</b>
+    <li> <b>9 September 2003, uClibc 0.9.21 Released</b>
     <br>
 
     CodePoet Consulting is pleased to announce the immediate availability of
-    uClibc 0.9.20.  This is primarily a bug-fix release.  This release remains
-    binary compatible with 0.9.18 and 0.9.19 (as long as you leave the
-    new UCLIBC_HAS_TM_EXTENSIONS option disabled), so you don't have to recompile
-    everything if you don't really feel like it.
-    <p>
-
-    This release has many small improvements.  At this point, most applications
-    that compile and work with glibc will also compile and run with uClibc.
-    Perl and Python even pass all the tests in their test suites.  
-    <p>
-
-    There is currently one notable exception.  Applications that use dlopen()
-    to load libraries that themselves depend on other libraries, may have weak
-    symbols within those depended-upon libraries resolved incorrectly.  This
-    problem is currently being worked on.  Other than that, everything seems 
-    to now be working as expected....
+    uClibc 0.9.21.  This release has been brewing for several months now, and
+    provides quite a lot of additional functionality and quite a few bug fixes
+    as well.  Many people will be pleased that this release fixes the
+    "dlopen()'ing libraries that depend on libraries" problem.
 
     <p>
+    
+    The biggest thing in this release (and I do mean that literally) is that
+    uClibc now has full ANSI/ISO C99 locale support.  Well, except for
+    wcsftime() and collating items in regex, which are not done yet.   Adding
+    support for the default set of locales (169 UTF-8 locales and 144 locales
+    using other codesets) will enlarge uClibc by around 300k.  Still, if you
+    need locale support, that is still much better than the roughly 30MB the
+    comparable set of locale date occupies with glibc.  And you can of course
+    reduce the 300k by reducing the number of supported locales.
+
+    <p>
+
+    As usual, this release has many improvements, both large and small.  At
+    this point, most applications that compile and work with glibc will also
+    compile and run with uClibc.  Both Perl and Python pass all the tests in
+    their test suites (both with and without locale support enabled).  We
+    invite you to grab a copy of the latest <a
+    href="http://ltp.sourceforge.net/"> Linux Test Project test suite</a> and
+    give uClibc some abuse.  We are not yet perfect, but we are getting pretty
+    darn close.
+
+    <p>
+    
+    This release is not binary compatible with earlier releases.  Depending on
+    your configuration, you may actually still be binary compatible, but it
+    would be a good idea to recompile your applications when moving to the
+    uClibc 0.9.21 release.  We are sorry about that, but we have never promised
+    to provide binary compatibility until we hit version 1.0.  And even then,
+    if you change your uClibc configuration, you still still generally need to
+    recompile...
+
+    <p>
+
     As usual, the 
     <a href="http://www.uclibc.org/downloads/Changelog">Changelog</a>, 
     <a href="http://www.uclibc.org/downloads/Changelog.full">detailed changelog</a>, 
-    and <a href="http://www.uclibc.org/downloads/uClibc-0.9.20.tar.bz2">source code for this release</a> 
+    and <a href="http://www.uclibc.org/downloads/uClibc-0.9.21.tar.bz2">source code for this release</a> 
     are available <a href="http://www.uclibc.org/downloads/">here</a>.
+
+    <p>
+
+    Updated uClibc development systems using uClibc 0.9.21 will be made
+    available within a few days.
     <p>
     
-
-    <p>
-    <li> <b>30 June March 2003, dev systems updated to uClibc 0.9.20</b>
-    <br>
-
-    The uClibc development systems for
-    <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">i386</a>,
-    <a href="http://www.uclibc.org/downloads/root_fs-powerpc.bz2">powerpc</a>,
-    <a href="http://www.uclibc.org/downloads/root_fs-arm.bz2">arm</a>,
-    <a href="http://www.uclibc.org/downloads/root_fs-mipsel.bz2">mips</a>,
-    have been updated to uClibc 0.9.20.  Several problems have been fixed up,
-    gcc has been updated to version 3.3, and Perl 5.8.0 is now included.
-    <p>
-
-    This is a 150 MB ext2 filesystem that runs natively on the specified
-    architecture.  It contains all the development software you need to build
-    your own uClibc applications, including bash, coreutils, findutils,
-    diffutils, patch, sed, ed, flex, bison, file, gawk, tar, grep gdb, strace,
-    make, gcc, g++,  autoconf, automake, ncurses, zlib, openssl, openssh perl, 
-    and more.   And of course, everything is dynamically linked against uClibc.  By
-    using a uClibc only system, you can avoid all the painful
-    cross-configuration problems that have made using uClibc somewhat painful
-    in the past.  If you want to quickly get started with testing or using
-    uClibc you should give these images a try.  You can loop mount and then
-    chroot into them, you can boot into them using user-mode Linux, and you can
-    even 'dd' them to a spare partition and use resize2fs to make them fill the
-    drive.  Whatever works for you.
-
-    <p> If you would like to build your own custom uClibc system, you can
-	use <a href="/cgi-bin/cvsweb/buildroot/">buildroot</a>, which is
-	how the uClibc development systems were created.
-    <p>
-
 
     <p> <li> <b>Old News</b>
     <br>
@@ -214,7 +207,7 @@ you might want to search the mailing list archives...
 
     <table CELLSPACING=6 CELLPADDING=6 BORDER=0><tr>
     <td>
-    Do you like uClibc?  Do you need support?  Do you need some feature
+    Do you like uClibc?  Do you need support?  Do you need some features
     added?   Then why not help out?  We are happy to accept donations
     (such as bandwidth, mirrors sites, and hardware for the various
     architectures).  We can also provide support contracts, and implement 
