@@ -213,15 +213,6 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	        int res;
 	    
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
-		
-		/* When the dynamic linker bootstrapped itself, it resolved some symbols.
-		   Make sure we do not do them again */
-		if (!symtab_index && tpnt->libtype == program_interpreter)
-			continue;
-		if (symtab_index && tpnt->libtype == program_interpreter &&
-		    _dl_symbol(strtab + symtab[symtab_index].st_name))
-			continue;
-
 #if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
@@ -444,11 +435,6 @@ _dl_parse_relocation_information
 (struct dyn_elf *rpnt, unsigned long rel_addr, unsigned long rel_size,
  int type __attribute_used__)
 {
-  /* The interpreter initial self-relocation is complete, and we
-     can't re-apply relocations.  */
-  if (rpnt->dyn->libtype == program_interpreter)
-    return 0;
-
   return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
 }
 

@@ -169,13 +169,6 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
     reloc_type = ELF32_R_TYPE(rpnt->r_info);
     symtab_index = ELF32_R_SYM(rpnt->r_info);
 
-    /* When the dynamic linker bootstrapped itself, it resolved some symbols.
-       Make sure we do not do them again */
-    if(!symtab_index && tpnt->libtype == program_interpreter) continue;
-    if(symtab_index && tpnt->libtype == program_interpreter &&
-       _dl_symbol(strtab + symtab[symtab_index].st_name))
-      continue;
-
     switch(reloc_type){
     case R_SPARC_NONE:
       break;
@@ -219,13 +212,7 @@ int _dl_parse_relocation_information(struct dyn_elf *rpnt,
     symtab_index = ELF32_R_SYM(rpnt->r_info);
     symbol_addr = 0;
 
-    if(!symtab_index && tpnt->libtype == program_interpreter) continue;
-
     if(symtab_index) {
-
-      if(tpnt->libtype == program_interpreter &&
-	 _dl_symbol(strtab + symtab[symtab_index].st_name))
-	continue;
 
       symbol_addr = (unsigned int)
 	_dl_find_hash(strtab + symtab[symtab_index].st_name,
@@ -337,13 +324,7 @@ int _dl_parse_copy_information(struct dyn_elf *xpnt,
     if(reloc_type != R_SPARC_COPY) continue;
     symtab_index = ELF32_R_SYM(rpnt->r_info);
     symbol_addr = 0;
-    if(!symtab_index && tpnt->libtype == program_interpreter) continue;
     if(symtab_index) {
-
-      if(tpnt->libtype == program_interpreter &&
-	 _dl_symbol(strtab + symtab[symtab_index].st_name))
-	continue;
-
       symbol_addr = (unsigned int)
 	_dl_find_hash(strtab + symtab[symtab_index].st_name,
 		      xpnt->next,  ELF_RTYPE_CLASS_COPY);

@@ -189,11 +189,6 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	ELF_RELOC *rpnt;
 	int symtab_index;
 
-	/* When the dynamic linker bootstrapped itself, it resolved some symbols.
-	   Make sure we do not do them again */
-	if (tpnt->libtype == program_interpreter)
-		return 0;
-
 	/* Now parse the relocation information */
 	rpnt = (ELF_RELOC *) (rel_addr + tpnt->loadaddr);
 	rel_size = rel_size / sizeof(ELF_RELOC);

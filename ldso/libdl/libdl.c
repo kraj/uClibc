@@ -134,6 +134,7 @@ void *dlopen(const char *libname, int flag)
 	ElfW(Addr) from;
 	struct elf_resolve *tpnt1;
 	void (*dl_brk) (void);
+	int now_flag;
 
 	/* A bit of sanity checking... */
 	if (!(flag & (RTLD_LAZY|RTLD_NOW))) {
@@ -188,7 +189,7 @@ void *dlopen(const char *libname, int flag)
 	dyn_chain = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 	_dl_memset(dyn_chain, 0, sizeof(struct dyn_elf));
 	dyn_chain->dyn = tpnt;
-	dyn_chain->flags = flag;
+	tpnt->rtld_flags |= RTLD_GLOBAL;
 
 	dyn_chain->next_handle = _dl_handles;
 	_dl_handles = dyn_ptr = dyn_chain;
@@ -219,6 +220,7 @@ void *dlopen(const char *libname, int flag)
 				_dl_memset (dyn_ptr->next, 0, sizeof (struct dyn_elf));
 				dyn_ptr = dyn_ptr->next;
 				dyn_ptr->dyn = tpnt1;
+				tpnt->rtld_flags |= RTLD_GLOBAL;
 				if (!tpnt1) {
 					tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, 0);
 					if (!tpnt1)
@@ -254,7 +256,10 @@ void *dlopen(const char *libname, int flag)
 	 * Now we go through and look for REL and RELA records that indicate fixups
 	 * to the GOT tables.  We need to do this in reverse order so that COPY
 	 * directives work correctly */
-	if (_dl_fixup(dyn_chain, dyn_chain->flags))
+	now_flag = (flag & RTLD_NOW) ? RTLD_NOW : 0;
+	if (getenv("LD_BIND_NOW"))
+		now_flag = RTLD_NOW;
+	if (_dl_fixup(dyn_chain, now_flag))
 		goto oops;
 
 	/* TODO:  Should we set the protections of all pages back to R/O now ? */

@@ -396,10 +396,6 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	(void) type;
 	num_plt_entries = rel_size / sizeof(ELF_RELOC);
 
-	/* When the dynamic linker bootstrapped itself, it resolved some symbols.
-	   Make sure we do not do them again */
-	if (tpnt->libtype == program_interpreter)
-		return;
 	rel_offset_words = PLT_DATA_START_WORDS(num_plt_entries);
 	plt = (Elf32_Word *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
 
@@ -442,11 +438,6 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	Elf32_Sym *symtab;
 	ELF_RELOC *rpnt;
 	int symtab_index;
-
-	/* When the dynamic linker bootstrapped itself, it resolved some symbols.
-	   Make sure we do not do them again */
-	if (tpnt->libtype == program_interpreter)
-		return 0;
 
 	/* Now parse the relocation information */
 	rpnt = (ELF_RELOC *)(intptr_t) (rel_addr + tpnt->loadaddr);

@@ -199,15 +199,6 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	        int res;
 
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
-
-		/* When the dynamic linker bootstrapped itself, it resolved some symbols.
-		   Make sure we do not do them again */
-		if (!symtab_index && tpnt->libtype == program_interpreter)
-			continue;
-		if (symtab_index && tpnt->libtype == program_interpreter &&
-		    _dl_symbol(strtab + symtab[symtab_index].st_name))
-			continue;
-
 #if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);

@@ -186,10 +186,6 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 #if defined (__SUPPORT_LD_DEBUG__)
 	unsigned long old_val=0;
 #endif
-
-	if (tpnt->libtype == program_interpreter)
-		return 0;
-
 	/* Now parse the relocation information */
 	rel_size = rel_size / sizeof(Elf32_Rel);
 	rpnt = (Elf32_Rel *) (rel_addr + tpnt->loadaddr);
@@ -264,11 +260,6 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 	unsigned long *got_entry;
 
 	for (; tpnt ; tpnt = tpnt->next) {
-
-		/* We don't touch the dynamic linker */
-		if (tpnt->libtype == program_interpreter)
-			continue;
-
 		/* Setup the loop variables */
 		got_entry = (unsigned long *) (tpnt->loadaddr +
 			tpnt->dynamic_info[DT_PLTGOT]) + tpnt->mips_local_gotno;

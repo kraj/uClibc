@@ -91,7 +91,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 {
 	ElfW(Phdr) *ppnt;
 	char *lpntstr;
-	int i, goof = 0, be_lazy = RTLD_LAZY, trace_loaded_objects = 0;
+	int i, goof = 0, unlazy = 0, trace_loaded_objects = 0;
 	struct dyn_elf *rpnt;
 	struct elf_resolve *tcurr;
 	struct elf_resolve *tpnt1;
@@ -127,26 +127,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	 * this beast to run.  We start with the basic executable, and then
 	 * go from there.  Eventually we will run across ourself, and we
 	 * will need to properly deal with that as well. */
-	lpnt = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT] + load_addr);
-
-	tpnt->chains = hash_addr;
-	tpnt->next = 0;
-	tpnt->libname = 0;
-	tpnt->libtype = program_interpreter;
-	tpnt->loadaddr = (ElfW(Addr)) load_addr;
-
-#ifdef ALLOW_ZERO_PLTGOT
-	if (tpnt->dynamic_info[DT_PLTGOT])
-#endif
-	{
-		INIT_GOT(lpnt, tpnt);
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-		_dl_dprintf(_dl_debug_file, "GOT found at %x\n", lpnt);
-#endif
-	}
-
-	/* OK, this was a big step, now we need to scan all of the user images
-	   and load them properly. */
 	{
 		ElfW(Ehdr) *epnt;
 		ElfW(Phdr) *myppnt;
@@ -165,6 +145,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 
 	brk_addr = 0;
 	rpnt = NULL;
+	if (_dl_getenv("LD_BIND_NOW", envp))
+		unlazy = RTLD_NOW;
 
 	/* At this point we are now free to examine the user application,
 	   and figure out which libraries are supposed to be called.  Until
@@ -191,6 +173,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 			_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
 			rpnt->dyn = _dl_loaded_modules;
+			app_tpnt->rtld_flags = unlazy | RTLD_GLOBAL;
 			app_tpnt->usage_count++;
 			app_tpnt->symbol_scope = _dl_symbol_tables;
 			lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT] + app_tpnt->loadaddr);
@@ -236,13 +219,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 		}
 	}
 
-
 	/* Now we need to figure out what kind of options are selected.
 	   Note that for SUID programs we ignore the settings in LD_LIBRARY_PATH */
 	{
-		if (_dl_getenv("LD_BIND_NOW", envp))
-			be_lazy = 0;
-
 		if ((auxvt[AT_UID].a_un.a_val == -1 && _dl_suid_ok()) ||
 				(auxvt[AT_UID].a_un.a_val != -1 &&
 				 auxvt[AT_UID].a_un.a_val == auxvt[AT_EUID].a_un.a_val
@@ -383,6 +362,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 						_dl_exit(15);
 					}
 				} else {
+					tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 					_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
@@ -468,6 +448,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 								_dl_exit(15);
 							}
 						} else {
+							tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 							_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
@@ -525,6 +506,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 						_dl_exit(16);
 					}
 				} else {
+					tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 					_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
@@ -545,23 +527,14 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	/*
 	 * If the program interpreter is not in the module chain, add it.  This will
 	 * be required for dlopen to be able to access the internal functions in the
-	 * dynamic linker.
+	 * dynamic linker and to relocate the interpreter again once all libs are loaded.
 	 */
 	if (tpnt) {
-		tcurr = _dl_loaded_modules;
-		if (tcurr)
-			while (tcurr->next)
-				tcurr = tcurr->next;
-		tpnt->next = NULL;
+		tpnt = _dl_add_elf_hash_table(tpnt->libname, (char *)load_addr, tpnt->dynamic_info,
+					 (unsigned long)tpnt->dynamic_addr, tpnt->dynamic_size);
+		tpnt->libtype = program_interpreter;
 		tpnt->usage_count++;
-
-		if (tcurr) {
-			tcurr->next = tpnt;
-			tpnt->prev = tcurr;
-		} else {
-			_dl_loaded_modules = tpnt;
-			tpnt->prev = NULL;
-		}
+		tpnt->symbol_scope = _dl_symbol_tables;
 		if (rpnt) {
 			rpnt->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt->next, 0, sizeof(struct dyn_elf));
@@ -572,6 +545,18 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
 		}
 		rpnt->dyn = tpnt;
+		tpnt->rtld_flags = RTLD_NOW | RTLD_GLOBAL; /* Must not be LAZY */
+#ifdef RERELOCATE_LDSO
+		/* Only rerelocate functions for now. */
+		tpnt->init_flag = RELOCS_DONE | COPY_RELOCS_DONE;
+		lpnt = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT] + load_addr);
+# ifdef ALLOW_ZERO_PLTGOT
+		if (tpnt->dynamic_info[DT_PLTGOT])
+# endif
+			INIT_GOT(lpnt, tpnt);
+#else
+		tpnt->init_flag = RELOCS_DONE | JMP_RELOCS_DONE | COPY_RELOCS_DONE;
+#endif
 		tpnt = NULL;
 	}
 
@@ -602,7 +587,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	 * to the GOT tables.  We need to do this in reverse order so that COPY
 	 * directives work correctly */
 	if (_dl_symbol_tables)
-		goof += _dl_fixup(_dl_symbol_tables, be_lazy);
+		goof += _dl_fixup(_dl_symbol_tables, unlazy);
 
 
 	/* OK, at this point things are pretty much ready to run.  Now we

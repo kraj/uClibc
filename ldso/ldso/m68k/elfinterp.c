@@ -152,13 +152,6 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
       reloc_type = ELF32_R_TYPE (rpnt->r_info);
       symtab_index = ELF32_R_SYM (rpnt->r_info);
 
-      /* When the dynamic linker bootstrapped itself, it resolved some symbols.
-         Make sure we do not do them again.  */
-      if (tpnt->libtype == program_interpreter
-	  && (!symtab_index
-	      || _dl_symbol (strtab + symtab[symtab_index].st_name)))
-	continue;
-
       switch (reloc_type)
 	{
 	case R_68K_NONE:
@@ -207,12 +200,6 @@ int _dl_parse_relocation_information(struct dyn_elf *rpnt,
       reloc_type = ELF32_R_TYPE (rpnt->r_info);
       symtab_index = ELF32_R_SYM (rpnt->r_info);
       symbol_addr = 0;
-
-      if (tpnt->libtype == program_interpreter
-	  && (!symtab_index
-	      || _dl_symbol (strtab + symtab[symtab_index].st_name)))
-	continue;
-
       if (symtab_index)
 	{
 	  symbol_addr = (unsigned int)
@@ -334,10 +321,6 @@ int _dl_parse_copy_information(struct dyn_elf *xpnt,
 	continue;
       symtab_index = ELF32_R_SYM (rpnt->r_info);
       symbol_addr = 0;
-      if (tpnt->libtype == program_interpreter
-	  && (!symtab_index
-	      || _dl_symbol (strtab + symtab[symtab_index].st_name)))
-	continue;
       if (symtab_index)
 	{
 	  symbol_addr = (unsigned int)

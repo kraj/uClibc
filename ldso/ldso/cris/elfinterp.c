@@ -182,18 +182,6 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope, unsigned long rel_add
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
-
-		/*
-		 * Make sure the same symbols that the linker resolved when it
-		 * bootstapped itself isn't resolved again.
-		 */
-		if (!symtab_index && tpnt->libtype == program_interpreter)
-			continue;
-
-		if (symtab_index && tpnt->libtype == program_interpreter &&
-			_dl_symbol(strtab + symtab[symtab_index].st_name))
-			continue;
-
 #if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab, strtab, symtab_index);
 		debug_reloc(symtab, strtab, rpnt);

@@ -6,7 +6,6 @@
 #endif
 
 struct dyn_elf{
-  unsigned long flags;
   struct elf_resolve * dyn;
   struct dyn_elf * next_handle;  /* Used by dlopen et al. */
   struct dyn_elf * next;
@@ -26,6 +25,7 @@ struct elf_resolve{
   struct dyn_elf * symbol_scope;
   unsigned short usage_count;
   unsigned short int init_flag;
+  unsigned long rtld_flags; /* RTLD_GLOBAL, RTLD_NOW etc. */
   unsigned int nbucket;
   unsigned long * elf_buckets;
   /*
