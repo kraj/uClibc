@@ -53,3 +53,6 @@ __start:
 hlt:
 	b   hlt
 
+	.section ".data"
+	.globl __data_start
+__data_start:
