@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <elf.h>
-#include <sys/user.h>
+#include <bits/uClibc_page.h>
 #ifdef __UCLIBC_PROPOLICE__
 extern void __guard_setup(void);
 #endif

@@ -23,7 +23,7 @@
    only. Don't read too much into it. Don't use it for anything other
    than gdb/strace unless you know what you are doing. */
 
-#include <asm/page.h>
+#include <bits/uClibc_page.h>
 #include <asm/reg.h>
 
 struct user

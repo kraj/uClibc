@@ -26,11 +26,7 @@
 #include <dl-syscall.h>
 #include <dl-string.h>
 /* Pull in the arch specific page size */
-#include <asm/page.h>
-#ifndef PAGE_SIZE
-#  define PAGE_SHIFT		12
-#  define PAGE_SIZE		(1UL << PAGE_SHIFT)
-#endif
+#include <bits/uClibc_page.h>
 /* Now the ldso specific headers */
 #include <dl-elf.h>
 #include <dl-hash.h>

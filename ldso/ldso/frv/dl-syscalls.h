@@ -42,7 +42,7 @@ static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
 #  define MMAP2_PAGE_SHIFT 12
 # endif
 
-#include <asm/page.h> /* for PAGE_SIZE */
+#include <bits/uClibc_page.h> /* for PAGE_SIZE */
 inline static void *_dl_memset(void*,int,size_t);
 inline static ssize_t _dl_pread(int fd, void *buf, size_t count, off_t offset);
 

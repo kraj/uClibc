@@ -14,9 +14,8 @@
 /* The alignment we guarantee for malloc return values.  */
 #define MALLOC_ALIGNMENT	(sizeof (double))
 
-/* The system pagesize we assume; we really ought to get it with
-   getpagesize, but gee, how annoying.  */
-#define MALLOC_PAGE_SIZE	4096
+/* The system pagesize... */
+#define MALLOC_PAGE_SIZE	_dl_pagesize
 
 /* The minimum size of block we request from the the system to extend the
    heap for small allocations (we may request a bigger block if necessary to
