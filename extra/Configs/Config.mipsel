@@ -50,6 +50,9 @@ DODEBUG = false
 # Compiler warnings you want to see 
 WARNINGS=-Wall
 
+# Enable support for shared libraries?
+HAVE_SHARED = false
+
 # Note that the kernel source you use to compile with should be the same as the
 # Linux kernel you run your apps on.  uClibc doesn't even try to achieve binary
 # compatibility across kernel versions.  So don't expect, for example, uClibc
