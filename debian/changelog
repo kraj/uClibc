@@ -2,6 +2,7 @@ uclibc (0.9.11-cvs20020420-1) unstable; urgency=low
 
   * Many of the configs have broken CROSS definitions.  Compensate
     for that in debian/rules.
+  * Install more documentation
 
  -- David Schleef <ds@schleef.org>  Sat, 20 Apr 2002 15:40:39 -0700
 
