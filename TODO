@@ -1,30 +1,8 @@
 TODO list for the uClibc 1.0.0 release:
+-------------------------------------------------
 
-    *) mjn3's mysterious python select/poll self-test failure that he
-	still needs to tell me about
-    *) Perhaps implement glibc style frame-unwinding, so that gcc need
-	not be built with --enable-sjlj-exceptions for exception handling to work.
-    *) Implement some mechanism (perhaps encoded in the .so name)
-	for flagging config options that break the ABI.  Options
-	such as UCLIBC_HAS_SOFT_FLOAT, UCLIBC_HAS_THREADS, UCLIBC_HAS_LOCALE,
-	and perhaps others (finalize list) produce a lib with a differing
-	ABI.  Make it so apps cannot use an ABI mis-matched uClibc.
-    *) Implement the float and long double versions of math funcs,
-	using wrappers on top of the double versions (size / precision
-	trade off).
-    *) Delete current profiling code (because it is crap
-	and only works when static + PIC)
-    *) Fix profiling by adding missing stub functions per
-	http://uclibc.org/lists/uclibc/2004-February/008167.html
-	and used by, i.e. http://www710.univ-lyon1.fr/~yperret/fnccheck/
-    *) Audit header files.  Remove prototypes for all functions that
-	are not supported.  Especially needed for the libm headers.
-    *) Audit header files.  When options are disabled, also disable
-	them in the include files as well.
-    *) Make all small objects (>~50 bytes) into either inlines or
-	into a static library
-    *) Add support for Linux 2.6.x NGPL pthreads, futexes, etc
     *) Documentation updates:
+	    *) Write a uClibc HOWTO document
 	    *) Update README document
 	    *) Update INSTALL document
 	    *) Update docs/Glibc_vs_uClibc_Differences.txt document
@@ -32,20 +10,40 @@ TODO list for the uClibc 1.0.0 release:
 		set of uClibc and glibc.
 	    *) Update docs/uClibc_vs_SuSv3.txt document
 	    *) Update docs/threads.txt document
-	    *) Write a HOWTO document
 	    *) Write man pages for ldd and ldconfig utility binaries
-    *) Fix regex so it isn't so stinking big
-    *) Fix glob so it isn't so stinking big
-    *) run 'nm -D --size-sort -t d libuClibc-0.9.26.so' and work on the
-	biggest things (i.e. stuff at the end of the list) to make
-	them smaller.
+    *) Perhaps implement glibc style frame-unwinding, so that gcc need
+	not be built with --enable-sjlj-exceptions for C++ exception handling
+	to work.
+    *) Implement some mechanism (perhaps encoded in the .so name,
+	perhaps using an abi tag magically embedded into each object)
+	for flagging config options that break the ABI.  Options
+	such as UCLIBC_HAS_SOFT_FLOAT, UCLIBC_HAS_THREADS, UCLIBC_HAS_LOCALE,
+	and perhaps others (finalize list) produce a lib with a differing
+	ABI.  Make it so apps cannot use an ABI mis-matched uClibc.
+    *) Implement the float and long double versions of math funcs
+	using wrappers on top of the double versions (size / precision
+	trade off where size clearly wins).
+    *) Delete current profiling code (because it is complete crap
+	and only works properly when static + PIC, and because it is
+	quite intrusive, and because there are better ways to profile)
+    *) Fix profiling by adding missing stub functions per
+	http://uclibc.org/lists/uclibc/2004-February/008167.html
+	and used by, i.e. http://www710.univ-lyon1.fr/~yperret/fnccheck/
+    *) Audit header files.  Remove prototypes for all functions that
+	are not supported -- especially needed for the libm headers.
+    *) Audit header files.  When options are disabled, also disable
+	them in the include files as well by checking for the proper
+	define from include/bits/uClibc_config.h (pulled in from features.h)
+    *) Make all small objects (>~50 bytes) into either inlines or
+	into a static library
     *) Cleanup / rewrite sysconf.c.  It should get some information
 	from ldso (such as HZ).  Other stuff it currently just makes
 	up, which is obviously wrong.  Also bits/uClibc_clk_tck.h
 	needs to be updated at the same time to get proper HZ values.
     *) __data_start needs to be added to any crt0.S files that don't
-	currently have it.  It is used by the boehm gc.  mjn3 has added
-	it to i386 and mips, but some archs are still missing it.
+	currently have it.  It is used by the boehm gc, amoung other
+	things.  mjn3 has added it to i386 and mips, but some archs
+	are still missing it.
     *)  It would nice if valgrind wouldn't complain about the atexit() malloc'd
 	memory for destructors, which happens since the dynamic linker calls
 	atexit(), which calls malloc() prior to valgrind starting, so valgrind
@@ -58,6 +56,26 @@ TODO list for the uClibc 1.0.0 release:
 	(recorded in the DT_NEEDED entries of the dynamic structure). The order of
 	initialization for circular dependencies is undefined."  uClibc's shared
 	lib loader should be fixed to run ctors in the specified order.
+    *) poll emulation using select() for old 2.0.x uClinux kernels
+	in libc/sysdeps/linux/common/poll.c fails some python self-tests.
+	Of course, modern systems using the actuall poll() syscall work fine.
+    *) Rework the build system Makefile to eliminate recursive make.
+    *) Build both pic and non-pic objects where appropriate, so that
+	static libs need not pay the pic size penalty.
+
+
+TODO list for AFTER the uClibc 1.0.0 release:
+-------------------------------------------------
+    *) Add support for Linux 2.6.x NPTL pthreads, futexes, etc
+    *) Add support for Linux 2.6.x fast vsyscalls
+    *) Enable pristine source tree builds
+    *) Fix regex so it isn't so stinking big
+    *) Fix glob so it isn't so stinking big
+    *) run 'nm -D --size-sort -t d libuClibc-0.9.26.so' and work on the
+	biggest things (i.e. stuff at the end of the list) to make
+	them smaller.
+    <more wishlist items here>
+
 
 
 
