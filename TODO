@@ -32,30 +32,34 @@ Erik's current plans for uClibc 0.9.11:
 
 
 -----------------------------------------------------------------------------
-Manuel's unsorted todo:
+Manuel's todo:
+
+Implement wide unformatted i/o.  (current project)
+
+Implement wide formatted output (printf).
+
+Update the strto* funcs to my current versions to remove the dependency
+    on the long long support funcs from libgcc.a.
+
+Update some other stdlib and (possibly) string funcs.
+
+Update the ctype code to my latest stuff... smaller plus supports new isblank()
+    for locales while still keeping byte table entries.
+
+Reimplement scanf for narrow and wide streams.
+
+Improve customization of the new stdio code.
+
+Reimplement _dtostr to correct its deficiencies and hopefully reduce its size.
+
+Revisit the unified syscall stuff which has been broken for a while now.
+
+Older stuff...
 
 Move the target-specific sysconf.c generator to extra (as it needs to be
 	run on the target) and fix libc/unistd/Makefile.
 
 Add a usage message to the gcc wrapper.
-
-Look at older, (pre-cephes-addition) floating point code and 
-    rework for proper nan and infinity handling
-
-Make scanf and strtod aware of nan and inf.
-
-Add overflow error-checking to fread and fwrite.
-
-Document uClibc-specific extensions I know of or have implemented.
-	binary string conversion for printf
-	malloc-less stdio
-	optional printf unconfigured-for-type error messages
-
-Add binary string conversion to scanf to mirror printf?
-
-Teach scanf about (nil) for %p.
-
-What to do about %m in printf?
 
 Make errno and endptr handling the default in the strto* functions and
 	document how to turn those off to save space.
