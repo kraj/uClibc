@@ -5,13 +5,15 @@ include $(TOPDIR)Rules.mak
 LSFLAGS = $(shell if ls -sh >/dev/null 2>&1; \
     then echo "-sh"; else echo "-s" ; fi)
 
-XCFLAGS = -Wall -Os -fomit-frame-pointer -fno-builtin -nostdinc \
+#XCFLAGS = -Wall -Os -fomit-frame-pointer -fno-builtin -nostdinc \
+XCFLAGS = -Wall -Os -fomit-frame-pointer -nostdinc \
 	-I$(TOPDIR)include -I/usr/include/linux
 XLDFLAGS = -nostdlib -s -gc-sections
 EXTRA_LIBS=$(TOPDIR)libc.a
 
 YCFLAGS = -Wall -Os -fomit-frame-pointer
 YLDFLAGS = -s --static 
+LDFLAGS += -fpic -gcc
 
 # Allow alternative stripping tools to be used...
 ifndef $(STRIPTOOL)
