@@ -699,6 +699,9 @@ int __libc_fcntl(int fd, int cmd, ...)
 	return(__syscall_fcntl(fd, cmd, arg));
 }
 weak_alias(__libc_fcntl, fcntl)
+#if ! defined __NR_fcntl64 && defined __UCLIBC_HAS_LFS__
+weak_alias(__libc_fcntl, fcntl64);
+#endif
 #endif
 
 //#define __NR_mpx              56
@@ -2230,10 +2233,6 @@ _syscall3(int, madvise, void*, __addr, size_t, __len, int, __advice);
 #define __NR___syscall_fcntl64 __NR_fcntl64
 static inline
 _syscall3(int, __syscall_fcntl64, int, fd, int, cmd, long, arg);
-#else
-#define __syscall_fcntl64  __syscall_fcntl
-extern int __syscall_fcntl(int fd, int cmd, ...);
-#endif
 int __libc_fcntl64(int fd, int cmd, ...)
 {
 	long arg;
@@ -2244,6 +2243,7 @@ int __libc_fcntl64(int fd, int cmd, ...)
 	return(__syscall_fcntl64(fd, cmd, arg));
 }
 weak_alias(__libc_fcntl64, fcntl64)
+#endif
 #endif
 
 //#define __NR_security		223	/* syscall for security modules */
