@@ -5,12 +5,17 @@ TODO list for the uClibc 0.9.27 release:
     *) Audit header files.  When options are disabled, also disable
 	them in the include files as well by checking for the proper
 	define from include/bits/uClibc_config.h (pulled in from features.h)
-    *) Hide uClibc internal symbols from our exported namespace.
+    *) Use buildroot to build for x86, powerpc, arm, and mips.
+    *) Test each architecture with the latest LTP testsuite, and post
+	LTP testsuite results for each architecture on uclibc.org.
+    *) Prepare and release a properly versioned buildroot release
+	to coincide with the uClibc 0.9.27 release.
 
 
 TODO list for the uClibc 1.0.0 release:
 -------------------------------------------------
 
+    *) Hide uClibc internal symbols from our exported namespace.
     *) Explicity add some sortof CONFIG_LINUX_2_2_ABI, CONFIG_LINUX_2_4_ABI
 	and CONFIG_LINUX_2_6_ABI type options, rather than having the abi
 	depend on the selected set of kernel headers.  This will likely also
