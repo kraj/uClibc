@@ -44,6 +44,12 @@ halfclean:
 headers: dummy
 	@rm -f include/asm include/net include/linux include/bits
 	@ln -s $(KERNEL_SOURCE)/include/asm-$(ARCH_DIR) include/asm
+	@-ls -q include/asm/unistd.h >/dev/null 2>&1;
+	@if [ $? != 0 ] ; then \
+	    echo "You didn't set KERNEL_SOURCE, TARGET_ARCH or HAS_MMU correctly in Config"; \
+	    echo "The path '$(KERNEL_SOURCE)/include/asm-$(ARCH_DIR)' doesn't exist."; \
+	    /bin/false; \
+	fi;
 	@ln -s $(KERNEL_SOURCE)/include/net include/net
 	@ln -s $(KERNEL_SOURCE)/include/linux include/linux
 	@ln -s ../sysdeps/linux/$(TARGET_ARCH)/bits include/bits
