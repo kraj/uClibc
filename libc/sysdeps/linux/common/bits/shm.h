@@ -35,9 +35,13 @@
 #define SHM_LOCK	11		/* lock segment (root only) */
 #define SHM_UNLOCK	12		/* unlock segment (root only) */
 
+__BEGIN_DECLS
+
 /* Segment low boundary address multiple.  */
 #define SHMLBA		(__getpagesize ())
 extern int __getpagesize (void) __THROW __attribute__ ((__const__));
+
+__END_DECLS
 
 
 /* Type to count number of attaches.  */
