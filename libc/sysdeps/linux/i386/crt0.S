@@ -100,7 +100,7 @@ _start:
 .size _start,.-_start
 
 
-#if defined L_gcrt1
+#if defined L_gcrt1 && defined __UCLIBC_PROFILING__
 # include "./gmon-start.S"
 #endif
 
