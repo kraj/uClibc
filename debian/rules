@@ -45,7 +45,7 @@ ifneq ($(target),$(DEB_HOST_GNU_CPU))
 	echo 'CROSS = $(target)-linux-'  >>Config
 endif
 	echo 'DOPIC = true'  >>Config
-	echo 'SYSTEM_DEVEL_PREFIX = /'  >>Config
+	echo 'SYSTEM_DEVEL_PREFIX = /usr'  >>Config
 	echo 'DEVEL_PREFIX = /usr/$$(TARGET_ARCH)-linux-uclibc'  >>Config
 	echo 'SHARED_LIB_LOADER_PATH = /lib'  >>Config
 	#echo 'TARGET_PREFIX = /'  >>Config
