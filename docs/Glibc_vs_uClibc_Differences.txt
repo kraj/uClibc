@@ -1,4 +1,4 @@
-uClibc and Glibc are not the same -- there are a number of differences which
+ uClibc and Glibc are not the same -- there are a number of differences which
 may or may not cause you problems.  This document attempts to list these
 differences and, when completed, will contain a full list of all relevant
 differences.
@@ -54,3 +54,74 @@ encrypt_r, since these are not required by SuSv3.
 14) uClibc directly uses the linux kernel's arch specific 'stuct stat'.
 
 15) Add other things here as they come up......
+
+
+
+******************************  Manuel's Notes  ******************************
+
+Some general comments...
+
+The intended target for all my uClibc code is ANSI/ISO C99 and SUSv3
+compliance.  While some glibc extensions are present, many will eventually
+be configurable.  Also, even when present, the glibc-like extensions may
+differ slightly or be more restrictive than the native glibc counterparts.
+They are primarily meant to be porting _aides_ and not necessarily
+drop-in replacements.
+
+Now for some details...
+
+time functions
+--------------
+1) Leap seconds are not supported.
+2) /etc/timezone and the whole zoneinfo directory tree are not supported.
+   To set the timezone, set the TZ environment variable as specified in
+   http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html
+   or you may also create an /etc/TZ file of a single line, ending with a
+   newline, containing the TZ setting.  For example
+   echo CST6CDT > /etc/TZ
+3) Currently, locale specific eras and alternate digits are not supported.
+   They are on my TODO list.
+
+wide char support
+-----------------
+1) The only multibyte encoding to be supported will be UTF-8.  The various
+   ISO-8859-* encodings will be (optionally) supported.  The internal
+   representation of wchar's is assumed to be 31 bit unicode values in
+   native endian representation.  Also, the underlying char encoding is
+   assumed to match ASCII in the range 0-0x7f.
+2) In the C locale, uClibc's mb<->wc conversion functions map 0x80-CHAR_MAX
+   onto their wide/narrow equivalents.  glibc's conversion functions treat
+   them as illegal.
+
+locale support
+--------------
+1) The target for support is SUSv3 locale functionality.  While nl_langinfo
+   has been extended, similar to glibc, it only returns values for related
+   locale entries.
+2) The locale code is not cross-compiler friendly.  This should be fixed soon.
+3) Currently, collation support is being implemented.
+
+stdio
+-----
+1) For printf, %a, %A, and floating point locale-specific grouping are not
+   yet implemented.  Also, conversion of large magnitude floating-point values
+   suffers a loss of precision due to the algorithm used.  The conversion
+   function was written before uClibc had proper semi-numerical macros/functions.
+   This code is slated to be rewritten after the i10n/i18n work is completed.
+2) uClibc's printf is much stricter than glibcs, especially regarding positional
+   args.  The entire format string is parsed first and an error is returned if
+   a problem is detected.  Also, currently at most 10 positional args are allowed
+   although this is configurable.
+3) BUFSIZ is currently 256.  No attempt is made at automatic tuning of internal
+   buffer sizes for stdio streams.  In fact, the stdio code in general sacrifices
+   sophistication/performace for minimal size.
+4) uClibc allows glibc-like custom printf functions.  However, while not
+   currently checked, the specifier must be <= 0x7f.
+5) uClibc allows glibc-like custom streams.  However, no in-buffer seeking is
+   done.
+6) uClibc's scanf still needs work.
+7) The functions fcloseall() and __fpending() can behave differently than their
+   glibc counterparts.
+
+
+More to follow as I think of it...
