@@ -22,13 +22,17 @@
    which contains no characters from REJECT.  */
 size_t strcspn( const char *s, const char *reject)
 {
-	size_t count = 0;
+    register char *scan1;
+    register char *scan2;
+    size_t int count;
 
-	while (*s != '\0')
-		if (strchr(reject, *s++) == NULL)
-			++count;
-		else
-			return count;
-
-	return count;
+    count = 0;
+    for (scan1 = s; *scan1 != '\0'; scan1++) {
+	for (scan2 = reject; *scan2 != '\0';)       /* ++ moved down. */
+	    if (*scan1 == *scan2++)
+		return(count);
+	count++;
+    }
+    return(count);
 }
+
