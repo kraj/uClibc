@@ -90,4 +90,8 @@ extern void close_nameservers(void);
 extern struct hostent * gethostbyname(const char * name);
 extern struct hostent * gethostbyaddr(const char * addr, int len, int type);
 
+extern int res_init(void);
+extern int res_query(const char *dname, int class, int type,
+	unsigned char *answer, int anslen);
+
 #endif /*_RESOLV_H_*/
