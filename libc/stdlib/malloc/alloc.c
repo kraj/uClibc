@@ -52,7 +52,7 @@ void free_dbg(void *ptr, char *function, char *file, int line)
 void *realloc_dbg(void *ptr, size_t size, char *function, char *file, int line)
 {
 	fprintf(stderr, "realloc of %p to %ld bytes at %s @%s;%d = ", ptr,
-			size, function, file, line);
+			(long)size, function, file, line);
 	ptr = realloc(ptr, size);
 	fprintf(stderr, "%p\n", ptr);
 	return ptr;

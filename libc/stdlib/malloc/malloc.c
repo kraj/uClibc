@@ -54,8 +54,9 @@
  */
 
 #include <features.h>
-#define _POSIX_SOURCE
+#ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE
+#endif
 #include <sys/types.h>
 #include <unistd.h>
 #include <limits.h>
