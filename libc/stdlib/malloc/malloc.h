@@ -52,17 +52,21 @@
      ^ ADDR - MALLOC_ALIGN
 */
 
+/* The amount of extra space used by the malloc header.  */
+#define MALLOC_HEADER_SIZE	MALLOC_ALIGNMENT
+
 /* Return base-address of a malloc allocation, given the user address.  */
-#define MALLOC_BASE(addr)	((void *)((char *)addr - MALLOC_ALIGNMENT))
+#define MALLOC_BASE(addr)	((void *)((char *)addr - MALLOC_HEADER_SIZE))
 /* Return the size of a malloc allocation, given the user address.  */
 #define MALLOC_SIZE(addr)	(*(size_t *)MALLOC_BASE(addr))
 /* Sets the size of a malloc allocation, given the user address.  */
 #define MALLOC_SET_SIZE(addr, size)	(*(size_t *)MALLOC_BASE(addr) = (size))
 
 /* Return the user address of a malloc allocation, given the base address.  */
-#define MALLOC_ADDR(base)	((void *)((char *)base + MALLOC_ALIGNMENT))
+#define MALLOC_ADDR(base)	((void *)((char *)base + MALLOC_HEADER_SIZE))
 
 
+/* Locking for multithreaded apps.  */
 #ifdef __UCLIBC_HAS_THREADS__
 
 # include <pthread.h>
