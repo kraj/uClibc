@@ -52,6 +52,102 @@
 
 	<ul>
 
+    <p>
+    <li> <b>10 April 2002, Native uClibc/gcc-3.0.4 toolchain</b>
+    <br>
+    CodePoet Consulting has released source code and a Makefile
+    to build a gcc-3.0.4 toolchain that natively targets uClibc.
+    This brings with it full C++ support for uClibc, including the 
+    libstdc++ library.  A gcc-2.95.x toolchain will also be released 
+    shortly, but is not yet ready.  At this time, only source code and
+    a Makefile for the native uClibc toolchain is being released (i.e.
+    no binaries, sorry).  Source code can be downloaded 
+    <a href="downloads/toolchain/">here</a>,
+    but be aware that the source code is 27 MB.
+    <p>
+    To build the toolchain, simply grab the source, edit the Makefile
+    to select where you would like the toolchain installed.  Then
+    run 'make' and wait for it to compile.  If you do not have a copy
+    of uClibc already, it will download the latest daily snapshot.
+
+
+    <p>
+    <li> <b>21 March 2002, uClibc 0.9.10 Released!</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate
+    availability of uClibc 0.9.10. This release adds pthreads support
+    (including pthreads support for mmu-less systems!).  Additionally,
+    thanks to Manuel Novoa III, we now have a completely new stdio
+    library, which is small, standards compliant, supports pthreads,
+    wide/narrow streams, large files, and can even operate in a
+    low-memory unbuffered mode.  Many, many bugs have been fixed and a
+    number of additional applications now compile and run perfectly.
+    Even with all these changes, uClibc continues to be very small.
+    On x86, a default build of the uClibc C library is still just 168k.
+
+    <p>
+
+    To make things more interesting, the release also adds support for
+    C++ constructors and destructors.  To make it easy to use uClibc
+    when developing C++ applications, this release also provides a 
+    wrapper for the GNU C++ compiler.  Of course, for more complex C++
+    applications, such as those using iostreams, a standard C++ library
+    (libstdc++) is required.  A native GNU toolchain (binutils/gcc) that
+    provides libstdc++ linked with uClibc 0.9.10 will be released in the
+    next couple of days, so stay tuned.
+
+    <p>
+    The <a href="downloads/Changelog">Changelog</a>
+    and <a href="downloads/uClibc-0.9.10.tar.bz2">Source code</a> 
+    for this release are available <a href="downloads/">here</a>.
+    <p>
+
+
+    <p>
+    <li> <b>4 February 2002, uClibc 0.9.9 Released!</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate
+    availability of uClibc 0.9.9.  With this release,
+    <a href="uClibc-apps.html">just about 
+    everything we have tested now compiles and runs</a>.  In fact,
+    there are now so many programs on the working application list that 
+    rather than continue to add to this list, from now on we 
+    will only be adding applications to the <em>not working list</em>.  Most applications 
+    on the <em>not working list</em> either require pthreads, or require 
+    wide-character support.  Work on wide-character support is
+    well underway, and will hopefully be moving into CVS in the next week or
+    two.  Full pthreads support and rentrancy are on the TODO list
+    and are expected to be complete in the next couple of months.
+    <p>
+    The <a href="downloads/Changelog">Changelog</a>
+    and <a
+    href="downloads/uClibc-0.9.9.tar.bz2">Source code</a> 
+    for this release are available <a href="downloads/">here</a>.
+    <p>
+    One final bit on news -- as some of you may have noticed, uclibc.org 
+    has been a bit overloaded and somewhat slow recently.  The server should 
+    be getting colocated tomorrow, which will eliminate the speed problem.  
+    During the move, there may be some temporary disruption of service...
+    <p>
+    Have Fun!
+
+    <p>
+    <li> <b>22 December 2001, uClibc 0.9.8 Released!</b>
+    <br>
+
+    After many months of initial development, we are pleased to announce the
+    release of uClibc 0.9.8.  This release should be quite solid, and is very
+    usable.  This also, hopefully, marks a transition from a slow incubation
+    phase to a more methodical release cycle.  From now one, there should be
+    approximately one release per month.
+    <p>
+    The source code for this release is available
+	<a href="downloads/">here</a>.
+
+
+    <p>
     <li> <b>26 November 2001, powerpc shared libraries fully working</b>
     <br>
     Dave Schleef finished off the the work needed for shared library support on

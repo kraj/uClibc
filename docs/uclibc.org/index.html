@@ -84,6 +84,19 @@ To subscribe, go and visit
 
 
 
+<!-- Begin FAQ section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="faq"><BIG><B>
+    Frequently Asked Questions
+    </A></B></BIG>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+	uClibc now has a <a href="FAQ.html">list of Frequently Asked Questions</a>.
+	You might want to take a look.
+    
+    
 <!-- Begin Applications section -->
 
 <TR><TD BGCOLOR="#ccccc0" ALIGN=center>
@@ -101,153 +114,6 @@ To subscribe, go and visit
 
     
     
-<!-- Begin Applications section -->
-
-<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="faq"><BIG><B>
-    Frequently Asked Questions
-    </A></B></BIG>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-
-	uClibc now has a <a href="FAQ.html">list of Frequently Asked Questions</a>.
-	You might want to take a look.
-    
-    
-<!-- Begin Latest News section -->
-
-<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="news">
-    <BIG><B>
-    Latest News</A> 
-    </B></BIG>
-    </A>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-
-<ul>
-
-    <li> <b>10 April 2002, uClibc 0.9.11 Released</b>
-    <br>
-    CodePoet Consulting is pleased to announce the immediate availability of
-    uClibc 0.9.11. This release is primarily focused on fixing the issues that
-    have turned up since the last release.  Several bugs in the gcc wrapper
-    have been fixed, allowing applications such as iproute2 and XFree86 to link properly.  
-    Large file support has been improved, and a thread locking bug was
-    fixed that could cause s*printf calls to deadlock when threading was
-    enabled.  Several bugs were also fixed with the powerpc, h8300, m68k,
-    sparc, and mips architecture support.  Many additional applications now
-    compile and run perfectly and have been added to the <a
-    href="uClibc-apps.html">working applications list</a> .
-    <p>
-    The <a href="downloads/Changelog">Changelog</a>
-    and <a href="downloads/uClibc-0.9.11.tar.bz2">source code</a> 
-    for this release are available <a href="downloads/">here</a>.
-    <p>
-
-
-    <li> <b>10 April 2002, Native uClibc/gcc-3.0.4 toolchain</b>
-    <br>
-    CodePoet Consulting has released source code and a Makefile
-    to build a gcc-3.0.4 toolchain that natively targets uClibc.
-    This brings with it full C++ support for uClibc, including the 
-    libstdc++ library.  A gcc-2.95.x toolchain will also be released 
-    shortly, but is not yet ready.  At this time, only source code and
-    a Makefile for the native uClibc toolchain is being released (i.e.
-    no binaries, sorry).  Source code can be downloaded 
-    <a href="downloads/toolchain/">here</a>,
-    but be aware that the source code is 27 MB.
-    <p>
-    To build the toolchain, simply grab the source, edit the Makefile
-    to select where you would like the toolchain installed.  Then
-    run 'make and wait for it to compile.  If you do not have a copy
-    of uClibc already, it will download the latest daily snapshot.
-    <p>
-
-
-    <li> <b>21 March 2002, uClibc 0.9.10 Released!</b>
-    <br>
-
-    CodePoet Consulting is pleased to announce the immediate
-    availability of uClibc 0.9.10. This release adds pthreads support
-    (including pthreads support for mmu-less systems!).  Additionally,
-    thanks to Manuel Novoa III, we now have a completely new stdio
-    library, which is small, standards compliant, supports pthreads,
-    wide/narrow streams, large files, and can even operate in a
-    low-memory unbuffered mode.  Many, many bugs have been fixed and a
-    number of additional applications now compile and run perfectly.
-    Even with all these changes, uClibc continues to be very small.
-    On x86, a default build of the uClibc C library is still just 168k.
-
-    <p>
-
-    To make things more interesting, the release also adds support for
-    C++ constructors and destructors.  To make it easy to use uClibc
-    when developing C++ applications, this release also provides a 
-    wrapper for the GNU C++ compiler.  Of course, for more complex C++
-    applications, such as those using iostreams, a standard C++ library
-    (libstdc++) is required.  A native GNU toolchain (binutils/gcc) that
-    provides libstdc++ linked with uClibc 0.9.10 will be released in the
-    next couple of days, so stay tuned.
-
-    <p>
-    The <a href="downloads/Changelog">Changelog</a>
-    and <a href="downloads/uClibc-0.9.10.tar.bz2">Source code</a> 
-    for this release are available <a href="downloads/">here</a>.
-    <p>
-
-
-    <p>
-    <li> <b>4 February 2002, uClibc 0.9.9 Released!</b>
-    <br>
-
-    CodePoet Consulting is pleased to announce the immediate
-    availability of uClibc 0.9.9.  With this release,
-    <a href="uClibc-apps.html">just about 
-    everything we have tested now compiles and runs</a>.  In fact,
-    there are now so many programs on the working application list that 
-    rather than continue to add to this list, from now on we 
-    will only be adding applications to the <em>not working list</em>.  Most applications 
-    on the <em>not working list</em> either require pthreads, or require 
-    wide-character support.  Work on wide-character support is
-    well underway, and will hopefully be moving into CVS in the next week or
-    two.  Full pthreads support and rentrancy are on the TODO list
-    and are expected to be complete in the next couple of months.
-    <p>
-    The <a href="downloads/Changelog">Changelog</a>
-    and <a
-    href="downloads/uClibc-0.9.9.tar.bz2">Source code</a> 
-    for this release are available <a href="downloads/">here</a>.
-    <p>
-    One final bit on news -- as some of you may have noticed, uclibc.org 
-    has been a bit overloaded and somewhat slow recently.  The server should 
-    be getting colocated tomorrow, which will eliminate the speed problem.  
-    During the move, there may be some temporary disruption of service...
-    <p>
-    Have Fun!
-
-    <p>
-    <li> <b>22 December 2001, uClibc 0.9.8 Released!</b>
-    <br>
-
-    After many months of initial development, we are pleased to announce the
-    release of uClibc 0.9.8.  This release should be quite solid, and is very
-    usable.  This also, hopefully, marks a transition from a slow incubation
-    phase to a more methodical release cycle.  From now one, there should be
-    approximately one release per month.
-    <p>
-    The source code for this release is available
-	<a href="downloads/">here</a>.
-
-    <p> <li> <b>Old News</b>
-    <br>
-
-    <a href="old-news.html">Click here to read older news</a>.
-    <p>
-
-
-</ul>
-
 <!-- Begin Download section -->
 
 <TR><TD BGCOLOR="#ccccc0" ALIGN=center>
@@ -268,40 +134,120 @@ To subscribe, go and visit
 	<a href="cvs_write.html">CVS write access</a>.
 </ul>
 
-<!-- Begin Applications section -->
+<!-- Begin Latest News section -->
 
 <TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="contribute"><BIG><B>
-    Help Support uClibc development
-    </A></B></BIG>
+    <A NAME="news">
+    <BIG><B>
+    Latest News</A> 
+    </B></BIG>
+    </A>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
 
-	Do you like uClibc?  Do you need support?  Do you need some feature
-	added to uClibc?  Then why not help out?  We are happy to accept
-	donations, provide support contracts, and implement funded feature
-	requests.  Additionally, uClibc is looking for corporate sponsors to
-	assist development, pay for bandwidth, and help with hardware
-	donations, especially donations of hardware for non-Intel
-	architectures.  Click here to help support uClibc and/or request
-	features.  
-	
+<ul>
+
+    <li> <b>28 May 2002, Native uClibc/gcc-3.1 toolchain</b>
+    <br>
+    CodePoet Consulting has released source code and a Makefile to build a
+    gcc-3.1 toolchain that natively targets uClibc.  Additionally, the
+    gcc-3.0.4 and gcc-2.95 toolchains have also been updated.  These toolchains
+    make it easy to build uClibc based applications.  Source code can be
+    downloaded <a href="downloads/toolchain/">here</a> and is now much smaller,
+    since much of the needed binutils and gcc source code is now downloaded on
+    demand.  To build the toolchain, simply grab the source, edit the Makefile
+    to select where you would like the toolchain installed, and then run 'make'
+    and wait for it to compile.
+
+    <p>
+    <p><li> <b>10 April 2002, uClibc 0.9.11 Released</b>
+    <br>
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.11. This release is primarily focused on fixing the issues that
+    have turned up since the last release.  Several bugs in the gcc wrapper
+    have been fixed, allowing applications such as iproute2 and XFree86 to link properly.  
+    Large file support has been improved, and a thread locking bug was
+    fixed that could cause s*printf calls to deadlock when threading was
+    enabled.  Several bugs were also fixed with the powerpc, h8300, m68k,
+    sparc, and mips architecture support.  Many additional applications now
+    compile and run perfectly and have been added to the <a
+    href="uClibc-apps.html">working applications list</a> .
+    <p>
+    The <a href="downloads/Changelog">Changelog</a>
+    and <a href="downloads/uClibc-0.9.11.tar.bz2">source code</a> 
+    for this release are available <a href="downloads/">here</a>.
+
+
+
+    <p> <li> <b>Old News</b>
+    <br>
+
+    <a href="old-news.html">Click here to read older news</a>.
+    <p>
+
+
+</ul>
+
+
+<!-- Begin Sponsors section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="sponsors"><BIG><B>
+    Sponsors
+    </A></B></BIG>
+</TD></TR>
+<tr><td bgcolor="#EEEEE0">
+
+    Please visit our sponsors and thank them for their support! They have
+    provided money, equipment, bandwidth, etc. Next time you need help with a
+    project, consider these fine companies!  Several individuals have also
+    contributed (If you have contributed and would like your name added here,
+    just email Erik and let him know).
+
+    <ul>
+      <li><a href="http://opensource.se/">opensource.se</a><br>
+      Embedded open source consulting in Europe.</li>
+
+      <li><a href="http://i-netinnovations.com/">http://i-netinnovations.com/</a><br>
+      Web hosting (currently hosting busybox.net and uclibc.org)</li>
+
+      <li><a href="http://www.lineo.com">Lineo</a><br>
+      Embedded Linux development and services.</li>
+
+      <li><a href="http://www.codepoet-consulting.com">Codepoet Consulting</a><br>
+      Custom Linux, embedded Linux, BusyBox, and uClibc development.</li>
+    </ul>
+
+    <table CELLSPACING=6 CELLPADDING=6 BORDER=0><tr>
+    <td>
+    Do you like uClibc?  Do you need support?  Do you need some feature
+    added?   Then why not help out?  We are happy to accept donations
+    (such as bandwidth, mirrors sites, and hardware for the various
+    architectures).  We can also provide support contracts, and implement 
+    funded feature requests.  To contribute, you can either click on the 
+    Donate image to donate using PayPal, or you can contact Erik at 
+    <a href="http://codepoet-consulting.com/">CodePoet Consulting</a> 
+    (we have a credit card machine so you can avoid PayPal if you wish).
+    </td>
+
+    <td>
     <!-- Begin PayPal Logo -->
-    <center>
     <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 	<input type="hidden" name="cmd" value="_xclick">
 	<input type="hidden" name="business" value="andersen@codepoet.org">
-	<input type="hidden" name="item_name" value="Support uClibc and/or request features">
+	<input type="hidden" name="item_name" value="Support uClibc">
 	<input type="hidden" name="image_url" value="https://codepoet-consulting.com/images/codepoet.png">
 	<input type="hidden" name="no_shipping" value="1">
 	<input type="image" src="images/donate.png" border="0" name="submit" alt="Make donation using PayPal">
     </form>
-    </center>
+    </td>
     <!-- End PayPal Logo -->
+    
+    </tr>
+    </table>
 
-    If you prefer to contact us directly for payments (we have a credit card machine so
-    you can avoid online payments), hardware donations, support requests, etc., you can 
-    contact <a href="http://codepoet-consulting.com/">CodePoet Consulting</a> here.
+    
+
     
 
 <!-- Begin TODO section -->
@@ -317,11 +263,11 @@ To subscribe, go and visit
 Here are a few things on the TODO list:
 <ul>
     <li> Shared library support for all supported architectures.
-	We now have our own ld.so, but it needs to be ported to
-	support each architecture. 
-    <li> Shared library support for mmu-less systems.  This is
-	very doable (think of C++ vtables for example), but will
-	take some work.
+	Currently, only x86, arm, powerpc, and mips have native
+	shared library loader support.  Several additional architectures
+	need to have their own shared library loader.
+    <li> Shared library support for mmu-less systems has been completed
+	by two separate companies, but has not been contributed back.
     <li> Someone (hopefully) needs to volunteer to take the
 	<a href="http://www.linuxbase.org/test/">LSB Test Suite</a>,
 	pull out the C library testing stuff, and convert it
