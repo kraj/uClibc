@@ -21,7 +21,11 @@
 # respective copyright holders.
 
 
-DIRS = assert crypt ctype fnmatch glob internals lsearch regex shm time
+DIRS = assert crypt fnmatch glob internals lsearch regex shm time
+
+ifeq ($(USE_CTYPE_C_FUNCTIONS),true)
+    DIRS+=ctype
+endif
 
 all: libc.a
 

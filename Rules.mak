@@ -56,6 +56,10 @@ HAS_MMU = true
 # Disable this if your CPU has a floating point unit (FPU)
 HAS_FLOATS = true
 
+# Use C functions instead of macros for ctype.h stuff
+# This should generally stay false...
+USE_CTYPE_C_FUNCTIONS = false
+
 # If you are running a cross compiler, you may want to set this
 # to something more interesting...
 CROSS = #powerpc-linux-

@@ -24,16 +24,20 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-CSRC=ctype.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
-
-all: $(OBJS) $(LIBC)
+MSRC=ctype.c
+MOBJ= isalnum.o isalpha.o isascii.o iscntrl.o isdigit.o isgraph.o \
+	islower.o isprint.o ispunct.o isspace.o isupper.o isxdigit.o \
+	isxlower.o isxupper.o toascii.o tolower.o toupper.o 
+OBJS=$(MOBJ)
+all: $(MOBJ) $(LIBC)
 
 $(LIBC): ar-target
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 
 $(OBJS): Makefile
 
