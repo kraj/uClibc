@@ -1,53 +1,25 @@
 /*
- * Copyright (C) 2000 Manuel Novoa III
+ * Copyright (C) 2000, 2001 Manuel Novoa III
  *
- * Function:  const char *__dtostr(double x)
+ * Function:  int __dtostr(FILE * fp, size_t size, double x, 
+ *			               char flag[], int width, int preci, char mode)
  *
- * This was written for uClibc to give it the ability to at least output
- * floating point values in exponential form.  No formatting is done.
- * No trailing 0's are removed.  Number of digits generated is not
- * runtime selectable.  It does however handle +/- infinity and nan on i386.
- *
- * The goal was usable floating point %e-type output in minimal size.  For
- * me, "gcc -c -Os -fomit-frame-pointer dtostr.c && size dtostr.o" gives
- *   text    data     bss    dec     hex filename
- *   535       9      26     570     23a dtostr.o    (WANT_EXP_FORM = 1)
- *   530       9      26     565     235 dtostr.o    (WANT_EXP_FORM = 0)
- *
- * Output is of the form [-][#].######{e|E}{+|-}##.  Choices of upper or
- * lower case exponent character, and initial digit/initial decimal forms
- * are compile-time options.  Number of digits generated is also selected
- * at compile time (MAX_DIGITS).
+ * This was written for uClibc to provide floating point support for
+ * the printf functions.  It handles +/- infinity and nan on i386.
  *
  * Notes:
  *
- * The primary objective of this implementation was minimal size while
- * maintaining reasonable accuracy.  It should also be fairly portable,
- * as not assumptions are made about the bit-layout of doubles.
+ * It should also be fairly portable, as not assumptions are made about the
+ * bit-layout of doubles.
  *
  * It should be too difficult to convert this to handle long doubles on i386.
  * For information, see the comments below.
  *
- * There are 2 compile-time options below, as well as some tuning parameters.
- *
  * TODO: 
  *   long double and/or float version?  (note: for float can trim code some).
+ *   
+ *   Decrease the size.  This is really much bigger than I'd like.
  */
-
-/*****************************************************************************/
-/*                            OPTIONS                                        */
-/*****************************************************************************/
-
-/*
- * Set this if you want output results with 1 digit before the decimal point.
- * If this is 0, all digits follow a leading decimal point.
- */
-#define WANT_EXP_FORM   1
-
-/*
- * Set if you want exponent character 'E' rather than 'e'.
- */
-#define EXP_UPPERCASE   1
 
 /*****************************************************************************/
 /* Don't change anything that follows unless you know what you're doing.     */
@@ -66,6 +38,11 @@
  * 17 digits suffices to uniquely determine a double on i386.
  */
 #define MAX_DIGITS          17
+
+/*
+ * Set this to the smallest integer type capable of storing a pointer.
+ */
+#define INT_OR_PTR int
 
 /*
  * This is really only used to check for infinities.  The macro produces
@@ -90,8 +67,24 @@ extern int _zero_or_inf_check(double x);
 /* Don't change anything that follows peroid!!!  ;-)                         */
 /*****************************************************************************/
 
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
 #include <float.h>
 #include <limits.h>
+
+extern int fnprintf(FILE * fp, size_t size, const char *fmt, ...);
+
+/* from printf.c -- should really be in an internal header file */
+enum {
+	FLAG_PLUS = 0,
+	FLAG_MINUS_LJUSTIFY,
+	FLAG_HASH,
+	FLAG_0_PAD,
+	FLAG_SPACE,
+};
+
+/*****************************************************************************/
 
 /*
  * Set things up for the scaling power table.
@@ -119,60 +112,88 @@ extern int _zero_or_inf_check(double x);
 
 #if (INT_MAX >> 30)
 #define DIGIT_BLOCK_TYPE     int
+#define DB_FMT               "%.*d"
 #elif (LONG_MAX >> 30)
 #define DIGIT_BLOCK_TYPE     long
+#define DB_FMT               "%.*ld"
 #else
 #error need at least 32 bit longs
 #endif
 
-/*
- * This is kind of a place-holder for LONG_DOUBLE support to show what I
- * think needs to be changed.  I haven't tried it though.  Changing this
- * from 3 to 4 and converting double to long double should work on i386.
- * DON'T FORGET to increase EXP_TABLE_SIZE and MAX_DIGITS.
- * DON'T FORGET the "larger EXP_TABLE_SIZE needed" check above.
- */
-#define MAX_EXP_DIGITS 3
+/* Are there actually any machines where this might fail? */
+#if 'A' > 'a'
+#error ordering assumption violated : 'A' > 'a'
+#endif
+
+/* Maximum number of calls to fnprintf to output double. */
+#define MAX_CALLS 8
 
 /*****************************************************************************/
 
 #define NUM_DIGIT_BLOCKS   ((MAX_DIGITS+DIGITS_PER_BLOCK-1)/DIGITS_PER_BLOCK)
 
-static char infstr[] = " inf";	/* save space for a - sign */
-static char nanstr[] = "nan";
-
 /* extra space for '-', '.', 'e+###', and nul */
-/*static char buf[ 5 + MAX_EXP_DIGITS + NUM_DIGIT_BLOCKS * DIGITS_PER_BLOCK];*/
-#define BUF_SIZE  ( 5 + MAX_EXP_DIGITS + NUM_DIGIT_BLOCKS * DIGITS_PER_BLOCK )
+#define BUF_SIZE  ( 3 + NUM_DIGIT_BLOCKS * DIGITS_PER_BLOCK )
 /*****************************************************************************/
 
-const char *__dtostr(char *buf, double x)
+static const char *fmts[] = {
+	"%0*d", "%.*s", ".", "inf", "INF", "nan", "NAN", "%*s"
+};
+
+/*****************************************************************************/
+
+int __dtostr(FILE * fp, size_t size, double x, 
+			 char flag[], int width, int preci, char mode)
 {
 	double exp_table[EXP_TABLE_SIZE];
 	double p10;
 	DIGIT_BLOCK_TYPE digit_block; /* int of at least 32 bits */
 	int i, j;
+	int round, o_exp;
 	int exp, exp_neg;
-	int negative = 0;
-	char *pos;
+	char *s;
+	char *e;
+	char buf[BUF_SIZE];
+	char buf2[BUF_SIZE];
+	INT_OR_PTR pc_fwi[2*MAX_CALLS];
+	INT_OR_PTR *ppc;
+	char exp_buf[8];
+	char drvr[8];
+	char *pdrvr;
+	int npc;
+	int cnt;
+	char sign_str[2];
+	char o_mode;
 
+	/* check that INT_OR_PTR is sufficiently large */
+	assert( sizeof(INT_OR_PTR) == sizeof(char *) );
+
+	*sign_str = flag[FLAG_PLUS];
+	*(sign_str+1) = 0;
 	if (isnan(x)) {				/* nan check */
-		return nanstr;
+		pdrvr = drvr + 1;
+		*pdrvr++ = 5 + (mode < 'a');
+		pc_fwi[2] = 3;
+		flag[FLAG_0_PAD] = 0;
+		goto EXIT_SPECIAL;
 	}
 
 	if (x == 0) {				/* handle 0 now to avoid false positive */
-		exp = 0;				/* with inf test, and to avoid scaling  */
-		goto GENERATE_DIGITS;	/* note: time vs space tradeoff */
+		exp = -1;
+		goto GENERATE_DIGITS;
 	}
 
 	if (x < 0) {				/* convert negatives to positives */
-		negative = 1;
+		*sign_str = '-';
 		x = -x;
 	}
 
 	if (_zero_or_inf_check(x)) { /* must be inf since zero handled above */
-		pos = infstr + 1;
-		goto DO_SIGN;
+		pdrvr = drvr + 1;
+		*pdrvr++ = 3 +  + (mode < 'a');
+		pc_fwi[2] = 3;
+		flag[FLAG_0_PAD] = 0;
+		goto EXIT_SPECIAL;
 	}
 
 	/* need to build the scaling table */
@@ -186,11 +207,7 @@ const char *__dtostr(char *buf, double x)
 		exp_neg = 1;
 	}
 
-#if WANT_EXP_FORM
 	exp = DIGITS_PER_BLOCK - 1;
-#else
-	exp = DIGITS_PER_BLOCK;
-#endif
 
 	i = EXP_TABLE_SIZE;
 	j = EXP_TABLE_MAX;
@@ -208,64 +225,203 @@ const char *__dtostr(char *buf, double x)
 		}
 		j >>= 1;
 	}
+	if (x >= 1e9) {				/* handle bad rounding case */
+		x /= 10;
+		++exp;
+	}
+	assert(x < 1e9);
 
  GENERATE_DIGITS:
-	pos = buf - BUF_SIZE + 1 + DIGITS_PER_BLOCK + 1; /* leave space for '.' and - */
+	s = buf2 + 2; /* leave space for '\0' and '0' */
 
 	for (i = 0 ; i < NUM_DIGIT_BLOCKS ; ++i ) {
-		digit_block = (int) x;
+		digit_block = (DIGIT_BLOCK_TYPE) x;
 		x = (x - digit_block) * 1e9;
-		for (j = 0 ; j < DIGITS_PER_BLOCK ; j++) {
-			*--pos = '0' + (digit_block % 10);
-			digit_block /= 10;
+		s += sprintf(s, DB_FMT, DIGITS_PER_BLOCK, digit_block);
+	}
+
+	/*************************************************************************/
+
+	*exp_buf = 'e';
+	if (mode < 'a') {
+		*exp_buf = 'E';
+		mode += ('a' - 'A');
+	} 
+
+	o_mode = mode;
+
+	round = preci;
+
+	if ((mode == 'g') && (round > 0)){
+		--round;
+	}
+
+	if (mode == 'f') {
+		round += exp;
+	}
+
+ RESTART:
+	memcpy(buf,buf2,sizeof(buf2)); /* backup in case g need to be f */
+
+	s = buf;
+	*s++ = 0;					/* terminator for rounding and 0-triming */
+	*s = '0';					/* space to round */
+
+	i = 0;
+	e = s + MAX_DIGITS + 1;
+	if (round < MAX_DIGITS) {
+		e = s + round + 2;
+		if (*e >= '5') {
+			i = 1;
 		}
-		pos += (2*DIGITS_PER_BLOCK);
 	}
-	pos -= (DIGITS_PER_BLOCK*(NUM_DIGIT_BLOCKS+1))-MAX_DIGITS;
 
-	/* start generating the exponent */
-#if EXP_UPPERCASE
-	*pos = 'E';
-#else
-	*pos = 'e';
-#endif
-	*++pos = '+';
-	if (exp < 0) {
-		*pos = '-';
-		exp = -exp;
+	do {						/* handle rounding and trim trailing 0s */
+		*--e += i;				/* add the carry */
+	} while ((*e == '0') || (*e > '9'));
+
+	o_exp = exp;
+	if (e <= s) {				/* we carried into extra digit */
+		++o_exp;
+		e = s;					/* needed if all 0s */
+	} else {
+		++s;
 	}
-	pos += 3;					/* WARNING: Assumes max exp < 1000!!! */
-	if (exp >= 100) {
-		++pos;
-#if MAX_EXP_DIGITS > 4
-#error need to modify exponent string generation code
-#elif MAX_EXP_DIGITS > 3
-		if (exp >= 1000) {		/* WARNING: hasn't been checked */
-			++pos;				/*    but should work */
+	*++e = 0;					/* ending nul char */
+
+	if ((mode == 'g') && ((o_exp >= -4) && (o_exp < round))) {
+		mode = 'f';
+		goto RESTART;
+	}
+
+	exp = o_exp;
+	if (mode != 'f') {
+		o_exp = 0;
+	}
+
+	if (o_exp < 0) {
+		*--s = '0';				/* fake the first digit */
+	}
+
+	pdrvr = drvr+1;
+	ppc = pc_fwi+2;
+
+	*pdrvr++ = 0;
+	*ppc++ = 1;
+	*ppc++ = (INT_OR_PTR)(*s++ - '0');
+
+	i = e - s;					/* total digits */
+	if (o_exp >= 0) {
+		if (o_exp >= i) {		/* all digit(s) left of decimal */
+			*pdrvr++ = 1;
+			*ppc++ = i;
+			*ppc++ = (INT_OR_PTR)(s);
+			o_exp -= i;
+			i = 0;
+			if (o_exp>0) {		/* have 0s left of decimal */
+				*pdrvr++ = 0;
+				*ppc++ = o_exp;
+				*ppc++ = 0;
+			}
+		} else if (o_exp > 0) {	/* decimal between digits */
+			*pdrvr++ = 1;
+			*ppc++ = o_exp;
+			*ppc++ = (INT_OR_PTR)(s);
+			s += o_exp;
+			i -= o_exp;
 		}
-#endif
-	}
-	*pos = '\0';
-		
-	for (j = 0 ; (j < 2) || exp ; j++) { /* standard says at least 2 digits */
-		*--pos = '0' + (exp % 10);
-		exp /= 10;
+		o_exp = -1;
 	}
 
-	/* insert the decimal point */
-	pos = buf - BUF_SIZE + 1;
+	if (flag[FLAG_HASH] || (i) || ((o_mode != 'g') && (preci > 0))) {
+		*pdrvr++ = 2;			/* need decimal */
+		*ppc++ = 1;				/* needed for width calc */
+		ppc++;
+	}
 
-#if WANT_EXP_FORM
-	*pos = *(pos+1);
-	*(pos+1) = '.';
+	if (++o_exp < 0) {			/* have 0s right of decimal */
+		*pdrvr++ = 0;
+		*ppc++ = -o_exp;
+		*ppc++ = 0;
+	}
+	if (i) {					/* have digit(s) right of decimal */
+		*pdrvr++ = 1;
+		*ppc++ = i;
+		*ppc++ = (INT_OR_PTR)(s);
+	}
+
+	if (o_mode != 'g') {
+		i -= o_exp;
+		if (i < preci) {		/* have 0s right of digits */
+			i = preci - i;
+			*pdrvr++ = 0;
+			*ppc++ = i;
+			*ppc++ = 0;
+		}
+	}
+
+	/* build exponent string */
+	if (mode != 'f') {
+		*pdrvr++ = 1;
+		*ppc++ = sprintf(exp_buf,"%c%+.2d", *exp_buf, exp);
+		*ppc++ = (INT_OR_PTR) exp_buf;
+	}
+
+ EXIT_SPECIAL:
+	npc = pdrvr - drvr;
+	ppc = pc_fwi + 2;
+	for (i=1 ; i< npc ; i++) {
+		width -= *(ppc++);
+		ppc++;
+	}
+	i = 0;
+	if (*sign_str) {
+		i = 1;
+	}
+	width -= i;
+	if (width <= 0) {
+		width = 0;
+	} else {
+		if (flag[FLAG_MINUS_LJUSTIFY]) { /* padding on right */
+			++npc;
+			*pdrvr++ = 7;
+			*ppc = width;
+			*++ppc = (INT_OR_PTR)("");
+			width = 0;
+		} else if (flag[FLAG_0_PAD] == '0') { /* 0 padding */
+			pc_fwi[2] += width;
+			width = 0;
+		}
+	}
+	*drvr = 7;
+	ppc = pc_fwi;
+	*ppc++ = width + i;
+	*ppc = (INT_OR_PTR) sign_str;
+
+	pdrvr = drvr;
+	ppc = pc_fwi;
+	cnt = 0;
+	for (i=0 ; i<npc ; i++) {
+#if 1
+		fnprintf(fp, size, fmts[(int)(*pdrvr++)], (INT_OR_PTR)(*(ppc)), 
+				 (INT_OR_PTR)(*(ppc+1)));
 #else
-	*pos = '.';
+		j = fnprintf(fp, size, fmts[(int)(*pdrvr++)], (INT_OR_PTR)(*(ppc)), 
+					  (INT_OR_PTR)(*(ppc+1)));
+		assert(j == *ppc);
 #endif
-
- DO_SIGN:
-	if (negative) {
-		*--pos = '-';
+		if (size > *ppc) {
+			size -= *ppc;
+		}
+		cnt += *ppc;			/* to avoid problems if j == -1 */
+		ppc += 2;
 	}
 
-	return pos;
+	return cnt;
 }
+
+
+
+
+
+

@@ -24,6 +24,15 @@ TOPDIR=../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
+PRINTF_FLAGS =
+
+ifeq ($(HAS_FLOATS),true)
+	PRINTF_FLAGS += -DWANT_DOUBLE
+endif
+
+ifeq ($(HAS_LONG_LONG),true)
+	PRINTF_FLAGS += -DWANT_LONG_LONG
+endif
 
 MSRC=stdio.c
 MOBJ=_stdio_init.o fputc.o fgetc.o fflush.o fgets.o gets.o fputs.o	\
@@ -32,7 +41,7 @@ MOBJ=_stdio_init.o fputc.o fgetc.o fflush.o fgets.o gets.o fputs.o	\
 
 MSRC2=printf.c
 MOBJ2=printf.o sprintf.o fprintf.o vprintf.o vsprintf.o vfprintf.o snprintf.o \
-     vsnprintf.o asprintf.o vfnprintf.o
+     vsnprintf.o asprintf.o vfnprintf.o fnprintf.o
 
 MSRC3=scanf.c
 MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
@@ -54,7 +63,7 @@ $(MOBJ): $(MSRC)
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ2): $(MSRC2)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(CC) $(CFLAGS) $(PRINTF_FLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ3): $(MSRC3)

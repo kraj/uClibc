@@ -64,10 +64,16 @@
  *    call vsnprintf which allocates a fake file on the stack.
  * Removed WANT_FPUTC option.  Always use standard putc macro to avoid
  *    problems with the fake file used by the *s*printf functions.
- * Added asprintf.
+ * Fixed bug parsing flags -- did not restart scan.
+ * Added function asprintf.
  * Fixed 0-pad prefixing bug.
  * Converted sizeof(int) == sizeof(long) tests to compile time vs run time.
  *    This saves 112 bytes of code on i386.
+ * Fixed precision bug -- when negative set to default.
+ * Added function fnprintf to support __dtostr.
+ * Added floating point support for doubles.  Yeah!
+ * 
+ * TODO: long double support
  */
 
 /*****************************************************************************/
@@ -76,12 +82,15 @@
 /* The optional support for long longs and doubles comes in two forms.
  *
  *   1) Normal (or partial for doubles) output support.  Set to 1 to turn on.
- *      Adds about 70 bytes for doubles, about 220 bytes for long longs,
+ *      Adds about 130 bytes for doubles, about 220 bytes for long longs,
  *      and about 275 for both to the base code size of 1163 on i386.
  */
 
+/* These are now set in the Makefile based on Config. */
+/*
 #define WANT_LONG_LONG         0
 #define WANT_DOUBLE            0
+*/
 
 /*   2) An error message is inserted into the stream, an arg of the
  *      appropriate size is removed from the arglist, and processing
@@ -209,6 +218,19 @@ int fprintf(FILE * fp, const char *fmt, ...)
 }
 #endif
 
+#ifdef L_fnprintf
+int fnprintf(FILE * fp, size_t size, const char *fmt, ...)
+{
+	va_list ptr;
+	int rv;
+
+	va_strt(ptr, fmt);
+	rv = vfnprintf(fp, size, fmt, ptr);
+	va_end(ptr);
+	return rv;
+}
+#endif
+
 #ifdef L_vprintf
 int vprintf(const char *fmt, va_list ap)
 {
@@ -263,7 +285,8 @@ extern char *__ultostr(char *buf, unsigned long uval, int base, int uppercase);
 extern char *__ltostr(char *buf, long val, int base, int uppercase);
 extern char *__ulltostr(char *buf, unsigned long long uval, int base, int uppercase);
 extern char *__lltostr(char *buf, long long val, int base, int uppercase);
-extern char *__dtostr(char *buf, double x);
+extern int __dtostr(FILE * fp, size_t size, double x,
+				  char flag[], int width, int preci, char mode);
 
 enum {
 	FLAG_PLUS = 0,
@@ -379,7 +402,7 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 				if (dpoint) {
 					preci = i;
 					if (i<0) {
-						preci = 0;
+						preci = -5;
 					}
 				} else {
 					width = i;
@@ -512,7 +535,12 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 				} else if (p-u_spec < 27) {		/* floating point */
 #endif /* WANT_DOUBLE || WANT_DOUBLE_ERROR */
 #if WANT_DOUBLE
-					p = __dtostr(tmp + sizeof(tmp) - 1, va_arg(ap, double));
+					if (preci < 0) {
+						preci = 6;
+					}
+					cnt += __dtostr(op, max_size, va_arg(ap, double),
+									flag, width,  preci, *fmt);
+					goto nextfmt;
 #elif WANT_DOUBLE_ERROR
 					(void) va_arg(ap,double); /* carry on */
 					p = (char *) dbl_err;
