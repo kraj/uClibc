@@ -114,15 +114,15 @@ if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then
     if [ "$TARGET_ARCH" = "powerpc" ];then
 	set -x;
 	ln -fs $KERNEL_SOURCE/include/asm-ppc include/asm;
-	unset -x;
+	set +x;
     elif [ "$TARGET_ARCH" = "mips" ];then
 	set -x;
 	ln -fs $KERNEL_SOURCE/include/asm-mips include/asm;
-	unset -x;
+	set +x;
     elif [ "$TARGET_ARCH" = "arm" ];then
 	set -x;
 	ln -fs $KERNEL_SOURCE/include/asm-arm include/asm;
-	unset -x;
+	set +x;
 	if [ ! -L $KERNEL_SOURCE/include/asm-arm/proc ] ; then 
 	    if [ ! -L proc ] ; then
 		(cd include/asm;
@@ -133,25 +133,25 @@ if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then
     elif [ "$TARGET_ARCH" = "mipsel" ];then
 	set -x;
 	ln -fs $KERNEL_SOURCE/include/asm-mips include/asm;
-	unset -x;
+	set +x;
     elif [ "$TARGET_ARCH)" = "cris" ]; then
 	set -x;
 	ln -fs $KERNEL_SOURCE/include/asm-cris include/asm;
-	unset -x;
+	set +x;
     elif [ "$HAS_MMU" != "y" ]; then
 	    if [ -d $KERNEL_SOURCE/include/asm-${TARGET_ARCH}nommu ] ; then
 		set -x;
 		ln -fs $KERNEL_SOURCE/include/asm-${TARGET_ARCH}nommu include/asm;
-		unset -x;
+		set +x;
 	    else
 		set -x;
 		ln -fs $KERNEL_SOURCE/include/asm-$TARGET_ARCH include/asm;
-		unset -x;
+		set +x;
 	    fi;
     else
 	set -x;
 	ln -fs $KERNEL_SOURCE/include/asm-$TARGET_ARCH include/asm;
-	unset -x;
+	set +x;
     fi;
 else
 # No guessing required.....
