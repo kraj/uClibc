@@ -19,6 +19,8 @@
 
 TESTDIR=../
 include $(TESTDIR)/Rules.mak
+DEBUG_LIBS=X
+#DEBUG_LIBS=LD_DEBUG
 
 all: run
 
@@ -58,15 +60,15 @@ libtest3.so: libtest.c
 
 run: libtest2.so libtest1.so test1 test2 test3 dltest libtest.so dltest2 libtest3.so
 	@echo "----------running test 1--------------"
-	-LD_LIBRARY_PATH=`pwd`:. LD_DEBUG=all ./test1
+	-LD_LIBRARY_PATH=`pwd`:. $(DEBUG_LIBS)=all ./test1
 	@echo "----------running test 2--------------"
-	-LD_LIBRARY_PATH=`pwd`:. LD_DEBUG=all ./test2
+	-LD_LIBRARY_PATH=`pwd`:. $(DEBUG_LIBS)=all ./test2
 	@echo "----------running test 3--------------"
-	-LD_LIBRARY_PATH=`pwd`:. LD_DEBUG=all ./test3
+	-LD_LIBRARY_PATH=`pwd`:. $(DEBUG_LIBS)=all ./test3
 	@echo "----------running test 3--------------"
-	-LD_DEBUG=all ./dltest2
+	-$(DEBUG_LIBS)=all ./dltest2
 	@echo "----------running test 4--------------"
-	-LD_DEBUG=all ./dltest
+	-$(DEBUG_LIBS)=all ./dltest
 
 clean:
 	rm -f *.o libtest1.so* libtest2.so* test1 test2 test3 \
