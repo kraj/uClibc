@@ -414,6 +414,13 @@ struct addrinfo
 # define EAI_ADDRFAMILY	  -9	/* Address family for NAME not supported.  */
 # define EAI_MEMORY	  -10	/* Memory allocation failure.  */
 # define EAI_SYSTEM	  -11	/* System error returned in `errno'.  */
+# ifdef __USE_GNU
+#  define EAI_INPROGRESS  -100	/* Processing request in progress.  */
+#  define EAI_CANCELED	  -101	/* Request canceled.  */
+#  define EAI_NOTCANCELED -102	/* Request not canceled.  */
+#  define EAI_ALLDONE	  -103	/* All requests done.  */
+#  define EAI_INTR	  -104	/* Interrupted by a signal.  */
+# endif
 
 # define NI_MAXHOST      1025
 # define NI_MAXSERV      32
