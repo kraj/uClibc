@@ -21,6 +21,13 @@ include $(TESTDIR)/Rules.mak
 
 CFLAGS+=--uclibc-ctors
 all: dltest2 dltest libhowdy.so run
+all: dlttest dlttest2 dltest2 dltest libhowdy.so run
+
+dlttest.o: dlttest.c
+	$(CC) $(CFLAGS) -c dlttest.c -o dlttest.o
+
+dlttest2.o: dlttest.c
+	$(CC) $(CFLAGS) -DFORCE -c dlttest.c -o dlttest2.o
 
 dltest2: dltest2.c
 	$(CC) $(CFLAGS) dltest2.c -o dltest2 -ldl
@@ -37,10 +44,20 @@ libhowdy.so: howdy.o
 
 dltest: dltest.o
 	$(CC) $(CFLAGS) -o dltest dltest.o -ldl
-	
-run: dltest libhowdy.so
+
+dlttest: dlttest.o
+	$(CC) $(CFLAGS) -o dlttest dlttest.o -ldl -lpthread
+
+dlttest2: dlttest2.o
+	$(CC) $(CFLAGS) -o dlttest2 dlttest2.o -ldl -lpthread
+
+run: dltest dlttest dlttest2 libhowdy.so
 	@echo Running dltest
 	./dltest
+	@echo Running dlttest
+	./dlttest
+	@echo Running dlttest2
+	./dlttest2
 
 clean:
 	rm -f *.o *.so dltest2 dltest core libhowdy.so
