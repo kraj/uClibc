@@ -205,7 +205,7 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	ln -fs $(DEVEL_PREFIX)/bin/readelf $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin/$(TARGET_ARCH)-uclibc-readelf
 	if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(DEVEL_PREFIX)/lib; \
-	    ln -fs $(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) \
+	    ln -s $(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) \
 	    		$(PREFIX)$(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so || true; \
 	fi;
 	if [ -x ldso/util/ldconfig ] ; then \
@@ -234,7 +234,7 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	install -m 755 ldso/util/readelf $(PREFIX)/usr/bin
 	if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)/lib; \
-	    ln -fs $(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) \
+	    ln -s $(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) \
 	    		$(PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so || true; \
 	fi;
 	if [ -x ldso/util/ldconfig ] ; then \
