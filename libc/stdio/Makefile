@@ -37,12 +37,13 @@ $(LIBC)($(SOBJ)): $(SSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(AR) $(ARFLAGS) $@ $*.o
 
-transfer:
-	-@rm -f ../include/stdio.h
-	cp -p stdio.h ../include/.
+#transfer:
+#	-@rm -f ../include/stdio.h
+#	cp -p stdio.h ../include/.
+#
+#$(LIBC)($(OBJ)): stdio.h
 
 clean:
 	rm -f *.o libc.a
 
-$(LIBC)($(OBJ)): stdio.h
 
