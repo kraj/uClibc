@@ -17,6 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdlib.h>
@@ -30,7 +31,7 @@ char *
 get_current_dir_name (void)
 {
 	char *pwd;
-#ifdef __USE_LARGEFILE64
+#if defined __UCLIBC_HAVE_LFS__
 	struct stat64 dotstat, pwdstat;
 #else
 	struct stat dotstat, pwdstat;
@@ -38,7 +39,7 @@ get_current_dir_name (void)
 
 	pwd = getenv ("PWD");
 	if (pwd != NULL
-#ifdef __USE_LARGEFILE64
+#if defined __UCLIBC_HAVE_LFS__
 		&& stat64 (".", &dotstat) == 0
 		&& stat64 (pwd, &pwdstat) == 0
 #else
