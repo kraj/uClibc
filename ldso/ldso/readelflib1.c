@@ -118,6 +118,49 @@ int _dl_unmap_cache(void)
 
 #endif
 
+/* This function's behavior must exactly match that 
+ * in uClibc/ldso/util/ldd.c */
+static struct elf_resolve * 
+search_for_named_library(char *name, int secure, const char *path_list)
+{
+	int i, count = 0;
+	char *path, *path_n;
+	char mylibname[2050];
+	struct elf_resolve *tpnt1;
+
+
+	/* We need a writable copy of this string */
+	path = _dl_strdup(path_list);
+	if (!path) {
+		_dl_dprintf(2, "Out of memory!\n");
+		_dl_exit(0);
+	}
+	
+
+	/* Unlike ldd.c, don't bother to eliminate double //s */
+
+
+	/* Replace colons with zeros in path_list and count them */
+	for(i=_dl_strlen(path); i > 0; i--) {
+		if (path[i]==':') {
+			path[i]=0;
+			count++;
+		}
+	}
+
+	path_n = path;
+	for (i = 0; i < count; i++) {
+		_dl_strcpy(mylibname, path_n); 
+		_dl_strcat(mylibname, "/"); 
+		_dl_strcat(mylibname, name);
+		if ((tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0)) != NULL)
+		    return tpnt1;
+		path_n += (_dl_strlen(path_n) + 1);
+	}
+	return NULL;
+}
+
+
 /*
  * Used to return error codes back to dlopen et. al.
  */
@@ -128,9 +171,8 @@ unsigned long _dl_internal_error_number;
 struct elf_resolve *_dl_load_shared_library(int secure, 
 	struct elf_resolve *tpnt, char *full_libname)
 {
-	char *pnt, *pnt1, *pnt2;
-	struct elf_resolve *tpnt1 = NULL;
-	char mylibname[2050];
+	char *pnt;
+	struct elf_resolve *tpnt1;
 	char *libname;
 
 	_dl_internal_error_number = 0;
@@ -160,70 +202,29 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 
 	/*
 	 * The ABI specifies that RPATH is searched before LD_*_PATH or
-	 * the default path of /usr/lib.
-	 * Check in rpath directories 
+	 * the default path of /usr/lib.  Check in rpath directories.
 	 */
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
 		if (tpnt->libtype == elf_executable) {
-			pnt1 = (char *) tpnt->dynamic_info[DT_RPATH];
-			if (pnt1) {
-				pnt1 += (unsigned long) tpnt->loadaddr +
+			pnt = (char *) tpnt->dynamic_info[DT_RPATH];
+			if (pnt) {
+				pnt += (unsigned long) tpnt->loadaddr +
 					tpnt->dynamic_info[DT_STRTAB];
-				while (*pnt1) {
-					pnt2 = mylibname;
-					while (*pnt1 && *pnt1 != ':') {
-						if (pnt2 - mylibname < 1024)
-							*pnt2++ = *pnt1++;
-						else
-							pnt1++;
-					}
-					if (pnt2 - mylibname >= 1024)
-						break;
-					if (pnt2[-1] != '/')
-						*pnt2++ = '/';
-					pnt = libname;
-					while (*pnt)
-						*pnt2++ = *pnt++;
-					*pnt2++ = 0;
-					tpnt1 =
-						_dl_load_elf_shared_library(secure, mylibname, 0);
-					if (tpnt1)
-						return tpnt1;
-					if (*pnt1 == ':')
-						pnt1++;
+				if ((tpnt1 = search_for_named_library(libname, secure, pnt)) != NULL) 
+				{
+				    return tpnt1;
 				}
 			}
 		}
 	}
 
-
 	/* Check in LD_{ELF_}LIBRARY_PATH, if specified and allowed */
-	pnt1 = _dl_library_path;
-	if (pnt1 && *pnt1) {
-		while (*pnt1) {
-			pnt2 = mylibname;
-			while (*pnt1 && *pnt1 != ':' && *pnt1 != ';') {
-				if (pnt2 - mylibname < 1024)
-					*pnt2++ = *pnt1++;
-				else
-					pnt1++;
-			}
-			if (pnt2 - mylibname >= 1024)
-				break;
-			if (pnt2[-1] != '/')
-				*pnt2++ = '/';
-			pnt = libname;
-			while (*pnt)
-				*pnt2++ = *pnt++;
-			*pnt2++ = 0;
-			tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
-			if (tpnt1)
-				return tpnt1;
-			if (*pnt1 == ':' || *pnt1 == ';')
-				pnt1++;
-		}
+	if (_dl_library_path) {
+	    if ((tpnt1 = search_for_named_library(libname, secure, _dl_library_path)) != NULL) 
+	    {
+		return tpnt1;
+	    }
 	}
-
 
 	/*
 	 * Where should the cache be searched?  There is no such concept in the
@@ -248,83 +249,19 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	}
 #endif
 
-	/* Check in <prefix>/usr/lib */
-	pnt1 = UCLIBC_TARGET_PREFIX "/usr/lib/";
-	pnt = mylibname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	pnt1 = libname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	*pnt++ = 0;
-	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
-	if (tpnt1)
+	/* Lastly, search the standard list of paths for the library.
+	   This list must exactly match the list in uClibc/ldso/util/ldd.c */
+	if ((tpnt1 = search_for_named_library(libname, secure, 
+			UCLIBC_TARGET_PREFIX "/usr/lib:"
+			UCLIBC_TARGET_PREFIX "/lib:"
+			UCLIBC_DEVEL_PREFIX "/lib:"
+			UCLIBC_BUILD_DIR "/lib:"
+			"/usr/lib:"
+			"/lib")
+		    ) != NULL) 
+	{
 	    return tpnt1;
-
-	/* Check in <prefix>/lib */
-	pnt1 = UCLIBC_TARGET_PREFIX "/lib/";
-	pnt = mylibname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	pnt1 = libname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	*pnt++ = 0;
-	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
-	if (tpnt1)
-	    return tpnt1;
-
-	/* Bummer.  Nothing so far.  Try <devel-dir>/lib */
-	pnt1 = UCLIBC_DEVEL_PREFIX "/lib/";
-	pnt = mylibname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	pnt1 = libname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	*pnt++ = 0;
-	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
-	if (tpnt1)
-	    return tpnt1;
-
-	/* Still nothing... Ok, try <builddir>/lib */
-	pnt1 = UCLIBC_BUILD_DIR "/lib/";
-	pnt = mylibname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	pnt1 = libname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	*pnt++ = 0;
-	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
-	if (tpnt1)
-	    return tpnt1;
-
-	/* Wow.  Still nothing.  Try /usr/lib */
-	pnt1 = "/usr/lib/";
-	pnt = mylibname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	pnt1 = libname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	*pnt++ = 0;
-	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
-	if (tpnt1)
-	    return tpnt1;
-
-	/* This is our last hope before giving up -- Try /lib */
-	pnt1 = "/lib/";
-	pnt = mylibname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	pnt1 = libname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	*pnt++ = 0;
-	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
-	if (tpnt1)
-	    return tpnt1;
+	}
 
   goof:
 	/* Well, we shot our wad on that one.  All we can do now is punt */

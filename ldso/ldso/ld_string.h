@@ -11,6 +11,7 @@ extern void _dl_dprintf(int, const char *, ...);
 
 
 static size_t _dl_strlen(const char * str);
+static char *_dl_strcat(char *dst, const char *src);
 static char * _dl_strcpy(char * dst,const char *src);
 static int _dl_strcmp(const char * s1,const char * s2);
 static int _dl_strncmp(const char * s1,const char * s2,size_t len);
@@ -18,7 +19,7 @@ static char * _dl_strchr(const char * str,int c);
 static char *_dl_strrchr(const char *str, int c);
 static void * _dl_memcpy(void * dst, const void * src, size_t len);
 static int _dl_memcmp(const void * s1,const void * s2,size_t len);
-static void * _dl_memset(void * str,int c,size_t len);
+static void *_dl_memset(void * str,int c,size_t len);
 static char *_dl_get_last_path_component(char *path);
 static char *_dl_simple_ltoa(char * local, unsigned long i);
 static char *_dl_simple_ltoahex(char * local, unsigned long i);
@@ -34,6 +35,20 @@ static inline size_t _dl_strlen(const char * str)
 	while (*ptr)
 		ptr++;
 	return (ptr - str);
+}
+
+static inline char *_dl_strcat(char *dst, const char *src)
+{
+	register char *ptr = dst;
+
+	while (*ptr)
+		ptr++;
+
+	while (*src)
+		*ptr++ = *src++;
+	*ptr = '\0';
+
+	return dst;
 }
 
 static inline char * _dl_strcpy(char * dst,const char *src)
