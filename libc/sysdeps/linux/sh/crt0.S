@@ -66,11 +66,13 @@ _start:
 	/* call main */
 	mov.l L_main, r0
 	jsr @r0
+	nop /* delay slot */
 
 	/* We should not get here. */
 	mov.l L_abort, r0
 	jsr @r0
-	nop
+	nop /* delay slot */
+
 _start_end:	
 	.align	2
 
