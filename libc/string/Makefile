@@ -23,7 +23,7 @@ DIRS=
 ifeq ($(TARGET_ARCH),$(wildcard $(TARGET_ARCH)))
 DIRS = $(TARGET_ARCH)
 endif
-ALL_SUBDIRS = i386 arm sh64
+ALL_SUBDIRS = i386 arm sh64 powerpc
 
 MSRC= wstring.c
 MOBJ=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
