@@ -21,17 +21,14 @@ Erik's TODO list for the next release:
 -----------------------------------------------------------------------------
 Manuel's todo:
 
-I'm currently working on completing the wide char and locale support.
-
   1) Little things that need fixing:
   ----------------------------------
-  a) Fix the ctype support for 8-bit locales.
-  b) Fix bug in *printf: outdigit precison bug
-  c) Check that gnu/bsd extension members tm_gmtoff and tm_zone in struct tm
+  a) Fix bug in *printf: outdigit precison bug
+  b) Check that gnu/bsd extension members tm_gmtoff and tm_zone in struct tm
      are respected where they should be.
-  d) Implement the obstack printf funcs for glibc compat.
-  e) Implement glibc 'a' flag for scanf string conversions.
-  f) Allow use of the older non-table-based ctype functions when using
+  c) Implement the obstack printf funcs for glibc compat.
+  d) Implement glibc 'a' flag for scanf string conversions.
+  e) Allow use of the older non-table-based ctype functions when using
      stub locale support. (smaller)
   
   2) Additional str{f|p}time issues.
@@ -55,6 +52,12 @@ I'm currently working on completing the wide char and locale support.
   f) Support ISO/IEC 14652 draft locale extensions (LC_PAPER, etc).
   g) Implement strfrom.
   h) Shift-state codeset locale support?
+
+  4) Misc:
+  --------
+  a) Port uClibc to other OSs (including elks), or even bare metal (libgloss).
+  b) Write a space-efficient gettext substitute, to avoid storing large amounts
+     of redundant data.
 
 
 Other stuff:

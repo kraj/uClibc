@@ -49,7 +49,7 @@ originally called "Yellow Pages" or "YP", which is an extension of RPC invented
 by Sun to share Unix password files over the network.  I personally think NIS
 is an evil abomination, and should be avoided.  These days, using ldap is much
 more effective mechanism for doing the same thing.  uClibc provides a stub
-libnsl, but and has no actuall support for Network Information Service (NIS).
+libnsl, but and has no actual support for Network Information Service (NIS).
 We therefore, also do not provide any of the headers files provided by glibc
 under /usr/include/rpcsvc.   I am open to implementing ldap based password
 authentication, but I do not personally intend to implement it (since I have no
@@ -95,50 +95,47 @@ time functions
    echo CST6CDT > /etc/TZ
 3) Currently, locale specific eras and alternate digits are not supported.
    They are on my TODO list.
-4) The extension fields tm_gmtoff and tm_zone, even prefixed with "__", are
-   not currently supported as they aren't required by SUSv3 and I didn't
-   need them when I wrote the time code.
 
 wide char support
 -----------------
-1) The only multibyte encoding to be supported will be UTF-8.  The various
-   ISO-8859-* encodings will be (optionally) supported.  The internal
+1) The only multibyte encoding currently supported is UTF-8.  The various
+   ISO-8859-* encodings are (optionally) supported.  The internal
    representation of wchar's is assumed to be 31 bit unicode values in
    native endian representation.  Also, the underlying char encoding is
    assumed to match ASCII in the range 0-0x7f.
+2) In the next iteration of locale support, I plan to add support for
+   (at least some) other multibyte encodings.
 
 locale support
 --------------
 1) The target for support is SUSv3 locale functionality.  While nl_langinfo
    has been extended, similar to glibc, it only returns values for related
    locale entries.
-2) Currently, collation support is being implemented.
+2) Currently, all SUSv3 libc locale functionality should be implemented
+   except for wcsftime and collating item support in regex.
 
 stdio
 -----
-1) For printf, %a, %A, and floating point locale-specific grouping are not
-   yet implemented.  Also, conversion of large magnitude floating-point values
-   suffers a loss of precision due to the algorithm used.  The conversion
-   function was written before uClibc had proper semi-numerical macros/functions.
-   This code is slated to be rewritten after the i10n/i18n work is completed.
+1) Conversion of large magnitude floating-point values by printf suffers a loss
+   of precision due to the algorithm used.
 2) uClibc's printf is much stricter than glibcs, especially regarding positional
    args.  The entire format string is parsed first and an error is returned if
-   a problem is detected.  Also, currently at most 10 positional args are allowed
-   although this is configurable.
-3) BUFSIZ is currently 256.  No attempt is made at automatic tuning of internal
+   a problem is detected.  In locales other than C, the format string is checked
+   to be a valid multibyte sequence as well.  Also, currently at most 10 positional
+   args are allowed (although this is configurable).
+3) BUFSIZ is configurable, but no attempt is made at automatic tuning of internal
    buffer sizes for stdio streams.  In fact, the stdio code in general sacrifices
    sophistication/performace for minimal size.
 4) uClibc allows glibc-like custom printf functions.  However, while not
    currently checked, the specifier must be <= 0x7f.
 5) uClibc allows glibc-like custom streams.  However, no in-buffer seeking is
    done.
-6) uClibc's scanf still needs work.
-7) The functions fcloseall() and __fpending() can behave differently than their
+6) The functions fcloseall() and __fpending() can behave differently than their
    glibc counterparts.
-8) uClibc's setvbuf is more restrictive about when it can be called than glibc's
+7) uClibc's setvbuf is more restrictive about when it can be called than glibc's
    is.  The standards specify that setvbuf must occur before any other operations
    take place on the stream.
-9) Right now, %m is not handled properly by printf when the format uses positional
+8) Right now, %m is not handled properly by printf when the format uses positional
    args.
 
 
