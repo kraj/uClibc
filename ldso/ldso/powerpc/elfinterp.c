@@ -277,10 +277,12 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		return 0;
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symname      = strtab + symtab[symtab_index].st_name;
-#if 0
+
+#if 1
 	sym_scope = scope->dyn->symbol_scope;
 #else
-	sym_scope = scope;/* Funny, this works too and appears to be much faster. */
+	/* Funny, this works too and appears to be much faster. */
+	sym_scope = scope;
 #endif
 	if (reloc_type == R_PPC_COPY) {
 		sym_scope = scope->next;
