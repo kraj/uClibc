@@ -18,50 +18,53 @@ not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
 /*
- * NOTE: this file works for PIC and non-PIC code.  Be very careful how
- * you modify it !
+ *	NOTE: this file works for PIC and non-PIC code.  Be very careful how
+ *	you modify it !
  */
 	.global	_start
-	.global	__main
-	.global _end
-	.global _sdata
-
-	.bss
-	.global environ
-environ:
-	.long 0
+	.global __exit
+	.global atexit
 
 	.text
-_start:			/* renamed from __start */
+
 	nop
 	nop
+_start: /* put here so that references to _start work with elf-PIC */
 
 	movea.l %d5, %a5	/* uClinux passes in data segment here */
-
-	move.l 8(%sp), %d5
-
-	lea.l _sdata, %a1	/* set environ to point to the right place */
-	lea.l environ, %a0
-	sub.l %a1, %a0
-	move.l %d5, %a5@(%a0)
-	
-	lea main-.-8, %a0	/* call main */
+/*
+ *	argc, argv and envp are on the stack,  just call to main
+ */
+	lea __uClibc_main-.-8, %a0	/* call uClibc main */
 	jsr %pc@(%a0)
 
-	move.l %d0,%sp@-
-
-	lea exit-.-8, %a0	/* call the exit routine */
-	jsr	%pc@(%a0)
-
-#ifdef NO_LIBGCC
 	/* If that didn't kill us, ... */
-_exit:
+__exit:
 	move.l %sp@+,%d1
 	moveq #1,%d0 /* SYS_exit */
 	trap #0
 
-__main:
+/*
+ *	this was needed for gcc/g++-builds,  atexit was not getting included
+ *	for some stupid reason,  this gets us a compiler
+ */
+empty_func:
 	rts
-#else
+	.weak atexit
+atexit = empty_func
 
-#endif /* NO_LIBGCC */
+/*
+ *	a little bit of stuff to support C++
+ */
+	.section .ctors,"aw"
+	.align 4
+	.global __CTOR_LIST__
+__CTOR_LIST__:
+	.long -1
+
+	.section .dtors,"aw"
+	.align 4
+	.global __DTOR_LIST__
+__DTOR_LIST__:
+	.long -1
+
