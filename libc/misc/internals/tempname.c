@@ -21,6 +21,11 @@
  * Modify code to remove dependency on libgcc long long arith support funcs.
  */
 
+/* June 6, 2004       Erik Andersen
+ *
+ * Don't use brain damaged getpid() based randomness.
+ */
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -49,7 +54,7 @@ static int direxists (const char *dir)
    for use with mk[s]temp.  Will fail (-1) if DIR is non-null and
    doesn't exist, none of the searched dirs exists, or there's not
    enough space in TMPL. */
-int __path_search (char *tmpl, size_t tmpl_len, const char *dir, 
+int __path_search (char *tmpl, size_t tmpl_len, const char *dir,
 	const char *pfx, int try_tmpdir)
 {
     //const char *d;
@@ -67,6 +72,7 @@ int __path_search (char *tmpl, size_t tmpl_len, const char *dir,
 	    plen = 5;
     }
 
+    /* Disable support for $TMPDIR */
 #if 0
     if (try_tmpdir)
     {
@@ -78,7 +84,7 @@ int __path_search (char *tmpl, size_t tmpl_len, const char *dir,
 	else
 	    dir = NULL;
     }
-#endif	
+#endif
     if (dir == NULL)
     {
 	if (direxists (P_tmpdir))
@@ -111,10 +117,25 @@ int __path_search (char *tmpl, size_t tmpl_len, const char *dir,
 static const char letters[] =
 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
+static unsigned int fillrand(unsigned char *buf, unsigned int len)
+{
+    int fd;
+    unsigned int result = -1;
+    fd = open("/dev/urandom", O_RDONLY);
+    if (fd < 0) {
+	fd = open("/dev/random", O_RDONLY | O_NONBLOCK);
+    }
+    if (fd >= 0) {
+	result = read(fd, buf, len);
+	close(fd);
+    }
+    return result;
+}
+
 /* Generate a temporary file name based on TMPL.  TMPL must match the
    rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
    does not exist at the time of the call to __gen_tempname.  TMPL is
-   overwritten with the result.  
+   overwritten with the result.
 
    KIND may be one of:
    __GT_NOCREATE:       simply verify that the name does not exist
@@ -124,17 +145,13 @@ static const char letters[] =
    __GT_BIGFILE:        same as __GT_FILE but use open64().
    __GT_DIR:            create a directory, which will be mode 0700.
 
-   We use a clever algorithm to get hard-to-predict names. */
+*/
 int __gen_tempname (char *tmpl, int kind)
 {
     char *XXXXXX;
-    struct timeval tv;
-    uint32_t high, low, rh;
     unsigned int k;
     int len, i, count, fd, save_errno = errno;
-    static uint64_t value; /* Do not initialize this, 
-			      or lock it for multi-threaded
-			      apps -- the messier the better */
+    unsigned char randomness[6];
 
     len = strlen (tmpl);
     if (len < 6 || strcmp (&tmpl[len - 6], "XXXXXX"))
@@ -146,28 +163,17 @@ int __gen_tempname (char *tmpl, int kind)
     /* This is where the Xs start.  */
     XXXXXX = &tmpl[len - 6];
 
-    /* Get some more or less random data.  */
-    gettimeofday (&tv, NULL);
-    value += ((uint64_t) tv.tv_usec << 16) ^ tv.tv_sec ^ getpid ();
+    /* Get some random data.  */
+    if (fillrand(randomness,  sizeof(randomness)) != sizeof(randomness)) {
+	goto all_done;
+    }
+    for (i = 0 ; i < sizeof(randomness) ; i++) {
+	k = ((randomness[i]) % 62);
+	XXXXXX[i] = letters[k];
+    }
 
     for (count = 0; count < TMP_MAX; value += 7777, ++count)
     {
-	low = value & UINT32_MAX;
-	high = value >> 32;
-
-	for (i = 0 ; i < 6 ; i++) {
-	    rh = high % 62;
-	    high /= 62;
-#define L ((UINT32_MAX % 62 + 1) % 62)
-	    k = (low % 62) + (L * rh);
-#undef L
-#define H ((UINT32_MAX / 62) + ((UINT32_MAX % 62 + 1) / 62))
-	    low = (low / 62) + (H * rh) + (k / 62);
-#undef H
-	    k %= 62;
-	    XXXXXX[i] = letters[k];
-	}
-
 	switch(kind) {
 	    case __GT_NOCREATE:
 		{
@@ -213,6 +219,7 @@ int __gen_tempname (char *tmpl, int kind)
     }
 
     /* We got out of the loop because we ran out of combinations to try.  */
+all_done:
     __set_errno (EEXIST);
     return -1;
 }
