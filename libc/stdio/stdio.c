@@ -701,8 +701,15 @@ const char *mode;
 	if (fname) {				/* Open the file itself */
 		fd = open(fname, open_mode, 0666);
 	} else {					/* fdopen -- check mode is compatible. */
+#if O_ACCMODE != 3 || O_RDONLY != 0 || O_WRONLY != 1 || O_RDWR != 2
+#error Assumption violated - mode constants
+#endif
 		cur_mode = fcntl(fd, F_GETFL);
-		if ((cur_mode == -1) || ((cur_mode ^ open_mode) & O_ACCMODE)) {
+		if (cur_mode == -1) {
+			fd = -1;
+		} else if (!(cur_mode & O_RDWR) 
+				   && ((cur_mode ^ open_mode) & O_ACCMODE)) {
+			errno = EINVAL;
 			fd = -1;
 		}
 	}
