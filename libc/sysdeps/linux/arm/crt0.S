@@ -92,7 +92,7 @@ _start:
 	ldr r2,[sp, #8]
 #endif
 
-#if defined L_crt1 && defined __UCLIBC_CTOR_DTOR__
+#if (defined L_crt1 || defined L_gcrt1 ) && defined __UCLIBC_CTOR_DTOR__
 	/* Store the address of _init in r3 as an argument to main() */
 	ldr r3, =_init
 
@@ -122,4 +122,8 @@ _start:
 2:	.long 0          
 	.long 2,0,0 
 3:	.align 4                 
+
+#if defined L_gcrt1 && defined __UCLIBC_PROFILING__
+# include "./gmon-start.S"
+#endif
 
