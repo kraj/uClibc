@@ -200,7 +200,7 @@ config FORCE_SHAREABLE_TEXT_SEGMENTS
 	  segments. These libraries haven't set the DT_TEXTREL tag in the dynamic
 	  section (==> objdump). So all your libraries must be compiled with
 	  -fPIC or -fpic, and all assembler function must be written as position
-	  independent code (PIC). 
+	  independent code (PIC).
 	  Enabling this option will makes uClibc's shared library loader a
 	  little bit smaller and guarantee that no memory will be wasted by badly
 	  coded shared libraries.
@@ -278,7 +278,7 @@ config UCLIBC_HAS_THREADS
 	depends on !HAS_NO_THREADS
 	default y
 	help
-	  If you want to compile uClibc with pthread support, then answer Y.  
+	  If you want to compile uClibc with pthread support, then answer Y.
 	  This will increase the size of uClibc by adding a bunch of locking
 	  to critical data structures, and adding extra code to ensure that
 	  functions are properly reentrant.
@@ -291,7 +291,7 @@ config PTHREADS_DEBUG_SUPPORT
 	depends on UCLIBC_HAS_THREADS
 	help
 	  Say Y here if you wish to be able to debug applications that use
-	  uClibc's pthreads library.  By enabling this option, a library 
+	  uClibc's pthreads library.  By enabling this option, a library
 	  named libthread_db will be built.  This library will be dlopen()'d
 	  by gdb and will allow gdb to debug the threads in your application.
 
@@ -306,10 +306,21 @@ config UCLIBC_HAS_LFS
 	bool "Large File Support"
 	default y
 	help
-	  If you wish to build uClibc with support for accessing large files 
-	  (i.e. files greater then 2 GiB) then answer Y.  Do not enable this 
-	  if you are using an older Linux kernel (2.0.x) that lacks large file 
+	  If you wish to build uClibc with support for accessing large files
+	  (i.e. files greater then 2 GiB) then answer Y.  Do not enable this
+	  if you are using an older Linux kernel (2.0.x) that lacks large file
 	  support.  Enabling this option will increase the size of uClibc.
+
+config UCLIBC_STATIC_LDCONFIG
+	bool "Link ldconfig statically"
+	default y
+	help
+	  Enable this option to statically link the ldconfig binary.
+
+	  Making ldconfig static can be beneficial if you have a library
+	  problem and need to used ldconfig to recover.  Sometimes, it is
+	  preferable to instead keep the size of the system down, in which
+	  case you should disable this option.
 
 choice
 	prompt "Malloc Implementation"
@@ -378,7 +389,7 @@ config UCLIBC_DYNAMIC_ATEXIT
 	  global destructors are implemented via atexit(), and it is quite
 	  possible to exceed the default number when this option is disabled.
 	  Enabling this option adds a few bytes, and more significantly makes
-	  atexit and on_exit depend on malloc, which can be bad when compiling 
+	  atexit and on_exit depend on malloc, which can be bad when compiling
 	  static executables.
 
 	  Unless you use uClibc with C++, you should probably answer N.
@@ -388,7 +399,7 @@ config HAS_SHADOW
 	bool "Shadow Password Support"
 	default y
 	help
-	  Answer N if you do not need shadow password support.  
+	  Answer N if you do not need shadow password support.
 	  Most people will answer Y.
 
 config UNIX98PTY_ONLY
@@ -396,7 +407,7 @@ config UNIX98PTY_ONLY
 	default y
 	help
 	  If you want to support only Unix 98 PTYs enable this.  Some older
-	  applications may need this disabled.  For most current programs, 
+	  applications may need this disabled.  For most current programs,
 	  you can generally answer Y.
 
 config ASSUME_DEVPTS
@@ -404,7 +415,7 @@ config ASSUME_DEVPTS
 	default y
 	help
 	  Enable this if /dev/pts is on a devpts or devfs filesystem.  Both
-	  these filesystems automatically manage permissions on the /dev/pts 
+	  these filesystems automatically manage permissions on the /dev/pts
 	  devices.  You may need to mount your devpts or devfs filesystem on
 	  /dev/pts for this to work.
 
@@ -488,15 +499,15 @@ config UCLIBC_HAS_IPV6
 	help
 	  If you want to include support for the next version of the Internet
 	  Protocol (IP version 6) then answer Y.
-	  
+
 	  Most people should answer N.
 
 config UCLIBC_HAS_RPC
 	bool "Remote Procedure Call (RPC) support"
 	default n
 	help
-	  If you want to include RPC support, enable this.  RPC is rarely used 
-	  for anything except for the NFS filesystem.  Unless you plan to use NFS, 
+	  If you want to include RPC support, enable this.  RPC is rarely used
+	  for anything except for the NFS filesystem.  Unless you plan to use NFS,
 	  you can probably leave this set to N and save some space.  If you need
 	  to use NFS then you should answer Y.
 
@@ -506,7 +517,7 @@ config UCLIBC_HAS_FULL_RPC
 	default y if !HAVE_SHARED
 	help
 	  Normally we enable just enough RPC support for things like rshd and
-	  nfs mounts to work.  If you find you need the rest of the RPC stuff, 
+	  nfs mounts to work.  If you find you need the rest of the RPC stuff,
 	  then enable this option.  Most people can safely answer N.
 
 endmenu
@@ -522,7 +533,7 @@ config UCLIBC_HAS_STRING_GENERIC_OPT
 	  In general, they are faster (but 3-5K larger) than the base
 	  uClibc string functions which are optimized solely for size.
 
-	  Many people will answer Y.  
+	  Many people will answer Y.
 
 config UCLIBC_HAS_STRING_ARCH_OPT
 	bool "Use arch-specific string functions"
@@ -541,7 +552,7 @@ config UCLIBC_HAS_CTYPE_TABLES
 	  Answer Y to use table versions of the 'ctype.h' functions.
 	  While the non-table versions are often smaller when building
 	  staticly linked apps, they work only in stub locale mode.
-	  
+
 	  Most people will answer Y.
 
 config UCLIBC_HAS_CTYPE_SIGNED
@@ -587,7 +598,7 @@ config UCLIBC_HAS_WCHAR
 	bool "Wide Character Support"
 	default n
 	help
-	  Answer Y to enable wide character support.  This will make uClibc 
+	  Answer Y to enable wide character support.  This will make uClibc
 	  much larger.  It is also currently required for locale support.
 
 	  Most people will answer N.
@@ -600,8 +611,8 @@ config UCLIBC_HAS_LOCALE
 	help
 	  uClibc now has full ANSI/ISO C99 locale support (except for
 	  wcsftime() and collating items in regex).  Be aware that enabling
-	  this option will make uClibc much larger.  
-	  
+	  this option will make uClibc much larger.
+
 	  Enabling UCLIBC_HAS_LOCALE with the default set of supported locales
 	  (169 UTF-8 locales, and 144 locales for other codesets) will enlarge
 	  uClibc by around 300k.  You can reduce this size by building your own
@@ -985,7 +996,7 @@ config UCLIBC_HAS_FTW
 	bool "Support the ftw() and nftw() interfaces"
 	default n
 	help
-	  The SuSv3 ftw() and nftw() interfaces are used to recursively descend 
+	  The SuSv3 ftw() and nftw() interfaces are used to recursively descend
 	  directory paths while repeatedly calling a function.
 
 	  This interface is rarely used, and adds around 4.5k.  Unless you have
@@ -998,7 +1009,7 @@ config UCLIBC_HAS_GLOB
 
 	  The glob interface is somewhat large (weighing in at about 4k).  It
 	  is used fairly often, but is an option since people wanting to go for
-	  absolute minimum size may wish to omit it. 
+	  absolute minimum size may wish to omit it.
 
 	  Most people will answer Y.
 
@@ -1023,7 +1034,7 @@ config SHARED_LIB_LOADER_PREFIX
 
 	  BIG FAT WARNING:
 	  If you do not have a shared library loader with the correct name
-	  sitting in the directory this points to, your binaries will not 
+	  sitting in the directory this points to, your binaries will not
 	  run.
 
 config SYSTEM_LDSO
@@ -1037,7 +1048,7 @@ config SYSTEM_LDSO
 
 	  BIG FAT WARNING:
 	  If you do not have a shared library loader with the correct name
-	  sitting in the directory this points to, your binaries will not 
+	  sitting in the directory this points to, your binaries will not
 	  run.
 
 config RUNTIME_PREFIX
@@ -1268,7 +1279,7 @@ config UCLIBC_MALLOC_DEBUGGING
 		  2   -  output messages for malloc/free calls and OS allocation calls
 		  4   -  output messages for the `MMB' layer
 		  8   -  output messages for internal malloc heap manipulation calls
-	  
+
 	  Because this increases the size of malloc appreciably (due to strings
 	  etc), you should say N unless you need to debug a malloc problem.
 

@@ -45,7 +45,7 @@ readelf: readelf.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldconfig:	ldconfig.c
-	$(CC) $(CFLAGS) -Wl,-s -static \
+	$(CC) $(CFLAGS) -Wl,-s $(if $(filter $(UCLIBC_STATIC_LDCONFIG),y),-static) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
