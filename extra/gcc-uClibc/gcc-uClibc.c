@@ -48,7 +48,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/stat.h>
 
 #include "gcc-uClibc.h"
 
@@ -74,10 +73,10 @@ static char *crt0_path[] = {
 
 static char *lib_path[] = {
 	"-L"UCLIBC_INSTALL_DIR"lib",
-	"-L"UCLIBC_INSTALL_DIR"usr/lib",
 	"-L"UCLIBC_BUILD_DIR"lib"
-	"-L"UCLIBC_BUILD_DIR"usr/lib"
 };
+
+static char *usr_lib_path = "-L"UCLIBC_INSTALL_DIR"usr/lib";
 
 static char static_linking[] = "-static";
 static char nostdinc[] = "-nostdinc";
@@ -87,7 +86,7 @@ static char nostdlib[] = "-nostdlib";
 
 int main(int argc, char **argv)
 {
-	int linking = 1, use_static_linking = 0;
+	int use_build_dir = 0, linking = 1, use_static_linking = 0;
 	int use_stdinc = 1, use_start = 1, use_stdlib = 1;
 	int source_count = 0, use_rpath = 0, verbose = 0;
 	int i, j;
@@ -99,22 +98,13 @@ int main(int argc, char **argv)
 		ep = "";
 	}
 
+	if ((strstr(argv[0],"build") != 0) || (strstr(ep,"build") != 0)) {
+		use_build_dir = 1;
+	}
+
 	if ((strstr(argv[0],"rpath") != 0) || (strstr(ep,"rpath") != 0)) {
 		use_rpath = 1;
 	}
-
-#if 0
-	/* Erik added this stuff in.  Disabled but kept in case the new changes */
-	/* don't do what he needed. */
-
-	/* FIXME: We need to work out the install vs use-in-built-dir
-	 * issue..*/
-	/* Apparently gcc doesn't accept this stuff via the command line */
-	setenv("COMPILER_PATH", UCLIBC_DIR"extra/gcc-uClibc/", 1);
-	setenv("LIBRARY_PATH", UCLIBC_DIR"lib/", 1);
-	/* The double '/' works around a gcc bug */
-	setenv("GCC_EXEC_PREFIX", UCLIBC_DIR"extra/gcc-uClibc//", 1); 
-#endif
 
 	for ( i = 1 ; i < argc ; i++ ) {
 		if (argv[i][0] == '-') { /* option */
@@ -180,34 +170,40 @@ int main(int argc, char **argv)
 	}
 	if (use_stdinc) {
 		gcc_argv[i++] = nostdinc;
-		gcc_argv[i++] = uClibc_inc[0];
-		gcc_argv[i++] = uClibc_inc[1];
+		gcc_argv[i++] = uClibc_inc[use_build_dir];
 		gcc_argv[i++] = GCC_INCDIR;
 	}
 	if (linking && source_count) {
 		if (!use_static_linking) {
 			if (DYNAMIC_LINKER[0]) { /* not empty string */
+#if 0
 				gcc_argv[i++] = "-Wl,--dynamic-linker,"DYNAMIC_LINKER;
 				if (strstr(DYNAMIC_LINKER,"uclibc") != 0) {	/* custom linker */
 					use_rpath = 0; /* so -rpath not needed for normal case */
 				}
+#else
+				char *dlstr = "-Wl,--dynamic-linker,"DYNAMIC_LINKER;
+				if (strstr(DYNAMIC_LINKER,"uclibc") != 0) {	/* custom linker */
+					use_rpath = 0; /* so -rpath not needed for normal case */
+					if (use_build_dir) {
+						dlstr = "-Wl,--dynamic-linker," \
+							UCLIBC_BUILD_DIR DYNAMIC_LINKER;
+					}
+				}
+				gcc_argv[i++] = dlstr;
+#endif
 			}
-			if (use_rpath) {
-				gcc_argv[i++] = rpath[0];
-				gcc_argv[i++] = rpath[1];
+			if (use_build_dir || use_rpath) {
+				gcc_argv[i++] = rpath[use_build_dir];
 			}
 		}
-		gcc_argv[i++] = rpath_link[0]; /* just to be safe */
-		gcc_argv[i++] = rpath_link[1]; /* just to be safe */
-		gcc_argv[i++] = lib_path[0];
-		gcc_argv[i++] = lib_path[1];
+		gcc_argv[i++] = rpath_link[use_build_dir]; /* just to be safe */
+		gcc_argv[i++] = lib_path[use_build_dir];
+		if (!use_build_dir) {
+			gcc_argv[i++] = usr_lib_path;
+		}
 		if (use_start) {
-			struct stat buf;
-			if (stat(crt0_path[0], &buf) >= 0) {
-				gcc_argv[i++] = crt0_path[0];
-			} else {
-				gcc_argv[i++] = crt0_path[1];
-			}
+			gcc_argv[i++] = crt0_path[use_build_dir];
 		}
 		if (use_stdlib) {
 			gcc_argv[i++] = nostdlib;
