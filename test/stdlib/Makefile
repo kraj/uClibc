@@ -101,7 +101,7 @@ teststrtol: teststrtol.c Makefile $(TOPDIR)libc.a
 	$(STRIP)
 	ldd $@
 	ls -sh $@
-	-./$@ | tee $@.out
+	-./$@ > $@.out
 	-@ echo " "
 
 teststrtol_glibc: teststrtol.c Makefile $(TOPDIR)libc.a
@@ -114,7 +114,7 @@ teststrtol_glibc: teststrtol.c Makefile $(TOPDIR)libc.a
 	$(STRIP)
 	ldd $@
 	ls -sh $@
-	-./$@ | tee $@.out
+	-./$@ > $@.out
 	-@ echo " "
 
 teststrtol_diff: teststrtol_glibc teststrtol
