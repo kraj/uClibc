@@ -184,59 +184,59 @@ install: install_dev install_runtime install_utils finished2
 
 # Installs header files and development library links.
 install_dev:
-	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/lib
-	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/include
-	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
+	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
+	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
+	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
 	tar -chf - include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX);
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	# Remove floating point related headers since float support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/complex.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/fpu_control.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/ieee754.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/math.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/tgmath.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/fpu_control.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ieee754.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/math.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tgmath.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_WCHAR)),y)
 	# Remove wide char headers since wide char support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/wctype.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/wchar.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/wctype.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/wchar.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 	# Remove iconv header since locale support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/iconv.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/iconv.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_GLIBC_CUSTOM_PRINTF)),y)
 	# Remove printf header since custom print specifier support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/printf.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/printf.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_XLOCALE)),y)
 	# Remove xlocale header since extended locale support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/xlocale.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/xlocale.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
 	# Remove libintl header since gettext support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/libintl.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/libintl.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_REGEX)),y)
 	# Remove regex headers since regex support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/regex.h
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/regexp.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/regex.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/regexp.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_WORDEXP)),y)
 	# Remove wordexp header since wordexp support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/wordexp.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/wordexp.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_FTW)),y)
 	# Remove ftw header since ftw support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/ftw.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ftw.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_GLOB)),y)
 	# Remove glob header since glob support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/glob.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/glob.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_GNU_GETOPT)),y)
 	# Remove getopt header since gnu getopt support is disabled.
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/getopt.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/getopt.h
 endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod 755 $$i; chmod 644 $$i/*.h > /dev/null 2>&1; \
@@ -244,12 +244,12 @@ endif
 	-find $(PREFIX)$(DEVEL_PREFIX) -name CVS | xargs $(RM) -r;
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
 ifeq ($(strip $(HAVE_SHARED)),y)
-	-$(INSTALL) -m 644 lib/*.so $(PREFIX)$(DEVEL_PREFIX)/lib/
-	-find lib/ -type l -name '*.so' -exec cp -fa {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
+	-$(INSTALL) -m 644 lib/*.so $(PREFIX)$(DEVEL_PREFIX)lib/
+	-find lib/ -type l -name '*.so' -exec cp -fa {} $(PREFIX)$(DEVEL_PREFIX)lib ';'
 	# If we build shared libraries then the static libs are PIC...
 	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
 	for i in `find lib/  -type f -name '*.a' | sed -e 's/lib\///'` ; do \
-		$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)/lib/`echo $$i | sed -e 's/\.a$$/_pic.a/'`; \
+		$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i | sed -e 's/\.a$$/_pic.a/'`; \
 	done
 endif
 
