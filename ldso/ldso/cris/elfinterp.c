@@ -123,7 +123,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	rel_addr = (char *) (tpnt->dynamic_info[DT_JMPREL] + tpnt->loadaddr);
 
-	this_reloc = (ELF_RELOC *) (intptr_t)(rel_addr + (reloc_entry >> 3));
+	this_reloc = (ELF_RELOC *) (intptr_t)(rel_addr + reloc_entry);
 	reloc_type = ELF32_R_TYPE(this_reloc->r_info);
 	symtab_index = ELF32_R_SYM(this_reloc->r_info);
 
@@ -255,8 +255,14 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope, ELF_RELOC *rpnt,
 	symname = strtab + symtab[symtab_index].st_name;
 
 	if (symtab_index) {
-		symbol_addr = (unsigned long) _dl_find_hash(symname, scope,
-			(reloc_type == R_CRIS_JUMP_SLOT ? tpnt : NULL), symbolrel);
+		if (symtab[symtab_index].st_shndx != SHN_UNDEF && 
+			ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_LOCAL) {
+			symbol_addr = (unsigned long) tpnt->loadaddr;
+		}
+		else {
+			symbol_addr = (unsigned long) _dl_find_hash(symname, scope,
+				(reloc_type == R_CRIS_JUMP_SLOT ? tpnt : NULL), symbolrel);
+		}
 
 		if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_GLOBAL) {
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -265,6 +271,8 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope, ELF_RELOC *rpnt,
 #endif
 			return 0;
 		}
+
+		symbol_addr += rpnt->r_addend;
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
