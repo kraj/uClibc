@@ -17,7 +17,7 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <features.h>
-#define _GNU_SOURCE
+#define __USE_GNU
 #include <stddef.h>
 #ifndef _SVID_SOURCE
 #define _SVID_SOURCE 1
