@@ -108,7 +108,7 @@ void *_dlopen(char *libname, int flag)
 			tfrom = tpnt;
 	}
 
-	if (!(tpnt = _dl_load_shared_library(0, tfrom, libname))) {
+	if (!(tpnt = _dl_load_shared_library(0, &rpnt, tfrom, libname))) {
 #ifdef USE_CACHE
 		_dl_unmap_cache();
 #endif
@@ -145,7 +145,7 @@ void *_dlopen(char *libname, int flag)
 		    {
 		      lpnt = tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] + 
 			dpnt->d_un.d_val;
-		      if(!(tpnt1 = _dl_load_shared_library(0, tcurr, lpnt)))
+		      if(!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpnt)))
 			goto oops;
 
 		      rpnt->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
@@ -304,7 +304,7 @@ void *_dlsym(void *vhandle, char *name)
 		}
 	}
 
-	ret = _dl_find_hash(name, handle, 1, NULL, 1);
+	ret = _dl_find_hash(name, handle, NULL, 1);
 
 	/*
 	 * Nothing found.

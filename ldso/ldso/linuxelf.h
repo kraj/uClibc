@@ -16,16 +16,16 @@ extern void * _dl_malloc(int size);
 extern int _dl_map_cache(void);
 extern int _dl_unmap_cache(void);
 int _dl_copy_fixups(struct dyn_elf * tpnt);
-extern int _dl_parse_relocation_information(struct elf_resolve * tpnt, unsigned long rel_addr,
-       unsigned long rel_size, int type);
-extern void _dl_parse_lazy_relocation_information(struct elf_resolve * tpnt, unsigned long rel_addr,
-       unsigned long rel_size, int type);
+extern int _dl_parse_copy_information(struct dyn_elf *rpnt,
+	unsigned long rel_addr, unsigned long rel_size, int type);
+extern void _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt,
+	unsigned long rel_addr, unsigned long rel_size, int type);
+extern int _dl_parse_relocation_information(struct elf_resolve *tpnt,
+	unsigned long rel_addr, unsigned long rel_size, int type);
 extern struct elf_resolve * _dl_load_shared_library(int secure, 
-				struct elf_resolve *, char * libname);
+	struct dyn_elf **rpnt, struct elf_resolve *tpnt, char *full_libname);
 extern struct elf_resolve * _dl_load_elf_shared_library(int secure, 
-				char * libname, int flag);
-extern int _dl_parse_copy_information(struct dyn_elf * rpnt, unsigned long rel_addr,
-       unsigned long rel_size, int type);
+	struct dyn_elf **rpnt, char *libname, int flag);
 extern int _dl_linux_resolve(void);
 #define ELF_CLASS   ELFCLASS32
 

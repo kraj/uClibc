@@ -81,7 +81,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	/* Get the address of the GOT entry */
 	new_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name, 
-		tpnt->symbol_scope, (unsigned long) got_addr, tpnt, 0);
+		tpnt->symbol_scope, tpnt, 0);
 	if (!new_addr) {
 		_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", 
 			_dl_progname, strtab + symtab[symtab_index].st_name);
@@ -188,7 +188,7 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 				continue;
 
 			symbol_addr = (unsigned long) _dl_find_hash(strtab + symtab[symtab_index].st_name, 
-					tpnt->symbol_scope, (unsigned long) reloc_addr, 
+					tpnt->symbol_scope,
 					(reloc_type == R_386_JMP_SLOT ? tpnt : NULL), 0);
 
 			/*
@@ -294,7 +294,7 @@ int _dl_parse_copy_information(struct dyn_elf *xpnt, unsigned long rel_addr,
 
 			symbol_addr = (unsigned long) _dl_find_hash(strtab + 
 				symtab[symtab_index].st_name, xpnt->next, 
-				(unsigned long) reloc_addr, NULL, 1);
+				NULL, 1);
 			if (!symbol_addr) {
 				_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", 
 					_dl_progname, strtab + symtab[symtab_index].st_name);

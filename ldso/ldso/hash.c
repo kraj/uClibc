@@ -135,7 +135,7 @@ struct elf_resolve *_dl_add_elf_hash_table(char *libname,
  */
 
 char *_dl_find_hash(char *name, struct dyn_elf *rpnt1, 
-	unsigned long instr_addr, struct elf_resolve *f_tpnt, int copyrel)
+	struct elf_resolve *f_tpnt, int copyrel)
 {
 	struct elf_resolve *tpnt;
 	int si;

@@ -108,13 +108,13 @@ int _dl_unmap_cache(void)
 /* This function's behavior must exactly match that 
  * in uClibc/ldso/util/ldd.c */
 static struct elf_resolve * 
-search_for_named_library(char *name, int secure, const char *path_list)
+search_for_named_library(char *name, int secure, const char *path_list,
+	struct dyn_elf **rpnt)
 {
 	int i, count = 1;
 	char *path, *path_n;
 	char mylibname[2050];
 	struct elf_resolve *tpnt1;
-
 
 	/* We need a writable copy of this string */
 	path = _dl_strdup(path_list);
@@ -140,8 +140,11 @@ search_for_named_library(char *name, int secure, const char *path_list)
 		_dl_strcpy(mylibname, path_n); 
 		_dl_strcat(mylibname, "/"); 
 		_dl_strcat(mylibname, name);
-		if ((tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0)) != NULL)
-		    return tpnt1;
+		if ((tpnt1 = _dl_load_elf_shared_library(secure, rpnt,
+			mylibname, 0)) != NULL)
+		{
+			return tpnt1;
+		}
 		path_n += (_dl_strlen(path_n) + 1);
 	}
 	return NULL;
@@ -156,7 +159,7 @@ unsigned long _dl_error_number;
 unsigned long _dl_internal_error_number;
 extern char *_dl_ldsopath;
 
-struct elf_resolve *_dl_load_shared_library(int secure, 
+struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	struct elf_resolve *tpnt, char *full_libname)
 {
 	char *pnt;
@@ -185,7 +188,7 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	   /usr/i486-sysv4/lib for /usr/lib in library names. */
 
 	if (libname != full_libname) {
-		tpnt1 = _dl_load_elf_shared_library(secure, full_libname, 0);
+		tpnt1 = _dl_load_elf_shared_library(secure, rpnt, full_libname, 0);
 		if (tpnt1)
 			return tpnt1;
 		goto goof;
@@ -204,7 +207,7 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 #ifdef DL_DEBUG
 				_dl_dprintf(2, "searching RPATH: '%s'\n", pnt);
 #endif
-				if ((tpnt1 = search_for_named_library(libname, secure, pnt)) != NULL) 
+				if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL) 
 				{
 				    return tpnt1;
 				}
@@ -217,7 +220,7 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 #ifdef DL_DEBUG
 	    _dl_dprintf(2, "searching _dl_library_path: '%s'\n", _dl_library_path);
 #endif
-	    if ((tpnt1 = search_for_named_library(libname, secure, _dl_library_path)) != NULL) 
+	    if ((tpnt1 = search_for_named_library(libname, secure, _dl_library_path, rpnt)) != NULL) 
 	    {
 		return tpnt1;
 	    }
@@ -240,7 +243,7 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 				 libent[i].flags == LIB_ELF_LIBC5) &&
 				_dl_strcmp(libname, strs + libent[i].sooffset) == 0 &&
 				(tpnt1 = _dl_load_elf_shared_library(secure, 
-				     strs + libent[i].liboffset, 0)))
+				     rpnt, strs + libent[i].liboffset, 0)))
 				return tpnt1;
 		}
 	}
@@ -251,7 +254,7 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 #ifdef DL_DEBUG
 	_dl_dprintf(2, "searching in ldso dir: %s\n", _dl_ldsopath);
 #endif
-	if ((tpnt1 = search_for_named_library(libname, secure, _dl_ldsopath)) != NULL) 
+	if ((tpnt1 = search_for_named_library(libname, secure, _dl_ldsopath, rpnt)) != NULL) 
 	{
 	    return tpnt1;
 	}
@@ -268,7 +271,7 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 			UCLIBC_DEVEL_PREFIX "/lib:"
 			UCLIBC_BUILD_DIR "/lib:"
 			"/usr/lib:"
-			"/lib")
+			"/lib", rpnt)
 		    ) != NULL) 
 	{
 	    return tpnt1;
@@ -286,16 +289,15 @@ goof:
 	return NULL;
 }
 
+
 /*
  * Read one ELF library into memory, mmap it into the correct locations and
  * add the symbol info to the symbol chain.  Perform any relocations that
  * are required.
  */
 
-//extern _elf_rtbndr(void);
-
-struct elf_resolve *_dl_load_elf_shared_library(int secure, 
-	char *libname, int flag)
+struct elf_resolve *_dl_load_elf_shared_library(int secure,
+	struct dyn_elf **rpnt, char *libname, int flag)
 {
 	elfhdr *epnt;
 	unsigned long dynamic_addr = 0;
@@ -311,14 +313,27 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	unsigned long *lpnt;
 	unsigned long libaddr;
 	unsigned long minvma = 0xffffffff, maxvma = 0;
-
 	int i;
 	int infile;
+#if defined(__mips__)
+	unsigned long mips_gotsym = 0;
+	unsigned long mips_local_gotno = 0;
+	unsigned long mips_symtabno = 0;
+#endif
 
 	/* If this file is already loaded, skip this step */
 	tpnt = _dl_check_hashed_files(libname);
-	if (tpnt)
+	if (tpnt) {
+		(*rpnt)->next = (struct dyn_elf *)
+			_dl_malloc(sizeof(struct dyn_elf));
+		_dl_memset((*rpnt)->next, 0, sizeof(*((*rpnt)->next)));
+		*rpnt = (*rpnt)->next;
+		tpnt->usage_count++;
+		tpnt->symbol_scope = _dl_symbol_tables;
+		tpnt->libtype = elf_lib;
+		(*rpnt)->dyn = tpnt;
 		return tpnt;
+	}
 
 	/* If we are in secure mode (i.e. a setu/gid binary using LD_PRELOAD),
 	   we don't load the library if it isn't setuid. */
@@ -514,7 +529,22 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	dynamic_size = dynamic_size / sizeof(Elf32_Dyn);
 	_dl_memset(dynamic_info, 0, sizeof(dynamic_info));
+#if defined(__mips__)
+	/*
+	 * The program header file size for the dynamic section is
+	 * calculated differently for MIPS. We look for a null tag
+	 * value instead.
+	 */
+	while(dpnt->d_tag) {
+		if (dpnt->d_tag == DT_MIPS_GOTSYM)
+			mips_gotsym = (unsigned long) dpnt->d_un.d_val;
+		if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO)
+			mips_local_gotno = (unsigned long) dpnt->d_un.d_val;
+		if (dpnt->d_tag == DT_MIPS_SYMTABNO)
+			mips_symtabno = (unsigned long) dpnt->d_un.d_val;
+#else
 	for (i = 0; i < dynamic_size; i++) {
+#endif
 		if (dpnt->d_tag > DT_JMPREL) {
 			dpnt++;
 			continue;
@@ -526,8 +556,8 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	};
 
 	/* If the TEXTREL is set, this means that we need to make the pages
-	   writable before we perform relocations.  Do this now. They get set back
-	   again later. */
+	   writable before we perform relocations.  Do this now. They get set
+	   back again later. */
 
 	if (dynamic_info[DT_TEXTREL]) {
 		ppnt = (elf_phdr *) & header[epnt->e_phoff];
@@ -548,6 +578,18 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	tpnt->n_phent = epnt->e_phnum;
 
 	/*
+	 * Add this object into the symbol chain
+	 */
+	(*rpnt)->next = (struct dyn_elf *)
+		_dl_malloc(sizeof(struct dyn_elf));
+	_dl_memset((*rpnt)->next, 0, sizeof(*((*rpnt)->next)));
+	*rpnt = (*rpnt)->next;
+	tpnt->usage_count++;
+	tpnt->symbol_scope = _dl_symbol_tables;
+	tpnt->libtype = elf_lib;
+	(*rpnt)->dyn = tpnt;
+
+	/*
 	 * OK, the next thing we need to do is to insert the dynamic linker into
 	 * the proper entry in the GOT so that the PLT symbols can be properly
 	 * resolved. 
@@ -558,6 +600,11 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	if (lpnt) {
 		lpnt = (unsigned long *) (dynamic_info[DT_PLTGOT] +
 			((int) libaddr));
+#if defined(__mips__)
+		tpnt->mips_gotsym = mips_gotsym;
+		tpnt->mips_local_gotno = mips_local_gotno;
+		tpnt->mips_symtabno = mips_symtabno;
+#endif
 		INIT_GOT(lpnt, tpnt);
 	};
 

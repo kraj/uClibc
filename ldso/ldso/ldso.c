@@ -211,11 +211,6 @@ DL_BOOT(unsigned long args)
 	struct r_debug *debug_addr;
 	int indx;
 	int status;
-#if defined(__mips__)
-	unsigned long mips_gotsym = 0;
-	unsigned long mips_local_gotno = 0;
-	unsigned long mips_symtabno = 0;
-#endif
 
 
 	/* WARNING! -- we cannot make _any_ funtion calls until we have
@@ -381,11 +376,11 @@ DL_BOOT(unsigned long args)
 		}
 #if defined(__mips__)
 		if (dpnt->d_tag == DT_MIPS_GOTSYM)
-			mips_gotsym = (unsigned long) dpnt->d_un.d_val;
+			tpnt->mips_gotsym = (unsigned long) dpnt->d_un.d_val;
 		if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO)
-			mips_local_gotno = (unsigned long) dpnt->d_un.d_val;
+			tpnt->mips_local_gotno = (unsigned long) dpnt->d_un.d_val;
 		if (dpnt->d_tag == DT_MIPS_SYMTABNO)
-			mips_symtabno = (unsigned long) dpnt->d_un.d_val;
+			tpnt->mips_symtabno = (unsigned long) dpnt->d_un.d_val;
 #endif
 		dpnt++;
 	}
@@ -399,6 +394,17 @@ DL_BOOT(unsigned long args)
 			if (ppnt->p_type == PT_DYNAMIC) {
 				dpnt = (Elf32_Dyn *) ppnt->p_vaddr;
 				while (dpnt->d_tag) {
+#if defined(__mips__)
+					if (dpnt->d_tag == DT_MIPS_GOTSYM)
+						app_tpnt->mips_gotsym =
+							(unsigned long) dpnt->d_un.d_val;
+					if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO)
+						app_tpnt->mips_local_gotno =
+							(unsigned long) dpnt->d_un.d_val;
+					if (dpnt->d_tag == DT_MIPS_SYMTABNO)
+						app_tpnt->mips_symtabno =
+							(unsigned long) dpnt->d_un.d_val;
+#endif
 					if (dpnt->d_tag > DT_JMPREL) {
 						dpnt++;
 						continue;
@@ -524,7 +530,6 @@ DL_BOOT(unsigned long args)
 				if (!_dl_symbol(strtab + symtab[symtab_index].st_name))
 					continue;
 				symbol_addr = load_addr + symtab[symtab_index].st_value;
-				//SEND_NUMBER_STDERR(symbol_addr,1);
 
 				if (!symbol_addr) {
 					/* This will segfault - you cannot call a function until
@@ -580,7 +585,6 @@ DL_BOOT(unsigned long args)
 
 
 
-
 	/* OK we are done here.  Turn out the lights, and lock up. */
 	_dl_elf_main = (int (*)(int, char **, char **)) auxvt[AT_ENTRY].a_un.a_fcn;
 
@@ -608,6 +612,11 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	struct elf_resolve *tpnt1;
 	unsigned long brk_addr, *lpnt;
 	int (*_dl_atexit) (void *);
+#ifdef __mips__
+	unsigned long mips_gotsym = 0;
+	unsigned long mips_local_gotno = 0;
+	unsigned long mips_symtabno = 0;
+#endif
 
 
 	/* Now we have done the mandatory linking of some things.  We are now
@@ -615,16 +624,19 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	   fixed up by now.  Still no function calls outside of this library ,
 	   since the dynamic resolver is not yet ready. */
 	lpnt = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT] + load_addr);
+
+	tpnt->chains = hash_addr;
+	tpnt->next = 0;
+	tpnt->libname = 0;
+	tpnt->libtype = program_interpreter;
+	tpnt->loadaddr = (char *) load_addr;
+
 	INIT_GOT(lpnt, tpnt);
 #ifdef DL_DEBUG
 	_dl_dprintf(2, "GOT found at %x\n", tpnt);
 #endif
 	/* OK, this was a big step, now we need to scan all of the user images
 	   and load them properly. */
-
-	tpnt->next = 0;
-	tpnt->libname = 0;
-	tpnt->libtype = program_interpreter;
 
 	{
 		elfhdr *epnt;
@@ -641,9 +653,6 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			}
 		}
 	}
-
-	tpnt->chains = hash_addr;
-	tpnt->loadaddr = (char *) load_addr;
 
 	brk_addr = 0;
 	rpnt = NULL;
@@ -665,11 +674,21 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 				continue;
 #endif
 			/* OK, we have what we need - slip this one into the list. */
+#ifdef __mips__
+			mips_gotsym = app_tpnt->mips_gotsym;
+			mips_local_gotno = app_tpnt->mips_local_gotno;
+			mips_symtabno = app_tpnt->mips_symtabno;
+#endif
 			app_tpnt = _dl_add_elf_hash_table("", 0, 
 					app_tpnt->dynamic_info, ppnt->p_vaddr, ppnt->p_filesz);
 			_dl_loaded_modules->libtype = elf_executable;
 			_dl_loaded_modules->ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
 			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
+#ifdef __mips__
+			_dl_loaded_modules->mips_gotsym = mips_gotsym; 
+			_dl_loaded_modules->mips_local_gotno = mips_local_gotno;
+			_dl_loaded_modules->mips_symtabno = mips_symtabno;
+#endif
 			_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt, 0, sizeof(*rpnt));
 			rpnt->dyn = _dl_loaded_modules;
@@ -774,7 +793,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			*str2 = '\0';
 			if (!_dl_secure || _dl_strchr(str, '/') == NULL) 
 			{
-				tpnt1 = _dl_load_shared_library(_dl_secure, NULL, str);
+				tpnt1 = _dl_load_shared_library(_dl_secure, &rpnt, NULL, str);
 				if (!tpnt1) {
 #ifdef DL_TRACE
 					if (_dl_trace_loaded_objects)
@@ -793,7 +812,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #endif
 #ifdef DL_TRACE
 					if (_dl_trace_loaded_objects
-							&& !tpnt1->usage_count) {
+							&& tpnt1->usage_count==1) {
 						/* this is a real hack to make ldd not print 
 						 * the library itself when run on a library. */
 						if (_dl_strcmp(_dl_progname, str) != 0)
@@ -801,14 +820,6 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 									(unsigned) tpnt1->loadaddr);
 					}
 #endif
-					rpnt->next = (struct dyn_elf *)
-						_dl_malloc(sizeof(struct dyn_elf));
-					_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
-					rpnt = rpnt->next;
-					tpnt1->usage_count++;
-					tpnt1->symbol_scope = _dl_symbol_tables;
-					tpnt1->libtype = elf_lib;
-					rpnt->dyn = tpnt1;
 				}
 			}
 			*str2 = c;
@@ -861,7 +872,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 						c = *cp;
 						*cp = '\0';
 
-						tpnt1 = _dl_load_shared_library(0, NULL, cp2);
+						tpnt1 = _dl_load_shared_library(0, &rpnt, NULL, cp2);
 						if (!tpnt1) {
 #ifdef DL_TRACE
 							if (_dl_trace_loaded_objects)
@@ -880,20 +891,11 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #endif
 #ifdef DL_TRACE
 							if (_dl_trace_loaded_objects
-									&& !tpnt1->usage_count) {
+									&& tpnt1->usage_count==1) {
 								_dl_dprintf(1, "\t%s => %s (0x%x)\n", cp2, 
 										tpnt1->libname, (unsigned) tpnt1->loadaddr);
 							}
 #endif
-							rpnt->next = (struct dyn_elf *)
-								_dl_malloc(sizeof(struct dyn_elf));
-							_dl_memset(rpnt->next, 0, 
-									sizeof(*(rpnt->next)));
-							rpnt = rpnt->next;
-							tpnt1->usage_count++;
-							tpnt1->symbol_scope = _dl_symbol_tables;
-							tpnt1->libtype = elf_lib;
-							rpnt->dyn = tpnt1;
 						}
 
 						/* find start of next library */
@@ -924,7 +926,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 					struct elf_resolve *ttmp;
 
 #ifdef DL_TRACE
-					if (_dl_trace_loaded_objects && !tpnt->usage_count) {
+					if (_dl_trace_loaded_objects && tpnt->usage_count==1) {
 						_dl_dprintf(1, "\t%s => %s (0x%x)\n", 
 								lpntstr, tpnt->libname, (unsigned) tpnt->loadaddr);
 					}
@@ -945,7 +947,8 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 					tpnt = NULL;
 					continue;
 				}
-				if (!(tpnt1 = _dl_load_shared_library(0, tcurr, lpntstr))) {
+				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr)))
+				{
 #ifdef DL_TRACE
 					if (_dl_trace_loaded_objects)
 						_dl_dprintf(1, "\t%s => not found\n", lpntstr);
@@ -962,18 +965,10 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 					_dl_dprintf(2, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
 #ifdef DL_TRACE
-					if (_dl_trace_loaded_objects && !tpnt1->usage_count)
+					if (_dl_trace_loaded_objects && tpnt1->usage_count==1)
 						_dl_dprintf(1, "\t%s => %s (0x%x)\n", lpntstr, tpnt1->libname, 
 								(unsigned) tpnt1->loadaddr);
 #endif
-					rpnt->next = (struct dyn_elf *)
-						_dl_malloc(sizeof(struct dyn_elf));
-					_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
-					rpnt = rpnt->next;
-					tpnt1->usage_count++;
-					tpnt1->symbol_scope = _dl_symbol_tables;
-					tpnt1->libtype = elf_lib;
-					rpnt->dyn = tpnt1;
 				}
 			}
 		}
@@ -1069,12 +1064,12 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 
 
 	_dl_brkp =
-		(unsigned long *) _dl_find_hash("___brk_addr", NULL, 1, NULL, 0);
+		(unsigned long *) _dl_find_hash("___brk_addr", NULL, NULL, 0);
 	if (_dl_brkp) {
 		*_dl_brkp = brk_addr;
 	}
 	_dl_envp =
-		(unsigned long *) _dl_find_hash("__environ", NULL, 1, NULL, 0);
+		(unsigned long *) _dl_find_hash("__environ", NULL, NULL, 0);
 
 	if (_dl_envp) {
 		*_dl_envp = (unsigned long) envp;
@@ -1098,7 +1093,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 
 	}
 #endif
-	_dl_atexit = (int (*)(void *)) _dl_find_hash("atexit", NULL, 1, NULL, 0);
+	_dl_atexit = (int (*)(void *)) _dl_find_hash("atexit", NULL, NULL, 0);
 
 	/*
 	 * OK, fix one more thing - set up the debug_addr structure to point
@@ -1209,8 +1204,9 @@ void *_dl_malloc(int size)
 	void *retval;
 
 #if 0
-//#ifdef DL_DEBUG
+#ifdef DL_DEBUG
 	_dl_dprintf(2, "malloc: request for %d bytes\n", size);
+#endif
 #endif
 
 	if (_dl_malloc_function)

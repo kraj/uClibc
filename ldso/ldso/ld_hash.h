@@ -71,6 +71,13 @@ struct elf_resolve{
   unsigned long n_phent;
   Elf32_Phdr * ppnt;
 
+#if defined(__mips__)
+  /* Needed for MIPS relocation */
+  unsigned long mips_gotsym;
+  unsigned long mips_local_gotno;
+  unsigned long mips_symtabno;
+#endif
+
 #ifdef __powerpc__
   /* this is used to store the address of relocation data words, so
    * we don't have to calculate it every time, which requires a divide */
@@ -107,8 +114,7 @@ extern struct elf_resolve * _dl_add_elf_hash_table(char * libname,
 	char * loadaddr, unsigned long * dynamic_info, 
 	unsigned long dynamic_addr, unsigned long dynamic_size);
 extern char * _dl_find_hash(char * name, struct dyn_elf * rpnt1, 
-	unsigned long instr_addr, struct elf_resolve * f_tpnt, 
-	int copyrel);
+	struct elf_resolve * f_tpnt, int copyrel);
 extern int _dl_linux_dynamic_link(void);
 
 extern char * _dl_library_path;
