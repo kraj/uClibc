@@ -506,6 +506,7 @@ _syscall2(int, getrlimit, int, resource, struct rlimit *, rlim);
 //#define __NR_getrusage        77
 #ifdef L_getrusage
 #include <unistd.h>
+#include <wait.h>
 _syscall2(int, getrusage, int, who, struct rusage *, usage);
 #endif
 
