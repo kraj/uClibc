@@ -29,7 +29,7 @@
 #ifdef __UCLIBC_HAVE_LFS__
 
 /* Convert from the kernel's version of struct stat to libc's version  */
-void statfix64(struct libc_stat64 *libcstat, struct kernel_stat64 *kstat)
+void __statfix64(struct libc_stat64 *libcstat, struct kernel_stat64 *kstat)
 {
 	memset(libcstat, 0, sizeof(struct libc_stat64));
 	libcstat->st_dev = kstat->st_dev;

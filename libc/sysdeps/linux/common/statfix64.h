@@ -45,7 +45,7 @@
 #undef stat64
 #undef stat
 
-extern void statfix64(struct libc_stat64 *libcstat, struct kernel_stat64 *kstat);
+extern void __statfix64(struct libc_stat64 *libcstat, struct kernel_stat64 *kstat);
 extern int __fxstat64(int version, int fd, struct libc_stat64 * statbuf);
 
 #else   
@@ -72,7 +72,7 @@ extern int __fxstat64(int version, int fd, struct libc_stat64 * statbuf);
 #undef stat64
 #undef stat
 
-extern void statfix64(struct libc_stat64 *libcstat, struct kernel_stat64 *kstat);
+extern void __statfix64(struct libc_stat64 *libcstat, struct kernel_stat64 *kstat);
 extern int __fxstat64(int version, int fd, struct libc_stat64 * statbuf);
 
 

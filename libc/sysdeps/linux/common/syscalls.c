@@ -985,7 +985,7 @@ int __xstat(int version, const char * file_name, struct libc_stat * cstat)
 	int result = __stat(file_name, &kstat);
 
 	if (result == 0) { 
-		statfix(cstat, &kstat);
+		__statfix(cstat, &kstat);
 	}
 	return result;
 }
@@ -1014,7 +1014,7 @@ int __lxstat(int version, const char * file_name, struct libc_stat * cstat)
 	int result = __lstat(file_name, &kstat);
 
 	if (result == 0) { 
-		statfix(cstat, &kstat);
+		__statfix(cstat, &kstat);
 	}
 	return result;
 }
@@ -1043,7 +1043,7 @@ int __fxstat(int version, int fd, struct libc_stat * cstat)
 	int result = __fstat(fd, &kstat);
 
 	if (result == 0) { 
-		statfix(cstat, &kstat);
+		__statfix(cstat, &kstat);
 	}
 	return result;
 }
@@ -1706,7 +1706,7 @@ int __xstat64(int version, const char * file_name, struct libc_stat64 * cstat)
 	int result = __stat64(file_name, &kstat);
 
 	if (result == 0) { 
-		statfix64(cstat, &kstat);
+		__statfix64(cstat, &kstat);
 	}
 	return result;
 }
@@ -1733,7 +1733,7 @@ int __lxstat64(int version, const char * file_name, struct libc_stat64 * cstat)
 	int result = __lstat64(file_name, &kstat);
 
 	if (result == 0) { 
-		statfix64(cstat, &kstat);
+		__statfix64(cstat, &kstat);
 	}
 	return result;
 }
@@ -1760,7 +1760,7 @@ int __fxstat64(int version, int fd, struct libc_stat64 * cstat)
 	int result = __fstat64(fd, &kstat);
 
 	if (result == 0) { 
-		statfix64(cstat, &kstat);
+		__statfix64(cstat, &kstat);
 	}
 	return result;
 }

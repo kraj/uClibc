@@ -26,7 +26,7 @@
 #include "statfix.h"
 
 /* Convert from the kernel's version of struct stat to libc's version  */
-void statfix(struct libc_stat *libcstat, struct kernel_stat *kstat)
+void __statfix(struct libc_stat *libcstat, struct kernel_stat *kstat)
 {
 	memset(libcstat, 0, sizeof(struct libc_stat));
 	libcstat->st_dev = kstat->st_dev;
