@@ -67,8 +67,8 @@
 
 
 /* Maximum value of `digit' in calls to the `printf' and `scanf'
-   functions.  We have no limit, so return a reasonable value.  */
-#define NL_ARGMAX	_POSIX_ARG_MAX
+   functions.  Posix dictates this should be a minimum of 9 */
+#define NL_ARGMAX	9
 
 /* Maximum number of bytes in a `LANG' name.  We have no limit.  */
 #define NL_LANGMAX	_POSIX2_LINE_MAX

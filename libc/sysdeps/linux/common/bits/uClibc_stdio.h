@@ -104,7 +104,7 @@ typedef int __wchar_t;			/* TODO: temporary, as not currently uClibc */
 /**********************************************************************/
 /* TODO -- posix or gnu -- belongs in limits.h and >= 9 for sus */
 /* NOTE: for us it is currently _always_ 9 */
-#define NL_ARGMAX			9
+/*#define NL_ARGMAX			9*/
 
 /* TODO -- where should this go? */
 #ifndef O_LARGEFILE
