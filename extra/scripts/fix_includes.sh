@@ -59,46 +59,46 @@ while [ -n "$1" ]; do
     esac;
 done;
 
-if [ ! -f "$KERNEL_SOURCE/include/linux/version.h" ]; then 
+if [ ! -f "$KERNEL_SOURCE/Makefile" ]; then
     echo "";
     echo "";
-    echo "The file $KERNEL_SOURCE/include/linux/version.h is missing!";
-    echo "Perhaps you forgot to configure your kernel source?"
-    echo "";
-    echo "";
-    exit 1;
-fi;
-
-if [ ! -d "$KERNEL_SOURCE" ]; then 
-    echo "";
-    echo "";
-    echo "$KERNEL_SOURCE is not a directory"; 
+    echo "The file $KERNEL_SOURCE/Makefile is missing!";
+    echo "Perhaps your kernel source is broken?"
     echo "";
     echo "";
     exit 1;
 fi;
 
-KVER=`gcc -I$KERNEL_SOURCE/include -E -dM $KERNEL_SOURCE/include/linux/version.h | grep UTS_RELEASE | awk '{ print $3 }' | sed 's/\"//g'`
-
-if [ -z "$KVER" ] ; then
+if [ ! -d "$KERNEL_SOURCE" ]; then
     echo "";
     echo "";
-    echo "Unable to determine kernel version."
-    echo "Perhaps your kernel source tree is broken?"
+    echo "$KERNEL_SOURCE is not a directory";
     echo "";
     echo "";
     exit 1;
 fi;
+
+# set current VERSION, PATCHLEVEL, SUBLEVEL, EXTERVERSION
+eval `sed -n -e 's/^\([A-Z]*\) = \([0-9]*\)$/\1=\2/p' -e 's/^\([A-Z]*\) = \(-[-a-z0-9]*\)$/\1=\2/p' $KERNEL_SOURCE/Makefile`
+if [ -z "$VERSION" -o -z "$PATCHLEVEL" -o -z "$SUBLEVEL" ]
+then
+    echo "Unable to determine version for kernel headers"
+    echo -e "\tprovided in directory $KERNEL_SOURCE"
+    exit 1
+fi
+
+echo "Current kernel version is $VERSION.$PATCHLEVEL.$SUBLEVEL${EXTRAVERSION}"
+
 
 echo -e "\n"
-echo "Using kernel headers from $KVER for architecture '$TARGET_ARCH'"
+echo "Using kernel headers from $VERSION.$PATCHLEVEL.$SUBLEVEL${EXTRAVERSION} for architecture '$TARGET_ARCH'"
 echo -e "\tprovided in directory $KERNEL_SOURCE"
 echo -e "\n"
 
 # Create a symlink to include/asm
 
-rm -f include/asm
-if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then 
+rm -f include/asm*
+if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then
     echo "";
     echo "";
     echo "The symlink $KERNEL_SOURCE/include/asm is missing\!";
@@ -106,7 +106,7 @@ if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then
     echo "You really should configure your kernel source tree so I";
     echo "do not have to try and guess about this sort of thing.";
     echo ""
-    echo "Attempting to guess a usable value....";  
+    echo "Attempting to guess a usable value....";
     echo ""
     echo "";
     sleep 1;
@@ -123,7 +123,7 @@ if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then
 	set -x;
 	ln -fs $KERNEL_SOURCE/include/asm-arm include/asm;
 	set +x;
-	if [ ! -L $KERNEL_SOURCE/include/asm-arm/proc ] ; then 
+	if [ ! -L $KERNEL_SOURCE/include/asm-arm/proc ] ; then
 	    if [ ! -L proc ] ; then
 		(cd include/asm;
 		ln -fs proc-armv proc;
@@ -154,6 +154,11 @@ else
 ln -fs $KERNEL_SOURCE/include/asm include/asm
 fi;
 
+
+# Annoyingly, 2.6.x kernel headers also need an include/asm-generic/ directory
+if [ $VERSION -eq 2 ] && [ $PATCHLEVEL -ge 6 ] ; then
+    ln -fs $KERNEL_SOURCE/include/asm-generic include/asm-generic
+fi;
 
 
 # Create the include/linux and include/scsi symlinks.

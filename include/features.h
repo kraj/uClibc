@@ -446,4 +446,8 @@ uClibc was built without large file support enabled.
 # define __linux__ 1
 #endif
 
+/* Disable __user, which shows up in 2.6.x include asm headers
+ * that get pulled in by signal.h */
+#define __user
+
 #endif	/* features.h  */
