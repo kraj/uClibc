@@ -65,13 +65,15 @@ ifneq ($(SHARED_TARGET),)
 lib/main.o: $(ROOTDIR)/lib/libc/main.c
 	$(CC) $(CFLAGS) $(ARCH_CFLAGS) -c -o $@ $(ROOTDIR)/lib/libc/main.c
 
-bogus $(SHARED_TARGET): lib/libc.a lib/main.o
+bogus $(SHARED_TARGET): lib/libc.a lib/main.o Makefile
 	make -C $(ROOTDIR) relink
-	$(CC) -o $(SHARED_TARGET) $(ARCH_CFLAGS) -Wl,-elf2flt -nostdlib		\
+	$(CC) -nostartfiles -o $(SHARED_TARGET) $(ARCH_CFLAGS) -Wl,-elf2flt -nostdlib		\
 		-Wl,-shared-lib-id,${LIBID}				\
-		lib/main.o -Wl,--whole-archive,lib/libc.a,-lgcc,--no-whole-archive
+		lib/main.o \
+		-Wl,--whole-archive,lib/libc.a,-lgcc,--no-whole-archive
 	$(OBJCOPY) -L _GLOBAL_OFFSET_TABLE_ -L main -L __main -L _start \
-		-L __uClibc_main -L lib_main -L _exit_dummy_ref		\
+		-L __uClibc_main -L __uClibc_start_main -L lib_main \
+		-L _exit_dummy_ref		\
 		-L __do_global_dtors -L __do_global_ctors		\
 		-L __CTOR_LIST__ -L __DTOR_LIST__			\
 		-L _current_shared_library_a5_offset_			\
