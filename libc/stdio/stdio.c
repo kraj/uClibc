@@ -33,7 +33,7 @@ extern FILE *__IO_list;			/* For fflush at exit */
 #define FIXED_BUFFERS 2
 struct fixed_buffer {
 	unsigned char data[BUFSIZ];
-	int used;
+	unsigned char used;
 };
 
 extern struct fixed_buffer _fixed_buffers[FIXED_BUFFERS];
@@ -96,7 +96,7 @@ FILE _stdio_streams[3] = {
 };
 
 /*
- * Note: the following forces lining of the __init_stdio function if
+ * Note: the following forces linking of the __init_stdio function if
  * any of the stdio functions are used (except perror) since they all
  * call fflush directly or indirectly.
  */
@@ -121,13 +121,22 @@ void __stdio_close_all(void)
 
 void __init_stdio(void)
 {
+#if FIXED_BUFFERS > 2
+	int i;
+
+	for ( i = 2 ; i < FIXED_BUFFERS ; i++ ) {
+		_fixed_buffers[i].used = 0;
+	}
+#endif
+
 	_fixed_buffers[0].used = 1;
 	_fixed_buffers[1].used = 1;
 
-	if (isatty(1))
+	if (isatty(1)) {
 		stdout->mode |= _IOLBF;
+	}
 #if 0
-	/* taken care of in _start.c and exit.c now*/
+	/* Taken care of in _start.S and atexit.c now. */
 	atexit(__stdio_close_all);
 #endif
 }
