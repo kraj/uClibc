@@ -15,17 +15,20 @@ const char *str;
 	write(2, str, strlen(str));
 }
 
-void __assert(assertion, filename, linenumber)
+void __assert(assertion, filename, linenumber, function)
 const char *assertion;
 const char *filename;
 int linenumber;
+const char *function;
 {
-	errput("Failed assertion '");
-	errput(assertion);
-	errput("' in file ");
 	errput(filename);
-	errput(" at line ");
+	errput(":");
 	errput(itoa(linenumber));
-	errput(".\n");
+	errput(function ? ": " : "");
+	errput(function ? function : "");
+	errput(function ? "() " : "");
+	errput(": Assertion \"");
+	errput(assertion);
+	errput("\" failed.\n");
 	abort();
 }
