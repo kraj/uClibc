@@ -975,7 +975,7 @@ config RUNTIME_PREFIX
 	  like the following:
 	      $(RUNTIME_PREFIX)/
 	          lib/            <contains all runtime libraries>
-	          bin/ldd         <the ldd utility program>
+	          usr/bin/ldd     <the ldd utility program>
 	          sbin/ldconfig   <the ldconfig utility program>
 	  This value is used by the 'make install' Makefile target.  Since this
 	  directory is compiled into the shared library loader, you will need to
