@@ -82,6 +82,24 @@ extern int _dl_linux_dynamic_link(void);
 #else
 #define SEND_STDERR(X) _dl_write(2, X, _dl_strlen_inline(X));
 #endif
+
+#define SEND_ADDRESS_STDERR(X, add_a_newline) { \
+    char tmp[13]; \
+    _dl_write(2, _dl_simple_ltoahex_inline( tmp, (unsigned long)(X)), 12); \
+    if (add_a_newline) { \
+	tmp[0]='\n'; \
+	_dl_write(2, tmp, 1); \
+    } \
+};    
+
+#define SEND_NUMBER_STDERR(X, add_a_newline) { \
+    char tmp[13]; \
+    _dl_write(2, (void *)_dl_simple_ltoahex_inline( tmp, (unsigned long)(X)), 12); \
+    if (add_a_newline) { \
+	tmp[0]='\n'; \
+	_dl_write(2, tmp, 1); \
+    } \
+};    
 extern int _dl_fdprintf(int, const char *, ...);
 extern char * _dl_library_path;
 extern char * _dl_not_lazy;

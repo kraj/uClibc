@@ -219,10 +219,8 @@ void _dl_boot(unsigned int args)
 	}
 #ifdef DL_DEBUG
 	SEND_STDERR("ELF header =");
-	SEND_STDERR(_dl_simple_ltoahex(load_addr));
-	SEND_STDERR("\n");
+	SEND_ADDRESS_STDERR(load_addr, 1);
 #endif	
-
 
 	/* Locate the global offset table.  Since this code must be PIC  
 	 * we can take advantage of the magic offset register, if we
@@ -288,8 +286,7 @@ found_got:
 	dpnt = (Elf32_Dyn *) (*got + load_addr);
 #ifdef DL_DEBUG
 	SEND_STDERR("First Dynamic section entry=");
-	SEND_STDERR(_dl_simple_ltoahex((unsigned long)dpnt));
-	SEND_STDERR("\n");
+	SEND_ADDRESS_STDERR(dpnt, 1);
 #endif	
 
 	
@@ -1012,7 +1009,7 @@ void *_dl_malloc(int size)
 
 #ifdef DL_DEBUG
 	SEND_STDERR("malloc: request for ");
-	SEND_STDERR(_dl_simple_itoa(size));
+	SEND_NUMBER_STDERR(size, 0);
 	SEND_STDERR(" bytes\n");
 #endif	
 

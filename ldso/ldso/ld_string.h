@@ -170,10 +170,9 @@ static inline char *_dl_get_last_path_component_inline(char *path)
 
 /* Early on, we can't call printf, so use this to print out
  * numbers using the SEND_STDERR() macro */
-static inline char *_dl_simple_ltoa_inline(unsigned long i)
+static inline char *_dl_simple_ltoa_inline(char * local, unsigned long i)
 {
 	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
-	static char local[22];
 	char *p = &local[21];
 	*p-- = '\0';
 	do {
@@ -183,10 +182,9 @@ static inline char *_dl_simple_ltoa_inline(unsigned long i)
 	return p + 1;
 }
 
-static inline char *_dl_simple_ltoahex(unsigned long i)
+static inline char *_dl_simple_ltoahex_inline(char * local, unsigned long i)
 {
 	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
-	static char local[22];
 	char *p = &local[21];
 	*p-- = '\0';
 	do {
