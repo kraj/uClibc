@@ -75,6 +75,8 @@
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
 
 #include "gcc-uClibc.h"
 
@@ -103,6 +105,41 @@ char *basename(const char *path)
 		}
 	}
 	return (char *) p;
+}
+
+char *dirname(char *path)
+{
+	static const char null_or_empty_or_noslash[] = ".";
+	register char *s;
+	register char *last;
+	char *first;
+
+	last = s = path;
+
+	if (s != NULL) {
+
+	LOOP:
+		while (*s && (*s != '/')) ++s;
+		first = s;
+		while (*s == '/') ++s;
+		if (*s) {
+			last = first;
+			goto LOOP;
+		}
+
+		if (last == path) {
+			if (*last != '/') {
+				goto DOT;
+			}
+			if ((*++last == '/') && (last[1] == 0)) {
+				++last;
+			}
+		}
+		*last = 0;
+		return path;
+	}
+ DOT:
+	return (char *) null_or_empty_or_noslash;
 }
 
 
@@ -156,6 +193,8 @@ int main(int argc, char **argv)
 	char *uClibc_inc[2];
 	char *our_lib_path[2];
 	char *crt0_path[2];
+	char *crtbegin_path[2];
+	char *crtend_path[2];
 	const char *application_name;
 #ifdef __UCLIBC_CTOR_DTOR__
 	char *crti_path[2];
@@ -387,6 +426,61 @@ int main(int argc, char **argv)
 
 	i = 0; k = 0;
 #ifdef __UCLIBC_CTOR_DTOR__
+	if (ctor_dtor) {
+	    struct stat statbuf;
+	    if (stat(LIBGCC_DIR, &statbuf)!=0 || 
+		    !S_ISDIR(statbuf.st_mode))
+	    {
+		/* Bummer, gcc has moved things on us... */
+		int status, gcc_pipe[2];
+		pid_t pid, wpid;
+
+		pipe(gcc_pipe);
+		if (!(pid = fork())) {
+		    char *argv[4];
+		    close(gcc_pipe[0]);
+		    close(1);
+		    close(2);
+		    dup2(gcc_pipe[1], 1);
+		    dup2(gcc_pipe[1], 2);
+		    argv[0] = GCC_BIN; 
+		    argv[2] = "-print-libgcc-file-name";
+		    argv[3] = NULL;
+		    execvp(argv[0], argv);
+		    close(gcc_pipe[1]);
+		    _exit(-1);
+		}
+		wpid=0;
+		while (wpid != pid) {
+		    wpid = wait(&status);
+		}
+		close(gcc_pipe[1]);
+		if (WIFEXITED(status)) {
+		    char buf[1024], *dir;
+		    status = read(gcc_pipe[0], buf, sizeof(buf));
+		    if (status < 0) {
+			goto crash_n_burn;
+		    }
+		    dir = dirname(buf);
+		    xstrcat(&(crtbegin_path[0]), dir, "crtbegin.o", NULL);
+		    xstrcat(&(crtbegin_path[1]), dir, "crtbeginS.o", NULL);
+		    xstrcat(&(crtend_path[0]), dir, "crtend.o", NULL);
+		    xstrcat(&(crtend_path[1]), dir, "crtendS.o", NULL);
+		} else {
+crash_n_burn:
+		    fprintf(stderr, "Unable to locale crtbegin.o provided by gcc");
+		    exit(EXIT_FAILURE);
+		}
+		close(gcc_pipe[0]);
+
+	    } else {
+		xstrcat(&(crtbegin_path[0]), LIBGCC_DIR, "crtbegin.o", NULL);
+		xstrcat(&(crtbegin_path[1]), LIBGCC_DIR, "crtbeginS.o", NULL);
+		xstrcat(&(crtend_path[0]), LIBGCC_DIR, "crtend.o", NULL);
+		xstrcat(&(crtend_path[1]), LIBGCC_DIR, "crtendS.o", NULL);
+	    }
+	}
+
 	if (cplusplus && GPLUSPLUS_BIN)
 	    gcc_argv[i++] = GPLUSPLUS_BIN;
 	else
@@ -466,9 +560,9 @@ int main(int argc, char **argv)
 	    if (ctor_dtor) {
 	        gcc_argv[i++] = crti_path[use_build_dir];
 	        if (use_pic) {
-	      	    gcc_argv[i++] = LIBGCC_DIR "crtbeginS.o" ;
+	      	    gcc_argv[i++] = crtbegin_path[1];
 		} else {
-		    gcc_argv[i++] = LIBGCC_DIR "crtbegin.o" ;
+		    gcc_argv[i++] = crtbegin_path[0];
 		}
 	    }
 #endif
@@ -503,11 +597,12 @@ int main(int argc, char **argv)
 	    }
 #ifdef __UCLIBC_CTOR_DTOR__
  	    if (ctor_dtor) {
-		if (use_pic) {
-		    gcc_argv[i++] = LIBGCC_DIR "crtendS.o" ;
+	        if (use_pic) {
+	      	    gcc_argv[i++] = crtend_path[1];
 		} else {
-		    gcc_argv[i++] = LIBGCC_DIR "crtend.o" ;
-		}    
+		    gcc_argv[i++] = crtend_path[0];
+		}
+
 	        gcc_argv[i++] = crtn_path[use_build_dir];
   	    }
 #endif
