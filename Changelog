@@ -1,3 +1,27 @@
+0.9.15	27 August 2002
+
+This is a minor bugfix release.
+
+See Changelog.full for the complete list of who did what. 
+Release highlights:
+    o   Eliminated the HAS_LONG_LONG option.  gcc always supports 
+	long long, and the option never excluded all long long anyways.
+    o   ctype.h no longer allows multiple argument evaluation in 
+	compliance with ANSI/ISO C99
+    o   Obscure printf fixes -- one involving %o and one involving %f.
+    o   Bugfixes for locking and reentrance in password/group functions 
+    o   Directly use kernel types for most items, eliminating needless
+	translation and fixing several bugs.
+    o   Directly use kernel struct stat -- no more translating
+    o   More superH (sh) architecture merging from Stefan Allius 
+    o   Errno values and strerror are now correct on alpha, sparc, and mips
+    o   Fixed an obscure bug with fclose when custom streams are enabled.
+    o   Lots of other little bug fixes and cleanups
+
+ -Erik
+
+
+
 0.9.14	12 August 2002
 
 This is a minor bugfix release.
