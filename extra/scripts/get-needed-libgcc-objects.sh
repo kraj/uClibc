@@ -19,7 +19,7 @@ echo "    partial linking..."
 rm -f libc.ldr
 $LD -r -o libc.ldr ../../lib/crt0.o ../../lib/crti.o ../../lib/crtn.o --whole-archive ../libc.a
 
-if $NM --undefined-only libc.ldr | grep -v "^main$" | grep -v "^_GLOBAL_OFFSET_TABLE_$" > sym.need ; then
+if $NM --undefined-only libc.ldr | grep -v "^main$" | grep -v "^_GLOBAL_OFFSET_TABLE_$" | grep -v "_gp_disp" > sym.need ; then
     EXIT_WITH_ERROR=0
     rm -f obj.need
     touch obj.need
