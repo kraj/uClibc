@@ -38,7 +38,7 @@ BUILDTIME = ${shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z"}
 GCCINCDIR = ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp"}
 NATIVE_ARCH = ${shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g'}
-TARGET_ARCH=${shell $(CC) -dumpmachine | sed -e s'/-linux//' -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
+TARGET_ARCH=${shell $(CC) -dumpmachine | sed -e s'/-.*//' -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g'}
 
 # Some nice architecture specific optimizations
