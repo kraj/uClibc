@@ -512,12 +512,13 @@ off_t _uClibc_fwrite(const unsigned char *buf, off_t bytes, FILE *fp)
 		}
 	FFLUSH:
 		/* If we get here, either buffer is full or we need to flush anyway. */
+		buf = fp->bufpos - (p - (unsigned char *)buf);
 		p = NULL;
 	}
 	if (!p) {					/* buf == NULL means fflush */
 		p = fp->bufstart;
 		bytes = fp->bufpos - p;
-		buf = fp->bufpos = fp->bufwrite = p;
+		fp->bufpos = fp->bufwrite = p;
 	} else if (fp->bufpos > fp->bufstart) {	/* If there are buffered chars, */
 		_uClibc_fwrite(NULL, 0, fp); /* write them. */
 		if (ferror(fp)) {
