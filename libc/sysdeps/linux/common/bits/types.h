@@ -27,15 +27,7 @@
 
 #define __need_size_t
 #include <stddef.h>
-
-/* Sigh.  We need to carefully wrap this one... */
-#ifndef __GLIBC__
-#define __GLIBC__ 2
-#include <asm/posix_types.h>
-#undef __GLIBC__
-#else
-#include <asm/posix_types.h>
-#endif
+#include <bits/kernel_types.h>
 
 /* Convenience types.  */
 typedef unsigned char __u_char;
@@ -111,7 +103,7 @@ typedef int __timer_t;
 typedef int __key_t;
 
 /* Used in `struct shmid_ds'.  */
-typedef unsigned short int __ipc_pid_t;
+typedef __kernel_ipc_pid_t __ipc_pid_t;
 
 
 /* Type to represent block size.  */
