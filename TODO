@@ -1,25 +1,17 @@
 
 Erik's TODO list for the next release:
 
-    1) Release gcc 2.95.x native uClibc toolchain with
-	STLport (to provide full C++ support)
-    2) Commit new configuration system (CML1 + kbuild + menuconfig)
-	work is already done and ready to commit...
-    3) Fix profiling support
-    4) Implement getgrgid_r and getgrnam_r, per SuSv3 
-    5) Fix libc/inet/rpc/rpc_thread.c thread local storage
-    6) Change HAS_FLOATING_POINT so we can support -msoft-float
-    7) When options are disabled, also disable them in the
+    1) Fix profiling support
+    2) Implement getgrgid_r and getgrnam_r, per SuSv3 
+    3) When options are disabled, also disable them in the
 	include files as well.
-    8) Make all small objects (>~50 bytes) into either inlines or
+    4) Make all small objects (>~50 bytes) into either inlines or
 	into a static library
-    9) Rework code that fails POSIX conformance tests
-   10) Document all differences between the feature set of uClibc 
+    5) Rework code that fails POSIX conformance tests
+    6) Document all differences between the feature set of uClibc 
 	and glibc.
-   11) Add missing syscall() function to ports that are still 
+    7) Add missing syscall() function to ports that are still 
 	missing it.  (x86 and arm are finished so far).
-   12) Make sure that shared library constructors that depend on 
-	prior libc initialization work correctly
 
 
 
