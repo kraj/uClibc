@@ -69,7 +69,7 @@ static char *uClibc_inc[] = {
 
 static char *crt0_path[] = {
 	UCLIBC_INSTALL_DIR"lib/crt0.o",
-	UCLIBC_BUILD_DIR"crt0.o"
+	UCLIBC_BUILD_DIR"lib/crt0.o"
 };
 
 static char *lib_path[] = {
