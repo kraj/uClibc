@@ -236,9 +236,9 @@ void _dl_boot(int args){
 
   {
     /* This hack is to work around a suspected asm bug in gcc-2.7.0 */
-    int zfileno;
-#define ZFILENO ((-1 & (~zfileno)) | zfileno)
-/*#define ZFILENO -1*/
+    //int zfileno;
+//#define ZFILENO ((-1 & (~zfileno)) | zfileno)
+#define ZFILENO -1
 
 #ifndef MAP_ANONYMOUS
 #ifdef __sparc__
