@@ -32,26 +32,21 @@ struct mntent *getmntent_r (FILE *filep,
 	if (mnt->mnt_fsname == NULL)
 		return NULL;
 
-	ptrptr = 0;
 	mnt->mnt_dir = strtok_r(NULL, sep, &ptrptr);
 	if (mnt->mnt_dir == NULL)
 		return NULL;
 
-	ptrptr = 0;
 	mnt->mnt_type = strtok_r(NULL, sep, &ptrptr);
 	if (mnt->mnt_type == NULL)
 		return NULL;
 
-	ptrptr = 0;
 	mnt->mnt_opts = strtok_r(NULL, sep, &ptrptr);
 	if (mnt->mnt_opts == NULL)
 		mnt->mnt_opts = "";
 
-	ptrptr = 0;
 	cp = strtok_r(NULL, sep, &ptrptr);
 	mnt->mnt_freq = (cp != NULL) ? atoi(cp) : 0;
 
-	ptrptr = 0;
 	cp = strtok_r(NULL, sep, &ptrptr);
 	mnt->mnt_passno = (cp != NULL) ? atoi(cp) : 0;
 
