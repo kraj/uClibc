@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 int select_files(const struct dirent *dirbuf)
 {
@@ -33,7 +34,7 @@ int main(void)
 	dirbuf = array[i];
 	printf("[%d] %s\n", i, dirbuf->d_name);
     }                                          
-    printf("\nCalling qsort()\n", numdir);                   
+    printf("\nCalling qsort()\n");                   
     qsort(array, numdir, sizeof(struct dirent *), alphasort);
     for (i = 0; i < numdir; ++i) {                           
 	dirbuf = array[i];
