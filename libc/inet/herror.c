@@ -25,12 +25,13 @@
 
 #ifdef L_herror
 
+static const char *error_msg = "Resolver error";
 static const char *const h_errlist[] = {
 	"Error 0",
-	"Unknown host",				/* 1 HOST_NOT_FOUND */
-	"Host name lookup failure",	/* 2 TRY_AGAIN */
-	"Unknown server error",		/* 3 NO_RECOVERY */
-	"No address associated with name", /* 4 NO_ADDRESS */
+	"Unknown host",			    /* 1 HOST_NOT_FOUND */
+	"Host name lookup failure",	    /* 2 TRY_AGAIN */
+	"Unknown server error",		    /* 3 NO_RECOVERY */
+	"No address associated with name",  /* 4 NO_ADDRESS */
 };
 static const int h_nerr = { sizeof(h_errlist)/sizeof(h_errlist[0]) };
 
@@ -47,7 +48,7 @@ void herror(const char *s)
 	if (!s || !*s) {
 		c += 2;
 	}
-	p = "Unknown error";
+	p = error_msg;
 	if ((h_errno >= 0) && (h_errno < h_nerr)) {
 	    p = h_errlist[h_errno];
 	}
@@ -59,6 +60,11 @@ void herror(const char *s)
 #ifdef L_hstrerror
 const char *hstrerror(int err)
 {
-	return(strerror(err));
+    if (err < 0) {
+	return(error_msg);
+    } else if (err < h_nerr) {
+	return(h_errlist[err]);
+    }
+    return(error_msg);
 }
 #endif
