@@ -66,7 +66,7 @@
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry);
 
-/* Cheap modulo implementation, taken from arm/ld_sysdep.h. */
+/* Cheap modulo implementation, taken from arm/dl-sysdep.h. */
 static inline unsigned long
 cris_mod(unsigned long m, unsigned long p)
 {

@@ -8,10 +8,10 @@
 /* Pull in the arch specific type information */
 #include <sys/types.h>
 /* Now the ldso specific headers */
-#include <ld_elf.h>
-#include <ld_syscall.h>
-#include <ld_hash.h>
-#include <ld_string.h>
+#include <dl-elf.h>
+#include <dl-syscall.h>
+#include <dl-hash.h>
+#include <dl-string.h>
 /* Pull in the arch specific page size */
 #include <asm/page.h>
 #ifndef PAGE_SIZE

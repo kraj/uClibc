@@ -80,10 +80,10 @@ char *_dl_library_path = 0;
 char *_dl_ldsopath = 0;
 struct r_debug *_dl_debug_addr = NULL;
 static unsigned char *_dl_malloc_addr, *_dl_mmap_zero;
-#include "../ldso/_dl_progname.h"               /* Pull in the name of ld.so */
-#include "../ldso/hash.c"
+#include "../ldso/dl-progname.h"               /* Pull in the name of ld.so */
+#include "../ldso/dl-hash.c"
 #define _dl_trace_loaded_objects    0
-#include "../ldso/readelflib1.c"
+#include "../ldso/dl-elf.c"
 void *(*_dl_malloc_function) (size_t size);
 int _dl_fixup(struct dyn_elf *rpnt, int lazy);
 #endif

@@ -41,7 +41,7 @@ XXFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1incl
 LDFLAGS=$(CPU_LDFLAGS-y) -shared --warn-common --export-dynamic --sort-common \
 	-z combreloc --discard-locals --discard-all --no-undefined
 
-CSRC= ldso.c startup.c #hash.c readelflib1.c $(TARGET_ARCH)/elfinterp.c
+CSRC= ldso.c dl-startup.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 ASRC=$(shell ls $(TARGET_ARCH)/*.S)
 AOBJS=$(patsubst %.S,%.o, $(ASRC))
@@ -68,16 +68,16 @@ XXFLAGS := $(XXFLAGS:-fomit-frame-pointer=)
 
 all: lib
 
-lib:: _dl_progname.h $(OBJS) $(DLINK_OBJS)
+lib:: dl-progname.h $(OBJS) $(DLINK_OBJS)
 	$(LD) $(LDFLAGS) -e _dl_boot -soname=$(UCLIBC_LDSO) \
 		-o $(LDSO_FULLNAME) $(OBJS) $(LIBGCC);
 	$(INSTALL) -d $(TOPDIR)lib
 	$(INSTALL) -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
 	$(LN) -sf $(LDSO_FULLNAME) $(TOPDIR)lib/$(UCLIBC_LDSO)
 
-_dl_progname.h: Makefile
-	echo "const char *_dl_progname=\""$(UCLIBC_LDSO)"\";" > _dl_progname.h
-	echo "#include \"$(TARGET_ARCH)/elfinterp.c\"" >> _dl_progname.h
+dl-progname.h: Makefile
+	echo "const char *_dl_progname=\""$(UCLIBC_LDSO)"\";" > dl-progname.h
+	echo "#include \"$(TARGET_ARCH)/elfinterp.c\"" >> dl-progname.h
 
 
 $(COBJS): %.o : %.c
@@ -91,4 +91,4 @@ $(AOBJS): %.o : %.S
 ldso.o: $(CSRC)
 
 clean:
-	$(RM) $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i _dl_progname.h ldso.h *~
+	$(RM) $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i dl-progname.h ldso.h *~

@@ -1,13 +1,6 @@
 #ifndef _LINUX_STRING_H_
 #define _LINUX_STRING_H_
 
-extern void *_dl_malloc(int size);
-extern char *_dl_getenv(const char *symbol, char **envp);
-extern void _dl_unsetenv(const char *symbol, char **envp);
-extern char *_dl_strdup(const char *string);
-extern void _dl_dprintf(int, const char *, ...);
-
-
 static size_t _dl_strlen(const char * str);
 static char *_dl_strcat(char *dst, const char *src);
 static char * _dl_strcpy(char * dst,const char *src);

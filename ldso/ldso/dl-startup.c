@@ -90,7 +90,7 @@
 
 #include "ldso.h"
 
-/*  Some arches may need to override this in boot1_arch.h */
+/*  Some arches may need to override this in dl-startup.h */
 #define	ELFMAGIC ELFMAG
 
 /* This is a poor man's malloc, used prior to resolving our internal poor man's malloc */
@@ -102,7 +102,7 @@
 #define REALIGN() malloc_buffer = (char *) (((unsigned long) malloc_buffer + 3) & ~(3))
 
 /* Pull in all the arch specific stuff */
-#include "boot1_arch.h"
+#include "dl-startup.h"
 
 /* Static declarations */
 int (*_dl_elf_main) (int, char **, char **);

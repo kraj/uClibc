@@ -18,7 +18,7 @@ contains the function to perform relocations for objects
 other than the linker itself. The code was taken from the
 function 'elf_machine_rel' in 'sysdeps/mips/dl-machine.h'.
 
-ld_syscalls.h
+dl-syscalls.h
 -------------
 Used to contain all the macro functions for the system calls
 as well as the list of system calls supported. We now include
@@ -27,7 +27,7 @@ so we can use the same file for the linker as well as userspace.
 Original code was taken from the Linux kernel source 2.4.17 and
 can be found in the file 'include/asm-mips/unistd.h'.
 
-ld_sysdep.h
+dl-sysdep.h
 -----------
 Contains bootstrap code for the dynamic linker, magic numbers
 for detecting MIPS target types and some macros. The macro

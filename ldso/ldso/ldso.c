@@ -35,7 +35,7 @@
 #define ALLOW_ZERO_PLTGOT
 
 /* Pull in the value of _dl_progname */
-#include "_dl_progname.h"
+#include "dl-progname.h"
 
 /* Global variables used within the shared library loader */
 char *_dl_library_path         = 0;		/* Where we look for libraries */
@@ -767,5 +767,5 @@ static int _dl_suid_ok(void)
 	return 0;
 }
 
-#include "hash.c"
-#include "readelflib1.c"
+#include "dl-hash.c"
+#include "dl-elf.c"

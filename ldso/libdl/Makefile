@@ -45,9 +45,9 @@ LIBDL_PIC=libdl_pic.a
 LIBDL_SHARED=libdl.so
 LIBDL_SHARED_FULLNAME=libdl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-CSRC=dlib.c
-OBJS=dlib.o
-PIC_OBJS=dlib_pic.o
+CSRC=libdl.c
+OBJS=libdl.o
+PIC_OBJS=libdl_pic.o
 
 all: $(OBJS) $(LIBDL) shared
 
@@ -61,12 +61,12 @@ ar-target: $(OBJS) $(PIC_OBJS)
 	$(INSTALL) -m 644 $(LIBDL) $(TOPDIR)lib
 
 
-dlib.o: dlib.c
-	$(CC) $(XXFLAGS_NOPIC) -c dlib.c -o dlib.o
+libdl.o: libdl.c
+	$(CC) $(XXFLAGS_NOPIC) -c libdl.c -o libdl.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-dlib_pic.o: dlib.c
-	$(CC) $(XXFLAGS) -c dlib.c -o dlib_pic.o
+libdl_pic.o: libdl.c
+	$(CC) $(XXFLAGS) -c libdl.c -o libdl_pic.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile

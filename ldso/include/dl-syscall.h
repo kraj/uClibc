@@ -2,7 +2,7 @@
 #define _LD_SYSCALL_H_
 
 /* Pull in the arch specific syscall implementation */
-#include <ld_syscalls.h>
+#include <dl-syscalls.h>
 /*  For MAP_ANONYMOUS -- differs between platforms */
 #include <asm/mman.h>
 /* Pull in whatever this particular arch's kernel thinks the kernel version of

@@ -38,9 +38,9 @@ endif
 
 headers:
 	$(LN) -fs $(TOPDIR)../include/elf.h include/
-	$(LN) -fs ../ldso/$(TARGET_ARCH)/boot1_arch.h include/
-	$(LN) -fs ../ldso/$(TARGET_ARCH)/ld_syscalls.h include/
-	$(LN) -fs ../ldso/$(TARGET_ARCH)/ld_sysdep.h include/
+	$(LN) -fs ../ldso/$(TARGET_ARCH)/dl-startup.h include/
+	$(LN) -fs ../ldso/$(TARGET_ARCH)/dl-syscalls.h include/
+	$(LN) -fs ../ldso/$(TARGET_ARCH)/dl-sysdep.h include/
 
 clean:
 	set -e ; for d in $(ALL_SUBDIRS) ; do $(MAKE) -C $$d $@ ; done
