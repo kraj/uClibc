@@ -244,7 +244,7 @@ ifneq ($(strip $(UCLIBC_HAS_GNU_GETOPT)),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)/include/getopt.h
 endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
-	    chmod 755 $$i; chmod 644 $$i/*.h; \
+	    chmod 755 $$i; chmod 644 $$i/*.h > /dev/null 2>&1; \
 	done;
 	-find $(PREFIX)$(DEVEL_PREFIX) -name CVS | xargs $(RM) -r;
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
@@ -275,6 +275,8 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	fi;
 endif
 
+# Using the wrapper toolchain is depricated.  You should 
+# really use a _real_ toolchain instead....
 install_toolchain: install_utils
 	$(INSTALL) -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin
 	$(INSTALL) -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
