@@ -44,7 +44,7 @@ echo Extracting referenced libgcc.a objects ...
 rm -f obj.need.0
 touch obj.need.0
 while [ -s obj.need ] && ! cmp -s obj.need obj.need.0 ; do
-    (cd tmp-gcc && cat ../obj.need | uniq | xargs $LD -r -o ../libgcc.ldr)
+    (cd tmp-gcc && cat ../obj.need | sort | uniq | xargs $LD -r -o ../libgcc.ldr)
     cp obj.need obj.need.0
     if $NM --undefined-only libgcc.ldr > sym.need ; then
 	for SYM in `cat sym.need | sed -e 's/ U //g'` ; do
@@ -61,7 +61,7 @@ cat obj.need | sort | uniq > obj.need.0
 if [ -s obj.need.0 ] ; then
     echo Objects added from $LIBGCC:
     cat obj.need.0
-    (cd tmp-gcc && cat ../obj.need | uniq | xargs $AR r ../libgcc-need.a)
+    (cd tmp-gcc && cat ../obj.need | sort | uniq | xargs $AR r ../libgcc-need.a)
 else
     echo No objects added from $LIBGCC.
 fi
