@@ -27,7 +27,9 @@
 /* Get size_t, wchar_t and NULL from <stddef.h>.  */
 #define		__need_size_t
 #ifndef __need_malloc_and_calloc
+#if 0
 # define	__need_wchar_t
+#endif
 # define	__need_NULL
 #endif
 #include <stddef.h>
@@ -773,7 +775,7 @@ extern int qfcvt_r (long double __value, int __ndigit,
 # endif	/* misc */
 #endif	/* use MISC || use X/Open Unix */
 
-
+#if 0
 /* Return the length of the multibyte character
    in S, which is no longer than N.  */
 extern int mblen (__const char *__s, size_t __n) __THROW;
@@ -793,7 +795,7 @@ extern size_t mbstowcs (wchar_t *__restrict  __pwcs,
 extern size_t wcstombs (char *__restrict __s,
 			__const wchar_t *__restrict __pwcs, size_t __n)
      __THROW;
-
+#endif
 
 #ifdef __USE_SVID
 /* Determine whether the string value of RESPONSE matches the affirmation

@@ -27,6 +27,7 @@
 /* Get the type definitions.  */
 #include <stdint.h>
 
+#if 0
 /* Get a definition for wchar_t.  But we must not define wchar_t itself.  */
 #ifndef ____gwchar_t_defined
 # ifdef __cplusplus
@@ -39,6 +40,7 @@ typedef __WCHAR_TYPE__ __gwchar_t;
 typedef wchar_t __gwchar_t;
 # endif
 # define ____gwchar_t_defined	1
+#endif
 #endif
 
 
@@ -309,6 +311,7 @@ extern intmax_t strtoimax (__const char *__restrict __nptr,
 extern uintmax_t strtoumax (__const char *__restrict __nptr,
 			    char ** __restrict __endptr, int __base) __THROW;
 
+#if 0
 /* Like `wcstol' but convert to `intmax_t'.  */
 extern intmax_t wcstoimax (__const __gwchar_t *__restrict __nptr,
 			   __gwchar_t **__restrict __endptr, int __base)
@@ -318,6 +321,7 @@ extern intmax_t wcstoimax (__const __gwchar_t *__restrict __nptr,
 extern uintmax_t wcstoumax (__const __gwchar_t *__restrict __nptr,
 			    __gwchar_t ** __restrict __endptr, int __base)
      __THROW;
+#endif
 
 #ifdef __USE_EXTERN_INLINES
 
@@ -352,6 +356,7 @@ strtoumax (__const char *__restrict nptr, char **__restrict endptr,
   return __strtoul_internal (nptr, endptr, base, 0);
 }
 
+#if 0
 /* Like `wcstol' but convert to `intmax_t'.  */
 #  ifndef __wcstol_internal_defined
 extern long int __wcstol_internal (__const __gwchar_t * __restrict __nptr,
@@ -382,6 +387,7 @@ wcstoumax (__const __gwchar_t *__restrict nptr, __gwchar_t **__restrict endptr,
 {
   return __wcstoul_internal (nptr, endptr, base, 0);
 }
+#endif
 
 # else /* __WORDSIZE == 32 */
 
@@ -418,6 +424,7 @@ strtoumax (__const char *__restrict nptr, char **__restrict endptr,
   return __strtoull_internal (nptr, endptr, base, 0);
 }
 
+#if 0
 /* Like `wcstol' but convert to `intmax_t'.  */
 #  ifndef __wcstoll_internal_defined
 __extension__
@@ -452,7 +459,7 @@ wcstoumax (__const __gwchar_t *__restrict nptr, __gwchar_t **__restrict endptr,
 {
   return __wcstoull_internal (nptr, endptr, base, 0);
 }
-
+#endif
 # endif	/* __WORDSIZE == 32	*/
 #endif	/* Use extern inlines.  */
 
