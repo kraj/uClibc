@@ -33,9 +33,9 @@ http://www.vitanuova.com/inferno/index.html
         None of these functions are currently implemented in the uClibc
         library, so they must be added.
 
-        flockfile               <required>                              <---
-        ftrylockfile            <required>                              <---
-        funlockfile             <required>                              <---
+        flockfile               <implemented>
+        ftrylockfile            <implemented>
+        funlockfile             <implemented>
 
 1.2 Functions that must use buffer access mutexes, according to Butenhof
 
@@ -43,10 +43,10 @@ http://www.vitanuova.com/inferno/index.html
         buffer access mutexes.  This does not represent all functions that
         need to use the mutexes.
 
-        getc                    <mutex required>                        <---
-        getchar                 <mutex required>                        <---
-        putc                    <mutex required>                        <---
-        putchar                 <mutex required>                        <---
+        getc                    <mutex required>
+        getchar                 <mutex required>
+        putc                    <mutex required>
+        putchar                 <mutex required>
 
 1.3 Functions from glibc (libio) that use buffer access mutexes
 
@@ -57,21 +57,21 @@ http://www.vitanuova.com/inferno/index.html
         The rest may require the access mutex. (These must be analyzed on a
         case-by-case basis.)
 
-        clearerr                <mutex required>                        <---
-        feof                    <mutex required>                        <---
-        ferror                  <mutex required>                        <---
-        fputc                   <mutex required>                        <---
+        clearerr                <mutex required>
+        feof                    <mutex required>
+        ferror                  <mutex required>
+        fputc                   <mutex required>
         fputwc                  <not supported>
-        freopen                 <mutex required>                        <---
-        freopen64               <not supported>
-        fseek                   <mutex required>                        <---
-        fseeko                  <not supported>
-        fseeko64                <not supported>
-        ftello                  <not supported>
-        ftello64                <not supported>
+        freopen                 <mutex required>
+        freopen64               <mutex required>
+        fseek                   <mutex required>
+        fseeko                  <mutex required>
+        fseeko64                <mutex required>
+        ftello                  <mutex required>
+        ftello64                <mutex required>
         fwide                   <not supported>
-        getc                    <macro for fgetc>
-        getchar                 <macro for fgetc>
+        getc                    <mutex required>
+        getchar                 <mutex required>
         getwc                   <not supported>
         getwchar                <not supported>
         iofclose                <not supported>
@@ -102,49 +102,50 @@ http://www.vitanuova.com/inferno/index.html
         oldiofsetpos            <not supported>
         oldiofsetpos64          <not supported>
         peekc                   <not supported>
-        putc                    <macro for fputc>
-        putchar                 <macro for fputc>
+        putc                    <mutex required>
+        putchar                 <mutex required>
         putwc                   <not supported>
         putwchar                <not supported>
-        rewind                  <mutex required>                        <---
+        rewind                  <mutex required>
 
 1.4 Functions from Proventhreads that use buffer access mutexes
 
         See description above.  This applies only to the C library included
         in the proventhreads distribution.
 
-        clearerr                <mutex required>                        <---
-        fclose                  <mutex required>                        <---
-        fflush                  <mutex required>                        <---
-        fgetc                   <mutex required>                        <---
+        clearerr                <mutex required>
+        fclose                  <mutex required>
+        fflush                  <mutex required>
+        fgetc                   <mutex required>
         __getc                  <not supported>
         fgetline                <not supported>
-        fgetpos                 <mutex required>                        <---
-        fgets                   <mutex required>                        <---
+        fgetpos                 <mutex required>
+        fgetpos64               <mutex required>
+        fgets                   <mutex required>
         fpurge                  <not supported>
-        fputc                   <mutex required>                        <---
+        fputc                   <mutex required>
         __putc                  <not supported>
-        fputs                   <mutex required>                        <---
-        fread                   <mutex required>                        <---
-        freopen                 <mutex required>                        <---
-        fscanf                  <mutex required>                        <---
-        fseek                   <mutex required>                        <---
-        ftell                   <mutex required>                        <---
+        fputs                   <mutex required>
+        fread                   <mutex required>
+        freopen                 <mutex required>
+        fscanf                  <mutex required>
+        fseek                   <mutex required>
+        ftell                   <mutex required>
         fwalk                   <not supported>
-        fwrite                  <mutex required>                        <---
-        getc                    <macro for fgetc>
-        getchar                 <mutex required>                        <---
-        putc                    <macro for fputc>
-        putchar                 <mutex required>                        <---
-        puts                    <mutex required>                        <---
-        putw                    <not supported>
+        fwrite                  <mutex required>
+        getc                    <mutex required>
+        getchar                 <mutex required>
+        putc                    <mutex required>
+        putchar                 <mutex required>
+        puts                    <mutex required>
+        putw                    <mutex _not_ required>
         refill                  <not supported>
-        rewind                  <mutex required>                        <---
-        scanf                   <mutex required>                        <---
-        setvbuf                 <mutex required>                        <---
-        ungetc                  <mutex required>                        <---
-        vfprintf                <mutex required>                        <---
-        vscanf                  <mutex required>                        <---
+        rewind                  <mutex required>
+        scanf                   <mutex required>
+        setvbuf                 <mutex required>
+        ungetc                  <mutex required>
+        vfprintf                <mutex required>
+        vscanf                  <mutex required>
 
 1.5 Unlocked buffer access
 
@@ -155,10 +156,10 @@ http://www.vitanuova.com/inferno/index.html
         then use getc_unlocked within the loop for speed.  That way, the lock
         only needs to be grabbed and released once, rather than for each call.
 
-        getc_unlocked           <required>                              <---
-        getchar_unlocked        <required>                              <---
-        putc_unlocked           <required>                              <---
-        putchar_unlocked        <required>                              <---
+        getc_unlocked           <implemented
+        getchar_unlocked        <implemented
+        putc_unlocked           <implemented
+        putchar_unlocked        <implemented
 
 1.6 Additional unlocked calls made in glibc
 
@@ -166,17 +167,17 @@ http://www.vitanuova.com/inferno/index.html
         glibc library uses for unlocked buffer access.  Though not strictly
         necessary, these may be nice to have in uClibc.
 
-        fileno_unlocked         <desired>                               <---
-        clearerr_unlocked       <desired>                               <---
-        feof_unlocked           <desired>                               <---
-        ferror_unlocked         <desired>                               <---
-        fputc_unlocked          <desired>                               <---
-        fgetc_unlocked          <desired>                               <---
-        fflush_unlocked         <desired>                               <---
-        fread_unlocked          <desired>                               <---
-        fwrite_unlocked         <desired>                               <---
-        fgets_unlocked          <desired>                               <---
-        fputs_unlocked          <desired>                               <---
+        fileno_unlocked         <implemented
+        clearerr_unlocked       <implemented
+        feof_unlocked           <implemented
+        ferror_unlocked         <implemented
+        fputc_unlocked          <implemented
+        fgetc_unlocked          <implemented
+        fflush_unlocked         <implemented
+        fread_unlocked          <implemented
+        fwrite_unlocked         <implemented
+        fgets_unlocked          <implemented
+        fputs_unlocked          <implemented
 
 1.7 Additional unlocked calls made in Proventhreads
 
@@ -203,16 +204,13 @@ http://www.vitanuova.com/inferno/index.html
 2.1 User and terminal identification:
 
         getlogin_r              <implemented>
-        ctermid                 <implemented>                           (1)
-        ttyname_r               <required>                              <---
+        ctermid                 <implemented>
+        ttyname_r               <implemented>
 
-        1. ctermid is a special case.  The signature has not changed, but a
-        requirement has been added that its parameter point to a structure
-        of exactly L_ctermid bytes.  
 
 2.2 Directory searching
 
-        readdir_r               <required>                              <---
+        readdir_r               <implemented>
 
 2.3 String token
 
@@ -227,7 +225,7 @@ http://www.vitanuova.com/inferno/index.html
 
 2.5 Random number generation
 
-        rand_r                  <required>                              <---
+        rand_r                  <implemented
 
 2.6 Group and user database
 
@@ -244,12 +242,9 @@ http://www.vitanuova.com/inferno/index.html
         thread-safe version.  Those that do apply, but have not been
         implemented yet are highlighted.
 
-        __fgetpwent_r                   <not supported>
         fgetpwent_r                     <implemented>
-        __ttyname_r                     <not supported>
         getttyname_r                    <not supported>
-        __getmntent_r                   <not supported>
-        getmntent_r                     <desired>                       <---
+        getmntent_r                     <implemented>
         ecvt_r                          <not supported>
         fcvt_r                          <not supported>
         qecvt_r                         <not supported>
@@ -257,73 +252,39 @@ http://www.vitanuova.com/inferno/index.html
         hcreate_r                       <not supported>
         hdestroy_r                      <not supported>
         hsearch_r                       <not supported>
-        __getspent_r                    <not supported>
-        getspent_r                      <not supported>
-        __getspnam_r                    <not supported>
-        getspnam_r                      <not supported>
-        __sgetspent_r                   <not supported>
-        sgetspent_r                     <not supported>
-        __fgetspent_r                   <not supported>
-        fgetspent_r                     <not supported>
-        __gethostbyaddr_r               <not supported>
-        gethostbyaddr_r                 <desired>                       <---
-        __gethostbyname2_r              <not supported>
-        gethostbyname2_r                <not supported>
-        __gethostbyname_r               <not supported>
-        gethostbyname_r                 <desired>                       <---
-        __gethostent_r                  <not supported
-        gethostent_r                    <not supported>
-        __getnetbyaddr_r                <not supported>
+        getspent_r                      <implemented>
+        getspnam_r                      <implemented>
+        sgetspent_r                     <implemented>
+        fgetspent_r                     <implemented>
+        gethostbyaddr_r                 <implemented>
+        gethostbyname2_r                <implemented>
+        gethostbyname_r                 <implemented>
+        gethostent_r                    <desired>                       <---
         getnetbyaddr_r                  <desired>                       <---
-        __getnetent_r                   <not supported>
         getnetent_r                     <desired>                       <---
-        __getnetbyname_r                <not supported>
         getnetbyname_r                  <desired>                       <---
-        __getprotobynumber_r            <not supported>
         getprotobynumber_r              <desired>                       <---
-        __getprotoent_r                 <not supported>
         getprotoent_r                   <desired>                       <---
-        __getprotobyname_r              <not supported>
         getprotobyname_r                <desired>                       <---
-        __getservbyname_r               <not supported>
-        getservbyname_r                 <desired>                       <---
-        __getservbyport_r               <not supported>
-        getservbyport_r                 <desired>                       <---
-        __getservent_r                  <not supported>
-        getservent_r                    <desired>                       <---
-        __getrpcent_r                   <not supported>
+        getservbyname_r                 <implemented>
+        getservbyport_r                 <implemented>
+        getservent_r                    <implemented>
         getrpcent_r                     <desired>                       <---
-        __getrpcbyname_r                <not supported>
         getrpcbyname_r                  <desired>                       <---
-        __getrpcbynumber_r              <not supported>
-        getrpcbynumber_r                <desired>                       <---
+        getrpcbynumber_r                <implemented>
         ether_aton_r                    <not supported>
         ether_ntoa_r                    <not supported>
-        __getnetgrent_r                 <not supported>
-        __internal_getnetgrent_r        <not supported>
         getnetgrent_r                   <not supported>
-        __getaliasent_r                 <not supported>
         getaliasent_r                   <not supported>
-        __getaliasbyname_r              <not supported>
         getaliasbyname_r                <not supported>
-        __nscd_getpwnam_r               <not supported>
-        __nscd_getpwuid_r               <not supported>
         nscd_getpw_r                    <not supported>
-        __nscd_getgrgid_r               <not supported>
-        __nscd_getgrnam_r               <not supported>
         nscd_getgr_r                    <not supported>
-        __nscd_gethostbyaddr_r          <not supported>
-        __nscd_gethostbyname2_r         <not supported>
-        __nscd_gethostbyname_r          <not supported>
         nscd_gethst_r                   <not supported>
-        __getutent_r                    <desired>                       <---
         getutent_r                      <desired>                       <---
         getutent_r_unknown              <not supported>
         getutid_r_unknown               <not supported>
         getutline_r_unknown             <not supported>
-        __getutid_r                     <not supported>
         getutid_r                       <desired>                       <---
-        __getutline_r                   <not supported>
         getutline_r                     <required>                      <---
         getutent_r_file                 <not supported>
         getutid_r_file                  <not supported>
@@ -332,8 +293,45 @@ http://www.vitanuova.com/inferno/index.html
         getutent_r_daemon               <not supported>
         getutid_r_daemon                <not supported>
         getutline_r_daemon              <not supported>
-        __ptsname_r                     <not supported>
         ptsname_r                       <not supported>
+        __fgetpwent_r                   <not supported>
+        __ttyname_r                     <not supported>
+        __getmntent_r                   <not supported>
+        __getspent_r                    <not supported>
+        __getspnam_r                    <not supported>
+        __sgetspent_r                   <not supported>
+        __fgetspent_r                   <not supported>
+        __gethostbyaddr_r               <not supported>
+        __gethostbyname2_r              <not supported>
+        __gethostbyname_r               <not supported>
+        __gethostent_r                  <not supported
+        __getnetbyaddr_r                <not supported>
+        __getnetent_r                   <not supported>
+        __getnetbyname_r                <not supported>
+        __getprotobynumber_r            <not supported>
+        __getprotoent_r                 <not supported>
+        __getprotobyname_r              <not supported>
+        __getservbyname_r               <not supported>
+        __getservbyport_r               <not supported>
+        __getrpcent_r                   <not supported>
+        __getservent_r                  <not supported>
+        __getrpcbyname_r                <not supported>
+        __getrpcbynumber_r              <not supported>
+        __getnetgrent_r                 <not supported>
+        __internal_getnetgrent_r        <not supported>
+        __getaliasent_r                 <not supported>
+        __getaliasbyname_r              <not supported>
+        __nscd_getpwnam_r               <not supported>
+        __nscd_getpwuid_r               <not supported>
+        __nscd_getgrgid_r               <not supported>
+        __nscd_getgrnam_r               <not supported>
+        __nscd_gethostbyaddr_r          <not supported>
+        __nscd_gethostbyname2_r         <not supported>
+        __nscd_gethostbyname_r          <not supported>
+        __getutent_r                    <not supported>
+        __getutid_r                     <not supported>
+        __getutline_r                   <not supported>
+        __ptsname_r                     <not supported>
 
 
 2.8 Additional thread-safe functions implemented by Proventhreads
@@ -341,9 +339,9 @@ http://www.vitanuova.com/inferno/index.html
         See description above.  This applies only to the C library included
         in the proventhreads distribution.
 
-        inet_ntoa_r             <desired>                               <---
-        gethostbyaddr_r         <desired>                               <---
-        gethostbyname_r         <desired>                               <---
+        inet_ntoa_r             <implemented>
+        gethostbyaddr_r         <implemented>
+        gethostbyname_r         <implemented>
         gethostent_r            <not supported>
         getnetbyaddr_r          <desired>                               <---
         getnetbyname_r          <desired>                               <---
@@ -351,9 +349,9 @@ http://www.vitanuova.com/inferno/index.html
         getprotobynumber_r      <desired>                               <---
         getprotoent_r           <desired>                               <---
         getprotobyname_r        <desired>                               <---
-        getservbyname_r         <desired>                               <---
-        getservbyport_r         <desired>                               <---
-        getservent_r            <desired>                               <---
+        getservbyname_r         <implemented>
+        getservbyport_r         <implemented>
+        getservent_r            <implemented>
 
 
 3. List of functions in uClibc that use static data structures
@@ -375,11 +373,38 @@ http://www.vitanuova.com/inferno/index.html
 
         --------------------------------------------------------------------
 
+        crypt/des.c:
+
+	static u_char   inv_key_perm[64];
+	static u_char   inv_comp_perm[56];
+	static u_char   u_sbox[8][64];
+	static u_char   u_key_perm[56];
+	static u_char   un_pbox[32];
+	static u_int32_t en_keysl[16], en_keysr[16];
+	static u_int32_t de_keysl[16], de_keysr[16];
+	static u_int32_t ip_maskl[8][256], ip_maskr[8][256];
+	static u_int32_t fp_maskl[8][256], fp_maskr[8][256];
+	static u_int32_t key_perm_maskl[8][128], key_perm_maskr[8][128];
+	static u_int32_t comp_maskl[8][128], comp_maskr[8][128];
+	static u_int32_t saltbits;
+
+        __des_crypt_r		<implemented badly!>                    <---
+
+	This needs to be fixed to actually be reentrant.   Right now it
+	just fakes it, which is pretty lame....  All the above should be
+	moved into a 'struct des_context' or some such... 
+
+        --------------------------------------------------------------------
+
         crypt/md5.c:
 
-        static unsigned char PADDING[64]        <fix desired>           <---
+	static const char __md5__magic[];
+	static const unsigned char __md5_itoa64[];
 
-        NOTE: This is okay, but should use the const keyword.
+        __md5_crypt_r		<implemented>
+
+	No problems here...
+        
 
         --------------------------------------------------------------------
 
@@ -387,7 +412,8 @@ http://www.vitanuova.com/inferno/index.html
 
         static char buf[16];
 
-        inet_ntoa               <inet_ntoa_r not implemented>           <---
+        inet_ntoa               <implemented>
+        inet_ntoa_r             <implemented>
 
         --------------------------------------------------------------------
 
@@ -398,12 +424,12 @@ http://www.vitanuova.com/inferno/index.html
         static struct netent net;
         static char *net_aliases[MAXALIASES];
 
-        setnetent               <fix required>                          <---
-        endnetent               <fix required>                          <---
-        getnetent               <getnetent_r required>                  <---
+        setnetent               <mutex required>
+        endnetent               <mutex required>
+        getnetent               <mutex required>
+        getnetent_r             <not implemented>
 
         NOTE: setnetent and endnetent are not implemented in glibc.
-        Proventhreads uses pthread mutexes to protect this static data.
 
         --------------------------------------------------------------------
 
@@ -415,14 +441,16 @@ http://www.vitanuova.com/inferno/index.html
         static char *proto_aliases[MAXALIASES];
         static int proto_stayopen;
 
-        setprotoent             <fix required>                          <---
-        endprotoent             <fix required>                          <---
-        getprotoent             <getprotoent_r required>                <---
-        getprotobyname          <getprotobyname_r required>             <---
-        getprotobynumber        <getprotobynumber required>             <---
+        setprotoent             <mutex required>
+        endprotoent             <mutex required>
+        getprotoent             <mutex required>
+        getprotoent_r           <implemented>
+        getprotobyname          <implemented>
+        getprotobyname_r        <not implemented>
+        getprotobynumber        <implemented>
+        getprotobynumber_r      <not implemented>
 
         NOTE: setprotoent and endprotoent are not implemented in glibc.
-        Proventhreads uses pthread mutexes to protect this static data.
 
         --------------------------------------------------------------------
 
@@ -434,48 +462,44 @@ http://www.vitanuova.com/inferno/index.html
         static char *serv_aliases[MAXALIASES];
         static int serv_stayopen;
 
-        setservent              <fix required>                          <---
-        endservent              <fix required>                          <---
-        getservent              <getservent_r required>                 <---
-        getservbyname           <getservbyname_r required>              <---
-        getservbyport           <getservbyport_r required>              <---
+        setservent              <mutex required>
+        endservent              <fix mutex required>
+        getservent              <mutex required>
+        getservent_r            <implemented>
+        getservbyname           <mutex required>
+        getservbyname_r         <implemented>
+        getservbyport           <mutex required>
+        getservbyport_r         <implemented>
 
         NOTE: setservent and endservent are not implemented in glibc.
-        Proventhreads uses pthread mutexes to protect this static data.
 
         --------------------------------------------------------------------
 
-        net/resolv.c:   
+	static struct hostent h;
+	static char buf[xxx];
 
-        static int id = 1;
-        static int ns = 0;
+        gethostbyname           <implemented>
 
-        dns_lookup              <fix required>                          <---
 
-        NOTE: dns_lookup is not implemented by glibc or Proventhreads.
+	static struct hostent h;
+	static char buf[xxx];
 
-        static struct hostent h;
-        static char namebuf[256];
-        static struct in_addr in;
-        static struct in_addr *addr_list[2];
+        gethostbyname2          <implemented>
 
-        gethostbyname           <gethostbyname_r required>              <---
+	static struct hostent h;
+	static char buf[xxx];
 
-        static struct hostent h;
-        static char namebuf[256];
-        static struct in_addr in;
-        static struct in_addr *addr_list[2];
+        gethostbyaddr           <implemented>
 
-        gethostbyaddr           <gethostbyaddr_r required>              <---
 
-        static struct hostent   h;
-        static struct in_addr   in;
-        static struct in_addr   *addr_list[2];
-        static char                             line[80];
+	static int __stay_open;
+	static FILE * __gethostent_fp;
+	static struct hostent h;
+	static char buf[xxx];
 
-        read_etc_hosts          <fix required>                          <---
-
-        NOTE: dns_lookup is not implemented by glibc or Proventhreads.
+        gethostent              <mutex required>
+        sethostent              <mutex required>
+        endhostent              <mutex required>
 
         --------------------------------------------------------------------
 
@@ -912,7 +936,10 @@ http://www.vitanuova.com/inferno/index.html
 
         static uint64_t value;
 
-        __gen_tempname          <fix required>                          <---
+        __gen_tempname          <no fix required>
+
+	This is supposed to be random trash, so the more threading
+	collisions the better...
 
         --------------------------------------------------------------------
 
@@ -952,7 +979,8 @@ http://www.vitanuova.com/inferno/index.html
         static char buff[MNTMAXSTR];
         static struct mntent mnt;
 
-        getmntent               <getmntent_r required>                  <---
+        getmntent               <mutex required>
+        getmntent_r             <implemented>
 
         --------------------------------------------------------------------
 
@@ -1086,19 +1114,20 @@ http://www.vitanuova.com/inferno/index.html
 
         misc/utmp/utent.c:
 
-        static int ut_fd = -1;
+	static int static_fd = -1;
+	static struct utmp static_utmp;
+	static const char default_file_name[] = _PATH_UTMP;
+	static const char *static_ut_name = (const char *) default_file_name;
 
-        setutent                <fix required>                          <---
-        endutent                <fix required>                          <---
-        getutent                <fix required>                          <---
-        getutid                 <fix required>                          <---
-        getutline               <fix required>                          <---
-        pututline               <fix required>                          <---
-        utmpname                <fix required>                          <---
-        
-        static struct utmp utmp;
 
-        __getutent              <fix required>                          <---
+        setutent                <ok>
+        endutent                <ok>
+        getutent                <ok>
+        getutid                 <ok>
+        getutline               <ok>
+        pututline               <ok>
+        utmpname                <ok>
+        __getutent              <ok>
 
         --------------------------------------------------------------------
 
@@ -1191,16 +1220,21 @@ http://www.vitanuova.com/inferno/index.html
 
         static int _bsearch;
 
-        bsearch                 <fix required>                          <---
+        bsearch                 <ok>
 
         --------------------------------------------------------------------
 
-        stdlib/putenv.c:
+        stdlib/setenv.c:
 
-        static char **mall_env = 0;
-        static int extras = 0;
+	static char **last_environ;
 
-        putenv                  <fix required>                          <---
+        __add_to_environ        <ok>
+        unsetenv                <ok>
+        setenv                  <ok>
+        clearenv                <ok>
+        putenv                  <ok>
+
+	all ok now.
 
         --------------------------------------------------------------------
 
@@ -1216,17 +1250,6 @@ http://www.vitanuova.com/inferno/index.html
         1: I'm not sure if it matters if these are static, since they
         are random number seeds.  Who cares if more than one thread changes
         their value?
-
-        --------------------------------------------------------------------
-
-        stdlib/setenv.c:
-
-        static pthread_once__t _once_block = pthread_once_init;         (1)
-        static pthread_mutex_t _setenv_mutex;                           (1)
-        static char **last_environ = NULL;                              (1)
-
-        1: Obviously, nothing to do here. (Unless I change the way we
-        deal with threads).
 
         --------------------------------------------------------------------
 
@@ -1252,30 +1275,12 @@ http://www.vitanuova.com/inferno/index.html
 
         stdlib/malloc-930716/malloc.c:
 
-        static int heapsize;
-        static int initialized;
-        static size_t pagesize;
+        A bunch of stuff
         
-        inititalize             <fix required>                          <---
-        morecore                <fix required>                          <---
-        malloc                  <fix required>                          <---
-
-        --------------------------------------------------------------------
-
-        stdlib/malloc-930716/valloc.c:
-
-        static size_t pagesize;
-
-        valloc                  <fix required>                          <---
-
-        --------------------------------------------------------------------
-
-        string/config.c:
-
-        static char *args[16];
-        static char cfgbuf[128];
-
-        cfgread                 <fix required>                          <---
+        malloc                  <ok>
+        realloc                 <ok>
+        free                    <ok>
+        etc                     <ok>
 
         --------------------------------------------------------------------
 
@@ -1285,7 +1290,7 @@ http://www.vitanuova.com/inferno/index.html
         static char retbuf[33];
 
         strerror                <fix required>                          <---
-        main                    <fix required>                          <---
+        strerror_r              <fix required>                          <---
 
         --------------------------------------------------------------------
 
@@ -1302,87 +1307,8 @@ http://www.vitanuova.com/inferno/index.html
 
         static char *save = 0;
 
-        strtok                  <strtok_r implemented>                  <---
-
-        --------------------------------------------------------------------
-
-        sysdeps/linux/common/kernel_version.c:
-
-        static int __linux_kernel_version = -1;
-
-        __get_linux_kernel_version      <fix required>                  (1)
-
-        1: This static value never actually gets updated!  This a bug.
-
-        --------------------------------------------------------------------
-
-        sysdeps/linux/i386/bits/huge_val.h:
-
-        static __huge_val_t __huge_val          <fix desired>           <---
-        static __huge_valf_t __huge_valf        <fix desired>           <---
-        static __huge_vall_t __huge_vall        <fix desired>           <---
-
-        NOTE: These are okay, but should use the const keyword.
-
-        --------------------------------------------------------------------
-
-        sysdeps/linux/i386/bits/nan.h:
-
-        static union { ... } __nan_union        <fix desired>           <---
-
-        NOTE: This is okay, but should use the const keyword.
-
-        --------------------------------------------------------------------
-
-        sysdeps/linux/m68k/bits/huge_val.h:
-
-        static union { ... } __huge_val         <fix desired>           <---
-        static union { ... } __huge_valf        <fix desired>           <---
-        static union { ... } __huge_vall        <fix desired>           <---
-
-        NOTE: These are okay, but should use the const keyword.
-
-        --------------------------------------------------------------------
-
-        sysdeps/linux/m68k/bits/nan.h:
-
-        static union { ... } __nan_union        <fix desired>           <---
-
-        NOTE: This is okay, but should use the const keyword.
-
-        --------------------------------------------------------------------
-
-        sysdeps/linux/sh/bits/huge_val.h:
-
-        static __huge_val_t __huge_val          <fix desired>           <---
-        static __huge_valf_t __huge_valf        <fix desired>           <---
-
-        NOTE: These are okay, but should use the const keyword.
-
-        --------------------------------------------------------------------
-
-        sysdeps/linux/sh/bits/nan.h:
-
-        static union { ... } __nan_union        <fix desired>           <---
-
-        NOTE: This is okay, but should use the const keyword.
-
-        --------------------------------------------------------------------
-
-        sysdeps/linux/sparc/bits/huge_val.h:
-
-        static __huge_val_t __huge_val          <fix desired>           <---
-        static __huge_valf_t __huge_valf        <fix desired>           <---
-
-        NOTE: These are okay, but should use the const keyword.
-
-        --------------------------------------------------------------------
-
-        sysdeps/linux/sparc/bits/nan.h:
-
-        static union { ... } __nan_union        <fix desired>           <---
-
-        NOTE: This is okay, but should use the const keyword.
+        strtok                  <ok>
+        strtok_r                <ok>
 
         --------------------------------------------------------------------
 
@@ -1415,20 +1341,6 @@ http://www.vitanuova.com/inferno/index.html
         error_msg               <fix required>                          <---
         done_testing            <fix required>                          <---
         init_testsuite          <fix required>                          <---
-        
-        --------------------------------------------------------------------
-
-        unistd/getcwd.c:
-
-        static char *path_buf;
-        static int path_size;
-        static dev_t root_dev;
-        static ino_t root_ino;
-        static struct stat st;
-
-        getswd                  <fix required>                          <---
-        recurser                <fix required>                          <---
-        search_dir              <fix required>                          <---
         
         --------------------------------------------------------------------
 
