@@ -56,16 +56,13 @@
 #define	_PATH_PRESERVE	"/var/lib"
 #define	_PATH_RWHODIR	"/var/spool/rwho"
 #define	_PATH_SENDMAIL	"/usr/sbin/sendmail"
-#define	_PATH_SHADOW	"/etc/shadow"
 #define	_PATH_SHELLS	"/etc/shells"
 #define	_PATH_TTY	"/dev/tty"
 #define	_PATH_UNIX	"/boot/vmlinux"
-#define _PATH_UTMP	"/var/run/utmp"
+#define	_PATH_UTMP	"/var/run/utmp"
 #define	_PATH_VI	"/usr/bin/vi"
-#define _PATH_WTMP	"/var/log/wtmp"
-#define _PATH_LOCALE	"/usr/lib/locale"
-#define _PATH_PASSWD	"/etc/passwd"
-#define _PATH_GROUP	"/etc/group"
+#define	_PATH_WTMP	"/var/log/wtmp"
+#define	_PATH_LOCALE	"/usr/lib/locale"
 
 /* Provide trailing slash, since mostly used for building pathnames. */
 #define	_PATH_DEV	"/dev/"
@@ -73,5 +70,10 @@
 #define	_PATH_VARDB	"/var/lib/misc/"
 #define	_PATH_VARRUN	"/var/run/"
 #define	_PATH_VARTMP	"/var/tmp/"
+#define	_PATH_LASTLOG	"/var/log/lastlog"
+#define	_PATH_LOCALE	"/usr/lib/locale"
+#define	_PATH_SHADOW	"/etc/shadow"
+#define	_PATH_PASSWD	"/etc/passwd"
+#define	_PATH_GROUP	"/etc/group"
 
 #endif /* !_PATHS_H_ */
