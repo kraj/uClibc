@@ -25,7 +25,7 @@
 # to something more interesting...  Target architecture is determined
 # by asking this compiler what arch it compiles stuff for.
 CROSS=
-CC = $(CROSS)gcc-3.2
+CC = $(CROSS)gcc
 AR = $(CROSS)ar
 LD = $(CROSS)ld
 NM = $(CROSS)nm
