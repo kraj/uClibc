@@ -1,6 +1,5 @@
-	.file	"initfini.c"
+	.file	"crti.S"
 	.text
-	.little
 	
 	.section .init
 	.hidden  _init
