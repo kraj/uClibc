@@ -1,6 +1,7 @@
+
 Erik's TODO list for the next release:
 
-    1) Reentrancy auditing
+    1) Finish up the reentrancy auditing
     2) Better configuration system (CML1 + kbuild + menuconfig)
     3) When fixing the config system, ensure that _every_ option 
 	that is enabled or disabled is listed in uClibc_config.h
@@ -9,26 +10,16 @@ Erik's TODO list for the next release:
     5) Make all small objects (>~50 bytes) into either inlines or
 	into a static library
     6) Rework code that fails POSIX conformance tests
-    7) Fix the bugs in libcrypt so it passes conformance tests  
-    8) Split the tests up into two parts -- a compile phase, and
-	a separate shell-script-driven test phase, allowing the
-	tests to be run when cross compiling....
 
 Other random things:
 
-    *) Add struct _res support to libc/inet/resolv.c.  Right now, 
-	struct _res, and res_init do nothing.  The other res_* 
-	functions are not yet implemented.  So fix that.
-    *) Fix uClibc timezone support so date(1) will show a real
-	timezone, instead of just '???'
     *) Rework code that fails POSIX conformance tests
-    *) Rework pwd/grp for standards compliance (and integrate 
-	Jeff Garzik's key-value reading code for pwd/grp, and
-	perhaps for /etc/hosts and friends as well)
     *) Document all differences between the feature set of uClibc 
 	and glibc.
     *) Add missing syscall() function to allow arbitraty syscalls 
 	to be made. 
+    *) Fix profiling support
+    *) pwrite64 and pread64
 
 
 
