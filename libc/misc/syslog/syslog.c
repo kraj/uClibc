@@ -264,6 +264,8 @@ getout:
 void
 openlog( const char *ident, int logstat, int logfac )
 {
+	int logType = SOCK_DGRAM;
+
         LOCK;
 
 	if (ident != NULL)
@@ -275,8 +277,9 @@ openlog( const char *ident, int logstat, int logfac )
 		SyslogAddr.sa_family = AF_UNIX;
 		(void)strncpy(SyslogAddr.sa_data, _PATH_LOG,
 		    sizeof(SyslogAddr.sa_data));
+retry:
 		if (LogStat & LOG_NDELAY) {
-		        if ((LogFile = socket(AF_UNIX, SOCK_DGRAM, 0)) == -1){
+		        if ((LogFile = socket(AF_UNIX, logType, 0)) == -1){
 			        UNLOCK;
 				return;
 			}
@@ -286,13 +289,19 @@ openlog( const char *ident, int logstat, int logfac )
 	if (LogFile != -1 && !connected &&
 #if 0
 	    connect(LogFile, &SyslogAddr, sizeof(SyslogAddr.sa_family)+
-			strlen(SyslogAddr.sa_data)) != -1)
+			strlen(SyslogAddr.sa_data)) != -1
 #else
 	    connect(LogFile, &SyslogAddr, sizeof(SyslogAddr) -
 			sizeof(SyslogAddr.sa_data) +
-			strlen(SyslogAddr.sa_data)) != -1)
+			strlen(SyslogAddr.sa_data)) != -1
 #endif
+	    ) 
+	{
 		connected = 1;
+	} else if (logType == SOCK_DGRAM) {
+	    logType = SOCK_STREAM;
+	    goto retry;
+	}
 
         UNLOCK;
 }
