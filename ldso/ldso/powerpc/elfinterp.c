@@ -243,27 +243,24 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 		ptr = (unsigned long *)tpnt->data_words;
 		//DPRINTF("plt_addr=%x delta=%x index=%x ptr=%x\n", plt_addr, delta, index, ptr);
+		insns += 1;
+
 		ptr[index] = new_addr;
+		PPC_SYNC;
 		/* icache sync is not necessary, since this will be a data load */
 		//PPC_DCBST(ptr+index);
 		//PPC_SYNC;
 		//PPC_ICBI(ptr+index);
 		//PPC_ISYNC;
 
-		/* instructions were modified */
-		insns[1] = OPCODE_B(delta - 4);
-		PPC_DCBST(insn_addr+1);
-		PPC_SYNC;
-		PPC_ICBI(insn_addr+1);
-		PPC_ISYNC;
-		
-		return new_addr;
+		insns[0] = OPCODE_B(delta - 4);
+
 	}
 
 	/* instructions were modified */
-	PPC_DCBST(insn_addr);
+	PPC_DCBST(insns);
 	PPC_SYNC;
-	PPC_ICBI(insn_addr);
+	PPC_ICBI(insns);
 	PPC_ISYNC;
 
 	return new_addr;
@@ -393,10 +390,10 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 	/* instructions were modified */
 	PPC_DCBST(reloc_addr);
-	PPC_DCBST(reloc_addr+1);
+	PPC_DCBST(reloc_addr+4);
 	PPC_SYNC;
 	PPC_ICBI(reloc_addr);
-	PPC_ICBI(reloc_addr+1);
+	PPC_ICBI(reloc_addr+4);
 	PPC_ISYNC;
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -514,6 +511,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 
 							/* instructions were modified */
 							PPC_DCBST(reloc_addr+1);
+							PPC_SYNC;
 							PPC_ICBI(reloc_addr+1);
 						}
 					}
