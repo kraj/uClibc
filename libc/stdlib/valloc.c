@@ -22,6 +22,7 @@ Cambridge, MA 02139, USA.
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <malloc.h>
 
 static size_t pagesize;
 
