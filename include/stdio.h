@@ -405,7 +405,7 @@ extern int putw (int __w, FILE *__stream) __THROW;
 extern char *fgets (char *__restrict __s, int __n, FILE *__restrict __stream)
      __THROW;
 
-#ifdef __USE_GNU
+#if defined(__USE_GNU) || defined(__USE_MISC)
 /* This function does the same as `fgets' but does not lock the stream.  */
 extern char *fgets_unlocked (char *__restrict __s, int __n,
 			     FILE *__restrict __stream) __THROW;
@@ -603,9 +603,8 @@ extern int obstack_vprintf (struct obstack *__restrict __obstack,
 #endif /* Use GNU.  */
 
 
-#if (defined __USE_POSIX || defined __USE_MISC) && defined __UCLIBC_HAS_THREADS__
+#if defined __USE_POSIX || defined __USE_MISC
 /* These are defined in POSIX.1:1996.  */
-
 /* Acquire ownership of STREAM.  */
 extern void flockfile (FILE *__stream) __THROW;
 
