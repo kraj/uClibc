@@ -142,13 +142,9 @@ extern int fclose __P ((FILE *__stream));
 /* Flush STREAM, or all streams if STREAM is NULL.  */
 extern int fflush __P ((FILE *__stream));
 
-/* Used internally to actuall open files */
-extern FILE *__fopen __P((__const char *__restrict __filename, int __fd, 
-	    FILE *__restrict __stream, __const char *__restrict __mode));
 /* Open a file and create a new stream for it.  */
 extern FILE *fopen __P ((__const char *__restrict __filename,
 			 __const char *__restrict __mode));
-#define fopen(__file, __mode)         __fopen((__file), -1, (FILE*)0, (__mode))
 /* Open a file, replacing an existing stream with it. */
 extern FILE *freopen __P ((__const char *__restrict __filename,
 			   __const char *__restrict __mode,
@@ -185,7 +181,6 @@ extern FILE *freopen64 __P ((__const char *__restrict __filename,
 #ifdef	__USE_POSIX
 /* Create a new stream that refers to an existing system file descriptor.  */
 extern FILE *fdopen __P ((int __fd, __const char *__mode));
-#define fdopen(__file, __mode)  __fopen((char*)0, (__file), (FILE*)0, (__mode))
 #endif
 
 
@@ -285,12 +280,14 @@ extern int getc __P ((FILE *__stream));
 
 /* Read a character from stdin.  */
 extern int getchar __P ((void));
-#define getchar() getc(_stdin)
 
 /* The C standard explicitly says this is a macro, so be that way */
 #define getc(stream)	\
   (((stream)->bufpos >= (stream)->bufread) ? fgetc(stream):		\
     (*(stream)->bufpos++))
+/* getchar() is equivalent to getc(stdin).  Since getc is a macro, 
+ * that means that getchar() should be a macro too...  */
+#define getchar() getc(_stdin)
 
 /* Write a character to STREAM.  */
 extern int fputc __P ((int __c, FILE *__stream));
@@ -298,13 +295,14 @@ extern int putc __P ((int __c, FILE *__stream));
 
 /* Write a character to stdout.  */
 extern int putchar __P ((int __c));
-/* Beware! stdout can be redefined! */
-#define putchar(c) putc((c), _stdout)
 
 /* The C standard explicitly says this can be a macro, so be that way */
 #define putc(c, stream)	\
     (((stream)->bufpos >= (stream)->bufwrite) ? fputc((c), (stream))	\
                           : (unsigned char) (*(stream)->bufpos++ = (c))	)
+/* putchar() is equivalent to putc(c,stdout).  Since putc is a macro,
+ * that means that putchar() should be a macro too...  */
+#define putchar(c) putc((c), _stdout)
 
 #if defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN
 /* Get a word (int) from STREAM.  */
@@ -403,12 +401,6 @@ extern void clearerr __P ((FILE *__stream));
 extern int feof __P ((FILE *__stream));
 /* Return the error indicator for STREAM.  */
 extern int ferror __P ((FILE *__stream));
-
-/* Macro versions of the 3 previous functions */
-/* If fp is NULL... */
-#define clearerr(fp) ((fp)->mode &= ~(__MODE_EOF|__MODE_ERR), (void)0)
-#define feof(fp)   	((fp)->mode&__MODE_EOF)
-#define ferror(fp)	((fp)->mode&__MODE_ERR)
 
 /* Print a message describing the meaning of the value of errno.  */
 extern void perror __P ((__const char *__s));
