@@ -2,9 +2,9 @@
 #include <features.h>
 #include <errno.h>
 #include <syscall.h>
+#include <sys/socket.h>
 
 #ifdef __NR_socketcall
-#include <sys/socket.h>
 extern int socketcall(int call, unsigned long *args);
 
 /* Various socketcall numbers */
@@ -29,9 +29,8 @@ extern int socketcall(int call, unsigned long *args);
 
 
 #ifdef L_accept
-#include <sys/socket.h>
 #ifdef __NR_accept
-#define __NR_accept	__NR___libc_accept
+#define __NR___libc_accept  __NR_accept
 _syscall3(int, __libc_accept, int, call, struct sockaddr *, addr, socklen_t *,addrlen);
 weak_alias(__libc_accept, accept);
 #else
@@ -49,7 +48,6 @@ weak_alias(__libc_accept, accept);
 #endif
 
 #ifdef L_bind
-#include <sys/socket.h>
 #ifdef __NR_bind
 _syscall3(int, bind, int, sockfd, const struct sockaddr *, myaddr, socklen_t, addrlen);
 #else
@@ -66,9 +64,8 @@ int bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
 #endif
 
 #ifdef L_connect
-#include <sys/socket.h>
 #ifdef __NR_connect
-#define __NR_connect __NR___libc_connect
+#define __NR___libc_connect __NR_connect
 _syscall3(int, __libc_connect, int, sockfd, const struct sockaddr *, saddr, socklen_t, addrlen);
 #else
 int __libc_connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
@@ -85,7 +82,6 @@ weak_alias(__libc_connect, connect);
 #endif
 
 #ifdef L_getpeername
-#include <sys/socket.h>
 #ifdef __NR_getpeername
 _syscall3(int, getpeername, int, sockfd, struct, sockaddr *, addr, socklen_t *,paddrlen);
 #else
@@ -102,7 +98,6 @@ int getpeername(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 #endif
 
 #ifdef L_getsockname
-#include <sys/socket.h>
 #ifdef __NR_getsockname
 _syscall3(int, getsockname, int, sockfd, struct, sockaddr *, addr, socklen_t *,paddrlen);
 #else
@@ -119,7 +114,6 @@ int getsockname(int sockfd, struct sockaddr *addr, socklen_t * paddrlen)
 #endif
 
 #ifdef L_getsockopt
-#include <sys/socket.h>
 #ifdef __NR_getsockopt
 _syscall5(int, getsockopt, int, fd, int, level, int, optname, __ptr_t, optval, socklen_t *, optlen);
 #else
@@ -139,7 +133,6 @@ int getsockopt(int fd, int level, int optname, __ptr_t optval,
 #endif
 
 #ifdef L_listen
-#include <sys/socket.h>
 #ifdef __NR_listen
 _syscall2(int, listen, int, sockfd, int, backlog);
 #else
@@ -155,9 +148,8 @@ int listen(int sockfd, int backlog)
 #endif
 
 #ifdef L_recv
-#include <sys/socket.h>
 #ifdef __NR_recv
-#define __NR_recv __NR___libc_recv
+#define __NR___libc_recv __NR_recv
 _syscall4(int, __libc_recv, int, sockfd, __ptr_t, buffer, size_t, len, int, flags);
 #else
 /* recv, recvfrom added by bir7@leland.stanford.edu */
@@ -176,9 +168,8 @@ weak_alias(__libc_recv, recv);
 #endif
 
 #ifdef L_recvfrom
-#include <sys/socket.h>
 #ifdef __NR_recvfrom
-#define __NR_recvfrom __NR___libc_recvfrom
+#define __NR___libc_recvfrom __NR_recvfrom
 _syscall6(int, __libc_recvfrom, int, sockfd, __ptr_t, buffer, size_t, len, int, flags, 
 	struct sockaddr *, to, socklen_t *, tolen);
 #else
@@ -201,9 +192,8 @@ weak_alias(__libc_recvfrom, recvfrom);
 #endif
 
 #ifdef L_recvmsg
-#include <sys/socket.h>
 #ifdef __NR_recvmsg
-#define __NR_recvmsg __NR___libc_recvmsg
+#define __NR___libc_recvmsg __NR_recvmsg
 _syscall3(int, __libc_recvmsg, int, sockfd, struct msghdr *, msg, int, flags);
 #else
 int __libc_recvmsg(int sockfd, struct msghdr *msg, int flags)
@@ -220,9 +210,8 @@ weak_alias(__libc_recvmsg, recvmsg);
 #endif
 
 #ifdef L_send
-#include <sys/socket.h>
 #ifdef __NR_send
-#define __NR_send __NR___libc_send
+#define __NR___libc_send    __NR_send
 _syscall4(int, __libc_send, int, sockfd, const void *, buffer, size_t, len, int, flags);
 #else
 /* send, sendto added by bir7@leland.stanford.edu */
@@ -241,9 +230,8 @@ weak_alias(__libc_send, send);
 #endif
 
 #ifdef L_sendmsg
-#include <sys/socket.h>
 #ifdef __NR_sendmsg
-#define __NR_sendmsg __NR___libc_sendmsg
+#define __NR___libc_sendmsg __NR_sendmsg
 _syscall3(int, __libc_sendmsg, int, sockfd, const struct msghdr *, msg, int, flags);
 #else
 int __libc_sendmsg(int sockfd, const struct msghdr *msg, int flags)
@@ -260,9 +248,8 @@ weak_alias(__libc_sendmsg, sendmsg);
 #endif
 
 #ifdef L_sendto
-#include <sys/socket.h>
 #ifdef __NR_sendto
-#define __NR_sendto __NR___libc_sendto
+#define __NR___libc_sendto  __NR_sendto
 _syscall6(int, __libc_sendto, int, sockfd, const void *, buffer, size_t, len, 
 	int, flags, const struct sockaddr *, to, socklen_t, tolen);
 #else
@@ -285,7 +272,6 @@ weak_alias(__libc_sendto, sendto);
 #endif
 
 #ifdef L_setsockopt
-#include <sys/socket.h>
 #ifdef __NR_setsockopt
 _syscall5(int, setsockopt, int, fd, int, level, int, optname, const void *, optval, socklen_t, optlen);
 #else
@@ -306,7 +292,6 @@ int setsockopt(int fd, int level, int optname, const void *optval,
 #endif
 
 #ifdef L_shutdown
-#include <sys/socket.h>
 #ifdef __NR_shutdown
 _syscall2(int, shutdown, int, sockfd, int, how);
 #else
@@ -323,7 +308,6 @@ int shutdown(int sockfd, int how)
 #endif
 
 #ifdef L_socket
-#include <sys/socket.h>
 #ifdef __NR_socket
 _syscall3(int, socket, int, family, int, type, int, protocol);
 #else
@@ -340,7 +324,6 @@ int socket(int family, int type, int protocol)
 #endif
 
 #ifdef L_socketpair
-#include <sys/socket.h>
 #ifdef __NR_socketpair
 _syscall4(int, socketpair, int, family, int, type, int, protocol, int, sockvec[2]);
 #else
