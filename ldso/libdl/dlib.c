@@ -149,7 +149,7 @@ void *_dlopen(const char *libname, int flag)
 #endif
 		return NULL;
 	}
-	tpnt->libtype = loaded_file;
+	//tpnt->libtype = loaded_file;
 
 	dyn_chain = rpnt = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 	_dl_memset(rpnt, 0, sizeof(*rpnt));
