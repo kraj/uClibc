@@ -31,8 +31,6 @@ LIBDL_SHARED_FULLNAME=libdl-$(MAJOR_VERSION).$(MINOR_VERSION).so
 CSRC= dlib.c
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-TARGET_CFLAGS += #-DUSE_CACHE #-fPIC -D__PIC__ #-funroll-loops
-
 all: $(OBJS) $(LIBDL) shared
 
 $(LIBDL): ar-target
