@@ -368,14 +368,18 @@ size_t size;
 size_t nelm;
 FILE *fp;
 {
-	off_t bytes;
+	unsigned char *p;
+	unsigned char *q;
 
-#warning TODO: handle possible overflow for bytes
-	bytes = size * nelm;		/* How many bytes do we want? */
+#warning TODO: handle possible overflow of size * nelm
+	p = (unsigned char *) buf;
+	q = p + (size * nelm);
 
-	bytes = _uClibc_fread((unsigned char *)buf, bytes, fp);
-
-	return bytes/size;
+	while ((p < q) && !EOF_OR_ERROR(fp)) {
+		fprintf(stderr,"X\n");
+		p += _uClibc_fread(p, q - p, fp);
+	}
+	return (p - (unsigned char *) buf)/size;
 }
 #endif
 
@@ -420,25 +424,20 @@ off_t _uClibc_fread(unsigned char *buf, off_t bytes, FILE *fp)
 			fp->bufpos = fp->bufread = fp->bufstart; /* Reset pointers. */
 			fp->bufread += _uClibc_fread(fp->bufstart,
 										 fp->bufend - fp->bufstart, fp);
-			if (fp->bufread - fp->bufstart >= bytes) { /* If we read all */
-				fp->mode &= ~__MODE_EOF; /* that was requested, make sure */
-			}							 /* EOF flag is clear. */
 			goto FROM_BUF;
 		}
 
-		while (bytes) {
-			if ((len = read(fp->fd, p, (unsigned) bytes)) < 0) {
-				if (errno != EINTR) { /* We weren't interrupted, so error. */
-					fp->mode |= __MODE_ERR;
-					break;
-				}
-			} else {
-				if (len == 0) {
-					fp->mode |= __MODE_EOF;
-					break;
-				}
-				bytes -= len;
-				p += len;
+	TRY_READ:
+		len = read(fp->fd, p, (unsigned) bytes);
+		if (len < 0) {
+			if (errno == EINTR) { /* We were interrupted, so try again. */
+				goto TRY_READ;
+			}
+			fp->mode |= __MODE_ERR;
+		} else {
+			p += len;
+			if (len == 0) {
+				fp->mode |= __MODE_EOF;
 			}
 		}
 	}
