@@ -67,12 +67,13 @@ void *calloc(size_t num, size_t size)
 
 void *malloc(size_t size)
 {
+	void *result;
 #if 1
     /* Some programs will call malloc (0).  Lets be strict and return NULL */
     if (size == 0)
 	return NULL;
 #endif
-	void *result = mmap((void *) 0, size, PROT_READ | PROT_WRITE,
+	result = mmap((void *) 0, size, PROT_READ | PROT_WRITE,
 #ifdef __UCLIBC_HAS_MMU__
 						MAP_PRIVATE | MAP_ANONYMOUS, 0, 0
 #else
