@@ -62,7 +62,7 @@ void *
 malloc(size_t len)
 {
   void * result = mmap((void *)0, len, PROT_READ | PROT_WRITE,
-                 MAP_SHARED | MAP_ANONYMOUS, 0, 0);
+                 MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
   if (result == (void*)-1)
     return 0;
     
