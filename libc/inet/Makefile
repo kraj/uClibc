@@ -50,7 +50,8 @@ MOBJ3= accept.o bind.o connect.o getpeername.o getsockname.o getsockopt.o \
 	setsockopt.o shutdown.o socket.o socketpair.o 
 
 CSRC =getservice.c getproto.c hostid.c getnetent.c getnetbynm.c getnetbyad.c \
-	inet_net.c ntop.c herror.c if_nametoindex.c gai_strerror.c getaddrinfo.c 
+      inet_net.c ntop.c herror.c if_nametoindex.c gai_strerror.c getaddrinfo.c \
+      in6_addr.c
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 

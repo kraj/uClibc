@@ -933,14 +933,6 @@ struct hostent *gethostbyname(const char *name)
 
 #ifdef L_gethostbyname2
 
-#ifdef __UCLIBC_HAS_IPV6__
-/* TBD: Not the right place for defining these, I guess */
-const struct in6_addr in6addr_any =
-	{ { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } };
-const struct in6_addr in6addr_loopback =
-	{ { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } };                                    
-#endif /* __UCLIBC_HAS_IPV6__ */
-
 struct hostent *gethostbyname2(const char *name, int family)
 {
 #ifndef __UCLIBC_HAS_IPV6__
@@ -1685,16 +1677,6 @@ int gethostbyname_r(const char * name,
 #endif
 
 #ifdef L_gethostbyname2_r
-
-#ifdef __UCLIBC_HAS_IPV6__
-/* TBD: Not the right place for defining these, I guess */
-/*
-const struct in6_addr in6addr_any =
-	{ { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } };
-const struct in6_addr in6addr_loopback =
-	{ { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } };
-*/
-#endif /* __UCLIBC_HAS_IPV6__ */
 
 int gethostbyname2_r(const char *name, int family,
 			    struct hostent * result_buf,
