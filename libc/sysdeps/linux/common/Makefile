@@ -78,10 +78,10 @@ $(TOPDIR)lib/crtn.o: crtn.o
 	mkdir -p $(TOPDIR)lib/
 	cp crtn.o $(TOPDIR)lib/
 else
-crti.o:
+$(TOPDIR)lib/crti.o:
 	mkdir -p $(TOPDIR)lib/
 	$(AR) $(ARFLAGS) $(TOPDIR)lib/crti.o
-crtn.o:
+$(TOPDIR)lib/crtn.o:
 	mkdir -p $(TOPDIR)lib/
 	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
 endif
