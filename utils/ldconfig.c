@@ -92,11 +92,13 @@ int verbose = 0;		/* verbose mode */
 int libmode = 0;		/* library mode */
 int nolinks = 0;		/* don't update links */
 int nocache = 0;		/* don't build cache */
-char *conffile = LDSO_CONF;	/* default conf file */
-char *cachefile = LDSO_CACHE;	/* default cache file */
 void cache_print(void);
 void cache_write(void);
 void cache_dolib(const char *dir, const char *so, int libtype);
+#ifdef __LDSO_CACHE_SUPPORT__
+char *conffile = LDSO_CONF;	/* default conf file */
+char *cachefile = LDSO_CACHE;	/* default cache file */
+#endif
 
 /* These two are used internally -- you shouldn't need to use them */
 static void verror_msg(const char *s, va_list p)
@@ -813,10 +815,14 @@ int main(int argc, char **argv)
 		printcache = 1;	/* print cache */
 		break;
 	    case 'f':
+#ifdef __LDSO_CACHE_SUPPORT__
 		conffile = optarg;	/* alternate conf file */
+#endif
 		break;
 	    case 'C':
+#ifdef __LDSO_CACHE_SUPPORT__
 		cachefile = optarg;	/* alternate cache file */
+#endif
 		break;
 	    case 'r':
 		chroot_dir = optarg;
