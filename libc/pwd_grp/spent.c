@@ -64,7 +64,7 @@ void endspent(void)
 int getspent_r (struct spwd *spwd, char *buff, 
 	size_t buflen, struct spwd **result)
 {
-    int ret;
+    int ret=EINVAL;
     LOCK;
     *result = NULL;
     if (spwd_fd != -1 && (ret=__getspent_r(spwd, buff, buflen, spwd_fd)) == 0) {

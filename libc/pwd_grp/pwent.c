@@ -67,7 +67,7 @@ void endpwent(void)
 int getpwent_r (struct passwd *password, char *buff, 
 	size_t buflen, struct passwd **result)
 {
-    int ret;
+    int ret=EINVAL;
     LOCK;
     *result = NULL;
     if (pw_fd != -1 && (ret=__getpwent_r(password, buff, buflen, pw_fd)) == 0) {
