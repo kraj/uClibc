@@ -12,7 +12,6 @@ BEGIN \
   system("/bin/rm -f crt[in].S");
   omitcrti=0;
   omitcrtn=0;
-  do_sh_specials = 0;
   glb_idx = 0;
   while(getline < "initfini.S")
   { if(/\.endp/) {endp=1}
@@ -20,22 +19,37 @@ BEGIN \
     if(/\.align/) {alignval=$2}
 # here comes some special stuff for the SuperH targets
 #  We search for all labels, which uses the _GLOBAL_OFFSET_TABLE_
-#  definition, and store them in the glb_label array.
-    if(/_GLOBAL_OFFSET_TABLE_/) {
-      glb_label[glb_idx] = last;
-      glb_idx += 1;
-      glb = $0;
+#  or a call_gmon_start function reference, and store
+#  them in the glb_label array.
+    if(/_init_EPILOG_BEGINS/) {glb_idx=1;glb_idx_arr[glb_idx]=0}
+    if(/_fini_EPILOG_BEGINS/) {glb_idx=2;glb_idx_arr[glb_idx]=0}
+    if(/EPILOG_ENDS/)         {glb_idx=0}
+    if(/_GLOBAL_OFFSET_TABLE_/||/call_gmon_start/) {
+      glb_label[glb_idx,glb_idx_arr[glb_idx]] = last;
+      glb_idx_arr[glb_idx] += 1;
+      glb_label[glb_idx,glb_idx_arr[glb_idx]] = $0;
+      glb_idx_arr[glb_idx] += 1;
     }
     last = $1;
   }
   close("initfini.S");
 }
 # special rules for the SuperH targets (They do nothing on other targets)
-/SH_GLB_BEGINS/ && glb_idx==0 {omitcrti +=1;do_sh_specials++}
-/_init_SH_GLB/  && glb_idx>=1 {print glb_label[0] glb >> "crti.S"}
-/_fini_SH_GLB/  && glb_idx>=2 {print glb_label[1] glb >> "crti.S"}
-/SH_GLB_ENDS/   && glb_idx==0 {omitcrti -=1}
-/SH_GLB/ || /_GLOBAL_OFFSET_TABLE_/ && do_sh_specials>=1 {getline}
+/SH_GLB_BEGINS/ && glb_idx_arr[1]==0 && glb_idx_arr[2]==0 {omitcrti +=1}
+/_init_SH_GLB/  {glb_idx=1}
+/_fini_SH_GLB/  {glb_idx=2}
+/SH_GLB_ENDS/ {omitcrti -=1}
+/SH_GLB/ \
+{
+  if (glb_idx>0)
+    {
+      for (i=0;i<glb_idx_arr[glb_idx];i+=1) {
+	print glb_label[glb_idx,i] >> "crti.S";
+      }
+      glb_idx = 0;
+    }
+  next;
+}
 # special rules for H8/300 (sorry quick hack)
 /.h8300h/ {end=0}
 
@@ -54,6 +68,12 @@ BEGIN \
 /GMON_STUFF_PAUSES/{omitcrtn=0;getline}
 /GMON_STUFF_UNPAUSES/{omitcrtn=1;getline}
 /GMON_STUFF_ENDS/{omitcrtn=0;getline}
+
+/_GLOBAL_OFFSET_TABLE_/||/gmon_start/ \
+{
+  if(omitcrti==0) {print >> "crti.S";}
+  next;  # no gmon_start or GLOBAL_OFFSET_TABLE references in crtn.S
+}
 
 /END_INIT/ \
 { if(endp)
