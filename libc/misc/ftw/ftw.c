@@ -21,9 +21,8 @@
 #define _GNU_SOURCE
 #include <features.h>
 
-#ifdef __UCLIBC_HAS_LFS__
 
-#ifdef L_ftw64
+#if defined (__UCLIBC_HAS_LFS__) && defined L_ftw64
 #define L_ftw
 
 /* If Large file support is enabled, transparently remap
@@ -48,7 +47,6 @@
 #define FTW_FUNC_T __ftw64_func_t
 #define NFTW_FUNC_T __nftw64_func_t
 #else
-
 #define FTW_NAME ftw
 #define NFTW_NAME nftw
 #define INO_T ino_t
@@ -57,7 +55,6 @@
 #define XSTAT stat
 #define FTW_FUNC_T __ftw_func_t
 #define NFTW_FUNC_T __nftw_func_t
-#endif
 #endif
 
 #ifdef L_ftw
