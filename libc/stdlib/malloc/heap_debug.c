@@ -59,28 +59,79 @@ __heap_dump (struct heap *heap, const char *str)
 }
 
 
+/* Output an error message to stderr, and exit.  STR is printed with the
+   failure message.  */
+static void
+__heap_check_failure (struct heap *heap, struct heap_free_area *fa,
+		      const char *str, char *fmt, ...)
+{
+  va_list val;
+
+  if (str)
+    fprintf (stderr, "\nHEAP CHECK FAILURE %s: ", str);
+  else
+    fprintf (stderr, "\nHEAP CHECK FAILURE: ");
+
+  va_start (val, fmt);
+  vfprintf (stderr, fmt, val);
+  va_end (val);
+
+  fprintf (stderr, "\nheap dump:\n");
+  __heap_dump_freelist (heap);
+
+  exit (22);
+}
+
 /* Do some consistency checks on HEAP.  If they fail, output an error
    message to stderr, and exit.  STR is printed with the failure message.  */
 void
 __heap_check (struct heap *heap, const char *str)
 {
+  typedef unsigned long ul_t;
   struct heap_free_area *fa, *prev;
+  struct heap_free_area *first_fa = heap->free_areas;
 
-  for (prev = 0, fa = heap->free_areas; fa; prev = fa, fa = fa->next)
-    if (fa->prev != prev)
-      {
-	if (str)
-	  fprintf (stderr, "\nHEAP CHECK FAILURE %s: ", str);
-	else
-	  fprintf (stderr, "\nHEAP CHECK FAILURE: ");
+  if (first_fa && first_fa->prev)
+    __heap_check_failure (heap, first_fa, str,
+"first free-area has non-zero prev pointer:\n\
+    first free-area = 0x%lx\n\
+    (0x%lx)->prev   = 0x%lx\n",
+			      (ul_t)first_fa,
+			      (ul_t)first_fa, (ul_t)first_fa->prev);
 
-	fprintf (stderr,
-		 " prev pointer corrupted:  P=0x%lx should be 0x%lx\n",
-		 (long)fa->prev, (long)prev);
-	fprintf (stderr, "\nheap:\n");
+  for (prev = 0, fa = first_fa; fa; prev = fa, fa = fa->next)
+    {
+      if (((ul_t)HEAP_FREE_AREA_END (fa) & (HEAP_GRANULARITY - 1))
+	  || (fa->size & (HEAP_GRANULARITY - 1)))
+	__heap_check_failure (heap, fa, str, "alignment error:\n\
+    (0x%lx)->start = 0x%lx\n\
+    (0x%lx)->size  = 0x%lx\n",
+			      (ul_t)fa,
+			      (ul_t)HEAP_FREE_AREA_START (fa),
+			      (ul_t)fa, fa->size);
 
-	__heap_dump_freelist (heap);
+      if (fa->prev != prev)
+	__heap_check_failure (heap, fa, str, "prev pointer corrupted:\n\
+    (0x%lx)->next = 0x%lx\n\
+    (0x%lx)->prev = 0x%lx\n",
+			      (ul_t)prev, (ul_t)prev->next,
+			      (ul_t)fa, (ul_t)fa->prev);
 
-	exit (22);
-      }
+      if (prev)
+	{
+	  ul_t start = (ul_t)HEAP_FREE_AREA_START (fa);
+	  ul_t prev_end = (ul_t)HEAP_FREE_AREA_END (prev);
+
+	  if (prev_end >= start)
+	    __heap_check_failure (heap, fa, str,
+				  "start %s with prev free-area end:\n\
+    (0x%lx)->prev  = 0x%lx\n\
+    (0x%lx)->start = 0x%lx\n\
+    (0x%lx)->end   = 0x%lx\n",
+				  (prev_end == start ? "unmerged" : "overlaps"),
+				  (ul_t)fa, (ul_t)prev,
+				  (ul_t)fa, start,
+				  (ul_t)prev, prev_end);
+	}
+    }
 }
