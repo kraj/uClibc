@@ -223,7 +223,7 @@ DL_BOOT(unsigned long args)
 	/* First obtain the information on the stack that tells us more about
 	   what binary is loaded, where it is loaded, etc, etc */
 	GET_ARGV(aux_dat, args);
-#if defined(__arm__)
+#if defined(__arm__) || defined(__mips__)
 	aux_dat += 1;
 #endif
 	argc = *(aux_dat - 1);
@@ -259,7 +259,7 @@ DL_BOOT(unsigned long args)
 	/* Check the ELF header to make sure everything looks ok.  */
 	if (!header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
 		header->e_ident[EI_VERSION] != EV_CURRENT
-#ifndef __powerpc__
+#if !defined(__powerpc__) && !defined(__mips__)
 		|| _dl_strncmp((void *) header, ELFMAGIC, SELFMAG) != 0
 #endif
 		) {
@@ -286,6 +286,8 @@ DL_BOOT(unsigned long args)
   __asm__("\tmov %0, r10\n\t":"=r"(got));
 #elif defined(__powerpc__)
   __asm__("\tbl _GLOBAL_OFFSET_TABLE_-4@local\n\t":"=l"(got));
+#elif defined(__mips__)
+  __asm__("\tmove %0, $28\n\t":"=r"(got));
 #else
 	/* Do things the slow way in C */
 	{

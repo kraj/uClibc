@@ -4,6 +4,12 @@
  * Linux/MIPS 2.4.17 version kernel.
  */
 
+#ifndef _SYS_STAT_H
+#define _SYS_STAT_H
+
+#define new_stat stat
+#include <asm/stat.h>
+
 #define __NR_SYSCALL_BASE		4000
 
 #define __NR_exit			(__NR_SYSCALL_BASE +   1)
@@ -135,3 +141,5 @@ type name(atype a, btype b, ctype c, dtype d) \
 		return (type) __v0; \
 	return (type) -1; \
 }
+
+#endif
