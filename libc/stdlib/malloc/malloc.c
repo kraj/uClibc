@@ -121,10 +121,9 @@ malloc (size_t size)
   __malloc_unlock ();
 
   if (__malloc_likely (mem))
-    /* Record the size of this block.  */
+    /* Record the size of the block and get the user address.  */
     {
-      mem = MALLOC_ADDR (mem);
-      MALLOC_SET_SIZE (mem, size);
+      mem = MALLOC_SETUP (mem, size);
 
       MALLOC_DEBUG ("  malloc: returning 0x%lx (base:0x%lx, total_size:%d)\n",
 		    (long)mem, (long)MALLOC_BASE(mem), (long)MALLOC_SIZE(mem));
