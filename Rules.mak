@@ -108,6 +108,7 @@ export TARGET_ARCH
 ARFLAGS:=r
 
 OPTIMIZATION:=
+PICFLAG:=-fPIC
 # Some nice CPU specific optimizations
 ifeq ($(strip $(TARGET_ARCH)),i386)
 	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
@@ -158,6 +159,7 @@ endif
 ifeq ($(strip $(TARGET_ARCH)),cris)
 	CPU_LDFLAGS-$(CONFIG_CRIS):="-mcrislinux"
 	CPU_CFLAGS-$(CONFIG_CRIS):="-mlinux"
+	PICFLAG:=-fpic
 endif
 
 # use '-Os' optimization if available, else use -O2, allow Config to override
@@ -174,6 +176,7 @@ CFLAGS:=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) \
 
 ifeq ($(DODEBUG),y)
     CFLAGS += -g
+    #CFLAGS = $(XWARNINGS) -O0 -g $(CPU_CFLAGS) -fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
     LDFLAGS:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
     STRIPTOOL:= true -Since_we_are_debugging
 else
@@ -206,11 +209,7 @@ endif
 
 CFLAGS_NOPIC:=$(CFLAGS)
 ifeq ($(DOPIC),y)
-ifeq ($(strip $(TARGET_ARCH)),cris)
-	CFLAGS += -fpic -mlinux
-else
-    CFLAGS += -fPIC
-endif
+    CFLAGS += $(PICFLAG)
 endif
 
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
