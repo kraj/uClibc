@@ -7,7 +7,7 @@
    these macros to test for features in specific releases.  */
 #define	__UCLIBC__		0
 #define	__UCLIBC_MAJOR__	9
-#define	__UCLIBC_MINOR__	1
+#define	__UCLIBC_MINOR__	5
 
 /* Make a half-hearted attempt to accomodate non-gcc compilers */
 #ifndef __GNUC__
