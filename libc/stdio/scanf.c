@@ -165,11 +165,12 @@ static int valid_digit(char c, char base)
 	}
 }
 
-extern unsigned long long
-_strto_ll(const char *str, char **endptr, int base, int uflag);
-
 extern unsigned long
-_strto_l(const char *str, char **endptr, int base, int uflag);
+_stdlib_strto_l(register const char * __restrict str,
+				char ** __restrict endptr, int base, int sflag);
+extern unsigned long long
+_stdlib_strto_ll(register const char * __restrict str,
+				 char ** __restrict endptr, int base, int sflag);
 
 struct scan_cookie {
 	FILE *fp;
@@ -274,12 +275,12 @@ const char *format;
 va_list ap;
 {
 #ifdef __UCLIBC_HAS_LONG_LONG__
-#define STRTO_L_(s,e,b,u) _strto_ll(s,e,b,u)
+#define STRTO_L_(s,e,b,sf) _stdlib_strto_ll(s,e,b,sf)
 #define MAX_DIGITS 64
 #define UV_TYPE unsigned long long
 #define V_TYPE long long
 #else
-#define STRTO_L_(s,e,b,u) _strto_l(s,e,b,u)
+#define STRTO_L_(s,e,b,sf) _stdlib_strto_l(s,e,b,sf)
 #define MAX_DIGITS 32
 #define UV_TYPE unsigned long
 #define V_TYPE long
@@ -478,7 +479,7 @@ va_list ap;
 						if (*buf == '-') {
 							usflag = 0;
 						}
-						uv = STRTO_L_(buf, NULL, base, usflag);
+						uv = STRTO_L_(buf, NULL, base, 1-usflag);
 						vp = va_arg(ap, void *);
 						switch (lval) {
 							case 2:	/* If no long long, treat as long . */
