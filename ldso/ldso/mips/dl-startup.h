@@ -51,15 +51,16 @@ asm("" \
 #define PERFORM_BOOTSTRAP_GOT(got, tpnt)					\
 do {										\
 	Elf32_Sym *sym;								\
-	unsigned long i;							\
+	Elf32_Addr i;							\
+	Elf32_Addr *mipsgot = (void *) got;					\
 										\
 	/* Add load address displacement to all local GOT entries */		\
 	i = 2;									\
 	while (i < tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX])			\
-		got[i++] += load_addr;						\
+		mipsgot[i++] += load_addr;					\
 										\
 	/* Handle global GOT entries */						\
-	got += tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX];			\
+	mipsgot += tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX];			\
 	sym = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] +			\
 		 load_addr) + tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];		\
 	i = tpnt->dynamic_info[DT_MIPS_SYMTABNO_IDX] - tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];\
@@ -67,22 +68,21 @@ do {										\
 	while (i--) {								\
 		if (sym->st_shndx == SHN_UNDEF ||				\
 			sym->st_shndx == SHN_COMMON)				\
-			*got = load_addr + sym->st_value;			\
+			*mipsgot = load_addr + sym->st_value;			\
 		else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&		\
-			*got != sym->st_value)					\
-			*got += load_addr;					\
+			*mipsgot != sym->st_value)				\
+			*mipsgot += load_addr;					\
 		else if (ELF32_ST_TYPE(sym->st_info) == STT_SECTION) {		\
 			if (sym->st_other == 0)					\
-				*got += load_addr;				\
+				*mipsgot += load_addr;				\
 		}								\
 		else								\
-			*got = load_addr + sym->st_value;			\
+			*mipsgot = load_addr + sym->st_value;			\
 										\
-		got++;								\
+		mipsgot++;							\
 		sym++;								\
 	}									\
 } while (0)
-
 
 /*
  * Here is a macro to perform a relocation.  This is only used when

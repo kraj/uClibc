@@ -8,6 +8,8 @@
 /* Define this if the system uses RELOCA.  */
 #undef ELF_USES_RELOCA
 #include <elf.h>
+#include <link.h>
+
 #define ARCH_NUM 3
 #define DT_MIPS_GOTSYM_IDX	(DT_NUM + OS_NUM)
 #define DT_MIPS_LOCAL_GOTNO_IDX	(DT_NUM + OS_NUM +1)
