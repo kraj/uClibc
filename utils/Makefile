@@ -49,19 +49,22 @@ ldconfig:	ldconfig.c readsoname.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -static \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
-		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
+		-nostdlib -o $@ $(STATIC_BIN_START_FILES) $^ $(LDADD_LIBFLOAT) \
+		-L../lib -lc $(LIBGCC) $(STATIC_BIN_END_FILES)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldd:	ldd.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
-		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
+		-nostdlib -o $@ $(BIN_START_FILES) $^ $(LDADD_LIBFLOAT) \
+		-L../lib -lc $(LIBGCC) $(END_FILES)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 iconv: ../libc/misc/wchar/wchar.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -DL_iconv_main \
-		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
+		-nostdlib -o $@ $(BIN_START_FILES) $^ $(LDADD_LIBFLOAT) \
+		-L../lib -lc $(LIBGCC) $(END_FILES)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 hostutils: ldd.host ldconfig.host readelf.host

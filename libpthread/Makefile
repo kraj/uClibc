@@ -38,14 +38,10 @@ ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 endif
 endif
 
-ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
-ifeq ($(strip $(DOPIC)),y)
-    START_FILES  = $(TOPDIR)lib/crti.o    $(LIBGCC_DIR)crtbeginS.o
-    END_FILES    = $(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
-else
-    START_FILES  = $(TOPDIR)lib/crti.o    $(LIBGCC_DIR)crtbegin.o
-    END_FILES    = $(LIBGCC_DIR)crtend.o  $(TOPDIR)lib/crtn.o
-endif
+# do we really have to unset these?
+ifneq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+	START_FILES =
+	END_FILES =
 endif
 
 ALL_SUBDIRS = linuxthreads linuxthreads_db
