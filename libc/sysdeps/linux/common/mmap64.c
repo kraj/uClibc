@@ -67,7 +67,7 @@ __ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t 
 
 #define __NR___syscall_mmap2	    __NR_mmap2
 static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr, 
-	size_t len, int, prot, int, flags, int, fd, off_t, offset);
+	size_t, len, int, prot, int, flags, int, fd, off_t, offset);
 
 /* This is always 12, even on architectures where PAGE_SHIFT != 12.  */
 # ifndef MMAP2_PAGE_SHIFT
@@ -76,7 +76,6 @@ static inline _syscall6(__ptr_t, __syscall_mmap2, __ptr_t, addr,
 
 __ptr_t mmap64(__ptr_t addr, size_t len, int prot, int flags, int fd, __off64_t offset)
 {
-    void *result;
     if (offset & ((1 << MMAP2_PAGE_SHIFT) - 1)) {
 	__set_errno (EINVAL);
 	return MAP_FAILED;
