@@ -343,9 +343,13 @@ found_got:
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	SEND_STDERR("About to do library loader relocations\n");
 #endif
-
+#ifdef  ELF_MACHINE_PLTREL_OVERLAP
+# define INDX_MAX 1
+#else
+# define INDX_MAX 2
+#endif
 	goof = 0;
-	for (indx = 0; indx < 2; indx++) {
+	for (indx = 0; indx < INDX_MAX; indx++) {
 		unsigned int i;
 		ELF_RELOC *rpnt;
 		unsigned long *reloc_addr;
