@@ -65,7 +65,7 @@ ldd: ldd.c
 	strip -x -R .note -R .comment $@
 
 ldd.target: ldd.c
-	$(TARGET_CC) $(CFLAGS) --uclibc-use-build-dir -Wl,-s -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
+	$(TARGET_CC) $(CFLAGS) -Wl,-s -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" \
