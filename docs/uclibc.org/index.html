@@ -229,94 +229,6 @@ you might want to search the mailing list archives...
 
 
     
-    <p>
-    <li> <b>25 January 2003, dev system updates, arm image released</b>
-    <br>
-
-    A number of additional problems have been fixed and the arm build 
-    is now, finally, compiling and working as expected.  As such, 
-    I have updated the <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">
-    i386 development system image</a>, the 
-    <a href="http://www.uclibc.org/downloads/root_fs-powerpc.bz2">
-    powerpc development system image</a>, and I am also releasing
-    upon an unsuspecting world the brand new
-    <a href="http://www.uclibc.org/downloads/root_fs-arm.bz2">
-    arm development system image</a>!  
-    Have fun!
-    <p>
-
-    All three development system images were compiled and built using the stock
-    <a href="/cgi-bin/cvsweb/buildroot/">buildroot</a> system.  These were also
-    built using the (about to be announced in a couple on minutes) uClibc
-    0.9.17 release, so if you want to begin compiling and testing stuff with
-    uClibc, but you don't feel like spending the _hours_ it takes to download,
-    configure, and build your own uClibc based development system -- then you
-    may want to download these and give them a try.  They each contain a 100 MB
-    ext2 filesystem with everything you need to begin compiling your own
-    applications.  I have (at least minimally) tested each of them and verified
-    that the included gcc and g++ compilers produce working uClibc linked
-    executables.
-
-    <p>
-    Oh, and I have also have updated the uClibc/gcc toolchain builders, so
-    if you just want a simple uClibc/gcc toolchain, 
-    <a href="/cgi-bin/cvsweb/toolchain/">one of these should work for you.</a>
-    <p>
-
-
-    <p>
-    <li> <b>10 January 2003, dev system updates, powerpc image released</b>
-    <br>
-
-    A few problems showed up in yesterday's development system release
-    (adduser was broken, gdb didn't work, libstdc++ shared libs were missing,
-    etc).  So I've updated the <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">
-    i386 development system image</a> to fix these problems.
-    Also, the <a href="http://www.uclibc.org/downloads/root_fs-powerpc.bz2">
-    powerpc development system image</a> has finally finished compiling
-    and is now released upon an unsuspecting world.  Have fun!
-    <p>
-
-
-    <p>
-    <li> <b>9 January 2003, uClibc development system released</b>
-    <br>
-
-    CodePoet Consulting (i.e. Erik) has been working hard on <a
-    href="/cgi-bin/cvsweb/buildroot/">buildroot</a> recently, and is pleased to
-    offer a full stand-alone uClibc-only development system.  This is an ext2
-    filesystem for i386 containing all the development software you need to
-    build your own uClibc applications.  With bash, awk, make, gcc, g++,
-    autoconf, automake, ncurses, zlib, openssl, openssh, gdb, strace, valgrind,
-    busybox, GNU coreutils, and more, this should have pretty much everything
-    you need to get started building your own applications linked against
-    uClibc.  By using a uClibc only system, you can avoid all the painful
-    cross-configuration problems that have made using uClibc somewhat painful
-    in the past.  A powerpc and an arm version are in progress.  Expect them
-    to be released shortly....
-
-    <p>
-
-    The <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">
-    uClibc development system is an 18MB bzip2 compressed ext2 filesystem</a>,
-    so be prepared to wait if you are on a slow link.  If you wish to have more
-    space, you can loop mount it and 'cp -a' the contents to their own
-    partition, or do what I did... <EM>WARNING, the following can be very
-    dangerous.  Please be sure you know what you are doing before trying this.
-    I am not responsible if you lose all your important data.</EM>I had a spare
-    hard drive (in my case /dev/hdg but you'll want to adapt this to your own 
-    needs), so I partitioned it with a single ext2 partition filling the drive 
-    (in my case /dev/hdg1).  Then I ran:<PRE>
-    bzcat root_fs-i386.bz2 | dd of=/dev/hdg1
-    e2fsck -f /dev/hdg1
-    resize2fs -p /dev/hdg1</PRE>
-
-    which overwrote everything on /dev/hdg with the new uClibc devel system,
-    and then expanded the filesystem with the uClibc devel system till it
-    filled the whole drive.
-    <p>
-
-
     <p> <li> <b>Old News</b>
     <br>
 
@@ -404,6 +316,40 @@ you might want to search the mailing list archives...
     <li> <a href="cvs_anon.html">Anonymous CVS access</a> is available to let you track development.
     <li> <a href="cvs_write.html">CVS write access</a> is also available for those that are actively
 	contributing.
+</ul>
+
+    
+
+<!-- Begin Toolchain section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="toolchain"><BIG><B>
+    Toolchains
+    </A></B></BIG>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+<ul>
+
+    <li>Steven J. Hill has kindly provided 
+	<a href="ftp://ftp.realitydiluted.com/linux/MIPS/toolchains">RPMs and SRPMs</a>
+	with toolchains for mips.
+
+    <li>You can build your own 
+	<a href="/cgi-bin/cvsweb/toolchain/">uClibc toolchain</a>
+	using these Makefiles which automagically download all the source
+	needed code and compile it for you.
+
+    <li>uClibc development systems for
+	<a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">i386</a>
+	and 
+	<a href="http://www.uclibc.org/downloads/root_fs-powerpc.bz2">powerpc</a>,
+	and
+	<a href="http://www.uclibc.org/downloads/root_fs-arm.bz2">arm</a>
+	are available and contain complete gcc 3.2.2 toolchains. 
+
+    <li>You can compile your own uClibc development system using
+	<a href="/cgi-bin/cvsweb/buildroot/">buildroot</a>.
+
 </ul>
 
     
