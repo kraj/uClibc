@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2001-2002 David A. Schleef
  * Copyright (C) 2003-2004 Erik Andersen
+ * Copyright (C) 2004 Joakim Tjernlund
  *
  * All rights reserved.
  *
@@ -251,7 +252,197 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	return finaladdr;
 }
 
-static int
+static inline int
+_dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
+	      ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
+{
+	int reloc_type;
+	int symtab_index;
+	char *symname;
+	Elf32_Addr *reloc_addr;
+	Elf32_Addr finaladdr;
+	struct dyn_elf *sym_scope;
+
+	unsigned long symbol_addr;
+#if defined (__SUPPORT_LD_DEBUG__)
+	unsigned long old_val;
+#endif
+	reloc_addr   = (Elf32_Addr *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
+	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
+	if (reloc_type == R_PPC_RELATIVE) {
+		*reloc_addr = tpnt->loadaddr + rpnt->r_addend;
+		return 0;
+	}
+	if (reloc_type == R_PPC_NONE)
+		return 0;
+	symtab_index = ELF32_R_SYM(rpnt->r_info);
+	symname      = strtab + symtab[symtab_index].st_name;
+#if 0
+	sym_scope = scope->dyn->symbol_scope;
+#else
+	sym_scope = scope;/* Funny, this works too and appears to be much faster. */
+#endif
+	if (reloc_type == R_PPC_COPY) {
+		sym_scope = scope->next;
+		tpnt = NULL; /* To be or not to be ...*/
+	}
+	symbol_addr = (unsigned long) _dl_find_hash(symname, sym_scope,
+						    (reloc_type == R_PPC_JMP_SLOT ? tpnt : NULL),
+						    (reloc_type == R_PPC_COPY ? copyrel : symbolrel));
+	/*
+	 * We want to allow undefined references to weak symbols - this might
+	 * have been intentional.  We should not be linking local symbols
+	 * here, so all bases should be covered.
+	 */
+	if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_GLOBAL) {
+#if defined (__SUPPORT_LD_DEBUG__)
+		_dl_dprintf(2, "\tglobal symbol '%s' already defined in '%s', rel type: %s\n",
+			    symname, tpnt->libname, _dl_reltypes(reloc_type));
+#endif
+		return 0;
+	}
+#if defined (__SUPPORT_LD_DEBUG__)
+	old_val = *reloc_addr;
+#endif
+	finaladdr = (Elf32_Addr) (symbol_addr + rpnt->r_addend);
+
+	switch (reloc_type) {
+	case R_PPC_ADDR32:
+	case R_PPC_GLOB_DAT:
+		*reloc_addr = finaladdr;
+		return 0; /* No code code modified */
+		break;
+	case R_PPC_JMP_SLOT:
+	{
+		Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
+
+		if (delta<<6>>6 == delta) {
+			*reloc_addr = OPCODE_B(delta);
+#if 0
+		/* this will almost never be true */
+		} else if (finaladdr <= 0x01fffffc || finaladdr >= 0xfe000000) {
+			*reloc_addr = OPCODE_BA (finaladdr);
+#endif
+		} else {
+			/* Warning: we don't handle double-sized PLT entries */
+			Elf32_Word *plt, *data_words, index, offset;
+
+			plt = (Elf32_Word *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
+			offset = reloc_addr - plt;
+			index = (offset - PLT_INITIAL_ENTRY_WORDS)/2;
+			data_words = (Elf32_Word *)tpnt->data_words;
+
+			data_words[index] = finaladdr;
+			reloc_addr[0] = OPCODE_LI(11,index*4);
+			reloc_addr[1] = OPCODE_B((PLT_LONGBRANCH_ENTRY_WORDS - (offset+1)) * 4);
+
+			/* instructions were modified */
+			PPC_DCBST(reloc_addr+1);
+			PPC_SYNC;
+			PPC_ICBI(reloc_addr+1);
+		}
+		break;
+	}
+	case R_PPC_COPY:
+		if (symbol_addr) {
+#if defined (__SUPPORT_LD_DEBUG__)
+			if(_dl_debug_move)
+				_dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
+					    symname, symtab[symtab_index].st_size,
+					    symbol_addr, symtab[symtab_index].st_value);
+#endif
+			_dl_memcpy((char *) reloc_addr, (char *) finaladdr, symtab[symtab_index].st_size);
+		}
+		return 0; /* No code code modified */
+		break;
+	case R_PPC_ADDR16_HA:
+		*(short *)reloc_addr = (finaladdr + 0x8000)>>16;
+		break;
+	case R_PPC_ADDR16_HI:
+		*(short *)reloc_addr = finaladdr >> 16;
+		break;
+	case R_PPC_ADDR16_LO:
+		*(short *)reloc_addr = finaladdr;
+		break;
+	case R_PPC_REL24:
+	{
+		Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
+		if(delta<<6>>6 != delta){
+			_dl_dprintf(2, "%s: symbol '%s' R_PPC_REL24 is out of range.\n\t"
+					"Compile shared libraries with -fPIC!\n",
+				    _dl_progname, symname);
+			_dl_exit(1);
+		}
+		*reloc_addr = (*reloc_addr & 0xfc000003) | (delta & 0x3fffffc);
+		break;
+	}
+	default:
+		_dl_dprintf(2, "%s: can't handle reloc type ", _dl_progname);
+#if defined (__SUPPORT_LD_DEBUG__)
+		_dl_dprintf(2, "%s ", _dl_reltypes(reloc_type));
+#endif
+		if (symtab_index)
+			_dl_dprintf(2, "'%s'\n", strtab + symtab[symtab_index].st_name);
+		return -1;
+	};
+
+	/* instructions were modified */
+	PPC_DCBST(reloc_addr);
+	PPC_SYNC;
+	PPC_ICBI(reloc_addr);
+	PPC_ISYNC;
+#if defined (__SUPPORT_LD_DEBUG__)
+	if(_dl_debug_reloc && _dl_debug_detail)
+		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
+#endif
+	return 0;
+}
+
+void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
+	unsigned long rel_addr, unsigned long rel_size, int type)
+{
+	struct elf_resolve *tpnt = rpnt->dyn;
+	Elf32_Word *plt, offset, i,  num_plt_entries, rel_offset_words;
+
+	(void) type;
+	num_plt_entries = rel_size / sizeof(ELF_RELOC);
+
+	/* When the dynamic linker bootstrapped itself, it resolved some symbols.
+	   Make sure we do not do them again */
+	if (tpnt->libtype == program_interpreter)
+		return;
+	rel_offset_words = PLT_DATA_START_WORDS(num_plt_entries);
+	plt = (Elf32_Word *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
+
+	/* Set up the lazy PLT entries.  */
+	offset = PLT_INITIAL_ENTRY_WORDS;
+	i = 0;
+	/* Warning: we don't handle double-sized PLT entries */
+	while (i < num_plt_entries) {
+		plt[offset  ] = OPCODE_LI(11, i * 4);
+		plt[offset+1] = OPCODE_B((PLT_TRAMPOLINE_ENTRY_WORDS + 2 - (offset+1)) * 4);
+		i++;
+		offset += 2;
+	}
+	/* Now, we've modified code.  We need to write the changes from
+	   the data cache to a second-level unified cache, then make
+	   sure that stale data in the instruction cache is removed.
+	   (In a multiprocessor system, the effect is more complex.)
+	   Most of the PLT shouldn't be in the instruction cache, but
+	   there may be a little overlap at the start and the end.
+
+	   Assumes that dcbst and icbi apply to lines of 16 bytes or
+	   more.  Current known line sizes are 16, 32, and 128 bytes.  */
+	for (i = 0; i < rel_offset_words; i += 4)
+		PPC_DCBST (plt + i);
+	PPC_DCBST (plt + rel_offset_words - 1);
+	PPC_SYNC;
+	PPC_ICBI (plt);
+	PPC_ICBI (plt + rel_offset_words - 1);
+	PPC_ISYNC;
+}
+
+static inline int
 _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	  unsigned long rel_addr, unsigned long rel_size,
 	  int (*reloc_fnc) (struct elf_resolve *tpnt, struct dyn_elf *scope,
@@ -316,238 +507,17 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	  return 0;
 }
 
-static int
-_dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
-	      ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
-{
-	int reloc_type;
-	int symtab_index;
-	char *symname;
-	Elf32_Addr *reloc_addr;
-	Elf32_Addr finaladdr;
-
-	unsigned long symbol_addr;
-#if defined (__SUPPORT_LD_DEBUG__)
-	unsigned long old_val;
-#endif
-	reloc_addr   = (Elf32_Addr *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
-	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
-	if (reloc_type == R_PPC_RELATIVE) {
-		*reloc_addr = tpnt->loadaddr + rpnt->r_addend;
-		return 0;
-	}
-	if (reloc_type == R_PPC_NONE || reloc_type == R_PPC_COPY) /*  R_PPC_COPY is handled later */
-		return 0;
-	symtab_index = ELF32_R_SYM(rpnt->r_info);
-	symname      = strtab + symtab[symtab_index].st_name;
-
-	symbol_addr = (unsigned long) _dl_find_hash(symname, scope,
-						    (reloc_type == R_PPC_JMP_SLOT ? tpnt : NULL), symbolrel);
-	/*
-	 * We want to allow undefined references to weak symbols - this might
-	 * have been intentional.  We should not be linking local symbols
-	 * here, so all bases should be covered.
-	 */
-	if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_GLOBAL) {
-#if defined (__SUPPORT_LD_DEBUG__)
-		_dl_dprintf(2, "\tglobal symbol '%s' already defined in '%s', rel type: %s\n",
-			    symname, tpnt->libname, _dl_reltypes(reloc_type));
-#endif
-		return 0;
-	}
-#if defined (__SUPPORT_LD_DEBUG__)
-	old_val = *reloc_addr;
-#endif
-	finaladdr = (Elf32_Addr) (symbol_addr + rpnt->r_addend);
-
-	switch (reloc_type) {
-	case R_PPC_ADDR32:
-	case R_PPC_GLOB_DAT:
-		*reloc_addr = finaladdr;
-		return 0; /* No code code modified */
-		break;
-	case R_PPC_JMP_SLOT:
-	{
-		Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
-
-		if (delta<<6>>6 == delta) {
-			*reloc_addr = OPCODE_B(delta);
-#if 0
-		/* this will almost never be true */
-		} else if (finaladdr <= 0x01fffffc || finaladdr >= 0xfe000000) {
-			*reloc_addr = OPCODE_BA (finaladdr);
-#endif
-		} else {
-			/* Warning: we don't handle double-sized PLT entries */
-			Elf32_Word *plt, *data_words, index, offset;
-
-			plt = (Elf32_Word *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
-			offset = reloc_addr - plt;
-			index = (offset - PLT_INITIAL_ENTRY_WORDS)/2;
-			data_words = (Elf32_Word *)tpnt->data_words;
-
-			data_words[index] = finaladdr;
-			reloc_addr[0] = OPCODE_LI(11,index*4);
-			reloc_addr[1] = OPCODE_B((PLT_LONGBRANCH_ENTRY_WORDS - (offset+1)) * 4);
-
-			/* instructions were modified */
-			PPC_DCBST(reloc_addr+1);
-			PPC_SYNC;
-			PPC_ICBI(reloc_addr+1);
-		}
-		break;
-	}
-	case R_PPC_COPY:
-		/* This does not work yet, R_PPC_COPY is handled later, see if statemet above */
-		if (symbol_addr) {
-#if defined (__SUPPORT_LD_DEBUG__)
-			if(_dl_debug_move)
-				_dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
-					    symname, symtab[symtab_index].st_size,
-					    symbol_addr, symtab[symtab_index].st_value);
-#endif
-			_dl_memcpy((char *) reloc_addr, (char *) finaladdr, symtab[symtab_index].st_size);
-		}
-		return 0; /* No code code modified */
-		break;
-	case R_PPC_ADDR16_HA:
-		*(short *)reloc_addr = (finaladdr + 0x8000)>>16;
-		break;
-	case R_PPC_ADDR16_HI:
-		*(short *)reloc_addr = finaladdr >> 16;
-		break;
-	case R_PPC_ADDR16_LO:
-		*(short *)reloc_addr = finaladdr;
-		break;
-	case R_PPC_REL24:
-	{
-		Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
-		if(delta<<6>>6 != delta){
-			_dl_dprintf(2, "%s: symbol '%s' R_PPC_REL24 is out of range.\n\tCompile shared libraries with -fPIC!\n",
-				    _dl_progname, symname);
-			_dl_exit(1);
-		}
-		*reloc_addr = (*reloc_addr & 0xfc000003) | (delta & 0x3fffffc);
-		break;
-	}
-	default:
-		_dl_dprintf(2, "%s: can't handle reloc type ", _dl_progname);
-#if defined (__SUPPORT_LD_DEBUG__)
-		_dl_dprintf(2, "%s ", _dl_reltypes(reloc_type));
-#endif
-		if (symtab_index)
-			_dl_dprintf(2, "'%s'\n", strtab + symtab[symtab_index].st_name);
-		return -1;
-	};
-
-	/* instructions were modified */
-	PPC_DCBST(reloc_addr);
-	PPC_SYNC;
-	PPC_ICBI(reloc_addr);
-	PPC_ISYNC;
-#if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug_reloc && _dl_debug_detail)
-		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
-#endif
-	return 0;
-}
-
-/* This is done as a separate step, because there are cases where
-   information is first copied and later initialized.  This results in
-   the wrong information being copied.  Someone at Sun was complaining about
-   a bug in the handling of _COPY by SVr4, and this may in fact be what he
-   was talking about.  Sigh. */
-static int
-_dl_do_copy_reloc (struct elf_resolve *tpnt, struct dyn_elf *scope,
-	     ELF_RELOC *rpnt, Elf32_Sym *symtab, char *strtab)
-{
-	int reloc_type;
-	int symtab_index;
-	unsigned long *reloc_addr;
-	unsigned long symbol_addr;
-	int goof = 0;
-	char *symname;
-
-	reloc_addr = (unsigned long *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
-	reloc_type = ELF32_R_TYPE(rpnt->r_info);
-	if (reloc_type != R_PPC_COPY)
-		return 0;
-	symtab_index = ELF32_R_SYM(rpnt->r_info);
-	symbol_addr = 0;
-	symname      = strtab + symtab[symtab_index].st_name;
-
-	if (symtab_index) {
-		symbol_addr = (unsigned long) _dl_find_hash(symname, scope, NULL, copyrel);
-		if (!symbol_addr) goof++;
-	}
-	if (!goof) {
-#if defined (__SUPPORT_LD_DEBUG__)
-	        if(_dl_debug_move)
-		  _dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
-			     symname, symtab[symtab_index].st_size,
-			     symbol_addr, symtab[symtab_index].st_value);
-#endif
-			_dl_memcpy((char *) reloc_addr,
-					(char *) (symbol_addr + (unsigned long)rpnt->r_addend), symtab[symtab_index].st_size);
-	}
-
-	return goof;
-}
-
-void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
-	unsigned long rel_addr, unsigned long rel_size, int type)
-{
-	struct elf_resolve *tpnt = rpnt->dyn;
-	Elf32_Word *plt, offset, i,  num_plt_entries, rel_offset_words;
-
-	(void) type;
-	num_plt_entries = rel_size / sizeof(ELF_RELOC);
-
-	/* When the dynamic linker bootstrapped itself, it resolved some symbols.
-	   Make sure we do not do them again */
-	if (tpnt->libtype == program_interpreter)
-		return;
-	rel_offset_words = PLT_DATA_START_WORDS(num_plt_entries);
-	plt = (Elf32_Word *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
-
-	/* Set up the lazy PLT entries.  */
-	offset = PLT_INITIAL_ENTRY_WORDS;
-	i = 0;
-	/* Warning: we don't handle double-sized PLT entries */
-	while (i < num_plt_entries) {
-		plt[offset  ] = OPCODE_LI(11, i * 4);
-		plt[offset+1] = OPCODE_B((PLT_TRAMPOLINE_ENTRY_WORDS + 2 - (offset+1)) * 4);
-		i++;
-		offset += 2;
-	}
-	/* Now, we've modified code.  We need to write the changes from
-	   the data cache to a second-level unified cache, then make
-	   sure that stale data in the instruction cache is removed.
-	   (In a multiprocessor system, the effect is more complex.)
-	   Most of the PLT shouldn't be in the instruction cache, but
-	   there may be a little overlap at the start and the end.
-
-	   Assumes that dcbst and icbi apply to lines of 16 bytes or
-	   more.  Current known line sizes are 16, 32, and 128 bytes.  */
-	for (i = 0; i < rel_offset_words; i += 4)
-		PPC_DCBST (plt + i);
-	PPC_DCBST (plt + rel_offset_words - 1);
-	PPC_SYNC;
-	PPC_ICBI (plt);
-	PPC_ICBI (plt + rel_offset_words - 1);
-	PPC_ISYNC;
-}
-
 int _dl_parse_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size, int type)
 {
-	return _dl_parse(rpnt->dyn, rpnt->dyn->symbol_scope, rel_addr, rel_size, _dl_do_reloc);
+	return _dl_parse(rpnt->dyn, rpnt, rel_addr, rel_size, _dl_do_reloc);
 }
 
+/* Should be a static inline instead, but that conflicts with ld_elf.h */
 int _dl_parse_copy_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size, int type)
 {
-	return _dl_parse(rpnt->dyn, rpnt->next, rel_addr, rel_size, _dl_do_copy_reloc);
+	/* Not used! */
+	return 0;
 }
-
 
