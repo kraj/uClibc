@@ -229,9 +229,10 @@ endif
 		$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
 			| sed -e 's/\.a$$/_pic.a/'`; \
 	done;
-	# Ugh!!! Remember that libdl.a and libdl_pic.a are different!
+	# Ugh!!! Remember that libdl.a and libdl_pic.a are different.  Since
+	# libdl is pretty small, and not likely to benefit from mklibs.py and
+	# similar, lets just remove libdl_pic.a and avoid the issue
 	rm -f $(PREFIX)$(DEVEL_PREFIX)lib/libdl_pic.a
-	cp -f ldso/libdl/libdl_pic.a $(PREFIX)$(DEVEL_PREFIX)lib/libdl_pic.a
 endif
 
 
