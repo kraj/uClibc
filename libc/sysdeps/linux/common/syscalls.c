@@ -980,6 +980,7 @@ _syscall1(int, uname, struct utsname *, buf);
 #ifdef L_adjtimex
 #include <sys/timex.h>
 _syscall1(int, adjtimex, struct timex *, buf);
+weak_alias(adjtimex, __adjtimex);
 #endif
 
 //#define __NR_mprotect         125
