@@ -25,7 +25,7 @@ TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
 MSRC=alloc.c
-MOBJ=malloc.o realloc.o free.o calloc.o malloc_dbg.o free_dbg.o calloc_dbg.o
+MOBJ=malloc.o realloc.o free.o calloc.o #malloc_dbg.o free_dbg.o calloc_dbg.o
 OBJS=$(MOBJ)
 
 
