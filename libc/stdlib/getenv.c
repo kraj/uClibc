@@ -7,20 +7,19 @@
 #include <unistd.h>
 #include <malloc.h>
 
-char *getenv(var)
-const char *var;
+char *getenv(const char *var)
 {
-	char **p;
-	int len;
+    char **p;
+    int len;
 
-	len = strlen(var);
+    len = strlen(var);
 
-	if (!__environ)
-		return 0;
+    if (!__environ)
+	return NULL;
 
-	for (p = __environ; *p; p++) {
-		if (memcmp(var, *p, len) == 0 && (*p)[len] == '=')
-			return *p + len + 1;
-	}
-	return 0;
+    for (p = __environ; *p; p++) {
+	if (memcmp(var, *p, len) == 0 && (*p)[len] == '=')
+	    return *p + len + 1;
+    }
+    return NULL;
 }

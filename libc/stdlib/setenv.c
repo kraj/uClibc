@@ -1,143 +1,200 @@
-/* Copyright (C) 1992, 1995 Free Software Foundation, Inc.
-This file is part of the GNU C Library.
+/* Copyright (C) 1992,95,96,97,98,99,2000,2001 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-The GNU C Library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Library General Public License as
-published by the Free Software Foundation; either version 2 of the
-License, or (at your option) any later version.
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
-The GNU C Library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Library General Public License for more details.
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
 
-You should have received a copy of the GNU Library General Public
-License along with the GNU C Library; see the file COPYING.LIB.  If
-not, write to the Free Software Foundation, Inc., 675 Mass Ave,
-Cambridge, MA 02139, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  
+   
+   modified for uClibc by Erik Andersen <andersen@codepoet.org>
+   */
 
+#include <features.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
+
+#ifdef __UCLIBC_HAS_THREADS__
+/* This lock protects against simultaneous modifications of `environ'.  */
+# include <bits/libc-lock.h>
+__libc_lock_define_initialized (static, envlock)
+# define LOCK	__libc_lock_lock (envlock)
+# define UNLOCK	__libc_lock_unlock (envlock)
+#else
+# define LOCK
+# define UNLOCK
+#endif
+
+/* If this variable is not a null pointer we allocated the current
+   environment.  */
+static char **last_environ;
 
 
-#if defined(_REENTRENT) || defined(_THREAD_SAFE)
-# include <pthread.h>
-
-/* We need to initialize the mutex.  For this we use a method provided
-   by pthread function 'pthread_once'.  For this we need a once block.  */
-static pthread_once__t _once_block = pthread_once_init;
-
-/* This is the mutex which protects the global environment of simultaneous
-   modifications.  */
-static pthread_mutex_t _setenv_mutex;
-
-static void
-DEFUN_VOID(_init_setenv_mutex)
+/* This function is used by `setenv' and `putenv'.  The difference between
+   the two functions is that for the former must create a new string which
+   is then placed in the environment, while the argument of `putenv'
+   must be used directly.  This is all complicated by the fact that we try
+   to reuse values once generated for a `setenv' call since we can never
+   free the strings.  */
+int __add_to_environ (const char *name, const char *value, 
+	const char *combined, int replace)
 {
-  pthread_mutex_init(&_setenv_mutex, pthread_mutexattr_default);
-}
+    register char **ep;
+    register size_t size;
+    const size_t namelen = strlen (name);
+    const size_t vallen = value != NULL ? strlen (value) + 1 : 0;
 
-# define LOCK() \
-   do { pthread_once(&_once_block, _init_setenv_mutex);
-        pthread_mutex_lock(&_setenv_mutex); } while (0)
-# define UNLOCK() pthread_mutex_unlock(&_setenv_mutex)
+    LOCK;
 
-#else /* !_REENTRENT && !_THREAD_SAFE */
+    /* We have to get the pointer now that we have the lock and not earlier
+       since another thread might have created a new environment.  */
+    ep = __environ;
 
-# define LOCK()
-# define UNLOCK()
-
-#endif /* _REENTRENT || _THREAD_SAFE */
-
-int setenv(const char *name, const char *value, int replace)
-{
-  register char **ep;
-  register size_t size;
-  const size_t namelen = strlen (name);
-  const size_t vallen = strlen (value);
-  int result = 0;
-
-  LOCK();
-
-  size = 0;
-  for (ep = __environ; *ep != NULL; ++ep)
-    if (!memcmp (*ep, name, namelen) && (*ep)[namelen] == '=')
-      break;
-    else
-      ++size;
-  
-  if (*ep == NULL)
-    {
-      static char **last_environ = NULL;
-      char **new_environ = (char **) malloc((size + 2) * sizeof(char *));
-      if (new_environ == NULL)
-	{
-	  result = -1;
-	  goto do_return;
+    size = 0;
+    if (ep != NULL) {
+	for (; *ep != NULL; ++ep) {
+	    if (!strncmp (*ep, name, namelen) && (*ep)[namelen] == '=')
+		break;
+	    else
+		++size;
 	}
-      (void) memcpy((__ptr_t) new_environ, (__ptr_t) __environ, size * sizeof(char *));
-
-      new_environ[size] = malloc (namelen + 1 + vallen + 1);
-      if (new_environ[size] == NULL)
-	{
-	  free (new_environ);
-	  __set_errno(ENOMEM);
-	  result = -1;
-	  goto do_return;
-	}
-      memcpy (new_environ[size], name, namelen);
-      new_environ[size][namelen] = '=';
-      memcpy (&new_environ[size][namelen + 1], value, vallen + 1);
-
-      new_environ[size + 1] = NULL;
-
-      if (last_environ != NULL)
-	free ((__ptr_t) last_environ);
-      last_environ = new_environ;
-      __environ = new_environ;
     }
-  else if (replace)
-    {
-      size_t len = strlen (*ep);
-      if (len < namelen + 1 + vallen)
-	{
-	  char *new = malloc (namelen + 1 + vallen + 1);
-	  if (new == NULL)
-	    {
-	      result = -1;
-	      goto do_return;
+
+    if (ep == NULL || *ep == NULL) {
+	char **new_environ;
+
+	/* We allocated this space; we can extend it.  */
+	new_environ = (char **) realloc (last_environ,
+		(size + 2) * sizeof (char *));
+	if (new_environ == NULL) {
+	    UNLOCK;
+	    return -1;
+	}
+
+	/* If the whole entry is given add it.  */
+	if (combined != NULL) {
+	    /* We must not add the string to the search tree since it belongs
+	       to the user.  */
+	    new_environ[size] = (char *) combined;
+	} else {
+	    /* See whether the value is already known.  */
+	    new_environ[size] = (char *) malloc (namelen + 1 + vallen);
+	    if (new_environ[size] == NULL) {
+		__set_errno (ENOMEM);
+		UNLOCK;
+		return -1;
 	    }
-	  *ep = new;
-	  memcpy (*ep, name, namelen);
-	  (*ep)[namelen] = '=';
+
+	    memcpy (new_environ[size], name, namelen);
+	    new_environ[size][namelen] = '=';
+	    memcpy (&new_environ[size][namelen + 1], value, vallen);
 	}
-      memcpy (&(*ep)[namelen + 1], value, vallen + 1);
+
+	if (__environ != last_environ) {
+	    memcpy ((char *) new_environ, (char *) __environ,
+		    size * sizeof (char *));
+	}
+
+	new_environ[size + 1] = NULL;
+	last_environ = __environ = new_environ;
+    } else if (replace) {
+	char *np;
+
+	/* Use the user string if given.  */
+	if (combined != NULL) {
+	    np = (char *) combined;
+	} else {
+	    np = malloc (namelen + 1 + vallen);
+	    if (np == NULL) {
+		UNLOCK;
+		return -1;
+	    }
+	    memcpy (np, name, namelen);
+	    np[namelen] = '=';
+	    memcpy (&np[namelen + 1], value, vallen);
+	}
+	*ep = np;
     }
 
-do_return:
-  UNLOCK();
-  return result;
+    UNLOCK;
+    return 0;
 }
 
+int setenv (const char *name, const char *value, int replace)
+{
+    return __add_to_environ (name, value, NULL, replace);
+}
 
 int unsetenv (const char *name)
 {
-  register char **ep;
-  register char **dp;
-  const size_t namelen = strlen (name);
+    size_t len;
+    char **ep;
 
-  LOCK();
+    if (name == NULL || *name == '\0' || strchr (name, '=') != NULL) {
+	__set_errno (EINVAL);
+	return -1;
+    }
 
-  for (dp = ep = __environ; *ep != NULL; ++ep)
-    if (memcmp (*ep, name, namelen) || (*ep)[namelen] != '=')
-      {
-	*dp = *ep;
-	++dp;
-      }
-  *dp = NULL;
-
-  UNLOCK();
-  return 0;
+    len = strlen (name);
+    LOCK;
+    ep = __environ;
+    while (*ep != NULL) {
+	if (!strncmp (*ep, name, len) && (*ep)[len] == '=') {
+	    /* Found it.  Remove this pointer by moving later ones back.  */
+	    char **dp = ep;
+	    do {
+		dp[0] = dp[1];
+	    } while (*dp++);
+	    /* Continue the loop in case NAME appears again.  */
+	} else {
+	    ++ep;
+	}
+    }
+    UNLOCK;
+    return 0;
 }
+
+/* The `clearenv' was planned to be added to POSIX.1 but probably
+   never made it.  Nevertheless the POSIX.9 standard (POSIX bindings
+   for Fortran 77) requires this function.  */
+int clearenv (void)
+{
+    LOCK;
+    if (__environ == last_environ && __environ != NULL) {
+	/* We allocated this environment so we can free it.  */
+	free (__environ);
+	last_environ = NULL;
+    }
+    /* Clear the environment pointer removes the whole environment.  */
+    __environ = NULL;
+    UNLOCK;
+    return 0;
+}
+
+/* Put STRING, which is of the form "NAME=VALUE", in the environment.  */
+int putenv (char *string)
+{
+    int result;
+    const char *const name_end = strchr (string, '=');
+
+    if (name_end != NULL) {
+	char *name = strndup(string, name_end - string);
+	result = __add_to_environ (name, NULL, string, 1);
+	free(name);
+	return(result);
+    }
+    __unsetenv (string);
+    return 0;
+}
+
