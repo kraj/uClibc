@@ -155,6 +155,12 @@ ifeq ($(strip $(TARGET_ARCH)),h8300)
 	CPU_CFLAGS-y+=-mh -mint32 -fsigned-char
 endif
 
+# Override optimization settings when debugging
+ifeq ($(DODEBUG),y)
+    OPTIMIZATION=$(call check_gcc,-Os,-O2)
+endif
+
+
 # Add a bunch of extra pedantic annoyingly strict checks
 WARNINGS+=-Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
 # Some nice CFLAGS to work with
@@ -165,7 +171,6 @@ ifeq ($(DODEBUG),y)
     CFLAGS += -g
     LDFLAGS:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
     STRIPTOOL:= true -Since_we_are_debugging
-    OPTIMIZATION=$(call check_gcc,-Os,-O2)
 else
     LDFLAGS := $(CPU_LDFLAGS-y) -s -shared --warn-common --warn-once -z combreloc
 endif
