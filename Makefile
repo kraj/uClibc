@@ -181,8 +181,12 @@ headers: include/bits/uClibc_config.h
 	fi
 	@cd $(TOPDIR); \
 	set -x -e; \
-	rm -f include/bits/sysnum.h; \
-	TOPDIR=. CC="$(CC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h
+	TOPDIR=. CC="$(CC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
+	if cmp include/bits/sysnum.h include/bits/sysnum.h.new >/dev/null 2>&1; then \
+		$(RM) include/bits/sysnum.h.new; \
+	else \
+		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
+	fi
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
