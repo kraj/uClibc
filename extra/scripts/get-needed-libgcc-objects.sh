@@ -17,7 +17,7 @@ LIBGCC=`$CC -print-libgcc-file-name`
 echo Finding missing symbols in libc.a ...
 echo "    partial linking..."
 rm -f libc.ldr
-$LD -r -o libc.ldr ../../lib/crt0.o --whole-archive ../libc.a
+$LD -r -o libc.ldr ../../lib/crt0.o ../../lib/crti.o ../../lib/crtn.o --whole-archive ../libc.a
 
 if $NM --undefined-only libc.ldr | grep -v "^main$" | grep -v "^_GLOBAL_OFFSET_TABLE_$" > sym.need ; then
     rm -f obj.need
