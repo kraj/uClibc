@@ -45,15 +45,15 @@
 #include <unistd.h>
 #	ifdef __ARCH_HAS_MMU__
 #define __NR___libc_fork __NR_fork
-		_syscall0(pid_t, __libc_fork);
+_syscall0(pid_t, __libc_fork);
 #	else
-		pid_t __libc_fork(void)
-		{
-			__set_errno(ENOSYS);
-			return -1;
-		}
+pid_t __libc_fork(void)
+{
+	__set_errno(ENOSYS);
+	return -1;
+}
 #	endif
-weak_alias (__libc_fork, fork)
+weak_alias(__libc_fork, fork);
 #endif
 
 //#define __NR_read             3
@@ -61,18 +61,19 @@ weak_alias (__libc_fork, fork)
 #include <unistd.h>
 #define __NR___libc_read __NR_read
 _syscall3(ssize_t, __libc_read, int, fd, __ptr_t, buf, size_t, count);
-weak_alias(__libc_read, read)
+weak_alias(__libc_read, read);
 #endif
 
 //#define __NR_write            4
 #ifdef L___libc_write
 #include <unistd.h>
 #define __NR___libc_write __NR_write
-_syscall3(ssize_t, __libc_write, int, fd, const __ptr_t, buf, size_t, count);
-weak_alias(__libc_write, write)
+_syscall3(ssize_t, __libc_write, int, fd, const __ptr_t, buf,
+		size_t, count);
+weak_alias(__libc_write, write);
 /* Stupid libgcc.a from gcc 2.95.x uses __write in pure.o
  * which is a blatent GNU libc-ism... */
-weak_alias (__libc_write, __write)
+weak_alias(__libc_write, __write);
 #endif
 
 //#define __NR_open             5
@@ -84,23 +85,27 @@ weak_alias (__libc_write, __write)
 #include <string.h>
 #include <sys/param.h>
 static inline
-_syscall3(int, __syscall_open, const char *, file, int, flags, __kernel_mode_t, mode);
-int __libc_open (const char * file, int flags, ...)
+_syscall3(int, __syscall_open, const char *, file, int, flags,
+		  __kernel_mode_t, mode);
+int __libc_open(const char *file, int flags, ...)
 {
 	mode_t mode;
+
 	if (flags & O_CREAT) {
 		va_list ap;
+
 		va_start(ap, flags);
 		mode = va_arg(ap, mode_t);
 		va_end(ap);
 	}
 	return __syscall_open(file, flags, mode);
 }
-weak_alias(__libc_open, open)
+
+weak_alias(__libc_open, open);
 
 int creat(const char *file, mode_t mode)
 {
-	  return __libc_open (file, O_WRONLY|O_CREAT|O_TRUNC, mode);
+	return __libc_open(file, O_WRONLY | O_CREAT | O_TRUNC, mode);
 }
 #endif
 
@@ -109,11 +114,11 @@ int creat(const char *file, mode_t mode)
 #include <unistd.h>
 #define __NR___libc_close __NR_close
 _syscall1(int, __libc_close, int, fd);
-weak_alias(__libc_close, close)
+weak_alias(__libc_close, close);
 #endif
 
 //#define __NR_waitpid          7
-// Implemented using wait4 
+// Implemented using wait4
 
 //#define __NR_creat            8
 // Implemented using open
@@ -137,9 +142,9 @@ _syscall1(int, unlink, const char *, pathname);
 #include <string.h>
 #include <sys/param.h>
 static inline
-_syscall3(int, __syscall_execve, const char *, filename, 
-		char *const *, argv, char *const *, envp);
-weak_alias(__syscall_execve, execve)
+_syscall3(int, __syscall_execve, const char *, filename,
+		  char *const *, argv, char *const *, envp);
+weak_alias(__syscall_execve, execve);
 #endif
 
 //#define __NR_chdir            12
@@ -147,9 +152,8 @@ weak_alias(__syscall_execve, execve)
 #define __NR___syscall_chdir __NR_chdir
 #include <string.h>
 #include <sys/param.h>
-static inline
-_syscall1(int, __syscall_chdir, const char *, path);
-weak_alias(__syscall_chdir, chdir)
+static inline _syscall1(int, __syscall_chdir, const char *, path);
+weak_alias(__syscall_chdir, chdir);
 #endif
 
 //#define __NR_time             13
@@ -159,14 +163,19 @@ weak_alias(__syscall_chdir, chdir)
 #ifdef __NR_time
 _syscall1(time_t, time, time_t *, t);
 #else
-time_t time (time_t *t)
-{ 
+time_t time(time_t * t)
+{
 	time_t result;
 	struct timeval tv;
-	if (gettimeofday (&tv, (struct timezone *) NULL)) {
-		result = (time_t) -1;
-	} else { result = (time_t) tv.tv_sec; }
-	if (t != NULL) { *t = result; }
+
+	if (gettimeofday(&tv, (struct timezone *) NULL)) {
+		result = (time_t) - 1;
+	} else {
+		result = (time_t) tv.tv_sec;
+	}
+	if (t != NULL) {
+		*t = result;
+	}
 	return result;
 }
 #endif
@@ -176,11 +185,13 @@ time_t time (time_t *t)
 #ifdef L___syscall_mknod
 #define __NR___syscall_mknod __NR_mknod
 #include <sys/stat.h>
-_syscall3(int, __syscall_mknod, const char *, path, __kernel_mode_t, mode, __kernel_dev_t, dev);
+_syscall3(int, __syscall_mknod, const char *, path, __kernel_mode_t, mode,
+		  __kernel_dev_t, dev);
 int mknod(const char *path, mode_t mode, dev_t dev)
-{ 
+{
 	/* We must convert the dev_t value to a __kernel_dev_t */
 	__kernel_dev_t k_dev;
+
 	k_dev = ((major(dev) & 0xff) << 8) | (minor(dev) & 0xff);
 	return __syscall_mknod(path, mode, k_dev);
 }
@@ -190,7 +201,7 @@ int mknod(const char *path, mode_t mode, dev_t dev)
 #ifdef L___syscall_chmod
 #include <sys/stat.h>
 #define __NR___syscall_chmod __NR_chmod
-static inline 
+static inline
 _syscall2(int, __syscall_chmod, const char *, path, __kernel_mode_t, mode);
 int chmod(const char *path, mode_t mode)
 {
@@ -199,9 +210,9 @@ int chmod(const char *path, mode_t mode)
 #endif
 
 /* Old kernels don't have lchown -- do chown instead.  This
- * is sick and wrong, but at least things will compile.  
+ * is sick and wrong, but at least things will compile.
  * They may not follow links when they should though... */
-#ifndef __NR_lchown 
+#ifndef __NR_lchown
 #define __NR_lchown __NR_chown
 #endif
 
@@ -209,14 +220,14 @@ int chmod(const char *path, mode_t mode)
 #ifdef L___syscall_lchown
 #include <unistd.h>
 #define __NR___syscall_lchown __NR_lchown
-static inline 
-_syscall3(int, __syscall_lchown, const char *, path, __kernel_uid_t, owner, __kernel_gid_t, group);
+static inline
+_syscall3(int, __syscall_lchown, const char *, path, __kernel_uid_t, owner,
+		  __kernel_gid_t, group);
 int lchown(const char *path, uid_t owner, gid_t group)
 {
-	if (((owner + 1) > (uid_t) ((__kernel_uid_t) -1U))
-			|| ((group + 1) > (gid_t) ((__kernel_gid_t) -1U)))
-	{
-		__set_errno (EINVAL);
+	if (((owner + 1) > (uid_t) ((__kernel_uid_t) - 1U))
+		|| ((group + 1) > (gid_t) ((__kernel_gid_t) - 1U))) {
+		__set_errno(EINVAL);
 		return -1;
 	}
 	return __syscall_lchown(path, owner, group);
@@ -232,8 +243,9 @@ int lchown(const char *path, uid_t owner, gid_t group)
 #ifdef L___libc_lseek
 #include <unistd.h>
 #define __NR___libc_lseek __NR_lseek
-_syscall3(__off_t, __libc_lseek, int, fildes, __off_t, offset, int, whence);
-weak_alias(__libc_lseek, lseek)
+_syscall3(__off_t, __libc_lseek, int, fildes, __off_t, offset, int,
+		  whence);
+weak_alias(__libc_lseek, lseek);
 #endif
 
 //#define __NR_getpid           20
@@ -244,8 +256,8 @@ weak_alias(__libc_lseek, lseek)
 #endif
 #define __NR___libc_getpid __NR_getpid
 _syscall0(pid_t, __libc_getpid);
-weak_alias(__libc_getpid, getpid)
-weak_alias(__libc_getpid, __getpid)
+weak_alias(__libc_getpid, getpid);
+weak_alias(__libc_getpid, __getpid);
 #endif
 
 //#define __NR_mount            21
@@ -266,15 +278,14 @@ _syscall1(int, umount, const char *, specialfile);
 #ifdef L___syscall_setuid
 #define __NR___syscall_setuid __NR_setuid
 #include <unistd.h>
-static inline 
-_syscall1(int, __syscall_setuid, __kernel_uid_t, uid);
+static inline _syscall1(int, __syscall_setuid, __kernel_uid_t, uid);
 int setuid(uid_t uid)
 {
-	if (uid == (uid_t) ~0 || uid != (uid_t) ((__kernel_uid_t) uid)) {
-		__set_errno (EINVAL);
+	if (uid == (uid_t) ~ 0 || uid != (uid_t) ((__kernel_uid_t) uid)) {
+		__set_errno(EINVAL);
 		return -1;
 	}
-	return(__syscall_setuid(uid));
+	return (__syscall_setuid(uid));
 }
 #endif
 
@@ -285,11 +296,10 @@ int setuid(uid_t uid)
 #define __NR_getuid     __NR_getxuid
 #endif
 #define __NR___syscall_getuid __NR_getuid
-static inline 
-_syscall0(int, __syscall_getuid);
+static inline _syscall0(int, __syscall_getuid);
 uid_t getuid(void)
 {
-	return(__syscall_getuid());
+	return (__syscall_getuid());
 }
 #endif
 
@@ -300,13 +310,17 @@ uid_t getuid(void)
 #ifdef __NR_stime
 _syscall1(int, stime, const time_t *, t);
 #else
-int stime(const time_t *when)
-{ 
+int stime(const time_t * when)
+{
 	struct timeval tv;
-	if (when == NULL) { __set_errno (EINVAL); return -1; }
+
+	if (when == NULL) {
+		__set_errno(EINVAL);
+		return -1;
+	}
 	tv.tv_sec = *when;
 	tv.tv_usec = 0;
-	return settimeofday (&tv, (struct timezone *) 0);
+	return settimeofday(&tv, (struct timezone *) 0);
 }
 #endif
 #endif
@@ -322,17 +336,22 @@ int stime(const time_t *when)
 _syscall1(unsigned int, alarm, unsigned int, seconds);
 #else
 #include <sys/time.h>
-unsigned int alarm (unsigned int seconds)
+unsigned int alarm(unsigned int seconds)
 {
 	struct itimerval old, new;
 	unsigned int retval;
+
 	new.it_value.tv_usec = 0;
 	new.it_interval.tv_sec = 0;
 	new.it_interval.tv_usec = 0;
 	new.it_value.tv_sec = (long int) seconds;
-	if (setitimer (ITIMER_REAL, &new, &old) < 0) { return 0; }
+	if (setitimer(ITIMER_REAL, &new, &old) < 0) {
+		return 0;
+	}
 	retval = old.it_value.tv_sec;
-	if (old.it_value.tv_usec) { ++retval; }
+	if (old.it_value.tv_usec) {
+		++retval;
+	}
 	return retval;
 }
 #endif
@@ -346,14 +365,15 @@ unsigned int alarm (unsigned int seconds)
 #ifdef __NR_pause
 #define __NR___libc_pause __NR_pause
 _syscall0(int, __libc_pause);
-weak_alias(__libc_pause, pause)
+weak_alias(__libc_pause, pause);
 #else
 #include <signal.h>
-int __libc_pause (void)
+int __libc_pause(void)
 {
-	return(__sigpause(sigblock(0), 0));
+	return (__sigpause(sigblock(0), 0));
 }
-weak_alias(__libc_pause, pause)
+
+weak_alias(__libc_pause, pause);
 #endif
 #endif
 
@@ -368,13 +388,16 @@ _syscall2(int, utime, const char *, file, const struct utimbuf *, times);
 int utime(const char *file, const struct utimbuf *times)
 {
 	struct timeval timevals[2];
+
 	if (times != NULL) {
 		timevals[0].tv_usec = 0L;
 		timevals[1].tv_usec = 0L;
 		timevals[0].tv_sec = (long int) times->actime;
 		timevals[1].tv_sec = (long int) times->modtime;
 	} else {
-		if (gettimeofday (&timevals[0], NULL) < 0) { return -1; }
+		if (gettimeofday(&timevals[0], NULL) < 0) {
+			return -1;
+		}
 		timevals[1] = timevals[0];
 	}
 	return utimes(file, timevals);
@@ -390,14 +413,17 @@ _syscall2(int, utimes, const char *, file, const struct timeval *, tvp);
 #else
 #include <stdlib.h>
 #include <sys/time.h>
-int utimes (const char *file, const struct timeval tvp[2])
+int utimes(const char *file, const struct timeval tvp[2])
 {
 	struct utimbuf buf, *times;
+
 	if (tvp) {
 		times = &buf;
 		times->actime = tvp[0].tv_sec;
 		times->modtime = tvp[1].tv_sec;
-	} else { times = NULL; }
+	} else {
+		times = NULL;
+	}
 	return utime(file, times);
 }
 #endif
@@ -406,7 +432,8 @@ int utimes (const char *file, const struct timeval tvp[2])
 //#define __NR_stty             31
 #ifdef L_stty
 #include <sgtty.h>
-int stty (int __fd, __const struct sgttyb *__params);
+int stty(int __fd, __const struct sgttyb *__params);
+
 {
 	__set_errno(ENOSYS);
 	return -1;
@@ -416,7 +443,7 @@ int stty (int __fd, __const struct sgttyb *__params);
 //#define __NR_gtty             32
 #ifdef L_gtty
 #include <sgtty.h>
-int gtty (int __fd, struct sgttyb *__params)
+int gtty(int __fd, struct sgttyb *__params)
 {
 	__set_errno(ENOSYS);
 	return -1;
@@ -436,18 +463,26 @@ _syscall2(int, access, const char *, pathname, int, mode);
 _syscall1(int, nice, int, inc);
 #else
 #include <sys/resource.h>
-int nice (int incr)
+int nice(int incr)
 {
 	int save, prio, result;
+
 	save = errno;
-	__set_errno (0);
-	prio = getpriority (PRIO_PROCESS, 0);
+	__set_errno(0);
+	prio = getpriority(PRIO_PROCESS, 0);
 	if (prio == -1) {
-		if (errno != 0) { return -1; } 
-		else { __set_errno (save); }
+		if (errno != 0) {
+			return -1;
+		} else {
+			__set_errno(save);
+		}
 	}
-	result = setpriority (PRIO_PROCESS, 0, prio + incr);
-	if (result != -1) { return prio + incr; } else { return -1; }
+	result = setpriority(PRIO_PROCESS, 0, prio + incr);
+	if (result != -1) {
+		return prio + incr;
+	} else {
+		return -1;
+	}
 }
 #endif
 #endif
@@ -466,7 +501,7 @@ static inline
 _syscall2(int, __syscall_kill, __kernel_pid_t, pid, int, sig);
 int kill(pid_t pid, int sig)
 {
-	return(__syscall_kill(pid, sig));
+	return (__syscall_kill(pid, sig));
 }
 #endif
 
@@ -478,19 +513,21 @@ int kill(pid_t pid, int sig)
 #include <sys/param.h>
 #include <stdio.h>
 static inline
-_syscall2(int, __syscall_rename, const char *, oldpath, const char *, newpath);
-weak_alias(__syscall_rename, rename)
+_syscall2(int, __syscall_rename, const char *, oldpath, const char *,
+		  newpath);
+weak_alias(__syscall_rename, rename);
 #endif
 
 //#define __NR_mkdir            39
 #ifdef L___syscall_mkdir
 #include <sys/stat.h>
 #define __NR___syscall_mkdir __NR_mkdir
-static inline 
-_syscall2(int, __syscall_mkdir, const char *, pathname, __kernel_mode_t, mode);
-int mkdir(const char * pathname, mode_t mode)
+static inline
+_syscall2(int, __syscall_mkdir, const char *, pathname, __kernel_mode_t,
+		  mode);
+int mkdir(const char *pathname, mode_t mode)
 {
-	return(__syscall_mkdir(pathname, mode));
+	return (__syscall_mkdir(pathname, mode));
 }
 #endif
 
@@ -526,17 +563,14 @@ _syscall1(clock_t, times, struct tms *, buf);
 #ifdef L___syscall_setgid
 #include <unistd.h>
 #define __NR___syscall_setgid __NR_setgid
-static inline 
-_syscall1(int, __syscall_setgid, __kernel_gid_t, gid);
+static inline _syscall1(int, __syscall_setgid, __kernel_gid_t, gid);
 int setgid(gid_t gid)
 {
-	if (gid == (gid_t) ~0
-			|| gid != (gid_t) ((__kernel_gid_t) gid))
-	{
-		__set_errno (EINVAL);
+	if (gid == (gid_t) ~ 0 || gid != (gid_t) ((__kernel_gid_t) gid)) {
+		__set_errno(EINVAL);
 		return -1;
 	}
-	return(__syscall_setgid(gid));
+	return (__syscall_setgid(gid));
 }
 #endif
 
@@ -547,11 +581,10 @@ int setgid(gid_t gid)
 #if defined (__alpha__)
 #define __NR_getgid     __NR_getxgid
 #endif
-static inline 
-_syscall0(int, __syscall_getgid);
+static inline _syscall0(int, __syscall_getgid);
 gid_t getgid(void)
 {
-	return(__syscall_getgid());
+	return (__syscall_getgid());
 }
 #endif
 
@@ -562,17 +595,16 @@ gid_t getgid(void)
 #include <unistd.h>
 #	ifdef	__NR_geteuid
 #define __NR___syscall_geteuid __NR_geteuid
-	static inline 
-	_syscall0(int, __syscall_geteuid);
-	uid_t geteuid(void)
-	{
-		return(__syscall_geteuid());
-	}
+static inline _syscall0(int, __syscall_geteuid);
+uid_t geteuid(void)
+{
+	return (__syscall_geteuid());
+}
 #	else
-	uid_t geteuid(void)
-	{
-		return (getuid());
-	}
+uid_t geteuid(void)
+{
+	return (getuid());
+}
 #	endif
 #endif
 
@@ -581,17 +613,16 @@ gid_t getgid(void)
 #include <unistd.h>
 #	ifdef	__NR_getegid
 #define __NR___syscall_getegid __NR_getegid
-static inline 
-_syscall0(int, __syscall_getegid);
+static inline _syscall0(int, __syscall_getegid);
 gid_t getegid(void)
 {
-	return(__syscall_getegid());
+	return (__syscall_getegid());
 }
 #	else
-	gid_t getegid(void)
-	{
-		return (getgid());
-	}
+gid_t getegid(void)
+{
+	return (getgid());
+}
 #	endif
 #endif
 
@@ -603,15 +634,15 @@ _syscall1(int, acct, const char *, filename);
 
 //#define __NR_umount2          52
 #ifdef L_umount2
-#	ifdef __NR_umount2 /* Old kernels don't have umount2 */ 
+#	ifdef __NR_umount2			/* Old kernels don't have umount2 */
 #		include <sys/mount.h>
-		_syscall2(int, umount2, const char *, special_file, int, flags);
+_syscall2(int, umount2, const char *, special_file, int, flags);
 #	else
-		int umount2(const char * special_file, int flags)
-		{
-			__set_errno(ENOSYS);
-			return -1;
-		}
+int umount2(const char *special_file, int flags)
+{
+	__set_errno(ENOSYS);
+	return -1;
+}
 #	endif
 #endif
 
@@ -624,6 +655,7 @@ _syscall1(int, acct, const char *, filename);
 #define __NR___syscall_ioctl __NR_ioctl
 extern int __syscall_ioctl(int fd, int request, void *arg);
 _syscall3(int, __syscall_ioctl, int, fd, int, request, void *, arg);
+
 #if !defined (__powerpc__)
 #include "ioctl.c"
 /* Also see ioctl.c and powerpc/ioctl.c */
@@ -638,22 +670,23 @@ _syscall3(int, __syscall_ioctl, int, fd, int, request, void *, arg);
 #ifdef __UCLIBC_HAS_LFS__
 static inline
 #endif
-_syscall3(int, __syscall_fcntl, int, fd, int, cmd, long, arg);
+ _syscall3(int, __syscall_fcntl, int, fd, int, cmd, long, arg);
 int __libc_fcntl(int fd, int cmd, ...)
 {
 	long arg;
 	va_list list;
-	if (cmd == F_GETLK64 || cmd == F_SETLK64 || cmd == F_SETLKW64) 
-	{
-			__set_errno(ENOSYS);
-			return -1;
+
+	if (cmd == F_GETLK64 || cmd == F_SETLK64 || cmd == F_SETLKW64) {
+		__set_errno(ENOSYS);
+		return -1;
 	}
 	va_start(list, cmd);
 	arg = va_arg(list, long);
 	va_end(list);
-	return(__syscall_fcntl(fd, cmd, arg));
+	return (__syscall_fcntl(fd, cmd, arg));
 }
-weak_alias(__libc_fcntl, fcntl)
+
+weak_alias(__libc_fcntl, fcntl);
 #if ! defined __NR_fcntl64 && defined __UCLIBC_HAS_LFS__
 weak_alias(__libc_fcntl, fcntl64);
 #endif
@@ -666,10 +699,11 @@ weak_alias(__libc_fcntl, fcntl64);
 #include <unistd.h>
 #define __NR___syscall_setpgid __NR_setpgid
 static inline
-_syscall2(int, __syscall_setpgid, __kernel_pid_t, pid, __kernel_pid_t, pgid);
+_syscall2(int, __syscall_setpgid, __kernel_pid_t, pid,
+		__kernel_pid_t, pgid);
 int setpgid(pid_t pid, pid_t pgid)
 {
-	return(__syscall_setpgid(pid, pgid));
+	return (__syscall_setpgid(pid, pgid));
 }
 #endif
 
@@ -682,11 +716,11 @@ int setpgid(pid_t pid, pid_t pgid)
 #ifdef L___syscall_umask
 #include <sys/stat.h>
 #define __NR___syscall_umask __NR_umask
-static inline 
+static inline
 _syscall1(__kernel_mode_t, __syscall_umask, __kernel_mode_t, mode);
 mode_t umask(mode_t mode)
 {
-	return(__syscall_umask(mode));
+	return (__syscall_umask(mode));
 }
 #endif
 
@@ -696,9 +730,8 @@ mode_t umask(mode_t mode)
 #include <unistd.h>
 #include <string.h>
 #include <sys/param.h>
-static inline
-_syscall1(int, __syscall_chroot, const char *, path);
-weak_alias(__syscall_chroot, chroot)
+static inline _syscall1(int, __syscall_chroot, const char *, path);
+weak_alias(__syscall_chroot, chroot);
 #endif
 
 //#define __NR_ustat            62
@@ -706,11 +739,13 @@ weak_alias(__syscall_chroot, chroot)
 #define __NR___syscall_ustat __NR_ustat
 #include <sys/ustat.h>
 static inline
-_syscall2(int, __syscall_ustat, unsigned short int, kdev_t, struct ustat *, ubuf);
+_syscall2(int, __syscall_ustat, unsigned short int, kdev_t,
+		struct ustat *, ubuf);
 int ustat(dev_t dev, struct ustat *ubuf)
-{ 
+{
 	/* We must convert the dev_t value to a __kernel_dev_t */
 	__kernel_dev_t k_dev;
+
 	k_dev = ((major(dev) & 0xff) << 8) | (minor(dev) & 0xff);
 	return __syscall_ustat(k_dev, ubuf);
 }
@@ -727,12 +762,12 @@ _syscall2(int, dup2, int, oldfd, int, newfd);
 #ifdef	L_getppid
 #	include <unistd.h>
 #	ifdef	__NR_getppid
-	_syscall0(pid_t, getppid);
+_syscall0(pid_t, getppid);
 #	else
-	pid_t getppid(void)
-	{
-		return (getpid());
-	}
+pid_t getppid(void)
+{
+	return (getpid());
+}
 #	endif
 #endif
 
@@ -754,8 +789,8 @@ _syscall0(pid_t, setsid);
 #define __NR___syscall_sigaction __NR_sigaction
 #include <signal.h>
 #undef sigaction
-_syscall3(int, __syscall_sigaction, int, signum, const struct sigaction *, act,
-		  struct sigaction *, oldact);
+_syscall3(int, __syscall_sigaction, int, signum, const struct sigaction *,
+		  act, struct sigaction *, oldact);
 #endif
 #endif
 
@@ -768,16 +803,16 @@ _syscall3(int, __syscall_sigaction, int, signum, const struct sigaction *, act,
 #include <unistd.h>
 #define __NR___syscall_setreuid __NR_setreuid
 static inline
-_syscall2(int, __syscall_setreuid, __kernel_uid_t, ruid, __kernel_uid_t, euid);
+_syscall2(int, __syscall_setreuid, __kernel_uid_t, ruid,
+		__kernel_uid_t, euid);
 int setreuid(uid_t ruid, uid_t euid)
 {
-	if (((ruid + 1) > (uid_t) ((__kernel_uid_t) -1U))
-			|| ((euid + 1) > (uid_t) ((__kernel_uid_t) -1U)))
-	{
+	if (((ruid + 1) > (uid_t) ((__kernel_uid_t) - 1U))
+		|| ((euid + 1) > (uid_t) ((__kernel_uid_t) - 1U))) {
 		__set_errno(EINVAL);
 		return -1;
 	}
-	return(__syscall_setreuid(ruid, euid));
+	return (__syscall_setreuid(ruid, euid));
 }
 #endif
 
@@ -786,16 +821,16 @@ int setreuid(uid_t ruid, uid_t euid)
 #include <unistd.h>
 #define __NR___syscall_setregid __NR_setregid
 static inline
-_syscall2(int, __syscall_setregid, __kernel_gid_t, rgid, __kernel_gid_t, egid);
+_syscall2(int, __syscall_setregid, __kernel_gid_t, rgid,
+		__kernel_gid_t, egid);
 int setregid(gid_t rgid, gid_t egid)
 {
-	if (((rgid + 1) > (gid_t) ((__kernel_gid_t) -1U))
-			|| ((egid + 1) > (gid_t) ((__kernel_gid_t) -1U)))
-	{
-		__set_errno (EINVAL);
+	if (((rgid + 1) > (gid_t) ((__kernel_gid_t) - 1U))
+		|| ((egid + 1) > (gid_t) ((__kernel_gid_t) - 1U))) {
+		__set_errno(EINVAL);
 		return -1;
 	}
-	return(__syscall_setregid(rgid, egid));
+	return (__syscall_setregid(rgid, egid));
 }
 #endif
 
@@ -805,9 +840,10 @@ int setregid(gid_t rgid, gid_t egid)
 #ifdef L___sigsuspend
 #include <signal.h>
 #undef sigsuspend
-_syscall3(int, __sigsuspend, int, a, unsigned long int, b, unsigned long int, c);
+_syscall3(int, __sigsuspend, int, a, unsigned long int, b,
+		  unsigned long int, c);
 
-int sigsuspend (const sigset_t *set)
+int sigsuspend(const sigset_t * set)
 {
 	return __sigsuspend(0, 0, set->__val[0]);
 }
@@ -831,45 +867,49 @@ _syscall2(int, sethostname, const char *, name, size_t, len);
 
 //#define __NR_setrlimit        75
 #ifndef __NR_ugetrlimit
-/* Only wrap setrlimit if the new ugetrlimit is not present */ 
+/* Only wrap setrlimit if the new ugetrlimit is not present */
 #ifdef L___setrlimit
 #define __NR___setrlimit __NR_setrlimit
 #include <unistd.h>
 #include <sys/resource.h>
 #define RMIN(x, y) ((x) < (y) ? (x) : (y))
 _syscall2(int, __setrlimit, int, resource, const struct rlimit *, rlim);
-int setrlimit (__rlimit_resource_t resource, const struct rlimit *rlimits)
+int setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
 {
 	struct rlimit rlimits_small;
+
 	/* We might have to correct the limits values.  Since the old values
 	 * were signed the new values might be too large.  */
-	rlimits_small.rlim_cur = RMIN ((unsigned long int) rlimits->rlim_cur,
-				       RLIM_INFINITY >> 1);
-	rlimits_small.rlim_max = RMIN ((unsigned long int) rlimits->rlim_max,
-				       RLIM_INFINITY >> 1);
-	return(__setrlimit(resource, &rlimits_small));
+	rlimits_small.rlim_cur = RMIN((unsigned long int) rlimits->rlim_cur,
+								  RLIM_INFINITY >> 1);
+	rlimits_small.rlim_max = RMIN((unsigned long int) rlimits->rlim_max,
+								  RLIM_INFINITY >> 1);
+	return (__setrlimit(resource, &rlimits_small));
 }
+
 #undef RMIN
 #endif
-#else /* We don't need to wrap setrlimit */
+#else							/* We don't need to wrap setrlimit */
 #ifdef L_setrlimit
 #include <unistd.h>
 struct rlimit;
-_syscall2(int, setrlimit, unsigned int, resource, const struct rlimit *, rlim);
+_syscall2(int, setrlimit, unsigned int, resource,
+		const struct rlimit *, rlim);
 #endif
-#endif /* __NR_setrlimit */
+#endif							/* __NR_setrlimit */
 
 //#define __NR_getrlimit        76
 #ifdef L___getrlimit
-/* Only include the old getrlimit if the new one (ugetrlimit) is not around */ 
+/* Only include the old getrlimit if the new one (ugetrlimit) is not around */
 #ifndef __NR_ugetrlimit
 #define __NR___getrlimit __NR_getrlimit
 #include <unistd.h>
 #include <sys/resource.h>
 _syscall2(int, __getrlimit, int, resource, struct rlimit *, rlim);
-int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
+int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 {
 	int result;
+
 	result = __getrlimit(resource, rlimits);
 
 	if (result == -1)
@@ -884,7 +924,7 @@ int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
 	return result;
 }
 #endif
-#endif /* __NR_getrlimit */
+#endif							/* __NR_getrlimit */
 
 //#define __NR_getrusage        77
 #ifdef L_getrusage
@@ -913,7 +953,7 @@ _syscall2(int, settimeofday, const struct timeval *, tv,
 static inline
 _syscall2(int, __syscall_getgroups, int, size, __kernel_gid_t *, list);
 #define MIN(a,b) (((a)<(b))?(a):(b))
-int getgroups(int n, gid_t *groups)
+int getgroups(int n, gid_t * groups)
 {
 	if (unlikely(n < 0)) {
 		__set_errno(EINVAL);
@@ -921,6 +961,7 @@ int getgroups(int n, gid_t *groups)
 	} else {
 		int i, ngids;
 		__kernel_gid_t kernel_groups[n = MIN(n, sysconf(_SC_NGROUPS_MAX))];
+
 		ngids = __syscall_getgroups(n, kernel_groups);
 		if (n != 0 && ngids > 0) {
 			for (i = 0; i < ngids; i++) {
@@ -938,23 +979,25 @@ int getgroups(int n, gid_t *groups)
 #include <grp.h>
 #define __NR___syscall_setgroups __NR_setgroups
 static inline
-_syscall2(int, __syscall_setgroups, size_t, size, const __kernel_gid_t *, list);
-int setgroups (size_t n, const gid_t *groups)
+_syscall2(int, __syscall_setgroups, size_t, size,
+		const __kernel_gid_t *, list);
+int setgroups(size_t n, const gid_t * groups)
 {
-	if (n > (size_t)sysconf(_SC_NGROUPS_MAX)) {
-		__set_errno (EINVAL);
+	if (n > (size_t) sysconf(_SC_NGROUPS_MAX)) {
+		__set_errno(EINVAL);
 		return -1;
 	} else {
 		size_t i;
 		__kernel_gid_t kernel_groups[n];
+
 		for (i = 0; i < n; i++) {
 			kernel_groups[i] = (groups)[i];
-			if (groups[i] != (gid_t) ((__kernel_gid_t)groups[i])) {
-				__set_errno (EINVAL);
+			if (groups[i] != (gid_t) ((__kernel_gid_t) groups[i])) {
+				__set_errno(EINVAL);
 				return -1;
 			}
 		}
-		return(__syscall_setgroups(n, kernel_groups));
+		return (__syscall_setgroups(n, kernel_groups));
 	}
 }
 #endif
@@ -964,10 +1007,10 @@ int setgroups (size_t n, const gid_t *groups)
 //Used as a fallback if _newselect isn't available...
 #ifndef __NR__newselect
 #include <unistd.h>
-extern int select(int n, fd_set *readfds, fd_set *writefds, 
-		fd_set *exceptfds, struct timeval *timeout);
+extern int select(int n, fd_set * readfds, fd_set * writefds,
+				  fd_set * exceptfds, struct timeval *timeout);
 _syscall5(int, select, int, n, fd_set *, readfds, fd_set *, writefds,
-		fd_set *, exceptfds, struct timeval *, timeout);
+		  fd_set *, exceptfds, struct timeval *, timeout);
 #endif
 #endif
 
@@ -1000,10 +1043,8 @@ _syscall2(int, swapon, const char *, path, int, swapflags);
 //#define __NR_reboot           88
 #ifdef L__reboot
 #define __NR__reboot __NR_reboot
-extern int _reboot(int magic, int magic2, int flag);
-
+static inline
 _syscall3(int, _reboot, int, magic, int, magic2, int, flag);
-
 int reboot(int flag)
 {
 	return (_reboot((int) 0xfee1dead, 672274793, flag));
@@ -1018,9 +1059,7 @@ int reboot(int flag)
 #include <unistd.h>
 #include <sys/mman.h>
 extern __ptr_t _mmap(unsigned long *buffer);
-
 _syscall1(__ptr_t, _mmap, unsigned long *, buffer);
-
 __ptr_t mmap(__ptr_t addr, size_t len, int prot,
 			 int flags, int fd, __off_t offset)
 {
@@ -1059,11 +1098,11 @@ _syscall2(int, ftruncate, int, fd, __off_t, length);
 #ifdef L___syscall_fchmod
 #include <sys/stat.h>
 #define __NR___syscall_fchmod __NR_fchmod
-static inline 
+static inline
 _syscall2(int, __syscall_fchmod, int, fildes, __kernel_mode_t, mode);
 int fchmod(int fildes, mode_t mode)
 {
-	return(__syscall_fchmod(fildes, mode));
+	return (__syscall_fchmod(fildes, mode));
 }
 #endif
 
@@ -1072,16 +1111,16 @@ int fchmod(int fildes, mode_t mode)
 #include <unistd.h>
 #define __NR___syscall_fchown __NR_fchown
 static inline
-_syscall3(int, __syscall_fchown, int, fd, __kernel_uid_t, owner, __kernel_gid_t, group);
+_syscall3(int, __syscall_fchown, int, fd, __kernel_uid_t, owner,
+		  __kernel_gid_t, group);
 int fchown(int fd, uid_t owner, gid_t group)
 {
-	if (((owner + 1) > (uid_t) ((__kernel_uid_t) -1U))
-			|| ((group + 1) > (gid_t) ((__kernel_gid_t) -1U)))
-	{
-		__set_errno (EINVAL);
+	if (((owner + 1) > (uid_t) ((__kernel_uid_t) - 1U))
+		|| ((group + 1) > (gid_t) ((__kernel_gid_t) - 1U))) {
+		__set_errno(EINVAL);
 		return -1;
 	}
-	return(__syscall_fchown(fd, owner, group));
+	return (__syscall_fchown(fd, owner, group));
 }
 #endif
 
@@ -1089,11 +1128,12 @@ int fchown(int fd, uid_t owner, gid_t group)
 #ifdef L___syscall_getpriority
 #include <sys/resource.h>
 #define __NR___syscall_getpriority __NR_getpriority
-_syscall2(int, __syscall_getpriority, __priority_which_t, which, id_t, who);
+_syscall2(int, __syscall_getpriority, __priority_which_t, which, id_t,
+		  who);
 /* The return value of __syscall_getpriority is biased by this value
  * to avoid returning negative values.  */
 #define PZERO 20
-int getpriority (enum __priority_which which, id_t who)
+int getpriority(enum __priority_which which, id_t who)
 {
 	int res;
 
@@ -1107,7 +1147,8 @@ int getpriority (enum __priority_which which, id_t who)
 //#define __NR_setpriority      97
 #ifdef L_setpriority
 #include <sys/resource.h>
-_syscall3(int, setpriority, __priority_which_t, which, id_t, who, int, prio);
+_syscall3(int, setpriority, __priority_which_t, which,
+		id_t, who, int, prio);
 #endif
 
 //#define __NR_profil           98
@@ -1120,7 +1161,7 @@ _syscall3(int, setpriority, __priority_which_t, which, id_t, who, int, prio);
 #include <sys/vfs.h>
 static inline
 _syscall2(int, __syscall_statfs, const char *, path, struct statfs *, buf);
-weak_alias(__syscall_statfs, statfs)
+weak_alias(__syscall_statfs, statfs);
 #endif
 
 //#define __NR_fstatfs          100
@@ -1132,13 +1173,14 @@ _syscall2(int, fstatfs, int, fd, struct statfs *, buf);
 //#define __NR_ioperm           101
 #ifdef L_ioperm
 #	if defined __ARCH_HAS_MMU__ && defined __NR_ioperm
-		_syscall3(int, ioperm, unsigned long, from, unsigned long, num, int, turn_on);
+_syscall3(int, ioperm, unsigned long, from, unsigned long, num,
+		int, turn_on);
 #	else
-		int ioperm(unsigned long from, unsigned long num, int turn_on)
-		{
-			__set_errno(ENOSYS);
-			return -1;
-		}
+int ioperm(unsigned long from, unsigned long num, int turn_on)
+{
+	__set_errno(ENOSYS);
+	return -1;
+}
 #	endif
 #endif
 
@@ -1154,10 +1196,8 @@ _syscall2(int, __socketcall, int, call, unsigned long *, args);
 #ifdef L__syslog
 #include <unistd.h>
 #define __NR__syslog		__NR_syslog
-extern int _syslog(int type, char *buf, int len);
-
+static inline
 _syscall3(int, _syslog, int, type, char *, buf, int, len);
-
 int klogctl(int type, char *buf, int len)
 {
 	return (_syslog(type, buf, len));
@@ -1175,7 +1215,8 @@ _syscall3(int, setitimer, __itimer_which_t, which,
 //#define __NR_getitimer        105
 #ifdef L_getitimer
 #include <sys/time.h>
-_syscall2(int, getitimer, __itimer_which_t, which, struct itimerval *, value);
+_syscall2(int, getitimer, __itimer_which_t, which,
+		struct itimerval *, value);
 #endif
 
 //#define __NR_stat             106
@@ -1185,17 +1226,20 @@ _syscall2(int, getitimer, __itimer_which_t, which, struct itimerval *, value);
 #define _SYS_STAT_H
 #include <bits/stat.h>
 #include "xstatconv.h"
-_syscall2(int, __syscall_stat, const char *, file_name, struct kernel_stat *, buf);
-int stat(const char * file_name, struct stat * buf)
+_syscall2(int, __syscall_stat, const char *, file_name,
+		  struct kernel_stat *, buf);
+int stat(const char *file_name, struct stat *buf)
 {
 	int result;
 	struct kernel_stat kbuf;
+
 	result = __syscall_stat(file_name, &kbuf);
 	if (result == 0) {
 		__xstat_conv(&kbuf, buf);
 	}
 	return result;
 }
+
 #if ! defined __NR_stat64 && defined __UCLIBC_HAS_LFS__
 weak_alias(stat, stat64);
 #endif
@@ -1209,17 +1253,20 @@ weak_alias(stat, stat64);
 #include <bits/stat.h>
 #include <bits/kernel_stat.h>
 #include "xstatconv.h"
-_syscall2(int, __syscall_lstat, const char *, file_name, struct kernel_stat *, buf);
-int lstat(const char * file_name, struct stat * buf)
+_syscall2(int, __syscall_lstat, const char *, file_name,
+		  struct kernel_stat *, buf);
+int lstat(const char *file_name, struct stat *buf)
 {
 	int result;
 	struct kernel_stat kbuf;
+
 	result = __syscall_lstat(file_name, &kbuf);
 	if (result == 0) {
 		__xstat_conv(&kbuf, buf);
 	}
 	return result;
 }
+
 #if ! defined __NR_lstat64 && defined __UCLIBC_HAS_LFS__
 weak_alias(lstat, lstat64);
 #endif
@@ -1234,16 +1281,18 @@ weak_alias(lstat, lstat64);
 #include <bits/kernel_stat.h>
 #include "xstatconv.h"
 _syscall2(int, __syscall_fstat, int, fd, struct kernel_stat *, buf);
-int fstat(int fd, struct stat * buf)
+int fstat(int fd, struct stat *buf)
 {
 	int result;
 	struct kernel_stat kbuf;
+
 	result = __syscall_fstat(fd, &kbuf);
 	if (result == 0) {
 		__xstat_conv(&kbuf, buf);
 	}
 	return result;
 }
+
 #if ! defined __NR_fstat64 && defined __UCLIBC_HAS_LFS__
 weak_alias(fstat, fstat64);
 #endif
@@ -1257,13 +1306,13 @@ weak_alias(fstat, fstat64);
 #if !defined(__arm__)
 /* Tuns out the m68k unistd.h kernel header is broken */
 #	if defined __ARCH_HAS_MMU__ && defined __NR_iopl && ( !defined(__mc68000__))
-		_syscall1(int, iopl, int, level);
+_syscall1(int, iopl, int, level);
 #	else
-		int iopl(int level)
-		{
-			__set_errno(ENOSYS);
-			return -1;
-		}
+int iopl(int level)
+{
+	__set_errno(ENOSYS);
+	return -1;
+}
 #	endif
 # endif
 #endif
@@ -1283,10 +1332,11 @@ _syscall0(int, vhangup);
 #ifdef L___syscall_wait4
 #define __NR___syscall_wait4 __NR_wait4
 static inline
-_syscall4(int, __syscall_wait4, __kernel_pid_t, pid, int *, status, int, opts, void *, rusage);
-int wait4(pid_t pid, int * status, int opts, void * rusage)
+_syscall4(int, __syscall_wait4, __kernel_pid_t, pid, int *, status, int,
+		  opts, void *, rusage);
+int wait4(pid_t pid, int *status, int opts, void *rusage)
 {
-	return(__syscall_wait4(pid, status, opts, rusage));
+	return (__syscall_wait4(pid, status, opts, rusage));
 }
 #endif
 
@@ -1306,7 +1356,8 @@ _syscall1(int, sysinfo, struct sysinfo *, info);
 #ifdef L___ipc
 #ifdef __NR_ipc
 #define __NR___ipc __NR_ipc
-_syscall5(int, __ipc, unsigned int, call, int, first, int, second, int, third, void *, ptr);
+_syscall5(int, __ipc, unsigned int, call, int, first, int, second, int,
+		  third, void *, ptr);
 #endif
 #endif
 
@@ -1315,7 +1366,7 @@ _syscall5(int, __ipc, unsigned int, call, int, first, int, second, int, third, v
 #include <unistd.h>
 #define __NR___libc_fsync __NR_fsync
 _syscall1(int, __libc_fsync, int, fd);
-weak_alias(__libc_fsync, fsync)
+weak_alias(__libc_fsync, fsync);
 #endif
 
 //#define __NR_sigreturn        119
@@ -1339,7 +1390,8 @@ _syscall1(int, uname, struct utsname *, buf);
 //#define __NR_modify_ldt       123
 #ifdef __NR_modify_ldt
 #ifdef L_modify_ldt
-_syscall3(int, modify_ldt, int, func, void *, ptr, unsigned long, bytecount);
+_syscall3(int, modify_ldt, int, func, void *, ptr,
+		unsigned long, bytecount);
 weak_alias(modify_ldt, __modify_ldt);
 #endif
 #endif
@@ -1365,23 +1417,23 @@ _syscall3(int, mprotect, void *, addr, size_t, len, int, prot);
 #define __NR___syscall_sigprocmask __NR_sigprocmask
 static inline
 _syscall3(int, __syscall_sigprocmask, int, how, const sigset_t *, set,
-		sigset_t *, oldset);
+		  sigset_t *, oldset);
 #undef sigprocmask
-int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
+int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 {
 	if (set &&
 #if (SIG_BLOCK == 0) && (SIG_UNBLOCK == 1) && (SIG_SETMASK == 2)
-	(((unsigned int) how) > 2)
+		(((unsigned int) how) > 2)
 #else
 #warning "compile time assumption violated.. slow path..."
-	((how != SIG_BLOCK) && (how != SIG_UNBLOCK) && (how != SIG_SETMASK))
+		((how != SIG_BLOCK) && (how != SIG_UNBLOCK)
+		 && (how != SIG_SETMASK))
 #endif
-	   )
-	{
-		__set_errno (EINVAL);
+		) {
+		__set_errno(EINVAL);
 		return -1;
 	}
-	return(__syscall_sigprocmask(how, set, oldset));
+	return (__syscall_sigprocmask(how, set, oldset));
 }
 #endif
 #endif
@@ -1394,20 +1446,20 @@ int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
 /* This may have 5 arguments (for old 2.0 kernels) or 2 arguments
  * (for 2.2 and 2.4 kernels).  Use the greatest common denominator,
  * and let the kernel cope with whatever it gets.  It's good at that. */
-_syscall5(int, init_module, void *, first, void *, second, void *, third, 
-			void *, fourth, void *, fifth);
+_syscall5(int, init_module, void *, first, void *, second, void *, third,
+		  void *, fourth, void *, fifth);
 #endif
 
 //#define __NR_delete_module    129
 #ifdef L_delete_module
 #	ifdef __NR_delete_module
-		_syscall1(int, delete_module, const char *, name);
+_syscall1(int, delete_module, const char *, name);
 #	else
-		int delete_module(const char * name)
-		{
-			__set_errno(ENOSYS);
-			return -1;
-		}
+int delete_module(const char *name)
+{
+	__set_errno(ENOSYS);
+	return -1;
+}
 #	endif
 #endif
 
@@ -1421,7 +1473,8 @@ _syscall1(int, get_kernel_syms, struct kernel_sym *, table);
 #ifdef __NR_quotactl
 #ifdef L_quotactl
 #include <sys/quota.h>
-_syscall4(int, quotactl, int, cmd, const char *, special , int, id, caddr_t, addr);
+_syscall4(int, quotactl, int, cmd, const char *, special,
+		int, id, caddr_t, addr);
 #endif
 #endif
 
@@ -1433,7 +1486,7 @@ static inline
 _syscall1(__kernel_pid_t, __syscall_getpgid, __kernel_pid_t, pid);
 pid_t __getpgid(pid_t pid)
 {
-	return(__syscall_getpgid(pid));
+	return (__syscall_getpgid(pid));
 }
 weak_alias(__getpgid, getpgid);
 #endif
@@ -1469,16 +1522,14 @@ _syscall1(int, personality, unsigned long int, __persona);
 #ifdef L___syscall_setfsuid
 #include <sys/fsuid.h>
 #define __NR___syscall_setfsuid __NR_setfsuid
-static inline
-_syscall1(int, __syscall_setfsuid, __kernel_uid_t, uid);
+static inline _syscall1(int, __syscall_setfsuid, __kernel_uid_t, uid);
 int setfsuid(uid_t uid)
 {
-	if (uid != (uid_t) ((__kernel_uid_t) uid))
-	{
-		__set_errno (EINVAL);
+	if (uid != (uid_t) ((__kernel_uid_t) uid)) {
+		__set_errno(EINVAL);
 		return -1;
 	}
-	return(__syscall_setfsuid(uid));
+	return (__syscall_setfsuid(uid));
 }
 #endif
 #endif
@@ -1488,16 +1539,14 @@ int setfsuid(uid_t uid)
 #ifdef L___syscall_setfsgid
 #include <sys/fsuid.h>
 #define __NR___syscall_setfsgid __NR_setfsgid
-static inline
-_syscall1(int, __syscall_setfsgid, __kernel_gid_t, gid);
+static inline _syscall1(int, __syscall_setfsgid, __kernel_gid_t, gid);
 int setfsgid(gid_t gid)
 {
-	if (gid != (gid_t) ((__kernel_gid_t) gid))
-	{
-		__set_errno (EINVAL);
+	if (gid != (gid_t) ((__kernel_gid_t) gid)) {
+		__set_errno(EINVAL);
 		return -1;
 	}
-	return(__syscall_setfsgid(gid));
+	return (__syscall_setfsgid(gid));
 }
 #endif
 #endif
@@ -1513,10 +1562,10 @@ int setfsgid(gid_t gid)
 //Used in preference to select when available...
 #ifdef __NR__newselect
 #include <unistd.h>
-extern int _newselect(int n, fd_set *readfds, fd_set *writefds,
-					  fd_set *exceptfds, struct timeval *timeout);
+extern int _newselect(int n, fd_set * readfds, fd_set * writefds,
+					  fd_set * exceptfds, struct timeval *timeout);
 _syscall5(int, _newselect, int, n, fd_set *, readfds, fd_set *, writefds,
-		fd_set *, exceptfds, struct timeval *, timeout);
+		  fd_set *, exceptfds, struct timeval *, timeout);
 weak_alias(_newselect, select);
 #endif
 #endif
@@ -1525,11 +1574,10 @@ weak_alias(_newselect, select);
 #ifdef L___syscall_flock
 #include <sys/file.h>
 #define __NR___syscall_flock __NR_flock
-static inline
-_syscall2(int, __syscall_flock, int, fd, int, operation);
+static inline _syscall2(int, __syscall_flock, int, fd, int, operation);
 int flock(int fd, int operation)
 {
-	return(__syscall_flock(fd, operation));
+	return (__syscall_flock(fd, operation));
 }
 #endif
 
@@ -1545,15 +1593,15 @@ weak_alias(__libc_msync, msync);
 //#define __NR_readv            145
 #ifdef L_readv
 #include <sys/uio.h>
-_syscall3(ssize_t, readv, int, filedes, const struct iovec *, vector, int,
-		  count);
+_syscall3(ssize_t, readv, int, filedes, const struct iovec *, vector,
+		int, count);
 #endif
 
 //#define __NR_writev           146
 #ifdef L_writev
 #include <sys/uio.h>
-_syscall3(ssize_t, writev, int, filedes, const struct iovec *, vector, int,
-		  count);
+_syscall3(ssize_t, writev, int, filedes, const struct iovec *, vector,
+		int, count);
 #endif
 
 //#define __NR_getsid           147
@@ -1564,7 +1612,7 @@ static inline
 _syscall1(__kernel_pid_t, __syscall_getsid, __kernel_pid_t, pid);
 pid_t getsid(pid_t pid)
 {
-	return(__syscall_getsid(pid));
+	return (__syscall_getsid(pid));
 }
 #endif
 
@@ -1589,17 +1637,16 @@ struct __sysctl_args {
 	unsigned long __unused[4];
 };
 _syscall1(int, _sysctl, struct __sysctl_args *, args);
-int sysctl(int *name, int nlen, void *oldval, size_t *oldlenp,
-			void *newval, size_t newlen)
+int sysctl(int *name, int nlen, void *oldval, size_t * oldlenp,
+		   void *newval, size_t newlen)
 {
-	struct __sysctl_args args =
-	{
-		name: name,
-		nlen: nlen,
-		oldval: oldval,
-		oldlenp: oldlenp,
-		newval: newval,
-		newlen: newlen
+	struct __sysctl_args args = {
+	  name:name,
+	  nlen:nlen,
+	  oldval:oldval,
+	  oldlenp:oldlenp,
+	  newval:newval,
+	  newlen:newlen
 	};
 
 	return _sysctl(&args);
@@ -1611,33 +1658,33 @@ int sysctl(int *name, int nlen, void *oldval, size_t *oldlenp,
 #ifdef L_mlock
 #include <sys/mman.h>
 #	if defined __ARCH_HAS_MMU__ && defined __NR_mlock
-		_syscall2(int, mlock, const void *, addr, size_t, len);
-#	endif	
-#endif	
+_syscall2(int, mlock, const void *, addr, size_t, len);
+#	endif
+#endif
 
 //#define __NR_munlock          151
 #ifdef L_munlock
 #include <sys/mman.h>
 #	if defined __ARCH_HAS_MMU__ && defined __NR_munlock
-		_syscall2(int, munlock, const void *, addr, size_t, len);
-#	endif	
-#endif	
+_syscall2(int, munlock, const void *, addr, size_t, len);
+#	endif
+#endif
 
 //#define __NR_mlockall         152
 #ifdef L_mlockall
 #include <sys/mman.h>
 #	if defined __ARCH_HAS_MMU__ && defined __NR_mlockall
-		_syscall1(int, mlockall, int, flags);
-#	endif	
-#endif	
+_syscall1(int, mlockall, int, flags);
+#	endif
+#endif
 
 //#define __NR_munlockall       153
 #ifdef L_munlockall
 #include <sys/mman.h>
 #	if defined __ARCH_HAS_MMU__ && defined L_munlockall
-		_syscall0(int, munlockall);
-#	endif	
-#endif	
+_syscall0(int, munlockall);
+#	endif
+#endif
 
 //#define __NR_sched_setparam   154
 #ifdef __NR_sched_setparam
@@ -1645,10 +1692,11 @@ int sysctl(int *name, int nlen, void *oldval, size_t *oldlenp,
 #include <sched.h>
 #define __NR___syscall_sched_setparam __NR_sched_setparam
 static inline
-_syscall2(int, __syscall_sched_setparam, __kernel_pid_t, pid, const struct sched_param *, p);
-int sched_setparam(pid_t pid, const struct sched_param * p)
+_syscall2(int, __syscall_sched_setparam, __kernel_pid_t, pid,
+		  const struct sched_param *, p);
+int sched_setparam(pid_t pid, const struct sched_param *p)
 {
-	return(__syscall_sched_setparam(pid, p));
+	return (__syscall_sched_setparam(pid, p));
 }
 #endif
 #endif
@@ -1659,10 +1707,11 @@ int sched_setparam(pid_t pid, const struct sched_param * p)
 #include <sched.h>
 #define __NR___syscall_sched_getparam __NR_sched_getparam
 static inline
-_syscall2(int, __syscall_sched_getparam, __kernel_pid_t, pid, struct sched_param *, p);
-int sched_getparam(pid_t pid, struct sched_param * p)
+_syscall2(int, __syscall_sched_getparam, __kernel_pid_t, pid,
+		  struct sched_param *, p);
+int sched_getparam(pid_t pid, struct sched_param *p)
 {
-	return(__syscall_sched_getparam(pid, p));
+	return (__syscall_sched_getparam(pid, p));
 }
 #endif
 #endif
@@ -1673,10 +1722,11 @@ int sched_getparam(pid_t pid, struct sched_param * p)
 #include <sched.h>
 #define __NR___syscall_sched_setscheduler __NR_sched_setscheduler
 static inline
-_syscall3(int, __syscall_sched_setscheduler, __kernel_pid_t, pid, int, policy, const struct sched_param *, p);
-int sched_setscheduler(pid_t pid, int policy, const struct sched_param * p)
+_syscall3(int, __syscall_sched_setscheduler, __kernel_pid_t, pid, int,
+		  policy, const struct sched_param *, p);
+int sched_setscheduler(pid_t pid, int policy, const struct sched_param *p)
 {
-	return(__syscall_sched_setscheduler(pid, policy, p));
+	return (__syscall_sched_setscheduler(pid, policy, p));
 }
 #endif
 #endif
@@ -1690,7 +1740,7 @@ static inline
 _syscall1(int, __syscall_sched_getscheduler, __kernel_pid_t, pid);
 int sched_getscheduler(pid_t pid)
 {
-	return(__syscall_sched_getscheduler(pid));
+	return (__syscall_sched_getscheduler(pid));
 }
 #endif
 #endif
@@ -1725,10 +1775,11 @@ _syscall1(int, sched_get_priority_min, int, policy);
 #include <sched.h>
 #define __NR___syscall_sched_rr_get_interval __NR_sched_rr_get_interval
 static inline
-_syscall2(int, __syscall_sched_rr_get_interval, __kernel_pid_t, pid, struct timespec *, tp);
-int sched_rr_get_interval(pid_t pid, struct timespec * tp)
+_syscall2(int, __syscall_sched_rr_get_interval, __kernel_pid_t, pid,
+		  struct timespec *, tp);
+int sched_rr_get_interval(pid_t pid, struct timespec *tp)
 {
-	return(__syscall_sched_rr_get_interval(pid, tp));
+	return (__syscall_sched_rr_get_interval(pid, tp));
 }
 #endif
 #endif
@@ -1737,15 +1788,17 @@ int sched_rr_get_interval(pid_t pid, struct timespec * tp)
 #ifdef L___libc_nanosleep
 #include <time.h>
 #define __NR___libc_nanosleep __NR_nanosleep
-_syscall2(int, __libc_nanosleep, const struct timespec *, req, struct timespec *, rem);
-weak_alias(__libc_nanosleep, nanosleep)
+_syscall2(int, __libc_nanosleep, const struct timespec *, req,
+		  struct timespec *, rem);
+weak_alias(__libc_nanosleep, nanosleep);
 #endif
 
 //#define __NR_mremap                   163
 #ifdef L_mremap
 #include <unistd.h>
 #include <sys/mman.h>
-_syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t, new_size, int, may_move);
+_syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t,
+		  new_size, int, may_move);
 #endif
 
 //#define __NR_setresuid                164
@@ -1753,17 +1806,17 @@ _syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t, new_s
 #ifdef L___syscall_setresuid
 #define __NR___syscall_setresuid __NR_setresuid
 static inline
-_syscall3(int, __syscall_setresuid, __kernel_uid_t, rgid, __kernel_uid_t, egid, __kernel_uid_t, sgid);
+_syscall3(int, __syscall_setresuid, __kernel_uid_t, rgid, __kernel_uid_t,
+		  egid, __kernel_uid_t, sgid);
 int setresuid(uid_t ruid, uid_t euid, uid_t suid)
 {
-	if (((ruid + 1) > (uid_t) ((__kernel_uid_t) -1U))
-			|| ((euid + 1) > (uid_t) ((__kernel_uid_t) -1U))
-			|| ((suid + 1) > (uid_t) ((__kernel_uid_t) -1U)))
-	{
-		__set_errno (EINVAL);
+	if (((ruid + 1) > (uid_t) ((__kernel_uid_t) - 1U))
+		|| ((euid + 1) > (uid_t) ((__kernel_uid_t) - 1U))
+		|| ((suid + 1) > (uid_t) ((__kernel_uid_t) - 1U))) {
+		__set_errno(EINVAL);
 		return -1;
 	}
-	return(__syscall_setresuid(ruid, euid, suid));
+	return (__syscall_setresuid(ruid, euid, suid));
 }
 #endif
 #endif
@@ -1773,11 +1826,13 @@ int setresuid(uid_t ruid, uid_t euid, uid_t suid)
 #ifdef L___syscall_getresuid
 #define __NR___syscall_getresuid __NR_getresuid
 static inline
-_syscall3(int, __syscall_getresuid, __kernel_uid_t *, ruid, __kernel_uid_t *, euid, __kernel_uid_t *, suid);
-int getresuid (uid_t *ruid, uid_t *euid, uid_t *suid)
+_syscall3(int, __syscall_getresuid, __kernel_uid_t *, ruid,
+		  __kernel_uid_t *, euid, __kernel_uid_t *, suid);
+int getresuid(uid_t * ruid, uid_t * euid, uid_t * suid)
 {
 	int result;
 	__kernel_uid_t k_ruid, k_euid, k_suid;
+
 	result = __syscall_getresuid(&k_ruid, &k_euid, &k_suid);
 	if (result == 0) {
 		*ruid = (uid_t) k_ruid;
@@ -1794,23 +1849,24 @@ int getresuid (uid_t *ruid, uid_t *euid, uid_t *suid)
 //#define __NR_query_module             167
 #ifdef L_query_module
 #	ifdef __NR_query_module
-		_syscall5(int, query_module, const char *, name, int, which,
-				void *, buf, size_t, bufsize, size_t*, ret);
+_syscall5(int, query_module, const char *, name, int, which,
+		  void *, buf, size_t, bufsize, size_t *, ret);
 #	else
-		int query_module(const char * name, int which,
-					void * buf, size_t bufsize, size_t* ret)
-		{
-			__set_errno(ENOSYS);
-			return -1;
-		}
-#	endif	
-#endif	
+int query_module(const char *name, int which,
+				 void *buf, size_t bufsize, size_t * ret)
+{
+	__set_errno(ENOSYS);
+	return -1;
+}
+#	endif
+#endif
 
 //#define __NR_poll                     168
 #ifdef L_poll
 #ifdef __NR_poll
 #include <sys/poll.h>
-_syscall3(int, poll, struct pollfd *, fds, unsigned long int, nfds, int, timeout);
+_syscall3(int, poll, struct pollfd *, fds, unsigned long int, nfds, int,
+		  timeout);
 #else
 /* uClinux 2.0 doesn't have poll, emulate it using select */
 #include "poll.c"
@@ -1818,24 +1874,24 @@ _syscall3(int, poll, struct pollfd *, fds, unsigned long int, nfds, int, timeout
 #endif
 
 //#define __NR_nfsservctl               169
-//nfsservctl	EXTRA	nfsservctl	i:ipp	nfsservctl
+//nfsservctl    EXTRA   nfsservctl  i:ipp   nfsservctl
 
 //#define __NR_setresgid                170
 #ifdef __NR_setresgid
 #ifdef L___syscall_setresgid
 #define __NR___syscall_setresgid __NR_setresgid
 static inline
-_syscall3(int, __syscall_setresgid, __kernel_gid_t, rgid, __kernel_gid_t, egid, __kernel_gid_t, sgid);
+_syscall3(int, __syscall_setresgid, __kernel_gid_t, rgid, __kernel_gid_t,
+		  egid, __kernel_gid_t, sgid);
 int setresgid(gid_t rgid, gid_t egid, gid_t sgid)
 {
-	if (((rgid + 1) > (gid_t) ((__kernel_gid_t) -1U))
-			|| ((egid + 1) > (gid_t) ((__kernel_gid_t) -1U))
-			|| ((sgid + 1) > (gid_t) ((__kernel_gid_t) -1U)))
-	{
-		__set_errno (EINVAL);
+	if (((rgid + 1) > (gid_t) ((__kernel_gid_t) - 1U))
+		|| ((egid + 1) > (gid_t) ((__kernel_gid_t) - 1U))
+		|| ((sgid + 1) > (gid_t) ((__kernel_gid_t) - 1U))) {
+		__set_errno(EINVAL);
 		return -1;
 	}
-	return(__syscall_setresgid(rgid, egid, sgid));
+	return (__syscall_setresgid(rgid, egid, sgid));
 }
 #endif
 #endif
@@ -1845,13 +1901,15 @@ int setresgid(gid_t rgid, gid_t egid, gid_t sgid)
 #ifdef L___syscall_getresgid
 #define __NR___syscall_getresgid __NR_getresgid
 static inline
-_syscall3(int, __syscall_getresgid, __kernel_gid_t *, egid, __kernel_gid_t *, rgid, __kernel_gid_t *, sgid);
-int getresgid(gid_t *rgid, gid_t *egid, gid_t *sgid)
+_syscall3(int, __syscall_getresgid, __kernel_gid_t *, egid,
+		  __kernel_gid_t *, rgid, __kernel_gid_t *, sgid);
+int getresgid(gid_t * rgid, gid_t * egid, gid_t * sgid)
 {
 	int result;
 	__kernel_gid_t k_rgid, k_egid, k_sgid;
+
 	result = __syscall_getresgid(&k_rgid, &k_egid, &k_sgid);
-	if (result == 0) { 
+	if (result == 0) {
 		*rgid = (gid_t) k_rgid;
 		*egid = (gid_t) k_egid;
 		*sgid = (gid_t) k_sgid;
@@ -1877,8 +1935,9 @@ _syscall5(int, prctl, int, a, int, b, int, c, int, d, int, e);
 #ifdef L___syscall_rt_sigaction
 #include <signal.h>
 #undef sigaction
-_syscall4(int, __syscall_rt_sigaction, int, signum, const struct sigaction *, act, 
-		struct sigaction *, oldact, size_t, size); 
+_syscall4(int, __syscall_rt_sigaction, int, signum,
+		  const struct sigaction *, act, struct sigaction *, oldact,
+		  size_t, size);
 #endif
 #endif
 
@@ -1888,24 +1947,24 @@ _syscall4(int, __syscall_rt_sigaction, int, signum, const struct sigaction *, ac
 #ifdef L___rt_sigprocmask
 #include <signal.h>
 #undef sigprocmask
-_syscall4(int, __rt_sigprocmask, int, how, const sigset_t *, set, 
-		sigset_t *, oldset, size_t, size);
+_syscall4(int, __rt_sigprocmask, int, how, const sigset_t *, set,
+		  sigset_t *, oldset, size_t, size);
 
-int sigprocmask(int how, const sigset_t *set, sigset_t *oldset) 
+int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 {
 	if (set &&
 #if (SIG_BLOCK == 0) && (SIG_UNBLOCK == 1) && (SIG_SETMASK == 2)
-			(((unsigned int) how) > 2)
+		(((unsigned int) how) > 2)
 #else
 #warning "compile time assumption violated.. slow path..."
-			((how != SIG_BLOCK) && (how != SIG_UNBLOCK) && (how != SIG_SETMASK))
+		((how != SIG_BLOCK) && (how != SIG_UNBLOCK)
+		 && (how != SIG_SETMASK))
 #endif
-	   )
-	{
-		__set_errno (EINVAL);
+		) {
+		__set_errno(EINVAL);
 		return -1;
 	}
-	return __rt_sigprocmask(how, set, oldset, _NSIG/8);
+	return __rt_sigprocmask(how, set, oldset, _NSIG / 8);
 }
 #endif
 #endif
@@ -1918,9 +1977,9 @@ int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
 #undef sigpending
 _syscall2(int, __rt_sigpending, sigset_t *, set, size_t, size);
 
-int sigpending(sigset_t *set) 
+int sigpending(sigset_t * set)
 {
-	return __rt_sigpending(set, _NSIG/8);
+	return __rt_sigpending(set, _NSIG / 8);
 }
 #endif
 #endif
@@ -1932,34 +1991,36 @@ int sigpending(sigset_t *set)
 #include <stddef.h>
 #ifdef __NR_rt_sigtimedwait
 #define __NR___rt_sigtimedwait __NR_rt_sigtimedwait
-_syscall4(int, __rt_sigtimedwait, const sigset_t *, set, siginfo_t *, info, 
-		const struct timespec *, timeout, size_t, setsize);
+_syscall4(int, __rt_sigtimedwait, const sigset_t *, set, siginfo_t *, info,
+		  const struct timespec *, timeout, size_t, setsize);
 
-int sigwaitinfo(const sigset_t *set, siginfo_t *info)
+int sigwaitinfo(const sigset_t * set, siginfo_t * info)
 {
-	return __rt_sigtimedwait (set, info, NULL, _NSIG/8);
+	return __rt_sigtimedwait(set, info, NULL, _NSIG / 8);
 }
 
-int sigtimedwait (const sigset_t *set, siginfo_t *info, const struct timespec *timeout)
+int sigtimedwait(const sigset_t * set, siginfo_t * info,
+				 const struct timespec *timeout)
 {
-	return __rt_sigtimedwait (set, info, timeout, _NSIG/8);
+	return __rt_sigtimedwait(set, info, timeout, _NSIG / 8);
 }
 #else
-int sigwaitinfo(const sigset_t *set, siginfo_t *info)
+int sigwaitinfo(const sigset_t * set, siginfo_t * info)
 {
-	if (set==NULL)
-		__set_errno (EINVAL);
+	if (set == NULL)
+		__set_errno(EINVAL);
 	else
-		__set_errno (ENOSYS);
+		__set_errno(ENOSYS);
 	return -1;
 }
 
-int sigtimedwait (const sigset_t *set, siginfo_t *info, const struct timespec *timeout)
+int sigtimedwait(const sigset_t * set, siginfo_t * info,
+				 const struct timespec *timeout)
 {
-	if (set==NULL)
-		__set_errno (EINVAL);
+	if (set == NULL)
+		__set_errno(EINVAL);
 	else
-		__set_errno (ENOSYS);
+		__set_errno(ENOSYS);
 	return -1;
 }
 #endif
@@ -1975,9 +2036,9 @@ int sigtimedwait (const sigset_t *set, siginfo_t *info, const struct timespec *t
 #undef _sigsuspend
 _syscall2(int, __rt_sigsuspend, const sigset_t *, mask, size_t, size);
 
-int sigsuspend (const sigset_t *mask)
+int sigsuspend(const sigset_t * mask)
 {
-	return __rt_sigsuspend(mask, _NSIG/8);
+	return __rt_sigsuspend(mask, _NSIG / 8);
 }
 #endif
 #endif
@@ -1993,16 +2054,16 @@ int sigsuspend (const sigset_t *mask)
 #include <unistd.h>
 #define __NR___syscall_chown __NR_chown
 static inline
-_syscall3(int, __syscall_chown, const char *, path, __kernel_uid_t, owner, __kernel_gid_t, group);
-int chown(const char * path, uid_t owner, gid_t group)
+_syscall3(int, __syscall_chown, const char *, path, __kernel_uid_t, owner,
+		  __kernel_gid_t, group);
+int chown(const char *path, uid_t owner, gid_t group)
 {
-	if (((owner + 1) > (uid_t) ((__kernel_uid_t) -1U))
-			|| ((group + 1) > (gid_t) ((__kernel_gid_t) -1U)))
-	{
-		__set_errno (EINVAL);
+	if (((owner + 1) > (uid_t) ((__kernel_uid_t) - 1U))
+		|| ((group + 1) > (gid_t) ((__kernel_gid_t) - 1U))) {
+		__set_errno(EINVAL);
 		return -1;
 	}
-	return(__syscall_chown(path, owner, group));
+	return (__syscall_chown(path, owner, group));
 }
 #endif
 
@@ -2012,26 +2073,26 @@ int chown(const char * path, uid_t owner, gid_t group)
 //#define __NR_capget                   184
 #ifdef L_capget
 #	ifdef __NR_capget
-		_syscall2(int, capget, void*, header, void*, data);
+_syscall2(int, capget, void *, header, void *, data);
 #	else
-		int capget(void* header, void* data)
-		{
-			__set_errno(ENOSYS);
-			return -1;
-		}
+int capget(void *header, void *data)
+{
+	__set_errno(ENOSYS);
+	return -1;
+}
 #	endif
 #endif
 
 //#define __NR_capset                   185
 #ifdef L_capset
 #	ifdef __NR_capset
-		_syscall2(int, capset, void*, header, const void*, data);
+_syscall2(int, capset, void *, header, const void *, data);
 #	else
-		int capset(void* header, const void* data)
-		{
-			__set_errno(ENOSYS);
-			return -1;
-		}
+int capset(void *header, const void *data)
+{
+	__set_errno(ENOSYS);
+	return -1;
+}
 #	endif
 #endif
 
@@ -2039,7 +2100,8 @@ int chown(const char * path, uid_t owner, gid_t group)
 #ifdef __NR_sigaltstack
 #ifdef L_sigaltstack
 #include <signal.h>
-_syscall2(int, sigaltstack, const struct sigaltstack *, ss, struct sigaltstack *, oss);
+_syscall2(int, sigaltstack, const struct sigaltstack *, ss,
+		  struct sigaltstack *, oss);
 #endif
 #endif
 
@@ -2048,7 +2110,8 @@ _syscall2(int, sigaltstack, const struct sigaltstack *, ss, struct sigaltstack *
 #ifdef L_sendfile
 #include <unistd.h>
 #include <sys/sendfile.h>
-_syscall4(ssize_t,sendfile, int, out_fd, int, in_fd, __off_t *, offset, size_t, count);
+_syscall4(ssize_t, sendfile, int, out_fd, int, in_fd, __off_t *, offset,
+		  size_t, count);
 #endif
 #endif
 
@@ -2059,22 +2122,23 @@ _syscall4(ssize_t,sendfile, int, out_fd, int, in_fd, __off_t *, offset, size_t, 
 //#define __NR_vfork                    190
 //See sysdeps/linux/<arch>vfork.[cS] for architecture specific implementation...
 
-//#define __NR_ugetrlimit		191	/* SuS compliant getrlimit */
+//#define __NR_ugetrlimit       191 /* SuS compliant getrlimit */
 #ifdef L___ugetrlimit
 #ifdef __NR_ugetrlimit
 #define __NR___ugetrlimit __NR_ugetrlimit
 #include <unistd.h>
 #include <sys/resource.h>
-_syscall2(int, __ugetrlimit, enum __rlimit_resource, resource, struct rlimit *, rlim);
-int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
+_syscall2(int, __ugetrlimit, enum __rlimit_resource, resource,
+		  struct rlimit *, rlim);
+int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 {
-	return(__ugetrlimit(resource, rlimits));
+	return (__ugetrlimit(resource, rlimits));
 }
-#endif /* __NR_ugetrlimit */
+#endif							/* __NR_ugetrlimit */
 #endif
 
 
-//#define __NR_mmap2		192
+//#define __NR_mmap2        192
 
 
 //#define __NR_truncate64         193
@@ -2092,18 +2156,20 @@ int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
 #include <sys/stat.h>
 #include <bits/kernel_stat.h>
 #include "xstatconv.h"
-_syscall2(int, __syscall_stat64, const char *, file_name, struct kernel_stat64 *, buf);
-int stat64(const char * file_name, struct stat64 * buf)
+_syscall2(int, __syscall_stat64, const char *, file_name,
+		  struct kernel_stat64 *, buf);
+int stat64(const char *file_name, struct stat64 *buf)
 {
 	int result;
 	struct kernel_stat64 kbuf;
+
 	result = __syscall_stat64(file_name, &kbuf);
 	if (result == 0) {
 		__xstat64_conv(&kbuf, buf);
 	}
 	return result;
 }
-#endif /* __UCLIBC_HAS_LFS__ */
+#endif							/* __UCLIBC_HAS_LFS__ */
 #endif
 
 //#define __NR_lstat64            196
@@ -2114,18 +2180,20 @@ int stat64(const char * file_name, struct stat64 * buf)
 #include <sys/stat.h>
 #include <bits/kernel_stat.h>
 #include "xstatconv.h"
-_syscall2(int, __syscall_lstat64, const char *, file_name, struct kernel_stat64 *, buf);
-int lstat64(const char * file_name, struct stat64 * buf)
+_syscall2(int, __syscall_lstat64, const char *, file_name,
+		  struct kernel_stat64 *, buf);
+int lstat64(const char *file_name, struct stat64 *buf)
 {
 	int result;
 	struct kernel_stat64 kbuf;
+
 	result = __syscall_lstat64(file_name, &kbuf);
 	if (result == 0) {
 		__xstat64_conv(&kbuf, buf);
 	}
 	return result;
 }
-#endif /* __UCLIBC_HAS_LFS__ */
+#endif							/* __UCLIBC_HAS_LFS__ */
 #endif
 
 //#define __NR_fstat64            197
@@ -2136,61 +2204,63 @@ int lstat64(const char * file_name, struct stat64 * buf)
 #include <sys/stat.h>
 #include <bits/kernel_stat.h>
 #include "xstatconv.h"
-_syscall2(int, __syscall_fstat64, int, filedes, struct kernel_stat64 *, buf);
-int fstat64(int fd, struct stat64 * buf)
+_syscall2(int, __syscall_fstat64, int, filedes, struct kernel_stat64 *,
+		  buf);
+int fstat64(int fd, struct stat64 *buf)
 {
 	int result;
 	struct kernel_stat64 kbuf;
+
 	result = __syscall_fstat64(fd, &kbuf);
 	if (result == 0) {
 		__xstat64_conv(&kbuf, buf);
 	}
 	return result;
 }
-#endif /* __UCLIBC_HAS_LFS__ */
+#endif							/* __UCLIBC_HAS_LFS__ */
 #endif
 
 
-//#define __NR_lchown32		198
-//#define __NR_getuid32		199
-//#define __NR_getgid32		200
-//#define __NR_geteuid32		201
-//#define __NR_getegid32		202
-//#define __NR_setreuid32		203
-//#define __NR_setregid32		204
-//#define __NR_getgroups32	205
-//#define __NR_setgroups32	206
-//#define __NR_fchown32		207
-//#define __NR_setresuid32	208
-//#define __NR_getresuid32	209
-//#define __NR_setresgid32	210
-//#define __NR_getresgid32	211
-//#define __NR_chown32		212
-//#define __NR_setuid32		213
-//#define __NR_setgid32		214
-//#define __NR_setfsuid32		215
-//#define __NR_setfsgid32		216
-//#define __NR_pivot_root		217
+//#define __NR_lchown32     198
+//#define __NR_getuid32     199
+//#define __NR_getgid32     200
+//#define __NR_geteuid32        201
+//#define __NR_getegid32        202
+//#define __NR_setreuid32       203
+//#define __NR_setregid32       204
+//#define __NR_getgroups32  205
+//#define __NR_setgroups32  206
+//#define __NR_fchown32     207
+//#define __NR_setresuid32  208
+//#define __NR_getresuid32  209
+//#define __NR_setresgid32  210
+//#define __NR_getresgid32  211
+//#define __NR_chown32      212
+//#define __NR_setuid32     213
+//#define __NR_setgid32     214
+//#define __NR_setfsuid32       215
+//#define __NR_setfsgid32       216
+//#define __NR_pivot_root       217
 #ifdef __NR_pivot_root
 #ifdef L_pivot_root
 _syscall2(int, pivot_root, const char *, new_root, const char *, put_old);
 #endif
 #endif
 
-//#define __NR_mincore		218
-//#define __NR_madvise		219
+//#define __NR_mincore      218
+//#define __NR_madvise      219
 #ifdef __NR_madvise
 #ifdef L_madvise
-_syscall3(int, madvise, void*, __addr, size_t, __len, int, __advice);
+_syscall3(int, madvise, void *, __addr, size_t, __len, int, __advice);
 #endif
 #endif
 
-//#define __NR_madvise1		219	/* delete when C lib stub is removed */
+//#define __NR_madvise1     219 /* delete when C lib stub is removed */
 
-//#define __NR_getdents64		220
+//#define __NR_getdents64       220
 // See getdents64.c
 
-//#define __NR_fcntl64		221
+//#define __NR_fcntl64      221
 #ifdef L___syscall_fcntl64
 #include <stdarg.h>
 #include <fcntl.h>
@@ -2202,16 +2272,18 @@ int __libc_fcntl64(int fd, int cmd, ...)
 {
 	long arg;
 	va_list list;
+
 	va_start(list, cmd);
 	arg = va_arg(list, long);
+
 	va_end(list);
-	return(__syscall_fcntl64(fd, cmd, arg));
+	return (__syscall_fcntl64(fd, cmd, arg));
 }
-weak_alias(__libc_fcntl64, fcntl64)
+
+weak_alias(__libc_fcntl64, fcntl64);
 #endif
 #endif
 
-//#define __NR_security		223	/* syscall for security modules */
-//#define __NR_gettid		224
-//#define __NR_readahead		225
-
+//#define __NR_security     223 /* syscall for security modules */
+//#define __NR_gettid       224
+//#define __NR_readahead        225
