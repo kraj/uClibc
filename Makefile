@@ -43,7 +43,7 @@ halfclean:
 	@rm -f libc.a
 
 headers: dummy
-	@rm -f include/asm include/net include/linux include/bits
+	@rm -f include/asm include/linux include/bits
 	@ln -s $(KERNEL_SOURCE)/include/asm include/asm
 	@if [ ! -f include/asm/unistd.h ] ; then \
 	    echo " "; \
@@ -59,7 +59,6 @@ headers: dummy
 	    echo " "; \
 	    sleep 10; \
 	fi;
-	@ln -s $(KERNEL_SOURCE)/include/net include/net
 	@ln -s $(KERNEL_SOURCE)/include/linux include/linux
 	@ln -s ../sysdeps/linux/$(TARGET_ARCH)/bits include/bits
 
@@ -67,8 +66,8 @@ tags:
 	ctags -R
 
 clean: subdirs_clean
-	rm -f libc.a
-	rm -f include/asm include/net include/linux include/bits
+	rm -f libc.a libcrt0.o
+	rm -f include/asm include/linux include/bits
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS) test)
@@ -83,9 +82,7 @@ $(patsubst %, _dirclean_%, $(DIRS) test) : dummy
 install: libc.a
 	rm -f $(INSTALL_DIR)/include/asm
 	rm -f $(INSTALL_DIR)/include/linux
-	rm -f $(INSTALL_DIR)/include/net
 	ln -s $(KERNEL_SOURCE)/include/asm $(INSTALL_DIR)/include/asm
-	ln -s $(KERNEL_SOURCE)/include/net $(INSTALL_DIR)/include/net
 	ln -s $(KERNEL_SOURCE)/include/linux $(INSTALL_DIR)/include/linux
 	mkdir -p $(INSTALL_DIR)/include/bits
 	find include/ -type f -depth -print | cpio -pdmu $(INSTALL_DIR)
