@@ -46,56 +46,56 @@
 #include <string.h>
 #include <crypt.h>
 
-extern char * md5_crypt_r( const char *pw, const char *salt, struct crypt_data * data);
+static char * __md5_crypt_r( const char *pw, const char *salt, struct crypt_data * data);
 
-static const struct ordering InitialTr = { {
+static const struct ordering __des_InitialTr = { {
 	58,50,42,34,26,18,10, 2,60,52,44,36,28,20,12, 4,
 	62,54,46,38,30,22,14, 6,64,56,48,40,32,24,16, 8,
 	57,49,41,33,25,17, 9, 1,59,51,43,35,27,19,11, 3,
 	61,53,45,37,29,21,13, 5,63,55,47,39,31,23,15, 7,
 } };
 
-static const struct ordering FinalTr = { {
+static const struct ordering __des_FinalTr = { {
 	40, 8,48,16,56,24,64,32,39, 7,47,15,55,23,63,31,
 	38, 6,46,14,54,22,62,30,37, 5,45,13,53,21,61,29,
 	36, 4,44,12,52,20,60,28,35, 3,43,11,51,19,59,27,
 	34, 2,42,10,50,18,58,26,33, 1,41, 9,49,17,57,25,
 } };
 
-static const struct ordering swap = { {
+static const struct ordering __des_Swap = { {
 	33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,
 	49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,
 	 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,
 	17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,
 } };
 
-static const struct ordering KeyTr1 = { {
+static const struct ordering __des_KeyTr1 = { {
 	57,49,41,33,25,17, 9, 1,58,50,42,34,26,18,
 	10, 2,59,51,43,35,27,19,11, 3,60,52,44,36,
 	63,55,47,39,31,23,15, 7,62,54,46,38,30,22,
 	14, 6,61,53,45,37,29,21,13, 5,28,20,12, 4,
 } };
 
-static const struct ordering KeyTr2 = { {
+static const struct ordering __des_KeyTr2 = { {
 	14,17,11,24, 1, 5, 3,28,15, 6,21,10,
 	23,19,12, 4,26, 8,16, 7,27,20,13, 2,
 	41,52,31,37,47,55,30,40,51,45,33,48,
 	44,49,39,56,34,53,46,42,50,36,29,32,
 } };
 
-static const struct ordering etr = { {
+static const struct ordering __des_Etr = { {
 	32, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9,
 	 8, 9,10,11,12,13,12,13,14,15,16,17,
 	16,17,18,19,20,21,20,21,22,23,24,25,
 	24,25,26,27,28,29,28,29,30,31,32, 1,
 } };
 
-static const struct ordering ptr = { {
+static const struct ordering __des_Ptr = { {
 	16, 7,20,21,29,12,28,17, 1,15,23,26, 5,18,31,10,
 	 2, 8,24,14,32,27, 3, 9,19,13,30, 6,22,11, 4,25,
 } };
 
-static const unsigned char s_boxes[8][64] = {
+static const unsigned char __des_S_boxes[8][64] = {
 {	14, 4,13, 1, 2,15,11, 8, 3,10, 6,12, 5, 9, 0, 7,
 	 0,15, 7, 4,14, 2,13, 1,10, 6,12,11, 9, 5, 3, 8,
 	 4, 1,14, 8,13, 6, 2,11,15,12, 9, 7, 3,10, 5, 0,
@@ -145,11 +145,11 @@ static const unsigned char s_boxes[8][64] = {
 },
 };
 
-static const int rots[] = {
+static const int __des_Rots[] = {
 	1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1,
 };
 
-static void transpose(struct block *data, const struct ordering *t, int n)
+static void __des_transpose(struct block *data, const struct ordering *t, int n)
 {
 	struct block x;
 
@@ -160,7 +160,7 @@ static void transpose(struct block *data, const struct ordering *t, int n)
 	}
 }
 
-static void rotate(struct block *key)
+static void __des_rotate(struct block *key)
 {
 	unsigned char *p = key->b_data;
 	unsigned char *ep = &(key->b_data[55]);
@@ -171,17 +171,17 @@ static void rotate(struct block *key)
 	key->b_data[55] = data28;
 }
 
-static void f(int i, struct block *key, struct block *a, struct block *x, struct crypt_data *data)
+static void __des_encrypt(int i, struct block *key, struct block *a, struct block *x, struct crypt_data *data)
 {
 	struct block e, ikey, y;
 	int k;
 	unsigned char *p, *q, *r;
 
 	e = *a;
-	transpose(&e, data->EP, 48);
-	for (k = rots[i]; k; k--) rotate(key);
+	__des_transpose(&e, data->EP, 48);
+	for (k = __des_Rots[i]; k; k--) __des_rotate(key);
 	ikey = *key;
-	transpose(&ikey, &KeyTr2, 48);
+	__des_transpose(&ikey, &__des_KeyTr2, 48);
 	p = &(y.b_data[48]);
 	q = &(e.b_data[48]);
 	r = &(ikey.b_data[48]);
@@ -199,21 +199,21 @@ static void f(int i, struct block *key, struct block *a, struct block *x, struct
 		r += *p++;
 		r += *p++ << 4;
 
-		xb = s_boxes[k][r];
+		xb = __des_S_boxes[k][r];
 
 		*q++ = (xb >> 3) & 1;
 		*q++ = (xb>>2) & 1;
 		*q++ = (xb>>1) & 1;
 		*q++ = (xb & 1);
 	}
-	transpose(x, &ptr, 32);
+	__des_transpose(x, &__des_Ptr, 32);
 }
 
-void setkey_r(const char *k, struct crypt_data *data)
+extern void setkey_r(const char *k, struct crypt_data *data)
 {
 	struct block *key = &(data->key);
 	memcpy(key, k, (sizeof(struct block)));
-	transpose(key, &KeyTr1, 56);
+	__des_transpose(key, &__des_KeyTr1, 56);
 }
 
 extern void encrypt_r(char *blck, int edflag, struct crypt_data *data)
@@ -222,7 +222,8 @@ extern void encrypt_r(char *blck, int edflag, struct crypt_data *data)
 	struct block *p = (struct block *) blck;
 	int i;
 
-	transpose(p, &InitialTr, 64);
+	__des_transpose(p, &__des_InitialTr, 64);
+	data->EP = &__des_Etr;
 	for (i = 15; i>= 0; i--) {
 		int j = edflag ? i : 15 - i;
 		int k;
@@ -232,13 +233,13 @@ extern void encrypt_r(char *blck, int edflag, struct crypt_data *data)
 		for (k = 31; k >= 0; k--) {
 			p->b_data[k] = b.b_data[k + 32];
 		}
-		f(j, key, p, &x, data);
+		__des_encrypt(j, key, p, &x, data);
 		for (k = 31; k >= 0; k--) {
 			p->b_data[k+32] = b.b_data[k] ^ x.b_data[k];
 		}
 	}
-	transpose(p, &swap, 64);
-	transpose(p, &FinalTr, 64);
+	__des_transpose(p, &__des_Swap, 64);
+	__des_transpose(p, &__des_FinalTr, 64);
 }
 
 extern char *crypt_r(const char *pw, const char *salt, struct crypt_data *data)
@@ -253,9 +254,8 @@ extern char *crypt_r(const char *pw, const char *salt, struct crypt_data *data)
 	/* First, check if we are supposed to be using the MD5 replacement
 	 * instead of DES...  */
 	if (salt[0]=='$' && salt[1]=='1' && salt[2]=='$')
-		return md5_crypt_r(pw, salt, data);
+		return __md5_crypt_r(pw, salt, data);
 
-	data->EP = &etr;
 	while (*pw && p < &pwb[64]) {
 		int j = 7;
 
@@ -271,7 +271,7 @@ extern char *crypt_r(const char *pw, const char *salt, struct crypt_data *data)
 
 	while (p < &pwb[66]) *p++ = 0;
 
-	new_etr = etr;
+	new_etr = __des_Etr;
 	data->EP = &new_etr;
 	if (salt[0] == 0 || salt[1] == 0) salt = "**";
 	for (i = 0; i < 2; i++) {
@@ -295,8 +295,9 @@ extern char *crypt_r(const char *pw, const char *salt, struct crypt_data *data)
 
 	if (result[1] == 0) result[1] = result[0];
 
+	data->EP = &__des_Etr;
 	for (i = 0; i < 25; i++) encrypt_r(pwb,0, data);
-	data->EP = &etr;
+	data->EP = &__des_Etr;
 
 	p = pwb;
 	cp = result+2;
@@ -354,4 +355,6 @@ extern char *crypt_r(const char *pw, const char *salt, struct crypt_data *data)
  *
  */
 
+
+#include <md5.c>
 

@@ -27,17 +27,17 @@
 /* For use by the old, non-reentrant routines (crypt/encrypt/setkey)  */
 static struct crypt_data __crypt_data;
 
-char * crypt(const char *key, const char *salt)
+extern char * crypt(const char *key, const char *salt)
 {
     return crypt_r (key, salt, &__crypt_data);
 }
 
-void setkey(const char *key)
+extern void setkey(const char *key)
 {
     return setkey_r(key, &__crypt_data);
 }
 
-void encrypt(char *block, int edflag)
+extern void encrypt(char *block, int edflag)
 {
     return encrypt_r(block, edflag, &__crypt_data);
 }
