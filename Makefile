@@ -116,7 +116,7 @@ install:
 	    rm -f $(INSTALL_DIR)/lib/libuClibc.so; \
 	    ln -s $(INSTALL_DIR)/lib/$(SHARED_NAME) \
 		    $(INSTALL_DIR)/lib/libuClibc.so; \
-	    ldconfig; \
+	    /sbin/ldconfig; \
 	fi;
 	@if [ "$(HAS_MMU)" = "false" ] ; then \
 	    set -x; \
