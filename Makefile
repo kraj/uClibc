@@ -29,7 +29,7 @@
 TOPDIR=./
 include Rules.mak
 
-DIRS = extra misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd crypt
+DIRS = extra misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd crypt libutil
 
 ifeq ($(strip $(HAS_MMU)),true)
 	DO_SHARED=shared
@@ -59,6 +59,7 @@ shared: $(LIBNAME)
 	ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME)
 	ln -sf $(SHARED_MAJORNAME) libc.so
 	@$(MAKE) -C crypt shared
+	@$(MAKE) -C libutil shared
 	@$(MAKE) -C ld.so-1
 
 done: $(LIBNAME) $(DO_SHARED)
@@ -114,6 +115,7 @@ install: install_runtime install_dev install_ldso
 # Installs shared library
 install_runtime:
 	@$(MAKE) -C crypt install
+	@$(MAKE) -C libutil install
 ifneq ($(DO_SHARED),)
 	install -d $(INSTALL_DIR)/lib
 	rm -rf $(INSTALL_DIR)/lib/$(SHARED_FULLNAME)
