@@ -94,27 +94,29 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	pid = getpid();
 
 #ifdef _LIBC_REENTRANT
+#error "Fix the alloca stuff"
 	hstbuflen = 1024;
 	tmphstbuf = alloca (hstbuflen);
 
-	while (__gethostbyname_r (*ahost, &hostbuf, tmphstbuf, hstbuflen,
-				  &hp, &herr) != 0
-	       || hp == NULL)
-	if (herr != NETDB_INTERNAL || errno != ERANGE)
+	while (__gethostbyname_r (*ahost, &hostbuf, tmphstbuf, 
+		    hstbuflen, &hp, &herr) != 0 || hp == NULL)
 	{
+	    if (herr != NETDB_INTERNAL || errno != ERANGE)
+	    {
 		__set_h_errno (herr);
 		herror(*ahost);
 		return -1;
-	}
-	else
-	{
+	    }
+	    else
+	    {
 		/* Enlarge the buffer.  */
 		hstbuflen *= 2;
 		tmphstbuf = alloca (hstbuflen);
+	    }
 	}
 #else /* call the non-reentrant version */
 	if ((hp = gethostbyname(*ahost)) == NULL) {
-		return -1;
+	    return -1;
 	}
 #endif
 	pfd[0].events = POLLIN;
@@ -280,30 +282,32 @@ int ruserok(rhost, superuser, ruser, luser)
 	int superuser;
 {
         struct hostent *hp;
-	size_t buflen;
-	char *buffer;
 	u_int32_t addr;
 	char **ap;
 #ifdef _LIBC_REENTRANT
+	size_t buflen;
+	char *buffer;
 	int herr;
 	struct hostent hostbuf;
 #endif
 
+#ifdef _LIBC_REENTRANT
+#error "Fix the alloca stuff!"
 	buflen = 1024;
 	buffer = alloca (buflen);
 
-#ifdef _LIBC_REENTRANT
-	while (__gethostbyname_r (rhost, &hostbuf, buffer, buflen, &hp, &herr)
-	       != 0
-	       || hp == NULL)
-	  if (herr != NETDB_INTERNAL || errno != ERANGE)
-	    return -1;
-	  else
+	while (__gethostbyname_r (rhost, &hostbuf, buffer, 
+		    buflen, &hp, &herr) != 0 || hp == NULL) 
+	{
+	    if (herr != NETDB_INTERNAL || errno != ERANGE)
+		return -1;
+	    else
 	    {
-	      /* Enlarge the buffer.  */
-	      buflen *= 2;
-	      buffer = alloca (buflen);
+		/* Enlarge the buffer.  */
+		buflen *= 2;
+		buffer = alloca (buflen);
 	    }
+	}
 #else
 	if ((hp = gethostbyname(rhost)) == NULL) {
 		return -1;
@@ -390,6 +394,7 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 		if (!isbad)
 			return 0;
 	}
+
 	if (__check_rhosts_file || superuser) {
 		char *pbuf;
 		struct passwd *pwd;
@@ -397,20 +402,23 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 		uid_t uid;
 
 #ifdef _LIBC_REENTRANT
+#error "Fix the alloca stuff"
 		size_t buflen = sysconf (_SC_GETPW_R_SIZE_MAX);
 		char *buffer = alloca (buflen);
 		struct passwd pwdbuf;
 
-		if (__getpwnam_r (luser, &pwdbuf, buffer, buflen, &pwd) != 0
-		    || pwd == NULL)
+		if (__getpwnam_r (luser, &pwdbuf, buffer, 
+			    buflen, &pwd) != 0 || pwd == NULL)
+		{
 			return -1;
+		}
 #else
 		if ((pwd = getpwnam(luser)) == NULL)
 			return -1;
 #endif
 
 		dirlen = strlen (pwd->pw_dir);
-		pbuf = alloca (dirlen + sizeof "/.rhosts");
+		pbuf = malloc (dirlen + sizeof "/.rhosts");
 		strcpy (pbuf, pwd->pw_dir);
 		strcat (pbuf, "/.rhosts");
 
@@ -420,6 +428,7 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 		uid = geteuid ();
 		seteuid (pwd->pw_uid);
 		hostf = iruserfopen (pbuf, pwd->pw_uid);
+		free(pbuf);
 		
 		if (hostf != NULL) {
 			isbad = __ivaliduser2 (hostf, raddr, luser, ruser, rhost);
@@ -471,13 +480,14 @@ __icheckhost (raddr, lhost, rhost)
 	const char *rhost;
 {
 	struct hostent *hp;
-	size_t buflen;
-	char *buffer;
-	int save_errno;
 	u_int32_t laddr;
 	int negate=1;    /* Multiply return with this to get -1 instead of 1 */
 	char **pp;
+
 #ifdef _LIBC_REENTRANT
+	int save_errno;
+	size_t buflen;
+	char *buffer;
 	struct hostent hostbuf;
 	int herr;
 #endif
@@ -504,28 +514,24 @@ __icheckhost (raddr, lhost, rhost)
 		return negate * (! (raddr ^ laddr));
 
 	/* Better be a hostname. */
+#ifdef _LIBC_REENTRANT
 	buflen = 1024;
-	buffer = alloca (buflen);
+	buffer = malloc(buflen);
 	save_errno = errno;
 
-#ifdef _LIBC_REENTRANT
 	while (__gethostbyname_r (lhost, &hostbuf, buffer, buflen, &hp, &herr)
-	       != 0)
-		if (herr != NETDB_INTERNAL || errno != ERANGE)
-			return (0);
-		else {
-			/* Enlarge the buffer.  */
-			buflen *= 2;
-			buffer = alloca (buflen);
-			__set_errno (0);
-		}
+	       != 0) {
+	    free(buffer);
+	    return (0);
+	}
+	free(buffer);
 	__set_errno (save_errno);
+#else
+	hp = gethostbyname(lhost);
+#endif /* _LIBC_REENTRANT */
+
 	if (hp == NULL)
 		return 0;
-#else
-	if ((hp = gethostbyname(lhost)) == NULL)
-  	        return 0;
-#endif /* _LIBC_REENTRANT */
 
 	/* Spin through ip addresses. */
 	for (pp = hp->h_addr_list; *pp; ++pp)
