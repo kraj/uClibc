@@ -40,7 +40,7 @@ all: headers pregen subdirs shared finished
 # In this section, we need .config
 -include .config.cmd
 
-shared:
+shared: subdirs
 ifeq ($(strip $(HAVE_SHARED)),y)
 	@$(MAKE) -C libc shared
 	@$(MAKE) -C ldso shared
@@ -56,14 +56,13 @@ ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
 endif
 else
 	@echo
-	@echo Not building shared libraries...
+	@echo Not building shared libraries ...
 	@echo
 endif
 
-
 finished: shared
 	@echo
-	@echo Finally finished compiling...
+	@echo Finally finished compiling ...
 	@echo
 
 include/bits/uClibc_config.h: .config
@@ -130,8 +129,7 @@ endif
 
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
-
-$(patsubst %, _dir_%, $(DIRS)) : dummy
+$(patsubst %, _dir_%, $(DIRS)): headers
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 tags:
@@ -259,7 +257,7 @@ install_utils: utils
 
 finished2:
 	@echo
-	@echo Finished installing...
+	@echo Finished installing ...
 	@echo
 
 else # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
@@ -358,5 +356,3 @@ release: distclean
 endif # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
 .PHONY: dummy subdirs release distclean clean config oldconfig menuconfig
-
-
