@@ -77,11 +77,17 @@ weak_alias (__libc_write, __write)
 #endif
 
 //#define __NR_open             5
-#ifdef L___libc_open
+#ifdef L___syscall_open
+#define __NR___syscall_open __NR_open
 #include <stdarg.h>
 /* Do not include fcntl.h, so gcc doesn't whine the prototype */
-#define __NR___libc_open __NR_open
-_syscall3(int, __libc_open, const char *, fn, int, flags, mode_t, mode);
+static inline
+_syscall3(int, __syscall_open, const char *, fn, int, flags, __kernel_mode_t, mode);
+int __libc_open (const char * fn, int flags, mode_t mode)
+{
+	  return __syscall_open(fn, flags, mode);
+}
+
 weak_alias(__libc_open, open)
 #endif
 
@@ -97,10 +103,15 @@ weak_alias(__libc_close, close)
 // Implemented using wait4 
 
 //#define __NR_creat            8
-#ifdef L_creat
+#ifdef L___syscall_creat
 #include <fcntl.h>
 #ifdef __NR_creat
-_syscall2(int, creat, const char *, file, mode_t, mode);
+#define __NR___syscall_creat __NR_creat
+_syscall2(int, __syscall_creat, const char *, file, __kernel_mode_t, mode);
+int creat (const char *file, mode_t mode)
+{
+	  return __syscall_creat (file, mode);
+}
 #else
 extern int __libc_open (const char *file, int flags, mode_t mode);
 int creat (const char *file, mode_t mode)
@@ -170,9 +181,15 @@ int mknod(const char *path, mode_t mode, dev_t dev)
 #endif
 
 //#define __NR_chmod            15
-#ifdef L_chmod
+#ifdef L___syscall_chmod
 #include <sys/stat.h>
-_syscall2(int, chmod, const char *, path, mode_t, mode);
+#define __NR___syscall_chmod __NR_chmod
+static inline 
+_syscall2(int, __syscall_chmod, const char *, path, __kernel_mode_t, mode);
+int chmod(const char *path, mode_t mode)
+{
+	return __syscall_chmod(path, mode);
+}
 #endif
 
 /* Old kernels don't have lchown -- do chown instead.  This
@@ -183,9 +200,15 @@ _syscall2(int, chmod, const char *, path, mode_t, mode);
 #endif
 
 //#define __NR_lchown           16
-#ifdef L_lchown
+#ifdef L___syscall_lchown
 #include <unistd.h>
-_syscall3(int, lchown, const char *, path, uid_t, owner, gid_t, group);
+#define __NR___syscall_lchown __NR_lchown
+static inline 
+_syscall3(int, __syscall_lchown, const char *, path, __kernel_uid_t, owner, __kernel_gid_t, group);
+int lchown(const char *path, uid_t owner, gid_t group)
+{
+	return __syscall_lchown(path, owner, group);
+}
 #endif
 
 
@@ -228,7 +251,20 @@ _syscall1(int, umount, const char *, specialfile);
 #endif
 
 //#define __NR_setuid           23
-// See setuid.c
+#ifdef L___syscall_setuid
+#define __NR___syscall_setuid __NR_setuid
+#include <unistd.h>
+static inline 
+_syscall1(int, __syscall_setuid, __kernel_uid_t, uid);
+int setuid(uid_t uid)
+{
+	if (uid == (uid_t) ~0 || uid != (uid_t) ((int) uid)) {
+		__set_errno (EINVAL);
+		return -1;
+	}
+	return(__syscall_setuid(uid));
+}
+#endif
 
 //#define __NR_getuid           24
 #ifdef L_getuid
@@ -261,7 +297,7 @@ int stime(const time_t *when)
 #ifdef L___ptrace
 #include <sys/ptrace.h>
 #define __NR___ptrace __NR_ptrace
-_syscall4(long, __ptrace, enum __ptrace_request, request, pid_t, pid,
+_syscall4(long, __ptrace, enum __ptrace_request, request, __kernel_pid_t, pid,
 		void*, addr, void*, data);
 #endif
 
@@ -409,10 +445,16 @@ int nice (int incr)
 //See sync.c
 
 //#define __NR_kill             37
-#ifdef L_kill
+#ifdef L___syscall_kill
 #include <signal.h>
 #undef kill
-_syscall2(int, kill, pid_t, pid, int, sig);
+#define __NR___syscall_kill __NR_kill
+static inline
+_syscall2(int, __syscall_kill, __kernel_pid_t, pid, int, sig);
+int kill(pid_t pid, int sig)
+{
+	return(__syscall_kill(pid, sig));
+}
 #endif
 
 //#define __NR_rename           38
@@ -422,9 +464,15 @@ _syscall2(int, rename, const char *, oldpath, const char *, newpath);
 #endif
 
 //#define __NR_mkdir            39
-#ifdef L_mkdir
+#ifdef L___syscall_mkdir
 #include <sys/stat.h>
-_syscall2(int, mkdir, const char *, pathname, mode_t, mode);
+#define __NR___syscall_mkdir __NR_mkdir
+static inline 
+_syscall2(int, __syscall_mkdir, const char *, pathname, __kernel_mode_t, mode);
+int mkdir(const char * pathname, mode_t mode)
+{
+	return(__syscall_mkdir(pathname, mode));
+}
 #endif
 
 //#define __NR_rmdir            40
@@ -456,9 +504,15 @@ _syscall1(clock_t, times, struct tms *, buf);
 //#define __NR_brk              45
 
 //#define __NR_setgid           46
-#ifdef L_setgid
+#ifdef L___syscall_setgid
 #include <unistd.h>
-_syscall1(int, setgid, gid_t, gid);
+#define __NR___syscall_setgid __NR_setgid
+static inline 
+_syscall1(int, __syscall_setgid, __kernel_gid_t, gid);
+int setgid(gid_t gid)
+{
+	return(__syscall_setgid(gid));
+}
 #endif
 
 //#define __NR_getgid           47
@@ -568,9 +622,15 @@ weak_alias(__libc_fcntl, fcntl)
 //#define __NR_mpx              56
 
 //#define __NR_setpgid          57
-#ifdef L_setpgid
+#ifdef L___syscall_setpgid
 #include <unistd.h>
-_syscall2(int, setpgid, pid_t, pid, pid_t, pgid);
+#define __NR___syscall_setpgid __NR_setpgid
+static inline
+_syscall2(int, __syscall_setpgid, __kernel_pid_t, pid, __kernel_pid_t, pgid)
+int setpgid(pid_t pid, pid_t pgid)
+{
+	return(__syscall_setpgid(pid, pgid));
+}
 #endif
 
 //#define __NR_ulimit           58
@@ -578,9 +638,15 @@ _syscall2(int, setpgid, pid_t, pid, pid_t, pgid);
 //#define __NR_oldolduname      59
 
 //#define __NR_umask            60
-#ifdef L_umask
+#ifdef L___syscall_umask
 #include <sys/stat.h>
-_syscall1(mode_t, umask, mode_t, mask);
+#define __NR___syscall_umask __NR_umask
+static inline 
+_syscall1(__kernel_mode_t, __syscall_umask, __kernel_mode_t, mask);
+mode_t umask(mode_t mask)
+{
+	return(__syscall_umask(mask));
+}
 #endif
 
 //#define __NR_chroot           61
@@ -624,8 +690,8 @@ _syscall0(pid_t, setsid);
 
 //#define __NR_sigaction        67
 #ifndef __NR_rt_sigaction
-#define __NR___syscall_sigaction __NR_sigaction
 #ifdef L___syscall_sigaction
+#define __NR___syscall_sigaction __NR_sigaction
 #include <signal.h>
 #undef sigaction
 _syscall3(int, __syscall_sigaction, int, signum, const struct sigaction *, act,
@@ -638,15 +704,27 @@ _syscall3(int, __syscall_sigaction, int, signum, const struct sigaction *, act,
 //#define __NR_ssetmask         69
 
 //#define __NR_setreuid         70
-#ifdef L_setreuid
+#ifdef L___syscall_setreuid
 #include <unistd.h>
-_syscall2(int, setreuid, uid_t, ruid, uid_t, euid);
+#define __NR___syscall_setreuid __NR_setreuid
+static inline
+_syscall2(int, __syscall_setreuid, __kernel_uid_t, ruid, __kernel_uid_t, euid);
+int setreuid(uid_t ruid, uid_t euid)
+{
+	return(__syscall_setreuid(ruid, euid));
+}
 #endif
 
 //#define __NR_setregid         71
-#ifdef L_setregid
+#ifdef L___syscall_setregid
 #include <unistd.h>
-_syscall2(int, setregid, gid_t, rgid, gid_t, egid);
+#define __NR___syscall_setregid __NR_setregid
+static inline
+_syscall2(int, __syscall_setregid, __kernel_gid_t, rgid, __kernel_gid_t, egid);
+int setregid(gid_t rgid, gid_t egid)
+{
+	return(__syscall_setregid(rgid, egid));
+}
 #endif
 
 //#define __NR_sigsuspend       72
@@ -757,16 +835,56 @@ _syscall2(int, settimeofday, const struct timeval *, tv,
 #endif
 
 //#define __NR_getgroups        80
-#ifdef L_getgroups
+#ifdef L___syscall_getgroups
 #include <unistd.h>
-_syscall2(int, getgroups, int, size, gid_t *, list);
+#define __NR___syscall_getgroups __NR_getgroups
+static inline
+_syscall2(int, __syscall_getgroups, int, size, __kernel_gid_t *, list);
+#define MIN(a,b) (((a)<(b))?(a):(b))
+int getgroups(int n, gid_t *groups)
+{
+	if (unlikely(n < 0)) {
+		__set_errno(EINVAL);
+		return -1;
+	} else {
+		int i, ngids;
+		__kernel_gid_t kernel_groups[n = MIN(n, sysconf(_SC_NGROUPS_MAX))];
+		ngids = __syscall_getgroups(n, kernel_groups);
+		if (n != 0 && ngids > 0) {
+			for (i = 0; i < ngids; i++) {
+				(groups)[i] = kernel_groups[i];
+			}
+		}
+		return ngids;
+	}
+}
 #endif
 
 //#define __NR_setgroups        81
-#ifdef L_setgroups
+#ifdef L___syscall_setgroups
 #include <unistd.h>
 #include <grp.h>
-_syscall2(int, setgroups, size_t, size, const gid_t *, list);
+#define __NR___syscall_setgroups __NR_setgroups
+static inline
+_syscall2(int, __syscall_setgroups, size_t, size, const __kernel_gid_t *, list);
+int setgroups (size_t n, const gid_t *groups)
+{
+	if (n > (size_t)sysconf(_SC_NGROUPS_MAX)) {
+		__set_errno (EINVAL);
+		return -1;
+	} else {
+		size_t i;
+		__kernel_gid_t kernel_groups[n];
+		for (i = 0; i < n; i++) {
+			kernel_groups[i] = (groups)[i];
+			if (groups[i] != (gid_t) ((__kernel_gid_t)groups[i])) {
+				__set_errno (EINVAL);
+				return -1;
+			}
+		}
+		return(__syscall_setgroups(n, kernel_groups));
+	}
+}
 #endif
 
 //#define __NR_select           82
@@ -866,15 +984,27 @@ _syscall2(int, ftruncate, int, fd, __off_t, length);
 #endif
 
 //#define __NR_fchmod           94
-#ifdef L_fchmod
+#ifdef L___syscall_fchmod
 #include <sys/stat.h>
-_syscall2(int, fchmod, int, fildes, mode_t, mode);
+#define __NR___syscall_fchmod __NR_fchmod
+static inline 
+_syscall2(int, __syscall_fchmod, int, fildes, __kernel_mode_t, mode);
+int fchmod(int fildes, mode_t mode)
+{
+	return(__syscall_fchmod(fildes, mode));
+}
 #endif
 
 //#define __NR_fchown           95
-#ifdef L_fchown
+#ifdef L___syscall_fchown
 #include <unistd.h>
-_syscall3(int, fchown, int, fd, uid_t, owner, gid_t, group);
+#define __NR___syscall_fchown __NR_fchown
+static inline
+_syscall3(int, __syscall_fchown, int, fd, __kernel_uid_t, owner, __kernel_gid_t, group);
+int fchown(int fd, uid_t owner, gid_t group)
+{
+	return(__syscall_fchown(fd, owner, group));
+}
 #endif
 
 //#define __NR_getpriority      96
@@ -1067,8 +1197,14 @@ _syscall0(int, vhangup);
 //#define __NR_vm86old          113
 
 //#define __NR_wait4            114
-#ifdef L_wait4
-_syscall4(int, wait4, pid_t, pid, int *, status, int, opts, void *, rusage);
+#ifdef L___syscall_wait4
+#define __NR___syscall_wait4 __NR_wait4
+static inline
+_syscall4(int, __syscall_wait4, __kernel_pid_t, pid, int *, status, int, opts, void *, rusage);
+int wait4(pid_t pid, int * status, int opts, void * rusage)
+{
+	return(__syscall_wait4(pid, status, opts, rusage));
+}
 #endif
 
 //#define __NR_swapoff          115
@@ -1187,8 +1323,14 @@ _syscall4(int, quotactl, int, cmd, const char *, special , int, id, caddr_t, add
 #endif
 
 //#define __NR_getpgid          132
-#ifdef L_getpgid
-_syscall1(pid_t, getpgid, pid_t, pid);
+#ifdef L___syscall_getpgid
+#define __NR___syscall_getpgid __NR_getpgid
+static inline
+_syscall1(__kernel_pid_t, __syscall_getpgid, __kernel_pid_t, pid);
+pid_t getpgid(pid_t pid)
+{
+	return(__syscall_getpgid(pid));
+}
 #endif
 
 //#define __NR_fchdir           133
@@ -1211,17 +1353,29 @@ _syscall2(int, bdflush, int, __func, long int, __data);
 
 //#define __NR_setfsuid         138
 #ifdef __NR_setfsuid
-#ifdef L_setfsuid
+#ifdef L___syscall_setfsuid
 #include <sys/fsuid.h>
-_syscall1(int, setfsuid, uid_t, uid);
+#define __NR___syscall_setfsuid __NR_setfsuid
+static inline
+_syscall1(int, __syscall_setfsuid, __kernel_uid_t, uid);
+int setfsuid(uid_t uid)
+{
+	return(__syscall_setfsuid(uid));
+}
 #endif
 #endif
 
 //#define __NR_setfsgid         139
 #ifdef __NR_setfsgid
-#ifdef L_setfsgid
+#ifdef L___syscall_setfsgid
 #include <sys/fsuid.h>
-_syscall1(int, setfsgid, gid_t, gid);
+#define __NR___syscall_setfsgid __NR_setfsgid
+static inline
+_syscall1(int, __syscall_setfsgid, __kernel_gid_t, gid);
+int setfsgid(gid_t gid)
+{
+	return(__syscall_setfsgid(gid));
+}
 #endif
 #endif
 
@@ -1274,9 +1428,15 @@ _syscall3(ssize_t, writev, int, filedes, const struct iovec *, vector, int,
 #endif
 
 //#define __NR_getsid           147
-#ifdef L_getsid
+#ifdef L___syscall_getsid
 #include <unistd.h>
-_syscall1(pid_t, getsid, pid_t, pid);
+#define __NR___syscall_getsid __NR_getsid
+static inline
+_syscall1(__kernel_pid_t, __syscall_getsid, __kernel_pid_t, pid)
+pid_t getsid(pid_t pid)
+{
+	return(__syscall_getsid(pid));
+}
 #endif
 
 //#define __NR_fdatasync        148
@@ -1344,33 +1504,57 @@ int sysctl(int *name, int nlen, void *oldval, size_t *oldlenp,
 
 //#define __NR_sched_setparam   154
 #ifdef __NR_sched_setparam
-#ifdef L_sched_setparam
+#ifdef L___syscall_sched_setparam
 #include <sched.h>
-_syscall2(int, sched_setparam, pid_t, pid, const struct sched_param *, p);
+#define __NR___syscall_sched_setparam __NR_sched_setparam
+static inline
+_syscall2(int, __syscall_sched_setparam, __kernel_pid_t, pid, const struct sched_param *, p);
+int sched_setparam(pid_t pid, const struct sched_param * p)
+{
+	return(__syscall_sched_setparam(pid, p));
+}
 #endif
 #endif
 
 //#define __NR_sched_getparam   155
 #ifdef __NR_sched_getparam
-#ifdef L_sched_getparam
+#ifdef L___syscall_sched_getparam
 #include <sched.h>
-_syscall2(int, sched_getparam, pid_t, pid, struct sched_param *, p);
+#define __NR___syscall_sched_getparam __NR_sched_getparam
+static inline
+_syscall2(int, __syscall_sched_getparam, __kernel_pid_t, pid, struct sched_param *, p);
+int sched_getparam(pid_t pid, struct sched_param * p)
+{
+	return(__syscall_sched_getparam(pid, p));
+}
 #endif
 #endif
 
 //#define __NR_sched_setscheduler       156
 #ifdef __NR_sched_setscheduler
-#ifdef L_sched_setscheduler
+#ifdef L___syscall_sched_setscheduler
 #include <sched.h>
-_syscall3(int, sched_setscheduler, pid_t, pid, int, policy, const struct sched_param *, p);
+#define __NR___syscall_sched_setscheduler __NR_sched_setscheduler
+static inline
+_syscall3(int, __syscall_sched_setscheduler, __kernel_pid_t, pid, int, policy, const struct sched_param *, p);
+int sched_setscheduler(pid_t pid, int policy, const struct sched_param * p)
+{
+	return(__syscall_sched_setscheduler(pid, policy, p));
+}
 #endif
 #endif
 
 //#define __NR_sched_getscheduler       157
 #ifdef __NR_sched_getscheduler
-#ifdef L_sched_getscheduler
+#ifdef L___syscall_sched_getscheduler
 #include <sched.h>
-_syscall1(int, sched_getscheduler, pid_t, pid);
+#define __NR___syscall_sched_getscheduler __NR_sched_getscheduler
+static inline
+_syscall1(int, __syscall_sched_getscheduler, __kernel_pid_t, pid);
+int sched_getscheduler(pid_t pid)
+{
+	return(__syscall_sched_getscheduler(pid));
+}
 #endif
 #endif
 
@@ -1400,9 +1584,15 @@ _syscall1(int, sched_get_priority_min, int, policy);
 
 //#define __NR_sched_rr_get_interval    161
 #ifdef __NR_sched_rr_get_interval
-#ifdef L_sched_rr_get_interval
+#ifdef L___syscall_sched_rr_get_interval
 #include <sched.h>
-_syscall2(int, sched_rr_get_interval, pid_t, pid, struct timespec *, tp);
+#define __NR___syscall_sched_rr_get_interval __NR_sched_rr_get_interval
+static inline
+_syscall2(int, __syscall_sched_rr_get_interval, __kernel_pid_t, pid, struct timespec *, tp);
+int sched_rr_get_interval(pid_t pid, struct timespec * tp)
+{
+	return(__syscall_sched_rr_get_interval(pid, tp));
+}
 #endif
 #endif
 
@@ -1423,15 +1613,35 @@ _syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t, new_s
 
 //#define __NR_setresuid                164
 #ifdef __NR_setresuid
-#ifdef L_setresuid
-_syscall3(int, setresuid, uid_t, ruid, uid_t, euid, uid_t, suid);
+#ifdef L___syscall_setresuid
+#define __NR___syscall_setresuid __NR_setresuid
+static inline
+_syscall3(int, __syscall_setresuid, __kernel_uid_t, rgid, __kernel_uid_t, egid, __kernel_uid_t, sgid);
+int setresuid(uid_t ruid, uid_t euid, uid_t suid)
+{
+	return(__syscall_setresuid(ruid, euid, suid));
+}
 #endif
 #endif
 
 //#define __NR_getresuid                165
 #ifdef __NR_getresuid
-#ifdef L_getresuid
-_syscall3(int, getresuid, uid_t *, euid, uid_t *, ruid, uid_t *, suid);
+#ifdef L___syscall_getresuid
+#define __NR___syscall_getresuid __NR_getresuid
+static inline
+_syscall3(int, __syscall_getresuid, __kernel_uid_t *, ruid, __kernel_uid_t *, euid, __kernel_uid_t *, suid);
+int getresuid (uid_t *ruid, uid_t *euid, uid_t *suid)
+{
+	int result;
+	__kernel_uid_t k_ruid, k_euid, k_suid;
+	result = __syscall_getresuid(&k_ruid, &k_euid, &k_suid);
+	if (result == 0) {
+		*ruid = (uid_t) k_ruid;
+		*euid = (uid_t) k_euid;
+		*suid = (uid_t) k_suid;
+	}
+	return result;
+}
 #endif
 #endif
 
@@ -1463,15 +1673,35 @@ _syscall3(int, poll, struct pollfd *, fds, unsigned long int, nfds, int, timeout
 
 //#define __NR_setresgid                170
 #ifdef __NR_setresgid
-#ifdef L_setresgid
-_syscall3(int, setresgid, gid_t, rgid, gid_t, egid, gid_t, sgid);
+#ifdef L___syscall_setresgid
+#define __NR___syscall_setresgid __NR_setresgid
+static inline
+_syscall3(int, __syscall_setresgid, __kernel_gid_t, rgid, __kernel_gid_t, egid, __kernel_gid_t, sgid);
+int setresgid(gid_t rgid, gid_t egid, gid_t sgid)
+{
+	return(__syscall_setresgid(rgid, egid, sgid));
+}
 #endif
 #endif
 
 //#define __NR_getresgid                171
 #ifdef __NR_getresgid
-#ifdef L_getresgid
-_syscall3(int, getresgid, gid_t *, egid, gid_t *, rgid, gid_t *, sgid);
+#ifdef L___syscall_getresgid
+#define __NR___syscall_getresgid __NR_getresgid
+static inline
+_syscall3(int, __syscall_getresgid, __kernel_gid_t *, egid, __kernel_gid_t *, rgid, __kernel_gid_t *, sgid);
+int getresgid(gid_t *rgid, gid_t *egid, gid_t *sgid)
+{
+	int result;
+	__kernel_gid_t k_rgid, k_egid, k_sgid;
+	result = __syscall_getresgid(&k_rgid, &k_egid, &k_sgid);
+	if (result == 0) { 
+		*rgid = (gid_t) k_rgid;
+		*egid = (gid_t) k_egid;
+		*sgid = (gid_t) k_sgid;
+	}
+	return result;
+}
 #endif
 #endif
 
@@ -1584,9 +1814,15 @@ int sigsuspend (const sigset_t *mask)
 // See pread_write.c
 
 //#define __NR_chown                    182
-#ifdef L_chown
+#ifdef L___syscall_chown
 #include <unistd.h>
-_syscall3(int, chown, const char *, path, uid_t, owner, gid_t, group);
+#define __NR___syscall_chown __NR_chown
+static inline
+_syscall3(int, __syscall_chown, const char *, path, __kernel_uid_t, owner, __kernel_gid_t, group);
+int chown(const char * path, uid_t owner, gid_t group)
+{
+	return(__syscall_chown(path, owner, group));
+}
 #endif
 
 //#define __NR_getcwd                   183
