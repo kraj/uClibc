@@ -92,7 +92,7 @@ const char *const sys_siglist[] = {
 	"Unused signal",
 	NULL
 };
-
+weak_alias(sys_siglist, _sys_siglist);
 #endif
 
 #define NUM_KNOWN_SIGNALS    32
