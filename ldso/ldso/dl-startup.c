@@ -205,9 +205,9 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	tpnt->dynamic_addr = dpnt;
 #if defined(__mips__) || defined(__cris__)
 	/* Some architectures cannot call functions here, must inline */
-	__dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL);
+	__dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL, load_addr);
 #else
-	_dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL);
+	_dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL, load_addr);
 #endif
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
@@ -299,8 +299,8 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 				char *strtab;
 				Elf32_Sym *symtab;
 
-				symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + load_addr);
-				strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + load_addr);
+				symtab = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB];
+				strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 				sym = &symtab[symtab_index];
 				symbol_addr = load_addr + sym->st_value;
 

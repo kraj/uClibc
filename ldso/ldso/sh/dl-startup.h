@@ -68,7 +68,3 @@ asm(
  * call the _dl_elf_main function.
  */
 #define START()   return _dl_elf_main;
-
-
-
-

@@ -181,14 +181,14 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	Elf32_Addr  finaladdr;
 	Elf32_Sword delta;
 
-	rel_addr = (ELF_RELOC *) (tpnt->dynamic_info[DT_JMPREL] + tpnt->loadaddr);
+	rel_addr = (ELF_RELOC *)tpnt->dynamic_info[DT_JMPREL];
 
 	this_reloc = (void *)rel_addr + reloc_entry;
 	symtab_index = ELF32_R_SYM(this_reloc->r_info);
 
-	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
-	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
-	symname      = strtab + symtab[symtab_index].st_name;
+	symtab = (Elf32_Sym *)tpnt->dynamic_info[DT_SYMTAB];
+	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
+	symname = strtab + symtab[symtab_index].st_name;
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	debug_sym(symtab,strtab,symtab_index);
@@ -229,7 +229,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		/* Warning: we don't handle double-sized PLT entries */
 		Elf32_Word *plt, *data_words, index, offset;
 
-		plt = (Elf32_Word *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
+		plt = (Elf32_Word *)tpnt->dynamic_info[DT_PLTGOT];
 		offset = reloc_addr - plt;
 		index = (offset - PLT_INITIAL_ENTRY_WORDS)/2;
 		data_words = (Elf32_Word *)tpnt->data_words;
@@ -265,7 +265,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 #endif
 	reloc_addr   = (Elf32_Addr *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
-	symbol_addr = tpnt->loadaddr; /* For R_PPC_RELATIVE */ 
+	symbol_addr  = tpnt->loadaddr; /* For R_PPC_RELATIVE */ 
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symname      = strtab + symtab[symtab_index].st_name;
 	if (symtab_index) {
@@ -275,10 +275,8 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		 * have been intentional.  We should not be linking local symbols
 		 * here, so all bases should be covered.
 		 */
-		if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
-			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
-			_dl_exit(1);
-		};
+		if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK))
+			return -1;
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
 	old_val = *reloc_addr;
@@ -302,7 +300,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 			/* Warning: we don't handle double-sized PLT entries */
 			Elf32_Word *plt, *data_words, index, offset;
 
-			plt = (Elf32_Word *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
+			plt = (Elf32_Word *)tpnt->dynamic_info[DT_PLTGOT];
 			offset = reloc_addr - plt;
 			index = (offset - PLT_INITIAL_ENTRY_WORDS)/2;
 			data_words = (Elf32_Word *)tpnt->data_words;
@@ -349,7 +347,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		}
 #else
 		_dl_dprintf(2,"R_PPC_REL24: Compile shared libraries with -fPIC!\n");
-		_dl_exit(1);
+		return -1;
 #endif
 	case R_PPC_NONE:
 		goto out_nocode; /* No code code modified */
@@ -385,7 +383,7 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	num_plt_entries = rel_size / sizeof(ELF_RELOC);
 
 	rel_offset_words = PLT_DATA_START_WORDS(num_plt_entries);
-	plt = (Elf32_Word *)(tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
+	plt = (Elf32_Word *)tpnt->dynamic_info[DT_PLTGOT];
 
 	/* Set up the lazy PLT entries.  */
 	offset = PLT_INITIAL_ENTRY_WORDS;
@@ -428,11 +426,11 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	int symtab_index;
 
 	/* Now parse the relocation information */
-	rpnt = (ELF_RELOC *)(intptr_t) (rel_addr + tpnt->loadaddr);
+	rpnt = (ELF_RELOC *)(intptr_t)rel_addr;
 	rel_size = rel_size / sizeof(ELF_RELOC);
 
-	symtab = (Elf32_Sym *)(intptr_t) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
-	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+	symtab = (Elf32_Sym *)(intptr_t)tpnt->dynamic_info[DT_SYMTAB];
+	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 	
 	  for (i = 0; i < rel_size; i++, rpnt++) {
 	        int res;

@@ -307,7 +307,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		if (tpnt->libtype == elf_executable) {
 			pnt = (char *) tpnt->dynamic_info[DT_RPATH];
 			if (pnt) {
-				pnt += (unsigned long) tpnt->loadaddr + tpnt->dynamic_info[DT_STRTAB];
+				pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
 #if defined (__SUPPORT_LD_DEBUG__)
 				if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching RPATH='%s'\n", pnt);
 #endif
@@ -651,7 +651,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	dpnt = (Elf32_Dyn *) dynamic_addr;
 	_dl_memset(dynamic_info, 0, sizeof(dynamic_info));
-	_dl_parse_dynamic_info(dpnt, dynamic_info, NULL);
+	_dl_parse_dynamic_info(dpnt, dynamic_info, NULL, libaddr);
 	/* If the TEXTREL is set, this means that we need to make the pages
 	   writable before we perform relocations.  Do this now. They get set
 	   back again later. */
@@ -702,8 +702,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	lpnt = (unsigned long *) dynamic_info[DT_PLTGOT];
 
 	if (lpnt) {
-		lpnt = (unsigned long *) (dynamic_info[DT_PLTGOT] +
-				((int) libaddr));
+		lpnt = (unsigned long *) (dynamic_info[DT_PLTGOT]);
 		INIT_GOT(lpnt, tpnt);
 	};
 
@@ -881,9 +880,9 @@ char *_dl_strdup(const char *string)
 	return retval;
 }
 
-void _dl_parse_dynamic_info(Elf32_Dyn *dpnt, unsigned long dynamic_info[], void *debug_addr)
+void _dl_parse_dynamic_info(Elf32_Dyn *dpnt, unsigned long dynamic_info[], void *debug_addr, Elf32_Addr load_off)
 {
-	__dl_parse_dynamic_info(dpnt, dynamic_info, debug_addr);
+	__dl_parse_dynamic_info(dpnt, dynamic_info, debug_addr, load_off);
 }
 #ifdef __USE_GNU
 #if ! defined LIBDL || (! defined PIC && ! defined __PIC__)

@@ -114,7 +114,7 @@ static inline void
 elf_machine_relative(Elf32_Addr load_off, const Elf32_Addr rel_addr,
                      Elf32_Word relative_count)
 {
-	Elf32_Rela *rpnt = (void *)(rel_addr + load_off);
+	Elf32_Rela *rpnt = (void *)rel_addr;
 
 	--rpnt;
 	do {

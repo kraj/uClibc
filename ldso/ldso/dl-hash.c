@@ -57,7 +57,7 @@ struct dyn_elf *_dl_handles = NULL;
 /* This is the hash function that is used by the ELF linker to generate the
  * hash table that each executable and library is required to have.  We need
  * it to decode the hash table.  */
-unsigned long _dl_elf_hash(const unsigned char *name)
+static inline unsigned long _dl_elf_hash(const unsigned char *name)
 {
 	unsigned long hash = 0;
 	unsigned long tmp;
@@ -79,7 +79,7 @@ struct elf_resolve *_dl_check_hashed_files(const char *libname)
 
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
 		if (_dl_strncmp(tpnt->libname, libname, len) == 0 &&
-				(tpnt->libname[len] == '\0' || tpnt->libname[len] == '.'))
+		    (tpnt->libname[len] == '\0' || tpnt->libname[len] == '.'))
 			return tpnt;
 	}
 
@@ -119,7 +119,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	tpnt->libtype = loaded_file;
 
 	if (dynamic_info[DT_HASH] != 0) {
-		hash_addr = (unsigned long *) (intptr_t)(dynamic_info[DT_HASH] + loadaddr);
+		hash_addr = (unsigned long *) (intptr_t)(dynamic_info[DT_HASH]);
 		tpnt->nbucket = *hash_addr++;
 		tpnt->nchain = *hash_addr++;
 		tpnt->elf_buckets = hash_addr;
@@ -172,8 +172,8 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 
 		/* Avoid calling .urem here. */
 		do_rem(hn, elf_hash_number, tpnt->nbucket);
-		symtab = (Elf32_Sym *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
-		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+		symtab = (Elf32_Sym *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB]);
+		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB]);
 
 		for (si = tpnt->elf_buckets[hn]; si != STN_UNDEF; si = tpnt->chains[si]) {
 			sym = &symtab[si];

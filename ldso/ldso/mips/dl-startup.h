@@ -64,8 +64,8 @@ do {										\
 										\
 	/* Handle global GOT entries */						\
 	mipsgot += tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX];			\
-	sym = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] +			\
-		 tpnt->loadaddr) + tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];	\
+	sym = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB] +			\
+		 	tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];			\
 	i = tpnt->dynamic_info[DT_MIPS_SYMTABNO_IDX] - tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];\
 										\
 	while (i--) {								\

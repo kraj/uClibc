@@ -212,7 +212,7 @@ void *dlopen(const char *libname, int flag)
 			if (dpnt->d_tag == DT_NEEDED) {
 				char *name;
 
-				lpntstr = (char*) (tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] +
+				lpntstr = (char*) (tcurr->dynamic_info[DT_STRTAB] +
 						dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
 				tpnt1 = _dl_check_if_named_library_is_loaded(name, 0);
@@ -640,8 +640,8 @@ int dladdr(const void *__address, Dl_info * __info)
 		ElfW(Addr) sa;
 
 		sa = 0;
-		symtab = (Elf32_Sym *) (pelf->dynamic_info[DT_SYMTAB] + pelf->loadaddr);
-		strtab = (char *) (pelf->dynamic_info[DT_STRTAB] + pelf->loadaddr);
+		symtab = (Elf32_Sym *) (pelf->dynamic_info[DT_SYMTAB]);
+		strtab = (char *) (pelf->dynamic_info[DT_STRTAB]);
 
 		sf = 0;
 		for (hn = 0; hn < pelf->nbucket; hn++) {

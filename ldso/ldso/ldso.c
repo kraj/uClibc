@@ -235,7 +235,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		}
 		if (ppnt->p_type == PT_DYNAMIC) {
 			dpnt = (Elf32_Dyn *) (ppnt->p_vaddr + app_tpnt->loadaddr);
-			_dl_parse_dynamic_info(dpnt, app_tpnt->dynamic_info, debug_addr);
+			_dl_parse_dynamic_info(dpnt, app_tpnt->dynamic_info, debug_addr, app_tpnt->loadaddr);
 #ifndef __FORCE_SHAREABLE_TEXT_SEGMENTS__
 			/* Ugly, ugly.  We need to call mprotect to change the
 			 * protection of the text pages so that we can do the
@@ -275,7 +275,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			app_tpnt->rtld_flags = unlazy | RTLD_GLOBAL;
 			app_tpnt->usage_count++;
 			app_tpnt->symbol_scope = _dl_symbol_tables;
-			lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT] + app_tpnt->loadaddr);
+			lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
 #ifdef ALLOW_ZERO_PLTGOT
 			if (lpnt)
 #endif
@@ -572,7 +572,7 @@ next_lib2:
 				char *name;
 				struct init_fini_list *tmp;
 
-				lpntstr = (char*) (tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] + dpnt->d_un.d_val);
+				lpntstr = (char*) (tcurr->dynamic_info[DT_STRTAB] + dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
 
 				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name, trace_loaded_objects)))	{
@@ -717,7 +717,7 @@ next_lib2:
 #ifdef RERELOCATE_LDSO
 		/* Only rerelocate functions for now. */
 		tpnt->init_flag = RELOCS_DONE;
-		lpnt = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT] + load_addr);
+		lpnt = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT]);
 # ifdef ALLOW_ZERO_PLTGOT
 		if (tpnt->dynamic_info[DT_PLTGOT])
 # endif

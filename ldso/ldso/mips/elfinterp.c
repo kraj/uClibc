@@ -124,8 +124,8 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 	gotsym = tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
 	local_gotno = tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX];
 
-	sym = ((Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr)) + sym_index;
-	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+	sym = ((Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB]) + sym_index;
+	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + sym->st_name;
 
 	new_addr = (unsigned long) _dl_find_hash(symname,
@@ -182,11 +182,11 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 
 	/* Now parse the relocation information */
 	rel_size = rel_size / sizeof(Elf32_Rel);
-	rpnt = (Elf32_Rel *) (rel_addr + tpnt->loadaddr);
+	rpnt = (Elf32_Rel *) rel_addr;
 
-	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
-	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
-	got = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT] + tpnt->loadaddr);
+	symtab = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB];
+	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
+	got = (unsigned long *) tpnt->dynamic_info[DT_PLTGOT];
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
 		reloc_addr = (unsigned long *) (tpnt->loadaddr +
@@ -261,12 +261,10 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 			continue;
 
 		/* Setup the loop variables */
-		got_entry = (unsigned long *) (tpnt->loadaddr +
-			tpnt->dynamic_info[DT_PLTGOT]) + tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX];
-		sym = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] +
-			(unsigned long) tpnt->loadaddr) + tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
-		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] +
-			(unsigned long) tpnt->loadaddr);
+		got_entry = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT])
+			+ tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX];
+		sym = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB] + tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
+		strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 		i = tpnt->dynamic_info[DT_MIPS_SYMTABNO_IDX] - tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
 
 #if defined (__SUPPORT_LD_DEBUG__)

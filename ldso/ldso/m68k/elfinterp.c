@@ -69,13 +69,13 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 	char **got_addr;
 	unsigned int instr_addr;
 
-	rel_addr = (ELF_RELOC *)(tpnt->dynamic_info[DT_JMPREL] + tpnt->loadaddr);
+	rel_addr = (ELF_RELOC *)tpnt->dynamic_info[DT_JMPREL];
 	this_reloc = (Elf32_Rela *) (rel_addr + reloc_entry);
 	reloc_type = ELF32_R_TYPE (this_reloc->r_info);
 	symtab_index = ELF32_R_SYM (this_reloc->r_info);
 
-	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
-	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+	symtab = (Elf32_Sym *)tpnt->dynamic_info[DT_SYMTAB];
+	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 
 	if (unlikely(reloc_type != R_68K_JMP_SLOT)) {
 		_dl_dprintf (2, "%s: incorrect relocation type in jump relocations\n",
@@ -136,12 +136,11 @@ _dl_parse_lazy_relocation_information(struct dyn_elf *arg_rpnt,
 	struct elf_resolve *tpnt = arg_rpnt->dyn;
 
 	/* Now parse the relocation information.  */
-	rpnt = (Elf32_Rela *) (rel_addr + tpnt->loadaddr);
+	rpnt = (Elf32_Rela *)rel_addr;
 	rel_size = rel_size / sizeof (Elf32_Rela);
 
-	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB]
-	         + tpnt->loadaddr);
-	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+	symtab = (Elf32_Sym *)tpnt->dynamic_info[DT_SYMTAB];
+	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
 		reloc_addr = (int *) (tpnt->loadaddr + (int) rpnt->r_offset);
@@ -184,12 +183,11 @@ _dl_parse_relocation_information(struct dyn_elf *arg_rpnt,
 	struct elf_resolve *tpnt = arg_rpnt->dyn;
 	/* Now parse the relocation information */
 
-	rpnt = (Elf32_Rela *) (rel_addr + tpnt->loadaddr);
+	rpnt = (Elf32_Rela *)rel_addr;
 	rel_size = rel_size / sizeof (Elf32_Rela);
 
-	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB]
-	         + tpnt->loadaddr);
-	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+	symtab = (Elf32_Sym *)tpnt->dynamic_info[DT_SYMTAB];
+	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
 		reloc_addr = (int *) (tpnt->loadaddr + (int) rpnt->r_offset);

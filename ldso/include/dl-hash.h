@@ -77,7 +77,6 @@ extern int _dl_linux_dynamic_link(void);
 
 extern char * _dl_library_path;
 extern char * _dl_not_lazy;
-extern unsigned long _dl_elf_hash(const unsigned char *name);
 
 static inline int _dl_symbol(char * name)
 {

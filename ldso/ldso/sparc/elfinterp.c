@@ -66,8 +66,7 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
   unsigned int instr_addr;
   tpnt = (struct elf_resolve *) plt[2];
 
-  rel_addr = (Elf32_Rela *) (tpnt->dynamic_info[DT_JMPREL] +
-				   tpnt->loadaddr);
+  rel_addr = (Elf32_Rela *)tpnt->dynamic_info[DT_JMPREL];
 
   /*
    * Generate the correct relocation index into the .rela.plt section.
@@ -79,8 +78,8 @@ unsigned int _dl_linux_resolver(unsigned int reloc_entry, unsigned int * plt)
   reloc_type = ELF32_R_TYPE(this_reloc->r_info);
   symtab_index = ELF32_R_SYM(this_reloc->r_info);
 
-  symtab =  (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
-  strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+  symtab =  (Elf32_Sym *)tpnt->dynamic_info[DT_SYMTAB];
+  strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 
 #ifdef __SUPPORT_LD_DEBUG__
   if (_dl_debug_symbols) {
@@ -159,10 +158,10 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *arg_rpnt,
   struct elf_resolve * tpnt = arg_rpnt->dyn;
 
   /* Now parse the relocation information */
-  rpnt = (Elf32_Rela *) (rel_addr + tpnt->loadaddr);
+  rpnt = (Elf32_Rela *)rel_addr;
 
-  symtab =  (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
-  strtab = ( char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+  symtab =  (Elf32_Sym *)tpnt->dynamic_info[DT_SYMTAB];
+  strtab = ( char *)tpnt->dynamic_info[DT_STRTAB];
 
   for(i=0; i< rel_size; i += sizeof(Elf32_Rela), rpnt++){
     reloc_addr = (int *) (tpnt->loadaddr + (int)rpnt->r_offset);
@@ -201,10 +200,10 @@ int _dl_parse_relocation_information(struct dyn_elf *arg_rpnt,
   struct elf_resolve * tpnt = arg_rpnt->dyn;
   /* Now parse the relocation information */
 
-  rpnt = (Elf32_Rela *) (rel_addr + tpnt->loadaddr);
+  rpnt = (Elf32_Rela *)rel_addr;
 
-  symtab =  (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
-  strtab = ( char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+  symtab =  (Elf32_Sym *)tpnt->dynamic_info[DT_SYMTAB];
+  strtab = ( char *)tpnt->dynamic_info[DT_STRTAB];
 
   for(i=0; i< rel_size; i+= sizeof(Elf32_Rela), rpnt++){
     reloc_addr = (int *) (tpnt->loadaddr + (int)rpnt->r_offset);
