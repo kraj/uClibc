@@ -1039,7 +1039,9 @@ void _flushlbf(void)
  * be to change to user locking immediately after opening the stream.
  */
 
+#ifdef __UCLIBC_MJN3_ONLY__
 link_warning(__fsetlocking, "Oddly enough, __fsetlocking() is NOT threadsafe.")
+#endif
 
 int __fsetlocking(FILE *stream, int locking_mode)
 {
