@@ -59,22 +59,34 @@ while [ "$1" ]; do
     esac;
 done;
 
-if [ ! -d "$KERNEL_SOURCE" ]; then 
-    echo "$KERNEL_SOURCE is not a directory"; 
+if [ ! -f "$KERNEL_SOURCE/include/linux/version.h" ]; then 
+    echo "";
+    echo "";
+    echo "The file $KERNEL_SOURCE/include/linux/version.h is missing!";
+    echo "Perhaps you forgot to configure your kernel source?"
+    echo "";
+    echo "";
     exit 1;
 fi;
 
-if [ ! -f "$KERNEL_SOURCE/include/linux/version.h" ]; then 
-    echo "The file $KERNEL_SOURCE/include/linux/version.h is missing\!";
-    echo "Perhaps you forgot to configure your kernel source?"
+if [ ! -d "$KERNEL_SOURCE" ]; then 
+    echo "";
+    echo "";
+    echo "$KERNEL_SOURCE is not a directory"; 
+    echo "";
+    echo "";
     exit 1;
 fi;
 
 KVER=`gcc -I$KERNEL_SOURCE/include -E -dM $KERNEL_SOURCE/include/linux/version.h | grep UTS_RELEASE | awk '{ print $3 }' | sed 's/\"//g'`
 
 if [ -z "$KVER" ] ; then
+    echo "";
+    echo "";
     echo "Unable to determine kernel version."
     echo "Perhaps your kernel source tree is broken?"
+    echo "";
+    echo "";
     exit 1;
 fi;
 
@@ -88,6 +100,7 @@ echo -e "\n"
 rm -f include/asm
 if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then 
     echo "";
+    echo "";
     echo "The symlink $KERNEL_SOURCE/include/asm is missing\!";
     echo "Perhaps you forgot to configure your kernel source?";
     echo "You really should configure your kernel source tree so I";
@@ -95,6 +108,7 @@ if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then
     echo ""
     echo "Attempting to guess a usable value....";  
     echo ""
+    echo "";
     sleep 1;
 
     if [ "$TARGET_ARCH" = "powerpc" ];then
