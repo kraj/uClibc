@@ -3,7 +3,7 @@
   Erik Andersen <andersen@codepoet.org>
 
 uClibc (aka µClibc/pronounced yew-see-lib-see) is a C library for
-developing embedded Linux systems. It is much smaller then the
+developing embedded Linux systems. It is much smaller than the
 GNU C Library, but nearly all applications supported by glibc
 also work perfectly with uClibc. Porting applications from glibc
 to uClibc typically involves just recompiling the source code.
@@ -15,7 +15,7 @@ mips/mipsel, PowerPC, SH, SPARC, and v850 processors.
 If you are building an embedded Linux system and you find that
 glibc is eating up too much space, you should consider using
 uClibc. If you are building a huge fileserver with 12 Terabytes
-of storage, then using glibc may be a better choice...
+of storage, than using glibc may be a better choice...
 
 uClibc is maintained by Erik Andersen and is licensed under the
 GNU LIBRARY GENERAL PUBLIC LICENSE . This license allows you to
