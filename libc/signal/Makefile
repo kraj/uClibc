@@ -28,7 +28,7 @@ CSRC= allocrtsig.c killpg.c raise.c sigaction.c sigaddset.c sigandset.c \
 	sigblock.c sigdelset.c sigempty.c sigfillset.c siggetmask.c sighold.c \
 	sigignore.c sigintr.c sigisempty.c sigismem.c sigjmp.c signal.c \
 	sigorset.c sigpause.c sigrelse.c sigset.c sigsetmask.c sigsetops.c \
-	sigsuspend.c sysv_signal.c
+	sysv_signal.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(COBJS)

@@ -505,7 +505,7 @@ _syscall0(pid_t, setsid);
 //#define __NR_sigaction        67
 #ifndef __NR_rt_sigaction
 #define __NR___sigaction __NR_sigaction
-#ifdef L_sigaction
+#ifdef L___sigaction
 #include <signal.h>
 #undef sigaction
 _syscall3(int, __sigaction, int, signum, const struct sigaction *, act,
@@ -532,10 +532,10 @@ _syscall2(int, setregid, gid_t, rgid, gid_t, egid);
 //#define __NR_sigsuspend       72
 #ifndef __NR_rt_sigsuspend
 #define __NR___sigsuspend __NR_sigsuspend
-#ifdef L__sigsuspend
+#ifdef L___sigsuspend
 #include <signal.h>
 #undef sigsuspend
-_syscall3(int, __sigsuspend, int a, unsigned long int b, unsigned long int, c);
+_syscall3(int, __sigsuspend, int, a, unsigned long int, b, unsigned long int, c);
 
 int sigsuspend (const sigset_t *set)
 {
@@ -1189,6 +1189,7 @@ _syscall3(int, poll, struct pollfd *, fds, unsigned long int, nfds, int, timeout
 //#define __NR_prctl                    172
 //#define __NR_rt_sigreturn             173
 //#define __NR_rt_sigaction             174
+#ifdef __NR_rt_sigaction
 #define __NR___rt_sigaction __NR_rt_sigaction
 #ifdef L___rt_sigaction
 #include <signal.h>
@@ -1196,8 +1197,10 @@ _syscall3(int, poll, struct pollfd *, fds, unsigned long int, nfds, int, timeout
 _syscall4(int, __rt_sigaction, int, signum, const struct sigaction *, act, 
 		struct sigaction *, oldact, size_t, size); 
 #endif
+#endif
 
 //#define __NR_rt_sigprocmask           175
+#ifdef __NR_rt_sigprocmask
 #define __NR___rt_sigprocmask __NR_rt_sigprocmask
 #ifdef L___rt_sigprocmask
 #include <signal.h>
@@ -1209,10 +1212,11 @@ int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
 {
 	  return __rt_sigprocmask(how, set, oldset, _NSIG/8);
 }
-
+#endif
 #endif
 
 //#define __NR_rt_sigpending            176
+#ifdef __NR_rt_sigpending
 #define __NR___rt_sigpending __NR_rt_sigpending
 #ifdef L___rt_sigpending
 #include <signal.h>
@@ -1224,11 +1228,13 @@ int sigpending(sigset_t *set)
 	return __rt_sigpending(set, _NSIG/8);
 }
 #endif
+#endif
 
 //#define __NR_rt_sigtimedwait          177
 //#define __NR_rt_sigqueueinfo          178
 
 //#define __NR_rt_sigsuspend            179
+#ifdef __NR_rt_sigsuspend
 #define __NR___rt_sigsuspend __NR_rt_sigsuspend
 #ifdef L___rt_sigsuspend
 #include <signal.h>
@@ -1239,6 +1245,7 @@ int sigsuspend (const sigset_t *mask)
 {
 	return __rt_sigsuspend(mask, _NSIG/8);
 }
+#endif
 #endif
 
 //#define __NR_pread                    180

@@ -160,7 +160,7 @@ int sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 	k_sigact.sa_restorer = act->sa_restorer;
 # endif
     }
-    result = sigaction(sig, act ? __ptrvalue (&k_sigact) : NULL,
+    result = __sigaction(sig, act ? __ptrvalue (&k_sigact) : NULL,
 	    oact ? __ptrvalue (&k_osigact) : NULL);
 
     if (oact && result >= 0) {
