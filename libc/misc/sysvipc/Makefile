@@ -20,20 +20,40 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../
+TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
+MSRC=sem.c
+MOBJ=semget.o semctl.o semop.o
 
-DIRS = assert crypt ctype fnmatch glob internals lsearch mntent syslog \
-	time utmp tsearch locale sysvipc
+MSRC2=shm.c
+MOBJ2=shmat.o shmctl.o shmdt.o shmget.o
 
-all: libc.a
+CSRC = ftok.c 
+COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-libc.a: subdirs
+OBJS=$(MOBJ) $(MOBJ2) $(COBJS)
 
-tags:
-	ctags -R
+
+all: $(OBJS) $(LIBC)
+
+$(LIBC): ar-target subdirs
+
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ2): $(MSRC2)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean: subdirs_clean
 	rm -f *.[oa] *~ core
