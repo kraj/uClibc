@@ -5,7 +5,7 @@
 
 config HAVE_ELF
 	bool
-	select UCLIBC_HAS_MMU
+	select ARCH_HAS_MMU
 	default y
 
 config TARGET_ARCH

@@ -41,7 +41,7 @@
 extern char *__strchrnul(const char *s, int c);
 
 /**********************************************************************/
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 
 /* We have an MMU, so use alloca() to grab space for buffers and
  * arg lists. */
@@ -69,7 +69,7 @@ extern void __exec_free(void *ptr, size_t size);
 /**********************************************************************/
 #ifdef L___exec_alloc
 
-#ifndef __UCLIBC_HAS_MMU__
+#ifndef __ARCH_HAS_MMU__
 
 void *__exec_alloc(size_t size)
 {

@@ -43,7 +43,7 @@
 //#define __NR_fork             2
 #ifdef L___libc_fork
 #include <unistd.h>
-#	ifdef __UCLIBC_HAS_MMU__
+#	ifdef __ARCH_HAS_MMU__
 #define __NR___libc_fork __NR_fork
 		_syscall0(pid_t, __libc_fork);
 #	else
@@ -1131,7 +1131,7 @@ _syscall2(int, fstatfs, int, fd, struct statfs *, buf);
 
 //#define __NR_ioperm           101
 #ifdef L_ioperm
-#	if defined __UCLIBC_HAS_MMU__ && defined __NR_ioperm
+#	if defined __ARCH_HAS_MMU__ && defined __NR_ioperm
 		_syscall3(int, ioperm, unsigned long, from, unsigned long, num, int, turn_on);
 #	else
 		int ioperm(unsigned long from, unsigned long num, int turn_on)
@@ -1256,7 +1256,7 @@ weak_alias(fstat, fstat64);
 /* For arm there is a totally different implementation */
 #if !defined(__arm__)
 /* Tuns out the m68k unistd.h kernel header is broken */
-#	if defined __UCLIBC_HAS_MMU__ && defined __NR_iopl && ( !defined(__mc68000__))
+#	if defined __ARCH_HAS_MMU__ && defined __NR_iopl && ( !defined(__mc68000__))
 		_syscall1(int, iopl, int, level);
 #	else
 		int iopl(int level)
@@ -1610,7 +1610,7 @@ int sysctl(int *name, int nlen, void *oldval, size_t *oldlenp,
 //#define __NR_mlock            150
 #ifdef L_mlock
 #include <sys/mman.h>
-#	if defined __UCLIBC_HAS_MMU__ && defined __NR_mlock
+#	if defined __ARCH_HAS_MMU__ && defined __NR_mlock
 		_syscall2(int, mlock, const void *, addr, size_t, len);
 #	endif	
 #endif	
@@ -1618,7 +1618,7 @@ int sysctl(int *name, int nlen, void *oldval, size_t *oldlenp,
 //#define __NR_munlock          151
 #ifdef L_munlock
 #include <sys/mman.h>
-#	if defined __UCLIBC_HAS_MMU__ && defined __NR_munlock
+#	if defined __ARCH_HAS_MMU__ && defined __NR_munlock
 		_syscall2(int, munlock, const void *, addr, size_t, len);
 #	endif	
 #endif	
@@ -1626,7 +1626,7 @@ int sysctl(int *name, int nlen, void *oldval, size_t *oldlenp,
 //#define __NR_mlockall         152
 #ifdef L_mlockall
 #include <sys/mman.h>
-#	if defined __UCLIBC_HAS_MMU__ && defined __NR_mlockall
+#	if defined __ARCH_HAS_MMU__ && defined __NR_mlockall
 		_syscall1(int, mlockall, int, flags);
 #	endif	
 #endif	
@@ -1634,7 +1634,7 @@ int sysctl(int *name, int nlen, void *oldval, size_t *oldlenp,
 //#define __NR_munlockall       153
 #ifdef L_munlockall
 #include <sys/mman.h>
-#	if defined __UCLIBC_HAS_MMU__ && defined L_munlockall
+#	if defined __ARCH_HAS_MMU__ && defined L_munlockall
 		_syscall0(int, munlockall);
 #	endif	
 #endif	

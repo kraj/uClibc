@@ -257,12 +257,12 @@ extern pthread_descr __pthread_main_thread;
  * the bounds a-priori. -StS */
 
 extern char *__pthread_initial_thread_bos;
-#ifndef __UCLIBC_HAS_MMU__
+#ifndef __ARCH_HAS_MMU__
 extern char *__pthread_initial_thread_tos;
 #define NOMMU_INITIAL_THREAD_BOUNDS(tos,bos) if ((tos)>=__pthread_initial_thread_bos && (bos)<=__pthread_initial_thread_tos) __pthread_initial_thread_bos = (tos)+1
 #else
 #define NOMMU_INITIAL_THREAD_BOUNDS(tos,bos) /* empty */
-#endif /* __UCLIBC_HAS_MMU__ */
+#endif /* __ARCH_HAS_MMU__ */
 
 
 /* Indicate whether at least one thread has a user-defined stack (if 1),
@@ -324,7 +324,7 @@ static inline int invalid_handle(pthread_handle h, pthread_t id)
    THREAD_SELF implementation is used, this must be a power of two and
    a multiple of PAGE_SIZE.  */
 #ifndef STACK_SIZE
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 #define STACK_SIZE  (2 * 1024 * 1024)
 #else
 #define STACK_SIZE  (4 * PAGE_SIZE)
@@ -381,7 +381,7 @@ static inline pthread_descr thread_self (void)
   return THREAD_SELF;
 #else
   char *sp = CURRENT_STACK_FRAME;
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
   if (sp >= __pthread_initial_thread_bos)
     return &__pthread_initial_thread;
   else if (sp >= __pthread_manager_thread_bos
@@ -414,7 +414,7 @@ static inline pthread_descr thread_self (void)
   else {
       return __pthread_find_self();
   }
-#endif /* __UCLIBC_HAS_MMU__ */
+#endif /* __ARCH_HAS_MMU__ */
 #endif
 }
 

@@ -94,7 +94,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 
 #ifdef __UCLIBC_HAS_THREADS__
 	hstbuflen = 1024;
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 	tmphstbuf = alloca (hstbuflen);
 #else
 	tmphstbuf = malloc (hstbuflen);
@@ -106,7 +106,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	    if (herr != NETDB_INTERNAL || errno != ERANGE)
 	    {
 		__set_h_errno (herr);
-#ifndef __UCLIBC_HAS_MMU__
+#ifndef __ARCH_HAS_MMU__
 		free(tmphstbuf);
 #endif
 		herror(*ahost);
@@ -116,7 +116,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	    {
 		/* Enlarge the buffer.  */
 		hstbuflen *= 2;
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 		tmphstbuf = alloca (hstbuflen);
 #else
 		if (tmphstbuf) {
@@ -126,7 +126,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 #endif
 	    }
 	}
-#ifndef __UCLIBC_HAS_MMU__
+#ifndef __ARCH_HAS_MMU__
 	free(tmphstbuf);
 #endif
 #else /* call the non-reentrant version */
@@ -308,7 +308,7 @@ int ruserok(rhost, superuser, ruser, luser)
 
 #ifdef __UCLIBC_HAS_THREADS__
 	buflen = 1024;
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 	buffer = alloca (buflen);
 #else
 	buffer = malloc (buflen);
@@ -318,7 +318,7 @@ int ruserok(rhost, superuser, ruser, luser)
 		    buflen, &hp, &herr) != 0 || hp == NULL) 
 	{
 	    if (herr != NETDB_INTERNAL || errno != ERANGE) {
-#ifndef __UCLIBC_HAS_MMU__
+#ifndef __ARCH_HAS_MMU__
 		free(buffer);
 #endif
 		return -1;
@@ -326,7 +326,7 @@ int ruserok(rhost, superuser, ruser, luser)
 	    {
 		/* Enlarge the buffer.  */
 		buflen *= 2;
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 		buffer = alloca (buflen);
 #else
 		if (buffer) {
@@ -336,7 +336,7 @@ int ruserok(rhost, superuser, ruser, luser)
 #endif
 	    }
 	}
-#ifndef __UCLIBC_HAS_MMU__
+#ifndef __ARCH_HAS_MMU__
 	free(buffer);
 #endif
 #else
@@ -435,7 +435,7 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 #ifdef __UCLIBC_HAS_THREADS__
 		size_t buflen = sysconf (_SC_GETPW_R_SIZE_MAX);
 		struct passwd pwdbuf;
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 		char *buffer = alloca (buflen);
 #else
 		char *buffer = malloc (buflen);
@@ -444,12 +444,12 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 		if (getpwnam_r (luser, &pwdbuf, buffer, 
 			    buflen, &pwd) != 0 || pwd == NULL)
 		{
-#ifndef __UCLIBC_HAS_MMU__
+#ifndef __ARCH_HAS_MMU__
 			free(buffer);
 #endif
 			return -1;
 		}
-#ifndef __UCLIBC_HAS_MMU__
+#ifndef __ARCH_HAS_MMU__
 		free(buffer);
 #endif
 #else

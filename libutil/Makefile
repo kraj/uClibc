@@ -30,7 +30,7 @@ LIBUTIL_SHARED=libutil.so
 LIBUTIL_SHARED_FULLNAME=libutil-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 CSRC=login.c login_tty.c logout.c logwtmp.c openpty.c
-ifeq ($(strip $(UCLIBC_HAS_MMU)),y)
+ifeq ($(strip $(ARCH_HAS_MMU)),y)
     CSRC+=forkpty.c
 endif
 OBJS=$(patsubst %.c,%.o, $(CSRC))

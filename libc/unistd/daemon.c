@@ -30,7 +30,7 @@
 #include <unistd.h>
 
 /* Note that this file should not be compiled in 
- * unless __UCLIBC_HAS_MMU__ is defined */
+ * unless __ARCH_HAS_MMU__ is defined */
 
 int daemon( int nochdir, int noclose )
 {

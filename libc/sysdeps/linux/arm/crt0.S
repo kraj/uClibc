@@ -69,7 +69,7 @@ _start:
 	/* clear the frame pointer */
 	mov     fp, #0
 
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 	/* Load register r0 (argc) from the stack to its final resting place */
 	ldr     r0, [sp], #4
 

@@ -39,21 +39,21 @@
 #define	_POSIX_MAPPED_FILES	1
 
 /* Locking of all memory is supported.  */
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 # define	_POSIX_MEMLOCK	1
 #else
 # undef		_POSIX_MEMLOCK
 #endif
 
 /* Locking of ranges of memory is supported.  */
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 # define	_POSIX_MEMLOCK_RANGE	1
 #else
 # define	_POSIX_MEMLOCK_RANGE
 #endif
 
 /* Setting of memory protections is supported.  */
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 # define	_POSIX_MEMORY_PROTECTION	1
 #else
 # undef		_POSIX_MEMORY_PROTECTION

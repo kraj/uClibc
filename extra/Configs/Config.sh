@@ -53,16 +53,16 @@ config CONFIG_SH2
 	bool "SH2"
 
 config CONFIG_SH3
-	select UCLIBC_HAS_MMU
+	select ARCH_HAS_MMU
 	bool "SH3"
 
 config CONFIG_SH4
-	select UCLIBC_HAS_MMU
+	select ARCH_HAS_MMU
 	select FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "SH4"
 
 config CONFIG_SH5
-	select UCLIBC_HAS_MMU
+	select ARCH_HAS_MMU
 	select UCLIBC_HAS_LFS
 	bool "SH5"
 

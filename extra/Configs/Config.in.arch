@@ -23,7 +23,7 @@ config ARCH_HAS_NO_MMU
 	bool
 	default n
 
-config UCLIBC_HAS_MMU
+config ARCH_HAS_MMU
 	bool "Target CPU has a memory management unit (MMU)"
 	default y
 	depends !ARCH_HAS_NO_MMU
@@ -100,12 +100,12 @@ config KERNEL_SOURCE
 
 config UCLIBC_UCLINUX_BROKEN_MUNMAP
 	bool
-	depends on !UCLIBC_HAS_MMU
+	depends on !ARCH_HAS_MMU
 	default y
 
 config EXCLUDE_BRK
 	bool
-	depends on !UCLIBC_HAS_MMU
+	depends on !ARCH_HAS_MMU
 	default y
 
 config C_SYMBOL_PREFIX

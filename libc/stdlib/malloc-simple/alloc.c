@@ -31,7 +31,7 @@ void *malloc(size_t size)
 #endif
     }
 
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
     result = mmap((void *) 0, size + sizeof(size_t), PROT_READ | PROT_WRITE,
 	    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (result == MAP_FAILED)
@@ -88,7 +88,7 @@ void *realloc(void *ptr, size_t size)
     newptr = malloc(size);
     if (newptr) {
 	memcpy(newptr, ptr,
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 		*((size_t *) (ptr - sizeof(size_t)))
 #else
 		size
@@ -111,7 +111,7 @@ void free(void *ptr)
 	    return;
 	}
     }
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
     ptr -= sizeof(size_t);
     munmap(ptr, * (size_t *) ptr + sizeof(size_t));
 #else
@@ -154,7 +154,7 @@ int __libc_free_aligned(void *ptr)
 	    /* Mark the block as free */
 	    l->aligned = NULL;
 	    ptr = l->exact;
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 	    ptr -= sizeof(size_t);
 	    munmap(ptr, * (size_t *) ptr + sizeof(size_t));
 #else

@@ -34,7 +34,7 @@ choice
 		- CRIS  Generic support for Axis' CRIS architecture.
 
 config CONFIG_CRIS
-	select UCLIBC_HAS_MMU
+	select ARCH_HAS_MMU
 	bool "CRIS"
 
 endchoice

@@ -363,7 +363,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
     }
   else
     {
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
       stacksize = STACK_SIZE - pagesize;
       if (attr != NULL)
         stacksize = MIN (stacksize, roundup(attr->__stacksize, pagesize));
@@ -453,7 +453,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
       /* on non-MMU systems we always have non-standard stack frames */
       __pthread_nonstandard_stacks = 1;
       
-#endif /* __UCLIBC_HAS_MMU__ */
+#endif /* __ARCH_HAS_MMU__ */
     }
 
   /* Clear the thread data structure.  */
@@ -627,14 +627,14 @@ PDEBUG("cloning new_thread = %p\n", new_thread);
     /* Free the stack if we allocated it */
     if (attr == NULL || !attr->__stackaddr_set)
       {
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 	if (new_thread->p_guardsize != 0)
 	  munmap(new_thread->p_guardaddr, new_thread->p_guardsize);
 	munmap((caddr_t)((char *)(new_thread+1) - INITIAL_STACK_SIZE),
 	       INITIAL_STACK_SIZE);
 #else
 	free(new_thread_bottom);
-#endif /* __UCLIBC_HAS_MMU__ */
+#endif /* __ARCH_HAS_MMU__ */
       }
     __pthread_handles[sseg].h_descr = NULL;
     __pthread_handles[sseg].h_bottom = NULL;
@@ -711,7 +711,7 @@ static void pthread_free(pthread_descr th)
 
   /* If initial thread, nothing to free */
   if (th == &__pthread_initial_thread) return;
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
   if (!th->p_userstack)
     {
       /* Free the stack and thread descriptor area */
@@ -724,7 +724,7 @@ static void pthread_free(pthread_descr th)
   if (!th->p_userstack) {
       free(h_bottom_save);
   }
-#endif /* __UCLIBC_HAS_MMU__ */
+#endif /* __ARCH_HAS_MMU__ */
 }
 
 /* Handle threads that have exited */

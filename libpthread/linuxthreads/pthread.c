@@ -175,9 +175,9 @@ char *__pthread_initial_thread_bos = NULL;
  * This is adapted when other stacks are malloc'ed since we don't know
  * the bounds a-priori. -StS */
 
-#ifndef __UCLIBC_HAS_MMU__
+#ifndef __ARCH_HAS_MMU__
 char *__pthread_initial_thread_tos = NULL;
-#endif /* __UCLIBC_HAS_MMU__ */
+#endif /* __ARCH_HAS_MMU__ */
 
 /* File descriptor for sending requests to the thread manager. */
 /* Initially -1, meaning that the thread manager is not running. */
@@ -336,7 +336,7 @@ static void pthread_initialize(void)
      beyond STACK_SIZE minus two pages (one page for the thread descriptor
      immediately beyond, and one page to act as a guard page). */
 
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
   /* We cannot allocate a huge chunk of memory to mmap all thread stacks later
    * on a non-MMU system. Thus, we don't need the rlimit either. -StS */
   getrlimit(RLIMIT_STACK, &limit);
@@ -355,7 +355,7 @@ static void pthread_initialize(void)
   __pthread_initial_thread_bos = (char *) 1; /* set it non-zero so we know we have been here */
   PDEBUG("initial thread stack bounds: bos=%p, tos=%p\n",
 	 __pthread_initial_thread_bos, __pthread_initial_thread_tos);
-#endif /* __UCLIBC_HAS_MMU__ */
+#endif /* __ARCH_HAS_MMU__ */
 
   /* Setup signal handlers for the initial thread.
      Since signal handlers are shared between threads, these settings

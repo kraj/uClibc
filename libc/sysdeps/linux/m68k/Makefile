@@ -23,7 +23,7 @@ ASFLAGS=$(CFLAGS)
 # If you're looking for vfork(), it is defined in include/unistd.h
 
 
-ifeq ($(UCLIBC_HAS_MMU),y)
+ifeq ($(ARCH_HAS_MMU),y)
 CRT0_SRC = crt0.c
 else
 CRT0_SRC = crt0.S

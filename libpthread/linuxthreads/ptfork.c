@@ -74,7 +74,7 @@ static inline void pthread_call_handlers(struct handler_list * list)
 {
   for (/*nothing*/; list != NULL; list = list->next) (list->handler)();
 }
-#ifdef __UCLIBC_HAS_MMU__
+#ifdef __ARCH_HAS_MMU__
 extern int __libc_fork(void);
 
 pid_t __fork(void)
