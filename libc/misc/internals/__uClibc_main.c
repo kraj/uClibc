@@ -48,6 +48,8 @@ extern void weak_function __pthread_initialize_minimal(void);
 
 extern int _dl_secure;
 extern size_t _dl_pagesize;
+size_t __dl_pagesize = 0;
+weak_alias(__dl_pagesize, _dl_pagesize);
 
 char **__environ = 0;
 const char *__progname = 0;
