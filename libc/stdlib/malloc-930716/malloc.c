@@ -36,10 +36,9 @@ static pthread_mutex_t malloclock = PTHREAD_MUTEX_INITIALIZER;
     
 static void * malloc_unlocked (size_t size);
 static void free_unlocked(void *ptr);
-static void * __default_morecore_init(long size);
 
 /* How to really get more memory. */
-static void *(*__morecore)(long) = __default_morecore_init;
+static void * __morecore(long size);
 
 /* Pointer to the base of the first block. */
 static char *_heapbase;
@@ -75,10 +74,10 @@ static void * align(size_t size)
     void *result;
     unsigned int adj;
 
-    result = (*__morecore)(size);
+    result = __morecore(size);
     adj = (unsigned int) ((char *) result - (char *) NULL) % BLOCKSIZE;
     if (adj != 0) {
-	(*__morecore)(adj = BLOCKSIZE - adj);
+	__morecore(adj = BLOCKSIZE - adj);
 	result = (char *) result + adj;
     }
     return result;
@@ -124,7 +123,7 @@ static void * morecore(size_t size)
 	    newsize *= 2;
 	newinfo = align(newsize * sizeof (union info));
 	if (!newinfo) {
-	    (*__morecore)(-size);
+	    __morecore(-size);
 	    return NULL;
 	}
 	memset(newinfo, 0, newsize * sizeof (union info));
@@ -144,7 +143,7 @@ static void * morecore(size_t size)
 
 /* Note that morecore has to take a signed argument so
    that negative values can return memory to the system. */
-static void * __default_morecore_init(long size)
+static void * __morecore(long size)
 {
     void *result;
 
@@ -251,7 +250,7 @@ static void * malloc_unlocked (size_t size)
 		block = _heapinfo[0].free.prev;
 		lastblocks = _heapinfo[block].free.size;
 		if (_heaplimit && block + lastblocks == _heaplimit
-		    && (*__morecore)(0) == ADDRESS(block + lastblocks)
+		    && __morecore(0) == ADDRESS(block + lastblocks)
 		    && morecore((blocks - lastblocks) * BLOCKSIZE)) {
 		    /* Note that morecore() can change the location of
 		       the final block if it moves the info table and the
@@ -366,9 +365,9 @@ static void free_unlocked(void *ptr)
 	    /* Now see if we can return stuff to the system. */
 	    blocks = _heapinfo[block].free.size;
 	    if (blocks >= FINAL_FREE_BLOCKS && block + blocks == _heaplimit
-		    && (*__morecore)(0) == ADDRESS(block + blocks)) {
+		    && __morecore(0) == ADDRESS(block + blocks)) {
 		_heaplimit -= blocks;
-		(*__morecore)(-blocks * BLOCKSIZE);
+		__morecore(-blocks * BLOCKSIZE);
 		_heapinfo[_heapinfo[block].free.prev].free.next
 		    = _heapinfo[block].free.next;
 		_heapinfo[_heapinfo[block].free.next].free.prev
