@@ -329,7 +329,7 @@ _syscall0(gid_t, getgid);
 
 //#define __NR_geteuid          49
 #ifdef	L_geteuid
-#ifdef	SYS_geteuid
+#ifdef	__NR_geteuid
 #include <unistd.h>
 _syscall0(uid_t, geteuid);
 #else
@@ -342,7 +342,7 @@ uid_t geteuid(void)
 
 //#define __NR_getegid          50
 #ifdef	L_getegid
-#ifdef	SYS_getegid
+#ifdef	__NR_getegid
 #include <unistd.h>
 _syscall0(gid_t, getegid);
 #else
@@ -447,7 +447,7 @@ _syscall2(int, dup2, int, oldfd, int, newfd);
 //#define __NR_getppid          64
 #ifdef	L_getppid
 #include <unistd.h>
-#ifdef	SYS_getppid
+#ifdef	__NR_getppid
 _syscall0(pid_t, getppid);
 #else
 pid_t getppid(void)
