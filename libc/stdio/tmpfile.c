@@ -16,6 +16,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#include <features.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -48,4 +49,6 @@ FILE * tmpfile (void)
 
     return f;
 }
-
+#ifdef __UCLIBC_HAVE_LFS__
+weak_alias(tmpfile, tmpfile64);
+#endif
