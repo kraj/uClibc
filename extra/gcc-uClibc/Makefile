@@ -36,7 +36,7 @@ else
 endif
 
 gcc-uClibc: gcc-uClibc.h gcc-uClibc.c
-	gcc -Wall -O2 -Wl,-s gcc-uClibc.c -o $(TARGET_ARCH)-uclibc-gcc
+	$(NATIVE_CC) $(NATIVE_CFLAGS) -Wl,-s gcc-uClibc.c -o $(TARGET_ARCH)-uclibc-gcc
 
 ld-uClibc:
 	@echo "#!/bin/sh" > $(TARGET_ARCH)-uclibc-ld
