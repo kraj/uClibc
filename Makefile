@@ -270,9 +270,7 @@ endif
 endif
 
 
-# Installs run-time libraries and helper apps onto the host system
-# allowing cross development.  If you want to deploy to a target 
-# system, use the "install_target" target instead... 
+# Installs run-time libraries
 install_runtime:
 ifeq ($(strip $(HAVE_SHARED)),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
@@ -294,6 +292,7 @@ else
 utils: dummy
 endif
 
+# Installs helper applications, such as 'ldd' and 'ldconfig'
 install_utils: utils
 	$(MAKE) CROSS=$(CROSS) CC=$(CC) -C utils install
 #ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
