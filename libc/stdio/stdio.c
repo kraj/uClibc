@@ -2210,14 +2210,18 @@ int fflush_unlocked(register FILE *stream)
 		if (_stdio_fwrite(NULL, 0, stream) > 0) { /* flush buffer contents. */
 			rv = -1;			/* Not all chars written. */
 		}
-	} else if (stream->modeflags & __FLAG_READONLY) {
-		/* According to info, glibc returns an error when the file is opened
-		 * in read-only mode.
-		 * ANSI/ISO says behavior in this case is undefined but also says you
-		 * shouldn't flush a stream you were reading from. */
-		stream->modeflags |= __FLAG_ERROR; /* TODO - check glibc behavior */
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning add option to test for undefined behavior of fflush
+#endif /* __UCLIBC_MJN3_ONLY__ */
+#if 0
+	} else if (stream->modeflags & (__FLAG_READING|__FLAG_READONLY)) {
+		/* ANSI/ISO says behavior in this case is undefined but also says you
+		 * shouldn't flush a stream you were reading from.  As usual, glibc
+		 * caters to broken programs and simply ignores this. */
+		stream->modeflags |= __FLAG_ERROR;
 		__set_errno(EBADF);
 		rv = -1;
+#endif
 	}
 
 #ifndef NDEBUG
@@ -2235,11 +2239,17 @@ int fflush_unlocked(register FILE *stream)
 	}
 #endif
 
-	/* TODO -- check glibc behavior regarding error indicator */
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning add option to test for undefined behavior of fflush
+#endif /* __UCLIBC_MJN3_ONLY__ */
+#if 0
 	return ((stream != NULL)
-			&& (stream->modeflags & __FLAG_READONLY)
+			&& (stream->modeflags & (__FLAG_READING|__FLAG_READONLY))
 			? ((stream->modeflags |= __FLAG_ERROR), __set_errno(EBADF), EOF)
 			: 0 );
+#else
+	return 0;
+#endif
 
 #endif /* __STDIO_BUFFERS */
 }
