@@ -47,6 +47,7 @@ __BEGIN_DECLS
 extern int errno;
 #endif
 
+#if 0
 #ifdef __USE_GNU
 
 /* The full and simple forms of the name with which the program was
@@ -54,6 +55,7 @@ extern int errno;
    the value of ARGV[0] (this works only if you use GNU ld).  */
 extern char *program_invocation_name, *program_invocation_short_name;
 #endif /* __USE_GNU */
+#endif
 #endif /* _ERRNO_H */
 
 __END_DECLS
