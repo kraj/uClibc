@@ -46,7 +46,6 @@ cfgread(FILE *fp)
   char *ebuf;
   char *p;
   int i;
-  int j;
 
   if (!fp) {
     errno = EIO;
@@ -86,7 +85,7 @@ cfgfind(FILE *fp, char *var)
   strncpy(search, var, sizeof(search));
 
   fseek(fp, 0, SEEK_SET);
-  while (ret = cfgread(fp)) {
+  while ((ret = cfgread(fp))) {
     if (!strcmp(ret[0], search)) return ret;
   }
   return (void *)0;

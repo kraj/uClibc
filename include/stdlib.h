@@ -57,6 +57,8 @@ extern int qsort __P ((char *base, int num, int size, int (*cmp)()));
 extern char * gcvt __P ((float number, size_t ndigit, char * buf));
 
 #define atof(x) strtod((x),(char**)0)
+#define atoi(x) (int)strtol((x),(char**)0,10)
+#define atol(x) strtol((x),(char**)0,10)
 
 /* Returned by `div'.  */
 typedef struct
