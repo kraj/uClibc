@@ -24,7 +24,7 @@ CFLAGS+= -I../
 SFLAGS= $(CFLAGS) -D__ASSEMBLER__
 
 CRT0_SRC = crt0.S
-CRT0_OBJ = crt0.o crt1.o gcrt1.o
+CRT0_OBJ = crt0.o crt1.o
 CRT0_DEPS=gmon-start.S
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
@@ -55,12 +55,6 @@ $(SOBJS): %.o : %.S
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-ifeq ($(strip $(UCLIBC_PROFILING)),y)
-gmon-start.S: ../common/gmon-start.c
-	$(CC) $(CFLAGS) -c $< -S -o $*.S
-gcrt1.o: $(CRT0_DEPS)
-endif
 
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 crti.o: crti.S

@@ -29,16 +29,7 @@
 
 __longjmp:
 	.frame $30 , 0, $26
-#ifdef PROF
-	ldgp    gp, 0(pv)
-	.set noat
-	lda     AT, _mcount
-	jsr     AT, (AT), _mcount
-	.set at
-	.prologue 1
-#else
 	.prologue 0
-#endif
 
 	mov     $17, $0
 	ldq     $9, JB_S0*8(a0)

@@ -130,22 +130,6 @@
 UFUNC_NAME:
 	lda	sp, -STACK(sp)
 	.frame	sp, STACK, retaddr, 0
-#ifdef PROF
-	stq	ra, 0(sp)
-	stq	pv, 8(sp)
-	stq	gp, 16(sp)
-
-	br	AT, 1f
-1:	ldgp	gp, 0(AT)
-
-	mov	retaddr, ra
-	lda	AT, _mcount
-	jsr	AT, (AT), _mcount
-
-	ldq	ra, 0(sp)
-	ldq	pv, 8(sp)
-	ldq	gp, 16(sp)
-#endif
 	.prologue 0
 
 $udiv:
@@ -216,21 +200,6 @@ $divbyzero:
 SFUNC_NAME:
 	lda	sp, -STACK(sp)
 	.frame	sp, STACK, retaddr, 0
-#ifdef PROF
-	stq	ra, 0(sp)
-	stq	pv, 8(sp)
-	stq	gp, 16(sp)
-
-	br	AT, 1f
-1:	ldgp	gp, 0(AT)
-
-	mov	retaddr, ra
-	jsr	AT, _mcount
-
-	ldq	ra, 0(sp)
-	ldq	pv, 8(sp)
-	ldq	gp, 16(sp)
-#endif
 	.prologue 0
 
 	or	arg1, arg2, AT

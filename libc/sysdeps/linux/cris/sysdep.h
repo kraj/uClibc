@@ -110,30 +110,8 @@
   PLTJUMP (__syscall_error)               @ \
   END (name)
 
-/* If compiled for profiling, call `_mcount' at the start of each function.
-   FIXME: Note that profiling is not actually implemented.  This is just
-   example code which might not even compile, though it is believed to be
-   correct.  */
-#ifdef	PROF
-#define CALL_MCOUNT \
-  push	$srp						@ \
-  push	$r9						@ \
-  push	$r10						@ \
-  push	$r11						@ \
-  push	$r12						@ \
-  push	$r13						@ \
-  SETUP_PIC						@ \
-  PLTCALL (_mcount)					@ \
-  TEARDOWN_PIC						@ \
-  pop	$r13						@ \
-  pop	$r12						@ \
-  pop	$r11						@ \
-  pop	$r10						@ \
-  pop	$r9						@ \
-  pop	$srp
-#else
+/* If compiled for profiling, do nothing */
 #define CALL_MCOUNT		/* Do nothing.  */
-#endif
 
 
 #endif /* __ASSEMBLER__ */

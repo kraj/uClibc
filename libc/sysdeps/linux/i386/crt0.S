@@ -82,7 +82,7 @@ _start:
 	addl $_GLOBAL_OFFSET_TABLE_+[.-.L0],%edx
 #endif
 
-#if (defined L_crt1 || defined L_Scrt1 || defined L_gcrt1 ) && defined __UCLIBC_CTOR_DTOR__
+#if (defined L_crt1 || defined L_Scrt1) && defined __UCLIBC_CTOR_DTOR__
 	/* Push .init and .fini arguments to __uClibc_start_main() on the stack */
 #ifdef L_Scrt1
 	pushl _fini@GOT(%edx)
@@ -128,8 +128,4 @@ __data_start:
 	.long 0
 	.weak data_start
 	data_start = __data_start
-
-#if defined L_gcrt1 && defined __UCLIBC_PROFILING__
-# include "./gmon-start.S"
-#endif
 

@@ -21,15 +21,12 @@ include $(TOPDIR)Rules.mak
 ASFLAGS=$(CFLAGS)
 
 CRT0_SRC = crt0.S
-CRT0_OBJ = crt0.o crt1.o gcrt1.o
+CRT0_OBJ = crt0.o crt1.o
 CRT0_DEPS=gmon-start.S
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 SSRC=__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S brk.S \
 	clone.S __uClibc_syscall.S syscall.S
-ifeq ($(strip $(UCLIBC_PROFILING)),y)
-SSRC+=mcount.S
-endif
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=mmap.c vfork.c __syscall_error.c pread_write.c ioctl.c
@@ -56,12 +53,6 @@ $(SOBJS): %.o : %.S
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-ifeq ($(strip $(UCLIBC_PROFILING)),y)
-gmon-start.S: ../common/gmon-start.c
-	$(CC) $(CFLAGS) -c $< -S -o $*.S
-gcrt1.o: $(CRT0_DEPS)
-endif
 
 
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)

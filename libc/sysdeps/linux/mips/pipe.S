@@ -10,13 +10,6 @@
         .globl  pipe
         .ent    pipe, 0
 pipe:
-#ifdef PROF
-        .set            noat
-        move            $1,ra
-        subu            sp,sp,8         # _mcount pops 2 words from  stack
-        jal             _mcount
-        .set            at
-#endif
         addiu   sp,sp,-24
         sw      a0,16(sp)
         li      v0,__NR_pipe

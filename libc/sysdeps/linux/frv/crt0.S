@@ -86,7 +86,7 @@ _start:
 	mov	gr0, fp
 	movgs	gr0, lr
 
-#if (defined L_crt1 || defined L_gcrt1 || defined L_Scrt1) && defined __UCLIBC_CTOR_DTOR__
+#if (defined L_crt1 || defined L_Scrt1) && defined __UCLIBC_CTOR_DTOR__
 	/* Pass .init and .fini arguments to __uClibc_start_main().  */
 	sethi.p	#gotfuncdeschi(_init), gr11
 	sethi	#gotfuncdeschi(_fini), gr12
@@ -104,10 +104,6 @@ _start:
 	/* Crash if somehow `exit' returns anyways.  */
 	jmpl	@(gr0,gr0)
 .size _start,.-_start
-
-#if defined L_gcrt1 && defined __UCLIBC_PROFILING__
-# include "./gmon-start.S"
-#endif
 
 /* Define a symbol for the first piece of initialized data.  */
 	.data

@@ -344,6 +344,12 @@ allyesconfig: extra/config/conf
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -y extra/Configs/Config.in
+	sed -i -e "s/^DODEBUG=.*/# DODEBUG is not set/" .config
+	sed -i -e "s/^DOASSERTS=.*/# DOASSERTS is not set/" .config
+	sed -i -e "s/^SUPPORT_LD_DEBUG_EARLY=.*/# SUPPORT_LD_DEBUG_EARLY is not set/" .config
+	sed -i -e "s/^SUPPORT_LD_DEBUG=.*/# SUPPORT_LD_DEBUG is not set/" .config
+	sed -i -e "s/^UCLIBC_MJN3_ONLY=.*/# UCLIBC_MJN3_ONLY is not set/" .config
+	@./extra/config/conf -o extra/Configs/Config.in
 
 allnoconfig: extra/config/conf
 	$(RM) -r include/bits

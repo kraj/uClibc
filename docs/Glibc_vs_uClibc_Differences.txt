@@ -175,3 +175,34 @@ glibc bugs that Ulrich Drepper has refused to acknowledge or comment on
    and explicit UNDEFINED rules.
 
 More to follow as I think of it...
+
+
+
+
+Profiling:
+-------------------------------------------------------------------
+
+uClibc no longer supports 'gcc -fprofile-arcs  -pg' style profiling, which
+causes your application to generate a 'gmon.out' file that can then be analyzed
+by 'gprof'.  Not only does this require explicit extra support in uClibc, it
+requires that you rebuild everything with profiling support.  There is both a
+size and performance penalty to profiling your applications this way, as well
+as Heisenberg effects, where the act of measuring changes what is measured.
+
+These exist a number of less invasive alternatives that do not require your to
+specially instrument your application, and recompile and relink everything.
+
+Many people have had good results using the combination of Valgrind
+to generate profiling information and KCachegrind for analysis:
+      http://developer.kde.org/~sewardj/
+      http://kcachegrind.sourceforge.net/
+
+The OProfile system-wide profiler is another alternative:
+      http://oprofile.sourceforge.net/
+
+Prospect is another alternative based on OProfile:
+      http://prospect.sourceforge.net/
+
+And the Linux Trace Toolkit (LTT) is also a fine tool:
+    http://www.opersys.com/LTT/
+

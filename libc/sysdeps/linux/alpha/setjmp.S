@@ -34,12 +34,6 @@ $sigsetjmp_local:
        .frame  $26, 16, $26, 0
        stq     $26, 0($30)
        .mask   0x04000000, -16
-#ifdef PROF
-	.set noat
-	lda	AT, _mcount
-	jsr	AT, (AT), _mcount
-	.set at
-#endif
 	.prologue 1
 
 	stq	$9, JB_S0*8(a0)

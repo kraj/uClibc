@@ -76,7 +76,7 @@ _start_end:
 L_main:
 	.long   __uClibc_main /* in libuClibc.*.so */
 
-#else /* (L_crt1 || L_gcrt1) && __UCLIBC_CTOR_DTOR__ */
+#else /* (L_crt1) && __UCLIBC_CTOR_DTOR__ */
 	/* Push the finip argument to __uClibc_start_main() onto the stack */
 	mov.l L_fini,r6
 	mov.l r6,@-r15
@@ -139,9 +139,5 @@ __data_start:
 __fpscr_values:
        .long   0
        .long   0x80000
-#endif
-
-#if defined L_gcrt1 && defined __UCLIBC_PROFILING__
-# include "./gmon-start.S"
 #endif
 

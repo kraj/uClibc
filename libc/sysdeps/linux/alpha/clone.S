@@ -44,16 +44,7 @@
 
 __clone:
 	.frame $30 , 0, $26
-#ifdef PROF
-	ldgp	gp,0(pv)
-	.set noat
-	lda	AT, _mcount
-	jsr	AT, (AT), _mcount
-	.set at
-	.prologue 1
-#else
 	.prologue 0
-#endif
 
 	/* Sanity check arguments.  */
 	ldiq	v0,EINVAL
@@ -78,10 +69,8 @@ __clone:
 
 	/* Something bad happened -- no child created */
 $error:
-#ifndef PROF
 	br	gp,1f
 1:	ldgp	gp,0(gp)
-#endif
 	jmp	zero,__syscall_error
 
 .end __clone

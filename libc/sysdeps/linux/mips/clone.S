@@ -45,12 +45,6 @@ __clone:
 #else
 	subu		sp,32
 #endif
-#ifdef PROF
-	.set		noat
-	move		$1,ra
-	jal		_mcount
-	.set		at
-#endif
 
 
 	/* Sanity check arguments.  */
