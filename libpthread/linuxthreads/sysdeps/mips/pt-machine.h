@@ -23,7 +23,36 @@
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
-#include <sys/tas.h>
+#include <features.h>
+
+/* Copyright (C) 2000, 2002 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+   Contributed by Maciej W. Rozycki <macro@ds2.pg.gda.pl>, 2000.  */
+static inline int
+_test_and_set (int *p, int v) __THROW
+{
+  int r, t;
+
+  __asm__ __volatile__
+    ("/* Inline test and set */\n"
+     "1:\n\t"
+     ".set	push\n\t"
+     ".set	mips2\n\t"
+     "ll	%0,%3\n\t"
+     "move	%1,%4\n\t"
+     "beq	%0,%4,2f\n\t"
+     "sc	%1,%2\n\t"
+     ".set	pop\n\t"
+     "beqz	%1,1b\n"
+     "2:\n\t"
+     "/* End test and set */"
+     : "=&r" (r), "=&r" (t), "=m" (*p)
+     : "m" (*p), "r" (v)
+     : "memory");
+
+  return r;
+}
+
 
 #ifndef PT_EI
 # define PT_EI extern inline
