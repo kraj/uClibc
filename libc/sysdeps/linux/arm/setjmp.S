@@ -27,7 +27,7 @@
 .align 4;
 __sigsetjmp:
 	/* Save registers */
-#if defined __UCLIBC_HAS_FLOATS__ && ! defined __SOFTFP__
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
 	sfmea   f4, 4, [r0]!
 #endif
 	stmia   r0, {v1-v6, sl, fp, sp, lr}

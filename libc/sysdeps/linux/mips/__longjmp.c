@@ -17,6 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include <setjmp.h>
 #include <stdlib.h>
 
@@ -38,7 +39,7 @@ __longjmp (env, val_arg)
   register int val asm ("a1");
 
   /* Pull back the floating point callee-saved registers.  */
-#ifndef __mips_soft_float
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
   asm volatile ("l.d $f20, %0" : : "m" (env[0].__fpregs[0]));
   asm volatile ("l.d $f22, %0" : : "m" (env[0].__fpregs[1]));
   asm volatile ("l.d $f24, %0" : : "m" (env[0].__fpregs[2]));

@@ -32,7 +32,7 @@ __longjmp:
 	movs	r0, r1		/* get the return value in place */
 	moveq	r0, #1		/* can't let setjmp() return zero! */
 
-#if defined __UCLIBC_HAS_FLOATS__ && ! defined __SOFTFP__
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
 	lfmfd	f4, 4, [ip] !	/* load the floating point regs */
 #endif	
 

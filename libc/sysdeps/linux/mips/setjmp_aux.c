@@ -17,6 +17,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include <setjmp.h>
 
 /* This function is only called via the assembly language routine
@@ -29,7 +30,7 @@ extern int __sigjmp_save (sigjmp_buf, int);
 int
 __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
 {
-#ifndef __mips_soft_float
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
   /* Store the floating point callee-saved registers...  */
   asm volatile ("s.d $f20, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[0]));
   asm volatile ("s.d $f22, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[1]));
@@ -61,7 +62,7 @@ __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
   asm volatile ("sw $22, %0" : : "m" (env[0].__jmpbuf[0].__regs[6]));
   asm volatile ("sw $23, %0" : : "m" (env[0].__jmpbuf[0].__regs[7]));
 
-#ifndef __mips_soft_float
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
   /* .. and finally get and reconstruct the floating point csr.  */
   asm ("cfc1 %0, $31" : "=r" (env[0].__jmpbuf[0].__fpc_csr));
 #endif
