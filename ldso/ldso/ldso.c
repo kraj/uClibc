@@ -115,7 +115,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	_dl_mmap_zero = mmap_zero;
 
 	/* Store the page size for later use */
-	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : 4096;
+	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 
 	/* Now we have done the mandatory linking of some things.  We are now
 	 * free to start using global variables, since these things have all been

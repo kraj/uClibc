@@ -290,7 +290,7 @@ found_got:
 
 	/* Call mmap to get a page of writable memory that can be used
 	 * for _dl_malloc throughout the shared lib loader. */
-	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : 4096;
+	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 	mmap_zero = malloc_buffer = _dl_mmap((void *) 0, _dl_pagesize,
 			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(mmap_zero)) {
