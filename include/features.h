@@ -26,6 +26,20 @@
 #define __attribute(foo)  /* Ignore */
 #endif
 
+/* Convenience macro to test the version of gcc.
+ * Use it like this:
+ * #if __GNUC_PREREQ (2,8)
+ * ... code requiring gcc 2.8 or later ...
+ * #endif
+ * Note - they won't work for gcc1, since the _MINOR macros
+ * were not defined then. */
+#if defined __GNUC__ && defined __GNUC_MINOR__
+#define __GNUC_PREREQ(maj, min) \
+	((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
+#else
+#define __GNUC_PREREQ(maj,min) 0
+#endif
+
 /* __restrict is known in EGCS 1.2 and above. */
 #if !defined __GNUC__ || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 92)
 # define __restrict     /* Ignore */
