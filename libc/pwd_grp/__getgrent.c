@@ -97,7 +97,7 @@ restart:
 	goto restart;
     *ptr++ = '\0';
 
-    group.gr_gid = (gid_t) strtoul(field_begin, &endptr, 10);
+    group.gr_gid = (__gid_t) strtoul(field_begin, &endptr, 10);
     if (*endptr != '\0')
 	goto restart;
 
