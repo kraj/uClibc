@@ -42,8 +42,6 @@ PDEBUG("self=%p, pid=%d\n", self, self->p_pid);
   /* Store return value */
   __pthread_lock(THREAD_GETMEM(self, p_lock), self);
   THREAD_SETMEM(self, p_retval, retval);
-  /* Say that we've terminated */
-  THREAD_SETMEM(self, p_terminated, 1);
   /* See whether we have to signal the death.  */
   if (THREAD_GETMEM(self, p_report_events))
     {
@@ -61,12 +59,12 @@ PDEBUG("self=%p, pid=%d\n", self, self->p_pid);
 	  THREAD_SETMEM(self, p_eventbuf.eventdata, self);
 	  __pthread_last_event = self;
 
-#if 0 /* Appears like DEATH event reporting is broken */
 	  /* Now call the function to signal the event.  */
 	  __linuxthreads_death_event();
-#endif
 	}
     }
+  /* Say that we've terminated */
+  THREAD_SETMEM(self, p_terminated, 1);
   /* See if someone is joining on us */
   joining = THREAD_GETMEM(self, p_joining);
 PDEBUG("joining = %p, pid=%d\n", joining, joining->p_pid);
