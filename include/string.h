@@ -232,10 +232,29 @@ extern size_t strnlen (__const char *__string, size_t __maxlen)
 
 /* Return a string describing the meaning of the `errno' code in ERRNUM.  */
 extern char *strerror (int __errnum) __THROW;
-#ifdef	__USE_MISC
-/* Reentrant version of `strerror'.  If a temporary buffer is required, at
-   most BUFLEN bytes of BUF will be used.  */
-extern int strerror_r (int __errnum, char *__buf, size_t buflen) __THROW;
+
+/* Reentrant versions of `strerror'.  If a temporary buffer is required,
+   at most BUFLEN bytes of BUF will be used.  These symbols are _NOT_ intended
+   to be applications, and can change at any time. */
+extern char *_glibc_strerror_r (int __errnum, char *__buf, size_t __buflen) __THROW;
+extern int _susv3_strerror_r (int __errnum, char *__buf, size_t buflen) __THROW;
+
+#if defined(__USE_XOPEN2K) && !defined(__USE_GNU)
+# ifdef __REDIRECT
+extern int __REDIRECT (strerror_r,
+                       (int __errnum, char *__buf, size_t buflen) __THROW,
+                       _susv3_strerror_r);
+# else
+#  define strerror_r _susv3_strerror_r
+# endif
+#elif defined(__USE_MISC)
+# ifdef __REDIRECT
+extern char *__REDIRECT (strerror_r,
+                         (int __errnum, char *__buf, size_t buflen) __THROW,
+                         _glibc_strerror_r);
+# else
+#  define strerror_r _glibc_strerror_r
+# endif
 #endif
 
 /* We define this function always since `bzero' is sometimes needed when

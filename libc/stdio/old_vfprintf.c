@@ -272,7 +272,7 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 			if (*fmt == 'm') {
 				flag[FLAG_PLUS] = '\0';
 				flag[FLAG_0_PAD] = ' ';
-				p = _stdio_strerror_r(errno, tmp, sizeof(tmp));
+				p = _glibc_strerror_r(errno, tmp, sizeof(tmp));
 				goto print;
 			}
 #endif

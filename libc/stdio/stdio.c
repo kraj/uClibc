@@ -3218,7 +3218,7 @@ void perror(register const char *s)
 	{
 		char buf[64];
 		fprintf(stderr, "%s%s%s\n", s, sep,
-				_stdio_strerror_r(errno, buf, sizeof(buf)));
+				_glibc_strerror_r(errno, buf, sizeof(buf)));
 	}
 #endif
 #else
@@ -3228,7 +3228,7 @@ void perror(register const char *s)
 
 		__STDIO_THREADLOCK(stderr);
 		_stdio_fdout(STDERR_FILENO, s, sep,
-					 _stdio_strerror_r(errno, buf, sizeof(buf)));
+					 _glibc_strerror_r(errno, buf, sizeof(buf)));
 		__STDIO_THREADUNLOCK(stderr);
 	}
 #endif
@@ -3325,40 +3325,6 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
     return bufend;
 }
 #undef INTERNAL_DIV_MOD
-
-#endif
-/**********************************************************************/
-#ifdef L__stdio_strerror_r
-
-/* This is an internal routine, and assumes buf and buflen are set
- * appropriately.
- * 
- * WARNING!!! While it is similar to the glibc strerror_r function,
- * it is not the same.  It is expected that "unknown" error strings
- * will fit in the buffer passed.  Also, the return value may not
- * be == buf, as unknown strings are "right-justified" in the buf
- * due to the way _int10stostr works. */
-
-static const char unknown[] = "Unknown error";
-
-char *_stdio_strerror_r(int err, register char *buf, size_t buflen)
-{
-	int errsave;
-
-	assert(buflen >= __UIM_BUFLEN_INT + sizeof(unknown));
-
-	errsave = errno;			/* Backup the errno. */
-
-	if (strerror_r(err, buf, buflen)) {	/* Failed! */
-		__set_errno(errsave);	/* Restore old errno. */
-
-		buf = _int10tostr(buf+buflen-1, err) - sizeof(unknown);
-		strcpy(buf, unknown);
-		buf[sizeof(unknown)-1] = ' '; /* Overwrite the nul. */
-	}
-
-	return buf;
-}
 
 #endif
 /**********************************************************************/
