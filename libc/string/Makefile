@@ -30,17 +30,14 @@ MOBJ=strlen.o strcat.o strcpy.o strchr.o strcmp.o strncat.o strncpy.o \
 	memmove.o memcmp.o memchr.o ffs.o strnlen.o index.o rindex.o \
 	strxfrm.o strcoll.o
 
-MSRC1=index.c
-MOBJ1=index.o rindex.o
-
-MSRC2=strsignal.c
-MOBJ2=strsignal.o psignal.o
+MSRC1=strsignal.c
+MOBJ1=strsignal.o psignal.o
 
 CSRC=strpbrk.c strsep.c strstr.c strtok.c strtok_r.c strcspn.c config.c \
 	strspn.c strcasecmp.c strncasecmp.c strerror.c bcopy.c bzero.c \
 	bcmp.c sys_errlist.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(COBJS)
+OBJS=$(MOBJ) $(MOBJ1) $(COBJS)
 
 all: $(OBJS) $(LIBC)
 
@@ -54,10 +51,6 @@ $(MOBJ): $(MSRC)
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ1): $(MSRC1)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
