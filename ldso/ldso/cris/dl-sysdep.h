@@ -53,7 +53,7 @@ cris_mod(unsigned long m, unsigned long p)
 
 	return m;
 }
-#define do_rem(result, n, base) result = cris_mod(n, base);
+#define do_rem(result, n, base) ((result) = cris_mod(n, base))
 
 /* 8192 bytes alignment */
 #define PAGE_ALIGN 0xffffe000

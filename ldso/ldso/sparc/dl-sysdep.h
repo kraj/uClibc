@@ -84,7 +84,7 @@ sparc_mod(unsigned long m, unsigned long p)
 	return m;
 }
 
-#define do_rem(result, n, base) result = sparc_mod(n, base);
+#define do_rem(result, n, base) ((result) = sparc_mod(n, base))
 #endif
 
 /*

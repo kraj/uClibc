@@ -68,7 +68,7 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
 void _dl_init_got(unsigned long *lpnt,struct elf_resolve *tpnt);
 
 
-#define do_rem(result, n, base)  result = (n % base)
+#define do_rem(result, n, base) ((result) = (n) % (base))
 
 /* 4096 bytes alignment */
 #define PAGE_ALIGN 0xfffff000

@@ -25,7 +25,7 @@
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
-#define do_rem(result, n, base)  result = (n % base)
+#define do_rem(result, n, base) ((result) = (n) % (base))
 
 /* 4096 bytes alignment */
 #define PAGE_ALIGN 0xfffff000

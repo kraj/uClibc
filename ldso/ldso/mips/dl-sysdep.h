@@ -45,7 +45,7 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 struct elf_resolve;
 void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt);
 
-#define do_rem(result, n, base)  result = (n % base)
+#define do_rem(result, n, base) ((result) = (n) % (base))
 
 /* 4096 bytes alignment */
 #define PAGE_ALIGN 0xfffff000
