@@ -21,7 +21,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-include $(TOPDIR)Config
+-include $(TOPDIR)Config
 
 # Be sure to update include/features.h when changing this...
 MAJOR_VERSION:=0
@@ -68,7 +68,7 @@ ifndef OPTIMIZATION
 OPTIMIZATION:= ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
     then echo "-Os"; else echo "-O2" ; fi}
 OPTIMIZATION+= ${shell if $(CC) -falign-functions=1 -S -o /dev/null -xc \
-		/dev/null >/dev/null 2>&1; then echo "-falign-functions=1"; fi}
+	/dev/null >/dev/null 2>&1; then echo "-falign-functions=1"; fi}
 ifeq ($(strip $(TARGET_ARCH)),arm)
 	OPTIMIZATION+=-fstrict-aliasing
 endif
@@ -76,16 +76,16 @@ ifeq ($(strip $(TARGET_ARCH)),i386)
 	OPTIMIZATION+=-march=i386
 	OPTIMIZATION += ${shell if $(CC) -mpreferred-stack-boundary=2 -S -o /dev/null -xc \
 		/dev/null >/dev/null 2>&1; then echo "-mpreferred-stack-boundary=2"; fi}
-	OPTIMIZATION += ${shell if $(CC) -malign-functions=0 -malign-jumps=0 -malign-loops=0 \
+	OPTIMIZATION += ${shell if $(CC) -falign-jumps=0 -falign-loops=0 \
 		-S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo \
-		"-malign-functions=0 -malign-jumps=0 -malign-loops=0"; fi}
+		"-falign-jumps=0 -falign-loops=0"; fi}
 endif
 endif
 
 ARFLAGS:=r
 
 CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
-	-nostdinc -I$(TOPDIR)include -iwithprefix include -I. -D_LIBC $(ARCH_CFLAGS)
+	-I$(TOPDIR)include -iwithprefix include -I. -D_LIBC $(ARCH_CFLAGS)
 NATIVE_CFLAGS:=-O2 -Wall
 
 ifeq ($(strip $(DODEBUG)),true)
