@@ -39,10 +39,10 @@
 #define fp REG (fp)
 #define sp REG (sp)
 
-.global SYM (setjmp)
-.global SYM (longjmp)
+.global SYM (__setjmp)
+.global SYM (__longjmp)
 
-SYM (setjmp):
+SYM (__setjmp):
 	moveal sp@(4),a0
 	movel sp@(0),a0@(12)
 	movel sp,a0@(8)
@@ -50,7 +50,7 @@ SYM (setjmp):
 	clrl d0
 	rts
 
-SYM (longjmp):
+SYM (__longjmp):
 	moveal sp@(4),a0
 	movel sp@(8),d0
 	bne 1f
@@ -62,10 +62,10 @@ SYM (longjmp):
 	rts
 
 #ifdef M68881
-.global SYM (setjmp_68881)
-.global SYM (longjmp_68881)
+.global SYM (__setjmp_68881)
+.global SYM (__longjmp_68881)
 
-SYM (setjmp_68881):
+SYM (__setjmp_68881):
 	moveal sp@(4),a0
 	movel sp@(0),a0@(12)
 	movel sp,a0@(8)
@@ -74,7 +74,7 @@ SYM (setjmp_68881):
 	clrl d0
 	rts
 
-SYM (longjmp_68881):
+SYM (__longjmp_68881):
 	moveal sp@(4),a0
 	fmovemx a0@(64),fp2-fp7
 	movel sp@(8),d0

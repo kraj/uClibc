@@ -49,11 +49,16 @@ typedef struct
 
 /* Simple version of sigsetjmp and siglongjmp */
 
+extern int __setjmp(__jmp_buf __buf);
+extern int __longjmp(__jmp_buf __buf, int __val);
+
+#define longjmp(buf, val) __longjmp(buf, val)
+
 #define __sigsetjmp(env, savesigs) ((env)->__mask_was_saved = (savesigs), \
 			sigprocmask(SIG_SETMASK, 0, &(env)->__saved_mask), \
-			setjmp(&(env)->__jmpbuf))
+			__setjmp((env)->__jmpbuf))
 
 #define siglongjmp(env, val) (((env)->__mask_was_saved ? \
 			sigprocmask(SIG_SETMASK, &(env)->__saved_mask, 0) : 0), \
-			longjmp(&(env)->__jmpbuf, val))
+			__longjmp((env)->__jmpbuf, val))
 
