@@ -23,6 +23,7 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
+DIRS:=
 
 CSRC=execl.c execlp.c execv.c execvep.c execvp.c getcwd.c getopt.c \
 	sleep.c getpass.c sysconf_src.c
@@ -99,6 +100,9 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 
 $(patsubst %, _dirclean_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+
+.PHONY: dummy
+dummy:
 
 clean:
 	rm -f *.[oa] *~ core gen_sysconf sysconf_*.c
