@@ -167,6 +167,10 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 
 		/* Relocate the global GOT entries for the object */
 		while(i--) {
+#ifdef DL_DEBUG
+			_dl_dprintf(2,"BEFORE: %s=%x\n", strtab + sym->st_name,
+				*got_entry);
+#endif
 			if (sym->st_shndx == SHN_UNDEF) {
 				if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC && sym->st_value)
 					*got_entry = sym->st_value + (unsigned long) tpnt->loadaddr;
@@ -194,6 +198,9 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 #ifdef DL_DEBUG
 			if (*got_entry == 0)
 				_dl_dprintf(2,"ZERO: %s\n", strtab + sym->st_name);
+			else
+				_dl_dprintf(2," AFTER: %s=%x\n", strtab + sym->st_name,
+					*got_entry);
 #endif
 
 			got_entry++;
