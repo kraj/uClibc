@@ -141,7 +141,7 @@ char *is_shlib(const char *dir, const char *name, int *type,
 
     /* see if name is of the form libZ.so* */
     if ((strncmp(name, "lib", 3) == 0 || strncmp(name, "ld-", 3) == 0) && \
-	name[strlen(name)-1] != '~' && (cp = strstr(name, ".so")))
+	    name[strlen(name)-1] != '~' && (cp = strstr(name, ".so")))
     {
 	/* find the start of the Vminor part, if any */
 	if (cp[3] == '.' && (cp2 = strchr(cp + 4, '.')))
@@ -175,26 +175,26 @@ char *is_shlib(const char *dir, const char *name, int *type,
 		{
 		    elf_hdr = (ElfW(Ehdr) *) &exec;
 		    if (elf_hdr->e_ident[0] != 0x7f ||
-			strncmp(&elf_hdr->e_ident[1], "ELF",3) != 0)
+			    strncmp(&elf_hdr->e_ident[1], "ELF",3) != 0)
 		    {
-		        /* silently ignore linker scripts */
-		        if (strncmp((char *)&exec, "/* GNU ld", 9) != 0)
+			/* silently ignore linker scripts */
+			if (strncmp((char *)&exec, "/* GNU ld", 9) != 0)
 			    warn("%s is not a shared library, skipping", buff);
 		    }
 		    else
 		    {
-		        /* always call readsoname to update type */
-			if(expected_type == LIB_DLL){
+			/* always call readsoname to update type */
+			if(expected_type == LIB_DLL) {
 			    warn("%s is not an a.out library, its ELF!\n", buff);
 			    expected_type=LIB_ANY;
 			}
-		        *type = LIB_ELF;
-		        good = readsoname(buff, file, expected_type, type, 
-					  elf_hdr->e_ident[EI_CLASS]);
+			*type = LIB_ELF;
+			good = readsoname(buff, file, expected_type, type, 
+				elf_hdr->e_ident[EI_CLASS]);
 			if (good == NULL || *islink)
 			{
 			    if (good != NULL)
-			        free(good);
+				free(good);
 			    good = xstrdup(name);
 			}
 			else
@@ -203,19 +203,19 @@ char *is_shlib(const char *dir, const char *name, int *type,
 			       issue a warning, but only in debug mode. */
 			    int len = strlen(good);
 			    if (debug && (strncmp(good, name, len) != 0 ||
-				(name[len] != '\0' && name[len] != '.')))
-			        warn("%s has inconsistent soname (%s)",
-				     buff, good);
+					(name[len] != '\0' && name[len] != '.')))
+				warn("%s has inconsistent soname (%s)",
+					buff, good);
 			}
 		    }
 		}
 		else
 		{
 		    if (*islink)
-		        good = xstrdup(name);
+			good = xstrdup(name);
 		    else
 		    {
-		        good = xmalloc(cp - name + 1);
+			good = xmalloc(cp - name + 1);
 			strncpy(good, name, cp - name);
 			good[cp - name] = '\0';
 		    }
@@ -224,7 +224,7 @@ char *is_shlib(const char *dir, const char *name, int *type,
 			warn("%s is not an ELF library, its an a.out DLL!", buff);
 			expected_type=LIB_ANY;
 		    }
-		    
+
 		    *type = LIB_DLL;
 		}
 		fclose(file);
@@ -255,7 +255,7 @@ void link_shlib(const char *dir, const char *file, const char *so)
 	if (stat(libname, &libstat))
 	    warn("can't stat %s (%s)", libname, strerror(errno));
 	else if (libstat.st_dev == linkstat.st_dev &&
-	    libstat.st_ino == linkstat.st_ino)
+		libstat.st_ino == linkstat.st_ino)
 	    change = 0;
     }
 
@@ -264,32 +264,32 @@ void link_shlib(const char *dir, const char *file, const char *so)
     {
 	if (!lstat(linkname, &linkstat))
 	{
-	  if (!S_ISLNK(linkstat.st_mode))
-	  {
-	    warn("%s is not a symlink", linkname);
-	    change = -1;
-	  }
-	  else if (remove(linkname))
-	  {
-	    warn("can't unlink %s (%s)", linkname, strerror(errno));
-	    change = -1;
-	  }
+	    if (!S_ISLNK(linkstat.st_mode))
+	    {
+		warn("%s is not a symlink", linkname);
+		change = -1;
+	    }
+	    else if (remove(linkname))
+	    {
+		warn("can't unlink %s (%s)", linkname, strerror(errno));
+		change = -1;
+	    }
 	}
 	if (change > 0)
 	{
-	  if (symlink(file, linkname))
-	  {
-	    warn("can't link %s to %s (%s)", linkname, file, strerror(errno));
-	    change = -1;
-	  }
+	    if (symlink(file, linkname))
+	    {
+		warn("can't link %s to %s (%s)", linkname, file, strerror(errno));
+		change = -1;
+	    }
 	}
     }
 
     /* some people like to know what we're doing */
     if (verbose > 0)
 	printf("\t%s => %s%s\n", so, file,
-	       change < 0 ? " (SKIPPED)" :
-	       (change > 0 ? " (changed)" : ""));
+		change < 0 ? " (SKIPPED)" :
+		(change > 0 ? " (changed)" : ""));
 
     return;
 }
@@ -331,15 +331,28 @@ struct lib
 };
 
 /* update all shared library links in a directory */
-void scan_dir(const char *name)
+void scan_dir(const char *rawname)
 {
     DIR *dir;
+    const char *name;
     struct dirent *ent;
-    char *so;
+    char *so, *t, *path, *path_n;
     struct lib *lp, *libs = NULL;
-    int libtype, islink;
-    int expected_type = LIB_ANY;
-    char *t;
+    int i, libtype, islink, expected_type = LIB_ANY;
+
+    /* We need a writable copy of this string */
+    path = strdup(rawname);
+    if (!path) {
+	err(EXIT_FATAL, "Out of memory!\n");
+    }
+    /* Eliminate all double //s */
+    path_n=path;
+    while((path_n=strstr(path_n, "//"))) {
+	i = strlen(path_n);
+	memmove(path_n, path_n+1, i-1);
+	*(path_n + i - 1)='\0';
+    }
+    name = path;
 
     /* Check for an embedded expected type */
     t=strrchr(name, '=');
@@ -362,10 +375,17 @@ void scan_dir(const char *name)
 		{
 		    expected_type = LIB_ELF_LIBC6;
 		}
-		else
+		else 
 		{
-		    warn("Unknown type field '%s' for dir '%s' - ignored\n", t, name);
-		    expected_type = LIB_ANY;
+		    if(strcasecmp(t, "libc0") == 0)
+		    {
+			expected_type = LIB_ELF_LIBC0;
+		    }
+		    else
+		    {
+			warn("Unknown type field '%s' for dir '%s' - ignored\n", t, name);
+			expected_type = LIB_ANY;
+		    }
 		}
 	    }
 	}
@@ -394,10 +414,10 @@ void scan_dir(const char *name)
 	{
 	    if (strcmp(so, lp->so) == 0)
 	    {
-	        /* we have, which one do we want to use? */
-	        if ((!islink && lp->islink) ||
-		    (islink == lp->islink && 
-		     libcmp(ent->d_name, lp->name) > 0))
+		/* we have, which one do we want to use? */
+		if ((!islink && lp->islink) ||
+			(islink == lp->islink && 
+			 libcmp(ent->d_name, lp->name) > 0))
 		{
 		    /* let's use the new one */
 		    free(lp->name);
@@ -430,7 +450,7 @@ void scan_dir(const char *name)
     /* now we have all the latest libs, update the links */
     for (lp = libs; lp; lp = lp->next)
     {
-        if (!lp->islink)
+	if (!lp->islink)
 	    link_shlib(name, lp->name, lp->so);
 #ifdef USE_CACHE
 	if (!nocache)
@@ -468,197 +488,17 @@ char *get_extpath(void)
 
 	/* convert comments fo spaces */
 	for (cp = res; *cp; /*nada*/) {
-	  if (*cp == '#') {
-	    do
-	      *cp++ = ' ';
-	    while (*cp && *cp != '\n');
-	  } else {
-	    cp++;
-	  }
+	    if (*cp == '#') {
+		do
+		    *cp++ = ' ';
+		while (*cp && *cp != '\n');
+	    } else {
+		cp++;
+	    }
 	}	  
     }
 
     return res;
-}
-
-void usage(void)
-{
-    fprintf(stderr,
-	    "ldconfig - updates symlinks for shared libraries\n\n"
-	    "Usage: ldconfig [-DvqnNX] [-f conf] [-C cache] [-r root] dir ...\n"
-	    "       ldconfig -l [-Dv] lib ...\n"
-	    "       ldconfig -p\n\nOptions:\n"
-	    "\t-D:\t\tdebug mode, don't update links\n"
-	    "\t-v:\t\tverbose mode, print things as we go\n"
-	    "\t-q:\t\tquiet mode, don't print warnings\n"
-	    "\t-n:\t\tdon't process standard directories\n"
-	    "\t-N:\t\tdon't update the library cache\n"
-	    "\t-X:\t\tdon't update the library links\n"
-	    "\t-l:\t\tlibrary mode, manually link libraries\n"
-	    "\t-p:\t\tprint the current library cache\n"
-	    "\t-f conf :\tuse conf instead of %s\n"
-	    "\t-C cache:\tuse cache instead of %s\n"
-	    "\t-r root :\tfirst, do a chroot to the indicated directory\n"
-	    "\tdir ... :\tdirectories to process\n"
-	    "\tlib ... :\tlibraries to link\n\n",
-	    LDSO_CONF, LDSO_CACHE
-	    );
-    exit(EXIT_FATAL);
-}
-
-#define DIR_SEP      ":, \t\n"
-int main(int argc, char **argv)
-{
-    int i, c;
-    int nodefault = 0;
-    int printcache = 0;
-    char *cp, *dir, *so;
-    char *extpath;
-    int libtype, islink;
-    char *chroot_dir = NULL;
-
-    prog = argv[0];
-    opterr = 0;
-
-    while ((c = getopt(argc, argv, "DvqnNXlpf:C:r:")) != EOF)
-	switch (c)
-	{
-	case 'D':
-	    debug = 1;		/* debug mode */
-	    nocache = 1;
-	    nolinks = 1;
-	    verbose = 1;
-	    break;
-	case 'v':
-	    verbose = 1;	/* verbose mode */
-	    break;
-	case 'q':
-	    if (verbose <= 0)
-	        verbose = -1;	/* quiet mode */
-	    break;
-	case 'n':
-	    nodefault = 1;	/* no default dirs */
-	    nocache = 1;
-	    break;
-	case 'N':
-	    nocache = 1;	/* don't build cache */
-	    break;
-	case 'X':
-	    nolinks = 1;	/* don't update links */
-	    break;
-	case 'l':
-	    libmode = 1;	/* library mode */
-	    break;
-	case 'p':
-	    printcache = 1;	/* print cache */
-	    break;
-	case 'f':
-	    conffile = optarg;	/* alternate conf file */
-	    break;
-	case 'C':
-	    cachefile = optarg;	/* alternate cache file */
-	    break;
-	case 'r':
-	    chroot_dir = optarg;
-	    break;
-	default:
-	    usage();
-	    break;
-
-	/* THE REST OF THESE ARE UNDOCUMENTED AND MAY BE REMOVED
-	   IN FUTURE VERSIONS. */
-	}
-
-    if (chroot_dir && *chroot_dir) {
-	if (chroot(chroot_dir) < 0)
-	    err(EXIT_FATAL,"couldn't chroot to %s (%s)", chroot_dir, strerror(errno));
-        if (chdir("/") < 0)
-	    err(EXIT_FATAL,"couldn't chdir to / (%s)", strerror(errno));
-    }
-
-    /* allow me to introduce myself, hi, my name is ... */
-    if (verbose > 0)
-	printf("%s: uClibc version\n", argv[0]);
-
-    if (printcache)
-    {
-	/* print the cache -- don't you trust me? */
-#ifdef USE_CACHE
-	cache_print();
-#else
-	warnx("Cache support disabled\n");
-#endif
-	exit(EXIT_OK);
-    }
-    else if (libmode)
-    {
-	/* so you want to do things manually, eh? */
-
-	/* ok, if you're so smart, which libraries do we link? */
-	for (i = optind; i < argc; i++)
-	{
-	    /* split into directory and file parts */
-	    if (!(cp = strrchr(argv[i], '/')))
-	    {
-		dir = ".";	/* no dir, only a filename */
-		cp = argv[i];
-	    }
-	    else
-	    {
-		if (cp == argv[i])
-		    dir = "/";	/* file in root directory */
-		else
-		    dir = argv[i];
-		*cp++ = '\0';	/* neither of the above */
-	    }
-
-	    /* we'd better do a little bit of checking */
-	    if ((so = is_shlib(dir, cp, &libtype, &islink, LIB_ANY)) == NULL)
-		err(EXIT_FATAL,"%s%s%s is not a shared library", dir,
-		      (*dir && strcmp(dir, "/")) ? "/" : "", cp);
-
-	    /* so far, so good, maybe he knows what he's doing */
-	    link_shlib(dir, cp, so);
-	}
-    }
-    else
-    {
-	/* the lazy bum want's us to do all the work for him */
-
-	/* don't cache dirs on the command line */
-	int nocache_save = nocache;
-	nocache = 1;
-
-	/* OK, which directories should we do? */
-	for (i = optind; i < argc; i++)
-	    scan_dir(argv[i]);
-
-	/* restore the desired caching state */
-	nocache = nocache_save;
-
-	/* look ma, no defaults */
-	if (!nodefault)
-	{
-	    /* I guess the defaults aren't good enough */
-	    if ((extpath = get_extpath()))
-	    {
-		for (cp = strtok(extpath, DIR_SEP); cp;
-		     cp = strtok(NULL, DIR_SEP))
-		    scan_dir(cp);
-		free(extpath);
-	    }
-
-	    scan_dir(UCLIBC_TARGET_PREFIX "/usr/lib");
-	    scan_dir(UCLIBC_TARGET_PREFIX "/lib");
-	}
-
-#ifdef USE_CACHE
-	if (!nocache)
-	    cache_write();
-#endif
-    }
-
-    exit(EXIT_OK);
 }
 
 #ifdef USE_CACHE
@@ -681,8 +521,8 @@ static int liblistcomp(liblist_t *x, liblist_t *y)
 
     if ((res = libcmp(x->soname, y->soname)) == 0)
     {
-        res = libcmp(strrchr(x->libname, '/') + 1,
-		     strrchr(y->libname, '/') + 1);
+	res = libcmp(strrchr(x->libname, '/') + 1,
+		strrchr(y->libname, '/') + 1);
     }
 
     return res;
@@ -702,14 +542,14 @@ void cache_dolib(const char *dir, const char *so, int libtype)
 
     if (lib_head == NULL || liblistcomp(new_lib, lib_head) > 0)
     {
-        new_lib->next = lib_head;
+	new_lib->next = lib_head;
 	lib_head = new_lib;
     }
     else
     {
-        for (cur_lib = lib_head; cur_lib->next != NULL &&
-	     liblistcomp(new_lib, cur_lib->next) <= 0;
-	     cur_lib = cur_lib->next)
+	for (cur_lib = lib_head; cur_lib->next != NULL &&
+		liblistcomp(new_lib, cur_lib->next) <= 0;
+		cur_lib = cur_lib->next)
 	    /* nothing */;
 	new_lib->next = cur_lib->next;
 	cur_lib->next = new_lib;
@@ -729,7 +569,7 @@ void cache_write(void)
     sprintf(tempfile, "%s~", cachefile);
 
     if (unlink(tempfile) && errno != ENOENT)
-        err(EXIT_FATAL,"can't unlink %s (%s)", tempfile, strerror(errno));
+	err(EXIT_FATAL,"can't unlink %s (%s)", tempfile, strerror(errno));
 
     if ((cachefd = creat(tempfile, 0644)) < 0)
 	err(EXIT_FATAL,"can't create %s (%s)", tempfile, strerror(errno));
@@ -739,27 +579,27 @@ void cache_write(void)
 
     for (cur_lib = lib_head; cur_lib != NULL; cur_lib = cur_lib->next)
     {
-        cur_lib->sooffset = stroffset;
+	cur_lib->sooffset = stroffset;
 	stroffset += strlen(cur_lib->soname) + 1;
 	cur_lib->liboffset = stroffset;
 	stroffset += strlen(cur_lib->libname) + 1;
 	if (write(cachefd, cur_lib, sizeof (libentry_t)) !=
-	    sizeof (libentry_t))
+		sizeof (libentry_t))
 	    err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
     }
 
     for (cur_lib = lib_head; cur_lib != NULL; cur_lib = cur_lib->next)
     {
-      if (write(cachefd, cur_lib->soname, strlen(cur_lib->soname) + 1)
-	  != strlen(cur_lib->soname) + 1)
-	  err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
-      if (write(cachefd, cur_lib->libname, strlen(cur_lib->libname) + 1)
-	  != strlen(cur_lib->libname) + 1)
-	  err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
+	if (write(cachefd, cur_lib->soname, strlen(cur_lib->soname) + 1)
+		!= strlen(cur_lib->soname) + 1)
+	    err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
+	if (write(cachefd, cur_lib->libname, strlen(cur_lib->libname) + 1)
+		!= strlen(cur_lib->libname) + 1)
+	    err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
     }
 
     if (close(cachefd))
-        err(EXIT_FATAL,"can't close %s (%s)", tempfile, strerror(errno));
+	err(EXIT_FATAL,"can't close %s (%s)", tempfile, strerror(errno));
 
     if (chmod(tempfile, 0644))
 	err(EXIT_FATAL,"can't chmod %s (%s)", tempfile, strerror(errno));
@@ -801,25 +641,207 @@ void cache_print(void)
 	printf("\t%s ", strs + libent[fd].sooffset);
 	switch (libent[fd].flags & ~LIB_ELF64) 
 	{
-	  case LIB_DLL:
-	    printf("(libc4)");
-	    break;
-	  case LIB_ELF:
-	    printf("(ELF%s)", libent[fd].flags & LIB_ELF64 ? "/64" : "");
-	    break;
-	  case LIB_ELF_LIBC5:
-	  case LIB_ELF_LIBC6:
-	    printf("(libc%d%s)", (libent[fd].flags & ~LIB_ELF64) + 3,
-		   libent[fd].flags & LIB_ELF64 ? "/64" : "");
-	    break;
-	  default:
-	    printf("(unknown)");
-	    break;
+	    case LIB_DLL:
+		printf("(libc4)");
+		break;
+	    case LIB_ELF:
+		printf("(ELF%s)", libent[fd].flags & LIB_ELF64 ? "/64" : "");
+		break;
+	    case LIB_ELF_LIBC5:
+	    case LIB_ELF_LIBC6:
+		printf("(libc%d%s)", (libent[fd].flags & ~LIB_ELF64) + 3,
+			libent[fd].flags & LIB_ELF64 ? "/64" : "");
+		break;
+	    default:
+		printf("(unknown)");
+		break;
 	}
 	printf(" => %s\n", strs + libent[fd].liboffset);
     }
 
     munmap (c,st.st_size);
 }
+#else
+void cache_print(void)
+{
+    warnx("Cache support disabled\n");
+}
 #endif
+
+void usage(void)
+{
+    fprintf(stderr,
+	    "ldconfig - updates symlinks for shared libraries\n\n"
+	    "Usage: ldconfig [-DvqnNX] [-f conf] [-C cache] [-r root] dir ...\n"
+	    "       ldconfig -l [-Dv] lib ...\n"
+	    "       ldconfig -p\n\nOptions:\n"
+	    "\t-D:\t\tdebug mode, don't update links\n"
+	    "\t-v:\t\tverbose mode, print things as we go\n"
+	    "\t-q:\t\tquiet mode, don't print warnings\n"
+	    "\t-n:\t\tdon't process standard directories\n"
+	    "\t-N:\t\tdon't update the library cache\n"
+	    "\t-X:\t\tdon't update the library links\n"
+	    "\t-l:\t\tlibrary mode, manually link libraries\n"
+	    "\t-p:\t\tprint the current library cache\n"
+	    "\t-f conf :\tuse conf instead of %s\n"
+	    "\t-C cache:\tuse cache instead of %s\n"
+	    "\t-r root :\tfirst, do a chroot to the indicated directory\n"
+	    "\tdir ... :\tdirectories to process\n"
+	    "\tlib ... :\tlibraries to link\n\n",
+	    LDSO_CONF, LDSO_CACHE
+	   );
+    exit(EXIT_FATAL);
+}
+
+#define DIR_SEP      ":, \t\n"
+int main(int argc, char **argv)
+{
+    int i, c;
+    int nodefault = 0;
+    int printcache = 0;
+    char *cp, *dir, *so;
+    char *extpath;
+    int libtype, islink;
+    char *chroot_dir = NULL;
+
+    prog = argv[0];
+    opterr = 0;
+
+    while ((c = getopt(argc, argv, "DvqnNXlpf:C:r:")) != EOF)
+	switch (c)
+	{
+	    case 'D':
+		debug = 1;		/* debug mode */
+		nocache = 1;
+		nolinks = 1;
+		verbose = 1;
+		break;
+	    case 'v':
+		verbose = 1;	/* verbose mode */
+		break;
+	    case 'q':
+		if (verbose <= 0)
+		    verbose = -1;	/* quiet mode */
+		break;
+	    case 'n':
+		nodefault = 1;	/* no default dirs */
+		nocache = 1;
+		break;
+	    case 'N':
+		nocache = 1;	/* don't build cache */
+		break;
+	    case 'X':
+		nolinks = 1;	/* don't update links */
+		break;
+	    case 'l':
+		libmode = 1;	/* library mode */
+		break;
+	    case 'p':
+		printcache = 1;	/* print cache */
+		break;
+	    case 'f':
+		conffile = optarg;	/* alternate conf file */
+		break;
+	    case 'C':
+		cachefile = optarg;	/* alternate cache file */
+		break;
+	    case 'r':
+		chroot_dir = optarg;
+		break;
+	    default:
+		usage();
+		break;
+
+		/* THE REST OF THESE ARE UNDOCUMENTED AND MAY BE REMOVED
+		   IN FUTURE VERSIONS. */
+	}
+
+    if (chroot_dir && *chroot_dir) {
+	if (chroot(chroot_dir) < 0)
+	    err(EXIT_FATAL,"couldn't chroot to %s (%s)", chroot_dir, strerror(errno));
+	if (chdir("/") < 0)
+	    err(EXIT_FATAL,"couldn't chdir to / (%s)", strerror(errno));
+    }
+
+    /* allow me to introduce myself, hi, my name is ... */
+    if (verbose > 0)
+	printf("%s: uClibc version\n", argv[0]);
+
+    if (printcache)
+    {
+	/* print the cache -- don't you trust me? */
+	cache_print();
+	exit(EXIT_OK);
+    }
+    else if (libmode)
+    {
+	/* so you want to do things manually, eh? */
+
+	/* ok, if you're so smart, which libraries do we link? */
+	for (i = optind; i < argc; i++)
+	{
+	    /* split into directory and file parts */
+	    if (!(cp = strrchr(argv[i], '/')))
+	    {
+		dir = ".";	/* no dir, only a filename */
+		cp = argv[i];
+	    }
+	    else
+	    {
+		if (cp == argv[i])
+		    dir = "/";	/* file in root directory */
+		else
+		    dir = argv[i];
+		*cp++ = '\0';	/* neither of the above */
+	    }
+
+	    /* we'd better do a little bit of checking */
+	    if ((so = is_shlib(dir, cp, &libtype, &islink, LIB_ANY)) == NULL)
+		err(EXIT_FATAL,"%s%s%s is not a shared library", dir,
+			(*dir && strcmp(dir, "/")) ? "/" : "", cp);
+
+	    /* so far, so good, maybe he knows what he's doing */
+	    link_shlib(dir, cp, so);
+	}
+    }
+    else
+    {
+	/* the lazy bum want's us to do all the work for him */
+
+	/* don't cache dirs on the command line */
+	int nocache_save = nocache;
+	nocache = 1;
+
+	/* OK, which directories should we do? */
+	for (i = optind; i < argc; i++)
+	    scan_dir(argv[i]);
+
+	/* restore the desired caching state */
+	nocache = nocache_save;
+
+	/* look ma, no defaults */
+	if (!nodefault)
+	{
+	    /* I guess the defaults aren't good enough */
+	    if ((extpath = get_extpath()))
+	    {
+		for (cp = strtok(extpath, DIR_SEP); cp;
+			cp = strtok(NULL, DIR_SEP))
+		    scan_dir(cp);
+		free(extpath);
+	    }
+
+	    scan_dir(UCLIBC_TARGET_PREFIX "/usr/X11R6/lib");
+	    scan_dir(UCLIBC_TARGET_PREFIX "/usr/lib");
+	    scan_dir(UCLIBC_TARGET_PREFIX "/lib");
+	}
+
+#ifdef USE_CACHE
+	if (!nocache)
+	    cache_write();
+#endif
+    }
+
+    exit(EXIT_OK);
+}
 

@@ -233,6 +233,7 @@ static void search_for_named_library(char *name, char *result, const char *path_
 	while((path_n=strstr(path_n, "//"))) {
 		i = strlen(path_n);
 		memmove(path_n, path_n+1, i-1);
+		*(path_n + i - 1)='\0';
 	}
 
 	/* Replace colons with zeros in path_list and count them */
