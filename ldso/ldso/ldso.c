@@ -302,15 +302,14 @@ LD_BOOT(unsigned long args)
 #elif defined(__mips__)
   __asm__("\tmove %0, $28\n\tsubu %0,%0,0x7ff0\n\t":"=r"(got));
 #elif defined(__sh__)
-  __asm__("
-	   mov.l    1f, %0
-	   mova     1f, r0
-	   bra      2f
-	   add r0,  %0
-	   .balign  4
-1:	   .long    _GLOBAL_OFFSET_TABLE_
-2:
-"  : "=r" (got) : : "r0");
+  __asm__(
+"	   mov.l    1f, %0"
+"	   mova     1f, r0"
+"	   bra      2f"
+"	   add r0,  %0"
+"	   .balign  4"
+"1:	   .long    _GLOBAL_OFFSET_TABLE_"
+"2:" : "=r" (got) : : "r0");
 #else
 	/* Do things the slow way in C */
 	{
