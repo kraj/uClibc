@@ -78,23 +78,38 @@ weak_alias (__libc_write, __write)
 //#define __NR_open             5
 #ifdef L___syscall_open
 #define __NR___syscall_open __NR_open
+#include <stdlib.h>
 #include <stdarg.h>
 #include <fcntl.h>
+#include <string.h>
+#include <sys/param.h>
 static inline
-_syscall3(int, __syscall_open, const char *, fn, int, flags, __kernel_mode_t, mode);
-int __libc_open (const char * fn, int flags, ...)
+_syscall3(int, __syscall_open, const char *, file, int, flags, __kernel_mode_t, mode);
+int __libc_open (const char * file, int flags, ...)
 {
 	mode_t mode;
+	if (unlikely(file==NULL || *file=='\0')) {
+		__set_errno(EINVAL);
+		return -1;
+	}
+	if (unlikely(((strlen(file)+1) > NAME_MAX))) {
+		__set_errno(ENAMETOOLONG);
+		return -1;
+	}
 	if (flags & O_CREAT) {
 		va_list ap;
 		va_start(ap, flags);
 		mode = va_arg(ap, mode_t);
 		va_end(ap);
 	}
-	return __syscall_open(fn, flags, mode);
+	return __syscall_open(file, flags, mode);
 }
-
 weak_alias(__libc_open, open)
+
+int creat(const char *file, mode_t mode)
+{
+	  return __libc_open (file, O_WRONLY|O_CREAT|O_TRUNC, mode);
+}
 #endif
 
 //#define __NR_close            6
@@ -109,23 +124,7 @@ weak_alias(__libc_close, close)
 // Implemented using wait4 
 
 //#define __NR_creat            8
-#ifdef L___syscall_creat
-#include <fcntl.h>
-#ifdef __NR_creat
-#define __NR___syscall_creat __NR_creat
-_syscall2(int, __syscall_creat, const char *, file, __kernel_mode_t, mode);
-int creat (const char *file, mode_t mode)
-{
-	return __syscall_creat (file, mode);
-}
-#else
-extern int __libc_open (const char *file, int flags, mode_t mode);
-int creat (const char *file, mode_t mode)
-{
-	  return __libc_open (file, O_WRONLY|O_CREAT|O_TRUNC, mode);
-}
-#endif
-#endif
+// Implemented using open
 
 //#define __NR_link             9
 #ifdef L_link
@@ -140,16 +139,47 @@ _syscall1(int, unlink, const char *, pathname);
 #endif
 
 //#define __NR_execve           11
-#ifdef L_execve
+#ifdef L___syscall_execve
+#define __NR___syscall_execve __NR_execve
 #include <unistd.h>
-_syscall3(int, execve, const char *, filename, char *const *, argv,
-		  char *const *, envp);
+#include <string.h>
+#include <sys/param.h>
+static inline
+_syscall3(int, __syscall_execve, const char *, filename, 
+		char *const *, argv, char *const *, envp);
+int execve(const char *filename, char *const *argv, char *const *envp)
+{ 
+	if (unlikely(filename==NULL || *filename=='\0')) {
+		__set_errno(EINVAL);
+		return -1;
+	}
+	if (unlikely(((strlen(filename)+1) > NAME_MAX))) {
+		__set_errno(ENAMETOOLONG);
+		return -1;
+	}
+	return __syscall_execve(filename, argv, envp);
+}
 #endif
 
 //#define __NR_chdir            12
-#ifdef L_chdir
-#include <unistd.h>
-_syscall1(int, chdir, const char *, path);
+#ifdef L___syscall_chdir
+#define __NR___syscall_chdir __NR_chdir
+#include <string.h>
+#include <sys/param.h>
+static inline
+_syscall1(int, __syscall_chdir, const char *, path);
+int chdir(const char *path)
+{ 
+	if (unlikely(path==NULL || *path=='\0')) {
+		__set_errno(EINVAL);
+		return -1;
+	}
+	if (unlikely(((strlen(path)+1) > NAME_MAX))) {
+		__set_errno(ENAMETOOLONG);
+		return -1;
+	}
+	return __syscall_chdir(path);
+}
 #endif
 
 //#define __NR_time             13
@@ -471,9 +501,30 @@ int kill(pid_t pid, int sig)
 #endif
 
 //#define __NR_rename           38
-#ifdef L_rename
+#ifdef L___syscall_rename
+#define __NR___syscall_rename __NR_rename
+#include <unistd.h>
+#include <string.h>
+#include <sys/param.h>
 #include <stdio.h>
-_syscall2(int, rename, const char *, oldpath, const char *, newpath);
+static inline
+_syscall2(int, __syscall_rename, const char *, oldpath, const char *, newpath);
+int rename(const char *oldpath, const char *newpath)
+{ 
+	if (unlikely((oldpath==NULL || newpath==NULL ||
+					*oldpath=='\0' || *newpath=='\0'))) 
+	{
+		__set_errno(EINVAL);
+		return -1;
+	}
+	if (unlikely(((strlen(oldpath)+1) >= NAME_MAX) || 
+				((strlen(newpath)+1) >= NAME_MAX))) 
+	{
+		__set_errno(ENAMETOOLONG);
+		return -1;
+	}
+	return __syscall_rename(oldpath, newpath);
+}
 #endif
 
 //#define __NR_mkdir            39
@@ -682,9 +733,25 @@ mode_t umask(mode_t mode)
 #endif
 
 //#define __NR_chroot           61
-#ifdef L_chroot
+#ifdef L___syscall_chroot
+#define __NR___syscall_chroot __NR_chroot
 #include <unistd.h>
-_syscall1(int, chroot, const char *, path);
+#include <string.h>
+#include <sys/param.h>
+static inline
+_syscall1(int, __syscall_chroot, const char *, path);
+int chroot(const char *path)
+{ 
+	if (unlikely(path==NULL || *path=='\0')) {
+		__set_errno(EINVAL);
+		return -1;
+	}
+	if (unlikely(((strlen(path)+1) > NAME_MAX))) {
+		__set_errno(ENAMETOOLONG);
+		return -1;
+	}
+	return __syscall_chroot(path);
+}
 #endif
 
 //#define __NR_ustat            62
@@ -1099,9 +1166,25 @@ _syscall3(int, setpriority, __priority_which_t, which, id_t, who, int, prio);
 //#define __NR_profil           98
 
 //#define __NR_statfs           99
-#ifdef L_statfs
+#ifdef L___syscall_statfs
+#define __NR___syscall_statfs __NR_statfs
+#include <string.h>
+#include <sys/param.h>
 #include <sys/vfs.h>
-_syscall2(int, statfs, const char *, path, struct statfs *, buf);
+static inline
+_syscall2(int, __syscall_statfs, const char *, path, struct statfs *, buf);
+int statfs(const char *path, struct statfs *buf)
+{ 
+	if (unlikely(path==NULL || *path=='\0')) {
+		__set_errno(EINVAL);
+		return -1;
+	}
+	if (unlikely(((strlen(path)+1) > NAME_MAX))) {
+		__set_errno(ENAMETOOLONG);
+		return -1;
+	}
+	return __syscall_statfs(path, buf);
+}
 #endif
 
 //#define __NR_fstatfs          100
@@ -1411,6 +1494,8 @@ _syscall2(int, bdflush, int, __func, long int, __data);
 #endif
 
 //#define __NR_sysfs            135
+//_syscall3(int, sysfs, int, option, unsigned int, index, char addr);
+
 
 //#define __NR_personality      136
 #ifdef __NR_personality

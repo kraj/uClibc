@@ -492,9 +492,12 @@ ftw_startup (const char *dir, int is_nftw, void *func, int descriptors, int flag
     char *cp;
 
     /* First make sure the parameters are reasonable.  */
-    if (dir[0] == '\0')
-    {
+    if (unlikely(dir==NULL || *dir=='\0')) {
 	__set_errno (ENOENT);
+	return -1;
+    }
+    if ((strlen(dir)+1) > NAME_MAX) {
+	__set_errno(ENAMETOOLONG);
 	return -1;
     }
 
