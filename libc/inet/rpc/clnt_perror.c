@@ -36,18 +36,18 @@
  * Copyright (C) 1984, Sun Microsystems, Inc.
  *
  */
+
 #include <stdio.h>
+#include <string.h>
 
 #include <rpc/types.h>
 #include <rpc/auth.h>
 #include <rpc/clnt.h>
 
-//extern char *sys_errlist[];
-//static char *auth_errmsg();
+static char *auth_errmsg();
 
 extern char *strcpy();
 
-#if 0
 static char *buf;
 
 static char *_buf()
@@ -57,14 +57,12 @@ static char *_buf()
 		buf = (char *) malloc(256);
 	return (buf);
 }
-#endif	
 
 /*
  * Print reply error info
  */
 char *clnt_sperror __P ((CLIENT *rpch, const char *s))
 {
-#if 0
 	struct rpc_err e;
 	void clnt_perrno();
 	char *err;
@@ -99,7 +97,7 @@ char *clnt_sperror __P ((CLIENT *rpch, const char *s))
 
 	case RPC_CANTSEND:
 	case RPC_CANTRECV:
-		(void) sprintf(str, "; errno = %s", sys_errlist[e.re_errno]);
+		(void) sprintf(str, "; errno = %s", strerror (e.re_errno));
 		str += strlen(str);
 		break;
 
@@ -139,8 +137,6 @@ char *clnt_sperror __P ((CLIENT *rpch, const char *s))
 	}
 	(void) sprintf(str, "\n");
 	return (strstart);
-#endif
-	return (0);
 }
 
 void clnt_perror __P ((CLIENT *rpch, const char *s))
@@ -223,8 +219,6 @@ enum clnt_stat num;
 char *clnt_spcreateerror __P ((__const char *s))
 {
 #if 0
-	extern int sys_nerr;
-	extern char *sys_errlist[];
 	char *str = _buf();
 
 	if (str == 0)
@@ -239,13 +233,11 @@ char *clnt_spcreateerror __P ((__const char *s))
 
 	case RPC_SYSTEMERROR:
 		(void) strcat(str, " - ");
-		if (rpc_createerr.cf_error.re_errno > 0
-			&& rpc_createerr.cf_error.re_errno < sys_nerr)
-			(void) strcat(str,
-						  sys_errlist[rpc_createerr.cf_error.re_errno]);
+		if (rpc_createerr.cf_error.re_errno > 0)
+			(void) strcat(str, strerror (rpc_createerr.cf_error.re_errno));
 		else
-			(void) sprintf(&str[strlen(str)], "Error %d",
-						   rpc_createerr.cf_error.re_errno);
+			(void )sprintf(&str[strlen(str)], "Error %d",
+				       rpc_createerr.cf_error.re_errno);
 		break;
 	}
 	(void) strcat(str, "\n");
@@ -264,7 +256,6 @@ struct auth_errtab {
 	char *message;
 };
 
-#if 0
 static struct auth_errtab auth_errlist[] = {
 	{AUTH_OK,
 	 "Authentication OK"},
@@ -296,4 +287,3 @@ enum auth_stat stat;
 	}
 	return (NULL);
 }
-#endif	
