@@ -22,7 +22,7 @@
 
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
-TARGET_CC = $(TOPDIR)extra/gcc-uClibc/$(NATIVE_ARCH)-uclibc-gcc
+TARGET_CC = $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 TARGETS=elf_header ldconfig ldd ldd.target readelf readelf.target
 all: $(TARGETS)
@@ -32,7 +32,7 @@ elf_header:
 
 readelf: readelf.c
 	$(NATIVE_CC) $(NATIVE_CFLAGS) -I . readelf.c -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
+	strip -x -R .note -R .comment $@
 
 readelf.target: readelf.c
 	$(TARGET_CC) $(CFLAGS) -static --uclibc-use-build-dir -s readelf.c -o $@
@@ -44,16 +44,16 @@ ldconfig:
 else
 readsoname.o: readsoname.c readsoname2.c
 	$(NATIVE_CC) $(NATIVE_CFLAGS) -I . -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
+	strip -x -R .note -R .comment $*.o
     
 ldconfig.o: ldconfig.c
 	$(NATIVE_CC) $(NATIVE_CFLAGS) -I . \
 		-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
+	strip -x -R .note -R .comment $*.o
 
 ldconfig: ldconfig.o readsoname.o
 	$(NATIVE_CC) $(NATIVE_CFLAGS) $^ -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
+	strip -x -R .note -R .comment $@
 endif
 
 ldd: ldd.c
@@ -62,7 +62,7 @@ ldd: ldd.c
 		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
 		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" -I . \
 		ldd.c -o $@ 
-	$(STRIPTOOL) -x -R .note -R .comment $@
+	strip -x -R .note -R .comment $@
 
 ldd.target: ldd.c
 	$(TARGET_CC) $(CFLAGS) -static --uclibc-use-build-dir -s -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
