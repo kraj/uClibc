@@ -44,10 +44,10 @@ It is much smaller then the
 but nearly all applications supported by glibc also work perfectly with
 uClibc. Porting applications from glibc to uClibc typically involves
 just recompiling the source code. uClibc even supports shared libraries
-and threading.  It currently runs on standard Linux and 
-<a href="http://www.uclinux.org">MMU-less (also known as µClinux)</a>
-systems with support for ARM, i386, h8300, m68k, mips, mipsel, PowerPC,
-SH, SPARC, and v850 processors.
+and threading.  It currently runs on <a href="http://kernel.org/">standard Linux</a> 
+and <a href="http://www.uclinux.org">MMU-less (also known as µClinux)</a>
+systems with support for alpha, ARM, i386, i960, h8300, m68k, mips/mipsel, 
+PowerPC, SH, SPARC, and v850 processors.
 <p>
 
 If you are building an embedded Linux system and you find that glibc is
@@ -66,74 +66,32 @@ to give away all your source code just because you use uClibc and/or run on Linu
 
 <p>
 
-<!-- Begin Mailing list section -->
+<h3>Mailing List Information</h3>
 
-<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="mailing_list"><BIG><B>
-    Mailing List
-    </A></B></BIG>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-
-uClibc has a 
-<a href="/lists/uclibc/">mailing list</a>.  
+uClibc has a <a href="/lists/uclibc/">mailing list</a>.<br>
 To subscribe, go and visit 
 <a href="http://www.uclibc.org/mailman/listinfo/uclibc">this page</a>.
 
 <p>
 
+<h3>Frequently Asked Questions</h3>
 
-
-<!-- Begin FAQ section -->
-
-<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="faq"><BIG><B>
-    Frequently Asked Questions
-    </A></B></BIG>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-
-	uClibc now has a <a href="FAQ.html">list of Frequently Asked Questions</a>.
-	You might want to take a look.
+You might want to take a look at the 
+<a href="FAQ.html">list of Frequently Asked Questions</a>
+before asking questions on the mailing list...
     
     
-<!-- Begin Applications section -->
+<h3>Working Applications List</h3>
 
-<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="applications"><BIG><B>
-    Known Working Applications List
-    </A></B></BIG>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-
-    uClibc now has a <a href="uClibc-apps.html">list of applications</a> 
-    that are known to work.  Submissions are welcome! 
-    Since most applications work just fine with uClibc, we are especially 
-    interested in knowing about any applications that either do not compile
-    at all or do not work properly with uClibc.
+    These days, pretty much everything compiles with uClibc.  This
+    is a <a href="uClibc-apps.html">list of applications</a> that are known 
+    to work just fine with uClibc.  Since most applications work just 
+    fine with uClibc, we are especially interested in knowing about any 
+    applications that either <em>do not compile</em> or <em>do not work</em> 
+    properly with uClibc.  Submissions are welcome!
 
     
     
-<!-- Begin Download section -->
-
-<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="download"><BIG><B>
-    Download
-    </A></B></BIG>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-<ul>
-    <li> There is now a script that creates a daily snapshot tarball of uClibc and posts it on  
-	<a href="downloads/uClibc-snapshot.tar.bz2">here</a>.
-    <li> uClibc also has a publicly browsable
-	<a href="/cgi-bin/cvsweb/uClibc/">CVS tree</a>
-    <li> Anonymous
-	<a href="cvs_anon.html">CVS access</a> is available, and
-	
-    <li> For those that are actively contributing there is even 
-	<a href="cvs_write.html">CVS write access</a>.
-</ul>
-
 <!-- Begin Latest News section -->
 
 <TR><TD BGCOLOR="#ccccc0" ALIGN=center>
@@ -146,6 +104,18 @@ To subscribe, go and visit
 <TR><TD BGCOLOR="#eeeee0">
 
 <ul>
+
+    <li> <b>20 June 2002, uClibc 0.9.12 Released</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.12. This release adds an i960 port, an initial alpha port,
+    fullly working shared library support for mips, fixes for shared libraries
+    on powerpc, as well as many other improvements and bug fixes.   
+    <p>
+    The <a href="downloads/Changelog">Changelog</a>
+    and <a href="downloads/uClibc-0.9.12.tar.bz2">source code</a> 
+    for this release are available <a href="downloads/">here</a>.
 
     <li> <b>28 May 2002, Native uClibc/gcc-3.1 toolchain</b>
     <br>
@@ -248,38 +218,27 @@ To subscribe, go and visit
 
     
 
-    
-
-<!-- Begin TODO section -->
+<!-- Begin Download section -->
 
 <TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="todo"><BIG><B>
-    TODO
+    <A NAME="download"><BIG><B>
+    Download
     </A></B></BIG>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
-
-
-Here are a few things on the TODO list:
 <ul>
-    <li> Shared library support for all supported architectures.
-	Currently, only x86, arm, powerpc, and mips have native
-	shared library loader support.  Several additional architectures
-	need to have their own shared library loader.
-    <li> Shared library support for mmu-less systems has been completed
-	by two separate companies, but has not been contributed back.
-    <li> Someone (hopefully) needs to volunteer to take the
-	<a href="http://www.linuxbase.org/test/">LSB Test Suite</a>,
-	pull out the C library testing stuff, and convert it
-	(perl script, by hand, I don't care how) into a form
-	that is usable without having it take over your entire
-	system (i.e. similar to what is currently in the uClibc
-	test suite).  This will be <em>enormously</em> helpful!
-    <li> other things as I think of them.
+    <li> Source for the latest release can always be downloaded from 
+	<a href="downloads/">http://www.uclibc.org/downloads</a>
+
+    <li> A new snapshot of the source is made daily and is available 
+	<a href="downloads/snapshot/">here</a>
+
+    <li> uClibc has its own publically browsable <a href="/cgi-bin/cvsweb/uClibc/">CVS tree</a>
+	with <a href="cvs_anon.html">anonymous CVS access</a>, and for those that are actively 
+	contributing there is even <a href="cvs_write.html">CVS write access</a>.
 </ul>
+
     
-
-
 
 <!-- Begin Links section -->
 
