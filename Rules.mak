@@ -59,6 +59,8 @@ endif
 
 # Some nice architecture specific optimizations
 ifndef OPTIMIZATION
+
+
 # use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION += ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
     then echo "-Os"; else echo "-O2" ; fi}
@@ -96,19 +98,20 @@ else
 endif
 
 ifeq ($(strip $(HAVE_SHARED)),true)
+    DOPIC=true
     LIBRARY_CACHE=#-DUSE_CACHE
-ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
-	LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
-	DYNAMIC_LINKER=$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO)
-	BUILD_DYNAMIC_LINKER=${shell cd $(TOPDIR)lib && pwd}/$(UCLIBC_LDSO)
-else
-	LDSO=$(SYSTEM_LDSO)
-	DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
-	BUILD_DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
+    ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
+    LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
+    DYNAMIC_LINKER=$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO)
+BUILD_DYNAMIC_LINKER=${shell cd $(TOPDIR)lib && pwd}/$(UCLIBC_LDSO)
+    else
+    LDSO=$(SYSTEM_LDSO)
+    DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
+    BUILD_DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
 endif
 endif
 ifeq ($(strip $(DOPIC)),true)
-    CFLAGS += -fPIC -D__PIC__
+    CFLAGS += -fPIC
 endif
 
 # TARGET_PREFIX is the directory under which which the uClibc runtime
