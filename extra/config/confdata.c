@@ -61,7 +61,7 @@ char *conf_get_default_confname(void)
 int conf_read(const char *name)
 {
 	FILE *in = NULL;
-	char line[128];
+	char line[1024];
 	char *p, *p2;
 	int lineno = 0;
 	struct symbol *sym;
@@ -105,7 +105,7 @@ int conf_read(const char *name)
 		}
 	}
 
-	while (fgets(line, 128, in)) {
+	while (fgets(line, sizeof(line), in)) {
 		lineno++;
 		switch (line[0]) {
 		case '\n':
