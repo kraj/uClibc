@@ -111,6 +111,12 @@ links-target: locale_data.o uClibc_locale_data.h
 	ln -sf ../../../extra/locale/locale_data.o ../../libc/misc/locale
 	cp uClibc_locale_data.h ../../libc/sysdeps/linux/common/bits/
 
+pregen:
+	$(CC) $(CFLAGS_mmap) -c locale_data.c
+	$(STRIPTOOL) -x -R .note -R .comment locale_data.o
+	ln -sf ../../../extra/locale/locale_data.o ../../libc/misc/locale
+	cp uClibc_locale_data.h ../../libc/sysdeps/linux/common/bits/
+
 clean:
 	rm -f *.[oa] *~ core
 	rm -f gen_wc8bit gen_wctype gen_locale gen_ldc gen_collate
