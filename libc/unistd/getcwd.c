@@ -1,13 +1,10 @@
-
+#include <stdlib.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <string.h>
-/*
- * These functions find the absolute path to the current working directory.
- *
- * They don't use malloc or large amounts of stack space.
- */
+
+/* These functions find the absolute path to the current working directory.  */
 
 static char *recurser();		/* Routine to go up tree */
 static char *search_dir();		/* Routine to find the step back down */
@@ -19,21 +16,28 @@ static ino_t root_ino;
 
 static struct stat st;
 
-char *getcwd(buf, size)
-char *buf;
-int size;
+char *getcwd( char *buf, int size)
 {
-	path_buf = buf;
 	path_size = size;
 
 	if (size < 3) {
 		errno = ERANGE;
-		return 0;
+		return NULL;
 	}
+
+	if (buf != NULL)
+	    path_buf = buf;
+	else
+	{
+	    path_buf = malloc (size);
+	    if (path_buf == NULL)
+		return NULL;
+	}
+
 	strcpy(path_buf, ".");
 
 	if (stat("/", &st) < 0)
-		return 0;
+		return NULL;
 
 	root_dev = st.st_dev;
 	root_ino = st.st_ino;
