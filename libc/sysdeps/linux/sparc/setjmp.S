@@ -16,22 +16,43 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sysdep.h>
+#include <sys/syscall.h>
 
 #define _ASM 1
 #define _SETJMP_H
 #include <bits/setjmp.h>
+#define ST_FLUSH_WINDOWS 3
 
-ENTRY(_setjmp)
+.global   _setjmp;
+.align 4;
+.type  _setjmp ,@function; 
+
+_setjmp: 
 	b	1f
 	 set	0, %o1
-END(_setjmp)
+.size _setjmp,.-_setjmp;
 
-ENTRY(setjmp)
+
+
+
+
+
+.global   setjmp;
+.align 4;
+.type  setjmp ,@function; 
+
+setjmp: 
 	set	1, %o1
-END(setjmp)
+.size setjmp,.-setjmp;
 
-ENTRY (__sigsetjmp)
+
+
+
+.global   __sigsetjmp;
+.align 4;
+.type  __sigsetjmp ,@function; 
+
+__sigsetjmp: 
 1:
 	/* Save our PC, SP and FP.  Save the signal mask if requested with
 	   a tail-call for simplicity; it always returns zero.  */
@@ -44,7 +65,9 @@ ENTRY (__sigsetjmp)
 	mov	%o7, %g1
 	call	__sigjmp_save
 	 mov	%g1, %o7
-END(__sigsetjmp)
+.size __sigsetjmp,.-__sigsetjmp;
+
+
 
 .weak   _setjmp    
 .weak   setjmp  

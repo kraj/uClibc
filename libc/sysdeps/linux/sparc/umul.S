@@ -14,7 +14,7 @@
  *	bnz	overflow	(or tnz)
  */
 
-#include <sysdep.h>
+#include <sys/syscall.h>
 
 
 .global   .umul;

@@ -37,7 +37,7 @@
 
 
 
-#include <sysdep.h>
+#include <sys/syscall.h>
 
 .global   .div;
 .align 4;
@@ -363,4 +363,4 @@
 	retl
 	mov %o2, %o0
 
-END(.div)
+.size .div,.-.div;

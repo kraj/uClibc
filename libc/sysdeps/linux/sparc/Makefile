@@ -25,8 +25,8 @@ TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 ASFLAGS=$(CFLAGS)
 
-CRT0=crt0.c
-CRT0_OBJ=$(patsubst %.c,%.o, $(CRT0))
+CRT0_SRC = crt0.c
+CRT0_OBJ = crt0.o crt1.o
 
 SSRC=__longjmp.S fork.S vfork.S clone.S setjmp.S bsd-setjmp.S bsd-_setjmp.S \
 	urem.S udiv.S umul.S sdiv.S rem.S
@@ -45,10 +45,10 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)lib/$(CRT0_OBJ)
+	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
-$(CRT0_OBJ): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(CRT0_OBJ): $(CRT0_SRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): %.o : %.S

@@ -37,7 +37,7 @@
 
 
 
-#include <sysdep.h>
+#include <sys/syscall.h>
 
 
 .global   .rem;
@@ -364,4 +364,4 @@
 	retl
 	mov %o3, %o0
 
-END(.rem)
+.size .rem,.-.rem;

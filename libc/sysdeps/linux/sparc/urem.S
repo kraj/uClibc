@@ -37,7 +37,7 @@
 
 
 
-#include <sysdep.h>
+#include <sys/syscall.h>
 
 
 .global   .urem;
@@ -347,4 +347,4 @@
 	retl
 	mov %o3, %o0
 
-END(.urem)
+.size  .urem , . -.urem
