@@ -2071,7 +2071,7 @@ FILE *fopen(const char * __restrict filename, const char * __restrict mode)
  *  fopen64  : filename != NULL, stream == NULL, filedes == -2
  */
 
-#if O_ACCMODE != 3 || O_RDONLY != 0 || O_WRONLY != 1 || O_RDWR != 2 || O_APPEND != __FLAG_APPEND || O_LARGEFILE != __FLAG_LARGEFILE
+#if O_ACCMODE != 3 || O_RDONLY != 0 || O_WRONLY != 1 || O_RDWR != 2
 #error Assumption violated - mode constants
 #endif
 
@@ -2189,12 +2189,21 @@ FILE *_stdio_fopen(const char * __restrict filename,
 		return NULL;
 	}
 
+	stream->modeflags |=
 #ifdef __STDIO_BUFFERS
-	stream->modeflags |= (isatty(stream->filedes) * __FLAG_LBF)
-		| ((((open_mode & O_ACCMODE) + 1) ^ 0x03) * __FLAG_WRITEONLY)
-		| (open_mode & (O_APPEND|O_LARGEFILE));
+		(isatty(stream->filedes) * __FLAG_LBF) |
+#endif /* __STDIO_BUFFERS */
+#if (O_APPEND == __FLAG_APPEND) && (O_LARGEFILE == __FLAG_LARGEFILE)
+		(open_mode & (O_APPEND|O_LARGEFILE)) | /* i386 linux and elks */
+#else  /* (O_APPEND == __FLAG_APPEND) && (O_LARGEFILE == __FLAG_LARGEFILE) */
+		((open_mode & O_APPEND) ? __FLAG_APPEND : 0) |
+#ifdef __STDIO_LARGE_FILES
+		((open_mode & O_LARGEFILE) ? __FLAG_LARGEFILE : 0) |
+#endif /* __STDIO_LARGE_FILES */
+#endif /* (O_APPEND == __FLAG_APPEND) && (O_LARGEFILE == __FLAG_LARGEFILE) */
+		((((open_mode & O_ACCMODE) + 1) ^ 0x03) * __FLAG_WRITEONLY);
 
-
+#ifdef __STDIO_BUFFERS
 #ifdef __STDIO_GETC_MACRO
 	stream->bufgetc =
 #endif
@@ -2202,11 +2211,6 @@ FILE *_stdio_fopen(const char * __restrict filename,
 	stream->bufputc =
 #endif
 	stream->bufwpos = stream->bufrpos = stream->bufstart;
-
-#else  /* __STDIO_BUFFERS */
-	stream->modeflags |= 
-		((((open_mode & O_ACCMODE) + 1) ^ 0x03) * __FLAG_WRITEONLY)
-		| (open_mode & (O_APPEND|O_LARGEFILE));
 #endif /* __STDIO_BUFFERS */
 
 #ifdef __STDIO_GLIBC_CUSTOM_STREAMS
