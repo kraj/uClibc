@@ -26,15 +26,16 @@
 #include <unistd.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
-/* This lock protects against simultaneous modifications of `environ'.  */
-# include <bits/libc-lock.h>
-__libc_lock_define_initialized (static, envlock)
-# define LOCK	__libc_lock_lock (envlock)
-# define UNLOCK	__libc_lock_unlock (envlock)
+/* protects against simultaneous modifications of `environ'.  */
+#include <pthread.h>
+static pthread_mutex_t envlock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK	pthread_mutex_lock(&envlock)
+# define UNLOCK	pthread_mutex_unlock(&envlock);
 #else
 # define LOCK
 # define UNLOCK
 #endif
+
 
 /* If this variable is not a null pointer we allocated the current
    environment.  */
@@ -55,7 +56,7 @@ int __add_to_environ (const char *name, const char *value,
     const size_t namelen = strlen (name);
     const size_t vallen = value != NULL ? strlen (value) + 1 : 0;
 
-    LOCK;
+    pthread_mutex_lock(&envlock);
 
     /* We have to get the pointer now that we have the lock and not earlier
        since another thread might have created a new environment.  */
