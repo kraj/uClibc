@@ -35,6 +35,10 @@ ifeq ($(DO_SHARED),shared)
 endif
 DIRS = extra $(LDSO_DIR) libc libcrypt libresolv libutil libm  
 
+ifndef $(TARGET_PREFIX)
+	TARGET_PREFIX = `pwd`/_install
+endif
+
 all: headers uClibc_config.h subdirs $(DO_SHARED) done
 
 shared:
@@ -143,40 +147,49 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 tags:
 	ctags -R
 
-install: install_runtime install_dev
+install: install_dev
 
-# Installs shared library
-install_runtime:
-	install -d $(INSTALL_DIR)/lib
-	cp -fa lib/* $(INSTALL_DIR)/lib;
+# Installs shared libraries for a target.
+install_target:
+ifeq ($(DO_SHARED),shared)
+	install -d $(TARGET_PREFIX)$(ROOT_DIR)/lib
+	cp -fa lib/*.so* $(TARGET_PREFIX)$(ROOT_DIR)/lib;
 #ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
-	ln -sf $(INSTALL_DIR)/lib/$(UCLIBC_LDSO) /lib/$(UCLIBC_LDSO);
-	install -d $(INSTALL_DIR)/etc
-	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
+#	install -d $(TARGET_PREFIX)$(ROOT_DIR)/etc
+#	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
 #endif
+endif
 
 # Installs development library and headers
 # This is done with the assumption that it can blow away anything
-# in $(INSTALL_DIR)/include.  Probably true only if you're using
+# in $(DEVEL_PREFIX)$(ROOT_DIR)/include.  Probably true only if you're using
 # a packaging system.
 install_dev:
-	install -d $(INSTALL_DIR)/usr/include
-	install -d $(INSTALL_DIR)/usr/include/bits
-	rm -f $(INSTALL_DIR)/usr/include/asm
-	rm -f $(INSTALL_DIR)/usr/include/linux
-	ln -s $(KERNEL_SOURCE)/include/asm $(INSTALL_DIR)/usr/include/asm
-	ln -s $(KERNEL_SOURCE)/include/linux $(INSTALL_DIR)/usr/include/linux
+	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/lib
+	cp -fa lib/*.so* $(DEVEL_PREFIX)$(ROOT_DIR)/lib;
+	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/lib
+	cp -fa lib/*.[ao] $(DEVEL_PREFIX)$(ROOT_DIR)/usr/lib;
+	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/etc
+	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include
+	install -d $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/bits
+	rm -f $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/asm
+	rm -f $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/linux
+	ln -s $(KERNEL_SOURCE)/include/asm $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/asm
+	ln -s $(KERNEL_SOURCE)/include/linux $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/linux
 	find include/ -type f -depth -not -path "*CVS*" -exec install \
-	    -D -m 644 {} $(INSTALL_DIR)/usr/'{}' ';'
+	    -D -m 644 {} $(DEVEL_PREFIX)$(ROOT_DIR)/usr/'{}' ';'
 	find include/bits/ -type f -depth -not -path "*CVS*" -exec install \
-	    -D -m 644 {} $(INSTALL_DIR)/usr/'{}' ';'
-	install -m 644 include/bits/uClibc_config.h $(INSTALL_DIR)/usr/include/bits/
+	    -D -m 644 {} $(DEVEL_PREFIX)$(ROOT_DIR)/usr/'{}' ';'
+	install -m 644 include/bits/uClibc_config.h $(DEVEL_PREFIX)$(ROOT_DIR)/usr/include/bits/
 	$(MAKE) -C extra/gcc-uClibc install
 
 clean:
 	@rm -rf tmp lib
 	- find include -type l -exec rm -f {} \;
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core \) -exec rm -f {} \;
+ifeq ($(DO_SHARED),shared)
+	make -C ldso clean
+endif
 
 .PHONY: dummy subdirs
 

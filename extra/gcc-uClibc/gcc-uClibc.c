@@ -36,6 +36,29 @@
  *
  * The wrapper now displays the command line passed to gcc when '-v' is used.
  *
+ * May 31, 2001
+ *
+ * "rpath" and "build" behavior are now decoupled.  You can of course get
+ * the old "build" behavior by setting UCLIBC_GCC="rpath-build".  Order
+ * isn't important here, as only the substrings are searched for.
+ *
+ * Added environment variable check for UCLIBC_GCC_DLOPT to let user specify
+ * an alternative dynamic linker at runtime without using command line args.
+ * Since this wouldn't commonly be used, I made it easy on myself.  You have
+ * to match the option you would have passed to the gcc wrapper.  As an
+ * example,
+ *
+ *   export UCLIBC_GCC_DLOPT="-Wl,--dynamic-linker,/lib/ld-alt-linker.so.3"
+ *
+ * This is really only useful if target arch == devel arch and DEVEL_PREFIX
+ * isn't empty.  It involves a recompile, but you can at least test apps
+ * on your devel system if combined with the "rpath" behavor if by using
+ * LD_LIBRARY_PATH, etc.
+ *
+ * Also added check for "-Wl,--dynamic-linker" on the command line.  The
+ * use default dynamic linker or the envirnment-specified dynamic linker
+ * is disabled in that case.
+ *
  */
 
 /*
@@ -51,34 +74,32 @@
 
 #include "gcc-uClibc.h"
 
-#if 0
 static char *rpath_link[] = {
-	"-Wl,-rpath-link,"UCLIBC_INSTALL_DIR"lib",
-	"-Wl,-rpath-link,"UCLIBC_BUILD_DIR"lib"
+	"-Wl,-rpath-link,"UCLIBC_DEVEL_PREFIX UCLIBC_ROOT_DIR"/lib",
+	"-Wl,-rpath-link,"UCLIBC_BUILD_DIR"/lib"
 };
 
 static char *rpath[] = {
-	"-Wl,-rpath,"UCLIBC_INSTALL_DIR"lib",
-	"-Wl,-rpath,"UCLIBC_BUILD_DIR"lib"
+	"-Wl,-rpath,"UCLIBC_DEVEL_PREFIX UCLIBC_ROOT_DIR"/lib",
+	"-Wl,-rpath,"UCLIBC_BUILD_DIR"/lib"
 };
-#endif
 
 static char *uClibc_inc[] = {
-	"-I"UCLIBC_INSTALL_DIR"usr/include/",
-	"-I"UCLIBC_BUILD_DIR"include/"
+	"-I"UCLIBC_DEVEL_PREFIX UCLIBC_ROOT_DIR"/usr/include/",
+	"-I"UCLIBC_BUILD_DIR"/include/"
 };
 
 static char *crt0_path[] = {
-	UCLIBC_INSTALL_DIR"lib/crt0.o",
-	UCLIBC_BUILD_DIR"lib/crt0.o"
+	UCLIBC_DEVEL_PREFIX UCLIBC_ROOT_DIR"/usr/lib/crt0.o",
+	UCLIBC_BUILD_DIR"/lib/crt0.o"
 };
 
 static char *lib_path[] = {
-	"-L"UCLIBC_INSTALL_DIR"lib",
-	"-L"UCLIBC_BUILD_DIR"lib"
+	"-L"UCLIBC_DEVEL_PREFIX UCLIBC_ROOT_DIR"/lib",
+	"-L"UCLIBC_BUILD_DIR"/lib"
 };
 
-static char *usr_lib_path = "-L"UCLIBC_INSTALL_DIR"usr/lib";
+static char *usr_lib_path = "-L"UCLIBC_DEVEL_PREFIX UCLIBC_ROOT_DIR"/usr/lib";
 
 static char static_linking[] = "-static";
 static char nostdinc[] = "-nostdinc";
@@ -93,7 +114,13 @@ int main(int argc, char **argv)
 	int source_count = 0, use_rpath = 0, verbose = 0;
 	int i, j;
 	char ** gcc_argv;
+	char *dlstr;
 	char *ep;
+
+	dlstr = getenv("UCLIBC_GCC_DLOPT");
+	if (!dlstr) {
+		dlstr = "-Wl,--dynamic-linker," DYNAMIC_LINKER;
+	}
 
 	ep = getenv("UCLIBC_GCC");
 	if (!ep) {
@@ -102,7 +129,8 @@ int main(int argc, char **argv)
 
 	if ((strstr(argv[0],"build") != 0) || (strstr(ep,"build") != 0)) {
 		use_build_dir = 1;
-	}
+	
+}
 
 	if ((strstr(argv[0],"rpath") != 0) || (strstr(ep,"rpath") != 0)) {
 		use_rpath = 1;
@@ -144,6 +172,9 @@ int main(int argc, char **argv)
 						if (strstr(argv[i],static_linking) != 0) {
 							use_static_linking = 1;
 						}
+						if (strstr(argv[i],"--dynamic-linker") != 0) {
+							dlstr = 0;
+						}
 					}
 					break;
 				case '-':
@@ -177,33 +208,14 @@ int main(int argc, char **argv)
 	}
 	if (linking && source_count) {
 		if (!use_static_linking) {
-			if (DYNAMIC_LINKER[0]) { /* not empty string */
-#if 1
-				gcc_argv[i++] = "-Wl,--dynamic-linker,"DYNAMIC_LINKER;
-				if (strstr(DYNAMIC_LINKER,"uclibc") != 0) {	/* custom linker */
-					use_rpath = 0; /* so -rpath not needed for normal case */
-				}
-#else
-				char *dlstr = "-Wl,--dynamic-linker,"DYNAMIC_LINKER;
-				if (strstr(DYNAMIC_LINKER,"uclibc") != 0) {	/* custom linker */
-					use_rpath = 0; /* so -rpath not needed for normal case */
-					if (use_build_dir) {
-						dlstr = "-Wl,--dynamic-linker," \
-							UCLIBC_BUILD_DIR DYNAMIC_LINKER;
-					}
-				}
+			if (dlstr) {
 				gcc_argv[i++] = dlstr;
-#endif
 			}
-#if 0
-			if (use_build_dir || use_rpath) {
+			if (use_rpath) {
 				gcc_argv[i++] = rpath[use_build_dir];
 			}
-#endif
 		}
-#if 0
 		gcc_argv[i++] = rpath_link[use_build_dir]; /* just to be safe */
-#endif
 		gcc_argv[i++] = lib_path[use_build_dir];
 		if (!use_build_dir) {
 			gcc_argv[i++] = usr_lib_path;

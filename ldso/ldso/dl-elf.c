@@ -248,7 +248,7 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 #endif
 
 	/* Check in <install-dir>/usr/lib */
-	pnt1 = UCLIBC_INSTALL_DIR "/usr/lib/";
+	pnt1 = UCLIBC_ROOT_DIR "/usr/lib/";
 	pnt = mylibname;
 	while (*pnt1)
 	    *pnt++ = *pnt1++;
@@ -261,33 +261,7 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	    return tpnt1;
 
 	/* Check in <install-dir>/lib */
-	pnt1 = UCLIBC_INSTALL_DIR "/lib/";
-	pnt = mylibname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	pnt1 = libname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	*pnt++ = 0;
-	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
-	if (tpnt1)
-	    return tpnt1;
-
-	/* Check in /usr/lib */
-	pnt1 = "/usr/lib/";
-	pnt = mylibname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	pnt1 = libname;
-	while (*pnt1)
-	    *pnt++ = *pnt1++;
-	*pnt++ = 0;
-	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
-	if (tpnt1)
-	    return tpnt1;
-
-	/* Check in /lib */
-	pnt1 = "/lib/";
+	pnt1 = UCLIBC_ROOT_DIR "/lib/";
 	pnt = mylibname;
 	while (*pnt1)
 	    *pnt++ = *pnt1++;

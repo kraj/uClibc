@@ -129,20 +129,23 @@ DOLFS = false
 # disabled.  This is off by default.
 INCLUDE_RPC = false
 
-# Installation location.  For the default uClinux installation from
-# Lineo for m68k, it should be:  
-#                               /opt/uClinux/m68k-pic-coff
-#   so includes installed in:  /opt/uClinux/m68k-pic-coff/include
-#   libc.a and crt0.o in:      /opt/uClinux/m68k-pic-coff/lib
-# 
-# For ARM it should be:
-#                               /opt/uClinux/arm-pic-elf
-#   so includes installed in:  /opt/uClinux/arm-pic-elf/include
-#   libc.a and crt0.o in:      /opt/uClinux/arm-pic-elf/lib
+# ROOT_DIR is the base directory which will be compiled into the uClibc 
+# runtime environment.  When compiled as a shared library, the shared
+# library loader will look in <ROOT_DIR>/lib and <ROOT_DIR>/usr/lib
+# for shared libraries.
 #
-# For x86 this should be:
-#                                  /usr/i386-linux-uclibc
-#   so includes installed in:      /usr/i386-linux-uclibc/include
-#   libc.a, libc.so.#, crt0.o in:  /usr/i386-linux-uclibc/lib
+# DEVEL_PREFIX is the base directory which will be compiled into the uClibc 
+# development environment.  The uClibc development environment will
+# look for the uClibc header files under <DEVEL_PREFIX><ROOT_DIR>/usr/include,
+# and for static libs and crt0.o in <DEVEL_PREFIX><ROOT_DIR>/usr/lib.
+# Also, 'make install' will install the compiler tools to 
+# <DEVEL_PREFIX><ROOT_DIR>/bin and <DEVEL_PREFIX><ROOT_DIR>/usr/bin.
 #
-INSTALL_DIR = /usr/$(TARGET_ARCH)-linux-uclibc
+# TARGET_PREFIX is the directory under which 'make install' will install the 
+# uClibc runtime environment.   This path does not get compiled into anything,
+# and is provided simply to make it easier to build standalone target systems.
+# Note: This doesn't do anything if there are no shared libs.
+
+DEVEL_PREFIX = 
+ROOT_DIR = /usr/$(TARGET_ARCH)-linux-uclibc
+TARGET_PREFIX = 

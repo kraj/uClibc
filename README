@@ -7,6 +7,10 @@ To build uClibc,
 
 To compile programs with uClibc,
 
-export PATH={uClibc INSTALL_DIR}/bin:$PATH
+export PATH={uClibc DEVEL_PREFIX/ROOT_DIR}/bin:$PATH
 
 and then just ./configure and make as usual.
+
+Note: You may also want to look at extra/gcc-uclibc/gcc-uclibc.c for
+      additional information concerning what options and environment
+      variables the gcc wrapper handles.

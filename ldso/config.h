@@ -5,11 +5,11 @@
 #  define LDSO_PRELOAD "../util/ld.so.preload"
 #  define LDDSTUB    "../util/lddstub"
 #else
-#  define LDSO_IMAGE UCLIBC_INSTALL_DIR"/lib/ld.so"
-#  define LDSO_CONF  UCLIBC_INSTALL_DIR"/etc/ld.so.conf"
-#  define LDSO_CACHE UCLIBC_INSTALL_DIR"/etc/ld.so.cache"
-#  define LDSO_PRELOAD UCLIBC_INSTALL_DIR"/etc/ld.so.preload"
-#  define LDDSTUB    UCLIBC_INSTALL_DIR"/usr/lib/lddstub"
+#  define LDSO_IMAGE UCLIBC_ROOT_DIR "/lib/ld.so"
+#  define LDSO_CONF  UCLIBC_ROOT_DIR "/etc/ld.so.conf"
+#  define LDSO_CACHE UCLIBC_ROOT_DIR "/etc/ld.so.cache"
+#  define LDSO_PRELOAD UCLIBC_ROOT_DIR "/etc/ld.so.preload"
+#  define LDDSTUB    UCLIBC_ROOT_DIR "/usr/lib/lddstub"
 #endif
 
 #define LDD_ARGV0    "__LDD_ARGV0"
