@@ -202,6 +202,8 @@ static inline void hexprint(unsigned long x)
 }
 #endif
 
+LD_BOOT(unsigned long args) __attribute__ ((unused));
+
 LD_BOOT(unsigned long args)
 {
 	unsigned int argc;

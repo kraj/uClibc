@@ -38,6 +38,8 @@
 			    - (unsigned long)(REL);		\
 		break;						\
 	case R_SH_DIR32:					\
+	case R_SH_GLOB_DAT:					\
+	case R_SH_JMP_SLOT:					\
 		*(REL)  = (SYMBOL) + (RELP)->r_addend;		\
 		break;						\
 	case R_SH_RELATIVE:					\

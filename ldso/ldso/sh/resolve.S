@@ -79,6 +79,6 @@ _dl_linux_resolve:
 
 	.balign	4
 3:
-	.long   _dl_linux_resolver - .jmp_loc
+	.long   _dl_linux_resolver@PLT-(.jmp_loc-(.))
 	.size	_dl_linux_resolve, . - _dl_linux_resolve
 
