@@ -539,7 +539,7 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 	struct resolv_question q;
 	int retries = 0;
 	unsigned char * packet = malloc(PACKETSZ);
-	unsigned char * lookup = malloc(MAXDNAME);
+	char * lookup = malloc(MAXDNAME);
 	int variant = 0;
 #ifdef __UCLIBC_HAS_IPV6__
 	int v6;

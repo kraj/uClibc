@@ -275,8 +275,8 @@ collated_compare (a, b)
      const __ptr_t a;
      const __ptr_t b;
 {
-  const char *const s1 = *(const char *const * const) a;
-  const char *const s2 = *(const char *const * const) b;
+  const char *const s1 = *(const char *const *) a;
+  const char *const s2 = *(const char *const *) b;
 
   if (s1 == s2)
     return 0;
