@@ -17,6 +17,16 @@
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/* Oct 28, 2002
+ *
+ * ANSI/ISO C99 requires assert() to write to stderr.  This means that
+ * writing to STDERR_FILENO is insufficient, as the user could freopen
+ * stderr.  It is also insufficient to output to fileno(stderr) since
+ * this would fail in the custom stream case.  I didn't remove the
+ * old code though, as it doesn't use stdio stream functionality
+ * and is useful in debugging the stdio code.
+ */
+
 #define _STDIO_UTILITY	/* For _stdio_fdout and _int10tostr. */
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +36,29 @@
 #undef NDEBUG
 #include <assert.h>
 #undef assert
+
+#if 1
+
+void __assert(const char *assertion, const char * filename,
+			  int linenumber, register const char * function)
+{
+	fprintf(stderr,
+#if 0
+			/* TODO: support program_name like glibc? */
+			"%s: %s: %d: %s: Assertion `%s' failed.\n", program_name,
+#else
+			"%s: %d: %s: Assertion `%s' failed.\n",
+#endif
+			filename,
+			linenumber,
+			/* Function name isn't available with some compilers. */
+			((function == NULL) ? "?function?" : function),
+			assertion
+			);
+	abort();
+}
+
+#else
 
 void __assert(const char *assertion, const char * filename,
 			  int linenumber, register const char * function)
@@ -50,3 +83,5 @@ void __assert(const char *assertion, const char * filename,
 				 );
 	abort();
 }
+
+#endif
