@@ -21,7 +21,7 @@ include $(TESTDIR)/Rules.mak
 
 
 
-TARGETS=fork fork_glibc vfork vfork_glibc getcwd getopt getopt_long 
+TARGETS=fork fork_glibc vfork vfork_glibc getcwd getopt getopt_long preadwrite 
 all: $(TARGETS)
 
 getcwd: getcwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
@@ -91,6 +91,13 @@ getopt_long: getopt_long.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	./$@ --add XXX --delete YYY --verbose
+	-@ echo " "
+
+preadwrite: preadwrite.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	./$@
 	-@ echo " "
 
 clean:
