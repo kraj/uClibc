@@ -863,6 +863,19 @@ config SYSTEM_LDSO
 	  sitting in the directory this points to, your binaries will not 
 	  run.
 
+config RUNTIME_PREFIX
+	string "uClibc runtime library directory"
+	default "/usr/$(TARGET_ARCH)-linux-uclibc"
+	help
+	  RUNTIME_PREFIX is the directory into which the uClibc runtime
+	  libraries will be installed.   The result will look something
+	  like the following:
+	      $(RUNTIME_PREFIX)/
+	          lib/            <contains all runtime libraries>
+	  This value is used by the 'make install' Makefile target.  Since this
+	  directory is compiled into the uclibc cross compiler wrapper, you
+	  have to recompile uClibc if you change this value...
+
 config DEVEL_PREFIX
 	string "uClibc development environment directory"
 	default "/usr/$(TARGET_ARCH)-linux-uclibc"
@@ -871,7 +884,7 @@ config DEVEL_PREFIX
 	  environment will be installed.   The result will look something
 	  like the following:
 	      $(DEVEL_PREFIX)/
-	          lib/            <contains all runtime and static libs>
+	          lib/            <contains static libs>
 		  include/        <Where all the header files go>
 	  This value is used by the 'make install' Makefile target.  Since this
 	  directory is compiled into the uclibc cross compiler wrapper, you

@@ -264,21 +264,16 @@ endif
 # system, use the "install_target" target instead... 
 install_runtime:
 ifeq ($(strip $(HAVE_SHARED)),y)
-	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/lib
-	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)/bin
+	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/lib
+	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/bin
 	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
-		$(PREFIX)$(DEVEL_PREFIX)/lib
-	cp -fa lib/*.so.* $(PREFIX)$(DEVEL_PREFIX)/lib
+		$(PREFIX)$(RUNTIME_PREFIX)/lib
+	cp -fa lib/*.so.* $(PREFIX)$(RUNTIME_PREFIX)/lib
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
 	    $(INSTALL) -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
-	    		$(PREFIX)$(DEVEL_PREFIX)/lib; \
+	    		$(PREFIX)$(RUNTIME_PREFIX)/lib; \
 	fi;
-	#@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
-	#    $(INSTALL) -d $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
-	#    $(LN) -sf $(PREFIX)$(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
-	#		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO); \
-	#fi;
 endif
 
 install_toolchain:
@@ -334,11 +329,6 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	    $(INSTALL) -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	    		$(PREFIX)$(TARGET_PREFIX)/lib; \
 	fi;
-	#@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
-	#    $(INSTALL) -d $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
-	#    $(LN) -sf $(PREFIX)$(TARGET_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
-	#    		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO); \
-	#fi;
 endif
 
 install_target_utils:
