@@ -23,6 +23,11 @@ Add in shadow support (include/shadow.h and such)
 Right now, getopt has different behavior when dynamically vs when
     statically linked, violating the principle of least surprise.
 
+Split the math library, such that by default we only build C89
+    math functions, i.e.: acos asin atan atan2 ceil cos cosh exp 
+    fabs floor fmod frexp ldexp log log10 modf pow sin sinh sqrt 
+    tan tanh
+
 
 -----------------------------------------------------------------------------
 Manuel's unsorted todo:
