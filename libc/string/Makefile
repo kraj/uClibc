@@ -1,6 +1,24 @@
-# Copyright (C) 1995,1996 Robert de Bath <rdebath@cix.compulink.co.uk>
-# This file is part of the Linux-8086 C library and is distributed
-# under the GNU Library General Public License.
+# Makefile for uCLibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA 02111-1307 USA
+#
+# Derived in part from the Linux-8086 C library, the GNU C Library, and several
+# other sundry sources.  Files within this library are copyright by their
+# respective copyright holders.
 
 TOPDIR=../
 include $(TOPDIR)Rules.make
@@ -10,23 +28,21 @@ MSRC=string.c
 MOBJ=strlen.o strcat.o strcpy.o strcmp.o strncat.o strncpy.o strncmp.o \
 	strchr.o strrchr.o strdup.o memcpy.o memccpy.o memchr.o memset.o \
 	memcmp.o memmove.o movedata.o
-CFILES=strpbrk.c strsep.c strstr.c strtok.c strcspn.c \
+CSRC=strpbrk.c strsep.c strstr.c strtok.c strcspn.c \
     strspn.c strcasecmp.c strncasecmp.c config.c
 COBJS=$(patsubst %.c,%.o, $(CFILES))
 
+all: $(MOBJ) $(COBJS) $(LIBC)
 
-all: $(COBJS) $(MOBJ) $(LIBC)
-
-$(COBJS): $(CFILES)
-	$(CC) $(CFLAGS) -c $*.c -o $@
+$(LIBC): $(MOBJ) $(COBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ) $(COBJS)
 
 $(MOBJ): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* -c $(MSRC) -o $@
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 
-$(LIBC): $(COBJS) $(MOBJ)
-	$(AR) $(ARFLAGS) $(LIBC) $(COBJS) $(MOBJ)
+$(COBJS): $(CSRC)
+
 
 clean:
-	rm -f *.o
-
+	rm -f *.[oa] *~ core
 

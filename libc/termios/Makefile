@@ -1,30 +1,49 @@
-# Copyright (C) 1996 Robert de Bath <robert@mayday.compulink.co.uk>
-# This file is part of the Linux-8086 C library and is distributed
-# under the GNU Library General Public License.
+# Makefile for uCLibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA 02111-1307 USA
+#
+# Derived in part from the Linux-8086 C library, the GNU C Library, and several
+# other sundry sources.  Files within this library are copyright by their
+# respective copyright holders.
 
 TOPDIR=../
 include $(TOPDIR)Rules.make
+LIBC=$(TOPDIR)libc.a
 
-LIBC=../libc.a
+MSRC=termios.c
+MOBJ=tcsetattr.o tcgetattr.o tcdrain.o tcflow.o tcflush.o tcsendbreak.o	\
+     tcsetpgrp.o tcgetpgrp.o isatty.o cfgetospeed.o cfgetispeed.o cfsetospeed.o \
+     cfsetispeed.o cfmakeraw.o
 
-TSRC=termios.c
-TOBJ=tcsetattr.o tcgetattr.o tcdrain.o tcflow.o tcflush.o tcsendbreak.o	\
-     tcsetpgrp.o tcgetpgrp.o isatty.o	\
-     cfgetospeed.o cfgetispeed.o cfsetospeed.o cfsetispeed.o cfmakeraw.o
+CSRC=ttyname.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-#     cfgetospeedn.o cfgetispeedn.o cfsetospeedn.o cfsetispeedn.o tcspeed.o
 
-OBJ=$(TOBJ) ttyname.o
-# unlike everything else, this does not compile out of the box...
-#  ttyname.o
+all: $(MOBJ) $(COBJS) $(LIBC)
 
-all: $(LIBC)
+$(LIBC): $(MOBJ) $(COBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ) $(COBJS)
 
-$(LIBC): $(LIBC)($(OBJ))
-
-$(LIBC)($(TOBJ)): $(TSRC)
+$(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(AR) $(ARFLAGS) $@ $*.o
+
+$(COBJS): $(CSRC)
+
 
 clean:
-	rm -f *.o libc.a
+	rm -f *.[oa] *~ core
+

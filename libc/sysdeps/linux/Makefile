@@ -1,20 +1,48 @@
-# Figure out what arch to build...
+# Makefile for uCLibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA 02111-1307 USA
+#
+# Derived in part from the Linux-8086 C library, the GNU C Library, and several
+# other sundry sources.  Files within this library are copyright by their
+# respective copyright holders.
 
+# Figure out what arch to build...
 ARCH = $(shell uname -m | sed -e 's/i.86/i386/' | sed -e 's/sparc.*/sparc/')
 
-all: $(ARCH) common
+DIRS = $(ARCH) common
 
-$(ARCH): dummy
-	@echo Building for ARCH=$(ARCH)
-	make -C $(ARCH)
+all: libc.a
 
-common:	dummy
-	echo Building common stuff
-	make -C common
+libc.a: subdirs
 
-clean:
-	rm -f *.o
-	make -C common clean
-	make -C $(ARCH) clean
+tags:
+	ctags -R
+	
+clean: subdirs_clean
+
+subdirs: $(patsubst %, _dir_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
+
+$(patsubst %, _dir_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dir_%, %, $@)
+
+$(patsubst %, _dirclean_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+
 
 .PHONY: dummy
+

@@ -1,48 +1,62 @@
-# Copyright (C) 1995,1996 Robert de Bath <rdebath@cix.compulink.co.uk>
-# This file is part of the Linux-8086 C library and is distributed
-# under the GNU Library General Public License.
+# Makefile for uCLibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA 02111-1307 USA
+#
+# Derived in part from the Linux-8086 C library, the GNU C Library, and several
+# other sundry sources.  Files within this library are copyright by their
+# respective copyright holders.
 
 TOPDIR=../
 include $(TOPDIR)Rules.make
+LIBC=$(TOPDIR)libc.a
 
-LIBC=../libc.a
 
-ASRC=stdio.c
-AOBJ=_stdio_init.o fputc.o fgetc.o fflush.o fgets.o gets.o fputs.o	\
+MSRC=stdio.c
+MOBJ=_stdio_init.o fputc.o fgetc.o fflush.o fgets.o gets.o fputs.o	\
      puts.o fread.o fwrite.o fopen.o fclose.o fseek.o rewind.o ftell.o	\
      setbuffer.o setvbuf.o ungetc.o
 
-PSRC=printf.c
-POBJ=printf.o sprintf.o fprintf.o vprintf.o vsprintf.o vfprintf.o snprintf.o vsnprintf.o
+MSRC2=printf.c
+MOBJ2=printf.o sprintf.o fprintf.o vprintf.o vsprintf.o vfprintf.o snprintf.o vsnprintf.o
 
-SSRC=scanf.c
-SOBJ=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
+MSRC3=scanf.c
+MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
 
-OBJ= $(AOBJ) $(POBJ) $(SOBJ) dputs.o
+CSRC=dputs.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(LIBC)
 
-$(LIBC): $(LIBC)($(OBJ))
+all: $(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS) $(LIBC)
 
-$(LIBC)($(AOBJ)): $(ASRC)
+$(LIBC): $(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
+
+$(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(AR) $(ARFLAGS) $@ $*.o
 
-$(LIBC)($(POBJ)): $(PSRC)
+$(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(AR) $(ARFLAGS) $@ $*.o
 
-$(LIBC)($(SOBJ)): $(SSRC)
+$(MOBJ3): $(MSRC3)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(AR) $(ARFLAGS) $@ $*.o
 
-#transfer:
-#	-@rm -f ../include/stdio.h
-#	cp -p stdio.h ../include/.
-#
-#$(LIBC)($(OBJ)): stdio.h
+$(COBJS): $(CSRC)
+
 
 clean:
-	rm -f *.o libc.a
-
+	rm -f *.[oa] *~ core
 

@@ -1,37 +1,50 @@
-# Copyright (C) 1995,1996 Robert de Bath <rdebath@cix.compulink.co.uk>
-# Copyright (C) 1998-1999 D. Jeff Dionne <jeff@rt-control.com>
-# Copyright (C) 1998      Kenneth Albanowski <kjahds@kjahds.com>
-# Copyright (C) 1999      D. Jeff Dionne <jeff@rt-control.com>
-# under the GNU Library General Public License.
+# Makefile for uCLibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA 02111-1307 USA
+#
+# Derived in part from the Linux-8086 C library, the GNU C Library, and several
+# other sundry sources.  Files within this library are copyright by their
+# respective copyright holders.
 
 TOPDIR=../
 include $(TOPDIR)Rules.make
+LIBC=$(TOPDIR)libc.a
 
-LIBC=../libc.a
+MSRC=addr.c
+MOBJ=inet_aton.o inet_addr.o inet_ntoa.o
 
-ASRC=addr.c
-AOBJ=inet_aton.o inet_addr.o inet_ntoa.o
+MSRC2=resolv.c
+MOBJ2=encodeh.o decodeh.o encoded.o decoded.o lengthd.o encodeq.o \
+	decodeq.o lengthq.o encodea.o decodea.o encodep.o decodep.o \
+	formquery.o dnslookup.o resolveaddress.o resolvemailbox.o \
+	opennameservers.o closenameservers.o resolvename.o gethostbyname.o\
+	gethostbyaddr.o
 
-RSRC=resolv.c
-ROBJ= encodeh.o decodeh.o encoded.o decoded.o lengthd.o encodeq.o \
-decodeq.o lengthq.o encodea.o decodea.o encodep.o decodep.o \
-formquery.o dnslookup.o resolveaddress.o resolvemailbox.o \
-opennameservers.o closenameservers.o resolvename.o gethostbyname.o\
-gethostbyaddr.o
+all: $(MOBJ) $(MOBJ2) $(LIBC)
 
-OBJ=$(AOBJ) $(ROBJ)
+$(LIBC): $(MOBJ) $(MOBJ2)
+	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ) $(MOBJ2)
 
-all: $(LIBC)
-
-$(LIBC): $(LIBC)($(OBJ))
-
-$(LIBC)($(AOBJ)): $(ASRC)
+$(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(AR) $(ARFLAGS) $@ $*.o
 
-$(LIBC)($(ROBJ)): $(RSRC)
+$(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(AR) $(ARFLAGS) $@ $*.o
 
 clean:
-	rm -f *.o libc.a
+	rm -f *.[oa] *~ core
+

@@ -1568,9 +1568,9 @@ typedef void (*rx_hash_freefn) ();
 
 
 #ifdef __STDC__
-RX_DECL int rx_bitset_is_equal (int size, rx_Bitset a, rx_Bitset b);
+//RX_DECL int rx_bitset_is_equal (int size, rx_Bitset a, rx_Bitset b);
 RX_DECL int rx_bitset_is_subset (int size, rx_Bitset a, rx_Bitset b);
-RX_DECL int rx_bitset_empty (int size, rx_Bitset set);
+//RX_DECL int rx_bitset_empty (int size, rx_Bitset set);
 RX_DECL void rx_bitset_null (int size, rx_Bitset b);
 RX_DECL void rx_bitset_universe (int size, rx_Bitset b);
 RX_DECL void rx_bitset_complement (int size, rx_Bitset b);
@@ -1579,9 +1579,9 @@ RX_DECL void rx_bitset_union (int size, rx_Bitset a, rx_Bitset b);
 RX_DECL void rx_bitset_intersection (int size,
 				     rx_Bitset a, rx_Bitset b);
 RX_DECL void rx_bitset_difference (int size, rx_Bitset a, rx_Bitset b);
-RX_DECL void rx_bitset_revdifference (int size,
-				      rx_Bitset a, rx_Bitset b);
-RX_DECL void rx_bitset_xor (int size, rx_Bitset a, rx_Bitset b);
+//RX_DECL void rx_bitset_revdifference (int size,
+//				      rx_Bitset a, rx_Bitset b);
+//RX_DECL void rx_bitset_xor (int size, rx_Bitset a, rx_Bitset b);
 RX_DECL unsigned long rx_bitset_hash (int size, rx_Bitset b);
 RX_DECL struct rx_hash_item * rx_hash_find (struct rx_hash * table,
 					    unsigned long hash,
@@ -1616,8 +1616,8 @@ RX_DECL struct rexp_node * rx_mk_r_2phase_star (struct rx * rx,
 						struct rexp_node * b);
 RX_DECL struct rexp_node * rx_mk_r_side_effect (struct rx * rx,
 						rx_side_effect a);
-RX_DECL struct rexp_node * rx_mk_r_data  (struct rx * rx,
-					  void * a);
+//RX_DECL struct rexp_node * rx_mk_r_data  (struct rx * rx,
+//					  void * a);
 RX_DECL void rx_free_rexp (struct rx * rx, struct rexp_node * node);
 RX_DECL struct rexp_node * rx_copy_rexp (struct rx *rx,
 					 struct rexp_node *node);
@@ -2803,8 +2803,8 @@ rx_search  (rxb, startpos, range, stop, total_size,
 	 */
 	
 	{
-	  struct rx_inx * next_tr_table;
-	  struct rx_inx * this_tr_table;
+	  struct rx_inx * next_tr_table = NULL;
+	  struct rx_inx * this_tr_table = NULL;
 
 	  /* The fastest route through the loop is when the instruction 
 	   * is RX_NEXT_CHAR.  This case is detected when SEARCH_STATE.IFR->DATA

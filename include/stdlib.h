@@ -1,6 +1,7 @@
-/* stdlib.h  <ndf@linux.mit.edu> */
+/* stdlib.h  */
 #include <features.h>
 #include <sys/types.h>
+#include <limits.h>
 
 #ifndef __STDLIB_H
 #define __STDLIB_H
@@ -10,102 +11,101 @@
 #define NULL ((void *) 0)
 #endif
 
-/* For program termination */
-#define EXIT_FAILURE 1
-#define EXIT_SUCCESS 0
+/* We define these the same for all machines.
+ * Changes from this to the outside world should be done in `_exit'.  */
+#define EXIT_FAILURE    1       /* Failing exit status.  */
+#define EXIT_SUCCESS    0       /* Successful exit status.  */
 
-/* Call all functions registered with `atexit' and `on_exit',
- * in the reverse of the order in which they were registered
- * perform stdio cleanup, and terminate program execution with STATUS.  */
-extern void exit __P ((int __status)) __attribute__ ((__noreturn__));
-/* Register a function to be called when `exit' is called.  */
-extern int atexit __P ((void (*__func) (void)));
-/* Abort execution and generate a core-dump.  */
-extern void abort __P ((void)) __attribute__ ((__noreturn__));
+/* The largest number rand will return */
+#define RAND_MAX        INT_MIN
 
-extern void * malloc __P ((size_t));
-extern void * calloc __P ((size_t, size_t));
-extern void free __P ((void *));
-extern void * realloc __P ((void *, size_t));
+/* Maximum length of a multibyte character in the current locale.  */
+#define MB_CUR_MAX  1
 
-#if defined __USE_GNU || defined __USE_BSD || defined __USE_MISC
-# include <alloca.h>
-#endif /* Use GNU, BSD, or misc.  */
+typedef struct
+{
+    int quot;                   /* Quotient.  */
+    int rem;                    /* Remainder.  */
+} div_t;
+
+typedef struct
+{
+    long int quot;              /* Quotient.  */
+    long int rem;               /* Remainder.  */
+} ldiv_t;
+
+/*  comparison function used by bsearch() and qsort() */
+typedef int (*__compar_fn_t) __P ((__const __ptr_t, __const __ptr_t));
+typedef __compar_fn_t comparison_fn_t;
+
+
+/* String to number conversion functions */
+#define atof(x) strtod((x),(char**)0)
+#define atoi(x) (int)strtol((x),(char**)0,10)
+#define atol(x) strtol((x),(char**)0,10)
+extern long strtol __P ((const char * nptr, char ** endptr, int base));
+extern unsigned long strtoul __P ((const char * nptr, char ** endptr, int base));
+#ifndef __HAS_NO_FLOATS__
+extern char * gcvt __P ((float number, size_t ndigit, char * buf));
+extern float strtod __P ((const char * nptr, char ** endptr));
+#endif
+
+
+
+/* Random number functions */
+extern int rand __P ((void));
+extern void srand __P ((unsigned int seed));
+
+
+/* Memory management functions */
+extern __ptr_t alloca __P ((size_t __size));
+extern __ptr_t calloc __P ((size_t, size_t));
+extern __ptr_t malloc __P ((size_t));
+extern __ptr_t realloc __P ((__ptr_t, size_t));
+extern void free __P ((__ptr_t));
 
 #ifdef DEBUG_MALLOC
-
-extern void * malloc_dbg __P ((size_t, char* func, char* file, int line));
-extern void * calloc_dbg __P ((size_t, size_t, char* func, char* file, int line));
-extern void free_dbg __P ((void *, char* func, char* file, int line));
-extern void * realloc_dbg __P ((void *, size_t, char* func, char* file, int line));
-
+extern __ptr_t malloc_dbg __P ((size_t, char* func, char* file, int line));
+extern __ptr_t calloc_dbg __P ((size_t, size_t, char* func, char* file, int line));
+extern void free_dbg __P ((__ptr_t, char* func, char* file, int line));
+extern __ptr_t realloc_dbg __P ((__ptr_t, size_t, char* func, char* file, int line));
 #define malloc(x) malloc_dbg((x),__FUNCTION__,__FILE__,__LINE__)
 #define calloc(x,y) calloc_dbg((x),(y),__FUNCTION__,__FILE__,__LINE__)
 #define free(x) free_dbg((x),__FUNCTION__,__FILE__,__LINE__)
 #define realloc(x) realloc((x),__FUNCTION__,__FILE__,__LINE__)
-
 #endif
 
-extern int rand __P ((void));
-extern void srand __P ((unsigned int seed));
 
-extern long strtol __P ((const char * nptr, char ** endptr, int base));
-extern unsigned long strtoul __P ((const char * nptr,
-				   char ** endptr, int base));
-#ifndef __HAS_NO_FLOATS__
-extern float strtod __P ((const char * nptr, char ** endptr));
-#endif
 
+/* System and environment functions */
+extern void abort __P ((void)) __attribute__ ((__noreturn__));
+extern int atexit __P ((void (*__func) (void)));
+extern void exit __P ((int __status)) __attribute__ ((__noreturn__));
+extern void _exit __P ((int __status)) __attribute__ ((__noreturn__));
 extern char *getenv __P ((__const char *__name));
-
 extern int putenv __P ((__const char *__string));
-
-extern int setenv __P ((__const char *__name, __const char *__value,
-                        int __replace));
-extern void unsetenv __P ((__const char *__name));
-
-extern int system __P ((__const char *__command));
-
-extern char * gcvt __P ((float number, size_t ndigit, char * buf));
-
-#if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
-/* Return the canonical absolute name of file NAME.  The last file name
- * component need not exist, and may be a symlink to a nonexistent file.
- * If RESOLVED is null, the result is malloc'd; otherwise, if the canonical
- * name is PATH_MAX chars or more, returns null with `errno' set to
- * ENAMETOOLONG; if the name fits in fewer than PATH_MAX chars, returns the
- * name in RESOLVED.  */
 extern char *realpath __P ((__const char *__restrict __name,
 	    char *__restrict __resolved));
-#endif
+extern int setenv __P ((__const char *__name, __const char *__value,
+                        int __replace));
+extern int system __P ((__const char *__command));
+extern void unsetenv __P ((__const char *__name));
 
 
-/* Shorthand for type of comparison functions.  */
-typedef int (*__compar_fn_t) __P ((__const __ptr_t, __const __ptr_t));
-typedef __compar_fn_t comparison_fn_t;
-/* Sort NMEMB elements of BASE, of SIZE bytes each,
-   using COMPAR to perform the comparisons.  */
+
+/* Search and sort functions */
+extern __ptr_t bsearch __P ((__const __ptr_t __key, __const __ptr_t __base,
+			   size_t __nmemb, size_t __size, __compar_fn_t __compar));
 extern void qsort __P ((__ptr_t __base, size_t __nmemb, size_t __size,
 			  __compar_fn_t __compar));
 
 
-#define atof(x) strtod((x),(char**)0)
-#define atoi(x) (int)strtol((x),(char**)0,10)
-#define atol(x) strtol((x),(char**)0,10)
 
-/* Returned by `div'.  */
-typedef struct
-  {
-    int quot;			/* Quotient.  */
-    int rem;			/* Remainder.  */
-  } div_t;
-
-/* Returned by `ldiv'.  */
-typedef struct
-  {
-    long int quot;		/* Quotient.  */
-    long int rem;		/* Remainder.  */
-  } ldiv_t;
+/* Integer math functions */
+extern int abs __P ((int __x)) __attribute__ ((__const__));
+extern div_t div __P ((int __numer, int __denom)) __attribute__ ((__const__));
+extern long int labs __P ((long int __x)) __attribute__ ((__const__));
+extern ldiv_t ldiv __P ((long int __numer, long int __denom)) __attribute__ ((__const__));
 
 
 

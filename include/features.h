@@ -9,6 +9,11 @@
 #define	__UCLIBC_MAJOR__	9
 #define	__UCLIBC_MINOR__	1
 
+/* Make a half-hearted attempt to accomodate non-gcc compilers */
+#ifndef __GNUC__
+#define __attribute(foo)  /* Ignore */
+#endif
+
 /* __restrict is known in EGCS 1.2 and above. */
 #if !defined __GNUC__ || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 92)
 # define __restrict     /* Ignore */
@@ -48,6 +53,7 @@
 #define __USE_POSIX
 #define __USE_POSIX2
 #define _POSIX_THREAD_SAFE_FUNCTIONS
+
 
 #include <sys/cdefs.h>
 

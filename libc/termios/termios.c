@@ -11,10 +11,10 @@
 #include <stddef.h>
 #include <sys/ioctl.h>
 #include <termios.h>
+#include <unistd.h>
 
 #ifdef L_isatty
-isatty(fd)
-int fd;
+int isatty(int fd)
 {
    struct termios term;
    int rv, err = errno;

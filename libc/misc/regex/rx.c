@@ -161,8 +161,8 @@ RX_DECL struct rexp_node
                                          struct rexp_node *);
 RX_DECL struct rexp_node
              *rx_mk_r_side_effect       (struct rx *, rx_side_effect);
-RX_DECL struct rexp_node
-             *rx_mk_r_data              (struct rx *, void *);
+//RX_DECL struct rexp_node
+//            *rx_mk_r_data              (struct rx *, void *);
 RX_DECL void  rx_free_rexp              (struct rx *, struct rexp_node *);
 RX_DECL struct rexp_node
              *rx_copy_rexp              (struct rx *, struct rexp_node *);
@@ -486,9 +486,9 @@ print_fastmap (fm)
 
 /* This page: Bitsets.  Completely unintersting. */
 
-RX_DECL int   rx_bitset_is_equal        (int, rx_Bitset, rx_Bitset);
+//RX_DECL int   rx_bitset_is_equal        (int, rx_Bitset, rx_Bitset);
 RX_DECL int   rx_bitset_is_subset       (int, rx_Bitset, rx_Bitset);
-RX_DECL int   rx_bitset_empty           (int, rx_Bitset);
+//RX_DECL int   rx_bitset_empty           (int, rx_Bitset);
 RX_DECL void  rx_bitset_null            (int, rx_Bitset);
 RX_DECL void  rx_bitset_complement      (int, rx_Bitset);
 RX_DECL void  rx_bitset_complement      (int, rx_Bitset);
@@ -496,11 +496,14 @@ RX_DECL void  rx_bitset_assign          (int, rx_Bitset, rx_Bitset);
 RX_DECL void  rx_bitset_union           (int, rx_Bitset, rx_Bitset);
 RX_DECL void  rx_bitset_intersection    (int, rx_Bitset, rx_Bitset);
 RX_DECL void  rx_bitset_difference      (int, rx_Bitset, rx_Bitset);
-RX_DECL void  rx_bitset_revdifference   (int, rx_Bitset, rx_Bitset);
+//RX_DECL void  rx_bitset_revdifference   (int, rx_Bitset, rx_Bitset);
+#ifdef emacs
 RX_DECL void  rx_bitset_xor             (int, rx_Bitset, rx_Bitset);
+#endif
 RX_DECL unsigned long
               rx_bitset_hash            (int, rx_Bitset);
 
+#if 0
 #ifdef __STDC__
 RX_DECL int
 rx_bitset_is_equal (int size, rx_Bitset a, rx_Bitset b)
@@ -522,6 +525,7 @@ rx_bitset_is_equal (size, a, b)
   b[0] = s;
   return !x && s == a[0];
 }
+#endif
 
 #ifdef __STDC__
 RX_DECL int
@@ -539,7 +543,7 @@ rx_bitset_is_subset (size, a, b)
   return x == -1;
 }
 
-
+#if 0
 #ifdef __STDC__
 RX_DECL int
 rx_bitset_empty (int size, rx_Bitset set)
@@ -558,6 +562,7 @@ rx_bitset_empty (size, set)
   set[0] = s;
   return !s;
 }
+#endif
 
 #ifdef __STDC__
 RX_DECL void
@@ -676,6 +681,7 @@ rx_bitset_difference (size, a, b)
 }
 
 
+#if 0
 #ifdef __STDC__
 RX_DECL void
 rx_bitset_revdifference (int size,
@@ -692,7 +698,10 @@ rx_bitset_revdifference (size, a, b)
   for (x = rx_bitset_numb_subsets(size) - 1; x >=0; --x)
     a[x] = ~a[x] & b[x];
 }
+#endif
 
+
+#ifdef emacs
 #ifdef __STDC__
 RX_DECL void
 rx_bitset_xor (int size, rx_Bitset a, rx_Bitset b)
@@ -708,6 +717,7 @@ rx_bitset_xor (size, a, b)
   for (x = rx_bitset_numb_subsets(size) - 1; x >=0; --x)
     a[x] ^= b[x];
 }
+#endif
 
 
 #ifdef __STDC__
@@ -1305,6 +1315,7 @@ rx_mk_r_side_effect (rx, a)
 }
 
 
+#if 0
 #ifdef __STDC__
 RX_DECL struct rexp_node *
 rx_mk_r_data  (struct rx * rx,
@@ -1324,6 +1335,7 @@ rx_mk_r_data  (rx, a)
     }
   return n;
 }
+#endif
 
 #ifdef __STDC__
 RX_DECL void
@@ -5744,11 +5756,13 @@ rx_compile (pattern, size, syntax, rxb)
 
             handle_close:
               /* See similar code for backslashed left paren above.  */
-              if (COMPILE_STACK_EMPTY)
-                if (syntax & RE_UNMATCHED_RIGHT_PAREN_ORD)
-                  goto normal_char;
-                else
-                  return REG_ERPAREN;
+	      if (COMPILE_STACK_EMPTY) {
+		  if (syntax & RE_UNMATCHED_RIGHT_PAREN_ORD) {
+		      goto normal_char;
+		  } else {
+		      return REG_ERPAREN;
+		  }
+	      }
 
               /* Since we just checked for an empty stack above, this
                  ``can't happen''.  */

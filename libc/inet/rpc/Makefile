@@ -1,25 +1,49 @@
+# Makefile for uCLibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA 02111-1307 USA
+#
+# Derived in part from the Linux-8086 C library, the GNU C Library, and several
+# other sundry sources.  Files within this library are copyright by their
+# respective copyright holders.
+
 TOPDIR=../
 include $(TOPDIR)Rules.make
+LIBC=$(TOPDIR)libc.a
 CFLAGS+=-I$(TOPDIR)include/linux
 
-OBJS = auth_none.o auth_unix.o authunix_prot.o \
-	bindresvport.o clnt_generic.o clnt_perror.o \
-	clnt_raw.o clnt_simple.o clnt_tcp.o clnt_udp.o \
-	get_myaddress.o getrpcent.o getrpcport.o pmap_clnt.o \
-	pmap_getmaps.o pmap_getport.o pmap_prot.o pmap_prot2.o \
-	pmap_rmt.o rpc_callmsg.o rpc_commondata.o \
-	rpc_dtablesize.o rpc_prot.o svc.o svc_auth.o \
-	svc_auth_unix.o svc_raw.o svc_run.o svc_simple.o \
-	svc_tcp.o svc_udp.o xdr.o xdr_array.o xdr_float.o \
-	xdr_mem.o xdr_rec.o xdr_reference.o xdr_stdio.o
+CSRC = auth_none.c auth_unix.c authunix_prot.c \
+	bindresvport.c clnt_generic.c clnt_perror.c \
+	clnt_raw.c clnt_simple.c clnt_tcp.c clnt_udp.c \
+	get_myaddress.c getrpcent.c getrpcport.c pmap_clnt.c \
+	pmap_getmaps.c pmap_getport.c pmap_prot.c pmap_prot2.c \
+	pmap_rmt.c rpc_callmsg.c rpc_commondata.c \
+	rpc_dtablesize.c rpc_prot.c svc.c svc_auth.c \
+	svc_auth_unix.c svc_raw.c svc_run.c svc_simple.c \
+	svc_tcp.c svc_udp.c xdr.c xdr_array.c xdr_float.c \
+	xdr_mem.c xdr_rec.c xdr_reference.c xdr_stdio.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-LIBC = ../libc.a
+all: $(COBJS) $(LIBC)
 
-all: $(LIBC)
+$(LIBC): $(COBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(COBJS)
 
-$(LIBC): $(LIBC)($(OBJS))
+$(COBJS): $(CSRC)
 
 clean:
 	rm -f *.[oa] *~ core
-
 
