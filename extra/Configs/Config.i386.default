@@ -36,7 +36,7 @@ HAVE_ELF=y
 #
 # General Library Settings
 #
-HAVE_PIC=y
+DOPIC=y
 HAVE_SHARED=y
 BUILD_UCLIBC_LDSO=y
 UCLIBC_HAS_THREADS=y

@@ -23,6 +23,7 @@
 
 
 TOPDIR=../../
+DOPIC=true
 include $(TOPDIR)Rules.mak
 LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 

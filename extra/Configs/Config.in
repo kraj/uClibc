@@ -6,7 +6,7 @@
 
 menu "General Library Settings"
 
-config HAVE_PIC
+config DOPIC
 	bool "Generate Position Independent Code (PIC)"
 	default y
 	help
@@ -16,7 +16,7 @@ config HAVE_PIC
 
 config HAVE_SHARED
 	bool "Enable support for shared libraries"
-	depends on HAVE_PIC
+	depends on DOPIC
 	default y
 	help
 	  If you wish to build uClibc with support for shared libraries then
