@@ -65,6 +65,18 @@
  *  Set EOF to end of buffer when fmemopen used on a readonly stream.
  *    Note: I really need to run some tests on this to see what the
  *    glibc code does in each case.
+ *
+ * Sept 21, 2003
+ * Modify _stdio_READ to conform with C99, as stdio input behavior upon
+ *    encountering EOF changed with Defect Report #141.  In the current
+ *    standard, the stream's EOF indicator is "sticky".  Once it is set,
+ *    all further input from the stream should fail until the application
+ *    explicitly clears the EOF indicator (clearerr(), file positioning),
+ *    even if more data becomes available.
+ * Fixed a bug in fgets.  Wasn't checking for read errors.
+ * Minor thread locking optimizations to avoid some unnecessary locking.
+ * Remove the explicit calls to __builtin_* funcs, as we really need to
+ *    implement a more general solution.
  */
 
 /* Before we include anything, convert L_ctermid to L_ctermid_function
@@ -293,7 +305,8 @@ int getw(FILE *stream)
 
 #ifdef __STDIO_WIDE
 
-	return (fread((void *)aw, sizeof(int), 1, stream) > 0) ? (*aw) : EOF;
+	return (fread_unlocked((void *)aw, sizeof(int), 1, stream) > 0)
+		? (*aw) : EOF;
 
 #else  /* __STDIO_WIDE */
 
@@ -317,7 +330,8 @@ int putw(int w, FILE *stream)
 
 #ifdef __STDIO_WIDE
 
-	return (fwrite((void *)aw, sizeof(int), 1, stream) == 1) ? 0 : EOF;
+	return (fwrite_unlocked((void *)aw, sizeof(int), 1, stream) == 1)
+		? 0 : EOF;
 
 #else  /* __STDIO_WIDE */
 
@@ -1181,7 +1195,8 @@ ssize_t __getdelim(char **__restrict lineptr, size_t *__restrict n,
 			*n += GETDELIM_GROWBY;
 			*lineptr = buf;
 		}
-	} while (((c = getc(stream)) != EOF) && ((buf[pos++ - 1] = c) != delimiter));
+	} while (((c = (getc_unlocked)(stream)) != EOF)	/* Disable the macro */
+			 && ((buf[pos++ - 1] = c) != delimiter));
 
 	__STDIO_THREADUNLOCK(stream);
 
@@ -1322,7 +1337,8 @@ static ssize_t _stdio_READ(register FILE *stream, unsigned char *buf, size_t buf
 {
 	ssize_t rv;
 
-	if (bufsize == 0) {
+	/* NOTE: C99 change: Input fails once the stream's EOF indicator is set. */
+	if ((bufsize == 0) || (stream->modeflags & __FLAG_EOF)) {
 		return 0;
 	}
 
@@ -2751,7 +2767,8 @@ UNLOCKED(int,fgetc,(FILE *stream),(stream))
 
 #ifdef __STDIO_WIDE
 
-	return (fread(buf, (size_t) 1, (size_t) 1, stream) > 0) ? *buf : EOF;
+	return (fread_unlocked(buf, (size_t) 1, (size_t) 1, stream) > 0)
+		? *buf : EOF;
 
 #else  /* __STDIO_WIDE */
 
@@ -2773,19 +2790,39 @@ UNLOCKED(char *,fgets,
 	register char *p;
 	int c;
 
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning CONSIDER: What should fgets do if n <= 0?
+#endif /* __UCLIBC_MJN3_ONLY__ */
+	/* Should we assert here?  Or set errno?  Or just fail... */
+	if (n <= 0) {
+/* 		__set_errno(EINVAL); */
+		goto ERROR;
+	}
+
 	p = s;
-	while ((n > 1) && ((c = getc(stream)) != EOF) && ((*p++ = c) != '\n')) {
-		--n;
+
+	while (--n) {
+		if ((c = (getc_unlocked)(stream)) == EOF) {	/* Disable the macro. */
+			if (__FERROR(stream)) {
+				goto ERROR;
+			}
+			break;
+		}
+		if ((*p++ = c) == '\n') {
+			break;
+		}
 	}
-	if (p == s) {
-		/* TODO -- should we set errno? */
-/*  		if (n <= 0) { */
-/*  			errno = EINVAL; */
-/*  		} */
-		return NULL;
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning CONSIDER: If n==1 and not at EOF, should fgets return an empty string?
+#endif /* __UCLIBC_MJN3_ONLY__ */
+	if (p > s) {
+		*p = 0;
+		return s;
 	}
-	*p = 0;
-	return s;
+
+ ERROR:
+	return NULL;
 }
 
 #endif
@@ -2802,7 +2839,8 @@ UNLOCKED(int,fputc,(int c, FILE *stream),(c,stream))
 
 #ifdef __STDIO_WIDE
 
-	return (fwrite(buf, (size_t) 1, (size_t) 1, stream) > 0) ? (*buf) : EOF;
+	return (fwrite_unlocked(buf, (size_t) 1, (size_t) 1, stream) > 0)
+		? (*buf) : EOF;
 
 #else  /* __STDIO_WIDE */
 
@@ -2824,7 +2862,7 @@ UNLOCKED(int,fputs,
 
 #ifdef __STDIO_WIDE
 
-	return (fwrite(s, n, (size_t) 1, stream) > 0) ? n : EOF;
+	return (fwrite_unlocked(s, n, (size_t) 1, stream) > 0) ? n : EOF;
 
 #else  /* __STDIO_WIDE */
 
@@ -3484,8 +3522,8 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 #ifndef __LOCALE_C_ONLY
 		if (!grouping) {		/* Finished a group. */
 			bufend -= __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
-			__builtin_memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
-							 __UCLIBC_CURLOCALE_DATA.thousands_sep_len);
+			memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
+				   __UCLIBC_CURLOCALE_DATA.thousands_sep_len);
 			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
 				/* Note: g[1] == -1 means no further grouping.  But since
 				 * we'll never wrap around, we can set grouping to -1 without
@@ -3502,9 +3540,9 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 #ifndef __LOCALE_C_ONLY
 		if (unlikely(outdigit)) {
 			bufend -= __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
-			__builtin_memcpy(bufend,
-							 (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit],
-							 __UCLIBC_CURLOCALE_DATA.outdigit_length[digit]);
+			memcpy(bufend,
+				   (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit],
+				   __UCLIBC_CURLOCALE_DATA.outdigit_length[digit]);
 		} else
 #endif
 		{
@@ -3527,8 +3565,8 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 #ifndef __LOCALE_C_ONLY
 		if (!grouping) {		/* Finished a group. */
 			bufend -= __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
-			__builtin_memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
-							 __UCLIBC_CURLOCALE_DATA.thousands_sep_len);
+			memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
+				   __UCLIBC_CURLOCALE_DATA.thousands_sep_len);
 			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
 				/* Note: g[1] == -1 means no further grouping.  But since
 				 * we'll never wrap around, we can set grouping to -1 without
@@ -3554,9 +3592,9 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 #ifndef __LOCALE_C_ONLY
 		if (unlikely(outdigit)) {
 			bufend -= __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
-			__builtin_memcpy(bufend,
-							 (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit],
-							 __UCLIBC_CURLOCALE_DATA.outdigit_length[digit]);
+			memcpy(bufend,
+				   (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit],
+				   __UCLIBC_CURLOCALE_DATA.outdigit_length[digit]);
 		} else
 #endif
 		{
