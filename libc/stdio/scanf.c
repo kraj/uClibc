@@ -35,6 +35,11 @@
  *
  * May 15, 2003
  * Hopefully fix handling of 0 bytes with %s, %c, and %[ specifiers.
+ *
+ * July 17, 2003
+ * Bug fix from  Peter Kjellerstedt <peter.kjellerstedt@axis.com>.  vfscanf was
+ * not setting the FILE bufread member to flag the end of the buffer.
+ * Also, do not set bufgetc member if getc macro support is disabled.
  */
 
 #define _ISOC99_SOURCE			/* for LLONG_MAX primarily... */
@@ -128,7 +133,10 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 	string->filedes = -2;
 	string->modeflags = (__FLAG_NARROW|__FLAG_READONLY);
 	string->bufstart = string->bufpos = (unsigned char *) ((void *) sp);
-	string->bufgetc = string->bufstart + strlen(sp);
+#ifdef __STDIO_GETC_MACRO
+	string->bufgetc = 
+#endif /* __STDIO_GETC_MACRO */
+	string->bufread = string->bufstart + strlen(sp);
 
 #ifdef __STDIO_MBSTATE
 	__INIT_MBSTATE(&(string->state));
