@@ -1027,7 +1027,7 @@ struct hostent *gethostbyname2(const char *name, int family)
 			256/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
-	gethostbyname_r(name, &h, buf, sizeof(buf), &hp, &h_errno);
+	gethostbyname2_r(name, family, &h, buf, sizeof(buf), &hp, &h_errno);
 
 	return hp;
 #endif /* __UCLIBC_HAS_IPV6__ */
@@ -1620,6 +1620,7 @@ int gethostbyname_r(const char * name,
 	    result_buf->h_addrtype = AF_INET;
 	    result_buf->h_length = sizeof(*in);
 	    result_buf->h_addr_list = (char **) addr_list;
+	    *result=result_buf;
 	    *h_errnop = NETDB_SUCCESS;
 	    return NETDB_SUCCESS;
 	}
@@ -1753,6 +1754,7 @@ int gethostbyname2_r(const char *name, int family,
 	    result_buf->h_addrtype = AF_INET6;
 	    result_buf->h_length = sizeof(*in);
 	    result_buf->h_addr_list = (char **) addr_list;
+	    *result=result_buf;
 	    *h_errnop = NETDB_SUCCESS;
 	    return NETDB_SUCCESS;
 	}
