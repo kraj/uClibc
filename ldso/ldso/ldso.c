@@ -654,31 +654,21 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 				INIT_GOT(lpnt, _dl_loaded_modules);
 		}
 		/* OK, fill this in - we did not have this before */
-		if (ppnt->p_type == PT_INTERP) {
-			int readsize = 0;
-			char *libname, *pnt, *pnt1, buf[1024];
-
-			libname = (char *) (ppnt->p_offset + 
+		if (ppnt->p_type == PT_INTERP) {	
+			char *pnt, *pnt1;
+			tpnt->libname = _dl_strdup((char *) ppnt->p_offset +
 					(auxvt[AT_PHDR].a_un.a_val & 0xfffff000));
 
 			/* Store the path where the shared lib loader was found for 
 			 * later use */
-			readsize = _dl_readlink(libname, buf, sizeof(buf));
-			if (readsize > 0 && readsize < sizeof(buf)-1) {
-				buf[readsize] = '\0';
-#ifdef DL_DEBUG
-				_dl_dprintf(2, "Lib Loader '%s'\nis a symlink to '%s'\n", libname, buf);
-#endif
-				tpnt->libname = _dl_strdup(buf);
-			} else {
-				tpnt->libname = _dl_strdup(libname);
-			}
 			pnt = _dl_strdup(tpnt->libname);
 			pnt1 = _dl_strrchr(pnt, '/');
 			if (pnt != pnt1) {
 				*pnt1 = '\0';
+				_dl_ldsopath = pnt;
+			} else {
+				_dl_ldsopath = tpnt->libname;
 			}
-			_dl_ldsopath = pnt;
 #ifdef DL_DEBUG
 			_dl_dprintf(2, "Lib Loader:\t(%x) %s\n", tpnt->loadaddr, tpnt->libname);
 #endif
