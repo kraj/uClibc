@@ -34,13 +34,14 @@
 #define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD)		\
 	switch(ELF32_R_TYPE((RELP)->r_info)){			\
 	case R_SH_REL32:					\
-		*(REL) += (RELP)->r_addend - (LOAD);		\
+		*(REL)  = (SYMBOL) + (RELP)->r_addend		\
+			    - (unsigned long)(REL);		\
 		break;						\
 	case R_SH_DIR32:					\
-		*(REL) += (SYMBOL) + (RELP)->r_addend;		\
+		*(REL)  = (SYMBOL) + (RELP)->r_addend;		\
 		break;						\
 	case R_SH_RELATIVE:					\
-		*(REL) += (LOAD);				\
+		*(REL)  = (LOAD) + (RELP)->r_addend;		\
 		break;						\
 	case R_SH_NONE:						\
 		break;						\

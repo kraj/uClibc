@@ -3,6 +3,7 @@
  */
 
 	.text
+	.globl	_dl_linux_resolver
 	.globl	_dl_linux_resolve
 	.type	_dl_linux_resolve, @function
 	.balign	16
@@ -31,13 +32,27 @@ _dl_linux_resolve:
 	fmov.s	fr4, @-r15
 #endif
 	sts.l	pr, @-r15
+/* Note - The PLT entries have been "optimised" not to use r2.  r2 is used by
+   GCC to return the address of large structures, so it should not be
+   corrupted here.  This does mean however, that those PLTs does not conform
+   to the SH PIC ABI.  That spec says that r0 contains the type of the PLT
+   and r2 contains the GOT id.  The GNU Plt version stores the GOT id in r0 and
+   ignores the type.  We can easily detect this difference however,
+   since the type will always be 0 or 8, and the GOT ids will always be
+   greater than or equal to 12.
 
-	mov	r2, r4		! link map address
-
-	mov.l	3f, r0
-	jsr	@r0		! Call resolver
-	 mov	r1, r5		! Reloc offset
-
+   Found in binutils/bfd/elf32-sh.c by Stefan Allius <allius@atecom.com>
+ */
+	mov     #8 ,r5
+	cmp/gt  r5, r0
+	bt      1f
+	mov     r2, r0          ! link map address in r2 (SH PIC ABI)
+1:
+	mov     r0, r4          ! link map address in r0 (GNUs PLT)
+	mov.l   3f, r5
+	bsrf    r5
+	mov	r1, r5		! Reloc offset
+.jmp_loc:
 	lds.l	@r15+, pr	! Get register content back
 
 #ifdef HAVE_FPU
@@ -64,6 +79,6 @@ _dl_linux_resolve:
 
 	.balign	4
 3:
-	.long	_dl_linux_resolver
+	.long   _dl_linux_resolver - .jmp_loc
 	.size	_dl_linux_resolve, . - _dl_linux_resolve
 

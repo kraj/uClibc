@@ -36,6 +36,15 @@ ifeq ($(strip $(DODEBUG)),true)
 endif
 endif
 
+GCC_LIB_DIR = $(dir $(shell $(CC) -print-libgcc-file-name ))
+ifeq ($(strip $(DOPIC)),true)
+    START_FILES  = $(TOPDIR)lib/crti.o     $(GCC_LIB_DIR)crtbeginS.o
+    END_FILES    = $(GCC_LIB_DIR)crtendS.o $(TOPDIR)lib/crtn.o
+else
+    START_FILES  = $(TOPDIR)lib/crti.o    $(GCC_LIB_DIR)crtbegin.o
+    END_FILES    = $(GCC_LIB_DIR)crtend.o $(TOPDIR)lib/crtn.o
+endif
+
 ALL_SUBDIRS = linuxthreads linuxthreads_db
 
 all: $(LIBPTHREAD) $(LIBTHREAD_DB)
@@ -67,9 +76,9 @@ shared: all
 	if [ -f $(LIBPTHREAD) ] ; then \
 		set -e; \
 		$(LD) $(LDFLAGS) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
-			-o $(LIBPTHREAD_SHARED_FULLNAME) --whole-archive $(LIBPTHREAD) \
+			-o $(LIBPTHREAD_SHARED_FULLNAME) $(START_FILES) --whole-archive $(LIBPTHREAD) \
 			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
-			-L$(TOPDIR)/lib -lc; \
+			-L$(TOPDIR)/lib -lc $(END_FILES); \
 		install -d $(TOPDIR)lib; \
 		rm -f $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) \
 			$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION); \
@@ -82,9 +91,9 @@ shared: all
 	if [ -f $(LIBTHREAD_DB) ] ; then \
 		set -e; \
 		$(LD) $(LDFLAGS) -soname=$(LIBTHREAD_DB_SHARED).$(MAJOR_VERSION) \
-			-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \
+			-o $(LIBTHREAD_DB_SHARED_FULLNAME) $(START_FILES) --whole-archive $(LIBTHREAD_DB) \
 			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
-			-L$(TOPDIR)/lib -lc; \
+			-L$(TOPDIR)/lib -lc $(END_FILES); \
 		install -d $(TOPDIR)lib; \
 		rm -f $(TOPDIR)lib/$(LIBTHREAD_DB_SHARED_FULLNAME) \
 			$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).$(MAJOR_VERSION); \

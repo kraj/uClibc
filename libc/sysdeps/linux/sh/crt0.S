@@ -26,13 +26,6 @@
 
 	At this entry point, most registers' values are unspecified, except:
 
-   r4		Contains a function pointer to be registered with `atexit'.
-   		This is how the dynamic linker arranges to have DT_FINI
-		functions called for shared libraries that have been loaded
-		before this code runs.
-		WARNING: At that stage only static linker is supported. For
-		uCLinux we won't bother with r4.
-
    sp		The stack contains the arguments and environment:
    		0(sp)			argc
 		4(sp)			argv[0]
@@ -42,17 +35,25 @@
 		...
 					NULL
 */
+	.file "crt0.S"
 	.text
 	.globl _start
 	.type _start,@function
 	.size _start,_start_end - _start
 _start:
-	/* Clear the frame pointer since this is the outermost frame. (in delay slot) */
+	/* Clear the frame pointer since this is the outermost frame. */
 	mov #0, r14
 
 	/* Pop argc off the stack and save a pointer to argv */
 	mov.l @r15+,r4
 	mov r15, r5
+
+	/* Push the finip argument to __uClibc_start_main() onto the stack */
+	mov.l L_fini,r6
+	mov.l r6,@-r15
+
+	/* Setup the value for the initp argument */
+	mov.l L_init, r7
 
 	/*
 	 * Setup the value for the environment pointer:
@@ -62,33 +63,43 @@ _start:
 	mov r4,r6
 	add #1,r6
 	shll2 r6
-	add r5,r6
 
-	/* call main */
+	/* jump to __uClibc_start_main (argc, argv, envp, app_init, app_fini) */
 	mov.l L_main, r0
 	jsr @r0
-	nop /* delay slot */
-
+	add r5, r6  /* delay slot */
 	/* We should not get here. */
 	mov.l L_abort, r0
-	jsr @r0
-	nop /* delay slot */
+	jmp @r0
+	nop
 
 _start_end:	
 	.align	2
 
+	.weak   _init
+	.type   _init,@function
+_init:
+	rts
+	nop
+
+.Lfe1:
+	.size   _init,.Lfe1-_init
+	.weak   _fini
+	.set    _fini,_init
 
 L_main:
-	.long	__uClibc_main
+	.long   __uClibc_start_main /* in libuClibc.*.so */
 
-L_abort:
-	.long	abort
+L_init:
+      .long   _init
+L_fini:
+      .long   _fini
+L_abort: 
+      .long   abort   
 
 /* Stick in a dummy reference to main(), so that if an application
  * is linking when the main() function is in a static library (.a)
  * we can be sure that main() actually gets linked in */
 L_dummy_main_reference:
 	.long	main
-
-	.data
 

@@ -84,7 +84,7 @@ while(<INITFINI>) {
 	$omitcrtn = 0;
 	next;
     }
-    if (/^i_am_not_a_leaf/) {
+    if (/i_am_not_a_leaf/) {
 	$discard = 1;
 	next;
     }

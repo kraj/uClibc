@@ -33,11 +33,11 @@ Cambridge, MA 02139, USA.  */
 .text
 	.align 4
 
-.globl _start
-	.type	 _start,@function
+	.globl _start
+	.type _start,@function
 
 _start:
-	/* First locate the start of the environment variables */
+	/* locate the start of the environment variables */
 	popl %ecx	/* Store argc into %ecx */
 	movl %esp,%ebx  /* Store argv into ebx */
 	movl %esp,%eax  /* Store argv into eax as well*/
@@ -52,7 +52,6 @@ _start:
 	    %eax = env	    ; argv + (argc * 4) + 4
 	*/
 
-
 	/* Set up an invalid (NULL return address, NULL frame pointer)
 	   callers stack frame so anybody unrolling the stack knows where
 	   to stop */
@@ -62,20 +61,18 @@ _start:
 	pushl %ebp      /* callers %ebp (frame pointer) */
 	movl %esp,%ebp  /* mark callers stack frame as invalid */
 
-	/* Now set the environment, argc, and argv where the app can get to them */
-	pushl %eax      /* Environment pointer */
-	pushl %ebx       /* Argument pointer */
-	pushl %ecx      /* And the argument count */
+	/* Push .init and .fini arguments to __uClibc_start_main() on the stack */
+	pushl $_fini
+	pushl $_init
 
-#if 0
-	/* Make sure we are not using iBCS2 personality. (i.e. force linux).  */
-	movl $136,%eax
-	sub %ebx,%ebx
-	int $0x80
-#endif
+	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */ 
+	pushl %eax	/* Environment pointer */
+	pushl %ebx	/* Argument pointer */
+	pushl %ecx	/* And the argument count */
 
 	/* Ok, now run uClibc's main() -- shouldn't return */
-	call __uClibc_main
+	call __uClibc_start_main
+
 	/* Crash if somehow `exit' returns anyways.  */
 	hlt
 

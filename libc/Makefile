@@ -53,9 +53,9 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 		/bin/sh $(TOPDIR)../extra/scripts/get-needed-libgcc-objects.sh)
 	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
 		--whole-archive ./tmp/libgcc-need.a $(LIBNAME) --no-whole-archive \
-		$(TOPDIR)/libc/misc/internals/interp.o \
+		-init __uClibc_init $(TOPDIR)/libc/misc/internals/interp.o \
 		$(LIBGCC)
-	@/bin/true #rm -rf tmp
+	@true #rm -rf tmp
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(SHARED_FULLNAME)
 	install -m 644 $(SHARED_FULLNAME) $(TOPDIR)lib

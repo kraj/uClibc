@@ -48,7 +48,9 @@ echo Extracting referenced libgcc.a objects ...
 
 rm -f obj.need.0
 touch obj.need.0
-while [ -s obj.need ] && ! cmp -s obj.need obj.need.0 ; do
+
+cmp -s obj.need obj.need.0 ; state=$?
+while [ -s obj.need ] && [ $state -ne 0 ] ; do
     (cd tmp-gcc && cat ../obj.need | sort | uniq | xargs $LD -r -o ../libgcc.ldr)
     cp obj.need obj.need.0
     if $NM --undefined-only libgcc.ldr > sym.need ; then
@@ -58,6 +60,7 @@ while [ -s obj.need ] && ! cmp -s obj.need obj.need.0 ; do
 	    fi
 	done
     fi
+    cmp -s obj.need obj.need.0 ; state=$?
 done
 
 cat obj.need | sort | uniq > obj.need.0

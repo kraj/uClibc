@@ -7,15 +7,14 @@ asm("\
 	.globl	_dl_boot
 _dl_boot:
         mov	r15, r4
-        mov.l	.L_dl_boot2, r1
-	mova	.L_dl_boot2, r0
-	add	r1, r0
-	jsr	@r0
-	 add	#4, r4
+	mov.l   .L_dl_boot2, r0
+	bsrf    r0
+	add	#4, r4
+.jmp_loc:
 	jmp	@r0
 	 mov    #0, r4        /* call _start with arg == 0 */
 .L_dl_boot2:\n\
-	.long	_dl_boot2-.\n\
+	.long   _dl_boot2-.jmp_loc\n\
 	.previous\n\
 ");
 

@@ -318,16 +318,13 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	Elf32_Dyn *dpnt;
 	struct elf_resolve *tpnt;
 	elf_phdr *ppnt;
-	int piclib;
 	char *status;
-	int flags;
 	char header[4096];
 	unsigned long dynamic_info[24];
 	unsigned long *lpnt;
 	unsigned long libaddr;
 	unsigned long minvma = 0xffffffff, maxvma = 0;
-	int i;
-	int infile;
+	int i, flags, piclib, infile;
 
 	/* If this file is already loaded, skip this step */
 	tpnt = _dl_check_hashed_files(libname);
@@ -544,28 +541,32 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 #if defined(__mips__)
 	{
 		
-		int i = 1;
+		int indx = 1;
 		Elf32_Dyn *dpnt = (Elf32_Dyn *) dynamic_addr;
 
 		while(dpnt->d_tag) {
 			dpnt++;
-			i++;
+			indx++;
 		}
-		dynamic_size = i;
+		dynamic_size = indx;
 	}
 #endif
 
-	for (i = 0; i < dynamic_size; i++) 
 	{
-		if (dpnt->d_tag > DT_JMPREL) {
+		unsigned long indx;
+
+		for (indx = 0; indx < dynamic_size; indx++) 
+		{
+			if (dpnt->d_tag > DT_JMPREL) {
+				dpnt++;
+				continue;
+			}
+			dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
+			if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT)
+				dynamic_info[DT_TEXTREL] = 1;
 			dpnt++;
-			continue;
-		}
-		dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-		if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT)
-			dynamic_info[DT_TEXTREL] = 1;
-		dpnt++;
-	};
+		};
+	}
 
 	/* If the TEXTREL is set, this means that we need to make the pages
 	   writable before we perform relocations.  Do this now. They get set

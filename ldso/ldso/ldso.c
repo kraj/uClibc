@@ -303,12 +303,12 @@ LD_BOOT(unsigned long args)
   __asm__("\tmove %0, $28\n\tsubu %0,%0,0x7ff0\n\t":"=r"(got));
 #elif defined(__sh__)
   __asm__(
-"	   mov.l    1f, %0"
-"	   mova     1f, r0"
-"	   bra      2f"
-"	   add r0,  %0"
-"	   .balign  4"
-"1:	   .long    _GLOBAL_OFFSET_TABLE_"
+"       mov.l    1f, %0\n"
+"       mova     1f, r0\n"
+"       bra      2f\n"
+"       add r0,  %0\n"
+"       .balign  4\n"
+"1:     .long    _GLOBAL_OFFSET_TABLE_\n"
 "2:" : "=r" (got) : : "r0");
 #elif defined(__cris__)
   __asm__("\tmove.d $pc,%0\n\tsub.d .:GOTOFF,%0\n\t":"=r"(got));
@@ -629,6 +629,13 @@ LD_BOOT(unsigned long args)
 	START();
 }
 
+#if defined (SUPPORT_LD_DEBUG)
+static void debug_fini (int status, void *arg)
+{
+	(void)status;
+	_dl_dprintf(_dl_debug_file,"\ncalling fini: %s\n\n", (const char*)arg);
+}
+#endif    
 
 static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt, 
 		unsigned long load_addr, unsigned long *hash_addr, Elf32_auxv_t auxvt[AT_EGID + 1], 
@@ -642,7 +649,9 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	struct elf_resolve *tpnt1;
 	unsigned long brk_addr, *lpnt;
 	int (*_dl_atexit) (void *);
-
+#if defined (SUPPORT_LD_DEBUG)
+	int (*_dl_on_exit) (void (*FUNCTION)(int STATUS, void *ARG),void*);
+#endif
 
 	/* Now we have done the mandatory linking of some things.  We are now
 	   free to start using global variables, since these things have all been
@@ -1196,6 +1205,10 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	}
 #endif
 	_dl_atexit = (int (*)(void *)) (intptr_t) _dl_find_hash("atexit", NULL, NULL, symbolrel);
+#if defined (SUPPORT_LD_DEBUG)
+	_dl_on_exit = (int (*)(void (*)(int, void *),void*)) 
+		(intptr_t) _dl_find_hash("on_exit", NULL, NULL, symbolrel);
+#endif
 
 	/*
 	 * OK, fix one more thing - set up the debug_addr structure to point
@@ -1246,6 +1259,12 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		}
 		if (_dl_atexit && tpnt->dynamic_info[DT_FINI]) {
 			(*_dl_atexit) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
+#if defined (SUPPORT_LD_DEBUG)
+			if(_dl_debug && _dl_on_exit)
+			{
+				(*_dl_on_exit)(debug_fini, tpnt->libname);
+			}
+#endif
 		}
 #ifdef LD_DEBUG
 		else {
@@ -1318,7 +1337,10 @@ int _dl_fixup(struct elf_resolve *tpnt)
 					tpnt->dynamic_info[DT_PLTRELSZ], 0);
 	}
 #if defined (SUPPORT_LD_DEBUG)
-	if(_dl_debug) _dl_dprintf(_dl_debug_file,"\nrelocation processing: %s; finished\n\n", tpnt->libname);	
+	if(_dl_debug) {
+		_dl_dprintf(_dl_debug_file,"\nrelocation processing: %s", tpnt->libname);     
+		_dl_dprintf(_dl_debug_file,"; finished\n\n");
+	}
 #endif    
 	return goof;
 }

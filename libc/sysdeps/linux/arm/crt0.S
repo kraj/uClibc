@@ -50,20 +50,10 @@ ARM register quick reference:
 
 .text
 	.global _start
-	.global __uClibc_main
-
 	.type   _start,%function
-	.type   __uClibc_main,%function
 
 .text
 _start:
-#if 0 /* some old code the I feel should not be here - davidm */
-	@ adjust the data segment base pointer
-	ldr r3,=__data_start
-	sub sl,sl,r3
-	mov BASEREG,sl
-#endif
-
 	/* clear the frame pointer */
 	mov     fp, #0
 
@@ -78,10 +68,11 @@ _start:
 	   we find there (hopefully the environment) in r2 */
 	add     r2, r1, r0, lsl #2
 	add     r2, r2, #4
+
 #else
 	/*
-	 * uClinux stacks look a little different to MMU stacks
-	 * for no good reason
+	 * uClinux stacks look a little different from normal
+	 * MMU-full Linux stacks (for no good reason)
 	 */
 	/* pull argc, argv and envp off the stack */
 	ldr r0,[sp, #0]
@@ -89,8 +80,19 @@ _start:
 	ldr r2,[sp, #8]
 #endif
 
+	/* Store the address of _init in r3 as an argument to main() */
+	ldr r3, =_init
+
+	/* Push _fini onto the stack as the final argument to main() */
+	stmfd sp!, {r0}
+	ldr a1, =_fini
+	stmfd sp!, {r0}
+
 	/* Ok, now run uClibc's main() -- shouldn't return */
-	bl	__uClibc_main
+	bl	__uClibc_start_main
+
+	/* Crash if somehow `exit' returns anyways.  */
+	bl abort
 
 /* Stick in a dummy reference to main(), so that if an application
  * is linking when the main() function is in a static library (.a)

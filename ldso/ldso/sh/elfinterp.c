@@ -236,8 +236,7 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		}
 		else if (res >0)
 		{
-			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
-					_dl_progname, strtab + symtab[symtab_index].st_name);
+			_dl_dprintf(2, "can't resolve symbol\n");
 			goof += res;
 		}
 	  }
@@ -289,17 +288,17 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 			/* handled later on */
 			break;
 		case R_SH_DIR32:
-			*reloc_addr += symbol_addr + rpnt->r_addend;
+			*reloc_addr = symbol_addr + rpnt->r_addend;
 			break;
 		case R_SH_JMP_SLOT:
 			*reloc_addr = symbol_addr + rpnt->r_addend;
 			break;
 		case R_SH_REL32:
-			*reloc_addr += rpnt->r_addend -
-					(unsigned long) tpnt->loadaddr;
+			*reloc_addr = symbol_addr + rpnt->r_addend -
+					(unsigned long) reloc_addr;
 			break;
 		case R_SH_RELATIVE:
-			*reloc_addr += (unsigned long) tpnt->loadaddr;
+			*reloc_addr = (unsigned long) tpnt->loadaddr + rpnt->r_addend;
 			break;
 		default:
 			return -1; /*call _dl_exit(1) */

@@ -30,9 +30,22 @@ __start:
 	addu a2, a0, 1	    /* load envp */
         sll  a2, a2, 2
 	add  a2, a2, a1
+
+	/* Store the address of _init in a3 as an argument to __uClibc_start_main() */
+	la   a3, _init
+
+	/* Push _fini onto the stack as the final argument to __uClibc_start_main()
+	    I don't think I am doing this properly but it at least compiles... 
+	*/
+	la   t0, _fini
+	sw   t0,16(sp)
+	
 	/* Ok, now run uClibc's main() -- shouldn't return */
-	jal	__uClibc_main
-	hlt:    b hlt                   /* Crash if somehow it does return.  */
+	jal  __uClibc_start_main
+
+	/* Crash if somehow `exit' returns anyways.  */
+hlt:
+	b   hlt
 
 /* Stick in a dummy reference to main(), so that if an application
  * is linking when the main() function is in a static library (.a)

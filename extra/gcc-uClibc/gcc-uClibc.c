@@ -122,7 +122,7 @@ int main(int argc, char **argv)
 	int use_build_dir = 0, linking = 1, use_static_linking = 0;
 	int use_stdinc = 1, use_nostdinc_plus = 0, use_start = 1, use_stdlib = 1, use_pic = 0;
 	int source_count = 0, use_rpath = 0, verbose = 0;
-	int ctor_dtor = 0, cplusplus = 0;
+	int ctor_dtor = 1, cplusplus = 0;
 	int i, j, k, l, m, n;
 	char ** gcc_argv;
 	char ** gcc_argument;
@@ -165,7 +165,6 @@ int main(int argc, char **argv)
 		GPLUSPLUS_BIN[len-1]='+';
 		GPLUSPLUS_BIN[len-2]='+';
 	    }
-	    ctor_dtor = 1;
 	    cplusplus = 1;
 	    use_nostdinc_plus = 1;
 	}
@@ -307,8 +306,8 @@ int main(int argc, char **argv)
 					} else if (strcmp("--uclibc-use-rpath",argv[i]) == 0) {
 					    use_rpath = 1;
 					    argv[i]='\0';
-					} else if (strcmp("--uclibc-ctors",argv[i]) == 0) {
-					    ctor_dtor = 1;
+					} else if (strcmp("--uclibc-no-ctors",argv[i]) == 0) {
+					    ctor_dtor = 0;
 					    argv[i]='\0';
 					}
 					break;
