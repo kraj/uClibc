@@ -16,6 +16,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#define _XOPEN_SOURCE  500
 #include <features.h>
 #include <errno.h>
 #include <limits.h>
@@ -23,6 +24,7 @@
 #include <pwd.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
 #include <sys/sysinfo.h>
