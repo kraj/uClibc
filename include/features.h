@@ -430,5 +430,8 @@ uClibc was built without large file support enabled.
 
 #endif /* _LIBC only stuff */
 
+#ifndef __linux__
+# define __linux__ 1
+#endif
 
 #endif	/* features.h  */
