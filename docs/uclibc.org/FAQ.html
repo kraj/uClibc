@@ -233,11 +233,30 @@ to the uClibc home page.</a>
     (or whatever is appropriate for your target architecture) and your
     applications will auto-magically link against uClibc.  You can also 
     build your own native uClibc toolchain.  Just download the uClibc toolchain
-    builder from <a href="http://www.uclibc.org/downloads/toolchain/">
-    http://www.uclibc.org/downloads/toolchain/</a>, or the uClibc buildroot
-    system from <a href="http://www.uclibc.org/downloads/buildroot/">
-        http://www.uclibc.org/downloads/buildroot/</a>, adjust the Makefile 
-    settings to match your target system, and then run 'make'.
+    builder from 
+    <a href="/cgi-bin/cvsweb/toolchain/">uClibc toolchain builder</a>,
+    or the uClibc buildroot system from
+    <a href="/cgi-bin/cvsweb/buildroot/">uClibc buildroot system</a>,
+    adjust the Makefile settings to match your target system, and then run 'make'.
+    <p>
+    If you want to be <em>really</em> lazy and start using uClibc right
+    away without needing to compile your own toolchain or anything, you can
+    grab a copy of the uClibc development systems, currently available for
+    <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">i386</a>,
+    <a href="http://www.uclibc.org/downloads/root_fs-powerpc.bz2">powerpc</a>,
+    and
+    <a href="http://www.uclibc.org/downloads/root_fs-arm.bz2">arm</a>.
+    These are pre-built uClibc only development systems (created using 
+    <a href="/cgi-bin/cvsweb/buildroot/">buildroot</a>), and provide a 
+    really really easy way to get started.  These are about 20 MB bzip2 
+    compressed ext2 filesystems containing all the development software you 
+    need to build your own uClibc applications.  With bash, awk, make, gcc, g++,
+    autoconf, automake, ncurses, zlib, openssl, openssh, gdb, strace, busybox, 
+    GNU coreutils, GNU tar, GNU grep, etc, these should have pretty much everything
+    you need to get started building your own applications linked against
+    uClibc.  You can boot into them, loop mount them, dd them to a spare drive
+    and use resize2fs to make them fill a partition...  Whatever works best
+    for you.
 
 <p>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
