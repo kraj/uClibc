@@ -202,7 +202,7 @@ extern unsigned long long int strtoull (__const char *__restrict __nptr,
 
 
 #if 0
-/*#ifdef __USE_GNU*/
+#ifdef __USE_GNU
 /* The concept of one static locale per category is not very well
    thought out.  Many applications will need to process its data using
    information from several different locales.  Another application is
@@ -250,8 +250,10 @@ extern long double __strtold_l (__const char *__restrict __nptr,
 				char **__restrict __endptr,
 				__locale_t __loc) __THROW;
 #endif /* GNU */
+#endif /* 0 */
 
 
+#if 0
 /* The internal entry points for `strtoX' take an extra flag argument
    saying whether or not to parse locale-dependent number grouping.  */
 
@@ -296,8 +298,10 @@ extern unsigned long long int __strtoull_internal (__const char *
 #  define __strtoull_internal_defined	1
 # endif
 #endif /* GCC */
+#endif /* 0 */
 
 #ifdef __USE_EXTERN_INLINES
+#if 0
 /* Define inline functions which call the internal entry points.  */
 
 extern __inline double
@@ -360,6 +364,7 @@ strtoull (__const char * __restrict __nptr, char **__restrict __endptr,
   return __strtoull_internal (__nptr, __endptr, __base, 0);
 }
 # endif
+#endif /* 0 */
 
 extern __inline double
 atof (__const char *__nptr) __THROW
