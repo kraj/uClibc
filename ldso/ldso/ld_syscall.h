@@ -51,7 +51,7 @@ static inline _syscall1(void, _dl_exit, int, status);
 static inline _syscall1(int, _dl_close, int, fd);
 
 
-#if defined(__powerpc) || defined(__mips__) || defined(__sh__)
+#if defined(__powerpc__) || defined(__mips__) || defined(__sh__)
 /* PowerPC, MIPS and SuperH have a different calling convention for mmap(). */
 #define __NR__dl_mmap __NR_mmap
 static inline _syscall6(void *, _dl_mmap, void *, start, size_t, length,
