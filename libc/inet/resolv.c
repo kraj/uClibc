@@ -687,7 +687,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 	ns %= nscount;
 	UNLOCK;
 
-	while (retries++ < MAX_RETRIES) {
+	while (retries < MAX_RETRIES) {
 		if (fd != -1)
 			close(fd);
 
@@ -732,7 +732,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		len = i + j;
 
 		DPRINTF("On try %d, sending query to port %d of machine %s\n",
-				retries, NAMESERVER_PORT, dns);
+				retries+1, NAMESERVER_PORT, dns);
 
 #ifdef __UCLIBC_HAS_IPV6__
 		v6 = inet_pton(AF_INET6, dns, &sa6.sin6_addr) > 0;
@@ -741,6 +741,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #endif
 		if (fd < 0) {
+                    retries++;
 		    continue;
 		}
 
@@ -766,6 +767,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 			goto tryall;
 		    } else
 			/* retry */
+                        retries++;
 			continue;
 		}
 
@@ -783,7 +785,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 
 			/* timed out, so retry send and receive, 
 			 * to next nameserver on queue */
-			goto again;
+			goto tryall;
 		}
 
 		i = recv(fd, packet, 512, 0);
@@ -861,14 +863,14 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		/* if there are other nameservers, give them a go,
 		   otherwise return with error */
 		{
-		    int sdomains;
-
-		    BIGLOCK;
-		    sdomains=__searchdomains;
-		    BIGUNLOCK;
 		    variant = 0;
-		    if (retries >= nscount*(sdomains+1))
-			goto fail;
+                    LOCK;
+                    ns = (ns + 1) % nscount;
+                    if (ns == 0)
+                      retries++;
+
+                    UNLOCK;
+                    continue;
 		}
 
 	  again:
@@ -879,13 +881,16 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		    sdomains=__searchdomains;
 		    BIGUNLOCK;
 
-		    if (variant < sdomains) {
+		    if (variant < ((sdomains - 1) && strchr(lookup, '.') == NULL)) {
 			/* next search */
 			variant++;
 		    } else {
 			/* next server, first search */
 			LOCK;
 			ns = (ns + 1) % nscount;
+                        if (ns == 0)
+                          retries++;
+
 			UNLOCK;
 			variant = 0;
 		    }
