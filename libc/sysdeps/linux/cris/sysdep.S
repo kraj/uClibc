@@ -37,7 +37,7 @@
 ENTRY (__syscall_error)
 	neg.d	r10,r10
 
-#ifdef	_LIBC_REENTRANT
+#ifdef	__UCLIBC_HAS_THREADS__
 	push	r10
 	push	srp
 
@@ -50,14 +50,14 @@ ENTRY (__syscall_error)
 	pop	r11
 	move.d	r11,[r10]
 
-#else /* not _LIBC_REENTRANT */
+#else /* not __UCLIBC_HAS_THREADS__ */
 # ifdef __PIC__
 	move.d	[r0+C_SYMBOL_NAME(errno:GOT)],r9
 	move.d  r10,[r9]
 # else
 	move.d	r10,[C_SYMBOL_NAME(errno)]
 # endif
-#endif /* _LIBC_REENTRANT */
+#endif /* __UCLIBC_HAS_THREADS__ */
 
 #ifdef __PIC__
 /* PIC callers are supposed to have R0 on stack, ready for us to restore.
