@@ -5,14 +5,19 @@ Erik's TODO list for the next release:
     2) Implement getgrgid_r and getgrnam_r, per SuSv3 
     3) When options are disabled, also disable them in the
 	include files as well.
-    4) Make all small objects (>~50 bytes) into either inlines or
+    4) Make all configured out symbols optionally add a linker warning saying
+	"Hey!  You are trying to use a function that you have configured out.  
+	If you really want to use this function, enable CONFIG_FOO and rebuild
+	uClibc".
+    5) Make all small objects (>~50 bytes) into either inlines or
 	into a static library
-    5) Rework code that fails POSIX conformance tests
-    6) Document all differences between the feature set of uClibc 
+    6) Rework all code that fails conformance tests
+    7) Document all differences between the feature set of uClibc 
 	and glibc.
-    7) Add missing syscall() function to ports that are still 
+    8) Add missing syscall() function to ports that are still 
 	missing it.  (x86 and arm are finished so far).
-
+    9) Fix regex so it isn't so stinking big
+    10) Fix glob so it isn't so stinking big
 
 
 -----------------------------------------------------------------------------
@@ -88,8 +93,6 @@ Why does ld.so search /usr/powerpc-uclibc/lib before LD_LIBRARY_PATH?
 
 Any takers?
 
-*) Fix regex so it isn't so stinking big
-*) Fix glob so it isn't so stinking big
 *) Documentation
 	- List all differences between the feature set of uClibc and glibc.
 *) run 'nm -D --size-sort -t d libuClibc-0.9.5.so' and work on the biggest things 
