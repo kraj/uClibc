@@ -8,6 +8,7 @@
 #define __NR_write		  4
 #define __NR_open		  5
 #define __NR_close		  6
+#define __NR_getpid		 20
 #define __NR_getuid		 24
 #define __NR_geteuid		 49
 #define __NR_getgid		 47
