@@ -26,6 +26,7 @@ TOPDIR=../../
 DOPIC=true
 include $(TOPDIR)Rules.mak
 LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIBGCC:=$(shell $(CC) -print-libgcc-file-name)
 
 # Enable this to enable all the code needed to support traditional ldd
 # (i.e. where the shared library loader does all the heavy lifting)
@@ -80,7 +81,7 @@ all: lib
 
 lib:: ldso.h $(OBJS) $(DLINK_OBJS)
 	$(LD) $(LDFLAGS) -e _dl_boot -soname=$(UCLIBC_LDSO) \
-		-o $(LDSO_FULLNAME) $(OBJS);
+		-o $(LDSO_FULLNAME) $(OBJS) $(LIBGCC);
 	install -d $(TOPDIR)lib 
 	install -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
 	(cd $(TOPDIR)lib && ln -sf $(LDSO_FULLNAME) $(UCLIBC_LDSO))

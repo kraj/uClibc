@@ -97,25 +97,8 @@ extern unsigned int _dl_linux_resolver(unsigned int reloc_entry,
  */
 #define SOLARIS_COMPATIBLE
 
-/*
- * Define this because we do not want to call .udiv in the library.
- * Change on the plans -miguel:
- * We just statically link against .udiv.  This is required
- * if we want to be able to run on Sun4c machines.
- */
+#define do_rem(result, n, base)	    result = (n % base)
 
-/* We now link .urem against this one */
-#ifdef USE_V8
-#define do_rem(result,n,base) ({ \
-volatile int __res; \
-__asm__("mov %%g0,%%Y\n\t" \
-	"sdiv %2,%3,%%l6\n\t" \
-	 "smul %%l6,%3,%%l6\n\t" \
-	 "sub  %2,%%l6,%0\n\t" \
-	 :"=r" (result),"=r" (__res):"r" (n),"r"(base) : "l6" ); __res; })
-#else
-#define do_rem(a,b,c) a = _dl_urem (b,c);
-#endif
 /*
  * dbx wants the binder to have a specific name.  Mustn't disappoint it.
  */
