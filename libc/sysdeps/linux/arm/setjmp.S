@@ -28,12 +28,12 @@ setjmp:
 	mov	r1, #0
 
 
-.globl sigsetjmp;
+.globl __sigsetjmp;
 .align 4;                                                               \
-sigsetjmp:
+__sigsetjmp:
 	/* Save registers */
 	stmia	r0, {v1-v6, sl, fp, sp, lr}
 
 	/* Make a tail call to __sigjmp_save; it takes the same args.  */
 	B	__sigjmp_save
-.size setjmp,.-setjmp;
+.size __sigsetjmp,.-__sigsetjmp;
