@@ -22,7 +22,7 @@ include $(TESTDIR)/Rules.mak
 
 TARGETS=string string_glibc
 TARGETS+=testcopy testcopy_glibc
-TARGETS+=strerror #strsignal
+TARGETS+=#strerror #strsignal
 
 all: $(TARGETS)
 

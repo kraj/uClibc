@@ -12,7 +12,7 @@ include $(TESTDIR)Config
 
 # Use NATIVE_ARCH here since running these test is not
 # even possible when cross compiling...
-NATIVE_ARCH = ${shell uname -m | sed \
+NATIVE_ARCH:= ${shell uname -m | sed \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \
@@ -22,10 +22,23 @@ NATIVE_ARCH = ${shell uname -m | sed \
 		-e 's/sh[234].*/sh/' \
 		-e 's/mips.*/mips/' \
 		}
+ifeq ($(strip $(TARGET_ARCH)),)
+TARGET_ARCH:=${shell $(CC) -dumpmachine | sed -e s'/-.*//' \
+		-e 's/i.86/i386/' \
+		-e 's/sparc.*/sparc/' \
+		-e 's/arm.*/arm/g' \
+		-e 's/m68k.*/m68k/' \
+		-e 's/ppc/powerpc/g' \
+		-e 's/v850.*/v850/g' \
+		-e 's/sh[234]/sh/' \
+		-e 's/mips.*/mips/' \
+		}
+endif
+
 
 # If you are running a cross compiler, you may want to set this
 # to something more interesting...
-CC = ../$(TESTDIR)extra/gcc-uClibc/$(NATIVE_ARCH)-uclibc-gcc
+CC = ../$(TESTDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 HOST_CC = gcc
 STRIPTOOL=strip
 LDD = ../$(TESTDIR)ldso/util/ldd
@@ -44,7 +57,7 @@ OPTIMIZATION = ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&
 ifeq ($(DODEBUG),true)
     CFLAGS +=$(WARNINGS) $(OPTIMIZATION) -g
     GLIBC_CFLAGS +=$(WARNINGS) $(OPTIMIZATION) -g
-    LDFLAGS =-Wl,-warn-common 
+    LDFLAGS =-Wl,-warn-common
     GLIBC_LDFLAGS =-Wl,-warn-common 
     STRIPTOOL =/bin/true -Since_we_are_debugging
 else
