@@ -24,24 +24,22 @@ __start:
         .set reorder
 #endif
 
-	move $31, zero
+	move $31, zero	    /* no return, but since the jal kills $31, skip this */
 	lw   a0, 0($29)	    /* argc */
-	addu a1, $29, 4	    /* argv  */
-	addu a2, a0, 1	    /* load envp */
-        sll  a2, a2, 2
-	add  a2, a2, a1
-
-	/* Store the address of _init in a3 as an argument to __uClibc_start_main() */
-	la   a3, _init
-
-	/* Push _fini onto the stack as the final argument to __uClibc_start_main()
-	    I don't think I am doing this properly but it at least compiles... 
-	*/
-	la   t0, _fini
-	sw   t0,16(sp)
+	addu a1, $29, 4	    /* get to start of argv */
+	addu a2, a0, 1	    /* argv[0] program name (ordinal->cardinal) */
+        sll  a2, a2, 2	    /* multiple by 4 */
+	add  a2, a2, a1	    /* a2 now points to start of envp */
+	la   a3, _init	    /* a3 is address of _init */
+	addiu sp, sp, -24   /* 16 + 4 rounded up to multiple of 8 */
+			    /* multiple of 8 for longlong/double support */
+	la   v0, _fini
+	sw   v0, 16(sp)	    /* stack has 5th argument, address of _fini */
 	
 	/* Ok, now run uClibc's main() -- shouldn't return */
 	jal  __uClibc_start_main
+
+	addiu sp, sp, 24    /* undo stack argument */
 
 	/* Crash if somehow `exit' returns anyways.  */
 hlt:
