@@ -17,6 +17,8 @@ Things that might be nice, but are not required:
 
 
 
+
+
 Functions that use static data and may still need locking:
 
 
@@ -24,9 +26,9 @@ Functions that use static data and may still need locking:
 
         libc/inet/rpc/rpc_thread.c:
 
-	__rpc_thread_variables is currently disabled, since thread
-	local storage seems to not be correctly specified as 
-	weak functions.
+        __rpc_thread_variables is currently disabled, since thread
+        local storage seems to not be correctly specified as 
+        weak functions.
 
         --------------------------------------------------------------------
 
@@ -35,7 +37,7 @@ Functions that use static data and may still need locking:
         static char buf[PWD_BUFFER_SIZE];
 
         getpass                 <fix required>                          <---
-        
+
         NOTE: This function returns a pointer to a static data structure.
         This seems like it requires an _r version of this function.  Glibc
         does the same thing.  Oops!  So much for thread-safe glibc!
