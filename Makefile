@@ -175,18 +175,9 @@ install_dev:
 	install -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
 	install -d $(PREFIX)$(DEVEL_PREFIX)/usr/lib
 	install -d $(PREFIX)$(DEVEL_PREFIX)/include
-	(cd $(PREFIX)$(DEVEL_PREFIX)/include; install -d arpa net netinet rpc sys asm bits linux)
-	install -m 644 include/*.h $(PREFIX)$(DEVEL_PREFIX)/include/
-	install -m 644 include/arpa/*.h $(PREFIX)$(DEVEL_PREFIX)/include/arpa/
-	install -m 644 include/net/*.h $(PREFIX)$(DEVEL_PREFIX)/include/net/
-	install -m 644 include/netinet/*.h $(PREFIX)$(DEVEL_PREFIX)/include/netinet/
-	install -m 644 include/rpc/*.h $(PREFIX)$(DEVEL_PREFIX)/include/rpc/
-	install -m 644 include/sys/*.h $(PREFIX)$(DEVEL_PREFIX)/include/sys/
-	install -m 644 include/asm/*.h $(PREFIX)$(DEVEL_PREFIX)/include/asm/
-	install -m 644 include/bits/*.h $(PREFIX)$(DEVEL_PREFIX)/include/bits/
-	install -m 644 include/linux/*.h $(PREFIX)$(DEVEL_PREFIX)/include/linux/
-	#find include/ -name '*.h' -depth -follow -exec install \
-	    -D -m 644 {} $(PREFIX)$(DEVEL_PREFIX)/'{}' ';'
+	cp -LR include/ $(PREFIX)$(DEVEL_PREFIX)/
+	chmod 755 `find  $(PREFIX)$(DEVEL_PREFIX) -type d` 
+	chmod 644 `find  $(PREFIX)$(DEVEL_PREFIX)/include -name '*.h'` 
 ifeq ($(strip $(HAVE_SHARED)),true)
 	find lib/ -type l -name '*.so' -exec cp -a {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
 endif
