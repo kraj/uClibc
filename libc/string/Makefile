@@ -30,8 +30,9 @@ MOBJW=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
 	stpncpy.o strcasecmp.o strcasestr.o strcat.o strchrnul.o strchr.o \
 	strcmp.o strcpy.o strcspn.o strdup.o strlen.o strncasecmp.o strncat.o \
 	strncmp.o strncpy.o strndup.o strnlen.o strpbrk.o strrchr.o strsep.o \
-	strspn.o strstr.o strtok.o strtok_r.o \
-	 __xpg_basename.o strlcat.o strlcpy.o # strcoll.o strerror.o
+	strspn.o strstr.o strtok.o strtok_r.o strerror.o _susv3_strerror_r.o \
+	_string_syserrmsgs.o _glibc_strerror_r.o sys_errlist.o \
+	 __xpg_basename.o strlcat.o strlcpy.o # strcoll.o
 
 MOBJW2= wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
 	wcsdup.o wcslen.o wcsncasecmp.o wcsncat.o wcsncmp.o wcsncpy.o \
@@ -46,7 +47,7 @@ MOBJ1=strsignal.o psignal.o
 # CSRC=strpbrk.c strsep.c strtok.c strtok_r.c strcspn.c \
 # 	strspn.c strcasecmp.c strncasecmp.c strerror.c bcopy.c bzero.c \
 # 	bcmp.c sys_errlist.c dirname.c basename.c
-CSRC=strerror.c sys_errlist.c strxfrm.c
+CSRC=strxfrm.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(COBJS) $(MOBJW)
 
