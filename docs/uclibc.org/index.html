@@ -38,7 +38,24 @@
 <TR><TD BGCOLOR="#eeeee0">
 
 
-uClibc is a C library for embedded systems.
+<a href="http://uclibc.org">uClibc</a> (aka µClibc but pronounced
+yew-see-lib-see) is a C library for embedded Linux systems.  It is much smaller
+then GNU libc, but nearly all applications supported by the 
+<a href="http://www.gnu.org/software/libc/libc.html">GNU C Library (aka glibc)</a> 
+also work perfectly with uClibc.  Porting applications from
+glibc to uClibc typically involves just recompiling the source code.  uClibc
+supports standard Linux systems (such as x86, strongArm, and powerpc), and also
+supports <a href="http://www.uclinux.org">MMU-less (also known as µClinux)</a>
+systems, such as those based on the Coldfire, dragonball, or arm7tdmi
+micro-controllers.  If you are building an embedded Linux system, and you fine
+the GNU libc is eating up too much space, you should consider using uClibc
+instead.  If you are working on an older system with limited memory (such as an
+oldworld Mac), uClibc may also be useful for you.  If you are using a standard
+desktop Linux workstation to develop applications for an embedded Linux system,
+you can use run uClibc on your workstation while doing development.  If you are
+trying to build a ultra fast fileserver for your company that has 12 Terabytes
+of storage, then you probably want to use glibc...
+
 <p>
 
 <p>
@@ -46,9 +63,11 @@ uClibc is maintained by
 <a href="http://www.codepoet.org/andersen/erik/erik.html">Erik Andersen</a>
 and is licensed under the 
 <a href="http://www.gnu.org/copyleft/lgpl.html">GNU LIBRARY GENERAL PUBLIC LICENSE</a>
-<p>
+.  This license allows you to make closed source commercial applications using 
+uClibc (Please consider sharing some of the money you make ;-).  You do not need 
+to give away all your source code just because you use uClibc and/or run on Linux.
 
-It is my sincere hope that this is as useful to you as it is to me.
+<p>
 
 <!-- Begin Mailing list section -->
 
@@ -68,27 +87,6 @@ To subscribe, go and visit
 
 
 
-<!-- Begin Download section -->
-
-<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="download"><BIG><B>
-    Download
-    </A></B></BIG>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-<ul>
-    <li> I now have a script that creats a daily snapshot tarball of uClibc and posts it on  
-	<a href="http://uclibc.org/uClibc-snapshot.tar.gz">here</a>.
-    <li> uClibc now has its own publically browsable
-	<a href="http://cvs.uclinux.org/cgi-bin/cvsweb/uClibc/">CVS tree</a> (this CVS tree is also mirrored onto 
-	<a href="http://uclibc.org/cgi-bin/cvsweb/uClibc/">uclibc.org</a> but they are both the same thing).
-    <li> Anonymous
-	<a href="http://cvs.uclinux.org/cvs_anon.html">CVS access</a>, and
-	
-    <li> For those that are actively contributing there is even 
-	<a href="http://cvs.uclinux.org/cvs_write.html">CVS write access</a>.
-</ul>
-
 <!-- Begin Applications section -->
 
 <TR><TD BGCOLOR="#ccccc0" ALIGN=center>
@@ -99,10 +97,47 @@ To subscribe, go and visit
 <TR><TD BGCOLOR="#eeeee0">
 
     uClibc now has a <a href="http://uclibc.org/uClibc-apps.html">list of applications</a> 
-    that are known to work.  If you have any applications to add to the
-    list, submissions are welcome!
+    that are known to work.  Submissions are welcome! 
+    Since most applications work just fine with uClibc, we are especially 
+    interested in knowing about any applications that either do not compile
+    or do not work properly with uClibc.
+
     
     
+<!-- Begin Applications section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="faq"><BIG><B>
+    Frequently Asked Questions
+    </A></B></BIG>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+	uClibc now has a <a href="http://uclibc.org/FAQ.html">list of Frequently Asked Questions</a>.
+	You might want to take a look.
+    
+    
+<!-- Begin Download section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="download"><BIG><B>
+    Download
+    </A></B></BIG>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+<ul>
+    <li> There is now a script that creates a daily snapshot tarball of uClibc and posts it on  
+	<a href="http://uclibc.org/uClibc-snapshot.tar.gz">here</a>.
+    <li> uClibc also has a publically browsable
+	<a href="http://cvs.uclinux.org/cgi-bin/cvsweb/uClibc/">CVS tree</a> (this CVS tree is also mirrored onto 
+	<a href="http://uclibc.org/cgi-bin/cvsweb/uClibc/">uclibc.org</a> but they are both the same thing).
+    <li> Anonymous
+	<a href="http://cvs.uclinux.org/cvs_anon.html">CVS access</a> is available, and
+	
+    <li> For those that are actively contributing there is even 
+	<a href="http://cvs.uclinux.org/cvs_write.html">CVS write access</a>.
+</ul>
+
 <!-- Begin Applications section -->
 
 <TR><TD BGCOLOR="#ccccc0" ALIGN=center>
@@ -116,10 +151,11 @@ To subscribe, go and visit
 	added to uClibc?  Then why not help out?  We are happy to accept
 	donations, provide support contracts, and implement funded feature
 	requests.  Additionally, uClibc is looking for corporate sponsors to
-	help sponsor development, pay for bandwidth, and help with hardware
+	assist development, pay for bandwidth, and help with hardware
 	donations, especially donations of hardware for non-Intel
-	architectures.  Click here to help support uClibc and/or request features.
-    
+	architectures.  Click here to help support uClibc and/or request
+	features.  
+	
     <!-- Begin PayPal Logo -->
     <center>
     <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
@@ -132,6 +168,11 @@ To subscribe, go and visit
     </form>
     </center>
     <!-- End PayPal Logo -->
+
+    If you prefer to contact us directly for payments (we have a credit card machine so
+    you can avoid online payments), hardware donations, support requests, etc., you can 
+    contact <a href="http://codepoet-consulting.com/">CodePoet Consulting</a> here.
+    
 
 <!-- Begin Latest News section -->
 
@@ -279,7 +320,7 @@ To subscribe, go and visit
 <!-- Begin TODO section -->
 
 <TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="download"><BIG><B>
+    <A NAME="todo"><BIG><B>
     TODO
     </A></B></BIG>
 </TD></TR>
@@ -290,7 +331,7 @@ Here are a few things on the TODO list:
 <ul>
     <li> Shared library support for all supported architectures.
 	We now have our own ld.so, but it needs to be ported to
-	support each architecture.
+	support each architecture. 
     <li> Shared library support for mmu-less systems.  This is
 	very doable (think of C++ vtables for example), but will
 	take some work.
@@ -322,6 +363,7 @@ Here are a few things on the TODO list:
 <ul> 
 
 
+<li><a href="http://www.gnu.org/software/libc/libc.html">GNU C Library (aka glibc)</a> 
 <li> <a href="http://www.k9wk.com/cdoc.html">Al's FREE C Runtime Library</a>
 <li><a href="http://www.fefe.de/dietlibc/">diet libc </a>
 <li>the <a href="http://www.cs.vu.nl/~ast/minix.html">minix</a> 
@@ -333,64 +375,6 @@ Here are a few things on the TODO list:
     <a href="http://sources.redhat.com/ecos/">eCos</a> as well.
 
 <ul>
-
-
-
-<!-- Begin History section -->
-
-<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
-    <A NAME="history"><BIG><B>
-    History
-    </A></B></BIG>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-
-This history and origin of uClibc is long and twisty.
-In the beginning, there was <a
-href="http://www.gnu.org/software/libc/libc.html">GNU libc</a>.  Then, libc4
-(which later became linux libc 5) forked from GNU libc version 1.07.4, with
-additions from 4.4BSD, in order to support Linux.  Later, the <a
-href="http://www.cix.co.uk/~mayday/">Linux-8086 C library</a>, which is part of
-the <a href="http://www.elks.ecs.soton.ac.uk/">elks project</a>, was created,
-which was, apparently, largely written from scratch but also borrowed code from
-libc4, glibc, some Atari library code, with bits and pieces from about 20 other
-places.  Then uClibc forked off from the Linux-8086 C library in order to run
-on <a href="http://www.uclinux.org">µClinux</a>.  
-<p>
-
-I had for some time been despairing over the state of C libraries in Linux.
-GNU libc, the standard, is very poorly suited to embedded systems (and it just
-gets bigger with every release).  I spent quite a bit of time looking over the
-other Open Source C libraries that I knew of (listed below), and none of them really
-impressed me.  I felt there was a real vacancy in the embedded Linux ecology.
-The closest library to what I imagined an embedded C library should be was
-uClibc.  But that had a lot of problems too -- not the least of which was that,
-traditionally, uClibc had a complete source tree fork in order to support each
-and every new platform, resulting in a big mess of twisty versions, all
-different.  I decided to fix it and the result is what you see here.
-My source tree has now become the official uClibc source tree and it now lives 
-on cvs.uclinux.org.  
-
-<p>
-
-To start with, (with some initial help from <a
-href="http://www.uclinux.org/developers/index.html">D. Jeff Dionne</a>), I
-ported it to run on x86.  I then grafted in the header files from glibc 2.1.3
-and cleaned up the resulting breakage.  This (plus some additional work) has
-made it almost completely independant of kernel headers, a large departure from
-its traditional tightly-coupled-to-the-kernel origins.  I have written and/or
-rewritten a number of things that were missing or broken, and sometimes grafted
-in bits of code from the current glibc and libc5.  I have also built a proper
-platform abstraction layer, so now you can simply edit the file "Config" and
-use that to decide which architecture you will be compiling for, and whether or
-not your target has an MMU, and FPU, etc.  I have also added a test suite,
-which, though incomplete, is a good start.  Several people have helped by 
-contributing ports to new architectures, and a lot of work has been done on
-adding support for missing features.
-
-<p>
-
-
 
 
 
@@ -414,7 +398,13 @@ adding support for missing features.
     <li> <a href="http://cvs.uclinux.org/">The uClinux CVS reporitory</a>.
     <p>
 
-    <li> <a href="http://uclibc.org/">The uClibc.org home page</a>.
+    <li> <a href="http://uclibc.org/">The uClibc home page</a>.
+    <p>
+
+    <li> <a href="http://busybox.net/">BusyBox</a>.
+    <p>
+
+    <li> <a href="http://codepoet-consulting.com/">CodePoet Consulting</a>.
     <p>
 
 </ul>
