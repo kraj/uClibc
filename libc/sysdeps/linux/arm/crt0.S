@@ -84,9 +84,8 @@ _start:
 	ldr r3, =_init
 
 	/* Push _fini onto the stack as the final argument to main() */
-	stmfd sp!, {r0}
-	ldr a1, =_fini
-	stmfd sp!, {r0}
+	ldr r4, =_fini
+	stmfd sp!, {r4}
 
 	/* Ok, now run uClibc's main() -- shouldn't return */
 	bl	__uClibc_start_main
