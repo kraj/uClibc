@@ -1,8 +1,0 @@
-tmp
-files
-uclibc
-uclibc-dev
-uclibc-dev.postinst.debhelper
-uclibc-dev.prerm.debhelper
-uclibc.postinst.debhelper
-uclibc.prerm.debhelper

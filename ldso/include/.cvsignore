@@ -1,6 +1,0 @@
-dl-arch.h
-dl-progname.h
-dl-startup.h
-dl-syscalls.h
-dl-sysdep.h
-elf.h
