@@ -88,7 +88,11 @@ headers: dummy
 	    ln -fs $(KERNEL_SOURCE)/include/asm-h8300 include/asm; \
 	else \
 	    if [ $(HAS_MMU) != "true" ]; then \
+	    		if [ -d $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu ] ; then \
 			ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH)nommu include/asm;\
+			else \
+			ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
+			fi; \
 		else \
 			ln -fs $(KERNEL_SOURCE)/include/asm-$(TARGET_ARCH) include/asm; \
 		fi; \
@@ -101,13 +105,6 @@ headers: dummy
 	    echo "correctly.  Please edit \`Config' and fix these settings."; \
 	    echo " "; \
 	    /bin/false; \
-	fi;
-	@if [ $(HAS_MMU) != "true" -a $(TARGET_ARCH) = "i386" ] ; then \
-	    set -e; \
-	    echo "WARNING: I bet your x86 system really has an MMU, right?"; \
-	    echo "         malloc and friends won't work unless you fix \`Config'"; \
-	    echo " "; \
-	    sleep 10; \
 	fi;
 	rm -f include/linux include/scsi
 	ln -fs $(KERNEL_SOURCE)/include/linux include/linux
