@@ -1,0 +1,477 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd"> 
+
+<HTML>
+<HEAD>
+<TITLE>uClibc -- a C library for embedded systems</TITLE>
+</HEAD>
+
+<body text="#000000" alink="#660000" link="#660000" bgcolor="#dee2de" vlink="#660000">
+
+<basefont face="lucida, helvetica, arial" size="3">
+
+
+<CENTER>
+<p>
+
+<TABLE BORDER=0 CELLSPACING=1 CELLPADDING=2>
+    <TR>
+	<td bgcolor="#000000">
+	  <FONT FACE="lucida, helvetica" COLOR="#ccccc0">
+	      <B>µ&nbsp;C&nbsp;l&nbsp;i&nbsp;b&nbsp;c</B>
+	  </FONT>
+	</TD>
+    </TR>
+</TABLE>
+<p>
+
+
+<!-- Begin Introduction section -->
+
+
+<TABLE WIDTH=95% CELLSPACING=1 CELLPADDING=4 BORDER=1>
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="intro"> <BIG><B>
+    uClibc -- a C library for embedded systems
+    </font>
+    </A></B></BIG>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+
+uClibc is a C library for embedded systems.
+<p>
+
+<p>
+uClibc is maintained by 
+<a href="http://www.codepoet.org/andersen/erik/erik.html">Erik Andersen</a>
+and is licensed under the 
+<a href="http://www.gnu.org/copyleft/lgpl.html">GNU LIBRARY GENERAL PUBLIC LICENSE</a>
+<p>
+
+It is my sincere hope that this is as useful to you as it is to me.
+
+<!-- Begin Mailing list section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="mailing_list"><BIG><B>
+    Mailing List
+    </A></B></BIG>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+uClibc has a 
+<a href="http://uclibc.org/lists/uclibc/">mailing list</a>.  
+To subscribe, go and visit 
+<a href="http://uclibc.org/mailman/listinfo/uclibc">this page</a>.
+
+<p>
+
+
+
+<!-- Begin Download section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="download"><BIG><B>
+    Download
+    </A></B></BIG>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+<ul>
+    <li> I now have a script that creats a daily snapshot tarball of uClibc and posts it on  
+	<a href="http://uclibc.org/uClibc-snapshot.tar.gz">here</a>.
+    <li> uClibc now has its own publically browsable
+	<a href="http://cvs.uclinux.org/cgi-bin/cvsweb/uClibc/">CVS tree</a> (this CVS tree is also mirrored onto 
+	<a href="http://uclibc.org/cgi-bin/cvsweb/uClibc/">uclibc.org</a> but they are both the same thing).
+    <li> Anonymous
+	<a href="http://cvs.uclinux.org/cvs_anon.html">CVS access</a>, and
+	
+    <li> For those that are actively contributing there is even 
+	<a href="http://cvs.uclinux.org/cvs_write.html">CVS write access</a>.
+</ul>
+
+<!-- Begin Applications section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="applications"><BIG><B>
+    Known Working Applications List
+    </A></B></BIG>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+    uClibc now has a <a href="http://uclibc.org/uClibc-apps.html">list of applications</a> 
+    that are known to work.  If you have any applications to add to the
+    list, submissions are welcome!
+    
+    
+<!-- Begin Applications section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="contribute"><BIG><B>
+    Help Support uClibc development
+    </A></B></BIG>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+	Do you like uClibc?  Do you need support?  Do you need some feature
+	added to uClibc?  Then why not help out?  We are happy to accept
+	donations, provide support contracts, and implement funded feature
+	requests.  Additionally, uClibc is looking for corporate sponsors to
+	help sponsor development, pay for bandwidth, and help with hardware
+	donations, especially donations of hardware for non-Intel
+	architectures.  Click here to help support uClibc and/or request features.
+    
+    <!-- Begin PayPal Logo -->
+    <center>
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+	<input type="hidden" name="cmd" value="_xclick">
+	<input type="hidden" name="business" value="andersen@codepoet.org">
+	<input type="hidden" name="item_name" value="Support uClibc and/or request features">
+	<input type="hidden" name="image_url" value="https://codepoet-consulting.com/images/codepoet.png">
+	<input type="hidden" name="no_shipping" value="1">
+	<input type="image" src="images/donate.png" border="0" name="submit" alt="Make donation using PayPal">
+    </form>
+    </center>
+    <!-- End PayPal Logo -->
+
+<!-- Begin Latest News section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="news">
+    <BIG><B>
+    Latest News</A> 
+    </B></BIG>
+    </A>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+<ul>
+
+    <li> <b>26 November 2001, powerpc shared libraries fully working</b>
+    <br>
+    Dave Schleef finished off the the work needed for shared library support on
+    powerpc.  There had been a few problems remaining, and those are now squashed.
+    So shared libs on powerpc should be working fully now.
+
+    <p>
+    <li> <b>14 November 2001, m68 compiles again, Large file support working</b>
+    <br>
+	About a month ago I synced the header files with glibc 2.2.4 for better
+	C++ support and better standards compliance.  I forgot to sync up m68k,
+	sparc, powerpc, and mipsel.  Dave Schleef fixed powerpc while he was fixing
+	up the shared lib loader.  I just fixed up m68k, sparc, and mipsel so they
+	should all compile again.
+	<p>
+	I also finished up fixing large file support (just enable DOLFS in your
+	Config file to enable it) and it is working just great, and greatly increases
+	the number of glibc applications that will work "out-of-the-tarball" without
+	needing any changes.
+
+
+    <li> <b>12 November 2001, powerpc shared lib support</b>
+    <br>
+	Thanks to David Schleef, uClibc now has full shared library support 
+	on powerpc.  This brings full shared library support to x86, ARM, and 
+	now powerpc.  Thanks Dave!
+
+
+    <p>
+    <li> <b>7 November 2001, uClibc application list</b>
+    <br>
+	uClibc now has a <a href="http://uclibc.org/uClibc-apps.html">list of applications</a> 
+	that are known to work.  If you have any applications to add to the
+	list, submissions are welcome!
+
+
+    <p>
+    <li> <b>18 October 2001, buildroot uClibc example system</b>
+    <br>
+
+	Those wanting an easy way to test out uClibc and give it
+	a test drive can download and compile 
+	<a href="ftp://uclibc.org/buildroot.tar.gz">buildroot.tar.gz</a>.   This
+	is a nifty buildsystem that will automagically download and build
+	a <a href="http://user-mode-linux.sourceforge.net/">User-Mode Linux</a>
+	kernel, and will then download source for and compile up a fully
+	working uClibc based root filesystem.  This should make it easy for
+	people to create their own projects.  I hope that this build system
+	will allow people to more easily use and build uClibc based systems.
+	As an example of how nicely this works, the 
+	<a href="http://tuxscreen.net/">Tuxscreen Project</a> is using a
+	<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/tuxscreen/buildroot-tux/">slightly adjusted variant of the buildroot system</a> to cross 
+	compile the blob bootloader, linux kernel, and a uClibc based jffs2
+	root filesystem (busybox, tinylogin, udhcp, lrzsz, pcmcia-cs and 
+	microwindows) for ARM.  Pretty cool.
+
+
+
+    <p>
+    <li> <b>11 October 2001, v850 architecture support</b>
+    <br>
+
+	Miles Bader has contributed support for the v850 architecture.
+
+
+    <p>
+    <li> <b>25 Spetember 2001, header files updated</b>
+    <br>
+
+	uClibc's header files are now in sync with glibc 2.2.4,
+    allowing better standards compliance, better portibility, and 
+    better C++ support.
+    
+    <p>
+    <li> <b>4 July 2001, ARM shared library support</b>
+    <br>
+
+	uClibc now has full shared library support on ARM.
+
+
+    <p>
+    <li> <b>9 May 2001, libm added</b>
+    <br>
+
+	uClibc now has a very complete math library.
+
+
+    <p>
+    <p> <li> <b>9 May 2001, ld.so added</b>
+    <br>
+
+	uClibc now has a native ld.so.  It currently is only ported to work on x86,
+	but porting to other architectures should not be too difficult.
+
+
+    <p> <li> <b>15 March 2001, powerpc port added</b>
+    <br>
+
+	David Schleef contributed a powerpc port, which is now in CVS.
+
+    <p> <li> <b>19 February 2001, SH port added</b>
+    <br>
+
+	Jean-Yves Avenard contributed an SH port.  See his email 
+	with the initial patch <a href="http://uclibc.org/lists/uclibc/2001-February/000409.html">here</a>.
+
+    <p> <li> <b>16 January 2001, uClibc as a shared library</b>
+    <br>
+
+	 As if January 16, uClibc can now be used (at least on x86) as a shared
+	library.  See the <a href="http://uclibc.org/lists/uclibc/2001-January/000126.html">email</a>
+	announcing this achievement.
+
+    <p> <li> <b>11 January 2001, gcc wrapper added</b>
+    <br>
+
+	Manuel Novoa III has created a wrapper for gcc that makes compiling apps vs uClibc
+	as simple as just setting "CC" to gcc-uClibc-&lt arch&gt.  This even works when cross
+	compiling!  Very cool.
+
+    <p> <li> <b>3 January 2001, uClibc now has a web page</b>
+    <br>
+
+	 A lot of work has been going on under the hood with uClibc,
+	 so I decided to put together this webpage to let the world know
+	 that it exists and is getting to be very usable. 
+
+
+</ul>
+
+<!-- Begin TODO section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="download"><BIG><B>
+    TODO
+    </A></B></BIG>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+
+Here are a few things on the TODO list:
+<ul>
+    <li> Shared library support for all supported architectures.
+	We now have our own ld.so, but it needs to be ported to
+	support each architecture.
+    <li> Shared library support for mmu-less systems.  This is
+	very doable (think of C++ vtables for example), but will
+	take some work.
+    <li> Someone (hopefully) needs to volunteer to take the
+	<a href="http://www.linuxbase.org/test/">LSB Test Suite</a>,
+	pull out the C library testing stuff, and convert it
+	(perl script, by hand, I don't care how) into a form
+	that is usable without having it take over your entire
+	system (i.e. similar to what is currently in the uClibc
+	test suite).  This will be <em>enormously</em> helpful!
+    <li> other things as I think of them.
+</ul>
+    
+
+
+
+<!-- Begin Links section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="links">
+    <BIG><B>
+    Other Open Source C libraries:
+    </A>
+    </B></BIG>
+    </A>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+<ul> 
+
+
+<li> <a href="http://www.k9wk.com/cdoc.html">Al's FREE C Runtime Library</a>
+<li><a href="http://www.fefe.de/dietlibc/">diet libc </a>
+<li>the <a href="http://www.cs.vu.nl/~ast/minix.html">minix</a> 
+    <a href="http://www.cs.vu.nl/cgi-bin/raw/pub/minix/2.0.0/src.tar"
+    >C library</a>
+<li> <a href="http://sources.redhat.com/newlib/">newlib</a>
+<li>and there is a  
+    <a href="ftp://sourceware.cygnus.com/pub/ecos/">C library</a>, for
+    <a href="http://sources.redhat.com/ecos/">eCos</a> as well.
+
+<ul>
+
+
+
+<!-- Begin History section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="history"><BIG><B>
+    History
+    </A></B></BIG>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+This history and origin of uClibc is long and twisty.
+In the beginning, there was <a
+href="http://www.gnu.org/software/libc/libc.html">GNU libc</a>.  Then, libc4
+(which later became linux libc 5) forked from GNU libc version 1.07.4, with
+additions from 4.4BSD, in order to support Linux.  Later, the <a
+href="http://www.cix.co.uk/~mayday/">Linux-8086 C library</a>, which is part of
+the <a href="http://www.elks.ecs.soton.ac.uk/">elks project</a>, was created,
+which was, apparently, largely written from scratch but also borrowed code from
+libc4, glibc, some Atari library code, with bits and pieces from about 20 other
+places.  Then uClibc forked off from the Linux-8086 C library in order to run
+on <a href="http://www.uclinux.org">µClinux</a>.  
+<p>
+
+I had for some time been despairing over the state of C libraries in Linux.
+GNU libc, the standard, is very poorly suited to embedded systems (and it just
+gets bigger with every release).  I spent quite a bit of time looking over the
+other Open Source C libraries that I knew of (listed below), and none of them really
+impressed me.  I felt there was a real vacancy in the embedded Linux ecology.
+The closest library to what I imagined an embedded C library should be was
+uClibc.  But that had a lot of problems too -- not the least of which was that,
+traditionally, uClibc had a complete source tree fork in order to support each
+and every new platform, resulting in a big mess of twisty versions, all
+different.  I decided to fix it and the result is what you see here.
+My source tree has now become the official uClibc source tree and it now lives 
+on cvs.uclinux.org.  
+
+<p>
+
+To start with, (with some initial help from <a
+href="http://www.uclinux.org/developers/index.html">D. Jeff Dionne</a>), I
+ported it to run on x86.  I then grafted in the header files from glibc 2.1.3
+and cleaned up the resulting breakage.  This (plus some additional work) has
+made it almost completely independant of kernel headers, a large departure from
+its traditional tightly-coupled-to-the-kernel origins.  I have written and/or
+rewritten a number of things that were missing or broken, and sometimes grafted
+in bits of code from the current glibc and libc5.  I have also built a proper
+platform abstraction layer, so now you can simply edit the file "Config" and
+use that to decide which architecture you will be compiling for, and whether or
+not your target has an MMU, and FPU, etc.  I have also added a test suite,
+which, though incomplete, is a good start.  Several people have helped by 
+contributing ports to new architectures, and a lot of work has been done on
+adding support for missing features.
+
+<p>
+
+
+
+
+
+<!-- Begin Links section -->
+
+<TR><TD BGCOLOR="#ccccc0" ALIGN=center>
+    <A NAME="links">
+    <BIG><B>
+    Links to other useful stuff
+    </A>
+    </B></BIG>
+    </A>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+<ul> 
+
+    <li> <a href="http://www.uclinux.org/">The uClinux home page</a>.
+    <p>
+
+    <li> <a href="http://cvs.uclinux.org/">The uClinux CVS reporitory</a>.
+    <p>
+
+    <li> <a href="http://uclibc.org/">The uClibc.org home page</a>.
+    <p>
+
+</ul>
+
+
+
+<!-- End of Table -->
+
+</TD></TR>
+</TABLE>
+</P>
+
+
+
+<!-- Footer -->
+<HR>
+<TABLE WIDTH="100%">
+    <TR>
+	<TD>
+	    <font size="-1" face="arial, helvetica, sans-serif">
+	    Mail all comments, insults, suggestions and bribes to 
+	    <a href="mailto:andersen@codepoet.org">Erik Andersen</a><BR>
+	    </font>
+	</TD>
+
+	<TD>
+	    <a href="http://www.vim.org"><img border=0 width=90 height=36
+	    src="images/written.in.vi.png" 
+	    alt="This site created with the vi editor"></a>
+	</TD>
+
+	<TD>
+	    <a href="http://www.gimp.org/"><img border=0 width=90 height=36
+	    src="images/gfx_by_gimp.png" alt="Graphics by GIMP"></a>
+	</TD>
+
+	<TD>
+	    <a href="http://www.linuxtoday.com"><img width=90 height=36
+	    src="images/ltbutton2.png" alt="Linux Today"></a>
+	</TD>
+
+	<TD>
+	    <p><a href="http://slashdot.org"><img width=90 height=36
+	    src="images/sdsmall.png" alt="Slashdot"></a>
+	</TD>
+
+	<TD>
+	    <a href="http://freshmeat.net"><img width=90 height=36
+	    src="images/fm.mini.png" alt="Freshmeat"></a>
+	</TD>
+
+    </TR>
+</TABLE>
+
+
+</CENTER>
+</BODY>
+</HTML>
+
+ 
