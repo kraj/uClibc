@@ -46,6 +46,7 @@ my($mmu)	    = "true";
 my($large_file)	    = "false";
 my($rpc_support)    = "false";
 my($c99_math)	    = "false";
+my($threads)	    = "false";
 my($shared_support) = "true";
 my($shadow)	    = "false";
 my($pic)	    = "true";
@@ -65,6 +66,7 @@ Getopt::Long::Configure("no_ignore_case", "bundling");
 		"large_file=s" => \$large_file,
 		"rpc_support=s" => \$rpc_support,
 		"c99_math=s" => \$c99_math,
+		"threads=s" => \$threads,
 		"shadow=s" => \$shadow,
 		"shared_support=s" => \$shared_support,
 		"ldso_path=s" => \$ldso_path,
@@ -81,6 +83,7 @@ chomp($mmu);
 chomp($large_file);
 chomp($rpc_support);
 chomp($c99_math);
+chomp($threads);
 chomp($shadow);
 chomp($shared_support);
 chomp($ldso_path);
@@ -97,28 +100,28 @@ if ($filename) {
 
 while($line = <FILE>) {
     if ($line =~ /^TARGET_ARCH.*/) {
-	print "TARGET_ARCH=\"$arch\"\n";
+	print "TARGET_ARCH=$arch\n";
 	$got_arch=1;
 	next;
     } 
     if ($cross && $line =~ /^CROSS.*/) {
-	print "CROSS=\"$cross\"\n";
+	print "CROSS=$cross\n";
 	next;
     }
     if ($xcc && $line =~ /^CC.*/) {
-	print "CC=\"$xcc\"\n";
+	print "CC=$xcc\n";
 	next;
     }
     if ($native_cc && $line =~ /^NATIVE_CC.*/) {
-	print "NATIVE_CC=\"$native_cc\"\n";
+	print "NATIVE_CC=$native_cc\n";
 	next;
     }
     if ($line =~ /^DEVEL_PREFIX.*/) {
-	print "DEVEL_PREFIX=\"$devel_prefix\"\n";
+	print "DEVEL_PREFIX=$devel_prefix\n";
 	next;
     }
     if ($line =~ /^KERNEL_SOURCE.*/) {
-	print "KERNEL_SOURCE=\"$kernel_dir\"\n";
+	print "KERNEL_SOURCE=$kernel_dir\n";
 	next;
     }
     if ($line =~ /^HAS_MMU.*/) {
@@ -141,6 +144,10 @@ while($line = <FILE>) {
 	print "DO_C99_MATH=$c99_math\n";
 	next;
     }
+    if ($line =~ /^INCLUDE_THREADS.*/) {
+	print "INCLUDE_THREADS=$threads\n";
+	next;
+    }
     if ($shared_support == "true") {
 	if ($line =~ /^BUILD_UCLIBC_LDSO.*/) {
 	    print "BUILD_UCLIBC_LDSO=true\n";
@@ -156,7 +163,7 @@ while($line = <FILE>) {
 	    next;
 	}
 	if ($line =~ /^SHARED_LIB_LOADER_PATH.*/) {
-	    print "SHARED_LIB_LOADER_PATH=\"$ldso_path\"\n";
+	    print "SHARED_LIB_LOADER_PATH=$ldso_path\n";
 	    next;
 	}
     } else {
