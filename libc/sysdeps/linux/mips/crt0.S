@@ -12,15 +12,12 @@
 #include <sys/regdef.h>
 
 .text
-	.global __start
+	.global	__start
 	.type	__start,%function
-#if defined L_crt0 || ! defined __UCLIBC_CTOR_DTOR__
-	.type	__uClibc_main,%function
-#else
+	.type	__uClibc_start_main,%function
 	.weak	_init
 	.weak	_fini
 	.type	__uClibc_start_main,%function
-#endif
 /* Stick in a dummy reference to main(), so that if an application
  * is linking when the main() function is in a static library (.a)
  * we can be sure that main() actually gets linked in */
@@ -41,7 +38,6 @@ __start:
 	addu a2, a0, 1	    /* argv[0] program name (ordinal->cardinal) */
         sll  a2, a2, 2	    /* multiple by 4 */
 	add  a2, a2, a1	    /* a2 now points to start of envp */
-#if defined L_crt1 && defined __UCLIBC_CTOR_DTOR__
 	la   a3, _init	    /* a3 is address of _init */
 	addiu sp, sp, -24   /* 16 + 4 rounded up to multiple of 8 */
 			    /* multiple of 8 for longlong/double support */
@@ -50,9 +46,6 @@ __start:
 	
 	/* Ok, now run uClibc's main() -- shouldn't return */
 	jal  __uClibc_start_main
-#else
-	jal  __uClibc_main
-#endif
 
 	addiu sp, sp, 24    /* undo stack argument */
 
