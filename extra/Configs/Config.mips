@@ -20,22 +20,6 @@ config ARCH_LDFLAGS
 config LIBGCC_CFLAGS
 	string
 
-choice
-	prompt "Target Processor Endianness"
-	default ARCH_LITTLE_ENDIAN
-	help
-	  This is the endianness you wish to build use.  Choose either Big
-	  Endian (mips), or Little Endian (mipsel).
-
-config ARCH_LITTLE_ENDIAN
-	bool "Little Endian (mipsel)"
-
-config ARCH_BIG_ENDIAN
-	bool "Big Endian (mips)"
-
-endchoice
-
-
 source "extra/Configs/Config.in.arch"
 
 endmenu
