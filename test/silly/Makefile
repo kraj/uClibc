@@ -21,7 +21,7 @@ include $(TESTDIR)/Rules.mak
 
 
 
-TARGETS=hello_source hello hello_glibc
+TARGETS=hello_source hello hello_glibc tiny
 
 all: $(TARGETS)
 
@@ -58,6 +58,21 @@ hello_glibc: hello.c Makefile
 	ls -l $@
 	-./$@
 	-@ echo " "
+
+
+tiny: tiny.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-$(LDD) $@
+	ls -l $@
+	-./$@
+	-@ echo " "
+
 
 clean:
 	rm -f *.[oa] *~ core $(TARGETS)
