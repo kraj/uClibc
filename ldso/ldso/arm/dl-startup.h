@@ -4,7 +4,7 @@
  * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
  */
 
-
+void* _dl_boot(void);
 /* Overrive the default _dl_boot function, and replace it with a bit of asm.
  * Then call the real _dl_boot function, which is now named _dl_boot2. */
 asm(""						\
