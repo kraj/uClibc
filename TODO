@@ -1,22 +1,25 @@
 Any takers?
 
-Fix regex so it isn't so stinking big
-Fix glob so it isn't so stinking big
-Integrate Jeff Garzik's key-value reading code for pwd/grp, /etc/hosts, etc
-Finish sparc port
-Documentation
-Better configuration system
-run 'nm -D --size-sort -t d libuClibc-0.9.5.so' and work on the biggest things 
-    (i.e. stuff at the end of the list) to make them smaller.
-make inb/outb work (for lilo et all)
-	update: done for i386 and arm.  lilo and the pcmcia tools compile cleanly now
-include/resolv.h does not define struct _res, and libc/inet/resolv.c
-    does not use this struct.  res_init does nothing.  the other res_* 
-    functions are not implemented.
-scandir.c doesn't check returns on malloc and realloc.
-Add in shadow support (include/shadow.h and such)
-Right now, getopt has different behavior when dynamically vs when
-    statically linked, violating the principle of least surprise.
+*) Fix regex so it isn't so stinking big
+*) Fix glob so it isn't so stinking big
+*) Integrate Jeff Garzik's key-value reading code for pwd/grp, /etc/hosts, etc
+*) Finish sparc port
+*) Documentation
+*) Better configuration system.  Use CML1 + kbuild and use menuconfig
+	to select from available features. 
+*) run 'nm -D --size-sort -t d libuClibc-0.9.5.so' and work on the biggest things 
+	(i.e. stuff at the end of the list) to make them smaller.
+*) make inb/outb work (for lilo et all).  This is complete for i386 and arm.  
+	lilo and the pcmcia tools compile cleanly now.  Othere arches,
+	like powerpc, probably still need fixing.
+*) scandir.c doesn't check returns on malloc and realloc.
+*) Add in shadow support (include/shadow.h and such)
+*) Right now, getopt has different behavior when dynamically vs when
+	statically linked, violating the principle of least surprise.
+*) libc/inet/resolv.c does not define or use struct _res, and res_init does 
+	nothing.  the other res_* functions are not implemented.
+*) uClibc timezone support is stubbed out, so date(1) will show '???'
+	for the timezone when compiled with uClibc. 
 
 
 -----------------------------------------------------------------------------
