@@ -21,16 +21,10 @@ include $(TOPDIR)Rules.mak
 
 ALL_SUBDIRS = arm common cris h8300 i386 m68k mips powerpc sh sh64 sparc v850
 
-all: subdirs
+all: common $(TARGET_ARCH)
 
 tags:
 	ctags -R
-
-clean: subdirs_clean
-
-subdirs: common $(TARGET_ARCH)
-subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
-
 
 common: dummy
 	$(MAKE) -C common
@@ -38,9 +32,13 @@ common: dummy
 $(TARGET_ARCH): common
 	$(MAKE) -C $(TARGET_ARCH)
 
+clean: subdirs_clean
+
+subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
+
 $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 
-.PHONY: dummy
+.PHONY: dummy $(TARGET_ARCH)
 
