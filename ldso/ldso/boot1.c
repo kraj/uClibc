@@ -126,7 +126,7 @@
 static char *_dl_malloc_addr, *_dl_mmap_zero;
 char *_dl_library_path = 0;		/* Where we look for libraries */
 char *_dl_preload = 0;			/* Things to be loaded before the libs. */
-char *_dl_progname = "ld-linux-uclibc.so.0";
+#include "ld.so.h"			/* Pull in the name of ld.so */
 static char *_dl_not_lazy = 0;
 static char *_dl_warn = 0;		/* Used by ldd */
 static char *_dl_trace_loaded_objects = 0;
@@ -140,6 +140,7 @@ char *_dl_getenv(char *symbol, char **envp);
 void _dl_unsetenv(char *symbol, char **envp);
 int _dl_fixup(struct elf_resolve *tpnt);
 void _dl_debug_state(void);
+char *_dl_get_last_path_component(char *path);
 
 
 /* When we enter this piece of code, the program stack looks like this:
@@ -218,7 +219,7 @@ void _dl_boot(unsigned int args)
 	    //SEND_STDERR("Usage: ld.so EXECUTABLE [ARGS...]\n");
 	    SEND_STDERR("You have run `ld.so', the helper program for shared\n");
 	    SEND_STDERR("library executables.  You probably did not intend to\n");
-	    SEND_STDERR("run this program.  Goodbye.\n\n");
+	    SEND_STDERR("run this as a program.  Goodbye.\n\n");
 	    _dl_exit(0);
 	}
 #ifdef DL_DEBUG
@@ -692,9 +693,11 @@ void _dl_boot(unsigned int args)
 				if (dpnt->d_tag == DT_NEEDED) {
 					lpnt = tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] +
 						dpnt->d_un.d_val;
-					if (tpnt && _dl_strcmp(lpnt, tpnt->libname) == 0) {
+					if (tpnt && _dl_strcmp(lpnt, 
+						    _dl_get_last_path_component(tpnt->libname)) == 0) {
 						struct elf_resolve *ttmp;
-
+						_dl_fdprintf(1, "\t%s => %s (0x%x)\n", 
+							lpnt, tpnt->libname, (unsigned) tpnt->loadaddr);
 						ttmp = _dl_loaded_modules;
 						while (ttmp->next)
 							ttmp = ttmp->next;
@@ -720,10 +723,10 @@ void _dl_boot(unsigned int args)
 							_dl_exit(16);
 						}
 					} else {
-						if (_dl_trace_loaded_objects
-							&& !tpnt1->usage_count)
-							_dl_fdprintf(1, "\t%s => %s (0x%x)\n", lpnt, 
-								tpnt1->libname, (unsigned) tpnt1->loadaddr);
+						if (_dl_trace_loaded_objects && !tpnt1->usage_count)
+							_dl_fdprintf(1, "\t%s => %s (0x%x)\n", 
+								lpnt, tpnt1->libname, 
+								(unsigned) tpnt1->loadaddr);
 						rpnt->next = (struct dyn_elf *)
 							_dl_malloc(sizeof(struct dyn_elf));
 						_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
@@ -1038,3 +1041,23 @@ char *_dl_strdup(const char *string)
 	_dl_strcpy(retval, string);
 	return retval;
 }
+
+char *_dl_get_last_path_component(char *path)
+{
+	char *s;
+
+	s=path+_dl_strlen(path)-1;
+
+	/* strip trailing slashes */
+	while (s != path && *s == '/') {
+		*s-- = '\0';
+	}
+
+	/* find last component */
+	s = _dl_strrchr(path, '/');
+	if (s == NULL || s[1] == '\0')
+		return path;
+	else
+		return s+1;
+}
+
