@@ -147,7 +147,6 @@ _syscall2(int, chmod, const char *, path, mode_t, mode);
 #include <unistd.h>
 _syscall3(int, lchown, const char *, path, uid_t, owner, gid_t, group);
 #endif
-#endif
 
 
 //#define __NR_break            17
