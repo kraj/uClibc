@@ -56,10 +56,6 @@ struct pthread_handle_struct __pthread_handles[PTHREAD_THREADS_MAX] =
 /* For debugging purposes put the maximum number of threads in a variable.  */
 const int __linuxthreads_pthread_threads_max = PTHREAD_THREADS_MAX;
 
-/* Put the size of the pthread_descr in a variable to make gdb happy. */
-const int __linuxthreads_pthread_sizeof_descr
-  = sizeof(struct _pthread_descr_struct);
-
 /* Indicate whether at least one thread has a user-defined stack (if 1),
    or if all threads have stacks supplied by LinuxThreads (if 0). */
 int __pthread_nonstandard_stacks;
