@@ -39,7 +39,7 @@
 #   define CLK_TCK 100
 #  endif
 
-# endif	/* machine/time.h */
+# endif	/* bits/time.h */
 #endif
 
 #ifdef __need_timeval 
