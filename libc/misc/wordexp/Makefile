@@ -20,38 +20,26 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../
+TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
+#CSRC=wordexp.c
+CSRC=wordexp_stub.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(COBJS)
 
-DIRS = assert crypt ctype fnmatch glob internals lsearch mntent syslog shm \
-	time utmp tsearch #wordexp
+all: $(OBJS) $(LIBC)
 
-# regex bombs out with an internal compiler error using m68k-pic-coff-gcc.
-ifneq ($(TARGET_ARCH),m68k)
-	DIRS += regex
-endif
+$(LIBC): ar-target
 
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-all: libc.a
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-libc.a: subdirs
-
-tags:
-	ctags -R
-
-clean: subdirs_clean
+clean:
 	rm -f *.[oa] *~ core
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
-
-$(patsubst %, _dir_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-.PHONY: dummy
 

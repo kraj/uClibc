@@ -118,4 +118,29 @@ int bcmp(const void *s1, const void *s2, size_t n);
 /* Linux silly hour */
 char *strfry __P ((char *));
 
+/* Find the length of STRING, but scan at most MAXLEN characters.
+   If no '\0' terminator is found in that many characters, return MAXLEN.  */
+extern size_t strnlen __P ((__const char *__string, size_t __maxlen));
+
+/* Duplicate S, returning an identical alloca'd string.  */
+# define strdupa(s)							      \
+  (__extension__							      \
+    ({									      \
+      __const char *__old = (s);					      \
+      size_t __len = strlen (__old) + 1;				      \
+      char *__new = __builtin_alloca (__len);				      \
+      (char *) memcpy (__new, __old, __len);				      \
+    }))
+
+/* Return an alloca'd copy of at most N bytes of string.  */
+# define strndupa(s, n)							      \
+  (__extension__							      \
+    ({									      \
+      __const char *__old = (s);					      \
+      size_t __len = strnlen (__old, (n));				      \
+      char *__new = __builtin_alloca (__len + 1);			      \
+      __new[__len] = '\0';						      \
+      (char *) memcpy (__new, __old, __len);				      \
+    }))
+
 #endif
