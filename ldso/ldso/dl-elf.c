@@ -358,6 +358,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 					UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib:"
 					UCLIBC_RUNTIME_PREFIX "usr/lib:"
 					UCLIBC_RUNTIME_PREFIX "lib:"
+					"/usr/X11R6/lib:"
 					"/usr/lib:"
 					"/lib", rpnt)
 		) != NULL)
@@ -922,6 +923,5 @@ void *_dl_malloc(int size)
 	_dl_malloc_addr = (unsigned char *) (((unsigned long) _dl_malloc_addr + 3) & ~(3));
 	return retval;
 }
-
 
 

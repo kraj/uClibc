@@ -341,6 +341,7 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_suid, stru
 	path =	UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib:"
 		UCLIBC_RUNTIME_PREFIX "usr/lib:"
 		UCLIBC_RUNTIME_PREFIX "lib:"
+		"/usr/X11R6/lib:"
 		"/usr/lib:"
 		"/lib";
 	search_for_named_library(lib->name, buf, path);
