@@ -9,6 +9,7 @@
 
 #include "syscalls.h"
 
+#ifdef __NR_setresuid
 #define __NR___syscall_setresuid __NR_setresuid
 static inline _syscall3(int, __syscall_setresuid,
 		__kernel_uid_t, rgid, __kernel_uid_t, egid, __kernel_uid_t, sgid);
@@ -23,3 +24,4 @@ int setresuid(uid_t ruid, uid_t euid, uid_t suid)
 	}
 	return (__syscall_setresuid(ruid, euid, suid));
 }
+#endif

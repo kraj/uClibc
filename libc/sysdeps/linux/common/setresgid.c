@@ -9,6 +9,7 @@
 
 #include "syscalls.h"
 
+#ifdef __NR_setresgid
 #define __NR___syscall_setresgid __NR_setresgid
 static inline _syscall3(int, __syscall_setresgid,
 		__kernel_gid_t, rgid, __kernel_gid_t, egid, __kernel_gid_t, sgid);
@@ -23,3 +24,4 @@ int setresgid(gid_t rgid, gid_t egid, gid_t sgid)
 	}
 	return (__syscall_setresgid(rgid, egid, sgid));
 }
+#endif

@@ -9,6 +9,7 @@
 
 #include "syscalls.h"
 
+#ifdef __NR_getresgid
 #define __NR___syscall_getresgid __NR_getresgid
 static inline _syscall3(int, __syscall_getresgid, __kernel_gid_t *, egid,
 		  __kernel_gid_t *, rgid, __kernel_gid_t *, sgid);
@@ -26,3 +27,4 @@ int getresgid(gid_t * rgid, gid_t * egid, gid_t * sgid)
 	}
 	return result;
 }
+#endif
