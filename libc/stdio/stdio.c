@@ -77,6 +77,9 @@
  * Minor thread locking optimizations to avoid some unnecessary locking.
  * Remove the explicit calls to __builtin_* funcs, as we really need to
  *    implement a more general solution.
+ *
+ * Nov 17, 2003
+ * Fix the return value for fputs when passed an empty string.
  */
 
 /* Before we include anything, convert L_ctermid to L_ctermid_function
@@ -2862,7 +2865,7 @@ UNLOCKED(int,fputs,
 
 #ifdef __STDIO_WIDE
 
-	return (fwrite_unlocked(s, n, (size_t) 1, stream) > 0) ? n : EOF;
+	return (fwrite_unlocked(s, (size_t) 1, n, stream) == n) ? n : EOF;
 
 #else  /* __STDIO_WIDE */
 
