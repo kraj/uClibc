@@ -46,19 +46,18 @@ typedef signed long int __int64_t;
 typedef unsigned long int __uint64_t;
 typedef __quad_t *__qaddr_t;
 
-/* changed to be more compatible with kernel */
-typedef __kernel_dev_t __dev_t;		/* Type of device numbers.  */
-typedef __kernel_uid_t __uid_t;		/* Type of user identifications.  */
-typedef __kernel_gid_t __gid_t;		/* Type of group identifications.  */
-typedef __kernel_ino_t __ino_t;		/* Type of file serial numbers.  */
-typedef __uint32_t __mode_t;		/* Type of file attribute bitmasks.  */
-typedef __kernel_nlink_t __nlink_t;	/* Type of file link counts.  */
-typedef __kernel_off_t __off_t;		/* Type of file sizes and offsets.  */
-typedef __kernel_loff_t __loff_t;	/* Type of file sizes and offsets.  */
-typedef __kernel_pid_t __pid_t;		/* Type of process identifications.  */
-typedef __kernel_ssize_t __ssize_t;	/* Type of a byte count, or error.  */
+typedef __uint64_t __dev_t;		/* Type of device numbers.  */
+typedef __uint32_t __uid_t;		/* Type of user identifications.  */
+typedef __uint32_t __gid_t;		/* Type of group identifications.  */
+typedef __uint32_t __ino_t;		/* Type of file serial numbers.  */
 typedef __uint64_t __ino64_t;		/*  "" (LFS) */
+typedef __uint32_t __mode_t;		/* Type of file attribute bitmasks.  */
+typedef __uint32_t __nlink_t; 		/* Type of file link counts.  */
+typedef __int64_t  __off_t;		/* Type of file sizes and offsets.  */
 typedef __int64_t  __off64_t;		/*  "" (LFS) */
+typedef __int64_t  __loff_t;		/* Type of file sizes and offsets.  */
+typedef __int32_t  __pid_t;		/* Type of process identifications.  */
+typedef __int64_t  __ssize_t;		/* Type of a byte count, or error.  */
 typedef __uint64_t  __rlim_t;		/* Type of resource counts.  */
 typedef __uint64_t  __rlim64_t;		/*  "" (LFS) */
 typedef __uint32_t __blksize_t;		/* Type to represnet block size.  */
@@ -92,7 +91,7 @@ typedef int __clockid_t;
 typedef int __timer_t;
 
 /* Used in `struct shmid_ds'.  */
-typedef int __ipc_pid_t;
+typedef __kernel_ipc_pid_t __ipc_pid_t;
 
 /* Number of descriptors that can fit in an `fd_set'.  */
 #define __FD_SETSIZE	1024

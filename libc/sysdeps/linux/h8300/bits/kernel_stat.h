@@ -32,7 +32,7 @@ struct kernel_stat64 {
 	unsigned char	__pad0[6];
 	unsigned short	st_dev;
 	unsigned char	__pad1[2];
-#define STAT64_HAS_BROKEN_ST_INO	1
+#define _HAVE_STAT64___ST_INO
 	unsigned long	__st_ino;
 	unsigned int	st_mode;
 	unsigned int	st_nlink;

@@ -47,7 +47,7 @@ struct kernel_stat64 {
 	unsigned short	st_dev;
 	unsigned char	__pad0[10];
 
-#define STAT64_HAS_BROKEN_ST_INO	1
+#define _HAVE_STAT64___ST_INO
 	unsigned long	__st_ino;
 
 	unsigned int	st_mode;

@@ -103,7 +103,7 @@ typedef int __timer_t;
 typedef int __key_t;
 
 /* Used in `struct shmid_ds'.  */
-typedef unsigned short int __ipc_pid_t;
+typedef __kernel_ipc_pid_t __ipc_pid_t;
 
 
 /* Type to represent block size.  */

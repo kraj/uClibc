@@ -70,19 +70,22 @@ __extension__ typedef unsigned long long int __uint64_t;
 #endif
 typedef __quad_t *__qaddr_t;
 
-/* changed to be more compatible with kernel */
-typedef __kernel_dev_t __dev_t;		/* Type of device numbers.  */
-typedef __kernel_uid_t __uid_t;		/* Type of user identifications.  */
-typedef __kernel_gid_t __gid_t;		/* Type of group identifications.  */
-typedef __kernel_ino_t __ino_t;		/* Type of file serial numbers.  */
-typedef __u_int __mode_t;		/* Type of file attribute bitmasks.  */
-typedef __kernel_nlink_t __nlink_t;	/* Type of file link counts.  */
-typedef __kernel_off_t __off_t;		/* Type of file sizes and offsets.  */
-typedef __kernel_loff_t __loff_t;	/* Type of file sizes and offsets.  */
-typedef __kernel_pid_t __pid_t;		/* Type of process identifications.  */
-typedef __kernel_ssize_t __ssize_t;	/* Type of a byte count, or error.  */
+typedef __u_quad_t __dev_t;		/* Type of device numbers.  */
+typedef __u_int __uid_t;		/* Type of user identifications.  */
+typedef __u_int __gid_t;		/* Type of group identifications.  */
+typedef __u_long __ino_t;		/* Type of file serial numbers.  */
 typedef __u_quad_t __ino64_t;		/* Type of file serial numbers.  */
+typedef __u_int __mode_t;		/* Type of file attribute bitmasks.  */
+typedef __u_int __nlink_t; 		/* Type of file link counts.  */
+typedef long int __off_t;		/* Type of file sizes and offsets.  */
 typedef __quad_t  __off64_t;		/*  "" (LFS) */
+typedef __quad_t __loff_t;		/* Type of file sizes and offsets.  */
+typedef int __pid_t;			/* Type of process identifications.  */
+#if __WORDSIZE == 64
+typedef long int __ssize_t;		/* Type of a byte count, or error.  */
+#else
+typedef int __ssize_t;			/* Type of a byte count, or error.  */
+#endif
 typedef __u_long __rlim_t;		/* Type of resource counts.  */
 typedef __u_quad_t __rlim64_t;		/* Type of resource counts (LFS).  */
 typedef __u_int __id_t;			/* General type for IDs.  */
@@ -115,11 +118,7 @@ typedef int __timer_t;
 typedef int __key_t;
 
 /* Used in `struct shmid_ds'.  */
-#if __WORDSIZE == 64
-typedef int		   __ipc_pid_t;
-#else
-typedef unsigned short int __ipc_pid_t;
-#endif
+typedef __kernel_ipc_pid_t __ipc_pid_t;
 
 
 /* Type to represent block size.  */
