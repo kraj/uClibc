@@ -1,176 +1,41 @@
-#if defined(__arm__) || defined(__thumb__)
-/*
- * All callee preserved registers:
- * v1 - v7, fp, ip, sp, lr, f4, f5, f6, f7
- */
-#define _JBLEN 23
+/* Copyright (C) 1997, 1998 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Library General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public
+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
+
+/* Define the machine-dependent type `jmp_buf'.  Intel 386 version.  */
+
+#ifndef _SETJMP_H
+# error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
-#ifdef __sparc__
-/*
- * onsstack,sigmask,sp,pc,npc,psr,g1,o0,wbcnt (sigcontext).
- * All else recovered by under/over(flow) handling.
- */
-#define	_JBLEN	13
+#if defined __USE_MISC || defined _ASM
+# define JB_BX	0
+# define JB_SI	1
+# define JB_DI	2
+# define JB_BP	3
+# define JB_SP	4
+# define JB_PC	5
 #endif
 
-/* necv70 was 9 as well. */
-
-#ifdef __mc68000__
-/*
- * onsstack,sigmask,sp,pc,psl,d2-d7,a2-a6,
- * fp2-fp7	for 68881.
- * All else recovered by under/over(flow) handling.
- */
-#define	_JBLEN	34
+#ifndef	_ASM
+typedef int __jmp_buf[6];
 #endif
 
-#if defined(__Z8001__) || defined(__Z8002__)
-/* 16 regs + pc */
-#define _JBLEN 20
-#endif
-
-#ifdef _AM29K
-/*
- * onsstack,sigmask,sp,pc,npc,psr,g1,o0,wbcnt (sigcontext).
- * All else recovered by under/over(flow) handling.
- */
-#define	_JBLEN	9
-#endif
-
-#ifdef __i386__
-#ifdef __unix__
-# define _JBLEN	36
-#elif defined(_WIN32)
-#define _JBLEN (13 * 4)
-#else
-#include "setjmp-dj.h"
-#endif
-#endif
-
-#ifdef __i960__
-#define _JBLEN 35
-#endif
-
-#ifdef __M32R__
-/* Only 8 words are currently needed.  10 gives us some slop if we need
-   to expand.  */
-#define _JBLEN 10
-#endif
-
-#ifdef __mips__
-#define _JBLEN 11
-#endif
-
-#ifdef __m88000__
-#define _JBLEN 21
-#endif
-
-#ifdef __H8300__
-#define _JBLEN 5
-typedef int jmp_buf[_JBLEN];
-#endif
-
-#ifdef __H8300H__
-/* same as H8/300 but registers are twice as big */
-#define _JBLEN 5
-#define _JBTYPE long
-#endif
-
-#ifdef __H8300S__
-/* same as H8/300 but registers are twice as big */
-#define _JBLEN 5
-#define _JBTYPE long
-#endif
-
-#ifdef __H8500__
-#define _JBLEN 4
-#endif
-
-#ifdef  __sh__
-#define _JBLEN 20
-#endif
-
-#ifdef  __v800
-#define _JBLEN 28
-#endif
-
-#ifdef __PPC__
-#define _JBLEN 32
-#define _JBTYPE double
-#endif
-
-#ifdef __hppa__
-/* %r30, %r2-%r18, %r27, pad, %fr12-%fr15.
-   Note space exists for the FP registers, but they are not
-   saved.  */
-#define _JBLEN 28
-#endif
-
-#if defined(mn10300) || defined(mn10200)
-/* A guess */
-#define _JBLEN 10
-#endif
-
-#ifdef __v850
-/* I think our setjmp is saving 15 regs at the moment.  Gives us one word
-   slop if we need to expand.  */
-#define _JBLEN 16
-#endif
-
-
-#ifdef __D10V__
-#define _JBLEN 8
-#endif
-
-/* start-sanitize-d30v */
-#ifdef __D30V__
-#define _JBLEN (64 /* GPR */ + (2*2) /* ACs */ + 18 /* CRs */)
-#endif
-/* end-sanitize-d30v */
-
-#ifdef _JBLEN
-#ifdef _JBTYPE
-typedef	_JBTYPE jmp_buf[_JBLEN];
-#else
-typedef	int jmp_buf[_JBLEN];
-#endif
-
-#ifdef __CYGWIN32__
-#include <signal.h>
-
-/* POSIX sigsetjmp/siglongjmp macros */
-typedef int sigjmp_buf[_JBLEN+2];
-
-#define _SAVEMASK	_JBLEN
-#define _SIGMASK	(_JBLEN+1)
-
-#define sigsetjmp(env, savemask) (env[_SAVEMASK] = savemask,\
-               sigprocmask (SIG_SETMASK, 0, (sigset_t *) &env[_SIGMASK]),\
-               setjmp (env))
-
-#define siglongjmp(env, val) (((env[_SAVEMASK])?\
-               sigprocmask (SIG_SETMASK, (sigset_t *) &env[_SIGMASK], 0):0),\
-               longjmp (env, val))
-
-#endif /* __CYGWIN32__*/
-
-#if defined(__linux__) && defined(__mc68000__)
-#include <signal.h>
-
-/* POSIX sigsetjmp/siglongjmp macros */
-typedef int sigjmp_buf[_JBLEN];
-
-#define _SAVEMASK	4
-#define _SIGMASK	1
-
-#define sigsetjmp(env, savemask) (env[_SAVEMASK] = savemask,\
-               sigprocmask (SIG_SETMASK, 0, (sigset_t *) &env[_SIGMASK]),\
-               setjmp (env))
-
-#define siglongjmp(env, val) (((env[_SAVEMASK])?\
-               sigprocmask (SIG_SETMASK, (sigset_t *) &env[_SIGMASK], 0):0),\
-               longjmp (env, val))
-
-#endif /* __linux__*/
-#endif
+/* Test if longjmp to JMPBUF would unwind the frame
+   containing a local variable at ADDRESS.  */
+#define _JMPBUF_UNWINDS(jmpbuf, address) \
+  ((void *) (address) < (void *) (jmpbuf)[JB_SP])

@@ -1,88 +1,59 @@
-/* These are predefined by new versions of GNU cpp.  */
+/* setjmp for i386.
+   Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#ifndef __USER_LABEL_PREFIX__
-#define __USER_LABEL_PREFIX__ _
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Library General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public
+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
+
+#include <sysdep.h>
+#define _ASM
+#define _SETJMP_H
+#include <machine/setjmp.h>
+
+ENTRY (__setjmp)
+	popl %eax		/* Pop return address.  */
+	popl %ecx		/* Pop jmp_buf.  */
+	pushl $0		/* Push zero argument.  */
+	pushl %ecx		/* Push jmp_buf.  */
+	pushl %eax		/* Push back return address.  */
+
+ENTRY (__sigsetjmp)
+	movl 4(%esp), %eax	/* User's jmp_buf in %eax.  */
+     	/* Save registers.  */
+	movl %ebx, (JB_BX*4)(%eax)
+	movl %esi, (JB_SI*4)(%eax)
+	movl %edi, (JB_DI*4)(%eax)
+	movl %ebp, (JB_BP*4)(%eax)
+	leal 4(%esp), %ecx	/* Save SP as it will be after we return.  */
+     	movl %ecx, (JB_SP*4)(%eax)
+	movl 0(%esp), %ecx	/* Save PC we are returning to now.  */
+     	movl %ecx, (JB_PC*4)(%eax)
+
+	/* Make a tail call to __sigjmp_save; it takes the same args.  */
+#ifdef	PIC
+	/* We cannot use the PLT, because it requires that %ebx be set, but
+           we can't save and restore our caller's value.  Instead, we do an
+           indirect jump through the GOT, using for the temporary register
+           %ecx, which is call-clobbered.  */
+	call L(here)
+L(here):
+	popl %ecx
+	addl $_GLOBAL_OFFSET_TABLE_+[.-L(here)], %ecx
+	movl C_SYMBOL_NAME(__sigjmp_save@GOT)(%ecx), %ecx
+	jmp *%ecx
+#else
+	jmp __sigjmp_save
 #endif
-
-#ifndef __REGISTER_PREFIX__
-#define __REGISTER_PREFIX__
-#endif
-
-/* ANSI concatenation macros.  */
-
-#define CONCAT1(a, b) CONCAT2(a, b)
-#define CONCAT2(a, b) a ## b
-
-/* Use the right prefix for global labels.  */
-
-#define SYM(x) CONCAT1 (__USER_LABEL_PREFIX__, x)
-
-/* Use the right prefix for registers.  */
-
-#define REG(x) CONCAT1 (__REGISTER_PREFIX__, x)
-
-#define d0 REG (d0)
-#define d1 REG (d1)
-#define d2 REG (d2)
-#define d3 REG (d3)
-#define d4 REG (d4)
-#define d5 REG (d5)
-#define d6 REG (d6)
-#define d7 REG (d7)
-#define a0 REG (a0)
-#define a1 REG (a1)
-#define a2 REG (a2)
-#define a3 REG (a3)
-#define a4 REG (a4)
-#define a5 REG (a5)
-#define a6 REG (a6)
-#define fp REG (fp)
-#define sp REG (sp)
-
-.global SYM (setjmp)
-.global SYM (longjmp)
-
-SYM (setjmp):
-	moveal sp@(4),a0
-	movel sp@(0),a0@(12)
-	movel sp,a0@(8)
-	moveml d2-d7/a2-a6,a0@(20)
-	clrl d0
-	rts
-
-SYM (longjmp):
-	moveal sp@(4),a0
-	movel sp@(8),d0
-	bne 1f
-	movel #1,d0
-1:
-	moveml a0@(20),d2-d7/a2-a6
-	moveal a0@(8),sp
-	movel a0@(12),sp@
-	rts
-
-#ifdef M68881
-.global SYM (setjmp_68881)
-.global SYM (longjmp_68881)
-
-SYM (setjmp_68881):
-	moveal sp@(4),a0
-	movel sp@(0),a0@(12)
-	movel sp,a0@(8)
-	moveml d2-d7/a2-a6,a0@(20)
-	fmovemx fp2-fp7,a0@(64)
-	clrl d0
-	rts
-
-SYM (longjmp_68881):
-	moveal sp@(4),a0
-	fmovemx a0@(64),fp2-fp7
-	movel sp@(8),d0
-	bne 1f
-	movel #1,d0
-1:
-	moveml a0@(20),d2-d7/a2-a6
-	moveal a0@(8),sp
-	movel a0@(12),sp@
-	rts
-#endif
+.size __sigsetjmp,.-__sigsetjmp;
