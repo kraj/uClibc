@@ -44,21 +44,21 @@ ld-uClibc:
 	chmod a+x $(TARGET_ARCH)-uclibc-ld
 
 install: all
-	install -d $(PREFIX)$(DEVEL_PREFIX)/bin;
+	install -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin;
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin;
 	install -m 755 $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/
 	install -m 755 $(TARGET_ARCH)-uclibc-ld $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/
 	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-g++
 	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-c++
 	ln -fs $(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-cc
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_PREFIX)/bin/c++
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_PREFIX)/bin/g++
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_PREFIX)/bin/gcc
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_PREFIX)/bin/cc
-	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ld $(PREFIX)$(DEVEL_PREFIX)/bin/ld
+	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/c++
+	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/g++
+	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/gcc
+	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-gcc $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/cc
+	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ld  $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ld
 	for app in addr2line ar as cpp gasp nm objcopy \
 	    objdump ranlib size strings strip; do \
-	  ln -fs `which $(CROSS)$${app}` $(PREFIX)$(DEVEL_PREFIX)/bin/$${app}; \
+	  ln -fs `which $(CROSS)$${app}` $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/$${app}; \
 	  ln -fs `which $(CROSS)$${app}` $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-$${app}; \
 	done
 

@@ -283,23 +283,31 @@ endif
 install_toolchain:
 	install -d $(PREFIX)$(DEVEL_PREFIX)/lib
 	install -d $(PREFIX)$(DEVEL_PREFIX)/bin
+	install -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
 	$(MAKE) -C extra/gcc-uClibc install
 
 install_utils:
 ifeq ($(strip $(HAVE_SHARED)),true)
 	@$(MAKE) -C ldso utils
-	install -m 755 ldso/util/ldd $(PREFIX)$(DEVEL_PREFIX)/bin
-	ln -fs $(DEVEL_PREFIX)/bin/ldd $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
+	install -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin;
+	install -m 755 ldso/util/ldd \
+		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
+	ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd \
+		$(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ldd
 	# For now, don't bother with readelf since surely the host
 	# system has binutils, or we couldn't have gotten this far...
-	#install -m 755 ldso/util/readelf $(PREFIX)$(DEVEL_PREFIX)/bin
-	#ln -fs $(DEVEL_PREFIX)/bin/readelf $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf
+	#install -m 755 ldso/util/readelf \
+	#	$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf
+	#ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-readelf \
+	#	$(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/readelf
 	@if [ -x ldso/util/ldconfig ] ; then \
 	    set -x -e; \
 	    install -d $(PREFIX)$(DEVEL_PREFIX)/etc; \
-	    install -m 755 ldso/util/ldconfig $(PREFIX)$(DEVEL_PREFIX)/bin; \
-	    ln -fs $(DEVEL_PREFIX)/sbin/ldconfig $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig; \
+	    install -m 755 ldso/util/ldconfig \
+		    $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig; \
+	    ln -fs $(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldconfig \
+		    $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin/ldconfig; \
 	fi;
 endif
 
@@ -310,7 +318,6 @@ endif
 install_target:
 ifeq ($(strip $(HAVE_SHARED)),true)
 	install -d $(PREFIX)$(TARGET_PREFIX)/lib
-	install -d $(PREFIX)$(TARGET_PREFIX)/sbin
 	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin
 	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(PREFIX)$(TARGET_PREFIX)/lib
@@ -328,11 +335,13 @@ endif
 install_target_utils:
 ifeq ($(strip $(HAVE_SHARED)),true)
 	@$(MAKE) -C ldso/util ldd.target readelf.target ldconfig.target
+	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin;
 	install -m 755 ldso/util/ldd.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/ldd
 	install -m 755 ldso/util/readelf.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/readelf
 	@if [ -x ldso/util/ldconfig.target ] ; then \
 	    set -x -e; \
 	    install -d $(PREFIX)$(TARGET_PREFIX)/etc; \
+	    install -d $(PREFIX)$(TARGET_PREFIX)/sbin; \
 	    install -m 755 ldso/util/ldconfig.target $(PREFIX)$(TARGET_PREFIX)/sbin/ldconfig; \
 	fi;
 endif
