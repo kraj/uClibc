@@ -78,6 +78,11 @@
  *    1) printf("%c",0) returned 0 instead of 1.
  *    2) unrolled loop in asprintf to reduce size and remove compile warning.
  *
+ *
+ * June 2001
+ *    1) fix %p so that "0x" is prepended to outputed hex val
+ *    2) fix %p so that "(nil)" is output for (void *)0 to match glibc
+ *
  */
 
 /*****************************************************************************/
@@ -476,7 +481,7 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 					if (*p == 'p') {
 						lval = (sizeof(char *) == sizeof(long));
 						upcase = 0;
-						flag[FLAG_HASH] = 1;
+						flag[FLAG_HASH] = 'p';
 					}
 #if defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR
 					if (lval >= 2) {
@@ -507,19 +512,23 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 					}
 #endif /* defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR */
 					flag[FLAG_PLUS] = '\0';	/* meaningless for unsigned */
-					if (flag[FLAG_HASH] && (*p != '0')) { /* non-zero */
-						if (radix == 8) {
-							*--p = '0';	/* add leadding zero */
-						} else if (radix != 10) { /* either 2 or 16 */
-							flag[FLAG_PLUS] = '0';
-							*--p = 'b';
-							if (radix == 16) {
-								*p = 'x';
-								if (*fmt == 'X') {
-									*p = 'X';
+					if (*p != '0') { /* non-zero */
+						if (flag[FLAG_HASH]) {
+							if (radix == 8) {
+								*--p = '0';	/* add leadding zero */
+							} else if (radix != 10) { /* either 2 or 16 */
+								flag[FLAG_PLUS] = '0';
+								*--p = 'b';
+								if (radix == 16) {
+									*p = 'x';
+									if (*fmt == 'X') {
+										*p = 'X';
+									}
 								}
 							}
 						}
+					} else if (flag[FLAG_HASH] == 'p') { /* null pointer */
+						p = "(nil)";
 					}
 				} else if (p-u_spec < 10) { /* signed conversion */
 #if defined(__UCLIBC_HAS_LONG_LONG__) || WANT_LONG_LONG_ERROR
