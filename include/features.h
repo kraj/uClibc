@@ -38,6 +38,9 @@
 #define __CONSTVALUE
 #define __CONSTVALUE2
 
+#define __USE_BSD
+#define __USE_MISC
+#define __USE_POSIX
 #define _POSIX_THREAD_SAFE_FUNCTIONS
 
 #include <sys/cdefs.h>

@@ -28,7 +28,7 @@ Cambridge, MA 02139, USA.  */
 
 __BEGIN_DECLS
 
-#include <gnu/types.h>
+#include <sys/types.h>
 
 /* This will define the `W*' macros for the flag
    bits to `waitpid', `wait3', and `wait4'.  */

@@ -6,11 +6,11 @@
  * may copy or modify Sun RPC without charge, but are not authorized
  * to license or distribute it to anyone else except as part of a product or
  * program developed by the user.
- * 
+ *
  * SUN RPC IS PROVIDED AS IS WITH NO WARRANTIES OF ANY KIND INCLUDING THE
  * WARRANTIES OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE, OR ARISING FROM A COURSE OF DEALING, USAGE OR TRADE PRACTICE.
- * 
+ *
  * Sun RPC is provided with no support and without any obligation on the
  * part of Sun Microsystems, Inc. to assist in its use, correction,
  * modification or enhancement.
@@ -34,12 +34,9 @@
  *
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
-#ifndef __RPC_HEADER__
-#define __RPC_HEADER__
 
-#ifdef __linux__
-#include <sys/time.h>
-#endif
+#ifndef _RPC_RPC_H
+#define _RPC_RPC_H 1
 
 #include <rpc/types.h>		/* some typedefs */
 #include <netinet/in.h>
@@ -56,11 +53,7 @@
 /* semi-private protocol headers */
 #include <rpc/rpc_msg.h>	/* protocol for rpc messages */
 #include <rpc/auth_unix.h>	/* protocol for unix style cred */
-/*
- *  Uncomment-out the next line if you are building the rpc library with    
- *  DES Authentication (see the README file in the secure_rpc/ directory).
- */
-/*#include <rpc/auth_des.h>*/	/* protocol for des style cred */
+#include <rpc/auth_des.h>	/* protocol for des style cred */
 
 /* Server side only remote procedure callee */
 #include <rpc/svc.h>		/* service manager and multiplexer */
@@ -72,8 +65,6 @@
  * defined by <rpc/netdb.h> included in <netdb.h>.
  */
 /* routines for parsing /etc/rpc */
-#if 0
 #include <rpc/netdb.h>		/* structures and routines to parse /etc/rpc */
-#endif
 
-#endif /* ndef __RPC_HEADER__ */
+#endif /* rpc/rpc.h */

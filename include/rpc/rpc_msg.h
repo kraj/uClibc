@@ -6,28 +6,36 @@
  * may copy or modify Sun RPC without charge, but are not authorized
  * to license or distribute it to anyone else except as part of a product or
  * program developed by the user.
- * 
+ *
  * SUN RPC IS PROVIDED AS IS WITH NO WARRANTIES OF ANY KIND INCLUDING THE
  * WARRANTIES OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE, OR ARISING FROM A COURSE OF DEALING, USAGE OR TRADE PRACTICE.
- * 
+ *
  * Sun RPC is provided with no support and without any obligation on the
  * part of Sun Microsystems, Inc. to assist in its use, correction,
  * modification or enhancement.
- * 
+ *
  * SUN MICROSYSTEMS, INC. SHALL HAVE NO LIABILITY WITH RESPECT TO THE
  * INFRINGEMENT OF COPYRIGHTS, TRADE SECRETS OR ANY PATENTS BY SUN RPC
  * OR ANY PART THEREOF.
- * 
+ *
  * In no event will Sun Microsystems, Inc. be liable for any lost revenue
  * or profits or other special, indirect and consequential damages, even if
  * Sun has been advised of the possibility of such damages.
- * 
+ *
  * Sun Microsystems, Inc.
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
 /*      @(#)rpc_msg.h 1.7 86/07/16 SMI      */
+
+#ifndef _RPC_MSG_H
+#define _RPC_MSG_H 1
+
+#include <sys/cdefs.h>
+
+#include <rpc/xdr.h>
+#include <rpc/clnt.h>
 
 /*
  * rpc_msg.h
@@ -39,9 +47,11 @@
 #define RPC_MSG_VERSION		((u_long) 2)
 #define RPC_SERVICE_PORT	((u_short) 2048)
 
+__BEGIN_DECLS
+
 /*
  * Bottom up definition of an rpc message.
- * NOTE: call and reply use the same overall stuct but
+ * NOTE: call and reply use the same overall struct but
  * different parts of unions within it.
  */
 
@@ -160,7 +170,7 @@ struct rpc_msg {
  * 	XDR *xdrs;
  * 	struct rpc_msg *cmsg;
  */
-extern bool_t	xdr_callmsg();
+extern bool_t	xdr_callmsg __P ((XDR *__xdrs, struct rpc_msg *__cmsg));
 
 /*
  * XDR routine to pre-serialize the static part of a rpc message.
@@ -168,7 +178,7 @@ extern bool_t	xdr_callmsg();
  * 	XDR *xdrs;
  * 	struct rpc_msg *cmsg;
  */
-extern bool_t	xdr_callhdr();
+extern bool_t	xdr_callhdr __P ((XDR *__xdrs, struct rpc_msg *__cmsg));
 
 /*
  * XDR routine to handle a rpc reply.
@@ -176,7 +186,7 @@ extern bool_t	xdr_callhdr();
  * 	XDR *xdrs;
  * 	struct rpc_msg *rmsg;
  */
-extern bool_t	xdr_replymsg();
+extern bool_t	xdr_replymsg __P ((XDR *__xdrs, struct rpc_msg *__rmsg));
 
 /*
  * Fills in the error part of a reply message.
@@ -184,4 +194,9 @@ extern bool_t	xdr_replymsg();
  * 	struct rpc_msg *msg;
  * 	struct rpc_err *error;
  */
-extern void	_seterr_reply();
+extern void	_seterr_reply __P ((struct rpc_msg *__msg,
+				    struct rpc_err *__error));
+
+__END_DECLS
+
+#endif /* rpc/rpc_msg.h */

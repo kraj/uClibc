@@ -1,4 +1,4 @@
-/* Copyright (C) 1992, 1996 Free Software Foundation, Inc.
+/* Copyright (C) 1992, 1996, 1997 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -18,6 +18,7 @@
 
 #ifndef	_ENDIAN_H
 #define	_ENDIAN_H	1
+
 #include <features.h>
 
 /* Definitions for byte order, according to significance of bytes, from low
@@ -31,13 +32,19 @@
 #define	__PDP_ENDIAN	3412
 
 /* This file defines `__BYTE_ORDER' for the particular machine.  */
-#include <bytesex.h>
+#include <bits/endian.h>
+
+/* Some machines may need to use a different endianness for floating point
+   values.  */
+#ifndef __FLOAT_WORD_ORDER
+# define __FLOAT_WORD_ORDER __BYTE_ORDER
+#endif
 
 #ifdef	__USE_BSD
-#define	LITTLE_ENDIAN	__LITTLE_ENDIAN
-#define	BIG_ENDIAN	__BIG_ENDIAN
-#define	PDP_ENDIAN	__PDP_ENDIAN
-#define	BYTE_ORDER	__BYTE_ORDER
+# define LITTLE_ENDIAN	__LITTLE_ENDIAN
+# define BIG_ENDIAN	__BIG_ENDIAN
+# define PDP_ENDIAN	__PDP_ENDIAN
+# define BYTE_ORDER	__BYTE_ORDER
 #endif
 
 #endif	/* endian.h */

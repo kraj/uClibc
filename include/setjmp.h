@@ -27,8 +27,8 @@
 
 __BEGIN_DECLS
 
-#include <machine/setjmp.h>		/* Get `__jmp_buf'.  */
-#include <machine/sigset.h>		/* Get `__sigset_t'.  */
+#include <bits/setjmp.h>		/* Get `__jmp_buf'.  */
+#include <bits/sigset.h>		/* Get `__sigset_t'.  */
 
 /* Calling environment, plus possibly a saved signal mask.  */
 typedef struct __jmp_buf_tag	/* C++ doesn't like tagless structs.  */

@@ -20,7 +20,7 @@
 #include <sysdep.h>
 #define _ASM
 #define _SETJMP_H
-#include <machine/setjmp.h>
+#include <bits/setjmp.h>
 
 ENTRY (__setjmp)
 	popl %eax		/* Pop return address.  */
