@@ -91,6 +91,7 @@ OPTIMIZATION:=
 PICFLAG:=-fPIC
 PIEFLAG:=$(call check_gcc,-fPIE,)
 ifeq ($(strip $(PIEFLAG)),-fPIE)
+# should add check if ld supports -pie
 LDPIEFLAG:=-Wl,-pie
 endif
 
@@ -184,14 +185,13 @@ ifeq ($(strip $(TARGET_ARCH)),powerpc)
 # enough. Therefore use -fpic which will reduce code size and generates
 # faster code.
 	PICFLAG:=-fpic
-	PIEFLAG=$(call check_gcc,-fpie,)
+	PIEFLAG:=$(call check_gcc,-fpie,)
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),frv)
 	CPU_LDFLAGS-$(CONFIG_FRV)+=-melf32frvfd
 	CPU_CFLAGS-$(CONFIG_FRV)+=-mfdpic
 	PICFLAG=-fPIC -DPIC
-	PIEFLAG=-fpie
 	# Using -pie causes the program to have an interpreter, which is
 	# forbidden, so we must make do with -shared.  Unfortunately,
 	# -shared by itself would get us global function descriptors
@@ -226,7 +226,7 @@ ifeq ($(strip $(TARGET_ARCH)),arm)
 endif
 endif
 
-ifneq ($(strip $(UCLIBC_PIE_SUPPORT)),y)
+ifneq ($(UCLIBC_PIE_SUPPORT),y)
 PIEFLAG=
 LDPIEFLAG=
 endif

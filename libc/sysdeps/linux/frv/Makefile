@@ -22,9 +22,7 @@ include $(TOPDIR)Rules.mak
 
 CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o
-ifeq ($(strip $(UCLIBC_PIE_SUPPORT)),y)
 SCRT0_OBJ = $(patsubst %,S%, $(CRT0_OBJ))
-endif
 CRT0_DEPS=gmon-start.S
 
 CTOR_TARGETS = crti.o crtn.o
