@@ -19,7 +19,6 @@
 /* Code taken from glibc2.2.2/sysdeps/sparc/sparc32/setjmp.S */
 
 #include <sysdep.h>
-#include <sys/trap.h>
 #include "sysdep.h"
 
 #define _ASM 1
