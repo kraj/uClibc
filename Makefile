@@ -356,18 +356,21 @@ all: menuconfig
 
 # configuration
 # ---------------------------------------------------------------------------
+extra/config/conf: buildconf
+	-@if [ ! -f .config ] ; then \
+		cp extra/Configs/Config.$(TARGET_ARCH).default .config; \
+	fi
 
-extra/config/conf:
+buildconf:
 	make -C extra/config conf
+
+extra/config/mconf: buildmconf
 	-@if [ ! -f .config ] ; then \
 		cp extra/Configs/Config.$(TARGET_ARCH).default .config; \
 	fi
 
-extra/config/mconf:
-	make -C extra/config ncurses conf mconf
-	-@if [ ! -f .config ] ; then \
-		cp extra/Configs/Config.$(TARGET_ARCH).default .config; \
-	fi
+buildmconf:
+	make -C extra/config ncurses mconf
 
 menuconfig: extra/config/mconf
 	rm -rf include/bits
