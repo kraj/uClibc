@@ -36,6 +36,7 @@ struct fixed_buffer {
 	unsigned char used;
 };
 
+extern void __init_stdio(void);
 extern struct fixed_buffer _fixed_buffers[FIXED_BUFFERS];
 
 extern unsigned char *_alloc_stdio_buffer(size_t size);
