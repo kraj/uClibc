@@ -31,6 +31,7 @@ LIBNAME=libc.a
 SHARED_FULLNAME=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
 SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION)
 UCLIBC_LDSO=ld-uclibc.so.$(MAJOR_VERSION)
+LIBC=$(TOPDIR)libc/libc.a
 
 BUILDTIME = $(shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z")
 
@@ -63,7 +64,11 @@ endif
 
 NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g')
 
-LDSO_PRESENT=$(strip $(shell cd $(TOPDIR)/ld.so-1/d-link; ls -d $(TARGET_ARCH) 2>/dev/null))
+ifeq ($(strip $(HAS_MMU)),true)
+	DO_SHARED=shared
+endif
+
+LDSO_PRESENT=$(strip $(shell cd $(TOPDIR)/ldso/d-link; ls -d $(TARGET_ARCH) 2>/dev/null))
 
 ifeq ($(NATIVE_ARCH), $(TARGET_ARCH))
 	SYSTEM_LDSO=$(shell ldd `which $(CC)` | sed -ne /ld/p | sed -e s/\ =.*//g)
@@ -72,11 +77,10 @@ else
 endif
 
 ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
-	LDSO=ld.so-1/d-link/$(UCLIBC_LDSO)
+	LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
 else
 	LDSO=$(SYSTEM_LDSO)
 endif
-	
 
 
 # It turns out the currently, function-sections causes ldelf2flt to segfault.

@@ -54,12 +54,12 @@
 
 static char *rpath_link[] = {
 	"-Wl,-rpath-link,"UCLIBC_INSTALL_DIR"lib",
-	"-Wl,-rpath-link,"UCLIBC_BUILD_DIR
+	"-Wl,-rpath-link,"UCLIBC_BUILD_DIR"lib"
 };
 
 static char *rpath[] = {
 	"-Wl,-rpath,"UCLIBC_INSTALL_DIR"lib",
-	"-Wl,-rpath,"UCLIBC_BUILD_DIR
+	"-Wl,-rpath,"UCLIBC_BUILD_DIR"lib"
 };
 
 static char *uClibc_inc[] = {
@@ -74,7 +74,7 @@ static char *crt0_path[] = {
 
 static char *lib_path[] = {
 	"-L"UCLIBC_INSTALL_DIR"lib",
-	"-L"UCLIBC_BUILD_DIR
+	"-L"UCLIBC_BUILD_DIR"lib"
 };
 
 static char static_linking[] = "-static";

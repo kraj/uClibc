@@ -20,9 +20,8 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../
+TOPDIR=../../
 include $(TOPDIR)Rules.mak
-LIBC=$(TOPDIR)libc.a
 
 CSRC= pwent.c getpwnam.c getpwuid.c putpwent.c getpw.c fgetpwent.c \
 	__getgrent.c grent.c getgrnam.c getgrgid.c fgetgrent.c \

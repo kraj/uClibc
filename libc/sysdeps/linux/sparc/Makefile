@@ -20,9 +20,8 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../../../
+TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
-LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
 CRT0=crt0.S
@@ -46,7 +45,7 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)$(CRT0_OBJ)
+	cp $(CRT0_OBJ) $(TOPDIR)libc/$(CRT0_OBJ)
 
 $(CRT0_OBJ): %.o : %.S
 	$(CC) $(CFLAGS) -c $< -o $@

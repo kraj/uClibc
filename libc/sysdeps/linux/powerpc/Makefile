@@ -22,9 +22,8 @@
 
 USE_CRT0_C=y
 
-TOPDIR=../../../
+TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
-LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
 TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
@@ -34,8 +33,7 @@ CRT0=crt0.c
 else
 CRT0=crt0.S
 endif
-
-CRT0_OBJ=crt0.o
+CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 
 SSRC=longjmp.S setjmp.S vfork.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
@@ -53,7 +51,7 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)crt0.o
+	cp $(CRT0_OBJ) $(TOPDIR)libc/$(CRT0_OBJ)
 
 ifeq ($(USE_CRT0_C),y)
 $(CRT0_OBJ): %.o : %.c

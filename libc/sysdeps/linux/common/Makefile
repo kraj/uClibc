@@ -21,9 +21,8 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../../../
+TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
-LIBC=$(TOPDIR)libc.a
 
 CSRC=	waitpid.c getdents.c kernel_version.c statfix.c getdnnm.c tell.c gethstnm.c \
 	mkfifo.c setegid.c wait.c errno.c getpagesize.c  seteuid.c wait3.c setpgrp.c \

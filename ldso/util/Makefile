@@ -1,9 +1,9 @@
 TOPDIR=../../
-include $(TOPDIR)/ld.so-1/Rules.mak
+include $(TOPDIR)/ldso/Rules.mak
 
 CFLAGS += -DLDSO_ADDR="0x62f00020" # needed by ldd.o
 CFLAGS += -I./ -I../../include/
-LDFLAGS += -nostdlib ../../libc.a ../../crt0.o $(GCCINCDIR)/../libgcc.a
+LDFLAGS += -nostdlib $(TOPDIR)lib/libc.a $(TOPDIR)lib/crt0.o $(GCCINCDIR)/../libgcc.a
 
 ALL	= ldconfig ldd # lddstub
 

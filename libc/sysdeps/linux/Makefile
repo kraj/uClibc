@@ -20,15 +20,13 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../../
+TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
 DIRS = common $(TARGET_ARCH)
 ALL_SUBDIRS = arm common i386 m68k powerpc sh sparc 
 
-all: libc.a
-
-libc.a: subdirs
+all: subdirs
 
 tags:
 	ctags -R

@@ -1,7 +1,6 @@
 include $(TOPDIR)Rules.mak
 
 LDSO_VERSION=1.9.11
-LIBDL = libdl.so
 
 DEVEL=true
 

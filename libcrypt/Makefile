@@ -39,7 +39,7 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBCRYPT) $(OBJS)
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBCRYPT)
-	install -m 644 $(LIBCRYPT) $(TOPDIR)lib/
+	install -m 644 $(LIBCRYPT) $(TOPDIR)lib
 
 $(OBJS): %.o : %.c
 	$(TARGET_CC) $(CFLAGS) -c $< -o $@
@@ -49,10 +49,11 @@ $(OBJ): Makefile
 
 shared: all
 	$(TARGET_CC) $(LDFLAGS) -shared -o $(LIBCRYPT_SHARED_FULLNAME) \
-	    -Wl,-soname,$(LIBCRYPT_SHARED).$(MAJOR_VERSION) $(OBJS) $(TOPDIR)$(SHARED_FULLNAME)
+	    -Wl,-soname,$(LIBCRYPT_SHARED).$(MAJOR_VERSION) -Wl,--whole-archive \
+	    $(LIBCRYPT) $(TOPDIR)lib/$(SHARED_FULLNAME)
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBCRYPT_SHARED).$(MAJOR_VERSION)
-	install -m 644 $(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib/;
+	install -m 644 $(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib;
 	(cd $(TOPDIR)lib; ln -sf $(LIBCRYPT_SHARED_FULLNAME) $(LIBCRYPT_SHARED).$(MAJOR_VERSION)); 
 
 clean: 

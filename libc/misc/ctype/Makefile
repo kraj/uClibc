@@ -20,9 +20,8 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../../
+TOPDIR=../../../
 include $(TOPDIR)Rules.mak
-LIBC=$(TOPDIR)libc.a
 
 MSRC=ctype.c
 MOBJ= isalnum.o isalpha.o isascii.o iscntrl.o isdigit.o isgraph.o \

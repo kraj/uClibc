@@ -30,48 +30,22 @@
 TOPDIR=./
 include Rules.mak
 
-DIRS = extra misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd libcrypt libutil libm
+DIRS = extra ldso libc libcrypt libutil libm
 
-ifeq ($(strip $(HAS_MMU)),true)
-	DO_SHARED=shared
-endif
+all: headers uClibc_config.h subdirs $(DO_SHARED) done
 
-all: halfclean headers uClibc_config.h subdirs $(LIBNAME) $(DO_SHARED) done
-
-$(LIBNAME): subdirs
-	$(CROSS)ranlib $(LIBNAME)
-
-shared: $(LIBNAME)
-	@rm -rf tmp
-	@mkdir tmp
-	@$(MAKE) -C ld.so-1 ldso
-	@(cd tmp; CC=$(CC) /bin/sh ../extra/scripts/get-needed-libgcc-objects.sh)
-	if [ -s ./tmp/libgcc-need.a ] ; then \
-		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
-		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
-		    ./$(LIBNAME) ./tmp/libgcc-need.a \
-		    $(LDSO) ; \
-	else \
-		$(CC) -g $(LDFLAGS) -shared -o $(SHARED_FULLNAME) \
-		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
-		    ./$(LIBNAME) $(LDSO) ; \
-	fi
-	@rm -rf tmp
-	cp -a $(SHARED_FULLNAME) lib;
-	(cd lib; ln -sf $(SHARED_FULLNAME) $(SHARED_MAJORNAME));
+shared:
+	@$(MAKE) -C libc shared
+	@$(MAKE) -C ldso shared
+	@$(MAKE) -C ldso/libdl shared
 	@$(MAKE) -C libcrypt shared
 	@$(MAKE) -C libutil shared
 	@$(MAKE) -C libm shared
-	@$(MAKE) -C ld.so-1
 
-done: $(LIBNAME) $(DO_SHARED)
+done: $(DO_SHARED)
 	@echo
 	@echo Finally finished compiling...
 	@echo
-
-halfclean:
-	@rm -f $(LIBNAME) crt0.o uClibc_config.h
-	@rm -f $(SHARED_FULLNAME) $(SHARED_MAJORNAME) uClibc-0.* libc.so*
 
 headers: dummy
 	@rm -f include/asm include/linux include/bits
@@ -91,54 +65,8 @@ headers: dummy
 	    sleep 10; \
 	fi;
 	@ln -s $(KERNEL_SOURCE)/include/linux include/linux
-	@ln -s ../sysdeps/linux/$(TARGET_ARCH)/bits include/bits
-	@ln -sf ../../../../uClibc_config.h sysdeps/linux/$(TARGET_ARCH)/bits/uClibc_config.h
-
-
-tags:
-	ctags -R
-
-clean: subdirs_clean halfclean
-	@rm -rf tmp
-	rm -f include/asm include/linux include/bits
-	@$(MAKE) -C ld.so-1 clean
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS) test)
-
-$(patsubst %, _dir_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(DIRS) test) : dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-install: install_runtime install_dev
-
-# Installs shared library
-install_runtime:
-	install -d $(INSTALL_DIR)/lib
-	cp -fa lib/* $(INSTALL_DIR)/lib;
-
-# Installs development library and headers
-# This is done with the assumption that it can blow away anything
-# in $(INSTALL_DIR)/include.  Probably true only if you're using
-# a packaging system.
-install_dev:
-	install -d $(INSTALL_DIR)/include
-	install -d $(INSTALL_DIR)/include/bits
-	rm -f $(INSTALL_DIR)/include/asm
-	rm -f $(INSTALL_DIR)/include/linux
-	ln -s $(KERNEL_SOURCE)/include/asm $(INSTALL_DIR)/include/asm
-	ln -s $(KERNEL_SOURCE)/include/linux $(INSTALL_DIR)/include/linux
-	find include/ -type f -depth -not -path "*CVS*" -exec install -D -m 644 {} $(INSTALL_DIR)/'{}' ';'
-	find include/bits/ -type f -depth -not -path "*CVS*" -exec install -D -m 644 {} $(INSTALL_DIR)/'{}' ';'
-	install -m 644 include/bits/uClibc_config.h $(INSTALL_DIR)/include/bits/
-	install -d $(INSTALL_DIR)/lib
-	rm -f $(INSTALL_DIR)/lib/$(LIBNAME)
-	install -m 644 $(LIBNAME) $(INSTALL_DIR)/lib/
-	@if [ -f crt0.o ] ; then install -m 644 crt0.o $(INSTALL_DIR)/lib/; fi
-	install -d $(INSTALL_DIR)/bin
-	$(MAKE) -C extra/gcc-uClibc install
+	@ln -s ../libc/sysdeps/linux/$(TARGET_ARCH)/bits include/bits
+	(cd include/bits; ln -sf ../../../../../uClibc_config.h uClibc_config.h)
 
 uClibc_config.h: Config
 	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > uClibc_config.h
@@ -198,6 +126,44 @@ uClibc_config.h: Config
 	else \
 	    echo "#undef __UCLIBC_HAS_RPC__" >> uClibc_config.h ; \
 	fi
+
+subdirs: $(patsubst %, _dir_%, $(DIRS))
+
+$(patsubst %, _dir_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dir_%, %, $@)
+
+tags:
+	ctags -R
+
+install: install_runtime install_dev
+
+# Installs shared library
+install_runtime:
+	install -d $(INSTALL_DIR)/lib
+	cp -fa lib/* $(INSTALL_DIR)/lib;
+
+# Installs development library and headers
+# This is done with the assumption that it can blow away anything
+# in $(INSTALL_DIR)/include.  Probably true only if you're using
+# a packaging system.
+install_dev:
+	install -d $(INSTALL_DIR)/include
+	install -d $(INSTALL_DIR)/include/bits
+	rm -f $(INSTALL_DIR)/include/asm
+	rm -f $(INSTALL_DIR)/include/linux
+	ln -s $(KERNEL_SOURCE)/include/asm $(INSTALL_DIR)/include/asm
+	ln -s $(KERNEL_SOURCE)/include/linux $(INSTALL_DIR)/include/linux
+	find include/ -type f -depth -not -path "*CVS*" -exec install \
+	    -D -m 644 {} $(INSTALL_DIR)/'{}' ';'
+	find include/bits/ -type f -depth -not -path "*CVS*" -exec install \
+	    -D -m 644 {} $(INSTALL_DIR)/'{}' ';'
+	install -m 644 include/bits/uClibc_config.h $(INSTALL_DIR)/include/bits/
+	$(MAKE) -C extra/gcc-uClibc install
+
+clean:
+	@rm -rf tmp lib
+	rm -f include/asm include/linux include/bits uClibc_config.h
+	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core \) -exec rm -f {} \;
 
 .PHONY: dummy subdirs
 

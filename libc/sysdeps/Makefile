@@ -22,9 +22,7 @@
 
 DIRS = linux
 
-all: libc.a
-
-libc.a: subdirs
+all: subdirs
 
 tags:
 	ctags -R

@@ -20,9 +20,8 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../../
+TOPDIR=../../../
 include $(TOPDIR)Rules.mak
-LIBC=$(TOPDIR)libc.a
 
 CSRC=alphasort.c closedir.c dirfd.c opendir.c readdir.c rewinddir.c scandir.c seekdir.c telldir.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))

@@ -1,6 +1,8 @@
 # Makefile for uClibc's math library
-#
 # Copyright (C) 2001 by Lineo, inc.
+#
+# This math library is derived primarily from the Cephes Math Library,
+# copyright by Stephen L. Moshier <moshier@world.std.com>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -16,9 +18,6 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
-# Derived in part from the Linux-8086 C library, the GNU C Library, and several
-# other sundry sources.  Files within this library are copyright by their
-# respective copyright holders.
 
 TOPDIR=../../
 include $(TOPDIR)Rules.mak

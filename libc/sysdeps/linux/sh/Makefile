@@ -21,9 +21,8 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../../../
+TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
-LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
 CFLAGS+= -I../ -D__ASSEMBLER__ -DASM_GLOBAL_DIRECTIVE=.globl
@@ -31,7 +30,6 @@ CFLAGS+= -I../ -D__ASSEMBLER__ -DASM_GLOBAL_DIRECTIVE=.globl
 TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
 
 CRT0=crt0.S
-
 CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 
 SSRC=setjmp.S bsd-setjmp.S bsd-_setjmp.S __longjmp.S
@@ -49,7 +47,7 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)crt0.o
+	cp $(CRT0_OBJ) $(TOPDIR)libc/$(CRT0_OBJ)
 
 $(CRT0_OBJ): %.o : %.S
 	$(CC) $(CFLAGS) -c $< -o $@

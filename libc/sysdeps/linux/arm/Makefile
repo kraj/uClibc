@@ -20,9 +20,8 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../../../
+TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
-LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
 TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
@@ -32,7 +31,6 @@ ifeq ($(TARGET_MACHINE_TYPE),arm-pic-elf)
 else
     CRT0=crt0.S
 endif
-
 CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 
 SSRC=longjmp.S setjmp.S vfork.S
@@ -50,7 +48,7 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)crt0.o
+	cp $(CRT0_OBJ) $(TOPDIR)libc/$(CRT0_OBJ)
 
 $(CRT0_OBJ): %.o : %.S
 	$(CC) $(CFLAGS) -c $< -o $@
