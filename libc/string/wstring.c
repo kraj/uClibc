@@ -320,16 +320,19 @@ int Wstrcmp(register const Wchar *s1, register const Wchar *s2)
 /**********************************************************************/
 #ifdef L_strcoll
 #error implement strcoll and remove weak_alias!!
-/*  extern unsigned char *_ctype_collate; */
 
-/*  int strcoll(register const char *s1, const char *s2) */
-/*  { */
-/*  	int r; */
+#if 0
+extern unsigned char *_ctype_collate;
+int strcoll(register const char *s1, const char *s2)
+{
+    int r;
 
-/*  	while (!(r = (_ctype_collate[(int)(*s1++)]-_ctype_collate[(int)(*s2++)]))); */
-	
-/*  	return r; */
-/*  } */
+    while (!(r = (_ctype_collate[(int)(*s1++)]-_ctype_collate[(int)(*s2++)])));
+
+    return r;
+}
+#endif
+
 #endif
 /**********************************************************************/
 #ifdef L_wcsncmp
@@ -369,8 +372,8 @@ int Wstrncmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 /**********************************************************************/
 #ifdef L_strxfrm
 #error implement strxfrm
-/*  size_t strxfrm(char * __restrict s1, const char * __restrict s2, size_t n) */
-#endif
+/* size_t strxfrm(char *dst, const char *src, size_t len); */
+#endif	
 /**********************************************************************/
 #ifdef L_wmemchr
 #define L_memchr

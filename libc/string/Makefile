@@ -38,16 +38,8 @@ MOBJW2= wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
 	wcsnlen.o wcspbrk.o wcsrchr.o wcsspn.o wcsstr.o wcstok.o wmemchr.o \
 	wmemcmp.o wmemcpy.o wmemmove.o wmempcpy.o wmemset.o
 
-# ifeq ($(HAS_LOCALE),true)
-# 	MOBJ += strcoll.o
-# endif
-
 MSRC1=strsignal.c
 MOBJ1=strsignal.o psignal.o
-
-MOBJ2=
-#MSRC2=strstr.c
-#MOBJ2=strstr.o strcasestr.o
 
 # CSRC=strpbrk.c strsep.c strtok.c strtok_r.c strcspn.c \
 # 	strspn.c strcasecmp.c strncasecmp.c strerror.c bcopy.c bzero.c \
