@@ -29,9 +29,11 @@
  */
 
 
-#include <fcntl.h>
-#include <stdio.h>
+#define _GNU_SOURCE
+#include <features.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/mman.h>
@@ -150,7 +152,8 @@ static void search_for_named_library(char *name, char *result, const char *path_
 	*result = '\0';
 }
 
-void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_suid, struct library *lib)
+void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_suid, 
+		struct library *lib, char *ldpath)
 {
 	char *buf;
 	char *path;
@@ -197,6 +200,14 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 		}
 	}
 
+	if (ldpath) {
+		search_for_named_library(lib->name, buf, ldpath);
+		if (*buf != '\0') {
+			lib->path = buf;
+			return;
+		}
+	}
+
 #ifdef USE_CACHE
 	/* FIXME -- add code to check the Cache here */ 
 #endif
@@ -218,7 +229,7 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int
 	}
 }
 
-static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid, char *s)
+static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid, char *s, char *ldpath)
 {
 	char *tmp, *tmp1, *tmp2;
 	struct library *cur, *newlib=lib_list;
@@ -262,7 +273,7 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int i
 	newlib->next = NULL;
 
 	/* Now try and locate where this library might be living... */
-	locate_library_file(ehdr, dynamic, strtab, is_setuid, newlib);
+	locate_library_file(ehdr, dynamic, strtab, is_setuid, newlib, ldpath);
 
 	//printf("add_library is adding '%s' to '%s'\n", newlib->name, newlib->path);
 	if (!lib_list) {
@@ -277,11 +288,20 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int i
 
 static void find_needed_libraries(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid)
 {
+	char * ldpath = NULL;
 	Elf32_Dyn  *dyns;
+	Elf32_Phdr *phdr;
+
+	/* Find the path where the shared lib loader lives */
+	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
+	if (phdr) {
+		ldpath = strdup((char*)ehdr + phdr->p_offset);
+		ldpath = basename(ldpath);
+	}
 
 	for (dyns=dynamic; dyns->d_tag!=DT_NULL; ++dyns) {
 		if (dyns->d_tag == DT_NEEDED) {
-			add_library(ehdr, dynamic, strtab, is_setuid, (char*)strtab + dyns->d_un.d_val);
+			add_library(ehdr, dynamic, strtab, is_setuid, (char*)strtab + dyns->d_un.d_val, ldpath);
 		}
 	}
 }
