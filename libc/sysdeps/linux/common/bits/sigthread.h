@@ -33,6 +33,6 @@ extern int pthread_sigmask (int __how,
 			    __sigset_t *__restrict __oldmask)__THROW;
 
 /* Send signal SIGNO to the given thread. */
-extern int pthread_kill (pthread_t __thread, int __signo) __THROW;
+extern int pthread_kill (pthread_t __thread_id, int __signo) __THROW;
 
 #endif	/* bits/sigthread.h */
