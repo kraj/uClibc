@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2001 by Lineo, inc.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -20,32 +20,25 @@
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
 
-TOPDIR=../
+TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
+CSRC=closedir.c dirfd.c opendir.c readdir.c rewinddir.c seekdir.c telldir.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(COBJS)
 
-DIRS = assert crypt ctype dirent fnmatch glob internals lsearch mntent syslog \
-	time utmp tsearch locale sysvipc
+all: $(OBJS) $(LIBC)
 
-all: libc.a
+$(LIBC): ar-target
 
-libc.a: subdirs
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-tags:
-	ctags -R
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-clean: subdirs_clean
+clean:
 	rm -f *.[oa] *~ core
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
-
-$(patsubst %, _dir_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-.PHONY: dummy
 
