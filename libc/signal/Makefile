@@ -24,10 +24,11 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-CSRC=bsd_sig.c raise.c sigblock.c siggetmask.c sigjmp.c signal.c sigintr.c\
-	sigpause.c sigstmsk.c killpg.c allocrtsig.c sigsetops.c \
-	sigaddset.c sigandset.c sigdelset.c sigfillset.c sigorset.c \
-	sigempty.c sighold.c sigisempty.c sigismem.c sigrelse.c sysv_signal.c
+CSRC= allocrtsig.c killpg.c raise.c sigaction.c sigaddset.c sigandset.c \
+	sigblock.c sigdelset.c sigempty.c sigfillset.c siggetmask.c sighold.c \
+	sigignore.c sigintr.c sigisempty.c sigismem.c sigjmp.c signal.c \
+	sigorset.c sigpause.c sigrelse.c sigset.c sigsetmask.c sigsetops.c \
+	sigsuspend.c sysv_signal.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(COBJS)

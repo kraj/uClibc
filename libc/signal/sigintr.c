@@ -23,35 +23,32 @@
 /* If INTERRUPT is nonzero, make signal SIG interrupt system calls
    (causing them to fail with EINTR); if INTERRUPT is zero, make system
    calls be restarted after signal SIG.  */
-int
-siginterrupt (sig, interrupt)
-     int sig;
-     int interrupt;
+int siginterrupt (int sig, int interrupt)
 {
 #ifdef	SA_RESTART
-  extern sigset_t _sigintr;	/* Defined in signal.c.  */
-  struct sigaction action;
+    extern sigset_t _sigintr;	/* Defined in signal.c.  */
+    struct sigaction action;
 
-  if (sigaction (sig, (struct sigaction *) NULL, &action) < 0)
-    return -1;
+    if (sigaction (sig, (struct sigaction *) NULL, &action) < 0)
+	return -1;
 
-  if (interrupt)
+    if (interrupt)
     {
-      sigaddset (&_sigintr, sig);
-      action.sa_flags &= ~SA_RESTART;
+	__sigaddset (&_sigintr, sig);
+	action.sa_flags &= ~SA_RESTART;
     }
-  else
+    else
     {
-      sigdelset (&_sigintr, sig);
-      action.sa_flags |= SA_RESTART;
+	__sigdelset (&_sigintr, sig);
+	action.sa_flags |= SA_RESTART;
     }
 
-  if (sigaction (sig, &action, (struct sigaction *) NULL) < 0)
-    return -1;
+    if (sigaction (sig, &action, (struct sigaction *) NULL) < 0)
+	return -1;
 
-  return 0;
+    return 0;
 #else
-  __set_errno (ENOSYS);
-  return -1;
+    __set_errno (ENOSYS);
+    return -1;
 #endif
 }

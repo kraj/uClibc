@@ -1,5 +1,7 @@
-/* Copyright (C) 1991, 1996, 1997 Free Software Foundation, Inc.
+/* Set the disposition of SIG to SIG_IGN.
+   Copyright (C) 1998 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
+   Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public License as
@@ -17,19 +19,18 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <errno.h>
-#define __USE_GNU
-#include <signal.h>
 #define __need_NULL
 #include <stddef.h>
+#include <signal.h>
 
-/* Combine sets LEFT and RIGHT by logical OR and place result in DEST.  */
-int sigorset (sigset_t *dest, const sigset_t *left, const sigset_t *right)
+int sigignore (int sig)
 {
-    if (dest == NULL || left == NULL || right == NULL)
-    {
-	__set_errno (EINVAL);
-	return -1;
-    }
+    struct sigaction act;
 
-    return __sigorset (dest, left, right);
+    act.sa_handler = SIG_IGN;
+    if (__sigemptyset (&act.sa_mask) < 0)
+	return -1;
+    act.sa_flags = 0;
+
+    return sigaction (sig, &act, NULL);
 }

@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 1992, 1996, 1997 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,40 +17,62 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <errno.h>
+#define __need_NULL
+#include <stddef.h>
 #include <signal.h>
 
-/* Tolerate non-threads versions of Posix */
-#ifndef SA_ONESHOT
-#define SA_ONESHOT 0
-#endif
-#ifndef SA_NOMASK
-#define SA_NOMASK 0
-#endif
-#ifndef SA_INTERRUPT
-#define SA_INTERRUPT 0
-#endif
 
-/* Set the handler for the signal SIG to HANDLER,
-   returning the old handler, or SIG_ERR on error.  */
-__sighandler_t sysv_signal (int sig, __sighandler_t handler)
+/* Set the disposition for SIG.  */
+__sighandler_t sigset (int sig, __sighandler_t disp)
 {
     struct sigaction act, oact;
+    sigset_t set;
+
+#ifdef SIG_HOLD
+    /* Handle SIG_HOLD first.  */
+    if (disp == SIG_HOLD)
+    {
+	/* Create an empty signal set.  */
+	if (__sigemptyset (&set) < 0)
+	    return SIG_ERR;
+
+	/* Add the specified signal.  */
+	if (__sigaddset (&set, sig) < 0)
+	    return SIG_ERR;
+
+	/* Add the signal set to the current signal mask.  */
+	if (__sigprocmask (SIG_BLOCK, &set, NULL) < 0)
+	    return SIG_ERR;
+
+	return SIG_HOLD;
+    }
+#endif	/* SIG_HOLD */
 
     /* Check signal extents to protect __sigismember.  */
-    if (handler == SIG_ERR || sig < 1 || sig >= NSIG)
+    if (disp == SIG_ERR || sig < 1 || sig >= NSIG)
     {
 	__set_errno (EINVAL);
 	return SIG_ERR;
     }
 
-    act.sa_handler = handler;
+    act.sa_handler = disp;
     if (__sigemptyset (&act.sa_mask) < 0)
 	return SIG_ERR;
-    act.sa_flags = SA_ONESHOT | SA_NOMASK | SA_INTERRUPT;
-    act.sa_flags &= ~SA_RESTART;
+    act.sa_flags = 0;
     if (sigaction (sig, &act, &oact) < 0)
+	return SIG_ERR;
+
+    /* Create an empty signal set.  */
+    if (__sigemptyset (&set) < 0)
+	return SIG_ERR;
+
+    /* Add the specified signal.  */
+    if (__sigaddset (&set, sig) < 0)
+	return SIG_ERR;
+
+    /* Remove the signal set from the current signal mask.  */
+    if (sigprocmask (SIG_UNBLOCK, &set, NULL) < 0)
 	return SIG_ERR;
 
     return oact.sa_handler;
 }
-

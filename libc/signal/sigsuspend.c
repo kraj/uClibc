@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 1996, 1997 Free Software Foundation, Inc.
+/* Copyright (C) 1991, 1996, 1997, 1998 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,19 +17,33 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <errno.h>
-#define __USE_GNU
 #include <signal.h>
-#define __need_NULL
 #include <stddef.h>
+#include <unistd.h>
 
-/* Combine sets LEFT and RIGHT by logical OR and place result in DEST.  */
-int sigorset (sigset_t *dest, const sigset_t *left, const sigset_t *right)
+
+/* Change the set of blocked signals to SET,
+   wait until a signal arrives, and restore the set of blocked signals.  */
+int __sigsuspend (const sigset_t *set)
 {
-    if (dest == NULL || left == NULL || right == NULL)
+    sigset_t oset;
+    int save;
+
+    if (set == NULL)
     {
 	__set_errno (EINVAL);
 	return -1;
     }
 
-    return __sigorset (dest, left, right);
+    if (sigprocmask (SIG_SETMASK, set, &oset) < 0)
+	return -1;
+
+    (void) pause();
+    save = errno;
+
+    if (sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL) < 0)
+	return -1;
+
+    __set_errno (save);
+    return -1;
 }

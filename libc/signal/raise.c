@@ -7,9 +7,8 @@
 #include <signal.h>
 #include <sys/types.h>
 
-int raise(signo)
-int signo;
+int raise(int signo)
 {
-	return kill(getpid(), signo);
+    return kill(getpid(), signo);
 }
 
