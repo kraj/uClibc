@@ -26,7 +26,7 @@ LIBC=$(TOPDIR)libc.a
 
 
 DIRS = assert crypt ctype dirent fnmatch glob internals lsearch mntent syslog \
-	time utmp tsearch locale sysvipc
+	time utmp tsearch locale regex sysvipc
 
 all: libc.a
 
