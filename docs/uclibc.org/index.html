@@ -110,17 +110,109 @@ you might want to search the mailing list archives...
 <TR><TD BGCOLOR="#eeeee0">
 
 <ul>
+
+    <p>
+    <li> <b>25 January 2003, uClibc 0.9.17 Released</b>
+    <br>
+
+    CodePoet Consulting is pleased to announce the immediate availability of
+    uClibc 0.9.17.  The biggest piece of news with this release, thanks to
+    Manuel Novoa's continuing hard work, is that we now have fully standards
+    compliant locale support (optional of course).  The support works nicely,
+    (though configuring the locales you wish to support is still manual -- a
+    task for the next release).  Full locale data for over 300 locales adds
+    approximately 250k.  The collation data for all supported locales is
+    roughly 180k.  This may seem rather large to some -- but it is much smaller
+    than the approximately 40 MB needed by Glibc to provide the same data.  And
+    if you don't need it, you can either disable locale support entirely, or
+    enable a smaller set of locales. 
+
+    <p>
+
+    This release also fixes <em>lots and lots</em> of bugs.  The arm
+    architecture support (I am embarrassed to note) was totally broken in the
+    last release, but is now working as expected.   A security problem (a
+    buffer overflow in getlogin_r) was fixed.  And there were architecture
+    updates across the board (x86, arm, powerpc, cris, h8300, sparc, and mips).
+    And of course, this release includes the usual pile of bug fixes.  Many
+    thanks for the large number of patches and fixes that were contributed!
+
+    <p>
+
+    Unfortunately, this release is not binary compatible with earlier uClibc
+    releases.  As noted as item 3 in <a
+    href="downloads/Glibc_vs_uClibc_Differences.txt">
+    Glibc_vs_uClibc_Differences.txt</a>, uClibc does not (yet) attempt to
+    ensure binary compatibility across releases.  We will eventually do that
+    (once we reach the "1.0" release) but not yet.  A few bugs turned up that
+    needed to be fixed, and the only good way to fix them was to change some
+    fundamental data structure sizes.  As a result, this release is _NOT_
+    binary compatible with earlier releases -- you will need to recompile your
+    applications.  The x86, arm, powerpc, and mips architectures (i.e. the
+    systems Erik has available in his office for testing) have been tested and
+    are known to work following this change.  Other architectures <em>may</em> 
+    need additional updates.  Sorry about that, but it had to be done.  
+
+    <p>
+    As usual, the 
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/Changelog">Changelog</a>
+    and <a href="http://www.kernel.org/pub/linux/libs/uclibc/uClibc-0.9.17.tar.bz2">source code</a> 
+    for this release are available <a href="http://www.kernel.org/pub/linux/libs/uclibc/">here</a>.
+    You might want to download uClibc from the closest 
+    <a href="http://kernel.org/mirrors/">kernel.org mirror site</a>.
+    Just pick the closest mirror site, and then go to 
+    <a href="http://www.kernel.org/pub/linux/libs/uclibc/">
+    http://www.XX.kernel.org/pub/linux/libs/uclibc/</a>
+    to download uClibc, where XX is your two letter country code.
+    <p>
+
+
     
+    <p>
+    <li> <b>25 January 2003, dev system updates, arm image released</b>
+    <br>
+
+    A number of additional problems have been fixed and the arm build 
+    is now, finally, compiling and working as expected.  As such, 
+    I have updated the <a href="ftp://ftp.uclibc.org/uClibc/root_fs_0.9.17-i386.bz2">
+    i386 development system image</a>, the 
+    <a href="ftp://ftp.uclibc.org/uClibc/root_fs_0.9.17-powerpc.bz2">
+    powerpc development system image</a>, and I am also releasing
+    upon an unsuspecting world the brand new
+    <a href="ftp://ftp.uclibc.org/uClibc/root_fs_0.9.17-arm.bz2">
+    arm development system image</a>!  
+    Have fun!
+    <p>
+
+    All three development system images were compiled and built using the stock
+    <a href="/cgi-bin/cvsweb/buildroot/">buildroot</a> system.  These were also
+    built using the (about to be announced in a couple on minutes) uClibc
+    0.9.17 release, so if you want to begin compiling and testing stuff with
+    uClibc, but you don't feel like spending the _hours_ it takes to download,
+    configure, and build your own uClibc based development system -- then you
+    may want to download these and give them a try.  They each contain a 100 MB
+    ext2 filesystem with everything you need to begin compiling your own
+    applications.  I have (at least minimally) tested each of them and verified
+    that the included gcc and g++ compilers produce working uClibc linked
+    executables.
+
+    <p>
+    Oh, and I have also have updated the uClibc/gcc toolchain builders, so
+    if you just want a simple uClibc/gcc toolchain, 
+    <a href="/cgi-bin/cvsweb/toolchain/">one of these should work for you.</a>
+    <p>
+
+
     <p>
     <li> <b>10 January 2003, dev system updates, powerpc image released</b>
     <br>
 
     A few problems showed up in yesterday's development system release
     (adduser was broken, gdb didn't work, libstdc++ shared libs were missing,
-    etc).  So I've updated the <a href="ftp://ftp.uclibc.org/uClibc/root_fs_0.9.17.pre-i386.bz2">
+    etc).  So I've updated the <a href="ftp://ftp.uclibc.org/uClibc/root_fs_0.9.17-i386.bz2">
     i386 development system image</a> to fix these problems.
-    Also, the <a href="ftp://ftp.uclibc.org/uClibc/root_fs_0.9.17.pre-powerpc.bz2">
-    powerpc development system imagee</a> has finally finished compiling
+    Also, the <a href="ftp://ftp.uclibc.org/uClibc/root_fs_0.9.17-powerpc.bz2">
+    powerpc development system image</a> has finally finished compiling
     and is now released upon an unsuspecting world.  Have fun!
     <p>
 
@@ -144,7 +236,7 @@ you might want to search the mailing list archives...
 
     <p>
 
-    The <a href="ftp://ftp.uclibc.org/uClibc/root_fs_0.9.17.pre-i386.bz2">
+    The <a href="ftp://ftp.uclibc.org/uClibc/root_fs_0.9.17-i386.bz2">
     uClibc development system is an 18MB bzip2 compressed ext2 filesystem</a>,
     so be prepared to wait if you are on a slow link.  If you wish to have more
     space, you can loop mount it and 'cp -a' the contents to their own
@@ -154,7 +246,7 @@ you might want to search the mailing list archives...
     hard drive (in my case /dev/hdg but you'll want to adapt this to your own 
     needs), so I partitioned it with a single ext2 partition filling the drive 
     (in my case /dev/hdg1).  Then I ran:<PRE>
-    bzcat root_fs_0.9.17.pre-i386.bz2 | dd of=/dev/hdg1
+    bzcat root_fs_0.9.17-i386.bz2 | dd of=/dev/hdg1
     e2fsck -f /dev/hdg1
     resize2fs -p /dev/hdg1</PRE>
 

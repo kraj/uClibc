@@ -80,39 +80,6 @@ to the uClibc home page.</a>
 <p>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
     <B>
-    Can I use it on my desktop i386 system?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-
-    Sure!  In fact, this can be very nice during development.  By
-    installing uClibc on your development system, you can be sure that
-    the code you are working on will actually run when you deploy it
-    your target system.
-
-
-
-<p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
-    Does uClibc support shared libraries?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-    
-    Yes.  uClibc has native shared library support on i386, ARM, mips/mipsel, 
-    SH, and PowerPC processors.  Other architectures can use shared libraries
-    but will need to use the GNU libc shared library loader.
-    <p>
-    Shared Libraries are not currently supported by uClibc on MMU-less systems.  
-    <a href="http://www.snapgear.com/">SnapGear</a> has implemented
-    shared library support for MMU-less systems, however, so if you need MMU-less 
-    shared library support they may be able to help.
-
-
-<p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
     Why are you doing this?  What's wrong with glibc?
     </B>
 </TD></TR>
@@ -218,6 +185,39 @@ to the uClibc home page.</a>
     fixes to your application.  You do not need to make the application
     object file available to everyone, just to those you gave the fully
     linked application.  
+
+
+<p>
+<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
+    <B>
+    Can I use it on my desktop i386 system?
+    </B>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+
+    Sure!  In fact, this can be very nice during development.  By
+    installing uClibc on your development system, you can be sure that
+    the code you are working on will actually run when you deploy it
+    your target system.
+
+
+
+<p>
+<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
+    <B>
+    Does uClibc support shared libraries?
+    </B>
+</TD></TR>
+<TR><TD BGCOLOR="#eeeee0">
+    
+    Yes.  uClibc has native shared library support on i386, ARM, mips/mipsel, 
+    SH, CRIS, and PowerPC processors.  Other architectures can use shared libraries
+    but will need to use the GNU libc shared library loader.
+    <p>
+    Shared Libraries are not currently supported by uClibc on MMU-less systems.  
+    <a href="http://www.snapgear.com/">SnapGear</a> has implemented
+    shared library support for MMU-less systems, however, so if you need MMU-less 
+    shared library support they may be able to help.
 
 
 <p>
