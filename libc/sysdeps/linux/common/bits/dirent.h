@@ -30,9 +30,7 @@ struct dirent
     __off64_t d_off;
 #endif
     unsigned short int d_reclen;
-#ifdef __USE_FILE_OFFSET64
     unsigned char d_type;
-#endif
     char d_name[256];		/* We must not include limits.h! */
   };
 
@@ -52,8 +50,4 @@ struct dirent64
 #undef  _DIRENT_HAVE_D_NAMLEN
 #define _DIRENT_HAVE_D_RECLEN
 #define _DIRENT_HAVE_D_OFF
-#ifdef __USE_FILE_OFFSET64
-# define _DIRENT_HAVE_D_TYPE
-#else
-# undef _DIRENT_HAVE_D_TYPE
-#endif
+#define _DIRENT_HAVE_D_TYPE

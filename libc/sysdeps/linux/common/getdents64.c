@@ -35,13 +35,13 @@
 
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
-struct kernel_dirent64
+struct kernel_dirent64 
 {
-    uint64_t            d_ino;
-    int64_t             d_off;
-    unsigned short int  d_reclen;
-    unsigned char       d_type;
-    char                d_name[256];
+    uint64_t		d_ino;
+    int64_t		d_off;
+    unsigned short	d_reclen;
+    unsigned char	d_type;
+    char		d_name[256];
 };
 
 

@@ -34,10 +34,10 @@
 
 struct kernel_dirent
 {
-    long int d_ino;
-    __kernel_off_t d_off;
-    unsigned short int d_reclen;
-    char d_name[256];
+    long		d_ino;
+    __kernel_off_t	d_off;
+    unsigned short	d_reclen;
+    char		d_name[256];
 };
 
 #define __NR___syscall_getdents __NR_getdents
@@ -90,7 +90,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 	dp->d_ino = kdp->d_ino;
 	dp->d_off = kdp->d_off;
 	dp->d_reclen = new_reclen;
-	//dp->d_type = DT_UNKNOWN;
+	dp->d_type = DT_UNKNOWN;
 	memcpy (dp->d_name, kdp->d_name,
 		kdp->d_reclen - offsetof (struct kernel_dirent, d_name));
 	dp = (struct dirent *) ((char *) dp + new_reclen);
