@@ -128,19 +128,28 @@ To subscribe, go and visit
     <li> <b>21 March 2002, uClibc 0.9.10 Released!</b>
     <br>
 
-    CodePoet Consulting is pleased to announce the immediate availability of
-    uClibc 0.9.10.  This release adds pthreads support (including pthreads
-    support for mmu-less systems).  Additionally, thanks to Manuel Novoa III,
-    we now have a completely new stdio library, which is small, standards
-    compliant, and supports pthreads, wide/narrow streams, large files, and can
-    even operate in a low-memory unbuffered mode.  Many, many bugs have been
-    fixed and a number of additional applications now compile and run
-    perfectly.  To make things more interesting, the release also adds support
-    for C++ constructors and destructors, and makes it easy to use uClibc to
-    create C++ by providing a uClibc wrapper for the GNU C++ compiler.
+    CodePoet Consulting is pleased to announce the immediate
+    availability of uClibc 0.9.10. This release adds pthreads support
+    (including pthreads support for mmu-less systems!).  Additionally,
+    thanks to Manuel Novoa III, we now have a completely new stdio
+    library, which is small, standards compliant, supports pthreads,
+    wide/narrow streams, large files, and can even operate in a
+    low-memory unbuffered mode.  Many, many bugs have been fixed and a
+    number of additional applications now compile and run perfectly.
+    Even with all these changes, the uClibc continues to be very small.
+    On x86, a default build of the uClibc C library is still just 168k.
+
     <p>
-    A native GNU toolchain (binutils/gcc) that targets uClibc 0.9.10 will
-    be released in the next couple of days, so stay tuned.
+
+    To make things more interesting, the release also adds support for
+    C++ constructors and destructors.  To make it easy to use uClibc
+    when developing C++ applications, this release also provides a 
+    wrapper for the GNU C++ compiler.  Of course, for more complex C++
+    applications, such as those using iostreams, a standard C++ library
+    (libstdc++) is required.  A native GNU toolchain (binutils/gcc) that
+    provides libstdc++ linked with uClibc 0.9.10 will be released in the
+    next couple of days, so stay tuned.
+
     <p>
     The <a href="downloads/Changelog">Changelog</a>
     and <a href="downloads/uClibc-0.9.10.tar.bz2">Source code</a> 
