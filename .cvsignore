@@ -1,0 +1,3 @@
+libc.a       
+libcrt0.o
+libuClibc.so.1
