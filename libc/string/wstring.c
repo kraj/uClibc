@@ -636,10 +636,11 @@ int Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
 #ifdef L_strcmp
 
 #ifdef __LOCALE_C_ONLY
-#warning c only
 #ifdef L_wcscmp
+link_warning(wcscmp,"the 'wcscmp' function supports only C|POSIX locales")
 weak_alias(wcscmp,wcscoll);
 #else  /* L_wcscmp */
+link_warning(strcmp,"the 'strcmp' function supports only C|POSIX locales")
 weak_alias(strcmp,strcoll);
 #endif /* L_wcscmp */
 #endif /* __LOCALE_C_ONLY */
