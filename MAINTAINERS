@@ -23,95 +23,95 @@ S: Status, one of the following:
 ----------------------------------------------------------------------
 
 ALPHA
-S:      Unmaintained
+S:	Unmaintained
 
 
 ARM
 N:	Erik Andersen
 E:	andersen@codepoet.org
-W:      http://www.arm.linux.org.uk/
-S:      Maintained
+W:	http://www.arm.linux.org.uk/
+S:	Maintained
 
 
 BFIN
 N:	Erik Andersen
 E:	andersen@codepoet.org
-W:      http://www.arm.linux.org.uk/
-S:      Maintained
+W:	http://www.arm.linux.org.uk/
+S:	Maintained
 
 
 CRIS
-P:      Tobias Anderberg
-M:      tobias.anderberg@axis.com
-W:      http://developer.axis.com
-S:      Maintained
+P:	Tobias Anderberg
+M:	tobias.anderberg@axis.com
+W:	http://developer.axis.com
+S:	Maintained
 
 
 E1
-S:      Unmaintained
+S:	Unmaintained
 
 
 FRV
-S:      Unmaintained
+S:	Unmaintained
 
 
 H8300
-S:      Unmaintained
+S:	Unmaintained
 
 
 I386
 N:	Erik Andersen
 E:	andersen@codepoet.org
-W:      http://www.arm.linux.org.uk/
-S:      Maintained
+W:	http://www.arm.linux.org.uk/
+S:	Maintained
 
 
 I960
-S:      Unmaintained
+S:	Unmaintained
 
 
 M68K
-S:      Unmaintained
+S:	Unmaintained
 
 
 MICROBLAZE
-S:      Unmaintained
+S:	Unmaintained
 
 
 MIPS
 N:	Erik Andersen
 E:	andersen@codepoet.org
-W:      http://www.arm.linux.org.uk/
-S:      Maintained
+W:	http://www.arm.linux.org.uk/
+S:	Maintained
 
 
 NIOS and NIOS2
-S:      Unmaintained
+S:	Unmaintained
 
 
 POWERPC
 N:	Joakim Tjernlund
 E:	joakim.tjernlund@lumentis.se
-W:      http://penguinppc.org/
-S:      Maintained
+W:	http://penguinppc.org/
+S:	Maintained
 
 
 SH and SH64
-P:      Paul Mundt
-E:      lethal@linux-sh.org
-W:      http://www.linux-sh.org
-W:      http://www.m17n.org/linux-sh/
-S:      Maintained
+P:	Paul Mundt
+E:	lethal@linux-sh.org
+W:	http://www.linux-sh.org
+W:	http://www.m17n.org/linux-sh/
+S:	Maintained
 
 
 SPARC
-S:      Unmaintained
+S:	Unmaintained
 
 
 V850
-S:      Unmaintained
+S:	Unmaintained
 
 
 X86_64
-S:      Unmaintained
+S:	Unmaintained
 
