@@ -39,7 +39,7 @@ static void __attribute__ ((unused)) foobar(void)
 
 static int __attribute__ ((unused)) foobar1 = (int) foobar;	/* Use as pointer */
 extern void _dl_dprintf(int, const char *, ...) __attribute__ ((__weak__, __alias__ ("foobar")));
-extern char *_dl_find_hash(char *, struct dyn_elf *, struct elf_resolve *, enum caller_type)
+extern char *_dl_find_hash(const char *, struct dyn_elf *, struct elf_resolve *, enum caller_type)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
 extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **, struct elf_resolve *, char *)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
