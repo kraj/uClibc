@@ -1,7 +1,7 @@
 #!/bin/sh
 
 
-version=$(dpkg-parsechangelog | grep ^Version | sed 's/^Version: //')
+version=$(dpkg-parsechangelog | grep ^Version | sed 's/^Version: //' | sed 's/-1$//')
 
 dir=uclibc-${version}
 
