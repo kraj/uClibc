@@ -83,6 +83,9 @@
  *    1) fix %p so that "0x" is prepended to outputed hex val
  *    2) fix %p so that "(nil)" is output for (void *)0 to match glibc
  *
+ * Sep 5, 2003
+ *    Convert to new floating point conversion routine.
+ *
  */
 
 /*****************************************************************************/
@@ -151,7 +154,45 @@
 #endif
 
 #if defined(__UCLIBC_HAS_FLOATS__)
-extern size_t _dtostr(FILE * fp, long double x, struct printf_info *info);
+#include <float.h>
+#include <bits/uClibc_fpmax.h>
+
+typedef void (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
+							  intptr_t buf);
+
+extern size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+						  __fp_outfunc_t fp_outfunc);
+
+#define FMT_TYPE char
+#define OUTNSTR _outnstr
+#define _outnstr(stream, string, len)	_stdio_fwrite(string, len, stream)
+
+static void _charpad(FILE * __restrict stream, int padchar, size_t numpad)
+{
+	/* TODO -- Use a buffer to cut down on function calls... */
+	FMT_TYPE pad[1];
+
+	*pad = padchar;
+	while (numpad) {
+		OUTNSTR(stream, pad, 1);
+		--numpad;
+	}
+}
+
+static void _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
+{
+	if (type & 0x80) {			/* Some type of padding needed. */
+		int buflen = strlen((const char *) buf);
+		if ((len -= buflen) > 0) {
+			_charpad(fp, (type & 0x7f), len);
+		}
+		len = buflen;
+	}
+	OUTNSTR(fp, (const char *) buf, len);
+}
+
+
+
 #endif
 
 
@@ -384,11 +425,12 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 					if (flag[FLAG_MINUS_LJUSTIFY]) {
 						PRINT_INFO_SET_FLAG(&info,left);
 					}
-					cnt += _dtostr(op, 
-								   ((lval > 1)
-									? va_arg(ap, long double)
-									: (long double) va_arg(ap, double)),
-								   &info);
+					cnt += _fpmaxtostr(op, 
+									   (__fpmax_t)
+									   ((lval > 1)
+										? va_arg(ap, long double)
+										: (long double) va_arg(ap, double)),
+									   &info, _fp_out_narrow);
 					goto nextfmt;
 #elif WANT_FLOAT_ERROR
 					(void) ((lval > 1) ? va_arg(ap, long double)
