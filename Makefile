@@ -29,7 +29,7 @@
 include Rules.mak
 
 
-DIRS = misc pwd_grp stdio string termios unistd net signal stdlib sysdeps extra
+DIRS = extra misc pwd_grp stdio string termios net signal stdlib sysdeps unistd
 
 ifeq ($(HAS_MMU),true)
 	DO_SHARED=shared

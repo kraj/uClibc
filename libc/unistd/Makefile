@@ -24,9 +24,16 @@ TOPDIR=../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-
 CSRC=execl.c execlp.c execv.c execvep.c execvp.c getcwd.c getopt.c \
-	sleep.c sysconf.c getpass.c
+	sleep.c getpass.c sysconf_src.c
+
+# TESTING -- comment this out if it breaks for you
+ifeq ($(TARGET_ARCH), $(NATIVE_ARCH))
+	SYSCONF = sysconf_native
+else
+	SYSCONF = sysconf_$(TARGET_ARCH).c
+endif
+
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 MSRC=gnu_getopt.c
@@ -36,12 +43,43 @@ MOBJ=_gnu_getopt_internal.o gnu_getopt_long.o gnu_getopt_long_only.o
 # over gnu_getopt when appropriate.
 OBJS=$(COBJS) $(MOBJ)
 
-all: $(OBJS) $(LIBC)
+all: $(SYSCONF) $(OBJS) $(LIBC)
 
 $(LIBC): ar-target subdirs
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+
+# We are cross-compiling so use the generic sysconf.c.
+sysconf_$(TARGET_ARCH).c: sysconf.c
+	@echo warning: sysconf_$(NATIVE_ARCH).c is older then sysconf.c so using generic sysconf.c
+	@echo To build sysconf_$(NATIVE_ARCH).c run gen_sysconf \> sysconf_$(NATIVE_ARCH).c on
+	@echo your target platform, place in the unistd directory, and rebuild
+	cp -f sysconf.c sysconf_src.c
+
+# We are compiling for the native platform, so build an optimized sysconf.c.
+sysconf_native: sysconf.c
+	$(CC) $(CFLAGS) -D_UCLIBC_GENERATE_SYSCONF_ARCH -c sysconf.c -o sysconf_tester.o
+	$(CC) $(CFLAGS) -D_UCLIBC_GENERATE_SYSCONF_ARCH -c ../sysdeps/linux/common/getpagesize.c -o getpagesize_tester.o
+	@ld -r -o gen_sysconf_tester.o sysconf_tester.o getpagesize_tester.o
+	@if nm -s gen_sysconf_tester.o | grep -v "U errno" | grep " U " ;\
+	then \
+		echo warning: missing symbols in gen_sysconf_tester.o so using generic sysconf.c ;\
+		cp -f sysconf.c sysconf_src.c ;\
+	else \
+		if ../extra/gcc-uClibc/gcc-uClibc-$(NATIVE_ARCH) -static -D_UCLIBC_GENERATE_SYSCONF_MAIN sysconf.c sysconf_tester.o -o gen_sysconf && \
+			./gen_sysconf > sysconf_$(NATIVE_ARCH).c ;\
+		then \
+			echo successfully built sysconf_$(NATIVE_ARCH).c ;\
+		else \
+			echo warning: build of gen_sysconf failed so using generic sysconf.c ;\
+			cp -f sysconf.c sysconf_$(NATIVE_ARCH).c ;\
+		fi ;\
+	fi
+
+sysconf_src.c: sysconf_$(TARGET_ARCH).c
+	cp -f sysconf_$(TARGET_ARCH).c sysconf_src.c
+
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -63,5 +101,5 @@ $(patsubst %, _dirclean_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 clean:
-	rm -f *.[oa] *~ core
+	rm -f *.[oa] *~ core gen_sysconf sysconf_*.c
 
