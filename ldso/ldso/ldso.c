@@ -609,12 +609,12 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	   up each symbol individually. */
 
 
-	_dl_brkp = (unsigned long *) (intptr_t) _dl_find_hash("___brk_addr", NULL, 0);
+	_dl_brkp = (unsigned long *) (intptr_t) _dl_find_hash("___brk_addr", NULL, ELF_RTYPE_CLASS_PLT);
 
 	if (_dl_brkp) {
 		*_dl_brkp = brk_addr;
 	}
-	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash("__environ", NULL, 0);
+	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash("__environ", NULL, ELF_RTYPE_CLASS_PLT);
 
 	if (_dl_envp) {
 		*_dl_envp = (unsigned long) envp;
@@ -638,10 +638,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 
 	}
 #endif
-	_dl_atexit = (int (*)(void *)) (intptr_t) _dl_find_hash("atexit", NULL, 0);
+	_dl_atexit = (int (*)(void *)) (intptr_t) _dl_find_hash("atexit", NULL, ELF_RTYPE_CLASS_PLT);
 #if defined (__SUPPORT_LD_DEBUG__)
 	_dl_on_exit = (int (*)(void (*)(int, void *),void*))
-		(intptr_t) _dl_find_hash("on_exit", NULL, 0);
+		(intptr_t) _dl_find_hash("on_exit", NULL, ELF_RTYPE_CLASS_PLT);
 #endif
 
 	/* Notify the debugger we have added some objects. */
