@@ -329,6 +329,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 #endif
 		for (i = 0; i < header->nlibs; i++) {
 			if ((libent[i].flags == LIB_ELF ||
+						libent[i].flags == LIB_ELF_LIBC0 ||
 						libent[i].flags == LIB_ELF_LIBC5) &&
 					_dl_strcmp(libname, strs + libent[i].sooffset) == 0 &&
 					(tpnt1 = _dl_load_elf_shared_library(secure,
