@@ -15,6 +15,8 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+#define __FORCE_GLIBC__
+#include <features.h>
 #include <netdb.h>
 
 extern int _net_stayopen;

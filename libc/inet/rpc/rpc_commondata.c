@@ -27,6 +27,8 @@
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
+#define __FORCE_GLIBC__
+#include <features.h>
 #include <rpc/rpc.h>
 /*
  * This file should only contain common data (global data) that is exported
