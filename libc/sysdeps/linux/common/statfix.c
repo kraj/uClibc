@@ -24,6 +24,7 @@
  * struct stat should look like.  It turns out that each arch has a different
  * opinion on the subject.  Then pull in libc's version of struct stat... */
 #include "statfix.h"
+#include <string.h>
 
 /* Convert from the kernel's version of struct stat to libc's version  */
 void __statfix(struct libc_stat *libcstat, struct kernel_stat *kstat)

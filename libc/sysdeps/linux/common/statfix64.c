@@ -27,6 +27,7 @@
 #include "statfix64.h"
 
 #ifdef __UCLIBC_HAVE_LFS__
+#include <string.h>
 
 /* Convert from the kernel's version of struct stat to libc's version  */
 void __statfix64(struct libc_stat64 *libcstat, struct kernel_stat64 *kstat)
