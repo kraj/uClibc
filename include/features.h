@@ -90,5 +90,16 @@
 #include <bits/uClibc_config.h>
 #undef __need_uClibc_config_h
 
+
+#if 1	/* This only works with GNU ld, but that is what we use 'round these parts */
+#define link_warning(symbol, msg) \
+asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");  \
+static const char __evoke_link_warning_##symbol[]     \
+__attribute__ ((section (".gnu.warning." #symbol "\n\t#"))) = msg;
+#else
+# define link_warning(symbol, msg)
+#endif
+
+
 #endif
 

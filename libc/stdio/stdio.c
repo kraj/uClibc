@@ -314,6 +314,7 @@ char *fgets(char *s, int count, FILE *fp)
 #endif
 
 #ifdef L_gets
+link_warning (gets, "the `gets' function is dangerous and should not be used.")
 char *gets(char *str) /* This is an UNSAFE function! */
 {
 	/* 
