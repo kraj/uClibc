@@ -79,10 +79,6 @@
 
 #endif
 
-/* No C++ */
-#define __BEGIN_DECLS
-#define __END_DECLS
-
 /* GNUish things */
 #define __CONSTVALUE
 #define __CONSTVALUE2
@@ -115,7 +111,8 @@
 	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");  \
 	    static const char __evoke_link_warning_##symbol[]     \
 	    __attribute__ ((section (".gnu.warning." #symbol "\n\t#"))) = msg;
-#   define weak_alias(name, aliasname) __asm__(".weak aliasname;aliasname = name");
+#   define weak_alias(name, aliasname) \
+	asm(".global " #name ";.weak " #aliasname ";" #aliasname "=" #name ";");
 #else
 #   define link_warning(symbol, msg) \
 	asm (".stabs \"" msg "\",30,0,0,0\n\t" \
