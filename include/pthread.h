@@ -268,6 +268,9 @@ extern int pthread_attr_getstackaddr (__const pthread_attr_t *__restrict
 				      __attr, void **__restrict __stackaddr)
      __THROW;
 
+#if 0
+/* Not yet implemented in uClibc! */
+
 #ifdef __USE_XOPEN2K
 /* The following two interfaces are intended to replace the last two.  They
    require setting the address as well as the size since only setting the
@@ -279,6 +282,7 @@ extern int pthread_attr_setstack (pthread_attr_t *__attr, void *__stackaddr,
 extern int pthread_attr_getstack (__const pthread_attr_t *__restrict __attr,
 				  void **__restrict __stackaddr,
 				  size_t *__restrict __stacksize) __THROW;
+#endif
 #endif
 
 /* Add information about the minimum stack size needed for the thread
@@ -292,9 +296,13 @@ extern int pthread_attr_getstacksize (__const pthread_attr_t *__restrict
 				      __attr, size_t *__restrict __stacksize)
      __THROW;
 
+#if 0
+/* Not yet implemented in uClibc! */
+
 #ifdef __USE_GNU
 /* Get thread attributes corresponding to the already running thread TH.  */
 extern int pthread_getattr_np (pthread_t __th, pthread_attr_t *__attr) __THROW;
+#endif
 #endif
 
 /* Functions for scheduling control.  */
@@ -319,12 +327,16 @@ extern int pthread_getconcurrency (void) __THROW;
 extern int pthread_setconcurrency (int __level) __THROW;
 #endif
 
+#if 0
+/* Not yet implemented in uClibc! */
+
 #ifdef __USE_GNU
 /* Yield the processor to another thread or process.
    This function is similar to the POSIX `sched_yield' function but
    might be differently implemented in the case of a m-on-n thread
    implementation.  */
 extern int pthread_yield (void) __THROW;
+#endif
 #endif
 
 /* Functions for mutex handling.  */
@@ -453,25 +465,27 @@ extern int pthread_rwlock_rdlock (pthread_rwlock_t *__rwlock) __THROW;
 /* Try to acquire read lock for RWLOCK.  */
 extern int pthread_rwlock_tryrdlock (pthread_rwlock_t *__rwlock) __THROW;
 
-#ifdef __USE_XOPEN2K
-/* Try to acquire read lock for RWLOCK or return after specfied time.  */
-extern int pthread_rwlock_timedrdlock (pthread_rwlock_t *__restrict __rwlock,
-				       __const struct timespec *__restrict
-				       __abstime) __THROW;
-#endif
-
 /* Acquire write lock for RWLOCK.  */
 extern int pthread_rwlock_wrlock (pthread_rwlock_t *__rwlock) __THROW;
 
 /* Try to acquire write lock for RWLOCK.  */
 extern int pthread_rwlock_trywrlock (pthread_rwlock_t *__rwlock) __THROW;
 
+#if 0
+/* Not yet implemented in uClibc! */
+
 #ifdef __USE_XOPEN2K
+/* Try to acquire read lock for RWLOCK or return after specfied time.  */
+extern int pthread_rwlock_timedrdlock (pthread_rwlock_t *__restrict __rwlock,
+				       __const struct timespec *__restrict
+				       __abstime) __THROW;
 /* Try to acquire write lock for RWLOCK or return after specfied time.  */
 extern int pthread_rwlock_timedwrlock (pthread_rwlock_t *__restrict __rwlock,
 				       __const struct timespec *__restrict
 				       __abstime) __THROW;
 #endif
+#endif
+
 
 /* Unlock RWLOCK.  */
 extern int pthread_rwlock_unlock (pthread_rwlock_t *__rwlock) __THROW;
@@ -502,6 +516,9 @@ extern int pthread_rwlockattr_getkind_np (__const pthread_rwlockattr_t *__attr,
 extern int pthread_rwlockattr_setkind_np (pthread_rwlockattr_t *__attr,
 					  int __pref) __THROW;
 #endif
+
+#if 0
+/* Not yet implemented in uClibc! */
 
 #ifdef __USE_XOPEN2K
 /* The IEEE Std. 1003.1j-2000 introduces functions to implement
@@ -545,6 +562,7 @@ extern int pthread_barrierattr_setpshared (pthread_barrierattr_t *__attr,
 					   int __pshared) __THROW;
 
 extern int pthread_barrier_wait (pthread_barrier_t *__barrier) __THROW;
+#endif
 #endif
 
 
@@ -647,10 +665,14 @@ extern void _pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *__buff
 #endif
 
 
+#if 0
+/* Not yet implemented in uClibc! */
+
 #ifdef __USE_XOPEN2K
 /* Get ID of CPU-time clock for thread THREAD_ID.  */
 extern int pthread_getcpuclockid (pthread_t __thread_id,
 				  clockid_t *__clock_id) __THROW;
+#endif
 #endif
 
 
