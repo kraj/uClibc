@@ -1119,8 +1119,8 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 	/* ANSI/ISO C99 requires format string to be a valid multibyte string
 	 * beginning and ending in its initial shift state. */
 	if (((__UCLIBC_CURLOCALE_DATA).encoding) != __ctype_encoding_7_bit) {
-		mbstate.mask = 0;		/* Initialize the mbstate. */
 		const char *p = format;
+		mbstate.mask = 0;		/* Initialize the mbstate. */
 		if (mbsrtowcs(NULL, &p, SIZE_MAX, &mbstate) == ((size_t)(-1))) {
 			__set_errno(EINVAL); /* Format string is invalid. */
 			return 0;

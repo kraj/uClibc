@@ -1378,9 +1378,8 @@ __locale_t weak_const_function __curlocale(void)
 
 __locale_t weak_function __curlocale_set(__locale_t newloc)
 {
-	assert(newloc != LC_GLOBAL_LOCALE);
-
 	__locale_t oldloc = __curlocale_var;
+	assert(newloc != LC_GLOBAL_LOCALE);
 	__curlocale_var = newloc;
 	return oldloc;
 }
