@@ -43,7 +43,7 @@ CSRC = fclose.c fcloseall.c fdopen.c fgetpos.c fopen.c freopen.c \
 # Implementation support functions
 CSRC += _READ.c _WRITE.c _adjust_pos.c _fopen.c _fwrite.c \
 	_rfill.c _stdio.c _trans2r.c _trans2w.c _wcommit.c \
-	_load_inttype.c _store_inttype.c _uintmaxtostr.c
+	_cs_funcs.c _load_inttype.c _store_inttype.c _uintmaxtostr.c
 ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 CSRC += _fpmaxtostr.c
 endif
@@ -53,7 +53,9 @@ CSRC += __fbufsize.c __flbf.c __fpending.c __fpurge.c __freadable.c \
 	__freading.c __fsetlocking.c __fwritable.c __fwriting.c _flushlbf.c
 
 # Other glibc extensions
-CSRC += fopencookie.c fmemopen.c open_memstream.c _cs_funcs.c
+ifeq ($(strip $(UCLIBC_HAS_GLIBC_CUSTOM_STREAMS)),y)
+CSRC += fopencookie.c fmemopen.c open_memstream.c
+endif
 
 # pthread functions
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
