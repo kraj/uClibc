@@ -37,24 +37,22 @@
 	  *REL += SYMBOL;					\
 	  break;						\
         case R_ARM_PC24:					\
-          {							\
-	    unsigned long newval, topbits;			\
-	    long addend=*REL & 0x00ffffff;			\
-	    if(addend & 0x00800000)				\
-	      addend|=0xff000000;				\
-	    newval=SYMBOL- ((unsigned long)REL) + (addend<<2);	\
-	    topbits=newval & 0xfe000000;			\
-	    if (topbits != 0xfe000000 && topbits != 0x00000000) {/* \
-	      newval=fix_bad_pc24(REL,value) -			\
-	      ((unsigned long)REL) + (addend << 2);		\
-	      topbits=newval & 0xfe000000;			\
-	      if(topbits != 0xfe000000 && topbits != 0x00000000)*/ \
-	        _dl_exit(1);					\
-	    }							\
-	    newval>>=2;						\
-	    SYMBOL= (*REL & 0xff000000)|(newval & 0x00ffffff);	\
+	    { long newvalue, topbits;				\
+	    unsigned long addend = *REL & 0x00ffffff;		\
+	    if (addend & 0x00800000) addend |= 0xff000000;	\
+	    newvalue=SYMBOL-(unsigned long)REL+(addend<<2);	\
+	    topbits = newvalue & 0xfe000000;			\
+	    if (topbits!=0xfe000000&&topbits!=0x00000000){	\
+	    newvalue = fix_bad_pc24(REL, SYMBOL)		\
+		-(unsigned long)REL+(addend<<2);		\
+	    topbits = newvalue & 0xfe000000;			\
+	    if (topbits!=0xfe000000&&topbits!=0x00000000){	\
+	    SEND_STDERR("R_ARM_PC24 relocation out of range\n");\
+	    _dl_exit(1); } }					\
+	    newvalue>>=2;					\
+	    SYMBOL=(*REL&0xff000000)|(newvalue & 0x00ffffff);	\
 	    *REL=SYMBOL;					\
-	  }							\
+	    }							\
 	  break;						\
 	case R_ARM_GLOB_DAT:					\
 	case R_ARM_JUMP_SLOT:					\
@@ -66,6 +64,7 @@
         case R_ARM_NONE:					\
 	  break;						\
 	default:						\
+	  SEND_STDERR("Aiieeee!");				\
 	  _dl_exit(1);						\
 	}
 
@@ -88,7 +87,7 @@
 #define ELF_TARGET "ARM"
 
 struct elf_resolve;
-extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
+unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
 static inline unsigned long arm_modulus(unsigned long m, unsigned long p) {
 	unsigned long i,t,inc;

@@ -23,8 +23,9 @@
 /* Enable this to turn on debugging noise */
 //#define DL_DEBUG
 
-/* Enable mprotect protection munging.  We don't need this for Linux */
-//#define DO_MPROTECT_HACKS
+/* Enable mprotect protection munging.  ARM Linux needs this it seems,
+ * so leave this enabled by default */
+#define DO_MPROTECT_HACKS
 
 // Support a list of library preloads in /etc/ld.so.preload
 //#define SUPPORT_LDSO_PRELOAD_FILE
