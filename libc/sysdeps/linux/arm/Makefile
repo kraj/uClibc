@@ -25,7 +25,7 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
-SSRC=_start.S
+SSRC=
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=divsi3.c
