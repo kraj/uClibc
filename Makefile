@@ -76,6 +76,11 @@ include/bits/uClibc_config.h: .config
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -o extra/Configs/Config.in
 
+# For the moment, we have to keep re-running this target 
+# because the fix includes scripts rely on pre-processers 
+# in order to generate the headers correctly :(.  That 
+# means we can't use the $(HOSTCC) in order to get the 
+# correct output.
 headers: include/bits/uClibc_config.h
 ifeq ($(strip $(ARCH_HAS_MMU)),y)
 	@set -x; ./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH)
