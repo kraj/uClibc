@@ -626,7 +626,7 @@ weak_alias(__libc_fcntl, fcntl)
 #include <unistd.h>
 #define __NR___syscall_setpgid __NR_setpgid
 static inline
-_syscall2(int, __syscall_setpgid, __kernel_pid_t, pid, __kernel_pid_t, pgid)
+_syscall2(int, __syscall_setpgid, __kernel_pid_t, pid, __kernel_pid_t, pgid);
 int setpgid(pid_t pid, pid_t pgid)
 {
 	return(__syscall_setpgid(pid, pgid));
@@ -1432,7 +1432,7 @@ _syscall3(ssize_t, writev, int, filedes, const struct iovec *, vector, int,
 #include <unistd.h>
 #define __NR___syscall_getsid __NR_getsid
 static inline
-_syscall1(__kernel_pid_t, __syscall_getsid, __kernel_pid_t, pid)
+_syscall1(__kernel_pid_t, __syscall_getsid, __kernel_pid_t, pid);
 pid_t getsid(pid_t pid)
 {
 	return(__syscall_getsid(pid));
