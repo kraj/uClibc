@@ -23,7 +23,7 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-DIRS = $(TARGET_ARCH) common
+DIRS = common $(TARGET_ARCH)
 ALL_SUBDIRS = $(shell find * -type d -prune -name [a-z]\*)
 
 all: libc.a
