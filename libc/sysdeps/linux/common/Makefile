@@ -50,7 +50,7 @@ $(MOBJ): $(MSRC)
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS):
-	$(CC) $(CFLAGS) -g $< -c $*.c -o $*.o
+	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
