@@ -356,12 +356,9 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching full lib path list\n");
 #endif
 	if ((tpnt1 = search_for_named_library(libname, secure,
-					UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib:"
-					UCLIBC_RUNTIME_PREFIX "usr/lib:"
 					UCLIBC_RUNTIME_PREFIX "lib:"
-					"/usr/X11R6/lib:"
-					"/usr/lib:"
-					"/lib", rpnt)
+					UCLIBC_RUNTIME_PREFIX "usr/lib"
+					, rpnt)
 		) != NULL)
 	{
 		return tpnt1;
