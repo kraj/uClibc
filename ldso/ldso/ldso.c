@@ -85,7 +85,7 @@ static void debug_fini (int status, void *arg)
 #endif
 
 void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
-		Elf32_auxv_t auxvt[AT_EGID + 1], char **envp, struct r_debug *debug_addr,
+		Elf32_auxv_t auxvt[AT_EGID + 1], char **envp,
 		unsigned char *malloc_buffer, unsigned char *mmap_zero, char **argv)
 {
 	ElfW(Phdr) *ppnt;
@@ -97,6 +97,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	struct elf_resolve *tpnt1;
 	struct elf_resolve app_tpnt_tmp;
 	struct elf_resolve *app_tpnt = &app_tpnt_tmp;
+	struct r_debug *debug_addr;
 	unsigned long brk_addr, *lpnt;
 	int (*_dl_atexit) (void *);
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -173,7 +174,11 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		}
 #endif
 	}
-
+	/*
+	 * This is used by gdb to locate the chain of shared libraries that are currently loaded.
+	 */
+	debug_addr = _dl_malloc(sizeof(struct r_debug));
+	_dl_memset(debug_addr, 0, sizeof(struct r_debug));
 
 	ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 	for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {

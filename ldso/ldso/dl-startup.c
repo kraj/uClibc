@@ -130,7 +130,6 @@ DL_BOOT(unsigned long args)
 	Elf32_auxv_t auxvt[AT_EGID + 1];
 	unsigned char *malloc_buffer, *mmap_zero;
 	Elf32_Dyn *dpnt;
-	struct r_debug *debug_addr = NULL;
 	size_t pagesize;
 	int indx;
 #if defined(__i386__)
@@ -299,12 +298,6 @@ found_got:
 	tpnt = LD_MALLOC(sizeof(struct elf_resolve));
 	_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
 
-	/*
-	 * This is used by gdb to locate the chain of shared libraries that are currently loaded.
-	 */
-	debug_addr = LD_MALLOC(sizeof(struct r_debug));
-	_dl_memset(debug_addr, 0, sizeof(struct r_debug));
-
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
@@ -433,7 +426,7 @@ found_got:
 	   fixed up by now.  Still no function calls outside of this library ,
 	   since the dynamic resolver is not yet ready. */
 	_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp,
-			     debug_addr, malloc_buffer, mmap_zero, argv);
+			     malloc_buffer, mmap_zero, argv);
 
 
 	/* Transfer control to the application.  */
