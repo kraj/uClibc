@@ -22,7 +22,7 @@
 
 
 TOPDIR=../../
-include $(TOPDIR)/ldso/Rules.mak
+include $(TOPDIR)Rules.mak
 
 LDSO_FULLNAME=ld-uclibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
 
@@ -34,7 +34,10 @@ AOBJS=$(patsubst %.S,%.o, $(ASRC))
 OBJS=$(AOBJS) $(COBJS)
 
 
-CFLAGS += -DUSE_CACHE -fPIC -D__PIC__ #-DDL_DEBUG #-funroll-loops
+CFLAGS=-Wall -Os -fPIC -D__PIC__ --uclibc-use-build-dir -I. -DUCLIBC_ROOT_DIR=\"$(ROOT_DIR)\"
+CC = $(TOPDIR)extra/gcc-uClibc/$(NATIVE_ARCH)-uclibc-gcc
+
+CFLAGS += #-DDL_DEBUG #-funroll-loops
 
 all: lib
 
@@ -45,8 +48,8 @@ lib:: ld.so.h $(OBJS) $(DLINK_OBJS)
 	install -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib; \
 	(cd $(TOPDIR)lib;ln -sf $(LDSO_FULLNAME) $(UCLIBC_LDSO));
 
-ld.so.h:
-	echo "char *_dl_progname = \""$(UCLIBC_LDSO)"\";" > ld.so.h
+ld.so.h: Makefile
+	echo "#define _dl_static_progname \""$(UCLIBC_LDSO)"\"" > ld.so.h
 
 $(COBJS): %.o : %.c
 	$(CC) -I. -I./$(TARGET_ARCH) -I../libdl $(CFLAGS) -c $< -o $@

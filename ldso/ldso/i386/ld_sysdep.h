@@ -14,11 +14,6 @@
  * do something a little more subtle here.
  */
 #define GET_ARGV(ARGVP, ARGS) ARGVP = ((unsigned long*) & ARGS)
-/*
- * Get the address of the Global offset table.  This must be absolute, not
- * relative.
- */
-#define GET_GOT(X)     __asm__("\tmovl %%ebx,%0\n\t" : "=a" (X))
 
 /*
  * Initialization sequence for a GOT.

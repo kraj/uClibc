@@ -99,7 +99,7 @@ static inline _syscall0(gid_t, _dl_getegid);
  * Not an actual syscall, but we need something in assembly to say whether
  * this is OK or not.
  */
-extern inline int _dl_suid_ok(void)
+static inline int _dl_suid_ok(void)
 {
     uid_t uid, euid, gid, egid;
 

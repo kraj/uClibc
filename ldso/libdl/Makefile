@@ -22,7 +22,7 @@
 
 
 TOPDIR=../../
-include $(TOPDIR)/ldso/Rules.mak
+include $(TOPDIR)Rules.mak
 
 LIBDL=libdl.a
 LIBDL_SHARED=libdl.so
@@ -32,7 +32,7 @@ TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 CSRC= dlib.c
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-CFLAGS += -DUSE_CACHE #-fPIC -D__PIC__ #-funroll-loops
+CFLAGS += --uclibc-use-build-dir -DUSE_CACHE #-fPIC -D__PIC__ #-funroll-loops
 
 all: $(OBJS) $(LIBDL) shared
 

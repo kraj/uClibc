@@ -112,22 +112,11 @@
  */
 #define REALIGN() malloc_buffer = (char *) (((unsigned long) malloc_buffer + 3) & ~(3))
 
-#define ELF_HASH(RESULT,NAME) { \
-  unsigned long hash = 0; \
-    unsigned long tmp;  \
-  char * name = NAME; \
-  while (*name){  \
-    hash = (hash << 4) + *name++; \
-    if((tmp = hash & 0xf0000000)) hash ^= tmp >> 24; \
-    hash &= ~tmp; \
-  } \
-  RESULT = hash; \
-}
-
 static char *_dl_malloc_addr, *_dl_mmap_zero;
 char *_dl_library_path = 0;		/* Where we look for libraries */
 char *_dl_preload = 0;			/* Things to be loaded before the libs. */
 #include "ld.so.h"			/* Pull in the name of ld.so */
+const char *_dl_progname=_dl_static_progname;
 static char *_dl_not_lazy = 0;
 static char *_dl_warn = 0;		/* Used by ldd */
 static char *_dl_trace_loaded_objects = 0;
@@ -180,9 +169,14 @@ void _dl_boot(unsigned int args)
 	int indx;
 	int _dl_secure;
 
+
+	/* WARNING! -- we cannot make _any_ funtion calls until we have
+	 * taken care of fixing up our own relocations.  Making static
+	 * lnline calls is ok, but _no_ function calls.  Not yet
+	 * anyways. */
+
 	/* First obtain the information on the stack that tells us more about
 	   what binary is loaded, where it is loaded, etc, etc */
-
 	GET_ARGV(aux_dat, args);
 	argc = *(aux_dat - 1);
 	argv = (char **) aux_dat;
@@ -193,7 +187,7 @@ void _dl_boot(unsigned int args)
 		aux_dat++;			/* Skip over the envp pointers */
 	aux_dat++;				/* Skip over NULL at end of envp */
 
-	/* Place -1 here as a checkpoint.  We check later to see if it got changed 
+	/* Place -1 here as a checkpoint.  We check later to see if it was changed 
 	 * when we read in the auxv_t */
 	auxv_t[AT_UID].a_type = -1;
 	
@@ -205,35 +199,92 @@ void _dl_boot(unsigned int args)
 		Elf32_auxv_t *auxv_entry = (Elf32_auxv_t*) aux_dat;
 
 		if (auxv_entry->a_type <= AT_EGID) {
-			_dl_memcpy(&(auxv_t[auxv_entry->a_type]), auxv_entry, sizeof(Elf32_auxv_t));
+			_dl_memcpy_inline(&(auxv_t[auxv_entry->a_type]), auxv_entry, sizeof(Elf32_auxv_t));
 		}
 		aux_dat += 2;
 	}
-
-	/* Next, locate the GOT */
+	
+	/* locate the ELF header.   We need this done as easly as possible 
+	 * (esp since SEND_STDERR() needs this on some platforms... */
 	load_addr = auxv_t[AT_BASE].a_un.a_val;
-	if (load_addr == 0x0) {
-	    /* Looks like they decided to run ld-linux-uclibc.so as 
-	     * an executable.  Exit gracefully for now. */
-
-	    /* TODO -- actually accept executables and args to run... */
-	    //SEND_STDERR("Usage: ld.so EXECUTABLE [ARGS...]\n");
-	    SEND_STDERR("You have run `ld.so', the helper program for shared\n");
-	    SEND_STDERR("library executables.  You probably did not intend to\n");
-	    SEND_STDERR("run this as a program.  Goodbye.\n\n");
+	header = (elfhdr *) auxv_t[AT_BASE].a_un.a_ptr;
+	
+	/* check the ELF header to make sure everything looks ok.  */
+	if (! header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
+		header->e_ident[EI_VERSION] != EV_CURRENT || 
+		_dl_strncmp_inline((void *)header, ELFMAG, SELFMAG) != 0)
+	{
+	    SEND_STDERR("invalid ELF header\n");
 	    _dl_exit(0);
 	}
 #ifdef DL_DEBUG
-	SEND_STDERR("load_addr=");
+	SEND_STDERR("ELF header =");
 	SEND_STDERR(_dl_simple_ltoahex(load_addr));
 	SEND_STDERR("\n");
 #endif	
-	GET_GOT(got);
+
+
+	/* Locate the global offset table.  Since this code must be PIC  
+	 * we can take advantage of the magic offset register, if we
+	 * happen to know what that is for this architecture.  If not,
+	 * we can always read stuff out of the ELF file to fine it... */
+#if defined(__i386__)
+	__asm__("\tmovl %%ebx,%0\n\t" : "=a" (got));
+#elif defined(__m68k__)
+	__asm__ ("movel %%a5,%0" : "=g" (got))
+#elif defined(__sparc__)
+	__asm__("\tmov %%l7,%0\n\t" : "=r" (got))
+#else
+	/* Do things the slow way in C */
+	{
+	    unsigned long tx_reloc;
+	    Elf32_Dyn *dynamic=NULL;
+	    Elf32_Shdr *shdr;
+	    Elf32_Phdr *pt_load;
+
 #ifdef DL_DEBUG
-	SEND_STDERR("Found got=");
-	SEND_STDERR(_dl_simple_ltoahex((unsigned long)*got));
-	SEND_STDERR("\n");
+	    SEND_STDERR("Finding the got using C code to read the ELF file\n");
 #endif	
+	    /* Find where the dynamic linking information section is hiding */
+	    shdr = (Elf32_Shdr *)(header->e_shoff + (char *)header);
+	    for (indx = header->e_shnum; --indx>=0; ++shdr) {
+		if (shdr->sh_type == SHT_DYNAMIC) {
+		    goto found_dynamic;
+		}
+	    }
+	    SEND_STDERR("missing dynamic linking information section \n");
+	    _dl_exit(0);
+
+found_dynamic:
+	    dynamic = (Elf32_Dyn*)(shdr->sh_offset + (char *)header);
+
+	    /* Find where PT_LOAD is hiding */
+	    pt_load = (Elf32_Phdr *)(header->e_phoff + (char *)header);
+	    for (indx = header->e_phnum; --indx>=0; ++pt_load) {
+		if (pt_load->p_type == PT_LOAD) {
+		    goto found_pt_load;
+		}
+	    }
+	    SEND_STDERR("missing loadable program segment\n");
+	    _dl_exit(0);
+
+found_pt_load:
+	    /* Now (finally) find where DT_PLTGOT is hiding */
+	    tx_reloc = pt_load->p_vaddr - pt_load->p_offset;
+	    for (; DT_NULL!=dynamic->d_tag; ++dynamic) {
+		if (dynamic->d_tag == DT_PLTGOT) {
+		    goto found_got;
+		}       
+	    }       
+	    SEND_STDERR("missing global offset table\n");
+	    _dl_exit(0);
+
+found_got:
+	    got = (unsigned long *)(dynamic->d_un.d_val - tx_reloc + (char *)header );
+	}
+#endif
+
+	/* Now, finally, fix up the location of the dynamic stuff */
 	dpnt = (Elf32_Dyn *) (*got + load_addr);
 #ifdef DL_DEBUG
 	SEND_STDERR("First Dynamic section entry=");
@@ -252,15 +303,15 @@ void _dl_boot(unsigned int args)
 	}
 
 	tpnt = DL_MALLOC(sizeof(struct elf_resolve));
-	_dl_memset(tpnt, 0, sizeof(*tpnt));
+	_dl_memset_inline(tpnt, 0, sizeof(*tpnt));
 	app_tpnt = DL_MALLOC(sizeof(struct elf_resolve));
-	_dl_memset(app_tpnt, 0, sizeof(*app_tpnt));
+	_dl_memset_inline(app_tpnt, 0, sizeof(*app_tpnt));
 
 	/*
 	 * This is used by gdb to locate the chain of shared libraries that are currently loaded.
 	 */
 	debug_addr = DL_MALLOC(sizeof(struct r_debug));
-	_dl_memset(debug_addr, 0, sizeof(*debug_addr));
+	_dl_memset_inline(debug_addr, 0, sizeof(*debug_addr));
 
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
@@ -1051,5 +1102,106 @@ char *_dl_get_last_path_component(char *path)
 		return path;
 	else
 		return s+1;
+}
+
+size_t _dl_strlen(const char * str)
+{
+	register char *ptr = (char *) str;
+
+	while (*ptr)
+		ptr++;
+	return (ptr - str);
+}
+
+char * _dl_strcpy(char * dst,const char *src)
+{
+	register char *ptr = dst;
+
+	while (*src)
+		*dst++ = *src++;
+	*dst = '\0';
+
+	return ptr;
+}
+ 
+int _dl_strcmp(const char * s1,const char * s2)
+{
+	unsigned register char c1, c2;
+
+	do {
+		c1 = (unsigned char) *s1++;
+		c2 = (unsigned char) *s2++;
+		if (c1 == '\0')
+			return c1 - c2;
+	}
+	while (c1 == c2);
+
+	return c1 - c2;
+}
+
+int _dl_strncmp(const char * s1,const char * s2,size_t len)
+{
+	unsigned register char c1 = '\0';
+	unsigned register char c2 = '\0';
+
+	while (len > 0) {
+		c1 = (unsigned char) *s1++;
+		c2 = (unsigned char) *s2++;
+		if (c1 == '\0' || c1 != c2)
+			return c1 - c2;
+		len--;
+	}
+
+	return c1 - c2;
+}
+
+char * _dl_strchr(const char * str,int c)
+{
+	register char ch;
+
+	do {
+		if ((ch = *str) == c)
+			return (char *) str;
+		str++;
+	}
+	while (ch);
+
+	return 0;
+}
+
+char *_dl_strrchr(const char *str, int c)
+{
+    register char *prev = 0;
+    register char *ptr = (char *) str;
+
+    while (*ptr != '\0') {
+	if (*ptr == c)
+	    prev = ptr;
+	ptr++;  
+    }   
+    if (c == '\0')
+	return(ptr);
+    return(prev);
+}
+
+void * _dl_memcpy(void * dst, const void * src, size_t len)
+{
+	register char *a = dst;
+	register const char *b = src;
+
+	while (len--)
+		*a++ = *b++;
+
+	return dst;
+}
+
+void * _dl_memset(void * str,int c,size_t len)
+{
+	register char *a = str;
+
+	while (len--)
+		*a++ = c;
+
+	return str;
 }
 

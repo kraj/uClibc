@@ -10,10 +10,6 @@
    to do something a little more subtle here.  */
 #define GET_ARGV(ARGVP, ARGS) ((ARGVP) = ((unsigned int *) &(ARGS)))
 
-/* Get the address of the Global offset table.  This must be absolute,
-   not relative.  */
-#define GET_GOT(X)     __asm__ ("movel %%a5,%0" : "=g" (X))
-
 /* Initialization sequence for a GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE)		\
 {						\

@@ -77,24 +77,24 @@ extern int _dl_linux_dynamic_link(void);
 #define SEND_STDERR(X)				\
   { const char *__s = (X);			\
     if (__s < (const char *) load_addr) __s += load_addr;	\
-    _dl_write (2, __s, _dl_strlen (__s));	\
+    _dl_write (2, __s, _dl_strlen_inline (__s));	\
   }
 #else
-#define SEND_STDERR(X) _dl_write(2, X, _dl_strlen(X));
+#define SEND_STDERR(X) _dl_write(2, X, _dl_strlen_inline(X));
 #endif
 extern int _dl_fdprintf(int, const char *, ...);
 extern char * _dl_library_path;
 extern char * _dl_not_lazy;
 extern char * _dl_strdup(const char *);
-extern inline int _dl_symbol(char * name);
-unsigned long _dl_elf_hash(const char * name);
+extern unsigned long _dl_elf_hash(const char * name);
 
-extern inline int _dl_symbol(char * name)
+static inline int _dl_symbol(char * name)
 {
   if(name[0] != '_' || name[1] != 'd' || name[2] != 'l' || name[3] != '_')
     return 0;
   return 1;
 }
+
 
 #define DL_ERROR_NOFILE 1
 #define DL_ERROR_NOZERO 2

@@ -11,12 +11,6 @@
 #define ELF_USES_RELOCA
 
 /*
- * Get the address of the Global offset table.  This must be absolute, not
- * relative.
- */
-#define GET_GOT(X)     __asm__("\tmov %%l7,%0\n\t" : "=r" (X))
-
-/*
  * Get a pointer to the argv array.  On many platforms this can be just
  * the address if the first argument, on other platforms we need to
  * do something a little more subtle here.  We assume that argc is stored

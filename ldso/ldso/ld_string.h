@@ -3,11 +3,26 @@
 
 #include <sys/types.h>	/* for size_t */
 
+extern void *_dl_malloc(int size);
+extern char *_dl_getenv(char *symbol, char **envp);
+extern void _dl_unsetenv(char *symbol, char **envp);
+extern char *_dl_strdup(const char *string);
+extern char *_dl_get_last_path_component(char *path);
+extern size_t _dl_strlen(const char * str);
+extern char * _dl_strcpy(char * dst,const char *src);
+extern int _dl_strcmp(const char * s1,const char * s2);
+extern int _dl_strncmp(const char * s1,const char * s2,size_t len);
+extern char * _dl_strchr(const char * str,int c);
+extern char *_dl_strrchr(const char *str, int c);
+extern void * _dl_memcpy(void * dst, const void * src, size_t len);
+extern int _dl_memcmp(const void * s1,const void * s2,size_t len);
+extern void * _dl_memset(void * str,int c,size_t len);
+
 #ifndef NULL
 #define NULL ((void *) 0)
 #endif
 
-extern inline size_t _dl_strlen(const char * str)
+static inline size_t _dl_strlen_inline(const char * str)
 {
 	register char *ptr = (char *) str;
 
@@ -16,7 +31,7 @@ extern inline size_t _dl_strlen(const char * str)
 	return (ptr - str);
 }
 
-extern inline char * _dl_strcpy(char * dst,const char *src)
+static inline char * _dl_strcpy_inline(char * dst,const char *src)
 {
 	register char *ptr = dst;
 
@@ -27,7 +42,7 @@ extern inline char * _dl_strcpy(char * dst,const char *src)
 	return ptr;
 }
  
-extern inline int _dl_strcmp(const char * s1,const char * s2)
+static inline int _dl_strcmp_inline(const char * s1,const char * s2)
 {
 	unsigned register char c1, c2;
 
@@ -42,7 +57,7 @@ extern inline int _dl_strcmp(const char * s1,const char * s2)
 	return c1 - c2;
 }
 
-extern inline int _dl_strncmp(const char * s1,const char * s2,size_t len)
+static inline int _dl_strncmp_inline(const char * s1,const char * s2,size_t len)
 {
 	unsigned register char c1 = '\0';
 	unsigned register char c2 = '\0';
@@ -58,7 +73,7 @@ extern inline int _dl_strncmp(const char * s1,const char * s2,size_t len)
 	return c1 - c2;
 }
 
-extern inline char * _dl_strchr(const char * str,int c)
+static inline char * _dl_strchr_inline(const char * str,int c)
 {
 	register char ch;
 
@@ -72,25 +87,22 @@ extern inline char * _dl_strchr(const char * str,int c)
 	return 0;
 }
 
-static inline char *_dl_strrchr(const char *str, int c)
+static inline char *_dl_strrchr_inline(const char *str, int c)
 {
-	register char *prev = 0;
-	register char *ptr = (char *) str;
+    register char *prev = 0;
+    register char *ptr = (char *) str;
 
-	/* For null it's just like strlen */
-	if (c == '\0') {
-		return ptr + _dl_strlen(ptr);
-	}
-
-	/* everything else just step along the string. */
-	while ((ptr = _dl_strchr(ptr, c)) != 0) {
-		prev = ptr;
-		ptr++;
-	}
-	return prev;
+    while (*ptr != '\0') {
+	if (*ptr == c)
+	    prev = ptr;
+	ptr++;  
+    }   
+    if (c == '\0')
+	return(ptr);
+    return(prev);
 }
 
-extern inline void * _dl_memcpy(void * dst, const void * src, size_t len)
+static inline void * _dl_memcpy_inline(void * dst, const void * src, size_t len)
 {
 	register char *a = dst;
 	register const char *b = src;
@@ -102,7 +114,7 @@ extern inline void * _dl_memcpy(void * dst, const void * src, size_t len)
 }
 
 
-extern inline int _dl_memcmp(const void * s1,const void * s2,size_t len)
+static inline int _dl_memcmp_inline(const void * s1,const void * s2,size_t len)
 {
 	unsigned char *c1 = (unsigned char *)s1;
 	unsigned char *c2 = (unsigned char *)s2;
@@ -116,7 +128,7 @@ extern inline int _dl_memcmp(const void * s1,const void * s2,size_t len)
 	return 0;
 }
 
-extern inline void * _dl_memset(void * str,int c,size_t len)
+static inline void * _dl_memset_inline(void * str,int c,size_t len)
 {
 	register char *a = str;
 
@@ -126,9 +138,39 @@ extern inline void * _dl_memset(void * str,int c,size_t len)
 	return str;
 }
 
+static inline char *_dl_get_last_path_component_inline(char *path)
+{
+	char *s;
+	register char *ptr = path;
+	register char *prev = 0;
+
+	while (*ptr)
+		ptr++;
+	s = ptr - 1;
+
+	/* strip trailing slashes */
+	while (s != path && *s == '/') {
+		*s-- = '\0';
+	}
+
+	/* find last component */
+	ptr = path;
+	while (*ptr != '\0') {
+	    if (*ptr == '/')
+		prev = ptr;
+	    ptr++;  
+	}   
+	s = prev;
+
+	if (s == NULL || s[1] == '\0')
+		return path;
+	else
+		return s+1;
+}
+
 /* Early on, we can't call printf, so use this to print out
  * numbers using the SEND_STDERR() macro */
-static inline char *_dl_simple_ltoa(unsigned long i)
+static inline char *_dl_simple_ltoa_inline(unsigned long i)
 {
 	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
 	static char local[22];

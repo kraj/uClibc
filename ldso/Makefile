@@ -1,7 +1,8 @@
 TOPDIR=../
-include Rules.mak
+include $(TOPDIR)Rules.mak
 
-SUBDIRS = util libdl # d-link man
+SUBDIRS = util libdl
+ALL_SUBDIRS = util libdl d-link
 
 all:
 	@if [ -d $(TOPDIR)ldso/d-link/$(TARGET_ARCH) ] ; then \
@@ -14,5 +15,5 @@ shared:
 	fi;
 
 clean:
-	set -e ; for d in $(SUBDIRS) ; do $(MAKE) -C $$d $@ ; done
+	set -e ; for d in $(ALL_SUBDIRS) ; do $(MAKE) -C $$d $@ ; done
 	-find . -name '*~' | xargs rm -f
