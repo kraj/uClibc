@@ -238,6 +238,10 @@ ifneq ($(strip $(UCLIBC_HAS_GNU_GETOPT)),y)
 	# Remove getopt header since gnu getopt support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/getopt.h
 endif
+ifneq ($(strip $(HAS_SHADOW)),y)
+	# Remove getopt header since shadow password support is disabled.
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/shadow.h
+endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod 755 $$i; chmod 644 $$i/*.h > /dev/null 2>&1; \
 	done;
