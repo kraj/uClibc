@@ -24,10 +24,10 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
-CSRC=malloc.c
+CSRC=calloc.c free.c malloc.c memalign.c morecore.c realloc.c valloc.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-MSRC=alloc.c
+MSRC=../malloc/alloc.c
 MOBJ=malloc_dbg.o free_dbg.o calloc_dbg.o
 OBJS=$(COBJS) $(MOBJ)
 

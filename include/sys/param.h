@@ -9,7 +9,7 @@
 #include <features.h>
 #include <limits.h>
 #include <linux/limits.h>
-#include <linux/param.h>
+#include <asm/param.h>
 
 #include <sys/types.h>
 

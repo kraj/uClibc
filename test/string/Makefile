@@ -22,6 +22,7 @@ YLDFLAGS = -s --static
 
 TARGETS=string string_glibc
 TARGETS+=testcopy testcopy_glibc
+TARGETS+=strerror strsignal
 
 all: $(TARGETS)
 
@@ -75,6 +76,29 @@ testcopy_diff: testcopy testcopy_glibc
 	-@ echo "Diffing output: "
 	-@ echo " "
 	-diff -u testcopy.gnu.out testcopy.out
+	-@ echo " "
+
+
+strerror: ../../string/strerror.c
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(CC) $(XCFLAGS) -DCHECK_BUF -c $< -o $@.o
+	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-./$@
+	-@ echo " "
+
+strsignal: ../../string/strsignal.c
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(CC) $(XCFLAGS) -DCHECK_BUF -c $< -o $@.o
+	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-./$@
 	-@ echo " "
 
 

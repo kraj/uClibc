@@ -26,13 +26,18 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
+#define uClibc_syscall_exit(void, _exit, int, status) \
+_syscall1(void, _exit, int, status)
+
+
+#include "unified_syscall.h"
 
 //#define __NR_exit             1
 #ifdef L__exit
 /* Do not include unistd.h, so gcc doesn't whine about 
  * _exit returning.  It really doesn't return... */
 #define __NR__exit __NR_exit
-_syscall1(void, _exit, int, status);
+uClibc_syscall_exit(void, _exit, int, status);
 #endif
 
 //#define __NR_fork             2
@@ -347,6 +352,9 @@ _syscall2(int, umount2, const char *, special_file, int, flags);
 #include <stdarg.h>
 #include <sys/ioctl.h>
 #define __NR__ioctl __NR_ioctl
+
+extern int _ioctl(int fd, int request, void *arg);
+
 _syscall3(int, _ioctl, int, fd, int, request, void *, arg);
 
 int ioctl(int fd, unsigned long int request, ...)
@@ -368,6 +376,9 @@ int ioctl(int fd, unsigned long int request, ...)
 #include <stdarg.h>
 #include <fcntl.h>
 #define __NR__fcntl __NR_fcntl
+
+extern int _fcntl(int fd, int cmd, long arg);
+
 _syscall3(int, _fcntl, int, fd, int, cmd, long, arg);
 
 int fcntl(int fd, int command, ...)
@@ -558,6 +569,9 @@ _syscall2(int, swapon, const char *, path, int, swapflags);
 //#define __NR_reboot           88
 #ifdef L__reboot
 #define __NR__reboot __NR_reboot
+
+extern int _reboot(int magic, int magic2, int flag);
+
 _syscall3(int, _reboot, int, magic, int, magic2, int, flag);
 
 int reboot(int flag)
@@ -573,6 +587,8 @@ int reboot(int flag)
 #define __NR__mmap __NR_mmap
 #include <unistd.h>
 #include <sys/mman.h>
+
+extern __ptr_t _mmap(unsigned long *buffer);
 
 _syscall1(__ptr_t, _mmap, unsigned long *, buffer);
 
@@ -667,6 +683,9 @@ _syscall2(int, socketcall, int, call, unsigned long *, args);
 #ifdef L__syslog
 #include <unistd.h>
 #define __NR__syslog		__NR_syslog
+
+extern int _syslog(int type, char *buf, int len);
+
 _syscall3(int, _syslog, int, type, char *, buf, int, len);
 
 int klogctl(int type, char *buf, int len)
@@ -694,6 +713,8 @@ _syscall2(int, getitimer, enum __itimer_which, which, struct itimerval *, value)
 #define __NR__stat __NR_stat
 #include <unistd.h>
 #include "statfix.h"
+extern int _stat(const char *file_name, struct kernel_stat *buf);
+
 _syscall2(int, _stat, const char *, file_name, struct kernel_stat *, buf);
 
 int stat(const char * file_name, struct libc_stat * cstat)
@@ -713,6 +734,8 @@ int stat(const char * file_name, struct libc_stat * cstat)
 #define __NR__lstat __NR_lstat
 #include <unistd.h>
 #include "statfix.h"
+extern int _lstat(const char *file_name, struct kernel_stat *buf);
+
 _syscall2(int, _lstat, const char *, file_name, struct kernel_stat *, buf);
 
 int lstat(const char * file_name, struct libc_stat * cstat)
@@ -732,6 +755,8 @@ int lstat(const char * file_name, struct libc_stat * cstat)
 #define __NR__fstat __NR_fstat
 #include <unistd.h>
 #include "statfix.h"
+extern int _fstat(int filedes, struct kernel_stat *buf);
+
 _syscall2(int, _fstat, int, filedes, struct kernel_stat *, buf);
 
 int fstat(int fd, struct libc_stat *cstat) 
@@ -878,6 +903,8 @@ SYSCALL__(setfsuid, 1)
 #endif
 //#define __NR__llseek          140
 #ifdef L__llseek
+extern int _llseek(int fd, off_t hoff, off_t loff, loff_t *res, int whence);
+
 _syscall5(int, _llseek, int, fd, off_t, hoff, off_t, loff, loff_t *, res,
 		  int, whence);
 
@@ -904,6 +931,9 @@ _syscall3(int, _getdents, int, fd, char *, dirp, size_t, count);
 //#define __NR__newselect       142
 #ifdef L__newselect
 #include <unistd.h>
+extern int _newselect(int n, fd_set *readfds, fd_set *writefds,
+					  fd_set *exceptfds, struct timeval *timeout);
+
 _syscall5(int, _newselect, int, n, fd_set *, readfds, fd_set *, writefds,
 		  fd_set *, exceptfds, struct timeval *, timeout);
 

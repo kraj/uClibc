@@ -23,13 +23,19 @@ Cambridge, MA 02139, USA.  */
  * are smaller than the previous functions and don't require static buffers.
  * Removed dependence on strcat in the process.
  *
- * Also appended a test routine ( -DSTRERROR_TEST ) to allow a quick check
+ * Also appended a test routine ( -DCHECK_BUF ) to allow a quick check
  * on the buffer length when the sys_errorlist is modified.
+ *
+ * Added the option WANT_ERRORLIST for low-memory applications to omit the
+ * error message strings and only output the error number.
  */
+
+#define WANT_ERRORLIST     1
 
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+
 #include <limits.h>
 
 #if (INT_MAX >> 31)
@@ -39,7 +45,11 @@ Cambridge, MA 02139, USA.  */
 
 extern char *__ltostr(char *buf, long uval, int base, int uppercase);
 
+#if WANT_ERRORLIST
+static char retbuf[48];
+#else
 static char retbuf[33];			/* 33 is sufficient for 32 bit ints */
+#endif
 static const char unknown_error[] = "Unknown Error: errno"; /* = */
 
 /* Return a string descibing the errno code in ERRNUM.
@@ -49,10 +59,12 @@ char *strerror(int err)
 {
 	char *pos;
 
+#if WANT_ERRORLIST
 	if ((err >= 0) && (err < sys_nerr)) {
 		strcpy(retbuf, sys_errlist[err]);
 		return retbuf;
 	}
+#endif
 
 	/* unknown error */
 	pos = __ltostr(retbuf + sizeof(retbuf) + 1, err, 10, 0)
@@ -62,24 +74,39 @@ char *strerror(int err)
 	return pos;
 }
 
-#if STRERROR_TEST
-/* quick way to check for sufficient buffer length */
+#ifdef CHECK_BUF
+/* quick way to check buffer length */
 #include <stdio.h>
 #include <stdlib.h>
 int main(void)
 {
 	int max = 0;
-	int i, j;
+	int j, retcode;
 	char *p;
+#if WANT_ERRORLIST
+	int i;
+#endif
+
+	retcode = EXIT_SUCCESS;
+
+#if WANT_ERRORLIST
 	for ( i=0 ; i < sys_nerr ; i++ ) {
 		j = strlen(sys_errlist[i])+1;
 		if (j > max) max = j;
 	}
-	printf("max len = %i\n", j);
+#endif
 
 	p = strerror(INT_MIN);
-	printf("<%s>  %d\n", p, strlen(p)+1);
-	printf("current buffer length is %d\n", sizeof(retbuf));
-	return EXIT_SUCCESS;
+	j = strlen(p)+1;
+	if (j > max) max = j;
+	printf("strerror.c - Test of INT_MIN: <%s>  %d\n", p, j);
+
+	if (sizeof(retbuf) != max) {
+		printf("Error: strerror.c - dimension of retbuf should be = %d\n", max);
+		retcode = EXIT_FAILURE;
+	}
+	printf("strerror.c - dimension of retbuf correct at %d\n", max);
+
+	return retcode;
 }
 #endif

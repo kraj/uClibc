@@ -41,12 +41,12 @@ $(LIBC): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(SOBJS):
-	$(CC) $(CFLAGS) $< -c $*.S -o $*.o
+$(SOBJS): %.o : %.S
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS):
-	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

@@ -1,148 +1,72 @@
+/* +++Date last modified: 05-Jul-1997 */
+
 /*
- * This file lifted in toto from 'Dlibs' on the atari ST  (RdeBath)
+**  ssort()  --  Fast, small, qsort()-compatible Shell sort
+**
+**  by Ray Gardner,  public domain   5/90
+*/
+
+/*
+ * Manuel Novoa III       Dec 2000
  *
- * 
- *    Dale Schumacher                         399 Beacon Ave.
- *    (alias: Dalnefre')                      St. Paul, MN  55104
- *    dal@syntel.UUCP                         United States of America
- *  "It's not reality that's important, but how you perceive things."
+ * There were several problems with the qsort code contained in uClibc.
+ * It assumed sizeof(int) was 2 and sizeof(long) was 4.  It then had three
+ * seperate quiicksort routines based on the width of the data passed: 2, 4,
+ * or anything else <= 128.  If the width was > 128, it returned -1 (although
+ * qsort should not return a value) and did no sorting.  On i386 with
+ * -Os -fomit-frame-pointer -ffunction-sections, the text segment of qsort.o
+ * was 1358 bytes, with an additional 4 bytes in bss.
+ *
+ * I decided to completely replace the existing code with a small
+ * implementation of a shell sort.  It is a drop-in replacement for the
+ * standard qsort and, with the same gcc flags as above, the text segment
+ * size on i386 is only 183 bytes.
+ *
+ * Grabbed original file rg_ssort.c from snippets.org.
+ * Modified original code to avoid possible overflow in wgap calculation.
+ * Modified wgap calculation in loop and eliminated variables gap and wnel.
  */
-#include <string.h>
 
-char *_qbuf = 0;				/* pointer to storage for qsort() */
 
-#define	PIVOT			((i+j)>>1)
-#define moveitem(dst,src,size)	if(dst != src) memcpy(dst, src, size)
+#include <stdlib.h>
 
-static void _wqsort(base, lo, hi, cmp)
-register int *base;
-register int lo;
-register int hi;
-register int (*cmp) ();
+void qsort (void  *base,
+            size_t nel,
+            size_t width,
+            int (*comp)(const void *, const void *))
 {
-	int k;
-	register int i, j, t;
-	register int *p = &k;
+	size_t wgap, i, j, k;
+	char *a, *b, tmp;
 
-	while (hi > lo) {
-		i = lo;
-		j = hi;
-		t = PIVOT;
-		*p = base[t];
-		base[t] = base[i];
-		base[i] = *p;
-		while (i < j) {
-			while (((*cmp) ((base + j), p)) > 0)
-				--j;
-			base[i] = base[j];
-			while ((i < j) && (((*cmp) ((base + i), p)) <= 0))
-				++i;
-			base[j] = base[i];
-		}
-		base[i] = *p;
-		if ((i - lo) < (hi - i)) {
-			_wqsort(base, lo, (i - 1), cmp);
-			lo = i + 1;
-		} else {
-			_wqsort(base, (i + 1), hi, cmp);
-			hi = i - 1;
-		}
+#if 0
+	/* Note: still conceivable that nel * width could overflow! */
+	assert(width > 0);
+#endif
+
+	if (nel > 1) {
+		for (wgap = 0; ++wgap < (nel-1)/3 ; wgap *= 3) {}
+		wgap *= width;
+		nel *= width;			/* convert nel to 'wnel' */
+		do {
+			for (i = wgap; i < nel; i += width) {
+				for (j = i - wgap; ;j -= wgap) {
+					a = j + ((char *)base);
+					b = a + wgap;
+					if ( (*comp)(a, b) <= 0 ) {
+						break;
+					}
+					k = width;
+					do {
+						tmp = *a;
+						*a++ = *b;
+						*b++ = tmp;
+					} while ( --k );
+					if (j < wgap) {
+						break;
+					}
+				}
+			}
+			wgap = (wgap - width)/3;
+		} while (wgap);
 	}
-}
-
-static void _lqsort(base, lo, hi, cmp)
-register long *base;
-register int lo;
-register int hi;
-register int (*cmp) ();
-{
-	long k;
-	register int i, j, t;
-	register long *p = &k;
-
-	while (hi > lo) {
-		i = lo;
-		j = hi;
-		t = PIVOT;
-		*p = base[t];
-		base[t] = base[i];
-		base[i] = *p;
-		while (i < j) {
-			while (((*cmp) ((base + j), p)) > 0)
-				--j;
-			base[i] = base[j];
-			while ((i < j) && (((*cmp) ((base + i), p)) <= 0))
-				++i;
-			base[j] = base[i];
-		}
-		base[i] = *p;
-		if ((i - lo) < (hi - i)) {
-			_lqsort(base, lo, (i - 1), cmp);
-			lo = i + 1;
-		} else {
-			_lqsort(base, (i + 1), hi, cmp);
-			hi = i - 1;
-		}
-	}
-}
-
-static void _nqsort(base, lo, hi, size, cmp)
-register char *base;
-register int lo;
-register int hi;
-register int size;
-register int (*cmp) ();
-{
-	register int i, j;
-	register char *p = _qbuf;
-
-	while (hi > lo) {
-		i = lo;
-		j = hi;
-		p = (base + size * PIVOT);
-		moveitem(_qbuf, p, size);
-		moveitem(p, (base + size * i), size);
-		moveitem((base + size * i), _qbuf, size);
-		p = _qbuf;
-		while (i < j) {
-			while (((*cmp) ((base + size * j), p)) > 0)
-				--j;
-			moveitem((base + size * i), (base + size * j), size);
-			while ((i < j) && (((*cmp) ((base + size * i), p)) <= 0))
-				++i;
-			moveitem((base + size * j), (base + size * i), size);
-		}
-		moveitem((base + size * i), p, size);
-		if ((i - lo) < (hi - i)) {
-			_nqsort(base, lo, (i - 1), size, cmp);
-			lo = i + 1;
-		} else {
-			_nqsort(base, (i + 1), hi, size, cmp);
-			hi = i - 1;
-		}
-	}
-}
-
-extern int qsort(base, num, size, cmp)
-char *base;
-int num;
-int size;
-int (*cmp) ();
-{
-	char _qtemp[128];
-
-	if (_qbuf == 0) {
-		if (size > sizeof(_qtemp))	/* records too large! */
-			return 1;
-		_qbuf = _qtemp;
-	}
-	if (size == 2)
-		_wqsort(base, 0, num - 1, cmp);
-	else if (size == 4)
-		_lqsort(base, 0, num - 1, cmp);
-	else
-		_nqsort(base, 0, num - 1, size, cmp);
-	if (_qbuf == _qtemp)
-		_qbuf = 0;
-	return 0;
 }

@@ -4,11 +4,12 @@
  */
 
 /*
- * This deals with both the atexit and on_exit function calls
- * 
- * Note calls installed with atexit are called with the same args as on_exit
- * fuctions; the void* is given the NULL value.
- * 
+ * Manuel Novoa III       Dec 2000
+ *
+ * Modifications:
+ *   Made atexit handling conform to standards... i.e. no args.
+ *   Removed on_exit since it did not match gnu libc definition.
+ *   Combined atexit and __do_exit into one object file.
  */
 
 #include <errno.h>
@@ -16,93 +17,58 @@
 /* ATEXIT.H */
 #define MAXONEXIT 20			/* AIUI Posix requires 10 */
 
-typedef void (*vfuncp) ();
+typedef void (*vfuncp) (void);
 
 extern vfuncp __cleanup;
 extern void __do_exit();
 extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
 
-extern struct exit_table {
-	vfuncp called;
-	void *argument;
-} __on_exit_table[MAXONEXIT];
-
-extern int __on_exit_count;
+extern vfuncp __atexit_table[MAXONEXIT];
+extern int __atexit_count;
 
 /* End ATEXIT.H */
 
 #ifdef L_atexit
-vfuncp __cleanup;
-
-int atexit(ptr)
-vfuncp ptr;
+int atexit(vfuncp ptr)
 {
-	if (__on_exit_count < 0 || __on_exit_count >= MAXONEXIT) {
+	if ((__atexit_count < 0) || (__atexit_count >= MAXONEXIT)) {
 		errno = ENOMEM;
 		return -1;
 	}
-	__cleanup = __do_exit;
 	if (ptr) {
-		__on_exit_table[__on_exit_count].called = ptr;
-		__on_exit_table[__on_exit_count].argument = 0;
-		__on_exit_count++;
+		__cleanup = __do_exit;
+		__atexit_table[__atexit_count++] = ptr;
 	}
 	return 0;
 }
 
-#endif
+vfuncp __atexit_table[MAXONEXIT];
+int __atexit_count = 0;
 
-#ifdef L_on_exit
-int on_exit(ptr, arg)
-vfuncp ptr;
-void *arg;
+void __do_exit(int rv)
 {
-	if (__on_exit_count < 0 || __on_exit_count >= MAXONEXIT) {
-		errno = ENOMEM;
-		return -1;
-	}
-	__cleanup = __do_exit;
-	if (ptr) {
-		__on_exit_table[__on_exit_count].called = ptr;
-		__on_exit_table[__on_exit_count].argument = arg;
-		__on_exit_count++;
-	}
-	return 0;
-}
+	int count = __atexit_count - 1;
 
-#endif
-
-#ifdef L___do_exit
-
-int __on_exit_count = 0;
-struct exit_table __on_exit_table[MAXONEXIT];
-
-void __do_exit(rv)
-int rv;
-{
-	register int count = __on_exit_count - 1;
-	register vfuncp ptr;
-
-	__on_exit_count = -1;		/* ensure no more will be added */
+	__atexit_count = -1;		/* ensure no more will be added */
 	__cleanup = 0;				/* Calling exit won't re-do this */
 
 	/* In reverse order */
 	for (; count >= 0; count--) {
-		ptr = __on_exit_table[count].called;
-		(*ptr) (rv, __on_exit_table[count].argument);
+		(*__atexit_table[count])();
 	}
 }
-
 #endif
 
 #ifdef L_exit
+void __stdio_close_all(void);	/* note: see _start.S - could be faked */
 
-void exit(rv)
-int rv;
+vfuncp __cleanup = 0;
+
+void exit(int rv)
 {
 	if (__cleanup)
 		__cleanup();
+	__stdio_close_all();
 	_exit(rv);
 }
-
 #endif

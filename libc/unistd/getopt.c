@@ -13,13 +13,18 @@
  * and ommision of whitespace between option and arg.
  */
 
+/*
+ * Modified by Manuel Novoa III on 1/5/01 to use weak symbols.
+ * Programs needing long options will link gnu_getopt instead.
+ */
+
 #include <stdio.h>
 #include <string.h>
 
-int opterr = 1;					/* error => print message */
-int optind = 1;					/* next argv[] index */
-int optopt = 1;					/* Set for unknown arguments */
-char *optarg = NULL;			/* option parameter if any */
+int opterr __attribute__ ((__weak__)) = 1; /* error => print message */
+int optind __attribute__ ((__weak__)) = 1; /* next argv[] index */
+int optopt __attribute__ ((__weak__)) = 1; /* Set for unknown arguments */
+char *optarg __attribute__ ((__weak__)) = NULL;	/* option parameter if any */
 
 static int Err(name, mess, c) /* returns '?' */
 char *name;						/* program name argv[0] */
@@ -33,6 +38,9 @@ int c;							/* defective option letter */
 
 	return '?';					/* erroneous-option marker */
 }
+
+extern int getopt (int argc, char *const *argv, const char *optstring)
+	 __attribute__ ((__weak__));
 
 int getopt (int argc, char *const *argv, const char *optstring)
 {

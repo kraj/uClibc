@@ -53,8 +53,8 @@ $(MOBJ1): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS):
-	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

@@ -105,16 +105,12 @@ typedef struct __stdio_file FILE;
 #include <bits/stdio_lim.h>
 #undef __need_FOPEN_MAX
 
-
-/* Standard streams.  */
-extern FILE stdin[1];		/* Standard input stream.  */
-extern FILE stdout[1];		/* Standard output stream.  */
-extern FILE stderr[1];		/* Standard error output stream. */
+/* Standard streams (internal).  */
+extern FILE _stdio_streams[3];
 /* C89/C99 say they're macros.  Make them happy.  */
-#define stdin stdin
-#define stdout stdout
-#define stderr stderr
-
+#define stdin  (_stdio_streams)
+#define stdout (_stdio_streams+1)
+#define stderr (_stdio_streams+2)
 
 /* Remove file FILENAME.  */
 extern int remove __P ((__const char *__filename));

@@ -35,7 +35,9 @@ char *command;
 	signal(SIGQUIT, SIG_IGN);
 	signal(SIGINT, SIG_IGN);
 
+#if 0
 	printf("Waiting for child %d\n", pid);
+#endif
 
 	if (wait4(pid, &wait_val, 0, 0) == -1)
 		wait_val = -1;

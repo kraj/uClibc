@@ -28,10 +28,11 @@ LIBC=$(TOPDIR)libc.a
 MSRC=stdio.c
 MOBJ=_stdio_init.o fputc.o fgetc.o fflush.o fgets.o gets.o fputs.o	\
      puts.o fread.o fwrite.o fopen.o fclose.o fseek.o rewind.o ftell.o	\
-     setbuffer.o setvbuf.o ungetc.o
+     setbuffer.o setvbuf.o ungetc.o _alloc_stdio_buffer.o _free_stdio_buffer.o
 
 MSRC2=printf.c
-MOBJ2=printf.o sprintf.o fprintf.o vprintf.o vsprintf.o vfprintf.o snprintf.o vsnprintf.o
+MOBJ2=printf.o sprintf.o fprintf.o vprintf.o vsprintf.o vfprintf.o snprintf.o \
+     vsnprintf.o _sprintf_fake_file.o vfnprintf.o
 
 MSRC3=scanf.c
 MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
@@ -60,8 +61,8 @@ $(MOBJ3): $(MSRC3)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS):
-	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile

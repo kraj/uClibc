@@ -33,7 +33,7 @@ MSRC1=strto_ll.c
 MOBJ1=strtoll.o strtoull.o strto_ll.o
 
 MSRC2=atexit.c
-MOBJ2=on_exit.o atexit.o __do_exit.o exit.o
+MOBJ2=atexit.o exit.o
 
 
 CSRC =	abort.c getenv.c mktemp.c qsort.c realpath.c abs.c bsearch.c \
@@ -65,8 +65,8 @@ $(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS):
-	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile

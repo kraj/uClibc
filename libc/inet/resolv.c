@@ -455,14 +455,14 @@ int dns_lookup(const char *name, int type, int nscount, const char **nsip,
 	extern int searchdomains;
 	extern const char * searchdomain[MAX_SEARCH];
 
+	fd = -1;
+
 	if (!packet || !lookup || !nscount)
 	    goto fail;
 
 	DPRINTF("Looking up type %d answer for '%s'\n", type, name);
 
 	ns %= nscount;
-
-	fd = -1;
 
 	while (retries++ < MAX_RETRIES) {
 

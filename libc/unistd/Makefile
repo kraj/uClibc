@@ -28,8 +28,13 @@ LIBC=$(TOPDIR)libc.a
 CSRC=execl.c execlp.c execv.c execvep.c execvp.c getcwd.c getopt.c \
 	sleep.c sysconf.c getpass.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
 
+MSRC=gnu_getopt.c
+MOBJ=_gnu_getopt_internal.o gnu_getopt_long.o gnu_getopt_long_only.o
+
+# WARNING! MOBJ _must_ come after COBJS for link to pick getopt 
+# over gnu_getopt when appropriate.
+OBJS=$(COBJS) $(MOBJ)
 
 all: $(OBJS) $(LIBC)
 
@@ -38,8 +43,12 @@ $(LIBC): ar-target subdirs
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(COBJS):
-	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile

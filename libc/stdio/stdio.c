@@ -28,8 +28,6 @@
 
 #undef STUB_FWRITE
 
-void __init_stdio(void);
-
 extern FILE *__IO_list;			/* For fflush at exit */
 
 #define FIXED_BUFFERS 2
@@ -38,46 +36,71 @@ struct fixed_buffer {
 	int used;
 };
 
-extern struct fixed_buffer _fixed_buffers[2];
+extern struct fixed_buffer _fixed_buffers[FIXED_BUFFERS];
+
+extern unsigned char *_alloc_stdio_buffer(size_t size);
+extern void _free_stdio_buffer(unsigned char *buf);
+
+#ifdef L__alloc_stdio_buffer
+
+unsigned char *_alloc_stdio_buffer(size_t size)
+{
+	if (size == BUFSIZ) {
+		int i;
+
+		for (i = 0; i < FIXED_BUFFERS; i++)
+			if (!_fixed_buffers[i].used) {
+				_fixed_buffers[i].used = 1;
+				return _fixed_buffers[i].data;
+			}
+	}
+	return malloc(size);
+}
+#endif
+
+#ifdef L__free_stdio_buffer
+
+void _free_stdio_buffer(unsigned char *buf)
+{
+	int i;
+
+	for (i = 0; i < FIXED_BUFFERS; i++) {
+		if (buf == _fixed_buffers[i].data) {
+			_fixed_buffers[i].used = 0;
+			return;
+		}
+	}
+	free(buf);
+}
+#endif
 
 #ifdef L__stdio_init
 
-#define buferr (stderr->unbuf)		/* Stderr is unbuffered */
-
-FILE *__IO_list = 0;			/* For fflush at exit */
-
-static char *bufin;
-static char *bufout;
-#ifndef buferr
-static char *buferr;
+#if FIXED_BUFFERS < 2
+#error FIXED_BUFFERS must be >= 2
 #endif
 
-FILE stdin[1] = {
-#if 0
+#define bufin (_fixed_buffers[0].data)
+#define bufout (_fixed_buffers[1].data)
+#define buferr (_stdio_streams[3].unbuf)		/* Stderr is unbuffered */
+
+struct fixed_buffer _fixed_buffers[FIXED_BUFFERS];
+
+FILE _stdio_streams[3] = {
 	{bufin, bufin, bufin, bufin, bufin + BUFSIZ,
-#else
-	{0, 0, 0, 0, 0,
-#endif
-	 0, _IOFBF | __MODE_READ | __MODE_IOTRAN}
-};
-
-FILE stdout[1] = {
-#if 0
+	 0, _IOFBF | __MODE_READ | __MODE_IOTRAN | __MODE_FREEBUF},
 	{bufout, bufout, bufout, bufout, bufout + BUFSIZ,
-#else
-	{0, 0, 0, 0, 0,
-#endif
-	 1, _IOFBF | __MODE_WRITE | __MODE_IOTRAN}
-};
-
-FILE stderr[1] = {
-#if 0
+	 1, _IOFBF | __MODE_WRITE | __MODE_IOTRAN | __MODE_FREEBUF},
 	{buferr, buferr, buferr, buferr, buferr + sizeof(buferr),
-#else
-	{0, 0, 0, 0, 0,
-#endif
 	 2, _IONBF | __MODE_WRITE | __MODE_IOTRAN}
 };
+
+/*
+ * Note: the following forces lining of the __init_stdio function if
+ * any of the stdio functions are used (except perror) since they all
+ * call fflush directly or indirectly.
+ */
+FILE *__IO_list = 0;			/* For fflush at exit */
 
 /* Call the stdio initiliser; it's main job it to call atexit */
 
@@ -96,52 +119,17 @@ void __stdio_close_all(void)
 	}
 }
 
-static int first_time = 0;
-
-struct fixed_buffer _fixed_buffers[2];
-
-
 void __init_stdio(void)
 {
-	if (first_time)
-		return;
-	first_time = 1;
-
-	stdin->bufpos = bufin = _fixed_buffers[0].data; /*(char *)malloc(BUFSIZ) */ ;
-	stdin->bufread = bufin;
-	stdin->bufwrite = bufin;
-	stdin->bufstart = bufin;
-	stdin->bufend = bufin + sizeof(_fixed_buffers[0].data);
-	stdin->fd = 0;
-	stdin->mode = _IOFBF | __MODE_READ | __MODE_IOTRAN | __MODE_FREEBUF;
-
 	_fixed_buffers[0].used = 1;
-
-	stdout->bufpos = bufout = _fixed_buffers[1].data;	/*(char *)malloc(BUFSIZ); */
-	stdout->bufread = bufout;
-	stdout->bufwrite = bufout;
-	stdout->bufstart = bufout;
-	stdout->bufend = bufout + sizeof(_fixed_buffers[1].data);
-	stdout->fd = 1;
-	stdout->mode = _IOFBF | __MODE_WRITE | __MODE_IOTRAN | __MODE_FREEBUF;
-
 	_fixed_buffers[1].used = 1;
-
-#if 0
-	stderr->bufpos = buferr = (char *) malloc(BUFSIZ);
-#else
-	stderr->bufpos = buferr;
-#endif
-	stderr->bufread = buferr;
-	stderr->bufwrite = buferr;
-	stderr->bufstart = buferr;
-	stderr->bufend = buferr + sizeof(buferr);
-	stderr->fd = 2;
-	stderr->mode = _IONBF | __MODE_WRITE | __MODE_IOTRAN;
 
 	if (isatty(1))
 		stdout->mode |= _IOLBF;
+#if 0
+	/* taken care of in _start.c and exit.c now*/
 	atexit(__stdio_close_all);
+#endif
 }
 #endif
 
@@ -151,8 +139,6 @@ int ch;
 FILE *fp;
 {
 	register int v;
-
-	__init_stdio();
 
 	v = fp->mode;
 	/* If last op was a read ... */
@@ -199,8 +185,6 @@ FILE *fp;
 {
 	int ch;
 
-	__init_stdio();
-
 	if (fp->mode & __MODE_WRITING)
 		fflush(fp);
 
@@ -242,8 +226,6 @@ FILE *fp;
 {
 	int len, cc, rv = 0;
 	char *bstart;
-
-	__init_stdio();
 
 	if (fp == NULL) {			/* On NULL flush the lot. */
 		if (fflush(stdin))
@@ -405,8 +387,6 @@ FILE *fp;
 {
 	int len, v;
 	unsigned bytes, got = 0;
-
-	__init_stdio();
 
 	v = fp->mode;
 
@@ -611,8 +591,6 @@ const char *mode;
 	int fopen_mode = 0;
 	FILE *nfp = 0;
 
-	__init_stdio();
-
 	/* If we've got an fp close the old one (freopen) */
 	if (fp) {
 		/* Careful, don't de-allocate it */
@@ -684,8 +662,6 @@ const char *mode;
 
 	/* If this isn't freopen create a (FILE) and buffer for it */
 	if (fp == 0) {
-		int i;
-
 		fp = nfp;
 		fp->next = __IO_list;
 		__IO_list = fp;
@@ -700,15 +676,7 @@ const char *mode;
 		} else
 			fp->mode |= _IOFBF;
 
-		for (i = 0; i < FIXED_BUFFERS; i++)
-			if (!_fixed_buffers[i].used) {
-				fp->bufstart = _fixed_buffers[i].data;
-				_fixed_buffers[i].used = 1;
-				break;
-			}
-
-		if (i == FIXED_BUFFERS)
-			fp->bufstart = malloc(BUFSIZ);
+		fp->bufstart = _alloc_stdio_buffer(BUFSIZ);
 
 		if (fp->bufstart == 0) {	/* Oops, no mem *//* Humm, full buffering with a two(!) byte
 									   * buffer. */
@@ -733,8 +701,6 @@ FILE *fp;
 {
 	int rv = 0;
 
-	__init_stdio();
-
 	if (fp == 0) {
 		errno = EINVAL;
 		return EOF;
@@ -747,15 +713,7 @@ FILE *fp;
 	fp->fd = -1;
 
 	if (fp->mode & __MODE_FREEBUF) {
-		int i;
-
-		for (i = 0; i < FIXED_BUFFERS; i++)
-			if (fp->bufstart == _fixed_buffers[i].data) {
-				_fixed_buffers[i].used = 0;
-				break;
-			}
-		if (i == FIXED_BUFFERS)
-			free(fp->bufstart);
+		_free_stdio_buffer(fp->bufstart);
 		fp->mode &= ~__MODE_FREEBUF;
 		fp->bufstart = fp->bufend = 0;
 	}
@@ -793,15 +751,7 @@ size_t size;
 		return;
 
 	if (fp->mode & __MODE_FREEBUF) {
-		int i;
-
-		for (i = 0; i < FIXED_BUFFERS; i++)
-			if (fp->bufstart == _fixed_buffers[i].data) {
-				_fixed_buffers[i].used = 0;
-				break;
-			}
-		if (i == FIXED_BUFFERS)
-			free(fp->bufstart);
+		_free_stdio_buffer(fp->bufstart);
 	}
 	fp->mode &= ~(__MODE_FREEBUF | __MODE_BUF);
 
@@ -827,15 +777,7 @@ size_t size;
 {
 	fflush(fp);
 	if (fp->mode & __MODE_FREEBUF) {
-		int i;
-
-		for (i = 0; i < FIXED_BUFFERS; i++)
-			if (fp->bufstart == _fixed_buffers[i].data) {
-				_fixed_buffers[i].used = 0;
-				break;
-			}
-		if (i == FIXED_BUFFERS)
-			free(fp->bufstart);
+		_free_stdio_buffer(fp->bufstart);
 	}
 	fp->mode &= ~(__MODE_FREEBUF | __MODE_BUF);
 	fp->bufstart = fp->unbuf;
@@ -847,23 +789,10 @@ size_t size;
 			size = BUFSIZ;
 		}
 		if (buf == 0) {
-			if (size == BUFSIZ) {
-				int i;
-
-				for (i = 0; i < FIXED_BUFFERS; i++)
-					if (!_fixed_buffers[i].used) {
-						_fixed_buffers[i].used = 1;
-						buf = _fixed_buffers[i].data;
-						break;
-					}
-				if (i == FIXED_BUFFERS)
-					buf = malloc(size);
-			} else {
-				buf = malloc(size);
-			}
+			buf = _alloc_stdio_buffer(size);
+			if (buf == 0)
+				return EOF;
 		}
-		if (buf == 0)
-			return EOF;
 
 		fp->bufstart = buf;
 		fp->bufend = buf + size;

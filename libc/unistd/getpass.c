@@ -17,6 +17,7 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <stdio.h>
+#include <string.h>
 #include <termios.h>
 #include <unistd.h>
 #include <string.h>
@@ -72,9 +73,9 @@ getpass (prompt)
 
   /* Read the password.  */
   fgets (buf, PWD_BUFFER_SIZE-1, in);
-  nread = strlen(buf);
   if (buf != NULL)
     {
+      nread = strlen(buf);
       if (nread < 0)
 	buf[0] = '\0';
       else if (buf[nread - 1] == '\n')

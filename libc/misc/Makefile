@@ -39,7 +39,7 @@ libc.a: subdirs
 
 tags:
 	ctags -R
-	
+
 clean: subdirs_clean
 	rm -f *.[oa] *~ core
 

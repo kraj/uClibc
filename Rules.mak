@@ -41,7 +41,7 @@ ifeq ($(DODEBUG),true)
     LDFLAGS = -nostdlib -Wl,-warn-common 
     STRIPTOOL = /bin/true -Since_we_are_debugging
 else
-    CFLAGS  += $(WARNINGS) #-fomit-frame-pointer
+    CFLAGS  += -DNDEBUG $(WARNINGS) #-fomit-frame-pointer
     LDFLAGS  = -s -nostdlib -Wl,-warn-common
 endif
 

@@ -28,7 +28,7 @@
 
 include Rules.mak
 
-DIRS = misc pwd_grp stdio string termios unistd net signal stdlib sysdeps
+DIRS = misc pwd_grp stdio string termios unistd net signal stdlib sysdeps extra
 
 all: libc.a
 
@@ -58,7 +58,7 @@ headers: dummy
 
 tags:
 	ctags -R
-	
+
 clean: subdirs_clean
 	rm -f libc.a
 	rm -f include/asm include/net include/linux include/bits

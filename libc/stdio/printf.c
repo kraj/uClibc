@@ -8,7 +8,7 @@
  *  "It's not reality that's important, but how you perceive things."
  */
 
-/* Altered to use stdarg, made the core function vfprintf.
+/* Altered to use stdarg, made the core function vfnprintf.
  * Hooked into the stdio package using 'inside information'
  * Altered sizeof() assumptions, now assumes all integers except chars
  * will be either
@@ -20,7 +20,7 @@
 /*
  *                    Manuel Novoa III   Dec 2000
  *
- * The previous vfprintf routine was almost completely rewritten with the
+ * The previous vfnprintf routine was almost completely rewritten with the
  * goal of fixing some shortcomings and reducing object size.
  *
  * The summary of changes:
@@ -52,6 +52,8 @@
  * Converted to use my (un)signed long (long) to string routines, which are
  * smaller than the previous functions and don't require static buffers.
  *
+ * Other Modifications:
+ *   Modified sprintf, snprintf, vsprintf, vsnprintf to share on fake-file.
  */
 
 /*****************************************************************************/
@@ -122,6 +124,14 @@
 extern int vfnprintf(FILE * op, size_t max_size,
 					 register __const char *fmt, register va_list ap);
 
+extern FILE __sprintf_fake_file[1];
+
+#ifdef L__sprintf_fake_file
+FILE __sprintf_fake_file[1] = {
+	{0, 0, (char *) (unsigned) -1, 0, (char *) (unsigned) -1, -1,
+	 _IOFBF | __MODE_WRITE}
+};
+#endif
 
 #ifdef L_printf
 int printf(const char *fmt, ...)
@@ -139,19 +149,14 @@ int printf(const char *fmt, ...)
 #ifdef L_sprintf
 int sprintf(char *sp, const char *fmt, ...)
 {
-	static FILE string[1] = {
-		{0, 0, (char *) (unsigned) -1, 0, (char *) (unsigned) -1, -1,
-		 _IOFBF | __MODE_WRITE}
-	};
-
 	va_list ptr;
 	int rv;
 
 	va_strt(ptr, fmt);
-	string->bufpos = sp;
-	rv = vfnprintf(string, -1, fmt, ptr);
+	__sprintf_fake_file->bufpos = sp;
+	rv = vfnprintf(__sprintf_fake_file, -1, fmt, ptr);
 	va_end(ptr);
-	*(string->bufpos) = 0;
+	*(__sprintf_fake_file->bufpos) = 0;
 	return rv;
 }
 #endif
@@ -160,19 +165,14 @@ int sprintf(char *sp, const char *fmt, ...)
 #ifdef L_snprintf
 int snprintf(char *sp, size_t size, const char *fmt, ...)
 {
-	static FILE string[1] = {
-		{0, 0, (char *) (unsigned) -1, 0, (char *) (unsigned) -1, -1,
-		 _IOFBF | __MODE_WRITE}
-	};
-
 	va_list ptr;
 	int rv;
 
 	va_strt(ptr, fmt);
-	string->bufpos = sp;
-	rv = vfnprintf(string, size, fmt, ptr);
+	__sprintf_fake_file->bufpos = sp;
+	rv = vfnprintf(__sprintf_fake_file, size, fmt, ptr);
 	va_end(ptr);
-	*(string->bufpos) = 0;
+	*(__sprintf_fake_file->bufpos) = 0;
 	return rv;
 }
 #endif
@@ -200,38 +200,28 @@ int vprintf(const char *fmt, va_list ap)
 #ifdef L_vsprintf
 int vsprintf(char *sp, __const char *fmt, va_list ap)
 {
-	static FILE string[1] = {
-		{0, 0, (char *) (unsigned) -1, 0, (char *) (unsigned) -1, -1,
-		 _IOFBF | __MODE_WRITE}
-	};
-
 	int rv;
 
-	string->bufpos = sp;
-	rv = vfnprintf(string, -1, fmt, ap);
-	*(string->bufpos) = 0;
+	__sprintf_fake_file->bufpos = sp;
+	rv = vfnprintf(__sprintf_fake_file, -1, fmt, ap);
+	*(__sprintf_fake_file->bufpos) = 0;
 	return rv;
 }
 #endif
 
-#ifdef L_vsprintf
+#ifdef L_vsnprintf
 int vsnprintf(char *sp, size_t size, __const char *fmt, va_list ap)
 {
-	static FILE string[1] = {
-		{0, 0, (char *) (unsigned) -1, 0, (char *) (unsigned) -1, -1,
-		 _IOFBF | __MODE_WRITE}
-	};
-
 	int rv;
 
-	string->bufpos = sp;
-	rv = vfnprintf(string, size, fmt, ap);
-	*(string->bufpos) = 0;
+	__sprintf_fake_file->bufpos = sp;
+	rv = vfnprintf(__sprintf_fake_file, size, fmt, ap);
+	*(__sprintf_fake_file->bufpos) = 0;
 	return rv;
 }
 #endif
 
-#ifdef L_vfprintf
+#ifdef L_vfnprintf
 
 extern char *__ultostr(char *buf, unsigned long uval, int base, int uppercase);
 extern char *__ltostr(char *buf, long val, int base, int uppercase);
@@ -590,6 +580,10 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 	}
 	return (cnt);
 }
+
+#endif
+
+#ifdef L_vfprintf
 
 int vfprintf(FILE * op, register __const char *fmt, register va_list ap)
 {

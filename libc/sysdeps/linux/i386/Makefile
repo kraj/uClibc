@@ -26,9 +26,12 @@ LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
 SSRC=_start.S longjmp.S setjmp.S #_start.S #clone.S
+ifeq ($(UNIFIED_SYSCALL),true)
+	SSRC += __uClibc_syscall.S
+endif
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=fork.c vfork.c
+CSRC=fork.c vfork.c __init_brk.c brk.c sbrk.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)
@@ -41,12 +44,12 @@ $(LIBC): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(SOBJS): 
-	$(CC) $(CFLAGS) $< -c $*.S -o $*.o
+$(SOBJS): %.o : %.S
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS):
-	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
