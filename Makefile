@@ -280,11 +280,11 @@ endif
 
 install_utils: utils
 	$(MAKE) -C utils install
-ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
-	@$(MAKE) -C libc/misc/wchar iconv.target
-	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/usr/bin;
-	$(INSTALL) -m 755 libc/misc/wchar/iconv.target $(PREFIX)$(RUNTIME_PREFIX)/usr/bin/iconv
-endif
+#ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
+#	@$(MAKE) -C libc/misc/wchar iconv.target
+#	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/usr/bin;
+#	$(INSTALL) -m 755 libc/misc/wchar/iconv.target $(PREFIX)$(RUNTIME_PREFIX)/usr/bin/iconv
+#endif
 
 finished2:
 	@echo
