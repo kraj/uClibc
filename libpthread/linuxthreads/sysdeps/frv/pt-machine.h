@@ -1,6 +1,6 @@
 /* Machine-dependent pthreads configuration and inline functions.
-   ARM version.
-   Copyright (C) 1997, 1998, 2000, 2002, 2003 Free Software Foundation, Inc.
+   FR-V version.
+   Copyright (C) 2004  Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Alexandre Oliva <aoliva@redhat.com>
 
@@ -15,34 +15,54 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If
+   not, write to the Free Software Foundation, Inc.,
+   59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
+#ifndef __ASSEMBLER__
+
 #ifndef PT_EI
-# define PT_EI extern inline
+# define PT_EI extern inline __attribute__ ((always_inline))
 #endif
-
-/* Get some notion of the current stack.  Need not be exactly the top
-   of the stack, just something somewhere in the current frame.  */
-#define CURRENT_STACK_FRAME  __builtin_frame_address (0)
-
-
-extern long int testandset (int *spinlock);
 
 /* Spinlock implementation; required.  */
 PT_EI long int
 testandset (int *spinlock)
 {
-  register long int ret = 1;
-
-  __asm__ __volatile__("swap%I1\t%M1,%0"
-		       : "+r"(ret), "+m"(*spinlock));
-
-  return ret;
+  int i = 1;
+  asm ("swap%I0 %M0, %1" : "+m"(*(volatile int *)spinlock), "+r"(i));
+  return i;
 }
+
+/* We want the OS to assign stack addresses.  */
+#define FLOATING_STACKS 1
+
+/* This symbol is defined by the ABI as the stack size requested by
+   the main program.  */
+extern char __stacksize;
+#define ARCH_STACK_MAX_SIZE ((unsigned long)&__stacksize)
+
+/* Memory barrier; default is to do nothing */
+#define MEMORY_BARRIER() __asm__ __volatile__("membar" : : : "memory")
+/* Write barrier.  */
+#define WRITE_MEMORY_BARRIER() __asm__ __volatile__("membar" : : : "memory")
+
+/* Return the thread descriptor for the current thread.  */
+register struct _pthread_descr_struct *THREAD_SELF asm ("gr29");
+#define THREAD_SELF THREAD_SELF
+
+/* Initialize the thread-unique value.  */
+#define INIT_THREAD_SELF(descr, nr) \
+  (THREAD_SELF = descr)
+
+/* Get some notion of the current stack.  Need not be exactly the top
+   of the stack, just something somewhere in the current frame.  */
+#define CURRENT_STACK_FRAME  stack_pointer
+register char * stack_pointer __asm__ ("sp");
+
+#endif
 
 #endif /* pt-machine.h */

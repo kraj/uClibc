@@ -1,10 +1,19 @@
-/* Copyright 2003 Free Software Foundation, Inc.
+/* Copyright 2003, 2004 Free Software Foundation, Inc.
 This file is part of the GNU C Library.
 
 The GNU C Library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public License as
 published by the Free Software Foundation; either version 2.1 of the
 License, or (at your option) any later version.
+
+In addition to the permissions in the GNU Lesser General Public
+License, the Free Software Foundation gives you unlimited
+permission to link the compiled version of this file with other
+programs, and to distribute those programs without any restriction
+coming from the use of this file.  (The GNU Lesser General Public
+License restrictions do apply in other respects; for example, they
+cover modification of the file, and distribution when not linked
+into another program.)
 
 The GNU C Library is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -84,12 +93,14 @@ __reloc_pointer (void *p,
 	 above, but we want to use the carry in the comparison, so we
 	 can't convert it to an integer type beforehand.  */
       unsigned long offset = p - (void*)map->segs[c].p_vaddr;
-      /* We explicitly refrain from checking for one-past-the-end.
-	 Zero-sized objects aren't legal, and it's expected that array
-	 addresses will be relocated before the addend that would make
-	 it one-past-the-end is added.  This gives us a reasonable speed
-	 up, and we couldn't possibly disambiguate all cases anyway.  */
-      if (offset < map->segs[c].p_memsz)
+      /* We only check for one-past-the-end for the last segment,
+	 assumed to be the data segment, because other cases are
+	 ambiguous in the absence of padding between segments, and
+	 rofixup already serves as padding between text and data.
+	 Unfortunately, unless we special-case the last segment, we
+	 fail to relocate the _end symbol.  */
+      if (offset < map->segs[c].p_memsz
+	  || (offset == map->segs[c].p_memsz && c + 1 == map->nsegs))
 	return (char*)map->segs[c].addr + offset;
     }
 	     

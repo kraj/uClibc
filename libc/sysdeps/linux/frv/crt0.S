@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 1992, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 1991, 1992, 2003, 2004 Free Software Foundation, Inc.
 This file is part of the GNU C Library.
 
 The GNU C Library is free software; you can redistribute it and/or
@@ -10,6 +10,15 @@ The GNU C Library is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Library General Public License for more details.
+
+In addition to the permissions in the GNU Lesser General Public
+License, the Free Software Foundation gives you unlimited
+permission to link the compiled version of this file with other
+programs, and to distribute those programs without any restriction
+coming from the use of this file.  (The GNU Lesser General Public
+License restrictions do apply in other respects; for example, they
+cover modification of the file, and distribution when not linked
+into another program.)
 
 You should have received a copy of the GNU Lesser General Public
 License along with the GNU C Library; see the file COPYING.LIB.  If
@@ -43,11 +52,12 @@ Cambridge, MA 02139, USA.  */
 	.weak	_fini
 	.type	__uClibc_start_main,%function
 #endif
-/* Stick in a dummy reference to main(), so that if an application
- * is linking when the main() function is in a static library (.a)
- * we can be sure that main() actually gets linked in */
-	.type	main,%function
 _start:
+	/* Make sure the stack pointer is properly aligned.  Save the
+	   original value in gr21 such that we can get to arguments and
+	   such from there.  */
+	mov.p	sp, gr21
+	andi	sp, #-8, sp
 	/* At program start-up, gr16 contains a pointer to a memory
 	   map, that we use to relocate addresses.  */
 	call	.Lcall
@@ -74,10 +84,10 @@ _start:
 	the last entry, relocated.  */
 
 	/* Prepare arguments for uClibc main.  */
-	ld	@(sp, gr0), gr8
+	ld	@(gr21, gr0), gr8
 	slli	gr8, #2, gr10
-	add	sp, gr10, gr10
-	addi.p	sp, #4, gr9
+	add	gr21, gr10, gr10
+	addi.p	gr21, #4, gr9
 	addi	gr10, #8, gr10
 
 	/* Set up an invalid (NULL return address, NULL frame pointer)

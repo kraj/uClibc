@@ -9,9 +9,6 @@
  * programs.  */
 #include <bits/sysnum.h>
 
-#ifndef __set_errno
-# define __set_errno(val) ((*__errno_location ()) = (val))
-#endif
 #ifndef SYS_ify
 # define SYS_ify(syscall_name)  (__NR_##syscall_name)
 #endif
@@ -19,7 +16,7 @@
 #ifndef __ASSEMBLER__
 
 /* user-visible error numbers are in the range -1 - -4095: see <asm-frv/errno.h> */
-#ifdef _LIBC
+#if defined _LIBC && !defined __set_errno
 # define __syscall_return(type, res) \
 do { \
         unsigned long __sr2 = (res);		    			    \
@@ -41,6 +38,10 @@ do { \
 	}								    \
 	return (type) (__sr2); 						    \
 } while (0)
+#endif
+
+#ifndef __set_errno
+# define __set_errno(val) ((*__errno_location ()) = (val))
 #endif
 
 /* XXX - _foo needs to be __foo, while __NR_bar could be _NR_bar. */
