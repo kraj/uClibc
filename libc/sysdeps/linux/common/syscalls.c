@@ -38,10 +38,10 @@ _syscall1(void, _exit, int, status);
 
 //#define __NR_fork             2
 #ifdef L_fork
-#ifdef __UCLIBC_HAS_MMU__
-#include <unistd.h>
-_syscall0(pid_t, fork);
-#endif
+#	ifdef __UCLIBC_HAS_MMU__
+#		include <unistd.h>
+		_syscall0(pid_t, fork);
+#	endif
 #endif
 
 //#define __NR_read             3
@@ -357,10 +357,10 @@ gid_t getegid(void)
 
 #ifdef __NR_umount2 /* Old kernels don't have umount2 */ 
 //#define __NR_umount2          52
-#ifdef L_umount2
-#include <sys/mount.h>
-_syscall2(int, umount2, const char *, special_file, int, flags);
-#endif
+#	ifdef L_umount2
+#		include <sys/mount.h>
+		_syscall2(int, umount2, const char *, special_file, int, flags);
+#	endif
 #endif
 
 //#define __NR_lock             53
@@ -685,10 +685,10 @@ _syscall2(int, fstatfs, int, fd, struct statfs *, buf);
 
 #ifdef __UCLIBC_HAS_MMU__
 //#define __NR_ioperm           101
-#ifdef L_ioperm
-#include <sys/io.h>
-_syscall3(int, ioperm, unsigned long, from, unsigned long, num, int, turn_on);
-#endif
+#	ifdef L_ioperm
+#		include <sys/io.h>
+		_syscall3(int, ioperm, unsigned long, from, unsigned long, num, int, turn_on);
+#	endif
 #endif
 
 //#define __NR_socketcall       102
@@ -895,6 +895,11 @@ _syscall3(int, sigprocmask, int, how, const sigset_t *, set, sigset_t *,
 //#define __NR_init_module      128
 
 //#define __NR_delete_module    129
+#ifdef L_delete_module
+#	ifdef __NR_delete_module
+		_syscall1(int, delete_module, const char *, name)
+#	endif
+#endif
 
 //#define __NR_get_kernel_syms  130
 
