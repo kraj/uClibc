@@ -74,7 +74,7 @@ $(COBJS): %.o : %.c
 
 headers:
 	@(TOPDIR=$(TOPDIR) CC=$(CC) /bin/sh $(TOPDIR)/extra/scripts/gen_bits_syscall_h.sh > bits/syscall.h ) 
-	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/mipsel/sgidefs.h .
+	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/mips/sgidefs.h .
 
 clean:
 	rm -f *.[oa] *~ core
