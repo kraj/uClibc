@@ -102,9 +102,5 @@ Any takers?
 
 -----------------------------------------------------------------------------
 
-PORTING
--------
-
-bits/dirent.h currently differs from the glibc version (d_type unsupported)
 
 
