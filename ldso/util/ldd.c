@@ -535,10 +535,10 @@ int main( int argc, char** argv)
 		}
 		for (cur = lib_list; cur; cur=cur->next) {
 			got_em_all=1;
-			printf("\t%s => %s\n", cur->name, cur->path);
+			printf("\t%s => %s (0x00000000)\n", cur->name, cur->path);
 		}
 		if (interp_dir && got_em_all==1)
-			printf("\t%s => %s\n", interp, interp);
+			printf("\t%s => %s (0x00000000)\n", interp, interp);
 		if (got_em_all==0)
 			printf("\tnot a dynamic executable\n");
 	}
