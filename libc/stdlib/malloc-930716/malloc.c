@@ -64,6 +64,14 @@ static struct list _fraghead[BLOCKLOG];
 /* Are we experienced? */
 static int initialized;
 
+/* List of blocks allocated with memalign or valloc */
+struct alignlist
+{ 
+    struct alignlist *next;
+    __ptr_t aligned;	/* The address that memaligned returned.  */
+    __ptr_t exact;	/* The address that malloc returned.  */
+};
+static struct alignlist *_aligned_blocks;
 
 
 /* Aligned allocation.
@@ -301,12 +309,24 @@ static void * malloc_unlocked (size_t size)
     return result;
 }
 
-
-
 /* Return memory to the heap. */
 void free(void *ptr)
 {
+    struct alignlist *l;
+
+    if (ptr == NULL)
+	return;
+
     LOCK;
+    for (l = _aligned_blocks; l != NULL; l = l->next) {
+	if (l->aligned == ptr) {
+	    /* Mark the block as free */
+	    l->aligned = NULL;
+	    ptr = l->exact;
+	    break;
+	}
+    }
+
     free_unlocked(ptr);
     UNLOCK;
 }
@@ -318,6 +338,7 @@ static void free_unlocked(void *ptr)
 
     if (ptr == NULL)
 	return;
+
 
     block = BLOCK(ptr);
 
@@ -537,5 +558,42 @@ void * realloc (void *ptr, size_t size)
 	    break;
     }
     UNLOCK;
+}
+
+__ptr_t memalign (size_t alignment, size_t size)
+{
+    __ptr_t result;
+    unsigned long int adj;
+
+    result = malloc (size + alignment - 1);
+    if (result == NULL)
+	return NULL;
+    adj = (unsigned long int) ((unsigned long int) ((char *) result -
+		(char *) NULL)) % alignment;
+    if (adj != 0)
+    {
+	struct alignlist *l;
+	LOCK;
+	for (l = _aligned_blocks; l != NULL; l = l->next)
+	    if (l->aligned == NULL)
+		/* This slot is free.  Use it.  */
+		break;
+	if (l == NULL)
+	{
+	    l = (struct alignlist *) malloc (sizeof (struct alignlist));
+	    if (l == NULL) {
+		free_unlocked (result);
+		UNLOCK;
+		return NULL;
+	    }
+	    l->next = _aligned_blocks;
+	    _aligned_blocks = l;
+	}
+	l->exact = result;
+	result = l->aligned = (char *) result + alignment - adj;
+	UNLOCK;
+    }
+
+    return result;
 }
 

@@ -21,41 +21,14 @@ Cambridge, MA 02139, USA.
    or (US mail) as Mike Haertel c/o Free Software Foundation.  */
 
 #include <stdlib.h>
-#include "malloc.h"
-
-#ifdef	 emacs
-#include "config.h"
-#endif
-
-#ifdef	__GNU_LIBRARY__
-extern size_t __getpagesize __P ((void));
-#else
-#ifndef	USG
-extern size_t getpagesize __P ((void));
-#define	__getpagesize()	getpagesize()
-#else
-#include <sys/param.h>
-#ifdef	EXEC_PAGESIZE
-#define	__getpagesize()	EXEC_PAGESIZE
-#else /* No EXEC_PAGESIZE.  */
-#ifdef	NBPG
-#ifndef	CLSIZE
-#define	CLSIZE	1
-#endif /* No CLSIZE.  */
-#define	__getpagesize()	(NBPG * CLSIZE)
-#else /* No NBPG.  */
-#define	__getpagesize()	NBPC
-#endif /* NBPG.  */
-#endif /* EXEC_PAGESIZE.  */
-#endif /* USG.  */
-#endif
+#include <unistd.h>
 
 static size_t pagesize;
 
 __ptr_t valloc (size_t size)
 {
 	if (pagesize == 0)
-		pagesize = __getpagesize ();
+		pagesize = getpagesize ();
 
-	return memalign (pagesize, size);
+	return memalign(pagesize, size);
 }
