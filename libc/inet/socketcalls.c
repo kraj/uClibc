@@ -83,7 +83,7 @@ int getsockopt(int fd, int level, int optname, __ptr_t optval,
 #endif
 
 #ifdef L_listen
-int listen(int sockfd, unsigned int backlog)
+int listen(int sockfd, int backlog)
 {
 	unsigned long args[2];
 

@@ -15,6 +15,8 @@
  * SOFTWARE.
  */
 
+#define __FORCE_GLIBC__
+#include <features.h>
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/socket.h>
