@@ -148,7 +148,6 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	/* Get the address of the GOT entry. */
 	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
-
 	if (unlikely(!new_addr)) {
 		_dl_dprintf(2, "%s: Can't resolve symbol '%s'\n", _dl_progname, symname);
 		_dl_exit(1);
@@ -160,7 +159,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 			_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
 			if (_dl_debug_detail)
 				_dl_dprintf(_dl_debug_file,
-					    "\n\tpatched %x ==> %x @ %x\n",
+					    "\n\tpatched: %x ==> %x @ %x",
 					    *got_addr, new_addr, got_addr);
 		}
 	}
@@ -292,10 +291,12 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			if (symbol_addr) {
 #if defined (__SUPPORT_LD_DEBUG__)
 				if (_dl_debug_move)
-					_dl_dprintf(_dl_debug_file,"\n%s move %x bytes from %x to %x",
+					_dl_dprintf(_dl_debug_file,
+						    "\n%s move %d bytes from %x to %x",
 						    symname, symtab[symtab_index].st_size,
 						    symbol_addr, reloc_addr);
 #endif
+
 				_dl_memcpy((char *)reloc_addr,
 					   (char *)symbol_addr,
 					   symtab[symtab_index].st_size);
@@ -307,7 +308,8 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_reloc && _dl_debug_detail)
-		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
+		_dl_dprintf(_dl_debug_file, "\n\tpatched: %x ==> %x @ %x",
+			    old_val, *reloc_addr, reloc_addr);
 #endif
 
 	return 0;
@@ -346,7 +348,7 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_reloc && _dl_debug_detail)
-		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x",
+		_dl_dprintf(_dl_debug_file, "\n\tpatched: %x ==> %x @ %x",
 			    old_val, *reloc_addr, reloc_addr);
 #endif
 
@@ -428,4 +430,3 @@ _dl_parse_copy_information(struct dyn_elf *rpnt,
 	/* just disable for now, remove when we know that it works */
 	/* return _dl_parse(rpnt->dyn, rpnt->next, rel_addr, rel_size, _dl_do_copy_reloc); */
 }
-
