@@ -64,6 +64,7 @@
 
 #include <paths.h>
 
+#define __PATH_ETC_INET	"/etc"
 #define _PATH_HEQUIV	__PATH_ETC_INET"/hosts.equiv"
 #define _PATH_HOSTS	__PATH_ETC_INET"/hosts"
 #define _PATH_NETWORKS	__PATH_ETC_INET"/networks"

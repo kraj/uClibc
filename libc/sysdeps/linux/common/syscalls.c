@@ -647,10 +647,16 @@ _syscall2(int,socketcall,int,call,unsigned long *,args);
 #endif
 
 //#define __NR_syslog			103
-#ifdef L_syslog
+#ifdef L__syslog
 #include <unistd.h>
 #define __NR__syslog		__NR_syslog
 _syscall3(int,_syslog,int, type, char *, buf, int, len);
+
+int klogctl (int type, char * buf, int len)
+{
+	return(_syslog(type, buf, len));
+}
+
 #endif
 
 //#define __NR_setitimer		104

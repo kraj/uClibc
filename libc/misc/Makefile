@@ -35,7 +35,7 @@ tags:
 	ctags -R
 	
 clean: subdirs_clean
-	rm -f libc.a
+	rm -f *.[oa] *~ core
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))

@@ -223,6 +223,8 @@ struct ipv6_mreq
 
 /* Get system-specific definitions.  */
 #include <bits/in.h>
+#include <endian.h>
+#include <bits/byteswap.h>
 
 /* Functions to convert between host and network byte order.
 
@@ -231,17 +233,7 @@ struct ipv6_mreq
    this was a short-sighted decision since on different systems the types
    may have different representations but the values are always the same.  */
 
-extern uint32_t ntohl __P ((uint32_t __netlong));
-extern uint16_t ntohs __P ((uint16_t __netshort));
-extern uint32_t htonl __P ((uint32_t __hostlong));
-extern uint16_t htons __P ((uint16_t __hostshort));
-
-#include <endian.h>
-
-/* Get machine dependent optimized versions of byte swapping functions.  */
-#include <bits/byteswap.h>
-
-#if __BYTE_ORDER == __BIG_ENDIAN && defined __OPTIMIZE__
+#if __BYTE_ORDER == __BIG_ENDIAN
 /* The host byte order is the same as network byte order,
    so these functions are all just identity.  */
 # define ntohl(x)	(x)
@@ -249,11 +241,13 @@ extern uint16_t htons __P ((uint16_t __hostshort));
 # define htonl(x)	(x)
 # define htons(x)	(x)
 #else
-# if __BYTE_ORDER == __LITTLE_ENDIAN && defined __OPTIMIZE__
+# if __BYTE_ORDER == __LITTLE_ENDIAN
 #  define ntohl(x)	__bswap_32 (x)
 #  define ntohs(x)	__bswap_16 (x)
 #  define htonl(x)	__bswap_32 (x)
 #  define htons(x)	__bswap_16 (x)
+# else
+#  error "What kind of system is this?"
 # endif
 #endif
 

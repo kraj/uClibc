@@ -67,7 +67,7 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 $(patsubst %, _dirclean_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
-clean:
+clean: subdirs_clean
 	rm -f *.[oa] *~ core
 
 .PHONY: dummy

@@ -41,7 +41,7 @@ MOBJ3= accept.o bind.o connect.o getpeername.o getsockname.o getsockopt.o \
 	listen.o recv.o recvfrom.o recvmsg.o send.o sendmsg.o sendto.o \
 	setsockopt.o shutdown.o socket.o socketpair.o 
 
-CSRC =getservice.c getproto.c
+CSRC =getservice.c getproto.c hostid.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
