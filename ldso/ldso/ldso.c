@@ -387,6 +387,9 @@ LD_BOOT(unsigned long args)
 
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+	SEND_STDERR("scanning DYNAMIC section\n");
+#endif
 	while (dpnt->d_tag) {
 #if defined(__mips__)
 		if (dpnt->d_tag == DT_MIPS_GOTSYM)
@@ -430,18 +433,23 @@ LD_BOOT(unsigned long args)
 						continue;
 					}
 					app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-					if (dpnt->d_tag == DT_DEBUG)
+					if (dpnt->d_tag == DT_DEBUG) {
 #ifdef FORCE_SHAREABLE_TEXT_SEGMENTS
 						dpnt->d_un.d_val = (unsigned long) debug_addr;
 #else
 						dpnt_debug = dpnt;
 #endif
+					}
 					if (dpnt->d_tag == DT_TEXTREL)
 						app_tpnt->dynamic_info[DT_TEXTREL] = 1;
 					dpnt++;
 				}
 			}
 	}
+
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+	SEND_STDERR("done scanning DYNAMIC section\n");
+#endif
 
 	/* Get some more of the information that we will need to dynamicly link
 	   this module to itself */
@@ -452,6 +460,10 @@ LD_BOOT(unsigned long args)
 	tpnt->elf_buckets = hash_addr;
 	hash_addr += tpnt->nbucket;
 
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+	SEND_STDERR("done grabbing link information\n");
+#endif
+
 #ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
 	/* Ugly, ugly.  We need to call mprotect to change the protection of
 	   the text pages so that we can do the dynamic linking.  We can set the
@@ -460,6 +472,10 @@ LD_BOOT(unsigned long args)
 	{
 		elf_phdr *ppnt;
 		int i;
+
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+		SEND_STDERR("calling mprotect on the shared library/dynamic linker\n");
+#endif
 
 		/* First cover the shared library/dynamic linker. */
 		if (tpnt->dynamic_info[DT_TEXTREL]) {
@@ -475,6 +491,9 @@ LD_BOOT(unsigned long args)
 			}
 		}
 
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+		SEND_STDERR("calling mprotect on the application program\n");
+#endif
 		/* Now cover the application program. */
 		if (app_tpnt->dynamic_info[DT_TEXTREL]) {
 			ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
@@ -487,26 +506,27 @@ LD_BOOT(unsigned long args)
 			}
 		}
 	}
-
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+	SEND_STDERR("About to store the debug structure address\n");
+#endif
 	/* Now we can store the debug structure address */
 	if (dpnt_debug != NULL) {
 		dpnt_debug->d_un.d_val = (unsigned long) debug_addr;
 	}
 #endif
-
-
+	
 #if defined(__mips__)
-	/*
-	 * For MIPS we have to do stuff to the GOT before we do relocations.
-	 */
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+	SEND_STDERR("About to do MIPS specific GOT bootstrap\n");
+#endif
+	/* For MIPS we have to do stuff to the GOT before we do relocations.  */
 	PERFORM_BOOTSTRAP_GOT(got);
 #endif
-
 
 	/* OK, now do the relocations.  We do not do a lazy binding here, so
 	   that once we are done, we have considerably more flexibility. */
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("About to do library loader relocations.\n");
+	SEND_STDERR("About to do library loader relocations\n");
 #endif
 
 	goof = 0;
