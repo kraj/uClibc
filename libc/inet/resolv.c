@@ -57,7 +57,7 @@
 #define MAX_SERVERS 3
 #define MAX_SEARCH 4
 
-#undef DEBUG
+#define DEBUG
 #ifdef DEBUG
 static inline void DPRINTF(const char *format, ...)
 {
@@ -80,7 +80,9 @@ int encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
 	dest[1] = (h->id & 0x00ff) >> 0;
 	dest[2] = (h->qr ? 0x80 : 0) |
 		((h->opcode & 0x0f) << 3) |
-		(h->aa ? 0x04 : 0) | (h->tc ? 0x02 : 0) | (h->rd ? 0x01 : 0);
+		(h->aa ? 0x04 : 0) | 
+		(h->tc ? 0x02 : 0) | 
+		(h->rd ? 0x01 : 0);
 	dest[3] = (h->ra ? 0x80 : 0) | (h->rcode & 0x0f);
 	dest[4] = (h->qdcount & 0xff00) >> 8;
 	dest[5] = (h->qdcount & 0x00ff) >> 0;
@@ -165,10 +167,7 @@ int decode_dotted(const unsigned char *data, int offset,
 	if (!data)
 		return -1;
 
-	while ((l = data[offset++])) {
-		
-		if (measure && total++)
-			break;
+	while ((measure && total++), (l=data[offset++])) {
 
 		if ((l & 0xc0) == (0xc0)) {
 			if (measure)
@@ -348,11 +347,11 @@ int decode_answer(unsigned char *message, int offset,
 
 #ifdef L_encodep
 int encode_packet(struct resolv_header *h,
-				  struct resolv_question **q,
-				  struct resolv_answer **an,
-				  struct resolv_answer **ns,
-				  struct resolv_answer **ar,
-				  unsigned char *dest, int maxlen)
+	struct resolv_question **q,
+	struct resolv_answer **an,
+	struct resolv_answer **ns,
+	struct resolv_answer **ar,
+	unsigned char *dest, int maxlen)
 {
 	int i, total = 0;
 	int j;
@@ -670,6 +669,7 @@ int resolve_address(const char *address, int nscount,
 		free(a.dotted);
 
 		if (a.atype == T_CNAME) {		/* CNAME */
+			DPRINTF("Got a CNAME in resolve_address()\n");
 			i = decode_dotted(packet, a.rdoffset, temp, sizeof(temp));
 			free(packet);
 
@@ -728,6 +728,7 @@ int resolve_mailbox(const char *address,
 		free(a.dotted);
 
 		if (a.atype == T_CNAME) {		/* CNAME */
+			DPRINTF("Got a CNAME in resolve_mailbox()\n");
 			i = decode_dotted(packet, a.rdoffset, temp, sizeof(temp));
 			free(packet);
 			if (i < 0)
@@ -861,15 +862,11 @@ struct hostent *gethostbyname(const char *name)
 
 	/* First check if this is already an address */
 	if (inet_aton(name, &in)) {
-	    i = inet_aton( name, &in);
-
-	    if (i >= 0) {	
-		h.h_name = namebuf;
-		h.h_addrtype = AF_INET;
-		h.h_length = sizeof(in);
-		h.h_addr_list = (char **) addr_list;
-		return &h;
-	    }
+	    h.h_name = namebuf;
+	    h.h_addrtype = AF_INET;
+	    h.h_length = sizeof(in);
+	    h.h_addr_list = (char **) addr_list;
+	    return &h;
 	}
 
 	for (;;) {
@@ -884,6 +881,7 @@ struct hostent *gethostbyname(const char *name)
 
 
 		if (a.atype == T_CNAME) {		/* CNAME */
+			DPRINTF("Got a CNAME in gethostbyname()\n");
 			i = decode_dotted(packet, a.rdoffset, namebuf, sizeof(namebuf));
 			free(packet);
 
@@ -938,7 +936,8 @@ struct hostent *gethostbyaddr(const char *addr, int len, int type)
 	sprintf(namebuf, "%d.%d.%d.%d.in-addr.arpa",
 			(in.s_addr >> 24) & 0xff,
 			(in.s_addr >> 16) & 0xff,
-			(in.s_addr >> 8) & 0xff, (in.s_addr >> 0) & 0xff);
+			(in.s_addr >> 8) & 0xff, 
+			(in.s_addr >> 0) & 0xff);
 
 	for (;;) {
 
@@ -951,6 +950,7 @@ struct hostent *gethostbyaddr(const char *addr, int len, int type)
 		free(a.dotted);
 
 		if (a.atype == T_CNAME) {		/* CNAME */
+			DPRINTF("Got a CNAME in gethostbyaddr()\n");
 			i = decode_dotted(packet, a.rdoffset, namebuf, sizeof(namebuf));
 			free(packet);
 
