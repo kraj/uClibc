@@ -524,7 +524,7 @@ DL_BOOT(unsigned long args)
 				if (!_dl_symbol(strtab + symtab[symtab_index].st_name))
 					continue;
 				symbol_addr = load_addr + symtab[symtab_index].st_value;
-					SEND_NUMBER_STDERR(symbol_addr,1);
+				//SEND_NUMBER_STDERR(symbol_addr,1);
 
 				if (!symbol_addr) {
 					/* This will segfault - you cannot call a function until
