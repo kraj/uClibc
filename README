@@ -2,16 +2,28 @@
   uClibc - a Small C Library for Linux
   Erik Andersen <andersen@codepoet.org>
 
-uClibc (aka µClibc/pronounced yew-see-lib-see) is a size-optimized
-implementation of the standard C library.  It is primarily designed
-for developing embedded Linux systems.  It is much smaller then the
-GNU C Library, but nearly all applications supported by glibc also
-work perfectly with uClibc. Porting applications from glibc to
-uClibc typically involves just recompiling the source code. uClibc
-even supports shared libraries and threading. It currently runs on
-standard Linux and MMU-less (also known as µClinuxClinux) systems
-with support for ARM, i386, h8300, m68k, mips, mipsel, PowerPC, SH,
-SPARC, and v850 processors.
+uClibc (aka µClibc/pronounced yew-see-lib-see) is a C library for
+developing embedded Linux systems. It is much smaller then the
+GNU C Library, but nearly all applications supported by glibc
+also work perfectly with uClibc. Porting applications from glibc
+to uClibc typically involves just recompiling the source code.
+uClibc even supports shared libraries and threading. It currently
+runs on standard Linux and MMU-less (also known as µClinux)
+systems with support for alpha, ARM, i386, i960, h8300, m68k,
+mips/mipsel, PowerPC, SH, SPARC, and v850 processors.
+
+If you are building an embedded Linux system and you find that
+glibc is eating up too much space, you should consider using
+uClibc. If you are building a huge fileserver with 12 Terabytes
+of storage, then using glibc may be a better choice...
+
+uClibc is maintained by Erik Andersen and is licensed under the
+GNU LIBRARY GENERAL PUBLIC LICENSE . This license allows you to
+make closed source commercial applications using uClibc (Please
+consider sharing some of the money you make ;-). You do not need
+to give away all your source code just because you use uClibc
+and/or run on Linux. 
+
 
 For installation instructions, see the file INSTALL.
 
