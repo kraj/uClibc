@@ -33,7 +33,7 @@ include Rules.mak
 
 DIRS = extra ldso libc libcrypt libresolv libutil libm libpthread
 
-all: headers include/bits/uClibc_config.h subdirs shared util finished
+all: headers uClibc_config subdirs shared util finished
 
 Config:
 	@echo
@@ -145,7 +145,7 @@ headers: dummy
 	TOPDIR=$(TOPDIR) CC=$(CC) /bin/sh $(TOPDIR)/extra/scripts/gen_bits_syscall_h.sh > include/bits/syscall.h
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
-include/bits/uClibc_config.h: Makefile Config
+uClibc_config: Makefile Config
 	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > include/bits/uClibc_config.h
 	@echo "#if !defined __FEATURES_H && !defined __need_uClibc_config_h" >> include/bits/uClibc_config.h
 	@echo "#error Never include <bits/uClibc_config.h> directly; use <features.h> instead." >> include/bits/uClibc_config.h
