@@ -92,7 +92,9 @@
  * same.
  *
  * Nov 21, 2002   Fix an error return case in _time_mktime.
- * 
+ *
+ * Nov 26, 2002   Fix bug in setting daylight and timezone when no (valid) TZ.
+ *   Bug reported by Arne Bernin <arne@alamut.de> in regards to freeswan.
  */
 
 
@@ -1749,8 +1751,8 @@ void tzset(void)
  DONE:
 	tzname[0] = _time_tzinfo[0].tzname;
 	tzname[1] = _time_tzinfo[1].tzname;
-	daylight = !!new_rules[1].tzname[0];
-	timezone = new_rules[0].gmt_offset;
+	daylight = !!_time_tzinfo[1].tzname[0];
+	timezone = _time_tzinfo[0].gmt_offset;
 
  FAST_DONE:
 	TZUNLOCK;
