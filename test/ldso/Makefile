@@ -19,7 +19,6 @@
 TESTDIR=../
 include $(TESTDIR)/Rules.mak
 
-CFLAGS+=--uclibc-ctors
 all: dltest2 dltest libhowdy.so run
 all: dlttest dlttest2 dltest2 dltest libhowdy.so run
 
