@@ -127,8 +127,8 @@ malloc (size_t size)
     if (!initialized && !initialize())
 	return NULL;
 
-    /* Some programs will call malloc (0). We let them pass. */
-#if 0
+#if 1
+    /* Some programs will call malloc (0).  Lets be strict and return NULL */
     if (size == 0)
 	return NULL;
 #endif
