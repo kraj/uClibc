@@ -747,7 +747,7 @@ next_lib2:
 	 * Relocation of the GOT entries for MIPS have to be done
 	 * after all the libraries have been loaded.
 	 */
-	_dl_perform_mips_global_got_relocations(_dl_loaded_modules);
+	_dl_perform_mips_global_got_relocations(_dl_loaded_modules, !unlazy);
 #endif
 
 	/*

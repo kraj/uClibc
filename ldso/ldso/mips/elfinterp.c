@@ -247,11 +247,11 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 }
 
 /* Relocate the global GOT entries for the object */
-void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
+void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 {
 	Elf32_Sym *sym;
 	char *strtab;
-	unsigned long i;
+	unsigned long i, tmp_lazy;
 	unsigned long *got_entry;
 
 	for (; tpnt ; tpnt = tpnt->next) {
@@ -273,11 +273,11 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 		if(_dl_debug_reloc)
 			_dl_dprintf(2, "_dl_perform_mips_global_got_relocations for '%s'\n", tpnt->libname);
 #endif
-
+		tmp_lazy = lazy && !tpnt->dynamic_info[DT_BIND_NOW];
 		/* Relocate the global GOT entries for the object */
 		while(i--) {
 			if (sym->st_shndx == SHN_UNDEF) {
-				if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC && sym->st_value) {
+				if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC && sym->st_value && tmp_lazy) {
 					*got_entry = sym->st_value + (unsigned long) tpnt->loadaddr;
 				}
 				else {
@@ -290,7 +290,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 					sym->st_name, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
 			}
 			else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&
-				*got_entry != sym->st_value) {
+				*got_entry != sym->st_value && tmp_lazy) {
 				*got_entry += (unsigned long) tpnt->loadaddr;
 			}
 			else if (ELF32_ST_TYPE(sym->st_info) == STT_SECTION) {

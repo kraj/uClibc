@@ -61,7 +61,7 @@ int _dl_map_cache(void) __attribute__ ((__weak__));
 int _dl_unmap_cache(void) __attribute__ ((__weak__));
 #endif
 #ifdef __mips__
-extern void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
+extern void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 	__attribute__ ((__weak__));
 #endif
 #ifdef __SUPPORT_LD_DEBUG__
@@ -299,13 +299,6 @@ void *dlopen(const char *libname, int flag)
 		 * further needs to be done. */
 		return (void *) dyn_chain;
 	}
-#ifdef __mips__
-	/*
-	 * Relocation of the GOT entries for MIPS have to be done
-	 * after all the libraries have been loaded.
-	 */
-	_dl_perform_mips_global_got_relocations(tpnt);
-#endif
 
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
@@ -319,6 +312,15 @@ void *dlopen(const char *libname, int flag)
 	now_flag = (flag & RTLD_NOW) ? RTLD_NOW : 0;
 	if (getenv("LD_BIND_NOW"))
 		now_flag = RTLD_NOW;
+
+#ifdef __mips__
+	/*
+	 * Relocation of the GOT entries for MIPS have to be done
+	 * after all the libraries have been loaded.
+	 */
+	_dl_perform_mips_global_got_relocations(tpnt, !now_flag);
+#endif
+
 	if (_dl_fixup(dyn_chain, now_flag))
 		goto oops;
 
