@@ -325,7 +325,6 @@ defconfig: extra/config/conf
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -d extra/Configs/Config.in
 
-
 clean:
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec $(RM) {} \;
 	@$(RM) -r tmp lib include/bits libc/tmp _install
@@ -367,5 +366,8 @@ release: distclean
 	tar -cvzf uClibc-$(VERSION).tar.gz uClibc-$(VERSION)/;
 
 endif # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
+
+check:
+	$(MAKE) -C test
 
 .PHONY: dummy subdirs release distclean clean config oldconfig menuconfig
