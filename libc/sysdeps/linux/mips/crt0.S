@@ -9,7 +9,7 @@
 */
 
 #include <features.h>
-#include "regdef.h"
+#include <sys/regdef.h>
 
 .text
 .global __start

@@ -21,7 +21,7 @@
    We cannot do it in C because it must be a tail-call, so frame-unwinding
    in setjmp doesn't clobber the state restored by longjmp.  */
 
-#include "regdef.h"
+#include <sys/regdef.h>
 
 #ifdef __PIC__
 	.option pic2

@@ -62,6 +62,7 @@ $(COBJS): %.o : %.c
 
 headers:
 	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/mips/sgidefs.h .
+#	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/mips/regdef.h .
 
 clean:
 	rm -f *.[oa] *~ core

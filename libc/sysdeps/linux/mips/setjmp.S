@@ -16,7 +16,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include "regdef.h"
+#include <sys/regdef.h>
 
 /* The function __sigsetjmp_aux saves all the registers, but it can't
    reliably access the stack or frame pointers, so we pass them in as
