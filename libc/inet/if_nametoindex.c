@@ -148,6 +148,27 @@ struct if_nameindex * if_nameindex (void)
 
 char * if_indextoname (unsigned int ifindex, char *ifname)
 {
+#ifdef SIOCGIFNAME
+  /* Use ioctl to avoid searching the list. */
+  struct ifreq ifr;
+  int fd, saved_errno;
+
+  fd = __opensock ();
+  
+  if (fd < 0)
+      return NULL;
+
+  ifr.ifr_ifindex = ifindex;
+  if (ioctl (fd, SIOCGIFNAME, &ifr) < 0) {
+      saved_errno = errno;
+      close (fd);
+      __set_errno (saved_errno);
+      return NULL;
+  }
+  close (fd);
+
+  return strncpy (ifname, ifr.ifr_name, IFNAMSIZ);
+#else
     struct if_nameindex *idx;
     struct if_nameindex *p;
     char *result = NULL;
@@ -163,5 +184,6 @@ char * if_indextoname (unsigned int ifindex, char *ifname)
 	if_freenameindex (idx);
     }
     return result;
+#endif
 }
 
