@@ -10,6 +10,7 @@ config HAVE_ELF
 	bool
 	select ARCH_HAS_NO_MMU
 	select ARCH_HAS_NO_FPU
+	select ARCH_BIG_ENDIAN
 	default y
 
 config ARCH_CFLAGS
