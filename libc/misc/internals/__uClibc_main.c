@@ -19,29 +19,16 @@
  */
 
 extern int main(int argc, char **argv, char **envp);
+extern void __uClibc_empty_func(void);
 
 void __uClibc_main(int argc, char **argv, char **envp)
 	 __attribute__ ((__noreturn__));
-
-/*
- * Define an empty function and use it as a weak alias for the stdio
- * initialization routine.  That way we don't pull in all the stdio
- * code unless we need to.  Similarly, do the same for __stdio_close_all
- * so as not to include atexit unnecessarily.
- *
- * NOTE!!! This is only true for the _static_ case!!!
- */
-
-void __uClibc_empty_func(void)
-{
-}
 
 #ifdef HAVE_ELF
 weak_alias(__environ, environ);
 weak_alias(__uClibc_empty_func, __init_stdio);
 weak_alias(__uClibc_empty_func, __stdio_close_all);
 #endif	
-
 
 extern void __init_stdio(void);
 extern void __stdio_close_all(void);
@@ -86,6 +73,19 @@ void __uClibc_main(int argc, char **argv, char **envp)
  */
 
 char **__environ = 0;
+
+/*
+ * Define an empty function and use it as a weak alias for the stdio
+ * initialization routine.  That way we don't pull in all the stdio
+ * code unless we need to.  Similarly, do the same for __stdio_close_all
+ * so as not to include atexit unnecessarily.
+ *
+ * NOTE!!! This is only true for the _static_ case!!!
+ */
+
+void __uClibc_empty_func(void)
+{
+}
 
 #ifndef HAVE_ELF
 weak_alias(__environ, environ);
