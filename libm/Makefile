@@ -82,7 +82,7 @@ OBJS=$(COBJS)
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 all:  clean subdirs
 else
-all: $(OBJS) $(LIBM) subdirs
+all: $(LIBM) subdirs
 endif
 
 $(LIBM): ar-target
@@ -125,7 +125,7 @@ clean: subdirs_clean
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 
-$(patsubst %, _dir_%, $(DIRS)) : dummy
+$(patsubst %, _dir_%, $(DIRS)) : $(OBJS)
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
