@@ -55,7 +55,7 @@ done: libc.a $(DO_SHARED)
 	@echo
 
 halfclean:
-	@rm -f libc.a
+	@rm -f libc.a libuClibc.so.1 libcrt0.o
 
 headers: dummy
 	@rm -f include/asm include/linux include/bits
