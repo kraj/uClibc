@@ -1050,11 +1050,11 @@ size_t __fpending(register FILE * __restrict stream)
 
 void _flushlbf(void)
 {
-#ifdef __STDIO_BUFFERS
+#if defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS)
 	fflush((FILE *) &_stdio_openlist); /* Uses an implementation hack!!! */
-#else  /* __STDIO_BUFFERS */
+#else  /* defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS) */
 	/* Nothing to do. */
-#endif /* __STDIO_BUFFERS */
+#endif /* defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS) */
 }
 
 #endif
@@ -1925,6 +1925,7 @@ void _stdio_term(void)
 	 * the stream may be in an unstable state... what do we do?
 	 * perhaps set error flag before and clear when done if successful? */
 
+#if defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS)
 #ifdef __STDIO_THREADSAFE
 	/* First, forceably unlock the open file list and all files.
 	 * Note: Set locking mode to "by caller" to save some overhead later. */
@@ -1934,6 +1935,7 @@ void _stdio_term(void)
 		__stdio_init_mutex(&ptr->lock);
 	}
 #endif /* __STDIO_THREADSAFE */
+#endif /* defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS) */
 
 #ifdef __STDIO_BUFFERS
 	/* TODO -- set an alarm and flush each file "by hand"? to avoid blocking? */
@@ -2190,9 +2192,9 @@ int fflush(register FILE *stream)
 	int retval;
 
 	if ((stream != NULL)
-#ifdef __STDIO_BUFFERS
+#if defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS)
 		&& (stream != (FILE *) &_stdio_openlist)
-#endif /* __STDIO_BUFFERS */
+#endif /* defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS) */
 		) {
 		__STDIO_THREADLOCK(stream);
 		retval = fflush_unlocked(stream);
@@ -2264,7 +2266,11 @@ int fflush_unlocked(register FILE *stream)
 #else  /* __STDIO_BUFFERS --------------------------------------- */
 
 #ifndef NDEBUG
-	if ((stream != NULL) && (stream != (FILE *) &_stdio_openlist)) {
+	if ((stream != NULL)
+#if defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS)
+		&& (stream != (FILE *) &_stdio_openlist)
+#endif /* defined(__STDIO_BUFFERS) || defined(__STDIO_GLIBC_CUSTOM_STREAMS) */
+		) {
 		__stdio_validate_FILE(stream); /* debugging only */
 	}
 #endif
@@ -3444,7 +3450,6 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 #endif
 #ifndef __LOCALE_C_ONLY
 	int grouping, outdigit;
-	size_t gslen;		   /* This does not need to be initialized. */
 	const char *g;		   /* This does not need to be initialized. */
 #endif /* __LOCALE_C_ONLY */
 
@@ -3467,7 +3472,6 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 	if (alphacase == __UIM_GROUP) {
 		assert(base == 10);
 		if (*(g = __UCLIBC_CURLOCALE_DATA.grouping)) {
-			gslen = strlen(__UCLIBC_CURLOCALE_DATA.thousands_sep);
 			grouping = *g;
 		}
 	}
@@ -3479,18 +3483,9 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
     do {
 #ifndef __LOCALE_C_ONLY
 		if (!grouping) {		/* Finished a group. */
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Decide about memcpy in _uintmaxtostr.
-#endif /* __UCLIBC_MJN3_ONLY__ */
-#if 0
-			bufend -= gslen;
-			memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep, gslen);
-#else
-			grouping = gslen;
-			do {
-				*--bufend = __UCLIBC_CURLOCALE_DATA.thousands_sep[--grouping];
-			} while (grouping);
-#endif
+			bufend -= __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
+			__builtin_memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
+							 __UCLIBC_CURLOCALE_DATA.thousands_sep_len);
 			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
 				/* Note: g[1] == -1 means no further grouping.  But since
 				 * we'll never wrap around, we can set grouping to -1 without
@@ -3505,12 +3500,11 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 		uval /= base;
 
 #ifndef __LOCALE_C_ONLY
-		if (outdigit) {
-			outdigit = __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
-			do {
-				*--bufend = (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit][--outdigit];
-			} while (outdigit);
-			outdigit = 1;
+		if (unlikely(outdigit)) {
+			bufend -= __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
+			__builtin_memcpy(bufend,
+							 (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit],
+							 __UCLIBC_CURLOCALE_DATA.outdigit_length[digit]);
 		} else
 #endif
 		{
@@ -3532,18 +3526,9 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
     do {
 #ifndef __LOCALE_C_ONLY
 		if (!grouping) {		/* Finished a group. */
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Decide about memcpy in _uintmaxtostr
-#endif /* __UCLIBC_MJN3_ONLY__ */
-#if 0
-			bufend -= gslen;
-			memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep, gslen);
-#else
-			grouping = gslen;
-			do {
-				*--bufend = __UCLIBC_CURLOCALE_DATA.thousands_sep[--grouping];
-			} while (grouping);
-#endif
+			bufend -= __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
+			__builtin_memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
+							 __UCLIBC_CURLOCALE_DATA.thousands_sep_len);
 			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
 				/* Note: g[1] == -1 means no further grouping.  But since
 				 * we'll never wrap around, we can set grouping to -1 without
@@ -3555,19 +3540,23 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 		--grouping;
 #endif /* __LOCALE_C_ONLY */
 
-		rh = high % base;
-		high /= base;
-		digit = (low % base) + (L * rh);
-		low = (low / base) + (H * rh) + (digit / base);
-		digit %= base;
+		if (unlikely(high)) {
+			rh = high % base;
+			high /= base;
+			digit = (low % base) + (L * rh);
+			low = (low / base) + (H * rh) + (digit / base);
+			digit %= base;
+		} else {
+			digit = low % base;
+			low /= base;
+		}
 		
 #ifndef __LOCALE_C_ONLY
-		if (outdigit) {
-			outdigit = __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
-			do {
-				*--bufend = (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit][--outdigit];
-			} while (outdigit);
-			outdigit = 1;
+		if (unlikely(outdigit)) {
+			bufend -= __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
+			__builtin_memcpy(bufend,
+							 (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit],
+							 __UCLIBC_CURLOCALE_DATA.outdigit_length[digit]);
 		} else
 #endif
 		{
