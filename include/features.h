@@ -329,12 +329,16 @@
 
 /* Some nice features only work properly with ELF */
 #if defined HAVE_ELF	
-#   define link_warning(symbol, msg) \
-	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");  \
-	    static const char __evoke_link_warning_##symbol[]     \
+#   define link_warning(symbol, msg)					      \
+	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");	      \
+	    static const char __evoke_link_warning_##symbol[]		      \
 	    __attribute__ ((section (".gnu.warning." #symbol "\n\t#"))) = msg;
-#   define weak_alias(name, aliasname) \
-	asm(".global " #name ";.weak " #aliasname ";" #aliasname "=" #name ";");
+#   define weak_alias(name, aliasname)					      \
+	asm(".global " C_SYMBOL_PREFIX #name ";"			      \
+	    ".weak " C_SYMBOL_PREFIX #aliasname ";"			      \
+	    C_SYMBOL_PREFIX #aliasname "="  C_SYMBOL_PREFIX #name ";");
+#   define weak_symbol(name)						      \
+	asm(".weak " C_SYMBOL_PREFIX #name ";");
 #else
 #   define link_warning(symbol, msg) \
 	asm (".stabs \"" msg "\",30,0,0,0\n\t" \

@@ -1,0 +1,10 @@
+confname.h
+endian.h
+fenv.h
+huge_val.h
+mathdef.h
+mathinline.h
+setjmp.h	!!!
+string.h	(done)
+types.h		(done)
+byteswap.h	(done)

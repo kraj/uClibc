@@ -2,7 +2,7 @@
 /*
  * Syscalls for uClibc
  *
- * Copyright (C) 2000 by Lineo, inc.  Written by Erik Andersen
+ * Copyright (C) 2000, 2001 by Lineo, inc.  Written by Erik Andersen
  * <andersen@lineo.com>, <andersee@debian.org>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -635,13 +635,16 @@ int reboot(int flag)
 //#define __NR_readdir          89
 
 //#define __NR_mmap             90
-#ifdef L__mmap
+#ifdef L_mmap
 #define __NR__mmap __NR_mmap
 #ifdef __STR_NR_mmap
 #define __STR_NR__mmap __STR_NR_mmap
 #endif
 #include <unistd.h>
 #include <sys/mman.h>
+
+#if __UCLIBC_OLD_STYLE_MMAP__
+
 extern __ptr_t _mmap(unsigned long *buffer);
 
 _syscall1(__ptr_t, _mmap, unsigned long *, buffer);
@@ -659,6 +662,15 @@ __ptr_t mmap(__ptr_t addr, size_t len, int prot,
 	buffer[5] = (unsigned long) offset;
 	return (__ptr_t) _mmap(buffer);
 }
+
+#else /* !__UCLIBC_OLD_STYLE_MMAP__ */
+
+_syscall6(__ptr_t, mmap,
+	  __ptr_t, addr, size_t, len, int, prot,
+	  int, flags, int, fd, __off_t, offset);
+
+#endif /* __UCLIBC_OLD_STYLE_MMAP__ */
+
 #endif
 
 //#define __NR_munmap           91

@@ -46,7 +46,8 @@ static void atexit_handler(void)
 	for (count = __atexit_count ; count-- ; ) {
 		(*__atexit_table[count])();
 	}
-	__stdio_close_all();
+	if (__stdio_close_all)
+	  __stdio_close_all();
 }
 
 int atexit(vfuncp ptr)

@@ -26,8 +26,8 @@ void __uClibc_main(int argc, char **argv, char **envp)
 
 #ifdef HAVE_ELF
 weak_alias(__environ, environ);
-weak_alias(__uClibc_empty_func, __init_stdio);
-weak_alias(__uClibc_empty_func, __stdio_close_all);
+weak_symbol(__init_stdio);
+weak_symbol(__stdio_close_all);
 #endif	
 
 extern void __init_stdio(void);
@@ -51,7 +51,8 @@ void __uClibc_main(int argc, char **argv, char **envp)
 	 * Initialize stdio here.  In the static library case, this will
 	 * be bypassed if not needed because of the weak alias above.
 	 */
-	__init_stdio();
+	if (__init_stdio)
+	  __init_stdio();
 
 	/*
 	 * Note: It is possible that any initialization done above could
@@ -74,6 +75,7 @@ void __uClibc_main(int argc, char **argv, char **envp)
 
 char **__environ = 0;
 
+#ifndef HAVE_ELF
 /*
  * Define an empty function and use it as a weak alias for the stdio
  * initialization routine.  That way we don't pull in all the stdio
@@ -87,9 +89,7 @@ void __uClibc_empty_func(void)
 {
 }
 
-#ifndef HAVE_ELF
 weak_alias(__environ, environ);
 weak_alias(__uClibc_empty_func, __init_stdio);
 weak_alias(__uClibc_empty_func, __stdio_close_all);
 #endif	
-
