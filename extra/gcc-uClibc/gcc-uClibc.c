@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 	if (linking && source_count) {
 		if (!use_static_linking) {
 			if (DYNAMIC_LINKER[0]) { /* not empty string */
-#if 0
+#if 1
 				gcc_argv[i++] = "-Wl,--dynamic-linker,"DYNAMIC_LINKER;
 				if (strstr(DYNAMIC_LINKER,"uclibc") != 0) {	/* custom linker */
 					use_rpath = 0; /* so -rpath not needed for normal case */
