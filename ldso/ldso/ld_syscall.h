@@ -1,4 +1,6 @@
+#include <sys/types.h>
 #include "syscalls.h"
+
 
 /* Here are the definitions for some syscalls that are used
    by the dynamic linker.  The idea is that we want to be able
