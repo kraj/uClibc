@@ -2,8 +2,10 @@
 #define _SYS_MMAN_H
 
 #include <features.h>
-#include <sys/types.h>
-#include <linux/mman.h>
+#include <bits/types.h>
+#define __need_size_t
+#include <stddef.h>
+#include <bits/mman.h>
 
 #ifndef MAP_ANON
 #define MAP_ANON	MAP_ANONYMOUS	   /* idem */
