@@ -26,7 +26,6 @@
 #include <errno.h>
 #include <features.h>
 #include <sys/types.h>
-#include <asm/unistd.h>
 
 __BEGIN_DECLS
 
