@@ -166,29 +166,19 @@ search_for_named_library(char *name, int secure, const char *path_list,
 	return NULL;
 }
 
-
-/*
- * Used to return error codes back to dlopen et. al.
- */
-
-unsigned long _dl_error_number;
-unsigned long _dl_internal_error_number;
-extern char *_dl_ldsopath;
-
-struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
-	struct elf_resolve *tpnt, char *full_libname)
+/* Check if the named library is already loaded... */
+struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libname)
 {
-	char *pnt, *pnt1;
+	const char *pnt, *pnt1;
 	struct elf_resolve *tpnt1;
-	char *libname, *libname2;
+	const char *libname, *libname2;
 
-	_dl_internal_error_number = 0;
 	pnt = libname = full_libname;
 
 	/* quick hack to ensure mylibname buffer doesn't overflow.  don't 
 	   allow full_libname or any directory to be longer than 1024. */
 	if (_dl_strlen(full_libname) > 1024)
-		goto goof;
+		return NULL;
 
 	/* Skip over any initial initial './' and '/' stuff to 
 	 * get the short form libname with no path garbage */ 
@@ -215,7 +205,46 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 			return tpnt1;
 		}
 	}
+	return NULL;
+}
 	
+
+
+/*
+ * Used to return error codes back to dlopen et. al.
+ */
+
+unsigned long _dl_error_number;
+unsigned long _dl_internal_error_number;
+extern char *_dl_ldsopath;
+
+struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
+	struct elf_resolve *tpnt, char *full_libname)
+{
+	char *pnt, *pnt1;
+	struct elf_resolve *tpnt1;
+	char *libname;
+
+	_dl_internal_error_number = 0;
+	libname = full_libname;
+
+	/* quick hack to ensure mylibname buffer doesn't overflow.  don't 
+	   allow full_libname or any directory to be longer than 1024. */
+	if (_dl_strlen(full_libname) > 1024)
+		goto goof;
+
+	/* Skip over any initial initial './' and '/' stuff to 
+	 * get the short form libname with no path garbage */ 
+	pnt1 = _dl_strrchr(libname, '/');
+	if (pnt1) {
+		libname = pnt1 + 1;
+	}
+
+	/* Critical step!  Weed out duplicates early to avoid
+	 * function aliasing, which wastes memory, and causes
+	 * really bad things to happen with weaks and globals. */
+	if ((tpnt1=_dl_check_if_named_library_is_loaded(libname))!=NULL)
+		return tpnt1;
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) _dl_dprintf(_dl_debug_file, "searching for library: '%s'\n", libname);

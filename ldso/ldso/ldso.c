@@ -902,6 +902,10 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			*str2 = '\0';
 			if (!_dl_secure || _dl_strchr(str, '/') == NULL) 
 			{
+				if ((tpnt1 = _dl_check_if_named_library_is_loaded(str))) 
+				{
+					continue;
+				}
 				tpnt1 = _dl_load_shared_library(_dl_secure, &rpnt, NULL, str);
 				if (!tpnt1) {
 #ifdef __LDSO_LDD_SUPPORT__
@@ -978,6 +982,10 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 						c = *cp;
 						*cp = '\0';
 
+						if ((tpnt1 = _dl_check_if_named_library_is_loaded(cp2))) 
+						{
+							continue;
+						}
 						tpnt1 = _dl_load_shared_library(0, &rpnt, NULL, cp2);
 						if (!tpnt1) {
 #ifdef __LDSO_LDD_SUPPORT__
@@ -1066,6 +1074,10 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 					tpnt->usage_count++;
 					tpnt->symbol_scope = _dl_symbol_tables;
 					tpnt = NULL;
+					continue;
+				}
+				if ((tpnt1 = _dl_check_if_named_library_is_loaded(lpntstr))) 
+				{
 					continue;
 				}
 				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr)))
