@@ -28,20 +28,20 @@ ALL_SUBDIRS = ldso libdl util
 
 all:
 ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
-	$(MAKE) -C $(LIBRARY_CACHE) ldso;
+	$(MAKE) -C ldso;
 else
 	echo "Not building ld-uClibc"
 endif
 
-shared:
+shared: utils
 ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
-	$(MAKE) -C $(LIBRARY_CACHE) libdl;
+	$(MAKE) -C libdl;
 else
 	echo "Not building libdl"
 endif
 
 utils:
-	$(MAKE) -C $(LIBRARY_CACHE) util;
+	$(MAKE) -C util;
 
 clean:
 	set -e ; for d in $(ALL_SUBDIRS) ; do $(MAKE) -C $$d $@ ; done
