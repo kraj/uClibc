@@ -1,3 +1,9 @@
+
+/*
+ *	For MMU hosts we need to track the size of the allocations otherwise
+ *	munmap will fail to free the memory (EINVAL).
+ */
+
 #include <features.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -68,23 +74,28 @@ void *calloc(size_t num, size_t size)
 void *malloc(size_t size)
 {
 	void *result;
-#if 1
+
     /* Some programs will call malloc (0).  Lets be strict and return NULL */
     if (size == 0)
-	return NULL;
-#endif
-	result = mmap((void *) 0, size, PROT_READ | PROT_WRITE,
+		return NULL;
+
 #ifdef __UCLIBC_HAS_MMU__
-						MAP_PRIVATE | MAP_ANONYMOUS, 0, 0
+	result = mmap((void *) 0, size + sizeof(size_t), PROT_READ | PROT_WRITE,
+						MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 #else
-						MAP_SHARED | MAP_ANONYMOUS, 0, 0
+	result = mmap((void *) 0, size, PROT_READ | PROT_WRITE,
+						MAP_SHARED | MAP_ANONYMOUS, 0, 0);
 #endif
-						    );
 
 	if (result == MAP_FAILED)
 		return 0;
-
-	return result;
+	
+#ifdef __UCLIBC_HAS_MMU__
+	* (size_t *) result = size;
+	return(result + sizeof(size_t));
+#else
+	return(result);
+#endif
 }
 
 #endif
@@ -93,7 +104,14 @@ void *malloc(size_t size)
 
 void free(void *ptr)
 {
+#ifdef __UCLIBC_HAS_MMU__
+	if (ptr) {
+		ptr -= sizeof(size_t);
+		munmap(ptr, * (size_t *) ptr);
+	}
+#else
 	munmap(ptr, 0);
+#endif
 }
 
 #endif
@@ -107,7 +125,11 @@ void *realloc(void *ptr, size_t size)
 	if (size > 0) {
 		newptr = malloc(size);
 		if (newptr && ptr) {
+#ifdef __UCLIBC_HAS_MMU__
+			memcpy(newptr, ptr, * ((size_t *) (ptr - sizeof(size_t))));
+#else
 			memcpy(newptr, ptr, size);
+#endif
 			free(ptr);
 		}
 	}
