@@ -145,7 +145,7 @@ CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
 
 # Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
 #CFLAGS+=-iwithprefix include
-CFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install:\(.*\)/\1include/gp")
+CFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1include/gp")
 
 
 ifeq ($(strip $(DODEBUG)),y)
