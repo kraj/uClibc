@@ -82,14 +82,14 @@ config ARCH_HAS_NO_MMU
 
 config CPU_CFLAGS
 	string
-	default "-DHIOS -ml -m2" if CONFIG_SH2 && ARCH_LITTLE_ENDIAN
-	default "-DHIOS -mb -m2" if CONFIG_SH2 && ARCH_BIG_ENDIAN
-	default "-DHIOS -ml -m3" if CONFIG_SH3 && ARCH_LITTLE_ENDIAN
-	default "-DHIOS -mb -m3" if CONFIG_SH3 && ARCH_BIG_ENDIAN
-	default "-DHIOS -ml -m4" if CONFIG_SH4 && ARCH_LITTLE_ENDIAN
-	default "-DHIOS -mb -m4" if CONFIG_SH4 && ARCH_BIG_ENDIAN
-	default "-DHIOS -ml -m5" if CONFIG_SH5 && ARCH_LITTLE_ENDIAN
-	default "-DHIOS -mb -m5" if CONFIG_SH5 && ARCH_BIG_ENDIAN
+	default "-ml -m2" if CONFIG_SH2 && ARCH_LITTLE_ENDIAN
+	default "-mb -m2" if CONFIG_SH2 && ARCH_BIG_ENDIAN
+	default "-ml -m3" if CONFIG_SH3 && ARCH_LITTLE_ENDIAN
+	default "-mb -m3" if CONFIG_SH3 && ARCH_BIG_ENDIAN
+	default "-ml -m4" if CONFIG_SH4 && ARCH_LITTLE_ENDIAN
+	default "-mb -m4" if CONFIG_SH4 && ARCH_BIG_ENDIAN
+	default "-ml -m5" if CONFIG_SH5 && ARCH_LITTLE_ENDIAN
+	default "-mb -m5" if CONFIG_SH5 && ARCH_BIG_ENDIAN
 
 source "extra/Configs/Config.in.arch"
 
