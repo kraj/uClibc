@@ -8,7 +8,6 @@
 
 /* Do something very evil for now.  Until we create our own syscall
  * macros, short circuit bits/syscall.h  and use asm/unistd.h instead */
-#define _BITS_SYSCALL_H
 #include <asm/unistd.h>
 
 /* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
