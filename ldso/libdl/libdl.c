@@ -54,6 +54,7 @@ extern struct elf_resolve *_dl_loaded_modules __attribute__ ((__weak__));
 extern struct r_debug *_dl_debug_addr __attribute__ ((__weak__));
 extern unsigned long _dl_error_number __attribute__ ((__weak__));
 extern void *(*_dl_malloc_function)(size_t) __attribute__ ((__weak__));
+extern void (*_dl_free_function) (void *p) __attribute__ ((__weak__));
 #ifdef USE_CACHE
 int _dl_map_cache(void) __attribute__ ((__weak__));
 int _dl_unmap_cache(void) __attribute__ ((__weak__));
@@ -95,6 +96,7 @@ struct r_debug *_dl_debug_addr = NULL;
 static unsigned char *_dl_malloc_addr, *_dl_mmap_zero;
 void *(*_dl_malloc_function) (size_t size);
 int _dl_errno = 0;
+void (*_dl_free_function) (void *p);
 int _dl_fixup(struct dyn_elf *rpnt, int lazy);
 #include "../ldso/dl-progname.h"               /* Pull in the name of ld.so */
 #include "../ldso/dl-hash.c"
@@ -164,6 +166,7 @@ void *_dlopen(const char *libname, int flag)
 	if (!dl_init) {
 		dl_init++;
 		_dl_malloc_function = malloc;
+		_dl_free_function = free;
 	}
 
 	/* Cover the trivial case first */
