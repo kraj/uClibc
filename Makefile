@@ -154,17 +154,17 @@ install_runtime:
 # in $(INSTALL_DIR)/include.  Probably true only if you're using
 # a packaging system.
 install_dev:
-	install -d $(INSTALL_DIR)/include
-	install -d $(INSTALL_DIR)/include/bits
-	rm -f $(INSTALL_DIR)/include/asm
-	rm -f $(INSTALL_DIR)/include/linux
-	ln -s $(KERNEL_SOURCE)/include/asm $(INSTALL_DIR)/include/asm
-	ln -s $(KERNEL_SOURCE)/include/linux $(INSTALL_DIR)/include/linux
+	install -d $(INSTALL_DIR)/usr/include
+	install -d $(INSTALL_DIR)/usr/include/bits
+	rm -f $(INSTALL_DIR)/usr/include/asm
+	rm -f $(INSTALL_DIR)/usr/include/linux
+	ln -s $(KERNEL_SOURCE)/include/asm $(INSTALL_DIR)/usr/include/asm
+	ln -s $(KERNEL_SOURCE)/include/linux $(INSTALL_DIR)/usr/include/linux
 	find include/ -type f -depth -not -path "*CVS*" -exec install \
-	    -D -m 644 {} $(INSTALL_DIR)/'{}' ';'
+	    -D -m 644 {} $(INSTALL_DIR)/usr/'{}' ';'
 	find include/bits/ -type f -depth -not -path "*CVS*" -exec install \
-	    -D -m 644 {} $(INSTALL_DIR)/'{}' ';'
-	install -m 644 include/bits/uClibc_config.h $(INSTALL_DIR)/include/bits/
+	    -D -m 644 {} $(INSTALL_DIR)/usr/'{}' ';'
+	install -m 644 include/bits/uClibc_config.h $(INSTALL_DIR)/usr/include/bits/
 	$(MAKE) -C extra/gcc-uClibc install
 
 clean:

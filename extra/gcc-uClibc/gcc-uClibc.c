@@ -63,7 +63,7 @@ static char *rpath[] = {
 };
 
 static char *uClibc_inc[] = {
-	"-I"UCLIBC_INSTALL_DIR"include/",
+	"-I"UCLIBC_INSTALL_DIR"usr/include/",
 	"-I"UCLIBC_BUILD_DIR"include/"
 };
 
@@ -74,7 +74,9 @@ static char *crt0_path[] = {
 
 static char *lib_path[] = {
 	"-L"UCLIBC_INSTALL_DIR"lib",
+	"-L"UCLIBC_INSTALL_DIR"usr/lib",
 	"-L"UCLIBC_BUILD_DIR"lib"
+	"-L"UCLIBC_BUILD_DIR"usr/lib"
 };
 
 static char static_linking[] = "-static";

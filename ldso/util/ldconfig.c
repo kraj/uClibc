@@ -684,13 +684,10 @@ int main(int argc, char **argv)
 		free(extpath);
 	    }
 
-#ifdef UCLIBC_DEVEL
+	    scan_dir(UCLIBC_INSTALL_DIR"/usr/lib");
 	    scan_dir(UCLIBC_INSTALL_DIR"/lib");
-#else
-	    /* everybody needs these, don't they? */
 	    scan_dir("/usr/lib");
 	    scan_dir("/lib");
-#endif
 	}
 
 	if (!nocache)

@@ -227,7 +227,7 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	/*
 	 * Where should the cache be searched?  There is no such concept in the
 	 * ABI, so we have some flexibility here.  For now, search it before
-	 * the default path of /usr/lib.
+	 * the hard coded paths that follow (i.e before /lib and /usr/lib).
 	 */
 #ifdef USE_CACHE
 	if (_dl_cache_addr != NULL && _dl_cache_addr != (caddr_t) - 1) {
@@ -247,51 +247,57 @@ struct elf_resolve *_dl_load_shared_library(int secure,
 	}
 #endif
 
-
-#ifdef UCLIBC_DEVEL
-
-	/* Check in /usr/<arch>-linux-uclibc/lib */
-	pnt1 = UCLIBC_INSTALL_DIR "/lib";
+	/* Check in <install-dir>/usr/lib */
+	pnt1 = UCLIBC_INSTALL_DIR "/usr/lib/";
 	pnt = mylibname;
 	while (*pnt1)
-		*pnt++ = *pnt1++;
+	    *pnt++ = *pnt1++;
 	pnt1 = libname;
 	while (*pnt1)
-		*pnt++ = *pnt1++;
+	    *pnt++ = *pnt1++;
 	*pnt++ = 0;
 	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
 	if (tpnt1)
-		return tpnt1;
+	    return tpnt1;
 
-#else /* UCLIBC_DEVEL */
+	/* Check in <install-dir>/lib */
+	pnt1 = UCLIBC_INSTALL_DIR "/lib/";
+	pnt = mylibname;
+	while (*pnt1)
+	    *pnt++ = *pnt1++;
+	pnt1 = libname;
+	while (*pnt1)
+	    *pnt++ = *pnt1++;
+	*pnt++ = 0;
+	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
+	if (tpnt1)
+	    return tpnt1;
 
 	/* Check in /usr/lib */
 	pnt1 = "/usr/lib/";
 	pnt = mylibname;
 	while (*pnt1)
-		*pnt++ = *pnt1++;
+	    *pnt++ = *pnt1++;
 	pnt1 = libname;
 	while (*pnt1)
-		*pnt++ = *pnt1++;
+	    *pnt++ = *pnt1++;
 	*pnt++ = 0;
 	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
 	if (tpnt1)
-		return tpnt1;
+	    return tpnt1;
 
 	/* Check in /lib */
-	/* try "/lib/". */
 	pnt1 = "/lib/";
 	pnt = mylibname;
 	while (*pnt1)
-		*pnt++ = *pnt1++;
+	    *pnt++ = *pnt1++;
 	pnt1 = libname;
 	while (*pnt1)
-		*pnt++ = *pnt1++;
+	    *pnt++ = *pnt1++;
 	*pnt++ = 0;
 	tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
 	if (tpnt1)
-		return tpnt1;
-#endif /* UCLIBC_DEVEL */
+	    return tpnt1;
 
   goof:
 	/* Well, we shot our wad on that one.  All we can do now is punt */
