@@ -20,6 +20,9 @@
  respective copyright holders.
 */
 
+#include <features.h>
+#define _SYSCALL_H
+#include <bits/sysnum.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
 
@@ -28,26 +31,15 @@
    replaced by a call to `execve'.  Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
 
-.global errno
-
 .text
 .align 4
 .type	__vfork,@function
 .globl	__vfork;
 __vfork:
-	mov.l	@r15+,r3		// pop value from the stack
-	mov.l	.L5,r1
-	mov.l	r3,@r1			// save it in .sav_stack
-
-	mov.w	.L3, r3
-
-#ifdef HIOS
-	trapa	#0x28
-#else
+	mov.w	.L2, r3
 	trapa	#0x10
-#endif
-
 	mov     r0, r1
+#ifdef __sh2__
 // 12 arithmetic shifts for the crappy sh2, because shad doesn't exist!	
 	shar	r1
 	shar	r1
@@ -61,66 +53,60 @@ __vfork:
 	shar	r1
 	shar	r1
 	shar	r1
+#else		
+	mov	#-12, r2
+	shad	r2, r1
+#endif
 
-//	mov	#-12, r2
-//	shad	r2, r1
 	not	r1, r1			// r1=0 means r0 = -1 to -4095
 	tst	r1, r1			// i.e. error in linux
-	bf	1f
+	bf	2f
 	mov.w	.L1, r1
 	cmp/eq	r1, r0
-	bt	2f
-	mov.l	.L2, r1
-	jmp	@r1
+	bf/s	__syscall_error
 	 mov	r0, r4
 
-	.align	4
+	/* If we don't have vfork, use fork.  */
+	mov.w	.L3, r3
+	trapa	#0x10
+	mov     r0, r1
+#ifdef __sh2__
+// 12 arithmetic shifts for the crappy sh2, because shad doesn't exist!	
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+#else		
+	mov	#-12, r2
+	shad	r2, r1
+#endif
 
-1:
-	mov.l	.L5,r1
-	mov.l	@r1,r3			// get it from .sav_stack
-	mov.l	r3,@-r15		// restore value to the stack
-
+	not	r1, r1			// r1=0 means r0 = -1 to -4095
+	tst	r1, r1			// i.e. error in linux
+	bt/s	__syscall_error
+	 mov	r0, r4
+2:
 	rts
 	 nop
 
-	.align	4
-
-2:
-.global __syscall_error
-__syscall_error:
-	/* Store it in errno... */
-	mov.l	.L4, r1
-	mov.l	r0, @r1
-
-	mov.l	.L5,r1
-	mov.l	@r1,r3			// get it from .sav_stack
-	mov.l	r3,@-r15		// restore value to the stack
-
-	/* And just kick back a -1.  */
-	rts
-	 mov	#-1, r0
-
-	.align	4
+	.align	2
 .L1:
 	.word	-ENOSYS
-.L3:
-	.word	190			//__NR_vfork
-
-	.align	4			// Shouldn't be necessary as previously with have two words
 .L2:
-	.long	__syscall_error
-
-.L4:	.long	errno
-
-.L5:	.long	.sav_stack
-
-	.data
-
-	.align 4
-
-.sav_stack:					//area to temporary save the stach
-	.long	0
-
+	.word	__NR_vfork
+.L3:
+	.word	__NR_fork
+        .size   __vfork, .-__vfork
 .weak	vfork
-vfork = __vfork
+	vfork =  __vfork
+
+#include "syscall_error.S"
+

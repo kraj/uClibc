@@ -35,7 +35,6 @@
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
         .text
-.extern __syscall_error
 
 .text
 .align 4
@@ -44,71 +43,50 @@
 __clone:
 	/* sanity check arguments.  */
 	tst	r4, r4
+	bt	0f
+	tst	r5, r5
 	bf/s	1f
-	 tst	r5, r5
-	bf/s	1f
-	 mov.l	.L1, r1
-#ifdef __HAVE_SHARED__
-	mov.l	r12, @-r15
-	sts.l	pr, @-r15
-        mov.l	.LG, r12
-	mova	.LG, r0
-	add	r0, r12
-	mova	.L1, r0
-	add	r0, r1
-	jsr	@r1
+	 mov	#+__NR_clone, r3
+0:		
+	bra __syscall_error
 	 mov	#-EINVAL, r4
-	lds.l	@r15+, pr
-	rts
-	 mov.l	@r15+, r12
-#else
-	jmp	@r1
-	 mov	#-EINVAL, r4
-#endif
-	.align	2
-.L1:
-	.long	PLTJMP(__syscall_error)
+
 1:
 	/* insert the args onto the new stack */
 	mov.l	r7, @-r5
 	/* save the function pointer as the 0th element */
 	mov.l	r4, @-r5
-
+	
 	/* do the system call */
 	mov	r6, r4
-	mov	#+__NR_clone, r3
 	trapa	#0x12
 	mov     r0, r1
+#ifdef __sh2__
+// 12 arithmetic shifts for the crappy sh2, because shad doesn't exist!	
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+	shar	r1
+#else		
 	mov	#-12, r2
 	shad	r2, r1
+#endif
 	not	r1, r1			// r1=0 means r0 = -1 to -4095
 	tst	r1, r1			// i.e. error in linux
-	bf	2f
-	mov.l	.L2, r1
-#ifdef __HAVE_SHARED__
-	mov	r0, r4
-	mov.l	r12, @-r15
-	sts.l	pr, @-r15
-        mov.l	.LG, r12
-	mova	.LG, r0
-	add	r0, r12
-	mova	.L2, r0
-	add	r0, r1
-	jsr	@r1
-	 nop
-	lds.l	@r15+, pr
-	rts
-	 mov.l	@r15+, r12
-#else
-	jmp	@r1
+	bf/s	2f
+	 tst	r0, r0
+        bra __syscall_error
 	 mov	r0, r4
-#endif
-	.align	2
-.L2:
-	.long	PLTJMP(__syscall_error)
 
 2:
-	tst	r0, r0
 	bt	3f
 	rts
 	 nop
@@ -119,15 +97,15 @@ __clone:
 	 mov.l	@(4,r15), r4
 
 	/* we are done, passing the return value through r0  */
-	mov.l	.L3, r1
-#ifdef __HAVE_SHARED__
+	mov.l	.L1, r1
+#if defined __HAVE_ELF__ && defined __HAVE_SHARED__ 
 	mov.l	r12, @-r15
 	sts.l	pr, @-r15
 	mov	r0, r4
-	mova	.LG, r0
+	mova	.LG, r0  /* .LG from syscall_error.S */
 	mov.l	.LG, r12
 	add	r0, r12
-	mova	.L3, r0
+	mova	.L1, r0
 	add	r0, r1
 	jsr	@r1
 	 nop
@@ -139,11 +117,11 @@ __clone:
 	 mov	r0, r4
 #endif
 	.align	2
-.LG:
-	.long	_GLOBAL_OFFSET_TABLE_
-.L3:
+.L1:
 	.long	PLTJMP(_exit)
 .size __clone,.-__clone;
 
 .globl  clone;
     clone = __clone
+
+#include "syscall_error.S"
