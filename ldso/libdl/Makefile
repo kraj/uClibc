@@ -38,9 +38,9 @@ $(LIBDL): ar-target
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBDL) $(OBJS)
-	#install -d $(TOPDIR)lib
-	#rm -f $(TOPDIR)lib/$(LIBDL)
-	#install -m 644 $(LIBDL) $(TOPDIR)lib
+	install -d $(TOPDIR)lib
+	rm -f $(TOPDIR)lib/$(LIBDL)
+	install -m 644 $(LIBDL) $(TOPDIR)lib
 
 
 $(OBJS): %.o : %.c
