@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 
 /*
  * Prototypes.
@@ -62,6 +63,13 @@ void __uClibc_main(int argc, char **argv, char **envp)
 	__init_stdio();
 
 	/*
+	 * Note: It is possible that any initialization done above could
+	 * have resulted in errno being set nonzero, so set it to 0 before
+	 * we call main.
+	 */
+	errno = 0;
+
+	/*
 	 * Finally, invoke application's main and then exit.
 	 */
 	exit(main(argc, argv, envp));
@@ -69,6 +77,8 @@ void __uClibc_main(int argc, char **argv, char **envp)
 
 /*
  * Declare the __environ global variable and create a weak alias environ.
+ * Note: Apparently we must initialize __environ for the weak environ
+ * symbol to be included.
  */
 
 char **__environ = 0;
