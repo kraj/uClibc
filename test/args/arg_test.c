@@ -37,7 +37,7 @@ int main( int argc, char **argv)
 
 	i=0;
 	while(*index) {
-		fprintf(stderr, "environ[%d]='%s'\n", i, *index++);
+		fprintf(stderr, "environ[%d]='%s'\n", i++, *index++);
 	}
 
 	exit(0);
