@@ -1,4 +1,5 @@
-/* Copyright (C) 1997, 2002 Free Software Foundation, Inc.
+/* Header describing obsolete `ustat' interface.
+   Copyright (C) 1996, 1998, 1999 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,16 +17,22 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+/*
+ * This interface is obsolete.  Use <sys/statfs.h> instead.
+ */
+
 #ifndef _SYS_USTAT_H
-# error "Never include <bits/ustat.h> directly; use <sys/ustat.h> instead."
-#endif
+#define	_SYS_USTAT_H	1
+
+#include <features.h>
 
 #include <sys/types.h>
+#include <bits/ustat.h>
 
-struct ustat
-  {
-    __daddr_t f_tfree;		/* Number of free blocks.  */
-    __ino_t f_tinode;		/* Number of free inodes.  */
-    char f_fname[6];
-    char f_fpack[6];
-  };
+__BEGIN_DECLS
+
+extern int ustat (__dev_t __dev, struct ustat *__ubuf) __THROW;
+
+__END_DECLS
+
+#endif /* sys/ustat.h */

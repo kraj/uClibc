@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 2002 Free Software Foundation, Inc.
+/* Copyright (C) 1997, 1999 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,16 +16,17 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#ifndef _SYS_USTAT_H
-# error "Never include <bits/ustat.h> directly; use <sys/ustat.h> instead."
-#endif
+#ifndef _SYS_PRCTL_H
+#define _SYS_PRCTL_H	1
 
-#include <sys/types.h>
+#include <features.h>
+#include <linux/prctl.h>  /*  The magic values come from here  */
 
-struct ustat
-  {
-    __daddr_t f_tfree;		/* Number of free blocks.  */
-    __ino_t f_tinode;		/* Number of free inodes.  */
-    char f_fname[6];
-    char f_fpack[6];
-  };
+__BEGIN_DECLS
+
+/* Control process execution.  */
+extern int prctl (int __option, ...) __THROW;
+
+__END_DECLS
+
+#endif  /* sys/prctl.h */

@@ -2,8 +2,7 @@
 /*
  * Syscalls for uClibc
  *
- * Copyright (C) 2000 by Lineo, inc
- * Copyright (C) 2001, 2002 by Erik Andersen
+ * Copyright (C) 2001-2003 by Erik Andersen
  * Written by Erik Andersen <andersen@codpoet.org>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -630,6 +629,7 @@ int setpgid(pid_t pid, pid_t pgid)
 #endif
 
 //#define __NR_ulimit           58
+//See ulimit.c
 
 //#define __NR_oldolduname      59
 
@@ -652,6 +652,20 @@ _syscall1(int, chroot, const char *, path);
 #endif
 
 //#define __NR_ustat            62
+#ifdef L___syscall_ustat
+#define __NR___syscall_ustat __NR_ustat
+#include <sys/stat.h>
+static inline
+_syscall2(int, __syscall_ustat, unsigned short int, kdev_t, struct ustat *, ubuf);
+int ustat(dev_t dev, struct ustat *ubuf)
+{ 
+	__kernel_dev_t k_dev;
+	/* We must convert the dev_t value to a __kernel_dev_t */
+	k_dev = ((major(dev) & 0xff) << 8) | (minor(dev) & 0xff);
+	return __syscall_ustat(k_dev, ubuf);
+}
+#endif
+
 
 //#define __NR_dup2             63
 #ifdef L_dup2
@@ -1345,6 +1359,12 @@ _syscall2(int, bdflush, int, __func, long int, __data);
 //#define __NR_sysfs            135
 
 //#define __NR_personality      136
+#ifdef __NR_personality
+#ifdef L_personality
+#include <sys/personality.h>
+_syscall1(int, personality, unsigned long int, __persona);
+#endif
+#endif
 
 //#define __NR_afs_syscall      137
 
@@ -1703,6 +1723,13 @@ int getresgid(gid_t *rgid, gid_t *egid, gid_t *sgid)
 #endif
 
 //#define __NR_prctl                    172
+#ifdef __NR_prctl
+#ifdef L_prctl
+#include <stdarg.h>
+//#include <sys/prctl.h>
+_syscall5(int, prctl, int, a, int, b, int, c, int, d, int, e);
+#endif
+#endif
 
 //#define __NR_rt_sigreturn             173
 //#define __NR_rt_sigaction             174
