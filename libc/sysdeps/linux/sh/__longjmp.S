@@ -1,4 +1,4 @@
-/* setjmp for SH3.
+/* longjmp for SH.
    Copyright (C) 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -18,35 +18,27 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <sysdep.h>
-
 #define _SETJMP_H
 #define _ASM
 #include <bits/setjmp.h>
 
-ENTRY (__sigsetjmp)
-/*
-	.globl	__sigsetjmp
-	.align	4
-__sigsetjmp:
-*/
-	/* Save registers */
-	add	#(JB_SIZE), r4
-	stc.l	gbr, @-r4
-	sts.l	pr, @-r4
-	mov.l	r15, @-r4
-	mov.l	r14, @-r4
-	mov.l	r13, @-r4
-	mov.l	r12, @-r4
-	mov.l	r11, @-r4
-	mov.l	r10, @-r4
-	mov.l	r9, @-r4
-	mov.l	r8, @-r4
+/* __longjmp(jmpbuf, val) */
 
-	/* Make a tail call to __sigjmp_save; it takes the same args.  */
-	mov.l	.L1, r1
-	jmp	@r1
-	 nop
-	.align	2
-.L1:
-	.long	__sigjmp_save
-END (__sigsetjmp)
+ENTRY (__longjmp)
+	mov.l	@r4+, r8
+	mov.l	@r4+, r9
+	mov.l	@r4+, r10
+	mov.l	@r4+, r11
+	mov.l	@r4+, r12
+	mov.l	@r4+, r13
+	mov.l	@r4+, r14
+	mov.l	@r4+, r15
+	mov	r5, r0		/* get the return value in place */
+	tst	r0, r0
+	bf.s	1f
+	 lds.l	@r4+, pr
+	mov	#1,r0		/* can't let setjmp() return zero! */
+1:
+	rts
+	 ldc.l	@r4+, gbr
+END (__longjmp)

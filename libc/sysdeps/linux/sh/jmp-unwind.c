@@ -1,5 +1,5 @@
-/* longjmp for SH.
-   Copyright (C) 1999, 2000 Free Software Foundation, Inc.
+/* _longjmp_unwind -- Clean up stack frames unwound by longjmp.  Stub version.
+   Copyright (C) 1995, 1997 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,28 +17,13 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <sysdep.h>
-#define _SETJMP_H
-#define _ASM
-#include <bits/setjmp.h>
+#include <setjmp.h>
 
-/* __longjmp(jmpbuf, val) */
+void
+_longjmp_unwind (jmp_buf env, int val)
+{
 
-ENTRY (longjmp)
-	mov.l	@r4+, r8
-	mov.l	@r4+, r9
-	mov.l	@r4+, r10
-	mov.l	@r4+, r11
-	mov.l	@r4+, r12
-	mov.l	@r4+, r13
-	mov.l	@r4+, r14
-	mov.l	@r4+, r15
-	mov	r5, r0		/* get the return value in place */
-	tst	r0, r0
-	bf.s	1f
-	 lds.l	@r4+, pr
-	mov	#1,r0		/* can't let setjmp() return zero! */
-1:
-	rts
-	 ldc.l	@r4+, gbr
-END (longjmp)
+  /* This function can perform any cleanups necessary to safely unwind the
+     stack frames around the current context which ENV unwinds past.  */
+
+}
