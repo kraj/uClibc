@@ -437,7 +437,7 @@ LD_BOOT(unsigned long args)
 #ifdef FORCE_SHAREABLE_TEXT_SEGMENTS
 						dpnt->d_un.d_val = (unsigned long) debug_addr;
 #else
-						dpnt_debug = dpnt;
+						dpnt_debug = (unsigned long) debug_addr;
 #endif
 					}
 					if (dpnt->d_tag == DT_TEXTREL)
