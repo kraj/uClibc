@@ -35,7 +35,7 @@ testmalloc_source:
 testmalloc: testmalloc.c Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uC-Libc: "
+	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)

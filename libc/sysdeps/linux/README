@@ -1,6 +1,6 @@
 This directory level abstracts out the Linux Operating System dependent
-features of uC-Libc for suported Linux architectures/CPUs.  If you wanted to
-port uC-Libc to some new Linux architecture (arm, mips, etc), this is the place
+features of uClibc for suported Linux architectures/CPUs.  If you wanted to
+port uClibc to some new Linux architecture (arm, mips, etc), this is the place
 to add that support.
 
 All the common stuff that is not at all dependent on a particular Linux architecture

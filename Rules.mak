@@ -1,4 +1,4 @@
-# Rules.make for uCLibc
+# Rules.make for uClibc
 #
 # This file contains rules which are shared between multiple Makefiles.
 # All normal configuration options live in the file named "Config".

@@ -16,7 +16,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  
  
-   June 28, 2000 -- swiped from GNU libc 2.1.3 and adjusted for uC-Libc
+   June 28, 2000 -- swiped from GNU libc 2.1.3 and adjusted for uClibc
                     by Erik Andersen <andersee@debian.org>
  */
 

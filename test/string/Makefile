@@ -27,7 +27,7 @@ all: $(TARGETS)
 string: string.c Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uCLibc: "
+	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -47,7 +47,7 @@ string_glibc: string.c Makefile $(TOPDIR)libc.a
 testcopy: testcopy.c Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uCLibc: "
+	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)

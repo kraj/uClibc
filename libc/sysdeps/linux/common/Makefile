@@ -1,5 +1,5 @@
 # Copyright (C) 1995,1996 Robert de Bath <rdebath@cix.compulink.co.uk>
-# Makefile for uCLibc
+# Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
 #

@@ -1,4 +1,4 @@
-# Makefile for uCLibc
+# Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
 #

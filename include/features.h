@@ -3,7 +3,7 @@
 #define __FEATURES_H
 
 
-/* Major and minor version number of the uCLibc library package.  Use
+/* Major and minor version number of the uClibc library package.  Use
    these macros to test for features in specific releases.  */
 #define	__UCLIBC__		0
 #define	__UCLIBC_MAJOR__	9

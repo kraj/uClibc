@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /* Copyright (C) 2000 Erik Andersen <andersen@lineo.com>, <andersee@debian.org>
- * This file is part of the uC-Linux and is distributed under the 
+ * This file is part of the uClinux and is distributed under the 
  * GNU Library General Public License.
  */
 

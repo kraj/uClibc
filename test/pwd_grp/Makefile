@@ -28,7 +28,7 @@ all: $(TARGETS)
 test_pwd: test_pwd.c Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uCLibc: "
+	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -48,7 +48,7 @@ test_pwd_glibc: test_pwd.c Makefile $(TOPDIR)libc.a
 test_grp: test_grp.c Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uCLibc: "
+	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)

@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /*
- * fork test for uclibc
+ * fork test for uClibc
  *
  * Copyright (C) 1999,2000 by Lineo, inc.
  * Written by Erik Andersen <andersen@lineo.com>, <andersee@debian.org>

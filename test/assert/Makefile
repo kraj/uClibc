@@ -26,7 +26,7 @@ all: $(TARGETS)
 assert: assert.c Makefile $(TOPDIR)libc.a
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uCLibc: "
+	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
 	$(CC) $(XCFLAGS) -c $< -o $@.o
 	$(CC) $(XLDFLAGS) $@.o -o $@ $(EXTRA_LIBS)

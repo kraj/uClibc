@@ -1,6 +1,6 @@
 /* vi: set sw=4 ts=4: */
 /*
- * signal testing function for uC-Libc
+ * signal testing function for uClibc
  *
  * Copyright (C) 2000 by Lineo, inc.
  * Written by Erik Andersen <andersen@lineo.com>, <andersee@debian.org>

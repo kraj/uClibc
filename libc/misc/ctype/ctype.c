@@ -2,7 +2,7 @@
  * Character classification and conversion
  * Copyright (C) 2000 Lineo, Inc.
  * Written by Erik Andersen
- * This file is part of the uC-Libc C library and is distributed
+ * This file is part of the uClibc C library and is distributed
  * under the GNU Library General Public License.
  */
 
