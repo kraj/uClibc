@@ -600,7 +600,7 @@ extern int obstack_printf (struct obstack *__restrict __obstack,
      __THROW __attribute__ ((__format__ (__printf__, 2, 3)));
 extern int obstack_vprintf (struct obstack *__restrict __obstack,
 			    __const char *__restrict __format,
-			    _G_va_list __args)
+			    __gnuc_va_list __args)
      __THROW __attribute__ ((__format__ (__printf__, 2, 0)));
 #endif /* Use GNU.  */
 
