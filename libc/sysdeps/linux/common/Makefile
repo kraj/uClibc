@@ -52,17 +52,13 @@ CSRC=	__rt_sigtimedwait.c __socketcall.c __syscall_fcntl.c \
 	sysinfo.c time.c times.c truncate.c truncate64.c ulimit.c \
 	umask.c umount.c umount2.c uname.c unlink.c uselib.c ustat.c \
 	utime.c utimes.c vfork.c vhangup.c wait.c wait3.c wait4.c \
-	waitpid.c write.c writev.c xstatconv.c
+	waitpid.c write.c writev.c xattr.c xstatconv.c
 
 ifneq ($(strip $(EXCLUDE_BRK)),y)
 CSRC+=sbrk.c
 endif
 ifeq ($(strip $(UCLIBC_PROPOLICE)),y)
 CSRC+=ssp.c
-endif
-
-ifeq ($(strip $(UCLIBC_XATTR)),y)
-CSRC+=xattr.c
 endif
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
