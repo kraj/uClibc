@@ -236,7 +236,7 @@ to the uClibc home page.</a>
     builder from <a href="http://www.uclibc.org/downloads/toolchain/">
     http://www.uclibc.org/downloads/toolchain/</a>, or the uClibc buildroot
     system from <a href="http://www.uclibc.org/downloads/buildroot/">
-        http://www.uclibc.org/downloads/buildroot/</a>, ajust the Makefile 
+        http://www.uclibc.org/downloads/buildroot/</a>, adjust the Makefile 
     settings to match your target system, and then run 'make'.
 
 <p>
@@ -263,47 +263,6 @@ to the uClibc home page.</a>
 <p>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
     <B>
-    I have code that uses constructors and destructors.  Why is it
-    when I use uClibc, the ctors/dtors do not run?
-    </B>
-</TD></TR>
-<TR><TD BGCOLOR="#eeeee0">
-
-    The uClibc compiler wrapper toolchain by default, does not
-    enable constructor and destructor support for C code.  It
-    only enables ctors/dtors support by default for C++ code.
-    If you have C code that uses ctors/dtors and you wish to use
-    the uClibc compiler wrapper toolchain, you will need to add
-    the <b>--uclibc-ctors</b> option to the gcc command line.  i.e.
-
-<PRE>
-	$ cat test.c 
-	#include <unistd.h>
-
-	void __attribute__((constructor)) my_ctor(void)
-	{
-	    char msg[]="I am a constructor!\n";
-	    write(2, msg, sizeof(msg));
-	}
-
-	int main(void)
-	{
-	    _exit(42);
-	}
-
-	$ /usr/i386-linux-uclibc/bin/i386-uclibc-gcc --uclibc-ctors ./test.c -o test
-	$ ./test 
-	I am a constructor!
-</PRE>
-
-    Another option is to build a native uClibc toolchain.  Native toolchains
-    always enable ctors/dtors support, even for C code.
-
-
-
-<p>
-<TR><TD BGCOLOR="#ccccc0" ALIGN=left>
-    <B>
     How do I make autoconf and automake behave?
     </B>
 </TD></TR>
@@ -312,7 +271,13 @@ to the uClibc home page.</a>
     First run
     <pre>export PATH=/usr/i386-linux-uclibc/bin:$PATH</pre>
     (or similar adjusted for your target architecture) then run you can simply
-    run autoconf/automake and it should _just work_.
+    run autoconf/automake and it should _just work_.  Unfortunately, a large
+    number of configure scripts (such as the one from openssh) try to execute
+    test applications using your target C library, even if you are cross-
+    compiling.  This is bad, since it will prevent these programs from compiling.
+    You need to complain to the authors of these programs and ask them to fix
+    their broken configure scripts.
+
 
 
 
@@ -352,6 +317,8 @@ to the uClibc home page.</a>
     <a href="http://www.uclibc.org/lists/uclibc/2002-August/006261.html">
     http://www.uclibc.org/lists/uclibc/2002-August/006261.html</a> in the uClibc
     mailing list archive.
+    You can store the value of TZ in the file '/etc/TZ' and uClibc will then
+    automagically use the specified setting.
 
 
 <p>
@@ -470,9 +437,9 @@ to the uClibc home page.</a>
     </center>
     <!-- End PayPal Logo -->
 
-    If you prefer to contact us directly for payments (Erik has a credit card machine so
-    you can avoid making payments online), hardware donations, support requests, etc., you can
-    contact <a href="http://codepoet-consulting.com/">CodePoet Consulting</a> here.
+    If you prefer to contact us directly for payments, hardware donations, 
+    support requests, etc., you can contact 
+    <a href="http://codepoet-consulting.com/">CodePoet Consulting</a> here.
 
 <p>
 <TR><TD BGCOLOR="#ccccc0" ALIGN=left>
