@@ -37,14 +37,6 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)
 
-ifeq ($(strip $(UCLIBC_PROFILING)),y)
-SAFECFLAGS := $(filter-out -g,$(CFLAGS))
-endif
-ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
-SAFECFLAGS += $(call check_gcc,-msoft-float,)
-endif
-
-
 all: $(OBJS) $(LIBC)
 
 $(LIBC): ar-target 
@@ -67,21 +59,21 @@ $(COBJS): %.o : %.c
 
 ifeq ($(strip $(UCLIBC_PROFILING)),y)
 gmon-start.S: ../common/gmon-start.c
-	$(CC) $(SAFECFLAGS) -c $< -S -o $*.S
+	$(CC) $(CFLAGS) -c $< -S -o $*.S
 gcrt1.o: $(CRT0_DEPS)
 endif
 
 
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 crti.o: crti.S
-	$(CC) $(SAFECFLAGS) -c crti.S -o crti.o
+	$(CC) $(CFLAGS) -c crti.S -o crti.o
 
 $(TOPDIR)lib/crti.o: crti.o
 	$(INSTALL) -d $(TOPDIR)lib/
 	cp crti.o $(TOPDIR)lib/
 
 crtn.o: crtn.S
-	$(CC) $(SAFECFLAGS) -c crtn.S -o crtn.o
+	$(CC) $(CFLAGS) -c crtn.S -o crtn.o
 
 $(TOPDIR)lib/crtn.o: crtn.o
 	$(INSTALL) -d $(TOPDIR)lib/
