@@ -26,10 +26,10 @@ Cambridge, MA 02139, USA.  */
 #include <fnmatch.h>
 #include <glob.h>
 
+extern __ptr_t (*__glob_opendir_hook) __P ((const char *directory));
+extern void (*__glob_closedir_hook) __P ((__ptr_t stream));
+extern const char *(*__glob_readdir_hook) __P ((__ptr_t stream));
 
-__ptr_t (*__glob_opendir_hook) __P ((const char *directory));
-const char *(*__glob_readdir_hook) __P ((__ptr_t stream));
-void (*__glob_closedir_hook) __P ((__ptr_t stream));
 
 static int glob_pattern_p __P ((const char *pattern, int quote));
 static int glob_in_dir __P ((const char *pattern, const char *directory,
