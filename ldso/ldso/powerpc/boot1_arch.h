@@ -17,3 +17,4 @@ asm("" \
 ".previous\n"				\
 );
 
+#define DL_BOOT(X) static void __attribute__ ((unused)) _dl_boot2(X)

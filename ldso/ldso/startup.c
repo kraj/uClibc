@@ -120,7 +120,7 @@ int (*_dl_elf_main) (int, char **, char **);
         NULL
 		auxvt[0...N]   Auxiliary Vector Table elements (mixed types)
 */
-void _dl_boot2(unsigned long args)
+DL_BOOT(unsigned long args)
 {
 	unsigned int argc;
 	char **argv, **envp;

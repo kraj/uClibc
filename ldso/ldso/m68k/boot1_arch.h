@@ -4,4 +4,4 @@
  * can be done.
  */
 
-#define _dl_boot2 _dl_boot
+#define DL_BOOT(X) void __attribute__ ((unused)) _dl_boot (X)
