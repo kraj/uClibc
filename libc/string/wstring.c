@@ -35,6 +35,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <signal.h>
 
 #ifdef WANT_WIDE
 #include <wchar.h>
@@ -60,16 +61,28 @@ typedef unsigned char	__string_uchar_t;
 /* NOTE: If we ever do internationalized syserr messages, this will
  * have to be changed! */
 
+#define _SYS_NERR			125
+#define _SYS_ERRMSG_MAXLEN	 50
+
+extern const char _string_syserrmsgs[];
+
+#define _SYS_NSIG			32
+#define _SYS_SIGMSG_MAXLEN	25
+
+extern const char _string_syssigmsgs[];
+
+
 #if _SYS_ERRMSG_MAXLEN < __UIM_BUFLEN_INT + 14
 #define _STRERROR_BUFSIZE (__UIM_BUFLEN_INT + 14)
 #else
 #define _STRERROR_BUFSIZE _SYS_ERRMSG_MAXLEN
 #endif
 
-#define _SYS_NERR		125
-#define _SYS_ERRMSG_MAXLEN	 50
-
-extern const char _string_syserrmsgs[];
+#if _SYS_SIGMSG_MAXLEN < __UIM_BUFLEN_INT + 14
+#define _STRSIGNAL_BUFSIZE (__UIM_BUFLEN_INT + 14)
+#else
+#define _STRSIGNAL_BUFSIZE _SYS_SIGMSG_MAXLEN
+#endif
 
 /**********************************************************************/
 #ifdef L__string_syserrmsgs
@@ -1723,6 +1736,183 @@ size_t strlcpy(register char *__restrict dst,
 	}
 
 	return src - src0;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L__string_syssigmsgs
+
+const char _string_syssigmsgs[] = {
+	/*   0:    0,  1 */ "\0"
+	/*   1:    1,  7 */ "Hangup\0"
+	/*   2:    8, 10 */ "Interrupt\0"
+	/*   3:   18,  5 */ "Quit\0"
+	/*   4:   23, 20 */ "Illegal instruction\0"
+	/*   5:   43, 22 */ "Trace/breakpoint trap\0"
+	/*   6:   65,  8 */ "Aborted\0"
+	/*   7:   73, 10 */ "Bus error\0"
+	/*   8:   83, 25 */ "Floating point exception\0"
+	/*   9:  108,  7 */ "Killed\0"
+	/*  10:  115, 22 */ "User defined signal 1\0"
+	/*  11:  137, 19 */ "Segmentation fault\0"
+	/*  12:  156, 22 */ "User defined signal 2\0"
+	/*  13:  178, 12 */ "Broken pipe\0"
+	/*  14:  190, 12 */ "Alarm clock\0"
+	/*  15:  202, 11 */ "Terminated\0"
+	/*  16:  213, 12 */ "Stack fault\0"
+	/*  17:  225, 13 */ "Child exited\0"
+	/*  18:  238, 10 */ "Continued\0"
+	/*  19:  248, 17 */ "Stopped (signal)\0"
+	/*  20:  265,  8 */ "Stopped\0"
+	/*  21:  273, 20 */ "Stopped (tty input)\0"
+	/*  22:  293, 21 */ "Stopped (tty output)\0"
+	/*  23:  314, 21 */ "Urgent I/O condition\0"
+	/*  24:  335, 24 */ "CPU time limit exceeded\0"
+	/*  25:  359, 25 */ "File size limit exceeded\0"
+	/*  26:  384, 22 */ "Virtual timer expired\0"
+	/*  27:  406, 24 */ "Profiling timer expired\0"
+	/*  28:  430, 15 */ "Window changed\0"
+	/*  29:  445, 13 */ "I/O possible\0"
+	/*  30:  458, 14 */ "Power failure\0"
+	/*  31:  472, 16 */ "Bad system call"
+};
+
+#endif
+
+/**********************************************************************/
+#ifdef L_sys_siglist
+
+const char *const sys_siglist[_NSIG] = {
+	NULL,
+	_string_syssigmsgs + 1,
+	_string_syssigmsgs + 8,
+	_string_syssigmsgs + 18,
+	_string_syssigmsgs + 23,
+	_string_syssigmsgs + 43,
+	_string_syssigmsgs + 65,
+	_string_syssigmsgs + 73,
+	_string_syssigmsgs + 83,
+	_string_syssigmsgs + 108,
+	_string_syssigmsgs + 115,
+	_string_syssigmsgs + 137,
+	_string_syssigmsgs + 156,
+	_string_syssigmsgs + 178,
+	_string_syssigmsgs + 190,
+	_string_syssigmsgs + 202,
+	_string_syssigmsgs + 213,
+	_string_syssigmsgs + 225,
+	_string_syssigmsgs + 238,
+	_string_syssigmsgs + 248,
+	_string_syssigmsgs + 265,
+	_string_syssigmsgs + 273,
+	_string_syssigmsgs + 293,
+	_string_syssigmsgs + 314,
+	_string_syssigmsgs + 335,
+	_string_syssigmsgs + 359,
+	_string_syssigmsgs + 384,
+	_string_syssigmsgs + 406,
+	_string_syssigmsgs + 430,
+	_string_syssigmsgs + 445,
+	_string_syssigmsgs + 458,
+	_string_syssigmsgs + 472,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+};
+
+#endif
+/**********************************************************************/
+#ifdef L_strsignal
+
+/* TODO: make a threadsafe version? */
+
+char *strsignal(int signum)
+{
+    register char *s;
+    int i;
+    static char buf[_STRSIGNAL_BUFSIZE];
+    static const char unknown[15] = {
+		'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 's', 'i', 'g', 'n', 'a', 'l', ' '
+    };
+
+    if (((unsigned int) signum) < _SYS_NSIG) {
+		/* Trade time for space.  This function should rarely be called
+		 * so rather than keeping an array of pointers for the different
+		 * messages, just run through the buffer until we find the
+		 * correct string. */
+		for (s = (char *) _string_syssigmsgs, i = signum ; i ; ++s) {
+			if (!*s) {
+				--i;
+			}
+		}
+		if (*s) {		/* Make sure we have an actual message. */
+			goto DONE;
+		}
+    }
+
+    s = _int10tostr(buf+sizeof(buf)-1, signum) - sizeof(unknown);
+    memcpy(s, unknown, sizeof(unknown));
+
+ DONE:
+	return s;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_psignal
+
+/* TODO: make this threadsafe with a reentrant version of strsignal? */
+
+void psignal(int signum, register const char *message)
+{
+	/* If the program is calling psignal, it's a safe bet that printf and
+	 * friends are used as well.  It is also possible that the calling
+	 * program could buffer stderr, or reassign it. */
+
+	register const char *sep;
+
+	sep = ": ";
+	if (!(message && *message)) { /* Caller did not supply a prefix message */
+		message = (sep += 2);	/* or passed an empty string. */
+	}
+
+#if 1
+	fprintf(stderr, "%s%s%s\n", message, sep, strsignal(signum));
+#else
+	/* Note: Assumes stderr not closed or buffered. */
+	__STDIO_THREADLOCK(stderr);
+	_stdio_fdout(STDERR_FILENO, message, sep, strsignal(signum));
+	__STDIO_THREADUNLOCK(stderr);
+#endif
 }
 
 #endif

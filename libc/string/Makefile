@@ -32,6 +32,7 @@ MOBJW=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
 	strncmp.o strncpy.o strndup.o strnlen.o strpbrk.o strrchr.o strsep.o \
 	strspn.o strstr.o strtok.o strtok_r.o strerror.o _susv3_strerror_r.o \
 	_string_syserrmsgs.o _glibc_strerror_r.o sys_errlist.o \
+	_string_syssigmsgs.o sys_siglist.o strsignal.o psignal.o \
 	 __xpg_basename.o strlcat.o strlcpy.o # strcoll.o
 
 MOBJW2= wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
@@ -41,12 +42,6 @@ MOBJW2= wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
 
 # wcscoll wcsxfrm
 
-MSRC1=strsignal.c
-MOBJ1=strsignal.o psignal.o
-
-# CSRC=strpbrk.c strsep.c strtok.c strtok_r.c strcspn.c \
-# 	strspn.c strcasecmp.c strncasecmp.c strerror.c bcopy.c bzero.c \
-# 	bcmp.c sys_errlist.c dirname.c basename.c
 CSRC=strxfrm.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(COBJS) $(MOBJW)
@@ -68,18 +63,6 @@ $(MOBJW): $(MSRCW)
 
 $(MOBJW2): $(MSRCW)
 	$(CC) $(CFLAGS) -DWANT_WIDE -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(MOBJ): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(MOBJ2): $(MSRC2)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(MOBJ1): $(MSRC1)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c
