@@ -20,16 +20,20 @@
 
 #include "gcc-uClibc.h"
 
-#define UCLIBC_START UCLIBC_DIR"crt0.o"
-#define UCLIBC_START_G UCLIBC_START
+#define UCLIBC_CRT0 UCLIBC_DIR"crt0.o"
+#define UCLIBC_CRT0_G UCLIBC_CRT0
 #define UCLIBC_LIB UCLIBC_DIR"libc.a"
+#define UCLIBC_SHAREDLIB "-luClibc"
 #if 1
 #define UCLIBC_LIB_G UCLIBC_LIB
+#define UCLIBC_SHAREDLIB_G UCLIBC_SHAREDLIB
 #else
 #define UCLIBC_LIB_G UCLIBC_DIR"libc.a-debug"
+
 #endif
 #define UCLIBC_INC "-I"UCLIBC_DIR"include/"
 
+static char static_linking[] = "-static";
 static char nostdinc[] = "-nostdinc";
 static char nostartfiles[] = "-nostartfiles";
 static char nodefaultlibs[] = "-nodefaultlibs";
@@ -37,7 +41,7 @@ static char nostdlib[] = "-nostdlib";
 
 int main(int argc, char **argv)
 {
-	int debugging = 0, linking = 1;
+	int debugging = 0, linking = 1, use_static_linking = 0;
 	int use_stdinc = 1, use_start = 1, use_stdlib = 1;
 	int i, j;
 	int source_count;
@@ -68,7 +72,24 @@ int main(int argc, char **argv)
 						use_start = 0;
 						use_stdlib = 0;
 					}
-
+					break;
+				case 's':
+					if (strcmp(static_linking,argv[i]) == 0) {
+						use_static_linking = 1;
+					}
+					break;
+			    case 'W':
+					if (strncmp("-Wl,",argv[i],4) == 0) {
+						if (strstr(argv[i],static_linking) != 0) {
+							use_static_linking = 1;
+						}
+					}
+					break;
+				case '-':
+					if (strcmp(static_linking,argv[i]+1) == 0) {
+						use_static_linking = 1;
+					}
+					break;
 			}
 		} else {				/* assume it is an existing source file */
 			++source_count;
@@ -94,20 +115,27 @@ int main(int argc, char **argv)
 		gcc_argv[i++] = GCC_INCDIR;
 	}
 	if (linking && source_count) {
-		gcc_argv[i++] = "-static";
 		if (use_start) {
 			if (debugging) {
-				gcc_argv[i++] = UCLIBC_START_G;
+				gcc_argv[i++] = UCLIBC_CRT0_G;
 			} else {
-				gcc_argv[i++] = UCLIBC_START;
+				gcc_argv[i++] = UCLIBC_CRT0;
 			}
 		}
 		if (use_stdlib) {
 			gcc_argv[i++] = "-nostdlib";
-			if (debugging) {
-				gcc_argv[i++] = UCLIBC_LIB_G;
+			if (use_static_linking) {
+				if (debugging) {
+					gcc_argv[i++] = UCLIBC_LIB_G;
+				} else {
+					gcc_argv[i++] = UCLIBC_LIB;
+				}
 			} else {
-				gcc_argv[i++] = UCLIBC_LIB;
+				if (debugging) {
+					gcc_argv[i++] = UCLIBC_SHAREDLIB_G;
+				} else {
+					gcc_argv[i++] = UCLIBC_SHAREDLIB;
+				}
 			}
 			gcc_argv[i++] = GCC_LIB;
 		}

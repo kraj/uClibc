@@ -7,7 +7,7 @@ GCC_BIN = $(CC)
 GCC_LIB = $(shell $(CC) -print-libgcc-file-name )
 #GCCINCDIR inherited from Rules.mak
 
-NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g')
+NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g' -e 's/m68k.*/m68k/')
 GCC_UCLIBC = gcc-uClibc-cross
 ifeq ($(TARGET_ARCH), $(NATIVE_ARCH))
 	GCC_UCLIBC = gcc-uClibc-native
