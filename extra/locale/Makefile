@@ -128,3 +128,4 @@ clean:
 	rm -f gen_mmap locale.mmap lmmtolso
 	rm -f locale_data.c locale_data.o  uClibc_locale_data.h
 
+.PHONY: pregen
