@@ -8,7 +8,6 @@ config TARGET_ARCH
 
 config HAVE_ELF
 	bool
-	select ARCH_HAS_NO_MMU
 	default y
 
 config ARCH_SUPPORTS_BIG_ENDIAN
