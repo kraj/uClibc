@@ -7,6 +7,6 @@
 DODEBUG = false
 
 # If you want to compile using uClibc as a shared library, turn this on.
-DODYNAMIC = false
+DODYNAMIC = true
 
 
