@@ -20,6 +20,10 @@ config ARCH_LDFLAGS
 config LIBGCC_CFLAGS
 	string
 
+config ADD_LIBGCC_FUNCTIONS
+	bool
+	default y
+
 choice
 	prompt "Target Processor Type"
 	default CONFIG_GENERIC_ARM
