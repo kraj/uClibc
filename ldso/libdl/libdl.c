@@ -30,6 +30,7 @@
  */
 
 
+#define _GNU_SOURCE
 #include <ldso.h>
 #include <stdio.h>
 
@@ -546,7 +547,7 @@ int dlclose(void *vhandle)
 	return do_dlclose(vhandle, 1);
 }
 
-const char *dlerror(void)
+char *dlerror(void)
 {
 	const char *retval;
 
@@ -562,7 +563,7 @@ const char *dlerror(void)
  */
 static char *type[] = { "Lib", "Exe", "Int", "Mod" };
 
-void dlinfo(void)
+int dlinfo(void)
 {
 	struct elf_resolve *tpnt;
 	struct dyn_elf *rpnt, *hpnt;
@@ -589,6 +590,7 @@ void dlinfo(void)
 			fprintf(stderr, "\t%x %s\n", (unsigned) rpnt->dyn,
 					rpnt->dyn->libname);
 	}
+	return 0;
 }
 
 int dladdr(const void *__address, Dl_info * __info)
