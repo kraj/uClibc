@@ -10,7 +10,7 @@ struct link_map
 {
   /* These entries must be in this order to be compatible with the
    * interface used by gdb to obtain the list of symbols. */
-  unsigned long l_addr;	/* address at which object is mapped */
+  Elf32_Addr l_addr;	/* address at which object is mapped */
   char *l_name;		/* full name of loaded object */
   Elf32_Dyn *l_ld;	/* dynamic structure of object */
   struct link_map *l_next;

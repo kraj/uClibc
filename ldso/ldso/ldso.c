@@ -148,6 +148,7 @@ static char *_dl_trace_loaded_objects = 0;
 static int (*_dl_elf_main) (int, char **, char **);
 static int (*_dl_elf_init) (void);
 struct r_debug *_dl_debug_addr = NULL;
+static struct r_debug *_tmp_debug_addr = NULL;
 unsigned long *_dl_brkp;
 unsigned long *_dl_envp;
 int _dl_fixup(struct elf_resolve *tpnt);
@@ -155,7 +156,7 @@ void _dl_debug_state(void);
 char *_dl_get_last_path_component(char *path);
 static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt, 
 		unsigned long load_addr, unsigned long *hash_addr, Elf32_auxv_t auxvt[AT_EGID + 1], 
-		char **envp, struct r_debug *debug_addr);
+		char **envp);
 #include "boot1_arch.h"
 #include "ldso.h"				/* Pull in the name of ld.so */
 
@@ -209,12 +210,8 @@ LD_BOOT(unsigned long args)
 	unsigned char *malloc_buffer, *mmap_zero;
 	Elf32_Dyn *dpnt;
 	unsigned long *hash_addr;
-	struct r_debug *debug_addr;
 	int indx;
 	int status;
-#ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
-	Elf32_Dyn *dpnt_debug = NULL;
-#endif
 
 
 	/* WARNING! -- we cannot make _any_ funtion calls until we have
@@ -382,8 +379,8 @@ LD_BOOT(unsigned long args)
 	/*
 	 * This is used by gdb to locate the chain of shared libraries that are currently loaded.
 	 */
-	debug_addr = LD_MALLOC(sizeof(struct r_debug));
-	_dl_memset(debug_addr, 0, sizeof(*debug_addr));
+	_tmp_debug_addr = LD_MALLOC(sizeof(struct r_debug));
+	_dl_memset(_tmp_debug_addr, 0, sizeof(struct r_debug));
 
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
@@ -433,13 +430,13 @@ LD_BOOT(unsigned long args)
 						continue;
 					}
 					app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
+#if !defined(__mips__)
 					if (dpnt->d_tag == DT_DEBUG) {
-#ifdef FORCE_SHAREABLE_TEXT_SEGMENTS
-						dpnt->d_un.d_val = (unsigned long) debug_addr;
-#else
-						dpnt_debug = (unsigned long) debug_addr;
-#endif
+						dpnt->d_un.d_val = (unsigned long) _tmp_debug_addr;
 					}
+#else
+#warning "Debugging threads on mips won't work till someone fixes this..."
+#endif
 					if (dpnt->d_tag == DT_TEXTREL)
 						app_tpnt->dynamic_info[DT_TEXTREL] = 1;
 					dpnt++;
@@ -505,13 +502,6 @@ LD_BOOT(unsigned long args)
 								 PROT_READ | PROT_WRITE | PROT_EXEC);
 			}
 		}
-	}
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("About to store the debug structure address\n");
-#endif
-	/* Now we can store the debug structure address */
-	if (dpnt_debug != NULL) {
-		dpnt_debug->d_un.d_val = (unsigned long) debug_addr;
 	}
 #endif
 	
@@ -624,13 +614,16 @@ LD_BOOT(unsigned long args)
 	   free to start using global variables, since these things have all been
 	   fixed up by now.  Still no function calls outside of this library ,
 	   since the dynamic resolver is not yet ready. */
-	_dl_get_ready_to_run(tpnt, app_tpnt, load_addr, hash_addr, auxvt, envp, debug_addr);
+	_dl_get_ready_to_run(tpnt, app_tpnt, load_addr, hash_addr, auxvt, envp);
 
+
+	/* Notify the debugger that all objects are now mapped in.  */
+	_dl_debug_addr->r_state = RT_CONSISTENT;
+	_dl_debug_state();
 
 
 	/* OK we are done here.  Turn out the lights, and lock up. */
 	_dl_elf_main = (int (*)(int, char **, char **)) auxvt[AT_ENTRY].a_un.a_fcn;
-
 
 	/*
 	 * Transfer control to the application.
@@ -652,7 +645,7 @@ static void debug_fini (int status, void *arg)
 
 static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt, 
 		unsigned long load_addr, unsigned long *hash_addr, Elf32_auxv_t auxvt[AT_EGID + 1], 
-		char **envp, struct r_debug *debug_addr)
+		char **envp)
 {
 	elf_phdr *ppnt;
 	char *lpntstr;
@@ -891,6 +884,22 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		_dl_exit(1);
 	}
 #endif
+
+	/*
+	 * OK, fix one more thing - set up _tmp_debug_addr so it will point
+	 * to our chain.  Later we may need to fill in more fields, but this
+	 * should be enough for now.
+	 */
+	_tmp_debug_addr->r_map = (struct link_map *) _dl_loaded_modules;
+	_tmp_debug_addr->r_version = 1;
+	_tmp_debug_addr->r_ldbase = load_addr;
+	_tmp_debug_addr->r_brk = (unsigned long) &_dl_debug_state;
+	_dl_debug_addr = _tmp_debug_addr;
+
+	/* Notify the debugger we are in a consistant state */
+	_dl_debug_addr->r_state = RT_CONSISTENT;
+	_dl_debug_state();
+
 	/* OK, we now have the application in the list, and we have some
 	   basic stuff in place.  Now search through the list for other shared
 	   libraries that should be loaded, and insert them on the list in the
@@ -1229,20 +1238,9 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 		(intptr_t) _dl_find_hash("on_exit", NULL, NULL, symbolrel);
 #endif
 
-	/*
-	 * OK, fix one more thing - set up the debug_addr structure to point
-	 * to our chain.  Later we may need to fill in more fields, but this
-	 * should be enough for now.
-	 */
-	debug_addr->r_map = (struct link_map *) _dl_loaded_modules;
-	debug_addr->r_version = 1;
-	debug_addr->r_ldbase = load_addr;
-	debug_addr->r_brk = (unsigned long) &_dl_debug_state;
-	_dl_debug_addr = debug_addr;
-	debug_addr->r_state = RT_CONSISTENT;
-	/* This is written in this funny way to keep gcc from inlining the
-	   function call. */
-	((void (*)(void)) debug_addr->r_brk) ();
+	/* Notify the debugger we have added some objects. */
+	_dl_debug_addr->r_state = RT_ADD;
+	_dl_debug_state();
 
 	for (rpnt = _dl_symbol_tables; rpnt!=NULL&& rpnt->next!=NULL; rpnt=rpnt->next)
 	  ;
@@ -1299,9 +1297,8 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
  * can set an internal breakpoint on it, so that we are notified when the
  * address mapping is changed in some way.
  */
-void _dl_debug_state()
+void _dl_debug_state(void)
 {
-	return;
 }
 
 int _dl_fixup(struct elf_resolve *tpnt)

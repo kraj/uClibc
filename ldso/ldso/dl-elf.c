@@ -743,7 +743,6 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 	return;
 }
 
-void *(*_dl_malloc_function) (size_t size) = NULL;
 char *_dl_strdup(const char *string)
 {
 	char *retval;
@@ -755,6 +754,7 @@ char *_dl_strdup(const char *string)
 	return retval;
 }
 
+void *(*_dl_malloc_function) (size_t size) = NULL;
 void *_dl_malloc(int size)
 {
 	void *retval;

@@ -12,7 +12,6 @@ struct elf_resolve;
 
 
 /* Some function prototypes */
-extern void * _dl_malloc(int size);
 extern int _dl_map_cache(void);
 extern int _dl_unmap_cache(void);
 int _dl_copy_fixups(struct dyn_elf * tpnt);
