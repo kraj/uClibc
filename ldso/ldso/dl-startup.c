@@ -377,13 +377,18 @@ found_got:
 					}
 					app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
 
-#warning "Debugging threads on mips won't work till someone fixes this..."
-#if 0
 					if (dpnt->d_tag == DT_DEBUG) {
+						/* Allow writing debug_addr into the .dynamic segment.
+						 * Even though the program header is marked RWE, the kernel gives
+						 * it to us rx.
+						 */
+						Elf32_Addr mpa = (ppnt->p_vaddr + app_tpnt->loadaddr) & ~(_dl_pagesize - 1);
+						if(_dl_mprotect(mpa, ppnt->p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC)) {
+							SEND_STDERR("Couldn't mprotect .dynamic segment to rwx.\n");
+							_dl_exit(0);
+						}
 						dpnt->d_un.d_val = (unsigned long) debug_addr;
 					}
-#endif
-
 #else
 					if (dpnt->d_tag > DT_JMPREL) {
 						dpnt++;
