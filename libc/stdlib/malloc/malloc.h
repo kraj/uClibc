@@ -1,5 +1,5 @@
 /*
- * libc/stdlib/malloc-zarg/malloc.h -- small malloc implementation
+ * libc/stdlib/malloc/malloc.h -- small malloc implementation
  *
  *  Copyright (C) 2002  NEC Corporation
  *  Copyright (C) 2002  Miles Bader <miles@gnu.org>

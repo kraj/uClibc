@@ -1,5 +1,5 @@
 /*
- * libc/stdlib/malloc-zarg/calloc.c -- calloc function
+ * libc/stdlib/malloc/calloc.c -- calloc function
  *
  *  Copyright (C) 2002  NEC Corporation
  *  Copyright (C) 2002  Miles Bader <miles@gnu.org>

@@ -1,5 +1,5 @@
 /*
- * libc/stdlib/malloc-zarg/free.c -- free function
+ * libc/stdlib/malloc/free.c -- free function
  *
  *  Copyright (C) 2002  NEC Corporation
  *  Copyright (C) 2002  Miles Bader <miles@gnu.org>

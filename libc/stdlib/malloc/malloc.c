@@ -1,5 +1,5 @@
 /*
- * libc/stdlib/malloc-zarg/malloc.c -- malloc function
+ * libc/stdlib/malloc/malloc.c -- malloc function
  *
  *  Copyright (C) 2002  NEC Corporation
  *  Copyright (C) 2002  Miles Bader <miles@gnu.org>

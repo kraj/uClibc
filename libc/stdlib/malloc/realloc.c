@@ -1,5 +1,5 @@
 /*
- * libc/stdlib/malloc-zarg/realloc.c -- realloc function
+ * libc/stdlib/malloc/realloc.c -- realloc function
  *
  *  Copyright (C) 2002  NEC Corporation
  *  Copyright (C) 2002  Miles Bader <miles@gnu.org>
