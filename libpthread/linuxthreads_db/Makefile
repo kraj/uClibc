@@ -50,7 +50,7 @@ CSRC=td_init.c td_log.c td_ta_clear_event.c td_ta_delete.c \
 	td_thr_getxregs.c td_thr_getxregsize.c td_thr_set_event.c \
 	td_thr_setfpregs.c td_thr_setgregs.c td_thr_setprio.c \
 	td_thr_setsigpending.c td_thr_setxregs.c td_thr_sigsetmask.c \
-	td_thr_tsd.c td_thr_validate.c
+	td_thr_tsd.c td_thr_validate.c td_symbol_list.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
