@@ -46,26 +46,26 @@ headers:
 	@$(LN) -fs $(TOPDIR)include/elf.h
 
 readelf: readelf.c
-	$(CC) $(CFLAGS) -Wl,-s $^ -o $@ $(LDADD_LIBFLOAT) 
+	$(CC) $(CFLAGS) -Wl,-s $^ -o $@ $(LDADD_LIBFLOAT) -L../lib
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldconfig:	ldconfig.c readsoname.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -static \
 		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
-		$^ -o $@ $(LDADD_LIBFLOAT) 
+		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldd:	ldd.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
-		$^ -o $@ $(LDADD_LIBFLOAT) 
+		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 iconv: ../libc/misc/wchar/wchar.c
 	$(CC) $(CFLAGS) -DL_iconv_main ../libc/misc/wchar/wchar.c -o $@ \
-		$(LDADD_LIBFLOAT) 
+		$(LDADD_LIBFLOAT) -L../lib
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 hostutils: ldd.host ldconfig.host readelf.host
