@@ -530,12 +530,6 @@ int form_query(int id, const char *name, int type, unsigned char *packet,
 
 #ifdef L_dnslookup
 
-int dns_caught_signal = 0;
-void dns_catch_signal(int signo)
-{
-	dns_caught_signal = 1;
-}
-
 int dns_lookup(const char *name, int type, int nscount, char **nsip,
 			   unsigned char **outpacket, struct resolv_answer *a)
 {
@@ -546,8 +540,8 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 #ifdef __UCLIBC_HAS_IPV6__
 	struct sockaddr_in6 sa6;
 #endif /* __UCLIBC_HAS_IPV6__ */
-	int oldalarm;
-	__sighandler_t oldhandler;
+	struct timeval tv;
+	fd_set fds;
 	struct resolv_header h;
 	struct resolv_question q;
 	int retries = 0;
@@ -652,23 +646,19 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 
 		send(fd, packet, len, 0);
 
-		dns_caught_signal = 0;
-		oldalarm = alarm(REPLY_TIMEOUT);
-		oldhandler = signal(SIGALRM, dns_catch_signal);
+		FD_ZERO(&fds);
+		FD_SET(fd, &fds);
+		tv.tv_sec = REPLY_TIMEOUT;
+		tv.tv_usec = 0;
+		if (select(fd + 1, &fds, NULL, NULL, &tv) <= 0) {
+		    DPRINTF("Timeout\n");
 
-		i = recv(fd, packet, PACKETSZ, 0);
-
-		alarm(0);
-		signal(SIGALRM, oldhandler);
-		alarm(oldalarm);
-
-		DPRINTF("Timeout=%d, len=%d\n", dns_caught_signal, i);
-
-		if (dns_caught_signal)
-			/* timed out, so retry send and receive,
-			   to next nameserver on queue */
+			/* timed out, so retry send and receive, 
+			 * to next nameserver on queue */
 			goto again;
+		}
 
+		i = recv(fd, packet, 512, 0);
 		if (i < HFIXEDSZ)
 			/* too short ! */
 			goto again;
