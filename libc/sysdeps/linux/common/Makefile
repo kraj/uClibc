@@ -28,7 +28,10 @@ LIBC=$(TOPDIR)libc.a
 #The file makefile.objs defines $(COBJS)
 include makefile.objs
 
-OBJ=$(COBJS)
+MSRC=syscalls.c
+MOBJ=$(shell ./list_syscalls.sh)
+
+OBJ=$(COBJS) $(MOBJ)
 
 all: $(OBJ) $(LIBC)
 
@@ -36,6 +39,10 @@ $(LIBC): ar-target
 
 ar-target: $(OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJ)
+
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS):
 	$(CC) $(CFLAGS) $< -c $*.c -o $*.o

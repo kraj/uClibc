@@ -28,13 +28,10 @@ ASFLAGS=$(CFLAGS)
 SSRC=longjmp.S setjmp.S #_start.S #fork.S #clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-MSRC=syscalls.c
-MOBJ=$(shell ./list_syscalls.sh)
-
 CSRC=readdir.c #select.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(SOBJS) $(COBJS) $(MOBJ)
+OBJS=$(SOBJS) $(COBJS)
 
 
 all: $(OBJS) $(LIBC)
@@ -46,11 +43,6 @@ ar-target: $(OBJS)
 
 $(SOBJS): 
 	$(CC) $(CFLAGS) $< -c $*.S -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-
-$(MOBJ): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS):

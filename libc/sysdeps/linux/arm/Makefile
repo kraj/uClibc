@@ -28,9 +28,6 @@ ASFLAGS=$(CFLAGS)
 SSRC=_start.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-MSRC=syscalls.c
-MOBJ=$(shell ./list_syscalls.sh)
-
 CSRC=divsi3.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
@@ -46,10 +43,6 @@ ar-target: $(OBJS)
 
 $(SOBJS):
 	$(CC) $(CFLAGS) $< -c $*.S -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(MOBJ): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS):
