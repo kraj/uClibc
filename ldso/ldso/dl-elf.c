@@ -787,7 +787,7 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 	buf = _dl_mmap((void *) 0, 4096, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 	if (_dl_mmap_check_error(buf)) {
-			_dl_dprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
+			_dl_write(fd, "mmap of a spare page failed!\n", 29); 
 			_dl_exit(20);
 	}
 
@@ -796,8 +796,10 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 	if (!fmt)
 		return;
 
-	if (_dl_strlen(fmt) >= (sizeof(buf) - 1))
-		_dl_write(fd, "(overflow)\n", 10);
+	if (_dl_strlen(fmt) >= (4096 - 1)) {
+		_dl_write(fd, "overflow\n", 11);
+		_dl_exit(20);
+	}
 
 	_dl_strcpy(buf, fmt);
 	va_start(args, fmt);
