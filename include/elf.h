@@ -2131,6 +2131,15 @@ typedef Elf32_Addr Elf32_Conflict;
 
 #define R_V850_NUM		25
 
+/* i960 Relocations */
+#define R_960_NONE      0
+#define R_960_12        1
+#define R_960_32        2
+#define R_960_IP24      3
+#define R_960_SUB       4
+#define R_960_OPTCALL   5
+#define R_960_OPTCALLX  6
+#define R_960_OPTCALLXA 7
 
 __END_DECLS
 
