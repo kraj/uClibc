@@ -13,7 +13,6 @@ config HAVE_ELF
 
 config ARCH_CFLAGS
 	string
-	default "-mh -mint32 -fsigned-char"
 
 config ARCH_LDFLAGS
 	string

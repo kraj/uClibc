@@ -60,7 +60,11 @@ offset	length	contents
    name begins with `.note' and creates a PT_NOTE program header entry
    pointing at it. */
 
+#ifdef HAVE_ELF
 	.section ".note.ABI-tag", "a"
+#else
+	.section .note
+#endif
 	.align 4
 	.long 1f - 0f		/* name length */
 	.long 3f - 2f		/* data length */

@@ -150,6 +150,11 @@ ifeq ($(strip $(TARGET_ARCH)),sh)
 	CPU_CFLAGS-$(CONFIG_SH5)+="-m5"
 endif
 
+ifeq ($(strip $(TARGET_ARCH)),h8300)
+	CPU_LDFLAGS-y:=-mh8300h
+	CPU_CFLAGS-y+=-mh -mint32 -fsigned-char
+endif
+
 # Add a bunch of extra pedantic annoyingly strict checks
 WARNINGS+=-Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
 # Some nice CFLAGS to work with

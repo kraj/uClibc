@@ -35,6 +35,8 @@ BEGIN \
 /_fini_SH_GLB/  && glb_idx>=2 {print glb_label[1] glb >> "crti.S"}
 /SH_GLB_ENDS/   && glb_idx==0 {omitcrti -=1}
 /SH_GLB/ || /_GLOBAL_OFFSET_TABLE_/{getline}
+# special rules for H8/300 (sorry quick hack)
+/.h8300h/ {end=0}
 
 # rules for all targets
 /HEADER_ENDS/{omitcrti=1;omitcrtn=1;getline}
