@@ -17,6 +17,10 @@ include/resolv.h does not define struct _res, and libc/inet/resolv.c
     does not use this struct.  res_init does nothing.  the other res_* 
     functions are not implemented.
 scandir.c doesn't check returns on malloc and realloc.
+rewrite ldd.  Right now, ldd actually _executes_ the shared lib loader
+    and asks it to list off library dependancies.  This doesn't work
+    when cross compiling, and it doesn't work in about 95% of all the
+    other cases when you want to run ldd.  So it needs to be re-written.
 
 
 -----------------------------------------------------------------------------
