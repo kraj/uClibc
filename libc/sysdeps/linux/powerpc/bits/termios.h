@@ -26,6 +26,13 @@ typedef unsigned int	tcflag_t;
 
 /* note: this is fixed to be the same as the kernel, not glibc */
 
+struct winsize {
+	unsigned short int ws_row;
+	unsigned short int ws_col;
+	unsigned short int ws_xpixel;
+	unsigned short int ws_ypixel;
+};
+
 #define NCCS 19
 struct termios {
 	tcflag_t c_iflag;		/* input mode flags */
