@@ -667,7 +667,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	   back again later. */
 
 	if (dynamic_info[DT_TEXTREL]) {
-#ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
+#ifndef __FORCE_SHAREABLE_TEXT_SEGMENTS__
 		ppnt = (ElfW(Phdr) *)(intptr_t) & header[epnt->e_phoff];
 		for (i = 0; i < epnt->e_phnum; i++, ppnt++) {
 			if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))

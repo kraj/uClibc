@@ -302,7 +302,7 @@ found_got:
 	SEND_STDERR("done scanning DYNAMIC section\n");
 #endif
 
-#ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
+#ifndef __FORCE_SHAREABLE_TEXT_SEGMENTS__
 	/* Ugly, ugly.  We need to call mprotect to change the protection of
 	   the text pages so that we can do the dynamic linking.  We can set the
 	   protection back again once we are done */

@@ -61,10 +61,6 @@ ifeq ($(strip $(SUPPORT_LD_DEBUG_EARLY)),y)
 XXFLAGS+=-D__SUPPORT_LD_DEBUG_EARLY__
 endif
 
-ifeq ($(strip $(FORCE_SHAREABLE_TEXT_SEGMENTS)),y)
-XXFLAGS+=-DFORCE_SHAREABLE_TEXT_SEGMENTS
-endif
-
 #This stuff will not work with -fomit-frame-pointer
 XXFLAGS := $(XXFLAGS:-fomit-frame-pointer=)
 

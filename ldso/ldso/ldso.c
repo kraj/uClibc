@@ -239,7 +239,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 					app_tpnt->dynamic_info[DT_TEXTREL] = 1;
 				dpnt++;
 			}
-#ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
+#ifndef __FORCE_SHAREABLE_TEXT_SEGMENTS__
 			/* Ugly, ugly.  We need to call mprotect to change the
 			 * protection of the text pages so that we can do the
 			 * dynamic linking.  We can set the protection back
@@ -803,7 +803,7 @@ next_lib2:
 	if (_dl_envp)
 		*_dl_envp = (unsigned long) envp;
 
-#ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
+#ifndef __FORCE_SHAREABLE_TEXT_SEGMENTS__
 	{
 		unsigned int j;
 		ElfW(Phdr) *myppnt;
