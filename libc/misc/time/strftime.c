@@ -85,16 +85,8 @@ static unsigned int week(const struct tm *const tp , int starting_day , int max_
 }
 
 #ifndef _NL_CURRENT
-static char const weekday_name[][10] =
-  {
-    "Sunday", "Monday", "Tuesday", "Wednesday",
-    "Thursday", "Friday", "Saturday"
-  };
-static char const month_name[][10] =
-  {
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  };
+extern char const __weekday_name[][10];
+extern char const __month_name[][10];
 #endif
 
 /* Write information from TP into S according to the format
@@ -117,8 +109,8 @@ size_t strftime( char *s , size_t maxsize , const char *format , register const 
   size_t am_len = strlen(a_month);
   size_t ap_len = strlen (ampm);
 #else
-  const char *const f_wkday = weekday_name[tp->tm_wday];
-  const char *const f_month = month_name[tp->tm_mon];
+  const char *const f_wkday = __weekday_name[tp->tm_wday];
+  const char *const f_month = __month_name[tp->tm_mon];
   const char *const a_wkday = f_wkday;
   const char *const a_month = f_month;
   const char *const ampm = "AMPM" + 2 * (hour12 > 11);

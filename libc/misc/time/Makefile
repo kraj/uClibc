@@ -26,7 +26,7 @@ include $(TOPDIR)Rules.mak
 
 CSRC=localtime.c gmtime.c asctime.c ctime.c asc_conv.c tm_conv.c mktime.c \
 	localtime_r.c gmtime_r.c asctime_r.c ctime_r.c utimes.c adjtime.c \
-	clock.c difftime.c strftime.c time.c ftime.c
+	clock.c difftime.c time.c ftime.c strftime.c strptime.c __time_locale.c
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
