@@ -24,7 +24,7 @@
 
 
 static inline int
-__attribute__ ((unused))
+__attribute_used__
 exchange_and_add (volatile uint32_t *mem, int val)
 {
   register int result, tmp;
@@ -49,7 +49,7 @@ exchange_and_add (volatile uint32_t *mem, int val)
 }
 
 static inline void
-__attribute__ ((unused))
+__attribute_used__
 atomic_add (volatile uint32_t *mem, int val)
 {
   register int result;
@@ -72,7 +72,7 @@ atomic_add (volatile uint32_t *mem, int val)
 }
 
 static inline long
-__attribute__ ((unused))
+__attribute_used__
 compare_and_swap (volatile long int *p, long int oldval, long int newval)
 {
   long int ret;

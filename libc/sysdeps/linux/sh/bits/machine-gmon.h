@@ -21,7 +21,7 @@
 #define mcount_internal __mcount_internal
 
 #define _MCOUNT_DECL(frompc, selfpc) \
-static void __attribute__((unused)) mcount_internal (u_long frompc, u_long selfpc)
+static void __attribute_used__ mcount_internal (u_long frompc, u_long selfpc)
 
 /*
  * This mcount implementation expect the 'frompc' return address on

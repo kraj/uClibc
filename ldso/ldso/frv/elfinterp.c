@@ -2,7 +2,7 @@
    Copyright (C) 2003 Red Hat, Inc.
    Contributed by Alexandre Oliva <aoliva@redhat.com>
    Lots of code copied from ../i386/elfinterp.c, so:
-   Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald, 
+   Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
   				David Engel, Hongjiu Lu and Mitch D'Souza
    Copyright (C) 2001-2002, Erik Andersen
    All rights reserved.
@@ -24,9 +24,7 @@ License along with uClibc; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
 USA.  */
 
-#ifndef ATTRIBUTE_UNUSED
-# define ATTRIBUTE_UNUSED __attribute__((__unused__))
-#endif
+#include <sys/cdefs.h>	    /* __attribute_used__ */
 
 #if defined (__SUPPORT_LD_DEBUG__)
 static const char *_dl_reltypes_tab[] =
@@ -393,9 +391,9 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 
 static int
 _dl_do_lazy_reloc (struct elf_resolve *tpnt,
-		   struct dyn_elf *scope ATTRIBUTE_UNUSED,
-		   ELF_RELOC *rpnt, Elf32_Sym *symtab ATTRIBUTE_UNUSED,
-		   char *strtab ATTRIBUTE_UNUSED)
+		   struct dyn_elf *scope __attribute_used__,
+		   ELF_RELOC *rpnt, Elf32_Sym *symtab __attribute_used__,
+		   char *strtab __attribute_used__)
 {
 	int reloc_type;
 	struct funcdesc_value volatile *reloc_addr;
@@ -436,7 +434,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt,
 void
 _dl_parse_lazy_relocation_information
 (struct dyn_elf *rpnt, unsigned long rel_addr, unsigned long rel_size,
- int type ATTRIBUTE_UNUSED)
+ int type __attribute_used__)
 {
   _dl_parse(rpnt->dyn, NULL, rel_addr, rel_size, _dl_do_lazy_reloc);
 }
@@ -444,7 +442,7 @@ _dl_parse_lazy_relocation_information
 int
 _dl_parse_relocation_information
 (struct dyn_elf *rpnt, unsigned long rel_addr, unsigned long rel_size,
- int type ATTRIBUTE_UNUSED)
+ int type __attribute_used__)
 {
   /* The interpreter initial self-relocation is complete, and we
      can't re-apply relocations.  */
@@ -458,10 +456,10 @@ _dl_parse_relocation_information
 
 int
 _dl_parse_copy_information
-(struct dyn_elf *rpnt ATTRIBUTE_UNUSED,
- unsigned long rel_addr ATTRIBUTE_UNUSED,
- unsigned long rel_size ATTRIBUTE_UNUSED,
- int type ATTRIBUTE_UNUSED)
+(struct dyn_elf *rpnt __attribute_used__,
+ unsigned long rel_addr __attribute_used__,
+ unsigned long rel_size __attribute_used__,
+ int type __attribute_used__)
 {
   return 0;
 }

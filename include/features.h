@@ -437,6 +437,9 @@ uClibc was built without large file support enabled.
 #define __LINUX_COMPILER_H
 #endif
 
+/* Pull in things like __attribute_used__ */
+#include <sys/cdefs.h>
+
 /* --- this is added to integrate linuxthreads */
 #define __USE_UNIX98            1
 

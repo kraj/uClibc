@@ -23,7 +23,7 @@
 #include <inttypes.h>
 
 static int
-__attribute__ ((unused))
+__attribute_used__
 exchange_and_add (volatile uint32_t *mem, int val)
 {
   static unsigned char lock;
@@ -46,7 +46,7 @@ exchange_and_add (volatile uint32_t *mem, int val)
 }
 
 static void
-__attribute__ ((unused))
+__attribute_used__
 atomic_add (volatile uint32_t *mem, int val)
 {
   static unsigned char lock;
@@ -67,7 +67,7 @@ atomic_add (volatile uint32_t *mem, int val)
 }
 
 static int
-__attribute__ ((unused))
+__attribute_used__
 compare_and_swap (volatile long int *p, long int oldval, long int newval)
 {
   static unsigned char lock;

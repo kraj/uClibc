@@ -425,7 +425,7 @@ auth_errmsg (enum auth_stat stat)
 }
 
 
-static void __attribute__ ((unused))
+static void __attribute_used__
 free_mem (void)
 {
   free (buf);

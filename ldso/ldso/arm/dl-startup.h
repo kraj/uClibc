@@ -20,7 +20,7 @@ asm(""						\
 "	mov	pc, r6\n"			\
 );
 
-#define DL_BOOT(X)   static __attribute__ ((unused)) void* _dl_boot2 (X)
+#define DL_BOOT(X)   static __attribute_used__ void* _dl_boot2 (X)
 
 
 /* Get a pointer to the argv array.  On many platforms this can be just

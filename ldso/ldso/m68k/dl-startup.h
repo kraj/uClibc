@@ -3,7 +3,7 @@
  */
 
 /* For m68k we do not need any special setup so go right to _dl_boot() */
-#define DL_BOOT(X) __attribute__ ((unused)) void _dl_boot (X)
+#define DL_BOOT(X) __attribute_used__ void _dl_boot (X)
 
 /* Get a pointer to the argv array.  On many platforms this can be just
  * the address if the first argument, on other platforms we need to

@@ -29,7 +29,7 @@
 #endif
 
 static __ATOMICITY_INLINE int
-__attribute__ ((unused))
+__attribute_used__
 exchange_and_add (volatile uint32_t *mem, int val)
 {
   int tmp, result;
@@ -43,7 +43,7 @@ exchange_and_add (volatile uint32_t *mem, int val)
 }
 
 static __ATOMICITY_INLINE void
-__attribute__ ((unused))
+__attribute_used__
 atomic_add (volatile uint32_t *mem, int val)
 {
   int tmp;
@@ -56,7 +56,7 @@ atomic_add (volatile uint32_t *mem, int val)
 }
 
 static __ATOMICITY_INLINE int
-__attribute__ ((unused))
+__attribute_used__
 compare_and_swap (volatile long int *p, long int oldval, long int newval)
 {
   int result;
@@ -73,7 +73,7 @@ compare_and_swap (volatile long int *p, long int oldval, long int newval)
 }
 
 static __ATOMICITY_INLINE long int
-__attribute__ ((unused))
+__attribute_used__
 always_swap (volatile long int *p, long int newval)
 {
   long int result;
@@ -86,7 +86,7 @@ always_swap (volatile long int *p, long int newval)
 }
 
 static __ATOMICITY_INLINE int
-__attribute__ ((unused))
+__attribute_used__
 test_and_set (volatile long int *p, long int newval)
 {
   int result;

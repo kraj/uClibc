@@ -25,7 +25,7 @@
 #warning stub atomicity functions are not really atomic
 
 static inline int
-__attribute__ ((unused))
+__attribute_used__
 exchange_and_add (volatile uint32_t *mem, int val)
 {
   int result = *mem;
@@ -34,14 +34,14 @@ exchange_and_add (volatile uint32_t *mem, int val)
 }
 
 static inline void
-__attribute__ ((unused))
+__attribute_used__
 atomic_add (volatile uint32_t *mem, int val)
 {
   *mem += val;
 }
 
 static inline int
-__attribute__ ((unused))
+__attribute_used__
 compare_and_swap (volatile long int *p, long int oldval, long int newval)
 {
   if (*p != oldval)
