@@ -33,7 +33,7 @@ static char *olds = 0;
 char *
 strtok(s, delim)
 register char *s;
-register char *delim;
+register const char *delim;
 {
   char *token;
 

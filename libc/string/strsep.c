@@ -18,10 +18,11 @@ Cambridge, MA 02139, USA.  */
 
 #include <string.h>
 
+
 char *
 strsep(pp, delim)
 char **pp;
-char *delim;
+const char *delim;
 {
   char *p, *q;
 

@@ -270,7 +270,7 @@ lp4:
 #ifdef L_strchr
 char *
 strchr(s, c)
-char * s;
+const char * s;
 int c;
 {
 #ifdef BCC_AX_ASM
@@ -307,7 +307,7 @@ got_it:
    register char ch;
    for(;;)
    {
-     if( (ch= *s) == c ) return s;
+     if( (ch= *s) == c ) return (char*)s;
      if( ch == 0 ) return 0;
      s++;
    }
@@ -319,11 +319,11 @@ got_it:
 
 #ifdef L_strrchr
 char * strrchr(s, c)
-char * s;
+const char * s;
 int c;
 {
    register char * prev = 0;
-   register char * p = s;
+   register char * p = (char*)s;
    /* For null it's just like strlen */
    if( c == '\0' ) return p+strlen(p);
 
@@ -414,11 +414,12 @@ size_t l;
 
 #ifdef L_memccpy
 void * memccpy(d, s, c, l)	/* Do we need a fast one ? */
-void *s, *d;
+void *d;
+const void *s;
 int c;
 size_t l;
 {
-   register char *s1=d, *s2=s;
+   register char *s1=d, *s2=(char*)s;
    while(l-- > 0)
       if((*s1++ = *s2++) == c )
          return s1;
@@ -598,10 +599,11 @@ xit:
 #ifdef L_memmove
 void *
 memmove(d, s, l)
-void *d, *s;
+void *d;
+const void *s;
 size_t l;
 {
-   register char *s1=d, *s2=s;
+   register char *s1=d, *s2=(char*)s;
    /* This bit of sneakyness c/o Glibc, it assumes the test is unsigned */
    if( s1-s2 >= l ) return memcpy(d,s,l);
 

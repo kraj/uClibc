@@ -1,32 +1,50 @@
-/* strcspn.c */
+/* Copyright (C) 1991, 1994, 1996, 1997 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-/* from Schumacher's Atari library, improved */
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
 
-#include <string.h>
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Library General Public License for more details.
 
-size_t strcspn(string, set)
-register char *string;
-char *set;
-/*
- *	Return the length of the sub-string of <string> that consists
- *	entirely of characters not found in <set>.  The terminating '\0'
- *	in <set> is not considered part of the match set.  If the first
- *	character if <string> is in <set>, 0 is returned.
- */
+   You should have received a copy of the GNU Library General Public
+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
+
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#if defined _LIBC || HAVE_STRING_H
+# include <string.h>
+#else
+# include <strings.h>
+# ifndef strchr
+#  define strchr index
+# endif
+#endif
+
+#undef strcspn
+
+/* Return the length of the maximum initial segment of S
+   which contains no characters from REJECT.  */
+size_t
+strcspn (s, reject)
+     const char *s;
+     const char *reject;
 {
-    register char *setptr;
-    char *start;
+  size_t count = 0;
 
-    start = string;
-    while (*string)
-    {
-	setptr = set;
-	do
-	    if (*setptr == *string)
-		goto break2;
-	while (*setptr++);
-	++string;
-    }
-break2:
-    return string - start;
+  while (*s != '\0')
+    if (strchr (reject, *s++) == NULL)
+      ++count;
+    else
+      return count;
+
+  return count;
 }

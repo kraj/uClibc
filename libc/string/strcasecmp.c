@@ -8,8 +8,8 @@
 
 int
 strcasecmp(s, d)
-char *s;
-char *d;
+const char *s;
+const char *d;
 {
    for(;;)
    {

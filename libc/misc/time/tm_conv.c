@@ -91,7 +91,7 @@ time_t offset;
 {
   long days, rem;
   register int y;
-  register unsigned short int *ip;
+  register const unsigned short int *ip;
 
   days = *t / SECS_PER_DAY;
   rem = *t % SECS_PER_DAY;

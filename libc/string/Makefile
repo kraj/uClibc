@@ -12,12 +12,12 @@ SOBJ=strlen.o strcat.o strcpy.o strcmp.o strncat.o strncpy.o strncmp.o	\
     strchr.o strrchr.o strdup.o memcpy.o memccpy.o memchr.o memset.o	\
     memcmp.o memmove.o movedata.o
 
-OBJ=$(SOBJ) strpbrk.o strsep.o strstr.o strtok.o strcspn.o	\
+OBJ=strpbrk.o strsep.o strstr.o strtok.o strcspn.o	\
     strspn.o strcasecmp.o strncasecmp.o config.o
 
 all: $(LIBC)
 
-$(LIBC): $(LIBC)($(OBJ))
+$(LIBC): $(LIBC)($(SOBJ)) $(OBJ) 
 
 $(LIBC)($(SOBJ)): $(SSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o

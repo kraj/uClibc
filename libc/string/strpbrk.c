@@ -8,8 +8,8 @@
 /* This uses strchr, strchr should be in assembler */
 
 char *strpbrk(str, set)
-register char *str;
-char *set;
+register const char *str;
+const char *set;
 {
   while (*str != '\0')
     if (strchr(set, *str) == 0)

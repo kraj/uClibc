@@ -9,7 +9,7 @@ struct utimbuf {
 	time_t modtime;
 };
 
-extern int utime __P ((char *__filename, struct utimbuf *__utimebuf));
+extern int utime __P ((const char *__filename, struct utimbuf *__utimebuf));
 
 #endif
 

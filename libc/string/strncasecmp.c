@@ -8,8 +8,8 @@
 
 int
 strncasecmp(s, d, l)
-char *s;
-char *d;
+const char *s;
+const char *d;
 size_t l;
 {
    while(l>0)
