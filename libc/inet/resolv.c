@@ -1059,9 +1059,7 @@ int res_init(void)
 	struct __res_state *rp = &(_res);
 
 	__close_nameservers();
-	if (__open_nameservers()) {
-		return(-1);
-	}
+	__open_nameservers();
 	rp->retrans = RES_TIMEOUT;
 	rp->retry = 4;
 	rp->options = RES_INIT;
@@ -1125,7 +1123,8 @@ int res_query(const char *dname, int class, int type,
 	int __nameserversXX;
 	char ** __nameserverXX;
 
-	if (__open_nameservers() || !dname || class != 1 /* CLASS_IN */) {
+	__open_nameservers();
+	if (!dname || class != 1 /* CLASS_IN */) {
 		h_errno = NO_RECOVERY;
 		return(-1);
 	}
@@ -1857,10 +1856,7 @@ int gethostbyname_r(const char * name,
 	int __nameserversXX;
 	char ** __nameserverXX;
 
-	if (__open_nameservers()) {
-		return(-1);
-	}
-
+	__open_nameservers();
 	*result=NULL;
 	if (!name)
 		return EINVAL;
@@ -2011,14 +2007,11 @@ int gethostbyname2_r(const char *name, int family,
 
 	if (family == AF_INET)
 		return gethostbyname_r(name, result_buf, buf, buflen, result, h_errnop);
-		
+
 	if (family != AF_INET6)
 		return EINVAL;
-		
-	if (__open_nameservers()) {
-		return(-1);
-	}
 
+	__open_nameservers();
 	*result=NULL;
 	if (!name)
 		return EINVAL;
@@ -2185,9 +2178,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 			return i;
 	}
 
-	if (__open_nameservers()) {
-		return(-1);
-	}
+	__open_nameservers();
 
 #ifdef __UCLIBC_HAS_IPV6__
 	qp=buf;
