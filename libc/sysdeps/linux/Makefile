@@ -25,7 +25,7 @@ TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
 DIRS = common $(TARGET_ARCH)
-ALL_SUBDIRS = arm common h8300 i386 m68k mips powerpc sh sparc v850
+ALL_SUBDIRS = arm common cris h8300 i386 m68k mips powerpc sh sparc v850
 
 all: subdirs
 
