@@ -54,7 +54,7 @@ Please Note:
 	developers intended.  This is IMHO, pardonable, since
 	these defines are not really intended to check for the
 	presence of a particular library, but rather are used to
-	define an _interface_.  Some programs (such as GNU
-	binutils) are especially chummy with glibc, and may need 
-	this behavior disabled by adding CFLAGS+=-D__FORCE_NOGLIBC
+	define an _interface_.  Some programs are especially 
+	chummy with glibc, and may need this behavior disabled 
+	by adding CFLAGS+=-D__FORCE_NOGLIBC
 
