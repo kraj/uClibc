@@ -28,7 +28,7 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 TOPDIR=./
 include Rules.mak
 
-DIRS = ldso libc libcrypt libresolv libnsl libutil libm libpthread
+DIRS = ldso libc libcrypt libresolv libnsl libutil libm libpthread librt
 ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
 	DIRS += libintl
 endif
@@ -50,6 +50,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	@$(MAKE) -C libutil shared
 	@$(MAKE) -C libm shared
 	@$(MAKE) -C libpthread shared
+	@$(MAKE) -C librt shared
 ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
 	@$(MAKE) -C libintl shared
 endif
