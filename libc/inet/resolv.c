@@ -162,7 +162,7 @@
 #define 	ALIAS_DIM		(2 + MAX_ALIASES + 1)
 
 #undef DEBUG
-/*#define DEBUG*/
+/* #define DEBUG */
 
 #ifdef DEBUG
 #define DPRINTF(X,args...) fprintf(stderr, X, ##args)
@@ -788,8 +788,8 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 			goto tryall;
 		}
 
-		i = recv(fd, packet, 512, 0);
-		if (i < HFIXEDSZ) {
+		len = recv(fd, packet, 512, 0);
+		if (len < HFIXEDSZ) {
 			/* too short ! */
 			goto again;
 		}
@@ -857,7 +857,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		else
 			free(packet);
 		free(lookup);
-		return (0);				/* success! */
+		return (len);				/* success! */
 
 	  tryall:
 		/* if there are other nameservers, give them a go,
@@ -904,6 +904,7 @@ fail:
 	    free(lookup);
 	if (packet)
 	    free(packet);
+	h_errno = NETDB_INTERNAL;
 	return -1;
 }
 #endif
@@ -938,7 +939,8 @@ int __open_nameservers()
 	}
 
 	if ((fp = fopen("/etc/resolv.conf", "r")) ||
-			(fp = fopen("/etc/config/resolv.conf", "r"))) {
+			(fp = fopen("/etc/config/resolv.conf", "r")))
+	{
 
 		while (fgets(szBuffer, sizeof(szBuffer), fp) != NULL) {
 
@@ -975,12 +977,14 @@ int __open_nameservers()
 			}
 		}
 		fclose(fp);
-	} else {
-	    DPRINTF("failed to open %s\n", "resolv.conf");
+		DPRINTF("nameservers = %d\n", __nameservers);
+		BIGUNLOCK;
+		return 0;
 	}
-	DPRINTF("nameservers = %d\n", __nameservers);
+	DPRINTF("failed to open %s\n", "resolv.conf");
+	h_errno = NO_RECOVERY;
 	BIGUNLOCK;
-	return 0;
+	return -1;
 }
 #endif
 
@@ -1055,7 +1059,9 @@ int res_init(void)
 	struct __res_state *rp = &(_res);
 
 	__close_nameservers();
-	__open_nameservers();
+	if (__open_nameservers()) {
+		return(-1);
+	}
 	rp->retrans = RES_TIMEOUT;
 	rp->retry = 4;
 	rp->options = RES_INIT;
@@ -1119,10 +1125,10 @@ int res_query(const char *dname, int class, int type,
 	int __nameserversXX;
 	char ** __nameserverXX;
 
-	__open_nameservers();
-
-	if (!dname || class != 1 /* CLASS_IN */)
+	if (__open_nameservers() || !dname || class != 1 /* CLASS_IN */) {
+		h_errno = NO_RECOVERY;
 		return(-1);
+	}
 
 	memset((char *) &a, '\0', sizeof(a));
 
@@ -1132,21 +1138,23 @@ int res_query(const char *dname, int class, int type,
 	BIGUNLOCK;
 	i = __dns_lookup(dname, type, __nameserversXX, __nameserverXX, &packet, &a);
 
-	if (i < 0)
+	if (i < 0) {
+		h_errno = TRY_AGAIN;
 		return(-1);
+	}
 
 	free(a.dotted);
 
 	if (a.atype == type) { /* CNAME*/
-		if (anslen && answer)
-			memcpy(answer, a.rdata, MIN(anslen, a.rdlength));
+		int len = MIN(anslen, i);
+		memcpy(answer, packet, len);
 		if (packet)
 			free(packet);
-		return(MIN(anslen, a.rdlength));
+		return(len);
 	}
 	if (packet)
 		free(packet);
-	return 0;
+	return i;
 }
 
 /*
@@ -1167,10 +1175,7 @@ int res_search(name, class, type, answer, anslen)
 	int trailing_dot, ret, saved_herrno;
 	int got_nodata = 0, got_servfail = 0, tried_as_is = 0;
 
-	if (!name || !answer)
-		return(-1);
-
-	if ((_res.options & RES_INIT) == 0 && res_init() == -1) {
+	if ((!name || !answer) || ((_res.options & RES_INIT) == 0 && res_init() == -1)) {
 		h_errno = NETDB_INTERNAL;
 		return (-1);
 	}
@@ -1303,13 +1308,11 @@ int res_querydomain(name, domain, class, type, answer, anslen)
 	const char *longname = nbuf;
 	size_t n, d;
 
-	if (!name || !answer)
-		return(-1);
-
-	if ((_res.options & RES_INIT) == 0 && res_init() == -1) {
+	if ((!name || !answer) || ((_res.options & RES_INIT) == 0 && res_init() == -1)) {
 		h_errno = NETDB_INTERNAL;
 		return (-1);
 	}
+
 #ifdef DEBUG
 	if (_res.options & RES_DEBUG)
 		printf(";; res_querydomain(%s, %s, %d, %d)\n",
@@ -1854,7 +1857,9 @@ int gethostbyname_r(const char * name,
 	int __nameserversXX;
 	char ** __nameserverXX;
 
-	__open_nameservers();
+	if (__open_nameservers()) {
+		return(-1);
+	}
 
 	*result=NULL;
 	if (!name)
@@ -2010,7 +2015,9 @@ int gethostbyname2_r(const char *name, int family,
 	if (family != AF_INET6)
 		return EINVAL;
 		
-	__open_nameservers();
+	if (__open_nameservers()) {
+		return(-1);
+	}
 
 	*result=NULL;
 	if (!name)
@@ -2178,7 +2185,9 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 			return i;
 	}
 
-	__open_nameservers();
+	if (__open_nameservers()) {
+		return(-1);
+	}
 
 #ifdef __UCLIBC_HAS_IPV6__
 	qp=buf;
