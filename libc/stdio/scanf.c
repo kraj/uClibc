@@ -42,6 +42,7 @@
 #include <stdarg.h>
 
 #ifdef __STDIO_THREADSAFE
+#include <stdio_ext.h>
 #include <pthread.h>
 #endif /* __STDIO_THREADSAFE */
 
@@ -128,6 +129,7 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 #endif /* __STDIO_MBSTATE */
 
 #ifdef __STDIO_THREADSAFE
+	string->user_locking = 0;
 	__stdio_init_mutex(&string->lock);
 #endif
 

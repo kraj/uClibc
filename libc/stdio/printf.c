@@ -61,6 +61,7 @@
 #include <printf.h>
 
 #ifdef __STDIO_THREADSAFE
+#include <stdio_ext.h>
 #include <pthread.h>
 #endif /* __STDIO_THREADSAFE */
 
@@ -1313,6 +1314,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 #endif /* __STDIO_MBSTATE */
 
 #ifdef __STDIO_THREADSAFE
+	f.user_locking = 0;
 	__stdio_init_mutex(&f.lock);
 #endif
 
@@ -1392,6 +1394,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 #endif /* __STDIO_MBSTATE */
 
 #ifdef __STDIO_THREADSAFE
+	f.user_locking = 0;
 	__stdio_init_mutex(&f.lock);
 #endif
 
@@ -1439,6 +1442,7 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 #endif /* __STDIO_MBSTATE */
 
 #ifdef __STDIO_THREADSAFE
+	f.user_locking = 0;
 	__stdio_init_mutex(&f.lock);
 #endif
 

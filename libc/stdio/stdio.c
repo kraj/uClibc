@@ -1023,31 +1023,41 @@ void _flushlbf(void)
 /**********************************************************************/
 #ifdef L___fsetlocking
 
-/* No (serious) reentrancy issues -- return value could be incorrect. */
-/* TODO -- fix race */
+/* NOT threadsafe!!!  (I don't think glibc's is either)
+ *
+ * This interacts badly with internal locking/unlocking.  If you use this routine,
+ * make sure the file isn't being accessed by any other threads.  Typical use would
+ * be to change to user locking immediately after opening the stream.
+ */
+
+link_warning(__fsetlocking, "Oddly enough, __fsetlocking() is NOT threadsafe.")
 
 int __fsetlocking(FILE *stream, int locking_mode)
 {
+#ifdef __STDIO_THREADSAFE
 	int old_mode;
+#endif
 
 	assert((FSETLOCKING_QUERY == 0) && (FSETLOCKING_INTERNAL == 1)
 		   && (FSETLOCKING_BYCALLER == 2));
 
 	assert(((unsigned int) locking_mode) <= 2);
 
-	/* Note: don't even bother locking here... */
+#ifdef __STDIO_THREADSAFE
+	old_mode = stream->user_locking;
 
-	old_mode  = stream->user_locking;
+	assert(((unsigned int) old_mode) <= 1);	/* Must be 0 (internal) or 1 (user). */
 
 	if (locking_mode != FSETLOCKING_QUERY) {
 		/* In case we're not debugging, treat any unknown as a request to
 		 * set internal locking, in order to match glibc behavior. */
-		stream->user_locking = ((locking_mode == FSETLOCKING_BYCALLER)
-								? FSETLOCKING_BYCALLER
-								: FSETLOCKING_INTERNAL);
+		stream->user_locking = (locking_mode == FSETLOCKING_BYCALLER);
 	}
 
-	return old_mode;
+	return 2 - old_mode;
+#else
+	return FSETLOCKING_BYCALLER; /* Well, without thread support... */
+#endif
 }
 
 #endif
@@ -1851,7 +1861,7 @@ void _stdio_term(void)
 	 * Note: Set locking mode to "by caller" to save some overhead later. */
 	__stdio_init_mutex(&_stdio_openlist_lock);
 	for (ptr = _stdio_openlist ; ptr ; ptr = ptr->nextopen ) {
-		ptr->user_locking = FSETLOCKING_BYCALLER;
+		ptr->user_locking = 1;
 		__stdio_init_mutex(&ptr->lock);
 	}
 #endif /* __STDIO_THREADSAFE */
@@ -2358,6 +2368,7 @@ FILE *_stdio_fopen(const char * __restrict filename,
 #endif /* __STDIO_MBSTATE */
 
 #ifdef __STDIO_THREADSAFE
+	stream->user_locking = 0;
 	__stdio_init_mutex(&stream->lock);
 #endif /* __STDIO_THREADSAFE */
 
