@@ -21,6 +21,7 @@
  */
 extern int  main(int argc, char **argv, char **envp);
 extern void weak_function _init(void);
+extern void weak_function __pthread_initialize_minimal(void);
 extern void weak_function _fini(void);
 extern void weak_function _stdio_init(void);
 extern int *weak_const_function __errno_location(void);
@@ -56,6 +57,11 @@ __uClibc_main(int argc, char **argv, char **envp)
 		__environ = envp;
 	}
 
+#ifdef _LIBC_REENTRANT
+	if (likely(__pthread_initialize_minimal!=NULL))
+	    __pthread_initialize_minimal();
+#endif
+
 #if 0
 	/* Some security at this point.  Prevent starting a SUID binary
 	 * where the standard file descriptors are not opened.  We have
@@ -67,7 +73,8 @@ __uClibc_main(int argc, char **argv, char **envp)
 
 #ifdef __UCLIBC_HAS_LOCALE__
 	/* Initialize the global locale structure. */
-	if (likely(_locale_init!=NULL)) _locale_init();
+	if (likely(_locale_init!=NULL))
+	    _locale_init();
 #endif
 
 	/*
@@ -78,12 +85,12 @@ __uClibc_main(int argc, char **argv, char **envp)
 		_stdio_init();
 
 	/* Arrange for dtors to run at exit.  */
-	if (unlikely(_fini!=NULL && atexit)) {
+	if (likely(_fini!=NULL && atexit)) {
 		atexit (&_fini);
 	}
 
 	/* Run all ctors now.  */
-	if (unlikely(_init!=NULL))
+	if (likely(_init!=NULL))
 		_init();
 
 	/*
