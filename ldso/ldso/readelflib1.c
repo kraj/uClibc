@@ -449,7 +449,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		return NULL;
 	}
 
-	 header = _dl_mmap((void *) 0, 4096, PROT_READ | PROT_WRITE,
+	 header = _dl_mmap((void *) 0, PAGE_SIZE, PROT_READ | PROT_WRITE,
 	 	MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 	if (_dl_mmap_check_error(header)) {
 		_dl_dprintf(2, "%s: can't map '%s'\n", _dl_progname, libname);
@@ -458,7 +458,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		return NULL;
 	};
         
-	_dl_read(infile, header, 4096);
+	_dl_read(infile, header, PAGE_SIZE);
 	epnt = (ElfW(Ehdr) *) (intptr_t) header;
 	if (epnt->e_ident[0] != 0x7f ||
 		epnt->e_ident[1] != 'E' || 
@@ -469,7 +469,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 					 libname);
 		_dl_internal_error_number = LD_ERROR_NOTELF;
 		_dl_close(infile);
-		_dl_munmap(header, 4096);
+		_dl_munmap(header, PAGE_SIZE);
 		return NULL;
 	};
 
@@ -484,7 +484,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_dprintf(2, "%s: '%s' is not an ELF executable for " ELF_TARGET 
 			"\n", _dl_progname, libname);
 		_dl_close(infile);
-		_dl_munmap(header, 4096);
+		_dl_munmap(header, PAGE_SIZE);
 		return NULL;
 	};
 
@@ -530,7 +530,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_dprintf(2, "%s: can't map %s\n", _dl_progname, libname);
 		_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 		_dl_close(infile);
-		_dl_munmap(header, 4096);
+		_dl_munmap(header, PAGE_SIZE);
 		return NULL;
 	};
 	libaddr = (unsigned long) status;
@@ -565,7 +565,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 					_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 					_dl_munmap((char *) libaddr, maxvma - minvma);
 					_dl_close(infile);
-					_dl_munmap(header, 4096);
+					_dl_munmap(header, PAGE_SIZE);
 					return NULL;
 				};
 
@@ -598,7 +598,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 				_dl_munmap((char *) libaddr, maxvma - minvma);
 				_dl_close(infile);
-				_dl_munmap(header, 4096);
+				_dl_munmap(header, PAGE_SIZE);
 				return NULL;
 			};
 
@@ -627,7 +627,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_internal_error_number = LD_ERROR_NODYNAMIC;
 		_dl_dprintf(2, "%s: '%s' is missing a dynamic section\n", 
 			_dl_progname, libname);
-			_dl_munmap(header, 4096);
+			_dl_munmap(header, PAGE_SIZE);
 		return NULL;
 	}
 
@@ -730,7 +730,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	}
 #endif
-	_dl_munmap(header, 4096);
+	_dl_munmap(header, PAGE_SIZE);
 
 	return tpnt;
 }
@@ -784,7 +784,7 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 	char *start, *ptr, *string;
 	static char *buf;
 
-	buf = _dl_mmap((void *) 0, 4096, PROT_READ | PROT_WRITE,
+	buf = _dl_mmap((void *) 0, PAGE_SIZE, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 	if (_dl_mmap_check_error(buf)) {
 			_dl_write(fd, "mmap of a spare page failed!\n", 29); 
@@ -796,7 +796,7 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 	if (!fmt)
 		return;
 
-	if (_dl_strlen(fmt) >= (4096 - 1)) {
+	if (_dl_strlen(fmt) >= (PAGE_SIZE - 1)) {
 		_dl_write(fd, "overflow\n", 11);
 		_dl_exit(20);
 	}
@@ -854,7 +854,7 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 			start = NULL;
 		}
 	}
-	_dl_munmap(buf, 4096);
+	_dl_munmap(buf, PAGE_SIZE);
 	return;
 }
 
@@ -883,7 +883,7 @@ void *_dl_malloc(int size)
 	if (_dl_malloc_function)
 		return (*_dl_malloc_function) (size);
 
-	if (_dl_malloc_addr - _dl_mmap_zero + size > 4096) {
+	if (_dl_malloc_addr - _dl_mmap_zero + size > PAGE_SIZE) {
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 		_dl_dprintf(2, "malloc: mmapping more memory\n");
 #endif

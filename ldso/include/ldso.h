@@ -9,3 +9,5 @@
 #include <ld_syscall.h>
 #include <ld_hash.h>
 #include <ld_string.h>
+/* Pull in the arch specific page size */
+#include <asm/page.h>
