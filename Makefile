@@ -195,7 +195,7 @@ install_dev:
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod -f 755 $$i; chmod -f 644 $$i/*.h; \
 	done;
-	(NAME=`whoami`; chown -R $$NAME.$$NAME $(PREFIX)$(DEVEL_PREFIX))
+	(NAME=`id -u`; GROUP=`id -g`; chown -R $$NAME.$$GROUP $(PREFIX)$(DEVEL_PREFIX))
 ifeq ($(strip $(HAVE_SHARED)),true)
 	find lib/ -type l -name '*.so' -exec cp -a {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
 endif
@@ -215,7 +215,7 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(DEVEL_PREFIX)/lib; \
 	    mkdir -p $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
 	    ln -s $(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so \
-	    		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) || true; \
+			$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) || true; \
 	fi;
 endif
 
