@@ -82,6 +82,8 @@ headers: dummy
 	    ln -fs mips mipsel; \
 	    cd $(PWD)/ldso/ldso; \
 	    ln -fs mips mipsel; \
+	    cd $(PWD)/libpthread/linuxthreads/sysdeps; \
+	    ln -fs mips mipsel; \
 	elif [ $(TARGET_ARCH) = "h8300" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-h8300 include/asm; \
 	else \
