@@ -1384,8 +1384,6 @@ size_t iconv(iconv_t cd, char **__restrict inbuf,
 					goto ILLEGAL;
 				}
 			}
-		} else {
-			fprintf(stderr, "ARG!! %d\n", px->fromcodeset);
 		}
 
 
