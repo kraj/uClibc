@@ -69,7 +69,7 @@ finished: shared
 	@echo
 
 headers: dummy
-	@- find include -type l -exec rm -f {} \;
+	rm -f include/asm;
 	@if [ $(TARGET_ARCH) = "powerpc" ];then \
 	    ln -fs $(KERNEL_SOURCE)/include/asm-ppc include/asm; \
 	elif [ $(TARGET_ARCH) = "v850" ];then \
@@ -107,7 +107,8 @@ headers: dummy
 	    echo " "; \
 	    sleep 10; \
 	fi;
-	@ln -fs $(KERNEL_SOURCE)/include/linux include/linux
+	rm -f include/linux
+	ln -fs $(KERNEL_SOURCE)/include/linux include/linux
 	rm -rf include/bits
 	mkdir -p include/bits
 	@cd include/bits; \
