@@ -38,10 +38,10 @@ choice
 	  that uClibc will work at all....
 
 	  Here are the available choices:
-	  - "SH2" Hitachi SH2
-	  - "SH3" Hitachi SH3
-	  - "SH4" Hitachi SH4
-	  - "SH5" SH-5 101, 103
+	  - "SH2" SuperH SH-2
+	  - "SH3" SuperH SH-3
+	  - "SH4" SuperH SH-4
+	  - "SH5" SuperH SH-5 101, 103
 
 config CONFIG_SH2
 	select ARCH_HAS_NO_MMU

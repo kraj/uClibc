@@ -196,14 +196,14 @@ typedef struct
 #define EM_RCE		39		/* Motorola RCE */
 #define EM_ARM		40		/* ARM */
 #define EM_FAKE_ALPHA	41		/* Digital Alpha */
-#define EM_SH		42		/* Hitachi SH */
+#define EM_SH		42		/* Renesas SH */
 #define EM_SPARCV9	43		/* SPARC v9 64-bit */
 #define EM_TRICORE	44		/* Siemens Tricore */
 #define EM_ARC		45		/* Argonaut RISC Core */
-#define EM_H8_300	46		/* Hitachi H8/300 */
-#define EM_H8_300H	47		/* Hitachi H8/300H */
-#define EM_H8S		48		/* Hitachi H8S */
-#define EM_H8_500	49		/* Hitachi H8/500 */
+#define EM_H8_300	46		/* Renesas H8/300 */
+#define EM_H8_300H	47		/* Renesas H8/300H */
+#define EM_H8S		48		/* Renesas H8S */
+#define EM_H8_500	49		/* Renesas H8/500 */
 #define EM_IA_64	50		/* Intel Merced */
 #define EM_MIPS_X	51		/* Stanford MIPS-X */
 #define EM_COLDFIRE	52		/* Motorola Coldfire */
@@ -241,7 +241,7 @@ typedef struct
 #define EM_D10V		85		/* Mitsubishi D10V */
 #define EM_D30V		86		/* Mitsubishi D30V */
 #define EM_V850		87		/* NEC v850 */
-#define EM_M32R		88		/* Mitsubishi M32R */
+#define EM_M32R		88		/* Renesas M32R */
 #define EM_MN10300	89		/* Matsushita MN10300 */
 #define EM_MN10200	90		/* Matsushita MN10200 */
 #define EM_PJ		91		/* picoJava */
