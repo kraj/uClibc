@@ -130,6 +130,10 @@ INCLUDE_RPC = false
 # Protocol: IP version 6, enable this.  This is off by default.
 INCLUDE_IPV6 = false
 
+# If you want to include threads support, enable this.  The C library will
+# be compiled thread-safe, and the libpthread library will be built.
+INCLUDE_THREADS = true
+
 # If you want to support only Unix 98 PTYs enable this.  Some older
 # applications may need this disabled.  For most current programs, 
 # you can generally leave this true.
@@ -143,7 +147,7 @@ ASSUME_DEVPTS = true
 
 # If you want to compile the library as PIC code, turn this on.
 # This is automagically enabled when HAVE_SHARED is true
-DOPIC = true
+DOPIC = false
 
 # Enable support for shared libraries?  If this is false, you can
 # ignore all the rest of the options in this file...
