@@ -171,7 +171,7 @@ _syscall3(int, lchown, const char *, path, uid_t, owner, gid_t, group);
 #ifdef L___libc_lseek
 #include <unistd.h>
 #define __NR___libc_lseek __NR_lseek
-_syscall3(off_t, __libc_lseek, int, fildes, off_t, offset, int, whence);
+_syscall3(__off_t, __libc_lseek, int, fildes, __off_t, offset, int, whence);
 weak_alias(__libc_lseek, lseek)
 #endif
 
@@ -689,13 +689,13 @@ _syscall2(int, munmap, void *, start, size_t, length);
 //#define __NR_truncate         92
 #ifdef L_truncate
 #include <unistd.h>
-_syscall2(int, truncate, const char *, path, off_t, length);
+_syscall2(int, truncate, const char *, path, __off_t, length);
 #endif
 
 //#define __NR_ftruncate        93
 #ifdef L_ftruncate
 #include <unistd.h>
-_syscall2(int, ftruncate, int, fd, off_t, length);
+_syscall2(int, ftruncate, int, fd, __off_t, length);
 #endif
 
 //#define __NR_fchmod           94
@@ -1039,21 +1039,21 @@ _syscall1(int, setfsgid, gid_t, gid);
 //#define __NR__llseek          140
 #ifdef L__llseek
 #ifdef __UCLIBC_HAVE_LFS__
-extern int _llseek(int fd, off_t offset_hi, off_t offset_lo, 
-		loff_t *result, int whence);
+extern int _llseek(int fd, __off_t offset_hi, __off_t offset_lo, 
+		l__off_t *result, int whence);
 
-_syscall5(int, _llseek, int, fd, off_t, offset_hi, off_t, offset_lo, 
-		loff_t *, result, int, whence);
+_syscall5(int, _llseek, int, fd, __off_t, offset_hi, __off_t, offset_lo, 
+		l__off_t *, result, int, whence);
 
-loff_t __libc_lseek64(int fd, loff_t offset, int whence)
+l__off_t __libc_lseek64(int fd, l__off_t offset, int whence)
 {
 	int ret;
-	loff_t result;
+	l__off_t result;
 
-	ret = _llseek(fd, (off_t) (offset >> 32),
-				  (off_t) (offset & 0xffffffff), &result, whence);
+	ret = _llseek(fd, (__off_t) (offset >> 32),
+				  (__off_t) (offset & 0xffffffff), &result, whence);
 
-	return ret ? (loff_t) ret : result;
+	return ret ? (l__off_t) ret : result;
 }
 weak_alias(__libc_lseek64, llseek);
 weak_alias(__libc_lseek64, lseek64);
@@ -1331,7 +1331,7 @@ int sigsuspend (const sigset_t *mask)
 #define _XOPEN_SOURCE 500
 #include <unistd.h>
 #define __NR___libc_pread __NR_pread
-_syscall4(ssize_t, __libc_pread, int, fd, void *, buf, size_t, count, off_t, offset);
+_syscall4(ssize_t, __libc_pread, int, fd, void *, buf, size_t, count, __off_t, offset);
 weak_alias (__libc_pread, pread)
 #endif
 
@@ -1340,7 +1340,7 @@ weak_alias (__libc_pread, pread)
 #define _XOPEN_SOURCE 500
 #include <unistd.h>
 #define __NR___libc_pwrite __NR_pwrite
-_syscall4(ssize_t, __libc_pwrite, int, fd, const void *, buf, size_t, count, off_t, offset);
+_syscall4(ssize_t, __libc_pwrite, int, fd, const void *, buf, size_t, count, __off_t, offset);
 weak_alias (__libc_pwrite, pwrite)
 #endif
 
@@ -1392,7 +1392,7 @@ _syscall2(int, sigaltstack, const struct sigaltstack *, ss, struct sigaltstack *
 #ifdef L_sendfile
 #include <unistd.h>
 #include <sys/sendfile.h>
-_syscall4(ssize_t,sendfile, int, out_fd, int, in_fd, off_t *, offset, size_t, count)
+_syscall4(ssize_t,sendfile, int, out_fd, int, in_fd, __off_t *, offset, size_t, count)
 #endif
 #endif
 
