@@ -321,6 +321,7 @@ void *mempcpy(void *dst, const void *src, size_t len)
 
 	return (void *) a;
 }
+weak_alias(mempcpy, __mempcpy);
 #endif
 
 /********************** Function memccpy ************************************/
