@@ -35,6 +35,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
+#include <endian.h>
 
 
 //#define __NR_exit             1

@@ -764,7 +764,7 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 	int n;
 	int argtype[MAX_ARGS_PER_SPEC+2];
 	int argnumber[3];			/* width, precision, 1st data arg */
-	unsigned int conv_num;
+	unsigned int conv_num = 0;
 	static const char spec_flags[] = SPEC_FLAGS;
 	static const char spec_chars[] = SPEC_CHARS;/* TODO: b? */
 	static const char spec_ranges[] = SPEC_RANGES;

@@ -111,8 +111,8 @@ P5   =  4.13813679705723846039e-08; /* 0x3E663769, 0x72BEA4D0 */
 #endif
 {
 	double y;
-	double hi = 0;
-	double lo = 0;
+	double hi = 0.0;
+	double lo = 0.0;
 	double c;
 	double t;
 	int32_t k=0;
