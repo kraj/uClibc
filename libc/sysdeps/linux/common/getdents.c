@@ -27,7 +27,7 @@
 
 #include <sysdep.h>
 
-#include <bits/posix_types.h>
+typedef long __kernel_off_t;
 
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
