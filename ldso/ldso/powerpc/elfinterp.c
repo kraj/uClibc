@@ -198,13 +198,17 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 			(unsigned long)tpnt->loadaddr;
 		lbranch_addr = plt_addr + PLT_LONGBRANCH_ENTRY_WORDS*4;
 		delta = lbranch_addr - insn_addr;
-		index = (insn_addr - plt_addr - PLT_INITIAL_ENTRY_WORDS*4)/2;
+		index = (insn_addr - plt_addr - PLT_INITIAL_ENTRY_WORDS*4)/8;
 
 		ptr = (unsigned long *)tpnt->data_words;
 		DPRINTF("plt_addr=%x delta=%x index=%x ptr=%x\n",
 			plt_addr, delta, index, ptr);
 		ptr[index] = targ_addr;
-		PPC_SYNC;
+		/* icache sync is not necessary, since this will be a data load */
+		//PPC_DCBST(ptr+index);
+		//PPC_SYNC;
+		//PPC_ICBI(ptr+index);
+		//PPC_ISYNC;
 		insns[1] = OPCODE_B(delta - 4);
 	}
 
@@ -212,6 +216,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	PPC_DCBST(insn_addr);
 	PPC_SYNC;
 	PPC_ICBI(insn_addr);
+	PPC_ISYNC;
 
 	return targ_addr;
 }
