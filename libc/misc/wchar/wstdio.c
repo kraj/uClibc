@@ -1,3 +1,31 @@
+/*  Copyright (C) 2002     Manuel Novoa III
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Library General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Library General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Library General Public
+ *  License along with this library; if not, write to the Free
+ *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
+/*  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!
+ *
+ *  Besides uClibc, I'm using this code in my libc for elks, which is
+ *  a 16-bit environment with a fairly limited compiler.  It would make
+ *  things much easier for me if this file isn't modified unnecessarily.
+ *  In particular, please put any new or replacement functions somewhere
+ *  else, and modify the makefile to use your version instead.
+ *  Thanks.  Manuel
+ *
+ *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
+
 
 /*
  * ANSI/ISO C99 says
@@ -260,41 +288,6 @@ UNLOCKED(wchar_t *,fgetws,(wchar_t *__restrict ws, int n,
 
 UNLOCKED(wint_t,fputwc,(wchar_t wc, FILE *stream),(wc, stream))
 {
-#if 0
-	size_t r;
-	char buf[MB_LEN_MAX];
-
-	if (stream->modeflags & __FLAG_NARROW) {
-		stream->modeflags |= __FLAG_ERROR;
-		__set_errno(EBADF);
-		return WEOF;
-	}
-	stream->modeflags |= __FLAG_WIDE;
-
-	/* TODO:
-	 * If stream is in reading state with bad mbstate object, what to do?
-	 * Should we check the state first?  Should we check error indicator?
-	 * Should we check reading or even read-only?
-	 */
-	/* It looks like the only ANSI/ISO C99 - blessed way of manipulating
-	 * the stream's mbstate object is through fgetpos/fsetpos. */
-	r = wcrtomb(buf, wc, &stream->state);
-
-	return (r != ((size_t) -1) && (r == _stdio_fwrite(buf, r, stream)))
-		? wc : WEOF;
-
-#elif 0
-
-	/* this is broken if wc == 0 !!! */
-	wchar_t wbuf[2];
-
-	wbuf[0] = wc;
-	wbuf[1] = 0;
-
-	return (fputws_unlocked(wbuf, stream) > 0) ? wc : WEOF;
-
-#else
-
 	size_t n;
 	char buf[MB_LEN_MAX];
 
@@ -308,8 +301,6 @@ UNLOCKED(wint_t,fputwc,(wchar_t wc, FILE *stream),(wc, stream))
 	return (((n = wcrtomb(buf, wc, &stream->state)) != ((size_t)-1)) /* EILSEQ */
 			&& (_stdio_fwrite(buf, n, stream) != n))/* Didn't write everything. */
 		? wc : WEOF;
-
-#endif
 }
 
 strong_alias(fputwc_unlocked,putwc_unlocked);
@@ -333,7 +324,6 @@ UNLOCKED_STREAM(wint_t,putwchar,(wchar_t wc),(wc),stdout)
 UNLOCKED(int,fputws,(const wchar_t *__restrict ws,
 					 register FILE *__restrict stream),(ws, stream))
 {
-#if 1
 	size_t n;
 	char buf[64];
 
@@ -357,125 +347,6 @@ UNLOCKED(int,fputws,(const wchar_t *__restrict ws,
 	}
 
 	return 1;
-
-
-
-
-#elif 1
-	int result;
-	size_t n;
-	size_t len;
-	register char *s;
-	unsigned char *bufend;
-	char sbuf[MB_LEN_MAX];
-
-	if (stream->modeflags & __FLAG_NARROW) {
-	RETURN_BADF:
-		stream->modeflags |= __FLAG_ERROR;
-		__set_errno(EBADF);
-		return -1;
-	}
-	stream->modeflags |= __FLAG_WIDE;
-
-	/* Note: What follows is setup grabbed from _stdio_fwrite and modified
-	 * slightly.  Since this is a wide stream, we can ignore bufgetc and
-	 * bufputc if present.  They always == bufstart.
-	 * It is unfortunate that we need to duplicate so much code here, but
-	 * we need to do the stream setup before starting the wc->mb conversion. */
-
-	if ((stream->modeflags & __FLAG_READONLY)
-#ifndef __STDIO_AUTO_RW_TRANSITION
-	/* ANSI/ISO requires either at EOF or currently not reading. */
-		|| ((stream->modeflags & (__FLAG_READING|__FLAG_EOF))
-			== __FLAG_READING)
-#endif /* __STDIO_AUTO_RW_TRANSITION */
-		) {
-		/* TODO: This is for posix behavior if readonly.  To save space, we
-		 * use this errno for write attempt while reading, as no errno is
-		 * specified by posix for this case, even though the restriction is
-		 * mentioned in fopen(). */
-		goto RETURN_BADF;
-	}
-
-#ifdef __STDIO_AUTO_RW_TRANSITION
-	/* If reading, deal with ungots and read-buffered chars. */
-	if (stream->modeflags & __FLAG_READING) {
-		if (((stream->bufpos < stream->bufread)
-			 || (stream->modeflags & __MASK_UNGOT))
-			/* If appending, we might as well seek to end to save a seek. */
-			/* TODO: set EOF in fseek when appropriate? */
-			&& fseek(stream, 0L, 
-					 ((stream->modeflags & __FLAG_APPEND)
-					  ? SEEK_END : SEEK_CUR))
-			) {
-			/* Note: This differs from glibc's apparent behavior of
-			   not setting the error flag and discarding the buffered
-			   read data. */
-			stream->modeflags |= __FLAG_ERROR; /* fseek may not set this. */
-			return -1;			/* Fail if we need to fseek but can't. */
-		}
-		/* Always reset even if fseek called (saves a test). */
-		stream->bufpos = stream->bufread = stream->bufstart;
-		stream->modeflags &= ~__FLAG_READING;
-	}
-#endif
-
-	/* Ok, the boilerplate from _stdio_fwrite is done.  */
-
-	if (stream->bufpos > stream->bufstart) { /* Pending writes.. */
-		/* This is a performance penalty, but it simplifies the code below.
-		 * If this is removed, the buffer sharing and while loop condition
-		 * need to be modified below (at least).  We at least save a little
-		 * on the overhead by calling _stdio_fwrite directly instead of
-		 * fflush_unlocked. */
-		if (_stdio_fwrite(NULL, 0, stream) > 0) {/* fflush incomplete! */
-			return -1;
-		}
-	}
-
-	stream->modeflags |= __FLAG_WRITING; /* Ensure Writing flag is set. */
-
-	/* Next, we "steal" the stream's buffer and do the wc->mb conversion
-	 * straight into it.  This will cause the equivalent of an fflush
-	 * for each string write.  :-( */
-	
-	bufend = NULL;
-	s = stream->bufstart;
-
-	if ((len = stream->bufend - stream->bufstart) < MB_LEN_MAX) {
-		/* Stream is unbuffered or buffer is too small, so deactivate. */
-		bufend = stream->bufend;
-		stream->bufend = stream->bufstart;
-		s = sbuf;
-		len = MB_LEN_MAX;
-	}
-
-	result = 1;					/* Assume success. */
-	while (ws && (n = wcsrtombs(s, &ws, len, &stream->state)) != 0) {
-		if ((n == ((size_t) -1)) /* Encoding error! */
-			 /* TODO - maybe call write directly?  but what about custom streams? */
-			 || (_stdio_fwrite(s, n, stream) != n)/* Didn't write everything. */
-			 ) {
-			result = -1;
-			break;
-		}
-	}
-
-	if (bufend) {				/* If deactivated stream buffer, renable it. */
-		stream->bufend = bufend;
-	}
-
-	return result;
-
-#else  /* slow, dumb version */
-	while (*ws) {
-		if (fputwc_unlocked(*ws, stream) == WEOF) {
-			return -1;
-		}
-		++ws;
-	}
-	return 1;
-#endif
 }
 
 #endif
