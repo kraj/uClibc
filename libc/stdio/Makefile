@@ -49,7 +49,8 @@ MOBJ = fclose.o fflush.o fopen.o freopen.o perror.o remove.o \
 
 MSRC2= printf.c
 MOBJ2=  vsnprintf.o vdprintf.o vasprintf.o vprintf.o vsprintf.o \
-	fprintf.o  snprintf.o  dprintf.o  asprintf.o  printf.o  sprintf.o
+	fprintf.o  snprintf.o  dprintf.o  asprintf.o  printf.o  sprintf.o \
+	_store_inttype.o
 
 MSRC3=scanf.c
 MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o \
@@ -64,8 +65,7 @@ endif
 
 ifneq ($(USE_OLD_VFPRINTF),y)
 	MOBJ2 += _ppfs_init.o _ppfs_prepargs.o _ppfs_setargs.o \
-		 _ppfs_parsespec.o vfprintf.o \
-		 _store_inttype.o _load_inttype.o \
+		 _ppfs_parsespec.o vfprintf.o _load_inttype.o \
 		 register_printf_function.o parse_printf_format.o
 endif
 
