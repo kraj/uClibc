@@ -4,7 +4,6 @@
 #
 mainmenu "uClibc C Library Configuration"
 
-
 choice
 	prompt "Target Architecture"
 	default TARGET_i386
@@ -1310,6 +1309,12 @@ config UCLIBC_MALLOC_DEBUGGING
 
 	  Because this increases the size of malloc appreciably (due to strings
 	  etc), you should say N unless you need to debug a malloc problem.
+
+config WARNINGS
+	string "Compiler Warnings"
+	default "-Wall"
+	help
+	  Set this to the set of gcc warnings you wish to see while compiling.
 
 config UCLIBC_MJN3_ONLY
 	bool "Manuel's hidden warnings"

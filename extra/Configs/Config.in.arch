@@ -80,12 +80,6 @@ config DO_C99_MATH
 	  If your applications require the newer C99 math library functions, 
 	  then answer Y.
 
-config WARNINGS
-	string "Compiler Warnings"
-	default "-Wall"
-	help
-	  Set this to the set of gcc warnings you wish to see while compiling.
-
 config KERNEL_SOURCE
 	string "Linux kernel header location"
 	default "/usr/src/linux"
