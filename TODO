@@ -34,18 +34,12 @@ Other random things:
 
 -----------------------------------------------------------------------------
 Manuel's todo:
+
+Wrap up the current work on locale issues, finish the mb<->wc functions.
     
 Implement wide unformatted i/o.  (current project)
 
 Implement wide formatted output (printf).
-
-Update the strto* funcs to my current versions to remove the dependency
-    on the long long support funcs from libgcc.a.
-
-Update some other stdlib and (possibly) string funcs.
-
-Update the ctype code to my latest stuff... smaller plus supports new isblank()
-    for locales while still keeping byte table entries.
 
 Reimplement scanf for narrow and wide streams.
 
