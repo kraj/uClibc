@@ -19,6 +19,14 @@ config ARCH_LDFLAGS
 config LIBGCC_CFLAGS
 	string
 
+config ARCH_SUPPORTS_BIG_ENDIAN
+	bool
+	default y
+
+config ARCH_SUPPORTS_LITTLE_ENDIAN
+	bool
+	default y
+
 choice
 	prompt "Target Processor Type"
 	default CONFIG_GENERIC_ARM
