@@ -25,8 +25,7 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 CSRC=__getpwent.c pwent.c getpwnam.c getpwuid.c putpwent.c getpw.c fgetpwent.c \
-	__getgrent.c grent.c getgrnam.c getgrgid.c fgetgrent.c initgroups.c \
-	utent.c getpass.c
+	__getgrent.c grent.c getgrnam.c getgrgid.c fgetgrent.c initgroups.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 

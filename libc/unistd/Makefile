@@ -26,7 +26,7 @@ LIBC=$(TOPDIR)libc.a
 
 
 CSRC=execl.c execlp.c execv.c execvep.c execvp.c getcwd.c getopt.c \
-	sleep.c sysconf.c
+	sleep.c sysconf.c getpass.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
