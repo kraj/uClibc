@@ -32,98 +32,117 @@
 
 #include "stdio.h"
 
+
+
+extern int vfnprintf(FILE *op, size_t max_size, register __const char *fmt, register va_list ap);
+
+
+
+
 #ifdef L_printf
-
-#ifdef __STDC__
 int printf(const char * fmt, ...)
-#else
-int printf(fmt, va_alist)
-__const char *fmt;
-va_dcl
-#endif
 {
-  va_list ptr;
-  int rv;
+    va_list ptr;
+    int rv;
 
-  va_strt(ptr, fmt);
-  rv = vfprintf(stdout,fmt,ptr);
-  va_end(ptr);
-  return rv;
+    va_strt(ptr, fmt);
+    rv = vfnprintf(stdout, -1, fmt, ptr);
+    va_end(ptr);
+    return rv;
 }
 #endif
 
 #ifdef L_sprintf
-#ifdef __STDC__
 int sprintf(char * sp, const char * fmt, ...)
-#else
-int sprintf(sp, fmt, va_alist)
-char * sp;
-__const char *fmt;
-va_dcl
-#endif
 {
-static FILE  string[1] =
-{
-   {0, 0, (char*)(unsigned) -1, 0, (char*) (unsigned) -1, -1,
-    _IOFBF | __MODE_WRITE}
-};
+    static FILE  string[1] =
+    {
+	{0, 0, (char*)(unsigned) -1, 0, (char*) (unsigned) -1, -1,
+	    _IOFBF | __MODE_WRITE}
+    };
 
-  va_list ptr;
-  int rv;
-  va_strt(ptr, fmt);
-  string->bufpos = sp;
-  rv = vfprintf(string,fmt,ptr);
-  va_end(ptr);
-  *(string->bufpos) = 0;
-  return rv;
+    va_list ptr;
+    int rv;
+    va_strt(ptr, fmt);
+    string->bufpos = sp;
+    rv = vfnprintf(string, -1, fmt, ptr);
+    va_end(ptr);
+    *(string->bufpos) = 0;
+    return rv;
+}
+#endif
+
+
+#ifdef L_snprintf
+int snprintf(char * sp, size_t size, const char * fmt, ...)
+{
+    static FILE  string[1] =
+    {
+	{0, 0, (char*)(unsigned) -1, 0, (char*) (unsigned) -1, -1,
+	    _IOFBF | __MODE_WRITE}
+    };
+
+    va_list ptr;
+    int rv;
+    va_strt(ptr, fmt);
+    string->bufpos = sp;
+    rv = vfnprintf(string, size, fmt, ptr);
+    va_end(ptr);
+    *(string->bufpos) = 0;
+    return rv;
 }
 #endif
 
 #ifdef L_fprintf
-#ifdef __STDC__
 int fprintf(FILE * fp, const char * fmt, ...)
-#else
-int fprintf(fp, fmt, va_alist)
-FILE * fp;
-__const char *fmt;
-va_dcl
-#endif
 {
-  va_list ptr;
-  int rv;
-  va_strt(ptr, fmt);
-  rv = vfprintf(fp,fmt,ptr);
-  va_end(ptr);
-  return rv;
+    va_list ptr;
+    int rv;
+    va_strt(ptr, fmt);
+    rv = vfnprintf(fp, -1, fmt, ptr);
+    va_end(ptr);
+    return rv;
 }
 #endif
 
 #ifdef L_vprintf
-int vprintf(fmt, ap)
-__const char *fmt;
-va_list ap;
+int vprintf(const char * fmt, va_list ap)
 {
-  return vfprintf(stdout,fmt,ap);
+    return vfprintf(stdout,fmt,ap);
 }
 #endif
 
 #ifdef L_vsprintf
-int vsprintf(sp, fmt, ap)
-char * sp;
-__const char *fmt;
-va_list ap;
+int vsprintf( char * sp, __const char *fmt, va_list ap)
 {
-static FILE  string[1] =
-{
-   {0, 0, (char*)(unsigned) -1, 0, (char*) (unsigned) -1, -1,
-    _IOFBF | __MODE_WRITE}
-};
+    static FILE  string[1] =
+    {
+	{0, 0, (char*)(unsigned) -1, 0, (char*) (unsigned) -1, -1,
+	    _IOFBF | __MODE_WRITE}
+    };
 
-  int rv;
-  string->bufpos = sp;
-  rv = vfprintf(string,fmt,ap);
-  *(string->bufpos) = 0;
-  return rv;
+    int rv;
+    string->bufpos = sp;
+    rv = vfnprintf(string, -1, fmt, ap);
+    *(string->bufpos) = 0;
+    return rv;
+}
+#endif
+
+#ifdef L_vsprintf
+int vsnprintf( char * sp, size_t size, __const char *fmt, va_list ap)
+{
+    static FILE  string[1] =
+    {
+	{0, 0, (char*)(unsigned) -1, 0, (char*) (unsigned) -1, -1,
+	    _IOFBF | __MODE_WRITE}
+    };
+
+    int rv;
+    string->bufpos = sp;
+    rv = vfnprintf(string, size, fmt, ap);
+    *(string->bufpos) = 0;
+    return rv;
 }
 #endif
 
@@ -136,7 +155,7 @@ int _vfprintf_fp_ref = 0;
 #endif
 
 static int
-prtfld(op, buf, ljustf, sign, pad, width, preci, buffer_mode)
+printfield(op, buf, ljustf, sign, pad, width, preci, buffer_mode, max_size, current_size)
 register FILE *op;
 register unsigned char *buf;
 int   ljustf;
@@ -145,6 +164,8 @@ char  pad;
 register int width;
 int   preci;
 int   buffer_mode;
+size_t max_size;
+size_t current_size;
 /*
  * Output the given field in the manner specified by the arguments. Return
  * the number of characters output.
@@ -198,18 +219,18 @@ int   buffer_mode;
 	 ch = pad;		/* right padding */
 	 --width;
       }
-      putc(ch, op);
+      current_size++;
+      if (max_size>0 && current_size < max_size)
+	  putc(ch, op);
       if( ch == '\n' && buffer_mode == _IOLBF ) fflush(op);
    }
 
    return (cnt);
 }
 
-int
-vfprintf(op, fmt, ap)
-FILE *op;
-register __const char *fmt;
-register va_list ap;
+
+
+int vfnprintf(FILE *op, size_t max_size, register __const char *fmt, register va_list ap)
 {
    register int i, cnt = 0, ljustf, lval;
    int   preci, dpoint, width;
@@ -342,8 +363,8 @@ register va_list ap;
 	    sign = '\0';
 	    pad = ' ';
 	  printit:
-	    cnt += prtfld(op, ptmp, ljustf,
-			   sign, pad, width, preci, buffer_mode);
+	    cnt += printfield(op, ptmp, ljustf, sign, pad, width, 
+		    preci, buffer_mode, max_size, cnt);
 	    break;
 
 #if FLOATS
@@ -373,8 +394,8 @@ register va_list ap;
       else
       {
        charout:
-	 putc(*fmt, op);	/* normal char out */
-	 ++cnt;
+	 if (max_size>0 && ++cnt<max_size)
+	     putc(*fmt, op);	/* normal char out */
          if( *fmt == '\n' && buffer_mode == _IOLBF ) fflush(op);
       }
       ++fmt;
@@ -384,4 +405,11 @@ register va_list ap;
    if( buffer_mode == _IOLBF ) op->bufwrite = op->bufstart;
    return (cnt);
 }
+
+int vfprintf(FILE *op, register __const char *fmt, register va_list ap)
+{
+    return(vfnprintf(op, -1, fmt, ap));
+}
+
 #endif
+
