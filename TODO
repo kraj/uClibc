@@ -19,42 +19,41 @@ Erik's TODO list for the next release:
 Manuel's todo:
 
 I'm currently working on completing the wide char and locale support.
-Right now i'm looking at collation.  Other tasks on my list include:
 
   1) Little things that need fixing:
   ----------------------------------
+  *) Fix bugs in *printf:  wprintf %ls bug ; outdigit precison bug
   a) Use locale decimal point in *printf() and strto*d() -- slightly
      complicated by the fact that at least one locale uses a wchar
      radix that does not map to a single byte in UTF-8.
   b) Use locale digit grouping in *printf() flosting point.
   c) Deal with mb format string issues in scanf and strftime (at least).
+  d) Support gnu/bsd extension members tm_gmtoff and tm_zone in struct tm.
   
-  2) Implement wide char numeric conversion functions -- wcsto*().
-  ----------------------------------------------------------------
-     These should be relatively minor modifications to the corresponding
-     strto*() functions, unless locale specific alternate digit support
-     is desired.
+  2) Implement wide char floating point conversion functions -- wcsto*().
   
-  4) Reimplement scanf for narrow and wide streams.
+  3) Reimplement scanf for narrow and wide streams.
   -------------------------------------------------
      The current char version of scanf() needs some cleanup.  Also,
      modifying the char version of scanf() to create the wchar versions
      will require reworking the implementation of matching char sets
      (enclosed in []).
   
-  5) Additional str{f|p}time issues.
+  4) Additional str{f|p}time issues.
   ----------------------------------
-     Support locale specific alternate digits.
-     Support locale era in year designations.
+  a) Spacing issue wrt strptime.
+  b) Support locale specific alternate digits.  (data is in place)
+  c) Support locale era in year designations.   (data is in place)
   
-  6) Other locale issues (my implementation):
+  5) Other locale issues (my implementation):
   -------------------------------------------
-  a) Clean up locale code to make building easier.  Fix alt_digits.
-     (Note: This is only _clean_up_ of the current stuff in extra/locale
-      so that it can be cross-compiled, etc.  I'm not talking about the
-      complete rewrite that should really be done.)
-  b) Additional clean up of ctype and wctype.
-  c) Implement collation support for char and wchar -- *xfrm() and *coll().
+  a) Additional clean up of ctype and wctype, primarily to allow for mmap'd
+     locales and updateable locale data.
+  b) Build a C-only locale object for linking and allow full locale data to
+     be mmap'd in later, to allow updating and to make locale support useful
+     for staticly linked apps.
+  c) Adapt regex lib to use my collation data and add the necessary collating
+     item tables to support SUSv3 required features.
   d) transliteration of unsupported wchars in 8-bit locales (like glibc).
   e) Support ISO/IEC 14652 draft locale extensions (LC_PAPER, etc).
 
