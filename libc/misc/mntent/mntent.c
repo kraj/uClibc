@@ -4,15 +4,18 @@
 #include <mntent.h>
 
 
-
-struct mntent *getmntent(FILE * filep)
+/* Reentrant version of the above function.  */
+struct mntent *getmntent_r (FILE *filep, 
+	struct mntent *mnt, char *buff, int bufsize)
 {
 	char *cp, *sep = " \t\n";
-	static char buff[BUFSIZ];
-	static struct mntent mnt;
+	static char *ptrptr = 0;
+
+	if (!filep || !mnt || !buff)
+	    return NULL;
 
 	/* Loop on the file, skipping comment lines. - FvK 03/07/93 */
-	while ((cp = fgets(buff, sizeof buff, filep)) != NULL) {
+	while ((cp = fgets(buff, bufsize, filep)) != NULL) {
 		if (buff[0] == '#' || buff[0] == '\n')
 			continue;
 		break;
@@ -24,29 +27,42 @@ struct mntent *getmntent(FILE * filep)
 	if (cp == NULL)
 		return NULL;
 
-	mnt.mnt_fsname = strtok(buff, sep);
-	if (mnt.mnt_fsname == NULL)
+	ptrptr = 0;
+	mnt->mnt_fsname = strtok_r(buff, sep, &ptrptr);
+	if (mnt->mnt_fsname == NULL)
 		return NULL;
 
-	mnt.mnt_dir = strtok(NULL, sep);
-	if (mnt.mnt_dir == NULL)
+	ptrptr = 0;
+	mnt->mnt_dir = strtok_r(NULL, sep, &ptrptr);
+	if (mnt->mnt_dir == NULL)
 		return NULL;
 
-	mnt.mnt_type = strtok(NULL, sep);
-	if (mnt.mnt_type == NULL)
+	ptrptr = 0;
+	mnt->mnt_type = strtok_r(NULL, sep, &ptrptr);
+	if (mnt->mnt_type == NULL)
 		return NULL;
 
-	mnt.mnt_opts = strtok(NULL, sep);
-	if (mnt.mnt_opts == NULL)
-		mnt.mnt_opts = "";
+	ptrptr = 0;
+	mnt->mnt_opts = strtok_r(NULL, sep, &ptrptr);
+	if (mnt->mnt_opts == NULL)
+		mnt->mnt_opts = "";
 
-	cp = strtok(NULL, sep);
-	mnt.mnt_freq = (cp != NULL) ? atoi(cp) : 0;
+	ptrptr = 0;
+	cp = strtok_r(NULL, sep, &ptrptr);
+	mnt->mnt_freq = (cp != NULL) ? atoi(cp) : 0;
 
-	cp = strtok(NULL, sep);
-	mnt.mnt_passno = (cp != NULL) ? atoi(cp) : 0;
+	ptrptr = 0;
+	cp = strtok_r(NULL, sep, &ptrptr);
+	mnt->mnt_passno = (cp != NULL) ? atoi(cp) : 0;
 
-	return &mnt;
+	return mnt;
+}
+
+struct mntent *getmntent(FILE * filep)
+{
+    static char buff[BUFSIZ];
+    static struct mntent mnt;
+    return(getmntent_r(filep, &mnt, buff, sizeof buff));
 }
 
 int addmntent(FILE * filep, const struct mntent *mnt)
