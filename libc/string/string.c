@@ -82,16 +82,18 @@ char *stpcpy(char *dst, const char *src)
 /********************** Function stpncpy ************************************/
 
 #ifdef L_stpncpy
-char *stpncpy(char *dst, const char *src, size_t len)
+char *stpncpy(register char * __restrict s1, 
+		register const char * __restrict s2, size_t n)
 {
-	while (len--) {
-		if (*src)
-			*dst++ = *src++;
-		else
-			*dst++ = '\0';
-	}
+	char *s = s1;
+	const char *p = s2;
 
-	return dst;
+	while (n) {
+		if ((*s = *s2) != 0) s2++; /* Need to fill tail with 0s. */
+		++s;
+		--n;
+	}
+	return s1 + (s2 - p);
 }
 #endif
 
