@@ -90,9 +90,6 @@
 
 #include "ldso.h"
 
-/*  Some arches may need to override this in dl-startup.h */
-#define	ELFMAGIC ELFMAG
-
 /* This is a poor man's malloc, used prior to resolving our internal poor man's malloc */
 #define LD_MALLOC(SIZE) ((void *) (malloc_buffer += SIZE, malloc_buffer - SIZE)) ;  REALIGN();
 
@@ -186,15 +183,14 @@ DL_BOOT(unsigned long args)
 	/* Check the ELF header to make sure everything looks ok.  */
 	if (!header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
 			header->e_ident[EI_VERSION] != EV_CURRENT
-#if !defined(__powerpc__) && !defined(__mips__) && !defined(__sh__)
-			|| _dl_strncmp((void *) header, ELFMAGIC, SELFMAG) != 0
-#else
+			/* Do not use an inline _dl_strncmp here or some arches
+			* will blow chunks, i.e. those that need to relocate all
+			* string constants... */
 			|| header->e_ident[EI_MAG0] != ELFMAG0
 			|| header->e_ident[EI_MAG1] != ELFMAG1
 			|| header->e_ident[EI_MAG2] != ELFMAG2
-			|| header->e_ident[EI_MAG3] != ELFMAG3
-#endif
-	   ) {
+			|| header->e_ident[EI_MAG3] != ELFMAG3)
+	{
 		SEND_STDERR("Invalid ELF header\n");
 		_dl_exit(0);
 	}
