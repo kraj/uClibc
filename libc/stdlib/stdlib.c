@@ -35,12 +35,32 @@
 #include <assert.h>
 #include <unistd.h>
 
-/* Work around gcc's refusal to create aliases. */
+/* Work around gcc's refusal to create aliases. 
+ * TODO: Add in a define to disable the aliases? */
+
+#if UINT_MAX == ULONG_MAX
 #define atoi __ignore_atoi
 #define abs __ignore_abs
+#endif
+#if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+#define llabs __ignore_llabs
+#define atoll __ignore_atoll
+#define strtoll __ignore_strtoll
+#define strtoull __ignore_strtoull
+#endif
+
 #include <stdlib.h>
+
+#if UINT_MAX == ULONG_MAX
 #undef atoi
 #undef abs
+#endif
+#if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+#undef llabs
+#undef atoll
+#undef strtoll
+#undef strtoull
+#endif
 
 extern unsigned long
 _stdlib_strto_l(register const char * __restrict str,
@@ -82,10 +102,7 @@ strong_alias(labs,abs)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-long long int llabs (long long int j)
-{
-	return (j >= 0) ? j : -j;
-}
+strong_alias(labs,llabs)
 #endif
 
 #if ULONG_MAX == UINTMAX_MAX
@@ -136,10 +153,7 @@ strong_alias(atol,atoi)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-long long int atoll (const char *nptr)
-{
-	return strtol(nptr, (char **) NULL, 10);
-}
+strong_alias(atol,atoll)
 #endif
 
 long atol(const char *nptr)
@@ -169,16 +183,14 @@ strong_alias(strtol,strtoimax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-long long int strtoll (__const char *__restrict str, char **__restrict endptr, int base)
-{
-    return _stdlib_strto_l(str, endptr, base, 1);
-}
+strong_alias(strtol,strtoll)
 #endif
 
 long strtol(const char * __restrict str, char ** __restrict endptr, int base)
 {
     return _stdlib_strto_l(str, endptr, base, 1);
 }
+
 #endif
 /**********************************************************************/
 #ifdef L_strtoll
@@ -206,15 +218,11 @@ strong_alias(strtoul,strtoumax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-unsigned long long int strtoull (__const char *__restrict str, 
-	char **__restrict endptr, int base)
-{
-    return _stdlib_strto_l(str, endptr, base, 0);
-}
+strong_alias(strtoul,strtoull)
 #endif
 
-unsigned long strtoul(const char * __restrict str, 
-	char ** __restrict endptr, int base)
+unsigned long strtoul(const char * __restrict str,
+					  char ** __restrict endptr, int base)
 {
     return _stdlib_strto_l(str, endptr, base, 0);
 }
