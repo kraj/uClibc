@@ -2,13 +2,13 @@ Source: uclibc
 Section: devel
 Priority: optional
 Maintainer: David Schleef <ds@schleef.org>
-Build-Depends: debhelper, kernel-headers-2.4
+Build-Depends: debhelper, _KERNEL_
 Standards-Version: 3.5.6
 
 Package: libuclibc-dev_TARGET_
 Section: devel
 Architecture: _ARCHS_
-Depends: libuclibc0_TARGET_ (= ${Source-Version}), ${shlibs:Depends}
+Depends: libuclibc0_TARGET_ (= ${Source-Version})
 Description: A small implementation of the C library
  uClibc is an implementation of the standard C library that is
  much smaller than glibc, which makes it useful for embedded
@@ -18,6 +18,7 @@ Description: A small implementation of the C library
 Package: libuclibc0_TARGET_
 Section: libs
 Architecture: _ARCHS_
+Depends:
 Description: A small implementation of the C library
  uClibc is an implementation of the standard C library that is
  much smaller than glibc, which makes it useful for embedded

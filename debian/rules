@@ -13,6 +13,8 @@ major=$(shell grep '^MAJOR_VERSION' Rules.mak|sed 's/.*=//')
 minor=$(shell grep '^MINOR_VERSION' Rules.mak|sed 's/.*=//')
 version:=$(strip $(major)).$(strip $(minor))
 
+kernel_source=kernel-source-2.4.16
+
 target=$(DEB_HOST_GNU_CPU)
 #target=powerpc
 
@@ -31,14 +33,17 @@ p_gcc=uclibc$(target_suffix)-toolchain
 
 debian/control: debian/control.in debian/rules
 	sed -e s/_TARGET_/$(target_suffix)/ \
-	  -e "s/_ARCHS_/i386 powerpc mipsel sh m68k arm/" \
+	  -e "s/_ARCHS_/arm i386 m68k mips powerpc sh sparc/" \
+	  -e "s/_KERNEL_/$(kernel_source)/" \
 	  debian/control.in >debian/control
 
 build: build-stamp
 build-stamp: debian/control
 	dh_testdir
 
-	# Add here commands to compile the package.
+	# Brute force method of getting kernel headers
+	tar --bzip2 -xf /usr/src/$(kernel_source).tar.bz2 $(kernel_source)/include
+
 	cp extra/Configs/Config.$(target) Config
 
 	echo '#Debian configuration overrides'  >>Config
@@ -54,7 +59,8 @@ endif
 ifeq ($(with_shared_libs),n)
 	echo 'HAVE_SHARED = false' >>Config
 endif
-	echo 'KERNEL_SOURCE = '`echo /usr/src/kernel-headers-*|sed 's/ .*//'` >>Config
+	echo 'KERNEL_SOURCE = '`pwd`/$(kernel_source) >>Config
+	echo 'HAS_MMU = true' >>Config
 
 	$(MAKE)
 
@@ -66,6 +72,8 @@ clean: debian/control
 	rm -f build-stamp
 
 	rm -f debian/$(p_dev)
+
+	rm -rf kernel-source-*
 
 	# Add here commands to clean up after the build process.
 	-$(MAKE) clean
@@ -84,7 +92,7 @@ install: build debian/control
 	# Add here commands to install the package into debian/tmp.
 	$(MAKE) install_dev PREFIX=`pwd`/debian/$(p_dev)
 	$(MAKE) install_runtime PREFIX=`pwd`/debian/$(p_lib)
-	$(MAKE) install_gcc PREFIX=`pwd`/debian/$(p_gcc)
+	$(MAKE) install_toolchain PREFIX=`pwd`/debian/$(p_gcc)
 
 	install -d debian/$(p_gcc)/usr/share/man/man1
 	install -m 644 debian/uclibc-gcc.1 \
@@ -103,6 +111,10 @@ install: build debian/control
 	  debian/$(p_lib)/usr/share/man/man1/$(target)-uclibc-ldconfig.1
 	install -m 644 debian/uclibc-readelf.1 \
 	  debian/$(p_lib)/usr/share/man/man1/$(target)-uclibc-readelf.1
+
+	(cd debian/$(p_dev); find . -name '.*' -exec rm -f '{}' ';')
+	(cd debian/$(p_lib); find . -name '.*' -exec rm -f '{}' ';')
+	(cd debian/$(p_gcc); find . -name '.*' -exec rm -f '{}' ';')
 
 ifeq ($(with_shared_libs),y)
 ifeq ($(target),$(DEB_HOST_GNU_CPU))

@@ -1,3 +1,17 @@
+uclibc (0.9.9-cvs20020210-1) unstable; urgency=low
+
+  * New upstream snapshot.
+  * debian/mksnapshot: updated version and filenames
+  * debian/control.in: changed dependency from kernel-headers to
+      kernel-source.
+  * debian/rules: force HAS_MMU=true
+  * debian/rules: change mipsel to mips
+  * debian/rules: untar kernel-source include directory and use
+      that as kernel source.
+  * Previous 3 lines should fix autobuildability (Closes: #131373)
+
+ -- David Schleef <ds@schleef.org>  Sun, 10 Feb 2002 17:11:22 -0800
+
 uclibc (0.9.5-cvs20011117-1) unstable; urgency=low
 
   * New upstream snaphot
