@@ -175,6 +175,8 @@ void		setprotoent __P((int));
 void		setservent __P((int));
 void		setrpcent __P((int));
 
+#define hstrerror(x) strerror(x)
+
 #if defined(_POSIX_THREAD_SAFE_FUNCTIONS) || defined(_REENTRANT)
 struct hostent	*gethostbyaddr_r __P((const char *__addr,
 			int __length, int __type,
