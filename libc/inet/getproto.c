@@ -75,11 +75,21 @@ static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
 #define	MAXALIASES	35
+#define	SBUFSIZE	(BUFSIZ + 1 + (sizeof(char *) * MAXALIASES))
 
 static FILE *protof = NULL;
 static struct protoent proto;
-static char static_aliases[BUFSIZ+1 + sizeof(char *)*MAXALIASES];
+static char *static_aliases = NULL;
 static int proto_stayopen;
+
+static void __initbuf(void)
+{
+    if (!static_aliases) {
+	static_aliases = malloc(SBUFSIZE);
+	if (!static_aliases)
+	    abort();
+    }
+}
 
 void setprotoent(int f)
 {
@@ -183,7 +193,9 @@ again:
 struct protoent * getprotoent(void)
 {
     struct protoent *result;
-    getprotoent_r(&proto, static_aliases, sizeof(static_aliases), &result);
+
+    __initbuf();
+    getprotoent_r(&proto, static_aliases, SBUFSIZE, &result);
     return result;
 }
 
@@ -216,7 +228,9 @@ found:
 struct protoent * getprotobyname(const char *name)
 {
     struct protoent *result;
-    getprotobyname_r(name, &proto, static_aliases, sizeof(static_aliases), &result);
+
+    __initbuf();
+    getprotobyname_r(name, &proto, static_aliases, SBUFSIZE, &result);
     return result;
 }
 
@@ -242,7 +256,10 @@ int getprotobynumber_r (int proto_num,
 struct protoent * getprotobynumber(int proto_num)
 {
     struct protoent *result;
-    getprotobynumber_r(proto_num, &proto, static_aliases, sizeof(static_aliases), &result);
+
+    __initbuf();
+    getprotobynumber_r(proto_num, &proto, static_aliases,
+                       SBUFSIZE, &result);
     return result;
 }
 

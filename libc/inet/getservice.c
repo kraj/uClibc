@@ -81,11 +81,21 @@ static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 
 #define	MAXALIASES	35
+#define SBUFSIZE	(BUFSIZ + 1 + (sizeof(char *) * MAXALIASES))
 
 static FILE *servf = NULL;
 static struct servent serv;
-static char buf[BUFSIZ+1 + sizeof(char *)*MAXALIASES];
+static char *buf = NULL;
 static int serv_stayopen;
+
+static void __initbuf(void)
+{
+    if (!buf) {
+	buf = malloc(SBUFSIZE);
+	if (!buf)
+	    abort();
+    }
+}
 
 void setservent(int f)
 {
@@ -112,7 +122,9 @@ void endservent(void)
 struct servent * getservent(void)
 {
     struct servent *result;
-    getservent_r(&serv, buf, sizeof(buf), &result);
+
+    __initbuf();
+    getservent_r(&serv, buf, SBUFSIZE, &result);
     return result;
 }
 
@@ -120,7 +132,9 @@ struct servent * getservent(void)
 struct servent *getservbyname(const char *name, const char *proto)
 {
     struct servent *result;
-    getservbyname_r(name, proto, &serv, buf, sizeof(buf), &result);
+
+    __initbuf();
+    getservbyname_r(name, proto, &serv, buf, SBUFSIZE, &result);
     return result;
 }
 
@@ -128,7 +142,9 @@ struct servent *getservbyname(const char *name, const char *proto)
 struct servent * getservbyport(int port, const char *proto)
 {
     struct servent *result;
-    getservbyport_r(port, proto, &serv, buf, sizeof(buf), &result);
+
+    __initbuf();
+    getservbyport_r(port, proto, &serv, buf, SBUFSIZE, &result);
     return result;
 }
 

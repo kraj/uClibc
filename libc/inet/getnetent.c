@@ -37,7 +37,7 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #define	MAXALIASES	35
 static const char NETDB[] = _PATH_NETWORKS;
 static FILE *netf = NULL;
-static char line[BUFSIZ+1];
+static char *line = NULL;
 static struct netent net;
 static char *net_aliases[MAXALIASES];
 
@@ -90,6 +90,13 @@ struct netent * getnetent(void)
 	return (NULL);
     }
 again:
+
+    if (!line) {
+	line = malloc(BUFSIZ + 1);
+	if (!line)
+	    abort();
+    }
+
     p = fgets(line, BUFSIZ, netf);
     if (p == NULL) {
 	UNLOCK;
@@ -114,7 +121,7 @@ again:
     net.n_net = inet_network(cp);
     net.n_addrtype = AF_INET;
     q = net.n_aliases = net_aliases;
-    if (p != NULL) 
+    if (p != NULL)
 	cp = p;
     while (cp && *cp) {
 	if (*cp == ' ' || *cp == '\t') {

@@ -65,10 +65,17 @@ struct mntent *getmntent_r (FILE *filep,
 struct mntent *getmntent(FILE * filep)
 {
     struct mntent *tmp;
-    static char buff[BUFSIZ];
+    static char *buff = NULL;
     static struct mntent mnt;
     LOCK;
-    tmp = getmntent_r(filep, &mnt, buff, sizeof buff);
+    
+    if (!buff) {
+            buff = malloc(BUFSIZ);
+		if (!buff)
+		    abort();
+    }
+    
+    tmp = getmntent_r(filep, &mnt, buff, BUFSIZ);
     UNLOCK;
     return(tmp);
 }

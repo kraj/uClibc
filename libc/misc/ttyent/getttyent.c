@@ -99,11 +99,19 @@ struct ttyent * getttyent(void)
 {
     register int c;
     register char *p;
-    static char line[BUFSIZ];
+    static char *line = NULL;
 
     if (!tf && !setttyent())
 	return (NULL);
+
+    if (!line) {
+            line = malloc(BUFSIZ);
+		if (!line)
+		    abort();
+    }
+
     flockfile (tf);
+
     for (;;) {
 	if (!fgets_unlocked(p = line, sizeof(line), tf)) {
 	    funlockfile (tf);
