@@ -318,7 +318,11 @@ static inline int invalid_handle(pthread_handle h, pthread_t id)
    THREAD_SELF implementation is used, this must be a power of two and
    a multiple of PAGE_SIZE.  */
 #ifndef STACK_SIZE
+#ifdef __UCLIBC_HAS_MMU__
 #define STACK_SIZE  (2 * 1024 * 1024)
+#else
+#define STACK_SIZE  (4 * PAGE_SIZE)
+#endif
 #endif
 
 /* The initial size of the thread stack.  Must be a multiple of PAGE_SIZE.  */
