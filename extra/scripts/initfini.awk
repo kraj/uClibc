@@ -8,7 +8,7 @@ BEGIN \
 { alignval="";
   endp=0;
   end=0;
-  system("/bin/touch crt[in].S");
+  system("touch crt[in].S");
   system("/bin/rm -f crt[in].S");
   omitcrti=0;
   omitcrtn=0;
