@@ -210,6 +210,10 @@ extern int printf __P ((__const char *__restrict __format, ...));
 extern int sprintf __P ((char *__restrict __s,
 			 __const char *__restrict __format, ...));
 
+/* Write formatted output to a buffer S dynamically allocated by asprintf.  */
+extern int asprintf __P ((char **__restrict __s,
+			 __const char *__restrict __format, ...));
+
 /* Write formatted output to S from argument list ARG.  */
 extern int vfprintf __P ((FILE *__restrict __s,
 			  __const char *__restrict __format,

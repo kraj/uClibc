@@ -56,6 +56,18 @@
  *   Modified sprintf, snprintf, vsprintf, vsnprintf to share on fake-file.
  */
 
+/*
+ *                    Manuel Novoa III   Jan 2000
+ *
+ * Removed fake file from *s*printf functions because of possible problems
+ * if called recursively.  Instead, have sprintf, snprintf, and vsprintf
+ * call vsnprintf which allocates a fake file on the stack.
+ *
+ * Added asprintf.
+ *
+ * Hopefully fixed 0-pad prefixing bug.
+ */
+
 /*****************************************************************************/
 /*                            OPTIONS                                        */
 /*****************************************************************************/
@@ -90,6 +102,8 @@
 
 /*
  * Use fputc instead of macro putc.  Slower but saves about 36 bytes.
+ * WARNING! This may cause problems the the *s*printf functions!
+ * Don't enable at this time.  Manuel
  */
 
 #define WANT_FPUTC             0
@@ -124,15 +138,6 @@
 extern int vfnprintf(FILE * op, size_t max_size,
 					 register __const char *fmt, register va_list ap);
 
-extern FILE __sprintf_fake_file[1];
-
-#ifdef L__sprintf_fake_file
-FILE __sprintf_fake_file[1] = {
-	{0, 0, (char *) (unsigned) -1, 0, (char *) (unsigned) -1, -1,
-	 _IOFBF | __MODE_WRITE}
-};
-#endif
-
 #ifdef L_printf
 int printf(const char *fmt, ...)
 {
@@ -146,6 +151,34 @@ int printf(const char *fmt, ...)
 }
 #endif
 
+#ifdef L_asprintf
+int asprintf(char **app, const char *fmt, ...)
+{
+	va_list ptr;
+	int rv, i;
+	char *p;					/* unitialized warning is ok here */
+	/*
+	 * First  iteration - find out size of buffer required and allocate it.
+	 * Second iteration - actually produce output.
+	 */
+	rv = 0;
+	for (i=0 ; i<2 ; i++) {
+		va_strt(ptr, fmt);
+		rv = vsnprintf(p, rv, fmt, ptr);
+		va_end(ptr);
+
+		if (i==0) {				/* first time through so */
+			p = malloc(++rv); /* allocate the buffer */
+			*app = p;
+			if (!p) {
+				return -1;
+			}
+		}
+	}
+	return rv;
+}
+#endif
+
 #ifdef L_sprintf
 int sprintf(char *sp, const char *fmt, ...)
 {
@@ -153,10 +186,8 @@ int sprintf(char *sp, const char *fmt, ...)
 	int rv;
 
 	va_strt(ptr, fmt);
-	__sprintf_fake_file->bufpos = sp;
-	rv = vfnprintf(__sprintf_fake_file, -1, fmt, ptr);
+	rv = vsnprintf(sp, -1, fmt, ptr);
 	va_end(ptr);
-	*(__sprintf_fake_file->bufpos) = 0;
 	return rv;
 }
 #endif
@@ -169,10 +200,8 @@ int snprintf(char *sp, size_t size, const char *fmt, ...)
 	int rv;
 
 	va_strt(ptr, fmt);
-	__sprintf_fake_file->bufpos = sp;
-	rv = vfnprintf(__sprintf_fake_file, size, fmt, ptr);
+	rv = vsnprintf(sp, size, fmt, ptr);
 	va_end(ptr);
-	*(__sprintf_fake_file->bufpos) = 0;
 	return rv;
 }
 #endif
@@ -200,12 +229,7 @@ int vprintf(const char *fmt, va_list ap)
 #ifdef L_vsprintf
 int vsprintf(char *sp, __const char *fmt, va_list ap)
 {
-	int rv;
-
-	__sprintf_fake_file->bufpos = sp;
-	rv = vfnprintf(__sprintf_fake_file, -1, fmt, ap);
-	*(__sprintf_fake_file->bufpos) = 0;
-	return rv;
+	return vsnprintf(sp, -1, fmt, ap);
 }
 #endif
 
@@ -213,10 +237,23 @@ int vsprintf(char *sp, __const char *fmt, va_list ap)
 int vsnprintf(char *sp, size_t size, __const char *fmt, va_list ap)
 {
 	int rv;
+#if 0
+	FILE f = {0, 0, (char *) (unsigned) -1, 0, (char *) (unsigned) -1, -1,
+			  _IOFBF | __MODE_WRITE};
+#else
+	/* As we're only using the putc macro in vfnprintf, we don't need to
+	   initialize all FILE fields. */
+	FILE f;
 
-	__sprintf_fake_file->bufpos = sp;
-	rv = vfnprintf(__sprintf_fake_file, size, fmt, ap);
-	*(__sprintf_fake_file->bufpos) = 0;
+	f.bufwrite = (char *) (unsigned) -1;
+	f.bufpos = sp;
+	f.mode = _IOFBF | __MODE_WRITE;
+#endif
+
+	rv = vfnprintf(&f, size, fmt, ap);
+	if (size) {
+		*(f.bufpos) = 0;
+	}
 	return rv;
 }
 #endif
@@ -523,7 +560,7 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 						/* right padding || left padding */
 						if ((!len && !preci)
 							|| (width && !flag[FLAG_MINUS_LJUSTIFY])) {
-							ch = ' ';
+							ch = flag[FLAG_0_PAD];
 							--width;
 						} else if (flag[FLAG_PLUS]) {
 							ch = flag[FLAG_PLUS]; /* sign */
@@ -533,12 +570,15 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 								flag[FLAG_PLUS] = '\0';
 							}
 							--len;
-						} else if (preci) {
-							ch = '0';
-							--preci;
 						} else {
-							ch = *p++;	/* main field */
-							--len;
+							flag[FLAG_0_PAD]=' ';
+							if (preci) {
+								ch = '0';
+								--preci;
+							} else {
+								ch = *p++; /* main field */
+								--len;
+							}
 						}
 
 						if (++cnt < max_size) {
