@@ -76,8 +76,8 @@ GCCINCDIR = $(shell gcc -print-search-dirs | sed -ne "s/install: \(.*\)/\1includ
 
 ARFLAGS=r
 
-CCFLAGS= $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -Dlinux -D__linux__ -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D__PIC__ -D__LIBC__
-CFLAGS=$(ARCH) $(CCFLAGS) $(DEFS)
+CCFLAGS=$(OPTIMIZATION) -nostdinc $(CPUFLAGS) -Dlinux -D__linux__ -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D__PIC__ -D__LIBC__
+CFLAGS=$(ARCH) $(CCFLAGS) $(DEFS) -fpic
 
 ifeq ($(DODEBUG),true)
     CFLAGS += -Wall -g -D__PIC__
@@ -102,7 +102,6 @@ endif
 ifneq ($(DO_FIXME_STUFF),true)
     CFLAGS += -DFIXME
 endif
-
 
 
 # Use '-ffunction-sections -fdata-sections' and '--gc-sections' if they work
