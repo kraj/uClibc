@@ -43,6 +43,7 @@
  * a no-password login.
  */
 
+#include <string.h>
 #include <crypt.h>
 
 extern char * md5_crypt_r( const char *pw, const char *salt, struct crypt_data * data);
