@@ -19,7 +19,7 @@ $CC -E - |
   echo "#ifndef _SYSCALL_H" ;
   echo "# error \"Never use <bits/syscall.h> directly; include <sys/syscall.h> instead.\"" ;
   echo "#endif" ; echo ;
-  sed -ne 's/^UCLIBC_\([A-Za-z0-9_]*\) *\([^ ]*\)/#define SYS_\1 \2\
+  sed -ne 's/^UCLIBC_\([A-Za-z0-9_]*\) *\(.*\)/#define SYS_\1 \2\
 #define __NR_\1 \2\
 #define __STR_NR_\1 \"\2\"/gp'
 )
