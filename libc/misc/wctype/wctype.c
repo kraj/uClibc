@@ -293,7 +293,13 @@ ISW_FUNC_BODY(xdigit);
 
 wint_t towlower(wint_t wc)
 {
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 	return __C_towlower(wc);
+#else
+	return (wc == ((unsigned int)(wc)))
+		? __C_tolower(((unsigned int)(wc)))
+		: 0;
+#endif
 }
 
 #else  /* __LOCALE_C_ONLY */
@@ -390,7 +396,14 @@ weak_alias(__towlower_l, towlower_l)
 
 wint_t towupper(wint_t wc)
 {
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 	return __C_towupper(wc);
+#else
+	return (wc == ((unsigned int)(wc)))
+		? __C_toupper(((unsigned int)(wc)))
+		: 0;
+#endif
+
 }
 
 #else  /* __LOCALE_C_ONLY */
@@ -522,6 +535,7 @@ weak_alias(__wctype_l, wctype_l)
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
 
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 #if !defined(__UCLIBC_HAS_XLOCALE__) || defined(L_iswctype_l)
 
 static const unsigned short int desc2flag[] = {
@@ -541,8 +555,11 @@ static const unsigned short int desc2flag[] = {
 };
 
 #endif /* defined(L_iswctype_L) || defined(__LOCALE_C_ONLY) */
+#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
 #ifdef __LOCALE_C_ONLY
+
+#ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
 int __iswctype(wint_t wc, wctype_t desc)
 {
@@ -555,6 +572,47 @@ int __iswctype(wint_t wc, wctype_t desc)
 	}
 	return 0;
 }
+
+#else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
+
+int __iswctype(wint_t wc, wctype_t desc)
+{
+	/* This is lame, but it is here just to get it working for now. */
+
+	if (wc == ((unsigned int)(wc))) {
+		switch(desc) {
+			case _CTYPE_isupper:
+				return __C_isupper((unsigned int)(wc));
+			case _CTYPE_islower:
+				return __C_islower((unsigned int)(wc));
+			case _CTYPE_isalpha:
+				return __C_isalpha((unsigned int)(wc));
+			case _CTYPE_isdigit:
+				return __C_isdigit((unsigned int)(wc));
+			case _CTYPE_isxdigit:
+				return __C_isxdigit((unsigned int)(wc));
+			case _CTYPE_isspace:
+				return __C_isspace((unsigned int)(wc));
+			case _CTYPE_isprint:
+				return __C_isprint((unsigned int)(wc));
+			case _CTYPE_isgraph:
+				return __C_isgraph((unsigned int)(wc));
+			case _CTYPE_isblank:
+				return __C_isblank((unsigned int)(wc));
+			case _CTYPE_iscntrl:
+				return __C_iscntrl((unsigned int)(wc));
+			case _CTYPE_ispunct:
+				return __C_ispunct((unsigned int)(wc));
+			case _CTYPE_isalnum:
+				return __C_isalnum((unsigned int)(wc));
+			default:
+				break;
+		}
+	}
+	return 0;
+}
+
+#endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
 #else  /* __LOCALE_C_ONLY */
 

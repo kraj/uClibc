@@ -410,7 +410,6 @@ endchoice
 
 config UCLIBC_HAS_WCHAR
 	bool "Wide Character Support"
-	select UCLIBC_HAS_CTYPE_TABLES
 	default n
 	help
 	  Answer Y to enable wide character support.  This will make uClibc 
@@ -421,6 +420,7 @@ config UCLIBC_HAS_WCHAR
 config UCLIBC_HAS_LOCALE
 	bool "Locale Support (experimental/incomplete)"
 	select UCLIBC_HAS_WCHAR
+	select UCLIBC_HAS_CTYPE_TABLES
 	default n
 	help
 	  Answer Y to enable locale support.  This will make uClibc much
