@@ -126,6 +126,8 @@
  *   list.
  *
  *   Fix a dst-related bug which resulted in use of uninitialized data.
+ *
+ * Nov 15, 2003 I forgot to update the thread locking in the last dst fix.
  */
 
 #define _GNU_SOURCE
@@ -2100,6 +2102,8 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 	register const unsigned char *s;
 	int d, default_dst;
 
+	TZLOCK;
+
 	tzset();
 
 	memcpy(p, timeptr, sizeof(struct tm));
@@ -2134,8 +2138,6 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 		++s;
 		--d;
 	}
-
-	TZLOCK;
 
 #ifdef __BCC__
 	d = p[5] - 1;
