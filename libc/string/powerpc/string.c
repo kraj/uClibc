@@ -194,7 +194,8 @@ void *memset(void *to, int c, size_t n)
 #endif
 
 #ifdef L_bzero
-void bzero(void *s, size_t n)
+weak_alias(__bzero,bzero);
+void __bzero(void *s, size_t n)
 {
 	(void)memset(s, 0, n);
 }

@@ -38,11 +38,13 @@
  */
 
 		.text
-		.global bzero;
-		.type bzero,%function
+		.global __bzero;
+		.type __bzero,%function
 		.align 4;                                                               \
 
-bzero:
+__bzero:
 	mov	r2, r1
 	mov	r1, #0
 	b	memset (PLT)
+
+.weak bzero ; bzero = __bzero
