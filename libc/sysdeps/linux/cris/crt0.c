@@ -35,6 +35,12 @@ extern void __uClibc_start_main(int argc, char **argv, char **envp,
 extern void weak_function _init(void);
 extern void weak_function _fini(void);
 
+/* Stick in a dummy reference to main(), so that if an application
+ * is linking when the main() function is in a static library (.a)
+ * we can be sure that main() actually gets linked in */
+extern void main(int argc,void *argv,void *envp);
+void (*__mainp)(int argc,void *argv,void *envp) = main;
+
 static void
 start1 (int argc, char **argv)
 {
