@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2002 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -27,7 +27,7 @@ LIBC=$(TOPDIR)libc.a
 
 LIBUTIL=libutil.a
 LIBUTIL_SHARED=libutil.so
-LIBUTIL_SHARED_FULLNAME=libutil-$(MAJOR_VERSION).$(MINOR_VERSION).so
+LIBUTIL_SHARED_FULLNAME=libutil-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 CSRC=login.c login_tty.c logout.c logwtmp.c openpty.c
 ifeq ($(strip $(HAS_MMU)),true)

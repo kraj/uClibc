@@ -5,7 +5,7 @@
 # should not mess with this file unless you know what you are doing...  
 # 
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000,2001 Erik Andersen <andersee@debian.org>
+# Copyright (C) 2000-2002 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -20,16 +20,18 @@
 # You should have received a copy of the GNU Library General Public License
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-#
 
 include $(TOPDIR)Config
 
+# Be sure to update include/features.h when changing this...
 MAJOR_VERSION:=0
-MINOR_VERSION:=9.11
-VERSION:=$(MAJOR_VERSION).$(MINOR_VERSION)
+MINOR_VERSION:=9
+SUBLEVEL:=12
+VERSION:=$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
+
 
 LIBNAME:=libc.a
-SHARED_FULLNAME:=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
+SHARED_FULLNAME:=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 SHARED_MAJORNAME:=libc.so.$(MAJOR_VERSION)
 UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
 LIBC:=$(TOPDIR)libc/libc.a

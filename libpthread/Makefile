@@ -22,11 +22,11 @@ include $(TOPDIR)Rules.mak
 #Adjust the soname version to avoid namespace collisions with glibc's libpthread
 LIBPTHREAD=libpthread.a
 LIBPTHREAD_SHARED=libpthread.so
-LIBPTHREAD_SHARED_FULLNAME=libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).so
+LIBPTHREAD_SHARED_FULLNAME=libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 LIBTHREAD_DB=libthread_db.a
 LIBTHREAD_DB_SHARED=libthread_db.so
-LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).so
+LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 DIRS=
 ifeq ($(strip $(INCLUDE_THREADS)),true)

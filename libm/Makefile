@@ -1,6 +1,6 @@
 # Makefile for uClibc's math library
 #
-# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2002 Erik Andersen <andersen@uclibc.org>
 #
 # The routines included in this math library are derived from the
 # math library for Apple's MacOS X/Darwin math library, which was
@@ -44,7 +44,7 @@ ALL_SUBDIRS = powerpc
 
 LIBM=libm.a
 LIBM_SHARED=libm.so
-LIBM_SHARED_FULLNAME=libm-$(MAJOR_VERSION).$(MINOR_VERSION).so
+LIBM_SHARED_FULLNAME=libm-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
 ifeq ($(strip $(DO_C99_MATH)),true)

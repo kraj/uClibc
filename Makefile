@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000,2001,2002 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2002 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -33,7 +33,7 @@ include Rules.mak
 
 DIRS = extra ldso libc libcrypt libresolv libutil libm libpthread
 
-all: headers uClibc_config subdirs shared util finished
+all: headers include/bits/uClibc_config.h subdirs shared util finished
 
 Config:
 	@echo
@@ -145,11 +145,14 @@ headers: dummy
 	TOPDIR=$(TOPDIR) CC=$(CC) /bin/sh $(TOPDIR)/extra/scripts/gen_bits_syscall_h.sh > include/bits/syscall.h
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
-uClibc_config: Makefile Config
+include/bits/uClibc_config.h: Makefile Config
 	@echo "/* WARNING!!! AUTO-GENERATED FILE!!! DO NOT EDIT!!! */" > include/bits/uClibc_config.h
 	@echo "#if !defined __FEATURES_H && !defined __need_uClibc_config_h" >> include/bits/uClibc_config.h
 	@echo "#error Never include <bits/uClibc_config.h> directly; use <features.h> instead." >> include/bits/uClibc_config.h
 	@echo "#endif" >> include/bits/uClibc_config.h
+	@echo "#define __UCLIBC_MAJOR__ $(MAJOR_VERSION)" >> include/bits/uClibc_config.h 
+	@echo "#define __UCLIBC_MINOR__ $(MINOR_VERSION)" >> include/bits/uClibc_config.h 
+	@echo "#define __UCLIBC_SUBLEVEL__ $(SUBLEVEL)" >> include/bits/uClibc_config.h 
 	@echo "#define linux 1" >> include/bits/uClibc_config.h 
 	@echo "#define __linux__ 1" >> include/bits/uClibc_config.h 
 	@if [ "$(INCLUDE_IPV6)" = "true" ] ; then \
@@ -269,13 +272,15 @@ install_runtime:
 ifeq ($(strip $(HAVE_SHARED)),true)
 	install -d $(PREFIX)$(DEVEL_PREFIX)/lib
 	install -d $(PREFIX)$(DEVEL_PREFIX)/bin
-	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(DEVEL_PREFIX)/lib
+	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+		$(PREFIX)$(DEVEL_PREFIX)/lib
 	cp -a lib/*.so.* $(PREFIX)$(DEVEL_PREFIX)/lib
-	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
+	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
-	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(DEVEL_PREFIX)/lib; \
+	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	    		$(PREFIX)$(DEVEL_PREFIX)/lib; \
 	    mkdir -p $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
-	    ln -s $(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so \
+	    ln -s $(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 			$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) || true; \
 	fi;
 endif
@@ -312,13 +317,15 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	install -d $(PREFIX)$(TARGET_PREFIX)/lib
 	install -d $(PREFIX)$(TARGET_PREFIX)/sbin
 	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin
-	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(TARGET_PREFIX)/lib
+	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+		$(PREFIX)$(TARGET_PREFIX)/lib
 	cp -a lib/*.so.* $(PREFIX)$(TARGET_PREFIX)/lib
-	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
+	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
-	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(TARGET_PREFIX)/lib; \
+	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+	    		$(PREFIX)$(TARGET_PREFIX)/lib; \
 	    mkdir -p $(PREFIX)$(SHARED_LIB_LOADER_PATH); \
-	    ln -s $(TARGET_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so \
+	    ln -s $(TARGET_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	    		$(PREFIX)$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) || true; \
 	fi;
 endif

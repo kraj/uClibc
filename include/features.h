@@ -249,11 +249,21 @@
 /* wchar_t uses ISO 10646-1 (2nd ed., published 2000-09-15) / Unicode 3.0.  */
 #define __STDC_ISO_10646__		200009L
 
-/* Major and minor version number of the uClibc library package.  Use
-   these macros to test for features in specific releases.  */
-#define	__UCLIBC__		0
-#define	__UCLIBC_MAJOR__	9
-#define	__UCLIBC_MINOR__	5
+/* This macro indicates that the installed library is uClibc.  Use
+ * __UCLIBC_MAJOR__ and __UCLIBC_MINOR__ to test for the features in
+ * specific releases.  */
+#define	__UCLIBC__		1
+
+/* Major and minor version number of the uClibc library package are
+ * can be used to test for features in specific uClibc releases.
+ *
+ * Now included from bits/uClibc_config.h */
+#if 0
+/* For uClibc release 0.9.12, these numbers would be: */
+#define	__UCLIBC_MAJOR__	0
+#define	__UCLIBC_MINOR__	9
+#define	__UCLIBC_SUBLEVEL__	12
+#endif
 
 /*  There is an unwholesomely huge amount of code out there that depends on the
  *  presence of GNU libc header files.  We have GNU libc header files.  So here

@@ -21,7 +21,7 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 #Adjust the soname version to avoid namespace collisions with glibc's libpthread
-PT_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION)
+PT_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 LIBPTHREAD=../libpthread.a
 
 # set up system dependencies include dirs (NOTE: order matters!)
