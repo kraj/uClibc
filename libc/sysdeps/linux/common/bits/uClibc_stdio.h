@@ -463,6 +463,7 @@ extern void __stdio_validate_FILE(FILE *stream);
 
 typedef enum {
 	__UIM_DECIMAL = 0,
+	__UIM_GROUP = ',',			/* Base 10 locale-dependent grouping. */
 	__UIM_LOWER = 'a' - 10,
 	__UIM_UPPER = 'A' - 10,
 } __UIM_CASE;

@@ -3308,6 +3308,15 @@ void _stdio_fdout(int fd, ...)
 #define INTERNAL_DIV_MOD
 #endif
 
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: move _uintmaxtostr to locale.c???
+#endif
+#include <locale.h>
+
+#ifndef __LOCALE_C_ONLY
+#define CUR_LOCALE			(__global_locale)
+#endif /* __LOCALE_C_ONLY */
+
 char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 					int base, __UIM_CASE alphacase)
 {
@@ -3316,6 +3325,11 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 #ifdef INTERNAL_DIV_MOD
 	unsigned int H, L, high, low, rh;
 #endif
+#ifndef __LOCALE_C_ONLY
+	int grouping;
+	size_t gslen;		   /* This does not need to be initialized. */
+	const char *g;		   /* This does not need to be initialized. */
+#endif /* __LOCALE_C_ONLY */
 
 	negative = 0;
 	if (base < 0) {				/* signed value */
@@ -3329,10 +3343,46 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 	/* this is an internal routine -- we shouldn't need to check this */
 	assert(!((base < 2) || (base > 36)));
 
+#ifndef __LOCALE_C_ONLY
+	grouping = -1;
+	if (alphacase == __UIM_GROUP) {
+		assert(base == 10);
+		if (*(g = CUR_LOCALE.grouping)
+			&& ((gslen = strlen(CUR_LOCALE.thousands_sep)) > 0)
+			) {
+			grouping = *g;
+		}
+	}
+#endif /* __LOCALE_C_ONLY */
+
     *bufend = '\0';
 
 #ifndef INTERNAL_DIV_MOD
     do {
+#ifndef __LOCALE_C_ONLY
+		if (!grouping) {		/* Finished a group. */
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: decide about memcpy in _uintmaxtostr
+#endif
+#if 0
+			bufend -= gslen;
+			memcpy(bufend, CUR_LOCALE.thousands_sep, gslen);
+#else
+			grouping = gslen;
+			do {
+				*--bufend = CUR_LOCALE.thousands_sep[--grouping];
+			} while (grouping);
+#endif
+			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
+				/* Note: g[1] == -1 means no further grouping.  But since
+				 * we'll never wrap around, we can set grouping to -1 without
+				 * fear of */
+				++g;
+			}
+			grouping = *g;
+		}
+		--grouping;
+#endif /* __LOCALE_C_ONLY */
 		digit = uval % base;
 		uval /= base;
 
@@ -3351,6 +3401,31 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 	high = (unsigned int) (uval >> (sizeof(unsigned int) * CHAR_BIT));
 
     do {
+#ifndef __LOCALE_C_ONLY
+		if (!grouping) {		/* Finished a group. */
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: decide about memcpy in _uintmaxtostr
+#endif
+#if 0
+			bufend -= gslen;
+			memcpy(bufend, CUR_LOCALE.thousands_sep, gslen);
+#else
+			grouping = gslen;
+			do {
+				*--bufend = CUR_LOCALE.thousands_sep[--grouping];
+			} while (grouping);
+#endif
+			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
+				/* Note: g[1] == -1 means no further grouping.  But since
+				 * we'll never wrap around, we can set grouping to -1 without
+				 * fear of */
+				++g;
+			}
+			grouping = *g;
+		}
+		--grouping;
+#endif /* __LOCALE_C_ONLY */
+
 		rh = high % base;
 		high /= base;
 		digit = (low % base) + (L * rh);

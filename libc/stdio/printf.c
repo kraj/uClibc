@@ -1103,10 +1103,18 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 	size_t slen;
 	int base;
 	int numpad;
+	int alphacase;
 	int numfill = 0;			/* TODO: fix */
 	int prefix_num = PREFIX_NONE;
 	char padchar = ' ';
-	char buf[64];
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: buf size
+#endif
+	/* TODO: buf needs to be big enough for any possible error return strings
+	 * and also for any locale-grouped long long integer strings generated.
+	 * This should be large enough for any of the current archs/locales, but
+	 * eventually this should be handled robustly. */
+	char buf[128];
 
 #ifdef NDEBUG
 	_ppfs_parsespec(ppfs);
@@ -1147,8 +1155,16 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 			return 0;
 		}
 		if (ppfs->conv_num <= CONV_i) {	/* pointer or (un)signed int */
-			base = spec_base[(int)(ppfs->conv_num - CONV_p)];
+			alphacase = __UIM_LOWER;
+			if (((base = spec_base[(int)(ppfs->conv_num - CONV_p)]) == 10)
+				&& (PRINT_INFO_FLAG_VAL(&(ppfs->info),group))
+				) {
+				alphacase = __UIM_GROUP;
+			}
 			if (ppfs->conv_num <= CONV_u) { /* pointer or unsigned int */
+				if (ppfs->conv_num == CONV_X) {
+					alphacase = __UIM_UPPER;
+				}
 				if (ppfs->conv_num == CONV_p) { /* pointer */
 					prefix_num = PREFIX_LWR_X;
 				} else {		/* unsigned int */
@@ -1162,9 +1178,7 @@ int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
 			s = _uintmaxtostr(buf + sizeof(buf) - 1,
 							  (uintmax_t)
 							  _load_inttype(*argtype & __PA_INTMASK,
-											*argptr, base), base,
-							  ((ppfs->conv_num == CONV_X)
-							   ? __UIM_UPPER : __UIM_LOWER));
+											*argptr, base), base, alphacase);
 			if (ppfs->conv_num > CONV_u) { /* signed int */
 				if (*s == '-') {
 					PRINT_INFO_SET_FLAG(&(ppfs->info),showsign);
