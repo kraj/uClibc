@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Header: /var/cvs/uClibc/docs/Attic/getent,v 1.1 2004/11/10 08:07:40 solar Exp $
+# $Header: /var/cvs/uClibc/extra/scripts/getent,v 1.1 2004/11/11 14:50:52 vapier Exp $
 
 search_entry() {
   if [ -e "$1" ] ; then
