@@ -439,12 +439,8 @@ off_t _uClibc_fread(unsigned char *buf, off_t bytes, FILE *fp)
 			goto FROM_BUF;
 		}
 
-	TRY_READ:
 		len = read(fp->fd, p, (unsigned) bytes);
 		if (len < 0) {
-			if (errno == EINTR) { /* We were interrupted, so try again. */
-				goto TRY_READ;
-			}
 			fp->mode |= __MODE_ERR;
 		} else {
 			p += len;
@@ -549,9 +545,7 @@ off_t _uClibc_fwrite(const unsigned char *buf, off_t bytes, FILE *fp)
 	while (bytes) {
 		if ((rv = write(fp->fd, p, bytes)) < 0) {
 			rv = 0;
-			if (errno != EINTR) {
-				break;
-			}
+			break;
 		}
 		p += rv;
 		bytes -= rv;
