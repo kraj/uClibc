@@ -31,9 +31,9 @@ TOPDIR=../
 include $(TOPDIR)Rules.mak
 
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
-CRTOBJS="../../lib/crti.o ../../lib/crt0.o ../../lib/crtn.o"
+CRTOBJS=../../lib/crti.o ../../lib/crt0.o ../../lib/crtn.o
 else
-CRTOBJS="../../lib/crt0.o"
+CRTOBJS=../../lib/crt0.o
 endif
 
 ifeq ($(strip $(ADD_LIBGCC_FUNCTIONS)),y)
@@ -76,9 +76,8 @@ $(LIBGCC_NEED): $(TOPDIR)lib/$(LIBNAME)
 	@rm -rf tmp
 	@mkdir tmp
 	$(AR) rv $@
-	(cd tmp && CC=$(CC) LD=$(LD) LDFLAGS=$(CPU_LDFLAGS-y) NM=$(NM) AR=$(AR) \
-		LIBGCC=$(LIBGCC) \
-		CRTOBJS=$(CRTOBJS) \
+	(cd tmp && CC="$(CC)" LD="$(LD)" LDFLAGS="$(CPU_LDFLAGS-y)" \
+		NM="$(NM)" AR="$(AR)" LIBGCC="$(LIBGCC)" CRTOBJS="$(CRTOBJS)" \
 		/bin/sh $(TOPDIR)../extra/scripts/get-needed-libgcc-objects.sh)
 
 halfclean:
