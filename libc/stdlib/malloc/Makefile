@@ -25,7 +25,7 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 MSRC=alloc.c
-MOBJ=malloc_dbg.o free_dbg.o calloc_dbg.o
+MOBJ=malloc_dbg.o free_dbg.o calloc_dbg.o realloc_dbg.o
 
 MSRC1=malloc.c
 MOBJ1=_avl_support.o _free_support.o _malloc_init.o _realloc_no_move.o calloc.o \

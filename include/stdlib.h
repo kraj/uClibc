@@ -80,7 +80,7 @@ extern __ptr_t realloc_dbg __P ((__ptr_t, size_t, char* func, char* file, int li
 extern void free_dbg __P ((__ptr_t, char* func, char* file, int line));
 #define calloc(x,y) calloc_dbg((x),(y),__FUNCTION__,__FILE__,__LINE__)
 #define malloc(x) malloc_dbg((x),__FUNCTION__,__FILE__,__LINE__)
-#define realloc(x) realloc((x),__FUNCTION__,__FILE__,__LINE__)
+#define realloc(x,y) realloc_dbg((x),(y),__FUNCTION__,__FILE__,__LINE__)
 #define free(x) free_dbg((x),__FUNCTION__,__FILE__,__LINE__)
 #endif
 
