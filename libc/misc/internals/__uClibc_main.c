@@ -76,39 +76,14 @@ weak_alias(__secure, _dl_secure);
 void __uClibc_init(void)
 {
     static int been_there_done_that = 0;
-#ifdef __ARCH_HAS_MMU__
-    unsigned long *aux_dat;
-    Elf32_auxv_t auxvt[AT_EGID + 1];
-#endif
 
     if (been_there_done_that)
 	return;
     been_there_done_that++;
 
-    /* Pull stuff from the ELF header when possible */
-#ifdef __ARCH_HAS_MMU__
-    aux_dat = (unsigned long*)envp;
-    while (*aux_dat) {
-	aux_dat++;
-    }
-    aux_dat++;
-    while (*aux_dat) {
-	Elf32_auxv_t *auxv_entry = (Elf32_auxv_t *) aux_dat;
-	if (auxv_entry->a_type <= AT_EGID) {
-	    memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(Elf32_auxv_t));
-	}
-	aux_dat += 2;
-    }
-    __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
-#else
+    /* Setup an initial value.  This may not be perfect, but is
+     * better than  malloc using __pagesize=0 for atexit, ctors, etc.  */
     __pagesize = PAGE_SIZE;
-#endif
-
-    /* If we are dynamically linked, then ldso already did this for us. */
-    if (__environ==NULL) {
-	/* Statically linked. */
-	__environ = envp;
-    }
 
 #ifdef __UCLIBC_HAS_THREADS__
     /* Before we start initialzing uClibc we have to call
@@ -142,8 +117,6 @@ void __uClibc_init(void)
     if (likely(_stdio_init != NULL))
 	_stdio_init();
 
-    __progname = *argv;
-
 }
 
 #ifdef __UCLIBC_CTOR_DTOR__
@@ -158,10 +131,40 @@ void __attribute__ ((__noreturn__))
 __uClibc_start_main(int argc, char **argv, char **envp,
 	void (*app_init)(void), void (*app_fini)(void))
 {
+#ifdef __ARCH_HAS_MMU__
+    unsigned long *aux_dat;
+    Elf32_auxv_t auxvt[AT_EGID + 1];
+#endif
+
     /* We need to initialize uClibc.  If we are dynamically linked this
      * may have already been completed by the shared lib loader.  We call
      * __uClibc_init() regardless, to be sure the right thing happens. */
     __uClibc_init();
+
+    /* If we are dynamically linked, then ldso already did this for us. */
+    if (__environ==NULL) {
+	/* Statically linked. */
+	__environ = envp;
+    }
+
+    /* Pull stuff from the ELF header when possible */
+#ifdef __ARCH_HAS_MMU__
+    aux_dat = (unsigned long*)envp;
+    while (*aux_dat) {
+	aux_dat++;
+    }
+    aux_dat++;
+    while (*aux_dat) {
+	Elf32_auxv_t *auxv_entry = (Elf32_auxv_t *) aux_dat;
+	if (auxv_entry->a_type <= AT_EGID) {
+	    memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(Elf32_auxv_t));
+	}
+	aux_dat += 2;
+    }
+    __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+#endif
+
+    __progname = *argv;
 
 #ifdef __UCLIBC_CTOR_DTOR__
     /* Arrange for the application's dtors to run before we exit.  */
