@@ -17,10 +17,14 @@ License along with the GNU C Library; see the file COPYING.LIB.  If
 not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
+/*
+ * NOTE: this file works for PIC and non-PIC code.  Be very careful how
+ * you modify it !
+ */
 	.global	_start
 	.global	__main
 	.global _end
-/*	.global __data_start */
+	.global _sdata
 
 	.bss
 	.global environ
@@ -32,30 +36,22 @@ _start:			/* renamed from __start */
 	nop
 	nop
 
-	movea.l %d5, %a5
-
-	lea	__bss_start(%a5), %a0
-	lea	end(%a5), %a1
- 
-	/* Copy 0 to %a0 until %a0 == %a1 */
-	/*
-	From my understanding of linux/fs/binfmt_flat.c for uClinux,
-	this is not necessary anymore.  The loader will clear out
-	the BSS for us. - jgraves@deltamobile.com
-
-L1:
-	movel   #0, %a0@+
-	cmpal   %a0, %a1
-	bhi     L1
-	*/
+	movea.l %d5, %a5	/* uClinux passes in data segment here */
 
 	move.l 8(%sp), %d5
-	move.l %d5, environ(%a5)
+
+	lea.l _sdata, %a1	/* set environ to point to the right place */
+	lea.l environ, %a0
+	sub.l %a1, %a0
+	move.l %d5, %a5@(%a0)
 	
-	bsr main
+	lea main-.-8, %a0	/* call main */
+	jsr %pc@(%a0)
 
 	move.l %d0,%sp@-
-	bsr	exit		/* Invoke exit() routine */
+
+	lea exit-.-8, %a0	/* call the exit routine */
+	jsr	%pc@(%a0)
 
 #ifdef NO_LIBGCC
 	/* If that didn't kill us, ... */
@@ -67,9 +63,5 @@ _exit:
 __main:
 	rts
 #else
-
-	.global	_cleanup
-_cleanup:
-	rts	/* nothing to clean up */
 
 #endif /* NO_LIBGCC */

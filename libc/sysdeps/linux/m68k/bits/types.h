@@ -58,12 +58,12 @@ typedef unsigned long long int __uint64_t;
 #endif
 typedef __quad_t *__qaddr_t;
 
-typedef __u_quad_t __dev_t;		/* Type of device numbers.  */
-typedef __u_int __uid_t;		/* Type of user identifications.  */
-typedef __u_int __gid_t;		/* Type of group identifications.  */
+typedef __u_short __dev_t;		/* Type of device numbers.  */
+typedef __u_short __uid_t;		/* Type of user identifications.  */
+typedef __u_short __gid_t;		/* Type of group identifications.  */
 typedef __u_long __ino_t;		/* Type of file serial numbers.  */
-typedef __u_int __mode_t;		/* Type of file attribute bitmasks.  */
-typedef __u_int __nlink_t; 		/* Type of file link counts.  */
+typedef __u_short __mode_t;		/* Type of file attribute bitmasks.  */
+typedef __u_short __nlink_t; 		/* Type of file link counts.  */
 typedef long int __off_t;		/* Type of file sizes and offsets.  */
 typedef __quad_t __loff_t;		/* Type of file sizes and offsets.  */
 typedef int __pid_t;			/* Type of process identifications.  */

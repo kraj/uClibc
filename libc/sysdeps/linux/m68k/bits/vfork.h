@@ -5,11 +5,17 @@
 
 extern int _clone __P ((int (*fn)(void *arg), void *child_stack, int flags, void *arg));
 
+#ifndef __NR_vfork
+#define __NR_vfork __NR_fork /* uClinux-2.0 only has fork which is vfork */
+#endif
+
 #define vfork() ({						\
-register unsigned long __res __asm__ ("%d0") = __NR_fork;	\
-__asm__ __volatile__ ("trap  #0"				\
-                      : "=g" (__res)				\
-                      : "0" (__res)				\
+unsigned long __res;	\
+__asm__ __volatile__ ("movel %1,%%d0;" \
+                      "trap  #0;" \
+					  "movel %%d0,%0"				\
+                      : "=d" (__res)				\
+                      : "0" (__NR_vfork)				\
                       : "%d0");					\
 if (__res >= (unsigned long)-4096) {				\
 	errno = -__res;						\

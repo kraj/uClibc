@@ -44,3 +44,14 @@ typedef struct
    containing a local variable at ADDRESS.  */
 #define _JMPBUF_UNWINDS(jmpbuf, address) \
   ((void *) (address) < (void *) (jmpbuf)->__sp)
+
+/* Simple version of sigsetjmp and siglongjmp */
+
+#define __sigsetjmp(env, savesigs) ((env)->__mask_was_saved = (savesigs), \
+			sigprocmask(SIG_SETMASK, 0, &(env)->__saved_mask), \
+			setjmp(&(env)->__jmpbuf))
+
+#define siglongjmp(env, val) (((env)->__mask_was_saved ? \
+			sigprocmask(SIG_SETMASK, &(env)->__saved_mask, 0) : 0), \
+			longjmp(&(env)->__jmpbuf, val))
+
