@@ -36,6 +36,15 @@
  *     and error state.
  *  The above changes should take care of a problem initially reported
  *  by "Steven J. Hill" <sjhill@realitydiluted.com>.
+ *
+ *  8-25-2002
+ *  Changed fclose behavior when custom streams were enabled.  Previously,
+ *     the cookie pointer was set to NULL as a debugging aid.  However,
+ *     some of the perl 5.8 test rely on being able to close stderr and
+ *     still try writing to it.  So now, the cookie pointer and handler
+ *     function pointers are set to that it is a "normal" file with a
+ *     file descriptor of -1.  Note: The cookie pointer is reset to NULL
+ *     if the FILE struct is free'd by fclose.
  */
 
 /* Before we include anything, convert L_ctermid to L_ctermid_function
@@ -2019,7 +2028,11 @@ int fclose(register FILE *stream)
 		rv = EOF;
 	}
 #ifdef __STDIO_GLIBC_CUSTOM_STREAMS
-	stream->cookie = NULL;		/* To aid debugging... */
+	stream->cookie = &(stream->filedes);
+	stream->gcs.read = _cs_read;
+	stream->gcs.write = _cs_write;
+	stream->gcs.seek = 0;		/* The internal seek func handles normals. */
+	stream->gcs.close = _cs_close;
 #endif
 	stream->filedes = -1;		/* To aid debugging... */
 
@@ -2035,6 +2048,7 @@ int fclose(register FILE *stream)
 	/* At this point, any dangling refs to the stream are the result of
 	 * a programming bug... so free the unlocked stream. */
 	if (stream->modeflags & __FLAG_FREEFILE) {
+	    stream->cookie = NULL;	/* To aid debugging... */
 		free(stream);
 	}
 
@@ -2053,7 +2067,11 @@ int fclose(register FILE *stream)
 	}
 
 #ifdef __STDIO_GLIBC_CUSTOM_STREAMS
-	stream->cookie = NULL;		/* To aid debugging... */
+	stream->cookie = &(stream->filedes);
+	stream->gcs.read = _cs_read;
+	stream->gcs.write = _cs_write;
+	stream->gcs.seek = 0;		/* The internal seek func handles normals. */
+	stream->gcs.close = _cs_close;
 #endif
 	stream->filedes = -1;		/* To aid debugging... */
 
@@ -2062,6 +2080,7 @@ int fclose(register FILE *stream)
 	/* At this point, any dangling refs to the stream are the result of
 	 * a programming bug... so free the unlocked stream. */
 	if (stream->modeflags & __FLAG_FREEFILE) {
+	    stream->cookie = NULL;	/* To aid debugging... */
 		free(stream);
 	}
 
