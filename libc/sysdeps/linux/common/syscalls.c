@@ -36,10 +36,7 @@ _syscall1(void, _exit, int, status);
 #endif
 
 //#define __NR_fork             2
-#ifdef L_fork
-#include <unistd.h>
-_syscall0(pid_t, fork);
-#endif
+//See architecture specific implementation...
 
 //#define __NR_read             3
 #ifdef L_read
@@ -791,6 +788,7 @@ _syscall1(int, fsync, int, fd);
 //int sigreturn(unsigned long __unused);
 
 //#define __NR_clone            120
+//See architecture specific implementation...
 
 //#define __NR_setdomainname    121
 #ifdef L_setdomainname
@@ -1060,3 +1058,6 @@ SYSCALL__(poll, 3)
 //#define __NR_putpmsg                  189
 
 //#define __NR_vfork                    190
+//See architecture specific implementation...
+
+

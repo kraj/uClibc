@@ -28,7 +28,7 @@ ASFLAGS=$(CFLAGS)
 SSRC=_start.S longjmp.S setjmp.S #_start.S #clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=#select.c
+CSRC=fork.c vfork.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)

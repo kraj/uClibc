@@ -646,8 +646,11 @@ extern int setegid __P ((__gid_t __gid));
 /* Clone the calling process, creating an exact copy.
    Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
-extern __pid_t __fork __P ((void));
+#ifdef __HAS_NO_MMU__
+#define fork fork_not_available_on_mmuless_systems
+#else
 extern __pid_t fork __P ((void));
+#endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 /* Clone the calling process, but without copying the whole address space.
