@@ -24,12 +24,12 @@
 	__asm__ (					\
 	".section \".text\"\n\t"			\
 	".align 2\n\t"					\
-	".globl "###name"\n\t"				\
-	".type "###name",@function\n"			\
+	".globl " STRINGIFY(name) "\n\t"				\
+	".type " STRINGIFY(name) ",@function\n"			\
 	#name":\n\tli 0," STRINGIFY(__NR_##name) "\n\t"	\
-	"b "JUMPTARGET(__uClibc_syscall)"\n"		\
-	".Lfe1"###name":\n\t"				\
-	".size\t"###name ",.Lfe1"###name"-"###name"\n"	\
+	"b " JUMPTARGET(__uClibc_syscall) "\n"		\
+	".Lfe1" STRINGIFY(name) ":\n\t"				\
+	".size\t" STRINGIFY(name) ",.Lfe1" STRINGIFY(name) "-" STRINGIFY(name) "\n"	\
 	)
 
 #undef _syscall0

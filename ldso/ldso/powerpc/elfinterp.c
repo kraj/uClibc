@@ -382,7 +382,8 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 			}
 			break;
 #else
-			_dl_dprintf(2,"R_PPC_REL24: Compile shared libraries with -fPIC!\n");
+			_dl_dprintf(2, "%s: symbol '%s' is type R_PPC_REL24\n\tCompile shared libraries with -fPIC!\n",
+					_dl_progname, strtab + symtab[symtab_index].st_name);
 			_dl_exit(1);
 #endif
 		case R_PPC_RELATIVE:
