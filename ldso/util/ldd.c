@@ -123,8 +123,8 @@ static void search_for_named_library(char *name, char *result, const char *path_
 	}
 
 	path_n = path;
-	*result = '\0';
 	for (i = 0; i < count; i++) {
+		*result = '\0';
 		strcat(result, path_n); 
 		strcat(result, "/"); 
 		strcat(result, name);
