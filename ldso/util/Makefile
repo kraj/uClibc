@@ -24,7 +24,13 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 TARGET_CC = $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
-TARGETS=elf_header ldconfig ldd ldd.target readelf readelf.target
+TARGETS = elf_header ldd readelf
+ifeq ($(strip $(CROSS)),)
+TARGETS += ldd.target readelf.target
+endif
+ifneq ($(strip $(LIBRARY_CACHE)),)
+TARGETS += ldconfig
+endif
 all: $(TARGETS)
 
 elf_header:
@@ -38,10 +44,6 @@ readelf.target: readelf.c
 	$(TARGET_CC) $(CFLAGS) --uclibc-use-build-dir -Wl,-s readelf.c -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
-ifeq ($(strip $(LIBRARY_CACHE)),)
-ldconfig: 
-	echo "LIBRARY_CACHE disabled -- not building ldconfig"
-else
 readsoname.o: readsoname.c readsoname2.c
 	$(NATIVE_CC) $(NATIVE_CFLAGS) -I . -c $< -o $@
 	strip -x -R .note -R .comment $*.o
@@ -54,7 +56,6 @@ ldconfig.o: ldconfig.c
 ldconfig: ldconfig.o readsoname.o
 	$(NATIVE_CC) $(NATIVE_CFLAGS) $^ -o $@
 	strip -x -R .note -R .comment $@
-endif
 
 ldd: ldd.c
 	$(NATIVE_CC) $(NATIVE_CFLAGS) -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
