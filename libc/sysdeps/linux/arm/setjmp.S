@@ -17,25 +17,24 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#include <features.h>
 #define _SETJMP_H
 #define _ASM
 #include <bits/setjmp.h>
 
-	/* Binary compatibility entry point.  */
-.globl _setjmp;
-.type _setjmp,#function
-.align 4;
-_setjmp:
-	mov	r1, #0
-
-
 .globl __sigsetjmp;
-.type __sigsetjmp,#function
+.type __sigsetjmp,%function
 .align 4;
 __sigsetjmp:
 	/* Save registers */
-	stmia	r0, {v1-v6, sl, fp, sp, lr}
+#ifdef __UCLIBC_HAS_FLOATS__
+	sfmea   f4, 4, [r0]!
+#endif
+	stmia   r0, {v1-v6, sl, fp, sp, lr}
+
+	/* Restore pointer to jmp_buf */
+	sub     r0, r0, #48
 
 	/* Make a tail call to __sigjmp_save; it takes the same args.  */
-	B	__sigjmp_save
+	B	__sigjmp_save	(PLT)
 .size __sigsetjmp,.-__sigsetjmp;

@@ -21,7 +21,7 @@
  */
 
 #include <asm/errno.h>
-#include <asm/unistd.h>
+#include <sys/syscall.h>
 
 
 .global errno;

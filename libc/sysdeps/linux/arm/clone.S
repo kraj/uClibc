@@ -20,19 +20,21 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
-#include <sysdep.h>
-#define _ERRNO_H	1
-#include <bits/errno.h>
+#include <asm/errno.h>
+#include <sys/syscall.h>
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
-        .text
-ENTRY(__clone)
+.text
+.globl __clone;
+.type __clone,%function
+.align 4;
+__clone:
 	@ sanity check args
 	cmp	r0, #0
 	cmpne	r1, #0
 	moveq	r0, #-EINVAL
-	beq	PLTJMP(syscall_error)
+	beq	__syscall_error (PLT)
 
 	@ insert the args onto the new stack
 	sub	r1, r1, #8
@@ -44,10 +46,10 @@ ENTRY(__clone)
 	@ get flags
 	mov	r0, r2
 	@ new sp is already in r1
-	swi	SYS_ify(clone)
+	swi	__NR_clone
 	movs	a1, a1
-	blt	PLTJMP(C_SYMBOL_NAME(__syscall_error))
-	RETINSTR(movne, pc, lr)
+	blt	__syscall_error  (PLT)
+	movne    pc, lr
 
 	@ pick the function arg and call address off the stack and execute
 	ldr	r0, [sp, #4]
@@ -55,8 +57,25 @@ ENTRY(__clone)
 	ldr 	pc, [sp]
 
 	@ and we are done, passing the return value through r0
-	b	PLTJMP(_exit)
+	b	_exit	(PLT)
 
-PSEUDO_END (__clone)
+__syscall_error:
+	/* Looks like the syscall choked -- set errno */
+	ldr  r3, .L4
+	/* Calculate the - of the syscall result, in case we need it */
+	rsb  r2, r0, $0
 
-weak_alias (__clone, clone)
+	/* errno = -result */
+	str  r2, [r9,r3]
+
+	/* return -1 */
+	mvn  r0, $0
+	mov  pc, lr
+.size __clone,.-__clone;
+
+.L4:  .word errno
+
+
+.globl	clone;
+    clone = __clone
+
