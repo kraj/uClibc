@@ -373,6 +373,14 @@ extern char *basename (__const char *__filename) __THROW;
 #endif
 #endif
 
+#ifdef	__USE_BSD
+/* Two OpenBSD extension functions. */
+extern size_t strlcat(char *__restrict dst, const char *__restrict src,
+                      size_t n) __THROW;
+extern size_t strlcpy(char *__restrict dst, const char *__restrict src,
+                      size_t n) __THROW;
+#endif
+
 __END_DECLS
 
 #endif /* string.h  */
