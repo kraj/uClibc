@@ -490,7 +490,7 @@ int vfprintf(FILE * __restrict op, register const char * __restrict fmt,
 
 	i = (__FERROR(op)) ? -1 : cnt;
 
-	__STDIO_THREADLOCK(op);
+	__STDIO_THREADUNLOCK(op);
 
 	return i;
 }
