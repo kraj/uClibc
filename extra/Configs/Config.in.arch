@@ -54,7 +54,7 @@ config DO_C99_MATH
 	  If you want the uClibc math library to contain the full set C99
 	  math library features, then answer Y.  If you leave this set to
 	  N the math library will contain only the math functions that were
-	  listed as part of the traditionla POSIX/IEEE 1003.1b-1993 standard.
+	  listed as part of the traditional POSIX/IEEE 1003.1b-1993 standard.
 	  Leaving this option set to N will save around 35k on an x86 system.
 
 	  If your applications require the newer C99 math library functions, 
