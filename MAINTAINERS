@@ -1,24 +1,23 @@
-Maintainers List
+Arch Maintainers List
 
 Note: For the hard of thinking, this list is meant to remain in alphabetical
 order. If you could add yourselves to it in alphabetical order that would be
-so much easier [Ed]
+so much easier [Ed].
 
 P: Person
 E: Person's email address
 W: Web-page with status/info
 S: Status, one of the following:
 
-	Supported:	Someone is actually paid to look after this.
-	Maintained:	Someone actually looks after it.
-	Odd Fixes:	It has a maintainer but they don't have time to do
-			much other than throw the odd patch in. See below..
-	Orphan:		No current maintainer [but maybe you could take the
-			role as you write your new code].
-	Obsolete:	Old code. Something tagged obsolete generally means
-			it has been replaced by a better system and you
-			should be using that.
-
+    Supported:      Someone is actually paid to look after this.
+    Maintained:     Someone actually looks after it.
+    Patches:        It has a maintainer but they don't have time to do
+                    much other than throw the odd patch in.  See below ...
+    Unmaintained:   No current maintainer [but maybe you could take the
+                    role as you write your new code].
+    Obsolete:       Old code. Something tagged obsolete generally means
+                    it has been replaced by a better system and you
+                    should be using that.
 
 ----------------------------------------------------------------------
 
