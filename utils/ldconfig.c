@@ -34,7 +34,6 @@
 #include <unistd.h>
 #include <link.h>
 #include <fcntl.h>
-//#include <err.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/mman.h>

@@ -35,7 +35,7 @@ endif
 
 ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
-all: headers pregen subdirs shared utils finished
+all: headers pregen subdirs shared finished
 
 # In this section, we need .config
 -include .config.cmd
@@ -271,8 +271,8 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 endif
 
 ifeq ($(strip $(HAVE_SHARED)),y)
-utils: $(TOPDIR)ldso/util/ldd
-	$(MAKE) -C ldso utils
+utils: $(TOPDIR)utils/ldd
+	$(MAKE) -C utils
 else
 utils: dummy
 endif
@@ -290,39 +290,10 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	#$(INSTALL) -m 755 ldso/util/readelf \
 	#	$(PREFIX)$(RUNTIME_PREFIX)usr/bin/readelf
 endif
-
-# Installs run-time libraries and helper apps in preparation for
-# deploying onto a target system, but installed below wherever
-# $PREFIX is set to, allowing you to package up the result for
-# deployment onto your target system.
-install_target:
-ifeq ($(strip $(HAVE_SHARED)),y)
-	$(INSTALL) -d $(PREFIX)$(TARGET_PREFIX)/lib
-	$(INSTALL) -d $(PREFIX)$(TARGET_PREFIX)/usr/bin
-	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
-		$(PREFIX)$(TARGET_PREFIX)/lib
-	cp -fa lib/*.so.* $(PREFIX)$(TARGET_PREFIX)/lib
-	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
-	    set -x -e; \
-	    $(INSTALL) -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
-	    		$(PREFIX)$(TARGET_PREFIX)/lib; \
-	fi;
-endif
-
-install_target_utils:
-ifeq ($(strip $(HAVE_SHARED)),y)
-	@$(MAKE) -C ldso/util ldd.target ldconfig.target #readelf.target
-	$(INSTALL) -d $(PREFIX)$(TARGET_PREFIX)/etc;
-	$(INSTALL) -d $(PREFIX)$(TARGET_PREFIX)/sbin;
-	$(INSTALL) -d $(PREFIX)$(TARGET_PREFIX)/usr/bin;
-	$(INSTALL) -m 755 ldso/util/ldd.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/ldd
-	$(INSTALL) -m 755 ldso/util/ldconfig.target $(PREFIX)$(TARGET_PREFIX)/sbin/ldconfig;
-	#$(INSTALL) -m 755 ldso/util/readelf.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/readelf;
-endif
 ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 	@$(MAKE) -C libc/misc/wchar iconv.target
-	$(INSTALL) -d $(PREFIX)$(TARGET_PREFIX)/usr/bin;
-	$(INSTALL) -m 755 libc/misc/wchar/iconv.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/iconv
+	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/usr/bin;
+	$(INSTALL) -m 755 libc/misc/wchar/iconv.target $(PREFIX)$(RUNTIME_PREFIX)/usr/bin/iconv
 endif
 
 finished2:

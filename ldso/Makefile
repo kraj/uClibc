@@ -23,7 +23,7 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-ALL_SUBDIRS = ldso libdl util
+ALL_SUBDIRS = ldso libdl
 
 
 all: headers
@@ -33,15 +33,12 @@ else
 	echo "Not building ld-uClibc"
 endif
 
-shared: utils
+shared:
 ifeq ($(strip $(BUILD_UCLIBC_LDSO)),y)
 	$(MAKE) -C libdl;
 else
 	echo "Not building libdl"
 endif
-
-utils:
-	$(MAKE) -C util;
 
 headers:
 	$(LN) -fs $(TOPDIR)../include/elf.h include/
