@@ -4,8 +4,9 @@ include $(TESTDIR)/Rules.mak
 
 
 TARGETS=testmalloc testmalloc_glibc 
-TARGETS=mallocbug mallocbug_glibc
+TARGETS+=mallocbug mallocbug_glibc
 TARGETS+=teststrtol teststrtol_glibc teststrtol_diff
+TARGETS+=qsort qsort_glibc qsort_diff
 
 all: $(TARGETS)
 
@@ -107,6 +108,40 @@ teststrtol_diff: teststrtol_glibc teststrtol
 	-@ echo "Diffing output: "
 	-@ echo " "
 	-diff -u teststrtol_glibc.out teststrtol.out
+	-@ echo " "
+
+qsort: qsort.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(TESTCC) $(CFLAGS) -c $< -o $@.o
+	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-ldd $@
+	ls $(LSFLAGS) $@
+	-./$@ > $@.out
+	-@ echo " "
+
+qsort_glibc: qsort.c Makefile
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs GNU libc: "
+	-@ echo " "
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	-ldd $@
+	ls -sh $@
+	-./$@ > $@.out
+	-@ echo " "
+
+qsort_diff: qsort_glibc qsort
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Diffing output: "
+	-@ echo " "
+	-diff -u qsort_glibc.out qsort.out
 	-@ echo " "
 
 clean:
