@@ -85,7 +85,7 @@ teststrtol: teststrtol.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
-	ls -sh $@
+	ls -l $@
 	-./$@ > $@.out
 	-@ echo " "
 
@@ -98,7 +98,7 @@ teststrtol_glibc: teststrtol.c Makefile
 	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
-	ls -sh $@
+	ls -l $@
 	-./$@ > $@.out
 	-@ echo " "
 
@@ -132,7 +132,7 @@ qsort_glibc: qsort.c Makefile
 	$(HOST_CC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
-	ls -sh $@
+	ls -l $@
 	-./$@ > $@.out
 	-@ echo " "
 

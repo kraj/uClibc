@@ -10,8 +10,8 @@ include $(TESTDIR)../Config
 include $(TESTDIR)Config
 
 
-NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
-	-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/')
+NATIVE_ARCH = ${shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
+	-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/'}
 
 # If you are running a cross compiler, you may want to set this
 # to something more interesting...
@@ -28,8 +28,8 @@ LSFLAGS = -l
 WARNINGS=-Wall
 
 # use '-Os' optimization if available, else use -O2
-OPTIMIZATION = $(shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
-    then echo "-Os"; else echo "-O2" ; fi)
+OPTIMIZATION = ${shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
+    then echo "-Os"; else echo "-O2" ; fi}
 
 ifeq ($(DODEBUG),true)
     CFLAGS +=$(WARNINGS) $(OPTIMIZATION) -g
