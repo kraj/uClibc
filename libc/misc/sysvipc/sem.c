@@ -38,7 +38,7 @@ union semun {
 
 #ifdef __NR_semctl
 #define __NR___semctl __NR_semctl
-static inline _syscall4(int, __semctl, int, semid, int, semnum, int, cmd, union semun *, arg);
+static inline _syscall4(int, __semctl, int, semid, int, semnum, int, cmd, void *, arg);
 #endif
 
 int semctl(int semid, int semnum, int cmd, ...)
@@ -51,7 +51,7 @@ int semctl(int semid, int semnum, int cmd, ...)
     arg = va_arg (ap, union semun);
     va_end (ap);
 #ifdef __NR_semctl
-    return __semctl(semid, semnum, cmd, &arg);
+    return __semctl(semid, semnum, cmd, arg.__pad);
 #else
     return __syscall_ipc(IPCOP_semctl, semid, semnum, cmd, &arg);
 #endif
