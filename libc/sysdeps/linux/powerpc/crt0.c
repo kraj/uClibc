@@ -1,5 +1,5 @@
 /*
- * uC-libc/sysdeps/linux/powerpc/crt0.S
+ * uC-libc/sysdeps/linux/powerpc/crt0.c
  * process init code for powerpc
  *
  * Copyright (C) 2001 by Lineo, Inc.
