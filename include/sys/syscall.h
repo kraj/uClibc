@@ -19,10 +19,11 @@
 #ifndef _SYSCALL_H
 #define _SYSCALL_H	1
 
-/* This file should list the numbers of the system the system knows.
-   But instead of duplicating this we use the information available
-   from the kernel sources.  */
-#include <asm/unistd.h>
+/* This file includes the kernel's syscall list, and then includes our own
+ * private copy of the _syscall macros.  This is important, since on
+ * some arches (such as i386), the kernel _syscall[0-5] macros don't
+ * handle things like PIC code, so we can't use them. */
+#include <bits/syscalls.h>
 
 #ifndef _LIBC
 /* The Linux kernel header file defines macros `__NR_<name>', but some
