@@ -31,7 +31,7 @@ struct sigaction
 	/* Used if SA_SIGINFO is not set.  */
 	__sighandler_t sa_handler;
 	/* Used if SA_SIGINFO is set.  */
-	void (*sa_sigaction) __PMT ((int, siginfo_t *, void *));
+	void (*sa_sigaction) __P ((int, siginfo_t *, void *));
       }
     __sigaction_handler;
 # define sa_handler	__sigaction_handler.sa_handler
