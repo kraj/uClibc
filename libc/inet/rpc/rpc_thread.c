@@ -35,12 +35,8 @@ __rpc_thread_destroy (void)
 }
 
 
-#warning fix multithreaded initialization...
-#if 0
 extern int __pthread_once (pthread_once_t *__once_control,
 			   void (*__init_routine) (void));
-asm (".weak __pthread_once");
-
 
 # define __libc_once_define(CLASS, NAME) \
   CLASS pthread_once_t NAME = PTHREAD_ONCE_INIT
@@ -86,12 +82,6 @@ __rpc_thread_variables (void)
 	}
 	return tvp;
 }
-#else
-struct rpc_thread_variables * __rpc_thread_variables (void)
-{
-    return __libc_tsd_RPC_VARS_data;
-}
-#endif
 
 
 /* Global variables If we're single-threaded, or if this is the first

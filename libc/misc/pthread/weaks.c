@@ -77,6 +77,7 @@ weak_alias (__pthread_return_0, pthread_rwlockattr_init)
 weak_alias (__pthread_return_0, pthread_rwlockattr_destroy)
 weak_alias (__pthread_return_0, pthread_rwlockattr_setpshared)
 weak_alias (__pthread_return_0, pthread_rwlockattr_getpshared)
+weak_alias (__pthread_return_0, __pthread_once)
 
 
 /* Those are pthread functions which return 1 if successful. */
