@@ -44,12 +44,18 @@ build-stamp: debian/control
 	# Brute force method of getting kernel headers
 	tar --bzip2 -xf /usr/src/$(kernel_source).tar.bz2 $(kernel_source)/include
 
+ifneq ($(target),mipsel)
 	cp extra/Configs/Config.$(target) Config
+else
+	cp extra/Configs/Config.mips Config
+endif
 
 	echo '#Debian configuration overrides'  >>Config
 ifneq ($(target),$(DEB_HOST_GNU_CPU))
 	echo 'TARGET_ARCH = $(target)'  >>Config
 	echo 'CROSS = $(target)-linux-'  >>Config
+else
+	echo 'CROSS = '  >>Config
 endif
 	echo 'DOPIC = true'  >>Config
 	echo 'SYSTEM_DEVEL_PREFIX = /usr'  >>Config
@@ -61,6 +67,9 @@ ifeq ($(with_shared_libs),n)
 endif
 	echo 'KERNEL_SOURCE = '`pwd`/$(kernel_source) >>Config
 	echo 'HAS_MMU = true' >>Config
+	echo 'HAS_FLOATING_POINT = true' >>Config
+	echo 'DO_C99_MATH = true' >>Config
+	echo 'DODEBUG = false' >>Config
 
 	$(MAKE)
 
@@ -77,6 +86,8 @@ clean: debian/control
 
 	# Add here commands to clean up after the build process.
 	-$(MAKE) clean
+
+	-rm Config
 
 	dh_clean
 
