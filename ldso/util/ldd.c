@@ -28,6 +28,8 @@
 #include "../config.h"
 #include "readelf.h"
 
+extern int uselib(const char *library);
+
 #ifdef __GNUC__
 void warn(char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
 void error(char *fmt, ...) __attribute__ ((format (printf, 1, 2)));

@@ -485,7 +485,7 @@ static void foobar()
 	_dl_exit(1);
 }
 
-static int foobar1 = (int)foobar; /* Use as pointer */
+static int __attribute__((unused)) foobar1 = (int)foobar; /* Use as pointer */ 
 
 #if 1
 #pragma weak _dl_find_hash = foobar
