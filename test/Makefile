@@ -52,7 +52,7 @@ subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 $(patsubst %, _dir_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
-$(patsubst %, _dirclean_%, $(ALL_SUBDIRS) ldso) : dummy
+$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy
