@@ -212,7 +212,7 @@ endif
 	    chmod 755 $$i; chmod 644 $$i/*.h > /dev/null 2>&1; \
 	done;
 	-find $(PREFIX)$(DEVEL_PREFIX) -name .svn | xargs $(RM) -r;
-	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
+	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1:\2/'` $(PREFIX)$(DEVEL_PREFIX)
 ifeq ($(strip $(HAVE_SHARED)),y)
 	for i in `find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
 	sed -e 's/lib\///'` ; do \
