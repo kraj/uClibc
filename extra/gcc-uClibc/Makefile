@@ -30,7 +30,7 @@ gcc-uClibc-native: gcc-uClibc.h gcc-uClibc.c
 	# uClibc built for native environment, so why not use it ;-)
 	$(CC) $(CFLAGS) -nostdinc -I$(UCLIBC_DIR)/include -I$(GCC_INC) \
 		-Wl,-static gcc-uClibc.c \
-		$(UCLIBC_DIR)/libcrt0.o \
+		$(UCLIBC_DIR)/crt0.o \
 		-nostdlib $(GCC_LIB) $(UCLIBC_DIR)/libc.a \
 		-s -o gcc-uClibc-$(TARGET_ARCH) #-DDEBUG
 
