@@ -28,6 +28,15 @@
 #define __need_size_t
 #include <stddef.h>
 
+/* Sigh.  We need to carefully wrap this one... */
+#ifndef __GLIBC__
+#define __GLIBC__ 2
+#include <asm/posix_types.h>
+#undef __GLIBC__
+#else
+#include <asm/posix_types.h>
+#endif
+
 /* Convenience types.  */
 typedef unsigned char __u_char;
 typedef unsigned short __u_short;
@@ -58,9 +67,9 @@ __extension__ typedef unsigned long long int __uint64_t;
 #endif
 typedef __quad_t *__qaddr_t;
 
-typedef __u_quad_t __dev_t;		/* Type of device numbers.  */
-typedef __u_int __uid_t;		/* Type of user identifications.  */
-typedef __u_int __gid_t;		/* Type of group identifications.  */
+typedef __kernel_dev_t __dev_t;		/* Type of device numbers.  */
+typedef __kernel_uid_t __uid_t;		/* Type of user identifications.  */
+typedef __kernel_gid_t __gid_t;		/* Type of group identifications.  */
 typedef __u_long __ino_t;		/* Type of file serial numbers.  */
 typedef __u_int __mode_t;		/* Type of file attribute bitmasks.  */
 typedef __u_int __nlink_t; 		/* Type of file link counts.  */
