@@ -54,17 +54,17 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 initfini.s: initfini.c
-	$(CC) $(CFLAGS) -c initfini.c -S -o initfini.s
+	$(CC) -Os -fno-builtin -c initfini.c -S -o initfini.s
 
 crti.S crtn.S: initfini.s
 	$(TOPDIR)/extra/scripts/initfini.pl
 
 crti.o: crti.S
-	$(CC) $(CFLAGS) -c crti.S -o crti.o
+	$(CC) -Os -fno-builtin -c crti.S -o crti.o
 	cp crti.o $(TOPDIR)lib/
 
 crtn.o: crtn.S
-	$(CC) $(CFLAGS) -c crtn.S -o crtn.o
+	$(CC) -Os -fno-builtin -c crtn.S -o crtn.o
 	cp crtn.o $(TOPDIR)lib/
 
 clean:
