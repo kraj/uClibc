@@ -25,25 +25,31 @@
 #include <malloc.h>
 #include <errno.h>
 #include <string.h>
+#include <assert.h>
 
-#undef STUB_FWRITE
 
-extern FILE *__IO_list;			/* For fflush at exit */
-
+#define FIXED_STREAMS 3
 #define FIXED_BUFFERS 2
+
 struct fixed_buffer {
 	unsigned char data[BUFSIZ];
 	unsigned char used;
 };
 
-extern void __init_stdio(void);
+extern FILE *__IO_list;			/* For fflush at exit */
+extern FILE _stdio_streams[FIXED_STREAMS];
 extern struct fixed_buffer _fixed_buffers[FIXED_BUFFERS];
 
+#if defined L__fopen || defined L_fclose || defined L_setvbuf
 extern unsigned char *_alloc_stdio_buffer(size_t size);
 extern void _free_stdio_buffer(unsigned char *buf);
+#endif
 
-#ifdef L__alloc_stdio_buffer
+#if defined L__fopen || defined L_fclose
+extern void _free_stdio_stream(FILE *fp);
+#endif
 
+#ifdef L__stdio_buffer
 unsigned char *_alloc_stdio_buffer(size_t size)
 {
 	if (size == BUFSIZ) {
@@ -57,9 +63,6 @@ unsigned char *_alloc_stdio_buffer(size_t size)
 	}
 	return malloc(size);
 }
-#endif
-
-#ifdef L__free_stdio_buffer
 
 void _free_stdio_buffer(unsigned char *buf)
 {
@@ -87,13 +90,20 @@ void _free_stdio_buffer(unsigned char *buf)
 
 struct fixed_buffer _fixed_buffers[FIXED_BUFFERS];
 
-FILE _stdio_streams[3] = {
+#if FIXED_STREAMS < 3
+#error FIXED_STREAMS must be >= 3
+#endif
+
+FILE _stdio_streams[FIXED_STREAMS] = {
 	{bufin, bufin, bufin, bufin, bufin + BUFSIZ,
-	 0, _IOFBF | __MODE_READ | __MODE_IOTRAN | __MODE_FREEBUF},
+	 0, _IOFBF | __MODE_READ | __MODE_FREEBUF,
+	 _stdio_streams + 1},
 	{bufout, bufout, bufout, bufout, bufout + BUFSIZ,
-	 1, _IOFBF | __MODE_WRITE | __MODE_IOTRAN | __MODE_FREEBUF},
+	 1, _IOFBF | __MODE_WRITE | __MODE_FREEBUF,
+	 _stdio_streams + 2},
 	{buferr, buferr, buferr, buferr, buferr + sizeof(buferr),
-	 2, _IONBF | __MODE_WRITE | __MODE_IOTRAN}
+	 2, _IONBF | __MODE_WRITE,
+	 0},
 };
 
 FILE *_stdin = _stdio_streams + 0;
@@ -102,10 +112,10 @@ FILE *_stderr = _stdio_streams + 2;
 
 /*
  * Note: the following forces linking of the __init_stdio function if
- * any of the stdio functions are used (except perror) since they all
- * call fflush directly or indirectly.
+ * any of the stdio functions are used since they all call fflush directly
+ * or indirectly.
  */
-FILE *__IO_list = 0;			/* For fflush at exit */
+FILE *__IO_list = _stdio_streams;			/* For fflush at exit */
 
 /* Call the stdio initiliser; it's main job it to call atexit */
 
@@ -113,31 +123,25 @@ void __stdio_close_all(void)
 {
 	FILE *fp;
 
-	fflush(stdout);
-	fflush(stderr);
 	for (fp = __IO_list; fp; fp = fp->next) {
 		fflush(fp);
 		close(fp->fd);
-		/* Note we're not de-allocating the memory */
-		/* There doesn't seem to be much point :-) */
-		fp->fd = -1;
 	}
 }
 
 void __init_stdio(void)
 {
-	static int stdio_initialized = 0;
-#if FIXED_BUFFERS > 2
+#if (FIXED_BUFFERS > 2) || (FIXED_STREAMS > 3)
 	int i;
 #endif
-
-	if (stdio_initialized!=0)
-	    return;
-	stdio_initialized++;
-
 #if FIXED_BUFFERS > 2
 	for ( i = 2 ; i < FIXED_BUFFERS ; i++ ) {
 		_fixed_buffers[i].used = 0;
+	}
+#endif
+#if FIXED_STREAMS > 3
+	for ( i = 3 ; i < FIXED_STREAMS ; i++ ) {
+		_stdio_streams[i].fd = -1;
 	}
 #endif
 
@@ -147,7 +151,9 @@ void __init_stdio(void)
 	if (isatty(1)) {
 		stdout->mode |= _IOLBF;
 	}
-	atexit(__stdio_close_all);
+
+	/* Cleanup is now taken care of in __uClibc_main. */
+	/* atexit(__stdio_close_all); */
 }
 #endif
 
@@ -158,8 +164,6 @@ FILE *fp;
 {
 	register int v;
 
-	 __init_stdio();
-
 	v = fp->mode;
 	/* If last op was a read ... */
 	if ((v & __MODE_READING) && fflush(fp))
@@ -168,12 +172,6 @@ FILE *fp;
 	/* Can't write or there's been an EOF or error then return EOF */
 	if ((v & (__MODE_WRITE | __MODE_EOF | __MODE_ERR)) != __MODE_WRITE)
 		return EOF;
-
-	/* In MSDOS translation mode */
-#if __MODE_IOTRAN
-	if (ch == '\n' && (v & __MODE_IOTRAN) && fputc('\r', fp) == EOF)
-		return EOF;
-#endif
 
 	/* Buffer is full */
 	if (fp->bufpos >= fp->bufend && fflush(fp))
@@ -189,7 +187,7 @@ FILE *fp;
 		return EOF;
 
 	/* Can the macro handle this by itself ? */
-	if (v & (__MODE_IOTRAN | _IOLBF | _IONBF))
+	if (v & (_IOLBF | _IONBF))
 		fp->bufwrite = fp->bufstart;	/* Nope */
 	else
 		fp->bufwrite = fp->bufend;	/* Yup */
@@ -205,17 +203,13 @@ FILE *fp;
 {
 	int ch;
 
-	 __init_stdio();
-
 	if (fp->mode & __MODE_WRITING)
 		fflush(fp);
 
-	if ( (fp == stdin) && (stdout->fd != -1) && (stdout->mode & __MODE_WRITING) ) 
+	if ( (fp == stdin) && (stdout->fd != -1) 
+		 && (stdout->mode & __MODE_WRITING) ) 
 	    fflush(stdout);
 
-#if __MODE_IOTRAN
-  try_again:
-#endif
 	/* Can't read or there's been an EOF or error then return EOF */
 	if ((fp->mode & (__MODE_READ | __MODE_EOF | __MODE_ERR)) !=
 		__MODE_READ) return EOF;
@@ -232,12 +226,6 @@ FILE *fp;
 	}
 	ch = *(fp->bufpos++);
 
-#if __MODE_IOTRAN
-	/* In MSDOS translation mode; WARN: Doesn't work with UNIX macro */
-	if (ch == '\r' && (fp->mode & __MODE_IOTRAN))
-		goto try_again;
-#endif
-
 	return ch;
 }
 #endif
@@ -246,24 +234,17 @@ FILE *fp;
 int fflush(fp)
 FILE *fp;
 {
-	int len, cc, rv = 0;
+	int len, cc, rv;
 	char *bstart;
 
-	 __init_stdio();
-
+	rv = 0;
 	if (fp == NULL) {			/* On NULL flush the lot. */
-		if (fflush(stdin))
-			return EOF;
-		if (fflush(stdout))
-			return EOF;
-		if (fflush(stderr))
-			return EOF;
-
-		for (fp = __IO_list; fp; fp = fp->next)
-			if (fflush(fp))
-				return EOF;
-
-		return 0;
+		for (fp = __IO_list; fp; fp = fp->next) {
+			if (fflush(fp)) {
+				rv = EOF;
+			}
+		}
+		return rv;
 	}
 
 	/* If there's output data pending */
@@ -329,8 +310,6 @@ FILE *f;
 	register size_t i;
 	register int ch;
 
-	 __init_stdio();
-
 	ret = s;
 	for (i = count-1; i > 0; i--) {
 		ch = getc(f);
@@ -360,8 +339,6 @@ char *str;
 	register char *p = str;
 	register int c;
 
-	 __init_stdio();
-
 	while (((c = getc(stdin)) != EOF) && (c != '\n'))
 		*p++ = c;
 	*p = '\0';
@@ -375,8 +352,6 @@ const char *str;
 FILE *fp;
 {
 	register int n = 0;
-
-	 __init_stdio();
 
 	while (*str) {
 		if (putc(*str++, fp) == EOF)
@@ -393,8 +368,6 @@ const char *str;
 {
 	register int n;
 
-	 __init_stdio();
-
 	if (((n = fputs(str, stdout)) == EOF)
 		|| (putc('\n', stdout) == EOF))
 		return (EOF);
@@ -407,9 +380,6 @@ const char *str;
  * fread will often be used to read in large chunks of data calling read()
  * directly can be a big win in this case. Beware also fgetc calls this
  * function to fill the buffer.
- * 
- * This ignores __MODE__IOTRAN; probably exactly what you want. (It _is_ what
- * fgetc wants)
  */
 size_t fread(buf, size, nelm, fp)
 void *buf;
@@ -419,8 +389,6 @@ FILE *fp;
 {
 	int len, v;
 	unsigned bytes, got = 0;
-
-	 __init_stdio();
 
 	v = fp->mode;
 
@@ -465,8 +433,6 @@ FILE *fp;
  * data; calling write() directly can be a big win in this case.
  * 
  * But first we check to see if there's space in the buffer.
- * 
- * Again this ignores __MODE__IOTRAN.
  */
 size_t fwrite(buf, size, nelm, fp)
 const void *buf;
@@ -477,21 +443,6 @@ FILE *fp;
 	register int v;
 	int len;
 	unsigned bytes, put;
-
-	 __init_stdio();
-
-#ifdef STUB_FWRITE
-	bytes = size * nelm;
-	while (bytes > 0) {
-		len = write(fp->fd, buf, bytes);
-		if (len <= 0) {
-			break;
-		}
-		bytes -= len;
-		buf += len;
-	}
-	return nelm;
-#else
 
 	v = fp->mode;
 	/* If last op was a read ... */
@@ -543,7 +494,6 @@ FILE *fp;
 	}
 
 	return put / size;
-#endif
 }
 #endif
 
@@ -551,8 +501,6 @@ FILE *fp;
 void rewind(fp)
 FILE *fp;
 {
-	 __init_stdio();
-
 	fseek(fp, (long) 0, 0);
 	clearerr(fp);
 }
@@ -591,11 +539,9 @@ int ref;
 #endif
 
 	/* Use fflush to sync the pointers */
-
-	if (fflush(fp) == EOF)
+	if (fflush(fp) || (lseek(fp->fd, offset, ref) < 0)) {
 		return EOF;
-	if (lseek(fp->fd, offset, ref) < 0)
-		return EOF;
+	}
 	return 0;
 }
 #endif
@@ -610,7 +556,7 @@ FILE *fp;
 }
 #endif
 
-#ifdef L_fopen
+#ifdef L__fopen
 /*
  * This Fopen is all three of fopen, fdopen and freopen. The macros in
  * stdio.h show the other names.
@@ -621,19 +567,15 @@ int fd;
 FILE *fp;
 const char *mode;
 {
-	int open_mode = 0;
+	FILE *nfp;
+	int open_mode;
+	int fopen_mode;
+	int i;
 
-#if __MODE_IOTRAN
-	int do_iosense = 1;
-#endif
-	int fopen_mode = 0;
-	FILE *nfp = 0;
-
-	 __init_stdio();
+	fopen_mode = 0;
 
 	/* If we've got an fp close the old one (freopen) */
-	if (fp) {
-		/* Careful, don't de-allocate it */
+	if (fp) {					/* We don't want to deallocate fp. */
 		fopen_mode |=
 			(fp->mode & (__MODE_BUF | __MODE_FREEFIL | __MODE_FREEBUF));
 		fp->mode &= ~(__MODE_FREEFIL | __MODE_FREEBUF);
@@ -641,85 +583,73 @@ const char *mode;
 	}
 
 	/* decode the new open mode */
-	while (*mode)
-		switch (*mode++) {
-		case 'r':
+	switch (*mode++) {
+		case 'r':				/* read */
 			fopen_mode |= __MODE_READ;
+			open_mode = O_RDONLY;
 			break;
-		case 'w':
+		case 'w':				/* write (create or truncate)*/
 			fopen_mode |= __MODE_WRITE;
-			open_mode = (O_CREAT | O_TRUNC);
+			open_mode = (O_WRONLY | O_CREAT | O_TRUNC);
 			break;
-		case 'a':
+		case 'a':				/* write (create or append) */
 			fopen_mode |= __MODE_WRITE;
-			open_mode = (O_CREAT | O_APPEND);
+			open_mode = (O_WRONLY | O_CREAT | O_APPEND);
 			break;
-		case '+':
-			fopen_mode |= __MODE_RDWR;
-			break;
-#if __MODE_IOTRAN
-		case 'b':				/* Binary */
-			fopen_mode &= ~__MODE_IOTRAN;
-			do_iosense = 0;
-			break;
-		case 't':				/* Text */
-			fopen_mode |= __MODE_IOTRAN;
-			do_iosense = 0;
-			break;
-#endif
-		}
-
-	/* Add in the read/write options to mode for open() */
-	switch (fopen_mode & (__MODE_READ | __MODE_WRITE)) {
-	case 0:
-		return 0;
-	case __MODE_READ:
-		open_mode |= O_RDONLY;
-		break;
-	case __MODE_WRITE:
-		open_mode |= O_WRONLY;
-		break;
-	default:
-		open_mode |= O_RDWR;
-		break;
-	}
-
-	/* Allocate the (FILE) before we do anything irreversable */
-	if (fp == 0) {
-		nfp = malloc(sizeof(FILE));
-		if (nfp == 0)
+		default:				/* illegal mode */
 			return 0;
 	}
 
-	/* Open the file itself */
-	if (fname)
+	if ((*mode == 'b')) {		/* binary mode (nop for uClibc) */
+		++mode;
+	}
+
+	if (*mode == '+') {			/* read-write */
+		++mode;
+		fopen_mode |= __MODE_RDWR;
+		open_mode &= ~(O_RDONLY | O_WRONLY);
+		open_mode |= O_RDWR;
+	}
+
+	while (*mode) {				/* ignore everything else except ... */
+		if (*mode == 'x') {		/* open exclusive -- GNU extension */
+			open_mode |= O_EXCL;
+		}
+		++mode;
+	}
+
+	nfp = 0;
+	if (fp == 0) {				/* We need a FILE so allocate it before */
+		for (i = 0; i < FIXED_STREAMS; i++) { /* we potentially call open. */
+			if (_stdio_streams[i].fd == -1) {
+				nfp = _stdio_streams + i;
+				break;
+			}
+		}
+		if ((i == FIXED_STREAMS) && (!(nfp = malloc(sizeof(FILE))))) {
+			return 0;
+		}
+	}
+
+
+	if (fname) {				/* Open the file itself */
 		fd = open(fname, open_mode, 0666);
-	if (fd < 0) {				/* Grrrr */
-		if (nfp)
-			free(nfp);
+	}
+	if (fd < 0) {				/* Error from open or bad arg. */
+		if (nfp) {
+			_free_stdio_stream(nfp);
+		}
 		return 0;
 	}
 
-	/* If this isn't freopen create a (FILE) and buffer for it */
-	if (fp == 0) {
-		fp = nfp;
-		fp->next = __IO_list;
+	if (fp == 0) {				/* Not freopen so... */
+		fp = nfp;				/* use newly created FILE and */
+		fp->next = __IO_list;	/* add it to the list of open files. */
 		__IO_list = fp;
 
 		fp->mode = __MODE_FREEFIL;
-		if (isatty(fd)) {
-			fp->mode |= _IOLBF;
-#if __MODE_IOTRAN
-			if (do_iosense)
-				fopen_mode |= __MODE_IOTRAN;
-#endif
-		} else
-			fp->mode |= _IOFBF;
-
-		fp->bufstart = _alloc_stdio_buffer(BUFSIZ);
-
-		if (fp->bufstart == 0) {	/* Oops, no mem *//* Humm, full buffering with a two(!) byte
-									   * buffer. */
+		if (!(fp->bufstart = _alloc_stdio_buffer(BUFSIZ))) {
+			/* Allocation failed so use 8 byte buffer in FILE structure */
 			fp->bufstart = fp->unbuf;
 			fp->bufend = fp->unbuf + sizeof(fp->unbuf);
 		} else {
@@ -727,6 +657,13 @@ const char *mode;
 			fp->mode |= __MODE_FREEBUF;
 		}
 	}
+
+	if (isatty(fd)) {
+		fp->mode |= _IOLBF;
+	} else {					/* Note: the following should be optimized */
+		fp->mode |= _IOFBF;		/* away since we should have _IOFBF = 0. */
+	}
+
 	/* Ok, file's ready clear the buffer and save important bits */
 	fp->bufpos = fp->bufread = fp->bufwrite = fp->bufstart;
 	fp->mode |= fopen_mode;
@@ -739,109 +676,146 @@ const char *mode;
 int fclose(fp)
 FILE *fp;
 {
-	int rv = 0;
+	FILE *prev;
+	FILE *ptr;
+	int rv;
 
-	 __init_stdio();
+	assert(fp);					/* Shouldn't be NULL */
+	assert(fp->fd >= 0);		/* Need file descriptor in valid range. */
 
-	if (fp == 0) {
-		errno = EINVAL;
-		return EOF;
-	}
-	if (fflush(fp))
-		return EOF;
-
-	if (close(fp->fd))
+	rv = fflush(fp);
+	if (close(fp->fd)) {		/* Need to close even if fflush fails. */
 		rv = EOF;
-	fp->fd = -1;
+	}
 
 	if (fp->mode & __MODE_FREEBUF) {
 		_free_stdio_buffer(fp->bufstart);
-		fp->mode &= ~__MODE_FREEBUF;
-		fp->bufstart = fp->bufend = 0;
 	}
 
 	if (fp->mode & __MODE_FREEFIL) {
-		FILE *prev = 0, *ptr;
-
-		fp->mode = 0;
-
-		for (ptr = __IO_list; ptr && ptr != fp; ptr = ptr->next);
-		if (ptr == fp) {
-			if (prev == 0)
-				__IO_list = fp->next;
-			else
-				prev->next = fp->next;
+		prev = 0;
+		for (ptr = __IO_list; ptr ; ptr = ptr->next) {
+			if (ptr == fp) {
+				if (prev == 0) {
+					__IO_list = fp->next;
+				} else {
+					prev->next = fp->next;
+				}
+				_free_stdio_stream(fp);
+				break;
+			}
+			prev = ptr;
 		}
-		free(fp);
-	} else
-		fp->mode = 0;
+	}
 
 	return rv;
+}
+
+/* The following is only called by fclose and _fopen (which calls fclose) */
+void _free_stdio_stream(FILE *fp)
+{
+	int i;
+
+	for (i = 0; i < FIXED_STREAMS; i++) {
+		if (fp == _stdio_streams + i) {
+			fp->fd = -1;
+			return;
+		}
+	}
+	free(fp);
 }
 #endif
 
 #ifdef L_setbuffer
-void setbuffer(fp, buf, size)
-FILE *fp;
-char *buf;
-size_t size;
+/*
+ * Rewritten   Feb 2001    Manuel Novoa III
+ *
+ * Just call setvbuf with appropriate args.
+ */
+void setbuffer(FILE *fp, char *buf, size_t size)
 {
-	fflush(fp);
+	int mode;
 
-	if ((fp->bufstart == (unsigned char *) buf)
-		&& (fp->bufend == ((unsigned char *) buf + size)))
-		return;
-
-	if (fp->mode & __MODE_FREEBUF) {
-		_free_stdio_buffer(fp->bufstart);
+	mode = _IOFBF;
+	if (!buf) {
+		mode = _IONBF;
 	}
-	fp->mode &= ~(__MODE_FREEBUF | __MODE_BUF);
-
-	if (buf == 0) {
-		fp->bufstart = fp->unbuf;
-		fp->bufend = fp->unbuf + sizeof(fp->unbuf);
-		fp->mode |= _IONBF;
-	} else {
-		fp->bufstart = buf;
-		fp->bufend = buf + size;
-		fp->mode |= _IOFBF;
-	}
-	fp->bufpos = fp->bufread = fp->bufwrite = fp->bufstart;
+	setvbuf(fp, buf, mode, size);
 }
 #endif
 
 #ifdef L_setvbuf
-int setvbuf(fp, buf, mode, size)
-FILE *fp;
-char *buf;
-int mode;
-size_t size;
+/*
+ * Rewritten   Feb 2001    Manuel Novoa III
+ *
+ * Bugs in previous version:
+ *   No checking on mode arg.
+ *   If alloc of new buffer failed, some FILE fields not set correctly.
+ *   If requested buf is same size as current and buf is NULL, then
+ *      don't free current buffer; just use it.
+ */
+
+int setvbuf(FILE *fp, char *buf, int mode, size_t size)
 {
-	fflush(fp);
-	if (fp->mode & __MODE_FREEBUF) {
-		_free_stdio_buffer(fp->bufstart);
+	int allocated_buf_flag;
+
+	if (fflush(fp)) {			/* Standard requires no ops before setvbuf */
+		return EOF;				/* called.  We'll try to be more flexible. */
 	}
-	fp->mode &= ~(__MODE_FREEBUF | __MODE_BUF);
-	fp->bufstart = fp->unbuf;
-	fp->bufend = fp->unbuf + sizeof(fp->unbuf);
-	fp->mode |= _IONBF;
 
-	if (mode == _IOFBF || mode == _IOLBF) {
-		if (size <= 0) {
-			size = BUFSIZ;
-		}
-		if (buf == 0) {
-			buf = _alloc_stdio_buffer(size);
-			if (buf == 0)
-				return EOF;
-		}
+	if (mode & ~__MODE_BUF) {	/* Illegal mode. */
+		return EOF;
+	}
 
+	if ((mode == _IONBF) || (size <= sizeof(fp->unbuf))) {
+		size = sizeof(fp->unbuf); /* Either no buffering requested or */
+		buf = fp->unbuf;		/*     requested buffer size very small. */
+	}
+
+	fp->mode &= ~(__MODE_BUF);	/* Clear current mode */
+	fp->mode |= mode;			/*   and set new one. */
+
+	allocated_buf_flag = 0;
+	if ((!buf) && (size != (fp->bufend - fp->bufstart))) {
+		/* No buffer supplied and requested size different from current. */
+		allocated_buf_flag = __MODE_FREEBUF;
+		if (!(buf = _alloc_stdio_buffer(size))) {
+			return EOF;
+		}
+	}
+
+	if (buf && (buf != (char *) fp->bufstart)) { /* Want different buffer. */
+		if (fp->mode & __MODE_FREEBUF) {
+			_free_stdio_buffer(fp->bufstart);
+			fp->mode &= ~(__MODE_FREEBUF);
+		}
+		fp->mode |= allocated_buf_flag;
 		fp->bufstart = buf;
 		fp->bufend = buf + size;
-		fp->mode |= mode;
+		fp->bufpos = fp->bufread = fp->bufwrite = fp->bufstart;
 	}
-	fp->bufpos = fp->bufread = fp->bufwrite = fp->bufstart;
+
 	return 0;
+}
+#endif
+
+#ifdef L_setbuf
+void setbuf(FILE *fp, char *buf)
+{
+	int mode;
+
+	mode = _IOFBF;
+	if (!buf) {
+		mode = _IONBF;
+	}
+	setvbuf(fp, buf, mode, BUFSIZ);
+}
+#endif
+
+#ifdef L_setlinebuf
+void setlinebuf(FILE *fp)
+{
+	setvbuf(fp, NULL, _IOLBF, BUFSIZ);
 }
 #endif
 
@@ -850,8 +824,6 @@ int ungetc(c, fp)
 int c;
 FILE *fp;
 {
-	 __init_stdio();
-
 	if (fp->mode & __MODE_WRITING)
 		fflush(fp);
 
@@ -868,5 +840,117 @@ FILE *fp;
 		return *fp->bufread++ = (unsigned char) c;
 	else
 		return EOF;
+}
+#endif
+
+#ifdef L_fopen
+#undef fopen
+FILE *fopen(const char *__restrict filename,
+			const char *__restrict mode)
+{
+	return __fopen(filename, -1, NULL, mode);
+}
+#endif
+
+#ifdef L_freopen
+#undef freopen
+FILE *freopen(__const char *__restrict filename,
+			  __const char *__restrict mode, FILE *__restrict fp)
+{
+	return __fopen(filename, -1, fp, mode);
+}
+#endif
+
+#ifdef L_fdopen
+#undef fdopen
+FILE *fdopen(int fd, __const char *mode)
+{
+	return __fopen(NULL, fd, NULL, mode);
+}
+#endif
+
+#ifdef L_getchar
+#undef getchar
+int getchar(void)
+{
+	return getc(stdin);
+}
+#endif
+
+#ifdef L_putchar
+#undef putchar
+int putchar(int c)
+{
+	return putc(c, stdout);
+}
+#endif
+
+#ifdef L_clearerr
+#undef clearerr
+void clearerr(FILE *fp)
+{
+	assert(fp);
+
+	fp->mode &= ~(__MODE_EOF|__MODE_ERR);
+}
+#endif
+
+#ifdef L_feof
+#undef feof
+int feof(FILE *fp)
+{
+	assert(fp);
+
+  	return ((fp->mode & __MODE_EOF) != 0);
+}
+#endif
+
+#ifdef L_ferror
+#undef ferror
+int ferror(FILE *fp)
+{
+	assert(fp);
+
+	return ((fp->mode & __MODE_ERR) != 0);
+}
+#endif
+
+#ifdef L_fileno
+int fileno(FILE *fp)
+{
+	if (!fp || (fp->fd < 0)) {
+		return -1;
+	}
+	return fp->fd;
+}
+#endif
+
+#ifdef L_fgetpos
+int fgetpos(FILE *fp, fpos_t *pos)
+{
+	fpos_t p;
+
+	if (!pos) {					/* NULL pointer. */
+		errno = EINVAL;
+		return -1;
+	}
+
+	if ((p = ftell(fp)) < 0) {	/* ftell failed. */
+		return -1;				/* errno set by ftell. */
+	}
+
+	*pos = p;
+	return 0;
+}
+#endif
+
+#ifdef L_fsetpos
+int fsetpos(FILE *fp, __const fpos_t *pos)
+{
+	if (pos) {					/* Pointer ok. */
+		return fseek(fp, *pos, SEEK_SET);
+	}
+	errno = EINVAL;				/* NULL pointer. */
+	return EOF;
 }
 #endif

@@ -43,9 +43,9 @@ struct __stdio_file {
   int fd; /* the file descriptor associated with the stream */
   int mode;
 
-  char unbuf[8];	   /* The buffer for 'unbuffered' streams */
-
   struct __stdio_file * next;
+
+  char unbuf[8];	   /* The buffer for 'unbuffered' streams */
 };
 
 typedef struct __stdio_file FILE;
@@ -65,7 +65,6 @@ typedef struct __stdio_file FILE;
 #define _IONBF 2		/* No buffering.  */
 
 /* Possible states for a file stream -- internal use only */
-#define __MODE_IOTRAN	0
 #define __MODE_BUF	0x03	/* Modal buffering dependent on isatty */
 #define __MODE_FREEBUF	0x04	/* Buffer allocated with malloc, can free */
 #define __MODE_FREEFIL	0x08	/* FILE allocated with malloc, can free */
@@ -78,17 +77,11 @@ typedef struct __stdio_file FILE;
 #define __MODE_ERR	0x200	/* Error status */
 #define __MODE_UNGOT	0x400	/* Buffer has been polluted by ungetc */
 
-
 /* The possibilities for the third argument to `fseek'.
    These values should not be changed.  */
 #define SEEK_SET	0	/* Seek from beginning of file.  */
 #define SEEK_CUR	1	/* Seek from current position.  */
 #define SEEK_END	2	/* Seek from end of file.  */
-
-
-#define stdio_pending(fp) ((fp)->bufread>(fp)->bufpos)
-
-
 
 /* Default path prefix for `tempnam' and `tmpnam'.  */
 #define P_tmpdir	"/tmp"
@@ -153,44 +146,43 @@ extern int fclose __P ((FILE *__stream));
 /* Flush STREAM, or all streams if STREAM is NULL.  */
 extern int fflush __P ((FILE *__stream));
 
-/* Open a file and create a new stream for it.  */
-extern FILE *fopen __P ((__const char *__restrict __filename,
-			 __const char *__restrict __modes));
 /* Used internally to actuall open files */
 extern FILE *__fopen __P((__const char *__restrict __filename, int __fd, 
-	    FILE *__restrict __stream, __const char *__restrict __modes));
+	    FILE *__restrict __stream, __const char *__restrict __mode));
+/* Open a file and create a new stream for it.  */
+extern FILE *fopen __P ((__const char *__restrict __filename,
+			 __const char *__restrict __mode));
 #define fopen(__file, __mode)         __fopen((__file), -1, (FILE*)0, (__mode))
 /* Open a file, replacing an existing stream with it. */
 extern FILE *freopen __P ((__const char *__restrict __filename,
-			   __const char *__restrict __modes,
+			   __const char *__restrict __mode,
 			   FILE *__restrict __stream));
 #define freopen(__file, __mode, __fp) __fopen((__file), -1, (__fp), (__mode))
 
 #ifdef __USE_LARGEFILE64
 extern FILE *fopen64 __P ((__const char *__restrict __filename,
-			   __const char *__restrict __modes));
+			   __const char *__restrict __mode));
 extern FILE *freopen64 __P ((__const char *__restrict __filename,
-			     __const char *__restrict __modes,
+			     __const char *__restrict __mode,
 			     FILE *__restrict __stream));
 #endif
 
 #ifdef	__USE_POSIX
 /* Create a new stream that refers to an existing system file descriptor.  */
-extern FILE *fdopen __P ((int __fd, __const char *__modes));
+extern FILE *fdopen __P ((int __fd, __const char *__mode));
 #define fdopen(__file, __mode)  __fopen((char*)0, (__file), (FILE*)0, (__mode))
 #endif
 
-
-/* If BUF is NULL, make STREAM unbuffered.
-   Else make it use buffer BUF, of size BUFSIZ.  */
-extern void setbuf __P ((FILE *__restrict __stream, char *__restrict __buf));
-#define setbuf(__fp, __buf) setbuffer((__fp), (__buf), BUFSIZ)
 
 /* Make STREAM use buffering mode MODE.
    If BUF is not NULL, use N bytes of it for buffering;
    else allocate an internal buffer N bytes long.  */
 extern int setvbuf __P ((FILE *__restrict __stream, char *__restrict __buf,
-			 int __modes, size_t __n));
+			 int __mode, size_t __n));
+
+/* If BUF is NULL, make STREAM unbuffered.
+   Else make it use buffer BUF, of size BUFSIZ.  */
+extern void setbuf __P ((FILE *__restrict __stream, char *__restrict __buf));
 
 #ifdef	__USE_BSD
 /* If BUF is NULL, make STREAM unbuffered.
@@ -200,7 +192,6 @@ extern void setbuffer __P ((FILE *__restrict __stream, char *__restrict __buf,
 
 /* Make STREAM line-buffered.  */
 extern void setlinebuf __P ((FILE *__stream));
-#define setlinebuf(__fp)             setvbuf((__fp), (char*)0, _IOLBF, 0)
 #endif
 
 
@@ -279,7 +270,7 @@ extern int getc __P ((FILE *__stream));
 
 /* Read a character from stdin.  */
 extern int getchar __P ((void));
-#define getchar() getc(stdin)
+#define getchar() getc(_stdin)
 
 /* The C standard explicitly says this is a macro, so be that way */
 #define getc(stream)	\
@@ -292,7 +283,8 @@ extern int putc __P ((int __c, FILE *__stream));
 
 /* Write a character to stdout.  */
 extern int putchar __P ((int __c));
-#define putchar(c) putc((c), stdout)  
+/* Beware! stdout can be redefined! */
+#define putchar(c) putc((c), _stdout)
 
 /* The C standard explicitly says this can be a macro, so be that way */
 #define putc(c, stream)	\
@@ -354,12 +346,13 @@ extern size_t fread __P ((void *__restrict __ptr, size_t __size,
 extern size_t fwrite __P ((__const void *__restrict __ptr, size_t __size,
 			   size_t __n, FILE *__restrict __s));
 
+/* Rewind to the beginning of STREAM.  */
+extern void rewind __P ((FILE *__stream));
+
 /* Seek to a certain position on STREAM.  */
 extern int fseek __P ((FILE *__stream, long int __off, int __whence));
 /* Return the current position of STREAM.  */
 extern long int ftell __P ((FILE *__stream));
-/* Rewind to the beginning of STREAM.  */
-extern void rewind __P ((FILE *__stream));
 
 /* The Single Unix Specification, Version 2, specifies an alternative,
    more adequate interface for the two functions above which deal with
@@ -377,15 +370,27 @@ typedef __off64_t off64_t;
 # define off64_t off64_t
 #endif
 
+#ifndef fpos_t
+typedef off_t fpos_t;
+#define fpos_t fpos_t
+#endif
+
+/* Seek to a certain position on STREAM.  */
+extern int fsetpos __P((FILE *__stream, __const fpos_t *__pos));
+/* Return the current position of STREAM.  */
+extern int fgetpos __P((FILE *__stream, fpos_t *__pos));
 
 /* Clear the error and EOF indicators for STREAM.  */
 extern void clearerr __P ((FILE *__stream));
-#define clearerr(fp)	((fp)->mode &= ~(__MODE_EOF|__MODE_ERR),0)
 /* Return the EOF indicator for STREAM.  */
 extern int feof __P ((FILE *__stream));
-#define feof(fp)   	(((fp)->mode&__MODE_EOF) != 0)
 /* Return the error indicator for STREAM.  */
 extern int ferror __P ((FILE *__stream));
+
+/* Macro versions of the 3 previous functions */
+/* If fp is NULL... */
+#define clearerr(fp) ((fp)->mode &= ~(__MODE_EOF|__MODE_ERR), (void)0)
+#define feof(fp)   	(((fp)->mode&__MODE_EOF) != 0)
 #define ferror(fp)	(((fp)->mode&__MODE_ERR) != 0)
 
 /* Print a message describing the meaning of the value of errno.  */
@@ -399,13 +404,14 @@ extern __const char *__const sys_errlist[];
 #ifdef	__USE_POSIX
 /* Return the system file descriptor for STREAM.  */
 extern int fileno __P ((FILE *__stream));
-#define fileno(fp)	((fp)->fd)
+/* Only use the macro below if you know fp is a valid FILE for a valid fd. */
+#define __fileno(fp)	((fp)->fd)
 #endif /* Use POSIX.  */
 
 #if (defined __USE_POSIX2 || defined __USE_SVID  || defined __USE_BSD || \
      defined __USE_MISC)
 /* Create a new stream connected to a pipe running the given command.  */
-extern FILE *popen __P ((__const char *__command, __const char *__modes));
+extern FILE *popen __P ((__const char *__command, __const char *__mode));
 
 /* Close a stream opened by popen and return the status of its child.  */
 extern int pclose __P ((FILE *__stream));

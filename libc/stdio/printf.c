@@ -119,6 +119,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <assert.h>
 
 #if WANT_GNU_ERRNO
 #include <errno.h>
@@ -242,7 +243,7 @@ int vprintf(const char *fmt, va_list ap)
 
 int vfprintf(FILE * op, register __const char *fmt, register va_list ap)
 {
-	return (vfnprintf(op, -1, fmt, ap));
+	return vfnprintf(op, -1, fmt, ap);
 }
 
 #endif
@@ -258,35 +259,49 @@ int vsprintf(char *sp, __const char *fmt, va_list ap)
 int vsnprintf(char *sp, size_t size, __const char *fmt, va_list ap)
 {
 	int rv;
-#if 0
-	FILE f = {0, 0, (char *) (unsigned) -1, 0, (char *) (unsigned) -1, -1,
-			  _IOFBF | __MODE_WRITE};
-#else
-	/* As we're only using the putc macro in vfnprintf, we don't need to
-	   initialize all FILE fields. */
 	FILE f;
 
-	f.bufwrite = (char *) (unsigned) -1;
+	/*
+	 * As we're only using the putc macro in vfnprintf, we don't need to
+	 * initialize all FILE f's fields.
+	 */
+	f.bufwrite = (char *) ((unsigned) -1);
 	f.bufpos = sp;
 	f.mode = _IOFBF | __MODE_WRITE;
-#endif
 
 	rv = vfnprintf(&f, size, fmt, ap);
-	if (size) {
-		*(f.bufpos) = 0;
+	if (size) {					/* If this is going to a buffer, */
+		*(f.bufpos) = 0;		/* don't forget to nul-terminate. */
 	}
 	return rv;
 }
 #endif
 
 #ifdef L_vdprintf
-#warning rewrite vdprintf ... fd may have an associated file!!! plus buffer?
+/*
+ * Note: If fd has an associated buffered FILE, bad things happen.
+ */
 extern int vdprintf(int fd, const char *fmt, va_list ap)
 {
+#if 0
 	FILE f = {f.unbuf, f.unbuf, f.unbuf, f.unbuf, f.unbuf + sizeof(f.unbuf),
-			  fd, _IONBF | __MODE_WRITE | __MODE_IOTRAN};
+			  fd, _IONBF | __MODE_WRITE};
+
+	assert(fd >= 0);			/* fd==0 may no longer be stdin */
 
 	return vfnprintf(&f, -1, fmt, ap);
+#else
+	char buf[BUFSIZ];
+	FILE f = {buf, buf, buf, buf, buf + sizeof(buf),
+			  fd, _IOFBF | __MODE_WRITE};
+	int rv;
+
+	assert(fd >= 0);			/* fd==0 may no longer be stdin */
+
+	rv = vfnprintf(&f, -1, fmt, ap);
+	fflush(&f);
+	return rv;
+#endif
 }
 #endif
 

@@ -35,9 +35,12 @@ ifeq ($(HAS_LONG_LONG),true)
 endif
 
 MSRC=stdio.c
-MOBJ=_stdio_init.o fputc.o fgetc.o fflush.o fgets.o gets.o fputs.o	\
-     puts.o fread.o fwrite.o fopen.o fclose.o fseek.o rewind.o ftell.o	\
-     setbuffer.o setvbuf.o ungetc.o _alloc_stdio_buffer.o _free_stdio_buffer.o
+MOBJ=_stdio_init.o _stdio_buffer.o  clearerr.o feof.o ferror.o fileno.o \
+     setbuffer.o setvbuf.o setbuf.o setlinebuf.o \
+     fclose.o _fopen.o fopen.o freopen.o fdopen.o fflush.o \
+     fseek.o rewind.o ftell.o fgetpos.o fsetpos.o \
+     fputc.o fgetc.o fgets.o gets.o fputs.o puts.o ungetc.o \
+     fread.o fwrite.o getchar.o putchar.o
 
 MSRC2=printf.c
 MOBJ2=printf.o sprintf.o fprintf.o vprintf.o vsprintf.o vfprintf.o snprintf.o \
@@ -46,7 +49,7 @@ MOBJ2=printf.o sprintf.o fprintf.o vprintf.o vsprintf.o vfprintf.o snprintf.o \
 MSRC3=scanf.c
 MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
 
-CSRC=dputs.c popen.c perror.c remove.c getdelim.c getline.c tmpnam.c
+CSRC=popen.c perror.c remove.c getdelim.c getline.c tmpnam.c tmpnam_r.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
 
