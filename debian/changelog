@@ -1,3 +1,19 @@
+uclibc (0.9.5-cvs20011117-1) unstable; urgency=low
+
+  * New upstream snaphot
+  * mksnapshot (new): script to generate snapshots from upstream CVS
+  * control, control.in: limited architectures to those that can
+      theoretically build.  Updated kernel-headers dependency to
+      -2.4.10 -- this may cause problems with autobuilders.
+  * fixlinks (new): script to fix up symlinks to comply with policy.
+      Decreases number of lintian complaints.
+  * rules: use fixlinks.  Fix method of finding kernel headers --
+      should increase potential autobuildability.
+  * uclibc-ldd.1, uclibc-readelf.1: Bogus updates to bogus man pages.
+      These really need to be written.
+
+ -- David Schleef <ds@schleef.org>  Sat, 17 Nov 2001 18:10:33 -0800
+
 uclibc (0.9.5-cvs20011011-1) unstable; urgency=low
 
   * Closes #104243
