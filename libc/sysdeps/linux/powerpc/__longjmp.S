@@ -24,7 +24,7 @@
 #include <bits/setjmp.h>
 
 
-#ifdef __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
 #define FP(x...) x
 #else
 #define FP(x...)
