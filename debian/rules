@@ -84,13 +84,14 @@ build-stamp:
 		.config
 	sed -i -e 's,.*UCLIBC_HAS_WCHAR.*,UCLIBC_HAS_WCHAR=y\nUCLIBC_HAS_LOCALE=n,g' \
 		.config
-#ifeq ($(target),arm)
+
+ifeq ($(target),arm)
 		sed -i -e 's,.*HAS_FPU.*,HAS_FPU=n\nUCLIBC_HAS_FLOATS=y\nUCLIBC_HAS_SOFT_FLOAT=y,g' .config
 	echo CONFIG_GENERIC_ARM=y >>.config
-#endif
-#ifeq ($(target),i386)
+endif
+ifeq ($(target),i386)
 	echo CONFIG_GENERIC_386=y >>.config
-#endif
+endif
 	yes '' | make oldconfig
 
 	mkdir -p lib
