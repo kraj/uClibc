@@ -6,19 +6,19 @@ void print_struct_stat(char *msg, struct stat *s)
 {
     printf("%s\n", msg);
     /* The casts are because glibc thinks it's cool */
-    printf("device    : 0x%x\n",(unsigned int)s->st_dev);
-    printf("inode     : %d\n",(int)s->st_ino);
-    printf("mode      : 0x%x\n",s->st_mode);
-    printf("nlink     : %d\n",s->st_nlink);
-    printf("uid       : %d\n",s->st_uid);
-    printf("gid       : %d\n",s->st_gid);
-    printf("rdev      : 0x%x\n",(unsigned int)s->st_rdev);
-    printf("size      : %ld\n",s->st_size);
-    printf("blksize   : %ld\n",s->st_blksize);
-    printf("blocks    : %ld\n",s->st_blocks);
-    printf("atime     : %ld\n",s->st_atime);
-    printf("mtime     : %ld\n",s->st_mtime);
-    printf("ctime     : %ld\n",s->st_ctime);
+    printf("device    : 0x%llx\n",(long long)s->st_dev);
+    printf("inode     : %lld\n",  (long long)s->st_ino);
+    printf("mode      : 0x%llx\n",(long long)s->st_mode);
+    printf("nlink     : %lld\n",  (long long)s->st_nlink);
+    printf("uid       : %lld\n",  (long long)s->st_uid);
+    printf("gid       : %lld\n",  (long long)s->st_gid);
+    printf("rdev      : 0x%llx\n",(long long)s->st_rdev);
+    printf("size      : %lld\n",  (long long)s->st_size);
+    printf("blksize   : %lld\n",  (long long)s->st_blksize);
+    printf("blocks    : %lld\n",  (long long)s->st_blocks);
+    printf("atime     : %lld\n",  (long long)s->st_atime);
+    printf("mtime     : %lld\n",  (long long)s->st_mtime);
+    printf("ctime     : %lld\n",  (long long)s->st_ctime);
 }
 
 int main(int argc,char **argv)
