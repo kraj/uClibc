@@ -40,7 +40,7 @@ VERSION_SCRIPT:=${shell if [ -f sysdeps/linux/$(TARGET_ARCH)/libc.map ] ; then \
 all: halfclean subdirs $(LIBNAME) $(DO_SHARED)
 
 ar-target:
-	$(CROSS)ranlib $(LIBNAME)
+	$(RANLIB) $(LIBNAME)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBNAME)
 	$(INSTALL) -m 644 $(LIBNAME) $(TOPDIR)lib
@@ -81,4 +81,3 @@ $(patsubst %, _dirclean_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy subdirs
-
