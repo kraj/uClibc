@@ -101,7 +101,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	$(INSTALL) -d $(ROMFSDIR)/lib
 	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(ROMFSDIR)/lib
-	cp -fa lib/*.so.* $(ROMFSDIR)/lib/.
+	cp -dRf lib/*.so.* $(ROMFSDIR)/lib/.
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
 	    $(INSTALL) -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
@@ -278,7 +278,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
 	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(PREFIX)$(RUNTIME_PREFIX)lib
-	cp -fa lib/*.so.* $(PREFIX)$(RUNTIME_PREFIX)lib
+	cp -dRf lib/*.so.* $(PREFIX)$(RUNTIME_PREFIX)lib
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
 	    $(INSTALL) -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
@@ -387,7 +387,7 @@ distclean: clean
 release: distclean
 	cd ..;					\
 	$(RM) -r uClibc-$(VERSION);		\
-	cp -fa uClibc uClibc-$(VERSION);	\
+	cp -dRf uClibc uClibc-$(VERSION);	\
 	find uClibc-$(VERSION)/ -type f		\
 	    -name .\#* -exec $(RM) -r {} \; ;	\
 	find uClibc-$(VERSION)/ -type d		\
