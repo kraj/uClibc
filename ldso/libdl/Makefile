@@ -44,7 +44,7 @@ ar-target: $(OBJS)
 
 
 $(OBJS): %.o : %.c
-	$(TARGET_CC) -I../d-link -I../d-link/$(TARGET_ARCH) $(TARGET_CFLAGS) -c $< -o $@
+	$(CC) -I../ldso -I../ldso/$(TARGET_ARCH) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile

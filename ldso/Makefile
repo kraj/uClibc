@@ -23,12 +23,12 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-ALL_SUBDIRS = d-link libdl util
+ALL_SUBDIRS = ldso libdl util
 
 
 all:
 ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
-	$(MAKE) -C $(LIBRARY_CACHE) d-link;
+	$(MAKE) -C $(LIBRARY_CACHE) ldso;
 endif
 
 shared:

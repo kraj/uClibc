@@ -7,11 +7,10 @@
 #include <stdlib.h>
 #include <features.h>
 #include "dlfcn.h"
-#include "sysdep.h"
-#include "syscall.h"
-#include "hash.h"
-#include "string.h"
 #include "linuxelf.h"
+#include "ld_syscall.h"
+#include "ld_hash.h"
+#include "ld_string.h"
 
 extern int _dl_error_number;
 extern struct r_debug *_dl_debug_addr;
