@@ -71,7 +71,7 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 headers:
-ifeq ($(strip $(HAVE_ELF)),n)
+ifneq ($(strip $(HAVE_ELF)),y)
 	echo "Working around compiler bug in the m68k-pic-coff toolchain"
 	cd $(TOPDIR)/include && ln -fs ../libc/sysdeps/linux/m68k/float.h .
 endif
@@ -80,7 +80,7 @@ endif
 clean:
 	rm -f *.[oa] *~ core
 	rm -f bits/sysnum.h
-ifeq ($(strip $(HAVE_ELF)),n)
+ifneq ($(strip $(HAVE_ELF)),y)
 	rm -f $(TOPDIR)/include/float.h
 endif
 
