@@ -23,7 +23,9 @@ ASFLAGS=$(CFLAGS)
 
 CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o
+ifeq $(strip $(UCLIBC_PIE_SUPPORT)),y)
 SCRT0_OBJ = $(patsubst %,S%, $(CRT0_OBJ))
+endif
 CRT0_DEPS=gmon-start.S
 
 CTOR_TARGETS = crti.o crtn.o
@@ -54,11 +56,11 @@ crtreloc.o: crtreloc.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(SCRT0_OBJ): $(CRT0_SRC) Scrtreloc.o
-	$(CC) $(CFLAGS) -fPIE -DL_$* -r -nostdlib $< Scrtreloc.o -o $*.o
+	$(CC) $(CFLAGS) $(PIEFLAG) -DL_$* -r -nostdlib $< Scrtreloc.o -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 Scrtreloc.o: crtreloc.c
-	$(CC) $(CFLAGS) -fPIE -c $< -o $@
+	$(CC) $(CFLAGS) $(PIEFLAG) -c $< -o $@
 
 $(CTOR_TARGETS): %.o : %.S
 	$(CC) $(CFLAGS) -c $< -o $@

@@ -23,7 +23,7 @@ ASFLAGS=$(CFLAGS)
 CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o
 ifeq ($(strip $(UCLIBC_PIE_SUPPORT)),y)
-CRT0_OBJ += Scrt0.o Scrt1.o
+SCRT0_OBJ = $(patsubst %,S%, $(CRT0_OBJ))
 endif
 CRT0_DEPS=gmon-start.S
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
@@ -41,9 +41,9 @@ all: $(OBJS) $(LIBC)
 
 $(LIBC): ar-target 
 
-ar-target: $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
+ar-target: $(OBJS) $(CRT0_OBJ) $(SCRT0_OBJ) $(CTOR_TARGETS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)lib/
+	cp $(CRT0_OBJ) $(SCRT0_OBJ) $(TOPDIR)lib/
 ifeq ($(strip $(UCLIBC_PIE_SUPPORT)),y)
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 	$(RM) $(TOPDIR)lib/Scrt0.o
@@ -54,6 +54,10 @@ endif
 
 $(CRT0_OBJ): $(CRT0_SRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(SCRT0_OBJ): $(CRT0_SRC)
+	$(CC) $(CFLAGS) $(PIEFLAG) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): %.o : %.S

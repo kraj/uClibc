@@ -54,7 +54,7 @@ ldconfig:	ldconfig.c readsoname.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldd:	ldd.c
-	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s \
+	$(CC) $(CFLAGS) $(XXFLAGS) $(PIEFLAG) $(LDPIEFLAG) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		-nostdlib -o $@ $(BIN_START_FILES) $^ $(LDADD_LIBFLOAT) \
@@ -62,7 +62,7 @@ ldd:	ldd.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 iconv: ../libc/misc/wchar/wchar.c
-	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -DL_iconv_main \
+	$(CC) $(CFLAGS) $(XXFLAGS) $(PIEFLAG) $(LDPIEFLAG) -Wl,-s -DL_iconv_main \
 		-nostdlib -o $@ $(BIN_START_FILES) $^ $(LDADD_LIBFLOAT) \
 		-L../lib -lc $(LIBGCC) $(END_FILES)
 	$(STRIPTOOL) -x -R .note -R .comment $@
