@@ -22,6 +22,9 @@ STRIPTOOL=strip
 # Check if 'ls -sh' works or not
 LSFLAGS = -l
 
+# turn all the warnings on
+WARNINGS=-Wall
+
 # use '-Os' optimization if available, else use -O2
 OPTIMIZATION = $(shell if $(CC) -Os -S -o /dev/null -xc /dev/null >/dev/null 2>&1; \
     then echo "-Os"; else echo "-O2" ; fi)
