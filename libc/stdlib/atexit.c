@@ -222,6 +222,7 @@ pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 extern void (*__app_fini)(void);
 #endif
 
+extern void (*__rtld_fini)(void);
 /*
  * Normal program termination
  */
@@ -237,6 +238,11 @@ void exit(int rv)
 #ifdef __UCLIBC_CTOR_DTOR__
 	if (__app_fini != NULL)
 		(__app_fini)();
+#endif
+#ifdef _DL_DO_FINI_IN_LIBC
+/* arches that has moved their ldso FINI handling should #define _DL_DO_FINI_IN_LIBC */
+	if (__rtld_fini != NULL)
+		(__rtld_fini)();
 #endif
 
     /* If we are using stdio, try to shut it down.  At the very least,
