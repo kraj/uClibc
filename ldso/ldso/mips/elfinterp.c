@@ -290,7 +290,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 			}
 			else if (sym->st_shndx == SHN_COMMON) {
 				*got_entry = (unsigned long) _dl_find_hash(strtab +
-					sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_COPY);
+					sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
 			}
 			else if (ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&
 				*got_entry != sym->st_value)
