@@ -28,7 +28,10 @@ LIBUTIL=libutil.a
 LIBUTIL_SHARED=libutil.so
 LIBUTIL_SHARED_FULLNAME=libutil-$(MAJOR_VERSION).$(MINOR_VERSION).so
 
-CSRC=forkpty.c login.c login_tty.c logout.c logwtmp.c openpty.c
+CSRC=login.c login_tty.c logout.c logwtmp.c openpty.c
+ifeq ($(strip $(HAS_MMU)),true)
+    CSRC+=forkpty.c
+endif
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
 all: $(OBJS) $(LIBC)
