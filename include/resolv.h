@@ -72,7 +72,8 @@
  * is new enough to contain a certain feature.
  */
 
-#define	__RES	19991006
+/* #define	__RES	19991006 we don't have a new resolver yet */
+#define	__RES	19960801
 
 /*
  * Resolver configuration file.
