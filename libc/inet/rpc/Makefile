@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000,2001,2002 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -24,6 +24,19 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 CFLAGS+=-I$(TOPDIR)libpthread/linuxthreads/sysdeps/pthread
+
+# If INCLUDE_FULL_RPC is not defined, default to `false' if shared
+# libraries are enabled, and `true' otherwise (because the main
+# advantage of not including everything is that it reduces the size of
+# shared libraries; the size of static libraries doesn't typically
+# matter as much, since they need not be present at runtime).
+ifeq ($(strip $(INCLUDE_FULL_RPC)),)
+  ifeq ($(strip $(HAVE_SHARED)),false)
+    INCLUDE_FULL_RPC = true
+  else
+    INCLUDE_FULL_RPC = false
+  endif
+endif
 
 ifeq ($(strip $(INCLUDE_FULL_RPC)),true)
 CSRC :=auth_none.c auth_unix.c authunix_prot.c bindresvport.c \
