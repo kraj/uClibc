@@ -191,7 +191,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 			_dl_loaded_modules->libtype = elf_executable;
 			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
-			_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc_function(sizeof(struct dyn_elf));
+			_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
 			rpnt->dyn = _dl_loaded_modules;
 			app_tpnt->usage_count++;
@@ -296,7 +296,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 			len1 = _dl_strlen(dl_debug_output);
 			len2 = _dl_strlen(tmp1);
 
-			filename = _dl_malloc_function(len1+len2+2);
+			filename = _dl_malloc(len1+len2+2);
 
 			if (filename)
 			{
@@ -563,12 +563,12 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 			tpnt->prev = NULL;
 		}
 		if (rpnt) {
-			rpnt->next = (struct dyn_elf *) _dl_malloc_function(sizeof(struct dyn_elf));
+			rpnt->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt->next, 0, sizeof(struct dyn_elf));
 			rpnt->next->prev = rpnt;
 			rpnt = rpnt->next;
 		} else {
-			rpnt = (struct dyn_elf *) _dl_malloc_function(sizeof(struct dyn_elf));
+			rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
 		}
 		rpnt->dyn = tpnt;

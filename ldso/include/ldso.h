@@ -18,7 +18,6 @@
 #endif
 
 /* Pull in compiler and arch stuff */
-#include <stdlib.h>
 #include <stdarg.h>
 /* Pull in the arch specific type information */
 #include <sys/types.h>

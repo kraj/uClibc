@@ -31,7 +31,6 @@
 
 
 #include "ldso.h"
-void *(*_dl_malloc_function) (size_t size) = NULL;
 
 #ifdef USE_CACHE
 
@@ -406,7 +405,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	tpnt = _dl_check_hashed_files(libname);
 	if (tpnt) {
 		if (*rpnt) {
-			(*rpnt)->next = (struct dyn_elf *) _dl_malloc_function(sizeof(struct dyn_elf));
+			(*rpnt)->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset((*rpnt)->next, 0, sizeof(struct dyn_elf));
 			(*rpnt)->next->prev = (*rpnt);
 			*rpnt = (*rpnt)->next;
@@ -692,7 +691,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	 * Add this object into the symbol chain
 	 */
 	if (*rpnt) {
-		(*rpnt)->next = (struct dyn_elf *) _dl_malloc_function(sizeof(struct dyn_elf));
+		(*rpnt)->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 		_dl_memset((*rpnt)->next, 0, sizeof(struct dyn_elf));
 		(*rpnt)->next->prev = (*rpnt);
 		*rpnt = (*rpnt)->next;
@@ -884,11 +883,12 @@ char *_dl_strdup(const char *string)
 	int len;
 
 	len = _dl_strlen(string);
-	retval = _dl_malloc_function(len + 1);
+	retval = _dl_malloc(len + 1);
 	_dl_strcpy(retval, string);
 	return retval;
 }
 
+void *(*_dl_malloc_function) (size_t size) = NULL;
 union __align_type
 {
   void *p;
@@ -944,20 +944,15 @@ void *_dl_malloc(int size)
 	retval = _dl_malloc_addr;
 	_dl_malloc_addr += size;
 
-	/*
-	 * Align memory to 4 byte boundary.  Some platforms require this, others
-	 * simply get better performance.
-	 */
-	_dl_malloc_addr = (unsigned char *)
-		(((unsigned long) _dl_malloc_addr +
-		  __alignof__(union __align_type) - 1)
-		 & ~(__alignof__(union __align_type) - 1));
+	/* Align memory to 4 byte boundary.  Some platforms require this,
+	 * others simply get better performance.  */
+	_dl_malloc_addr = (unsigned char *) (((unsigned long) _dl_malloc_addr +
+		  __alignof__(union __align_type) - 1) & ~(__alignof__(union __align_type) - 1));
 	return retval;
 }
 
 void (*_dl_free_function) (void *p) = NULL;
-void
-_dl_free (void *p) {
+void _dl_free (void *p) {
 	if (_dl_free_function)
 		(*_dl_free_function) (p);
 }
