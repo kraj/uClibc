@@ -24,17 +24,27 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-CSRC= pwent.c getpwnam.c getpwuid.c putpwent.c getpw.c fgetpwent.c \
-	__getgrent_r.c grent.c getgrnam.c getgrgid.c fgetgrent.c \
-	initgroups.c __getpwent_r.c putgrent.c
+MSRC=pwd_grp.c
+MOBJ=	fgetpwent_r.o fgetgrent_r.o fgetpwent.o fgetgrent.o \
+	getpwnam_r.o getgrnam_r.o getpwuid_r.o getgrgid_r.o \
+	getpwuid.o getgrgid.o getpwnam.o getgrnam.o getpw.o \
+	getpwent_r.o getgrent_r.o getpwent.o getgrent.o \
+	initgroups.o putpwent.o putgrent.o \
+	__parsepwent.o __parsegrent.o __pgsreader.o
 
 ifeq ($(HAS_SHADOW),y)
-CSRC+= lckpwdf.c spent.c getspnam.c getspuid.c putspent.c sgetspent.c \
-	fgetspent.c __getspent_r.c __sgetspent_r.c
+MOBJ+=	fgetspent_r.o fgetspent.o sgetspent_r.o getspnam_r.o \
+	getspnam.o getspent_r.o getspent.o sgetspent.o \
+	putspent.o __parsespent.o # getspuid_r.o getspuid.o
 endif
 
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+CSRC=
+ifeq ($(HAS_SHADOW),y)
+CSRC+= lckpwdf.c
+endif
+
+COBJ=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(MOBJ) $(COBJ)
 
 all: $(OBJS) $(LIBC)
 
@@ -43,7 +53,11 @@ $(LIBC): ar-target
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(COBJS): %.o : %.c
+$(MOBJ): $(MSRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
