@@ -24,6 +24,7 @@
 */
 
 #define _ERRNO_H	1
+#include <features.h>
 #include <bits/errno.h>
 #include <sys/syscall.h>
 
@@ -39,31 +40,42 @@
 #define CTID        TLS+PTR_SIZE
 
 
-        .text
-	.globl __clone;
-	.type __clone,@function;
-	.align 1<<4;
+.text
+.type clone,@function;
+.weak clone ; clone = __clone
+
+.type __clone,@function;
+.globl __clone;
 
 __clone:
 	/* Sanity check arguments.  */
 	movl	$-EINVAL,%eax
+
+	test	%ecx,%ecx
+	call	.Lclone_error
+
+	test	%edx,%edx
+	call	.Lclone_error
+
 	movl	FUNC(%esp),%ecx		/* no NULL function pointers */
 #ifdef __PIC__
-	jecxz	__syscall_error
+	jecxz	.Lclone_error
 #else
 	testl	%ecx,%ecx
-	jz	__syscall_error
+	jz	.Lclone_error
 #endif
 	movl	STACK(%esp),%ecx	/* no NULL stack pointers */
 #ifdef __PIC__
-	jecxz	__syscall_error
+	jecxz	.Lclone_error
 #else
 	testl	%ecx,%ecx
-	jz	__syscall_error
+	jz	.Lclone_error
 #endif
 
-	/* Insert the argument onto the new stack.  */
-	subl	$16,%ecx
+	/* Insert the argument onto the new stack.  Make sure the new
+	   thread is started with an alignment of (mod 16).  */
+	andl	$0xfffffff0, %ecx
+	subl	$24,%ecx
 	movl	ARG(%esp),%eax		/* no negative argument counts */
 	movl	%eax,12(%ecx)
 
@@ -90,7 +102,7 @@ __clone:
 	popl	%ebx
 
 	test	%eax,%eax
-	jl	__syscall_error
+	jl	.Lclone_error
 	jz	.Lthread_start
 
 .Lpseudo_end:
@@ -109,7 +121,7 @@ __clone:
 	movl	$__NR_exit, %eax
 	int	$0x80
 
-__syscall_error:
+.Lclone_error:
 	negl    %eax
 	pushl   %eax
 #ifdef __PIC__
@@ -129,4 +141,3 @@ __syscall_error:
 .Lsize:
 	.size	 __clone,.Lsize-__clone
 
-.weak clone ; clone = __clone
