@@ -82,7 +82,10 @@ strong_alias(labs,abs)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-strong_alias(labs,llabs)
+long long int llabs (long long int j)
+{
+	return (j >= 0) ? j : -j;
+}
 #endif
 
 #if ULONG_MAX == UINTMAX_MAX
@@ -133,7 +136,10 @@ strong_alias(atol,atoi)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-strong_alias(atol,atoll)
+long long int atoll (const char *nptr)
+{
+	return strtol(nptr, (char **) NULL, 10);
+}
 #endif
 
 long atol(const char *nptr)
@@ -163,14 +169,16 @@ strong_alias(strtol,strtoimax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-strong_alias(strtol,strtoll)
+long long int strtoll (__const char *__restrict str, char **__restrict endptr, int base)
+{
+    return _stdlib_strto_l(str, endptr, base, 1);
+}
 #endif
 
 long strtol(const char * __restrict str, char ** __restrict endptr, int base)
 {
     return _stdlib_strto_l(str, endptr, base, 1);
 }
-
 #endif
 /**********************************************************************/
 #ifdef L_strtoll
@@ -198,11 +206,15 @@ strong_alias(strtoul,strtoumax)
 #endif
 
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
-strong_alias(strtoul,strtoull)
+unsigned long long int strtoull (__const char *__restrict str, 
+	char **__restrict endptr, int base)
+{
+    return _stdlib_strto_l(str, endptr, base, 0);
+}
 #endif
 
-unsigned long strtoul(const char * __restrict str,
-					  char ** __restrict endptr, int base)
+unsigned long strtoul(const char * __restrict str, 
+	char ** __restrict endptr, int base)
 {
     return _stdlib_strto_l(str, endptr, base, 0);
 }

@@ -2091,7 +2091,7 @@ extern uintmax_t _load_inttype(int desttype, const void *src, int uflag)
 #if LONG_MAX != INT_MAX
 		if (desttype & (PA_FLAG_LONG|PA_FLAG_LONG_LONG)) {
 #ifdef LLONG_MAX
-			if (destsize == PA_FLAG_LONG_LONG) {
+			if (desttype == PA_FLAG_LONG_LONG) {
 				return *((long long int *) src);
 			}
 #endif
