@@ -26,8 +26,11 @@ free (void *mem)
   struct heap_free_area *fa;
   struct heap *heap = &__malloc_heap;
 
-  if (unlikely (! mem))
+  /* Check for special cases.  */
+  if (__malloc_unlikely (! mem))
     return;
+
+  /* Normal free.  */
 
   size = MALLOC_SIZE (mem);
   mem = MALLOC_BASE (mem);
