@@ -34,7 +34,9 @@ DIRS = $(ALL_SUBDIRS)
 #	DIRS =
 #endif
 ifeq ($(strip $(HAVE_SHARED)),true)
+  ifeq ($(strip $(DODYNAMIC)),true)
 	DIRS += ldso
+  endif	
 endif	
 
 all: subdirs
