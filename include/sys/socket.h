@@ -2,6 +2,7 @@
 #define _SYS_SOCKET_H
 
 #include <features.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <linux/socket.h>
 

@@ -83,12 +83,12 @@
 	typedef unsigned short          u_int16_t;
 	typedef int                       int32_t;
 	typedef unsigned int            u_int32_t;
-
+#if 0
 # if __GNUC__ >= 2 && !defined(__STRICT_ANSI__)
 	typedef long long                 int64_t;
 	typedef unsigned long long      u_int64_t;
 # endif
-
+#endif
 #endif	/* __BIT_TYPES_DEFINED__ */
 
 /* #endif  __USE_BSD */

@@ -4,11 +4,11 @@
 
 LIBC=../libc.a
 
-CC=m68k-pic-coff-gcc
-AR=m68k-pic-coff-ar
-RANLIB=m68k-pic-coff-ranlib
+CC=$(CROSS)gcc
+AR=$(CROSS)ar
+RANLIB=$(CROSS)ranlib
 
-CCFLAGS= -O2 -m68000 -msoft-float -I../include
+CCFLAGS= -O2 $(CPUFLAGS) -I../include
 
 ASRC=stdio.c
 AOBJ=_stdio_init.o fputc.o fgetc.o fflush.o fgets.o gets.o fputs.o	\

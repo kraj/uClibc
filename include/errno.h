@@ -13,6 +13,7 @@ extern int _sys_nerr;
 extern char *_sys_errlist[];
 #endif
 
+
 extern int	errno;
 
 __BEGIN_DECLS

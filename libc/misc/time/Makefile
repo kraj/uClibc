@@ -4,11 +4,11 @@
 
 LIBC=../libc.a
 
-CC=m68k-pic-coff-gcc
-AR=m68k-pic-coff-ar
-RANLIB=m68k-pic-coff-ranlib
+CC=$(CROSS)gcc
+AR=$(CROSS)ar
+RANLIB=$(CROSS)ranlib
 
-CCFLAGS= -O2 -m68000 -msoft-float -I../include
+CCFLAGS= -O2 $(CPUFLAGS) -I../include
 
 OBJ=localtime.o gmtime.o asctime.o ctime.o asc_conv.o tm_conv.o mktime.o \
 	localtime_r.o gmtime_r.o asctime_r.o ctime_r.o

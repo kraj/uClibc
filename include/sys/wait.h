@@ -24,6 +24,7 @@ Cambridge, MA 02139, USA.  */
 
 #define	_SYS_WAIT_H	1
 #include <features.h>
+#include <errno.h>
 
 __BEGIN_DECLS
 

@@ -1,6 +1,6 @@
-CC=m68k-pic-coff-gcc
-AR=m68k-pic-coff-ar
-RANLIB=m68k-pic-coff-ranlib
+CC=$(CROSS)gcc
+AR=$(CROSS)ar
+RANLIB=$(CROSS)ranlib
 
 CFLAGS= -O2 -fomit-frame-pointer -Dlinux -I../include
 

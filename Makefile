@@ -1,17 +1,18 @@
 DIRS = headers error gtermcap misc stdio2 time getent regexp string termios sysdeps \
 malloc-simple net rpc
 
-all: libc.a crt0.o
+all: libc.a
+# crt0.o
 
 libc.a: $(DIRS) dummy
-	m68k-pic-coff-ranlib $@
+	$(CROSS)ranlib $@
 
-crt0.o: crt
+#crt0.o: crt
 
 headers: dummy
-	if [ ! -L "include/asm" ]; then ln -s ../../linux/include/asm include/asm ; fi
-	if [ ! -L "include/net" ]; then ln -s ../../linux/include/net include/net ; fi
-	if [ ! -L "include/linux" ]; then ln -s ../../linux/include/linux include/linux ; fi
+	if [ ! -L "include/asm" ]; then ln -s /usr/src/linux/include/asm include/asm ; fi
+	if [ ! -L "include/net" ]; then ln -s /usr/src/linux/include/net include/net ; fi
+	if [ ! -L "include/linux" ]; then ln -s /usr/src/linux/include/linux include/linux ; fi
 
 error: dummy
 	make -C error

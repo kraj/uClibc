@@ -6,8 +6,9 @@
 #define __UNISTD_H
 
 #include <errno.h>
+#ifdef __mc68000__
 #include <asm/unistd.h>
-
+#endif
 #define STDIN_FILENO 0
 #define STDOUT_FILENO 1
 #define STDERR_FILENO 2
@@ -72,6 +73,8 @@ __res; \
 })
 #endif
 
+#ifdef __mc68000__
+
 #define vfork() ({						\
 register unsigned long __res __asm__ ("%d0") = __NR_fork;	\
 __asm__ __volatile__ ("trap  #0"				\
@@ -86,9 +89,10 @@ if (__res >= (unsigned long)-4096) {				\
 })
 
 
+
 #define fork fork_not_available_use_vfork
 #define clone clone_not_available_use__clone
-		
+#endif		
 
 #ifndef SEEK_SET
 #define SEEK_SET 0
