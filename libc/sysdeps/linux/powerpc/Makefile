@@ -39,7 +39,6 @@ endif
 SSRC=longjmp.S setjmp.S vfork.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-#CSRC=ptrace.c
 CSRC=
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
