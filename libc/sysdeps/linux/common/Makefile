@@ -19,51 +19,40 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=	waitpid.c getdnnm.c gethstnm.c getcwd.c ptrace.c \
-	mkfifo.c setegid.c wait.c getpagesize.c seteuid.c \
-	wait3.c setpgrp.c getdtablesize.c create_module.c \
-	cmsg_nxthdr.c longjmp.c open64.c ftruncate64.c mmap64.c \
-	truncate64.c getrlimit64.c setrlimit64.c creat64.c \
-	llseek.c pread_write.c _exit.c sync.c getdirname.c \
-	sendfile64.c xstatconv.c getdents.c getdents64.c vfork.c \
-	ulimit.c ntp_gettime.c poll.c \
-	fork.c read.c write.c open.c \
-	close.c link.c unlink.c execve.c chdir.c \
-	time.c mknod.c chmod.c lchown.c \
-	lseek.c getpid.c mount.c umount.c setuid.c \
-	getuid.c stime.c alarm.c pause.c utime.c utimes.c \
-	access.c nice.c kill.c rename.c mkdir.c \
-	rmdir.c dup.c pipe.c times.c setgid.c getgid.c \
-	geteuid.c getegid.c acct.c umount2.c \
-	ioctl.c setpgid.c \
-	umask.c chroot.c ustat.c dup2.c \
-	getppid.c getpgrp.c setsid.c __syscall_sigaction.c \
-	setreuid.c setregid.c sigsuspend.c sigpending.c \
-	sethostname.c setrlimit.c getrlimit.c getrusage.c \
-	gettimeofday.c settimeofday.c getgroups.c \
-	setgroups.c select.c symlink.c readlink.c uselib.c swapon.c \
-	reboot.c mmap.c munmap.c truncate.c ftruncate.c fchmod.c \
-	fchown.c getpriority.c setpriority.c \
-	statfs.c fstatfs.c ioperm.c __socketcall.c klogctl.c \
-	setitimer.c getitimer.c stat.c lstat.c \
-	fstat.c iopl.c vhangup.c wait4.c swapoff.c \
-	sysinfo.c __syscall_ipc.c fsync.c setdomainname.c uname.c modify_ldt.c \
-	adjtimex.c mprotect.c sigprocmask.c init_module.c \
-	delete_module.c get_kernel_syms.c quotactl.c getpgid.c \
-	fchdir.c bdflush.c sysfs.c personality.c setfsuid.c \
-	setfsgid.c flock.c msync.c \
-	readv.c writev.c getsid.c fdatasync.c sysctl.c mlock.c \
-	munlock.c mlockall.c munlockall.c sched_setparam.c \
-	sched_getparam.c sched_setscheduler.c \
-	sched_getscheduler.c sched_yield.c sched_get_priority_max.c \
-	sched_get_priority_min.c sched_rr_get_interval.c \
-	nanosleep.c mremap.c setresuid.c \
-	getresuid.c query_module.c setresgid.c \
-	getresgid.c prctl.c __syscall_rt_sigaction.c \
-	__rt_sigtimedwait.c \
-	chown.c capget.c capset.c sigaltstack.c \
-	sendfile.c stat64.c lstat64.c \
-	fstat64.c pivot_root.c madvise.c __syscall_fcntl.c __syscall_fcntl64.c
+CSRC=	__rt_sigtimedwait.c __socketcall.c __syscall_fcntl.c \
+	__syscall_fcntl64.c __syscall_ipc.c __syscall_rt_sigaction.c \
+	__syscall_sigaction.c _exit.c access.c acct.c adjtimex.c alarm.c \
+	bdflush.c capget.c capset.c chdir.c chmod.c chown.c chroot.c \
+	close.c cmsg_nxthdr.c creat64.c create_module.c delete_module.c \
+	dup.c dup2.c execve.c fchdir.c fchmod.c fchown.c fdatasync.c \
+	flock.c fork.c fstat.c fstat64.c fstatfs.c fsync.c ftruncate.c \
+	ftruncate64.c get_kernel_syms.c getcwd.c getdents.c getdents64.c \
+	getdirname.c getdnnm.c getdtablesize.c getegid.c geteuid.c \
+	getgid.c getgroups.c gethstnm.c getitimer.c getpagesize.c \
+	getpgid.c getpgrp.c getpid.c getppid.c getpriority.c getresgid.c \
+	getresuid.c getrlimit.c getrlimit64.c getrusage.c getsid.c \
+	gettimeofday.c getuid.c init_module.c ioctl.c ioperm.c iopl.c \
+	kill.c klogctl.c lchown.c link.c llseek.c longjmp.c lseek.c \
+	lstat.c lstat64.c madvise.c mkdir.c mkfifo.c mknod.c mlock.c \
+	mlockall.c mmap.c mmap64.c modify_ldt.c mount.c mprotect.c \
+	mremap.c msync.c munlock.c munlockall.c munmap.c nanosleep.c \
+	nice.c ntp_gettime.c open.c open64.c pause.c personality.c \
+	pipe.c pivot_root.c poll.c prctl.c pread_write.c ptrace.c \
+	query_module.c quotactl.c read.c readlink.c readv.c reboot.c \
+	rename.c rmdir.c sched_get_priority_max.c \
+	sched_get_priority_min.c sched_getparam.c sched_getscheduler.c \
+	sched_rr_get_interval.c sched_setparam.c sched_setscheduler.c \
+	sched_yield.c select.c sendfile.c sendfile64.c setdomainname.c \
+	setegid.c seteuid.c setfsgid.c setfsuid.c setgid.c setgroups.c \
+	sethostname.c setitimer.c setpgid.c setpgrp.c setpriority.c \
+	setregid.c setresgid.c setresuid.c setreuid.c setrlimit.c \
+	setrlimit64.c setsid.c settimeofday.c setuid.c sigaltstack.c \
+	sigpending.c sigprocmask.c sigsuspend.c stat.c stat64.c statfs.c \
+	stime.c swapoff.c swapon.c symlink.c sync.c sysctl.c sysfs.c \
+	sysinfo.c time.c times.c truncate.c truncate64.c ulimit.c \
+	umask.c umount.c umount2.c uname.c unlink.c uselib.c ustat.c \
+	utime.c utimes.c vfork.c vhangup.c wait.c wait3.c wait4.c \
+	waitpid.c write.c writev.c xstatconv.c
 
 ifneq ($(strip $(EXCLUDE_BRK)),y)
 CSRC+=sbrk.c
