@@ -54,7 +54,7 @@ int _dl_map_cache(void)
 
 	if (_dl_stat(LDSO_CACHE, &st)
 		|| (fd = _dl_open(LDSO_CACHE, O_RDONLY)) < 0) {
-		_dl_fprintf(2, "%s: can't open cache '%s'\n", _dl_progname, LDSO_CACHE);
+		_dl_dprintf(2, "%s: can't open cache '%s'\n", _dl_progname, LDSO_CACHE);
 		_dl_cache_addr = (caddr_t) - 1;	/* so we won't try again */
 		return -1;
 	}
@@ -63,7 +63,7 @@ int _dl_map_cache(void)
 	_dl_cache_addr = (caddr_t) _dl_mmap(0, _dl_cache_size, PROT_READ, MAP_SHARED, fd, 0);
 	_dl_close(fd);
 	if (_dl_cache_addr == (caddr_t) - 1) {
-		_dl_fprintf(2, "%s: can't map cache '%s'\n", 
+		_dl_dprintf(2, "%s: can't map cache '%s'\n", 
 			_dl_progname, LDSO_CACHE);
 		return -1;
 	}
@@ -77,7 +77,7 @@ int _dl_map_cache(void)
 		(sizeof(header_t) + header->nlibs * sizeof(libentry_t))
 		|| _dl_cache_addr[_dl_cache_size - 1] != '\0') 
 	{
-		_dl_fprintf(2, "%s: cache '%s' is corrupt\n", _dl_progname, 
+		_dl_dprintf(2, "%s: cache '%s' is corrupt\n", _dl_progname, 
 			LDSO_CACHE);
 		goto fail;
 	}
@@ -90,7 +90,7 @@ int _dl_map_cache(void)
 		if (libent[i].sooffset >= strtabsize || 
 			libent[i].liboffset >= strtabsize) 
 		{
-			_dl_fprintf(2, "%s: cache '%s' is corrupt\n", _dl_progname, LDSO_CACHE);
+			_dl_dprintf(2, "%s: cache '%s' is corrupt\n", _dl_progname, LDSO_CACHE);
 			goto fail;
 		}
 	}
@@ -387,7 +387,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		 * NO!  When we open shared libraries we may search several paths.
 		 * it is inappropriate to generate an error here.
 		 */
-		_dl_fprintf(2, "%s: can't open '%s'\n", _dl_progname, libname);
+		_dl_dprintf(2, "%s: can't open '%s'\n", _dl_progname, libname);
 #endif
 		_dl_internal_error_number = DL_ERROR_NOFILE;
 		return NULL;
@@ -400,7 +400,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		epnt->e_ident[2] != 'L' || 
 		epnt->e_ident[3] != 'F') 
 	{
-		_dl_fprintf(2, "%s: '%s' is not an ELF file\n", _dl_progname,
+		_dl_dprintf(2, "%s: '%s' is not an ELF file\n", _dl_progname,
 					 libname);
 		_dl_internal_error_number = DL_ERROR_NOTELF;
 		_dl_close(infile);
@@ -415,7 +415,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	{
 		_dl_internal_error_number = 
 		    (epnt->e_type != ET_DYN ? DL_ERROR_NOTDYN : DL_ERROR_NOTMAGIC);
-		_dl_fprintf(2, "%s: '%s' is not an ELF executable for " ELF_TARGET 
+		_dl_dprintf(2, "%s: '%s' is not an ELF executable for " ELF_TARGET 
 			"\n", _dl_progname, libname);
 		_dl_close(infile);
 		return NULL;
@@ -428,7 +428,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 		if (ppnt->p_type == PT_DYNAMIC) {
 			if (dynamic_addr)
-				_dl_fprintf(2, "%s: '%s' has more than one dynamic section\n", 
+				_dl_dprintf(2, "%s: '%s' has more than one dynamic section\n", 
 					_dl_progname, libname);
 			dynamic_addr = ppnt->p_vaddr;
 			dynamic_size = ppnt->p_filesz;
@@ -460,7 +460,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	status = (char *) _dl_mmap((char *) (piclib ? 0 : minvma), 
 		maxvma - minvma, PROT_NONE, flags | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(status)) {
-		_dl_fprintf(2, "%s: can't map '/dev/zero'\n", _dl_progname);
+		_dl_dprintf(2, "%s: can't map '/dev/zero'\n", _dl_progname);
 		_dl_internal_error_number = DL_ERROR_MMAP_FAILED;
 		_dl_close(infile);
 		return NULL;
@@ -492,7 +492,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 					ppnt->p_offset & 0x7ffff000);
 
 				if (_dl_mmap_check_error(status)) {
-					_dl_fprintf(2, "%s: can't map '%s'\n", 
+					_dl_dprintf(2, "%s: can't map '%s'\n", 
 						_dl_progname, libname);
 					_dl_internal_error_number = DL_ERROR_MMAP_FAILED;
 					_dl_munmap((char *) libaddr, maxvma - minvma);
@@ -524,7 +524,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 					ppnt->p_filesz, LXFLAGS(ppnt->p_flags), flags, 
 					infile, ppnt->p_offset & 0x7ffff000);
 			if (_dl_mmap_check_error(status)) {
-				_dl_fprintf(2, "%s: can't map '%s'\n", _dl_progname, libname);
+				_dl_dprintf(2, "%s: can't map '%s'\n", _dl_progname, libname);
 				_dl_internal_error_number = DL_ERROR_MMAP_FAILED;
 				_dl_munmap((char *) libaddr, maxvma - minvma);
 				_dl_close(infile);
@@ -554,7 +554,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	if (!dynamic_addr) {
 		_dl_internal_error_number = DL_ERROR_NODYNAMIC;
-		_dl_fprintf(2, "%s: '%s' is missing a dynamic section\n", 
+		_dl_dprintf(2, "%s: '%s' is missing a dynamic section\n", 
 			_dl_progname, libname);
 		return NULL;
 	}

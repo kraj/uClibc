@@ -207,7 +207,7 @@ DL_BOOT(unsigned long args)
 		Elf32_auxv_t *auxv_entry = (Elf32_auxv_t*) aux_dat;
 
 		if (auxv_entry->a_type <= AT_EGID) {
-			_dl_memcpy_inline(&(auxv_t[auxv_entry->a_type]), 
+			_dl_memcpy(&(auxv_t[auxv_entry->a_type]), 
 				auxv_entry, sizeof(Elf32_auxv_t));
 		}
 		aux_dat += 2;
@@ -221,7 +221,7 @@ DL_BOOT(unsigned long args)
 	/* Check the ELF header to make sure everything looks ok.  */
 	if (! header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
 		header->e_ident[EI_VERSION] != EV_CURRENT || 
-		_dl_strncmp_inline((void *)header, ELFMAGIC, SELFMAG) != 0)
+		_dl_strncmp((void *)header, ELFMAGIC, SELFMAG) != 0)
 	{
 	    SEND_STDERR("Invalid ELF header\n");
 	    _dl_exit(0);
@@ -314,15 +314,15 @@ found_got:
 	}
 
 	tpnt = DL_MALLOC(sizeof(struct elf_resolve));
-	_dl_memset_inline(tpnt, 0, sizeof(*tpnt));
+	_dl_memset(tpnt, 0, sizeof(*tpnt));
 	app_tpnt = DL_MALLOC(sizeof(struct elf_resolve));
-	_dl_memset_inline(app_tpnt, 0, sizeof(*app_tpnt));
+	_dl_memset(app_tpnt, 0, sizeof(*app_tpnt));
 
 	/*
 	 * This is used by gdb to locate the chain of shared libraries that are currently loaded.
 	 */
 	debug_addr = DL_MALLOC(sizeof(struct r_debug));
-	_dl_memset_inline(debug_addr, 0, sizeof(*debug_addr));
+	_dl_memset(debug_addr, 0, sizeof(*debug_addr));
 
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
@@ -630,10 +630,10 @@ found_got:
 					if (!tpnt1) {
 #ifdef DL_TRACE
 						if (_dl_trace_loaded_objects)
-							_dl_fprintf(1, "\t%s => not found\n", str);
+							_dl_dprintf(1, "\t%s => not found\n", str);
 						else {
 #endif
-							_dl_fprintf(2, "%s: can't load "
+							_dl_dprintf(2, "%s: can't load "
 								"library '%s'\n", _dl_progname, str);
 							_dl_exit(15);
 #ifdef DL_TRACE
@@ -646,7 +646,7 @@ found_got:
 							/* this is a real hack to make ldd not print 
 							 * the library itself when run on a library. */
 							if (_dl_strcmp(_dl_progname, str) != 0)
-								_dl_fprintf(1, "\t%s => %s (0x%x)\n", str, tpnt1->libname, 
+								_dl_dprintf(1, "\t%s => %s (0x%x)\n", str, tpnt1->libname, 
 									(unsigned) tpnt1->loadaddr);
 						}
 #endif
@@ -674,14 +674,14 @@ found_got:
 
 			if (!_dl_stat(LDSO_PRELOAD, &st) && st.st_size > 0) {
 				if ((fd = _dl_open(LDSO_PRELOAD, O_RDONLY)) < 0) {
-					_dl_fprintf(2, "%s: can't open file '%s'\n", 
+					_dl_dprintf(2, "%s: can't open file '%s'\n", 
 						_dl_progname, LDSO_PRELOAD);
 				} else {
 					preload = (caddr_t) _dl_mmap(0, st.st_size + 1, 
 						PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 					_dl_close(fd);
 					if (preload == (caddr_t) - 1) {
-						_dl_fprintf(2, "%s: can't map file '%s'\n", 
+						_dl_dprintf(2, "%s: can't map file '%s'\n", 
 							_dl_progname, LDSO_PRELOAD);
 					} else {
 						char c, *cp, *cp2;
@@ -714,10 +714,10 @@ found_got:
 							if (!tpnt1) {
 #ifdef DL_TRACE
 								if (_dl_trace_loaded_objects)
-									_dl_fprintf(1, "\t%s => not found\n", cp2);
+									_dl_dprintf(1, "\t%s => not found\n", cp2);
 								else {
 #endif
-									_dl_fprintf(2, "%s: can't load library '%s'\n", 
+									_dl_dprintf(2, "%s: can't load library '%s'\n", 
 										_dl_progname, cp2);
 									_dl_exit(15);
 #ifdef DL_TRACE
@@ -727,7 +727,7 @@ found_got:
 #ifdef DL_TRACE
 								if (_dl_trace_loaded_objects
 									&& !tpnt1->usage_count) {
-									_dl_fprintf(1, "\t%s => %s (0x%x)\n", cp2, 
+									_dl_dprintf(1, "\t%s => %s (0x%x)\n", cp2, 
 										tpnt1->libname, (unsigned) tpnt1->loadaddr);
 								}
 #endif
@@ -766,7 +766,7 @@ found_got:
 
 #ifdef DL_TRACE
 						if (_dl_trace_loaded_objects && !tpnt->usage_count) {
-						    _dl_fprintf(1, "\t%s => %s (0x%x)\n", 
+						    _dl_dprintf(1, "\t%s => %s (0x%x)\n", 
 							    lpnt, tpnt->libname, (unsigned) tpnt->loadaddr);
 						}
 #endif
@@ -789,10 +789,10 @@ found_got:
 					if (!(tpnt1 = _dl_load_shared_library(0, tcurr, lpnt))) {
 #ifdef DL_TRACE
 						if (_dl_trace_loaded_objects)
-							_dl_fprintf(1, "\t%s => not found\n", lpnt);
+							_dl_dprintf(1, "\t%s => not found\n", lpnt);
 						else {
 #endif
-							_dl_fprintf(2, "%s: can't load library '%s'\n", 
+							_dl_dprintf(2, "%s: can't load library '%s'\n", 
 								_dl_progname, lpnt);
 							_dl_exit(16);
 #ifdef DL_TRACE
@@ -801,7 +801,7 @@ found_got:
 					} else {
 #ifdef DL_TRACE
 						if (_dl_trace_loaded_objects && !tpnt1->usage_count)
-							_dl_fprintf(1, "\t%s => %s (0x%x)\n", lpnt, tpnt1->libname, 
+							_dl_dprintf(1, "\t%s => %s (0x%x)\n", lpnt, tpnt1->libname, 
 								(unsigned) tpnt1->loadaddr);
 #endif
 						rpnt->next = (struct dyn_elf *)
@@ -955,13 +955,13 @@ found_got:
 #undef DL_DEBUG
 #ifdef DL_DEBUG
 		else {
-			_dl_fprintf(2, tpnt->libname);
-			_dl_fprintf(2, ": ");
+			_dl_dprintf(2, tpnt->libname);
+			_dl_dprintf(2, ": ");
 			if (!_dl_atexit)
-				_dl_fprintf(2, "The address is atexit () is 0x0.");
+				_dl_dprintf(2, "The address is atexit () is 0x0.");
 			if (!tpnt->dynamic_info[DT_FINI])
-				_dl_fprintf(2, "Invalid .fini section.");
-			_dl_fprintf(2, "\n");
+				_dl_dprintf(2, "Invalid .fini section.");
+			_dl_dprintf(2, "\n");
 		}
 #endif
 #undef DL_DEBUG
@@ -996,7 +996,7 @@ int _dl_fixup(struct elf_resolve *tpnt)
 		goof += _dl_fixup(tpnt->next);
 	if (tpnt->dynamic_info[DT_REL]) {
 #ifdef ELF_USES_RELOCA
-		_dl_fprintf(2, "%s: can't handle REL relocation records\n", 
+		_dl_dprintf(2, "%s: can't handle REL relocation records\n", 
 			_dl_progname);
 		_dl_exit(17);
 #else
@@ -1015,7 +1015,7 @@ int _dl_fixup(struct elf_resolve *tpnt)
 		goof += _dl_parse_relocation_information(tpnt, 
 			tpnt->dynamic_info[DT_RELA], tpnt->dynamic_info[DT_RELASZ], 0);
 #else
-		_dl_fprintf(2, "%s: can't handle RELA relocation records\n", 
+		_dl_dprintf(2, "%s: can't handle RELA relocation records\n", 
 			_dl_progname);
 		_dl_exit(18);
 #endif
@@ -1054,7 +1054,7 @@ void *_dl_malloc(int size)
 		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size, 
 			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
-			_dl_fprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
+			_dl_dprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
 			_dl_exit(20);
 		}
 	}
@@ -1113,144 +1113,8 @@ char *_dl_strdup(const char *string)
 	return retval;
 }
 
-char *_dl_get_last_path_component(char *path)
-{
-	char *s;
-
-	s=path+_dl_strlen(path)-1;
-
-	/* strip trailing slashes */
-	while (s != path && *s == '/') {
-		*s-- = '\0';
-	}
-
-	/* find last component */
-	s = _dl_strrchr(path, '/');
-	if (s == NULL || s[1] == '\0')
-		return path;
-	else
-		return s+1;
-}
-
-size_t _dl_strlen(const char * str)
-{
-	register char *ptr = (char *) str;
-
-	while (*ptr)
-		ptr++;
-	return (ptr - str);
-}
-
-char * _dl_strcpy(char * dst,const char *src)
-{
-	register char *ptr = dst;
-
-	while (*src)
-		*dst++ = *src++;
-	*dst = '\0';
-
-	return ptr;
-}
- 
-int _dl_strcmp(const char * s1,const char * s2)
-{
-	unsigned register char c1, c2;
-
-	do {
-		c1 = (unsigned char) *s1++;
-		c2 = (unsigned char) *s2++;
-		if (c1 == '\0')
-			return c1 - c2;
-	}
-	while (c1 == c2);
-
-	return c1 - c2;
-}
-
-int _dl_strncmp(const char * s1,const char * s2,size_t len)
-{
-	unsigned register char c1 = '\0';
-	unsigned register char c2 = '\0';
-
-	while (len > 0) {
-		c1 = (unsigned char) *s1++;
-		c2 = (unsigned char) *s2++;
-		if (c1 == '\0' || c1 != c2)
-			return c1 - c2;
-		len--;
-	}
-
-	return c1 - c2;
-}
-
-char * _dl_strchr(const char * str,int c)
-{
-	register char ch;
-
-	do {
-		if ((ch = *str) == c)
-			return (char *) str;
-		str++;
-	}
-	while (ch);
-
-	return 0;
-}
-
-char *_dl_strrchr(const char *str, int c)
-{
-    register char *prev = 0;
-    register char *ptr = (char *) str;
-
-    while (*ptr != '\0') {
-	if (*ptr == c)
-	    prev = ptr;
-	ptr++;  
-    }   
-    if (c == '\0')
-	return(ptr);
-    return(prev);
-}
-
-void * _dl_memcpy(void * dst, const void * src, size_t len)
-{
-	register char *a = dst;
-	register const char *b = src;
-
-	while (len--)
-		*a++ = *b++;
-
-	return dst;
-}
-
-#ifdef USE_CACHE
-int _dl_memcmp(const void * s1,const void * s2,size_t len)
-{
-	unsigned char *c1 = (unsigned char *)s1;
-	unsigned char *c2 = (unsigned char *)s2;
-
-	while (len--) {
-		if (*c1 != *c2) 
-			return *c1 - *c2;
-		c1++;
-		c2++;
-	}
-	return 0;
-}
-#endif
-
-void * _dl_memset(void * str,int c,size_t len)
-{
-	register char *a = str;
-
-	while (len--)
-		*a++ = c;
-
-	return str;
-}
-
 /* Minimum printf which handles only characters, %d's and %s's */
-void _dl_fprintf(int fd, const char *fmt, ...)
+void _dl_dprintf(int fd, const char *fmt, ...)
 {
     int num;
     va_list args;
@@ -1294,7 +1158,7 @@ void _dl_fprintf(int fd, const char *fmt, ...)
 		    {
 			char tmp[13];
 			num = va_arg(args, int);
-			string = _dl_simple_ltoa_inline(tmp, num);
+			string = _dl_simple_ltoa(tmp, num);
 			_dl_write(fd, string, _dl_strlen(string));
 			break;
 		    }
@@ -1303,7 +1167,7 @@ void _dl_fprintf(int fd, const char *fmt, ...)
 		    {
 			char tmp[13];
 			num = va_arg(args, int);
-			string = _dl_simple_ltoahex_inline(tmp, num);
+			string = _dl_simple_ltoahex(tmp, num);
 			_dl_write(fd, string, _dl_strlen(string));
 			break;
 		    }

@@ -475,11 +475,11 @@ possible, but at run time the normal symbols are accessed. */
 
 static void __attribute__ ((unused)) foobar()
 {
-	_dl_fprintf(2, "libdl library not correctly linked\n");
+	_dl_dprintf(2, "libdl library not correctly linked\n");
 	_dl_exit(1);
 }
 
-asm(".weak _dl_fprintf; _dl_fprintf = foobar");
+asm(".weak _dl_dprintf; _dl_dprintf = foobar");
 asm(".weak _dl_find_hash; _dl_find_hash = foobar");
 asm(".weak _dl_load_shared_library; _dl_load_shared_library = foobar");
 asm(".weak _dl_parse_relocation_information; _dl_parse_relocation_information = foobar");
@@ -490,7 +490,7 @@ asm(".weak _dl_unmap_cache; _dl_unmap_cache = foobar");
 #endif	
 
 #if 0
-weak_alias(_dl_fprintf, foobar);
+weak_alias(_dl_dprintf, foobar);
 weak_alias(_dl_find_hash, foobar);
 weak_alias(_dl_load_shared_library, foobar);
 weak_alias(_dl_parse_relocation_information, foobar);
@@ -528,10 +528,10 @@ void _dlinfo()
 	struct elf_resolve *tpnt;
 	struct dyn_elf *rpnt, *hpnt;
 
-	_dl_fprintf(2, "List of loaded modules\n");
+	_dl_dprintf(2, "List of loaded modules\n");
 	/* First start with a complete list of all of the loaded files. */
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) { 
-		_dl_fprintf(2, "\t%x %x %x %s %d %s\n", 
+		_dl_dprintf(2, "\t%x %x %x %s %d %s\n", 
 			(unsigned) tpnt->loadaddr, (unsigned) tpnt,
 			(unsigned) tpnt->symbol_scope,
 			type[tpnt->libtype],
@@ -539,15 +539,15 @@ void _dlinfo()
 	}
 
 	/* Next dump the module list for the application itself */
-	_dl_fprintf(2, "\nModules for application (%x):\n",
+	_dl_dprintf(2, "\nModules for application (%x):\n",
 				 (unsigned) _dl_symbol_tables);
 	for (rpnt = _dl_symbol_tables; rpnt; rpnt = rpnt->next)
-		_dl_fprintf(2, "\t%x %s\n", (unsigned) rpnt->dyn, rpnt->dyn->libname);
+		_dl_dprintf(2, "\t%x %s\n", (unsigned) rpnt->dyn, rpnt->dyn->libname);
 
 	for (hpnt = _dl_handles; hpnt; hpnt = hpnt->next_handle) {
-		_dl_fprintf(2, "Modules for handle %x\n", (unsigned) hpnt);
+		_dl_dprintf(2, "Modules for handle %x\n", (unsigned) hpnt);
 		for (rpnt = hpnt; rpnt; rpnt = rpnt->next)
-			_dl_fprintf(2, "\t%x %s\n", (unsigned) rpnt->dyn, 
+			_dl_dprintf(2, "\t%x %s\n", (unsigned) rpnt->dyn, 
 				rpnt->dyn->libname);
 	}
 }
@@ -567,7 +567,7 @@ int _dladdr(void *__address, Dl_info * __dlip)
 	pelf = NULL;
 
 #if 0
-	_dl_fprintf(2, "dladdr( 0x%p, 0x%p )\n", __address, __dlip);
+	_dl_dprintf(2, "dladdr( 0x%p, 0x%p )\n", __address, __dlip);
 #endif
 
 	for (rpnt = _dl_loaded_modules; rpnt; rpnt = rpnt->next) {
@@ -575,7 +575,7 @@ int _dladdr(void *__address, Dl_info * __dlip)
 
 		tpnt = rpnt;
 #if 0
-		_dl_fprintf(2, "Module \"%s\" at 0x%p\n", 
+		_dl_dprintf(2, "Module \"%s\" at 0x%p\n", 
 			tpnt->libname, tpnt->loadaddr);
 #endif
 		if (tpnt->loadaddr < (char *) __address
@@ -615,7 +615,7 @@ int _dladdr(void *__address, Dl_info * __dlip)
 					sf = 1;
 				}
 #if 0
-				_dl_fprintf(2, "Symbol \"%s\" at 0x%p\n", 
+				_dl_dprintf(2, "Symbol \"%s\" at 0x%p\n", 
 					strtab + symtab[si].st_name, symbol_addr);
 #endif
 			}
