@@ -25,7 +25,6 @@
 
 #ifdef L_herror
 
-static const char *error_msg = "Resolver error";
 static const char *const h_errlist[] = {
 	"Error 0",
 	"Unknown host",			    /* 1 HOST_NOT_FOUND */
@@ -48,7 +47,7 @@ void herror(const char *s)
 	if (!s || !*s) {
 		c += 2;
 	}
-	p = error_msg;
+	p = "Resolver error";
 	if ((h_errno >= 0) && (h_errno < h_nerr)) {
 	    p = h_errlist[h_errno];
 	}
@@ -60,6 +59,7 @@ void herror(const char *s)
 #ifdef L_hstrerror
 const char *hstrerror(int err)
 {
+    const char *error_msg = "Resolver error";
     if (err < 0) {
 	return(error_msg);
     } else if (err < h_nerr) {
