@@ -172,8 +172,8 @@ int main(int argc, char **argv)
 	xstrcat(&(rpath[0]), "-Wl,-rpath,", devprefix, "/lib", NULL);
 	xstrcat(&(rpath[1]), "-Wl,-rpath,", builddir, "/lib", NULL);
 
-	xstrcat(&(uClibc_inc[0]), "-isystem", devprefix, "/include/", NULL);
-	xstrcat(&(uClibc_inc[1]), "-isystem", builddir, "/include/", NULL);
+	xstrcat(&(uClibc_inc[0]), devprefix, "/include/", NULL);
+	xstrcat(&(uClibc_inc[1]), builddir, "/include/", NULL);
 
 	xstrcat(&(crt0_path[0]), devprefix, "/lib/crt0.o", NULL);
 	xstrcat(&(crt0_path[1]), builddir, "/lib/crt0.o", NULL);
@@ -302,63 +302,74 @@ int main(int argc, char **argv)
 	}
 
 	if (linking && source_count) {
-		if (use_stdlib) {
-			gcc_argv[i++] = nostdlib;
+	    if (use_stdlib) {
+		gcc_argv[i++] = nostdlib;
+	    }
+	    if (use_static_linking) {
+		gcc_argv[i++] = static_linking;
+	    }
+	    if (!use_static_linking) {
+		if (dlstr && use_build_dir) {
+		    gcc_argv[i++] = build_dlstr;
+		} else if (dlstr) {
+		    gcc_argv[i++] = dlstr;
 		}
+		if (use_rpath) {
+		    gcc_argv[i++] = rpath[use_build_dir];
+		}
+	    }
+	    gcc_argv[i++] = rpath_link[use_build_dir]; /* just to be safe */
+	    if( libstr )
+		gcc_argv[i++] = libstr;
+	    gcc_argv[i++] = lib_path[use_build_dir];
+	    if (!use_build_dir) {
+		gcc_argv[i++] = usr_lib_path;
+	    }
+	}
+	if (use_stdinc && source_count) {
+	    gcc_argv[i++] = nostdinc;
+	    gcc_argv[i++] = "-isystem";
+	    gcc_argv[i++] = uClibc_inc[use_build_dir];
+	    gcc_argv[i++] = "-isystem";
+	    gcc_argv[i++] = GCC_INCDIR;
+	    if( incstr )
+		gcc_argv[i++] = incstr;
+	}
+
+	if (linking && source_count) {
+	    if (use_start) {
+#ifdef ENABLE_CRTBEGIN_END
 		if (use_static_linking) {
-			gcc_argv[i++] = static_linking;
+		    gcc_argv[i++] = GCC_LIB_DIR "crtbegin.o" ;
+		} else {
+		    gcc_argv[i++] = GCC_LIB_DIR "crtbeginS.o" ;
 		}
-		if (!use_static_linking) {
-			if (dlstr && use_build_dir) {
-				gcc_argv[i++] = build_dlstr;
-			} else if (dlstr) {
-				gcc_argv[i++] = dlstr;
-			}
-			if (use_rpath) {
-				gcc_argv[i++] = rpath[use_build_dir];
-			}
-		}
-		gcc_argv[i++] = rpath_link[use_build_dir]; /* just to be safe */
-		if( libstr )
-			gcc_argv[i++] = libstr;
-		gcc_argv[i++] = lib_path[use_build_dir];
-		if (!use_build_dir) {
-			gcc_argv[i++] = usr_lib_path;
-		}
-#ifdef ENABLE_CRTBE
-			gcc_argv[i++] = GCC_LIB_DIR "crtbegin.o" ;
-			//gcc_argv[i++] = GCC_LIB_DIR "crti.o" ;
 #endif
-		if (use_start) {
-			gcc_argv[i++] = crt0_path[use_build_dir];
+		gcc_argv[i++] = crt0_path[use_build_dir];
+	    }
+	    for ( l = 0 ; l < k ; l++ ) {
+		if (gcc_argument[l]) gcc_argv[i++] = gcc_argument[l];
+	    }
+	    if (use_stdlib) {
+		//gcc_argv[i++] = "-Wl,--start-group";
+		gcc_argv[i++] = "-lgcc";
+		for ( l = m ; l >= 0 ; l-- ) {
+		    if (libraries[l]) gcc_argv[i++] = libraries[l];
 		}
-		for ( l = 0 ; l < k ; l++ ) {
-			if (gcc_argument[l]) gcc_argv[i++] = gcc_argument[l];
+		gcc_argv[i++] = "-lc";
+		gcc_argv[i++] = "-lgcc";
+		//gcc_argv[i++] = "-Wl,--end-group";
+	    }
+#ifdef ENABLE_CRTBEGIN_END
+	    if (use_start) {
+		if (use_static_linking) {
+		    gcc_argv[i++] = GCC_LIB_DIR "crtend.o" ;
+		} else {
+		    gcc_argv[i++] = GCC_LIB_DIR "crtendS.o" ;
 		}
-		if (use_stdlib) {
-			//gcc_argv[i++] = "-Wl,--start-group";
-			gcc_argv[i++] = "-lgcc";
-			for ( l = m ; l >= 0 ; l-- ) {
-				if (libraries[l]) gcc_argv[i++] = libraries[l];
-			}
-			gcc_argv[i++] = "-lc";
-			gcc_argv[i++] = "-lgcc";
-			//gcc_argv[i++] = "-Wl,--end-group";
-		}
-#ifdef ENABLE_CRTBE
-		if (use_start) {
-			gcc_argv[i++] = GCC_LIB_DIR "crtend.o" ;
-			//gcc_argv[i++] = GCC_LIB_DIR "crtn.o" ;
-		}
+	    }
 #endif
 	} else {
-	    if (use_stdinc && source_count) {
-		gcc_argv[i++] = nostdinc;
-		gcc_argv[i++] = uClibc_inc[use_build_dir];
-		gcc_argv[i++] = "-isystem" GCC_INCDIR;
-		if( incstr )
-		    gcc_argv[i++] = incstr;
-	    }
 	    for ( l = 0 ; l < k ; l++ ) {
 		if (gcc_argument[l]) gcc_argv[i++] = gcc_argument[l];
 	    }
