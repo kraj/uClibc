@@ -165,6 +165,30 @@ long int __isfinite ( double x )
 }
 
 
+/***********************************************************************
+* long int __isinff(float x) returns -1 if value represents  negative
+*	infinity,  1  if value represents positive infinity,
+*	and 0 otherwise.
+*
+* Calls:  __signbit
+* +***********************************************************************/
+long int __isinff ( float x )
+{
+    long int class = __fpclassifyf(x);
+    if ( class == FP_INFINITE ) {
+	return ( (__signbitf(x)) ? -1 : 1);
+    }
+    return 0;
+}
+
+long int __isinf ( double x )
+{
+    long int class = __fpclassify(x);
+    if ( class == FP_INFINITE ) {
+	return ( (__signbit(x)) ? -1 : 1);
+    }
+    return 0;
+}
 
 /***********************************************************************
    long int __isnanf(float x) returns nonzero if and only if x is a
