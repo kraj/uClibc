@@ -140,6 +140,10 @@ stdio
 9) The FILEs created by glibc's fmemopen(), open_memstream(), and fopencookie()
    are not capable of wide orientation.  The corresponding uClibc routines do
    not have this limitation.
+10) For scanf, the C99 standard states "The fscanf function returns the value of
+    the macro EOF if an input failure occurs before any conversion."  But glibc's
+    scanf does not respect conversions for which assignment was surpressed, even
+    though the standard states that the value is converted but not stored.
 
 glibc bugs that Ulrich Drepper has refused to acknowledge or comment on
   ( http://sources.redhat.com/ml/libc-alpha/2003-09/ )
