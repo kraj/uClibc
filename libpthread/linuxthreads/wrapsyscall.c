@@ -34,7 +34,7 @@
 #include <sys/syscall.h>
 
 
-#ifndef PIC
+#ifndef __PIC__
 /* We need a hook to force this file to be linked in when static
    libpthread is used.  */
 const int __pthread_provide_wrappers = 0;

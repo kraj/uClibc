@@ -42,7 +42,7 @@ setjmp:
 	/* Call __sigjmp_save.  */
 	pushl $1
 	pushl 8(%esp)
-#ifdef	PIC
+#ifdef	__PIC__
 	/* We cannot use the PLT, because it requires that %ebx be set, but
            we can't save and restore our caller's value.  Instead, we do an
            indirect jump through the GOT, using for the temporary register

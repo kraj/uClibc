@@ -65,11 +65,11 @@ __clone:
 CLONE_ERROR_LABEL:
 	negl    %eax
 	pushl   %eax
-#ifdef PIC
-	call	L(here)
-L(here):
+#ifdef __PIC__
+	call .Lhere
+.Lhere:
 	popl	%ebx
-	addl	$_GLOBAL_OFFSET_TABLE_+[.-L(here)], %ebx
+	addl	$_GLOBAL_OFFSET_TABLE_+[.- .Lhere  ], %ebx
 	call    __errno_location@PLT
 #else
 	call	__errno_location

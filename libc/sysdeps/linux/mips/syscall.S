@@ -20,7 +20,7 @@
 #include <asm/asm.h>
 #include <asm/regdef.h>
 
-#ifdef PIC
+#ifdef __PIC__
 	.option pic2
 #endif
 .text

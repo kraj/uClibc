@@ -69,7 +69,7 @@ _mcount:
 	stw	r10,40(r1)
 	stw	r4, 44(r1)
 	stw	r5,  8(r1)
-#ifdef PIC
+#ifdef __PIC__
 	bl	__mcount_internal@plt
 #else
 	bl	__mcount_internal

@@ -40,7 +40,7 @@ syscall:
 	cmpl $-4095,%eax
 	jbe .Ldone
 
-#ifdef PIC
+#ifdef __PIC__
 	call Lhere
 Lhere:
 	popl %ebx
@@ -63,7 +63,7 @@ Lhere:
 	movl %eax,errno
 #endif /* __UCLIBC_HAS_THREADS__ */
 
-#endif /* PIC */
+#endif /* __PIC__ */
 
 	movl $-1,%eax
 	.p2align 4,,7

@@ -12,13 +12,13 @@
 vfork:
 	popl %ecx
 	movl $190,%eax
-#ifdef PIC
+#ifdef __PIC__
 	pushl %ebx
 #endif
 #APP
 	int $0x80
 #NO_APP
-#ifdef PIC
+#ifdef __PIC__
 	popl %ebx
 #endif
 	cmpl $-4095,%eax
@@ -28,7 +28,7 @@ vfork:
 .Lerror:
 	pushl %ecx
 
-#ifdef PIC
+#ifdef __PIC__
 	pushl %ebx
 	call .Lhere
 .Lhere:
@@ -53,7 +53,7 @@ vfork:
 	movl %eax,errno
 #endif /* __UCLIBC_HAS_THREADS__ */
 
-#endif /* PIC */
+#endif /* __PIC__ */
 	
 	movl $-1,%eax
 	ret

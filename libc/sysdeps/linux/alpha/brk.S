@@ -25,7 +25,7 @@
 #define _ERRNO_H
 #include <bits/errno.h>
 
-#ifdef PIC
+#ifdef __PIC__
 .section .bss
 	.align 3
 	.globl __curbrk

@@ -1005,7 +1005,7 @@ void __pthread_message(char * fmt, ...)
 #endif
 
 
-#ifndef PIC
+#ifndef __PIC__
 /* We need a hook to force the cancelation wrappers to be linked in when
    static libpthread is used.  */
 extern const int __pthread_provide_wrappers;

@@ -151,7 +151,7 @@ headers: include/bits/uClibc_config.h
 	    set -e; \
 	    echo " "; \
 	    echo "The path '$(KERNEL_SOURCE)/include/asm' doesn't exist."; \
-	    echo "I bet you didn't set KERNEL_SOURCE, TARGET_ARCH or UCLIBC_HAS_MMU"; \
+	    echo "I bet you did not set KERNEL_SOURCE, TARGET_ARCH or UCLIBC_HAS_MMU"; \
 	    echo "correctly when you configured uClibc.  Please fix these settings."; \
 	    echo " "; \
 	    false; \

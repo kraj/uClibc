@@ -42,7 +42,7 @@ __sigsetjmp:
         movl %ebp, (3 *4)(%eax)  
 
 	/* Make a tail call to __sigjmp_save; it takes the same args.  */
-#ifdef	PIC
+#ifdef	__PIC__
 	/* We cannot use the PLT, because it requires that %ebx be set, but
            we can't save and restore our caller's value.  Instead, we do an
            indirect jump through the GOT, using for the temporary register
