@@ -274,6 +274,25 @@ char *strdup(const char *str)
 }
 #endif
 
+/********************** Function strndup ************************************/
+#ifdef L_strndup
+char *strndup(const char *str, size_t len)
+{
+	register size_t n;
+	register char *dst;
+
+	n = strlen(str);
+	if (len < n)
+		n = len;
+	dst = (char *) malloc(n+1);
+	if (dst) {
+		memcpy(dst, str, n);
+		dst[n] = '\0';
+	}
+	return dst;
+}
+#endif
+
 /********************** Function memcpy ************************************/
 
 #ifdef L_memcpy
@@ -408,6 +427,5 @@ int ffs(int x)
 	return r;
 }
 #endif
-
 
 /********************** THE END ********************************************/

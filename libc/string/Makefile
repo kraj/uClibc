@@ -25,7 +25,7 @@ include $(TOPDIR)Rules.mak
 
 MSRC=string.c
 MOBJ=strlen.o strcat.o strcpy.o strchr.o strcmp.o strncat.o strncpy.o \
-	strncmp.o strrchr.o strdup.o memcpy.o memccpy.o memset.o \
+	strncmp.o strrchr.o strdup.o strndup.o memcpy.o memccpy.o memset.o \
 	memmove.o memcmp.o memchr.o ffs.o strnlen.o strxfrm.o stpcpy.o stpncpy.o
 
 ifeq ($(HAS_LOCALE),true)

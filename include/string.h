@@ -125,8 +125,7 @@ extern char *strdup (__const char *__s) __THROW __attribute_malloc__;
 /* Return a malloc'd copy of at most N bytes of STRING.  The
    resultant string is terminated even if no null terminator
    appears before STRING[N].  */
-#if 0
-//#if defined __USE_GNU
+#if defined __USE_GNU
 extern char *strndup (__const char *__string, size_t __n)
      __THROW __attribute_malloc__;
 #endif
