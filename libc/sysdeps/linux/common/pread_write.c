@@ -40,45 +40,49 @@
 #include <unistd.h>
 
 #ifdef __NR_pread
-#define __NR___libc_pread __NR_pread
-_syscall4(ssize_t, __libc_pread, int, fd, void *, buf, size_t, count, off_t, offset);
-weak_alias (__libc_pread, pread)
-#if defined __UCLIBC_HAVE_LFS__ 
 
-#ifndef INLINE_SYSCALL
-#define INLINE_SYSCALL(name, nr, args...) __syscall_pread (args)
 #define __NR___syscall_pread __NR_pread 
 static inline _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf, 
 		size_t, count, off_t, offset_hi, off_t, offset_lo);
-#endif
 
+#define __NR___libc_pread __NR_pread
+
+ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
+{ 
+	return(__syscall_pread(fd,buf,count,__LONG_LONG_PAIR((off_t)0,offset)));
+}
+weak_alias (__libc_pread, pread)
+
+#if defined __UCLIBC_HAVE_LFS__ 
 ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 { 
-	  return(INLINE_SYSCALL (pread, 5, fd, buf, 
-				  count, __LONG_LONG_PAIR ((off_t) (offset >> 32), (off_t) (offset & 0xffffffff))));
+	return(__syscall_pread(fd, buf, count,
+			__LONG_LONG_PAIR((off_t)(offset>>32),(off_t)(offset&0xffffffff))));
 }
 weak_alias (__libc_pread64, pread64)
 #endif /* __UCLIBC_HAVE_LFS__  */
+
 #endif /* __NR_pread */
 
 
 #ifdef __NR_pwrite
 #define __NR___libc_pwrite __NR_pwrite
-_syscall4(ssize_t, __libc_pwrite, int, fd, const void *, buf, size_t, count, off_t, offset);
-weak_alias (__libc_pwrite, pwrite)
-#if defined __UCLIBC_HAVE_LFS__ 
 
-#ifndef INLINE_SYSCALL
-#define INLINE_SYSCALL(name, nr, args...) __syscall_write (args)
-#define __NR___syscall_write __NR_write 
-static inline _syscall5(ssize_t, __syscall_write, int, fd, const void *, buf, 
+#define __NR___syscall_pwrite __NR_pwrite 
+static inline _syscall5(ssize_t, __syscall_pwrite, int, fd, const void *, buf, 
 		size_t, count, off_t, offset_hi, off_t, offset_lo);
-#endif
 
+ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
+{ 
+	return(__syscall_pwrite(fd,buf,count,__LONG_LONG_PAIR((off_t)0,offset)));
+}
+weak_alias (__libc_pwrite, pwrite)
+
+#if defined __UCLIBC_HAVE_LFS__ 
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 { 
-	return(INLINE_SYSCALL (pwrite, 5, fd, buf, 
-				count, __LONG_LONG_PAIR ((off_t) (offset >> 32), (off_t) (offset & 0xffffffff))));
+	return(__syscall_pwrite(fd, buf, count,
+			__LONG_LONG_PAIR((off_t)(offset>>32),(off_t)(offset&0xffffffff))));
 }
 weak_alias (__libc_pwrite64, pwrite64)
 #endif /* __UCLIBC_HAVE_LFS__  */
