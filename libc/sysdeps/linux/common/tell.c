@@ -1,4 +1,5 @@
 #define lseek __normal_lseek
+#include <errno.h>
 #include <unistd.h>
 #include <syscall.h>
 #undef lseek

@@ -108,14 +108,10 @@ extern time_t timelocal __P ((struct tm *__tp));
 
 #endif
 
-#if defined(_POSIX_THREAD_SAFE_FUNCTIONS) || defined(_REENTRANT)
-
 extern char	* asctime_r	__P((__const struct tm *, char *));
 extern char	* ctime_r	__P((__const time_t *, char *));
 extern struct tm* gmtime_r	__P((__const time_t *, struct tm *));
 extern struct tm* localtime_r	__P((__const time_t *, struct tm *));
-
-#endif
 
 struct timespec;
 

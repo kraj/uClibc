@@ -19,6 +19,7 @@ Cambridge, MA 02139, USA.  */
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #if !defined(HAVE_GNU_LD) && !defined (__ELF__)
 #define	__environ	environ

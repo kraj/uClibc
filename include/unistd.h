@@ -23,7 +23,10 @@
 #ifndef	_UNISTD_H
 #define	_UNISTD_H	1
 
+#include <errno.h>
 #include <features.h>
+#include <sys/types.h>
+#include <asm/unistd.h>
 
 __BEGIN_DECLS
 
@@ -173,6 +176,8 @@ __BEGIN_DECLS
    */
 
 #include <bits/posix_opt.h>
+/* At this time, we don't do pthreads... Sorry... */
+#undef _POSIX_THREADS
 
 /* Get the environment definitions from Unix98.  */
 #ifdef __USE_UNIX98

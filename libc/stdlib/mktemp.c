@@ -1,5 +1,6 @@
 #include <string.h>
 #include <features.h>
+#include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
