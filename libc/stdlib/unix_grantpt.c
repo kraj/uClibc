@@ -28,8 +28,14 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
 #include "pty-private.h"
+
+
+/* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
+#include <sys/syscall.h>
+#if ! defined __NR_vfork && defined __UCLIBC_HAS_MMU__ 
+#define vfork fork	
+#endif
 
 extern int ptsname_r (int fd, char *buf, size_t buflen);
 
@@ -140,11 +146,7 @@ grantpt (int fd)
   /* We have to use the helper program.  */
  helper:
 
-#ifdef __UCLIBC_HAS_MMU__
-  pid = fork ();
-#else
   pid = vfork ();
-#endif
   if (pid == -1)
     goto cleanup;
   else if (pid == 0)
@@ -156,10 +158,10 @@ grantpt (int fd)
       /* We pase the master pseudo terminal as file descriptor PTY_FILENO.  */
       if (fd != PTY_FILENO)
 	if (dup2 (fd, PTY_FILENO) < 0)
-	  exit (FAIL_EBADF);
+	  _exit (FAIL_EBADF);
 
       execle (_PATH_PT_CHOWN, _PATH_PT_CHOWN, NULL, NULL);
-      exit (FAIL_EXEC);
+      _exit (FAIL_EXEC);
     }
   else
     {

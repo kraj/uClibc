@@ -4,6 +4,12 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+/* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
+#include <sys/syscall.h>
+#if ! defined __NR_vfork && defined __UCLIBC_HAS_MMU__ 
+#define vfork fork	
+#endif
+
 int __libc_system(command)
 char *command;
 {
