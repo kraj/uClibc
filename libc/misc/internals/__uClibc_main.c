@@ -139,9 +139,9 @@ __uClibc_start_main(int argc, char **argv, char **envp,
 	}
 	aux_dat += 2;
     }
-    _dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : 4096;
+    _dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 #else
-    _dl_pagesize = 4096;
+    _dl_pagesize = PAGE_SIZE;
 #endif
 
     /* If we are dynamically linked the shared lib loader already
