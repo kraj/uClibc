@@ -1,4 +1,4 @@
-DIRS = headers error gtermcap misc stdio2 time getent regexp string termios sysdeps \
+DIRS = headers error misc stdio2 time getent regexp string termios sysdeps \
 malloc-simple net rpc
 
 all: libc.a
@@ -16,9 +16,6 @@ headers: dummy
 
 error: dummy
 	make -C error
-
-gtermcap: dummy
-	make -C gtermcap
 
 misc: dummy
 	make -C misc

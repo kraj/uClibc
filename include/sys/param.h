@@ -22,6 +22,9 @@
 #define NR_FILE 32
 #endif
 
+/* Number of Bits per BYte */
+#define NBBY		CHAR_BIT
+
 /* Bit map related macros.  */
 #define        setbit(a,i)     ((a)[(i)/NBBY] |= 1<<((i)%NBBY))
 #define        clrbit(a,i)     ((a)[(i)/NBBY] &= ~(1<<((i)%NBBY)))
