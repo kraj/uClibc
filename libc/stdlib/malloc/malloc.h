@@ -7,7 +7,7 @@
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
  * directory of this archive for more details.
- * 
+ *
  * Written by Miles Bader <miles@gnu.org>
  */
 
@@ -40,6 +40,27 @@
 #ifdef __UCLIBC_HAS_MMU__
 # define MALLOC_USE_SBRK
 #endif
+
+
+/* The size of a malloc allocation is stored in a size_t word
+   MALLOC_ALIGNMENT bytes prior to the start address of the allocation:
+
+     +--------+---------+-------------------+
+     | SIZE   |(unused) | allocation  ...   |
+     +--------+---------+-------------------+
+     ^ BASE             ^ ADDR
+     ^ ADDR - MALLOC_ALIGN
+*/
+
+/* Return base-address of a malloc allocation, given the user address.  */
+#define MALLOC_BASE(addr)	((void *)((char *)addr - MALLOC_ALIGNMENT))
+/* Return the size of a malloc allocation, given the user address.  */
+#define MALLOC_SIZE(addr)	(*(size_t *)MALLOC_BASE(addr))
+
+/* Return the user address of a malloc allocation, given the base address.  */
+#define MALLOC_ADDR(base)	((void *)((char *)base + MALLOC_ALIGNMENT))
+/* Sets the size of a malloc allocation, given the base address.  */
+#define MALLOC_SET_SIZE(base, size)	(*(size_t *)(base) = (size))
 
 
 #ifdef __UCLIBC_HAS_THREADS__
