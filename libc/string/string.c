@@ -308,6 +308,21 @@ void *memcpy(void *dst, const void *src, size_t len)
 }
 #endif
 
+/********************** Function mempcpy ************************************/
+
+#ifdef L_mempcpy
+void *mempcpy(void *dst, const void *src, size_t len)
+{
+	register char *a = dst;
+	register const char *b = src;
+
+	while (len--)
+		*a++ = *b++;
+
+	return (void *) a;
+}
+#endif
+
 /********************** Function memccpy ************************************/
 
 #ifdef L_memccpy
