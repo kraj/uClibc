@@ -38,11 +38,10 @@ MOBJ=inet_aton.o inet_addr.o inet_ntoa.o inet_makeaddr.o inet_lnaof.o \
 MSRC2=resolv.c
 MOBJ2=encodeh.o decodeh.o encoded.o decoded.o lengthd.o encodeq.o \
 	decodeq.o lengthq.o encodea.o decodea.o encodep.o decodep.o \
-	formquery.o dnslookup.o resolveaddress.o resolvemailbox.o \
-	opennameservers.o closenameservers.o resolvename.o gethostbyname.o\
-	res_init.o res_query.o gethostbyaddr.o \
-	read_etc_hosts_r.o get_hosts_byname_r.o get_hosts_byaddr_r.o \
-	gethostbyname2.o getnameinfo.o gethostent.o sethostent.o endhostent.o \
+	formquery.o dnslookup.o resolveaddress.o opennameservers.o \
+	closenameservers.o resolvename.o gethostbyname.o res_init.o \
+	res_query.o gethostbyaddr.o read_etc_hosts_r.o get_hosts_byname_r.o \
+	get_hosts_byaddr_r.o gethostbyname2.o getnameinfo.o gethostent.o \
 	gethostbyname_r.o gethostbyname2_r.o gethostbyaddr_r.o
 
 MSRC3=socketcalls.c
