@@ -314,11 +314,11 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	      filename[len1] = '.';
 	      _dl_strcpy (&filename[len1+1], tmp1);
 
-	      _dl_debug_file= _dl_open (filename, O_WRONLY|O_CREAT);
+	      _dl_debug_file= _dl_open (filename, O_WRONLY|O_CREAT, 0644);
 	      if (_dl_debug_file<0)
 	      {
-		_dl_debug_file = 2;
-		_dl_dprintf (2, "can't open file: '%s'\n",filename);
+			  _dl_debug_file = 2;
+			  _dl_dprintf (2, "can't open file: '%s'\n",filename);
 	      }
 	    }
 	  }
