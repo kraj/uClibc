@@ -29,7 +29,7 @@ ifeq ($(strip $(INCLUDE_RPC)),true)
 else
 	DIRS=
 endif
-ALL_SUBDIRS = $(shell find * -type d -prune -name [a-z]\*)
+ALL_SUBDIRS = rpc
 
 MSRC=addr.c
 MOBJ=inet_aton.o inet_addr.o inet_ntoa.o
