@@ -210,7 +210,7 @@ install_dev:
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1.\2/'` $(PREFIX)$(DEVEL_PREFIX)
 ifeq ($(strip $(HAVE_SHARED)),y)
 	-install -m 644 lib/*.so $(PREFIX)$(DEVEL_PREFIX)/lib/
-	-find lib/ -type l -name '*.so' -exec cp -a {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
+	-find lib/ -type l -name '*.so' -exec cp -fa {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
 	# If we build shared libraries then the static libs are PIC...
 	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
 	for i in `find lib/  -type f -name '*.a' | sed -e 's/lib\///'` ; do \
@@ -228,7 +228,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	install -d $(PREFIX)$(DEVEL_PREFIX)/bin
 	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(PREFIX)$(DEVEL_PREFIX)/lib
-	cp -a lib/*.so.* $(PREFIX)$(DEVEL_PREFIX)/lib
+	cp -fa lib/*.so.* $(PREFIX)$(DEVEL_PREFIX)/lib
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
@@ -288,7 +288,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin
 	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(PREFIX)$(TARGET_PREFIX)/lib
-	cp -af lib/*.so.* $(PREFIX)$(TARGET_PREFIX)/lib
+	cp -fa lib/*.so.* $(PREFIX)$(TARGET_PREFIX)/lib
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
 	    set -x -e; \
 	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
@@ -418,7 +418,7 @@ distclean: clean
 release: distclean
 	cd ..;					\
 	rm -rf uClibc-$(VERSION);		\
-	cp -a uClibc uClibc-$(VERSION);		\
+	cp -fa uClibc uClibc-$(VERSION);		\
 	find uClibc-$(VERSION)/ -type f		\
 	    -name .\#* -exec rm -rf {} \; ;	\
 	find uClibc-$(VERSION)/ -type d		\
