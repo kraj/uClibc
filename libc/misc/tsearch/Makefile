@@ -31,8 +31,8 @@ all: $(MOBJ) $(LIBC)
 
 $(LIBC): ar-target
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+ar-target: $(MOBJ)
+	$(AR) $(ARFLAGS) $(LIBC) $(MOBJ)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
