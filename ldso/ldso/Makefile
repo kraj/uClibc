@@ -26,6 +26,8 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
+
+
 XXFLAGS+=-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 	-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 	-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\"
@@ -41,9 +43,18 @@ ifeq ($(strip $(TARGET_ARCH)),cris)
 LDFLAGS+=-mcrislinux
 endif
 
-ifneq ($(strip $(DODEBUG)),true)
+ifneq ($(strip $(DODEBUG)),y)
 LDFLAGS+=-s
 endif
+
+ifeq ($(strip $(SUPPORT_LD_DEBUG)),y)
+XXFLAGS+=-D__SUPPORT_LD_DEBUG__
+endif
+
+ifeq ($(strip $(SUPPORT_LD_DEBUG_EARLY)),y)
+XXFLAGS+=-D__SUPPORT_LD_DEBUG_EARLY__
+endif
+
 
 all: lib
 
