@@ -22,6 +22,8 @@
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
+#include <signal.h>
+
 typedef struct
   {
     /* There are eight 4-byte data registers, but D0 is not saved.  */
