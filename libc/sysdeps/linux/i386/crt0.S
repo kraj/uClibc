@@ -55,6 +55,7 @@ _start:
 	popl %ecx	/* Store argc into %ecx */
 	movl %esp,%ebx  /* Store argv into ebx */
 	movl %esp,%eax  /* Store argv into eax as well*/
+	movl %edx,%esi	/* Store edx(FINI ptr) in %esi */
 	movl %ecx,%edx	/* Stick argc into %edx so we can do some math in a sec */
 	leal 4(%eax,%edx,4),%eax
 
@@ -81,7 +82,7 @@ _start:
 	pop %edx
 	addl $_GLOBAL_OFFSET_TABLE_+[.-.L0],%edx
 #endif
-
+	pushl %esi	/* Push FINI pointer */
 #if (defined L_crt1 || defined L_Scrt1) && defined __UCLIBC_CTOR_DTOR__
 	/* Push .init and .fini arguments to __uClibc_start_main() on the stack */
 #ifdef L_Scrt1
