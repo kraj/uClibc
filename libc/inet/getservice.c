@@ -62,13 +62,13 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <errno.h>
 
 #define	MAXALIASES	35
 
 static FILE *servf = NULL;
-static char line[BUFSIZ+1];
 static struct servent serv;
-static char *serv_aliases[MAXALIASES];
+static char buf[BUFSIZ+1 + sizeof(char *)*MAXALIASES];
 static int serv_stayopen;
 
 void setservent(int f)
@@ -91,21 +91,66 @@ void endservent(void)
 
 struct servent * getservent(void)
 {
+	struct servent *result;
+	getservent_r(&serv, buf, sizeof(buf), &result);
+	return result;
+}
+
+
+struct servent *getservbyname(const char *name, const char *proto)
+{
+	struct servent *result;
+	getservbyname_r(name, proto, &serv, buf, sizeof(buf), &result);
+	return result;
+}
+
+
+struct servent * getservbyport(int port, const char *proto)
+{
+	struct servent *result;
+	getservbyport_r(port, proto, &serv, buf, sizeof(buf), &result);
+	return result;
+}
+
+int getservent_r(struct servent * result_buf,
+		 char * buf, size_t buflen,
+		 struct servent ** result)
+{
 	char *p;
 	register char *cp, **q;
+	char **serv_aliases;
+	char *line;
+
+	*result=NULL;
+
+	if (buflen < sizeof(*serv_aliases)*MAXALIASES) {
+		errno=ERANGE;
+		return errno;
+	}
+	serv_aliases=(char **)buf;
+	buf+=sizeof(*serv_aliases)*MAXALIASES;
+	buflen-=sizeof(*serv_aliases)*MAXALIASES;
+	
+	if (buflen < BUFSIZ+1) {
+		errno=ERANGE;
+		return errno;
+	}
+	line=buf;
+	buf+=BUFSIZ+1;
+	buflen-=BUFSIZ+1;
 
 	if (servf == NULL && (servf = fopen(_PATH_SERVICES, "r" )) == NULL)
-		return (NULL);
+		return errno;
 again:
 	if ((p = fgets(line, BUFSIZ, servf)) == NULL)
-		return (NULL);
+		return TRY_AGAIN;
 	if (*p == '#')
 		goto again;
 	cp = strpbrk(p, "#\n");
 	if (cp == NULL)
 		goto again;
 	*cp = '\0';
-	serv.s_name = p;
+	result_buf->s_name = p;
 	p = strpbrk(p, " \t");
 	if (p == NULL)
 		goto again;
@@ -116,9 +161,9 @@ again:
 	if (cp == NULL)
 		goto again;
 	*cp++ = '\0';
-	serv.s_port = htons((u_short)atoi(p));
-	serv.s_proto = cp;
-	q = serv.s_aliases = serv_aliases;
+	result_buf->s_port = htons((u_short)atoi(p));
+	result_buf->s_proto = cp;
+	q = result_buf->s_aliases = serv_aliases;
 	cp = strpbrk(cp, " \t");
 	if (cp != NULL)
 		*cp++ = '\0';
@@ -134,45 +179,50 @@ again:
 			*cp++ = '\0';
 	}
 	*q = NULL;
-	return (&serv);
+	*result=result_buf;
+	return 0;
 }
 
-
-struct servent *getservbyname(const char *name, const char *proto)
+int getservbyname_r(const char *name, const char *proto,
+			    struct servent * result_buf,
+			    char * buf, size_t buflen,
+			    struct servent ** result)
 {
-	register struct servent *p;
 	register char **cp;
+	int ret;
 
 	setservent(serv_stayopen);
-	while ((p = getservent()) != NULL) {
-		if (strcmp(name, p->s_name) == 0)
+	while (!(ret=getservent_r(result_buf, buf, buflen, result))) {
+		if (strcmp(name, result_buf->s_name) == 0)
 			goto gotname;
-		for (cp = p->s_aliases; *cp; cp++)
+		for (cp = result_buf->s_aliases; *cp; cp++)
 			if (strcmp(name, *cp) == 0)
 				goto gotname;
 		continue;
 gotname:
-		if (proto == 0 || strcmp(p->s_proto, proto) == 0)
+		if (proto == 0 || strcmp(result_buf->s_proto, proto) == 0)
 			break;
 	}
 	if (!serv_stayopen)
 		endservent();
-	return (p);
+	return *result?0:ret;
 }
 
-
-struct servent * getservbyport(int port, const char *proto)
+int getservbyport_r(int port, const char *proto,
+			    struct servent * result_buf,
+			    char * buf, size_t buflen,
+			    struct servent ** result)
 {
-	register struct servent *p;
+	int ret;
 
 	setservent(serv_stayopen);
-	while ((p = getservent()) != NULL) {
-		if (p->s_port != port)
+	while (!(ret=getservent_r(result_buf, buf, buflen, result))) {
+		if (result_buf->s_port != port)
 			continue;
-		if (proto == 0 || strcmp(p->s_proto, proto) == 0)
+		if (proto == 0 || strcmp(result_buf->s_proto, proto) == 0)
 			break;
 	}
 	if (!serv_stayopen)
 		endservent();
-	return (p);
+	return *result?0:ret;
 }

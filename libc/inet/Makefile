@@ -41,8 +41,9 @@ MOBJ2=encodeh.o decodeh.o encoded.o decoded.o lengthd.o encodeq.o \
 	formquery.o dnslookup.o resolveaddress.o resolvemailbox.o \
 	opennameservers.o closenameservers.o resolvename.o gethostbyname.o\
 	res_init.o res_query.o gethostbyaddr.o \
-	get_hosts_byname.o get_hosts_byaddr.o read_etc_hosts.o \
-	gethostbyname2.o getnameinfo.o gethostent.o sethostent.o endhostent.o 
+	read_etc_hosts_r.o get_hosts_byname_r.o get_hosts_byaddr_r.o \
+	gethostbyname2.o getnameinfo.o gethostent.o sethostent.o endhostent.o \
+	gethostbyname_r.o gethostbyname2_r.o gethostbyaddr_r.o
 
 MSRC3=socketcalls.c
 MOBJ3= accept.o bind.o connect.o getpeername.o getsockname.o getsockopt.o \
@@ -50,7 +51,7 @@ MOBJ3= accept.o bind.o connect.o getpeername.o getsockname.o getsockopt.o \
 	setsockopt.o shutdown.o socket.o socketpair.o 
 
 CSRC =getservice.c getproto.c hostid.c getnetent.c getnetbynm.c getnetbyad.c \
-	inet_net.c ntop.c herror.c
+	inet_net.c ntop.c herror.c if_nametoindex.c gai_strerror.c getaddrinfo.c 
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
