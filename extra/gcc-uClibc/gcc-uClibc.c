@@ -59,6 +59,9 @@
  * use default dynamic linker or the envirnment-specified dynamic linker
  * is disabled in that case.
  *
+ * Added options --uclibc-use-build-dir and --uclibc-use-rpath so that those
+ * behaviors can be invoked from the command line.
+ *
  */
 
 /*
@@ -129,8 +132,7 @@ int main(int argc, char **argv)
 
 	if ((strstr(argv[0],"build") != 0) || (strstr(ep,"build") != 0)) {
 		use_build_dir = 1;
-	
-}
+	}
 
 	if ((strstr(argv[0],"rpath") != 0) || (strstr(ep,"rpath") != 0)) {
 		use_rpath = 1;
@@ -199,7 +201,13 @@ int main(int argc, char **argv)
 	i = 0;
 	gcc_argv[i++] = GCC_BIN;
 	for ( j = 1 ; j < argc ; j++ ) {
-		gcc_argv[i++] = argv[j];
+		if (strcmp("--uclibc-use-build-dir",argv[j]) == 0) {
+			use_build_dir = 1;
+		} else if (strcmp("--uclibc-use-rpath",argv[j]) == 0) {
+			use_rpath = 1;
+		} else {
+			gcc_argv[i++] = argv[j];
+		}
 	}
 	if (use_stdinc) {
 		gcc_argv[i++] = nostdinc;
