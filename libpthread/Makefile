@@ -107,7 +107,7 @@ shared: all
 
 tags:
 	ctags -R
-	
+
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 

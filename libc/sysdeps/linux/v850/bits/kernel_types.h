@@ -10,6 +10,7 @@
  *
  * Written by Miles Bader <miles@gnu.org>
  */
+
 #ifndef __V850_POSIX_TYPES_H__
 #define __V850_POSIX_TYPES_H__
 
