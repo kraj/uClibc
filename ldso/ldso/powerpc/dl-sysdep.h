@@ -89,8 +89,9 @@
 	}else{						\
 	  _dl_exit(100+ELF32_R_TYPE((RELP)->r_info));	\
 	}						\
-/*hexprint(*REL);*/					\
-	PPC_DCBST(REL); PPC_SYNC; PPC_ICBI(REL);	\
+	if(type!=R_PPC_NONE){				\
+		PPC_DCBST(REL); PPC_SYNC; PPC_ICBI(REL);\
+	|						\
 	}
 
 /*
