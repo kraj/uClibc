@@ -15,6 +15,16 @@
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/* Nov. 1, 2002
+ *
+ * Reworked setlocale() return values and locale arg processing to
+ *   be more like glibc.  Applications expecting to be able to
+ *   query locale settings should now work... at the cost of almost
+ *   doubling the size of the setlocale object code.
+ * Fixed a bug in the internal fixed-size-string locale specifier code.
+ */
+
+
 /*  TODO:
  *  Implement the shared mmap code so non-mmu platforms can use this.
  *  Add some basic collate functionality similar to what the previous
@@ -35,9 +45,6 @@
 #define CUR_LOCALE_SPEC			(__global_locale.cur_locale)
 #undef CODESET_LIST
 #define CODESET_LIST			(__locale_mmap->codeset_list)
-
-/* TODO: Optional... See below. */
-#define __LOCALE_STRICTER_SETLOCALE
 
 #endif /* __LOCALE_C_ONLY */
 
@@ -67,15 +74,90 @@ char *setlocale(int category, register const char *locale)
 #error locales enabled, but not data other than for C locale!
 #endif
 
-static unsigned char setlocale_buf[LOCALE_STRING_SIZE];
-
-
 #define LOCALE_NAMES			(__locale_mmap->locale_names5)
 #define LOCALES					(__locale_mmap->locales)
 #define LOCALE_AT_MODIFIERS 	(__locale_mmap->locale_at_modifiers)
 #define CATEGORY_NAMES			(__locale_mmap->lc_names)
 
 static const char posix[] = "POSIX";
+static const char utf8[] = "UTF-8";
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: redo the MAX_LOCALE_STR stuff...
+#endif
+#define MAX_LOCALE_STR    256 /* TODO: Only sufficient for current case. */
+
+static char hr_locale[MAX_LOCALE_STR];
+
+static __inline char *human_readable_locale(int category, const unsigned char *s)
+{
+	const unsigned char *loc;
+	char *n;
+	int i;
+
+	++s;
+
+	if (category == LC_ALL) {
+		for (i = 0 ; i < LC_ALL-1 ; i += 2) {
+			if ((s[i] != s[i+2]) || (s[i+1] != s[i+3])) {
+				goto SKIP;
+			}
+		}
+		/* All categories the same, so simplify string by using a single
+		 * category. */
+		category = LC_CTYPE;
+	}
+
+ SKIP:
+	i = (category == LC_ALL) ? 0 : category;
+	n = hr_locale;
+
+	do {
+		if ((*s != 0xff) || (s[1] != 0xff)) {
+			loc = LOCALES + WIDTH_LOCALES * ((((int)(*s & 0x7f)) << 7) + (s[1] & 0x7f));
+			if (category == LC_ALL) {
+				n = stpcpy(n, CATEGORY_NAMES + (int) CATEGORY_NAMES[i]);
+				*n++ = '=';
+			}
+			if (*loc == 0) {
+				*n++ = 'C';
+				*n = 0;
+			} else {
+				char at = 0;
+				memcpy(n, LOCALE_NAMES + 5*((*loc)-1), 5);
+				if (n[2] != '_') {
+					at = n[2];
+					n[2] = '_';
+				}
+				n += 5;
+				*n++ = '.';
+				if (loc[2] == 2) {
+					n = stpcpy(n, utf8);
+				} else if (loc[2] >= 3) {
+					n = stpcpy(n, CODESET_LIST + (int)(CODESET_LIST[loc[2] - 3]));
+				}
+				if (at) {
+					const char *q;
+					*n++ = '@';
+					q = LOCALE_AT_MODIFIERS;
+					do {
+						if (q[1] == at) {
+							n = stpcpy(n, q+2);
+							break;
+						}
+						q += 2 + *q;
+					} while (*q);
+				}
+			}
+			*n++ = ';';
+		}
+		s += 2;
+	} while (++i < category);
+
+	*--n = 0;					/* Remove trailing ';' and nul-terminate. */
+	assert(n-hr_locale < MAX_LOCALE_STR);
+	return hr_locale;
+}
 
 static int find_locale(int category, const char *p, unsigned char *new_locale)
 {
@@ -86,6 +168,10 @@ static int find_locale(int category, const char *p, unsigned char *new_locale)
 
 #if defined(LOCALE_AT_MODIFIERS_LENGTH) && 1
 	/* Support standard locale handling for @-modifiers. */
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: fix buf size in find_locale
+#endif
 	char buf[18];	/* TODO: 7+{max codeset name length} */
 	const char *q;
 
@@ -104,6 +190,7 @@ static int find_locale(int category, const char *p, unsigned char *new_locale)
 		if (!*s) {
 			return 0;
 		}
+		assert(q - p < sizeof(buf));
 		memcpy(buf, p, q-p);
 		buf[q-p] = 0;
 		buf[2] = s[1];
@@ -116,11 +203,11 @@ static int find_locale(int category, const char *p, unsigned char *new_locale)
 		goto FIND_LOCALE;
 	}
 
-	if (p[5] == '.') {		/* Codeset specified in locale name? */
+	if ((strlen(p) > 5) && (p[5] == '.')) {	/* Codeset in locale name? */
 		/* TODO: maybe CODESET_LIST + *s ??? */
 		/* 7bit is 1, UTF-8 is 2, 8-bit is >= 3 */
 		codeset = 2;
-		if (strcmp("UTF-8",p+6) != 0) {/* TODO - fix! */
+		if (strcmp(utf8,p+6) != 0) {/* TODO - fix! */
 			s = CODESET_LIST;
 			do {
 				++codeset;		/* Increment codeset first. */
@@ -146,15 +233,15 @@ static int find_locale(int category, const char *p, unsigned char *new_locale)
 
  FIND_LOCALE:					/* Find locale row matching name and codeset */
 	s = LOCALES;
-	n = 1;
+	n = 0;
 	do {						/* TODO -- do a binary search? */
 		if ((lang_cult == *s) && ((codeset == s[1]) || (codeset == s[2]))) {
 			i = ((category == LC_ALL) ? 0 : category);
 			s = new_locale + 2*i;
 			do {
 				/* Encode current locale row number. */
-				*((unsigned char *) ++s) = (n >> 8) | 0x80;
-				*((unsigned char *) ++s) = n & 0xff;
+				*((unsigned char *) ++s) = (n >> 7) | 0x80;
+				*((unsigned char *) ++s) = (n & 0x7f) | 0x80;
 			} while (++i < category);
 
 			return i;			/* Return non-zero */
@@ -166,12 +253,47 @@ static int find_locale(int category, const char *p, unsigned char *new_locale)
 	return 0;					/* Unsupported locale. */
 }
 
+static unsigned char *composite_locale(int category, const char *locale, unsigned char *new_locale)
+{
+	char buf[MAX_LOCALE_STR];
+	char *t;
+	char *e;
+	int c;
+
+	if (!strchr(locale,'=')) {
+		if (!find_locale(category, locale, new_locale)) {
+			return NULL;
+		}
+		return new_locale;
+	}
+
+	if (strlen(locale) >= sizeof(buf)) {
+		return NULL;
+	}
+	stpcpy(buf, locale);
+
+	t = strtok_r(buf, "=", &e);	/* This can't fail because of strchr test above. */
+	do {
+		for (c = 0 ; c < LC_ALL ; c++) { /* Find the category... */
+			if (!strcmp(CATEGORY_NAMES + (int) CATEGORY_NAMES[c], t)) {
+				break;
+			}
+		}
+		t = strtok_r(NULL, ";", &e);
+		if ((category == LC_ALL) || (c == category)) {
+			if (!t || !find_locale(c, t, new_locale)) {
+				return NULL;
+			}
+		}
+	} while ((t = strtok_r(NULL, "=", &e)) != NULL);
+
+	return new_locale;
+}
+
 char *setlocale(int category, const char *locale)
 {
 	const unsigned char *p;
-	unsigned char *s;
 	int i;
-	unsigned lc_mask;
 	unsigned char new_locale[LOCALE_STRING_SIZE];
 
 	if (((unsigned int)(category)) > LC_ALL) {
@@ -179,85 +301,41 @@ char *setlocale(int category, const char *locale)
 		return NULL;			/* Illegal/unsupported category. */
 	}
 
-	lc_mask = 1 << category;
-	if (category == LC_ALL) {
-		--lc_mask;
-	}
+	if (locale != NULL) {  /* Not just a query... */
+		stpcpy(new_locale, CUR_LOCALE_SPEC); /* Start with current. */
 
-	if (!locale) {				/* Request for locale category string... */
-	DONE:
-		strcpy(setlocale_buf, CUR_LOCALE_SPEC);
-#ifdef __LOCALE_STRICTER_SETLOCALE
-		/* The standard says you can only use the string returned to restore
-		 * the category (categories) requested.  This could be optional.
-		 * See below as well. */
-		s = setlocale_buf + 1;
-		lc_mask |= (1 << LC_ALL);
-		do {
-			if (!(lc_mask & 1)) {
-				/* Encode non-selected locale flag. */
-				s[1] = *s = 0xff;
-			}
-			s += 2;
-		} while ((lc_mask >>= 1) > 1);
-#endif /* __LOCALE_STRICTER_SETLOCALE */
-		return (char *) setlocale_buf;
-	}
-
-	strcpy(new_locale, CUR_LOCALE_SPEC); /* Start with current. */
-
-	if (!*locale) {				/* locale == "", so check environment. */
-		i = ((category == LC_ALL) ? 0 : category);
-		do {
-			/* Note: SUSv3 doesn't define a fallback mechanism here.  So,
-			 * if LC_ALL is invalid, we do _not_ continue trying the other
-			 * environment vars. */
-			if (!(p = getenv("LC_ALL"))) {
-				if (!(p = getenv(CATEGORY_NAMES + CATEGORY_NAMES[i]))) {
-					if (!(p = getenv("LANG"))) {
-						p = posix;
+		if (!*locale) {				/* locale == "", so check environment. */
+			i = ((category == LC_ALL) ? 0 : category);
+			do {
+				/* Note: SUSv3 doesn't define a fallback mechanism here.  So,
+				 * if LC_ALL is invalid, we do _not_ continue trying the other
+				 * environment vars. */
+				if (!(p = getenv("LC_ALL"))) {
+					if (!(p = getenv(CATEGORY_NAMES + CATEGORY_NAMES[i]))) {
+						if (!(p = getenv("LANG"))) {
+							p = posix;
+						}
 					}
 				}
-			}
 
-			/* The user set something... is it valid? */
-			/* Note: Since we don't support user-supplied locales and
-			 * alternate paths, we don't need to worry about special
-			 * handling for suid/sgid apps. */
-			if (!find_locale(i, p, new_locale)) {
-				return NULL;
-			}
-		} while (++i < category);
-	} else if (*locale == '#') { /* Previsouly returned value. */
-		assert(strlen(locale) == LOCALE_STRING_SIZE - 1);
+				/* The user set something... is it valid? */
+				/* Note: Since we don't support user-supplied locales and
+				 * alternate paths, we don't need to worry about special
+				 * handling for suid/sgid apps. */
+				if (!find_locale(i, p, new_locale)) {
+					return NULL;
+				}
+			} while (++i < category);
+		} else if (!composite_locale(category, locale, new_locale)) {
+			return NULL;
+		}
 
-		i = ((category == LC_ALL) ? 0 : category);
-		p = locale + 2*i;
-		s = new_locale + 2*i;
-		do {
-#ifdef __LOCALE_STRICTER_SETLOCALE
-			/* Only set categories that were selected in the previous
-			 * return value.  Could be optional.  See above as well.
-			 * NOTE: This still isn't quite right for non-LC_ALL
-			 * as it only checks the category selected to set. */
-			if ((*p == 0xff) && (p[1] == 0xff)) {
-				return NULL;
-			}
-#endif /* __LOCALE_STRICTER_SETLOCALE */
-			/* Note: Validate settings below. */
-			*++s = *++p;
-			*++s = *++p;
-		} while (++i < category);
-	} else if (!find_locale(category, locale, new_locale)) {
-		return NULL;
+		/* TODO: Ok, everything checks out, so install the new locale. */
+		_locale_set(new_locale);
 	}
 
-
-	/* TODO: Ok, everything checks out, so install the new locale. */
-	_locale_set(new_locale);
-
-	/* Everything ok, so make a copy in setlocale_buf and return. */
-	goto DONE;
+	/* Either a query or a successful set, so return current locale string. */
+	return human_readable_locale(category, CUR_LOCALE_SPEC);
 }
 
 #endif /* __LOCALE_C_ONLY */
@@ -329,7 +407,7 @@ struct lconv *localeconv(void)
 
 #ifndef __LOCALE_C_ONLY
 
-#define C_LOCALE_SELECTOR "\x23\x80\x01\x80\x01\x80\x01\x80\x01\x80\x01\x80\x01"
+#define C_LOCALE_SELECTOR "\x23\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80"
 #define LOCALE_INIT_FAILED "locale init failed!\n"
 
 #define CUR_LOCALE_SPEC			(__global_locale.cur_locale)
@@ -404,10 +482,9 @@ void _locale_set(const unsigned char *p)
 	++p;
 	do {
 		if ((*p != *s) || (p[1] != s[1])) {
-			row  = (((int)(*p & 0x7f)) << 8) + p[1] - 1;
-#ifndef NDEBUG
+			row  = (((int)(*p & 0x7f)) << 7) + (p[1] & 0x7f);
 			assert(row < NUM_LOCALES);
-#endif
+
 			*s = *p;
 			s[1] = p[1];
 
