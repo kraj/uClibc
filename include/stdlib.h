@@ -65,6 +65,12 @@ extern __ptr_t calloc __P ((size_t, size_t));
 extern __ptr_t malloc __P ((size_t));
 extern __ptr_t realloc __P ((__ptr_t, size_t));
 extern void free __P ((__ptr_t));
+/* Allocate a block on the stack that will be freed 
+ * when the calling function exits.  We use gcc's
+ * version to make life better... */
+#undef	alloca
+extern __ptr_t alloca __P ((size_t __size));
+#define alloca(size)	__builtin_alloca (size)
 
 #ifdef DEBUG_MALLOC
 extern __ptr_t calloc_dbg __P ((size_t, size_t, char* func, char* file, int line));
