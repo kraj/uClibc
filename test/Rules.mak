@@ -6,7 +6,7 @@
 #Note: This does not read the top level Rules.mak file
 #
 
-include $(TESTDIR)../Config
+-include $(TESTDIR)../.config
 include $(TESTDIR)Config
 
 
