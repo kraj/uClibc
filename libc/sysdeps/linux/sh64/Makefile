@@ -32,7 +32,7 @@ CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 SSRC = setjmp.S longjmp.S 
 SOBJS = $(patsubst %.S,%.o, $(SSRC))
 
-CSRC = fork.c __init_brk.c brk.c sbrk.c syscall.c
+CSRC = __init_brk.c brk.c sbrk.c syscall.c
 COBJS = $(patsubst %.c,%.o, $(CSRC))
 
 OBJS = $(SOBJS) $(COBJS)
