@@ -279,7 +279,7 @@ utils: dummy
 endif
 
 install_utils: utils
-	$(MAKE) CFLAGS= LDFLAGS= -C utils install
+	$(MAKE) -C utils install
 ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 	@$(MAKE) -C libc/misc/wchar iconv.target
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/usr/bin;
