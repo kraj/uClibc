@@ -122,8 +122,8 @@ _fini (void)
     /* Let GCC know that _fini is not a leaf function by having a dummy
        function call here.  We arrange for this call to be omitted from
        either crt file.  */
-    extern void i_am_not_a_leaf (void);
-    i_am_not_a_leaf ();
+    extern void i_am_not_a_leaf2 (void);
+    i_am_not_a_leaf2 ();
   }
 
   /* Beginning of the _fini epilog. */
