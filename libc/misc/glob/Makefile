@@ -24,7 +24,7 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=glob.c
+CSRC=glob.c glob64.c glob-hooks.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
@@ -38,6 +38,8 @@ ar-target: $(OBJS)
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+glob64.o: glob64.c glob.c
 
 clean:
 	rm -f *.[oa] *~ core
