@@ -31,13 +31,19 @@ gcc-uClibc.h: clean
 	echo "#define TARGET_ARCH " \"$(TARGET_ARCH)\" >> gcc-uClibc.h
 	echo "#define DYNAMIC_LINKER " \"$(DYNAMIC_LINKER)\" >> gcc-uClibc.h
 
+# uClibc built for native environment, so why not use it ;-)
+# Use the system libc instead of uClibc, to facilitate bootstrapping
+# new architectures.
+#gcc-uClibc-native: gcc-uClibc.h gcc-uClibc.c
+#	$(CC) $(CFLAGS) -nostdinc -I$(UCLIBC_DIR)/include -I$(GCC_INC) \
+#		-Wl,-static gcc-uClibc.c \
+#		$(UCLIBC_DIR)/crt0.o \
+#		-nostdlib $(GCC_LIB) $(UCLIBC_DIR)/libc.a \
+#		-s -o gcc-uClibc-$(TARGET_ARCH) #-DDEBUG
+
 gcc-uClibc-native: gcc-uClibc.h gcc-uClibc.c
-	# uClibc built for native environment, so why not use it ;-)
-	$(CC) $(CFLAGS) -nostdinc -I$(UCLIBC_DIR)/include -I$(GCC_INC) \
-		-Wl,-static gcc-uClibc.c \
-		$(UCLIBC_DIR)/crt0.o \
-		-nostdlib $(GCC_LIB) $(UCLIBC_DIR)/libc.a \
-		-s -o gcc-uClibc-$(TARGET_ARCH) #-DDEBUG
+	# don't use CFLAGS since may not be appropriate
+	gcc -s gcc-uClibc.c -o gcc-uClibc-$(TARGET_ARCH)
 
 gcc-uClibc-cross: gcc-uClibc.h gcc-uClibc.c
 	# don't use CFLAGS since may not be appropriate
