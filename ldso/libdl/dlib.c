@@ -85,9 +85,7 @@ static const char *dl_error_names[] = {
 	"Unable to resolve symbol"
 };
 
-static void dl_cleanup(void) __attribute__ ((destructor));
-
-static void dl_cleanup(void)
+static void __attribute__ ((destructor)) dl_cleanup(void)
 {
 	struct dyn_elf *d;
 
