@@ -1,8 +1,8 @@
 /* Definitions for data structures and routines for the regular
-   expression library, version 0.12.
-   Copyright (C) 1985,1989-1993,1995-1998, 2000 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.  Its master source is NOT part of
-   the C library, however.  The master source lives in /gd/gnu/lib.
+   expression library.
+   Copyright (C) 1985,1989-93,1995-98,2000,2001,2002
+   Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -164,6 +164,10 @@ typedef unsigned long int reg_syntax_t;
    treated as 'a\{1'.  */
 #define RE_INVALID_INTERVAL_ORD (RE_DEBUG << 1)
 
+/* If this bit is set, then ignore case when matching.
+   If not set, then case is significant.  */
+#define RE_ICASE (RE_INVALID_INTERVAL_ORD << 1)
+
 /* This global variable defines the particular regexp syntax to use (for
    some interfaces).  When a regexp is compiled, the syntax used is
    stored in the pattern buffer, so changing this does not affect
@@ -185,7 +189,8 @@ extern reg_syntax_t re_syntax_options;
 
 #define RE_SYNTAX_GNU_AWK						\
   ((RE_SYNTAX_POSIX_EXTENDED | RE_BACKSLASH_ESCAPE_IN_LISTS | RE_DEBUG)	\
-   & ~(RE_DOT_NOT_NULL | RE_INTERVALS | RE_CONTEXT_INDEP_OPS))
+   & ~(RE_DOT_NOT_NULL | RE_INTERVALS | RE_CONTEXT_INDEP_OPS		\
+       | RE_CONTEXT_INVALID_OPS ))
 
 #define RE_SYNTAX_POSIX_AWK 						\
   (RE_SYNTAX_POSIX_EXTENDED | RE_BACKSLASH_ESCAPE_IN_LISTS		\
@@ -529,11 +534,13 @@ extern int re_exec _RE_ARGS ((const char *));
 #  endif
 # endif
 #endif
-/* For now unconditionally define __restrict_arr to expand to nothing.
-   Ideally we would have a test for the compiler which allows defining
-   it to restrict.  */
+/* gcc 3.1 and up support the [restrict] syntax.  */
 #ifndef __restrict_arr
-#define __restrict_arr
+# if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
+#  define __restrict_arr __restrict
+# else
+#  define __restrict_arr
+# endif
 #endif
 
 /* POSIX compatibility.  */
