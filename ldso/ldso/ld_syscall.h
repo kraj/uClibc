@@ -9,8 +9,7 @@
 /* Pull in whatever this particular arch's kernel thinks the kernel version of
  * struct stat should look like.  It turns out that each arch has a different
  * opinion on the subject, and different kernel revs use different names... */
-#define new_stat stat
-#include <asm/stat.h>
+#include <bits/kernel_stat.h>
 
 
 /* Encoding of the file mode.  */
