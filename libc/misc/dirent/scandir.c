@@ -53,10 +53,7 @@ int scandir(const char *dir, struct dirent ***namelist,
 
     names = malloc(sizeof (struct dirent *) * count);
 
-    closedir(d);
-    d = opendir(dir);
-    if (NULL == d)
-        return -1;
+    rewinddir(d);
 
     while (NULL != (current = readdir(d))) {
         if (NULL == selector || selector(current)) {
@@ -72,6 +69,10 @@ int scandir(const char *dir, struct dirent ***namelist,
 
     if (pos != count)
         names = realloc(names, sizeof (struct dirent *) * pos);
+
+    if (compar != NULL) {
+	qsort(names, pos, sizeof (struct dirent *), compar);
+    }
 
     *namelist = names;
 
