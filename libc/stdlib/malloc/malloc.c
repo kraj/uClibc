@@ -119,10 +119,11 @@ malloc (size_t size)
   __malloc_unlock ();
 
   if (mem)
-    /* Record the size of this block just before the returned address.  */
+    /* Record the size of this block.  */
     {
-      *(size_t *)mem = size;
-      mem += MALLOC_ALIGNMENT;
+      MALLOC_SET_SIZE (mem, size);
+
+      mem = MALLOC_ADDR (mem);
 
       MALLOC_DEBUG ("  malloc: returning 0x%lx (base:0x%lx, total_size:%d)\n",
 		    (long)mem, (long)mem - MALLOC_ALIGNMENT, size);

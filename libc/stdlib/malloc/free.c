@@ -28,8 +28,8 @@ free (void *mem)
       struct heap_free_area *fa;
       struct heap *heap = &__malloc_heap;
 
-      mem -= MALLOC_ALIGNMENT;
-      size = *(size_t *)mem;
+      size = MALLOC_SIZE (mem);
+      mem = MALLOC_BASE (mem);
 
       MALLOC_DEBUG ("free: 0x%lx (base = 0x%lx, total_size = %d)\n",
 		    (long)mem + MALLOC_ALIGNMENT, (long)mem, size);
