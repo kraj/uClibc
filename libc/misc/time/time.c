@@ -93,14 +93,6 @@
 #define TZNAME_MAX _POSIX_TZNAME_MAX
 #endif
 
-/* TODO - This stuff belongs in some include/bits/ file. */
-#undef CLK_TCK
-#if (TARGET_ARCH == alpha) || (TARGET_ARCH == ia64)
-#define CLK_TCK     1024
-#else
-#define CLK_TCK     100
-#endif
-
 /* The era code is currently unfinished. */
 /*  #define ENABLE_ERA_CODE */
 
@@ -315,19 +307,32 @@ clock_t clock(void)
 
 	times(&xtms);
 	t = ((unsigned long) xtms.tms_utime) + xtms.tms_stime;
+
+#ifndef __UCLIBC_CLK_TCK_CONST
+#error __UCLIBC_CLK_TCK_CONST not defined!
+#endif
+
+#undef CLK_TCK
+#define CLK_TCK __UCLIBC_CLK_TCK_CONST
+
+#if CLK_TCK > CLOCKS_PER_SEC
+#error __UCLIBC_CLK_TCK_CONST > CLOCKS_PER_SEC!
+#elif CLK_TCK < 1
+#error __UCLIBC_CLK_TCK_CONST < 1!
+#endif
+
 #if (CLK_TCK == CLOCKS_PER_SEC)
 	return (t <= LONG_MAX) ? t : -1;
-#elif (CLK_TCK == 1) || (CLK_TCK == 10) || (CLK_TCK == 100) || (CLK_TCK == 1000)
+#elif (CLOCKS_PER_SEC % CLK_TCK) == 0
 	return (t <= (LONG_MAX / (CLOCKS_PER_SEC/CLK_TCK)))
 		? t * (CLOCKS_PER_SEC/CLK_TCK)
 		: -1;
-#elif (CLK_TCK == 1024)
+#else
 	return (t <= ((LONG_MAX / CLOCKS_PER_SEC) * CLK_TCK
 				  + ((LONG_MAX % CLOCKS_PER_SEC) * CLK_TCK) / CLOCKS_PER_SEC))
-		? ((t >> 10) * CLOCKS_PER_SEC) + (((t & 1023) * CLOCKS_PER_SEC) >> 10)
+		? (((t / CLK_TCK) * CLOCKS_PER_SEC)
+		   + (((t % CLK_TCK) * CLOCKS_PER_SEC) / CLK_TCK))
 		: -1;
-#else
-#error fix for CLK_TCK
 #endif
 }
 

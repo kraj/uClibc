@@ -33,17 +33,25 @@
    XSI-conformant systems. */
 #  define CLOCKS_PER_SEC  1000000l
 
+/* Get the arch-specific value of __UCLIBC_CLK_TCK_CONST used for CLK_TCK
+ * in sysconf() and clock(). */
+#include <bits/uClibc_clk_tck.h>
+
 #  if !defined __STRICT_ANSI__ && !defined __USE_XOPEN2K
 /* Even though CLOCKS_PER_SEC has such a strange value CLK_TCK
    presents the real value for clock ticks per second for the system.  */
 #   include <bits/types.h>
-extern long int __sysconf (int);
-#   define CLK_TCK ((__clock_t) __sysconf (2))	/* 2 is _SC_CLK_TCK */
+/* Note (uClibc): glibc #defines CLK_TCK as a sysconf() call. */
+#   define CLK_TCK ((__clock_t) __UCLIBC_CLK_TCK_CONST)
 #  endif
 
 #  ifdef __USE_POSIX199309
 /* Identifier for system-wide realtime clock.  */
 #   define CLOCK_REALTIME	0
+/* High-resolution timer from the CPU.  */
+#   define CLOCK_PROCESS_CPUTIME_ID	2
+/* Thread-specific CPU-time clock.  */
+#   define CLOCK_THREAD_CPUTIME_ID	3
 
 /* Flag to indicate time is absolute.  */
 #   define TIMER_ABSTIME	1

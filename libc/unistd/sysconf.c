@@ -31,8 +31,8 @@
 #include <sys/types.h>
 #include <regex.h>
 
-#ifndef SYSTEM_CLK_TCK
-# define SYSTEM_CLK_TCK 100
+#ifndef __UCLIBC_CLK_TCK_CONST
+#error __UCLIBC_CLK_TCK_CONST not defined!
 #endif
 
 extern int getpagesize (void);
@@ -94,7 +94,7 @@ long int __sysconf(int name)
 
     case _SC_CLK_TCK:
       /* Can't use CLK_TCK here since that calls __sysconf(_SC_CLK_TCK) */
-      return SYSTEM_CLK_TCK;
+      return __UCLIBC_CLK_TCK_CONST;
 
     case _SC_NGROUPS_MAX:
 #ifdef	NGROUPS_MAX
@@ -121,7 +121,8 @@ long int __sysconf(int name)
 #if 0
       RETURN_FUNCTION(tzname_max ());
 #else
-      RETURN_NEG_1;
+/*       RETURN_NEG_1; */
+      return _POSIX_TZNAME_MAX;
 #endif
 
     case _SC_JOB_CONTROL:
