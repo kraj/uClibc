@@ -21,14 +21,21 @@
    and invokes a function in the right context after its all over.  */
 
 #include <asm/unistd.h>
-#include <sysdep.h>
+#include <sys/regdef.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
+#include <asm/asm.h>
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg) */
 
 	.text
-NESTED(__clone,4*SZREG,sp)
+.globl   __clone ;
+	.align       2;
+	.type         __clone,@function;
+	.ent        __clone, 0;
+	
+__clone:
+	.frame	    sp, 4*SZREG, sp
 #ifdef __PIC__
 	.set		noreorder
 	.cpload		$25
@@ -66,7 +73,7 @@ NESTED(__clone,4*SZREG,sp)
 
 	/* Successful return from the parent */
 	addiu		sp,32
-	ret
+	j $31  ; nop
 
 	/* Something bad happened -- no child created */
 error:
@@ -77,13 +84,17 @@ error:
 #else
 	j		__syscall_error
 #endif
-	END(__clone)
+	.end  __clone
 
 /* Load up the arguments to the function.  Put this block of code in
    its own function so that we can terminate the stack trace with our
    debug info.  */
 
-ENTRY(__thread_start)
+.globl  __thread_start;
+	.align 2;
+	.ent  __thread_start, 0;
+
+__thread_start:
 	/* cp is already loaded.  */
 	.cprestore	16
 	/* The stackframe has been created on entry of clone().  */
@@ -102,6 +113,7 @@ ENTRY(__thread_start)
 #else
 	jal		_exit
 #endif
-	END(__thread_start)
+	.end  __thread_start
 
-weak_alias(__clone, clone)
+.weak clone;
+	clone = __clone
