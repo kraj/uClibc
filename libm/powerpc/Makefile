@@ -56,5 +56,5 @@ tags:
 	ctags -R
 
 clean: 
-	rm -f *.[oa] *~ core $(LIBM_SHARED)* $(LIBM_SHARED_FULLNAME)*
+	rm -f *.[oa] *~ core
 
