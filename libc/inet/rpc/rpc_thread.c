@@ -5,13 +5,12 @@
 #include <bits/libc-tsd.h>
 #include "rpc_private.h"
 
+#ifdef __UCLIBC_HAS_THREADS__
+
 /* Variable used in non-threaded applications or for the first thread.  */
 static struct rpc_thread_variables __libc_tsd_RPC_VARS_mem;
 static struct rpc_thread_variables *__libc_tsd_RPC_VARS_data =
      &__libc_tsd_RPC_VARS_mem;
-
-#ifdef __UCLIBC_HAS_THREADS__
-
 
 extern int __pthread_once (pthread_once_t *__once_control,
 			   void (*__init_routine) (void));
