@@ -325,7 +325,7 @@ extern __locale_t __curlocale_var;
 #ifdef __UCLIBC_HAS_THREADS__
 
 extern __locale_t __curlocale(void)  __THROW __attribute__ ((__const__));
-extern __locale_t __curlocale_set(__locale_t new);
+extern __locale_t __curlocale_set(__locale_t newloc);
 #define __UCLIBC_CURLOCALE           (__curlocale())
 #define __UCLIBC_CURLOCALE_DATA      (*__curlocale())
 
