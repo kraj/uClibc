@@ -285,7 +285,7 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 					*got_entry = sym->st_value + (unsigned long) tpnt->loadaddr;
 				else {
 					*got_entry = (unsigned long) _dl_find_hash(strtab +
-						sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_COPY);
+						sym->st_name, tpnt->symbol_scope, ELF_RTYPE_CLASS_PLT);
 				}
 			}
 			else if (sym->st_shndx == SHN_COMMON) {
