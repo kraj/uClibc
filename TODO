@@ -3,7 +3,6 @@
 
 Erik's TODO list for the next release:
 
-    *) Implement getgrgid_r and getgrnam_r, per SuSv3 
     *) When options are disabled, also disable them in the
 	include files as well.
     *) Make all configured out symbols optionally add a linker warning saying
@@ -22,6 +21,8 @@ Erik's TODO list for the next release:
     *) Adapt uClibc to use Linux 2.5.x pthreads
     *) Remove all use of kernel headers (i.e. copy the needed bits
 	to completely specify the per-arch kernel ABI).
+    *) Fix x86 profiling.  It currently only works when static + PIC...
+
 
 -----------------------------------------------------------------------------
 Manuel's todo:

@@ -2,9 +2,7 @@ uClibc thread-safety analysis
 
 Things that are still known to be needed for thread safety:
 
-        getgrgid_r		<not implemented, required by SuSv3>
-        getgrnam_r		<not implemented, required by SuSv3>
-
+        none
 
 
 
