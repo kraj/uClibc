@@ -19,7 +19,7 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=error.c
+CSRC=error.c err.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
