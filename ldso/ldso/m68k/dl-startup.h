@@ -46,7 +46,7 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 			break;
 		case R_68K_RELATIVE:
 			*reloc_addr = ((unsigned int) load_addr +
-			              (rpnt->r_addend ? : : *reloc_addr));
+			              (rpnt->r_addend ? : *reloc_addr));
 			break;
 		default:
 			_dl_exit (1);
