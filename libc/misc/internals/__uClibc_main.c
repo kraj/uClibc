@@ -18,6 +18,12 @@
 #include <string.h>
 #include <elf.h>
 #include <bits/uClibc_page.h>
+#include <paths.h>
+#include <unistd.h>
+#include <asm/errno.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/sysmacros.h>
 #ifdef __UCLIBC_PROPOLICE__
 extern void __guard_setup(void);
 #endif
@@ -46,18 +52,57 @@ extern void weak_function __pthread_initialize_minimal(void);
  * Note: Apparently we must initialize __environ to ensure that the weak
  * environ symbol is also included.
  */
-
-size_t __pagesize = 0;
 char **__environ = 0;
-const char *__progname = 0;
 weak_alias(__environ, environ);
 
-/* FIXME */
-#if 0
-extern int _dl_secure;
-int __secure = 0;
-weak_alias(__secure, _dl_secure);
+size_t __pagesize = 0;
+const char *__progname = 0;
+
+
+#ifndef O_NOFOLLOW
+# define O_NOFOLLOW	0
 #endif
+
+extern int __libc_fcntl(int fd, int cmd, ...);
+extern int __libc_open(const char *file, int flags, ...);
+
+static void __check_one_fd(int fd, int mode)
+{
+    /* Check if the specified fd is already open */
+    if (unlikely(__libc_fcntl(fd, F_GETFD)==-1 && *(__errno_location())==EBADF))
+    {
+	/* The descriptor is probably not open, so try to use /dev/null */
+	struct stat st;
+	int nullfd = __libc_open(_PATH_DEVNULL, mode);
+	/* /dev/null is major=1 minor=3.  Make absolutely certain
+	 * that is in fact the device that we have opened and not
+	 * some other wierd file... */
+	if ( (nullfd!=fd) || fstat(fd, &st) || !S_ISCHR(st.st_mode) ||
+		(st.st_rdev != makedev(1, 3)))
+	{
+	    /* Somebody is trying some trickery here... */
+	    while (1) {
+		abort();
+	    }
+	}
+    }
+}
+
+static int __check_suid(void)
+{
+    uid_t uid, euid;
+    gid_t gid, egid;
+
+    uid  = getuid();
+    euid = geteuid();
+    gid  = getgid();
+    egid = getegid();
+
+    if(uid == euid && gid == egid) {
+	return 0;
+    }
+    return 1;
+}
 
 
 /* __uClibc_init completely initialize uClibc so it is ready to use.
@@ -92,16 +137,6 @@ void __uClibc_init(void)
      */
     if (likely(__pthread_initialize_minimal!=NULL))
 	__pthread_initialize_minimal();
-#endif
-
-    /* FIXME */
-#if 0
-    /* Some security at this point.  Prevent starting a SUID binary
-     * where the standard file descriptors are not opened.  We have
-     * to do this only for statically linked applications since
-     * otherwise the dynamic loader did the work already.  */
-    if (unlikely (__secure!=NULL))
-	__libc_check_standard_fds ();
 #endif
 
 #ifdef __UCLIBC_HAS_LOCALE__
@@ -161,7 +196,21 @@ __uClibc_start_main(int argc, char **argv, char **envp,
 	}
 	aux_dat += 2;
     }
+
+    /* Make certain getpagesize() gives the correct answer */
     __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+
+    /* Prevent starting SUID binaries where the stdin. stdout, and
+     * stderr file descriptors are not already opened. */
+    if ((auxvt[AT_UID].a_un.a_val==-1 && __check_suid()) ||
+	    (auxvt[AT_UID].a_un.a_val != -1 &&
+	    (auxvt[AT_UID].a_un.a_val != auxvt[AT_EUID].a_un.a_val ||
+	     auxvt[AT_GID].a_un.a_val != auxvt[AT_EGID].a_un.a_val)))
+    {
+	__check_one_fd (STDIN_FILENO, O_RDONLY | O_NOFOLLOW);
+	__check_one_fd (STDOUT_FILENO, O_RDWR | O_NOFOLLOW);
+	__check_one_fd (STDERR_FILENO, O_RDWR | O_NOFOLLOW);
+    }
 #endif
 
     __progname = *argv;

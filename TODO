@@ -1,9 +1,5 @@
 TODO list for the uClibc 0.9.27 release:
 -------------------------------------------------
-    *) Fix use of __secure in __uClibc_init() for so that we prevent
-	starting staticly linked SUID binaries where the standard file
-	descriptors are not opened.  For dynamically linked binaries,
-	ldso does this for us.
     *) Audit header files.  Remove prototypes for all functions that
 	are not supported -- especially needed for the libm headers.
     *) Audit header files.  When options are disabled, also disable
