@@ -1,3 +1,10 @@
+/*
+ * June 27, 2001             Manuel Novoa III
+ *
+ * Modified to (hopefully) be PIC and REENTRANT safe.
+ *
+ */
+	
 .text
 	.align 4
 .globl vfork
@@ -5,18 +12,50 @@
 vfork:
 	popl %ecx
 	movl $190,%eax
+#ifdef PIC
+	pushl %ebx
+#endif
 #APP
 	int $0x80
 #NO_APP
+#ifdef PIC
+	popl %ebx
+#endif
 	cmpl $-4095,%eax
-	jae .L5
+	jae .Lerror
 	jmp *%ecx
 	.p2align 4,,7
-.L5:
+.Lerror:
 	pushl %ecx
+
+#ifdef PIC
+	pushl %ebx
+	call .Lhere
+.Lhere:
+	popl %ebx
+	addl $_GLOBAL_OFFSET_TABLE_+[.-.Lhere],%ebx
 	negl %eax
+	movl %eax,%ecx
+#ifdef _LIBC_REENTRANT
+	call __errno_location@PLT
+#else
+	movl errno@GOT(%ebx),%eax
+#endif /* _LIBC_REENTRANT */
+	movl %ecx,(%eax)
+	popl %ebx
+#else
+	negl %eax
+#ifdef _LIBC_REENTRANT
+	movl %eax,%ecx
+	call __errno_location
+	movl %ecx,(%eax)
+#else
 	movl %eax,errno
+#endif /* _LIBC_REENTRANT */
+
+#endif /* PIC */
+	
 	movl $-1,%eax
 	ret
-.Lfe1:
-	.size	 vfork,.Lfe1-vfork
+.Lsize:
+	.size	 vfork,.Lsize-vfork
