@@ -25,7 +25,7 @@ CRT0_OBJ = crt0.o crt1.o gcrt1.o
 CRT0_DEPS=gmon-start.S
 
 SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
-	bsd-_setjmp.S syscall.S
+	bsd-_setjmp.S syscall.S mmap64.S
 ifeq ($(strip $(UCLIBC_PROFILING)),y)
 SSRC+=mcount.S
 endif
