@@ -217,11 +217,15 @@
 		pthread_mutex_trylock(&(STREAM)->lock); \
 	}
 
+#define __STDIO_SET_USER_LOCKING(STREAM)   	((STREAM)->user_locking = 1)
+
 #else  /* __STDIO_THREADSAFE */
 
 #define __STDIO_THREADLOCK(STREAM)
 #define __STDIO_THREADUNLOCK(STREAM)
 #define __STDIO_THREADTRYLOCK(STREAM)
+
+#define __STDIO_SET_USER_LOCKING(STREAM)
 
 #endif /* __STDIO_THREADSAFE */
 
