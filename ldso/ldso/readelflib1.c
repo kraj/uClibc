@@ -535,7 +535,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	 * calculated differently for MIPS. We look for a null tag
 	 * value instead.
 	 */
-	while(dpnt->d_tag) {
+	while(dpnt->d_tag)
 		if (dpnt->d_tag == DT_MIPS_GOTSYM)
 			mips_gotsym = (unsigned long) dpnt->d_un.d_val;
 		if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO)
@@ -543,8 +543,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		if (dpnt->d_tag == DT_MIPS_SYMTABNO)
 			mips_symtabno = (unsigned long) dpnt->d_un.d_val;
 #else
-	for (i = 0; i < dynamic_size; i++) {
+	for (i = 0; i < dynamic_size; i++) 
 #endif
+	{
 		if (dpnt->d_tag > DT_JMPREL) {
 			dpnt++;
 			continue;
