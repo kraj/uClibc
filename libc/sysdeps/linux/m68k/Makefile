@@ -60,11 +60,10 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 headers:
+	@(TOPDIR=$(TOPDIR) CC=$(CC) /bin/sh $(TOPDIR)/extra/scripts/gen_bits_syscall_h.sh > bits/syscall.h ) 
 ifeq ($(strip $(HAVE_ELF)),false)
-		echo "Working around compiler bug in the m68k-pic-coff toolchain"
-		cd $(TOPDIR)/include;ln -fs ../libc/sysdeps/linux/m68k/float.h .
-else
-		# no arch-specific headers
+	echo "Working around compiler bug in the m68k-pic-coff toolchain"
+	cd $(TOPDIR)/include;ln -fs ../libc/sysdeps/linux/m68k/float.h .
 endif
 
 
