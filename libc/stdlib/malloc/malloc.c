@@ -23,7 +23,8 @@
 struct heap __malloc_heap = HEAP_INIT;
 
 
-void *malloc (size_t size)
+void *
+malloc (size_t size)
 {
   void *mem;
 

@@ -13,13 +13,13 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <sys/mman.h>
 
 #include "malloc.h"
 #include "heap.h"
 
 
-void *realloc (void *mem, size_t new_size)
+void *
+realloc (void *mem, size_t new_size)
 {
   if (! mem)
     return malloc (new_size);

@@ -106,7 +106,8 @@ unmap_free_area (struct heap *heap, struct heap_free_area *fa)
 }
 
 
-void free (void *mem)
+void
+free (void *mem)
 {
   if (mem)
     {
