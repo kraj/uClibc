@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <pwd.h>
+#include "config.h"
 
 #define PWD_BUFFER_SIZE 256
 

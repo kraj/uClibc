@@ -2,8 +2,8 @@
 /*
  * Convert from the kernel's version of struct stat to libc's version
  *
- * Copyright (C) 2000 by Lineo, inc.  Written by Erik Andersen
- * <andersen@lineo.com>, <andersee@debian.org>
+ * Copyright (C) 2000, 2001 by Lineo, inc.  
+ * Written by Erik Andersen <andersen@lineo.com>, <andersee@debian.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published by
@@ -22,7 +22,7 @@
  */
 
 /* Pull in whatever this particular arch's kernel thinks the kernel version of
- * struct stat should look like.  It turn out that each arch has a different
+ * struct stat should look like.  It turns out that each arch has a different
  * opinion on the subject.  Then pull in libc's version of struct stat... */
 #include "statfix.h"
 

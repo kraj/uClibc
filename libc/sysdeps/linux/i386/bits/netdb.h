@@ -1,4 +1,4 @@
-/* Copyright (C) 1996, 1997 Free Software Foundation, Inc.
+/* Copyright (C) 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,38 +16,18 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#ifndef _DIRENT_H
-# error "Never use <bits/dirent.h> directly; include <dirent.h> instead."
+#ifndef _NETDB_H
+# error "Never include <bits/netdb.h> directly; use <netdb.h> instead."
 #endif
 
-struct dirent
-  {
-#ifndef __USE_FILE_OFFSET64
-    __ino_t d_ino;
-    __off_t d_off;
-#else
-    __ino64_t d_ino;
-    __off64_t d_off;
-#endif
-    unsigned short int d_reclen;
-    //unsigned char d_type;
-    char d_name[256];		/* We must not include limits.h! */
-  };
 
-#ifdef __USE_LARGEFILE64
-struct dirent64
-  {
-    __ino64_t d_ino;
-    __off64_t d_off;
-    unsigned short int d_reclen;
-    //unsigned char d_type;
-    char d_name[256];		/* We must not include limits.h! */
-  };
-#endif
-
-#define d_fileno	d_ino	/* Backwards compatibility.  */
-
-#undef  _DIRENT_HAVE_D_NAMLEN
-#define _DIRENT_HAVE_D_RECLEN
-#define _DIRENT_HAVE_D_OFF
-#define _DIRENT_HAVE_D_TYPE
+/* Description of data base entry for a single network.  NOTE: here a
+   poor assumption is made.  The network number is expected to fit
+   into an unsigned long int variable.  */
+struct netent
+{
+  char *n_name;			/* Official name of network.  */
+  char **n_aliases;		/* Alias list.  */
+  int n_addrtype;		/* Net address type.  */
+  uint32_t n_net;		/* Network number.  */
+};

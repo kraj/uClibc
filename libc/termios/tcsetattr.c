@@ -25,7 +25,7 @@
 /* The difference here is that the termios structure used in the
    kernel is not the same as we use in the libc.  Therefore we must
    translate it here.  */
-#include <kernel_termios.h>
+#include "kernel_termios.h"
 
 
 /* This is a gross hack around a kernel bug.  If the cfsetispeed functions

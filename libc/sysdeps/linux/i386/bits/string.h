@@ -1,21 +1,21 @@
 /* Optimized, inlined string functions.  i386 version.
-   Copyright (C) 1997, 1998, 1999 Free Software Foundation, Inc.
+   Copyright (C) 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _STRING_H
 # error "Never use <bits/string.h> directly; include <string.h> instead."
@@ -28,7 +28,7 @@
 /* We only provide optimizations if the user selects them and if
    GNU CC is used.  */
 #if !defined __NO_STRING_INLINES && defined __USE_STRING_INLINES \
-    && defined __GNUC__ && __GNUC__ >= 2
+    && defined __GNUC__ && __GNUC__ >= 2 && !__BOUNDED_POINTERS__
 
 #ifndef __STRING_INLINE
 # ifdef __cplusplus
@@ -176,6 +176,7 @@ memmove (void *__dest, __const void *__src, size_t __n)
 
 /* Set N bytes of S to C.  */
 #define _HAVE_STRING_ARCH_memset 1
+#define _USE_STRING_ARCH_memset 1
 #define memset(s, c, n) \
   (__extension__ (__builtin_constant_p (c)				      \
 		  ? (__builtin_constant_p (n)				      \
@@ -300,9 +301,35 @@ memchr (__const void *__s, int __c, size_t __n)
      "movl $1,%0\n"
      "1:"
      : "=D" (__res), "=&c" (__d0)
-     : "a" (__c), "0" (__s), "1" (__n));
+     : "a" (__c), "0" (__s), "1" (__n)
+     : "cc");
   return __res - 1;
 }
+#endif
+
+#define _HAVE_STRING_ARCH_memrchr 1
+#ifndef _FORCE_INLINES
+__STRING_INLINE void *
+__memrchr (__const void *__s, int __c, size_t __n)
+{
+  register unsigned long int __d0;
+  register void *__res;
+  if (__n == 0)
+    return NULL;
+  __asm__ __volatile__
+    ("std\n\t"
+     "repne; scasb\n\t"
+     "je 1f\n\t"
+     "orl $-1,%0\n"
+     "1:\tcld"
+     : "=D" (__res), "=&c" (__d0)
+     : "a" (__c), "0" (__s + __n - 1), "1" (__n)
+     : "cc");
+  return __res + 1;
+}
+# ifdef __USE_GNU
+#  define memrchr(s, c, n) __memrchr (s, c, n)
+# endif
 #endif
 
 /* Return the length of S.  */
@@ -444,7 +471,7 @@ strcmp (__const char *__s1, __const char *__s2)
      "jmp	3f\n"
      "2:\n\t"
      "sbbl	%%eax,%%eax\n\t"
-     "orb	$1,%%eax\n"
+     "orb	$1,%%al\n"
      "3:"
      : "=a" (__res), "=&S" (__d0), "=&D" (__d1)
      : "1" (__s1), "2" (__s2)
@@ -487,6 +514,7 @@ strncmp (__const char *__s1, __const char *__s2, size_t __n)
 
 /* Find the first occurrence of C in S.  */
 #define _HAVE_STRING_ARCH_strchr 1
+#define _USE_STRING_ARCH_strchr 1
 #define strchr(s, c) \
   (__extension__ (__builtin_constant_p (c)				      \
 		  ? __strchr_c (s, ((c) & 0xff) << 8)			      \

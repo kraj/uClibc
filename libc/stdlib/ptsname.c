@@ -145,7 +145,7 @@ int ptsname_r (int fd, char *buf, size_t buflen)
       p[2] = '\0';
     }
 
-  if (_xstat (_STAT_VER, buf, &st) < 0)
+  if (__xstat (_STAT_VER, buf, &st) < 0)
     return errno;
 
   /* Check if the name we're about to return really corresponds to a

@@ -1,20 +1,20 @@
-/* Copyright (C) 1992, 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1992,95,96,97,98,99,2000,2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _SYS_STAT_H
 # error "Never include <bits/stat.h> directly; use <sys/stat.h> instead."
@@ -40,7 +40,7 @@ struct stat
 #ifndef __USE_FILE_OFFSET64
     __ino_t st_ino;			/* File serial number.	*/
 #else
-    __ino64_t st_ino;			/* File serial number.	*/
+    __ino_t __st_ino;			/* 32bit file serial number.	*/
 #endif
     __mode_t st_mode;			/* File mode.  */
     __nlink_t st_nlink;			/* Link count.  */
@@ -53,7 +53,7 @@ struct stat
 #else
     __off64_t st_size;			/* Size of file, in bytes.  */
 #endif
-    unsigned long int st_blksize;	/* Optimal block size for I/O.  */
+    __blksize_t st_blksize;		/* Optimal block size for I/O.  */
 
 #ifndef __USE_FILE_OFFSET64
     __blkcnt_t st_blocks;		/* Number 512-byte blocks allocated. */
@@ -66,25 +66,29 @@ struct stat
     unsigned long int __unused2;
     __time_t st_ctime;			/* Time of last status change.  */
     unsigned long int __unused3;
+#ifndef __USE_FILE_OFFSET64
     unsigned long int __unused4;
     unsigned long int __unused5;
+#else
+    __ino64_t st_ino;			/* File serial number.	*/
+#endif
   };
 
 #ifdef __USE_LARGEFILE64
 struct stat64
   {
     __dev_t st_dev;			/* Device.  */
-    unsigned short int __pad1;
+    unsigned int __pad1;
 
-    __ino64_t st_ino;			/* File serial number.	*/
+    __ino_t __st_ino;			/* 32bit file serial number.	*/
     __mode_t st_mode;			/* File mode.  */
     __nlink_t st_nlink;			/* Link count.  */
     __uid_t st_uid;			/* User ID of the file's owner.	*/
     __gid_t st_gid;			/* Group ID of the file's group.*/
     __dev_t st_rdev;			/* Device number, if device.  */
-    unsigned short int __pad2;
+    unsigned int __pad2;
     __off64_t st_size;			/* Size of file, in bytes.  */
-    unsigned long int st_blksize;	/* Optimal block size for I/O.  */
+    __blksize_t st_blksize;		/* Optimal block size for I/O.  */
 
     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
     __time_t st_atime;			/* Time of last access.  */
@@ -93,8 +97,7 @@ struct stat64
     unsigned long int __unused2;
     __time_t st_ctime;			/* Time of last status change.  */
     unsigned long int __unused3;
-    unsigned long int __unused4;
-    unsigned long int __unused5;
+    __ino64_t st_ino;			/* File serial number.		*/
   };
 #endif
 
@@ -112,10 +115,14 @@ struct stat64
 #define	__S_IFBLK	0060000	/* Block device.  */
 #define	__S_IFREG	0100000	/* Regular file.  */
 #define	__S_IFIFO	0010000	/* FIFO.  */
-
-/* These don't actually exist on System V, but having them doesn't hurt.  */
 #define	__S_IFLNK	0120000	/* Symbolic link.  */
 #define	__S_IFSOCK	0140000	/* Socket.  */
+
+/* POSIX.1b objects.  Note that these macros always evaluate to zero.  But
+   they do it by enforcing the correct use of the macros.  */
+#define __S_TYPEISMQ(buf)  ((buf)->st_mode - (buf)->st_mode)
+#define __S_TYPEISSEM(buf) ((buf)->st_mode - (buf)->st_mode)
+#define __S_TYPEISSHM(buf) ((buf)->st_mode - (buf)->st_mode)
 
 /* Protection bits.  */
 

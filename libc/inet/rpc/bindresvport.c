@@ -75,7 +75,7 @@ struct sockaddr_in *sin;
 		if (port > ENDPORT) {
 			port = STARTPORT;
 		}
-		res = bind(sd, sin, sizeof(struct sockaddr_in));
+		res = bind(sd, (struct sockaddr *)sin, (socklen_t)sizeof(struct sockaddr_in));
 	}
 	return (res);
 }

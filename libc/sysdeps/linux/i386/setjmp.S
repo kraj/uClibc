@@ -21,10 +21,10 @@
 #define _SETJMP_H
 #include <bits/setjmp.h>
 
-.globl __setjmp;
-.type	 __setjmp,@function
+.globl _setjmp;
+.type	 _setjmp,@function
 .align 4;                                                               \
-__setjmp:
+_setjmp:
 	popl %eax		/* Pop return address.  */
 	popl %ecx		/* Pop jmp_buf.  */
 	pushl $0		/* Push zero argument.  */

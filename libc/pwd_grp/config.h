@@ -22,6 +22,15 @@
 #ifndef _CONFIG_GRP_H
 #define _CONFIG_GRP_H
 
+#include <pwd.h>
+#include <grp.h>
+
+/* These are used internally to uClibc */
+extern struct group * __getgrent __P ((int grp_fd));
+
+extern int __getpwent_r(struct passwd * passwd, char * line_buff, 
+	size_t buflen, int pwd_fd);
+  
 /*
  * Define GR_SCALE_DYNAMIC if you want grp to dynamically scale its read buffer
  * so that lines of any length can be used.  On very very small systems,

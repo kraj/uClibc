@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <grp.h>
+#include "config.h"
 
 struct group *fgetgrent(FILE * file)
 {

@@ -1,7 +1,8 @@
 #include <string.h>
 #include <unistd.h>
-#include <sys/utsname.h>
 #include <errno.h>
+#define __USE_GNU
+#include <sys/utsname.h>
 
 int
 getdomainname(char *name, size_t len)

@@ -19,10 +19,7 @@
 
 extern int _net_stayopen;
 
-struct netent *
-getnetbyaddr(net, type)
-	register long net;
-	register int type;
+struct netent *getnetbyaddr (uint32_t net, int type)
 {
 	register struct netent *p;
 

@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <grp.h>
+#include "config.h"
 
 struct group *getgrnam(const char *name)
 {

@@ -18,6 +18,7 @@
 
 #include <stddef.h>
 #include <setjmp.h>
+#define __USE_GNU
 #include <signal.h>
 
 
@@ -40,7 +41,7 @@ __uClibc_siglongjmp (sigjmp_buf env, int val)
 
   if (env[0].__mask_was_saved)
     /* Restore the saved signal mask.  */
-    (void) __sigprocmask (SIG_SETMASK, &env[0].__saved_mask,
+    (void) sigprocmask (SIG_SETMASK, &env[0].__saved_mask,
 			  (sigset_t *) NULL);
 
   /* Call the machine-dependent function to restore machine state.  */

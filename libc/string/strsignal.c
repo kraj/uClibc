@@ -23,12 +23,12 @@
  */
 
 #define WANT_SIGLIST       1
-
-#include <string.h>
+#include <stdlib.h>
 #include <malloc.h>
 #include <signal.h>
-
 #include <limits.h>
+#define __USE_GNU
+#include <string.h>
 
 #if (INT_MAX >> 31)
 /* We're set up for 32 bit ints */

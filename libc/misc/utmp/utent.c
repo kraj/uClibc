@@ -7,6 +7,7 @@
    have to call endutent() to close the file even if you've not called
    setutent -- getutid and family use the same file descriptor. */
 
+#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <paths.h>
@@ -53,7 +54,7 @@ struct utmp *getutent(void)
 	return __getutent(ut_fd);
 }
 
-struct utmp *getutid(struct utmp *utmp_entry)
+struct utmp *getutid (const struct utmp *utmp_entry)
 {
 	struct utmp *utmp;
 
@@ -78,7 +79,7 @@ struct utmp *getutid(struct utmp *utmp_entry)
 	return NULL;
 }
 
-struct utmp *getutline(struct utmp *utmp_entry)
+struct utmp *getutline(const struct utmp *utmp_entry)
 {
 	struct utmp *utmp;
 
@@ -102,7 +103,7 @@ struct utmp *getutline(struct utmp *utmp_entry)
 	return NULL;
 }
 
-struct utmp *pututline(struct utmp *utmp_entry)
+struct utmp *pututline (const struct utmp *utmp_entry)
 {
 	struct utmp *ut;
 
@@ -122,14 +123,15 @@ struct utmp *pututline(struct utmp *utmp_entry)
 			return NULL;
 	}
 
-	return utmp_entry;
+	return (struct utmp *)utmp_entry;
 }
 
-void utmpname(const char *new_ut_name)
+int utmpname (const char *new_ut_name)
 {
 	if (new_ut_name != NULL)
 		ut_name = new_ut_name;
 
 	if (ut_fd != -1)
 		close(ut_fd);
+	return 0;
 }

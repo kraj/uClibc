@@ -16,10 +16,12 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include "errno.h"
+#include <stdlib.h>
+#include <errno.h>
+#include <features.h>
 #define _EXTERN_INLINE
 #define __USE_EXTERN_INLINES   1
-#include "signal.h"
+#include <signal.h>
 
 /* Return 1 if SIGNO is in SET, 0 if not.  */
 int sigismember ( const sigset_t *set, int signo)

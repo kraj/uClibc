@@ -22,6 +22,7 @@
  */
 
 #include <stddef.h>
+#include <sys/types.h>
 #define __USE_GNU
 #include <stdio.h>
 

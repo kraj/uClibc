@@ -16,9 +16,10 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#include <stdlib.h>
 #include <errno.h>
 #include <features.h>
-#include "signal.h"
+#include <signal.h>
 
 
 /* Add SIGNO to SET.  */

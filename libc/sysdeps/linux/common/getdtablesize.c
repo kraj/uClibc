@@ -16,9 +16,12 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#include <limits.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/resource.h>
+#include <limits.h>
+
+#define __LOCAL_OPEN_MAX	    256
 
 /* Return the maximum number of file descriptors
    the current process could possibly have.  */
@@ -29,6 +32,6 @@ int getdtablesize (void)
   /* This should even work if `getrlimit' is not implemented.  POSIX.1
      does not define this function but we will generate a stub which
      returns -1.  */
-  return getrlimit (RLIMIT_NOFILE, &ru) < 0 ? OPEN_MAX : ru.rlim_cur;
+  return getrlimit (RLIMIT_NOFILE, &ru) < 0 ? __LOCAL_OPEN_MAX : ru.rlim_cur;
 }
 

@@ -122,7 +122,7 @@ do_return:
 }
 
 
-void unsetenv(const char *name)
+int unsetenv (const char *name)
 {
   register char **ep;
   register char **dp;
@@ -139,4 +139,5 @@ void unsetenv(const char *name)
   *dp = NULL;
 
   UNLOCK();
+  return 0;
 }

@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <syscall.h>
 #include <sys/types.h>
 #include <sys/wait.h>

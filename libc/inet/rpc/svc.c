@@ -40,11 +40,13 @@
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
+#define __USE_XOPEN
 #include <sys/errno.h>
 #include <rpc/rpc.h>
 #include <rpc/pmap_clnt.h>
 #ifdef __linux__
 #include <sys/types.h>
+#include <sys/select.h>
 #endif
 
 extern int errno;

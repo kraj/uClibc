@@ -8,7 +8,7 @@
 struct mntent *getmntent(FILE * filep)
 {
 	char *cp, *sep = " \t\n";
-	static char buff[MNTMAXSTR];
+	static char buff[BUFSIZ];
 	static struct mntent mnt;
 
 	/* Loop on the file, skipping comment lines. - FvK 03/07/93 */

@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <pwd.h>
 #include <fcntl.h>
+#include "config.h"
 
 /*
  * setpwent(), endpwent(), and getpwent() are included in the same object

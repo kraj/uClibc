@@ -16,6 +16,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#define _XOPEN_SOURCE
 #include <errno.h>
 #include <limits.h>
 #include <grp.h>
@@ -28,6 +29,9 @@
 #include <sys/sysinfo.h>
 #include <sys/types.h>
 #include <regex.h>
+
+extern int getpagesize (void);
+extern int getdtablesize (void);
 
 /***********************************************************************/
 /*
@@ -61,7 +65,7 @@
 #endif /* _UCLIBC_GENERATE_SYSCONF_ARCH */
 
 /* Get the value of the system variable NAME.  */
-long int sysconf(int name)
+long int __sysconf(int name)
 {
   switch (name)
     {
@@ -889,6 +893,7 @@ long int sysconf(int name)
 #endif
     }
 }
+weak_alias(__sysconf, sysconf);
 
 #endif /* _UCLIBC_GENERATE_SYSCONF_MAIN */
 /***********************************************************************/

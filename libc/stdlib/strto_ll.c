@@ -40,6 +40,7 @@
 #endif
 
 #include <stdlib.h>
+#define __USE_GNU
 #include <limits.h>
 #include <ctype.h>
 

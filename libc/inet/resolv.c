@@ -50,7 +50,6 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <cfgfile.h>
 #include <resolv.h>
 #include <netdb.h>
 #include <ctype.h>
@@ -72,6 +71,31 @@
 #endif /* DEBUG */
 
 
+struct resolv_header {
+	int id;
+	int qr,opcode,aa,tc,rd,ra,rcode;
+	int qdcount;
+	int ancount;
+	int nscount;
+	int arcount;
+};
+
+struct resolv_question {
+	char * dotted;
+	int qtype;
+	int qclass;
+};
+
+struct resolv_answer {
+	char * dotted;
+	int atype;
+	int aclass;
+	int ttl;
+	int rdlength;
+	unsigned char * rdata;
+	int rdoffset;
+};
+
 extern int nameservers;
 extern char * nameserver[MAX_SERVERS];
 extern int searchdomains;
@@ -86,6 +110,22 @@ extern int resolve_mailbox(const char * address, int nscount,
 extern int dns_lookup(const char * name, int type, int nscount, 
 	char ** nsip, unsigned char ** outpacket, struct resolv_answer * a);
 
+int encode_dotted(const char * dotted, unsigned char * dest, int maxlen);
+int decode_dotted(const unsigned char * message, int offset, 
+	char * dest, int maxlen);
+int length_dotted(const unsigned char * message, int offset);
+int encode_header(struct resolv_header * h, unsigned char * dest, int maxlen);
+int decode_header(unsigned char * data, struct resolv_header * h);
+int encode_question(struct resolv_question * q,
+	unsigned char * dest, int maxlen);
+int decode_question(unsigned char * message, int offset,
+	struct resolv_question * q);
+int encode_answer(struct resolv_answer * a,
+	unsigned char * dest, int maxlen);
+int decode_answer(unsigned char * message, int offset,
+	struct resolv_answer * a);
+int length_question(unsigned char * message, int offset);
+extern int open_nameservers(void);
 
 
 #ifdef L_encodeh
@@ -1141,8 +1181,7 @@ int res_query(const char *dname, int class, int type,
 
 
 #ifdef L_gethostbyaddr
-
-struct hostent *gethostbyaddr(const char *addr, int len, int type)
+struct hostent *gethostbyaddr (const void *addr, __socklen_t len, int type)
 {
 	static struct hostent h;
 	static char namebuf[256];

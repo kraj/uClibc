@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <sys/types.h>
 
 int setegid(gid_t gid)
 {

@@ -1,21 +1,21 @@
-/* Bit values & structures for resource limits.  Linux version.
-   Copyright (C) 1994, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
+/* Bit values & structures for resource limits.  Linux/x86 version.
+   Copyright (C) 1994,1996,1997,1998,1999,2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 #ifndef _SYS_RESOURCE_H
 # error "Never use <bits/resource.h> directly; include <sys/resource.h> instead."
@@ -76,7 +76,11 @@ enum __rlimit_resource
   RLIMIT_MEMLOCK = 8,
 #define RLIMIT_MEMLOCK RLIMIT_MEMLOCK
 
-  RLIMIT_NLIMITS = 10,
+  /* Maximum number of file locks.  */
+  RLIMIT_LOCKS = 10,
+#define RLIMIT_LOCKS RLIMIT_LOCKS
+
+  RLIMIT_NLIMITS = 11,
   RLIM_NLIMITS = RLIMIT_NLIMITS
 #define RLIMIT_NLIMITS RLIMIT_NLIMITS
 #define RLIM_NLIMITS RLIM_NLIMITS
@@ -84,13 +88,13 @@ enum __rlimit_resource
 
 /* Value to indicate that there is no limit.  */
 #ifndef __USE_FILE_OFFSET64
-# define RLIM_INFINITY ((long int) (~0UL >> 1))
+# define RLIM_INFINITY ((unsigned long int)(~0UL))
 #else
-# define RLIM_INFINITY 0x7fffffffffffffffLL
+# define RLIM_INFINITY 0xffffffffffffffffuLL
 #endif
 
 #ifdef __USE_LARGEFILE64
-# define RLIM64_INFINITY 0x7fffffffffffffffLL
+# define RLIM64_INFINITY 0xffffffffffffffffuLL
 #endif
 
 /* We can represent all limits.  */

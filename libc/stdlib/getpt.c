@@ -86,4 +86,4 @@ getpt (void)
 #define PTYNAME2 "0123456789abcdef";
 
 #define __getpt __bsd_getpt
-#include <bsd_getpt.c>
+#include "bsd_getpt.c"

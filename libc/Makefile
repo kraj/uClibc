@@ -54,7 +54,7 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 		    -Wl,-soname,$(SHARED_MAJORNAME) -Wl,--whole-archive \
 		    ./$(LIBNAME) $(LDSO)  -Wl,-dynamic-linker,$(DYNAMIC_LINKER); \
 	fi
-	@rm -rf tmp
+	@/bin/true #rm -rf tmp
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(SHARED_FULLNAME)
 	install -m 644 $(SHARED_FULLNAME) $(TOPDIR)lib

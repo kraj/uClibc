@@ -63,4 +63,4 @@ grantpt (int fd)
 }
 
 #define grantpt __unix_grantpt
-#include <unix_grantpt.c>
+#include "unix_grantpt.c"

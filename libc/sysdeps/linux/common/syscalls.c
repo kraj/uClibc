@@ -143,7 +143,7 @@ _syscall1(time_t, time, time_t *, t);
 extern int mknod(const char *pathname, mode_t mode, dev_t dev);
 _syscall3(int, mknod, const char *, pathname, mode_t, mode, dev_t, dev);
 
-int _xmknod (int version, const char * path, mode_t mode, dev_t *dev)
+int __xmknod (int version, const char * path, mode_t mode, dev_t *dev)
 {
 	switch(version)
 	{
@@ -221,7 +221,7 @@ _syscall0(gid_t, getuid);
 //#define __NR_stime            25
 #ifdef L_stime
 #include <time.h>
-_syscall1(int, stime, time_t *, t);
+_syscall1(int, stime, const time_t *, t);
 #endif
 
 //#define __NR_ptrace           26
@@ -253,7 +253,7 @@ _syscall0(int, pause);
 //#define __NR_utime            30
 #ifdef L_utime
 #include <utime.h>
-_syscall2(int, utime, const char *, filename, struct utimbuf *, buf);
+_syscall2(int, utime, const char *, filename, const struct utimbuf *, buf);
 #endif
 
 //#define __NR_stty             31
@@ -277,7 +277,7 @@ _syscall1(int, nice, int, inc);
 //#define __NR_sync             36
 #ifdef L_sync
 #include <unistd.h>
-_syscall0(int, sync);
+_syscall0(void, sync);
 #endif
 
 //#define __NR_kill             37
@@ -560,13 +560,13 @@ _syscall2(int, getrusage, int, who, struct rusage *, usage);
 
 //#define __NR_gettimeofday     78
 #ifdef L_gettimeofday
-#include <unistd.h>
+#include <sys/time.h>
 _syscall2(int, gettimeofday, struct timeval *, tv, struct timezone *, tz);
 #endif
 
 //#define __NR_settimeofday     79
 #ifdef L_settimeofday
-#include <unistd.h>
+#include <sys/time.h>
 _syscall2(int, settimeofday, const struct timeval *, tv,
 		  const struct timezone *, tz);
 #endif
@@ -754,14 +754,14 @@ int klogctl(int type, char *buf, int len)
 //#define __NR_setitimer        104
 #ifdef L_setitimer
 #include <sys/time.h>
-_syscall3(int, setitimer, enum __itimer_which, which,
+_syscall3(int, setitimer, __itimer_which_t, which,
 		  const struct itimerval *, new, struct itimerval *, old);
 #endif
 
 //#define __NR_getitimer        105
 #ifdef L_getitimer
 #include <sys/time.h>
-_syscall2(int, getitimer, enum __itimer_which, which, struct itimerval *, value);
+_syscall2(int, getitimer, __itimer_which_t, which, struct itimerval *, value);
 #endif
 
 //#define __NR_stat             106
@@ -775,7 +775,7 @@ _syscall2(int, getitimer, enum __itimer_which, which, struct itimerval *, value)
 extern int __stat(const char *file_name, struct kernel_stat *buf);
 _syscall2(int, __stat, const char *, file_name, struct kernel_stat *, buf);
 
-int _xstat(int version, const char * file_name, struct libc_stat * cstat)
+int __xstat(int version, const char * file_name, struct libc_stat * cstat)
 {
 	struct kernel_stat kstat;
 	int result = __stat(file_name, &kstat);
@@ -788,7 +788,7 @@ int _xstat(int version, const char * file_name, struct libc_stat * cstat)
 
 int stat(const char *file_name, struct libc_stat *buf)
 {
-	return(_xstat(0, file_name, buf));
+	return(__xstat(0, file_name, buf));
 }
 #endif
 
@@ -803,7 +803,7 @@ int stat(const char *file_name, struct libc_stat *buf)
 extern int __lstat(const char *file_name, struct kernel_stat *buf);
 _syscall2(int, __lstat, const char *, file_name, struct kernel_stat *, buf);
 
-int _lxstat(int version, const char * file_name, struct libc_stat * cstat)
+int __lxstat(int version, const char * file_name, struct libc_stat * cstat)
 {
 	struct kernel_stat kstat;
 	int result = __lstat(file_name, &kstat);
@@ -816,7 +816,7 @@ int _lxstat(int version, const char * file_name, struct libc_stat * cstat)
 
 int lstat(const char *file_name, struct libc_stat *buf)
 {
-	return(_lxstat(0, file_name, buf));
+	return(__lxstat(0, file_name, buf));
 }
 #endif
 
@@ -831,7 +831,7 @@ int lstat(const char *file_name, struct libc_stat *buf)
 extern int __fstat(int filedes, struct kernel_stat *buf);
 _syscall2(int, __fstat, int, filedes, struct kernel_stat *, buf);
 
-int _fxstat(int version, int fd, struct libc_stat * cstat)
+int __fxstat(int version, int fd, struct libc_stat * cstat)
 {
 	struct kernel_stat kstat;
 	int result = __fstat(fd, &kstat);
@@ -844,7 +844,7 @@ int _fxstat(int version, int fd, struct libc_stat * cstat)
 
 int fstat(int filedes, struct libc_stat *buf)
 {
-	return(_fxstat(0, filedes, buf));
+	return(__fxstat(0, filedes, buf));
 }
 #endif
 
@@ -936,14 +936,13 @@ _syscall1(int, adjtimex, struct timex *, buf);
 //#define __NR_mprotect         125
 #ifdef L_mprotect
 #include <sys/mman.h>
-_syscall3(int, mprotect, const void *, addr, size_t, len, int, prot);
+_syscall3(int, mprotect, void *, addr, size_t, len, int, prot);
 #endif
 
 //#define __NR_sigprocmask      126
 #ifdef L_sigprocmask
 #include <signal.h>
 _syscall3(int, sigprocmask, int, how, const sigset_t *, set, sigset_t *,
-
 		  oldset);
 #endif
 

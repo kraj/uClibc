@@ -1,5 +1,6 @@
 
 #include <time.h>
+#include <sys/time.h>
 
 extern void __tm_conv();
 

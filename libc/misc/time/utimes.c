@@ -1,7 +1,8 @@
+#include <stdlib.h>
 #include <utime.h>
 #include <sys/time.h>
 
-int utimes(const char *path, struct timeval tvp[2])
+int utimes (const char *file, const struct timeval tvp[2])
 {
 	struct utimbuf buf, *times;
 
@@ -12,5 +13,5 @@ int utimes(const char *path, struct timeval tvp[2])
 	}
 	else
 		times = NULL;
-	return utime(path, times);
+	return utime(file, times);
 }

@@ -17,10 +17,11 @@
    Boston, MA 02111-1307, USA.  */
 
 #include <unistd.h>
+#include <features.h>
 #include <sys/param.h>
 
 /* Return the system page size.  */
-int getpagesize ()
+int __getpagesize()
 {
 #ifdef	EXEC_PAGESIZE
   return EXEC_PAGESIZE;
@@ -36,3 +37,4 @@ int getpagesize ()
 #endif	/* EXEC_PAGESIZE.  */
 }
 
+weak_alias(__getpagesize, getpagesize);

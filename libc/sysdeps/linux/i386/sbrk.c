@@ -8,8 +8,7 @@ extern void * ___brk_addr;
 
 extern int __init_brk (void);
 
-void *
-sbrk(ptrdiff_t increment)
+void *sbrk(intptr_t increment)
 {
     if (__init_brk () == 0)
     {

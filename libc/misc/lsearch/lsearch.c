@@ -8,6 +8,7 @@
  *  "It's not reality that's important, but how you perceive things."
  */
 
+#include <string.h>
 #include <stdio.h>
 
 char *lfind(key, base, num, size, cmp)
@@ -33,7 +34,6 @@ register unsigned int size;
 int (*cmp) ();
 {
 	register char *p;
-	char *memcpy();
 
 	if ((p = lfind(key, base, num, size, cmp)) == NULL) {
 		p = memcpy((base + (size * (*num))), key, size);

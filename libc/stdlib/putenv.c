@@ -9,8 +9,7 @@
 
 #define ADD_NUM 4
 
-int putenv(var)
-const char *var;
+int putenv (char *var)
 {
 	static char **mall_env = 0;
 	static int extras = 0;

@@ -53,9 +53,9 @@
  *   Converted INIT_BLOCK() and FREE_MEM_DEL_BLOCK() from macros to functions.
  */
 
+#include <features.h>
 #define _POSIX_SOURCE
 #define _XOPEN_SOURCE
-#include <features.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <limits.h>

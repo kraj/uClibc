@@ -22,10 +22,10 @@
 #include <bits/setjmp.h>
 
 	/* Binary compatibility entry point.  */
-.globl setjmp;
-.type setjmp,#function
+.globl _setjmp;
+.type _setjmp,#function
 .align 4;
-setjmp:
+_setjmp:
 	mov	r1, #0
 
 

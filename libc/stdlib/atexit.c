@@ -20,6 +20,7 @@
  *      __stdio_close_all.
  */
 
+#include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
 

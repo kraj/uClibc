@@ -33,6 +33,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#define __USE_ISOC99
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>

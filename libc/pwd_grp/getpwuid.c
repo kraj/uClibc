@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <pwd.h>
+#include "config.h"
 
 
 #define PWD_BUFFER_SIZE 256

@@ -17,7 +17,6 @@ not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
 #include <errno.h>
-#define __USE_BSD
 #include <signal.h>
 
 /* Set the mask of blocked signals to MASK, returning the old mask.  */
