@@ -1427,11 +1427,29 @@ _syscall3(int, mprotect, void *, addr, size_t, len, int, prot);
 
 //#define __NR_sigprocmask      126
 #ifndef __NR_rt_sigprocmask
-#ifdef L_sigprocmask
+#ifdef L___syscall_sigprocmask
 #include <signal.h>
-#undef sigprocmask
-_syscall3(int, sigprocmask, int, how, const sigset_t *, set, 
+#define __NR___syscall_sigprocmask __NR_sigprocmask
+static inline
+_syscall3(int, __syscall_sigprocmask, int, how, const sigset_t *, set,
 		sigset_t *, oldset);
+#undef sigprocmask
+int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
+{
+	if (set &&
+#if (SIG_BLOCK == 0) && (SIG_UNBLOCK == 1) && (SIG_SETMASK == 2)
+	(((unsigned int) how) > 2)
+#else
+#warning "compile time assumption violated.. slow path..."
+	((how != SIG_BLOCK) && (how != SIG_UNBLOCK) && (how != SIG_SETMASK))
+#endif
+	   )
+	{
+		__set_errno (EINVAL);
+		return -1;
+	}
+	return(__syscall_sigprocmask(how, set, oldset));
+}
 #endif
 #endif
 
@@ -1942,7 +1960,19 @@ _syscall4(int, __rt_sigprocmask, int, how, const sigset_t *, set,
 
 int sigprocmask(int how, const sigset_t *set, sigset_t *oldset) 
 {
-	  return __rt_sigprocmask(how, set, oldset, _NSIG/8);
+	if (set &&
+#if (SIG_BLOCK == 0) && (SIG_UNBLOCK == 1) && (SIG_SETMASK == 2)
+			(((unsigned int) how) > 2)
+#else
+#warning "compile time assumption violated.. slow path..."
+			((how != SIG_BLOCK) && (how != SIG_UNBLOCK) && (how != SIG_SETMASK))
+#endif
+	   )
+	{
+		__set_errno (EINVAL);
+		return -1;
+	}
+	return __rt_sigprocmask(how, set, oldset, _NSIG/8);
 }
 #endif
 #endif
