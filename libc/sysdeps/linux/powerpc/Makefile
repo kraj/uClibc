@@ -32,7 +32,7 @@ SSRC+=mcount.S
 endif
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=_mmap.c vfork.c __syscall_error.c pread_write.c ioctl.c
+CSRC=mmap.c vfork.c __syscall_error.c pread_write.c ioctl.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)
