@@ -77,15 +77,13 @@ HAS_LONG_LONG = true
 HAS_SHADOW = false
 
 # Set this to `false' if you don't have/need locale support; `true' otherwise.
-# Note: Currently only affects the ctype functions.  You must also generate
-# a locale file for anything but the C locale.  See directory extra/locale for
-# a utility to do so.  Also see the following option.
+# NOTE: Currently does not affect collation.
+# You must also generate the locale data and associated .h file.
+# See the README in directory extra/locale for details.
 HAS_LOCALE = false
 
-# Set this to the path of your uClibc locale file directory.
-# Warning!  This must be different than the glibc locale directory to avoid
-# name conflicts, as the locale files are entirely different in format!
-LOCALE_DIR = "/usr/share/uClibc-locale/"
+# Set this to `false' if you don't have/need wide char support.
+HAS_WCHAR = false
 
 # This specifies which malloc implementation is used.
 # "malloc-simple" is very, very small, but is also very, very dumb 

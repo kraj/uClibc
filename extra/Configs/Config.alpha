@@ -77,14 +77,12 @@ HAS_LONG_LONG = true
 HAS_SHADOW = true
 
 # Set this to `false' if you don't have/need locale support; `true' otherwise.
-# Note: Currently only affects the {w}ctype functions, but that should
-# change shortly.  You must also generate the locale data and associated .h
-# file.  See the README in directory extra/locale for details.
+# NOTE: Currently does not affect collation.
+# You must also generate the locale data and associated .h file.
+# See the README in directory extra/locale for details.
 HAS_LOCALE = false
 
 # Set this to `false' if you don't have/need wide char support.
-# Note: Currently requires locale support to be enabled above, and
-# is automagically disabled when HAVE_LOCALE is false.
 HAS_WCHAR = false
 
 # This specifies which malloc implementation is used.
