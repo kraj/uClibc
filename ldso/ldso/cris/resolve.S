@@ -24,8 +24,9 @@ _dl_linux_resolve:
 	push $r11
 	push $r10
 	push $r9
+	push $r0
 	push $srp
-	move.d [$sp+6*4],$r11
+	move.d [$sp+7*4],$r11
 	move $mof,$r10
 #ifdef __PIC__
 	move.d $pc,$r0
@@ -36,8 +37,9 @@ _dl_linux_resolve:
 #else
 	jsr _dl_linux_resolver
 #endif
-	move.d $r10,[$sp+6*4]
+	move.d $r10,[$sp+7*4]
 	pop $srp
+	pop $r0
 	pop $r9
 	pop $r10
 	pop $r11
