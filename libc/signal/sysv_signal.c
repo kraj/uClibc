@@ -32,7 +32,7 @@
 
 /* Set the handler for the signal SIG to HANDLER,
    returning the old handler, or SIG_ERR on error.  */
-__sighandler_t sysv_signal (int sig, __sighandler_t handler)
+__sighandler_t __sysv_signal (int sig, __sighandler_t handler)
 {
     struct sigaction act, oact;
 
@@ -53,4 +53,4 @@ __sighandler_t sysv_signal (int sig, __sighandler_t handler)
 
     return oact.sa_handler;
 }
-
+weak_alias (__sysv_signal, sysv_signal)
