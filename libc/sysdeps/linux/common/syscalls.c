@@ -966,15 +966,15 @@ _syscall2(int,flock,int,fd, int,operation);
 #ifdef L_writev
 #include <sys/uio.h>
 _syscall3(ssize_t, writev, int, filedes, const struct iovec *, vector, int,
-
 		  count);
 #endif
 
 //#define __NR_getsid           147
 #ifdef L_getsid
-SYSCALL__(getsid, 1)
-	ret
+#include <unistd.h>
+_syscall1(pid_t, getsid, pid_t, pid);
 #endif
+
 //#define __NR_fdatasync        148
 #ifdef L_fdatasync
 	SYSCALL__(fdatasync, 1)

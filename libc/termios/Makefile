@@ -25,11 +25,12 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 MSRC=termios.c
-MOBJ=tcsetattr.o tcgetattr.o tcdrain.o tcflow.o tcflush.o tcsendbreak.o	\
-     tcsetpgrp.o tcgetpgrp.o isatty.o cfgetospeed.o cfgetispeed.o cfsetospeed.o \
-     cfsetispeed.o cfmakeraw.o
+MOBJ= tcdrain.o tcflow.o tcflush.o tcsendbreak.o tcsetpgrp.o tcgetpgrp.o \
+	isatty.o cfgetospeed.o cfgetispeed.o cfsetospeed.o cfsetispeed.o \
+	cfmakeraw.o cfsetspeed.o
 
-CSRC=ttyname.c
+
+CSRC=tcgetattr.c tcgetsid.c tcsetattr.c ttyname.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(COBJS)
 

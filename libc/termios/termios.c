@@ -1,11 +1,27 @@
-/* Copyright (C) 1996 Robert de Bath <robert@mayday.compulink.co.uk> This
- * file is part of the Linux-8086 C library and is distributed under the
- * GNU Library General Public License.
+/* Copyright (C) 1992, 1993, 1996, 1997, 1998 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Library General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public
+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  
+ 
+
+   About the only thing remaining here fromthe original Linux-8086 C library
+   version by Robert de Bath <robert@mayday.compulink.co.uk>, is the general
+   layout.  All else has been recently stolen from GNU libc, since that was
+   much more current.
  */
-
-/* Note: This is based loosely on the Glib termios routines. */
-
-#ifndef __MSDOS__
 
 #include <errno.h>
 #include <stddef.h>
@@ -14,82 +30,43 @@
 #include <unistd.h>
 
 #ifdef L_isatty
+/* Return 1 if FD is a terminal, 0 if not.  */
 int isatty(int fd)
 {
-	struct termios term;
-	int rv, err = errno;
+  struct termios term;
 
-	rv = (ioctl(fd, TCGETS, &term) == 0);
-	if (rv == 0 && errno == ENOSYS)
-		rv = (fd < 3);
-	errno = err;
-	return rv;
-}
-#endif
-
-#ifdef L_tcgetattr
-int tcgetattr(fd, term)
-int fd;
-struct termios *term;
-{
-	return ioctl(fd, TCGETS, term);
-}
-#endif
-
-#ifdef L_tcsetattr
-int tcsetattr(fildes, optional_actions, termios_p)
-int fildes;
-int optional_actions;
-struct termios *termios_p;
-{
-	switch (optional_actions) {
-	case TCSANOW:
-		return ioctl(fildes, TCSETS, termios_p);
-	case TCSADRAIN:
-		return ioctl(fildes, TCSETSW, termios_p);
-	case TCSAFLUSH:
-		return ioctl(fildes, TCSETSF, termios_p);
-	default:
-		errno = EINVAL;
-		return -1;
-	}
+  return tcgetattr(fd, &term) == 0;
 }
 #endif
 
 #ifdef L_tcdrain
 /* Wait for pending output to be written on FD.  */
-int tcdrain(fd)
-int fd;
+int tcdrain (int fd)
 {
-	/* With an argument of 1, TCSBRK just waits for output to drain.  */
-	return ioctl(fd, TCSBRK, 1);
+      /* With an argument of 1, TCSBRK waits for the output to drain.  */
+      return ioctl(fd, TCSBRK, 1);
 }
 #endif
 
 #ifdef L_tcflow
-int tcflow(fd, action)
-int fd;
-int action;
+/* Suspend or restart transmission on FD.  */
+int tcflow ( int fd, int action)
 {
-	return ioctl(fd, TCXONC, action);
+      return ioctl(fd, TCXONC, action);
 }
 #endif
 
 #ifdef L_tcflush
 /* Flush pending data on FD.  */
-int tcflush(fd, queue_selector)
-int fd;
-int queue_selector;
+int tcflush ( int fd, int queue_selector)
 {
-	return ioctl(fd, TCFLSH, queue_selector);
+      return ioctl(fd, TCFLSH, queue_selector);
 }
 #endif
 
 #ifdef L_tcsendbreak
 /* Send zero bits on FD.  */
-int tcsendbreak(fd, duration)
-int fd;
-int duration;
+int tcsendbreak( int fd, int duration)
 {
 	/*
 	 * The break lasts 0.25 to 0.5 seconds if DURATION is zero, and an
@@ -111,260 +88,227 @@ int duration;
 
 #ifdef L_tcsetpgrp
 /* Set the foreground process group ID of FD set PGRP_ID.  */
-int tcsetpgrp(fd, pgrp_id)
-int fd;
-pid_t pgrp_id;
+int tcsetpgrp ( int fd, pid_t pgrp_id)
 {
-	return ioctl(fd, TIOCSPGRP, &pgrp_id);
+      return ioctl (fd, TIOCSPGRP, &pgrp_id);
 }
 #endif
 
 #ifdef L_tcgetpgrp
 /* Return the foreground process group ID of FD.  */
-pid_t tcgetpgrp(fd)
-int fd;
+pid_t tcgetpgrp ( int fd)
 {
-	int pgrp;
+    int pgrp;
 
-	if (ioctl(fd, TIOCGPGRP, &pgrp) < 0)
-		return (pid_t) - 1;
-	return (pid_t) pgrp;
+    if (ioctl (fd, TIOCGPGRP, &pgrp) < 0)
+	return (pid_t) -1;
+    return (pid_t) pgrp;
 }
 #endif
 
+/* This is a gross hack around a kernel bug.  If the cfsetispeed functions is
+ * called with the SPEED argument set to zero this means use the same speed as
+ * for output.  But we don't have independent input and output speeds and
+ * therefore cannot record this.
+ *
+ * We use an unused bit in the `c_iflag' field to keep track of this use of
+ * `cfsetispeed'.  The value here must correspond to the one used in
+ * `tcsetattr.c'.  */
+#define IBAUD0  020000000000
+
 #ifdef L_cfgetospeed
-speed_t cfgetospeed(tp)
-struct termios *tp;
+/* Return the output baud rate stored in *TERMIOS_P.  */
+speed_t cfgetospeed ( const struct termios *termios_p)
 {
-	return (tp->c_cflag & CBAUD);
+      return termios_p->c_cflag & (CBAUD | CBAUDEX);
 }
 #endif
 
 #ifdef L_cfgetispeed
-speed_t cfgetispeed(tp)
-struct termios *tp;
+
+/* Return the input baud rate stored in *TERMIOS_P.
+ * Although for Linux there is no difference between input and output
+ * speed, the numerical 0 is a special case for the input baud rate. It
+ * should set the input baud rate to the output baud rate. */
+speed_t cfgetispeed (const struct termios *termios_p)
 {
-	return (tp->c_cflag & CBAUD);
+    return ((termios_p->c_iflag & IBAUD0)
+	    ? 0 : termios_p->c_cflag & (CBAUD | CBAUDEX));
 }
 #endif
 
 #ifdef L_cfsetospeed
-int cfsetospeed(tp, speed)
-struct termios *tp;
-speed_t speed;
+/* Set the output baud rate stored in *TERMIOS_P to SPEED.  */
+int cfsetospeed  (struct termios *termios_p, speed_t speed)
 {
-#ifdef CBAUDEX
-	if ((speed & ~CBAUD) ||
-		((speed & CBAUDEX) && (speed < B57600 || speed > B115200)))
-		return 0;
-#else
-	if (speed & ~CBAUD)
-		return 0;
-#endif
-	tp->c_cflag &= ~CBAUD;
-	tp->c_cflag |= speed;
+    if ((speed & ~CBAUD) != 0
+	    && (speed < B57600 || speed > B460800))
+    {
+	errno=EINVAL;
+	return -1;
+    }
 
-	return 0;
+    termios_p->c_cflag &= ~(CBAUD | CBAUDEX);
+    termios_p->c_cflag |= speed;
+
+    return 0;
 }
 #endif
 
 #ifdef L_cfsetispeed
-int cfsetispeed(tp, speed)
-struct termios *tp;
-speed_t speed;
+/* Set the input baud rate stored in *TERMIOS_P to SPEED.
+ *    Although for Linux there is no difference between input and output
+ *       speed, the numerical 0 is a special case for the input baud rate.  It
+ *          should set the input baud rate to the output baud rate.  */
+int cfsetispeed ( struct termios *termios_p, speed_t speed)
 {
-	return cfsetospeed(tp, speed);
+    if ((speed & ~CBAUD) != 0
+	    && (speed < B57600 || speed > B460800))
+    {
+	errno=EINVAL;
+	return -1;
+    }
+
+    if (speed == 0)
+	termios_p->c_iflag |= IBAUD0;
+    else
+    {
+	termios_p->c_iflag &= ~IBAUD0;
+	termios_p->c_cflag &= ~(CBAUD | CBAUDEX);
+	termios_p->c_cflag |= speed;
+    }
+
+    return 0;
 }
 #endif
-
-#if 0
-
-/* Not POSIX standard, not worth the bother to keep it up */
 
 #ifdef L_tcspeed
-static struct {
-	int number;
-	speed_t code;
-} tcspeeds[] = {
-#ifdef B50
-	{
-	50, B50},
-#endif
-#ifdef B75
-	{
-	75, B75},
-#endif
-#ifdef B110
-	{
-	110, B110},
-#endif
-#ifdef B134
-	{
-	134, B134},
-#endif
-#ifdef B150
-	{
-	150, B150},
-#endif
-#ifdef B200
-	{
-	200, B200},
-#endif
-#ifdef B300
-	{
-	300, B300},
-#endif
-#ifdef B600
-	{
-	600, B600},
-#endif
-#ifdef B1200
-	{
-	1200, B1200},
-#endif
-#ifdef B1800
-	{
-	1800, B1800},
-#endif
-#ifdef B2400
-	{
-	2400, B2400},
-#endif
-#ifdef B4800
-	{
-	4800, B4800},
-#endif
-#ifdef B9600
-	{
-	9600, B9600},
-#endif
-#ifdef B19200
-	{
-	19200, B19200},
-#endif
-#ifdef B38400
-	{
-	38400, B38400},
-#endif
-#ifdef B57600
-	{
-	57600, B57600},
-#endif
-#ifdef B115200
-	{
-	115200, B115200},
-#endif
-#ifdef B230400
-	{
-	230400, B230400},
-#endif
-#ifdef B460800
-	{
-	460800, B460800},
-#endif
-#ifdef B0
-	{
-	0, B0},
-#endif
-	{
-	0, 0}
+struct speed_struct
+{
+  speed_t value;
+  speed_t internal;
 };
 
-int tcspeed_to_number(code)
-speed_t code;
-{
-	int i;
+static const struct speed_struct speeds[] =
+  {
+#ifdef B0
+    { 0, B0 },
+#endif
+#ifdef B50
+    { 50, B50 },
+#endif
+#ifdef B75
+    { 75, B75 },
+#endif
+#ifdef B110
+    { 110, B110 },
+#endif
+#ifdef B134
+    { 134, B134 },
+#endif
+#ifdef B150
+    { 150, B150 },
+#endif
+#ifdef B200
+    { 200, B200 },
+#endif
+#ifdef B300
+    { 300, B300 },
+#endif
+#ifdef B600
+    { 600, B600 },
+#endif
+#ifdef B1200
+    { 1200, B1200 },
+#endif
+#ifdef B1200
+    { 1200, B1200 },
+#endif
+#ifdef B1800
+    { 1800, B1800 },
+#endif
+#ifdef B2400
+    { 2400, B2400 },
+#endif
+#ifdef B4800
+    { 4800, B4800 },
+#endif
+#ifdef B9600
+    { 9600, B9600 },
+#endif
+#ifdef B19200
+    { 19200, B19200 },
+#endif
+#ifdef B38400
+    { 38400, B38400 },
+#endif
+#ifdef B57600
+    { 57600, B57600 },
+#endif
+#ifdef B76800
+    { 76800, B76800 },
+#endif
+#ifdef B115200
+    { 115200, B115200 },
+#endif
+#ifdef B153600
+    { 153600, B153600 },
+#endif
+#ifdef B230400
+    { 230400, B230400 },
+#endif
+#ifdef B307200
+    { 307200, B307200 },
+#endif
+#ifdef B460800
+    { 460800, B460800 },
+#endif
+  };
 
-	code &= CBAUD;
-	for (i = 0; tcspeeds[i].code; i++)
-		if (tcspeeds[i].code == code)
-			return tcspeeds[i].number;
+
+/* Set both the input and output baud rates stored in *TERMIOS_P to SPEED.  */
+int cfsetspeed (struct termios *termios_p, speed_t speed)
+{
+  size_t cnt;
+
+  for (cnt = 0; cnt < sizeof (speeds) / sizeof (speeds[0]); ++cnt)
+    if (speed == speeds[cnt].internal)
+      {
+	cfsetispeed (termios_p, speed);
+	cfsetospeed (termios_p, speed);
 	return 0;
-}
+      }
+    else if (speed == speeds[cnt].value)
+      {
+	cfsetispeed (termios_p, speeds[cnt].internal);
+	cfsetospeed (termios_p, speeds[cnt].internal);
+	return 0;
+      }
 
-speed_t tcspeed_from_number(number)
-int number;
-{
-	int i;
+  __set_errno (EINVAL);
 
-	for (i = 0; tcspeeds[i].code; i++)
-		if (tcspeeds[i].number == number)
-			return tcspeeds[i].code;
-	return B0;
-}
-#endif
-
-#ifdef L_cfgetospeedn
-int cfgetospeedn(tp)
-struct termios *tp;
-{
-	return tcspeed_to_number(cfgetospeed(tp));
+  return -1;
 }
 #endif
 
-#ifdef L_cfgetispeedn
-int cfgetispeedn(tp)
-struct termios *tp;
-{
-	return tcspeed_to_number(cfgetispeed(tp));
-}
-#endif
-
-#ifdef L_cfsetospeedn
-int cfsetospeedn(tp, speed)
-struct termios *tp;
-int speed;
-{
-	return cfsetospeed(tp, tcspeed_from_number(speed));
-}
-#endif
-
-#ifdef L_cfsetispeedn
-int cfsetispeedn(tp, speed)
-struct termios *tp;
-int speed;
-{
-	return cfsetispeedn(tp, tcspeed_from_number(speed));
-}
-#endif
-
-#endif
-
-/* From linux libc-4.6.27 again */
 #ifdef L_cfmakeraw
-/* Copyright (C) 1992 Free Software Foundation, Inc.
-This file is part of the GNU C Library.*/
+/* Copyright (C) 1992, 1996, 1997 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+*/
+#include <termios.h>
 
-void cfmakeraw(t)
-struct termios *t;
+/* Set *T to indicate raw mode.  */
+void
+cfmakeraw (t)
+     struct termios *t;
 {
-/* I changed it to the current form according to the suggestions 
- * from Bruce Evans. Thanks Bruce. Please report the problems to
- * H.J. Lu (hlu@eecs.wsu.edu).
- */
-
-/*
- * I took out the bits commented out by #if 1...#else    - RHP
- */
-
-	/*  VMIN = 0 means non-blocking for Linux */
-	t->c_cc[VMIN] = 1;
-	t->c_cc[VTIME] = 1;
-	/* clear some bits with &= ~(bits), set others with |= */
-	t->c_cflag &= ~(CSIZE | PARENB | CSTOPB);
-	t->c_cflag |= (CS8 | HUPCL | CREAD);
-	t->c_iflag &= ~(IGNBRK | BRKINT | PARMRK | INPCK | ISTRIP);
-	t->c_iflag &= ~(INLCR | IGNCR | ICRNL | IXON | IXOFF);
-	t->c_iflag |= (BRKINT | IGNPAR);
-	t->c_oflag &=
-		~(OPOST | OLCUC | OCRNL | ONOCR | ONLRET | OFILL | OFDEL);
-	t->c_oflag &= ~(NLDLY | CRDLY | TABDLY | BSDLY | VTDLY | FFDLY);
-	t->c_oflag |= (ONLCR | NL0 | CR0 | TAB3 | BS0 | VT0 | FF0);
-	t->c_lflag &=
-		~(ISIG | ICANON | IEXTEN | ECHO | ECHOE | ECHOK | ECHONL);
-	t->c_lflag &= ~(NOFLSH | XCASE);
-	t->c_lflag &= ~(ECHOPRT | ECHOCTL | ECHOKE);
+  t->c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON);
+  t->c_oflag &= ~OPOST;
+  t->c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
+  t->c_cflag &= ~(CSIZE|PARENB);
+  t->c_cflag |= CS8;
+  t->c_cc[VMIN] = 1;		/* read returns when one char is available.  */
+  t->c_cc[VTIME] = 0;
 }
 #endif
 
-#endif
