@@ -3,7 +3,7 @@
  * and on 32 bit machines this sends things into the kernel as
  * two 32-bit arguments (high and low 32 bits of length) that 
  * are ordered based on endianess.  It turns out endian.h has
- * just the macro we need to order things (__LONG_LONG_PAIR).
+ * just the macro we need to order things, __LONG_LONG_PAIR.
  *
  *  Copyright (C) 2002  Erik Andersen <andersen@codepoet.org>
  *
@@ -25,12 +25,14 @@
 _syscall2(int, ftruncate64, int, fd, __off64_t, length);
 #elif __WORDSIZE == 32
 #define __NR___ftruncate64 __NR_ftruncate64
-static inline _syscall3(int, __ftruncate64, int, fd, int, high_length, int, low_length);
+static inline _syscall3(int, __ftruncate64, int, fd, 
+	uint32_t, length_first_half, 
+	uint32_t, length_second_half);
 /* The exported ftruncate64 function.  */
 int ftruncate64 (int fd, __off64_t length)
 {
-    unsigned int low = length & 0xffffffff;
-    unsigned int high = length >> 32;
+    uint32_t low = length & 0xffffffff;
+    uint32_t high = length >> 32;
     return __ftruncate64(fd, __LONG_LONG_PAIR (high, low));
 }
 #else
