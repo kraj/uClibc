@@ -137,6 +137,36 @@ stdio
    take place on the stream.
 8) Right now, %m is not handled properly by printf when the format uses positional
    args.
+9) The FILEs created by glibc's fmemopen(), open_memstream(), and fopencookie()
+   are not capable of wide orientation.  The corresponding uClibc routines do
+   not have this limitation.
 
+glibc bugs that Ulrich Drepper has refused to acknowledge or comment on
+  ( http://sources.redhat.com/ml/libc-alpha/2003-09/ )
+-----------------------------------------------------------------------
+1) The C99 standard says that for printf, a %s conversion makes no special
+   provisions for multibyte characters.  SUSv3 is even more clear, stating
+   that bytes are written and a specified precision is in bytes.  Yet glibc
+   treats the arg as a multibyte string when a precision is specified and
+   not otherwise.
+2) Both C99 and C89 state that the %c conversion for scanf reads the exact
+   number of bytes specified by the optional field width (or 1 if not specified).
+   uClibc complies with the standard.  There is an argument that perhaps the
+   specified width should be treated as an upper bound, based on some historical
+   use.  However, such behavior should be mentioned in the Conformance document.
+3) glibc's scanf is broken regarding some numeric patterns.  Some invalid
+   strings are accepted as valid ("0x.p", "1e", digit grouped strings).
+   In spite of my posting examples clearly illustrating the bugs, they remain
+   unacknowledged by the glibc developers.
+4) glibc's scanf seems to require a 'p' exponent for hexadecimal float strings.
+   According to the standard, this is optional.
+5) C99 requires that once an EOF is encountered, the stream should be treated
+   as if at end-of-file even if more data becomes available.  Further reading
+   can be attempted by clearing the EOF flag though, via clearerr() or a file
+   positioning function.  For details concerning the original change, see
+   Defect Report #141.  glibc is currently non-compliant, and the developers
+   did not comment when I asked for their official position on this issue.
+6) glibc's collation routines and/or localedef are broken regarding implicit
+   and explicit UNDEFINED rules.
 
 More to follow as I think of it...
