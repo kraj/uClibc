@@ -17,7 +17,6 @@
 
 /*  TODO:
  *  Implement the shared mmap code so non-mmu platforms can use this.
- *  Implement nl_langinfo() for the stub locale support.
  *  Add some basic collate functionality similar to what the previous
  *    locale support had (8-bit codesets only).
  */
@@ -481,10 +480,100 @@ void _locale_set(const unsigned char *p)
 /**********************************************************************/
 #ifdef L_nl_langinfo
 
-#ifndef __LOCALE_C_ONLY
-
 #include <langinfo.h>
 #include <nl_types.h>
+
+#ifdef __LOCALE_C_ONLY
+
+/* We need to index 300 bytes of data, so you might initially think we
+ * need to store the offsets in shorts.  But since the offset of the
+ * 64th item is 231, we'll store "offset - 64" for all items >= 64
+ * and always calculate the data offset as "offset[i] + (i & 64)".
+ * This allows us to pack the data offsets in an unsigned char while
+ * also avoiding an "if".
+ *
+ * Note: Category order is assumed to be:
+ *   ctype, numeric, monetary, time, collate, messages, all
+ */
+
+
+/* Combine the data to avoid size penalty for seperate char arrays when
+ * compiler aligns objects.  The original code is left in as documentation. */
+#define cat_start nl_data
+#define C_locale_data nl_data + LC_ALL + 1 + 78
+
+static const unsigned char nl_data[LC_ALL + 1 + 78 + 300] = {
+/*  static const unsigned char cat_start[LC_ALL + 1] = { */
+	'\x00', '\x01', '\x04', '\x1a', '\x4c', '\x4c', '\x4e', 
+/*  }; */
+/*  static const unsigned char item_offset[78] = { */
+	'\x00', '\x06', '\x07', '\x07', '\x07', '\x07', '\x07', '\x07', 
+	'\x07', '\x07', '\x07', '\x08', '\x08', '\x08', '\x08', '\x08', 
+	'\x08', '\x08', '\x08', '\x08', '\x08', '\x08', '\x08', '\x08', 
+	'\x08', '\x0a', '\x0c', '\x10', '\x14', '\x18', '\x1c', '\x20', 
+	'\x24', '\x28', '\x2f', '\x36', '\x3e', '\x48', '\x51', '\x58', 
+	'\x61', '\x65', '\x69', '\x6d', '\x71', '\x75', '\x79', '\x7d', 
+	'\x81', '\x85', '\x89', '\x8d', '\x91', '\x99', '\xa2', '\xa8', 
+	'\xae', '\xb2', '\xb7', '\xbc', '\xc3', '\xcd', '\xd5', '\xde', 
+	'\xa7', '\xaa', '\xad', '\xc2', '\xcb', '\xd4', '\xdf', '\xdf', 
+	'\xdf', '\xdf', '\xdf', '\xdf', '\xe0', '\xe6', 
+/*  }; */
+/*  static const unsigned char C_locale_data[300] = { */
+	   'A',    'S',    'C',    'I',    'I', '\x00',    '.', '\x00', 
+	'\x7f', '\x00',    '-', '\x00',    'S',    'u',    'n', '\x00', 
+	   'M',    'o',    'n', '\x00',    'T',    'u',    'e', '\x00', 
+	   'W',    'e',    'd', '\x00',    'T',    'h',    'u', '\x00', 
+	   'F',    'r',    'i', '\x00',    'S',    'a',    't', '\x00', 
+	   'S',    'u',    'n',    'd',    'a',    'y', '\x00',    'M', 
+	   'o',    'n',    'd',    'a',    'y', '\x00',    'T',    'u', 
+	   'e',    's',    'd',    'a',    'y', '\x00',    'W',    'e', 
+	   'd',    'n',    'e',    's',    'd',    'a',    'y', '\x00', 
+	   'T',    'h',    'u',    'r',    's',    'd',    'a',    'y', 
+	'\x00',    'F',    'r',    'i',    'd',    'a',    'y', '\x00', 
+	   'S',    'a',    't',    'u',    'r',    'd',    'a',    'y', 
+	'\x00',    'J',    'a',    'n', '\x00',    'F',    'e',    'b', 
+	'\x00',    'M',    'a',    'r', '\x00',    'A',    'p',    'r', 
+	'\x00',    'M',    'a',    'y', '\x00',    'J',    'u',    'n', 
+	'\x00',    'J',    'u',    'l', '\x00',    'A',    'u',    'g', 
+	'\x00',    'S',    'e',    'p', '\x00',    'O',    'c',    't', 
+	'\x00',    'N',    'o',    'v', '\x00',    'D',    'e',    'c', 
+	'\x00',    'J',    'a',    'n',    'u',    'a',    'r',    'y', 
+	'\x00',    'F',    'e',    'b',    'r',    'u',    'a',    'r', 
+	   'y', '\x00',    'M',    'a',    'r',    'c',    'h', '\x00', 
+	   'A',    'p',    'r',    'i',    'l', '\x00',    'M',    'a', 
+	   'y', '\x00',    'J',    'u',    'n',    'e', '\x00',    'J', 
+	   'u',    'l',    'y', '\x00',    'A',    'u',    'g',    'u', 
+	   's',    't', '\x00',    'S',    'e',    'p',    't',    'e', 
+	   'm',    'b',    'e',    'r', '\x00',    'O',    'c',    't', 
+	   'o',    'b',    'e',    'r', '\x00',    'N',    'o',    'v', 
+	   'e',    'm',    'b',    'e',    'r', '\x00',    'D',    'e', 
+	   'c',    'e',    'm',    'b',    'e',    'r', '\x00',    'A', 
+	   'M', '\x00',    'P',    'M', '\x00',    '%',    'a',    ' ', 
+	   '%',    'b',    ' ',    '%',    'e',    ' ',    '%',    'H', 
+	   ':',    '%',    'M',    ':',    '%',    'S',    ' ',    '%', 
+	   'Y', '\x00',    '%',    'm',    '/',    '%',    'd',    '/', 
+	   '%',    'y', '\x00',    '%',    'H',    ':',    '%',    'M', 
+	   ':',    '%',    'S', '\x00',    '%',    'I',    ':',    '%', 
+	   'M',    ':',    '%',    'S',    ' ',    '%',    'p', '\x00', 
+	   '^',    '[',    'y',    'Y',    ']', '\x00',    '^',    '[', 
+	   'n',    'N',    ']', '\x00', 
+};
+
+char *nl_langinfo(nl_item item)
+{
+	unsigned int c;
+	unsigned int i;
+
+	if ((c = _NL_ITEM_CATEGORY(item)) < LC_ALL) {
+		if ((i = cat_start[c] + _NL_ITEM_INDEX(item)) < cat_start[c+1]) {
+/*  			return (char *) C_locale_data + item_offset[i] + (i & 64); */
+			return (char *) C_locale_data + nl_data[LC_ALL+1+i] + (i & 64);
+		}
+	}
+	return (char *) cat_start;	/* Conveniently, this is the empty string. */
+}
+
+#else  /* __LOCALE_C_ONLY */
 
 static const char empty[] = "";
 
