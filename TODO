@@ -31,9 +31,6 @@ TODO list for the uClibc 1.0.0 release:
     *) Implement the float and long double versions of math funcs
 	using wrappers on top of the double versions (size / precision
 	trade off where size clearly wins).
-    *) Delete current profiling code (because it is complete crap
-	and only works properly when static + PIC, and because it is
-	quite intrusive, and because there are better ways to profile)
     *) Fix profiling by adding missing stub functions per
 	http://uclibc.org/lists/uclibc/2004-February/008167.html
 	and used by, i.e. http://www710.univ-lyon1.fr/~yperret/fnccheck/
