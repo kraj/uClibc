@@ -99,13 +99,21 @@
  * is done.  This routine has to exit the current function, then 
  * call the _dl_elf_main function.
  */
+
+/* hgb@ifi.uio.no:
+ * Adding a clobber list consisting of r0 for %1.  addi on PowerPC
+ * takes a register as the second argument, but if the register is
+ * r0, the value 0 is used instead.  If r0 is used here, the stack
+ * pointer (r1) will be zeroed, and the dynamically linked
+ * application will seg.fault immediatly when receiving control.
+ */
 #define START()		\
 	__asm__ volatile ( \
 		    "addi 1,%1,0\n\t" \
 		    "mtlr %0\n\t" \
 		    "blrl\n\t"	\
-		    : :	"r" (_dl_elf_main), "r" (args))
-
+		    : : "r" (_dl_elf_main), "r" (args) \
+		    : "r0")
 
 
 /* Here we define the magic numbers that this dynamic loader should accept */
