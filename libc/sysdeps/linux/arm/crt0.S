@@ -12,39 +12,35 @@
 	a2=argv[0]
 	a3=argv[argc+1]
 
-This file now uses the register naming from the ARM Procedure Calling Standard
+ARM register quick reference:
 
-    Name    Number      APCS Role
+    Name    Number       ARM Procedure Calling Standard Role
 
-    a1      0           argument 1 / integer result / scratch register / argc
-    a2      1           argument 2 / scratch register / argv
-    a3      2           argument 3 / scratch register / envp
-    a4      3           argument 4 / scratch register
-    v1      4           register variable
-    v2      5           register variable
-    v3      6           register variable
-    v4      7           register variable
-    v5      8           register variable
-    sb/v6   9           static base / register variable
-    sl/v7   10          stack limit / stack chunk handle / reg. variable
-    fp      11          frame pointer
-    ip      12          scratch register / new-sb in inter-link-unit calls
-    sp      13          lower end of current stack frame
-    lr      14          link address / scratch register
-    pc      15          program counter
+    a1      r0           argument 1 / integer result / scratch register / argc
+    a2      r1           argument 2 / scratch register / argv
+    a3      r2           argument 3 / scratch register / envp
+    a4      r3           argument 4 / scratch register
+    v1      r4           register variable
+    v2      r5           register variable
+    v3      r6           register variable
+    v4      r7           register variable
+    v5      r8           register variable
+    sb/v6   r9           static base / register variable
+    sl/v7   r10          stack limit / stack chunk handle / reg. variable
+    fp      r11          frame pointer
+    ip      r12          scratch register / new-sb in inter-link-unit calls
+    sp      r13          lower end of current stack frame
+    lr      r14          link address / scratch register
+    pc      r15          program counter
 */
 
 
 .text
-	.align 2
-	.global __environ
 	.global _start
-	.global exit
-	.global main
+	.global __uClibc_main
 
 	.type   _start,%function
-	.type   exit,%function
-	.type   main,%function
+	.type   __uClibc_main,%function
 
 .text
 _start:
@@ -52,35 +48,17 @@ _start:
 	/* clear the frame pointer */
 	mov     fp, #0
 
-	/* Load register a1 (argc) from the stack to its final resting place */
-	ldr     a1, [sp], #4
+	/* Load register r0 (argc) from the stack to its final resting place */
+	ldr     r0, [sp], #4
 
-	/* Copy argv pointer into a2 -- which its final resting place */
-	mov     a2, sp
+	/* Copy argv pointer into r1 -- which its final resting place */
+	mov     r1, sp
 
-	/* Set up environ,  skip to the end of argv, and put 
-	 * a pointer to whatever we find there (hopefully the
-	 environment) in a3 */
-	ldr     a4, .L3
-	add     a3, a2, a1, lsl #2
-	add     a3, a3, #4
-	str     a3, [a4, #0]
+	/* Skip to the end of argv and put a pointer to whatever 
+	   we find there (hopefully the environment) in a3 */
+	add     r2, r1, r0, lsl #2
+	add     r2, r2, #4
 
-	bl      main
-	bl      exit
-
-.align 2
-.L3:
-	.word __environ
-
-
-.data
-	.align 2
-	.global __environ
-	
-__environ:  
-	.long 0
-
-.weak environ
-environ = __environ
+	/* Ok, now run uClibc's main() -- shouldn't return */
+	bl	__uClibc_main
 

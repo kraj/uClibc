@@ -14,37 +14,32 @@
 
 ARM register quick reference:
 
-    Name    Number      APCS Role
+    Name    Number       ARM Procedure Calling Standard Role
 
-    a1      0           argument 1 / integer result / scratch register / argc
-    a2      1           argument 2 / scratch register / argv
-    a3      2           argument 3 / scratch register / envp
-    a4      3           argument 4 / scratch register
-    v1      4           register variable
-    v2      5           register variable
-    v3      6           register variable
-    v4      7           register variable
-    v5      8           register variable
-    sb/v6   9           static base / register variable
-    sl/v7   10          stack limit / stack chunk handle / reg. variable
-    fp      11          frame pointer
-    ip      12          scratch register / new-sb in inter-link-unit calls
-    sp      13          lower end of current stack frame
-    lr      14          link address / scratch register
-    pc      15          program counter
+    a1      r0           argument 1 / integer result / scratch register / argc
+    a2      r1           argument 2 / scratch register / argv
+    a3      r2           argument 3 / scratch register / envp
+    a4      r3           argument 4 / scratch register
+    v1      r4           register variable
+    v2      r5           register variable
+    v3      r6           register variable
+    v4      r7           register variable
+    v5      r8           register variable
+    sb/v6   r9           static base / register variable
+    sl/v7   r10          stack limit / stack chunk handle / reg. variable
+    fp      r11          frame pointer
+    ip      r12          scratch register / new-sb in inter-link-unit calls
+    sp      r13          lower end of current stack frame
+    lr      r14          link address / scratch register
+    pc      r15          program counter
 */
 
 .text
-	.align 2
-	.global __environ
 	.global _start
-	.global exit
-	.global main
+	.global __uClibc_main
 
 	.type   _start,%function
-	.type   exit,%function
-	.type   main,%function
-
+	.type   __uClibc_main,%function
 
 
 @ r0 = argc
@@ -60,31 +55,11 @@ _start:
 	sub sl,sl,r3
 	mov BASEREG,sl
 
-	ldr r3, .L3
-	str r2,[BASEREG,r3]
-	
 	/* pull argc, argv and envp off the stack */
 	ldr r0,[sp, #0]
 	ldr r1,[sp, #4]
 	ldr r2,[sp, #8]
 
-	bl      main
-/*	ldr r0,=0  */
-	bl      exit
-
-.align 2
-.L3:
-	.word __environ
-
-
-.data
-	.align 2
-	.global __environ
-	
-__environ:  
-	.long 0
-
-.weak environ
-environ = __environ
-
+	/* Ok, now run uClibc's main() -- shouldn't return */
+	bl	__uClibc_main
 
