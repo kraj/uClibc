@@ -1003,7 +1003,7 @@ _syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t,
 #endif	
 
 //#define __NR_poll                     168
-#ifdef L_poll
+#if defined(L_poll) && defined(__NR_poll) /* uClinux 2.0 doesn't have poll */
 #include <sys/poll.h>
 _syscall3(int, poll, struct pollfd *, fds, unsigned long int, nfds, int, timeout);
 #endif
