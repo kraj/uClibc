@@ -40,7 +40,7 @@ config ADD_LIBGCC_FUNCTIONS
 	  into every binary.  If you have compiled uClibc as PIC code, one
 	  potential size effect of this option is that you may end up adding
 	  non-PIC libgcc code into your shared uClibc library, resulting in a
-	  non shareable text segment (thereby wasting a bunch of ram).  If your
+	  non sharable text segment (thereby wasting a bunch of ram).  If your
 	  compiler supports a shared libgcc library, you should certainly leave
 	  this option disabled.  Regardless, the safest answer is N.
 
@@ -131,7 +131,7 @@ config UCLIBC_PROFILING
 
 	  If none of these tools do what you need, you can of course enable
 	  this option, rebuild everything, and use 'gprof'.  There is both a
-	  size and performance penelty to profiling your applications this way,
+	  size and performance penalty to profiling your applications this way,
 	  so most people should answer N.
 
 config UCLIBC_HAS_THREADS
@@ -423,13 +423,13 @@ config UCLIBC_HAS_LOCALE
 	select UCLIBC_HAS_CTYPE_TABLES
 	default n
 	help
-	  uClibc now has full ansi/iso C99 locale support (except for
+	  uClibc now has full ANSI/ISO C99 locale support (except for
 	  wcsftime() and collating items in regex).  Be aware that enabling
 	  this option will make uClibc much larger.  
 	  
 	  Enabling UCLIBC_HAS_LOCALE with the default set of supported locales
 	  (169 UTF-8 locales, and 144 locales for other codesets) will enlarge
-	  uClibc by arond 300k.  You can reduce this size by building your own
+	  uClibc by around 300k.  You can reduce this size by building your own
 	  custom set of locate data (see extra/locale/LOCALES for details).
 
 	  uClibc's locale support is still under development.  For example,
@@ -616,7 +616,7 @@ choice
 	  succeed but the FILE will be unbuffered.
 
 	  This option adds a small amount of space to each FILE to act as an
-	  emergeny buffer in the event of a buffer allocation failure.
+	  emergency buffer in the event of a buffer allocation failure.
 
 	  Most people will answer None.
 
@@ -873,7 +873,7 @@ config DEVEL_PREFIX
 	          lib/            <contains all runtime and static libs>
 		  include/        <Where all the header files go>
 	  This value is used by the 'make install' Makefile target.  Since this
-	  directory is compiled into the uclibc cross compiler spoofer, you
+	  directory is compiled into the uclibc cross compiler wrapper, you
 	  have to recompile uClibc if you change this value...
 
 config SYSTEM_DEVEL_PREFIX
