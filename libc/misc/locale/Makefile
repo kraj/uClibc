@@ -1,7 +1,7 @@
 # Makefile for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000,2001 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2002 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -33,7 +33,7 @@ ifeq ($(HAS_LOCALE),true)
 	OBJS += locale_data.o
 endif
 
-all: $(OBJS) $(LIBC)
+all: data $(OBJS) $(LIBC)
 
 $(LIBC): ar-target
 
@@ -46,6 +46,12 @@ $(MOBJ): $(MSRC)
 
 $(OBJS): Makefile
 
+data:
+ifeq ($(HAS_LOCALE),true)
+	make -C $(TOPDIR)/extra/locale
+endif
+
 clean:
 	rm -f *.[oa] *~ core
 
+.PHONY: data

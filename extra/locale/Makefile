@@ -1,5 +1,6 @@
 
 TOPDIR = ../../
+EXTRA_LOCALE_DIR:=${shell cd $(TOPDIR)/extra/locale && pwd}
 include $(TOPDIR)Rules.mak
 
 CFLAGS_wc8bit=-DCTYPE_PACKED=1
@@ -17,7 +18,8 @@ codesets.txt:
 	    echo " "; \
 	    echo "You do not have a codesets.txt file.  Please create this "; \
 	    echo "file in the extra/locale directory by running something like: "; \
-	    echo -e "  find ./charmaps -name \"*.pairs\" > ./codesets.txt"; \
+	    echo -e "  find $(EXTRA_LOCALE_DIR)/charmaps -name \"*.pairs\" > \\"; \
+	    echo -e "        $(EXTRA_LOCALE_DIR)/codesets.txt"; \
 	    echo "and then edit that file to disable/enable the codesets you wish to support. "; \
 	    echo " "; \
 	    /bin/false; \
@@ -51,9 +53,12 @@ locales.txt:
 	@if [ ! -f locales.txt ] ; then \
 	    set -e; \
 	    echo " "; \
-	    echo "You do not have a locales.txt file.  In the extra/locale "; \
-	    echo "directory, Please copy the LOCALES file to locales.txt and "; \
-	    echo "then edit that file to disable/enable the locales you wish "; \
+	    echo "You do not have a locales.txt file in the extra/locale "; \
+	    echo "directory, Please copy the LOCALES file to locales.txt by "; \
+	    echo "running something like: "; \
+	    echo "  cp $(EXTRA_LOCALE_DIR)/LOCALES \\ "; \
+	    echo "      $(EXTRA_LOCALE_DIR)/locales.txt "; \
+	    echo "then edit locales.txt to disable/enable the locales you wish "; \
 	    echo "to support. "; \
 	    echo " "; \
 	    /bin/false; \
