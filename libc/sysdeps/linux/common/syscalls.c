@@ -1026,6 +1026,9 @@ loff_t llseek(int fd, loff_t offset, int whence)
 
 	return ret ? (loff_t) ret : result;
 }
+#ifdef __UCLIBC_HAVE_LFS__
+weak_alias(llseek, lseek64);
+#endif
 #endif
 
 //#define __NR_getdents         141
@@ -1220,5 +1223,112 @@ _syscall3(int, chown, const char *, path, uid_t, owner, gid_t, group);
 
 //#define __NR_vfork                    190
 //See sysdeps/linux/<arch>vfork.[cS] for architecture specific implementation...
+
+#ifdef __UCLIBC_HAVE_LFS__
+
+//#define __NR_truncate64         193
+#ifdef L_truncate64
+#include <unistd.h>
+_syscall2(int, truncate64, const char *, path, __off64_t, length);
+#endif
+
+//#define __NR_ftruncate64        194
+#ifdef L_ftruncate64
+#include <unistd.h>
+_syscall2(int, ftruncate64, int, fd, __off64_t, length);
+#endif
+
+
+//#define __NR_stat64             195
+#ifdef L___stat64
+#include <unistd.h>
+#include "statfix64.h"
+#define __NR___stat64	__NR_stat64
+#ifdef __STR_NR_stat64
+#define __STR_NR___stat64	__STR_NR_stat64
+#endif
+extern int __stat64(const char *file_name, struct kernel_stat64 *buf);
+_syscall2(int, __stat64, const char *, file_name, struct kernel_stat64 *, buf);
+
+int __xstat64(int version, const char * file_name, struct libc_stat64 * cstat)
+{
+	struct kernel_stat64 kstat;
+	int result = __stat64(file_name, &kstat);
+
+	if (result == 0) { 
+		statfix64(cstat, &kstat);
+	}
+	return result;
+}
+
+int stat64(const char *file_name, struct libc_stat64 *buf)
+{
+	return(__xstat64(0, file_name, buf));
+}
+#endif
+
+//#define __NR_lstat64            196
+#ifdef L___lstat64
+#include <unistd.h>
+#include "statfix64.h"
+#define __NR___lstat64	__NR_lstat64
+#ifdef __STR_NR_lstat64
+#define __STR_NR___lstat64	__STR_NR_lstat64
+#endif
+extern int __lstat64(const char *file_name, struct kernel_stat64 *buf);
+_syscall2(int, __lstat64, const char *, file_name, struct kernel_stat64 *, buf);
+
+int __lxstat64(int version, const char * file_name, struct libc_stat64 * cstat)
+{
+	struct kernel_stat64 kstat;
+	int result = __lstat64(file_name, &kstat);
+
+	if (result == 0) { 
+		statfix64(cstat, &kstat);
+	}
+	return result;
+}
+
+int lstat64(const char *file_name, struct libc_stat64 *buf)
+{
+	return(__lxstat64(0, file_name, buf));
+}
+#endif
+
+//#define __NR_fstat64            197
+#ifdef L___fstat64
+#include <unistd.h>
+#include "statfix64.h"
+#define __NR___fstat64	__NR_fstat64
+#ifdef __STR_NR_fstat64
+#define __STR_NR___fstat64	__STR_NR_fstat64
+#endif
+extern int __fstat64(int filedes, struct kernel_stat64 *buf);
+_syscall2(int, __fstat64, int, filedes, struct kernel_stat64 *, buf);
+
+int __fxstat64(int version, int fd, struct libc_stat64 * cstat)
+{
+	struct kernel_stat64 kstat;
+	int result = __fstat64(fd, &kstat);
+
+	if (result == 0) { 
+		statfix64(cstat, &kstat);
+	}
+	return result;
+}
+
+int fstat64(int filedes, struct libc_stat64 *buf)
+{
+	return(__fxstat64(0, filedes, buf));
+}
+#endif
+
+
+//#define __NR_getdents64         220
+//#define __NR_fcntl64            221
+
+
+#endif /* __UCLIBC_HAVE_LFS__ */
+
 
 

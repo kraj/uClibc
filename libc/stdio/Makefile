@@ -24,14 +24,12 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 MSRC=stdio.c
-MOBJ=_stdio_init.o \
-     _alloc_stdio_buffer.o _free_stdio_buffer_of_file.o _free_stdio_stream.o \
-     clearerr.o feof.o ferror.o fileno.o \
-     setbuffer.o setvbuf.o setbuf.o setlinebuf.o \
-     fclose.o _fopen.o fopen.o freopen.o fdopen.o fflush.o fsfopen.o \
-     fseek.o rewind.o ftell.o fgetpos.o fsetpos.o \
-     fputc.o fgetc.o fgets.o gets.o fputs.o puts.o ungetc.o \
-     fread.o fwrite.o getchar.o putchar.o _uClibc_fwrite.o _uClibc_fread.o
+MOBJ=_stdio_init.o _alloc_stdio_buffer.o _free_stdio_buffer_of_file.o \
+     _free_stdio_stream.o clearerr.o feof.o ferror.o fileno.o setbuffer.o \
+     setvbuf.o setbuf.o setlinebuf.o fclose.o _fopen.o fopen.o freopen.o \
+     fdopen.o fflush.o fsfopen.o fseek.o rewind.o ftell.o fgetpos.o fsetpos.o \
+     fputc.o fgetc.o fgets.o gets.o fputs.o puts.o ungetc.o fread.o fwrite.o \
+     getchar.o putchar.o _uClibc_fwrite.o _uClibc_fread.o fopen64.o
 
 MSRC2=printf.c
 MOBJ2=printf.o sprintf.o fprintf.o vprintf.o vsprintf.o vfprintf.o snprintf.o \

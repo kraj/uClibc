@@ -166,6 +166,11 @@ uClibc_config.h: Makefile Config
 	    echo "#undef __UCLIBC_USE_UNIFIED_SYSCALL__" >> uClibc_config.h ; \
 	fi
 	@echo "#define C_SYMBOL_PREFIX "\""$(C_SYMBOL_PREFIX)"\" >> uClibc_config.h
+	@if [ "$(DOLFS)" = "true" ] ; then \
+	    echo "#define __UCLIBC_HAVE_LFS__ 1" >> uClibc_config.h ; \
+	else \
+	    echo "#undef __UCLIBC_HAVE_LFS__" >> uClibc_config.h ; \
+	fi
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 

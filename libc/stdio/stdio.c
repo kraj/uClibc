@@ -53,7 +53,8 @@ extern off_t _uClibc_fread(unsigned char *buf, off_t bytes, FILE *fp);
 
 /* Used internally to actually open files */
 extern FILE *__fopen __P((__const char *__restrict __filename, int __fd,
-	                FILE *__restrict __stream, __const char *__restrict __mode));
+	                FILE *__restrict __stream, __const char *__restrict __mode,
+			int extra_modes));
 
 /* Note: This def of READING is ok since 1st ungetc puts in buf. */
 #define READING(fp) (fp->bufstart < fp->bufread)
@@ -655,11 +656,12 @@ static __inline FILE *_alloc_stdio_stream(void)
 	return fp;
 }
 
-FILE *__fopen(fname, fd, fp, mode)
+FILE *__fopen(fname, fd, fp, mode, extra_modes)
 const char *fname;
 int fd;
 FILE *fp;
 const char *mode;
+int extra_modes;
 {
 	FILE *nfp;
 	unsigned char *p;
@@ -671,13 +673,13 @@ const char *mode;
 	/* Parse the mode string arg. */
 	switch (*mode++) {
 		case 'r':				/* read */
-			open_mode = O_RDONLY;
+			open_mode = O_RDONLY | extra_modes;
 			break;
 		case 'w':				/* write (create or truncate)*/
-			open_mode = (O_WRONLY | O_CREAT | O_TRUNC);
+			open_mode = (O_WRONLY | O_CREAT | O_TRUNC | extra_modes);
 			break;
 		case 'a':				/* write (create or append) */
-			open_mode = (O_WRONLY | O_CREAT | O_APPEND);
+			open_mode = (O_WRONLY | O_CREAT | O_APPEND | extra_modes);
 			break;
 		default:				/* illegal mode */
 			__set_errno(EINVAL);
@@ -958,7 +960,7 @@ FILE *fp;
 FILE *fopen(const char *__restrict filename,
 			const char *__restrict mode)
 {
-	return __fopen(filename, -1, NULL, mode);
+	return __fopen(filename, -1, NULL, mode, 0);
 }
 #endif
 
@@ -974,7 +976,7 @@ FILE *freopen(__const char *__restrict filename,
 	fp->mode &= (__MODE_FREEFIL | __MODE_FREEBUF); /* Reset the FILE modes. */
 	fp->mode |= _IOFBF;
 
-	return __fopen(filename, -1, fp, mode);
+	return __fopen(filename, -1, fp, mode, 0);
 }
 #endif
 
@@ -986,7 +988,7 @@ FILE *fsfopen(__const char *__restrict filename,
 	fp->bufstart = fp->unbuf;
 	fp->bufend = fp->unbuf + sizeof(fp->unbuf);
 
-	return __fopen(filename, -1, fp, mode);
+	return __fopen(filename, -1, fp, mode, 0);
 }
 #endif
 
@@ -994,7 +996,7 @@ FILE *fsfopen(__const char *__restrict filename,
 #undef fdopen
 FILE *fdopen(int fd, __const char *mode)
 {
-	return __fopen(NULL, fd, NULL, mode);
+	return __fopen(NULL, fd, NULL, mode, 0);
 }
 #endif
 
@@ -1074,3 +1076,17 @@ int fsetpos(FILE *fp, __const fpos_t *pos)
 	return EOF;
 }
 #endif
+
+#ifdef L_fopen64
+#ifdef __UCLIBC_HAVE_LFS__
+#ifndef O_LARGEFILE
+#define O_LARGEFILE	0100000
+#endif
+FILE *fopen64(const char *__restrict filename,
+			const char *__restrict mode)
+{
+	return __fopen(filename, -1, NULL, mode, O_LARGEFILE);
+}
+#endif /* __UCLIBC_HAVE_LFS__ */
+#endif
+
