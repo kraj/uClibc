@@ -72,8 +72,8 @@ extern int isxupper(int c) __THROW;	/* uClibc-specific. */
 
 #define __isascii(c) (((c) & ~0x7f) == 0)
 #define __toascii(c) ((c) & 0x7f)
-#define _tolower(c)  (isupper(c) ? tolower(c) : (c))
-#define _toupper(c)  (islower(c) ? toupper(c) : (c))
+#define _toupper(c) ((c) ^ 0x20)
+#define _tolower(c) ((c) | 0x20)
 
 
 /* For compatibility with older versions of uClibc.  Are these ever used? */
