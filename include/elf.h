@@ -258,6 +258,8 @@ typedef struct
 #define EM_CYGNUS_FRV	0x5441
 
 #define EM_ALPHA	0x9026
+#define EM_NIOS32	0xfebb		/* Altera Nios 32 */
+#define EM_ALTERA_NIOS2  0x9ee5	/* Altera Nios II */
 
 /* V850 backend magic number.  Written in the absense of an ABI.  */
 #define EM_CYGNUS_V850 0x9080
@@ -2553,6 +2555,56 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_H8_DIR32A16  63
 #define R_H8_ABS32     65
 #define R_H8_ABS32A16 127
+
+/* Altera NIOS specific definitions.  */
+
+/* NIOS relocations. */
+#define R_NIOS_NONE				0
+#define R_NIOS_32				1	/* A 32 bit absolute relocation.*/
+#define R_NIOS_LO16_LO5			2	/* A LO-16 5 bit absolute relocation.  */
+#define R_NIOS_LO16_HI11		3	/* A LO-16 top 11 bit absolute relocation.  */
+#define R_NIOS_HI16_LO5			4	/* A HI-16 5 bit absolute relocation.  */
+#define R_NIOS_HI16_HI11		5	/* A HI-16 top 11 bit absolute relocation.  */
+#define R_NIOS_PCREL6			6	/* A 6 bit relative relocation.  */
+#define R_NIOS_PCREL8			7	/* An 8 bit relative relocation.  */
+#define R_NIOS_PCREL11			8	/* An 11 bit relative relocation.  */
+#define R_NIOS_16				9	/* A 16 bit absolute relocation.  */
+#define R_NIOS_H_LO5			10	/* Low 5-bits of absolute relocation in halfwords.  */
+#define R_NIOS_H_HI11			11	/* Top 11 bits of 16-bit absolute relocation in halfwords.  */
+#define R_NIOS_H_XLO5			12	/* Low 5 bits of top 16-bits of 32-bit absolute relocation in halfwords.  */
+#define R_NIOS_H_XHI11			13	/* Top 11 bits of top 16-bits of 32-bit absolute relocation in halfwords.  */
+#define R_NIOS_H_16				14	/* Half-word @h value */
+#define R_NIOS_H_32				15	/* Word @h value */
+#define R_NIOS_GNU_VTINHERIT	200	/* GNU extension to record C++ vtable hierarchy */
+#define R_NIOS_GNU_VTENTRY		201	/* GNU extension to record C++ vtable member usage */
+/* Keep this the last entry.  */
+#define R_NIOS_NUM				202
+
+/* NIOS II relocations */
+#define R_NIOS2_NONE			0
+#define R_NIOS2_S16				1
+#define R_NIOS2_U16				2
+#define R_NIOS2_PCREL16			3
+#define R_NIOS2_CALL26			4
+#define R_NIOS2_IMM5			5
+#define R_NIOS2_CACHE_OPX 		6
+#define R_NIOS2_IMM6			7
+#define R_NIOS2_IMM8			8
+#define R_NIOS2_HI16			9
+#define R_NIOS2_LO16			10
+#define R_NIOS2_HIADJ16 		11
+#define R_NIOS2_BFD_RELOC_32	12
+#define R_NIOS2_BFD_RELOC_16	13
+#define R_NIOS2_BFD_RELOC_8 	14
+#define R_NIOS2_GPREL			15
+#define R_NIOS2_GNU_VTINHERIT 	16
+#define R_NIOS2_GNU_VTENTRY  	17
+#define R_NIOS2_UJMP			18
+#define R_NIOS2_CJMP			19
+#define R_NIOS2_CALLR			20
+#define R_NIOS2_ALIGN			21
+/* Keep this the last entry.  */
+#define R_NIOS2_NUM				22
 
 __END_DECLS
 
