@@ -1,46 +1,66 @@
+/*
+ * Modified     3/03/2001       Manuel Novoa III
+ *
+ * Added check for legal mode arg.
+ * Call fdopen and check return value before forking.
+ * Reduced code size by using variables pr and pnr instead of array refs.
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
 
-
-FILE *popen (const char *command, const char *modes)
+FILE *popen (const char *command, const char *mode)
 {
+	FILE *fp;
 	int pipe_fd[2];
 	int pid, reading;
+	int pr, pnr;
 
-	if (pipe(pipe_fd) < 0)
-		return NULL;
-	reading = (modes[0] == 'r');
-
-	pid = vfork();
-	if (pid < 0) {
-		close(pipe_fd[0]);
-		close(pipe_fd[1]);
-		return NULL;
-	}
-	if (pid == 0) {
-		close(pipe_fd[!reading]);
-		close(reading);
-		if (pipe_fd[reading] != reading) {
-			dup2(pipe_fd[reading], reading);
-			close(pipe_fd[reading]);
+	reading = (mode[0] == 'r');
+	if ((!reading && (mode[0] != 'w')) || mode[1]) {
+		errno = EINVAL;			/* Invalid mode arg. */
+	} else if (pipe(pipe_fd) == 0) {
+		pr = pipe_fd[reading];
+		pnr = pipe_fd[1-reading];
+		if ((fp = fdopen(pnr, mode)) != NULL) {
+			if ((pid = vfork()) == 0) {	/* vfork -- child */
+				close(pnr);
+				close(reading);
+				if (pr != reading) {
+					dup2(pr, reading);
+					close(pr);
+				}
+				execl("/bin/sh", "sh", "-c", command, (char *) 0);
+				_exit(255);		/* execl failed! */
+			} else {			/* vfork -- parent or failed */
+				close(pr);
+				if (pid > 0) {	/* vfork -- parent */
+					return fp;
+				} else {		/* vfork -- failed! */
+					fclose(fp);
+				}
+			}
+		} else {				/* fdopen failed */
+			close(pr);
+			close(pnr);
 		}
-
-		execl("/bin/sh", "sh", "-c", command, (char *) 0);
-		_exit(255);
 	}
-
-	close(pipe_fd[reading]);
-	return fdopen(pipe_fd[!reading], modes);
+	return NULL;
 }
 
 int pclose(FILE *fd)
 {
 	int waitstat;
 
-	if (fclose(fd) != 0)
+	if (fclose(fd) != 0) {
 		return EOF;
+	}
 	wait(&waitstat);
 	return waitstat;
 }
+
+
+
