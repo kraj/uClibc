@@ -120,6 +120,10 @@ _start:
 	hlt
 .size _start,.-_start
 
+	.section ".data"
+	.globl  __data_start
+__data_start:
+	.long 0
 
 #if defined L_gcrt1 && defined __UCLIBC_PROFILING__
 # include "./gmon-start.S"
