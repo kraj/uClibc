@@ -52,7 +52,7 @@ Make errno and endptr handling the default in the strto* functions and
 ds's list:
 
 Search for string literals that are not in the .rodata section.  (Varies
-by architecture.)
+by architecture and gcc version.)
 
 man pages for binaries
 
@@ -60,9 +60,12 @@ add basename() and dirname() for gettext
 
 add obstack stuff for gettext (?)
 
-setjmp() on powerpc
+check compiling without FP support -- are FP instructions still generated?
+Needs a uClibc_config.h entry dependent on HAS_FLOATING_POINT.
 
 getaddrinfo()
+
+Why does ld.so search /usr/powerpc-uclibc/lib before LD_LIBRARY_PATH?
 -----------------------------------------------------------------------------
 
 PORTING
