@@ -618,7 +618,7 @@ extern char *__des_crypt_r(const char *key, const char *setting, struct crypt_da
 			key++;
 	}
 
-	if (__des_setkey_r((char *)keybuf, data))
+	if (des_setkey_r((char *)keybuf, data))
 		return(NULL);
 
 #if 0
