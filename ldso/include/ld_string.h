@@ -60,7 +60,7 @@ static inline char * _dl_strcpy(char * dst,const char *src)
 
 	return ptr;
 }
- 
+
 static inline int _dl_strcmp(const char * s1,const char * s2)
 {
 	register unsigned char c1, c2;
@@ -114,8 +114,8 @@ static inline char *_dl_strrchr(const char *str, int c)
     while (*ptr != '\0') {
 	if (*ptr == c)
 	    prev = ptr;
-	ptr++;  
-    }   
+	ptr++;
+    }
     if (c == '\0')
 	return(ptr);
     return(prev);
@@ -126,7 +126,7 @@ static inline char *_dl_strstr(const char *s1, const char *s2)
 {
     register const char *s = s1;
     register const char *p = s2;
-    
+
     do {
         if (!*p) {
 	    return (char *) s1;;
@@ -162,7 +162,7 @@ static inline int _dl_memcmp(const void * s1,const void * s2,size_t len)
 	unsigned char *c2 = (unsigned char *)s2;
 
 	while (len--) {
-		if (*c1 != *c2) 
+		if (*c1 != *c2)
 			return *c1 - *c2;
 		c1++;
 		c2++;
@@ -200,8 +200,8 @@ static inline char *_dl_get_last_path_component(char *path)
 	while (*ptr != '\0') {
 	    if (*ptr == '/')
 		prev = ptr;
-	    ptr++;  
-	}   
+	    ptr++;
+	}
 	s = prev;
 
 	if (s == NULL || s[1] == '\0')
