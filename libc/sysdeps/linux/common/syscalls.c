@@ -1037,10 +1037,39 @@ _syscall1(pid_t, getsid, pid_t, pid);
 
 //#define __NR_fdatasync        148
 //#define __NR__sysctl          149
+
 //#define __NR_mlock            150
+#ifdef L_mlock
+#include <sys/mman.h>
+#	if defined __UCLIBC_HAS_MMU__ && defined __NR_mlock
+		_syscall2(int, mlock, const void *, addr, size_t, len);
+#	endif	
+#endif	
+
 //#define __NR_munlock          151
+#ifdef L_munlock
+#include <sys/mman.h>
+#	if defined __UCLIBC_HAS_MMU__ && defined __NR_munlock
+		_syscall2(int, munlock, const void *, addr, size_t, len);
+#	endif	
+#endif	
+
 //#define __NR_mlockall         152
+#ifdef L_mlockall
+#include <sys/mman.h>
+#	if defined __UCLIBC_HAS_MMU__ && defined __NR_mlockall
+		_syscall1(int, mlockall, int, flags);
+#	endif	
+#endif	
+
 //#define __NR_munlockall       153
+#ifdef L_munlockall
+#include <sys/mman.h>
+#	if defined __UCLIBC_HAS_MMU__ && defined L_munlockall
+		_syscall0(int, munlockall);
+#	endif	
+#endif	
+
 //#define __NR_sched_setparam   154
 //#define __NR_sched_getparam   155
 //#define __NR_sched_setscheduler       156
