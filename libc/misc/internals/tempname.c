@@ -127,15 +127,14 @@ static const char letters[] =
    We use a clever algorithm to get hard-to-predict names. */
 int __gen_tempname (char *tmpl, int kind)
 {
-    int len;
     char *XXXXXX;
-    static uint64_t value;
     struct timeval tv;
     uint32_t high, low, rh;
     unsigned int k;
-    int count, fd;
-    int save_errno = errno;
-    int i;
+    int len, i, count, fd, save_errno = errno;
+    static uint64_t value; /* Do not initialize this, 
+			      or lock it for multi-threaded
+			      apps -- the messier the better */
 
     len = strlen (tmpl);
     if (len < 6 || strcmp (&tmpl[len - 6], "XXXXXX"))
