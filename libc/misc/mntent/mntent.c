@@ -3,13 +3,22 @@
 #include <string.h>
 #include <mntent.h>
 
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK	pthread_mutex_lock(&mylock)
+# define UNLOCK	pthread_mutex_unlock(&mylock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
 
-/* Reentrant version of the above function.  */
+/* Reentrant version of getmntent.  */
 struct mntent *getmntent_r (FILE *filep, 
 	struct mntent *mnt, char *buff, int bufsize)
 {
-	char *cp, *sep = " \t\n";
-	static char *ptrptr = 0;
+	char *cp, *ptrptr;
+	const char *sep = " \t\n";
 
 	if (!filep || !mnt || !buff)
 	    return NULL;
@@ -55,9 +64,13 @@ struct mntent *getmntent_r (FILE *filep,
 
 struct mntent *getmntent(FILE * filep)
 {
+    struct mntent *tmp;
     static char buff[BUFSIZ];
     static struct mntent mnt;
-    return(getmntent_r(filep, &mnt, buff, sizeof buff));
+    LOCK;
+    tmp = getmntent_r(filep, &mnt, buff, sizeof buff);
+    UNLOCK;
+    return(tmp);
 }
 
 int addmntent(FILE * filep, const struct mntent *mnt)
