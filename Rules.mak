@@ -1,9 +1,5 @@
 # Rules.make for uClibc
 #
-# This file contains rules which are shared between multiple Makefiles.  All
-# normal configuration options live in the file named "Config".  You probably
-# should not mess with this file unless you know what you are doing...  
-# 
 # Copyright (C) 2000 by Lineo, inc.
 # Copyright (C) 2000-2002 Erik Andersen <andersen@uclibc.org>
 #
@@ -21,23 +17,39 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-# If you are running a cross compiler, you may want to set this
+
+#--------------------------------------------------------
+# This file contains rules which are shared between multiple Makefiles.
+# All normal configuration options live in the file named ".config".
+# Don't mess with this file unless you know what you are doing.
+
+
+#--------------------------------------------------------
+# If you are running a cross compiler, you will want to set 'CROSS'
 # to something more interesting...  Target architecture is determined
-# by asking this compiler what arch it compiles stuff for.
+# by asking the CC compiler what arch it compiles things for, so unless
+# your compiler is broken, you should not need to specify TARGET_ARCH
+#
+# Most people will set this stuff on the command line, i.e.
+#        make CROSS=mipsel-linux-
+# will build uClibc for 'mipsel'.
+
 CROSS=
-CC = $(CROSS)gcc
-AR = $(CROSS)ar
-LD = $(CROSS)ld
-NM = $(CROSS)nm
-STRIPTOOL = $(CROSS)strip
-#STRIPTOOL = /bin/true
+CC:= $(CROSS)gcc
+AR:= $(CROSS)ar
+LD:= $(CROSS)ld
+NM:= $(CROSS)nm
+STRIPTOOL:= $(CROSS)strip
 
 # Select the compiler needed to build binaries for your development system
-NATIVE_CC = gcc
+NATIVE_CC:=gcc
 NATIVE_CFLAGS:=-O2 -Wall
 
 
-# Be sure to update include/features.h when changing this...
+#--------------------------------------------------------
+# Nothing beyond this point should ever be touched by mere mortals.  
+# Unless you hang out with the gods, you should probably leave all
+# this stuff alone.
 MAJOR_VERSION:=0
 MINOR_VERSION:=9
 SUBLEVEL:=15
@@ -51,8 +63,6 @@ SHARED_MAJORNAME:=libc.so.$(MAJOR_VERSION)
 UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
 LIBNAME:=libc.a
 LIBC:=$(TOPDIR)libc/$(LIBNAME)
-LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
-LIBGCC_DIR:=$(dir $(LIBGCC))
 
 # Pull in the user's uClibc configuration
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
@@ -129,6 +139,9 @@ endif
 
 ifeq ($(strip $(TARGET_ARCH)),sh)
 	OPTIMIZATION+=-fstrict-aliasing
+	OPTIMIZATION+= $(call check_gcc,-mprefergot,)
+	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN):="-EL"
+	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN):="-EB"
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN):="-ml"
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN):="-mb"
 	CPU_CFLAGS-$(CONFIG_SH2)+="-m2"
@@ -151,10 +164,10 @@ CFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install: *\(.*\)/-I\1inclu
 
 ifeq ($(strip $(DODEBUG)),y)
     CFLAGS += -g
-    LDFLAGS:= -shared --warn-common --warn-once -z combreloc
+    LDFLAGS:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
     STRIPTOOL:= true -Since_we_are_debugging
 else
-    LDFLAGS := -s -shared --warn-common --warn-once -z combreloc
+    LDFLAGS := $(CPU_LDFLAGS-y) -s -shared --warn-common --warn-once -z combreloc
 endif
 ifneq ($(strip $(DOASSERTS)),y)
     CFLAGS += -DNDEBUG
@@ -175,9 +188,13 @@ endif
 ifeq ($(strip $(DOPIC)),y)
     CFLAGS += -fPIC
 endif
-ifeq ($(strip $(USE_GCC_SOFT_FLOAT_OPTION)),y)
-    CFLAGS += -msoft-float
+ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
+    CFLAGS += $(call check_gcc,-msoft-float,)
 endif
+
+LIBGCC_CFLAGS ?= $(CFLAGS)
+LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
+LIBGCC_DIR:=$(dir $(LIBGCC))
 
 # TARGET_PREFIX is the directory under which which the uClibc runtime
 # environment will be installed and used on the target system.   The 
