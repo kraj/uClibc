@@ -33,7 +33,7 @@ include Rules.mak
 
 DIRS = extra ldso libc libcrypt libresolv libutil libm libpthread
 
-all: headers uClibc_config subdirs shared finished
+all: headers uClibc_config subdirs shared utils finished
 
 Config:
 	@echo
@@ -287,9 +287,11 @@ install_toolchain:
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
 	$(MAKE) -C extra/gcc-uClibc install
 
-install_utils:
+utils: $(TOPDIR)ldso/util/ldd
+	$(MAKE) -C ldso utils
+
+install_utils: utils
 ifeq ($(strip $(HAVE_SHARED)),true)
-	@$(MAKE) -C ldso utils
 	install -d $(PREFIX)$(DEVEL_TOOL_PREFIX)/bin;
 	install -m 755 ldso/util/ldd \
 		$(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
