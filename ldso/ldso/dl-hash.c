@@ -59,14 +59,20 @@ struct dyn_elf *_dl_handles = NULL;
  * it to decode the hash table.  */
 static inline unsigned long _dl_elf_hash(const unsigned char *name)
 {
-	unsigned long hash = 0;
+	unsigned long hash=0;
 	unsigned long tmp;
 
 	while (*name) {
 		hash = (hash << 4) + *name++;
-		if ((tmp = hash & 0xf0000000))
-			hash ^= tmp >> 24;
-		hash &= ~tmp;
+		tmp = hash & 0xf0000000;
+		/* The algorithm specified in the ELF ABI is as follows:
+		   if (tmp != 0)
+		       hash ^= tmp >> 24;
+		   hash &= ~tmp;
+		   But the following is equivalent and a lot
+		   faster, especially on modern processors. */
+		hash ^= tmp;
+		hash ^= tmp >> 24;
 	}
 	return hash;
 }
