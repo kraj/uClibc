@@ -37,7 +37,7 @@
 
 vfork:
 
-#ifdef __SYS_vfork
+#ifdef __NR_vfork
 		swi		__NR_vfork
 		cmn		r0, #4096
 		movcc	pc, lr

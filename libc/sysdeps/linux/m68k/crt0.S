@@ -41,7 +41,7 @@ _start: /* put here so that references to _start work with elf-PIC */
 	/* If that didn't kill us, ... */
 __exit:
 	move.l %sp@+,%d1
-	moveq #1,%d0 /* SYS_exit */
+	moveq #1,%d0 /* __NR_exit */
 	trap #0
 
 /*

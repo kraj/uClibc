@@ -18,7 +18,7 @@ ptrace(int request, int pid, int addr, int data)
 			  "trap  #0\n\t"
 			  "movel %/d0,%0"
 		:"=g" (res)
-		:"i" (SYS_ptrace), "g" (request), "g" (pid),
+		:"i" (__NR_ptrace), "g" (request), "g" (pid),
 		 "g" (addr), "g" (data) : "%d0", "%d1", "%d2", "%d3", "%d4");
 
 	if (res >= 0) {
