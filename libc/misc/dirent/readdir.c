@@ -55,15 +55,5 @@ struct dirent *readdir(DIR * dir)
 	/* We have to save the next offset here. */
 	dir->dd_nextoff = de->d_off;
 
-	/* convert */
-	dir->dd_buf->d_ino = de->d_ino;
-	dir->dd_buf->d_off = de->d_off;
-	dir->dd_buf->d_reclen = de->d_reclen;
-	dir->dd_buf->d_type = 0;
-	if (strlen((char *) &de->d_type) > 10)
-		de->d_name[10] = 0;
-	strcpy(dir->dd_buf->d_name, (char *) &de->d_name);
-	__set_errno(0);
-
-	return dir->dd_buf;
+	return de;
 }

@@ -984,11 +984,10 @@ loff_t llseek(int fd, loff_t offset, int whence)
 #endif
 
 //#define __NR_getdents         141
-#ifdef L__getdents
-#define __NR__getdents __NR_getdents
+#ifdef L_getdents
 #include <unistd.h>
 #include <dirent.h>
-_syscall3(int, _getdents, int, fd, char *, dirp, size_t, count);
+_syscall3(int, getdents, int, fd, char *, dirp, size_t, count);
 #endif
 
 //#define __NR__newselect       142

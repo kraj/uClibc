@@ -29,6 +29,6 @@ echo "printf(\"#define __STR_NR_fcntl    __STR_NR__fcntl\n\");"
 echo "printf(\"#define __STR_NR_reboot   __STR_NR__reboot\n\");"
 echo "printf(\"#define __STR_NR_mmap     __STR_NR__mmap\n\");"
 echo "printf(\"#define __STR_NR_syslog   __STR_NR__syslog\n\");"
-echo "printf(\"#define __STR_NR_getdents __STR_NR__getdents\n\");"
+#echo "printf(\"#define __STR_NR_getdents __STR_NR__getdents\n\");"
 echo
 echo "return EXIT_SUCCESS; }"
