@@ -37,7 +37,7 @@ endif
 ifeq ($(strip $(HAS_LONG_DOUBLE)),true)
 	DIRS+=ldouble
 endif
-ALL_SUBDIRS = $(shell find * -type d -prune -name [a-z]\*)
+ALL_SUBDIRS = float double ldouble
 
 all: $(LIBM)
 
