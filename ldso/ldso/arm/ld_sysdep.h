@@ -89,7 +89,34 @@
 struct elf_resolve;
 unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
-#define do_rem(result, n, base)	    result = (n % base)
+static inline unsigned long arm_modulus(unsigned long m, unsigned long p) {
+	unsigned long i,t,inc;
+        i=p; t=0;
+        while(!(i&(1<<31))) {
+                i<<=1;
+                t++;
+        }
+        t--;
+        for(inc=t;inc>2;inc--) {
+                i=p<<inc;
+                if(i&(1<<31))
+                        break;
+                while(m>=i) {
+                        m-=i;
+                        i<<=1;
+                        if(i&(1<<31))
+                                break;
+                        if(i<p)
+                                break;
+                }
+        }
+        while(m>=p) {
+                m-=p;
+        }
+        return m;
+}
+
+#define do_rem(result, n, base)  result=arm_modulus(n,base);
 
 /* 4096 bytes alignment */
 #define PAGE_ALIGN 0xfffff000
