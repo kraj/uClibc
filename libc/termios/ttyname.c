@@ -51,7 +51,7 @@ int ttyname_r(int fd, char *buf, size_t buflen)
     struct stat st;
 
     noerr = errno;
-    if (!buf) {
+    if (buf==NULL) {
 	noerr = EINVAL;
 	goto cool_found_it;
     }
@@ -72,19 +72,19 @@ int ttyname_r(int fd, char *buf, size_t buflen)
     }
 
     /* Lets try /dev/vc first (be devfs compatible) */
-    if ( (noerr=__check_dir_for_tty_match("/dev/vc", &st, buf, buflen))) 
+    if ( (noerr=__check_dir_for_tty_match("/dev/vc", &st, buf, buflen)) == 0) 
 	goto cool_found_it;
 
     /* Lets try /dev/tts next (be devfs compatible) */
-    if ( (noerr=__check_dir_for_tty_match("/dev/tts", &st, buf, buflen))) 
+    if ( (noerr=__check_dir_for_tty_match("/dev/tts", &st, buf, buflen)) == 0) 
 	goto cool_found_it;
 
     /* Lets try /dev/pts next */
-    if ( (noerr=__check_dir_for_tty_match("/dev/pts", &st, buf, buflen))) 
+    if ( (noerr=__check_dir_for_tty_match("/dev/pts", &st, buf, buflen)) == 0) 
 	goto cool_found_it;
 
     /* Lets try walking through /dev last */
-    if ( (noerr=__check_dir_for_tty_match("/dev", &st, buf, buflen))) 
+    if ( (noerr=__check_dir_for_tty_match("/dev", &st, buf, buflen)) == 0) 
 	goto cool_found_it;
 
 cool_found_it:
