@@ -24,7 +24,7 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=ultostr.c ltostr.c __uClibc_main.c tempname.c
+CSRC=ultostr.c ltostr.c __uClibc_main.c tempname.c errno.c __errno_location.c
 ifeq ($(HAS_FLOATING_POINT),true)
 	CSRC += dtostr.c zoicheck.c
 endif

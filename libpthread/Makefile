@@ -1,7 +1,6 @@
-# Makefile for uClibc
+# Makefile for uClibc's pthread library
 #
-# Copyright (C) 2000 by by Lineo, inc. and Erik Andersen
-# Copyright (C) 2000, 2001 by Erik Andersen <andersee@debian.org>
+# Copyright (C) 2002 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -16,30 +15,49 @@
 # You should have received a copy of the GNU Library General Public License
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-#
-# Derived in part from the Linux-8086 C library, the GNU C Library, and several
-# other sundry sources.  Files within this library are copyright by their
-# respective copyright holders.
 
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
+#Adjust the soname version to avoid namespace collisions with glibc's libpthread
+PT_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION)
+
 LIBPTHREAD=libpthread.a
 LIBPTHREAD_SHARED=libpthread.so
-LIBPTHREAD_SHARED_FULLNAME=libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).so
+LIBPTHREAD_SHARED_FULLNAME=libpthread-$(PT_VERSION).so
 
-CSRC = pthread.c
-OBJS=$(patsubst %.c,%.o, $(CSRC))
+LIBTHREAD_DB=libthread_db.a
+LIBTHREAD_DB_SHARED=libthread_db.so
+LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(PT_VERSION).so
 
-all: $(OBJS) $(LIBPTHREAD)
+DIRS=
+ifeq ($(strip $(INCLUDE_THREADS)),true)
+	DIRS+=linuxthreads
+ifeq ($(strip $(DODEBUG)),true)
+	DIRS+=linuxthreads_db
+endif
+endif
 
-$(LIBPTHREAD): ar-target
+ALL_SUBDIRS = linuxthreads linuxthreads_db
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBPTHREAD) $(OBJS)
-	install -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBPTHREAD)
-	install -m 644 $(LIBPTHREAD) $(TOPDIR)lib
+all: $(LIBPTHREAD) $(LIBTHREAD_DB)
+
+$(LIBPTHREAD): subdirs
+	@if [ -f $(LIBPTHREAD) ] ; then \
+		set -e; \
+		install -d $(TOPDIR)lib; \
+		rm -f $(TOPDIR)lib/$(LIBPTHREAD); \
+		install -m 644 $(LIBPTHREAD) $(TOPDIR)lib; \
+	fi;
+
+$(LIBTHREAD_DB): subdirs
+	@if [ -f $(LIBTHREAD_DB) ] ; then \
+		set -e; \
+		install -d $(TOPDIR)lib; \
+		rm -f $(TOPDIR)lib/$(LIBTHREAD_DB); \
+		install -m 644 $(LIBTHREAD_DB) $(TOPDIR)lib; \
+	fi;
+
 
 $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -48,15 +66,53 @@ $(OBJS): %.o : %.c
 $(OBJ): Makefile
 
 shared: all
-	$(LD) $(LDFLAGS) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
-		-o $(LIBPTHREAD_SHARED_FULLNAME) --whole-archive $(LIBPTHREAD) \
-		--no-whole-archive -L$(TOPDIR)/lib -lc;
-	install -d $(TOPDIR)lib
-	rm -f $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
-	install -m 644 $(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib;
-	(cd $(TOPDIR)lib && ln -sf $(LIBPTHREAD_SHARED_FULLNAME) $(LIBPTHREAD_SHARED)); 
-	(cd $(TOPDIR)lib && ln -sf $(LIBPTHREAD_SHARED_FULLNAME) $(LIBPTHREAD_SHARED).$(MAJOR_VERSION)); 
+	if [ -f $(LIBPTHREAD) ] ; then \
+		set -e; \
+		$(LD) $(LDFLAGS) -soname=$(LIBPTHREAD_SHARED).$(PT_VERSION) \
+			-o $(LIBPTHREAD_SHARED_FULLNAME) --whole-archive $(LIBPTHREAD) \
+			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
+			-L$(TOPDIR)/lib -lc; \
+		install -d $(TOPDIR)lib; \
+		rm -f $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) \
+			$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(PT_VERSION); \
+		install -m 644 $(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib; \
+		(cd $(TOPDIR)lib && ln -sf $(LIBPTHREAD_SHARED_FULLNAME) \
+			$(LIBPTHREAD_SHARED)); \
+		(cd $(TOPDIR)lib && ln -sf $(LIBPTHREAD_SHARED_FULLNAME) \
+			$(LIBPTHREAD_SHARED).$(PT_VERSION)); \
+	fi;
+	if [ -f $(LIBTHREAD_DB) ] ; then \
+		set -e; \
+		$(LD) $(LDFLAGS) -soname=$(LIBTHREAD_DB_SHARED).$(PT_VERSION) \
+			-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \
+			--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
+			-L$(TOPDIR)/lib -lc; \
+		install -d $(TOPDIR)lib; \
+		rm -f $(TOPDIR)lib/$(LIBTHREAD_DB_SHARED_FULLNAME) \
+			$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).$(PT_VERSION); \
+		install -m 644 $(LIBTHREAD_DB_SHARED_FULLNAME) $(TOPDIR)lib; \
+		(cd $(TOPDIR)lib && ln -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
+			$(LIBTHREAD_DB_SHARED)); \
+		(cd $(TOPDIR)lib && ln -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
+			$(LIBTHREAD_DB_SHARED).$(PT_VERSION)); \
+	fi;
 
-clean: 
-	rm -f *.[oa] *~ core $(LIBPTHREAD_SHARED)* $(LIBPTHREAD_SHARED_FULLNAME)*
+tags:
+	ctags -R
+	
+subdirs: $(patsubst %, _dir_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
+
+$(patsubst %, _dir_%, $(DIRS)) : dummy
+	$(MAKE) -C $(patsubst _dir_%, %, $@)
+
+$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
+	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+
+clean: subdirs_clean
+	rm -f *.[oa] *~ core $(LIBPTHREAD) $(LIBPTHREAD_SHARED_FULLNAME) \
+		$(LIBTHREAD_DB) $(LIBTHREAD_DB_SHARED_FULLNAME)
+
+.PHONY: dummy
+
 

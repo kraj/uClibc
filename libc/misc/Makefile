@@ -30,6 +30,9 @@ DIRS = assert ctype dirent file fnmatch glob internals lsearch \
 ifeq ($(strip $(INCLUDE_REGEX)),true)
 DIRS += regex
 endif
+ifeq ($(strip $(INCLUDE_THREADS)),true)
+DIRS += pthread
+endif
 
 all: libc.a
 

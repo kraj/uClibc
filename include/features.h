@@ -378,6 +378,7 @@
 /* This comes between the return type and function name in
  *    a function definition to make that definition weak.  */
 # define weak_function __attribute__ ((weak))
+# define weak_const_function __attribute__ ((weak, __const__))
 /* Tacking on "\n\t#" to the section name makes gcc put it's bogus
  * section attributes on what looks like a comment to the assembler. */
 #  define link_warning(symbol, msg)					      \

@@ -1,0 +1,59 @@
+# Makefile for uClibc's pthread library
+#
+# Copyright (C) 2002 Erik Andersen <andersen@uclibc.org>
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Library General Public License
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+# Makefile for uClibc
+
+TOPDIR=../../
+include $(TOPDIR)Rules.mak
+
+#Adjust the soname version to avoid namespace collisions with glibc's libpthread
+PT_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION)
+LIBPTHREAD=../libpthread.a
+
+# set up system dependencies include dirs (NOTE: order matters!)
+PTDIR = $(TOPDIR)libpthread/linuxthreads/
+SYSDEPINC = -I$(PTDIR)sysdeps/unix/sysv/linux \
+            -I$(PTDIR)sysdeps/pthread \
+            -I$(PTDIR)sysdeps/unix/sysv \
+            -I$(PTDIR)sysdeps/unix/unix \
+            -I$(PTDIR)sysdeps/$(TARGET_ARCH) \
+            -I$(PTDIR)sysdeps \
+            -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
+CFLAGS += $(SYSDEPINC) -DLIBPTHREAD_SO="\"libpthread.so.$(PT_VERSION)\"" -D_GNU_SOURCE
+
+CSRC=attr.c cancel.c condvar.c errno.c events.c join.c lockfile.c manager.c \
+	mutex.c oldsemaphore.c pt-machine.c ptfork.c pthread.c \
+	ptlongjmp.c rwlock.c semaphore.c signals.c specific.c spinlock.c \
+	wrapsyscall.c #weaks.c no-tsd.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(COBJS)
+
+all: $(OBJS) $(LIBPTHREAD)
+
+$(LIBPTHREAD): ar-target
+
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBPTHREAD) $(OBJS)
+
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+clean:
+	rm -f *.[oa] *~ core
+
+

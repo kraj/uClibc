@@ -2,7 +2,7 @@
 /*
  * A simple clone based pthread implementation
  *
- * Copyright (C) 2001 by Erik Andersen <andersee@debian.org>
+ * Copyright (C) 2001,2002 by Erik Andersen <andersee@debian.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -31,7 +31,7 @@
 TOPDIR=./
 include Rules.mak
 
-DIRS = extra ldso libc libcrypt libresolv libutil libm #libpthread
+DIRS = extra ldso libc libcrypt libresolv libutil libm libpthread
 
 all: headers uClibc_config.h subdirs shared finished
 
@@ -51,7 +51,7 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	@$(MAKE) -C libresolv shared
 	@$(MAKE) -C libutil shared
 	@$(MAKE) -C libm shared
-	#@$(MAKE) -C libpthread shared
+	@$(MAKE) -C libpthread shared
 else
 	@echo
 	@echo Not building shared libraries...
@@ -164,6 +164,11 @@ uClibc_config.h: Makefile Config
 	    echo "#define __UCLIBC_HAVE_LFS__ 1" >> uClibc_config.h ; \
 	else \
 	    echo "#undef __UCLIBC_HAVE_LFS__" >> uClibc_config.h ; \
+	fi
+	@if [ "$(INCLUDE_THREADS)" = "true" ] ; then \
+	    echo "#define __UCLIBC_HAS_THREADS__ 1" >> uClibc_config.h ; \
+	else \
+	    echo "#undef __UCLIBC_HAS_THREADS__" >> uClibc_config.h ; \
 	fi
 	@if [ "$(UNIX98PTY_ONLY)" = "true" ] ; then \
 	    echo "#define UNIX98PTY_ONLY 1" >> uClibc_config.h ; \

@@ -10,9 +10,13 @@
  * avoided in the static library case.
  */
 
+#define	_ERRNO_H
 #include <stdlib.h>
 #include <unistd.h>
-#include <errno.h>
+//#include <errno.h>
+#undef errno
+
+#define __set_errno(val) (*__errno_location ()) = (val)
 
 /*
  * Prototypes.
@@ -29,12 +33,20 @@ void __uClibc_main(int argc, char **argv, char **envp)
 weak_alias(__environ, environ);
 extern void weak_function __init_stdio(void);
 extern void weak_function __stdio_flush_buffers(void);
-extern void weak_function __pthread_initialize_minimal (void);
+extern int *weak_function __errno_location (void);
 #else
 extern void __init_stdio(void);
 extern void __stdio_flush_buffers(void);
-extern void __pthread_initialize_minimal (void);
+extern int *__errno_location (void);
 #endif	
+
+/*
+ * Declare the __environ global variable and create a weak alias environ.
+ * Note: Apparently we must initialize __environ for the weak environ
+ * symbol to be included.
+ */
+
+char **__environ = 0;
 
 
 /*
@@ -47,11 +59,6 @@ void __uClibc_main(int argc, char **argv, char **envp)
 	 * Initialize the global variable __environ.
 	 */
 	__environ = envp;
-
-	/* Initialize the thread library at least a bit so at least
-	 * errno will be properly setup */
-	if (__pthread_initialize_minimal)
-	    __pthread_initialize_minimal ();
 
 #if 0
 	/* Some security at this point.  Prevent starting a SUID binary
@@ -80,14 +87,6 @@ void __uClibc_main(int argc, char **argv, char **envp)
 	 */
 	exit(main(argc, argv, envp));
 }
-
-/*
- * Declare the __environ global variable and create a weak alias environ.
- * Note: Apparently we must initialize __environ for the weak environ
- * symbol to be included.
- */
-
-char **__environ = 0;
 
 #ifndef HAVE_ELF
 /*

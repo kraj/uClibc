@@ -105,7 +105,7 @@ ifeq ($(strip $(HAVE_SHARED)),true)
     ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
     LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
     DYNAMIC_LINKER=$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO)
-BUILD_DYNAMIC_LINKER=${shell cd $(TOPDIR)lib && pwd}/$(UCLIBC_LDSO)
+    BUILD_DYNAMIC_LINKER=${shell cd $(TOPDIR)lib && pwd}/$(UCLIBC_LDSO)
     else
     LDSO=$(SYSTEM_LDSO)
     BUILD_UCLIBC_LDSO=false
@@ -115,6 +115,9 @@ endif
 endif
 ifeq ($(strip $(DOPIC)),true)
     CFLAGS += -fPIC
+endif
+ifeq ($(strip $(INCLUDE_THREADS)),true)
+    CFLAGS  += -D_LIBC_REENTRANT
 endif
 
 # TARGET_PREFIX is the directory under which which the uClibc runtime
