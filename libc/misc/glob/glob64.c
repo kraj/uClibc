@@ -30,6 +30,8 @@
 #define stat stat64
 #define lstat lstat64
 
+#define __GLOB64    1
+    
 #include "glob.c"
 
 #endif

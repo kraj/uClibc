@@ -25,10 +25,10 @@ Cambridge, MA 02139, USA.  */
 #include <dirent.h>
 #include <malloc.h>
 #include <fnmatch.h>
+#define _GNU_SOURCE
 #include <glob.h>
 
 extern __ptr_t (*__glob_opendir_hook) __P ((const char *directory));
-extern int glob_pattern_p __P ((__const char *__pattern, int __quote));
 extern void (*__glob_closedir_hook) __P ((__ptr_t stream));
 extern const char *(*__glob_readdir_hook) __P ((__ptr_t stream));
 
@@ -40,6 +40,43 @@ static int glob_in_dir __P ((const char *pattern, const char *directory,
 static int prefix_array __P ((const char *prefix, char **array, size_t n,
 			      int add_slash));
 static int collated_compare __P ((const __ptr_t, const __ptr_t));
+
+#ifdef __GLOB64
+extern int glob_pattern_p(const char *pattern, int quote);
+#else
+/* Return nonzero if PATTERN contains any metacharacters.
+   Metacharacters can be quoted with backslashes if QUOTE is nonzero.  */
+int glob_pattern_p(const char *pattern, int quote)
+{
+    const char *p;
+    int open = 0;
+
+    for (p = pattern; *p != '\0'; ++p)
+	switch (*p)
+	{
+	    case '?':
+	    case '*':
+		return 1;
+
+	    case '\\':
+		if (quote)
+		    ++p;
+		break;
+
+	    case '[':
+		open = 1;
+		break;
+
+	    case ']':
+		if (open)
+		    return 1;
+		break;
+	}
+
+    return 0;
+}
+#endif
+
 
 /* Do glob searching for PATTERN, placing results in PGLOB.
    The bits defined above may be set in FLAGS.
@@ -327,39 +364,6 @@ prefix_array (dirname, array, n, add_slash)
       free ((__ptr_t) array[i]);
       array[i] = new;
     }
-
-  return 0;
-}
-
-
-/* Return nonzero if PATTERN contains any metacharacters.
-   Metacharacters can be quoted with backslashes if QUOTE is nonzero.  */
-int glob_pattern_p(const char *pattern, int quote)
-{
-  register const char *p;
-  int open = 0;
-
-  for (p = pattern; *p != '\0'; ++p)
-    switch (*p)
-      {
-      case '?':
-      case '*':
-	return 1;
-
-      case '\\':
-	if (quote)
-	  ++p;
-	break;
-
-      case '[':
-	open = 1;
-	break;
-
-      case ']':
-	if (open)
-	  return 1;
-	break;
-      }
 
   return 0;
 }
