@@ -35,9 +35,16 @@ authentication information.
 provided by glibc's libresolv is provided internal to uClibc.  Other functions
 are not at all implemented.
 
-8) uClibc does not provide libnsl.so.1, and has no support for Network
-Information Service (NIS).  We therefore, also do not provide any of the 
-headers files provided by glibc under /usr/include/rpcsvc.
+8) libnsl provides support for Network Information Service (NIS) which was
+originally called "Yellow Pages" or "YP"), which is an extension of RPC
+invented by Sun to share Unix password files over the network.  I personally
+think NIS is an evil abomination, and should be avoided.  These days, using
+ldap is much more effective mechanism for doing the same thing.  uClibc does
+not provide libnsl.so.1, and has no support for Network Information Service
+(NIS).  We therefore, also do not provide any of the headers files provided by
+glibc under /usr/include/rpcsvc.   I am open to implementing ldap based
+password authentication, but I do not personally intend to implement it (since
+I have no use for it).
 
 9) uClibc's locale support is not 100% complete yet.  We are working on it.
 
