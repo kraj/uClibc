@@ -560,7 +560,7 @@ int _locale_set_l(const unsigned char *p, __locale_t base)
 		row  = (((int)(*p & 0x7f)) << 7) + (p[1] & 0x7f);
 		assert(row < __LOCALE_DATA_NUM_LOCALES);
 		if (!init_cur_collate(__locale_mmap->locales[ __LOCALE_DATA_WIDTH_LOCALES
-													  * row + 3 + i ],
+													  * row + 3 + LC_COLLATE ],
 							  &newcol)
 			) {
 			return 0;			/* calloc failed. */
