@@ -1,216 +1,36 @@
-# Library Configuration rules for uClibc for CRIS (Axis Etrax CPU)
 #
-# This file contains rules which are shared between multiple Makefiles.  Feel
-# free to adjust to taste...  
-#  -Erik Andersen <andersen@lineo.com> <andersee@debian.org>
-# 
-# Copyright (C) 2000 by Lineo, inc.
-#           (C) 2002 by Axis Communications AB
+# For a description of the syntax of this configuration file,
+# see Documentation/kbuild/config-language.txt.
 #
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-#
-# Derived in part from the Linux-8086 C library, the GNU C Library, and several
-# other sundry sources.  Files within this library are copyright by their
-# respective copyright holders.
 
-# Target architecture
-TARGET_ARCH = cris
+mainmenu "uClibc C Library Configuration"
 
-# Target specific things to add to CFLAGS
-ARCH_CFLAGS  = -fpic -mlinux -D__USE_WEAK_ALIASES
+menu "Target Architecture Features and Options"
 
-# Target specific things to add to LDFLAGS
-ARCH_LDFLAGS = -mcrislinux
+config HAVE_ELF
+	bool
+	default y
 
-# Target specific optins needed when asking $(CROSS)gcc about libgcc.a
-LIBGCC_CFLAGS = -mlinux
+config C_SYMBOL_PREFIX
+	string
+	default ""
 
-# If you are running a cross compiler, you may want to set this
-# to something more interesting...
-NATIVE_CC = gcc
-CROSS = cris-
-CC = $(CROSS)gcc
-AR = $(CROSS)ar
-LD = $(CROSS)ld
-STRIPTOOL = $(CROSS)strip
-# STRIPTOOL = /bin/true
+config ARCH_CFLAGS
+	string
+	default "-fpic -mlinux -D__USE_WEAK_ALIASES"
 
-# Compiler warnings you want to see 
-WARNINGS=-Wall
+config ARCH_LDFLAGS
+	string
+	default "-mcrislinux"
 
-# Note that the kernel source you use to compile with should be the same as the
-# Linux kernel you run your apps on.  uClibc doesn't even try to achieve binary
-# compatibility across kernel versions.  So don't expect, for example, uClibc
-# compiled with Linux kernel 2.0.x to implement lchown properly, since 2.0.x
-# can't do that. Similarly, if you compile uClibc vs Linux 2.4.x kernel headers,
-# but then run on Linux 2.0.x, lchown will be compiled into uClibc, but won't
-# work at all.  You have been warned.
-KERNEL_SOURCE=$(AXIS_KERNEL_DIR)
+config LIBGCC_CFLAGS
+	string
+	default "-mlinux"
 
-# Disable this if your CPU has a memory management unit (MMU)
-HAS_MMU = true
+source "extra/Configs/Config.in.arch"
 
-# Set this to 'false' if basic floating support isn't needed in
-# libc (strtod, printf, scanf). It this isn't true, libm will no
-# be built
-HAS_FLOATING_POINT = true
+endmenu
 
-# Set to 'true' if the math library should contain the full C99 math
-# functions. This adds a few K's..
-DO_C99_MATH = false
+source "extra/Configs/Config.in"
 
-# Set this to `false' if you don't have/need doubles.  This primarily
-# effects libm, which gets quite a bit larger, but also effects several
-# other places.  Set it to `true' otherwise.
-HAS_DOUBLE = false
 
-# Set this to `false' if you don't have/need long doubles.  This primarily
-# effects libm, which gets quite a bit larger.  Set it to `true' otherwise.
-HAS_LONG_DOUBLE = false
-
-# Set this to 'false if you don't need shadow password support.
-HAS_SHADOW = false
-
-# Set this to `false' if you don't have/need locale support; `true' otherwise.
-# Note: Currently only affects the ctype functions.  You must also generate
-# a locale file for anything but the C locale.  See directory extra/locale for
-# a utility to do so.  Also see the following option.
-HAS_LOCALE = false
-
-# Set this to the path of your uClibc locale file directory.
-# Warning!  This must be different than the glibc locale directory to avoid
-# name conflicts, as the locale files are entirely different in format!
-LOCALE_DIR = "/usr/share/uClibc-locale/"
-
-# Set the following to `true' to make a debuggable build.
-# Do not enable this for production builds...
-DODEBUG = false
-
-# This specifies which malloc implementation is used.
-# "malloc-simple" is very, very small, but is also very, very dumb 
-# and does not try to make good use of memory or clean up after itself.
-#
-# "malloc" on the other hand is a bit bigger, but is pretty smart thereby
-# minimizing memory wastage and reusing already allocated memory.  This 
-# can be lots faster and safer IMHO.
-#
-# "malloc-930716" is from libc-5.3.12 and was/is the standard gnu malloc.
-# It is actually smaller than "malloc", at least on i386.  Right now, it
-# only works on i386 (and maybe m68k) because it needs sbrk.
-#MALLOC = malloc-simple
-#MALLOC = malloc 
-MALLOC = malloc-930716
-
-# If you want to collect common syscall code into one function, set to
-# true.  On i386 this saves about than 2.8k over all syscalls.
-# The idea came from the implementation in dietlibc.
-# At present, only affects i386.
-UNIFIED_SYSCALL = false
-
-# If you want large file summit support (greater then 2 Gib), 
-# turn this on.  This has no effect unless your kernel supports 
-# lfs.  This currently does nothing, but may someday...
-DOLFS = false
-
-# Posix regular expression code is really big -- 27k all by itself.
-# If you don't use regular expressions, turn this off and save space.
-# Of course, if you only staticly link, leave this on, since it will
-# only be included in your apps if you use regular expressions. 
-INCLUDE_REGEX = true
-
-# If you want to include RPC support, enable this.  RPC is almost never used 
-# for anything except NFS support, so unless you plan to use NFS, leave this
-# disabled.  This is off by default.
-INCLUDE_RPC = true
-
-# If you want to include threads support, enable this.  The C library will
-# be compiled thread-safe, and the libpthread library will be built.
-INCLUDE_THREADS = true
-
-# If you want to include support for the next version of the Internet
-# Protocol: IP version 6, enable this.  This is off by default.
-INCLUDE_IPV6 = false
-
-# If you want to support only Unix 98 PTYs enable this.  Some older
-# applications may need this disabled.  For most current programs, 
-# you can generally leave this true.
-UNIX98PTY_ONLY = true
-
-# Enable this if /dev/pts is on a devpts or devfs file system.  Both
-# these filesystems automatically manage permissions on the /dev/pts 
-# devices.  You may need to mount this fs on /dev/pts for this to work. 
-# This is true by default.
-ASSUME_DEVPTS = true
-
-# If you want to compile the library as PIC code, turn this on.
-# This is automagically enabled when HAVE_SHARED is true
-DOPIC = false
-
-# Enable support for shared libraries?  If this is false, you can
-# ignore all the rest of the options in this file...
-HAVE_SHARED = true
-
-# uClibc has a native shared library loader for some architectures.
-BUILD_UCLIBC_LDSO=true
-
-# If you are using shared libraries, but do not want/have a native
-# uClibc shared library loader, please specify the name of your
-# system's shared library loader here...
-#
-#SYSTEM_LDSO=/lib/ld.so.1
-
-# When using shared libraries, this path is the location where the
-# shared library will be invoked.  This value will be compiled into
-# every binary compiled with uClibc.  
-#
-# BIG FAT WARNING:  
-# If you do not have a shared library loader with the correct name
-# sitting in the directory this points to, your binaries will not run.
-SHARED_LIB_LOADER_PATH=$(DEVEL_PREFIX)/lib
-
-# DEVEL_PREFIX is the directory into which the uClibc development
-# environment will be installed.   The result will look something 
-# like the following:
-#   DEVEL_PREFIX/
-#	bin/            <contains gcc, ld, etc>
-#	lib/            <contains all runtime and static libs>
-#	include/        <Where all the header files go>
-# This value is used by the 'make install' Makefile target.  Since this
-# directory is compiled into the uclibc cross compiler spoofer, you
-# have to recompile if you change this value...
-#DEVEL_PREFIX = /usr/$(TARGET_ARCH)-linux-uclibc
-
-ifdef prefix
-DEVEL_PREFIX = $(prefix)
-else
-ifdef AXIS_TOP_DIR
-DEVEL_PREFIX = $(AXIS_TOP_DIR)/target/cris-axis-linux-gnuuclibc
-else
-DEVEL_PREFIX = $(EROOT)
-endif
-endif
-
-# SYSTEM_DEVEL_PREFIX is the directory prefix used when installing
-# bin/arch-uclibc-gcc, bin/arch-uclibc-ld, etc.   This is only used by
-# the 'make install' target, and is not compiled into anything.  This
-# defaults to $DEVEL_PREFIX/usr, but makers of .rpms and .debs will
-# want to set this to "/usr" instead.
-#
-SYSTEM_DEVEL_PREFIX = $(DEVEL_PREFIX)/lib
-
-# If you want 'make install' to install everything under a temporary
-# directory, the define PREFIX during the install step,
-# i.e., 'make PREFIX=/var/tmp/uClibc install'.
-#PREFIX = $(TOPDIR)/_install

@@ -7,6 +7,26 @@ mainmenu "uClibc C Library Configuration"
 
 menu "Target Architecture Features and Options"
 
+config HAVE_ELF
+	bool
+	default y
+
+config C_SYMBOL_PREFIX
+	string
+	default ""
+
+config ARCH_CFLAGS
+	string
+	default ""
+
+config ARCH_LDFLAGS
+	string
+	default ""
+
+config LIBGCC_CFLAGS
+	string
+	default ""
+
 choice
 	prompt "Target Processor Type"
 	default CONFIG_386

@@ -7,6 +7,26 @@ mainmenu "uClibc C Library Configuration"
 
 menu "Target Architecture Features and Options"
 
+config HAVE_ELF
+	bool
+	default y
+
+config C_SYMBOL_PREFIX
+	string
+	default ""
+
+config ARCH_CFLAGS
+	string
+	default ""
+
+config ARCH_LDFLAGS
+	string
+	default ""
+
+config LIBGCC_CFLAGS
+	string
+	default ""
+
 choice
 	prompt "Target Processor Type"
 	default CONFIG_GENERIC_ARM
@@ -41,6 +61,10 @@ config CONFIG_XSCALE
 	bool "XScale"
 
 endchoice
+
+config ARCH_HAS_NO_MMU
+	bool
+	default y if CONFIG_ARM7TDMI
 
 config CPU_CFLAGS
 	string

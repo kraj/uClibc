@@ -5,7 +5,7 @@
 
 config UCLIBC_HAS_MMU
 	bool "Target CPU has a memory management unit (MMU)"
-	default y
+	default y if !ARCH_HAS_NO_MMU
 	help
 	  If your target CPU does not have a memory management unit (MMU), 
 	  then answer N here.  Normally, Linux runs on systems with an MMU.  
@@ -72,24 +72,13 @@ config KERNEL_SOURCE
 	  but then run on Linux 2.0.x, lchown will be compiled into uClibc, but won't
 	  work at all.  You have been warned.
 
-config C_SYMBOL_PREFIX
-	string
-	default ""
-
 config UCLIBC_UCLINUX_BROKEN_MUNMAP
 	bool
 	depends on !UCLIBC_HAS_MMU
 	default y
 
-config HAVE_ELF
+config EXCLUDE_BRK
 	bool
+	depends on !UCLIBC_HAS_MMU
 	default y
-
-config NO_UNDERSCORES
-	bool
-	default n
-
-config HAVE_DOT_HIDDEN
-	bool
-	default n
 
