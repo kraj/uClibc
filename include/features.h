@@ -391,16 +391,11 @@ uClibc was built without large file support enabled.
 	    static const char __evoke_link_warning_##symbol[]		      \
 	    __attribute__ ((section (".gnu.warning." #symbol "\n\t#"))) = msg;
 #else /* !defined HAVE_ELF */
-#  if defined(__H8300H__)
-#    define SYMBOL_PREFIX "_"      /* H8/300 Target of add "_" to symbol prefix */
-#  else
-#    define SYMBOL_PREFIX 
-#  endif
 #  define strong_alias(name, aliasname) _strong_alias (name, aliasname)
 #  define weak_alias(name, aliasname) _strong_alias (name, aliasname)
 #  define _strong_alias(name, aliasname) \
-	__asm__(".global " SYMBOL_PREFIX #aliasname "\n" \
-                ".set " SYMBOL_PREFIX #aliasname "," SYMBOL_PREFIX #name);
+	__asm__(".global " C_SYMBOL_PREFIX #aliasname "\n" \
+                ".set " C_SYMBOL_PREFIX #aliasname "," C_SYMBOL_PREFIX #name);
 #  define link_warning(symbol, msg) \
 	asm (".stabs \"" msg "\",30,0,0,0\n\t" \
 	      ".stabs \"" #symbol "\",1,0,0,0\n");

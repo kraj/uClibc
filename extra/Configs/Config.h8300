@@ -193,3 +193,5 @@ SYSTEM_DEVEL_PREFIX = /
 #PREFIX = $(TOPDIR)/_install
 PREFIX =
 
+# C defiend symbols prefix charactor
+C_SYMBOL_PREFIX = _
