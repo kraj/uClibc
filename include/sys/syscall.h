@@ -19,14 +19,7 @@
 #ifndef _SYSCALL_H
 #define _SYSCALL_H	1
 
-/* This file provides us with our own private copy of the _syscall[0-5] macros.
- * This is important, since on some arches (such as i386) the kernel's macros
- * don't handle things like PIC code, so we can't use them. */
+/* This file provides us with the nicely useful _syscall[0-5] macros. */
 #include <bits/syscalls.h>
-
-/* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
- * header files.  It also defines the traditional `SYS_<name>' macros for older
- * programs.  */
-#include <bits/syscall.h>
 
 #endif

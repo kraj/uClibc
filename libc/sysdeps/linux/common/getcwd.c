@@ -8,8 +8,12 @@
 #include <sys/syscall.h>
 
 #ifdef __NR_getcwd
-#define __NR___getcwd __NR_getcwd
-static inline _syscall2(int, __getcwd, char *, buf, unsigned long, size);
+
+#ifndef INLINE_SYSCALL
+#define INLINE_SYSCALL(name, nr, args...) __syscall_getcwd (args)
+#define __NR___syscall_getcwd __NR_getcwd
+static inline _syscall2(int, __syscall_getcwd, char *, buf, unsigned long, size);
+#endif
 
 char *getcwd(char *buf, int size)
 {
@@ -31,7 +35,7 @@ char *getcwd(char *buf, int size)
 		if (buf == NULL)
 			return NULL;
 	}
-	ret = __getcwd(buf, size);
+	ret = INLINE_SYSCALL(getcwd, 2, buf, size);
 	if (ret < 0) {
 	    if (allocbuf) {
 		free(allocbuf);

@@ -20,20 +20,23 @@
 #include <sys/syscall.h>
 
 #if defined __UCLIBC_HAVE_LFS__ && defined __NR_ftruncate64
+#ifndef INLINE_SYSCALL
+#define INLINE_SYSCALL(name, nr, args...) __syscall_ftruncate64 (args)
+#define __NR___syscall_ftruncate64 __NR_ftruncate64
+static inline _syscall3(int, __syscall_ftruncate64, int, fd, int, high_length, int, low_length);
+#endif
+
+
 #if __WORDSIZE == 64
 /* For a 64 bit machine, life is simple... */
 _syscall2(int, ftruncate64, int, fd, __off64_t, length);
 #elif __WORDSIZE == 32
-#define __NR___ftruncate64 __NR_ftruncate64
-static inline _syscall3(int, __ftruncate64, int, fd, 
-	uint32_t, length_first_half, 
-	uint32_t, length_second_half);
 /* The exported ftruncate64 function.  */
 int ftruncate64 (int fd, __off64_t length)
 {
     uint32_t low = length & 0xffffffff;
     uint32_t high = length >> 32;
-    return __ftruncate64(fd, __LONG_LONG_PAIR (high, low));
+    return INLINE_SYSCALL(ftruncate64, 3, fd, __LONG_LONG_PAIR (high, low));
 }
 #else
 #error Your machine is not 64 bit or 32 bit, I am dazed and confused.

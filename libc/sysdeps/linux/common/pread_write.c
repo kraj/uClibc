@@ -23,41 +23,72 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#define _GNU_SOURCE
+#define _LARGEFILE64_SOURCE
 #include <features.h>
-#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
-#undef _FILE_OFFSET_BITS
-#define _FILE_OFFSET_BITS   64
-#endif
-#ifndef __USE_LARGEFILE64
-# define __USE_LARGEFILE64      1
-#endif
+#undef __OPTIMIZE__
 /* We absolutely do _NOT_ want interfaces silently
- * renamed under us or very bad things will happen... */
+ *  *  * renamed under us or very bad things will happen... */
 #ifdef __USE_FILE_OFFSET64
 # undef __USE_FILE_OFFSET64
 #endif
 
+
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
-#define _XOPEN_SOURCE 500
 #include <unistd.h>
 
 #ifdef __NR_pread
-#define __NR___syscall_pread __NR_pread
-static inline _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf, size_t, count, 
-		__off_t, offset_hi, __off_t, offset_lo);
+#define __NR___libc_pread __NR_pread
+_syscall4(ssize_t, __libc_pread, int, fd, void *, buf, size_t, count, off_t, offset);
+weak_alias (__libc_pread, pread)
+#if defined __UCLIBC_HAVE_LFS__ 
+
+#ifndef INLINE_SYSCALL
+#define INLINE_SYSCALL(name, nr, args...) __syscall_pread (args)
+#define __NR___syscall_pread __NR_pread 
+static inline _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf, 
+		size_t, count, off_t, offset_hi, off_t, offset_lo);
 #endif
+
+ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
+{ 
+	  return(INLINE_SYSCALL (pread, 5, fd, buf, 
+				  count, __LONG_LONG_PAIR ((off_t) (offset >> 32), (off_t) (offset & 0xffffffff))));
+}
+weak_alias (__libc_pread64, pread64)
+#endif /* __UCLIBC_HAVE_LFS__  */
+#endif /* __NR_pread */
+
 
 #ifdef __NR_pwrite
-#define __NR___syscall_pwrite __NR_pwrite
-static inline _syscall5(ssize_t, __syscall_pwrite, int, fd, const void *, buf, size_t, count, 
-		__off_t, offset_hi, __off_t, offset_lo);
+#define __NR___libc_pwrite __NR_pwrite
+_syscall4(ssize_t, __libc_pwrite, int, fd, const void *, buf, size_t, count, off_t, offset);
+weak_alias (__libc_pwrite, pwrite)
+#if defined __UCLIBC_HAVE_LFS__ 
+
+#ifndef INLINE_SYSCALL
+#define INLINE_SYSCALL(name, nr, args...) __syscall_write (args)
+#define __NR___syscall_write __NR_write 
+static inline _syscall5(ssize_t, __syscall_write, int, fd, const void *, buf, 
+		size_t, count, off_t, offset_hi, off_t, offset_lo);
 #endif
 
+ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
+{ 
+	return(INLINE_SYSCALL (pwrite, 5, fd, buf, 
+				count, __LONG_LONG_PAIR ((off_t) (offset >> 32), (off_t) (offset & 0xffffffff))));
+}
+weak_alias (__libc_pwrite64, pwrite64)
+#endif /* __UCLIBC_HAVE_LFS__  */
+#endif /* __NR_pwrite */
 
+
+
+#if ! defined __NR_pread || ! defined __NR_pwrite
 static ssize_t __fake_pread_write(int fd, void *buf, 
-		size_t count, __off_t offset, int do_pwrite)
+		size_t count, off_t offset, int do_pwrite)
 {
 	int save_errno;
 	ssize_t result;
@@ -69,7 +100,7 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 		return -1;
 
 	/* Set to wanted position.  */
-	if (lseek (fd, offset, SEEK_SET) == (__off_t) -1)
+	if (lseek (fd, offset, SEEK_SET) == (off_t) -1)
 		return -1;
 
 	if (do_pwrite==1) {
@@ -83,7 +114,7 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 	/* Now we have to restore the position.  If this fails we 
 	 * have to return this as an error.  */
 	save_errno = errno;
-	if (lseek(fd, old_offset, SEEK_SET) == (__off_t) -1)
+	if (lseek(fd, old_offset, SEEK_SET) == (off_t) -1)
 	{
 		if (result == -1)
 			__set_errno(save_errno);
@@ -92,47 +123,6 @@ static ssize_t __fake_pread_write(int fd, void *buf,
 	__set_errno(save_errno);
 	return(result);
 }
-
-ssize_t __libc_pread(int fd, void *buf, size_t count, __off_t offset)
-{
-#ifndef __NR_pread
-	return(__fake_pread_write(fd, buf, count, offset, 0));
-#else
-	ssize_t result;
-
-	/* First try the syscall.  */
-	result = __syscall_pread(fd, buf, count, __LONG_LONG_PAIR(0, offset));
-
-	/* Bummer.  Syscall failed or is missing.  Fake it */
-	if (result == -1 && errno == ENOSYS) {
-		result = __fake_pread_write(fd, buf, count, offset, 0);
-	}
-#endif
-	return result;
-}
-weak_alias (__libc_pread, pread)
-
-ssize_t __libc_pwrite(int fd, const void *buf, size_t count, __off_t offset)
-{
-#ifndef __NR_pwrite
-	return(__fake_pread_write(fd, buf, count, offset, 1));
-#else
-	ssize_t result;
-
-	/* First try the syscall.  */
-	result = __syscall_pwrite(fd, buf, count, __LONG_LONG_PAIR(0, offset));
-
-	/* Bummer.  Syscall failed or is missing.  Fake it */
-	if (result == -1 && errno == ENOSYS) {
-		result = __fake_pread_write(fd, (void*)buf, count, offset, 1);
-	}
-#endif
-	return result;
-}
-weak_alias (__libc_pwrite, pwrite)
-
-
-
 
 #if defined __UCLIBC_HAVE_LFS__ 
 static ssize_t __fake_pread_write64(int fd, void *buf, 
@@ -169,45 +159,39 @@ static ssize_t __fake_pread_write64(int fd, void *buf,
 	__set_errno (save_errno);
 	return result;
 }
+#endif /* __UCLIBC_HAVE_LFS__  */
+#endif /*  ! defined __NR_pread || ! defined __NR_pwrite */
 
+#ifndef __NR_pread
+ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
+{
+	return(__fake_pread_write(fd, buf, count, offset, 0));
+}
+weak_alias (__libc_pread, pread)
+
+#if defined __UCLIBC_HAVE_LFS__ 
 ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
 { 
-#ifndef __NR_pread
 	return(__fake_pread_write64(fd, buf, count, offset, 0));
-#else
-	ssize_t result;
-	/* First try the syscall.  */
-	result = __syscall_pread(fd, buf, count, 
-			__LONG_LONG_PAIR((__off_t) (offset >> 32), (__off_t) (offset & 0xffffffff)));
-
-	/* Bummer.  Syscall failed or is missing.  Fake it */
-	if (result == -1 && errno == ENOSYS) {
-		result = __fake_pread_write64(fd, buf, count, offset, 0); 
-	}
-	return result;
-#endif
 }
 weak_alias (__libc_pread64, pread64)
+#endif /* __UCLIBC_HAVE_LFS__  */
+#endif /* ! __NR_pread */
 
+
+#ifndef __NR_pwrite
+ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
+{
+	return(__fake_pread_write(fd, buf, count, offset, 1));
+}
+weak_alias (__libc_pwrite, pwrite)
+
+#if defined __UCLIBC_HAVE_LFS__ 
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 { 
-#ifndef __NR_pwrite
 	return(__fake_pread_write64(fd, (void*)buf, count, offset, 1));
-#else
-	ssize_t result;
-
-	/* First try the syscall.  */
-	result = __syscall_pwrite(fd, buf, count, 
-			__LONG_LONG_PAIR((__off_t) (offset >> 32), (__off_t) (offset & 0xffffffff)));
-
-	/* Bummer.  Syscall failed or is missing.  Fake it */
-	if (result == -1 && errno == ENOSYS) {
-		result = __fake_pread_write64(fd, (void*)buf, count, offset, 1);
-	}
-	return result;
-#endif
 }
 weak_alias (__libc_pwrite64, pwrite64)
-
-#endif
+#endif /* __UCLIBC_HAVE_LFS__  */
+#endif /* ! __NR_pwrite */
 

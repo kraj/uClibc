@@ -22,18 +22,23 @@
  *
  */
 
+#define _GNU_SOURCE
+#define _LARGEFILE64_SOURCE
 #include <features.h>
+#undef __OPTIMIZE__
+/* We absolutely do _NOT_ want interfaces silently
+ *  *  * renamed under us or very bad things will happen... */
+#ifdef __USE_FILE_OFFSET64
+# undef __USE_FILE_OFFSET64
+#endif
+
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
 
+
 //#define __NR_exit             1
-#ifdef L__exit
-/* Do not include unistd.h, so gcc doesn't whine about 
- * _exit returning.  It really doesn't return... */
-#define __NR__exit __NR_exit
-_syscall1(void, _exit, int, status);
-#endif
+//See _exit.c
 
 //#define __NR_fork             2
 #ifdef L___libc_fork
@@ -150,23 +155,7 @@ time_t time (time_t *t)
 #endif
 
 //#define __NR_mknod            14
-#ifdef L_mknod
-#include <unistd.h>
-extern int mknod(const char *pathname, mode_t mode, dev_t dev);
-_syscall3(int, mknod, const char *, pathname, mode_t, mode, dev_t, dev);
-
-int __xmknod (int version, const char * path, mode_t mode, dev_t *dev)
-{
-	switch(version)
-	{
-		case 1:
-			return mknod (path, mode, *dev);
-		default:
-			__set_errno(EINVAL);
-			return -1;
-	}
-}
-#endif
+//See mknod.c
 
 //#define __NR_chmod            15
 #ifdef L_chmod
@@ -198,10 +187,6 @@ _syscall3(int, lchown, const char *, path, uid_t, owner, gid_t, group);
 #define __NR___libc_lseek __NR_lseek
 _syscall3(__off_t, __libc_lseek, int, fildes, __off_t, offset, int, whence);
 weak_alias(__libc_lseek, lseek)
-#ifndef __NR__llseek
-weak_alias(__libc_lseek, llseek)
-weak_alias(__libc_lseek, lseek64)
-#endif
 #endif
 
 //#define __NR_getpid           20
@@ -231,20 +216,7 @@ _syscall1(int, umount, const char *, specialfile);
 #endif
 
 //#define __NR_setuid           23
-#ifdef L___setuid
-#define __NR___setuid __NR_setuid
-#include <unistd.h>
-static inline 
-_syscall1(int, __setuid, uid_t, uid);
-int setuid(uid_t uid)
-{
-	if (uid == (uid_t) ~0) {
-		__set_errno (EINVAL);
-		return -1;
-	}
-	return(__setuid(uid));
-}
-#endif
+// See setuid.c
 
 //#define __NR_getuid           24
 #ifdef L_getuid
@@ -422,10 +394,7 @@ int nice (int incr)
 //#define __NR_ftime            35
 
 //#define __NR_sync             36
-#ifdef L_sync
-#include <unistd.h>
-_syscall0(void, sync);
-#endif
+//See sync.c
 
 //#define __NR_kill             37
 #ifdef L_kill
@@ -723,8 +692,8 @@ int setrlimit (__rlimit_resource_t resource, const struct rlimit *rlimits)
 #else /* We don't need to wrap setrlimit */
 #ifdef L_setrlimit
 #include <unistd.h>
-#include <sys/resource.h>
-_syscall2(int, setrlimit, int, resource, const struct rlimit *, rlim);
+struct rlimit;
+_syscall2(int, setrlimit, unsigned int, resource, const struct rlimit *, rlim);
 #endif
 #endif /* __NR_setrlimit */
 
@@ -1240,30 +1209,7 @@ _syscall1(int, setfsgid, gid_t, gid);
 #endif
 
 //#define __NR__llseek          140
-#ifdef L__llseek
-#ifdef __UCLIBC_HAVE_LFS__
-#ifdef __NR__llseek
-extern int _llseek(int fd, __off_t offset_hi, __off_t offset_lo, 
-		__loff_t *result, int whence);
-
-_syscall5(int, _llseek, int, fd, __off_t, offset_hi, __off_t, offset_lo, 
-		__loff_t *, result, int, whence);
-
-__loff_t __libc_lseek64(int fd, __loff_t offset, int whence)
-{
-	int ret;
-	__loff_t result;
-
-	ret = _llseek(fd, __LONG_LONG_PAIR((__off_t) (offset >> 32), 
-				(__off_t) (offset & 0xffffffff)), &result, whence);
-
-	return ret ? (__loff_t) ret : result;
-}
-weak_alias(__libc_lseek64, llseek);
-weak_alias(__libc_lseek64, lseek64);
-#endif
-#endif
-#endif
+//See llseek.c
 
 //#define __NR_getdents         141
 #ifdef L_getdents

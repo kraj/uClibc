@@ -1,119 +1,120 @@
-/* Unlike the asm/unistd.h kernel header file (which this is partly based on),
- * this file must be able to cope with PIC and non-PIC code.  For some arches
- * there is no difference.  For x86 (which has far too few registers) there is
- * a difference.   Regardless, including asm/unistd.h is hereby officially
- * forbidden.  Don't do it.  It is bad for you.  */
-
-#include <features.h>
-
-// TODO -- Add support for __UCLIBC_USE_UNIFIED_SYSCALL__
-
-
-#define __sys2(x) #x
-#define __sys1(x) __sys2(x)
-
-#ifndef __syscall
-#define __syscall(name) "swi\t" __sys1(__NR_##name) "\n\t"
+#ifndef _BITS_SYSCALLS_H
+#define _BITS_SYSCALLS_H
+#ifndef _SYSCALL_H
+# error "Never use <bits/syscall.h> directly; include <sys/syscall.h> instead."
 #endif
 
-#define __syscall_return(type, res)					\
-do {									\
-	if ((unsigned long)(res) >= (unsigned long)(-125)) {		\
-		errno = -(res);						\
-		res = -1;						\
-	}								\
-	return (type) (res);						\
-} while (0)
+/* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
+ * header files.  It also defines the traditional `SYS_<name>' macros for older
+ * programs.  */
+#include <bits/syscall.h>
 
+#ifndef __set_errno
+# define __set_errno(val) (*__errno_location ()) = (val)
+#endif
+#ifndef SYS_ify
+# define SYS_ify(syscall_name)	(__NR_##syscall_name)
+#endif
 
-#define _syscall0(type,name)						\
-type name(void) {							\
-  long __res;								\
-  __asm__ __volatile__ (						\
-  __syscall(name)							\
-  "mov %0,r0"								\
-  :"=r" (__res) : : "r0","lr");						\
-  __syscall_return(type,__res);						\
+/*
+   Some of the sneaky macros in the code were taken from 
+   glibc-2.2.5/sysdeps/unix/sysv/linux/arm/sysdep.h
+*/
+
+#ifndef __ASSEMBLER__
+
+#undef _syscall0
+#define _syscall0(type,name) \
+type name(void) \
+{ \
+return (type) (INLINE_SYSCALL(name, 0)); \
 }
 
-#define _syscall1(type,name,type1,arg1)					\
-type name(type1 arg1) {							\
-  long __res;								\
-  __asm__ __volatile__ (						\
-  "mov\tr0,%1\n\t"							\
-  __syscall(name)							\
-  "mov %0,r0"								\
-        : "=r" (__res)							\
-        : "r" ((long)(arg1))						\
-	: "r0","lr");							\
-  __syscall_return(type,__res);						\
+#undef _syscall1
+#define _syscall1(type,name,type1,arg1) \
+type name(type1 arg1) \
+{ \
+return (type) (INLINE_SYSCALL(name, 1, arg1)); \
 }
 
-#define _syscall2(type,name,type1,arg1,type2,arg2)			\
-type name(type1 arg1,type2 arg2) {					\
-  long __res;								\
-  __asm__ __volatile__ (						\
-  "mov\tr0,%1\n\t"							\
-  "mov\tr1,%2\n\t"							\
-  __syscall(name)							\
-  "mov\t%0,r0"								\
-        : "=r" (__res)							\
-        : "r" ((long)(arg1)),"r" ((long)(arg2))				\
-	: "r0","r1","lr");						\
-  __syscall_return(type,__res);						\
+#undef _syscall2
+#define _syscall2(type,name,type1,arg1,type2,arg2) \
+type name(type1 arg1,type2 arg2) \
+{ \
+return (type) (INLINE_SYSCALL(name, 2, arg1, arg2)); \
 }
 
-
-#define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3)		\
-type name(type1 arg1,type2 arg2,type3 arg3) {				\
-  long __res;								\
-  __asm__ __volatile__ (						\
-  "mov\tr0,%1\n\t"							\
-  "mov\tr1,%2\n\t"							\
-  "mov\tr2,%3\n\t"							\
-  __syscall(name)							\
-  "mov\t%0,r0"								\
-        : "=r" (__res)							\
-        : "r" ((long)(arg1)),"r" ((long)(arg2)),"r" ((long)(arg3))	\
-        : "r0","r1","r2","lr");						\
-  __syscall_return(type,__res);						\
+#undef _syscall3
+#define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
+type name(type1 arg1,type2 arg2,type3 arg3) \
+{ \
+return (type) (INLINE_SYSCALL(name, 3, arg1, arg2, arg3)); \
 }
 
 #undef _syscall4
-#define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4)\
-type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4) {		\
-  long __res;								\
-  __asm__ __volatile__ (						\
-  "mov\tr0,%1\n\t"							\
-  "mov\tr1,%2\n\t"							\
-  "mov\tr2,%3\n\t"							\
-  "mov\tr3,%4\n\t"							\
-  __syscall(name)							\
-  "mov\t%0,r0"								\
-  	: "=r" (__res)							\
-  	: "r" ((long)(arg1)),"r" ((long)(arg2)),                        \
-	  "r" ((long)(arg3)),"r" ((long)(arg4))	                        \
-  	: "r0","r1","r2","r3","lr");					\
-  __syscall_return(type,__res);						\
-}
+#define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4) \
+{ \
+return (type) (INLINE_SYSCALL(name, 4, arg1, arg2, arg3, arg4)); \
+} 
 
 #undef _syscall5
-#define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5)\
-type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5) {		\
-  long __res;								\
-  __asm__ __volatile__ (						\
-  "mov\tr0,%1\n\t"							\
-  "mov\tr1,%2\n\t"							\
-  "mov\tr2,%3\n\t"							\
-  "mov\tr3,%4\n\t"							\
-  "mov\tr4,%5\n\t"							\
-  __syscall(name)							\
-  "mov\t%0,r0"								\
-  	: "=r" (__res)							\
-  	: "r" ((long)(arg1)),"r" ((long)(arg2)),                        \
-	  "r" ((long)(arg3)),"r" ((long)(arg4)),                        \
-	  "r" ((long)(arg5))                   	                        \
-  	: "r0","r1","r2","r3","r4","lr");				\
-  __syscall_return(type,__res);						\
+#define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
+	  type5,arg5) \
+type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5) \
+{ \
+return (type) (INLINE_SYSCALL(name, 5, arg1, arg2, arg3, arg4, arg5)); \
 }
 
+#undef INLINE_SYSCALL
+#define INLINE_SYSCALL(name, nr, args...)			\
+  ({ unsigned int _sys_result;					\
+     {								\
+       register int _a1 asm ("a1");				\
+       LOAD_ARGS_##nr (args)					\
+       asm volatile ("swi	%1	@ syscall " #name	\
+		     : "=r" (_a1)				\
+		     : "i" (SYS_ify(name)) ASM_ARGS_##nr	\
+		     : "a1", "memory");				\
+       _sys_result = _a1;					\
+     }								\
+     if (_sys_result >= (unsigned int) -4095)			\
+       {							\
+	 __set_errno (-_sys_result);				\
+	 _sys_result = (unsigned int) -1;			\
+       }							\
+     (int) _sys_result; })
+
+#define LOAD_ARGS_0()
+#define ASM_ARGS_0
+#define LOAD_ARGS_1(a1)				\
+  _a1 = (int) (a1);				\
+  LOAD_ARGS_0 ()
+#define ASM_ARGS_1	ASM_ARGS_0, "r" (_a1)
+#define LOAD_ARGS_2(a1, a2)			\
+  register int _a2 asm ("a2") = (int) (a2);	\
+  LOAD_ARGS_1 (a1)
+#define ASM_ARGS_2	ASM_ARGS_1, "r" (_a2)
+#define LOAD_ARGS_3(a1, a2, a3)			\
+  register int _a3 asm ("a3") = (int) (a3);	\
+  LOAD_ARGS_2 (a1, a2)
+#define ASM_ARGS_3	ASM_ARGS_2, "r" (_a3)
+#define LOAD_ARGS_4(a1, a2, a3, a4)		\
+  register int _a4 asm ("a4") = (int) (a4);	\
+  LOAD_ARGS_3 (a1, a2, a3)
+#define ASM_ARGS_4	ASM_ARGS_3, "r" (_a4)
+#define LOAD_ARGS_5(a1, a2, a3, a4, a5)		\
+  register int _v1 asm ("v1") = (int) (a5);	\
+  LOAD_ARGS_4 (a1, a2, a3, a4)
+#define ASM_ARGS_5	ASM_ARGS_4, "r" (_v1)
+#define LOAD_ARGS_6(a1, a2, a3, a4, a5, a6)	\
+  register int _v2 asm ("v2") = (int) (a6);	\
+  LOAD_ARGS_5 (a1, a2, a3, a4, a5)
+#define ASM_ARGS_6	ASM_ARGS_5, "r" (_v2)
+#define LOAD_ARGS_7(a1, a2, a3, a4, a5, a6, a7)	\
+  register int _v3 asm ("v3") = (int) (a7);	\
+  LOAD_ARGS_6 (a1, a2, a3, a4, a5, a6)
+#define ASM_ARGS_7	ASM_ARGS_6, "r" (_v3)
+
+#endif /* __ASSEMBLER__ */
+#endif /* _BITS_SYSCALLS_H */

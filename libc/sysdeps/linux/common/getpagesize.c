@@ -21,7 +21,7 @@
 #include <sys/param.h>
 
 /* Return the system page size.  */
-int __getpagesize()
+int __getpagesize(void)
 {
 #ifdef	EXEC_PAGESIZE
   return EXEC_PAGESIZE;

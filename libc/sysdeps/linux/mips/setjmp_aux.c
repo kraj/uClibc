@@ -24,6 +24,8 @@
    pointer.  We do things this way because it's difficult to reliably
    access them in C.  */
 
+extern int __sigjmp_save (sigjmp_buf, int);
+
 int
 __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
 {
