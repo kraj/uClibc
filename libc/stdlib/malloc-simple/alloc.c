@@ -14,7 +14,7 @@ void *calloc_dbg(size_t num, size_t size, char *function, char *file,
 {
 	void *ptr;
 
-	fprintf(stderr, "calloc of %d bytes at %s @%s:%d = ", num * size,
+	fprintf(stderr, "calloc of %d bytes at %s @%s:%d = ", (int) (num * size),
 			function, file, line);
 	ptr = calloc(num, size);
 	fprintf(stderr, "%p\n", ptr);
@@ -29,7 +29,7 @@ void *malloc_dbg(size_t size, char *function, char *file, int line)
 {
 	void *result;
 
-	fprintf(stderr, "malloc of %d bytes at %s @%s:%d = ", size, function,
+	fprintf(stderr, "malloc of %d bytes at %s @%s:%d = ", (int) size, function,
 			file, line);
 	result = malloc(size);
 	fprintf(stderr, "%p\n", result);
