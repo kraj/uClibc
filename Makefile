@@ -286,12 +286,7 @@ install_toolchain:
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
 	$(MAKE) -C extra/gcc-uClibc install
 
-util:
-ifeq ($(strip $(HAVE_SHARED)),true)
-	@$(MAKE) -C ldso utils
-endif
-
-install_utils: util
+install_utils:
 ifeq ($(strip $(HAVE_SHARED)),true)
 	@$(MAKE) -C ldso utils
 	install -m 755 ldso/util/ldd $(PREFIX)$(DEVEL_PREFIX)/bin
@@ -330,8 +325,9 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	fi;
 endif
 
-install_target_utils: util
+install_target_utils:
 ifeq ($(strip $(HAVE_SHARED)),true)
+	@$(MAKE) -C ldso/util ldd.target readelf.target ldconfig.target
 	install -m 755 ldso/util/ldd.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/ldd
 	install -m 755 ldso/util/readelf.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/readelf
 	@if [ -x ldso/util/ldconfig.target ] ; then \
