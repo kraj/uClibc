@@ -1,0 +1,6 @@
+conf
+mconf
+lkc_defs.h
+lex.zconf.c
+zconf.tab.h
+zconf.tab.c
