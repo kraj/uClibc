@@ -24,10 +24,11 @@ TOPDIR=../
 include $(TOPDIR)Rules.mak
 
 ifeq ($(TARGET_ARCH), $(NATIVE_ARCH))
-	DIRS = assert ctype pwd_grp signal silly stdlib string 
+	DIRS = args assert ctype pwd_grp signal silly stdlib string unistd 
 else
 	DIRS =
 endif
+ALL_SUBDIRS = args assert ctype pwd_grp signal silly stdlib string unistd
 
 all: subdirs
 
@@ -38,12 +39,12 @@ clean: subdirs_clean
 	rm -f *.[oa] *~ core
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 
 $(patsubst %, _dir_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
+$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy
