@@ -35,8 +35,8 @@ Cambridge, MA 02139, USA.  */
 .text
 	.align 4
 
-	.globl _start
-	.type _start,@function
+	.global	_start
+	.type	_start,%function
 #if defined L_crt0 || ! defined __UCLIBC_CTOR_DTOR__
 	.type	__uClibc_main,%function
 #else

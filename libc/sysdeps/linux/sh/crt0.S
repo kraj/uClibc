@@ -40,6 +40,7 @@
 	.text
 	.globl _start
 	.type _start,@function
+	.type main,@function
 	.size _start,_start_end - _start
 _start:
 	/* Clear the frame pointer since this is the outermost frame. */
@@ -126,10 +127,4 @@ L_fini:
 
 L_abort: 
       .long   abort   
-
-/* Stick in a dummy reference to main(), so that if an application
- * is linking when the main() function is in a static library (.a)
- * we can be sure that main() actually gets linked in */
-L_dummy_main_reference:
-	.long	main
 

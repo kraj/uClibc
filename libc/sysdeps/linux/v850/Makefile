@@ -2,7 +2,6 @@
 #
 # Copyright (C) 2001,2002  NEC Corporation
 # Copyright (C) 2001,2002  Miles Bader <miles@gnu.org>
-# Copyright (C) 2000  Lineo, inc.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -17,10 +16,6 @@
 # You should have received a copy of the GNU Library General Public License
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-#
-# Derived in part from the Linux-8086 C library, the GNU C Library, and several
-# other sundry sources.  Files within this library are copyright by their
-# respective copyright holders.
 
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
@@ -30,8 +25,8 @@ SFLAGS = $(CFLAGS) -D__ASSEMBLER -DASM_GLOBAL_DIRECTIVE=.globl
 
 TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
 
-CRT0 = crt0.S
-CRT0_OBJ = $(patsubst %.S,%.o, $(CRT0))
+CRT0_SRC = crt0.S
+CRT0_OBJ = crt0.o crt1.o
 
 SSRC = setjmp.S __longjmp.S vfork.S
 SOBJS = $(patsubst %.S,%.o, $(SSRC))
@@ -48,10 +43,10 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)lib/$(CRT0_OBJ)
+	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
-$(CRT0_OBJ): %.o : %.S
-	$(CC) $(SFLAGS) -c $< -o $@
+$(CRT0_OBJ): $(CRT0_SRC)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): %.o : %.S

@@ -1,3 +1,7 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2003 Erik Andersen <andersen@uclibc.org>
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
 # Software Foundation; either version 2 of the License, or (at your option) any
@@ -37,7 +41,7 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)libc/$(CRT0_OBJ)
+	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
 $(CRT0_OBJ): $(CRT0_SRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
