@@ -33,7 +33,7 @@ config HAVE_DOT_HIDDEN
 
 choice
 	prompt "Target Processor Type"
-	default CONFIG_GENERIC_ARM
+	default CONFIG_SH4
 	help
 	  This is the processor type of your CPU. This information is used for
 	  optimizing purposes, as well as to determine if your CPU has an MMU,
