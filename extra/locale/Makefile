@@ -12,7 +12,16 @@ endif
 all: links-target
 
 codesets.txt:
-	echo You need to create a codesets.txt file.  Read the README.
+	@if [ ! -f codesets.txt ] ; then \
+	    set -e; \
+	    echo " "; \
+	    echo "You do not have a codesets.txt file.  Please create this "; \
+	    echo "file in the extra/locale directory by running something like: "; \
+	    echo -e "  find ./charmaps -name \"*.pairs\" > ./codesets.txt"; \
+	    echo "and then edit that file to disable/enable the codesets you wish to support. "; \
+	    echo " "; \
+	    /bin/false; \
+	fi;
 
 gen_wc8bit: gen_wc8bit.c
 	gcc -Os -Wall $(CFLAGS_wc8bit) gen_wc8bit.c -o gen_wc8bit
@@ -37,6 +46,18 @@ locale_tables.h: gen_locale locales.txt
 
 lt_defines.h: locale_tables.h
 	grep "^#define" locale_tables.h > lt_defines.h
+
+locales.txt:
+	@if [ ! -f locales.txt ] ; then \
+	    set -e; \
+	    echo " "; \
+	    echo "You do not have a locales.txt file.  In the extra/locale "; \
+	    echo "directory, Please copy the LOCALES file to locales.txt and "; \
+	    echo "then edit that file to disable/enable the locales you wish "; \
+	    echo "to support. "; \
+	    echo " "; \
+	    /bin/false; \
+	fi;
 
 ifneq ($(TARGET_ARCH),$(NATIVE_ARCH))
 
