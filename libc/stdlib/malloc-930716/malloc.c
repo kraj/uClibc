@@ -160,11 +160,9 @@ void * __malloc_unlocked (size_t size)
     size_t log, block, blocks, i, lastblocks, start;
     struct list *next;
 
-#if 1
     /* Some programs will call malloc (0).  Lets be strict and return NULL */
     if (size == 0)
 	return NULL;
-#endif
 
     if (size < sizeof (struct list))
 	size = sizeof (struct list);
