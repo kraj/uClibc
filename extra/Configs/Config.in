@@ -27,6 +27,23 @@ config HAVE_SHARED
 	  answer Y here.  If you only want to build uClibc as a static library,
 	  then answer N.
 
+config ADD_LIBGCC_FUNCTIONS
+	bool "Add unresolved libgcc symbols to uClibc"
+	depends on HAVE_SHARED
+	default n
+	help
+	  If you answer Y here, all unresolved functions provided by the libgcc
+	  library that are used by uClibc will be added directly into the
+	  uClibc library.  If your gcc compiler only provides a static libgcc
+	  library, then enabling this option can reduce the size of your
+	  binaries by preventing these functions from being staticly linked
+	  into every binary.  If you have compiled uClibc as PIC code, one
+	  potential size effect of this option is that you may end up adding
+	  non-PIC libgcc code into your shared uClibc library, resulting in a
+	  non shareable text segment (thereby wasting a bunch of ram).  If your
+	  compiler supports a shared libgcc library, you should certainly leave
+	  this option disabled.  Regardless, the safest answer is N.
+
 config BUILD_UCLIBC_LDSO
 	bool "Compile native shared library loader"
 	depends on HAVE_SHARED
@@ -39,7 +56,7 @@ config BUILD_UCLIBC_LDSO
 
 config FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "Only load shared libraries which can share their text segment"
-	depends on BUILD_UCLIBC_LDSO && UCLIBC_COMPLETELY_PIC
+	depends on BUILD_UCLIBC_LDSO && UCLIBC_COMPLETELY_PIC && !ADD_LIBGCC_SYMBOLS
 	default n
 	help
 	  If you answer Y here, the uClibc native shared library loader will
