@@ -25,13 +25,9 @@ TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
 CSRC=__uClibc_main.c tempname.c errno.c __errno_location.c __h_errno_location.c
-
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-SSRC=abi-note.S
-SOBJS=$(patsubst %.S,%.o, $(SSRC))
-
-OBJS=$(COBJS) $(SOBJS)
+OBJS=$(COBJS)
 
 all: $(OBJS) interp.o $(LIBC)
 
@@ -53,10 +49,6 @@ interp.o: interp.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(SOBJS): %.o : %.S
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
