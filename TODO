@@ -12,6 +12,7 @@ Better configuration system
 run 'nm -D --size-sort -t d libuClibc-0.9.5.so' and work on the biggest things 
     (i.e. stuff at the end of the list) to make them smaller.
 make inb/outb work (for lilo et all)
+	update: done for i386.  lilo and the pcmcia tools compile cleanly now
 make rint work (for ip et all)
 include/resolv.h does not define struct _res, and libc/inet/resolv.c
     does not use this struct.  res_init does nothing.  the other res_* 
@@ -42,6 +43,8 @@ Document uClibc-specific extensions I know of or have implemented.
 	optional printf unconfigured-for-type error messages
 
 Add binary string conversion to scanf to mirror printf?
+
+Teach scanf about (nil) for %p.
 
 What to do about %m in printf?
 
