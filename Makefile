@@ -183,37 +183,37 @@ install_dev:
 	-install -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
 	tar -chf - include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX);
 ifneq ($(strip $(UCLIBC_HAS_WCHAR)),y)
-	# Remove wide char headers if wide char support is disabled.
+	# Remove wide char headers since wide char support is disabled.
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/wctype.h
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/wchar.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_LOCALE)),y)
-	# Remove iconv header if locale support is disabled.
+	# Remove iconv header since locale support is disabled.
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/iconv.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_XLOCALE)),y)
-	# Remove xlocale header if extended locale support is disabled.
+	# Remove xlocale header since extended locale support is disabled.
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/xlocale.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
-	# Remove libintl header if gettext support is disabled.
+	# Remove libintl header since gettext support is disabled.
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/libintl.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_REGEX)),y)
-	# Remove regex headers if regex support is disabled.
+	# Remove regex headers since regex support is disabled.
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/regex.h
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/regexp.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_WORDEXP)),y)
-	# Remove wordexp header if wordexp support is disabled.
+	# Remove wordexp header since wordexp support is disabled.
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/wordexp.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_FTW)),y)
-	# Remove ftw header if ftw support is disabled.
+	# Remove ftw header since ftw support is disabled.
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/ftw.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_GLOB)),y)
-	# Remove glob header if glob support is disabled.
+	# Remove glob header since glob support is disabled.
 	rm $(PREFIX)$(DEVEL_PREFIX)/include/glob.h
 endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
