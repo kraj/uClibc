@@ -285,13 +285,13 @@ endif
 .PHONY: utils
 ifeq ($(strip $(HAVE_SHARED)),y)
 utils:
-	$(MAKE) CROSS=$(CROSS) -C utils
+	$(MAKE) CROSS=$(CROSS) CC=$(CC) -C utils
 else
 utils: dummy
 endif
 
 install_utils: utils
-	$(MAKE) CROSS=$(CROSS) -C utils install
+	$(MAKE) CROSS=$(CROSS) CC=$(CC) -C utils install
 #ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 #	@$(MAKE) -C libc/misc/wchar iconv.target
 #	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/usr/bin;
