@@ -58,6 +58,8 @@ __extension__ typedef unsigned long long int __uint64_t;
 #endif
 typedef __quad_t *__qaddr_t;
 
+/* These types are modified from glibc to be more compatible with
+ * the kernel. */
 typedef __u_int __dev_t;		/* Type of device numbers.  */
 typedef __u_int __uid_t;		/* Type of user identifications.  */
 typedef __u_int __gid_t;		/* Type of group identifications.  */
