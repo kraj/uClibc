@@ -2,6 +2,6 @@
  * setting errno, which is important since we make system calls
  * before the errno symbol is dynamicly linked. */
 
-#define __set_errno(X)
+#define __set_errno(X) {(void)(X);}
 #include "sys/syscall.h"
 
