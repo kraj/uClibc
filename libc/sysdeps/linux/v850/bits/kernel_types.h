@@ -15,9 +15,11 @@
 
 typedef unsigned int	__kernel_dev_t;
 typedef unsigned long	__kernel_ino_t;
+typedef unsigned long long __kernel_ino64_t;
 typedef unsigned int	__kernel_mode_t;
 typedef unsigned int	__kernel_nlink_t;
 typedef long		__kernel_off_t;
+typedef long long	__kernel_loff_t;
 typedef int		__kernel_pid_t;
 typedef unsigned short	__kernel_ipc_pid_t;
 typedef unsigned int	__kernel_uid_t;
@@ -37,10 +39,6 @@ typedef unsigned int	__kernel_gid32_t;
 
 typedef unsigned short	__kernel_old_uid_t;
 typedef unsigned short	__kernel_old_gid_t;
-
-#ifdef __GNUC__
-typedef long long	__kernel_loff_t;
-#endif
 
 typedef struct {
 #ifdef __USE_ALL
