@@ -1,4 +1,27 @@
-0.9.25	15 December 2003
+0.9.26	3 January 2004
+
+    This simply adds a fix for a pthread bug that was noticed a few hours
+    after the previous release.  Otherwise identical to 0.9.25.
+
+    This release remains binary compatible with uClibc 0.9.21-25 as long as
+    you take care to avoid any configuraton changes that will break things.
+    We _were_ planning to break binary compatibilty in this release, but
+    decided to hold those changes so we could push out a bugfix release.
+
+    We _will_ break binary compatibilty in the upcoming 0.9.27 release to
+    implement a few things we have been postponing.  That should hopefully be
+    the last ABI change before we freeze the ABI for the upcoming 1.0.x
+    stable uClibc series.
+
+Release highlights:
+    o A trivial fix for a pthread bug
+    o Nothing else
+
+ -Erik
+
+
+
+0.9.25	3 January 2004
 
 See Changelog.full for the complete list of who did what.
 
@@ -29,8 +52,6 @@ Release highlights:
     o Lots of other minor cleanups
 
  -Erik
-
-
 
 
 
