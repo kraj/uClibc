@@ -936,25 +936,6 @@ extern void swab (__const void *__restrict __from, void *__restrict __to,
 extern char *ctermid (char *__s) __THROW;
 #endif
 
-
-#ifdef __USE_POSIX199309
-/* This function is only available if the system has POSIX threads.  */
-
-/* Install handlers to be called when a new process is created with FORK.
-   The PREPARE handler is called in the parent process just before performing
-   FORK. The PARENT handler is called in the parent process just after FORK.
-   The CHILD handler is called in the child process.  Each of the three
-   handlers can be NULL, meaning that no handler needs to be called at that
-   point.
-   PTHREAD_ATFORK can be called several times, in which case the PREPARE
-   handlers are called in LIFO order (last added with PTHREAD_ATFORK,
-   first called before FORK), and the PARENT and CHILD handlers are called
-   in FIFO (first added, first called). */
-extern int pthread_atfork (void (*__prepare) (void),
-			   void (*__parent) (void),
-			   void (*__child) (void)) __THROW;
-#endif
-
 __END_DECLS
 
 #endif /* unistd.h  */
