@@ -30,7 +30,7 @@ ifeq ($(UNIFIED_SYSCALL),y)
 endif
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC= __init_brk.c brk.c sbrk.c vfork.c
+CSRC= __init_brk.c brk.c sbrk.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)
