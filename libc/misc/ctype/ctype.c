@@ -41,6 +41,14 @@ toascii( int c )
 }
 #endif
 
+#ifdef L_isblank
+#undef isblank
+int
+isblank( int c )
+{
+    return ((c == ' ') || (c == '\t'));
+}
+#endif
 
 /* locale depended */
 #ifndef __UCLIBC_HAS_LOCALE__
@@ -115,15 +123,6 @@ isspace( int c )
 {
     return (c == ' ' || c == '\f' || c == '\n' || c == '\r' ||
 	    c == '\t' || c == '\v');
-}
-#endif
-
-#ifdef L_isblank
-#undef isblank
-int
-isblank( int c )
-{
-    return (c == ' ' || c == '\t');
 }
 #endif
 
@@ -272,15 +271,6 @@ int
 isspace( int c )
 {
     return _UC_ISCTYPE(c, ISspace);
-}
-#endif
-
-#ifdef L_isblank
-#undef isblank
-int
-isblank( int c )
-{
-    return _UC_ISCTYPE(c, ISblank);
 }
 #endif
 
