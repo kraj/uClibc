@@ -20,9 +20,9 @@ _syscall1(int, umount, const char *, specialfile);
 #define __NR___syscall_umount2 __NR_umount2
 static inline _syscall2(int, umount2, const char *, special_file, int, flags);
 
-int umount(const char *special_file, int flags)
+int umount(const char *special_file)
 {
-	return (__syscall_umount2(special_file, flags));
+	return (__syscall_umount2(special_file, 0));
 }
 
 #else
