@@ -188,5 +188,3 @@ SYSTEM_DEVEL_PREFIX = /
 # directory, the define PREFIX during the install step,
 # i.e., 'make PREFIX=/var/tmp/uClibc install'.
 #PREFIX = $(TOPDIR)/_install
-PREFIX =
-
