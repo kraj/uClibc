@@ -12,6 +12,8 @@
 #define MAP_FILE	0x00	   /* The 'normal' way: mapped from file */
 #endif
 
+#define MAP_FAILED     ((__ptr_t) -1) /* Return value of `mmap' in case of an error.  */
+
 __BEGIN_DECLS
 
 extern __ptr_t mmap __P((__ptr_t __addr, size_t __len,
