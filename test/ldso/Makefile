@@ -59,4 +59,4 @@ run: dltest dlttest dlttest2 libhowdy.so
 	./dlttest2
 
 clean:
-	rm -f *.o *.so dltest2 dltest core libhowdy.so
+	rm -f *.o *.so dltest2 dltest core libhowdy.so dlttest dlttest2
