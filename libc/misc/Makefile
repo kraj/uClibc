@@ -25,7 +25,7 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
 
-DIRS = assert ctype dirent file fnmatch glob internals \
+DIRS = assert ctype dirent file fnmatch internals \
        mntent syslog time utmp sysvipc statfs \
        error ttyent gnu search locale
 ifeq ($(strip $(UCLIBC_HAS_REGEX)),y)
@@ -42,6 +42,12 @@ DIRS += wctype wchar
 endif
 ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
 DIRS += intl
+endif
+ifeq ($(strip $(UCLIBC_HAS_FTW)),y)
+DIRS += ftw
+endif
+ifeq ($(strip $(UCLIBC_HAS_GLOB)),y)
+DIRS += glob
 endif
 
 all: libc.a

@@ -236,27 +236,6 @@ config HAS_SHADOW
 	  Answer N if you do not need shadow password support.  
 	  Most people will answer Y.
 
-config UCLIBC_HAS_REGEX
-	bool "Regular Expression Support"
-	default y
-	help
-	  POSIX regular expression code is really big -- 27k all by itself.
-	  If you don't use regular expressions, turn this off and save space.
-	  Of course, if you only staticly link, leave this on, since it will
-	  only be included in your apps if you use regular expressions.
-
-config UCLIBC_HAS_WORDEXP
-	bool "Support the wordexp() interface"
-	default n
-	help
-	  The SuSv3 wordexp() interface performs word expansions per the  Shell
-	  and Utilities volume of IEEE Std 1003.1-2001, Section 2.6.  It is
-	  intended for use by applications that want to implement all of the
-	  standard Bourne shell expansions on input data.
-
-	  This interface is rarely used, and very large.  Unless you have a
-	  pressing need for wordexp(), you should probably answer N.
-
 config UNIX98PTY_ONLY
 	bool "Support only Unix 98 PTYs"
 	default y
@@ -345,8 +324,6 @@ config UCLIBC_TZ_FILE_PATH
 	  Most people will use the default of '/etc/TZ'.
 
 endmenu
-
-
 
 menu "Networking Support"
 
@@ -742,6 +719,56 @@ config UCLIBC_HAS_GETTEXT_AWARENESS
 	  Most people will answer N.
 
 endmenu
+
+
+menu "Big and Tall"
+
+config UCLIBC_HAS_REGEX
+	bool "Regular Expression Support"
+	default y
+	help
+	  POSIX regular expression code is really big -- 27k all by itself.
+	  If you don't use regular expressions, turn this off and save space.
+	  Of course, if you only staticly link, leave this on, since it will
+	  only be included in your apps if you use regular expressions.
+
+config UCLIBC_HAS_WORDEXP
+	bool "Support the wordexp() interface"
+	default n
+	help
+	  The SuSv3 wordexp() interface performs word expansions per the  Shell
+	  and Utilities volume of IEEE Std 1003.1-2001, Section 2.6.  It is
+	  intended for use by applications that want to implement all of the
+	  standard Bourne shell expansions on input data.
+
+	  This interface is rarely used, and very large.  Unless you have a
+	  pressing need for wordexp(), you should probably answer N.
+
+config UCLIBC_HAS_FTW
+	bool "Support the ftw() and nftw() interfaces"
+	default n
+	help
+	  The SuSv3 ftw() and nftw() interfaces are used to recursively descend 
+	  directory paths while repeatedly calling a function.
+
+	  This interface is rarely used, and adds around 4.5k.  Unless you have
+	  a pressing need for ftw() or nftw(), you should probably answer N.
+
+config UCLIBC_HAS_GLOB
+	bool "Support the glob() interface"
+	default y
+	help
+
+	  The glob interface is somewhat large (weighing in at about 4k).  It
+	  is used fairly often, but is an option since people wanting to go for
+	  absolute minimum size may wish to omit it. 
+
+	  Most people will answer Y.
+
+endmenu
+
+
+
 
 menu "Library Installation Options"
 
