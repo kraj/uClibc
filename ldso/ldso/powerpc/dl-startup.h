@@ -19,6 +19,12 @@ asm(
     "	bl	_GLOBAL_OFFSET_TABLE_-4@local\n" /*  Put our GOT pointer in r31, */
     "	mflr	31\n"
     "	addi	1,1,16\n" /* Restore SP */
+    "	lwz	7,_dl_skip_args@got(31)\n" /* load EA of _dl_skip_args */
+    "	lwz	7,0(7)\n"	/* Load word from _dl_skip_args */
+    "	lwz	8,0(1)\n"	/* Load argc from stack */
+    "	subf	8,7,8\n"	/* Subtract _dl_skip_args from argc. */
+    "	slwi	7,7,2\n"	/* Multiply by 4 */
+    "	stwux	8,1,7\n"	/* Adjust the stack pointer to skip _dl_skip_args words and store adjusted argc on stack. */
 #if 0
     /* Try beeing SVR4 ABI compliant?, even though it is not needed for uClibc on Linux */
     /* argc */
