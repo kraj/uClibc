@@ -55,6 +55,9 @@ void __guard_setup(void)
 	if (__guard != 0UL)
 		return;
 
+	/* Start with the "terminator canary". */
+	__guard = 0xFF0A0D00UL;
+
 #ifndef __SSP_QUICK_CANARY__
 #ifdef HAVE_DEV_ERANDOM
 	/* Random is another depth in Linux, hence an array of 3. */
@@ -75,19 +78,17 @@ void __guard_setup(void)
 		int fd;
 
 #ifdef HAVE_DEV_ERANDOM
-		if ((fd = open("/dev/erandom", O_RDONLY)) == (-1))
+		if ((fd = __libc_open("/dev/erandom", O_RDONLY)) == (-1))
 #endif
-			fd = open("/dev/urandom", O_RDONLY);
+			fd = __libc_open("/dev/urandom", O_RDONLY);
 		if (fd != (-1)) {
-			size = read(fd, (char *) &__guard, sizeof(__guard));
-			close(fd);
+			size = __libc_read(fd, (char *) &__guard, sizeof(__guard));
+			__libc_close(fd);
 			if (size == sizeof(__guard))
 				return;
 		}
 	}
 #endif
-	/* If sysctl was unsuccessful, use the "terminator canary". */
-	__guard = 0xFF0A0D00UL;
 
 	/* Everything failed? Or we are using a weakened model of the 
 	 * terminator canary */
