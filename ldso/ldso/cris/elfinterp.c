@@ -169,6 +169,7 @@ _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, unsigned long re
 	int reloc_type;
 	int symtab_index;
 	char *strtab;
+	char *symname;
 	Elf32_Sym *symtab;
 	ELF_RELOC *rpnt;
 	Elf32_Addr *reloc_addr;
@@ -178,12 +179,12 @@ _dl_parse_lazy_relocation_information(struct elf_resolve *tpnt, unsigned long re
 	rel_size = rel_size / sizeof(ELF_RELOC);
 	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
-	symname = strtab + symtab[symtab_index].st_name;
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
 		reloc_addr = (Elf32_Addr *) (tpnt->loadaddr + (Elf32_Addr) rpnt->r_offset);
 		reloc_type = ELF32_R_TYPE(rpnt->r_info);
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
+		symname = strtab + symtab[symtab_index].st_name;
 
 		/*
 		 * Make sure we don't resolv the same symbols as we did
@@ -245,13 +246,13 @@ _dl_parse_relocation_information(struct elf_resolve *tpnt, unsigned long rel_add
 
 	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
-	symname = strtab + symtab[symtab_index].st_name;
 	
 	for (i = 0; i < rel_size; i++, rpnt++) {
 		reloc_addr = (Elf32_Addr *) (tpnt->loadaddr + (Elf32_Addr) rpnt->r_offset);
 		reloc_type = ELF32_R_TYPE(rpnt->r_info);
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
 		symbol_addr = 0;
+		symname = strtab + symtab[symtab_index].st_name;
 
 		if (!symtab_index && tpnt->libtype == program_interpreter)
 			continue;
@@ -363,6 +364,7 @@ _dl_parse_copy_information(struct dyn_elf *xpnt, unsigned long rel_addr, unsigne
 
 	symtab = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr);
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
+	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symname = strtab + symtab[symtab_index].st_name;
 
 	for (i = 0; i < rel_size; i++, rpnt++) {
