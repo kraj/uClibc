@@ -1,4 +1,4 @@
-/* Use old style mmap for v850 */
+/* Use new style mmap for v850 */
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/syscall.h>
