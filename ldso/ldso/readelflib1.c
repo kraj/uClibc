@@ -384,7 +384,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	status = (char *) _dl_mmap((char *) (piclib ? 0 : minvma), 
 		maxvma - minvma, PROT_NONE, flags | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(status)) {
-		_dl_dprintf(2, "%s: can't map '/dev/zero'\n", _dl_progname);
+		_dl_dprintf(2, "%s: can't map %s\n", _dl_progname, libname);
 		_dl_internal_error_number = DL_ERROR_MMAP_FAILED;
 		_dl_close(infile);
 		return NULL;

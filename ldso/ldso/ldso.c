@@ -1,26 +1,49 @@
-/* Run an ELF binary on a linux system.
+/* vi: set sw=4 ts=4: */
+/* Program to load an ELF binary on a linux system, and run it
+ * after resolving ELF shared library symbols
+ * 
+ * Copyright (C) 1993-1996, Eric Youngdale.
+ * Copyright (C) 2001-2002, Erik Andersen
+ *
+ * This program is free software; you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2, or (at your option) 
+ * any later version.  
+ * 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ * GNU General Public License for more details.  
+ * 
+ * You should have received a copy of the GNU General Public License 
+ * along with this program; if not, write to the Free Software 
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  
+ */
 
-   Copyright (C) 1993-1996, Eric Youngdale.
+/* Enable this to turn on debugging noise */
+//#define DL_DEBUG
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
+/* Enable mprotect protection munging.  We don't need this for Linux */
+//#define DO_MPROTECT_HACKS
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+// Support a list of library preloads in /etc/ld.so.preload
+//#define SUPPORT_LDSO_PRELOAD_FILE
 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
-
+/* Enable ldd library tracing.  Just set LD_TRACE_LOADED_OBJECTS=1 in
+ * the environment and run the app to do the ldd thing.  With this
+ * enabled you can make a simple /usr/bin/ldd shell script as:
+ *		#!/bin/sh
+ *		LD_TRACE_LOADED_OBJECTS=1 $1
+ * so you can do stuff like:
+ *		$ ldd ./appname
+ *				libc.so.0 => /lib/libc.so.0 (0x0x40006000) 
+ *				ld-uClibc.so.0 => /home/andersen/CVS/uClibc/lib/ld-uClibc.so.0 (0x0x40000000)
+ * This is off by default since it doesn't work when cross compiling,
+ * so uClibc provides an ELF header reading ldd instead...
+ */
+//#define DL_TRACE
 
 
-/* Program to load an ELF binary on a linux system, and run it.
- * References to symbols in sharable libraries can be resolved by
- * an ELF sharable library. */
 
 /* Disclaimer:  I have never seen any AT&T source code for SVr4, nor have
    I ever taken any courses on internals.  This program was developed using
@@ -30,65 +53,67 @@
    working. */
 
 /*
- * The main trick with this program is that initially, we ourselves are not
- * dynamicly linked.  This means that we cannot access any global variables
- * since the GOT is initialized by the linker assuming a virtual address of 0,
- * and we cannot call any functions since the PLT is not initialized at all
- * (it will tend to want to call the dynamic linker
+ * The main trick with this program is that initially, we ourselves are
+ * not dynamicly linked.  This means that we cannot access any global
+ * variables or call any functions.  No globals initially, since the
+ * Global Offset Table (GOT) is initialized by the linker assuming a
+ * virtual address of 0, and no function calls initially since the
+ * Procedure Linkage Table (PLT) is not yet initialized.
  *
- * There are further restrictions - we cannot use large switch statements,
- * since the compiler generates tables of addresses and jumps through them.
- * We can use inline functions, because these do not transfer control to
- * a new address, but they must be static so that they are not exported
- * from the modules.  We cannot use normal syscall stubs, because these
- * all reference the errno global variable which is not yet initialized.
- * We can use all of the local stack variables that we want, since these
- * are all referenced to %ebp or %esp.
+ * There are additional initial restrictions - we cannot use large
+ * switch statements, since the compiler generates tables of addresses
+ * and jumps through them.  We can use inline functions, because these
+ * do not transfer control to a new address, but they must be static so
+ * that they are not exported from the modules.  We cannot use normal
+ * syscall stubs, because these all reference the errno global variable
+ * which is not yet initialized.  We can use all of the local stack
+ * variables that we want.
  *
- * Life is further complicated by the fact that initially we do not want
- * to do a complete dynamic linking.  We want to allow the user to supply
- * new functions replacing some of the library versions, and until we have
- * the list of modules that we should search set up, we do not want to do
- * any of this.  Thus I have chosen to only perform the relocations for
- * variables that start with "_dl_" since ANSI specifies that the user is
- * not supposed to redefine any of these variables.
+ * Life is further complicated by the fact that initially we do not
+ * want to do a complete dynamic linking.  We want to allow the user to
+ * supply new functions to override symbols (i.e. weak symbols and/or
+ * LD_PRELOAD).  So initially, we only perform relocations for
+ * variables that start with "_dl_" since ANSI specifies that the user
+ * is not supposed to redefine any of these variables.
  *
  * Fortunately, the linker itself leaves a few clues lying around, and
  * when the kernel starts the image, there are a few further clues.
- * First of all, there is information buried on the stack that the kernel
- * leaves, which includes information about the load address that the
- * program interpreter was loaded at, the number of sections, the address
- * the application was loaded at and so forth.  Here this information
- * is stored in the array dl_info, and the indicies are taken from the
- * file /usr/include/sys/auxv.h on any SVr4 system.
+ * First of all, there is Auxiliary Vector Table information sitting on
+ * which is provided to us by the kernel, and which includes
+ * information about the load address that the program interpreter was
+ * loaded at, the number of sections, the address the application was
+ * loaded at and so forth.  Here this information is stored in the
+ * array auxvt.  For details see linux/fs/binfmt_elf.c where it calls
+ * NEW_AUX_ENT() a bunch of time....
  *
- * The linker itself leaves a pointer to the .dynamic section in the first
- * slot of the GOT, and as it turns out, %ebx points to ghe GOT when
- * you are using PIC code, so we just dereference this to get the address
- * of the dynamic sections.
+ * Next, we need to find the GOT.  On most arches there is a register
+ * pointing to the GOT, but just in case (and for new ports) I've added
+ * some (slow) C code to locate the GOT for you. 
  *
- * Typically you must load all text pages as writable so that dynamic linking
- * can succeed.  The kernel under SVr4 loads these as R/O, so we must call
- * mprotect to change the protections.  Once we are done, we should set these
- * back again, so the desired behavior is achieved.  Under linux there is
- * currently no mprotect function in the distribution kernel (although
- * someone has alpha patches), so for now everything is loaded writable.
+ * This code was originally written for SVr4, and there the kernel
+ * would load all text pages R/O, so they needed to call mprotect a
+ * zillion times to mark all text pages as writable so dynamic linking
+ * would succeed.  Then when they were done, they would change the
+ * protections for all the pages back again.  Well, under Linux
+ * everything is loaded writable (since Linux does copy on write
+ * anyways) so all the mprotect stuff has been disabled.
  *
- * We do not have access to malloc and friends at the initial stages of dynamic
- * linking, and it would be handy to have some scratchpad memory available for
- * use as we set things up.  We mmap one page of scratch space, and have a
- * simple _dl_malloc that uses this memory.  This is a good thing, since we do
- * not want to use the same memory pool as malloc anyway - esp if the user
- * redefines malloc to do something funky.
+ * Initially, we do not have access to _dl_malloc since we can't yet
+ * make function calls, so we mmap one page to use as scratch space.
+ * Later on, when we can call _dl_malloc we reuse this this memory.
+ * This is also beneficial, since we do not want to use the same memory
+ * pool as malloc anyway - esp if the user redefines malloc to do
+ * something funky.
  *
- * Our first task is to perform a minimal linking so that we can call other
- * portions of the dynamic linker.  Once we have done this, we then build
- * the list of modules that the application requires, using LD_LIBRARY_PATH
- * if this is not a suid program (/usr/lib otherwise).  Once this is done,
- * we can do the dynamic linking as required (and we must omit the things
- * we did to get the dynamic linker up and running in the first place.
- * After we have done this, we just have a few housekeeping chores and we
- * can transfer control to the user's application.
+ * Our first task is to perform a minimal linking so that we can call
+ * other portions of the dynamic linker.  Once we have done this, we
+ * then build the list of modules that the application requires, using
+ * LD_LIBRARY_PATH if this is not a suid program (/usr/lib otherwise).
+ * Once this is done, we can do the dynamic linking as required, and we
+ * must omit the things we did to get the dynamic linker up and running
+ * in the first place.  After we have done this, we just have a few
+ * housekeeping chores and we can transfer control to the user's
+ * application.
  */
 
 #include <stdarg.h>
@@ -117,6 +142,7 @@ static char *_dl_malloc_addr, *_dl_mmap_zero;
 char *_dl_library_path = 0;		/* Where we look for libraries */
 char *_dl_preload = 0;			/* Things to be loaded before the libs. */
 static char *_dl_not_lazy = 0;
+
 #ifdef DL_TRACE
 static char *_dl_trace_loaded_objects = 0;
 #endif
@@ -131,9 +157,11 @@ void _dl_unsetenv(char *symbol, char **envp);
 int _dl_fixup(struct elf_resolve *tpnt);
 void _dl_debug_state(void);
 char *_dl_get_last_path_component(char *path);
-
+static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt, 
+		unsigned long load_addr, unsigned long *hash_addr, Elf32_auxv_t auxvt[AT_EGID + 1], 
+		char **envp, struct r_debug *debug_addr);
 #include "boot1_arch.h"
-#include "ldso.h"			/* Pull in the name of ld.so */
+#include "ldso.h"				/* Pull in the name of ld.so */
 
 
 /* When we enter this piece of code, the program stack looks like this:
@@ -141,10 +169,10 @@ char *_dl_get_last_path_component(char *path);
         argv[0]         program name (pointer)
         argv[1...N]     program args (pointers)
         argv[argc-1]    end of args (integer)
-	NULL
+		NULL
         env[0...N]      environment variables (pointers)
         NULL
-	auxv_t[0...N]   Auxiliary Vector Table elements (mixed types)
+		auxvt[0...N]   Auxiliary Vector Table elements (mixed types)
 */
 
 #ifdef DL_DEBUG
@@ -155,14 +183,16 @@ static inline void hexprint(unsigned long x)
 {
 	int i;
 	char c;
-	for(i=0;i<8;i++){
-		c=((x>>28)+'0');
-		if(c>'9')c+='a'-'9'-1;
-		_dl_write(1,&c,1);
-		x<<=4;
+
+	for (i = 0; i < 8; i++) {
+		c = ((x >> 28) + '0');
+		if (c > '9')
+			c += 'a' - '9' - 1;
+		_dl_write(1, &c, 1);
+		x <<= 4;
 	}
-	c='\n';
-	_dl_write(1,&c,1);
+	c = '\n';
+	_dl_write(1, &c, 1);
 }
 #endif
 
@@ -176,19 +206,13 @@ DL_BOOT(unsigned long args)
 	int goof = 0;
 	elfhdr *header;
 	struct elf_resolve *tpnt;
-	struct dyn_elf *rpnt;
 	struct elf_resolve *app_tpnt;
-	unsigned long brk_addr;
-	Elf32_auxv_t auxv_t[AT_EGID + 1];
+	Elf32_auxv_t auxvt[AT_EGID + 1];
 	unsigned char *malloc_buffer, *mmap_zero;
-	int (*_dl_atexit) (void *);
-	unsigned long *lpnt;
 	Elf32_Dyn *dpnt;
 	unsigned long *hash_addr;
 	struct r_debug *debug_addr;
-	unsigned long *chains;
 	int indx;
-	int _dl_secure;
 	int status;
 
 
@@ -199,57 +223,54 @@ DL_BOOT(unsigned long args)
 
 	/* First obtain the information on the stack that tells us more about
 	   what binary is loaded, where it is loaded, etc, etc */
-	GET_ARGV(aux_dat,args);
+	GET_ARGV(aux_dat, args);
 #if defined(__arm__)
-	aux_dat+=1;
-#endif	
+	aux_dat += 1;
+#endif
 	argc = *(aux_dat - 1);
-        argv = (char **) aux_dat;
+	argv = (char **) aux_dat;
 	aux_dat += argc;			/* Skip over the argv pointers */
-	aux_dat++;				/* Skip over NULL at end of argv */
+	aux_dat++;					/* Skip over NULL at end of argv */
 	envp = (char **) aux_dat;
 	while (*aux_dat)
-		aux_dat++;			/* Skip over the envp pointers */
-	aux_dat++;				/* Skip over NULL at end of envp */
+		aux_dat++;				/* Skip over the envp pointers */
+	aux_dat++;					/* Skip over NULL at end of envp */
 
 	/* Place -1 here as a checkpoint.  We later check if it was changed
-	 * when we read in the auxv_t */
-	auxv_t[AT_UID].a_type = -1;
-	
+	 * when we read in the auxvt */
+	auxvt[AT_UID].a_type = -1;
+
 	/* The junk on the stack immediately following the environment is  
-	 * the Auxiliary Vector Table.  Read out the elements of the auxv_t,
-	 * sort and store them in auxv_t for later use. */
-	while (*aux_dat) 
-	{
-		Elf32_auxv_t *auxv_entry = (Elf32_auxv_t*) aux_dat;
+	 * the Auxiliary Vector Table.  Read out the elements of the auxvt,
+	 * sort and store them in auxvt for later use. */
+	while (*aux_dat) {
+		Elf32_auxv_t *auxv_entry = (Elf32_auxv_t *) aux_dat;
 
 		if (auxv_entry->a_type <= AT_EGID) {
-			_dl_memcpy(&(auxv_t[auxv_entry->a_type]), 
-				auxv_entry, sizeof(Elf32_auxv_t));
+			_dl_memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(Elf32_auxv_t));
 		}
 		aux_dat += 2;
 	}
-	
+
 	/* locate the ELF header.   We need this done as soon as possible 
 	 * (esp since SEND_STDERR() needs this on some platforms... */
-	load_addr = auxv_t[AT_BASE].a_un.a_val;
-	header = (elfhdr *) auxv_t[AT_BASE].a_un.a_ptr;
+	load_addr = auxvt[AT_BASE].a_un.a_val;
+	header = (elfhdr *) auxvt[AT_BASE].a_un.a_ptr;
 
 	/* Check the ELF header to make sure everything looks ok.  */
-	if (! header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
+	if (!header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
 		header->e_ident[EI_VERSION] != EV_CURRENT
 #ifndef __powerpc__
-		|| _dl_strncmp((void *)header, ELFMAGIC, SELFMAG) != 0
+		|| _dl_strncmp((void *) header, ELFMAGIC, SELFMAG) != 0
 #endif
-		)
-	{
-	    SEND_STDERR("Invalid ELF header\n");
-	    _dl_exit(0);
+		) {
+		SEND_STDERR("Invalid ELF header\n");
+		_dl_exit(0);
 	}
 #ifdef DL_DEBUG
 	SEND_STDERR("ELF header =");
 	SEND_ADDRESS_STDERR(load_addr, 1);
-#endif	
+#endif
 
 
 	/* Locate the global offset table.  Since this code must be PIC  
@@ -257,62 +278,63 @@ DL_BOOT(unsigned long args)
 	 * happen to know what that is for this architecture.  If not,
 	 * we can always read stuff out of the ELF file to find it... */
 #if defined(__i386__)
-	__asm__("\tmovl %%ebx,%0\n\t" : "=a" (got));
+  __asm__("\tmovl %%ebx,%0\n\t":"=a"(got));
 #elif defined(__m68k__)
-	__asm__ ("movel %%a5,%0" : "=g" (got))
+  __asm__("movel %%a5,%0":"=g"(got))
 #elif defined(__sparc__)
-	__asm__("\tmov %%l7,%0\n\t" : "=r" (got))
+  __asm__("\tmov %%l7,%0\n\t":"=r"(got))
 #elif defined(__arm__)
-	__asm__("\tmov %0, r10\n\t" : "=r"(got));
+  __asm__("\tmov %0, r10\n\t":"=r"(got));
 #elif defined(__powerpc__)
-	__asm__("\tbl _GLOBAL_OFFSET_TABLE_-4@local\n\t" : "=l"(got));
+  __asm__("\tbl _GLOBAL_OFFSET_TABLE_-4@local\n\t":"=l"(got));
 #else
 	/* Do things the slow way in C */
 	{
-	    unsigned long tx_reloc;
-	    Elf32_Dyn *dynamic=NULL;
-	    Elf32_Shdr *shdr;
-	    Elf32_Phdr *pt_load;
+		unsigned long tx_reloc;
+		Elf32_Dyn *dynamic = NULL;
+		Elf32_Shdr *shdr;
+		Elf32_Phdr *pt_load;
 
 #ifdef DL_DEBUG
-	    SEND_STDERR("Finding the got using C code to read the ELF file\n");
-#endif	
-	    /* Find where the dynamic linking information section is hiding */
-	    shdr = (Elf32_Shdr *)(header->e_shoff + (char *)header);
-	    for (indx = header->e_shnum; --indx>=0; ++shdr) {
-		if (shdr->sh_type == SHT_DYNAMIC) {
-		    goto found_dynamic;
+		SEND_STDERR("Finding the GOT using C code to read the ELF file\n");
+#endif
+		/* Find where the dynamic linking information section is hiding */
+		shdr = (Elf32_Shdr *) (header->e_shoff + (char *) header);
+		for (indx = header->e_shnum; --indx >= 0; ++shdr) {
+			if (shdr->sh_type == SHT_DYNAMIC) {
+				goto found_dynamic;
+			}
 		}
-	    }
-	    SEND_STDERR("missing dynamic linking information section \n");
-	    _dl_exit(0);
+		SEND_STDERR("missing dynamic linking information section \n");
+		_dl_exit(0);
 
-found_dynamic:
-	    dynamic = (Elf32_Dyn*)(shdr->sh_offset + (char *)header);
+	  found_dynamic:
+		dynamic = (Elf32_Dyn *) (shdr->sh_offset + (char *) header);
 
-	    /* Find where PT_LOAD is hiding */
-	    pt_load = (Elf32_Phdr *)(header->e_phoff + (char *)header);
-	    for (indx = header->e_phnum; --indx>=0; ++pt_load) {
-		if (pt_load->p_type == PT_LOAD) {
-		    goto found_pt_load;
+		/* Find where PT_LOAD is hiding */
+		pt_load = (Elf32_Phdr *) (header->e_phoff + (char *) header);
+		for (indx = header->e_phnum; --indx >= 0; ++pt_load) {
+			if (pt_load->p_type == PT_LOAD) {
+				goto found_pt_load;
+			}
 		}
-	    }
-	    SEND_STDERR("missing loadable program segment\n");
-	    _dl_exit(0);
+		SEND_STDERR("missing loadable program segment\n");
+		_dl_exit(0);
 
-found_pt_load:
-	    /* Now (finally) find where DT_PLTGOT is hiding */
-	    tx_reloc = pt_load->p_vaddr - pt_load->p_offset;
-	    for (; DT_NULL!=dynamic->d_tag; ++dynamic) {
-		if (dynamic->d_tag == DT_PLTGOT) {
-		    goto found_got;
-		}       
-	    }       
-	    SEND_STDERR("missing global offset table\n");
-	    _dl_exit(0);
+	  found_pt_load:
+		/* Now (finally) find where DT_PLTGOT is hiding */
+		tx_reloc = pt_load->p_vaddr - pt_load->p_offset;
+		for (; DT_NULL != dynamic->d_tag; ++dynamic) {
+			if (dynamic->d_tag == DT_PLTGOT) {
+				goto found_got;
+			}
+		}
+		SEND_STDERR("missing global offset table\n");
+		_dl_exit(0);
 
-found_got:
-	    got = (unsigned long *)(dynamic->d_un.d_val - tx_reloc + (char *)header );
+	  found_got:
+		got = (unsigned long *) (dynamic->d_un.d_val - tx_reloc + 
+				(char *) header);
 	}
 #endif
 
@@ -321,16 +343,16 @@ found_got:
 #ifdef DL_DEBUG
 	SEND_STDERR("First Dynamic section entry=");
 	SEND_ADDRESS_STDERR(dpnt, 1);
-#endif	
+#endif
 
-	
+
 	/* Call mmap to get a page of writable memory that can be used 
 	 * for _dl_malloc throughout the shared lib loader. */
 	mmap_zero = malloc_buffer = _dl_mmap((void *) 0, 4096, 
-		PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 	if (_dl_mmap_check_error(mmap_zero)) {
-	    SEND_STDERR("dl_boot: mmap of a spare page failed!\n");
-	    _dl_exit(13);
+		SEND_STDERR("dl_boot: mmap of a spare page failed!\n");
+		_dl_exit(13);
 	}
 
 	tpnt = DL_MALLOC(sizeof(struct elf_resolve));
@@ -346,9 +368,8 @@ found_got:
 
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
-
 	while (dpnt->d_tag) {
-		if(dpnt->d_tag<24) {
+		if (dpnt->d_tag < 24) {
 			tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
 			if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT) {
 				tpnt->dynamic_info[DT_TEXTREL] = 1;
@@ -361,8 +382,8 @@ found_got:
 		elf_phdr *ppnt;
 		int i;
 
-		ppnt = (elf_phdr *) auxv_t[AT_PHDR].a_un.a_ptr;
-		for (i = 0; i < auxv_t[AT_PHNUM].a_un.a_val; i++, ppnt++)
+		ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
+		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
 			if (ppnt->p_type == PT_DYNAMIC) {
 				dpnt = (Elf32_Dyn *) ppnt->p_vaddr;
 				while (dpnt->d_tag) {
@@ -388,8 +409,8 @@ found_got:
 	tpnt->nchain = *hash_addr++;
 	tpnt->elf_buckets = hash_addr;
 	hash_addr += tpnt->nbucket;
-	chains = hash_addr;
 
+#ifdef DO_MPROTECT_HACKS
 	/* Ugly, ugly.  We need to call mprotect to change the protection of
 	   the text pages so that we can do the dynamic linking.  We can set the
 	   protection back again once we are done */
@@ -400,28 +421,31 @@ found_got:
 
 		/* First cover the shared library/dynamic linker. */
 		if (tpnt->dynamic_info[DT_TEXTREL]) {
-			header = (elfhdr *) auxv_t[AT_BASE].a_un.a_ptr;
-			ppnt = (elf_phdr *) (auxv_t[AT_BASE].a_un.a_ptr + header->e_phoff);
+			header = (elfhdr *) auxvt[AT_BASE].a_un.a_ptr;
+			ppnt = (elf_phdr *) (auxvt[AT_BASE].a_un.a_ptr + 
+					header->e_phoff);
 			for (i = 0; i < header->e_phnum; i++, ppnt++) {
-				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
+				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W)) {
 					_dl_mprotect((void *) (load_addr + (ppnt->p_vaddr & 0xfffff000)), 
-						(ppnt->p_vaddr & 0xfff) + (unsigned long) ppnt->p_filesz, 
-						PROT_READ | PROT_WRITE | PROT_EXEC);
+							(ppnt->p_vaddr & 0xfff) + (unsigned long) ppnt->p_filesz, 
+							PROT_READ | PROT_WRITE | PROT_EXEC);
+				}
 			}
 		}
 
 		/* Now cover the application program. */
 		if (app_tpnt->dynamic_info[DT_TEXTREL]) {
-			ppnt = (elf_phdr *) auxv_t[AT_PHDR].a_un.a_ptr;
-			for (i = 0; i < auxv_t[AT_PHNUM].a_un.a_val; i++, ppnt++) {
+			ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
+			for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
-					_dl_mprotect((void *) (ppnt->p_vaddr & 0xfffff000), 
-						(ppnt->p_vaddr & 0xfff) + 
-						(unsigned long) ppnt->p_filesz, 
-						PROT_READ | PROT_WRITE | PROT_EXEC);
+					_dl_mprotect((void *) (ppnt->p_vaddr & 0xfffff000),
+								 (ppnt->p_vaddr & 0xfff) +
+								 (unsigned long) ppnt->p_filesz,
+								 PROT_READ | PROT_WRITE | PROT_EXEC);
 			}
 		}
 	}
+#endif
 
 	/* OK, now do the relocations.  We do not do a lazy binding here, so
 	   that once we are done, we have considerably more flexibility. */
@@ -437,18 +461,14 @@ found_got:
 
 
 #ifdef ELF_USES_RELOCA
-		rel_addr =
-			(indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
+		rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
 			 dynamic_info[DT_RELA]);
-		rel_size =
-			(indx ? tpnt->dynamic_info[DT_PLTRELSZ] : tpnt->
+		rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] : tpnt->
 			 dynamic_info[DT_RELASZ]);
 #else
-		rel_addr =
-			(indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
+		rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
 			 dynamic_info[DT_REL]);
-		rel_size =
-			(indx ? tpnt->dynamic_info[DT_PLTRELSZ] : tpnt->
+		rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] : tpnt->
 			 dynamic_info[DT_RELSZ]);
 #endif
 
@@ -472,19 +492,15 @@ found_got:
 				/* We only do a partial dynamic linking right now.  The user
 				   is not supposed to redefine any symbols that start with
 				   a '_', so we can do this with confidence. */
-
 				if (!_dl_symbol(strtab + symtab[symtab_index].st_name))
 					continue;
-
 				symbol_addr = load_addr + symtab[symtab_index].st_value;
 
 				if (!symbol_addr) {
-					/*
-					 * This will segfault - you cannot call a function until
+					/* This will segfault - you cannot call a function until
 					 * we have finished the relocations.
 					 */
-					SEND_STDERR("ELF dynamic loader - unable to "
-						"self-bootstrap - symbol ");
+					SEND_STDERR("ELF dynamic loader - unable to self-bootstrap - symbol ");
 					SEND_STDERR(strtab + symtab[symtab_index].st_name);
 					SEND_STDERR(" undefined.\n");
 					goof++;
@@ -500,14 +516,64 @@ found_got:
 	if (goof) {
 		_dl_exit(14);
 	}
+#ifdef DL_DEBUG
+	/* Wahoo!!! */
+	_dl_dprintf(2, "Done relocating library loader, so we can now\n\tuse globals and make function calls!\n");
+#endif
 
-	/* OK, at this point we have a crude malloc capability.  Start to build
-	   the tables of the modules that are required for this beast to run.
-	   We start with the basic executable, and then go from there.  Eventually
-	   we will run across ourself, and we will need to properly deal with that
-	   as well. */
+	if (argv[0]) {
+		_dl_progname = argv[0];
+	}
+
+	/* Start to build the tables of the modules that are required for
+	 * this beast to run.  We start with the basic executable, and then
+	 * go from there.  Eventually we will run across ourself, and we
+	 * will need to properly deal with that as well. */
+
+	/* Make it so _dl_malloc can use the page of memory we have already
+	 * allocated, so we shouldn't need to grab any more memory */
 	_dl_malloc_addr = malloc_buffer;
 	_dl_mmap_zero = mmap_zero;
+
+
+
+	/* Now we have done the mandatory linking of some things.  We are now
+	   free to start using global variables, since these things have all been
+	   fixed up by now.  Still no function calls outside of this library ,
+	   since the dynamic resolver is not yet ready. */
+	_dl_get_ready_to_run(tpnt, app_tpnt, load_addr, hash_addr, auxvt, envp, debug_addr);
+
+
+
+
+	/* OK we are done here.  Turn out the lights, and lock up. */
+	_dl_elf_main = (int (*)(int, char **, char **)) auxvt[AT_ENTRY].a_un.a_fcn;
+
+
+	/*
+	 * Transfer control to the application.
+	 */
+	status = 0;					/* Used on x86, but not on other arches */
+#ifdef DL_DEBUG
+	_dl_dprintf(2, "Calling application main()\n");
+#endif
+	START();
+}
+
+
+static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt, 
+		unsigned long load_addr, unsigned long *hash_addr, Elf32_auxv_t auxvt[AT_EGID + 1], 
+		char **envp, struct r_debug *debug_addr)
+{
+	elf_phdr *ppnt;
+	char *lpntstr;
+	int i, _dl_secure, goof = 0;
+	struct dyn_elf *rpnt;
+	struct elf_resolve *tcurr;
+	struct elf_resolve *tpnt1;
+	unsigned long brk_addr, *lpnt;
+	int (*_dl_atexit) (void *);
+
 
 	/* Now we have done the mandatory linking of some things.  We are now
 	   free to start using global variables, since these things have all been
@@ -515,7 +581,9 @@ found_got:
 	   since the dynamic resolver is not yet ready. */
 	lpnt = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT] + load_addr);
 	INIT_GOT(lpnt, tpnt);
-
+#ifdef DL_DEBUG
+	_dl_dprintf(2, "GOT found at %x\n", tpnt);
+#endif
 	/* OK, this was a big step, now we need to scan all of the user images
 	   and load them properly. */
 
@@ -528,7 +596,7 @@ found_got:
 		elf_phdr *ppnt;
 		int i;
 
-		epnt = (elfhdr *) auxv_t[AT_BASE].a_un.a_ptr;
+		epnt = (elfhdr *) auxvt[AT_BASE].a_un.a_ptr;
 		tpnt->n_phent = epnt->e_phnum;
 		tpnt->ppnt = ppnt = (elf_phdr *) (load_addr + epnt->e_phoff);
 		for (i = 0; i < epnt->e_phnum; i++, ppnt++) {
@@ -539,7 +607,7 @@ found_got:
 		}
 	}
 
-	tpnt->chains = chains;
+	tpnt->chains = hash_addr;
 	tpnt->loadaddr = (char *) load_addr;
 
 	brk_addr = 0;
@@ -549,60 +617,55 @@ found_got:
 	   and figure out which libraries are supposed to be called.  Until
 	   we have this list, we will not be completely ready for dynamic linking */
 
-	{
-		elf_phdr *ppnt;
-		int i;
-
-		ppnt = (elf_phdr *) auxv_t[AT_PHDR].a_un.a_ptr;
-		for (i = 0; i < auxv_t[AT_PHNUM].a_un.a_val; i++, ppnt++) {
-			if (ppnt->p_type == PT_LOAD) {
-				if (ppnt->p_vaddr + ppnt->p_memsz > brk_addr)
-					brk_addr = ppnt->p_vaddr + ppnt->p_memsz;
-			}
-			if (ppnt->p_type == PT_DYNAMIC) {
+	ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
+	for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
+		if (ppnt->p_type == PT_LOAD) {
+			if (ppnt->p_vaddr + ppnt->p_memsz > brk_addr)
+				brk_addr = ppnt->p_vaddr + ppnt->p_memsz;
+		}
+		if (ppnt->p_type == PT_DYNAMIC) {
 #ifndef ALLOW_ZERO_PLTGOT
-				/* make sure it's really there. */
-				if (app_tpnt->dynamic_info[DT_PLTGOT] == 0)
-					continue;
+			/* make sure it's really there. */
+			if (app_tpnt->dynamic_info[DT_PLTGOT] == 0)
+				continue;
 #endif
-				/* OK, we have what we need - slip this one into the list. */
-				app_tpnt = _dl_add_elf_hash_table("", 0, 
+			/* OK, we have what we need - slip this one into the list. */
+			app_tpnt = _dl_add_elf_hash_table("", 0, 
 					app_tpnt->dynamic_info, ppnt->p_vaddr, ppnt->p_filesz);
-				_dl_loaded_modules->libtype = elf_executable;
-				_dl_loaded_modules->ppnt = (elf_phdr *) auxv_t[AT_PHDR].a_un.a_ptr;
-				_dl_loaded_modules->n_phent = auxv_t[AT_PHNUM].a_un.a_val;
-				_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
-				_dl_memset(rpnt, 0, sizeof(*rpnt));
-				rpnt->dyn = _dl_loaded_modules;
-				app_tpnt->usage_count++;
-				app_tpnt->symbol_scope = _dl_symbol_tables;
-				lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
+			_dl_loaded_modules->libtype = elf_executable;
+			_dl_loaded_modules->ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
+			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
+			_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
+			_dl_memset(rpnt, 0, sizeof(*rpnt));
+			rpnt->dyn = _dl_loaded_modules;
+			app_tpnt->usage_count++;
+			app_tpnt->symbol_scope = _dl_symbol_tables;
+			lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
 #ifdef ALLOW_ZERO_PLTGOT
-				if (lpnt)
+			if (lpnt)
 #endif
-					INIT_GOT(lpnt, _dl_loaded_modules);
-			}
-			if (ppnt->p_type == PT_INTERP) {	/* OK, fill this in - we did not 
-								   have this before */
-				tpnt->libname = _dl_strdup((char *) ppnt->p_offset +
-							   (auxv_t[AT_PHDR].a_un.a_val & 0xfffff000));
-			}
+				INIT_GOT(lpnt, _dl_loaded_modules);
+		}
+		if (ppnt->p_type == PT_INTERP) {	/* OK, fill this in - we did not 
+											   have this before */
+			tpnt->libname = _dl_strdup((char *) ppnt->p_offset +
+					(auxvt[AT_PHDR].a_un.a_val & 0xfffff000));
 		}
 	}
+#ifdef DL_DEBUG
+	_dl_dprintf(2, "Lib Loader:\t(%x) %s\n", tpnt->loadaddr, tpnt->libname);
+#endif
 
-	if (argv[0]) {
-		_dl_progname = argv[0];
-	}
 
 	/* Now we need to figure out what kind of options are selected.
 	   Note that for SUID programs we ignore the settings in LD_LIBRARY_PATH */
 	{
 		_dl_not_lazy = _dl_getenv("LD_BIND_NOW", envp);
 
-		if ((auxv_t[AT_UID].a_un.a_val == -1 && _dl_suid_ok()) ||
-			(auxv_t[AT_UID].a_un.a_val != -1 && 
-			 auxv_t[AT_UID].a_un.a_val == auxv_t[AT_EUID].a_un.a_val
-			 && auxv_t[AT_GID].a_un.a_val== auxv_t[AT_EGID].a_un.a_val)) {
+		if ((auxvt[AT_UID].a_un.a_val == -1 && _dl_suid_ok()) ||
+				(auxvt[AT_UID].a_un.a_val != -1 && 
+				 auxvt[AT_UID].a_un.a_val == auxvt[AT_EUID].a_un.a_val
+				 && auxvt[AT_GID].a_un.a_val== auxvt[AT_EGID].a_un.a_val)) {
 			_dl_secure = 0;
 			_dl_preload = _dl_getenv("LD_PRELOAD", envp);
 			_dl_library_path = _dl_getenv("LD_LIBRARY_PATH", envp);
@@ -628,218 +691,225 @@ found_got:
 	_dl_map_cache();
 #endif
 
+
+	if (_dl_preload) 
 	{
-		struct elf_resolve *tcurr;
-		struct elf_resolve *tpnt1;
-		char *lpnt;
+		char c, *str, *str2;
 
-		if (_dl_preload) 
+		str = _dl_preload;
+		while (*str == ':' || *str == ' ' || *str == '\t')
+			str++;
+		while (*str) 
 		{
-			char c, *str, *str2;
-
-			str = _dl_preload;
+			str2 = str;
+			while (*str2 && *str2 != ':' && *str2 != ' ' && *str2 != '\t')
+				str2++;
+			c = *str2;
+			*str2 = '\0';
+			if (!_dl_secure || _dl_strchr(str, '/') == NULL) 
+			{
+				tpnt1 = _dl_load_shared_library(_dl_secure, NULL, str);
+				if (!tpnt1) {
+#ifdef DL_TRACE
+					if (_dl_trace_loaded_objects)
+						_dl_dprintf(1, "\t%s => not found\n", str);
+					else {
+#endif
+						_dl_dprintf(2, "%s: can't load "
+								"library '%s'\n", _dl_progname, str);
+						_dl_exit(15);
+#ifdef DL_TRACE
+					}
+#endif
+				} else {
+#ifdef DL_DEBUG
+					_dl_dprintf(2, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
+#endif
+#ifdef DL_TRACE
+					if (_dl_trace_loaded_objects
+							&& !tpnt1->usage_count) {
+						/* this is a real hack to make ldd not print 
+						 * the library itself when run on a library. */
+						if (_dl_strcmp(_dl_progname, str) != 0)
+							_dl_dprintf(1, "\t%s => %s (0x%x)\n", str, tpnt1->libname, 
+									(unsigned) tpnt1->loadaddr);
+					}
+#endif
+					rpnt->next = (struct dyn_elf *)
+						_dl_malloc(sizeof(struct dyn_elf));
+					_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
+					rpnt = rpnt->next;
+					tpnt1->usage_count++;
+					tpnt1->symbol_scope = _dl_symbol_tables;
+					tpnt1->libtype = elf_lib;
+					rpnt->dyn = tpnt1;
+				}
+			}
+			*str2 = c;
+			str = str2;
 			while (*str == ':' || *str == ' ' || *str == '\t')
 				str++;
-			while (*str) 
-			{
-				str2 = str;
-				while (*str2 && *str2 != ':' && *str2 != ' ' && *str2 != '\t')
-					str2++;
-				c = *str2;
-				*str2 = '\0';
-				if (!_dl_secure || _dl_strchr(str, '/') == NULL) 
-				{
-					tpnt1 = _dl_load_shared_library(_dl_secure, NULL, str);
-					if (!tpnt1) {
-#ifdef DL_TRACE
-						if (_dl_trace_loaded_objects)
-							_dl_dprintf(1, "\t%s => not found\n", str);
-						else {
-#endif
-							_dl_dprintf(2, "%s: can't load "
-								"library '%s'\n", _dl_progname, str);
-							_dl_exit(15);
-#ifdef DL_TRACE
-						}
-#endif
-					} else {
-#ifdef DL_TRACE
-						if (_dl_trace_loaded_objects
-							&& !tpnt1->usage_count) {
-							/* this is a real hack to make ldd not print 
-							 * the library itself when run on a library. */
-							if (_dl_strcmp(_dl_progname, str) != 0)
-								_dl_dprintf(1, "\t%s => %s (0x%x)\n", str, tpnt1->libname, 
-									(unsigned) tpnt1->loadaddr);
-						}
-#endif
-						rpnt->next = (struct dyn_elf *)
-							_dl_malloc(sizeof(struct dyn_elf));
-						_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
-						rpnt = rpnt->next;
-						tpnt1->usage_count++;
-						tpnt1->symbol_scope = _dl_symbol_tables;
-						tpnt1->libtype = elf_lib;
-						rpnt->dyn = tpnt1;
-					}
-				}
-				*str2 = c;
-				str = str2;
-				while (*str == ':' || *str == ' ' || *str == '\t')
-					str++;
-			}
 		}
+	}
 
-		{
-			int fd;
-			struct stat st;
-			char *preload;
-
-			if (!_dl_stat(LDSO_PRELOAD, &st) && st.st_size > 0) {
-				if ((fd = _dl_open(LDSO_PRELOAD, O_RDONLY)) < 0) {
-					_dl_dprintf(2, "%s: can't open file '%s'\n", 
+#ifdef SUPPORT_LDSO_PRELOAD_FILE
+	{
+		int fd;
+		struct stat st;
+		char *preload;
+		if (!_dl_stat(LDSO_PRELOAD, &st) && st.st_size > 0) {
+			if ((fd = _dl_open(LDSO_PRELOAD, O_RDONLY)) < 0) {
+				_dl_dprintf(2, "%s: can't open file '%s'\n", 
 						_dl_progname, LDSO_PRELOAD);
-				} else {
-					preload = (caddr_t) _dl_mmap(0, st.st_size + 1, 
+			} else {
+				preload = (caddr_t) _dl_mmap(0, st.st_size + 1, 
 						PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
-					_dl_close(fd);
-					if (preload == (caddr_t) - 1) {
-						_dl_dprintf(2, "%s: can't map file '%s'\n", 
+				_dl_close(fd);
+				if (preload == (caddr_t) - 1) {
+					_dl_dprintf(2, "%s: can't map file '%s'\n", 
 							_dl_progname, LDSO_PRELOAD);
-					} else {
-						char c, *cp, *cp2;
+				} else {
+					char c, *cp, *cp2;
 
-						/* convert all separators and comments to spaces */
-						for (cp = preload; *cp; /*nada */ ) {
-							if (*cp == ':' || *cp == '\t' || *cp == '\n') {
+					/* convert all separators and comments to spaces */
+					for (cp = preload; *cp; /*nada */ ) {
+						if (*cp == ':' || *cp == '\t' || *cp == '\n') {
+							*cp++ = ' ';
+						} else if (*cp == '#') {
+							do
 								*cp++ = ' ';
-							} else if (*cp == '#') {
-								do
-									*cp++ = ' ';
-								while (*cp != '\n' && *cp != '\0');
-							} else {
-								cp++;
-							}
+							while (*cp != '\n' && *cp != '\0');
+						} else {
+							cp++;
 						}
+					}
 
-						/* find start of first library */
-						for (cp = preload; *cp && *cp == ' '; cp++)
+					/* find start of first library */
+					for (cp = preload; *cp && *cp == ' '; cp++)
+						/*nada */ ;
+
+					while (*cp) {
+						/* find end of library */
+						for (cp2 = cp; *cp && *cp != ' '; cp++)
 							/*nada */ ;
+						c = *cp;
+						*cp = '\0';
 
-						while (*cp) {
-							/* find end of library */
-							for (cp2 = cp; *cp && *cp != ' '; cp++)
-								/*nada */ ;
-							c = *cp;
-							*cp = '\0';
-
-							tpnt1 = _dl_load_shared_library(0, NULL, cp2);
-							if (!tpnt1) {
+						tpnt1 = _dl_load_shared_library(0, NULL, cp2);
+						if (!tpnt1) {
 #ifdef DL_TRACE
-								if (_dl_trace_loaded_objects)
-									_dl_dprintf(1, "\t%s => not found\n", cp2);
-								else {
+							if (_dl_trace_loaded_objects)
+								_dl_dprintf(1, "\t%s => not found\n", cp2);
+							else {
 #endif
-									_dl_dprintf(2, "%s: can't load library '%s'\n", 
+								_dl_dprintf(2, "%s: can't load library '%s'\n", 
 										_dl_progname, cp2);
-									_dl_exit(15);
+								_dl_exit(15);
 #ifdef DL_TRACE
-						}
-#endif
-							} else {
-#ifdef DL_TRACE
-								if (_dl_trace_loaded_objects
-									&& !tpnt1->usage_count) {
-									_dl_dprintf(1, "\t%s => %s (0x%x)\n", cp2, 
-										tpnt1->libname, (unsigned) tpnt1->loadaddr);
-								}
-#endif
-								rpnt->next = (struct dyn_elf *)
-									_dl_malloc(sizeof(struct dyn_elf));
-								_dl_memset(rpnt->next, 0, 
-									sizeof(*(rpnt->next)));
-								rpnt = rpnt->next;
-								tpnt1->usage_count++;
-								tpnt1->symbol_scope = _dl_symbol_tables;
-								tpnt1->libtype = elf_lib;
-								rpnt->dyn = tpnt1;
 							}
-
-							/* find start of next library */
-							*cp = c;
-							for ( /*nada */ ; *cp && *cp == ' '; cp++)
-								/*nada */ ;
+#endif
+						} else {
+#ifdef DL_DEBUG
+							_dl_dprintf(2, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
+#endif
+#ifdef DL_TRACE
+							if (_dl_trace_loaded_objects
+									&& !tpnt1->usage_count) {
+								_dl_dprintf(1, "\t%s => %s (0x%x)\n", cp2, 
+										tpnt1->libname, (unsigned) tpnt1->loadaddr);
+							}
+#endif
+							rpnt->next = (struct dyn_elf *)
+								_dl_malloc(sizeof(struct dyn_elf));
+							_dl_memset(rpnt->next, 0, 
+									sizeof(*(rpnt->next)));
+							rpnt = rpnt->next;
+							tpnt1->usage_count++;
+							tpnt1->symbol_scope = _dl_symbol_tables;
+							tpnt1->libtype = elf_lib;
+							rpnt->dyn = tpnt1;
 						}
 
-						_dl_munmap(preload, st.st_size + 1);
+						/* find start of next library */
+						*cp = c;
+						for ( /*nada */ ; *cp && *cp == ' '; cp++)
+							/*nada */ ;
 					}
-				}
-			}
-		}
 
-		for (tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next) {
-			for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag;
-				 dpnt++) {
-				if (dpnt->d_tag == DT_NEEDED) {
-					lpnt = tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] +
-						dpnt->d_un.d_val;
-					if (tpnt && _dl_strcmp(lpnt, 
-						    _dl_get_last_path_component(tpnt->libname)) == 0) {
-						struct elf_resolve *ttmp;
-
-#ifdef DL_TRACE
-						if (_dl_trace_loaded_objects && !tpnt->usage_count) {
-						    _dl_dprintf(1, "\t%s => %s (0x%x)\n", 
-							    lpnt, tpnt->libname, (unsigned) tpnt->loadaddr);
-						}
-#endif
-						ttmp = _dl_loaded_modules;
-						while (ttmp->next)
-							ttmp = ttmp->next;
-						ttmp->next = tpnt;
-						tpnt->prev = ttmp;
-						tpnt->next = NULL;
-						rpnt->next = (struct dyn_elf *)
-							_dl_malloc(sizeof(struct dyn_elf));
-						_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
-						rpnt = rpnt->next;
-						rpnt->dyn = tpnt;
-						tpnt->usage_count++;
-						tpnt->symbol_scope = _dl_symbol_tables;
-						tpnt = NULL;
-						continue;
-					}
-					if (!(tpnt1 = _dl_load_shared_library(0, tcurr, lpnt))) {
-#ifdef DL_TRACE
-						if (_dl_trace_loaded_objects)
-							_dl_dprintf(1, "\t%s => not found\n", lpnt);
-						else {
-#endif
-							_dl_dprintf(2, "%s: can't load library '%s'\n", 
-								_dl_progname, lpnt);
-							_dl_exit(16);
-#ifdef DL_TRACE
-						}
-#endif
-					} else {
-#ifdef DL_TRACE
-						if (_dl_trace_loaded_objects && !tpnt1->usage_count)
-							_dl_dprintf(1, "\t%s => %s (0x%x)\n", lpnt, tpnt1->libname, 
-								(unsigned) tpnt1->loadaddr);
-#endif
-						rpnt->next = (struct dyn_elf *)
-							_dl_malloc(sizeof(struct dyn_elf));
-						_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
-						rpnt = rpnt->next;
-						tpnt1->usage_count++;
-						tpnt1->symbol_scope = _dl_symbol_tables;
-						tpnt1->libtype = elf_lib;
-						rpnt->dyn = tpnt1;
-					}
+					_dl_munmap(preload, st.st_size + 1);
 				}
 			}
 		}
 	}
+#endif
+
+	for (tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next) {
+		Elf32_Dyn *dpnt;
+		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag;
+				dpnt++) {
+			if (dpnt->d_tag == DT_NEEDED) {
+				lpntstr = tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] +
+					dpnt->d_un.d_val;
+				if (tpnt && _dl_strcmp(lpntstr, 
+							_dl_get_last_path_component(tpnt->libname)) == 0) {
+					struct elf_resolve *ttmp;
+
+#ifdef DL_TRACE
+					if (_dl_trace_loaded_objects && !tpnt->usage_count) {
+						_dl_dprintf(1, "\t%s => %s (0x%x)\n", 
+								lpntstr, tpnt->libname, (unsigned) tpnt->loadaddr);
+					}
+#endif
+					ttmp = _dl_loaded_modules;
+					while (ttmp->next)
+						ttmp = ttmp->next;
+					ttmp->next = tpnt;
+					tpnt->prev = ttmp;
+					tpnt->next = NULL;
+					rpnt->next = (struct dyn_elf *)
+						_dl_malloc(sizeof(struct dyn_elf));
+					_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
+					rpnt = rpnt->next;
+					rpnt->dyn = tpnt;
+					tpnt->usage_count++;
+					tpnt->symbol_scope = _dl_symbol_tables;
+					tpnt = NULL;
+					continue;
+				}
+				if (!(tpnt1 = _dl_load_shared_library(0, tcurr, lpntstr))) {
+#ifdef DL_TRACE
+					if (_dl_trace_loaded_objects)
+						_dl_dprintf(1, "\t%s => not found\n", lpntstr);
+					else {
+#endif
+						_dl_dprintf(2, "%s: can't load library '%s'\n", 
+								_dl_progname, lpntstr);
+						_dl_exit(16);
+#ifdef DL_TRACE
+					}
+#endif
+				} else {
+#ifdef DL_DEBUG
+					_dl_dprintf(2, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
+#endif
+#ifdef DL_TRACE
+					if (_dl_trace_loaded_objects && !tpnt1->usage_count)
+						_dl_dprintf(1, "\t%s => %s (0x%x)\n", lpntstr, tpnt1->libname, 
+								(unsigned) tpnt1->loadaddr);
+#endif
+					rpnt->next = (struct dyn_elf *)
+						_dl_malloc(sizeof(struct dyn_elf));
+					_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
+					rpnt = rpnt->next;
+					tpnt1->usage_count++;
+					tpnt1->symbol_scope = _dl_symbol_tables;
+					tpnt1->libtype = elf_lib;
+					rpnt->dyn = tpnt1;
+				}
+			}
+		}
+	}
+
 
 #ifdef USE_CACHE
 	_dl_unmap_cache();
@@ -848,6 +918,7 @@ found_got:
 #ifdef DL_TRACE
 	if (_dl_trace_loaded_objects) {
 		char *_dl_warn = 0;
+
 		_dl_warn = _dl_getenv("LD_WARN", envp);
 		if (!_dl_warn)
 			_dl_exit(0);
@@ -877,7 +948,8 @@ found_got:
 			tpnt->prev = NULL;
 		}
 		if (rpnt) {
-			rpnt->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
+			rpnt->next =
+				(struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
 			_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
 			rpnt = rpnt->next;
 		} else {
@@ -887,7 +959,9 @@ found_got:
 		rpnt->dyn = tpnt;
 		tpnt = NULL;
 	}
-
+#ifdef DL_DEBUG
+	_dl_dprintf(2, "Beginning relocation fixups\n");
+#endif
 	/*
 	 * OK, now all of the kids are tucked into bed in their proper addresses.
 	 * Now we go through and look for REL and RELA records that indicate fixups
@@ -900,6 +974,9 @@ found_got:
 	   and we have to manually search for entries that require fixups. 
 	   Solaris gets this one right, from what I understand.  */
 
+#ifdef DL_DEBUG
+	_dl_dprintf(2, "Beginning copy fixups\n");
+#endif
 	if (_dl_symbol_tables)
 		goof += _dl_copy_fixups(_dl_symbol_tables);
 #ifdef DL_TRACE
@@ -915,30 +992,36 @@ found_got:
 	   up each symbol individually. */
 
 
-	_dl_brkp = (unsigned long *) _dl_find_hash("___brk_addr", NULL, 1, NULL, 0);
-	if (_dl_brkp)
+	_dl_brkp =
+		(unsigned long *) _dl_find_hash("___brk_addr", NULL, 1, NULL, 0);
+	if (_dl_brkp) {
 		*_dl_brkp = brk_addr;
+	}
 	_dl_envp =
 		(unsigned long *) _dl_find_hash("__environ", NULL, 1, NULL, 0);
 
-	if (_dl_envp)
+	if (_dl_envp) {
 		*_dl_envp = (unsigned long) envp;
+	}
+
+#ifdef DO_MPROTECT_HACKS
 	{
 		int i;
 		elf_phdr *ppnt;
 
 		/* We had to set the protections of all pages to R/W for dynamic linking.
 		   Set text pages back to R/O */
-		for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next)
-			for (ppnt = tpnt->ppnt, i = 0; i < tpnt->n_phent; i++, ppnt++)
-				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W) &&
-					tpnt->dynamic_info[DT_TEXTREL])
+		for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
+			for (ppnt = tpnt->ppnt, i = 0; i < tpnt->n_phent; i++, ppnt++) {
+				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W) && tpnt->dynamic_info[DT_TEXTREL]) {
 					_dl_mprotect((void *) (tpnt->loadaddr + (ppnt->p_vaddr & 0xfffff000)), 
-						(ppnt->p_vaddr & 0xfff) + (unsigned long) ppnt->p_filesz, 
-						LXFLAGS(ppnt->p_flags));
+							(ppnt->p_vaddr & 0xfff) + (unsigned long) ppnt->p_filesz, LXFLAGS(ppnt->p_flags));
+				}
+			}
+		}
 
 	}
-
+#endif
 	_dl_atexit = (int (*)(void *)) _dl_find_hash("atexit", NULL, 1, NULL, 0);
 
 	/*
@@ -956,49 +1039,37 @@ found_got:
 	   function call. */
 	((void (*)(void)) debug_addr->r_brk) ();
 
+#ifdef DL_DEBUG
+	_dl_dprintf(2, "Calling init/fini for shared libraries\n");
+#endif
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
 		/* Apparently crt1 for the application is responsible for handling this.
 		 * We only need to run the init/fini for shared libraries
 		 */
-		if (tpnt->libtype == program_interpreter ||
-			tpnt->libtype == elf_executable)
+		if (tpnt->libtype == program_interpreter || tpnt->libtype == elf_executable)
 			continue;
 		if (tpnt->init_flag & INIT_FUNCS_CALLED)
 			continue;
 		tpnt->init_flag |= INIT_FUNCS_CALLED;
 
 		if (tpnt->dynamic_info[DT_INIT]) {
-			_dl_elf_init = (int (*)(void)) (tpnt->loadaddr + 
-				tpnt->dynamic_info[DT_INIT]);
+			_dl_elf_init = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
 			(*_dl_elf_init) ();
 		}
 		if (_dl_atexit && tpnt->dynamic_info[DT_FINI]) {
 			(*_dl_atexit) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
 		}
-#undef DL_DEBUG
 #ifdef DL_DEBUG
 		else {
-			_dl_dprintf(2, tpnt->libname);
-			_dl_dprintf(2, ": ");
 			if (!_dl_atexit)
-				_dl_dprintf(2, "The address is atexit () is 0x0.");
+				_dl_dprintf(2, "%s: The address of atexit () is 0x0.\n", tpnt->libname);
+#if 0
 			if (!tpnt->dynamic_info[DT_FINI])
-				_dl_dprintf(2, "Invalid .fini section.");
-			_dl_dprintf(2, "\n");
+				_dl_dprintf(2, "%s: Invalid .fini section.\n", tpnt->libname);
+#endif
 		}
 #endif
-#undef DL_DEBUG
 	}
-
-	/* OK we are done here.  Turn out the lights, and lock up. */
-	_dl_elf_main = (int (*)(int, char **, char **)) auxv_t[AT_ENTRY].a_un.a_fcn;
-
-
-	/*
-	 * Transfer control to the application.
-	 */
-	status = 0; /* Used on x86, but not on other arches */
-	START();
 }
 
 /*
@@ -1014,20 +1085,20 @@ void _dl_debug_state()
 int _dl_fixup(struct elf_resolve *tpnt)
 {
 	int goof = 0;
-	
+
 	if (tpnt->next)
 		goof += _dl_fixup(tpnt->next);
 	if (tpnt->dynamic_info[DT_REL]) {
 #ifdef ELF_USES_RELOCA
-		_dl_dprintf(2, "%s: can't handle REL relocation records\n", 
-			_dl_progname);
+		_dl_dprintf(2, "%s: can't handle REL relocation records\n",
+					_dl_progname);
 		_dl_exit(17);
 #else
 		if (tpnt->init_flag & RELOCS_DONE)
 			return goof;
 		tpnt->init_flag |= RELOCS_DONE;
-		goof += _dl_parse_relocation_information(tpnt, 
-			tpnt->dynamic_info[DT_REL], tpnt->dynamic_info[DT_RELSZ], 0);
+		goof += _dl_parse_relocation_information(tpnt, tpnt->dynamic_info[DT_REL], 
+				tpnt->dynamic_info[DT_RELSZ], 0);
 #endif
 	}
 	if (tpnt->dynamic_info[DT_RELA]) {
@@ -1035,11 +1106,11 @@ int _dl_fixup(struct elf_resolve *tpnt)
 		if (tpnt->init_flag & RELOCS_DONE)
 			return goof;
 		tpnt->init_flag |= RELOCS_DONE;
-		goof += _dl_parse_relocation_information(tpnt, 
-			tpnt->dynamic_info[DT_RELA], tpnt->dynamic_info[DT_RELASZ], 0);
+		goof += _dl_parse_relocation_information(tpnt, tpnt->dynamic_info[DT_RELA], 
+				tpnt->dynamic_info[DT_RELASZ], 0);
 #else
-		_dl_dprintf(2, "%s: can't handle RELA relocation records\n", 
-			_dl_progname);
+		_dl_dprintf(2, "%s: can't handle RELA relocation records\n",
+					_dl_progname);
 		_dl_exit(18);
 #endif
 	}
@@ -1048,11 +1119,11 @@ int _dl_fixup(struct elf_resolve *tpnt)
 			return goof;
 		tpnt->init_flag |= JMP_RELOCS_DONE;
 		if (!_dl_not_lazy || *_dl_not_lazy == 0)
-			_dl_parse_lazy_relocation_information(tpnt, 
-				tpnt->dynamic_info[DT_JMPREL], tpnt->dynamic_info[DT_PLTRELSZ], 0);
+			_dl_parse_lazy_relocation_information(tpnt, tpnt->dynamic_info[DT_JMPREL], 
+					tpnt->dynamic_info [DT_PLTRELSZ], 0);
 		else
-			goof += _dl_parse_relocation_information(tpnt, 
-				tpnt->dynamic_info[DT_JMPREL], tpnt->dynamic_info[DT_PLTRELSZ], 0);
+			goof += _dl_parse_relocation_information(tpnt, tpnt->dynamic_info[DT_JMPREL], 
+					tpnt->dynamic_info[DT_PLTRELSZ], 0);
 	}
 	return goof;
 }
@@ -1061,21 +1132,20 @@ void *_dl_malloc(int size)
 {
 	void *retval;
 
-#ifdef DL_DEBUG
-	SEND_STDERR("malloc: request for ");
-	SEND_NUMBER_STDERR(size, 0);
-	SEND_STDERR(" bytes\n");
-#endif	
+#if 0
+//#ifdef DL_DEBUG
+	_dl_dprintf(2, "malloc: request for %d bytes\n", size);
+#endif
 
 	if (_dl_malloc_function)
 		return (*_dl_malloc_function) (size);
 
 	if (_dl_malloc_addr - _dl_mmap_zero + size > 4096) {
 #ifdef DL_DEBUG
-		SEND_STDERR("malloc: mmapping more memory\n");
-#endif	
+		_dl_dprintf(2, "malloc: mmapping more memory\n");
+#endif
 		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size, 
-			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
 			_dl_dprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
 			_dl_exit(20);
@@ -1136,78 +1206,76 @@ char *_dl_strdup(const char *string)
 	return retval;
 }
 
-/* Minimum printf which handles only characters, %d's and %s's */
+/* Minimal printf which handles only %s, %d, and %x */
 void _dl_dprintf(int fd, const char *fmt, ...)
 {
-    int num;
-    va_list args;
-    char *start, *ptr, *string;
-    char buf[2048];
+	int num;
+	va_list args;
+	char *start, *ptr, *string;
+	char buf[2048];
 
-    start = ptr = buf;
-    
-    if (!fmt)
+	start = ptr = buf;
+
+	if (!fmt)
+		return;
+
+	if (_dl_strlen(fmt) >= (sizeof(buf) - 1))
+		_dl_write(fd, "(overflow)\n", 10);
+
+	_dl_strcpy(buf, fmt);
+	va_start(args, fmt);
+
+	while (start) {
+		while (*ptr != '%' && *ptr) {
+			ptr++;
+		}
+
+		if (*ptr == '%') {
+			*ptr++ = '\0';
+			_dl_write(fd, start, _dl_strlen(start));
+
+			switch (*ptr++) {
+			case 's':
+				string = va_arg(args, char *);
+
+				if (!string)
+					_dl_write(fd, "(null)", 6);
+				else
+					_dl_write(fd, string, _dl_strlen(string));
+				break;
+
+			case 'i':
+			case 'd':
+			{
+				char tmp[22];
+				num = va_arg(args, int);
+
+				string = _dl_simple_ltoa(tmp, num);
+				_dl_write(fd, string, _dl_strlen(string));
+				break;
+			}
+			case 'x':
+			case 'X':
+			{
+				char tmp[22];
+				num = va_arg(args, int);
+
+				string = _dl_simple_ltoahex(tmp, num);
+				_dl_write(fd, string, _dl_strlen(string));
+				break;
+			}
+			default:
+				_dl_write(fd, "(null)", 6);
+				break;
+			}
+
+			start = ptr;
+		} else {
+			_dl_write(fd, start, _dl_strlen(start));
+			start = NULL;
+		}
+	}
 	return;
-
-    if (_dl_strlen(fmt) >= (sizeof(buf)-1))
-	_dl_write(fd, "(overflow)\n", 10);
-
-    _dl_strcpy(buf, fmt);
-    va_start(args, fmt);
-
-    while(start)
-    {
-	while(*ptr != '%' && *ptr) { 
-	    ptr++;
-	}
-
-	if(*ptr == '%')
-	{
-	    *ptr++ = '\0';
-	    _dl_write(fd, start, _dl_strlen(start));
-
-	    switch(*ptr++)
-	    {
-		case 's':
-		    string = va_arg(args, char *);
-		    if (!string)
-			_dl_write(fd, "(null)", 6);
-		    else
-			_dl_write(fd, string, _dl_strlen(string));
-		    break;
-
-		case 'i':
-		case 'd':
-		    {
-			char tmp[22];
-			num = va_arg(args, int);
-			string = _dl_simple_ltoa(tmp, num);
-			_dl_write(fd, string, _dl_strlen(string));
-			break;
-		    }
-		case 'x':
-		case 'X':
-		    {
-			char tmp[22];
-			num = va_arg(args, int);
-			string = _dl_simple_ltoahex(tmp, num);
-			_dl_write(fd, string, _dl_strlen(string));
-			break;
-		    }
-		default:
-			_dl_write(fd, "(null)", 6);
-			break;
-	    }
-
-	    start = ptr;
-	}
-	else
-	{
-	    _dl_write(fd, start, _dl_strlen(start));
-	    start = NULL;
-	}
-    }
-    return;
 }
 
 #include "hash.c"

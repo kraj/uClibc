@@ -25,11 +25,11 @@
 TOPDIR=../../
 DOPIC=true
 include $(TOPDIR)Rules.mak
-
-
 LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
 
-#XXFLAGS += #-DDL_DEBUG #-funroll-loops
+# Enable this to enable debugging output from ld.so
+#XXFLAGS+= -DDL_DEBUG
+
 XXFLAGS+=-DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
 	-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
 	-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\"
@@ -66,6 +66,9 @@ $(COBJS): %.o : %.c
 $(AOBJS): %.o : %.S
 	$(CC) $(CFLAGS) -I. -I./$(TARGET_ARCH) -I../libdl -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+ldso.o: ldso.c hash.c readelflib1.c $(TARGET_ARCH)/elfinterp.c \
+	ld_hash.h ld_string.h ld_syscall.h ldso.h linuxelf.h
 
 clean::
 	$(RM) -f $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i ldso.h *~
