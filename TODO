@@ -26,11 +26,11 @@ Other random things:
 -----------------------------------------------------------------------------
 Manuel's todo:
 
-Wrap up the current work on locale issues, finish the mb<->wc functions.
-    
-Implement wide unformatted i/o.  (current project)
-
-Implement wide formatted output (printf).
+For the end of June:
+  Fix 2 minor issues with the mb<->wc functions.
+  Implement wide unformatted i/o.
+  Implement wide formatted output.
+  General stdio cleanup.  (one bufpos variable; removed redundant locking).
 
 Reimplement scanf for narrow and wide streams.
 
