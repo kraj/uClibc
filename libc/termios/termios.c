@@ -31,11 +31,18 @@
 
 #ifdef L_isatty
 /* Return 1 if FD is a terminal, 0 if not.  */
+#include "kernel_termios.h"
+
 int isatty(int fd)
 {
-  struct termios term;
+	struct __kernel_termios k_term;
 
-  return tcgetattr(fd, &term) == 0;
+	/*
+	* When ioctl returns -1 we want to return 0 and
+	* when ioctl returns  0 we want to return 1.
+	* Incrementing is cheaper (size & speed) than a test.
+	*/
+	return ioctl(fd, TCGETS, &k_term) + 1;
 }
 #endif
 
