@@ -188,9 +188,8 @@ char *is_shlib(const char *dir, const char *name, int *type,
     struct stat statbuf;
     char buff[4096];
 
-    /* see if name is of the form libZ.so* */
-    if ((strncmp(name, "lib", 3) == 0 || strncmp(name, "ld-", 3) == 0) && \
-	    name[strlen(name)-1] != '~' && (cp = strstr(name, ".so")))
+    /* see if name is of the form *.so* */
+    if (name[strlen(name)-1] != '~' && (cp = strstr(name, ".so")))
     {
 	/* find the start of the Vminor part, if any */
 	if (cp[3] == '.' && (cp2 = strchr(cp + 4, '.')))
