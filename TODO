@@ -9,6 +9,9 @@ Finish sparc port
 Standardize the style of the header files.
 Documentation
 Better configuration system
+run 'nm -D --size-sort -t d libuClibc-0.9.5.so' and work on the biggest things 
+    (i.e. stuff at the end of the list) to make them smaller.
+
 
 -----------------------------------------------------------------------------
 Manuel's unsorted todo:
