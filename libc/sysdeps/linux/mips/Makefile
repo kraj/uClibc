@@ -28,7 +28,7 @@ SSRC=bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S syscall.S pipe.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=__longjmp.c  brk.c setjmp_aux.c mmap.c __syscall_error.c \
-	cacheflush.c pread_write.c sysmips.c _test_and_set.c sigaction.c
+	cacheflush.c pread_write.c sysmips.c _test_and_set.c #sigaction.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
