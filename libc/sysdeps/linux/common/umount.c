@@ -8,5 +8,15 @@
  */
 
 #include "syscalls.h"
+
+#ifdef __NR_umount	/* Some newer archs only have umount2 */
 #include <sys/mount.h>
 _syscall1(int, umount, const char *, specialfile);
+#else
+int umount(const char *special_file)
+{
+	__set_errno(ENOSYS);
+	return -1;
+}
+#endif
+
