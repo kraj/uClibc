@@ -78,15 +78,15 @@ if [ -z "$KVER" ] ; then
     exit 1;
 fi;
 
-
 echo -e "\n"
 echo "Using kernel headers from $KVER for architecture '$TARGET_ARCH'"
 echo -e "\tprovided in directory $KERNEL_SOURCE"
 echo -e "\n"
 
 # Create a symlink to include/asm
+
 rm -f include/asm
-if [ ! -L "$KERNEL_SOURCE/include/asm" ]; then 
+if [ ! -d "$KERNEL_SOURCE/include/asm" ]; then 
     echo "";
     echo "The symlink $KERNEL_SOURCE/include/asm is missing\!";
     echo "Perhaps you forgot to configure your kernel source?";
