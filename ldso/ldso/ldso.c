@@ -397,7 +397,7 @@ LD_BOOT(unsigned long args)
 #endif
 		if (dpnt->d_tag < 24) {
 			tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-			if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT) {
+			if (dpnt->d_tag == DT_TEXTREL) {
 				tpnt->dynamic_info[DT_TEXTREL] = 1;
 			}
 		}
@@ -435,7 +435,7 @@ LD_BOOT(unsigned long args)
 #else
 						dpnt_debug = dpnt;
 #endif
-					if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT)
+					if (dpnt->d_tag == DT_TEXTREL)
 						app_tpnt->dynamic_info[DT_TEXTREL] = 1;
 					dpnt++;
 				}

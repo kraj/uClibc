@@ -30,18 +30,6 @@ extern int _dl_linux_resolve(void);
 #define ELF_CLASS   ELFCLASS32
 
 
-#ifndef SVR4_BUGCOMPAT
-# ifdef FORCE_SHAREABLE_TEXT_SEGMENTS
-#  define SVR4_BUGCOMPAT 0
-# else
-#  define SVR4_BUGCOMPAT 1
-# endif
-#else
-# ifdef FORCE_SHAREABLE_TEXT_SEGMENTS
-#  error option SVR4_BUGCOMPAT combined with option FORCE_SHAREABLE_TEXT_SEGMENTS makes no sense
-# endif
-#endif
-
 #if ELF_CLASS == ELFCLASS32
 
 #define elfhdr		Elf32_Ehdr

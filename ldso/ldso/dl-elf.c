@@ -562,7 +562,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				continue;
 			}
 			dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-			if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT)
+			if (dpnt->d_tag == DT_TEXTREL)
 				dynamic_info[DT_TEXTREL] = 1;
 			dpnt++;
 		};
