@@ -36,7 +36,7 @@ testandset (int *spinlock)
   char ret;
 
   __asm__ __volatile__(
-#if !defined(__mcf5200__) && !defined(__m68000)
+#if !defined(__mcoldfire__) && !defined(__mcf5200__) && !defined(__m68000)
          "tas %1; sne %0"
 #else
          "bset #7,%1; sne %0"
@@ -57,7 +57,7 @@ register char * stack_pointer __asm__ ("%sp");
 
 /* Compare-and-swap for semaphores. */
 
-#if !defined(__mcf5200__) && !defined(__mc68000)
+#if !defined(__mcoldfire__) && !defined(__mcf5200__) && !defined(__mc68000)
 #define HAS_COMPARE_AND_SWAP
 PT_EI int
 __compare_and_swap (long int *p, long int oldval, long int newval)
