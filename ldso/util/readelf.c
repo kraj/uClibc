@@ -49,7 +49,7 @@ Elf32_Shdr * elf_find_section_type( int key, Elf32_Ehdr *ehdr)
 			return shdr;
 		}
 	}
-	return 0;
+	return NULL;
 }
 
 Elf32_Phdr * elf_find_phdr_type( int type, Elf32_Ehdr *ehdr)
@@ -61,7 +61,7 @@ Elf32_Phdr * elf_find_phdr_type( int type, Elf32_Ehdr *ehdr)
 			return phdr;
 		}
 	}
-	return 0;
+	return NULL;
 }
 
 /* Returns value if return_val==1, ptr otherwise */ 
@@ -78,7 +78,7 @@ void * elf_find_dynamic(int const key, Elf32_Dyn *dynp,
 				return (void *)(dynp->d_un.d_val - tx_reloc + (char *)ehdr );
 		}
 	}
-	return 0;
+	return NULL;
 }
 
 int check_elf_header(Elf32_Ehdr const *const ehdr)
@@ -256,7 +256,7 @@ static void describe_elf_interpreter(Elf32_Ehdr* ehdr)
 	Elf32_Phdr *phdr;
 	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
 	if (phdr) {
-		printf("Interpreter:\t%s\n", (char*)phdr->p_paddr);
+		printf("Interpreter:\t%s\n", (char*)ehdr + phdr->p_offset);
 	}
 }
 
