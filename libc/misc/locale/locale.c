@@ -413,9 +413,14 @@ static int init_cur_collate(int der_num, __collate_t *cur_collate)
 	size_t n;
 	uint16_t i, w;
 
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning kill of x86-specific asserts
+#endif
+#if 0
 	assert(sizeof(coldata_base_t) == 19*2);
 	assert(sizeof(coldata_der_t) == 4*2);
 	assert(sizeof(coldata_header_t) == 8*2);
+#endif
 
 	if (!der_num) { 			/* C locale... special */
 		cur_collate->num_weights = 0;
