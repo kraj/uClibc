@@ -1,6 +1,8 @@
 #ifndef _LINUX_STRING_H_
 #define _LINUX_STRING_H_
 
+#include <dl-sysdep.h> // for do_rem
+
 static size_t _dl_strlen(const char * str);
 static char *_dl_strcat(char *dst, const char *src);
 static char * _dl_strcpy(char * dst,const char *src);
