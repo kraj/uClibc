@@ -184,7 +184,7 @@ int cfsetispeed ( struct termios *termios_p, speed_t speed)
 }
 #endif
 
-#ifdef L_tcspeed
+#ifdef L_cfsetspeed
 struct speed_struct
 {
   speed_t value;
