@@ -27,29 +27,36 @@ ASFLAGS=$(CFLAGS)
 
 # If you're looking for vfork(), it is defined in include/unistd.h
 
-SSRC=crt0.S setjmp.S # longjmp.S _start.S clone.S
+CRT0=crt0.S
+CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
+
+SSRC=setjmp.S # longjmp.S _start.S clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=errno.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(SOBJS) $(COBJS)
+OBJS=$(SOBJS) $(MOBJ) $(COBJS)
 
 
-all: $(OBJS) $(LIBC)
-	cp crt0.o  $(TOPDIR)
+all: $(OBJS) $(CRT0_OBJ) $(LIBC)
 
 $(LIBC): ar-target
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
-$(SOBJS): 
-	$(CC) $(CFLAGS) $< -c $*.S -o $*.o
+$(CRT0_OBJ): %.o : %.S
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+	cp $*.o $(TOPDIR)/libcrt0.o
+
+$(SOBJS): %.o : %.S
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS):
-	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
