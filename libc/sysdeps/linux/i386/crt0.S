@@ -76,6 +76,8 @@ _start:
 
 	/* Ok, now run uClibc's main() -- shouldn't return */
 	call __uClibc_main
+	/* Crash if somehow `exit' returns anyways.  */
+	hlt
 
 /* Stick in a dummy reference to main(), so that if an application
  * is linking when the main() function is in a static library (.a)
