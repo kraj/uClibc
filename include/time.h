@@ -286,9 +286,12 @@ extern char *ctime_r (__const time_t *__restrict __timer,
 
 
 /* Defined in localtime.c.  */
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning "mjn3 FIXME: __tzname, __daylight, and __timezone have a prototype but are not defined."
 extern char *__tzname[2];	/* Current timezone names.  */
 extern int __daylight;		/* If daylight-saving time is ever in use.  */
 extern long int __timezone;	/* Seconds west of UTC.  */
+#endif /* __UCLIBC_MJN3_ONLY__ */
 
 
 # ifdef	__USE_POSIX
@@ -342,15 +345,16 @@ extern int nanosleep (__const struct timespec *__requested_time,
 		      struct timespec *__remaining);
 
 
-/* Get resolution of clock CLOCK_ID.  */
-extern int clock_getres (clockid_t __clock_id, struct timespec *__res) __THROW;
-
 /* Get current value of clock CLOCK_ID and store it in TP.  */
 extern int clock_gettime (clockid_t __clock_id, struct timespec *__tp) __THROW;
 
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning "mjn3 FIXME: a bunch of unimplemented function prototypes."
+/* Get resolution of clock CLOCK_ID.  */
+extern int clock_getres (clockid_t __clock_id, struct timespec *__res) __THROW;
+
 /* Set clock CLOCK_ID to value TP.  */
-extern int clock_settime (clockid_t __clock_id, __const struct timespec *__tp)
-     __THROW;
+extern int clock_settime (clockid_t __clock_id, __const struct timespec *__tp) __THROW;
 
 #  ifdef __USE_XOPEN2K
 /* High-resolution sleep with the specified clock.
@@ -385,9 +389,12 @@ extern int timer_gettime (timer_t __timerid, struct itimerspec *__value)
 
 /* Get expiration overrun for timer TIMERID.  */
 extern int timer_getoverrun (timer_t __timerid) __THROW;
+#endif /* __UCLIBC_MJN3_ONLY__ */
 # endif
 
 
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning "mjn3 FIXME: a bunch of unimplemented function prototypes."
 # ifdef __USE_XOPEN_EXTENDED
 /* Set to one of the following values to indicate an error.
      1  the DATEMSK environment variable is null or undefined,
@@ -426,6 +433,7 @@ extern struct tm *getdate (__const char *__string);
 extern int getdate_r (__const char *__restrict __string,
 		      struct tm *__restrict __resbufp);
 # endif
+#endif /* __UCLIBC_MJN3_ONLY__ */
 
 __END_DECLS
 
