@@ -93,7 +93,15 @@ weak_alias(__libc_close, close)
 //#define __NR_creat            8
 #ifdef L_creat
 #include <fcntl.h>
+#ifdef __NR_creat
 _syscall2(int, creat, const char *, file, mode_t, mode);
+#else
+extern int __libc_open (const char *file, int flags, mode_t mode);
+int creat (const char *file, mode_t mode)
+{
+	  return __libc_open (file, O_WRONLY|O_CREAT|O_TRUNC, mode);
+}
+#endif
 #endif
 
 //#define __NR_link             9
@@ -124,7 +132,21 @@ _syscall1(int, chdir, const char *, path);
 //#define __NR_time             13
 #ifdef L_time
 #include <time.h>
+#include <sys/time.h>
+#ifdef __NR_time
 _syscall1(time_t, time, time_t *, t);
+#else
+time_t time (time_t *t)
+{ 
+	time_t result;
+	struct timeval tv;
+	if (gettimeofday (&tv, (struct timezone *) NULL)) {
+		result = (time_t) -1;
+	} else { result = (time_t) tv.tv_sec; }
+	if (t != NULL) { *t = result; }
+	return result;
+}
+#endif
 #endif
 
 //#define __NR_mknod            14
@@ -181,6 +203,9 @@ weak_alias(__libc_lseek, lseek)
 //#define __NR_getpid           20
 #ifdef L___libc_getpid
 #include <unistd.h>
+#if defined (__alpha__)
+#define __NR_getpid     __NR_getxpid
+#endif
 #define __NR___libc_getpid __NR_getpid
 _syscall0(pid_t, __libc_getpid);
 weak_alias(__libc_getpid, getpid)
@@ -220,13 +245,28 @@ int setuid(uid_t uid)
 //#define __NR_getuid           24
 #ifdef L_getuid
 #include <unistd.h>
+#if defined (__alpha__)
+#define __NR_getuid     __NR_getxuid
+#endif
 _syscall0(uid_t, getuid);
 #endif
 
 //#define __NR_stime            25
 #ifdef L_stime
 #include <time.h>
+#include <sys/time.h>
+#ifdef _NR_stime
 _syscall1(int, stime, const time_t *, t);
+#else
+int stime(const time_t *when)
+{ 
+	struct timeval tv;
+	if (when == NULL) { __set_errno (EINVAL); return -1; }
+	tv.tv_sec = *when;
+	tv.tv_usec = 0;
+	return settimeofday (&tv, (struct timezone *) 0);
+}
+#endif
 #endif
 
 //#define __NR_ptrace           26
@@ -241,7 +281,24 @@ _syscall4(long, __ptrace, enum __ptrace_request, request, pid_t, pid,
 //#define __NR_alarm            27
 #ifdef L_alarm
 #include <unistd.h>
+#ifdef __NR_alarm
 _syscall1(unsigned int, alarm, unsigned int, seconds);
+#else
+#include <sys/time.h>
+unsigned int alarm (unsigned int seconds)
+{
+	struct itimerval old, new;
+	unsigned int retval;
+	new.it_value.tv_usec = 0;
+	new.it_interval.tv_sec = 0;
+	new.it_interval.tv_usec = 0;
+	new.it_value.tv_sec = (long int) seconds;
+	if (setitimer (ITIMER_REAL, &new, &old) < 0) { return 0; }
+	retval = old.it_value.tv_sec;
+	if (old.it_value.tv_usec) { ++retval; }
+	return retval;
+}
+#endif
 #endif
 
 //#define __NR_oldfstat         28
@@ -249,15 +306,61 @@ _syscall1(unsigned int, alarm, unsigned int, seconds);
 //#define __NR_pause            29
 #ifdef L___libc_pause
 #include <unistd.h>
+#ifdef __NR_pause
 #define __NR___libc_pause __NR_pause
 _syscall0(int, __libc_pause);
+#else
+#include <signal.h>
+int __libc_pause (void)
+{
+	return(__sigpause(sigblock(0), 0));
+}
+#endif
 weak_alias(__libc_pause, pause)
 #endif
 
 //#define __NR_utime            30
 #ifdef L_utime
 #include <utime.h>
-_syscall2(int, utime, const char *, filename, const struct utimbuf *, buf);
+#ifdef __NR_utime
+_syscall2(int, utime, const char *, file, const struct utimbuf *, times);
+#else
+#include <stdlib.h>
+#include <sys/time.h>
+int utime(const char *file, const struct utimbuf *times)
+{
+	struct timeval timevals[2];
+	if (times != NULL) {
+		timevals[0].tv_usec = 0L;
+		timevals[1].tv_usec = 0L;
+		timevals[0].tv_sec = (long int) times->actime;
+		timevals[1].tv_sec = (long int) times->modtime;
+	} else {
+		if (gettimeofday (&timevals[0], NULL) < 0) { return -1; }
+		timevals[1] = timevals[0];
+	}
+	return utimes(file, timevals);
+}
+#endif
+#endif
+
+//#define __NR_utimed
+#ifdef L_utimes
+#include <utime.h>
+#ifdef __NR_utimes
+_syscall2(int, utimes, const char *, file, const struct timeval *, tvp);
+#else
+int utimes (const char *file, const struct timeval tvp[2])
+{
+	struct utimbuf buf, *times;
+	if (tvp) {
+		times = &buf;
+		times->actime = tvp[0].tv_sec;
+		times->modtime = tvp[1].tv_sec;
+	} else { times = NULL; }
+	return utime(file, times);
+}
+#endif
 #endif
 
 //#define __NR_stty             31
@@ -289,7 +392,24 @@ _syscall2(int, access, const char *, pathname, int, mode);
 //#define __NR_nice             34
 #ifdef L_nice
 #include <unistd.h>
+#ifdef __NR_nice
 _syscall1(int, nice, int, inc);
+#else
+#include <sys/resource.h>
+int nice (int incr)
+{
+	int save, prio, result;
+	save = errno;
+	__set_errno (0);
+	prio = getpriority (PRIO_PROCESS, 0);
+	if (prio == -1) {
+		if (errno != 0) { return -1; } 
+		else { __set_errno (save); }
+	}
+	result = setpriority (PRIO_PROCESS, 0, prio + incr);
+	if (result != -1) { return prio + incr; } else { return -1; }
+}
+#endif
 #endif
 
 //#define __NR_ftime            35
@@ -356,6 +476,9 @@ _syscall1(int, setgid, gid_t, gid);
 //#define __NR_getgid           47
 #ifdef L_getgid
 #include <unistd.h>
+#if defined (__alpha__)
+#define __NR_getgid     __NR_getxgid
+#endif
 _syscall0(gid_t, getgid);
 #endif
 
@@ -363,8 +486,8 @@ _syscall0(gid_t, getgid);
 
 //#define __NR_geteuid          49
 #ifdef	L_geteuid
+#include <unistd.h>
 #	ifdef	__NR_geteuid
-#	include <unistd.h>
 	_syscall0(uid_t, geteuid);
 #	else
 	uid_t geteuid(void)
@@ -376,8 +499,8 @@ _syscall0(gid_t, getgid);
 
 //#define __NR_getegid          50
 #ifdef	L_getegid
+#include <unistd.h>
 #	ifdef	__NR_getegid
-#	include <unistd.h>
 	_syscall0(gid_t, getegid);
 #	else
 	gid_t getegid(void)
@@ -797,7 +920,9 @@ _syscall2(int, fstatfs, int, fd, struct statfs *, buf);
 
 //#define __NR_socketcall       102
 #ifdef L_socketcall
+#ifdef __NR_socketcall
 _syscall2(int, socketcall, int, call, unsigned long *, args);
+#endif
 #endif
 
 //#define __NR_syslog           103
@@ -949,8 +1074,10 @@ _syscall1(int, sysinfo, struct sysinfo *, info);
 
 //#define __NR_ipc              117
 #ifdef L___ipc
+#ifdef __NR_ipc
 #define __NR___ipc __NR_ipc
 _syscall5(int, __ipc, unsigned int, call, int, first, int, second, int, third, void *, ptr);
+#endif
 #endif
 
 //#define __NR_fsync            118
@@ -1085,6 +1212,7 @@ _syscall1(int, setfsgid, gid_t, gid);
 //#define __NR__llseek          140
 #ifdef L__llseek
 #ifdef __UCLIBC_HAVE_LFS__
+#ifdef _NR_llseek
 extern int _llseek(int fd, __off_t offset_hi, __off_t offset_lo, 
 		__loff_t *result, int whence);
 
@@ -1103,6 +1231,11 @@ __loff_t __libc_lseek64(int fd, __loff_t offset, int whence)
 }
 weak_alias(__libc_lseek64, llseek);
 weak_alias(__libc_lseek64, lseek64);
+#else
+extern __off_t __libc_lseek(int fildes, __off_t offset, int whence);
+weak_alias(__libc_lseek, llseek);
+weak_alias(__libc_lseek, lseek64);
+#endif
 #endif
 #endif
 
@@ -1114,13 +1247,20 @@ _syscall3(int, getdents, int, fd, char *, dirp, size_t, count);
 #endif
 
 //#define __NR__newselect       142
-#ifdef L__newselect
+#if defined L__newselect || defined L_select
 #include <unistd.h>
+#ifdef _NR__newselect
 extern int _newselect(int n, fd_set *readfds, fd_set *writefds,
 					  fd_set *exceptfds, struct timeval *timeout);
 _syscall5(int, _newselect, int, n, fd_set *, readfds, fd_set *, writefds,
 		fd_set *, exceptfds, struct timeval *, timeout);
 weak_alias(_newselect, select);
+#else
+extern int select(int n, fd_set *readfds, fd_set *writefds, 
+		fd_set *exceptfds, struct timeval *timeout);
+_syscall5(int, select, int, n, fd_set *, readfds, fd_set *, writefds,
+		fd_set *, exceptfds, struct timeval *, timeout);
+#endif
 #endif
 
 //#define __NR_flock            143
@@ -1494,6 +1634,7 @@ int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
 #ifdef L___stat64
 #ifdef __UCLIBC_HAVE_LFS__
 #include <unistd.h>
+#ifdef __NR_stat64
 #include "statfix64.h"
 #define __NR___stat64	__NR_stat64
 extern int __stat64(const char *file_name, struct kernel_stat64 *buf);
@@ -1514,6 +1655,13 @@ int stat64(const char *file_name, struct libc_stat64 *buf)
 {
 	return(__xstat64(0, file_name, buf));
 }
+#else
+struct stat;
+extern int stat(const char *file_name, struct stat *buf);
+extern int __xstat(int version, const char * file_name, struct stat *cstat);
+weak_alias(stat, stat64);
+weak_alias(__xstat, __xstat64);
+#endif
 #endif /* __UCLIBC_HAVE_LFS__ */
 #endif
 
@@ -1521,6 +1669,7 @@ int stat64(const char *file_name, struct libc_stat64 *buf)
 #ifdef L___lstat64
 #ifdef __UCLIBC_HAVE_LFS__
 #include <unistd.h>
+#ifdef __NR_lstat64
 #include "statfix64.h"
 #define __NR___lstat64	__NR_lstat64
 extern int __lstat64(const char *file_name, struct kernel_stat64 *buf);
@@ -1541,6 +1690,13 @@ int lstat64(const char *file_name, struct libc_stat64 *buf)
 {
 	return(__lxstat64(0, file_name, buf));
 }
+#else
+struct stat;
+extern int lstat(const char *file_name, struct stat *buf);
+extern int __lxstat(int version, const char * file_name, struct stat * cstat);
+weak_alias(lstat, lstat64);
+weak_alias(__lxstat, __lxstat64);
+#endif
 #endif /* __UCLIBC_HAVE_LFS__ */
 #endif
 
@@ -1548,6 +1704,7 @@ int lstat64(const char *file_name, struct libc_stat64 *buf)
 #ifdef L___fstat64
 #ifdef __UCLIBC_HAVE_LFS__
 #include <unistd.h>
+#ifdef __NR_fstat64
 #include "statfix64.h"
 #define __NR___fstat64	__NR_fstat64
 extern int __fstat64(int filedes, struct kernel_stat64 *buf);
@@ -1568,6 +1725,13 @@ int fstat64(int filedes, struct libc_stat64 *buf)
 {
 	return(__fxstat64(0, filedes, buf));
 }
+#else
+struct stat;
+extern int fstat(int filedes, struct stat *buf);
+extern int __fxstat(int version, int fd, struct stat * cstat);
+weak_alias(fstat, fstat64);
+weak_alias(__fxstat, __fxstat64);
+#endif
 #endif /* __UCLIBC_HAVE_LFS__ */
 #endif
 
@@ -1614,6 +1778,7 @@ _syscall3(int, getdents64, int, fd, char *, dirp, size_t, count);
 //#define __NR_fcntl64		221
 #ifdef L__fcntl64
 #ifdef __UCLIBC_HAVE_LFS__
+#ifdef __NR_fcntl64
 #define __NR__fcntl64 __NR_fcntl64
 #include <stdarg.h>
 #include <fcntl.h>
@@ -1632,6 +1797,10 @@ int fcntl64(int fd, int command, ...)
 	va_end(list);
 	return _fcntl64(fd, command, arg);
 }
+#else
+extern int __libc_fcntl(int fd, int command, ...);
+weak_alias(__libc_fcntl, fcntl64)
+#endif
 #endif
 #endif
 
