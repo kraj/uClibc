@@ -4,3 +4,4 @@ vfork
 vfork_glibc
 getopt
 getopt_long
+getcwd
