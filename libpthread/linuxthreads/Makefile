@@ -80,13 +80,13 @@ endif
 clean: subdirs_clean
 	$(RM) *.[oa] *~ core
 
-subdirs: $(patsubst %, _dir_%, $(DIRS)) $(LIBPTHREAD)
+subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
 
-$(patsubst %, _dir_%, $(DIRS)) : dummy
+$(patsubst %, _dir_%, $(DIRS)): $(LIBPTHREAD)
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
+$(patsubst %, _dirclean_%, $(DIRS)):
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy
