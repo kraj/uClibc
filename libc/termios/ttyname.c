@@ -19,8 +19,8 @@ static int __check_dir_for_tty_match(char * dirname, struct stat *st, char *buf,
     len = strlen(dirname) + 1;
 
     while ((d = readdir(fp)) != 0) {
-	strncpy(buf+len, d->d_name, buflen);
-	buf[buflen]='\0';
+	strncpy(buf+len, d->d_name, buflen-len);
+	buf[buflen-1]='\0';
 #if 0
 	/* Stupid filesystems like cramfs fail to guarantee that
 	 * st_ino and st_dev uniquely identify a file, contrary to
