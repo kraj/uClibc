@@ -41,8 +41,6 @@
 char *_dl_library_path         = 0;		/* Where we look for libraries */
 char *_dl_preload              = 0;		/* Things to be loaded before the libs */
 char *_dl_ldsopath             = 0;		/* Location of the shared lib loader */
-unsigned long *_dl_brkp        = 0;		/* The end of the data segment for brk and sbrk */
-unsigned long *_dl_envp        = 0;		/* The environment address */
 int _dl_secure                 = 1;		/* Are we dealing with setuid stuff? */
 int _dl_errno                  = 0;     /* We can't use the real errno in ldso */
 size_t _dl_pagesize            = 0;		/* Store the page size for use later */
@@ -610,18 +608,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *app_tpnt
 	   the dynamic linker itself is not guaranteed to be fully
 	   dynamicly linked if we are using ld.so.1, so we have to look
 	   up each symbol individually. */
-
-
-	_dl_brkp = (unsigned long *) (intptr_t) _dl_find_hash("__curbrk", _dl_symbol_tables, 0);
-
-	if (_dl_brkp) {
-		*_dl_brkp = brk_addr;
-	}
-	_dl_envp = (unsigned long *) (intptr_t) _dl_find_hash("__environ", _dl_symbol_tables, 0);
-
-	if (_dl_envp) {
-		*_dl_envp = (unsigned long) envp;
-	}
 
 #ifndef FORCE_SHAREABLE_TEXT_SEGMENTS
 	{
