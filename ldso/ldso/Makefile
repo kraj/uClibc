@@ -29,7 +29,9 @@ TARGET_CFLAGS += #-DDL_DEBUG #-funroll-loops
 
 
 LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so
-TARGET_CFLAGS+=-fPIC -D__PIC__ -DUCLIBC_ROOT_DIR=\"$(DEVEL_PREFIX)\" -DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR); pwd)\"
+TARGET_CFLAGS+=-fPIC -D__PIC__ -DUCLIBC_PREFIX=\"$(PREFIX)\" \
+	-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
+	-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR); pwd)\"
 CSRC= boot1.c hash.c readelflib1.c $(TARGET_ARCH)/elfinterp.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 ASRC=$(shell ls $(TARGET_ARCH)/*.S)
