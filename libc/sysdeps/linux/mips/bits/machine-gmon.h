@@ -19,10 +19,10 @@
 
 #if __GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ <= 1)
 #define _MCOUNT_DECL(frompc,selfpc) \
-static void __attribute_used__ __mcount (u_long frompc, u_long selfpc)
+static void __mcount (u_long frompc, u_long selfpc)
 #else
 #define _MCOUNT_DECL(frompc,selfpc) \
-static void __mcount (u_long frompc, u_long selfpc)
+static void __attribute_used__ __mcount (u_long frompc, u_long selfpc)
 #endif
 
 /* Call __mcount with our the return PC for our caller,
