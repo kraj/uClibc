@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 1996 Free Software Foundation, Inc.
+/* Copyright (C) 1991, 1996, 1997 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,19 +16,24 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include "sigsetops.h"
+#include <errno.h>
+#define __USE_GNU
+#include <signal.h>
+#define __need_NULL
+#include <stddef.h>
 
-/* Return 1 if SIGNO is in SET, 0 if not.  */
+/* Combine sets LEFT and RIGHT by logical OR and place result in DEST.  */
 int
-sigismember (set, signo)
-     const sigset_t *set;
-     int signo;
+sigorset (dest, left, right)
+     sigset_t *dest;
+     const sigset_t *left;
+     const sigset_t *right;
 {
-  if (set == NULL || signo <= 0 || signo >= NSIG)
+  if (dest == NULL || left == NULL || right == NULL)
     {
       __set_errno (EINVAL);
       return -1;
     }
 
-  return __sigismember (set, signo);
+  return __sigorset (dest, left, right);
 }

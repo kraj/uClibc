@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 1996 Free Software Foundation, Inc.
+/* Copyright (C) 1991, 1995, 1996 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,19 +16,19 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include "sigsetops.h"
+/* Definitions relevant to functions that operate on `sigset_t's.  */
 
-/* Return 1 if SIGNO is in SET, 0 if not.  */
-int
-sigismember (set, signo)
-     const sigset_t *set;
-     int signo;
-{
-  if (set == NULL || signo <= 0 || signo >= NSIG)
-    {
-      __set_errno (EINVAL);
-      return -1;
-    }
+#include <errno.h>
+#define __USE_GNU
+#include <signal.h>
+#include <string.h>
 
-  return __sigismember (set, signo);
-}
+#define	BITS		(_NSIG - 1)
+#define	ELT(signo)	(((signo) - 1) / BITS)
+#define	MASK(signo)	(1 << (((signo) - 1) % BITS))
+
+#undef	sigemptyset
+#undef	sigfillset
+#undef	sigaddset
+#undef	sigdelset
+#undef	sigismember

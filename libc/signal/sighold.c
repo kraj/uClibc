@@ -1,5 +1,7 @@
-/* Copyright (C) 1991, 1996 Free Software Foundation, Inc.
+/* Add SIG to the calling process' signal mask.
+   Copyright (C) 1998, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
+   Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -16,19 +18,25 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include "sigsetops.h"
+#define __need_NULL
+#include <stddef.h>
+#define __USE_GNU
+#include <signal.h>
 
-/* Return 1 if SIGNO is in SET, 0 if not.  */
 int
-sigismember (set, signo)
-     const sigset_t *set;
-     int signo;
+sighold (sig)
+     int sig;
 {
-  if (set == NULL || signo <= 0 || signo >= NSIG)
-    {
-      __set_errno (EINVAL);
-      return -1;
-    }
+  sigset_t set;
 
-  return __sigismember (set, signo);
+  /* Retrieve current signal set.  */
+  if (sigprocmask (SIG_SETMASK, NULL, &set) < 0)
+    return -1;
+
+  /* Add the specified signal.  */
+  if (__sigaddset (&set, sig) < 0)
+    return -1;
+
+  /* Set the new mask.  */
+  return sigprocmask (SIG_SETMASK, &set, NULL);
 }

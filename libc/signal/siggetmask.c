@@ -1,4 +1,5 @@
-/* Copyright (C) 1991, 1996 Free Software Foundation, Inc.
+/* siggetmask -- useless alias for `sigblock (0)' for old Linux compatibility.
+   Copyright (C) 1996 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,19 +17,14 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include "sigsetops.h"
+#define __USE_GNU
+#include <signal.h>
 
-/* Return 1 if SIGNO is in SET, 0 if not.  */
 int
-sigismember (set, signo)
-     const sigset_t *set;
-     int signo;
+siggetmask (void)
 {
-  if (set == NULL || signo <= 0 || signo >= NSIG)
-    {
-      __set_errno (EINVAL);
-      return -1;
-    }
-
-  return __sigismember (set, signo);
+  return sigblock (0);
 }
+
+link_warning (siggetmask,
+	      "warning: `siggetmask' is obsolete; `sigprocmask' is best")
