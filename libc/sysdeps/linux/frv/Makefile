@@ -33,7 +33,7 @@ SSRC+=mcount.S
 endif
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=_mmap.c sysdep.c brk.c sbrk.c __init_brk.c dl-iterate-phdr.c
+CSRC=mmap.c sysdep.c brk.c sbrk.c __init_brk.c dl-iterate-phdr.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)
