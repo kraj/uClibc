@@ -24,28 +24,68 @@ Erik's TODO list for the next release:
 -----------------------------------------------------------------------------
 Manuel's todo:
 
-Test ungetwc.
-Implement %lc (%C) and %ls (%S) handling for printf.
-Implement grouping support and locale-specific radix.
-Deal with mb format string issues in printf, scanf, strftime (at least).
-Implement wide formatted output.
-Reimplement scanf for narrow and wide streams.
-Implement any other missing standard functions from wchar.h.
-Improve customization of the new stdio code.
-Clean up locale code and make it easier to build.  (Fix alt_digits!)
-Add collation support (initally for 8-bit locales) and implement strxfrm and strcoll.
-Reimlement strerror and strsignal.
-tzfile?
-era support in strftime/strptime?
+In the next couple of months, I plan on completing the wide char and locale
+support.  Here's my current list of things to implement by early November.
 
-Reimplement _dtostr to correct its deficiencies (%A support!) and hopefully reduce its size.
+  1) Little things that need fixing:
+  ----------------------------------
+  a) Use locale decimal point in *printf() and strto*d() -- slightly
+     complicated by the fact that at least one locale uses a wchar
+     radix that does not map to a single byte in UTF-8.
+  b) Use locale digit grouping in *printf().
+  c) Implement %lc (%C) and %ls (%S) handling for printf.
+  d) Deal with mb format string issues in printf, scanf, 
+  strftime (at least).
+  e) Implement wcwidth() and wcswidth() -- use Markus Kuhn's versions.
+  
+  2) Implement wide char numeric conversion functions -- wcsto*().
+  ----------------------------------------------------------------
+     These should be relatively minor modifications to the corresponding
+     strto*() functions, unless locale specific alternate digit support
+     is desired.
+  
+  3) Implement wide formatted output -- *wprintf():
+  -------------------------------------------------
+     The stream output variants should be easily created by appropriately
+     modifying the char *printf() functions.
+  
+     The string buffer variants may take some time to implement because
+     they need to store wchars in a buffer.  It will be necessary to hack
+     the core stdio code slightly to support this.
+  
+  4) Reimplement scanf for narrow and wide streams.
+  -------------------------------------------------
+     The current char version of scanf() needs some cleanup.  Also,
+     modifying the char version of scanf() to create the wchar versions
+     will require reworking the implementation of matching char sets
+     (enclosed in []).
+  
+     Also, as with *wprintf() above, the string buffer variants of wscanf()
+     may require some additional work to the core stdio code.
+  
+  5) Additional str{f|p}time issues.
+  ----------------------------------
+     Support locale specific alternate digits.
+     Support locale era in year designations.
+  
+  6) Other locale issues (my implementation):
+  -------------------------------------------
+  a) Clean up locale code to make building easier.  Fix alt_digits.
+     (Note: This is only _clean_up_ of the current stuff in extra/locale
+      so that it can be cross-compiled, etc.  I'm not talking about the
+      complete rewrite that should really be done.)
+  b) Additional clean up of ctype and wctype.
+  c) Implement collation support for char and wchar -- *xfrm() and *coll().
+  d) transliteration of unsupported wchars in 8-bit locales (like glibc).
 
-Older stuff...
+
+Other stuff:
+
+Reimplement _dtostr to correct its deficiencies (%A support!) and hopefully
+	reduce its size.
 
 Move the target-specific sysconf.c generator to extra (as it needs to be
 	run on the target) and fix libc/unistd/Makefile.
-
-Add a usage message to the gcc wrapper.
 
 Make errno and endptr handling the default in the strto* functions and
 	document how to turn those off to save space.
