@@ -12,6 +12,7 @@
  */
 
 #define	_ERRNO_H
+#include <features.h>
 #include <unistd.h>
 #include <stdlib.h>
 
@@ -23,7 +24,6 @@ extern int  main(int argc, char **argv, char **envp);
 extern void weak_function _stdio_init(void);
 extern int *weak_const_function __errno_location(void);
 extern int *weak_const_function __h_errno_location(void);
-extern int weak_function atexit(void (*function)(void));
 #ifdef __UCLIBC_HAS_LOCALE__
 extern void weak_function _locale_init(void);
 #endif
@@ -123,15 +123,17 @@ __uClibc_start_main(int argc, char **argv, char **envp,
      * __uClibc_init() regardless, to be sure the right thing happens. */
     __uClibc_init();
 
+#ifdef __UCLIBC_CTOR_DTOR__
     /* Arrange for the application's dtors to run before we exit.  */
-    if (app_fini!=NULL && atexit) {
-	atexit (app_fini);
+    if (app_fini!=NULL) {
+	atexit(app_fini);
     }
 
     /* Run all the application's ctors now.  */
     if (app_init!=NULL) {
 	app_init();
     }
+#endif
 
     /* Note: It is possible that any initialization done above could
      * have resulted in errno being set nonzero, so set it to 0 before
