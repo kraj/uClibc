@@ -104,19 +104,6 @@
 extern "C" {
 #endif
 
-/* Nonzero if the malloc is already initialized.  */
-#ifdef _LIBC
-/* In the GNU libc we rename the global variable
-   `__malloc_initialized' to `__libc_malloc_initialized'.  */
-# define __malloc_initialized __libc_malloc_initialized
-#endif
-extern int __malloc_initialized;
-
-/* Initialize global configuration.  Not needed with GNU libc. */
-#ifndef __GLIBC__
-extern void ptmalloc_init __MALLOC_P ((void));
-#endif
-
 /* Allocate SIZE bytes of memory.  */
 extern __malloc_ptr_t malloc __MALLOC_P ((size_t __size)) __attribute_malloc__;
 
@@ -133,27 +120,13 @@ extern __malloc_ptr_t realloc __MALLOC_P ((__malloc_ptr_t __ptr,
 /* Free a block allocated by `malloc', `realloc' or `calloc'.  */
 extern void free __MALLOC_P ((__malloc_ptr_t __ptr));
 
-/* Free a block allocated by `calloc'. */
-extern void cfree __MALLOC_P ((__malloc_ptr_t __ptr));
-
 /* Allocate SIZE bytes allocated to ALIGNMENT bytes.  */
 extern __malloc_ptr_t memalign __MALLOC_P ((size_t __alignment, size_t __size));
 
 /* Allocate SIZE bytes on a page boundary.  */
 extern __malloc_ptr_t valloc __MALLOC_P ((size_t __size)) __attribute_malloc__;
 
-/* Equivalent to valloc(minimum-page-that-holds(n)), that is, round up
-   __size to nearest pagesize. */
-extern __malloc_ptr_t  pvalloc __MALLOC_P ((size_t __size))
-       __attribute_malloc__;
-
-/* Underlying allocation function; successive calls should return
-   contiguous pieces of memory.  */
-extern __malloc_ptr_t (*__morecore) __MALLOC_PMT ((ptrdiff_t __size));
-
-/* Default value of `__morecore'.  */
-extern __malloc_ptr_t __default_morecore __MALLOC_P ((ptrdiff_t __size))
-       __attribute_malloc__;
+#ifdef __MALLOC_STANDARD__
 
 /* SVID2/XPG mallinfo structure */
 struct mallinfo {
@@ -196,45 +169,8 @@ extern struct mallinfo mallinfo __MALLOC_P ((void));
 /* General SVID/XPG interface to tunable parameters. */
 extern int mallopt __MALLOC_P ((int __param, int __val));
 
-/* Release all but __pad bytes of freed top-most memory back to the
-   system. Return 1 if successful, else 0. */
-extern int malloc_trim __MALLOC_P ((size_t __pad));
+#endif /* __MALLOC_STANDARD__ */
 
-/* Report the number of usable allocated bytes associated with allocated
-   chunk __ptr. */
-extern size_t malloc_usable_size __MALLOC_P ((__malloc_ptr_t __ptr));
-
-/* Prints brief summary statistics on stderr. */
-extern void malloc_stats __MALLOC_P ((void));
-
-/* Record the state of all malloc variables in an opaque data structure. */
-extern __malloc_ptr_t malloc_get_state __MALLOC_P ((void));
-
-/* Restore the state of all malloc variables from data obtained with
-   malloc_get_state(). */
-extern int malloc_set_state __MALLOC_P ((__malloc_ptr_t __ptr));
-
-#if defined __GLIBC__ || defined MALLOC_HOOKS
-/* Called once when malloc is initialized; redefining this variable in
-   the application provides the preferred way to set up the hook
-   pointers. */
-extern void (*__malloc_initialize_hook) __MALLOC_PMT ((void));
-/* Hooks for debugging and user-defined versions. */
-extern void (*__free_hook) __MALLOC_PMT ((__malloc_ptr_t __ptr,
-					__const __malloc_ptr_t));
-extern __malloc_ptr_t (*__malloc_hook) __MALLOC_PMT ((size_t __size,
-						    __const __malloc_ptr_t));
-extern __malloc_ptr_t (*__realloc_hook) __MALLOC_PMT ((__malloc_ptr_t __ptr,
-						     size_t __size,
-						     __const __malloc_ptr_t));
-extern __malloc_ptr_t (*__memalign_hook) __MALLOC_PMT ((size_t __alignment,
-						      size_t __size,
-						      __const __malloc_ptr_t));
-extern void (*__after_morecore_hook) __MALLOC_PMT ((void));
-
-/* Activate a standard set of debugging hooks. */
-extern void __malloc_check_init __MALLOC_P ((void));
-#endif
 
 #ifdef __cplusplus
 }; /* end of extern "C" */
