@@ -118,6 +118,15 @@ isspace( int c )
 }
 #endif
 
+#ifdef L_isblank
+#undef isblank
+int
+isblank( int c )
+{
+    return (c == ' ' || c == '\t');
+}
+#endif
+
 #ifdef L_isupper
 #undef isupper
 int
@@ -263,6 +272,15 @@ int
 isspace( int c )
 {
     return _UC_ISCTYPE(c, ISspace);
+}
+#endif
+
+#ifdef L_isblank
+#undef isblank
+int
+isblank( int c )
+{
+    return _UC_ISCTYPE(c, ISblank);
 }
 #endif
 

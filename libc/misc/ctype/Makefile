@@ -27,7 +27,7 @@ include $(TOPDIR)Rules.mak
 MSRC=ctype.c
 MOBJ= isalnum.o isalpha.o isascii.o iscntrl.o isdigit.o isgraph.o \
 	islower.o isprint.o ispunct.o isspace.o isupper.o isxdigit.o \
-	isxlower.o isxupper.o toascii.o tolower.o toupper.o
+	isxlower.o isxupper.o toascii.o tolower.o toupper.o isblank.o
 
 ifeq ($(HAS_LOCALE),true)
 	MOBJ += ctype_C.o

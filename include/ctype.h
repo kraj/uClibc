@@ -34,6 +34,7 @@ __BEGIN_DECLS
 extern int isalnum(int c);
 extern int isalpha(int c);
 extern int isascii(int c);
+extern int isblank(int c);
 extern int iscntrl(int c);
 extern int isdigit(int c);
 extern int isgraph(int c);
@@ -57,6 +58,7 @@ extern int toupper(int c);
 #define isalnum(c)  (isalpha(c) || isdigit(c))
 #define isalpha(c)  (isupper(c) || islower(c))
 #define isascii(c)  (c > 0 && c <= 0x7f)
+#define isblank(c)  (c == ' ' || c == '\t')
 #define iscntrl(c)  ((c >= 0) && ((c <= 0x1F) || (c == 0x7f)))
 #define isdigit(c)  (c >= '0' && c <= '9')
 #define isgraph(c)  (c != ' ' && isprint(c))
