@@ -1,8 +1,8 @@
 /*
  * libc/sysdeps/linux/v850/vfork.S -- `vfork' syscall for linux/v850
  *
- *  Copyright (C) 2001  NEC Corporation
- *  Copyright (C) 2001  Miles Bader <miles@gnu.org>
+ *  Copyright (C) 2001,2002  NEC Corporation
+ *  Copyright (C) 2001,2002  Miles Bader <miles@gnu.org>
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
@@ -14,7 +14,7 @@
 #define _ERRNO_H	1
 #include <bits/errno.h>
 #define _SYSCALL_H
-#include <bits/syscall.h>
+#include <bits/sysnum.h>
 
 #include <clinkage.h>
 
