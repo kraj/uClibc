@@ -140,7 +140,7 @@ ARCH_CFLAGS2 = -I$(KERNEL_SOURCE)/include
 #
 # get this from elsewhere, maybe
 #
-OPTIMIZATION = $(DEBUG_CFLAGS)
+OPTIMIZATION = $(DEBUG_CFLAGS) -mh -mint32 -fsigned-char
 
 # This is a COFF compiler (ick), so disable all the cool stuff
 HAVE_ELF = false
