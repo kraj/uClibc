@@ -886,6 +886,11 @@ _syscall1(int, fchdir, int, fd);
 #endif
 
 //#define __NR_bdflush          134
+#ifdef L_bdflush
+#include <sys/kdaemon.h>
+
+_syscall2(int, bdflush, int, __func, long int, __data);
+#endif
 
 //#define __NR_sysfs            135
 
