@@ -56,7 +56,7 @@ struct printf_info
 {
   int prec;			/* Precision.  */
   int width;			/* Width.  */
-#ifdef __STDIO_WIDE				/* TODO: temporary fix for uClibc */
+#ifdef __UCLIBC_HAS_WCHAR__
   wchar_t spec;			/* Format letter.  */
 #else
   int spec;
@@ -136,7 +136,7 @@ struct printf_info
 #define PRINT_INFO_SET_extra(INFO_PTR,VAL) \
 	((INFO_PTR)->_flags |= (((INFO_PTR)->_flags & ~1) | ((VAL) & 1)))
 #endif /* __PRINTF_INFO_NO_BITFIELD */
-#ifdef __STDIO_WIDE				/* TODO: temporary fix for uClibc */
+#ifdef __UCLIBC_HAS_WCHAR__
   wchar_t pad;			/* Padding character.  */
 #else
   int pad;
