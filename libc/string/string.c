@@ -77,6 +77,13 @@ int strcmp(const char *s1, const char *s2)
 }
 #endif
 
+#ifdef L_strcoll
+int strcoll(const char *s1, const char *s2)
+{
+	return( strcmp(s1, s2));
+}
+#endif	
+
 /********************** Function strncat ************************************/
 
 #ifdef L_strncat
@@ -112,6 +119,13 @@ char *strncpy(char *dst, const char *src, size_t len)
 	return ptr;
 }
 #endif
+
+#ifdef L_strxfrm
+char *strncpy(char *dst, const char *src, size_t len)
+{
+	return( strncpy( dst, src, len));
+}
+#endif	
 
 /********************** Function strncmp ************************************/
 
