@@ -53,6 +53,7 @@
 #define	_MATH_H	1
 
 #include <features.h>
+#include <bits/huge_val.h>
 
 /* Type of computer arithmetic */
 
