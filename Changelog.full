@@ -1,0 +1,753 @@
+2002-03-20  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/inet/resolv.c:
+	Patch from Bart Visscher <magick@Linux-Fan.com> fixing some
+	missing pieces of the conversion to reentrant functions.
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
+	Doh!  search-n-replace bites again
+
+	* /var/cvs/uClibc/libc/stdlib/getpt.c:
+	Fix compile problem when ASSUME_DEVPTS=false
+	    getpt.c: In function 'getpt':
+	    getpt.c:83: 'have_no_dev_ptmx' undeclared ...
+	oops.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
+	s/off_t/__off_t/g
+
+	* /var/cvs/uClibc/ldso/ldso/ldso.c:
+	Attempt to follow symlinks if possible, and use that directory
+	for the base library directory.
+	 -Erik
+
+2002-03-19  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/ldso/ldso/readelflib1.c: Prevent uninitialized use
+
+	* /var/cvs/uClibc/ldso/ldso/mips/ld_syscalls.h, /var/cvs/uClibc/ldso/ldso/mips/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/mips/resolve.S:
+	Initial mips ldso porting effort from Steven J. Hill.  Not yet
+	complete, but off to a fine start.
+
+	* /var/cvs/uClibc/ldso/ldso/sparc/elfinterp.c, /var/cvs/uClibc/ldso/ldso/m68k/elfinterp.c, /var/cvs/uClibc/ldso/ldso/i386/elfinterp.c, /var/cvs/uClibc/ldso/ldso/arm/elfinterp.c, /var/cvs/uClibc/ldso/ldso/Makefile:
+	Add new debug target (disabled by default) so that when debug
+	is on we now default to resolving symbols permanently..
+	 -Erik
+
+	* /var/cvs/uClibc/ldso/ldso/ldso.c:
+	Revert my symlink detecting change for now, since it breaks
+	things.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/inet/getaddrinfo.c:
+	Fix missing defines.  Forgot to check this in.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/stdlib/Makefile, /var/cvs/uClibc/libc/stdlib/random.c, /var/cvs/uClibc/libc/stdlib/random_r.c:
+	Merge glibc random, which gets us a much better RNG and a
+	reentrant one as well.  It is not much bigger than what we
+	had, so...
+	 -Erik
+
+	* /var/cvs/uClibc/libc/inet/if_nametoindex.c, /var/cvs/uClibc/libc/inet/resolv.c, /var/cvs/uClibc/libc/inet/Makefile, /var/cvs/uClibc/libc/inet/gai_strerror.c, /var/cvs/uClibc/libc/inet/getaddrinfo.c, /var/cvs/uClibc/libc/inet/getservice.c:
+	Bart Visscher <magick@Linux-Fan.com> has added some missing IPV6 support, and
+	added several additional reentrant networking functions such that iptables now
+	runs with IPV6 support.
+
+	* /var/cvs/uClibc/ldso/ldso/ldso.c:
+	Resolve symlinks when determining the real ld.so path, which is
+	now used as the default library search location.
+	 -Erik
+
+	* /var/cvs/uClibc/ldso/ldso/sparc/ld_syscalls.h, /var/cvs/uClibc/ldso/ldso/sparc/sdiv.S, /var/cvs/uClibc/ldso/ldso/sparc/udiv.S, /var/cvs/uClibc/ldso/ldso/sparc/urem.S, /var/cvs/uClibc/ldso/ldso/powerpc/ld_syscalls.h, /var/cvs/uClibc/ldso/ldso/m68k/ld_syscalls.h, /var/cvs/uClibc/ldso/ldso/i386/ld_syscalls.h, /var/cvs/uClibc/ldso/ldso/arm/ld_syscalls.h, /var/cvs/uClibc/ldso/ldso/ld_hash.h, /var/cvs/uClibc/ldso/ldso/ld_syscall.h:
+	Cleanup header files a bit.
+	 -Erik
+
+2002-03-18  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/ldso/ldso/arm/boot1_arch.h:
+	Let older arm cross compilers work
+	 -Erik
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/Makefile, /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
+	Add initial support for compiling cpp code.
+	 -Erik
+
+2002-03-17  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/ldso/ldso/Makefile, /var/cvs/uClibc/ldso/ldso/ldso.c:
+	Enable trace support by default, since it only costs 300 bytes
+	anyways, and people seem to expect it.
+	 -Erik
+
+2002-03-16  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/sparc/crt0.c, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/crt0.c, /var/cvs/uClibc/libc/sysdeps/linux/mips/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/m68k/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/m68k/crt0.c, /var/cvs/uClibc/libc/sysdeps/linux/i386/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/i386/crt0.c, /var/cvs/uClibc/libc/sysdeps/linux/arm/crt0.S, /var/cvs/uClibc/libc/sysdeps/linux/h8300/crt0.S:
+	Remove the C++ support stubs, since these now live elsewhere and
+	these stubs were preventing the real stuff from working properly.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/Makefile:
+	Build crti.o and crtn.o with optimization enabled
+	 -Erik
+
+2002-03-16  mjn3  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/libc/stdio/stdio.c:
+	Fix a pointer bug in setvbuf reported by Bart Visscher <magick@Linux-Fan.com>.
+
+2002-03-15  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/include/error.h: Oops.  Forgot to check this one in
+
+	* /var/cvs/uClibc/libc/misc/time/Makefile, /var/cvs/uClibc/libc/misc/time/__time_locale.c, /var/cvs/uClibc/libc/misc/time/mktime.c, /var/cvs/uClibc/libc/misc/time/strftime.c, /var/cvs/uClibc/libc/misc/time/strptime.c:
+	Add strptime, and commonize some locale strings
+	 -Erik
+
+	* /var/cvs/uClibc/extra/scripts/get-needed-libgcc-objects.sh:
+	Don't let this worry about _init and _fini
+
+	* /var/cvs/uClibc/extra/scripts/get-needed-libgcc-objects.sh:
+	Fix location of crt0.o
+
+	* /var/cvs/uClibc/libc/misc/utmp/Makefile, /var/cvs/uClibc/libc/misc/utmp/utent.c:
+	Add missing updwtmp() and fix broken makefile
+
+	* /var/cvs/uClibc/libc/misc/error/Makefile, /var/cvs/uClibc/libc/misc/error/error.c, /var/cvs/uClibc/libc/misc/Makefile:
+	Support gnu error(), patch contributed by Andrew Ip <aip@cwlinux.com>
+
+	* /var/cvs/uClibc/include/features.h:
+	Hide libc specific junk inside a #ifdef _LIBC to avoid
+	namespace pollution, noted by Miles.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c:
+	Fix non-elf support (in theory).  Revert misguided change suggested
+	by arcturusnetworks, since Miles Bader reports it is unnecessary.
+	 -Erik
+
+2002-03-14  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/docs/uclibc.org/index.html:
+	Fix link to daily snapshot
+
+	* /var/cvs/uClibc/extra/Configs/uClibc_config_fix.pl:
+	Update the config script to behave a bit better
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/Makefile:
+	Oops!  When I fixed the debug flags, I forgot to make things be
+	PIC, so do that now.
+	 -Erik
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
+	Setup so ctors/dtors can run.  Disabled for now, since they do
+	add a little bit to binary size...
+	 -Erik
+
+	* /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c:
+	Don't call null ctors/dtors.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/Makefile:
+	Do not enable debugging for initfini.s and friends.  Won't work anyways.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/stdlib/strtof.c, /var/cvs/uClibc/libc/stdlib/strtold.c, /var/cvs/uClibc/libc/stdlib/Makefile:
+	Add implementations of strtof() and strtold().  These are a bit
+	lame, since internally I'm just using strtod, but that keeps things
+	small, and has the side effect of making these easy to write.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c:
+	This should be the last piece needed to make constructors work (using
+	a native gcc toolchain).  The gcc wrapper still needs some touchups,
+	but we seem to be _there_.  Also some touchups to try and shrink
+	uclinux binary sized by stubbing out unneeded stuff.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/misc/ctype/Makefile, /var/cvs/uClibc/libc/misc/ctype/junk.c:
+	Add some symbols needed for C++ to work.  Temporary hack...
+
+	* /var/cvs/uClibc/ldso/ldso/readelflib1.c: Remove an unused variable
+
+2002-03-14  mjn3  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/libc/stdio/stdio.c:
+	I vow to rerun _all_ the tests before making commits.  :-(
+	I successfully managed to blow away all the modeflags for the file
+	_except_ the one dealing with buffering...
+
+2002-03-13  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/v850/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/sparc/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/sh/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/m68k/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/i386/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/h8300/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/common/.cvsignore, /var/cvs/uClibc/libc/sysdeps/linux/common/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/common/initfini.c, /var/cvs/uClibc/libc/sysdeps/linux/arm/Makefile, /var/cvs/uClibc/libc/Makefile, /var/cvs/uClibc/extra/scripts/initfini.pl:
+	Build our own crti.o and crtn.o with a cross arch method that I
+	can live with much better the what glibc does.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/stdlib/Makefile, /var/cvs/uClibc/libc/stdlib/drand48-iter.c, /var/cvs/uClibc/libc/stdlib/drand48.c, /var/cvs/uClibc/libc/stdlib/drand48_r.c, /var/cvs/uClibc/libc/stdlib/erand48.c, /var/cvs/uClibc/libc/stdlib/erand48_r.c, /var/cvs/uClibc/libc/stdlib/jrand48.c, /var/cvs/uClibc/libc/stdlib/jrand48_r.c, /var/cvs/uClibc/libc/stdlib/lrand48.c, /var/cvs/uClibc/libc/stdlib/lrand48_r.c, /var/cvs/uClibc/libc/stdlib/mrand48.c, /var/cvs/uClibc/libc/stdlib/mrand48_r.c, /var/cvs/uClibc/libc/stdlib/nrand48.c, /var/cvs/uClibc/libc/stdlib/nrand48_r.c, /var/cvs/uClibc/libc/stdlib/rand_r.c, /var/cvs/uClibc/libc/stdlib/srand48.c, /var/cvs/uClibc/libc/stdlib/srand48_r.c:
+	Merge in an ugly pile of rand* functions from glibc.  :(
+
+	* /var/cvs/uClibc/test/stdlib/qsort.c:
+	Remove the chdir, so we can test things like empty directories
+
+2002-03-13  mjn3  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/libc/stdio/scanf.c:
+	Modified because of the new str to int funcs.
+
+	* /var/cvs/uClibc/libc/stdlib/abs.c, /var/cvs/uClibc/libc/stdlib/stdlib.c, /var/cvs/uClibc/libc/stdlib/strto_l.c, /var/cvs/uClibc/libc/stdlib/strto_ll.c, /var/cvs/uClibc/libc/stdlib/Makefile:
+	New versions of the various string to int functions which are smaller
+	than the old ones, even with errno setting turned on now.  Also, at
+	least on i386, we no longer need the long long helper functions for
+	division and mod from libgcc.a.
+
+	* /var/cvs/uClibc/libc/stdio/stdio.c:
+	Fix stdin/stdout initialization of buffering type.  I had changed the
+	default static initiailization and forgotten to update _stdio_init().
+
+	* /var/cvs/uClibc/libc/stdlib/abort.c:
+	Oops... forgot to update abort.c.
+
+	* /var/cvs/uClibc/libc/stdio/printf.c:
+	Apply Miles Bader's missing __va_copy() fix.
+
+2002-03-12  mjn3  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/libc/stdio/printf.c, /var/cvs/uClibc/libc/stdio/stdio.c, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_stdio.h:
+	Fix another O_LARGEFILE bug.  Also, I forget to make floating point optional
+	in the new printf code.
+
+	* /var/cvs/uClibc/libc/stdio/stdio.c:
+	So much for fcntl flags being resonably consistent across archs... (hopefully)
+	fix O_APPEND and O_LARGEFILE handling in _stdio_fopen().  Someone else will
+	have to check of course...
+
+	* /var/cvs/uClibc/libc/stdio/stdio.c:
+	Fix fflush(NULL) and tweak _stdio_term() for the unbuffered stdio option.
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_stdio.h:
+	Oops.. had left thread support forced on.
+
+2002-03-12  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/misc/dirent/scandir.c, /var/cvs/uClibc/include/features.h:
+	Fix a segfault in scandir for empty directories.  After looking over
+	our version, I'm adopting the scandir from glibc (with minor changes)
+	instead as it seems simpler and already correct.
+
+2002-03-12  mjn3  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/TODO: Update to my current todo list.
+
+2002-03-12  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/docs/uclibc.org/cvs_anon.html, /var/cvs/uClibc/docs/uclibc.org/cvs_write.html:
+	Fix thinko
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_stdio.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/xopen_lim.h:
+	Fixup redefinition of NL_ARGMAX
+
+2002-03-12  mjn3  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/libc/stdio/printf.c, /var/cvs/uClibc/libc/stdio/stdio.c:
+	Deal with cvs "feature"... or is that cvs _user_...
+
+	* /var/cvs/uClibc/libpthread/linuxthreads/lockfile.c, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uClibc_stdio.h, /var/cvs/uClibc/libc/string/strerror.c, /var/cvs/uClibc/libc/string/strsignal.c, /var/cvs/uClibc/libc/stdlib/atexit.c, /var/cvs/uClibc/libc/stdlib/ptsname.c, /var/cvs/uClibc/libc/stdio/stdio.c, /var/cvs/uClibc/libc/stdio/remove.c, /var/cvs/uClibc/libc/stdio/scanf.c, /var/cvs/uClibc/libc/stdio/Makefile, /var/cvs/uClibc/libc/stdio/getw.c, /var/cvs/uClibc/libc/stdio/old_vfprintf.c, /var/cvs/uClibc/libc/stdio/perror.c, /var/cvs/uClibc/libc/stdio/printf.c, /var/cvs/uClibc/libc/stdio/putw.c, /var/cvs/uClibc/libc/misc/internals/ultostr.c, /var/cvs/uClibc/libc/misc/internals/zoicheck.c, /var/cvs/uClibc/libc/misc/internals/Makefile, /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c, /var/cvs/uClibc/libc/misc/internals/dtostr.c, /var/cvs/uClibc/libc/misc/internals/lltostr.c, /var/cvs/uClibc/libc/misc/internals/ltostr.c, /var/cvs/uClibc/libc/misc/internals/tempname.c, /var/cvs/uClibc/libc/misc/internals/ulltostr.c, /var/cvs/uClibc/libc/misc/assert/__assert.c, /var/cvs/uClibc/libc/inet/addr.c, /var/cvs/uClibc/include/printf.h, /var/cvs/uClibc/include/stdio.h, /var/cvs/uClibc/include/stdio_ext.h:
+	Swap in the new stdio code.
+
+2002-03-11  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/extra/Configs/uClibc_config_fix.pl:
+	Add thread support.  Eliminate the useless extra "s
+
+	* /var/cvs/uClibc/docs/uclibc.org/old-news.html, /var/cvs/uClibc/docs/uclibc.org/cvs_anon.html, /var/cvs/uClibc/docs/uclibc.org/cvs_write.html, /var/cvs/uClibc/docs/uclibc.org/index.html:
+	Fix broken links
+
+	* /var/cvs/uClibc/ldso/util/ldd.c:
+	Fixup ldd behavior to match recent ldso change
+
+	* /var/cvs/uClibc/Makefile:
+	Allow some failures to simplify building gcc
+
+	* /var/cvs/uClibc/Makefile: Don't install CVS files into the devel dir
+
+2002-03-09  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/include/ieee754.h: Add in this missing header file
+
+	* /var/cvs/uClibc/libc/misc/pthread/Makefile:
+	Avoid forced -lpthread lnkage when threading is enabled
+
+2002-03-08  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/ldso/ldso/sparc/elfinterp.c, /var/cvs/uClibc/ldso/ldso/powerpc/elfinterp.c, /var/cvs/uClibc/ldso/ldso/m68k/elfinterp.c, /var/cvs/uClibc/ldso/ldso/i386/elfinterp.c, /var/cvs/uClibc/ldso/ldso/arm/elfinterp.c, /var/cvs/uClibc/ldso/ldso/Makefile, /var/cvs/uClibc/ldso/ldso/ldso.c, /var/cvs/uClibc/ldso/ldso/readelflib1.c:
+	Seperate out the symbol resolution debugging, so it doesn't clutter
+	things up when we don't care about symbol resolution problems.  Make
+	the lib loader always look first in the directory where the shared lib
+	loader was found.
+	 -Erik
+
+2002-03-05  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
+	Remove sys/io.h include, since not everyone has it
+
+2002-03-05  miles  <miles@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/v850/sys/ptrace.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/sys/ucontext.h:
+	Initial checkin
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/byteswap.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/endian.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/fcntl.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/mman.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/poll.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/select.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/setjmp.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/wordsize.h:
+	Re-add files which were mistakenly deleted during the big bits/ update.
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/ATTENTION:
+	Remove extraneous file
+
+2002-03-03  ds  <ds@dillweed>
+
+	* /var/cvs/uClibc/debian/changelog, /var/cvs/uClibc/debian/control, /var/cvs/uClibc/debian/control.in, /var/cvs/uClibc/debian/rules:
+	Check in new debian snapshot
+
+2002-03-02  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/.cvsignore, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/syscall.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/sys/procfs.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/.cvsignore:
+	Remove generated stuff, restore sh/sys/procfs.h from M. R. Brown
+
+2002-03-01  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/v850/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/sh/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/sparc/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/i386/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/m68k/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile, /var/cvs/uClibc/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/arm/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/h8300/Makefile:
+	Move syscall.h generation to the top level Makefile
+	 -Erik
+
+	* /var/cvs/uClibc/Makefile: Doh!  A search and replace bug...
+
+	* /var/cvs/uClibc/Makefile: Doh! Doh! Doh!
+
+	* /var/cvs/uClibc/Makefile: Doh!
+
+	* /var/cvs/uClibc/extra/Configs/Config.mips, /var/cvs/uClibc/extra/Configs/Config.mipsel:
+	Patch from Steven J. Hill to allow both mips and mipsel to be built
+
+	* /var/cvs/uClibc/Makefile: oops.  I forgot to commit this...
+
+	* /var/cvs/uClibc/extra/Configs/Config.v850e, /var/cvs/uClibc/libc/sysdeps/linux/v850/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/v850/ftruncate64.c, /var/cvs/uClibc/libc/sysdeps/linux/v850/truncate64.c:
+	Patch from Miles Bader to allow Large File support on the v850.
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
+	Fix for some comments, from Miles Bader
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/sh/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/sh/clone.S, /var/cvs/uClibc/libc/sysdeps/linux/sh/vfork.S, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/sh/pt-machine.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/sh/sigcontextinfo.h:
+	Patch from M. R. Brown <mrbrown@0xd6.org> to fix pthread support
+	for SH, and fix vfork
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/socket.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/stab.def, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/stat.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/statfs.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/statvfs.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/stdio-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/stdio.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/stdio_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/string.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/string2.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/stropts.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/termios.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/time.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/types.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/uio.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/ustat.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/utmp.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/utmpx.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/utsname.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/waitflags.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/waitstatus.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/wordsize.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/xopen_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/byteswap.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/cmathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/confname.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/dirent.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/dlfcn.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/elfclass.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/endian.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/environments.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/errno.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/fcntl.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/fenv.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/huge_val.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/in.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/ioctl-types.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/ioctls.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/ipc.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/libc-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/local_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/mathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/mathdef.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/mathinline.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/mman.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/msq.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/nan.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/netdb.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/poll.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/posix1_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/posix2_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/posix_opt.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/pthreadtypes.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/resource.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/sched.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/select.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/sem.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/setjmp.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/shm.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/sigaction.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/sigcontext.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/siginfo.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/signum.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/sigset.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/sigstack.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/sigthread.h, /var/cvs/uClibc/libc/sysdeps/linux/v850/bits/sockaddr.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/sys/procfs.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/sys/ptrace.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/sys/sysmacros.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/sys/trap.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/sys/ucontext.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/fenvinline.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/huge_val.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/in.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/initspin.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/ioctl-types.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/libc-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/local_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/locale.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/mathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/mathinline.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/nan.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/netdb.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/posix1_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/posix2_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/posix_opt.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/pthreadtypes.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/sched.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/select.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/sigset.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/sigstack.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/sigthread.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/sockaddr.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/stab.def, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/stdio-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/stdio.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/stdio_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/string2.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/stropts.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/uio.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/ustat.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/utmp.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/utmpx.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/utsname.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/waitflags.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/waitstatus.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/wchar.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/wordsize.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/xopen_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/sys/io.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/sys/ucontext.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/sys/user.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/byteswap.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/cmathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/confname.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/dirent.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/dlfcn.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/elfclass.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/environments.h, /var/cvs/uClibc/libc/sysdeps/linux/sparc/bits/errno.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/select.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/sem.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/shm.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/sigaction.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/sigcontext.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/siginfo.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/signum.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/sigset.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/sigstack.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/sigthread.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/sockaddr.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/socket.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/stab.def, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/stat.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/statfs.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/statvfs.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/stdio-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/stdio.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/stdio_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/string.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/string2.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/stropts.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/termios.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/time.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/types.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/uio.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/ustat.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/utmp.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/utmpx.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/utsname.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/waitflags.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/waitstatus.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/wchar.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/xopen_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/byteswap.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/cmathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/confname.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/dirent.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/dlfcn.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/elfclass.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/environments.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/errno.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/fenv.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/fenvinline.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/huge_val.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/in.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/initspin.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/ioctl-types.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/ioctls.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/ipc.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/libc-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/local_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/locale.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/mathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/mathdef.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/mathinline.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/msq.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/nan.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/netdb.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/poll.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/posix1_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/posix2_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/posix_opt.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/pthreadtypes.h, /var/cvs/uClibc/libc/sysdeps/linux/sh/bits/sched.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/stropts.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/termios.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/time.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/types.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/uio.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/ustat.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/utmp.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/utmpx.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/utsname.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/waitflags.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/waitstatus.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/wchar.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/xopen_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/sys/procfs.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/sys/ptrace.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/sys/ucontext.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/sys/user.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/byteswap.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/cmathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/confname.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/dirent.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/dlfcn.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/elfclass.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/environments.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/errno.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/huge_val.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/in.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/initspin.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/ioctls.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/libc-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/local_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/locale.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/mathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/nan.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/netdb.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/poll.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/posix1_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/posix2_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/posix_opt.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/pthreadtypes.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/sched.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/select.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/sigaction.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/sigcontext.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/siginfo.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/signum.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/sigset.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/sigstack.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/sigthread.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/sockaddr.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/socket.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/statfs.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/statvfs.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/stdio-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/stdio.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/stdio_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/string.h, /var/cvs/uClibc/libc/sysdeps/linux/powerpc/bits/string2.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/stdio.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/stdio_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/string.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/string2.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/stropts.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/time.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/uio.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/ustat.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/utmp.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/utmpx.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/utsname.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/waitflags.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/waitstatus.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/wchar.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/xopen_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/sys/cachectl.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/sys/procfs.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/sys/sysmips.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/sys/tas.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/sys/ucontext.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/byteswap.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/cmathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/confname.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/dirent.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/dlfcn.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/elfclass.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/environments.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/fenvinline.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/huge_val.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/in.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/initspin.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/ioctls.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/libc-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/local_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/locale.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/mathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/mathdef.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/mathinline.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/msq.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/nan.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/netdb.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/posix1_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/posix2_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/posix_opt.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/pthreadtypes.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/sched.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/select.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/sigcontext.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/sigset.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/sigthread.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/sockaddr.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/stab.def, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/statvfs.h, /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/stdio-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/sys/procfs.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/sys/reg.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/sys/ucontext.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/sigaction.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/sigcontext.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/siginfo.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/signum.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/sigset.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/sigstack.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/sigthread.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/sockaddr.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/socket.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/stab.def, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/statfs.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/statvfs.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/stdio-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/stdio.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/stdio_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/string.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/string2.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/stropts.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/termios.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/time.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/types.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/uio.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/ustat.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/utmp.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/utmpx.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/utsname.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/waitflags.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/waitstatus.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/wchar.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/xopen_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/byteswap.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/cmathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/confname.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/dirent.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/dlfcn.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/elfclass.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/environments.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/errno.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/fenvinline.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/in.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/initspin.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/ioctl-types.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/ioctls.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/ipc.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/libc-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/local_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/locale.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/mathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/msq.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/nan.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/netdb.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/posix1_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/posix2_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/posix_opt.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/pthreadtypes.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/resource.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/sched.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/select.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/sem.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/setjmp.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/shm.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/m68k/reg.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/stropts.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/termios.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/types.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/uio.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/ustat.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/utmp.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/utmpx.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/utsname.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/waitflags.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/waitstatus.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/wchar.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/xopen_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/sys/debugreg.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/sys/elf.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/sys/io.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/sys/perm.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/sys/procfs.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/sys/reg.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/sys/ucontext.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/sys/user.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/sys/vm86.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/environments.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/errno.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/in.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/initspin.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/io_i386.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/ioctl-types.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/ioctls.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/ipc.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/libc-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/local_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/locale.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/mathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/mathinline.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/msq.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/nan.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/netdb.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/poll.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/posix1_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/posix2_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/posix_opt.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/pthreadtypes.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/sched.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/sem.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/shm.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/sigaction.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/sigcontext.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/siginfo.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/signum.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/sigset.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/sigstack.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/sigthread.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/sockaddr.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/socket.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/stab.def, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/stat.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/statfs.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/statvfs.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/stdio-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/stdio.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/stdio_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/string2.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/xopen_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/byteswap.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/cmathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/confname.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/dirent.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/dlfcn.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/bits/elfclass.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/reg.h, /var/cvs/uClibc/libc/sysdeps/linux/i386/vm86.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/mman.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/msq.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/nan.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/netdb.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/poll.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/posix1_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/posix2_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/posix_opt.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/pthreadtypes.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/resource.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/sched.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/select.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/sem.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/setjmp.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/shm.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/sigaction.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/sigcontext.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/siginfo.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/signum.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/sigset.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/sigstack.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/sigthread.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/sockaddr.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/socket.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/stab.def, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/stat.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/statfs.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/statvfs.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/stdio-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/stdio.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/stdio_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/string.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/string2.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/stropts.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/termios.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/time.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/types.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/uio.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/ustat.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/utmp.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/utmpx.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/utsname.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/waitflags.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/waitstatus.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/wchar.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/wordsize.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/byteswap.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/cmathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/confname.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/dirent.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/dlfcn.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/elfclass.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/endian.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/environments.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/errno.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/fcntl.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/fenv.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/fenvinline.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/huge_val.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/in.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/initspin.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/ioctl-types.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/ioctls.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/ipc.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/libc-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/local_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/locale.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/mathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/mathdef.h, /var/cvs/uClibc/libc/sysdeps/linux/h8300/bits/mathinline.h, /var/cvs/uClibc/libc/sysdeps/linux/common/sys/ptrace.h, /var/cvs/uClibc/libc/sysdeps/linux/common/sys/user.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/byteswap.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/cmathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/confname.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/dirent.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/dlfcn.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/elfclass.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/endian.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/environments.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/errno.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/fcntl.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/fenv.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/fenvinline.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/huge_val.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/in.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/initspin.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/ioctl-types.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/ioctls.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/ipc.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/libc-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/local_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/locale.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/mathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/mathdef.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/mathinline.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/mman.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/msq.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/nan.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/netdb.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/poll.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/posix1_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/posix2_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/posix_opt.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/pthreadtypes.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/resource.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/sched.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/select.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/sem.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/setjmp.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/shm.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/sigaction.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/sigcontext.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/siginfo.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/signum.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/sigset.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/sigstack.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/sigthread.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/sockaddr.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/socket.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/stab.def, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/stat.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/statfs.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/statvfs.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/stdio-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/stdio.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/stdio_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/string.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/string2.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/stropts.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/termios.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/time.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/types.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/uio.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/ustat.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/utmp.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/utmpx.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/utsname.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/waitflags.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/waitstatus.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/wchar.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/wordsize.h, /var/cvs/uClibc/libc/sysdeps/linux/common/bits/xopen_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/pthreadtypes.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/sched.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/select.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/sem.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/shm.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/sigaction.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/sigcontext.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/siginfo.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/signum.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/sigset.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/sigstack.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/sigthread.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/sockaddr.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/socket.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/stab.def, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/stat.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/statfs.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/statvfs.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/stdio-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/stdio.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/stdio_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/string2.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/stropts.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/termios.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/time.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/types.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/uio.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/ustat.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/utmp.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/utmpx.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/utsname.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/waitflags.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/waitstatus.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/wchar.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/xopen_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/sys/elf.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/sys/io.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/sys/procfs.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/sys/ucontext.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/sys/user.h, /var/cvs/uClibc/include/sys/io.h, /var/cvs/uClibc/include/sys/perm.h, /var/cvs/uClibc/include/sys/procfs.h, /var/cvs/uClibc/include/sys/ptrace.h, /var/cvs/uClibc/include/sys/ucontext.h, /var/cvs/uClibc/include/sys/user.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/byteswap.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/cmathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/confname.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/dirent.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/dlfcn.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/elfclass.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/environments.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/errno.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/fenvinline.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/in.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/initspin.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/ioctl-types.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/ioctls.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/ipc.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/libc-lock.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/local_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/locale.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/mathcalls.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/mathinline.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/msq.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/nan.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/netdb.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/poll.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/posix1_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/posix2_lim.h, /var/cvs/uClibc/libc/sysdeps/linux/arm/bits/posix_opt.h, /var/cvs/uClibc/include/.cvsignore, /var/cvs/uClibc/include/signal.h:
+	Major rework of the include files to eliminate redundancy
+	and to better support each arch.  This is a really big patch...
+	 -Erik
+
+2002-02-28  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/test/args/arg_test.c:
+	Patch from David Schleef to check for proper 16-byte aliged
+	stack pointer on powerpc
+
+2002-02-27  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libpthread/linuxthreads/signals.c:
+	Remove some debugging code
+
+	* /var/cvs/uClibc/include/assert.h: Fix C++ support
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/Makefile, /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
+	Lose the -nostdlib, which causes problems with older binutils, and
+	add some fflush calls, since it seems streams are not flushed before
+	an exec
+
+2002-02-26  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/inet/resolv.c, /var/cvs/uClibc/libc/misc/glob/glob.c:
+	A few more little cleanups
+
+	* /var/cvs/uClibc/test/crypt/.cvsignore, /var/cvs/uClibc/test/crypt/Makefile, /var/cvs/uClibc/test/crypt/md5c-test.c:
+	Add an md5crypt test
+
+	* /var/cvs/uClibc/libc/misc/dirent/alphasort64.c, /var/cvs/uClibc/libc/misc/dirent/readdir64.c, /var/cvs/uClibc/libc/misc/dirent/scandir64.c, /var/cvs/uClibc/libc/misc/insremque/insremque.c:
+	Don't redefine stuff
+
+	* /var/cvs/uClibc/include/stdio.h, /var/cvs/uClibc/libc/stdio/stdio.c:
+	Be consistant and use an unsigned char * throughout
+
+	* /var/cvs/uClibc/libc/inet/rpc/rcmd.c:
+	don't pretend to be reentrant yet
+
+	* /var/cvs/uClibc/test/Rules.mak:
+	Doh! Tests were not being compiled with warnings and optimization
+
+	* /var/cvs/uClibc/libc/misc/insremque/insremque.c: Fix redefine problem
+
+	* /var/cvs/uClibc/libc/misc/statfs/statfs64.c, /var/cvs/uClibc/libc/misc/statfs/statvfs.c, /var/cvs/uClibc/libc/misc/statfs/fstatfs64.c, /var/cvs/uClibc/libc/misc/statfs/fstatvfs.c:
+	Fix redefinition problem
+
+	* /var/cvs/uClibc/libc/string/strstr.c:
+	Give the label a ; so compilers have no excuse to whine
+
+	* /var/cvs/uClibc/include/netipx/ipx.h:
+	Odd.  This seems to be in the wrong spot...
+
+	* /var/cvs/uClibc/libcrypt/crypt.c:
+	Don't try to return stuff from void funcs
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/Makefile: Remove an erroneous -L-
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
+	Patch from Miles Bader to restrict common truncate64/ftruncate64
+	syscalls to 64-bit systems, since we can't be sure that the _syscall
+	macros can cope with 64 bit args on 32 bit arches.
+
+	* /var/cvs/uClibc/libc/misc/internals/Makefile, /var/cvs/uClibc/libc/misc/internals/__h_errno_location.c, /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c:
+	Proper support for setting h_errno
+
+	* /var/cvs/uClibc/include/netdb.h, /var/cvs/uClibc/libc/inet/rpc/rcmd.c:
+	Fix rpc + threads so it now compiles.
+
+	* /var/cvs/uClibc/libc/inet/resolv.c:
+	Thomas Fritzsche noticed that __open_etc_hosts was only changing a
+	local copy of the FILE pointer, thereby causing /etc/hosts lookups
+	to fail with Resolver errors.  This patch from Thomas fixes the
+	problem.
+
+	* /var/cvs/uClibc/libpthread/linuxthreads/wrapsyscall.c, /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
+	Enable pread/pwrite
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
+	Patch from Miles Bader: All the -M* options should
+	suppress linking (right now, only `-M' does).
+
+	* /var/cvs/uClibc/libcrypt/md5.c, /var/cvs/uClibc/libcrypt/Makefile, /var/cvs/uClibc/libcrypt/crypt.c, /var/cvs/uClibc/libcrypt/des.c:
+	Adjust function naming and make sure everything is properly
+	static to avoid symbol leakage.
+	 -Erik
+
+	* /var/cvs/uClibc/include/features.h:
+	Remove elimination of __BEGIN_DECLS/__END_DECLS
+
+2002-02-25  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/stdio/stdio.c:
+	I shouldn't try to program when sleepy, since I totally botched
+	the fcntl interface...
+	 -Erik
+
+	* /var/cvs/uClibc/libc/stdio/stdio.c:
+	When messing with fd NONBLOCK status, put things back the way we found
+	them afterwards.  As was, this hosed things up for fds shared with a
+	parent process.  Very bad for shells...  Oops.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/misc/internals/errno.c:
+	Try this version instead...
+
+	* /var/cvs/uClibc/Makefile:
+	Joerg Schmitz-Linneweber recommends using tar -f - instead of -O
+	to prevent interference with the TAPE env var
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
+	Yet another iteration...
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
+	Both Miles and Manuel complained about this one.  I was silently
+	losing all -Wl calls...
+
+2002-02-25  davidm  <davidm@dillweed>
+
+	* /var/cvs/uClibc/include/paths.h:
+	Added locale and lastlog
+
+2002-02-23  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/include/ctype.h, /var/cvs/uClibc/libc/misc/ctype/Makefile, /var/cvs/uClibc/libc/misc/ctype/ctype.c, /var/cvs/uClibc/libc/misc/ctype/ctype_C.c:
+	Support isblank()
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c, /var/cvs/uClibc/extra/gcc-uClibc/Makefile:
+	Fix the compiler wrapper yet more...
+
+	* /var/cvs/uClibc/libc/stdio/stdio.c:
+	IEEE Std 1003.1-2001 says that the "fclose() function shall fail [with]
+	EINTR [when] the fclose() function was interrupted by a signal".  But
+	looking in the current uClibc stdio.c for some bizarre reason we had a
+	special case where when errno was EINTR, we would keep on trying
+	instead.  Doh!  Fix that,
+	 -Erik
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/open64.c, /var/cvs/uClibc/libc/sysdeps/linux/common/statfix64.h, /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c, /var/cvs/uClibc/libpthread/linuxthreads/wrapsyscall.c:
+	Several naming cleanups so threads work properly again
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
+	Fix a corner case which I had botched.
+	 -Erik
+
+	* /var/cvs/uClibc/ldso/ldso/arm/elfinterp.c: Add a better error msg
+
+	* /var/cvs/uClibc/libc/stdio/stdio.c:
+	Per discussion with Manuel, when we call __stdio_flush_buffers
+	from abort() and from _exit(), we need to ensure that flushing
+	will not cause us to block.  So use fcntl to set the fd's to
+	non-block mode...
+
+	* /var/cvs/uClibc/TODO: Update todo list
+
+	* /var/cvs/uClibc/test/Makefile, /var/cvs/uClibc/test/crypt/.cvsignore, /var/cvs/uClibc/test/crypt/Makefile, /var/cvs/uClibc/test/crypt/crypt.c, /var/cvs/uClibc/test/crypt/crypt.input:
+	Test for libcrypt (which is partly broken ATM)
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
+	This should be a little better...
+
+2002-02-22  mjn3  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/include/features.h:
+	I was confusing the effects of _LARGEFILE_SOURCE with those of
+	_FILE_OFFSET_BITS regarding aliasing of the *64 funcs.  :-(
+	Hopefully, this version is correct...
+
+2002-02-22  ds  <ds@dillweed>
+
+	* /var/cvs/uClibc/debian/rules: Build fix for arm
+
+	* /var/cvs/uClibc/debian/control, /var/cvs/uClibc/debian/rules:
+	Special rules for mipsel.  Force some variables in Config, in
+	case they're wrong (they are.)  Remove Config during clean.
+
+2002-02-22  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/mips/_mmap.c, /var/cvs/uClibc/libc/sysdeps/linux/mips/pipe.c, /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
+	Several mips fixes from Geoffrey Espin.  With these, busybox with
+	ash/vi/etc now works just fine with uClibc on mips.
+
+2002-02-21  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libpthread/linuxthreads/wrapsyscall.c:
+	Let the large file stuff be cancelable
+
+	* /var/cvs/uClibc/test/string/string.c:
+	Update string tests per glibc 2.2.5's string tester.  Looks like
+	our stpncpy is flunking...
+	 -Erik
+
+	* /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/arm/sigcontextinfo.h:
+	Oops.  I forgot to commit this file...
+
+	* /var/cvs/uClibc/libc/stdio/popen.c, /var/cvs/uClibc/libc/stdlib/system.c, /var/cvs/uClibc/libc/stdlib/unix_grantpt.c:
+	When vfork is not available and we have an MMU, then use fork()
+	 -Erik
+
+	* /var/cvs/uClibc/libpthread/linuxthreads_db/Makefile, /var/cvs/uClibc/libpthread/linuxthreads/Makefile, /var/cvs/uClibc/libpthread/linuxthreads/mutex.c:
+	Lose the _GNU_SOURCE and just add __USE_GNU to the one file that needs
+	it, since we definately do not want silent remapping of functions to
+	their large-file counterparts.
+	 -Erik
+
+	* /var/cvs/uClibc/libm/Makefile:
+	Add ldexp to the !C99 list, since it is defined in POSIX as
+	being part of the classic math lib stuff.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c:
+	Miles Bader noticed that I'd messed up by always pulling
+	errno in, regardless of whether it is being used...
+	 -Erik
+
+2002-02-20  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/bits/types.h:
+	Fix from John Rigby to fix stat() so it actually works.
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/powerpc/clone.S:
+	oops.  I had accidentally typed in "clean" when I meant "clone".
+	This fix makes pthreads actaully work on powerpc.
+	 -Erik
+
+	* /var/cvs/uClibc/libc/misc/internals/errno.c: This is a bit less messy
+
+	* /var/cvs/uClibc/extra/Configs/Config.arm, /var/cvs/uClibc/extra/Configs/Config.i386:
+	Enable thread support
+
+	* /var/cvs/uClibc/extra/gcc-uClibc/Makefile, /var/cvs/uClibc/extra/gcc-uClibc/gcc-uClibc.c:
+	Several needed cleanups to the gcc wrapper.
+	 -Erik
+
+	* /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/unix/sysv/linux/bits/local_lim.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/unix/sysv/linux/bits/posix_opt.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/unix/sysv/linux/bits/sigthread.h, /var/cvs/uClibc/libpthread/linuxthreads_db/ChangeLog, /var/cvs/uClibc/libpthread/linuxthreads_db/Makefile, /var/cvs/uClibc/libpthread/linuxthreads_db/Versions, /var/cvs/uClibc/libpthread/linuxthreads_db/proc_service.h, /var/cvs/uClibc/libpthread/linuxthreads_db/td_init.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_log.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_clear_event.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_delete.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_enable_stats.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_event_addr.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_event_getmsg.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_get_nthreads.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_get_ph.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_get_stats.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_map_id2thr.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_map_lwp2thr.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_new.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_reset_stats.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_set_event.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_setconcurrency.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_thr_iter.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_ta_tsd_iter.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_clear_event.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_dbresume.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_dbsuspend.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_event_enable.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_event_getmsg.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_get_info.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_getfpregs.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_getgregs.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_getxregs.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_getxregsize.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_set_event.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_setfpregs.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_setgregs.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_setprio.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_setsigpending.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_setxregs.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_sigsetmask.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_tsd.c, /var/cvs/uClibc/libpthread/linuxthreads_db/td_thr_validate.c, /var/cvs/uClibc/libpthread/linuxthreads_db/thread_db.h, /var/cvs/uClibc/libpthread/linuxthreads_db/thread_dbP.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/sparc/sparc32/pt-machine.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/sparc/sparc32/sigcontextinfo.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/sparc/sparc64/pt-machine.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/sparc/sparc64/sigcontextinfo.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/mips/pt-machine.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/mips/sigcontextinfo.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/powerpc/pt-machine.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/powerpc/sigcontextinfo.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/pthread/bits/libc-lock.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/pthread/bits/libc-tsd.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/pthread/bits/pthreadtypes.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/pthread/bits/stdio-lock.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/i386/i686/pt-machine.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/m68k/pt-machine.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/m68k/sigcontextinfo.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/arm/bits/armsigctx.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/arm/pt-machine.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/i386/pt-machine.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/i386/sigcontextinfo.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/i386/useldt.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/alpha/pt-machine.h, /var/cvs/uClibc/libpthread/linuxthreads/sysdeps/alpha/sigcontextinfo.h, /var/cvs/uClibc/libpthread/linuxthreads/ChangeLog, /var/cvs/uClibc/libpthread/linuxthreads/Changes, /var/cvs/uClibc/libpthread/linuxthreads/FAQ.html, /var/cvs/uClibc/libpthread/linuxthreads/LICENSE, /var/cvs/uClibc/libpthread/linuxthreads/Makefile, /var/cvs/uClibc/libpthread/linuxthreads/README, /var/cvs/uClibc/libpthread/linuxthreads/README.Xfree3.2, /var/cvs/uClibc/libpthread/linuxthreads/Versions, /var/cvs/uClibc/libpthread/linuxthreads/attr.c, /var/cvs/uClibc/libpthread/linuxthreads/cancel.c, /var/cvs/uClibc/libpthread/linuxthreads/condvar.c, /var/cvs/uClibc/libpthread/linuxthreads/configure, /var/cvs/uClibc/libpthread/linuxthreads/debug.h, /var/cvs/uClibc/libpthread/linuxthreads/errno.c, /var/cvs/uClibc/libpthread/linuxthreads/events.c, /var/cvs/uClibc/libpthread/linuxthreads/internals.h, /var/cvs/uClibc/libpthread/linuxthreads/join.c, /var/cvs/uClibc/libpthread/linuxthreads/linuxthreads.texi, /var/cvs/uClibc/libpthread/linuxthreads/lockfile.c, /var/cvs/uClibc/libpthread/linuxthreads/manager.c, /var/cvs/uClibc/libpthread/linuxthreads/mutex.c, /var/cvs/uClibc/libpthread/linuxthreads/no-tsd.c, /var/cvs/uClibc/libpthread/linuxthreads/oldsemaphore.c, /var/cvs/uClibc/libpthread/linuxthreads/pt-machine.c, /var/cvs/uClibc/libpthread/linuxthreads/ptfork.c, /var/cvs/uClibc/libpthread/linuxthreads/pthread.c, /var/cvs/uClibc/libpthread/linuxthreads/ptlongjmp.c, /var/cvs/uClibc/libpthread/linuxthreads/queue.h, /var/cvs/uClibc/libpthread/linuxthreads/restart.h, /var/cvs/uClibc/libpthread/linuxthreads/rwlock.c, /var/cvs/uClibc/libpthread/linuxthreads/semaphore.c, /var/cvs/uClibc/libpthread/linuxthreads/semaphore.h, /var/cvs/uClibc/libpthread/linuxthreads/signals.c, /var/cvs/uClibc/libpthread/linuxthreads/specific.c, /var/cvs/uClibc/libpthread/linuxthreads/spinlock.c, /var/cvs/uClibc/libpthread/linuxthreads/spinlock.h, /var/cvs/uClibc/libpthread/linuxthreads/testrtsig.h, /var/cvs/uClibc/libpthread/linuxthreads/weaks.c, /var/cvs/uClibc/libpthread/linuxthreads/wrapsyscall.c, /var/cvs/uClibc/libc/sysdeps/linux/common/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/common/errno.c, /var/cvs/uClibc/libpthread/Makefile, /var/cvs/uClibc/libpthread/pthread.c, /var/cvs/uClibc/libc/misc/Makefile, /var/cvs/uClibc/libc/misc/internals/.cvsignore, /var/cvs/uClibc/libc/misc/internals/Makefile, /var/cvs/uClibc/libc/misc/internals/__errno_location.c, /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c, /var/cvs/uClibc/libc/misc/internals/errno.c, /var/cvs/uClibc/libc/misc/pthread/Makefile, /var/cvs/uClibc/libc/misc/pthread/no-tsd.c, /var/cvs/uClibc/libc/misc/pthread/weaks.c, /var/cvs/uClibc/Makefile, /var/cvs/uClibc/Rules.mak, /var/cvs/uClibc/include/features.h, /var/cvs/uClibc/include/semaphore.h:
+	Merge in the pthread library.  This is the linuxthreads library taken from
+	glibc 2.1.3 and ported to work with uClibc by Stefan Soucek and Erik Andersen
+	(me).  Stefan has hacked things up such that linuxthreads runs on MMU-less
+	systems (tested only on arm-nommu).  Erik cleaned things up and made it work
+	properly as a shared library.
+	 -Erik
+
+	* /var/cvs/uClibc/test/pthread/Makefile, /var/cvs/uClibc/test/pthread/ex7.c:
+	Add a test from Stefan Soucek for pthread_cond_timedwait().  On
+	mmu-less ARM perhaps sigsetjmp() isn't working?
+
+2002-02-19  mjn3  <mjn3@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/statfix.h, /var/cvs/uClibc/include/features.h:
+	Output an error if uClibc's and app's largefile configuration are incompatible.
+
+2002-02-19  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/stdlib/abort.c, /var/cvs/uClibc/libc/stdlib/atexit.c:
+	Doh! Miles Bader noticed a couple of spots where I forgot
+	to mark __stdio_flush_buffers with weak_function. Oops!
+
+2002-02-18  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c, /var/cvs/uClibc/libc/stdio/stdio.c, /var/cvs/uClibc/libc/stdlib/abort.c, /var/cvs/uClibc/libc/stdlib/atexit.c:
+	Rename __stdio_close_all to __stdio_flush_buffers.  Eliminate an
+	unnecessary variable
+
+	* /var/cvs/uClibc/libc/stdlib/atexit.c: Doh!
+
+	* /var/cvs/uClibc/libc/stdlib/atexit.c: Miles Bader writes:
+	    Programs that don't use stdio crash in the `exit' function, because
+	    they call through the pointer__uClibc_cleanup, which has a value of 0.
+	    It has a value of 0 because __uClibc_main.c initializes it to the
+	    address of `__stdio_close_all', which is a weak symbol (and so is 0 if
+	    stdio is not used).
+	This patch from Miles fixes it, though we need to audit
+	__stdio_close_all usage to be sure...
+
+	* /var/cvs/uClibc/ldso/libdl/Makefile, /var/cvs/uClibc/libc/Makefile, /var/cvs/uClibc/libc/misc/internals/Makefile, /var/cvs/uClibc/libcrypt/Makefile, /var/cvs/uClibc/libm/Makefile, /var/cvs/uClibc/libresolv/Makefile, /var/cvs/uClibc/libutil/Makefile:
+	Make shared libs properly list the correct ld.so in the interp
+	field by being sneaky.
+
+	* /var/cvs/uClibc/libc/misc/internals/__uClibc_main.c, /var/cvs/uClibc/include/features.h:
+	Support strong_alias and begin merging usage of weak_function
+
+	* /var/cvs/uClibc/ldso/ldso/ldso.c:
+	Whine and exit if people link against GNU libc or
+	GNU libc linked shared libraries.
+
+2002-02-17  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/ldso/ldso/powerpc/elfinterp.c, /var/cvs/uClibc/ldso/ldso/sparc/elfinterp.c, /var/cvs/uClibc/ldso/ldso/i386/elfinterp.c, /var/cvs/uClibc/ldso/ldso/m68k/elfinterp.c:
+	Fix defines so debugging works as expected
+
+	* /var/cvs/uClibc/ldso/ldso/arm/ld_sysdep.h, /var/cvs/uClibc/ldso/ldso/ldso.c:
+	Some more updates.  Darn -- arm needs the mprotect hack
+
+	* /var/cvs/uClibc/ldso/ldso/ld_string.h, /var/cvs/uClibc/ldso/ldso/ldso.c:
+	A few more little fixups
+
+	* /var/cvs/uClibc/ldso/libdl/Makefile: Eliminate circular dependancy
+
+	* /var/cvs/uClibc/ldso/ldso/Makefile, /var/cvs/uClibc/ldso/ldso/ld_string.h, /var/cvs/uClibc/ldso/ldso/ldso.c, /var/cvs/uClibc/ldso/ldso/readelflib1.c:
+	A ton of cleanups.  Eliminate some useless code.  Much better
+	debugging code now.
+	 -Erik
+
+2002-02-16  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/signal/sigaction.c:
+	Use sizeof(sa_mask) instaed of sizeof(sigset_t) since sa_mask is
+	not always a sigset_t...  Fix from Geoffrey Espin.
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/mips/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/mips/setjmp_aux.c, /var/cvs/uClibc/libc/sysdeps/linux/mips/vfork.c:
+	Several mips cleanups/additons from Geoffrey Espin.
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/h8300/ptrace.c:
+	Patch from Yoshinori Sato <qzb04471@nifty.ne.jp> to fix up
+	ptrace for the Hitachi h8300
+
+2002-02-16  ds  <ds@dillweed>
+
+	* /var/cvs/uClibc/Makefile: Additionally remove libc/tmp
+
+2002-02-15  ds  <ds@dillweed>
+
+	* /var/cvs/uClibc/debian/rules: Try adding mipsel to the architectures
+
+2002-02-15  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/Makefile:
+	Geoffrey Espin noticed a $ that should have been a double $$
+	since Make make eats $'s.
+
+2002-02-14  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/include/stdlib.h:
+	Disable a lingering bit of wide char junk
+
+2002-02-13  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/longjmp.c:
+	Fix missing longjmp symbol
+
+	* /var/cvs/uClibc/libc/string/strcasecmp.c, /var/cvs/uClibc/libc/string/strncasecmp.c:
+	Fix copyright message
+
+	* /var/cvs/uClibc/include/features.h, /var/cvs/uClibc/libc/inet/socketcalls.c, /var/cvs/uClibc/libc/signal/sigaction.c, /var/cvs/uClibc/libc/signal/sigset.c, /var/cvs/uClibc/libc/stdlib/Makefile, /var/cvs/uClibc/libc/stdlib/atexit.c, /var/cvs/uClibc/libc/stdlib/system.c, /var/cvs/uClibc/libc/sysdeps/linux/common/longjmp.c, /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c, /var/cvs/uClibc/libc/sysdeps/linux/common/wait.c, /var/cvs/uClibc/libc/sysdeps/linux/common/waitpid.c, /var/cvs/uClibc/libc/sysdeps/linux/sh/longjmp.c, /var/cvs/uClibc/libc/termios/termios.c:
+	A number of naming updates in preparation for adding in
+	proper threading.  Most of this is from Stefan Soucek,
+	with additions and changes as needed from me.
+
+	* /var/cvs/uClibc/test/setjmp/.cvsignore, /var/cvs/uClibc/test/setjmp/setjmp_test.c, /var/cvs/uClibc/test/stdlib/Makefile, /var/cvs/uClibc/test/stdlib/testatexit.c, /var/cvs/uClibc/test/stdlib/teston_exit.c, /var/cvs/uClibc/test/pthread/Makefile, /var/cvs/uClibc/test/pthread/ex1.c, /var/cvs/uClibc/test/pthread/ex2.c, /var/cvs/uClibc/test/pthread/ex3.c, /var/cvs/uClibc/test/pthread/ex4.c, /var/cvs/uClibc/test/pthread/ex5.c, /var/cvs/uClibc/test/pthread/ex6.c:
+	Several test suite updates.  The testatexit, teston_exit, and
+	pthread tests were contributed by Stefan Soucek
+
+	* /var/cvs/uClibc/ldso/util/ldd.c: Fix silly buffer overflow
+
+2002-02-12  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/string/strcasecmp.c, /var/cvs/uClibc/libc/string/strncasecmp.c:
+	Mark Robson noticed that our strcasecmp() behaviour was not
+	standards compliant.  Brian Stafford then provided these new
+	implementations, which apprear to properly follow SUSv2.
+	 -Erik
+
+2002-02-11  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/libc/signal/sigaction.c:
+	HAVE_SA_RESTORER is supposed to be true, not false, on most arches.
+	 -Erik
+
+2002-02-11  ds  <ds@dillweed>
+
+	* /var/cvs/uClibc/debian/mksnapshot: Fix typo
+
+	* /var/cvs/uClibc/debian/changelog, /var/cvs/uClibc/debian/control, /var/cvs/uClibc/debian/control.in, /var/cvs/uClibc/debian/mksnapshot, /var/cvs/uClibc/debian/rules:
+	mksnapshot: updated version and filenames.  control.in: changed
+	dependency from kernel-headers to kernel-source packages.  rules:
+	force HAS_MMU=true, change mipsel to mips, untar kernel-source
+	package include directory and use that as kernel source
+
+	* /var/cvs/uClibc/debian/mksnapshot: Update version
+
+2002-02-08  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/Makefile:
+	Dont choke when chown fails.  Try to be more portable...
+
+2002-02-06  davidm  <davidm@dillweed>
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/m68k/bits/setjmp.h, /var/cvs/uClibc/libc/sysdeps/linux/m68k/Makefile, /var/cvs/uClibc/libc/sysdeps/linux/m68k/__longjmp.S, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bsd-_setjmp.S, /var/cvs/uClibc/libc/sysdeps/linux/m68k/bsd-setjmp.S, /var/cvs/uClibc/libc/sysdeps/linux/m68k/clone.S, /var/cvs/uClibc/libc/sysdeps/linux/m68k/setjmp.S:
+	Add in clone (untested)
+
+	Fix up setjmp/longjmp which were quite broken not withstanding
+	all the new versions.
+
+	Needs a little more test time before I'll trust this code totally.
+
+2002-02-05  Erik Andersen  <andersen@dillweed>
+
+	* /var/cvs/uClibc/docs/uclibc.org/uClibc-apps.html:
+	Updates from Martin Sieper
+
+	* /var/cvs/uClibc/libc/sysdeps/linux/common/syscalls.c:
+	Fix __adjtimex symbol
+
+	* /var/cvs/uClibc/libc/misc/time/adjtime.c: OOps.
+
+	* /var/cvs/uClibc/libc/signal/sysv_signal.c:
+	use X/Open __sysv_signal name, then use the weak name for sysv_signal
+	 -Erik
+
