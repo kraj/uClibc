@@ -20,8 +20,12 @@ TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 ASFLAGS=$(CFLAGS)
 
+#FIXME -- this arch should include its own crti.S and crtn.S
+UCLIBC_CTOR_DTOR=n
+
 CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o
+CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 SSRC=setjmp.S vfork.S # longjmp.S _start.S clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
@@ -37,7 +41,7 @@ all: $(OBJS) $(LIBC)
 
 $(LIBC): ar-target 
 
-ar-target: $(OBJS) $(CRT0_OBJ)
+ar-target: $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
@@ -52,6 +56,30 @@ $(SOBJS): %.o : %.S
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+crti.o: crti.S
+	$(CC) $(SAFECFLAGS) -c crti.S -o crti.o
+
+$(TOPDIR)lib/crti.o: crti.o
+	$(INSTALL) -d $(TOPDIR)lib/
+	cp crti.o $(TOPDIR)lib/
+
+crtn.o: crtn.S
+	$(CC) $(SAFECFLAGS) -c crtn.S -o crtn.o
+
+$(TOPDIR)lib/crtn.o: crtn.o
+	$(INSTALL) -d $(TOPDIR)lib/
+	cp crtn.o $(TOPDIR)lib/
+else
+$(TOPDIR)lib/crti.o:
+	$(INSTALL) -d $(TOPDIR)lib/
+	$(AR) $(ARFLAGS) $(TOPDIR)lib/crti.o
+$(TOPDIR)lib/crtn.o:
+	$(INSTALL) -d $(TOPDIR)lib/
+	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
+endif
+
 
 headers:
 
