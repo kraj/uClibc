@@ -34,7 +34,7 @@ endif
 
 
 MSRC = stdlib.c
-MOBJ = abs.o labs.o atoi.o atol.o strtol.o strtoul.o _stdlib_strto_l.o \
+MOBJ = atof.o abs.o labs.o atoi.o atol.o strtol.o strtoul.o _stdlib_strto_l.o \
        qsort.o bsearch.o
 MOBJ +=  llabs.o atoll.o strtoll.o strtoull.o _stdlib_strto_ll.o
 
