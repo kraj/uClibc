@@ -121,6 +121,6 @@ teststrtol_diff: teststrtol_glibc teststrtol
 	-@ echo " "
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS)
+	rm -f *.[oa] *~ core $(TARGETS) teststrtol_glibc.out teststrtol.out
 
 

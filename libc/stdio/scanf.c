@@ -201,15 +201,16 @@ va_list ap;
 			strcpy(delim, "\011\012\013\014\015 ");
 			strcpy(digits, "0123456789ABCDEF");
 
-			if (fmt[1] == '*') {
+			if (*++fmt == '*') {
 				endnull = store = 0;
 				++fmt;
 			}
 
-			while (isdigit(*++fmt)) {	/* width digit(s) */
+			while (isdigit(*fmt)) {	/* width digit(s) */
 				if (width == -1)
 					width = 0;
 				wide1 = width = (width * 10) + (*fmt - '0');
+				++fmt;
 			}
 			--fmt;
 		  fmtnxt:

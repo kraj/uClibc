@@ -73,6 +73,6 @@ testcopy_diff: testcopy testcopy_glibc
 
 
 clean:
-	rm -f *.[oa] *~ core $(TARGETS)
+	rm -f *.[oa] *~ core $(TARGETS) testcopy.gnu.out testcopy.out
 
 

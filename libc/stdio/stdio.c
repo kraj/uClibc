@@ -609,6 +609,8 @@ const char *mode;
 	int fopen_mode = 0;
 	FILE *nfp = 0;
 
+	Inline_init;
+
 	/* If we've got an fp close the old one (freopen) */
 	if (fp) {
 		/* Careful, don't de-allocate it */

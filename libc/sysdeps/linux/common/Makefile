@@ -26,10 +26,10 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 
-CSRC =closedir.o dirfd.o getdents.o getdnnm.o gethstnm.o getpagesize.o \
-	isatty.o kernel_version.o mkfifo.o opendir.o readdir.o rewinddir.o \
-	seekdir.o setegid.o seteuid.o setpgrp.o statfix.o tell.o telldir.o \
-	wait.o wait3.o _xmknod.o _fxstat.o _lxstat.o _xstat.o libc_init.o tcgetatr.o
+CSRC =closedir.c dirfd.c getdents.c getdnnm.c gethstnm.c getpagesize.c \
+	isatty.c kernel_version.c mkfifo.c opendir.c readdir.c rewinddir.c \
+	seekdir.c setegid.c seteuid.c setpgrp.c statfix.c tell.c telldir.c \
+	wait.c wait3.c _xmknod.c _fxstat.c _lxstat.c _xstat.c libc_init.c tcgetatr.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 
