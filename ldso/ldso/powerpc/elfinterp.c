@@ -265,28 +265,20 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 #endif
 	reloc_addr   = (Elf32_Addr *)(intptr_t) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
 	reloc_type   = ELF32_R_TYPE(rpnt->r_info);
-	if (reloc_type == R_PPC_RELATIVE) {
-		*reloc_addr = tpnt->loadaddr + rpnt->r_addend;
-		return 0;
-	}
-	if (reloc_type == R_PPC_NONE)
-		return 0;
+	symbol_addr = tpnt->loadaddr; /* For R_PPC_RELATIVE */ 
 	symtab_index = ELF32_R_SYM(rpnt->r_info);
 	symname      = strtab + symtab[symtab_index].st_name;
-
-	symbol_addr = (unsigned long) _dl_find_hash(symname, scope->dyn->symbol_scope,
-						    elf_machine_type_class(reloc_type));
-	/*
-	 * We want to allow undefined references to weak symbols - this might
-	 * have been intentional.  We should not be linking local symbols
-	 * here, so all bases should be covered.
-	 */
-	if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) == STB_GLOBAL) {
-#if defined (__SUPPORT_LD_DEBUG__)
-		_dl_dprintf(2, "\tglobal symbol '%s' already defined in '%s', rel type: %s\n",
-			    symname, tpnt->libname, _dl_reltypes(reloc_type));
-#endif
-		return 0;
+	if (symtab_index) {
+		symbol_addr = (unsigned long) _dl_find_hash(symname, scope->dyn->symbol_scope,
+							    elf_machine_type_class(reloc_type));
+		/* We want to allow undefined references to weak symbols - this might
+		 * have been intentional.  We should not be linking local symbols
+		 * here, so all bases should be covered.
+		 */
+		if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
+			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
+			_dl_exit(1);
+		};
 	}
 #if defined (__SUPPORT_LD_DEBUG__)
 	old_val = *reloc_addr;
@@ -294,15 +286,14 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	finaladdr = (Elf32_Addr) (symbol_addr + rpnt->r_addend);
 
 	switch (reloc_type) {
+	case R_PPC_RELATIVE:
 	case R_PPC_ADDR32:
 	case R_PPC_GLOB_DAT:
 		*reloc_addr = finaladdr;
-		return 0; /* No code code modified */
-		break;
+		goto out_nocode; /* No code code modified */
 	case R_PPC_JMP_SLOT:
 	{
 		Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
-
 		if (delta<<6>>6 == delta) {
 			*reloc_addr = OPCODE_B(delta);
 		} else if (finaladdr <= 0x01fffffc) {
@@ -337,14 +328,11 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 #endif
 			_dl_memcpy((char *) reloc_addr, (char *) finaladdr, symtab[symtab_index].st_size);
 		}
-		return 0; /* No code code modified */
-		break;
+		goto out_nocode; /* No code code modified */
 	case R_PPC_ADDR16_HA:
-		*(short *)reloc_addr = (finaladdr + 0x8000)>>16;
-		break;
+		finaladdr += 0x8000; /* fall through. */
 	case R_PPC_ADDR16_HI:
-		*(short *)reloc_addr = finaladdr >> 16;
-		break;
+		finaladdr >>= 16; /* fall through. */
 	case R_PPC_ADDR16_LO:
 		*(short *)reloc_addr = finaladdr;
 		break;
@@ -365,6 +353,8 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 		_dl_dprintf(2,"R_PPC_REL24: Compile shared libraries with -fPIC!\n");
 		_dl_exit(1);
 #endif
+	case R_PPC_NONE:
+		goto out_nocode; /* No code code modified */
 	default:
 		_dl_dprintf(2, "%s: can't handle reloc type ", _dl_progname);
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -380,6 +370,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct dyn_elf *scope,
 	PPC_SYNC;
 	PPC_ICBI(reloc_addr);
 	PPC_ISYNC;
+ out_nocode:
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug_reloc && _dl_debug_detail)
 		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
