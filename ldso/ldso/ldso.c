@@ -126,7 +126,7 @@
 static char *_dl_malloc_addr, *_dl_mmap_zero;
 char *_dl_library_path = 0;		/* Where we look for libraries */
 char *_dl_preload = 0;			/* Things to be loaded before the libs. */
-char *_dl_progname = "/lib/ld-linux-uclibc.so.1";
+char *_dl_progname = "ld-linux-uclibc.so.0";
 static char *_dl_not_lazy = 0;
 static char *_dl_warn = 0;		/* Used by ldd */
 static char *_dl_trace_loaded_objects = 0;
@@ -210,12 +210,22 @@ void _dl_boot(unsigned int args)
 
 	/* Next, locate the GOT */
 	load_addr = auxv_t[AT_BASE].a_un.a_val;
+	if (load_addr == 0x0) {
+	    /* Looks like they decided to run ld-linux-uclibc.so as 
+	     * an executable.  Exit gracefully for now. */
+
+	    /* TODO -- actually accept executables and args to run... */
+	    //SEND_STDERR("Usage: ld.so EXECUTABLE [ARGS...]\n");
+	    SEND_STDERR("You have run `ld.so', the helper program for shared\n");
+	    SEND_STDERR("library executables.  You probably did not intend to\n");
+	    SEND_STDERR("run this program.  Goodbye.\n\n");
+	    _dl_exit(0);
+	}
 #ifdef DL_DEBUG
 	SEND_STDERR("load_addr=");
 	SEND_STDERR(_dl_simple_ltoahex(load_addr));
 	SEND_STDERR("\n");
 #endif	
-//	__asm__("\tmovl %%ebx,%0\n\t" : "=a" (X))
 	GET_GOT(got);
 #ifdef DL_DEBUG
 	SEND_STDERR("Found got=");
