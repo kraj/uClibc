@@ -28,4 +28,17 @@
 #define __CONSTVALUE
 #define __CONSTVALUE2
 
+#ifdef __GNUC__
+/* GCC can always grok prototypes.  For C++ programs we add throw()
+   to help it optimize the function calls.  But this works only with
+   gcc 2.8.x and egcs.  */
+#if defined __cplusplus && __GNUC_PREREQ (2,8)
+#define __THROW		throw()
+#else
+#define __THROW
+#endif
+#else /* GCC */
+#define __THROW
+#endif
+
 #endif
