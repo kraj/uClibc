@@ -57,11 +57,9 @@ CSRC=	td_init.c td_log.c td_ta_delete.c td_ta_get_nthreads.c		\
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
-all: $(OBJS) $(LIBTHREAD_DB)
+all: $(LIBTHREAD_DB)
 
-$(LIBTHREAD_DB): ar-target
-
-ar-target: $(OBJS)
+$(LIBTHREAD_DB) ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBTHREAD_DB) $(OBJS)
 
 $(COBJS): %.o : %.c
@@ -70,5 +68,3 @@ $(COBJS): %.o : %.c
 
 clean:
 	$(RM) *.[oa] *~ core
-
-
