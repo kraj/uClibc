@@ -30,11 +30,13 @@ void __uClibc_main(int argc, char **argv, char **envp)
 weak_alias(__environ, environ);
 extern void weak_function __init_stdio(void);
 extern void weak_function __stdio_flush_buffers(void);
-extern int *weak_function __errno_location (void);
+extern int *weak_const_function __errno_location (void);
+extern int *weak_const_function __h_errno_location (void);
 #else
 extern void __init_stdio(void);
 extern void __stdio_flush_buffers(void);
 extern int *__errno_location (void);
+extern int *__h_errno_location (void);
 #endif	
 
 /*
@@ -79,6 +81,9 @@ void __uClibc_main(int argc, char **argv, char **envp)
 	 */
 	if (__errno_location)
 	    *(__errno_location()) = 0;
+	/* Set h_errno to 0 as well */
+	if (__h_errno_location)
+	    *(__h_errno_location()) = 0;
 
 	/*
 	 * Finally, invoke application's main and then exit.
