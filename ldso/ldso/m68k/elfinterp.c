@@ -23,7 +23,7 @@
 #define VERBOSE_DLINKER
 #endif
 #ifdef VERBOSE_DLINKER
-static char *_dl_reltypes[] =
+static const char *_dl_reltypes[] =
 {
   "R_68K_NONE",
   "R_68K_32", "R_68K_16", "R_68K_8",

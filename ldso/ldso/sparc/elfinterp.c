@@ -20,7 +20,7 @@
 #define VERBOSE_DLINKER
 #endif
 #ifdef VERBOSE_DLINKER
-static char * _dl_reltypes[] = { "R_SPARC_NONE", "R_SPARC_8",
+static const char * _dl_reltypes[] = { "R_SPARC_NONE", "R_SPARC_8",
   "R_SPARC_16", "R_SPARC_32", "R_SPARC_DISP8", "R_SPARC_DISP16",
   "R_SPARC_DISP32", "R_SPARC_WDISP30", "R_SPARC_WDISP22",
   "R_SPARC_HI22", "R_SPARC_22", "R_SPARC_13", "R_SPARC_LO10",

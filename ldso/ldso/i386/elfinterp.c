@@ -20,7 +20,7 @@
 #define VERBOSE_DLINKER
 #endif
 #ifdef VERBOSE_DLINKER
-static char *_dl_reltypes[] =
+static const char *_dl_reltypes[] =
 	{ "R_386_NONE", "R_386_32", "R_386_PC32", "R_386_GOT32",
 	"R_386_PLT32", "R_386_COPY", "R_386_GLOB_DAT",
 	"R_386_JMP_SLOT", "R_386_RELATIVE", "R_386_GOTOFF",
