@@ -470,7 +470,7 @@ int vfprintf(FILE * __restrict stream, register const char * __restrict format,
 			}
 		} while (1);
 
-		va_end(ppfs->arg);		/* Need to clean up after va_copy! */
+		va_end(ppfs.arg);		/* Need to clean up after va_copy! */
 	}
 
 	__STDIO_THREADUNLOCK(stream);
