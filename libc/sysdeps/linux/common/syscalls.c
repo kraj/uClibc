@@ -282,7 +282,8 @@ _syscall0(void, sync);
 
 //#define __NR_kill             37
 #ifdef L_kill
-//#include <signal.h>
+#include <signal.h>
+#undef kill
 _syscall2(int, kill, pid_t, pid, int, sig);
 #endif
 
@@ -498,8 +499,8 @@ _syscall0(pid_t, setsid);
 
 //#define __NR_sigaction        67
 #ifdef L_sigaction
-//#include <signal.h>
-struct sigaction;
+#include <signal.h>
+#undef sigaction
 _syscall3(int, sigaction, int, signum, const struct sigaction *, act,
 		  struct sigaction *, oldact);
 #endif
@@ -522,13 +523,15 @@ _syscall2(int, setregid, gid_t, rgid, gid_t, egid);
 
 //#define __NR_sigsuspend       72
 #ifdef L_sigsuspend
-//#include <signal.h>
+#include <signal.h>
+#undef sigsuspend
 _syscall1(int, sigsuspend, const sigset_t *, mask);
 #endif
 
 //#define __NR_sigpending       73
 #ifdef L_sigpending
-//#include <signal.h>
+#include <signal.h>
+#undef sigpending
 _syscall1(int, sigpending, sigset_t *, set);
 #endif
 
@@ -942,7 +945,8 @@ _syscall3(int, mprotect, void *, addr, size_t, len, int, prot);
 
 //#define __NR_sigprocmask      126
 #ifdef L_sigprocmask
-//#include <signal.h>
+#include <signal.h>
+#undef sigprocmask
 _syscall3(int, sigprocmask, int, how, const sigset_t *, set, sigset_t *,
 		  oldset);
 #endif

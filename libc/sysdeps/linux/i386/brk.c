@@ -21,13 +21,16 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
+#ifndef __ptrvalue
+#define __ptrvalue
+#endif
 
 /* This must be initialized data because commons can't have aliases.  */
 void *___brk_addr = 0;
 
 int brk (void *addr)
 {
-    void *__unbounded newbrk, *__unbounded scratch;
+    void *newbrk, *scratch;
 
     asm ("movl %%ebx, %1\n"	/* Save %ebx in scratch register.  */
 	    "movl %3, %%ebx\n"	/* Put ADDR in %ebx to be syscall arg.  */

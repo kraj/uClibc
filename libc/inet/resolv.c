@@ -1132,7 +1132,7 @@ struct netent * getnetbyname(const char * name)
 
 #ifdef L_res_init
 
-int res_init()
+int res_init(void)
 {
 	return(0);
 }
@@ -1181,7 +1181,7 @@ int res_query(const char *dname, int class, int type,
 
 
 #ifdef L_gethostbyaddr
-struct hostent *gethostbyaddr (const void *addr, __socklen_t len, int type)
+struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 {
 	static struct hostent h;
 	static char namebuf[256];
