@@ -51,3 +51,5 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 #define OFFS_ALIGN 0x7ffff000
 
 #define elf_machine_type_class(type)		ELF_RTYPE_CLASS_PLT
+/* MIPS does not have COPY relocs */
+#define DL_NO_COPY_RELOCS
