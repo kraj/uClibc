@@ -47,6 +47,10 @@ static void mcount_internal (u_long frompc, u_long selfpc);
 #define _MCOUNT_DECL(frompc, selfpc) \
 static inline void mcount_internal (u_long frompc, u_long selfpc)
 
+#ifndef RETURN_ADDRESS
+#define RETURN_ADDRESS(n) __builtin_return_address(n)
+#endif
+
 #define MCOUNT \
 void _mcount (void)							      \
 {									      \
