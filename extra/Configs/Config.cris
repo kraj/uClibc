@@ -16,11 +16,9 @@ config ARCH_CFLAGS
 
 config ARCH_LDFLAGS
 	string
-	default "-mcrislinux"
 
 config LIBGCC_CFLAGS
 	string
-	default "-mlinux"
 
 
 choice

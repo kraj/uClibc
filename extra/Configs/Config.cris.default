@@ -6,8 +6,6 @@
 # Target Architecture Features and Options
 #
 HAVE_ELF=y
-ARCH_LDFLAGS="-mcrislinux"
-LIBGCC_CFLAGS="-mlinux"
 CONFIG_CRIS=y
 UCLIBC_HAS_MMU=y
 UCLIBC_HAS_FLOATS=y
@@ -16,22 +14,29 @@ HAS_FPU=y
 WARNINGS="-Wall"
 KERNEL_SOURCE="$(AXIS_KERNEL_DIR)"
 C_SYMBOL_PREFIX=""
+HAVE_DOT_CONFIG=y
 
 #
 # General Library Settings
 #
 DOPIC=y
 HAVE_SHARED=y
+ADD_LIBGCC_FUNCTIONS=y
 BUILD_UCLIBC_LDSO=y
 # LDSO_LDD_SUPPORT is not set
+UCLIBC_CTOR_DTOR=y
+# UCLIBC_PROFILING is not set
 UCLIBC_HAS_THREADS=y
+# PTHREADS_DEBUG_SUPPORT is not set
 UCLIBC_HAS_LFS=y
 # MALLOC is not set
 MALLOC_930716=y
+# UCLIBC_DYNAMIC_ATEXIT is not set
 HAS_SHADOW=y
 UCLIBC_HAS_REGEX=y
 UNIX98PTY_ONLY=y
 ASSUME_DEVPTS=y
+# UCLIBC_HAS_TM_EXTENSIONS is not set
 
 #
 # Networking Support
@@ -49,10 +54,10 @@ UCLIBC_HAS_RPC=y
 #
 # Library Installation Options
 #
-SHARED_LIB_LOADER_PATH="$(DEVEL_PREFIX)/lib"
+SHARED_LIB_LOADER_PATH="/lib"
 DEVEL_PREFIX="$(AXIS_TOP_DIR)/target/cris-axis-linux-gnuuclibc"
-SYSTEM_DEVEL_PREFIX="$(DEVEL_PREFIX)"
-DEVEL_TOOL_PREFIX="$(DEVEL_PREFIX)/usr"
+SYSTEM_DEVEL_PREFIX="$(AXIS_TOP_DIR)/tools/build"
+DEVEL_TOOL_PREFIX="$(DEVEL_PREFIX)/include"
 
 #
 # uClibc hacking options
