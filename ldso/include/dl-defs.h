@@ -10,17 +10,20 @@
 #define LIB_ELF_LIBC0 4
 
 /* should we include features.h? */
-#if defined(__LDSO_PRELOAD_FILE_SUPPORT__) || defined(__LDSO_CACHE_SUPPORT__)
+#ifndef __LDSO_BASE_FILENAME__
+#define __LDSO_BASE_FILENAME__ "ld.so"
+#endif
 #define LDSO_BASE_PATH UCLIBC_RUNTIME_PREFIX "etc/" __LDSO_BASE_FILENAME__
 
 #ifdef __LDSO_PRELOAD_FILE_SUPPORT__
 #define LDSO_PRELOAD LDSO_BASE_PATH ".preload"
 #endif
 
-#ifdef __LDSO_CACHE_SUPPORT__
+/* NB: ldconfig still uses these values */
 #define LDSO_CONF    LDSO_BASE_PATH ".conf"
 #define LDSO_CACHE   LDSO_BASE_PATH ".cache"
 
+#ifdef __LDSO_CACHE_SUPPORT__
 #define LDSO_CACHE_MAGIC "ld.so-"
 #define LDSO_CACHE_MAGIC_LEN (sizeof LDSO_CACHE_MAGIC -1)
 #define LDSO_CACHE_VER "1.7.0"
@@ -38,7 +41,5 @@ typedef struct {
 	int liboffset;
 } libentry_t;
 #endif	/* __LDSO_CACHE_SUPPORT__ */
-
-#endif
 
 #endif	/* _LD_DEFS_H */
