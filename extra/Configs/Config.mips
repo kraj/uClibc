@@ -108,6 +108,12 @@ UNIFIED_SYSCALL = false
 # Do not enable this unless your kernel provides large file support.
 DOLFS = false
 
+# Posix regular expression code is really big -- 27k all by itself.
+# If you don't use regular expressions, turn this off and save space.
+# Of course, if you only staticly link, leave this on, since it will
+# only be included in your apps if you use regular expressions. 
+INCLUDE_REGEX=true
+
 # If you want to include RPC support, enable this.  RPC is almost never used 
 # for anything except NFS support, so unless you plan to use NFS, leave this
 # disabled.  This is off by default.
