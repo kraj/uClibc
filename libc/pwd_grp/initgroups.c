@@ -57,7 +57,7 @@ int initgroups(__const char *user, gid_t gid)
     LOCK;
     while ((group = __getgrent(grp_fd, line_buff, members)) != NULL)
     {
-	if (group->gr_gid != gid);
+	if (group->gr_gid != gid)
 	{
 	    tmp_mem = group->gr_mem;
 	    while (*tmp_mem != NULL) {
