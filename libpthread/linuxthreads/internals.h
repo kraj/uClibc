@@ -29,8 +29,11 @@
 #include "semaphore.h"
 #include "../linuxthreads_db/thread_dbP.h"
 
-/* Pretend to be glibc 2.3 as far as gdb is concerned */
-#define VERSION "2.3"
+/* Use a funky version in a probably vein attempt at preventing gdb 
+ * from dlopen()'ing glibc's libthread_db library... */
+#define STRINGIFY(s) STRINGIFY2 (s)
+#define STRINGIFY2(s) #s
+#define VERSION STRINGIFY(__UCLIBC_MAJOR__) "." STRINGIFY(__UCLIBC_MINOR__) "." STRINGIFY(__UCLIBC_SUBLEVEL__)
 
 #ifndef THREAD_GETMEM
 # define THREAD_GETMEM(descr, member) descr->member
