@@ -30,7 +30,7 @@ realloc (void *mem, size_t new_size)
 
       /* Make sure that we're dealing in a multiple of the heap allocation
 	 unit (SIZE is already guaranteed to be so).  */
-      // new_size = HEAP_ADJUST_SIZE (new_size);
+      new_size = HEAP_ADJUST_SIZE (new_size);
 
       MALLOC_DEBUG ("realloc: 0x%lx, %d (base = 0x%lx, total_size = %d)\n",
 		    (long)mem, new_size, (long)base_mem, size);
@@ -64,7 +64,7 @@ realloc (void *mem, size_t new_size)
 	/* Shrink the block.  */
 	{
 	  __malloc_lock ();
-	  __heap_free (&__malloc_heap, base_mem + new_size, new_size - size);
+	  __heap_free (&__malloc_heap, base_mem + new_size, size - new_size);
 	  __malloc_unlock ();
 	  MALLOC_SET_SIZE (mem, new_size);
 	}
