@@ -381,14 +381,20 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
        * none provided by the user. Thus, we get around the mmap and reservation
        * of a huge stack segment. -StS */
 
-      char *new_stack;
-
-      if ((new_stack = malloc(INITIAL_STACK_SIZE)) == NULL) {
-	/* bad luck, we cannot malloc any more */
-	return -1;
-      }
-
-      PDEBUG("malloced chunk: base=%p, size=0x%04x\n", new_stack, INITIAL_STACK_SIZE);
+      stacksize = INITIAL_STACK_SIZE;
+      /* The user may want to use a non-default stacksize */
+      if (attr != NULL)
+	{
+	  stacksize = attr->__stacksize;
+	}
+      
+      /* malloc a stack - memory from the bottom up */
+      if ((new_thread_bottom = malloc(stacksize)) == NULL)
+	{
+	  /* bad luck, we cannot malloc any more */
+	  return -1 ;
+	}
+      PDEBUG("malloced chunk: base=%p, size=0x%04x\n", new_thread_bottom, stacksize);
 
       /* Set up the pointers. new_thread marks the TOP of the stack frame and
        * the address of the pthread_descr struct at the same time. Therefore we
@@ -407,20 +413,18 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
        * the kernel chokes on a non-aligned stack frame. Choose the lower
        * available word boundary.
        */
-      new_thread_bottom = (pthread_descr) new_stack;
-      new_thread = (long)((char *) new_stack + INITIAL_STACK_SIZE - sizeof(*new_thread) - 1) 
-	  & -sizeof(void*); /* align new_thread */
+      new_thread = ((pthread_descr) ((int)(new_thread_bottom + stacksize) & -sizeof(void*))) - 1;
       guardaddr = NULL;
       guardsize = 0;
-
+      
       PDEBUG("thread stack: bos=%p, tos=%p\n", new_thread_bottom, new_thread);
-
+      
       /* check the initial thread stack boundaries so they don't overlap */
-      NOMMU_INITIAL_THREAD_BOUNDS(new_thread, new_thread_bottom);
-
+      NOMMU_INITIAL_THREAD_BOUNDS((char *) new_thread, (char *) new_thread_bottom);
+      
       PDEBUG("initial stack: bos=%p, tos=%p\n", __pthread_initial_thread_bos, 
 	     __pthread_initial_thread_tos);
-
+      
       /* on non-MMU systems we always have non-standard stack frames */
       __pthread_nonstandard_stacks = 1;
       
@@ -571,10 +575,12 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 	}
     }
   if (pid == 0)
+    {
 PDEBUG("cloning new_thread = %p\n", new_thread);
     pid = clone(pthread_start_thread, (void **) new_thread,
 		  CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 		  __pthread_sig_cancel, new_thread);
+    }
   /* Check if cloning succeeded */
   if (pid == -1) {
     /******************************************************** 
