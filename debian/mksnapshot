@@ -3,6 +3,7 @@
 
 topdir=$(pwd)
 today=$(date +%Y%m%d)
+version=0.9.9
 
 mkdir -p ${topdir}/uclibc-tmp
 cd ${topdir}/uclibc-tmp
@@ -16,7 +17,7 @@ fi
 cvs co uClibc
 
 cd ${topdir}/uclibc-tmp/uClibc/debian
-echo "uclibc (0.9.5-cvs${today}-1) unstable; urgency=low" >changelog.tmp
+echo "uclibc (${version}-cvs${today}-1) unstable; urgency=low" >changelog.tmp
 echo >>changelog.tmp
 echo "  * This is an automatic snapshot of uClibc CVS" >>changelog.tmp
 echo >>changelog.tmp
@@ -25,8 +26,8 @@ cat changelog >>changelog.tmp
 mv changelog.tmp changelog
 
 cd ${topdir}/uclibc-tmp
-mv uClibc uclibc-0.9.5-cvs${today}
-tar -czf ../uclibc-0.9.5-cvs${today}.tgz uclibc-0.9.5-cvs${today}
+mv uClibc uclibc-${version}-cvs${today}
+tar -czf ../uclibc-${version}-cvs${today}.tgz uclibc-${version}-cvs${today}
 
 
 cd ${topdir}
