@@ -29,11 +29,28 @@
  *   As a side effect of these changes, abort() no longer calls the exit
  *   functions (it now matches the gnu libc definition).
  *
+ * August 2002    Erik Andersen
+ *   Added locking so atexit and friends can be thread safe
+ *
  */
 
+#define _GNU_SOURCE
+#include <features.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+
+
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+# define LOCK	pthread_mutex_lock(&mylock)
+# define UNLOCK	pthread_mutex_unlock(&mylock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
+
 
 #define __MAX_EXIT __UCLIBC_MAX_ATEXIT
 
@@ -70,7 +87,9 @@ int atexit(aefuncp func)
 {
 	struct exit_function *efp;
 
+	LOCK;
 	if (__exit_count >= __MAX_EXIT) {
+		UNLOCK;
 		__set_errno(ENOMEM);
 		return -1;
 	}
@@ -80,6 +99,7 @@ int atexit(aefuncp func)
 		efp->type = ef_atexit;
 		efp->funcs.atexit = func;
 	}
+	UNLOCK;
 	return 0;
 }
 #endif
@@ -95,7 +115,9 @@ int on_exit(oefuncp func, void *arg)
 {
 	struct exit_function *efp;
 
+	LOCK;
 	if (__exit_count >= __MAX_EXIT) {
+		UNLOCK;
 		__set_errno(ENOMEM);
 		return -1;
 	}
@@ -106,6 +128,7 @@ int on_exit(oefuncp func, void *arg)
 		efp->funcs.on_exit.func = func;
 		efp->funcs.on_exit.arg = arg;
 	}
+	UNLOCK;
 	return 0;
 }
 #endif
@@ -116,6 +139,8 @@ int __exit_count = 0; /* Number of registered exit functions */
 
 /*
  * Handle the work of executing the registered exit functions
+ * This is called while we are locked, so no additional locking
+ * is needed...
  */
 void __exit_handler(int status)
 {
@@ -150,9 +175,11 @@ void (*__exit_cleanup) (int) = 0;
 void exit(int rv)
 {
 	/* Perform exit-specific cleanup (atexit and on_exit) */
+	LOCK;
 	if (__exit_cleanup) {
 		__exit_cleanup(rv);
 	}
+	UNLOCK;
 
     /* If we are using stdio, try to shut it down.  At the very least,
 	 * this will attempt to commit all buffered writes.  It may also
