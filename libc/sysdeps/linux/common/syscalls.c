@@ -1516,6 +1516,45 @@ int sigpending(sigset_t *set)
 #endif
 
 //#define __NR_rt_sigtimedwait          177
+#ifdef L___rt_sigtimedwait
+#ifdef __NR_rt_sigtimedwait
+#define __NR___rt_sigtimedwait __NR_rt_sigtimedwait
+#include <signal.h>
+#define __need_NULL
+#include <stddef.h>
+_syscall4(int, __rt_sigtimedwait, const sigset_t *, set, siginfo_t *, info, 
+		const struct timespec *, timeout, size_t, setsize);
+
+int sigwaitinfo(const sigset_t *set, siginfo_t *info)
+{
+	return __rt_sigtimedwait (set, info, NULL, _NSIG/8);
+}
+
+int sigtimedwait (const sigset_t *set, siginfo_t *info, const struct timespec *timeout)
+{
+	return __rt_sigtimedwait (set, info, timeout, _NSIG/8);
+}
+#else
+int sigwaitinfo(const sigset_t *set, siginfo_t *info)
+{
+	if (set==NULL)
+		__set_errno (EINVAL);
+	else
+		__set_errno (ENOSYS);
+	return -1;
+}
+
+int sigtimedwait (const sigset_t *set, siginfo_t *info, const struct timespec *timeout)
+{
+	if (set==NULL)
+		__set_errno (EINVAL);
+	else
+		__set_errno (ENOSYS);
+	return -1;
+}
+#endif
+#endif
+
 //#define __NR_rt_sigqueueinfo          178
 
 //#define __NR_rt_sigsuspend            179
