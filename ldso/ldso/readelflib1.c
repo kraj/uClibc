@@ -223,8 +223,8 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	const char *pnt, *pnt1;
 	struct elf_resolve *tpnt1;
 	const char *libname;
-	static const char libc[] = "libc.so.";
-	static const char aborted_wrong_lib[] = "%s: aborted attempt to load %s!\n";
+	static const char *libc = "libc.so.";
+	static const char *aborted_wrong_lib = "%s: aborted attempt to load %s!\n";
 
 	_dl_internal_error_number = 0;
 	libname = full_libname;
