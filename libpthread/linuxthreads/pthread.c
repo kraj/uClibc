@@ -104,7 +104,7 @@ struct _pthread_descr_struct __pthread_initial_thread = {
 /* Descriptor of the manager thread; none of this is used but the error
    variables, the p_pid and p_priority fields,
    and the address for identification.  */
-
+#define manager_thread (&__pthread_manager_thread)
 struct _pthread_descr_struct __pthread_manager_thread = {
   NULL,                       /* pthread_descr p_nextlive */
   NULL,                       /* pthread_descr p_prevlive */
@@ -553,6 +553,26 @@ pthread_descr __pthread_find_self()
 #endif
 
   return h->h_descr;
+}
+#else
+
+static pthread_descr thread_self_stack(void)
+{
+    char *sp = CURRENT_STACK_FRAME;
+    pthread_handle h;
+
+    if (sp >= __pthread_manager_thread_bos && sp < __pthread_manager_thread_tos)
+	return manager_thread;
+    h = __pthread_handles + 2;
+# ifdef USE_TLS
+    while (h->h_descr == NULL
+	    || ! (sp <= (char *) h->h_descr->p_stackaddr && sp >= h->h_bottom))
+	h++;
+# else
+    while (! (sp <= (char *) h->h_descr && sp >= h->h_bottom))
+	h++;
+# endif
+    return h->h_descr;
 }
 
 #endif
