@@ -418,6 +418,11 @@ extern void __stdio_validate_FILE(FILE *stream);
 #define __stdio_validate_FILE(stream)		((void)0)
 #endif
 
+#ifdef __STDIO_WIDE
+extern size_t _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
+							 register FILE *__restrict stream);
+#endif
+
 /**********************************************************************
  * UTILITY functions
  **********************************************************************/

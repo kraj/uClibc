@@ -454,8 +454,8 @@ void _locale_init(void)
 		= (const unsigned char *) &__locale_mmap->tblwuplow;
 	__global_locale.tblwuplow_diff
 		= (const uint16_t *) &__locale_mmap->tblwuplow_diff;
-	__global_locale.tblwcomb
-		= (const unsigned char *) &__locale_mmap->tblwcomb;
+/* 	__global_locale.tblwcomb */
+/* 		= (const unsigned char *) &__locale_mmap->tblwcomb; */
 	/* width?? */
 #endif /* __WCHAR_ENABLED */
 

@@ -1,3 +1,4 @@
+
 /*  Copyright (C) 2002     Manuel Novoa III
  *
  *  This library is free software; you can redistribute it and/or
@@ -79,6 +80,12 @@
  *   framework.  Minimally tested at the moment, but the stub C-locale
  *   version (which most people would probably be using) should be fine.
  *
+ * Nov 21, 2002
+ *
+ * Revert the wc<->mb changes from earlier this month involving the C-locale.
+ * Add a couple of ugly hacks to support *wprintf.
+ * Add a mini iconv() and iconv implementation (requires locale support).
+ *
  * Manuel
  */
 
@@ -97,13 +104,17 @@
 
 #ifdef __UCLIBC_HAS_LOCALE__
 #define ENCODING (__global_locale.encoding)
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning implement __CTYPE_HAS_UTF_8_LOCALES!
+#ifndef __CTYPE_HAS_UTF_8_LOCALES
+#warning __CTYPE_HAS_UTF_8_LOCALES not set!
 #endif
-#define __CTYPE_HAS_UTF_8_LOCALES
 #else
-#undef __CTYPE_HAS_8_BIT_LOCALES
-#undef __CTYPE_HAS_UTF_8_LOCALES
+#define ENCODING (__ctype_encoding_7_bit)
+#ifdef __CTYPE_HAS_8_BIT_LOCALES
+#error __CTYPE_HAS_8_BIT_LOCALES is defined!
+#endif
+#ifdef __CTYPE_HAS_UTF_8_LOCALES
+#error __CTYPE_HAS_UTF_8_LOCALES is defined!
+#endif
 #undef L__wchar_utf8sntowcs
 #undef L__wchar_wcsntoutf8s
 #endif
@@ -114,7 +125,7 @@
 #define UTF_8_MAX_LEN 3
 #endif
 
-/*  #define KUHN */
+#define KUHN 1
 
 /* Implementation-specific work functions. */
 
@@ -157,17 +168,14 @@ wint_t btowc(int c)
 
 #else  /*  __CTYPE_HAS_8_BIT_LOCALES */
 
-#ifdef __CTYPE_HAS_UTF_8_LOCALES
-	if (ENCODING == __ctype_encoding_utf8) {
-		return (((unsigned int)c) < 0x80) ? c : WEOF;
-	}
-#endif /* __CTYPE_HAS_UTF_8_LOCALES */
-
 #ifdef __UCLIBC_HAS_LOCALE__
-	assert(ENCODING == __ctype_encoding_7_bit);
-#endif
+	assert((ENCODING == __ctype_encoding_7_bit)
+		   || (ENCODING == __ctype_encoding_utf8));
+#endif /* __UCLIBC_HAS_LOCALE__ */
 
-	return (((unsigned int)c) <= UCHAR_MAX) ? c : WEOF;
+	/* If we don't have 8-bit locale support, then this is trivial since
+	 * anything outside of 0-0x7f is illegal in C/POSIX and UTF-8 locales. */
+	return (((unsigned int)c) < 0x80) ? c : WEOF;
 
 #endif /*  __CTYPE_HAS_8_BIT_LOCALES */
 }
@@ -188,17 +196,18 @@ int wctob(wint_t c)
 
 #else  /*  __CTYPE_HAS_8_BIT_LOCALES */
 
-#ifdef __CTYPE_HAS_UTF_8_LOCALES
-	if (ENCODING == __ctype_encoding_utf8) {
-		return ((c >= 0) && (c < 0x80)) ? c : EOF;
-	}
-#endif /* __CTYPE_HAS_UTF_8_LOCALES */
-
 #ifdef __UCLIBC_HAS_LOCALE__
-	assert(ENCODING == __ctype_encoding_7_bit);
-#endif
+	assert((ENCODING == __ctype_encoding_7_bit)
+		   || (ENCODING == __ctype_encoding_utf8));
+#endif /* __UCLIBC_HAS_LOCALE__ */
 
-	return ((c >= 0) && (c <= UCHAR_MAX)) ? c : EOF;
+	/* If we don't have 8-bit locale support, then this is trivial since
+	 * anything outside of 0-0x7f is illegal in C/POSIX and UTF-8 locales. */
+	
+	/* TODO: need unsigned version of wint_t... */
+/*  	return (((unsigned int)c) < 0x80) ? c : WEOF; */
+	return ((c >= 0) && (c < 0x80)) ? c : EOF;
+
 #endif /*  __CTYPE_HAS_8_BIT_LOCALES */
 }
 
@@ -359,9 +368,19 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 	assert(ps != NULL);
 
 	incr = 1;
-	if (!pwc) {
+	/* NOTE: The following is an AWFUL HACK!  In order to support %s in
+	 * wprintf, we need to be able to compute the number of wchars needed
+	 * for the mbs conversion, not to exceed the precision specified.
+	 * But if dst is NULL, the return value is the length assuming a
+	 * sufficiently sized buffer.  So, we allow passing of (wchar_t *) ps
+	 * as pwc in order to flag that we really want the length, subject
+	 * to the restricted buffer size and no partial conversions.
+	 * See mbsnrtowcs() as well. */
+	if (!pwc || (pwc == ((wchar_t *)ps))) {
+		if (!pwc) {
+			wn = SIZE_MAX;
+		}
 		pwc = wcbuf;
-		wn = SIZE_MAX;
 		incr = 0;
 	}
 
@@ -406,7 +425,7 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 			}
 		BAD:
 #ifdef DECODER
-			wc = 0xfffd;
+			wc = 0xfffdU;
 			goto COMPLETE;
 #else
 			ps->mask = mask;
@@ -635,9 +654,19 @@ size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 	}
 #endif
 	incr = 1;
-	if (!dst) {
+	/* NOTE: The following is an AWFUL HACK!  In order to support %s in
+	 * wprintf, we need to be able to compute the number of wchars needed
+	 * for the mbs conversion, not to exceed the precision specified.
+	 * But if dst is NULL, the return value is the length assuming a
+	 * sufficiently sized buffer.  So, we allow passing of ((wchar_t *)ps)
+	 * as dst in order to flag that we really want the length, subject
+	 * to the restricted buffer size and no partial conversions.
+	 * See _wchar_utf8sntowcs() as well. */
+	if (!dst || (dst == ((wchar_t *)ps))) {
+		if (!dst) {
+			len = SIZE_MAX;
+		}
 		dst = wcbuf;
-		len = SIZE_MAX;
 		incr = 0;
 	}
 
@@ -659,8 +688,7 @@ size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 						  (__global_locale.idx8c2wc[wc >> Cc2wc_IDX_SHIFT]
 						   << Cc2wc_IDX_SHIFT) + (wc & (Cc2wc_ROW_LEN - 1))];
 				if (!wc) {
-					__set_errno(EILSEQ);
-					return (size_t) -1;
+					goto BAD;
 				}
 			}
 			if (!(*dst = wc)) {
@@ -686,6 +714,13 @@ size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 		if ((*dst = (unsigned char) *s) == 0) {
 			s = NULL;
 			break;
+		}
+		if (*dst >= 0x80) {
+#ifdef __CTYPE_HAS_8_BIT_LOCALES
+		BAD:
+#endif
+			__set_errno(EILSEQ);
+			return (size_t) -1;
 		}
 		++s;
 		dst += incr;
@@ -772,7 +807,7 @@ size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 									+ (wc & ((1 << Cwc2c_TT_SHIFT)-1))];
 				}
 
-/*  #define __WCHAR_REPLACEMENT_CHAR '?' */
+#define __WCHAR_REPLACEMENT_CHAR '?'
 #ifdef __WCHAR_REPLACEMENT_CHAR
 				*dst = (unsigned char) ( u ? u : __WCHAR_REPLACEMENT_CHAR );
 #else  /* __WCHAR_REPLACEMENT_CHAR */
@@ -798,13 +833,12 @@ size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 #endif
 
 	while (count) {
-		if (*s > UCHAR_MAX) {
+		if (*s >= 0x80) {
 #if defined(__CTYPE_HAS_8_BIT_LOCALES) && !defined(__WCHAR_REPLACEMENT_CHAR)
 		BAD:
 #endif
 			__set_errno(EILSEQ);
 			return (size_t) -1;
-
 		}
 		if ((*dst = (unsigned char) *s) == 0) {
 			s = NULL;
@@ -1064,6 +1098,562 @@ int wcswidth(const wchar_t *pwcs, size_t n)
 int wcwidth(wchar_t wc)
 {
     return wcswidth(&wc, 1);
+}
+
+#endif
+/**********************************************************************/
+
+
+typedef struct {
+	mbstate_t tostate;
+	mbstate_t fromstate;
+	int tocodeset;
+	int fromcodeset;
+	int frombom;
+	int tobom;
+	int fromcodeset0;
+	int frombom0;
+	int tobom0;
+	int skip_invalid_input;		/* To support iconv -c option. */
+} _UC_iconv_t;
+
+
+
+#ifdef L_iconv
+
+#include <iconv.h>
+#include <string.h>
+#include <endian.h>
+#include <byteswap.h>
+
+#if (__BYTE_ORDER != __BIG_ENDIAN) && (__BYTE_ORDER != __LITTLE_ENDIAN)
+#error unsupported endianness for iconv
+#endif
+
+#ifndef __CTYPE_HAS_8_BIT_LOCALES
+#error currently iconv requires 8 bit locales
+#endif
+#ifndef __CTYPE_HAS_UTF_8_LOCALES
+#error currently iconv requires UTF-8 locales
+#endif
+
+
+enum {
+	IC_WCHAR_T = 0xe0,
+	IC_MULTIBYTE = 0xe0,
+#if __BYTE_ORDER == __BIG_ENDIAN
+	IC_UCS_4 =	0xec,
+	IC_UTF_32 = 0xe4,
+	IC_UCS_2 =	0xe2,
+	IC_UTF_16 = 0xea,
+#else
+	IC_UCS_4 =	0xed,
+	IC_UTF_32 = 0xe5,
+	IC_UCS_2 =	0xe3,
+	IC_UTF_16 = 0xeb,
+#endif
+	IC_UTF_8 = 2,
+	IC_ASCII = 1
+};
+
+/* For the multibyte
+ * bit 0 means swap endian
+ * bit 1 means 2 byte
+ * bit 2 means 4 byte
+ *
+ */
+
+const unsigned char codesets[] =
+	"\x0a\xe0""WCHAR_T\x00"		/* superset of UCS-4 but platform-endian */
+#if __BYTE_ORDER == __BIG_ENDIAN
+	"\x08\xec""UCS-4\x00"		/* always BE */
+	"\x0a\xec""UCS-4BE\x00"
+	"\x0a\xed""UCS-4LE\x00"
+	"\x09\fe4""UTF-32\x00"		/* platform endian with BOM */
+	"\x0b\xe4""UTF-32BE\x00"
+	"\x0b\xe5""UTF-32LE\x00"
+	"\x08\xe2""UCS-2\x00"		/* always BE */
+	"\x0a\xe2""UCS-2BE\x00"
+	"\x0a\xe3""UCS-2LE\x00"
+	"\x09\xea""UTF-16\x00"		/* platform endian with BOM */
+	"\x0b\xea""UTF-16BE\x00"
+	"\x0b\xeb""UTF-16LE\x00"
+#elif __BYTE_ORDER == __LITTLE_ENDIAN
+	"\x08\xed""UCS-4\x00"		/* always BE */
+	"\x0a\xed""UCS-4BE\x00"
+	"\x0a\xec""UCS-4LE\x00"
+	"\x09\xf4""UTF-32\x00"		/* platform endian with BOM */
+	"\x0b\xe5""UTF-32BE\x00"
+	"\x0b\xe4""UTF-32LE\x00"
+	"\x08\xe3""UCS-2\x00"		/* always BE */
+	"\x0a\xe3""UCS-2BE\x00"
+	"\x0a\xe2""UCS-2LE\x00"
+	"\x09\xfa""UTF-16\x00"		/* platform endian with BOM */
+	"\x0b\xeb""UTF-16BE\x00"
+	"\x0b\xea""UTF-16LE\x00"
+#endif
+	"\x08\x02""UTF-8\x00"
+	"\x0b\x01""US-ASCII\x00"
+	"\x07\x01""ASCII";			/* Must be last! (special case to save a nul) */
+
+static int find_codeset(const char *name)
+{
+	const unsigned char *s;
+	int codeset;
+
+	for (s = codesets ; *s ; s += *s) {
+		if (!strcasecmp(s+2, name)) {
+			return s[1];
+		}
+	}
+
+	/* The following is ripped from find_locale in locale.c. */
+
+	/* TODO: maybe CODESET_LIST + *s ??? */
+	/* 7bit is 1, UTF-8 is 2, 8-bit is >= 3 */
+	codeset = 2;
+	s = CODESET_LIST;
+	do {
+		++codeset;		/* Increment codeset first. */
+		if (!strcasecmp(CODESET_LIST+*s, name)) {
+			return codeset;
+		}
+	} while (*++s);
+
+	return 0;			/* No matching codeset! */
+}
+
+iconv_t iconv_open(const char *tocode, const char *fromcode)
+{
+	register _UC_iconv_t *px;
+	int tocodeset, fromcodeset;
+
+	if (((tocodeset = find_codeset(tocode)) != 0)
+		&& ((fromcodeset = find_codeset(fromcode)) != 0)) {
+		if ((px = malloc(sizeof(_UC_iconv_t))) != NULL) {
+			px->tocodeset = tocodeset;
+			px->tobom0 = px->tobom = (tocodeset & 0x10) >> 4;
+			px->fromcodeset0 = px->fromcodeset = fromcodeset;
+			px->frombom0 = px->frombom = (fromcodeset & 0x10) >> 4;
+			px->skip_invalid_input = px->tostate.mask = px->fromstate.mask = 0;
+			return (iconv_t) px;
+		}
+	} else {
+		__set_errno(EINVAL);
+	}
+	return (iconv_t)(-1);
+}
+
+int iconv_close(iconv_t cd)
+{
+	free(cd);
+
+	return 0;
+}
+
+size_t iconv(iconv_t cd, char **__restrict inbuf,
+			 size_t *__restrict inbytesleft,
+		     char **__restrict outbuf, size_t *__restrict outbytesleft)
+{
+	_UC_iconv_t *px = (_UC_iconv_t *) cd;
+	size_t nrcount, r;
+	wchar_t wc, wc2;
+	int inci, inco;
+
+	assert(px != (_UC_iconv_t *)(-1));
+	assert(sizeof(wchar_t) == 4);
+
+	if (!inbuf || !*inbuf) {	/* Need to reinitialze conversion state. */
+		/* Note: For shift-state encodings we possibly need to output the
+		 * shift sequence to return to initial state! */
+		if ((px->fromcodeset & 0xf0) == 0xe0) {
+		}
+		px->tostate.mask = px->fromstate.mask = 0;
+		px->fromcodeset = px->fromcodeset0;
+		px->tobom = px->tobom0;
+		px->frombom = px->frombom0;
+		return 0;
+	}
+
+	nrcount = 0;
+	while (*inbytesleft) {
+		if (!*outbytesleft) {
+		TOO_BIG:
+			__set_errno(E2BIG);
+			return (size_t) -1;
+		}
+
+		inci = inco = 1;
+		if (px->fromcodeset >= IC_MULTIBYTE) {
+			inci = (px->fromcodeset == IC_WCHAR_T) ? 4: (px->fromcodeset & 6);
+			if (*inbytesleft < inci) goto INVALID;
+			wc = (((unsigned int)((unsigned char)((*inbuf)[0]))) << 8)
+				+ ((unsigned char)((*inbuf)[1]));
+			if (inci == 4) {
+				wc = (((unsigned int)((unsigned char)((*inbuf)[2]))) << 8)
+					+ ((unsigned char)((*inbuf)[3])) + (wc << 16);
+				if (!(px->fromcodeset & 1)) wc = bswap_32(wc);
+			} else {
+				if (!(px->fromcodeset & 1)) wc = bswap_16(wc);
+				if (((px->fromcodeset & IC_UTF_16) == IC_UTF_16)
+					 && (((__uwchar_t)(wc - 0xd800U)) < (0xdc00U - 0xd800U))
+					) {			/* surrogate */
+					wc =- 0xd800U;
+					if (*inbytesleft < 4) goto INVALID;
+					wc2 = (((unsigned int)((unsigned char)((*inbuf)[2]))) << 8)
+						+ ((unsigned char)((*inbuf)[3]));
+					if (!(px->fromcodeset & 1)) wc = bswap_16(wc2);
+					if (((__uwchar_t)(wc2 -= 0xdc00U)) < (0xe0000U - 0xdc00U)) {
+						goto ILLEGAL;
+					}
+					inci = 4;	/* Change inci here in case skipping illegals. */
+					wc = 0x10000UL + (wc << 10) + wc2;
+				}
+			}
+
+			if (px->frombom) {
+				px->frombom = 0;
+				if ((wc == 0xfeffU)
+					|| (wc == ((inci == 4)
+							   ? (((wchar_t) 0xfffe0000UL))
+							   : ((wchar_t)(0xfffeUL))))
+					) {
+					if (wc != 0xfeffU) {
+						px->fromcodeset ^= 1; /* toggle endianness */
+						wc = 0xfeffU;
+					}
+					if (!px->frombom) {
+						goto BOM_SKIP_OUTPUT;
+					}
+					goto GOT_BOM;
+				}
+			}
+
+			if (px->fromcodeset != IC_WCHAR_T) {
+				if (((__uwchar_t) wc) > (((px->fromcodeset & IC_UCS_4) == IC_UCS_4)
+										 ? 0x7fffffffUL : 0x10ffffUL)
+#ifdef KUHN
+					|| (((__uwchar_t)(wc - 0xfffeU)) < 2)
+					|| (((__uwchar_t)(wc - 0xd800U)) < (0xe000U - 0xd800U))
+#endif
+					) {
+					goto ILLEGAL;
+				}
+			}
+		} else if (px->fromcodeset == IC_UTF_8) {
+			const char *p = *inbuf;
+			r = _wchar_utf8sntowcs(&wc, 1, &p, *inbytesleft, &px->fromstate, 0);
+			if (((ssize_t) r) <= 0) { /* either EILSEQ or incomplete or nul */
+				if (((ssize_t) r) < 0) { /* either EILSEQ or incomplete or nul */
+					assert((r == (size_t)(-1)) || (r == (size_t)(-2)));
+					if (r == (size_t)(-2)) {
+					INVALID:
+						__set_errno(EINVAL);
+					} else {
+						px->fromstate.mask = 0;
+						inci = 1;
+					ILLEGAL:
+						if (px->skip_invalid_input) {
+							px->skip_invalid_input = 2;	/* flag for iconv utility */
+							goto BOM_SKIP_OUTPUT;
+						}
+						__set_errno(EILSEQ);
+					}
+					return (size_t)(-1);
+				}
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning optimize this
+#endif
+				if (p != NULL) { /* incomplet char case */
+					goto INVALID;
+				}
+				p = *inbuf + 1;	/* nul */
+			}
+			inci = p - *inbuf;
+		} else if ((wc = ((unsigned char)(**inbuf))) >= 0x80) {	/* Non-ASCII... */
+			if (px->fromcodeset == IC_ASCII) { /* US-ASCII codeset */
+				goto ILLEGAL;
+			} else {			/* some other 8-bit ascii-extension codeset */
+				const codeset_8_bit_t *c8b
+					= __locale_mmap->codeset_8_bit + px->fromcodeset - 3;
+				wc -= 0x80;
+				wc = __global_locale.tbl8c2wc[
+							 (c8b->idx8c2wc[wc >> Cc2wc_IDX_SHIFT]
+							  << Cc2wc_IDX_SHIFT) + (wc & (Cc2wc_ROW_LEN - 1))];
+				if (!wc) {
+					goto ILLEGAL;
+				}
+			}
+		} else {
+			fprintf(stderr, "ARG!! %d\n", px->fromcodeset);
+		}
+
+
+		if (px->tobom) {
+			inci = 0;
+			wc = 0xfeffU;
+	GOT_BOM:
+			px->tobom = 0;
+		}
+
+		if (px->tocodeset >= IC_MULTIBYTE) {
+			inco = (px->tocodeset == IC_WCHAR_T) ? 4: (px->tocodeset & 6);
+			if (*outbytesleft < inci) goto TOO_BIG;
+			if (px->tocodeset != IC_WCHAR_T) {
+				if (((__uwchar_t) wc) > (((px->tocodeset & IC_UCS_4) == IC_UCS_4)
+										 ? 0x7fffffffUL : 0x10ffffUL)
+#ifdef KUHN
+					|| (((__uwchar_t)(wc - 0xfffeU)) < 2)
+					|| (((__uwchar_t)(wc - 0xd800U)) < (0xe000U - 0xd800U))
+#endif
+					) {
+				REPLACE_32:
+					wc = 0xfffd;
+					++nrcount;
+				}
+			}
+			if (inco == 4) {
+				if (px->tocodeset & 1) wc = bswap_32(wc);
+			} else {
+				if (((__uwchar_t)wc ) > 0xffffU) {
+					if ((px->tocodeset & IC_UTF_16) != IC_UTF_16) {
+						goto REPLACE_32;
+					}
+					if (*outbytesleft < (inco = 4)) goto TOO_BIG;
+					wc2 = 0xdc00U + (wc & 0x3ff);
+					wc = 0xd800U + ((wc >> 10) & 0x3ff);
+					if (px->tocodeset & 1) {
+						wc = bswap_16(wc);
+						wc2 = bswap_16(wc2);
+					}
+					wc += (wc2 << 16);
+				} else if (px->tocodeset & 1) wc = bswap_16(wc);
+			}				
+			(*outbuf)[0] = (char)((unsigned char)(wc));
+			(*outbuf)[1] = (char)((unsigned char)(wc >> 8));
+			if (inco == 4) {
+				(*outbuf)[2] = (char)((unsigned char)(wc >> 16));
+				(*outbuf)[3] = (char)((unsigned char)(wc >> 24));
+			}
+		} else if (px->tocodeset == IC_UTF_8) {
+			const wchar_t *pw = &wc;
+			do {
+				r = _wchar_wcsntoutf8s(*outbuf, *outbytesleft, &pw, 1);
+				if (r != (size_t)(-1)) {
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning what happens for a nul?
+#endif
+					if (r == 0) {
+						if (wc != 0) {
+							goto TOO_BIG;
+						}
+						++r;
+					}
+					break;
+				}
+				wc = 0xfffdU;
+				++nrcount;
+			} while (1);
+			inco = r;
+		} else if (((__uwchar_t)(wc)) < 0x80) {
+		CHAR_GOOD:
+				**outbuf = wc;
+		} else {
+			if ((px->tocodeset != 0x01) && (wc <= Cwc2c_DOMAIN_MAX)) {
+				const codeset_8_bit_t *c8b
+					= __locale_mmap->codeset_8_bit + px->tocodeset - 3;
+				__uwchar_t u;
+				u = c8b->idx8wc2c[wc >> (Cwc2c_TI_SHIFT + Cwc2c_TT_SHIFT)];
+				u = __global_locale.tbl8wc2c[(u << Cwc2c_TI_SHIFT)
+						 + ((wc >> Cwc2c_TT_SHIFT)
+							& ((1 << Cwc2c_TI_SHIFT)-1))];
+				wc = __global_locale.tbl8wc2c[Cwc2c_TI_LEN
+						 + (u << Cwc2c_TT_SHIFT)
+						 + (wc & ((1 << Cwc2c_TT_SHIFT)-1))];
+				if (wc) {
+					goto CHAR_GOOD;
+				}
+			}
+			**outbuf = '?';
+			++nrcount;
+		}
+
+		*outbuf += inco;
+		*outbytesleft -= inco;
+	BOM_SKIP_OUTPUT:
+		*inbuf += inci;
+		*inbytesleft -= inci;
+	}
+	return nrcount;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_iconv_main
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <wchar.h>
+#include <iconv.h>
+#include <stdarg.h>
+#include <libgen.h>
+
+extern const unsigned char codesets[];
+
+#define IBUF BUFSIZ
+#define OBUF BUFSIZ
+
+char *progname;
+int hide_errors;
+
+static void error_msg(const char *fmt, ...) 
+	 __attribute__ ((noreturn, format (printf, 1, 2)));
+
+static void error_msg(const char *fmt, ...) 
+{
+	va_list arg;
+
+	if (!hide_errors) {
+		fprintf(stderr, "%s: ", progname);
+		va_start(arg, fmt);
+		vfprintf(stderr, fmt, arg);
+		va_end(arg);
+	}
+
+	exit(EXIT_FAILURE);
+}
+
+int main(int argc, char **argv)
+{
+	FILE *ifile;
+	FILE *ofile = stdout;
+	const char *p;
+	const char *s;
+	static const char opt_chars[] = "tfocsl";
+	                              /* 012345 */
+	const char *opts[sizeof(opt_chars)]; /* last is infile name */
+	iconv_t ic;
+	char ibuf[IBUF];
+	char obuf[OBUF];
+	char *pi;
+	char *po;
+	size_t ni, no, r, pos;
+
+	hide_errors = 0;
+
+	for (s = opt_chars ; *s ; s++) {
+		opts[ s - opt_chars ] = NULL;
+	}
+
+	progname = *argv;
+	while (--argc) {
+		p = *++argv;
+		if ((*p != '-') || (*++p == 0)) {
+			break;
+		}
+		do {
+			if ((s = strchr(opt_chars,*p)) == NULL) {
+			USAGE:
+				s = basename(progname);
+				fprintf(stderr,
+						"%s [-cs] -f fromcode -t tocode [-o outputfile] [inputfile ...]\n"
+						"  or\n%s -l\n", s, s);
+				return EXIT_FAILURE;
+			}
+			if ((s - opt_chars) < 3) {
+				if ((--argc == 0) || opts[s - opt_chars]) {
+					goto USAGE;
+				}
+				opts[s - opt_chars] = *++argv;
+			} else {
+				opts[s - opt_chars] = p;
+			}
+		} while (*++p);
+	}
+
+	if (opts[5]) {				/* -l */
+		fprintf(stderr, "Recognized codesets:\n");
+		for (s = codesets ; *s ; s += *s) {
+			fprintf(stderr,"  %s\n", s+2);
+		}
+		s = CODESET_LIST;
+		do {
+			fprintf(stderr,"  %s\n", CODESET_LIST+ (unsigned char)(*s));
+		} while (*++s);
+
+		return EXIT_SUCCESS;
+	}
+
+	if (opts[4]) {
+		hide_errors = 1;
+	}
+
+	if (!opts[0] || !opts[1]) {
+		goto USAGE;
+	}
+	if ((ic = iconv_open(opts[0],opts[1])) == ((iconv_t)(-1))) {
+		error_msg( "unsupported codeset in %s -> %s conversion\n", opts[0], opts[1]);
+	}
+	if (opts[3]) {				/* -c */
+		((_UC_iconv_t *) ic)->skip_invalid_input = 1;
+	}
+
+	if ((s = opts[2]) != NULL) {
+		if (!(ofile = fopen(s, "w"))) {
+			error_msg( "couldn't open %s for writing\n", s);
+		}
+	}
+
+	pos = ni = 0;
+	do {
+		if (!argc || ((**argv == '-') && !((*argv)[1]))) {
+			ifile = stdin;		/* we don't check for duplicates */
+		} else if (!(ifile = fopen(*argv, "r"))) {
+			error_msg( "couldn't open %s for reading\n", *argv);
+		}
+
+		while ((r = fread(ibuf + ni, 1, IBUF - ni, ifile)) > 0) {
+			pos += r;
+			ni += r;
+			no = OBUF;
+			pi = ibuf;
+			po = obuf;
+			if ((r = iconv(ic, &pi, &ni, &po, &no)) == ((size_t)(-1))) {
+				if ((errno != EINVAL) && (errno != E2BIG)) {
+					error_msg( "iconv failed at pos %lu : %m\n", (unsigned long) (pos - ni));
+				}
+			}
+			if ((r = OBUF - no) > 0) {
+				if (fwrite(obuf, 1, OBUF - no, ofile) < r) {
+					error_msg( "write error\n");
+				}
+			}
+			if (ni) {			/* still bytes in buffer! */
+				memmove(ibuf, pi, ni);
+			}
+		}
+
+		if (ferror(ifile)) {
+			error_msg( "read error\n");
+		}
+
+		++argv;
+
+		if (ifile != stdin) {
+			fclose(ifile);
+		}
+
+	} while (--argc > 0);
+
+	iconv_close(ic);
+
+	if (ni) {
+		error_msg( "incomplete sequence\n");
+	}
+
+	return (((_UC_iconv_t *) ic)->skip_invalid_input < 2)
+		? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 #endif

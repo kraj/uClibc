@@ -45,6 +45,9 @@
  *     function pointers are set to that it is a "normal" file with a
  *     file descriptor of -1.  Note: The cookie pointer is reset to NULL
  *     if the FILE struct is free'd by fclose.
+ *
+ *  Nov 21, 2002
+ *  Added internal function _wstdio_fwrite.
  */
 
 /* Before we include anything, convert L_ctermid to L_ctermid_function
@@ -3446,6 +3449,61 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
     return bufend;
 }
 #undef INTERNAL_DIV_MOD
+
+#endif
+/**********************************************************************/
+#ifdef L__wstdio_fwrite
+
+#include <wchar.h>
+
+size_t _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
+					  register FILE *__restrict stream)
+{
+	size_t r, count;
+	char buf[64];
+	const wchar_t *pw;
+
+#ifdef __STDIO_BUFFERS
+	if (stream->filedes == -3) { /* Special case to support {v}swprintf. */
+		count = ((wchar_t *)(stream->bufend)) - ((wchar_t *)(stream->bufpos));
+		if (count > n) {
+			count = n;
+		}
+		if (count) {
+			wmemcpy((wchar_t *)(stream->bufpos), ws, count);
+			stream->bufpos = (char *)(((wchar_t *)(stream->bufpos)) + count);
+		}
+		return n;
+	}
+#endif
+
+	if (stream->modeflags & __FLAG_NARROW) {
+		stream->modeflags |= __FLAG_ERROR;
+		__set_errno(EBADF);
+		return 0;
+	}
+	stream->modeflags |= __FLAG_WIDE;
+
+	pw = ws;
+	count = 0;
+	while (n > count) {
+		r = wcsnrtombs(buf, &pw, n, sizeof(buf), &stream->state);
+		if (r != ((size_t) -1)) { /* No encoding errors */
+			if (!r) {
+				++r;		  /* 0 is returned when nul is reached. */
+				pw = ws + count + r; /* pw was set to NULL, so correct. */
+			}
+			if (_stdio_fwrite(buf, r, stream) == r) {
+				count = pw - ws;
+				continue;
+			}
+		}
+		break;
+	}
+
+	/* Note: The count is incorrect if 0 < _stdio_fwrite return < r!!! */
+	return count;
+}
 
 #endif
 /**********************************************************************/

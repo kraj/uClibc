@@ -157,7 +157,7 @@ typedef struct {
 #ifdef __WCHAR_ENABLED
 	const unsigned char *tblwctype;
 	const unsigned char *tblwuplow;
-	const unsigned char *tblwcomb;
+/* 	const unsigned char *tblwcomb; */
 	const int16_t *tblwuplow_diff; /* yes... signed */
 	/* width?? */
 #endif /* __WCHAR_ENABLED */

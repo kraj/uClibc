@@ -10,7 +10,6 @@
 #include <nl_types.h>
 #include <stdint.h>
 
-#define __CTYPE_HAS_8_BIT_LOCALES
 #include "c8tables.h"
 
 
@@ -101,6 +100,9 @@ static void do_locale_names(void)
 		fprintf(ofp, "static const unsigned char __locales[%d];\n", (3 + CATEGORIES));
 		fprintf(ofp, "static const unsigned char __locale_names5[5];\n");
 	} else {
+		if (default_utf8) {
+			fprintf(ofp, "#define __CTYPE_HAS_UTF_8_LOCALES\t\t\t1\n");
+		}
 		fprintf(ofp, "#define CATEGORIES\t\t\t%d\n", CATEGORIES);
 		fprintf(ofp, "#define WIDTH_LOCALES\t\t\t%d\n", 3+CATEGORIES);
 		fprintf(ofp, "#define NUM_LOCALES\t\t\t%d\n", num_locales);

@@ -59,6 +59,10 @@
  * Add printf wchar support for %lc (%C) and %ls (%S).
  * Require printf format strings to be valid multibyte strings beginning and
  *   ending in their initial shift state, as per the stds.
+ *
+ * Nov 21, 2002
+ * Add *wprintf functions.  Currently they don't support floating point
+ *   conversions.  That will wait until the rewrite of _dtostr.
  */
 
 /* TODO:
@@ -177,7 +181,8 @@ enum {
 	FLAG_MINUS		=	0x08,	/* must be 2 * FLAG_ZERO */
 	FLAG_HASH		=	0x10,
 	FLAG_THOUSANDS	=	0x20,
-	FLAG_I18N		=	0x40	/* only works for d, i, u */
+	FLAG_I18N		=	0x40,	/* only works for d, i, u */
+	FLAG_WIDESTREAM =   0x80
 };	  
 
 /**********************************************************************/
@@ -359,14 +364,13 @@ typedef struct {
 extern size_t _dtostr(FILE * fp, long double x, struct printf_info *info);
 #endif
 
-#define _outnstr(stream, string, len)	_stdio_fwrite(string, len, stream)	/* TODO */
-
-extern int _do_one_spec(FILE * __restrict stream, ppfs_t *ppfs, int *count);
-
 extern int _ppfs_init(ppfs_t *ppfs, const char *fmt0); /* validates */
 extern void _ppfs_prepargs(ppfs_t *ppfs, va_list arg); /* sets posargptrs */
 extern void _ppfs_setargs(ppfs_t *ppfs); /* sets argptrs for current spec */
 extern int _ppfs_parsespec(ppfs_t *ppfs); /* parses specifier */
+
+extern void _store_inttype(void *dest, int desttype, uintmax_t val);
+extern uintmax_t _load_inttype(int desttype, const void *src, int uflag);
 
 /**********************************************************************/
 #ifdef L_parse_printf_format
@@ -435,72 +439,6 @@ size_t parse_printf_format(register const char *template,
 
 #endif
 /**********************************************************************/
-#ifdef L_vfprintf
-
-/* We only support ascii digits (or their USC equivalent codes) in
- * precision and width settings in *printf (wide) format strings.
- * In other words, we don't currently support glibc's 'I' flag.
- * We do accept it, but it is currently ignored. */
-
-int vfprintf(FILE * __restrict stream, register const char * __restrict format,
-			 va_list arg)
-{
-	ppfs_t ppfs;
-	int count, r;
-	register const char *s;
-
-	__STDIO_THREADLOCK(stream);
-
-	count = 0;
-	s = format;
-
-	if (_ppfs_init(&ppfs, format) < 0) { /* Bad format string. */
-		_outnstr(stream, ppfs.fmtpos, strlen(ppfs.fmtpos));
-		count = -1;
-	} else {
-		_ppfs_prepargs(&ppfs, arg);	/* This did a va_copy!!! */
-
-		do {
-			while (*format && (*format != '%')) {
-				++format;
-			}
-
-			if (format-s) {		/* output any literal text in format string */
-				if ( (r = _outnstr(stream, s, format-s)) < 0) {
-					count = -1;
-					break;
-				}
-				count += r;
-			}
-
-			if (!*format) {			/* we're done */
-				break;
-			}
-		
-			if (format[1] != '%') {	/* if we get here, *format == '%' */
-				/* TODO: _do_one_spec needs to know what the output funcs are!!! */
-				ppfs.fmtpos = ++format;
-				/* TODO: check -- should only fail on stream error */
-				if ( (r = _do_one_spec(stream, &ppfs, &count)) < 0) {
-					count = -1;
-					break;
-				}
-				s = format = ppfs.fmtpos;
-			} else {			/* %% means literal %, so start new string */
-				s = ++format;
-				++format;
-			}
-		} while (1);
-
-		va_end(ppfs.arg);		/* Need to clean up after va_copy! */
-	}
-
-	__STDIO_THREADUNLOCK(stream);
-
-	return count;
-}
-#endif
-/**********************************************************************/
 #ifdef L__ppfs_init
 
 int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
@@ -514,9 +452,7 @@ int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 	memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
 	--ppfs->maxposarg;			/* set to -1 */
 	ppfs->fmtpos = fmt0;
-#if defined(__UCLIBC_HAS_WCHAR__) && defined(__UCLIBC_HAS_LOCALE__)
-	/* Note: We don't need to check if we don't have wide chars or we only
-	 * support the C locale. */
+#ifdef __UCLIBC_HAS_WCHAR__
 	{
 		mbstate_t mbstate;
 		const char *p;
@@ -527,7 +463,7 @@ int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 			return -1;
 		}
 	}
-#endif /* defined(__UCLIBC_HAS_WCHAR__) && defined(__UCLIBC_HAS_LOCALE__) */
+#endif /* __UCLIBC_HAS_WCHAR__ */
 	/* now set all argtypes to no-arg */
 	{
 #if 1
@@ -810,6 +746,7 @@ static char _bss_custom_printf_spec[MAX_USER_SPEC]; /* 0-init'd for us.  */
 
 char *_custom_printf_spec = _bss_custom_printf_spec;
 printf_arginfo_function *_custom_printf_arginfo[MAX_USER_SPEC];
+printf_function _custom_printf_handler[MAX_USER_SPEC];
 
 extern int _ppfs_parsespec(ppfs_t *ppfs)
 {
@@ -833,17 +770,44 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 	static const short spec_or_mask[] = SPEC_OR_MASK;
 	static const short spec_and_mask[] = SPEC_AND_MASK;
 	static const char qual_chars[] = QUAL_CHARS;
+#ifdef __UCLIBC_HAS_WCHAR__
+	char buf[32];
+#endif /* __UCLIBC_HAS_WCHAR__ */
 
 	/* WIDE note: we can test against '%' here since we don't allow */
 	/* WIDE note: other mappings of '%' in the wide char set. */
 	preci = -1;
-	width = flags = dpoint = 0;
 	argnumber[0] = 0;
 	argnumber[1] = 0;
 	argtype[0] = __PA_NOARG;
 	argtype[1] = __PA_NOARG;
 	maxposarg = ppfs->maxposarg;
+#ifdef __UCLIBC_HAS_WCHAR__
+	/* This is somewhat lame, but saves a lot of code.  If we're dealing with
+	 * a wide stream, that means the format is a wchar string.  So, copy it
+	 * char-by-char into a normal char buffer for processing.  Make the buffer
+	 * (buf) big enough so that any reasonable format specifier will fit.
+	 * While there a legal specifiers that won't, the all involve duplicate
+	 * flags or outrageous field widths/precisions. */
+	width = dpoint = 0;
+	if ((flags = ppfs->info._flags & FLAG_WIDESTREAM) == 0) {
+		fmt = ppfs->fmtpos;
+	} else {
+		fmt = buf + 1;
+		i = 0;
+		do {
+			if ((buf[i] = (char) (((wchar_t *) ppfs->fmtpos)[i-1]))
+				!= (((wchar_t *) ppfs->fmtpos)[i-1])
+				) {
+				return -1;
+			}
+		} while (buf[i++]);
+		buf[sizeof(buf)-1] = 0;
+	}
+#else  /* __UCLIBC_HAS_WCHAR__ */
+	width = flags = dpoint = 0;
 	fmt = ppfs->fmtpos;
+#endif /* __UCLIBC_HAS_WCHAR__ */
 
 	assert(fmt[-1] == '%');
 	assert(fmt[0] != '%');
@@ -877,6 +841,16 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 			/* Now fall through to check flags. */
 		} else {
 			if (maxposarg > 0) {
+#ifdef __STDIO_PRINTF_M_SUPPORT
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning TODO: Support prec and width for %m when positional args used
+				/* Actually, positional arg processing will fail in general
+				 * for specifiers that don't require an arg. */
+#endif
+				if (*fmt == 'm') {
+					goto PREC_WIDTH;
+				}
+#endif /* __STDIO_PRINTF_M_SUPPORT */
 				return -1;
 			}
 			maxposarg = 0;		/* Possible redundant store, but cuts size. */
@@ -1045,8 +1019,18 @@ extern int _ppfs_parsespec(ppfs_t *ppfs)
 	}
 
 	ppfs->maxposarg = maxposarg;
-	ppfs->fmtpos = ++fmt;
 	ppfs->conv_num = conv_num;
+
+#ifdef __UCLIBC_HAS_WCHAR__
+	if ((flags = ppfs->info._flags & FLAG_WIDESTREAM) == 0) {
+		ppfs->fmtpos = ++fmt;
+	} else {
+		ppfs->fmtpos = (const char *) (((const wchar_t *)(ppfs->fmtpos))
+									   + (fmt - buf) );
+	}
+#else  /* __UCLIBC_HAS_WCHAR__ */
+	ppfs->fmtpos = ++fmt;
+#endif /* __UCLIBC_HAS_WCHAR__ */
 
  	return ppfs->num_data_args + 2;
 }
@@ -1091,306 +1075,6 @@ int register_printf_function(int spec, printf_function handler,
 		/* TODO -- if asked to unregister a non-existent spec, return what? */
 	}
 	return -1;
-}
-#endif
-/**********************************************************************/
-#ifdef L__do_one_spec
-
-printf_function _custom_printf_handler[MAX_USER_SPEC];
-
-extern void _store_inttype(void *dest, int desttype, uintmax_t val);
-extern uintmax_t _load_inttype(int desttype, const void *src, int uflag);
-extern void _charpad(FILE * __restrict stream, char padchar, size_t numpad);
-extern void output(FILE * __restrict stream, const char *s);
-
-#define output(F,S)			fputs(S,F)
-
-#undef putc
-void _charpad(FILE * __restrict stream, char padchar, size_t numpad)
-{
-	/* TODO -- Use a buffer to cut down on function calls... */
-	char pad[1];
-
-	*pad = padchar;
-	while (numpad) {
-		_stdio_fwrite(pad, 1, stream);
-		--numpad;
-	}
-}
-
-/* TODO -- Dynamically allocate work space to accomodate stack-poor archs? */
-
-int _do_one_spec(FILE * __restrict stream, register ppfs_t *ppfs, int *count)
-{
-	static const char spec_base[] = SPEC_BASE;
-	static const char prefix[] = "+\0-\0 \0000x\0000X";
-	/*                            0  2  4  6   9 11*/
-	enum {
-		PREFIX_PLUS = 0,
-		PREFIX_MINUS = 2,
-		PREFIX_SPACE = 4,
-		PREFIX_LWR_X = 6,
-		PREFIX_UPR_X = 9,
-		PREFIX_NONE = 11
-	};
-
-#ifdef __va_arg_ptr
-	const void * const *argptr;
-#else
-	const void * argptr[MAX_ARGS_PER_SPEC];
-#endif
-	int *argtype;
-#ifdef __UCLIBC_HAS_WCHAR__
-	const wchar_t *ws = NULL;
-	mbstate_t mbstate;
-#endif /* __UCLIBC_HAS_WCHAR__ */
-	size_t slen;
-	int base;
-	int numpad;
-	int alphacase;
-	int numfill = 0;			/* TODO: fix */
-	int prefix_num = PREFIX_NONE;
-	char padchar = ' ';
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: buf size
-#endif
-	/* TODO: buf needs to be big enough for any possible error return strings
-	 * and also for any locale-grouped long long integer strings generated.
-	 * This should be large enough for any of the current archs/locales, but
-	 * eventually this should be handled robustly. */
-	char buf[128];
-
-#ifdef NDEBUG
-	_ppfs_parsespec(ppfs);
-#else
-	if (_ppfs_parsespec(ppfs) < 0) { /* TODO: just for debugging */
-		abort();
-	}
-#endif
-	_ppfs_setargs(ppfs);
-
-	argtype = ppfs->argtype + ppfs->argnumber[2] - 1;
-	/* Deal with the argptr vs argvalue issue. */
-#ifdef __va_arg_ptr
-	argptr = (const void * const *) ppfs->argptr;
-	if (ppfs->maxposarg > 0) {	/* Using positional args... */
-		argptr += ppfs->argnumber[2] - 1;
-	}
-#else
-	/* Need to build a local copy... */
-	{
-		register argvalue_t *p = ppfs->argvalue;
-		int i;
-		if (ppfs->maxposarg > 0) {	/* Using positional args... */
-			p += ppfs->argnumber[2] - 1;
-		}
-		for (i = 0 ; i < ppfs->num_data_args ; i++ ) {
-			argptr[i] = (void *) p++;
-		}
-	}
-#endif
-	{
-		register char *s;		/* TODO: Should s be unsigned char * ? */
-
-		if (ppfs->conv_num == CONV_n) {
-			_store_inttype(*(void **)*argptr,
-						   ppfs->info._flags & __PA_INTMASK,
-						   (intmax_t) (*count));
-			return 0;
-		}
-		if (ppfs->conv_num <= CONV_i) {	/* pointer or (un)signed int */
-			alphacase = __UIM_LOWER;
-			if (((base = spec_base[(int)(ppfs->conv_num - CONV_p)]) == 10)
-				&& (PRINT_INFO_FLAG_VAL(&(ppfs->info),group))
-				) {
-				alphacase = __UIM_GROUP;
-			}
-			if (ppfs->conv_num <= CONV_u) { /* pointer or unsigned int */
-				if (ppfs->conv_num == CONV_X) {
-					alphacase = __UIM_UPPER;
-				}
-				if (ppfs->conv_num == CONV_p) { /* pointer */
-					prefix_num = PREFIX_LWR_X;
-				} else {		/* unsigned int */
-				}
-			} else {			/* signed int */
-				base = -base;
-			}
-			if (ppfs->info.prec < 0) { /* Ignore '0' flag if prec specified. */
-				padchar = ppfs->info.pad;
-			}
-			s = _uintmaxtostr(buf + sizeof(buf) - 1,
-							  (uintmax_t)
-							  _load_inttype(*argtype & __PA_INTMASK,
-											*argptr, base), base, alphacase);
-			if (ppfs->conv_num > CONV_u) { /* signed int */
-				if (*s == '-') {
-					PRINT_INFO_SET_FLAG(&(ppfs->info),showsign);
-					++s;		/* handle '-' in the prefix string */
-					prefix_num = PREFIX_MINUS;
-				} else if (PRINT_INFO_FLAG_VAL(&(ppfs->info),showsign)) {
-					prefix_num = PREFIX_PLUS;
-				} else if (PRINT_INFO_FLAG_VAL(&(ppfs->info),space)) {
-					prefix_num = PREFIX_SPACE;
-				}
-			}
-			slen = (char *)(buf + sizeof(buf) - 1) - s;
-			numfill = ((ppfs->info.prec < 0) ? 1 : ppfs->info.prec);
-			if (PRINT_INFO_FLAG_VAL(&(ppfs->info),alt)) {
-				if (ppfs->conv_num <= CONV_x) {	/* x or p */
-					prefix_num = PREFIX_LWR_X;
-				}
-				if (ppfs->conv_num == CONV_X) {
-					prefix_num = PREFIX_UPR_X;
-				}
-				if ((ppfs->conv_num == CONV_o) && (numfill <= slen)) {
-					numfill = ((*s == '0') ? 1 : slen + 1);
-				}
-			}
-			if (*s == '0') {
-				if (prefix_num >= PREFIX_LWR_X) {
-					prefix_num = PREFIX_NONE;
-				}
-				if (ppfs->conv_num == CONV_p) {/* null pointer */
-					s = "(nil)";
-					slen = 5;
-					numfill = 0;
-				} else if (numfill == 0) {	/* if precision 0, no output */
-					slen = 0;
-				}
-			}
-			numfill = ((numfill > slen) ? numfill - slen : 0);
-		} else if (ppfs->conv_num <= CONV_A) {	/* floating point */
-#ifdef __STDIO_PRINTF_FLOAT
-			*count += _dtostr(stream,
-							  (PRINT_INFO_FLAG_VAL(&(ppfs->info),is_long_double)
-							   ? *(long double *) *argptr
-							   : (long double) (* (double *) *argptr)),
-							  &ppfs->info);
-			return 0;
-#else  /* __STDIO_PRINTF_FLOAT */
-			return -1;			/* TODO -- try to continue? */
-#endif /* __STDIO_PRINTF_FLOAT */
-		} else if (ppfs->conv_num <= CONV_S) {	/* wide char or string */
-#ifdef __UCLIBC_HAS_WCHAR__
-			mbstate.mask = 0;	/* Initialize the mbstate. */
-			if (ppfs->conv_num == CONV_S) { /* wide string */
-				if (!(ws = *((const wchar_t **) *argptr))) {
-					goto NULL_STRING;
-				}
-				/* We use an awful uClibc-specific hack here, passing
-				 * (char*) &ws as the conversion destination.  This signals
-				 * uClibc's wcsrtombs that we want a "restricted" length
-				 * such that the mbs fits in a buffer of the specified
-				 * size with no partial conversions. */
-				if ((slen = wcsrtombs((char *) &ws, &ws, /* Use awful hack! */
-									  ((ppfs->info.prec >= 0)
-									   ? ppfs->info.prec
-									   : SIZE_MAX), &mbstate))
-					== ((size_t)-1)
-					) {
-					return -1;	/* EILSEQ */
-				}
-			} else {			/* wide char */
-				s = buf;
-				slen = wcrtomb(s, (*((const wchar_t *) *argptr)), &mbstate);
-				if (slen == ((size_t)-1)) {
-					return -1;	/* EILSEQ */
-				}
-				s[slen] = 0;	/* TODO - Is this necessary? */
-			}
-#else  /* __UCLIBC_HAS_WCHAR__ */
-			return -1;
-#endif /* __UCLIBC_HAS_WCHAR__ */
-		} else if (ppfs->conv_num <= CONV_s) {	/* char or string */
-			if (ppfs->conv_num == CONV_s) { /* string */
-				s = *((char **) (*argptr));
-				if (s) {
-				SET_STRING_LEN:
-					slen = strnlen(s, ((ppfs->info.prec >= 0)
-									   ? ppfs->info.prec : SIZE_MAX));
-				} else {
-				NULL_STRING:
-					s = "(null)";
-					slen = 6;
-				}
-			} else {			/* char */
-				s = buf;
-				*s = (unsigned char)(*((const int *) *argptr));
-				s[1] = 0;
-				slen = 1;
-			}
-#ifdef __STDIO_PRINTF_M_SUPPORT
-		} else if (ppfs->conv_num == CONV_m) {
-			s = _glibc_strerror_r(errno, buf, sizeof(buf));
-			goto SET_STRING_LEN;
-#endif
-		} else {
-			assert(ppfs->conv_num == CONV_custom0);
-
-			s = _custom_printf_spec;
-			do {
-				if (*s == ppfs->info.spec) {
-					int rv;
-					/* TODO -- check return value for sanity? */
-					rv = (*_custom_printf_handler
-						  [(int)(s-_custom_printf_spec)])
-						(stream, &ppfs->info, argptr);
-					if (rv < 0) {
-						return -1;
-					}
-					*count += rv;
-					return 0;
-				}
-			} while (++s < (_custom_printf_spec + MAX_USER_SPEC));
-			assert(0);
-			return -1;
-		}
-
-		{
-			size_t t;
-
-			t = slen + numfill;
-			if (prefix_num != PREFIX_NONE) {
-				t += ((prefix_num < PREFIX_LWR_X) ? 1 : 2);
-			}
-			numpad = ((ppfs->info.width > t) ? (ppfs->info.width - t) : 0);
-			*count += t + numpad;
-		}
-		if (padchar == '0') { /* TODO: check this */
-			numfill += numpad;
-			numpad = 0;
-		}
-
-		/* Now handle the output itself. */
-		if (!PRINT_INFO_FLAG_VAL(&(ppfs->info),left)) {
-			_charpad(stream, ' ', numpad);
-			numpad = 0;
-		}
-		output(stream, prefix + prefix_num);
-		_charpad(stream, '0', numfill);
-#ifdef __UCLIBC_HAS_WCHAR__
-		if (!ws) {
-			_outnstr(stream, s, slen);
-		} else {				/* wide string */
-			size_t t;
-			mbstate.mask = 0;	/* Initialize the mbstate. */
-			while (slen) {
-				t = (slen <= sizeof(buf)) ? slen : sizeof(buf);
-				t = wcsrtombs(buf, &ws, t, &mbstate);
-				assert (t != ((size_t)(-1)));
-				_outnstr(stream, buf, t);
-				slen -= t;
-			}
-			ws = NULL;			/* Reset ws. */
-		}
-#else  /* __UCLIBC_HAS_WCHAR__ */
-		_outnstr(stream, s, slen);
-#endif /* __UCLIBC_HAS_WCHAR__ */
-		_charpad(stream, ' ', numpad);
-	}
-
-	return 0;
 }
 #endif
 /**********************************************************************/
@@ -1749,6 +1433,124 @@ int sprintf(char *__restrict buf, const char * __restrict format, ...)
 }
 
 #endif
+#endif
+/**********************************************************************/
+#ifdef L_vswprintf
+
+#ifdef __STDIO_BUFFERS
+int vswprintf(wchar_t *__restrict buf, size_t size,
+			  const wchar_t * __restrict format, va_list arg)
+{
+	FILE f;
+	int rv;
+
+#ifdef __STDIO_GETC_MACRO
+	f.bufgetc =
+#endif
+	f.bufpos = f.bufread = f.bufstart = (char *) buf;
+
+/* 	if (size > SIZE_MAX - (size_t) buf) { */
+/* 		size = SIZE_MAX - (size_t) buf; */
+/* 	} */
+#ifdef __STDIO_PUTC_MACRO
+	f.bufputc =
+#endif
+	f.bufend = (char *)(buf + size);
+
+#if 0							/* shouldn't be necessary */
+/*  #ifdef __STDIO_GLIBC_CUSTOM_STREAMS */
+	f.cookie = &(f.filedes);
+	f.gcs.read = 0;
+	f.gcs.write = 0;
+	f.gcs.seek = 0;
+	f.gcs.close = 0;
+#endif
+	f.filedes = -3;				/* for debugging */
+	f.modeflags = (__FLAG_WIDE|__FLAG_WRITEONLY|__FLAG_WRITING);
+
+#ifdef __STDIO_MBSTATE
+	__INIT_MBSTATE(&(f.state));
+#endif /* __STDIO_MBSTATE */
+
+#ifdef __STDIO_THREADSAFE
+	f.user_locking = 0;
+	__stdio_init_mutex(&f.lock);
+#endif
+
+	rv = vfwprintf(&f, format, arg);
+
+	/* NOTE: Return behaviour differs from snprintf... */
+	if (f.bufpos == f.bufend) {
+		rv = -1;
+		if (size) {
+			f.bufpos = (char *)(((wchar_t *) f.bufpos) - 1);
+		}
+	}
+	if (size) {
+		*((wchar_t *) f.bufpos) = 0;
+	}
+	return rv;
+}
+#else  /* __STDIO_BUFFERS */
+#warning skipping vswprintf since no buffering!
+#endif /* __STDIO_BUFFERS */
+#endif
+/**********************************************************************/
+#ifdef L_swprintf
+#ifdef __STDIO_BUFFERS
+
+int swprintf(wchar_t *__restrict buf, size_t size,
+			 const wchar_t * __restrict format, ...)
+{
+	va_list arg;
+	int rv;
+
+	va_start(arg, format);
+	rv = vswprintf(buf, size, format, arg);
+	va_end(arg);
+	return rv;
+}
+
+#else  /* __STDIO_BUFFERS */
+#warning skipping vsWprintf since no buffering!
+#endif /* __STDIO_BUFFERS */
+#endif
+/**********************************************************************/
+#ifdef L_fwprintf
+
+int fwprintf(FILE * __restrict stream, const wchar_t * __restrict format, ...)
+{
+	va_list arg;
+	int rv;
+
+	va_start(arg, format);
+	rv = vfwprintf(stream, format, arg);
+	va_end(arg);
+
+	return rv;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_vwprintf
+int vwprintf(const wchar_t * __restrict format, va_list arg)
+{
+	return vfwprintf(stdout, format, arg);
+}
+#endif
+/**********************************************************************/
+#ifdef L_wprintf
+int wprintf(const wchar_t * __restrict format, ...)
+{
+	va_list arg;
+	int rv;
+
+	va_start(arg, format);
+	rv = vfwprintf(stdout, format, arg);
+	va_end(arg);
+
+	return rv;
+}
 #endif
 /**********************************************************************/
 #ifdef L__dtostr
@@ -2296,5 +2098,583 @@ extern uintmax_t _load_inttype(int desttype, register const void *src,
 	}
 }
 
+#endif
+/**********************************************************************/
+#if defined(L_vfprintf) || defined(L_vfwprintf)
+
+/* We only support ascii digits (or their USC equivalent codes) in
+ * precision and width settings in *printf (wide) format strings.
+ * In other words, we don't currently support glibc's 'I' flag.
+ * We do accept it, but it is currently ignored. */
+
+
+#ifdef L_vfprintf
+
+#define VFPRINTF vfprintf
+#define FMT_TYPE char
+#define OUTNSTR _outnstr
+#define STRLEN  strlen
+#define _PPFS_init _ppfs_init
+#define OUTPUT(F,S)			fputs(S,F)
+#define _outnstr(stream, string, len)	_stdio_fwrite(string, len, stream)
+
+#else  /* L_vfprintf */
+
+#define VFPRINTF vfwprintf
+#define FMT_TYPE wchar_t
+#define OUTNSTR _outnwcs
+#define STRLEN  wcslen
+#define _PPFS_init _ppwfs_init
+#define OUTPUT(F,S)			fputws(S,F)
+#define _outnwcs(stream, wstring, len)	_wstdio_fwrite(wstring, len, stream)
+
+static void _outnstr(FILE *stream, const char *s, size_t wclen)
+{
+	/* NOTE!!! len here is the number of wchars we want to generate!!! */
+	wchar_t wbuf[64];
+	mbstate_t mbstate;
+	size_t todo, r;
+
+	mbstate.mask = 0;
+	todo = wclen;
+	
+	while (todo) {
+		r = mbsrtowcs(wbuf, &s, sizeof(wbuf)/sizeof(wbuf[0]), &mbstate);
+		assert(((ssize_t)r) > 0);
+		_outnwcs(stream, wbuf, r);
+		todo -= r;
+	}
+}
+
+static int _ppwfs_init(register ppfs_t *ppfs, const wchar_t *fmt0)
+{
+	static const wchar_t invalid_wcs[] = L"Invalid wide format string.";
+	int r;
+
+	/* First, zero out everything... argnumber[], argtype[], argptr[] */
+	memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
+	--ppfs->maxposarg;			/* set to -1 */
+	ppfs->fmtpos = (const char *) fmt0;
+	ppfs->info._flags = FLAG_WIDESTREAM;
+
+	{
+		mbstate_t mbstate;
+		const wchar_t *p;
+		mbstate.mask = 0;	/* Initialize the mbstate. */
+		p = fmt0;
+		if (wcsrtombs(NULL, &p, SIZE_MAX, &mbstate) == ((size_t)(-1))) {
+			ppfs->fmtpos = (const char *) invalid_wcs;
+			return -1;
+		}
+	}
+
+	/* now set all argtypes to no-arg */
+	{
+#if 1
+		/* TODO - use memset here since already "paid for"? */
+		register int *p = ppfs->argtype;
+		
+		r = MAX_ARGS;
+		do {
+			*p++ = __PA_NOARG;
+		} while (--r);
+#else
+		/* TODO -- get rid of this?? */
+		register char *p = (char *) ((MAX_ARGS-1) * sizeof(int));
+
+		do {
+			*((int *)(((char *)ppfs) + ((int)p) + offsetof(ppfs_t,argtype))) = __PA_NOARG;
+			p -= sizeof(int);
+		} while (p);
+#endif
+	}
+
+	/*
+	 * Run through the entire format string to validate it and initialize
+	 * the positional arg numbers (if any).
+	 */
+	{
+		register const wchar_t *fmt = fmt0;
+
+		while (*fmt) {
+			if ((*fmt == '%') && (*++fmt != '%')) {
+				ppfs->fmtpos = (const char *) fmt; /* back up to the '%' */
+				if ((r = _ppfs_parsespec(ppfs)) < 0) {
+					return -1;
+				}
+				fmt = (const wchar_t *) ppfs->fmtpos; /* update to one past end of spec */
+			} else {
+				++fmt;
+			}
+		}
+		ppfs->fmtpos = (const char *) fmt0; /* rewind */
+	}
+
+	/* If we have positional args, make sure we know all the types. */
+	{
+		register int *p = ppfs->argtype;
+		r = ppfs->maxposarg;
+		while (--r >= 0) {
+			if ( *p == __PA_NOARG ) { /* missing arg type!!! */
+				return -1;
+			}
+			++p;
+		}
+	}
+
+	return 0;
+}
+
+#endif /* L_vfprintf */
+
+static void _charpad(FILE * __restrict stream, int padchar, size_t numpad)
+{
+	/* TODO -- Use a buffer to cut down on function calls... */
+	FMT_TYPE pad[1];
+
+	*pad = padchar;
+	while (numpad) {
+		OUTNSTR(stream, pad, 1);
+		--numpad;
+	}
+}
+
+/* TODO -- Dynamically allocate work space to accomodate stack-poor archs? */
+static int _do_one_spec(FILE * __restrict stream,
+						 register ppfs_t *ppfs, int *count)
+{
+	static const char spec_base[] = SPEC_BASE;
+#ifdef L_vfprintf
+	static const char prefix[] = "+\0-\0 \0000x\0000X";
+	/*                            0  2  4  6   9 11*/
+#else  /* L_vfprintf */
+	static const wchar_t prefix[] = L"+\0-\0 \0000x\0000X";
+#endif /* L_vfprintf */
+	enum {
+		PREFIX_PLUS = 0,
+		PREFIX_MINUS = 2,
+		PREFIX_SPACE = 4,
+		PREFIX_LWR_X = 6,
+		PREFIX_UPR_X = 9,
+		PREFIX_NONE = 11
+	};
+
+#ifdef __va_arg_ptr
+	const void * const *argptr;
+#else
+	const void * argptr[MAX_ARGS_PER_SPEC];
+#endif
+	int *argtype;
+#ifdef __UCLIBC_HAS_WCHAR__
+	const wchar_t *ws = NULL;
+	mbstate_t mbstate;
+#endif /* __UCLIBC_HAS_WCHAR__ */
+	size_t slen;
+#ifdef L_vfprintf
+#define SLEN slen
+#else
+	size_t SLEN;
+	wchar_t wbuf[2];
+#endif
+	int base;
+	int numpad;
+	int alphacase;
+	int numfill = 0;			/* TODO: fix */
+	int prefix_num = PREFIX_NONE;
+	char padchar = ' ';
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: buf size
+#endif
+	/* TODO: buf needs to be big enough for any possible error return strings
+	 * and also for any locale-grouped long long integer strings generated.
+	 * This should be large enough for any of the current archs/locales, but
+	 * eventually this should be handled robustly. */
+	char buf[128];
+
+#ifdef NDEBUG
+	_ppfs_parsespec(ppfs);
+#else
+	if (_ppfs_parsespec(ppfs) < 0) { /* TODO: just for debugging */
+		abort();
+	}
+#endif
+	_ppfs_setargs(ppfs);
+
+	argtype = ppfs->argtype + ppfs->argnumber[2] - 1;
+	/* Deal with the argptr vs argvalue issue. */
+#ifdef __va_arg_ptr
+	argptr = (const void * const *) ppfs->argptr;
+	if (ppfs->maxposarg > 0) {	/* Using positional args... */
+		argptr += ppfs->argnumber[2] - 1;
+	}
+#else
+	/* Need to build a local copy... */
+	{
+		register argvalue_t *p = ppfs->argvalue;
+		int i;
+		if (ppfs->maxposarg > 0) {	/* Using positional args... */
+			p += ppfs->argnumber[2] - 1;
+		}
+		for (i = 0 ; i < ppfs->num_data_args ; i++ ) {
+			argptr[i] = (void *) p++;
+		}
+	}
+#endif
+	{
+		register char *s;		/* TODO: Should s be unsigned char * ? */
+
+		if (ppfs->conv_num == CONV_n) {
+			_store_inttype(*(void **)*argptr,
+						   ppfs->info._flags & __PA_INTMASK,
+						   (intmax_t) (*count));
+			return 0;
+		}
+		if (ppfs->conv_num <= CONV_i) {	/* pointer or (un)signed int */
+			alphacase = __UIM_LOWER;
+			if (((base = spec_base[(int)(ppfs->conv_num - CONV_p)]) == 10)
+				&& (PRINT_INFO_FLAG_VAL(&(ppfs->info),group))
+				) {
+				alphacase = __UIM_GROUP;
+			}
+			if (ppfs->conv_num <= CONV_u) { /* pointer or unsigned int */
+				if (ppfs->conv_num == CONV_X) {
+					alphacase = __UIM_UPPER;
+				}
+				if (ppfs->conv_num == CONV_p) { /* pointer */
+					prefix_num = PREFIX_LWR_X;
+				} else {		/* unsigned int */
+				}
+			} else {			/* signed int */
+				base = -base;
+			}
+			if (ppfs->info.prec < 0) { /* Ignore '0' flag if prec specified. */
+				padchar = ppfs->info.pad;
+			}
+			s = _uintmaxtostr(buf + sizeof(buf) - 1,
+							  (uintmax_t)
+							  _load_inttype(*argtype & __PA_INTMASK,
+											*argptr, base), base, alphacase);
+			if (ppfs->conv_num > CONV_u) { /* signed int */
+				if (*s == '-') {
+					PRINT_INFO_SET_FLAG(&(ppfs->info),showsign);
+					++s;		/* handle '-' in the prefix string */
+					prefix_num = PREFIX_MINUS;
+				} else if (PRINT_INFO_FLAG_VAL(&(ppfs->info),showsign)) {
+					prefix_num = PREFIX_PLUS;
+				} else if (PRINT_INFO_FLAG_VAL(&(ppfs->info),space)) {
+					prefix_num = PREFIX_SPACE;
+				}
+			}
+			slen = (char *)(buf + sizeof(buf) - 1) - s;
+#ifdef L_vfwprintf
+			{
+				const char *q = s;
+				mbstate.mask = 0; /* Initialize the mbstate. */
+				SLEN = mbsrtowcs(NULL, &q, 0, &mbstate);
+			}
+#endif
+			numfill = ((ppfs->info.prec < 0) ? 1 : ppfs->info.prec);
+			if (PRINT_INFO_FLAG_VAL(&(ppfs->info),alt)) {
+				if (ppfs->conv_num <= CONV_x) {	/* x or p */
+					prefix_num = PREFIX_LWR_X;
+				}
+				if (ppfs->conv_num == CONV_X) {
+					prefix_num = PREFIX_UPR_X;
+				}
+				if ((ppfs->conv_num == CONV_o) && (numfill <= SLEN)) {
+					numfill = ((*s == '0') ? 1 : SLEN + 1);
+				}
+			}
+			if (*s == '0') {
+				if (prefix_num >= PREFIX_LWR_X) {
+					prefix_num = PREFIX_NONE;
+				}
+				if (ppfs->conv_num == CONV_p) {/* null pointer */
+					s = "(nil)";
+#ifdef L_vfwprintf
+					SLEN =
+#endif
+					slen = 5;
+					numfill = 0;
+				} else if (numfill == 0) {	/* if precision 0, no output */
+#ifdef L_vfwprintf
+					SLEN =
+#endif
+					slen = 0;
+				}
+			}
+			numfill = ((numfill > SLEN) ? numfill - SLEN : 0);
+		} else if (ppfs->conv_num <= CONV_A) {	/* floating point */
+#ifdef L_vfwprintf
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning fix dtostr
+#endif
+			return -1;
+#else  /* L_vfwprintf */
+#ifdef __STDIO_PRINTF_FLOAT
+			*count += _dtostr(stream,
+							  (PRINT_INFO_FLAG_VAL(&(ppfs->info),is_long_double)
+							   ? *(long double *) *argptr
+							   : (long double) (* (double *) *argptr)),
+							  &ppfs->info);
+			return 0;
+#else  /* __STDIO_PRINTF_FLOAT */
+			return -1;			/* TODO -- try to continue? */
+#endif /* __STDIO_PRINTF_FLOAT */
+#endif /* L_vfwprintf */
+		} else if (ppfs->conv_num <= CONV_S) {	/* wide char or string */
+#ifdef L_vfprintf
+
+#ifdef __UCLIBC_HAS_WCHAR__
+			mbstate.mask = 0;	/* Initialize the mbstate. */
+			if (ppfs->conv_num == CONV_S) { /* wide string */
+				if (!(ws = *((const wchar_t **) *argptr))) {
+					goto NULL_STRING;
+				}
+				/* We use an awful uClibc-specific hack here, passing
+				 * (char*) &ws as the conversion destination.  This signals
+				 * uClibc's wcsrtombs that we want a "restricted" length
+				 * such that the mbs fits in a buffer of the specified
+				 * size with no partial conversions. */
+				if ((slen = wcsrtombs((char *) &ws, &ws, /* Use awful hack! */
+									  ((ppfs->info.prec >= 0)
+									   ? ppfs->info.prec
+									   : SIZE_MAX), &mbstate))
+					== ((size_t)-1)
+					) {
+					return -1;	/* EILSEQ */
+				}
+			} else {			/* wide char */
+				s = buf;
+				slen = wcrtomb(s, (*((const wchar_t *) *argptr)), &mbstate);
+				if (slen == ((size_t)-1)) {
+					return -1;	/* EILSEQ */
+				}
+				s[slen] = 0;	/* TODO - Is this necessary? */
+			}
+#else  /* __UCLIBC_HAS_WCHAR__ */
+			return -1;
+#endif /* __UCLIBC_HAS_WCHAR__ */
+		} else if (ppfs->conv_num <= CONV_s) {	/* char or string */
+			if (ppfs->conv_num == CONV_s) { /* string */
+				s = *((char **) (*argptr));
+				if (s) {
+				SET_STRING_LEN:
+					slen = strnlen(s, ((ppfs->info.prec >= 0)
+									   ? ppfs->info.prec : SIZE_MAX));
+				} else {
+#ifdef __UCLIBC_HAS_WCHAR__
+				NULL_STRING:
+#endif
+					s = "(null)";
+					slen = 6;
+				}
+			} else {			/* char */
+				s = buf;
+				*s = (unsigned char)(*((const int *) *argptr));
+				s[1] = 0;
+				slen = 1;
+			}
+
+#else  /* L_vfprintf */
+
+			if (ppfs->conv_num == CONV_S) { /* wide string */
+				ws = *((wchar_t **) (*argptr));
+				if (!ws) {
+					goto NULL_STRING;
+				}
+				SLEN = wcsnlen(ws, ((ppfs->info.prec >= 0)
+									? ppfs->info.prec : SIZE_MAX));
+			} else {			/* wide char */
+				*wbuf = (wchar_t)(*((const wint_t *) *argptr));
+			CHAR_CASE:
+				ws = wbuf;
+				wbuf[1] = 0;
+				SLEN = 1;
+			}
+
+		} else if (ppfs->conv_num <= CONV_s) {	/* char or string */
+
+			if (ppfs->conv_num == CONV_s) { /* string */
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning Fix %s for vfwprintf... output upto illegal sequence?
+#endif
+				s = *((char **) (*argptr));
+				if (s) {
+				SET_STRING_LEN:
+					/* We use an awful uClibc-specific hack here, passing
+					 * (wchar_t*) &mbstate as the conversion destination.
+					 *  This signals uClibc's mbsrtowcs that we want a
+					 * "restricted" length such that the mbs fits in a buffer
+					 * of the specified size with no partial conversions. */
+					{
+						const char *q = s;
+						mbstate.mask = 0;	/* Initialize the mbstate. */
+						SLEN = mbsrtowcs((wchar_t *) &mbstate, &q,
+										 ((ppfs->info.prec >= 0)
+										  ? ppfs->info.prec : SIZE_MAX),
+										 &mbstate);
+					}
+					if (SLEN == ((size_t)(-1))) {
+						return -1;	/* EILSEQ */
+					}
+				} else {
+				NULL_STRING:
+					s = "(null)";
+					SLEN = slen = 6;
+				}
+			} else {			/* char */
+				*wbuf = btowc( (unsigned char)(*((const int *) *argptr)) );
+				goto CHAR_CASE;
+			}
+
+#endif /* L_vfprintf */
+
+#ifdef __STDIO_PRINTF_M_SUPPORT
+		} else if (ppfs->conv_num == CONV_m) {
+			s = _glibc_strerror_r(errno, buf, sizeof(buf));
+			goto SET_STRING_LEN;
+#endif
+		} else {
+			assert(ppfs->conv_num == CONV_custom0);
+
+			s = _custom_printf_spec;
+			do {
+				if (*s == ppfs->info.spec) {
+					int rv;
+					/* TODO -- check return value for sanity? */
+					rv = (*_custom_printf_handler
+						  [(int)(s-_custom_printf_spec)])
+						(stream, &ppfs->info, argptr);
+					if (rv < 0) {
+						return -1;
+					}
+					*count += rv;
+					return 0;
+				}
+			} while (++s < (_custom_printf_spec + MAX_USER_SPEC));
+			assert(0);
+			return -1;
+		}
+
+		{
+			size_t t;
+
+			t = SLEN + numfill;
+			if (prefix_num != PREFIX_NONE) {
+				t += ((prefix_num < PREFIX_LWR_X) ? 1 : 2);
+			}
+			numpad = ((ppfs->info.width > t) ? (ppfs->info.width - t) : 0);
+			*count += t + numpad;
+		}
+		if (padchar == '0') { /* TODO: check this */
+			numfill += numpad;
+			numpad = 0;
+		}
+
+		/* Now handle the output itself. */
+		if (!PRINT_INFO_FLAG_VAL(&(ppfs->info),left)) {
+			_charpad(stream, ' ', numpad);
+			numpad = 0;
+		}
+		OUTPUT(stream, prefix + prefix_num);
+		_charpad(stream, '0', numfill);
+
+#ifdef L_vfprintf
+
+#ifdef __UCLIBC_HAS_WCHAR__
+		if (!ws) {
+			_outnstr(stream, s, slen);
+		} else {				/* wide string */
+			size_t t;
+			mbstate.mask = 0;	/* Initialize the mbstate. */
+			while (slen) {
+				t = (slen <= sizeof(buf)) ? slen : sizeof(buf);
+				t = wcsrtombs(buf, &ws, t, &mbstate);
+				assert (t != ((size_t)(-1)));
+				_outnstr(stream, buf, t);
+				slen -= t;
+			}
+			ws = NULL;			/* Reset ws. */
+		}
+#else  /* __UCLIBC_HAS_WCHAR__ */
+		_outnstr(stream, s, slen);
+#endif /* __UCLIBC_HAS_WCHAR__ */
+
+#else  /* L_vfprintf */
+
+		if (!ws) {
+			_outnstr(stream, s, SLEN);
+		} else {
+			_outnwcs(stream, ws, SLEN);
+			ws = NULL;			/* Reset ws. */
+		}
+
+#endif /* L_vfprintf */
+		_charpad(stream, ' ', numpad);
+	}
+
+	return 0;
+}
+
+int VFPRINTF (FILE * __restrict stream,
+			  register const FMT_TYPE * __restrict format,
+			  va_list arg)
+{
+	ppfs_t ppfs;
+	int count, r;
+	register const FMT_TYPE *s;
+
+	__STDIO_THREADLOCK(stream);
+
+	count = 0;
+	s = format;
+
+	if (_PPFS_init(&ppfs, format) < 0) { /* Bad format string. */
+		OUTNSTR(stream, (const FMT_TYPE *) ppfs.fmtpos,
+				STRLEN((const FMT_TYPE *)(ppfs.fmtpos)));
+		count = -1;
+	} else {
+		_ppfs_prepargs(&ppfs, arg);	/* This did a va_copy!!! */
+
+		do {
+			while (*format && (*format != '%')) {
+				++format;
+			}
+
+			if (format-s) {		/* output any literal text in format string */
+				if ( (r = OUTNSTR(stream, s, format-s)) < 0) {
+					count = -1;
+					break;
+				}
+				count += r;
+			}
+
+			if (!*format) {			/* we're done */
+				break;
+			}
+		
+			if (format[1] != '%') {	/* if we get here, *format == '%' */
+				/* TODO: _do_one_spec needs to know what the output funcs are!!! */
+				ppfs.fmtpos = (const char *)(++format);
+				/* TODO: check -- should only fail on stream error */
+				if ( (r = _do_one_spec(stream, &ppfs, &count)) < 0) {
+					count = -1;
+					break;
+				}
+				s = format = (const FMT_TYPE *) ppfs.fmtpos;
+			} else {			/* %% means literal %, so start new string */
+				s = ++format;
+				++format;
+			}
+		} while (1);
+
+		va_end(ppfs.arg);		/* Need to clean up after va_copy! */
+	}
+
+	__STDIO_THREADUNLOCK(stream);
+
+	return count;
+}
 #endif
 /**********************************************************************/

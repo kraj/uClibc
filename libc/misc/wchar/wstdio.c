@@ -26,6 +26,13 @@
  *
  *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
 
+/* Nov 21, 2002
+ *
+ * Reimplement fputwc and fputws in terms of internal function _wstdio_fwrite.
+ */
+
+
+
 
 /*
  * ANSI/ISO C99 says
@@ -288,6 +295,9 @@ UNLOCKED(wchar_t *,fgetws,(wchar_t *__restrict ws, int n,
 
 UNLOCKED(wint_t,fputwc,(wchar_t wc, FILE *stream),(wc, stream))
 {
+#if 1
+	return _wstdio_fwrite(&wc, 1, stream) ? wc : WEOF;
+#else
 	size_t n;
 	char buf[MB_LEN_MAX];
 
@@ -298,9 +308,10 @@ UNLOCKED(wint_t,fputwc,(wchar_t wc, FILE *stream),(wc, stream))
 	}
 	stream->modeflags |= __FLAG_WIDE;
 
-	return (((n = wcrtomb(buf, wc, &stream->state)) != ((size_t)-1)) /* EILSEQ */
-			&& (_stdio_fwrite(buf, n, stream) != n))/* Didn't write everything. */
+	return (((n = wcrtomb(buf, wc, &stream->state)) != ((size_t)-1)) /* !EILSEQ */
+			&& (_stdio_fwrite(buf, n, stream) == n))/* and wrote everything. */
 		? wc : WEOF;
+#endif
 }
 
 strong_alias(fputwc_unlocked,putwc_unlocked);
@@ -324,6 +335,11 @@ UNLOCKED_STREAM(wint_t,putwchar,(wchar_t wc),(wc),stdout)
 UNLOCKED(int,fputws,(const wchar_t *__restrict ws,
 					 register FILE *__restrict stream),(ws, stream))
 {
+#if 1
+	size_t n = wcslen(ws);
+
+	return (_wstdio_fwrite(ws, n, stream) == n) ? 0 : -1;
+#else
 	size_t n;
 	char buf[64];
 
@@ -347,6 +363,7 @@ UNLOCKED(int,fputws,(const wchar_t *__restrict ws,
 	}
 
 	return 1;
+#endif
 }
 
 #endif

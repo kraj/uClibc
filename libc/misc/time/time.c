@@ -90,6 +90,9 @@
  * Defining __TIME_TZ_OPT_SPEED will cause a tzset() to keep a copy of the
  * last TZ setting string and do a "fast out" if the current string is the
  * same.
+ *
+ * Nov 21, 2002   Fix an error return case in _time_mktime.
+ * 
  */
 
 
@@ -2021,6 +2024,10 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 	t = secs;
 
 	localtime_r(&t, (struct tm *)p);
+
+	if (t < 0) {
+	    return -1;
+	}
 
 	if (store_on_success) {
 		memcpy(timeptr, p, sizeof(struct tm));

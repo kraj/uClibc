@@ -51,13 +51,19 @@ MSRC2= printf.c
 MOBJ2=  vsnprintf.o vdprintf.o vasprintf.o vprintf.o vsprintf.o \
 	fprintf.o  snprintf.o  dprintf.o  asprintf.o  printf.o  sprintf.o
 
+ifeq ($(UCLIBC_HAS_WCHAR),y)
+	MOBJ += _wstdio_fwrite.o
+	MOBJ2 += fwprintf.o wprintf.o swprintf.o vwprintf.o vswprintf.o \
+		vfwprintf.o
+endif
+
 ifneq ($(USE_OLD_VFPRINTF),y)
 	MOBJ2 += _ppfs_init.o _ppfs_prepargs.o _ppfs_setargs.o \
-		 _ppfs_parsespec.o _do_one_spec.o vfprintf.o \
+		 _ppfs_parsespec.o vfprintf.o \
 		 _store_inttype.o _load_inttype.o \
 		 register_printf_function.o parse_printf_format.o
 endif
-
+# _do_one_spec.o 
 
 
 ifeq ($(UCLIBC_HAS_FLOATS),y)

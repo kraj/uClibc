@@ -8,7 +8,7 @@
 #define WCctype_TBL_LEN		(WCctype_II_LEN + WCctype_TI_LEN + WCctype_UT_LEN)
 #define WCuplow_TBL_LEN		(WCuplow_II_LEN + WCuplow_TI_LEN + WCuplow_UT_LEN)
 #define WCuplow_diff_TBL_LEN (2 * WCuplow_diffs)
-#define WCcomb_TBL_LEN		(WCcomb_II_LEN + WCcomb_TI_LEN + WCcomb_UT_LEN)
+/* #define WCcomb_TBL_LEN		(WCcomb_II_LEN + WCcomb_TI_LEN + WCcomb_UT_LEN) */
 #endif
 
 #undef __PASTE2
@@ -41,7 +41,7 @@ typedef struct {
 	const unsigned char tblwctype[WCctype_TBL_LEN];
 	const unsigned char tblwuplow[WCuplow_TBL_LEN];
 	const int16_t tblwuplow_diff[WCuplow_diff_TBL_LEN];
-	const unsigned char tblwcomb[WCcomb_TBL_LEN];
+/* 	const unsigned char tblwcomb[WCcomb_TBL_LEN]; */
 	/* width?? */
 #endif /* __WCHAR_ENABLED */
 

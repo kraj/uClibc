@@ -74,5 +74,5 @@ ldd.target: ldd.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 clean:
-	rm -f $(TARGETS) *.o *~ core ./elf.h
+	rm -f $(TARGETS) *.o *~ core ./elf.h *.target
 

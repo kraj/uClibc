@@ -26,13 +26,15 @@ codesets.txt:
 	fi;
 
 gen_wc8bit: gen_wc8bit.c
-	gcc -Os -Wall $(CFLAGS_wc8bit) gen_wc8bit.c -o gen_wc8bit
+	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) $(CFLAGS_wc8bit) $^ -o $@
+#gen_wc8bit.c -o gen_wc8bit
 
 c8tables.h: gen_wc8bit codesets.txt
 	./gen_wc8bit `cat codesets.txt`
 
 gen_wctype: gen_wctype.c
-	gcc -Os -Wall gen_wctype.c -o gen_wctype
+	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) $^ -o $@
+#gen_wctype.c -o gen_wctype
 
 # Warning! Beware tr_TR toupper/tolower exceptions!
 # Warning! Ignore the width table.  It will go away.
@@ -40,7 +42,8 @@ wctables.h: gen_wctype
 	./gen_wctype en_US
 
 gen_locale: gen_locale.c c8tables.h
-	gcc -Os -Wall gen_locale.c -o gen_locale
+	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) gen_locale.c -o $@
+#gen_locale.c -o gen_locale
 
 # TODO: if no wide char support, we should auto-disable all UTF-8 locales
 locale_tables.h: gen_locale locales.txt
@@ -64,30 +67,37 @@ locales.txt:
 	    false; \
 	fi;
 
-ifneq ($(TARGET_ARCH),$(NATIVE_ARCH))
+# ifneq ($(TARGET_ARCH),$(NATIVE_ARCH))
 
-locale.mmap: gen_mmap
-	echo Your locale.mmap file is either missing or out of date.
-	echo The developmental code can only generate one for the
-	echo target arch == native arch case.  Sorry.
-else
+# locale.mmap: gen_mmap
+# 	echo Your locale.mmap file is either missing or out of date.
+# 	echo The developmental code can only generate one for the
+# 	echo target arch == native arch case.  Sorry.
+# else
 
-gen_mmap: gen_mmap.c c8tables.h wctables.h locale_tables.h
-	gcc $(CFLAGS_mmap) -Os -Wall -static gen_mmap.c -o gen_mmap
+# gen_mmap: gen_mmap.c c8tables.h wctables.h locale_tables.h
+# 	gcc $(CFLAGS_mmap) -Os -Wall -static gen_mmap.c -o gen_mmap
 
-locale.mmap: gen_mmap
-	./gen_mmap
+# locale.mmap: gen_mmap
+# 	./gen_mmap
 
-endif
+# endif
 
-lmmtolso: lmmtolso.c
-	gcc -Os -Wall lmmtolso.c -o lmmtolso
+# lmmtolso: lmmtolso.c
+# 	gcc -Os -Wall lmmtolso.c -o lmmtolso
 
-locale_data.c: lmmtolso locale.mmap
-	./lmmtolso
+# locale_data.c: lmmtolso locale.mmap
+# 	./lmmtolso
+
+gen_ldc: gen_ldc.c c8tables.h wctables.h locale_tables.h
+	$(NATIVE_CC) $(NATIVE_CFLAGS) $(NATIVE_LDFLAGS) $(CFLAGS_mmap) gen_ldc.c -o $@
+#gen_ldc.c -o gen_ldc
+
+locale_data.c: gen_ldc
+	./gen_ldc
 
 locale_data.o: locale_data.c lt_defines.h
-	$(CC) -c locale_data.c
+	$(CC) $(CFLAGS_mmap) -c locale_data.c
 	$(STRIPTOOL) -x -R .note -R .comment locale_data.o
 
 uClibc_locale_data.h: c8tables.h wctables.h lt_defines.h locale_mmap.h
@@ -100,7 +110,7 @@ links-target: locale_data.o uClibc_locale_data.h
 
 clean:
 	rm -f *.[oa] *~ core
-	rm -f gen_wc8bit gen_wctype gen_locale
+	rm -f gen_wc8bit gen_wctype gen_locale gen_ldc
 	rm -f c8tables.h wctables.h locale_tables.h lt_defines.h
 	rm -f gen_mmap locale.mmap lmmtolso
 	rm -f locale_data.c locale_data.o  uClibc_locale_data.h

@@ -44,7 +44,7 @@ Warning!!!   Warning!!!   Warning!!!   Warning!!!   Warning!!!   Warning!!!
 Warning!!!   Warning!!!   Warning!!!   Warning!!!   Warning!!!   Warning!!!
 
 
-1) In the toplevel dir,  'make headers uClibc_config'  .
+1) In the toplevel dir,  'make headers'.
 
 2) Create a codesets.txt file in this dir listing the codesets you want
    to support.  The easiest way to do this is to edit the output of

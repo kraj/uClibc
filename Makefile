@@ -274,6 +274,11 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	    install -m 755 ldso/util/ldconfig.target $(PREFIX)$(TARGET_PREFIX)/sbin/ldconfig; \
 	fi;
 endif
+ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
+	@$(MAKE) -C libc/misc/wchar iconv.target
+	install -d $(PREFIX)$(TARGET_PREFIX)/usr/bin;
+	install -m 755 libc/misc/wchar/iconv.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/iconv
+endif
 
 finished2:
 	@echo
@@ -339,6 +344,7 @@ clean:
 	$(MAKE) -C test clean
 	$(MAKE) -C ldso clean
 	$(MAKE) -C libc/misc/internals clean
+	$(MAKE) -C libc/misc/wchar clean
 	$(MAKE) -C libc/unistd clean
 	$(MAKE) -C libc/sysdeps/linux/common clean
 	$(MAKE) -C extra clean

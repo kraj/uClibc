@@ -35,17 +35,20 @@ endif
 
 MSRC = stdlib.c
 MOBJ = abs.o labs.o atoi.o atol.o strtol.o strtoul.o _stdlib_strto_l.o \
-       qsort.o bsearch.o
-MOBJ +=  llabs.o atoll.o strtoll.o strtoull.o _stdlib_strto_ll.o
+       qsort.o bsearch.o \
+       llabs.o atoll.o strtoll.o strtoull.o _stdlib_strto_ll.o
+# (aliases) strtoq.o strtouq.o
 ifeq ($(UCLIBC_HAS_FLOATS),y)
 	MOBJ += atof.o
 endif
 
 ifeq ($(UCLIBC_HAS_WCHAR),y)
 	MOBJ += mblen.o mbtowc.o wctomb.o mbstowcs.o wcstombs.o \
-		_stdlib_mb_cur_max.o 
+		_stdlib_mb_cur_max.o _stdlib_wcsto_l.o _stdlib_wcsto_ll.o \
+		wcstol.o wcstoul.o wcstoll.o wcstoull.o
+# (aliases) wcstoq.o wcstouq.o
+# wcstod wcstof wcstold
 endif
-
 
 MSRC2=atexit.c
 MOBJ2=atexit.o on_exit.o __exit_handler.o exit.o

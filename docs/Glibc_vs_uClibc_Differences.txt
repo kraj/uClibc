@@ -100,17 +100,13 @@ wide char support
    representation of wchar's is assumed to be 31 bit unicode values in
    native endian representation.  Also, the underlying char encoding is
    assumed to match ASCII in the range 0-0x7f.
-2) In the C locale, uClibc's mb<->wc conversion functions map 0x80-CHAR_MAX
-   onto their wide/narrow equivalents.  glibc's conversion functions treat
-   them as illegal.
 
 locale support
 --------------
 1) The target for support is SUSv3 locale functionality.  While nl_langinfo
    has been extended, similar to glibc, it only returns values for related
    locale entries.
-2) The locale code is not cross-compiler friendly.  This should be fixed soon.
-3) Currently, collation support is being implemented.
+2) Currently, collation support is being implemented.
 
 stdio
 -----
@@ -136,6 +132,8 @@ stdio
 8) uClibc's setvbuf is more restrictive about when it can be called than glibc's
    is.  The standards specify that setvbuf must occur before any other operations
    take place on the stream.
+9) Right now, %m is not handled properly by printf when the format uses positional
+   args.
 
 
 More to follow as I think of it...

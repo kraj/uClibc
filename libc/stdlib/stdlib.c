@@ -26,8 +26,10 @@
  *  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION! */
 
 /* Oct 29, 2002
- *
  * Fix a couple of 'restrict' bugs in mbstowcs and wcstombs.
+ *
+ * Nov 21, 2002
+ * Add wscto{inttype} functions.
  */
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
@@ -52,9 +54,45 @@
 #define atoll __ignore_atoll
 #define strtoll __ignore_strtoll
 #define strtoull __ignore_strtoull
+#define wcstoll __ignore_wcstoll
+#define wcstoull __ignore_wcstoull
 #endif
 
 #include <stdlib.h>
+
+#ifdef __UCLIBC_HAS_WCHAR__
+
+#include <locale.h>
+#include <wchar.h>
+#include <wctype.h>
+
+/* TODO: clean up the following... */
+
+#if WCHAR_MAX > 0xffffUL
+#define UTF_8_MAX_LEN 6
+#else
+#define UTF_8_MAX_LEN 3
+#endif
+
+#ifdef __UCLIBC_HAS_LOCALE__
+#define ENCODING (__global_locale.encoding)
+#ifndef __CTYPE_HAS_UTF_8_LOCALES
+#warning __CTYPE_HAS_UTF_8_LOCALES not set!
+#endif
+#else
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning devel checks
+#endif
+#define ENCODING (__ctype_encoding_7_bit)
+#ifdef __CTYPE_HAS_8_BIT_LOCALES
+#error __CTYPE_HAS_8_BIT_LOCALES is defined!
+#endif
+#ifdef __CTYPE_HAS_UTF_8_LOCALES
+#error __CTYPE_HAS_UTF_8_LOCALES is defined!
+#endif
+#endif
+
+#endif
 
 #if UINT_MAX == ULONG_MAX
 #undef atoi
@@ -65,7 +103,11 @@
 #undef atoll
 #undef strtoll
 #undef strtoull
-#endif
+#undef wcstoll
+#undef wcstoull
+#endif /* __UCLIBC_HAS_WCHAR__ */
+
+/**********************************************************************/
 
 extern unsigned long
 _stdlib_strto_l(register const char * __restrict str,
@@ -76,6 +118,18 @@ extern unsigned long long
 _stdlib_strto_ll(register const char * __restrict str,
 				 char ** __restrict endptr, int base, int sflag);
 #endif
+
+#ifdef __UCLIBC_HAS_WCHAR__
+extern unsigned long
+_stdlib_wcsto_l(register const wchar_t * __restrict str,
+				wchar_t ** __restrict endptr, int base, int sflag);
+
+#if defined(ULLONG_MAX)
+extern unsigned long long
+_stdlib_wcsto_ll(register const wchar_t * __restrict str,
+				 wchar_t ** __restrict endptr, int base, int sflag);
+#endif
+#endif /* __UCLIBC_HAS_WCHAR__ */
 
 /**********************************************************************/
 #ifdef L_atof
@@ -205,6 +259,7 @@ long strtol(const char * __restrict str, char ** __restrict endptr, int base)
 #if (ULLONG_MAX == UINTMAX_MAX)
 strong_alias(strtoll,strtoimax)
 #endif
+strong_alias(strtoll,strtoq)
 
 long long strtoll(const char * __restrict str,
 				  char ** __restrict endptr, int base)
@@ -241,6 +296,7 @@ unsigned long strtoul(const char * __restrict str,
 #if (ULLONG_MAX == UINTMAX_MAX)
 strong_alias(strtoull,strtoumax)
 #endif
+strong_alias(strtoull,strtouq)
 
 unsigned long long strtoull(const char * __restrict str,
 							char ** __restrict endptr, int base)
@@ -271,28 +327,41 @@ unsigned long long strtoull(const char * __restrict str,
 #endif
 
 /**********************************************************************/
+#ifdef L__stdlib_wcsto_l
+#define L__stdlib_strto_l
+#endif
+
 #ifdef L__stdlib_strto_l
+
+#ifdef L__stdlib_wcsto_l
+#define _stdlib_strto_l _stdlib_wcsto_l
+#define Wchar wchar_t
+#define ISSPACE iswspace
+#else
+#define Wchar char
+#define ISSPACE isspace
+#endif
 
 /* This is the main work fuction which handles both strtol (sflag = 1) and
  * strtoul (sflag = 0). */
 
-unsigned long _stdlib_strto_l(register const char * __restrict str,
-							  char ** __restrict endptr, int base, int sflag)
+unsigned long _stdlib_strto_l(register const Wchar * __restrict str,
+							  Wchar ** __restrict endptr, int base, int sflag)
 {
     unsigned long number, cutoff;
 #if _STRTO_ENDPTR
-    const char *fail_char;
+    const Wchar *fail_char;
 #define SET_FAIL(X)       fail_char = (X)
 #else
 #define SET_FAIL(X)       ((void)(X)) /* Keep side effects. */
 #endif
     unsigned char negative, digit, cutoff_digit;
 
-	assert((sflag == 0) || (sflag == 1));
+	assert(((unsigned int)sflag) <= 1);
 
 	SET_FAIL(str);
 
-    while (isspace(*str)) {		/* Skip leading whitespace. */
+    while (ISSPACE(*str)) {		/* Skip leading whitespace. */
 		++str;
     }
 
@@ -350,7 +419,7 @@ unsigned long _stdlib_strto_l(register const char * __restrict str,
 
 #if _STRTO_ENDPTR
     if (endptr) {
-		*endptr = (char *) fail_char;
+		*endptr = (Wchar *) fail_char;
     }
 #endif
 
@@ -369,20 +438,33 @@ unsigned long _stdlib_strto_l(register const char * __restrict str,
 
 #endif
 /**********************************************************************/
+#ifdef L__stdlib_wcsto_ll
+#define L__stdlib_strto_ll
+#endif
+
 #ifdef L__stdlib_strto_ll
 
 #if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
+#ifdef L__stdlib_wcsto_ll
+#define _stdlib_strto_ll _stdlib_wcsto_ll
+#define Wchar wchar_t
+#define ISSPACE iswspace
+#else
+#define Wchar char
+#define ISSPACE isspace
+#endif
+
 /* This is the main work fuction which handles both strtoll (sflag = 1) and
  * strtoull (sflag = 0). */
 
-unsigned long long _stdlib_strto_ll(register const char * __restrict str,
-									char ** __restrict endptr, int base,
+unsigned long long _stdlib_strto_ll(register const Wchar * __restrict str,
+									Wchar ** __restrict endptr, int base,
 									int sflag)
 {
     unsigned long long number;
 #if _STRTO_ENDPTR
-    const char *fail_char;
+    const Wchar *fail_char;
 #define SET_FAIL(X)       fail_char = (X)
 #else
 #define SET_FAIL(X)       ((void)(X)) /* Keep side effects. */
@@ -390,11 +472,11 @@ unsigned long long _stdlib_strto_ll(register const char * __restrict str,
 	unsigned int n1;
     unsigned char negative, digit;
 
-	assert((sflag == 0) || (sflag == 1));
+	assert(((unsigned int)sflag) <= 1);
 
 	SET_FAIL(str);
 
-    while (isspace(*str)) {		/* Skip leading whitespace. */
+    while (ISSPACE(*str)) {		/* Skip leading whitespace. */
 		++str;
     }
 
@@ -461,7 +543,7 @@ unsigned long long _stdlib_strto_ll(register const char * __restrict str,
 
 #if _STRTO_ENDPTR
     if (endptr) {
-		*endptr = (char *) fail_char;
+		*endptr = (Wchar *) fail_char;
     }
 #endif
 
@@ -628,38 +710,6 @@ void ssort (void  *base,
 
 #endif
 /**********************************************************************/
-/* Multibyte and wchar stuff follows. */
-
-#ifdef __UCLIBC_HAS_WCHAR__
-
-#include <locale.h>
-#include <wchar.h>
-
-/* TODO: clean up the following... */
-
-#if WCHAR_MAX > 0xffffUL
-#define UTF_8_MAX_LEN 6
-#else
-#define UTF_8_MAX_LEN 3
-#endif
-
-#ifdef __UCLIBC_HAS_LOCALE__
-#define ENCODING (__global_locale.encoding)
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning implement __CTYPE_HAS_UTF_8_LOCALES!
-#endif
-#define __CTYPE_HAS_UTF_8_LOCALES
-#else
-#define ENCODING (__ctype_encoding_7_bit)
-#undef __CTYPE_HAS_8_BIT_LOCALES
-#undef __CTYPE_HAS_UTF_8_LOCALES
-#undef L__wchar_utf8sntowcs
-#undef L__wchar_wcsntoutf8s
-#endif
-
-#endif
-
-/**********************************************************************/
 #ifdef L__stdlib_mb_cur_max
 
 size_t _stdlib_mb_cur_max(void)
@@ -771,6 +821,79 @@ size_t wcstombs(char * __restrict s, const wchar_t * __restrict pwcs, size_t n)
 
 	return wcsrtombs(s, &e, n, NULL);
 }
+
+#endif
+/**********************************************************************/
+#ifdef L_wcstol
+
+#if ULONG_MAX == UINTMAX_MAX
+strong_alias(wcstol,wcstoimax)
+#endif
+
+#if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+strong_alias(wcstol,wcstoll)
+#endif
+
+long wcstol(const wchar_t * __restrict str, wchar_t ** __restrict endptr, int base)
+{
+    return _stdlib_wcsto_l(str, endptr, base, 1);
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_wcstoll
+
+#if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
+
+#if (ULLONG_MAX == UINTMAX_MAX)
+strong_alias(wcstoll,wcstoimax)
+#endif
+strong_alias(wcstoll,wcstoq)
+
+long long wcstoll(const wchar_t * __restrict str,
+				  wchar_t ** __restrict endptr, int base)
+{
+    return (long long) _stdlib_wcsto_ll(str, endptr, base, 1);
+}
+
+#endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
+
+#endif
+/**********************************************************************/
+#ifdef L_wcstoul
+
+#if ULONG_MAX == UINTMAX_MAX
+strong_alias(wcstoul,wcstoumax)
+#endif
+
+#if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
+strong_alias(wcstoul,wcstoull)
+#endif
+
+unsigned long wcstoul(const wchar_t * __restrict str,
+					  wchar_t ** __restrict endptr, int base)
+{
+    return _stdlib_wcsto_l(str, endptr, base, 0);
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_wcstoull
+
+#if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
+
+#if (ULLONG_MAX == UINTMAX_MAX)
+strong_alias(wcstoull,wcstoumax)
+#endif
+strong_alias(wcstoull,wcstouq)
+
+unsigned long long wcstoull(const wchar_t * __restrict str,
+							wchar_t ** __restrict endptr, int base)
+{
+    return _stdlib_wcsto_ll(str, endptr, base, 0);
+}
+
+#endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
 #endif
 /**********************************************************************/

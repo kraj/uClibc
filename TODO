@@ -18,19 +18,16 @@ Erik's TODO list for the next release:
 -----------------------------------------------------------------------------
 Manuel's todo:
 
-In the next couple of months, I plan on completing the wide char and locale
-support.  Here's my current list of things to implement by early November.
+I'm currently working on completing the wide char and locale support.
+Right now i'm looking at collation.  Other tasks on my list include:
 
   1) Little things that need fixing:
   ----------------------------------
   a) Use locale decimal point in *printf() and strto*d() -- slightly
      complicated by the fact that at least one locale uses a wchar
      radix that does not map to a single byte in UTF-8.
-  b) Use locale digit grouping in *printf().
-  c) Implement %lc (%C) and %ls (%S) handling for printf.
-  d) Deal with mb format string issues in printf, scanf, 
-  strftime (at least).
-  e) Implement wcwidth() and wcswidth() -- use Markus Kuhn's versions.
+  b) Use locale digit grouping in *printf() flosting point.
+  c) Deal with mb format string issues in scanf and strftime (at least).
   
   2) Implement wide char numeric conversion functions -- wcsto*().
   ----------------------------------------------------------------
@@ -38,24 +35,12 @@ support.  Here's my current list of things to implement by early November.
      strto*() functions, unless locale specific alternate digit support
      is desired.
   
-  3) Implement wide formatted output -- *wprintf():
-  -------------------------------------------------
-     The stream output variants should be easily created by appropriately
-     modifying the char *printf() functions.
-  
-     The string buffer variants may take some time to implement because
-     they need to store wchars in a buffer.  It will be necessary to hack
-     the core stdio code slightly to support this.
-  
   4) Reimplement scanf for narrow and wide streams.
   -------------------------------------------------
      The current char version of scanf() needs some cleanup.  Also,
      modifying the char version of scanf() to create the wchar versions
      will require reworking the implementation of matching char sets
      (enclosed in []).
-  
-     Also, as with *wprintf() above, the string buffer variants of wscanf()
-     may require some additional work to the core stdio code.
   
   5) Additional str{f|p}time issues.
   ----------------------------------
@@ -71,6 +56,7 @@ support.  Here's my current list of things to implement by early November.
   b) Additional clean up of ctype and wctype.
   c) Implement collation support for char and wchar -- *xfrm() and *coll().
   d) transliteration of unsupported wchars in 8-bit locales (like glibc).
+  e) Support ISO/IEC 14652 draft locale extensions (LC_PAPER, etc).
 
 
 Other stuff:

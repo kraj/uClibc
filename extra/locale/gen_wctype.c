@@ -10,6 +10,12 @@
 #include <wchar.h>
 #include <ctype.h>
 
+#ifndef __UCLIBC__
+#ifndef _WCTYPE_H
+#define _WCTYPE_H
+#endif
+#include "../../libc/sysdeps/linux/common/bits/uClibc_ctype.h"
+#endif
 
 /*       0x9 : space  blank */
 /*       0xa : space */
@@ -61,6 +67,7 @@
 #define RANGE 0xffffUL			/* Restrict for 16-bit wchar_t... */
 #endif
 
+#if 0
 /* Classification codes. */
 
 static const char *typename[] = {
@@ -81,7 +88,9 @@ static const char *typename[] = {
 	"C_cntrl_nonspace",
 	"empty_slot"
 };
+#endif
 
+#if 0
 /* Taking advantage of the C99 mutual-exclusion guarantees for the various
  * (w)ctype classes, including the descriptions of printing and control
  * (w)chars, we can place each in one of the following mutually-exlusive
@@ -109,21 +118,8 @@ enum {
 	__CTYPE_cntrl_space_blank,
 	__CTYPE_cntrl_nonspace,
 };
+#endif
 
-/* Some macros that test for various (w)ctype classes when passed one of the
- * designator values enumerated above. */
-#define __CTYPE_isalnum(D)		((unsigned int)(D-1) <= (__CTYPE_digit-1))
-#define __CTYPE_isalpha(D)		((unsigned int)(D-1) <= (__CTYPE_alpha_upper-1))
-#define __CTYPE_isblank(D) \
-	((((unsigned int)(D - __CTYPE_print_space_nonblank)) <= 5) && (D & 1))
-#define __CTYPE_iscntrl(D)		(((unsigned int)(D - __CTYPE_cntrl_space_nonblank)) <= 2)
-#define __CTYPE_isdigit(D)		(D == __CTYPE_digit)
-#define __CTYPE_isgraph(D)		((unsigned int)(D-1) <= (__CTYPE_graph-1))
-#define __CTYPE_islower(D)		(((unsigned int)(D - __CTYPE_alpha_lower)) <= 1)
-#define __CTYPE_isprint(D)		((unsigned int)(D-1) <= (__CTYPE_print_space_blank-1))
-#define __CTYPE_ispunct(D)		(D == __CTYPE_punct)
-#define __CTYPE_isspace(D)		(((unsigned int)(D - __CTYPE_print_space_nonblank)) <= 5)
-#define __CTYPE_isupper(D)		(((unsigned int)(D - __CTYPE_alpha_upper_lower)) <= 1)
 #define __CTYPE_isxdigit(D,X) \
 	(__CTYPE_isdigit(D) || (((unsigned int)(((X)|0x20) - 'a')) <= 5))
 
@@ -232,6 +228,7 @@ int main(int argc, char **argv)
 	table_data ultable;
 	table_data combtable;
 	table_data widthtable;
+	long int last_comb = 0;
 
 	unsigned char wct[(RANGE/2)+1];	/* wctype table (nibble per wchar) */
 	unsigned char ult[RANGE+1];	/* upper/lower table */
@@ -241,7 +238,31 @@ int main(int argc, char **argv)
 	wctype_t is_comb, is_comb3;
 
 	long int typecount[16];
+	const char *typename[16];
+	static const char empty_slot[] = "empty_slot";
 	int built = 0;
+
+#define INIT_TYPENAME(X) typename[__CTYPE_##X] = "C_" #X
+
+	for (i=0 ; i < 16 ; i++) {
+		typename[i] = empty_slot;
+	}
+
+	INIT_TYPENAME(unclassified);
+	INIT_TYPENAME(alpha_nonupper_nonlower);
+	INIT_TYPENAME(alpha_lower);
+	INIT_TYPENAME(alpha_upper_lower);
+	INIT_TYPENAME(alpha_upper);
+	INIT_TYPENAME(digit);
+	INIT_TYPENAME(punct);
+	INIT_TYPENAME(graph);
+	INIT_TYPENAME(print_space_nonblank);
+	INIT_TYPENAME(print_space_blank);
+	INIT_TYPENAME(space_nonblank_noncntrl);
+	INIT_TYPENAME(space_blank_noncntrl);
+	INIT_TYPENAME(cntrl_space_nonblank);
+	INIT_TYPENAME(cntrl_space_blank);
+	INIT_TYPENAME(cntrl_nonspace);
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 
@@ -393,14 +414,27 @@ int main(int argc, char **argv)
 /*  					} */
 				}
 #endif
-
+#if 0
+				if (iswctype(c,is_comb) || iswctype(c,is_comb3)) {
+					if (!last_comb) {
+						printf("%#8x - ", c);
+						last_comb = c;
+					} else if (last_comb + 1 < c) {
+						printf("%#8x\n%#8x - ", last_comb, c);
+						last_comb = c;
+					} else {
+						last_comb = c;
+					}
+				}
+#endif
 			}
 #endif
 
 			combt[c/4] |= ((((!!iswctype(c,is_comb)) << 1) | !!iswctype(c,is_comb3))
 						   << ((c & 3) << 1));
 /*  			comb3t[c/8] |= ((!!iswctype(c,is_comb3)) << (c & 7)); */
-			widtht[c/4] |= (wcwidth(c) << ((c & 3) << 1));
+
+/* 			widtht[c/4] |= (wcwidth(c) << ((c & 3) << 1)); */
 
 			if (c & 1) {	/* Use the high nibble for odd numbered wchars. */
 				d <<= 4;
@@ -483,6 +517,7 @@ int main(int argc, char **argv)
 		newopt(ult, RANGE+1, n, &ultable);
 
 
+#if 0
 		printf("optimizing comb table..\n");
 		smallest = SIZE_MAX;
 		combtable.ii = NULL;
@@ -503,8 +538,10 @@ int main(int argc, char **argv)
 		smallest = SIZE_MAX;
 		newopt(combt, sizeof(combt), n, &combtable);
 		combtable.ti_shift += 4; /* correct for 4 entries per */
+#endif
 
 
+#if 0
 		printf("optimizing width table..\n");
 		smallest = SIZE_MAX;
 		widthtable.ii = NULL;
@@ -525,7 +562,7 @@ int main(int argc, char **argv)
 		smallest = SIZE_MAX;
 		newopt(widtht, sizeof(widtht), n, &widthtable);
 		widthtable.ti_shift += 4; /* correct for 4 entries per */
-
+#endif
 
 #if 0
 		printf("optimizing comb3 table..\n");
@@ -553,7 +590,6 @@ int main(int argc, char **argv)
 		dump_table_data(&cttable);
 		dump_table_data(&ultable);
 		dump_table_data(&combtable);
-		dump_table_data(&widthtable);
 		}
 
 		printf("verifying for %s...\n", *argv);
@@ -715,8 +751,8 @@ int main(int argc, char **argv)
 		fprintf(fp, "#endif /* WANT_WCuplow_diff_data */\n\n");
 
 
-		output_table(fp, "comb", &combtable);
-		output_table(fp, "width", &widthtable);
+/* 		output_table(fp, "comb", &combtable); */
+/* 		output_table(fp, "width", &widthtable); */
 
 		fclose(fp);
 	}

@@ -23,11 +23,16 @@
 
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
+TARGET_CC = $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 
 MSRC1=  wchar.c
 MOBJ1=  btowc.o wctob.o mbsinit.o mbrlen.o mbrtowc.o wcrtomb.o mbsrtowcs.o \
 	wcsrtombs.o _wchar_utf8sntowcs.o _wchar_wcsntoutf8s.o \
 	__mbsnrtowcs.o __wcsnrtombs.o wcwidth.o wcswidth.o
+
+ifeq ($(UCLIBC_HAS_LOCALE),y)
+	MOBJ1 += iconv.o
+endif
 
 MSRC2=  wstdio.c
 MOBJ2=  fwide.o \
@@ -37,10 +42,6 @@ MOBJ2=  fwide.o \
 # getwc (fgetwc alias) getwc_unlocked (fgetwc_unlocked alias)
 # putwc (fputwc alias) putwc_unlocked (fputwc_unlocked alias)
 
-# wcwidth wcswidth
-# wcstod wcstof wcstold
-# wcstol wcstoul wcstoq wcstouq wcstoll wcstoull
-# fwprintf wprintf swprintf vfwprintf vwprintf vswprintf
 # fwscanf  wscanf  swscanf  vfwscanf  vwscanf  vswscanf
 # wcsftime
 
@@ -61,6 +62,10 @@ $(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
+iconv.target: wchar.c
+	$(TARGET_CC) $(CFLAGS) -DL_iconv_main wchar.c -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
+
 clean:
-	rm -f *.[oa] *~ core
+	rm -f *.[oa] *~ core iconv.target
 
