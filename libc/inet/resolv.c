@@ -185,6 +185,7 @@ extern int __decode_answer(unsigned char * message, int offset,
 	struct resolv_answer * a);
 extern int __length_question(unsigned char * message, int offset);
 extern int __open_nameservers(void);
+extern void __close_nameservers(void);
 
 
 #ifdef L_encodeh
@@ -968,6 +969,7 @@ int res_init(void)
 {
 	struct __res_state *rp = &(_res);
 
+	__close_nameservers();
 	__open_nameservers();
 	rp->retrans = RES_TIMEOUT;
 	rp->retry = 4;
