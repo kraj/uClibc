@@ -30,6 +30,7 @@
  * November 2002, Erik Andersen <andersen@codepoet.org> 
  */
 
+#define _GNU_SOURCE
 #include <sys/param.h>
 #include <sys/file.h>
 #include <sys/stat.h>
