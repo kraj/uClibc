@@ -102,6 +102,11 @@ MALLOC = malloc-simple
 #MALLOC = malloc 
 #MALLOC = malloc-930716
 
+# Having brk allows one to use malloc-930716, which is an order
+# of magnitude faster then "malloc" for most allocations, but 
+# will do very bad things on MMU-less systems...
+EXCLUDE_BRK=true
+
 # If you want to collect common syscall code into one function, set to this to
 # `true'.  Set it to false otherwise.
 # On i386 this saves about than 2.8k over all syscalls.
