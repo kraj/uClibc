@@ -42,7 +42,7 @@ all: $(STR_SYSCALLS) $(OBJ) $(LIBC)
 
 $(LIBC): ar-target
 
-ar-target: $(OBJ)
+ar-target: $(OBJ) crti.o crtn.o
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJ)
 
 $(MOBJ): $(MSRC)
@@ -53,6 +53,20 @@ $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
+initfini.s: initfini.c
+	$(CC) $(CFLAGS) -c initfini.c -S -o initfini.s
+
+crti.S crtn.S: initfini.s
+	$(TOPDIR)/extra/scripts/initfini.pl
+
+crti.o: crti.S
+	$(CC) $(CFLAGS) -c crti.S -o crti.o
+	cp crti.o $(TOPDIR)lib/
+
+crtn.o: crtn.S
+	$(CC) $(CFLAGS) -c crtn.S -o crtn.o
+	cp crtn.o $(TOPDIR)lib/
+
 clean:
-	rm -f *.[oa] *~ core
+	rm -f *.[oa] *~ core crti.* crtn.* initfini.s
 

@@ -45,7 +45,7 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)libc
+	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
 
 $(CRT0_OBJ): %.o : %.S

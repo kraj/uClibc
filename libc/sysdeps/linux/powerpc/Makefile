@@ -52,7 +52,7 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)libc
+	cp $(CRT0_OBJ) $(TOPDIR)lib/
 
 
 ifeq ($(USE_CRT0_C),y)

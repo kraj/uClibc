@@ -38,7 +38,7 @@ $(LIBNAME): subdirs
 	$(CROSS)ranlib $(LIBNAME)
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(LIBNAME)
-	install -m 644 crt0.o $(LIBNAME) $(TOPDIR)lib
+	install -m 644 $(LIBNAME) $(TOPDIR)lib
 
 shared: $(TOPDIR)lib/$(LIBNAME)
 	@rm -rf tmp
@@ -58,7 +58,7 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 
 
 halfclean:
-	@rm -f $(LIBNAME) crt0.o uClibc_config.h
+	@rm -f $(LIBNAME) uClibc_config.h
 	@rm -f $(SHARED_FULLNAME) $(SHARED_MAJORNAME) uClibc-0.* libc.so*
 
 tags:
