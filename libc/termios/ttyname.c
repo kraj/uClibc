@@ -1,45 +1,15 @@
-#include <errno.h>
-#include <unistd.h>
 #include <string.h>
-#include <sys/stat.h>
+#include <errno.h>
+#include <assert.h>
+#include <unistd.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
-static int __check_dir_for_tty_match(char * dirname, struct stat *st, char *buf, size_t buflen)
-{
-    DIR *fp;
-    int len;
-    struct stat dst;
-    struct dirent *d;
-
-    fp = opendir(dirname);
-    if (fp == NULL)
-	return errno;
-    strncpy(buf, dirname, buflen);
-    strncat(buf, "/", buflen);
-    len = strlen(dirname) + 1;
-
-    while ((d = readdir(fp)) != 0) {
-	strncpy(buf+len, d->d_name, buflen-len);
-	buf[buflen-1]='\0';
-#if 0
-	/* Stupid filesystems like cramfs fail to guarantee that
-	 * st_ino and st_dev uniquely identify a file, contrary to
-	 * SuSv3, so we cannot be quite so precise as to require an
-	 * exact match.  Settle for something less...  Grumble... */
-	if (lstat(buf, &dst) == 0 &&
-		st->st_dev == dst.st_dev && st->st_ino == dst.st_ino)
-#else
-	if (lstat(buf, &dst) == 0 &&
-		S_ISCHR(dst.st_mode) && st->st_rdev == dst.st_rdev)
-#endif
-	{
-	    closedir(fp);
-	    return 0;
-	}
-    }
-    closedir(fp);
-    return ENOTTY;
-}
+/* Jan 1, 2004    Manuel Novoa III
+ *
+ * Kept the same approach, but rewrote the code for the most part.
+ * Fixed some minor issues plus (as I recall) one SUSv3 errno case.
+ */
 
 /* This is a fairly slow approach.  We do a linear search through some
  * directories looking for a match.  Yes this is lame.  But it should
@@ -47,57 +17,99 @@ static int __check_dir_for_tty_match(char * dirname, struct stat *st, char *buf,
  * disk.  Another approach we could use would be to use the info in
  * /proc/self/fd, but that is even more lame since it requires /proc */
 
+/* SUSv3 mandates TTY_NAME_MAX as 9.  This is obviously insufficient.
+ * However, there is no need to waste space and support non-standard
+ * tty names either.  So we compromise and use the following buffer
+ * length.  (Erik and Manuel agreed that 32 was more than reasonable.)
+ */
+#define TTYNAME_BUFLEN		32
+
 char *ttyname(int fd)
 {
-    static char name[NAME_MAX];
-    ttyname_r(fd, name, NAME_MAX);
-    return(name);
+	static char name[TTYNAME_BUFLEN];
+
+	return ttyname_r(fd, name, TTYNAME_BUFLEN) ? NULL : name;
 }
 
-int ttyname_r(int fd, char *buf, size_t buflen)
+static const char dirlist[] =
+/*   12345670123 */
+"\010/dev/vc/\0"	/* Try /dev/vc first (be devfs compatible) */
+"\011/dev/tts/\0"	/* and /dev/tts next (be devfs compatible) */
+"\011/dev/pts/\0"	/* and try /dev/pts next */
+"\005/dev/\0";		/* and try walking through /dev last */
+
+int ttyname_r(int fd, char *ubuf, size_t ubuflen)
 {
-    int noerr;
-    struct stat st;
+	struct dirent *d;
+	struct stat st;
+	struct stat dst;
+	const char *p;
+	char *s;
+	DIR *fp;
+	int rv;
+	int len;
+	char buf[TTYNAME_BUFLEN];
 
-    noerr = errno;
-    if (buf==NULL) {
-	noerr = EINVAL;
-	goto cool_found_it;
-    }
-    /* Make sure we have enough space to return "/dev/pts/0" */
-    if (buflen < 10) {
-	noerr = ERANGE;
-	goto cool_found_it;
-    }
-    if (!isatty (fd)) {
-	noerr = ENOTTY;
-	goto cool_found_it;
-    }
-    if (fstat(fd, &st) < 0)
-	return errno;
-    if (!isatty(fd)) {
-	noerr = ENOTTY;
-	goto cool_found_it;
-    }
+	if (fstat(fd, &st) < 0) {
+		return errno;
+	}
 
-    /* Lets try /dev/vc first (be devfs compatible) */
-    if ( (noerr=__check_dir_for_tty_match("/dev/vc", &st, buf, buflen)) == 0) 
-	goto cool_found_it;
+	rv = ENOTTY;				/* Set up the default return value. */
 
-    /* Lets try /dev/tts next (be devfs compatible) */
-    if ( (noerr=__check_dir_for_tty_match("/dev/tts", &st, buf, buflen)) == 0) 
-	goto cool_found_it;
+	if (!isatty(fd)) {
+		goto DONE;
+	}
 
-    /* Lets try /dev/pts next */
-    if ( (noerr=__check_dir_for_tty_match("/dev/pts", &st, buf, buflen)) == 0) 
-	goto cool_found_it;
+	for (p = dirlist ; *p ; p += 1 + p[-1]) {
+		len = *p++;
 
-    /* Lets try walking through /dev last */
-    if ( (noerr=__check_dir_for_tty_match("/dev", &st, buf, buflen)) == 0) 
-	goto cool_found_it;
+		assert(len + 2 <= TTYNAME_BUFLEN); /* dirname + 1 char + nul */
 
-cool_found_it:
-    __set_errno(noerr);
-    return noerr;
+		strcpy(buf, p);
+		s = buf + len;
+		len =  (TTYNAME_BUFLEN-2) - len; /* Available non-nul space. */
+
+		if (!(fp = opendir(p))) {
+			continue;
+		}
+
+		while ((d = readdir(fp)) != NULL) {
+			/* This should never trigger for standard names, but we
+			 * check it to be safe.  */
+			if (strlen(d->d_name) > len) { /* Too big? */
+				continue;
+			}
+
+			strcpy(s, d->d_name);
+
+			if ((lstat(buf, &dst) == 0)
+#if 0
+				/* Stupid filesystems like cramfs fail to guarantee that
+				 * st_ino and st_dev uniquely identify a file, contrary to
+				 * SuSv3, so we cannot be quite so precise as to require an
+				 * exact match.  Settle for something less...  Grumble... */
+				&& (st.st_dev == dst.st_dev) && (st.st_ino == dst.st_ino)
+#else
+				&& S_ISCHR(dst.st_mode) && (st.st_rdev == dst.st_rdev)
+#endif
+				) {				/* Found it! */
+				closedir(fp);
+
+				/* We treat NULL buf as ERANGE rather than EINVAL. */
+				rv = ERANGE;
+				if (ubuf && (strlen(buf) <= ubuflen)) {
+					strcpy(ubuf, buf);
+					rv = 0;
+				}
+				goto DONE;
+			}
+		}
+
+		closedir(fp);
+	}
+
+ DONE:
+	__set_errno(rv);
+
+	return rv;
 }
-
