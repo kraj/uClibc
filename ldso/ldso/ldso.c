@@ -125,16 +125,16 @@
 char *_dl_library_path = 0;		/* Where we look for libraries */
 char *_dl_preload = 0;			/* Things to be loaded before the libs. */
 char *_dl_ldsopath = 0;
-static int _dl_be_lazy = 1;
+static int _dl_be_lazy = RTLD_LAZY;
 #ifdef __SUPPORT_LD_DEBUG__
-static char *_dl_debug  = 0;
-static char *_dl_debug_symbols = 0;
-static char *_dl_debug_move    = 0;
-static char *_dl_debug_reloc   = 0;
-static char *_dl_debug_detail  = 0;
-static char *_dl_debug_nofixups  = 0;
-static char *_dl_debug_bindings  = 0;
-static int   _dl_debug_file = 2;
+char *_dl_debug  = 0;
+char *_dl_debug_symbols = 0;
+char *_dl_debug_move    = 0;
+char *_dl_debug_reloc   = 0;
+char *_dl_debug_detail  = 0;
+char *_dl_debug_nofixups  = 0;
+char *_dl_debug_bindings  = 0;
+int   _dl_debug_file = 2;
 #else
 #define _dl_debug_file 2
 #endif
@@ -906,6 +906,10 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 				{
 					continue;
 				}
+#if defined (__SUPPORT_LD_DEBUG__)
+				if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfile='%s';  needed by '%s'\n", 
+						str, _dl_progname);
+#endif
 				tpnt1 = _dl_load_shared_library(_dl_secure, &rpnt, NULL, str);
 				if (!tpnt1) {
 #ifdef __LDSO_LDD_SUPPORT__
@@ -986,6 +990,10 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 						{
 							continue;
 						}
+#if defined (__SUPPORT_LD_DEBUG__)
+						if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfile='%s';  needed by '%s'\n", 
+								cp2, _dl_progname);
+#endif
 						tpnt1 = _dl_load_shared_library(0, &rpnt, NULL, cp2);
 						if (!tpnt1) {
 #ifdef __LDSO_LDD_SUPPORT__
@@ -1022,70 +1030,32 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 	}
 #endif
 
-	for (tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next) {
+	for (tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next) 
+	{
 		Elf32_Dyn *dpnt;
-		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag;
-				dpnt++) {
-			if (dpnt->d_tag == DT_NEEDED) {
+		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++) 
+		{
+			if (dpnt->d_tag == DT_NEEDED) 
+			{
+				char *name;
 				lpntstr = (char*) (tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] + dpnt->d_un.d_val);
-				if (_dl_strcmp(lpntstr, "libc.so.6") == 0) {
-					char *name, *msg;
-					name = tcurr->libname;
-					while(*name == '/')
-						name++;
-					if (_dl_trace_loaded_objects) {
-						msg = "WARNING"; 
-					} else {
-						msg = "ERROR"; 
-					}
-					_dl_dprintf(2, "\t%s: %s is linked with GNU libc!\n", msg, --name);
-					/* If all we are doing is ldd, then we don't need to freak out... */
-					if (_dl_trace_loaded_objects) {
-						continue;
-					}
-					/* Time to freak out.  Make sure glibc linked libraries are not loaded */
-					_dl_exit(150);
-				}
-				if (tpnt && _dl_strcmp(lpntstr, _dl_get_last_path_component(tpnt->libname)) == 0) 
-				{
-					struct elf_resolve *ttmp;
+				name = _dl_get_last_path_component(lpntstr);
 
-#ifdef __LDSO_LDD_SUPPORT__
-					if (_dl_trace_loaded_objects && tpnt->usage_count==1) {
-						char *name;
-						name = tpnt->libname;
-						while(*name == '/')
-							name++;
-						_dl_dprintf(1, "\t%s => %s (%x)\n", 
-								lpntstr, --name, (unsigned) tpnt->loadaddr);
-					}
-#endif
-					ttmp = _dl_loaded_modules;
-					while (ttmp->next)
-						ttmp = ttmp->next;
-					ttmp->next = tpnt;
-					tpnt->prev = ttmp;
-					tpnt->next = NULL;
-					rpnt->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
-					_dl_memset(rpnt->next, 0, sizeof(struct dyn_elf));
-					rpnt->next->prev = rpnt;
-					rpnt = rpnt->next;
-					rpnt->dyn = tpnt;
-					tpnt->usage_count++;
-					tpnt->symbol_scope = _dl_symbol_tables;
-					tpnt = NULL;
-					continue;
-				}
-				if ((tpnt1 = _dl_check_if_named_library_is_loaded(lpntstr))) 
+				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name))) 
 				{
 					continue;
 				}
+#if defined (__SUPPORT_LD_DEBUG__)
+				if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfile='%s';  needed by '%s'\n", 
+						lpntstr, _dl_progname);
+#endif
 				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr)))
 				{
 #ifdef __LDSO_LDD_SUPPORT__
-					if (_dl_trace_loaded_objects)
+					if (_dl_trace_loaded_objects) {
 						_dl_dprintf(1, "\t%s => not found\n", lpntstr);
-					else 
+						continue;
+					} else 
 #endif
 					{
 						_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, lpntstr);
@@ -1097,10 +1067,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #endif
 #ifdef __LDSO_LDD_SUPPORT__
 					if (_dl_trace_loaded_objects && tpnt1->usage_count==1) {
-						char *name;
-						name = tpnt1->libname;
-						while(*name == '/')
-							name++;
+						name = _dl_get_last_path_component(tpnt1->libname);
 						_dl_dprintf(1, "\t%s => %s (%x)\n", lpntstr, --name, 
 								(unsigned) tpnt1->loadaddr);
 					}
