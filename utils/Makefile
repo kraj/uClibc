@@ -19,72 +19,15 @@
 # Pull in the user's uClibc configuration, but do not
 # pull in Rules.mak.....
 TOPDIR=../
-include $(TOPDIR).config
-
-MAJOR_VERSION=0
-UCLIBC_LDSO=ld-uClibc.so.$(MAJOR_VERSION)
-
-# A nifty macro to make testing gcc features easier
-check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
-	then echo "$(1)"; else echo "$(2)"; fi)
-
-# use '-Os' optimization if available, else use -O2, allow Config to override
-OPTIMIZATION=$(call check_gcc,-Os,-O2)
-UWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
-XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
-
-ifndef CROSS
-CROSS=
-endif
-CC= $(CROSS)gcc
-AR= $(CROSS)ar
-LD= $(CROSS)ld
-NM= $(CROSS)nm
-STRIPTOOL= $(CROSS)strip
-
-INSTALL= install
-LN= ln
-RM= rm -f
-override CFLAGS=$(UWARNINGS) $(OPTIMIZATION) #$(XARCH_CFLAGS)
-override LDFLAGS=-s
-ifeq ($(DODEBUG),y)
-    override CFLAGS=$(UWARNINGS) -O0 -g3 #$(XARCH_CFLAGS)
-    override LDFLAGS=
-endif
-
-# Make certain these contain a final "/", but no "//"s.
-RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
-DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
-
+include $(TOPDIR)Rules.mak
 
 TARGETS = ldd ldconfig readelf
-
-ifeq ($(HAVE_SHARED),y)
-    LIBRARY_CACHE=#-DUSE_CACHE
-    ifeq ($(BUILD_UCLIBC_LDSO),y)
-	LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
-	DYNAMIC_LINKER=$(SHARED_LIB_LOADER_PREFIX)/$(UCLIBC_LDSO)
-    else
-	LDSO=$(SYSTEM_LDSO)
-	DYNAMIC_LINKER=/lib/$(strip $(subst ",, $(notdir $(SYSTEM_LDSO))))
-   endif
-endif
-
 
 XXFLAGS=
 ifeq ($(strip $(LDSO_LDD_SUPPORT)),y)
 XXFLAGS= -D__LDSO_LDD_SUPPORT
 else
 XXFLAGS=
-endif
-
-LDADD_LIBFLOAT=
-ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
-# If -msoft-float isn't supported, we want an error anyway.
-    override CFLAGS += -msoft-float
-ifeq ($(strip $(subst ",, $(strip $(TARGET_ARCH)))),arm)
-    LDADD_LIBFLOAT=-lfloat
-endif
 endif
 
 ifeq ($(strip $(HAVE_SHARED)),y)
