@@ -247,7 +247,7 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 #define SEND_NUMBER_STDERR(X, add_a_newline) { \
     char tmp[22], *tmp1; \
     _dl_memset(tmp, 0, sizeof(tmp)); \
-    tmp1=_dl_simple_ltoahex( tmp, (unsigned long)(X)); \
+    tmp1=_dl_simple_ltoa( tmp, (unsigned long)(X)); \
     _dl_write(2, tmp1, _dl_strlen(tmp1)); \
     if (add_a_newline) { \
 	tmp[0]='\n'; \
