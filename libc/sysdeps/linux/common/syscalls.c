@@ -1325,6 +1325,13 @@ int fstat64(int filedes, struct libc_stat64 *buf)
 
 
 //#define __NR_getdents64         220
+#ifdef L_getdents64
+#include <unistd.h>
+#include <dirent.h>
+_syscall3(int, getdents64, int, fd, char *, dirp, size_t, count);
+#endif
+
+
 //#define __NR_fcntl64            221
 
 
