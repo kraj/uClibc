@@ -558,7 +558,8 @@ int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap)
 					if (preci < 0) {
 						preci = 6;
 					}
-					cnt += __dtostr(op, max_size,
+					cnt += __dtostr(op, 
+									(max_size > cnt ? max_size - cnt : 0),
 									(long double) ((lval > 1)
 									 ? va_arg(ap, long double)
 									 : va_arg(ap, double)),
