@@ -34,8 +34,8 @@ FILE *popen (const char *command, const char *mode)
 		if ((fp = fdopen(pnr, mode)) != NULL) {
 			if ((pid = vfork()) == 0) {	/* vfork -- child */
 				close(pnr);
-				close(reading);
 				if (pr != reading) {
+					close(reading);
 					dup2(pr, reading);
 					close(pr);
 				}
