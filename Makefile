@@ -282,7 +282,7 @@ finished2:
 
 
 distclean clean:
-	@rm -rf tmp lib include/bits/uClibc_config.h uClibc_config.h
+	@rm -rf tmp lib include/bits/uClibc_config.h uClibc_config.h libc/tmp
 	- find include -type l -exec rm -f {} \;
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec rm -f {} \;
 	$(MAKE) -C test clean
