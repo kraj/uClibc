@@ -29,11 +29,9 @@ else
 TARGET_ICONV =
 endif
 
-XXFLAGS=
+XXFLAGS=$(LIBRARY_CACHE)
 ifeq ($(strip $(LDSO_LDD_SUPPORT)),y)
-XXFLAGS= -D__LDSO_LDD_SUPPORT
-else
-XXFLAGS=
+XXFLAGS+= -D__LDSO_LDD_SUPPORT
 endif
 
 ifeq ($(strip $(HAVE_SHARED)),y)
@@ -51,14 +49,14 @@ readelf: readelf.c
 
 ldconfig:	ldconfig.c readsoname.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s -static \
-		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
+		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldd:	ldd.c
 	$(CC) $(CFLAGS) $(XXFLAGS) -Wl,-s \
-		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
+		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
 		$^ -o $@ $(LDADD_LIBFLOAT) -L../lib
 	$(STRIPTOOL) -x -R .note -R .comment $@
@@ -72,13 +70,13 @@ hostutils: ldd.host ldconfig.host readelf.host
 
 ldd.host:	ldd.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
-		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
+		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
 		$^ -o $@
 
 ldconfig.host:	ldconfig.c readsoname.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
-		-DUCLIBC_RUNTIME_PREFIX=$(R_PREFIX) \
+		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 
