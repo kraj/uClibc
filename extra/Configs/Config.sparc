@@ -13,15 +13,12 @@ config HAVE_ELF
 
 config ARCH_CFLAGS
 	string
-	default "-fpic -mlinux -D__USE_WEAK_ALIASES"
 
 config ARCH_LDFLAGS
 	string
-	default "-mcrislinux"
 
 config LIBGCC_CFLAGS
 	string
-	default "-mlinux"
 
 source "extra/Configs/Config.in.arch"
 
