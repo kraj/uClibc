@@ -19,6 +19,8 @@
 #include <stdint.h>
 #include <sys/syscall.h>
 
+#if defined __UCLIBC_HAS_LFS__
+
 #if defined __NR_ftruncate64
 
 #if __WORDSIZE == 64 || (defined(__powerpc__) && defined (__UCLIBC_HAS_LFS__))
@@ -28,14 +30,11 @@ _syscall2(int, ftruncate64, int, fd, __off64_t, length);
 
 #elif __WORDSIZE == 32
 
-#if defined __UCLIBC_HAS_LFS__
-
 #ifndef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) __syscall_ftruncate64 (args)
 #define __NR___syscall_ftruncate64 __NR_ftruncate64
 static inline _syscall3(int, __syscall_ftruncate64, int, fd, int, high_length, int, low_length);
 #endif
-
 
 /* The exported ftruncate64 function.  */
 int ftruncate64 (int fd, __off64_t length)
@@ -44,11 +43,26 @@ int ftruncate64 (int fd, __off64_t length)
     uint32_t high = length >> 32;
     return INLINE_SYSCALL(ftruncate64, 3, fd, __LONG_LONG_PAIR (high, low));
 }
-#endif /* __UCLIBC_HAS_LFS__ */
 
 #else /* __WORDSIZE */
 #error Your machine is not 64 bit or 32 bit, I am dazed and confused.
 #endif /* __WORDSIZE */
 
-#endif
+#else  /* __NR_ftruncate64 */
 
+int ftruncate64 (int fd, __off64_t length)
+{
+	__off_t x = (__off_t) length;
+
+	if (x == length) {
+		return ftruncate(fd, x);
+	}
+
+	__set_errno((x < 0) ? EINVAL : EFBIG);
+
+	return -1;
+}
+
+#endif /* __NR_ftruncate64 */
+
+#endif /* __UCLIBC_HAS_LFS__ */
