@@ -79,7 +79,7 @@ check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; 
 AWK:=$(shell if [ -x /usr/bin/nawk ]; then echo "/usr/bin/nawk"; \
 	else echo "/usr/bin/awk"; fi)
 
-HOST_ARCH:= $(shell uname -m | sed \
+HOST_ARCH= $(shell uname -m | sed \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \
@@ -90,7 +90,7 @@ HOST_ARCH:= $(shell uname -m | sed \
 		-e 's/mips.*/mips/' \
 		)
 ifeq ($(strip $(TARGET_ARCH)),)
-TARGET_ARCH:=$(shell $(CC) -dumpmachine | sed -e s'/-.*//' \
+TARGET_ARCH=$(shell $(CC) -dumpmachine | sed -e s'/-.*//' \
 		-e 's/i.86/i386/' \
 		-e 's/sparc.*/sparc/' \
 		-e 's/arm.*/arm/g' \
@@ -113,72 +113,72 @@ PICFLAG:=-fPIC
 ifeq ($(strip $(TARGET_ARCH)),i386)
 	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
 	OPTIMIZATION+=$(call check_gcc,-falign-jumps=0 -falign-loops=0,-malign-jumps=0 -malign-loops=0)
-	CPU_CFLAGS-$(CONFIG_386):="-march=i386"
-	CPU_CFLAGS-$(CONFIG_486):="-march=i486"
-	CPU_CFLAGS-$(CONFIG_586):="-march=i586"
-	CPU_CFLAGS-$(CONFIG_586MMX):="$(call check_gcc,-march=pentium-mmx,-march=i586)"
-	CPU_CFLAGS-$(CONFIG_686):="-march=i686"
-	CPU_CFLAGS-$(CONFIG_PENTIUMIII):="$(call check_gcc,-march=pentium3,-march=i686)"
-	CPU_CFLAGS-$(CONFIG_PENTIUM4):="$(call check_gcc,-march=pentium4,-march=i686)"
-	CPU_CFLAGS-$(CONFIG_K6):="$(call check_gcc,-march=k6,-march=i586)"
-	CPU_CFLAGS-$(CONFIG_K7):="$(call check_gcc,-march=athlon,-malign-functions=4 -march=i686)"
-	CPU_CFLAGS-$(CONFIG_CRUSOE):="-march=i686 -malign-functions=0 -malign-jumps=0 -malign-loops=0"
-	CPU_CFLAGS-$(CONFIG_WINCHIPC6):="$(call check_gcc,-march=winchip-c6,-march=i586)"
-	CPU_CFLAGS-$(CONFIG_WINCHIP2):="$(call check_gcc,-march=winchip2,-march=i586)"
-	CPU_CFLAGS-$(CONFIG_CYRIXIII):="$(call check_gcc,-march=c3,-march=i586)"
+	CPU_CFLAGS-$(CONFIG_386)+=-march=i386
+	CPU_CFLAGS-$(CONFIG_486)+=-march=i486
+	CPU_CFLAGS-$(CONFIG_586)+=-march=i586
+	CPU_CFLAGS-$(CONFIG_586MMX)+=$(call check_gcc,-march=pentium-mmx,-march=i586)
+	CPU_CFLAGS-$(CONFIG_686)+=-march=i686
+	CPU_CFLAGS-$(CONFIG_PENTIUMIII)+=$(call check_gcc,-march=pentium3,-march=i686)
+	CPU_CFLAGS-$(CONFIG_PENTIUM4)+=$(call check_gcc,-march=pentium4,-march=i686)
+	CPU_CFLAGS-$(CONFIG_K6)+=$(call check_gcc,-march=k6,-march=i586)
+	CPU_CFLAGS-$(CONFIG_K7)+=$(call check_gcc,-march=athlon,-malign-functions=4 -march=i686)
+	CPU_CFLAGS-$(CONFIG_CRUSOE)+=-march=i686 -malign-functions=0 -malign-jumps=0 -malign-loops=0
+	CPU_CFLAGS-$(CONFIG_WINCHIPC6)+=$(call check_gcc,-march=winchip-c6,-march=i586)
+	CPU_CFLAGS-$(CONFIG_WINCHIP2)+=$(call check_gcc,-march=winchip2,-march=i586)
+	CPU_CFLAGS-$(CONFIG_CYRIXIII)+=$(call check_gcc,-march=c3,-march=i586)
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),arm)
 	OPTIMIZATION+=-fstrict-aliasing
-	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN):="-EL"
-	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN):="-EB"
-	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN):="-mlittle-endian"
-	CPU_CFLAGS-$(ARCH_BIG_ENDIAN):="-mbig-endian"
-	CPU_CFLAGS-$(CONFIG_GENERIC_ARM):=
-	CPU_CFLAGS-$(CONFIG_ARM610):=-mtune=arm610 -march=armv3
-	CPU_CFLAGS-$(CONFIG_ARM710):=-mtune=arm710 -march=armv3
-	CPU_CFLAGS-$(CONFIG_ARM720T):=-mtune=arm7tdmi -march=armv4 
-	CPU_CFLAGS-$(CONFIG_ARM920T):=-mtune=arm9tdmi -march=armv4
-	CPU_CFLAGS-$(CONFIG_ARM922T):=-mtune=arm9tdmi -march=armv4
-	CPU_CFLAGS-$(CONFIG_ARM926T):=-mtune=arm9tdmi -march=armv4
-	CPU_CFLAGS-$(CONFIG_ARM_SA110):=-mtune=strongarm110 -march=armv4
-	CPU_CFLAGS-$(CONFIG_ARM_SA1100):=-mtune=strongarm1100 -march=armv4
-	CPU_CFLAGS-$(CONFIG_ARM_XSCALE):=$(call check_gcc,-mtune=xscale,-mtune=strongarm110) \
+	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-EL
+	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)+=-EB
+	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)+=-mlittle-endian
+	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mbig-endian
+	CPU_CFLAGS-$(CONFIG_GENERIC_ARM)+=
+	CPU_CFLAGS-$(CONFIG_ARM610)+=-mtune=arm610 -march=armv3
+	CPU_CFLAGS-$(CONFIG_ARM710)+=-mtune=arm710 -march=armv3
+	CPU_CFLAGS-$(CONFIG_ARM720T)+=-mtune=arm7tdmi -march=armv4 
+	CPU_CFLAGS-$(CONFIG_ARM920T)+=-mtune=arm9tdmi -march=armv4
+	CPU_CFLAGS-$(CONFIG_ARM922T)+=-mtune=arm9tdmi -march=armv4
+	CPU_CFLAGS-$(CONFIG_ARM926T)+=-mtune=arm9tdmi -march=armv4
+	CPU_CFLAGS-$(CONFIG_ARM_SA110)+=-mtune=strongarm110 -march=armv4
+	CPU_CFLAGS-$(CONFIG_ARM_SA1100)+=-mtune=strongarm1100 -march=armv4
+	CPU_CFLAGS-$(CONFIG_ARM_XSCALE)+=$(call check_gcc,-mtune=xscale,-mtune=strongarm110) \
 				$(call check_gcc,-march=armv5te,-march=armv4 -Wa$(comma)-mxscale)
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),sh)
 	OPTIMIZATION+=-fstrict-aliasing
 	OPTIMIZATION+= $(call check_gcc,-mprefergot,)
-	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN):="-EL"
-	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN):="-EB"
-	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN):="-ml"
-	CPU_CFLAGS-$(ARCH_BIG_ENDIAN):="-mb"
-	CPU_CFLAGS-$(CONFIG_SH2)+="-m2"
-	CPU_CFLAGS-$(CONFIG_SH3)+="-m3"
-	CPU_CFLAGS-$(CONFIG_SH4)+="-m4"
+	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-EL
+	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)+=-EB
+	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)+=-ml
+	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mb
+	CPU_CFLAGS-$(CONFIG_SH2)+=-m2
+	CPU_CFLAGS-$(CONFIG_SH3)+=-m3
+	CPU_CFLAGS-$(CONFIG_SH4)+=-m4
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),sh64)
 	OPTIMIZATION+=-fstrict-aliasing
-	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN):="-EL"
-	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN):="-EB"
-	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN):="-ml"
-	CPU_CFLAGS-$(ARCH_BIG_ENDIAN):="-mb"
-	CPU_CFLAGS-$(CONFIG_SH5)+="-m5-32media"
+	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN):=-EL
+	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN):=-EB
+	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN):=-ml
+	CPU_CFLAGS-$(ARCH_BIG_ENDIAN):=-mb
+	CPU_CFLAGS-$(CONFIG_SH5)+=-m5-32media
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),h8300)
-	CPU_LDFLAGS-$(CONFIG_H8300H):= -ms8300h
-	CPU_LDFLAGS-$(CONFIG_H8S)   := -ms8300s
+	CPU_LDFLAGS-$(CONFIG_H8300H)+= -ms8300h
+	CPU_LDFLAGS-$(CONFIG_H8S)   += -ms8300s
 	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32 -fsigned-char
 	CPU_CFLAGS-$(CONFIG_H8S)    += -ms -mint32 -fsigned-char
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),cris)
-	CPU_LDFLAGS-$(CONFIG_CRIS):="-mcrislinux"
-	CPU_CFLAGS-$(CONFIG_CRIS):="-mlinux"
-	PICFLAG:=-fpic
+	CPU_LDFLAGS-$(CONFIG_CRIS)+=-mcrislinux
+	CPU_CFLAGS-$(CONFIG_CRIS)+=-mlinux
+	PICFLAG+=-fpic
 endif
 
 # use '-Os' optimization if available, else use -O2, allow Config to override
@@ -190,7 +190,7 @@ XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -
 XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
 CPU_CFLAGS=$(subst ",, $(strip $(CPU_CFLAGS-y)))
 # Some nice CFLAGS to work with
-CFLAGS:=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) \
+CFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
 
 ifeq ($(DODEBUG),y)
