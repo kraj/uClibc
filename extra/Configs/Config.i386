@@ -40,7 +40,7 @@ STRIPTOOL = $(CROSS)strip
 
 # Set the following to `true' to make a debuggable build, and `false' for
 # production builds.
-DODEBUG = true
+DODEBUG = false
 
 # Compiler warnings you want to see 
 WARNINGS=-Wall
@@ -65,7 +65,7 @@ HAS_FLOATING_POINT = true
 
 # Set to `true' if you want the math library to contain the full set
 # of C99 math library features.  Costs an extra 35k or so on x86. 
-DO_C99_MATH = true
+DO_C99_MATH = false
 
 # Set this to `false' if you don't have/need "(unsigned) long long int" support.
 # Set it to `true' otherwise.
@@ -74,7 +74,7 @@ DO_C99_MATH = true
 HAS_LONG_LONG = true
 
 # Set this to 'false if you don't need shadow password support.
-HAS_SHADOW = true
+HAS_SHADOW = false
 
 # Set this to `false' if you don't have/need locale support; `true' otherwise.
 # Note: Currently only affects the ctype functions.  You must also generate
@@ -111,7 +111,7 @@ UNIFIED_SYSCALL = false
 
 # If you want large file support (greater then 2 GiB) turn this on.
 # Do not enable this unless your kernel provides large file support.
-DOLFS = true
+DOLFS = false
 
 # Posix regular expression code is really big -- 27k all by itself.
 # If you don't use regular expressions, turn this off and save space.
@@ -122,7 +122,7 @@ INCLUDE_REGEX=true
 # If you want to include RPC support, enable this.  RPC is almost never used 
 # for anything except NFS support, so unless you plan to use NFS, leave this
 # disabled.  This is off by default.
-INCLUDE_RPC = true
+INCLUDE_RPC = false
 
 # If you want to include support for the next version of the Internet
 # Protocol: IP version 6, enable this.  This is off by default.
@@ -131,7 +131,7 @@ INCLUDE_IPV6 = false
 # If you want to support only Unix 98 PTYs enable this.  Some older
 # applications may need this disabled.  For most current programs, 
 # you can generally leave this true.
-UNIX98PTY_ONLY = false
+UNIX98PTY_ONLY = true
 
 # Enable this if /dev/pts is on a devpts or devfs file system.  Both
 # these filesystems automatically manage permissions on the /dev/pts 
@@ -142,7 +142,7 @@ ASSUME_DEVPTS = true
 
 # If you want to compile the library as PIC code, turn this on.
 # This is automagically enabled when HAVE_SHARED is true
-DOPIC = true
+DOPIC = false
 
 # Enable support for shared libraries?  If this is false, you can
 # ignore all the rest of the options in this file...
