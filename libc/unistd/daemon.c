@@ -5,6 +5,9 @@
  * Copyright (c) 1991, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
+ * Modified for uClibc by Erik Andersen 
+ *        <andersee@debian.org>, <andersen@lineo.com>
+ *
  * The uClibc Library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -23,6 +26,7 @@
  * Original copyright notice is retained at the end of this file.
  */
 
+#include <features.h>
 #include <fcntl.h>
 #include <paths.h>
 #include <unistd.h>
@@ -30,6 +34,7 @@
 
 int daemon( int nochdir, int noclose )
 {
+#if __UCLIBC_HAS_MMU__
     int fd;
 
     switch (fork()) {
@@ -55,6 +60,10 @@ int daemon( int nochdir, int noclose )
 	    close(fd);
     }
     return(0);
+#else
+	fprintf(stderr, "Sorry, daemon() requires an MMU\n");
+    return(-1);
+#endif	
 }
 
 
