@@ -4,5 +4,5 @@
 int main(void)
 {
     write(1,"hello world\n",12);
-    exit(42);
+    _exit(42);
 }

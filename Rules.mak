@@ -1,7 +1,9 @@
 # Rules.make for uCLibc
 #
 # This file contains rules which are shared between multiple Makefiles.
-# Feel free to adjust to taste...
+# All normal configuration options live in the file named "Config".
+# You probably should not mess with this file unless you know what you
+# are doing... 
 #  -Erik Andersen <andersen@lineo.com> < andersee@debian.org>
 # 
 # Copyright (C) 2000 by Lineo, inc.
@@ -20,60 +22,8 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA 02111-1307 USA
 #
-# Derived in part from the Linux-8086 C library, the GNU C Library, and several
-# other sundry sources.  Files within this library are copyright by their
-# respective copyright holders.
 
-PROG      := libc.a
-VERSION   := 0.95
-BUILDTIME := $(shell TZ=UTC date --utc "+%Y.%m.%d-%H:%M%z")
-export VERSION
-
-# Set the following to `true' to make a debuggable build.
-# Do not enable this for production builds...
-DODEBUG = false
-
-# This specifies which malloc implementation is used.
-# "malloc-simple" is very, very small, but is also very, very dumb 
-# and does not try to make good use of memory or clean up after itself.
-# "malloc" on the other hand is a bit bigger, but is pretty smart thereby
-# minimizing memory wastage and reusing already allocated memory.  This 
-# can be lots faster and safer IMHO.
-#MALLOC = malloc-simple
-MALLOC = malloc 
-
-# If you want large file summit support (greater then 2 Gib), 
-# turn this on.  This has no effect unless your kernel supports 
-# lfs.  This surrently does nothing...
-DOLFS = false
-
-# Enable stuff that is broken (to fix it of course....)
-DO_FIXME_STUFF = true
-
-# Disable this if your CPU has a memory management unit (MMU)
-HAS_MMU = true
-
-# Disable this if your CPU has a floating point unit (FPU)
-HAS_FLOATS = true
-
-# Use C functions instead of macros for ctype.h stuff
-# This should generally stay false...
-USE_CTYPE_C_FUNCTIONS = false
-
-# If you are running a cross compiler, you may want to set this
-# to something more interesting...
-CROSS = #powerpc-linux-
-CC = $(CROSS)gcc
-STRIPTOOL = $(CROSS)strip
-
-# Figure out what arch to build...
-ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g')
-
-
-#--------------------------------------------------------
-# Nothing beyond this point should need be touched by mere 
-# mortals so you should probably leave this stuff alone.
-#--------------------------------------------------------
+include Config
 
 GCCINCDIR = $(shell gcc -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp")
 
