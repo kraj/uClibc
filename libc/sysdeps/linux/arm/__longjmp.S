@@ -34,6 +34,8 @@ __longjmp:
 
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
 	lfmfd	f4, 4, [ip] !	/* load the floating point regs */
+#else
+	add		ip, ip, #48		/* skip the FP registers */
 #endif	
 
 	ldmia     ip ,  {v1-v6, sl, fp, sp, pc}
