@@ -1,212 +1,121 @@
-/*							mconf.h
- * <math.h>
- * ISO/IEC 9899:1999 -- Programming Languages C: 7.12 Mathematics 
- * Derived from the Cephes Math Library Release 2.3
- * Copyright 1984, 1987, 1989, 1995 by Stephen L. Moshier
- *
- *
- * DESCRIPTION:
- *
- * The file also includes a conditional assembly definition
- * for the type of computer arithmetic (IEEE, DEC, Motorola
- * IEEE, or UNKnown).
- * 
- * For Digital Equipment PDP-11 and VAX computers, certain
- * IBM systems, and others that use numbers with a 56-bit
- * significand, the symbol DEC should be defined.  In this
- * mode, most floating point constants are given as arrays
- * of octal integers to eliminate decimal to binary conversion
- * errors that might be introduced by the compiler.
- *
- * For little-endian computers, such as IBM PC, that follow the
- * IEEE Standard for Binary Floating Point Arithmetic (ANSI/IEEE
- * Std 754-1985), the symbol IBMPC should be defined.  These
- * numbers have 53-bit significands.  In this mode, constants
- * are provided as arrays of hexadecimal 16 bit integers.
- *
- * Big-endian IEEE format is denoted MIEEE.  On some RISC
- * systems such as Sun SPARC, double precision constants
- * must be stored on 8-byte address boundaries.  Since integer
- * arrays may be aligned differently, the MIEEE configuration
- * may fail on such machines.
- *
- * To accommodate other types of computer arithmetic, all
- * constants are also provided in a normal decimal radix
- * which one can hope are correctly converted to a suitable
- * format by the available C language compiler.  To invoke
- * this mode, define the symbol UNK.
- *
- * An important difference among these modes is a predefined
- * set of machine arithmetic constants for each.  The numbers
- * MACHEP (the machine roundoff error), MAXNUM (largest number
- * represented), and several other parameters are preset by
- * the configuration symbol.  Check the file const.c to
- * ensure that these values are correct for your computer.
- *
- * Configurations NANS, INFINITIES, MINUSZERO, and DENORMAL
- * may fail on many systems.  Verify that they are supposed
- * to work on your computer.
- */
+/* Declarations for math functions.
+   Copyright (C) 1991,92,93,95,96,97,98,99,2001 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+/*
+ *	ISO C99 Standard: 7.12 Mathematics	<math.h>
+ */
 
 #ifndef	_MATH_H
 #define	_MATH_H	1
 
 #include <features.h>
+
+__BEGIN_DECLS
+
+/* Get machine-dependent HUGE_VAL value (returned on overflow).
+   On all IEEE754 machines, this is +Infinity.  */
 #include <bits/huge_val.h>
 
-/* Type of computer arithmetic */
-
-/* PDP-11, Pro350, VAX:
- */
-/* #define DEC 1 */
-
-/* Intel IEEE, low order words come first:
- */
-/* #define IBMPC 1 */
-
-/* Motorola IEEE, high order words come first
- * (Sun 680x0 workstation):
- */
-/* #define MIEEE 1 */
-
-/* UNKnown arithmetic, invokes coefficients given in
- * normal decimal format.  Beware of range boundary
- * problems (MACHEP, MAXLOG, etc. in const.c) and
- * roundoff problems in pow.c:
- * (Sun SPARCstation)
- */
-#define UNK 1
-
-
-/* Define if the `long double' type works.  */
-#define HAVE_LONG_DOUBLE 1
-
-/* Define as the return type of signal handlers (int or void).  */
-#define RETSIGTYPE void
-
-/* Define if you have the ANSI C header files.  */
-#define STDC_HEADERS 1
-
-/* Define if your processor stores words with the most significant
-   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
-/* #undef WORDS_BIGENDIAN */
-
-/* Define if floating point words are bigendian.  */
-/* #undef FLOAT_WORDS_BIGENDIAN */
-
-/* The number of bytes in a int.  */
-#define SIZEOF_INT 4
-
-/* Define if you have the <string.h> header file.  */
-#define HAVE_STRING_H 1
-
-
-/* Define this `volatile' if your compiler thinks
- * that floating point arithmetic obeys the associative
- * and distributive laws.  It will defeat some optimizations
- * (but probably not enough of them).
- *
- * #define VOLATILE volatile
- */
-#define VOLATILE
-
-/* For 12-byte long doubles on an i386, pad a 16-bit short 0
- * to the end of real constants initialized by integer arrays.
- *
- * #define XPD 0,
- *
- * Otherwise, the type is 10 bytes long and XPD should be
- * defined blank (e.g., Microsoft C).
- *
- * #define XPD
- */
-#define XPD 0,
-
-/* Define to support tiny denormal numbers, else undefine. */
-#define DENORMAL 1
-
-/* Define to ask for infinity support, else undefine. */
-#define INFINITIES 1
-
-/* Define to ask for support of numbers that are Not-a-Number,
-   else undefine.  This may automatically define INFINITIES in some files. */
-#define NANS 1
-
-/* Define to distinguish between -0.0 and +0.0.  */
-#define MINUSZERO 1
-
-/* Define 1 for ANSI C atan2() function
-   and ANSI prototypes for float arguments.
-   See atan.c and clog.c. */
-#define ANSIC 1
-#define ANSIPROT 1
-
-
-/* Constant definitions for math error conditions */
-
-#define DOMAIN		1	/* argument domain error */
-#define SING		2	/* argument singularity */
-#define OVERFLOW	3	/* overflow range error */
-#define UNDERFLOW	4	/* underflow range error */
-#define TLOSS		5	/* total loss of precision */
-#define PLOSS		6	/* partial loss of precision */
-
-#define EDOM		33
-#define ERANGE		34
-
-/* Complex numeral.  */
-#ifdef __UCLIBC_HAS_LIBM_DOUBLE__
-typedef struct
-	{
-	double r;
-	double i;
-	} cmplx;
+/* Get machine-dependent NAN value (returned for some domain errors).  */
+#ifdef	 __USE_ISOC99
+# include <bits/nan.h>
 #endif
-
-#ifdef __UCLIBC_HAS_LIBM_FLOAT__
-typedef struct
-	{
-	float r;
-	float i;
-	} cmplxf;
-#endif
-
-#ifdef __UCLIBC_HAS_LIBM_LONG_DOUBLE__
-/* Long double complex numeral.  */
-typedef struct
-	{
-	long double r;
-	long double i;
-	} cmplxl;
-#endif
-
-
-
-/* Variable for error reporting.  See mtherr.c.  */
-__BEGIN_DECLS
-extern int mtherr(char *name, int code);
-extern int merror;
-__END_DECLS
-
-
-/* If you define UNK, then be sure to set BIGENDIAN properly. */
-#include <endian.h>
-#if __BYTE_ORDER == __BIG_ENDIAN
-#  define BIGENDIAN 1
-#else /* __BYTE_ORDER == __LITTLE_ENDIAN */
-#  define BIGENDIAN 0
-#endif
-
-
-
-#define __USE_ISOC9X
-/* Get general and ISO C 9X specific information.  */
+/* Get general and ISO C99 specific information.  */
 #include <bits/mathdef.h>
-#undef INFINITY
-#undef DECIMAL_DIG
-#undef FP_ILOGB0
-#undef FP_ILOGBNAN
+
+
+/* The file <bits/mathcalls.h> contains the prototypes for all the
+   actual math functions.  These macros are used for those prototypes,
+   so we can easily declare each function as both `name' and `__name',
+   and can declare the float versions `namef' and `__namef'.  */
+
+#define __MATHCALL(function,suffix, args)	\
+  __MATHDECL (_Mdouble_,function,suffix, args)
+#define __MATHDECL(type, function,suffix, args) \
+  __MATHDECL_1(type, function,suffix, args); \
+  __MATHDECL_1(type, __CONCAT(__,function),suffix, args)
+#define __MATHCALLX(function,suffix, args, attrib)	\
+  __MATHDECLX (_Mdouble_,function,suffix, args, attrib)
+#define __MATHDECLX(type, function,suffix, args, attrib) \
+  __MATHDECL_1(type, function,suffix, args) __attribute__ (attrib); \
+  __MATHDECL_1(type, __CONCAT(__,function),suffix, args) __attribute__ (attrib)
+#define __MATHDECL_1(type, function,suffix, args) \
+  extern type __MATH_PRECNAME(function,suffix) args __THROW
+
+#define _Mdouble_ 		double
+#define __MATH_PRECNAME(name,r)	__CONCAT(name,r)
+#include <bits/mathcalls.h>
+#undef	_Mdouble_
+#undef	__MATH_PRECNAME
+
+#if defined __USE_MISC || defined __USE_ISOC99
+
+
+/* Include the file of declarations again, this time using `float'
+   instead of `double' and appending f to each function name.  */
+
+# ifndef _Mfloat_
+#  define _Mfloat_		float
+# endif
+# define _Mdouble_ 		_Mfloat_
+# ifdef __STDC__
+#  define __MATH_PRECNAME(name,r) name##f##r
+# else
+#  define __MATH_PRECNAME(name,r) name/**/f/**/r
+# endif
+# include <bits/mathcalls.h>
+# undef	_Mdouble_
+# undef	__MATH_PRECNAME
+
+# if (__STDC__ - 0 || __GNUC__ - 0) && !defined __NO_LONG_DOUBLE_MATH
+/* Include the file of declarations again, this time using `long double'
+   instead of `double' and appending l to each function name.  */
+
+#  ifndef _Mlong_double_
+#   define _Mlong_double_	long double
+#  endif
+#  define _Mdouble_ 		_Mlong_double_
+#  ifdef __STDC__
+#   define __MATH_PRECNAME(name,r) name##l##r
+#  else
+#   define __MATH_PRECNAME(name,r) name/**/l/**/r
+#  endif
+#  include <bits/mathcalls.h>
+#  undef _Mdouble_
+#  undef __MATH_PRECNAME
+
+# endif /* __STDC__ || __GNUC__ */
+
+#endif	/* Use misc or ISO C99.  */
+#undef	__MATHDECL_1
+#undef	__MATHDECL
+#undef	__MATHCALL
+
+
+#if defined __USE_MISC || defined __USE_XOPEN
+/* This variable is used by `gamma' and `lgamma'.  */
+extern int signgam;
+#endif
+
+
+/* ISO C99 defines some generic macros which work on any data type.  */
+#if __USE_ISOC99
 
 /* Get the architecture specific values describing the floating-point
    evaluation.  The following symbols will get defined:
@@ -257,47 +166,139 @@ enum
   };
 
 /* Return number of classification appropriate for X.  */
-#ifdef __UCLIBC_HAS_LIBM_DOUBLE__
-#  define fpclassify(x) \
-     (sizeof (x) == sizeof (float) ?					      \
-        __fpclassifyf (x)						      \
-      : sizeof (x) == sizeof (double) ?					      \
-        __fpclassify (x) : __fpclassifyl (x))
-#else
+# ifdef __NO_LONG_DOUBLE_MATH
 #  define fpclassify(x) \
      (sizeof (x) == sizeof (float) ? __fpclassifyf (x) : __fpclassify (x))
-#endif
+# else
+#  define fpclassify(x) \
+     (sizeof (x) == sizeof (float)					      \
+      ? __fpclassifyf (x)						      \
+      : sizeof (x) == sizeof (double)					      \
+      ? __fpclassify (x) : __fpclassifyl (x))
+# endif
 
-__BEGIN_DECLS
-
-#ifdef __UCLIBC_HAS_LIBM_DOUBLE__
 /* Return nonzero value if sign of X is negative.  */
-extern int signbit(double x);
+# ifdef __NO_LONG_DOUBLE_MATH
+#  define signbit(x) \
+     (sizeof (x) == sizeof (float) ? __signbitf (x) : __signbit (x))
+# else
+#  define signbit(x) \
+     (sizeof (x) == sizeof (float)					      \
+      ? __signbitf (x)							      \
+      : sizeof (x) == sizeof (double)					      \
+      ? __signbit (x) : __signbitl (x))
+# endif
+
 /* Return nonzero value if X is not +-Inf or NaN.  */
-extern int isfinite(double x);
+# ifdef __NO_LONG_DOUBLE_MATH
+#  define isfinite(x) \
+     (sizeof (x) == sizeof (float) ? __finitef (x) : __finite (x))
+# else
+#  define isfinite(x) \
+     (sizeof (x) == sizeof (float)					      \
+      ? __finitef (x)							      \
+      : sizeof (x) == sizeof (double)					      \
+      ? __finite (x) : __finitel (x))
+# endif
+
 /* Return nonzero value if X is neither zero, subnormal, Inf, nor NaN.  */
 # define isnormal(x) (fpclassify (x) == FP_NORMAL)
-/* Return nonzero value if X is a NaN */
-extern int isnan(double x);
-#define isinf(x) \
-     (sizeof (x) == sizeof (float) ?					      \
-        __isinff (x)							      \
-      : sizeof (x) == sizeof (double) ?					      \
-        __isinf (x) : __isinfl (x))
-#else
+
+/* Return nonzero value if X is a NaN.  We could use `fpclassify' but
+   we already have this functions `__isnan' and it is faster.  */
+# ifdef __NO_LONG_DOUBLE_MATH
+#  define isnan(x) \
+     (sizeof (x) == sizeof (float) ? __isnanf (x) : __isnan (x))
+# else
+#  define isnan(x) \
+     (sizeof (x) == sizeof (float)					      \
+      ? __isnanf (x)							      \
+      : sizeof (x) == sizeof (double)					      \
+      ? __isnan (x) : __isnanl (x))
+# endif
+
+/* Return nonzero value is X is positive or negative infinity.  */
+# ifdef __NO_LONG_DOUBLE_MATH
 #  define isinf(x) \
      (sizeof (x) == sizeof (float) ? __isinff (x) : __isinf (x))
+# else
+#  define isinf(x) \
+     (sizeof (x) == sizeof (float)					      \
+      ? __isinff (x)							      \
+      : sizeof (x) == sizeof (double)					      \
+      ? __isinf (x) : __isinfl (x))
+# endif
+
+/* Bitmasks for the math_errhandling macro.  */
+# define MATH_ERRNO	1	/* errno set by math functions.  */
+# define MATH_ERREXCEPT	2	/* Exceptions raised by math functions.  */
+
+#endif /* Use ISO C99.  */
+
+#ifdef	__USE_MISC
+/* Support for various different standard error handling behaviors.  */
+typedef enum
+{
+  _IEEE_ = -1,	/* According to IEEE 754/IEEE 854.  */
+  _SVID_,	/* According to System V, release 4.  */
+  _XOPEN_,	/* Nowadays also Unix98.  */
+  _POSIX_,
+  _ISOC_	/* Actually this is ISO C99.  */
+} _LIB_VERSION_TYPE;
+
+/* This variable can be changed at run-time to any of the values above to
+   affect floating point error handling behavior (it may also be necessary
+   to change the hardware FPU exception settings).  */
+extern _LIB_VERSION_TYPE _LIB_VERSION;
 #endif
 
 
-#ifdef __UCLIBC_HAS_LIBM_LONG_DOUBLE__
-/* Return nonzero value if sign of X is negative.  */
-extern int signbitl(long double x);
-/* Return nonzero value if X is not +-Inf or NaN.  */
-extern int isfinitel(long double x);
-/* Return nonzero value if X is a NaN */
-extern int isnanl(long double x);
-#endif
+#ifdef __USE_SVID
+/* In SVID error handling, `matherr' is called with this description
+   of the exceptional condition.
+
+   We have a problem when using C++ since `exception' is a reserved
+   name in C++.  */
+# ifdef __cplusplus
+struct __exception
+# else
+struct exception
+# endif
+  {
+    int type;
+    char *name;
+    double arg1;
+    double arg2;
+    double retval;
+  };
+
+# ifdef __cplusplus
+extern int matherr (struct __exception *__exc) throw ();
+# else
+extern int matherr (struct exception *__exc);
+# endif
+
+# define X_TLOSS	1.41484755040568800000e+16
+
+/* Types of exceptions in the `type' field.  */
+# define DOMAIN		1
+# define SING		2
+# define OVERFLOW	3
+# define UNDERFLOW	4
+# define TLOSS		5
+# define PLOSS		6
+
+/* SVID mode specifies returning this large value instead of infinity.  */
+# define HUGE		3.40282347e+38F
+
+#else	/* !SVID */
+
+# ifdef __USE_XOPEN
+/* X/Open wants another strange constant.  */
+#  define MAXFLOAT	3.40282347e+38F
+# endif
+
+#endif	/* SVID */
 
 
 /* Some useful constants.  */
@@ -316,257 +317,48 @@ extern int isnanl(long double x);
 # define M_SQRT2	1.41421356237309504880	/* sqrt(2) */
 # define M_SQRT1_2	0.70710678118654752440	/* 1/sqrt(2) */
 #endif
+
+/* The above constants are not adequate for computation using `long double's.
+   Therefore we provide as an extension constants with similar names as a
+   GNU extension.  Provide enough digits for the 128-bit IEEE quad.  */
 #ifdef __USE_GNU
-# define M_El		M_E
-# define M_LOG2El	M_LOG2E
-# define M_LOG10El	M_LOG10E
-# define M_LN2l		M_LN2
-# define M_LN10l	M_LN10
-# define M_PIl		M_PI
-# define M_PI_2l	M_PI_2
-# define M_PI_4l	M_PI_4
-# define M_1_PIl	M_1_PI
-# define M_2_PIl	M_2_PI
-# define M_2_SQRTPIl	M_2_SQRTPI
-# define M_SQRT2l	M_SQRT2
-# define M_SQRT1_2l	M_SQRT1_2
+# define M_El		2.7182818284590452353602874713526625L  /* e */
+# define M_LOG2El	1.4426950408889634073599246810018922L  /* log_2 e */
+# define M_LOG10El	0.4342944819032518276511289189166051L  /* log_10 e */
+# define M_LN2l		0.6931471805599453094172321214581766L  /* log_e 2 */
+# define M_LN10l	2.3025850929940456840179914546843642L  /* log_e 10 */
+# define M_PIl		3.1415926535897932384626433832795029L  /* pi */
+# define M_PI_2l	1.5707963267948966192313216916397514L  /* pi/2 */
+# define M_PI_4l	0.7853981633974483096156608458198757L  /* pi/4 */
+# define M_1_PIl	0.3183098861837906715377675267450287L  /* 1/pi */
+# define M_2_PIl	0.6366197723675813430755350534900574L  /* 2/pi */
+# define M_2_SQRTPIl	1.1283791670955125738961589031215452L  /* 2/sqrt(pi) */
+# define M_SQRT2l	1.4142135623730950488016887242096981L  /* sqrt(2) */
+# define M_SQRT1_2l	0.7071067811865475244008443621048490L  /* 1/sqrt(2) */
 #endif
 
 
-
-#ifdef __UCLIBC_HAS_LIBM_DOUBLE__
-/* 7.12.4 Trigonometric functions */
-extern double acos(double x);
-extern double asin(double x);
-extern double atan(double x);
-extern double atan2(double y, double x);
-extern double cos(double x);
-extern double sin(double x);
-extern double tan(double x);
-
-/* 7.12.5 Hyperbolic functions */
-extern double acosh(double x);
-extern double asinh(double x);
-extern double atanh(double x);
-extern double cosh(double x);
-extern double sinh(double x);
-extern double tanh(double x);
-
-/* 7.12.6 Exponential and logarithmic functions */
-extern double exp(double x);
-extern double exp2(double x);
-extern double expm1(double x);
-extern double frexp(double value, int *ex);
-extern int ilogb(double x);
-extern double ldexp(double x, int ex);
-extern double log(double x);
-extern double log10(double x);
-extern double log1p(double x);
-extern double log2(double x);
-extern double logb(double x);
-extern double modf(double value, double *iptr);
-extern double scalbn(double x, int n);
-extern double scalbln(double x, long int n);
-
-/* 7.12.7 Power and absolute-value functions */
-extern double fabs(double x);
-extern double hypot(double x, double y);
-extern double pow(double x, double y);
-extern double sqrt(double x);
-
-/* 7.12.8 Error and gamma functions */
-extern double erf(double x);
-extern double erfc(double x);
-extern double lgamma(double x);
-extern double tgamma(double x);
-
-/* 7.12.9 Nearest integer functions */
-extern double ceil(double x);
-extern double floor(double x);
-extern double nearbyint(double x);
-extern double rint(double x);
-extern long int lrint(double x);
-extern long long int llrint(double x);
-extern double round(double x);
-extern long int lround(double x);
-extern long long int llround(double x);
-extern double trunc(double x);
-
-/* 7.12.10 Remainder functions */
-extern double fmod(double x, double y);
-extern double remainder(double x, double y);
-extern double remquo(double x, double y, int *quo);
-
-/* 7.12.11 Manipulation functions */
-extern double copysign(double x, double y);
-extern double nan(const char *tagp);
-extern double nextafter(double x, double y);
-
-/* 7.12.12 Maximum, minimum, and positive difference functions */
-extern double fdim(double x, double y);
-extern double fmax(double x, double y);
-extern double fmin(double x, double y);
-
-/* 7.12.13 Floating multiply-add */
-extern double fma(double x, double y, double z);
-#endif	
-
-#ifdef __UCLIBC_HAS_LIBM_FLOAT__
-/* 7.12.4 Trigonometric functions */
-extern float acosf(float x);
-extern float asinf(float x);
-extern float atanf(float x);
-extern float atan2f(float y, float x);
-extern float cosf(float x);
-extern float sinf(float x);
-extern float tanf(float x);
-
-/* 7.12.5 Hyperbolic functions */
-extern float acoshf(float x);
-extern float asinhf(float x);
-extern float atanhf(float x);
-extern float coshf(float x);
-extern float sinhf(float x);
-extern float tanhf(float x);
-
-/* 7.12.6 Exponential and logarithmic functions */
-extern float expf(float x);
-extern float exp2f(float x);
-extern float expm1f(float x);
-extern float frexpf(float value, int *ex);
-extern int ilogbf(float x);
-extern float ldexpf(float x, int ex);
-extern float logf(float x);
-extern float log10f(float x);
-extern float log1pf(float x);
-extern float log2f(float x);
-extern float logbf(float x);
-extern float modff(float value, float *iptr);
-extern float scalbnf(float x, int n);
-extern float scalblnf(float x, long int n);
-
-/* 7.12.7 Power and absolute-value functions */
-extern float fabsf(float x);
-extern float hypotf(float x, float y);
-extern float powf(float x, float y);
-extern float sqrtf(float x);
-
-/* 7.12.8 Error and gamma functions */
-extern float erff(float x);
-extern float erfcf(float x);
-extern float lgammaf(float x);
-extern float tgammaf(float x);
-
-/* 7.12.9 Nearest integer functions */
-extern float ceilf(float x);
-extern float floorf(float x);
-extern float nearbyintf(float x);
-extern float rintf(float x);
-extern long int lrintf(float x);
-extern long long int llrintf(float x);
-extern float roundf(float x);
-extern long int lroundf(float x);
-extern long long int llroundf(float x);
-extern float truncf(float x);
-
-/* 7.12.10 Remainder functions */
-extern float fmodf(float x, float y);
-extern float remainderf(float x, float y);
-extern float remquof(float x, float y, int *quo);
-
-/* 7.12.11 Manipulation functions */
-extern float copysignf(float x, float y);
-extern float nanf(const char *tagp);
-extern float nextafterf(float x, float y);
-
-/* 7.12.12 Maximum, minimum, and positive difference functions */
-extern float fdimf(float x, float y);
-extern float fmaxf(float x, float y);
-extern float fminf(float x, float y);
-
-/* 7.12.13 Floating multiply-add */
-extern float fmaf(float x, float y, float z);
-#endif	
-
-#ifdef __UCLIBC_HAS_LIBM_LONG_DOUBLE__
-/* 7.12.4 Trigonometric functions */
-extern long double acosl(long double x);
-extern long double asinl(long double x);
-extern long double atanl(long double x);
-extern long double atan2l(long double y, long double x);
-extern long double cosl(long double x);
-extern long double sinl(long double x);
-extern long double tanl(long double x);
-
-/* 7.12.5 Hyperbolic functions */
-extern long double acoshl(long double x);
-extern long double asinhl(long double x);
-extern long double atanhl(long double x);
-extern long double coshl(long double x);
-extern long double sinhl(long double x);
-extern long double tanhl(long double x);
-
-/* 7.12.6 Exponential and logarithmic functions */
-extern long double expl(long double x);
-extern long double exp2l(long double x);
-extern long double expm1l(long double x);
-extern long double frexpl(long double value, int *ex);
-extern int ilogbl(long double x);
-extern long double ldexpl(long double x, int ex);
-extern long double logl(long double x);
-extern long double log10l(long double x);
-extern long double log1pl(long double x);
-extern long double log2l(long double x);
-extern long double logbl(long double x);
-extern long double modfl(long double value, long double *iptr);
-extern long double scalbnl(long double x, int n);
-extern long double scalblnl(long double x, long int n);
-
-/* 7.12.7 Power and absolute-value functions */
-extern long double fabsl(long double x);
-extern long double hypotl(long double x, long double y);
-extern long double powl(long double x, long double y);
-extern long double sqrtl(long double x);
-
-/* 7.12.8 Error and gamma functions */
-extern long double erfl(long double x);
-extern long double erfcl(long double x);
-extern long double lgammal(long double x);
-extern long double tgammal(long double x);
-
-/* 7.12.9 Nearest integer functions */
-extern long double ceill(long double x);
-extern long double floorl(long double x);
-extern long double nearbyintl(long double x);
-extern long double rintl(long double x);
-extern long int lrintl(long double x);
-extern long long int llrintl(long double x);
-extern long double roundl(long double x);
-extern long int lroundl(long double x);
-extern long long int llroundl(long double x);
-extern long double truncl(long double x);
-
-/* 7.12.10 Remainder functions */
-extern long double fmodl(long double x, long double y);
-extern long double remainderl(long double x, long double y);
-extern long double remquol(long double x, long double y, int *quo);
-
-/* 7.12.11 Manipulation functions */
-extern long double copysignl(long double x, long double y);
-extern long double nanl(const char *tagp);
-extern long double nextafterl(long double x, long double y);
-extern long double nexttowardl(long double x, long double y);
-
-/* 7.12.12 Maximum, minimum, and positive difference functions */
-extern long double fdiml(long double x, long double y);
-extern long double fmaxl(long double x, long double y);
-extern long double fminl(long double x, long double y);
-
-/* 7.12.13 Floating multiply-add */
-extern long double fmal(long double x, long double y, long double z);
+/* When compiling in strict ISO C compatible mode we must not use the
+   inline functions since they, among other things, do not set the
+   `errno' variable correctly.  */
+#if defined __STRICT_ANSI__ && !defined __NO_MATH_INLINES
+# define __NO_MATH_INLINES	1
 #endif
 
-/* 7.12.14 Comparison macros */
+/* Get machine-dependent inline versions (if there are any).  */
+#ifdef __USE_EXTERN_INLINES
+# include <bits/mathinline.h>
+#endif
+
+
+#if __USE_ISOC99
+/* ISO C99 defines some macros to compare number while taking care
+   for unordered numbers.  Since many FPUs provide special
+   instructions to support these operations and these tests are
+   defined in <bits/mathinline.h>, we define the generic macros at
+   this late point and only if they are not defined yet.  */
+
+/* Return nonzero value if X is greater than Y.  */
 # ifndef isgreater
 #  define isgreater(x, y) \
   (__extension__							      \
@@ -614,6 +406,9 @@ extern long double fmal(long double x, long double y, long double z);
       fpclassify (__u) == FP_NAN || fpclassify (__v) == FP_NAN; }))
 # endif
 
+#endif
+
 __END_DECLS
+
 
 #endif /* math.h  */

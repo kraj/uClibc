@@ -25,30 +25,42 @@ include $(TOPDIR)Rules.mak
 LIBM=libm.a
 LIBM_SHARED=libm.so
 LIBM_SHARED_FULLNAME=libm-$(MAJOR_VERSION).$(MINOR_VERSION).so
+TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
+TARGET_CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
-DIRS=
-ifeq ($(strip $(HAS_LIBM_FLOAT)),true)
-	DIRS+=float
+ifeq ($(strip $(DO_C89_ONLY)),true)
+CSRC =   FIXME
+else
+CSRC =   e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
+         e_exp.c e_fmod.c e_gamma.c e_gamma_r.c e_hypot.c e_j0.c\
+         e_j1.c e_jn.c e_lgamma.c e_lgamma_r.c e_log.c e_log10.c\
+         e_pow.c e_remainder.c e_rem_pio2.c e_scalb.c e_sinh.c\
+         e_sqrt.c k_cos.c k_rem_pio2.c k_sin.c k_standard.c k_tan.c\
+         s_asinh.c s_atan.c s_cbrt.c s_ceil.c s_copysign.c s_cos.c\
+         s_erf.c s_expm1.c s_fabs.c s_finite.c s_floor.c s_frexp.c\
+         s_ilogb.c s_ldexp.c s_lib_version.c s_log1p.c s_logb.c\
+         s_matherr.c s_modf.c s_nextafter.c s_rint.c s_scalbn.c\
+         s_signgam.c s_significand.c s_sin.c s_tan.c s_tanh.c\
+         w_acos.c w_acosh.c w_asin.c w_atan2.c w_atanh.c w_cabs.c\
+         w_cosh.c w_drem.c w_exp.c w_fmod.c w_gamma.c w_gamma_r.c\
+         w_hypot.c w_j0.c w_j1.c w_jn.c w_lgamma.c w_lgamma_r.c\
+         w_log.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c\
+         w_sqrt.c ceilfloor.c fpmacros.c frexpldexp.c logb.c rndint.c\
+         scalb.c sign.c
 endif
-ifeq ($(strip $(HAS_LIBM_DOUBLE)),true)
-	DIRS+=double
-endif
-ifeq ($(strip $(HAS_LIBM_LONG_DOUBLE)),true)
-	DIRS+=ldouble
-endif
-ALL_SUBDIRS = float double ldouble
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS=$(COBJS)
 
-all: $(LIBM)
 
-$(LIBM): subdirs
+
+all: $(OBJS) $(LIBM)
+
+$(LIBM): ar-target
 	@if [ -f $(LIBM) ] ; then \
 		install -d $(TOPDIR)lib; \
 		rm -f $(TOPDIR)lib/$(LIBM); \
 		install -m 644 $(LIBM) $(TOPDIR)lib; \
 	fi;
-
-tags:
-	ctags -R
 
 shared: all
 	if [ -f $(LIBM) ] ; then \
@@ -61,18 +73,18 @@ shared: all
 	    (cd $(TOPDIR)lib; ln -sf $(LIBM_SHARED_FULLNAME) $(LIBM_SHARED).$(MAJOR_VERSION)); \
 	fi;
 
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
+ar-target: $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBM) $(OBJS)
 
-$(patsubst %, _dir_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
+$(COBJS): %.o : %.c
+	$(TARGET_CC) $(TARGET_CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+$(OBJ): Makefile
 
-clean: subdirs_clean
+tags:
+	ctags -R
+
+clean: 
 	rm -f *.[oa] *~ core $(LIBM_SHARED)* $(LIBM_SHARED_FULLNAME)*
-
-.PHONY: dummy
-
 
