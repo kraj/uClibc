@@ -403,7 +403,7 @@ int _dl_parse_relocation_information(struct elf_resolve *tpnt,
 			break;
 		case R_PPC_JMP_SLOT:
 			{
-			unsigned long targ_addr = (unsigned long)_dl_linux_resolve;
+			unsigned long targ_addr = (unsigned long)*reloc_addr;
 			int delta = targ_addr - (unsigned long)reloc_addr;
 			if(delta<<6>>6 == delta){
 				*reloc_addr = OPCODE_B(delta);
