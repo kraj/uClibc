@@ -48,6 +48,14 @@ int main(int argc, char **argv)
 	char ** gcc_argv;
 
 	source_count = 0;
+	/* FIXME: We need to work out the install vs use-in-built-dir
+	 * issue..*/
+	/* Apparently gcc doesn't accept this stuff via the command line */
+	setenv("COMPILER_PATH", UCLIBC_DIR"extra/gcc-uClibc/", 1);
+	setenv("LIBRARY_PATH", UCLIBC_DIR"lib/", 1);
+	/* The double '/' works around a gcc bug */
+	setenv("GCC_EXEC_PREFIX", UCLIBC_DIR"extra/gcc-uClibc//", 1); 
+
 
 	for ( i = 1 ; i < argc ; i++ ) {
 		if (argv[i][0] == '-') { /* option */
