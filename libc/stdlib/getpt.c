@@ -80,7 +80,9 @@ getpt (void)
 	  /* If /dev/pts is not mounted then the UNIX98 pseudo terminals
              are not usable.  */
 	  close (fd);
+#if !defined UNIX98PTY_ONLY
 	  have_no_dev_ptmx = 1;
+#endif
 #endif
 	}
       else
