@@ -26,7 +26,8 @@ include $(TOPDIR)Rules.mak
 MSRC=string.c
 MOBJ=strlen.o strcat.o strcpy.o strchr.o strcmp.o strncat.o strncpy.o \
 	strncmp.o strrchr.o strdup.o strndup.o memcpy.o memccpy.o memset.o \
-	memmove.o memcmp.o memchr.o ffs.o strnlen.o strxfrm.o stpcpy.o stpncpy.o
+	memmove.o memcmp.o memchr.o ffs.o strnlen.o strxfrm.o stpcpy.o \
+	stpncpy.o memrchr.o 
 
 ifeq ($(HAS_LOCALE),true)
 	MOBJ += strcoll.o
@@ -40,7 +41,7 @@ MOBJ2=strstr.o strcasestr.o
 
 CSRC=strpbrk.c strsep.c strtok.c strtok_r.c strcspn.c \
 	strspn.c strcasecmp.c strncasecmp.c strerror.c bcopy.c bzero.c \
-	bcmp.c sys_errlist.c
+	bcmp.c sys_errlist.c dirname.c basename.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ1) $(MOBJ2) $(COBJS)
 

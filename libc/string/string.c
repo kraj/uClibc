@@ -376,6 +376,22 @@ void *memchr(const void *str, int c, size_t len)
 }
 #endif
 
+/********************** Function memrchr ************************************/
+
+#ifdef L_memrchr
+void *memrchr(const void *str, int c, size_t len)
+{
+	register unsigned char *ptr;
+
+	for (ptr = (unsigned char *) str + len; len > 0; len--) {
+		if (*--ptr == (unsigned char) c)
+			return ptr;
+	}
+
+	return 0;
+}
+#endif
+
 /********************** Function memcmp ************************************/
 
 #ifdef L_memcmp
