@@ -73,6 +73,10 @@ ASRC=$(shell ls $(TARGET_ARCH)/*.S)
 AOBJS=$(patsubst %.S,%.o, $(ASRC))
 OBJS=$(AOBJS) $(COBJS)
 
+ifeq ($(strip $(TARGET_ARCH)),cris)
+LDFLAGS+=-mcrislinux
+endif
+
 ifneq ($(strip $(DODEBUG)),true)
 LDFLAGS+=-s
 endif

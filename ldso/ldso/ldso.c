@@ -310,6 +310,8 @@ LD_BOOT(unsigned long args)
 "	   .balign  4"
 "1:	   .long    _GLOBAL_OFFSET_TABLE_"
 "2:" : "=r" (got) : : "r0");
+#elif defined(__cris__)
+  __asm__("\tmove.d $pc,%0\n\tsub.d .:GOTOFF,%0\n\t":"=r"(got));
 #else
 	/* Do things the slow way in C */
 	{
