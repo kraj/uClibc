@@ -34,6 +34,8 @@ extern char *_dl_find_hash(const char *, struct dyn_elf *, struct elf_resolve *,
 	__attribute__ ((__weak__, __alias__ ("foobar")));
 extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **, struct elf_resolve *, char *)
 	__attribute__ ((__weak__, __alias__ ("foobar")));
+extern struct elf_resolve * _dl_check_if_named_library_is_loaded(const char *full_libname)
+	__attribute__ ((__weak__, __alias__ ("foobar")));
 extern int _dl_fixup(struct elf_resolve *tpnt, int lazy)
 	 __attribute__ ((__weak__, __alias__ ("foobar")));
 extern int _dl_copy_fixups(struct dyn_elf * tpnt)
@@ -54,20 +56,27 @@ extern struct r_debug *_dl_debug_addr __attribute__ ((__weak__, __alias__ ("foob
 extern unsigned long _dl_error_number __attribute__ ((__weak__, __alias__ ("foobar1")));
 extern void *(*_dl_malloc_function)(size_t) __attribute__ ((__weak__, __alias__ ("foobar1")));
 #ifdef __SUPPORT_LD_DEBUG__
-#define _dl_debug_file 2
+extern char *_dl_debug __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern char *_dl_debug_symbols __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern char *_dl_debug_move __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern char *_dl_debug_reloc __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern char *_dl_debug_detail __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern char *_dl_debug_nofixups __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern char *_dl_debug_bindings __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern int   _dl_debug_file __attribute__ ((__weak__, __alias__ ("foobar1")));
 #endif
-#else
+
+#else	/* __PIC__ */
+
 #ifdef __SUPPORT_LD_DEBUG__
-static char *_dl_debug  = 0;
-static char *_dl_debug_symbols = 0;
-static char *_dl_debug_move    = 0;
-static char *_dl_debug_reloc   = 0;
-static char *_dl_debug_detail  = 0;
-static char *_dl_debug_nofixups  = 0;
-static char *_dl_debug_bindings  = 0;
-static int   _dl_debug_file = 2;
-#elif defined __SUPPORT_LD_DEBUG_EARLY__
-#define _dl_debug_file 2
+char *_dl_debug  = 0;
+char *_dl_debug_symbols = 0;
+char *_dl_debug_move    = 0;
+char *_dl_debug_reloc   = 0;
+char *_dl_debug_detail  = 0;
+char *_dl_debug_nofixups  = 0;
+char *_dl_debug_bindings  = 0;
+int   _dl_debug_file = 2;
 #endif
 char *_dl_library_path = 0;
 char *_dl_ldsopath = 0;
@@ -75,6 +84,7 @@ struct r_debug *_dl_debug_addr = NULL;
 static char *_dl_malloc_addr, *_dl_mmap_zero;
 #include "../ldso/_dl_progname.h"               /* Pull in the name of ld.so */
 #include "../ldso/hash.c"
+#define _dl_trace_loaded_objects    0
 #include "../ldso/readelflib1.c"
 void *(*_dl_malloc_function) (size_t size);
 int _dl_fixup(struct elf_resolve *tpnt, int lazy);
@@ -168,6 +178,7 @@ void *_dlopen(const char *libname, int flag)
 
 	/* Try to load the specified library */
 #ifdef __SUPPORT_LD_DEBUG__
+	if(_dl_debug) 
 	_dl_dprintf(_dl_debug_file, "Trying to dlopen '%s'\n", (char*)libname);
 #endif
 	if (!(tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname))) {
@@ -189,39 +200,35 @@ void *_dlopen(const char *libname, int flag)
 
 
 #ifdef __SUPPORT_LD_DEBUG__
+	if(_dl_debug) 
 	_dl_dprintf(_dl_debug_file, "Looking for needed libraries\n");
 #endif
 	for (tcurr = tpnt; tcurr; tcurr = tcurr->next)
 	{
 		Elf32_Dyn *dpnt;
 		char *lpntstr;
-		const char *libname1, *ptr;
 		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++) {
 			if (dpnt->d_tag == DT_NEEDED) {
-				lpntstr = (char*)tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] +
-					dpnt->d_un.d_val;
 
-				/* Skip over any initial initial './' and '/' stuff to 
-				 * get the short form libname with no path garbage */
-				libname1 = lpntstr;
-				ptr = _dl_strrchr(libname1, '/');
-				if (ptr) {
-				    libname1 = ptr + 1;
-				}
-
-				/* Linked with glibc? */
-				if (_dl_strcmp(libname1, "libc.so.6") == 0) {
-					_dl_dprintf(2, "\tERROR: %s is linked with GNU libc!\n", 
-						tcurr->libname);
-					goto oops;
-				}
-
+				char *name;
+				lpntstr = (char*) (tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] + 
+					dpnt->d_un.d_val);
+				name = _dl_get_last_path_component(lpntstr);
 
 #ifdef __SUPPORT_LD_DEBUG__
+				if(_dl_debug) 
 				_dl_dprintf(_dl_debug_file, "Trying to load '%s', needed by '%s'\n", 
 						lpntstr, tcurr->libname);
 #endif
-
+#if 0
+				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name)))
+				{
+				    /* If the needed library is already loaded, then we
+				     * need to override all globals and weaks in the current
+				     * chain...  Or something. */
+				    continue;
+				}
+#endif
 
 				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr))) {
 					goto oops;
@@ -254,6 +261,7 @@ void *_dlopen(const char *libname, int flag)
 #endif
 
 #ifdef __SUPPORT_LD_DEBUG__
+	if(_dl_debug) 
 	_dl_dprintf(_dl_debug_file, "Beginning dlopen relocation fixups\n");
 #endif
 	/*
@@ -265,6 +273,7 @@ void *_dlopen(const char *libname, int flag)
 		goto oops;
 
 #ifdef __SUPPORT_LD_DEBUG__
+	if(_dl_debug) 
 	_dl_dprintf(_dl_debug_file, "Beginning dlopen copy fixups\n");
 #endif
 	if (_dl_symbol_tables) {
@@ -289,22 +298,22 @@ void *_dlopen(const char *libname, int flag)
 		}
 	}
 
-#ifdef __SUPPORT_LD_DEBUG__
+#if 0 //def __SUPPORT_LD_DEBUG__
+	if(_dl_debug) 
 	_dlinfo();
 #endif
 
 #ifdef __PIC__
 	/* Find the last library so we can run things in the right order */
-	for (rpnt = _dl_symbol_tables; rpnt!=NULL&& rpnt->next!=NULL; rpnt=rpnt->next)
+	for (tpnt = dyn_chain->dyn; tpnt->next!=NULL; tpnt = tpnt->next)
 	    ;
 
 	/* Run the ctors and set up the dtors */
-	for (;rpnt!=NULL; rpnt=rpnt->prev)
+	for (; tpnt != dyn_chain->dyn->prev; tpnt=tpnt->prev)
 	{
 		/* Apparently crt1 for the application is responsible for handling this.
 		 * We only need to run the init/fini for shared libraries
 		 */
-		tpnt = rpnt->dyn;
 		if (tpnt->libtype == program_interpreter)
 			continue;
 		if (tpnt->libtype == elf_executable)
@@ -318,6 +327,7 @@ void *_dlopen(const char *libname, int flag)
 		    dl_elf_func = (void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
 		    if (dl_elf_func && *dl_elf_func != NULL) {
 #ifdef __SUPPORT_LD_DEBUG__
+			if(_dl_debug) 
 			_dl_dprintf(2, "running ctors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
 #endif
 			(*dl_elf_func) ();
@@ -328,6 +338,7 @@ void *_dlopen(const char *libname, int flag)
 		    dl_elf_func = (void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
 		    if (dl_elf_func && *dl_elf_func != NULL) {
 #ifdef __SUPPORT_LD_DEBUG__
+			if(_dl_debug) 
 			_dl_dprintf(2, "setting up dtors for library %s at '%x'\n", tpnt->libname, dl_elf_func);
 #endif
 			atexit(dl_elf_func);
