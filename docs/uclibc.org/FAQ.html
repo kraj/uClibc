@@ -109,20 +109,26 @@ to the uClibc home page.</a>
 </TD></TR>
 <TR><TD BGCOLOR="#eeeee0">
 
-    uClibc has been designed from the ground up to be a C library for
-    embedded Linux.  We don't need to worry about things like MS-DOS
-    support, or BeOS, or AmigaOs any other system.  This lets us cut out
-    a lot of complexity and very carefully optimize for Linux.  By very
-    careful design, we can also take a few shortcuts.  For example, glibc
-    contains an implementation of the wordexp() function, in compliance
-    with the Single Unix Specification, version 3.  Well, standards are
-    important.  But so is pragmatism.  The wordexp function is huge, yet I
-    am not aware of even one Linux application that uses it!  So uClibc
-    doesn't provide wordexp().  There are many similar examples.  In other
-    cases, uClibc leaves certain features (such as full C99 Math library
-    support, IPV6, and RPC support) disabled by default.  Those features
-    can be enabled for people that need them, but are otherwise disabled to
-    save space.
+    uClibc has been designed from the ground up to be a C library for embedded
+    Linux.  We don't need to worry about things like MS-DOS support, or BeOS,
+    or AmigaOs any other system.  This lets us cut out a lot of complexity and
+    very carefully optimize for Linux.  By very careful design, we can also
+    take a few shortcuts.  
+<!-- FIXME
+    For example, glibc's stdio code (handling things
+    like printf, scanf, fopen, etc) has been evolved over many years by
+    patching various bits of additional functionality as needed.  uClibc's
+    stdio code was written by just one person, and was carefully designed from
+    the outset to comply with the latest standards while carefully reusing code
+    and being as small and configurable as possible,  In this way, uClibc's
+    stdio code...
+
+    There are many similar examples.  
+-->
+    In other cases, uClibc
+    leaves certain features (such as full C99 Math library support, IPV6, and
+    RPC support) disabled by default.  Those features can be enabled for people
+    that need them, but are otherwise disabled to save space.
 
     <p>
 

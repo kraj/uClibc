@@ -25,10 +25,10 @@ and the requirements of the SuSv3.
     call has finished.
 
 2) Some functions required by SuSv3 are not currently implemented.
-    The function you are mostly likely to encounter is wordexp().
-    A couple of years ago, nobody used wordexp.  Now some apps do.
-    One of these days, someone may provide us with a well written
-    patch to implement it...
+    Functions listed by SuSv3 but not (yet) included in uClibc:
+
+	fmtmsg, ftw, nftw, <dunno for certain> 
+
 
 More to follow when we think of it...
 
