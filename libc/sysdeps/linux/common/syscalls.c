@@ -997,7 +997,7 @@ _syscall5(int, init_module, void *, first, void *, second, void *, third,
 #	endif
 #endif
 
-#define __NR_get_kernel_syms  130
+//#define __NR_get_kernel_syms  130
 #ifdef L_get_kernel_syms
 struct kernel_sym;
 _syscall1(int, get_kernel_syms, struct kernel_sym *, table);
