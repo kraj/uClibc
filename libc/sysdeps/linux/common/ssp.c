@@ -41,6 +41,11 @@
 #define SSP_SIGTYPE SIGABRT
 #endif
 
+/* prototypes */
+extern int __libc_open (__const char *file, int oflag, mode_t mode);
+extern ssize_t __libc_read(int fd, void *buf, size_t count);
+extern int __libc_close (int fd);
+
 unsigned long __guard = 0UL;
 
 void __guard_setup(void) __attribute__ ((constructor));
