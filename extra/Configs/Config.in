@@ -17,6 +17,9 @@ config TARGET_alpha
 config TARGET_arm
 	bool "arm"
 
+config TARGET_bfin
+	bool "bfin"
+
 config TARGET_cris
 	bool "cris"
 
@@ -73,6 +76,10 @@ endif
 
 if TARGET_arm
 source "extra/Configs/Config.arm"
+endif
+
+if TARGET_bfin
+source "extra/Configs/Config.bfin"
 endif
 
 if TARGET_cris
