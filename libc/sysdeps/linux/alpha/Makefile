@@ -28,7 +28,8 @@ CRT0=crt0.S
 CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 
 
-SSRC=__longjmp.S brk.S bsd-_setjmp.S bsd-setjmp.S clone.S setjmp.S
+SSRC=__longjmp.S brk.S bsd-_setjmp.S bsd-setjmp.S clone.S \
+    setjmp.S divl.S reml.S remq.S divq.S 
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=sysdep.c #brk.c
