@@ -2,9 +2,9 @@
 /* Program to load an ELF binary on a linux system, and run it
  * after resolving ELF shared library symbols
  *
- * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald, 
+ * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
  *				David Engel, Hongjiu Lu and Mitch D'Souza
- * Copyright (C) 2001-2003, Erik Andersen
+ * Copyright (C) 2001-2004 Erik Andersen
  *
  * All rights reserved.
  *
@@ -63,7 +63,7 @@ int _dl_map_cache(void)
 	_dl_cache_addr = (caddr_t) _dl_mmap(0, _dl_cache_size, PROT_READ, MAP_SHARED, fd, 0);
 	_dl_close(fd);
 	if (_dl_mmap_check_error(_dl_cache_addr)) {
-		_dl_dprintf(2, "%s: can't map cache '%s'\n", 
+		_dl_dprintf(2, "%s: can't map cache '%s'\n",
 			_dl_progname, LDSO_CACHE);
 		return -1;
 	}
@@ -75,9 +75,9 @@ int _dl_map_cache(void)
 		|| _dl_memcmp(header->version, LDSO_CACHE_VER, LDSO_CACHE_VER_LEN)
 		|| _dl_cache_size <
 		(sizeof(header_t) + header->nlibs * sizeof(libentry_t))
-		|| _dl_cache_addr[_dl_cache_size - 1] != '\0') 
+		|| _dl_cache_addr[_dl_cache_size - 1] != '\0')
 	{
-		_dl_dprintf(2, "%s: cache '%s' is corrupt\n", _dl_progname, 
+		_dl_dprintf(2, "%s: cache '%s' is corrupt\n", _dl_progname,
 			LDSO_CACHE);
 		goto fail;
 	}
@@ -87,8 +87,8 @@ int _dl_map_cache(void)
 	libent = (libentry_t *) & header[1];
 
 	for (i = 0; i < header->nlibs; i++) {
-		if (libent[i].sooffset >= strtabsize || 
-			libent[i].liboffset >= strtabsize) 
+		if (libent[i].sooffset >= strtabsize ||
+			libent[i].liboffset >= strtabsize)
 		{
 			_dl_dprintf(2, "%s: cache '%s' is corrupt\n", _dl_progname, LDSO_CACHE);
 			goto fail;
@@ -118,9 +118,9 @@ int _dl_unmap_cache(void)
 
 #endif
 
-/* This function's behavior must exactly match that 
+/* This function's behavior must exactly match that
  * in uClibc/ldso/util/ldd.c */
-static struct elf_resolve * 
+static struct elf_resolve *
 search_for_named_library(const char *name, int secure, const char *path_list,
 	struct dyn_elf **rpnt)
 {
@@ -128,7 +128,7 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 	char *path, *path_n;
 	char mylibname[2050];
 	struct elf_resolve *tpnt1;
-	
+
 	if (path_list==NULL)
 		return NULL;
 
@@ -138,7 +138,7 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 		_dl_dprintf(2, "Out of memory!\n");
 		_dl_exit(0);
 	}
-	
+
 
 	/* Unlike ldd.c, don't bother to eliminate double //s */
 
@@ -153,8 +153,8 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 
 	path_n = path;
 	for (i = 0; i < count; i++) {
-		_dl_strcpy(mylibname, path_n); 
-		_dl_strcat(mylibname, "/"); 
+		_dl_strcpy(mylibname, path_n);
+		_dl_strcat(mylibname, "/");
 		_dl_strcat(mylibname, name);
 		if ((tpnt1 = _dl_load_elf_shared_library(secure, rpnt, mylibname)) != NULL)
 		{
@@ -177,16 +177,16 @@ struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libnam
 	pnt = libname = full_libname;
 
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug) 
+	if(_dl_debug)
 		_dl_dprintf(_dl_debug_file, "Checking if '%s' is already loaded\n", full_libname);
 #endif
-	/* quick hack to ensure mylibname buffer doesn't overflow.  don't 
+	/* quick hack to ensure mylibname buffer doesn't overflow.  don't
 	   allow full_libname or any directory to be longer than 1024. */
 	if (_dl_strlen(full_libname) > 1024)
 		return NULL;
 
-	/* Skip over any initial initial './' and '/' stuff to 
-	 * get the short form libname with no path garbage */ 
+	/* Skip over any initial initial './' and '/' stuff to
+	 * get the short form libname with no path garbage */
 	pnt1 = _dl_strrchr(pnt, '/');
 	if (pnt1) {
 		libname = pnt1 + 1;
@@ -214,8 +214,8 @@ struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libnam
 	 * really bad things to happen with weaks and globals. */
 	for (tpnt1 = _dl_loaded_modules; tpnt1; tpnt1 = tpnt1->next) {
 
-		/* Skip over any initial initial './' and '/' stuff to 
-		 * get the short form libname with no path garbage */ 
+		/* Skip over any initial initial './' and '/' stuff to
+		 * get the short form libname with no path garbage */
 		libname2 = tpnt1->libname;
 		pnt1 = _dl_strrchr(libname2, '/');
 		if (pnt1) {
@@ -230,7 +230,6 @@ struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libnam
 
 	return NULL;
 }
-	
 
 
 /*
@@ -251,13 +250,13 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	_dl_internal_error_number = 0;
 	libname = full_libname;
 
-	/* quick hack to ensure mylibname buffer doesn't overflow.  don't 
+	/* quick hack to ensure mylibname buffer doesn't overflow.  don't
 	   allow full_libname or any directory to be longer than 1024. */
 	if (_dl_strlen(full_libname) > 1024)
 		goto goof;
 
-	/* Skip over any initial initial './' and '/' stuff to 
-	 * get the short form libname with no path garbage */ 
+	/* Skip over any initial initial './' and '/' stuff to
+	 * get the short form libname with no path garbage */
 	pnt1 = _dl_strrchr(libname, '/');
 	if (pnt1) {
 		libname = pnt1 + 1;
@@ -273,7 +272,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfind library='%s'; searching\n", libname);
 #endif
 	/* If the filename has any '/', try it straight and leave it at that.
-	   For IBCS2 compatibility under linux, we substitute the string 
+	   For IBCS2 compatibility under linux, we substitute the string
 	   /usr/i486-sysv4/lib for /usr/lib in library names. */
 
 	if (libname != full_libname) {
@@ -299,7 +298,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 #if defined (__SUPPORT_LD_DEBUG__)
 				if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching RPATH='%s'\n", pnt);
 #endif
-				if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL) 
+				if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL)
 				{
 				    return tpnt1;
 				}
@@ -312,7 +311,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 #if defined (__SUPPORT_LD_DEBUG__)
 		if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching LD_LIBRARY_PATH='%s'\n", _dl_library_path);
 #endif
-	    if ((tpnt1 = search_for_named_library(libname, secure, _dl_library_path, rpnt)) != NULL) 
+	    if ((tpnt1 = search_for_named_library(libname, secure, _dl_library_path, rpnt)) != NULL)
 	    {
 		return tpnt1;
 	    }
@@ -337,7 +336,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 			if ((libent[i].flags == LIB_ELF ||
 				 libent[i].flags == LIB_ELF_LIBC5) &&
 				_dl_strcmp(libname, strs + libent[i].sooffset) == 0 &&
-				(tpnt1 = _dl_load_elf_shared_library(secure, 
+				(tpnt1 = _dl_load_elf_shared_library(secure,
 				     rpnt, strs + libent[i].liboffset)))
 				return tpnt1;
 		}
@@ -349,7 +348,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 #if defined (__SUPPORT_LD_DEBUG__)
 		if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching ldso dir='%s'\n", _dl_ldsopath);
 #endif
-	if ((tpnt1 = search_for_named_library(libname, secure, _dl_ldsopath, rpnt)) != NULL) 
+	if ((tpnt1 = search_for_named_library(libname, secure, _dl_ldsopath, rpnt)) != NULL)
 	{
 	    return tpnt1;
 	}
@@ -360,13 +359,13 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching full lib path list\n");
 #endif
-	if ((tpnt1 = search_for_named_library(libname, secure, 
+	if ((tpnt1 = search_for_named_library(libname, secure,
 			UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib:"
 			UCLIBC_RUNTIME_PREFIX "usr/lib:"
 			UCLIBC_RUNTIME_PREFIX "lib:"
 			"/usr/lib:"
 			"/lib", rpnt)
-		    ) != NULL) 
+		    ) != NULL)
 	{
 	    return tpnt1;
 	}
@@ -457,13 +456,13 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		_dl_close(infile);
 		return NULL;
 	};
-        
+
 	_dl_read(infile, header, PAGE_SIZE);
 	epnt = (ElfW(Ehdr) *) (intptr_t) header;
 	if (epnt->e_ident[0] != 0x7f ||
-		epnt->e_ident[1] != 'E' || 
-		epnt->e_ident[2] != 'L' || 
-		epnt->e_ident[3] != 'F') 
+		epnt->e_ident[1] != 'E' ||
+		epnt->e_ident[2] != 'L' ||
+		epnt->e_ident[3] != 'F')
 	{
 		_dl_dprintf(2, "%s: '%s' is not an ELF file\n", _dl_progname,
 					 libname);
@@ -473,15 +472,15 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		return NULL;
 	};
 
-	if ((epnt->e_type != ET_DYN) || (epnt->e_machine != MAGIC1 
+	if ((epnt->e_type != ET_DYN) || (epnt->e_machine != MAGIC1
 #ifdef MAGIC2
 		    && epnt->e_machine != MAGIC2
 #endif
-		)) 
+		))
 	{
-		_dl_internal_error_number = 
+		_dl_internal_error_number =
 		    (epnt->e_type != ET_DYN ? LD_ERROR_NOTDYN : LD_ERROR_NOTMAGIC);
-		_dl_dprintf(2, "%s: '%s' is not an ELF executable for " ELF_TARGET 
+		_dl_dprintf(2, "%s: '%s' is not an ELF executable for " ELF_TARGET
 			"\n", _dl_progname, libname);
 		_dl_close(infile);
 		_dl_munmap(header, PAGE_SIZE);
@@ -495,7 +494,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 		if (ppnt->p_type == PT_DYNAMIC) {
 			if (dynamic_addr)
-				_dl_dprintf(2, "%s: '%s' has more than one dynamic section\n", 
+				_dl_dprintf(2, "%s: '%s' has more than one dynamic section\n",
 					_dl_progname, libname);
 			dynamic_addr = ppnt->p_vaddr;
 			dynamic_size = ppnt->p_filesz;
@@ -524,7 +523,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	if (!piclib)
 		flags |= MAP_FIXED;
 
-	status = (char *) _dl_mmap((char *) (piclib ? 0 : minvma), 
+	status = (char *) _dl_mmap((char *) (piclib ? 0 : minvma),
 		maxvma - minvma, PROT_NONE, flags | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(status)) {
 		_dl_dprintf(2, "%s: can't map %s\n", _dl_progname, libname);
@@ -554,13 +553,13 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				unsigned long map_size;
 				char *cpnt;
 
-				status = (char *) _dl_mmap((char *) ((piclib ? libaddr : 0) + 
-					(ppnt->p_vaddr & PAGE_ALIGN)), (ppnt->p_vaddr & ADDR_ALIGN) 
-					+ ppnt->p_filesz, LXFLAGS(ppnt->p_flags), flags, infile, 
+				status = (char *) _dl_mmap((char *) ((piclib ? libaddr : 0) +
+					(ppnt->p_vaddr & PAGE_ALIGN)), (ppnt->p_vaddr & ADDR_ALIGN)
+					+ ppnt->p_filesz, LXFLAGS(ppnt->p_flags), flags, infile,
 					ppnt->p_offset & OFFS_ALIGN);
 
 				if (_dl_mmap_check_error(status)) {
-					_dl_dprintf(2, "%s: can't map '%s'\n", 
+					_dl_dprintf(2, "%s: can't map '%s'\n",
 						_dl_progname, libname);
 					_dl_internal_error_number = LD_ERROR_MMAP_FAILED;
 					_dl_munmap((char *) libaddr, maxvma - minvma);
@@ -584,14 +583,14 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				map_size = (ppnt->p_vaddr + ppnt->p_filesz + ADDR_ALIGN) & PAGE_ALIGN;
 
 				if (map_size < ppnt->p_vaddr + ppnt->p_memsz)
-					status = (char *) _dl_mmap((char *) map_size + 
-						(piclib ? libaddr : 0), 
-						ppnt->p_vaddr + ppnt->p_memsz - map_size, 
+					status = (char *) _dl_mmap((char *) map_size +
+						(piclib ? libaddr : 0),
+						ppnt->p_vaddr + ppnt->p_memsz - map_size,
 						LXFLAGS(ppnt->p_flags), flags | MAP_ANONYMOUS, -1, 0);
 			} else
-				status = (char *) _dl_mmap((char *) (ppnt->p_vaddr & PAGE_ALIGN) 
-					+ (piclib ? libaddr : 0), (ppnt->p_vaddr & ADDR_ALIGN) + 
-					ppnt->p_filesz, LXFLAGS(ppnt->p_flags), flags, 
+				status = (char *) _dl_mmap((char *) (ppnt->p_vaddr & PAGE_ALIGN)
+					+ (piclib ? libaddr : 0), (ppnt->p_vaddr & ADDR_ALIGN) +
+					ppnt->p_filesz, LXFLAGS(ppnt->p_flags), flags,
 					infile, ppnt->p_offset & OFFS_ALIGN);
 			if (_dl_mmap_check_error(status)) {
 				_dl_dprintf(2, "%s: can't map '%s'\n", _dl_progname, libname);
@@ -616,7 +615,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		dynamic_addr += (unsigned long) libaddr;
 	}
 
-	/* 
+	/*
 	 * OK, the ELF library is now loaded into VM in the correct locations
 	 * The next step is to go through and do the dynamic linking (if needed).
 	 */
@@ -625,7 +624,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	if (!dynamic_addr) {
 		_dl_internal_error_number = LD_ERROR_NODYNAMIC;
-		_dl_dprintf(2, "%s: '%s' is missing a dynamic section\n", 
+		_dl_dprintf(2, "%s: '%s' is missing a dynamic section\n",
 			_dl_progname, libname);
 			_dl_munmap(header, PAGE_SIZE);
 		return NULL;
@@ -638,7 +637,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 #if defined(__mips__)
 	{
-		
+
 		int indx = 1;
 		Elf32_Dyn *dpnt = (Elf32_Dyn *) dynamic_addr;
 
@@ -653,7 +652,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	{
 		unsigned long indx;
 
-		for (indx = 0; indx < dynamic_size; indx++) 
+		for (indx = 0; indx < dynamic_size; indx++)
 		{
 			if (dpnt->d_tag > DT_JMPREL) {
 				dpnt++;
@@ -675,18 +674,18 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		ppnt = (ElfW(Phdr) *)(intptr_t) & header[epnt->e_phoff];
 		for (i = 0; i < epnt->e_phnum; i++, ppnt++) {
 			if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
-				_dl_mprotect((void *) ((piclib ? libaddr : 0) + 
-					    (ppnt->p_vaddr & PAGE_ALIGN)), 
-					(ppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) ppnt->p_filesz, 
+				_dl_mprotect((void *) ((piclib ? libaddr : 0) +
+					    (ppnt->p_vaddr & PAGE_ALIGN)),
+					(ppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) ppnt->p_filesz,
 					PROT_READ | PROT_WRITE | PROT_EXEC);
 		}
 #else
 		_dl_dprintf(_dl_debug_file, "Can't modify %s's text section. Use GCC option -fPIC for shared objects, please.\n",libname);
 		_dl_exit(1);
-#endif		
+#endif
 	}
 
-	tpnt = _dl_add_elf_hash_table(libname, (char *) libaddr, dynamic_info, 
+	tpnt = _dl_add_elf_hash_table(libname, (char *) libaddr, dynamic_info,
 		dynamic_addr, dynamic_size);
 
 	tpnt->ppnt = (ElfW(Phdr) *)(intptr_t) (tpnt->loadaddr + epnt->e_phoff);
@@ -709,7 +708,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	/*
 	 * OK, the next thing we need to do is to insert the dynamic linker into
 	 * the proper entry in the GOT so that the PLT symbols can be properly
-	 * resolved. 
+	 * resolved.
 	 */
 
 	lpnt = (unsigned long *) dynamic_info[DT_PLTGOT];
@@ -723,9 +722,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) {
 		_dl_dprintf(2, "\n\tfile='%s';  generating link map\n", libname);
-		_dl_dprintf(2, "\t\tdynamic: %x  base: %x   size: %x\n", 
+		_dl_dprintf(2, "\t\tdynamic: %x  base: %x   size: %x\n",
 				dynamic_addr, libaddr, dynamic_size);
-		_dl_dprintf(2, "\t\t  entry: %x  phdr: %x  phnum: %d\n\n", 
+		_dl_dprintf(2, "\t\t  entry: %x  phdr: %x  phnum: %d\n\n",
 				epnt->e_entry + libaddr, tpnt->ppnt, tpnt->n_phent);
 
 	}
@@ -746,7 +745,7 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 	buf = _dl_mmap((void *) 0, PAGE_SIZE, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 	if (_dl_mmap_check_error(buf)) {
-			_dl_write(fd, "mmap of a spare page failed!\n", 29); 
+			_dl_write(fd, "mmap of a spare page failed!\n", 29);
 			_dl_exit(20);
 	}
 
@@ -846,7 +845,7 @@ void *_dl_malloc(int size)
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 		_dl_dprintf(2, "malloc: mmapping more memory\n");
 #endif
-		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size, 
+		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size,
 				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
 			_dl_dprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
