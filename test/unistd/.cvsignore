@@ -1,2 +1,4 @@
 fork
 fork_glibc
+vfork
+vfork_glibc
