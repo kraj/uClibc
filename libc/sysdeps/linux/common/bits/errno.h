@@ -21,12 +21,13 @@
 
 # include <bits/errno_values.h>
 
-/* Linux has no ENOTSUP error code.  */
+#ifndef ENOTSUP
 # define ENOTSUP EOPNOTSUPP
+#endif
 
-/* Linux also has no ECANCELED error code.  Since it is not used here
-   we define it to an invalid value.  */
+#ifndef ECANCELED
 # define ECANCELED	125
+#endif
 
 # ifndef __ASSEMBLER__
 
