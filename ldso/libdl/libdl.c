@@ -26,6 +26,39 @@ void *dlsym(void *, const char *) __attribute__ ((__weak__, __alias__ ("_dlsym")
 int dlclose(void *) __attribute__ ((__weak__, __alias__ ("_dlclose")));
 int dladdr(void *, Dl_info *) __attribute__ ((__weak__, __alias__ ("_dladdr")));
 
+/* This is a real hack.  We need access to the dynamic linker, but we
+also need to make it possible to link against this library without any
+unresolved externals.  We provide these weak symbols to make the link
+possible, but at run time the normal symbols are accessed. */
+static void __attribute__ ((unused)) foobar(void)
+{
+	const char msg[]="libdl library not correctly linked\n";
+	_dl_write(2, msg, _dl_strlen(msg));
+	_dl_exit(1);
+}
+
+static int __attribute__ ((unused)) foobar1 = (int) foobar;	/* Use as pointer */
+extern void _dl_dprintf(int, const char *, ...) __attribute__ ((__weak__, __alias__ ("foobar")));
+extern char *_dl_find_hash(char *, struct dyn_elf *, struct elf_resolve *, int)
+	__attribute__ ((__weak__, __alias__ ("foobar")));
+extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **, struct elf_resolve *, char *)
+	__attribute__ ((__weak__, __alias__ ("foobar")));
+extern int _dl_parse_relocation_information(struct elf_resolve *, unsigned long, unsigned long, int)
+	__attribute__ ((__weak__, __alias__ ("foobar")));
+extern void _dl_parse_lazy_relocation_information(struct elf_resolve *, unsigned long, unsigned long, int)
+	__attribute__ ((__weak__, __alias__ ("foobar")));
+#ifdef USE_CACHE
+int _dl_map_cache(void) __attribute__ ((__weak__, __alias__ ("foobar")));
+int _dl_unmap_cache(void) __attribute__ ((__weak__, __alias__ ("foobar")));
+#endif	
+
+extern struct dyn_elf *_dl_symbol_tables __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern struct dyn_elf *_dl_handles __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern struct elf_resolve *_dl_loaded_modules __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern struct r_debug *_dl_debug_addr __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern int _dl_error_number __attribute__ ((__weak__, __alias__ ("foobar1")));
+extern void *(*_dl_malloc_function)(size_t) __attribute__ ((__weak__, __alias__ ("foobar1")));
+
 static const char *dl_error_names[] = {
 	"",
 	"File not found",
@@ -170,7 +203,7 @@ void *_dlopen(const char *libname, int flag)
 		goto oops;
 	}
 
-	dl_brk = (void (*)()) _dl_debug_addr->r_brk;
+	dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
 	if (dl_brk != NULL) {
 		_dl_debug_addr->r_state = RT_ADD;
 		(*dl_brk) ();
@@ -427,7 +460,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 	}
 
 
-	dl_brk = (void (*)()) _dl_debug_addr->r_brk;
+	dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
 	if (dl_brk != NULL) {
 		_dl_debug_addr->r_state = RT_DELETE;
 		(*dl_brk) ();
@@ -439,7 +472,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 	return 0;
 }
 
-const char *_dlerror()
+const char *_dlerror(void)
 {
 	const char *retval;
 
@@ -450,46 +483,12 @@ const char *_dlerror()
 	return retval;
 }
 
-/* This is a real hack.  We need access to the dynamic linker, but we
-also need to make it possible to link against this library without any
-unresolved externals.  We provide these weak symbols to make the link
-possible, but at run time the normal symbols are accessed. */
-
-static void __attribute__ ((unused)) foobar()
-{
-	_dl_dprintf(2, "libdl library not correctly linked\n");
-	_dl_exit(1);
-}
-
-static int __attribute__ ((unused)) foobar1 = (int) foobar;	/* Use as pointer */
-
-void _dl_dprintf(int, const char *, ...) __attribute__ ((__weak__, __alias__ ("foobar")));
-char *_dl_find_hash(char *, struct dyn_elf *, struct elf_resolve *, int)
-	__attribute__ ((__weak__, __alias__ ("foobar")));
-struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **, struct elf_resolve *, char *)
-	__attribute__ ((__weak__, __alias__ ("foobar")));
-int _dl_parse_relocation_information(struct elf_resolve *, unsigned long, unsigned long, int)
-	__attribute__ ((__weak__, __alias__ ("foobar")));
-void _dl_parse_lazy_relocation_information(struct elf_resolve *, unsigned long, unsigned long, int)
-	__attribute__ ((__weak__, __alias__ ("foobar")));
-#ifdef USE_CACHE
-int _dl_map_cache(void) __attribute__ ((__weak__, __alias__ ("foobar")));
-int _dl_unmap_cache(void) __attribute__ ((__weak__, __alias__ ("foobar")));
-#endif	
-
-extern struct dyn_elf *_dl_symbol_tables __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern struct dyn_elf *_dl_handles __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern struct elf_resolve *_dl_loaded_modules __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern struct r_debug *_dl_debug_addr __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern int _dl_error_number __attribute__ ((__weak__, __alias__ ("foobar1")));
-extern void *(*_dl_malloc_function)(size_t) __attribute__ ((__weak__, __alias__ ("foobar1")));
-
 /*
  * Dump information to stderrr about the current loaded modules
  */
 static char *type[] = { "Lib", "Exe", "Int", "Mod" };
 
-void _dlinfo()
+void _dlinfo(void)
 {
 	struct elf_resolve *tpnt;
 	struct dyn_elf *rpnt, *hpnt;
