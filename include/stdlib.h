@@ -876,12 +876,13 @@ extern int unlockpt (int __fd) __THROW;
 extern char *ptsname (int __fd) __THROW;
 #endif
 
-#if 0
-/*#ifdef __USE_GNU*/
+#ifdef __USE_GNU
 /* Store at most BUFLEN characters of the pathname of the slave pseudo
    terminal associated with the master FD is open on in BUF.
    Return 0 on success, otherwise an error number.  */
+#if 0
 extern int ptsname_r (int __fd, char *__buf, size_t __buflen) __THROW;
+#endif
 
 /* Open a master pseudo terminal and return its file descriptor.  */
 extern int getpt (void) __THROW;
