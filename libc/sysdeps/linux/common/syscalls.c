@@ -515,11 +515,6 @@ _syscall2(int,setgroups,size_t,size,const gid_t *,list);
 #endif
 
 //#define __NR_select			82
-#ifdef L_select
-#include <unistd.h>
-_syscall5(int,select,int, n, fd_set *,readfds, fd_set *,writefds,
-       fd_set *,exceptfds, struct timeval *,timeout);
-#endif
 
 //#define __NR_symlink			83
 #ifdef L_symlink 
@@ -840,6 +835,17 @@ SYSCALL__ (getdents, 3)
 #endif
 
 //#define __NR__newselect		142
+#ifdef L__newselect
+#include <unistd.h>
+_syscall5(int,_newselect,int, n, fd_set *,readfds, fd_set *,writefds,
+       fd_set *,exceptfds, struct timeval *,timeout);
+
+int select(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, 
+		struct timeval *timeout)
+{
+	return(_newselect(n, readfds, writefds, exceptfds, timeout));
+}
+#endif
 
 //#define __NR_flock			143
 #ifdef L_flock 
