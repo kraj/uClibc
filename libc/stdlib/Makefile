@@ -35,6 +35,12 @@ ifeq ($(HAS_LONG_LONG),true)
 	MOBJ +=  llabs.o atoll.o strtoll.o strtoull.o _stdlib_strto_ll.o
 endif
 
+ifeq ($(HAS_WCHAR),true)
+	MOBJ += mblen.o mbtowc.o wctomb.o mbstowcs.o wcstombs.o \
+		_stdlib_mb_cur_max.o 
+endif
+
+
 MSRC2=atexit.c
 MOBJ2=atexit.o on_exit.o __exit_handler.o exit.o
 

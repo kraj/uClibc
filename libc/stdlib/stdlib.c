@@ -623,3 +623,136 @@ void ssort (void  *base,
 
 #endif
 /**********************************************************************/
+/* Multibyte and wchar stuff follows. */
+
+#ifdef __UCLIBC_HAS_WCHAR__
+
+#include <locale.h>
+#include <wchar.h>
+
+/* TODO: clean up the following... */
+
+#if WCHAR_MAX > 0xffffU
+#define UTF_8_MAX_LEN 6
+#else
+#define UTF_8_MAX_LEN 3
+#endif
+
+#define ENCODING (__global_locale.encoding)
+
+#endif
+
+/**********************************************************************/
+#ifdef L__stdlib_mb_cur_max
+
+size_t _stdlib_mb_cur_max(void)
+{
+	return __global_locale.mb_cur_max;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_mblen
+
+#warning implement __CTYPE_HAS_UTF_8_LOCALES!
+#define __CTYPE_HAS_UTF_8_LOCALES
+
+int mblen(register const char *s, size_t n)
+{
+	static mbstate_t state;
+	size_t r;
+
+	if (!s) {
+		state.mask = 0;
+#ifdef __CTYPE_HAS_UTF_8_LOCALES
+		return ENCODING == __ctype_encoding_utf8;
+#else
+		return 0;
+#endif
+	}
+
+	if ((r = mbrlen(s, n, &state)) == (size_t) -2) {
+		/* TODO: Should we set an error state? */
+		state.wc = 0xffffU;		/* Make sure we're in an error state. */
+		return (size_t) -1;		/* TODO: Change error code above? */
+	}
+	return r;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_mbtowc
+
+#warning implement __CTYPE_HAS_UTF_8_LOCALES!
+#define __CTYPE_HAS_UTF_8_LOCALES
+
+int mbtowc(wchar_t *__restrict pwc, register const char *__restrict s, size_t n)
+{
+	static mbstate_t state;
+	size_t r;
+
+	if (!s) {
+		state.mask = 0;
+#ifdef __CTYPE_HAS_UTF_8_LOCALES
+		return ENCODING == __ctype_encoding_utf8;
+#else
+		return 0;
+#endif
+	}
+
+	if ((r = mbrtowc(pwc, s, n, &state)) == (size_t) -2) {
+		/* TODO: Should we set an error state? */
+		state.wc = 0xffffU;		/* Make sure we're in an error state. */
+		return (size_t) -1;		/* TODO: Change error code above? */
+	}
+	return r;
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_wctomb
+
+#warning implement __CTYPE_HAS_UTF_8_LOCALES!
+#define __CTYPE_HAS_UTF_8_LOCALES
+
+/* Note: We completely ignore state in all currently supported conversions. */
+
+int wctomb(register char *__restrict s, wchar_t swc)
+{
+	return (!s)
+		?
+#ifdef __CTYPE_HAS_UTF_8_LOCALES
+		(ENCODING == __ctype_encoding_utf8)
+#else
+		0						/* Encoding is stateless. */
+#endif
+		: ((ssize_t) wcrtomb(s, swc, NULL));
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_mbstowcs
+
+size_t mbstowcs(wchar_t * __restrict pwcs, const char * __restrict s, size_t n)
+{
+	mbstate_t state;
+
+	state.mask = 0;				/* Always start in initial shift state. */
+
+	return mbsrtowcs(pwcs, &s, n, &state);
+}
+
+#endif
+/**********************************************************************/
+#ifdef L_wcstombs
+
+/* Note: We completely ignore state in all currently supported conversions. */
+
+size_t wcstombs(char * __restrict s, const wchar_t * __restrict pwcs, size_t n)
+{
+	return wcsrtombs(s, &pwcs, n, NULL);
+}
+
+#endif
+/**********************************************************************/
+
