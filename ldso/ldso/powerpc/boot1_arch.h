@@ -9,12 +9,10 @@ asm("\
 .text
 .globl _dl_boot
 _dl_boot:
-	addi	3,1,4
+	mr	3,1
+	addi	1,1,-16
 
 	bl      _dl_boot2
-
-	li	0,0
-	lwz	0,42(0)
 .previous\n\
 ");
 

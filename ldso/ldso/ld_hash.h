@@ -70,6 +70,12 @@ struct elf_resolve{
   unsigned long dynamic_size;
   unsigned long n_phent;
   Elf32_Phdr * ppnt;
+
+#ifdef __powerpc__
+  /* this is used to store the address of relocation data words, so
+   * we don't have to calculate it every time, which requires a divide */
+  unsigned long data_words;
+#endif
 };
 
 #if 0

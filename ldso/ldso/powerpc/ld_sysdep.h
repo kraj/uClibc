@@ -13,7 +13,7 @@
  * the address if the first argument, on other platforms we need to
  * do something a little more subtle here.
  */
-#define GET_ARGV(ARGVP, ARGS) ARGVP = ((unsigned long*) ARGS)
+#define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long*) ARGS)+1)
 
 /*
  * Initialization sequence for a GOT.
@@ -93,31 +93,17 @@
 	PPC_DCBST(REL); PPC_SYNC; PPC_ICBI(REL);	\
 	}
 
-#if 0
-	case R_386_32:		\
-	  *REL += SYMBOL;		\
-	  break;		\
-	case R_386_PC32:		\
-	  *REL += SYMBOL - (unsigned long) REL;		\
-	  break;		\
-	case R_386_GLOB_DAT:		\
-	case R_386_JMP_SLOT:		\
-	  *REL = SYMBOL;		\
-	  break;		\
-	case R_386_RELATIVE:		\
-	  *REL += (unsigned long) LOAD;		\
-	  break;
-#endif
-
 /*
  * Transfer control to the user's application, once the dynamic loader
  * is done.  This routine has to exit the current function, then 
  * call the _dl_elf_main function.
  */
 #define START()		\
-	__asm__ volatile ("mtlr %0\n\t" \
+	__asm__ volatile ( \
+		    "addi 1,%1,0\n\t" \
+		    "mtlr %0\n\t" \
 		    "blrl\n\t"	\
-		    : :	"r" (_dl_elf_main))
+		    : :	"r" (_dl_elf_main), "r" (args))
 
 
 

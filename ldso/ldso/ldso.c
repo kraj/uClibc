@@ -149,6 +149,25 @@ char *_dl_get_last_path_component(char *path);
 	auxv_t[0...N]   Auxiliary Vector Table elements (mixed types)
 */
 
+#ifdef DL_DEBUG
+/* Debugging is especially tricky on PowerPC, since string literals
+ * require relocations.  Thus, you can't use _dl_dprintf() for
+ * anything until the bootstrap relocations are finished. */
+static inline void hexprint(unsigned long x)
+{
+	int i;
+	char c;
+	for(i=0;i<8;i++){
+		c=((x>>28)+'0');
+		if(c>'9')c+='a'-'9'-1;
+		_dl_write(1,&c,1);
+		x<<=4;
+	}
+	c='\n';
+	_dl_write(1,&c,1);
+}
+#endif
+
 DL_BOOT(unsigned long args)
 {
 	unsigned int argc;
@@ -220,8 +239,11 @@ DL_BOOT(unsigned long args)
 
 	/* Check the ELF header to make sure everything looks ok.  */
 	if (! header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
-		header->e_ident[EI_VERSION] != EV_CURRENT || 
-		_dl_strncmp((void *)header, ELFMAGIC, SELFMAG) != 0)
+		header->e_ident[EI_VERSION] != EV_CURRENT
+#ifndef __powerpc__
+		|| _dl_strncmp((void *)header, ELFMAGIC, SELFMAG) != 0
+#endif
+		)
 	{
 	    SEND_STDERR("Invalid ELF header\n");
 	    _dl_exit(0);
@@ -328,9 +350,12 @@ found_got:
 	   We are only doing ourself right now - we will have to do the rest later */
 
 	while (dpnt->d_tag) {
-		tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-		if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT)
-			tpnt->dynamic_info[DT_TEXTREL] = 1;
+		if(dpnt->d_tag<24) {
+			tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
+			if (dpnt->d_tag == DT_TEXTREL || SVR4_BUGCOMPAT) {
+				tpnt->dynamic_info[DT_TEXTREL] = 1;
+			}
+		}
 		dpnt++;
 	}
 
