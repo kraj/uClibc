@@ -80,7 +80,8 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	};
 
 	/* Address of jump instruction to fix up */
-	instr_addr = ((int) this_reloc->r_offset + (int) tpnt->loadaddr);
+	instr_addr = ((unsigned long) this_reloc->r_offset + 
+		(unsigned long) tpnt->loadaddr);
 	got_addr = (char **) instr_addr;
 
 #ifdef DEBUG
@@ -90,7 +91,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	/* Get the address of the GOT entry */
 	new_addr = _dl_find_hash(strtab + symtab[symtab_index].st_name, 
-		tpnt->symbol_scope, (int) got_addr, tpnt, 0);
+		tpnt->symbol_scope, (unsigned long) got_addr, tpnt, 0);
 	if (!new_addr) {
 		_dl_fdprintf(2, "%s: can't resolve symbol '%s'\n", 
 			_dl_progname, strtab + symtab[symtab_index].st_name);
