@@ -417,6 +417,9 @@ uClibc was built without large file support enabled.
 #ifndef __LINUX_COMPILER_H
 #define __LINUX_COMPILER_H
 #endif
+#ifndef __cast__
+#define __cast__(_to)
+#endif
 
 /* Arrange to hide uClibc internals */
 #if __GNUC_PREREQ (3, 3)
