@@ -33,7 +33,7 @@ include Rules.mak
 
 DIRS = extra ldso libc libcrypt libresolv libutil libm libpthread
 
-all: headers uClibc_config subdirs shared util finished
+all: headers uClibc_config subdirs shared finished
 
 Config:
 	@echo
@@ -56,11 +56,6 @@ else
 	@echo
 	@echo Not building shared libraries...
 	@echo
-endif
-
-util:
-ifeq ($(strip $(HAVE_SHARED)),true)
-	@$(MAKE) -C ldso utils
 endif
 
 finished: shared
@@ -291,7 +286,12 @@ install_toolchain:
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
 	$(MAKE) -C extra/gcc-uClibc install
 
-install_utils:
+util: install_dev
+ifeq ($(strip $(HAVE_SHARED)),true)
+	@$(MAKE) -C ldso utils
+endif
+
+install_utils: util
 ifeq ($(strip $(HAVE_SHARED)),true)
 	@$(MAKE) -C ldso utils
 	install -m 755 ldso/util/ldd $(PREFIX)$(DEVEL_PREFIX)/bin
@@ -330,7 +330,7 @@ ifeq ($(strip $(HAVE_SHARED)),true)
 	fi;
 endif
 
-install_target_utils:
+install_target_utils: util
 ifeq ($(strip $(HAVE_SHARED)),true)
 	install -m 755 ldso/util/ldd.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/ldd
 	install -m 755 ldso/util/readelf.target $(PREFIX)$(TARGET_PREFIX)/usr/bin/readelf
