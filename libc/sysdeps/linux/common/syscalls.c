@@ -86,10 +86,7 @@ _syscall1(int, close, int, fd);
 #endif
 
 //#define __NR_waitpid          7
-#include <sys/wait.h>
-#ifdef L_waitpid
-_syscall3(pid_t, waitpid, pid_t, pid, int *, status, int, options);
-#endif
+// Implemented using wait4 
 
 //#define __NR_creat            8
 #ifdef L_creat
@@ -792,9 +789,7 @@ _syscall0(int, vhangup);
 
 //#define __NR_wait4            114
 #ifdef L_wait4
-#include <sys/wait.h>
-_syscall4(pid_t, wait4, pid_t, pid, int *, status, int, options,
-		  struct rusage *, rusage);
+_syscall4(int, wait4, pid_t, pid, int *, status, int, opts, void *, rusage);
 #endif
 
 //#define __NR_swapoff          115
@@ -966,12 +961,7 @@ _syscall1(pid_t, getsid, pid_t, pid);
 #endif
 
 //#define __NR_fdatasync        148
-//
 //#define __NR__sysctl          149
-//#ifdef L_sysctl
-//_syscall1(int, sysctl, struct __sysctl_args *, args);
-//#endif	
-
 //#define __NR_mlock            150
 //#define __NR_munlock          151
 //#define __NR_mlockall         152

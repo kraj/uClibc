@@ -3,7 +3,11 @@
 #include <sys/wait.h>
 #include <sys/resource.h>
 
-__pid_t wait(__WAIT_STATUS wait_stat)
+/* Wait for a child to die.  When one does, put its status in *STAT_LOC
+ * and return its process ID.  For errors, return (pid_t) -1.  */
+__pid_t wait (__WAIT_STATUS_DEFN stat_loc)
 {
-	return wait4((-1) /* WAIT_ANY */, wait_stat, 0, NULL);
+      return wait4 (WAIT_ANY, stat_loc, 0, (struct rusage *) NULL);
 }
+
+
