@@ -118,7 +118,9 @@ int ruserpass(const char *host, const char **aname, const char **apass)
 		return (0);
 	}
 	/* No threads use this stream.  */
+#ifdef __UCLIBC_HAS_THREADS__
 	__fsetlocking (cfile, FSETLOCKING_BYCALLER);
+#endif
 	if (gethostname(myname, sizeof(myname)) < 0)
 		myname[0] = '\0';
 	mydomain = strchr(myname, '.');
