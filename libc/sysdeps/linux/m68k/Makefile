@@ -81,6 +81,7 @@ endif
 
 clean:
 	rm -f *.[oa] *~ core
+	rm -f bits/syscall.h
 ifeq ($(strip $(HAVE_ELF)),false)
 	rm -f $(TOPDIR)/include/float.h
 endif

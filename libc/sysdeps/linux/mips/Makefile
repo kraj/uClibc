@@ -78,4 +78,5 @@ headers:
 
 clean:
 	rm -f *.[oa] *~ core
+	rm -f bits/syscall.h
 
