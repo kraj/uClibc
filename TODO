@@ -1,15 +1,12 @@
-TODO list for the uClibc 0.9.27 release:
+TODO list for the uClibc 0.9.28 release:
 -------------------------------------------------
     *) Audit header files.  Remove prototypes for all functions that
 	are not supported -- especially needed for the libm headers.
     *) Audit header files.  When options are disabled, also disable
 	them in the include files as well by checking for the proper
 	define from include/bits/uClibc_config.h (pulled in from features.h)
-    *) Use buildroot to build for x86, powerpc, arm, and mips.
     *) Test each architecture with the latest LTP testsuite, and post
 	LTP testsuite results for each architecture on uclibc.org.
-    *) Prepare and release a properly versioned buildroot release
-	to coincide with the uClibc 0.9.27 release.
 
 
 TODO list for the uClibc 1.0.0 release:
@@ -62,8 +59,6 @@ TODO list for the uClibc 1.0.0 release:
     *) Build both pic and non-pic objects where appropriate, so that
 	static libs need not pay the pic size penalty.
     *) Cleanup/scrub all the Makefile copyright junk
-    *) Debugging pthreads with gdb does not work at all on mips unless
-	the application is staticly linked.
     *) Fix dlopen, for both static and dynamic cases, and make it
 	fully comply with SuSv3
     *) From the the ELF spec "...All shared object initializations happen
