@@ -58,7 +58,7 @@ HOSTCFLAGS=-O2 -Wall
 # this stuff alone.
 MAJOR_VERSION:=0
 MINOR_VERSION:=9
-SUBLEVEL:=22
+SUBLEVEL:=23
 VERSION:=$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 # Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc. 
 LC_ALL:= C
@@ -127,7 +127,7 @@ ifeq ($(strip $(TARGET_ARCH)),arm)
 	CPU_CFLAGS-$(CONFIG_ARM_XSCALE)+=-march=armv4 -Wa,-mcpu=xscale
 endif
 
-ifeq ($(strip $(TARGET_ARCH)),sh)
+ifeq ($(strip $(TARGET_ARCH)),"sh")
 	OPTIMIZATION+=-fstrict-aliasing
 	OPTIMIZATION+= $(call check_gcc,-mprefergot,)
 	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-EL
