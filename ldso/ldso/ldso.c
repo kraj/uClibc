@@ -114,13 +114,13 @@
 #define	    ELFMAGIC	ELFMAG
 
 /* This is a poor man's malloc, used prior to resolving our internal poor man's malloc */
-#define LD_MALLOC(SIZE) ((void *) (malloc_buffer += SIZE, malloc_buffer - SIZE)) ;  REALIGN();
+#define LD_MALLOC(SIZE) ((unsigned void *) (malloc_buffer += SIZE, malloc_buffer - SIZE)) ;  REALIGN();
 /*
  * Make sure that the malloc buffer is aligned on 4 byte boundary.  For 64 bit
  * platforms we may need to increase this to 8, but this is good enough for
  * now.  This is typically called after LD_MALLOC.
  */
-#define REALIGN() malloc_buffer = (char *) (((unsigned long) malloc_buffer + 3) & ~(3))
+#define REALIGN() malloc_buffer = (unsigned char *) (((unsigned long) malloc_buffer + 3) & ~(3))
 
 char *_dl_library_path = 0;		/* Where we look for libraries */
 char *_dl_preload = 0;			/* Things to be loaded before the libs. */
