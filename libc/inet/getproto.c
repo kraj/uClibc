@@ -52,6 +52,7 @@
 */
 
 #define __FORCE_GLIBC
+#define _GNU_SOURCE
 #include <features.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -59,6 +60,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+# define LOCK	pthread_mutex_lock(&mylock)
+# define UNLOCK	pthread_mutex_unlock(&mylock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
+
+
 
 #define	MAXALIASES	35
 
@@ -70,97 +83,112 @@ static int proto_stayopen;
 
 void setprotoent(int f)
 {
-	if (protof == NULL)
-		protof = fopen(_PATH_PROTOCOLS, "r" );
-	else
-		rewind(protof);
-	proto_stayopen |= f;
+    LOCK;
+    if (protof == NULL)
+	protof = fopen(_PATH_PROTOCOLS, "r" );
+    else
+	rewind(protof);
+    proto_stayopen |= f;
+    UNLOCK;
 }
 
 void endprotoent(void)
 {
-	if (protof) {
-		fclose(protof);
-		protof = NULL;
-	}
-	proto_stayopen = 0;
+    LOCK;
+    if (protof) {
+	fclose(protof);
+	protof = NULL;
+    }
+    proto_stayopen = 0;
+    UNLOCK;
 }
 
 struct protoent * getprotoent(void)
 {
-	char *p;
-	register char *cp, **q;
+    char *p;
+    register char *cp, **q;
 
-	if (protof == NULL && (protof = fopen(_PATH_PROTOCOLS, "r" )) == NULL)
-		return (NULL);
+    LOCK;
+    if (protof == NULL && (protof = fopen(_PATH_PROTOCOLS, "r" )) == NULL) {
+	UNLOCK;
+	return (NULL);
+    }
 again:
-	if ((p = fgets(line, BUFSIZ, protof)) == NULL)
-		return (NULL);
-	if (*p == '#')
-		goto again;
-	cp = strpbrk(p, "#\n");
-	if (cp == NULL)
-		goto again;
-	*cp = '\0';
-	proto.p_name = p;
-	cp = strpbrk(p, " \t");
-	if (cp == NULL)
-		goto again;
-	*cp++ = '\0';
-	while (*cp == ' ' || *cp == '\t')
+    if ((p = fgets(line, BUFSIZ, protof)) == NULL) {
+	UNLOCK;
+	return (NULL);
+    }
+
+    if (*p == '#')
+	goto again;
+    cp = strpbrk(p, "#\n");
+    if (cp == NULL)
+	goto again;
+    *cp = '\0';
+    proto.p_name = p;
+    cp = strpbrk(p, " \t");
+    if (cp == NULL)
+	goto again;
+    *cp++ = '\0';
+    while (*cp == ' ' || *cp == '\t')
+	cp++;
+    p = strpbrk(cp, " \t");
+    if (p != NULL)
+	*p++ = '\0';
+    proto.p_proto = atoi(cp);
+    q = proto.p_aliases = proto_aliases;
+    if (p != NULL) {
+	cp = p;
+	while (cp && *cp) {
+	    if (*cp == ' ' || *cp == '\t') {
 		cp++;
-	p = strpbrk(cp, " \t");
-	if (p != NULL)
-		*p++ = '\0';
-	proto.p_proto = atoi(cp);
-	q = proto.p_aliases = proto_aliases;
-	if (p != NULL) {
-		cp = p;
-		while (cp && *cp) {
-			if (*cp == ' ' || *cp == '\t') {
-				cp++;
-				continue;
-			}
-			if (q < &proto_aliases[MAXALIASES - 1])
-				*q++ = cp;
-			cp = strpbrk(cp, " \t");
-			if (cp != NULL)
-				*cp++ = '\0';
-		}
+		continue;
+	    }
+	    if (q < &proto_aliases[MAXALIASES - 1])
+		*q++ = cp;
+	    cp = strpbrk(cp, " \t");
+	    if (cp != NULL)
+		*cp++ = '\0';
 	}
-	*q = NULL;
-	return (&proto);
+    }
+    *q = NULL;
+    UNLOCK;
+    return (&proto);
 }
 
 
 struct protoent * getprotobyname(const char *name)
 {
-	register struct protoent *p;
-	register char **cp;
+    register struct protoent *p;
+    register char **cp;
 
-	setprotoent(proto_stayopen);
-	while ((p = getprotoent()) != NULL) {
-		if (strcmp(p->p_name, name) == 0)
-			break;
-		for (cp = p->p_aliases; *cp != 0; cp++)
-			if (strcmp(*cp, name) == 0)
-				goto found;
-	}
+    LOCK;
+    setprotoent(proto_stayopen);
+    while ((p = getprotoent()) != NULL) {
+	if (strcmp(p->p_name, name) == 0)
+	    break;
+	for (cp = p->p_aliases; *cp != 0; cp++)
+	    if (strcmp(*cp, name) == 0)
+		goto found;
+    }
 found:
-	if (!proto_stayopen)
-		endprotoent();
-	return (p);
+    if (!proto_stayopen)
+	endprotoent();
+    UNLOCK;
+    return (p);
 }
 
 struct protoent * getprotobynumber(int proto)
 {
-	register struct protoent *p;
+    register struct protoent *p;
 
-	setprotoent(proto_stayopen);
-	while ((p = getprotoent()) != NULL)
-		if (p->p_proto == proto)
-			break;
-	if (!proto_stayopen)
-		endprotoent();
-	return (p);
+    LOCK;
+    setprotoent(proto_stayopen);
+    while ((p = getprotoent()) != NULL)
+	if (p->p_proto == proto)
+	    break;
+    if (!proto_stayopen)
+	endprotoent();
+    UNLOCK;
+    return (p);
 }

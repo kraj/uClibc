@@ -82,6 +82,15 @@
 #endif /* DEBUG */
 
 
+/* Global stuff... */
+extern int nameservers;
+extern char * nameserver[MAX_SERVERS];
+extern int searchdomains;
+extern char * searchdomain[MAX_SEARCH];
+
+
+
+/* Structs */
 struct resolv_header {
 	int id;
 	int qr,opcode,aa,tc,rd,ra,rcode;
@@ -113,11 +122,7 @@ enum etc_hosts_action {
     GET_HOSTS_BYADDR,
 };
 
-
-extern int nameservers;
-extern char * nameserver[MAX_SERVERS];
-extern int searchdomains;
-extern char * searchdomain[MAX_SEARCH];
+/* function prototypes */
 extern int get_hosts_byname_r(const char * name, int type,
 			      struct hostent * result_buf,
 			      char * buf, size_t buflen,
@@ -135,28 +140,24 @@ extern int read_etc_hosts_r(FILE *fp, const char * name, int type,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
 			    int * h_errnop);
-extern int resolve_address(const char * address, int nscount, 
-	char ** nsip, struct in_addr * in);
-extern int resolve_mailbox(const char * address, int nscount, 
-	char ** nsip, struct in_addr * in);
 extern int dns_lookup(const char * name, int type, int nscount, 
 	char ** nsip, unsigned char ** outpacket, struct resolv_answer * a);
 
-int encode_dotted(const char * dotted, unsigned char * dest, int maxlen);
-int decode_dotted(const unsigned char * message, int offset, 
+extern int encode_dotted(const char * dotted, unsigned char * dest, int maxlen);
+extern int decode_dotted(const unsigned char * message, int offset, 
 	char * dest, int maxlen);
-int length_dotted(const unsigned char * message, int offset);
-int encode_header(struct resolv_header * h, unsigned char * dest, int maxlen);
-int decode_header(unsigned char * data, struct resolv_header * h);
-int encode_question(struct resolv_question * q,
+extern int length_dotted(const unsigned char * message, int offset);
+extern int encode_header(struct resolv_header * h, unsigned char * dest, int maxlen);
+extern int decode_header(unsigned char * data, struct resolv_header * h);
+extern int encode_question(struct resolv_question * q,
 	unsigned char * dest, int maxlen);
-int decode_question(unsigned char * message, int offset,
+extern int decode_question(unsigned char * message, int offset,
 	struct resolv_question * q);
-int encode_answer(struct resolv_answer * a,
+extern int encode_answer(struct resolv_answer * a,
 	unsigned char * dest, int maxlen);
-int decode_answer(unsigned char * message, int offset,
+extern int decode_answer(unsigned char * message, int offset,
 	struct resolv_answer * a);
-int length_question(unsigned char * message, int offset);
+extern int length_question(unsigned char * message, int offset);
 extern int open_nameservers(void);
 
 
@@ -343,7 +344,7 @@ int encode_question(struct resolv_question *q,
 int decode_question(unsigned char *message, int offset,
 					struct resolv_question *q)
 {
-	char temp[256];
+	char temp[BUFSIZ];
 	int i;
 
 	i = decode_dotted(message, offset, temp, sizeof(temp));
@@ -408,7 +409,7 @@ int encode_answer(struct resolv_answer *a, unsigned char *dest, int maxlen)
 int decode_answer(unsigned char *message, int offset,
 				  struct resolv_answer *a)
 {
-	char temp[256];
+	char temp[BUFSIZ];
 	int i;
 
 	i = decode_dotted(message, offset, temp, sizeof(temp));
@@ -533,9 +534,7 @@ int form_query(int id, const char *name, int type, unsigned char *packet,
 int dns_lookup(const char *name, int type, int nscount, char **nsip,
 			   unsigned char **outpacket, struct resolv_answer *a)
 {
-	static int id = 1;
-	int i, j, len, fd, pos;
-	static int ns = 0;
+	int i, j, len, fd, pos, id, ns;
 	struct sockaddr_in sa;
 #ifdef __UCLIBC_HAS_IPV6__
 	struct sockaddr_in6 sa6;
@@ -581,7 +580,8 @@ int dns_lookup(const char *name, int type, int nscount, char **nsip,
 		memset(packet, 0, PACKETSZ);
 
 		memset(&h, 0, sizeof(h));
-		h.id = ++id;
+		id = (int) random();
+		h.id = id;
 		h.qdcount = 1;
 		h.rd = 1;
 
@@ -753,116 +753,6 @@ fail:
 }
 #endif
 
-#ifdef L_resolveaddress
-
-int resolve_address(const char *address, int nscount, 
-	char **nsip, struct in_addr *in)
-{
-	unsigned char *packet;
-	struct resolv_answer a;
-	char temp[256];
-	int i;
-	int nest = 0;
-
-	if (!address || !in)
-		return -1;
-
-	strncpy(temp, address, sizeof(temp));
-
-	for (;;) {
-
-		i = dns_lookup(temp, T_A, nscount, nsip, &packet, &a);
-
-		if (i < 0)
-			return -1;
-
-		free(a.dotted);
-
-		if (a.atype == T_CNAME) {		/* CNAME */
-			DPRINTF("Got a CNAME in resolve_address()\n");
-			i = decode_dotted(packet, a.rdoffset, temp, sizeof(temp));
-			free(packet);
-
-			if (i < 0)
-				return -1;
-			if (++nest > MAX_RECURSE)
-				return -1;
-			continue;
-		} else if (a.atype == T_A) {	/* ADDRESS */
-			free(packet);
-			break;
-		} else {
-			free(packet);
-			return -1;
-		}
-	}
-
-	if (in)
-	    memcpy(in, a.rdata, INADDRSZ); /* IPv4 T_A */
-
-	return 0;
-}
-#endif
-
-#ifdef L_resolvemailbox
-
-int resolve_mailbox(const char *address, int nscount, 
-	char **nsip, struct in_addr *in)
-{
-	struct resolv_answer a;
-	unsigned char *packet;
-	char temp[256];
-	int nest = 0;
-	int i;
-
-	if (!address || !in)
-		return -1;
-
-	/* look up mail exchange */
-	i = dns_lookup(address, T_MX, nscount, nsip, &packet, &a);
-
-	strncpy(temp, address, sizeof(temp));
-
-	if (i >= 0) {
-		i = decode_dotted(packet, a.rdoffset+2, temp, sizeof(temp));
-		free(packet);
-	}
-
-	for (;;) {
-
-		i = dns_lookup(temp, T_A, nscount, nsip, &packet, &a);
-
-		if (i < 0)
-			return -1;
-
-		free(a.dotted);
-
-		if (a.atype == T_CNAME) {		/* CNAME */
-			DPRINTF("Got a CNAME in resolve_mailbox()\n");
-			i = decode_dotted(packet, a.rdoffset, temp, sizeof(temp));
-			free(packet);
-			if (i < 0)
-				return i;
-			if (++nest > MAX_RECURSE)
-				return -1;
-			continue;
-		} else if (a.atype == T_A) {	/* ADDRESS */
-			free(packet);
-			break;
-		} else {
-			free(packet);
-			return -1;
-		}
-	}
-
-	if (in)
-		memcpy(in, a.rdata, INADDRSZ); /* IPv4 */
-
-	return 0;
-}
-#endif
-
-
 #ifdef L_opennameservers
 
 int nameservers;
@@ -947,38 +837,6 @@ void close_nameservers(void)
 	}
 }
 #endif
-
-
-#ifdef L_resolvename
-
-const char *resolve_name(const char *name, int mailbox)
-{
-	struct in_addr in;
-	int i;
-
-	/* shortcut: is it a valid IP address to begin with? */
-	if (inet_aton(name, &in))
-		return name;
-
-	open_nameservers();
-
-	DPRINTF("looking up '%s', mailbox=%d, nameservers=%d\n",
-			name, mailbox, nameservers);
-
-	if (mailbox)
-		i = resolve_mailbox(name, nameservers, nameserver, &in);
-	else
-		i = resolve_address(name, nameservers, nameserver, &in);
-
-	if (i < 0)
-		return 0;
-
-	DPRINTF("success = '%s'\n", inet_ntoa(in));
-
-	return inet_ntoa(in);
-}
-#endif
-
 
 #ifdef L_gethostbyname
 
@@ -1322,33 +1180,42 @@ int read_etc_hosts_r(FILE * fp, const char * name, int type,
 #endif
 
 
-#ifdef L_endhostent
-extern int __stay_open;
-extern FILE * __gethostent_fp;
+#ifdef L_gethostent
+
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK	pthread_mutex_lock(&mylock)
+# define UNLOCK	pthread_mutex_unlock(&mylock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
+
+static int __stay_open;
+static FILE * __gethostent_fp;
+
 void endhostent (void)
 {
+    LOCK;
     __stay_open = 0;
     if (__gethostent_fp) {
 	fclose(__gethostent_fp);
     }
+    UNLOCK;
 }
-#endif
 
-#ifdef L_sethostent
-extern int __stay_open;
 void sethostent (int stay_open)
 {
+    LOCK;
     __stay_open = stay_open;
+    UNLOCK;
 }
-#endif
 
-#ifdef L_gethostent
-int __stay_open;
-FILE * __gethostent_fp;
 
 struct hostent *gethostent (void)
 {
-    static struct hostent	h;
+    static struct hostent h;
     static char buf[
 #ifndef __UCLIBC_HAS_IPV6__
 	    sizeof(struct in_addr) + sizeof(struct in_addr *)*2 +
@@ -1358,9 +1225,11 @@ struct hostent *gethostent (void)
 	    80/*namebuffer*/ + 2/* margin */];
     struct hostent *host;
 
+    LOCK;
     if (__gethostent_fp == NULL) {
 	__open_etc_hosts(&__gethostent_fp);
 	if (__gethostent_fp == NULL) {
+	    UNLOCK;
 	    return((struct hostent *)NULL);
 	}
     }
@@ -1370,6 +1239,7 @@ struct hostent *gethostent (void)
     if (__stay_open==0) {
 	fclose(__gethostent_fp);
     }
+    UNLOCK;
     return(host);
 }
 #endif

@@ -21,98 +21,114 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
-#define	MAXALIASES	35
 
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK	pthread_mutex_lock(&mylock)
+# define UNLOCK	pthread_mutex_unlock(&mylock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
+
+
+
+#define	MAXALIASES	35
 static const char NETDB[] = _PATH_NETWORKS;
 static FILE *netf = NULL;
 static char line[BUFSIZ+1];
 static struct netent net;
 static char *net_aliases[MAXALIASES];
-static char *any(char *, char *);
 
 int _net_stayopen;
 
-void
-setnetent(f)
-	int f;
+void setnetent(int f)
 {
-	if (netf == NULL)
-		netf = fopen(NETDB, "r" );
-	else
-		rewind(netf);
-	_net_stayopen |= f;
+    LOCK;
+    if (netf == NULL)
+	netf = fopen(NETDB, "r" );
+    else
+	rewind(netf);
+    _net_stayopen |= f;
+    UNLOCK;
+    return;
 }
 
-void
-endnetent()
+void endnetent(void)
 {
-	if (netf) {
-		fclose(netf);
-		netf = NULL;
-	}
-	_net_stayopen = 0;
+    LOCK;
+    if (netf) {
+	fclose(netf);
+	netf = NULL;
+    }
+    _net_stayopen = 0;
+    UNLOCK;
 }
 
-struct netent *
-getnetent()
+static char * any(register char *cp, char *match)
 {
-	char *p;
-	register char *cp, **q;
+    register char *mp, c;
 
-	if (netf == NULL && (netf = fopen(NETDB, "r" )) == NULL)
-		return (NULL);
+    while ((c = *cp)) {
+	for (mp = match; *mp; mp++)
+	    if (*mp == c)
+		return (cp);
+	cp++;
+    }
+    return ((char *)0);
+}
+
+struct netent * getnetent(void)
+{
+    char *p;
+    register char *cp, **q;
+
+    LOCK;
+    if (netf == NULL && (netf = fopen(NETDB, "r" )) == NULL) {
+	UNLOCK;
+	return (NULL);
+    }
 again:
-	p = fgets(line, BUFSIZ, netf);
-	if (p == NULL)
-		return (NULL);
-	if (*p == '#')
-		goto again;
-	cp = any(p, "#\n");
-	if (cp == NULL)
-		goto again;
-	*cp = '\0';
-	net.n_name = p;
-	cp = any(p, " \t");
-	if (cp == NULL)
-		goto again;
-	*cp++ = '\0';
-	while (*cp == ' ' || *cp == '\t')
-		cp++;
-	p = any(cp, " \t");
-	if (p != NULL)
-		*p++ = '\0';
-	net.n_net = inet_network(cp);
-	net.n_addrtype = AF_INET;
-	q = net.n_aliases = net_aliases;
-	if (p != NULL) 
-		cp = p;
-	while (cp && *cp) {
-		if (*cp == ' ' || *cp == '\t') {
-			cp++;
-			continue;
-		}
-		if (q < &net_aliases[MAXALIASES - 1])
-			*q++ = cp;
-		cp = any(cp, " \t");
-		if (cp != NULL)
-			*cp++ = '\0';
+    p = fgets(line, BUFSIZ, netf);
+    if (p == NULL) {
+	UNLOCK;
+	return (NULL);
+    }
+    if (*p == '#')
+	goto again;
+    cp = any(p, "#\n");
+    if (cp == NULL)
+	goto again;
+    *cp = '\0';
+    net.n_name = p;
+    cp = any(p, " \t");
+    if (cp == NULL)
+	goto again;
+    *cp++ = '\0';
+    while (*cp == ' ' || *cp == '\t')
+	cp++;
+    p = any(cp, " \t");
+    if (p != NULL)
+	*p++ = '\0';
+    net.n_net = inet_network(cp);
+    net.n_addrtype = AF_INET;
+    q = net.n_aliases = net_aliases;
+    if (p != NULL) 
+	cp = p;
+    while (cp && *cp) {
+	if (*cp == ' ' || *cp == '\t') {
+	    cp++;
+	    continue;
 	}
-	*q = NULL;
-	return (&net);
+	if (q < &net_aliases[MAXALIASES - 1])
+	    *q++ = cp;
+	cp = any(cp, " \t");
+	if (cp != NULL)
+	    *cp++ = '\0';
+    }
+    *q = NULL;
+    UNLOCK;
+    return (&net);
 }
 
-static char *
-any(cp, match)
-	register char *cp;
-	char *match;
-{
-	register char *mp, c;
-
-	while ((c = *cp)) {
-		for (mp = match; *mp; mp++)
-			if (*mp == c)
-				return (cp);
-		cp++;
-	}
-	return ((char *)0);
-}
