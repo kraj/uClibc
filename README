@@ -26,8 +26,8 @@ This will install the header files, libraries, and the gcc
 wrapper into the directories defined in Config.
 
 If you are targetting the same architecture as the host machine,
-you may want to add a link from /lib/ld-uclibc.0 to the location
-where ld-uclibc.0 was installed.  This allows you to run binaries
+you may want to add a link from /lib/ld-uClibc.0 to the location
+where ld-uClibc.0 was installed.  This allows you to run binaries
 compiled against uClibc without contaminating /lib too much.
 
 
