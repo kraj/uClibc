@@ -11,30 +11,31 @@
 #include <bits/sysnum.h>
 
 
-#define STRINGIFY(s) STRINGIFY2 (s)
-#define STRINGIFY2(s) #s
+#define __STRINGIFY(s) __STRINGIFY2 (s)
+#define __STRINGIFY2(s) #s
 
+#undef JUMPTARGET
 #ifdef __PIC__
-#define JUMPTARGET(name) STRINGIFY(name##@plt)
+#define __MAKE_SYSCALL	__STRINGIFY(__uClibc_syscall@plt)
 #else
-#define JUMPTARGET(name) STRINGIFY(name)
+#define __MAKE_SYSCALL	__STRINGIFY(__uClibc_syscall)
 #endif
 
 #define unified_syscall_body(name)			\
 	__asm__ (					\
 	".section \".text\"\n\t"			\
 	".align 2\n\t"					\
-	".globl " STRINGIFY(name) "\n\t"				\
-	".type " STRINGIFY(name) ",@function\n"			\
-	#name":\n\tli 0," STRINGIFY(__NR_##name) "\n\t"	\
-	"b " JUMPTARGET(__uClibc_syscall) "\n"		\
-	".Lfe1" STRINGIFY(name) ":\n\t"				\
-	".size\t" STRINGIFY(name) ",.Lfe1" STRINGIFY(name) "-" STRINGIFY(name) "\n"	\
+	".globl " __STRINGIFY(name) "\n\t"		\
+	".type " __STRINGIFY(name) ",@function\n\t"	\
+	#name":\n\tli 0," __STRINGIFY(__NR_##name) "\n\t"	\
+	"b " __MAKE_SYSCALL "\n\t"		\
+	".Lfe1" __STRINGIFY(name) ":\n\t"			\
+	".size\t" __STRINGIFY(name) ",.Lfe1" __STRINGIFY(name) "-" __STRINGIFY(name) "\n"	\
 	)
 
 #undef _syscall0
-#define _syscall0(type,name)						\
-type name(void);							\
+#define _syscall0(type,name)				\
+type name(void);					\
 unified_syscall_body(name)
 
 #undef _syscall1

@@ -32,7 +32,8 @@
 
 #undef __syscall_clobbers
 #define __syscall_clobbers \
-	"r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"
+	"r9", "r10", "r11", "r12"
+	//"r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"
 
 #undef _syscall0
 #define _syscall0(type,name)						\
@@ -49,7 +50,7 @@ type name(void)								\
 			 "mfcr %1      "				\
 			: "=&r" (__sc_3), "=&r" (__sc_0)		\
 			: "0"   (__sc_3), "1"   (__sc_0)		\
-			: __syscall_clobbers);				\
+			: "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12" ); \
 		__sc_ret = __sc_3;					\
 		__sc_err = __sc_0;					\
 	}								\
@@ -72,7 +73,7 @@ type name(type1 arg1)							\
 			 "mfcr %1      "				\
 			: "=&r" (__sc_3), "=&r" (__sc_0)		\
 			: "0"   (__sc_3), "1"   (__sc_0)		\
-			: __syscall_clobbers);				\
+			: "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12" ); \
 		__sc_ret = __sc_3;					\
 		__sc_err = __sc_0;					\
 	}								\
@@ -98,7 +99,7 @@ type name(type1 arg1, type2 arg2)					\
 			: "=&r" (__sc_3), "=&r" (__sc_0)		\
 			: "0"   (__sc_3), "1"   (__sc_0),		\
 			  "r"   (__sc_4)				\
-			: __syscall_clobbers);				\
+			: "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12" ); \
 		__sc_ret = __sc_3;					\
 		__sc_err = __sc_0;					\
 	}								\
@@ -127,7 +128,7 @@ type name(type1 arg1, type2 arg2, type3 arg3)				\
 			: "0"   (__sc_3), "1"   (__sc_0),		\
 			  "r"   (__sc_4),				\
 			  "r"   (__sc_5)				\
-			: __syscall_clobbers);				\
+			: "r6", "r7", "r8", "r9", "r10", "r11", "r12" ); \
 		__sc_ret = __sc_3;					\
 		__sc_err = __sc_0;					\
 	}								\
@@ -159,7 +160,7 @@ type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4)		\
 			  "r"   (__sc_4),				\
 			  "r"   (__sc_5),				\
 			  "r"   (__sc_6)				\
-			: __syscall_clobbers);				\
+			: "r7", "r8", "r9", "r10", "r11", "r12" );	\
 		__sc_ret = __sc_3;					\
 		__sc_err = __sc_0;					\
 	}								\
@@ -194,7 +195,7 @@ type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)	\
 			  "r"   (__sc_5),				\
 			  "r"   (__sc_6),				\
 			  "r"   (__sc_7)				\
-			: __syscall_clobbers);				\
+			: "r8", "r9", "r10", "r11", "r12" );		\
 		__sc_ret = __sc_3;					\
 		__sc_err = __sc_0;					\
 	}								\
@@ -233,7 +234,7 @@ type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5, type6 arg6
 			  "r"   (__sc_6),				\
 			  "r"   (__sc_7),				\
 			  "r"   (__sc_8)				\
-			: __syscall_clobbers);				\
+			: "r9", "r10", "r11", "r12" );			\
 		__sc_ret = __sc_3;					\
 		__sc_err = __sc_0;					\
 	}								\
