@@ -191,10 +191,9 @@ static void *hunk_alloc(int size)
   {
     if ((p = (Hunk_t*)mmap(HUNK_MSTART,HUNK_MSIZE,PROT_READ|PROT_WRITE,
 #ifdef __HAS_NO_MMU__
-	MAP_PRIVATE|MAP_ANONYMOUS
-#else
-
 	MAP_SHARED|MAP_ANONYMOUS
+#else
+	MAP_PRIVATE|MAP_ANONYMOUS
 #endif
 	,0,0)) == (Hunk_t*)MAP_FAILED)
       return NULL;
