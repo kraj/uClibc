@@ -38,32 +38,27 @@ realloc (void *mem, size_t new_size)
       if (new_size > size)
 	/* Grow the block.  */
 	{
-	  void *new_mem = 0;
-	  size_t ext_size = new_size - size;
-	  void *ext_addr = base_mem + size;
+	  size_t extra = new_size - size;
 
 	  __malloc_lock ();
-	  ext_size = __heap_alloc_at (&__malloc_heap, ext_addr, ext_size);
+	  extra = __heap_alloc_at (&__malloc_heap, base_mem + size, extra);
 	  __malloc_unlock ();
 
-	  if (! ext_size)
+	  if (extra)
+	    /* Record the changed size.  */
+	    MALLOC_SET_SIZE (mem, new_size);
+	  else
 	    /* Our attempts to extend MEM in place failed, just
 	       allocate-and-copy.  */
 	    {
-	      new_mem = malloc (new_size);
+	      void *new_mem = malloc (new_size);
 	      if (new_mem)
 		{
 		  memcpy (new_mem, mem, size);
 		  free (mem);
 		}
+	      mem = new_mem;
 	    }
-
-	  if (new_mem)
-	    MALLOC_DEBUG ("  realloc: returning 0x%lx"
-			  " (base:0x%lx, total_size:%d)\n",
-			  (long)new_mem, (long)new_mem - sizeof(size_t), size);
-
-	  return new_mem;
 	}
       else if (new_size + HEAP_MIN_FREE_AREA_SIZE <= size)
 	/* Shrink the block.  */
@@ -71,9 +66,14 @@ realloc (void *mem, size_t new_size)
 	  __malloc_lock ();
 	  __heap_free (&__malloc_heap, base_mem + new_size, new_size - size);
 	  __malloc_unlock ();
+	  MALLOC_SET_SIZE (mem, new_size);
 	}
-      else
-	/* Do nothing.  */
-	return mem;
+
+      if (mem)
+	MALLOC_DEBUG ("  realloc: returning 0x%lx"
+		      " (base:0x%lx, total_size:%d)\n",
+		      (long)new_mem, (long)new_mem - sizeof(size_t), size);
+
+      return mem;
     }
 }
