@@ -70,7 +70,7 @@ endif
 
 
 ifndef PREFIX
-    PREFIX = `pwd`/_install/
+    PREFIX = `pwd`/_install
     DEVEL_PREFIX = $(PREFIX)
     TARGET_PREFIX = $(PREFIX)
 endif
