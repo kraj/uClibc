@@ -180,9 +180,6 @@ static void init_scan_cookie(struct scan_cookie *sc, FILE *fp)
 	sc->nread = 0;
 	sc->width_flag = 0;
 	sc->ungot_flag = 0;
-	if ((sc->ungot_char = getc(fp)) > 0) { /* not EOF or EOS */
-		sc->ungot_flag = 1;
-	}
 }
 
 static int scan_getc_nw(struct scan_cookie *sc)
@@ -367,24 +364,27 @@ va_list ap;
 					} else {
 						b = buf;
 					}
-					i = 0;
 					cc = scan_getc(&sc);
+					if (cc <= 0) {
+						scan_ungetc(&sc);
+						goto done; /* return EOF if cnt == 0 */
+					}
+					i = 0;
 					while ((cc>0) && (scanset[cc] != invert)) {
-						i = store; /* yes, we stored something */
+						i = 1; /* yes, we stored something */
 						*b = cc;
 						b += store;
 						cc = scan_getc(&sc);
 					}
+					if (i==0) {
+						scan_ungetc(&sc);
+						goto done; /* return cnt */
+					}
 					if (*p != 'c') { /* nul-terminate the stored string */
 						*b = 0;
-						cnt += i;
-						goto nextfmt;
-					} else if (sc.width < 0) { /* case 'c' */
-						cnt += store;
-						goto nextfmt;
 					}
-					scan_ungetc(&sc);
-					goto done;
+					cnt += store;
+					goto nextfmt;
 				}
 				if (p-spec < 12) { /* o,u,p,x,X,i,d - (un)signed integer */
 					if (*p == 'p') {
@@ -417,6 +417,9 @@ va_list ap;
 								}
 							}
 						}
+					}
+					if (base == 0) { /* Default to base 10 */
+						base = 10;
 					}
 					/* At this point, we're ready to start reading digits. */
 					if (cc == '0') {
