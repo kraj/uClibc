@@ -381,10 +381,6 @@ extern int getchar (void) __THROW;
   (((stream)->bufpos >= (stream)->bufread) ? fgetc(stream):		\
     (*(stream)->bufpos++))
 
-/* getchar() is equivalent to getc(stdin).  Since getc is a macro, 
- * that means that getchar() should be a macro too...  */
-#define getchar() getc(stdin)
-
 #if defined __USE_POSIX || defined __USE_MISC
 /* These are defined in POSIX.1:1996.  */
 extern int getc_unlocked (FILE *__stream) __THROW;
@@ -409,10 +405,6 @@ extern int putchar (int __c) __THROW;
 #define putc(c, stream)	\
     (((stream)->bufpos >= (stream)->bufwrite) ? fputc((c), (stream))	\
                           : (unsigned char) (*(stream)->bufpos++ = (c))	)
-/* putchar() is equivalent to putc(c,stdout).  Since putc is a macro,
- * that means that putchar() should be a macro too...  */
-#define putchar(c) putc((c), stdout)
-
 
 #ifdef __USE_MISC
 /* Faster version when locking is not necessary.  */
