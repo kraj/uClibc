@@ -427,7 +427,7 @@ int pthread_condattr_setpshared (pthread_condattr_t *attr, int pshared)
     if (pshared != PTHREAD_PROCESS_PRIVATE && pshared != PTHREAD_PROCESS_SHARED)
 	return EINVAL;
 
-    /* For now it is not possible to shared a conditional variable.  */
+    /* For now it is not possible to share a conditional variable.  */
     if (pshared != PTHREAD_PROCESS_PRIVATE)
 	return ENOSYS;
 
