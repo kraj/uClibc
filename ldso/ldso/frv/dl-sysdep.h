@@ -172,7 +172,6 @@ while (0)
  		       (TPNT)->loadaddr.got_value)			     \
    : DL_RELOC_ADDR ((SYM)->st_value, (TPNT)->loadaddr))
 
-/* Make sure dl_iterate_phdr is defined.  */
 #ifdef __USE_GNU
 # include <link.h>
 #else
