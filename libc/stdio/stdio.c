@@ -1000,6 +1000,25 @@ FILE *fdopen(int fd, __const char *mode)
 }
 #endif
 
+
+#ifdef L_getc
+#undef getc
+int getc(FILE *stream)
+{
+    return(((stream)->bufpos >= (stream)->bufread)?  fgetc(stream) :
+		(*(stream)->bufpos++));
+}
+#endif
+
+#ifdef L_putc
+#undef putc
+int putc(int c, FILE *stream)
+{
+    return(((stream)->bufpos >= (stream)->bufwrite)?  fputc((c), (stream)) :
+		(unsigned char) (*(stream)->bufpos++ = (c)) );
+}
+#endif
+
 #ifdef L_getchar
 #undef getchar
 int getchar(void)

@@ -29,7 +29,7 @@ MOBJ=_stdio_init.o _alloc_stdio_buffer.o _free_stdio_buffer_of_file.o \
      setvbuf.o setbuf.o setlinebuf.o fclose.o _fopen.o fopen.o freopen.o \
      fdopen.o fflush.o fsfopen.o fseek.o rewind.o ftell.o fgetpos.o fsetpos.o \
      fputc.o fgetc.o fgets.o gets.o fputs.o puts.o ungetc.o fread.o fwrite.o \
-     getchar.o putchar.o _uClibc_fwrite.o _uClibc_fread.o fopen64.o
+     getchar.o putchar.o _uClibc_fwrite.o _uClibc_fread.o fopen64.o getc.o putc.o
 
 MSRC2=printf.c
 MOBJ2=printf.o sprintf.o fprintf.o vprintf.o vsprintf.o vfprintf.o snprintf.o \
@@ -38,7 +38,8 @@ MOBJ2=printf.o sprintf.o fprintf.o vprintf.o vsprintf.o vfprintf.o snprintf.o \
 MSRC3=scanf.c
 MOBJ3=scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o vfscanf.o
 
-CSRC=popen.c perror.c remove.c getdelim.c getline.c tmpfile.c tmpnam.c tmpnam_r.c tempnam.c
+CSRC=popen.c perror.c remove.c getdelim.c getline.c tmpfile.c tmpnam.c \
+     tmpnam_r.c tempnam.c ctermid.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
 
