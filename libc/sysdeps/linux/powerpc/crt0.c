@@ -24,7 +24,12 @@
 asm(
 	"\t.global _start\n"
 	"\t_start:\n"
+	//"\tmr 9,1\n"
+	//"\trlwinm 1,1,0,0,27\n"
+	"\tli 0,0\n"
 	"\tstwu	1,-32(1)\n"
+	"\tmtlr 0\n"
+	//"\tstw 0,0(1)\n"
 	"\tb _start2\n");
 
 void __uClibc_main(int argc,void *argv,void *envp);
@@ -34,9 +39,15 @@ void _start2(void)
 	void **p;
 	int argc;
 
-	p=__builtin_frame_address(2);
+	p=__builtin_frame_address(0)+0x30;
 
 	argc=*(int *)p;
+
+	/* gross hack for dynamic linker */
+	if(argc==0){
+		p=((void *)p)+0x10;
+		argc=*(int *)p;
+	}
 
 	__uClibc_main(argc,p+1,p+2+argc);
 }
