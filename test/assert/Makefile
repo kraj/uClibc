@@ -11,7 +11,7 @@ assert: assert.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(TESTCC)
 	-@ echo "Compiling vs uClibc: "
 	-@ echo " "
 	$(TESTCC) $(CFLAGS) -c $< -o $@.o
-	$(TESTCC) $(CFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(TESTCC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-./$@
 	-@ echo " "
