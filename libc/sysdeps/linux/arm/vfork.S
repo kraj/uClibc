@@ -21,7 +21,7 @@
  *
  */
 
-#include <linux/errno.h>
+#include <asm/errno.h>
 #include <asm/unistd.h>
 
 
