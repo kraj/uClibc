@@ -672,7 +672,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 	int retries = 0;
 	unsigned char * packet = malloc(PACKETSZ);
 	char *dns, *lookup = malloc(MAXDNAME);
-	int variant = 0;
+	int variant = -1;
 	struct sockaddr_in sa;
 #ifdef __UCLIBC_HAS_IPV6__
 	int v6;
@@ -716,13 +716,14 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 			goto fail;
 
 		strncpy(lookup,name,MAXDNAME);
-		BIGLOCK;
-		if (variant < __searchdomains && strchr(lookup, '.') == NULL)
-		{
-		    strncat(lookup,".", MAXDNAME);
-		    strncat(lookup,__searchdomain[variant], MAXDNAME);
-		}
-		BIGUNLOCK;
+		if (variant >= 0) {
+                        BIGLOCK;
+                        if (variant < __searchdomains) {
+                                strncat(lookup,".", MAXDNAME);
+                                strncat(lookup,__searchdomain[variant], MAXDNAME);
+                        }
+                        BIGUNLOCK;
+                }
 		DPRINTF("lookup name: %s\n", lookup);
 		q.dotted = (char *)lookup;
 		q.qtype = type;
@@ -866,7 +867,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		/* if there are other nameservers, give them a go,
 		   otherwise return with error */
 		{
-		    variant = 0;
+		    variant = -1;
                     LOCK;
                     ns = (ns + 1) % nscount;
                     if (ns == 0)
@@ -884,7 +885,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		    sdomains=__searchdomains;
 		    BIGUNLOCK;
 
-		    if (variant < ((sdomains - 1) && strchr(lookup, '.') == NULL)) {
+		    if (variant < sdomains - 1) {
 			/* next search */
 			variant++;
 		    } else {
@@ -895,7 +896,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
                           retries++;
 
 			UNLOCK;
-			variant = 0;
+			variant = -1;
 		    }
 		}
 	}
