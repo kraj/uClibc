@@ -260,8 +260,8 @@ globfree (pglob)
 {
   if (pglob->gl_pathv != NULL)
     {
-      register int i;
-      for (i = 0; i < pglob->gl_pathc; ++i)
+      register int i = pglob->gl_flags & GLOB_DOOFFS? pglob->gl_offs : 0;
+      for (; i < pglob->gl_pathc; ++i)
 	if (pglob->gl_pathv[i] != NULL)
 	  free ((__ptr_t) pglob->gl_pathv[i]);
       free ((__ptr_t) pglob->gl_pathv);
