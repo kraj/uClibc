@@ -296,6 +296,8 @@ int main(int argc, char **argv)
 		} else if (strncmp("-v",argv[j], 2) == 0) {
 		    continue;
 		} else {
+			if (verbose)
+			    printf("gcc_argument[%d] = %s\n", k, argv[j]);
 			gcc_argument[k++] = argv[j];
 			gcc_argument[k] = '\0';
 		}
@@ -351,19 +353,16 @@ int main(int argc, char **argv)
 			//gcc_argv[i++] = GCC_LIB_DIR "crtn.o" ;
 		}
 #endif
-	}
-	if (!linking) {
-	    if (use_stdinc) {
+	} else {
+	    if (use_stdinc && source_count) {
 		gcc_argv[i++] = nostdinc;
 		gcc_argv[i++] = uClibc_inc[use_build_dir];
 		gcc_argv[i++] = GCC_INCDIR;
 		if( incstr )
 		    gcc_argv[i++] = incstr;
 	    }
-	    if (source_count) {
-		for ( l = 0 ; l < k ; l++ ) {
-		    if (gcc_argument[l]) gcc_argv[i++] = gcc_argument[l];
-		}
+	    for ( l = 0 ; l < k ; l++ ) {
+		if (gcc_argument[l]) gcc_argv[i++] = gcc_argument[l];
 	    }
 	}
 	gcc_argv[i++] = NULL;
