@@ -178,7 +178,7 @@ extern char *_dl_ldsopath;
 struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	struct elf_resolve *tpnt, char *full_libname)
 {
-	char *pnt;
+	char *pnt, *pnt1;
 	struct elf_resolve *tpnt1;
 	char *libname;
 
@@ -190,10 +190,10 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	if (_dl_strlen(full_libname) > 1024)
 		goto goof;
 
-	while (*pnt) {
-		if (*pnt == '/')
-			libname = pnt + 1;
-		pnt++;
+	/* Skip over any initial initial './' path to get the libname */ 
+	pnt1 = _dl_strrchr(pnt, '/');
+	if (pnt1) {
+		libname = pnt1 + 1;
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -207,7 +207,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		tpnt1 = _dl_load_elf_shared_library(secure, rpnt, full_libname);
 		if (tpnt1)
 			return tpnt1;
-		goto goof;
+		//goto goof;
 	}
 
 	/*
@@ -334,9 +334,8 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	tpnt = _dl_check_hashed_files(libname);
 	if (tpnt) {
 		if (*rpnt) {
-			(*rpnt)->next = (struct dyn_elf *)
-				_dl_malloc(sizeof(struct dyn_elf));
-			_dl_memset((*rpnt)->next, 0, sizeof(*((*rpnt)->next)));
+			(*rpnt)->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
+			_dl_memset((*rpnt)->next, 0, sizeof(struct dyn_elf));
 			(*rpnt)->next->prev = (*rpnt);
 			*rpnt = (*rpnt)->next;
 			(*rpnt)->dyn = tpnt;
@@ -602,9 +601,8 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	 * Add this object into the symbol chain
 	 */
 	if (*rpnt) {
-		(*rpnt)->next = (struct dyn_elf *)
-			_dl_malloc(sizeof(struct dyn_elf));
-		_dl_memset((*rpnt)->next, 0, sizeof(*((*rpnt)->next)));
+		(*rpnt)->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
+		_dl_memset((*rpnt)->next, 0, sizeof(struct dyn_elf));
 		(*rpnt)->next->prev = (*rpnt);
 		*rpnt = (*rpnt)->next;
 		(*rpnt)->dyn = tpnt;

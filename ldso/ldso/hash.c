@@ -109,13 +109,13 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	if (!_dl_loaded_modules) {
 		tpnt = _dl_loaded_modules = 
 		    (struct elf_resolve *) _dl_malloc(sizeof(struct elf_resolve));
-		_dl_memset(tpnt, 0, sizeof(*tpnt));
+		_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
 	} else {
 		tpnt = _dl_loaded_modules;
 		while (tpnt->next)
 			tpnt = tpnt->next;
 		tpnt->next = (struct elf_resolve *) _dl_malloc(sizeof(struct elf_resolve));
-		_dl_memset(tpnt->next, 0, sizeof(*(tpnt->next)));
+		_dl_memset(tpnt->next, 0, sizeof(struct elf_resolve));
 		tpnt->next->prev = tpnt;
 		tpnt = tpnt->next;
 	};

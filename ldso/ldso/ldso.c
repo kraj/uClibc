@@ -372,9 +372,9 @@ LD_BOOT(unsigned long args)
 	}
 
 	tpnt = LD_MALLOC(sizeof(struct elf_resolve));
-	_dl_memset(tpnt, 0, sizeof(*tpnt));
+	_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
 	app_tpnt = LD_MALLOC(sizeof(struct elf_resolve));
-	_dl_memset(app_tpnt, 0, sizeof(*app_tpnt));
+	_dl_memset(app_tpnt, 0, sizeof(struct elf_resolve));
 
 	/*
 	 * This is used by gdb to locate the chain of shared libraries that are currently loaded.
@@ -754,7 +754,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			_dl_loaded_modules->ppnt = (elf_phdr *) auxvt[AT_PHDR].a_un.a_ptr;
 			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
 			_dl_symbol_tables = rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
-			_dl_memset(rpnt, 0, sizeof(*rpnt));
+			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
 			rpnt->dyn = _dl_loaded_modules;
 			app_tpnt->usage_count++;
 			app_tpnt->symbol_scope = _dl_symbol_tables;
@@ -946,7 +946,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 						/* this is a real hack to make ldd not print 
 						 * the library itself when run on a library. */
 						if (_dl_strcmp(_dl_progname, str) != 0)
-							_dl_dprintf(1, "\t%s => %s (0x%x)\n", str, tpnt1->libname, 
+							_dl_dprintf(1, "\t%s => %s (%x)\n", str, tpnt1->libname, 
 									(unsigned) tpnt1->loadaddr);
 					}
 #endif
@@ -1019,7 +1019,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #endif
 #ifdef __LDSO_LDD_SUPPORT__
 							if (_dl_trace_loaded_objects && tpnt1->usage_count==1) {
-								_dl_dprintf(1, "\t%s => %s (0x%x)\n", cp2, 
+								_dl_dprintf(1, "\t%s => %s (%x)\n", cp2, 
 										tpnt1->libname, (unsigned) tpnt1->loadaddr);
 							}
 #endif
@@ -1073,7 +1073,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 						name = tpnt->libname;
 						while(*name == '/')
 							name++;
-						_dl_dprintf(1, "\t%s => %s (0x%x)\n", 
+						_dl_dprintf(1, "\t%s => %s (%x)\n", 
 								lpntstr, --name, (unsigned) tpnt->loadaddr);
 					}
 #endif
@@ -1083,9 +1083,8 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 					ttmp->next = tpnt;
 					tpnt->prev = ttmp;
 					tpnt->next = NULL;
-					rpnt->next = (struct dyn_elf *)
-						_dl_malloc(sizeof(struct dyn_elf));
-					_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
+					rpnt->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
+					_dl_memset(rpnt->next, 0, sizeof(struct dyn_elf));
 					rpnt->next->prev = rpnt;
 					rpnt = rpnt->next;
 					rpnt->dyn = tpnt;
@@ -1115,7 +1114,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 						name = tpnt1->libname;
 						while(*name == '/')
 							name++;
-						_dl_dprintf(1, "\t%s => %s (0x%x)\n", lpntstr, --name, 
+						_dl_dprintf(1, "\t%s => %s (%x)\n", lpntstr, --name, 
 								(unsigned) tpnt1->loadaddr);
 					}
 #endif
@@ -1150,14 +1149,13 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 			tpnt->prev = NULL;
 		}
 		if (rpnt) {
-			rpnt->next =
-				(struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
-			_dl_memset(rpnt->next, 0, sizeof(*(rpnt->next)));
+			rpnt->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
+			_dl_memset(rpnt->next, 0, sizeof(struct dyn_elf));
 			rpnt->next->prev = rpnt;
 			rpnt = rpnt->next;
 		} else {
 			rpnt = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
-			_dl_memset(rpnt, 0, sizeof(*(rpnt->next)));
+			_dl_memset(rpnt, 0, sizeof(struct dyn_elf));
 		}
 		rpnt->dyn = tpnt;
 		tpnt = NULL;
@@ -1166,7 +1164,7 @@ static void _dl_get_ready_to_run(struct elf_resolve *tpnt, struct elf_resolve *a
 #ifdef __LDSO_LDD_SUPPORT__
 	/* End of the line for ldd.... */
 	if (_dl_trace_loaded_objects) {
-		_dl_dprintf(1, "\t%s => %s (0x%x)\n", rpnt->dyn->libname + (_dl_strlen(_dl_ldsopath)) + 1, 
+		_dl_dprintf(1, "\t%s => %s (%x)\n", rpnt->dyn->libname + (_dl_strlen(_dl_ldsopath)) + 1, 
 				rpnt->dyn->libname, rpnt->dyn->loadaddr);  
 		_dl_exit(0);
 	}
