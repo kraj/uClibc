@@ -71,6 +71,28 @@
  * TODO - Rework _time_mktime to remove the dependency on long long.
  */
 
+/* Oct 28, 2002
+ *
+ * Fixed allowed char check for std and dst TZ fields.
+ *
+ * Added several options concerned with timezone support.  The names will
+ * probably change once Erik gets the new config system in place.
+ *
+ * Defining __TIME_TZ_FILE causes tzset() to attempt to read the TZ value
+ * from the file /etc/TZ if the TZ env variable isn't set.  The file contents
+ * must be the intended value of TZ, followed by a newline.  No other chars,
+ * spacing, etc is allowed.  As an example, an easy way for me to init
+ * /etc/TZ appropriately would be:    echo CST6CDT > /etc/TZ
+ *
+ * Defining __TIME_TZ_FILE_ONCE will cause all further accesses of /etc/TZ
+ * to be skipped once a legal value has been read.
+ *
+ * Defining __TIME_TZ_OPT_SPEED will cause a tzset() to keep a copy of the
+ * last TZ setting string and do a "fast out" if the current string is the
+ * same.
+ */
+
+
 #define _GNU_SOURCE
 #define _STDIO_UTILITY
 #include <stdio.h>
@@ -93,8 +115,29 @@
 #define TZNAME_MAX _POSIX_TZNAME_MAX
 #endif
 
+/**********************************************************************/
+
 /* The era code is currently unfinished. */
 /*  #define ENABLE_ERA_CODE */
+
+#define __TIME_TZ_FILE
+/* #define __TIME_TZ_FILE_ONCE */
+
+#define __TIME_TZ_OPT_SPEED
+
+#define TZ_BUFLEN		(2*TZNAME_MAX + 56)
+
+#ifdef __TIME_TZ_FILE
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+/* ":<tzname>+hh:mm:ss<tzname>+hh:mm:ss,Mmm.w.d/hh:mm:ss,Mmm.w.d/hh:mm:ss" + nul */
+/* 1 + 2*(1+TZNAME_MAX+1 + 9 + 7 + 9) + 1 = 2*TZNAME_MAX + 56 */
+#else  /* __TIME_TZ_FILE */
+#undef __TIME_TZ_FILE_ONCE
+#endif /* __TIME_TZ_FILE */
+
+/**********************************************************************/
 
 extern struct tm __time_tm;
 
@@ -1476,6 +1519,50 @@ static const char *getnumber(register const char *e, int *pn)
 #endif /* __BCC__ */
 }
 
+#ifdef __TIME_TZ_FILE
+
+#ifdef __TIME_TZ_FILE_ONCE
+static int TZ_file_read;  		/* Let BSS initialization set this to 0. */
+#endif /* __TIME_TZ_FILE_ONCE */
+
+static char *read_TZ_file(char *buf)
+{
+	int fd;
+	ssize_t r;
+	size_t todo;
+	char *p = NULL;
+
+	if ((fd = open("/etc/TZ", O_RDONLY)) >= 0) {
+		todo = TZ_BUFLEN;
+		p = buf;
+		do {
+			if ((r = read(fd, p, todo)) < 0) {
+				goto ERROR;
+			}
+			if (r == 0) {
+				break;
+			}
+			p += r;
+			todo -= r;
+		} while (todo);
+
+		if ((p > buf) && (p[-1] == '\n')) {	/* Must end with newline. */
+			p[-1] = 0;
+			p = buf;
+#ifdef __TIME_TZ_FILE_ONCE
+			++TZ_file_read;
+#endif /* __TIME_TZ_FILE_ONCE */
+		} else {
+		ERROR:
+			p = NULL;
+		}
+		close(fd);
+	}
+	return p;
+}
+
+#endif /* __TIME_TZ_FILE */
+
 void tzset(void)
 {
 	register const char *e;
@@ -1485,11 +1572,42 @@ void tzset(void)
 	rule_struct new_rules[2];
 	int n, count, f;
 	char c;
+#ifdef __TIME_TZ_FILE
+	char buf[TZ_BUFLEN];
+#endif /* __TIME_TZ_FILE */
+#ifdef __TIME_TZ_OPT_SPEED
+	static char oldval[TZ_BUFLEN]; /* BSS-zero'd. */
+#endif /* __TIME_TZ_OPT_SPEED */
 
 	TZLOCK;
 
-	if (!(e = getenv(TZ)) || !*e) { /* Not set or set to empty string. */
+	e = getenv(TZ);				/* TZ env var always takes precedence. */
+
+#ifdef __TIME_TZ_FILE_ONCE
+	/* Put this inside the lock to prevent the possiblity of two different
+	 * timezones being used in a threaded app. */
+
+	if (e != NULL) {
+		TZ_file_read = 0;		/* Reset if the TZ env var is set. */
+	} else if (TZ_file_read > 0) {
+		goto FAST_DONE;
+	}
+#endif /* __TIME_TZ_FILE_ONCE */
+
+	/* Warning!!!  Since uClibc doesn't do lib locking, the following is
+	 * potentially unsafe in a multi-threaded program since it is remotely
+	 * possible that another thread could call setenv() for TZ and overwrite
+	 * the string being parsed.  So, don't do that... */
+
+	if ((!e						/* TZ env var not set... */
+#ifdef __TIME_TZ_FILE
+		 && !(e = read_TZ_file(buf)) /* and no file or invalid file */
+#endif /* __TIME_TZ_FILE */
+		 ) || !*e) {			/* or set to empty string. */
 	ILLEGAL:					/* TODO: Clean up the following... */
+#ifdef __TIME_TZ_OPT_SPEED
+		*oldval = 0;			/* Set oldval tonnn empty string. */
+#endif /* __TIME_TZ_OPT_SPEED */
 		s = _time_tzinfo[0].tzname;
 		*s = 'U';
 		*++s = 'T';
@@ -1500,10 +1618,19 @@ void tzset(void)
 		goto DONE;
 	}
 
-
 	if (*e == ':') {			/* Ignore leading ':'. */
 		++e;
 	}
+
+#ifdef __TIME_TZ_OPT_SPEED
+	if (strcmp(e, oldval) == 0) { /* Same string as last time... */
+		goto FAST_DONE;			/* So nothing to do. */
+	}
+	/* Make a copy of the TZ env string.  It won't be nul-terminated if
+	 * it is too long, but it that case it will be illegal and will be reset
+	 * to the empty string anyway. */
+	strncpy(oldval, e, TZ_BUFLEN);
+#endif /* __TIME_TZ_OPT_SPEED */
 	
 	count = 0;
 	new_rules[1].tzname[0] = 0;
@@ -1518,8 +1645,9 @@ void tzset(void)
 	s = new_rules[count].tzname;
 	n = 0;
 	while (*e
+		   && isascii(*e)		/* SUSv3 requires char in portable char set. */
 		   && (isalpha(*e)
-			   || (c && (isdigit(*e) || (*e == '+') || (*e == '-'))))
+			   || (c && (isalnum(*e) || (*e == '+') || (*e == '-'))))
 		   ) {
 		*s++ = *e++;
 		if (++n > TZNAME_MAX) {
@@ -1621,6 +1749,7 @@ void tzset(void)
 	daylight = !!new_rules[1].tzname[0];
 	timezone = new_rules[0].gmt_offset;
 
+ FAST_DONE:
 	TZUNLOCK;
 }
 
