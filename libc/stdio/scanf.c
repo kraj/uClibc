@@ -20,6 +20,11 @@
  * Also now optionally supports hexadecimal float notation, positional
  * args, and glibc locale-specific digit grouping.  Should now be
  * standards compliant.
+ *
+ * Aug 18, 2003
+ * Bug fix: scanf %lc,%ls,%l[ would always set mb_fail on eof or error,
+ *   even when just starting a new mb char.
+ * Bug fix: wscanf would incorrectly unget in certain situations.
  */
 
 
@@ -829,7 +834,9 @@ static int scan_getwc(register struct scan_cookie *sc)
 	width = sc->width;			/* Preserve width. */
 	sc->width = INT_MAX;		/* MB_CUR_MAX can invoke a function. */
 
-	r = (size_t)(-1);
+	assert(!sc->mb_fail);
+
+	r = (size_t)(-3);
 	while (__scan_getc(sc) >= 0) {
 		*b = sc->cc;
 
@@ -844,12 +851,17 @@ static int scan_getwc(register struct scan_cookie *sc)
 		break;
 	}
 
-	/* If we reach here, either r == ((size_t)-1) and
-	 * mbrtowc set errno to EILSEQ, or r == ((size_t)-2)
-	 * and stream is in an error state or at EOF with a
-	 * partially complete wchar. */
-	__set_errno(EILSEQ);		/* In case of incomplete conversion. */
-	sc->mb_fail = 1;
+	if (r == ((size_t)(-3))) {	/* EOF or ERROR on first read */
+		sc->wc = WEOF;
+		r = (size_t)(-1);
+	} else {
+		/* If we reach here, either r == ((size_t)-1) and
+		 * mbrtowc set errno to EILSEQ, or r == ((size_t)-2)
+		 * and stream is in an error state or at EOF with a
+		 * partially complete wchar. */
+		__set_errno(EILSEQ);		/* In case of incomplete conversion. */
+		sc->mb_fail = 1;
+	}
 	
  SUCCESS:
 	sc->width = width;			/* Restore width. */
@@ -961,7 +973,9 @@ static __inline void kill_scan_cookie(register struct scan_cookie *sc)
 
 #else
 
-	if ((sc->ungot_wflag & 1) && (sc->fp->filedes != -3) && (sc->fp->state.mask == 0)) {
+	if ((sc->ungot_flag & 1) && (sc->ungot_wflag & 1)
+		&& (sc->fp->filedes != -3) && (sc->fp->state.mask == 0)
+		) {
 		ungetwc(sc->ungot_char, sc->fp);
 		/* Deal with distiction between user and scanf ungots. */
 		if (sc->nread == 0) {	/* Only one char was read... app ungot? */
