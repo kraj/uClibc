@@ -68,6 +68,10 @@
  *   and consistency with the stds requirements that a printf format string by
  *   a valid multibyte string beginning and ending in it's initial shift state.
  *
+ * Nov 5, 2002
+ *
+ * Forgot to change btowc and wctob when I changed the wc<->mb functions yesterday.
+ *
  * Manuel
  */
 
@@ -146,9 +150,17 @@ wint_t btowc(int c)
 
 #else  /*  __CTYPE_HAS_8_BIT_LOCALES */
 
-	/* If we don't have 8-bit locale support, then this is trivial since
-	 * anything outside of 0-0x7f is illegal in C/POSIX and UTF-8 locales. */
-	return (((unsigned int)c) < 0x80) ? c : WEOF;
+#ifdef __CTYPE_HAS_UTF_8_LOCALES
+	if (ENCODING == __ctype_encoding_utf8) {
+		return (((unsigned int)c) < 0x80) ? c : WEOF;
+	}
+#endif /* __CTYPE_HAS_UTF_8_LOCALES */
+
+#ifdef __UCLIBC_HAS_LOCALE__
+	assert(ENCODING == __ctype_encoding_7_bit);
+#endif
+
+	return (((unsigned int)c) <= UCHAR_MAX) ? c : WEOF;
 
 #endif /*  __CTYPE_HAS_8_BIT_LOCALES */
 }
@@ -169,13 +181,17 @@ int wctob(wint_t c)
 
 #else  /*  __CTYPE_HAS_8_BIT_LOCALES */
 
-	/* If we don't have 8-bit locale support, then this is trivial since
-	 * anything outside of 0-0x7f is illegal in C/POSIX and UTF-8 locales. */
-	
-	/* TODO: need unsigned version of wint_t... */
-/*  	return (((unsigned int)c) < 0x80) ? c : WEOF; */
-	return ((c >= 0) && (c < 0x80)) ? c : EOF;
+#ifdef __CTYPE_HAS_UTF_8_LOCALES
+	if (ENCODING == __ctype_encoding_utf8) {
+		return ((c >= 0) && (c < 0x80)) ? c : EOF;
+	}
+#endif /* __CTYPE_HAS_UTF_8_LOCALES */
 
+#ifdef __UCLIBC_HAS_LOCALE__
+	assert(ENCODING == __ctype_encoding_7_bit);
+#endif
+
+	return ((c >= 0) && (c <= UCHAR_MAX)) ? c : EOF;
 #endif /*  __CTYPE_HAS_8_BIT_LOCALES */
 }
 
