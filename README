@@ -15,7 +15,7 @@ mips/mipsel, PowerPC, SH, SPARC, and v850 processors.
 If you are building an embedded Linux system and you find that
 glibc is eating up too much space, you should consider using
 uClibc. If you are building a huge fileserver with 12 Terabytes
-of storage, than using glibc may be a better choice...
+of storage, then using glibc may be a better choice...
 
 uClibc is maintained by Erik Andersen and is licensed under the
 GNU LIBRARY GENERAL PUBLIC LICENSE . This license allows you to
@@ -56,5 +56,5 @@ Please Note:
 	presence of a particular library, but rather are used to
 	define an _interface_.  Some programs (such as GNU
 	binutils) are especially chummy with glibc, and need this
-	behavior disabled by adding CFLAGS+=__FORCE_NOGLIBC
+	behavior disabled by adding CFLAGS+=-D__FORCE_NOGLIBC
 
