@@ -18,7 +18,7 @@ asm("" \
 "	.previous\n"			\
 );
 
-#define DL_BOOT(X)   static void __attribute_used__ _dl_boot2 (X)
+#define DL_BOOT(X)   static void* __attribute_used__ _dl_boot2 (X)
 
 /*
  * Get a pointer to the argv array.  On many platforms this can be just
