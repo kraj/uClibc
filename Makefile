@@ -287,9 +287,11 @@ install_toolchain:
 	install -d $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/bin
 	$(MAKE) -C extra/gcc-uClibc install
 
-utils: $(TOPDIR)ldso/util/ldd
 ifeq ($(strip $(HAVE_SHARED)),true)
+utils: $(TOPDIR)ldso/util/ldd
 	$(MAKE) -C ldso utils
+else
+utils: dummy
 endif
 
 install_utils: utils
