@@ -75,15 +75,35 @@ void _dl_debug_state(void)
 static unsigned char *_dl_malloc_addr = 0;	/* Lets _dl_malloc use the already allocated memory page */
 static unsigned char *_dl_mmap_zero   = 0;	/* Also used by _dl_malloc */
 
-#if defined (__SUPPORT_LD_DEBUG__)
-static void debug_fini (int status, void *arg)
-{
-	(void)status;
-	_dl_dprintf(_dl_debug_file,"\ncalling fini: %s\n\n", (const char*)arg);
-}
-#endif
+static struct elf_resolve **init_fini_list;
+static int nlist; /* # items in init_fini_list */
 
 extern void _start(void);
+
+static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
+{
+	int i;
+	struct elf_resolve * tpnt;
+
+	for (i = 0; i < nlist; ++i) {
+		tpnt = init_fini_list[i];
+		if (tpnt->init_flag & FINI_FUNCS_CALLED)
+			continue;
+		tpnt->init_flag |= FINI_FUNCS_CALLED;
+		if (tpnt->dynamic_info[DT_FINI]) {
+			void (*dl_elf_func) (void);
+
+			dl_elf_func = (void (*)(void)) (intptr_t) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
+#if defined (__SUPPORT_LD_DEBUG__)
+			if(_dl_debug)
+				_dl_dprintf(_dl_debug_file,
+					    "\ncalling FINI: %s\n\n",
+					    tpnt->libname);
+#endif
+			(*dl_elf_func) ();
+		}
+	}
+}
 
 void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			  Elf32_auxv_t auxvt[AT_EGID + 1], char **envp,
@@ -92,8 +112,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	ElfW(Phdr) *ppnt;
 	Elf32_Dyn *dpnt;
 	char *lpntstr;
-	int i, nlist, goof = 0, unlazy = 0, trace_loaded_objects = 0;
-	struct elf_resolve **init_fini_list;
+	int i, goof = 0, unlazy = 0, trace_loaded_objects = 0;
 	struct dyn_elf *rpnt;
 	struct elf_resolve *tcurr;
 	struct elf_resolve *tpnt1;
@@ -101,13 +120,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	struct elf_resolve *app_tpnt = &app_tpnt_tmp;
 	struct r_debug *debug_addr;
 	unsigned long *lpnt;
-	int (*_dl_atexit) (void *);
 	unsigned long *_dl_envp;		/* The environment address */
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
-#if defined (__SUPPORT_LD_DEBUG__)
-	int (*_dl_on_exit) (void (*FUNCTION)(int STATUS, void *ARG),void*);
-#endif
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	/* Wahoo!!! */
@@ -613,12 +628,7 @@ next_lib2:
 	_dl_unmap_cache();
 
 	--nlist; /* Exclude the application. */
-
-	/* As long as atexit() is used to run the FINI functions, we can use
-	 * alloca here. The use of atexit() should go away at some time as that
-	 * will make Valgring happy.
-	 */
-	init_fini_list = alloca(nlist * sizeof(struct elf_resolve *));
+	init_fini_list = _dl_malloc(nlist * sizeof(struct elf_resolve *));
 	i = 0;
 	for (tcurr = _dl_loaded_modules->next; tcurr; tcurr = tcurr->next) {
 		init_fini_list[i++] = tcurr;
@@ -787,13 +797,6 @@ next_lib2:
 
 	}
 #endif
-
-	_dl_atexit = (int (*)(void *)) (intptr_t) _dl_find_hash("atexit", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
-#if defined (__SUPPORT_LD_DEBUG__)
-	_dl_on_exit = (int (*)(void (*)(int, void *),void*))
-		(intptr_t) _dl_find_hash("on_exit", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
-#endif
-
 	/* Notify the debugger we have added some objects. */
 	_dl_debug_addr->r_state = RT_ADD;
 	_dl_debug_state();
@@ -812,33 +815,23 @@ next_lib2:
 #if defined (__SUPPORT_LD_DEBUG__)
 			if(_dl_debug)
 				_dl_dprintf(_dl_debug_file,
-					    "\ncalling init: %s\n\n",
+					    "\ncalling INIT: %s\n\n",
 					    tpnt->libname);
 #endif
 
 			(*dl_elf_func) ();
 		}
-		tpnt->init_flag |= FINI_FUNCS_CALLED;
-		if (_dl_atexit && tpnt->dynamic_info[DT_FINI]) {
-			void (*dl_elf_func) (void);
-
-			dl_elf_func = (void (*)(void)) (intptr_t) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
-			(*_dl_atexit) (dl_elf_func);
-#if defined (__SUPPORT_LD_DEBUG__)
-			if(_dl_debug && _dl_on_exit) {
-				(*_dl_on_exit)(debug_fini, tpnt->libname);
-			}
-#endif
-		}
-#if defined (__SUPPORT_LD_DEBUG__)
-		else {
-			if (!_dl_atexit)
-				_dl_dprintf(_dl_debug_file, "%s: The address of atexit () is 0x0.\n", tpnt->libname);
-		}
-#endif
 	}
+#ifndef _DL_DO_FINI_IN_LIBC
+/* arches that has moved their ldso FINI handling should ship this part */
+	{
+		int (*_dl_atexit) (void *) = (int (*)(void *)) (intptr_t) _dl_find_hash("atexit", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
 
-	/* Notify the debugger that all objects are now mapped in.  */
+		if (_dl_atexit)
+			(*_dl_atexit) (_dl_fini);
+		/* Notify the debugger that all objects are now mapped in.  */
+	}
+#endif
 	_dl_debug_addr->r_state = RT_CONSISTENT;
 	_dl_debug_state();
 
