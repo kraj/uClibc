@@ -34,7 +34,6 @@ endif
 
 ARFLAGS=r
 
-
 CCFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) -Dlinux -D__linux__ -I$(TOPDIR)include -I$(GCCINCDIR) -I. -D__LIBC__
 
 CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
@@ -62,6 +61,11 @@ endif
 
 ifeq ($(strip $(TARGET_ARCH)),m68k)
     CFLAGS += -D__VFORK_MACRO__ -Dconst= -D__const= -D__extension__= 
+endif
+
+
+ifeq ($(strip $(TARGET_ARCH)),sh)
+    CFLAGS +=  -DNO_UNDERSCORES
 endif
 
 NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g' -e 's/m68k.*/m68k/')

@@ -37,7 +37,7 @@
 #define _SYS_SYSLOG_H 1
 
 #include <features.h>
-#define __need___va_list
+// #define __need___va_list
 #include <stdarg.h>
 
 
