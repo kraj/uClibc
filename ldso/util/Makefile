@@ -23,7 +23,8 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-all: ldconfig ldd readelf
+TARGETS=ldd.uclibc ldd readelf ldconfig
+all: $(TARGETS)
 
 readsoname.o: readsoname.c readsoname2.c
 	$(TARGET_CC) $(TARGET_CFLAGS) -c $< -o $@
@@ -55,6 +56,14 @@ ldd: ldd.c
 		-static ldd.c -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
+ldd.uclibc: ldd.c
+	$(NATIVE_CC) $(NATIVE_CFLAGS) -g -DUCLIBC_TARGET_PREFIX=\"$(TARGET_PREFIX)\" \
+		-DUCLIBC_DEVEL_PREFIX=\"$(DEVEL_PREFIX)\" \
+		-DUCLIBC_BUILD_DIR=\"$(shell cd $(TOPDIR) && pwd)\" \
+		-DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" \
+		ldd.c -o $@ 
+	$(STRIPTOOL) -x -R .note -R .comment $@
+
 clean:
-	rm -f ldconfig ldd readelf *.o *~ core
+	rm -f $(TARGETS) *.o *~ core
 
