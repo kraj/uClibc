@@ -1,15 +1,15 @@
 #include <features.h>
+#ifdef __UCLIBC_HAVE_LFS__
 #define _FILE_OFFSET_BITS   64
 #define __USE_LARGEFILE64
 #define __USE_FILE_OFFSET64
+#include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
 #include "dirstream.h"
-
-#ifdef __UCLIBC_HAVE_LFS__
 
 extern int getdents64 __P ((unsigned int fd, struct dirent64 *dirp, unsigned int count));
 
@@ -33,7 +33,7 @@ struct dirent64 *readdir64(DIR * dir)
 		/* read dir->dd_max bytes of directory entries. */
 		result = getdents64(dir->dd_fd, dir->dd_buf, dir->dd_max);
 
-		/* We assume we have getdents (). */
+		/* We assume we have getdents64 (). */
 		dir->dd_getdents = have_getdents;
 		if (result <= 0) {
 			result = -result;
@@ -63,6 +63,5 @@ struct dirent64 *readdir64(DIR * dir)
 
 	return de;
 }
+
 #endif /* __UCLIBC_HAVE_LFS__ */
-
-

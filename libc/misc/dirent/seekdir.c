@@ -1,9 +1,10 @@
+#include <dirent.h>
 #include <errno.h>
 #include <unistd.h>
 #include "dirstream.h"
 
 
-void seekdir(DIR * dir, off_t offset)
+void seekdir(DIR * dir, long int offset)
 {
 	if (!dir) {
 		__set_errno(EBADF);

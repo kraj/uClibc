@@ -40,6 +40,9 @@ struct dirent
     __off64_t d_off;
 #endif
     unsigned short int d_reclen;
+#ifdef __USE_FILE_OFFSET64
+    unsigned char d_type;
+#endif
     char d_name[256];		/* We must not include limits.h! */
   };
 

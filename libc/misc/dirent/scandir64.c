@@ -24,16 +24,17 @@
 */
 
 #include <features.h>
+#ifdef __UCLIBC_HAVE_LFS__
 #define _FILE_OFFSET_BITS   64
 #define __USE_LARGEFILE64
 #define __USE_FILE_OFFSET64
+#include <dirent.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include "dirstream.h"
 
-#ifdef __UCLIBC_HAVE_LFS__
 
 /*
  * FIXME: This is a simple hack version which doesn't sort the data, and

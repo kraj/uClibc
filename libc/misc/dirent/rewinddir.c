@@ -1,3 +1,4 @@
+#include <dirent.h>
 #include <errno.h>
 #include <unistd.h>
 #include "dirstream.h"

@@ -37,19 +37,20 @@ DIR *opendir(const char *name)
 		return NULL;
 	}
 
+	ptr->dd_fd = fd;
+	ptr->dd_nextloc = ptr->dd_size = ptr->dd_nextoff = 0;
+	ptr->dd_getdents = unknown;
+
 	ptr->dd_max = statbuf.st_blksize;
 	if (ptr->dd_max < 512)
 		ptr->dd_max = 512;
 
-	if (!(buf = malloc(ptr->dd_max))) {
+	if (!(buf = calloc(1, ptr->dd_max))) {
 		close(fd);
 		free(ptr);
 		__set_errno(ENOMEM);
 		return NULL;
 	}
-	ptr->dd_fd = fd;
-	ptr->dd_nextoff = ptr->dd_nextloc = ptr->dd_size = 0;
 	ptr->dd_buf = buf;
-	ptr->dd_getdents = unknown;
 	return ptr;
 }

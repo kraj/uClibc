@@ -1,9 +1,10 @@
+#include <dirent.h>
 #include <errno.h>
 #include <unistd.h>
 #include "dirstream.h"
 
 
-off_t telldir(DIR * dir)
+long int telldir(DIR * dir)
 {
 	off_t offset;
 
