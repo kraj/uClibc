@@ -33,3 +33,12 @@ longjmp:
 	ldmia	ip,{v1-v6, sl, fp, sp, pc}
 .size longjmp,.-longjmp;
 
+.weak _longjmp; 
+    _longjmp = longjmp;
+
+.weak siglongjmp; 
+    siglongjmp = longjmp;
+
+.weak __sigprocmask; 
+    __sigprocmask = sigprocmask;
+
