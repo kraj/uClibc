@@ -28,7 +28,8 @@ else
 SYSDEPS_DIR:=$(TARGET_ARCH)
 endif
 #This stuff will not compile without at least -O1
-#CFLAGS := $(subst -O0,-O1,$(CFLAGS))
+CFLAGS :=$(CFLAGS:-O0=-O1)
+
 
 # set up system dependencies include dirs (NOTE: order matters!)
 PTDIR = $(TOPDIR)libpthread/linuxthreads/
