@@ -461,6 +461,8 @@ static struct library * find_elf_interpreter(Elf32_Ehdr* ehdr)
 				newlib = cur;
 				free(newlib->name);
 				free(newlib->path);
+				newlib->name = NULL;
+				newlib->path = NULL;
 				return NULL;
 			}
 		}
