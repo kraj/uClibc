@@ -959,10 +959,6 @@ struct netent * getnetbyname(const char * name)
 #ifdef L_res_init
 struct __res_state * __res;
 
-#ifndef _res
-#define _res (*__res_state())
-#endif
-
 int res_init(void)
 {
 	struct __res_state *rp = __res;
@@ -1011,14 +1007,6 @@ int res_init(void)
 	BIGUNLOCK;
 
 	return(0);
-}
-
-struct __res_state * __res_state (void)
-{
-	if(!__res) {
-		res_init();
-	}
-	return __res;
 }
 
 void res_close( void )
