@@ -186,6 +186,8 @@ tags:
 install: install_runtime install_dev finished2
 
 
+RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
+
 # Installs header files and development library links.
 install_dev:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
@@ -254,11 +256,11 @@ endif
 ifeq ($(strip $(HAVE_SHARED)),y)
 	for i in `find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
 	sed -e 's/lib\///'` ; do \
-		$(LN) -sf $(RUNTIME_PREFIX)lib/$$i.$(MAJOR_VERSION) \
+		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
 	done;
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	ln -sf $(RUNTIME_PREFIX)lib/libthread_db.so.1 \
+	ln -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
 		$(PREFIX)$(DEVEL_PREFIX)lib/libthread_db.so
 endif
 #	# If we build shared libraries then the static libs are PIC...
