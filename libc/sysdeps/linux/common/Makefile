@@ -37,14 +37,14 @@ CSRC=	__rt_sigtimedwait.c __socketcall.c __syscall_fcntl.c \
 	mlockall.c mmap.c mmap64.c modify_ldt.c mount.c mprotect.c \
 	mremap.c msync.c munlock.c munlockall.c munmap.c nanosleep.c \
 	nice.c noophooks.c ntp_gettime.c open.c open64.c pause.c \
-	personality.c pipe.c pivot_root.c poll.c prctl.c pread_write.c \
-	ptrace.c query_module.c quotactl.c read.c readlink.c readv.c \
-	reboot.c rename.c rmdir.c sched_get_priority_max.c \
-	sched_get_priority_min.c sched_getparam.c sched_getscheduler.c \
-	sched_rr_get_interval.c sched_setparam.c sched_setscheduler.c \
-	sched_yield.c select.c sendfile.c sendfile64.c setdomainname.c \
-	setegid.c seteuid.c setfsgid.c setfsuid.c setgid.c setgroups.c \
-	sethostname.c setitimer.c setpgid.c setpgrp.c setpriority.c \
+	personality.c pipe.c pivot_root.c poll.c posix_fadvise.c \
+	posix_fadvise64.c prctl.c pread_write.c ptrace.c query_module.c \
+	quotactl.c read.c readlink.c readv.c reboot.c rename.c rmdir.c \
+	sched_get_priority_max.c sched_get_priority_min.c sched_getparam.c \
+	sched_getscheduler.c sched_rr_get_interval.c sched_setparam.c \
+	sched_setscheduler.c sched_yield.c select.c sendfile.c sendfile64.c \
+	setdomainname.c setegid.c seteuid.c setfsgid.c setfsuid.c setgid.c \
+	setgroups.c sethostname.c setitimer.c setpgid.c setpgrp.c setpriority.c \
 	setregid.c setresgid.c setresuid.c setreuid.c setrlimit.c \
 	setrlimit64.c setsid.c settimeofday.c setuid.c sigaltstack.c \
 	sigpending.c sigprocmask.c sigsuspend.c stat.c stat64.c statfs.c \
