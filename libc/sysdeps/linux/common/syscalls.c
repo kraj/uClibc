@@ -1721,9 +1721,12 @@ int getresuid (uid_t *ruid, uid_t *euid, uid_t *suid)
 #endif	
 
 //#define __NR_poll                     168
-#if defined(L_poll) && defined(__NR_poll) /* uClinux 2.0 doesn't have poll */
+#if defined(L_poll) && defined(__NR_poll)
 #include <sys/poll.h>
 _syscall3(int, poll, struct pollfd *, fds, unsigned long int, nfds, int, timeout);
+#else
+/* uClinux 2.0 doesn't have poll, emulate it using select */
+#include "poll.c"
 #endif
 
 //#define __NR_nfsservctl               169
