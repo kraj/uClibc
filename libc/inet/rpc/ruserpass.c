@@ -96,7 +96,7 @@ int ruserpass(const char *host, const char **aname, const char **apass)
 	char *hdir, *buf, *tmp;
 	char myname[1024], *mydomain;
 	int t, usedefault = 0;
-	struct stat64 stb;
+	struct stat stb;
 
 	/* Give up when running a setuid or setgid app. */
 	if ((getuid() != geteuid()) || getgid() != getegid())
