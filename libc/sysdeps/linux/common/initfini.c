@@ -52,6 +52,23 @@
 #  define HIDDEN(func)
 #endif
 
+#if defined(__sh__)
+  /* The macro insert this sh specific stuff:
+     @_SH_GLB_BEGINS
+          bra     1f
+	  nop
+	  ALIGN
+     @func_SH_GLB_LABEL
+     1:
+     @_SH_GLB_ENDS
+   */
+#define GLB_STUFF(func)  asm ("\n/*@_SH_GLB_BEGINS*/"); \
+  asm ("\n\tbra\t1f\n\tnop\n\tALIGN\n/*@" #func"_SH_GLB_LABEL*/\n1:"); \
+  asm ("\n/*@_SH_GLB_ENDS*/");
+#else
+#define GLB_STUFF(func)
+#endif
+
 /* The initial common code ends here. */
 asm ("\n/*@HEADER_ENDS*/");
 
@@ -107,6 +124,7 @@ void _init (void)
   asm ("\n/*@_init_PROLOG_UNPAUSES*/");
 #endif
 
+  GLB_STUFF(_init)
   asm ("ALIGN");
   asm("END_INIT");
   /* Now the epilog. */
@@ -127,6 +145,7 @@ void _fini (void)
 {
 
   /* End of the _fini prolog. */
+  GLB_STUFF(_fini)
   asm ("ALIGN");
   asm ("END_FINI");
   asm ("\n/*@_fini_PROLOG_ENDS*/");
