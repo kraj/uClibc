@@ -175,9 +175,11 @@ uClibc_config.h: Config
 	fi
 	@if [ "$(TARGET_ARCH)" = "m68k" ] ; then \
 	    echo "#define __VFORK_MACRO__ 1" >> uClibc_config.h ; \
-	    echo "#define const" >> uClibc_config.h ; \
-	    echo "#define __const" >> uClibc_config.h ; \
-	    echo "#define __extension" >> uClibc_config.h ; \
+	    if [ `expr match "$(CC)" ".*\(m68k-elf-.*\)"`x = x ]; then \
+		echo "#define const" >> uClibc_config.h ; \
+		echo "#define __const" >> uClibc_config.h ; \
+		echo "#define __extension" >> uClibc_config.h ; \
+	    fi; \
 	else \
 	    echo "#undef __VFORK_MACRO__" >> uClibc_config.h ; \
 	fi
