@@ -173,7 +173,7 @@ config UCLIBC_HAS_LFS
 
 choice
 	prompt "Malloc Implementation"
-	default "malloc-930716"
+	default MALLOC_930716
 	help
 	  "malloc" use mmap for all allocations and so works very well on MMU-less
 	  systems that do not support the brk() system call.   It is pretty smart
@@ -260,6 +260,61 @@ config UCLIBC_HAS_TM_EXTENSIONS
 	  To strictly follow the SuSv3 standard, leave this disabled.
 	  Most people will probably want to answer Y.
 
+config UCLIBC_HAS_TZ_CACHING
+	bool "Enable caching of the last valid timezone 'TZ' string"
+	default y
+	help
+	  Answer Y to enable caching of the last valid 'TZ' string describing
+	  the timezone setting.  This allows a quick string compare to avoid
+	  repeated parsing of unchanged 'TZ' strings when tzset() is called.
+
+	  Most people will answer Y.
+
+config UCLIBC_HAS_TZ_FILE
+	bool "Enable '/etc/TZ' file support to set a default timezone (uClibc-specific)"
+	default y
+	help
+	  Answer Y to enable the setting of a default timezone for uClibc.
+
+	  Ordinarily, uClibc gets the timezone information exclusively from the
+	  'TZ' environment variable.  In particular, there is no support for
+	  the zoneinfo directory tree or the /etc/timezone file used by glibc.
+
+	  With this option enabled, uClibc will use the value stored in the
+	  file '/etc/TZ' (default path) to obtain timezone information if the
+	  'TZ' environment variable is missing or has an invalid value.  The
+	  file consists of a single line (newline required) of text describing
+	  the timezone in the format specified for the TZ environment variable.
+
+	  Simply doing 'echo CST6CDT > /etc/TZ' is enough to create a valid file.
+	  See
+	  http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html
+	  for details on valid settings of 'TZ'.
+
+	  Most people will answer Y.
+
+config UCLIBC_HAS_TZ_FILE_READ_MANY
+	bool "Repeatedly read the '/etc/TZ' file"
+	depends on UCLIBC_HAS_TZ_FILE
+	default y
+	help
+	  Answer Y to enable repeated reading of the '/etc/TZ' file even after
+	  a valid value has been read.  This incurs the overhead of an open/read/close
+	  for each tzset() call (explicit or implied).  However, setting this
+	  will allows applications to update their timezone information if the contents
+	  of the file change.
+
+	  Most people will answer Y.
+
+config UCLIBC_TZ_FILE_PATH
+	string "Path to the 'TZ' file for setting the global timezone"
+	depends on UCLIBC_HAS_TZ_FILE
+	default "/etc/TZ"
+	help
+	  This is the path to the 'TZ' file.
+
+	  Most people will use the default of '/etc/TZ'.
+
 endmenu
 
 
@@ -299,11 +354,11 @@ endmenu
 menu "String and Stdio Support"
 
 config UCLIBC_HAS_CTYPE_SIGNED
-	bool "Support Signed Characters In `ctype.h' Functions."
+	bool "Support Signed Characters In 'ctype.h' Functions."
 	default y
 	help
 	  Answer Y to enable support for passing signed char values to
-	  the `ctype.h' functions.  ANSI/ISO C99 and SUSv3 specify that
+	  the 'ctype.h' functions.  ANSI/ISO C99 and SUSv3 specify that
 	  these functions are only defined for unsigned char values and
 	  EOF.  However, glibc allows negative signed char values as well
 	  in order to support 'broken old programs'.
@@ -311,28 +366,29 @@ config UCLIBC_HAS_CTYPE_SIGNED
 	  Most people will answer Y.
 
 choice
-	prompt "`ctype.h' Invalid Arg Behavior."
-	default UCLIBC_HAS_CTYPE_CHECKED
+	prompt "ctype argument checking"
+	default UCLIBC_HAS_CTYPE_UNSAFE
 	help
-	  Please select the invalid arg behavior you want for the `ctype' functions.
+	  Please select the invalid arg behavior you want for the 'ctype' functions.
 
-	  The `ctype' functions are now implemented using table lookups, with
+	  The 'ctype' functions are now implemented using table lookups, with
 	  the arg being the index.  This can result in incorrect memory accesses
 	  or even segfaults for args outside of the allowed range.
 
-	  NOTE: This only affects the `ctype' _functions_.  It does not affect
+	  NOTE: This only affects the 'ctype' _functions_.  It does not affect
 	  the macro implementations.
 
 config UCLIBC_HAS_CTYPE_UNSAFE
-	bool "Do not check.  (incorrect array access possible)"
+	bool "Do not check -- unsafe"
 
 config UCLIBC_HAS_CTYPE_CHECKED
-	bool "Detect and handle appropriately."
+	bool "Detect and handle appropriately"
 
 config UCLIBC_HAS_CTYPE_ENFORCED
-	bool "Issue a diagnostic and abort()."
+	bool "Issue a diagnostic and abort()"
 
 endchoice
+
 
 config UCLIBC_HAS_WCHAR
 	bool "Wide Character Support"
@@ -364,18 +420,6 @@ config UCLIBC_HAS_XLOCALE
 
 	  Most people will answer N.
 
-config UCLIBC_HAS_SCANF_GLIBC_A_FLAG
-	bool "Support glibc's `a' flag for scanf string conversions"
-	default n
-	help
-	  NOTE!!!  Currently Not Implemented!!! Just A Place Holder!!  NOTE!!!
-
-	  Answer Y to enable support for glibc's `a' flag for the scanf string
-	  conversions `%s', `%[', `%ls', `%l[`, and `%S'.  This is used to
-	  auto-allocate sufficient memory to hold the data retrieved.
-
-	  Most people will answer N.
-
 config UCLIBC_HAS_HEXADECIMAL_FLOATS
 	bool "Support hexadecimal float notation"
 	default n
@@ -388,25 +432,39 @@ config UCLIBC_HAS_HEXADECIMAL_FLOATS
 	  Most people will answer N.
 
 config UCLIBC_HAS_GLIBC_DIGIT_GROUPING
-	bool "Support glibc's `'' flag for allowing locale-specific digit grouping"
+	bool "Support glibc's \"'\" flag for allowing locale-specific digit grouping"
 	depends on UCLIBC_HAS_LOCALE
 	default n
 	help
-	  Answer Y to enable support for glibc's `'' flag for allowing locale-specific
+	  Answer Y to enable support for glibc's \"'\" flag for allowing locale-specific
 	  digit grouping in base 10 integer conversions and appropriate floating point
 	  conversions in the *printf() and *scanf() functions.
 
 	  Most people will answer N.
 
 config UCLIBC_HAS_SCANF_LENIENT_DIGIT_GROUPING
-	bool "Do not require digit grouping when the `'' flag is specified"
+	bool "Do not require digit grouping when the \"'\" flag is specified"
 	depends on UCLIBC_HAS_GLIBC_DIGIT_GROUPING
 	default y
 	help
-	  Answer Y to make digit grouping optional when the `'' flag is specified.
+	  Answer Y to make digit grouping optional when the \"'\" flag is specified.
 	  This is the standard glibc behavior.  If the initial string of digits
 	  exceeds the maximum group number, the input will be treated as a normal
 	  non-grouped number.
+
+	  Most people will answer N.
+
+config UCLIBC_HAS_GLIBC_CUSTOM_PRINTF
+	bool "Support glibc's register_printf_function() (glibc-compat)"
+	default n
+	help
+	  Answer Y to support glibc's register_printf_function() to allow an
+	  application to add its own printf conversion specifiers.
+
+	  NOTE: This implementation limits the number or registered specifiers to 10.
+	  NOTE: This implementation requires new conversion specifiers to be ASCII
+                characters (0-0x7f).  This is to avoid problems with processing
+                format strings in locales with different multibyte conversions.
 
 	  Most people will answer N.
 
@@ -439,60 +497,17 @@ config UCLIBC_PRINTF_SCANF_POSITIONAL_ARGS
 	  Most people will answer 9.
 
 
-config UCLIBC_HAS_TZ_CACHING
-	bool "Enable caching of the last valid timezone `TZ' string"
-	default y
+config UCLIBC_HAS_SCANF_GLIBC_A_FLAG
+	bool "Support glibc's 'a' flag for scanf string conversions"
+	default n
 	help
-	  Answer Y to enable caching of the last valid `TZ' string describing
-	  the timezone setting.  This allows a quick string compare to avoid
-	  repeated parsing of unchanged `TZ' strings when tzset() is called.
+	  NOTE!!!  Currently Not Implemented!!! Just A Place Holder!!  NOTE!!!
 
-	  Most people will answer Y.
+	  Answer Y to enable support for glibc's 'a' flag for the scanf string
+	  conversions '%s', '%[', '%ls', '%l[', and '%S'.  This is used to
+	  auto-allocate sufficient memory to hold the data retrieved.
 
-config UCLIBC_HAS_TZ_FILE
-	bool "Enable `/etc/TZ' file support to set a default timezone (uClibc-specific)"
-	default y
-	help
-	  Answer Y to enable the setting of a default timezone for uClibc.
-
-	  Ordinarily, uClibc gets the timezone information exclusively from the
-	  `TZ' environment variable.  In particular, there is no support for
-	  the zoneinfo directory tree or the /etc/timezone file used by glibc.
-
-	  With this option enabled, uClibc will use the value stored in the
-	  file `/etc/TZ' (default path) to obtain timezone information if the
-	  `TZ' environment variable is missing or has an invalid value.  The
-	  file consists of a single line (newline required) of text describing
-	  the timezone in the format specified for the TZ environment variable.
-
-	  Simply doing `echo CST6CDT > /etc/TZ' is enough to create a valid file.
-	  See
-	  http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html
-	  for details on valid settings of `TZ'.
-
-	  Most people will answer Y.
-
-config UCLIBC_TZ_FILE_PATH
-	string "Path to the `TZ' file for setting the global timezone"
-	depends on UCLIBC_HAS_TZ_FILE
-	default "/etc/TZ"
-	help
-	  This is the path to the `TZ' file.
-
-	  Most people will use the default of `/etc/TZ'.
-
-config UCLIBC_HAS_TZ_FILE_READ_MANY
-	bool "Repeatedly read the `/etc/TZ' file"
-	depends on UCLIBC_HAS_TZ_FILE
-	default y
-	help
-	  Answer Y to enable repeated reading of the `/etc/TZ' file even after
-	  a valid value has been read.  This incurs the overhead of an open/read/close
-	  for each tzset() call (explicit or implied).  However, setting this
-	  will allows applications to update their timezone information if the contents
-	  of the file change.
-
-	  Most people will answer Y.
+	  Most people will answer N.
 
 choice
 	prompt "Stdio buffer size"
@@ -502,7 +517,7 @@ choice
 	  stdio subsystem as the default buffer size for a file, and
 	  affects fopen(), setvbuf(), etc.
 
-	  NOTE: Setting this to `none' will disable buffering completely.
+	  NOTE: Setting this to 'none' will disable buffering completely.
 	  However, BUFSIZ will still be defined in stdio.h as 256 because
 	  many applications use this value.
 
@@ -527,6 +542,33 @@ config UCLIBC_HAS_STDIO_BUFSIZ_4096
 
 config UCLIBC_HAS_STDIO_BUFSIZ_8192
 	bool "8192"
+
+# If you add more choices, you will need to update uClibc_stdio.h.
+
+endchoice
+
+choice
+	prompt "Stdio builtin buffer size (uClibc-specific)"
+	depends !UCLIBC_HAS_STDIO_BUFSIZ_NONE
+	default UCLIBC_HAS_STDIO_BUILTIN_BUFFER_NONE
+	help
+	  When a FILE is created with fopen(), an attempt is made to allocate
+	  a BUFSIZ buffer for it.  If the allocation fails, fopen() will still
+	  succeed but the FILE will be unbuffered.
+
+	  This option adds a small amount of space to each FILE to act as an
+	  emergeny buffer in the event of a buffer allocation failure.
+
+	  Most people will answer None.
+
+config UCLIBC_HAS_STDIO_BUILTIN_BUFFER_NONE
+	bool "None"
+
+config UCLIBC_HAS_STDIO_BUILTIN_BUFFER_4
+	bool "4"
+
+config UCLIBC_HAS_STDIO_BUILTIN_BUFFER_8
+	bool "8"
 
 # If you add more choices, you will need to update uClibc_stdio.h.
 
@@ -568,22 +610,22 @@ config UCLIBC_HAS_STDIO_AUTO_RW_TRANSITION
 	  Most people will answer Y.
 
 config UCLIBC_HAS_FOPEN_LARGEFILE_MODE
-	bool "Support an fopen() `F' flag for large file mode (uClibc-specific)"
+	bool "Support an fopen() 'F' flag for large file mode (uClibc-specific)"
 	depends on UCLIBC_HAS_LFS
 	default n
 	help
 	  Answer Y to enable a uClibc-specific extension to allow passing an
-	  additional `F' flag in the mode string for fopen() to specify that
+	  additional 'F' flag in the mode string for fopen() to specify that
 	  the file should be open()ed with the O_LARGEFILE flag set.
 
 	  Most people will answer N.
 
 config UCLIBC_HAS_FOPEN_EXCLUSIVE_MODE
-	bool "Support an fopen() `x' flag for exclusive mode (glibc-compat)"
+	bool "Support an fopen() 'x' flag for exclusive mode (glibc-compat)"
 	default n
 	help
 	  Answer Y to support a glibc extension to allow passing
-	  additional `x' flag in the mode string for fopen() to specify that
+	  additional 'x' flag in the mode string for fopen() to specify that
 	  the file should be open()ed with the O_EXCL flag set.
 
 	  Most people will answer N.
@@ -592,61 +634,20 @@ config UCLIBC_HAS_GLIBC_CUSTOM_STREAMS
 	bool "Support fmemopen(), open_memstream(), and fopencookie() (glibc-compat)"
 	default n
 	help
-	  Answer Y to support the glibc `custom stream' extension functions
+	  Answer Y to support the glibc 'custom stream' extension functions
 	  fmemopen(), open_memstream(), and fopencookie().
 
 	  NOTE: There are some minor differences regarding seeking behavior.
 
 	  Most people will answer N.
 
-choice
-	prompt "Stdio builtin buffer size (uClibc-specific)"
-	depends !UCLIBC_HAS_STDIO_BUFSIZ_NONE
-	default UCLIBC_HAS_STDIO_BUILTIN_BUFFER_NONE
-	help
-	  When a FILE is created with fopen(), an attempt is made to allocate
-	  a BUFSIZ buffer for it.  If the allocation fails, fopen() will still
-	  succeed but the FILE will be unbuffered.
-
-	  This option adds a small amount of space to each FILE to act as an
-	  emergeny buffer in the event of a buffer allocation failure.
-
-	  Most people will answer None.
-
-config UCLIBC_HAS_STDIO_BUILTIN_BUFFER_NONE
-	bool "None"
-
-config UCLIBC_HAS_STDIO_BUILTIN_BUFFER_4
-	bool "4"
-
-config UCLIBC_HAS_STDIO_BUILTIN_BUFFER_8
-	bool "8"
-
-# If you add more choices, you will need to update uClibc_stdio.h.
-
-endchoice
-
 config UCLIBC_HAS_PRINTF_M_SPEC
-	bool "Support the `%m' specifier in printf format strings (glibc-compat)"
+	bool "Support the '%m' specifier in printf format strings (glibc-compat)"
 	default n
 	help
-	  Answer Y to support a glibc extension to interpret `%m' in printf
+	  Answer Y to support a glibc extension to interpret '%m' in printf
 	  format strings as an instruction to output the error message string
-	  (as generated by strerror) corresponding to the current value of `errno'.
-
-	  Most people will answer N.
-
-config UCLIBC_HAS_GLIBC_CUSTOM_PRINTF
-	bool "Support glibc's register_printf_function() (glibc-compat)"
-	default n
-	help
-	  Answer Y to support glibc's register_printf_function() to allow an
-	  application to add its own printf conversion specifiers.
-
-	  NOTE: This implementation limits the number or registered specifiers to 10.
-	  NOTE: This implementation requires new conversion specifiers to be ASCII
-                characters (0-0x7f).  This is to avoid problems with processing
-                format strings in locales with different multibyte conversions.
+	  (as generated by strerror) corresponding to the current value of 'errno'.
 
 	  Most people will answer N.
 
@@ -656,7 +657,7 @@ config UCLIBC_HAS_ERRNO_MESSAGES
 	help
 	  Answer Y if you want to include the errno message text in the
 	  library.  This adds about 3K to the library, but enables strerror()
-	  to generate text other than `Unknown error <number>'.
+	  to generate text other than 'Unknown error <number>'.
 
 	  Most people will answer Y.
 
@@ -680,7 +681,7 @@ config UCLIBC_HAS_SIGNUM_MESSAGES
 	help
 	  Answer Y if you want to include the signum message text in the
 	  library.  This adds about 0.5K to the library, but enables strsignal()
-	  to generate text other than `Unknown signal <number>'.
+	  to generate text other than 'Unknown signal <number>'.
 
 	  Most people will answer Y.
 
@@ -779,7 +780,7 @@ config DEVEL_TOOL_PREFIX
 
 endmenu
 
-menu "uClibc hacking options"
+menu "uClibc development/debugging options"
 
 config DODEBUG
 	bool "Build uClibc with debugging symbols"
