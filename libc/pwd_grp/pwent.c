@@ -80,12 +80,10 @@ struct passwd *getpwent(void)
 {
     static char line_buff[PWD_BUFFER_SIZE];
     static struct passwd pwd;
-    LOCK;
+
     if (getpwent_r(&pwd, line_buff, sizeof(line_buff), NULL) != -1) {
-	UNLOCK;
 	return &pwd;
     }
-    UNLOCK;
     return NULL;
 }
 
