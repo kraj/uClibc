@@ -181,6 +181,20 @@ void * elf_find_dynamic(int const key, Elf32_Dyn *dynp,
 	return NULL;
 }
 
+static char * elf_find_rpath(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic)
+{
+	Elf32_Dyn  *dyns;
+
+	for (dyns=dynamic; byteswap32_to_host(dyns->d_tag)!=DT_NULL; ++dyns) {
+		if (DT_RPATH == byteswap32_to_host(dyns->d_tag)) {
+			char *strtab;
+			strtab = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
+			return ((char*)strtab + byteswap32_to_host(dyns->d_un.d_val));
+		}
+	}
+	return NULL;
+}
+    
 int check_elf_header(Elf32_Ehdr *const ehdr)
 {
 	if (! ehdr || strncmp((void *)ehdr, ELFMAG, SELFMAG) != 0 ||  
@@ -285,7 +299,7 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_suid, stru
 	 * in readelflib1.c or things won't work out as expected... */
 
 	/* The ABI specifies that RPATH is searched first, so do that now.  */
-	path = (char *)elf_find_dynamic(DT_RPATH, dynamic, ehdr, 0);
+	path = elf_find_rpath(ehdr, dynamic);
 	if (path) {
 		search_for_named_library(lib->name, buf, path);
 		if (*buf != '\0') {
@@ -401,13 +415,15 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_setuid, char
 	return 0;
 }
 
-
-static void find_needed_libraries(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, char *strtab, int is_setuid)
+static void find_needed_libraries(Elf32_Ehdr* ehdr, 
+		Elf32_Dyn* dynamic, int is_setuid)
 {
 	Elf32_Dyn  *dyns;
 
 	for (dyns=dynamic; byteswap32_to_host(dyns->d_tag)!=DT_NULL; ++dyns) {
 		if (DT_NEEDED == byteswap32_to_host(dyns->d_tag)) {
+			char *strtab;
+			strtab = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
 			add_library(ehdr, dynamic, is_setuid, 
 					(char*)strtab + byteswap32_to_host(dyns->d_un.d_val));
 		}
@@ -482,7 +498,6 @@ int find_dependancies(char* filename)
 	int is_suid = 0;
 	FILE *thefile;
 	struct stat statbuf;
-	char *dynstr=NULL;
 	Elf32_Ehdr *ehdr = NULL;
 	Elf32_Shdr *dynsec = NULL;
 	Elf32_Dyn *dynamic = NULL;
@@ -577,8 +592,7 @@ foo:
 	dynsec = elf_find_section_type(SHT_DYNAMIC, ehdr);
 	if (dynsec) {
 		dynamic = (Elf32_Dyn*)(byteswap32_to_host(dynsec->sh_offset) + (intptr_t)ehdr);
-		dynstr = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
-		find_needed_libraries(ehdr, dynamic, dynstr, is_suid);
+		find_needed_libraries(ehdr, dynamic, is_suid);
 	}
 	
 	return 0;
