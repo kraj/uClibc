@@ -230,13 +230,6 @@ void *_dlopen(const char *libname, int flag)
 					goto oops;
 				}
 
-#if 1
-//FIXME:  Enabling this is _so_ wrong....
-				/* We need global symbol resolution for everything
-				 * in the dependent chain */
-				dyn_chain->flags |= RTLD_GLOBAL;
-#endif
-
 				rpnt->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 				_dl_memset (rpnt->next, 0, sizeof (struct dyn_elf));
 				rpnt = rpnt->next;
