@@ -5,22 +5,22 @@ extern int libtest2_func(const char *s);
 
 void __attribute__((constructor)) libtest1_ctor(void)
 {
-    printf("I am the libtest1 constructor!\n");
+    printf("libtest1: constructor!\n");
 }
 
 void __attribute__((destructor)) libtest1_dtor(void)
 {
-    printf("I am the libtest1 destructor!\n");
+    printf("libtest1: destructor!\n");
 }
 
 void __attribute__((weak)) function1(void)
 {
-    printf("libtest1: I am function1 from libtest1!\n");
+    printf("libtest1: I am weak function1!\n");
 }
 
 void function2(void)
 {
-    printf("libtest1: I am overriding function2!\n");
+    printf("libtest1: I am function2!\n");
 }
 
 

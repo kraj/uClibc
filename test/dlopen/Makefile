@@ -27,6 +27,9 @@ test1: test1.c
 test2: test2.c
 	$(CC) $(CFLAGS) -o test2 test2.c -ldl
 
+test3: test3.c
+	$(CC) $(CFLAGS) -o test3 test3.c -ldl ./libtest1.so ./libtest2.so
+
 libtest1.o: libtest1.c
 	$(CC) $(CFLAGS) -fPIC -c libtest1.c -o libtest1.o
 
@@ -39,11 +42,13 @@ libtest1.so: libtest1.o
 libtest2.so: libtest2.o
 	$(CC) $(CFLAGS) -fPIC -shared -o libtest2.so -Wl,-soname,libtest2.so libtest2.o
 
-run: libtest2.so libtest1.so test1 test2
+run: libtest2.so libtest1.so test1 test2 test3
 	@echo "----------running test 1--------------"
-	-LD_LIBRARY_PATH=`pwd`:. ./test1
+	-LD_LIBRARY_PATH=`pwd`:. LD_DEBUG=all ./test1
 	@echo "----------running test 2--------------"
-	-LD_LIBRARY_PATH=`pwd`:. ./test2
+	-LD_LIBRARY_PATH=`pwd`:. LD_DEBUG=all ./test2
+	@echo "----------running test 3--------------"
+	-LD_LIBRARY_PATH=`pwd`:. LD_DEBUG=all ./test3
 
 clean:
-	rm -f *.o libtest1.so* libtest2.so* test1 test2
+	rm -f *.o libtest1.so* libtest2.so* test1 test2 test3
