@@ -13,7 +13,7 @@ config HAVE_ELF
 
 config ARCH_CFLAGS
 	string
-	default "-fno-schedule-insns2"
+	default "-mno-split-addresses"
 
 config ARCH_LDFLAGS
 	string
