@@ -21,8 +21,19 @@ include $(TESTDIR)/Rules.mak
 
 
 
-TARGETS=fork fork_glibc vfork vfork_glibc
+TARGETS=fork fork_glibc vfork vfork_glibc getcwd 
 all: $(TARGETS)
+
+getcwd: getcwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling vs uClibc: "
+	-@ echo " "
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	./$@
+	-@ echo " "
 
 fork: fork.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak $(CC)
 	-@ echo "-------"
