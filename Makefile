@@ -78,6 +78,9 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 endif
 
 include/bits/uClibc_config.h: .config
+	@if [ ! -x ./extra/config/conf ] ; then \
+	    make -C extra/config; \
+	fi;
 	rm -rf include/bits
 	mkdir -p include/bits
 	@./extra/config/conf -o extra/Configs/Config.$(TARGET_ARCH)
