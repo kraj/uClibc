@@ -20,13 +20,18 @@ TOPDIR=../../
 include $(TOPDIR)Rules.mak
 DIRS:=
 
-CSRC=execl.c execlp.c execv.c execvep.c execvp.c execle.c \
-	sleep.c usleep.c getpass.c sysconf.c getlogin.c \
+MSRC1 = exec.c
+MOBJ1 = execl.o execv.o execle.o execlp.o execvp.o
+
+CSRC=	sleep.c usleep.c getpass.c sysconf.c getlogin.c \
 	fpathconf.c confstr.c pathconf.c swab.c usershell.c \
 	getsubopt.c
+
 ifeq ($(strip $(UCLIBC_HAS_MMU)),y)
-    CSRC+=daemon.c
+	CSRC += daemon.c
+	MOBJ1 += __exec_alloc.o
 endif
+
 ifeq ($(strip $(UCLIBC_HAS_GNU_GETOPT)),y)
 	CSRC += getopt.c
 else
@@ -34,7 +39,7 @@ else
 endif
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+OBJS=$(COBJS) $(MOBJ1)
 
 all: $(SYSCONF) $(OBJS) $(LIBC)
 
@@ -42,6 +47,10 @@ $(LIBC): ar-target subdirs
 
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
+
+$(MOBJ1): $(MSRC1)
+	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
