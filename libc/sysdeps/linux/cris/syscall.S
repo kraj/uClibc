@@ -1,4 +1,4 @@
-/* Copyright (C) 2001 Free Software Foundation, Inc.
+/* Copyright (C) 2001, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -23,18 +23,18 @@
 /* Make syscall (callno, ...) into a system call.  */
 
 ENTRY (syscall)
+	push	srp
 	move.d	r10,r9
 	move.d	r11,r10
 	move.d	r12,r11
 	move.d	r13,r12
-	move.d	[sp],r13
-	move	srp,[sp]
-	move	[sp+4],mof
-	move	[sp+8],srp
+	move.d	[sp+4],r13
+	move	[sp+8],mof
+	move	[sp+12],srp
 	break	13
 	cmps.w	-4096,r10
 	bhs	0f
-	move	[sp],srp
+	pop	srp
 	Ret
 	nop
 PSEUDO_END (syscall)
