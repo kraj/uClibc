@@ -2311,6 +2311,12 @@ typedef Elf32_Addr Elf32_Conflict;
 
 /* SH specific declarations */
 
+/* SH specific values for `st_other'.  */
+
+/* If set, this is a symbol pointing to SHmedia code, which will be branched
+   to, so need to add 1 to the symbol value. */
+#define STO_SH5_ISA32 (1 << 2)
+
 /* SH relocs.  */
 #define	R_SH_NONE		0
 #define	R_SH_DIR32		1
@@ -2349,6 +2355,13 @@ typedef Elf32_Addr Elf32_Conflict;
 #define	R_SH_RELATIVE		165
 #define	R_SH_GOTOFF		166
 #define	R_SH_GOTPC		167
+#define	R_SH_RELATIVE_LOW16	197
+#define	R_SH_RELATIVE_MEDLOW16	198
+#define	R_SH_IMM_LOW16		246
+#define	R_SH_IMM_LOW16_PCREL	247
+#define	R_SH_IMM_MEDLOW16	248
+#define	R_SH_IMM_MEDLOW16_PCREL	249
+
 /* Keep this the last entry.  */
 #define	R_SH_NUM		256
 
