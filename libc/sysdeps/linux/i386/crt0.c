@@ -32,6 +32,7 @@ void _start(unsigned int first_arg)
 	argc = *(stack - 1);
 	argv = (char **) stack;
 	envp = (char **)stack + argc + 1;
+	volatile void (*mainp)(int argc,void *argv,void *envp) = main;
 
 	__uClibc_main(argc, argv, envp);
 }

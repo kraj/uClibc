@@ -92,3 +92,9 @@ _start:
 	/* Ok, now run uClibc's main() -- shouldn't return */
 	bl	__uClibc_main
 
+/* Stick in a dummy reference to main(), so that if an application
+ * is linking when the main() function is in a static library (.a)
+ * we can be sure that main() actually gets linked in */
+L_dummy_main_reference:
+	.long	main
+
