@@ -26,5 +26,5 @@ PSEUDO (__vfork, vfork, 0)
 	retl
 	 and	%o0, %o1, %o0
 
-PSEUDO_END (__vfork)
-weak_alias (__vfork, vfork)
+.size __vfork,.-__vfork
+.weak vfork; vfork = __vfork;

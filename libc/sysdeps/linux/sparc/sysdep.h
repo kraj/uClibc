@@ -132,3 +132,15 @@ Cambridge, MA 02139, USA.  */
 
 #define END(name)
 	.size name,.-name;
+
+#define PSEUDO(name, syscall_name, args)			\
+	.text;							\
+	ENTRY(name);						\
+	ta 0x10;						\
+	bcc,a 9000f;						\
+	nop;							\
+9000:;
+
+#define PSEUDO_END(name)			\
+	.size name,.-name;
+
