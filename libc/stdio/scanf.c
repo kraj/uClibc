@@ -169,7 +169,11 @@ register const char *fmt;
 va_list ap;
 
 {
+#if WANT_LONG_LONG
+	long long n;
+#else
 	register long n;
+#endif
 	register int c, width, lval, cnt = 0;
 	int store, neg, base, wide1, endnull, rngflag, c2;
 	register unsigned char *p;
@@ -219,9 +223,13 @@ va_list ap;
 			case '*':
 				endnull = store = 0;
 				goto fmtnxt;
-
 			case 'l':			/* long data */
 				lval = 1;
+#if WANT_LONG_LONG
+			    if (*fmt == 'L') { /* long long data */
+					lval = 2;
+				}
+#endif
 				goto fmtnxt;
 			case 'h':			/* short data */
 				lval = 0;
@@ -250,8 +258,10 @@ va_list ap;
 			case 'u':			/* unsigned decimal */
 			  numfmt:skip();
 
+#if 0
 				if (isupper(*fmt))
 					lval = 1;
+#endif
 
 				if (!base) {
 					base = 10;
@@ -300,7 +310,13 @@ va_list ap;
 				if (store) {
 					if (neg == 1)
 						n = -n;
-					if (lval)
+#if WANT_LONG_LONG
+					if (lval == 2)
+						*va_arg(ap, long long *) = n;
+
+					else
+#endif
+					if (lval == 1)
 						*va_arg(ap, long *) = n;
 
 					else
@@ -316,9 +332,10 @@ va_list ap;
 			case 'g':
 				skip();
 				fprintf(stderr, "LIBM:SCANF");
-
+#if 0
 				if (isupper(*fmt))
 					lval = 1;
+#endif
 
 				fstate = FS_INIT;
 				neg = 0;
