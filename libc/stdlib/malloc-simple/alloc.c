@@ -6,12 +6,14 @@
  * Parts of the memalign code were stolen from malloc-930716.
  */
 
+#define _GNU_SOURCE
 #include <features.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sys/mman.h>
 
 
@@ -121,9 +123,9 @@ void free(void *ptr)
 #ifdef L_memalign
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-extern pthread_mutex_t __malloclock;
-# define LOCK	__pthread_mutex_lock(&__malloclock)
-# define UNLOCK	__pthread_mutex_unlock(&__malloclock);
+pthread_mutex_t __malloc_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+# define LOCK	__pthread_mutex_lock(&__malloc_lock)
+# define UNLOCK	__pthread_mutex_unlock(&__malloc_lock);
 #else
 # define LOCK
 # define UNLOCK
