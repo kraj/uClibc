@@ -1110,34 +1110,39 @@ config UCLIBC_BUILD_PIE
 		functions must be written as position independent code (PIC).
 
 config UCLIBC_HAS_SSP
-	bool "Support for propolice stack protection"
+	bool "Support for propolice smashing stack protector"
 	depends on UCLIBC_SECURITY
 	default n
 	help
-	  Adds propolice protection to libc (__guard and __stack_smash_handler).
-	  More about it on <http://www.research.ibm.com/trl/projects/security/ssp> .
-	  To be able to use it, you'll also need a propolice patched gcc,
-	  supporting the -fstack-protector[-all] options. It is a specially patched
-	  gcc version, where __guard and __stack_smash_handler are removed from libgcc.
+	  Add propolice smashing stack protector to the library.
+	  This requires a patched version of GCC, supporting the
+	  -fstack-protector[-all] options, with the __guard and
+	  __stack_smash_handler functions removed from libgcc.
+	  These functions are added to libc instead.
+	  More information at:
+	  <http://www.research.ibm.com/trl/projects/security/ssp/>
 	  Most people will answer N.
 
 config SSP_QUICK_CANARY
-	bool "Simple propolice canary w/o accessing /dev/*random"
+	bool "Use simple guard values without accessing /dev/urandom"
 	depends on UCLIBC_HAS_SSP
 	default n
 	help
-	  Propolice uses a simplified version of the canary, without accessing
-	  /dev/*random.
+	  Use gettimeofday(2) to define the __guard without accessing
+	  /dev/urandom.
+	  WARNING: This makes smashing stack protector vulnerable to timing
+	  	attacks.
 	  Most people will answer N.
 
 config SSP_USE_ERANDOM
-	bool "Propolice uses /dev/erandom as canary source"
+	bool "Use erandom for setting guard value if /dev/urandom fails"
 	depends on UCLIBC_HAS_SSP && !SSP_QUICK_CANARY
 	default n
 	help
-	  Propolice uses /dev/erandom as canary source.
+	  Use /dev/erandom to define the guard if /dev/urandom fails (chroot).
 	  This requires a modified kernel.
-	  For more info see http://frandom.sourceforge.net/.
+	  More information at:
+	  <http://frandom.sourceforge.net/>
 	  Most people will answer N.
 
 choice
