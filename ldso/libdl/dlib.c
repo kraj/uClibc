@@ -127,7 +127,6 @@ void *_dlopen(const char *libname, int flag)
 	struct dyn_elf *dpnt;
 	static int dl_init = 0;
 	ElfW(Addr) from;
-	const char *libname1, *libname2, *ptr;
 	struct elf_resolve *tpnt1;
 	void (*dl_brk) (void);
 
@@ -167,33 +166,6 @@ void *_dlopen(const char *libname, int flag)
 			tfrom = tpnt;
 	}
 
-	/* Skip over any initial initial './' and '/' stuff to 
-	 * get the short form libname with no path garbage */
-	libname1 = libname;
-	ptr = _dl_strrchr(libname1, '/');
-	if (ptr) {
-	    libname1 = ptr + 1;
-	}
-
-
-	/* Weed out duplicates early to avoid function aliasing */
-	for (tpnt1 = _dl_loaded_modules; tpnt1; tpnt1 = tpnt1->next) {
-	    /* Skip over any initial initial './' and '/' stuff to 
-	     * get the short form libname with no path garbage */ 
-	    libname2 = tpnt1->libname;
-	    ptr = _dl_strrchr(libname2, '/');
-	    if (ptr) {
-		libname2 = ptr + 1;
-	    }
-
-	    if (_dl_strcmp(libname1, libname2) == 0) {
-		/* Well, that was certainly easy */
-		return tpnt1;
-	    }
-	}
-
-
-
 	/* Try to load the specified library */
 #ifdef __SUPPORT_LD_DEBUG__
 	_dl_dprintf(_dl_debug_file, "Trying to dlopen '%s'\n", (char*)libname);
@@ -223,6 +195,7 @@ void *_dlopen(const char *libname, int flag)
 	{
 		Elf32_Dyn *dpnt;
 		char *lpntstr;
+		const char *libname1, *ptr;
 		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++) {
 			if (dpnt->d_tag == DT_NEEDED) {
 				lpntstr = (char*)tcurr->loadaddr + tcurr->dynamic_info[DT_STRTAB] +
@@ -243,46 +216,19 @@ void *_dlopen(const char *libname, int flag)
 					goto oops;
 				}
 
-#if 0
-				{
-				    struct elf_resolve *tpnt2;
-				    /* Weed out duplicates early to avoid function aliasing */
-				    for (tpnt2 = _dl_loaded_modules; tpnt2; tpnt2 = tpnt2->next) {
-					/* Skip over any initial initial './' and '/' stuff to 
-					 * get the short form libname with no path garbage */ 
-					libname2 = tpnt2->libname;
-					ptr = _dl_strrchr(libname2, '/');
-					if (ptr) {
-					    libname2 = ptr + 1;
-					}
-
-					if (_dl_strcmp(libname1, libname2) == 0) {
-					    /* Well, that was certainly easy */
-#ifdef __SUPPORT_LD_DEBUG__
-					    _dl_dprintf(_dl_debug_file, "\tLibrary '%s' needed by '%s' "
-						    "already loaded\n", lpntstr, tcurr->libname);
-#endif
-					    continue;
-					}
-				    }
-				}
-#endif
 
 #ifdef __SUPPORT_LD_DEBUG__
 				_dl_dprintf(_dl_debug_file, "Trying to load '%s', needed by '%s'\n", 
 						lpntstr, tcurr->libname);
 #endif
 
-#if 1
 
 				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr))) {
 					goto oops;
 				}
-#else
-				if (!(tpnt1 = _dlopen(lpntstr, flag))) {
-					goto oops;
-				}
-#endif
+				/* We need global symbol resolution for everything
+				 * in the dependent chain */
+				dyn_chain->flags |= RTLD_GLOBAL;
 
 				rpnt->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 				_dl_memset (rpnt->next, 0, sizeof (struct dyn_elf));
@@ -315,7 +261,7 @@ void *_dlopen(const char *libname, int flag)
 	 * Now we go through and look for REL and RELA records that indicate fixups
 	 * to the GOT tables.  We need to do this in reverse order so that COPY
 	 * directives work correctly */
-	if (_dl_fixup(dyn_chain->dyn, (flag & RTLD_LAZY)))
+	if (_dl_fixup(dyn_chain->dyn, (dyn_chain->flags & RTLD_LAZY)))
 		goto oops;
 
 #ifdef __SUPPORT_LD_DEBUG__
@@ -343,10 +289,8 @@ void *_dlopen(const char *libname, int flag)
 		}
 	}
 
-#if 1
 #ifdef __SUPPORT_LD_DEBUG__
 	_dlinfo();
-#endif
 #endif
 
 #ifdef __PIC__
