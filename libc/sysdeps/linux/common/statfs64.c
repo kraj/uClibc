@@ -20,9 +20,6 @@
 #include <features.h>
 
 #ifdef __UCLIBC_HAVE_LFS__
-
-#define	_FILE_OFFSET_BITS   64
-#define __USE_FILE_OFFSET64
 #define __USE_LARGEFILE64
 
 #include <errno.h>
