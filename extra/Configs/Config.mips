@@ -101,13 +101,6 @@ HAS_WCHAR = false
 #MALLOC = malloc 
 MALLOC = malloc-930716
 
-# If you want to collect common syscall code into one function, set to this to
-# `true'.  Set it to false otherwise.
-# On i386 this saves about than 2.8k over all syscalls.
-# The idea came from the implementation in dietlibc.
-# At present, only affects i386.
-UNIFIED_SYSCALL = false
-
 # If you want large file support (greater then 2 GiB) turn this on.
 # Do not enable this unless your kernel provides large file support.
 DOLFS = false
@@ -122,6 +115,11 @@ INCLUDE_REGEX = true
 # for anything except NFS support, so unless you plan to use NFS, leave this
 # disabled.  This is off by default.
 INCLUDE_RPC = false
+
+# Normally we enable just enough RPC support for things like rshd and 
+# nfs mount to work.  If you find you need the rest of the RPC stuff, 
+# then enable this.
+INCLUDE_FULL_RPC = false
 
 # If you want to include support for the next version of the Internet
 # Protocol: IP version 6, enable this.  This is off by default.
@@ -195,4 +193,4 @@ DEVEL_TOOL_PREFIX = $(DEVEL_PREFIX)/usr
 # If you want 'make install' to install everything under a temporary
 # directory, the define PREFIX during the install step,
 # i.e., 'make PREFIX=/var/tmp/uClibc install'.
-PREFIX = $(TOPDIR)/_install
+#PREFIX = $(TOPDIR)/_install
