@@ -18,6 +18,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#include <features.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
@@ -35,7 +36,7 @@ static int current_rtmax = __SIGRTMAX;
 
 
 
-#ifdef _POSIX_THREADS
+#ifdef __UCLIBC_HAS_THREADS__
 /* Allocate real-time signal with highest/lowest available
    priority.  Please note that we don't use a lock since we assume
    this function to be called at program start.  */
@@ -63,7 +64,7 @@ int __libc_current_sigrtmax (void)
 
 #else
 
-#ifdef _POSIX_THREADS
+#ifdef __UCLIBC_HAS_THREADS__
 int __libc_allocate_rtsig (int high)
 {
     return -1;
