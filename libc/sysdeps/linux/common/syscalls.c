@@ -1254,8 +1254,8 @@ __loff_t __libc_lseek64(int fd, __loff_t offset, int whence)
 	int ret;
 	__loff_t result;
 
-	ret = _llseek(fd, (__off_t) (offset >> 32),
-				  (__off_t) (offset & 0xffffffff), &result, whence);
+	ret = _llseek(fd, __LONG_LONG_PAIR((__off_t) (offset >> 32), 
+				(__off_t) (offset & 0xffffffff)), &result, whence);
 
 	return ret ? (__loff_t) ret : result;
 }
@@ -1574,38 +1574,10 @@ int sigsuspend (const sigset_t *mask)
 #endif
 
 //#define __NR_pread                    180
-#ifdef L___libc_pread
-#ifdef __NR_pread
-#define _XOPEN_SOURCE 500
-#include <unistd.h>
-#define __NR___libc_pread __NR_pread
-_syscall4(ssize_t, __libc_pread, int, fd, void *, buf, size_t, count, __off_t, offset);
-weak_alias (__libc_pread, pread)
-#else
-ssize_t pread(int fd, void *buf, size_t count, off_t offset)                                                
-{                                                                                                           
-	__set_errno(ENOSYS);                                                                                    
-	return -1;                                                                                              
-}                                                                                                           
-#endif
-#endif
+// See pread_write.c
 
 //#define __NR_pwrite                   181
-#ifdef L___libc_pwrite
-#ifdef __NR_pwrite
-#define _XOPEN_SOURCE 500
-#include <unistd.h>
-#define __NR___libc_pwrite __NR_pwrite
-_syscall4(ssize_t, __libc_pwrite, int, fd, const void *, buf, size_t, count, __off_t, offset);
-weak_alias (__libc_pwrite, pwrite)
-#else
-ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)                                         
-{                                                                                                           
-	__set_errno(ENOSYS);                                                                                    
-	return -1;                                                                                              
-}                                                                                                           
-#endif
-#endif
+// See pread_write.c
 
 //#define __NR_chown                    182
 #ifdef L_chown
