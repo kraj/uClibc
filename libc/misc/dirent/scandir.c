@@ -30,11 +30,6 @@
 #include <sys/types.h>
 #include "dirstream.h"
 
-/*
- * FIXME: This is a simple hack version which doesn't sort the data, and
- * just passes all unsorted.
- */
-
 int scandir(const char *dir, struct dirent ***namelist,
 			 int (*selector) (const struct dirent *),
 			 int (*compar) (const __ptr_t, const __ptr_t))
@@ -52,7 +47,10 @@ int scandir(const char *dir, struct dirent ***namelist,
     while (NULL != readdir(d))
         count++;
 
-    names = malloc(sizeof (struct dirent *) * count);
+    if (!(names = malloc(sizeof (struct dirent *) * count))) {
+	closedir(d);
+	return -1;
+    }
 
     rewinddir(d);
 
@@ -68,8 +66,14 @@ int scandir(const char *dir, struct dirent ***namelist,
     }
     result = closedir(d);
 
-    if (pos != count)
-        names = realloc(names, sizeof (struct dirent *) * pos);
+    if (pos != count) {
+	struct dirent **tmp;
+	if (!(tmp = realloc(names, sizeof (struct dirent *) * pos))) {
+	    free(names);
+	    return -1;
+	}
+	names = tmp;
+    }
 
     if (compar != NULL) {
 	qsort(names, pos, sizeof (struct dirent *), compar);
