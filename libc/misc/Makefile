@@ -25,7 +25,7 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 
 
-DIRS = assert crypt ctype dirent fnmatch glob internals lsearch mntent syslog \
+DIRS = assert ctype dirent fnmatch glob internals lsearch mntent syslog \
 	time utmp tsearch locale regex sysvipc
 
 all: libc.a
