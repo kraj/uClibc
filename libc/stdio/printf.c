@@ -418,8 +418,6 @@ size_t parse_printf_format(register const char *template,
  * In other words, we don't currently support glibc's 'I' flag.
  * We do accept it, but it is currently ignored. */
 
-/* TODO -- Implement grouping flag... on hold (locale support). */
-
 int vfprintf(FILE * __restrict stream, register const char * __restrict format,
 			 va_list arg)
 {
@@ -1792,6 +1790,15 @@ static const char *fmts[] = {
 };
 
 /*****************************************************************************/
+#include <locale.h>
+
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning REMINDER: implement grouping for floating point
+#endif
+
+#ifndef __LOCALE_C_ONLY
+#define CUR_LOCALE			(__global_locale)
+#endif /* __LOCALE_C_ONLY */
 
 size_t _dtostr(FILE * fp, long double x, struct printf_info *info)
 {
@@ -2014,9 +2021,15 @@ size_t _dtostr(FILE * fp, long double x, struct printf_info *info)
 	if (PRINT_INFO_FLAG_VAL(info,alt)
 /*  		flag[FLAG_HASH] */
 		|| (i) || ((o_mode != 'g') && (preci > 0))) {
+#ifdef __LOCALE_C_ONLY
 		*pdrvr++ = 2;			/* need decimal */
 		*ppc++ = 1;				/* needed for width calc */
 		ppc++;
+#else  /* __LOCALE_C_ONLY */
+		*pdrvr++ = 1;
+		*ppc++ = strlen(CUR_LOCALE.decimal_point);
+		*ppc++ = (INT_OR_PTR)(CUR_LOCALE.decimal_point);
+#endif /* __LOCALE_C_ONLY */
 	}
 
 	if (++o_exp < 0) {			/* have 0s right of decimal */
