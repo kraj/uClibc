@@ -25,23 +25,17 @@ include $(TOPDIR)Rules.mak
 LIBC=$(TOPDIR)libc.a
 ASFLAGS=$(CFLAGS)
 
-TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
-
-ifeq ($(TARGET_MACHINE_TYPE),arm-pic-elf)
-    CRT0=crt0pic.S
-else
-    CRT0=crt0.S
-endif
-
+CRT0=crt0.S
 CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
 
-SSRC=longjmp.S setjmp.S vfork.S
+SSRC=
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=ptrace.c
+CSRC=
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
+
 
 
 all: $(OBJS) $(LIBC)
@@ -50,7 +44,7 @@ $(LIBC): ar-target
 
 ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
-	cp $(CRT0_OBJ) $(TOPDIR)crt0.o
+	cp $(CRT0_OBJ) $(TOPDIR)$(CRT0_OBJ)
 
 $(CRT0_OBJ): %.o : %.S
 	$(CC) $(CFLAGS) -c $< -o $@

@@ -16,8 +16,6 @@ __uClibc_syscall:
 	int $0x80
 #NO_APP
 	cmpl $-4095,%eax
-	/* jae .L5 */
-	/* cmpl $-126,%eax */
 	jbe .L5
 	negl %eax
 	movl %eax,errno

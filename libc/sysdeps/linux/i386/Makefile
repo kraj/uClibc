@@ -34,7 +34,7 @@ ifeq ($(UNIFIED_SYSCALL),true)
 endif
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=fork.c __init_brk.c brk.c sbrk.c
+CSRC=__init_brk.c brk.c sbrk.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)

@@ -32,7 +32,7 @@ libc.a: subdirs
 
 tags:
 	ctags -R
-	
+
 clean: subdirs_clean
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
