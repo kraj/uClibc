@@ -145,6 +145,15 @@ struct mallinfo {
 /* Returns a copy of the updated current mallinfo. */
 extern struct mallinfo mallinfo __MALLOC_P ((void));
 
+/* Release all but __pad bytes of freed top-most memory back to the
+   system. Return 1 if successful, else 0. */
+extern int malloc_trim(size_t pad);
+
+#include <stdio.h>
+/* Prints brief summary statistics to the specified file.
+ * Writes to stderr if file is NULL. */
+extern void malloc_stats(FILE *file);
+
 /* SVID2/XPG mallopt options */
 #ifndef M_MXFAST
 # define M_MXFAST  1	/* UNUSED in this malloc */

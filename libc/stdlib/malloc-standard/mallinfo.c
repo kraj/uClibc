@@ -79,3 +79,28 @@ struct mallinfo mallinfo(void)
     return mi;
 }
 
+void malloc_stats(FILE *file)
+{
+    struct mallinfo mi;
+
+    if (file==NULL) {
+	file = stderr;
+    }
+
+    mi = mallinfo();
+    fprintf(file, "total bytes allocated             = %10lu\n", (unsigned int)(mi.arena + mi.hblkhd));
+    fprintf(file, "total bytes in use bytes          = %10lu\n", (unsigned int)(mi.uordblks + mi.hblkhd));
+    fprintf(file, "total non-mmapped bytes allocated = %10lu\n", (unsigned int)(mi.arena));
+    fprintf(file, "number of mmapped regions         = %10lu\n", (unsigned int)(mi.hblks));
+    fprintf(file, "total allocated mmap space        = %10lu\n", (unsigned int)(mi.hblkhd));
+    fprintf(file, "total allocated sbrk space        = %10lu\n", (unsigned int)(mi.uordblks));
+#if 0
+    fprintf(file, "number of free chunks             = %10lu\n", (unsigned int)(mi.ordblks));
+    fprintf(file, "number of fastbin blocks          = %10lu\n", (unsigned int)(mi.smblks));
+    fprintf(file, "space in freed fastbin blocks     = %10lu\n", (unsigned int)(mi.fsmblks));
+#endif
+    fprintf(file, "maximum total allocated space     = %10lu\n", (unsigned int)(mi.usmblks));
+    fprintf(file, "total free space                  = %10lu\n", (unsigned int)(mi.fordblks));
+    fprintf(file, "memory releasable via malloc_trim = %10lu\n", (unsigned int)(mi.keepcost));
+}
+
