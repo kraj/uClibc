@@ -32,6 +32,11 @@ include $(TOPDIR)Rules.mak
 
 DIRS = misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd
 
+# Check if the target architecture has a version script for
+# libc, and if so, include it when linking.
+VERSION_SCRIPT:=${shell if [ -f sysdeps/linux/$(TARGET_ARCH)/libc.map ] ; then \
+        echo "--version-script sysdeps/linux/$(TARGET_ARCH)/libc.map"; fi}
+
 all: halfclean subdirs $(LIBNAME) $(DO_SHARED)
 
 $(LIBNAME): subdirs
@@ -46,9 +51,10 @@ shared: $(TOPDIR)lib/$(LIBNAME)
 	$(AR) rv ./tmp/libgcc-need.a
 	@(cd tmp && CC=$(CC) LD=$(LD) NM=$(NM) AR=$(AR) \
 		/bin/sh $(TOPDIR)../extra/scripts/get-needed-libgcc-objects.sh)
-	$(LD) $(LDFLAGS) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
+	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
 		--whole-archive ./tmp/libgcc-need.a $(LIBNAME) --no-whole-archive \
-		$(TOPDIR)/libc/misc/internals/interp.o
+		$(TOPDIR)/libc/misc/internals/interp.o \
+		$(LIBGCC)
 	@/bin/true #rm -rf tmp
 	install -d $(TOPDIR)lib
 	rm -f $(TOPDIR)lib/$(SHARED_FULLNAME)
