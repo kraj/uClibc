@@ -256,16 +256,16 @@
  * specific releases.  */
 #define	__UCLIBC__		1
 
-/* Major and minor version number of the uClibc library package are
- * can be used to test for features in specific uClibc releases.
- *
- * Now included from bits/uClibc_config.h */
-#if 0
-/* For uClibc release 0.9.12, these numbers would be: */
-#define	__UCLIBC_MAJOR__	0
-#define	__UCLIBC_MINOR__	9
-#define	__UCLIBC_SUBLEVEL__	12
-#endif
+/* Load up the current set of uClibc supported features along
+ * with the current uClibc major and minor version numbers.
+ * For uClibc release 0.9.26, these numbers would be:
+ *	#define	__UCLIBC_MAJOR__	0
+ *	#define	__UCLIBC_MINOR__	9
+ *	#define	__UCLIBC_SUBLEVEL__	26
+ */
+#define __need_uClibc_config_h
+#include <bits/uClibc_config.h>
+#undef __need_uClibc_config_h
 
 /*  There is an unwholesomely huge amount of code out there that depends on the
  *  presence of GNU libc header files.  We have GNU libc header files.  So here
@@ -278,7 +278,7 @@
 #   define __GNU_LIBRARY__ 6
 #   define __GLIBC__       2
 #   define __GLIBC_MINOR__ 2
-#endif	
+#endif
 
 /* Convenience macros to test the versions of glibc and gcc.
    Use them like this:
@@ -318,25 +318,6 @@
 # define __USE_EXTERN_INLINES	1
 #endif
 
-/* This is here only because every header file already includes this one.  */
-#if 0
-/*#ifndef _LIBC*/
-/* Get the definitions of all the appropriate `__stub_FUNCTION' symbols.
-   <gnu/stubs.h> contains `#define __stub_FUNCTION' when FUNCTION is a stub
-   which will always return failure (and set errno to ENOSYS).
-
-   We avoid including <gnu/stubs.h> when compiling the C library itself to
-   avoid a dependency loop.  stubs.h depends on every object file.  If
-   this #include were done for the library source code, then every object
-   file would depend on stubs.h.  */
-
-# include <gnu/stubs.h>
-#endif
-
-/* Load up the current set of uClibc supported features */
-#define __need_uClibc_config_h
-#include <bits/uClibc_config.h>
-#undef __need_uClibc_config_h
 
 /* Make sure users large file options agree with uClibc's configuration. */
 #ifndef __UCLIBC_HAS_LFS__

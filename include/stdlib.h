@@ -302,152 +302,6 @@ extern long double __strtold_l (__const char *__restrict __nptr,
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
 
-#if 0
-/* The internal entry points for `strtoX' take an extra flag argument
-   saying whether or not to parse locale-dependent number grouping.  */
-
-extern double __strtod_internal (__const char *__restrict __nptr,
-				 char **__restrict __endptr, int __group)
-     __THROW;
-extern float __strtof_internal (__const char *__restrict __nptr,
-				char **__restrict __endptr, int __group)
-     __THROW;
-extern long double __strtold_internal (__const char *__restrict __nptr,
-				       char **__restrict __endptr,
-				       int __group) __THROW;
-#ifndef __strtol_internal_defined
-extern long int __strtol_internal (__const char *__restrict __nptr,
-				   char **__restrict __endptr,
-				   int __base, int __group) __THROW;
-# define __strtol_internal_defined	1
-#endif
-#ifndef __strtoul_internal_defined
-extern unsigned long int __strtoul_internal (__const char *__restrict __nptr,
-					     char **__restrict __endptr,
-					     int __base, int __group) __THROW;
-# define __strtoul_internal_defined	1
-#endif
-#if defined __GNUC__ || defined __USE_ISOC99
-# ifndef __strtoll_internal_defined
-__extension__
-extern long long int __strtoll_internal (__const char *__restrict __nptr,
-					 char **__restrict __endptr,
-					 int __base, int __group) __THROW;
-#  define __strtoll_internal_defined	1
-# endif
-# ifndef __strtoull_internal_defined
-__extension__
-extern unsigned long long int __strtoull_internal (__const char *
-						   __restrict __nptr,
-						   char **__restrict __endptr,
-						   int __base, int __group)
-     __THROW;
-#  define __strtoull_internal_defined	1
-# endif
-#endif /* GCC */
-#endif /* 0 */
-
-#if defined __OPTIMIZE__ && !defined __OPTIMIZE_SIZE__ \
-    && defined __USE_EXTERN_INLINES
-/* Define inline functions which call the internal entry points.  */
-
-/* __BEGIN_NAMESPACE_STD */
-/* extern __inline double */
-/* strtod (__const char *__restrict __nptr, char **__restrict __endptr) __THROW */
-/* { */
-/*   return __strtod_internal (__nptr, __endptr, 0); */
-/* } */
-/* extern __inline long int */
-/* strtol (__const char *__restrict __nptr, char **__restrict __endptr, */
-/* 	int __base) __THROW */
-/* { */
-/*   return __strtol_internal (__nptr, __endptr, __base, 0); */
-/* } */
-/* extern __inline unsigned long int */
-/* strtoul (__const char *__restrict __nptr, char **__restrict __endptr, */
-/* 	 int __base) __THROW */
-/* { */
-/*   return __strtoul_internal (__nptr, __endptr, __base, 0); */
-/* } */
-/* __END_NAMESPACE_STD */
-
-/* # ifdef __USE_ISOC99 */
-/* __BEGIN_NAMESPACE_C99 */
-/* extern __inline float */
-/* strtof (__const char *__restrict __nptr, char **__restrict __endptr) __THROW */
-/* { */
-/*   return __strtof_internal (__nptr, __endptr, 0); */
-/* } */
-/* extern __inline long double */
-/* strtold (__const char *__restrict __nptr, char **__restrict __endptr) __THROW */
-/* { */
-/*   return __strtold_internal (__nptr, __endptr, 0); */
-/* } */
-/* __END_NAMESPACE_C99 */
-/* # endif */
-
-/* # ifdef __USE_BSD */
-/* __extension__ extern __inline long long int */
-/* strtoq (__const char *__restrict __nptr, char **__restrict __endptr, */
-/* 	int __base) __THROW */
-/* { */
-/*   return __strtoll_internal (__nptr, __endptr, __base, 0); */
-/* } */
-/* __extension__ extern __inline unsigned long long int */
-/* strtouq (__const char *__restrict __nptr, char **__restrict __endptr, */
-/* 	 int __base) __THROW */
-/* { */
-/*   return __strtoull_internal (__nptr, __endptr, __base, 0); */
-/* } */
-/* # endif */
-
-/* # if defined __USE_MISC || defined __USE_ISOC99 */
-/* __BEGIN_NAMESPACE_C99 */
-/* __extension__ extern __inline long long int */
-/* strtoll (__const char *__restrict __nptr, char **__restrict __endptr, */
-/* 	 int __base) __THROW */
-/* { */
-/*   return __strtoll_internal (__nptr, __endptr, __base, 0); */
-/* } */
-/* __extension__ extern __inline unsigned long long int */
-/* strtoull (__const char * __restrict __nptr, char **__restrict __endptr, */
-/* 	  int __base) __THROW */
-/* { */
-/*   return __strtoull_internal (__nptr, __endptr, __base, 0); */
-/* } */
-/* __END_NAMESPACE_C99 */
-/* # endif */
-
-__BEGIN_NAMESPACE_STD
-extern __inline double
-atof (__const char *__nptr) __THROW
-{
-  return strtod (__nptr, (char **) NULL);
-}
-extern __inline int
-atoi (__const char *__nptr) __THROW
-{
-  return (int) strtol (__nptr, (char **) NULL, 10);
-}
-extern __inline long int
-atol (__const char *__nptr) __THROW
-{
-  return strtol (__nptr, (char **) NULL, 10);
-}
-__END_NAMESPACE_STD
-
-# if defined __USE_MISC || defined __USE_ISOC99
-__BEGIN_NAMESPACE_C99
-__extension__ extern __inline long long int
-atoll (__const char *__nptr) __THROW
-{
-  return strtoll (__nptr, (char **) NULL, 10);
-}
-__END_NAMESPACE_C99
-# endif
-#endif /* Optimizing and Inlining.  */
-
-
 #if defined __USE_SVID || defined __USE_XOPEN_EXTENDED
 /* Convert N to base 64 using the digits "./0-9A-Za-z", least-significant
    digit first.  Returns a pointer to static storage overwritten by the
@@ -638,20 +492,6 @@ extern void *valloc (size_t __size) __THROW __attribute_malloc__;
 /* Allocate memory of SIZE bytes with an alignment of ALIGNMENT.  */
 extern int posix_memalign (void **__memptr, size_t __alignment, size_t __size)
      __THROW __attribute_malloc__;
-#if 0
-/* Cope with autoconf's broken AC_FUNC_MALLOC macro, which
- * redefines malloc to rpl_malloc if it does not detect glibc
- * style returning-a-valid-pointer-for-malloc(0) behavior.  This
- * calls malloc() as usual, but if __size is zero, we allocate and
- * return a 1-byte block instead....  sigh... */ 
-static __inline void *rpl_malloc (size_t __size)
-{
-    if (__size == 0) {
-	__size++; 
-    }
-    return malloc(__size);
-}   
-#endif
 #endif
 
 __BEGIN_NAMESPACE_STD
@@ -777,14 +617,6 @@ extern int system (__const char *__command);
 __END_NAMESPACE_STD
 
 
-#if 0
-/*#ifdef	__USE_GNU*/
-/* Return a malloc'd string containing the canonical absolute name of the
-   named file.  The last file name component need not exist, and may be a
-   symlink to a nonexistent file.  */
-extern char *canonicalize_file_name (__const char *__name) __THROW;
-#endif
-
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 /* Return the canonical absolute name of file NAME.  The last file name
    component need not exist, and may be a symlink to a nonexistent file.
@@ -849,60 +681,6 @@ __END_NAMESPACE_C99
 #endif
 
 
-#if 0
-#ifdef __UCLIBC_HAS_FLOATS__
-#if defined __USE_SVID || defined __USE_XOPEN_EXTENDED
-/* Convert floating point numbers to strings.  The returned values are
-   valid only until another call to the same function.  */
-
-/* Convert VALUE to a string with NDIGIT digits and return a pointer to
-   this.  Set *DECPT with the position of the decimal character and *SIGN
-   with the sign of the number.  */
-extern char *ecvt (double __value, int __ndigit, int *__restrict __decpt,
-		   int *__restrict __sign) __THROW;
-
-/* Convert VALUE to a string rounded to NDIGIT decimal digits.  Set *DECPT
-   with the position of the decimal character and *SIGN with the sign of
-   the number.  */
-extern char *fcvt (double __value, int __ndigit, int *__restrict __decpt,
-		   int *__restrict __sign) __THROW;
-
-/* If possible convert VALUE to a string with NDIGIT significant digits.
-   Otherwise use exponential representation.  The resulting string will
-   be written to BUF.  */
-extern char *gcvt (double __value, int __ndigit, char *__buf) __THROW;
-
-
-# ifdef __USE_MISC
-/* Long double versions of above functions.  */
-extern char *qecvt (long double __value, int __ndigit,
-		    int *__restrict __decpt, int *__restrict __sign) __THROW;
-extern char *qfcvt (long double __value, int __ndigit,
-		    int *__restrict __decpt, int *__restrict __sign) __THROW;
-extern char *qgcvt (long double __value, int __ndigit, char *__buf) __THROW;
-
-
-/* Reentrant version of the functions above which provide their own
-   buffers.  */
-extern int ecvt_r (double __value, int __ndigit, int *__restrict __decpt,
-		   int *__restrict __sign, char *__restrict __buf,
-		   size_t __len) __THROW;
-extern int fcvt_r (double __value, int __ndigit, int *__restrict __decpt,
-		   int *__restrict __sign, char *__restrict __buf,
-		   size_t __len) __THROW;
-
-extern int qecvt_r (long double __value, int __ndigit,
-		    int *__restrict __decpt, int *__restrict __sign,
-		    char *__restrict __buf, size_t __len) __THROW;
-extern int qfcvt_r (long double __value, int __ndigit,
-		    int *__restrict __decpt, int *__restrict __sign,
-		    char *__restrict __buf, size_t __len) __THROW;
-# endif	/* misc */
-#endif	/* use MISC || use X/Open Unix */
-#endif /* __UCLIBC_HAS_FLOATS__ */
-#endif
-
-  
 #ifdef __UCLIBC_HAS_WCHAR__
 __BEGIN_NAMESPACE_STD
 /* Return the length of the multibyte character
@@ -984,9 +762,7 @@ extern char *ptsname (int __fd) __THROW;
 /* Store at most BUFLEN characters of the pathname of the slave pseudo
    terminal associated with the master FD is open on in BUF.
    Return 0 on success, otherwise an error number.  */
-#if 0
 extern int ptsname_r (int __fd, char *__buf, size_t __buflen) __THROW;
-#endif
 
 /* Open a master pseudo terminal and return its file descriptor.  */
 extern int getpt (void) __THROW;

@@ -26,30 +26,30 @@
    not going to hack weird hacks to support the dev_t representation
    they need.  */
 __extension__
-extern __inline unsigned int gnu_dev_major (unsigned long long int __dev)
+static __inline unsigned int gnu_dev_major (unsigned long long int __dev)
      __THROW;
 __extension__
-extern __inline unsigned int gnu_dev_minor (unsigned long long int __dev)
+static __inline unsigned int gnu_dev_minor (unsigned long long int __dev)
      __THROW;
 __extension__
-extern __inline unsigned long long int gnu_dev_makedev (unsigned int __major,
+static __inline unsigned long long int gnu_dev_makedev (unsigned int __major,
 							unsigned int __minor)
      __THROW;
 
 #if defined __GNUC__ && __GNUC__ >= 2
-__extension__ extern __inline unsigned int
+__extension__ static __inline unsigned int
 gnu_dev_major (unsigned long long int __dev) __THROW
 {
   return ((__dev >> 8) & 0xfff) | ((unsigned int) (__dev >> 32) & ~0xfff);
 }
 
-__extension__ extern __inline unsigned int
+__extension__ static __inline unsigned int
 gnu_dev_minor (unsigned long long int __dev) __THROW
 {
   return (__dev & 0xff) | ((unsigned int) (__dev >> 12) & ~0xff);
 }
 
-__extension__ extern __inline unsigned long long int
+__extension__ static __inline unsigned long long int
 gnu_dev_makedev (unsigned int __major, unsigned int __minor) __THROW
 {
   return ((__minor & 0xff) | ((__major & 0xfff) << 8)

@@ -341,17 +341,7 @@ extern size_t __mbrlen (__const char *__restrict __s, size_t __n,
 			mbstate_t *__restrict __ps) __THROW;
 extern size_t mbrlen (__const char *__restrict __s, size_t __n,
 		      mbstate_t *__restrict __ps) __THROW;
-__END_NAMESPACE_C99
 
-#ifdef __USE_EXTERN_INLINES
-/* Define inline function as optimization.  */
-extern __inline size_t mbrlen (__const char *__restrict __s, size_t __n,
-			       mbstate_t *__restrict __ps) __THROW
-{ return (__ps != NULL
-	  ? mbrtowc (NULL, __s, __n, __ps) : __mbrlen (__s, __n, NULL)); }
-#endif
-
-__BEGIN_NAMESPACE_C99
 /* Write wide character representation of multibyte character string
    SRC to DST.  */
 extern size_t mbsrtowcs (wchar_t *__restrict __dst,
@@ -531,94 +521,6 @@ extern long double __wcstold_l (__const wchar_t *__restrict __nptr,
 #endif /* __UCLIBC_HAS_FLOATS__ */
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 #endif /* GNU */
-
-
-#if 0
-#ifdef __UCLIBC_HAS_FLOATS__
-/* The internal entry points for `wcstoX' take an extra flag argument
-   saying whether or not to parse locale-dependent number grouping.  */
-extern double __wcstod_internal (__const wchar_t *__restrict __nptr,
-				 wchar_t **__restrict __endptr, int __group)
-     __THROW;
-extern float __wcstof_internal (__const wchar_t *__restrict __nptr,
-				wchar_t **__restrict __endptr, int __group)
-     __THROW;
-extern long double __wcstold_internal (__const wchar_t *__restrict __nptr,
-				       wchar_t **__restrict __endptr,
-				       int __group) __THROW;
-#endif /* __UCLIBC_HAS_FLOATS__ */
-
-#ifndef __wcstol_internal_defined
-extern long int __wcstol_internal (__const wchar_t *__restrict __nptr,
-				   wchar_t **__restrict __endptr,
-				   int __base, int __group) __THROW;
-# define __wcstol_internal_defined	1
-#endif
-#ifndef __wcstoul_internal_defined
-extern unsigned long int __wcstoul_internal (__const wchar_t *__restrict __npt,
-					     wchar_t **__restrict __endptr,
-					     int __base, int __group) __THROW;
-# define __wcstoul_internal_defined	1
-#endif
-#ifndef __wcstoll_internal_defined
-__extension__
-extern long long int __wcstoll_internal (__const wchar_t *__restrict __nptr,
-					 wchar_t **__restrict __endptr,
-					 int __base, int __group) __THROW;
-# define __wcstoll_internal_defined	1
-#endif
-#ifndef __wcstoull_internal_defined
-__extension__
-extern unsigned long long int __wcstoull_internal (__const wchar_t *
-						   __restrict __nptr,
-						   wchar_t **
-						   __restrict __endptr,
-						   int __base,
-						   int __group) __THROW;
-# define __wcstoull_internal_defined	1
-#endif
-
-
-#if defined __OPTIMIZE__ && __GNUC__ >= 2
-/* Define inline functions which call the internal entry points.  */
-/* __BEGIN_NAMESPACE_C99 */
-
-/* extern __inline double wcstod (__const wchar_t *__restrict __nptr, */
-/* 			       wchar_t **__restrict __endptr) __THROW */
-/* { return __wcstod_internal (__nptr, __endptr, 0); } */
-/* extern __inline long int wcstol (__const wchar_t *__restrict __nptr, */
-/*                                  wchar_t **__restrict __endptr, */
-/* 				 int __base) __THROW */
-/* { return __wcstol_internal (__nptr, __endptr, __base, 0); } */
-/* extern __inline unsigned long int wcstoul (__const wchar_t *__restrict __nptr, */
-/*                                            wchar_t **__restrict __endptr, */
-/* 					   int __base) __THROW */
-/* { return __wcstoul_internal (__nptr, __endptr, __base, 0); } */
-/* __END_NAMESPACE_C99 */
-
-# ifdef __USE_GNU
-/* extern __inline float wcstof (__const wchar_t *__restrict __nptr, */
-/* 			      wchar_t **__restrict __endptr) __THROW */
-/* { return __wcstof_internal (__nptr, __endptr, 0); } */
-/* extern __inline long double wcstold (__const wchar_t *__restrict __nptr, */
-/* 				     wchar_t **__restrict __endptr) __THROW */
-/* { return __wcstold_internal (__nptr, __endptr, 0); } */
-
-
-/* __extension__ */
-/* extern __inline long long int wcstoq (__const wchar_t *__restrict __nptr, */
-/* 				      wchar_t **__restrict __endptr, */
-/* 				      int __base) __THROW */
-/* { return __wcstoll_internal (__nptr, __endptr, __base, 0); } */
-/* __extension__ */
-/* extern __inline unsigned long long int wcstouq (__const wchar_t * */
-/* 						__restrict __nptr, */
-/* 						wchar_t **__restrict __endptr, */
-/* 						int __base) __THROW */
-/* { return __wcstoull_internal (__nptr, __endptr, __base, 0); } */
-# endif /* Use GNU.  */
-#endif /* Optimizing GCC >=2.  */
-#endif /* 0 */
 
 
 #ifdef	__USE_GNU

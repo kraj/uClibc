@@ -259,13 +259,6 @@ typedef __socklen_t socklen_t;
 /* Test for access to NAME using the real UID and real GID.  */
 extern int access (__const char *__name, int __type) __THROW;
 
-#if 0
-/*#ifdef __USE_GNU*/
-/* Test for access to NAME using the effective UID and GID
-   (as normal file operations use).  */
-extern int euidaccess (__const char *__name, int __type) __THROW;
-#endif
-
 
 /* Values for the WHENCE argument to lseek.  */
 #ifndef	_STDIO_H		/* <stdio.h> has the same definitions.  */
@@ -454,15 +447,6 @@ extern char **environ;
 extern int execve (__const char *__path, char *__const __argv[],
 		   char *__const __envp[]) __THROW;
 
-#if 0
-/*#ifdef __USE_GNU*/
-/* Execute the file FD refers to, overlaying the running program image.
-   ARGV and ENVP are passed to the new program, as for `execve'.  */
-extern int fexecve (int __fd, char *__const __argv[], char *__const __envp[])
-     __THROW;
-#endif
-
-
 /* Execute PATH with arguments ARGV and environment from `environ'.  */
 extern int execv (__const char *__path, char *__const __argv[]) __THROW;
 
@@ -600,12 +584,6 @@ extern __gid_t getegid (void) __THROW;
    the calling process is in.  Otherwise, fill in the group IDs
    of its supplementary groups in LIST and return the number written.  */
 extern int getgroups (int __size, __gid_t __list[]) __THROW;
-
-#if 0
-/*#ifdef	__USE_GNU*/
-/* Return nonzero iff the calling process is in group GID.  */
-extern int group_member (__gid_t __gid) __THROW;
-#endif
 
 /* Set the user ID of the calling process to UID.
    If the calling process is the super-user, set the real

@@ -349,11 +349,6 @@ extern char *strsep (char **__restrict __stringp,
 #endif
 
 #ifdef	__USE_GNU
-#if 0
-/* Compare S1 and S2 as strings holding name & indices/version numbers.  */
-extern int strverscmp (__const char *__s1, __const char *__s2)
-     __THROW __attribute_pure__;
-#endif
 
 /* Return a string describing the meaning of the signal number in SIG.  */
 extern char *strsignal (int __sig) __THROW;
@@ -371,14 +366,6 @@ extern char *__stpncpy (char *__restrict __dest,
 extern char *stpncpy (char *__restrict __dest,
 		      __const char *__restrict __src, size_t __n) __THROW;
 
-#if 0
-/* Sautee STRING briskly.  */
-extern char *strfry (char *__string) __THROW;
-
-/* Frobnicate N bytes of S.  */
-extern void *memfrob (void *__s, size_t __n) __THROW;
-#endif
-
 # ifndef basename
 /* Return the file name within directory of FILENAME.  We don't
    declare the function if the `basename' macro is available (defined
@@ -388,37 +375,6 @@ extern char *basename (__const char *__filename) __THROW;
 # endif
 #endif
 
-
-#if 0
-#if defined __GNUC__ && __GNUC__ >= 2
-# if defined __OPTIMIZE__ && !defined __OPTIMIZE_SIZE__ \
-     && !defined __NO_INLINE__ && !defined __cplusplus
-/* When using GNU CC we provide some optimized versions of selected
-   functions from this header.  There are two kinds of optimizations:
-
-   - machine-dependent optimizations, most probably using inline
-     assembler code; these might be quite expensive since the code
-     size can increase significantly.
-     These optimizations are not used unless the symbol
-	__USE_STRING_INLINES
-     is defined before including this header.
-
-   - machine-independent optimizations which do not increase the
-     code size significantly and which optimize mainly situations
-     where one or more arguments are compile-time constants.
-     These optimizations are used always when the compiler is
-     taught to optimize.
-
-   One can inhibit all optimizations by defining __NO_STRING_INLINES.  */
-
-/* Get the machine-dependent optimizations (if any).  */
-#  include <bits/string.h>
-
-/* These are generic optimizations which do not add too much inline code.  */
-#  include <bits/string2.h>
-# endif
-#endif
-#endif
 
 #ifdef	__USE_BSD
 /* Two OpenBSD extension functions. */

@@ -555,11 +555,6 @@ extern void perror (__const char *__s) __THROW;
 extern int sys_nerr;
 extern __const char *__const sys_errlist[];
 #endif
-#if 0
-/*  #ifdef	__USE_GNU */
-extern int _sys_nerr;
-extern __const char *__const _sys_errlist[];
-#endif
 #endif /* __UCLIBC_HAS_SYS_ERRLIST__ */
 
 
@@ -596,16 +591,17 @@ extern char *cuserid (char *__s) __THROW;
 #endif /* Use X/Open, but not issue 6.  */
 
 
-#if 0
-/*  #ifdef	__USE_GNU */
+#ifdef	__USE_GNU
 struct obstack;			/* See <obstack.h>.  */
 
 /* Write formatted output to an obstack.  */
 extern int obstack_printf (struct obstack *__restrict __obstack,
-			   __const char *__restrict __format, ...) __THROW;
+			   __const char *__restrict __format, ...)
+     __THROW __attribute__ ((__format__ (__printf__, 2, 3)));
 extern int obstack_vprintf (struct obstack *__restrict __obstack,
 			    __const char *__restrict __format,
-			    __gnuc_va_list __args) __THROW;
+			    _G_va_list __args)
+     __THROW __attribute__ ((__format__ (__printf__, 2, 0)));
 #endif /* Use GNU.  */
 
 
@@ -632,11 +628,6 @@ extern void funlockfile (FILE *__stream) __THROW;
 
 /* If we are compiling with optimizing read this file.  It contains
    several optimizing inline functions and macros.  */
-#if 0
-/*  #ifdef __USE_EXTERN_INLINES */
-# include <bits/stdio.h>
-#elif 1
-
 #define fgetc(_fp)                   __FGETC(_fp)
 #define fputc(_ch, _fp)              __FPUTC(_ch, _fp)
 
@@ -662,8 +653,6 @@ extern void funlockfile (FILE *__stream) __THROW;
 #define clearerr_unlocked(_fp)       __CLEARERR_UNLOCKED(_fp)
 #define feof_unlocked(_fp)           __FEOF_UNLOCKED(_fp)
 #define ferror_unlocked(_fp)         __FERROR_UNLOCKED(_fp)
-#endif
-
 #endif
 
 __END_DECLS
