@@ -40,6 +40,16 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 # define UNLOCK
 #endif      
 
+#ifdef __UCLIBC_HAS_THREADS__
+#include <pthread.h>
+extern pthread_mutex_t __getgrent_lock;
+# define GRENT_LOCK   pthread_mutex_lock(&__getgrent_lock)
+# define GRENT_UNLOCK pthread_mutex_unlock(&__getgrent_lock);
+#else
+# define GRENT_LOCK
+# define GRENT_UNLOCK
+#endif
+
 static int grp_fd = -1;
 static char *line_buff = NULL;
 static char **members = NULL;
@@ -71,7 +81,9 @@ struct group *getgrent(void)
 	UNLOCK;
 	return NULL;
     }
-    r = __getgrent(grp_fd, line_buff, members);
     UNLOCK;
+    GRENT_LOCK;
+    r = __getgrent(grp_fd, line_buff, members);
+    GRENT_UNLOCK;
     return r;
 }

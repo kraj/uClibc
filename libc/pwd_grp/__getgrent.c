@@ -24,14 +24,12 @@
 #include <string.h>
 #include "config.h"
 
+
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK   pthread_mutex_lock(&mylock)
-# define UNLOCK pthread_mutex_unlock(&mylock);
-#else
-# define LOCK
-# define UNLOCK
+/* This function should always be called under lock, so we
+ * do not lock things in here... */
+pthread_mutex_t __getgrent_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 /*

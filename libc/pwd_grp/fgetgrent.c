@@ -24,13 +24,14 @@
     
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK   pthread_mutex_lock(&mylock)
-# define UNLOCK pthread_mutex_unlock(&mylock);
+extern pthread_mutex_t __getgrent_lock;
+# define LOCK   pthread_mutex_lock(&__getgrent_lock)
+# define UNLOCK pthread_mutex_unlock(&__getgrent_lock);
 #else
 # define LOCK
 # define UNLOCK
 #endif
+
 static char *line_buff = NULL;
 static char **members = NULL;
 
