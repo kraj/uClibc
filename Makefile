@@ -342,7 +342,6 @@ distclean clean:
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi;
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec rm -f {} \;
-	- find -type l -exec rm -f {} \;
 
 dist release: distclean
 	cd ..;					\
