@@ -967,16 +967,11 @@ struct netent * getnetbyname(const char * name)
 
 
 #ifdef L_res_init
-struct __res_state * __res;
+struct __res_state _res;
 
 int res_init(void)
 {
-	struct __res_state *rp = __res;
-	if(!__res) {
-		rp = (struct __res_state *) malloc(sizeof(struct __res_state));
-		memset(rp, 0, sizeof(struct __res_state));
-		__res = rp;
-	}	
+	struct __res_state *rp = &(_res);
 
 	__open_nameservers();
 	rp->retrans = RES_TIMEOUT;
@@ -1021,10 +1016,6 @@ int res_init(void)
 
 void res_close( void )
 {
-	if(__res) {
-		free(__res);
-		__res = NULL;
-	}
 	return;
 }
 

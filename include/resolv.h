@@ -216,11 +216,10 @@ typedef struct __res_state *res_state;
 #define RES_PRF_INIT	0x00004000
 /*			0x00008000	*/
 
-
-#ifndef __BIND_NOSTATIC
-
 /* Internal (static) resolver context. */
 extern struct __res_state _res;
+
+#ifndef __BIND_NOSTATIC
 
 #define fp_nquery		__fp_nquery
 #define fp_query		__fp_query
