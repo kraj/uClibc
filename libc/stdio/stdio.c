@@ -420,6 +420,9 @@ off_t _uClibc_fread(unsigned char *buf, off_t bytes, FILE *fp)
 			fp->bufpos = fp->bufread = fp->bufstart; /* Reset pointers. */
 			fp->bufread += _uClibc_fread(fp->bufstart,
 										 fp->bufend - fp->bufstart, fp);
+			if (fp->bufread - fp->bufstart >= bytes) { /* If we read all */
+				fp->mode |= ~__MODE_EOF; /* that was requested, make sure */
+			}							 /* EOF flag is clear. */
 			goto FROM_BUF;
 		}
 
