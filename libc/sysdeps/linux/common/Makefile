@@ -24,7 +24,7 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
-SAFECFLAGS=$(WARNINGS) $(OPTIMIZATION) -fno-builtin
+SAFECFLAGS=$(WARNINGS) $(CPU_CFLAGS-y) $(OPTIMIZATION) -fno-builtin
 ifeq ($(strip $(DOPIC)),y)
 SAFECFLAGS+=-fPIC
 endif
