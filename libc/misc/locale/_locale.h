@@ -17,6 +17,7 @@ enum
   ISpunct  = ISbit (5),        /* 32  Punctuation.       */
   ISalpha  = ISbit (6),        /* 64  Alphabetic.        */
   ISxdigit = ISbit (7),        /* 128 Hexnumeric.        */
+  ISblank  = ISbit (8),        /* 256 Blank.             */
 };
 
 extern const unsigned char *_uc_collate_b;

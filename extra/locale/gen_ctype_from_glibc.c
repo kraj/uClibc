@@ -71,6 +71,7 @@ bbits_t basic_bits[] =
   {ISpunct , "ISpunct" },
   {ISalpha , "ISalpha" },
   {ISxdigit, "ISxdigit"},
+  {ISblank,  "ISblank"},
   {0, NULL}
 };
 
@@ -257,6 +258,8 @@ Defaults:\n\
 		x2type[i] |= ISpunct;
 	if(isxdigit(i))
 		x2type[i] |= ISxdigit;
+	if(isblank(i))
+		x2type[i] |= ISblank;
 	x2trans[i] = i;
 	if(toupper(x2trans[i]) != x2trans[i])
 		x2trans[i] = toupper(x2trans[i]);
