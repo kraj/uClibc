@@ -289,7 +289,7 @@ config DOASSERTS
 config SUPPORT_LD_DEBUG
 	bool "Build the shared library loader with debugging support"
 	depends on BUILD_UCLIBC_LDSO
-	default y
+	default n
 	help
 	  Answer Y here to enable all the extra code needed to debug the uClibc
 	  native shared library loader.  The level of debugging noise that is
@@ -323,7 +323,7 @@ config SUPPORT_LD_DEBUG
 config SUPPORT_LD_DEBUG_EARLY
 	bool "Build the shared library loader with early debugging support"
 	depends on BUILD_UCLIBC_LDSO
-	default y
+	default n
 	help
 	  Answer Y here to if you find the uClibc shared library loader is
 	  crashing or otherwise not working very early on.  This is typical
