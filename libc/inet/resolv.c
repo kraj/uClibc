@@ -36,6 +36,11 @@
  *   partial IPv6 support (i.e. gethostbyname2() and resolve_address2()
  *   functions added), IPv6 nameservers are also supported.
  *
+ * 6-Oct-2001 Jari Korva <jari.korva@iki.fi>
+ *   more IPv6 support (IPv6 support for gethostbyaddr();
+ *   address family parameter and improved IPv6 support for get_hosts_byname
+ *   and read_etc_hosts; getnameinfo() port from glibc; defined
+ *   defined ip6addr_any and in6addr_loopback)
  */
 
 #define __FORCE_GLIBC__
@@ -100,9 +105,9 @@ extern int nameservers;
 extern char * nameserver[MAX_SERVERS];
 extern int searchdomains;
 extern char * searchdomain[MAX_SEARCH];
-extern struct hostent * get_hosts_byname(const char * name);
+extern struct hostent * get_hosts_byname(const char * name, int type);
 extern struct hostent * get_hosts_byaddr(const char * addr, int len, int type);
-extern struct hostent * read_etc_hosts(const char * name, int ip);
+extern struct hostent * read_etc_hosts(const char * name, int type, int ip);
 extern int resolve_address(const char * address, int nscount, 
 	char ** nsip, struct in_addr * in);
 extern int resolve_mailbox(const char * address, int nscount, 
@@ -977,7 +982,7 @@ struct hostent *gethostbyname(const char *name)
 	if (!name)
 		return 0;
 
-	if ((hp = get_hosts_byname(name))) /* do /etc/hosts first */
+	if ((hp = get_hosts_byname(name, AF_INET))) /* do /etc/hosts first */
 		return(hp);
 
 	memset(&h, 0, sizeof(h));
@@ -1037,6 +1042,14 @@ struct hostent *gethostbyname(const char *name)
 
 #ifdef L_gethostbyname2
 
+#ifdef __UCLIBC_HAS_IPV6__
+/* TBD: Not the right place for defining these, I guess */
+const struct in6_addr in6addr_any =
+	{ { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } };
+const struct in6_addr in6addr_loopback =
+	{ { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } };                                    
+#endif /* __UCLIBC_HAS_IPV6__ */
+
 struct hostent *gethostbyname2(const char *name, int family)
 {
 #ifndef __UCLIBC_HAS_IPV6__
@@ -1063,7 +1076,7 @@ struct hostent *gethostbyname2(const char *name, int family)
 	if (!name)
 		return 0;
 
-	if ((hp = get_hosts_byname(name))) /* do /etc/hosts first */
+	if ((hp = get_hosts_byname(name, family))) /* do /etc/hosts first */
 		return(hp);
 
 	memset(&h, 0, sizeof(h));
@@ -1188,32 +1201,68 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 	static char namebuf[256];
 	static struct in_addr in;
 	static struct in_addr *addr_list[2];
+#ifdef __UCLIBC_HAS_IPV6__
+    char *qp;
+	static struct in6_addr	in6;
+	static struct in6_addr	*addr_list6[2];
+#endif /* __UCLIBC_HAS_IPV6__ */
 	struct hostent *hp;
 	unsigned char *packet;
 	struct resolv_answer a;
 	int i;
 	int nest = 0;
 
-	if (!addr || (len != sizeof(in)) || (type != AF_INET))
+	if (!addr)
 		return 0;
+        
+    switch (type) {
+	case AF_INET:
+		if (len != sizeof(struct in_addr))
+			return 0;
+		break;
+#ifdef __UCLIBC_HAS_IPV6__
+	case AF_INET6:
+		if (len != sizeof(struct in6_addr))
+			return 0;
+		break;
+#endif /* __UCLIBC_HAS_IPV6__ */
+	default:
+		return 0;
+	}
 
 	if ((hp = get_hosts_byaddr(addr, len, type))) /* do /etc/hosts first */
 		return(hp);
-
-	memcpy(&in.s_addr, addr, len);
 
 	open_nameservers();
 
 	memset(&h, 0, sizeof(h));
 
-	addr_list[0] = &in;
-	addr_list[1] = 0;
+	if(type == AF_INET) {
+		memcpy(&in.s_addr, addr, len);
 
-	sprintf(namebuf, "%d.%d.%d.%d.in-addr.arpa",
+		addr_list[0] = &in;
+
+		sprintf(namebuf, "%d.%d.%d.%d.in-addr.arpa",
 			(in.s_addr >> 24) & 0xff,
 			(in.s_addr >> 16) & 0xff,
 			(in.s_addr >> 8) & 0xff, 
 			(in.s_addr >> 0) & 0xff);
+#ifdef __UCLIBC_HAS_IPV6__
+	} else {
+		memcpy(&in6.s6_addr, addr, len);
+
+		addr_list6[0] = &in6;
+        qp = namebuf;
+
+		for (i = len - 1; i >= 0; i--) {
+			qp += sprintf(qp, "%x.%x.", in6.s6_addr[i] & 0xf,
+				(in6.s6_addr[i] >> 4) & 0xf);
+    	}
+    	strcpy(qp, "ip6.int");
+#endif /* __UCLIBC_HAS_IPV6__ */
+	}
+
+	addr_list[1] = 0;
 
 	for (;;) {
 
@@ -1240,8 +1289,16 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 			free(packet);
 
 			h.h_name = namebuf;
-			h.h_addrtype = AF_INET;
-			h.h_length = sizeof(in);
+			h.h_addrtype = type;
+
+			if(type == AF_INET) {
+				h.h_length = sizeof(in);
+#ifdef __UCLIBC_HAS_IPV6__
+			} else {
+				h.h_length = sizeof(in6);
+#endif /* __UCLIBC_HAS_IPV6__ */
+    		}
+
 			h.h_addr_list = (char **) addr_list;
 			break;
 		} else {
@@ -1257,7 +1314,7 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 
 #ifdef L_read_etc_hosts
 
-struct hostent * read_etc_hosts(const char * name, int ip)
+struct hostent * read_etc_hosts(const char * name, int type, int ip)
 {
 	static struct hostent	h;
 	static struct in_addr	in;
@@ -1308,31 +1365,26 @@ struct hostent * read_etc_hosts(const char * name, int ip)
 				continue;
 		}
 
-#ifndef __UCLIBC_HAS_IPV6__
-		if (inet_aton(alias[0], &in) == 0)
-			break; /* bad ip address */
-#else /* __UCLIBC_HAS_IPV6__ */
-		if (inet_aton(alias[0], &in) == 0) {
-			if (inet_pton(AF_INET6, alias[0], &in6) == 0) {
-				addr_list6[0] = &in6;
-				addr_list6[1] = 0;
-				h.h_name = alias[1];
-				h.h_addrtype = AF_INET6;
-				h.h_length = sizeof(in6);
-				h.h_addr_list = (char**) addr_list6;
-				fclose(fp);
-				return(&h);
-			} else
-				break; /* bad ip address */
-		}
+		if (type == AF_INET && inet_pton(AF_INET, alias[0], &in) > 0) {
+			addr_list[0] = &in;
+			addr_list[1] = 0;
+			h.h_name = alias[1];
+			h.h_addrtype = AF_INET;
+			h.h_length = sizeof(in);
+			h.h_addr_list = (char**) addr_list;
+#ifdef __UCLIBC_HAS_IPV6__
+        } else if (type == AF_INET6 && inet_pton(AF_INET6, alias[0], &in6) > 0) {
+			addr_list6[0] = &in6;
+			addr_list6[1] = 0;
+			h.h_name = alias[1];
+			h.h_addrtype = AF_INET6;
+			h.h_length = sizeof(in6);
+			h.h_addr_list = (char**) addr_list6;
 #endif /* __UCLIBC_HAS_IPV6__ */
-
-		addr_list[0] = &in;
-		addr_list[1] = 0;
-		h.h_name = alias[1];
-		h.h_addrtype = AF_INET;
-		h.h_length = sizeof(in);
-		h.h_addr_list = (char**) addr_list;
+		} else {
+			break; /* bad ip address */
+        }
+        
 		fclose(fp);
 		return(&h);
 	}
@@ -1344,9 +1396,9 @@ struct hostent * read_etc_hosts(const char * name, int ip)
 
 #ifdef L_get_hosts_byname
 
-struct hostent * get_hosts_byname(const char * name)
+struct hostent * get_hosts_byname(const char * name, int type)
 {
-	return(read_etc_hosts(name, 0));
+	return(read_etc_hosts(name, type, 0));
 }
 #endif
 
@@ -1355,14 +1407,218 @@ struct hostent * get_hosts_byname(const char * name)
 
 struct hostent * get_hosts_byaddr(const char * addr, int len, int type)
 {
-	char	ipaddr[20];
+#ifndef __UCLIBC_HAS_IPV6__
+	char	ipaddr[INET_ADDRSTRLEN];
+#else
+	char	ipaddr[INET6_ADDRSTRLEN];
+#endif /* __UCLIBC_HAS_IPV6__ */
 
-	if (type != AF_INET || len != sizeof(struct in_addr))
-		return((struct hostent *) NULL);
+    switch (type) {
+	case AF_INET:
+		if (len != sizeof(struct in_addr))
+			return 0;
+		break;
+#ifdef __UCLIBC_HAS_IPV6__
+	case AF_INET6:
+		if (len != sizeof(struct in6_addr))
+			return 0;
+		break;
+#endif /* __UCLIBC_HAS_IPV6__ */
+	default:
+		return 0;
+	}
 
-	strcpy(ipaddr, inet_ntoa(* (struct in_addr *) addr));
-	return(read_etc_hosts(ipaddr, 1));
+	inet_ntop(type, addr, ipaddr, sizeof(ipaddr));
+
+	return(read_etc_hosts(ipaddr, type, 1));
 }
 #endif
 
+#ifdef L_getnameinfo
 
+int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
+	     socklen_t hostlen, char *serv, socklen_t servlen,
+	     unsigned int flags)
+{
+	int serrno = errno;
+	int ok = 0;
+	struct hostent *h = NULL;
+    char domain[256];
+    
+	if (flags & ~(NI_NUMERICHOST|NI_NUMERICSERV|NI_NOFQDN|NI_NAMEREQD|NI_DGRAM))
+		return EAI_BADFLAGS;
+
+	if (sa == NULL || addrlen < sizeof (sa_family_t))
+		return EAI_FAMILY;
+
+	switch (sa->sa_family) {
+	case AF_LOCAL:
+		break;
+	case AF_INET:
+		if (addrlen < sizeof (struct sockaddr_in))
+			return EAI_FAMILY;
+		break;
+#ifdef __UCLIBC_HAS_IPV6__
+	case AF_INET6:
+		if (addrlen < sizeof (struct sockaddr_in6))
+			return EAI_FAMILY;
+		break;
+#endif /* __UCLIBC_HAS_IPV6__ */
+	default:
+		return EAI_FAMILY;
+	}
+
+	if (host != NULL && hostlen > 0)
+		switch (sa->sa_family) {
+		case AF_INET:
+#ifdef __UCLIBC_HAS_IPV6__
+		case AF_INET6:
+#endif /* __UCLIBC_HAS_IPV6__ */
+			if (!(flags & NI_NUMERICHOST)) {
+#ifdef __UCLIBC_HAS_IPV6__
+				if (sa->sa_family == AF_INET6)
+					h = gethostbyaddr ((const void *) &(((const struct sockaddr_in6 *) sa)->sin6_addr),
+						sizeof(struct in6_addr), AF_INET6);
+				else
+#endif /* __UCLIBC_HAS_IPV6__ */
+                    h = gethostbyaddr ((const void *) &(((const struct sockaddr_in *)sa)->sin_addr),
+					  sizeof(struct in_addr), AF_INET);
+
+				if (h) {
+					char *c;
+					if ((flags & NI_NOFQDN)
+					    && (getdomainname (domain, sizeof(domain)) == 0)
+					    && (c = strstr (h->h_name, domain))
+					    && (c != h->h_name) && (*(--c) == '.')) {
+						strncpy (host, h->h_name,
+							min(hostlen, (size_t) (c - h->h_name)));
+						host[min(hostlen - 1, (size_t) (c - h->h_name))] = '\0';
+						ok = 1;
+					} else {
+						strncpy (host, h->h_name, hostlen);
+						ok = 1;
+					}
+				 }
+			}
+
+			if (!ok) {
+				if (flags & NI_NAMEREQD) {
+					errno = serrno;
+					return EAI_NONAME;
+				} else {
+					const char *c;
+#ifdef __UCLIBC_HAS_IPV6__
+					if (sa->sa_family == AF_INET6) {
+						const struct sockaddr_in6 *sin6p;
+						uint32_t scopeid;
+
+						sin6p = (const struct sockaddr_in6 *) sa;
+
+						c = inet_ntop (AF_INET6,
+							(const void *) &sin6p->sin6_addr, host, hostlen);
+#if 0
+/* Does scope id need to be supported? */
+						scopeid = sin6p->sin6_scope_id;
+						if (scopeid != 0) {
+							/* Buffer is >= IFNAMSIZ+1.  */
+							char scopebuf[IFNAMSIZ + 1];
+							char *scopeptr;
+							int ni_numericscope = 0;
+							size_t real_hostlen = __strnlen (host, hostlen);
+							size_t scopelen = 0;
+
+							scopebuf[0] = SCOPE_DELIMITER;
+							scopebuf[1] = '\0';
+							scopeptr = &scopebuf[1];
+
+							if (IN6_IS_ADDR_LINKLOCAL (&sin6p->sin6_addr)
+							    || IN6_IS_ADDR_MC_LINKLOCAL (&sin6p->sin6_addr)) {
+								if (if_indextoname (scopeid, scopeptr) == NULL)
+									++ni_numericscope;
+								else
+									scopelen = strlen (scopebuf);
+							} else {
+								++ni_numericscope;
+                            }
+
+							if (ni_numericscope)
+								scopelen = 1 + snprintf (scopeptr,
+									(scopebuf
+									+ sizeof scopebuf
+									- scopeptr),
+									"%u", scopeid);
+
+							if (real_hostlen + scopelen + 1 > hostlen)
+								return EAI_SYSTEM;
+							memcpy (host + real_hostlen, scopebuf, scopelen + 1);
+						}
+#endif
+					} else
+#endif /* __UCLIBC_HAS_IPV6__ */
+						c = inet_ntop (AF_INET,
+							(const void *) &(((const struct sockaddr_in *) sa)->sin_addr),
+							host, hostlen);
+
+					if (c == NULL) {
+						errno = serrno;
+						return EAI_SYSTEM;
+					}
+				}
+				ok = 1;
+			}
+			break;
+
+		case AF_LOCAL:
+			if (!(flags & NI_NUMERICHOST)) {
+				struct utsname utsname;
+
+				if (!uname (&utsname)) {
+					strncpy (host, utsname.nodename, hostlen);
+					break;
+				};
+			};
+
+			if (flags & NI_NAMEREQD) {
+				errno = serrno;
+				return EAI_NONAME;
+			}
+
+			strncpy (host, "localhost", hostlen);
+			break;
+
+		default:
+			return EAI_FAMILY;
+	}
+
+	if (serv && (servlen > 0)) {
+		switch (sa->sa_family) {
+		case AF_INET:
+#ifdef __UCLIBC_HAS_IPV6__
+		case AF_INET6:
+#endif /* __UCLIBC_HAS_IPV6__ */
+			if (!(flags & NI_NUMERICSERV)) {
+				struct servent *s;
+				s = getservbyport (((const struct sockaddr_in *) sa)->sin_port,
+				      ((flags & NI_DGRAM) ? "udp" : "tcp"));
+				if (s) {
+					strncpy (serv, s->s_name, servlen);
+					break;
+				}
+			}
+			snprintf (serv, servlen, "%d",
+				ntohs (((const struct sockaddr_in *) sa)->sin_port));
+			break;
+
+		case AF_LOCAL:
+			strncpy (serv, ((const struct sockaddr_un *) sa)->sun_path, servlen);
+			break;
+		}
+	}
+	if (host && (hostlen > 0))
+		host[hostlen-1] = 0;
+	if (serv && (servlen > 0))
+		serv[servlen-1] = 0;
+	errno = serrno;
+	return 0;
+}
+#endif
