@@ -406,7 +406,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
 	/* Don't try if size wraps around 0 */
 	if ((unsigned long)(size) > (unsigned long)(nb)) {
 
-	    mm = (char*)(MMAP(0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE));
+	    mm = (char*)(MMAP(0, size, PROT_READ|PROT_WRITE));
 
 	    if (mm != (char*)(MORECORE_FAILURE)) {
 
@@ -526,7 +526,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
 	/* Don't try if size wraps around 0 */
 	if ((unsigned long)(size) > (unsigned long)(nb)) {
 
-	    brk = (char*)(MMAP(0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE));
+	    brk = (char*)(MMAP(0, size, PROT_READ|PROT_WRITE));
 
 	    if (brk != (char*)(MORECORE_FAILURE)) {
 

@@ -33,14 +33,14 @@ void *malloc(size_t size)
 
 #ifdef __ARCH_HAS_MMU__
     result = mmap((void *) 0, size + sizeof(size_t), PROT_READ | PROT_WRITE,
-	    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	    MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
     if (result == MAP_FAILED)
 	return 0;
     * (size_t *) result = size;
     return(result + sizeof(size_t));
 #else
     result = mmap((void *) 0, size, PROT_READ | PROT_WRITE,
-	    MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	    MAP_SHARED | MAP_ANONYMOUS, 0, 0);
     if (result == MAP_FAILED)
 	return 0;
     return(result);

@@ -350,8 +350,17 @@ extern pthread_mutex_t __malloc_lock;
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
-#define MMAP(addr, size, prot, flags) \
- (mmap((addr), (size), (prot), (flags)|MAP_ANONYMOUS, -1, 0))
+#ifdef __ARCH_HAS_MMU__
+
+#define MMAP(addr, size, prot) \
+ (mmap((addr), (size), (prot), MAP_PRIVATE|MAP_ANONYMOUS, 0, 0))
+
+#else
+
+#define MMAP(addr, size, prot) \
+ (mmap((addr), (size), (prot), MAP_SHARED|MAP_ANONYMOUS, 0, 0))
+
+#endif
 
 
 /* -----------------------  Chunk representations ----------------------- */
