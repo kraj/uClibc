@@ -447,9 +447,12 @@ DL_BOOT(unsigned long args)
 	}
 #endif
 
+
 	/* OK, now do the relocations.  We do not do a lazy binding here, so
 	   that once we are done, we have considerably more flexibility. */
-
+#ifdef DL_DEBUG
+	SEND_STDERR("About to do library loader relocations.\n");
+#endif
 	goof = 0;
 	for (indx = 0; indx < 2; indx++) {
 		int i;
@@ -505,6 +508,11 @@ DL_BOOT(unsigned long args)
 					SEND_STDERR(" undefined.\n");
 					goof++;
 				}
+#ifdef DL_DEBUG
+				SEND_STDERR("About to fixup symbol: ");
+				SEND_STDERR(strtab + symtab[symtab_index].st_name);
+				SEND_STDERR("\n");
+#endif  
 			}
 			/*
 			 * Use this machine-specific macro to perform the actual relocation.

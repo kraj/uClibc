@@ -224,30 +224,17 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 #if defined mc68000 || defined __arm__
 /* On some arches constant strings are referenced through the GOT. */
 /* XXX Requires load_addr to be defined. */
-#define SEND_STDERR(X)			\
-{					\
-    const char *ptr, *str;		\
-    ptr = str = (char *)(X);		\
-    if(str < (const char *)load_addr) {	\
-       	str += load_addr;		\
-       	ptr += load_addr;		\
-    }					\
-    while (*ptr)			\
-	ptr++;				\
-    _dl_write(2, str, ptr - str);	\
-}
+#define SEND_STDERR(X)				\
+  { const char *__s = (X);			\
+    if (__s < (const char *) load_addr) __s += load_addr;	\
+    _dl_write (2, __s, _dl_strlen (__s));	\
+  }
 #else
-#define SEND_STDERR(str)		\
-{					\
-    register char *ptr = (char *) str;	\
-    while (*ptr)			\
-	ptr++;				\
-    _dl_write(2, str, ptr - str);	\
-}
+#define SEND_STDERR(X) _dl_write(2, X, _dl_strlen(X));
 #endif
 
 #define SEND_ADDRESS_STDERR(X, add_a_newline) { \
-    char tmp[22], *tmp1; \
+    char tmp[13], *tmp1; \
     _dl_memset(tmp, 0, sizeof(tmp)); \
     tmp1=_dl_simple_ltoahex( tmp, (unsigned long)(X)); \
     _dl_write(2, tmp1, _dl_strlen(tmp1)); \
@@ -258,9 +245,9 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 };
 
 #define SEND_NUMBER_STDERR(X, add_a_newline) { \
-    char tmp[22], *tmp1; \
+    char tmp[13], *tmp1; \
     _dl_memset(tmp, 0, sizeof(tmp)); \
-    tmp1=_dl_simple_ltoa( tmp, (unsigned long)(X)); \
+    tmp1=_dl_simple_ltoahex( tmp, (unsigned long)(X)); \
     _dl_write(2, tmp1, _dl_strlen(tmp1)); \
     if (add_a_newline) { \
 	tmp[0]='\n'; \
