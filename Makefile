@@ -30,7 +30,10 @@
 TOPDIR=./
 include Rules.mak
 
-DIRS = extra libc libcrypt libresolv libutil libm  
+ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
+    LDSO_DIR = ldso
+endif
+DIRS = extra $(LDSO_DIR) libc libcrypt libresolv libutil libm  
 
 ifndef $(TARGET_PREFIX)
 	TARGET_PREFIX = `pwd`/_install
