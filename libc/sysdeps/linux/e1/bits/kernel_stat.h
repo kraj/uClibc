@@ -4,7 +4,6 @@
 /* This file provides whatever this particular arch's kernel thinks 
  * struct kernel_stat should look like...  It turns out each arch has a 
  * different opinion on the subject... */
-#warning "Please verify struct kernel_stat for your architecture actually matches struct kernel_stat for x86  If it doesn't, then you will need to add a proper kernel_stat.h for your architecture..."
 
 struct kernel_stat {
 	unsigned short st_dev;
