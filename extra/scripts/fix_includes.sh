@@ -49,11 +49,11 @@ usage () {
 }
 
 HAS_MMU="y";
-while [ "$1" ]; do
+while [ -n "$1" ]; do
     case $1 in
-	-k ) shift; if [ "$1" ]; then KERNEL_SOURCE=$1; shift; else usage; fi; ;;
-	-t ) shift; if [ "$1" ]; then TARGET_ARCH=$1; shift; else usage; fi; ;;
-	-n ) shift; if [ "$1" ]; then HAS_MMU="n"; shift; else usage; fi; ;;
+	-k ) shift; if [ -n "$1" ]; then KERNEL_SOURCE=$1; shift; else usage; fi; ;;
+	-t ) shift; if [ -n "$1" ]; then TARGET_ARCH=$1; shift; else usage; fi; ;;
+	-n ) shift; if [ -n "$1" ]; then HAS_MMU="n"; shift; else usage; fi; ;;
 	-* ) usage; ;;
 	* ) usage; ;;
     esac;
