@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/syscall.h>
+#include <errno.h>
 
 
 void * mmap(void *start, size_t length, int prot, int flags, int fd,
