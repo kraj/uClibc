@@ -26,17 +26,21 @@ Other random things:
 -----------------------------------------------------------------------------
 Manuel's todo:
 
-For the end of June:
-  Fix 2 minor issues with the mb<->wc functions.
-  Implement wide unformatted i/o.
-  Implement wide formatted output.
-  General stdio cleanup.  (one bufpos variable; removed redundant locking).
-
+Test ungetwc.
+Implement %lc (%C) and %ls (%S) handling for printf.
+Implement grouping support and locale-specific radix.
+Deal with mb format string issues in printf, scanf, strftime (at least).
+Implement wide formatted output.
 Reimplement scanf for narrow and wide streams.
-
+Implement any other missing standard functions from wchar.h.
 Improve customization of the new stdio code.
+Clean up locale code and make it easier to build.  (Fix alt_digits!)
+Add collation support (initally for 8-bit locales) and implement strxfrm and strcoll.
+Reimlement strerror and strsignal.
+tzfile?
+era support in strftime/strptime?
 
-Reimplement _dtostr to correct its deficiencies and hopefully reduce its size.
+Reimplement _dtostr to correct its deficiencies (%A support!) and hopefully reduce its size.
 
 Revisit the unified syscall stuff which has been broken for a while now.
 
