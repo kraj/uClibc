@@ -32,7 +32,7 @@ include Rules.mak
 
 DIRS = extra ldso libc libcrypt libresolv libutil libm  
 
-all: headers uClibc_config.h subdirs $(DO_SHARED) done
+all: headers uClibc_config.h subdirs shared done
 
 Config:
 	@echo
@@ -42,17 +42,20 @@ Config:
 	@exit 1
 
 shared:
+ifeq ($(strip $(HAVE_SHARED)),true)
 	@$(MAKE) -C libc shared
-	@$(MAKE) -C $(LIBRARY_CACHE) ldso/util
-ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
-	@$(MAKE) -C $(LIBRARY_CACHE) ldso shared
-endif
+	@$(MAKE) -C ldso shared
 	@$(MAKE) -C libcrypt shared
 	@$(MAKE) -C libutil shared
 	@$(MAKE) -C libm shared
 	@$(MAKE) -C libresolv shared
+else
+	@echo
+	@echo Not building shared libraries...
+	@echo
+endif
 
-done: $(DO_SHARED)
+done: shared
 	@echo
 	@echo Finally finished compiling...
 	@echo
@@ -171,80 +174,79 @@ tags:
 
 install: install_dev install_runtime install_gcc
 
-# install_target:
-# Installs run-time libraries and helper apps (ldconfig) to the
-# locations that one would expect on a host that is running uClibc
-# as the primary libc.  TARGET_PREFIX is the location of the root
-# directory.
-install_target:
-ifeq ($(DO_SHARED),shared)
-	install -d $(DESTDIR)$(TARGET_PREFIX)/lib
-	install -d $(DESTDIR)$(TARGET_PREFIX)/etc
-	install -d $(DESTDIR)$(TARGET_PREFIX)/sbin
-	install -d $(DESTDIR)$(TARGET_PREFIX)/usr/bin
-	install -m 644 lib/lib*-0.9.5.so $(DESTDIR)$(TARGET_PREFIX)/lib
-	cp -a lib/*.so.* $(DESTDIR)$(TARGET_PREFIX)/lib
-ifeq ($(LDSO_PRESENT),$(TARGET_ARCH))
-	install -m 755 lib/ld-uClibc-0.9.5.so $(DESTDIR)$(TARGET_PREFIX)/lib
-	install -m 755 ldso/util/ldd $(DESTDIR)$(TARGET_PREFIX)/usr/bin
-	install -m 755 ldso/util/readelf $(DESTDIR)$(TARGET_PREFIX)/usr/bin
-	if [ -x ldso/util/ldconfig ] ; then \
-	    install -m 755 ldso/util/ldconfig $(DESTDIR)$(TARGET_PREFIX)/sbin; \
-	fi;
-endif
-ifeq ($(NATIVE_ARCH), $(TARGET_ARCH))
-#	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
-endif
-endif
 
-# install_runtime:
-# Installs run-time libraries and helper apps (ldconfig) to the
-# locations one would expect on a host that is running a different
-# libary as the primary libc.
-install_runtime:
-ifeq ($(DO_SHARED),shared)
-	install -d $(DESTDIR)$(DEVEL_PREFIX)/lib
-	install -d $(DESTDIR)$(DEVEL_PREFIX)/etc
-	install -d $(DESTDIR)$(DEVEL_PREFIX)/bin
-	install -m 644 lib/lib*-0.9.5.so $(DESTDIR)$(DEVEL_PREFIX)/lib
-	cp -a lib/*.so.* $(DESTDIR)$(DEVEL_PREFIX)/lib
-ifeq ($(LDSO_PRESENT),$(TARGET_ARCH))
-	install -m 755 lib/ld-uClibc-0.9.5.so $(DESTDIR)$(DEVEL_PREFIX)/lib
-	install -m 755 ldso/util/ldd $(DESTDIR)$(DEVEL_PREFIX)/bin
-	install -m 755 ldso/util/readelf $(DESTDIR)$(DEVEL_PREFIX)/bin
-	install -d $(DESTDIR)$(DEVEL_PREFIX)/bin
-	ln -fs $(DEVEL_PREFIX)/bin/ldd $(DESTDIR)$(DEVEL_PREFIX)/bin/$(TARGET_ARCH)-uclibc-ldd
-	if [ -x ldso/util/ldconfig ] ; then \
-	    install -m 755 ldso/util/ldconfig $(DESTDIR)$(DEVEL_PREFIX)/bin; \
-	    install -d $(DESTDIR)$(DEVEL_PREFIX)/sbin; \
-	    ln -fs $(DEVEL_PREFIX)/sbin/ldconfig $(DESTDIR)$(DEVEL_PREFIX)/sbin/$(TARGET_ARCH)-uclibc-ldconfig; \
-	fi;
-endif
-endif
-
-# install_dev:
 # Installs header files and development library links.
-# DEVEL_PREFIX should be $(PREFIX)/$(target)-linux-uclibc/
 install_dev:
-	install -d $(DESTDIR)$(DEVEL_PREFIX)/lib
-	install -m 644 lib/*.[ao] $(DESTDIR)$(DEVEL_PREFIX)/lib/
-ifeq ($(DO_SHARED),shared)
-	find lib/ -type l -name '*.so' -exec cp -a {} $(DESTDIR)$(DEVEL_PREFIX)/lib ';'
-ifeq ($(NATIVE_ARCH), $(TARGET_ARCH))
-#	-@if [ -x ldso/util/ldconfig ] ; then ldso/util/ldconfig; fi
-endif
-endif
-	install -d $(DESTDIR)$(DEVEL_PREFIX)/include
+	install -d $(PREFIX)$(DEVEL_PREFIX)/lib
+	install -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
+	install -d $(PREFIX)$(DEVEL_PREFIX)/include
+	install -d $(PREFIX)$(DEVEL_PREFIX)/usr/lib
 	find include/ -name '*.h' -depth -follow -exec install \
-	    -D -m 644 {} $(DESTDIR)$(DEVEL_PREFIX)/'{}' ';'
+	    -D -m 644 {} $(PREFIX)$(DEVEL_PREFIX)/'{}' ';'
+ifeq ($(strip $(HAVE_SHARED)),true)
+	find lib/ -type l -name '*.so' -exec cp -a {} $(PREFIX)$(DEVEL_PREFIX)/lib ';'
+endif
+
+
+# Installs run-time libraries and helper apps onto the host system
+# allowing cross development.  If you want to deploy to a target 
+# system, use the "install_target" target instead... 
+install_runtime:
+ifeq ($(strip $(HAVE_SHARED)),true)
+	install -d $(PREFIX)$(DEVEL_PREFIX)/lib
+	install -d $(PREFIX)$(DEVEL_PREFIX)/bin
+	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(DEVEL_PREFIX)/lib
+	cp -a lib/*.so.* $(PREFIX)$(DEVEL_PREFIX)/lib
+	install -m 755 ldso/util/ldd $(PREFIX)$(DEVEL_PREFIX)/bin
+	install -m 755 ldso/util/readelf $(PREFIX)$(DEVEL_PREFIX)/bin
+	install -d $(PREFIX)$(DEVEL_PREFIX)/bin
+	install -d $(PREFIX)$(DEVEL_PREFIX)/usr/bin
+	ln -fs $(DEVEL_PREFIX)/bin/ldd $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin/$(TARGET_ARCH)-uclibc-ldd
+	ln -fs $(DEVEL_PREFIX)/bin/readelf $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin/$(TARGET_ARCH)-uclibc-readelf
+	if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
+	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)$(DEVEL_PREFIX)/lib; \
+	    ln -fs $(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) \
+	    		$(PREFIX)$(DEVEL_PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so || true; \
+	fi;
+	if [ -x ldso/util/ldconfig ] ; then \
+	    install -d $(PREFIX)$(DEVEL_PREFIX)/etc; \
+	    install -m 755 ldso/util/ldconfig $(PREFIX)$(DEVEL_PREFIX)/bin; \
+	    ln -fs $(DEVEL_PREFIX)/sbin/ldconfig $(PREFIX)$(SYSTEM_DEVEL_PREFIX)/usr/bin/$(TARGET_ARCH)-uclibc-ldconfig; \
+	fi;
+endif
 
 install_gcc:
 	$(MAKE) -C extra/gcc-uClibc install
 
+
+# Installs run-time libraries and helper apps in preparation for
+# deploying onto a target system, but installed below wherever
+# $PREFIX is set to, allowing you to package up the result for
+# deployment onto your target system.
+install_target:
+ifeq ($(strip $(HAVE_SHARED)),true)
+	install -d $(PREFIX)/lib
+	install -d $(PREFIX)/sbin
+	install -d $(PREFIX)/usr/bin
+	install -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)/lib
+	cp -a lib/*.so.* $(PREFIX)/lib
+	install -m 755 ldso/util/ldd $(PREFIX)/usr/bin
+	install -m 755 ldso/util/readelf $(PREFIX)/usr/bin
+	if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so ] ; then \
+	    install -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so $(PREFIX)/lib; \
+	    ln -fs $(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO) \
+	    		$(PREFIX)/lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).so || true; \
+	fi;
+	if [ -x ldso/util/ldconfig ] ; then \
+	    install -d $(PREFIX)/etc; \
+	    install -m 755 ldso/util/ldconfig $(PREFIX)/sbin; \
+	fi;
+endif
+
 clean:
 	@rm -rf tmp lib include/bits/uClibc_config.h uClibc_config.h
 	- find include -type l -exec rm -f {} \;
-	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core \) -exec rm -f {} \;
+	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec rm -f {} \;
 	$(MAKE) -C ldso clean
 	$(MAKE) -C libc/unistd clean
 	$(MAKE) -C libc/sysdeps/linux/common clean

@@ -50,9 +50,6 @@ DODEBUG = false
 # Compiler warnings you want to see 
 WARNINGS=-Wall
 
-# Enable support for shared libraries?
-HAVE_SHARED = false
-
 # Note that the kernel source you use to compile with should be the same as the
 # Linux kernel you run your apps on.  uClibc doesn't even try to achieve binary
 # compatibility across kernel versions.  So don't expect, for example, uClibc
@@ -139,30 +136,51 @@ INCLUDE_IPV6 = false
 # If you want to compile the library as PIC code, turn this on.
 DOPIC = false
 
-# PREFIX is the directory prefix that is applied to all installed
-# files.  Typically, it is set to /usr or /usr/local, although it could
-# also be /opt/vendor_name_here/some/random/path/.  The install_runtime
-# makefile target installs a few symbolic links based on PREFIX, not
-# DEVEL_PREFIX.
+
+
+# Enable support for shared libraries?  If this is false, you can
+# ignore all the rest of the options in this file...
+HAVE_SHARED = false
+
+# uClibc has a native shared library loader for some architectures.
+BUILD_UCLIBC_LDSO=false
+
+# If you are using shared libraries, but do not want/have a native
+# uClibc shared library loader, please specify the name of your
+# system's shared library loader here...
+#SYSTEM_LDSO=/lib/ld-linux.so.2
+
+# When using shared libraries, this path is the location where the
+# shared library will be invoked.  This value will be compiled into
+# every binary compiled with uClibc.  
 #
-# DEVEL_PREFIX is the directory where the development environment will
-# be installed.  The uClibc header files are installed into
-# $(DEVEL_PREFIX)/include, static libraries are installed into
-# $(DEVEL_PREFIX)/lib, etc.  This directory is compiled into the uclibc
-# cross compiler spoofer.  Generally, DEVEL_PREFIX should be set to
-# the same thing as $(PREFIX).  DEVEL_PREFIX is used by the Makefile install 
-# targets install_gcc, install_dev, and install_runtime.
-#
-# TARGET_PREFIX is the directory into which the target runtime
-# environment is installed.  The target runtime environment is what one
-# would use for a embedded system where uclibc is the native libaray.
-# This will typically be a staging area for creating a root filesystem
-# for the target system, so the default is in the local directory.
-# 
-# If you want to install to a temporary directory before copying files
-# to their final location, define DESTDIR during the install step,
-# i.e., 'make install DESTDIR=/home/foo/uclibc/_install'.
-PREFIX = /opt/uClinux
-DEVEL_PREFIX = $(PREFIX)/$(TARGET_ARCH)-elf
-TARGET_PREFIX = $(TOPDIR)/_install
+# BIG FAT WARNING:  
+# If you do not have a shared library loader with the correct name
+# sitting in the directory this points to, your binaries will not run.
+#SHARED_LIB_LOADER_PATH=$(DEVEL_PREFIX)/lib
+
+# DEVEL_PREFIX is the directory into which the uClibc development
+# environment will be installed.   The result will look something 
+# like the following:
+#   DEVEL_PREFIX/
+#	bin/            <contains gcc, ld, etc>
+#	lib/            <contains all runtime and static libs>
+#	include/        <Where all the header files go>
+# This value is used by the 'make install' Makefile target.  Since this
+# directory is compiled into the uclibc cross compiler spoofer, you
+# have to recompile if you change this value...
+DEVEL_PREFIX = /opt/uClinux/$(TARGET_ARCH)-elf
+
+# SYSTEM_DEVEL_PREFIX is the directory prefix used when installing
+# usr/bin/arch-uclibc-gcc, usr/bin/arch-uclibc-ld, etc.   This is only
+# used by the 'make install' target, and is not compiled into anything.
+# This defaults to $DEVEL_PREFIX, but makers of .rpms and .debs will
+# want to set this to "/" instead.
+SYSTEM_DEVEL_PREFIX = /
+
+# If you want 'make install' to install everything under a temporary
+# directory, the define PREFIX during the install step,
+# i.e., 'make PREFIX=/var/tmp/uClibc install'.
+#PREFIX = $(TOPDIR)/_install
+PREFIX =
 

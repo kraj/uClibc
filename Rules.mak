@@ -51,6 +51,8 @@ TARGET_CCFLAGS=--uclibc-use-build-dir $(WARNINGS) $(OPTIMIZATION) $(CPUFLAGS)
 CFLAGS=$(ARCH_CFLAGS) $(CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
 TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 TARGET_CFLAGS=$(ARCH_CFLAGS) $(TARGET_CCFLAGS) $(DEFS) $(ARCH_CFLAGS2)
+NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' \
+		-e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g')
 
 ifeq ($(strip $(DODEBUG)),true)
     CFLAGS += -g
@@ -68,36 +70,6 @@ ifeq ($(strip $(DOPIC)),true)
     CFLAGS += -fPIC
 endif
 
-
-ifndef PREFIX
-    PREFIX = `pwd`/_install
-    DEVEL_PREFIX = $(PREFIX)
-    TARGET_PREFIX = $(PREFIX)
-endif
-
-NATIVE_ARCH = $(shell uname -m | sed -e 's/i.86/i386/' -e 's/sparc.*/sparc/' -e 's/arm.*/arm/g' -e 's/m68k.*/m68k/' -e 's/ppc/powerpc/g')
-
-ifeq ($(strip $(HAVE_SHARED)),true)
-    DO_SHARED=shared
-endif
-
-LDSO_PRESENT=$(strip $(shell cd $(TOPDIR)/ldso/d-link; ls -d $(TARGET_ARCH) 2>/dev/null))
-
-# NOTE: This may need to be modified for your system
-SYSTEM_LDSO=$(shell for each in `$(CC) -print-search-dirs|grep ^libraries|sed -e 's/^libraries: //' -e 's/:/ /g'`;do ls $$each/ld.so.* 2>/dev/null;done)
-#SYSTEM_LDSO=/lib/ld-linux.so.2
-
-ifeq ($(LDSO_PRESENT), $(TARGET_ARCH))
-	LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
-	DYNAMIC_LINKER=$(DESTDIR)$(PREFIX)/lib/$(UCLIBC_LDSO)
-	BUILD_DYNAMIC_LINKER=$(shell cd $(TOPDIR)lib; pwd)/$(UCLIBC_LDSO)
-else
-	LDSO=$(SYSTEM_LDSO)
-	DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
-	BUILD_DYNAMIC_LINKER=$(shell cd $(TOPDIR)lib; pwd)/$(UCLIBC_LDSO)
-endif
-LIBRARY_CACHE=#-DUSE_CACHE
-
 # Disable libm if HAS_FLOATING_POINT isn't true.
 ifneq ($(HAS_FLOATING_POINT),true)
 	HAS_LIBM_FLOAT = false
@@ -105,15 +77,17 @@ ifneq ($(HAS_FLOATING_POINT),true)
 	HAS_LIBM_LONG_DOUBLE = false
 endif
 
-# It turns out the currently, function-sections causes ldelf2flt to segfault.
-# So till further notice, this is disabled by default....
-# 
-# Use '-ffunction-sections -fdata-sections' and '--gc-sections' if they work
-# to try and strip out any unused junk automagically....
-#
-#ifeq ($(shell $(CC) -ffunction-sections -fdata-sections -S \
-#	-o /dev/null -xc /dev/null && $(LD) --gc-sections -v >/dev/null && echo 1),1)
-#    CFLAGS += -ffunction-sections -fdata-sections
-#    LDFLAGS += --gc-sections
-#endif
+ifeq ($(strip $(HAVE_SHARED)),true)
+    LIBRARY_CACHE=#-DUSE_CACHE
+ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
+	LDSO=$(TOPDIR)lib/$(UCLIBC_LDSO)
+	DYNAMIC_LINKER=$(SHARED_LIB_LOADER_PATH)/$(UCLIBC_LDSO)
+	BUILD_DYNAMIC_LINKER=$(shell cd $(TOPDIR)lib; pwd)/$(UCLIBC_LDSO)
+else
+	LDSO=$(SYSTEM_LDSO)
+	DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
+	BUILD_DYNAMIC_LINKER=/lib/$(notdir $(SYSTEM_LDSO))
+endif
+endif
+
 

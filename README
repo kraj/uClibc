@@ -3,12 +3,11 @@
 
   cp ./extra/Configs/Config.<target arch> ./Config
 
-Then edit ./Config for your setup.  In particular, modify
-CROSS and KERNEL_SOURCE as necessary.  You may also want
-to modify PREFIX if you want to install the development
-environment to /usr/local/ or elsewhere.  By default, the
-development environment is installed into /usr and
-/usr/<arch>-linux-uclibc/.
+Then edit ./Config for your setup.  In particular, modify CROSS and
+KERNEL_SOURCE as necessary.  You may also want to modify
+SHARED_LIB_LOADER_PATH, DEVEL_PREFIX, and SYSTEM_DEVEL_PREFIX depending
+on where you want to install the development environment.  By default,
+the development environment is installed into /usr/<arch>-linux-uclibc/.
 
 
 * Building:
@@ -25,21 +24,16 @@ development environment is installed into /usr and
 This will install the header files, libraries, and the gcc
 wrapper into the directories defined in Config.
 
-If you are targetting the same architecture as the host machine,
-you may want to add a link from /lib/ld-uClibc.0 to the location
-where ld-uClibc.0 was installed.  This allows you to run binaries
-compiled against uClibc without contaminating /lib too much.
-
 
 * Installing the target runtime environment:
 
 (As root, if necessary,)
 
-   make TARGET_PREFIX=`pwd`/_install install_target
+   make PREFIX=<temporary path> install_target
 
 This installs only the files that are necessary to run binaries
-compiled against uClibc.  Hint: You really don't want to install
-the target runtime environment on the host machine.
+compiled against uClibc.  Hint: You probably do not want to install
+the target runtime environment on your host machine.
 
 
 * Using uClibc:

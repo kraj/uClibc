@@ -3,7 +3,6 @@ Any takers?
 Fix regex so it isn't so stinking big
 Fix glob so it isn't so stinking big
 Integrate Jeff Garzik's key-value reading code for pwd/grp, /etc/hosts, etc
-Get the arm port of the shared lib loader working
 Get the powerpc port of the shared lib loader working
 Finish sparc port
 Standardize the style of the header files.
@@ -18,6 +17,8 @@ include/resolv.h does not define struct _res, and libc/inet/resolv.c
     functions are not implemented.
 scandir.c doesn't check returns on malloc and realloc.
 Add in shadow support (include/shadow.h and such)
+Right now, getopt has different behavior when dynamically vs when
+    statically linked, violating the principle of least surprise.
 
 
 -----------------------------------------------------------------------------

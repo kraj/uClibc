@@ -1,24 +1,19 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-SUBDIRS = libdl
-ALL_SUBDIRS = util libdl d-link
-
+ALL_SUBDIRS = d-link libdl util
 
 
 all:
-ifeq ($(strip $(HAVE_SHARED)),true)
-	@if [ -d $(TOPDIR)ldso/d-link/$(TARGET_ARCH) ] ; then \
-		$(MAKE) -C d-link; \
-	fi;
+ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
+	$(MAKE) -C $(LIBRARY_CACHE) d-link;
 endif
 
 shared:
-ifeq ($(strip $(HAVE_SHARED)),true)
-	@if [ -d $(TOPDIR)ldso/d-link/$(TARGET_ARCH) ] ; then \
-		set -e ; for d in $(SUBDIRS) ; do $(MAKE) -C $$d ; done \
-	fi;
+ifeq ($(strip $(BUILD_UCLIBC_LDSO)),true)
+	$(MAKE) -C $(LIBRARY_CACHE) libdl;
 endif
+	$(MAKE) -C $(LIBRARY_CACHE) util;
 
 clean:
 	set -e ; for d in $(ALL_SUBDIRS) ; do $(MAKE) -C $$d $@ ; done
