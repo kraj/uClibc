@@ -40,7 +40,11 @@ MSRC3=socketcalls.c
 MOBJ3= accept.o bind.o connect.o getpeername.o getsockname.o getsockopt.o \
 	listen.o recv.o recvfrom.o recvmsg.o send.o sendmsg.o sendto.o \
 	setsockopt.o shutdown.o socket.o socketpair.o 
-OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3)
+
+CSRC =getservice.c getproto.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+
+OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
 
 
 all: $(OBJS) $(LIBC)
@@ -62,7 +66,9 @@ $(MOBJ3): $(MSRC3)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(OBJS): Makefile
+$(COBJS):
+	$(CC) $(CFLAGS) $< -c $*.c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean: subdirs_clean
 	rm -f *.[oa] *~ core
