@@ -5,9 +5,7 @@
 TOPDIR=../
 include $(TOPDIR)Rules.make
 
-LIBC=../libc.a
-
-#__getgrent.c grent.c getgrnam.c getgrgid.c fgetgrent.c initgroups.c: config-grp.h
+LIBC=$(TOPDIR)libc.a
 
 OBJ=__getpwent.o pwent.o getpwnam.o getpwuid.o putpwent.o getpw.o fgetpwent.o \
 	__getgrent.o grent.o getgrnam.o getgrgid.o fgetgrent.o initgroups.o \
