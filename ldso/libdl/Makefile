@@ -19,8 +19,8 @@ ELF_LDFLAGS=--shared -nostartfiles -nostdlib # using GNU ld
 #ELF_LDFLAGS=-G  # with SVr4 ld
 
 lib:: $(OBJS)
-	$(CC) $(ELF_LDFLAGS) -o $(LIBDL).$(LDSO_VMAJOR) \
-		 -Wl,-soname -Wl,$(LIBDL).$(LDSO_VMAJOR) *.o -lc
+	$(LD) $(ELF_LDFLAGS) -o $(LIBDL).$(LDSO_VMAJOR) \
+		 -soname $(LIBDL).$(LDSO_VMAJOR) *.o -lc
 
 obj: $(OBJS)
 
