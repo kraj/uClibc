@@ -1,5 +1,5 @@
 /*
- * ftruncate64 syscall.  Copes with 64 bit and 32 bit machines
+ * truncate64 syscall.  Copes with 64 bit and 32 bit machines
  * and on 32 bit machines this sends things into the kernel as
  * two 32-bit arguments (high and low 32 bits of length) that 
  * are ordered based on endianess.  It turns out endian.h has
@@ -19,19 +19,19 @@
 #include <stdint.h>
 #include <sys/syscall.h>
 
-#if defined __UCLIBC_HAVE_LFS__ && defined __NR_ftruncate64
+#if defined __UCLIBC_HAVE_LFS__ && defined __NR_truncate64
 #if __WORDSIZE == 64
 /* For a 64 bit machine, life is simple... */
-_syscall2(int, ftruncate64, int, fd, __off64_t, length);
+_syscall2(int, truncate64, const char *, path, __off64_t, length);
 #elif __WORDSIZE == 32
-#define __NR___ftruncate64 __NR_ftruncate64
-static inline _syscall3(int, __ftruncate64, int, fd, int, high_length, int, low_length);
-/* The exported ftruncate64 function.  */
-int ftruncate64 (int fd, __off64_t length)
+#define __NR___truncate64 __NR_truncate64
+static inline _syscall3(int, __truncate64, const char *, path, int, high_length, int, low_length);
+/* The exported truncate64 function.  */
+int truncate64 (const char * path, __off64_t length)
 {
     unsigned int low = length & 0xffffffff;
     unsigned int high = length >> 32;
-    return __ftruncate64(fd, __LONG_LONG_PAIR (high, low));
+    return __truncate64(path, __LONG_LONG_PAIR (high, low));
 }
 #else
 #error Your machine is not 64 bit or 32 bit, I am dazed and confused.

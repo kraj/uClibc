@@ -1465,34 +1465,10 @@ int getrlimit (__rlimit_resource_t resource, struct rlimit *rlimits)
 
 
 //#define __NR_truncate64         193
-#ifdef L_truncate64
-#ifdef __UCLIBC_HAVE_LFS__
-#include <bits/wordsize.h>
-/* Using _syscall2 to pass 64-bit arguments generally only works on 64-bit 
- * systems, so we only implement truncate64/ftruncate64 in that case.  Ports 
- * for processors with shorter word-lengths should define their own custom 
- * versions instead.  */
-#if __WORDSIZE >= 64
-#include <unistd.h>
-_syscall2(int, truncate64, const char *, path, __off64_t, length);
-#endif /* __WORDSIZE >= 64 */
-#endif /* __UCLIBC_HAVE_LFS__ */
-#endif
+//See libc/sysdeps/linux/common/truncate64.c
 
 //#define __NR_ftruncate64        194
-#ifdef L_ftruncate64
-#ifdef __UCLIBC_HAVE_LFS__
-#include <bits/wordsize.h>
-/* Using _syscall2 to pass 64-bit arguments generally only works on 64-bit 
- * systems, so we only implement truncate64/ftruncate64 in that case.  Ports 
- * for processors with shorter word-lengths should define their own custom 
- * versions instead.  */
-#if __WORDSIZE >= 64
-#include <unistd.h>
-_syscall2(int, ftruncate64, int, fd, __off64_t, length);
-#endif /* __WORDSIZE >= 64 */
-#endif /* __UCLIBC_HAVE_LFS__ */
-#endif
+//See libc/sysdeps/linux/common/ftruncate64.c
 
 
 //#define __NR_stat64             195
