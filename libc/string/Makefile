@@ -31,7 +31,7 @@ MOBJW=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
 	strcmp.o strcpy.o strcspn.o strdup.o strlen.o strncasecmp.o strncat.o \
 	strncmp.o strncpy.o strndup.o strnlen.o strpbrk.o strrchr.o strsep.o \
 	strspn.o strstr.o strtok.o strtok_r.o strerror.o _susv3_strerror_r.o \
-	_string_syserrmsgs.o _glibc_strerror_r.o sys_errlist.o \
+	_string_syserrmsgs.o _glibc_strerror_r.o \
 	_string_syssigmsgs.o sys_siglist.o strsignal.o psignal.o \
 	 __xpg_basename.o strlcat.o strlcpy.o # strcoll.o
 

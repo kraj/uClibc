@@ -62,6 +62,13 @@ typedef unsigned char	__string_uchar_t;
  * have to be changed! */
 
 #define _SYS_NERR			125
+#if defined(__mips__) || defined(__sparc__)
+/* sparce and mips have an extra error entry, as EDEADLK and EDEADLOCK have
+ * different meanings on those platforms. */
+#undef _SYS_NERR
+#define _SYS_NERR			126
+#endif
+
 #define _SYS_ERRMSG_MAXLEN	 50
 
 extern const char _string_syserrmsgs[];
@@ -213,144 +220,12 @@ const char _string_syserrmsgs[] = {
 	/* 122: 2852, 20 */ "Disk quota exceeded\0"
 	/* 123: 2872, 16 */ "No medium found\0"
 	/* 124: 2888, 18 */ "Wrong medium type"
-};
-
+#if defined(__mips__) || defined(__sparc__)
+	"\0"
+	/* 125: 2906, 28 */ "File locking deadlock error"
 #endif
-/**********************************************************************/
-#ifdef L_sys_errlist
-
-link_warning(_sys_errlist, "sys_nerr and sys_errlist are obsolete and uClibc support for them (in at least some configurations) will probably be unavailable in the near future.")
-
-int sys_nerr = _SYS_NERR;
-
-const char *const sys_errlist[] = {
-	_string_syserrmsgs + 0,
-	_string_syserrmsgs + 8,
-	_string_syserrmsgs + 32,
-	_string_syserrmsgs + 58,
-	_string_syserrmsgs + 74,
-	_string_syserrmsgs + 98,
-	_string_syserrmsgs + 117,
-	_string_syserrmsgs + 143,
-	_string_syserrmsgs + 166,
-	_string_syserrmsgs + 184,
-	_string_syserrmsgs + 204,
-	_string_syserrmsgs + 223,
-	_string_syserrmsgs + 256,
-	_string_syserrmsgs + 279,
-	_string_syserrmsgs + 297,
-	_string_syserrmsgs + 309,
-	_string_syserrmsgs + 331,
-	_string_syserrmsgs + 355,
-	_string_syserrmsgs + 367,
-	_string_syserrmsgs + 393,
-	_string_syserrmsgs + 408,
-	_string_syserrmsgs + 424,
-	_string_syserrmsgs + 439,
-	_string_syserrmsgs + 456,
-	_string_syserrmsgs + 486,
-	_string_syserrmsgs + 506,
-	_string_syserrmsgs + 537,
-	_string_syserrmsgs + 552,
-	_string_syserrmsgs + 567,
-	_string_syserrmsgs + 591,
-	_string_syserrmsgs + 604,
-	_string_syserrmsgs + 626,
-	_string_syserrmsgs + 641,
-	_string_syserrmsgs + 653,
-	_string_syserrmsgs + 686,
-	_string_syserrmsgs + 716,
-	_string_syserrmsgs + 742,
-	_string_syserrmsgs + 761,
-	_string_syserrmsgs + 780,
-	_string_syserrmsgs + 805,
-	_string_syserrmsgs + 825,
-	/*  	_string_syserrmsgs + 859, */
-	NULL,						/* glibc compatiblity :-( */
-	_string_syserrmsgs + 860,
-	_string_syserrmsgs + 887,
-	_string_syserrmsgs + 906,
-	_string_syserrmsgs + 934,
-	_string_syserrmsgs + 959,
-	_string_syserrmsgs + 974,
-	_string_syserrmsgs + 988,
-	_string_syserrmsgs + 1013,
-	_string_syserrmsgs + 1042,
-	_string_syserrmsgs + 1069,
-	_string_syserrmsgs + 1084,
-	_string_syserrmsgs + 1101,
-	_string_syserrmsgs + 1128,
-	_string_syserrmsgs + 1142,
-	_string_syserrmsgs + 1151,
-	_string_syserrmsgs + 1172,
-	/*  	_string_syserrmsgs + 1185, */
-	NULL,						/* glibc compatiblity :-( */
-	_string_syserrmsgs + 1186,
-	_string_syserrmsgs + 1207,
-	_string_syserrmsgs + 1227,
-	_string_syserrmsgs + 1245,
-	_string_syserrmsgs + 1259,
-	_string_syserrmsgs + 1284,
-	_string_syserrmsgs + 1314,
-	_string_syserrmsgs + 1336,
-	_string_syserrmsgs + 1353,
-	_string_syserrmsgs + 1375,
-	_string_syserrmsgs + 1391,
-	_string_syserrmsgs + 1405,
-	_string_syserrmsgs + 1433,
-	_string_syserrmsgs + 1448,
-	_string_syserrmsgs + 1467,
-	_string_syserrmsgs + 1486,
-	_string_syserrmsgs + 1498,
-	_string_syserrmsgs + 1536,
-	_string_syserrmsgs + 1563,
-	_string_syserrmsgs + 1592,
-	_string_syserrmsgs + 1615,
-	_string_syserrmsgs + 1654,
-	_string_syserrmsgs + 1691,
-	_string_syserrmsgs + 1723,
-	_string_syserrmsgs + 1771,
-	_string_syserrmsgs + 1809,
-	_string_syserrmsgs + 1859,
-	_string_syserrmsgs + 1903,
-	_string_syserrmsgs + 1922,
-	_string_syserrmsgs + 1937,
-	_string_syserrmsgs + 1968,
-	_string_syserrmsgs + 1997,
-	_string_syserrmsgs + 2014,
-	_string_syserrmsgs + 2045,
-	_string_syserrmsgs + 2068,
-	_string_syserrmsgs + 2091,
-	_string_syserrmsgs + 2117,
-	_string_syserrmsgs + 2141,
-	_string_syserrmsgs + 2171,
-	_string_syserrmsgs + 2212,
-	_string_syserrmsgs + 2235,
-	_string_syserrmsgs + 2267,
-	_string_syserrmsgs + 2283,
-	_string_syserrmsgs + 2306,
-	_string_syserrmsgs + 2342,
-	_string_syserrmsgs + 2375,
-	_string_syserrmsgs + 2400,
-	_string_syserrmsgs + 2426,
-	_string_syserrmsgs + 2466,
-	_string_syserrmsgs + 2502,
-	_string_syserrmsgs + 2548,
-	_string_syserrmsgs + 2583,
-	_string_syserrmsgs + 2604,
-	_string_syserrmsgs + 2623,
-	_string_syserrmsgs + 2636,
-	_string_syserrmsgs + 2653,
-	_string_syserrmsgs + 2683,
-	_string_syserrmsgs + 2709,
-	_string_syserrmsgs + 2731,
-	_string_syserrmsgs + 2756,
-	_string_syserrmsgs + 2784,
-	_string_syserrmsgs + 2814,
-	_string_syserrmsgs + 2835,
-	_string_syserrmsgs + 2852,
-	_string_syserrmsgs + 2872,
-	_string_syserrmsgs + 2888,
+	/* Note: for mips we are ignoring ECANCELED since glibc doesn't have a
+	 * corresponsding message.*/
 };
 
 #endif
@@ -1198,7 +1073,9 @@ char *strerror(int errnum)
 {
     static char buf[_SYS_ERRMSG_MAXLEN];
 
-    return (_susv3_strerror_r(errnum, buf, sizeof(buf)) == 0) ? buf : NULL;
+	_susv3_strerror_r(errnum, buf, sizeof(buf));
+
+	return buf;
 }
 
 #endif
@@ -1206,6 +1083,146 @@ char *strerror(int errnum)
 /* SUSv3 functions. */
 /**********************************************************************/
 #ifdef L__susv3_strerror_r
+
+#if defined(__alpha__) || defined(__mips__) || defined(__sparc__)
+
+static const unsigned char estridx[] = {
+	0,							/* success is always 0 */
+	EPERM,
+	ENOENT,
+	ESRCH,
+	EINTR,
+	EIO,
+	ENXIO,
+	E2BIG,
+	ENOEXEC,
+	EBADF,
+	ECHILD,
+	EAGAIN,
+	ENOMEM,
+	EACCES,
+	EFAULT,
+	ENOTBLK,
+	EBUSY,
+	EEXIST,
+	EXDEV,
+	ENODEV,
+	ENOTDIR,
+	EISDIR,
+	EINVAL,
+	ENFILE,
+	EMFILE,
+	ENOTTY,
+	ETXTBSY,
+	EFBIG,
+	ENOSPC,
+	ESPIPE,
+	EROFS,
+	EMLINK,
+	EPIPE,
+	EDOM,
+	ERANGE,
+	EDEADLK,
+	ENAMETOOLONG,
+	ENOLCK,
+	ENOSYS,
+	ENOTEMPTY,
+	ELOOP,
+	0,
+	ENOMSG,
+	EIDRM,
+	ECHRNG,
+	EL2NSYNC,
+	EL3HLT,
+	EL3RST,
+	ELNRNG,
+	EUNATCH,
+	ENOCSI,
+	EL2HLT,
+	EBADE,
+	EBADR,
+	EXFULL,
+	ENOANO,
+	EBADRQC,
+	EBADSLT,
+	0,
+	EBFONT,
+	ENOSTR,
+	ENODATA,
+	ETIME,
+	ENOSR,
+	ENONET,
+	ENOPKG,
+	EREMOTE,
+	ENOLINK,
+	EADV,
+	ESRMNT,
+	ECOMM,
+	EPROTO,
+	EMULTIHOP,
+	EDOTDOT,
+	EBADMSG,
+	EOVERFLOW,
+	ENOTUNIQ,
+	EBADFD,
+	EREMCHG,
+	ELIBACC,
+	ELIBBAD,
+	ELIBSCN,
+	ELIBMAX,
+	ELIBEXEC,
+	EILSEQ,
+	ERESTART,
+	ESTRPIPE,
+	EUSERS,
+	ENOTSOCK,
+	EDESTADDRREQ,
+	EMSGSIZE,
+	EPROTOTYPE,
+	ENOPROTOOPT,
+	EPROTONOSUPPORT,
+	ESOCKTNOSUPPORT,
+	EOPNOTSUPP,
+	EPFNOSUPPORT,
+	EAFNOSUPPORT,
+	EADDRINUSE,
+	EADDRNOTAVAIL,
+	ENETDOWN,
+	ENETUNREACH,
+	ENETRESET,
+	ECONNABORTED,
+	ECONNRESET,
+	ENOBUFS,
+	EISCONN,
+	ENOTCONN,
+	ESHUTDOWN,
+	ETOOMANYREFS,
+	ETIMEDOUT,
+	ECONNREFUSED,
+	EHOSTDOWN,
+	EHOSTUNREACH,
+	EALREADY,
+	EINPROGRESS,
+	ESTALE,
+	EUCLEAN,
+	ENOTNAM,
+	ENAVAIL,
+	EISNAM,
+	EREMOTEIO,
+#ifdef __mips__
+	0,							/* mips has an outrageous value for this... */
+#else
+	EDQUOT,
+#endif
+	ENOMEDIUM,
+	EMEDIUMTYPE,
+#if defined(__mips__) || defined(__sparc__)
+	EDEADLOCK,
+#endif
+};
+
+#endif
+
 
 int _susv3_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {
@@ -1218,12 +1235,32 @@ int _susv3_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 
     retval = EINVAL;
 
-    if (((unsigned int) errnum) < _SYS_NERR) {
+
+#if defined(__alpha__) || defined(__mips__) || defined(__sparc__)
+	/* Need to translate errno to string index. */
+	for (i = 0 ; i < sizeof(estridx)/sizeof(estridx[0]) ; i++) {
+		if (estridx[i] == errnum) {
+			goto GOT_ESTRIDX;
+		}
+	}
+	i = INT_MAX;	/* Failed, but may need to check mips special case. */
+#ifdef __mips__
+	if (errnum == EDQUOT) {	/* Deal with large EDQUOT value on mips */
+		i = 122;
+	}
+#endif /* __mips__ */
+ GOT_ESTRIDX:
+#else
+	/* No errno to string index translation needed. */
+	i = errnum;
+#endif
+
+    if (((unsigned int) i) < _SYS_NERR) {
 		/* Trade time for space.  This function should rarely be called
 		 * so rather than keeping an array of pointers for the different
 		 * messages, just run through the buffer until we find the
 		 * correct string. */
-		for (s = (char *) _string_syserrmsgs, i = errnum ; i ; ++s) {
+		for (s = (char *) _string_syserrmsgs ; i ; ++s) {
 			if (!*s) {
 				--i;
 			}
