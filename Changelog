@@ -1,8 +1,8 @@
 0.9.12	20 June 2002
 
 Release highlights:
-    o   Add full shared library support for mips, thanks
-	to a lot of hard work from Steven J. Hill
+    o   Add full shared library support for mips (big and little
+	endian), thanks to a lot of hard work from Steven J. Hill
     o   i960 architecture support, thanks to Martin Proulx
     o   An initial alpha port (works, but needs some cleanup)
     o   Fixes shared library support for powerpc
@@ -14,7 +14,7 @@ Release highlights:
     o   Nearly complete locale supporti thanks to a lot
 	of hard work by Manuel Novoa III.  This stuff is
 	_way_ smaller than glibc's
-    o   Completely new time handling functions
+    o   Completely new time handling functions also by Manuel
     o   Lots of other bug fixes and cleanups.
 
 See Changelog.full for the complete list of who did what. 
