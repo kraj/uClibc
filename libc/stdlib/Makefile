@@ -27,17 +27,17 @@ include $(TOPDIR)Rules.mak
 DIRS = $(MALLOC)
 ALL_SUBDIRS = malloc malloc-930716 malloc-simple
 
-MSRC=strto_l.c
-MOBJ=strtol.o strtoul.o strto_l.o atoi.o atol.o
+MSRC = stdlib.c
+MOBJ = abs.o labs.o atoi.o atol.o strtol.o strtoul.o _stdlib_strto_l.o
 
-MSRC1=strto_ll.c
-MOBJ1=strtoll.o strtoull.o strto_ll.o atoll.o
+ifeq ($(HAS_LONG_LONG),true)
+	MOBJ +=  llabs.o atoll.o strtoll.o strtoull.o _stdlib_strto_ll.o
+endif
 
 MSRC2=atexit.c
 MOBJ2=atexit.o on_exit.o __exit_handler.o exit.o
 
-
-CSRC =	abort.c getenv.c mktemp.c qsort.c realpath.c abs.c bsearch.c \
+CSRC =	abort.c getenv.c mktemp.c qsort.c realpath.c bsearch.c \
 	mkstemp.c putenv.c rand.c random.c setenv.c system.c div.c ldiv.c \
 	getpt.c ptsname.c grantpt.c unlockpt.c gcvt.c
 ifeq ($(HAS_FLOATING_POINT),true)
@@ -45,11 +45,7 @@ ifeq ($(HAS_FLOATING_POINT),true)
 endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-
 OBJS=$(MOBJ) $(MOBJ2) $(COBJS)
-ifeq ($(HAS_LONG_LONG),true)
-	OBJS += $(MOBJ1)
-endif
 
 all: $(OBJS) $(LIBC)
 
@@ -59,10 +55,6 @@ ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 
 $(MOBJ): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(MOBJ1): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
