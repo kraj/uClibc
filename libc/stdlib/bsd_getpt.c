@@ -48,7 +48,7 @@ __getpt (void)
   const char *p, *q;
   char *s;
 
-  memcpy (buf, _PATH_PTY, sizeof (_PATH_PTY) - 1);
+  memcpy (buf, _PATH_PTY, sizeof (_PATH_PTY));
   s = buf + strlen (buf);
 
   /* s[0] and s[1] will be filled in the loop.  */
