@@ -61,15 +61,15 @@ void endgrent(void)
 	LOCK;
 	if (grp_fd > -1)
 		close(grp_fd);
-	grp_fd = -1;
+	grp_fd = -9;
 	UNLOCK;
 }
 
-struct group *getgrent(void)
+int getgrent_r (struct group *grp, char *buff, 
+		size_t buflen, struct group **result)
 {
-	int ret;
-	static struct group grp;
-	static char line_buff[PWD_BUFFER_SIZE];
+	int ret=EINVAL;
+	*result = NULL;
 
 	LOCK;
 	/* Open /etc/group if it has never been opened */
@@ -78,14 +78,30 @@ struct group *getgrent(void)
 	}
 	if (grp_fd == -1) {
 		UNLOCK;
-		return NULL;
+		return -1;
 	}
-	ret = __getgrent_r(&grp, line_buff, sizeof(line_buff), grp_fd);
+	ret=__getgrent_r(grp, buff, buflen, grp_fd);
 	if (ret == 0) {
 		UNLOCK;
-		return &grp;
+		*result = grp;
+		return 0;
 	}
 	UNLOCK;
+	__set_errno(ret);
+	return ret;
+}
+
+struct group *getgrent(void)
+{
+	int ret;
+	struct group *result;
+	static struct group grp;
+	static char line_buff[PWD_BUFFER_SIZE];
+
+	ret = getgrent_r(&grp, line_buff, sizeof(line_buff),  &result);
+	if (ret == 0) {
+		return &grp;
+	}
 	__set_errno(ret);
 	return NULL;
 }

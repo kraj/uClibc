@@ -62,18 +62,27 @@ void endpwent(void)
 	LOCK;
 	if (pw_fd > -1)
 		close(pw_fd);
-	pw_fd = -1;
+	pw_fd = -9;
 	UNLOCK;
 }
 
 int getpwent_r (struct passwd *password, char *buff, 
-	size_t buflen, struct passwd **result)
+		size_t buflen, struct passwd **result)
 {
 	int ret=EINVAL;
-	LOCK;
 	*result = NULL;
 
-	if ((ret=__getpwent_r(password, buff, buflen, pw_fd)) == 0) {
+	LOCK;
+	/* Open /etc/passwd if not yet opened */
+	if (pw_fd == -9) {
+		setpwent();
+	}
+	if (pw_fd == -1) {
+		UNLOCK;
+		return -1;
+	}
+	ret=__getpwent_r(password, buff, buflen, pw_fd);
+	if (ret == 0) {
 		UNLOCK;
 		*result = password;
 		return 0;
@@ -90,21 +99,10 @@ struct passwd *getpwent(void)
 	static struct passwd pwd;
 	static char line_buff[PWD_BUFFER_SIZE];
 
-	LOCK;
-	/* Open /etc/passwd if not yet opened */
-	if (pw_fd == -9) {
-		setpwent();
-	}
-	if (pw_fd == -1) {
-		UNLOCK;
-		return NULL;
-	}
-	ret=getpwent_r(&pwd, line_buff, sizeof(line_buff), &result);
+	ret = getpwent_r(&pwd, line_buff, sizeof(line_buff), &result);
 	if (ret == 0) {
-		UNLOCK;
 		return &pwd;
 	}
-	UNLOCK;
 	__set_errno(ret);
 	return NULL;
 }
