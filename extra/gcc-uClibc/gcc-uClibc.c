@@ -134,7 +134,7 @@ int main(int argc, char **argv)
 	char *devprefix;
 	char *builddir;
 	char *libstr;
-	char *build_dlstr;
+	char *build_dlstr = 0;
 	char *ep;
 	char *rpath_link[2];
 	char *rpath[2];
@@ -220,11 +220,13 @@ int main(int argc, char **argv)
 	xstrcat(&(our_lib_path[0]), "-L", devprefix, "/lib", NULL);
 	xstrcat(&(our_lib_path[1]), "-L", builddir, "/lib", NULL);
 
+#ifdef __UCLIBC_HAS_SHARED__
 	build_dlstr = "-Wl,--dynamic-linker," BUILD_DYNAMIC_LINKER;
 	dlstr = getenv("UCLIBC_GCC_DLOPT");
 	if (!dlstr) {
 		dlstr = "-Wl,--dynamic-linker," DYNAMIC_LINKER;
 	}
+#endif
 
 	ep = getenv("UCLIBC_GCC");
 	if (!ep) {

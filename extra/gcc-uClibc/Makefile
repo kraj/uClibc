@@ -24,6 +24,11 @@ gcc-uClibc.h: Makefile $(TOPDIR)/.config
 	@echo "#define TARGET_ARCH " \"$(TARGET_ARCH)\" >> gcc-uClibc.h
 	@echo "#define DYNAMIC_LINKER " \"$(DYNAMIC_LINKER)\" >> gcc-uClibc.h
 	@echo "#define BUILD_DYNAMIC_LINKER " \"$(UCLIBC_DIR)/lib/$(UCLIBC_LDSO)\" >> gcc-uClibc.h
+ifeq ($(strip $(HAVE_SHARED)),y)
+	@echo "#define __UCLIBC_HAS_SHARED__ 1" >> gcc-uClibc.h
+else
+	@echo "#undef __UCLIBC_HAS_SHARED__" >> gcc-uClibc.h
+endif
 ifeq ($(strip $(UCLIBC_HAS_MMU)),y)
 	@echo "#define __UCLIBC_HAS_MMU__ 1" >> gcc-uClibc.h
 else
