@@ -19,37 +19,39 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-ALL_SUBDIRS = ldso libdl
+DIRS = ldso libdl
 
+all: ldso
 
-all: headers
+ldso: headers
 ifeq ($(strip $(BUILD_UCLIBC_LDSO)),y)
-	$(MAKE) -C ldso;
+	$(MAKE) -C ldso
 else
 	echo "Not building ld-uClibc"
 endif
 
-shared:
+shared: libdl
+libdl: ldso headers
 ifeq ($(strip $(BUILD_UCLIBC_LDSO)),y)
-	$(MAKE) -C libdl;
+	$(MAKE) -C libdl
 else
 	echo "Not building libdl"
 endif
 
-include/dl-progname.h: Makefile
+HEADERS = $(patsubst %, include/%, elf.h dl-startup.h dl-syscalls.h dl-sysdep.h)
+headers: $(HEADERS) include/dl-progname.h
+include/dl-progname.h:
 	echo "const char *_dl_progname=\""$(UCLIBC_LDSO)"\";" \
 		> include/dl-progname.h
 	echo "#include \"$(TARGET_ARCH)/elfinterp.c\"" \
 		>> include/dl-progname.h
-
-headers: include/dl-progname.h
+$(HEADERS):
 	$(LN) -fs $(TOPDIR)../include/elf.h include/
 	$(LN) -fs ../ldso/$(TARGET_ARCH)/dl-startup.h include/
 	$(LN) -fs ../ldso/$(TARGET_ARCH)/dl-syscalls.h include/
 	$(LN) -fs ../ldso/$(TARGET_ARCH)/dl-sysdep.h include/
 
 clean:
-	set -e ; for d in $(ALL_SUBDIRS) ; do $(MAKE) -C $$d $@ ; done
+	set -e ; for d in $(DIRS) ; do $(MAKE) -C $$d $@ ; done
 	-find . -name '*~' | xargs $(RM)
-	$(RM) include/elf.h include/dl-startup.h include/dl-syscalls.h \
-		include/dl-sysdep.h include/dl-progname.h
+	$(RM) $(HEADERS) include/dl-progname.h
