@@ -1,3 +1,9 @@
+uclibc (0.9.26-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Erik Andersen <andersen@codepoet.org>  Sun,  4 Jan 2004 02:29:23 -0700
+
 uclibc (0.9.25-1) unstable; urgency=low
 
   * New upstream release
