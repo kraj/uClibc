@@ -37,6 +37,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "bswap.h"
 #if defined (sun)
@@ -488,15 +490,15 @@ int find_dependancies(char* filename)
 
 	if (!filename) {
 		fprintf(stderr, "No filename specified.\n");
-		exit(EXIT_FAILURE);
+		return -1;
 	}
 	if (!(thefile = fopen(filename, "r"))) {
 		perror(filename);
-		exit(EXIT_FAILURE);
+		return -1;
 	}
 	if (fstat(fileno(thefile), &statbuf) < 0) {
 		perror(filename);
-		exit(EXIT_FAILURE);
+		return -1;
 	}
 
 	if (statbuf.st_size < sizeof(Elf32_Ehdr))
@@ -510,12 +512,12 @@ foo:
 	/* Check if this looks like a legit ELF file */
 	if (check_elf_header(ehdr)) {
 		fprintf(stderr, "%s: not an ELF file.\n", filename);
-		exit(EXIT_FAILURE);
+		return -1;
 	}
 	/* Check if this is the right kind of ELF file */
 	if (ehdr->e_type != ET_EXEC && ehdr->e_type != ET_DYN) {
 		fprintf(stderr, "%s: not a dynamic executable\n", filename);
-		exit(EXIT_FAILURE);
+		return -1;
 	}
 	if (ehdr->e_type == ET_EXEC) {
 		if (statbuf.st_mode & S_ISUID)
@@ -536,15 +538,27 @@ foo:
 	{
 		struct stat statbuf;
 		if (stat(interp->path, &statbuf) == 0 && S_ISREG(statbuf.st_mode)) {
+			pid_t pid;
+			int status;
 			static const char * const environment[] = {
 				"PATH=/usr/bin:/bin:/usr/sbin:/sbin",
 				"SHELL=/bin/sh",
 				"LD_TRACE_LOADED_OBJECTS=1",
 				NULL
 			};
-			/* Cool, it looks like we should be able to actually 
-			 * run this puppy.  Do so now... */
-			execle(filename, filename, NULL, environment);
+
+			if ((pid = fork()) == 0) {
+				/* Cool, it looks like we should be able to actually 
+				 * run this puppy.  Do so now... */
+				execle(filename, filename, NULL, environment);
+				_exit(0xdead);
+			}
+
+			/* Wait till it returns */
+			waitpid(pid, &status, 0);
+			if (WIFEXITED(status)!=0xdead) {
+				return 1;
+			}
 
 			/* If the exec failed, we fall through to trying to find
 			 * all the needed libraries ourselves by rummaging about
@@ -600,7 +614,12 @@ int main( int argc, char** argv)
 			exit(EXIT_FAILURE);
 		}
 
-		find_dependancies(filename);
+		if (multi) {
+			printf("%s:\n", *argv);
+		}
+
+		if (find_dependancies(filename)!=0)
+			continue;
 
 		while(got_em_all) {
 			got_em_all=0;
@@ -618,9 +637,6 @@ int main( int argc, char** argv)
 
 		/* Print the list */
 		got_em_all=0;
-		if (multi) {
-			printf("%s:\n", *argv);
-		}
 		for (cur = lib_list; cur; cur=cur->next) {
 			got_em_all=1;
 			printf("\t%s => %s (0x00000000)\n", cur->name, cur->path);
@@ -629,6 +645,14 @@ int main( int argc, char** argv)
 			printf("\t%s => %s (0x00000000)\n", interp, interp);
 		if (got_em_all==0)
 			printf("\tnot a dynamic executable\n");
+
+		for (cur = lib_list; cur; cur=cur->next) {
+			free(cur->name);
+			cur->name=NULL;
+			free(cur->path);
+			cur->path=NULL;
+		}
+		lib_list=NULL;
 	}
 
 	return 0;
