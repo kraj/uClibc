@@ -72,9 +72,12 @@ __uClibc_main(int argc, char **argv, char **envp)
 	  _stdio_init();
 
 	/* Arrange for dtors to run at exit.  */
-	atexit (&_fini);
+	if (_fini && atexit) {
+	    atexit (&_fini);
+	}
 	/* Run all ctors now.  */
-	_init();
+	if (_init)
+	    _init();
 
 	/*
 	 * Note: It is possible that any initialization done above could
