@@ -27,6 +27,7 @@
 struct drand48_data __libc_drand48_data;
 
 
+#ifdef __UCLIBC_HAS_LONG_LONG__
 int
 __drand48_iterate (unsigned short int xsubi[3], struct drand48_data *buffer)
 {
@@ -55,3 +56,42 @@ __drand48_iterate (unsigned short int xsubi[3], struct drand48_data *buffer)
 
   return 0;
 }
+
+#else
+int
+__drand48_iterate (unsigned short int xsubi[3], struct drand48_data *buffer)
+{
+  uint32_t X0, X1;
+  uint32_t result0, result1;
+
+  /* Initialize buffer, if not yet done.  */
+  if (unlikely(!buffer->__init))
+    {
+      buffer->__a1 = 0x5;
+      buffer->__a0 = 0xdeece66d;
+      buffer->__c = 0xb;
+      buffer->__init = 1;
+    }
+
+  /* Do the real work.  We choose a data type which contains at least
+     48 bits.  Because we compute the modulus it does not care how
+     many bits really are computed.  */
+
+  /* X = X1*base32 + X0 */
+  X1 = xsubi[2];
+  X0 = xsubi[0] | (uint32_t) xsubi[1] << 16;
+
+  result0 = buffer->__a0 * X0;
+  result1 = (result0 > -buffer->__c ); /* Carry */
+  /* If this overflows, the carry is already in result1 */
+  result0 += buffer->__c;
+
+  result1 += buffer->__a1*X0 + buffer->__a0*X1;
+
+  xsubi[0] = result0 & 0xffff;
+  xsubi[1] = result0 >> 16;
+  xsubi[2] = result1 & 0xffff;
+
+  return 0;
+}
+#endif

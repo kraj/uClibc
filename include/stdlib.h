@@ -505,6 +505,8 @@ struct drand48_data
     unsigned short int __init;	/* Flag for initializing.  */
 #ifdef __UCLIBC_HAS_LONG_LONG__
     unsigned long long int __a;	/* Factor in congruential formula.  */
+#else
+    unsigned long __a0, __a1;
 #endif /* __UCLIBC_HAS_LONG_LONG__ */
   };
 
