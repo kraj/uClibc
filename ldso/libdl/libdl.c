@@ -47,6 +47,8 @@ extern struct elf_resolve * _dl_check_if_named_library_is_loaded(const char *, i
 	__attribute__ ((__weak__));
 extern int _dl_fixup(struct dyn_elf *rpnt, int lazy)
 	 __attribute__ ((__weak__));
+extern void _dl_protect_relro(struct elf_resolve * tpnt)
+	__attribute__ ((__weak__));
 extern int _dl_errno __attribute__ ((__weak__));
 extern struct dyn_elf *_dl_symbol_tables __attribute__ ((__weak__));
 extern struct dyn_elf *_dl_handles __attribute__ ((__weak__));
@@ -128,7 +130,7 @@ void __attribute__ ((destructor)) dl_cleanup(void)
 void *dlopen(const char *libname, int flag)
 {
 	struct elf_resolve *tpnt, *tfrom, *tcurr;
-	struct dyn_elf *dyn_chain, *rpnt = NULL, *dyn_ptr;
+	struct dyn_elf *dyn_chain, *rpnt = NULL, *dyn_ptr, *relro_ptr;
 	struct dyn_elf *dpnt;
 	ElfW(Addr) from;
 	struct elf_resolve *tpnt1;
@@ -168,6 +170,8 @@ void *dlopen(const char *libname, int flag)
 			tfrom = tpnt;
 	}
 	for(rpnt = _dl_symbol_tables; rpnt->next; rpnt=rpnt->next);
+
+	relro_ptr = rpnt;
 	/* Try to load the specified library */
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
@@ -311,6 +315,10 @@ void *dlopen(const char *libname, int flag)
 	if (_dl_fixup(dyn_chain, now_flag))
 		goto oops;
 
+	for (rpnt = relro_ptr->next; rpnt; rpnt = rpnt->next) {
+		if (rpnt->dyn->relro_size)
+			_dl_protect_relro(rpnt->dyn);
+	}
 	/* TODO:  Should we set the protections of all pages back to R/O now ? */
 
 

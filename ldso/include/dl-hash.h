@@ -41,18 +41,13 @@ struct elf_resolve{
    */
   unsigned long nchain;
   unsigned long * chains;
-  unsigned long dynamic_info[24];
+  unsigned long dynamic_info[DYNAMIC_SIZE];
 
-  unsigned long dynamic_size;
   unsigned long n_phent;
   Elf32_Phdr * ppnt;
 
-#if defined(__mips__)
-  /* Needed for MIPS relocation */
-  unsigned long mips_gotsym;
-  unsigned long mips_local_gotno;
-  unsigned long mips_symtabno;
-#endif
+  ElfW(Addr) relro_addr;
+  size_t relro_size;
 
 #ifdef __powerpc__
   /* this is used to store the address of relocation data words, so

@@ -97,9 +97,11 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	struct elf_resolve app_tpnt_tmp;
 	struct elf_resolve *app_tpnt = &app_tpnt_tmp;
 	struct r_debug *debug_addr;
-	unsigned long brk_addr, *lpnt;
+	unsigned long *lpnt;
 	int (*_dl_atexit) (void *);
 	unsigned long *_dl_envp;		/* The environment address */
+	ElfW(Addr) relro_addr = 0;
+	size_t relro_size = 0;
 #if defined (__SUPPORT_LD_DEBUG__)
 	int (*_dl_on_exit) (void (*FUNCTION)(int STATUS, void *ARG),void*);
 #endif
@@ -132,23 +134,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 * go from there.  Eventually we will run across ourself, and we
 	 * will need to properly deal with that as well.
 	 */
-	{
-		ElfW(Ehdr) *epnt;
-		ElfW(Phdr) *myppnt;
-		int j;
-
-		epnt = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_ptr;
-		tpnt->n_phent = epnt->e_phnum;
-		tpnt->ppnt = myppnt = (ElfW(Phdr) *) (load_addr + epnt->e_phoff);
-		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {
-			if (myppnt->p_type == PT_DYNAMIC) {
-				tpnt->dynamic_addr = (ElfW(Dyn) *)(myppnt->p_vaddr + load_addr);
-				tpnt->dynamic_size = myppnt->p_filesz;
-			}
-		}
-	}
-
-	brk_addr = 0;
 	rpnt = NULL;
 	if (_dl_getenv("LD_BIND_NOW", envp))
 		unlazy = RTLD_NOW;
@@ -189,46 +174,13 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 	ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_ptr;
 	for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
-		if (ppnt->p_type == PT_LOAD) {
-			if (ppnt->p_vaddr + app_tpnt->loadaddr + ppnt->p_memsz > brk_addr)
-				brk_addr = ppnt->p_vaddr + app_tpnt->loadaddr + ppnt->p_memsz;
+		if (ppnt->p_type == PT_GNU_RELRO) {
+			relro_addr = ppnt->p_vaddr;
+			relro_size = ppnt->p_memsz;
 		}
 		if (ppnt->p_type == PT_DYNAMIC) {
 			dpnt = (Elf32_Dyn *) (ppnt->p_vaddr + app_tpnt->loadaddr);
-			while (dpnt->d_tag) {
-#if defined(__mips__)
-				if (dpnt->d_tag == DT_MIPS_GOTSYM)
-					app_tpnt->mips_gotsym =
-						(unsigned long) dpnt->d_un.d_val;
-				if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO)
-					app_tpnt->mips_local_gotno =
-						(unsigned long) dpnt->d_un.d_val;
-				if (dpnt->d_tag == DT_MIPS_SYMTABNO)
-					app_tpnt->mips_symtabno =
-						(unsigned long) dpnt->d_un.d_val;
-				/* Remember... DT_MIPS_RLD_MAP > DT_JMPREL. */
-				if (dpnt->d_tag == DT_MIPS_RLD_MAP) {
-					*(ElfW(Addr) *)(dpnt->d_un.d_ptr) =  (ElfW(Addr)) debug_addr;
-				}
-				if (dpnt->d_tag > DT_JMPREL) {
-					dpnt++;
-					continue;
-				}
-				app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-#else
-				if (dpnt->d_tag > DT_JMPREL) {
-						dpnt++;
-						continue;
-				}
-				app_tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-				if (dpnt->d_tag == DT_DEBUG) {
-					dpnt->d_un.d_val = (unsigned long) debug_addr;
-				}
-#endif
-				if (dpnt->d_tag == DT_TEXTREL)
-					app_tpnt->dynamic_info[DT_TEXTREL] = 1;
-				dpnt++;
-			}
+			_dl_parse_dynamic_info(dpnt, app_tpnt->dynamic_info, debug_addr);
 #ifndef __FORCE_SHAREABLE_TEXT_SEGMENTS__
 			/* Ugly, ugly.  We need to call mprotect to change the
 			 * protection of the text pages so that we can do the
@@ -315,6 +267,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 #endif
 		}
 	}
+	app_tpnt->relro_addr = relro_addr;
+	app_tpnt->relro_size = relro_size;
 
 	/* Now we need to figure out what kind of options are selected.
 	 * Note that for SUID programs we ignore the settings in
@@ -728,10 +682,24 @@ next_lib2:
 	 * again once all libs are loaded.
 	 */
 	if (tpnt) {
+		ElfW(Ehdr) *epnt = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_ptr;
+		ElfW(Phdr) *myppnt = (ElfW(Phdr) *) (load_addr + epnt->e_phoff);
+		int j;
+		
 		tpnt = _dl_add_elf_hash_table(tpnt->libname, (char *)load_addr,
 					      tpnt->dynamic_info,
 					      (unsigned long)tpnt->dynamic_addr,
-					      tpnt->dynamic_size);
+					      0);
+
+		tpnt->n_phent = epnt->e_phnum;
+		tpnt->ppnt = myppnt;
+		for (j = 0; j < epnt->e_phnum; j++, myppnt++) {
+			if (myppnt->p_type ==  PT_GNU_RELRO) {
+				tpnt->relro_addr = myppnt->p_vaddr;
+				tpnt->relro_size = myppnt->p_memsz;
+				break;
+			}
+		}
 		tpnt->libtype = program_interpreter;
 		tpnt->usage_count++;
 		tpnt->symbol_scope = _dl_symbol_tables;
@@ -790,6 +758,13 @@ next_lib2:
 	 */
 	if (_dl_symbol_tables)
 		goof += _dl_fixup(_dl_symbol_tables, unlazy);
+
+	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
+		if (tpnt->relro_size)
+			_dl_protect_relro (tpnt);
+	}
+
+
 
 
 	/* OK, at this point things are pretty much ready to run.  Now we need

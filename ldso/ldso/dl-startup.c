@@ -281,23 +281,14 @@ found_got:
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	SEND_STDERR("scanning DYNAMIC section\n");
 #endif
-	while (dpnt->d_tag) {
-#if defined(__mips__)
-		if (dpnt->d_tag == DT_MIPS_GOTSYM)
-			tpnt->mips_gotsym = (unsigned long) dpnt->d_un.d_val;
-		if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO)
-			tpnt->mips_local_gotno = (unsigned long) dpnt->d_un.d_val;
-		if (dpnt->d_tag == DT_MIPS_SYMTABNO)
-			tpnt->mips_symtabno = (unsigned long) dpnt->d_un.d_val;
+	tpnt->dynamic_addr = dpnt;
+#ifdef __mips__
+	/* MIPS cannot call functions here, must inline */
+	__dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL);
+#else
+	_dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL);
 #endif
-		if (dpnt->d_tag < 24) {
-			tpnt->dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-			if (dpnt->d_tag == DT_TEXTREL) {
-				tpnt->dynamic_info[DT_TEXTREL] = 1;
-			}
-		}
-		dpnt++;
-	}
+
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	SEND_STDERR("done scanning DYNAMIC section\n");
 #endif
@@ -335,7 +326,7 @@ found_got:
 	SEND_STDERR("About to do MIPS specific GOT bootstrap\n");
 #endif
 	/* For MIPS we have to do stuff to the GOT before we do relocations.  */
-	PERFORM_BOOTSTRAP_GOT(got);
+	PERFORM_BOOTSTRAP_GOT(got, tpnt);
 #endif
 
 	/* OK, now do the relocations.  We do not do a lazy binding here, so

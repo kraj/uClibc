@@ -116,7 +116,6 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	tpnt->init_flag = 0;
 	tpnt->libname = _dl_strdup(libname);
 	tpnt->dynamic_addr = (ElfW(Dyn) *)dynamic_addr;
-	tpnt->dynamic_size = dynamic_size;
 	tpnt->libtype = loaded_file;
 
 	if (dynamic_info[DT_HASH] != 0) {
@@ -128,23 +127,8 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 		tpnt->chains = hash_addr;
 	}
 	tpnt->loadaddr = (ElfW(Addr))loadaddr;
-	for (i = 0; i < 24; i++)
+	for (i = 0; i < DYNAMIC_SIZE; i++)
 		tpnt->dynamic_info[i] = dynamic_info[i];
-#ifdef __mips__
-	{
-		Elf32_Dyn *dpnt = (Elf32_Dyn *) dynamic_addr;
-
-		while(dpnt->d_tag) {
-			if (dpnt->d_tag == DT_MIPS_GOTSYM)
-				tpnt->mips_gotsym = dpnt->d_un.d_val;
-			if (dpnt->d_tag == DT_MIPS_LOCAL_GOTNO)
-				tpnt->mips_local_gotno = dpnt->d_un.d_val;
-			if (dpnt->d_tag == DT_MIPS_SYMTABNO)
-				tpnt->mips_symtabno = dpnt->d_un.d_val;
-			dpnt++;
-		}
-	}
-#endif
 	return tpnt;
 }
 

@@ -48,21 +48,21 @@ asm("" \
  * Here is a macro to perform the GOT relocation. This is only
  * used when bootstrapping the dynamic loader.
  */
-#define PERFORM_BOOTSTRAP_GOT(got)						\
+#define PERFORM_BOOTSTRAP_GOT(got, tpnt)					\
 do {										\
 	Elf32_Sym *sym;								\
 	unsigned long i;							\
 										\
 	/* Add load address displacement to all local GOT entries */		\
 	i = 2;									\
-	while (i < tpnt->mips_local_gotno)					\
+	while (i < tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX])			\
 		got[i++] += load_addr;						\
 										\
 	/* Handle global GOT entries */						\
-	got += tpnt->mips_local_gotno;						\
+	got += tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX];			\
 	sym = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] +			\
-		 load_addr) + tpnt->mips_gotsym;				\
-	i = tpnt->mips_symtabno - tpnt->mips_gotsym;				\
+		 load_addr) + tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];		\
+	i = tpnt->dynamic_info[DT_MIPS_SYMTABNO_IDX] - tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];\
 										\
 	while (i--) {								\
 		if (sym->st_shndx == SHN_UNDEF ||				\
@@ -91,8 +91,8 @@ do {										\
 #define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB)			\
 	switch(ELF32_R_TYPE((RELP)->r_info)) {					\
 	case R_MIPS_REL32:							\
-		if (symtab_index) {						\
-			if (symtab_index < tpnt->mips_gotsym)			\
+		if (SYMTAB) {							\
+			if (symtab_index<tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX])\
 				*REL += SYMBOL;					\
 		}								\
 		else {								\

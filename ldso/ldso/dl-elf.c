@@ -114,6 +114,25 @@ int _dl_unmap_cache(void)
 }
 #endif
 
+
+void 
+_dl_protect_relro (struct elf_resolve *l)
+{
+	ElfW(Addr) start = ((l->loadaddr + l->relro_addr)
+			    & ~(_dl_pagesize - 1));
+	ElfW(Addr) end = ((l->loadaddr + l->relro_addr + l->relro_size)
+			  & ~(_dl_pagesize - 1));
+#if defined (__SUPPORT_LD_DEBUG__)
+	if (_dl_debug)
+		_dl_dprintf(2, "RELRO protecting %s:  start:%x, end:%x\n", l->libname, start, end);
+#endif
+	if (start != end &&
+	    _dl_mprotect ((void *) start, end - start, PROT_READ) < 0) {
+		_dl_dprintf(2, "%s: cannot apply additional memory protection after relocation", l->libname);
+		_dl_exit(0);
+	}
+}
+
 /* This function's behavior must exactly match that
  * in uClibc/ldso/util/ldd.c */
 static struct elf_resolve *
@@ -390,16 +409,17 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 {
 	ElfW(Ehdr) *epnt;
 	unsigned long dynamic_addr = 0;
-	unsigned long dynamic_size = 0;
 	Elf32_Dyn *dpnt;
 	struct elf_resolve *tpnt;
 	ElfW(Phdr) *ppnt;
 	char *status, *header;
-	unsigned long dynamic_info[24];
+	unsigned long dynamic_info[DYNAMIC_SIZE];
 	unsigned long *lpnt;
 	unsigned long libaddr;
 	unsigned long minvma = 0xffffffff, maxvma = 0;
 	int i, flags, piclib, infile;
+	ElfW(Addr) relro_addr = 0;
+	size_t relro_size = 0;
 
 	/* If this file is already loaded, skip this step */
 	tpnt = _dl_check_hashed_files(libname);
@@ -493,7 +513,6 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 				_dl_dprintf(2, "%s: '%s' has more than one dynamic section\n",
 						_dl_progname, libname);
 			dynamic_addr = ppnt->p_vaddr;
-			dynamic_size = ppnt->p_filesz;
 		};
 
 		if (ppnt->p_type == PT_LOAD) {
@@ -535,6 +554,10 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	ppnt = (ElfW(Phdr) *)(intptr_t) & header[epnt->e_phoff];
 
 	for (i = 0; i < epnt->e_phnum; i++) {
+		if (ppnt->p_type == PT_GNU_RELRO) {
+			relro_addr = ppnt->p_vaddr;
+			relro_size = ppnt->p_memsz;
+		}
 		if (ppnt->p_type == PT_LOAD) {
 
 			/* See if this is a PIC library. */
@@ -627,40 +650,8 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	}
 
 	dpnt = (Elf32_Dyn *) dynamic_addr;
-
-	dynamic_size = dynamic_size / sizeof(Elf32_Dyn);
 	_dl_memset(dynamic_info, 0, sizeof(dynamic_info));
-
-#if defined(__mips__)
-	{
-
-		int indx = 1;
-		Elf32_Dyn *dpnt = (Elf32_Dyn *) dynamic_addr;
-
-		while(dpnt->d_tag) {
-			dpnt++;
-			indx++;
-		}
-		dynamic_size = indx;
-	}
-#endif
-
-	{
-		unsigned long indx;
-
-		for (indx = 0; indx < dynamic_size; indx++)
-		{
-			if (dpnt->d_tag > DT_JMPREL) {
-				dpnt++;
-				continue;
-			}
-			dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
-			if (dpnt->d_tag == DT_TEXTREL)
-				dynamic_info[DT_TEXTREL] = 1;
-			dpnt++;
-		};
-	}
-
+	_dl_parse_dynamic_info(dpnt, dynamic_info, NULL);
 	/* If the TEXTREL is set, this means that we need to make the pages
 	   writable before we perform relocations.  Do this now. They get set
 	   back again later. */
@@ -682,8 +673,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	}
 
 	tpnt = _dl_add_elf_hash_table(libname, (char *) libaddr, dynamic_info,
-			dynamic_addr, dynamic_size);
-
+			dynamic_addr, 0);
+	tpnt->relro_addr = relro_addr;
+	tpnt->relro_size = relro_size;
 	tpnt->ppnt = (ElfW(Phdr) *)(intptr_t) (tpnt->loadaddr + epnt->e_phoff);
 	tpnt->n_phent = epnt->e_phnum;
 
@@ -718,8 +710,8 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) {
 		_dl_dprintf(2, "\n\tfile='%s';  generating link map\n", libname);
-		_dl_dprintf(2, "\t\tdynamic: %x  base: %x   size: %x\n",
-				dynamic_addr, libaddr, dynamic_size);
+		_dl_dprintf(2, "\t\tdynamic: %x  base: %x\n",
+				dynamic_addr, libaddr);
 		_dl_dprintf(2, "\t\t  entry: %x  phdr: %x  phnum: %x\n\n",
 				epnt->e_entry + libaddr, tpnt->ppnt, tpnt->n_phent);
 
@@ -769,6 +761,8 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 				tpnt->dynamic_info[DT_RELOC_TABLE_ADDR],
 				reloc_size);
 	}
+	if (tpnt->dynamic_info[DT_BIND_NOW])
+		now_flag = RTLD_NOW;
 	if (tpnt->dynamic_info[DT_JMPREL] &&
 	    (!(tpnt->init_flag & JMP_RELOCS_DONE) ||
 	     (now_flag && !(tpnt->rtld_flags & now_flag)))) {
@@ -784,7 +778,6 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 					tpnt->dynamic_info[DT_PLTRELSZ]);
 		}
 	}
-
 	return goof;
 }
 
@@ -879,6 +872,11 @@ char *_dl_strdup(const char *string)
 	retval = _dl_malloc(len + 1);
 	_dl_strcpy(retval, string);
 	return retval;
+}
+
+void _dl_parse_dynamic_info(Elf32_Dyn *dpnt, unsigned long dynamic_info[], void *debug_addr)
+{
+	__dl_parse_dynamic_info(dpnt, dynamic_info, debug_addr);
 }
 #ifdef __USE_GNU
 #if ! defined LIBDL || (! defined PIC && ! defined __PIC__)

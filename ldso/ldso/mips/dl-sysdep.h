@@ -8,6 +8,22 @@
 /* Define this if the system uses RELOCA.  */
 #undef ELF_USES_RELOCA
 
+#define ARCH_NUM 3
+#define DT_MIPS_GOTSYM_IDX	(DT_NUM + OS_NUM)
+#define DT_MIPS_LOCAL_GOTNO_IDX	(DT_NUM + OS_NUM +1)
+#define DT_MIPS_SYMTABNO_IDX	(DT_NUM + OS_NUM +2)
+
+#define ARCH_DYNAMIC_INFO(dpnt,  dynamic, debug_addr) \
+do { \
+if (dpnt->d_tag == DT_MIPS_GOTSYM) \
+     dynamic[DT_MIPS_GOTSYM_IDX] = dpnt->d_un.d_val; \
+else if(dpnt->d_tag == DT_MIPS_LOCAL_GOTNO) \
+     dynamic[DT_MIPS_LOCAL_GOTNO_IDX] = dpnt->d_un.d_val; \
+else if(dpnt->d_tag == DT_MIPS_SYMTABNO) \
+     dynamic[DT_MIPS_SYMTABNO_IDX] = dpnt->d_un.d_val; \
+else if (dpnt->d_tag == DT_MIPS_RLD_MAP) \
+     *(Elf32_Addr *)(dpnt->d_un.d_ptr) =  (Elf32_Addr) debug_addr; \
+} while (0)
 
 /* Initialization sequence for the application/library GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE)						\
@@ -24,7 +40,7 @@ do {										\
 										\
 	/* Add load address displacement to all local GOT entries */		\
 	i = 2;									\
-	while (i < MODULE->mips_local_gotno)					\
+	while (i < MODULE->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX])		\
 		GOT_BASE[i++] += (unsigned long) MODULE->loadaddr;		\
 										\
 } while (0)

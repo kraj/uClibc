@@ -121,8 +121,8 @@ unsigned long _dl_linux_resolver(unsigned long sym_index,
 	char **got_addr;
 	char *symname;
 
-	gotsym = tpnt->mips_gotsym;
-	local_gotno = tpnt->mips_local_gotno;
+	gotsym = tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
+	local_gotno = tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX];
 
 	sym = ((Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] + tpnt->loadaddr)) + sym_index;
 	strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] + tpnt->loadaddr);
@@ -213,13 +213,13 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 		switch (reloc_type) {
 		case R_MIPS_REL32:
 			if (symtab_index) {
-				if (symtab_index < tpnt->mips_gotsym)
+				if (symtab_index < tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX])
 					*reloc_addr +=
 						symtab[symtab_index].st_value +
 						(unsigned long) tpnt->loadaddr;
 				else {
-					*reloc_addr += got[symtab_index + tpnt->mips_local_gotno -
-						tpnt->mips_gotsym];
+					*reloc_addr += got[symtab_index + tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX] -
+						tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX]];
 				}
 			}
 			else {
@@ -270,12 +270,12 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt)
 
 		/* Setup the loop variables */
 		got_entry = (unsigned long *) (tpnt->loadaddr +
-			tpnt->dynamic_info[DT_PLTGOT]) + tpnt->mips_local_gotno;
+			tpnt->dynamic_info[DT_PLTGOT]) + tpnt->dynamic_info[DT_MIPS_LOCAL_GOTNO_IDX];
 		sym = (Elf32_Sym *) (tpnt->dynamic_info[DT_SYMTAB] +
-			(unsigned long) tpnt->loadaddr) + tpnt->mips_gotsym;
+			(unsigned long) tpnt->loadaddr) + tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
 		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB] +
 			(unsigned long) tpnt->loadaddr);
-		i = tpnt->mips_symtabno - tpnt->mips_gotsym;
+		i = tpnt->dynamic_info[DT_MIPS_SYMTABNO_IDX] - tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX];
 
 #if defined (__SUPPORT_LD_DEBUG__)
 		if(_dl_debug_reloc)
