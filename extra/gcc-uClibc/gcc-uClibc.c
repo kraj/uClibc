@@ -119,7 +119,7 @@ void xstrcat(char **string, ...)
 int main(int argc, char **argv)
 {
 	int use_build_dir = 0, linking = 1, use_static_linking = 0;
-	int use_stdinc = 1, use_start = 1, use_stdlib = 1;
+	int use_stdinc = 1, use_start = 1, use_stdlib = 1, use_pic = 0;
 	int source_count = 0, use_rpath = 0, verbose = 0;
 	int ctor_dtor = 0, cplusplus = 0;
 	int i, j, k, l, m, n;
@@ -282,6 +282,15 @@ int main(int argc, char **argv)
 						}
 					}
 					break;
+				case 'f':
+					/* Check if we are doing PIC */
+					if (strcmp("-fPIC",argv[i]) == 0) {
+					    use_pic = 1;
+					} else if (strcmp("-fpic",argv[i]) == 0) {
+					    use_pic = 1;
+					}
+					break;
+
 				case '-':
 					if (strstr(argv[i]+1,static_linking) != NULL) {
 					    use_static_linking = 1;
@@ -372,7 +381,11 @@ int main(int argc, char **argv)
 	    if (use_start) {
 		if (ctor_dtor) {
 		    gcc_argv[i++] = crti_path[use_build_dir];
-		    gcc_argv[i++] = GCC_LIB_DIR "crtbegin.o" ;
+		    if (use_pic) {
+			gcc_argv[i++] = GCC_LIB_DIR "crtbeginS.o" ;
+		    } else {
+			gcc_argv[i++] = GCC_LIB_DIR "crtbegin.o" ;
+		    }
 		}
 		gcc_argv[i++] = crt0_path[use_build_dir];
 	    }
@@ -394,7 +407,11 @@ int main(int argc, char **argv)
 		//gcc_argv[i++] = "-Wl,--end-group";
 	    }
 	    if (ctor_dtor) {
-		gcc_argv[i++] = GCC_LIB_DIR "crtend.o" ;
+		if (use_pic) {
+		    gcc_argv[i++] = GCC_LIB_DIR "crtendS.o" ;
+		} else {
+		    gcc_argv[i++] = GCC_LIB_DIR "crtend.o" ;
+		}
 		gcc_argv[i++] = crtn_path[use_build_dir];
 	    }
 	} else {
