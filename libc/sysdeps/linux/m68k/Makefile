@@ -26,8 +26,14 @@ ASFLAGS=$(CFLAGS)
 
 # If you're looking for vfork(), it is defined in include/unistd.h
 
+
+ifeq ($(HAS_MMU),true)
+CRT0=crt0.c
+CRT0_OBJ=$(patsubst %.c,%.o, $(CRT0))
+else
 CRT0=crt0.S
 CRT0_OBJ=$(patsubst %.S,%.o, $(CRT0))
+endif
 
 SSRC=setjmp.S vfork.S # longjmp.S _start.S clone.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
@@ -47,7 +53,11 @@ ar-target: $(OBJS) $(CRT0_OBJ)
 	$(AR) $(ARFLAGS) $(LIBC) $(OBJS)
 	cp $(CRT0_OBJ) $(TOPDIR)libc/$(CRT0_OBJ)
 
+ifeq ($(HAS_MMU),true)
+$(CRT0_OBJ): %.o : %.c
+else
 $(CRT0_OBJ): %.o : %.S
+endif
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
