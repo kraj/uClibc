@@ -15,7 +15,7 @@ then
 	echo "$CVSROOT" 'Ay=0=a%0bZ' >>~/.cvspass
 fi
 
-cvs co -D ${dir} uClibc
+cvs co -d ${dir} uClibc
 
 cd ${topdir}/uclibc-tmp/${dir}/debian
 echo "uclibc (${version}-cvs${today}-1) unstable; urgency=low" >changelog.tmp
