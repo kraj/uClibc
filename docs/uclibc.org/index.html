@@ -127,11 +127,11 @@ you might want to search the mailing list archives...
     Perl and Python even pass all the tests in their test suites.  
     <p>
 
-    There is currently one notable exception.  Applications with use dlopen()
+    There is currently one notable exception.  Applications that use dlopen()
     to load libraries that themselves depend on other libraries, may have weak
     symbols within those depended-upon libraries resolved incorrectly.  This
-    problem is currently being worked on.  Other than that, everything seems to
-    be working.  And everything seems to now be working as expected....
+    problem is currently being worked on.  Other than that, everything seems 
+    to now be working as expected....
 
     <p>
     As usual, the 
@@ -175,62 +175,6 @@ you might want to search the mailing list archives...
     <p>
 
 
-    <p>
-    <li> <b>6 March 2003, development system updates</b>
-    <br>
-
-    The uClibc development systems for
-    <a href="http://www.uclibc.org/downloads/root_fs-i386.bz2">i386</a>,
-    <a href="http://www.uclibc.org/downloads/root_fs-powerpc.bz2">powerpc</a>,
-    <a href="http://www.uclibc.org/downloads/root_fs-arm.bz2">arm</a>,
-    and now for the first time
-    <a href="http://www.uclibc.org/downloads/root_fs-mipsel.bz2">mips</a>,
-    have been updated to uClibc 0.9.19.  Several smaller problems
-    have also been fixed up.
-    <p>
-
-    This is an ext2 filesystem that runs natively on the specified
-    architecture.  It contains all the development software you need to build
-    your own uClibc applications, including bash, coreutils, findutils,
-    diffutils, patch, sed, ed, flex, bison, file, gawk, tar, grep gdb, strace,
-    make, gcc, g++,  autoconf, automake, ncurses, zlib, openssl, openssh and
-    more.   And of course, everything is dynamically linked against uClibc.  By
-    using a uClibc only system, you can avoid all the painful
-    cross-configuration problems that have made using uClibc somewhat painful
-    in the past.  If you want to quickly get started with testing or using
-    uClibc you should give these images a try.  You can loop mount and
-    then chroot into them, you can boot into them using user-mode Linux, 
-    you can even 'dd' them to a spare partition and use resize2fs to
-    make them fill the drive.  Whatever works best for you.
-    <p>
-
-    Have Fun.
-    <p>
-
-
-    <p>
-    <li> <b>3 March 2003, uClibc 0.9.19 Released</b>
-    <br>
-
-    CodePoet Consulting is pleased to announce the immediate availability of
-    uClibc 0.9.19.  This is once again primarily a bug-fix release.  Several
-    critical problems with system calls were fixed, the pthreads library was
-    improved, debugging of applications using uClibc's pthreads library is
-    now possible (requires gdb 5.3 or newer that is compiled using uClibc),
-    and a number of other random fixes are included.  This release retains
-    binary compatibility with uClibc 0.9.18 (except for mips, which didn't
-    work properly with uClibc 0.9.18 anyways).  Updated development system
-    images compiled with uClibc 0.9.19 will be released shortly.
-
-    <p>
-    As usual, the 
-    <a href="http://www.uclibc.org/downloads/Changelog">Changelog</a> and <a
-    href="http://www.uclibc.org/downloads/uClibc-0.9.19.tar.bz2">source code for this release</a> 
-    are available <a href="http://www.uclibc.org/downloads/">here</a>.
-    <p>
-
-
-    
     <p> <li> <b>Old News</b>
     <br>
 
