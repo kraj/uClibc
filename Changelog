@@ -1,3 +1,31 @@
+0.9.30	30 June 2003
+
+See Changelog.full for the complete list of who did what. 
+
+Note:
+    This release remains binary compatible with 0.9.18 and 0.9.19.
+
+
+Release highlights:
+    o Some ldd, profiling, and gcc wrapper updates 
+    o Updated to support and compile with gcc 3.3
+    o Several needed mips updates
+    o Building under cygwin should now work...
+    o Prevent non-PIC code getting into PIC libs
+    o Added mmap64 support
+    o mmu-less systems now get a 16k default thread stack size
+	which is much more sane than the old 2 MB default...
+    o Implemented syscall() for powerpc
+    o Optionally struct tm extension support
+    o Lots of other sundry little fixes and cleanups.
+    o Prevent buffer overflows in the passwd and group functions.
+
+ -Erik
+
+
+
+
+
 0.9.19	3 March 2003
 
 See Changelog.full for the complete list of who did what. 
