@@ -163,6 +163,7 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1, int type_class)
 	unsigned long elf_hash_number, hn;
 	struct dyn_elf *rpnt;
 	const ElfW(Sym) *sym;
+	char *weak_result = NULL;
 
 	elf_hash_number = _dl_elf_hash(name);
 
@@ -226,11 +227,9 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1, int type_class)
 #if 0
 /* Perhaps we should support old style weak symbol handling
  * per what glibc does when you export LD_DYNAMIC_WEAK */
-						if(_dl_symbol((char *)name)) {
-							if (!weak_result)
-								weak_result = (char *)tpnt->loadaddr + sym->st_value;
-							break;
-						}
+						if (!weak_result)
+							weak_result = (char *)tpnt->loadaddr + sym->st_value;
+						break;
 #endif
 					case STB_GLOBAL:
 						return (char*)tpnt->loadaddr + sym->st_value;
@@ -240,5 +239,5 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt1, int type_class)
 			}
 		}
 	}
-	return NULL;
+	return weak_result;
 }
