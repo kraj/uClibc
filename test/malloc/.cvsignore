@@ -5,3 +5,6 @@ testmalloc_glibc
 testmalloc_glibc.o
 mallocbug
 mallocbug_glibc
+realloc0
+realloc0_glibc
+
