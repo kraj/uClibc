@@ -5,11 +5,11 @@ See Changelog.full for the complete list of who did what.
 Note:
     This release is not binary compatible with earlier releases.
     Sorry about that.  We have never promised to provide binary
-    compatibility untill we hit version 1.0, and even then, if
+    compatibility until we hit version 1.0, and even then, if
     you change your configuration.
 
 Release highlights:
-    o uClibc now has full ansi/iso C99 locale support (except
+    o uClibc now has full ANSI/ISO C99 locale support (except
 	for wcsftime() and collating items in regex).
     o Added support for using pre-generated locale data, making
 	it easy for mere mortals to use uClibc w/locale support.
@@ -74,7 +74,7 @@ Release highlights:
 	    with and w/o the nostdinc and nostdlib options
     Erik Andersen
 	o Fixed a number of system call kernel type/user type translation
-	    problems that scrambed a handful of system calls.
+	    problems that scrambled a handful of system calls.
 	o Fixup powerpc syscalls to eliminate warnings with gcc-3.2
 	o Fixed several ioctl special cases for powerpc
 	o Checked in forgotten mips kernel_types.h changes
@@ -188,7 +188,7 @@ Release highlights:
 	o Fixed sigaction on x86 architecture for (fixed debugging threads)
 	o Fixed a wide char related segfault in the regular expression code
 	o Powerpc pread and pwrite are now implemented correctly
-	o Powerpc syscall mechanism reimplemented
+	o Powerpc syscall mechanism re-implemented
 	o Sparc architecture and syscall mechanism fixed up so things compile
 	o usershell reimplemented
 	o Fixed global destructors for staticly linked applications
