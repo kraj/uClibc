@@ -22,7 +22,11 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
+ifeq ($(strip $(__UCLIBC_HAVE_LFS__)),true)
 CSRC = fstatfs64.c statfs64.c statvfs.c statvfs64.c fstatvfs.c fstatvfs64.c
+else
+CSRC = statvfs.c fstatvfs.c
+endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
