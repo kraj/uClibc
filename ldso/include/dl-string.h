@@ -24,45 +24,42 @@ static char *_dl_simple_ltoahex(char * local, unsigned long i);
 
 static inline size_t _dl_strlen(const char * str)
 {
-	register char *ptr = (char *) str;
+	register const char *ptr = (char *) str-1;
 
-	while (*ptr)
-		ptr++;
+	while (*++ptr);
 	return (ptr - str);
 }
 
 static inline char *_dl_strcat(char *dst, const char *src)
 {
-	register char *ptr = dst;
+	register char *ptr = dst-1;
 
-	while (*ptr)
-		ptr++;
-
-	while (*src)
-		*ptr++ = *src++;
-	*ptr = '\0';
-
+	src--;
+	while (*++ptr)
+		;/* empty */
+	ptr--;
+	while ((*++ptr = *++src) != 0)
+		;/* empty */
 	return dst;
 }
 
 static inline char * _dl_strcpy(char * dst,const char *src)
 {
 	register char *ptr = dst;
-
-	while (*src)
-		*dst++ = *src++;
-	*dst = '\0';
-
+	
+	dst--;src--;
+	while ((*++dst = *++src) != 0);
+		
 	return ptr;
 }
 
 static inline int _dl_strcmp(const char * s1,const char * s2)
 {
 	register unsigned char c1, c2;
-
+	s1--;s2--;
 	do {
-		c1 = (unsigned char) *s1++;
-		c2 = (unsigned char) *s2++;
+		c1 = (unsigned char) *++s1;
+		c2 = (unsigned char) *++s2;
 		if (c1 == '\0')
 			return c1 - c2;
 	}
@@ -76,25 +73,24 @@ static inline int _dl_strncmp(const char * s1,const char * s2,size_t len)
 	register unsigned char c1 = '\0';
 	register unsigned char c2 = '\0';
 
+	s1--;s2--;
 	while (len > 0) {
-		c1 = (unsigned char) *s1++;
-		c2 = (unsigned char) *s2++;
+		c1 = (unsigned char) *++s1;
+		c2 = (unsigned char) *++s2;
 		if (c1 == '\0' || c1 != c2)
 			return c1 - c2;
 		len--;
 	}
-
 	return c1 - c2;
 }
 
 static inline char * _dl_strchr(const char * str,int c)
 {
 	register char ch;
-
+	str--;
 	do {
-		if ((ch = *str) == c)
+		if ((ch = *++str) == c)
 			return (char *) str;
-		str++;
 	}
 	while (ch);
 
@@ -104,18 +100,16 @@ static inline char * _dl_strchr(const char * str,int c)
 static inline char *_dl_strrchr(const char *str, int c)
 {
     register char *prev = 0;
-    register char *ptr = (char *) str;
+    register char *ptr = (char *) str-1;
 
-    while (*ptr != '\0') {
+    while (*++ptr != '\0') {
 	if (*ptr == c)
 	    prev = ptr;
-	ptr++;
     }
     if (c == '\0')
 	return(ptr);
     return(prev);
 }
-
 
 static inline char *_dl_strstr(const char *s1, const char *s2)
 {
@@ -150,17 +144,15 @@ static inline void * _dl_memcpy(void * dst, const void * src, size_t len)
 	return dst;
 }
 
-
 static inline int _dl_memcmp(const void * s1,const void * s2,size_t len)
 {
-	unsigned char *c1 = (unsigned char *)s1;
-	unsigned char *c2 = (unsigned char *)s2;
+	unsigned char *c1 = (unsigned char *)s1-1;
+	unsigned char *c2 = (unsigned char *)s2-1;
 
-	while (len--) {
-		if (*c1 != *c2)
+	while (len) {
+		if (*++c1 != *++c2)
 			return *c1 - *c2;
-		c1++;
-		c2++;
+		len--;
 	}
 	return 0;
 }
