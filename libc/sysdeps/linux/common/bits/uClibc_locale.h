@@ -63,7 +63,7 @@
 #define __LC_ALL			6
 
 /**********************************************************************/
-#ifdef _LIBC
+#if defined(_LIBC) && defined(__WCHAR_ENABLED)
 
 /* TODO: This really needs to be somewhere else... */
 #include <limits.h>
