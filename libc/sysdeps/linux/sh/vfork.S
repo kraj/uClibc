@@ -31,7 +31,7 @@
 .global errno
 
 .text
-.align 5
+.align 4
 .type	__vfork,@function
 .globl	__vfork;
 __vfork:

@@ -23,7 +23,7 @@
 
 
 .text
-.align 5
+.align 4
 .type	setjmp,@function
 .globl	setjmp;
 setjmp:

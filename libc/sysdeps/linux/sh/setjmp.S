@@ -22,7 +22,7 @@
 #include <bits/setjmp.h>
 
 .text
-.align 5
+.align 4
 .type	__sigsetjmp,@function
 .globl	__sigsetjmp;
 __sigsetjmp:

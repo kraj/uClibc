@@ -38,7 +38,7 @@
 .extern __syscall_error
 
 .text
-.align 5
+.align 4
 .type	__clone,@function
 .globl	__clone;
 __clone:

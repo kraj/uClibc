@@ -24,7 +24,7 @@
 /* __longjmp(jmpbuf, val) */
 
 .text
-.align 5
+.align 4
 .type	__longjmp,@function
 .globl	__longjmp;
 __longjmp:
