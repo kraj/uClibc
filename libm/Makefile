@@ -28,9 +28,8 @@ LIBM_SHARED_FULLNAME=libm-$(MAJOR_VERSION).$(MINOR_VERSION).so
 TARGET_CC= $(TOPDIR)extra/gcc-uClibc/$(TARGET_ARCH)-uclibc-gcc
 TARGET_CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
-ifeq ($(strip $(DO_C89_ONLY)),true)
-CSRC =   FIXME
-else
+
+ifeq ($(strip $(DO_C99_MATH)),true)
 CSRC =   e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
          e_exp.c e_fmod.c e_gamma.c e_gamma_r.c e_hypot.c e_j0.c\
          e_j1.c e_jn.c e_lgamma.c e_lgamma_r.c e_log.c e_log10.c\
@@ -47,13 +46,21 @@ CSRC =   e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
          w_log.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c\
          w_sqrt.c ceilfloor.c fpmacros.c frexpldexp.c logb.c rndint.c\
          scalb.c sign.c
+else
+CSRC =   w_acos.c w_asin.c s_atan.c w_atan2.c s_ceil.c s_cos.c \
+	 w_cosh.c w_exp.c s_expm1.c s_fabs.c s_floor.c w_fmod.c \
+	 s_frexp.c w_log.c w_log10.c s_modf.c w_pow.c s_sin.c \
+	 w_sinh.c w_sqrt.c s_tan.c s_tanh.c s_scalbn.c s_copysign.c \
+	 sign.c e_acos.c e_asin.c e_atan2.c k_cos.c e_cosh.c e_exp.c \
+	 e_fmod.c e_log.c e_log10.c e_pow.c k_sin.c e_sinh.c e_sqrt.c \
+	 k_tan.c e_rem_pio2.c k_rem_pio2.c
 endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
 
 
-all: $(OBJS) $(LIBM)
+all: $(OBJS) $(COBJS1) $(LIBM)
 
 $(LIBM): ar-target
 	@if [ -f $(LIBM) ] ; then \
@@ -81,6 +88,7 @@ $(COBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJ): Makefile
+$(COBJS1): Makefile
 
 tags:
 	ctags -R

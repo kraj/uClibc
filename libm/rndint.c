@@ -175,7 +175,10 @@ double rint ( double x )
    
 double nearbyint ( double x )
       {
-	double y, OldEnvironment;
+	double y;
+#if defined(__ppc__)
+	double OldEnvironment;
+#endif /* __ppc__ */
       
 	y = twoTo52;
 	
@@ -397,8 +400,10 @@ long int roundtol ( double x )
 	DblInHex argument, OldEnvironment;
 	register unsigned long int xhi;
 	register long int target;
+#if defined(__ppc__)
 	const DblInHex kTZ = {{ 0x0, 0x1 }};
 	const DblInHex kUP = {{ 0x0, 0x2 }};
+#endif /* __ppc__ */
 	
 	argument.dbl = x;
 	xhi = argument.words.hi & 0x7ffffffful;	        	// high 32 bits of x
