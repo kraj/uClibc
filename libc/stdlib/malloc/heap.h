@@ -1,8 +1,8 @@
 /*
  * libc/stdlib/malloc/heap.h -- heap allocator used for malloc
  *
- *  Copyright (C) 2002  NEC Corporation
- *  Copyright (C) 2002  Miles Bader <miles@gnu.org>
+ *  Copyright (C) 2002,03  NEC Electronics Corporation
+ *  Copyright (C) 2002,03  Miles Bader <miles@gnu.org>
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License.  See the file COPYING.LIB in the main
@@ -24,7 +24,8 @@
 /* The heap allocates in multiples of, and aligned to, HEAP_GRANULARITY.
    HEAP_GRANULARITY must be a power of 2.  Malloc depends on this being the
    same as MALLOC_ALIGNMENT.  */
-#define HEAP_GRANULARITY	(sizeof (double))
+#define HEAP_GRANULARITY_TYPE	double
+#define HEAP_GRANULARITY	(sizeof (HEAP_GRANULARITY_TYPE))
 
 
 /* A heap is a collection of memory blocks, from which smaller blocks
@@ -74,12 +75,13 @@ struct heap_free_area
 /* This rather clumsy macro allows one to declare a static free-area for
    passing to HEAP_INIT_WITH_FA initializer macro.  This is only use for
    which NAME is allowed.  */
-#define HEAP_DECLARE_STATIC_FREE_AREA(name, size)			\
-  static struct								\
-  {									\
-    char space[(size) - sizeof (struct heap_free_area)];		\
-    struct heap_free_area _fa;						\
-  } name = { "", { (size), 0, 0 } }
+#define HEAP_DECLARE_STATIC_FREE_AREA(name, size)			      \
+  static struct								      \
+  {									      \
+    HEAP_GRANULARITY_TYPE space[((size) - sizeof (struct heap_free_area))     \
+				/ HEAP_GRANULARITY];			      \
+    struct heap_free_area _fa;						      \
+  } name = { { (HEAP_GRANULARITY_TYPE)0 }, { (size), 0, 0 } }
 
 
 /* Rounds SZ up to be a multiple of HEAP_GRANULARITY.  */
