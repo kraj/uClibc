@@ -24,6 +24,13 @@
 
 extern void __uClibc_main(int argc,void *argv,void *envp);
 
+/* a little bit of stuff to support C++ */
+__asm__(".section .ctors,\"aw\"\n.align 4\n.global __CTOR_LIST__\n"
+	"__CTOR_LIST__:\n.long -1\n");
+
+__asm__(".section .dtors,\"aw\"\n.align 4\n.global __DTOR_LIST__\n"
+	"__DTOR_LIST__:\n.long -1\n");
+
 void _start(unsigned int first_arg)
 {
 	unsigned int argc;
