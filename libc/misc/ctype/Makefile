@@ -27,14 +27,17 @@ include $(TOPDIR)Rules.mak
 MSRC=ctype.c
 MOBJ= isalnum.o isalpha.o isascii.o iscntrl.o isdigit.o isgraph.o \
 	islower.o isprint.o ispunct.o isspace.o isupper.o isxdigit.o \
-	isxlower.o isxupper.o toascii.o tolower.o toupper.o isblank.o
+	isxlower.o isxupper.o toascii.o tolower.o toupper.o isblank.o \
 
 ifeq ($(HAS_LOCALE),true)
 	MOBJ += ctype_C.o
 endif
 
+CSRC=junk.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(MOBJ)
+
+OBJS=$(MOBJ) $(COBJS)
 all: $(MOBJ) $(LIBC)
 
 $(LIBC): ar-target
@@ -44,6 +47,10 @@ ar-target: $(OBJS)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(OBJS): Makefile
