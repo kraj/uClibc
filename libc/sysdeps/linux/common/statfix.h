@@ -8,7 +8,9 @@
  * opinion on the subject, and different kernel revs use different names... */
 #define stat kernel_stat
 #define new_stat kernel_stat
+#define stat64 kernel_stat64
 #include <asm/stat.h> 
+#undef stat64
 #undef new_stat
 #undef stat
 
