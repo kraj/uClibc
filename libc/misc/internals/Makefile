@@ -38,8 +38,10 @@ ar-target: $(OBJS)
 
 interp.c: Makefile
 	echo "/* Force shared libraries to know about the correct library loader */" > interp.c
+	echo "#ifdef HAVE_ELF" >> interp.c
 	echo "const char __dl_ldso__[] __attribute__ ((section " \
 		"(\".interp\"))) =\""$(DYNAMIC_LINKER)"\";" >> interp.c
+	echo "#endif" >> interp.c
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
