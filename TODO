@@ -1,6 +1,7 @@
 TODO list for the uClibc 0.9.27 release:
 -------------------------------------------------
     *) Fix syscall() on mips
+    *) Add some basic optimized mips string functions
     *) Fix use of __secure in __uClibc_init() for so that we prevent
 	starting staticly linked SUID binaries where the standard file
 	descriptors are not opened.  For dynamically linked binaries,
@@ -65,6 +66,14 @@ TODO list for the uClibc 1.0.0 release:
 	the application is staticly linked.
     *) Fix dlopen, for both static and dynamic cases, and make it
 	fully comply with SuSv3
+    *) From the the ELF spec "...All shared object initializations happen
+	before the executable file gains control.  ...  Before the initialization
+	code for any object A is called, the initialization code for any other
+	objects that object A depends on are called.  For these purposes, an object
+	A depends on another object B, if B appears in Ads list of needed objects
+	(recorded in the DT_NEEDED entries of the dynamic structure). The order of
+	initialization for circular dependencies is undefined."  uClibc's shared
+	lib loader should be fixed to run ctors in the specified order.
 
 
 TODO list for AFTER the uClibc 1.0.0 release:
