@@ -1,4 +1,5 @@
-/* Copyright (C) 1991, 1995, 1996, 1997, 2000 Free Software Foundation, Inc.
+/* brk system call for Linux/ARM.
+   Copyright (C) 1995, 1996 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,30 +17,31 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <unistd.h>
 #include <errno.h>
+#include <unistd.h>
+#include <sys/syscall.h>
 
-/* Defined in brk.c.  */
-extern void *___brk_addr;
-extern int brk (void *addr);
+/* This must be initialized data because commons can't have aliases.  */
+void *___brk_addr = 0;
 
-/* Extend the process's data space by INCREMENT.
-   If INCREMENT is negative, shrink data space by - INCREMENT.
-   Return start of new space allocated, or -1 for errors.  */
-void * sbrk (intptr_t increment)
+int brk (void *addr)
 {
-  void *oldbrk;
+    void *newbrk;
 
-  if (___brk_addr == NULL)
-    if (brk (0) < 0)		/* Initialize the break.  */
-      return (void *) -1;
+    asm ("mov a1, %1\n"	/* save the argment in r0 */
+	    "swi %2\n"	/* do the system call */
+	    "mov %0, a1;"	/* keep the return value */
+	    : "=r"(newbrk) 
+	    : "r"(addr), "i" (__NR_brk)
+	    : "a1");
 
-  if (increment == 0)
-    return ___brk_addr;
+    ___brk_addr = newbrk;
 
-  oldbrk = ___brk_addr;
-  if (brk (oldbrk + increment) < 0)
-    return (void *) -1;
+    if (newbrk < addr)
+    {
+	__set_errno (ENOMEM);
+	return -1;
+    }
 
-  return oldbrk;
+    return 0;
 }

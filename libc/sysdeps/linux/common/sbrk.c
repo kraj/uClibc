@@ -1,5 +1,4 @@
-/* brk system call for Linux/i386.
-   Copyright (C) 1995, 1996, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1991, 1995, 1996, 1997, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,33 +16,32 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <errno.h>
 #include <unistd.h>
-#include <sys/syscall.h>
+#include <errno.h>
+
+/* Defined in brk.c.  */
+extern void *__curbrk;
+extern int brk (void *addr);
 
 
-/* This must be initialized data because commons can't have aliases.  */
-void *___brk_addr = 0;
-
-
-int brk (void *addr)
+/* Extend the process's data space by INCREMENT.
+   If INCREMENT is negative, shrink data space by - INCREMENT.
+   Return start of new space allocated, or -1 for errors.  */
+void * sbrk (intptr_t increment)
 {
-    void *__unbounded newbrk, *__unbounded scratch;
+    void *oldbrk;
 
-    asm ("movl %%ebx, %1\n"	/* Save %ebx in scratch register.  */
-	    "movl %3, %%ebx\n"	/* Put ADDR in %ebx to be syscall arg.  */
-	    "int $0x80 # %2\n"	/* Perform the system call.  */
-	    "movl %1, %%ebx\n"	/* Restore %ebx from scratch register.  */
-	    : "=a" (newbrk), "=r" (scratch)
-	    : "0" (__NR_brk), "g" (__ptrvalue (addr)));
+    if (__curbrk == NULL)
+	if (brk (0) < 0)		/* Initialize the break.  */
+	    return (void *) -1;
 
-    ___brk_addr = newbrk;
+    if (increment == 0)
+	return __curbrk;
 
-    if (newbrk < addr)
-    {
-	__set_errno (ENOMEM);
-	return -1;
-    }
+    oldbrk = __curbrk;
+    if (brk (oldbrk + increment) < 0)
+	return (void *) -1;
 
-    return 0;
+    return oldbrk;
 }
+
