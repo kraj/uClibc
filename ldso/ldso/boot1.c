@@ -1223,6 +1223,22 @@ void * _dl_memcpy(void * dst, const void * src, size_t len)
 	return dst;
 }
 
+#ifdef USE_CACHE
+int _dl_memcmp(const void * s1,const void * s2,size_t len)
+{
+	unsigned char *c1 = (unsigned char *)s1;
+	unsigned char *c2 = (unsigned char *)s2;
+
+	while (len--) {
+		if (*c1 != *c2) 
+			return *c1 - *c2;
+		c1++;
+		c2++;
+	}
+	return 0;
+}
+#endif
+
 void * _dl_memset(void * str,int c,size_t len)
 {
 	register char *a = str;
