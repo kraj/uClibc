@@ -34,7 +34,7 @@ MSRC1=strto_ll.c
 MOBJ1=strtoll.o strtoull.o strto_ll.o atoll.o
 
 MSRC2=atexit.c
-MOBJ2=atexit.o exit.o
+MOBJ2=atexit.o on_exit.o __exit_handler.o exit.o
 
 
 CSRC =	abort.c getenv.c mktemp.c qsort.c realpath.c abs.c bsearch.c \

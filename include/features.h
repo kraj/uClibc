@@ -322,6 +322,10 @@
 # include <gnu/stubs.h>
 #endif
 
+/* No C++ */
+#define __BEGIN_DECLS
+#define __END_DECLS
+
 /* Load up the current set of uClibc supported features */
 #define __need_uClibc_config_h
 #include <bits/uClibc_config.h>
@@ -329,22 +333,55 @@
 
 /* Some nice features only work properly with ELF */
 #if defined _LIBC && defined HAVE_ELF	
-#   define link_warning(symbol, msg)					      \
+#  define weak_alias(name, aliasname) _weak_alias (name, aliasname)
+#  define link_warning(symbol, msg)					      \
 	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");	      \
 	    static const char __evoke_link_warning_##symbol[]		      \
 	    __attribute__ ((section (".gnu.warning." #symbol "\n\t#"))) = msg;
-#   define weak_alias(name, aliasname)					      \
+#  define _weak_alias(name, aliasname) \
+      extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
+/*
+#   define _weak_alias(name, aliasname)					      \
 	asm(".global " C_SYMBOL_PREFIX #name ";"			      \
 	    ".weak " C_SYMBOL_PREFIX #aliasname ";"			      \
 	    C_SYMBOL_PREFIX #aliasname "="  C_SYMBOL_PREFIX #name ";");
+*/
 #   define weak_symbol(name)						      \
 	asm(".weak " C_SYMBOL_PREFIX #name ";");
 #else
-#   define link_warning(symbol, msg) \
+#  define weak_alias(name, aliasname) _weak_alias (name, aliasname)
+#  define link_warning(symbol, msg) \
 	asm (".stabs \"" msg "\",30,0,0,0\n\t" \
 	      ".stabs \"" #symbol "\",1,0,0,0\n");
-#   define weak_alias(name, aliasname) \
+#  define _weak_alias(name, aliasname) \
 	__asm__(".global _" #aliasname "\n.set _" #aliasname ",_" #name);
 #endif
+
+/* --- this is added to integrate linuxthreads */
+
+#define __USE_UNIX98            1
+
+
+#ifndef weak_function
+/* If we do not have the __attribute__ ((weak)) syntax, there is no way we
+   can define functions as weak symbols.  The compiler will emit a `.globl'
+   directive for the function symbol, and a `.weak' directive in addition
+   will produce an error from the assembler.  */ 
+# define weak_function          /* empty */
+# define weak_const_function    /* empty */
+#endif
+
+/* On some platforms we can make internal function calls (i.e., calls of
+   functions not exported) a bit faster by using a different calling
+   convention.  */
+#ifndef internal_function
+# define internal_function      /* empty */
+#endif
+
+/* Prepare for the case that `__builtin_expect' is not available.  */
+#ifndef HAVE_BUILTIN_EXPECT
+# define __builtin_expect(expr, val) (expr)
+#endif
+
 
 #endif	/* features.h  */

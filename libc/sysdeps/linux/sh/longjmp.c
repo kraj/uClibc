@@ -28,8 +28,7 @@
 /* Set the signal mask to the one specified in ENV, and jump
    to the position specified in ENV, causing the setjmp
    call there to return VAL, or 1 if VAL is 0.  */
-void
-__uClibc_siglongjmp (sigjmp_buf env, int val)
+void __libc_siglongjmp (sigjmp_buf env, int val)
 {
   if (env[0].__mask_was_saved)
     /* Restore the saved signal mask.  */
@@ -40,7 +39,7 @@ __uClibc_siglongjmp (sigjmp_buf env, int val)
   __longjmp (env[0].__jmpbuf, val ?: 1);
 }
 
-__asm__(".weak longjmp; longjmp = __uClibc_siglongjmp");
-__asm__(".weak _longjmp; _longjmp = __uClibc_siglongjmp");
-__asm__(".weak siglongjmp; siglongjmp = __uClibc_siglongjmp");
+__asm__(".weak longjmp; longjmp = __libc_siglongjmp");
+__asm__(".weak _longjmp; _longjmp = __libc_siglongjmp");
+__asm__(".weak siglongjmp; siglongjmp = __libc_siglongjmp");
 __asm__(".weak __sigprocmask; __sigprocmask = sigprocmask");

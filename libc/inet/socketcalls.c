@@ -28,7 +28,7 @@ extern int socketcall(int call, unsigned long *args);
 
 
 #ifdef L_accept
-int accept(int s, struct sockaddr *addr, socklen_t * addrlen)
+int __libc_accept(int s, struct sockaddr *addr, socklen_t * addrlen)
 {
 	unsigned long args[3];
 
@@ -37,6 +37,7 @@ int accept(int s, struct sockaddr *addr, socklen_t * addrlen)
 	args[2] = (unsigned long) addrlen;
 	return socketcall(SYS_ACCEPT, args);
 }
+weak_alias(__libc_accept, accept);
 #endif
 
 #ifdef L_bind
@@ -52,7 +53,7 @@ int bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
 #endif
 
 #ifdef L_connect
-int connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
+int __libc_connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
 {
 	unsigned long args[3];
 
@@ -61,6 +62,7 @@ int connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
 	args[2] = addrlen;
 	return socketcall(SYS_CONNECT, args);
 }
+weak_alias(__libc_connect, connect);
 #endif
 
 #ifdef L_getpeername
@@ -115,7 +117,7 @@ int listen(int sockfd, int backlog)
 
 #ifdef L_recv
 /* recv, recvfrom added by bir7@leland.stanford.edu */
-int recv(int sockfd, __ptr_t buffer, size_t len, int flags)
+int __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 {
 	unsigned long args[4];
 
@@ -125,11 +127,12 @@ int recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 	args[3] = flags;
 	return (socketcall(SYS_RECV, args));
 }
+weak_alias(__libc_recv, recv);
 #endif
 
 #ifdef L_recvfrom
 /* recv, recvfrom added by bir7@leland.stanford.edu */
-int recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
+int __libc_recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
 		 struct sockaddr *to, socklen_t * tolen)
 {
 	unsigned long args[6];
@@ -142,10 +145,11 @@ int recvfrom(int sockfd, __ptr_t buffer, size_t len, int flags,
 	args[5] = (unsigned long) tolen;
 	return (socketcall(SYS_RECVFROM, args));
 }
+weak_alias(__libc_recvfrom, recvfrom);
 #endif
 
 #ifdef L_recvmsg
-int recvmsg(int sockfd, struct msghdr *msg, int flags)
+int __libc_recvmsg(int sockfd, struct msghdr *msg, int flags)
 {
 	unsigned long args[3];
 
@@ -154,11 +158,12 @@ int recvmsg(int sockfd, struct msghdr *msg, int flags)
 	args[2] = flags;
 	return (socketcall(SYS_RECVMSG, args));
 }
+weak_alias(__libc_recvmsg, recvmsg);
 #endif
 
 #ifdef L_send
 /* send, sendto added by bir7@leland.stanford.edu */
-int send(int sockfd, const void *buffer, size_t len, int flags)
+int __libc_send(int sockfd, const void *buffer, size_t len, int flags)
 {
 	unsigned long args[4];
 
@@ -168,10 +173,11 @@ int send(int sockfd, const void *buffer, size_t len, int flags)
 	args[3] = flags;
 	return (socketcall(SYS_SEND, args));
 }
+weak_alias(__libc_send, send);
 #endif
 
 #ifdef L_sendmsg
-int sendmsg(int sockfd, const struct msghdr *msg, int flags)
+int __libc_sendmsg(int sockfd, const struct msghdr *msg, int flags)
 {
 	unsigned long args[3];
 
@@ -180,11 +186,12 @@ int sendmsg(int sockfd, const struct msghdr *msg, int flags)
 	args[2] = flags;
 	return (socketcall(SYS_SENDMSG, args));
 }
+weak_alias(__libc_sendmsg, sendmsg);
 #endif
 
 #ifdef L_sendto
 /* send, sendto added by bir7@leland.stanford.edu */
-int sendto(int sockfd, const void *buffer, size_t len, int flags,
+int __libc_sendto(int sockfd, const void *buffer, size_t len, int flags,
 	   const struct sockaddr *to, socklen_t tolen)
 {
 	unsigned long args[6];
@@ -197,6 +204,7 @@ int sendto(int sockfd, const void *buffer, size_t len, int flags,
 	args[5] = tolen;
 	return (socketcall(SYS_SENDTO, args));
 }
+weak_alias(__libc_sendto, sendto);
 #endif
 
 #ifdef L_setsockopt

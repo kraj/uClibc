@@ -119,7 +119,7 @@ extern int __rt_sigaction (int, const struct kernel_sigaction *__unbounded,
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
     int result;
     struct kernel_sigaction kact, koact;
@@ -148,7 +148,7 @@ int sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
     }
     return result;
 }
-
+weak_alias(__libc_sigaction, sigaction)
 
 
 
@@ -160,7 +160,7 @@ extern int __sigaction (int, const struct old_kernel_sigaction *__unbounded,
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
     struct old_kernel_sigaction k_sigact, k_osigact;
     int result;
@@ -186,5 +186,7 @@ int sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
     }
     return result;
 }
+
+weak_alias(__libc_sigaction, sigaction)
 
 #endif

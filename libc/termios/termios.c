@@ -42,11 +42,12 @@ int isatty(int fd)
 
 #ifdef L_tcdrain
 /* Wait for pending output to be written on FD.  */
-int tcdrain (int fd)
+int __libc_tcdrain (int fd)
 {
       /* With an argument of 1, TCSBRK waits for the output to drain.  */
       return ioctl(fd, TCSBRK, 1);
 }
+weak_alias(__libc_tcdrain, tcdrain)
 #endif
 
 #ifdef L_tcflow

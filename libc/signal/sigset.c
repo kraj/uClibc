@@ -41,7 +41,7 @@ __sighandler_t sigset (int sig, __sighandler_t disp)
 	    return SIG_ERR;
 
 	/* Add the signal set to the current signal mask.  */
-	if (__sigprocmask (SIG_BLOCK, &set, NULL) < 0)
+	if (sigprocmask (SIG_BLOCK, &set, NULL) < 0)
 	    return SIG_ERR;
 
 	return SIG_HOLD;

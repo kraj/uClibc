@@ -27,7 +27,7 @@ extern void __longjmp (__jmp_buf __env, int val);
 /* Set the signal mask to the one specified in ENV, and jump
    to the position specified in ENV, causing the setjmp
    call there to return VAL, or 1 if VAL is 0.  */
-void longjmp (sigjmp_buf env, int val)
+void __libc_longjmp (sigjmp_buf env, int val)
 {
 #if 0
   /* Perform any cleanups needed by the frames being unwound.  */
@@ -43,5 +43,6 @@ void longjmp (sigjmp_buf env, int val)
   __longjmp (env[0].__jmpbuf, val ?: 1);
 }
 
-weak_alias (longjmp, _longjmp)
-weak_alias (longjmp, siglongjmp)
+weak_alias (__libc_longjmp, _longjmp)
+weak_alias (__libc_longjmp, siglongjmp)
+weak_alias (__libc_longjmp, __libc_siglongjmp)

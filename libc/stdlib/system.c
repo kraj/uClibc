@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-int system(command)
+int __libc_system(command)
 char *command;
 {
 	int wait_val, pid;
@@ -47,3 +47,4 @@ char *command;
 	signal(SIGCHLD, save_chld);
 	return wait_val;
 }
+weak_alias(__libc_system, system)

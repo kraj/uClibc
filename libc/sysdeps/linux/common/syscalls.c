@@ -22,8 +22,8 @@
  *
  */
 
-#include <errno.h>
 #include <features.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
 
@@ -39,10 +39,12 @@ _syscall1(void, _exit, int, status);
 #endif
 
 //#define __NR_fork             2
-#ifdef L_fork
+#ifdef L___libc_fork
 #include <unistd.h>
 #	ifdef __UCLIBC_HAS_MMU__
-		_syscall0(pid_t, fork);
+#define __NR___libc_fork __NR_fork
+		_syscall0(pid_t, __libc_fork);
+		weak_alias (__libc_fork, fork)
 #	else
 		pid_t fork(void)
 		{
@@ -53,16 +55,19 @@ _syscall1(void, _exit, int, status);
 #endif
 
 //#define __NR_read             3
-#ifdef L_read
+#ifdef L___libc_read
 #include <unistd.h>
-_syscall3(ssize_t, read, int, fd, __ptr_t, buf, size_t, count);
+#define __NR___libc_read __NR_read
+_syscall3(ssize_t, __libc_read, int, fd, __ptr_t, buf, size_t, count);
+weak_alias(__libc_read, read)
 #endif
 
 //#define __NR_write            4
-#ifdef L_write
+#ifdef L___libc_write
 #include <unistd.h>
-_syscall3(ssize_t, write, int, fd, const __ptr_t, buf, size_t, count);
-weak_alias(write, __write);
+#define __NR___libc_write __NR_write
+_syscall3(ssize_t, __libc_write, int, fd, const __ptr_t, buf, size_t, count);
+weak_alias(__libc_write, write)
 #endif
 
 //#define __NR_open             5
@@ -75,7 +80,7 @@ weak_alias(write, __write);
 #endif
 _syscall3(int, __open, const char *, fn, int, flags, mode_t, mode);
 
-int open(const char *file, int oflag, ...)
+int __libc_open(const char *file, int oflag, ...)
 {
 	int mode = 0;
 
@@ -90,12 +95,15 @@ int open(const char *file, int oflag, ...)
 
 	return __open(file, oflag, mode);
 }
+weak_alias(__libc_open, open)
 #endif
 
 //#define __NR_close            6
-#ifdef L_close
+#ifdef L___libc_close
 #include <unistd.h>
-_syscall1(int, close, int, fd);
+#define __NR___libc_close __NR_close
+_syscall1(int, __libc_close, int, fd);
+weak_alias(__libc_close, close)
 #endif
 
 //#define __NR_waitpid          7
@@ -182,15 +190,20 @@ _syscall3(int, lchown, const char *, path, uid_t, owner, gid_t, group);
 //#define __NR_oldstat          18
 
 //#define __NR_lseek            19
-#ifdef L_lseek
+#ifdef L___libc_lseek
 #include <unistd.h>
-_syscall3(off_t, lseek, int, fildes, off_t, offset, int, whence);
+#define __NR___libc_lseek __NR_lseek
+_syscall3(off_t, __libc_lseek, int, fildes, off_t, offset, int, whence);
+weak_alias(__libc_lseek, lseek)
 #endif
 
 //#define __NR_getpid           20
-#ifdef L_getpid
+#ifdef L___libc_getpid
 #include <unistd.h>
-_syscall0(pid_t, getpid);
+#define __NR___libc_getpid __NR_getpid
+_syscall0(pid_t, __libc_getpid);
+weak_alias(__libc_getpid, getpid)
+weak_alias(__libc_getpid, __getpid)
 #endif
 
 //#define __NR_mount            21
@@ -256,9 +269,11 @@ _syscall1(unsigned int, alarm, unsigned int, seconds);
 //#define __NR_oldfstat         28
 
 //#define __NR_pause            29
-#ifdef L_pause
+#ifdef L___libc_pause
 #include <unistd.h>
-_syscall0(int, pause);
+#define __NR___libc_pause __NR_pause
+_syscall0(int, __libc_pause);
+weak_alias(__libc_pause, pause)
 #endif
 
 //#define __NR_utime            30
@@ -458,7 +473,7 @@ extern int _fcntl(int fd, int cmd, long arg);
 
 _syscall3(int, _fcntl, int, fd, int, cmd, long, arg);
 
-int fcntl(int fd, int command, ...)
+int __libc_fcntl(int fd, int command, ...)
 {
 	long arg;
 	va_list list;
@@ -469,6 +484,7 @@ int fcntl(int fd, int command, ...)
 	va_end(list);
 	return _fcntl(fd, command, arg);
 }
+weak_alias(__libc_fcntl, fcntl)
 #endif
 
 //#define __NR_mpx              56
@@ -951,9 +967,11 @@ _syscall5(int, __ipc, unsigned int, call, int, first, int, second, int, third, v
 #endif
 
 //#define __NR_fsync            118
-#ifdef L_fsync
+#ifdef L___libc_fsync
 #include <unistd.h>
-_syscall1(int, fsync, int, fd);
+#define __NR___libc_fsync __NR_fsync
+_syscall1(int, __libc_fsync, int, fd);
+weak_alias(__libc_fsync, fsync)
 #endif
 
 //#define __NR_sigreturn        119
@@ -1123,6 +1141,11 @@ _syscall2(int,flock,int,fd, int,operation);
 #endif
 
 //#define __NR_msync            144
+/* If this ever gets implemented, be sure to use the __libc_ convention
+ * so that it can be over-ridden with a cancelable version by linuxthreads.
+ * Also update uClibc/libpthread/linuxthreads/wrapsyscall.c to do the override.
+ */
+
 //#define __NR_readv            145
 
 #ifdef L_readv
@@ -1251,17 +1274,18 @@ _syscall2(int, sched_rr_get_interval, pid_t, pid, struct timespec *, tp);
 #endif
 
 //#define __NR_nanosleep                162
-#ifdef L_nanosleep
+#ifdef L___libc_nanosleep
 #include <time.h>
-_syscall2(int, nanosleep, const struct timespec *, req, struct timespec *, rem);
+#define __NR___libc_nanosleep __NR_nanosleep
+_syscall2(int, __libc_nanosleep, const struct timespec *, req, struct timespec *, rem);
+weak_alias(__libc_nanosleep, nanosleep)
 #endif
 
 //#define __NR_mremap                   163
 #ifdef L_mremap
 #include <unistd.h>
 #include <sys/mman.h>
-_syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t,
-		  new_size, int, may_move);
+_syscall4(__ptr_t, mremap, __ptr_t, old_address, size_t, old_size, size_t, new_size, int, may_move);
 #endif
 
 //#define __NR_setresuid                164
