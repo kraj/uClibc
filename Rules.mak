@@ -34,6 +34,7 @@ STRIPTOOL = $(CROSS)strip
 
 # Select the compiler needed to build binaries for your development system
 NATIVE_CC = gcc
+NATIVE_CFLAGS:=-O2 -Wall
 
 
 # Be sure to update include/features.h when changing this...
@@ -138,10 +139,14 @@ endif
 # Add a bunch of extra pedantic annoyingly strict checks
 WARNINGS+=-Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
 
-
+# Some nice CFLAGS to work with
 CFLAGS:=$(WARNINGS) $(OPTIMIZATION) -fno-builtin -nostdinc $(CPUFLAGS) \
-	-I$(TOPDIR)include -iwithprefix include -I. -D_LIBC $(CPU_CFLAGS-y) $(ARCH_CFLAGS)
-NATIVE_CFLAGS:=-O2 -Wall
+	-D_LIBC $(CPU_CFLAGS-y) $(ARCH_CFLAGS) -I$(TOPDIR)include -I.
+
+# Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
+#CFLAGS+=-iwithprefix include
+CFLAGS+=$(shell $(CC) -print-search-dirs | sed -ne "s/install:\(.*\)/\1include/gp")
+
 
 ifeq ($(strip $(DODEBUG)),y)
     CFLAGS += -g
@@ -166,6 +171,9 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 endif
 ifeq ($(strip $(DOPIC)),y)
     CFLAGS += -fPIC
+endif
+ifeq ($(strip $(HAS_FPU)),n)
+    CFLAGS += -msoft-float
 endif
 
 # TARGET_PREFIX is the directory under which which the uClibc runtime
