@@ -18,7 +18,7 @@ time_t time(time_t * t)
 	time_t result;
 	struct timeval tv;
 
-	if (__libc_gettimeofday(&tv, (struct timezone *) NULL)) {
+	if (gettimeofday(&tv, (struct timezone *) NULL)) {
 		result = (time_t) - 1;
 	} else {
 		result = (time_t) tv.tv_sec;

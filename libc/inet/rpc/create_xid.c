@@ -51,7 +51,7 @@ _create_xid (void)
     {
       struct timeval now;
 
-      __libc_gettimeofday (&now, (struct timezone *) 0);
+      gettimeofday (&now, (struct timezone *) 0);
       srand48_r (now.tv_sec ^ now.tv_usec, &__rpc_lrand48_data);
       is_initialized = 1;
     }

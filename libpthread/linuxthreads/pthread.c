@@ -889,7 +889,7 @@ __pthread_timedsuspend_old(pthread_descr self, const struct timespec *abstime)
 	struct timespec reltime;
 
 	/* Compute a time offset relative to now.  */
-	__libc_gettimeofday (&now, NULL);
+	__gettimeofday (&now, NULL);
 	reltime.tv_nsec = abstime->tv_nsec - now.tv_usec * 1000;
 	reltime.tv_sec = abstime->tv_sec - now.tv_sec;
 	if (reltime.tv_nsec < 0) {
@@ -974,7 +974,7 @@ int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstim
 	    struct timespec reltime;
 
 	    /* Compute a time offset relative to now.  */
-	    __libc_gettimeofday (&now, NULL);
+	    gettimeofday (&now, NULL);
 	    reltime.tv_nsec = abstime->tv_nsec - now.tv_usec * 1000;
 	    reltime.tv_sec = abstime->tv_sec - now.tv_sec;
 	    if (reltime.tv_nsec < 0) {

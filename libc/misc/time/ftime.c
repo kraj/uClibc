@@ -25,7 +25,7 @@ struct timeb *timebuf;
 	struct timeval tv;
 	struct timezone tz;
 
-	if (__libc_gettimeofday (&tv, &tz) < 0)
+	if (gettimeofday (&tv, &tz) < 0)
 		return -1;
 
 	timebuf->time = tv.tv_sec;

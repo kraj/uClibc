@@ -1603,7 +1603,7 @@ time_t time(register time_t *tloc)
 	struct timeval tv;
 	register struct timeval *p = &tv;
 
-	__libc_gettimeofday(p, NULL);		/* This should never fail... */
+	gettimeofday(p, NULL);		/* This should never fail... */
 
 	if (tloc) {
 		*tloc = p->tv_sec;

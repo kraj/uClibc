@@ -50,7 +50,7 @@ logout (const char *line)
       memset (ut->ut_host, 0, sizeof ut->ut_host);
 #endif
 #if _HAVE_UT_TV - 0
-      __libc_gettimeofday (&ut->ut_tv, NULL);
+      gettimeofday (&ut->ut_tv, NULL);
 #else
       time (&ut->ut_time);
 #endif

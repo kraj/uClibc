@@ -72,11 +72,6 @@ typedef void *__restrict __timezone_ptr_t;
 extern int gettimeofday (struct timeval *__restrict __tv,
 			 __timezone_ptr_t __tz) __THROW;
 
-#ifdef _LIBC
-extern int __libc_gettimeofday (struct timeval *__restrict __tv,
-			__timezone_ptr_t __tz) __THROW;
-#endif
-
 #ifdef __USE_BSD
 /* Set the current time of day and timezone information.
    This call is restricted to the super-user.  */
