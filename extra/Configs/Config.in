@@ -418,7 +418,7 @@ config UCLIBC_HAS_WCHAR
 	  Most people will answer N.
 
 config UCLIBC_HAS_LOCALE
-	bool "Locale Support (experimental/incomplete)"
+	bool "Locale Support"
 	select UCLIBC_HAS_WCHAR
 	select UCLIBC_HAS_CTYPE_TABLES
 	default n
@@ -443,9 +443,9 @@ config UCLIBC_PREGENERATED_LOCALE_DATA
 	depends on UCLIBC_HAS_LOCALE
 	default n
 	help
-	  If you are selective and only want locale data for a few selected
+	  If you are selective and only want locale data for a few particular
 	  locales, or you enjoy pain, or you are a rabid do-it-yourself sort of
-	  person, you can turn this option off, and manually walk through the
+	  person, you can turn this option off and manually walk through the
 	  mostly undocumented procedure needed to generate your own locale
 	  data.
 

@@ -35,7 +35,7 @@ endif
 
 ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
-all: headers subdirs shared utils finished
+all: headers pregen subdirs shared utils finished
 
 # In this section, we need .config
 -include .config.cmd
@@ -163,6 +163,20 @@ endif
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
+
+# Command used to download source code
+WGET:=wget --passive-ftp
+
+pregen: headers
+ifeq ($(strip $(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA)),y)
+	(cd extra/locale; \
+	$(WGET) http://www.uclibc.org/downloads/uClibc-locale-030818.tgz);
+endif
+ifeq ($(strip $(UCLIBC_PREGENERATED_LOCALE_DATA)),y)
+	(cd extra/locale; zcat uClibc-locale-030818.tgz | tar -xvf -)
+	make -C extra/locale pregen
+endif
+
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 
