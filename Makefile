@@ -28,7 +28,10 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 TOPDIR=./
 include Rules.mak
 
-DIRS = extra ldso libc libcrypt libresolv libnsl libutil libm libpthread libintl
+DIRS = extra ldso libc libcrypt libresolv libnsl libutil libm libpthread
+ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
+	DIRS += libintl
+endif
 
 ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
@@ -48,7 +51,9 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	@$(MAKE) -C libutil shared
 	@$(MAKE) -C libm shared
 	@$(MAKE) -C libpthread shared
+ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
 	@$(MAKE) -C libintl shared
+endif
 else
 ifeq ($(SHARED_TARGET),)
 	@echo
@@ -177,6 +182,23 @@ install_dev:
 	install -d $(PREFIX)$(DEVEL_PREFIX)/include
 	-install -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)/lib/
 	tar -chf - include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX);
+ifneq ($(strip $(UCLIBC_HAS_WCHAR)),y)
+	# Remove wide char headers if no wide char support.
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/wctype.h
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/wchar.h
+endif
+ifneq ($(strip $(UCLIBC_HAS_LOCALE)),y)
+	# Remove iconv header if no locale support.
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/iconv.h
+endif
+ifneq ($(strip $(UCLIBC_HAS_XLOCALE)),y)
+	# Remove xlocale header if no extended locale support.
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/xlocale.h
+endif
+ifneq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
+	# Remove libintl header if no gettext support.
+	rm $(PREFIX)$(DEVEL_PREFIX)/include/libintl.h
+endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod -f 755 $$i; chmod -f 644 $$i/*.h; \
 	done;
