@@ -51,12 +51,6 @@ __clone:
 	/* Sanity check arguments.  */
 	movl	$-EINVAL,%eax
 
-	test	%ecx,%ecx
-	call	.Lclone_error
-
-	test	%edx,%edx
-	call	.Lclone_error
-
 	movl	FUNC(%esp),%ecx		/* no NULL function pointers */
 #ifdef __PIC__
 	jecxz	.Lclone_error
