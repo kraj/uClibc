@@ -18,44 +18,7 @@
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry);
 
-/* Cheap modulo implementation, taken from arm/dl-sysdep.h. */
-static inline unsigned long
-cris_mod(unsigned long m, unsigned long p)
-{
-	unsigned long i, t, inc;
-
-	i = p;
-	t = 0;
-
-	while (!(i & (1 << 31))) {
-		i <<= 1;
-		t++;
-	}
-
-	t--;
-
-	for (inc = t; inc > 2; inc--) {
-		i = p << inc;
-
-		if (i & (1 << 31))
-			break;
-
-		while (m >= i) {
-			m -= i;
-			i <<= 1;
-			if (i & (1 << 31))
-				break;
-			if (i < p)
-				break;
-		}
-	}
-
-	while (m >= p)
-		m -= p;
-
-	return m;
-}
-#define do_rem(result, n, base) ((result) = cris_mod(n, base))
+#define do_rem(result, n, base) ((result) = (n) % (base))
 
 /* 8192 bytes alignment */
 #define PAGE_ALIGN 0xffffe000
