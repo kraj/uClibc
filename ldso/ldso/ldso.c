@@ -144,7 +144,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	/* Wahoo!!! */
-	_dl_dprintf(_dl_debug_file, "\nCool, ldso survived making function calls.\n");
+	_dl_dprintf(2, "\nCool, ldso survived making function calls.\n");
 #endif
 
 	/* Now we have done the mandatory linking of some things.  We are now
@@ -223,7 +223,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 		if (app_tpnt->loadaddr) {
-			_dl_dprintf(_dl_debug_file, "Position Independent Executable: "
+			_dl_dprintf(2, "Position Independent Executable: "
 					"app_tpnt->loadaddr=%x\n", app_tpnt->loadaddr);
 		}
 #endif
@@ -252,7 +252,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			 * again once we are done.
 			 */
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-			_dl_dprintf(_dl_debug_file, "calling mprotect on the application program\n");
+			_dl_dprintf(2, "calling mprotect on the application program\n");
 #endif
 			/* Now cover the application program. */
 			if (app_tpnt->dynamic_info[DT_TEXTREL]) {
@@ -306,7 +306,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				*ptmp = '\0';
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-			_dl_dprintf(_dl_debug_file, "Lib Loader:\t(%x) %s\n",
+			_dl_dprintf(2, "Lib Loader:\t(%x) %s\n",
 				    tpnt->loadaddr, tpnt->libname);
 #endif
 		}
@@ -438,10 +438,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 					tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-					_dl_dprintf(_dl_debug_file,
-						    "Loading:\t(%x) %s\n",
-						    tpnt1->loadaddr,
-						    tpnt1->libname);
+					_dl_dprintf(2,
+						    "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
 
 #ifdef __LDSO_LDD_SUPPORT__
@@ -545,9 +543,7 @@ next_lib:
 				tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-				_dl_dprintf(_dl_debug_file,
-					    "Loading:\t(%x) %s\n",
-					    tpnt1->loadaddr, tpnt1->libname);
+				_dl_dprintf(2, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
 
 #ifdef __LDSO_LDD_SUPPORT__
@@ -618,9 +614,7 @@ next_lib2:
 				tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-				_dl_dprintf(_dl_debug_file,
-					    "Loading:\t(%x) %s\n",
-					    tpnt1->loadaddr, tpnt1->libname);
+				_dl_dprintf(2, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
 
 #ifdef __LDSO_LDD_SUPPORT__
@@ -748,7 +742,7 @@ next_lib2:
 #endif
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-	_dl_dprintf(_dl_debug_file, "Beginning relocation fixups\n");
+	_dl_dprintf(2, "Beginning relocation fixups\n");
 #endif
 
 #ifdef __mips__
