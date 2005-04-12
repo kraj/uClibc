@@ -214,34 +214,6 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	SEND_STDERR("done scanning DYNAMIC section\n");
 #endif
 
-#ifndef __FORCE_SHAREABLE_TEXT_SEGMENTS__
-	/* Ugly, ugly.  We need to call mprotect to change the protection of
-	   the text pages so that we can do the dynamic linking.  We can set the
-	   protection back again once we are done */
-
-	{
-		ElfW(Phdr) *ppnt;
-		int i;
-
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-		SEND_STDERR("calling mprotect on the shared library/dynamic linker\n");
-#endif
-
-		/* First cover the shared library/dynamic linker. */
-		if (tpnt->dynamic_info[DT_TEXTREL]) {
-			header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_ptr;
-			ppnt = (ElfW(Phdr) *) ((int)auxvt[AT_BASE].a_un.a_ptr +
-					header->e_phoff);
-			for (i = 0; i < header->e_phnum; i++, ppnt++) {
-				if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W)) {
-					_dl_mprotect((void *) (load_addr + (ppnt->p_vaddr & PAGE_ALIGN)),
-							(ppnt->p_vaddr & ADDR_ALIGN) + (unsigned long) ppnt->p_filesz,
-							PROT_READ | PROT_WRITE | PROT_EXEC);
-				}
-			}
-		}
-	}
-#endif
 #ifdef PERFORM_BOOTSTRAP_GOT
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	SEND_STDERR("About to do specific GOT bootstrap\n");
