@@ -127,10 +127,11 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	/* Wahoo!!! */
-	_dl_dprintf(_dl_debug_file, "Cool, we managed to make a function call.\n");
-#endif
+
+	/* Wahoo!!! We managed to make a function call!  Get malloc
+	 * setup so we can use _dl_dprintf() to print debug noise
+	 * instead of the SEND_STDERR macros used in dl-startup.c */
+
 
 	/* Store the page size for later use */
 	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val) ? (size_t) auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
@@ -140,6 +141,11 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 */
 	_dl_malloc_addr = (unsigned char *)_dl_pagesize;
 	_dl_mmap_zero = 0;
+
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+	/* Wahoo!!! */
+	_dl_dprintf(_dl_debug_file, "\nCool, ldso survived making function calls.\n");
+#endif
 
 	/* Now we have done the mandatory linking of some things.  We are now
 	 * free to start using global variables, since these things have all
