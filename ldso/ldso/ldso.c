@@ -129,7 +129,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	/* Wahoo!!! */
-	SEND_STDERR("Cool, we managed to make a function call.\n");
+	_dl_dprintf(_dl_debug_file, "Cool, we managed to make a function call.\n");
 #endif
 
 	/* Store the page size for later use */
@@ -217,8 +217,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 		if (app_tpnt->loadaddr) {
-			SEND_STDERR("Position Independent Executable: app_tpnt->loadaddr=");
-			SEND_ADDRESS_STDERR(app_tpnt->loadaddr, 1);
+			_dl_dprintf(_dl_debug_file, "Position Independent Executable: "
+					"app_tpnt->loadaddr=%x\n", app_tpnt->loadaddr);
 		}
 #endif
 	}
@@ -246,7 +246,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			 * again once we are done.
 			 */
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-			SEND_STDERR("calling mprotect on the application program\n");
+			_dl_dprintf(_dl_debug_file, "calling mprotect on the application program\n");
 #endif
 			/* Now cover the application program. */
 			if (app_tpnt->dynamic_info[DT_TEXTREL]) {
