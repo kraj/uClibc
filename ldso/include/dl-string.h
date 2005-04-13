@@ -257,6 +257,15 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 /* The following macros may be used in dl-startup.c to debug
  * ldso before ldso has fixed itself up to make function calls */
 
+/* On some (wierd) arches, none of this stuff works at all, so
+ * disable the whole lot... */
+#if defined(__mips__)
+
+#define SEND_STDERR(X)
+#define SEND_ADDRESS_STDERR(X, add_a_newline)
+#define SEND_NUMBER_STDERR(X, add_a_newline)
+
+#else
 
 /* On some arches constant strings are referenced through the GOT.
  * This requires that load_addr must already be defined... */
@@ -307,6 +316,7 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
     } while ((X) > 0);						\
     _dl_write (2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1);		\
 };
+#endif
 
 
 #endif
