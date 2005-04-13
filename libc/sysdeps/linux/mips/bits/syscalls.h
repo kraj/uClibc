@@ -18,219 +18,257 @@
 
 #ifndef __ASSEMBLER__
 
-/* XXX - _foo needs to be __foo, while __NR_bar could be _NR_bar. */
 #define _syscall0(type,name) \
 type name(void) \
-{ \
-long __res, __err; \
-__asm__ volatile ("li\t$2,%2\n\t" \
-		  "syscall\n\t" \
-		  "move\t%0, $2\n\t" \
-		  "move\t%1, $7" \
-                  : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name) \
-                  : "$2","$7","$8","$9","$10","$11","$12","$13","$14","$15", \
-		    "$24","memory"); \
-if (__err == 0) \
-	return (type) __res; \
-__set_errno(__res); \
-return (type)-1; \
+{ 									\
+	long err;							\
+	long sys_result;						\
+	{								\
+	register unsigned long __v0 asm("$2"); 				\
+	register unsigned long __a3 asm("$7"); 				\
+	__asm__ volatile ( 						\
+	".set	noreorder\n\t" 						\
+	"li	$2, %2	# " #name "\n\t"				\
+	"syscall\n\t" 							\
+	".set reorder" 							\
+	: "=r" (__v0), "=r" (__a3) 					\
+	: "i" (SYS_ify(name))						\
+	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
+		"$14", "$15", "$24", "$25", "memory");			\
+	err = __a3;							\
+	sys_result = __v0;						\
+	}								\
+	if (err == 0)							\
+		return (type) sys_result;				\
+	__set_errno(sys_result);					\
+	return (type)-1;						\
 }
 
-/*
- * DANGER: This macro isn't usable for the pipe(2) call
- * which has a unusual return convention.
- */
 #define _syscall1(type,name,atype,a) \
 type name(atype a) \
-{ \
-long __res, __err; \
-__asm__ volatile ("move\t$4,%3\n\t" \
-		  "li\t$2,%2\n\t" \
-		  "syscall\n\t" \
-		  "move\t%0, $2\n\t" \
-		  "move\t%1, $7" \
-		  : "=r" (__res), "=r" (__err) \
-		  : "i" (__NR_##name),"r" ((unsigned long)(a)) \
-		  : "$2","$4","$7","$8","$9","$10","$11","$12","$13","$14","$15","$24","memory"); \
-if (__err == 0) \
-	return (type) __res; \
-__set_errno(__res); \
-return (type)-1; \
+{ 									\
+	long err;							\
+	long sys_result;						\
+	{								\
+	register unsigned long __v0 asm("$2"); 				\
+	register unsigned long __a0 asm("$4") = (unsigned long) a; 	\
+	register unsigned long __a3 asm("$7"); 				\
+	__asm__ volatile ( 						\
+	".set	noreorder\n\t" 						\
+	"li	$2, %3\t\t\t# " #name "\n\t"				\
+	"syscall\n\t" 							\
+	".set reorder" 							\
+	: "=r" (__v0), "=r" (__a3) 					\
+	: "r" (__a0), "i" (SYS_ify(name)) 				\
+	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
+		"$14", "$15", "$24", "$25", "memory");			\
+	err = __a3;							\
+	sys_result = __v0;						\
+	}								\
+	if (err == 0)							\
+		return (type) sys_result;				\
+	__set_errno(sys_result);					\
+	return (type)-1;						\
 }
 
 #define _syscall2(type,name,atype,a,btype,b) \
 type name(atype a,btype b) \
-{ \
-long __res, __err; \
-__asm__ volatile ("move\t$4,%3\n\t" \
-                  "move\t$5,%4\n\t" \
-		  "li\t$2,%2\n\t" \
-		  "syscall\n\t" \
-		  "move\t%0, $2\n\t" \
-		  "move\t%1, $7" \
-                  : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name),"r" ((unsigned long)(a)), \
-                                      "r" ((unsigned long)(b)) \
-                  : "$2","$4","$5","$7","$8","$9","$10","$11","$12","$13", \
-		    "$14","$15", "$24","memory"); \
-if (__err == 0) \
-	return (type) __res; \
-__set_errno(__res); \
-return (type)-1; \
+{ 									\
+	long err;							\
+	long sys_result;						\
+	{								\
+	register unsigned long __v0 asm("$2"); 				\
+	register unsigned long __a0 asm("$4") = (unsigned long) a; 	\
+	register unsigned long __a1 asm("$5") = (unsigned long) b; 	\
+	register unsigned long __a3 asm("$7"); 				\
+	__asm__ volatile ( 						\
+	".set	noreorder\n\t" 						\
+	"li	$2, %4\t\t\t# " #name "\n\t" 				\
+	"syscall\n\t" 							\
+	".set	reorder" 						\
+	: "=r" (__v0), "=r" (__a3) 					\
+	: "r" (__a0), "r" (__a1), "i" (SYS_ify(name))			\
+	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
+		"$14", "$15", "$24", "$25", "memory");			\
+	err = __a3;							\
+	sys_result = __v0;						\
+	}								\
+	if (err == 0)							\
+		return (type) sys_result;				\
+	__set_errno(sys_result);					\
+	return (type)-1;						\
 }
 
 #define _syscall3(type,name,atype,a,btype,b,ctype,c) \
 type name (atype a, btype b, ctype c) \
-{ \
-long __res, __err; \
-__asm__ volatile ("move\t$4,%3\n\t" \
-                  "move\t$5,%4\n\t" \
-                  "move\t$6,%5\n\t" \
-		  "li\t$2,%2\n\t" \
-		  "syscall\n\t" \
-		  "move\t%0, $2\n\t" \
-		  "move\t%1, $7" \
-                  : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name),"r" ((unsigned long)(a)), \
-                                      "r" ((unsigned long)(b)), \
-                                      "r" ((unsigned long)(c)) \
-                  : "$2","$4","$5","$6","$7","$8","$9","$10","$11","$12", \
-		    "$13","$14","$15","$24","memory"); \
-if (__err == 0) \
-	return (type) __res; \
-__set_errno(__res); \
-return (type)-1; \
+{ 									\
+	long err;							\
+	long sys_result;						\
+	{								\
+	register unsigned long __v0 asm("$2"); 				\
+	register unsigned long __a0 asm("$4") = (unsigned long) a; 	\
+	register unsigned long __a1 asm("$5") = (unsigned long) b; 	\
+	register unsigned long __a2 asm("$6") = (unsigned long) c; 	\
+	register unsigned long __a3 asm("$7"); 				\
+	__asm__ volatile ( 						\
+	".set	noreorder\n\t" 						\
+	"li	$2, %5\t\t\t# " #name "\n\t" 				\
+	"syscall\n\t" 							\
+	".set	reorder" 						\
+	: "=r" (__v0), "=r" (__a3) 					\
+	: "r" (__a0), "r" (__a1), "r" (__a2), "i" (SYS_ify(name)) 	\
+	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
+		"$14", "$15", "$24", "$25", "memory");			\
+	err = __a3;							\
+	sys_result = __v0;						\
+	}								\
+	if (err == 0)							\
+		return (type) sys_result;				\
+	__set_errno(sys_result);					\
+	return (type)-1;						\
 }
 
 #define _syscall4(type,name,atype,a,btype,b,ctype,c,dtype,d) \
 type name (atype a, btype b, ctype c, dtype d) \
-{ \
-long __res, __err; \
-__asm__ volatile ("move\t$4,%3\n\t" \
-                  "move\t$5,%4\n\t" \
-                  "move\t$6,%5\n\t" \
-                  "move\t$7,%6\n\t" \
-		  "li\t$2,%2\n\t" \
-		  "syscall\n\t" \
-		  "move\t%0, $2\n\t" \
-		  "move\t%1, $7" \
-                  : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name),"r" ((unsigned long)(a)), \
-                                      "r" ((unsigned long)(b)), \
-                                      "r" ((unsigned long)(c)), \
-                                      "r" ((unsigned long)(d)) \
-                  : "$2","$4","$5","$6","$7","$8","$9","$10","$11","$12", \
-		    "$13","$14","$15","$24","memory"); \
-if (__err == 0) \
-	return (type) __res; \
-__set_errno(__res); \
-return (type)-1; \
+{ 									\
+	long err;							\
+	long sys_result;						\
+	{								\
+	register unsigned long __v0 asm("$2"); 				\
+	register unsigned long __a0 asm("$4") = (unsigned long) a; 	\
+	register unsigned long __a1 asm("$5") = (unsigned long) b; 	\
+	register unsigned long __a2 asm("$6") = (unsigned long) c; 	\
+	register unsigned long __a3 asm("$7") = (unsigned long) d; 	\
+	__asm__ volatile ( 						\
+	".set	noreorder\n\t" 						\
+	"li	$2, %5\t\t\t# " #name "\n\t" 				\
+	"syscall\n\t" 							\
+	".set	reorder" 						\
+	: "=r" (__v0), "+r" (__a3) 					\
+	: "r" (__a0), "r" (__a1), "r" (__a2), "i" (SYS_ify(name)) 	\
+	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
+		"$14", "$15", "$24", "$25", "memory");			\
+	err = __a3;							\
+	sys_result = __v0;						\
+	}								\
+	if (err == 0)							\
+		return (type) sys_result;				\
+	__set_errno(sys_result);					\
+	return (type)-1;						\
 }
 
 #define _syscall5(type,name,atype,a,btype,b,ctype,c,dtype,d,etype,e) \
 type name (atype a,btype b,ctype c,dtype d,etype e) \
-{ \
-long __res, __err; \
-const unsigned long *constE = (unsigned long *) e; \
-__asm__ volatile ("move\t$4,%3\n\t" \
-                  "move\t$5,%4\n\t" \
-                  "move\t$6,%5\n\t" \
-		  "lw\t$2,%7\n\t" \
-                  "move\t$7,%6\n\t" \
-		  "subu\t$29,24\n\t" \
-		  "sw\t$2,16($29)\n\t" \
-		  "li\t$2,%2\n\t" \
-		  "syscall\n\t" \
-		  "move\t%0, $2\n\t" \
-		  "move\t%1, $7\n\t" \
-		  "addiu\t$29,24" \
-                  : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name),"r" ((unsigned long)(a)), \
-                                      "r" ((unsigned long)(b)), \
-                                      "r" ((unsigned long)(c)), \
-                                      "r" ((unsigned long)(d)), \
-                                      "m" ((constE)) \
-                  : "$2","$4","$5","$6","$7","$8","$9","$10","$11","$12", \
-                    "$13","$14","$15","$24","memory"); \
-if (__err == 0) \
-	return (type) __res; \
-__set_errno(__res); \
-return (type)-1; \
+{ 									\
+	long err;							\
+	long sys_result;						\
+	const unsigned long *constE = (void*)(unsigned long) e;		\
+	{								\
+	register unsigned long __v0 asm("$2"); 				\
+	register unsigned long __a0 asm("$4") = (unsigned long) a; 	\
+	register unsigned long __a1 asm("$5") = (unsigned long) b; 	\
+	register unsigned long __a2 asm("$6") = (unsigned long) c; 	\
+	register unsigned long __a3 asm("$7") = (unsigned long) d; 	\
+	__asm__ volatile ( 						\
+	".set	noreorder\n\t" 						\
+	"lw	$2, %6\n\t" 						\
+	"subu	$29, 32\n\t" 						\
+	"sw	$2, 16($29)\n\t" 					\
+	"li	$2, %5\t\t\t# " #name "\n\t" 				\
+	"syscall\n\t" 							\
+	"addiu	$29, 32\n\t" 						\
+	".set	reorder" 						\
+	: "=r" (__v0), "+r" (__a3) 					\
+	: "r" (__a0), "r" (__a1), "r" (__a2), "i" (SYS_ify(name)), 	\
+	  "m" (constE)							\
+	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
+		"$14", "$15", "$24", "$25", "memory");			\
+	err = __a3;							\
+	sys_result = __v0;						\
+	}								\
+	if (err == 0)							\
+		return (type) sys_result;				\
+	__set_errno(sys_result);					\
+	return (type)-1;						\
 }
 
 #define _syscall6(type,name,atype,a,btype,b,ctype,c,dtype,d,etype,e,ftype,f) \
 type name (atype a,btype b,ctype c,dtype d,etype e,ftype f) \
-{ \
-long __res, __err; \
-const unsigned long *constE = (unsigned long *) e; \
-const unsigned long *constF = (unsigned long *) f; \
-__asm__ volatile ("move\t$4,%3\n\t" \
-                  "move\t$5,%4\n\t" \
-                  "move\t$6,%5\n\t" \
-		  "lw\t$2,%7\n\t" \
-		  "lw\t$3,%8\n\t" \
-                  "move\t$7,%6\n\t" \
-		  "subu\t$29,24\n\t" \
-		  "sw\t$2,16($29)\n\t" \
-		  "sw\t$3,20($29)\n\t" \
-		  "li\t$2,%2\n\t" \
-		  "syscall\n\t" \
-		  "move\t%0, $2\n\t" \
-		  "move\t%1, $7\n\t" \
-		  "addiu\t$29,24" \
-                  : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name),"r" ((unsigned long)(a)), \
-                                      "r" ((unsigned long)(b)), \
-                                      "r" ((unsigned long)(c)), \
-                                      "r" ((unsigned long)(d)), \
-                                      "m" ((constE)), \
-                                      "m" ((constF)) \
-                  : "$2","$3","$4","$5","$6","$7","$8","$9","$10","$11", \
-                    "$12","$13","$14","$15","$24","memory"); \
-if (__err == 0) \
-	return (type) __res; \
-__set_errno(__res); \
-return (type)-1; \
+{ 									\
+	long err;							\
+	long sys_result;						\
+	const unsigned long *constE = (void*)(unsigned long) e;		\
+	const unsigned long *constF = (void*)(unsigned long) f;		\
+	{								\
+	register unsigned long __v0 asm("$2"); 				\
+	register unsigned long __a0 asm("$4") = (unsigned long) a; 	\
+	register unsigned long __a1 asm("$5") = (unsigned long) b; 	\
+	register unsigned long __a2 asm("$6") = (unsigned long) c; 	\
+	register unsigned long __a3 asm("$7") = (unsigned long) d;	\
+	__asm__ volatile ( 						\
+	".set	noreorder\n\t" 						\
+	"lw	$2, %6\n\t" 						\
+	"lw	$8, %7\n\t" 						\
+	"subu	$29, 32\n\t" 						\
+	"sw	$2, 16($29)\n\t" 					\
+	"sw	$8, 20($29)\n\t" 					\
+	"li	$2, %5\t\t\t# " #name "\n\t" 				\
+	"syscall\n\t" 							\
+	"addiu	$29, 32\n\t" 						\
+	".set	reorder" 						\
+	: "=r" (__v0), "+r" (__a3) 					\
+	: "r" (__a0), "r" (__a1), "r" (__a2), "i" (SYS_ify(name)), 	\
+	  "m" (constE), "m" (constF)					\
+	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
+		"$14", "$15", "$24", "$25", "memory");			\
+	err = __a3;							\
+	sys_result = __v0;						\
+	}								\
+	if (err == 0)							\
+		return (type) sys_result;				\
+	__set_errno(sys_result);					\
+	return (type)-1;						\
 }
 
 #define _syscall7(type,name,atype,a,btype,b,ctype,c,dtype,d,etype,e,ftype,f,gtype,g) \
 type name (atype a,btype b,ctype c,dtype d,etype e,ftype f,gtype g) \
-{ \
-long __res, __err; \
-const unsigned long *constE = (unsigned long *) e; \
-const unsigned long *constF = (unsigned long *) f; \
-const unsigned long *constG = (unsigned long *) g; \
-__asm__ volatile ("move\t$4,%3\n\t" \
-                  "move\t$5,%4\n\t" \
-                  "move\t$6,%5\n\t" \
-		  "lw\t$2,%7\n\t" \
-		  "lw\t$3,%8\n\t" \
-                  "move\t$7,%6\n\t" \
-		  "subu\t$29,32\n\t" \
-		  "sw\t$2,16($29)\n\t" \
-		  "lw\t$2,%9\n\t" \
-		  "sw\t$3,20($29)\n\t" \
-		  "sw\t$2,24($29)\n\t" \
-		  "li\t$2,%2\n\t" \
-		  "syscall\n\t" \
-		  "move\t%0, $2\n\t" \
-		  "move\t%1, $7\n\t" \
-		  "addiu\t$29,32" \
-                  : "=r" (__res), "=r" (__err) \
-                  : "i" (__NR_##name),"r" ((unsigned long)(a)), \
-                                      "r" ((unsigned long)(b)), \
-                                      "r" ((unsigned long)(c)), \
-                                      "r" ((unsigned long)(d)), \
-                                      "m" ((constE)), \
-                                      "m" ((constF)), \
-                                      "m" ((constG)) \
-                  : "$2","$3","$4","$5","$6","$7","$8","$9","$10","$11", \
-                    "$12","$13","$14","$15","$24","memory"); \
-if (__err == 0) \
-	return (type) __res; \
-__set_errno(__res); \
-return (type)-1; \
+{ 									\
+	long err;							\
+	long sys_result;						\
+	const unsigned long *constE = (void*)(unsigned long) e;		\
+	const unsigned long *constF = (void*)(unsigned long) f;		\
+	const unsigned long *constG = (void*)(unsigned long) g;		\
+	{								\
+	register unsigned long __v0 asm("$2"); 				\
+	register unsigned long __a0 asm("$4") = (unsigned long) a; 	\
+	register unsigned long __a1 asm("$5") = (unsigned long) b; 	\
+	register unsigned long __a2 asm("$6") = (unsigned long) c; 	\
+	register unsigned long __a3 asm("$7") = (unsigned long) d;	\
+	__asm__ volatile ( 						\
+	".set	noreorder\n\t" 						\
+	"lw	$2, %6\n\t" 						\
+	"lw	$8, %7\n\t" 						\
+	"lw	$9, %8\n\t" 						\
+	"subu	$29, 32\n\t" 						\
+	"sw	$2, 16($29)\n\t" 					\
+	"sw	$8, 20($29)\n\t" 					\
+	"sw	$9, 24($29)\n\t" 					\
+	"li	$2, %5\t\t\t# " #name "\n\t" 				\
+	"syscall\n\t" 							\
+	"addiu	$29, 32\n\t" 						\
+	".set	reorder" 						\
+	: "=r" (__v0), "+r" (__a3) 					\
+	: "r" (__a0), "r" (__a1), "r" (__a2), "i" (SYS_ify(name)), 	\
+	  "m" (constE), "m" (constF), "m" (constG)			\
+	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",		\
+		"$14", "$15", "$24", "$25", "memory");			\
+	err = __a3;							\
+	sys_result = __v0;						\
+	}								\
+	if (err == 0)							\
+		return (type) sys_result;				\
+	__set_errno(sys_result);					\
+	return (type)-1;						\
 }
 
 #endif /* __ASSEMBLER__ */
