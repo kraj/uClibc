@@ -117,13 +117,11 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	unsigned long load_addr;
 	Elf32_Addr got;
 	unsigned long *aux_dat;
-	int goof = 0;
 	ElfW(Ehdr) *header;
 	struct elf_resolve tpnt_tmp;
 	struct elf_resolve *tpnt = &tpnt_tmp;
 	Elf32_auxv_t auxvt[AT_EGID + 1];
 	Elf32_Dyn *dpnt;
-	int indx;
 
 	/* WARNING! -- we cannot make _any_ funtion calls until we have
 	 * taken care of fixing up our own relocations.  Making static
@@ -214,19 +212,24 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	SEND_STDERR("done scanning DYNAMIC section\n");
 #endif
 
-#ifdef PERFORM_BOOTSTRAP_GOT
+#if defined(__mips__)
+
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	SEND_STDERR("About to do specific GOT bootstrap\n");
 #endif
 	/* For MIPS we have to do stuff to the GOT before we do relocations.  */
 	PERFORM_BOOTSTRAP_GOT(tpnt);
-#endif
+
+#else
 
 	/* OK, now do the relocations.  We do not do a lazy binding here, so
 	   that once we are done, we have considerably more flexibility. */
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	SEND_STDERR("About to do library loader relocations\n");
 #endif
+
+	{
+	int goof, indx;
 #ifdef  ELF_MACHINE_PLTREL_OVERLAP
 # define INDX_MAX 1
 #else
@@ -290,6 +293,8 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	if (goof) {
 		_dl_exit(14);
 	}
+	}
+#endif
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 	/* Wahoo!!! */
