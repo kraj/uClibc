@@ -229,70 +229,70 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 #endif
 
 	{
-	int goof, indx;
+		int goof, indx;
 #ifdef  ELF_MACHINE_PLTREL_OVERLAP
 # define INDX_MAX 1
 #else
 # define INDX_MAX 2
 #endif
-	goof = 0;
-	for (indx = 0; indx < INDX_MAX; indx++) {
-		unsigned int i;
-		unsigned long *reloc_addr;
-		unsigned long symbol_addr;
-		int symtab_index;
-		Elf32_Sym *sym;
-		ELF_RELOC *rpnt;
-		unsigned long rel_addr, rel_size;
-		Elf32_Word relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
+		goof = 0;
+		for (indx = 0; indx < INDX_MAX; indx++) {
+			unsigned int i;
+			unsigned long *reloc_addr;
+			unsigned long symbol_addr;
+			int symtab_index;
+			Elf32_Sym *sym;
+			ELF_RELOC *rpnt;
+			unsigned long rel_addr, rel_size;
+			Elf32_Word relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
 
-		rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
-				dynamic_info[DT_RELOC_TABLE_ADDR]);
-		rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] : tpnt->
-				dynamic_info[DT_RELOC_TABLE_SIZE]);
+			rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
+					dynamic_info[DT_RELOC_TABLE_ADDR]);
+			rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] : tpnt->
+					dynamic_info[DT_RELOC_TABLE_SIZE]);
 
-		if (!rel_addr)
-			continue;
+			if (!rel_addr)
+				continue;
 
-		/* Now parse the relocation information */
-		/* Since ldso is linked with -Bsymbolic, all relocs will be RELATIVE(for those archs that have
-		   RELATIVE relocs) which means that the for(..) loop below has noting to do and can be deleted.
-		   Possibly one should add a HAVE_RELATIVE_RELOCS directive and #ifdef away some code. */
-		if (!indx && relative_count) {
-			rel_size -= relative_count * sizeof(ELF_RELOC);
-			elf_machine_relative (load_addr, rel_addr, relative_count);
-			rel_addr += relative_count * sizeof(ELF_RELOC);;
-		}
+			/* Now parse the relocation information */
+			/* Since ldso is linked with -Bsymbolic, all relocs will be RELATIVE(for those archs that have
+			   RELATIVE relocs) which means that the for(..) loop below has noting to do and can be deleted.
+			   Possibly one should add a HAVE_RELATIVE_RELOCS directive and #ifdef away some code. */
+			if (!indx && relative_count) {
+				rel_size -= relative_count * sizeof(ELF_RELOC);
+				elf_machine_relative (load_addr, rel_addr, relative_count);
+				rel_addr += relative_count * sizeof(ELF_RELOC);;
+			}
 
-		rpnt = (ELF_RELOC *) (rel_addr + load_addr);
-		for (i = 0; i < rel_size; i += sizeof(ELF_RELOC), rpnt++) {
-			reloc_addr = (unsigned long *) (load_addr + (unsigned long) rpnt->r_offset);
-			symtab_index = ELF32_R_SYM(rpnt->r_info);
-			symbol_addr = 0;
-			sym = NULL;
-			if (symtab_index) {
-				char *strtab;
-				Elf32_Sym *symtab;
+			rpnt = (ELF_RELOC *) (rel_addr + load_addr);
+			for (i = 0; i < rel_size; i += sizeof(ELF_RELOC), rpnt++) {
+				reloc_addr = (unsigned long *) (load_addr + (unsigned long) rpnt->r_offset);
+				symtab_index = ELF32_R_SYM(rpnt->r_info);
+				symbol_addr = 0;
+				sym = NULL;
+				if (symtab_index) {
+					char *strtab;
+					Elf32_Sym *symtab;
 
-				symtab = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB];
-				strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
-				sym = &symtab[symtab_index];
-				symbol_addr = load_addr + sym->st_value;
+					symtab = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB];
+					strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
+					sym = &symtab[symtab_index];
+					symbol_addr = load_addr + sym->st_value;
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-				SEND_STDERR("relocating symbol: ");
-				SEND_STDERR(strtab + sym->st_name);
-				SEND_STDERR("\n");
+					SEND_STDERR("relocating symbol: ");
+					SEND_STDERR(strtab + sym->st_name);
+					SEND_STDERR("\n");
 #endif
+				}
+				/* Use this machine-specific macro to perform the actual relocation.  */
+				PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, sym);
 			}
-			/* Use this machine-specific macro to perform the actual relocation.  */
-			PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, sym);
 		}
-	}
 
-	if (goof) {
-		_dl_exit(14);
-	}
+		if (goof) {
+			_dl_exit(14);
+		}
 	}
 #endif
 
