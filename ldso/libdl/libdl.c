@@ -130,14 +130,14 @@ void __attribute__ ((destructor)) dl_cleanup(void)
 
 void *dlopen(const char *libname, int flag)
 {
-	struct elf_resolve *tpnt, *tfrom, *tcurr;
-	struct dyn_elf *dyn_chain, *rpnt = NULL, *dyn_ptr, *relro_ptr;
+	struct elf_resolve *tpnt, *tfrom, *tcurr=NULL;
+	struct dyn_elf *dyn_chain, *rpnt = NULL, *dyn_ptr, *relro_ptr, *handle;
 	struct dyn_elf *dpnt;
 	ElfW(Addr) from;
 	struct elf_resolve *tpnt1;
 	void (*dl_brk) (void);
 	int now_flag;
-	struct init_fini_list *tmp, *runp;
+	struct init_fini_list *tmp, *runp, *runp2, *dep_list;
 	int nlist, i;
 	struct elf_resolve **init_fini_list;
 
@@ -187,7 +187,6 @@ void *dlopen(const char *libname, int flag)
 		_dl_unmap_cache();
 		return NULL;
 	}
-
 	dyn_chain = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 	_dl_memset(dyn_chain, 0, sizeof(struct dyn_elf));
 	dyn_chain->dyn = tpnt;
@@ -196,30 +195,55 @@ void *dlopen(const char *libname, int flag)
 	dyn_chain->next_handle = _dl_handles;
 	_dl_handles = dyn_ptr = dyn_chain;
 
+	if (tpnt->usage_count > 1) {
+#ifdef __SUPPORT_LD_DEBUG__
+		if(_dl_debug)
+			fprintf(stderr, "Lib: % already opened\n", libname);
+#endif
+		/* see if there is a handle from a earlier dlopen */
+		for (handle = _dl_handles->next_handle; handle; handle = handle->next_handle) {
+			if (handle->dyn == tpnt) {
+				dyn_chain->init_fini.init_fini = handle->init_fini.init_fini;
+				dyn_chain->init_fini.nlist = handle->init_fini.nlist;
+				for(i=0; i < dyn_chain->init_fini.nlist; i++)
+					dyn_chain->init_fini.init_fini[i]->rtld_flags |= (flag & RTLD_GLOBAL);
+				dyn_chain->next = handle->next;
+				break;
+			}
+		}
+		return dyn_chain;
+	} else {
+		tpnt->init_flag |= DL_OPENED;
+	}
+
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
 		fprintf(stderr, "Looking for needed libraries\n");
 #endif
 	nlist = 0;
-	for (tcurr = tpnt; tcurr; tcurr = tcurr->next)
+	runp = alloca(sizeof(*runp));
+	runp->tpnt = tpnt;
+	runp->next = NULL;
+	dep_list = runp2 = runp;
+	for (; runp; runp = runp->next)
 	{
 		Elf32_Dyn *dpnt;
 		char *lpntstr;
 
 		nlist++;
-		tcurr->init_fini = NULL; /* clear any previous dependcies */
-		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++) {
+		runp->tpnt->init_fini = NULL; /* clear any previous dependcies */
+		for (dpnt = (Elf32_Dyn *) runp->tpnt->dynamic_addr; dpnt->d_tag; dpnt++) {
 			if (dpnt->d_tag == DT_NEEDED) {
 				char *name;
 
-				lpntstr = (char*) (tcurr->dynamic_info[DT_STRTAB] +
+				lpntstr = (char*) (runp->tpnt->dynamic_info[DT_STRTAB] +
 						dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
 				tpnt1 = _dl_check_if_named_library_is_loaded(name, 0);
 #ifdef __SUPPORT_LD_DEBUG__
 				if(_dl_debug)
 					fprintf(stderr, "Trying to load '%s', needed by '%s'\n",
-							lpntstr, tcurr->libname);
+							lpntstr, runp->tpnt->libname);
 #endif
 				if (tpnt1) {
 					tpnt1->usage_count++;
@@ -227,17 +251,30 @@ void *dlopen(const char *libname, int flag)
 					tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, 0);
 					if (!tpnt1)
 						goto oops;
+					tpnt1->init_flag |= DL_OPENED;
+
 				}
 				tpnt1->rtld_flags |= (flag & RTLD_GLOBAL);
-				dyn_ptr->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
-				_dl_memset (dyn_ptr->next, 0, sizeof (struct dyn_elf));
-				dyn_ptr = dyn_ptr->next;
-				dyn_ptr->dyn = tpnt1;
 
-				tmp = alloca(sizeof(struct init_fini_list)); /* Allocates on stack, no need to free this memory */
-				tmp->tpnt = tpnt1;
-				tmp->next = tcurr->init_fini;
-				tcurr->init_fini = tmp;
+				if (tpnt1->usage_count == 1) {
+					/* This list is for dlsym() and relocation */
+					dyn_ptr->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
+					_dl_memset (dyn_ptr->next, 0, sizeof (struct dyn_elf));
+					dyn_ptr = dyn_ptr->next;
+					dyn_ptr->dyn = tpnt1;
+				}
+				if (tpnt1->init_flag & DL_OPENED) {
+					/* Used to record RTLD_LOCAL scope */
+					tmp = alloca(sizeof(struct init_fini_list)); /* Allocates on stack, no need to free this memory */
+					tmp->tpnt = tpnt1;
+					tmp->next = runp->tpnt->init_fini;
+					runp->tpnt->init_fini = tmp;
+
+					runp2->next = alloca(sizeof(*runp)); /* Allocates on stack, no need to free this memory */
+					runp2 = runp2->next;
+					runp2->tpnt = tpnt1;
+					runp2->next = NULL;
+				}
 			}
 		}
 	}
@@ -245,28 +282,28 @@ void *dlopen(const char *libname, int flag)
 	dyn_chain->init_fini.init_fini = init_fini_list;
 	dyn_chain->init_fini.nlist = nlist;
 	i = 0;
-	for (tcurr = tpnt; tcurr; tcurr = tcurr->next) {
-		init_fini_list[i++] = tcurr;
-		for(runp = tcurr->init_fini; runp; runp = runp->next){
+	for (runp2 = dep_list; runp2; runp2 = runp2->next) {
+		init_fini_list[i++] = runp2->tpnt;
+		for(runp = runp2->tpnt->init_fini; runp; runp = runp->next){
 			if (!(runp->tpnt->rtld_flags & RTLD_GLOBAL)) {
 				tmp = malloc(sizeof(struct init_fini_list));
 				tmp->tpnt = runp->tpnt;
-				tmp->next = tcurr->rtld_local;
-				tcurr->rtld_local = tmp;
+				tmp->next = runp2->tpnt->rtld_local;
+				runp2->tpnt->rtld_local = tmp;
 			}
 		}
 
 	}
 	/* Sort the INIT/FINI list in dependency order. */
-	for (tcurr = tpnt; tcurr; tcurr = tcurr->next) {
+	for (runp2 = dep_list; runp2; runp2 = runp2->next) {
 		int j, k;
-		for (j = 0; init_fini_list[j] != tcurr; ++j)
+		for (j = 0; init_fini_list[j] != runp2->tpnt; ++j)
 			/* Empty */;
 		for (k = j + 1; k < nlist; ++k) {
 			struct init_fini_list *runp = init_fini_list[k]->init_fini;
 
 			for (; runp; runp = runp->next) {
-				if (runp->tpnt == tcurr) {
+				if (runp->tpnt == runp2->tpnt) {
 					struct elf_resolve *here = init_fini_list[k];
 #ifdef __SUPPORT_LD_DEBUG__
 					if(_dl_debug)
@@ -293,13 +330,6 @@ void *dlopen(const char *libname, int flag)
 		}
 	}
 #endif
-
-	if (dyn_chain->dyn->init_flag & INIT_FUNCS_CALLED) {
-		/* If the init and fini stuff has already been run, that means
-		 * the dlopen'd library has already been loaded, and nothing
-		 * further needs to be done. */
-		return (void *) dyn_chain;
-	}
 
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
@@ -434,14 +464,16 @@ static int do_dlclose(void *vhandle, int need_fini)
 	struct dyn_elf *rpnt, *rpnt1;
 	struct init_fini_list *runp, *tmp;
 	ElfW(Phdr) *ppnt;
-	struct elf_resolve *tpnt;
+	struct elf_resolve *tpnt, *run_tpnt;
 	int (*dl_elf_fini) (void);
 	void (*dl_brk) (void);
 	struct dyn_elf *handle;
 	unsigned int end;
-	int i = 0;
+	int i = 0, j;
 
 	handle = (struct dyn_elf *) vhandle;
+	if (handle == _dl_symbol_tables)
+		return 0;
 	rpnt1 = NULL;
 	for (rpnt = _dl_handles; rpnt; rpnt = rpnt->next_handle) {
 		if (rpnt == handle)
@@ -457,10 +489,20 @@ static int do_dlclose(void *vhandle, int need_fini)
 		rpnt1->next_handle = rpnt->next_handle;
 	else
 		_dl_handles = rpnt->next_handle;
-	if (need_fini) {
-		for (i = 0; i < handle->init_fini.nlist; ++i) {
-			tpnt = handle->init_fini.init_fini[i];
-			if (tpnt->dynamic_info[DT_FINI] && tpnt->usage_count == 1 &&
+#ifdef __SUPPORT_LD_DEBUG__
+	if(_dl_debug)
+		fprintf(stderr, "dlclose: %s, usage count: %d\n", handle->dyn->libname, handle->dyn->usage_count);
+#endif
+	if (handle->dyn->usage_count != 1) {
+		handle->dyn->usage_count--;
+		free(handle);
+		return 0;
+	}
+	/* OK, this is a valid handle - now close out the file */
+	for (j = 0; j < handle->init_fini.nlist; ++j) {
+		tpnt = handle->init_fini.init_fini[j];
+		if (--tpnt->usage_count == 0) {
+			if (tpnt->dynamic_info[DT_FINI] && need_fini &&
 			    !(tpnt->init_flag & FINI_FUNCS_CALLED)) {
 				tpnt->init_flag |= FINI_FUNCS_CALLED;
 				dl_elf_fini = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
@@ -470,14 +512,11 @@ static int do_dlclose(void *vhandle, int need_fini)
 #endif
 				(*dl_elf_fini) ();
 			}
-		}
-	}
-	if (handle->dyn->usage_count == 1)
-		free(handle->init_fini.init_fini);
-	/* OK, this is a valid handle - now close out the file */
-	for (rpnt = handle; rpnt; rpnt = rpnt->next) {
-		tpnt = rpnt->dyn;
-		if (--tpnt->usage_count == 0) {
+
+#ifdef __SUPPORT_LD_DEBUG__
+			if(_dl_debug)
+				fprintf(stderr, "dlclose unmapping: %s\n", tpnt->libname);
+#endif
 			end = 0;
 			for (i = 0, ppnt = tpnt->ppnt;
 					i < tpnt->n_phent; ppnt++, i++) {
@@ -492,28 +531,37 @@ static int do_dlclose(void *vhandle, int need_fini)
 				tmp = runp->next;
 				free(runp);
 			}
+
 			/* Next, remove tpnt from the loaded_module list */
 			if (_dl_loaded_modules == tpnt) {
 				_dl_loaded_modules = tpnt->next;
 				if (_dl_loaded_modules)
 					_dl_loaded_modules->prev = 0;
 			} else
-				for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next)
-					if (tpnt->next == rpnt->dyn) {
-						tpnt->next = tpnt->next->next;
-						if (tpnt->next)
-							tpnt->next->prev = tpnt;
+				for (run_tpnt = _dl_loaded_modules; run_tpnt; run_tpnt = run_tpnt->next)
+					if (run_tpnt->next == tpnt) {
+#ifdef __SUPPORT_LD_DEBUG__
+						if(_dl_debug)
+							fprintf(stderr, "dlclose removing loaded_modules: %s\n", tpnt->libname);
+#endif
+						run_tpnt->next = run_tpnt->next->next;
+						if (run_tpnt->next)
+							run_tpnt->next->prev = run_tpnt;
 						break;
 					}
 
 			/* Next, remove tpnt from the global symbol table list */
-			if (_dl_symbol_tables->dyn == rpnt->dyn) {
-				_dl_symbol_tables = rpnt->next;
+			if (_dl_symbol_tables->dyn == tpnt) {
+				_dl_symbol_tables = _dl_symbol_tables->next;
 				if (_dl_symbol_tables)
 					_dl_symbol_tables->prev = 0;
 			} else
 				for (rpnt1 = _dl_symbol_tables; rpnt1->next; rpnt1 = rpnt1->next) {
-					if (rpnt1->next->dyn == rpnt->dyn) {
+					if (rpnt1->next->dyn == tpnt) {
+#ifdef __SUPPORT_LD_DEBUG__
+						if(_dl_debug)
+							fprintf(stderr, "dlclose removing symbol_tables: %s\n", tpnt->libname);
+#endif
 						free(rpnt1->next);
 						rpnt1->next = rpnt1->next->next;
 						if (rpnt1->next)
@@ -521,11 +569,12 @@ static int do_dlclose(void *vhandle, int need_fini)
 						break;
 					}
 				}
-			free(rpnt->dyn->libname);
-			free(rpnt->dyn);
+			free(tpnt->libname);
+			free(tpnt);
 		}
-		free(rpnt);
 	}
+	free(handle->init_fini.init_fini);
+	free(handle);
 
 
 	if (_dl_debug_addr) {
