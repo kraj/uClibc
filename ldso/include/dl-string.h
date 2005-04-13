@@ -46,10 +46,10 @@ static inline char *_dl_strcat(char *dst, const char *src)
 static inline char * _dl_strcpy(char * dst,const char *src)
 {
 	register char *ptr = dst;
-	
+
 	dst--;src--;
 	while ((*++dst = *++src) != 0);
-		
+
 	return ptr;
 }
 
@@ -219,7 +219,8 @@ static inline char *_dl_get_last_path_component(char *path)
  * or using long division */
 static inline char *_dl_simple_ltoa(char * local, unsigned long i)
 {
-	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
+	/* 20 digits plus a null terminator should be good for
+	 * 64-bit or smaller ints (2^64 - 1)*/
 	char *p = &local[22];
 	*--p = '\0';
 	do {
@@ -233,7 +234,8 @@ static inline char *_dl_simple_ltoa(char * local, unsigned long i)
 
 static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 {
-	/* 21 digits plus null terminator, good for 64-bit or smaller ints */
+	/* 16 digits plus a leading "0x" plus a null terminator,
+	 * should be good for 64-bit or smaller ints */
 	char *p = &local[22];
 	*--p = '\0';
 	do {
@@ -250,46 +252,60 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 }
 
 
-#if defined(mc68000) || defined(__arm__) || defined(__mips__) || defined(__sh__) ||  defined(__powerpc__)
-/* On some arches constant strings are referenced through the GOT. */
-/* XXX Requires load_addr to be defined. */
-#define SEND_STDERR(X)				\
-  { const char *__s = (X);			\
-    if (__s < (const char *) load_addr) __s += load_addr;	\
-    _dl_write (2, __s, _dl_strlen (__s));	\
-  }
+
+
+/* The following macros may be used in dl-startup.c to debug
+ * ldso before ldso has fixed itself up to make function calls */
+
+
+/* On some arches constant strings are referenced through the GOT.
+ * This requires that load_addr must already be defined... */
+#if defined(mc68000) || defined(__arm__) || defined(__mips__)	\
+		     || defined(__sh__) ||  defined(__powerpc__)
+#   define CONSTANT_STRING_GOT_FIXUP(X)				\
+	    if ((X) < (const char *) load_addr) (X) += load_addr;
 #else
-#define SEND_STDERR(X) _dl_write(2, X, _dl_strlen(X));
+#   define CONSTANT_STRING_GOT_FIXUP(X)
 #endif
 
-/* Some targets may have to override this to something that doesn't
-   reference constant strings through the GOT.  This macro should be
-   preferred over SEND_STDERR for constant strings before we complete
-   bootstrap.  */
-#ifndef SEND_EARLY_STDERR
-# define SEND_EARLY_STDERR(S) SEND_STDERR(S)
-#endif
 
-#define SEND_ADDRESS_STDERR(X, add_a_newline) { \
-    char tmp[22], *tmp1; \
-    _dl_memset(tmp, 0, sizeof(tmp)); \
-    tmp1=_dl_simple_ltoahex( tmp, (unsigned long)(X)); \
-    _dl_write(2, tmp1, _dl_strlen(tmp1)); \
-    if (add_a_newline) { \
-	tmp[0]='\n'; \
-	_dl_write(2, tmp, 1); \
-    } \
+#define SEND_STDERR(X) {					\
+    const char *tmp1 = (X);					\
+    CONSTANT_STRING_GOT_FIXUP(tmp1)				\
+    _dl_write (2, tmp1, _dl_strlen(tmp1));			\
 };
 
-#define SEND_NUMBER_STDERR(X, add_a_newline) { \
-    char tmp[22], *tmp1; \
-    _dl_memset(tmp, 0, sizeof(tmp)); \
-    tmp1=_dl_simple_ltoa( tmp, (unsigned long)(X)); \
-    _dl_write(2, tmp1, _dl_strlen(tmp1)); \
-    if (add_a_newline) { \
-	tmp[0]='\n'; \
-	_dl_write(2, tmp, 1); \
-    } \
+#define SEND_ADDRESS_STDERR(X, add_a_newline) {			\
+    char tmp[26], v, *tmp2, *tmp1 = tmp;			\
+    CONSTANT_STRING_GOT_FIXUP(tmp1)				\
+    tmp2 = tmp1 + sizeof(tmp);					\
+    *--tmp2 = '\0';						\
+    if (add_a_newline) *--tmp2 = '\n';				\
+    do {							\
+	    v = (X) & 0xf;					\
+	    if (v <= 0x09)					\
+		*--tmp2 = '0' + v;				\
+	    else						\
+		*--tmp2 = 'a' - 0x0a + v;			\
+	    (X) >>= 4;						\
+    } while ((X) > 0);						\
+    *--tmp2 = 'x';						\
+    *--tmp2 = '0';						\
+    _dl_write (2, tmp2, tmp1 - tmp2 + sizeof(tmp));		\
+};
+
+#define SEND_NUMBER_STDERR(X, add_a_newline) {			\
+    char tmp[26], v, *tmp2, *tmp1 = tmp;			\
+    CONSTANT_STRING_GOT_FIXUP(tmp1)				\
+    tmp2 = tmp1 + sizeof(tmp);					\
+    *--tmp2 = '\0';						\
+    if (add_a_newline) *--tmp2 = '\n';				\
+    do {							\
+	do_rem(v, (X), 10);					\
+	*--tmp2 = '0' + v;					\
+	(X) /= 10;						\
+    } while ((X) > 0);						\
+    _dl_write (2, tmp2, tmp1 - tmp2 + sizeof(tmp));		\
 };
 
 
