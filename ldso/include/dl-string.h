@@ -291,7 +291,7 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
     } while ((X) > 0);						\
     *--tmp2 = 'x';						\
     *--tmp2 = '0';						\
-    _dl_write (2, tmp2, tmp1 - tmp2 + sizeof(tmp));		\
+    _dl_write (2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1);		\
 };
 
 #define SEND_NUMBER_STDERR(X, add_a_newline) {			\
@@ -305,7 +305,7 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 	*--tmp2 = '0' + v;					\
 	(X) /= 10;						\
     } while ((X) > 0);						\
-    _dl_write (2, tmp2, tmp1 - tmp2 + sizeof(tmp));		\
+    _dl_write (2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1);		\
 };
 
 
