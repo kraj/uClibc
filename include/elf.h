@@ -1,6 +1,5 @@
 /* This file defines standard ELF types, structures, and macros.
-   Copyright (C) 1995-1999, 2000, 2001, 2002, 2003, 2004
-   Free Software Foundation, Inc.
+   Copyright (C) 1995-2003, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -228,7 +227,7 @@ typedef struct
 #define EM_68HC08	71		/* Motorola MC68HC08 microcontroller */
 #define EM_68HC05	72		/* Motorola MC68HC05 microcontroller */
 #define EM_SVX		73		/* Silicon Graphics SVx */
-#define EM_AT19		74		/* STMicroelectronics ST19 8 bit mc */
+#define EM_ST19		74		/* STMicroelectronics ST19 8 bit mc */
 #define EM_VAX		75		/* Digital VAX */
 #define EM_CRIS		76		/* Axis Communications 32-bit embedded processor */
 #define EM_JAVELIN	77		/* Infineon Technologies 32-bit embedded processor */
@@ -264,7 +263,6 @@ typedef struct
 
 /* V850 backend magic number.  Written in the absense of an ABI.  */
 #define EM_CYGNUS_V850 0x9080
-
 
 /* Legal values for e_version (version).  */
 
@@ -307,6 +305,10 @@ typedef struct
 #define SHN_UNDEF	0		/* Undefined section */
 #define SHN_LORESERVE	0xff00		/* Start of reserved indices */
 #define SHN_LOPROC	0xff00		/* Start of processor-specific */
+#define SHN_BEFORE	0xff00		/* Order section before all others
+					   (Solaris).  */
+#define SHN_AFTER	0xff01		/* Order section after all others
+					   (Solaris).  */
 #define SHN_HIPROC	0xff1f		/* End of processor-specific */
 #define SHN_LOOS	0xff20		/* Start of OS-specific */
 #define SHN_HIOS	0xff3f		/* End of OS-specific */
@@ -367,6 +369,10 @@ typedef struct
 #define SHF_TLS		     (1 << 10)	/* Section hold thread-local data.  */
 #define SHF_MASKOS	     0x0ff00000	/* OS-specific.  */
 #define SHF_MASKPROC	     0xf0000000	/* Processor-specific */
+#define SHF_ORDERED	     (1 << 30)	/* Special ordering requirement
+					   (Solaris).  */
+#define SHF_EXCLUDE	     (1 << 31)	/* Section is excluded unless
+					   referenced or allocated (Solaris).*/
 
 /* Section group handling.  */
 #define GRP_COMDAT	0x1		/* Mark group as COMDAT.  */
@@ -978,6 +984,12 @@ typedef struct
 #define AT_SYSINFO	32
 #define AT_SYSINFO_EHDR	33
 
+/* Shapes of the caches.  Bits 0-3 contains associativity; bits 4-7 contains
+   log2 of line size; mask those to get cache size.  */
+#define AT_L1I_CACHESHAPE	34
+#define AT_L1D_CACHESHAPE	35
+#define AT_L2_CACHESHAPE	36
+#define AT_L3_CACHESHAPE	37
 
 /* Note section contents.  Each entry in the note section begins with
    a header of a fixed form.  */
@@ -1172,7 +1184,7 @@ typedef struct
 
 /* Legal values for ST_TYPE subfield of st_info (symbol type).  */
 
-#define STT_REGISTER	13		/* Global register reserved to app. */
+#define STT_SPARC_REGISTER	13	/* Global register reserved to app. */
 
 /* Values for Elf64_Ehdr.e_flags.  */
 
@@ -2114,7 +2126,10 @@ typedef Elf32_Addr Elf32_Conflict;
 
 /* PowerPC64 specific values for the Dyn d_tag field.  */
 #define DT_PPC64_GLINK  (DT_LOPROC + 0)
-#define DT_PPC64_NUM    1
+#define DT_PPC64_OPD	(DT_LOPROC + 1)
+#define DT_PPC64_OPDSZ	(DT_LOPROC + 2)
+#define DT_PPC64_NUM    3
+
 
 /* ARM specific declarations */
 
@@ -2209,6 +2224,9 @@ typedef Elf32_Addr Elf32_Conflict;
 /* Processor specific values for the Phdr p_type field.  */
 #define PT_IA_64_ARCHEXT	(PT_LOPROC + 0)	/* arch extension bits */
 #define PT_IA_64_UNWIND		(PT_LOPROC + 1)	/* ia64 unwind bits */
+#define PT_IA_64_HP_OPT_ANOT	(PT_LOOS + 0x12)
+#define PT_IA_64_HP_HSL_ANOT	(PT_LOOS + 0x13)
+#define PT_IA_64_HP_STACK	(PT_LOOS + 0x14)
 
 /* Processor specific flags for the Phdr p_flags field.  */
 #define PF_IA_64_NORECOV	0x80000000	/* spec insns w/o recovery */
@@ -2225,7 +2243,6 @@ typedef Elf32_Addr Elf32_Conflict;
 #define DT_IA_64_PLT_RESERVE	(DT_LOPROC + 0)
 #define DT_IA_64_NUM		1
 
-/* IA-64 relocations.  */
 /* IA-64 relocations.  */
 #define R_IA64_NONE		0x00	/* none */
 #define R_IA64_IMM14		0x21	/* symbol + addend, add imm14 */
@@ -2381,11 +2398,6 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_390_JMP_SLOT		11	/* Create PLT entry.  */
 #define R_390_RELATIVE		12	/* Adjust by program base.  */
 #define R_390_GOTOFF32		13	/* 32 bit offset to GOT.	 */
-
-/* Those crazy binutils folks changed their 
- * abi.  Add this so older apps can cope. */
-#define R_390_GOTOFF R_390_GOTOFF32
-
 #define R_390_GOTPC		14	/* 32 bit PC relative offset to GOT.  */
 #define R_390_GOT16		15	/* 16 bit GOT offset.  */
 #define R_390_PC16		16	/* PC relative 16 bit.	*/
@@ -2446,9 +2458,14 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_390_TLS_DTPOFF	55	/* Offset in TLS block.	 */
 #define R_390_TLS_TPOFF		56	/* Negated offset in static TLS
 					   block.  */
-
+#define R_390_20		57	/* Direct 20 bit.  */
+#define R_390_GOT20		58	/* 20 bit GOT offset.  */
+#define R_390_GOTPLT20		59	/* 20 bit offset to jump slot.  */
+#define R_390_TLS_GOTIE20	60	/* 20 bit GOT offset for static TLS
+					   block offset.  */
 /* Keep this the last entry.  */
-#define R_390_NUM		57
+#define R_390_NUM		61
+
 
 /* CRIS relocations.  */
 #define R_CRIS_NONE		0
@@ -2474,6 +2491,7 @@ typedef Elf32_Addr Elf32_Conflict;
 
 /* Keep this the last entry.  */
 #define R_CRIS_NUM		20
+
 
 /* AMD x86-64 relocations.  */
 #define R_X86_64_NONE		0	/* No reloc */
@@ -2507,9 +2525,89 @@ typedef Elf32_Addr Elf32_Conflict;
 
 #define R_X86_64_NUM		24
 
-/* Keep this the last entry.  */
-#define R_X86_64_NUM		24
 
+/* AM33 relocations.  */
+#define R_MN10300_NONE		0	/* No reloc.  */
+#define R_MN10300_32		1	/* Direct 32 bit.  */
+#define R_MN10300_16		2	/* Direct 16 bit.  */
+#define R_MN10300_8		3	/* Direct 8 bit.  */
+#define R_MN10300_PCREL32	4	/* PC-relative 32-bit.  */
+#define R_MN10300_PCREL16	5	/* PC-relative 16-bit signed.  */
+#define R_MN10300_PCREL8	6	/* PC-relative 8-bit signed.  */
+#define R_MN10300_GNU_VTINHERIT	7	/* Ancient C++ vtable garbage... */
+#define R_MN10300_GNU_VTENTRY	8	/* ... collection annotation.  */
+#define R_MN10300_24		9	/* Direct 24 bit.  */
+#define R_MN10300_GOTPC32	10	/* 32-bit PCrel offset to GOT.  */
+#define R_MN10300_GOTPC16	11	/* 16-bit PCrel offset to GOT.  */
+#define R_MN10300_GOTOFF32	12	/* 32-bit offset from GOT.  */
+#define R_MN10300_GOTOFF24	13	/* 24-bit offset from GOT.  */
+#define R_MN10300_GOTOFF16	14	/* 16-bit offset from GOT.  */
+#define R_MN10300_PLT32		15	/* 32-bit PCrel to PLT entry.  */
+#define R_MN10300_PLT16		16	/* 16-bit PCrel to PLT entry.  */
+#define R_MN10300_GOT32		17	/* 32-bit offset to GOT entry.  */
+#define R_MN10300_GOT24		18	/* 24-bit offset to GOT entry.  */
+#define R_MN10300_GOT16		19	/* 16-bit offset to GOT entry.  */
+#define R_MN10300_COPY		20	/* Copy symbol at runtime.  */
+#define R_MN10300_GLOB_DAT	21	/* Create GOT entry.  */
+#define R_MN10300_JMP_SLOT	22	/* Create PLT entry.  */
+#define R_MN10300_RELATIVE	23	/* Adjust by program base.  */
+
+#define R_MN10300_NUM		24
+
+
+/* M32R relocs.  */
+#define R_M32R_NONE		0	/* No reloc. */
+#define R_M32R_16		1	/* Direct 16 bit. */
+#define R_M32R_32		2	/* Direct 32 bit. */
+#define R_M32R_24		3	/* Direct 24 bit. */
+#define R_M32R_10_PCREL		4	/* PC relative 10 bit shifted. */
+#define R_M32R_18_PCREL		5	/* PC relative 18 bit shifted. */
+#define R_M32R_26_PCREL		6	/* PC relative 26 bit shifted. */
+#define R_M32R_HI16_ULO		7	/* High 16 bit with unsigned low. */
+#define R_M32R_HI16_SLO		8	/* High 16 bit with signed low. */
+#define R_M32R_LO16		9	/* Low 16 bit. */
+#define R_M32R_SDA16		10	/* 16 bit offset in SDA. */
+#define R_M32R_GNU_VTINHERIT	11
+#define R_M32R_GNU_VTENTRY	12
+/* M32R relocs use SHT_RELA.  */
+#define R_M32R_16_RELA		33	/* Direct 16 bit. */
+#define R_M32R_32_RELA		34	/* Direct 32 bit. */
+#define R_M32R_24_RELA		35	/* Direct 24 bit. */
+#define R_M32R_10_PCREL_RELA	36	/* PC relative 10 bit shifted. */
+#define R_M32R_18_PCREL_RELA	37	/* PC relative 18 bit shifted. */
+#define R_M32R_26_PCREL_RELA	38	/* PC relative 26 bit shifted. */
+#define R_M32R_HI16_ULO_RELA	39	/* High 16 bit with unsigned low */
+#define R_M32R_HI16_SLO_RELA	40	/* High 16 bit with signed low */
+#define R_M32R_LO16_RELA	41	/* Low 16 bit */
+#define R_M32R_SDA16_RELA	42	/* 16 bit offset in SDA */
+#define R_M32R_RELA_GNU_VTINHERIT	43
+#define R_M32R_RELA_GNU_VTENTRY	44
+
+#define R_M32R_GOT24		48	/* 24 bit GOT entry */
+#define R_M32R_26_PLTREL	49	/* 26 bit PC relative to PLT shifted */
+#define R_M32R_COPY		50	/* Copy symbol at runtime */
+#define R_M32R_GLOB_DAT		51	/* Create GOT entry */
+#define R_M32R_JMP_SLOT		52	/* Create PLT entry */
+#define R_M32R_RELATIVE		53	/* Adjust by program base */
+#define R_M32R_GOTOFF		54	/* 24 bit offset to GOT */
+#define R_M32R_GOTPC24		55	/* 24 bit PC relative offset to GOT */
+#define R_M32R_GOT16_HI_ULO	56	/* High 16 bit GOT entry with unsigned
+					   low */
+#define R_M32R_GOT16_HI_SLO	57	/* High 16 bit GOT entry with signed
+					   low */
+#define R_M32R_GOT16_LO		58	/* Low 16 bit GOT entry */
+#define R_M32R_GOTPC_HI_ULO	59	/* High 16 bit PC relative offset to
+					   GOT with unsigned low */
+#define R_M32R_GOTPC_HI_SLO	60	/* High 16 bit PC relative offset to
+					   GOT with signed low */
+#define R_M32R_GOTPC_LO		61	/* Low 16 bit PC relative offset to
+					   GOT */
+#define R_M32R_GOTOFF_HI_ULO	62	/* High 16 bit offset to GOT
+					   with unsigned low */
+#define R_M32R_GOTOFF_HI_SLO	63	/* High 16 bit offset to GOT
+					   with signed low */
+#define R_M32R_GOTOFF_LO	64	/* Low 16 bit offset to GOT */
+#define R_M32R_NUM		256	/* Keep this the last entry. */
 
 /* i960 Relocations */
 #define R_960_NONE      0
