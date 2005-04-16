@@ -26,6 +26,11 @@
  * Don't use brain damaged getpid() based randomness.
  */
 
+/* April 15, 2005     Mike Frysinger
+ *
+ * Use brain damaged getpid() if real random fails.
+ */
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -132,6 +137,30 @@ static unsigned int fillrand(unsigned char *buf, unsigned int len)
     return result;
 }
 
+static void brain_damaged_fillrand(unsigned char *buf, unsigned int len)
+{
+	int i, k;
+	struct timeval tv;
+	uint32_t high, low, rh;
+	static uint64_t value;
+	gettimeofday(&tv, NULL);
+	value += ((uint64_t) tv.tv_usec << 16) ^ tv.tv_sec ^ getpid();
+	low = value & UINT32_MAX;
+	high = value >> 32;
+	for (i = 0; i < len; ++i) {
+		rh = high % 62;
+		high /= 62;
+#define L ((UINT32_MAX % 62 + 1) % 62)
+		k = (low % 62) + (L * rh);
+#undef L
+#define H ((UINT32_MAX / 62) + ((UINT32_MAX % 62 + 1) / 62))
+		low = (low / 62) + (H * rh) + (k / 62);
+#undef H
+		k %= 62;
+		buf[i] = letters[k];
+	}
+}
+
 /* Generate a temporary file name based on TMPL.  TMPL must match the
    rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
    does not exist at the time of the call to __gen_tempname.  TMPL is
@@ -164,8 +193,9 @@ int __gen_tempname (char *tmpl, int kind)
     XXXXXX = &tmpl[len - 6];
 
     /* Get some random data.  */
-    if (fillrand(randomness,  sizeof(randomness)) != sizeof(randomness)) {
-	goto all_done;
+	if (fillrand(randomness, sizeof(randomness)) != sizeof(randomness)) {
+		/* if random device nodes failed us, lets use the braindamaged ver */
+		brain_damaged_fillrand(randomness, sizeof(randomness));
     }
     for (i = 0 ; i < sizeof(randomness) ; i++) {
 	k = ((randomness[i]) % 62);
@@ -219,7 +249,6 @@ int __gen_tempname (char *tmpl, int kind)
     }
 
     /* We got out of the loop because we ran out of combinations to try.  */
-all_done:
     __set_errno (EEXIST);
     return -1;
 }
