@@ -21,7 +21,11 @@ include $(TOPDIR)Rules.mak
 
 all: ncurses conf mconf
 
+ifeq ($(shell uname),SunOS)
+LIBS = -lcurses
+else
 LIBS = -lncurses
+endif
 ifeq (/usr/include/ncurses/ncurses.h, $(wildcard /usr/include/ncurses/ncurses.h))
 	HOSTNCURSES += -I/usr/include/ncurses -DCURSES_LOC="<ncurses.h>"
 else
@@ -44,13 +48,16 @@ endif
 endif
 endif
 
-CONF_SRC  =conf.c
-MCONF_SRC =mconf.c checklist.c menubox.c textbox.c yesno.c inputbox.c util.c msgbox.c
-SHARED_SRC=zconf.tab.c
-SHARED_DEPS:=lkc.h lkc_proto.h lkc_defs.h expr.h zconf.tab.h
-CONF_OBJS =$(patsubst %.c,%.o, $(CONF_SRC))
-MCONF_OBJS=$(patsubst %.c,%.o, $(MCONF_SRC))
-SHARED_OBJS=$(patsubst %.c,%.o, $(SHARED_SRC))
+CONF_SRC     = conf.c
+MCONF_SRC    = mconf.c
+LXD_SRC      = lxdialog/checklist.c lxdialog/menubox.c lxdialog/textbox.c \
+               lxdialog/yesno.c lxdialog/inputbox.c lxdialog/util.c \
+               lxdialog/msgbox.c
+SHARED_SRC   = zconf.tab.c
+SHARED_DEPS := lkc.h lkc_proto.h lkc_defs.h expr.h zconf.tab.h
+CONF_OBJS    = $(patsubst %.c,%.o, $(CONF_SRC))
+MCONF_OBJS   = $(patsubst %.c,%.o, $(MCONF_SRC) $(LXD_SRC))
+SHARED_OBJS  = $(patsubst %.c,%.o, $(SHARED_SRC))
 
 conf: $(CONF_OBJS) $(SHARED_OBJS) 
 	$(HOSTCC) $(NATIVE_LDFLAGS) $^ -o $@

@@ -118,7 +118,8 @@ print_buttons( WINDOW *dialog, int height, int width, int selected)
  */
 int
 dialog_checklist (const char *title, const char *prompt, int height, int width,
-	int list_height, int item_no, const char * const * items, int flag)
+	int list_height, int item_no, struct dialog_list_item ** items,
+	int flag)
 	
 {
     int i, x, y, box_x, box_y;
@@ -137,8 +138,8 @@ dialog_checklist (const char *title, const char *prompt, int height, int width,
 
     /* Initializes status */
     for (i = 0; i < item_no; i++) {
-	status[i] = !strcasecmp (items[i * 3 + 2], "on");
-	if ((!choice && status[i]) || !strcasecmp (items[i * 3 + 2], "selected"))
+	status[i] = (items[i]->selected == 1); /* ON */
+	if ((!choice && status[i]) || items[i]->selected == 2) /* SELECTED */
             choice = i + 1;
     }
     if (choice)
@@ -197,7 +198,7 @@ dialog_checklist (const char *title, const char *prompt, int height, int width,
     /* Find length of longest item in order to center checklist */
     check_x = 0;
     for (i = 0; i < item_no; i++) 
-	check_x = MAX (check_x, + strlen (items[i * 3 + 1]) + 4);
+	check_x = MAX (check_x, + strlen (items[i]->name) + 4);
 
     check_x = (list_width - check_x) / 2;
     item_x = check_x + 4;
@@ -209,7 +210,7 @@ dialog_checklist (const char *title, const char *prompt, int height, int width,
 
     /* Print the list */
     for (i = 0; i < max_choice; i++) {
-	print_item (list, items[(scroll+i) * 3 + 1],
+	print_item (list, items[scroll + i]->name,
 		    status[i+scroll], i, i == choice);
     }
 
@@ -226,7 +227,7 @@ dialog_checklist (const char *title, const char *prompt, int height, int width,
 	key = wgetch (dialog);
 
     	for (i = 0; i < max_choice; i++)
-            if (toupper(key) == toupper(items[(scroll+i)*3+1][0]))
+            if (toupper(key) == toupper(items[scroll + i]->name[0]))
                 break;
 
 
@@ -239,14 +240,14 @@ dialog_checklist (const char *title, const char *prompt, int height, int width,
 		    /* Scroll list down */
 		    if (list_height > 1) {
 			/* De-highlight current first item */
-			print_item (list, items[scroll * 3 + 1],
+			print_item (list, items[scroll]->name,
 					status[scroll], 0, FALSE);
 			scrollok (list, TRUE);
 			wscrl (list, -1);
 			scrollok (list, FALSE);
 		    }
 		    scroll--;
-		    print_item (list, items[scroll * 3 + 1],
+		    print_item (list, items[scroll]->name,
 				status[scroll], 0, TRUE);
 		    wnoutrefresh (list);
 
@@ -265,7 +266,7 @@ dialog_checklist (const char *title, const char *prompt, int height, int width,
 		    /* Scroll list up */
 		    if (list_height > 1) {
 			/* De-highlight current last item before scrolling up */
-			print_item (list, items[(scroll + max_choice - 1) * 3 + 1],
+			print_item (list, items[scroll + max_choice - 1]->name,
 				    status[scroll + max_choice - 1],
 				    max_choice - 1, FALSE);
 			scrollok (list, TRUE);
@@ -273,7 +274,7 @@ dialog_checklist (const char *title, const char *prompt, int height, int width,
 			scrollok (list, FALSE);
 		    }
 		    scroll++;
-		    print_item (list, items[(scroll + max_choice - 1) * 3 + 1],
+		    print_item (list, items[scroll + max_choice - 1]->name,
 				status[scroll + max_choice - 1],
 				max_choice - 1, TRUE);
 		    wnoutrefresh (list);
@@ -289,11 +290,11 @@ dialog_checklist (const char *title, const char *prompt, int height, int width,
 	    }
 	    if (i != choice) {
 		/* De-highlight current item */
-		print_item (list, items[(scroll + choice) * 3 + 1],
+		print_item (list, items[scroll + choice]->name,
 			    status[scroll + choice], choice, FALSE);
 		/* Highlight new item */
 		choice = i;
-		print_item (list, items[(scroll + choice) * 3 + 1],
+		print_item (list, items[scroll + choice]->name,
 			    status[scroll + choice], choice, TRUE);
 		wnoutrefresh (list);
 		wrefresh (dialog);
@@ -304,7 +305,9 @@ dialog_checklist (const char *title, const char *prompt, int height, int width,
 	case 'H':
 	case 'h':
 	case '?':
-	    fprintf (stderr, "%s", items[(scroll + choice) * 3]);
+	    for (i = 0; i < item_no; i++)
+		items[i]->selected = 0;
+	    items[scroll + choice]->selected = 1;
 	    delwin (dialog);
 	    free (status);
 	    return 1;
@@ -333,7 +336,7 @@ dialog_checklist (const char *title, const char *prompt, int height, int width,
 			    status[i] = 0;
 			status[scroll + choice] = 1;
 			for (i = 0; i < max_choice; i++)
-			    print_item (list, items[(scroll + i) * 3 + 1],
+			    print_item (list, items[scroll + i]->name,
 					status[scroll + i], i, i == choice);
 		    }
 		}
@@ -341,17 +344,13 @@ dialog_checklist (const char *title, const char *prompt, int height, int width,
 		wrefresh (dialog);
             
 		for (i = 0; i < item_no; i++) {
-		    if (status[i]) {
-			if (flag == FLAG_CHECK) {
-			    fprintf (stderr, "\"%s\" ", items[i * 3]);
-			} else {
-			    fprintf (stderr, "%s", items[i * 3]);
-			}
-
-		    }
+			items[i]->selected = status[i];
 		}
-            } else
-		fprintf (stderr, "%s", items[(scroll + choice) * 3]);
+            } else {
+		    for (i = 0; i < item_no; i++)
+			    items[i]->selected = 0;
+		    items[scroll + choice]->selected = 1;
+	    }
 	    delwin (dialog);
 	    free (status);
 	    return button;
