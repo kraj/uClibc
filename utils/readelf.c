@@ -211,7 +211,7 @@ static void describe_elf_hdr(Elf32_Ehdr* ehdr)
 		case EM_68HC08:		tmp="Motorola MC68HC08 microcontroller"; break;
 		case EM_68HC05:		tmp="Motorola MC68HC05 microcontroller"; break;
 		case EM_SVX:		tmp="Silicon Graphics SVx"; break;
-		case EM_AT19:		tmp="STMicroelectronics ST19 8 bit mc"; break;
+		case EM_ST19:		tmp="STMicroelectronics ST19 8 bit mc"; break;
 		case EM_VAX:		tmp="Digital VAX"; break;
 		case EM_CRIS:		tmp="Axis Communications 32-bit embedded processor"; break;
 		case EM_JAVELIN:	tmp="Infineon Technologies 32-bit embedded processor"; break;
