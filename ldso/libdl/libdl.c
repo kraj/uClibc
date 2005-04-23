@@ -255,15 +255,28 @@ void *dlopen(const char *libname, int flag)
 				}
 				if (tpnt1->init_flag & DL_OPENED) {
 					/* Used to record RTLD_LOCAL scope */
-					tmp = alloca(sizeof(struct init_fini_list)); /* Allocates on stack, no need to free this memory */
+					tmp = alloca(sizeof(struct init_fini_list));
 					tmp->tpnt = tpnt1;
 					tmp->next = runp->tpnt->init_fini;
 					runp->tpnt->init_fini = tmp;
 
-					runp2->next = alloca(sizeof(*runp)); /* Allocates on stack, no need to free this memory */
-					runp2 = runp2->next;
-					runp2->tpnt = tpnt1;
-					runp2->next = NULL;
+					for (tmp=dep_list; tmp; tmp = tmp->next) {
+						if (tpnt1 == tmp->tpnt) { /* if match => cirular dependency, drop it */
+#ifdef __SUPPORT_LD_DEBUG__
+							if(_dl_debug)
+								fprintf(stderr, "Circular dependency, skipping '%s',\n",
+									tmp->tpnt->libname);
+#endif
+							tpnt1->usage_count--;
+							break;
+						}
+					}
+					if (!tmp) { /* Don't add if circular dependency detected */
+						runp2->next = alloca(sizeof(*runp));
+						runp2 = runp2->next;
+						runp2->tpnt = tpnt1;
+						runp2->next = NULL;
+					}
 				}
 			}
 		}
