@@ -44,8 +44,6 @@ extern char *_dl_find_hash(const char *, struct dyn_elf *, struct elf_resolve *,
 	__attribute__ ((__weak__));
 extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **,
 	struct elf_resolve *, char *, int) __attribute__ ((__weak__));
-extern struct elf_resolve * _dl_check_if_named_library_is_loaded(const char *, int)
-	__attribute__ ((__weak__));
 extern int _dl_fixup(struct dyn_elf *rpnt, int lazy)
 	 __attribute__ ((__weak__));
 extern void _dl_protect_relro(struct elf_resolve * tpnt)
@@ -178,11 +176,8 @@ void *dlopen(const char *libname, int flag)
 	if(_dl_debug)
 		fprintf(stderr, "Trying to dlopen '%s'\n", (char*)libname);
 #endif
-	tpnt = _dl_check_if_named_library_is_loaded((char *)libname, 0);
-	if (!(tpnt))
-		tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname, 0);
-	else
-		tpnt->usage_count++;
+	tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname, 0);
+
 	if (tpnt == NULL) {
 		_dl_unmap_cache();
 		return NULL;
@@ -239,24 +234,19 @@ void *dlopen(const char *libname, int flag)
 				lpntstr = (char*) (runp->tpnt->dynamic_info[DT_STRTAB] +
 						dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
-				tpnt1 = _dl_check_if_named_library_is_loaded(name, 0);
 #ifdef __SUPPORT_LD_DEBUG__
 				if(_dl_debug)
 					fprintf(stderr, "Trying to load '%s', needed by '%s'\n",
 							lpntstr, runp->tpnt->libname);
 #endif
-				if (tpnt1) {
-					tpnt1->usage_count++;
-				} else {
-					tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, 0);
-					if (!tpnt1)
-						goto oops;
-					tpnt1->init_flag |= DL_OPENED;
+				tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, 0);
+				if (!tpnt1)
+					goto oops;
 
-				}
 				tpnt1->rtld_flags |= (flag & RTLD_GLOBAL);
 
 				if (tpnt1->usage_count == 1) {
+					tpnt1->init_flag |= DL_OPENED;
 					/* This list is for dlsym() and relocation */
 					dyn_ptr->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 					_dl_memset (dyn_ptr->next, 0, sizeof (struct dyn_elf));

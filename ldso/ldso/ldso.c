@@ -411,11 +411,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			*str2 = '\0';
 
 			if (!_dl_secure || _dl_strchr(str, '/') == NULL) {
-				if ((tpnt1 = _dl_check_if_named_library_is_loaded(str, trace_loaded_objects))) {
-					tpnt1->usage_count++;
-					goto next_lib;
-				}
-
 #if defined (__SUPPORT_LD_DEBUG__)
 				if(_dl_debug)
 					_dl_dprintf(_dl_debug_file,
@@ -458,7 +453,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				}
 			}
 
-next_lib:
 			*str2 = c;
 			str = str2;
 			while (*str == ':' || *str == ' ' || *str == '\t')
@@ -515,12 +509,6 @@ next_lib:
 				/*nada */ ;
 			c = *cp;
 			*cp = '\0';
-
-			if ((tpnt1 = _dl_check_if_named_library_is_loaded(cp2, trace_loaded_objects))) {
-				tpnt1->usage_count++;
-				goto next_lib2;
-			}
-
 #if defined (__SUPPORT_LD_DEBUG__)
 			if(_dl_debug)
 				_dl_dprintf(_dl_debug_file,
@@ -556,7 +544,6 @@ next_lib:
 #endif
 			}
 
-next_lib2:
 			/* find start of next library */
 			*cp = c;
 			for ( /*nada */ ; *cp && *cp == ' '; cp++)
@@ -580,10 +567,6 @@ next_lib2:
 				lpntstr = (char*) (tcurr->dynamic_info[DT_STRTAB] + dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
 
-				if ((tpnt1 = _dl_check_if_named_library_is_loaded(name, trace_loaded_objects)))	{
-					tpnt1->usage_count++;
-				}
-
 #if defined (__SUPPORT_LD_DEBUG__)
 				if(_dl_debug)
 					_dl_dprintf(_dl_debug_file,
@@ -591,18 +574,16 @@ next_lib2:
 						    lpntstr, _dl_progname);
 #endif
 
-				if (!tpnt1) {
-					if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, trace_loaded_objects)))	{
+				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, trace_loaded_objects)))	{
 #ifdef __LDSO_LDD_SUPPORT__
-						if (trace_loaded_objects) {
-							_dl_dprintf(1, "\t%s => not found\n", lpntstr);
-							continue;
-						} else
+					if (trace_loaded_objects) {
+						_dl_dprintf(1, "\t%s => not found\n", lpntstr);
+						continue;
+					} else
 #endif
-						{
-							_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, lpntstr);
-							_dl_exit(16);
-						}
+					{
+						_dl_dprintf(2, "%s: can't load library '%s'\n", _dl_progname, lpntstr);
+						_dl_exit(16);
 					}
 				}
 

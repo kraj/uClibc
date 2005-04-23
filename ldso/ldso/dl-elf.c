@@ -273,13 +273,14 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	if (pnt1) {
 		libname = pnt1 + 1;
 	}
-#if 0
+
 	/* Critical step!  Weed out duplicates early to avoid
 	 * function aliasing, which wastes memory, and causes
 	 * really bad things to happen with weaks and globals. */
-	if ((tpnt1=_dl_check_if_named_library_is_loaded(libname, trace_loaded_objects))!=NULL)
+	if ((tpnt1=_dl_check_if_named_library_is_loaded(libname, trace_loaded_objects))!=NULL) {
+		tpnt1->usage_count++;
 		return tpnt1;
-#endif
+	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfind library='%s'; searching\n", libname);
