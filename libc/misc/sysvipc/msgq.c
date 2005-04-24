@@ -6,12 +6,12 @@
 #ifdef L_msgctl
 
 #ifdef __NR_msgctl
-_syscall3(int, msgctl, int, msqid, int, cmd, struct msqid_ds *, buf);
+_syscall3(int, msgctl, int, msqid, int, cmd | __IPC_64, struct msqid_ds *, buf);
 #else
 /* Message queue control operation.  */
 int msgctl (int msqid, int cmd, struct msqid_ds *buf)
 {
-    return __syscall_ipc(IPCOP_msgctl ,msqid ,cmd ,0 ,buf);
+    return __syscall_ipc(IPCOP_msgctl ,msqid ,cmd | __IPC_64 ,0 ,buf);
 }
 #endif
 #endif

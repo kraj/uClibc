@@ -51,9 +51,9 @@ int semctl(int semid, int semnum, int cmd, ...)
     arg = va_arg (ap, union semun);
     va_end (ap);
 #ifdef __NR_semctl
-    return __semctl(semid, semnum, cmd, arg.__pad);
+    return __semctl(semid, semnum, cmd | __IPC_64, arg.__pad);
 #else
-    return __syscall_ipc(IPCOP_semctl, semid, semnum, cmd, &arg);
+    return __syscall_ipc(IPCOP_semctl, semid, semnum, cmd | __IPC_64, &arg);
 #endif
 }
 #endif

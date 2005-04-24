@@ -4,6 +4,8 @@
 
 #ifdef __NR_ipc
 
+#define __IPC_64	0x100
+
 /* The actual system call: all functions are multiplexed by this.  */
 extern int __syscall_ipc __P((int __call, int __first, int __second,
 					  int __third, void *__ptr));

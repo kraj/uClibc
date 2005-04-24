@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-1999, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1995, 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -38,19 +38,18 @@
 /* Special key values.  */
 #define IPC_PRIVATE	((__key_t) 0)	/* Private key.  */
 
+
 /* Data structure used to pass permission information to IPC operations.  */
 struct ipc_perm
   {
-    __key_t __key;		/* Key.  */
-    __uid_t uid;		/* Owner's user ID.  */
-    __gid_t gid;		/* Owner's group ID.  */
-    __uid_t cuid;		/* Creator's user ID.  */
-    __gid_t cgid;		/* Creator's group ID.  */
-    unsigned short int mode;	/* Read/write permission.  */
+    __key_t __key;			/* Key.  */
+    unsigned int uid;			/* Owner's user ID.  */
+    unsigned int gid;			/* Owner's group ID.  */
+    unsigned int cuid;			/* Creator's user ID.  */
+    unsigned int cgid;			/* Creator's group ID.  */
+    unsigned int mode;			/* Read/write permission.  */
+    unsigned short int __seq;		/* Sequence number.  */
     unsigned short int __pad1;
-    unsigned short int __seq;	/* Sequence number.  */
-    unsigned short int __pad2;
     unsigned long int __unused1;
     unsigned long int __unused2;
   };
-
