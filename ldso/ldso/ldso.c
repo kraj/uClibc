@@ -75,8 +75,8 @@ void _dl_debug_state(void)
 {
 }
 
-unsigned char *_dl_malloc_addr = 0;	/* Lets _dl_malloc use the already allocated memory page */
-unsigned char *_dl_mmap_zero   = 0;	/* Also used by _dl_malloc */
+static unsigned char *_dl_malloc_addr = 0;	/* Lets _dl_malloc use the already allocated memory page */
+static unsigned char *_dl_mmap_zero   = 0;	/* Also used by _dl_malloc */
 
 static struct elf_resolve **init_fini_list;
 static int nlist; /* # items in init_fini_list */
