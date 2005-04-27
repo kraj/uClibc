@@ -88,7 +88,6 @@ pthread.h: (depends on THR) pthread_cleanup_{push,pop};
          pthread_setschedprio (depends on TPS);
          [5] pthread_spin_* (depend on SPI)
 spawn.h: (depends on SPN) [all=21] posix_spawn*
-mqueue.h: (depends on MSG) [all=10] mq_*
 aio.h: (depends on AIO) [all=8] aio_*, lio_*
 stropts.h: (depends on XSR) isastream, {g,s}et{,p}msg, fattach, fdetach
 sys/mman.h: posix_madvice (depends on ADV); posix_mem_offset,
