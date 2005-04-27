@@ -113,14 +113,6 @@ asm("" \
 	case R_SH_NONE:							\
 		break;							\
 	default:							\
-		SEND_STDERR("BOOTSTRAP_RELOC: unhandled reloc type ");	\
-		SEND_NUMBER_STDERR(ELF32_R_TYPE((RELP)->r_info), 1);	\
-		SEND_STDERR("REL, SYMBOL, LOAD: ");			\
-		SEND_ADDRESS_STDERR(REL, 0);				\
-		SEND_STDERR(", ");					\
-		SEND_ADDRESS_STDERR(SYMBOL, 0);				\
-		SEND_STDERR(", ");					\
-		SEND_ADDRESS_STDERR(LOAD, 1);				\
 		_dl_exit(1);						\
 	}
 
