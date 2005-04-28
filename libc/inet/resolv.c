@@ -674,7 +674,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 	char *dns, *lookup = malloc(MAXDNAME);
 	int variant = -1;
 	struct sockaddr_in sa;
-	int local_ns, local_id;
+	int local_ns = -1, local_id = -1;
 #ifdef __UCLIBC_HAS_IPV6__
 	int v6;
 	struct sockaddr_in6 sa6;
@@ -689,11 +689,9 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 
 	/* Mess with globals while under lock */
 	LOCK;
-	local_ns = ns;
+	local_ns = ns % nscount;
 	local_id = id;
 	UNLOCK;
-
-	local_ns %= nscount;
 
 	while (retries < MAX_RETRIES) {
 		if (fd != -1)
@@ -912,10 +910,12 @@ fail:
 	    free(packet);
 	h_errno = NETDB_INTERNAL;
 	/* Mess with globals while under lock */
-	LOCK;
-	ns = local_ns;
-	id = local_id;
-	UNLOCK;
+	if (local_ns != -1) {
+	    LOCK;
+	    ns = local_ns;
+	    id = local_id;
+	    UNLOCK;
+	}
 	return -1;
 }
 #endif
