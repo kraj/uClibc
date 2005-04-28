@@ -12,7 +12,7 @@
 /*
  * Portions Copyright (c) 1985, 1993
  *    The Regents of the University of California.  All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -24,7 +24,7 @@
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -40,14 +40,14 @@
 
 /*
  * Portions Copyright (c) 1993 by Digital Equipment Corporation.
- * 
+ *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies, and that
  * the name of Digital Equipment Corporation not be used in advertising or
  * publicity pertaining to distribution of the document or software without
  * specific, written prior permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND DIGITAL EQUIPMENT CORP. DISCLAIMS ALL
  * WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES
  * OF MERCHANTABILITY AND FITNESS.   IN NO EVENT SHALL DIGITAL EQUIPMENT
@@ -125,7 +125,7 @@
  *
  * 02-Oct-2003 Tony J. White <tjw@tjw.org>
  *   Lifted dn_expand() and dependent ns_name_uncompress(), ns_name_unpack(),
- *   and ns_name_ntop() from glibc 2.3.2 for compatibility with ipsec-tools 
+ *   and ns_name_ntop() from glibc 2.3.2 for compatibility with ipsec-tools
  *   and openldap.
  *
  * 7-Sep-2004 Erik Andersen <andersen@codepoet.org>
@@ -242,11 +242,11 @@ extern int __read_etc_hosts_r(FILE *fp, const char * name, int type,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
 			    int * h_errnop);
-extern int __dns_lookup(const char * name, int type, int nscount, 
+extern int __dns_lookup(const char * name, int type, int nscount,
 	char ** nsip, unsigned char ** outpacket, struct resolv_answer * a);
 
 extern int __encode_dotted(const char * dotted, unsigned char * dest, int maxlen);
-extern int __decode_dotted(const unsigned char * message, int offset, 
+extern int __decode_dotted(const unsigned char * message, int offset,
 	char * dest, int maxlen);
 extern int __length_dotted(const unsigned char * message, int offset);
 extern int __encode_header(struct resolv_header * h, unsigned char * dest, int maxlen);
@@ -264,7 +264,7 @@ extern int __open_nameservers(void);
 extern void __close_nameservers(void);
 extern int __dn_expand(const u_char *, const u_char *, const u_char *,
 	char *, int);
-extern int __ns_name_uncompress(const u_char *, const u_char *, 
+extern int __ns_name_uncompress(const u_char *, const u_char *,
 		const u_char *, char *, size_t);
 extern int __ns_name_ntop(const u_char *, char *, size_t);
 extern int __ns_name_unpack(const u_char *, const u_char *, const u_char *,
@@ -281,8 +281,8 @@ int __encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
 	dest[1] = (h->id & 0x00ff) >> 0;
 	dest[2] = (h->qr ? 0x80 : 0) |
 		((h->opcode & 0x0f) << 3) |
-		(h->aa ? 0x04 : 0) | 
-		(h->tc ? 0x02 : 0) | 
+		(h->aa ? 0x04 : 0) |
+		(h->tc ? 0x02 : 0) |
 		(h->rd ? 0x01 : 0);
 	dest[3] = (h->ra ? 0x80 : 0) | (h->rcode & 0x0f);
 	dest[4] = (h->qdcount & 0xff00) >> 8;
@@ -656,8 +656,8 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 /* Just for the record, having to lock __dns_lookup() just for these two globals
- * is pretty lame.  I think these two variables can probably be de-global-ized, 
- * which should eliminate the need for doing locking here...  Needs a closer 
+ * is pretty lame.  I think these two variables can probably be de-global-ized,
+ * which should eliminate the need for doing locking here...  Needs a closer
  * look anyways. */
 static int ns=0, id=1;
 
@@ -749,7 +749,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		    continue;
 		}
 
-		/* Connect to the UDP socket so that asyncronous errors are returned */		 
+		/* Connect to the UDP socket so that asyncronous errors are returned */
 #ifdef __UCLIBC_HAS_IPV6__
 		if (v6) {
 		    sa6.sin6_family = AF_INET6;
@@ -787,7 +787,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		if (select(fd + 1, &fds, NULL, NULL, &tv) <= 0) {
 		    DPRINTF("Timeout\n");
 
-			/* timed out, so retry send and receive, 
+			/* timed out, so retry send and receive,
 			 * to next nameserver on queue */
 			goto tryall;
 		}
@@ -937,7 +937,7 @@ int __open_nameservers()
 	int argc;
 
 	BIGLOCK;
-	if (__nameservers > 0) { 
+	if (__nameservers > 0) {
 	    BIGUNLOCK;
 	    return 0;
 	}
@@ -1361,7 +1361,7 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 	struct hostent *hp;
 
 	gethostbyaddr_r(addr, len, type, &h, buf, sizeof(buf), &hp, &h_errno);
-        
+
 	return hp;
 }
 #endif
@@ -1470,7 +1470,7 @@ int __read_etc_hosts_r(FILE * fp, const char * name, int type,
 
 		if (aliases < 2)
 			continue; /* syntax error really */
-		
+
 		if (action==GETHOSTENT) {
 			/* Return whatever the next entry happens to be. */
 			break;
@@ -1515,7 +1515,7 @@ int __read_etc_hosts_r(FILE * fp, const char * name, int type,
 			ret=TRY_AGAIN;
 			break; /* bad ip address */
         }
-        
+
 		if (action!=GETHOSTENT) {
 			fclose(fp);
 		}
@@ -1575,7 +1575,7 @@ int gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
 	}
     }
 
-    ret = __read_etc_hosts_r(__gethostent_fp, NULL, AF_INET, GETHOSTENT, 
+    ret = __read_etc_hosts_r(__gethostent_fp, NULL, AF_INET, GETHOSTENT,
 		   result_buf, buf, buflen, result, h_errnop);
     if (__stay_open==0) {
 	fclose(__gethostent_fp);
@@ -1647,7 +1647,7 @@ int __get_hosts_byaddr_r(const char * addr, int len, int type,
 
 	inet_ntop(type, addr, ipaddr, sizeof(ipaddr));
 
-	return(__read_etc_hosts_r(NULL, ipaddr, type, GET_HOSTS_BYADDR, 
+	return(__read_etc_hosts_r(NULL, ipaddr, type, GET_HOSTS_BYADDR,
 		    result_buf, buf, buflen, result, h_errnop));
 }
 #endif
@@ -1666,7 +1666,7 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 	int ok = 0;
 	struct hostent *h = NULL;
     char domain[256];
-    
+
 	if (flags & ~(NI_NUMERICHOST|NI_NUMERICSERV|NI_NOFQDN|NI_NAMEREQD|NI_DGRAM))
 		return EAI_BADFLAGS;
 
@@ -2064,7 +2064,7 @@ int gethostbyname2_r(const char *name, int family,
 
 	addr_list[0] = in;
 	addr_list[1] = 0;
-	
+
 	if (buflen<256)
 		return ERANGE;
 	strncpy(buf, name, buflen);
@@ -2158,7 +2158,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 	*result=NULL;
 	if (!addr)
 		return EINVAL;
-        
+
 	switch (type) {
 		case AF_INET:
 			if (len != sizeof(struct in_addr))
@@ -2341,7 +2341,7 @@ int __dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
  * return:
  *      boolean.
  */
-static int printable(int ch) 
+static int printable(int ch)
 {
         return (ch > 0x20 && ch < 0x7f);
 }
@@ -2353,7 +2353,7 @@ static int printable(int ch)
  * return:
  *      boolean.
  */
-static int special(int ch) 
+static int special(int ch)
 {
         switch (ch) {
         case 0x22: /* '"' */
@@ -2377,7 +2377,7 @@ static int special(int ch)
  * note:
  *      Root domain returns as "." not "".
  */
-int __ns_name_uncompress(const u_char *msg, const u_char *eom, 
+int __ns_name_uncompress(const u_char *msg, const u_char *eom,
 		const u_char *src, char *dst, size_t dstsiz)
 {
 	u_char tmp[NS_MAXCDNAME];
