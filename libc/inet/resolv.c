@@ -674,6 +674,7 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 	char *dns, *lookup = malloc(MAXDNAME);
 	int variant = -1;
 	struct sockaddr_in sa;
+	int local_ns, local_id;
 #ifdef __UCLIBC_HAS_IPV6__
 	int v6;
 	struct sockaddr_in6 sa6;
@@ -686,9 +687,13 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 
 	DPRINTF("Looking up type %d answer for '%s'\n", type, name);
 
+	/* Mess with globals while under lock */
 	LOCK;
-	ns %= nscount;
+	local_ns = ns;
+	local_id = id;
 	UNLOCK;
+
+	local_ns %= nscount;
 
 	while (retries < MAX_RETRIES) {
 		if (fd != -1)
@@ -698,13 +703,10 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 
 		memset(&h, 0, sizeof(h));
 
-		/* Mess with globals while under lock */
-		LOCK;
-		++id;
-		id &= 0xffff;
-		h.id = id;
-		dns = nsip[ns];
-		UNLOCK;
+		++local_id;
+		local_id &= 0xffff;
+		h.id = local_id;
+		dns = nsip[local_ns];
 
 		h.qdcount = 1;
 		h.rd = 1;
@@ -802,13 +804,10 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 
 		DPRINTF("id = %d, qr = %d\n", h.id, h.qr);
 
-		LOCK;
-		if ((h.id != id) || (!h.qr)) {
-			UNLOCK;
+		if ((h.id != local_id) || (!h.qr)) {
 			/* unsolicited */
 			goto again;
 		}
-		UNLOCK;
 
 
 		DPRINTF("Got response %s\n", "(i think)!");
@@ -861,6 +860,13 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		else
 			free(packet);
 		free(lookup);
+
+		/* Mess with globals while under lock */
+		LOCK;
+		ns = local_ns;
+		id = local_id;
+		UNLOCK;
+
 		return (len);				/* success! */
 
 	  tryall:
@@ -868,12 +874,10 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		   otherwise return with error */
 		{
 		    variant = -1;
-                    LOCK;
-                    ns = (ns + 1) % nscount;
-                    if (ns == 0)
+                    local_ns = (local_ns + 1) % nscount;
+                    if (local_ns == 0)
                       retries++;
 
-                    UNLOCK;
                     continue;
 		}
 
@@ -890,12 +894,10 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 			variant++;
 		    } else {
 			/* next server, first search */
-			LOCK;
-			ns = (ns + 1) % nscount;
-                        if (ns == 0)
+			local_ns = (local_ns + 1) % nscount;
+                        if (local_ns == 0)
                           retries++;
 
-			UNLOCK;
 			variant = -1;
 		    }
 		}
@@ -909,6 +911,11 @@ fail:
 	if (packet)
 	    free(packet);
 	h_errno = NETDB_INTERNAL;
+	/* Mess with globals while under lock */
+	LOCK;
+	ns = local_ns;
+	id = local_id;
+	UNLOCK;
 	return -1;
 }
 #endif
