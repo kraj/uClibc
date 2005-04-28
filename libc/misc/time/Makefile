@@ -45,7 +45,7 @@ ifeq ($(UCLIBC_HAS_XLOCALE),y)
 endif
 endif
 
-CSRC= adjtime.c ftime.c clock_gettime.c
+CSRC= adjtime.c ftime.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(COBJS) $(MOBJ) $(MOBJx)

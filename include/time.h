@@ -345,17 +345,17 @@ extern int nanosleep (__const struct timespec *__requested_time,
 		      struct timespec *__remaining);
 
 
-/* Get current value of clock CLOCK_ID and store it in TP.  */
-extern int clock_gettime (clockid_t __clock_id, struct timespec *__tp) __THROW;
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning "mjn3 FIXME: a bunch of unimplemented function prototypes."
 /* Get resolution of clock CLOCK_ID.  */
 extern int clock_getres (clockid_t __clock_id, struct timespec *__res) __THROW;
+
+/* Get current value of clock CLOCK_ID and store it in TP.  */
+extern int clock_gettime (clockid_t __clock_id, struct timespec *__tp) __THROW;
 
 /* Set clock CLOCK_ID to value TP.  */
 extern int clock_settime (clockid_t __clock_id, __const struct timespec *__tp) __THROW;
 
+#ifdef __UCLIBC_MJN3_ONLY__
+#warning "mjn3 FIXME: a bunch of unimplemented function prototypes."
 #  ifdef __USE_XOPEN2K
 /* High-resolution sleep with the specified clock.
 
