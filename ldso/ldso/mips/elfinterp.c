@@ -103,11 +103,11 @@ static void debug_reloc(Elf32_Sym *symtab,char *strtab, ELF_RELOC *rpnt)
 }
 #endif
 
-extern int _dl_linux_resolve(void);
+extern int _dl_runtime_resolve(void);
 
 #define OFFSET_GP_GOT 0x7ff0
 
-unsigned long _dl_linux_resolver(unsigned long sym_index,
+unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	unsigned long old_gpreg)
 {
 	unsigned long *got = (unsigned long *) (old_gpreg - OFFSET_GP_GOT);

@@ -37,7 +37,7 @@ do {										\
 		continue;							\
 										\
 	/* Fill in first two GOT entries according to the ABI */		\
-	GOT_BASE[0] = (unsigned long) _dl_linux_resolve;			\
+	GOT_BASE[0] = (unsigned long) _dl_runtime_resolve;			\
 	GOT_BASE[1] = (unsigned long) MODULE;					\
 										\
 	/* Add load address displacement to all local GOT entries */		\
@@ -57,7 +57,7 @@ do {										\
 #define ELF_TARGET "MIPS"
 
 
-unsigned long _dl_linux_resolver(unsigned long sym_index,
+unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	unsigned long old_gpreg);
 
 struct elf_resolve;

@@ -13,10 +13,10 @@
  */
 .text
 .align	2
-.globl	_dl_linux_resolve
-.type	_dl_linux_resolve,@function
-.ent	_dl_linux_resolve
-_dl_linux_resolve:
+.globl	_dl_runtime_resolve
+.type	_dl_runtime_resolve,@function
+.ent	_dl_runtime_resolve
+_dl_runtime_resolve:
 	.frame	$29, 40, $31
 	.set noreorder
 	move	$3, $28		# Save GP
@@ -32,7 +32,7 @@ _dl_linux_resolve:
 	sw	$7, 28($29)
 	move	$4, $24
 	move	$5, $3
-	jal     _dl_linux_resolver
+	jal     __dl_runtime_resolve
 	lw	$31, 36($29)
 	lw	$4, 16($29)
 	lw	$5, 20($29)
@@ -41,5 +41,5 @@ _dl_linux_resolve:
 	addu	$29, 40
 	move	$25, $2
 	jr	$25
-.size _dl_linux_resolve,.-_dl_linux_resolve
-.end _dl_linux_resolve
+.size _dl_runtime_resolve,.-_dl_runtime_resolve
+.end _dl_runtime_resolve
