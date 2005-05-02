@@ -273,10 +273,20 @@ struct xdr_discrim
  * and shouldn't be used any longer. Code which use this defines or longs
  * in the RPC code will not work on 64bit Solaris platforms !
  */
+/* #define IXDR_GET_LONG(buf) \ */
+/* 	((long)ntohl((u_long)*(*(u_int32_t**)&(buf))++)) */
+/* #define IXDR_PUT_LONG(buf, v) \ */
+/* 	(*(*(u_int32_t**)&(buf))++ = (long)htonl((u_long)(v))) */
+
+/* WARNING: These macros are not safe against side effects for the 'buf'
+ * argument.  But the old versions they're replacing took the address of
+ * 'buf' and were probably not safe in that situation either. */
 #define IXDR_GET_LONG(buf) \
-	((long)ntohl((u_long)*(*(u_int32_t**)&(buf))++))
+	((long) ntohl((u_long) (((u_int32_t *)(buf = (void *)(((char *) buf) + sizeof(u_int32_t))))[-1]) ))
 #define IXDR_PUT_LONG(buf, v) \
-	(*(*(u_int32_t**)&(buf))++ = (long)htonl((u_long)(v)))
+	(((u_int32_t *)(buf = (void *)(((char *) buf) + sizeof(u_int32_t))))[-1]) = (long)htonl((u_long)(v))
+
+
 #define IXDR_GET_U_LONG(buf)	      ((u_long)IXDR_GET_LONG(buf))
 #define IXDR_PUT_U_LONG(buf, v)	      IXDR_PUT_LONG(buf, (long)(v))
 
