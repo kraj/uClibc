@@ -62,3 +62,5 @@ __longjmp:
 #endif		
 .size __longjmp,.-__longjmp;
 
+.weak __sigprocmask
+__sigprocmask = sigprocmask

@@ -44,4 +44,3 @@ void __libc_siglongjmp (sigjmp_buf env, int val)
 __asm__(".weak longjmp; longjmp = __libc_siglongjmp");
 __asm__(".weak _longjmp; _longjmp = __libc_siglongjmp");
 __asm__(".weak siglongjmp; siglongjmp = __libc_siglongjmp");
-__asm__(".weak __sigprocmask; __sigprocmask = sigprocmask");
