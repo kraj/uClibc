@@ -4,7 +4,7 @@
 #
 
 config TARGET_ARCH
-	default "sh"
+	default "sh64"
 
 config HAVE_ELF
 	bool
@@ -33,7 +33,7 @@ config ARCH_SUPPORTS_LITTLE_ENDIAN
 
 choice
 	prompt "Target Processor Type"
-	default CONFIG_SH4
+	default CONFIG_SH5
 	help
 	  This is the processor type of your CPU. This information is used for
 	  optimizing purposes, as well as to determine if your CPU has an MMU,
@@ -41,30 +41,12 @@ choice
 	  that uClibc will work at all....
 
 	  Here are the available choices:
-	  - "SH2A" Renesas SH-2A (SH7206)
-	  - "SH2" SuperH SH-2
-	  - "SH3" SuperH SH-3
-	  - "SH4" SuperH SH-4
+	  - "SH5" SuperH SH-5 101, 103
 
-config CONFIG_SH2A
-	select ARCH_HAS_NO_MMU
-	select ARCH_HAS_NO_LDSO
-	select HAVE_NO_PIC
-	bool "SH2A"
-
-config CONFIG_SH2
-	select ARCH_HAS_NO_MMU
-	select ARCH_HAS_NO_LDSO
-	bool "SH2"
-
-config CONFIG_SH3
+config CONFIG_SH5
 	select ARCH_HAS_MMU
-	bool "SH3"
-
-config CONFIG_SH4
-	select ARCH_HAS_MMU
-	select FORCE_SHAREABLE_TEXT_SEGMENTS
-	bool "SH4"
+	select UCLIBC_HAS_LFS
+	bool "SH5"
 
 endchoice
 

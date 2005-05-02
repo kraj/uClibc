@@ -58,6 +58,9 @@ config TARGET_powerpc
 config TARGET_sh
 	bool "superh"
 
+config TARGET_sh64
+	bool "sh64"
+
 config TARGET_sparc
 	bool "sparc"
 
@@ -134,6 +137,10 @@ endif
 
 if TARGET_sh
 source "extra/Configs/Config.sh"
+endif
+
+if TARGET_sh64
+source "extra/Configs/Config.sh64"
 endif
 
 if TARGET_sparc
