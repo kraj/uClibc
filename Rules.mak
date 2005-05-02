@@ -167,7 +167,13 @@ ifeq ($(strip $(TARGET_ARCH)),sh)
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mb
 	CPU_CFLAGS-$(CONFIG_SH2)+=-m2
 	CPU_CFLAGS-$(CONFIG_SH3)+=-m3
+ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
+	CPU_CFLAGS-$(CONFIG_SH2A)+=-m2a
 	CPU_CFLAGS-$(CONFIG_SH4)+=-m4
+else
+	CPU_CFLAGS-$(CONFIG_SH2A)+=-m2a-nofpu
+	CPU_CFLAGS-$(CONFIG_SH4)+=-m4-nofpu
+endif
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),sh64)

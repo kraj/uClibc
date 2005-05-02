@@ -4,7 +4,7 @@
 #
 
 config TARGET_ARCH
-	default "sh" if CONFIG_SH2 || CONFIG_SH3 || CONFIG_SH4
+	default "sh" if CONFIG_SH2A || CONFIG_SH2 || CONFIG_SH3 || CONFIG_SH4
 	default "sh64" if CONFIG_SH5
 
 config HAVE_ELF
@@ -46,6 +46,12 @@ choice
 	  - "SH3" SuperH SH-3
 	  - "SH4" SuperH SH-4
 	  - "SH5" SuperH SH-5 101, 103
+
+config CONFIG_SH2A
+	select ARCH_HAS_NO_MMU
+	select ARCH_HAS_NO_LDSO
+	select HAVE_NO_PIC
+	bool "SH2A"
 
 config CONFIG_SH2
 	select ARCH_HAS_NO_MMU
