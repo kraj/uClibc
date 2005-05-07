@@ -1,0 +1,12 @@
+- we should probably extend pthread_mutexattr_t with a field to create a
+  single linked list of all instances.  This requires changing the
+  pthread_mutexattr_* functions.
+
+
+- a new attribute for mutexes: number of times we spin before calling
+sys_futex
+
+
+
+- test with threaded process terminating and semadj (?) being applied
+  only after all threads are gone
