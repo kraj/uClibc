@@ -36,10 +36,7 @@ TODO list for the uClibc 1.0.0 release:
 	and perhaps others (finalize list) produce a lib with a differing
 	ABI.  Make it so apps cannot use an ABI mis-matched uClibc.
 	This is most easily done using symbol versioning...
-    *) Perhaps implement glibc style frame-unwinding, so that gcc need
-	not be built with --enable-sjlj-exceptions for C++ exception handling
-	to work.
-    *) Implement the float and long double versions of math funcs
+    *) Implement the long double versions of math funcs
 	using wrappers on top of the double versions (size / precision
 	trade off where size clearly wins).
     *) Make all small objects (>~50 bytes) into either inlines or
