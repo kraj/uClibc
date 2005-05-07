@@ -46,9 +46,9 @@ ifeq ($(UCLIBC_BUILD_NOW),y)
 endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 ifeq ($(strip $(PTHREADS_NATIVE)),y)
-	DIRS+=linuxthreads_db
-else
 	DIRS+=nptl_db
+else
+	DIRS+=linuxthreads_db
 endif
 	LDFLAGS_THREAD_DB:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
 endif
