@@ -1,4 +1,5 @@
-/* Copyright (C) 1995,1996,1997,2000,2002,2004 Free Software Foundation, Inc.
+/* Copyright (C) 1995, 1996, 1997, 2000, 2002, 2004
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -21,19 +22,20 @@
 #endif
 
 #include <bits/types.h>
+#include <bits/wordsize.h>
 
 /* Permission flag for shmget.  */
-#define SHM_R		0400		/* or S_IRUGO from <linux/stat.h> */
-#define SHM_W		0200		/* or S_IWUGO from <linux/stat.h> */
+#define SHM_R          0400            /* or S_IRUGO from <linux/stat.h> */
+#define SHM_W          0200            /* or S_IWUGO from <linux/stat.h> */
 
 /* Flags for `shmat'.  */
-#define SHM_RDONLY	010000		/* attach read-only else read-write */
-#define SHM_RND		020000		/* round attach address to SHMLBA */
-#define SHM_REMAP	040000		/* take-over region on attach */
+#define SHM_RDONLY     010000          /* attach read-only else read-write */
+#define SHM_RND                020000          /* round attach address to SHMLBA */
+#define SHM_REMAP      040000          /* take-over region on attach */
 
 /* Commands for `shmctl'.  */
-#define SHM_LOCK	11		/* lock segment (root only) */
-#define SHM_UNLOCK	12		/* unlock segment (root only) */
+#define SHM_LOCK       11              /* lock segment (root only) */
+#define SHM_UNLOCK     12              /* unlock segment (root only) */
 
 __BEGIN_DECLS
 
@@ -48,33 +50,42 @@ typedef unsigned long int shmatt_t;
 /* Data structure describing a set of semaphores.  */
 struct shmid_ds
   {
-    struct ipc_perm shm_perm;		/* operation permission struct */
-    size_t shm_segsz;			/* size of segment in bytes */
-    __time_t shm_atime;			/* time of last shmat() */
-    unsigned long int __unused1;
-    __time_t shm_dtime;			/* time of last shmdt() */
-    unsigned long int __unused2;
+    struct ipc_perm shm_perm;          /* operation permission struct */
+#if __WORDSIZE == 32
+    unsigned int __unused1;
+#endif
+    __time_t shm_atime;                        /* time of last shmat() */
+#if __WORDSIZE == 32
+    unsigned int __unused2;
+#endif
+    __time_t shm_dtime;                        /* time of last shmdt() */
+#if __WORDSIZE == 32
+    unsigned int __unused3;
+#endif
     __time_t shm_ctime;			/* time of last change by shmctl() */
-    unsigned long int __unused3;
-    __pid_t shm_cpid;			/* pid of creator */
-    __pid_t shm_lpid;			/* pid of last shmop */
-    shmatt_t shm_nattch;		/* number of current attaches */
-    unsigned long int __unused4;
-    unsigned long int __unused5;
+#if __WORDSIZE == 32
+    unsigned int __unused4;
+#endif
+    size_t shm_segsz;                  /* size of segment in bytes */
+    __pid_t shm_cpid;                  /* pid of creator */
+    __pid_t shm_lpid;                  /* pid of last shmop */
+    shmatt_t shm_nattch;               /* number of current attaches */
+    unsigned long __unused5;
+    unsigned long __unused6;
   };
 
 #ifdef __USE_MISC
 
 /* ipcs ctl commands */
-# define SHM_STAT 	13
-# define SHM_INFO 	14
+# define SHM_STAT      13
+# define SHM_INFO      14
 
 /* shm_mode upper byte flags */
-# define SHM_DEST	01000	/* segment will be destroyed on last detach */
-# define SHM_LOCKED	02000   /* segment will not be swapped */
-# define SHM_HUGETLB	04000	/* segment is mapped via hugetlb */
+# define SHM_DEST      01000   /* segment will be destroyed on last detach */
+# define SHM_LOCKED    02000   /* segment will not be swapped */
+# define SHM_HUGETLB   04000	/* segment is mapped via hugetlb */
 
-struct	shminfo
+struct shminfo
   {
     unsigned long int shmmax;
     unsigned long int shmmin;
@@ -90,9 +101,9 @@ struct	shminfo
 struct shm_info
   {
     int used_ids;
-    unsigned long int shm_tot;	/* total allocated shm */
-    unsigned long int shm_rss;	/* total resident shm */
-    unsigned long int shm_swp;	/* total swapped shm */
+    unsigned long int shm_tot; /* total allocated shm */
+    unsigned long int shm_rss; /* total resident shm */
+    unsigned long int shm_swp; /* total swapped shm */
     unsigned long int swap_attempts;
     unsigned long int swap_successes;
   };

@@ -1,4 +1,5 @@
-/* Copyright (C) 1995,1996,1997,2000,2002,2004 Free Software Foundation, Inc.
+/* Copyright (C) 1995, 1996, 1997, 2000, 2002, 2004
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -51,16 +52,13 @@ struct shmid_ds
     struct ipc_perm shm_perm;		/* operation permission struct */
     size_t shm_segsz;			/* size of segment in bytes */
     __time_t shm_atime;			/* time of last shmat() */
-    unsigned long int __unused1;
     __time_t shm_dtime;			/* time of last shmdt() */
-    unsigned long int __unused2;
     __time_t shm_ctime;			/* time of last change by shmctl() */
-    unsigned long int __unused3;
     __pid_t shm_cpid;			/* pid of creator */
     __pid_t shm_lpid;			/* pid of last shmop */
     shmatt_t shm_nattch;		/* number of current attaches */
-    unsigned long int __unused4;
-    unsigned long int __unused5;
+    unsigned long int __unused1;
+    unsigned long int __unused2;
   };
 
 #ifdef __USE_MISC
