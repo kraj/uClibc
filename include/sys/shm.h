@@ -43,11 +43,6 @@ typedef __pid_t pid_t;
 
 __BEGIN_DECLS
 
-/* Segment low boundary address multiple.  */
-#define SHMLBA		(__getpagesize ())
-extern int __getpagesize (void) __THROW __attribute__ ((__const__));
-
-
 /* The following System V style IPC functions implement a shared memory
    facility.  The definition is found in XPG4.2.  */
 
