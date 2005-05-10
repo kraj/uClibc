@@ -1064,7 +1064,7 @@ struct hostent *gethostbyname(const char *name)
 	static struct hostent h;
 	static char buf[sizeof(struct in_addr) +
 			sizeof(struct in_addr *)*2 +
-			sizeof(char *)*(ALIAS_DIM) + 256/*namebuffer*/ + 32/* margin */];
+			sizeof(char *)*(ALIAS_DIM) + 384/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
 	gethostbyname_r(name, &h, buf, sizeof(buf), &hp, &h_errno);
@@ -1083,7 +1083,7 @@ struct hostent *gethostbyname2(const char *name, int family)
 	static struct hostent h;
 	static char buf[sizeof(struct in6_addr) +
 			sizeof(struct in6_addr *)*2 +
-			sizeof(char *)*(ALIAS_DIM) + 256/*namebuffer*/ + 32/* margin */];
+			sizeof(char *)*(ALIAS_DIM) + 384/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
 	gethostbyname2_r(name, family, &h, buf, sizeof(buf), &hp, &h_errno);
@@ -1404,7 +1404,7 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 #else
 		sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
 #endif /* __UCLIBC_HAS_IPV6__ */
-		sizeof(char *)*(ALIAS_DIM) + 256/*namebuffer*/ + 32/* margin */];
+		sizeof(char *)*(ALIAS_DIM) + 384/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
 	gethostbyaddr_r(addr, len, type, &h, buf, sizeof(buf), &hp, &h_errno);
@@ -1711,7 +1711,7 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 	int serrno = errno;
 	int ok = 0;
 	struct hostent *h = NULL;
-    char domain[256];
+	char domain[256];
 
 	if (flags & ~(NI_NUMERICHOST|NI_NUMERICSERV|NI_NOFQDN|NI_NAMEREQD|NI_DGRAM))
 		return EAI_BADFLAGS;
@@ -2003,7 +2003,7 @@ int gethostbyname_r(const char * name,
 		free(a.dotted);
 		free(packet);
 		*h_errnop = NETDB_INTERNAL;
-		DPRINTF("buffer to small(multiple addresses)\n");
+		DPRINTF("buffer too small for all addresses\n");
 		return ERANGE;
 	    }
 	    else if(a.add_count > 0)
