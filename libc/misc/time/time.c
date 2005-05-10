@@ -1406,7 +1406,9 @@ char *__XL(strptime)(const char *__restrict buf, const char *__restrict format,
 
 			i = 0;
 			do {				/* Store the values into tm. */
-				((int *) tm)[i] = fields[i];
+				if (fields[i] != INT_MIN) {
+					((int *) tm)[i] = fields[i];
+				}
 			} while (++i < 8);
 
 			return (char *) buf; /* Success. */
