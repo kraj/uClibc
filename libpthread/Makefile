@@ -68,7 +68,7 @@ ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 	SHARED_END_FILES = $(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
 endif
 
-ALL_SUBDIRS = linuxthreads linuxthreads_db
+ALL_SUBDIRS = linuxthreads linuxthreads_db nptl nptl_db
 
 all: $(LIBPTHREAD) $(LIBTHREAD_DB)
 
