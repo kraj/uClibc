@@ -28,8 +28,6 @@
 #include <libc-internal.h>
 #include <resolv.h>
 
-#include <shlib-compat.h>
-
 
 /* Local function to start thread and handle cleanup.  */
 static int start_thread (void *arg);

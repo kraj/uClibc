@@ -18,7 +18,6 @@
    02111-1307 USA.  */
 
 #include <errno.h>
-#include <shlib-compat.h>
 #include "pthreadP.h"
 
 

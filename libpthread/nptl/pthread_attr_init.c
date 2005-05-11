@@ -23,8 +23,6 @@
 #include <unistd.h>
 #include "pthreadP.h"
 
-#include <shlib-compat.h>
-
 
 struct pthread_attr *__attr_list;
 lll_lock_t __attr_list_lock = LLL_LOCK_INITIALIZER;
@@ -51,38 +49,3 @@ __pthread_attr_init_2_1 (attr)
 }
 versioned_symbol (libpthread, __pthread_attr_init_2_1, pthread_attr_init,
 		  GLIBC_2_1);
-
-
-#if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_1)
-int
-__pthread_attr_init_2_0 (attr)
-     pthread_attr_t *attr;
-{
-  /* This code is specific to the old LinuxThread code which has a too
-     small pthread_attr_t definition.  The struct looked like
-     this:  */
-  struct old_attr
-  {
-    int detachstate;
-    int schedpolicy;
-    struct sched_param schedparam;
-    int inheritsched;
-    int scope;
-  };
-  struct pthread_attr *iattr;
-
-  /* Many elements are initialized to zero so let us do it all at
-     once.  This also takes care of clearing the bytes which are not
-     internally used.  */
-  memset (attr, '\0', sizeof (struct old_attr));
-
-  iattr = (struct pthread_attr *) attr;
-  iattr->flags |= ATTR_FLAG_OLDATTR;
-
-  /* We cannot enqueue the attribute because that member is not in the
-     old attribute structure.  */
-  return 0;
-}
-compat_symbol (libpthread, __pthread_attr_init_2_0, pthread_attr_init,
-	       GLIBC_2_0);
-#endif
