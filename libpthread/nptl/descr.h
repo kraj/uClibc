@@ -25,7 +25,6 @@
 #include <setjmp.h>
 #include <stdbool.h>
 #include <sys/types.h>
-#include <hp-timing.h>
 #include <list.h>
 #include <lowlevellock.h>
 #include <pthreaddef.h>
