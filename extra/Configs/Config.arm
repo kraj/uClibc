@@ -68,6 +68,9 @@ config CONFIG_ARM922T
 config CONFIG_ARM926T
 	bool "Arm 926T"
 
+config CONFIG_ARM1136JF_S
+	bool "Arm 1136JF-S"
+
 config CONFIG_ARM_SA110
 	bool "Intel StrongArm SA-110"
 
