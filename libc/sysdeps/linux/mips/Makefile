@@ -87,4 +87,5 @@ headers:
 clean:
 	$(RM) *.[oa] *~ core
 	$(RM) bits/sysnum.h
+	$(RM) $(TOPDIR)/include/fpu_control.h
 	$(RM) $(TOPDIR)/include/sgidefs.h
