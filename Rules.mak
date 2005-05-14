@@ -93,7 +93,7 @@ check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; 
 	then echo "$(1)"; else echo "$(2)"; fi)
 
 # Make certain these contain a final "/", but no "//"s.
-TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
+TARGET_ARCH:=$(shell grep -s ^TARGET_ARCH .config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
 export RUNTIME_PREFIX DEVEL_PREFIX

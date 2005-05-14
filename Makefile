@@ -26,7 +26,7 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 	defconfig allyesconfig allnoconfig clean distclean \
 	release tags TAGS
 TOPDIR=./
-include Rules.mak
+-include Rules.mak
 
 DIRS = ldso libc libcrypt libresolv libnsl libutil libm libpthread librt
 ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
