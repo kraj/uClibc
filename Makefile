@@ -87,15 +87,6 @@ ifeq ($(strip $(ARCH_HAS_MMU)),y)
 else
 	@set -x; ./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH) -n
 endif
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
-	(cd include; \
-	$(LN) -fs ../libpthread/nptl/sysdeps/pthread/pthread.h .; \
-	$(LN) -fs ../libpthread/nptl/semaphore.h .);
-else
-	(cd include; \
-	$(LN) -fs ../libpthread/linuxthreads/sysdeps/pthread/pthread.h .; \
-	$(LN) -fs ../libpthread/linuxthreads/semaphore.h .);
-endif
 	@cd include/bits; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
@@ -126,6 +117,19 @@ endif
 	fi
 	$(MAKE) -C libc/sysdeps/linux/common headers
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
+ifeq ($(strip $(PTHREADS_NATIVE)),y)
+	(cd include; \
+	$(LN) -fs ../libpthread/nptl/sysdeps/pthread/pthread.h .; \
+	$(LN) -fs ../libpthread/nptl/semaphore.h .);
+	(cd include/bits; \
+	$(LN) -fs ../../libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h .);
+else
+	(cd include; \
+	$(LN) -fs ../libpthread/linuxthreads/sysdeps/pthread/pthread.h .; \
+	$(LN) -fs ../libpthread/linuxthreads/semaphore.h .);
+	(cd include/bits; \
+	$(LN) -fs ../../libpthread/linuxthreads/sysdeps/pthread/bits/pthreadtypes.h .);
+endif
 
 # Command used to download source code
 WGET:=wget --passive-ftp
