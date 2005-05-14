@@ -87,6 +87,15 @@ ifeq ($(strip $(ARCH_HAS_MMU)),y)
 else
 	@set -x; ./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH) -n
 endif
+ifeq ($(strip $(PTHREADS_NATIVE)),y)
+	(cd include; \
+	$(LN) -fs ../libpthread/nptl/sysdeps/pthread/pthread.h .; \
+	$(LN) -fs ../libpthread/nptl/semaphore.h .);
+else
+	(cd include; \
+	$(LN) -fs ../libpthread/linuxthreads/sysdeps/pthread/pthread.h .; \
+	$(LN) -fs ../libpthread/linuxthreads/semaphore.h .);
+endif
 	@cd include/bits; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
@@ -346,6 +355,7 @@ clean:
 		done; \
 	fi;
 	@$(RM) include/linux include/asm*
+	@$(RM) include/pthread.h include/semaphore.h
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi;
