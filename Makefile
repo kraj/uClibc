@@ -122,7 +122,8 @@ ifeq ($(strip $(PTHREADS_NATIVE)),y)
 	$(LN) -fs ../libpthread/nptl/sysdeps/pthread/pthread.h .; \
 	$(LN) -fs ../libpthread/nptl/semaphore.h .);
 	(cd include/bits; \
-	$(LN) -fs ../../libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h .);
+	$(LN) -fs ../../libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h .; \
+	$(LN) -fs ../../libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/semaphore.h .);
 else
 	(cd include; \
 	$(LN) -fs ../libpthread/linuxthreads/sysdeps/pthread/pthread.h .; \
