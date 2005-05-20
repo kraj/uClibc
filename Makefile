@@ -26,7 +26,7 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 	defconfig allyesconfig allnoconfig clean distclean \
 	release tags TAGS
 TOPDIR=./
--include Rules.mak
+include Rules.mak
 
 DIRS = ldso libc libcrypt libresolv libnsl libutil libm libpthread librt
 ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
@@ -117,20 +117,6 @@ endif
 	fi
 	$(MAKE) -C libc/sysdeps/linux/common headers
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
-	(cd include; \
-	$(LN) -fs ../libpthread/nptl/sysdeps/pthread/pthread.h .; \
-	$(LN) -fs ../libpthread/nptl/semaphore.h .);
-	(cd include/bits; \
-	$(LN) -fs ../../libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h .; \
-	$(LN) -fs ../../libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/semaphore.h .);
-else
-	(cd include; \
-	$(LN) -fs ../libpthread/linuxthreads/sysdeps/pthread/pthread.h .; \
-	$(LN) -fs ../libpthread/linuxthreads/semaphore.h .);
-	(cd include/bits; \
-	$(LN) -fs ../../libpthread/linuxthreads/sysdeps/pthread/bits/pthreadtypes.h .);
-endif
 
 # Command used to download source code
 WGET:=wget --passive-ftp
@@ -360,7 +346,6 @@ clean:
 		done; \
 	fi;
 	@$(RM) include/linux include/asm*
-	@$(RM) include/pthread.h include/semaphore.h
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi;

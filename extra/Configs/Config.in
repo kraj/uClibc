@@ -297,27 +297,6 @@ config UCLIBC_HAS_THREADS
 
 	  If your applications require pthreads, answer Y.
 
-config PTHREADS_NATIVE
-	bool "Native POSIX Threading (NPTL) Support"
-	depends on UCLIBC_HAS_THREADS
-	default n
-	help
-	  If you want to compile uClibc with NPTL support, then answer Y.
-
-	  IMPORTANT NOTE!  NPTL requires a Linux 2.6 kernel, binutils
-	  at least version 2.16 and GCC with at least version 4.1.0. NPTL
-	  will not work with older versions of any above sources. If you
-	  ignore any of these guidelines, you do so at your own risk. Do
-	  not ask for help on any of the development mailing lists.
-
-	  !!!! WARNING !!!! BIG FAT WARNING !!!! REALLY BIG FAT WARNING !!!!
-
-	  This is experimental code and at times it may not even build and
-	  even if it does it might decide to do random damage. This code is
-	  potentially hazardous to your health and sanity. It will remain
-	  that way until further notice at which point this notice will
-	  disappear. Thank you for your support and for not smoking.
-
 config PTHREADS_DEBUG_SUPPORT
 	bool "Build pthreads debugging support"
 	default n

@@ -25,9 +25,8 @@
 /* Fast locks (not abstract because mutexes and conditions aren't abstract). */
 struct _pthread_fastlock
 {
-  long int __status;   /* "Free" or "taken" or head of waiting list */
-  int __spinlock;      /* Used by compare_and_swap emulation. Also,
-			  adaptive SMP lock stores spin count here. */
+  long int __status;            /* "Free" or "taken" or head of waiting list */
+  int __spinlock;               /* For compare-and-swap emulation */
 };
 
 #ifndef _PTHREAD_DESCR_DEFINED
@@ -38,7 +37,7 @@ typedef struct _pthread_descr_struct *_pthread_descr;
 
 
 /* Attributes for threads.  */
-typedef struct __pthread_attr_s
+typedef struct
 {
   int __detachstate;
   int __schedpolicy;
@@ -53,20 +52,10 @@ typedef struct __pthread_attr_s
 
 
 /* Conditions (not abstract because of PTHREAD_COND_INITIALIZER */
-
-#ifdef __GLIBC_HAVE_LONG_LONG
-__extension__ typedef long long __pthread_cond_align_t;
-#else
-typedef long __pthread_cond_align_t;
-#endif
-
 typedef struct
 {
   struct _pthread_fastlock __c_lock; /* Protect against concurrent access */
   _pthread_descr __c_waiting;        /* Threads waiting on this condition */
-  char __padding[48 - sizeof (struct _pthread_fastlock)
-		 - sizeof (_pthread_descr) - sizeof (__pthread_cond_align_t)];
-  __pthread_cond_align_t __align;
 } pthread_cond_t;
 
 
@@ -104,7 +93,7 @@ typedef struct
 typedef int pthread_once_t;
 
 
-#if defined __USE_UNIX98 || defined __USE_XOPEN2K
+#ifdef __USE_UNIX98
 /* Read-write locks.  */
 typedef struct _pthread_rwlock_t
 {
@@ -124,25 +113,6 @@ typedef struct
   int __lockkind;
   int __pshared;
 } pthread_rwlockattr_t;
-#endif
-
-#ifdef __USE_XOPEN2K
-/* POSIX spinlock data type.  */
-typedef volatile int pthread_spinlock_t;
-
-/* POSIX barrier. */
-typedef struct {
-  struct _pthread_fastlock __ba_lock; /* Lock to guarantee mutual exclusion */
-  int __ba_required;                  /* Threads needed for completion */
-  int __ba_present;                   /* Threads waiting */
-  _pthread_descr __ba_waiting;        /* Queue of waiting threads */
-} pthread_barrier_t;
-
-/* barrier attribute */
-typedef struct {
-  int __pshared;
-} pthread_barrierattr_t;
-
 #endif
 
 
