@@ -32,11 +32,7 @@ LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SU
 
 DIRS=
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
-	DIRS+=nptl
-else
 	DIRS+=linuxthreads
-endif
 	LDFLAGS_THREAD:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc -z defs
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 	LDFLAGS_THREAD+=-z relro
@@ -45,11 +41,7 @@ ifeq ($(UCLIBC_BUILD_NOW),y)
 	LDFLAGS_THREAD+=-z now
 endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
-	DIRS+=nptl_db
-else
 	DIRS+=linuxthreads_db
-endif
 	LDFLAGS_THREAD_DB:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
 endif
 ifeq ($(DODEBUG),n)
@@ -68,7 +60,7 @@ ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 	SHARED_END_FILES = $(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
 endif
 
-ALL_SUBDIRS = linuxthreads linuxthreads_db nptl nptl_db
+ALL_SUBDIRS = linuxthreads linuxthreads_db
 
 all: $(LIBPTHREAD) $(LIBTHREAD_DB)
 
