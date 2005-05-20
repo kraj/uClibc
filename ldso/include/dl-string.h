@@ -272,7 +272,7 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 #if defined(mc68000) || defined(__arm__) || defined(__mips__)	\
 		     || defined(__sh__) ||  defined(__powerpc__)
 #   define CONSTANT_STRING_GOT_FIXUP(X)				\
-	    if ((X) < (const char *) load_addr) (X) += load_addr;
+	    if ((X) < (const char *) load_addr) (X) += load_addr
 #else
 #   define CONSTANT_STRING_GOT_FIXUP(X)
 #endif
@@ -280,13 +280,14 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 
 #define SEND_STDERR(X) {					\
     const char *tmp1 = (X);					\
-    CONSTANT_STRING_GOT_FIXUP(tmp1)				\
+    CONSTANT_STRING_GOT_FIXUP(tmp1);				\
     _dl_write (2, tmp1, _dl_strlen(tmp1));			\
 };
 
-#define SEND_ADDRESS_STDERR(X, add_a_newline) {			\
+#define SEND_ADDRESS_STDERR(ADR, add_a_newline) {		\
     char tmp[26], v, *tmp2, *tmp1 = tmp;			\
-    CONSTANT_STRING_GOT_FIXUP(tmp1)				\
+    unsigned long X = (unsigned long)(ADR);			\
+    CONSTANT_STRING_GOT_FIXUP(tmp1);				\
     tmp2 = tmp1 + sizeof(tmp);					\
     *--tmp2 = '\0';						\
     if (add_a_newline) *--tmp2 = '\n';				\
@@ -305,7 +306,7 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 
 #define SEND_NUMBER_STDERR(X, add_a_newline) {			\
     char tmp[26], v, *tmp2, *tmp1 = tmp;			\
-    CONSTANT_STRING_GOT_FIXUP(tmp1)				\
+    CONSTANT_STRING_GOT_FIXUP(tmp1);				\
     tmp2 = tmp1 + sizeof(tmp);					\
     *--tmp2 = '\0';						\
     if (add_a_newline) *--tmp2 = '\n';				\
