@@ -74,7 +74,7 @@ $(LIBNAME_TARGET): $(LIBNAME)
 	$(INSTALL) -m 644 $(LIBNAME) $(TOPDIR)lib
 
 shared: $(LIBNAME)
-	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
+	$(LD) $(LDFLAGS) -z defs $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
 		--whole-archive $(LIBNAME) \
 		$(TOPDIR)libc/misc/internals/interp.o --no-whole-archive \
 		-init __uClibc_init $(LIBGCC) $(LDADD_LIBFLOAT)

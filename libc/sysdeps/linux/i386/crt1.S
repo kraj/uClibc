@@ -1,0 +1,125 @@
+/* Copyright (C) 1991, 1992 Free Software Foundation, Inc.
+This file is part of the GNU C Library.
+
+The GNU C Library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Library General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.
+
+The GNU C Library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Library General Public License for more details.
+
+You should have received a copy of the GNU Library General Public
+License along with the GNU C Library; see the file COPYING.LIB.  If
+not, write to the Free Software Foundation, Inc., 675 Mass Ave,
+Cambridge, MA 02139, USA.  */
+
+
+/*  Based on the code from GNU libc, but hacked up by John Beppu and Erik Andersen */
+/*  adapted by PaX Team for ET_DYN/PIE binaries */
+
+/*
+    When we enter this piece of code, the program stack looks like this:
+        argc            argument counter (integer)
+        argv[0]         program name (pointer)
+        argv[1...N]     program args (pointers)
+        argv[argc-1]    end of args (integer)
+	NULL
+        env[0...N]      environment variables (pointers)
+        NULL
+*/
+
+#include <features.h>
+
+.text
+	.align 4
+
+	.global	_start
+	.type	_start,%function
+	.weak	_init
+	.weak	_fini
+	.type	__uClibc_start_main,%function
+
+_start:
+	/* locate the start of the environment variables */
+	popl %ecx	/* Store argc into %ecx */
+	movl %esp,%ebx  /* Store argv into ebx */
+	movl %esp,%eax  /* Store argv into eax as well*/
+	movl %edx,%esi	/* Store edx(FINI ptr) in %esi */
+	movl %ecx,%edx	/* Stick argc into %edx so we can do some math in a sec */
+	leal 4(%eax,%edx,4),%eax
+
+	/*  [ register layout ]
+
+	    sizeof(char*) == 4
+	    %ecx = argc	    ; 0(esp)
+	    %ebx = argv	    ; 4(esp)
+	    %eax = env	    ; argv + (argc * 4) + 4
+	*/
+	xorl %ebp,%ebp  /* NULL */
+	/*
+	Before pushing the arguments align the stack to a 16-byte
+	(SSE needs 16-byte alignment) boundary to avoid penalties from
+	misaligned accesses.  Thanks to Edward Seidl <seidl@janed.com>
+	for pointing this out.
+	*/
+	andl $0xfffffff0, %esp
+	/* Push NULL to make sure stack ptr
+	   is 16 byte aligned when calling __uClibc_start_main */
+	pushl %ebp
+	pushl %ebp
+	
+	/* Set up an invalid (NULL return address, NULL frame pointer)
+	   callers stack frame so anybody unrolling the stack knows where
+	   to stop */
+	pushl %ebp      /* callers %cs */
+	pushl %ebp      /* callers %eip (return address) */
+	pushl %ebp      /* callers %ebp (frame pointer) */
+	movl %esp,%ebp  /* mark callers stack frame as invalid */
+
+#if defined L_Scrt1
+	call .L0
+.L0:
+	pop %edx
+	addl $_GLOBAL_OFFSET_TABLE_+[.-.L0],%edx
+#endif
+	pushl %esi	/* Push FINI pointer */
+
+	/* Push apps .init, .fini and main arguments to __uClibc_start_main() on the stack */
+#ifdef L_Scrt1
+	pushl main@GOT(%edx)
+	pushl _fini@GOT(%edx)
+	pushl _init@GOT(%edx)
+#else
+	pushl $main
+	pushl $_fini
+	pushl $_init
+#endif
+
+	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */
+	pushl %eax	/* Environment pointer */
+	pushl %ebx	/* Argument pointer */
+	pushl %ecx	/* And the argument count */
+
+	/* Ok, now run uClibc's main() -- shouldn't return */
+#ifdef L_Scrt1
+	call *__uClibc_start_main@GOT(%edx)
+#else
+	call __uClibc_start_main
+#endif
+
+	/* Crash if somehow `exit' returns anyways.  */
+	hlt
+.size _start,.-_start
+
+
+/* Define a symbol for the first piece of initialized data.  */
+	.data
+	.globl __data_start
+__data_start:
+	.long 0
+	.weak data_start
+	data_start = __data_start
+
