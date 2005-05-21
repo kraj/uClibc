@@ -239,11 +239,8 @@ void exit(int rv)
 	if (__app_fini != NULL)
 		(__app_fini)();
 #endif
-#ifdef _DL_DO_FINI_IN_LIBC
-/* arches that has moved their ldso FINI handling should #define _DL_DO_FINI_IN_LIBC */
 	if (__rtld_fini != NULL)
 		(__rtld_fini)();
-#endif
 
     /* If we are using stdio, try to shut it down.  At the very least,
 	 * this will attempt to commit all buffered writes.  It may also
