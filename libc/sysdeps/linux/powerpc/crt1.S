@@ -27,60 +27,56 @@
 #define r7      7
 #define r8      8
 #define r9      9
+#define r10     10
 #define r13     13
 #define r31     31
 
 #include <features.h>
 
-	.section ".text"
+.text
 	.globl	_start
-	.type	_start,@function
-	.weak	_init
-	.weak	_fini
+	.type	_start,%function
+	.type	_init,%function
+	.type	_fini,%function
+	.type	main,%function
 	.type	__uClibc_start_main,%function
 
-/* Stick in a dummy reference to main(), so that if an application
- * is linking when the main() function is in a static library (.a)
- * we can be sure that main() actually gets linked in */
-	.type	main,%function
-
 _start:
-	/* Save the stack pointer, in case we're statically linked under Linux.  */
-	mr	r9,r1
+	mr	r9,r1 	/* Save the stack pointer */
+	clrrwi	r1,r1,4	/* Align stack ptr to 16 bytes */
+	mr	r10,r1 	/* Pass aligned stack ptr */
 #if defined L_Scrt1
 	bl	_GLOBAL_OFFSET_TABLE_-4@local
 	mflr	r31
 #endif
 	/* Set up an initial stack frame, and clear the LR.  */
-	clrrwi	r1,r1,4
 	li	r0,0
 	stwu	r1,-16(r1)
 	mtlr	r0
 	stw	r0,0(r1)
-
 	/* find argc from the stack pointer */
-	lwz	r3,0(r9)
+	lwz	r4,0(r9)
 	/* find argv one word offset from the stack pointer */
-	addi	r4,r9,4
+	addi	r5,r9,4
 	/* find environment pointer (argv+argc+1) */
-	lwz	r5,0(r9)
-	addi	r5,r5,1
-	rlwinm	r5,r5,2,0,29
-	add	r5,r5,r4
-	mr	r9,r7 /* Pass _dl_fini from ldso */
+	lwz	r6,0(r9)
+	addi	r6,r6,1
+	rlwinm	r6,r6,2,0,29
+	add	r6,r6,r5
+	mr	r9,r7 /* Pass _dl_fini from ldso or NULL if statically linked */
 	/* Ok, now run uClibc's main() -- shouldn't return */
 # ifdef L_Scrt1
 	lwz	r6,_init@got(r31)
 	lwz	r7,_fini@got(r31)
-	lwz	r8,main@got(r31)
+	lwz	r3,main@got(r31)
 	b	__uClibc_start_main@plt
 # else
 	lis     r6,_init@ha	# load top 16 bits
 	addi    r6,r6,_init@l	# load bottom 16 bits
-	lis     r7,_fini@ha	# load top 16 bits of &msg
+	lis     r7,_fini@ha	# load top 16 bits
 	addi    r7,r7,_fini@l	# load bottom 16 bits
-	lis     r8,main@ha	# load top 16 bits of &msg
-	addi    r8,r8,main@l	# load bottom 16 bits
+	lis     r3,main@ha	# load top 16 bits
+	addi    r3,r3,main@l	# load bottom 16 bits
 	b	__uClibc_start_main
 # endif
 .size _start,.-_start

@@ -38,8 +38,9 @@ Cambridge, MA 02139, USA.  */
 
 	.global	_start
 	.type	_start,%function
-	.weak	_init
-	.weak	_fini
+	.type	_init,%function
+	.type	_fini,%function
+	.type	main,%function
 	.type	__uClibc_start_main,%function
 
 _start:
@@ -69,7 +70,6 @@ _start:
 	/* Push NULL to make sure stack ptr
 	   is 16 byte aligned when calling __uClibc_start_main */
 	pushl %ebp
-	pushl %ebp
 	
 	/* Set up an invalid (NULL return address, NULL frame pointer)
 	   callers stack frame so anybody unrolling the stack knows where
@@ -85,15 +85,14 @@ _start:
 	pop %edx
 	addl $_GLOBAL_OFFSET_TABLE_+[.-.L0],%edx
 #endif
+	pushl %esp	/* push stack ptr */
 	pushl %esi	/* Push FINI pointer */
 
 	/* Push apps .init, .fini and main arguments to __uClibc_start_main() on the stack */
 #ifdef L_Scrt1
-	pushl main@GOT(%edx)
 	pushl _fini@GOT(%edx)
 	pushl _init@GOT(%edx)
 #else
-	pushl $main
 	pushl $_fini
 	pushl $_init
 #endif
@@ -105,8 +104,10 @@ _start:
 
 	/* Ok, now run uClibc's main() -- shouldn't return */
 #ifdef L_Scrt1
+	pushl main@GOT(%edx)
 	call *__uClibc_start_main@GOT(%edx)
 #else
+	pushl $main
 	call __uClibc_start_main
 #endif
 

@@ -164,10 +164,11 @@ void attribute_hidden (*__rtld_fini)(void) = NULL;
  * are initialized, just before we call the application's main function.
  */
 void __attribute__ ((__noreturn__))
-__uClibc_start_main(int argc, char **argv, char **envp,
+__uClibc_start_main(int (*main)(int argc, char **argv, char **envp),
+		    int argc, char **argv, char **envp,
 		    void (*app_init)(void), void (*app_fini)(void),
-		    int  (*main)(int argc, char **argv, char **envp),
-		    void (*rtld_fini)(void))
+		    void (*rtld_fini)(void),
+		    void *stack_end)
 {
 #ifdef __ARCH_HAS_MMU__
     unsigned long *aux_dat;
