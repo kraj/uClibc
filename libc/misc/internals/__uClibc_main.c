@@ -164,11 +164,9 @@ void attribute_hidden (*__rtld_fini)(void) = NULL;
  * are initialized, just before we call the application's main function.
  */
 void __attribute__ ((__noreturn__))
-__uClibc_start_main(int (*main)(int argc, char **argv, char **envp),
-		    int argc, char **argv, char **envp,
-		    void (*app_init)(void), void (*app_fini)(void),
-		    void (*rtld_fini)(void),
-		    void *stack_end)
+__uClibc_start_main(int (*main)(int, char **, char **), int argc,
+		    char **argv, void (*app_init)(void), void (*app_fini)(void),
+		    void (*rtld_fini)(void), void *stack_end)
 {
 #ifdef __ARCH_HAS_MMU__
     unsigned long *aux_dat;
@@ -182,15 +180,19 @@ __uClibc_start_main(int (*main)(int argc, char **argv, char **envp),
 
     __rtld_fini = rtld_fini;
 
-    /* If we are dynamically linked, then ldso already did this for us. */
-    if (__environ==NULL) {
-	/* Statically linked. */
-	__environ = envp;
+    /* The environment begins right after argv.  */
+    __environ = &argv[argc + 1];
+
+    /* If the first thing after argv is the arguments
+     * the the environment is empty. */
+    if ((char *) __environ == *argv) {
+	/* Make __environ point to the NULL at argv[argc] */
+	__environ = &argv[argc];
     }
 
     /* Pull stuff from the ELF header when possible */
 #ifdef __ARCH_HAS_MMU__
-    aux_dat = (unsigned long*)envp;
+    aux_dat = (unsigned long*)__environ;
     while (*aux_dat) {
 	aux_dat++;
     }
@@ -249,5 +251,5 @@ __uClibc_start_main(int (*main)(int argc, char **argv, char **envp),
     /*
      * Finally, invoke application's main and then exit.
      */
-    exit(main(argc, argv, envp));
+    exit(main(argc, argv, __environ));
 }
