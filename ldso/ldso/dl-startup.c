@@ -140,6 +140,14 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 		aux_dat++;				/* Skip over the envp pointers */
 	aux_dat++;					/* Skip over NULL at end of envp */
 
+	/*
+	 * MIPS NPTL - This was taken from 'sysdeps/generic/libc-start.c'
+	 *             and is most likely associated with backtrace
+	 *             capability. It could possibly be removed later,
+	 *             but right now NPTL needs this to compile.
+	 */
+	__libc_stack_end = (void *) argv;
+
 	/* Place -1 here as a checkpoint.  We later check if it was changed
 	 * when we read in the auxvt */
 	auxvt[AT_UID].a_type = -1;

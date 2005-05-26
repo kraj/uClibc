@@ -20,7 +20,14 @@
 #ifndef _TLS_H
 #define _TLS_H	1
 
+#if 0
+/*
+ * MIPS NPTL - defines a total of two symbols used by the glibc
+ *             dynamic loader. Hopefully we will not need it for
+ *             uClibc.
+ */
 #include <dl-sysdep.h>
+#endif
 
 #ifndef __ASSEMBLER__
 # include <stdbool.h>
@@ -57,6 +64,15 @@ typedef union dtv
 
 
 /* We require TLS support in the tools.  */
+#ifdef __PTHREADS_NATIVE__
+/*
+ * MIPS NPTL - HAVE_TLS_MODEL_ATTRIBUTE may need to be defined also and
+ *             is used in 'glibc/include/libc-symbols.h'. We will see if
+ *             it is needed later on.
+ */
+#define HAVE_TLS_SUPPORT	1
+#endif
+
 #ifndef HAVE_TLS_SUPPORT
 # error "TLS support is required."
 #endif
@@ -73,7 +89,14 @@ typedef union dtv
 # define TLS_DTV_AT_TP	1
 
 /* Get the thread descriptor definition.  */
+#if 0
+/*
+ * MIPS NPTL - we have different include paths than glibc.
+ */
 # include <nptl/descr.h>
+#else
+# include <descr.h>
+#endif
 
 typedef struct
 {

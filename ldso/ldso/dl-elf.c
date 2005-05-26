@@ -37,6 +37,13 @@
 static caddr_t _dl_cache_addr = NULL;
 static size_t _dl_cache_size = 0;
 
+/*
+ * MIPS NPTL - This was taken from 'elf/dl-load.c' in glibc. We may
+ *             or may not need this for backtrace support. Define
+ *             it for NPTL compilation.
+ */
+void *__libc_stack_end;
+
 int _dl_map_cache(void)
 {
 	int fd;

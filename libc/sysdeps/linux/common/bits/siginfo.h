@@ -1,5 +1,5 @@
-/* siginfo_t, sigevent and constants.  Linux/SPARC version.
-   Copyright (C) 1997, 1998, 1999, 2000, 2001 Free Software Foundation, Inc.
+/* siginfo_t, sigevent and constants.  Linux version.
+   Copyright (C) 1997-2002, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -69,8 +69,9 @@ typedef struct siginfo
 	/* POSIX.1b timers.  */
 	struct
 	  {
-	    unsigned int _timer1;
-	    unsigned int _timer2;
+	    int si_tid;		/* Timer ID.  */
+	    int si_overrun;	/* Overrun count.  */
+	    sigval_t si_sigval;	/* Signal value.  */
 	  } _timer;
 
 	/* POSIX.1b signals.  */
@@ -110,8 +111,8 @@ typedef struct siginfo
 /* X/Open requires some more fields with fixed names.  */
 # define si_pid		_sifields._kill.si_pid
 # define si_uid		_sifields._kill.si_uid
-# define si_timer1	_sifields._timer._timer1
-# define si_timer2	_sifields._timer._timer2
+# define si_timerid	_sifields._timer.si_tid
+# define si_overrun	_sifields._timer.si_overrun
 # define si_status	_sifields._sigchld.si_status
 # define si_utime	_sifields._sigchld.si_utime
 # define si_stime	_sifields._sigchld.si_stime
@@ -127,8 +128,10 @@ typedef struct siginfo
    signals.  */
 enum
 {
-  SI_ASYNCNL = -6,		/* Sent by asynch name lookup completion.  */
+  SI_ASYNCNL = -60,		/* Sent by asynch name lookup completion.  */
 # define SI_ASYNCNL	SI_ASYNCNL
+  SI_TKILL = -6,		/* Sent by tkill.  */
+# define SI_TKILL	SI_TKILL
   SI_SIGIO,			/* Sent by queued SIGIO. */
 # define SI_SIGIO	SI_SIGIO
   SI_ASYNCIO,			/* Sent by AIO completion.  */
@@ -267,9 +270,6 @@ enum
 #  define __SIGEV_PAD_SIZE	((__SIGEV_MAX_SIZE / sizeof (int)) - 3)
 # endif
 
-/* Forward declaration of the `pthread_attr_t' type.  */
-struct __pthread_attr_s;
-
 typedef struct sigevent
   {
     sigval_t sigev_value;
@@ -280,10 +280,14 @@ typedef struct sigevent
       {
 	int _pad[__SIGEV_PAD_SIZE];
 
+	/* When SIGEV_SIGNAL and SIGEV_THREAD_ID set, LWP ID of the
+	   thread to receive the signal.  */
+	__pid_t _tid;
+
 	struct
 	  {
-	    void (*_function) (sigval_t);	  /* Function to start.  */
-	    struct __pthread_attr_s *_attribute;  /* Really pthread_attr_t.  */
+	    void (*_function) (sigval_t);	/* Function to start.  */
+	    void *_attribute;			/* Really pthread_attr_t.  */
 	  } _sigev_thread;
       } _sigev_un;
   } sigevent_t;
@@ -299,8 +303,11 @@ enum
 # define SIGEV_SIGNAL	SIGEV_SIGNAL
   SIGEV_NONE,			/* Other notification: meaningless.  */
 # define SIGEV_NONE	SIGEV_NONE
-  SIGEV_THREAD			/* Deliver via thread creation.  */
+  SIGEV_THREAD,			/* Deliver via thread creation.  */
 # define SIGEV_THREAD	SIGEV_THREAD
+
+  SIGEV_THREAD_ID = 4		/* Send signal to specific thread.  */
+#define SIGEV_THREAD_ID	SIGEV_THREAD_ID
 };
 
 #endif	/* have _SIGNAL_H.  */

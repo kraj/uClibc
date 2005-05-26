@@ -1,6 +1,12 @@
 #ifndef _LD_DEFS_H
 #define _LD_DEFS_H
 
+/*
+ * MIPS NPTL - This was taken from 'sysdeps/generic/ldsodefs.h'. It is
+ *             used for backtrace capability.
+ */
+extern void *__libc_stack_end;
+
 #define LIB_ANY	     -1
 #define LIB_DLL       0
 #define LIB_ELF       1
