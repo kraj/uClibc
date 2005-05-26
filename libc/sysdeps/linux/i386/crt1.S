@@ -89,14 +89,14 @@ _start:
 
 #if defined L_Scrt1
 	/* Load PIC register.  */
-	call 1f
-	addl $_GLOBAL_OFFSET_TABLE_, %ebx
+	call .L0
+.L0:
+	pop %ebx
+	addl $_GLOBAL_OFFSET_TABLE_+[.-.L0],%ebx
 
 	/* Push address of our own entry points to .fini and .init.  */
-	leal _fini@GOTOFF(%ebx), %eax
-	pushl %eax
-	leal _init@GOTOFF(%ebx), %eax
-	pushl %eax
+	pushl _fini@GOT(%ebx)
+	pushl _init@GOT(%ebx)
 
 	pushl %ecx		/* Push second argument: argv.  */
 	pushl %esi		/* Push first argument: argc.  */
@@ -123,10 +123,6 @@ _start:
 
 	hlt			/* Crash if somehow `exit' does return.  */
 
-#if defined L_Scrt1
-1:	movl	(%esp), %ebx
-	ret
-#endif
 /* Define a symbol for the first piece of initialized data.  */
 	.data
 	.globl __data_start
