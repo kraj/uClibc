@@ -58,23 +58,18 @@ _start:
 	lwz	r4,0(r9)
 	/* find argv one word offset from the stack pointer */
 	addi	r5,r9,4
-	/* find environment pointer (argv+argc+1) */
-	lwz	r6,0(r9)
-	addi	r6,r6,1
-	rlwinm	r6,r6,2,0,29
-	add	r6,r6,r5
-	mr	r9,r7 /* Pass _dl_fini from ldso or NULL if statically linked */
+	mr	r8,r7 /* Pass _dl_fini from ldso or NULL if statically linked */
 	/* Ok, now run uClibc's main() -- shouldn't return */
 # ifdef L_Scrt1
-	lwz	r7,_init@got(r31)
-	lwz	r8,_fini@got(r31)
+	lwz	r6,_init@got(r31)
+	lwz	r7,_fini@got(r31)
 	lwz	r3,main@got(r31)
 	b	__uClibc_start_main@plt
 # else
-	lis     r7,_init@ha	# load top 16 bits
-	addi    r7,r7,_init@l	# load bottom 16 bits
-	lis     r8,_fini@ha	# load top 16 bits
-	addi    r8,r8,_fini@l	# load bottom 16 bits
+	lis     r6,_init@ha	# load top 16 bits
+	addi    r6,r6,_init@l	# load bottom 16 bits
+	lis     r7,_fini@ha	# load top 16 bits
+	addi    r7,r7,_fini@l	# load bottom 16 bits
 	lis     r3,main@ha	# load top 16 bits
 	addi    r3,r3,main@l	# load bottom 16 bits
 	b	__uClibc_start_main
