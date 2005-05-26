@@ -21,7 +21,7 @@ include $(TOPDIR)Rules.mak
 
 CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o
-CRT0_DEPS=gmon-start.S
+SCRT0_OBJ = $(patsubst %,S%, $(CRT0_OBJ))
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
@@ -37,13 +37,22 @@ OBJ_LIST=../../../obj.sysdeps.$(TARGET_ARCH)
 
 all: $(OBJ_LIST)
 
-$(OBJ_LIST): $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
+$(OBJ_LIST): $(OBJS) $(CRT0_OBJ) $(SCRT0_OBJ) $(CTOR_TARGETS)
 	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
 	$(INSTALL) -d $(TOPDIR)lib/
-	cp $(CRT0_OBJ) $(TOPDIR)lib/
+	cp $(CRT0_OBJ) $(SCRT0_OBJ) $(TOPDIR)lib/
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+	$(RM) $(TOPDIR)lib/Scrt0.o
+else
+	mv $(TOPDIR)lib/Scrt0.o $(TOPDIR)lib/Scrt1.o
+endif
 
 $(CRT0_OBJ): $(CRT0_SRC)
 	$(CC) $(ASFLAGS) -DL_$* $< -c -o $*.o
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(SCRT0_OBJ): $(CRT0_SRC)
+	$(CC) $(ASFLAGS) $(PIEFLAG) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): %.o : %.S
@@ -83,4 +92,3 @@ headers:
 clean:
 	$(RM) *.[oa] *~ core
 	$(RM) bits/sysnum.h
-	$(RM) gmon-start.S

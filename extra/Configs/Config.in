@@ -1110,12 +1110,12 @@ config UCLIBC_BUILD_PIE
 	bool "Build utilities as ET_DYN/PIE executables"
 	depends on UCLIBC_SECURITY
 	depends on HAVE_SHARED
-	depends on TARGET_i386 || TARGET_powerpc || TARGET_mips || TARGET_frv
+	depends on TARGET_arm || TARGET_frv || TARGET_i386 || TARGET_mips || TARGET_powerpc
 	select FORCE_SHAREABLE_TEXT_SEGMENTS if BUILD_UCLIBC_LDSO
 	default y
 	help
 	  If you answer Y here, ldd and iconv are built as ET_DYN/PIE executables.
-	  It requires gcc-3.4 and binutils-2.15 or later.
+	  It requires gcc-3.4 and binutils-2.15 (for arm 2.16) or later.
 	  More about ET_DYN/PIE binaries on <http://pax.grsecurity.net/> .
 	  WARNING: This option also enables FORCE_SHAREABLE_TEXT_SEGMENTS, so all
 		libraries have to be built with -fPIC or -fpic, and all assembler
