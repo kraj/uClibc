@@ -27,7 +27,11 @@
 #include "descr.h"
 #include <tls.h>
 #include <lowlevellock.h>
+#ifdef __UCLIBC__
+#include <bits/stackinfo.h>
+#else
 #include <stackinfo.h>
+#endif
 #include <internaltypes.h>
 #include <pthread-functions.h>
 #include <atomic.h>
