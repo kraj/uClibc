@@ -21,7 +21,7 @@
 #endif
 
 #ifdef __SSP__
-#error ssp.c has to be built w/ -fno-stack-protector
+# error ssp.c has to be built w/ -fno-stack-protector
 #endif
 
 #include <stdio.h>
@@ -45,12 +45,22 @@
 # define SSP_SIGTYPE SIGABRT
 #endif
 
-/* prototypes */
-extern int __libc_open (__const char *file, int oflag, ...);
-extern ssize_t __libc_read(int fd, void *buf, size_t count);
-extern int __libc_close (int fd);
-
 unsigned long __guard = 0UL;
+
+/* Use of __* functions from the rest of glibc here avoids
+ * initialisation problems for executables preloaded with
+ * libraries that overload the associated standard library
+ * functions.
+ */
+#ifdef __UCLIBC__
+extern int __libc_open(__const char *file, int flags, ...);
+extern ssize_t __libc_read(int fd, void *buf, size_t count);
+extern int __libc_close(int fd);
+#else
+# define __libc_open(file, flags) __open(file, flags)
+# define __libc_read(fd, buf, count) __read(fd, buf, count)
+# define __libc_close(fd) __close(fd)
+#endif
 
 void __guard_setup(void) __attribute__ ((constructor));
 void __guard_setup(void)
@@ -66,16 +76,18 @@ void __guard_setup(void)
 
 #ifndef __SSP_QUICK_CANARY__
 # ifdef __SSP_USE_ERANDOM__
-	int mib[3];
-	/* Random is another depth in Linux, hence an array of 3. */
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_RANDOM;
-	mib[2] = RANDOM_ERANDOM;
+	{
+		int mib[3];
+		/* Random is another depth in Linux, hence an array of 3. */
+		mib[0] = CTL_KERN;
+		mib[1] = KERN_RANDOM;
+		mib[2] = RANDOM_ERANDOM;
 
-	size = sizeof(unsigned long);
-	if (__sysctl(mib, 3, &__guard, &size, NULL, 0) != (-1))
-		if (__guard != 0UL)
-			return;
+		size = sizeof(unsigned long);
+		if (__sysctl(mib, 3, &__guard, &size, NULL, 0) != (-1))
+			if (__guard != 0UL)
+				return;
+	}
 # endif /* ifdef __SSP_USE_ERANDOM__ */
 	/* 
 	 * Attempt to open kernel pseudo random device if one exists before 
