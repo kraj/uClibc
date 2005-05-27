@@ -34,8 +34,8 @@
 .type setjmp,@function
 
 setjmp:
-#ifdef __PIC__
 	.set	noreorder
+#ifdef __PIC__
 	.cpload t9
 	.set	reorder
 	la	t9, __sigsetjmp
