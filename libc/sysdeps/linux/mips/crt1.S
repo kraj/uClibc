@@ -71,8 +71,8 @@
 */
 
 .text
-	.global	_start
-	.type	_start,%function
+	.global	__start
+	.type	__start,%function
 	.type	_init,%function
 	.type	_fini,%function
 	.type	main,%function
