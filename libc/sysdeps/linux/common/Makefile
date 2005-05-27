@@ -28,6 +28,7 @@ endif
 ifneq ($(strip $(UCLIBC_HAS_SSP)),y)
 SRCS := $(filter-out ssp.c,$(SRCS))
 endif
+ssp.o: CFLAGS += $(SSP_DISABLE_FLAGS)
 
 OBJS  = $(patsubst %.c,%.o, $(SRCS))
 

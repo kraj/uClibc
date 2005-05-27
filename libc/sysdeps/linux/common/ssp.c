@@ -20,6 +20,10 @@
 # include <config.h>
 #endif
 
+#ifdef __SSP__
+#error ssp.c has to be built w/ -fno-stack-protector
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -42,7 +46,7 @@
 #endif
 
 /* prototypes */
-extern int __libc_open (__const char *file, int oflag, mode_t mode);
+extern int __libc_open (__const char *file, int oflag, ...);
 extern ssize_t __libc_read(int fd, void *buf, size_t count);
 extern int __libc_close (int fd);
 
