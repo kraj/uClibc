@@ -30,15 +30,15 @@
 #include <sys/syslog.h>
 #include <sys/time.h>
 #ifdef __SSP_USE_ERANDOM__
-#include <sys/sysctl.h>
+# include <sys/sysctl.h>
 #endif
 
 #ifdef __PROPOLICE_BLOCK_SEGV__
-#define SSP_SIGTYPE SIGSEGV
+# define SSP_SIGTYPE SIGSEGV
 #elif __PROPOLICE_BLOCK_KILL__
-#define SSP_SIGTYPE SIGKILL
+# define SSP_SIGTYPE SIGKILL
 #else
-#define SSP_SIGTYPE SIGABRT
+# define SSP_SIGTYPE SIGABRT
 #endif
 
 /* prototypes */
@@ -61,7 +61,7 @@ void __guard_setup(void)
 	__guard = 0xFF0A0D00UL;
 
 #ifndef __SSP_QUICK_CANARY__
-#ifdef __SSP_USE_ERANDOM__
+# ifdef __SSP_USE_ERANDOM__
 	int mib[3];
 	/* Random is another depth in Linux, hence an array of 3. */
 	mib[0] = CTL_KERN;
@@ -72,7 +72,7 @@ void __guard_setup(void)
 	if (__sysctl(mib, 3, &__guard, &size, NULL, 0) != (-1))
 		if (__guard != 0UL)
 			return;
-#endif
+# endif /* ifdef __SSP_USE_ERANDOM__ */
 	/* 
 	 * Attempt to open kernel pseudo random device if one exists before 
 	 * opening urandom to avoid system entropy depletion.
@@ -80,9 +80,9 @@ void __guard_setup(void)
 	{
 		int fd;
 
-#ifdef __SSP_USE_ERANDOM__
+# ifdef __SSP_USE_ERANDOM__
 		if ((fd = __libc_open("/dev/erandom", O_RDONLY)) == (-1))
-#endif
+# endif
 			fd = __libc_open("/dev/urandom", O_RDONLY);
 		if (fd != (-1)) {
 			size = __libc_read(fd, (char *) &__guard, sizeof(__guard));
@@ -91,7 +91,7 @@ void __guard_setup(void)
 				return;
 		}
 	}
-#endif
+#endif /* ifndef __SSP_QUICK_CANARY__ */
 
 	/* Everything failed? Or we are using a weakened model of the 
 	 * terminator canary */
