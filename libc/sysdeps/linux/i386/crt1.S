@@ -60,7 +60,7 @@
 	.type	_init,%function
 	.type	_fini,%function
 	.type	main,%function
-	.type	__uClibc_start_main,%function
+	.type	__uClibc_main,%function
 _start:
 	/* Clear the frame pointer.  The ABI suggests this be done, to mark
 	   the outermost frame obviously.  */
@@ -105,7 +105,7 @@ _start:
 
 	/* Call the user's main function, and exit with its value.
 	   But let the libc call main.    */
-	call __uClibc_start_main@PLT
+	call __uClibc_main@PLT
 #else
 	/* Push address of our own entry points to .fini and .init.  */
 	pushl $_fini
@@ -118,7 +118,7 @@ _start:
 
 	/* Call the user's main function, and exit with its value.
 	   But let the libc call main.    */
-	call __uClibc_start_main
+	call __uClibc_main
 #endif
 
 	hlt			/* Crash if somehow `exit' does return.  */

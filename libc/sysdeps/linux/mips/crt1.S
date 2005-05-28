@@ -36,7 +36,6 @@
    02111-1307 USA.  */
 
 
-#include <features.h>
 #include <sys/regdef.h>
 
 
@@ -65,7 +64,7 @@
 
 
 /* We need to call:
-   __uClibc_start_main (int (*main) (int, char **, char **), int argc,
+   __uClibc_main (int (*main) (int, char **, char **), int argc,
 		      char **argv, void (*init) (void), void (*fini) (void),
 		      void (*rtld_fini) (void), void *stack_end)
 */
@@ -76,7 +75,7 @@
 	.type	_init,%function
 	.type	_fini,%function
 	.type	main,%function
-	.type	__uClibc_start_main,%function
+	.type	__uClibc_main,%function
 
 __start:
 #ifdef __PIC__
@@ -108,9 +107,9 @@ __start:
 	sw $8, 16($29)		/* fini */
 	sw $2, 20($29)		/* rtld_fini */
 	sw $29, 24($29)		/* stack_end */
-	jal __uClibc_start_main
+	jal __uClibc_main
 hlt:
-	/* Crash if somehow `__uClibc_start_main' returns anyway.  */
+	/* Crash if somehow `__uClibc_main' returns anyway.  */
 	b   hlt
 .size __start,.-__start
 

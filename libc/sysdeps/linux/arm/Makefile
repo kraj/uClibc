@@ -20,7 +20,7 @@ TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
 CRT0_SRC = crt0.S
-CRT0_OBJ = crt0.o crt1.o
+CRT0_OBJ = crt1.o
 SCRT0_OBJ = $(patsubst %,S%, $(CRT0_OBJ))
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
@@ -41,11 +41,6 @@ $(OBJ_LIST): $(OBJS) $(CRT0_OBJ) $(SCRT0_OBJ) $(CTOR_TARGETS)
 	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
 	$(INSTALL) -d $(TOPDIR)lib/
 	cp $(CRT0_OBJ) $(SCRT0_OBJ) $(TOPDIR)lib/
-ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
-	$(RM) $(TOPDIR)lib/Scrt0.o
-else
-	mv $(TOPDIR)lib/Scrt0.o $(TOPDIR)lib/Scrt1.o
-endif
 
 $(CRT0_OBJ): $(CRT0_SRC)
 	$(CC) $(ASFLAGS) -DL_$* $< -c -o $*.o

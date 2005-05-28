@@ -31,15 +31,13 @@
 #define r13     13
 #define r31     31
 
-#include <features.h>
-
 .text
 	.globl	_start
 	.type	_start,%function
 	.type	_init,%function
 	.type	_fini,%function
 	.type	main,%function
-	.type	__uClibc_start_main,%function
+	.type	__uClibc_main,%function
 
 _start:
 	mr	r10,r1 	/* Save the stack pointer */
@@ -64,7 +62,7 @@ _start:
 	lwz	r6,_init@got(r31)
 	lwz	r7,_fini@got(r31)
 	lwz	r3,main@got(r31)
-	b	__uClibc_start_main@plt
+	b	__uClibc_main@plt
 # else
 	lis     r6,_init@ha	# load top 16 bits
 	addi    r6,r6,_init@l	# load bottom 16 bits
@@ -72,8 +70,9 @@ _start:
 	addi    r7,r7,_fini@l	# load bottom 16 bits
 	lis     r3,main@ha	# load top 16 bits
 	addi    r3,r3,main@l	# load bottom 16 bits
-	b	__uClibc_start_main
+	b	__uClibc_main
 # endif
+
 .size _start,.-_start
 
 /* Define a symbol for the first piece of initialized data.  */

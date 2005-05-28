@@ -164,7 +164,7 @@ void attribute_hidden (*__rtld_fini)(void) = NULL;
  * are initialized, just before we call the application's main function.
  */
 void __attribute__ ((__noreturn__))
-__uClibc_start_main(int (*main)(int, char **, char **), int argc,
+__uClibc_main(int (*main)(int, char **, char **), int argc,
 		    char **argv, void (*app_init)(void), void (*app_fini)(void),
 		    void (*rtld_fini)(void), void *stack_end)
 {
@@ -253,3 +253,13 @@ __uClibc_start_main(int (*main)(int, char **, char **), int argc,
      */
     exit(main(argc, argv, __environ));
 }
+
+#ifdef _DL_FINI_CRT_COMPAT
+extern int weak_function main(int argc, char **argv, char **envp);
+void __attribute__ ((__noreturn__))
+__uClibc_start_main(int argc, char **argv, char **envp,
+		    void (*app_fini)(void), void (*app_init)(void))
+{
+	__uClibc_main(main, argc, argv, app_init, app_fini, NULL, NULL);
+}
+#endif

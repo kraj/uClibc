@@ -239,8 +239,10 @@ void exit(int rv)
 	if (__app_fini != NULL)
 		(__app_fini)();
 #endif
+#ifndef _DL_FINI_CRT_COMPAT
 	if (__rtld_fini != NULL)
 		(__rtld_fini)();
+#endif
 
     /* If we are using stdio, try to shut it down.  At the very least,
 	 * this will attempt to commit all buffered writes.  It may also

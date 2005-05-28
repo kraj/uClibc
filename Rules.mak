@@ -307,6 +307,10 @@ ifeq ($(DOPIC),y)
     CFLAGS += $(PICFLAG)
 endif
 
+ifeq ($(DL_FINI_CRT_COMPAT),y)
+CFLAGS += -D_DL_FINI_CRT_COMPAT
+endif
+
 ASFLAGS = $(CFLAGS)
 ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
 ASFLAGS += $(call check_as,--noexecstack)
