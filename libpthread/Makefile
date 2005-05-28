@@ -43,6 +43,9 @@ endif
 
 ALL_SUBDIRS = linuxthreads linuxthreads_db
 
+# Remove any -z defs since this lib will have undefined symbols
+LIBTHREAD_DB_LDFLAGS := $(subst -z defs,,$(LDFLAGS))
+
 all: $(LIBPTHREAD) $(LIBTHREAD_DB)
 
 $(LIBPTHREAD): subdirs
@@ -83,7 +86,7 @@ ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 		$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
 endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(LD) $(LDFLAGS) --warn-unresolved-symbols -soname=$(LIBTHREAD_DB_SHARED).1 \
+	$(LD) $(LIBTHREAD_DB_LDFLAGS) --warn-unresolved-symbols -soname=$(LIBTHREAD_DB_SHARED).1 \
 		-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
