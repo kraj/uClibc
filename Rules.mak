@@ -91,6 +91,8 @@ endif
 # A nifty macro to make testing gcc features easier
 check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; else echo "$(2)"; fi)
+check_as=$(shell if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
+	then echo "-Wa,$(1)"; fi)
 
 # Make certain these contain a final "/", but no "//"s.
 TARGET_ARCH:=$(shell grep -s ^TARGET_ARCH $(TOPDIR)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
@@ -211,7 +213,6 @@ endif
 ifeq ($(strip $(TARGET_ARCH)),frv)
 	CPU_LDFLAGS-$(CONFIG_FRV)+=-melf32frvfd
 	CPU_CFLAGS-$(CONFIG_FRV)+=-mfdpic
-	PICFLAG=-fPIC -DPIC
 	# Using -pie causes the program to have an interpreter, which is
 	# forbidden, so we must make do with -shared.  Unfortunately,
 	# -shared by itself would get us global function descriptors
@@ -251,27 +252,28 @@ PIEFLAG=
 LDPIEFLAG=
 endif
 
-SSP_DISABLE_FLAGS=$(call check_gcc,-fno-stack-protector,)
+SSP_DISABLE_FLAGS:=$(call check_gcc,-fno-stack-protector,)
 ifeq ($(UCLIBC_BUILD_SSP),y)
-SSP_CFLAGS=$(call check_gcc,-fno-stack-protector-all,)
+SSP_CFLAGS:=$(call check_gcc,-fno-stack-protector-all,)
 SSP_CFLAGS+=$(call check_gcc,-fstack-protector,)
-SSP_ALL_CFLAGS=$(call check_gcc,-fstack-protector-all,)
+SSP_ALL_CFLAGS:=$(call check_gcc,-fstack-protector-all,)
 else
-SSP_CFLAGS=$(SSP_DISABLE_FLAGS)
+SSP_CFLAGS:=$(SSP_DISABLE_FLAGS)
 endif
 
 # Some nice CFLAGS to work with
-CFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
+CFLAGS:=$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
+LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc -z defs
 
 ifeq ($(DODEBUG),y)
     #CFLAGS += -g3
-    CFLAGS = $(XWARNINGS) -O0 -g3 $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
-    LDFLAGS:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
+    CFLAGS += -O0 -g3
+    LDFLAGS := $(LDFLAGS_NOSTRIP)
     STRIPTOOL:= true -Since_we_are_debugging
 else
-    LDFLAGS := $(CPU_LDFLAGS-y) -s -shared --warn-common --warn-once -z combreloc
+    CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
+    LDFLAGS := $(LDFLAGS_NOSTRIP) -s
 endif
 
 ifeq ($(UCLIBC_BUILD_RELRO),y)
@@ -307,8 +309,7 @@ endif
 
 ASFLAGS = $(CFLAGS)
 ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
-check_as_noexecstack=$(shell if $(LD) --help | grep -q "z noexecstack"; then echo "-Wa,--noexecstack"; fi)
-ASFLAGS += $(check_as_noexecstack)
+ASFLAGS += $(call check_as,--noexecstack)
 endif
 
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)

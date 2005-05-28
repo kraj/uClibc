@@ -30,13 +30,10 @@ endif
 
 # set up system dependencies include dirs (NOTE: order matters!)
 PTDIR = $(TOPDIR)libpthread/linuxthreads/
-SYSDEPINC = -I$(PTDIR)sysdeps/unix/sysv/linux \
-            -I$(PTDIR)sysdeps/pthread \
-            -I$(PTDIR)sysdeps/unix/sysv \
-            -I$(PTDIR)sysdeps/unix/unix \
+SYSDEPINC = -I$(PTDIR)sysdeps/pthread \
             -I$(PTDIR)sysdeps/$(TARGET_ARCH) \
-            -I$(PTDIR)sysdeps \
             -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
+#CFLAGS += $(SSP_ALL_CFLAGS)
 CFLAGS += $(SYSDEPINC) -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 
 CSRC=	td_init.c td_log.c td_ta_delete.c td_ta_get_nthreads.c		\

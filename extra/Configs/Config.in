@@ -1231,6 +1231,7 @@ config CROSS_COMPILER_PREFIX
 
 config DODEBUG
 	bool "Build uClibc with debugging symbols"
+	select PTHREADS_DEBUG_SUPPORT if UCLIBC_HAS_THREADS
 	default n
 	help
 	  Say Y here if you wish to compile uClibc with debugging symbols.

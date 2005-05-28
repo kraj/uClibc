@@ -19,8 +19,6 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-CFLAGS+=$(SSP_ALL_CFLAGS)
-
 #Adjust the soname version to avoid namespace collisions with glibc's libpthread
 LIBPTHREAD=libpthread.a
 LIBPTHREAD_SHARED=libpthread.so
@@ -33,25 +31,8 @@ LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SU
 DIRS=
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 	DIRS+=linuxthreads
-	LDFLAGS_THREAD:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc -z defs
-ifeq ($(UCLIBC_BUILD_RELRO),y)
-	LDFLAGS_THREAD+=-z relro
-endif
-ifeq ($(UCLIBC_BUILD_NOW),y)
-	LDFLAGS_THREAD+=-z now
-endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	DIRS+=linuxthreads_db
-	LDFLAGS_THREAD_DB:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
-endif
-ifeq ($(DODEBUG),n)
-	LDFLAGS_THREAD_DB+=-s
-ifeq ($(UCLIBC_BUILD_RELRO),y)
-       LDFLAGS_THREAD_DB+=-z relro
-endif
-ifeq ($(UCLIBC_BUILD_NOW),y)
-       LDFLAGS_THREAD_DB+=-z now
-endif
 endif
 endif
 
@@ -87,7 +68,7 @@ $(OBJ): Makefile
 
 shared: all
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
-	$(LD) $(LDFLAGS_THREAD) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
+	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
@@ -102,7 +83,7 @@ ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 		$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
 endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(LD) $(LDFLAGS_THREAD_DB) -soname=$(LIBTHREAD_DB_SHARED).1 \
+	$(LD) $(LDFLAGS) --warn-unresolved-symbols -soname=$(LIBTHREAD_DB_SHARED).1 \
 		-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
