@@ -27,10 +27,10 @@
 
 
 td_err_e
-td_thr_tls_get_addr (const td_thrhandle_t *th __attribute_used__,
-		     void *map_address __attribute_used__,
-		     size_t offset __attribute_used__,
-		     void **address __attribute_used__)
+td_thr_tls_get_addr (const td_thrhandle_t *th __attribute__ ((unused)),
+		     void *map_address __attribute__ ((unused)),
+		     size_t offset __attribute__ ((unused)),
+		     void **address __attribute__ ((unused)))
 {
 #if USE_TLS
   size_t modid;
