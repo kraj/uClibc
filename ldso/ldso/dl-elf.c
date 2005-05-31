@@ -139,10 +139,10 @@ static struct elf_resolve *
 search_for_named_library(const char *name, int secure, const char *path_list,
 	struct dyn_elf **rpnt)
 {
-	int i, count = 1;
 	char *path, *path_n;
 	char mylibname[2050];
-	struct elf_resolve *tpnt1;
+	struct elf_resolve *tpnt;
+	int done = 0;
 
 	if (path_list==NULL)
 		return NULL;
@@ -154,29 +154,32 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 		_dl_exit(0);
 	}
 
-
 	/* Unlike ldd.c, don't bother to eliminate double //s */
 
-
-	/* Replace colons with zeros in path_list and count them */
-	for(i=_dl_strlen(path); i > 0; i--) {
-		if (path[i]==':') {
-			path[i]=0;
-			count++;
-		}
-	}
-
+	/* Replace colons with zeros in path_list */
+	/* : at the beginning or end of path maps to CWD */
+	/* :: anywhere maps CWD */
+	/* "" maps to CWD */ 
 	path_n = path;
-	for (i = 0; i < count; i++) {
-		_dl_strcpy(mylibname, path_n);
-		_dl_strcat(mylibname, "/");
-		_dl_strcat(mylibname, name);
-		if ((tpnt1 = _dl_load_elf_shared_library(secure, rpnt, mylibname)) != NULL)
-		{
-			return tpnt1;
+	do {
+		if (*path == 0) {
+			*path = ':';
+			done = 1;
 		}
-		path_n += (_dl_strlen(path_n) + 1);
-	}
+		if (*path == ':') {
+			*path = 0;
+			if (*path_n)
+				_dl_strcpy(mylibname, path_n);
+			else
+				_dl_strcpy(mylibname, "."); /* Assume current dir if empty path */
+			_dl_strcat(mylibname, "/");
+			_dl_strcat(mylibname, name);
+			if ((tpnt = _dl_load_elf_shared_library(secure, rpnt, mylibname)) != NULL)
+				return tpnt;
+			path_n = path+1;
+		}
+		path++;
+	} while (!done);
 	return NULL;
 }
 
