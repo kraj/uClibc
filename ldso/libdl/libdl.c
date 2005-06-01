@@ -171,10 +171,15 @@ void *dlopen(const char *libname, int flag)
 	for(rpnt = _dl_symbol_tables; rpnt->next; rpnt=rpnt->next);
 
 	relro_ptr = rpnt;
+	now_flag = (flag & RTLD_NOW) ? RTLD_NOW : 0;
+	if (getenv("LD_BIND_NOW"))
+		now_flag = RTLD_NOW;
+
 	/* Try to load the specified library */
 #ifdef __SUPPORT_LD_DEBUG__
 	if(_dl_debug)
-		fprintf(stderr, "Trying to dlopen '%s'\n", (char*)libname);
+		fprintf(stderr, "Trying to dlopen '%s', RTLD_GLOBAL:%d RTLD_NOW:%d\n", (char*)libname,
+			flag & RTLD_GLOBAL ? 1:0,  now_flag & RTLD_NOW ? 1:0);
 #endif
 	tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname, 0);
 
@@ -343,10 +348,6 @@ void *dlopen(const char *libname, int flag)
 	 * Now we go through and look for REL and RELA records that indicate fixups
 	 * to the GOT tables.  We need to do this in reverse order so that COPY
 	 * directives work correctly */
-	now_flag = (flag & RTLD_NOW) ? RTLD_NOW : 0;
-	if (getenv("LD_BIND_NOW"))
-		now_flag = RTLD_NOW;
-
 #ifdef __mips__
 	/*
 	 * Relocation of the GOT entries for MIPS have to be done
