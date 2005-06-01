@@ -128,7 +128,7 @@ void __attribute__ ((destructor)) dl_cleanup(void)
 
 void *dlopen(const char *libname, int flag)
 {
-	struct elf_resolve *tpnt, *tfrom, *tcurr=NULL;
+	struct elf_resolve *tpnt, *tfrom;
 	struct dyn_elf *dyn_chain, *rpnt = NULL, *dyn_ptr, *relro_ptr, *handle;
 	struct dyn_elf *dpnt;
 	ElfW(Addr) from;
@@ -155,7 +155,7 @@ void *dlopen(const char *libname, int flag)
 
 	/*
 	 * Try and locate the module we were called from - we
-	 * need this so that we get the correct RPATH.  Note that
+	 * need this so that we get the correct RPATH/RUNPATH.  Note that
 	 * this is the current behavior under Solaris, but the
 	 * ABI+ specifies that we should only use the RPATH from
 	 * the application.  Thus this may go away at some time
@@ -239,7 +239,7 @@ void *dlopen(const char *libname, int flag)
 					fprintf(stderr, "Trying to load '%s', needed by '%s'\n",
 							lpntstr, runp->tpnt->libname);
 #endif
-				tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, 0);
+				tpnt1 = _dl_load_shared_library(0, &rpnt, runp->tpnt, lpntstr, 0);
 				if (!tpnt1)
 					goto oops;
 

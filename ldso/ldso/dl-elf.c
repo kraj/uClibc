@@ -304,23 +304,17 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	}
 
 	/*
-	 * The ABI specifies that RPATH is searched before LD_*_PATH or
+	 * The ABI specifies that RPATH is searched before LD_LIBRARY_PATH or
 	 * the default path of /usr/lib.  Check in rpath directories.
 	 */
-	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-		if (tpnt->libtype == elf_executable) {
-			pnt = (char *) tpnt->dynamic_info[DT_RPATH];
-			if (pnt) {
-				pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
+	pnt = (tpnt ? (char *) tpnt->dynamic_info[DT_RPATH] : NULL);
+	if (pnt) {
+		pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
 #if defined (__SUPPORT_LD_DEBUG__)
-				if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching RPATH='%s'\n", pnt);
+		if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching RPATH='%s'\n", pnt);
 #endif
-				if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL)
-				{
-					return tpnt1;
-				}
-			}
-		}
+		if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL)
+			return tpnt1;
 	}
 
 	/* Check in LD_{ELF_}LIBRARY_PATH, if specified and allowed */
@@ -332,6 +326,18 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		{
 			return tpnt1;
 		}
+	}
+	/*
+	 * The ABI specifies that RUNPATH is searched after LD_LIBRARY_PATH.
+	 */
+	pnt = (tpnt ? (char *)tpnt->dynamic_info[DT_RUNPATH] : NULL);
+	if (pnt) {
+		pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
+#if defined (__SUPPORT_LD_DEBUG__)
+		if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching RUNPATH='%s'\n", pnt);
+#endif
+		if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL)
+			return tpnt1;
 	}
 
 	/*

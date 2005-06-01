@@ -84,6 +84,10 @@ void __dl_parse_dynamic_info(Elf32_Dyn *dpnt, unsigned long dynamic_info[], void
 				dynamic_info[DT_BIND_NOW] = 1;
 			if (dpnt->d_tag == DT_TEXTREL)
 				dynamic_info[DT_TEXTREL] = 1;
+			if (dpnt->d_tag == DT_RUNPATH)
+				dynamic_info[DT_RPATH] = 0;
+			if (dpnt->d_tag == DT_RPATH && dynamic_info[DT_RUNPATH])
+				dynamic_info[DT_RPATH] = 0;
 		} else if (dpnt->d_tag < DT_LOPROC) {
 			if (dpnt->d_tag == DT_RELOCCOUNT)
 				dynamic_info[DT_RELCONT_IDX] = dpnt->d_un.d_val;
