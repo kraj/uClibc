@@ -217,7 +217,25 @@ typedef struct __res_state *res_state;
 /*			0x00008000	*/
 
 /* Internal (static) resolver context. */
+/*
+ * NPTL - This code was taken from 'include/resolve.h'
+ *        and makes the assumption that our libraries
+ *        are reentrant.
+ */
+#ifdef IS_IN_libpthread
+#include <libc-symbols.h>
+#include <tls.h>
+#if USE___THREAD
+# undef _res
+# ifndef NOT_IN_libc
+#  define __resp __libc_resp
+# endif
+# define _res (*__resp)
+extern __thread struct __res_state *__resp attribute_tls_model_ie;
+#endif
+#else
 extern struct __res_state _res;
+#endif
 
 #ifndef __BIND_NOSTATIC
 
