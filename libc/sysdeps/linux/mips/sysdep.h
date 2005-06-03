@@ -20,14 +20,14 @@
 #define _LINUX_MIPS_MIPS32_SYSDEP_H 1
 
 /* There is some commonality.  */
-/* MIPS NPTL - start sysdeps/unix/mips32/sysdep.h  */
+/* NPTL - start sysdeps/unix/mips32/sysdep.h  */
 
-/* MIPS NPTL - start sysdeps/unix/mips/sysdep.h  */
+/* NPTL - start sysdeps/unix/mips/sysdep.h  */
 
 #include <sgidefs.h>
-/* MIPS NPTL - start sysdeps/unix/sysdep.h  */
+/* NPTL - start sysdeps/unix/sysdep.h  */
 
-/* MIPS NPTL - start sysdeps/generic/sysdep.h  */
+/* NPTL - start sysdeps/generic/sysdep.h  */
 /* Define a macro we can use to construct the asm name for a C symbol.  */
 #ifdef	NO_UNDERSCORES
 #ifdef	__STDC__
@@ -140,7 +140,7 @@
 # endif
 
 #endif /* __ASSEMBLER__ */
-/* MIPS NPTL - end sysdeps/generic/sysdep.h  */
+/* NPTL - end sysdeps/generic/sysdep.h  */
 
 #include <sys/syscall.h>
 #define	HAVE_SYSCALLS
@@ -162,7 +162,7 @@
 
 #if 0
 /*
- * MIPS NPTL - these are defined in 'include/bits/syscalls.h' and
+ * NPTL - these are defined in 'include/bits/syscalls.h' and
  *             'include/bits/sysnum.h'.
  */
 #ifdef __STDC__
@@ -187,7 +187,7 @@
 /* Wrappers around system calls should normally inline the system call code.
    But sometimes it is not possible or implemented and we use this code.  */
 #define INLINE_SYSCALL(name, nr, args...) __syscall_##name (args)
-/* MIPS NPTL - end sysdeps/unix/sysdep.h  */
+/* NPTL - end sysdeps/unix/sysdep.h  */
 
 #ifdef __ASSEMBLER__
 
@@ -245,7 +245,7 @@
 #endif
 
 #endif
-/* MIPS NPTL - end sysdeps/unix/mips/sysdep.h  */
+/* NPTL - end sysdeps/unix/mips/sysdep.h  */
 
 /* Note that while it's better structurally, going back to call __syscall_error
    can make things confusing if you're debugging---it looks like it's jumping
@@ -277,7 +277,7 @@ L(syse1):
   bne a3, zero, 99b;							      \
 L(syse1):
 #endif
-/* MIPS NPTL - end sysdeps/unix/mips32/sysdep.h  */
+/* NPTL - end sysdeps/unix/mips32/sysdep.h  */
 
 /* For Linux we can use the system call table in the header file
 	/usr/include/asm/unistd.h

@@ -2,8 +2,8 @@
 #define _LD_DEFS_H
 
 /*
- * MIPS NPTL - This was taken from 'sysdeps/generic/ldsodefs.h'. It is
- *             used for backtrace capability.
+ * NPTL - This was taken from 'sysdeps/generic/ldsodefs.h'. It is
+ *        used for backtrace capability.
  */
 extern void *__libc_stack_end;
 

@@ -141,10 +141,10 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	aux_dat++;					/* Skip over NULL at end of envp */
 
 	/*
-	 * MIPS NPTL - This was taken from 'sysdeps/generic/libc-start.c'
-	 *             and is most likely associated with backtrace
-	 *             capability. It could possibly be removed later,
-	 *             but right now NPTL needs this to compile.
+	 * NPTL - This was taken from 'sysdeps/generic/libc-start.c'
+	 *        and is associated with backtrace capability. It
+	 *        It may be removed later, but right now NPTL needs
+	 *        NPTL needs this to compile.
 	 */
 	__libc_stack_end = (void *) argv;
 
