@@ -62,6 +62,12 @@ extern int sched_get_priority_min (int __algorithm) __THROW;
 /* Get the SCHED_RR interval for the named process.  */
 extern int sched_rr_get_interval (__pid_t __pid, struct timespec *__t) __THROW;
 
+/* These are Linux specific.  */
+extern int __clone (int (*__fn) (void *__arg), void *__child_stack,
+		    int __flags, void *__arg, ...);
+extern int __clone2 (int (*__fn) (void *__arg), void *__child_stack_base,
+		     size_t __child_stack_size, int __flags, void *__arg, ...);
+
 __END_DECLS
 
 #endif /* sched.h */
