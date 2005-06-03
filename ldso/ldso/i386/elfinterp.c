@@ -126,7 +126,6 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	char *symname;
 
 	rel_addr = (char *)tpnt->dynamic_info[DT_JMPREL];
-
 	this_reloc = (ELF_RELOC *)(intptr_t)(rel_addr + reloc_entry);
 	reloc_type = ELF32_R_TYPE(this_reloc->r_info);
 	symtab_index = ELF32_R_SYM(this_reloc->r_info);
@@ -137,7 +136,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 
 	if (unlikely(reloc_type != R_386_JMP_SLOT)) {
 		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n",
-			    _dl_progname);
+		            _dl_progname);
 		_dl_exit(1);
 	}
 
@@ -159,8 +158,8 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 			_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
 			if (_dl_debug_detail)
 				_dl_dprintf(_dl_debug_file,
-					    "\n\tpatched: %x ==> %x @ %x",
-					    *got_addr, new_addr, got_addr);
+				            "\n\tpatched: %x ==> %x @ %x",
+				            *got_addr, new_addr, got_addr);
 		}
 	}
 	if (!_dl_debug_nofixups) {
