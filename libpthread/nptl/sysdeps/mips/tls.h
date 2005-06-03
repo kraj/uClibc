@@ -57,13 +57,14 @@ typedef union dtv
 
 
 /* We require TLS support in the tools.  */
-#ifdef __PTHREADS_NATIVE__
 /*
- * MIPS NPTL - HAVE_TLS_MODEL_ATTRIBUTE may need to be defined also and
- *             is used in 'glibc/include/libc-symbols.h'. We will see if
- *             it is needed later on.
+ * NPTL - These defines would normally be handled by the top-level
+ *        configure script in glibc. We define them ourselves.
  */
-#define HAVE_TLS_SUPPORT	1
+#ifdef __PTHREADS_NATIVE__
+#define HAVE_TLS_SUPPORT		1
+#define HAVE_TLS_MODEL_ATTRIBUTE	1
+#define HAVE___THREAD			1
 #endif
 
 #ifndef HAVE_TLS_SUPPORT
