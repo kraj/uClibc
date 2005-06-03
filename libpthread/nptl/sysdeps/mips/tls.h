@@ -20,14 +20,7 @@
 #ifndef _TLS_H
 #define _TLS_H	1
 
-#if 0
-/*
- * MIPS NPTL - defines a total of two symbols used by the glibc
- *             dynamic loader. Hopefully we will not need it for
- *             uClibc.
- */
 #include <dl-sysdep.h>
-#endif
 
 #ifndef __ASSEMBLER__
 # include <stdbool.h>
@@ -89,13 +82,10 @@ typedef union dtv
 # define TLS_DTV_AT_TP	1
 
 /* Get the thread descriptor definition.  */
-#if 0
-/*
- * MIPS NPTL - we have different include paths than glibc.
- */
-# include <nptl/descr.h>
-#else
+#ifdef __UCLIBC__
 # include <descr.h>
+#else
+# include <nptl/descr.h>
 #endif
 
 typedef struct

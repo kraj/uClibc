@@ -26,7 +26,11 @@
 #define __need_sigset_t
 #include <signal.h>
 #include <bits/pthreadtypes.h>
+#ifdef __UCLIBC__
 #include <setjmp.h>
+#else
+#include <bits/setjmp.h>
+#endif
 #include <bits/wordsize.h>
 
 
