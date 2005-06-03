@@ -30,19 +30,18 @@
  */
 
 #if defined (__SUPPORT_LD_DEBUG__)
-static const char *_dl_reltypes[] =
-{
-	"R_68K_NONE",
-	"R_68K_32", "R_68K_16", "R_68K_8",
-	"R_68K_PC32", "R_68K_PC16", "R_68K_PC8",
-	"R_68K_GOT32", "R_68K_GOT16", "R_68K_GOT8",
-	"R_68K_GOT32O", "R_68K_GOT16O", "R_68K_GOT8O",
-	"R_68K_PLT32", "R_68K_PLT16", "R_68K_PLT8",
-	"R_68K_PLT32O", "R_68K_PLT16O", "R_68K_PLT8O",
-	"R_68K_COPY", "R_68K_GLOB_DAT", "R_68K_JMP_SLOT", "R_68K_RELATIVE",
-	"R_68K_NUM"
+static const char *_dl_reltypes[] = {
+	 [0] "R_68K_NONE",
+	 [1] "R_68K_32",     "R_68K_16",       "R_68K_8",
+	 [4] "R_68K_PC32",   "R_68K_PC16",     "R_68K_PC8",
+	 [7] "R_68K_GOT32",  "R_68K_GOT16",    "R_68K_GOT8",
+	[10] "R_68K_GOT32O", "R_68K_GOT16O",   "R_68K_GOT8O",
+	[13] "R_68K_PLT32",  "R_68K_PLT16",    "R_68K_PLT8",
+	[16] "R_68K_PLT32O", "R_68K_PLT16O",   "R_68K_PLT8O",
+	[19] "R_68K_COPY",   "R_68K_GLOB_DAT", "R_68K_JMP_SLOT", "R_68K_RELATIVE",
+	[23] "R_68K_NUM"
 };
-#endif
+#endif /* __SUPPORT_LD_DEBUG__ */
 
 /* Program to load an ELF binary on a linux system, and run it.
    References to symbols in sharable libraries can be resolved by either
@@ -55,60 +54,55 @@ static const char *_dl_reltypes[] =
    a more than adequate job of explaining everything required to get this
    working. */
 
+extern int _dl_linux_resolve(void);
 
 unsigned int
-_dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
+_dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 {
 	int reloc_type;
-	Elf32_Rela *this_reloc;
+	ELF_RELOC *this_reloc;
 	char *strtab;
 	Elf32_Sym *symtab;
-	ELF_RELOC *rel_addr;
 	int symtab_index;
+	ELF_RELOC *rel_addr;
 	char *new_addr;
 	char **got_addr;
 	unsigned int instr_addr;
+	char *symname;
 
 	rel_addr = (ELF_RELOC *)tpnt->dynamic_info[DT_JMPREL];
-	this_reloc = (Elf32_Rela *) (rel_addr + reloc_entry);
-	reloc_type = ELF32_R_TYPE (this_reloc->r_info);
-	symtab_index = ELF32_R_SYM (this_reloc->r_info);
+	this_reloc = (ELF_RELOC *)(intptr_t)(rel_addr + reloc_entry);
+	reloc_type = ELF32_R_TYPE(this_reloc->r_info);
+	symtab_index = ELF32_R_SYM(this_reloc->r_info);
 
-	symtab = (Elf32_Sym *)tpnt->dynamic_info[DT_SYMTAB];
+	symtab = (Elf32_Sym *)(intptr_t)tpnt->dynamic_info[DT_SYMTAB];
 	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
+	symname = strtab + symtab[symtab_index].st_name;
 
 	if (unlikely(reloc_type != R_68K_JMP_SLOT)) {
-		_dl_dprintf (2, "%s: incorrect relocation type in jump relocations\n",
-		             _dl_progname);
-		_dl_exit (1);
+		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n",
+		            _dl_progname);
+		_dl_exit(1);
 	}
 
-	/* Address of jump instruction to fix up.  */
-	instr_addr = (int) this_reloc->r_offset + (int) tpnt->loadaddr;
-	got_addr = (char **) instr_addr;
+	/* Address of the jump instruction to fix up. */
+	instr_addr = ((int)this_reloc->r_offset + (int)tpnt->loadaddr);
+	got_addr = (char **)instr_addr;
 
-#ifdef __SUPPORT_LD_DEBUG__
-	if (_dl_debug_symbols) {
-		_dl_dprintf (2, "Resolving symbol %s\n",
-		             strtab + symtab[symtab_index].st_name);
-	}
-#endif
-
-	/* Get the address of the GOT entry.  */
-	new_addr = _dl_find_hash (strtab + symtab[symtab_index].st_name,
-	           tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
+	/* Get the address of the GOT entry. */
+	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
 	if (unlikely(!new_addr)) {
-		_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
-		             _dl_progname, strtab + symtab[symtab_index].st_name);
-		_dl_exit (1);
+		_dl_dprintf(2, "%s: Can't resolve symbol '%s'\n", _dl_progname, symname);
+		_dl_exit(1);
 	}
+
 #if defined (__SUPPORT_LD_DEBUG__)
-	if ((unsigned long) got_addr < 0x40000000) {
+	if ((unsigned long)got_addr < 0x40000000) {
 		if (_dl_debug_bindings) {
-			_dl_dprintf(_dl_debug_file, "\nresolve function: %s",
-			            strtab + symtab[symtab_index].st_name);
-			if(_dl_debug_detail)
-				_dl_dprintf(_dl_debug_file, "\tpatch %x ==> %x @ %x",
+			_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
+			if (_dl_debug_detail)
+				_dl_dprintf(_dl_debug_file,
+				            "\n\tpatched: %x ==> %x @ %x",
 				            *got_addr, new_addr, got_addr);
 		}
 	}
@@ -119,7 +113,7 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 	*got_addr = new_addr;
 #endif
 
-  return (unsigned int) new_addr;
+  return (unsigned int)new_addr;
 }
 
 void
