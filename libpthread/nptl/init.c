@@ -30,6 +30,7 @@
 #include <tls.h>
 #include <fork.h>
 #include <version.h>
+#include <shlib-compat.h>
 #include <smp.h>
 #include <lowlevellock.h>
 

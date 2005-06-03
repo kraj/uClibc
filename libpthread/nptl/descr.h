@@ -25,17 +25,11 @@
 #include <setjmp.h>
 #include <stdbool.h>
 #include <sys/types.h>
+#include <hp-timing.h>
 #include <list.h>
 #include <lowlevellock.h>
 #include <pthreaddef.h>
-#if 0
-/*
- * MIPS NPTL - defines a total of two symbols used by the glibc
- *             dynamic loader. Hopefully we will not need it for
- *             uClibc.
- */
 #include <dl-sysdep.h>
-#endif
 #include "../nptl_db/thread_db.h"
 #include <tls.h>
 #ifdef HAVE_FORCED_UNWIND

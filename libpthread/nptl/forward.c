@@ -22,6 +22,7 @@
 #include <signal.h>
 #include <stdlib.h>
 
+#include <shlib-compat.h>
 #include <atomic.h>
 #include <sysdep.h>
 
