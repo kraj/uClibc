@@ -29,6 +29,10 @@
 #include <tls.h>
 #include <lowlevellock.h>
 
+#ifdef __UCLIBC__
+#include <link.h>
+#define __getpagesize getpagesize
+#endif
 
 #ifndef NEED_SEPARATE_REGISTER_STACK
 
@@ -389,7 +393,11 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
       size_t reqsize;
       void *mem;
       const int prot = (PROT_READ | PROT_WRITE
+#ifdef __UCLIBC__
+		        );
+#else
 			| ((GL(dl_stack_flags) & PF_X) ? PROT_EXEC : 0));
+#endif
 
 #if COLORING_INCREMENT != 0
       /* Add one more page for stack coloring.  Don't do it for stacks
@@ -524,6 +532,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	     caused the stacks to get exec permission while this new
 	     stack was prepared.  Detect if this was possible and
 	     change the permission if necessary.  */
+#ifndef __UCLIBC__
 	  if (__builtin_expect ((GL(dl_stack_flags) & PF_X) != 0
 				&& (prot & PROT_EXEC) == 0, 0))
 	    {
@@ -540,6 +549,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 		  return err;
 		}
 	    }
+#endif
 
 
 	  /* Note that all of the stack and the thread descriptor is
@@ -671,7 +681,11 @@ internal_function
 __make_stacks_executable (void **stack_endp)
 {
   /* First the main thread's stack.  */
+#ifdef __UCLIBC__
+  int err = EPERM;
+#else
   int err = _dl_make_stack_executable (stack_endp);
+#endif
   if (err != 0)
     return err;
 
@@ -910,6 +924,10 @@ __nptl_setxid (struct xid_command *cmdp)
 static inline void __attribute__((always_inline))
 init_one_static_tls (struct pthread *curp, struct link_map *map)
 {
+#ifdef __UCLIBC__
+  extern void *__mempcpy (void *dstpp, const void *srcpp, size_t len);
+#endif
+
   dtv_t *dtv = GET_DTV (TLS_TPADJ (curp));
 # if TLS_TCB_AT_TP
   void *dest = (char *) curp - map->l_tls_offset;
@@ -924,7 +942,11 @@ init_one_static_tls (struct pthread *curp, struct link_map *map)
   dtv[map->l_tls_modid].pointer.is_static = true;
 
   /* Initialize the memory.  */
+#ifdef __UCLIBC__
+  memset ((void *) __mempcpy (dest, map->l_tls_initimage, map->l_tls_initimage_size),
+#else
   memset (__mempcpy (dest, map->l_tls_initimage, map->l_tls_initimage_size),
+#endif
 	  '\0', map->l_tls_blocksize - map->l_tls_initimage_size);
 }
 
