@@ -66,7 +66,6 @@ void __guard_setup(void) __attribute__ ((constructor));
 void __guard_setup(void)
 {
 	size_t size;
-	struct timeval tv;
 
 	if (__guard != 0UL)
 		return;
@@ -111,9 +110,11 @@ void __guard_setup(void)
 
 	/* Everything failed? Or we are using a weakened model of the 
 	 * terminator canary */
-
-	gettimeofday(&tv, NULL);
-	__guard ^= tv.tv_usec ^ tv.tv_sec;
+	{
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		__guard ^= tv.tv_usec ^ tv.tv_sec;
+	}
 }
 
 void __stack_smash_handler(char func[], int damaged __attribute__ ((unused)));
