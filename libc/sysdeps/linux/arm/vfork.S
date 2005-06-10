@@ -20,52 +20,37 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include <asm/errno.h>
+#define _ERRNO_H
+#include <bits/errno.h>
 #include <sys/syscall.h>
 
-
-
-		.text
-		.global vfork;
-		.type vfork,%function
-		.align 4;                                                               \
-
-
-
+#ifdef __NR_fork
+	.text
+	.global vfork
+	.type vfork,%function
+	.align 4
 vfork:
 
 #ifdef __NR_vfork
-		swi		__NR_vfork
-		cmn		r0, #4096
-		movcc	pc, lr
+	swi	__NR_vfork
+	cmn	r0, #4096
+	movcc	pc, lr
 
-		/* Check if vfork even exists.  */
-		ldr     r1, =-ENOSYS
-		teq     r0, r1
-		bne     __syscall_error
+	/* Check if vfork even exists.  */
+	ldr     r1, =-ENOSYS
+	teq     r0, r1
+	bne     __error
 #endif
 
-		/* If we don't have vfork, use fork.  */
-		swi     __NR_fork
-		cmn     r0, #4096
+	/* If we don't have vfork, use fork.  */
+	swi     __NR_fork
+	cmn     r0, #4096
 
-		/* Syscal worked.  Return to child/parent */
-		movcc   pc, lr
+	/* Syscal worked.  Return to child/parent */
+	movcc   pc, lr
 
-__syscall_error:
+__error:
+	b	__syscall_error
 
-		/* Looks like the syscall choked -- set errno */
-		ldr  r3, .L4
-		/* Calculate the - of the syscall result, in case we need it */
-		rsb  r2, r0, $0
-
-		/* errno = -result */
-		str  r2, [r9,r3]
-
-		/* return -1 */
-		mvn  r0, $0
-		mov  pc, lr
-
-.L4:  .word errno
-
-
+	.size vfork,.-vfork
+#endif

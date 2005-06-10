@@ -28,7 +28,7 @@ SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
 	bsd-_setjmp.S sigrestorer.S mmap64.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=brk.c syscall.c ioperm.c sigaction.c
+CSRC=brk.c syscall.c ioperm.c sigaction.c __syscall_error.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)

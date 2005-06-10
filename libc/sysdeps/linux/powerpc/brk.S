@@ -24,10 +24,10 @@
 
 #ifdef __NR_brk
 	.comm	__curbrk,4,4
-	.section ".text"
-.globl      __brk;
-.type      __brk, @function;
-.align  2;
+	.text
+	.globl	__brk
+	.type	__brk,@function
+	.align	2
 
 __brk:
 	stwu    r1,-16(r1)
@@ -51,13 +51,11 @@ __brk:
 	li	r3,0
 	blelr+
 	li      r3,ENOMEM
-#ifdef __PIC__
-	b	__syscall_error@plt
-#else
-	b	__syscall_error
-#endif
-.size __brk,.-__brk
 
-.weak brk;
-brk=__brk        
+	b	__syscall_error
+
+	.size __brk,.-__brk
+
+	.weak brk
+	brk=__brk        
 #endif	

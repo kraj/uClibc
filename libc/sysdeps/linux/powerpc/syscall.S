@@ -18,14 +18,10 @@
 
 #include <features.h>
 
-	.section ".text"
-	.globl	syscall;
-	.type	syscall,@function;
-	.align  2;
-
-.globl syscall;
-.type syscall,@function;
-.align 2;
+	.text
+	.globl	syscall
+	.type	syscall,@function
+	.align  2
 
 syscall:
 	mr 0,3
@@ -36,10 +32,7 @@ syscall:
 	mr 7,8
 	sc
 	bnslr;
-#ifdef __PIC__
-	b __syscall_error@plt
-#else
-	b __syscall_error
-#endif
 
-.size syscall,.-syscall
+	b __syscall_error
+
+	.size syscall,.-syscall

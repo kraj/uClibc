@@ -16,20 +16,18 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define _ERRNO_H	1
 #include <features.h>
+#define _ERRNO_H
 #include <bits/errno.h>
 #include <sys/syscall.h>
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_mmap2
 
-
 	/* The mmap2 system call takes six arguments, all in registers.  */
 	.text
-	.global mmap64;
+	.global mmap64
 	.type mmap64,%function
-	.align 4;
-
+	.align 4
 mmap64:
 	stmfd	sp!, {r4, r5, lr}
 	ldr	r5, [sp, $16]
@@ -47,33 +45,26 @@ mmap64:
 	ldmccfd	sp!, {r4, r5, pc}
 	cmn	r0, $ENOSYS
 	ldmnefd	sp!, {r4, r5, lr}
-	bne	__syscall_error (PLT)
+	bne	__error
 	/* The current kernel does not support mmap2.  Fall back to plain
 	   mmap if the offset is small enough.  */
 	ldr	r5, [sp, $20]
 	mov	r0, ip			@ first arg was clobbered
 	teq	r5, $0
 	ldmeqfd	sp!, {r4, r5, lr}
-	beq	mmap (PLT)
+#ifdef __PIC__
+	beq	mmap(PLT)
+#else
+	beq	mmap
+#endif
 .Linval:
 	mov	r0, $-EINVAL
 	ldmfd	sp!, {r4, r5, lr}
-	b	__syscall_error (PLT)
+	b	__error
 
-__syscall_error:
-	/* Looks like the syscall choked -- set errno */
-	ldr  r3, .L4
-	/* Calculate the - of the syscall result, in case we need it */
-	rsb  r2, r0, $0
+__error:
+	b	__syscall_error
 
-	/* errno = -result */
-	str  r2, [r9,r3]
-
-	/* return -1 */
-	mvn  r0, $0
-	mov  pc, lr
-.size mmap64,.-mmap64;
-
-.L4:  .word errno
+	.size mmap64,.-mmap64
 
 #endif

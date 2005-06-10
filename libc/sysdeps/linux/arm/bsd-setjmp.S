@@ -30,5 +30,9 @@
 .align 4;
 setjmp:
 	mov	r1, #1
-	b	__sigsetjmp (PLT)
+#ifdef __PIC__
+	b	__sigsetjmp(PLT)
+#else
+	b	__sigsetjmp
+#endif
 .size setjmp,.-setjmp;

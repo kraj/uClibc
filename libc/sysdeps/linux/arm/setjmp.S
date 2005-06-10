@@ -38,5 +38,9 @@ __sigsetjmp:
 	sub     r0, r0, #48
 
 	/* Make a tail call to __sigjmp_save; it takes the same args.  */
-	B	__sigjmp_save	(PLT)
+#ifdef __PIC__
+	B	__sigjmp_save(PLT)
+#else
+	B	__sigjmp_save
+#endif
 .size __sigsetjmp,.-__sigsetjmp;

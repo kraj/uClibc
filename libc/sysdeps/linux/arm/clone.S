@@ -20,21 +20,23 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
-#include <asm/errno.h>
+#define _ERRNO_H
+#include <bits/errno.h>
 #include <sys/syscall.h>
 
+#ifdef __NR_clone
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
-.text
-.globl __clone;
-.type __clone,%function
-.align 4;
+	.text
+	.globl __clone
+	.type __clone,%function
+	.align 4
 __clone:
 	@ sanity check args
 	cmp	r0, #0
 	cmpne	r1, #0
 	moveq	r0, #-EINVAL
-	beq	__syscall_error (PLT)
+	beq	__error
 
 	@ insert the args onto the new stack
 	sub	r1, r1, #8
@@ -48,7 +50,7 @@ __clone:
 	@ new sp is already in r1
 	swi	__NR_clone
 	movs	a1, a1
-	blt	__syscall_error  (PLT)
+	blt	__error
 	movne    pc, lr
 
 	@ pick the function arg and call address off the stack and execute
@@ -57,25 +59,18 @@ __clone:
 	ldr 	pc, [sp]
 
 	@ and we are done, passing the return value through r0
-	b	_exit	(PLT)
+#ifdef __PIC__
+	b	_exit(PLT)
+#else
+	b	_exit
+#endif
 
-__syscall_error:
-	/* Looks like the syscall choked -- set errno */
-	ldr  r3, .L4
-	/* Calculate the - of the syscall result, in case we need it */
-	rsb  r2, r0, $0
+__error:
+	b	__syscall_error
 
-	/* errno = -result */
-	str  r2, [r9,r3]
+	.size __clone,.-__clone
 
-	/* return -1 */
-	mvn  r0, $0
-	mov  pc, lr
-.size __clone,.-__clone;
+	.weak clone
+	clone = __clone
 
-.L4:  .word errno
-
-
-.globl	clone;
-    clone = __clone
-
+#endif
