@@ -75,7 +75,7 @@
 	.type	    _init,@function
 	.type	    _fini,@function
 	.type	    main,@function
-	.type	    __uClibc_start_main,@function
+	.type	    __uClibc_main,@function
 
 __start:
 #ifdef __PIC__
