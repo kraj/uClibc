@@ -59,23 +59,29 @@ ARM register quick reference:
 
 .text
 _start:
+	/* Save a copy of rtld_fini before r0 gets nuked */
+	mov     r5, r0
+
 	/* clear the frame pointer */
 	mov     fp, #0
 
-#ifdef __PIC__
-	/* Store the address of main in r0 */
-	adr r5, .L_main
-	ldr r0, .L_main
-	add r0, r0, r5
 
+	/* Load register r0 with main */
+#ifdef __PIC__
+	adr r8, .L_main
+	ldr r0, .L_main
+	add r0, r0, r8
+
+	ldr r4, .L_init + 4
+	add r4, r4, r8
 #else
-	/* Store the address of main in r0 */
 	ldr r0, =main
 #endif
 
+
 #ifdef __ARCH_HAS_MMU__
 
-	/* Load register r1 (argc) from the stack to its final resting place */
+	/* Load register r1 from the stack to its final resting place */
 	ldr     r1, [sp], #4
 
 	/* Copy argv pointer into r2 -- which its final resting place */
@@ -85,45 +91,36 @@ _start:
 	 * uClinux stacks look a little different from normal
 	 * MMU-full Linux stacks (for no good reason)
 	 */
-	/* pull argc, argv and envp off the stack */
+	/* pull argc and argv off the stack */
 	ldr r1,[sp, #0]
 	ldr r2,[sp, #4]
 #endif
 
+	/* Store _init and _fini to r3 and r4 */
 #ifdef __PIC__
-	/* Store the address of _init in r3 */
-	adr r5, .L_init
+	adr r8, .L_init
 	ldr r3, .L_init
-	add r3, r3, r5
+	add r3, r3, r8
 
-	/* Push _fini onto the stack as an argument to main() */
 	ldr r4, .L_init + 4
-	add r4, r4, r5
-	stmfd sp!, {r4}
-
-	/* Push rtld_fini onto the stack as an argument to main() */
-	ldr r4, .L_init + 8
-	add r4, r4, r5
-	stmfd sp!, {r4}
+	add r4, r4, r8
 #else
-	/* Store the address of _init in r3 as an argument to main() */
 	ldr r3, =_init
-
-	/* Push _fini onto the stack as an argument to main() */
 	ldr r4, =_fini
-	stmfd sp!, {r4}
-
-	/* Push rtld_fini onto the stack as an argument to main() */
-	ldr r4, =rtld_fini
-	stmfd sp!, {r4}
 #endif
+
+	/* Store _fini(r4), rtld_fini(r5), and stack_end(r2) on the stack */
+	str r2, [sp, #-4]!
+	str r5, [sp, #-4]!
+	str r4, [sp, #-4]!
+
 
 	/* We need to call __uClibc_main which should not return.
 	   __uClibc_main (int (*main) (int, char **, char **), int argc,
 			      char **argv, void (*init) (void), void (*fini) (void),
 			      void (*rtld_fini) (void), void *stack_end)
 	*/
-	bl	__uClibc_main
+	bl __uClibc_main
 
 	/* Crash if somehow `exit' returns anyways.  */
 	bl abort
@@ -132,7 +129,6 @@ _start:
 .L_init:
 	.word _init
 	.word _fini
-	.word rtld_fini
 .L_main:
 	.word main
 #endif
