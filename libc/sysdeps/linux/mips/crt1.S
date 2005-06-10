@@ -70,12 +70,12 @@
 */
 
 .text
-	.global	__start
-	.type	__start,%function
-	.type	_init,%function
-	.type	_fini,%function
-	.type	main,%function
-	.type	__uClibc_main,%function
+	.globl	    __start
+	.type	    __start,@function
+	.type	    _init,@function
+	.type	    _fini,@function
+	.type	    main,@function
+	.type	    __uClibc_start_main,@function
 
 __start:
 #ifdef __PIC__
@@ -84,8 +84,8 @@ __start:
 	bal 10f			/* Find addr of cpload.  */
         nop
 10:
-	.cpload $31;
-	move $31, $0;
+	.cpload $31
+	move $31, $0
 	.set reorder
 #else
 	la $28, _gp             /* Setup GP correctly if we're non-PIC.  */
@@ -97,9 +97,9 @@ __start:
 	lw $5, 0($29)		/* argc */
 	addiu $6, $29, 4	/* argv  */
 
-	/* Allocate space on the stack for seven arguments (o32 only)
-	   and make sure the stack is aligned to double words (8 bytes)
-	   on o32 and quad words (16 bytes) on n32 and n64.  */
+	/* Allocate space on the stack for seven arguments and
+	 * make sure the stack is aligned to double words (8 bytes) */
+
 	and $29, -2 * 4
 	subu $29, 32
 	la $7, _init		/* init */
