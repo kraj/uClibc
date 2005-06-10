@@ -49,15 +49,12 @@ ARM register quick reference:
 #include <features.h>
 
 .text
-	.global _start
-	.type	_start,%function
-	.weak	_init
-	.weak	_fini
-	.type	__uClibc_start_main,%function
-/* Stick in a dummy reference to main(), so that if an application
- * is linking when the main() function is in a static library (.a)
- * we can be sure that main() actually gets linked in */
-	.type	main,%function
+	.global	    _start
+	.type	    _start,%function
+	.type	    _init,%function
+	.type	    _fini,%function
+	.type	    main,%function
+	.type	    __uClibc_main,%function
 
 
 .text
@@ -65,61 +62,83 @@ _start:
 	/* clear the frame pointer */
 	mov     fp, #0
 
+#ifdef __PIC__
+	/* Store the address of main in r0 */
+	adr r5, .L_main
+	ldr r0, .L_main
+	add r0, r0, r5
+
+#else
+	/* Store the address of main in r0 */
+	ldr r0, =main
+#endif
+
 #ifdef __ARCH_HAS_MMU__
-	/* Load register r0 (argc) from the stack to its final resting place */
-	ldr     r0, [sp], #4
 
-	/* Copy argv pointer into r1 -- which its final resting place */
-	mov     r1, sp
+	/* Load register r1 (argc) from the stack to its final resting place */
+	ldr     r1, [sp], #4
 
-	/* Skip to the end of argv and put a pointer to whatever
-	   we find there (hopefully the environment) in r2 */
-	add     r2, r1, r0, lsl #2
-	add     r2, r2, #4
-
+	/* Copy argv pointer into r2 -- which its final resting place */
+	mov     r2, sp
 #else
 	/*
 	 * uClinux stacks look a little different from normal
 	 * MMU-full Linux stacks (for no good reason)
 	 */
 	/* pull argc, argv and envp off the stack */
-	ldr r0,[sp, #0]
-	ldr r1,[sp, #4]
-	ldr r2,[sp, #8]
+	ldr r1,[sp, #0]
+	ldr r2,[sp, #4]
 #endif
 
 #ifdef __PIC__
-	/* Store the address of _init in r3 as an argument to main() */
+	/* Store the address of _init in r3 */
 	adr r5, .L_init
 	ldr r3, .L_init
 	add r3, r3, r5
 
-	/* Push _fini onto the stack as the final argument to main() */
+	/* Push _fini onto the stack as an argument to main() */
 	ldr r4, .L_init + 4
 	add r4, r4, r5
+	stmfd sp!, {r4}
+
+	/* Push rtld_fini onto the stack as an argument to main() */
+	ldr r4, .L_init + 8
+	add r4, r4, r5
+	stmfd sp!, {r4}
 #else
 	/* Store the address of _init in r3 as an argument to main() */
 	ldr r3, =_init
 
-	/* Push _fini onto the stack as the final argument to main() */
+	/* Push _fini onto the stack as an argument to main() */
 	ldr r4, =_fini
-#endif
 	stmfd sp!, {r4}
 
-	/* Ok, now run uClibc's main() -- shouldn't return */
-	bl	__uClibc_start_main
+	/* Push rtld_fini onto the stack as an argument to main() */
+	ldr r4, =rtld_fini
+	stmfd sp!, {r4}
+#endif
+
+	/* We need to call __uClibc_main which should not return.
+	   __uClibc_main (int (*main) (int, char **, char **), int argc,
+			      char **argv, void (*init) (void), void (*fini) (void),
+			      void (*rtld_fini) (void), void *stack_end)
+	*/
+	bl	__uClibc_main
 
 	/* Crash if somehow `exit' returns anyways.  */
 	bl abort
 
 #ifdef __PIC__
 .L_init:
-	.word _init - .L_init
-	.word _fini - .L_init
+	.word _init
+	.word _fini
+	.word rtld_fini
+.L_main:
+	.word main
 #endif
 
 /* We need this stuff to make gdb behave itself, otherwise
-   gdb will chokes with SIGILL when trying to debug apps.
+   gdb will choke with SIGILL when trying to debug apps.
 */
 	.section ".note.ABI-tag", "a"
 	.align 4

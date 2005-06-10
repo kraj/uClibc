@@ -19,9 +19,9 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
-CRT0_SRC = crt0.S
-CRT0_OBJ = crt1.o
-SCRT0_OBJ = $(patsubst %,S%, $(CRT0_OBJ))
+CRT_SRC = crt1.S
+CRT_OBJ = crt1.o
+SCRT_OBJ = $(patsubst %,S%, $(CRT_OBJ))
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
@@ -31,22 +31,22 @@ SOBJS=$(patsubst %.S,%.o, $(SSRC))
 CSRC=brk.c syscall.c ioperm.c sigaction.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(SOBJS) $(MOBJ) $(COBJS)
+OBJS=$(SOBJS) $(COBJS)
 
 OBJ_LIST=../../../obj.sysdeps.$(TARGET_ARCH)
 
 all: $(OBJ_LIST)
 
-$(OBJ_LIST): $(OBJS) $(CRT0_OBJ) $(SCRT0_OBJ) $(CTOR_TARGETS)
+$(OBJ_LIST): $(OBJS) $(CRT_OBJ) $(SCRT_OBJ) $(CTOR_TARGETS)
 	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
 	$(INSTALL) -d $(TOPDIR)lib/
-	cp $(CRT0_OBJ) $(SCRT0_OBJ) $(TOPDIR)lib/
+	cp $(CRT_OBJ) $(SCRT_OBJ) $(TOPDIR)lib/
 
-$(CRT0_OBJ): $(CRT0_SRC)
+$(CRT_OBJ): $(CRT_SRC)
 	$(CC) $(ASFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(SCRT0_OBJ): $(CRT0_SRC)
+$(SCRT_OBJ): $(CRT_SRC)
 	$(CC) $(ASFLAGS) $(PIEFLAG) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
