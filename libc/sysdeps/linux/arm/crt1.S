@@ -71,9 +71,6 @@ _start:
 	adr r8, .L_main
 	ldr r0, .L_main
 	add r0, r0, r8
-
-	ldr r4, .L_init + 4
-	add r4, r4, r8
 #else
 	ldr r0, =main
 #endif
