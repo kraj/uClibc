@@ -27,10 +27,10 @@
 #ifdef __NR_clone
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
-	.text
-	.globl __clone
-	.type __clone,%function
-	.align 4
+.text
+.global __clone
+.type __clone,%function
+.align 4
 __clone:
 	@ sanity check args
 	cmp	r0, #0
@@ -68,9 +68,9 @@ __clone:
 __error:
 	b	__syscall_error
 
-	.size __clone,.-__clone
+.size __clone,.-__clone
 
-	.weak clone
+.weak clone
 	clone = __clone
 
 #endif

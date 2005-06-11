@@ -25,10 +25,10 @@
 #include <sys/syscall.h>
 
 #ifdef __NR_fork
-	.text
-	.global vfork
-	.type vfork,%function
-	.align 4
+.text
+.global vfork
+.type vfork,%function
+.align 4
 vfork:
 
 #ifdef __NR_vfork
@@ -52,5 +52,5 @@ vfork:
 __error:
 	b	__syscall_error
 
-	.size vfork,.-vfork
+.size vfork,.-vfork
 #endif

@@ -23,9 +23,9 @@
 #include <bits/setjmp.h>
 
 
-.globl __longjmp;
+.global __longjmp
 .type __longjmp,%function
-.align 4;
+.align 4
 __longjmp:
 	mov	ip, r0		/* save jmp_buf pointer */
 	
@@ -39,4 +39,5 @@ __longjmp:
 #endif	
 
 	ldmia     ip ,  {v1-v6, sl, fp, sp, pc}
-.size __longjmp,.-__longjmp;
+
+.size __longjmp,.-__longjmp

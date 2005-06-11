@@ -23,11 +23,11 @@
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_mmap2
 
-	/* The mmap2 system call takes six arguments, all in registers.  */
-	.text
-	.global mmap64
-	.type mmap64,%function
-	.align 4
+/* The mmap2 system call takes six arguments, all in registers.  */
+.text
+.global mmap64
+.type mmap64,%function
+.align 4
 mmap64:
 	stmfd	sp!, {r4, r5, lr}
 	ldr	r5, [sp, $16]
@@ -65,6 +65,6 @@ mmap64:
 __error:
 	b	__syscall_error
 
-	.size mmap64,.-mmap64
+.size mmap64,.-mmap64
 
 #endif

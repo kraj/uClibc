@@ -22,18 +22,18 @@
    one of these.  This avoids the need for the kernel to synthesise a return
    instruction on the stack, which would involve expensive cache flushes. */
 
-.globl __default_sa_restorer;
+.global __default_sa_restorer
 .type __default_sa_restorer,%function
-.align 4;
+.align 4
 __default_sa_restorer:
 	swi	__NR_sigreturn
 
 
 #ifdef __NR_rt_sigreturn
 
-.globl __default_rt_sa_restorer;
+.global __default_rt_sa_restorer
 .type __default_rt_sa_restorer,%function
-.align 4;
+.align 4
 __default_rt_sa_restorer:
 	swi	__NR_rt_sigreturn
 

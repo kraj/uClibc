@@ -22,9 +22,9 @@
 #define _ASM
 #include <bits/setjmp.h>
 
-.globl __sigsetjmp;
+.global __sigsetjmp
 .type __sigsetjmp,%function
-.align 4;
+.align 4
 __sigsetjmp:
 	/* Save registers */
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
@@ -43,4 +43,5 @@ __sigsetjmp:
 #else
 	B	__sigjmp_save
 #endif
-.size __sigsetjmp,.-__sigsetjmp;
+
+.size __sigsetjmp,.-__sigsetjmp
