@@ -274,6 +274,24 @@ else
     LDFLAGS := $(CPU_LDFLAGS-y) -s -shared --warn-common --warn-once -z combreloc
 endif
 
+#
+# Thread includes are needed to compile some files.
+#
+ifeq ($(PTHREADS_NATIVE),y)
+PTDIR 		:= $(TOPDIR)/libpthread/nptl/
+PT_INCLUDES	:= -I$(PTDIR)compat					\
+		   -I$(PTDIR)sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
+		   -I$(PTDIR)sysdeps/$(TARGET_ARCH)			\
+		   -I$(PTDIR)sysdeps/unix/sysv/linux			\
+		   -I$(PTDIR)sysdeps/pthread				\
+		   -include $(PTDIR)compat/libc-symbols.h
+else
+PTDIR 		:= $(TOPDIR)/libpthread/linuxthreads/
+PT_INCLUDES	:= -I$(PTDIR)sysdeps/$(TARGET_ARCH)			\
+		   -I$(PTDIR)sysdeps/pthread
+endif
+export PT_INCLUDES
+
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 LDFLAGS+=-z relro
 endif

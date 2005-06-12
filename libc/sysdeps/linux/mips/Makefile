@@ -89,3 +89,4 @@ clean:
 	$(RM) bits/sysnum.h
 	$(RM) $(TOPDIR)/include/fpu_control.h
 	$(RM) $(TOPDIR)/include/sgidefs.h
+	$(RM) $(TOPDIR)/include/sysdep.h

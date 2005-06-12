@@ -36,7 +36,7 @@ $(OBJ_LIST): $(OBJS)
 	echo $(patsubst %, misc/syslog/%, $(OBJS)) > $(OBJ_LIST)
 
 $(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(PT_INCLUDES) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

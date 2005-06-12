@@ -66,19 +66,19 @@ $(OBJ_LIST): $(OBJS)
 	echo $(patsubst %, inet/%, $(OBJS)) > $(OBJ_LIST)
 
 $(MOBJ): $(MSRC)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(CC) $(CFLAGS) $(PT_INCLUDES) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ2): $(MSRC2)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(CC) $(CFLAGS) $(PT_INCLUDES) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ3): $(MSRC3)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
+	$(CC) $(CFLAGS) $(PT_INCLUDES) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(PT_INCLUDES) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean: subdirs_clean

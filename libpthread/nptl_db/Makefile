@@ -51,10 +51,13 @@ libthread_db-inhibit-o = $(filter-out .os,$(object-suffixes))
 libthread_db.so-no-z-defs = yes
 
 distribute = thread_dbP.h shlib-versions proc_service.h db_info.c structs.def
-include ../Rules
+#include ../Rules
 
 # Depend on libc.so so a DT_NEEDED is generated in the shared objects.
 # This ensures they will load libc.so for needed symbols if loaded by
 # a statically-linked program that hasn't already loaded it.
 $(objpfx)libthread_db.so: $(common-objpfx)libc.so \
 			  $(common-objpfx)libc_nonshared.a
+
+clean:
+	$(RM) *~ *.[ao]
