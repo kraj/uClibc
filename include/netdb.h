@@ -53,8 +53,13 @@
 
 __BEGIN_DECLS
 
+#include <tls.h>
+#ifdef USE___THREAD
+extern __thread int h_errno attribute_tls_model_ie;
+#else
 /* Error status for non-reentrant lookup functions.  */
 extern int h_errno;
+#endif
 
 /* Function to get address of global `h_errno' variable.  */
 extern int *__h_errno_location (void) __THROW __attribute__ ((__const__));

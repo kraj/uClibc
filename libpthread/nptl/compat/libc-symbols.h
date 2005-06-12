@@ -1,12 +1,31 @@
 #ifndef _LIBC_SYMBOLS_H
 #define _LIBC_SYMBOLS_H 1
 
-/*
- * NPTL - These definitions were taken from 'include/libc-symbols.h'
- *        in glibc. We are going to use the empty macros for now
- *        until we run into other compile errors that force us to
- *        do otherwise.
- */
+/* Handling on non-exported internal names.  We have to do this only
+   for shared code.  */
+#ifdef SHARED
+# define INTUSE(name) name##_internal
+# define INTDEF(name) strong_alias (name, name##_internal)
+# define INTVARDEF(name) \
+  _INTVARDEF (name, name##_internal)
+# if defined HAVE_VISIBILITY_ATTRIBUTE
+#  define _INTVARDEF(name, aliasname) \
+  extern __typeof (name) aliasname __attribute__ ((alias (#name), \
+						   visibility ("hidden")));
+# else
+#  define _INTVARDEF(name, aliasname) \
+  extern __typeof (name) aliasname __attribute__ ((alias (#name)));
+# endif
+# define INTDEF2(name, newname) strong_alias (name, newname##_internal)
+# define INTVARDEF2(name, newname) _INTVARDEF (name, newname##_internal)
+#else
+# define INTUSE(name) name
+# define INTDEF(name)
+# define INTVARDEF(name)
+# define INTDEF2(name, newname)
+# define INTVARDEF2(name, newname)
+#endif
+
 #if 0
 # ifndef __ASSEMBLER__
 #  if !defined HAVE_VISIBILITY_ATTRIBUTE \

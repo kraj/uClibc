@@ -280,6 +280,14 @@
 #   define __GLIBC_MINOR__ 2
 #endif
 
+/*
+ * NPTL requires this to be defined. Unfortunately, due to complexities
+ * in include dependencies, this cannot be defined on a per file basis.
+ */
+#ifdef __PTHREADS_NATIVE__
+# define __USE_XOPEN2K	1
+#endif
+
 /* Convenience macros to test the versions of glibc and gcc.
    Use them like this:
    #if __GNUC_PREREQ (2,8)

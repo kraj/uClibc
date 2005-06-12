@@ -18,6 +18,9 @@
    02111-1307 USA.  */
 
 #include <errno.h>
+#ifdef __PTHREADS_NATIVE__
+#define __USE_GNU
+#endif
 #include <fcntl.h>
 #include <mntent.h>
 #include <paths.h>
@@ -36,6 +39,17 @@
 #include "semaphoreP.h"
 
 
+/* Compatibility defines. */
+#if __UCLIBC__
+#define __endmntent			endmntent
+#define __fxstat64(vers, fd, buf)	fstat64(fd, buf)
+#define __getmntent_r			getmntent_r
+#define __setmntent			setmntent
+#define __statfs			statfs
+#define __libc_close			close
+#define __libc_open			open
+#define __libc_write			write
+#endif
 
 /* Information about the mount point.  */
 struct mountpoint_info mountpoint attribute_hidden;

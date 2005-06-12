@@ -59,7 +59,7 @@ typedef union dtv
 /* We require TLS support in the tools.  */
 /*
  * NPTL - These defines would normally be handled by the top-level
- *        configure script in glibc. We define them ourselves.
+ *        configure script in glibc.
  */
 #ifdef __PTHREADS_NATIVE__
 #define HAVE_TLS_SUPPORT		1
@@ -84,7 +84,7 @@ typedef union dtv
 
 /* Get the thread descriptor definition.  */
 #ifdef __UCLIBC__
-# include <descr.h>
+# include <../../descr.h>
 #else
 # include <nptl/descr.h>
 #endif

@@ -1,4 +1,5 @@
-/* Copyright (C) 1997, 1998, 2002, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 1997, 1998, 2002, 2003, 2004, 2005
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ralf Baechle <ralf@gnu.org>.
 
@@ -37,11 +38,11 @@
  * 64 bit address space isn't used yet, so we may use the R3000 32 bit
  * defines for now.
  */
-#if (_MIPS_SIM == _MIPS_SIM_ABI32) || (_MIPS_SIM == _MIPS_SIM_NABI32)
+#if _MIPS_SIM == _ABIO32 || _MIPS_SIM == _ABIN32
 # define PTR .word
 # define PTRSIZE 4
 # define PTRLOG 2
-#elif (_MIPS_SIM == _MIPS_SIM_ABI64)
+#elif _MIPS_SIM == _ABI64
 # define PTR .dword
 # define PTRSIZE 8
 # define PTRLOG 3
@@ -50,7 +51,7 @@
 /*
  * PIC specific declarations
  */
-#if (_MIPS_SIM == _MIPS_SIM_ABI32)
+#if _MIPS_SIM == _ABIO32
 # ifdef __PIC__
 #  define CPRESTORE(register) \
 		.cprestore register
@@ -97,7 +98,7 @@ l:							\
 # define SETUP_GPX64_L(cp_reg, ra_save, l)
 # define RESTORE_GP64
 # define USE_ALT_CP(a)
-#else /* (_MIPS_SIM == _MIPS_SIM_ABI64) || (_MIPS_SIM == _MIPS_SIM_NABI32) */
+#else /* _MIPS_SIM == _ABI64 || _MIPS_SIM == _ABIN32 */
 /*
  * For callee-saved gp calling convention:
  */
@@ -131,15 +132,15 @@ l:							\
 /* Use alternate register for context pointer.  */
 # define USE_ALT_CP(reg)	\
 		.cplocal reg
-#endif /* _MIPS_SIM != _MIPS_SIM_ABI32 */
+#endif /* _MIPS_SIM != _ABIO32 */
 
 /*
  * Stack Frame Definitions
  */
-#if (_MIPS_SIM == _MIPS_SIM_ABI32)
+#if _MIPS_SIM == _ABIO32
 # define NARGSAVE 4 /* Space for 4 argument registers must be allocated.  */
 #endif
-#if (_MIPS_SIM == _MIPS_SIM_ABI64 || _MIPS_SIM == _MIPS_SIM_NABI32)
+#if _MIPS_SIM == _ABI64 || _MIPS_SIM == _ABIN32
 # define NARGSAVE 0 /* No caller responsibilities.  */
 #endif
 
@@ -287,7 +288,7 @@ symbol		=	value
 /*
  * Stack alignment
  */
-#if (_MIPS_SIM == _MIPS_SIM_ABI64) || (_MIPS_SIM == _MIPS_SIM_NABI32)
+#if _MIPS_SIM == _ABI64 || _MIPS_SIM == _ABIN32
 # define ALSZ	15
 # define ALMASK	~15
 #else
@@ -298,7 +299,7 @@ symbol		=	value
 /*
  * Size of a register
  */
-#if (_MIPS_SIM == _MIPS_SIM_ABI64) || (_MIPS_SIM == _MIPS_SIM_NABI32)
+#if _MIPS_SIM == _ABI64 || _MIPS_SIM == _ABIN32
 # define SZREG	8
 #else
 # define SZREG	4
@@ -389,7 +390,7 @@ symbol		=	value
 /*
  * How to add/sub/load/store/shift pointers.
  */
-#if (_MIPS_SIM == _MIPS_SIM_ABI32 && _MIPS_SZPTR == 32)
+#if (_MIPS_SIM == _ABIO32 && _MIPS_SZPTR == 32)
 # define PTR_ADD	add
 # define PTR_ADDI	addi
 # define PTR_ADDU	addu
@@ -411,7 +412,7 @@ symbol		=	value
 # define PTR_SCALESHIFT	2
 #endif
 
-#if _MIPS_SIM == _MIPS_SIM_NABI32
+#if _MIPS_SIM == _ABIN32
 # define PTR_ADD	add
 # define PTR_ADDI	addi
 # define PTR_ADDU	add /* no u */
@@ -433,8 +434,8 @@ symbol		=	value
 # define PTR_SCALESHIFT	2
 #endif
 
-#if (_MIPS_SIM == _MIPS_SIM_ABI32 && _MIPS_SZPTR == 64 /* o64??? */) \
-    || _MIPS_SIM == _MIPS_SIM_ABI64
+#if (_MIPS_SIM == _ABIO32 && _MIPS_SZPTR == 64 /* o64??? */) \
+    || _MIPS_SIM == _ABI64
 # define PTR_ADD	dadd
 # define PTR_ADDI	daddi
 # define PTR_ADDU	daddu
@@ -468,6 +469,22 @@ symbol		=	value
     (_MIPS_ISA == _MIPS_ISA_MIPS5) || (_MIPS_ISA == _MIPS_ISA_MIPS64)
 # define MFC0	dmfc0
 # define MTC0	dmtc0
+#endif
+
+/* The MIPS archtectures do not have a uniform memory model.  Particular
+   platforms may provide additional guarantees - for instance, the R4000
+   LL and SC instructions implicitly perform a SYNC, and the 4K promises
+   strong ordering.
+
+   However, in the absence of those guarantees, we must assume weak ordering
+   and SYNC explicitly where necessary.
+
+   Some obsolete MIPS processors may not support the SYNC instruction.  This
+   applies to "true" MIPS I processors; most of the processors which compile
+   using MIPS I implement parts of MIPS II.  */
+
+#ifndef MIPS_SYNC
+# define MIPS_SYNC	sync
 #endif
 
 #endif /* sys/asm.h */

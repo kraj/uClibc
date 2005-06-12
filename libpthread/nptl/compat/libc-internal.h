@@ -5,6 +5,9 @@
 # define _LIBC_INTERNAL 1
 
 #include <hp-timing.h>
+#ifdef __UCLIBC__
+#include <libc-symbols.h>
+#endif
 
 /* Initialize the `__libc_enable_secure' flag.  */
 extern void __libc_init_secure (void);

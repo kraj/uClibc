@@ -22,6 +22,11 @@
 #include <sysdep.h>
 #include "pthreadP.h"
 
+/* Compatibility define. */
+#ifdef __UCLIBC__
+#include <sysdep-cancel.h>
+#define __libc_system	system
+#endif
 
 int
 system (const char *line)

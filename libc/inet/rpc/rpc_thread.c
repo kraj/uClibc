@@ -9,8 +9,13 @@
 
 /* Variable used in non-threaded applications or for the first thread.  */
 static struct rpc_thread_variables __libc_tsd_RPC_VARS_mem;
+#ifdef __PTHREADS_NATIVE__
+static struct rpc_thread_variables *__libc_tsd_RPC_VARS =
+     &__libc_tsd_RPC_VARS_mem;
+#else
 static struct rpc_thread_variables *__libc_tsd_RPC_VARS_data =
      &__libc_tsd_RPC_VARS_mem;
+#endif
 
 /*
  * Task-variable destructor
@@ -77,7 +82,11 @@ __rpc_thread_variables (void)
 			if (tvp != NULL)
 				__libc_tsd_set (RPC_VARS, tvp);
 			else
+#ifdef __PTHREADS_NATIVE__
+				tvp = __libc_tsd_RPC_VARS;
+#else
 				tvp = __libc_tsd_RPC_VARS_data;
+#endif
 		}
 	}
 	return tvp;
