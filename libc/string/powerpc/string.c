@@ -32,15 +32,16 @@
 #include <locale.h> /* for __LOCALE_C_ONLY */
 
 #ifdef L_memcpy
-void *memcpy(void *to, const void *from, size_t n)
+void attribute_hidden *__memcpy(void *to, const void *from, size_t n)
 /* PPC can do pre increment and load/store, but not post increment and load/store.
    Therefore use *++ptr instead of *ptr++. */
 {
 	unsigned long rem, chunks, tmp1, tmp2;
-	void *tmp_to;
+	unsigned char *tmp_to;
+	unsigned char *tmp_from = (unsigned char *)from;
 
 	chunks = n / 8;
-	from -= 4;
+	tmp_from -= 4;
 	tmp_to = to - 4;
 	if (!chunks)
 		goto lessthan8;
@@ -50,9 +51,9 @@ void *memcpy(void *to, const void *from, size_t n)
  copy_chunks:
 	do {
 		/* make gcc to load all data, then store it */
-		tmp1 = *(unsigned long *)(from+4);
-		from += 8;
-		tmp2 = *(unsigned long *)from;
+		tmp1 = *(unsigned long *)(tmp_from+4);
+		tmp_from += 8;
+		tmp2 = *(unsigned long *)tmp_from;
 		*(unsigned long *)(tmp_to+4) = tmp1;
 		tmp_to += 8;
 		*(unsigned long *)tmp_to = tmp2;
@@ -60,23 +61,25 @@ void *memcpy(void *to, const void *from, size_t n)
  lessthan8:
 	n = n % 8;
 	if (n >= 4) {
-		*++(unsigned long *)tmp_to = *++(unsigned long *)from;
+		*(unsigned long *)(tmp_to+4) = *(unsigned long *)(tmp_from+4);
+		tmp_from += 4;
+		tmp_to += 4;
 		n = n-4;
 	}
 	if (!n ) return to;
-	from += 3;
+	tmp_from += 3;
 	tmp_to += 3;
 	do {
-		*++(unsigned char *)tmp_to = *++(unsigned char *)from;
+		*++tmp_to = *++tmp_from;
 	} while (--n);
 	
 	return to;
  align:
 	rem = 4 - rem;
-	n = n-rem;
+	n = n - rem;
 	do {
-		*(unsigned char *)(tmp_to+4) = *(unsigned char *)(from+4);
-		++from;
+		*(tmp_to+4) = *(tmp_from+4);
+		++tmp_from;
 		++tmp_to;
 	} while (--rem);
 	chunks = n / 8;
@@ -84,18 +87,20 @@ void *memcpy(void *to, const void *from, size_t n)
 		goto copy_chunks;
 	goto lessthan8;
 }
+strong_alias(__memcpy, memcpy);
 #endif
 
 #ifdef L_memmove
-void *memmove(void *to, const void *from, size_t n)
+void attribute_hidden *__memmove(void *to, const void *from, size_t n)
 {
 	unsigned long rem, chunks, tmp1, tmp2;
-	void *tmp_to;
+	unsigned char *tmp_to;
+	unsigned char *tmp_from = (unsigned char *)from;
 
-	if (from >= to)
+	if (tmp_from >= (unsigned char *)to)
 		return memcpy(to, from, n);
 	chunks = n / 8;
-	from += n;
+	tmp_from += n;
 	tmp_to = to + n;
 	if (!chunks)
 		goto lessthan8;
@@ -105,9 +110,9 @@ void *memmove(void *to, const void *from, size_t n)
  copy_chunks:
 	do {
 		/* make gcc to load all data, then store it */
-		tmp1 = *(unsigned long *)(from-4);
-		from -= 8;
-		tmp2 = *(unsigned long *)from;
+		tmp1 = *(unsigned long *)(tmp_from-4);
+		tmp_from -= 8;
+		tmp2 = *(unsigned long *)tmp_from;
 		*(unsigned long *)(tmp_to-4) = tmp1;
 		tmp_to -= 8;
 		*(unsigned long *)tmp_to = tmp2;
@@ -115,26 +120,29 @@ void *memmove(void *to, const void *from, size_t n)
  lessthan8:
 	n = n % 8;
 	if (n >= 4) {
-		*--(unsigned long *)tmp_to = *--(unsigned long *)from;
+		*(unsigned long *)(tmp_to-4) = *(unsigned long *)(tmp_from-4);
+		tmp_from -= 4;
+		tmp_to -= 4;
 		n = n-4;
 	}
 	if (!n ) return to;
 	do {
-		*--(unsigned char *)tmp_to = *--(unsigned char *)from;
+		*--tmp_to = *--tmp_from;
 	} while (--n);
 	
 	return to;
  align:
 	rem = 4 - rem;
-	n = n-rem;
+	n = n - rem;
 	do {
-		*--(unsigned char *)tmp_to = *--(unsigned char *)from;
+		*--tmp_to = *--tmp_from;
 	} while (--rem);
 	chunks = n / 8;
 	if (chunks)
 		goto copy_chunks;
 	goto lessthan8;
 }
+strong_alias(__memmove, memmove);
 #endif
 
 #ifdef L_memset
@@ -148,10 +156,10 @@ static inline int expand_byte_word(int c){
 	    : "=r" (c) : "0" (c));
 	return c;
 }
-void *memset(void *to, int c, size_t n)
+void attribute_hidden *__memset(void *to, int c, size_t n)
 {
 	unsigned long rem, chunks;
-	void *tmp_to;
+	unsigned char *tmp_to;
 
 	chunks = n / 8;
 	tmp_to = to - 4;
@@ -163,19 +171,22 @@ void *memset(void *to, int c, size_t n)
 		goto align;
  copy_chunks:
 	do {
-		*++(unsigned long *)tmp_to = c;
-		*++(unsigned long *)tmp_to = c;
+		*(unsigned long *)(tmp_to+4) = c;
+		tmp_to += 4;
+		*(unsigned long *)(tmp_to+4) = c;
+		tmp_to += 4;
 	} while (--chunks);
  lessthan8:
 	n = n % 8;
 	if (n >= 4) {
-		*++(unsigned long *)tmp_to = c;
+		*(unsigned long *)(tmp_to+4) = c;
+		tmp_to += 4;
 		n = n-4;
 	}
 	if (!n ) return to;
 	tmp_to += 3;
 	do {
-		*++(unsigned char *)tmp_to = c;
+		*++tmp_to = c;
 	} while (--n);
 	
 	return to;
@@ -183,7 +194,7 @@ void *memset(void *to, int c, size_t n)
 	rem = 4 - rem;
 	n = n-rem;
 	do {
-		*(unsigned char *)(tmp_to+4) = c;
+		*(tmp_to+4) = c;
 		++tmp_to;
 	} while (--rem);
 	chunks = n / 8;
@@ -191,6 +202,7 @@ void *memset(void *to, int c, size_t n)
 		goto copy_chunks;
 	goto lessthan8;
 }
+strong_alias(__memset, memset);
 #endif
 
 #ifdef L_bzero
