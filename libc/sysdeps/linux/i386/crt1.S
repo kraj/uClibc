@@ -87,7 +87,7 @@ _start:
 	pushl %edx		/* Push address of the shared library
 				   termination function.  */
 
-#if defined L_Scrt1
+#ifdef __PIC__
 	/* Load PIC register.  */
 	call .L0
 .L0:
