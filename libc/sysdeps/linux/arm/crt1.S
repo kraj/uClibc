@@ -93,7 +93,7 @@ _start:
 	/* Push rtld_fini */
 	str a1, [sp, #-4]!
 
-#ifdef L_Scrt1
+#ifdef __PIC__
 	ldr sl, .L_GOT
 .L_GOT_OFF:
 	add sl, pc, sl
@@ -126,7 +126,7 @@ _start:
 	b __uClibc_main
 #endif
 
-#ifdef L_Scrt1
+#ifdef __PIC_
 .L_GOT:
 	.word	_GLOBAL_OFFSET_TABLE_-(.L_GOT_OFF+8)
 	.word _fini(GOT)
