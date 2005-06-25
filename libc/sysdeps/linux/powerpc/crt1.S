@@ -43,7 +43,7 @@ _start:
 	mr	r10,r1 	/* Save the stack pointer */
 	clrrwi	r1,r1,4	/* Align stack ptr to 16 bytes */
 	mr	r9,r1 	/* Pass aligned stack ptr */
-#if defined L_Scrt1
+#ifdef __PIC__
 	bl	_GLOBAL_OFFSET_TABLE_-4@local
 	mflr	r31
 #endif
@@ -58,12 +58,12 @@ _start:
 	addi	r5,r10,4
 	mr	r8,r7 /* Pass _dl_fini from ldso or NULL if statically linked */
 	/* Ok, now run uClibc's main() -- shouldn't return */
-# ifdef L_Scrt1
+#ifdef __PIC__
 	lwz	r6,_init@got(r31)
 	lwz	r7,_fini@got(r31)
 	lwz	r3,main@got(r31)
 	b	__uClibc_main@plt
-# else
+#else
 	lis     r6,_init@ha	# load top 16 bits
 	addi    r6,r6,_init@l	# load bottom 16 bits
 	lis     r7,_fini@ha	# load top 16 bits
@@ -71,7 +71,7 @@ _start:
 	lis     r3,main@ha	# load top 16 bits
 	addi    r3,r3,main@l	# load bottom 16 bits
 	b	__uClibc_main
-# endif
+#endif
 
 .size _start,.-_start
 
