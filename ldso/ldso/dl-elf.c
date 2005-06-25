@@ -32,6 +32,16 @@
 
 #include "ldso.h"
 
+#if defined (__SUPPORT_LD_DEBUG__)
+# define _dl_if_debug_dprint(fmt, args...) \
+	do { \
+	if (_dl_debug) \
+		_dl_dprintf(_dl_debug_file, "%s():%i: " fmt, __FUNCTION__, __LINE__, ## args); \
+	} while (0)
+#else
+# define _dl_if_debug_dprint(fmt, args...)
+#endif
+
 #ifdef __LDSO_CACHE_SUPPORT__
 
 static caddr_t _dl_cache_addr = NULL;
@@ -195,10 +205,7 @@ struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libnam
 
 	pnt = libname = full_libname;
 
-#if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug)
-		_dl_dprintf(_dl_debug_file, "Checking if '%s' is already loaded\n", full_libname);
-#endif
+	_dl_if_debug_dprint("Checking if '%s' is already loaded\n", full_libname);
 	/* quick hack to ensure mylibname buffer doesn't overflow.  don't
 	   allow full_libname or any directory to be longer than 1024. */
 	if (_dl_strlen(full_libname) > 1024)
@@ -285,17 +292,13 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		return tpnt1;
 	}
 
-#if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tfind library='%s'; searching\n", libname);
-#endif
+	_dl_if_debug_dprint("\tfind library='%s'; searching\n", libname);
 	/* If the filename has any '/', try it straight and leave it at that.
 	   For IBCS2 compatibility under linux, we substitute the string
 	   /usr/i486-sysv4/lib for /usr/lib in library names. */
 
 	if (libname != full_libname) {
-#if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug) _dl_dprintf(_dl_debug_file, "\ttrying file='%s'\n", full_libname);
-#endif
+		_dl_if_debug_dprint("\ttrying file='%s'\n", full_libname);
 		tpnt1 = _dl_load_elf_shared_library(secure, rpnt, full_libname);
 		if (tpnt1) {
 			return tpnt1;
@@ -310,18 +313,14 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	pnt = (tpnt ? (char *) tpnt->dynamic_info[DT_RPATH] : NULL);
 	if (pnt) {
 		pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
-#if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching RPATH='%s'\n", pnt);
-#endif
+		_dl_if_debug_dprint("\tsearching RPATH='%s'\n", pnt);
 		if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL)
 			return tpnt1;
 	}
 
 	/* Check in LD_{ELF_}LIBRARY_PATH, if specified and allowed */
 	if (_dl_library_path) {
-#if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching LD_LIBRARY_PATH='%s'\n", _dl_library_path);
-#endif
+		_dl_if_debug_dprint("\tsearching LD_LIBRARY_PATH='%s'\n", _dl_library_path);
 		if ((tpnt1 = search_for_named_library(libname, secure, _dl_library_path, rpnt)) != NULL)
 		{
 			return tpnt1;
@@ -333,9 +332,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	pnt = (tpnt ? (char *)tpnt->dynamic_info[DT_RUNPATH] : NULL);
 	if (pnt) {
 		pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
-#if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching RUNPATH='%s'\n", pnt);
-#endif
+		_dl_if_debug_dprint("\tsearching RUNPATH='%s'\n", pnt);
 		if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL)
 			return tpnt1;
 	}
@@ -352,9 +349,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		libentry_t *libent = (libentry_t *) & header[1];
 		char *strs = (char *) &libent[header->nlibs];
 
-#if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching cache='%s'\n", LDSO_CACHE);
-#endif
+		_dl_if_debug_dprint("\tsearching cache='%s'\n", LDSO_CACHE);
 		for (i = 0; i < header->nlibs; i++) {
 			if ((libent[i].flags == LIB_ELF ||
 						libent[i].flags == LIB_ELF_LIBC0 ||
@@ -369,9 +364,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 
 	/* Look for libraries wherever the shared library loader
 	 * was installed */
-#if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching ldso dir='%s'\n", _dl_ldsopath);
-#endif
+	_dl_if_debug_dprint("\tsearching ldso dir='%s'\n", _dl_ldsopath);
 	if ((tpnt1 = search_for_named_library(libname, secure, _dl_ldsopath, rpnt)) != NULL)
 	{
 		return tpnt1;
@@ -380,9 +373,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 
 	/* Lastly, search the standard list of paths for the library.
 	   This list must exactly match the list in uClibc/ldso/util/ldd.c */
-#if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug) _dl_dprintf(_dl_debug_file, "\tsearching full lib path list\n");
-#endif
+	_dl_if_debug_dprint("\tsearching full lib path list\n");
 	if ((tpnt1 = search_for_named_library(libname, secure,
 					UCLIBC_RUNTIME_PREFIX "lib:"
 					UCLIBC_RUNTIME_PREFIX "usr/lib"
@@ -742,17 +733,13 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 	tpnt = rpnt->dyn;
 
 #if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug && !(tpnt->init_flag & RELOCS_DONE)) 
-		_dl_dprintf(_dl_debug_file,"\nrelocation processing: %s\n", tpnt->libname);
+	if(!(tpnt->init_flag & RELOCS_DONE)) 
+		_dl_if_debug_dprint("\nrelocation processing: %s\n", tpnt->libname);
 #endif
 
 	if (unlikely(tpnt->dynamic_info[UNSUPPORTED_RELOC_TYPE])) {
-#if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug) {
-			_dl_dprintf(2, "%s: can't handle %s relocation records\n",
-					_dl_progname, UNSUPPORTED_RELOC_STR);
-		}
-#endif
+		_dl_if_debug_dprint("%s: can't handle %s relocation records\n",
+				_dl_progname, UNSUPPORTED_RELOC_STR);
 		goof++;
 		return goof;
 	}
