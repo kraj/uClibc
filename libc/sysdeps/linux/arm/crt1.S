@@ -40,16 +40,48 @@
 		...
 					NULL
 */
+/*
+   For uClinux it looks like this:
+
+        argc            argument counter (integer)
+        argv            char *argv[]
+        envp            char *envp[]
+        argv[0]         program name (pointer)
+        argv[1...N]     program args (pointers)
+        argv[argc-1]    end of args (integer)
+	NULL
+        env[0...N]      environment variables (pointers)
+        NULL
+
+ARM register quick reference:
+
+    Name    Number       ARM Procedure Calling Standard Role
+
+    a1      r0           argument 1 / integer result / scratch register / argc
+    a2      r1           argument 2 / scratch register / argv
+    a3      r2           argument 3 / scratch register / envp
+    a4      r3           argument 4 / scratch register
+    v1      r4           register variable
+    v2      r5           register variable
+    v3      r6           register variable
+    v4      r7           register variable
+    v5      r8           register variable
+    sb/v6   r9           static base / register variable
+    sl/v7   r10          stack limit / stack chunk handle / reg. variable
+    fp      r11          frame pointer
+    ip      r12          scratch register / new-sb in inter-link-unit calls
+    sp      r13          lower end of current stack frame
+    lr      r14          link address / scratch register
+    pc      r15          program counter
+*/
 
 	.text
 	.globl _start
 	.type _start,#function
 _start:
-	/* Fetch address of fini */
-	ldr ip, =_fini
-
-	/* Clear the frame pointer since this is the outermost frame.  */
+	/* Clear the frame pointer and link register since this is the outermost frame.  */
 	mov fp, #0
+	mov lr, #0
 
 	/* Pop argc off the stack and save a pointer to argv */
 	ldr a2, [sp], #4
@@ -61,20 +93,46 @@ _start:
 	/* Push rtld_fini */
 	str a1, [sp, #-4]!
 
+#ifdef L_Scrt1
+	ldr sl, .L_GOT
+.L_GOT_OFF:
+	add sl, pc, sl
+
+	ldr ip, .L_GOT+4	/* _fini */
+	ldr a1, [sl, ip]
+	str a1, [sp, #-4]!	/* Push _fini */
+
+	ldr ip, .L_GOT+8	/* _init */
+	ldr a4, [sl, ip]
+	
+	ldr ip, .L_GOT+12	/* main */
+	ldr a1, [sl, ip]
+
+	/* __uClibc_main (main, argc, argv, init, fini, rtld_fini, stack_end) */
+	/* Let the libc call main and exit with its return code.  */
+	b __uClibc_main(PLT)
+#else
+	/* Fetch address of fini */
+	ldr ip, =_fini
+	/* Push fini */
+	str ip, [sp, #-4]!
+
 	/* Set up the other arguments in registers */
 	ldr a1, =main
 	ldr a4, =_init
 
-	/* Push fini */
-	str ip, [sp, #-4]!
-
 	/* __uClibc_main (main, argc, argv, init, fini, rtld_fini, stack_end) */
-
 	/* Let the libc call main and exit with its return code.  */
-	bl __uClibc_main
+	b __uClibc_main
+#endif
 
-	/* should never get here....*/
-	bl abort
+#ifdef L_Scrt1
+.L_GOT:
+	.word	_GLOBAL_OFFSET_TABLE_-(.L_GOT_OFF+8)
+	.word _fini(GOT)
+	.word _init(GOT)
+	.word main(GOT)
+#endif
 
 /* Define a symbol for the first piece of initialized data.  */
 	.data
