@@ -177,10 +177,8 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 		SEND_STDERR("Invalid ELF header\n");
 		_dl_exit(0);
 	}
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("ELF header=");
-	SEND_ADDRESS_STDERR(load_addr, 1);
-#endif
+	SEND_STDERR_DEBUG("ELF header=");
+	SEND_ADDRESS_STDERR_DEBUG(load_addr, 1);
 
 
 	/* Locate the global offset table.  Since this code must be PIC
@@ -189,17 +187,13 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	 * we can always read stuff out of the ELF file to find it... */
 	got = elf_machine_dynamic();
 	dpnt = (Elf32_Dyn *) (got + load_addr);
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("First Dynamic section entry=");
-	SEND_ADDRESS_STDERR(dpnt, 1);
-#endif
+	SEND_STDERR_DEBUG("First Dynamic section entry=");
+	SEND_ADDRESS_STDERR_DEBUG(dpnt, 1);
 	_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
 	tpnt->loadaddr = load_addr;
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("scanning DYNAMIC section\n");
-#endif
+	SEND_STDERR_DEBUG("scanning DYNAMIC section\n");
 	tpnt->dynamic_addr = dpnt;
 #if defined(__mips__) || defined(__cris__)
 	/* Some architectures cannot call functions here, must inline */
@@ -208,15 +202,11 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	_dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL, load_addr);
 #endif
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("done scanning DYNAMIC section\n");
-#endif
+	SEND_STDERR_DEBUG("done scanning DYNAMIC section\n");
 
 #if defined(__mips__)
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("About to do specific GOT bootstrap\n");
-#endif
+	SEND_STDERR_DEBUG("About to do specific GOT bootstrap\n");
 	/* For MIPS we have to do stuff to the GOT before we do relocations.  */
 	PERFORM_BOOTSTRAP_GOT(tpnt);
 
@@ -224,9 +214,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 
 	/* OK, now do the relocations.  We do not do a lazy binding here, so
 	   that once we are done, we have considerably more flexibility. */
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("About to do library loader relocations\n");
-#endif
+	SEND_STDERR_DEBUG("About to do library loader relocations\n");
 
 	{
 		int goof, indx;
@@ -279,11 +267,9 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 					sym = &symtab[symtab_index];
 					symbol_addr = load_addr + sym->st_value;
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-					SEND_STDERR("relocating symbol: ");
-					SEND_STDERR(strtab + sym->st_name);
-					SEND_STDERR("\n");
-#endif
+					SEND_STDERR_DEBUG("relocating symbol: ");
+					SEND_STDERR_DEBUG(strtab + sym->st_name);
+					SEND_STDERR_DEBUG("\n");
 				}
 				/* Use this machine-specific macro to perform the actual relocation.  */
 				PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, sym);
@@ -296,11 +282,9 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	}
 #endif
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
 	/* Wahoo!!! */
-	SEND_STDERR("Done relocating library loader, so we can now\n"
+	SEND_STDERR_DEBUG("Done relocating library loader, so we can now\n"
 			"\tuse globals and make function calls!\n");
-#endif
 
 	/* Now we have done the mandatory linking of some things.  We are now
 	   free to start using global variables, since these things have all been
@@ -310,10 +294,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 
 
 	/* Transfer control to the application.  */
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("transfering control to application\n");
-#endif
+	SEND_STDERR_DEBUG("transfering control to application\n");
 	_dl_elf_main = (int (*)(int, char **, char **)) auxvt[AT_ENTRY].a_un.a_fcn;
 	START();
 }
-

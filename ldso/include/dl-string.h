@@ -282,7 +282,7 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 	const char *tmp1 = (X); \
 	CONSTANT_STRING_GOT_FIXUP(tmp1); \
 	_dl_write(2, tmp1, _dl_strlen(tmp1)); \
-};
+}
 
 #define SEND_ADDRESS_STDERR(ADR, add_a_newline) \
 { \
@@ -319,6 +319,14 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
 	} while ((X) > 0); \
 	_dl_write(2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1); \
 }
+#endif
+
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+# define SEND_STDERR_DEBUG(X) SEND_STDERR(X)
+# define SEND_ADDRESS_STDERR_DEBUG(X, add_a_newline) SEND_ADDRESS_STDERR(X, add_a_newline)
+#else
+# define SEND_STDERR_DEBUG(X)
+# define SEND_ADDRESS_STDERR_DEBUG(X, add_a_newline)
 #endif
 
 #endif
