@@ -92,7 +92,7 @@ struct r_debug *_dl_debug_addr = NULL;
 #ifdef __SUPPORT_LD_DEBUG__
 # define _dl_if_debug_print(fmt, args...) \
 	do { \
-	if (_dl_debug)
+	if (_dl_debug) \
 		fprintf(stderr, "%s():%i: " fmt, __FUNCTION__, __LINE__, ## args); \
 	} while (0)
 #else
