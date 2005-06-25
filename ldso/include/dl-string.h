@@ -261,63 +261,64 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
  * disable the whole lot... */
 #if defined(__mips__)
 
-#define SEND_STDERR(X)
-#define SEND_ADDRESS_STDERR(X, add_a_newline)
-#define SEND_NUMBER_STDERR(X, add_a_newline)
+# define SEND_STDERR(X)
+# define SEND_ADDRESS_STDERR(X, add_a_newline)
+# define SEND_NUMBER_STDERR(X, add_a_newline)
 
 #else
 
 /* On some arches constant strings are referenced through the GOT.
  * This requires that load_addr must already be defined... */
 #if defined(mc68000) || defined(__arm__) || defined(__mips__)	\
-		     || defined(__sh__) ||  defined(__powerpc__)
-#   define CONSTANT_STRING_GOT_FIXUP(X)				\
-	    if ((X) < (const char *) load_addr) (X) += load_addr
+                     || defined(__sh__) ||  defined(__powerpc__)
+# define CONSTANT_STRING_GOT_FIXUP(X) \
+	if ((X) < (const char *) load_addr) (X) += load_addr
 #else
-#   define CONSTANT_STRING_GOT_FIXUP(X)
+# define CONSTANT_STRING_GOT_FIXUP(X)
 #endif
 
-
-#define SEND_STDERR(X) {					\
-    const char *tmp1 = (X);					\
-    CONSTANT_STRING_GOT_FIXUP(tmp1);				\
-    _dl_write (2, tmp1, _dl_strlen(tmp1));			\
+#define SEND_STDERR(X) \
+{ \
+	const char *tmp1 = (X); \
+	CONSTANT_STRING_GOT_FIXUP(tmp1); \
+	_dl_write(2, tmp1, _dl_strlen(tmp1)); \
 };
 
-#define SEND_ADDRESS_STDERR(ADR, add_a_newline) {		\
-    char tmp[26], v, *tmp2, *tmp1 = tmp;			\
-    unsigned long X = (unsigned long)(ADR);			\
-    CONSTANT_STRING_GOT_FIXUP(tmp1);				\
-    tmp2 = tmp1 + sizeof(tmp);					\
-    *--tmp2 = '\0';						\
-    if (add_a_newline) *--tmp2 = '\n';				\
-    do {							\
-	    v = (X) & 0xf;					\
-	    if (v <= 0x09)					\
-		*--tmp2 = '0' + v;				\
-	    else						\
-		*--tmp2 = 'a' - 0x0a + v;			\
-	    (X) >>= 4;						\
-    } while ((X) > 0);						\
-    *--tmp2 = 'x';						\
-    *--tmp2 = '0';						\
-    _dl_write (2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1);		\
-};
+#define SEND_ADDRESS_STDERR(ADR, add_a_newline) \
+{ \
+	char tmp[26], v, *tmp2, *tmp1 = tmp; \
+	unsigned long X = (unsigned long)(ADR); \
+	CONSTANT_STRING_GOT_FIXUP(tmp1); \
+	tmp2 = tmp1 + sizeof(tmp); \
+	*--tmp2 = '\0'; \
+	if (add_a_newline) *--tmp2 = '\n'; \
+	do { \
+		v = (X) & 0xf; \
+		if (v <= 0x09) \
+			*--tmp2 = '0' + v; \
+		else \
+			*--tmp2 = 'a' - 0x0a + v; \
+		(X) >>= 4; \
+	} while ((X) > 0); \
+	*--tmp2 = 'x'; \
+	*--tmp2 = '0'; \
+	_dl_write(2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1); \
+}
 
-#define SEND_NUMBER_STDERR(X, add_a_newline) {			\
-    char tmp[26], v, *tmp2, *tmp1 = tmp;			\
-    CONSTANT_STRING_GOT_FIXUP(tmp1);				\
-    tmp2 = tmp1 + sizeof(tmp);					\
-    *--tmp2 = '\0';						\
-    if (add_a_newline) *--tmp2 = '\n';				\
-    do {							\
-	do_rem(v, (X), 10);					\
-	*--tmp2 = '0' + v;					\
-	(X) /= 10;						\
-    } while ((X) > 0);						\
-    _dl_write (2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1);		\
-};
+#define SEND_NUMBER_STDERR(X, add_a_newline) \
+{ \
+	char tmp[26], v, *tmp2, *tmp1 = tmp; \
+	CONSTANT_STRING_GOT_FIXUP(tmp1); \
+	tmp2 = tmp1 + sizeof(tmp); \
+	*--tmp2 = '\0'; \
+	if (add_a_newline) *--tmp2 = '\n'; \
+	do { \
+		do_rem(v, (X), 10); \
+		*--tmp2 = '0' + v; \
+		(X) /= 10; \
+	} while ((X) > 0); \
+	_dl_write(2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1); \
+}
 #endif
-
 
 #endif
