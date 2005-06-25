@@ -32,16 +32,6 @@
 
 #include "ldso.h"
 
-#if defined (__SUPPORT_LD_DEBUG__)
-# define _dl_if_debug_dprint(fmt, args...) \
-	do { \
-	if (_dl_debug) \
-		_dl_dprintf(_dl_debug_file, "%s():%i: " fmt, __FUNCTION__, __LINE__, ## args); \
-	} while (0)
-#else
-# define _dl_if_debug_dprint(fmt, args...)
-#endif
-
 #ifdef __LDSO_CACHE_SUPPORT__
 
 static caddr_t _dl_cache_addr = NULL;

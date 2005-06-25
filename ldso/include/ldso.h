@@ -55,8 +55,14 @@ extern char *_dl_debug_detail;
 extern char *_dl_debug_nofixups;
 extern char *_dl_debug_bindings;
 extern int   _dl_debug_file;
+# define _dl_if_debug_dprint(fmt, args...) \
+	do { \
+	if (_dl_debug) \
+		_dl_dprintf(_dl_debug_file, "%s():%i: " fmt, __FUNCTION__, __LINE__, ## args); \
+	} while (0)
 #else
-#define _dl_debug_file 2
+# define _dl_if_debug_dprint(fmt, args...)
+# define _dl_debug_file 2
 #endif
 
 #ifndef NULL
@@ -72,6 +78,4 @@ extern void _dl_dprintf(int, const char *, ...);
 extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		Elf32_auxv_t auxvt[AT_EGID + 1], char **envp, char **argv);
 
-
 #endif /* _LDSO_H_ */
-
