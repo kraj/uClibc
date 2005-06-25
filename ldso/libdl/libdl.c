@@ -87,6 +87,16 @@ struct r_debug *_dl_debug_addr = NULL;
 #include "../ldso/dl-hash.c"
 #define _dl_trace_loaded_objects    0
 #include "../ldso/dl-elf.c"
+#endif /* __LIBDL_SHARED__ */
+
+#ifdef __SUPPORT_LD_DEBUG__
+# define _dl_if_debug_print(fmt, args...) \
+	do { \
+	if (_dl_debug)
+		fprintf(stderr, "%s():%i: " fmt, __FUNCTION__, __LINE__, ## args); \
+	} while (0)
+#else
+# define _dl_if_debug_print(fmt, args...)
 #endif
 
 static int do_dlclose(void *, int need_fini);
@@ -176,11 +186,8 @@ void *dlopen(const char *libname, int flag)
 		now_flag = RTLD_NOW;
 
 	/* Try to load the specified library */
-#ifdef __SUPPORT_LD_DEBUG__
-	if(_dl_debug)
-		fprintf(stderr, "Trying to dlopen '%s', RTLD_GLOBAL:%d RTLD_NOW:%d\n", (char*)libname,
-			flag & RTLD_GLOBAL ? 1:0,  now_flag & RTLD_NOW ? 1:0);
-#endif
+	_dl_if_debug_print("Trying to dlopen '%s', RTLD_GLOBAL:%d RTLD_NOW:%d\n",
+			(char*)libname, (flag & RTLD_GLOBAL ? 1:0), (now_flag & RTLD_NOW ? 1:0));
 	tpnt = _dl_load_shared_library(0, &rpnt, tfrom, (char*)libname, 0);
 
 	if (tpnt == NULL) {
@@ -196,10 +203,7 @@ void *dlopen(const char *libname, int flag)
 	_dl_handles = dyn_ptr = dyn_chain;
 
 	if (tpnt->usage_count > 1) {
-#ifdef __SUPPORT_LD_DEBUG__
-		if(_dl_debug)
-			fprintf(stderr, "Lib: % already opened\n", libname);
-#endif
+		_dl_if_debug_print("Lib: %s already opened\n", libname);
 		/* see if there is a handle from a earlier dlopen */
 		for (handle = _dl_handles->next_handle; handle; handle = handle->next_handle) {
 			if (handle->dyn == tpnt) {
@@ -216,10 +220,7 @@ void *dlopen(const char *libname, int flag)
 		tpnt->init_flag |= DL_OPENED;
 	}
 
-#ifdef __SUPPORT_LD_DEBUG__
-	if(_dl_debug)
-		fprintf(stderr, "Looking for needed libraries\n");
-#endif
+	_dl_if_debug_print("Looking for needed libraries\n");
 	nlist = 0;
 	runp = alloca(sizeof(*runp));
 	runp->tpnt = tpnt;
@@ -239,11 +240,8 @@ void *dlopen(const char *libname, int flag)
 				lpntstr = (char*) (runp->tpnt->dynamic_info[DT_STRTAB] +
 						dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
-#ifdef __SUPPORT_LD_DEBUG__
-				if(_dl_debug)
-					fprintf(stderr, "Trying to load '%s', needed by '%s'\n",
-							lpntstr, runp->tpnt->libname);
-#endif
+				_dl_if_debug_print("Trying to load '%s', needed by '%s'\n",
+						lpntstr, runp->tpnt->libname);
 				tpnt1 = _dl_load_shared_library(0, &rpnt, runp->tpnt, lpntstr, 0);
 				if (!tpnt1)
 					goto oops;
@@ -267,11 +265,8 @@ void *dlopen(const char *libname, int flag)
 
 					for (tmp=dep_list; tmp; tmp = tmp->next) {
 						if (tpnt1 == tmp->tpnt) { /* if match => cirular dependency, drop it */
-#ifdef __SUPPORT_LD_DEBUG__
-							if(_dl_debug)
-								fprintf(stderr, "Circular dependency, skipping '%s',\n",
+							_dl_if_debug_print("Circular dependency, skipping '%s',\n",
 									tmp->tpnt->libname);
-#endif
 							tpnt1->usage_count--;
 							break;
 						}
@@ -313,10 +308,7 @@ void *dlopen(const char *libname, int flag)
 			for (; runp; runp = runp->next) {
 				if (runp->tpnt == runp2->tpnt) {
 					struct elf_resolve *here = init_fini_list[k];
-#ifdef __SUPPORT_LD_DEBUG__
-					if(_dl_debug)
-						fprintf(stderr, "Move %s from pos %d to %d in INIT/FINI list.\n", here->libname, k, j);
-#endif
+					_dl_if_debug_print("Move %s from pos %d to %d in INIT/FINI list.\n", here->libname, k, j);
 					for (i = (k - j); i; --i)
 						init_fini_list[i+j] = init_fini_list[i+j-1];
 					init_fini_list[j] = here;
@@ -332,17 +324,14 @@ void *dlopen(const char *libname, int flag)
 		for (i=0;i < nlist;i++) {
 			fprintf(stderr, "lib: %s has deps:\n", init_fini_list[i]->libname);
 			runp = init_fini_list[i]->init_fini;
-			for ( ;runp; runp = runp->next)
+			for (; runp; runp = runp->next)
 				printf(" %s ", runp->tpnt->libname);
 			printf("\n");
 		}
 	}
 #endif
 
-#ifdef __SUPPORT_LD_DEBUG__
-	if(_dl_debug)
-		fprintf(stderr, "Beginning dlopen relocation fixups\n");
-#endif
+	_dl_if_debug_print("Beginning dlopen relocation fixups\n");
 	/*
 	 * OK, now all of the kids are tucked into bed in their proper addresses.
 	 * Now we go through and look for REL and RELA records that indicate fixups
@@ -390,10 +379,8 @@ void *dlopen(const char *libname, int flag)
 			void (*dl_elf_func) (void);
 			dl_elf_func = (void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
 			if (dl_elf_func && *dl_elf_func != NULL) {
-#ifdef __SUPPORT_LD_DEBUG__
-				if(_dl_debug)
-					fprintf(stderr, "running ctors for library %s at '%x'\n", tpnt->libname, (unsigned)dl_elf_func);
-#endif
+				_dl_if_debug_print("running ctors for library %s at '%x'\n",
+						tpnt->libname, (unsigned)dl_elf_func);
 				(*dl_elf_func) ();
 			}
 		}
@@ -493,10 +480,8 @@ static int do_dlclose(void *vhandle, int need_fini)
 		rpnt1->next_handle = rpnt->next_handle;
 	else
 		_dl_handles = rpnt->next_handle;
-#ifdef __SUPPORT_LD_DEBUG__
-	if(_dl_debug)
-		fprintf(stderr, "dlclose: %s, usage count: %d\n", handle->dyn->libname, handle->dyn->usage_count);
-#endif
+	_dl_if_debug_print("%s: usage count: %d\n",
+			handle->dyn->libname, handle->dyn->usage_count);
 	if (handle->dyn->usage_count != 1) {
 		handle->dyn->usage_count--;
 		free(handle);
@@ -510,17 +495,12 @@ static int do_dlclose(void *vhandle, int need_fini)
 			    !(tpnt->init_flag & FINI_FUNCS_CALLED)) {
 				tpnt->init_flag |= FINI_FUNCS_CALLED;
 				dl_elf_fini = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
-#ifdef __SUPPORT_LD_DEBUG__
-				if(_dl_debug)
-					fprintf(stderr, "running dtors for library %s at '%x'\n", tpnt->libname, (unsigned)dl_elf_fini);
-#endif
+				_dl_if_debug_print("running dtors for library %s at '%x'\n",
+						tpnt->libname, (unsigned)dl_elf_fini);
 				(*dl_elf_fini) ();
 			}
 
-#ifdef __SUPPORT_LD_DEBUG__
-			if(_dl_debug)
-				fprintf(stderr, "dlclose unmapping: %s\n", tpnt->libname);
-#endif
+			_dl_if_debug_print("unmapping: %s\n", tpnt->libname);
 			end = 0;
 			for (i = 0, ppnt = tpnt->ppnt;
 					i < tpnt->n_phent; ppnt++, i++) {
@@ -544,10 +524,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 			} else
 				for (run_tpnt = _dl_loaded_modules; run_tpnt; run_tpnt = run_tpnt->next)
 					if (run_tpnt->next == tpnt) {
-#ifdef __SUPPORT_LD_DEBUG__
-						if(_dl_debug)
-							fprintf(stderr, "dlclose removing loaded_modules: %s\n", tpnt->libname);
-#endif
+						_dl_if_debug_print("removing loaded_modules: %s\n", tpnt->libname);
 						run_tpnt->next = run_tpnt->next->next;
 						if (run_tpnt->next)
 							run_tpnt->next->prev = run_tpnt;
@@ -562,10 +539,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 			} else
 				for (rpnt1 = _dl_symbol_tables; rpnt1->next; rpnt1 = rpnt1->next) {
 					if (rpnt1->next->dyn == tpnt) {
-#ifdef __SUPPORT_LD_DEBUG__
-						if(_dl_debug)
-							fprintf(stderr, "dlclose removing symbol_tables: %s\n", tpnt->libname);
-#endif
+						_dl_if_debug_print("removing symbol_tables: %s\n", tpnt->libname);
 						free(rpnt1->next);
 						rpnt1->next = rpnt1->next->next;
 						if (rpnt1->next)
