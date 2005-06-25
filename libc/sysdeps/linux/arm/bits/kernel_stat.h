@@ -29,28 +29,27 @@ struct kernel_stat {
 };
 
 struct kernel_stat64 {
-	unsigned short	st_dev;
-	unsigned char	__pad0[10];
+	unsigned short     st_dev;
+	unsigned char      __pad0[10];
 #define _HAVE_STAT64___ST_INO
-	unsigned long	__st_ino;
-	unsigned int	st_mode;
-	unsigned int	st_nlink;
-	unsigned long	st_uid;
-	unsigned long	st_gid;
-	unsigned short	st_rdev;
-	unsigned char	__pad3[10];
-	long long	st_size;
-	unsigned long	st_blksize;
-	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
-	unsigned long	__pad4;		/* future possible st_blocks high bits */
-	unsigned long	st_atime;
-	unsigned long	st_atime_nsec;
-	unsigned long	st_mtime;
-	unsigned long	st_mtime_nsec;
-	unsigned long	st_ctime;
-	unsigned long	st_ctime_nsec;
-	unsigned long long	st_ino;
+	unsigned long      __st_ino;
+	unsigned int       st_mode;
+	unsigned int       st_nlink;
+	unsigned long      st_uid;
+	unsigned long      st_gid;
+	unsigned short     st_rdev;
+	unsigned char      __pad3[10];
+	long long          st_size;
+	unsigned long      st_blksize;
+	unsigned long      st_blocks;  /* Number 512-byte blocks allocated. */
+	unsigned long      __pad4;     /* future possible st_blocks high bits */
+	unsigned long      st_atime;
+	unsigned long      st_atime_nsec;
+	unsigned long      st_mtime;
+	unsigned long      st_mtime_nsec;
+	unsigned long      st_ctime;
+	unsigned long      st_ctime_nsec;
+	unsigned long long st_ino;
 };
 
 #endif	/*  _BITS_STAT_STRUCT_H */
-
