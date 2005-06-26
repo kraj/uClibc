@@ -40,9 +40,8 @@
 	.type	__uClibc_main,%function
 
 _start:
-	mr	r10,r1 	/* Save the stack pointer */
+	mr	r9,r1 	/* Save the stack pointer and pass it to __uClibc_main */
 	clrrwi	r1,r1,4	/* Align stack ptr to 16 bytes */
-	mr	r9,r1 	/* Pass aligned stack ptr */
 #ifdef __PIC__
 	bl	_GLOBAL_OFFSET_TABLE_-4@local
 	mflr	r31
@@ -53,9 +52,9 @@ _start:
 	mtlr	r0
 	stw	r0,0(r1)
 	/* find argc from the stack pointer */
-	lwz	r4,0(r10)
+	lwz	r4,0(r9)
 	/* find argv one word offset from the stack pointer */
-	addi	r5,r10,4
+	addi	r5,r9,4
 	mr	r8,r7 /* Pass _dl_fini from ldso or NULL if statically linked */
 	/* Ok, now run uClibc's main() -- shouldn't return */
 #ifdef __PIC__
