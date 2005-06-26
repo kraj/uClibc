@@ -126,7 +126,7 @@ _start:
 	b __uClibc_main
 #endif
 
-#ifdef __PIC_
+#ifdef __PIC__
 .L_GOT:
 	.word	_GLOBAL_OFFSET_TABLE_-(.L_GOT_OFF+8)
 	.word _fini(GOT)
