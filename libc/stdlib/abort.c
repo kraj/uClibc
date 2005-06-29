@@ -61,70 +61,70 @@ Cambridge, MA 02139, USA.  */
 extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
 static int been_there_done_that = 0;
 
-/* Be prepared in case multiple threads try to abort().  */
+/* Be prepared in case multiple threads try to abort() */
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
+# include <pthread.h>
 static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 # define LOCK	__pthread_mutex_lock(&mylock)
-# define UNLOCK	__pthread_mutex_unlock(&mylock);
+# define UNLOCK	__pthread_mutex_unlock(&mylock)
 #else
 # define LOCK
 # define UNLOCK
 #endif
 
 
-/* Cause an abnormal program termination with core-dump.  */
+/* Cause an abnormal program termination with core-dump */
 void abort(void)
 {
-    sigset_t sigset;
+	sigset_t sigset;
 
-      /* Make sure we acquire the lock before proceeding.  */
-      LOCK;
+	/* Make sure we acquire the lock before proceeding */
+	LOCK;
 
-    /* Unmask SIGABRT to be sure we can get it */
-    if (__sigemptyset(&sigset) == 0 && __sigaddset(&sigset, SIGABRT) == 0) {
-	sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
-    }
+	/* Unmask SIGABRT to be sure we can get it */
+	if (__sigemptyset(&sigset) == 0 && __sigaddset(&sigset, SIGABRT) == 0) {
+		sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
+	}
 
-    while (1) {
-	/* Try to suicide with a SIGABRT.  */
-	if (been_there_done_that == 0) {
-	    been_there_done_that++;
+	while (1) {
+		/* Try to suicide with a SIGABRT */
+		if (been_there_done_that == 0) {
+			been_there_done_that++;
 abort_it:
-	    UNLOCK;
-	    raise(SIGABRT);
-	    LOCK;
+			UNLOCK;
+			raise(SIGABRT);
+			LOCK;
+		}
+
+		/* Still here?  Try to remove any signal handlers */
+		if (been_there_done_that == 1) {
+			struct sigaction act;
+
+			been_there_done_that++;
+			memset(&act, '\0', sizeof(struct sigaction));
+			act.sa_handler = SIG_DFL;
+			__sigfillset(&act.sa_mask);
+			act.sa_flags = 0;
+			sigaction(SIGABRT, &act, NULL);
+
+			goto abort_it;
+		}
+
+		/* Still here?  Try to suicide with an illegal instruction */
+		if (been_there_done_that == 2) {
+			been_there_done_that++;
+			ABORT_INSTRUCTION;
+		}
+
+		/* Still here?  Try to at least exit */
+		if (been_there_done_that == 3) {
+			been_there_done_that++;
+			_exit(127);
+		}
+
+		/* Still here?  We're screwed.  Sleepy time.  Good night. */
+		while (1)
+			/* Try for ever and ever */
+			ABORT_INSTRUCTION;
 	}
-
-	/* Still here?  Try to remove any signal handlers.  */
-	if (been_there_done_that == 1) {
-	    struct sigaction act;
-
-	    been_there_done_that++;
-	    memset (&act, '\0', sizeof (struct sigaction));
-	    act.sa_handler = SIG_DFL;
-	    __sigfillset (&act.sa_mask);
-	    act.sa_flags = 0;
-	    sigaction (SIGABRT, &act, NULL);
-
-	    goto abort_it;
-	}
-
-	/* Still here?  Try to suicide with an illegal instruction */
-	if (been_there_done_that == 2) {
-	    been_there_done_that++;
-	    ABORT_INSTRUCTION;
-	}
-
-	/* Still here?  Try to at least exit */
-	if (been_there_done_that == 3) {
-	    been_there_done_that++;
-	    _exit (127);
-	}
-
-	/* Still here?  We're screwed.  Sleepy time.  Good night */
-	while (1)
-	    /* Try for ever and ever.  */
-	    ABORT_INSTRUCTION;
-    }
 }
