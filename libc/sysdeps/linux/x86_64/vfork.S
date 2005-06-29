@@ -18,15 +18,24 @@
 
 #define _ERRNO_H	1
 #include <bits/errno.h>
+#include <sys/syscall.h>
 
 /* Clone the calling process, but without copying the whole address space.
    The calling process is suspended until the new process exits or is
    replaced by a call to `execve'.  Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
 
-.globl __vfork;
-.type	__vfork,@function;
-.align 16;
+#ifndef __NR_vfork
+#error wtf
+/* No vfork so use fork instead */
+.weak vfork ; vfork = __libc_fork
+
+#else
+
+.text
+.globl __vfork
+.type	__vfork,@function
+.align 16
 __vfork:
 
 	/* Pop the return PC value into RDI.  We need a register that
@@ -41,13 +50,17 @@ __vfork:
 	pushq	%rdi
 
 	cmpl	$-4095, %eax
-	jae __syscall_error		/* Branch forward if it failed.  */
+	jae __error		/* Branch forward if it failed.  */
 
 	/* Normal return.  */
 	ret
 
-__syscall_error:
-	/* TODO: implement this ! :D */
+__error:
+	jmp __syscall_error
 
-.size	 __vfork,.Lsize-__vfork
-.weak vfork ; vfork = __vfork
+.size __vfork,.-__vfork
+
+.weak vfork
+	vfork = __vfork
+
+#endif /* __NR_vfork */

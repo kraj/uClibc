@@ -48,17 +48,17 @@
    r8:	thread pointer  */
 
 
-        .text
+.text
 .globl __clone;
 .type	__clone,@function
-.align 4;
+.align 4
 __clone:
 	/* Sanity check arguments.  */
 	movq	$-EINVAL,%rax
 	testq	%rdi,%rdi		/* no NULL function pointers */
-	jz	__syscall_error
+	jz	__error
 	testq	%rsi,%rsi		/* no NULL stack pointers */
-	jz	__syscall_error
+	jz	__error
 
 	/* Insert the argument onto the new stack.  */
 	subq	$16,%rsi
@@ -73,12 +73,12 @@ __clone:
 	movq	%r8, %rdx
 	movq	%r9, %r8
 	movq	8(%rsp), %r10
-	movq	$__NR_clone,%rax
+	movq	__NR_clone,%rax
 
 	syscall
 
 	testq	%rax,%rax
-	jl	__syscall_error
+	jl	__error
 	jz	L(thread_start)
 
 L(pseudo_end):
@@ -110,7 +110,7 @@ L(thread_start):
 	movq	%rax, %rdi
 	call	HIDDEN_JUMPTARGET (_exit)
 
-	cfi_startproc;
-PSEUDO_END (BP_SYM (__clone))
+.size __clone,.-__clone
 
-weak_alias (BP_SYM (__clone), BP_SYM (clone))
+.weak clone
+	clone = __clone
