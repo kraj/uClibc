@@ -164,6 +164,12 @@ ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
 	return (__socketcall(SYS_RECV, args));
 }
 weak_alias(__libc_recv, recv);
+#elif defined(__NR_recvfrom)
+ssize_t __libc_recv(int sockfd, __ptr_t buffer, size_t len, int flags)
+{
+	return (recvfrom(sockfd, buffer, len, flags, NULL, NULL));
+}
+weak_alias(__libc_recv, recv);
 #endif
 #endif
 
@@ -225,6 +231,12 @@ ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
 	args[2] = len;
 	args[3] = flags;
 	return (__socketcall(SYS_SEND, args));
+}
+weak_alias(__libc_send, send);
+#elif defined(__NR_sendto)
+ssize_t __libc_send(int sockfd, const void *buffer, size_t len, int flags)
+{
+	return (sendto(sockfd, buffer, len, flags, NULL, 0));
 }
 weak_alias(__libc_send, send);
 #endif
