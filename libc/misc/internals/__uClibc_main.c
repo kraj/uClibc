@@ -32,6 +32,7 @@ extern void __guard_setup(void);
 /*
  * Prototypes.
  */
+extern void *__libc_stack_end;
 extern void weak_function _stdio_init(void);
 extern int *weak_const_function __errno_location(void);
 extern int *weak_const_function __h_errno_location(void);
@@ -172,7 +173,7 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     unsigned long *aux_dat;
     Elf32_auxv_t auxvt[AT_EGID + 1];
 #endif
-
+    __libc_stack_end = stack_end;
     /* We need to initialize uClibc.  If we are dynamically linked this
      * may have already been completed by the shared lib loader.  We call
      * __uClibc_init() regardless, to be sure the right thing happens. */
