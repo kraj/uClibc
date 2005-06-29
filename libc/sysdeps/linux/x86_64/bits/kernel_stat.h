@@ -44,4 +44,7 @@ struct __old_kernel_stat {
 	unsigned int  st_ctime;
 };
 
+/* x86-64 stat64 is same as stat */
+#define kernel_stat64 kernel_stat
+
 #endif
