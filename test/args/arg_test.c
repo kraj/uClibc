@@ -23,9 +23,10 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
-int main( int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int i=0;
 	char** index=__environ;
@@ -42,7 +43,7 @@ int main( int argc, char **argv)
 	
 	fprintf(stderr, "argc=%d\n", argc);
 
-	for(i=0;i<argc;i++){
+	for(i=0;i<argc;i++) {
 		fprintf(stderr, "argv[%d]='%s'\n", i, argv[i]);
 	}
 
