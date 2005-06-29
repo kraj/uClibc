@@ -90,6 +90,7 @@ void abort(void)
 	/* Try to suicide with a SIGABRT.  */
 	if (been_there_done_that == 0) {
 	    been_there_done_that++;
+abort_it:
 	    UNLOCK;
 	    raise(SIGABRT);
 	    LOCK;
@@ -105,6 +106,8 @@ void abort(void)
 	    __sigfillset (&act.sa_mask);
 	    act.sa_flags = 0;
 	    sigaction (SIGABRT, &act, NULL);
+
+	    goto abort_it;
 	}
 
 	/* Still here?  Try to suicide with an illegal instruction */
@@ -125,4 +128,3 @@ void abort(void)
 	    ABORT_INSTRUCTION;
     }
 }
-
