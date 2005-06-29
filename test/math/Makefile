@@ -16,10 +16,8 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
+include ../Rules.mak
 
-
-TESTDIR=../
-include $(TESTDIR)/Rules.mak
 CFLAGS+=-D_GNU_SOURCE -DNO_LONG_DOUBLE
 EXTRA_LIBS=-lm
 PERL=/usr/bin/perl

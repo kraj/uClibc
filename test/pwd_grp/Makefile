@@ -16,9 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-TESTDIR=../
-include $(TESTDIR)/Rules.mak
-
+include ../Rules.mak
 
 TARGETS=test_pwd test_pwd_glibc
 TARGETS+=test_grp test_grp_glibc

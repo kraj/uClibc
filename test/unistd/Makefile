@@ -16,10 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-TESTDIR=../
-include $(TESTDIR)/Rules.mak
-
-
+include ../Rules.mak
 
 TARGETS=fork fork_glibc vfork vfork_glibc getcwd getopt getopt_long preadwrite 
 all: $(TARGETS)
