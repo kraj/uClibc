@@ -18,6 +18,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
+
 #define a0      $16     /* argument registers (caller-saved) */
 #define a1      $17
 #define a2      $18
