@@ -1,6 +1,7 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 
 #define N_PTRS 1000
