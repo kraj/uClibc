@@ -1,5 +1,5 @@
 /* Startup code compliant to the ELF x86-64 ABI.
-   Copyright (C) 2001, 2002, 2003 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002, 2003, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Andreas Jaeger <aj@suse.de>, 2001.
 
@@ -59,24 +59,25 @@
 #include <features.h>
 
 .text
-	.global	_start
-	.type	_start,%function
-#if defined L_crt0 || defined L_Scrt0 || ! defined __UCLIBC_CTOR_DTOR__
-	.type	__uClibc_main,%function
+.global	_start
+.type   _start,@function
+#if defined(__UCLIBC_CTOR_DTOR__)
+.type	_init,@function
+.type	_fini,@function
 #else
-	.weak	_init
-	.weak	_fini
-	.type	__uClibc_start_main,%function
+.weak	_init
+.weak	_fini
 #endif
+.type	__uClibc_main,@function
 /* Stick in a dummy reference to main(), so that if an application
  * is linking when the main() function is in a static library (.a)
  * we can be sure that main() actually gets linked in */
-	.type	main,%function
+.type	main,@function
 
 _start:
 	/* Clear the frame pointer.  The ABI suggests this be done, to mark
 	   the outermost frame obviously.  */
-	xorq %rbp, %rbp
+	xorl %ebp, %ebp
 
 	/* Extract the arguments as encoded on the stack and set up
 	   the arguments for __libc_start_main (int (*main) (int, char **, char **),
@@ -92,8 +93,6 @@ _start:
 	rtld_fini:	%r9
 	stack_end:	stack.	*/
 
-#if 0
-	/* glibc */
 	movq %rdx, %r9   /* Address of the shared library termination function. */
 	popq %rsi        /* Pop the argument count. */
 	movq %rsp, %rdx  /* argv starts just at the current stack top. */
@@ -101,16 +100,7 @@ _start:
 	addq $8, %rbx
 	shl  $0x3, %rbx  /* envp *= 8 */
 	addq %rdx, %rbx  /* envp += argv */
-#else
-	/* uclibc */
-	movq %rdx, %r9   /* Address of the shared library termination function. */
-	popq %rdi        /* Pop the argument count. */
-	movq %rsp, %rsi  /* argv starts just at the current stack top. */
-	movq %rdi, %rdx  /* now we calc envp ... envp = argc */
-	addq $8, %rdx
-	shl  $0x3, %rdx  /* envp *= 8 */
-	addq %rsi, %rdx  /* envp += argv */
-#endif
+
 	/* Align the stack to a 16 byte boundary to follow the ABI. */
 	andq $~15, %rsp
 
@@ -120,52 +110,24 @@ _start:
 	   which grow downwards).  */
 	pushq %rsp
 
+	/* Give address for main() */
+	movq $main, %rdi
+
+	/* setup init/fini address */
+	movq $_init, %rcx
+	movq $_fini, %r8
+
 /**************
  * START TODO */
-#if defined L_Scrt0 || defined L_Scrt1
+#if defined(L_Scrt1)
 	call .L0
 .L0:
 	popq %rbx
 	addq $_GLOBAL_OFFSET_TABLE_+[.-.L0],%rbx
-#endif
 
-#if (defined L_crt1 || defined L_Scrt1) && defined __UCLIBC_CTOR_DTOR__
-	/* Push .init and .fini arguments to __uClibc_start_main() on the stack */
-#ifdef L_Scrt1
-	pushl _fini@GOT(%rip)
-	pushl _init@GOT(%rip)
-#else
-	pushl $_fini
-	pushl $_init
-#endif
-
-	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */
-#if 0
-	pushq %rdx /* Environment pointer */
-	pushq %rsi /* Argument pointer */
-	pushq %rdi /* And the argument count */
-#endif
-
-	/* Ok, now run uClibc's main() -- shouldn't return */
-#ifdef L_Scrt1
-	call *__uClibc_start_main@GOT(%rip)
-#else
-	call __uClibc_start_main
-#endif
-#else
-
-	/* Push envp, argc, and argc arguments to __uClibc_start_main() on the stack */
-#if 0
-	pushq %rdx /* Environment pointer */
-	pushq %rsi /* Argument pointer */
-	pushq %rdi /* And the argument count */
-#endif
-
-#ifdef L_Scrt0
 	call *__uClibc_main@GOT(%rip)
 #else
 	call __uClibc_main
-#endif
 #endif
 /* END TODO *
  ************/
@@ -174,9 +136,9 @@ _start:
 .size _start,.-_start
 
 /* Define a symbol for the first piece of initialized data.  */
-	.data
-	.globl __data_start
+.data
+.globl __data_start
 __data_start:
-	.long 0
-	.weak data_start
+.long 0
+.weak data_start
 	data_start = __data_start
