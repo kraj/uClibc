@@ -2,18 +2,17 @@
 
 .file	"initfini.c"
 
-
 .section .init
-.globl _init
-.type	_init, @function
-	addq	$8, %rsp
+.global  _init
+.type    _init, @function
+	addq $8, %rsp
 	ret
-.size	_init, .-_init
+.size _init,.-_init
 
 
 .section .fini
-.globl _fini
-.type	_fini, @function
-	addq	$8, %rsp
+.global  _fini
+.type    _fini, @function
+	addq $8, %rsp
 	ret
-.size	_fini, .-_fini
+.size _fini, .-_fini
