@@ -19,6 +19,8 @@
  *         syscall(__NR_exit, 42);
  * and things will just work.
  */
+
+#include <features.h>
 	
 .text
 	.align 4

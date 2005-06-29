@@ -54,6 +54,8 @@
 					NULL
 */
 
+#include <features.h>
+
 	.text
 	.globl	_start
 	.type	_start,@function
