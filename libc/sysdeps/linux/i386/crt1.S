@@ -57,8 +57,13 @@
 	.text
 	.globl	_start
 	.type	_start,@function
+#if defined(__UCLIBC_CTOR_DTOR__)
 	.type	_init,%function
 	.type	_fini,%function
+#else
+	.weak	_init
+	.weak	_fini
+#endif
 	.type	main,%function
 	.type	__uClibc_main,%function
 _start:
