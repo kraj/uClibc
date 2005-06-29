@@ -16,6 +16,7 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include <features.h>
 /* Integer registers.  */
 #define r0      0
 #define r1      1
@@ -36,6 +37,10 @@
 	.type	_start,%function
 	.type	_init,%function
 	.type	_fini,%function
+#ifndef __UCLIBC_CTOR_DTOR__
+	.weak _init
+	.weak _fini
+#endif
 	.type	main,%function
 	.type	__uClibc_main,%function
 
