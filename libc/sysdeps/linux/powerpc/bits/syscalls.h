@@ -27,10 +27,9 @@
 	".align 2\n\t"					\
 	".globl " __STRINGIFY(name) "\n\t"		\
 	".type " __STRINGIFY(name) ",@function\n\t"	\
-	#name":\n\tli 0," __STRINGIFY(__NR_##name) "\n\t"	\
+	#name":\tli 0," __STRINGIFY(__NR_##name) "\n\t"	\
 	"b " __MAKE_SYSCALL "\n\t"		\
-	".Lfe1" __STRINGIFY(name) ":\n\t"			\
-	".size\t" __STRINGIFY(name) ",.Lfe1" __STRINGIFY(name) "-" __STRINGIFY(name) "\n"	\
+	".size\t" __STRINGIFY(name) ",.""-" __STRINGIFY(name) "\n"	\
 	)
 
 #undef _syscall0
