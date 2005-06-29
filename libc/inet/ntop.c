@@ -58,10 +58,12 @@ inet_ntop4(const u_char *src, char *dst, size_t size)
 	i = 0;
 	for (octet = 0; octet <= 3; octet++) {
 
+#if 0	/* since src is unsigned char, it will never be > 255 ... */
 		if (src[octet] > 255) {
 			__set_errno (ENOSPC);
 			return (NULL);
 		}
+#endif
 		tmp[i++] = '0' + src[octet] / 100;
 		if (tmp[i - 1] == '0') {
 			tmp[i - 1] = '0' + (src[octet] / 10 % 10);
