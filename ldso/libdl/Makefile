@@ -62,11 +62,11 @@ $(LIBDL): $(OBJS)
 $(LIBDL_PIC): $(PIC_OBJS)
 	$(AR) $(ARFLAGS) $(LIBDL_PIC) $(PIC_OBJS)
 
-libdl.o: libdl.c
+libdl.o: libdl.c $(TOPDIR)ldso/include/*.h
 	$(CC) $(XXFLAGS_NOPIC) -c libdl.c -o libdl.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-libdl_pic.o: libdl.c
+libdl_pic.o: libdl.c ../include/*.h
 	$(CC) $(XXFLAGS) -c libdl.c -o libdl_pic.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 

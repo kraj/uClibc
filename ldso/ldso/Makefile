@@ -83,7 +83,7 @@ $(LDSO_FULLNAME): $(OBJS) $(DLINK_OBJS)
 	$(INSTALL) -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
 	$(LN) -sf $(LDSO_FULLNAME) $(TOPDIR)lib/$(UCLIBC_LDSO)
 
-$(COBJS): %.o : %.c
+$(COBJS): %.o : %.c $(TOPDIR)ldso/include/*.h
 	$(CC) $(XXFLAGS) -I../libdl -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
