@@ -66,7 +66,7 @@ libdl.o: libdl.c $(TOPDIR)ldso/include/*.h
 	$(CC) $(XXFLAGS_NOPIC) -c libdl.c -o libdl.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-libdl_pic.o: libdl.c ../include/*.h
+libdl_pic.o: libdl.c $(TOPDIR)ldso/include/*.h
 	$(CC) $(XXFLAGS) -c libdl.c -o libdl_pic.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
