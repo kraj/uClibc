@@ -379,8 +379,8 @@ void *dlopen(const char *libname, int flag)
 			void (*dl_elf_func) (void);
 			dl_elf_func = (void (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
 			if (dl_elf_func && *dl_elf_func != NULL) {
-				_dl_if_debug_print("running ctors for library %s at '%x'\n",
-						tpnt->libname, (unsigned)dl_elf_func);
+				_dl_if_debug_print("running ctors for library %s at '%p'\n",
+						tpnt->libname, dl_elf_func);
 				(*dl_elf_func) ();
 			}
 		}
@@ -495,8 +495,8 @@ static int do_dlclose(void *vhandle, int need_fini)
 			    !(tpnt->init_flag & FINI_FUNCS_CALLED)) {
 				tpnt->init_flag |= FINI_FUNCS_CALLED;
 				dl_elf_fini = (int (*)(void)) (tpnt->loadaddr + tpnt->dynamic_info[DT_FINI]);
-				_dl_if_debug_print("running dtors for library %s at '%x'\n",
-						tpnt->libname, (unsigned)dl_elf_fini);
+				_dl_if_debug_print("running dtors for library %s at '%p'\n",
+						tpnt->libname, dl_elf_fini);
 				(*dl_elf_fini) ();
 			}
 
@@ -598,24 +598,21 @@ int dlinfo(void)
 	fprintf(stderr, "List of loaded modules\n");
 	/* First start with a complete list of all of the loaded files. */
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-		fprintf(stderr, "\t%x %x %x %s %d %s\n",
-				(unsigned) tpnt->loadaddr, (unsigned) tpnt,
-				(unsigned) tpnt->symbol_scope,
-				type[tpnt->libtype],
-				tpnt->usage_count, tpnt->libname);
+		fprintf(stderr, "\t%p %p %p %s %d %s\n",
+		        tpnt->loadaddr, tpnt, tpnt->symbol_scope,
+		        type[tpnt->libtype],
+		        tpnt->usage_count, tpnt->libname);
 	}
 
 	/* Next dump the module list for the application itself */
-	fprintf(stderr, "\nModules for application (%x):\n",
-			(unsigned) _dl_symbol_tables);
+	fprintf(stderr, "\nModules for application (%p):\n", _dl_symbol_tables);
 	for (rpnt = _dl_symbol_tables; rpnt; rpnt = rpnt->next)
-		fprintf(stderr, "\t%x %s\n", (unsigned) rpnt->dyn, rpnt->dyn->libname);
+		fprintf(stderr, "\t%p %s\n", rpnt->dyn, rpnt->dyn->libname);
 
 	for (hpnt = _dl_handles; hpnt; hpnt = hpnt->next_handle) {
-		fprintf(stderr, "Modules for handle %x\n", (unsigned) hpnt);
+		fprintf(stderr, "Modules for handle %p\n", hpnt);
 		for (rpnt = hpnt; rpnt; rpnt = rpnt->next)
-			fprintf(stderr, "\t%x %s\n", (unsigned) rpnt->dyn,
-					rpnt->dyn->libname);
+			fprintf(stderr, "\t%p %s\n", rpnt->dyn, rpnt->dyn->libname);
 	}
 	return 0;
 }
@@ -633,7 +630,7 @@ int dladdr(const void *__address, Dl_info * __info)
 	pelf = NULL;
 
 #if 0
-	fprintf(stderr, "dladdr( %x, %x )\n", __address, __info);
+	fprintf(stderr, "dladdr( %p, %p )\n", __address, __info);
 #endif
 
 	for (rpnt = _dl_loaded_modules; rpnt; rpnt = rpnt->next) {
@@ -641,7 +638,7 @@ int dladdr(const void *__address, Dl_info * __info)
 
 		tpnt = rpnt;
 #if 0
-		fprintf(stderr, "Module \"%s\" at %x\n",
+		fprintf(stderr, "Module \"%s\" at %p\n",
 				tpnt->libname, tpnt->loadaddr);
 #endif
 		if (tpnt->loadaddr < (ElfW(Addr)) __address
@@ -682,7 +679,7 @@ int dladdr(const void *__address, Dl_info * __info)
 					sf = 1;
 				}
 #if 0
-				fprintf(stderr, "Symbol \"%s\" at %x\n",
+				fprintf(stderr, "Symbol \"%s\" at %p\n",
 						strtab + symtab[si].st_name, symbol_addr);
 #endif
 			}
