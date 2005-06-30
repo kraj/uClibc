@@ -22,7 +22,7 @@ static char *_dl_simple_ltoahex(char * local, unsigned long i);
 #define NULL ((void *) 0)
 #endif
 
-static inline size_t _dl_strlen(const char * str)
+static inline size_t __attribute__((__always_inline__)) _dl_strlen(const char * str)
 {
 	register const char *ptr = (char *) str-1;
 
@@ -30,7 +30,7 @@ static inline size_t _dl_strlen(const char * str)
 	return (ptr - str);
 }
 
-static inline char *_dl_strcat(char *dst, const char *src)
+static inline char * __attribute__((__always_inline__)) _dl_strcat(char *dst, const char *src)
 {
 	register char *ptr = dst-1;
 
@@ -43,7 +43,7 @@ static inline char *_dl_strcat(char *dst, const char *src)
 	return dst;
 }
 
-static inline char * _dl_strcpy(char * dst,const char *src)
+static inline char * __attribute__((__always_inline__)) _dl_strcpy(char * dst,const char *src)
 {
 	register char *ptr = dst;
 
@@ -53,7 +53,7 @@ static inline char * _dl_strcpy(char * dst,const char *src)
 	return ptr;
 }
 
-static inline int _dl_strcmp(const char * s1,const char * s2)
+static inline int __attribute__((__always_inline__)) _dl_strcmp(const char * s1,const char * s2)
 {
 	register unsigned char c1, c2;
 	s1--;s2--;
@@ -68,7 +68,7 @@ static inline int _dl_strcmp(const char * s1,const char * s2)
 	return c1 - c2;
 }
 
-static inline int _dl_strncmp(const char * s1,const char * s2,size_t len)
+static inline int __attribute__((__always_inline__)) _dl_strncmp(const char * s1,const char * s2,size_t len)
 {
 	register unsigned char c1 = '\0';
 	register unsigned char c2 = '\0';
@@ -84,7 +84,7 @@ static inline int _dl_strncmp(const char * s1,const char * s2,size_t len)
 	return c1 - c2;
 }
 
-static inline char * _dl_strchr(const char * str,int c)
+static inline char * __attribute__((__always_inline__)) _dl_strchr(const char * str,int c)
 {
 	register char ch;
 	str--;
@@ -97,7 +97,7 @@ static inline char * _dl_strchr(const char * str,int c)
 	return 0;
 }
 
-static inline char *_dl_strrchr(const char *str, int c)
+static inline char * _dl_strrchr(const char *str, int c)
 {
     register char *prev = 0;
     register char *ptr = (char *) str-1;
@@ -111,7 +111,7 @@ static inline char *_dl_strrchr(const char *str, int c)
     return(prev);
 }
 
-static inline char *_dl_strstr(const char *s1, const char *s2)
+static inline char * _dl_strstr(const char *s1, const char *s2)
 {
     register const char *s = s1;
     register const char *p = s2;
@@ -145,7 +145,7 @@ static inline void * _dl_memcpy(void * dst, const void * src, size_t len)
 	return dst;
 }
 
-static inline int _dl_memcmp(const void * s1,const void * s2,size_t len)
+static inline int __attribute__((__always_inline__)) _dl_memcmp(const void * s1,const void * s2,size_t len)
 {
 	unsigned char *c1 = (unsigned char *)s1-1;
 	unsigned char *c2 = (unsigned char *)s2-1;
@@ -160,7 +160,7 @@ static inline int _dl_memcmp(const void * s1,const void * s2,size_t len)
 
 #if defined(powerpc)
 /* Will generate smaller and faster code due to loop unrolling.*/
-static inline void *_dl_memset(void *to, int c, size_t n)
+static inline void * __attribute__((__always_inline__)) _dl_memset(void *to, int c, size_t n)
 {
         unsigned long chunks;
         unsigned long *tmp_to;
@@ -185,7 +185,7 @@ static inline void *_dl_memset(void *to, int c, size_t n)
         return to;
 }
 #else
-static inline void * _dl_memset(void * str,int c,size_t len)
+static inline void * __attribute__((__always_inline__)) _dl_memset(void * str,int c,size_t len)
 {
 	register char *a = str;
 
@@ -196,7 +196,7 @@ static inline void * _dl_memset(void * str,int c,size_t len)
 }
 #endif
 
-static inline char *_dl_get_last_path_component(char *path)
+static inline char * __attribute__((__always_inline__)) _dl_get_last_path_component(char *path)
 {
 	register char *ptr = path-1;
 
@@ -217,7 +217,7 @@ static inline char *_dl_get_last_path_component(char *path)
 /* Early on, we can't call printf, so use this to print out
  * numbers using the SEND_STDERR() macro.  Avoid using mod
  * or using long division */
-static inline char *_dl_simple_ltoa(char * local, unsigned long i)
+static inline char * __attribute__((__always_inline__)) _dl_simple_ltoa(char * local, unsigned long i)
 {
 	/* 20 digits plus a null terminator should be good for
 	 * 64-bit or smaller ints (2^64 - 1)*/
@@ -232,7 +232,7 @@ static inline char *_dl_simple_ltoa(char * local, unsigned long i)
 	return p;
 }
 
-static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
+static inline char * __attribute__((__always_inline__)) _dl_simple_ltoahex(char * local, unsigned long i)
 {
 	/* 16 digits plus a leading "0x" plus a null terminator,
 	 * should be good for 64-bit or smaller ints */
@@ -261,62 +261,72 @@ static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
  * disable the whole lot... */
 #if defined(__mips__)
 
-#define SEND_STDERR(X)
-#define SEND_ADDRESS_STDERR(X, add_a_newline)
-#define SEND_NUMBER_STDERR(X, add_a_newline)
+# define SEND_STDERR(X)
+# define SEND_ADDRESS_STDERR(X, add_a_newline)
+# define SEND_NUMBER_STDERR(X, add_a_newline)
 
 #else
 
 /* On some arches constant strings are referenced through the GOT.
  * This requires that load_addr must already be defined... */
 #if defined(mc68000) || defined(__arm__) || defined(__mips__)	\
-		     || defined(__sh__) ||  defined(__powerpc__)
-#   define CONSTANT_STRING_GOT_FIXUP(X)				\
-	    if ((X) < (const char *) load_addr) (X) += load_addr;
+                     || defined(__sh__) ||  defined(__powerpc__)
+# define CONSTANT_STRING_GOT_FIXUP(X) \
+	if ((X) < (const char *) load_addr) (X) += load_addr
 #else
-#   define CONSTANT_STRING_GOT_FIXUP(X)
+# define CONSTANT_STRING_GOT_FIXUP(X)
 #endif
 
+#define SEND_STDERR(X) \
+{ \
+	const char *tmp1 = (X); \
+	CONSTANT_STRING_GOT_FIXUP(tmp1); \
+	_dl_write(2, tmp1, _dl_strlen(tmp1)); \
+}
 
-#define SEND_STDERR(X) {					\
-    const char *tmp1 = (X);					\
-    CONSTANT_STRING_GOT_FIXUP(tmp1)				\
-    _dl_write (2, tmp1, _dl_strlen(tmp1));			\
-};
+#define SEND_ADDRESS_STDERR(ADR, add_a_newline) \
+{ \
+	char tmp[26], v, *tmp2, *tmp1 = tmp; \
+	unsigned long X = (unsigned long)(ADR); \
+	CONSTANT_STRING_GOT_FIXUP(tmp1); \
+	tmp2 = tmp1 + sizeof(tmp); \
+	*--tmp2 = '\0'; \
+	if (add_a_newline) *--tmp2 = '\n'; \
+	do { \
+		v = (X) & 0xf; \
+		if (v <= 0x09) \
+			*--tmp2 = '0' + v; \
+		else \
+			*--tmp2 = 'a' - 0x0a + v; \
+		(X) >>= 4; \
+	} while ((X) > 0); \
+	*--tmp2 = 'x'; \
+	*--tmp2 = '0'; \
+	_dl_write(2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1); \
+}
 
-#define SEND_ADDRESS_STDERR(X, add_a_newline) {			\
-    char tmp[26], v, *tmp2, *tmp1 = tmp;			\
-    CONSTANT_STRING_GOT_FIXUP(tmp1)				\
-    tmp2 = tmp1 + sizeof(tmp);					\
-    *--tmp2 = '\0';						\
-    if (add_a_newline) *--tmp2 = '\n';				\
-    do {							\
-	    v = (X) & 0xf;					\
-	    if (v <= 0x09)					\
-		*--tmp2 = '0' + v;				\
-	    else						\
-		*--tmp2 = 'a' - 0x0a + v;			\
-	    (X) >>= 4;						\
-    } while ((X) > 0);						\
-    *--tmp2 = 'x';						\
-    *--tmp2 = '0';						\
-    _dl_write (2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1);		\
-};
-
-#define SEND_NUMBER_STDERR(X, add_a_newline) {			\
-    char tmp[26], v, *tmp2, *tmp1 = tmp;			\
-    CONSTANT_STRING_GOT_FIXUP(tmp1)				\
-    tmp2 = tmp1 + sizeof(tmp);					\
-    *--tmp2 = '\0';						\
-    if (add_a_newline) *--tmp2 = '\n';				\
-    do {							\
-	do_rem(v, (X), 10);					\
-	*--tmp2 = '0' + v;					\
-	(X) /= 10;						\
-    } while ((X) > 0);						\
-    _dl_write (2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1);		\
-};
+#define SEND_NUMBER_STDERR(X, add_a_newline) \
+{ \
+	char tmp[26], v, *tmp2, *tmp1 = tmp; \
+	CONSTANT_STRING_GOT_FIXUP(tmp1); \
+	tmp2 = tmp1 + sizeof(tmp); \
+	*--tmp2 = '\0'; \
+	if (add_a_newline) *--tmp2 = '\n'; \
+	do { \
+		do_rem(v, (X), 10); \
+		*--tmp2 = '0' + v; \
+		(X) /= 10; \
+	} while ((X) > 0); \
+	_dl_write(2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1); \
+}
 #endif
 
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+# define SEND_STDERR_DEBUG(X) SEND_STDERR(X)
+# define SEND_ADDRESS_STDERR_DEBUG(X, add_a_newline) SEND_ADDRESS_STDERR(X, add_a_newline)
+#else
+# define SEND_STDERR_DEBUG(X)
+# define SEND_ADDRESS_STDERR_DEBUG(X, add_a_newline)
+#endif
 
 #endif
