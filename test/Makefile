@@ -21,19 +21,20 @@ TOPDIR=../
 
 .EXPORT_ALL_VARIABLES:
 
+
 ALL_SUBDIRS = \
 	args assert crypt ctype pwd_grp signal silly stdlib string unistd \
 	#misc
-DIRS = $(ALL_SUBDIRS)
+DIRS := $(ALL_SUBDIRS)
 
-ifeq ($(HAVE_SHARED),y)
-	ifeq ($(BUILD_UCLIBC_LDSO),y)
-		DIRS += dlopen
-	endif
+ifeq ($(HAVE_SHARED)$(BUILD_UCLIBC_LDSO),yy)
+	DIRS += dlopen
 endif
 ifeq ($(UCLIBC_HAS_THREADS),y)
 	DIRS += pthread
 endif
+ALL_SUBDIRS += pthread dlopen
+
 
 all: subdirs
 
