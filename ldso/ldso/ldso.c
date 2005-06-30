@@ -561,6 +561,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 				lpntstr = (char*) (tcurr->dynamic_info[DT_STRTAB] + dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
+				if (_dl_strcmp(name, "ld-uClibc.so.0") == 0)
+					continue;
 
 #if defined (__SUPPORT_LD_DEBUG__)
 				if(_dl_debug)
