@@ -115,13 +115,13 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	unsigned int argc;
 	char **argv, **envp;
 	unsigned long load_addr;
-	Elf32_Addr got;
+	ElfW(Addr) got;
 	unsigned long *aux_dat;
 	ElfW(Ehdr) *header;
 	struct elf_resolve tpnt_tmp;
 	struct elf_resolve *tpnt = &tpnt_tmp;
-	Elf32_auxv_t auxvt[AT_EGID + 1];
-	Elf32_Dyn *dpnt;
+	ElfW(auxv_t) auxvt[AT_EGID + 1];
+	ElfW(Dyn) *dpnt;
 
 	/* WARNING! -- we cannot make _any_ funtion calls until we have
 	 * taken care of fixing up our own relocations.  Making static
@@ -148,10 +148,10 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	 * the Auxiliary Vector Table.  Read out the elements of the auxvt,
 	 * sort and store them in auxvt for later use. */
 	while (*aux_dat) {
-		Elf32_auxv_t *auxv_entry = (Elf32_auxv_t *) aux_dat;
+		ElfW(auxv_t) *auxv_entry = (ElfW(auxv_t) *) aux_dat;
 
 		if (auxv_entry->a_type <= AT_EGID) {
-			_dl_memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(Elf32_auxv_t));
+			_dl_memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(ElfW(auxv_t)));
 		}
 		aux_dat += 2;
 	}
@@ -186,7 +186,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	 * happen to know what that is for this architecture.  If not,
 	 * we can always read stuff out of the ELF file to find it... */
 	got = elf_machine_dynamic();
-	dpnt = (Elf32_Dyn *) (got + load_addr);
+	dpnt = (ElfW(Dyn) *) (got + load_addr);
 	SEND_STDERR_DEBUG("First Dynamic section entry=");
 	SEND_ADDRESS_STDERR_DEBUG(dpnt, 1);
 	_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
@@ -229,10 +229,10 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 			unsigned long *reloc_addr;
 			unsigned long symbol_addr;
 			int symtab_index;
-			Elf32_Sym *sym;
+			ElfW(Sym) *sym;
 			ELF_RELOC *rpnt;
 			unsigned long rel_addr, rel_size;
-			Elf32_Word relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
+			ElfW(Word) relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
 
 			rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
 					dynamic_info[DT_RELOC_TABLE_ADDR]);
@@ -260,9 +260,9 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 				sym = NULL;
 				if (symtab_index) {
 					char *strtab;
-					Elf32_Sym *symtab;
+					ElfW(Sym) *symtab;
 
-					symtab = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB];
+					symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
 					strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 					sym = &symtab[symtab_index];
 					symbol_addr = load_addr + sym->st_value;

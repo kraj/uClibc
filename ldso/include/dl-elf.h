@@ -65,10 +65,10 @@ extern void _dl_protect_relro (struct elf_resolve *l);
 
 #define DYNAMIC_SIZE (DT_NUM+OS_NUM+ARCH_NUM)
 
-extern void _dl_parse_dynamic_info(Elf32_Dyn *dpnt, unsigned long dynamic_info[], void *debug_addr, Elf32_Addr load_off);
+extern void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void *debug_addr, ElfW(Addr) load_off);
 
 static inline __attribute__((always_inline))
-void __dl_parse_dynamic_info(Elf32_Dyn *dpnt, unsigned long dynamic_info[], void *debug_addr, Elf32_Addr load_off)
+void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void *debug_addr, ElfW(Addr) load_off)
 {
 	for (; dpnt->d_tag; dpnt++) {
 		if (dpnt->d_tag < DT_NUM) {

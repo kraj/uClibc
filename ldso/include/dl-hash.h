@@ -44,7 +44,7 @@ struct elf_resolve{
   unsigned long dynamic_info[DYNAMIC_SIZE];
 
   unsigned long n_phent;
-  Elf32_Phdr * ppnt;
+  ElfW(Phdr) * ppnt;
 
   ElfW(Addr) relro_addr;
   size_t relro_size;

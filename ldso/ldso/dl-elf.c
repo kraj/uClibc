@@ -400,7 +400,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 {
 	ElfW(Ehdr) *epnt;
 	unsigned long dynamic_addr = 0;
-	Elf32_Dyn *dpnt;
+	ElfW(Dyn) *dpnt;
 	struct elf_resolve *tpnt;
 	ElfW(Phdr) *ppnt;
 	char *status, *header;
@@ -640,7 +640,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		return NULL;
 	}
 
-	dpnt = (Elf32_Dyn *) dynamic_addr;
+	dpnt = (ElfW(Dyn) *) dynamic_addr;
 	_dl_memset(dynamic_info, 0, sizeof(dynamic_info));
 	_dl_parse_dynamic_info(dpnt, dynamic_info, NULL, libaddr);
 	/* If the TEXTREL is set, this means that we need to make the pages
@@ -716,7 +716,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 {
 	int goof = 0;
 	struct elf_resolve *tpnt;
-	Elf32_Word reloc_size, reloc_addr, relative_count;
+	ElfW(Word) reloc_size, reloc_addr, relative_count;
 
 	if (rpnt->next)
 		goof += _dl_fixup(rpnt->next, now_flag);
@@ -867,7 +867,7 @@ char *_dl_strdup(const char *string)
 	return retval;
 }
 
-void _dl_parse_dynamic_info(Elf32_Dyn *dpnt, unsigned long dynamic_info[], void *debug_addr, Elf32_Addr load_off)
+void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void *debug_addr, ElfW(Addr) load_off)
 {
 	__dl_parse_dynamic_info(dpnt, dynamic_info, debug_addr, load_off);
 }

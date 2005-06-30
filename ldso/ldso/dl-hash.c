@@ -148,7 +148,7 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 	struct elf_resolve *tpnt;
 	int si;
 	char *strtab;
-	Elf32_Sym *symtab;
+	ElfW(Sym) *symtab;
 	unsigned long elf_hash_number, hn;
 	const ElfW(Sym) *sym;
 	char *weak_result = NULL;
@@ -178,7 +178,7 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 
 		/* Avoid calling .urem here. */
 		do_rem(hn, elf_hash_number, tpnt->nbucket);
-		symtab = (Elf32_Sym *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB]);
+		symtab = (ElfW(Sym) *) (intptr_t) (tpnt->dynamic_info[DT_SYMTAB]);
 		strtab = (char *) (tpnt->dynamic_info[DT_STRTAB]);
 
 		for (si = tpnt->elf_buckets[hn]; si != STN_UNDEF; si = tpnt->chains[si]) {

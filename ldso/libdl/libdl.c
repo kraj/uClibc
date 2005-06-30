@@ -228,12 +228,12 @@ void *dlopen(const char *libname, int flag)
 	dep_list = runp2 = runp;
 	for (; runp; runp = runp->next)
 	{
-		Elf32_Dyn *dpnt;
+		ElfW(Dyn) *dpnt;
 		char *lpntstr;
 
 		nlist++;
 		runp->tpnt->init_fini = NULL; /* clear any previous dependcies */
-		for (dpnt = (Elf32_Dyn *) runp->tpnt->dynamic_addr; dpnt->d_tag; dpnt++) {
+		for (dpnt = (ElfW(Dyn) *) runp->tpnt->dynamic_addr; dpnt->d_tag; dpnt++) {
 			if (dpnt->d_tag == DT_NEEDED) {
 				char *name;
 
@@ -657,14 +657,14 @@ int dladdr(const void *__address, Dl_info * __info)
 
 	{
 		char *strtab;
-		Elf32_Sym *symtab;
+		ElfW(Sym) *symtab;
 		int hn, si;
 		int sf;
 		int sn = 0;
 		ElfW(Addr) sa;
 
 		sa = 0;
-		symtab = (Elf32_Sym *) (pelf->dynamic_info[DT_SYMTAB]);
+		symtab = (ElfW(Sym) *) (pelf->dynamic_info[DT_SYMTAB]);
 		strtab = (char *) (pelf->dynamic_info[DT_STRTAB]);
 
 		sf = 0;

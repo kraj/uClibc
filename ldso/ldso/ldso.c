@@ -104,11 +104,11 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 }
 
 void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
-			  Elf32_auxv_t auxvt[AT_EGID + 1], char **envp,
+			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp,
 			  char **argv)
 {
 	ElfW(Phdr) *ppnt;
-	Elf32_Dyn *dpnt;
+	ElfW(Dyn) *dpnt;
 	char *lpntstr;
 	int i, goof = 0, unlazy = 0, trace_loaded_objects = 0;
 	struct dyn_elf *rpnt;
@@ -238,7 +238,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			relro_size = ppnt->p_memsz;
 		}
 		if (ppnt->p_type == PT_DYNAMIC) {
-			dpnt = (Elf32_Dyn *) (ppnt->p_vaddr + app_tpnt->loadaddr);
+			dpnt = (ElfW(Dyn) *) (ppnt->p_vaddr + app_tpnt->loadaddr);
 			_dl_parse_dynamic_info(dpnt, app_tpnt->dynamic_info, debug_addr, app_tpnt->loadaddr);
 #ifndef __FORCE_SHAREABLE_TEXT_SEGMENTS__
 			/* Ugly, ugly.  We need to call mprotect to change the
@@ -551,10 +551,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 	nlist = 0;
 	for (tcurr = _dl_loaded_modules; tcurr; tcurr = tcurr->next) {
-		Elf32_Dyn *dpnt;
+		ElfW(Dyn) *dpnt;
 
 		nlist++;
-		for (dpnt = (Elf32_Dyn *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++) {
+		for (dpnt = (ElfW(Dyn) *) tcurr->dynamic_addr; dpnt->d_tag; dpnt++) {
 			if (dpnt->d_tag == DT_NEEDED) {
 				char *name;
 				struct init_fini_list *tmp;
