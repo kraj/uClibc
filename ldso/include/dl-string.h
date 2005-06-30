@@ -22,7 +22,7 @@ static char *_dl_simple_ltoahex(char * local, unsigned long i);
 #define NULL ((void *) 0)
 #endif
 
-static inline size_t _dl_strlen(const char * str)
+static inline size_t __attribute__((__always_inline__)) _dl_strlen(const char * str)
 {
 	register const char *ptr = (char *) str-1;
 
@@ -30,7 +30,7 @@ static inline size_t _dl_strlen(const char * str)
 	return (ptr - str);
 }
 
-static inline char *_dl_strcat(char *dst, const char *src)
+static inline char * __attribute__((__always_inline__)) _dl_strcat(char *dst, const char *src)
 {
 	register char *ptr = dst-1;
 
@@ -43,7 +43,7 @@ static inline char *_dl_strcat(char *dst, const char *src)
 	return dst;
 }
 
-static inline char * _dl_strcpy(char * dst,const char *src)
+static inline char * __attribute__((__always_inline__)) _dl_strcpy(char * dst,const char *src)
 {
 	register char *ptr = dst;
 
@@ -53,7 +53,7 @@ static inline char * _dl_strcpy(char * dst,const char *src)
 	return ptr;
 }
 
-static inline int _dl_strcmp(const char * s1,const char * s2)
+static inline int __attribute__((__always_inline__)) _dl_strcmp(const char * s1,const char * s2)
 {
 	register unsigned char c1, c2;
 	s1--;s2--;
@@ -68,7 +68,7 @@ static inline int _dl_strcmp(const char * s1,const char * s2)
 	return c1 - c2;
 }
 
-static inline int _dl_strncmp(const char * s1,const char * s2,size_t len)
+static inline int __attribute__((__always_inline__)) _dl_strncmp(const char * s1,const char * s2,size_t len)
 {
 	register unsigned char c1 = '\0';
 	register unsigned char c2 = '\0';
@@ -84,7 +84,7 @@ static inline int _dl_strncmp(const char * s1,const char * s2,size_t len)
 	return c1 - c2;
 }
 
-static inline char * _dl_strchr(const char * str,int c)
+static inline char * __attribute__((__always_inline__)) _dl_strchr(const char * str,int c)
 {
 	register char ch;
 	str--;
@@ -97,7 +97,7 @@ static inline char * _dl_strchr(const char * str,int c)
 	return 0;
 }
 
-static inline char *_dl_strrchr(const char *str, int c)
+static inline char * _dl_strrchr(const char *str, int c)
 {
     register char *prev = 0;
     register char *ptr = (char *) str-1;
@@ -111,7 +111,7 @@ static inline char *_dl_strrchr(const char *str, int c)
     return(prev);
 }
 
-static inline char *_dl_strstr(const char *s1, const char *s2)
+static inline char * _dl_strstr(const char *s1, const char *s2)
 {
     register const char *s = s1;
     register const char *p = s2;
@@ -145,7 +145,7 @@ static inline void * _dl_memcpy(void * dst, const void * src, size_t len)
 	return dst;
 }
 
-static inline int _dl_memcmp(const void * s1,const void * s2,size_t len)
+static inline int __attribute__((__always_inline__)) _dl_memcmp(const void * s1,const void * s2,size_t len)
 {
 	unsigned char *c1 = (unsigned char *)s1-1;
 	unsigned char *c2 = (unsigned char *)s2-1;
@@ -160,7 +160,7 @@ static inline int _dl_memcmp(const void * s1,const void * s2,size_t len)
 
 #if defined(powerpc)
 /* Will generate smaller and faster code due to loop unrolling.*/
-static inline void *_dl_memset(void *to, int c, size_t n)
+static inline void * __attribute__((__always_inline__)) _dl_memset(void *to, int c, size_t n)
 {
         unsigned long chunks;
         unsigned long *tmp_to;
@@ -185,7 +185,7 @@ static inline void *_dl_memset(void *to, int c, size_t n)
         return to;
 }
 #else
-static inline void * _dl_memset(void * str,int c,size_t len)
+static inline void * __attribute__((__always_inline__)) _dl_memset(void * str,int c,size_t len)
 {
 	register char *a = str;
 
@@ -196,7 +196,7 @@ static inline void * _dl_memset(void * str,int c,size_t len)
 }
 #endif
 
-static inline char *_dl_get_last_path_component(char *path)
+static inline char * __attribute__((__always_inline__)) _dl_get_last_path_component(char *path)
 {
 	register char *ptr = path-1;
 
@@ -217,7 +217,7 @@ static inline char *_dl_get_last_path_component(char *path)
 /* Early on, we can't call printf, so use this to print out
  * numbers using the SEND_STDERR() macro.  Avoid using mod
  * or using long division */
-static inline char *_dl_simple_ltoa(char * local, unsigned long i)
+static inline char * __attribute__((__always_inline__)) _dl_simple_ltoa(char * local, unsigned long i)
 {
 	/* 20 digits plus a null terminator should be good for
 	 * 64-bit or smaller ints (2^64 - 1)*/
@@ -232,7 +232,7 @@ static inline char *_dl_simple_ltoa(char * local, unsigned long i)
 	return p;
 }
 
-static inline char *_dl_simple_ltoahex(char * local, unsigned long i)
+static inline char * __attribute__((__always_inline__)) _dl_simple_ltoahex(char * local, unsigned long i)
 {
 	/* 16 digits plus a leading "0x" plus a null terminator,
 	 * should be good for 64-bit or smaller ints */
