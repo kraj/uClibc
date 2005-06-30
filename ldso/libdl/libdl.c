@@ -76,8 +76,8 @@ extern char *_dl_debug __attribute__ ((__weak__));
 #ifdef __SUPPORT_LD_DEBUG__
 char *_dl_debug  = 0;
 #endif
-char *_dl_library_path         = 0;		    /* Where we look for libraries */
-char *_dl_ldsopath             = 0;		    /* Location of the shared lib loader */
+char *_dl_library_path         = 0;         /* Where we look for libraries */
+char *_dl_ldsopath             = 0;         /* Location of the shared lib loader */
 int _dl_errno                  = 0;         /* We can't use the real errno in ldso */
 size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for use later */
 /* This global variable is also to communicate with debuggers such as gdb. */
