@@ -42,11 +42,15 @@ export TARGET_ARCH
 #        make CROSS=mipsel-linux-
 # will build uClibc for 'mipsel'.
 
-CROSS      =
+CROSS      = 
 CC         = $(CROSS)gcc
 STRIPTOOL  = strip
-LDD        = $(TOPDIR)utils/ldd
 RM         = rm -f
+ifeq ($(LDSO_LDD_SUPPORT),y)
+LDD        = $(TOPDIR)utils/ldd
+else
+LDD        = @true
+endif
 
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
