@@ -95,7 +95,7 @@ int main(void)
 		printf("No errors.\n");
 	} else {
 		status = EXIT_FAILURE;
-		printf("%d errors.\n", errors);
+		printf("%lu errors.\n", (unsigned long)errors);
 	}
 	exit(status);
 }
