@@ -47,8 +47,8 @@
 #ifndef _dl_MAX_ERRNO
 #define _dl_MAX_ERRNO 4096
 #endif
-#define _dl_mmap_check_error(__res)     \
-        (((int)__res) < 0 && ((int)__res) >= -_dl_MAX_ERRNO)
+#define _dl_mmap_check_error(__res) \
+	(((long)__res) < 0 && ((long)__res) >= -_dl_MAX_ERRNO)
 #endif
 
 
