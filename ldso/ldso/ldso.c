@@ -219,7 +219,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 		if (app_tpnt->loadaddr) {
 			_dl_dprintf(_dl_debug_file, "Position Independent Executable: "
-					"app_tpnt->loadaddr=%p\n", app_tpnt->loadaddr);
+					"app_tpnt->loadaddr=%x\n", app_tpnt->loadaddr);
 		}
 #endif
 	}
@@ -301,7 +301,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				*ptmp = '\0';
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-			_dl_dprintf(_dl_debug_file, "Lib Loader:\t(%p) %s\n",
+			_dl_dprintf(_dl_debug_file, "Lib Loader:\t(%x) %s\n",
 				    tpnt->loadaddr, tpnt->libname);
 #endif
 		}
@@ -429,7 +429,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
 					_dl_dprintf(_dl_debug_file,
-						    "Loading:\t(%p) %s\n", tpnt1->loadaddr, tpnt1->libname);
+						    "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
 
 #ifdef __LDSO_LDD_SUPPORT__
@@ -441,7 +441,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 						 * library.
 						 */
 						if (_dl_strcmp(_dl_progname, str) != 0)
-							_dl_dprintf(1, "\t%s => %s (%p)\n", str, tpnt1->libname,
+							_dl_dprintf(1, "\t%s => %s (%x)\n", str, tpnt1->libname,
 								    tpnt1->loadaddr);
 					}
 #endif
@@ -526,14 +526,15 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-				_dl_dprintf(_dl_debug_file, "Loading:\t(%p) %s\n", tpnt1->loadaddr, tpnt1->libname);
+				_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
 
 #ifdef __LDSO_LDD_SUPPORT__
 				if (trace_loaded_objects &&
 				    tpnt1->usage_count == 1) {
-					_dl_dprintf(1, "\t%s => %s (%p)\n",
-						    cp2, tpnt1->libname, tpnt1->loadaddr);
+					_dl_dprintf(1, "\t%s => %s (%x)\n",
+						    cp2, tpnt1->libname,
+						    (unsigned)tpnt1->loadaddr);
 				}
 #endif
 			}
@@ -589,14 +590,15 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 
 #ifdef __SUPPORT_LD_DEBUG_EARLY__
-				_dl_dprintf(_dl_debug_file, "Loading:\t(%p) %s\n", tpnt1->loadaddr, tpnt1->libname);
+				_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 #endif
 
 #ifdef __LDSO_LDD_SUPPORT__
 				if (trace_loaded_objects &&
 				    tpnt1->usage_count == 1) {
-					_dl_dprintf(1, "\t%s => %s (%p)\n",
-						    lpntstr, tpnt1->libname, tpnt1->loadaddr);
+					_dl_dprintf(1, "\t%s => %s (%x)\n",
+						    lpntstr, tpnt1->libname,
+						    (unsigned)tpnt1->loadaddr);
 				}
 #endif
 			}
@@ -708,7 +710,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 #ifdef __LDSO_LDD_SUPPORT__
 	/* End of the line for ldd.... */
 	if (trace_loaded_objects) {
-		_dl_dprintf(1, "\t%s => %s (%p)\n",
+		_dl_dprintf(1, "\t%s => %s (%x)\n",
 			    rpnt->dyn->libname + _dl_strlen(_dl_ldsopath) + 1,
 			    rpnt->dyn->libname, rpnt->dyn->loadaddr);
 		_dl_exit(0);
