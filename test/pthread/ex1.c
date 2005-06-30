@@ -7,33 +7,29 @@
 #include <unistd.h>
 #include "pthread.h"
 
-void * process(void * arg)
+void *process(void * arg)
 {
-  int i;
-  fprintf(stderr, "Starting process %s\n", (char *) arg);
-  for (i = 0; i < 10000; i++) {
-    write(1, (char *) arg, 1);
-  }
-  return NULL;
+	int i;
+	printf("Starting process %s\n", (char *)arg);
+	for (i = 0; i < 10000; i++)
+		write(1, (char *) arg, 1);
+	return NULL;
 }
 
+#define sucfail(r) (r != 0 ? "failed" : "succeeded")
 int main(void)
 {
-  int retcode;
-  pthread_t th_a, th_b;
-  void * retval;
+	int pret, ret = 0;
+	pthread_t th_a, th_b;
+	void *retval;
 
-  retcode = pthread_create(&th_a, NULL, process, (void *) "a");
-  if (retcode != 0) fprintf(stderr, "create a failed %d\n", retcode);
-  else fprintf(stderr, "create a succeeded %d\n", retcode);
-  retcode = pthread_create(&th_b, NULL, process, (void *) "b");
-  if (retcode != 0) fprintf(stderr, "create b failed %d\n", retcode);
-  else fprintf(stderr, "create b succeeded %d\n", retcode);
-  retcode = pthread_join(th_a, &retval);
-  if (retcode != 0) fprintf(stderr, "join a failed %d\n", retcode);
-  else fprintf(stderr, "join a succeeded %d\n", retcode);
-  retcode = pthread_join(th_b, &retval);
-  if (retcode != 0) fprintf(stderr, "join b failed %d\n", retcode);
-  else fprintf(stderr, "join b succeeded %d\n", retcode);
-  return 0;
+	ret += (pret = pthread_create(&th_a, NULL, process, (void *)"a"));
+	printf("create a %s %d\n", sucfail(pret), pret);
+	ret += (pret = pthread_create(&th_b, NULL, process, (void *)"b"));
+	printf("create b %s %d\n", sucfail(pret), pret);
+	ret += (pret = pthread_join(th_a, &retval));
+	printf("join a %s %d\n", sucfail(pret), pret);
+	ret += (pret = pthread_join(th_b, &retval));
+	printf("join b %s %d\n", sucfail(pret), pret);
+	return ret;
 }
