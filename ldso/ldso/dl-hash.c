@@ -190,10 +190,10 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 				continue;
 			if (sym->st_value == 0)
 				continue;
-			if (ELF32_ST_TYPE(sym->st_info) > STT_FUNC)
+			if (ELF_ST_TYPE(sym->st_info) > STT_FUNC)
 				continue;
 
-			switch (ELF32_ST_BIND(sym->st_info)) {
+			switch (ELF_ST_BIND(sym->st_info)) {
 			case STB_WEAK:
 #if 0
 /* Perhaps we should support old style weak symbol handling

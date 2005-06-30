@@ -164,7 +164,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_ptr;
 
 	/* Check the ELF header to make sure everything looks ok.  */
-	if (!header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
+	if (!header || header->e_ident[EI_CLASS] != ELF_CLASS ||
 			header->e_ident[EI_VERSION] != EV_CURRENT
 			/* Do not use an inline _dl_strncmp here or some arches
 			* will blow chunks, i.e. those that need to relocate all
@@ -255,7 +255,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 			rpnt = (ELF_RELOC *) (rel_addr + load_addr);
 			for (i = 0; i < rel_size; i += sizeof(ELF_RELOC), rpnt++) {
 				reloc_addr = (unsigned long *) (load_addr + (unsigned long) rpnt->r_offset);
-				symtab_index = ELF32_R_SYM(rpnt->r_info);
+				symtab_index = ELF_R_SYM(rpnt->r_info);
 				symbol_addr = 0;
 				sym = NULL;
 				if (symtab_index) {

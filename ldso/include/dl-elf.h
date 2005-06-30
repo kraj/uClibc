@@ -36,6 +36,26 @@ extern int _dl_fixup(struct dyn_elf *rpnt, int flag);
 extern void _dl_protect_relro (struct elf_resolve *l);
 
 /*
+ * Bitsize related settings for things ElfW()
+ * does not handle already
+ */
+#if __WORDSIZE == 64
+# define ELF_ST_BIND(val) ELF64_ST_TYPE(val)
+# define ELF_ST_TYPE(val) ELF64_ST_TYPE(val)
+# define ELF_R_SYM(i)     ELF64_R_SYM(i)
+# ifndef ELF_CLASS
+#  define ELF_CLASS ELFCLASS64
+# endif
+#else
+# define ELF_ST_BIND(val) ELF32_ST_TYPE(val)
+# define ELF_ST_TYPE(val) ELF32_ST_TYPE(val)
+# define ELF_R_SYM(i)     ELF32_R_SYM(i)
+# ifndef ELF_CLASS
+#  define ELF_CLASS ELFCLASS32
+# endif
+#endif
+
+/*
  * Datatype of a relocation on this platform
  */
 #ifdef ELF_USES_RELOCA
