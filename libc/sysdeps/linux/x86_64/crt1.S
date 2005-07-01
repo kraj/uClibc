@@ -59,20 +59,20 @@
 #include <features.h>
 
 .text
-.global	_start
+.global _start
 .type   _start,@function
 #if defined(__UCLIBC_CTOR_DTOR__)
-.type	_init,@function
-.type	_fini,@function
+.type   _init,@function
+.type   _fini,@function
 #else
-.weak	_init
-.weak	_fini
+.weak   _init
+.weak   _fini
 #endif
-.type	__uClibc_main,@function
+.type   __uClibc_main,@function
 /* Stick in a dummy reference to main(), so that if an application
  * is linking when the main() function is in a static library (.a)
  * we can be sure that main() actually gets linked in */
-.type	main,@function
+.type   main,@function
 
 _start:
 	/* Clear the frame pointer.  The ABI suggests this be done, to mark
@@ -132,12 +132,12 @@ _start:
 /* END TODO *
  ************/
 
-	hlt			/* Crash if somehow `exit' does return.	 */
+	hlt        /* Crash if somehow `exit' does return.  */
 .size _start,.-_start
 
-/* Define a symbol for the first piece of initialized data.  */
+/* Define a symbol for the first piece of initialized data. */
 .data
-.globl __data_start
+.global __data_start
 __data_start:
 .long 0
 .weak data_start
