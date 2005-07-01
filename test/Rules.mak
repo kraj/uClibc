@@ -42,7 +42,7 @@ export TARGET_ARCH
 #        make CROSS=mipsel-linux-
 # will build uClibc for 'mipsel'.
 
-CROSS      = 
+CROSS      = $(CROSS_COMPILER_PREFIX)
 CC         = $(CROSS)gcc
 STRIPTOOL  = strip
 RM         = rm -f
