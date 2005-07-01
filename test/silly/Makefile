@@ -33,45 +33,42 @@ hello_source:
 hello: hello.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	./$@
+	./$@ ; ret=$$? ; test $$ret -eq 42
 	-@ echo " "
 
 hello_glibc: hello.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs GNU libc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	./$@
+	./$@ ; ret=$$? ; test $$ret -eq 42
 	-@ echo " "
 
 
 tiny: tiny.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	./$@
+	./$@ ; ret=$$? ; test $$ret -eq 42
 	-@ echo " "
-
 
 clean:
 	$(RM) *.[oa] *~ core $(TARGETS)
-
-
