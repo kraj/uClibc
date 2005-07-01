@@ -18,6 +18,7 @@
    02111-1307 USA.  */
 
 #include <errno.h>
+#include <features.h>
 
 /* This routine is jumped to by all the syscall handlers, to stash
  * an error number into errno.  */
