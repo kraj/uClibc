@@ -1249,6 +1249,16 @@ config DODEBUG
 
 	  Otherwise, answer N.
 
+config DODEBUG_PT
+	bool "Build pthread with debugging output"
+	depends on UCLIBC_HAS_THREADS
+	default n
+	help
+	  Enable debug output in libpthread.  This is only useful when doing 
+	  development in libpthread itself.
+
+	  Otherwise, answer N.
+
 config DOASSERTS
 	bool "Build uClibc with run-time assertion testing"
 	default n
