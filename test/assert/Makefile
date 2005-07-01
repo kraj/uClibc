@@ -21,7 +21,7 @@ include ../Rules.mak
 TARGETS=assert
 all: $(TARGETS)
 
-assert: assert.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+assert: assert.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -29,7 +29,7 @@ assert: assert.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@ ; ret=$$? ; test $$ret -eq 134
 	-@ echo " "
 
 clean:

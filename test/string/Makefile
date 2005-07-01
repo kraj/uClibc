@@ -24,7 +24,7 @@ TARGETS+=#strerror #strsignal
 
 all: $(TARGETS)
 
-string: string.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+string: string.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -32,7 +32,7 @@ string: string.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
 string_glibc: string.c Makefile
@@ -43,10 +43,10 @@ string_glibc: string.c Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
-testcopy: testcopy.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+testcopy: testcopy.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -54,7 +54,7 @@ testcopy: testcopy.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ > testcopy.out
+	./$@ > testcopy.out
 	-@ echo " "
 
 testcopy_glibc: testcopy.c Makefile
@@ -65,7 +65,7 @@ testcopy_glibc: testcopy.c Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ > testcopy.gnu.out
+	./$@ > testcopy.gnu.out
 	-@ echo " "
 
 testcopy_diff: testcopy testcopy_glibc
@@ -77,7 +77,7 @@ testcopy_diff: testcopy testcopy_glibc
 	-@ echo " "
 
 
-strerror: ../../libc/string/strerror.c $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+strerror: ../../libc/string/strerror.c $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -85,7 +85,7 @@ strerror: ../../libc/string/strerror.c $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -DCHECK_BUF -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
 strsignal: ../../libc/string/strsignal.c
@@ -96,7 +96,7 @@ strsignal: ../../libc/string/strsignal.c
 	$(CC) $(CFLAGS) -DCHECK_BUF -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
 

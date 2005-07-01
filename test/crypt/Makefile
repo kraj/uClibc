@@ -23,7 +23,7 @@ EXTRA_LIBS=-lcrypt
 
 all: $(TARGETS)
 
-crypt: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+crypt: crypt.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -31,10 +31,10 @@ crypt: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ < crypt.input #> $@.out 2>&1
+	./$@ < crypt.input #> $@.out 2>&1
 	-@ echo " "
 
-crypt_glibc: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+crypt_glibc: crypt.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs glibc: "
@@ -42,7 +42,7 @@ crypt_glibc: crypt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ < crypt.input > $@.out 2>&1
+	./$@ < crypt.input > $@.out 2>&1
 	-@ echo " "
 
 diff: crypt_glibc crypt
@@ -50,10 +50,10 @@ diff: crypt_glibc crypt
 	-@ echo " "
 	-@ echo "Diffing output: "
 	-@ echo " "
-	-diff -u crypt_glibc.out crypt.out
+	diff -u crypt_glibc.out crypt.out
 	-@ echo " "
 
-md5c-test: md5c-test.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+md5c-test: md5c-test.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -61,10 +61,8 @@ md5c-test: md5c-test.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
 clean:
 	$(RM) *.[oa] *~ core crypt_glibc crypt crypt_glibc.out crypt.out md5c-test
-
-

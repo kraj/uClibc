@@ -23,7 +23,7 @@ CFLAGS64=-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 TARGETS=sem fdopen dirent_diff dirent64_diff #outb
 all: $(TARGETS)
 
-outb: outb.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+outb: outb.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -34,7 +34,7 @@ outb: outb.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	./$@
 	-@ echo " "
 
-sem: sem.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+sem: sem.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -42,10 +42,10 @@ sem: sem.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
-fdopen: fdopen.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+fdopen: fdopen.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -53,7 +53,7 @@ fdopen: fdopen.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
 dirent_source:
@@ -64,7 +64,7 @@ dirent_source:
 	-@ cat dirent.c
 	-@ echo " "
 
-dirent: dirent.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+dirent: dirent.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -72,7 +72,7 @@ dirent: dirent.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ dirent.c > $@.out
+	./$@ dirent.c > $@.out
 	-@ echo " "
 
 dirent_glibc: dirent.c Makefile
@@ -83,7 +83,7 @@ dirent_glibc: dirent.c Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ dirent.c > $@.out
+	./$@ dirent.c > $@.out
 	-@ echo " "
 
 dirent_diff: dirent dirent_glibc
@@ -94,7 +94,7 @@ dirent_diff: dirent dirent_glibc
 	-diff -u dirent_glibc.out dirent.out
 	-@ echo " "
 
-dirent64: dirent.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+dirent64: dirent.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -102,7 +102,7 @@ dirent64: dirent.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) $(CFLAGS64) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ dirent.c > $@.out
+	./$@ dirent.c > $@.out
 	-@ echo " "
 
 dirent64_glibc: dirent.c Makefile
@@ -113,7 +113,7 @@ dirent64_glibc: dirent.c Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) $(CFLAGS64) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ dirent.c > $@.out
+	./$@ dirent.c > $@.out
 	-@ echo " "
 
 dirent64_diff: dirent64 dirent64_glibc

@@ -22,7 +22,7 @@ TARGETS=termios termios_glibc
 
 all: $(TARGETS)
 
-termios: termios.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+termios: termios.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -32,7 +32,7 @@ termios: termios.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
 termios_glibc: termios.c Makefile
@@ -45,7 +45,7 @@ termios_glibc: termios.c Makefile
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
 clean:

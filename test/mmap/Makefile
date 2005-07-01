@@ -21,7 +21,7 @@ include ../Rules.mak
 TARGETS=mmap
 all: $(TARGETS)
 
-mmap: mmap.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+mmap: mmap.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -29,7 +29,7 @@ mmap: mmap.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
 clean:

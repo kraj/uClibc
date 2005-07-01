@@ -24,7 +24,7 @@ TARGETS+=mallocbug mallocbug_glibc
 TARGETS+=realloc0 realloc0_glibc
 all: $(TARGETS)
 
-malloc: malloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+malloc: malloc.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -32,7 +32,7 @@ malloc: malloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
 testmalloc_source:
@@ -42,7 +42,7 @@ testmalloc_source:
 	-@ cat testmalloc.c
 	-@ echo " "
 
-testmalloc: testmalloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+testmalloc: testmalloc.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -52,7 +52,7 @@ testmalloc: testmalloc.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
 testmalloc_glibc: testmalloc.c Makefile
@@ -65,10 +65,10 @@ testmalloc_glibc: testmalloc.c Makefile
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
-mallocbug: mallocbug.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+mallocbug: mallocbug.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -78,7 +78,7 @@ mallocbug: mallocbug.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
 mallocbug_glibc: mallocbug.c Makefile
@@ -91,10 +91,10 @@ mallocbug_glibc: mallocbug.c Makefile
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
-realloc0: realloc0.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+realloc0: realloc0.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -104,7 +104,7 @@ realloc0: realloc0.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
 realloc0_glibc: realloc0.c Makefile
@@ -117,7 +117,7 @@ realloc0_glibc: realloc0.c Makefile
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
 

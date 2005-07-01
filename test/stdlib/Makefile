@@ -33,7 +33,7 @@ teststrtol_source:
 	-@ cat teststrtol.c
 	-@ echo " "
 
-teststrtol: teststrtol.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+teststrtol: teststrtol.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -43,7 +43,7 @@ teststrtol: teststrtol.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 teststrtol_glibc: teststrtol.c Makefile
@@ -56,7 +56,7 @@ teststrtol_glibc: teststrtol.c Makefile
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 teststrtol_diff: teststrtol_glibc teststrtol
@@ -67,7 +67,7 @@ teststrtol_diff: teststrtol_glibc teststrtol
 	-diff -u teststrtol_glibc.out teststrtol.out
 	-@ echo " "
 
-qsort: qsort.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+qsort: qsort.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -77,7 +77,7 @@ qsort: qsort.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 qsort_glibc: qsort.c Makefile
@@ -90,7 +90,7 @@ qsort_glibc: qsort.c Makefile
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 qsort_diff: qsort_glibc qsort
@@ -101,7 +101,7 @@ qsort_diff: qsort_glibc qsort
 	-diff -u qsort_glibc.out qsort.out
 	-@ echo " "
 
-teston_exit: teston_exit.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+teston_exit: teston_exit.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -111,7 +111,7 @@ teston_exit: teston_exit.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 teston_exit_glibc: teston_exit.c Makefile
@@ -124,7 +124,7 @@ teston_exit_glibc: teston_exit.c Makefile
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 teston_exit_diff: teston_exit_glibc teston_exit
@@ -135,7 +135,7 @@ teston_exit_diff: teston_exit_glibc teston_exit
 	-diff -u teston_exit_glibc.out teston_exit.out
 	-@ echo " "
 
-testatexit: testatexit.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+testatexit: testatexit.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -145,7 +145,7 @@ testatexit: testatexit.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 testatexit_glibc: testatexit.c Makefile
@@ -158,7 +158,7 @@ testatexit_glibc: testatexit.c Makefile
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 testatexit_diff: testatexit_glibc testatexit
@@ -169,7 +169,7 @@ testatexit_diff: testatexit_glibc testatexit
 	-diff -u testatexit_glibc.out testatexit.out
 	-@ echo " "
 
-ptytest: ptytest.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+ptytest: ptytest.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -179,7 +179,7 @@ ptytest: ptytest.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
 

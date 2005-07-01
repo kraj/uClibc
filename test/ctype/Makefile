@@ -21,7 +21,7 @@ include ../Rules.mak
 TARGETS=ctype ctype_run
 all: $(TARGETS)
 
-ctype: ctype.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+ctype: ctype.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "

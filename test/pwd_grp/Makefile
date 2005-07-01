@@ -27,7 +27,7 @@ TARGETS+=test_pwd_diff test_grp_diff pwcat_diff grcat_diff getgroups_diff
 
 all: $(TARGETS)
 
-test_pwd: test_pwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+test_pwd: test_pwd.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -35,7 +35,7 @@ test_pwd: test_pwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >test_pwd.out
+	./$@ 2>&1 >test_pwd.out
 	-@ echo " "
 
 test_pwd_glibc: test_pwd.c Makefile
@@ -46,10 +46,10 @@ test_pwd_glibc: test_pwd.c Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >test_pwd_glibc.out
+	./$@ 2>&1 >test_pwd_glibc.out
 	-@ echo " "
 
-test_grp: test_grp.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+test_grp: test_grp.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -57,7 +57,7 @@ test_grp: test_grp.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >test_grp.out
+	./$@ 2>&1 >test_grp.out
 	-@ echo " "
 
 test_grp_glibc: test_grp.c Makefile
@@ -68,10 +68,10 @@ test_grp_glibc: test_grp.c Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >test_grp_glibc.out
+	./$@ 2>&1 >test_grp_glibc.out
 	-@ echo " "
 
-pwcat: pwcat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+pwcat: pwcat.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -79,7 +79,7 @@ pwcat: pwcat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >pwcat.out
+	./$@ 2>&1 >pwcat.out
 	-@ echo " "
 
 pwcat_glibc: pwcat.c Makefile
@@ -90,10 +90,10 @@ pwcat_glibc: pwcat.c Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >pwcat_glibc.out
+	./$@ 2>&1 >pwcat_glibc.out
 	-@ echo " "
 
-grcat: grcat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+grcat: grcat.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -101,7 +101,7 @@ grcat: grcat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >grcat.out
+	./$@ 2>&1 >grcat.out
 	-@ echo " "
 
 grcat_glibc: grcat.c Makefile
@@ -112,10 +112,10 @@ grcat_glibc: grcat.c Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >grcat_glibc.out
+	./$@ 2>&1 >grcat_glibc.out
 	-@ echo " "
 
-getgroups: getgroups.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+getgroups: getgroups.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -123,7 +123,7 @@ getgroups: getgroups.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >getgroups.out
+	./$@ 2>&1 >getgroups.out
 	-@ echo " "
 
 getgroups_glibc: getgroups.c Makefile
@@ -134,7 +134,7 @@ getgroups_glibc: getgroups.c Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >getgroups_glibc.out
+	./$@ 2>&1 >getgroups_glibc.out
 	-@ echo " "
 
 test_pwd_diff: test_pwd_glibc test_pwd

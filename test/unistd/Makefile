@@ -21,7 +21,7 @@ include ../Rules.mak
 TARGETS=fork fork_glibc vfork vfork_glibc getcwd getopt getopt_long preadwrite 
 all: $(TARGETS)
 
-getcwd: getcwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+getcwd: getcwd.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -32,7 +32,7 @@ getcwd: getcwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	./$@
 	-@ echo " "
 
-fork: fork.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+fork: fork.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -51,10 +51,10 @@ fork_glibc: fork.c ../testsuite.h Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
-vfork: vfork.c ../testsuite.h Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+vfork: vfork.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -73,24 +73,24 @@ vfork_glibc: vfork.c ../testsuite.h Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
-getopt: getopt.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+getopt: getopt.c Makefile $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	./$@ -abcXXX -9
 	-@ echo " "
 
-getopt_long: getopt_long.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+getopt_long: getopt_long.c Makefile $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	./$@ --add XXX --delete YYY --verbose
 	-@ echo " "
 
-preadwrite: preadwrite.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+preadwrite: preadwrite.c Makefile $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@

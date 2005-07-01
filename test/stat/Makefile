@@ -33,7 +33,7 @@ stat_source:
 	-@ cat stat.c
 	-@ echo " "
 
-stat: stat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+stat: stat.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -41,7 +41,7 @@ stat: stat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ stat.c > $@.out
+	./$@ stat.c > $@.out
 	-@ echo " "
 
 stat_glibc: stat.c Makefile
@@ -52,7 +52,7 @@ stat_glibc: stat.c Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ stat.c > $@.out
+	./$@ stat.c > $@.out
 	-@ echo " "
 
 stat_diff: stat stat_glibc
@@ -63,7 +63,7 @@ stat_diff: stat stat_glibc
 	-diff -u stat_glibc.out stat.out
 	-@ echo " "
 
-stat64: stat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+stat64: stat.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -71,7 +71,7 @@ stat64: stat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) $(CFLAGS64) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ stat.c > $@.out
+	./$@ stat.c > $@.out
 	-@ echo " "
 
 stat64_glibc: stat.c Makefile
@@ -82,7 +82,7 @@ stat64_glibc: stat.c Makefile
 	$(HOSTCC) $(GLIBC_CFLAGS) $(CFLAGS64) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ stat.c > $@.out
+	./$@ stat.c > $@.out
 	-@ echo " "
 
 stat64_diff: stat64 stat64_glibc

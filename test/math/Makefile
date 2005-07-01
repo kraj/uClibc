@@ -38,24 +38,24 @@ all: $(TARGETS)
 	
 test-double: test-double.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 test-idouble: test-idouble.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 test-float: test-float.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 test-ifloat: test-ifloat.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 test-ldouble: test-ldouble.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 test-ildouble: test-ildoubl.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 
-rint: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+rint: rint.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -63,10 +63,10 @@ rint: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ > $@.out 2>&1
+	./$@ > $@.out 2>&1
 	-@ echo " "
 
-rint_glibc: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+rint_glibc: rint.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs glibc: "
@@ -74,7 +74,7 @@ rint_glibc: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ > $@.out 2>&1
+	./$@ > $@.out 2>&1
 	-@ echo " "
 
 diff: rint_glibc rint

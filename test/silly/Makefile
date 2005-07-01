@@ -30,7 +30,7 @@ hello_source:
 	-@ cat hello.c
 	-@ echo " "
 
-hello: hello.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+hello: hello.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -40,7 +40,7 @@ hello: hello.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
 hello_glibc: hello.c Makefile
@@ -53,11 +53,11 @@ hello_glibc: hello.c Makefile
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
 
-tiny: tiny.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+tiny: tiny.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
 	-@ echo "Compiling vs uClibc: "
@@ -67,7 +67,7 @@ tiny: tiny.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
 
