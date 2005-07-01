@@ -23,13 +23,19 @@
 #ifndef _PT_DEBUG_H
 #define _PT_DEBUG_H
 
+#include <features.h>
+
+#ifdef __DODEBUG_PT__
+# define DEBUG_PT
+#endif
+
 /* include asserts for now */
 #define DO_ASSERT
 
 /* define the PDEBUG macro here */
 #undef PDEBUG
 #ifdef DEBUG_PT
-#  define PDEBUG(fmt, args...) __pthread_message(__FUNCTION__": " fmt, ## args)
+#  define PDEBUG(fmt, args...) __pthread_message("%s: " fmt, __FUNCTION__, ## args)
 #else
 #  define PDEBUG(fmt, args...) /* debug switched off */
 #endif

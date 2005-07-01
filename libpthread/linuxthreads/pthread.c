@@ -513,7 +513,7 @@ int __pthread_initialize_manager(void)
       __pthread_wait_for_restart_signal(thread_self());
     }
   /* Synchronize debugging of the thread manager */
-PDEBUG("send REQ_DEBUG to manager thread\n");
+  PDEBUG("send REQ_DEBUG to manager thread\n");
   request.req_kind = REQ_DEBUG;
   TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
 	      (char *) &request, sizeof(request)));
@@ -540,9 +540,9 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
   PDEBUG("write REQ_CREATE to manager thread\n");
   TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
 	      (char *) &request, sizeof(request)));
-PDEBUG("before suspend(self)\n");
+  PDEBUG("before suspend(self)\n");
   suspend(self);
-PDEBUG("after suspend(self)\n");
+  PDEBUG("after suspend(self)\n");
   if (THREAD_GETMEM(self, p_retcode) == 0)
     *thread = (pthread_t) THREAD_GETMEM(self, p_retval);
   return THREAD_GETMEM(self, p_retcode);
@@ -577,7 +577,7 @@ pthread_descr __pthread_find_self()
 
 #ifdef DEBUG_PT
   if (h->h_descr == NULL) {
-      printf("*** "__FUNCTION__" ERROR descriptor is NULL!!!!! ***\n\n");
+      printf("*** %s ERROR descriptor is NULL!!!!! ***\n\n", __FUNCTION__);
       _exit(1);
   }
 #endif
