@@ -38,7 +38,7 @@ string: string.c Makefile $(TESTDIR)/Rules.mak
 string_glibc: string.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling $@ vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -60,7 +60,7 @@ testcopy: testcopy.c Makefile $(TESTDIR)/Rules.mak
 testcopy_glibc: testcopy.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling $@ vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@

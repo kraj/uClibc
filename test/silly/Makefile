@@ -46,7 +46,7 @@ hello: hello.c Makefile $(TESTDIR)/Rules.mak
 hello_glibc: hello.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling $@ vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@

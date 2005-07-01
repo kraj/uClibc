@@ -47,7 +47,7 @@ stat: stat.c Makefile $(TESTDIR)/Rules.mak
 stat_glibc: stat.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling $@ vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -77,7 +77,7 @@ stat64: stat.c Makefile $(TESTDIR)/Rules.mak
 stat64_glibc: stat.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling $@ vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) $(CFLAGS64) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@

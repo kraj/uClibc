@@ -78,7 +78,7 @@ dirent: dirent.c Makefile $(TESTDIR)/Rules.mak
 dirent_glibc: dirent.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling $@ vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -108,7 +108,7 @@ dirent64: dirent.c Makefile $(TESTDIR)/Rules.mak
 dirent64_glibc: dirent.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling $@ vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) $(CFLAGS64) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@

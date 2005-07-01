@@ -38,7 +38,7 @@ termios: termios.c Makefile $(TESTDIR)/Rules.mak
 termios_glibc: termios.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling $@ vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@

@@ -46,7 +46,7 @@ fork: fork.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 fork_glibc: fork.c ../testsuite.h Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling $@ vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -68,7 +68,7 @@ vfork: vfork.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 vfork_glibc: vfork.c ../testsuite.h Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling $@ vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
