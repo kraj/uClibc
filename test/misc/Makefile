@@ -26,7 +26,7 @@ all: $(TARGETS)
 outb: outb.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -37,7 +37,7 @@ outb: outb.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 sem: sem.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -48,7 +48,7 @@ sem: sem.c Makefile $(TESTDIR)/Rules.mak
 fdopen: fdopen.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -67,7 +67,7 @@ dirent_source:
 dirent: dirent.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -78,7 +78,7 @@ dirent: dirent.c Makefile $(TESTDIR)/Rules.mak
 dirent_glibc: dirent.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs GNU libc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -97,7 +97,7 @@ dirent_diff: dirent dirent_glibc
 dirent64: dirent.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) $(CFLAGS64) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -108,7 +108,7 @@ dirent64: dirent.c Makefile $(TESTDIR)/Rules.mak
 dirent64_glibc: dirent.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs GNU libc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) $(CFLAGS64) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -128,6 +128,3 @@ clean:
 	$(RM) *.[oa] *~ core dirent dirent_glibc dirent_glibc.out dirent.out \
 		dirent64 dirent64_glibc dirent64_glibc.out dirent64.out \
 		outb sem fdopen
-
-
-

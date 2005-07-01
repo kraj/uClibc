@@ -24,7 +24,7 @@ all: $(TARGETS)
 ctype: ctype.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -33,7 +33,6 @@ ctype: ctype.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 ctype_run:
 	./ctype
 	-@ echo " "
+
 clean:
 	$(RM) *.[oa] *~ core $(TARGETS)
-
-

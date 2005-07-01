@@ -36,7 +36,7 @@ stat_source:
 stat: stat.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -47,7 +47,7 @@ stat: stat.c Makefile $(TESTDIR)/Rules.mak
 stat_glibc: stat.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs GNU libc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -66,7 +66,7 @@ stat_diff: stat stat_glibc
 stat64: stat.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) $(CFLAGS64) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -77,7 +77,7 @@ stat64: stat.c Makefile $(TESTDIR)/Rules.mak
 stat64_glibc: stat.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs GNU libc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) $(CFLAGS64) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -96,5 +96,3 @@ stat64_diff: stat64 stat64_glibc
 clean:
 	$(RM) *.[oa] *~ core stat stat_glibc stat_glibc.out stat.out \
 		stat64 stat64_glibc stat64_glibc.out stat64.out
-
-

@@ -24,7 +24,7 @@ all: $(TARGETS)
 getcwd: getcwd.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -35,7 +35,7 @@ getcwd: getcwd.c Makefile $(TESTDIR)/Rules.mak
 fork: fork.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -46,7 +46,7 @@ fork: fork.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 fork_glibc: fork.c ../testsuite.h Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs GNU libc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -57,7 +57,7 @@ fork_glibc: fork.c ../testsuite.h Makefile
 vfork: vfork.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -68,7 +68,7 @@ vfork: vfork.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 vfork_glibc: vfork.c ../testsuite.h Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs GNU libc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -99,5 +99,3 @@ preadwrite: preadwrite.c Makefile $(TESTDIR)/Rules.mak
 
 clean:
 	$(RM) *.[oa] *~ core $(TARGETS)
-
-

@@ -58,7 +58,7 @@ test-ildouble: test-ildoubl.o
 rint: rint.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -69,7 +69,7 @@ rint: rint.c Makefile $(TESTDIR)/Rules.mak
 rint_glibc: rint.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs glibc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -99,5 +99,3 @@ libm-test.c: $(ulps-file) libm-test.inc gen-libm-test.pl
 
 clean:
 	$(RM) *.[oa] *~ core $(TARGETS) $(generated) rint_glibc.out rint.out
-
-

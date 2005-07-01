@@ -27,7 +27,7 @@ all: $(TARGETS)
 string: string.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -38,7 +38,7 @@ string: string.c Makefile $(TESTDIR)/Rules.mak
 string_glibc: string.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs GNU libc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -49,7 +49,7 @@ string_glibc: string.c Makefile
 testcopy: testcopy.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -60,7 +60,7 @@ testcopy: testcopy.c Makefile $(TESTDIR)/Rules.mak
 testcopy_glibc: testcopy.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs GNU libc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -80,7 +80,7 @@ testcopy_diff: testcopy testcopy_glibc
 strerror: ../../libc/string/strerror.c $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -DCHECK_BUF -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -91,7 +91,7 @@ strerror: ../../libc/string/strerror.c $(TESTDIR)/Rules.mak
 strsignal: ../../libc/string/strsignal.c
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -DCHECK_BUF -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -99,8 +99,5 @@ strsignal: ../../libc/string/strsignal.c
 	./$@
 	-@ echo " "
 
-
 clean:
 	$(RM) *.[oa] *~ core $(TARGETS) testcopy.gnu.out testcopy.out
-
-

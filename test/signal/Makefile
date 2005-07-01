@@ -19,6 +19,7 @@
 include ../Rules.mak
 
 CFLAGS += -D_GNU_SOURCE
+GLIBC_CFLAGS += -D_GNU_SOURCE
 
 TARGETS=signal signal_glibc sigchld sigchld_glibc 
 all: $(TARGETS)
@@ -26,7 +27,7 @@ all: $(TARGETS)
 signal: signal.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -37,7 +38,7 @@ signal: signal.c Makefile $(TESTDIR)/Rules.mak
 signal_glibc: signal.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs GNU libc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -48,7 +49,7 @@ signal_glibc: signal.c Makefile
 sigchld: sigchld.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -59,7 +60,7 @@ sigchld: sigchld.c Makefile $(TESTDIR)/Rules.mak
 sigchld_glibc: sigchld.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs GNU libc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -69,5 +70,3 @@ sigchld_glibc: sigchld.c Makefile
 
 clean:
 	$(RM) *.[oa] *~ core $(TARGETS)
-
-

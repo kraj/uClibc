@@ -25,7 +25,7 @@ all: $(TARGETS)
 termios: termios.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
@@ -38,7 +38,7 @@ termios: termios.c Makefile $(TESTDIR)/Rules.mak
 termios_glibc: termios.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs GNU libc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
@@ -50,5 +50,3 @@ termios_glibc: termios.c Makefile
 
 clean:
 	$(RM) *.[oa] *~ core $(TARGETS)
-
-
