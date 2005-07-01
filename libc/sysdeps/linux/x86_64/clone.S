@@ -1,4 +1,4 @@
-/* Copyright (C) 2001, 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,8 +19,10 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
-#define _ERRNO_H	1
+#define _ERRNO_H 1
+#include <features.h>
 #include <bits/errno.h>
+#include <sys/syscall.h>
 
 #define CLONE_VM	0x00000100
 #define CLONE_THREAD	0x00010000
@@ -49,8 +51,8 @@
 
 
 .text
-.globl __clone;
-.type	__clone,@function
+.global __clone
+.type   __clone,@function
 .align 4
 __clone:
 	/* Sanity check arguments.  */
@@ -73,21 +75,21 @@ __clone:
 	movq	%r8, %rdx
 	movq	%r9, %r8
 	movq	8(%rsp), %r10
-	movq	__NR_clone,%rax
+	movl	$__NR_clone,%eax
 
 	syscall
 
 	testq	%rax,%rax
 	jl	__error
-	jz	L(thread_start)
+	jz	.Lthread_start
 
-L(pseudo_end):
+.Lpseudo_end:
 	ret
 
-L(thread_start):
+.Lthread_start:
 	/* Clear the frame pointer.  The ABI suggests this be done, to mark
 	   the outermost frame obviously.  */
-	xorq	%rbp, %rbp
+	xorl	%ebp, %ebp
 
 #ifdef RESET_PID
 	testq	$CLONE_THREAD, %rdi
@@ -95,7 +97,7 @@ L(thread_start):
 	testq	$CLONE_VM, %rdi
 	movl	$-1, %eax
 	jne	2f
-	movq	__NR_getpid, %rax
+	movl	$__NR_getpid, %eax
 	syscall
 2:	movl	%eax, %fs:PID
 	movl	%eax, %fs:TID
@@ -108,7 +110,10 @@ L(thread_start):
 	call	*%rax
 	/* Call exit with return value from function call. */
 	movq	%rax, %rdi
-	call	HIDDEN_JUMPTARGET (_exit)
+	call	_exit@PLT //HIDDEN_JUMPTARGET (_exit)
+
+__error:
+	jmp __syscall_error
 
 .size __clone,.-__clone
 
