@@ -23,9 +23,9 @@
 /* Jump to the position specified by ENV, causing the
    setjmp call there to return VAL, or 1 if VAL is 0.
    void __longjmp (__jmp_buf env, int val).  */
-.globl __longjmp;
-.type	__longjmp,@function;
-.align 16;
+.global __longjmp
+.type   __longjmp,@function
+.align 16
 __longjmp:
 	/* Restore registers.  */
 	movq (JB_RBX*8)(%rdi),%rbx
@@ -42,4 +42,4 @@ __longjmp:
 	movq (JB_PC*8)(%rdi),%rdx
 	movq (JB_RSP*8)(%rdi),%rsp
 	jmpq *%rdx
-.size __longjmp,.-__longjmp;
+.size __longjmp,.-__longjmp

@@ -21,9 +21,9 @@
 #define _SETJMP_H
 #include <bits/setjmp.h>
 
-.globl __sigsetjmp;
-.type    __sigsetjmp,@function
-.align 4;
+.global __sigsetjmp
+.type   __sigsetjmp,@function
+.align 4
 __sigsetjmp:
 	/* Save registers.  */
 	movq %rbx, (JB_RBX*8)(%rdi)
@@ -43,4 +43,4 @@ __sigsetjmp:
 #else
 	jmp __sigjmp_save
 #endif
-.size __sigsetjmp,.-__sigsetjmp;
+.size __sigsetjmp,.-__sigsetjmp
