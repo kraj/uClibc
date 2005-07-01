@@ -249,7 +249,7 @@ config LDSO_PRELOAD_FILE_SUPPORT
 
 config LDSO_BASE_FILENAME
 	string "Shared library loader naming prefix"
-	depends on LDSO_CACHE_SUPPORT || LDSO_PRELOAD_FILE_SUPPORT
+	depends on BUILD_UCLIBC_LDSO && (LDSO_CACHE_SUPPORT || LDSO_PRELOAD_FILE_SUPPORT)
 	default "ld.so"
 	help
 	  If you wish to support both uClibc and glibc on the same system, it
