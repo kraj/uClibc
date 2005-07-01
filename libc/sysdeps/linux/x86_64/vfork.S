@@ -16,8 +16,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define _ERRNO_H	1
-#include <bits/errno.h>
 #include <sys/syscall.h>
 
 /* Clone the calling process, but without copying the whole address space.
@@ -26,14 +24,14 @@
    and the process ID of the new process to the old process.  */
 
 #ifndef __NR_vfork
-#error wtf
 /* No vfork so use fork instead */
-.weak vfork ; vfork = __libc_fork
+.weak vfork
+	vfork = __libc_fork
 
 #else
 
 .text
-.globl __vfork
+.global __vfork
 .type	__vfork,@function
 .align 16
 __vfork:
