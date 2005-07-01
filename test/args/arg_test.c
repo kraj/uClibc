@@ -36,20 +36,20 @@ int main(int argc, char **argv)
 		unsigned long sp;
 		sp = (unsigned long) __builtin_frame_address(0);
 		if(sp&0xf){
-			fprintf(stderr, "stack pointer is unaligned! (%08lx)\n", sp);
+			printf("stack pointer is unaligned! (%08lx)\n", sp);
 		}
 	}
 #endif
 	
-	fprintf(stderr, "argc=%d\n", argc);
+	printf("argc=%d\n", argc);
 
 	for(i=0;i<argc;i++) {
-		fprintf(stderr, "argv[%d]='%s'\n", i, argv[i]);
+		printf("argv[%d]='%s'\n", i, argv[i]);
 	}
 
 	i=0;
 	while(*index) {
-		fprintf(stderr, "environ[%d]='%s'\n", i++, *index++);
+		printf("environ[%d]='%s'\n", i++, *index++);
 	}
 
 	exit(0);

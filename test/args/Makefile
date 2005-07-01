@@ -29,8 +29,14 @@ arg_test: arg_test.c Makefile $(TESTDIR)/Rules.mak
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	./$@ a b c d e f g h
+	env -i \
+	ENVVAR=123 \
+	SOMETHING=sldajfasdf \
+	BLAHBLAH=" hi hi " \
+	./$@ a b c d e f g h \
+	> arg_test.out
+	diff -u arg_test.out.good arg_test.out
 	-@ echo " "
 
 clean:
-	$(RM) *.[oa] *~ core $(TARGETS)
+	$(RM) *.[oa] *~ core $(TARGETS) *.out
