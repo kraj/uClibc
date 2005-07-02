@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 92, 93, 94, 95, 96, 97 Free Software Foundation, Inc.
+/* Copyright (C) 1991,92,93,94,95,96,97,2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -25,8 +25,8 @@
 /* The includer defined __need_Emath if he wants only the definitions
    of EDOM and ERANGE, and not everything else.  */
 #ifndef	__need_Emath
-#define	_ERRNO_H	1
-#include <features.h>
+# define _ERRNO_H	1
+# include <features.h>
 #endif
 
 __BEGIN_DECLS
@@ -47,6 +47,14 @@ __BEGIN_DECLS
 extern int errno;
 #endif
 
+#if 0 //def __USE_GNU
+/* uClibc note: not supported */
+
+/* The full and simple forms of the name with which the program was
+   invoked.  These variables are set up automatically at startup based on
+   the value of ARGV[0] (this works only if you use GNU ld).  */
+extern char *program_invocation_name, *program_invocation_short_name;
+#endif /* __USE_GNU */
 #endif /* _ERRNO_H */
 
 __END_DECLS
