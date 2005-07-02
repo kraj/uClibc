@@ -54,6 +54,28 @@ fork_glibc: fork.c ../testsuite.h Makefile
 	./$@
 	-@ echo " "
 
+clone: clone.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling $@ vs uClibc: "
+	-@ echo " "
+	$(CC) $(CFLAGS) -c $< -o $@.o
+	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	./$@
+	-@ echo " "
+
+clone_glibc: clone.c ../testsuite.h Makefile
+	-@ echo "-------"
+	-@ echo " "
+	-@ echo "Compiling $@ vs glibc: "
+	-@ echo " "
+	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
+	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $@
+	./$@
+	-@ echo " "
+
 vfork: vfork.c ../testsuite.h Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
