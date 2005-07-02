@@ -1,5 +1,5 @@
 /* Definitions of macros to access `dev_t' values.
-   Copyright (C) 1996, 1997, 1999, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997, 1999, 2003, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 /* If the compiler does not know long long it is out of luck.  We are
    not going to hack weird hacks to support the dev_t representation
    they need.  */
+#if 1 /*def __GLIBC_HAVE_LONG_LONG    uClibc note: always enable */
 __extension__
 static __inline unsigned int gnu_dev_major (unsigned long long int __dev)
      __THROW;
@@ -36,32 +37,33 @@ static __inline unsigned long long int gnu_dev_makedev (unsigned int __major,
 							unsigned int __minor)
      __THROW;
 
-#if defined __GNUC__ && __GNUC__ >= 2
+# if defined __GNUC__ && __GNUC__ >= 2
 __extension__ static __inline unsigned int
-gnu_dev_major (unsigned long long int __dev) __THROW
+__NTH (gnu_dev_major (unsigned long long int __dev))
 {
   return ((__dev >> 8) & 0xfff) | ((unsigned int) (__dev >> 32) & ~0xfff);
 }
 
 __extension__ static __inline unsigned int
-gnu_dev_minor (unsigned long long int __dev) __THROW
+__NTH (gnu_dev_minor (unsigned long long int __dev))
 {
   return (__dev & 0xff) | ((unsigned int) (__dev >> 12) & ~0xff);
 }
 
 __extension__ static __inline unsigned long long int
-gnu_dev_makedev (unsigned int __major, unsigned int __minor) __THROW
+__NTH (gnu_dev_makedev (unsigned int __major, unsigned int __minor))
 {
   return ((__minor & 0xff) | ((__major & 0xfff) << 8)
 	  | (((unsigned long long int) (__minor & ~0xff)) << 12)
 	  | (((unsigned long long int) (__major & ~0xfff)) << 32));
 }
-#endif
+# endif
 
 
 /* Access the functions with their traditional names.  */
-#define major(dev) gnu_dev_major (dev)
-#define minor(dev) gnu_dev_minor (dev)
-#define makedev(maj, min) gnu_dev_makedev (maj, min)
+# define major(dev) gnu_dev_major (dev)
+# define minor(dev) gnu_dev_minor (dev)
+# define makedev(maj, min) gnu_dev_makedev (maj, min)
+#endif
 
 #endif /* sys/sysmacros.h */
