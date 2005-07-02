@@ -47,8 +47,7 @@ __BEGIN_DECLS
 extern int errno;
 #endif
 
-#if 0 //def __USE_GNU
-/* uClibc note: not supported */
+#if 0 /*def __USE_GNU      uClibc note: not supported */
 
 /* The full and simple forms of the name with which the program was
    invoked.  These variables are set up automatically at startup based on
