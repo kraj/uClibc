@@ -87,7 +87,7 @@ extern void _dl_protect_relro (struct elf_resolve *l);
 
 extern void _dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void *debug_addr, ElfW(Addr) load_off);
 
-static inline __attribute__((always_inline))
+static __always_inline
 void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void *debug_addr, ElfW(Addr) load_off)
 {
 	for (; dpnt->d_tag; dpnt++) {
