@@ -22,7 +22,7 @@ static char *_dl_simple_ltoahex(char * local, unsigned long i);
 #define NULL ((void *) 0)
 #endif
 
-static inline size_t __attribute__((__always_inline__)) _dl_strlen(const char * str)
+static __always_inline size_t _dl_strlen(const char * str)
 {
 	register const char *ptr = (char *) str-1;
 
@@ -30,7 +30,7 @@ static inline size_t __attribute__((__always_inline__)) _dl_strlen(const char * 
 	return (ptr - str);
 }
 
-static inline char * __attribute__((__always_inline__)) _dl_strcat(char *dst, const char *src)
+static __always_inline char * _dl_strcat(char *dst, const char *src)
 {
 	register char *ptr = dst-1;
 
