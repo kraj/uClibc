@@ -161,7 +161,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	if (!auxvt[AT_BASE].a_un.a_val)
 		auxvt[AT_BASE].a_un.a_val = elf_machine_load_address();
 	load_addr = auxvt[AT_BASE].a_un.a_val;
-	header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_ptr;
+	header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
 
 	/* Check the ELF header to make sure everything looks ok.  */
 	if (!header || header->e_ident[EI_CLASS] != ELF_CLASS ||
@@ -300,6 +300,6 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 
 	/* Transfer control to the application.  */
 	SEND_STDERR_DEBUG("transfering control to application\n");
-	_dl_elf_main = (int (*)(int, char **, char **)) auxvt[AT_ENTRY].a_un.a_fcn;
+	_dl_elf_main = (int (*)(int, char **, char **)) auxvt[AT_ENTRY].a_un.a_val;
 	START();
 }
