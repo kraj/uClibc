@@ -6,15 +6,23 @@
  * different opinion on the subject... */
 
 struct kernel_stat {
+#if defined(__ARMEB__)
 	unsigned short st_dev;
 	unsigned short __pad1;
+#else
+	unsigned long  st_dev;
+#endif
 	unsigned long st_ino;
 	unsigned short st_mode;
 	unsigned short st_nlink;
 	unsigned short st_uid;
 	unsigned short st_gid;
+#if defined(__ARMEB__)
 	unsigned short st_rdev;
 	unsigned short __pad2;
+#else
+	unsigned long  st_rdev;
+#endif
 	unsigned long  st_size;
 	unsigned long  st_blksize;
 	unsigned long  st_blocks;
