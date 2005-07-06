@@ -24,8 +24,8 @@
 */
 
 #define _ERRNO_H	1
-#include <features.h>
 #include <bits/errno.h>
+#include <sys/syscall.h>
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg,
 	     pid_t *ptid, struct user_desc *tls, pid_t *ctid); */
