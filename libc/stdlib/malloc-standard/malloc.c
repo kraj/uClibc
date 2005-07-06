@@ -827,6 +827,10 @@ void* malloc(size_t bytes)
     mchunkptr       bck;              /* misc temp for linking */
     void *          sysmem;
 
+#if !defined(__MALLOC_GLIBC_COMPAT__)
+    if (!bytes) return NULL;
+#endif
+
     LOCK;
     av = get_malloc_state();
     /*
