@@ -20,8 +20,6 @@
  * and things will just work.
  */
 
-#include <features.h>
-	
 .text
 .global syscall
 .type   syscall,%function
@@ -30,49 +28,22 @@ syscall:
 	pushl %edi
 	pushl %esi
 	pushl %ebx
-	movl  36(%esp),%edi;	/* Load the 5 syscall argument registers */
-	movl  32(%esp),%esi;
-	movl  28(%esp),%edx;
-	movl  24(%esp),%ecx;
-	movl  20(%esp),%ebx;
+	movl  36(%esp),%edi	/* Load the 5 syscall argument registers */
+	movl  32(%esp),%esi
+	movl  28(%esp),%edx
+	movl  24(%esp),%ecx
+	movl  20(%esp),%ebx
 	movl  16(%esp),%eax	/* Load syscall number into %eax.  */
-#APP
 	int $0x80
-#NO_APP
-	cmpl $-4095,%eax
-	jbe .Ldone
 
-#ifdef __PIC__
-	call Lhere
-Lhere:
-	popl %ebx
-	addl $_GLOBAL_OFFSET_TABLE_+[.-Lhere],%ebx
-	negl %eax
-	movl %eax,%ecx
-#ifdef __UCLIBC_HAS_THREADS__
-	call __errno_location@PLT
-#else
-	movl errno@GOT(%ebx),%eax
-#endif /* __UCLIBC_HAS_THREADS__ */
-	movl %ecx,(%eax)
-#else
-	negl %eax
-#ifdef __UCLIBC_HAS_THREADS__
-	movl %eax,%ecx
-	call __errno_location
-	movl %ecx,(%eax)
-#else
-	movl %eax,errno
-#endif /* __UCLIBC_HAS_THREADS__ */
-
-#endif /* __PIC__ */
-
-	movl $-1,%eax
-	.p2align 4,,7
-.Ldone:
 	popl %ebx
 	popl %esi
 	popl %edi
-	ret
-.Lsize:
-.size syscall,.Lsize-syscall
+	cmpl $-4095,%eax
+	jae  __error
+	ret			/* Return to caller.  */
+
+__error:
+	call	__syscall_error
+
+.size syscall,.-syscall

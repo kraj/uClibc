@@ -65,6 +65,7 @@ mmap64:
 	movl FD(%esp), %edi
 
 	movl $__NR_mmap2, %eax	/* System call number in %eax.  */
+	/* Do the system call trap.  */
 	int $0x80
 
 	/* Restore registers.  */
@@ -75,7 +76,8 @@ mmap64:
 
 	/* If 0 > %eax > -4096 there was an error.  */
 	cmpl $-4095,%eax
-	jae __syscall_error
+	ja __error
+	/* Successful; return the syscall's value.  */
 	ret
 
 	/* This means the offset value is too large.  */
@@ -85,27 +87,11 @@ L_einval:
 	popl %ebx
 	popl %ebp
 	movl $-EINVAL, %eax
-	jmp __syscall_error
+	jmp __error
 
+__error:
+	call	__syscall_error
 
-__syscall_error:
-	negl    %eax
-	pushl   %eax
-#ifdef __PIC__
-	call .Lthere
-.Lthere:
-	popl	%ebx
-	addl	$_GLOBAL_OFFSET_TABLE_+[.- .Lthere  ], %ebx
-	call    __errno_location@PLT
-#else
-	call	__errno_location
-#endif
-	popl	%ecx
-	movl	%ecx, (%eax)
-	xorl	%eax, %eax
-	decl	%eax
-
-.Lsize:
-.size mmap64,.Lsize-mmap64
+.size mmap64,.-mmap64
 
 #endif
