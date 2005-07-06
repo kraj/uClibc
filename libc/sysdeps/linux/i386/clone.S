@@ -45,11 +45,12 @@
 #define __NR_exit         1
 
 .text
-.type clone,@function;
-.weak clone ; clone = __clone
+.type clone,%function
+.weak clone
+	clone = __clone
 
-.type __clone,@function;
-.globl __clone;
+.global __clone
+.type   __clone,%function
 
 __clone:
 	/* Sanity check arguments.  */
@@ -135,8 +136,8 @@ __clone:
 #else	/* __PIC__ */
 
 .Lclone_error:
-	negl    %eax
-	pushl   %eax
+	negl	%eax
+	pushl	%eax
 	call	__errno_location
 	popl	%ecx
 	movl	%ecx, (%eax)
@@ -146,4 +147,3 @@ __clone:
 #endif
 
 .size __clone,.-__clone
-

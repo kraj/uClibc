@@ -56,18 +56,18 @@
 
 #include <features.h>
 
-	.text
-	.globl	_start
-	.type	_start,@function
+.text
+.global _start
+.type   _start,%function
 #if defined(__UCLIBC_CTOR_DTOR__)
-	.type	_init,%function
-	.type	_fini,%function
+.type   _init,%function
+.type   _fini,%function
 #else
-	.weak	_init
-	.weak	_fini
+.weak   _init
+.weak   _fini
 #endif
-	.type	main,%function
-	.type	__uClibc_main,%function
+.type   main,%function
+.type   __uClibc_main,%function
 _start:
 	/* Clear the frame pointer.  The ABI suggests this be done, to mark
 	   the outermost frame obviously.  */
@@ -132,9 +132,9 @@ _start:
 .size _start,.-_start
 
 /* Define a symbol for the first piece of initialized data.  */
-	.data
-	.globl __data_start
+.data
+.global __data_start
 __data_start:
-	.long 0
-	.weak data_start
+.long 0
+.weak data_start
 	data_start = __data_start

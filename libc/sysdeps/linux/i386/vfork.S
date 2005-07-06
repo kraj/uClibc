@@ -14,11 +14,11 @@
 
 #else
 
-        .text
-	.globl __vfork;
-	.type __vfork,@function;
-	.align 1<<4;
-	
+.text
+.global __vfork
+.type   __vfork,%function
+.align 1<<4
+
 __vfork:
 	popl %ecx
 	movl $__NR_vfork,%eax
@@ -46,7 +46,7 @@ __syscall_error:
 	decl	%eax
 
 .Lsize:
-	.size	 __vfork,.Lsize-__vfork
+.size __vfork,.Lsize-__vfork
 
 
 .weak vfork ; vfork = __vfork

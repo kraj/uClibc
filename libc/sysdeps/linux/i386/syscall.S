@@ -23,9 +23,9 @@
 #include <features.h>
 	
 .text
-	.align 4
-.globl syscall
-	.type	 syscall,@function
+.global syscall
+.type   syscall,%function
+.align 4
 syscall:
 	pushl %edi
 	pushl %esi
@@ -75,4 +75,4 @@ Lhere:
 	popl %edi
 	ret
 .Lsize:
-	.size	 syscall,.Lsize-syscall
+.size syscall,.Lsize-syscall

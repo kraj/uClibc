@@ -22,9 +22,9 @@
 #include <bits/setjmp.h>
 
 
-.globl __sigsetjmp;
-.type    __sigsetjmp,@function
-.align 4;
+.global __sigsetjmp
+.type   __sigsetjmp,%function
+.align 4
 
 __sigsetjmp:
         movl 4   (%esp), %eax
@@ -56,4 +56,4 @@ __sigsetjmp:
 #else
 	jmp   __sigjmp_save
 #endif
-.size __sigsetjmp,.-__sigsetjmp;
+.size __sigsetjmp,.-__sigsetjmp

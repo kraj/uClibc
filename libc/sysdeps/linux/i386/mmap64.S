@@ -37,10 +37,10 @@
 #define OFFLO	FD+4
 #define OFFHI	OFFLO+4
 
-        .text
-	.globl mmap64;
-	.type mmap64,@function;
-	.align 1<<4;
+.text
+.global mmap64
+.type   mmap64,%function
+.align 1<<4
 
 mmap64:
 	/* Save registers.  */
@@ -106,7 +106,6 @@ __syscall_error:
 	decl	%eax
 
 .Lsize:
-	.size	 mmap64,.Lsize-mmap64
+.size mmap64,.Lsize-mmap64
 
 #endif
-

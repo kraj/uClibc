@@ -25,27 +25,23 @@
 #define _SETJMP_H
 #include <bits/setjmp.h>
 
-
-.globl _setjmp;
-.type    _setjmp,@function
-.align 4;
-
+.global _setjmp
+.type   _setjmp,%function
+.align 4
 _setjmp:
 	xorl %eax, %eax
 	movl 4   (%esp), %edx
 
-     	/* Save registers.  */
+	/* Save registers.  */
 	movl %ebx, (JB_BX*4)(%edx)
 	movl %esi, (JB_SI*4)(%edx)
 	movl %edi, (JB_DI*4)(%edx)
 	leal 4 (%esp), %ecx	/* Save SP as it will be after we return.  */
-     	movl %ecx, (JB_SP*4)(%edx)
+	movl %ecx, (JB_SP*4)(%edx)
 	movl 0 (%esp), %ecx	/* Save PC we are returning to now.  */
-     	movl %ecx, (JB_PC*4)(%edx)
+	movl %ecx, (JB_PC*4)(%edx)
 	movl %ebp, (JB_BP*4)(%edx) /* Save caller's frame pointer.  */
 
 	movl %eax, JB_SIZE(%edx) /* No signal mask set.  */
 	ret
-.size _setjmp,.-_setjmp;
-
-
+.size _setjmp,.-_setjmp

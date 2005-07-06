@@ -21,32 +21,32 @@
 #define _SETJMP_H
 #include <bits/setjmp.h>
 
-.globl setjmp;
-.type    setjmp,@function
-.align 4;
+.global setjmp
+.type   setjmp,%function
+.align 4
 setjmp:
-        movl 4   (%esp), %eax
+	movl 4   (%esp), %eax
 	/* Save registers.  */
-        movl %ebx, (0 *4)(%eax)
-        movl %esi, (1 *4)(%eax)
-        movl %edi, (2 *4)(%eax)
+	movl %ebx, (0 *4)(%eax)
+	movl %esi, (1 *4)(%eax)
+	movl %edi, (2 *4)(%eax)
 	/* Save SP as it will be after we return.  */
-        leal 4   (%esp), %ecx
-        movl %ecx, (4 *4)(%eax)
+	leal 4   (%esp), %ecx
+	movl %ecx, (4 *4)(%eax)
 	/* Save PC we are returning to now.  */
-        movl 0 (%esp), %ecx
-        movl %ecx, (5 *4)(%eax)
+	movl 0 (%esp), %ecx
+	movl %ecx, (5 *4)(%eax)
 	/* Save caller's frame pointer.  */
-        movl %ebp, (3 *4)(%eax)  
+	movl %ebp, (3 *4)(%eax)  
 
 	/* Call __sigjmp_save.  */
 	pushl $1
 	pushl 8(%esp)
 #ifdef	__PIC__
 	/* We cannot use the PLT, because it requires that %ebx be set, but
-           we can't save and restore our caller's value.  Instead, we do an
-           indirect jump through the GOT, using for the temporary register
-           %ecx, which is call-clobbered.  */
+	   we can't save and restore our caller's value.  Instead, we do an
+	   indirect jump through the GOT, using for the temporary register
+	   %ecx, which is call-clobbered.  */
 	call here2
 here2:	popl %ecx
 	addl $_GLOBAL_OFFSET_TABLE_+[.-here2], %ecx
@@ -58,4 +58,4 @@ here2:	popl %ecx
 	popl %ecx
 	popl %edx
 	ret
-.size setjmp,.-setjmp;
+.size setjmp,.-setjmp
