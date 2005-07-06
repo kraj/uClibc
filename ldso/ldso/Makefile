@@ -83,7 +83,7 @@ $(LDSO_FULLNAME): $(OBJS) $(DLINK_OBJS)
 	$(INSTALL) -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
 	$(LN) -sf $(LDSO_FULLNAME) $(TOPDIR)lib/$(UCLIBC_LDSO)
 
-$(COBJS): %.o : %.c $(TOPDIR)ldso/include/*.h
+$(COBJS): %.o : %.c
 	$(CC) $(XXFLAGS) -I../libdl -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
@@ -92,7 +92,7 @@ $(AOBJS): %.o : %.S
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 ldso.o: $(CSRC) dl-elf.c dl-hash.c dl-startup.c \
-	$(TARGET_ARCH)/dl-startup.h
+	$(TARGET_ARCH)/*.h $(TARGET_ARCH)/*.c $(TOPDIR)ldso/include/*.h
 
 clean:
 	$(RM) $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i ldso.h *~
