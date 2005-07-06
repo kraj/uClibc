@@ -1,4 +1,4 @@
-/* Wrapper around clone system call.
+/* Wrapper for setting errno.
    Copyright (C) 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -18,12 +18,12 @@
    02111-1307 USA.  */
 
 #include <errno.h>
+#include <features.h>
 
 /* This routine is jumped to by all the syscall handlers, to stash
  * an error number into errno.  */
-int attribute_hidden __syscall_error (int err_no)
+int attribute_hidden __syscall_error(int err_no)
 {
-	__set_errno (err_no);
+	__set_errno(err_no);
 	return -1;
 }
-
