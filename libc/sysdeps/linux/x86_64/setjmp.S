@@ -22,7 +22,7 @@
 #include <bits/setjmp.h>
 
 .global __sigsetjmp
-.type   __sigsetjmp,@function
+.type   __sigsetjmp,%function
 .align 4
 __sigsetjmp:
 	/* Save registers.  */

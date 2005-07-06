@@ -52,7 +52,7 @@
 
 .text
 .global __clone
-.type   __clone,@function
+.type   __clone,%function
 .align 4
 __clone:
 	/* Sanity check arguments.  */

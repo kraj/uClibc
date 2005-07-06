@@ -24,7 +24,7 @@
    setjmp call there to return VAL, or 1 if VAL is 0.
    void __longjmp (__jmp_buf env, int val).  */
 .global __longjmp
-.type   __longjmp,@function
+.type   __longjmp,%function
 .align 16
 __longjmp:
 	/* Restore registers.  */

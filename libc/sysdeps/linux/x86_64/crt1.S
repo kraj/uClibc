@@ -60,19 +60,19 @@
 
 .text
 .global _start
-.type   _start,@function
+.type   _start,%function
 #if defined(__UCLIBC_CTOR_DTOR__)
-.type   _init,@function
-.type   _fini,@function
+.type   _init,%function
+.type   _fini,%function
 #else
 .weak   _init
 .weak   _fini
 #endif
-.type   __uClibc_main,@function
+.type   __uClibc_main,%function
 /* Stick in a dummy reference to main(), so that if an application
  * is linking when the main() function is in a static library (.a)
  * we can be sure that main() actually gets linked in */
-.type   main,@function
+.type   main,%function
 
 _start:
 	/* Clear the frame pointer.  The ABI suggests this be done, to mark

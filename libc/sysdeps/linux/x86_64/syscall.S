@@ -25,7 +25,7 @@
 
 .text
 .globl syscall
-.type	syscall,@function
+.type	syscall,%function
 .align 16
 syscall:
 	movq %rdi, %rax		/* Syscall number -> rax.  */

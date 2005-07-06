@@ -32,7 +32,7 @@
 
 .text
 .global __vfork
-.type	__vfork,@function
+.type	__vfork,%function
 .align 16
 __vfork:
 

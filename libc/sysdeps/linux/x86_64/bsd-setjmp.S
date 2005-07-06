@@ -21,10 +21,10 @@
 #define _SETJMP_H
 #include <bits/setjmp.h>
 
-.globl setjmp;
-.type    setjmp,@function
-.align 16;
+.global setjmp
+.type   setjmp,%function
+.align  16
 setjmp:
 	movq $1, %rsi
-	jmp __sigsetjmp
-.size setjmp,.-setjmp;
+	jmp __sigsetjmp@PLT
+.size setjmp,.-setjmp
