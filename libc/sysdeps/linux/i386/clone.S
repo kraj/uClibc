@@ -41,17 +41,9 @@
 #define TLS         PTID+PTR_SIZE
 #define CTID        TLS+PTR_SIZE
 
-#define __NR_clone        120
-#define __NR_exit         1
-
 .text
-.type clone,%function
-.weak clone
-	clone = __clone
-
 .global __clone
 .type   __clone,%function
-
 __clone:
 	/* Sanity check arguments.  */
 	movl	$-EINVAL,%eax
@@ -147,3 +139,6 @@ __clone:
 #endif
 
 .size __clone,.-__clone
+
+.weak clone
+	clone = __clone
