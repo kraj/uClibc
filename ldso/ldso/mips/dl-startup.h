@@ -70,6 +70,10 @@ asm(""
 #define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long *) ARGS)+1)
 
 
+/* We can't call functions earlier in the dl startup process */
+#define NO_FUNCS_BEFORE_BOOTSTRAP
+
+
 /*
  * Here is a macro to perform the GOT relocation. This is only
  * used when bootstrapping the dynamic loader.

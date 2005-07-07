@@ -200,7 +200,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	   We are only doing ourself right now - we will have to do the rest later */
 	SEND_STDERR_DEBUG("Scanning DYNAMIC section ... ");
 	tpnt->dynamic_addr = dpnt;
-#if defined(__mips__) || defined(__cris__)
+#if defined(NO_FUNCS_BEFORE_BOOTSTRAP)
 	/* Some architectures cannot call functions here, must inline */
 	__dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL, load_addr);
 #else
@@ -209,10 +209,10 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 
 	SEND_STDERR_DEBUG("DONE !\n");
 
-#if defined(__mips__)
+#if defined(PERFORM_BOOTSTRAP_GOT)
 
 	SEND_STDERR_DEBUG("About to do specific GOT bootstrap\n");
-	/* For MIPS we have to do stuff to the GOT before we do relocations.  */
+	/* some arches (like MIPS) we have to tweak the GOT before relocations */
 	PERFORM_BOOTSTRAP_GOT(tpnt);
 
 #else
