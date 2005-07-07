@@ -31,73 +31,6 @@
 
 #include "ldso.h"
 
-#if defined (__SUPPORT_LD_DEBUG__)
-static const char *_dl_reltypes_tab[] = {
-	[0] "R_386_NONE",     "R_386_32",     "R_386_PC32",     "R_386_GOT32",
-	[4] "R_386_PLT32",    "R_386_COPY",   "R_386_GLOB_DAT", "R_386_JMP_SLOT",
-	[8] "R_386_RELATIVE", "R_386_GOTOFF", "R_386_GOTPC",
-};
-
-static const char *
-_dl_reltypes(int type)
-{
-	static char buf[22];
-	const char *str;
-
-	if (type >= (int)(sizeof(_dl_reltypes_tab)/sizeof(_dl_reltypes_tab[0])) ||
-	    NULL == (str = _dl_reltypes_tab[type])) {
-		str = _dl_simple_ltoa(buf, (unsigned long)type);
-	}
-
-	return str;
-}
-
-static void
-debug_sym(Elf32_Sym *symtab, char *strtab, int symtab_index)
-{
-	if (_dl_debug_symbols) {
-		if (symtab_index) {
-			_dl_dprintf(_dl_debug_file,
-				    "\n%s\n\tvalue=%x\tsize=%x\tinfo=%x\tother=%x\tshndx=%x",
-				    strtab + symtab[symtab_index].st_name,
-				    symtab[symtab_index].st_value,
-				    symtab[symtab_index].st_size,
-				    symtab[symtab_index].st_info,
-				    symtab[symtab_index].st_other,
-				    symtab[symtab_index].st_shndx);
-		}
-	}
-}
-
-static void
-debug_reloc(Elf32_Sym *symtab, char *strtab, ELF_RELOC *rpnt)
-{
-	if (_dl_debug_reloc) {
-		int symtab_index;
-		const char *sym;
-
-		symtab_index = ELF32_R_SYM(rpnt->r_info);
-		sym = symtab_index ? strtab + symtab[symtab_index].st_name : "sym=0x0";
-
-		if (_dl_debug_symbols)
-			_dl_dprintf(_dl_debug_file, "\n\t");
-		else
-			_dl_dprintf(_dl_debug_file, "\n%s\n\t", sym);
-
-#ifdef ELF_USES_RELOCA
-		_dl_dprintf(_dl_debug_file, "%s\toffset=%x\taddend=%x",
-			    _dl_reltypes(ELF32_R_TYPE(rpnt->r_info)),
-			    rpnt->r_offset,
-			    rpnt->r_addend);
-#else
-		_dl_dprintf(_dl_debug_file, "%s\toffset=%x\n",
-			    _dl_reltypes(ELF32_R_TYPE(rpnt->r_info)),
-			    rpnt->r_offset);
-#endif
-	}
-}
-#endif /* __SUPPORT_LD_DEBUG__ */
-
 /* Program to load an ELF binary on a linux system, and run it.
    References to symbols in sharable libraries can be resolved by either
    an ELF sharable library or a linux style of shared library. */
@@ -196,10 +129,8 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
 
-#if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab, strtab, symtab_index);
 		debug_reloc(symtab, strtab, rpnt);
-#endif
 
 		res = reloc_fnc(tpnt, scope, rpnt, symtab, strtab);
 

@@ -33,6 +33,9 @@
 #include "ldso.h"
 #include "unsecvars.h"
 
+/* Pull in common debug code */
+#include "dl-debug.c"
+
 #define ALLOW_ZERO_PLTGOT
 
 /* Pull in the value of _dl_progname */
@@ -121,7 +124,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	unsigned long *_dl_envp;		/* The environment address */
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
-
 
 	/* Wahoo!!! We managed to make a function call!  Get malloc
 	 * setup so we can use _dl_dprintf() to print debug noise
