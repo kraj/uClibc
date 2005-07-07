@@ -1,6 +1,6 @@
 /* alloc.c
  *
- * Written by Erik Andersen <andersee@debian.org>
+ * Written by Erik Andersen <andersee@codepoet.org>
  * LGPLv2
  *
  * Parts of the memalign code were stolen from malloc-930716.
@@ -32,19 +32,17 @@ void *malloc(size_t size)
     }
 
 #ifdef __ARCH_HAS_MMU__
+#define MMAP_FLAGS MAP_PRIVATE | MAP_ANONYMOUS
+#else
+#define MMAP_FLAGS MAP_SHARED | MAP_ANONYMOUS
+#endif
+
     result = mmap((void *) 0, size + sizeof(size_t), PROT_READ | PROT_WRITE,
-	    MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+                  MMAP_FLAGS, 0, 0);
     if (result == MAP_FAILED)
 	return 0;
     * (size_t *) result = size;
     return(result + sizeof(size_t));
-#else
-    result = mmap((void *) 0, size, PROT_READ | PROT_WRITE,
-	    MAP_SHARED | MAP_ANONYMOUS, 0, 0);
-    if (result == MAP_FAILED)
-	return 0;
-    return(result);
-#endif
 }
 #endif
 
@@ -88,11 +86,7 @@ void *realloc(void *ptr, size_t size)
     newptr = malloc(size);
     if (newptr) {
 	memcpy(newptr, ptr,
-#ifdef __ARCH_HAS_MMU__
 		*((size_t *) (ptr - sizeof(size_t)))
-#else
-		size
-#endif
 	      );
 	free(ptr);
     }
@@ -111,12 +105,8 @@ void free(void *ptr)
 	    return;
 	}
     }
-#ifdef __ARCH_HAS_MMU__
     ptr -= sizeof(size_t);
     munmap(ptr, * (size_t *) ptr + sizeof(size_t));
-#else
-    munmap(ptr, 0);
-#endif
 }
 #endif
 
@@ -154,12 +144,8 @@ int __libc_free_aligned(void *ptr)
 	    /* Mark the block as free */
 	    l->aligned = NULL;
 	    ptr = l->exact;
-#ifdef __ARCH_HAS_MMU__
 	    ptr -= sizeof(size_t);
 	    munmap(ptr, * (size_t *) ptr + sizeof(size_t));
-#else
-	    munmap(ptr, 0);
-#endif
 	    return 1;
 	}
     }
@@ -203,4 +189,3 @@ void * memalign (size_t alignment, size_t size)
     return result;
 }
 #endif
-
