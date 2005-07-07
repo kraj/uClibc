@@ -3,8 +3,6 @@
  *
  */
 
-#define _ERRNO_H	1
-#include <bits/errno.h>
 #include <sys/syscall.h>
 
 #ifndef __NR_vfork
