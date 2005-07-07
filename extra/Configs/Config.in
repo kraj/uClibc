@@ -264,6 +264,19 @@ config LDSO_BASE_FILENAME
 	  WARNING: Changing the default prefix could cause problems with
 	           binutils' ld !
 
+config LDSO_RUNPATH
+	bool "Enable ELF RUNPATH tag support"
+	depends on BUILD_UCLIBC_LDSO
+	default y
+	help
+	  ELF's may have dynamic RPATH/RUNPATH tags.  These tags list paths 
+	  which extend the library search paths.  They are really only useful 
+	  if a package installs libraries in non standard locations and 
+	  ld.so.conf support is disabled.
+
+	  Usage of RUNPATH tags is not too common, so disabling this feature 
+	  should be safe for most people.
+
 config DL_FINI_CRT_COMPAT
 	bool "uClibc 0.9.27 compatibility"
 	default n

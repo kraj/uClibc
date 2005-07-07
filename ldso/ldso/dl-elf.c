@@ -255,7 +255,7 @@ unsigned long _dl_internal_error_number;
 struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	struct elf_resolve *tpnt, char *full_libname, int __attribute__((unused)) trace_loaded_objects)
 {
-	char *pnt, *pnt1;
+	char *pnt;
 	struct elf_resolve *tpnt1;
 	char *libname;
 
@@ -269,9 +269,9 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 
 	/* Skip over any initial initial './' and '/' stuff to
 	 * get the short form libname with no path garbage */
-	pnt1 = _dl_strrchr(libname, '/');
-	if (pnt1) {
-		libname = pnt1 + 1;
+	pnt = _dl_strrchr(libname, '/');
+	if (pnt) {
+		libname = pnt + 1;
 	}
 
 	/* Critical step!  Weed out duplicates early to avoid
@@ -300,6 +300,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 	 * The ABI specifies that RPATH is searched before LD_LIBRARY_PATH or
 	 * the default path of /usr/lib.  Check in rpath directories.
 	 */
+#ifdef __LDSO_RUNPATH__
 	pnt = (tpnt ? (char *) tpnt->dynamic_info[DT_RPATH] : NULL);
 	if (pnt) {
 		pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
@@ -307,6 +308,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL)
 			return tpnt1;
 	}
+#endif
 
 	/* Check in LD_{ELF_}LIBRARY_PATH, if specified and allowed */
 	if (_dl_library_path) {
@@ -316,9 +318,11 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 			return tpnt1;
 		}
 	}
+
 	/*
 	 * The ABI specifies that RUNPATH is searched after LD_LIBRARY_PATH.
 	 */
+#ifdef __LDSO_RUNPATH__
 	pnt = (tpnt ? (char *)tpnt->dynamic_info[DT_RUNPATH] : NULL);
 	if (pnt) {
 		pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
@@ -326,6 +330,7 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		if ((tpnt1 = search_for_named_library(libname, secure, pnt, rpnt)) != NULL)
 			return tpnt1;
 	}
+#endif
 
 	/*
 	 * Where should the cache be searched?  There is no such concept in the

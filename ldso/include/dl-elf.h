@@ -106,10 +106,12 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void
 				dynamic_info[DT_BIND_NOW] = 1;
 			if (dpnt->d_tag == DT_TEXTREL)
 				dynamic_info[DT_TEXTREL] = 1;
+#ifdef __LDSO_RUNPATH__
 			if (dpnt->d_tag == DT_RUNPATH)
 				dynamic_info[DT_RPATH] = 0;
 			if (dpnt->d_tag == DT_RPATH && dynamic_info[DT_RUNPATH])
 				dynamic_info[DT_RPATH] = 0;
+#endif
 		} else if (dpnt->d_tag < DT_LOPROC) {
 			if (dpnt->d_tag == DT_RELOCCOUNT)
 				dynamic_info[DT_RELCONT_IDX] = dpnt->d_un.d_val;
