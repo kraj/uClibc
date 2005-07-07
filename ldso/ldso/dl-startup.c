@@ -101,14 +101,14 @@ static void* __rtld_stack_end; /* Points to argc on stack, e.g *((long *)__rtld_
 strong_alias(__rtld_stack_end, __libc_stack_end); /* Exported version of __rtld_stack_end */
 
 /* When we enter this piece of code, the program stack looks like this:
-        argc            argument counter (integer)
-        argv[0]         program name (pointer)
-        argv[1...N]     program args (pointers)
-        argv[argc-1]    end of args (integer)
-		NULL
-        env[0...N]      environment variables (pointers)
-        NULL
-		auxvt[0...N]   Auxiliary Vector Table elements (mixed types)
+	argc            argument counter (integer)
+	argv[0]         program name (pointer)
+	argv[1...N]     program args (pointers)
+	argv[argc-1]    end of args (integer)
+	NULL
+	env[0...N]      environment variables (pointers)
+	NULL
+	auxvt[0...N]   Auxiliary Vector Table elements (mixed types)
 */
 static void * __attribute_used__ _dl_start(unsigned long args)
 {
@@ -136,6 +136,12 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	aux_dat += argc;			/* Skip over the argv pointers */
 	aux_dat++;					/* Skip over NULL at end of argv */
 	envp = (char **) aux_dat;
+	SEND_STDERR_DEBUG("argc=");
+	SEND_NUMBER_STDERR(argc, 0);
+	SEND_STDERR_DEBUG(" argv=");
+	SEND_ADDRESS_STDERR_DEBUG(argv, 0);
+	SEND_STDERR_DEBUG(" envp=");
+	SEND_ADDRESS_STDERR_DEBUG(envp, 1);
 	while (*aux_dat)
 		aux_dat++;				/* Skip over the envp pointers */
 	aux_dat++;					/* Skip over NULL at end of envp */
@@ -180,7 +186,6 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	SEND_STDERR_DEBUG("ELF header=");
 	SEND_ADDRESS_STDERR_DEBUG(load_addr, 1);
 
-
 	/* Locate the global offset table.  Since this code must be PIC
 	 * we can take advantage of the magic offset register, if we
 	 * happen to know what that is for this architecture.  If not,
@@ -193,7 +198,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	tpnt->loadaddr = load_addr;
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
-	SEND_STDERR_DEBUG("scanning DYNAMIC section\n");
+	SEND_STDERR_DEBUG("Scanning DYNAMIC section ... ");
 	tpnt->dynamic_addr = dpnt;
 #if defined(__mips__) || defined(__cris__)
 	/* Some architectures cannot call functions here, must inline */
@@ -202,7 +207,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	_dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL, load_addr);
 #endif
 
-	SEND_STDERR_DEBUG("done scanning DYNAMIC section\n");
+	SEND_STDERR_DEBUG("DONE !\n");
 
 #if defined(__mips__)
 
