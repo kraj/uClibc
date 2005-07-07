@@ -23,6 +23,7 @@
 /* Define this if the system uses RELOCA.  */
 #define ELF_USES_RELOCA
 #include <elf.h>
+#include <link.h>
 /* Initialization sequence for the GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE)							\
 do {														\
@@ -64,17 +65,11 @@ elf_machine_dynamic (void)
 {
   Elf64_Addr addr;
 
-#if 0
   /* This works because we have our GOT address available in the small PIC
      model.  */
   addr = (Elf64_Addr) &_DYNAMIC;
 
   return addr;
-#else
-  asm("mov 0(%%rip), %0"
-      : "=r" (addr));
-  return addr;
-#endif
 }
 
 
