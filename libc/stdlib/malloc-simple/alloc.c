@@ -20,29 +20,29 @@
 #ifdef L_malloc
 void *malloc(size_t size)
 {
-    void *result;
+	void *result;
 
-    if (unlikely(size == 0)) {
+	if (unlikely(size == 0)) {
 #if defined(__MALLOC_GLIBC_COMPAT__)
-	size++;
+		size++;
 #else
-	/* Some programs will call malloc (0).  Lets be strict and return NULL */
-	return 0;
+		/* Some programs will call malloc (0).  Lets be strict and return NULL */
+		return 0;
 #endif
-    }
+	}
 
 #ifdef __ARCH_HAS_MMU__
-#define MMAP_FLAGS MAP_PRIVATE | MAP_ANONYMOUS
+# define MMAP_FLAGS MAP_PRIVATE | MAP_ANONYMOUS
 #else
-#define MMAP_FLAGS MAP_SHARED | MAP_ANONYMOUS
+# define MMAP_FLAGS MAP_SHARED | MAP_ANONYMOUS
 #endif
 
-    result = mmap((void *) 0, size + sizeof(size_t), PROT_READ | PROT_WRITE,
-                  MMAP_FLAGS, 0, 0);
-    if (result == MAP_FAILED)
-	return 0;
-    * (size_t *) result = size;
-    return(result + sizeof(size_t));
+	result = mmap((void *) 0, size + sizeof(size_t), PROT_READ | PROT_WRITE,
+	              MMAP_FLAGS, 0, 0);
+	if (result == MAP_FAILED)
+		return 0;
+	* (size_t *) result = size;
+	return(result + sizeof(size_t));
 }
 #endif
 
@@ -74,23 +74,21 @@ void * calloc(size_t nmemb, size_t lsize)
 #ifdef L_realloc
 void *realloc(void *ptr, size_t size)
 {
-    void *newptr = NULL;
+	void *newptr = NULL;
 
-    if (!ptr)
-	return malloc(size);
-    if (!size) {
-	free(ptr);
-	return malloc(0);
-    }
+	if (!ptr)
+		return malloc(size);
+	if (!size) {
+		free(ptr);
+		return malloc(0);
+	}
 
-    newptr = malloc(size);
-    if (newptr) {
-	memcpy(newptr, ptr,
-		*((size_t *) (ptr - sizeof(size_t)))
-	      );
-	free(ptr);
-    }
-    return newptr;
+	newptr = malloc(size);
+	if (newptr) {
+		memcpy(newptr, ptr, *((size_t *) (ptr - sizeof(size_t))));
+		free(ptr);
+	}
+	return newptr;
 }
 #endif
 
@@ -98,15 +96,14 @@ void *realloc(void *ptr, size_t size)
 extern int weak_function __libc_free_aligned(void *ptr);
 void free(void *ptr)
 {
-    if (ptr == NULL)
-	return;
-    if (unlikely(__libc_free_aligned!=NULL)) {
-	if (__libc_free_aligned(ptr)) {
-	    return;
+	if (unlikely(ptr == NULL))
+		return;
+	if (unlikely(__libc_free_aligned != NULL)) {
+		if (__libc_free_aligned(ptr))
+			return;
 	}
-    }
-    ptr -= sizeof(size_t);
-    munmap(ptr, * (size_t *) ptr + sizeof(size_t));
+	ptr -= sizeof(size_t);
+	munmap(ptr, * (size_t *) ptr + sizeof(size_t));
 }
 #endif
 
@@ -124,68 +121,67 @@ pthread_mutex_t __malloc_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 /* List of blocks allocated with memalign or valloc */
 struct alignlist
 {
-    struct alignlist *next;
-    __ptr_t aligned;	/* The address that memaligned returned.  */
-    __ptr_t exact;	/* The address that malloc returned.  */
+	struct alignlist *next;
+	__ptr_t aligned;	/* The address that memaligned returned.  */
+	__ptr_t exact;	/* The address that malloc returned.  */
 };
 struct alignlist *_aligned_blocks;
 
 /* Return memory to the heap. */
 int __libc_free_aligned(void *ptr)
 {
-    struct alignlist *l;
+	struct alignlist *l;
 
-    if (ptr == NULL)
-	return 0;
+	if (ptr == NULL)
+		return 0;
 
-    LOCK;
-    for (l = _aligned_blocks; l != NULL; l = l->next) {
-	if (l->aligned == ptr) {
-	    /* Mark the block as free */
-	    l->aligned = NULL;
-	    ptr = l->exact;
-	    ptr -= sizeof(size_t);
-	    munmap(ptr, * (size_t *) ptr + sizeof(size_t));
-	    return 1;
+	LOCK;
+	for (l = _aligned_blocks; l != NULL; l = l->next) {
+		if (l->aligned == ptr) {
+			/* Mark the block as free */
+			l->aligned = NULL;
+			ptr = l->exact;
+			ptr -= sizeof(size_t);
+			munmap(ptr, * (size_t *) ptr + sizeof(size_t));
+			return 1;
+		}
 	}
-    }
-    UNLOCK;
-    return 0;
+	UNLOCK;
+	return 0;
 }
 void * memalign (size_t alignment, size_t size)
 {
-    void * result;
-    unsigned long int adj;
+	void * result;
+	unsigned long int adj;
 
-    result = malloc (size + alignment - 1);
-    if (result == NULL)
-	return NULL;
-    adj = (unsigned long int) ((unsigned long int) ((char *) result -
-		(char *) NULL)) % alignment;
-    if (adj != 0)
-    {
-	struct alignlist *l;
-	LOCK;
-	for (l = _aligned_blocks; l != NULL; l = l->next)
-	    if (l->aligned == NULL)
-		/* This slot is free.  Use it.  */
-		break;
-	if (l == NULL)
-	{
-	    l = (struct alignlist *) malloc (sizeof (struct alignlist));
-	    if (l == NULL) {
-		free(result);
-		UNLOCK;
+	result = malloc (size + alignment - 1);
+	if (result == NULL)
 		return NULL;
-	    }
-	    l->next = _aligned_blocks;
-	    _aligned_blocks = l;
-	}
-	l->exact = result;
-	result = l->aligned = (char *) result + alignment - adj;
-	UNLOCK;
-    }
 
-    return result;
+	adj = (unsigned long int) ((unsigned long int) ((char *) result -
+	      (char *) NULL)) % alignment;
+	if (adj != 0) {
+		struct alignlist *l;
+		LOCK;
+		for (l = _aligned_blocks; l != NULL; l = l->next)
+			if (l->aligned == NULL)
+				/* This slot is free.  Use it.  */
+				break;
+		if (l == NULL) {
+			l = (struct alignlist *) malloc (sizeof (struct alignlist));
+			if (l == NULL) {
+				free(result);
+				UNLOCK;
+				return NULL;
+			}
+			l->next = _aligned_blocks;
+			_aligned_blocks = l;
+		}
+		l->exact = result;
+		result = l->aligned = (char *) result + alignment - adj;
+		UNLOCK;
+	}
+
+	return result;
 }
 #endif
