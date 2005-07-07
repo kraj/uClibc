@@ -25,20 +25,25 @@
 .type   syscall,%function
 .align 4
 syscall:
+	pushl %ebp
 	pushl %edi
 	pushl %esi
 	pushl %ebx
-	movl  36(%esp),%edi	/* Load the 5 syscall argument registers */
-	movl  32(%esp),%esi
-	movl  28(%esp),%edx
-	movl  24(%esp),%ecx
-	movl  20(%esp),%ebx
-	movl  16(%esp),%eax	/* Load syscall number into %eax.  */
+
+	movl  44(%esp),%ebp	/* Load the 6 syscall argument registers */
+	movl  40(%esp),%edi
+	movl  36(%esp),%esi
+	movl  32(%esp),%edx
+	movl  28(%esp),%ecx
+	movl  24(%esp),%ebx
+	movl  20(%esp),%eax	/* Load syscall number into %eax.  */
 	int $0x80
 
 	popl %ebx
 	popl %esi
 	popl %edi
+	popl %ebp
+
 	cmpl $-4095,%eax
 	jae  __error
 	ret			/* Return to caller.  */
