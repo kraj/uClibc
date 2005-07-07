@@ -125,21 +125,19 @@ void __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info[], void
 		}
 #endif
 	}
-# define ADJUST_DYN_INFO(tag, load_off) \
+#define ADJUST_DYN_INFO(tag, load_off) \
 	do { \
 		if (dynamic_info[tag]) \
 			dynamic_info[tag] += load_off; \
 	} while(0)
-
-      ADJUST_DYN_INFO (DT_HASH, load_off);
-      ADJUST_DYN_INFO (DT_PLTGOT, load_off);
-      ADJUST_DYN_INFO (DT_STRTAB, load_off);
-      ADJUST_DYN_INFO (DT_SYMTAB, load_off);
-      ADJUST_DYN_INFO (DT_RELOC_TABLE_ADDR, load_off);
-      ADJUST_DYN_INFO (DT_JMPREL, load_off);
-# undef ADJUST_DYN_INFO
-
-					    }
+	ADJUST_DYN_INFO(DT_HASH, load_off);
+	ADJUST_DYN_INFO(DT_PLTGOT, load_off);
+	ADJUST_DYN_INFO(DT_STRTAB, load_off);
+	ADJUST_DYN_INFO(DT_SYMTAB, load_off);
+	ADJUST_DYN_INFO(DT_RELOC_TABLE_ADDR, load_off);
+	ADJUST_DYN_INFO(DT_JMPREL, load_off);
+#undef ADJUST_DYN_INFO
+}
 
 /* Reloc type classes as returned by elf_machine_type_class().
    ELF_RTYPE_CLASS_PLT means this reloc should not be satisfied by
