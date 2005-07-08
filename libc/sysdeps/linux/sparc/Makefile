@@ -19,8 +19,8 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
-CRT0_SRC = crt0.c
-CRT0_OBJ = crt0.o crt1.o
+CRT_SRC = crt0.c
+CRT_OBJ = crt0.o crt1.o
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 SSRC=__longjmp.S fork.S vfork.S clone.S setjmp.S bsd-setjmp.S bsd-_setjmp.S \
@@ -36,12 +36,12 @@ OBJ_LIST=../../../obj.sysdeps.$(TARGET_ARCH)
 
 all: $(OBJ_LIST)
 
-$(OBJ_LIST): $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
+$(OBJ_LIST): $(OBJS) $(CRT_OBJ) $(CTOR_TARGETS)
 	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
 	$(INSTALL) -d $(TOPDIR)lib/
-	cp $(CRT0_OBJ) $(TOPDIR)lib/
+	cp $(CRT_OBJ) $(TOPDIR)lib/
 
-$(CRT0_OBJ): $(CRT0_SRC)
+$(CRT_OBJ): $(CRT_SRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
