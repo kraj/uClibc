@@ -137,7 +137,7 @@ _dl_parse_lazy_relocation_information(struct dyn_elf *arg_rpnt,
 		default:
 			_dl_dprintf (2, "%s: (LAZY) can't handle reloc type ", _dl_progname);
 #if defined (__SUPPORT_LD_DEBUG__)
-			_dl_dprintf (2, "%s ", _dl_reltypes[reloc_type]);
+			_dl_dprintf (2, "%s ", _dl_reltypes_tab[reloc_type]);
 #endif
 			if (symtab_index)
 				_dl_dprintf (2, "'%s'", strtab + symtab[symtab_index].st_name);
@@ -234,7 +234,7 @@ _dl_parse_relocation_information(struct dyn_elf *arg_rpnt,
 			default:
 				_dl_dprintf (2, "%s: can't handle reloc type ", _dl_progname);
 #if defined (__SUPPORT_LD_DEBUG__)
-				_dl_dprintf (2, "%s ", _dl_reltypes[reloc_type]);
+				_dl_dprintf (2, "%s ", _dl_reltypes_tab[reloc_type]);
 #endif
 				if (symtab_index)
 					_dl_dprintf (2, "'%s'", strtab + symtab[symtab_index].st_name);
