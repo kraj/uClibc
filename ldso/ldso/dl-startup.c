@@ -239,10 +239,10 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 			unsigned long rel_addr, rel_size;
 			ElfW(Word) relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
 
-			rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
-					dynamic_info[DT_RELOC_TABLE_ADDR]);
-			rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] : tpnt->
-					dynamic_info[DT_RELOC_TABLE_SIZE]);
+			rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] :
+			                   tpnt->dynamic_info[DT_RELOC_TABLE_ADDR]);
+			rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] :
+			                   tpnt->dynamic_info[DT_RELOC_TABLE_SIZE]);
 
 			if (!rel_addr)
 				continue;
@@ -275,7 +275,8 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 					SEND_STDERR_DEBUG("relocating symbol: ");
 					SEND_STDERR_DEBUG(strtab + sym->st_name);
 					SEND_STDERR_DEBUG("\n");
-				}
+				} else
+					SEND_STDERR_DEBUG("relocating unknown symbol\n");
 				/* Use this machine-specific macro to perform the actual relocation.  */
 				PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, sym);
 			}
@@ -298,7 +299,10 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 
 	__rtld_stack_end = (void *)args; /* Needs to be after ld.so self relocation */
 	if (*((long *)__rtld_stack_end) != argc) {
-		SEND_STDERR_DEBUG("__rtld_stack_end doesn't point to argc!");
+		SEND_STDERR_DEBUG("__rtld_stack_end=");
+		SEND_ADDRESS_STDERR_DEBUG(__rtld_stack_end, 0);
+		SEND_STDERR_DEBUG(" doesn't point to argc=");
+		SEND_ADDRESS_STDERR_DEBUG(&argc, 1);
 	}
 	_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp, argv);
 
