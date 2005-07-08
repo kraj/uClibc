@@ -90,7 +90,7 @@ L_einval:
 	jmp __error
 
 __error:
-	call	__syscall_error
+	jmp	__syscall_error
 
 .size mmap64,.-mmap64
 

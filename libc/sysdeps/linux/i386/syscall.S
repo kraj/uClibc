@@ -49,6 +49,6 @@ syscall:
 	ret			/* Return to caller.  */
 
 __error:
-	call	__syscall_error
+	jmp	__syscall_error
 
 .size syscall,.-syscall

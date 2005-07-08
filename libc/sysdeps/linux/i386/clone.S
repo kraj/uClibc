@@ -115,7 +115,7 @@ __clone:
 	int	$0x80
 
 __error:
-	call	__syscall_error
+	jmp	__syscall_error
 
 .size __clone,.-__clone
 

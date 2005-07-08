@@ -27,7 +27,7 @@ __vfork:
 	ret
 
 __error:
-	call	__syscall_error
+	jmp	__syscall_error
 
 .size __vfork,.-__vfork
 
