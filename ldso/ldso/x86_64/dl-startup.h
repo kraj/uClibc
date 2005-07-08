@@ -1,7 +1,10 @@
 /* vi: set sw=4 ts=4: */
 /*
  * Architecture specific code used by dl-startup.c
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2005 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2005 by Mike Frysinger <vapier@gentoo.org>
+ *
+ * Parts taken from glibc/sysdeps/x86_64/dl-machine.h
  */
 asm(
 	"	.text\n"
@@ -24,6 +27,8 @@ asm(
 	"	subl %eax, %edx\n"
 	"	# Push argc back on the stack.\n"
 	"	pushq %rdx\n"
+	"	# argc -> rsi\n"
+	"	movq %rdx, %rsi\n"
 	"	# Pass our finalizer function to the user in %rdx, as per ELF ABI.\n"
 	"	leaq _dl_fini(%rip), %rdx\n"
 	"	# And make sure %rsp points to argc stored on the stack.\n"
@@ -37,7 +42,7 @@ asm(
 /* Get a pointer to the argv array.  On many platforms this can be just
  * the address if the first argument, on other platforms we need to
  * do something a little more subtle here.  */
-#define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long*) & ARGS)+1)
+#define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long*) ARGS)+1)
 
 /* Handle relocation of the symbols in the dynamic loader. */
 static __always_inline
