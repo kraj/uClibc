@@ -137,7 +137,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	aux_dat++;					/* Skip over NULL at end of argv */
 	envp = (char **) aux_dat;
 	SEND_STDERR_DEBUG("argc=");
-	SEND_NUMBER_STDERR(argc, 0);
+	SEND_NUMBER_STDERR_DEBUG(argc, 0);
 	SEND_STDERR_DEBUG(" argv=");
 	SEND_ADDRESS_STDERR_DEBUG(argv, 0);
 	SEND_STDERR_DEBUG(" envp=");
@@ -198,7 +198,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	tpnt->loadaddr = load_addr;
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
-	SEND_STDERR_DEBUG("Scanning DYNAMIC section ... ");
+	SEND_STDERR_DEBUG("Scanning DYNAMIC section\n");
 	tpnt->dynamic_addr = dpnt;
 #if defined(NO_FUNCS_BEFORE_BOOTSTRAP)
 	/* Some architectures cannot call functions here, must inline */
@@ -207,7 +207,7 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	_dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL, load_addr);
 #endif
 
-	SEND_STDERR_DEBUG("DONE !\n");
+	SEND_STDERR_DEBUG("Done scanning DYNAMIC section\n");
 
 #if defined(PERFORM_BOOTSTRAP_GOT)
 
@@ -249,11 +249,11 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 
 			/* Now parse the relocation information */
 			/* Since ldso is linked with -Bsymbolic, all relocs will be RELATIVE(for those archs that have
-			   RELATIVE relocs) which means that the for(..) loop below has noting to do and can be deleted.
+			   RELATIVE relocs) which means that the for(..) loop below has nothing to do and can be deleted.
 			   Possibly one should add a HAVE_RELATIVE_RELOCS directive and #ifdef away some code. */
 			if (!indx && relative_count) {
 				rel_size -= relative_count * sizeof(ELF_RELOC);
-				elf_machine_relative (load_addr, rel_addr, relative_count);
+				elf_machine_relative(load_addr, rel_addr, relative_count);
 				rel_addr += relative_count * sizeof(ELF_RELOC);;
 			}
 
