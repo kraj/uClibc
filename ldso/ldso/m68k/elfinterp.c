@@ -29,20 +29,6 @@
  * SUCH DAMAGE.
  */
 
-#if defined (__SUPPORT_LD_DEBUG__)
-static const char *_dl_reltypes[] = {
-	 [0] "R_68K_NONE",
-	 [1] "R_68K_32",     "R_68K_16",       "R_68K_8",
-	 [4] "R_68K_PC32",   "R_68K_PC16",     "R_68K_PC8",
-	 [7] "R_68K_GOT32",  "R_68K_GOT16",    "R_68K_GOT8",
-	[10] "R_68K_GOT32O", "R_68K_GOT16O",   "R_68K_GOT8O",
-	[13] "R_68K_PLT32",  "R_68K_PLT16",    "R_68K_PLT8",
-	[16] "R_68K_PLT32O", "R_68K_PLT16O",   "R_68K_PLT8O",
-	[19] "R_68K_COPY",   "R_68K_GLOB_DAT", "R_68K_JMP_SLOT", "R_68K_RELATIVE",
-	[23] "R_68K_NUM"
-};
-#endif /* __SUPPORT_LD_DEBUG__ */
-
 /* Program to load an ELF binary on a linux system, and run it.
    References to symbols in sharable libraries can be resolved by either
    an ELF sharable library or a linux style of shared library. */
