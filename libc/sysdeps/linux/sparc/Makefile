@@ -19,8 +19,8 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
-CRT_SRC = crt0.c
-CRT_OBJ = crt0.o crt1.o
+CRT_SRC = crt1.S
+CRT_OBJ = crt1.o
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 SSRC=__longjmp.S fork.S vfork.S clone.S setjmp.S bsd-setjmp.S bsd-_setjmp.S \
