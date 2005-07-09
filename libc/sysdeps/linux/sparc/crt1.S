@@ -91,11 +91,6 @@ _start:
 	 * argument info starts after one register window (16 words) past the SP.  */
 	LD	[%sp+STACK_BIAS+22*ELE_SIZE], %o1   /* %o1 = argc */
 	add	%sp, STACK_BIAS+23*ELE_SIZE, %o2    /* %o2 = argv */
-#if 0
-	mov	%o1, %o7                  /* envp = argc */
-	sll	%o7, ELE_SIZE/2, %o7     /* envp *= 4 */
-	add	%o2, %o7, %o7             /* envp += argv */
-#endif
 
 	/* Load the addresses of the user entry points.  */
 	sethi	%hi(main), %o0
