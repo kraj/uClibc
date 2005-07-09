@@ -70,14 +70,20 @@ void signal_test_1(void)
 	global_int = 0;
 
 	it = "global variable set from signal handler";
-	signal(SIGUSR1, set_global_int_to_one);
+	if (signal(SIGUSR1, set_global_int_to_one) == SIG_ERR) {
+		perror("signal(SIGUSR1) failed");
+		exit(-1);
+	}
 	raise(SIGUSR1);
 
 	/* This should already have jumped to the signal handler */
 	check((global_int == 1), 1);
 
 	global_int = 0;
-	signal(SIGUSR1, SIG_IGN);
+	if (signal(SIGUSR1, SIG_IGN) == SIG_ERR) {
+		perror("signal(SIGUSR1) failed");
+		exit(-1);
+	}
 	raise(SIGUSR1);
 	/* This should not go to the signal handler this time since we  */
 	check((global_int == 0), 1);
