@@ -20,7 +20,6 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
-#include <asm/errno.h>
 #include <asm/unistd.h>
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
@@ -35,27 +34,23 @@ __clone:
 
 	/* sanity check arguments */
 	tst	%i0
-	be	.Lerror
+	be	__error
 	orcc	%i1,%g0,%o1
-	be	.Lerror
+	be	__error
 	mov	%i2,%o0
 
 	/* Do the system call */
 	set	__NR_clone,%g1
 	ta	0x10
-	bcs	.Lerror
+	bcs	__error
 	tst	%o1
 	bne	__thread_start
 	nop
 	ret
 	restore %o0,%g0,%o0
 
-.Lerror:
-	call	__errno_location
-	or	%g0,EINVAL,%i0
-	st	%i0,[%o0]
-	ret
-	restore %g0,-1,%o0
+__error:
+	jmp __syscall_error
 
 .size __clone,.-__clone
 

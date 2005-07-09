@@ -27,7 +27,7 @@ SSRC=__longjmp.S fork.S vfork.S clone.S setjmp.S bsd-setjmp.S bsd-_setjmp.S \
 	urem.S udiv.S umul.S sdiv.S rem.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=brk.c
+CSRC=brk.c __syscall_error.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(MOBJ) $(COBJS)
