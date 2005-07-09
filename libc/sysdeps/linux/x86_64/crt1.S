@@ -96,10 +96,6 @@ _start:
 	movq %rdx, %r9   /* Address of the shared library termination function. */
 	popq %rsi        /* Pop the argument count. */
 	movq %rsp, %rdx  /* argv starts just at the current stack top. */
-	movq %rsi, %rbx  /* now we calc envp ... envp = argc */
-	addq $8, %rbx
-	shl  $0x3, %rbx  /* envp *= 8 */
-	addq %rdx, %rbx  /* envp += argv */
 
 	/* Align the stack to a 16 byte boundary to follow the ABI. */
 	andq $~15, %rsp
