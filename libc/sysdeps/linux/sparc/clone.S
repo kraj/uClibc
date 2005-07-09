@@ -36,37 +36,38 @@ __clone:
 	/* sanity check arguments */
 	tst	%i0
 	be	.Lerror
-	 orcc	%i1,%g0,%o1
+	orcc	%i1,%g0,%o1
 	be	.Lerror
-	 mov	%i2,%o0
+	mov	%i2,%o0
 
 	/* Do the system call */
 	set	__NR_clone,%g1
 	ta	0x10
 	bcs	.Lerror
-	 tst	%o1
+	tst	%o1
 	bne	__thread_start
-	 nop
+	nop
 	ret
-	 restore %o0,%g0,%o0
+	restore %o0,%g0,%o0
 
 .Lerror:
 	call	__errno_location
-	 or	%g0,EINVAL,%i0
+	or	%g0,EINVAL,%i0
 	st	%i0,[%o0]
 	ret
-	 restore %g0,-1,%o0
+	restore %g0,-1,%o0
 
-	.size	__clone, .-__clone
+.size __clone,.-__clone
 
-	.type	__thread_start,@function
+.type __thread_start,%function
 
 __thread_start:
 	call	%i0
-	 mov	%i3,%o0
+	mov	%i3,%o0
 	call	_exit,0
-	 nop
+	nop
 
-	.size	__thread_start, .-__thread_start
+.size __thread_start,.-__thread_start
 
-.weak    clone    ;        clone    =   __clone
+.weak clone
+	clone = __clone

@@ -3,7 +3,7 @@
 	.section .init
 	.align 4
 	.global _init
-	.type	_init, #function
+	.type	_init, %function
 	.proc	020
 _init:
 	!#PROLOGUE# 0
@@ -15,12 +15,9 @@ _init:
 	.section .fini
 	.align 4
 	.global _fini
-	.type	_fini, #function
+	.type	_fini, %function
 	.proc	020
 _fini:
 	!#PROLOGUE# 0
 	save	%sp, -104, %sp
 	.align 4
-	
-	
-	.ident	"GCC: (GNU) 3.3.2"

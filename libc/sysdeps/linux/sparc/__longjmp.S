@@ -25,29 +25,29 @@
 #define ST_FLUSH_WINDOWS 3
 #define RW_FP [%fp + 0x48]
 
-.global   __longjmp;
-.align 4;
-__longjmp: ; 
-.type __longjmp ,@function; 
+.global __longjmp
+.type   __longjmp,%function
+.align 4
+__longjmp:
 
 	/* Store our arguments in global registers so we can still
-	   use them while unwinding frames and their register windows.  */
+	 * use them while unwinding frames and their register windows.  */
 
 	ld ENV(o0,JB_FP), %g3	/* Cache target FP in register %g3.  */
 	mov %o0, %g1		/* ENV in %g1 */
-     	orcc %o1, %g0, %g2	/* VAL in %g2 */
-     	be,a 0f			/* Branch if zero; else skip delay slot.  */
-	 mov 1, %g2		/* Delay slot only hit if zero: VAL = 1.  */
+	orcc %o1, %g0, %g2	/* VAL in %g2 */
+	be,a 0f			/* Branch if zero; else skip delay slot.  */
+	mov 1, %g2		/* Delay slot only hit if zero: VAL = 1.  */
 0:
 	xor %fp, %g3, %o0
 	add %fp, 512, %o1
 	andncc %o0, 4095, %o0
 	bne .Lthread
-	 cmp %o1, %g3
+	cmp %o1, %g3
 	bl .Lthread
 
 	/* Now we will loop, unwinding the register windows up the stack
-	   until the restored %fp value matches the target value in %g3.  */
+	 * until the restored %fp value matches the target value in %g3.  */
 
 .Lloop:
 	cmp %fp, %g3		/* Have we reached the target frame? */
@@ -71,7 +71,7 @@ __longjmp: ;
 	sub	%fp, 64, %sp	/* Allocate a register frame. */
 	st	%g3, RW_FP	/* Set saved FP on restore below. */
 	retl
-	 restore %g2, 0, %o0	/* Restore values from above register frame. */
+	restore %g2, 0, %o0	/* Restore values from above register frame. */
 
 .Lfound:
 	/* We have unwound register windows so %fp matches the target.  */
@@ -82,4 +82,4 @@ __longjmp: ;
 	jmp %o0 + 8		/* Return there.  */
 	 mov %g2, %o0		/* Delay slot: set return value.  */
 
-.size  __longjmp , . -  __longjmp
+.size __longjmp,.-__longjmp
