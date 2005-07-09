@@ -1,4 +1,4 @@
-/* Startup code for elf32-sparc
+/* Startup code for elf{32,64}-sparc
    Copyright (C) 1997, 1998, 2002, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson <richard@gnu.ai.mit.edu>, 1997.
