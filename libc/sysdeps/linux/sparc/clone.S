@@ -25,10 +25,10 @@
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
-	.text
-	.align	4
-	.globl	__clone
-	.type	__clone,@function
+.text
+.global __clone
+.type   __clone,%function
+.align 4
 
 __clone:
 	save	%sp,-96,%sp
