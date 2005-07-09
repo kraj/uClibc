@@ -782,7 +782,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 /* Minimal printf which handles only %s, %d, and %x */
 void _dl_dprintf(int fd, const char *fmt, ...)
 {
-	int num;
+	long num;
 	va_list args;
 	char *start, *ptr, *string;
 	static char *buf;
@@ -830,7 +830,7 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 				case 'd':
 					{
 						char tmp[22];
-						num = va_arg(args, int);
+						num = va_arg(args, long);
 
 						string = _dl_simple_ltoa(tmp, num);
 						_dl_write(fd, string, _dl_strlen(string));
@@ -840,7 +840,7 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 				case 'X':
 					{
 						char tmp[22];
-						num = va_arg(args, int);
+						num = va_arg(args, long);
 
 						string = _dl_simple_ltoahex(tmp, num);
 						_dl_write(fd, string, _dl_strlen(string));
