@@ -19,66 +19,62 @@
    02111-1307 USA.  */
 
 #include <features.h>
+#include <asm/regdef.h>
 
-#define a0      $16     /* argument registers (caller-saved) */
-#define a1      $17
-#define a2      $18
-#define a3      $19
-#define a4      $20
-#define a5      $21
-#define ra      $26     /* return address register */
-
-#define s6      $15
-#define fp      s6      /* frame-pointer (s6 in frame-less procedures) */
-#define gp      $29     /* global pointer */
-#define sp      $30     /* stack pointer */
-#define zero    $31     /* reads as zero, writes are noops */
-
-	.text
-	.align 3
-	.global _start
-	.ent _start, 0
-	.type _start,@function
-#if ! defined(__UCLIBC_CTOR_DTOR__)
-	.weak	_init
-	.weak	_fini
+.text
+.global _start
+.ent    _start,0
+.type   _start,%function
+#if defined(__UCLIBC_CTOR_DTOR__)
+.type	_init,%function
+.type	_fini,%function
+#else
+.weak   _init
+.weak   _fini
 #endif
-	.type	__uClibc_main,@function
+.type   __uClibc_main,%function
 /* Stick in a dummy reference to main(), so that if an application
  * is linking when the main() function is in a static library (.a)
  * we can be sure that main() actually gets linked in */
-	.type	main,@function
+.type   main,%function
 
 _start:
-	.frame fp, 0, zero
-	mov	zero, fp
+	.frame	$15, 0, $15
 	br	gp, 1f
 1:	ldgp	gp, 0(gp)
 	subq	sp, 16, sp
+	mov	0, $15
 	.prologue 0
 
-	ldl	a0, 16(sp)	/* get argc */
-	lda	a1, 24(sp)	/* get argv */
-	addq    a0, 1, a2
-	s8addq  a2, a1, a2      /* Calculate environ */
+	/* Load address of the user's main function.  */
+	lda	a0, main
 
-  /* Call the user's main function, and exit with its value.
-     But let the libc call main.  */
+	ldl	a1, 16(sp)	/* get argc */
+	lda	a2, 24(sp)	/* get argv */
+
+	/* Load address of our own entry points to .fini and .init.  */
+	lda	a3, _init
+	lda	a4, _fini
+
+	/* Store address of the shared library termination function.  */
+	mov	v0, a5
+
+	/* Provide the highest stack address to the user code.  */
+	stq	sp, 0(sp)
+
+	/* Call the user's main function, and exit with its value.
+	 * But let the libc call main.  */
 	jsr	ra, __uClibc_main
 
-  /* Die very horribly if exit returns.  Call_pal hlt is callable from
-     kernel mode only; this will result in an illegal instruction trap.  */
+	/* Die very horribly if exit returns.  Call_pal hlt is callable from
+	 * kernel mode only; this will result in an illegal instruction trap.  */
 	call_pal 0
 	.end _start
 
-/* For ECOFF backwards compatibility. */
-.weak    __start;
-	__start    =   _start
-
 /* Define a symbol for the first piece of initialized data.  */
-	.data
-	.globl __data_start
+.data
+.global __data_start
 __data_start:
-	.long 0
-	.weak data_start
+.long 0
+.weak data_start
 	data_start = __data_start
