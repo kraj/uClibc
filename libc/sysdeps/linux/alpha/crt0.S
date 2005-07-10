@@ -36,16 +36,14 @@
 
 	.text
 	.align 3
-	.globl _start
+	.global _start
 	.ent _start, 0
 	.type _start,@function
-#if defined L_crt0 || ! defined __UCLIBC_CTOR_DTOR__
-	.type	__uClibc_main,@function
-#else
+#if ! defined(__UCLIBC_CTOR_DTOR__)
 	.weak	_init
 	.weak	_fini
-	.type	__uClibc_start_main,@function
 #endif
+	.type	__uClibc_main,@function
 /* Stick in a dummy reference to main(), so that if an application
  * is linking when the main() function is in a static library (.a)
  * we can be sure that main() actually gets linked in */
