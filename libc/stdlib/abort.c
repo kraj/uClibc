@@ -30,7 +30,9 @@ Cambridge, MA 02139, USA.  */
 
 
 /* Our last ditch effort to commit suicide */
-#if defined(__i386__)
+#if defined(__hppa__)
+#define ABORT_INSTRUCTION asm ("iitlbp %r0,(%r0)")
+#elif defined(__i386__)
 #define ABORT_INSTRUCTION asm ("hlt")
 #elif defined(__ia64__)
 #define ABORT_INSTRUCTION asm ("break 0")
@@ -38,24 +40,23 @@ Cambridge, MA 02139, USA.  */
 #define ABORT_INSTRUCTION asm (".long 0xffffffff")
 #elif defined(__mips__)
 #define ABORT_INSTRUCTION asm ("break 255")
+#elif defined(__powerpc__)
+#define ABORT_INSTRUCTION asm (".long 0")
 #elif defined(__s390__)
 #define ABORT_INSTRUCTION asm (".word 0")
 #elif defined(__sparc__)
 #define ABORT_INSTRUCTION asm ("unimp 0xf00")
-#elif defined(__x86_64__)
-#define ABORT_INSTRUCTION asm ("hlt")
-#elif defined(__hppa__)
-#define ABORT_INSTRUCTION asm ("iitlbp %r0,(%r0)")
-#elif defined(__powerpc__)
-#define ABORT_INSTRUCTION asm (".long 0")
 #elif defined(__SH5__)
 #define ABORT_INSTRUCTION asm ("movi 0x10, r9; shori 0xff, r9; trapa r9")
 #elif defined(__sh2__)
 #define ABORT_INSTRUCTION asm ("trapa #32")
 #elif defined(__sh__)
 #define ABORT_INSTRUCTION asm ("trapa #0xff")
+#elif defined(__x86_64__)
+#define ABORT_INSTRUCTION asm ("hlt")
 #else
 #define ABORT_INSTRUCTION
+#warning no abort instruction define for your arch
 #endif
 
 extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
