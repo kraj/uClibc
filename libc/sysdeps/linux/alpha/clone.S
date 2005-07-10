@@ -23,21 +23,12 @@
 #include <features.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
+#include <sys/syscall.h>
+#include <asm/regdef.h>
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg) */
 
-#define a0  $16
-#define a1  $17
-#define a2  $18
-#define a3  $19
-#define v0  $0
-#define fp  $15
-#define gp  $29
-#define ra  $26
-#define pv  $27
-#define zero  $31
-
-        .text
+.text
 .globl  __clone;
 .align 3;
 .ent  __clone , 0;
