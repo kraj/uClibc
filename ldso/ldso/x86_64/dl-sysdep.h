@@ -105,10 +105,10 @@ static __always_inline void
 elf_machine_relative(Elf64_Addr load_off, const Elf64_Addr rel_addr,
                      Elf64_Word relative_count)
 {
-	Elf64_Rela *rpnt = (void *)rel_addr;
+	Elf64_Rela *rpnt = (Elf64_Rela*)rel_addr;
 	--rpnt;
 	do {
-		Elf64_Addr *const reloc_addr = (void *) (load_off + (++rpnt)->r_offset);
+		Elf64_Addr *const reloc_addr = (Elf64_Addr*)(load_off + (++rpnt)->r_offset);
 
 		*reloc_addr = load_off + rpnt->r_addend;
 	} while (--relative_count);
