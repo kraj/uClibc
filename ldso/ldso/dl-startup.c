@@ -289,12 +289,11 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 #endif
 
 	/* Wahoo!!! */
-	SEND_STDERR_DEBUG("Done relocating library loader, so we can now\n"
-			"\tuse globals and make function calls!\n");
+	SEND_STDERR_DEBUG("Done relocating ldso; we can now use globals and make function calls!\n");
 
 	/* Now we have done the mandatory linking of some things.  We are now
 	   free to start using global variables, since these things have all been
-	   fixed up by now.  Still no function calls outside of this library ,
+	   fixed up by now.  Still no function calls outside of this library,
 	   since the dynamic resolver is not yet ready. */
 
 	__rtld_stack_end = (void *)(argv - 1);
