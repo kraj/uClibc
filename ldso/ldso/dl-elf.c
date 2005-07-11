@@ -721,7 +721,8 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 {
 	int goof = 0;
 	struct elf_resolve *tpnt;
-	ElfW(Word) reloc_size, reloc_addr, relative_count;
+	ElfW(Word) reloc_size, relative_count;
+	ElfW(Addr) reloc_addr;
 
 	if (rpnt->next)
 		goof += _dl_fixup(rpnt->next, now_flag);
