@@ -384,9 +384,7 @@ goof:
 		_dl_error_number = _dl_internal_error_number;
 	else
 		_dl_error_number = LD_ERROR_NOFILE;
-#if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug) _dl_dprintf(2, "Bummer: could not find '%s'!\n", libname);
-#endif
+	_dl_if_debug_dprint("Bummer: could not find '%s'!\n", libname);
 	return NULL;
 }
 
@@ -427,9 +425,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		}
 		tpnt->usage_count++;
 		tpnt->libtype = elf_lib;
-#if defined (__SUPPORT_LD_DEBUG__)
-		if(_dl_debug) _dl_dprintf(2, "file='%s';  already loaded\n", libname);
-#endif
+		_dl_if_debug_dprint("file='%s';  already loaded\n", libname);
 		return tpnt;
 	}
 
@@ -699,16 +695,11 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 		INIT_GOT(lpnt, tpnt);
 	};
 
-#if defined (__SUPPORT_LD_DEBUG__)
-	if(_dl_debug) {
-		_dl_dprintf(2, "\n\tfile='%s';  generating link map\n", libname);
-		_dl_dprintf(2, "\t\tdynamic: %x  base: %x\n",
-				dynamic_addr, libaddr);
-		_dl_dprintf(2, "\t\t  entry: %x  phdr: %x  phnum: %x\n\n",
-				epnt->e_entry + libaddr, tpnt->ppnt, tpnt->n_phent);
+	_dl_if_debug_dprint("\n\tfile='%s';  generating link map\n", libname);
+	_dl_if_debug_dprint("\t\tdynamic: %x  base: %x\n", dynamic_addr, libaddr);
+	_dl_if_debug_dprint("\t\t  entry: %x  phdr: %x  phnum: %x\n\n",
+			epnt->e_entry + libaddr, tpnt->ppnt, tpnt->n_phent);
 
-	}
-#endif
 	_dl_munmap(header, _dl_pagesize);
 
 	return tpnt;
