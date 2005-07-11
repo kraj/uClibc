@@ -297,13 +297,8 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	   fixed up by now.  Still no function calls outside of this library ,
 	   since the dynamic resolver is not yet ready. */
 
-	__rtld_stack_end = (void *)args; /* Needs to be after ld.so self relocation */
-	if (*((long *)__rtld_stack_end) != argc) {
-		SEND_STDERR_DEBUG("__rtld_stack_end=");
-		SEND_ADDRESS_STDERR_DEBUG(__rtld_stack_end, 0);
-		SEND_STDERR_DEBUG(" doesn't point to argc=");
-		SEND_ADDRESS_STDERR_DEBUG(&argc, 1);
-	}
+	__rtld_stack_end = (void *)(argv - 1);
+
 	_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp, argv);
 
 
