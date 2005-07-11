@@ -101,7 +101,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	char *loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
 	unsigned long dynamic_size)
 {
-	unsigned long *hash_addr;
+	uint32_t *hash_addr;
 	struct elf_resolve *tpnt;
 	int i;
 
@@ -125,7 +125,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	tpnt->libtype = loaded_file;
 
 	if (dynamic_info[DT_HASH] != 0) {
-		hash_addr = (unsigned long *) (intptr_t)(dynamic_info[DT_HASH]);
+		hash_addr = (uint32_t*)dynamic_info[DT_HASH];
 		tpnt->nbucket = *hash_addr++;
 		tpnt->nchain = *hash_addr++;
 		tpnt->elf_buckets = hash_addr;
