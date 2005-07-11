@@ -122,10 +122,7 @@ _dl_protect_relro (struct elf_resolve *l)
 			    & ~(_dl_pagesize - 1));
 	ElfW(Addr) end = ((l->loadaddr + l->relro_addr + l->relro_size)
 			  & ~(_dl_pagesize - 1));
-#if defined (__SUPPORT_LD_DEBUG__)
-	if (_dl_debug)
-		_dl_dprintf(2, "RELRO protecting %s:  start:%x, end:%x\n", l->libname, start, end);
-#endif
+	_dl_if_debug_dprint("RELRO protecting %s:  start:%x, end:%x\n", l->libname, start, end);
 	if (start != end &&
 	    _dl_mprotect ((void *) start, end - start, PROT_READ) < 0) {
 		_dl_dprintf(2, "%s: cannot apply additional memory protection after relocation", l->libname);
@@ -716,6 +713,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 
 	return tpnt;
 }
+
 /* now_flag must be RTLD_NOW or zero */
 int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 {
@@ -728,10 +726,8 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 		goof += _dl_fixup(rpnt->next, now_flag);
 	tpnt = rpnt->dyn;
 
-#if defined (__SUPPORT_LD_DEBUG__)
 	if(!(tpnt->init_flag & RELOCS_DONE)) 
-		_dl_if_debug_dprint("\nrelocation processing: %s\n", tpnt->libname);
-#endif
+		_dl_if_debug_dprint("relocation processing: %s\n", tpnt->libname);
 
 	if (unlikely(tpnt->dynamic_info[UNSUPPORTED_RELOC_TYPE])) {
 		_dl_if_debug_dprint("%s: can't handle %s relocation records\n",
@@ -753,7 +749,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 		relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
 		if (relative_count) { /* Optimize the XX_RELATIVE relocations if possible */
 			reloc_size -= relative_count * sizeof(ELF_RELOC);
-			elf_machine_relative (tpnt->loadaddr, reloc_addr, relative_count);
+			elf_machine_relative(tpnt->loadaddr, reloc_addr, relative_count);
 			reloc_addr += relative_count * sizeof(ELF_RELOC);
 		}
 		goof += _dl_parse_relocation_information(rpnt,
