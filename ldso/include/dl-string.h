@@ -306,9 +306,10 @@ static __always_inline char * _dl_simple_ltoahex(char * local, unsigned long i)
 	_dl_write(2, tmp2, tmp1 - tmp2 + sizeof(tmp) - 1); \
 }
 
-#define SEND_NUMBER_STDERR(X, add_a_newline) \
+#define SEND_NUMBER_STDERR(NUM, add_a_newline) \
 { \
 	char tmp[26], v, *tmp2, *tmp1 = tmp; \
+	unsigned long X = (unsigned long)(NUM); \
 	CONSTANT_STRING_GOT_FIXUP(tmp1); \
 	tmp2 = tmp1 + sizeof(tmp); \
 	*--tmp2 = '\0'; \
