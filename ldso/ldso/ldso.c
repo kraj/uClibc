@@ -139,10 +139,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	_dl_malloc_addr = (unsigned char *)_dl_pagesize;
 	_dl_mmap_zero = 0;
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
 	/* Wahoo!!! */
-	_dl_dprintf(_dl_debug_file, "\nCool, ldso survived making function calls.\n");
-#endif
+	_dl_debug_early("Cool, ldso survived making function calls\n");
 
 	/* Now we have done the mandatory linking of some things.  We are now
 	 * free to start using global variables, since these things have all
@@ -218,12 +216,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				break;
 			}
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-		if (app_tpnt->loadaddr) {
-			_dl_dprintf(_dl_debug_file, "Position Independent Executable: "
+		if (app_tpnt->loadaddr)
+			_dl_debug_early("Position Independent Executable: "
 					"app_tpnt->loadaddr=%x\n", app_tpnt->loadaddr);
-		}
-#endif
 	}
 
 	/*
@@ -248,9 +243,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			 * dynamic linking.  We can set the protection back
 			 * again once we are done.
 			 */
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-			_dl_dprintf(_dl_debug_file, "calling mprotect on the application program\n");
-#endif
+			_dl_debug_early("calling mprotect on the application program\n");
 			/* Now cover the application program. */
 			if (app_tpnt->dynamic_info[DT_TEXTREL]) {
 				ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
@@ -302,10 +295,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			if (ptmp != _dl_ldsopath)
 				*ptmp = '\0';
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-			_dl_dprintf(_dl_debug_file, "Lib Loader:\t(%x) %s\n",
-				    tpnt->loadaddr, tpnt->libname);
-#endif
+			_dl_debug_early("Lib Loader: (%x) %s\n", tpnt->loadaddr, tpnt->libname);
 		}
 	}
 	app_tpnt->relro_addr = relro_addr;
@@ -408,12 +398,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			*str2 = '\0';
 
 			if (!_dl_secure || _dl_strchr(str, '/') == NULL) {
-#if defined (__SUPPORT_LD_DEBUG__)
-				if(_dl_debug)
-					_dl_dprintf(_dl_debug_file,
-						    "\tfile='%s';  needed by '%s'\n",
-						    str, _dl_progname);
-#endif
+				_dl_if_debug_dprint("\tfile='%s';  needed by '%s'\n", str, _dl_progname);
 
 				tpnt1 = _dl_load_shared_library(_dl_secure, &rpnt, NULL, str, trace_loaded_objects);
 				if (!tpnt1) {
@@ -429,10 +414,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				} else {
 					tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-					_dl_dprintf(_dl_debug_file,
-						    "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
-#endif
+					_dl_debug_early("Loading: (%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 
 #ifdef __LDSO_LDD_SUPPORT__
 					if (trace_loaded_objects &&
@@ -506,12 +488,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				/*nada */ ;
 			c = *cp;
 			*cp = '\0';
-#if defined (__SUPPORT_LD_DEBUG__)
-			if(_dl_debug)
-				_dl_dprintf(_dl_debug_file,
-					    "\tfile='%s';  needed by '%s'\n",
-					    cp2, _dl_progname);
-#endif
+
+			_dl_if_debug_dprint("\tfile='%s';  needed by '%s'\n", cp2, _dl_progname);
 
 			tpnt1 = _dl_load_shared_library(0, &rpnt, NULL, cp2, trace_loaded_objects);
 			if (!tpnt1) {
@@ -527,9 +505,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			} else {
 				tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-				_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
-#endif
+				_dl_debug_early("Loading: (%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 
 #ifdef __LDSO_LDD_SUPPORT__
 				if (trace_loaded_objects &&
@@ -566,12 +542,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				if (_dl_strcmp(name, "ld-uClibc.so.0") == 0)
 					continue;
 
-#if defined (__SUPPORT_LD_DEBUG__)
-				if(_dl_debug)
-					_dl_dprintf(_dl_debug_file,
-						    "\tfile='%s';  needed by '%s'\n",
-						    lpntstr, _dl_progname);
-#endif
+				_dl_if_debug_dprint("\tfile='%s';  needed by '%s'\n", lpntstr, _dl_progname);
 
 				if (!(tpnt1 = _dl_load_shared_library(0, &rpnt, tcurr, lpntstr, trace_loaded_objects)))	{
 #ifdef __LDSO_LDD_SUPPORT__
@@ -593,9 +564,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 				tpnt1->rtld_flags = unlazy | RTLD_GLOBAL;
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-				_dl_dprintf(_dl_debug_file, "Loading:\t(%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
-#endif
+				_dl_debug_early("Loading: (%x) %s\n", tpnt1->loadaddr, tpnt1->libname);
 
 #ifdef __LDSO_LDD_SUPPORT__
 				if (trace_loaded_objects &&
@@ -629,10 +598,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			for (; runp; runp = runp->next) {
 				if (runp->tpnt == tcurr) {
 					struct elf_resolve *here = init_fini_list[k];
-#ifdef __SUPPORT_LD_DEBUG__
-					if(_dl_debug)
-						_dl_dprintf(_dl_debug_file, "Move %s from pos %d to %d in INIT/FINI list.\n", here->libname, k, j);
-#endif
+					_dl_if_debug_dprint("Move %s from pos %d to %d in INIT/FINI list\n", here->libname, k, j);
 					for (i = (k - j); i; --i)
 						init_fini_list[i+j] = init_fini_list[i+j-1];
 					init_fini_list[j] = here;
@@ -721,9 +687,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	}
 #endif
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	_dl_dprintf(_dl_debug_file, "Beginning relocation fixups\n");
-#endif
+	_dl_debug_early("Beginning relocation fixups\n");
 
 #ifdef __mips__
 	/*
@@ -795,12 +759,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 			dl_elf_func = (void (*)(void)) (intptr_t) (tpnt->loadaddr + tpnt->dynamic_info[DT_INIT]);
 
-#if defined (__SUPPORT_LD_DEBUG__)
-			if(_dl_debug)
-				_dl_dprintf(_dl_debug_file,
-					    "\ncalling INIT: %s\n\n",
-					    tpnt->libname);
-#endif
+			_dl_if_debug_dprint("calling INIT: %s\n\n", tpnt->libname);
 
 			(*dl_elf_func) ();
 		}
@@ -879,18 +838,14 @@ void *_dl_malloc(int size)
 	void *retval;
 
 #if 0
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	_dl_dprintf(_dl_debug_file, "malloc: request for %d bytes\n", size);
-#endif
+	_dl_debug_early("request for %d bytes\n", size);
 #endif
 
 	if (_dl_malloc_function)
 		return (*_dl_malloc_function) (size);
 
 	if (_dl_malloc_addr - _dl_mmap_zero + (unsigned)size > _dl_pagesize) {
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-		_dl_dprintf(_dl_debug_file, "malloc: mmapping more memory\n");
-#endif
+		_dl_debug_early("mmapping more memory\n");
 		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, size,
 				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
