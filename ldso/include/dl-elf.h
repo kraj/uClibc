@@ -40,7 +40,7 @@ extern void _dl_protect_relro (struct elf_resolve *l);
  * does not handle already
  */
 #if __WORDSIZE == 64
-# define ELF_ST_BIND(val) ELF64_ST_TYPE(val)
+# define ELF_ST_BIND(val) ELF64_ST_BIND(val)
 # define ELF_ST_TYPE(val) ELF64_ST_TYPE(val)
 # define ELF_R_SYM(i)     ELF64_R_SYM(i)
 # define ELF_R_TYPE(i)    ELF64_R_TYPE(i)
@@ -48,7 +48,7 @@ extern void _dl_protect_relro (struct elf_resolve *l);
 #  define ELF_CLASS ELFCLASS64
 # endif
 #else
-# define ELF_ST_BIND(val) ELF32_ST_TYPE(val)
+# define ELF_ST_BIND(val) ELF32_ST_BIND(val)
 # define ELF_ST_TYPE(val) ELF32_ST_TYPE(val)
 # define ELF_R_SYM(i)     ELF32_R_SYM(i)
 # define ELF_R_TYPE(i)    ELF32_R_TYPE(i)
