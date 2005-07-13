@@ -154,7 +154,7 @@ char *_dl_find_hash(const char *name, struct dyn_elf *rpnt, struct elf_resolve *
 	char *weak_result = NULL;
 
 	elf_hash_number = _dl_elf_hash(name);
-	   
+
 	for (; rpnt; rpnt = rpnt->next) {
 		tpnt = rpnt->dyn;
 
