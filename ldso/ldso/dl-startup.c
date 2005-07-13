@@ -302,7 +302,8 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 
 
 	/* Transfer control to the application.  */
-	SEND_STDERR_DEBUG("transfering control to application\n");
+	SEND_STDERR_DEBUG("transfering control to application @ ");
 	_dl_elf_main = (int (*)(int, char **, char **)) auxvt[AT_ENTRY].a_un.a_val;
+	SEND_ADDRESS_STDERR_DEBUG(_dl_elf_main, 1);
 	START();
 }
