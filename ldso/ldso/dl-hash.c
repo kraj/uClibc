@@ -57,7 +57,7 @@ struct dyn_elf *_dl_handles = NULL;
 /* This is the hash function that is used by the ELF linker to generate the
  * hash table that each executable and library is required to have.  We need
  * it to decode the hash table.  */
-static inline unsigned long _dl_elf_hash(const char *name)
+static inline Elf32_Word _dl_elf_hash(const char *name)
 {
 	unsigned long hash=0;
 	unsigned long tmp;
@@ -101,7 +101,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	char *loadaddr, unsigned long *dynamic_info, unsigned long dynamic_addr,
 	unsigned long dynamic_size)
 {
-	uint32_t *hash_addr;
+	Elf32_Word *hash_addr;
 	struct elf_resolve *tpnt;
 	int i;
 
@@ -125,7 +125,7 @@ struct elf_resolve *_dl_add_elf_hash_table(const char *libname,
 	tpnt->libtype = loaded_file;
 
 	if (dynamic_info[DT_HASH] != 0) {
-		hash_addr = (uint32_t*)dynamic_info[DT_HASH];
+		hash_addr = (Elf32_Word*)dynamic_info[DT_HASH];
 		tpnt->nbucket = *hash_addr++;
 		tpnt->nchain = *hash_addr++;
 		tpnt->elf_buckets = hash_addr;

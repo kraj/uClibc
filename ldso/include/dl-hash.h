@@ -32,15 +32,15 @@ struct elf_resolve{
   unsigned short usage_count;
   unsigned short int init_flag;
   unsigned long rtld_flags; /* RTLD_GLOBAL, RTLD_NOW etc. */
-  unsigned int nbucket;
-  uint32_t *elf_buckets;
+  Elf32_Word nbucket;
+  Elf32_Word *elf_buckets;
   struct init_fini_list *init_fini;
   struct init_fini_list *rtld_local; /* keep tack of RTLD_LOCAL libs in same group */
   /*
    * These are only used with ELF style shared libraries
    */
-  unsigned long nchain;
-  uint32_t *chains;
+  Elf32_Word nchain;
+  Elf32_Word *chains;
   unsigned long dynamic_info[DYNAMIC_SIZE];
 
   unsigned long n_phent;
