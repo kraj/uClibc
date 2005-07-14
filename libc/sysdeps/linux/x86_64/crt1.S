@@ -106,6 +106,17 @@ _start:
 	   which grow downwards).  */
 	pushq %rsp
 
+#if defined(L_Scrt1)
+	/* Give address for main() */
+	movq main@GOTPCREL(%rip), %rdi
+
+	/* setup init/fini address */
+	movq _init@GOTPCREL(%rip), %rcx
+	movq _fini@GOTPCREL(%rip), %r8
+
+	/* start the fun */
+	call __uClibc_main@PLT
+#else
 	/* Give address for main() */
 	movq $main, %rdi
 
@@ -113,20 +124,9 @@ _start:
 	movq $_init, %rcx
 	movq $_fini, %r8
 
-/**************
- * START TODO */
-#if defined(L_Scrt1)
-	call .L0
-.L0:
-	popq %rbx
-	addq $_GLOBAL_OFFSET_TABLE_+[.-.L0],%rbx
-
-	call *__uClibc_main@GOT(%rip)
-#else
+	/* start the fun */
 	call __uClibc_main
 #endif
-/* END TODO *
- ************/
 
 	hlt        /* Crash if somehow `exit' does return.  */
 .size _start,.-_start
