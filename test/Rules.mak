@@ -77,7 +77,7 @@ XWARNINGS       = $(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes
 XARCH_CFLAGS    = $(subst ",, $(strip $(ARCH_CFLAGS)))
 CFLAGS          = $(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS)
 GLIBC_CFLAGS   += $(XWARNINGS) $(OPTIMIZATION)
-LDFLAGS         =
+LDFLAGS         = 
 
 ifeq ($(DODEBUG),y)
 	CFLAGS        += -g
@@ -94,4 +94,6 @@ endif
 ifneq ($(strip $(HAVE_SHARED)),y)
 	LDFLAGS       += -static
 	GLIBC_LDFLAGS += -static
+else
+	LDFLAGS       += -Wl,-dynamic-linker,$(TOPDIR)lib/ld-uClibc.so.0
 endif
