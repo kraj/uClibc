@@ -6,8 +6,7 @@
 config HAVE_ELF
 	bool
 	select ARCH_HAS_MMU
-	select HAVE_NO_SHARED
-	select ARCH_HAS_NO_LDSO
+	select HAS_NO_THREADS
 	default y
 
 config TARGET_ARCH
