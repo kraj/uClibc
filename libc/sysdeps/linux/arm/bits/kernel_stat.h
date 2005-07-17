@@ -39,14 +39,7 @@ struct kernel_stat {
 /* see the notes in common/xstatconv.c about why we have these
  * funky funk unions here ... i blame the schools */
 struct kernel_stat64 {
-#if defined(__ARMEB__)
-	union {
-	unsigned short     old_abi;
-	unsigned long long new_abi;
-	} st_dev;
-#else
 	unsigned long long st_dev;
-#endif
 	unsigned char      __pad0[4];
 
 #define _HAVE_STAT64___ST_INO
@@ -56,21 +49,14 @@ struct kernel_stat64 {
 	unsigned long      st_uid;
 	unsigned long      st_gid;
 
-#if defined(__ARMEB__)
-	union {
-	unsigned short     old_abi;
-	unsigned long long new_abi;
-	} st_rdev;
-#else
 	unsigned long long st_rdev;
-#endif
 	unsigned char      __pad3[4];
 
 	long long          st_size;
 	unsigned long      st_blksize;
 #if defined(__ARMEB__)
-	unsigned long      __pad_st_blocks; /* future possible st_blocks high bits */
-	unsigned long      st_blocks;       /* Number 512-byte blocks allocated. */
+	unsigned long      __pad4;     /* future possible st_blocks high bits */
+	unsigned long      st_blocks;  /* Number 512-byte blocks allocated. */
 #else
 	unsigned long      st_blocks;  /* Number 512-byte blocks allocated. */
 	unsigned long      __pad4;     /* future possible st_blocks high bits */
