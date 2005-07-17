@@ -49,9 +49,9 @@ void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 	buf->st_mtime = kbuf->st_mtime;
 	buf->st_ctime = kbuf->st_ctime;
 #ifdef STAT_HAVE_NSEC
-	buf->st_atime_nsec = kbuf->st_atimensec;
-	buf->st_mtime_nsec = kbuf->st_mtimensec;
-	buf->st_ctime_nsec = kbuf->st_ctimensec;
+	buf->st_atimensec = kbuf->st_atime_nsec;
+	buf->st_mtimensec = kbuf->st_mtime_nsec;
+	buf->st_ctimensec = kbuf->st_ctime_nsec;
 #endif
 }
 
@@ -77,9 +77,9 @@ void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 	buf->st_mtime = kbuf->st_mtime;
 	buf->st_ctime = kbuf->st_ctime;
 #ifdef STAT_HAVE_NSEC
-	buf->st_atime_nsec = kbuf->st_atimensec;
-	buf->st_mtime_nsec = kbuf->st_mtimensec;
-	buf->st_ctime_nsec = kbuf->st_ctimensec;
+	buf->st_atimensec = kbuf->st_atime_nsec;
+	buf->st_mtimensec = kbuf->st_mtime_nsec;
+	buf->st_ctimensec = kbuf->st_ctime_nsec;
 #endif
 }
 
