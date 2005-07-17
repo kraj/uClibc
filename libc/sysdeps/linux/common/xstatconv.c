@@ -34,20 +34,20 @@
 
 void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 {
-    /* Convert to current kernel version of `struct stat'.  */
-    buf->st_dev = kbuf->st_dev;
-    buf->st_ino = kbuf->st_ino;
-    buf->st_mode = kbuf->st_mode;
-    buf->st_nlink = kbuf->st_nlink;
-    buf->st_uid = kbuf->st_uid;
-    buf->st_gid = kbuf->st_gid;
-    buf->st_rdev = kbuf->st_rdev;
-    buf->st_size = kbuf->st_size;
-    buf->st_blksize = kbuf->st_blksize;
-    buf->st_blocks = kbuf->st_blocks;
-    buf->st_atime = kbuf->st_atime;
-    buf->st_mtime = kbuf->st_mtime;
-    buf->st_ctime = kbuf->st_ctime;
+	/* Convert to current kernel version of `struct stat'. */
+	buf->st_dev = kbuf->st_dev;
+	buf->st_ino = kbuf->st_ino;
+	buf->st_mode = kbuf->st_mode;
+	buf->st_nlink = kbuf->st_nlink;
+	buf->st_uid = kbuf->st_uid;
+	buf->st_gid = kbuf->st_gid;
+	buf->st_rdev = kbuf->st_rdev;
+	buf->st_size = kbuf->st_size;
+	buf->st_blksize = kbuf->st_blksize;
+	buf->st_blocks = kbuf->st_blocks;
+	buf->st_atime = kbuf->st_atime;
+	buf->st_mtime = kbuf->st_mtime;
+	buf->st_ctime = kbuf->st_ctime;
 #ifdef STAT_HAVE_NSEC
 	buf->st_atime_nsec = kbuf->st_atimensec;
 	buf->st_mtime_nsec = kbuf->st_mtimensec;
@@ -59,23 +59,23 @@ void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 
 void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 {
-    /* Convert to current kernel version of `struct stat64'.  */
-    buf->st_dev = kbuf->st_dev;
-    buf->st_ino = kbuf->st_ino;
+	/* Convert to current kernel version of `struct stat64'. */
+	buf->st_dev = kbuf->st_dev;
+	buf->st_ino = kbuf->st_ino;
 #ifdef _HAVE_STAT64___ST_INO
-    buf->__st_ino = kbuf->__st_ino;
+	buf->__st_ino = kbuf->__st_ino;
 #endif
-    buf->st_mode = kbuf->st_mode;
-    buf->st_nlink = kbuf->st_nlink;
-    buf->st_uid = kbuf->st_uid;
-    buf->st_gid = kbuf->st_gid;
-    buf->st_rdev = kbuf->st_rdev;
-    buf->st_size = kbuf->st_size;
-    buf->st_blksize = kbuf->st_blksize;
-    buf->st_blocks = kbuf->st_blocks;
-    buf->st_atime = kbuf->st_atime;
-    buf->st_mtime = kbuf->st_mtime;
-    buf->st_ctime = kbuf->st_ctime;
+	buf->st_mode = kbuf->st_mode;
+	buf->st_nlink = kbuf->st_nlink;
+	buf->st_uid = kbuf->st_uid;
+	buf->st_gid = kbuf->st_gid;
+	buf->st_rdev = kbuf->st_rdev;
+	buf->st_size = kbuf->st_size;
+	buf->st_blksize = kbuf->st_blksize;
+	buf->st_blocks = kbuf->st_blocks;
+	buf->st_atime = kbuf->st_atime;
+	buf->st_mtime = kbuf->st_mtime;
+	buf->st_ctime = kbuf->st_ctime;
 #ifdef STAT_HAVE_NSEC
 	buf->st_atime_nsec = kbuf->st_atimensec;
 	buf->st_mtime_nsec = kbuf->st_mtimensec;
@@ -83,4 +83,4 @@ void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 #endif
 }
 
-#endif
+#endif /* __UCLIBC_HAS_LFS__ */
