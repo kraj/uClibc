@@ -36,6 +36,41 @@ extern void *alloca (size_t __size) __THROW;
 # define alloca(size)	__builtin_alloca (size)
 #endif /* GCC.  */
 
+#define __MAX_ALLOCA_CUTOFF	65536
+
+#ifdef __UCLIBC__
+#include <bits/stackinfo.h>
+#else
+#include <allocalim.h>
+#endif
+
+#if _STACK_GROWS_DOWN
+# define extend_alloca(buf, len, newlen) \
+  (__typeof (buf)) ({ size_t __newlen = (newlen);			      \
+		      char *__newbuf = alloca (__newlen);		      \
+		      if (__newbuf + __newlen == (char *) buf)		      \
+			len += __newlen;				      \
+		      else						      \
+			len = __newlen;					      \
+		      __newbuf; })
+#elif _STACK_GROWS_UP
+# define extend_alloca(buf, len, newlen) \
+  (__typeof (buf)) ({ size_t __newlen = (newlen);			      \
+		      char *__newbuf = alloca (__newlen);		      \
+		      char *__buf = (buf);				      \
+		      if (__buf + __newlen == __newbuf)			      \
+			{						      \
+			  len += __newlen;				      \
+			  __newbuf = __buf;				      \
+			}						      \
+		      else						      \
+			len = __newlen;					      \
+		      __newbuf; })
+#else
+# define extern_alloca(buf, len, newlen) \
+  alloca (((len) = (newlen)))
+#endif
+
 __END_DECLS
 
 #endif /* alloca.h */

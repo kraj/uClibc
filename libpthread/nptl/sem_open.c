@@ -18,9 +18,6 @@
    02111-1307 USA.  */
 
 #include <errno.h>
-#ifdef __PTHREADS_NATIVE__
-#define __USE_GNU
-#endif
 #include <fcntl.h>
 #include <mntent.h>
 #include <paths.h>

@@ -24,7 +24,6 @@
 
 /* Compatibility define. */
 #ifdef __UCLIBC__
-#include <sysdep-cancel.h>
 #define __libc_system	system
 #endif
 

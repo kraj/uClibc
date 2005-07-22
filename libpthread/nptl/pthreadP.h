@@ -28,6 +28,7 @@
 #include <tls.h>
 #include <lowlevellock.h>
 #ifdef __UCLIBC__
+#include <libc-symbols.h>
 #include <bits/stackinfo.h>
 #else
 #include <stackinfo.h>

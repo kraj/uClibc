@@ -1,6 +1,14 @@
 #ifndef _LIBC_SYMBOLS_H
 #define _LIBC_SYMBOLS_H 1
 
+#ifndef __SYMBOL_PREFIX
+# ifdef NO_UNDERSCORES
+#  define __SYMBOL_PREFIX
+# else
+#  define __SYMBOL_PREFIX "_"
+# endif
+#endif
+
 /* Handling on non-exported internal names.  We have to do this only
    for shared code.  */
 #ifdef SHARED
@@ -25,6 +33,29 @@
 # define INTDEF2(name, newname)
 # define INTVARDEF2(name, newname)
 #endif
+
+/* These are all done the same way in ELF.
+   There is a new section created for each set.  */
+#  ifdef SHARED
+/* When building a shared library, make the set section writable,
+   because it will need to be relocated at run time anyway.  */
+#   define _elf_set_element(set, symbol) \
+  static const void *__elf_set_##set##_element_##symbol##__ \
+    __attribute__ ((used, section (#set))) = &(symbol)
+#  else
+#   define _elf_set_element(set, symbol) \
+  static const void *const __elf_set_##set##_element_##symbol##__ \
+    __attribute__ ((used, section (#set))) = &(symbol)
+#  endif
+
+#define text_set_element(set, symbol) _elf_set_element(set, symbol)
+#define __sec_comment "\n\t#"
+#define __libc_freeres_fn_section \
+  __attribute__ ((section ("__libc_freeres_fn")))
+#define libc_freeres_fn(name)	\
+  static void name (void) __attribute_used__ __libc_freeres_fn_section;	\
+  text_set_element (__libc_subfreeres, name);				\
+  static void name (void)
 
 #if 0
 # ifndef __ASSEMBLER__

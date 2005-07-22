@@ -27,4 +27,8 @@
   ((uintptr_t) (_address) - (_adj) < (uintptr_t) (_jmpbuf)[0].__sp - (_adj))
 
 /* We use the normal longjmp for unwinding.  */
+#ifdef __UCLIBC__
+#define __libc_unwind_longjmp(buf, val) longjmp (buf, val)
+#else
 #define __libc_unwind_longjmp(buf, val) __libc_longjmp (buf, val)
+#endif

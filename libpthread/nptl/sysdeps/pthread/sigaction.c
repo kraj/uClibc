@@ -22,12 +22,21 @@
    exact file anyway.  */
 #ifndef LIBC_SIGACTION
 
+#include <features.h>
+
+#ifdef __UCLIBC__
+#include <errno.h>
+#include <signal.h>
+#include <pthreadP.h>
+#else
 #include <nptl/pthreadP.h>
+#endif
 
 /* We use the libc implementation but we tell it to not allow
    SIGCANCEL or SIGTIMER to be handled.  */
 # define LIBC_SIGACTION	1
 
+#ifndef __UCLIBC__
 # include <nptl/sysdeps/pthread/sigaction.c>
 
 int
@@ -35,6 +44,10 @@ __sigaction (sig, act, oact)
      int sig;
      const struct sigaction *act;
      struct sigaction *oact;
+#else
+int
+__sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+#endif
 {
   if (__builtin_expect (sig == SIGCANCEL || sig == SIGSETXID, 0))
     {
@@ -42,10 +55,16 @@ __sigaction (sig, act, oact)
       return -1;
     }
 
+#ifdef __UCLIBC__
+  return sigaction (sig, act, oact);
+#else
   return __libc_sigaction (sig, act, oact);
+#endif
 }
 libc_hidden_weak (__sigaction)
+#ifndef __UCLIBC__
 weak_alias (__sigaction, sigaction)
+#endif
 
 #else
 

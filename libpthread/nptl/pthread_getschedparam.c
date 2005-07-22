@@ -51,7 +51,11 @@ __pthread_getschedparam (threadid, policy, param)
      not yet been retrieved do it now.  */
   if ((pd->flags & ATTR_FLAG_SCHED_SET) == 0)
     {
+#ifdef __UCLIBC__
+      if (sched_getparam (pd->tid, &pd->schedparam) != 0)
+#else
       if (__sched_getparam (pd->tid, &pd->schedparam) != 0)
+#endif
 	result = 1;
       else
 	pd->flags |= ATTR_FLAG_SCHED_SET;
@@ -59,7 +63,11 @@ __pthread_getschedparam (threadid, policy, param)
 
   if ((pd->flags & ATTR_FLAG_POLICY_SET) == 0)
     {
+#ifdef __UCLIBC__
+      pd->schedpolicy = sched_getscheduler (pd->tid);
+#else
       pd->schedpolicy = __sched_getscheduler (pd->tid);
+#endif
       if (pd->schedpolicy == -1)
 	result = 1;
       else

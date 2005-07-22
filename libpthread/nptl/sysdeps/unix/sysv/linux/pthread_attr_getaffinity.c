@@ -39,7 +39,8 @@ __pthread_attr_getaffinity_new (const pthread_attr_t *attr, size_t cpusetsize,
     {
       /* Check whether there are any bits set beyond the limits
 	 the user requested.  */
-      for (size_t cnt = cpusetsize; cnt < iattr->cpusetsize; ++cnt)
+      size_t cnt;
+      for (cnt = cpusetsize; cnt < iattr->cpusetsize; ++cnt)
 	if (((char *) iattr->cpuset)[cnt] != 0)
 	  return EINVAL;
 

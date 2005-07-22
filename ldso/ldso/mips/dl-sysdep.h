@@ -5,6 +5,9 @@
  * so that we can minimize the amount of platform specific code.
  */
 
+#ifndef _ARCH_DL_SYSDEP
+#define _ARCH_DL_SYSDEP
+
 /* Define this if the system uses RELOCA.  */
 #undef ELF_USES_RELOCA
 #include <elf.h>
@@ -122,3 +125,5 @@ elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 {
 	/* No REALTIVE relocs in MIPS? */
 }
+#endif /* !_ARCH_DL_SYSDEP */
+

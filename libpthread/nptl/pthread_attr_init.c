@@ -45,7 +45,11 @@ __pthread_attr_init_2_1 (attr)
   iattr = (struct pthread_attr *) attr;
 
   /* Default guard size specified by the standard.  */
+#ifdef __UCLIBC__
+  iattr->guardsize = getpagesize ();
+#else
   iattr->guardsize = __getpagesize ();
+#endif
 
   return 0;
 }

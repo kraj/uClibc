@@ -114,6 +114,12 @@ struct link_map
     ptrdiff_t l_tls_offset;
     /* Index of the module in the dtv array.  */
     size_t l_tls_modid;
+    enum			/* Where this object came from.  */
+      {
+	lt_executable,		/* The main executable program.  */
+	lt_library,		/* Library needed by main executable.  */
+	lt_loaded		/* Extra run-time loaded shared object.  */
+      } l_type:2;
 #endif
   };
 

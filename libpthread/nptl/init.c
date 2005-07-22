@@ -324,6 +324,12 @@ __pthread_initialize_minimal_internal (void)
 
   __static_tls_size = roundup (__static_tls_size, static_tls_align);
 
+/*
+ * For now, we are not going to be concerend about locking inside
+ * the dynamic loader proper. Maybe later. We also disable stack
+ * execution.
+ */
+#ifndef __UCLIBC__
 #ifdef SHARED
   /* Transfer the old value from the dynamic linker's internal location.  */
   *__libc_dl_error_tsd () = *(*GL(dl_error_catch_tsd)) ();
@@ -339,6 +345,7 @@ __pthread_initialize_minimal_internal (void)
     INTUSE (__pthread_mutex_lock) (&GL(dl_load_lock).mutex);
 
   GL(dl_make_stack_executable_hook) = &__make_stacks_executable;
+#endif
 #endif
 
   GL(dl_init_static_tls) = &__pthread_init_static_tls;
