@@ -64,7 +64,7 @@ endif
 OBJS=$(MOBJ) $(MOBJx)
 
 ifeq ($(UCLIBC_HAS_WCHAR),y)
-	OBJS += $(MOBJW) $(MOBJWx)
+OBJS += $(MOBJW) $(MOBJWx)
 endif
 
 OBJ_LIST=../obj.string

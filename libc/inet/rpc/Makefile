@@ -57,7 +57,7 @@ $(OBJ_LIST): $(OBJS)
 	echo $(patsubst %, inet/rpc/%, $(OBJS)) > $(OBJ_LIST)
 
 $(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) $(PT_INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) $(PTINC) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

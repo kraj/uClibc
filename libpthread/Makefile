@@ -18,10 +18,16 @@
 
 TOPDIR=../
 include $(TOPDIR)Rules.mak
+ifeq ($(strip $(PTHREADS_NATIVE)),y)
+include nptl/Rules.mak
+endif
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-#Adjust the soname version to avoid namespace collisions with glibc's libpthread
+#
+# Adjust the soname version to avoid namespace collisions with glibc's
+# libpthread library.
+#
 LIBPTHREAD=libpthread.a
 LIBPTHREAD_SHARED=libpthread.so
 LIBPTHREAD_SHARED_FULLNAME=libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
@@ -95,11 +101,19 @@ $(OBJ): Makefile
 
 shared: all
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
+ifeq ($(strip $(PTHREADS_NATIVE)),y)
+	$(LD) $(LDFLAGS_THREAD) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
+		-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD_SHARED_ARCHIVE) \
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc -ldl $(LDADD_LIBFLOAT) $(LIBGCC) \
+		$(SHARED_END_FILES)
+else
 	$(LD) $(LDFLAGS_THREAD) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
 		$(SHARED_END_FILES)
+endif
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) \
 		$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)

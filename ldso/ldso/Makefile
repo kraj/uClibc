@@ -36,9 +36,15 @@ XXFLAGS+=-Os #-g3
 else
 XXFLAGS+=$(OPTIMIZATION)
 endif
+ifeq ($(PTHREADS_NATIVE),y)
+XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
+	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
+	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include $(PTINC)
+else
 XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
+endif
 
 # BEWARE!!! At least mips* will die if -O0 is used!!!
 XXFLAGS:=$(XXFLAGS:-O0=-O1)
@@ -80,11 +86,11 @@ $(LDSO_FULLNAME): $(OBJS) $(DLINK_OBJS)
 	$(LN) -sf $(LDSO_FULLNAME) $(TOPDIR)lib/$(UCLIBC_LDSO)
 
 $(COBJS): %.o : %.c
-	$(CC) $(XXFLAGS) -I../libdl -c $< -o $@
+	$(CC) $(XXFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(AOBJS): %.o : %.S
-	$(CC) $(XXFLAGS) $(ASFLAGS) -I../libdl -c $< -o $@
+	$(CC) $(XXFLAGS) $(ASFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 ldso.o: $(CSRC) dl-elf.c dl-hash.c dl-startup.c \

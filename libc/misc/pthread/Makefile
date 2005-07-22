@@ -19,8 +19,6 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CFLAGS += $(PT_INCLUDES)
-
 CSRC=no-tsd.c weaks.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
@@ -33,7 +31,7 @@ $(OBJ_LIST): $(OBJS)
 	echo $(patsubst %, misc/pthread/%, $(OBJS)) > $(OBJ_LIST)
 
 $(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(PTINC) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

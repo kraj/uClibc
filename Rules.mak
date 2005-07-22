@@ -278,19 +278,21 @@ endif
 # Thread includes are needed to compile some files.
 #
 ifeq ($(PTHREADS_NATIVE),y)
-PTDIR 		:= $(TOPDIR)/libpthread/nptl/
-PT_INCLUDES	:= -I$(PTDIR)compat					\
-		   -I$(PTDIR)sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
-		   -I$(PTDIR)sysdeps/$(TARGET_ARCH)			\
-		   -I$(PTDIR)sysdeps/unix/sysv/linux			\
-		   -I$(PTDIR)sysdeps/pthread				\
-		   -include $(PTDIR)compat/libc-symbols.h
+PTDIR	:= $(TOPDIR)libpthread/nptl/
+PTINC	:= -I$(PTDIR)compat					\
+	   -I$(PTDIR)sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
+	   -I$(PTDIR)sysdeps/$(TARGET_ARCH)			\
+	   -I$(PTDIR)sysdeps/unix/sysv/linux			\
+	   -I$(PTDIR)sysdeps/pthread				\
+	   -I$(PTDIR)sysdeps/pthread/bits			\
+	   -I$(PTDIR)sysdeps/generic				\
+	   -include $(PTDIR)compat/libc-symbols.h
+CFLAGS	+= $(PTINC)
 else
-PTDIR 		:= $(TOPDIR)/libpthread/linuxthreads/
-PT_INCLUDES	:= -I$(PTDIR)sysdeps/$(TARGET_ARCH)			\
-		   -I$(PTDIR)sysdeps/pthread
+PTDIR	:= $(TOPDIR)libpthread/linuxthreads/
+PTINC	:= -I$(PTDIR)sysdeps/$(TARGET_ARCH)			\
+	   -I$(PTDIR)sysdeps/pthread
 endif
-export PT_INCLUDES
 
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 LDFLAGS+=-z relro

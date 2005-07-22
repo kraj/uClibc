@@ -45,11 +45,11 @@ interp.c: Makefile
 	echo "#endif" >> interp.c
 
 interp.o: interp.c
-	$(CC) $(CFLAGS) $(PT_INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) $(PT_INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

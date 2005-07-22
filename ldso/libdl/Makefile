@@ -27,9 +27,15 @@ XXFLAGS+=-O0 -g3
 else
 XXFLAGS+=$(OPTIMIZATION)
 endif
+ifeq ($(PTHREADS_NATIVE),y)
+XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) \
+	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
+	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso -I. -I$(TOPDIR)include $(PTINC)
+else
 XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso -I. -I$(TOPDIR)include
+endif
 
 XXFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 XXFLAGS_NOPIC:=$(XXFLAGS)
@@ -62,11 +68,11 @@ $(LIBDL): $(OBJS)
 $(LIBDL_PIC): $(PIC_OBJS)
 	$(AR) $(ARFLAGS) $(LIBDL_PIC) $(PIC_OBJS)
 
-libdl.o: libdl.c
+libdl.o: libdl.c $(TOPDIR)ldso/include/*.h
 	$(CC) $(XXFLAGS_NOPIC) -c libdl.c -o libdl.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-libdl_pic.o: libdl.c
+libdl_pic.o: libdl.c $(TOPDIR)ldso/include/*.h
 	$(CC) $(XXFLAGS) -c libdl.c -o libdl_pic.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 

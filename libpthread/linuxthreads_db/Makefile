@@ -29,7 +29,6 @@ SYSDEPS_DIR:=$(TARGET_ARCH)
 endif
 
 # set up system dependencies include dirs (NOTE: order matters!)
-PTDIR = $(TOPDIR)libpthread/linuxthreads/
 SYSDEPINC = -I$(PTDIR)sysdeps/unix/sysv/linux \
             -I$(PTDIR)sysdeps/pthread \
             -I$(PTDIR)sysdeps/unix/sysv \
