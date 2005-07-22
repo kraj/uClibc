@@ -73,8 +73,13 @@
 #endif
 
 #ifdef __UCLIBC_HAS_THREADS__
+#ifdef __UCLIBC_HAS_FUTEXES__
+#define __STDIO_FILE_INIT_THREADSAFE \
+	2, _LIBC_LOCK_RECURSIVE_INITIALIZER,
+#else
 #define __STDIO_FILE_INIT_THREADSAFE \
 	2, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
+#endif
 #else
 #define __STDIO_FILE_INIT_THREADSAFE
 #endif
@@ -151,7 +156,12 @@ FILE *__stdout = _stdio_streams + 1; /* For putchar() macro. */
 FILE *_stdio_openlist = _stdio_streams;
 
 # ifdef __UCLIBC_HAS_THREADS__
+#  ifdef __UCLIBC_HAS_FUTEXES__
+#  include <bits/stdio-lock.h>
+_IO_lock_t _stdio_openlist_lock = _IO_lock_initializer;
+#  else
 pthread_mutex_t _stdio_openlist_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#  endif
 int _stdio_openlist_delflag = 0;
 # endif
 
@@ -162,6 +172,7 @@ int _stdio_openlist_delflag = 0;
 /* 2 if threading not initialized and 0 otherwise; */
 int _stdio_user_locking = 2;
 
+#ifndef __UCLIBC_HAS_FUTEXES__
 void __stdio_init_mutex(pthread_mutex_t *m)
 {
 	static const pthread_mutex_t __stdio_mutex_initializer
@@ -169,6 +180,7 @@ void __stdio_init_mutex(pthread_mutex_t *m)
 
 	memcpy(m, &__stdio_mutex_initializer, sizeof(__stdio_mutex_initializer));
 }
+#endif
 
 #endif
 /**********************************************************************/
@@ -184,7 +196,11 @@ void _stdio_term(void)
 	 * locked, then I suppose there is a chance that a pointer in the
 	 * chain might be corrupt due to a partial store.
 	 */ 
+#ifdef __UCLIBC_HAS_FUTEXES__
+	_IO_lock_init (_stdio_openlist_lock);
+#else
 	__stdio_init_mutex(&_stdio_openlist_lock);
+#endif
 
 	/* Next we need to worry about the streams themselves.  If a stream
 	 * is currently locked, then it may be in an invalid state.  So we
@@ -205,7 +221,11 @@ void _stdio_term(void)
 		}
 		
 		ptr->__user_locking = 1; /* Set locking mode to "by caller". */
+#ifdef __UCLIBC_HAS_FUTEXES__
+		_IO_lock_init (ptr->_lock);
+#else
 		__stdio_init_mutex(&ptr->__lock); /* Shouldn't be necessary, but... */
+#endif
 	}
 #endif
 

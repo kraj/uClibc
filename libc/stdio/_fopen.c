@@ -98,7 +98,11 @@ FILE *_stdio_fopen(intptr_t fname_or_mode,
 #ifdef __UCLIBC_HAS_THREADS__
 		/* We only initialize the mutex in the non-freopen case. */
 		/* stream->__user_locking = _stdio_user_locking; */
+#ifdef __UCLIBC_HAS_FUTEXES__
+		_IO_lock_init (stream->_lock);
+#else
 		__stdio_init_mutex(&stream->__lock);
+#endif
 #endif
 	}
 
@@ -190,7 +194,11 @@ FILE *_stdio_fopen(intptr_t fname_or_mode,
 #ifdef __UCLIBC_HAS_THREADS__
 	/* Even in the freopen case, we reset the user locking flag. */
 	stream->__user_locking = _stdio_user_locking;
+#ifdef __UCLIBC_HAS_FUTEXES__
+	/* _IO_lock_init (stream->_lock); */
+#else
 	/* __stdio_init_mutex(&stream->__lock); */
+#endif
 #endif
 
 #ifdef __STDIO_HAS_OPENLIST

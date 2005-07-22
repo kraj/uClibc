@@ -301,6 +301,7 @@ config PTHREADS_NATIVE
 	bool "Native POSIX Threading (NPTL) Support"
 	depends on UCLIBC_HAS_THREADS
 	default n
+	select UCLIBC_HAS_FUTEXES
 	help
 	  If you want to compile uClibc with NPTL support, then answer Y.
 
@@ -334,6 +335,16 @@ config PTHREADS_DEBUG_SUPPORT
 
 	  If you are doing development and want to debug applications using
 	  uClibc's pthread library, answer Y.  Otherwise, answer N.
+
+config UCLIBC_HAS_FUTEXES
+	bool "Fast user mutexes (futex) Support"
+	default n
+	depends on PTHREADS_NATIVE
+	help
+	  If you want to compile uClibc to use fast user mutexes, also
+	  known as futexes, answer Y.  Otherwise, answer N.
+
+	  NOTE:  Futexes are only supported with Linux 2.6 kernels.
 
 config UCLIBC_HAS_LFS
 	bool "Large File Support"

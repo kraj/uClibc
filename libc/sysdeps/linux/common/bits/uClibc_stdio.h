@@ -119,6 +119,9 @@
 #ifdef __UCLIBC_HAS_THREADS__
 /* Need this for pthread_mutex_t. */
 #include <bits/pthreadtypes.h>
+#if defined __UCLIBC_HAS_FUTEXES__  && defined _LIBC
+#include <bits/stdio-lock.h>
+#endif
 
 /* user_locking
  * 0 : do auto locking/unlocking
@@ -133,6 +136,31 @@
  */
 
 #define __STDIO_AUTO_THREADLOCK_VAR			int __infunc_user_locking
+
+#if defined __UCLIBC_HAS_FUTEXES__ && defined _LIBC
+
+#define __STDIO_SET_USER_LOCKING(__stream)	((__stream)->__user_locking = 1)
+
+#define __STDIO_AUTO_THREADLOCK(__stream)								\
+	if ((__infunc_user_locking = (__stream)->__user_locking) == 0) {	\
+		_IO_lock_lock((__stream)->_lock);			\
+	}
+
+#define __STDIO_AUTO_THREADUNLOCK(__stream)				\
+	if (__infunc_user_locking == 0) {					\
+		_IO_lock_unlock((__stream)->_lock);			\
+	}
+
+#define __STDIO_ALWAYS_THREADLOCK(__stream)	\
+		_IO_lock_lock((__stream)->_lock)
+
+#define __STDIO_ALWAYS_THREADTRYLOCK(__stream)	\
+		_IO_lock_trylock((__stream)->_lock)
+
+#define __STDIO_ALWAYS_THREADUNLOCK(__stream) \
+		_IO_lock_unlock((__stream)->_lock)
+
+#else
 
 #define __STDIO_AUTO_THREADLOCK(__stream)								\
 	if ((__infunc_user_locking = (__stream)->__user_locking) == 0) {	\
@@ -154,6 +182,8 @@
 
 #define __STDIO_ALWAYS_THREADUNLOCK(__stream) \
 		__pthread_mutex_unlock(&(__stream)->__lock)
+
+#endif
 
 #else  /* __UCLIBC_HAS_THREADS__ */
 
@@ -283,7 +313,11 @@ struct __STDIO_FILE_STRUCT {
 #endif
 #ifdef __UCLIBC_HAS_THREADS__
 	int __user_locking;
+#if defined __UCLIBC_HAS_FUTEXES__ && defined _LIBC
+	_IO_lock_t _lock;
+#else
 	pthread_mutex_t __lock;
+#endif
 #endif
 /* Everything after this is unimplemented... and may be trashed. */
 #if __STDIO_BUILTIN_BUF_SIZE > 0
@@ -358,7 +392,11 @@ extern void _stdio_term(void);
 extern struct __STDIO_FILE_STRUCT *_stdio_openlist;
 
 #ifdef __UCLIBC_HAS_THREADS__
+#if defined __UCLIBC_HAS_FUTEXES__ && defined _LIBC
+extern _IO_lock_t _stdio_openlist_lock;
+#else
 extern pthread_mutex_t _stdio_openlist_lock;
+#endif
 extern int _stdio_openlist_delflag;
 extern int _stdio_user_locking;
 extern void __stdio_init_mutex(pthread_mutex_t *m);
