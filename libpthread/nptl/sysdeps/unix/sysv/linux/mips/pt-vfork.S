@@ -16,6 +16,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <features.h>
 #include <tls.h>
 
 /* Save the PID value.  */
@@ -34,4 +35,10 @@
 	sw	a2, PID_OFFSET(v1);	/* Restore the PID.  */		\
 1:
 
+#ifdef __UCLIBC__
+#undef weak_alias
+#define weak_alias(name, aliasname)
+#include <../../../../../../../libc/sysdeps/linux/mips/vfork.S>
+#else
 #include <../sysdeps/unix/sysv/linux/mips/vfork.S>
+#endif

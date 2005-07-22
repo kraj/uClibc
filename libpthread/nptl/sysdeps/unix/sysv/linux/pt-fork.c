@@ -18,7 +18,9 @@
    02111-1307 USA.  */
 
 #include <unistd.h>
-
+#ifdef __UCLIBC__
+extern pid_t __libc_fork(void);
+#endif
 
 pid_t
 __fork (void)

@@ -22,7 +22,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sysdep.h>
+#ifndef __UCLIBC__
 #include <libio/libioP.h>
+#endif
 #include <tls.h>
 #include "fork.h"
 #include <hp-timing.h>
@@ -42,10 +44,17 @@ struct fork_handler *__fork_handlers;
 static void
 fresetlockfiles (void)
 {
+#ifdef __UCLIBC__
+  FILE *fp;
+
+  for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen)
+    _IO_lock_init(fp->_lock);
+#else
   _IO_ITER i;
 
   for (i = _IO_iter_begin(); i != _IO_iter_end(); i = _IO_iter_next(i))
     _IO_lock_init (*((_IO_lock_t *) _IO_iter_file(i)->_lock));
+#endif
 }
 
 
@@ -111,7 +120,11 @@ __libc_fork (void)
       break;
     }
 
+#ifdef __UCLIBC__
+  _IO_lock_lock (_stdio_openlist_lock);
+#else
   _IO_list_lock ();
+#endif
 
 #ifndef NDEBUG
   pid_t ppid = THREAD_GETMEM (THREAD_SELF, tid);
@@ -155,10 +168,16 @@ __libc_fork (void)
       fresetlockfiles ();
 
       /* Reset locks in the I/O code.  */
+#ifdef __UCLIBC__
+      _IO_lock_init (_stdio_openlist_lock);
+#else
       _IO_list_resetlock ();
+#endif
 
+#ifndef __UCLIBC__
       /* Reset the lock the dynamic loader uses to protect its data.  */
       __rtld_lock_initialize (GL(dl_load_lock));
+#endif
 
       /* Run the handlers registered for the child.  */
       while (allp != NULL)
@@ -190,7 +209,11 @@ __libc_fork (void)
       THREAD_SETMEM (THREAD_SELF, pid, parentpid);
 
       /* We execute this even if the 'fork' call failed.  */
+#ifdef __UCLIBC__
+      _IO_lock_unlock(_stdio_openlist_lock);
+#else
       _IO_list_unlock ();
+#endif
 
       /* Run the handlers registered for the parent.  */
       while (allp != NULL)
