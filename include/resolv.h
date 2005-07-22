@@ -50,40 +50,25 @@
  */
 
 #ifndef _RESOLV_H_
-#define	_RESOLV_H_
 
-#include <sys/param.h>
 #if (!defined(BSD)) || (BSD < 199306)
 # include <sys/bitypes.h>
 #else
 # include <sys/types.h>
 #endif
-#include <sys/cdefs.h>
 #include <stdio.h>
-
 #include <netinet/in.h>
+
+#ifndef __need_res_state
+#define	_RESOLV_H_
+
+#include <sys/param.h>
+#include <sys/cdefs.h>
 #include <arpa/nameser.h>
-
-/*
- * Revision information.  This is the release date in YYYYMMDD format.
- * It can change every day so the right thing to do with it is use it
- * in preprocessor commands such as "#if (__RES > 19931104)".  Do not
- * compare for equality; rather, use it to determine whether your resolver
- * is new enough to contain a certain feature.
- */
-
-/* #define	__RES	19991006 we don't have a new resolver yet */
-#define	__RES	19960801
-
-/*
- * Resolver configuration file.
- * Normally not present, but may contain the address of the
- * inital name server(s) to query and the domain search list.
- */
-
-#ifndef _PATH_RESCONF
-#define _PATH_RESCONF        "/etc/resolv.conf"
 #endif
+
+#ifndef __res_state_defined
+# define __res_state_defined
 
 typedef enum { res_goahead, res_nextns, res_modified, res_done, res_error }
 	res_sendhookact;
@@ -107,6 +92,30 @@ struct res_sym {
 	char *	name;		/* Its symbolic name, like "MX" */
 	char *	humanname;	/* Its fun name, like "mail exchanger" */
 };
+
+/*
+ * Resolver options (keep these in synch with res_debug.c, please)
+ */
+#define RES_INIT	0x00000001	/* address initialized */
+#define RES_DEBUG	0x00000002	/* print debug messages */
+#define RES_AAONLY	0x00000004	/* authoritative answers only (!IMPL)*/
+#define RES_USEVC	0x00000008	/* use virtual circuit */
+#define RES_PRIMARY	0x00000010	/* query primary server only (!IMPL) */
+#define RES_IGNTC	0x00000020	/* ignore trucation errors */
+#define RES_RECURSE	0x00000040	/* recursion desired */
+#define RES_DEFNAMES	0x00000080	/* use default domain name */
+#define RES_STAYOPEN	0x00000100	/* Keep TCP socket open */
+#define RES_DNSRCH	0x00000200	/* search up local domain tree */
+#define	RES_INSECURE1	0x00000400	/* type 1 security disabled */
+#define	RES_INSECURE2	0x00000800	/* type 2 security disabled */
+#define	RES_NOALIASES	0x00001000	/* shuts off HOSTALIASES feature */
+#define	RES_USE_INET6	0x00002000	/* use/map IPv6 in gethostbyname() */
+#define RES_ROTATE	0x00004000	/* rotate ns list after each query */
+#define	RES_NOCHECKNAME	0x00008000	/* do not check names for sanity. */
+#define	RES_KEEPTSIG	0x00010000	/* do not strip TSIG records */
+#define	RES_BLAST	0x00020000	/* blast all recursive servers */
+
+#define RES_DEFAULT	(RES_RECURSE | RES_DEFNAMES | RES_DNSRCH)
 
 /*
  * Global defines and variables for resolver stub.
@@ -162,6 +171,35 @@ struct __res_state {
 };
 
 typedef struct __res_state *res_state;
+# undef __need_res_state
+#endif /* ! __res_state_defined */
+
+#endif /* ! _RESOLV_H_ */
+
+
+#ifdef _RESOLV_H_
+/*
+ * Revision information.  This is the release date in YYYYMMDD format.
+ * It can change every day so the right thing to do with it is use it
+ * in preprocessor commands such as "#if (__RES > 19931104)".  Do not
+ * compare for equality; rather, use it to determine whether your resolver
+ * is new enough to contain a certain feature.
+ */
+
+/* #define	__RES	19991006 we don't have a new resolver yet */
+#define	__RES	19960801
+
+/*
+ * Resolver configuration file.
+ * Normally not present, but may contain the address of the
+ * inital name server(s) to query and the domain search list.
+ */
+
+#ifndef _PATH_RESCONF
+#define _PATH_RESCONF        "/etc/resolv.conf"
+#endif
+
+
 
 /*
  * Resolver flags (used to be discrete per-module statics ints).
@@ -171,30 +209,6 @@ typedef struct __res_state *res_state;
 
 /* res_findzonecut() options */
 #define	RES_EXHAUSTIVE	0x00000001	/* always do all queries */
-
-/*
- * Resolver options (keep these in synch with res_debug.c, please)
- */
-#define RES_INIT	0x00000001	/* address initialized */
-#define RES_DEBUG	0x00000002	/* print debug messages */
-#define RES_AAONLY	0x00000004	/* authoritative answers only (!IMPL)*/
-#define RES_USEVC	0x00000008	/* use virtual circuit */
-#define RES_PRIMARY	0x00000010	/* query primary server only (!IMPL) */
-#define RES_IGNTC	0x00000020	/* ignore trucation errors */
-#define RES_RECURSE	0x00000040	/* recursion desired */
-#define RES_DEFNAMES	0x00000080	/* use default domain name */
-#define RES_STAYOPEN	0x00000100	/* Keep TCP socket open */
-#define RES_DNSRCH	0x00000200	/* search up local domain tree */
-#define	RES_INSECURE1	0x00000400	/* type 1 security disabled */
-#define	RES_INSECURE2	0x00000800	/* type 2 security disabled */
-#define	RES_NOALIASES	0x00001000	/* shuts off HOSTALIASES feature */
-#define	RES_USE_INET6	0x00002000	/* use/map IPv6 in gethostbyname() */
-#define RES_ROTATE	0x00004000	/* rotate ns list after each query */
-#define	RES_NOCHECKNAME	0x00008000	/* do not check names for sanity. */
-#define	RES_KEEPTSIG	0x00010000	/* do not strip TSIG records */
-#define	RES_BLAST	0x00020000	/* blast all recursive servers */
-
-#define RES_DEFAULT	(RES_RECURSE | RES_DEFNAMES | RES_DNSRCH)
 
 /*
  * Resolver "pfcode" values.  Used by dig.
@@ -215,27 +229,6 @@ typedef struct __res_state *res_state;
 #define RES_PRF_REPLY	0x00002000
 #define RES_PRF_INIT	0x00004000
 /*			0x00008000	*/
-
-/* Internal (static) resolver context. */
-/*
- * NPTL - This code was taken from 'include/resolve.h'
- *        and makes the assumption that our libraries
- *        are reentrant.
- */
-#ifdef IS_IN_libpthread
-#include <libc-symbols.h>
-#include <tls.h>
-#if USE___THREAD
-# undef _res
-# ifndef NOT_IN_libc
-#  define __resp __libc_resp
-# endif
-# define _res (*__resp)
-extern __thread struct __res_state *__resp attribute_tls_model_ie;
-#endif
-#else
-extern struct __res_state _res;
-#endif
 
 #ifndef __BIND_NOSTATIC
 
@@ -388,4 +381,13 @@ int		res_nsend __P((res_state, const u_char *, int, u_char *, int));
 void		res_nclose __P((res_state));
 __END_DECLS
 
-#endif /* !_RESOLV_H_ */
+#endif /* _RESOLV_H_ */
+
+/* Internal (static) resolver context. */
+#ifdef __PTHREADS_NATIVE__
+#include <tls.h>
+# define _res (*__resp)
+extern __thread struct __res_state *__resp attribute_tls_model_ie;
+#else
+extern struct __res_state _res;
+#endif

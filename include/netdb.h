@@ -53,8 +53,8 @@
 
 __BEGIN_DECLS
 
+#ifdef __PTHREADS_NATIVE__
 #include <tls.h>
-#ifdef USE___THREAD
 extern __thread int h_errno attribute_tls_model_ie;
 #else
 /* Error status for non-reentrant lookup functions.  */

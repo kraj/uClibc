@@ -1096,7 +1096,13 @@ struct hostent *gethostbyname2(const char *name, int family)
 
 
 #ifdef L_res_init
+#ifdef __PTHREADS_NATIVE__
+#include <tls.h>
+struct __res_state _res_thread;
+__thread struct __res_state *__resp = &_res_thread;
+#else
 struct __res_state _res;
+#endif
 
 int res_init(void)
 {
@@ -1149,33 +1155,7 @@ void res_close( void )
 	return;
 }
 
-/*
- * NPTL - This code was taken from 'resolve/res_libc.c' and
- *        may still be incorrect. Our name resolver code is
- *        so out of date, we made not be able to correctly
- *        utilize it in multi-threaded programs.
- */
-#ifdef IS_IN_libpthread
-
-/* This needs to be after the use of _res in res_init, above.  */
-#undef _res
-
-/* The resolver state for use by single-threaded programs.
-   This differs from plain `struct __res_state _res;' in that it doesn't
-   create a common definition, but a plain symbol that resides in .bss,
-   which can have an alias.  */
-struct __res_state _res __attribute__((section (".bss")));
-
-#if USE___THREAD
-#undef __resp
-__thread struct __res_state *__resp = &_res;
-extern __thread struct __res_state *__libc_resp
-  __attribute__ ((alias ("__resp"))) attribute_hidden;
 #endif
-#endif
-
-#endif
-
 
 #ifdef L_res_query
 

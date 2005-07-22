@@ -1,14 +1,15 @@
 #include <features.h>
 #undef errno
 
+#if __PTHREADS_NATIVE__
+#include <tls.h>
+extern int errno;
+extern __thread int _h_errno;
+int _errno = 0;
+__thread int _h_errno;
+#else
 extern int errno;
 extern int h_errno;
-
-#if 0
-/* Unfortunately, this doesn't work... */
-int h_errno __attribute__ ((section  (".bss"))) = 0;
-int errno __attribute__ ((section  (".bss"))) = 0;
-#else
 int _errno = 0;
 int _h_errno = 0;
 #endif

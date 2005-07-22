@@ -12,16 +12,13 @@
 #define GL(x) _##x
 #define GLRO(x) _##x
 
-/*
- * NPTL - This was taken from 'sysdeps/generic/ldsodefs.h'. It is
- *        used for backtrace capability.
- */
 /* Variable pointing to the end of the stack (or close to it).  This value
    must be constant over the runtime of the application.  Some programs
    might use the variable which results in copy relocations on some
    platforms.  But this does not matter, ld.so can always use the local
    copy.  */
-extern void *__libc_stack_end attribute_relro;
+//extern void *__libc_stack_end attribute_relro;
+extern void *__libc_stack_end;
 rtld_hidden_proto (__libc_stack_end)
 
 /* Determine next available module ID.  */
