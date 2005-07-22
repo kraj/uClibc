@@ -19,7 +19,9 @@
    02111-1307 USA.  */
 
 #include <assert.h>
+#ifndef __UCLIBC__
 #include <gnu/lib-names.h>
+#endif
 #include "thread_dbP.h"
 
 

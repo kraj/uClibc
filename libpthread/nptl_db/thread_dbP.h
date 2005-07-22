@@ -30,6 +30,10 @@
 #include "thread_db.h"
 #include "../nptl/pthreadP.h"  	/* This is for *_BITMASK only.  */
 
+#ifdef __UCLIBC__
+#define __alloca	alloca
+#endif
+
 /* Indeces for the symbol names.  */
 enum
   {
