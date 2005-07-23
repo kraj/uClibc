@@ -4293,7 +4293,7 @@ int
 main (int argc, char **argv)
 {
 
-  int key, remaining;
+  int key;
 
   verbose = 1;
   output_ulps = 0;

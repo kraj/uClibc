@@ -16,10 +16,8 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
+include ../Rules.mak
 
-
-TESTDIR=../
-include $(TESTDIR)/Rules.mak
 CFLAGS+=-D_GNU_SOURCE -DNO_LONG_DOUBLE
 EXTRA_LIBS=-lm
 PERL=/usr/bin/perl
@@ -40,43 +38,43 @@ all: $(TARGETS)
 	
 test-double: test-double.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 test-idouble: test-idouble.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 test-float: test-float.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 test-ifloat: test-ifloat.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 test-ldouble: test-ldouble.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 test-ildouble: test-ildoubl.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
-	-./$@
+	./$@
 
-rint: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+rint: rint.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ > $@.out 2>&1
+	./$@ > $@.out 2>&1
 	-@ echo " "
 
-rint_glibc: rint.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+rint_glibc: rint.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs glibc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ > $@.out 2>&1
+	./$@ > $@.out 2>&1
 	-@ echo " "
 
 diff: rint_glibc rint
@@ -101,5 +99,3 @@ libm-test.c: $(ulps-file) libm-test.inc gen-libm-test.pl
 
 clean:
 	$(RM) *.[oa] *~ core $(TARGETS) $(generated) rint_glibc.out rint.out
-
-

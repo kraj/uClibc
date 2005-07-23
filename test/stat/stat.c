@@ -1,6 +1,9 @@
 #include <stdio.h>
+#include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 void print_struct_stat(char *msg, struct stat *s)
 {

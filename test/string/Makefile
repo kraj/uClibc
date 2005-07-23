@@ -16,9 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-TESTDIR=../
-include $(TESTDIR)/Rules.mak
-
+include ../Rules.mak
 
 TARGETS=string string_glibc
 TARGETS+=testcopy testcopy_glibc
@@ -26,48 +24,48 @@ TARGETS+=#strerror #strsignal
 
 all: $(TARGETS)
 
-string: string.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+string: string.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
 string_glibc: string.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
-testcopy: testcopy.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+testcopy: testcopy.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ > testcopy.out
+	./$@ > testcopy.out
 	-@ echo " "
 
 testcopy_glibc: testcopy.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ > testcopy.gnu.out
+	./$@ > testcopy.gnu.out
 	-@ echo " "
 
 testcopy_diff: testcopy testcopy_glibc
@@ -79,30 +77,27 @@ testcopy_diff: testcopy testcopy_glibc
 	-@ echo " "
 
 
-strerror: ../../libc/string/strerror.c $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+strerror: ../../libc/string/strerror.c $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -DCHECK_BUF -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
 
 strsignal: ../../libc/string/strsignal.c
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -DCHECK_BUF -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@
+	./$@
 	-@ echo " "
-
 
 clean:
 	$(RM) *.[oa] *~ core $(TARGETS) testcopy.gnu.out testcopy.out
-
-

@@ -16,9 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-TESTDIR=../
-include $(TESTDIR)/Rules.mak
-
+include ../Rules.mak
 
 TARGETS=test_pwd test_pwd_glibc
 TARGETS+=test_grp test_grp_glibc
@@ -29,114 +27,114 @@ TARGETS+=test_pwd_diff test_grp_diff pwcat_diff grcat_diff getgroups_diff
 
 all: $(TARGETS)
 
-test_pwd: test_pwd.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+test_pwd: test_pwd.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >test_pwd.out
+	./$@ 2>&1 >test_pwd.out
 	-@ echo " "
 
 test_pwd_glibc: test_pwd.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >test_pwd_glibc.out
+	./$@ 2>&1 >test_pwd_glibc.out
 	-@ echo " "
 
-test_grp: test_grp.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+test_grp: test_grp.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >test_grp.out
+	./$@ 2>&1 >test_grp.out
 	-@ echo " "
 
 test_grp_glibc: test_grp.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >test_grp_glibc.out
+	./$@ 2>&1 >test_grp_glibc.out
 	-@ echo " "
 
-pwcat: pwcat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+pwcat: pwcat.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >pwcat.out
+	./$@ 2>&1 >pwcat.out
 	-@ echo " "
 
 pwcat_glibc: pwcat.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >pwcat_glibc.out
+	./$@ 2>&1 >pwcat_glibc.out
 	-@ echo " "
 
-grcat: grcat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+grcat: grcat.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >grcat.out
+	./$@ 2>&1 >grcat.out
 	-@ echo " "
 
 grcat_glibc: grcat.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >grcat_glibc.out
+	./$@ 2>&1 >grcat_glibc.out
 	-@ echo " "
 
-getgroups: getgroups.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+getgroups: getgroups.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >getgroups.out
+	./$@ 2>&1 >getgroups.out
 	-@ echo " "
 
 getgroups_glibc: getgroups.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ 2>&1 >getgroups_glibc.out
+	./$@ 2>&1 >getgroups_glibc.out
 	-@ echo " "
 
 test_pwd_diff: test_pwd_glibc test_pwd
@@ -181,5 +179,3 @@ getgroups_diff: getgroups_glibc getgroups
 
 clean:
 	$(RM) *.[oa] *~ core $(TARGETS) *.out
-
-

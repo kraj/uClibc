@@ -16,8 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-TESTDIR=../
-include $(TESTDIR)/Rules.mak
+include ../Rules.mak
 
 CFLAGS64=-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 
@@ -34,26 +33,26 @@ stat_source:
 	-@ cat stat.c
 	-@ echo " "
 
-stat: stat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+stat: stat.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ stat.c > $@.out
+	./$@ stat.c > $@.out
 	-@ echo " "
 
 stat_glibc: stat.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ stat.c > $@.out
+	./$@ stat.c > $@.out
 	-@ echo " "
 
 stat_diff: stat stat_glibc
@@ -64,26 +63,26 @@ stat_diff: stat stat_glibc
 	-diff -u stat_glibc.out stat.out
 	-@ echo " "
 
-stat64: stat.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+stat64: stat.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) $(CFLAGS64) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ stat.c > $@.out
+	./$@ stat.c > $@.out
 	-@ echo " "
 
 stat64_glibc: stat.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) $(CFLAGS64) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
-	-./$@ stat.c > $@.out
+	./$@ stat.c > $@.out
 	-@ echo " "
 
 stat64_diff: stat64 stat64_glibc
@@ -97,5 +96,3 @@ stat64_diff: stat64 stat64_glibc
 clean:
 	$(RM) *.[oa] *~ core stat stat_glibc stat_glibc.out stat.out \
 		stat64 stat64_glibc stat64_glibc.out stat64.out
-
-

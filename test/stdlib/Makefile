@@ -16,10 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-TESTDIR=../
-include $(TESTDIR)/Rules.mak
-
-
+include ../Rules.mak
 
 TARGETS+=teststrtol teststrtol_glibc teststrtol_diff
 TARGETS+=qsort qsort_glibc qsort_diff
@@ -36,30 +33,30 @@ teststrtol_source:
 	-@ cat teststrtol.c
 	-@ echo " "
 
-teststrtol: teststrtol.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+teststrtol: teststrtol.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 teststrtol_glibc: teststrtol.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 teststrtol_diff: teststrtol_glibc teststrtol
@@ -70,30 +67,30 @@ teststrtol_diff: teststrtol_glibc teststrtol
 	-diff -u teststrtol_glibc.out teststrtol.out
 	-@ echo " "
 
-qsort: qsort.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+qsort: qsort.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 qsort_glibc: qsort.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 qsort_diff: qsort_glibc qsort
@@ -104,30 +101,30 @@ qsort_diff: qsort_glibc qsort
 	-diff -u qsort_glibc.out qsort.out
 	-@ echo " "
 
-teston_exit: teston_exit.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+teston_exit: teston_exit.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 teston_exit_glibc: teston_exit.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 teston_exit_diff: teston_exit_glibc teston_exit
@@ -138,30 +135,30 @@ teston_exit_diff: teston_exit_glibc teston_exit
 	-diff -u teston_exit_glibc.out teston_exit.out
 	-@ echo " "
 
-testatexit: testatexit.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+testatexit: testatexit.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 testatexit_glibc: testatexit.c Makefile
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs GNU libc: "
+	-@ echo "Compiling $@ vs glibc: "
 	-@ echo " "
 	$(HOSTCC) $(GLIBC_CFLAGS) -c $< -o $@.o
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@ > $@.out
+	./$@ > $@.out
 	-@ echo " "
 
 testatexit_diff: testatexit_glibc testatexit
@@ -172,21 +169,19 @@ testatexit_diff: testatexit_glibc testatexit
 	-diff -u testatexit_glibc.out testatexit.out
 	-@ echo " "
 
-ptytest: ptytest.c Makefile $(TESTDIR)/Config $(TESTDIR)/Rules.mak
+ptytest: ptytest.c Makefile $(TESTDIR)/Rules.mak
 	-@ echo "-------"
 	-@ echo " "
-	-@ echo "Compiling vs uClibc: "
+	-@ echo "Compiling $@ vs uClibc: "
 	-@ echo " "
 	$(CC) $(CFLAGS) -c $< -o $@.o
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
 	ls -l $@
-	-./$@
+	./$@
 	-@ echo " "
 
 
 clean:
 	$(RM) *.[oa] *~ core $(TARGETS) *.out
-
-

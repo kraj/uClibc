@@ -1416,7 +1416,7 @@ main (void)
   else
     {
       status = EXIT_FAILURE;
-      printf("%d errors.\n", errors);
+      printf("%lu errors.\n", (unsigned long)errors);
     }
 
   return status;

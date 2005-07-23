@@ -89,8 +89,8 @@ void do_test(int base)
 
 	for(i=0;i<n_tests;i++){
 		n=strtol(strings[i],&endptr,base);
-		printf("strtol(\"%s\",%d) len=%d res=%ld\n",
-			strings[i],base,endptr-strings[i],n);
+		printf("strtol(\"%s\",%d) len=%lu res=%ld\n",
+			strings[i],base,(unsigned long)(endptr-strings[i]),n);
 	}
 }
 
@@ -102,8 +102,8 @@ void do_utest(int base)
 
 	for(i=0;i<n_tests;i++){
 		n=strtoul(strings[i],&endptr,base);
-		printf("strtoul(\"%s\",%d) len=%d res=%lu\n",
-			strings[i],base,endptr-strings[i],n);
+		printf("strtoul(\"%s\",%d) len=%lu res=%lu\n",
+			strings[i],base,(unsigned long)(endptr-strings[i]),n);
 	}
 }
 
