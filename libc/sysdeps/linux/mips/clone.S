@@ -72,6 +72,11 @@ __clone:
 	/* Something bad happened -- no child created */
 error:
 	addiu		sp,32
+
+	/* uClibc change -- start */
+	move		a0,v0		/* Pass return val to C function. */
+	/* uClibc change -- stop */
+
 #ifdef __PIC__
 	la		t9,__syscall_error
 	jr		t9
