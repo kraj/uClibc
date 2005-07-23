@@ -165,9 +165,9 @@ int __pthread_manager(void *arg)
     FD_SET (reqfd, &fd);
     n = select (reqfd + 1, &fd, NULL, NULL, &tv);
 #else
-PDEBUG("before poll\n");
+    PDEBUG("before poll\n");
     n = poll(&ufd, 1, 2000);
-PDEBUG("after poll\n");
+    PDEBUG("after poll\n");
 #endif
     /* Check for termination of the main thread */
     if (getppid() == 1) {
@@ -187,13 +187,13 @@ PDEBUG("after poll\n");
 #endif
     {
 
-PDEBUG("before __libc_read\n");
+      PDEBUG("before __libc_read\n");
       n = __libc_read(reqfd, (char *)&request, sizeof(request));
-PDEBUG("after __libc_read, n=%d\n", n);
+      PDEBUG("after __libc_read, n=%d\n", n);
       ASSERT(n == sizeof(request));
       switch(request.req_kind) {
       case REQ_CREATE:
-PDEBUG("got REQ_CREATE\n");
+        PDEBUG("got REQ_CREATE\n");
         request.req_thread->p_retcode =
           pthread_handle_create((pthread_t *) &request.req_thread->p_retval,
                                 request.req_args.create.attr,
@@ -201,23 +201,23 @@ PDEBUG("got REQ_CREATE\n");
                                 request.req_args.create.arg,
                                 &request.req_args.create.mask,
                                 request.req_thread->p_pid,
-				request.req_thread->p_report_events,
-				&request.req_thread->p_eventbuf.eventmask);
-PDEBUG("restarting %d\n", request.req_thread);
+                                request.req_thread->p_report_events,
+                                &request.req_thread->p_eventbuf.eventmask);
+        PDEBUG("restarting %d\n", request.req_thread);
         restart(request.req_thread);
         break;
       case REQ_FREE:
-PDEBUG("got REQ_FREE\n");
-	pthread_handle_free(request.req_args.free.thread_id);
+        PDEBUG("got REQ_FREE\n");
+        pthread_handle_free(request.req_args.free.thread_id);
         break;
       case REQ_PROCESS_EXIT:
-PDEBUG("got REQ_PROCESS_EXIT from %d, exit code = %d\n", 
-		request.req_thread, request.req_args.exit.code);
+        PDEBUG("got REQ_PROCESS_EXIT from %d, exit code = %d\n", 
+        request.req_thread, request.req_args.exit.code);
         pthread_handle_exit(request.req_thread,
                             request.req_args.exit.code);
         break;
       case REQ_MAIN_THREAD_EXIT:
-PDEBUG("got REQ_MAIN_THREAD_EXIT\n");
+        PDEBUG("got REQ_MAIN_THREAD_EXIT\n");
         main_thread_exiting = 1;
 	/* Reap children in case all other threads died and the signal handler
 	   went off before we set main_thread_exiting to 1, and therefore did
@@ -233,15 +233,15 @@ PDEBUG("got REQ_MAIN_THREAD_EXIT\n");
 	}
         break;
       case REQ_POST:
-PDEBUG("got REQ_POST\n");
+        PDEBUG("got REQ_POST\n");
         __new_sem_post(request.req_args.post);
         break;
       case REQ_DEBUG:
-PDEBUG("got REQ_DEBUG\n");
+        PDEBUG("got REQ_DEBUG\n");
 	/* Make gdb aware of new thread and gdb will restart the
 	   new thread when it is ready to handle the new thread. */
 	if (__pthread_threads_debug && __pthread_sig_debug > 0) {
-PDEBUG("about to call raise(__pthread_sig_debug)\n");
+      PDEBUG("about to call raise(__pthread_sig_debug)\n");
 	  raise(__pthread_sig_debug);
 	}
       case REQ_KICK:
@@ -280,7 +280,7 @@ pthread_start_thread(void *arg)
 #ifdef INIT_THREAD_SELF
   INIT_THREAD_SELF(self, self->p_nr);
 #endif
-PDEBUG("\n");
+  PDEBUG("\n");
   /* Make sure our pid field is initialized, just in case we get there
      before our father has initialized it. */
   THREAD_SETMEM(self, p_pid, __getpid());
@@ -608,7 +608,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
     }
   if (pid == 0)
     {
-PDEBUG("cloning new_thread = %p\n", new_thread);
+      PDEBUG("cloning new_thread = %p\n", new_thread);
       pid = clone(pthread_start_thread, (void **) new_thread,
 		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 		    __pthread_sig_cancel, new_thread);
@@ -641,7 +641,7 @@ PDEBUG("cloning new_thread = %p\n", new_thread);
     __pthread_handles_num--;
     return errno;
   }
-PDEBUG("new thread pid = %d\n", pid);
+  PDEBUG("new thread pid = %d\n", pid);
 
 #if 0
   /* ***********************************************************
@@ -783,7 +783,7 @@ static void pthread_reap_children(void)
 {
   pid_t pid;
   int status;
-PDEBUG("\n");
+  PDEBUG("\n");
 
   while ((pid = __libc_waitpid(-1, &status, WNOHANG | __WCLONE)) > 0) {
     pthread_exited(pid);

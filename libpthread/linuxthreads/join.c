@@ -31,7 +31,7 @@ void pthread_exit(void * retval)
   pthread_descr self = thread_self();
   pthread_descr joining;
   struct pthread_request request;
-PDEBUG("self=%p, pid=%d\n", self, self->p_pid);
+  PDEBUG("self=%p, pid=%d\n", self, self->p_pid);
 
   /* Reset the cancellation flag to avoid looping if the cleanup handlers
      contain cancellation points */
@@ -67,7 +67,7 @@ PDEBUG("self=%p, pid=%d\n", self, self->p_pid);
   THREAD_SETMEM(self, p_terminated, 1);
   /* See if someone is joining on us */
   joining = THREAD_GETMEM(self, p_joining);
-PDEBUG("joining = %p, pid=%d\n", joining, joining->p_pid);
+  PDEBUG("joining = %p, pid=%d\n", joining, joining->p_pid);
   __pthread_unlock(THREAD_GETMEM(self, p_lock));
   /* Restart joining thread if any */
   if (joining != NULL) restart(joining);
@@ -117,7 +117,7 @@ int pthread_join(pthread_t thread_id, void ** thread_return)
   pthread_descr th;
   pthread_extricate_if extr;
   int already_canceled = 0;
-PDEBUG("\n");
+  PDEBUG("\n");
 
   /* Set up extrication interface */
   extr.pu_object = handle;
@@ -154,9 +154,9 @@ PDEBUG("\n");
       pthread_exit(PTHREAD_CANCELED);
     }
 
-PDEBUG("before suspend\n");
+  PDEBUG("before suspend\n");
     suspend(self);
-PDEBUG("after suspend\n");
+  PDEBUG("after suspend\n");
     /* Deregister extrication interface */
     __pthread_set_own_extricate_if(self, 0); 
 
