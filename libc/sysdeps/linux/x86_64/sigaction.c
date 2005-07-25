@@ -27,7 +27,7 @@
 
 
 #if defined __NR_rt_sigaction
-#warning "Yes there are two warnings here.  Don't worry about it."
+#warning Yes there are two warnings here.  Don't worry about it.
 static void restore_rt (void) asm ("__restore_rt");
 static void restore (void) asm ("__restore");
 

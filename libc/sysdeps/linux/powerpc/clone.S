@@ -30,10 +30,9 @@
    		  int flags [r5], void *arg [r6]); */
 
 #ifdef __NR_clone
-.globl      __clone;
-.type      __clone, @function;
-.align  2;
-
+	.globl __clone
+	.type __clone,@function
+	.align 2
 
 __clone:
 	/* Check for child_stack == NULL || fn == NULL.  */
@@ -90,21 +89,15 @@ __clone:
 	lmw	r29,16(r1)
 	addi	r1,r1,32
 	bnslr+
-#ifdef __PIC__
-	b	__syscall_error@plt
-#else
+
 	b	__syscall_error
-#endif
 
 .Lbadargs:
 	li	r3,EINVAL
-#ifdef __PIC__
-	b	__syscall_error@plt
-#else
-	b	__syscall_error
-#endif
 
-.size __clone,.-__clone
-.weak clone;
-clone=__clone
+	b	__syscall_error
+
+	.size __clone,.-__clone
+	.weak clone
+	clone=__clone
 #endif

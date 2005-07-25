@@ -19,58 +19,36 @@
  *         syscall(__NR_exit, 42);
  * and things will just work.
  */
-	
+
 .text
-	.align 4
-.globl syscall
-	.type	 syscall,@function
+.global syscall
+.type   syscall,%function
+.align 4
 syscall:
+	pushl %ebp
 	pushl %edi
 	pushl %esi
 	pushl %ebx
-	movl  36(%esp),%edi;	/* Load the 5 syscall argument registers */
-	movl  32(%esp),%esi;
-	movl  28(%esp),%edx;
-	movl  24(%esp),%ecx;
-	movl  20(%esp),%ebx;
-	movl  16(%esp),%eax	/* Load syscall number into %eax.  */
-#APP
+
+	movl  44(%esp),%ebp	/* Load the 6 syscall argument registers */
+	movl  40(%esp),%edi
+	movl  36(%esp),%esi
+	movl  32(%esp),%edx
+	movl  28(%esp),%ecx
+	movl  24(%esp),%ebx
+	movl  20(%esp),%eax	/* Load syscall number into %eax.  */
 	int $0x80
-#NO_APP
-	cmpl $-4095,%eax
-	jbe .Ldone
 
-#ifdef __PIC__
-	call Lhere
-Lhere:
-	popl %ebx
-	addl $_GLOBAL_OFFSET_TABLE_+[.-Lhere],%ebx
-	negl %eax
-	movl %eax,%ecx
-#ifdef __UCLIBC_HAS_THREADS__
-	call __errno_location@PLT
-#else
-	movl errno@GOT(%ebx),%eax
-#endif /* __UCLIBC_HAS_THREADS__ */
-	movl %ecx,(%eax)
-#else
-	negl %eax
-#ifdef __UCLIBC_HAS_THREADS__
-	movl %eax,%ecx
-	call __errno_location
-	movl %ecx,(%eax)
-#else
-	movl %eax,errno
-#endif /* __UCLIBC_HAS_THREADS__ */
-
-#endif /* __PIC__ */
-
-	movl $-1,%eax
-	.p2align 4,,7
-.Ldone:
 	popl %ebx
 	popl %esi
 	popl %edi
-	ret
-.Lsize:
-	.size	 syscall,.Lsize-syscall
+	popl %ebp
+
+	cmpl $-4095,%eax
+	jae  __error
+	ret			/* Return to caller.  */
+
+__error:
+	jmp	__syscall_error
+
+.size syscall,.-syscall

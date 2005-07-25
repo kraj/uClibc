@@ -81,6 +81,21 @@ TODO list for AFTER the uClibc 1.0.0 release:
     <more wishlist items here>
 
 
+Arch specific TODO:
+-------------------------------------------------
+  alpha:
+    _init/_fini hangs signal-ed (assert test)
+    output from cloned children seems funky (unistd/clone test)
+  m68k:
+    need to verify libc again
+    ldso needs to be updated since it's totally broken atm
+  sparc:
+    need a sigaction.c since common one doesnt work (signal tests)
+    ldso needs to be updated since it's totally broken atm
+  x86_64:
+    ldso needs to be finished off (elfinterp/resolve)
+
+
 
 
 -----------------------------------------------------------------------------

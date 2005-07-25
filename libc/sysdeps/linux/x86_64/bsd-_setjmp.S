@@ -25,10 +25,10 @@
 #define _SETJMP_H
 #include <bits/setjmp.h>
 
-.globl _setjmp;
-.type    _setjmp,@function
-.align 16;
+.global _setjmp
+.type   _setjmp,%function
+.align  16
 _setjmp:
 	xorq %rsi, %rsi
-	jmp __sigsetjmp
-.size _setjmp,.-_setjmp;
+	jmp __sigsetjmp@PLT
+.size _setjmp,.-_setjmp

@@ -23,35 +23,32 @@
 #include <bits/setjmp.h>
 #define ST_FLUSH_WINDOWS 3
 
-.global   _setjmp;
-.align 4;
-.type  _setjmp ,@function; 
-
+.global _setjmp
+.type   _setjmp,%function
+.align 4
 _setjmp: 
 	b	1f
-	 set	0, %o1
-.size _setjmp,.-_setjmp;
+	set	0, %o1
+.size _setjmp,.-_setjmp
 
 
 
 
 
-
-.global   setjmp;
-.align 4;
-.type  setjmp ,@function; 
-
+.global setjmp
+.type   setjmp,%function
+.align 4
 setjmp: 
 	set	1, %o1
-.size setjmp,.-setjmp;
+.size setjmp,.-setjmp
 
 
 
 
-.global   __sigsetjmp;
-.align 4;
-.type  __sigsetjmp ,@function; 
 
+.global __sigsetjmp
+.type   __sigsetjmp,%function
+.align 4
 __sigsetjmp: 
 1:
 	/* Save our PC, SP and FP.  Save the signal mask if requested with
@@ -64,10 +61,10 @@ __sigsetjmp:
 
 	mov	%o7, %g1
 	call	__sigjmp_save
-	 mov	%g1, %o7
-.size __sigsetjmp,.-__sigsetjmp;
+	mov	%g1, %o7
+.size __sigsetjmp,.-__sigsetjmp
 
 
 
-.weak   _setjmp    
-.weak   setjmp  
+.weak _setjmp
+.weak setjmp

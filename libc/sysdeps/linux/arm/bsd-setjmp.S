@@ -25,10 +25,15 @@
 #define _ASM
 #include <bits/setjmp.h>
 
-.globl setjmp;
+.global setjmp
 .type setjmp,%function
-.align 4;
+.align 4
 setjmp:
 	mov	r1, #1
-	b	__sigsetjmp (PLT)
-.size setjmp,.-setjmp;
+#ifdef __PIC__
+	b	__sigsetjmp(PLT)
+#else
+	b	__sigsetjmp
+#endif
+
+.size setjmp,.-setjmp

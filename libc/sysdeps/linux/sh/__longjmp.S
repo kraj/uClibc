@@ -20,6 +20,7 @@
 #define _SETJMP_H
 #define _ASM
 #include <bits/setjmp.h>
+#include <features.h>
 
 /* __longjmp(jmpbuf, val) */
 

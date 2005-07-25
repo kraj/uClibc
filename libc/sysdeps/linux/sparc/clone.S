@@ -20,53 +20,49 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
-#include <asm/errno.h>
 #include <asm/unistd.h>
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
-	.text
-	.align	4
-	.globl	__clone
-	.type	__clone,@function
+.text
+.global __clone
+.type   __clone,%function
+.align 4
 
 __clone:
 	save	%sp,-96,%sp
 
 	/* sanity check arguments */
 	tst	%i0
-	be	.Lerror
-	 orcc	%i1,%g0,%o1
-	be	.Lerror
-	 mov	%i2,%o0
+	be	__error
+	orcc	%i1,%g0,%o1
+	be	__error
+	mov	%i2,%o0
 
 	/* Do the system call */
 	set	__NR_clone,%g1
 	ta	0x10
-	bcs	.Lerror
-	 tst	%o1
+	bcs	__error
+	tst	%o1
 	bne	__thread_start
-	 nop
+	nop
 	ret
-	 restore %o0,%g0,%o0
+	restore %o0,%g0,%o0
 
-.Lerror:
-	call	__errno_location
-	 or	%g0,EINVAL,%i0
-	st	%i0,[%o0]
-	ret
-	 restore %g0,-1,%o0
+__error:
+	jmp __syscall_error
 
-	.size	__clone, .-__clone
+.size __clone,.-__clone
 
-	.type	__thread_start,@function
+.type __thread_start,%function
 
 __thread_start:
 	call	%i0
-	 mov	%i3,%o0
+	mov	%i3,%o0
 	call	_exit,0
-	 nop
+	nop
 
-	.size	__thread_start, .-__thread_start
+.size __thread_start,.-__thread_start
 
-.weak    clone    ;        clone    =   __clone
+.weak clone
+	clone = __clone
