@@ -118,6 +118,15 @@
  *   Make lookup_tzname() static (as it should have been).
  *   Have strftime() get timezone information from the passed struct
  *     for the %z and %Z conversions when using struct tm extensions.
+ *
+ * Jul 24, 2004
+ *   Fix 2 bugs in strftime related to glibc struct tm extensions.
+ *   1) Need to negate tm_gmtoff field value when used. (bug 336).
+ *   2) Deal with NULL ptr case for tm_zone field, which was causing
+ *      segfaults in both the NIST/PCTS tests and the Python 2.4.1
+ *      self-test suite.
+ *      NOTE: We set uninitialized timezone names to "???", and this
+ *            differs (intentionally) from glibc's behavior.
  */
 
 #define _GNU_SOURCE
@@ -1066,7 +1075,7 @@ size_t __XL(strftime)(char *__restrict s, size_t maxsize,
 
 #define RSP_TZUNLOCK	((void) 0)
 #define RSP_TZNAME		timeptr->tm_zone
-#define RSP_GMT_OFFSET	timeptr->tm_gmtoff
+#define RSP_GMT_OFFSET	(-timeptr->tm_gmtoff)
 
 #else
 
@@ -1084,6 +1093,20 @@ size_t __XL(strftime)(char *__restrict s, size_t maxsize,
 
 				if (*p == 'Z') {
 					o = RSP_TZNAME;
+#ifdef __UCLIBC_HAS_TM_EXTENSIONS__
+					/* Sigh... blasted glibc extensions.  Of course we can't
+					 * count on the pointer being valid.  Best we can do is
+					 * handle NULL, which looks to be all that glibc does.
+					 * At least that catches the memset() with 0 case.
+					 * NOTE: We handle this case differently than glibc!
+					 * It uses system timezone name (based on tm_isdst) in this
+					 * case... although it always seems to use the embedded
+					 * tm_gmtoff value.  What we'll do instead is treat the
+					 * timezone name as unknown/invalid and return "???". */
+					if (!o) {
+							o = "???";
+					}
+#endif
 					assert(o != NULL);
 #if 0
 					if (!o) {	/* PARANOIA */
