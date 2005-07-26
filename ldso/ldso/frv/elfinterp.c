@@ -26,83 +26,6 @@ USA.  */
 
 #include <sys/cdefs.h>	    /* __attribute_used__ */
 
-#if defined (__SUPPORT_LD_DEBUG__)
-static const char *_dl_reltypes_tab[] =
-{
-  [0]	"R_FRV_NONE",		"R_FRV_32",
-  [2]	"R_FRV_LABEL16",	"R_FRV_LABEL24",
-  [4]	"R_FRV_LO16",		"R_FRV_HI16",
-  [6]	"R_FRV_GPREL12",	"R_FRV_GPRELU12",
-  [8]	"R_FRV_GPREL32",	"R_FRV_GPRELHI",	"R_FRV_GPRELLO",
-  [11]	"R_FRV_GOT12",		"R_FRV_GOTHI",		"R_FRV_GOTLO",
-  [14]	"R_FRV_FUNCDESC",
-  [15]	"R_FRV_FUNCDESC_GOT12",	"R_FRV_FUNCDESC_GOTHI",	"R_FRV_FUNCDESC_GOTLO",
-  [18]	"R_FRV_FUNCDESC_VALUE", "R_FRV_FUNCDESC_GOTOFF12",
-  [20]	"R_FRV_FUNCDESC_GOTOFFHI", "R_FRV_FUNCDESC_GOTOFFLO",
-  [22]	"R_FRV_GOTOFF12",	"R_FRV_GOTOFFHI",	"R_FRV_GOTOFFLO",
-#if 0
-  [200]	"R_FRV_GNU_VTINHERIT",	"R_FRV_GNU_VTENTRY"
-#endif
-};
-
-static const char *
-_dl_reltypes(int type)
-{
-  static char buf[22];  
-  const char *str;
-  
-  if (type >= (int)(sizeof (_dl_reltypes_tab)/sizeof(_dl_reltypes_tab[0])) ||
-      NULL == (str = _dl_reltypes_tab[type]))
-  {
-    str =_dl_simple_ltoa( buf, (unsigned long)(type));
-  }
-  return str;
-}
-
-static 
-void debug_sym(Elf32_Sym *symtab,char *strtab,int symtab_index)
-{
-  if(_dl_debug_symbols)
-  {
-    if(symtab_index){
-      _dl_dprintf(_dl_debug_file, "\n%s\n\tvalue=%x\tsize=%x\tinfo=%x\tother=%x\tshndx=%x",
-		  strtab + symtab[symtab_index].st_name,
-		  symtab[symtab_index].st_value,
-		  symtab[symtab_index].st_size,
-		  symtab[symtab_index].st_info,
-		  symtab[symtab_index].st_other,
-		  symtab[symtab_index].st_shndx);
-    }
-  }
-}
-
-static void debug_reloc(Elf32_Sym *symtab,char *strtab, ELF_RELOC *rpnt)
-{
-  if(_dl_debug_reloc)
-  {
-    int symtab_index;
-    const char *sym;
-    symtab_index = ELF32_R_SYM(rpnt->r_info);
-    sym = symtab_index ? strtab + symtab[symtab_index].st_name : "sym=0x0";
-    
-  if(_dl_debug_symbols)
-	  _dl_dprintf(_dl_debug_file, "\n\t");
-  else
-	  _dl_dprintf(_dl_debug_file, "\n%s\n\t", sym);
-#ifdef ELF_USES_RELOCA
-    _dl_dprintf(_dl_debug_file, "%s\toffset=%x\taddend=%x",
-		_dl_reltypes(ELF32_R_TYPE(rpnt->r_info)),
-		rpnt->r_offset,
-		rpnt->r_addend);
-#else
-    _dl_dprintf(_dl_debug_file, "%s\toffset=%x\n",
-		_dl_reltypes(ELF32_R_TYPE(rpnt->r_info)),
-		rpnt->r_offset);
-#endif
-  }
-}
-#endif
-
 /* Program to load an ELF binary on a linux system, and run it.
    References to symbols in sharable libraries can be resolved by either
    an ELF sharable library or a linux style of shared library. */
@@ -213,10 +136,8 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 	        int res;
 	    
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
-#if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
-#endif
 
 		res = reloc_fnc (tpnt, scope, rpnt, symtab, strtab);
 

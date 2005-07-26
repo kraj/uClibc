@@ -29,80 +29,6 @@
  * SUCH DAMAGE.
  */
 
-#if defined (__SUPPORT_LD_DEBUG__)
-static const char *_dl_reltypes_tab[] =
-	{ "R_PPC_NONE", "R_PPC_ADDR32", "R_PPC_ADDR24", "R_PPC_ADDR16",
-	"R_PPC_ADDR16_LO", "R_PPC_ADDR16_HI", "R_PPC_ADDR16_HA",
-	"R_PPC_ADDR14", "R_PPC_ADDR14_BRTAKEN", "R_PPC_ADDR14_BRNTAKEN",
-	"R_PPC_REL24", "R_PPC_REL14", "R_PPC_REL14_BRTAKEN",
-	"R_PPC_REL14_BRNTAKEN", "R_PPC_GOT16", "R_PPC_GOT16_LO",
-	"R_PPC_GOT16_HI", "R_PPC_GOT16_HA", "R_PPC_PLTREL24",
-	"R_PPC_COPY", "R_PPC_GLOB_DAT", "R_PPC_JMP_SLOT", "R_PPC_RELATIVE",
-	"R_PPC_LOCAL24PC", "R_PPC_UADDR32", "R_PPC_UADDR16", "R_PPC_REL32",
-	"R_PPC_PLT32", "R_PPC_PLTREL32", "R_PPC_PLT16_LO", "R_PPC_PLT16_HI",
-	"R_PPC_PLT16_HA", "R_PPC_SDAREL16", "R_PPC_SECTOFF",
-	"R_PPC_SECTOFF_LO", "R_PPC_SECTOFF_HI", "R_PPC_SECTOFF_HA",
-};
-
-static const char *
-_dl_reltypes(int type)
-{
-  static char buf[22];
-  const char *str;
-
-  if (type >= (int)(sizeof (_dl_reltypes_tab)/sizeof(_dl_reltypes_tab[0])) ||
-      NULL == (str = _dl_reltypes_tab[type]))
-  {
-    str =_dl_simple_ltoa( buf, (unsigned long)(type));
-  }
-  return str;
-}
-
-static
-void debug_sym(Elf32_Sym *symtab,char *strtab,int symtab_index)
-{
-  if(_dl_debug_symbols)
-  {
-    if(symtab_index){
-      _dl_dprintf(_dl_debug_file, "\n%s\n\tvalue=%x\tsize=%x\tinfo=%x\tother=%x\tshndx=%x",
-		  strtab + symtab[symtab_index].st_name,
-		  symtab[symtab_index].st_value,
-		  symtab[symtab_index].st_size,
-		  symtab[symtab_index].st_info,
-		  symtab[symtab_index].st_other,
-		  symtab[symtab_index].st_shndx);
-    }
-  }
-}
-
-static
-void debug_reloc(Elf32_Sym *symtab,char *strtab, ELF_RELOC *rpnt)
-{
-  if(_dl_debug_reloc)
-  {
-    int symtab_index;
-    const char *sym;
-    symtab_index = ELF32_R_SYM(rpnt->r_info);
-    sym = symtab_index ? strtab + symtab[symtab_index].st_name : "sym=0x0";
-
-  if(_dl_debug_symbols)
-	  _dl_dprintf(_dl_debug_file, "\n\t");
-  else
-	  _dl_dprintf(_dl_debug_file, "\n%s\n\t", sym);
-#ifdef ELF_USES_RELOCA
-    _dl_dprintf(_dl_debug_file, "%s\toffset=%x\taddend=%x",
-		_dl_reltypes(ELF32_R_TYPE(rpnt->r_info)),
-		rpnt->r_offset,
-		rpnt->r_addend);
-#else
-    _dl_dprintf(_dl_debug_file, "%s\toffset=%x\n",
-		_dl_reltypes(ELF32_R_TYPE(rpnt->r_info)),
-		rpnt->r_offset);
-#endif
-  }
-}
-#endif
-
 extern int _dl_linux_resolve(void);
 
 void _dl_init_got(unsigned long *plt,struct elf_resolve *tpnt)
@@ -190,10 +116,10 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + symtab[symtab_index].st_name;
 
-#if defined (__SUPPORT_LD_DEBUG__)
 	debug_sym(symtab,strtab,symtab_index);
 	debug_reloc(symtab,strtab,this_reloc);
 
+#if defined (__SUPPORT_LD_DEBUG__)
 	if (unlikely(ELF32_R_TYPE(this_reloc->r_info) != R_PPC_JMP_SLOT)) {
 		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocation\n", _dl_progname);
 		_dl_exit(1);
@@ -437,10 +363,8 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
 
-#if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
-#endif
 
 		res = reloc_fnc (tpnt, scope, rpnt, symtab, strtab);
 

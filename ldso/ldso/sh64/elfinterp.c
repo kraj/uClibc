@@ -30,116 +30,6 @@
  * SUCH DAMAGE.
  */
 
-#ifdef __SUPPORT_LD_DEBUG__
-static const char *_dl_reltypes_tab[] = {
-	/* SHcompact relocs */
-	  [0] =	"R_SH_NONE",		"R_SH_DIR32",
-		"R_SH_REL32",		"R_SH_DIR8WPN",
-	  [4] = "R_SH_IND12W",		"R_SH_DIR8WPL",
-		"R_SH_DIR8WPZ",		"R_SH_DIR8BP",
-	  [8] = "R_SH_DIR8W",		"R_SH_DIR8L",
-	 [25] = "R_SH_SWITCH16",	"R_SH_SWITCH32",
-		"R_SH_USES",		"R_SH_COUNT",
-	 [29] = "R_SH_ALIGN",		"R_SH_CODE",
-		"R_SH_DATA",		"R_SH_LABEL",
-	 [33] = "R_SH_SWITCH8",		"R_SH_GNU_VTINHERIT",
-		"R_SH_GNU_VTENTRY",
-	[160] = "R_SH_GOT32",		"R_SH_PLT32",
-		"R_SH_COPY",		"R_SH_GLOB_DAT",
-	[164] = "R_SH_JMP_SLOT",	"R_SH_RELATIVE",
-		"R_SH_GOTOFF",		"R_SH_GOTPC",
-
-	/* SHmedia relocs */
-	 [45] = "R_SH_DIR5U",		"R_SH_DIR6U",
-		"R_SH_DIR6S",		"R_SH_DIR10S",
-	 [49] = "R_SH_DIR10SW",		"R_SH_DIR10SL",
-		"R_SH_DIR10SQ",
-	[169] = "R_SH_GOT_LOW16",	"R_SH_GOT_MEDLOW16",
-		"R_SH_GOT_MEDHI16",	"R_SH_GOT_HI16",
-	[173] = "R_SH_GOTPLT_LOW16",	"R_SH_GOTPLT_MEDLOW16",
-		"R_SH_GOTPLT_MEDHI16",	"R_SH_GOTPLT_HI16",
-	[177] = "R_SH_PLT_LOW16",	"R_SH_PLT_MEDLOW16",
-		"R_SH_PLT_MEDHI16",	"R_SH_PLT_HI16",
-	[181] = "R_SH_GOTOFF_LOW16",	"R_SH_GOTOFF_MEDLOW16",
-		"R_SH_GOTOFF_MEDHI16",	"R_SH_GOTOFF_HI16",
-	[185] = "R_SH_GOTPC_LOW16",	"R_SH_GOTPC_MEDLOW16",
-		"R_SH_GOTPC_MEDHI16",	"R_SH_GOTPC_HI16",
-	[189] = "R_SH_GOT10BY4",	"R_SH_GOTPLT10BY4",
-		"R_SH_GOT10BY8",	"R_SH_GOTPLT10BY8",
-	[193] = "R_SH_COPY64",		"R_SH_GLOB_DAT64",
-		"R_SH_JMP_SLOT64",	"R_SH_RELATIVE64",
-	[197] = "R_SH_RELATIVE_LOW16",	"R_SH_RELATIVE_MEDLOW16",
-		"R_SH_RELATIVE_MEDHI16","R_SH_RELATIVE_HI16",
-	[242] = "R_SH_SHMEDIA_CODE",	"R_SH_PT_16",
-		"R_SH_IMMS16",		"R_SH_IMMU16",
-	[246] = "R_SH_IMM_LOW16",	"R_SH_IMM_LOW16_PCREL",
-		"R_SH_IMM_MEDLOW16",	"R_SH_IMM_MEDLOW16_PCREL",
-	[250] = "R_SH_IMM_MEDHI16",	"R_SH_IMM_MEDHI16_PCREL",
-		"R_SH_IMM_HI16",	"R_SH_IMM_HI16_PCREL",
-	[254] = "R_SH_64",		"R_SH_64_PCREL",
-};
-
-static const char *_dl_reltypes(int type)
-{
-	static char buf[22];
-	const char *str;
-	int tabsize;
-
-	tabsize = sizeof(_dl_reltypes_tab)/sizeof(_dl_reltypes_tab[0]);
-	str	= _dl_reltypes_tab[type];
-
-	if (type >= tabsize || str == NULL)
-		str =_dl_simple_ltoa(buf, (unsigned long)(type));
-
-	return str;
-}
-
-static void debug_sym(Elf32_Sym *symtab, char *strtab, int symtab_index)
-{
-	if (!_dl_debug_symbols || !symtab_index)
-		return;
-
-	_dl_dprintf(_dl_debug_file,
-		"\n%s\tvalue=%x\tsize=%x\tinfo=%x\tother=%x\tshndx=%x",
-		strtab + symtab[symtab_index].st_name,
-		symtab[symtab_index].st_value,
-		symtab[symtab_index].st_size,
-		symtab[symtab_index].st_info,
-		symtab[symtab_index].st_other,
-		symtab[symtab_index].st_shndx);
-}
-
-static void debug_reloc(Elf32_Sym *symtab, char *strtab, ELF_RELOC *rpnt)
-{
-	if (!_dl_debug_reloc)
-		return;
-
-	if (_dl_debug_symbols) {
-		_dl_dprintf(_dl_debug_file, "\n\t");
-	} else {
-		int symtab_index;
-		const char *sym;
-
-		symtab_index = ELF32_R_SYM(rpnt->r_info);
-		sym = symtab_index ? strtab + symtab[symtab_index].st_name
-				   : "sym=0x0";
-
-		_dl_dprintf(_dl_debug_file, "\n%s\n\t", sym);
-	}
-
-	_dl_dprintf(_dl_debug_file, "%s\toffset=%x",
-		    _dl_reltypes(ELF32_R_TYPE(rpnt->r_info)),
-		    rpnt->r_offset);
-
-#ifdef ELF_USES_RELOCA
-	_dl_dprintf(_dl_debug_file, "\taddend=%x", rpnt->r_addend);
-#endif
-
-	_dl_dprintf(_dl_debug_file, "\n");
-
-}
-#endif /* __SUPPORT_LD_DEBUG__ */
-
 /* Program to load an ELF binary on a linux system, and run it.
    References to symbols in sharable libraries can be resolved by either
    an ELF sharable library or a linux style of shared library. */
@@ -242,10 +132,8 @@ static int _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		int res;
 
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
-#ifdef __SUPPORT_LD_DEBUG__
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
-#endif
 
 		res = reloc_fnc (tpnt, scope, rpnt, symtab, strtab);
 		if (res == 0)

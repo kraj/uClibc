@@ -4,13 +4,13 @@
  * can be done.
  */
 asm(
-    "	.text\n"
-    "	.globl	_start\n"
-    "	.type	_start,@function\n"
-    "_start:\n"
-    "	.set	_start,_dl_start\n"
-    "	.size	_start,.-_start\n"
-    "	.previous\n"
+	"	.text\n"
+	"	.global _start\n"
+	"	.type   _start,%function\n"
+	"_start:\n"
+	"	.set _start,_dl_start\n"
+	"	.size _start,.-_start\n"
+	"	.previous\n"
 );
 
 /*
@@ -26,28 +26,27 @@ asm(
  * bootstrapping the dynamic loader.
  */
 #define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB) \
-	switch(ELF32_R_TYPE((RELP)->r_info)) {		\
-	case R_SPARC_32:				\
-	  *REL = SYMBOL + (RELP)->r_addend;		\
-	  break;					\
-	case R_SPARC_GLOB_DAT:				\
-	  *REL = SYMBOL + (RELP)->r_addend;		\
-	  break;					\
-	case R_SPARC_JMP_SLOT:				\
-	  REL[1] = 0x03000000 | ((SYMBOL >> 10) & 0x3fffff);	\
-	  REL[2] = 0x81c06000 | (SYMBOL & 0x3ff);	\
-	  break;					\
-	case R_SPARC_NONE:				\
-	  break;					\
-        case R_SPARC_WDISP30:				\
-          break;                                        \
-	case R_SPARC_RELATIVE:				\
-	  *REL += (unsigned int) LOAD + (RELP)->r_addend; \
-	  break;					\
-	default:					\
-	  _dl_exit(1);					\
+	switch(ELF32_R_TYPE((RELP)->r_info)) { \
+	case R_SPARC_32: \
+		*REL = SYMBOL + (RELP)->r_addend; \
+		break; \
+	case R_SPARC_GLOB_DAT: \
+		*REL = SYMBOL + (RELP)->r_addend; \
+		break; \
+	case R_SPARC_JMP_SLOT: \
+		REL[1] = 0x03000000 | ((SYMBOL >> 10) & 0x3fffff); \
+		REL[2] = 0x81c06000 | (SYMBOL & 0x3ff); \
+		break; \
+	case R_SPARC_NONE: \
+		break; \
+	case R_SPARC_WDISP30: \
+		break; \
+	case R_SPARC_RELATIVE: \
+		*REL += (unsigned int) LOAD + (RELP)->r_addend; \
+		break; \
+	default: \
+		_dl_exit(1); \
 	}
-
 
 /*
  * Transfer control to the user's application, once the dynamic loader
@@ -55,10 +54,10 @@ asm(
  * ensure that it contains NULL.
  */
 
-#define START()		\
+#define START() \
 	__asm__ volatile ( \
-	                   "add %%g0,%%g0,%%g1\n\t" \
-			   "jmpl %0, %%o7\n\t"	\
-			   "restore %%g0,%%g0,%%g0\n\t" \
-		    	: /*"=r" (status) */ :	\
-		    	  "r" (_dl_elf_main): "g1", "o0", "o1")
+		"add %%g0,%%g0,%%g1\n\t" \
+		"jmpl %0, %%o7\n\t"	\
+		"restore %%g0,%%g0,%%g0\n\t" \
+		: /*"=r" (status) */ : \
+		"r" (_dl_elf_main): "g1", "o0", "o1")

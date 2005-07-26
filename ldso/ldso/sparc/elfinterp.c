@@ -28,17 +28,6 @@
  * SUCH DAMAGE.
  */
 
-#if defined (__SUPPORT_LD_DEBUG__)
-static const char * _dl_reltypes[] = { "R_SPARC_NONE", "R_SPARC_8",
-  "R_SPARC_16", "R_SPARC_32", "R_SPARC_DISP8", "R_SPARC_DISP16",
-  "R_SPARC_DISP32", "R_SPARC_WDISP30", "R_SPARC_WDISP22",
-  "R_SPARC_HI22", "R_SPARC_22", "R_SPARC_13", "R_SPARC_LO10",
-  "R_SPARC_GOT10", "R_SPARC_GOT13", "R_SPARC_GOT22", "R_SPARC_PC10",
-  "R_SPARC_PC22", "R_SPARC_WPLT30", "R_SPARC_COPY",
-  "R_SPARC_GLOB_DAT", "R_SPARC_JMP_SLOT", "R_SPARC_RELATIVE",
-  "R_SPARC_UA32"};
-#endif
-
 /* Program to load an ELF binary on a linux system, and run it.
 References to symbols in sharable libraries can be resolved by either
 an ELF sharable library or a linux style of shared library. */
@@ -176,7 +165,7 @@ void _dl_parse_lazy_relocation_information(struct dyn_elf *arg_rpnt,
     default:
       _dl_dprintf(2, "%s: (LAZY) can't handle reloc type ", _dl_progname);
 #if defined (__SUPPORT_LD_DEBUG__)
-      _dl_dprintf(2, "%s ", _dl_reltypes[reloc_type]);
+      _dl_dprintf(2, "%s ", _dl_reltypes_tab[reloc_type]);
 #endif
       if(symtab_index) _dl_dprintf(2, "'%s'\n",
 				  strtab + symtab[symtab_index].st_name);
@@ -267,7 +256,7 @@ int _dl_parse_relocation_information(struct dyn_elf *arg_rpnt,
     default:
       _dl_dprintf(2, "%s: can't handle reloc type ", _dl_progname);
 #if defined (__SUPPORT_LD_DEBUG__)
-      _dl_dprintf(2, "%s ", _dl_reltypes[reloc_type]);
+      _dl_dprintf(2, "%s ", _dl_reltypes_tab[reloc_type]);
 #endif
       if (symtab_index)
 	_dl_dprintf(2, "'%s'\n", strtab + symtab[symtab_index].st_name);
