@@ -5,8 +5,17 @@ TODO list for the uClibc 0.9.28 release:
     *) Audit header files.  When options are disabled, also disable
 	them in the include files as well by checking for the proper
 	define from include/bits/uClibc_config.h (pulled in from features.h)
-    *) Test each architecture with the latest LTP testsuite, and post
-	LTP testsuite results for each architecture on uclibc.org.
+    *) Test cris, i386, mips, mipsel, sh, x86_64, arm, armeb, and powerpc
+	with the latest LTP testsuite.  Fix any regressions and post LTP
+	testsuite results for each architecture on uclibc.org.
+    *)  Fix it so valgrind 2.4.0 no longer complains about the memory mmaped
+	and used by ldso.  Currently it whines on basically about virtually
+	every function call when doing default lazy binding, which makes its
+	output virtually useless due to the excess noise.
+    *)  Change all references to the older "Library GPL" to the "Lesser GPL"
+	and update COPYING.LIB to LGPL version 2.1.
+
+
 
 
 TODO list for the uClibc 1.0.0 release:
@@ -45,10 +54,6 @@ TODO list for the uClibc 1.0.0 release:
 	from ldso (such as HZ).  Other stuff it currently just makes
 	up, which is obviously wrong.  Also bits/uClibc_clk_tck.h
 	needs to be updated at the same time to get proper HZ values.
-    *)  It would nice if valgrind wouldn't complain about the atexit() malloc'd
-	memory for destructors, which happens since the dynamic linker calls
-	atexit(), which calls malloc() prior to valgrind starting, so valgrind
-	complains because it didn't see that memory allocated.
     *) poll emulation using select() for old 2.0.x uClinux kernels
 	in libc/sysdeps/linux/common/poll.c fails some python self-tests.
 	Of course, modern systems using the actuall poll() syscall work fine.
