@@ -91,6 +91,7 @@ Arch specific TODO:
   alpha:
     _init/_fini hangs signal-ed (assert test)
     output from cloned children seems funky (unistd/clone test)
+    ldso is not implemented
   m68k:
     need to verify libc again
     ldso needs to be updated since it's totally broken atm
@@ -98,7 +99,8 @@ Arch specific TODO:
     need a sigaction.c since common one doesnt work (signal tests)
     ldso needs to be updated since it's totally broken atm
   x86_64:
-    ldso needs to be finished off (elfinterp/resolve)
+    ldso needs to have lazy bindings checked
+    pthread isn't working really at all (pthreads tests)
 
 
 
