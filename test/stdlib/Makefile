@@ -42,7 +42,6 @@ teststrtol: teststrtol.c Makefile $(TESTDIR)/Rules.mak
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
-	ls -l $@
 	./$@ > $@.out
 	-@ echo " "
 
@@ -55,7 +54,6 @@ teststrtol_glibc: teststrtol.c Makefile
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
-	ls -l $@
 	./$@ > $@.out
 	-@ echo " "
 
@@ -64,7 +62,7 @@ teststrtol_diff: teststrtol_glibc teststrtol
 	-@ echo " "
 	-@ echo "Diffing output: "
 	-@ echo " "
-	-diff -u teststrtol_glibc.out teststrtol.out
+	diff -u teststrtol_glibc.out teststrtol.out
 	-@ echo " "
 
 qsort: qsort.c Makefile $(TESTDIR)/Rules.mak
@@ -76,7 +74,6 @@ qsort: qsort.c Makefile $(TESTDIR)/Rules.mak
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
-	ls -l $@
 	./$@ > $@.out
 	-@ echo " "
 
@@ -89,7 +86,6 @@ qsort_glibc: qsort.c Makefile
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
-	ls -l $@
 	./$@ > $@.out
 	-@ echo " "
 
@@ -98,7 +94,7 @@ qsort_diff: qsort_glibc qsort
 	-@ echo " "
 	-@ echo "Diffing output: "
 	-@ echo " "
-	-diff -u qsort_glibc.out qsort.out
+	diff -u qsort_glibc.out qsort.out
 	-@ echo " "
 
 teston_exit: teston_exit.c Makefile $(TESTDIR)/Rules.mak
@@ -110,7 +106,6 @@ teston_exit: teston_exit.c Makefile $(TESTDIR)/Rules.mak
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
-	ls -l $@
 	./$@ > $@.out
 	-@ echo " "
 
@@ -123,7 +118,6 @@ teston_exit_glibc: teston_exit.c Makefile
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
-	ls -l $@
 	./$@ > $@.out
 	-@ echo " "
 
@@ -132,7 +126,7 @@ teston_exit_diff: teston_exit_glibc teston_exit
 	-@ echo " "
 	-@ echo "Diffing output: "
 	-@ echo " "
-	-diff -u teston_exit_glibc.out teston_exit.out
+	diff -u teston_exit_glibc.out teston_exit.out
 	-@ echo " "
 
 testatexit: testatexit.c Makefile $(TESTDIR)/Rules.mak
@@ -144,7 +138,6 @@ testatexit: testatexit.c Makefile $(TESTDIR)/Rules.mak
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
-	ls -l $@
 	./$@ > $@.out
 	-@ echo " "
 
@@ -157,7 +150,6 @@ testatexit_glibc: testatexit.c Makefile
 	$(HOSTCC) $(GLIBC_LDFLAGS) $@.o -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
-	ls -l $@
 	./$@ > $@.out
 	-@ echo " "
 
@@ -166,7 +158,7 @@ testatexit_diff: testatexit_glibc testatexit
 	-@ echo " "
 	-@ echo "Diffing output: "
 	-@ echo " "
-	-diff -u testatexit_glibc.out testatexit.out
+	diff -u testatexit_glibc.out testatexit.out
 	-@ echo " "
 
 ptytest: ptytest.c Makefile $(TESTDIR)/Rules.mak
@@ -178,7 +170,6 @@ ptytest: ptytest.c Makefile $(TESTDIR)/Rules.mak
 	$(CC) $(LDFLAGS) $@.o -o $@ $(EXTRA_LIBS)
 	$(STRIPTOOL) -x -R .note -R .comment $@
 	-$(LDD) $@
-	ls -l $@
 	./$@
 	-@ echo " "
 
