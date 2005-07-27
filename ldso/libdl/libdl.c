@@ -179,7 +179,7 @@ void *dlopen(const char *libname, int flag)
 				&& (tfrom == NULL || tfrom->loadaddr < tpnt->loadaddr))
 			tfrom = tpnt;
 	}
-	for(rpnt = _dl_symbol_tables; rpnt->next; rpnt=rpnt->next);
+	for(rpnt = _dl_symbol_tables; rpnt && rpnt->next; rpnt=rpnt->next);
 
 	relro_ptr = rpnt;
 	now_flag = (flag & RTLD_NOW) ? RTLD_NOW : 0;
@@ -349,9 +349,11 @@ void *dlopen(const char *libname, int flag)
 	if (_dl_fixup(dyn_chain, now_flag))
 		goto oops;
 
-	for (rpnt = relro_ptr->next; rpnt; rpnt = rpnt->next) {
-		if (rpnt->dyn->relro_size)
-			_dl_protect_relro(rpnt->dyn);
+	if (relro_ptr) {
+		for (rpnt = relro_ptr->next; rpnt; rpnt = rpnt->next) {
+			if (rpnt->dyn->relro_size)
+				_dl_protect_relro(rpnt->dyn);
+		}
 	}
 	/* TODO:  Should we set the protections of all pages back to R/O now ? */
 
@@ -533,21 +535,23 @@ static int do_dlclose(void *vhandle, int need_fini)
 					}
 
 			/* Next, remove tpnt from the global symbol table list */
-			if (_dl_symbol_tables->dyn == tpnt) {
-				_dl_symbol_tables = _dl_symbol_tables->next;
-				if (_dl_symbol_tables)
-					_dl_symbol_tables->prev = 0;
-			} else
-				for (rpnt1 = _dl_symbol_tables; rpnt1->next; rpnt1 = rpnt1->next) {
-					if (rpnt1->next->dyn == tpnt) {
-						_dl_if_debug_print("removing symbol_tables: %s\n", tpnt->libname);
-						free(rpnt1->next);
-						rpnt1->next = rpnt1->next->next;
-						if (rpnt1->next)
-							rpnt1->next->prev = rpnt1;
-						break;
+			if (_dl_symbol_tables) {
+				if (_dl_symbol_tables->dyn == tpnt) {
+					_dl_symbol_tables = _dl_symbol_tables->next;
+					if (_dl_symbol_tables)
+						_dl_symbol_tables->prev = 0;
+				} else
+					for (rpnt1 = _dl_symbol_tables; rpnt1->next; rpnt1 = rpnt1->next) {
+						if (rpnt1->next->dyn == tpnt) {
+							_dl_if_debug_print("removing symbol_tables: %s\n", tpnt->libname);
+							free(rpnt1->next);
+							rpnt1->next = rpnt1->next->next;
+							if (rpnt1->next)
+								rpnt1->next->prev = rpnt1;
+							break;
+						}
 					}
-				}
+			}
 			free(tpnt->libname);
 			free(tpnt);
 		}
