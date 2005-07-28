@@ -39,8 +39,8 @@ MOBJ=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
 	stpncpy.o strcasecmp.o strcasestr.o strcat.o strchrnul.o strchr.o \
 	strcmp.o strcpy.o strcspn.o strdup.o strlen.o strncasecmp.o strncat.o \
 	strncmp.o strncpy.o strndup.o strnlen.o strpbrk.o strrchr.o strsep.o \
-	strspn.o strstr.o strtok.o strtok_r.o strerror.o _susv3_strerror_r.o \
-	_string_syserrmsgs.o _glibc_strerror_r.o \
+	strspn.o strstr.o strtok.o strtok_r.o strerror.o __xpg_strerror_r.o \
+	_string_syserrmsgs.o __glibc_strerror_r.o \
 	_string_syssigmsgs.o sys_siglist.o strsignal.o psignal.o \
 	 __xpg_basename.o strlcat.o strlcpy.o sys_errlist.o memmem.o
 

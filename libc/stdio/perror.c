@@ -30,7 +30,7 @@ void perror(register const char *s)
 	{
 		char buf[64];
 		fprintf(stderr, "%s%s%s\n", s, sep,
-				_glibc_strerror_r(errno, buf, sizeof(buf)));
+				__glibc_strerror_r(errno, buf, sizeof(buf)));
 	}
 #endif
 }

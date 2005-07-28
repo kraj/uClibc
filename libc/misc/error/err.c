@@ -34,7 +34,7 @@ static void vwarn_work(const char *format, va_list args, int showerr)
 	f = fmt + 11;				/* At 11. */
 	if (showerr) {
 		f -= 4;					/* At 7. */
-		_susv3_strerror_r(errno, buf, sizeof(buf));
+		__xpg_strerror_r(errno, buf, sizeof(buf));
 	}
 
 	__STDIO_AUTO_THREADLOCK(stderr);

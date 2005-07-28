@@ -122,13 +122,13 @@ __END_NAMESPACE_STD
 extern int strcoll_l (__const char *__s1, __const char *__s2, __locale_t __l)
      __THROW __attribute_pure__ __nonnull ((1, 2, 3));
 extern int __strcoll_l (__const char *__s1, __const char *__s2, __locale_t __l)
-     __THROW __attribute_pure__;
+     __THROW __attribute_pure__ __nonnull ((1, 2, 3));
 
 /* Put a transformation of SRC into no more than N bytes of DEST.  */
 extern size_t strxfrm_l (char *__dest, __const char *__src, size_t __n,
 			 __locale_t __l) __THROW __nonnull ((2, 4));
 extern size_t __strxfrm_l (char *__dest, __const char *__src, size_t __n,
-			 __locale_t __l) __THROW;
+			 __locale_t __l) __THROW __nonnull ((2, 4));
 
 #endif
 #endif /* __UCLIBC_HAS_XLOCALE__ */
@@ -263,33 +263,41 @@ __BEGIN_NAMESPACE_STD
 /* Return a string describing the meaning of the `errno' code in ERRNUM.  */
 extern char *strerror (int __errnum) __THROW;
 __END_NAMESPACE_STD
+
+extern char *__glibc_strerror_r (int __errnum, char *__buf, size_t __buflen)
+     __THROW __nonnull ((2));
+extern int __xpg_strerror_r (int __errnum, char *__buf, size_t __buflen)
+     __THROW __nonnull ((2));
+
 #if defined __USE_XOPEN2K || defined __USE_MISC
-/* Reentrant version of `strerror'.  If a temporary buffer is required, at
-   most BUFLEN bytes of BUF will be used.  */
-/* extern char *strerror_r (int __errnum, char *__buf, size_t __buflen) __THROW; */
-
-/* uClibc Note: glibc's strerror_r is different from that specified in SUSv3.
- * So we try to compensate based on feature macros. */
-extern char *_glibc_strerror_r (int __errnum, char *__buf, size_t __buflen) __THROW;
-extern int _susv3_strerror_r (int __errnum, char *__buf, size_t buflen) __THROW;
-
-# if defined(__USE_XOPEN2K) && !defined(__USE_GNU)
-#  ifdef __REDIRECT
-extern int __REDIRECT (strerror_r,
-			   (int __errnum, char *__buf, size_t buflen) __THROW,
-			   _susv3_strerror_r);
+/* Reentrant version of `strerror'.
+   There are 2 flavors of `strerror_r', GNU which returns the string
+   and may or may not use the supplied temporary buffer and POSIX one
+   which fills the string into the buffer.
+   To use the POSIX version, -D_XOPEN_SOURCE=600 or -D_POSIX_C_SOURCE=200112L
+   without -D_GNU_SOURCE is needed, otherwise the GNU version is
+   preferred.  */
+# if defined __USE_XOPEN2K && !defined __USE_GNU
+/* Fill BUF with a string describing the meaning of the `errno' code in
+   ERRNUM.  */
+#  ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (strerror_r,
+			   (int __errnum, char *__buf, size_t __buflen),
+			   __xpg_strerror_r) __nonnull ((2));
 #  else
 #   define strerror_r __xpg_strerror_r
 #  endif
 # else
-#  ifdef __REDIRECT
-extern char *__REDIRECT (strerror_r,
-			   (int __errnum, char *__buf, size_t buflen) __THROW,
-			   _glibc_strerror_r);
+/* If a temporary buffer is required, at most BUFLEN bytes of BUF will be
+   used.  */
+#  ifdef __REDIRECT_NTH
+extern char * __REDIRECT_NTH (strerror_r,
+			   (int __errnum, char *__buf, size_t __buflen),
+			   __glibc_strerror_r) __nonnull ((2));
 #  else
-#   define strerror_r _glibc_strerror_r
+#   define strerror_r __glibc_strerror_r
 #  endif
-# endif /* defined(__USE_XOPEN2K) && !defined(__USE_GNU) */
+# endif
 #endif
 
 /* We define this function always since `bzero' is sometimes needed when
@@ -347,14 +355,15 @@ extern int strcasecmp_l (__const char *__s1, __const char *__s2,
 			 __locale_t __loc)
      __THROW __attribute_pure__ __nonnull ((1, 2, 3));
 extern int __strcasecmp_l (__const char *__s1, __const char *__s2,
-			 __locale_t __loc) __THROW __attribute_pure__;
+			 __locale_t __loc)
+     __THROW __attribute_pure__ __nonnull ((1, 2, 3));
 
 extern int strncasecmp_l (__const char *__s1, __const char *__s2,
 			  size_t __n, __locale_t __loc)
      __THROW __attribute_pure__ __nonnull ((1, 2, 4));
 extern int __strncasecmp_l (__const char *__s1, __const char *__s2,
 			  size_t __n, __locale_t __loc)
-     __THROW __attribute_pure__;
+     __THROW __attribute_pure__ __nonnull ((1, 2, 4));
 #endif
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
@@ -389,11 +398,13 @@ extern char *stpncpy (char *__restrict __dest,
 		      __const char *__restrict __src, size_t __n)
      __THROW __nonnull ((1, 2));
 
+#if 0							/* uClibc does not support strfry or memfrob. */
 /* Sautee STRING briskly.  */
 extern char *strfry (char *__string) __THROW __nonnull ((1));
 
 /* Frobnicate N bytes of S.  */
 extern void *memfrob (void *__s, size_t __n) __THROW __nonnull ((1));
+#endif
 
 # ifndef basename
 /* Return the file name within directory of FILENAME.  We don't
@@ -408,9 +419,9 @@ extern char *basename (__const char *__filename) __THROW __nonnull ((1));
 #ifdef	__USE_BSD
 /* Two OpenBSD extension functions. */
 extern size_t strlcat(char *__restrict dst, const char *__restrict src,
-                      size_t n) __THROW;
+                      size_t n) __THROW __nonnull ((1, 2));
 extern size_t strlcpy(char *__restrict dst, const char *__restrict src,
-                      size_t n) __THROW;
+                      size_t n) __THROW __nonnull ((1, 2));
 #endif
 
 __END_DECLS
