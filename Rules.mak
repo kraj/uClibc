@@ -100,7 +100,7 @@ RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
 export RUNTIME_PREFIX DEVEL_PREFIX
 
-ARFLAGS:=r
+ARFLAGS:=cr
 
 OPTIMIZATION:=
 PICFLAG:=-fPIC
