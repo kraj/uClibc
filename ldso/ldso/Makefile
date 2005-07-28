@@ -36,7 +36,7 @@ ifeq ($(DODEBUG),y)
 # Not really much point in including debugging info, since gdb
 # can't really debug ldso, since gdb requires help from ldso to
 # debug things....
-XXFLAGS+=-Os -g3
+XXFLAGS+=-Os -g
 else
 XXFLAGS+=$(OPTIMIZATION)
 endif
