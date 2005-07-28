@@ -42,9 +42,9 @@ all: headers pregen subdirs shared finished
 
 shared: subdirs
 ifeq ($(strip $(HAVE_SHARED)),y)
-	@echo
-	@echo Building shared libraries ...
-	@echo
+	$(SECHO)
+	$(SECHO) Building shared libraries ...
+	$(SECHO)
 	@$(MAKE) -C libc shared
 	@$(MAKE) -C ldso shared
 	@$(MAKE) -C libcrypt shared
@@ -58,15 +58,15 @@ ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
 	@$(MAKE) -C libintl shared
 endif
 else
-	@echo
-	@echo Not building shared libraries ...
-	@echo
+	$(SECHO)
+	$(SECHO) Not building shared libraries ...
+	$(SECHO)
 endif
 
 finished: shared
-	@echo
-	@echo Finally finished compiling ...
-	@echo
+	$(SECHO)
+	$(SECHO) Finally finished compiling ...
+	$(SECHO)
 
 include/bits/uClibc_config.h: .config
 	@if [ ! -x ./extra/config/conf ] ; then \
@@ -81,12 +81,16 @@ include/bits/uClibc_config.h: .config
 # in order to generate the headers correctly :(.  That 
 # means we can't use the $(HOSTCC) in order to get the 
 # correct output.
-headers: include/bits/uClibc_config.h
 ifeq ($(strip $(ARCH_HAS_MMU)),y)
-	@set -x; ./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH)
+export header_extra_args = 
 else
-	@set -x; ./extra/scripts/fix_includes.sh -k $(KERNEL_SOURCE) -t $(TARGET_ARCH) -n
+export header_extra_args = -n
 endif
+headers: include/bits/uClibc_config.h
+	@$(SHELL_SET_X); \
+	./extra/scripts/fix_includes.sh \
+		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
+		$(header_extra_args)
 	@cd include/bits; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
@@ -108,7 +112,8 @@ endif
 		done; \
 	fi
 	@cd $(TOPDIR); \
-	set -x -e; \
+	set -e; \
+	$(SHELL_SET_X); \
 	TOPDIR=. CC="$(CC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
 	if cmp include/bits/sysnum.h include/bits/sysnum.h.new >/dev/null 2>&1; then \
 		$(RM) include/bits/sysnum.h.new; \
@@ -153,7 +158,7 @@ install_dev:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
-	tar -chf - include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX);
+	tar -chf - include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	# Remove floating point related headers since float support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
@@ -244,7 +249,8 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 		$(PREFIX)$(RUNTIME_PREFIX)lib
 	cp -dRf lib/*.so.* $(PREFIX)$(RUNTIME_PREFIX)lib
 	@if [ -x lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so ] ; then \
-	    set -x -e; \
+	    set -e; \
+		$(SHELL_SET_X); \
 	    $(INSTALL) -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	    		$(PREFIX)$(RUNTIME_PREFIX)lib; \
 	fi;
@@ -268,9 +274,9 @@ install_utils: utils
 #endif
 
 finished2:
-	@echo
-	@echo Finished installing ...
-	@echo
+	$(SECHO)
+	$(SECHO) Finished installing ...
+	$(SECHO)
 
 else # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 

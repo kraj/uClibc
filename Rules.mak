@@ -94,6 +94,17 @@ check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; 
 check_as=$(shell if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
 	then echo "-Wa,$(1)"; fi)
 
+# Setup some shortcuts so that silent mode is silent like it should be
+ifeq ($(subst s,,$(MAKEFLAGS)),$(MAKEFLAGS))
+export MAKE_IS_SILENT=n
+SECHO=@echo
+SHELL_SET_X=set -x
+else
+export MAKE_IS_SILENT=y
+SECHO=-@false
+SHELL_SET_X=set +x
+endif
+
 # Make certain these contain a final "/", but no "//"s.
 TARGET_ARCH:=$(shell grep -s ^TARGET_ARCH $(TOPDIR)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))

@@ -62,7 +62,9 @@ $(LIBNAME) shared_$(LIBNAME) ar-target: subdirs
 	                obj.string.generic obj.string.$(TARGET_ARCH) obj.string \
 	                obj.sysdeps.common obj.sysdeps.$(TARGET_ARCH) ; do \
 		if [ -e $$objfile ] ; then \
-			echo $(AR) $(ARFLAGS) $(LIBNAME) $$objfile ; \
+			if [ "$(MAKE_IS_SILENT)" = "n" ] ; then \
+				echo $(AR) $(ARFLAGS) $(LIBNAME) $$objfile ; \
+			fi ; \
 			objs=`cat $$objfile` ; \
 		fi ; \
 		$(AR) $(ARFLAGS) $(LIBNAME) $$objs || exit 1 ; \
