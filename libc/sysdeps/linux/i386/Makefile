@@ -82,9 +82,9 @@ $(TOPDIR)lib/crtn.o:
 endif
 
 headers:
-	$(LN) -fs ../libc/sysdeps/linux/i386/fpu_control.h $(TOPDIR)/include/
+	$(LN) -fs ../libc/sysdeps/linux/i386/fpu_control.h $(TOPDIR)include/
 
 clean:
 	$(RM) *.[oa] *~ core
 	$(RM) bits/sysnum.h
-	$(RM) $(TOPDIR)/include/fpu_control.h
+	$(RM) $(TOPDIR)include/fpu_control.h
