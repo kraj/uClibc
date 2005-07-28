@@ -22,6 +22,7 @@
 #endif
 
 #include <sys/types.h>
+#include <bits/wordsize.h>
 
 /* Flags for `semop'.  */
 #define SEM_UNDO       0x1000          /* undo the operation on exit */
@@ -30,8 +31,8 @@
 #define GETPID         11              /* get sempid */
 #define GETVAL         12              /* get semval */
 #define GETALL         13              /* get all semval's */
-#define GETNCNT                14              /* get semncnt */
-#define GETZCNT                15              /* get semzcnt */
+#define GETNCNT        14              /* get semncnt */
+#define GETZCNT        15              /* get semzcnt */
 #define SETVAL         16              /* set semval */
 #define SETALL         17              /* set all semval's */
 
@@ -43,11 +44,11 @@ struct semid_ds
 #if __WORDSIZE == 32
   unsigned int __unused1;
 #endif
-  __kernel_time_t sem_otime;           /* last semop() time */
+  __time_t sem_otime;           /* last semop() time */
 #if __WORDSIZE == 32
   unsigned int __unused2;
 #endif
-  __kernel_time_t sem_ctime;           /* last time changed by semctl() */
+  __time_t sem_ctime;           /* last time changed by semctl() */
   unsigned long int sem_nsems;         /* number of semaphores in set */
   unsigned long __unused3;
   unsigned long __unused4;
