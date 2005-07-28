@@ -36,10 +36,11 @@
  * We have to stash the errno from %eax in a local stack var because 
  * __set_errno will prob call a function thus clobbering %eax on us.
  */
-void attribute_hidden __syscall_error(void)
+int attribute_hidden __syscall_error(void)
 {
-	register int eax asm("%eax");
-	int stack = -eax;
-	__set_errno(stack);
-	eax = -1;
+	register int edx asm("%edx");
+	asm("mov %eax, %edx");
+	asm("negl %edx");
+	__set_errno(edx);
+	return -1;
 }
