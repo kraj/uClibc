@@ -17,9 +17,9 @@ int main(void)
 
 	r_clone = clone(child_fn, NULL, (int) NULL, NULL);
 	ret_errno = errno;
-	if (ret_errno != EINVAL) {
-		fprintf(stderr, "clone: res=%d (%d) errno=%d %m\n",
-			r_clone, (int) NULL, errno);
+	if (ret_errno != EINVAL || r_clone != -1) {
+		fprintf(stderr, "clone: res=%d (wanted -1) errno=%d (wanted %d)\n",
+			r_clone, errno, EINVAL);
 		return 1;
 	}
 
