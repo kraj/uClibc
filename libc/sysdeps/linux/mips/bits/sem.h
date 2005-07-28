@@ -39,8 +39,8 @@
 struct semid_ds
 {
   struct ipc_perm sem_perm;		/* operation permission struct */
-  __kernel_time_t sem_otime;		/* last semop() time */
-  __kernel_time_t sem_ctime;		/* last time changed by semctl() */
+  __time_t sem_otime;			/* last semop() time */
+  __time_t sem_ctime;			/* last time changed by semctl() */
   unsigned long int sem_nsems;		/* number of semaphores in set */
   unsigned long int __unused1;
   unsigned long int __unused2;
