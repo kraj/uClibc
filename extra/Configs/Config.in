@@ -775,10 +775,11 @@ config UCLIBC_PRINTF_SCANF_POSITIONAL_ARGS
 
 
 config UCLIBC_HAS_SCANF_GLIBC_A_FLAG
-	bool "Support glibc's 'a' flag for scanf string conversions"
+	bool "Support glibc's 'a' flag for scanf string conversions (not implemented)"
 	default n
 	help
 	  NOTE!!!  Currently Not Implemented!!! Just A Place Holder!!  NOTE!!!
+	  NOTE!!!  Conflicts with an ANSI/ISO C99 scanf flag!!         NOTE!!!
 
 	  Answer Y to enable support for glibc's 'a' flag for the scanf string
 	  conversions '%s', '%[', '%ls', '%l[', and '%S'.  This is used to
@@ -850,6 +851,16 @@ config UCLIBC_HAS_STDIO_BUILTIN_BUFFER_8
 # If you add more choices, you will need to update uClibc_stdio.h.
 
 endchoice
+
+config UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT
+	bool "Attemt to shutdown stdio subsystem when abort() is called."
+	default n
+	help
+	  ANSI/ISO C99 requires abort() to be asyn-signal-safe.  So there was a behavioral
+	  change made in SUSv3.  Previously, abort() was required to have the affect of
+	  fclose() on all open streams.  The wording has been changed to "may" from "shall".
+
+	  Most people will answer N.
 
 config UCLIBC_HAS_STDIO_GETC_MACRO
 	bool "Provide a macro version of getc()"

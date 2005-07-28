@@ -63,6 +63,9 @@ Cambridge, MA 02139, USA.  */
 #warning no abort instruction define for your arch
 #endif
 
+#ifdef __UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT__
+extern void weak_function _stdio_term(void);
+#endif
 extern void _exit __P((int __status)) __attribute__ ((__noreturn__));
 static int been_there_done_that = 0;
 
@@ -95,6 +98,17 @@ void abort(void)
 		/* Try to suicide with a SIGABRT */
 		if (been_there_done_that == 0) {
 			been_there_done_that++;
+
+#ifdef __UCLIBC_HAS_STDIO_SHUTDOWN_ON_ABORT__
+			/* If we are using stdio, try to shut it down.  At the very least,
+			 * this will attemt to commit all buffered writes.  It may also
+			 * unboffer all writable files, or close them outright.
+			 * Check the stdio routines for details. */
+			if (_stdio_term) {
+				_stdio_term();
+			}
+#endif
+
 abort_it:
 			UNLOCK;
 			raise(SIGABRT);
