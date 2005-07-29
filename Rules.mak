@@ -117,9 +117,6 @@ OPTIMIZATION:=
 PICFLAG:=-fPIC
 
 PIEFLAG:=$(call check_gcc,-fPIE,)
-ifeq ($(strip $(PIEFLAG)),-fPIE)
-LDPIEFLAG:=$(shell $(LD) --help | grep -q pie && echo "-Wl,-pie")
-endif
 
 # Some nice CPU specific optimizations
 ifeq ($(strip $(TARGET_ARCH)),i386)

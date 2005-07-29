@@ -54,14 +54,14 @@ ldconfig: ldconfig.c
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldd: ldd.c
-	$(CC) $(CFLAGS) $(PIEFLAG) $(LDPIEFLAG) -Wl,-s \
+	$(CC) $(CFLAGS) $(PIEFLAG) -Wl,-s \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 iconv: ../libc/misc/wchar/wchar.c
-	$(CC) $(CFLAGS) $(PIEFLAG) $(LDPIEFLAG) -Wl,-s \
+	$(CC) $(CFLAGS) $(PIEFLAG) -Wl,-s \
 		-DL_iconv_main \
 		$^ -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
