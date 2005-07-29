@@ -84,11 +84,11 @@ $(LDSO_FULLNAME): $(OBJS) $(DLINK_OBJS)
 	$(LN) -sf $(LDSO_FULLNAME) $(TOPDIR)lib/$(UCLIBC_LDSO)
 
 $(COBJS): %.o : %.c
-	$(CC) $(XXFLAGS) -I../libdl -c $< -o $@
+	$(CC) $(XXFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(AOBJS): %.o : %.S
-	$(CC) $(XXFLAGS) $(ASFLAGS) -I../libdl -c $< -o $@
+	$(CC) $(XXFLAGS) $(ASFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 ldso.o: $(CSRC) dl-elf.c dl-hash.c dl-startup.c dl-debug.c \
