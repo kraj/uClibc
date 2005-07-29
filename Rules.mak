@@ -89,9 +89,11 @@ CROSS=$(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
 endif
 
 # A nifty macro to make testing gcc features easier
-check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
+check_gcc=$(shell \
+	if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; else echo "$(2)"; fi)
-check_as=$(shell if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
+check_as=$(shell \
+	if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
 	then echo "-Wa,$(1)"; fi)
 
 # Setup some shortcuts so that silent mode is silent like it should be
@@ -223,10 +225,13 @@ ifeq ($(strip $(TARGET_ARCH)),frv)
 	UCLIBC_LDSO=ld.so.1
 endif
 
+# Keep the check_gcc from being needlessly executed
+ifndef PIEFLAG
 ifneq ($(UCLIBC_BUILD_PIE),y)
-PIEFLAG:=
+export PIEFLAG:=
 else
-PIEFLAG:=$(call check_gcc,$(PIEFLAG_NAME),)
+export PIEFLAG:=$(call check_gcc,$(PIEFLAG_NAME),)
+endif
 endif
 
 # Use '-Os' optimization if available, else use -O2, allow Config to override
@@ -312,10 +317,16 @@ ifeq ($(DL_FINI_CRT_COMPAT),y)
 CFLAGS += -D_DL_FINI_CRT_COMPAT
 endif
 
+# Keep the check_as from being needlessly executed
 ASFLAGS = $(CFLAGS)
+ifndef ASFLAGS_NOEXEC
 ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
-ASFLAGS += $(call check_as,--noexecstack)
+export ASFLAGS_NOEXEC := $(call check_as,--noexecstack)
+else
+export ASFLAGS_NOEXEC :=
 endif
+endif
+ASFLAGS += $(ASFLAGS_NOEXEC)
 
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
