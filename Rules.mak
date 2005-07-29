@@ -115,8 +115,7 @@ ARFLAGS:=cr
 
 OPTIMIZATION:=
 PICFLAG:=-fPIC
-
-PIEFLAG:=$(call check_gcc,-fPIE,)
+PIEFLAG_NAME:=-fPIE
 
 # Some nice CPU specific optimizations
 ifeq ($(strip $(TARGET_ARCH)),i386)
@@ -207,7 +206,7 @@ ifeq ($(strip $(TARGET_ARCH)),cris)
 	CPU_LDFLAGS-$(CONFIG_CRIS)+=-mcrislinux
 	CPU_CFLAGS-$(CONFIG_CRIS)+=-mlinux
 	PICFLAG:=-fpic
-	PIEFLAG:=$(call check_gcc,-fpie,)
+	PIEFLAG_NAME:=-fpie
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),powerpc)
@@ -215,26 +214,25 @@ ifeq ($(strip $(TARGET_ARCH)),powerpc)
 # enough. Therefore use -fpic which will reduce code size and generates
 # faster code.
 	PICFLAG:=-fpic
-	PIEFLAG:=$(call check_gcc,-fpie,)
+	PIEFLAG_NAME:=-fpie
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),frv)
 	CPU_LDFLAGS-$(CONFIG_FRV)+=-melf32frvfd
 	CPU_CFLAGS-$(CONFIG_FRV)+=-mfdpic
-	# Using -pie causes the program to have an interpreter, which is
-	# forbidden, so we must make do with -shared.  Unfortunately,
-	# -shared by itself would get us global function descriptors
-	# and calls through PLTs, dynamic resolution of symbols, etc,
-	# which would break as well, but -Bsymbolic comes to the rescue.
-	LDPIEFLAG=-shared -Bsymbolic
 	UCLIBC_LDSO=ld.so.1
+endif
+
+ifneq ($(UCLIBC_BUILD_PIE),y)
+PIEFLAG:=
+else
+PIEFLAG:=$(call check_gcc,$(PIEFLAG_NAME),)
 endif
 
 # Use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 # Use the gcc 3.4 -funit-at-a-time optimization when available
 OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
-
 
 # Add a bunch of extra pedantic annoyingly strict checks
 XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
@@ -253,11 +251,6 @@ ifeq ($(strip $(TARGET_ARCH)),arm)
 # If anyone is actually still using gcc 2.95 (say), they can uncomment it.
 #    LDADD_LIBFLOAT=-lfloat
 endif
-endif
-
-ifneq ($(UCLIBC_BUILD_PIE),y)
-PIEFLAG=
-LDPIEFLAG=
 endif
 
 SSP_DISABLE_FLAGS:=$(call check_gcc,-fno-stack-protector,)
