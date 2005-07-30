@@ -1571,14 +1571,14 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 /**********************************************************************/
 #ifdef L___glibc_strerror_r
 
-weak_alias(__glibc_strerror_r,__strerror_r);
-
 char *__glibc_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {
     __xpg_strerror_r(errnum, strerrbuf, buflen);
 
     return strerrbuf;
 }
+
+weak_alias(__glibc_strerror_r,__strerror_r);
 
 #endif
 /**********************************************************************/
