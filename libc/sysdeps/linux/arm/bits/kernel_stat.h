@@ -5,6 +5,8 @@
  * struct kernel_stat should look like...  It turns out each arch has a 
  * different opinion on the subject... */
 
+#define STAT_HAVE_NSEC 1
+
 struct kernel_stat {
 #if defined(__ARMEB__)
 	unsigned short st_dev;
@@ -36,8 +38,6 @@ struct kernel_stat {
 	unsigned long  __unused5;
 };
 
-/* see the notes in common/xstatconv.c about why we have these
- * funky funk unions here ... i blame the schools */
 struct kernel_stat64 {
 	unsigned long long st_dev;
 	unsigned char      __pad0[4];

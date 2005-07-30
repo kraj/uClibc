@@ -1,7 +1,7 @@
 # uClibc unistd tests
 # Licensed under the GNU Library General Public License, see COPYING.LIB
 
-TESTS = clone fork getcwd getopt getopt_long preadwrite vfork
+TESTS = clone errno fork getcwd getopt getopt_long preadwrite vfork
 
 include ../Test.mak
 
