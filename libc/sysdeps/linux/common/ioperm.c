@@ -8,12 +8,12 @@
  */
 
 #include "syscalls.h"
-#	if defined __ARCH_HAS_MMU__ && defined __NR_ioperm
+#if defined __ARCH_HAS_MMU__ && defined __NR_ioperm
 _syscall3(int, ioperm, unsigned long, from, unsigned long, num, int, turn_on);
-#	else
+#else
 int ioperm(unsigned long from, unsigned long num, int turn_on)
 {
 	__set_errno(ENOSYS);
 	return -1;
 }
-#	endif
+#endif

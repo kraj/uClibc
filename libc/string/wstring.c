@@ -1299,7 +1299,7 @@ char *strerror(int errnum)
 {
     static char buf[_STRERROR_BUFSIZE];
 
-	_susv3_strerror_r(errnum, buf, sizeof(buf));
+	__xpg_strerror_r(errnum, buf, sizeof(buf));
 
 	return buf;
 }
@@ -1308,7 +1308,7 @@ char *strerror(int errnum)
 /**********************************************************************/
 /* SUSv3 functions. */
 /**********************************************************************/
-#ifdef L__susv3_strerror_r
+#ifdef L___xpg_strerror_r
 
 #ifdef __UCLIBC_HAS_ERRNO_MESSAGES__
 #if defined(__alpha__) || defined(__mips__) || defined(__sparc__)
@@ -1450,7 +1450,7 @@ static const unsigned char estridx[] = {
 
 #endif
 
-int _susv3_strerror_r(int errnum, char *strerrbuf, size_t buflen)
+int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {
     register char *s;
     int i, retval;
@@ -1528,7 +1528,7 @@ int _susv3_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 
 #else  /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
 
-int _susv3_strerror_r(int errnum, char *strerrbuf, size_t buflen)
+int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {
     register char *s;
     int i, retval;
@@ -1569,13 +1569,13 @@ int _susv3_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 /**********************************************************************/
 /* GNU extension functions. */
 /**********************************************************************/
-#ifdef L__glibc_strerror_r
+#ifdef L___glibc_strerror_r
 
-weak_alias(_glibc_strerror_r,__strerror_r);
+weak_alias(__glibc_strerror_r,__strerror_r);
 
-char *_glibc_strerror_r(int errnum, char *strerrbuf, size_t buflen)
+char *__glibc_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {
-    _susv3_strerror_r(errnum, strerrbuf, buflen);
+    __xpg_strerror_r(errnum, strerrbuf, buflen);
 
     return strerrbuf;
 }

@@ -32,7 +32,7 @@ extern void __guard_setup(void);
 /*
  * Prototypes.
  */
-extern int  main(int argc, char **argv, char **envp);
+extern void *__libc_stack_end;
 extern void weak_function _stdio_init(void);
 extern int *weak_const_function __errno_location(void);
 extern int *weak_const_function __h_errno_location(void);
@@ -165,14 +165,15 @@ void attribute_hidden (*__rtld_fini)(void) = NULL;
  * are initialized, just before we call the application's main function.
  */
 void __attribute__ ((__noreturn__))
-__uClibc_start_main(int argc, char **argv, char **envp,
-	void (*app_init)(void), void (*app_fini)(void), void (*rtld_fini)(void))
+__uClibc_main(int (*main)(int, char **, char **), int argc,
+		    char **argv, void (*app_init)(void), void (*app_fini)(void),
+		    void (*rtld_fini)(void), void *stack_end)
 {
 #ifdef __ARCH_HAS_MMU__
     unsigned long *aux_dat;
     Elf32_auxv_t auxvt[AT_EGID + 1];
 #endif
-
+    __libc_stack_end = stack_end;
     /* We need to initialize uClibc.  If we are dynamically linked this
      * may have already been completed by the shared lib loader.  We call
      * __uClibc_init() regardless, to be sure the right thing happens. */
@@ -180,15 +181,19 @@ __uClibc_start_main(int argc, char **argv, char **envp,
 
     __rtld_fini = rtld_fini;
 
-    /* If we are dynamically linked, then ldso already did this for us. */
-    if (__environ==NULL) {
-	/* Statically linked. */
-	__environ = envp;
+    /* The environment begins right after argv.  */
+    __environ = &argv[argc + 1];
+
+    /* If the first thing after argv is the arguments
+     * the the environment is empty. */
+    if ((char *) __environ == *argv) {
+	/* Make __environ point to the NULL at argv[argc] */
+	__environ = &argv[argc];
     }
 
     /* Pull stuff from the ELF header when possible */
 #ifdef __ARCH_HAS_MMU__
-    aux_dat = (unsigned long*)envp;
+    aux_dat = (unsigned long*)__environ;
     while (*aux_dat) {
 	aux_dat++;
     }
@@ -247,23 +252,15 @@ __uClibc_start_main(int argc, char **argv, char **envp,
     /*
      * Finally, invoke application's main and then exit.
      */
-    exit(main(argc, argv, envp));
+    exit(main(argc, argv, __environ));
 }
 
-
-/* __uClibc_main is the old main stub of the uClibc. This
- * function is called from crt0 (uClibc 0.9.15 and older) after
- * ALL shared libraries are initialized, and just before we call
- * the application's main() function.
- *
- * Attention: This stub does not call the .init/.fini sections of
- * the application. If you need this, please fix your uClibc port
- * so that  __uClibc_start_main is called by your crt0.S with
- * _init and _fini properly set.
-*/
+#ifdef _DL_FINI_CRT_COMPAT
+extern int weak_function main(int argc, char **argv, char **envp);
 void __attribute__ ((__noreturn__))
-__uClibc_main(int argc, char **argv, char ** envp)
+__uClibc_start_main(int argc, char **argv, char **envp,
+		    void (*app_fini)(void), void (*app_init)(void))
 {
-    __uClibc_start_main(argc, argv, envp, NULL, NULL, NULL);
+	__uClibc_main(main, argc, argv, app_init, app_fini, NULL, NULL);
 }
-
+#endif

@@ -186,7 +186,9 @@ weak_alias (__libc_pread64, pread64)
 #ifndef __NR_pwrite
 ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 {
-	return(__fake_pread_write(fd, buf, count, offset, 1));
+	/* we won't actually be modifying the buffer, 
+	 *just cast it to get rid of warnings */
+	return(__fake_pread_write(fd, (void*)buf, count, offset, 1));
 }
 weak_alias (__libc_pwrite, pwrite)
 

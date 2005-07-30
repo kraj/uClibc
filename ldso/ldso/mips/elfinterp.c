@@ -27,82 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#if defined (__SUPPORT_LD_DEBUG__)
-static const char *_dl_reltypes_tab[] =
-{
-		[0]		"R_MIPS_NONE",	"R_MIPS_16",	"R_MIPS_32",
-		[3]		"R_MIPS_REL32",	"R_MIPS_26",	"R_MIPS_HI16",
-		[6]		"R_MIPS_LO16",	"R_MIPS_GPREL16",	"R_MIPS_LITERAL",
-		[9]		"R_MIPS_GOT16",	"R_MIPS_PC16",	"R_MIPS_CALL16",
-		[12]	"R_MIPS_GPREL32",
-		[16]	"R_MIPS_SHIFT5",	"R_MIPS_SHIFT6",	"R_MIPS_64",
-		[19]	"R_MIPS_GOT_DISP",	"R_MIPS_GOT_PAGE",	"R_MIPS_GOT_OFST",
-		[22]	"R_MIPS_GOT_HI16",	"R_MIPS_GOT_LO16",	"R_MIPS_SUB",
-		[25]	"R_MIPS_INSERT_A",	"R_MIPS_INSERT_B",	"R_MIPS_DELETE",
-		[28]	"R_MIPS_HIGHER",	"R_MIPS_HIGHEST",	"R_MIPS_CALL_HI16",
-		[31]	"R_MIPS_CALL_LO16",	"R_MIPS_SCN_DISP",	"R_MIPS_REL16",
-		[34]	"R_MIPS_ADD_IMMEDIATE",	"R_MIPS_PJUMP",	"R_MIPS_RELGOT",
-		[37]	"R_MIPS_JALR",
-};
-
-static const char *
-_dl_reltypes(int type)
-{
-  static char buf[22];
-  const char *str;
-
-  if (type >= (int)(sizeof (_dl_reltypes_tab)/sizeof(_dl_reltypes_tab[0])) ||
-      NULL == (str = _dl_reltypes_tab[type]))
-  {
-    str =_dl_simple_ltoa( buf, (unsigned long)(type));
-  }
-  return str;
-}
-
-static
-void debug_sym(Elf32_Sym *symtab,char *strtab,int symtab_index)
-{
-  if(_dl_debug_symbols)
-  {
-    if(symtab_index){
-      _dl_dprintf(_dl_debug_file, "\n%s\n\tvalue=%x\tsize=%x\tinfo=%x\tother=%x\tshndx=%x",
-		  strtab + symtab[symtab_index].st_name,
-		  symtab[symtab_index].st_value,
-		  symtab[symtab_index].st_size,
-		  symtab[symtab_index].st_info,
-		  symtab[symtab_index].st_other,
-		  symtab[symtab_index].st_shndx);
-    }
-  }
-}
-
-static void debug_reloc(Elf32_Sym *symtab,char *strtab, ELF_RELOC *rpnt)
-{
-  if(_dl_debug_reloc)
-  {
-    int symtab_index;
-    const char *sym;
-    symtab_index = ELF32_R_SYM(rpnt->r_info);
-    sym = symtab_index ? strtab + symtab[symtab_index].st_name : "sym=0x0";
-
-  if(_dl_debug_symbols)
-	  _dl_dprintf(_dl_debug_file, "\n\t");
-  else
-	  _dl_dprintf(_dl_debug_file, "\n%s\n\t", sym);
-#ifdef ELF_USES_RELOCA
-    _dl_dprintf(_dl_debug_file, "%s\toffset=%x\taddend=%x",
-		_dl_reltypes(ELF32_R_TYPE(rpnt->r_info)),
-		rpnt->r_offset,
-		rpnt->r_addend);
-#else
-    _dl_dprintf(_dl_debug_file, "%s\toffset=%x\n",
-		_dl_reltypes(ELF32_R_TYPE(rpnt->r_info)),
-		rpnt->r_offset);
-#endif
-  }
-}
-#endif
-
 extern int _dl_runtime_resolve(void);
 
 #define OFFSET_GP_GOT 0x7ff0
@@ -195,9 +119,9 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
 		symbol_addr = 0;
 
-#if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
+#if defined (__SUPPORT_LD_DEBUG__)
 		if (reloc_addr)
 			old_val = *reloc_addr;
 #endif

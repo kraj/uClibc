@@ -9,26 +9,33 @@
 
 #include "syscalls.h"
 
-#ifdef __NR_umount	/* Some newer archs only have umount2 */
+
+/* arch provides umount() syscall */
+#ifdef __NR_umount
+
 #include <sys/mount.h>
 _syscall1(int, umount, const char *, specialfile);
 
+
+/* arch provides umount2() syscall */
 #elif defined __NR_umount2
-/* No umount syscall, but umount2 is available....  Try to
- * emulate umount() using umount2() */
 
 #define __NR___syscall_umount2 __NR_umount2
-static inline _syscall2(int, umount2, const char *, special_file, int, flags);
+static inline _syscall2(int, __syscall_umount2, const char *, special_file, int, flags);
 
 int umount(const char *special_file)
 {
 	return (__syscall_umount2(special_file, 0));
 }
 
+
+/* arch doesn't provide any umount syscall !? */
 #else
+
 int umount(const char *special_file)
 {
 	__set_errno(ENOSYS);
 	return -1;
 }
+
 #endif

@@ -20,6 +20,10 @@
 # include <config.h>
 #endif
 
+#ifdef __SSP__
+# error ssp.c has to be built w/ -fno-stack-protector
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -30,29 +34,38 @@
 #include <sys/syslog.h>
 #include <sys/time.h>
 #ifdef __SSP_USE_ERANDOM__
-#include <sys/sysctl.h>
+# include <sys/sysctl.h>
 #endif
 
 #ifdef __PROPOLICE_BLOCK_SEGV__
-#define SSP_SIGTYPE SIGSEGV
+# define SSP_SIGTYPE SIGSEGV
 #elif __PROPOLICE_BLOCK_KILL__
-#define SSP_SIGTYPE SIGKILL
+# define SSP_SIGTYPE SIGKILL
 #else
-#define SSP_SIGTYPE SIGABRT
+# define SSP_SIGTYPE SIGABRT
 #endif
 
-/* prototypes */
-extern int __libc_open (__const char *file, int oflag, mode_t mode);
-extern ssize_t __libc_read(int fd, void *buf, size_t count);
-extern int __libc_close (int fd);
-
 unsigned long __guard = 0UL;
+
+/* Use of __* functions from the rest of glibc here avoids
+ * initialisation problems for executables preloaded with
+ * libraries that overload the associated standard library
+ * functions.
+ */
+#ifdef __UCLIBC__
+extern int __libc_open(__const char *file, int flags, ...);
+extern ssize_t __libc_read(int fd, void *buf, size_t count);
+extern int __libc_close(int fd);
+#else
+# define __libc_open(file, flags) __open(file, flags)
+# define __libc_read(fd, buf, count) __read(fd, buf, count)
+# define __libc_close(fd) __close(fd)
+#endif
 
 void __guard_setup(void) __attribute__ ((constructor));
 void __guard_setup(void)
 {
 	size_t size;
-	struct timeval tv;
 
 	if (__guard != 0UL)
 		return;
@@ -61,18 +74,20 @@ void __guard_setup(void)
 	__guard = 0xFF0A0D00UL;
 
 #ifndef __SSP_QUICK_CANARY__
-#ifdef __SSP_USE_ERANDOM__
-	int mib[3];
-	/* Random is another depth in Linux, hence an array of 3. */
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_RANDOM;
-	mib[2] = RANDOM_ERANDOM;
+# ifdef __SSP_USE_ERANDOM__
+	{
+		int mib[3];
+		/* Random is another depth in Linux, hence an array of 3. */
+		mib[0] = CTL_KERN;
+		mib[1] = KERN_RANDOM;
+		mib[2] = RANDOM_ERANDOM;
 
-	size = sizeof(unsigned long);
-	if (__sysctl(mib, 3, &__guard, &size, NULL, 0) != (-1))
-		if (__guard != 0UL)
-			return;
-#endif
+		size = sizeof(unsigned long);
+		if (__sysctl(mib, 3, &__guard, &size, NULL, 0) != (-1))
+			if (__guard != 0UL)
+				return;
+	}
+# endif /* ifdef __SSP_USE_ERANDOM__ */
 	/* 
 	 * Attempt to open kernel pseudo random device if one exists before 
 	 * opening urandom to avoid system entropy depletion.
@@ -80,9 +95,9 @@ void __guard_setup(void)
 	{
 		int fd;
 
-#ifdef __SSP_USE_ERANDOM__
+# ifdef __SSP_USE_ERANDOM__
 		if ((fd = __libc_open("/dev/erandom", O_RDONLY)) == (-1))
-#endif
+# endif
 			fd = __libc_open("/dev/urandom", O_RDONLY);
 		if (fd != (-1)) {
 			size = __libc_read(fd, (char *) &__guard, sizeof(__guard));
@@ -91,13 +106,15 @@ void __guard_setup(void)
 				return;
 		}
 	}
-#endif
+#endif /* ifndef __SSP_QUICK_CANARY__ */
 
 	/* Everything failed? Or we are using a weakened model of the 
 	 * terminator canary */
-
-	gettimeofday(&tv, NULL);
-	__guard ^= tv.tv_usec ^ tv.tv_sec;
+	{
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		__guard ^= tv.tv_usec ^ tv.tv_sec;
+	}
 }
 
 void __stack_smash_handler(char func[], int damaged __attribute__ ((unused)));

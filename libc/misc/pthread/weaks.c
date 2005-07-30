@@ -23,7 +23,6 @@
 
 static int __pthread_return_0 __P ((void));
 static int __pthread_return_1 __P ((void));
-static void __pthread_return_void __P ((void));
 
 /**********************************************************************/
 /* Weaks for application/library use.
@@ -117,9 +116,4 @@ static int
 __pthread_return_1 (void)
 {
   return 1;
-}
-
-static void
-__pthread_return_void (void)
-{
 }

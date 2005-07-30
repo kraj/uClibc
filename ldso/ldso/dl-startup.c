@@ -97,31 +97,31 @@
 /* Static declarations */
 int (*_dl_elf_main) (int, char **, char **);
 
-
-
+static void* __rtld_stack_end; /* Points to argc on stack, e.g *((long *)__rtld_stackend) == argc */
+strong_alias(__rtld_stack_end, __libc_stack_end); /* Exported version of __rtld_stack_end */
 
 /* When we enter this piece of code, the program stack looks like this:
-        argc            argument counter (integer)
-        argv[0]         program name (pointer)
-        argv[1...N]     program args (pointers)
-        argv[argc-1]    end of args (integer)
-		NULL
-        env[0...N]      environment variables (pointers)
-        NULL
-		auxvt[0...N]   Auxiliary Vector Table elements (mixed types)
+	argc            argument counter (integer)
+	argv[0]         program name (pointer)
+	argv[1...N]     program args (pointers)
+	argv[argc-1]    end of args (integer)
+	NULL
+	env[0...N]      environment variables (pointers)
+	NULL
+	auxvt[0...N]   Auxiliary Vector Table elements (mixed types)
 */
 static void * __attribute_used__ _dl_start(unsigned long args)
 {
 	unsigned int argc;
 	char **argv, **envp;
 	unsigned long load_addr;
-	Elf32_Addr got;
+	ElfW(Addr) got;
 	unsigned long *aux_dat;
 	ElfW(Ehdr) *header;
 	struct elf_resolve tpnt_tmp;
 	struct elf_resolve *tpnt = &tpnt_tmp;
-	Elf32_auxv_t auxvt[AT_EGID + 1];
-	Elf32_Dyn *dpnt;
+	ElfW(auxv_t) auxvt[AT_EGID + 1];
+	ElfW(Dyn) *dpnt;
 
 	/* WARNING! -- we cannot make _any_ funtion calls until we have
 	 * taken care of fixing up our own relocations.  Making static
@@ -136,17 +136,15 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	aux_dat += argc;			/* Skip over the argv pointers */
 	aux_dat++;					/* Skip over NULL at end of argv */
 	envp = (char **) aux_dat;
+	SEND_STDERR_DEBUG("argc=");
+	SEND_NUMBER_STDERR_DEBUG(argc, 0);
+	SEND_STDERR_DEBUG(" argv=");
+	SEND_ADDRESS_STDERR_DEBUG(argv, 0);
+	SEND_STDERR_DEBUG(" envp=");
+	SEND_ADDRESS_STDERR_DEBUG(envp, 1);
 	while (*aux_dat)
 		aux_dat++;				/* Skip over the envp pointers */
 	aux_dat++;					/* Skip over NULL at end of envp */
-
-	/*
-	 * NPTL - This was taken from 'sysdeps/generic/libc-start.c'
-	 *        and is associated with backtrace capability. It
-	 *        It may be removed later, but right now NPTL needs
-	 *        NPTL needs this to compile.
-	 */
-	__libc_stack_end = (void *) argv;
 
 	/* Place -1 here as a checkpoint.  We later check if it was changed
 	 * when we read in the auxvt */
@@ -156,10 +154,10 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	 * the Auxiliary Vector Table.  Read out the elements of the auxvt,
 	 * sort and store them in auxvt for later use. */
 	while (*aux_dat) {
-		Elf32_auxv_t *auxv_entry = (Elf32_auxv_t *) aux_dat;
+		ElfW(auxv_t) *auxv_entry = (ElfW(auxv_t) *) aux_dat;
 
 		if (auxv_entry->a_type <= AT_EGID) {
-			_dl_memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(Elf32_auxv_t));
+			_dl_memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(ElfW(auxv_t)));
 		}
 		aux_dat += 2;
 	}
@@ -169,10 +167,10 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	if (!auxvt[AT_BASE].a_un.a_val)
 		auxvt[AT_BASE].a_un.a_val = elf_machine_load_address();
 	load_addr = auxvt[AT_BASE].a_un.a_val;
-	header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_ptr;
+	header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
 
 	/* Check the ELF header to make sure everything looks ok.  */
-	if (!header || header->e_ident[EI_CLASS] != ELFCLASS32 ||
+	if (!header || header->e_ident[EI_CLASS] != ELF_CLASS ||
 			header->e_ident[EI_VERSION] != EV_CURRENT
 			/* Do not use an inline _dl_strncmp here or some arches
 			* will blow chunks, i.e. those that need to relocate all
@@ -185,56 +183,43 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 		SEND_STDERR("Invalid ELF header\n");
 		_dl_exit(0);
 	}
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("ELF header=");
-	SEND_ADDRESS_STDERR(load_addr, 1);
-#endif
-
+	SEND_STDERR_DEBUG("ELF header=");
+	SEND_ADDRESS_STDERR_DEBUG(load_addr, 1);
 
 	/* Locate the global offset table.  Since this code must be PIC
 	 * we can take advantage of the magic offset register, if we
 	 * happen to know what that is for this architecture.  If not,
 	 * we can always read stuff out of the ELF file to find it... */
 	got = elf_machine_dynamic();
-	dpnt = (Elf32_Dyn *) (got + load_addr);
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("First Dynamic section entry=");
-	SEND_ADDRESS_STDERR(dpnt, 1);
-#endif
+	dpnt = (ElfW(Dyn) *) (got + load_addr);
+	SEND_STDERR_DEBUG("First Dynamic section entry=");
+	SEND_ADDRESS_STDERR_DEBUG(dpnt, 1);
 	_dl_memset(tpnt, 0, sizeof(struct elf_resolve));
 	tpnt->loadaddr = load_addr;
 	/* OK, that was easy.  Next scan the DYNAMIC section of the image.
 	   We are only doing ourself right now - we will have to do the rest later */
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("scanning DYNAMIC section\n");
-#endif
+	SEND_STDERR_DEBUG("Scanning DYNAMIC section\n");
 	tpnt->dynamic_addr = dpnt;
-#if defined(__mips__) || defined(__cris__)
+#if defined(NO_FUNCS_BEFORE_BOOTSTRAP)
 	/* Some architectures cannot call functions here, must inline */
 	__dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL, load_addr);
 #else
 	_dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL, load_addr);
 #endif
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("done scanning DYNAMIC section\n");
-#endif
+	SEND_STDERR_DEBUG("Done scanning DYNAMIC section\n");
 
-#if defined(__mips__)
+#if defined(PERFORM_BOOTSTRAP_GOT)
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("About to do specific GOT bootstrap\n");
-#endif
-	/* For MIPS we have to do stuff to the GOT before we do relocations.  */
+	SEND_STDERR_DEBUG("About to do specific GOT bootstrap\n");
+	/* some arches (like MIPS) we have to tweak the GOT before relocations */
 	PERFORM_BOOTSTRAP_GOT(tpnt);
 
 #else
 
 	/* OK, now do the relocations.  We do not do a lazy binding here, so
 	   that once we are done, we have considerably more flexibility. */
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("About to do library loader relocations\n");
-#endif
+	SEND_STDERR_DEBUG("About to do library loader relocations\n");
 
 	{
 		int goof, indx;
@@ -249,50 +234,49 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 			unsigned long *reloc_addr;
 			unsigned long symbol_addr;
 			int symtab_index;
-			Elf32_Sym *sym;
+			ElfW(Sym) *sym;
 			ELF_RELOC *rpnt;
 			unsigned long rel_addr, rel_size;
-			Elf32_Word relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
+			ElfW(Word) relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
 
-			rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] : tpnt->
-					dynamic_info[DT_RELOC_TABLE_ADDR]);
-			rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] : tpnt->
-					dynamic_info[DT_RELOC_TABLE_SIZE]);
+			rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] :
+			                   tpnt->dynamic_info[DT_RELOC_TABLE_ADDR]);
+			rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] :
+			                   tpnt->dynamic_info[DT_RELOC_TABLE_SIZE]);
 
 			if (!rel_addr)
 				continue;
 
 			/* Now parse the relocation information */
 			/* Since ldso is linked with -Bsymbolic, all relocs will be RELATIVE(for those archs that have
-			   RELATIVE relocs) which means that the for(..) loop below has noting to do and can be deleted.
+			   RELATIVE relocs) which means that the for(..) loop below has nothing to do and can be deleted.
 			   Possibly one should add a HAVE_RELATIVE_RELOCS directive and #ifdef away some code. */
 			if (!indx && relative_count) {
 				rel_size -= relative_count * sizeof(ELF_RELOC);
-				elf_machine_relative (load_addr, rel_addr, relative_count);
+				elf_machine_relative(load_addr, rel_addr, relative_count);
 				rel_addr += relative_count * sizeof(ELF_RELOC);;
 			}
 
 			rpnt = (ELF_RELOC *) (rel_addr + load_addr);
 			for (i = 0; i < rel_size; i += sizeof(ELF_RELOC), rpnt++) {
 				reloc_addr = (unsigned long *) (load_addr + (unsigned long) rpnt->r_offset);
-				symtab_index = ELF32_R_SYM(rpnt->r_info);
+				symtab_index = ELF_R_SYM(rpnt->r_info);
 				symbol_addr = 0;
 				sym = NULL;
 				if (symtab_index) {
 					char *strtab;
-					Elf32_Sym *symtab;
+					ElfW(Sym) *symtab;
 
-					symtab = (Elf32_Sym *) tpnt->dynamic_info[DT_SYMTAB];
+					symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
 					strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 					sym = &symtab[symtab_index];
 					symbol_addr = load_addr + sym->st_value;
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-					SEND_STDERR("relocating symbol: ");
-					SEND_STDERR(strtab + sym->st_name);
-					SEND_STDERR("\n");
-#endif
-				}
+					SEND_STDERR_DEBUG("relocating symbol: ");
+					SEND_STDERR_DEBUG(strtab + sym->st_name);
+					SEND_STDERR_DEBUG("\n");
+				} else
+					SEND_STDERR_DEBUG("relocating unknown symbol\n");
 				/* Use this machine-specific macro to perform the actual relocation.  */
 				PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, sym);
 			}
@@ -304,24 +288,22 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	}
 #endif
 
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
 	/* Wahoo!!! */
-	SEND_STDERR("Done relocating library loader, so we can now\n"
-			"\tuse globals and make function calls!\n");
-#endif
+	SEND_STDERR_DEBUG("Done relocating ldso; we can now use globals and make function calls!\n");
 
 	/* Now we have done the mandatory linking of some things.  We are now
 	   free to start using global variables, since these things have all been
-	   fixed up by now.  Still no function calls outside of this library ,
+	   fixed up by now.  Still no function calls outside of this library,
 	   since the dynamic resolver is not yet ready. */
+
+	__rtld_stack_end = (void *)(argv - 1);
+
 	_dl_get_ready_to_run(tpnt, load_addr, auxvt, envp, argv);
 
 
 	/* Transfer control to the application.  */
-#ifdef __SUPPORT_LD_DEBUG_EARLY__
-	SEND_STDERR("transfering control to application\n");
-#endif
-	_dl_elf_main = (int (*)(int, char **, char **)) auxvt[AT_ENTRY].a_un.a_fcn;
+	SEND_STDERR_DEBUG("transfering control to application @ ");
+	_dl_elf_main = (int (*)(int, char **, char **)) auxvt[AT_ENTRY].a_un.a_val;
+	SEND_ADDRESS_STDERR_DEBUG(_dl_elf_main, 1);
 	START();
 }
-

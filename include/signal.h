@@ -276,7 +276,7 @@ extern int sigqueue (__pid_t __pid, int __sig, __const union sigval __val)
 #ifdef __UCLIBC_HAS_SYS_SIGLIST__
 /* Names of the signals.  This variable exists only for compatibility.
    Use `strsignal' instead (see <string.h>).  */
-extern __const char *__const _sys_siglist[_NSIG];
+#define _sys_siglist sys_siglist
 extern __const char *__const sys_siglist[_NSIG];
 #endif /* __UCLIBC_HAS_SYS_SIGLIST__ */
 

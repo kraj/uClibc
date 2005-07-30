@@ -11,10 +11,12 @@
 #include <stdarg.h>
 #include <fcntl.h>
 
-#define __NR___syscall_fcntl __NR_fcntl
 #ifdef __UCLIBC_HAS_LFS__
-static inline
+extern int __libc_fcntl64(int fd, int cmd, long arg);
 #endif
+
+#define __NR___syscall_fcntl __NR_fcntl
+static inline
 _syscall3(int, __syscall_fcntl, int, fd, int, cmd, long, arg);
 
 int __libc_fcntl(int fd, int cmd, ...)
@@ -22,13 +24,18 @@ int __libc_fcntl(int fd, int cmd, ...)
 	long arg;
 	va_list list;
 
-	if (cmd == F_GETLK64 || cmd == F_SETLK64 || cmd == F_SETLKW64) {
-		__set_errno(ENOSYS);
-		return -1;
-	}
 	va_start(list, cmd);
 	arg = va_arg(list, long);
 	va_end(list);
+
+	if (cmd == F_GETLK64 || cmd == F_SETLK64 || cmd == F_SETLKW64) {
+#ifdef __UCLIBC_HAS_LFS__
+		return __libc_fcntl64(fd, cmd, arg);
+#else
+		__set_errno(ENOSYS);
+		return -1;
+#endif
+	}
 	return (__syscall_fcntl(fd, cmd, arg));
 }
 

@@ -239,8 +239,7 @@ void exit(int rv)
 	if (__app_fini != NULL)
 		(__app_fini)();
 #endif
-#ifdef _DL_DO_FINI_IN_LIBC
-/* arches that has moved their ldso FINI handling should #define _DL_DO_FINI_IN_LIBC */
+#ifndef _DL_FINI_CRT_COMPAT
 	if (__rtld_fini != NULL)
 		(__rtld_fini)();
 #endif

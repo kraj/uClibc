@@ -31,7 +31,7 @@ OBJS=$(COBJS)
 
 OBJ_LIST=../../obj.misc.internals
 
-all: $(OBJ_LIST) interp.o
+all: $(OBJ_LIST) interp.o static.o
 
 $(OBJ_LIST): $(OBJS)
 	echo $(patsubst %, misc/internals/%, $(OBJS)) > $(OBJ_LIST)
@@ -44,11 +44,7 @@ interp.c: Makefile
 		"(\".interp\"))) =\""$(DYNAMIC_LINKER)"\";" >> interp.c
 	echo "#endif" >> interp.c
 
-interp.o: interp.c
-	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(COBJS): %.o : %.c
+$(COBJS) interp.o static.o: %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
