@@ -410,11 +410,11 @@ typedef struct {
    only returns -1 if sets error indicator for the stream. */
 
 #ifdef __STDIO_PRINTF_FLOAT
-typedef void (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
-							  intptr_t buf);
+typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
+								intptr_t buf);
 
-extern size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
-						  __fp_outfunc_t fp_outfunc);
+extern ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+						   __fp_outfunc_t fp_outfunc);
 #endif
 
 extern int _ppfs_init(ppfs_t *ppfs, const char *fmt0); /* validates */
@@ -1185,7 +1185,7 @@ int register_printf_function(int spec, printf_function handler,
  * In other words, we don't currently support glibc's 'I' flag.
  * We do accept it, but it is currently ignored. */
 
-static void _charpad(FILE * __restrict stream, int padchar, size_t numpad);
+static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad);
 
 #ifdef L_vfprintf
 
@@ -1201,16 +1201,20 @@ static void _charpad(FILE * __restrict stream, int padchar, size_t numpad);
 
 #ifdef __STDIO_PRINTF_FLOAT
 
-static void _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
+static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 {
+	size_t r = 0;
+
 	if (type & 0x80) {			/* Some type of padding needed. */
 		int buflen = strlen((const char *) buf);
 		if ((len -= buflen) > 0) {
-			_charpad(fp, (type & 0x7f), len);
+			if ((r = _charpad(fp, (type & 0x7f), len)) != len) {
+				return r;
+			}
 		}
 		len = buflen;
 	}
-	OUTNSTR(fp, (const char *) buf, len);
+	return r + OUTNSTR(fp, (const char *) buf, len);
 }
 
 #endif /* __STDIO_PRINTF_FLOAT */
@@ -1226,12 +1230,12 @@ static void _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 #define _outnwcs(stream, wstring, len)	_wstdio_fwrite(wstring, len, stream)
 #define FP_OUT _fp_out_wide
 
-static void _outnstr(FILE *stream, const char *s, size_t wclen)
+static size_t _outnstr(FILE *stream, const char *s, size_t wclen)
 {
 	/* NOTE!!! len here is the number of wchars we want to generate!!! */
 	wchar_t wbuf[64];
 	mbstate_t mbstate;
-	size_t todo, r;
+	size_t todo, r, n;
 
 	mbstate.__mask = 0;
 	todo = wclen;
@@ -1243,9 +1247,14 @@ static void _outnstr(FILE *stream, const char *s, size_t wclen)
 					   : sizeof(wbuf)/sizeof(wbuf[0])),
 					  &mbstate);
 		assert(((ssize_t)r) > 0);
-		_outnwcs(stream, wbuf, r);
-		todo -= r;
+		n = _outnwcs(stream, wbuf, r);
+		todo -= n;
+		if (n != r) {
+			break;
+		}
 	}
+
+	return wclen - todo;
 }
 
 #ifdef __STDIO_PRINTF_FLOAT
@@ -1259,16 +1268,19 @@ static void _outnstr(FILE *stream, const char *s, size_t wclen)
 #define NUM_DIGIT_BLOCKS   ((DECIMAL_DIG+DIGITS_PER_BLOCK-1)/DIGITS_PER_BLOCK)
 #define BUF_SIZE  ( 3 + NUM_DIGIT_BLOCKS * DIGITS_PER_BLOCK )
 
-static void _fp_out_wide(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
+static size_t _fp_out_wide(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 {
 	wchar_t wbuf[BUF_SIZE];
 	const char *s = (const char *) buf;
+	size_t r = 0;
 	int i;
 
 	if (type & 0x80) {			/* Some type of padding needed */
 		int buflen = strlen(s);
 		if ((len -= buflen) > 0) {
-			_charpad(fp, (type & 0x7f), len);
+			if ((r = _charpad(fp, (type & 0x7f), len)) != len) {
+				return r;
+			}
 		}
 		len = buflen;
 	}
@@ -1294,8 +1306,10 @@ static void _fp_out_wide(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 
 		} while (++i < len);
 
-		OUTNSTR(fp, wbuf, len);
+		r += OUTNSTR(fp, wbuf, len);
 	}
+
+	return r;
 }
 
 #endif /* __STDIO_PRINTF_FLOAT */
@@ -1385,16 +1399,19 @@ static int _ppwfs_init(register ppfs_t *ppfs, const wchar_t *fmt0)
 
 #endif /* L_vfprintf */
 
-static void _charpad(FILE * __restrict stream, int padchar, size_t numpad)
+static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad)
 {
+	size_t todo = numpad;
+
 	/* TODO -- Use a buffer to cut down on function calls... */
 	FMT_TYPE pad[1];
 
 	*pad = padchar;
-	while (numpad) {
-		OUTNSTR(stream, pad, 1);
-		--numpad;
+	while (todo && (OUTNSTR(stream, pad, 1) == 1)) {
+		--todo;
 	}
+
+	return numpad - todo;
 }
 
 /* TODO -- Dynamically allocate work space to accomodate stack-poor archs? */
@@ -1583,13 +1600,18 @@ static int _do_one_spec(FILE * __restrict stream,
 			numfill = ((numfill > SLEN) ? numfill - SLEN : 0);
 		} else if (ppfs->conv_num <= CONV_A) {	/* floating point */
 #ifdef __STDIO_PRINTF_FLOAT
-			*count +=
-				_fpmaxtostr(stream,
-							(__fpmax_t)
-							(PRINT_INFO_FLAG_VAL(&(ppfs->info),is_long_double)
-							 ? *(long double *) *argptr
-							 : (long double) (* (double *) *argptr)),
-							&ppfs->info, FP_OUT );
+			ssize_t nf;
+			nf = _fpmaxtostr(stream,
+							 (__fpmax_t)
+							 (PRINT_INFO_FLAG_VAL(&(ppfs->info),is_long_double)
+							  ? *(long double *) *argptr
+							  : (long double) (* (double *) *argptr)),
+							 &ppfs->info, FP_OUT );
+			if (nf < 0) {
+				return -1;
+			}
+			*count += nf;
+
 			return 0;
 #else  /* __STDIO_PRINTF_FLOAT */
 			return -1;			/* TODO -- try to continue? */
@@ -1757,18 +1779,24 @@ static int _do_one_spec(FILE * __restrict stream,
 
 		/* Now handle the output itself. */
 		if (!PRINT_INFO_FLAG_VAL(&(ppfs->info),left)) {
-			_charpad(stream, ' ', numpad);
+			if (_charpad(stream, ' ', numpad) != numpad) {
+				return -1;
+			}
 			numpad = 0;
 		}
 		OUTPUT(stream, prefix + prefix_num);
-		_charpad(stream, '0', numfill);
+		if (_charpad(stream, '0', numfill) != numfill) {
+			return -1;
+		}
 
 #ifdef L_vfprintf
 
 #ifdef __UCLIBC_HAS_WCHAR__
 		if (!ws) {
 			assert(s);
-			_outnstr(stream, s, slen);
+			if (_outnstr(stream, s, slen) != slen) {
+				return -1;
+			}
 		} else {				/* wide string */
 			size_t t;
 			mbstate.__mask = 0;	/* Initialize the mbstate. */
@@ -1776,25 +1804,35 @@ static int _do_one_spec(FILE * __restrict stream,
 				t = (slen <= sizeof(buf)) ? slen : sizeof(buf);
 				t = wcsrtombs(buf, &ws, t, &mbstate);
 				assert (t != ((size_t)(-1)));
-				_outnstr(stream, buf, t);
+				if (_outnstr(stream, buf, t) != t) {
+					return -1;
+				}
 				slen -= t;
 			}
 		}
 #else  /* __UCLIBC_HAS_WCHAR__ */
-		_outnstr(stream, s, slen);
+		if (_outnstr(stream, s, slen) != slen) {
+			return -1;
+		}
 #endif /* __UCLIBC_HAS_WCHAR__ */
 
 #else  /* L_vfprintf */
 
 		if (!ws) {
 			assert(s);
-			_outnstr(stream, s, SLEN);
+			if (_outnstr(stream, s, SLEN) != SLEN) {
+				return -1;
+			}
 		} else {
-			_outnwcs(stream, ws, SLEN);
+			if (_outnwcs(stream, ws, SLEN) != SLEN) {
+				return -1;
+			}
 		}
 
 #endif /* L_vfprintf */
-		_charpad(stream, ' ', numpad);
+		if (_charpad(stream, ' ', numpad) != numpad) {
+			return -1;
+		}
 	}
 
 	return 0;
@@ -1840,7 +1878,7 @@ int VFPRINTF (FILE * __restrict stream,
 			}
 
 			if (format-s) {		/* output any literal text in format string */
-				if ( (r = OUTNSTR(stream, s, format-s)) < 0) {
+				if ( (r = OUTNSTR(stream, s, format-s)) != (format-s)) {
 					count = -1;
 					break;
 				}

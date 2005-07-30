@@ -11,8 +11,8 @@
 #include <locale.h>
 #include <bits/uClibc_fpmax.h>
 
-typedef void (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
-							  intptr_t buf);
+typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
+								intptr_t buf);
 
 
 /* Copyright (C) 2000, 2001, 2003      Manuel Novoa III
@@ -198,14 +198,13 @@ static const __fpmax_t exp16_table[] = {
 #define FPO_STR_WIDTH   (0x80 | ' ');
 #define FPO_STR_PREC    'p'
 
-size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
-				   __fp_outfunc_t fp_outfunc)
+ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+					__fp_outfunc_t fp_outfunc)
 {
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
 	__fpmax_t lower_bnd;
 	__fpmax_t upper_bnd = 1e9;
 #endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
-	uint_fast32_t digit_block;
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
 	uint_fast32_t base = 10;
 	const __fpmax_t *power_table;
@@ -221,9 +220,8 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 	int nblk2;			   /* This does not need to be initialized. */
 	const char *ts;		   /* This does not need to be initialized. */
 #endif /* __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__ */
-	int i, j;
 	int round, o_exp;
-	int exp, exp_neg;
+	int exp;
 	int width, preci;
 	int cnt;
 	char *s;
@@ -304,34 +302,36 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 		goto EXIT_SPECIAL;
 	}
 
+	{
+		int i, j;
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Clean up defines when hexadecimal float notation is unsupported.
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
 
-	if ((mode|0x20) == 'a') {
-		lower_bnd = 0x1.0p31L;
-		upper_bnd = 0x1.0p32L;
-		power_table = exp16_table;
-		exp = HEX_DIGITS_PER_BLOCK - 1;
-		i = EXP16_TABLE_SIZE;
-		j = EXP16_TABLE_MAX;
-		dpb = HEX_DIGITS_PER_BLOCK;
-		ndb = NUM_HEX_DIGIT_BLOCKS;
-		nd = NUM_HEX_DIGITS;
-		base = 16;
-	} else {
-		lower_bnd = 1e8;
-/* 		upper_bnd = 1e9; */
-		power_table = exp10_table;
-		exp = DIGITS_PER_BLOCK - 1;
-		i = EXP10_TABLE_SIZE;
-		j = EXP10_TABLE_MAX;
-/* 		dpb = DIGITS_PER_BLOCK; */
-/* 		ndb = NUM_DIGIT_BLOCKS; */
-/* 		base = 10; */
-	}
+		if ((mode|0x20) == 'a') {
+			lower_bnd = 0x1.0p31L;
+			upper_bnd = 0x1.0p32L;
+			power_table = exp16_table;
+			exp = HEX_DIGITS_PER_BLOCK - 1;
+			i = EXP16_TABLE_SIZE;
+			j = EXP16_TABLE_MAX;
+			dpb = HEX_DIGITS_PER_BLOCK;
+			ndb = NUM_HEX_DIGIT_BLOCKS;
+			nd = NUM_HEX_DIGITS;
+			base = 16;
+		} else {
+			lower_bnd = 1e8;
+			/* 		upper_bnd = 1e9; */
+			power_table = exp10_table;
+			exp = DIGITS_PER_BLOCK - 1;
+			i = EXP10_TABLE_SIZE;
+			j = EXP10_TABLE_MAX;
+			/* 		dpb = DIGITS_PER_BLOCK; */
+			/* 		ndb = NUM_DIGIT_BLOCKS; */
+			/* 		base = 10; */
+		}
 
 
 
@@ -345,32 +345,35 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 #define ndb          NUM_DIGIT_BLOCKS
 #define nd           DECIMAL_DIG
 
-	exp = DIGITS_PER_BLOCK - 1;
-	i = EXP10_TABLE_SIZE;
-	j = EXP10_TABLE_MAX;
+		exp = DIGITS_PER_BLOCK - 1;
+		i = EXP10_TABLE_SIZE;
+		j = EXP10_TABLE_MAX;
 
 #endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
 
-	exp_neg = 0;
-	if (x < lower_bnd) {		/* Do we need to scale up or down? */
-		exp_neg = 1;
-	}
+		{
+			int exp_neg = 0;
+			if (x < lower_bnd) { /* Do we need to scale up or down? */
+				exp_neg = 1;
+			}
 
-	do {
-		--i;
-		if (exp_neg) {
-			if (x * power_table[i] < upper_bnd) {
-				x *= power_table[i];
-				exp -= j;
-			}
-		} else {
-			if (x / power_table[i] >= lower_bnd) {
-				x /= power_table[i];
-				exp += j;
-			}
+			do {
+				--i;
+				if (exp_neg) {
+					if (x * power_table[i] < upper_bnd) {
+						x *= power_table[i];
+						exp -= j;
+					}
+				} else {
+					if (x / power_table[i] >= lower_bnd) {
+						x /= power_table[i];
+						exp += j;
+					}
+				}
+				j >>= 1;
+			} while (i);
 		}
-		j >>= 1;
-	} while (i);
+	}
 	if (x >= upper_bnd) {		/* Handle bad rounding case. */
 		x /= power_table[0];
 		++exp;
@@ -378,22 +381,25 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 	assert(x < upper_bnd);
 
  GENERATE_DIGITS:
-	s = buf + 2;				/* Leave space for '\0' and '0'. */
-	i = 0;
-	do {
-		digit_block = (uint_fast32_t) x;
-		assert(digit_block < upper_bnd);
+	{
+		int i, j;
+		s = buf + 2;			/* Leave space for '\0' and '0'. */
+		i = 0;
+		do {
+			uint_fast32_t digit_block = (uint_fast32_t) x;
+			assert(digit_block < upper_bnd);
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning CONSIDER: Can rounding be a problem?
 #endif /* __UCLIBC_MJN3_ONLY__ */
-		x = (x - digit_block) * upper_bnd;
-		s += dpb;
-		j = 0;
-		do {
-			s[- ++j] = '0' + (digit_block % base);
-			digit_block /= base;
-		} while (j < dpb);
-	} while (++i < ndb);
+			x = (x - digit_block) * upper_bnd;
+			s += dpb;
+			j = 0;
+			do {
+				s[- ++j] = '0' + (digit_block % base);
+				digit_block /= base;
+			} while (j < dpb);
+		} while (++i < ndb);
+	}
 
 	/*************************************************************************/
 
@@ -421,18 +427,21 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 	*s++ = 0;					/* Terminator for rounding and 0-triming. */
 	*s = '0';					/* Space to round. */
 
-	i = 0;
-	e = s + nd + 1;
-	if (round < nd) {
-		e = s + round + 2;
-		if (*e >= '0' + (base/2)) {	/* NOTE: We always round away from 0! */
-			i = 1;
+	{
+		int i;
+		i = 0;
+		e = s + nd + 1;
+		if (round < nd) {
+			e = s + round + 2;
+			if (*e >= '0' + (base/2)) {	/* NOTE: We always round away from 0! */
+				i = 1;
+			}
 		}
-	}
 
-	do {						/* Handle rounding and trim trailing 0s. */
-		*--e += i;				/* Add the carry. */
-	} while ((*e == '0') || (*e > '0' - 1 + base));
+		do {			   /* Handle rounding and trim trailing 0s. */
+			*--e += i;			/* Add the carry. */
+		} while ((*e == '0') || (*e > '0' - 1 + base));
+	}
 
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
 	if ((mode|0x20) == 'a') {
@@ -480,80 +489,81 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 	sign_str[5] = 0;
 	ppc = pc_fwi + 6;
 
-	i = e - s;					/* Total digits is 'i'. */
-	if (o_exp >= 0) {
+	{
+		int i = e - s;			/* Total digits is 'i'. */
+		if (o_exp >= 0) {
 #ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
 
-		const char *p;
+			const char *p;
 
-		if (PRINT_INFO_FLAG_VAL(info,group)
-			&& *(p = __UCLIBC_CURLOCALE_DATA.grouping)
-			) {
-			int nblk1;
+			if (PRINT_INFO_FLAG_VAL(info,group)
+				&& *(p = __UCLIBC_CURLOCALE_DATA.grouping)
+				) {
+				int nblk1;
 
-			nblk2 = nblk1 = *p;
-			if (*++p) {
-				nblk2 = *p;
-				assert(!*++p);
-			}
-
-			if (o_exp >= nblk1) {
-				num_groups = (o_exp - nblk1) / nblk2 + 1;
-				initial_group = (o_exp - nblk1) % nblk2;
-
-#ifdef __UCLIBC_HAS_WCHAR__
-				if (PRINT_INFO_FLAG_VAL(info,wide)) {
-					/* _fp_out_wide() will fix this up. */
-					ts = fmt + THOUSEP_OFFSET;
-					tslen = 1;
-				} else {
-#endif /* __UCLIBC_HAS_WCHAR__ */
-					ts = __UCLIBC_CURLOCALE_DATA.thousands_sep;
-					tslen = __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
-#ifdef __UCLIBC_HAS_WCHAR__
+				nblk2 = nblk1 = *p;
+				if (*++p) {
+					nblk2 = *p;
+					assert(!*++p);
 				}
+
+				if (o_exp >= nblk1) {
+					num_groups = (o_exp - nblk1) / nblk2 + 1;
+					initial_group = (o_exp - nblk1) % nblk2;
+
+#ifdef __UCLIBC_HAS_WCHAR__
+					if (PRINT_INFO_FLAG_VAL(info,wide)) {
+						/* _fp_out_wide() will fix this up. */
+						ts = fmt + THOUSEP_OFFSET;
+						tslen = 1;
+					} else {
+#endif /* __UCLIBC_HAS_WCHAR__ */
+						ts = __UCLIBC_CURLOCALE_DATA.thousands_sep;
+						tslen = __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
+#ifdef __UCLIBC_HAS_WCHAR__
+					}
 #endif /* __UCLIBC_HAS_WCHAR__ */
 
-				width -= num_groups * tslen;
+					width -= num_groups * tslen;
+				}
 			}
-		}
 
 
 #endif /* __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__ */
-		ppc[0] = FPO_STR_PREC;
-		ppc[2] = (intptr_t)(s);
-		if (o_exp >= i) {		/* all digit(s) left of decimal */
-			ppc[1] = i;
-			ppc += 3;
-			o_exp -= i;
-			i = 0;
-			if (o_exp>0) {		/* have 0s left of decimal */
-				ppc[0] = FPO_ZERO_PAD;
-				ppc[1] = o_exp;
-				ppc[2] = (intptr_t)(fmt + EMPTY_STRING_OFFSET);
+			ppc[0] = FPO_STR_PREC;
+			ppc[2] = (intptr_t)(s);
+			if (o_exp >= i) {		/* all digit(s) left of decimal */
+				ppc[1] = i;
 				ppc += 3;
+				o_exp -= i;
+				i = 0;
+				if (o_exp>0) {		/* have 0s left of decimal */
+					ppc[0] = FPO_ZERO_PAD;
+					ppc[1] = o_exp;
+					ppc[2] = (intptr_t)(fmt + EMPTY_STRING_OFFSET);
+					ppc += 3;
+				}
+			} else if (o_exp > 0) {	/* decimal between digits */
+				ppc[1] = o_exp;
+				ppc += 3;
+				s += o_exp;
+				i -= o_exp;
 			}
-		} else if (o_exp > 0) {	/* decimal between digits */
-			ppc[1] = o_exp;
-			ppc += 3;
-			s += o_exp;
-			i -= o_exp;
+			o_exp = -1;
 		}
-		o_exp = -1;
-	}
 
-	if (PRINT_INFO_FLAG_VAL(info,alt)
-		|| (i)
-		|| ((o_mode != 'g')
+		if (PRINT_INFO_FLAG_VAL(info,alt)
+			|| (i)
+			|| ((o_mode != 'g')
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
-			&& (o_mode != 'a')
+				&& (o_mode != 'a')
 #endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
-			&& (preci > 0))
-		) {
-		ppc[0] = FPO_STR_PREC;
+				&& (preci > 0))
+			) {
+			ppc[0] = FPO_STR_PREC;
 #ifdef __LOCALE_C_ONLY
-		ppc[1] = 1;
-		ppc[2] = (intptr_t)(fmt + DECPT_OFFSET);
+			ppc[1] = 1;
+			ppc[2] = (intptr_t)(fmt + DECPT_OFFSET);
 #else  /* __LOCALE_C_ONLY */
 #ifdef __UCLIBC_HAS_WCHAR__
 			if (PRINT_INFO_FLAG_VAL(info,wide)) {
@@ -569,39 +579,41 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 #endif /* __UCLIBC_HAS_WCHAR__ */
 #endif /* __LOCALE_C_ONLY */
 			ppc += 3;
-	}
+		}
 
-	if (++o_exp < 0) {			/* Have 0s right of decimal. */
-		ppc[0] = FPO_ZERO_PAD;
-		ppc[1] = -o_exp;
-		ppc[2] = (intptr_t)(fmt + EMPTY_STRING_OFFSET);
-		ppc += 3;
-	}
-	if (i) {					/* Have digit(s) right of decimal. */
-		ppc[0] = FPO_STR_PREC;
-		ppc[1] = i;
-		ppc[2] = (intptr_t)(s);
-		ppc += 3;
-	}
-
-	if (((o_mode != 'g') || PRINT_INFO_FLAG_VAL(info,alt))
-#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
-		&& !sufficient_precision
-#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
-		) {
-		i -= o_exp;
-		if (i < preci) {		/* Have 0s right of digits. */
-			i = preci - i;
+		if (++o_exp < 0) {			/* Have 0s right of decimal. */
 			ppc[0] = FPO_ZERO_PAD;
-			ppc[1] = i;
+			ppc[1] = -o_exp;
 			ppc[2] = (intptr_t)(fmt + EMPTY_STRING_OFFSET);
 			ppc += 3;
+		}
+		if (i) {					/* Have digit(s) right of decimal. */
+			ppc[0] = FPO_STR_PREC;
+			ppc[1] = i;
+			ppc[2] = (intptr_t)(s);
+			ppc += 3;
+		}
+
+		if (((o_mode != 'g') || PRINT_INFO_FLAG_VAL(info,alt))
+#ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
+			&& !sufficient_precision
+#endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
+			) {
+			i -= o_exp;
+			if (i < preci) {		/* Have 0s right of digits. */
+				i = preci - i;
+				ppc[0] = FPO_ZERO_PAD;
+				ppc[1] = i;
+				ppc[2] = (intptr_t)(fmt + EMPTY_STRING_OFFSET);
+				ppc += 3;
+			}
 		}
 	}
 
 	/* Build exponent string. */
 	if (mode != 'f') {
 		char *p = exp_buf + sizeof(exp_buf);
+		int j;
 		char exp_char = *exp_buf;
 		char exp_sign = '+';
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
@@ -631,43 +643,46 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 	}
 
  EXIT_SPECIAL:
-	ppc_last = ppc;
-	ppc = pc_fwi + 4;	 /* Need width fields starting with second. */
-	do {
-		width -= *ppc;
-		ppc += 3;
-	} while (ppc < ppc_last);
+	{
+		int i;
+		ppc_last = ppc;
+		ppc = pc_fwi + 4;	 /* Need width fields starting with second. */
+		do {
+			width -= *ppc;
+			ppc += 3;
+		} while (ppc < ppc_last);
 
-	ppc = pc_fwi;
-	ppc[0] = FPO_STR_WIDTH;
-	ppc[1] = i = ((*sign_str) != 0);
-	ppc[2] = (intptr_t) sign_str;
+		ppc = pc_fwi;
+		ppc[0] = FPO_STR_WIDTH;
+		ppc[1] = i = ((*sign_str) != 0);
+		ppc[2] = (intptr_t) sign_str;
 
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
-	if (((mode|0x20) == 'a') && (pc_fwi[3] >= 16)) { /* Hex sign handling. */
-		/* Hex and not inf or nan, so prefix with 0x. */
-		char *h = sign_str + i;
-		*h = '0';
-		*++h = 'x' - 'p' + *exp_buf;
-		*++h = 0;
-		ppc[1] = (i += 2);
-	}
+		if (((mode|0x20) == 'a') && (pc_fwi[3] >= 16)) { /* Hex sign handling. */
+			/* Hex and not inf or nan, so prefix with 0x. */
+			char *h = sign_str + i;
+			*h = '0';
+			*++h = 'x' - 'p' + *exp_buf;
+			*++h = 0;
+			ppc[1] = (i += 2);
+		}
 #endif /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
 
-	if ((width -= i) > 0) {
-		if (PRINT_INFO_FLAG_VAL(info,left)) { /* Left-justified. */
-			ppc_last[0] = FPO_STR_WIDTH;
-			ppc_last[1] = width;
-			ppc_last[2] = (intptr_t)(fmt + EMPTY_STRING_OFFSET);
-			ppc_last += 3;
-		} else if (info->pad == '0') { /* 0 padding */
-			ppc[4] += width;	/* Pad second field. */
-		} else {
-			ppc[1] += width;	/* Pad first (sign) field. */
+		if ((width -= i) > 0) {
+			if (PRINT_INFO_FLAG_VAL(info,left)) { /* Left-justified. */
+				ppc_last[0] = FPO_STR_WIDTH;
+				ppc_last[1] = width;
+				ppc_last[2] = (intptr_t)(fmt + EMPTY_STRING_OFFSET);
+				ppc_last += 3;
+			} else if (info->pad == '0') { /* 0 padding */
+				ppc[4] += width;	/* Pad second field. */
+			} else {
+				ppc[1] += width;	/* Pad first (sign) field. */
+			}
 		}
-	}
 
-	cnt = 0;
+		cnt = 0;
+	}
 
 	do {
 #ifdef __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__
@@ -685,7 +700,9 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 					blk = nblk2;
 				} else if (len >= blk) { /* Enough digits for a group. */
 /* 					printf("norm:  len=%d blk=%d  \"%.*s\"\n", len, blk, blk, gp); */
-					fp_outfunc(fp, *ppc, blk, (intptr_t) gp);
+					if (fp_outfunc(fp, *ppc, blk, (intptr_t) gp) != blk) {
+						return -1;
+					}
 					assert(gp);
 					if (*gp) {
 						gp += blk;
@@ -695,7 +712,9 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 /* 					printf("trans: len=%d blk=%d  \"%.*s\"\n", len, blk, len, gp); */
 					if (len) {
 /* 						printf("len\n"); */
-						fp_outfunc(fp, *ppc, len, (intptr_t) gp);
+						if (fp_outfunc(fp, *ppc, len, (intptr_t) gp) != len) {
+							return -1;
+						}
 						gp += len;
 					}
 
@@ -718,7 +737,9 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 				}
 				--num_groups;
 
-				fp_outfunc(fp, FPO_STR_PREC, tslen, (intptr_t) ts);
+				if (fp_outfunc(fp, FPO_STR_PREC, tslen, (intptr_t) ts) != tslen) {
+					return -1;
+				}
 				blk = nblk2;
 
 /* 				printf("num_groups=%d   blk=%d\n", num_groups, blk); */
@@ -727,8 +748,11 @@ size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 		} else
 
 #endif /* __UCLIBC_HAS_GLIBC_DIGIT_GROUPING__ */
-
-		fp_outfunc(fp, *ppc, ppc[1], ppc[2]); /* NOTE: Remember 'else' above! */
+		{						/* NOTE: Remember 'else' above! */
+			if (fp_outfunc(fp, *ppc, ppc[1], ppc[2]) != ppc[1]) {
+				return -1;
+			}
+		}
 
 		cnt += ppc[1];
 		ppc += 3;
