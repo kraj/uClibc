@@ -635,11 +635,7 @@ extern int setresgid (__gid_t __egid, __gid_t __rgid, __gid_t __sgid);
 /* Clone the calling process, creating an exact copy.
    Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
-#ifdef __PTHREADS_NATIVE__
-extern __pid_t __fork (void) __THROW;
-#else
 extern __pid_t fork (void) __THROW;
-#endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 /* Clone the calling process, but without copying the whole address space.

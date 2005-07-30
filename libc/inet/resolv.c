@@ -1157,6 +1157,7 @@ void res_close( void )
 
 #endif
 
+
 #ifdef L_res_query
 
 #ifndef MIN

@@ -22,8 +22,6 @@ ifeq ($(strip $(PTHREADS_NATIVE)),y)
 include nptl/Rules.mak
 endif
 
-CFLAGS+=$(SSP_ALL_CFLAGS)
-
 #
 # Adjust the soname version to avoid namespace collisions with glibc's
 # libpthread library.
@@ -43,28 +41,11 @@ ifeq ($(strip $(PTHREADS_NATIVE)),y)
 else
 	DIRS+=linuxthreads
 endif
-	LDFLAGS_THREAD:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc -z defs
-ifeq ($(UCLIBC_BUILD_RELRO),y)
-	LDFLAGS_THREAD+=-z relro
-endif
-ifeq ($(UCLIBC_BUILD_NOW),y)
-	LDFLAGS_THREAD+=-z now
-endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 ifeq ($(strip $(PTHREADS_NATIVE)),y)
 	DIRS+=nptl_db
 else
 	DIRS+=linuxthreads_db
-endif
-	LDFLAGS_THREAD_DB:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
-endif
-ifeq ($(DODEBUG),n)
-	LDFLAGS_THREAD_DB+=-s
-ifeq ($(UCLIBC_BUILD_RELRO),y)
-       LDFLAGS_THREAD_DB+=-z relro
-endif
-ifeq ($(UCLIBC_BUILD_NOW),y)
-       LDFLAGS_THREAD_DB+=-z now
 endif
 endif
 endif
@@ -74,7 +55,14 @@ ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 	SHARED_END_FILES = $(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
 endif
 
-ALL_SUBDIRS = linuxthreads linuxthreads_db nptl nptl_db
+ifeq ($(strip $(PTHREADS_NATIVE)),y)
+ALL_SUBDIRS = nptl nptl_db
+else
+ALL_SUBDIRS = linuxthreads linuxthreads_db
+endif
+
+# Remove any -z defs since this lib will have undefined symbols
+LIBTHREAD_DB_LDFLAGS := $(subst -z defs,,$(LDFLAGS))
 
 all: $(LIBPTHREAD) $(LIBTHREAD_DB)
 
@@ -102,13 +90,13 @@ $(OBJ): Makefile
 shared: all
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 ifeq ($(strip $(PTHREADS_NATIVE)),y)
-	$(LD) $(LDFLAGS_THREAD) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
+	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD_SHARED_ARCHIVE) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc -ldl $(LDADD_LIBFLOAT) $(LIBGCC) \
 		$(SHARED_END_FILES)
 else
-	$(LD) $(LDFLAGS_THREAD) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
+	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
@@ -124,7 +112,7 @@ endif
 		$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
 endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(LD) $(LDFLAGS_THREAD_DB) -soname=$(LIBTHREAD_DB_SHARED).1 \
+	$(LD) $(LIBTHREAD_DB_LDFLAGS) --warn-unresolved-symbols -soname=$(LIBTHREAD_DB_SHARED).1 \
 		-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)

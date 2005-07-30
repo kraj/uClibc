@@ -24,15 +24,19 @@ LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 # reset to initial (disabling predefined CFLAGS)
 ASFLAGS=
 ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
-ASFLAGS+=$(check_as_noexecstack)
+ASFLAGS+=$(call check_as,--noexecstack)
 endif
 
 XXFLAGS=$(XWARNINGS) $(SSP_DISABLE_FLAGS)
+ifeq ($(DL_FINI_CRT_COMPAT),y)
+XXFLAGS+=-D_DL_FINI_CRT_COMPAT
+endif
+
 ifeq ($(DODEBUG),y)
 # Not really much point in including debugging info, since gdb
 # can't really debug ldso, since gdb requires help from ldso to
 # debug things....
-XXFLAGS+=-Os #-g3
+XXFLAGS+=-Os -g
 else
 XXFLAGS+=$(OPTIMIZATION)
 endif
@@ -93,8 +97,8 @@ $(AOBJS): %.o : %.S
 	$(CC) $(XXFLAGS) $(ASFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-ldso.o: $(CSRC) dl-elf.c dl-hash.c dl-startup.c \
-	$(TARGET_ARCH)/dl-startup.h
+ldso.o: $(CSRC) dl-elf.c dl-hash.c dl-startup.c dl-debug.c \
+	$(TARGET_ARCH)/*.h $(TARGET_ARCH)/*.c $(TOPDIR)ldso/include/*.h
 
 clean:
 	$(RM) $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i ldso.h *~

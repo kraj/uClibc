@@ -52,7 +52,8 @@ all: halfclean $(LIBNAME_TARGET) $(DO_SHARED)
 # the wildcard will be evaluated when `make` is run instead of when the make 
 # target is evaluated.  That means if you run `rm obj.* ; make`, the wildcard 
 # will evaluate to no files :(.
-$(LIBNAME) ar-target: subdirs
+$(LIBNAME) shared_$(LIBNAME) ar-target: subdirs
+	$(RM) $(LIBNAME) shared_$(LIBNAME)
 	objs=`cat obj.*` ; \
 	$(AR) $(ARFLAGS) $(LIBNAME) $$objs && \
 	$(AR) dN 2 $(LIBNAME) $$objs && \
@@ -61,11 +62,15 @@ $(LIBNAME) ar-target: subdirs
 	                obj.string.generic obj.string.$(TARGET_ARCH) obj.string \
 	                obj.sysdeps.common obj.sysdeps.$(TARGET_ARCH) ; do \
 		if [ -e $$objfile ] ; then \
-			echo $(AR) $(ARFLAGS) $(LIBNAME) $$objfile ; \
+			if [ "$(MAKE_IS_SILENT)" = "n" ] ; then \
+				echo $(AR) $(ARFLAGS) $(LIBNAME) $$objfile ; \
+			fi ; \
 			objs=`cat $$objfile` ; \
 		fi ; \
 		$(AR) $(ARFLAGS) $(LIBNAME) $$objs || exit 1 ; \
 	done
+	cp $(LIBNAME) shared_$(LIBNAME)
+	$(AR) $(ARFLAGS) $(LIBNAME) misc/internals/static.o
 	$(RANLIB) $(LIBNAME)
 
 $(LIBNAME_TARGET): $(LIBNAME)
@@ -73,11 +78,11 @@ $(LIBNAME_TARGET): $(LIBNAME)
 	$(RM) $(TOPDIR)lib/$(LIBNAME)
 	$(INSTALL) -m 644 $(LIBNAME) $(TOPDIR)lib
 
-shared: $(LIBNAME)
+shared: shared_$(LIBNAME)
 	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
-		--whole-archive $(LIBNAME) \
+		--whole-archive shared_$(LIBNAME) \
 		$(TOPDIR)libc/misc/internals/interp.o --no-whole-archive \
-		-init __uClibc_init $(LIBGCC) $(LDADD_LIBFLOAT)
+		-init __uClibc_init $(TOPDIR)lib/ld-uClibc.so.0 $(LIBGCC) $(LDADD_LIBFLOAT)
 	@true #$(RM) -r tmp
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(SHARED_FULLNAME)
@@ -86,7 +91,7 @@ shared: $(LIBNAME)
 	$(LN) -sf $(SHARED_FULLNAME) $(TOPDIR)lib/$(SHARED_MAJORNAME)
 
 halfclean:
-	@$(RM) $(LIBNAME) uClibc_config.h
+	@$(RM) $(LIBNAME) shared_$(LIBNAME) uClibc_config.h
 	@$(RM) $(SHARED_FULLNAME) $(SHARED_MAJORNAME) uClibc-0.* libc.so*
 
 tags:

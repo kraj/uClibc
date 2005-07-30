@@ -89,8 +89,23 @@ CROSS=$(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
 endif
 
 # A nifty macro to make testing gcc features easier
-check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
+check_gcc=$(shell \
+	if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; else echo "$(2)"; fi)
+check_as=$(shell \
+	if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
+	then echo "-Wa,$(1)"; fi)
+
+# Setup some shortcuts so that silent mode is silent like it should be
+ifeq ($(subst s,,$(MAKEFLAGS)),$(MAKEFLAGS))
+export MAKE_IS_SILENT=n
+SECHO=@echo
+SHELL_SET_X=set -x
+else
+export MAKE_IS_SILENT=y
+SECHO=-@false
+SHELL_SET_X=set +x
+endif
 
 # Make certain these contain a final "/", but no "//"s.
 TARGET_ARCH:=$(shell grep -s ^TARGET_ARCH $(TOPDIR)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
@@ -98,15 +113,11 @@ RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
 export RUNTIME_PREFIX DEVEL_PREFIX
 
-ARFLAGS:=r
+ARFLAGS:=cr
 
 OPTIMIZATION:=
 PICFLAG:=-fPIC
-
-PIEFLAG:=$(call check_gcc,-fPIE,)
-ifeq ($(strip $(PIEFLAG)),-fPIE)
-LDPIEFLAG:=$(shell $(LD) --help | grep -q pie && echo "-Wl,-pie")
-endif
+PIEFLAG_NAME:=-fPIE
 
 # Some nice CPU specific optimizations
 ifeq ($(strip $(TARGET_ARCH)),i386)
@@ -142,7 +153,7 @@ ifeq ($(strip $(TARGET_ARCH)),arm)
 	CPU_CFLAGS-$(CONFIG_ARM720T)+=-mtune=arm7tdmi -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM920T)+=-mtune=arm9tdmi -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM922T)+=-mtune=arm9tdmi -march=armv4
-	CPU_CFLAGS-$(CONFIG_ARM926T)+=-mtune=arm9tdmi -march=armv4
+	CPU_CFLAGS-$(CONFIG_ARM926T)+=-mtune=arm9tdmi -march=armv5
 	CPU_CFLAGS-$(CONFIG_ARM1136JF_S)+=-mtune=arm1136jf-s -march=armv6
 	CPU_CFLAGS-$(CONFIG_ARM_SA110)+=-mtune=strongarm110 -march=armv4
 	CPU_CFLAGS-$(CONFIG_ARM_SA1100)+=-mtune=strongarm1100 -march=armv4
@@ -197,7 +208,7 @@ ifeq ($(strip $(TARGET_ARCH)),cris)
 	CPU_LDFLAGS-$(CONFIG_CRIS)+=-mcrislinux
 	CPU_CFLAGS-$(CONFIG_CRIS)+=-mlinux
 	PICFLAG:=-fpic
-	PIEFLAG:=$(call check_gcc,-fpie,)
+	PIEFLAG_NAME:=-fpie
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),powerpc)
@@ -205,27 +216,28 @@ ifeq ($(strip $(TARGET_ARCH)),powerpc)
 # enough. Therefore use -fpic which will reduce code size and generates
 # faster code.
 	PICFLAG:=-fpic
-	PIEFLAG:=$(call check_gcc,-fpie,)
+	PIEFLAG_NAME:=-fpie
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),frv)
 	CPU_LDFLAGS-$(CONFIG_FRV)+=-melf32frvfd
 	CPU_CFLAGS-$(CONFIG_FRV)+=-mfdpic
-	PICFLAG=-fPIC -DPIC
-	# Using -pie causes the program to have an interpreter, which is
-	# forbidden, so we must make do with -shared.  Unfortunately,
-	# -shared by itself would get us global function descriptors
-	# and calls through PLTs, dynamic resolution of symbols, etc,
-	# which would break as well, but -Bsymbolic comes to the rescue.
-	LDPIEFLAG=-shared -Bsymbolic
 	UCLIBC_LDSO=ld.so.1
+endif
+
+# Keep the check_gcc from being needlessly executed
+ifndef PIEFLAG
+ifneq ($(UCLIBC_BUILD_PIE),y)
+export PIEFLAG:=
+else
+export PIEFLAG:=$(call check_gcc,$(PIEFLAG_NAME),)
+endif
 endif
 
 # Use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 # Use the gcc 3.4 -funit-at-a-time optimization when available
 OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
-
 
 # Add a bunch of extra pedantic annoyingly strict checks
 XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
@@ -246,32 +258,28 @@ ifeq ($(strip $(TARGET_ARCH)),arm)
 endif
 endif
 
-ifneq ($(UCLIBC_BUILD_PIE),y)
-PIEFLAG=
-LDPIEFLAG=
-endif
-
-SSP_DISABLE_FLAGS=$(call check_gcc,-fno-stack-protector,)
+SSP_DISABLE_FLAGS:=$(call check_gcc,-fno-stack-protector,)
 ifeq ($(UCLIBC_BUILD_SSP),y)
-SSP_CFLAGS=$(call check_gcc,-fno-stack-protector-all,)
+SSP_CFLAGS:=$(call check_gcc,-fno-stack-protector-all,)
 SSP_CFLAGS+=$(call check_gcc,-fstack-protector,)
-SSP_ALL_CFLAGS=$(call check_gcc,-fstack-protector-all,)
+SSP_ALL_CFLAGS:=$(call check_gcc,-fstack-protector-all,)
 else
-SSP_CFLAGS=$(SSP_DISABLE_FLAGS)
+SSP_CFLAGS:=$(SSP_DISABLE_FLAGS)
 endif
 
 # Some nice CFLAGS to work with
-CFLAGS=$(XWARNINGS) $(OPTIMIZATION) $(XARCH_CFLAGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
+CFLAGS:=$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
+LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc -z defs
 
 ifeq ($(DODEBUG),y)
     #CFLAGS += -g3
-    CFLAGS = $(XWARNINGS) -O0 -g3 $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
-    LDFLAGS:= $(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
+    CFLAGS += -O0 -g3
+    LDFLAGS := $(LDFLAGS_NOSTRIP)
     STRIPTOOL:= true -Since_we_are_debugging
 else
-    LDFLAGS := $(CPU_LDFLAGS-y) -s -shared --warn-common --warn-once -z combreloc
+    CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
+    LDFLAGS := $(LDFLAGS_NOSTRIP) -s
 endif
 
 #
@@ -325,11 +333,20 @@ ifeq ($(DOPIC),y)
     CFLAGS += $(PICFLAG)
 endif
 
-ASFLAGS = $(CFLAGS)
-ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
-check_as_noexecstack=$(shell if $(LD) --help | grep -q "z noexecstack"; then echo "-Wa,--noexecstack"; fi)
-ASFLAGS += $(check_as_noexecstack)
+ifeq ($(DL_FINI_CRT_COMPAT),y)
+CFLAGS += -D_DL_FINI_CRT_COMPAT
 endif
+
+# Keep the check_as from being needlessly executed
+ASFLAGS = $(CFLAGS)
+ifndef ASFLAGS_NOEXEC
+ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
+export ASFLAGS_NOEXEC := $(call check_as,--noexecstack)
+else
+export ASFLAGS_NOEXEC :=
+endif
+endif
+ASFLAGS += $(ASFLAGS_NOEXEC)
 
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)

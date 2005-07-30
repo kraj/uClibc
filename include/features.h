@@ -367,7 +367,7 @@ uClibc was built without large file support enabled.
 
 /* Some nice features only work properly with ELF */
 #if defined _LIBC 
-# if defined __HAVE_ELF__
+#if defined __HAVE_ELF__
 /* Define ALIASNAME as a weak alias for NAME. */
 #  define weak_alias(name, aliasname) _weak_alias (name, aliasname)
 #  define _weak_alias(name, aliasname) \
@@ -389,8 +389,8 @@ uClibc was built without large file support enabled.
 	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");	      \
 	    static const char __evoke_link_warning_##symbol[]		      \
 	    __attribute__ ((unused, section (".gnu.warning." #symbol "\n\t#"))) = msg;
-#  endif
-# else /* !defined __HAVE_ELF__ */
+#endif
+#else /* !defined __HAVE_ELF__ */
 #  define strong_alias(name, aliasname) _strong_alias (name, aliasname)
 #  define weak_alias(name, aliasname) _strong_alias (name, aliasname)
 #  define _strong_alias(name, aliasname) \
@@ -399,7 +399,7 @@ uClibc was built without large file support enabled.
 #  define link_warning(symbol, msg) \
 	asm (".stabs \"" msg "\",30,0,0,0\n\t" \
 	      ".stabs \"" #symbol "\",1,0,0,0\n");
-# endif
+#endif
 
 #ifndef weak_function
 /* If we do not have the __attribute__ ((weak)) syntax, there is no way we

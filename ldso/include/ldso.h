@@ -55,9 +55,21 @@ extern char *_dl_debug_detail;
 extern char *_dl_debug_nofixups;
 extern char *_dl_debug_bindings;
 extern int   _dl_debug_file;
+# define __dl_debug_dprint(fmt, args...) \
+	_dl_dprintf(_dl_debug_file, "%s:%i: " fmt, __FUNCTION__, __LINE__, ## args);
+# define _dl_if_debug_dprint(fmt, args...) \
+	do { if (_dl_debug) __dl_debug_dprint(fmt, ## args); } while (0)
 #else
-#define _dl_debug_file 2
-#endif
+# define _dl_debug_dprint(fmt, args...)
+# define _dl_if_debug_dprint(fmt, args...)
+# define _dl_debug_file 2
+#endif /* __SUPPORT_LD_DEBUG__ */
+
+#ifdef __SUPPORT_LD_DEBUG_EARLY__
+# define _dl_debug_early(fmt, args...) __dl_debug_dprint(fmt, ## args)
+#else
+# define _dl_debug_early(fmt, args...)
+#endif /* __SUPPORT_LD_DEBUG_EARLY__ */
 
 #ifndef NULL
 #define NULL ((void *) 0)
@@ -70,8 +82,6 @@ extern char *_dl_strdup(const char *string);
 extern void _dl_dprintf(int, const char *, ...);
 
 extern void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
-		Elf32_auxv_t auxvt[AT_EGID + 1], char **envp, char **argv);
-
+		ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv);
 
 #endif /* _LDSO_H_ */
-
