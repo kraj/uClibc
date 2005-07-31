@@ -31,6 +31,12 @@ CSRC=__longjmp.c  brk.c setjmp_aux.c mmap.c __syscall_error.c \
 	cacheflush.c pread_write.c sysmips.c _test_and_set.c #sigaction.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
+ifeq ($(PTHREADS_NATIVE),y)
+COBJS += $(PTDIR)sysdeps/$(TARGET_ARCH)/libc-tls.o		\
+	 $(PTDIR)sysdeps/unix/sysv/linux/libc-lowlevellock.o	\
+	 $(PTDIR)sysdeps/unix/sysv/linux/libc-lowlevellock.os
+endif
+
 OBJS=$(SOBJS) $(COBJS)
 
 OBJ_LIST=../../../obj.sysdeps.$(TARGET_ARCH)
@@ -79,6 +85,17 @@ $(TOPDIR)lib/crti.o:
 $(TOPDIR)lib/crtn.o:
 	$(INSTALL) -d $(TOPDIR)lib/
 	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
+endif
+
+ifeq ($(PTHREADS_NATIVE),y)
+$(PTDIR)sysdeps/$(TARGET_ARCH)/libc-tls.o:
+	$(MAKE) -C $(PTDIR)sysdeps/$(TARGET_ARCH) libc-tls.o
+
+$(PTDIR)sysdeps/unix/sysv/linux/libc-lowlevellock.o:
+	$(MAKE) -C $(PTDIR)sysdeps/unix/sysv/linux libc-lowlevellock.o
+
+$(PTDIR)sysdeps/unix/sysv/linux/libc-lowlevellock.os:
+	$(MAKE) -C $(PTDIR)sysdeps/unix/sysv/linux libc-lowlevellock.os
 endif
 
 headers:

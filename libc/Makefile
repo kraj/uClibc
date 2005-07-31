@@ -71,6 +71,9 @@ $(LIBNAME) shared_$(LIBNAME) ar-target: subdirs
 	done
 	cp $(LIBNAME) shared_$(LIBNAME)
 	$(AR) $(ARFLAGS) $(LIBNAME) misc/internals/static.o
+ifeq ($(PTHREADS_NATIVE),y)
+	$(AR) d $(LIBNAME) libc-lowlevellock.os
+endif
 	$(RANLIB) $(LIBNAME)
 
 $(LIBNAME_TARGET): $(LIBNAME)
@@ -79,6 +82,9 @@ $(LIBNAME_TARGET): $(LIBNAME)
 	$(INSTALL) -m 644 $(LIBNAME) $(TOPDIR)lib
 
 shared: shared_$(LIBNAME)
+ifeq ($(PTHREADS_NATIVE),y)
+	$(AR) d shared_$(LIBNAME) libc-tls.o libc-lowlevellock.o
+endif
 	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
 		--whole-archive shared_$(LIBNAME) \
 		$(TOPDIR)libc/misc/internals/interp.o --no-whole-archive \

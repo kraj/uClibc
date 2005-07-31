@@ -24,8 +24,10 @@
 #include <stdio.h>
 #include <sys/param.h>
 #ifdef __UCLIBC__
+#include <elf.h>
 #include <link.h>
 #include <string.h>
+
 #define __sbrk	sbrk
 #endif
 
@@ -149,6 +151,7 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
      IE-model TLS.  */
 # if TLS_TCB_AT_TP
   tcb_offset = roundup (memsz + GL(dl_tls_static_size), tcbalign);
+  tlsblock = __sbrk (tcb_offset + tcbsize + max_align);
 # elif TLS_DTV_AT_TP
   tcb_offset = roundup (tcbsize, align ?: 1);
   tlsblock = __sbrk (tcb_offset + memsz + max_align
@@ -197,15 +200,7 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
 #  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
 # endif
   if (__builtin_expect (lossage != NULL, 0))
-#ifdef __UCLIBC__
-    /*
-     * FIXME: Implement something similar to what is used in glibc
-     *        found in 'sysdeps/unix/sysv/linux/libc_fatal.c'.
-     */
-    fprintf(stderr, "FAILED TLS allocation!!!!\n");
-#else
     __libc_fatal (lossage);
-#endif
 
   /* We have to create a fake link map which normally would be created
      by the dynamic linker.  It just has to have enough information to
