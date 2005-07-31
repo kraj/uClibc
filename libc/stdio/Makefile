@@ -61,6 +61,9 @@ endif
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 CSRC += flockfile.c ftrylockfile.c funlockfile.c
 endif
+ifeq ($(strip $(PTHREADS_NATIVE)),y)
+CSRC += fatal.c
+endif
 
 # Functions with unlocked versions
 CUSRC = clearerr.c feof.c ferror.c fflush.c fgetc.c fgets.c fileno.c \
