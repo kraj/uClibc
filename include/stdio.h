@@ -807,6 +807,10 @@ extern int obstack_vprintf (struct obstack *__restrict __obstack,
 #if defined __USE_POSIX || defined __USE_MISC
 /* These are defined in POSIX.1:1996.  */
 
+/* Print out MESSAGE on the error output and abort.  */
+extern void __libc_fatal (__const char *__message)
+	__attribute__ ((__noreturn__));
+
 /* Acquire ownership of STREAM.  */
 extern void flockfile (FILE *__stream) __THROW;
 
