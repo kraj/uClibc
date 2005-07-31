@@ -32,10 +32,10 @@ endif
 # calloc.c can be found at uClibc/libc/stdlib/calloc.c
 # valloc.c can be found at uClibc/libc/stdlib/valloc.c
 CSRC=malloc.c calloc.c realloc.c free.c memalign.c mallopt.c mallinfo.c
-ifeq ($(PTHREADS_NATIVE),y)
-CSRC+=thread-freeres.c
-CFLAGS += -I$(TOPDIR)/libpthread/nptl/compat
-endif
+#ifeq ($(PTHREADS_NATIVE),y)
+#CSRC+=thread-freeres.c
+#CFLAGS += -I$(TOPDIR)/libpthread/nptl/compat
+#endif
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
