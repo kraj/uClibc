@@ -27,15 +27,9 @@ XXFLAGS+=-O0 -g3
 else
 XXFLAGS+=$(OPTIMIZATION)
 endif
-ifeq ($(PTHREADS_NATIVE),y)
-XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) \
-	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso -I. -I$(TOPDIR)include $(PTINC)
-else
 XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso -I. -I$(TOPDIR)include
-endif
 
 XXFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 XXFLAGS_NOPIC:=$(XXFLAGS)
@@ -80,7 +74,7 @@ shared: $(LIBDL_PIC)
 	$(LD) $(LDFLAGS) -soname=$(LIBDL_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBDL_SHARED_FULLNAME) -fini dl_cleanup --whole-archive $(LIBDL_PIC) \
 		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
-		-L$(TOPDIR)/lib -lc $(LDADD_LIBFLOAT) $(LIBGCC);
+		-L$(TOPDIR)/lib -lc $(LDADD_LIBFLOAT) $(TOPDIR)lib/ld-uClibc.so.0 $(LIBGCC);
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED).$(MAJOR_VERSION)
 	$(INSTALL) -m 644 $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib

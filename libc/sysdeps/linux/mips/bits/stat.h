@@ -36,7 +36,7 @@
 /* Structure describing file characteristics.  */
 struct stat
   {
-    unsigned long int st_dev;
+	__dev_t st_dev;
     long int st_pad1[3];
 #ifndef __USE_FILE_OFFSET64
     __ino_t st_ino;		/* File serial number.		*/
@@ -47,7 +47,7 @@ struct stat
     __nlink_t st_nlink;		/* Link count.  */
     __uid_t st_uid;		/* User ID of the file's owner.	*/
     __gid_t st_gid;		/* Group ID of the file's group.*/
-    unsigned long int st_rdev;	/* Device number, if device.  */
+    __dev_t st_rdev;	/* Device number, if device.  */
 #ifndef __USE_FILE_OFFSET64
     long int st_pad2[2];
     __off_t st_size;		/* Size of file, in bytes.  */
@@ -80,14 +80,14 @@ struct stat
 #ifdef __USE_LARGEFILE64
 struct stat64
   {
-    unsigned long int st_dev;
+    __dev_t st_dev;
     long int st_pad1[3];
     __ino64_t st_ino;		/* File serial number.		*/
     __mode_t st_mode;		/* File mode.  */
     __nlink_t st_nlink;		/* Link count.  */
     __uid_t st_uid;		/* User ID of the file's owner.	*/
     __gid_t st_gid;		/* Group ID of the file's group.*/
-    unsigned long int st_rdev;	/* Device number, if device.  */
+    __dev_t st_rdev;	/* Device number, if device.  */
     long int st_pad2[3];
     __off64_t st_size;		/* Size of file, in bytes.  */
     /*

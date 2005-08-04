@@ -40,31 +40,27 @@
 /* When libdl is loaded as a shared library, we need to load in
  * and use a pile of symbols from ldso... */
 
-extern char *_dl_find_hash(const char *, struct dyn_elf *, struct elf_resolve *, int)
-	__attribute__ ((__weak__));
+extern char *_dl_find_hash(const char *, struct dyn_elf *, struct elf_resolve *, int);
 extern struct elf_resolve * _dl_load_shared_library(int, struct dyn_elf **,
-	struct elf_resolve *, char *, int) __attribute__ ((__weak__));
-extern int _dl_fixup(struct dyn_elf *rpnt, int lazy)
-	 __attribute__ ((__weak__));
-extern void _dl_protect_relro(struct elf_resolve * tpnt)
-	__attribute__ ((__weak__));
-extern int _dl_errno __attribute__ ((__weak__));
-extern struct dyn_elf *_dl_symbol_tables __attribute__ ((__weak__));
-extern struct dyn_elf *_dl_handles __attribute__ ((__weak__));
-extern struct elf_resolve *_dl_loaded_modules __attribute__ ((__weak__));
-extern struct r_debug *_dl_debug_addr __attribute__ ((__weak__));
-extern unsigned long _dl_error_number __attribute__ ((__weak__));
-extern void *(*_dl_malloc_function)(size_t) __attribute__ ((__weak__));
+	struct elf_resolve *, char *, int);
+extern int _dl_fixup(struct dyn_elf *rpnt, int lazy);
+extern void _dl_protect_relro(struct elf_resolve * tpnt);
+extern int _dl_errno;
+extern struct dyn_elf *_dl_symbol_tables;
+extern struct dyn_elf *_dl_handles;
+extern struct elf_resolve *_dl_loaded_modules;
+extern struct r_debug *_dl_debug_addr;
+extern unsigned long _dl_error_number;
+extern void *(*_dl_malloc_function)(size_t);
 #ifdef __LDSO_CACHE_SUPPORT__
-int _dl_map_cache(void) __attribute__ ((__weak__));
-int _dl_unmap_cache(void) __attribute__ ((__weak__));
+int _dl_map_cache(void);
+int _dl_unmap_cache(void);
 #endif
 #ifdef __mips__
-extern void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
-	__attribute__ ((__weak__));
+extern void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy);
 #endif
 #ifdef __SUPPORT_LD_DEBUG__
-extern char *_dl_debug __attribute__ ((__weak__));
+extern char *_dl_debug;
 #endif
 
 

@@ -1,5 +1,6 @@
 /* The proper definitions for Linux/MIPS's sigaction.
-   Copyright (C) 1993,94,95,97,98,99,2000 Free Software Foundation, Inc.
+   Copyright (C) 1993, 1994, 1995, 1997, 1998, 1999, 2000, 2003
+	Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -44,6 +45,14 @@ struct sigaction
 #endif
     /* Additional set of signals to be blocked.  */
     __sigset_t sa_mask;
+
+    /* The ABI says here are two unused ints following. */
+    /* Restore handler.  */
+    void (*sa_restorer) (void);
+
+#if _MIPS_SZPTR < 64
+    int sa_resv[1];
+#endif
   };
 
 /* Bits in `sa_flags'.  */
