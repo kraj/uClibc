@@ -116,6 +116,9 @@ __syscall_return(type,__sc0); \
 }
 
 /* Add in _syscall6 which is not in the kernel header */
+#ifndef __SH_SYSCALL6_TRAPA
+# define __SH_SYSCALL6_TRAPA "0x16"
+#endif
 #define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6) \
 type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5, type6 arg6) \
 { \
@@ -126,7 +129,7 @@ register long __sc6 __asm__ ("r6") = (long) arg3; \
 register long __sc7 __asm__ ("r7") = (long) arg4; \
 register long __sc0 __asm__ ("r0") = (long) arg5; \
 register long __sc1 __asm__ ("r1") = (long) arg6; \
-__asm__ __volatile__ ("trapa	#0x16" \
+__asm__ __volatile__ ("trapa	#" __SH_SYSCALL6_TRAPA \
 	: "=z" (__sc0) \
 	: "0" (__sc0), "r" (__sc4), "r" (__sc5), "r" (__sc6), "r" (__sc7), \
 	  "r" (__sc3), "r" (__sc1) \
