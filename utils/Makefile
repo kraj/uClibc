@@ -43,18 +43,18 @@ headers:
 readelf.c ldconfig.c ldd.c:	headers
 
 readelf: readelf.c
-	$(CC) $(CFLAGS) -Wl,-s $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldconfig: ldconfig.c
-	$(CC) $(CFLAGS) -Wl,-s $(if $(filter $(UCLIBC_STATIC_LDCONFIG),y),-static) \
+	$(CC) $(CFLAGS) $(if $(filter $(UCLIBC_STATIC_LDCONFIG),y),-static) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 ldd: ldd.c
-	$(CC) $(CFLAGS) $(PIEFLAG) -Wl,-s \
+	$(CC) $(CFLAGS) $(PIEFLAG) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
