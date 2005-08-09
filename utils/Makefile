@@ -64,7 +64,7 @@ iconv: ../libc/misc/wchar/wchar.c
 	$(CC) $(CFLAGS) $(PIEFLAG) -Wl,-s \
 		-DL_iconv_main \
 		$^ -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
+	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
 ifeq ($(strip $(HAVE_SHARED)),y)
 hostutils: ldd.host ldconfig.host readelf.host
