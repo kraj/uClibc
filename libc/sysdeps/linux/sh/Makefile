@@ -20,12 +20,8 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
-CFLAGS+= -I../
-ASFLAGS+=-I.. -D__ASSEMBLER__
-
 CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o
-CRT0_DEPS=gmon-start.S
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 SSRC=setjmp.S __longjmp.S vfork.S clone.S
@@ -34,7 +30,7 @@ SOBJS=$(patsubst %.S,%.o, $(SSRC))
 CSRC=mmap.c longjmp.c pipe.c __init_brk.c brk.c sbrk.c syscall.c pread_write.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(SOBJS) $(MOBJ) $(COBJS)
+OBJS=$(SOBJS) $(COBJS)
 
 OBJ_LIST=../../../obj.sysdeps.$(TARGET_ARCH)
 
