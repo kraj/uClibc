@@ -41,7 +41,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 
 #ifdef __UCLIBC_HAS_THREADS__
 	f.__user_locking = 1;		/* Set user locking. */
-#ifdef __UCLIBC_HAS_FUTEXES__
+#ifdef __USE_STDIO_FUTEXES__
 	_IO_lock_init (f._lock);
 #else
 	__stdio_init_mutex(&f.__lock);
@@ -113,7 +113,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 
 #ifdef __UCLIBC_HAS_THREADS__
 	f.f.__user_locking = 1;		/* Set user locking. */
-#ifdef __UCLIBC_HAS_FUTEXES__
+#ifdef __USE_STDIO_FUTEXES__
 	_IO_lock_init (f.f._lock);
 #else
 	__stdio_init_mutex(&f.f.__lock);
@@ -201,7 +201,7 @@ int vsnprintf(char *__restrict buf, size_t size,
 
 #ifdef __UCLIBC_HAS_THREADS__
 	f.__user_locking = 1;		/* Set user locking. */
-#ifdef __UCLIBC_HAS_FUTEXES__
+#ifdef __USE_STDIO_FUTEXES__
 	_IO_lock_init (f._lock);
 #else
 	__stdio_init_mutex(&f.__lock);

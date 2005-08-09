@@ -53,12 +53,11 @@
 
 __BEGIN_DECLS
 
-#ifdef __PTHREADS_NATIVE__
-#include <tls.h>
-extern __thread int h_errno attribute_tls_model_ie;
-#else
 /* Error status for non-reentrant lookup functions.  */
+#ifndef __PTHREADS_NATIVE__
 extern int h_errno;
+#else
+#define h_errno (*__h_errno_location ())
 #endif
 
 /* Function to get address of global `h_errno' variable.  */
@@ -458,5 +457,14 @@ extern int getnameinfo (__const struct sockaddr *__restrict __sa,
 #endif	/* POSIX */
 
 __END_DECLS
+
+#ifdef _LIBC
+# ifdef __PTHREADS_NATIVE__
+#  include <tls.h>
+#  undef h_errno
+#  define h_errno h_errno     /* For #ifndef h_errno tests.  */
+extern __thread int h_errno attribute_tls_model_ie;
+# endif
+#endif
 
 #endif	/* netdb.h */

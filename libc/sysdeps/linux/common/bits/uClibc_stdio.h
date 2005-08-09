@@ -119,7 +119,7 @@
 #ifdef __UCLIBC_HAS_THREADS__
 /* Need this for pthread_mutex_t. */
 #include <bits/pthreadtypes.h>
-#if defined __UCLIBC_HAS_FUTEXES__  && defined _LIBC
+#ifdef __USE_STDIO_FUTEXES__
 #include <bits/stdio-lock.h>
 #endif
 
@@ -137,7 +137,7 @@
 
 #define __STDIO_AUTO_THREADLOCK_VAR			int __infunc_user_locking
 
-#if defined __UCLIBC_HAS_FUTEXES__ && defined _LIBC
+#ifdef __USE_STDIO_FUTEXES__
 
 #define __STDIO_SET_USER_LOCKING(__stream)	((__stream)->__user_locking = 1)
 
@@ -313,7 +313,7 @@ struct __STDIO_FILE_STRUCT {
 #endif
 #ifdef __UCLIBC_HAS_THREADS__
 	int __user_locking;
-#if defined __UCLIBC_HAS_FUTEXES__ && defined _LIBC
+#ifdef __USE_STDIO_FUTEXES__
 	_IO_lock_t _lock;
 #else
 	pthread_mutex_t __lock;
@@ -392,7 +392,7 @@ extern void _stdio_term(void);
 extern struct __STDIO_FILE_STRUCT *_stdio_openlist;
 
 #ifdef __UCLIBC_HAS_THREADS__
-#if defined __UCLIBC_HAS_FUTEXES__ && defined _LIBC
+#ifdef __USE_STDIO_FUTEXES__
 extern _IO_lock_t _stdio_openlist_lock;
 #else
 extern pthread_mutex_t _stdio_openlist_lock;

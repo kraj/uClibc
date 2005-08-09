@@ -121,6 +121,10 @@ ifeq ($(strip $(UCLIBC_HAS_LFS)),y)
 OBJS += $(CLOBJS)
 endif
 
+ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
+CFLAGS += -D__USE_STDIO_FUTEXES__
+endif
+
 OBJ_LIST=../obj.stdio
 
 all: $(OBJ_LIST)

@@ -39,7 +39,9 @@ extern int *__errno_location (void) __THROW __attribute__ ((__const__));
 
 #  if defined _LIBC
 /* We wouldn't need a special macro anymore but it is history.  */
-#   define __set_errno(val) ((errno) = (val))
+#   ifndef __set_errno
+#    define __set_errno(val) ((errno) = (val))
+#   endif
 #  endif /* _LIBC */
 
 #  if defined __UCLIBC_HAS_THREADS__
