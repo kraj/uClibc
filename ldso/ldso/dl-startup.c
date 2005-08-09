@@ -136,12 +136,14 @@ static void * __attribute_used__ _dl_start(unsigned long args)
 	aux_dat += argc;			/* Skip over the argv pointers */
 	aux_dat++;					/* Skip over NULL at end of argv */
 	envp = (char **) aux_dat;
+#ifndef NO_EARLY_SEND_STDERR
 	SEND_STDERR_DEBUG("argc=");
 	SEND_NUMBER_STDERR_DEBUG(argc, 0);
 	SEND_STDERR_DEBUG(" argv=");
 	SEND_ADDRESS_STDERR_DEBUG(argv, 0);
 	SEND_STDERR_DEBUG(" envp=");
 	SEND_ADDRESS_STDERR_DEBUG(envp, 1);
+#endif
 	while (*aux_dat)
 		aux_dat++;				/* Skip over the envp pointers */
 	aux_dat++;					/* Skip over NULL at end of envp */

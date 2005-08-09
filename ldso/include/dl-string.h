@@ -274,6 +274,7 @@ static __always_inline char * _dl_simple_ltoahex(char * local, unsigned long i)
                      || defined(__sh__) ||  defined(__powerpc__)
 # define CONSTANT_STRING_GOT_FIXUP(X) \
 	if ((X) < (const char *) load_addr) (X) += load_addr
+# define NO_EARLY_SEND_STDERR
 #else
 # define CONSTANT_STRING_GOT_FIXUP(X)
 #endif
