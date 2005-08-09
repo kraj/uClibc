@@ -25,7 +25,6 @@
 #include <signal.h>
 
 extern int __longjmp(char *env, int val);
-extern int __sigprocmask(int how, const sigset_t *set, sigset_t *oldset);
 
 /* Set the signal mask to the one specified in ENV, and jump
    to the position specified in ENV, causing the setjmp
@@ -34,7 +33,7 @@ void __libc_siglongjmp (sigjmp_buf env, int val)
 {
   if (env[0].__mask_was_saved)
     /* Restore the saved signal mask.  */
-    (void) __sigprocmask (SIG_SETMASK, &env[0].__saved_mask,
+    (void) sigprocmask (SIG_SETMASK, &env[0].__saved_mask,
 			  (sigset_t *) NULL);
 
   /* Call the machine-dependent function to restore machine state.  */
