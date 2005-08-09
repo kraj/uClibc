@@ -24,7 +24,7 @@ CRT0_SRC = crt0.S
 CRT0_OBJ = crt0.o crt1.o
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
-SSRC=setjmp.S __longjmp.S vfork.S clone.S
+SSRC=setjmp.S __longjmp.S vfork.S clone.S ___fpscr_values.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=mmap.c longjmp.c pipe.c __init_brk.c brk.c sbrk.c syscall.c pread_write.c
