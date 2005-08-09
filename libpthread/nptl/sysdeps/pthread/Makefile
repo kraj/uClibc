@@ -1,52 +1,58 @@
-# Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
-# This file is part of the GNU C Library.
-# Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
+# Makefile for uClibc NPTL pthread library (pthread)
+#
+# Copyright (C) 2005 Steven J. Hill <sjhill@realitydiluted.com>
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Library General Public License
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+# Makefile for uClibc
 
-# The GNU C Library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
+TOPDIR=../../../../
+include $(TOPDIR)Rules.mak
+include ../../Rules.mak
 
-# The GNU C Library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
+#
+# NOTE: glibc puts flockfile.c, ftrylockfile.c, funlockfile.c, and
+#       pt-longjmp.c in libc and libpthread. For uClibc, they are
+#       in libc only.
+#
+CSRC = pthread_barrier_wait.c pthread_cond_broadcast.c pthread_cond_signal.c \
+       pthread_cond_timedwait.c pthread_cond_wait.c pthread_getcpuclockid.c  \
+       pthread_once.c pthread_rwlock_rdlock.c pthread_rwlock_timedrdlock.c   \
+       pthread_rwlock_timedwrlock.c pthread_rwlock_unlock.c		     \
+       pthread_rwlock_wrlock.c pthread_sigmask.c pthread_spin_destroy.c      \
+       pthread_spin_init.c pthread_spin_unlock.c sigaction.c		     \
+       unwind-forcedunwind.c
 
-# You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+COBJ-LIBP-ST = $(patsubst %.c, %.o, $(CSRC))
+COBJ-LIBP-SH = $(patsubst %.c, %.os, $(CSRC))
 
-ifeq ($(subdir),csu)
-CFLAGS-libc-start.c += -I../nptl
-routines += unwind-resume
-shared-only-routines += unwind-resume
-CFLAGS-unwind-resume.c += -fexceptions -fasynchronous-unwind-tables
-endif
-
-ifeq ($(subdir),nptl)
-libpthread-sysdep_routines += errno-loc
-endif
-
-ifeq ($(subdir),rt)
-librt-sysdep_routines += timer_routines librt-cancellation rt-unwind-resume
-librt-shared-only-routines += rt-unwind-resume
-CPPFLAGS-timer_routines.c = -I../nptl
-CFLAGS-librt-cancellation.c += -fexceptions -fasynchronous-unwind-tables
-CFLAGS-rt-unwind-resume.c += -fexceptions -fasynchronous-unwind-tables
-
-ifeq (yes,$(build-shared))
-$(objpfx)tst-timer: $(objpfx)librt.so $(shared-thread-library)
+ar-target all: $(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
+		$(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
 else
-$(objpfx)tst-timer: $(objpfx)librt.a $(static-thread-library)
+	$(STRIPTOOL) -x -R .note -R .comment			\
+		$(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
 endif
+	$(AR) $(ARFLAGS) $(PTDIR)../$(LIBPTHREAD_STATIC_ARCHIVE) $(COBJ-LIBP-ST)
+	$(AR) $(ARFLAGS) $(PTDIR)../$(LIBPTHREAD_SHARED_ARCHIVE) $(COBJ-LIBP-SH)
 
-ifeq ($(have-forced-unwind),yes)
-tests += tst-mqueue8x
-CFLAGS-tst-mqueue8x.c += -fexceptions
-endif
-endif
+$(COBJ-LIBP-ST): %.o : %.c
+	$(CC) $(CFLAGS-LIBP) -c $< -o $@
 
-ifeq ($(subdir),posix)
-CFLAGS-confstr.c += -DLIBPTHREAD_VERSION='"NPTL $(version)"'
-endif
+$(COBJ-LIBP-SH): %.os : %.c
+	$(CC) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
+
+clean:
+	$(RM) *.o *.os *~ core

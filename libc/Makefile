@@ -52,7 +52,7 @@ all: halfclean $(LIBNAME_TARGET) $(DO_SHARED)
 # the wildcard will be evaluated when `make` is run instead of when the make 
 # target is evaluated.  That means if you run `rm obj.* ; make`, the wildcard 
 # will evaluate to no files :(.
-$(LIBNAME) shared_$(LIBNAME) ar-target: subdirs
+$(LIBNAME) shared_$(LIBNAME) ar-target: subdirs objs-pthread-libc
 	$(RM) $(LIBNAME) shared_$(LIBNAME)
 	objs=`cat obj.*` ; \
 	$(AR) $(ARFLAGS) $(LIBNAME) $$objs && \
@@ -71,9 +71,7 @@ $(LIBNAME) shared_$(LIBNAME) ar-target: subdirs
 	done
 	cp $(LIBNAME) shared_$(LIBNAME)
 	$(AR) $(ARFLAGS) $(LIBNAME) misc/internals/static.o
-ifeq ($(PTHREADS_NATIVE),y)
-	$(AR) d $(LIBNAME) libc-lowlevellock.os
-endif
+	$(AR) $(ARFLAGS) $(LIBNAME) `cat "$(PTCOBJST)"`
 	$(RANLIB) $(LIBNAME)
 
 $(LIBNAME_TARGET): $(LIBNAME)
@@ -82,9 +80,7 @@ $(LIBNAME_TARGET): $(LIBNAME)
 	$(INSTALL) -m 644 $(LIBNAME) $(TOPDIR)lib
 
 shared: shared_$(LIBNAME)
-ifeq ($(PTHREADS_NATIVE),y)
-	$(AR) d shared_$(LIBNAME) libc-tls.o libc-lowlevellock.o
-endif
+	$(AR) $(ARFLAGS) shared_$(LIBNAME) `cat "$(PTCOBJSH)"`
 	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
 		--whole-archive shared_$(LIBNAME) \
 		$(TOPDIR)libc/misc/internals/interp.o --no-whole-archive \
@@ -106,7 +102,7 @@ tags:
 clean: subdirs_clean halfclean
 	@$(RM) -r tmp
 	$(RM) include/asm include/linux include/bits
-	$(RM) obj.*
+	$(RM) obj.* obj-*
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
@@ -116,5 +112,9 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 
 $(patsubst %, _dirclean_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+
+objs-pthread-libc:
+	$(RM) $(PTCOBJST) $(PTCOBJSH)
+	$(MAKE) -C ../libpthread $@
 
 .PHONY: dummy subdirs

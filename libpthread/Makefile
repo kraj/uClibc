@@ -80,6 +80,13 @@ ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	$(INSTALL) -m 644 $(LIBTHREAD_DB) $(TOPDIR)lib
 endif
 
+objs-pthread-libc:
+ifeq ($(strip $(PTHREADS_NATIVE)),y)
+	$(MAKE) -C nptl $@
+else
+	touch $(PTCOBJST) $(PTCOBJSH)
+endif
+
 
 $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -93,7 +100,9 @@ ifeq ($(strip $(PTHREADS_NATIVE)),y)
 	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD_SHARED_ARCHIVE) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-		-L$(TOPDIR)lib -lc -ldl $(LDADD_LIBFLOAT) $(LIBGCC) \
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
+		$(TOPDIR)ldso/ldso/ld-uClibc-0.9.27.so \
+		-L$(TOPDIR)ldso/libdl -ldl \
 		$(SHARED_END_FILES)
 else
 	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \

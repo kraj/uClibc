@@ -302,6 +302,12 @@ PTINC	:= -I$(PTDIR)sysdeps/$(TARGET_ARCH)			\
 	   -I$(PTDIR)sysdeps/pthread
 endif
 
+#
+# Thread objects linked into C library.
+#
+PTCOBJST := $(TOPDIR)libc/obj-pthread-libc
+PTCOBJSH := $(TOPDIR)libc/obj-pthread-libc_shared
+
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 LDFLAGS+=-z relro
 endif

@@ -350,8 +350,9 @@ defconfig: extra/config/conf
 clean:
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec $(RM) {} \;
 	@$(RM) -r tmp lib include/bits libc/tmp _install
-	$(RM) libc/obj.* headers
+	$(RM) libc/obj.* libc/obj-* headers
 	$(MAKE) -C test clean
+	$(MAKE) -C utils clean
 	$(MAKE) -C ldso clean
 	$(MAKE) -C libc/misc/internals clean
 	$(MAKE) -C libc/misc/wchar clean

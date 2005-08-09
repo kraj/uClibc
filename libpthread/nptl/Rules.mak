@@ -5,9 +5,9 @@
 LIBPTHREAD_STATIC_ARCHIVE := libpthread.a
 LIBPTHREAD_SHARED_ARCHIVE := libpthread-shared.a
 
-CFLAGS-NPTL := $(CFLAGS:-O0=-O2) \
-	       -I$(PTDIR) \
-	       -I$(TOPDIR)ldso/include \
-	       -DNOT_IN_libc=1 -DIS_IN_libpthread=1 -std=gnu99
+CFLAGS-LIBC	:= $(CFLAGS:-O0=-O2) -I$(PTDIR) -I$(TOPDIR)ldso/include	\
+		   -std=gnu99
+ASFLAGS-LIBC	:= $(filter-out -std=gnu99, $(CFLAGS-LIBC)) -D__ASSEMBLER__
 
-ASFLAGS-NPTL := $(filter-out -std=gnu99, $(CFLAGS-NPTL)) -D__ASSEMBLER__
+CFLAGS-LIBP	:= $(CFLAGS-LIBC) -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+ASFLAGS-LIBP	:= $(filter-out -std=gnu99, $(CFLAGS-LIBP)) -D__ASSEMBLER__
