@@ -60,4 +60,3 @@ int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 	return (__syscall_sigprocmask(how, set, oldset));
 }
 #endif
-
