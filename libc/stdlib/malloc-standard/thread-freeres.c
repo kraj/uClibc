@@ -42,8 +42,19 @@ do {									      \
 
 DEFINE_HOOK (__libc_thread_subfreeres, (void));
 
+/*
+ * This needs a lot of work.
+ */
+#if 0
 void __attribute__ ((section ("__libc_thread_freeres_fn")))
 __libc_thread_freeres (void)
 {
   RUN_HOOK (__libc_thread_subfreeres, ());
 }
+#else
+void
+__libc_thread_freeres (void)
+{
+  return;
+}
+#endif

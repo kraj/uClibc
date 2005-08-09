@@ -191,7 +191,6 @@ FORWARD (pthread_setcancelstate, (int state, int *oldstate), (state, oldstate),
 
 FORWARD (pthread_setcanceltype, (int type, int *oldtype), (type, oldtype), 0)
 
-#ifndef __UCLIBC__
 #define return /* value is void */
 FORWARD2(__pthread_unwind,
 	 void attribute_hidden __attribute ((noreturn)) __cleanup_fct_attribute
@@ -202,4 +201,3 @@ FORWARD2(__pthread_unwind,
 		       INTERNAL_SYSCALL (kill, err, 1, SIGKILL);
 		     })
 #undef return
-#endif
