@@ -1,4 +1,4 @@
-/* Thread-local storage handling in the ELF dynamic linker.  Generic version.
+/* tHREAD-local storage handling in the ELF dynamic linker.  Generic version.
    Copyright (C) 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -17,21 +17,27 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <assert.h>
-#include <errno.h>
 #include <libintl.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/param.h>
-
 #include <tls.h>
+#include <dl-tls.h>
+#include <ldsodefs.h>
 
-/* We don't need any of this if TLS is not supported.  */
-#ifdef USE_TLS
+#ifndef IS_IN_rtld
+#include <assert.h>
+#include <link.h>
+#include <string.h>
+#include <unistd.h>
 
-# include <dl-tls.h>
-# include <ldsodefs.h>
+#define	_dl_malloc	malloc
+#define _dl_memset	memset
+#define _dl_mempcpy	mempcpy
+#define _dl_dprintf	fprintf
+#define _dl_debug_file	stderr
+#define _dl_exit	exit
+#endif
 
 /* Amount of excess space to allocate in the static TLS area
    to allow dynamic loading of modules defining IE-model TLS data.  */
@@ -47,10 +53,19 @@ static void
 __attribute__ ((__noreturn__))
 oom (void)
 {
-  _dl_fatal_printf ("cannot allocate memory for thread-local data: ABORT\n");
+	do {
+		_dl_dprintf (_dl_debug_file,
+			"cannot allocate thread-local memory: ABORT\n");
+		_dl_exit (127);
+	} while (1);
 }
 # endif
 
+
+void *_dl_memalign(size_t alignment, size_t bytes)
+{
+	return _dl_malloc(bytes);
+}
 
 size_t
 internal_function
@@ -208,8 +223,9 @@ _dl_determine_tlsoffset (void)
 # elif TLS_DTV_AT_TP
   /* The TLS blocks start right after the TCB.  */
   size_t offset = TLS_TCB_SIZE;
+  size_t cnt;
 
-  for (size_t cnt = 0; slotinfo[cnt].map != NULL; ++cnt)
+  for (cnt = 0; slotinfo[cnt].map != NULL; ++cnt)
     {
       assert (cnt < GL(dl_tls_dtv_slotinfo_list)->len);
 
@@ -346,7 +362,7 @@ _dl_allocate_tls_storage (void)
 # endif
 
   /* Allocate a correctly aligned chunk of memory.  */
-  result = __libc_memalign (GL(dl_tls_static_align), size);
+  result = _dl_memalign (GL(dl_tls_static_align), size);
   if (__builtin_expect (result != NULL, 1))
     {
       /* Allocate the DTV.  */
@@ -358,14 +374,14 @@ _dl_allocate_tls_storage (void)
 
       /* Clear the TCB data structure.  We can't ask the caller (i.e.
 	 libpthread) to do it, because we will initialize the DTV et al.  */
-      memset (result, '\0', TLS_TCB_SIZE);
+      _dl_memset (result, '\0', TLS_TCB_SIZE);
 # elif TLS_DTV_AT_TP
       result = (char *) result + size - GL(dl_tls_static_size);
 
       /* Clear the TCB data structure and TLS_PRE_TCB_SIZE bytes before it.
 	 We can't ask the caller (i.e. libpthread) to do it, because we will
 	 initialize the DTV et al.  */
-      memset ((char *) result - TLS_PRE_TCB_SIZE, '\0',
+      _dl_memset ((char *) result - TLS_PRE_TCB_SIZE, '\0',
 	      TLS_PRE_TCB_SIZE + TLS_TCB_SIZE);
 # endif
 
@@ -440,7 +456,7 @@ _dl_allocate_tls_init (void *result)
 	  /* Copy the initialization image and clear the BSS part.  */
 	  dtv[map->l_tls_modid].pointer.val = dest;
 	  dtv[map->l_tls_modid].pointer.is_static = true;
-	  memset (__mempcpy (dest, map->l_tls_initimage,
+	  _dl_memset (_dl_mempcpy (dest, map->l_tls_initimage,
 			     map->l_tls_initimage_size), '\0',
 		  map->l_tls_blocksize - map->l_tls_initimage_size);
 	}
@@ -476,9 +492,10 @@ internal_function
 _dl_deallocate_tls (void *tcb, bool dealloc_tcb)
 {
   dtv_t *dtv = GET_DTV (tcb);
+  size_t cnt;
 
   /* We need to free the memory allocated for non-static TLS.  */
-  for (size_t cnt = 0; cnt < dtv[-1].counter; ++cnt)
+  for (cnt = 0; cnt < dtv[-1].counter; ++cnt)
     if (! dtv[1 + cnt].pointer.is_static
 	&& dtv[1 + cnt].pointer.val != TLS_DTV_UNALLOCATED)
       free (dtv[1 + cnt].pointer.val);
@@ -529,12 +546,12 @@ allocate_and_init (struct link_map *map)
 {
   void *newp;
 
-  newp = __libc_memalign (map->l_tls_align, map->l_tls_blocksize);
+  newp = _dl_memalign (map->l_tls_align, map->l_tls_blocksize);
   if (newp == NULL)
     oom ();
 
   /* Initialize the memory.  */
-  memset (__mempcpy (newp, map->l_tls_initimage, map->l_tls_initimage_size),
+  _dl_memset (_dl_mempcpy (newp, map->l_tls_initimage, map->l_tls_initimage_size),
 	  '\0', map->l_tls_blocksize - map->l_tls_initimage_size);
 
   return newp;
@@ -584,7 +601,9 @@ _dl_update_slotinfo (unsigned long int req_modid)
       listp =  GL(dl_tls_dtv_slotinfo_list);
       do
 	{
-	  for (size_t cnt = total == 0 ? 1 : 0; cnt < listp->len; ++cnt)
+	  size_t cnt;
+
+	  for (cnt = total == 0 ? 1 : 0; cnt < listp->len; ++cnt)
 	    {
 	      size_t gen = listp->slotinfo[cnt].gen;
 
@@ -637,7 +656,7 @@ _dl_update_slotinfo (unsigned long int req_modid)
 		      newp = malloc ((2 + newsize) * sizeof (dtv_t));
 		      if (newp == NULL)
 			oom ();
-		      memcpy (newp, &dtv[-1], oldsize * sizeof (dtv_t));
+		      _dl_memcpy (newp, &dtv[-1], oldsize * sizeof (dtv_t));
 		    }
 		  else
 		    {
@@ -650,7 +669,7 @@ _dl_update_slotinfo (unsigned long int req_modid)
 		  newp[0].counter = newsize;
 
 		  /* Clear the newly allocated part.  */
-		  memset (newp + 2 + oldsize, '\0',
+		  _dl_memset (newp + 2 + oldsize, '\0',
 			  (newsize - oldsize) * sizeof (dtv_t));
 
 		  /* Point dtv to the generation counter.  */
@@ -782,13 +801,14 @@ _dl_add_to_slotinfo (struct link_map  *l)
 	     generation.  */
 	  ++GL(dl_tls_generation);
 
-	  _dl_signal_error (ENOMEM, "dlopen", NULL, N_("\
-cannot create TLS data structures"));
+	  _dl_dprintf (_dl_debug_file,
+			"cannot create TLS data structures: ABORT\n");
+	  _dl_exit (127);
 	}
 
       listp->len = TLS_SLOTINFO_SURPLUS;
       listp->next = NULL;
-      memset (listp->slotinfo, '\0',
+      _dl_memset (listp->slotinfo, '\0',
 	      TLS_SLOTINFO_SURPLUS * sizeof (struct dtv_slotinfo));
     }
 
@@ -796,4 +816,3 @@ cannot create TLS data structures"));
   listp->slotinfo[idx].map = l;
   listp->slotinfo[idx].gen = GL(dl_tls_generation) + 1;
 }
-#endif	/* use TLS */

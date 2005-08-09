@@ -32,6 +32,10 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)
 
+ifeq ($(PTHREADS_NATIVE),y)
+COBJS += $(PTDIR)sysdeps/$(TARGET_ARCH)/libc-tls.o
+endif
+
 OBJ_LIST=../../../obj.sysdeps.$(TARGET_ARCH)
 
 all: $(OBJ_LIST)
@@ -74,6 +78,11 @@ $(TOPDIR)lib/crti.o:
 $(TOPDIR)lib/crtn.o:
 	$(INSTALL) -d $(TOPDIR)lib/
 	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
+endif
+
+ifeq ($(PTHREADS_NATIVE),y)
+$(PTDIR)sysdeps/$(TARGET_ARCH)/libc-tls.o:
+	$(MAKE) -C $(PTDIR)sysdeps/$(TARGET_ARCH) libc-tls.o
 endif
 
 headers:

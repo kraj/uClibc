@@ -4,11 +4,19 @@
 #include <features.h>
 #include <tls.h>
 
-/*
- * NPTL - These are supposed to be from 'sysdeps/generic/ldsodefs.h'
- *        and used with the ld.so global structure. I am not sure how
- *        this fits into uClibc yet, so they are empty.
- */
+#ifdef IS_IN_rtld
+# define EXTERN
+#else
+# define EXTERN extern
+#endif
+
+/* Non-shared code has no support for multiple namespaces.  */
+#ifdef SHARED
+# define DL_NNS 16
+#else
+# define DL_NNS 1
+#endif
+
 #define GL(x) _##x
 #define GLRO(x) _##x
 
@@ -17,7 +25,6 @@
    might use the variable which results in copy relocations on some
    platforms.  But this does not matter, ld.so can always use the local
    copy.  */
-//extern void *__libc_stack_end attribute_relro;
 extern void *__libc_stack_end;
 rtld_hidden_proto (__libc_stack_end)
 
@@ -64,11 +71,11 @@ extern void _dl_nothread_init_static_tls (struct link_map *) attribute_hidden;
      defined as well, so _dl_rtld_map needs to be last before this.  */
 #ifdef USE_TLS
   /* Highest dtv index currently needed.  */
-  extern size_t _dl_tls_max_dtv_idx;
+  EXTERN size_t _dl_tls_max_dtv_idx;
   /* Flag signalling whether there are gaps in the module ID allocation.  */
-  extern bool _dl_tls_dtv_gaps;
+  EXTERN bool _dl_tls_dtv_gaps;
   /* Information about the dtv slots.  */
-  extern struct dtv_slotinfo_list
+  EXTERN struct dtv_slotinfo_list
   {
     size_t len;
     struct dtv_slotinfo_list *next;
@@ -80,13 +87,13 @@ extern void _dl_nothread_init_static_tls (struct link_map *) attribute_hidden;
     } slotinfo[0];
   } *_dl_tls_dtv_slotinfo_list;
   /* Number of modules in the static TLS block.  */
-  extern size_t _dl_tls_static_nelem;
+  EXTERN size_t _dl_tls_static_nelem;
   /* Size of the static TLS block.  */
-  extern size_t _dl_tls_static_size;
+  EXTERN size_t _dl_tls_static_size;
   /* Size actually allocated in the static TLS block.  */
-  extern size_t _dl_tls_static_used;
+  EXTERN size_t _dl_tls_static_used;
   /* Alignment requirement of the static TLS block.  */
-  extern size_t _dl_tls_static_align;
+  EXTERN size_t _dl_tls_static_align;
 
 /* Number of additional entries in the slotinfo array of each slotinfo
    list element.  A large number makes it almost certain take we never
@@ -97,11 +104,11 @@ extern void _dl_nothread_init_static_tls (struct link_map *) attribute_hidden;
 # define DTV_SURPLUS	(14)
 
   /* Initial dtv of the main thread, not allocated with normal malloc.  */
-  extern void *_dl_initial_dtv;
+  EXTERN void *_dl_initial_dtv;
   /* Generation counter for the dtv.  */
-  extern size_t _dl_tls_generation;
+  EXTERN size_t _dl_tls_generation;
 
-  extern void (*_dl_init_static_tls) (struct link_map *);
+  EXTERN void (*_dl_init_static_tls) (struct link_map *);
 #endif
 
 #endif

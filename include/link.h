@@ -25,7 +25,7 @@
 #include <elf.h>
 #include <dlfcn.h>
 #include <sys/types.h>
-#ifdef IS_IN_libpthread
+#if defined(IS_IN_libpthread) || defined(IS_IN_rtld)
 #include <tls.h>		/* Defines USE_TLS.  */
 #endif
 

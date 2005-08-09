@@ -69,6 +69,11 @@ unsigned long attribute_hidden _dl_skip_args = 0;
 /* Forward function declarations */
 static int _dl_suid_ok(void);
 
+#ifdef __PTHREADS_NATIVE__
+#include "dl-minimal.c"
+#include "dl-tls.c"
+#endif
+
 /*
  * This stub function is used by some debuggers.  The idea is that they
  * can set an internal breakpoint on it, so that we are notified when the

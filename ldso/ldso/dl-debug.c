@@ -98,9 +98,14 @@ static void debug_reloc(ElfW(Sym) *symtab, char *strtab, ELF_RELOC *rpnt)
 	_dl_dprintf(_dl_debug_file, "\n");
 }
 
+#define assert(expr)														 \
+	if (!(expr))															 \
+		_dl_dprintf(_dl_debug_file, "Assert: %s(%d)\n", __FILE__, __LINE__);
+
 #else
 
 #define debug_sym(symtab, strtab, symtab_index)
 #define debug_reloc(symtab, strtab, rpnt)
+#define assert(expr)
 
 #endif /* __SUPPORT_LD_DEBUG__ */

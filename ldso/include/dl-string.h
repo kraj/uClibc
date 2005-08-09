@@ -13,6 +13,7 @@ static char * _dl_strchr(const char * str,int c);
 static char *_dl_strrchr(const char *str, int c);
 static char *_dl_strstr(const char *s1, const char *s2);
 static void * _dl_memcpy(void * dst, const void * src, size_t len);
+static void * _dl_mempcpy(void * dst, const void * src, size_t len);
 static int _dl_memcmp(const void * s1,const void * s2,size_t len);
 static void *_dl_memset(void * str,int c,size_t len);
 static char *_dl_get_last_path_component(char *path);
@@ -144,6 +145,12 @@ static inline void * _dl_memcpy(void * dst, const void * src, size_t len)
 		--len;
 	}
 	return dst;
+}
+
+static inline void * _dl_mempcpy(void * dst, const void * src, size_t len)
+{
+	_dl_memcpy(dst, src, len);
+	return (void *)(((char *) dst) + len);
 }
 
 static __always_inline int _dl_memcmp(const void * s1,const void * s2,size_t len)
