@@ -1,6 +1,6 @@
 # Makefile for uClibc
 #
-# Copyright (C) 2000-2004 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -35,21 +35,21 @@ ldso libdl shared:
 	echo "Skipping $@ target"
 endif
 
-HEADERS = $(patsubst %, include/%, elf.h dl-startup.h dl-syscalls.h dl-sysdep.h dl-debug.h)
-headers: $(HEADERS) include/dl-progname.h
+LN_HEADERS      := $(patsubst %, include/%, elf.h)
+LN_ARCH_HEADERS := $(patsubst %, include/%, dl-startup.h dl-syscalls.h dl-sysdep.h dl-debug.h)
+HEADERS         := $(LN_HEADERS) $(LN_ARCH_HEADERS) include/dl-progname.h
+headers: $(HEADERS)
+$(LN_HEADERS):
+	$(LN) -fs $(TOPDIR)../$@ $@
+$(LN_ARCH_HEADERS):
+	$(LN) -fs ../ldso/$(TARGET_ARCH)/$(patsubst include/%,%,$@) $@
 include/dl-progname.h:
-	echo "const char *_dl_progname=\""$(UCLIBC_LDSO)"\";" \
+	echo 'const char *_dl_progname="$(UCLIBC_LDSO)";' \
 		> include/dl-progname.h
-	echo "#include \"$(TARGET_ARCH)/elfinterp.c\"" \
+	echo '#include "$(TARGET_ARCH)/elfinterp.c"' \
 		>> include/dl-progname.h
-$(HEADERS):
-	$(LN) -fs $(TOPDIR)../include/elf.h include/
-	$(LN) -fs ../ldso/$(TARGET_ARCH)/dl-startup.h include/
-	$(LN) -fs ../ldso/$(TARGET_ARCH)/dl-syscalls.h include/
-	$(LN) -fs ../ldso/$(TARGET_ARCH)/dl-sysdep.h include/
-	$(LN) -fs ../ldso/$(TARGET_ARCH)/dl-debug.h include/
 
 clean:
 	set -e ; for d in $(DIRS) ; do $(MAKE) -C $$d $@ ; done
 	-find . -name '*~' | xargs $(RM)
-	$(RM) $(HEADERS) include/dl-progname.h
+	$(RM) $(HEADERS)

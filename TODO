@@ -102,6 +102,9 @@ Arch specific TODO:
     ldso needs to have lazy bindings checked
     pthread isn't working really at all (pthreads tests)
 
+  cris rfv nios nios2 sh64:
+    need to be updated to new ldso changes and unification of the 
+     two uClibc_main funcs (__uClibc_start_main doesnt exist anymore)
 
 
 
