@@ -246,11 +246,6 @@
 #define __STDC_IEC_559__		1
 #define __STDC_IEC_559_COMPLEX__	1
 
-#ifdef __UCLIBC_HAS_WCHAR__
-/* wchar_t uses ISO 10646-1 (2nd ed., published 2000-09-15) / Unicode 3.0.  */
-#define __STDC_ISO_10646__		200009L
-#endif
-
 /* This macro indicates that the installed library is uClibc.  Use
  * __UCLIBC_MAJOR__ and __UCLIBC_MINOR__ to test for the features in
  * specific releases.  */
@@ -266,6 +261,11 @@
 #define __need_uClibc_config_h
 #include <bits/uClibc_config.h>
 #undef __need_uClibc_config_h
+
+#ifdef __UCLIBC_HAS_WCHAR__
+/* wchar_t uses ISO 10646-1 (2nd ed., published 2000-09-15) / Unicode 3.0.  */
+# define __STDC_ISO_10646__		200009L
+#endif
 
 /*  There is an unwholesomely huge amount of code out there that depends on the
  *  presence of GNU libc header files.  We have GNU libc header files.  So here
