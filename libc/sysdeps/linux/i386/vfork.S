@@ -23,11 +23,8 @@ __vfork:
 	int $0x80
 	pushl %ecx
 	cmpl $-4095,%eax
-	jae __error
+	jae __syscall_error
 	ret
-
-__error:
-	jmp	__syscall_error
 
 .size __vfork,.-__vfork
 
