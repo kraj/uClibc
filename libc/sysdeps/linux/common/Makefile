@@ -21,10 +21,6 @@ include $(TOPDIR)Rules.mak
 
 SRCS  = $(wildcard *.c)
 
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
-SRCS := $(filter-out fork.c,$(SRCS))
-endif
-
 ifeq ($(strip $(EXCLUDE_BRK)),y)
 SRCS := $(filter-out sbrk.c,$(SRCS))
 endif
