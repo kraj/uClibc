@@ -222,6 +222,12 @@ endif
 ifeq ($(strip $(TARGET_ARCH)),frv)
 	CPU_LDFLAGS-$(CONFIG_FRV)+=-melf32frvfd
 	CPU_CFLAGS-$(CONFIG_FRV)+=-mfdpic
+	# Using -pie causes the program to have an interpreter, which is
+	# forbidden, so we must make do with -shared.  Unfortunately,
+	# -shared by itself would get us global function descriptors
+	# and calls through PLTs, dynamic resolution of symbols, etc,
+	# which would break as well, but -Bsymbolic comes to the rescue.
+	export LDPIEFLAG:=-shared -Bsymbolic
 	UCLIBC_LDSO=ld.so.1
 endif
 
@@ -230,7 +236,17 @@ ifndef PIEFLAG
 ifneq ($(UCLIBC_BUILD_PIE),y)
 export PIEFLAG:=
 else
-export PIEFLAG:=$(call check_gcc,$(PIEFLAG_NAME),)
+export PIEFLAG:=$(call check_gcc,$(PIEFLAG_NAME),$(PICFLAG))
+endif
+endif
+# We need to keep track of both the CC PIE flag (above) as 
+# well as the LD PIE flag (below) because we can't rely on 
+# gcc passing -pie if we used -fPIE
+ifndef LDPIEFLAG
+ifneq ($(UCLIBC_BUILD_PIE),y)
+export LDPIEFLAG:=
+else
+export LDPIEFLAG:=$(shell $(LD) --help | grep -q pie && echo "-Wl,-pie")
 endif
 endif
 
