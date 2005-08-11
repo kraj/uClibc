@@ -46,22 +46,27 @@ readelf: readelf.c
 	$(CC) $(CFLAGS) $^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
+ifeq ($(strip $(UCLIBC_STATIC_LDCONFIG)),y)
+LDCONFIG_CFLAGS := -static
+else
+LDCONFIG_CFLAGS := $(PIEFLAG) $(LDPIEFLAG)
+endif
 ldconfig: ldconfig.c
-	$(CC) $(CFLAGS) $(if $(filter $(UCLIBC_STATIC_LDCONFIG),y),-static) \
+	$(CC) $(CFLAGS) $(LDCONFIG_CFLAGS) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
 ldd: ldd.c
-	$(CC) $(CFLAGS) $(PIEFLAG) \
+	$(CC) $(CFLAGS) $(PIEFLAG) $(LDPIEFLAG) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
 iconv: ../libc/misc/wchar/wchar.c
-	$(CC) $(CFLAGS) $(PIEFLAG) -Wl,-s \
+	$(CC) $(CFLAGS) $(PIEFLAG) $(LDPIEFLAG) \
 		-DL_iconv_main \
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
