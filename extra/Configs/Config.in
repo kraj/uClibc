@@ -1032,7 +1032,7 @@ config UCLIBC_HAS_GNU_GETOPT
 
 config UCLIBC_HAS_STDIO_FUTEXES
 	bool "Use futexes for multithreaded I/O locking"
-	default n
+	default y
 	depends on PTHREADS_NATIVE
 	help
 	  If you want to compile uClibc to use futexes for low-level
