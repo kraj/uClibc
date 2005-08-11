@@ -101,7 +101,7 @@ ifeq ($(strip $(PTHREADS_NATIVE)),y)
 		-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD_SHARED_ARCHIVE) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
-		$(TOPDIR)ldso/ldso/ld-uClibc-0.9.27.so \
+		$(TOPDIR)ldso/ldso/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		-L$(TOPDIR)ldso/libdl -ldl \
 		$(SHARED_END_FILES)
 else
