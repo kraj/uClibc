@@ -611,7 +611,7 @@ setkey(const char *key)
 			if (*key++ & 1)
 				p[i] |= bits8[j];
 	}
-	des_setkey(p);
+	des_setkey((char *)p);
 }
 
 
@@ -625,7 +625,7 @@ encrypt(char *block, int flag)
 	des_init();
 
 	setup_salt(0L);
-	p = block;
+	p = (u_char*)block;
 	for (i = 0; i < 2; i++) {
 		io[i] = 0L;
 		for (j = 0; j < 32; j++)
