@@ -87,7 +87,7 @@ L_einval:
 	popl %ebx
 	popl %ebp
 	movl $-EINVAL, %eax
-	jmp __error
+	jmp __syscall_error
 
 .size mmap64,.-mmap64
 
