@@ -1080,20 +1080,6 @@ config SHARED_LIB_LOADER_PREFIX
 	  sitting in the directory this points to, your binaries will not
 	  run.
 
-config SYSTEM_LDSO
-	string "System shared library loader"
-	depends on HAVE_SHARED && !BUILD_UCLIBC_LDSO
-	default "/lib/ld-linux.so.2"
-	help
-	  If you are using shared libraries, but do not want/have a native
-	  uClibc shared library loader, please specify the name of your
-	  target system's shared library loader here...
-
-	  BIG FAT WARNING:
-	  If you do not have a shared library loader with the correct name
-	  sitting in the directory this points to, your binaries will not
-	  run.
-
 config RUNTIME_PREFIX
 	string "uClibc runtime library directory"
 	default "/usr/$(TARGET_ARCH)-linux-uclibc/"
