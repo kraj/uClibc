@@ -95,5 +95,5 @@ ifneq ($(strip $(HAVE_SHARED)),y)
 	LDFLAGS       += -static
 	GLIBC_LDFLAGS += -static
 else
-	LDFLAGS       += -Wl,-dynamic-linker,$(TOPDIR)lib/ld-uClibc.so.0
+	LDFLAGS       += -Wl,-dynamic-linker,$(TOPDIR)lib/$(UCLIBC_LDSO)
 endif
