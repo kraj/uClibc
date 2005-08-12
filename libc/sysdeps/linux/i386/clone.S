@@ -51,19 +51,19 @@ __clone:
 	/* no NULL function pointers */
 	movl	FUNC(%esp),%ecx
 #ifdef __PIC__
-	jecxz	__error
+	jecxz	__syscall_error
 #else
 	testl	%ecx,%ecx
-	jz	__error
+	jz	__syscall_error
 #endif
 
 	/* no NULL stack pointers */
 	movl	STACK(%esp),%ecx
 #ifdef __PIC__
-	jecxz	__error
+	jecxz	__syscall_error
 #else
 	testl	%ecx,%ecx
-	jz	__error
+	jz	__syscall_error
 #endif
 
 	/* Insert the argument onto the new stack.  Make sure the new
@@ -96,7 +96,7 @@ __clone:
 	popl	%ebx
 
 	test	%eax,%eax
-	jl	__error
+	jl	__syscall_error
 	jz	.Lthread_start
 	ret
 
@@ -113,9 +113,6 @@ __clone:
 	movl	%eax, %ebx
 	movl	$__NR_exit, %eax
 	int	$0x80
-
-__error:
-	jmp	__syscall_error
 
 .size __clone,.-__clone
 

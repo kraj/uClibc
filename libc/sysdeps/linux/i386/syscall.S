@@ -45,10 +45,7 @@ syscall:
 	popl %ebp
 
 	cmpl $-4095,%eax
-	jae  __error
+	jae  __syscall_error
 	ret			/* Return to caller.  */
-
-__error:
-	jmp	__syscall_error
 
 .size syscall,.-syscall

@@ -76,7 +76,7 @@ mmap64:
 
 	/* If 0 > %eax > -4096 there was an error.  */
 	cmpl $-4095,%eax
-	ja __error
+	ja __syscall_error
 	/* Successful; return the syscall's value.  */
 	ret
 
@@ -88,9 +88,6 @@ L_einval:
 	popl %ebp
 	movl $-EINVAL, %eax
 	jmp __error
-
-__error:
-	jmp	__syscall_error
 
 .size mmap64,.-mmap64
 
