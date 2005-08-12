@@ -1096,17 +1096,22 @@ struct hostent *gethostbyname2(const char *name, int family)
 
 
 #ifdef L_res_init
+#undef _res
+struct __res_state _res;
+
+struct __res_state * weak_const_function __res_state (void)
+{
+	return &_res;
+}
+
 #ifdef __PTHREADS_NATIVE__
 #include <tls.h>
-struct __res_state _res_thread;
-__thread struct __res_state *__resp = &_res_thread;
-#else
-struct __res_state _res;
+__thread struct __res_state *__resp = &_res;
 #endif
 
 int res_init(void)
 {
-	struct __res_state *rp = &(_res);
+	struct __res_state *rp = __res_state();
 
 	__close_nameservers();
 	__open_nameservers();

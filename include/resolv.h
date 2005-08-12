@@ -230,6 +230,12 @@ typedef struct __res_state *res_state;
 #define RES_PRF_INIT	0x00004000
 /*			0x00008000	*/
 
+/* Things involving an internal (static) resolver context. */
+__BEGIN_DECLS
+extern struct __res_state *__res_state(void) __attribute__ ((__const__));
+__END_DECLS
+#define _res (*__res_state())
+
 #ifndef __BIND_NOSTATIC
 
 #define fp_nquery		__fp_nquery
@@ -383,11 +389,9 @@ __END_DECLS
 
 #endif /* _RESOLV_H_ */
 
-/* Internal (static) resolver context. */
-#ifdef __PTHREADS_NATIVE__
-#include <tls.h>
+#if defined(__PTHREADS_NATIVE__) && defined(IS_IN_libpthread)
+# include <tls.h>
+# undef _res
 # define _res (*__resp)
 extern __thread struct __res_state *__resp attribute_tls_model_ie;
-#else
-extern struct __res_state _res;
 #endif
