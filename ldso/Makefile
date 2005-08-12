@@ -44,10 +44,8 @@ $(LN_HEADERS):
 $(LN_ARCH_HEADERS):
 	$(LN) -fs ../ldso/$(TARGET_ARCH)/$(patsubst include/%,%,$@) $@
 include/dl-progname.h:
-	echo 'const char *_dl_progname="$(UCLIBC_LDSO)";' \
-		> include/dl-progname.h
 	echo '#include "$(TARGET_ARCH)/elfinterp.c"' \
-		>> include/dl-progname.h
+		> include/dl-progname.h
 
 clean:
 	set -e ; for d in $(DIRS) ; do $(MAKE) -C $$d $@ ; done

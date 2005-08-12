@@ -44,7 +44,6 @@ extern char *_dl_ldsopath;             /* Where the shared lib loader was found 
 extern const char *_dl_progname;       /* The name of the executable being run */
 extern int _dl_secure;                 /* Are we dealing with setuid stuff? */
 extern size_t _dl_pagesize;            /* Store the page size for use later */
-extern const char *_dl_progname;       /* The name of the shared library loader */
 
 #ifdef __SUPPORT_LD_DEBUG__
 extern char *_dl_debug;

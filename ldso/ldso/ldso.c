@@ -64,7 +64,7 @@ int   _dl_debug_file      = 2;
 
 /* Needed for standalone execution. */
 unsigned long attribute_hidden _dl_skip_args = 0;
-
+const char *_dl_progname = UCLIBC_LDSO;      /* The name of the executable being run */
 #include "dl-startup.c"
 /* Forward function declarations */
 static int _dl_suid_ok(void);
@@ -83,7 +83,6 @@ static unsigned char *_dl_mmap_zero   = 0;	/* Also used by _dl_malloc */
 
 static struct elf_resolve **init_fini_list;
 static int nlist; /* # items in init_fini_list */
-
 extern void _start(void);
 
 static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
@@ -539,7 +538,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 				lpntstr = (char*) (tcurr->dynamic_info[DT_STRTAB] + dpnt->d_un.d_val);
 				name = _dl_get_last_path_component(lpntstr);
-				if (_dl_strcmp(name, "ld-uClibc.so.0") == 0)
+				if (_dl_strcmp(name, UCLIBC_LDSO) == 0)
 					continue;
 
 				_dl_if_debug_dprint("\tfile='%s';  needed by '%s'\n", lpntstr, _dl_progname);
