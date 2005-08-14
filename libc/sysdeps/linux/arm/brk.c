@@ -26,14 +26,7 @@ void *__curbrk = 0;
 
 int brk (void *addr)
 {
-    void *newbrk;
-
-    asm ("mov a1, %1\n"	/* save the argment in r0 */
-	    "swi %2\n"	/* do the system call */
-	    "mov %0, a1;"	/* keep the return value */
-	    : "=r"(newbrk)
-	    : "r"(addr), "i" (__NR_brk)
-	    : "a1");
+    void *newbrk = (void*)INTERNAL_SYSCALL(brk, , 1, addr);
 
     __curbrk = newbrk;
 
