@@ -13,9 +13,9 @@ major=$(shell grep '^MAJOR_VERSION' Rules.mak|sed 's/.*=//')
 minor=$(shell grep '^MINOR_VERSION' Rules.mak|sed 's/.*=//')
 version:=$(strip $(major)).$(strip $(minor))
 
-kernel_version=2.4.25
-kernel_source=kernel-headers-$(kernel_version)
-kernel_source_dir=linux
+kernel_version=2.4.31
+kernel_source=kernel-source-$(kernel_version)
+kernel_source_dir=$(kernel_source)
 
 builddir=$(shell pwd)
 
