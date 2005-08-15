@@ -6,6 +6,8 @@
  *       sysdeps/linux/sparc/bits/syscalls.h at some point ...
  */
 
+#define MMAP_HAS_6_ARGS
+
 #define __NR_exit		  1
 #define __NR_read		  3
 #define __NR_write		  4

@@ -3,6 +3,8 @@
  * numbers used by the shared library loader.
  */
 
+#define MMAP_HAS_6_ARGS
+
 #define __NR_exit		  1
 #define __NR_read		  3
 #define __NR_write		  4

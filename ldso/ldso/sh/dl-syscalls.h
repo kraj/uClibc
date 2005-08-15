@@ -3,3 +3,5 @@
 extern int _dl_errno;
 #define __set_errno(X) {(_dl_errno) = (X);}
 #include "sys/syscall.h"
+
+#define MMAP_HAS_6_ARGS
