@@ -141,7 +141,7 @@ static inline void * _dl_mmap(void * addr, unsigned long size, int prot,
 		fd, (off_t) (offset >> MMAP2_PAGE_SHIFT)));
 }
 #else
-#error Your architecture doesn't provide mmap() !?
+#error Your architecture does not provide mmap() !?
 #endif
 
 #endif /* _LD_SYSCALL_H_ */
