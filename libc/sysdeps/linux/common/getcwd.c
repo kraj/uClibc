@@ -10,7 +10,7 @@
 #ifdef __NR_getcwd
 
 #define __NR___syscall_getcwd __NR_getcwd
-static inline 
+static inline
 _syscall2(int, __syscall_getcwd, char *, buf, unsigned long, size);
 
 #else
@@ -134,6 +134,15 @@ int __syscall_getcwd(char * buf, unsigned long size)
 
     olderrno = errno;
     len = -1;
+
+    /* get stat for root to have a valid parameters for the terminating condition */
+    if (stat("/", &st) < 0) {
+	/* root dir not found! */
+	return -1;
+    }
+    /* start with actual dir */
+    if (buf) strncpy(buf, ".", size);
+
     cwd = recurser(buf, size, st.st_dev, st.st_ino);
     if (cwd) {
 	len = strlen(buf);
