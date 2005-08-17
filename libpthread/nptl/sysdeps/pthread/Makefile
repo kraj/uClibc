@@ -34,6 +34,14 @@ CSRC = pthread_barrier_wait.c pthread_cond_broadcast.c pthread_cond_signal.c \
        pthread_spin_init.c pthread_spin_unlock.c sigaction.c		     \
        unwind-forcedunwind.c
 
+#
+# Needed to get pthread types.
+#
+CFLAGS-pthread_barrier_wait.c = -D_GNU_SOURCE
+CFLAGS-pthread_spin_destroy.c = -D_GNU_SOURCE
+CFLAGS-pthread_spin_init.c = -D_GNU_SOURCE
+CFLAGS-pthread_spin_unlock.c = -D_GNU_SOURCE
+
 COBJ-LIBP-ST = $(patsubst %.c, %.o, $(CSRC))
 COBJ-LIBP-SH = $(patsubst %.c, %.os, $(CSRC))
 
@@ -49,10 +57,10 @@ endif
 	$(AR) $(ARFLAGS) $(PTDIR)../$(LIBPTHREAD_SHARED_ARCHIVE) $(COBJ-LIBP-SH)
 
 $(COBJ-LIBP-ST): %.o : %.c
-	$(CC) $(CFLAGS-LIBP) -c $< -o $@
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -c $< -o $@
 
 $(COBJ-LIBP-SH): %.os : %.c
-	$(CC) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
 
 clean:
 	$(RM) *.o *.os *~ core

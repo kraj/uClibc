@@ -27,7 +27,7 @@ ASRC-LIBP-SH = $(ASRC-LIBP-ST)
 CSRC-LIBP-ST = pthread_once.c
 CSRC-LIBP-SH = $(CSRC-LIBP-ST)
 
-CSRC-LIBC-ST = fork.c
+CSRC-LIBC-ST = fork-nptl.c
 CSRC-LIBC-SH = $(CSRC-LIBC-ST)
 
 AOBJ-LIBP-ST = $(patsubst %.S, %.o, $(ASRC-LIBP-ST))
@@ -38,7 +38,7 @@ COBJ-LIBC-ST = $(patsubst %.c, %.o, $(CSRC-LIBC-ST))
 COBJ-LIBC-SH = $(patsubst %.c, %.os, $(CSRC-LIBC-SH))
 
 ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
-CFLAGS-fork.c = -D__USE_STDIO_FUTEXES__
+CFLAGS-fork-nptl.c = -D__USE_STDIO_FUTEXES__
 endif
 
 ar-target all: $(AOBJ-LIBP-ST) $(AOBJ-LIBP-SH) $(COBJ-LIBP-ST) $(COBJ-LIBP-SH)

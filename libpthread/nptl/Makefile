@@ -182,6 +182,13 @@ CFLAGS-pt-system.c = -fexceptions
 #
 # The rest of this file is uClibc specific.
 #
+CFLAGS-pthread_barrier_init.c = -D_GNU_SOURCE
+CFLAGS-pthread_barrier_destroy.c = -D_GNU_SOURCE
+CFLAGS-pthread_barrierattr_init.c = -D_GNU_SOURCE
+CFLAGS-pthread_barrierattr_destroy.c = -D_GNU_SOURCE
+CFLAGS-pthread_barrierattr_getpshared.c = -D_GNU_SOURCE
+CFLAGS-pthread_barrierattr_setpshared.c = -D_GNU_SOURCE
+CFLAGS-sem_open.c = -D_GNU_SOURCE
 
 libpthread-os-routines = pthread_yield
 libpthread-misc-routines = pthread_rwlock_rdlock pthread_rwlock_timedrdlock \

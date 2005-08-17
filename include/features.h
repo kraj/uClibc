@@ -106,19 +106,6 @@
 #undef	__FAVOR_BSD
 #undef	__KERNEL_STRICT_NAMES
 
-/*
- * NPTL requires this to be defined. Unfortunately, due to complexities
- * in include dependencies, this cannot be defined on a per file basis.
- */
-#define __need_uClibc_config_h
-#include <bits/uClibc_config.h>
-#ifdef __PTHREADS_NATIVE__
-# ifndef _GNU_SOURCE
-#  define _GNU_SOURCE	1
-# endif
-#endif
-#undef __need_uClibc_config_h
-
 /* Suppress kernel-name space pollution unless user expressedly asks
    for it.  */
 #ifndef _LOOSE_KERNEL_NAMES

@@ -52,6 +52,11 @@ CSRC-LIBC-ST += libc-lowlevellock.c
 CSRC-LIBP-ST += rtld-libc-lowlevellock.c
 endif
 
+#
+# Needed to get pthread types.
+#
+CFLAGS-pt-fork.c = -D_GNU_SOURCE
+
 COBJ-LIBP-ST = $(patsubst %.c, %.o, $(CSRC-LIBP-ST))
 COBJ-LIBP-SH = $(patsubst %.c, %.os, $(CSRC-LIBP-SH))
 COBJ-LIBC-ST = $(patsubst %.c, %.o, $(CSRC-LIBC-ST))
@@ -69,16 +74,16 @@ endif
 	$(AR) $(ARFLAGS) $(PTDIR)../$(LIBPTHREAD_SHARED_ARCHIVE) $(COBJ-LIBP-SH)
 
 $(COBJ-LIBP-ST): %.o : %.c
-	$(CC) $(CFLAGS-LIBP) -c $< -o $@
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -c $< -o $@
 
 $(COBJ-LIBP-SH): %.os : %.c
-	$(CC) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
 
 $(COBJ-LIBC-ST): %.o : %.c
-	$(CC) $(CFLAGS-LIBC) -c $< -o $@
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -c $< -o $@
 
 $(COBJ-LIBC-SH): %.os : %.c
-	$(CC) $(CFLAGS-LIBC) -DSHARED -c $< -o $@
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -DSHARED -c $< -o $@
 
 objs-pthread-libc: $(COBJ-LIBC-ST) $(COBJ-LIBC-SH)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
