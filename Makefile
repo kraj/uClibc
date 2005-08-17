@@ -158,7 +158,9 @@ install_dev:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
-	tar -chf - include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
+	tar -chf - include \
+		--exclude .svn --exclude include/linux --exclude include/asm'*' \
+		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	# Remove floating point related headers since float support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
