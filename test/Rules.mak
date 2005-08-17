@@ -10,6 +10,10 @@ TESTDIR=$(TOPDIR)test/
 
 -include $(TOPDIR).config
 
+ifndef UCLIBC_LDSO
+UCLIBC_LDSO := ld-uClibc.so.0
+endif
+
 #--------------------------------------------------------
 # Ensure consistent sort order, 'gcc -print-search-dirs' behavior, etc. 
 LC_ALL:= C
