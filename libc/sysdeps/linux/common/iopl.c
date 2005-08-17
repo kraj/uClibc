@@ -2,22 +2,19 @@
 /*
  * iopl() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2005 by Erik Andersen <andersen@codepoet.org>
  *
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
 #include "syscalls.h"
-/* For arm there is a totally different implementation */
-#if !defined(__arm__)
 /* Tuns out the m68k unistd.h kernel header is broken */
-#	if defined __ARCH_HAS_MMU__ && defined __NR_iopl && ( !defined(__mc68000__))
+#if defined __ARCH_HAS_MMU__ && defined __NR_iopl && ( !defined(__mc68000__))
 _syscall1(int, iopl, int, level);
-#	else
+#else
 int iopl(int level)
 {
 	__set_errno(ENOSYS);
 	return -1;
 }
-#	endif
-# endif
+#endif

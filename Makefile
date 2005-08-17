@@ -174,7 +174,13 @@ install_dev:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
-	tar -chf - include | tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
+	if [ "$(KERNEL_SOURCE)" == "$(DEVEL_PREFIX)" ] ; then \
+		extra_exclude="--exclude include/linux --exclude include/asm'*'" ; \
+	else \
+		extra_exclude="" ; \
+	fi ; \
+	tar -chf - include --exclude .svn --exclude CVS $$extra_exclude \
+		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	# Remove floating point related headers since float support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
@@ -352,13 +358,13 @@ clean:
 	@$(RM) -r tmp lib include/bits libc/tmp _install
 	$(RM) libc/obj.* libc/obj-* headers
 	$(MAKE) -C test clean
-	$(MAKE) -C utils clean
 	$(MAKE) -C ldso clean
 	$(MAKE) -C libc/misc/internals clean
 	$(MAKE) -C libc/misc/wchar clean
 	$(MAKE) -C libc/unistd clean
 	$(MAKE) -C libc/sysdeps/linux/common clean
 	$(MAKE) -C extra/locale clean
+	$(MAKE) -C utils clean
 	$(MAKE) -C libpthread clean
 	@set -e; \
 	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \

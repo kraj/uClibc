@@ -1572,6 +1572,7 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 #ifdef L___glibc_strerror_r
 
 weak_alias(__glibc_strerror_r,__strerror_r);
+weak_alias(__glibc_strerror_r,_glibc_strerror_r); /* for 0.9.27 compat ... remove after 0.9.28 */
 
 char *__glibc_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {

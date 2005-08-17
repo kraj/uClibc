@@ -31,12 +31,23 @@ exchange_and_add (volatile uint32_t *mem, int val)
   int tmp2;
   int result;
   __asm__ ("\n"
+#if defined(__thumb__)
+	   "\t.align 0\n"
+	   "\tbx pc\n"
+	   "\tnop\n"
+	   "\t.arm\n"
+#endif
 	   "0:\tldr\t%0,[%3]\n\t"
 	   "add\t%1,%0,%4\n\t"
 	   "swp\t%2,%1,[%3]\n\t"
 	   "cmp\t%0,%2\n\t"
 	   "swpne\t%1,%2,[%3]\n\t"
 	   "bne\t0b"
+#if defined(__thumb__)
+	   "\torr %1, pc, #1\n"
+	   "\tbx %1\n"
+	   "\t.force_thumb"
+#endif
 	   : "=&r" (result), "=&r" (tmp1), "=&r" (tmp2)
 	   : "r" (mem), "r"(val)
 	   : "cc", "memory");
@@ -51,12 +62,23 @@ atomic_add (volatile uint32_t *mem, int val)
   int tmp2;
   int tmp3;
   __asm__ ("\n"
+#if defined(__thumb__)
+	   "\t.align 0\n"
+	   "\tbx pc\n"
+	   "\tnop\n"
+	   "\t.arm\n"
+#endif
 	   "0:\tldr\t%0,[%3]\n\t"
 	   "add\t%1,%0,%4\n\t"
 	   "swp\t%2,%1,[%3]\n\t"
 	   "cmp\t%0,%2\n\t"
 	   "swpne\t%1,%2,[%3]\n\t"
 	   "bne\t0b"
+#if defined(__thumb__)
+	   "\torr %1, pc, #1\n"
+	   "\tbx %1\n"
+	   "\t.force_thumb"
+#endif
 	   : "=&r" (tmp1), "=&r" (tmp2), "=&r" (tmp3)
 	   : "r" (mem), "r"(val)
 	   : "cc", "memory");
@@ -68,6 +90,12 @@ compare_and_swap (volatile long int *p, long int oldval, long int newval)
 {
   int result, tmp;
   __asm__ ("\n"
+#if defined(__thumb__)
+	   "\t.align 0\n"
+	   "\tbx pc\n"
+	   "\tnop\n"
+	   "\t.arm\n"
+#endif
 	   "0:\tldr\t%1,[%2]\n\t"
 	   "mov\t%0,#0\n\t"
 	   "cmp\t%1,%4\n\t"
@@ -78,6 +106,11 @@ compare_and_swap (volatile long int *p, long int oldval, long int newval)
 	   "bne\t0b\n\t"
 	   "mov\t%0,#1\n"
 	   "1:"
+#if defined(__thumb__)
+	   "\torr %1, pc, #1\n"
+	   "\tbx %1\n"
+	   "\t.force_thumb"
+#endif
 	   : "=&r" (result), "=&r" (tmp)
 	   : "r" (p), "r" (newval), "r" (oldval)
 	   : "cc", "memory");

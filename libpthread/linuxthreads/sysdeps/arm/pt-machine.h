@@ -39,9 +39,24 @@ testandset (int *spinlock)
 {
   register unsigned int ret;
 
+#if defined(__thumb__)
+  void *pc;
+  __asm__ __volatile__(
+	".align 0\n"
+	"\tbx pc\n"
+	"\tnop\n"
+	"\t.arm\n"
+	"\tswp %0, %2, [%3]\n"
+	"\torr %1, pc, #1\n"
+	"\tbx %1\n"
+	"\t.force_thumb"
+	: "=r"(ret), "=r"(pc)
+	: "0"(1), "r"(spinlock));
+#else
   __asm__ __volatile__("swp %0, %1, [%2]"
 		       : "=r"(ret)
 		       : "0"(1), "r"(spinlock));
+#endif
 
   return ret;
 }

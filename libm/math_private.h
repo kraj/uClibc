@@ -40,7 +40,8 @@
  * For VFP, floats words follow the memory system mode.
  */
 
-#if (__BYTE_ORDER == __BIG_ENDIAN) || defined(__arm__) && !defined(__VFP_FP__)
+#if (__BYTE_ORDER == __BIG_ENDIAN) || \
+    (!defined(__VFP_FP__) && (defined(__arm__) || defined(__thumb__)))
 
 typedef union
 {
@@ -52,9 +53,7 @@ typedef union
   } parts;
 } ieee_double_shape_type;
 
-#endif
-
-#if (__BYTE_ORDER == __LITTLE_ENDIAN) && (!defined(__arm__) || defined(__VFP_FP__))
+#else
 
 typedef union
 {

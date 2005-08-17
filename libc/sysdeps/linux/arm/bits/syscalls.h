@@ -97,6 +97,7 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 #define INTERNAL_SYSCALL_DECL(err) do { } while (0)
 
 #undef INTERNAL_SYSCALL
+#if !defined(__thumb__)
 #define INTERNAL_SYSCALL(name, err, nr, args...)		\
   ({ unsigned int _sys_result;					\
      {								\
@@ -109,6 +110,21 @@ return (type) (INLINE_SYSCALL(name, 7, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
        _sys_result = _a1;					\
      }								\
      (int) _sys_result; })
+#else
+#define INTERNAL_SYSCALL(name, err, nr, args...)		\
+  ({ unsigned int _sys_result;					\
+     {								\
+       register int _a1 asm ("a1");				\
+       LOAD_ARGS_##nr (args)					\
+       register int _r7 asm ("r7") = (int) (SYS_ify(name));	\
+       asm volatile ("swi	0	@ syscall " #name	\
+		     : "=r" (_a1)				\
+		     : "r" (_r7) ASM_ARGS_##nr			\
+		     : "memory");				\
+       _sys_result = _a1;					\
+     }								\
+     (int) _sys_result; })
+#endif
 
 #undef INTERNAL_SYSCALL_ERROR_P
 #define INTERNAL_SYSCALL_ERROR_P(val, err) \

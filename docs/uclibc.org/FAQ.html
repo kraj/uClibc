@@ -24,6 +24,8 @@ have additions to this FAQ document, we would love to add them,
 <li><a href="#wrapper">What happened to the old toolchain wrapper?</a>
 <li><a href="#dev_systems">Is a pre-compiled uClibc development system available?</a>
 <li><a href="#bugs">I think I found a bug in uClibc!  What should I do?!</a>
+<li><a href="#miscompile">My package builds fine but link fails with errors like "undefined reference 
+	to __fputc_unlocked", who do I blame?!</a>
 <li><a href="#job_control">Why do I keep getting "sh: can't access tty; job control
 	turned off" errors?  Why doesn't Control-C work within my shell?</a>
 <li><a href="#autoconf">How do I make autoconf and automake behave?</a>
@@ -378,6 +380,21 @@ How could it be smaller and not suck?</a></h2>
     an example application, we recommend that you use a tool such as gdb,
     strace, ltrace, and or valgrind to create a logfile showing the problem
     behavior.
+
+
+<hr />
+<p>
+<h2><a name="miscompile">My package builds fine but link fails with errors like 
+	"undefined reference to __fputc_unlocked", who do I blame?!</h2>
+<p>
+
+    This error crops up when a build system mixes system headers (say glibc) 
+    with the target headers (say uClibc).  Make sure your build system is not 
+    including extraneous include options (-I) and double check that it is using 
+    the correct compiler.  Many build systems incorrectly force things like 
+    -I/usr/include or -I/usr/local/include or -I${prefix}/include (which usually 
+    just expands to -I/usr/include).
+
 
 <hr />
 <p>

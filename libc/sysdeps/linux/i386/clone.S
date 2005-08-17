@@ -51,19 +51,19 @@ __clone:
 	/* no NULL function pointers */
 	movl	FUNC(%esp),%ecx
 #ifdef __PIC__
-	jecxz	__syscall_error
+	jecxz	__error
 #else
 	testl	%ecx,%ecx
-	jz	__syscall_error
+	jz	__error
 #endif
 
 	/* no NULL stack pointers */
 	movl	STACK(%esp),%ecx
 #ifdef __PIC__
-	jecxz	__syscall_error
+	jecxz	__error
 #else
 	testl	%ecx,%ecx
-	jz	__syscall_error
+	jz	__error
 #endif
 
 	/* Insert the argument onto the new stack.  Make sure the new
@@ -96,7 +96,7 @@ __clone:
 	popl	%ebx
 
 	test	%eax,%eax
-	jl	__syscall_error
+	jl	__error
 	jz	.Lthread_start
 	ret
 
@@ -113,6 +113,12 @@ __clone:
 	movl	%eax, %ebx
 	movl	$__NR_exit, %eax
 	int	$0x80
+
+/* Need to indirect jump to syscall error 
+ * or we end up with TEXTREL's
+ */
+__error:
+	jmp __syscall_error
 
 .size __clone,.-__clone
 

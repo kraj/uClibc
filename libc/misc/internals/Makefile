@@ -41,7 +41,7 @@ interp.c: Makefile
 	echo "#include <features.h>" >> interp.c
 	echo "#ifdef __HAVE_ELF__" >> interp.c
 	echo "const char __dl_ldso__[] __attribute__ ((section " \
-		"(\".interp\"))) =\""$(DYNAMIC_LINKER)"\";" >> interp.c
+		"(\".interp\"))) =\""$(SHARED_LIB_LOADER_PREFIX)/$(UCLIBC_LDSO)"\";" >> interp.c
 	echo "#endif" >> interp.c
 
 $(COBJS) interp.o static.o: %.o : %.c

@@ -202,19 +202,6 @@ int ioperm (unsigned long int from, unsigned long int num, int turn_on)
 }
 
 
-int iopl (unsigned int level) 
-{
-    if (level > 3) {
-	__set_errno (EINVAL);
-	return -1;
-    }
-    if (level) {
-	return ioperm (0, MAX_PORT, 1);
-    }
-    return 0;
-}
-
-
 void
 outb(unsigned char b, unsigned long int port)
 {

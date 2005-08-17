@@ -1,6 +1,7 @@
-/* brk system call for Linux/ARM.
-   Copyright (C) 1995, 1996 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 1999 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
+   Contributed by Phil Blundell, based on the Alpha version by
+   David Mosberger.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -17,23 +18,18 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <sys/io.h>
 #include <errno.h>
-#include <unistd.h>
-#include <sys/syscall.h>
 
-/* This must be initialized data because commons can't have aliases.  */
-void *__curbrk = 0;
+#define MAX_PORT	0x10000
 
-int brk (void *addr)
+int iopl(int level) 
 {
-	void *newbrk = (void*)INTERNAL_SYSCALL(brk, , 1, addr);
-
-	__curbrk = newbrk;
-
-	if (newbrk < addr) {
-		__set_errno (ENOMEM);
+	if (level > 3) {
+		__set_errno(EINVAL);
 		return -1;
 	}
-
+	if (level)
+		return ioperm(0, MAX_PORT, 1);
 	return 0;
 }
