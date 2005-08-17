@@ -158,7 +158,12 @@ install_dev:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
-	tar -chf - include --exclude .svn --exclude CVS \
+	if [ "$(KERNEL_SOURCE)" == "$(DEVEL_PREFIX)" ] ; then \
+		extra_exclude="--exclude include/linux --exclude include/asm'*'" ; \
+	else \
+		extra_exclude="" ; \
+	fi ; \
+	tar -chf - include --exclude .svn --exclude CVS $$extra_exclude \
 		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	# Remove floating point related headers since float support is disabled.
