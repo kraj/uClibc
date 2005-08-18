@@ -42,6 +42,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <errno.h>
 
 /*
  * Internet version.
@@ -250,3 +251,100 @@ static struct rpcent *interpret(register struct rpcdata *d)
 	*q = NULL;
 	return &d->rpc;
 }
+
+#if defined(__UCLIBC_HAS_REENTRANT_RPC__)
+
+#if defined(__UCLIBC_HAS_THREADS__)
+# include <pthread.h>
+static pthread_mutex_t rpcdata_lock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK    __pthread_mutex_lock(&rpcdata_lock)
+# define UNLOCK  __pthread_mutex_unlock(&rpcdata_lock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
+
+static int __copy_rpcent(struct rpcent *r, struct rpcent *result_buf, char *buffer, 
+		size_t buflen, struct rpcent **result)
+{
+	size_t i, s;
+
+	*result = NULL;
+
+	if (!r)
+		return ENOENT;
+
+	/* copy the struct from the shared mem */
+	memset(result_buf, 0x00, sizeof(*result_buf));
+	memset(buffer, 0x00, buflen);
+
+	result_buf->r_number = r->r_number;
+
+	/* copy the aliases ... need to not only copy the alias strings, 
+	 * but the array of pointers to the alias strings */
+	i = 0;
+	while (r->r_aliases[i++]) ;
+
+	s = i-- * sizeof(char*);
+	if (buflen < s)
+		goto err_out;
+	result_buf->r_aliases = (char**)buffer;
+	buffer += s;
+	buflen -= s;
+
+	while (i-- > 0) {
+		s = strlen(r->r_aliases[i]) + 1;
+		if (buflen < s)
+			goto err_out;
+		result_buf->r_aliases[i] = buffer;
+		buffer += s;
+		buflen -= s;
+		memcpy(result_buf->r_aliases[i], r->r_aliases[i], s);
+	}
+
+	/* copy the name */
+	i = strlen(r->r_name);
+	if (buflen <= i)
+		goto err_out;
+	result_buf->r_name = buffer;
+	memcpy(result_buf->r_name, r->r_name, i);
+
+	/* that was a hoot eh ? */
+	*result = result_buf;
+
+	return 0;
+err_out:
+	return ERANGE;
+}
+
+int getrpcbynumber_r(int number, struct rpcent *result_buf, char *buffer,
+		size_t buflen, struct rpcent **result)
+{
+	int ret;
+	LOCK;
+	ret = __copy_rpcent(getrpcbynumber(number), result_buf, buffer, buflen, result);
+	UNLOCK;
+	return ret;
+}
+
+int getrpcbyname_r(const char *name, struct rpcent *result_buf, char *buffer,
+		size_t buflen, struct rpcent **result)
+{
+	int ret;
+	LOCK;
+	ret = __copy_rpcent(getrpcbyname(name), result_buf, buffer, buflen, result);
+	UNLOCK;
+	return ret;
+}
+
+int getrpcent_r(struct rpcent *result_buf, char *buffer, 
+		size_t buflen, struct rpcent **result)
+{
+	int ret;
+	LOCK;
+	ret = __copy_rpcent(getrpcent(), result_buf, buffer, buflen, result);
+	UNLOCK;
+	return ret;
+}
+
+#endif /* __UCLIBC_HAS_REENTRANT_RPC__ */
