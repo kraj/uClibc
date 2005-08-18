@@ -5,9 +5,8 @@
 int main(int argc, char *argv[])
 {
 	int ret;
-	char rpcdata[10024];
+	char rpcdata[1024];
 	struct rpcent rpcbuf, *ent;
-memset(rpcdata, 0x00, sizeof(rpcdata));
 
 	while ((ret = getrpcent_r(&rpcbuf, rpcdata, sizeof(rpcdata), &ent)) == 0) {
 		printf("%s: %i", ent->r_name, ent->r_number);
