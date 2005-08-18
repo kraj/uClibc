@@ -2,10 +2,10 @@
 #define _LIBC_SYMBOLS_H 1
 
 #ifndef __SYMBOL_PREFIX
-# ifdef NO_UNDERSCORES
+# ifndef C_SYMBOL_PREFIX
 #  define __SYMBOL_PREFIX
 # else
-#  define __SYMBOL_PREFIX "_"
+#  define __SYMBOL_PREFIX	C_SYMBOL_PREFIX
 # endif
 #endif
 
