@@ -552,6 +552,15 @@ config UCLIBC_HAS_FULL_RPC
 	  nfs mounts to work.  If you find you need the rest of the RPC stuff,
 	  then enable this option.  Most people can safely answer N.
 
+config UCLIBC_HAS_REENTRANT_RPC
+	bool "Reentrant RPC support"
+	depends on UCLIBC_HAS_RPC
+	default y if !HAVE_SHARED
+	help
+	  Most packages utilize the normal (non-reentrant) RPC functions, but 
+	  some (like exportfs from nfs-utils) need these reentrant versions.  
+	  Most people can safely answer N.
+
 endmenu
 
 
