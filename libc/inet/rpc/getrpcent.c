@@ -128,17 +128,26 @@ void endrpcent()
 
 	if (d == NULL)
 		return;
-	if (d->current && !d->stayopen) {
+	if (d->stayopen)
+		return;
+	if (d->current) {
 		free(d->current);
 		d->current = NULL;
 	}
-	if (d->rpcf && !d->stayopen) {
+	if (d->rpcf) {
 		fclose(d->rpcf);
 		d->rpcf = NULL;
 	}
 }
 
-static struct rpcent *interpret(const char *val, int len);
+static struct rpcent *interpret(struct rpcdata *);
+
+static struct rpcent *__get_next_rpcent(struct rpcdata *d)
+{
+	if (fgets(d->line, BUFSIZ, d->rpcf) == NULL)
+		return NULL;
+	return interpret(d);
+}
 
 struct rpcent *getrpcent()
 {
@@ -148,9 +157,7 @@ struct rpcent *getrpcent()
 		return NULL;
 	if (d->rpcf == NULL && (d->rpcf = fopen(RPCDB, "r")) == NULL)
 		return NULL;
-	if (fgets(d->line, BUFSIZ, d->rpcf) == NULL)
-		return NULL;
-	return interpret(d->line, strlen(d->line));
+	return __get_next_rpcent(d);
 }
 
 #ifdef __linux__
@@ -170,37 +177,33 @@ static char *firstwhite(char *s)
 }
 #endif
 
-static struct rpcent *interpret(const char *val, int len)
+static struct rpcent *interpret(register struct rpcdata *d)
 {
-	register struct rpcdata *d = _rpcdata();
 	char *p;
 	register char *cp, **q;
 
-	if (d == NULL)
-		return NULL;
-	strncpy(d->line, val, len);
 	p = d->line;
-	d->line[len] = '\n';
+	d->line[strlen(p)-1] = '\n';
 	if (*p == '#')
-		return (getrpcent());
+		return __get_next_rpcent(d);
 	cp = index(p, '#');
 	if (cp == NULL) {
 		cp = index(p, '\n');
 		if (cp == NULL)
-			return (getrpcent());
+			return __get_next_rpcent(d);
 	}
 	*cp = '\0';
 #ifdef __linux__
 	if ((cp = firstwhite(p)))
 		*cp++ = 0;
 	else
-		return (getrpcent());
+		return __get_next_rpcent(d);
 #else
 	cp = index(p, ' ');
 	if (cp == NULL) {
 		cp = index(p, '\t');
 		if (cp == NULL)
-			return (getrpcent());
+			return __get_next_rpcent(d);
 	}
 	*cp++ = '\0';
 #endif
