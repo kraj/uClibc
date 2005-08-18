@@ -57,11 +57,6 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#ifdef __UCLIBC_HAS_THREADS__
-#undef __UCLIBC_HAS_THREADS__
-#warning FIXME I am not reentrant yet...
-#endif
-
 
 /* some forward declarations */
 static int __ivaliduser2(FILE *hostf, u_int32_t raddr,
@@ -76,13 +71,13 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
      const char *locuser, *remuser, *cmd;
      int *fd2p;
 {
-#ifdef __UCLIBC_HAS_THREADS__
+#ifdef __UCLIBC_HAS_REENTRANT_RPC__
 	int herr;
-        struct hostent hostbuf;
+	struct hostent hostbuf;
 	size_t hstbuflen;
 	char *tmphstbuf;
 #endif
-        struct hostent *hp;
+	struct hostent *hp;
 	struct sockaddr_in sin, from;
 	struct pollfd pfd[2];
 	int32_t oldmask;
@@ -92,7 +87,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 
 	pid = getpid();
 
-#ifdef __UCLIBC_HAS_THREADS__
+#ifdef __UCLIBC_HAS_REENTRANT_RPC__
 	hstbuflen = 1024;
 #ifdef __ARCH_HAS_MMU__
 	tmphstbuf = alloca (hstbuflen);
@@ -299,14 +294,14 @@ int ruserok(rhost, superuser, ruser, luser)
         struct hostent *hp;
 	u_int32_t addr;
 	char **ap;
-#ifdef __UCLIBC_HAS_THREADS__
+#ifdef __UCLIBC_HAS_REENTRANT_RPC__
 	size_t buflen;
 	char *buffer;
 	int herr;
 	struct hostent hostbuf;
 #endif
 
-#ifdef __UCLIBC_HAS_THREADS__
+#ifdef __UCLIBC_HAS_REENTRANT_RPC__
 	buflen = 1024;
 #ifdef __ARCH_HAS_MMU__
 	buffer = alloca (buflen);
@@ -432,7 +427,7 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 		size_t dirlen;
 		uid_t uid;
 
-#ifdef __UCLIBC_HAS_THREADS__
+#ifdef __UCLIBC_HAS_REENTRANT_RPC__
 		size_t buflen = sysconf (_SC_GETPW_R_SIZE_MAX);
 		struct passwd pwdbuf;
 #ifdef __ARCH_HAS_MMU__
@@ -515,7 +510,7 @@ __icheckhost (u_int32_t raddr, char *lhost, const char *rhost)
 	int negate=1;    /* Multiply return with this to get -1 instead of 1 */
 	char **pp;
 
-#ifdef __UCLIBC_HAS_THREADS__
+#ifdef __UCLIBC_HAS_REENTRANT_RPC__
 	int save_errno;
 	size_t buflen;
 	char *buffer;
@@ -545,7 +540,7 @@ __icheckhost (u_int32_t raddr, char *lhost, const char *rhost)
 		return negate * (! (raddr ^ laddr));
 
 	/* Better be a hostname. */
-#ifdef __UCLIBC_HAS_THREADS__
+#ifdef __UCLIBC_HAS_REENTRANT_RPC__
 	buflen = 1024;
 	buffer = malloc(buflen);
 	save_errno = errno;
@@ -559,7 +554,7 @@ __icheckhost (u_int32_t raddr, char *lhost, const char *rhost)
 	__set_errno (save_errno);
 #else
 	hp = gethostbyname(lhost);
-#endif /* __UCLIBC_HAS_THREADS__ */
+#endif /* __UCLIBC_HAS_REENTRANT_RPC__ */
 
 	if (hp == NULL)
 		return 0;

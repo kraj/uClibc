@@ -133,10 +133,11 @@ install: build
 	$(MAKE) install install_utils PREFIX=`pwd`/debian/tmp
 
 	install -d debian/tmp/usr/share/man/man1
-	install -m 644 debian/ldd.1 \
+	install -m 644 docs/man/ldd.1 \
 	  debian/tmp/usr/share/man/man1/ldd.1
-	install -m 644 debian/ldconfig.1 \
-	  debian/tmp/usr/share/man/man1/ldconfig.1
+	install -d debian/tmp/usr/share/man/man8
+	install -m 644 docs/man/ldconfig.8 \
+	  debian/tmp/usr/share/man/man8/ldconfig.8
 	
 
 # Build architecture-independent files here.

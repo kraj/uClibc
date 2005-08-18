@@ -51,7 +51,7 @@
 #include <dmalloc.h>
 #endif
 
-#if defined(__arm__)
+#if defined(__arm__) || defined(__thumb__)
 #define MATCH_MACHINE(x) (x == EM_ARM)
 #define ELFCLASSM	ELFCLASS32
 #endif

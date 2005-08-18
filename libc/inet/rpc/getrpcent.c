@@ -42,6 +42,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <errno.h>
 
 /*
  * Internet version.
@@ -58,46 +59,37 @@ static struct rpcdata {
 	char *domain;
 } *rpcdata;
 
-static struct rpcent *interpret(const char *val, int len);
-
 static char RPCDB[] = "/etc/rpc";
 
 static struct rpcdata *_rpcdata(void)
 {
 	register struct rpcdata *d = rpcdata;
 
-	if (d == 0) {
+	if (d == NULL) {
 		d = (struct rpcdata *) calloc(1, sizeof(struct rpcdata));
 
 		rpcdata = d;
 	}
-	return (d);
+	return d;
 }
 
-struct rpcent *getrpcbynumber(number)
-register int number;
+struct rpcent *getrpcbynumber(register int number)
 {
 	register struct rpcdata *d = _rpcdata();
-	register struct rpcent *p;
+	register struct rpcent *rpc;
 
-	if (d == 0)
-		return (0);
+	if (d == NULL)
+		return NULL;
 	setrpcent(0);
-	while ((p = getrpcent())) {
-		if (p->r_number == number)
+	while ((rpc = getrpcent())) {
+		if (rpc->r_number == number)
 			break;
 	}
 	endrpcent();
-	return (p);
+	return rpc;
 }
 
-struct rpcent *
-#ifdef __linux__
-getrpcbyname(const char *name)
-#else
-getrpcbyname(name)
-char *name;
-#endif
+struct rpcent *getrpcbyname(const char *name)
 {
 	struct rpcent *rpc;
 	char **rp;
@@ -105,25 +97,21 @@ char *name;
 	setrpcent(0);
 	while ((rpc = getrpcent())) {
 		if (strcmp(rpc->r_name, name) == 0)
-			return (rpc);
+			return rpc;
 		for (rp = rpc->r_aliases; *rp != NULL; rp++) {
 			if (strcmp(*rp, name) == 0)
-				return (rpc);
+				return rpc;
 		}
 	}
 	endrpcent();
-	return (NULL);
+	return NULL;
 }
 
-#ifdef __linux__
-void
-#endif
-setrpcent(f)
-int f;
+void setrpcent(int f)
 {
 	register struct rpcdata *d = _rpcdata();
 
-	if (d == 0)
+	if (d == NULL)
 		return;
 	if (d->rpcf == NULL)
 		d->rpcf = fopen(RPCDB, "r");
@@ -135,36 +123,42 @@ int f;
 	d->stayopen |= f;
 }
 
-#ifdef __linux__
-void
-#endif
-endrpcent()
+void endrpcent()
 {
 	register struct rpcdata *d = _rpcdata();
 
-	if (d == 0)
+	if (d == NULL)
 		return;
-	if (d->current && !d->stayopen) {
+	if (d->stayopen)
+		return;
+	if (d->current) {
 		free(d->current);
 		d->current = NULL;
 	}
-	if (d->rpcf && !d->stayopen) {
+	if (d->rpcf) {
 		fclose(d->rpcf);
 		d->rpcf = NULL;
 	}
+}
+
+static struct rpcent *interpret(struct rpcdata *);
+
+static struct rpcent *__get_next_rpcent(struct rpcdata *d)
+{
+	if (fgets(d->line, BUFSIZ, d->rpcf) == NULL)
+		return NULL;
+	return interpret(d);
 }
 
 struct rpcent *getrpcent()
 {
 	register struct rpcdata *d = _rpcdata();
 
-	if (d == 0)
-		return (NULL);
+	if (d == NULL)
+		return NULL;
 	if (d->rpcf == NULL && (d->rpcf = fopen(RPCDB, "r")) == NULL)
-		return (NULL);
-	if (fgets(d->line, BUFSIZ, d->rpcf) == NULL)
-		return (NULL);
-	return interpret(d->line, strlen(d->line));
+		return NULL;
+	return __get_next_rpcent(d);
 }
 
 #ifdef __linux__
@@ -184,37 +178,33 @@ static char *firstwhite(char *s)
 }
 #endif
 
-static struct rpcent *interpret(const char *val, int len)
+static struct rpcent *interpret(register struct rpcdata *d)
 {
-	register struct rpcdata *d = _rpcdata();
 	char *p;
 	register char *cp, **q;
 
-	if (d == 0)
-		return NULL;
-	strncpy(d->line, val, len);
 	p = d->line;
-	d->line[len] = '\n';
+	d->line[strlen(p)-1] = '\n';
 	if (*p == '#')
-		return (getrpcent());
+		return __get_next_rpcent(d);
 	cp = index(p, '#');
 	if (cp == NULL) {
 		cp = index(p, '\n');
 		if (cp == NULL)
-			return (getrpcent());
+			return __get_next_rpcent(d);
 	}
 	*cp = '\0';
 #ifdef __linux__
 	if ((cp = firstwhite(p)))
 		*cp++ = 0;
 	else
-		return (getrpcent());
+		return __get_next_rpcent(d);
 #else
 	cp = index(p, ' ');
 	if (cp == NULL) {
 		cp = index(p, '\t');
 		if (cp == NULL)
-			return (getrpcent());
+			return __get_next_rpcent(d);
 	}
 	*cp++ = '\0';
 #endif
@@ -259,5 +249,102 @@ static struct rpcent *interpret(const char *val, int len)
 #endif
 	}
 	*q = NULL;
-	return (&d->rpc);
+	return &d->rpc;
 }
+
+#if defined(__UCLIBC_HAS_REENTRANT_RPC__)
+
+#if defined(__UCLIBC_HAS_THREADS__)
+# include <pthread.h>
+static pthread_mutex_t rpcdata_lock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK    __pthread_mutex_lock(&rpcdata_lock)
+# define UNLOCK  __pthread_mutex_unlock(&rpcdata_lock);
+#else
+# define LOCK
+# define UNLOCK
+#endif
+
+static int __copy_rpcent(struct rpcent *r, struct rpcent *result_buf, char *buffer, 
+		size_t buflen, struct rpcent **result)
+{
+	size_t i, s;
+
+	*result = NULL;
+
+	if (!r)
+		return ENOENT;
+
+	/* copy the struct from the shared mem */
+	memset(result_buf, 0x00, sizeof(*result_buf));
+	memset(buffer, 0x00, buflen);
+
+	result_buf->r_number = r->r_number;
+
+	/* copy the aliases ... need to not only copy the alias strings, 
+	 * but the array of pointers to the alias strings */
+	i = 0;
+	while (r->r_aliases[i++]) ;
+
+	s = i-- * sizeof(char*);
+	if (buflen < s)
+		goto err_out;
+	result_buf->r_aliases = (char**)buffer;
+	buffer += s;
+	buflen -= s;
+
+	while (i-- > 0) {
+		s = strlen(r->r_aliases[i]) + 1;
+		if (buflen < s)
+			goto err_out;
+		result_buf->r_aliases[i] = buffer;
+		buffer += s;
+		buflen -= s;
+		memcpy(result_buf->r_aliases[i], r->r_aliases[i], s);
+	}
+
+	/* copy the name */
+	i = strlen(r->r_name);
+	if (buflen <= i)
+		goto err_out;
+	result_buf->r_name = buffer;
+	memcpy(result_buf->r_name, r->r_name, i);
+
+	/* that was a hoot eh ? */
+	*result = result_buf;
+
+	return 0;
+err_out:
+	return ERANGE;
+}
+
+int getrpcbynumber_r(int number, struct rpcent *result_buf, char *buffer,
+		size_t buflen, struct rpcent **result)
+{
+	int ret;
+	LOCK;
+	ret = __copy_rpcent(getrpcbynumber(number), result_buf, buffer, buflen, result);
+	UNLOCK;
+	return ret;
+}
+
+int getrpcbyname_r(const char *name, struct rpcent *result_buf, char *buffer,
+		size_t buflen, struct rpcent **result)
+{
+	int ret;
+	LOCK;
+	ret = __copy_rpcent(getrpcbyname(name), result_buf, buffer, buflen, result);
+	UNLOCK;
+	return ret;
+}
+
+int getrpcent_r(struct rpcent *result_buf, char *buffer, 
+		size_t buflen, struct rpcent **result)
+{
+	int ret;
+	LOCK;
+	ret = __copy_rpcent(getrpcent(), result_buf, buffer, buflen, result);
+	UNLOCK;
+	return ret;
+}
+
+#endif /* __UCLIBC_HAS_REENTRANT_RPC__ */

@@ -25,10 +25,10 @@ SCRT_OBJ = $(patsubst %,S%, $(CRT_OBJ))
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 SSRC=__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S brk.S \
-	clone.S __uClibc_syscall.S syscall.S
+	clone.S __uClibc_syscall.S syscall.S vfork.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=mmap.c vfork.c __syscall_error.c pread_write.c ioctl.c
+CSRC=mmap.c __syscall_error.c pread_write.c ioctl.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)

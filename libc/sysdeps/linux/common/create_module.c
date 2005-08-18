@@ -31,7 +31,7 @@
 
 #ifdef __NR_create_module
 
-#if defined(__i386__) || defined(__m68k__) || defined(__arm__) || defined(__cris__) || defined(__i960__)
+#if defined(__i386__) || defined(__m68k__) || defined(__arm__) || defined(__thumb__) || defined(__cris__) || defined(__i960__)
 #define __NR___create_module  __NR_create_module
 #ifdef __STR_NR_create_module
 #define __STR_NR___create_module  __STR_NR_create_module
