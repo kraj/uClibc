@@ -55,10 +55,9 @@ __BEGIN_DECLS
 
 /* Error status for non-reentrant lookup functions.
    We use a macro to access always the thread-specific `h_errno' variable.  */
+extern int h_errno;
 #if defined(__UCLIBC_HAS_THREADS__)
 # define h_errno (*__h_errno_location ())
-#else
-extern int h_errno;
 #endif
 
 /* Function to get address of global `h_errno' variable.  */
