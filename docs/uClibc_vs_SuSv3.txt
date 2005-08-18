@@ -93,9 +93,8 @@ stropts.h: (depends on XSR) isastream, {g,s}et{,p}msg, fattach, fdetach
 sys/mman.h: posix_madvice (depends on ADV); posix_mem_offset,
          posix_typed_mem_getinfo, posix_typed_mem_open (depend on TYM);
          shm_open, shm_unlink (depend on SHM)
-fcntl.h: posix_fadvice, posix_fallocate (depend on ADV)
+fcntl.h: posix_fallocate (depend on ADV)
 signal.h: sigqueue (depends on RTS)
-stdlib.h: posix_memalign (depends on ADV)
 
 
 Unimplemented mathematical interfaces:
