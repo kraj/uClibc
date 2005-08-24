@@ -452,7 +452,7 @@ void *dlsym(void *vhandle, const char *name)
 
 static int do_dlclose(void *vhandle, int need_fini)
 {
-	struct dyn_elf *rpnt, *rpnt1;
+	struct dyn_elf *rpnt, *rpnt1, *rpnt1_tmp;
 	struct init_fini_list *runp, *tmp;
 	ElfW(Phdr) *ppnt;
 	struct elf_resolve *tpnt, *run_tpnt;
@@ -541,8 +541,9 @@ static int do_dlclose(void *vhandle, int need_fini)
 					for (rpnt1 = _dl_symbol_tables; rpnt1->next; rpnt1 = rpnt1->next) {
 						if (rpnt1->next->dyn == tpnt) {
 							_dl_if_debug_print("removing symbol_tables: %s\n", tpnt->libname);
+							rpnt1_tmp = rpnt1->next->next;
 							free(rpnt1->next);
-							rpnt1->next = rpnt1->next->next;
+							rpnt1->next = rpnt1_tmp;
 							if (rpnt1->next)
 								rpnt1->next->prev = rpnt1;
 							break;
