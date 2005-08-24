@@ -58,8 +58,8 @@ interfaces pthread_cleanup_push and pthread_cleanup_pop.
 
 Omissions from obligatory interfaces:
 -------------------------------------
-stdlib.h: _Exit, a64l, l64a, lcong48, lldiv, mkstemp, posix_openpt;
-         mktemp, ecvt, fcvt
+stdlib.h: _Exit, lcong48, lldiv, posix_openpt;
+          ecvt, fcvt
 ndbm.h: [all=9] dbm_*
 utmpx.h: [all=6] *utx* (but functions without "x" do exist!)
 nl_types.h: [all] catclose, catgets, catopen
