@@ -54,7 +54,9 @@
 __BEGIN_DECLS
 
 /* Error status for non-reentrant lookup functions.
-   We use a macro to access always the thread-specific `h_errno' variable.  */
+   We use a macro to access always the thread-specific `h_errno' variable.
+   We always need the extern int here in case internal libc code undefines 
+   the macro because it needs access to the underlying storage. */
 extern int h_errno;
 #if defined(__UCLIBC_HAS_THREADS__)
 # define h_errno (*__h_errno_location ())
