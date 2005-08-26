@@ -31,7 +31,7 @@ DIRS += $(TARGET_ARCH)
 endif
 endif
 
-ALL_SUBDIRS = generic arm frv i386 sh64 powerpc mips
+ALL_SUBDIRS = generic arm frv i386 mips powerpc sh64 sparc
 
 MSRC= wstring.c
 MOBJ=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
