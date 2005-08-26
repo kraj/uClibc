@@ -141,6 +141,13 @@ ifeq ($(strip $(TARGET_ARCH)),i386)
 	CPU_CFLAGS-$(CONFIG_NEHEMIAH)+=$(call check_gcc,-march=c3-2,-march=i686)
 endif
 
+ifeq ($(strip $(TARGET_ARCH)),sparc)
+	CPU_CFLAGS-$(CONFIG_SPARC_V7)+=-mcpu=v7
+	CPU_CFLAGS-$(CONFIG_SPARC_V8)+=-mcpu=v8
+	CPU_CFLAGS-$(CONFIG_SPARC_V9)+=-mcpu=v9
+	CPU_CFLAGS-$(CONFIG_SPARC_V9B)+=$(call check_gcc,-mcpu=v9b,-mcpu=ultrasparc)
+endif
+
 ifeq ($(strip $(TARGET_ARCH)),arm)
 	OPTIMIZATION+=-fstrict-aliasing
 	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-EL
