@@ -1962,7 +1962,7 @@ void tzset(void)
 	daylight = !!_time_tzinfo[1].tzname[0];
 	timezone = _time_tzinfo[0].gmt_offset;
 
-#if defined(__UCLIBC_HAS_TZ_FILE__)
+#if defined(__UCLIBC_HAS_TZ_FILE__) || defined(__UCLIBC_HAS_TZ_CACHING__)
  FAST_DONE:
 #endif
 	TZUNLOCK;
