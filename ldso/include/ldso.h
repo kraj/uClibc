@@ -20,6 +20,7 @@
 /* Pull in compiler and arch stuff */
 #include <stdlib.h>
 #include <stdarg.h>
+#include <bits/wordsize.h>
 /* Pull in the arch specific type information */
 #include <sys/types.h>
 /* Pull in the ldso syscalls and string functions */
