@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <elf.h>
+#include <link.h>
 #include <bits/uClibc_page.h>
 #include <paths.h>
 #include <unistd.h>
@@ -171,7 +172,7 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 {
 #ifdef __ARCH_HAS_MMU__
     unsigned long *aux_dat;
-    Elf32_auxv_t auxvt[AT_EGID + 1];
+    ElfW(auxv_t) auxvt[AT_EGID + 1];
 #endif
     __libc_stack_end = stack_end;
     /* We need to initialize uClibc.  If we are dynamically linked this
@@ -199,9 +200,9 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     }
     aux_dat++;
     while (*aux_dat) {
-	Elf32_auxv_t *auxv_entry = (Elf32_auxv_t *) aux_dat;
+	ElfW(auxv_t) *auxv_entry = (ElfW(auxv_t) *) aux_dat;
 	if (auxv_entry->a_type <= AT_EGID) {
-	    memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(Elf32_auxv_t));
+	    memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(ElfW(auxv_t)));
 	}
 	aux_dat += 2;
     }
