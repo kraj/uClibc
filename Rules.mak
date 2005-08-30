@@ -331,6 +331,27 @@ endif
 PTCOBJST := $(TOPDIR)libc/obj-pthread-libc
 PTCOBJSH := $(TOPDIR)libc/obj-pthread-libc_shared
 
+#
+# Test for TLS if NPTL support was selected.
+#
+ifeq ($(PTHREADS_NATIVE),y)
+GCC_HAS_TLS=$(shell \
+	echo "extern __thread int foo;" | $(CC) -o /dev/null -S -xc - 2>&1)
+ifneq ($(GCC_HAS_TLS),)
+gcc_tls_test_fail:
+	@echo "####";
+	@echo "#### Your compiler does not support TLS and you are trying to build uClibc";
+	@echo "#### with NPTL support. Upgrade your binutils and gcc to versions which";
+	@echo "#### support TLS for your architecture. Do not contact uClibc maintainers";
+	@echo "#### about this problem.";
+	@echo "####";
+	@echo "#### Exiting...";
+	@echo "####";
+	@exit 1;
+endif
+endif
+
+
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 LDFLAGS+=-z relro
 endif
