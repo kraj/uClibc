@@ -693,7 +693,7 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	if (lpnt) {
 		lpnt = (unsigned long *) (dynamic_info[DT_PLTGOT]);
 		INIT_GOT(lpnt, tpnt);
-	};
+	}
 
 	_dl_if_debug_dprint("\n\tfile='%s';  generating link map\n", libname);
 	_dl_if_debug_dprint("\t\tdynamic: %x  base: %x\n", dynamic_addr, libaddr);
@@ -770,7 +770,11 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 /* Minimal printf which handles only %s, %d, and %x */
 void _dl_dprintf(int fd, const char *fmt, ...)
 {
-	long num;
+#if __WORDSIZE > 32
+	long int num;
+#else
+	int num;
+#endif
 	va_list args;
 	char *start, *ptr, *string;
 	static char *buf;
@@ -818,8 +822,11 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 				case 'd':
 					{
 						char tmp[22];
-						num = va_arg(args, long);
-
+#if __WORDSIZE > 32
+						num = va_arg(args, long int);
+#else
+						num = va_arg(args, int);
+#endif
 						string = _dl_simple_ltoa(tmp, num);
 						_dl_write(fd, string, _dl_strlen(string));
 						break;
@@ -828,8 +835,11 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 				case 'X':
 					{
 						char tmp[22];
-						num = va_arg(args, long);
-
+#if __WORDSIZE > 32
+						num = va_arg(args, long int);
+#else
+						num = va_arg(args, int);
+#endif
 						string = _dl_simple_ltoahex(tmp, num);
 						_dl_write(fd, string, _dl_strlen(string));
 						break;
