@@ -42,6 +42,7 @@ extern void weak_function _locale_init(void);
 #endif
 #ifdef __UCLIBC_HAS_THREADS__
 extern void weak_function __pthread_initialize_minimal(void);
+extern void weak_function _dl_aux_init(ElfW(auxv_t) *);
 #endif
 
 
@@ -175,10 +176,6 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     ElfW(auxv_t) auxvt[AT_EGID + 1];
 #endif
     __libc_stack_end = stack_end;
-    /* We need to initialize uClibc.  If we are dynamically linked this
-     * may have already been completed by the shared lib loader.  We call
-     * __uClibc_init() regardless, to be sure the right thing happens. */
-    __uClibc_init();
 
     __rtld_fini = rtld_fini;
 
@@ -206,6 +203,20 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 	}
 	aux_dat += 2;
     }
+
+#ifdef __UCLIBC_HAS_THREADS__
+    /*
+     * Before we can make any pthread calls, we have to do some
+     * some TLS setup. This call may do more in the future.
+     */
+    if (likely(_dl_aux_init != NULL))
+	_dl_aux_init(auxvt);
+#endif
+
+    /* We need to initialize uClibc.  If we are dynamically linked this
+     * may have already been completed by the shared lib loader.  We call
+     * __uClibc_init() regardless, to be sure the right thing happens. */
+    __uClibc_init();
 
     /* Make certain getpagesize() gives the correct answer */
     __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;

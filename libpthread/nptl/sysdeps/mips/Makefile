@@ -21,6 +21,8 @@ TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 include ../../Rules.mak
 
+CFLAGS-dl-support.c = -D_GNU_SOURCE
+
 COBJ-LIBC-ST = $(patsubst %.c, %.o, $(wildcard *.c))
 
 AOBJ-LIBP-ST = $(patsubst %.S, %.o, $(wildcard *.S))
@@ -43,7 +45,7 @@ $(AOBJ-LIBP-SH): %.os : %.S
 	$(CC) $(ASFLAGS) $(ASFLAGS-NPTL) -DSHARED -c $< -o $@
 
 $(COBJ-LIBC-ST): %.o : %.c
-	$(CC) $(CFLAGS-LIBC) -c $< -o $@
+	$(CC) $(CFLAGS-LIBC) $(CFLAGS-$<) -c $< -o $@
 
 objs-pthread-libc: $(COBJ-LIBC-ST)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
