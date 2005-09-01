@@ -174,6 +174,7 @@ extern void malloc_stats(FILE *file);
 #define M_MMAP_THRESHOLD    -3
 #define M_MMAP_MAX          -4
 #define M_CHECK_ACTION      -5
+#define M_PERTURB           -6
 
 /* General SVID/XPG interface to tunable parameters. */
 extern int mallopt __MALLOC_P ((int __param, int __val));
@@ -182,7 +183,7 @@ extern int mallopt __MALLOC_P ((int __param, int __val));
 
 
 #ifdef __cplusplus
-}; /* end of extern "C" */
+} /* end of extern "C" */
 #endif
 
 #endif /* malloc.h */
