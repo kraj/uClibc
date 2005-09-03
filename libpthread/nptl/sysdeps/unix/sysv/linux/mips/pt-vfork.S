@@ -35,10 +35,4 @@
 	sw	a2, PID_OFFSET(v1);	/* Restore the PID.  */		\
 1:
 
-#ifdef __UCLIBC__
-#undef weak_alias
-#define weak_alias(name, aliasname)
 #include <../../../../../../../libc/sysdeps/linux/mips/vfork.S>
-#else
-#include <../sysdeps/unix/sysv/linux/mips/vfork.S>
-#endif

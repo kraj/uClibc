@@ -21,7 +21,7 @@ TOPDIR=../../../../../../../
 include $(TOPDIR)Rules.mak
 include ../../../../../Rules.mak
 
-ASRC-LIBP-ST = pt-vfork.S
+ASRC-LIBP-ST = pt-vfork.S clone.S
 ASRC-LIBP-SH = $(ASRC-LIBP-ST)
 
 CSRC-LIBP-ST = pthread_once.c

@@ -1,2 +1,2 @@
 #define RESET_PID
-#include <sysdeps/unix/sysv/linux/mips/clone.S>
+#include <../../../../../../../libc/sysdeps/linux/mips/clone.S>

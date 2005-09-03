@@ -193,7 +193,7 @@
 
 #ifdef __ASSEMBLER__
 
-#include <regdef.h>
+#include <sys/regdef.h>
 
 #define ENTRY(name) \
   .globl name;								      \

@@ -17,6 +17,7 @@ not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
 #include <sys/syscall.h>
+#include <sys/regdef.h>
 #include <features.h>
 
 /* Not that using a `PASTE' macro loses.  */
@@ -129,4 +130,10 @@ Cambridge, MA 02139, USA.  */
 
 #ifdef __PTHREADS_NATIVE__
 #include <sysdep-nptl.h>
+#endif
+
+#if _MIPS_SIM == _ABIO32
+# define L(label) $L ## label
+#else
+# define L(label) .L ## label
 #endif

@@ -24,7 +24,7 @@ CRT_OBJ = crt1.o
 SCRT_OBJ = $(patsubst %,S%, $(CRT_OBJ))
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
-SSRC=bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S syscall.S pipe.S
+SSRC=bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S syscall.S pipe.S vfork.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=__longjmp.c  brk.c setjmp_aux.c mmap.c __syscall_error.c \
