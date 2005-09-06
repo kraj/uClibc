@@ -48,12 +48,15 @@ char * strncpy(char * dest, const char * src, size_t count)
 {
     int d0, d1, d2, d3;
     __asm__ __volatile__(
-	    "1:\tdecl %2\n\t"
-	    "js 2f\n\t"
+	    "incl %2\n"
+	    "1:\n"
+	    "decl %2\n"
+	    "jz 2f\n"
 	    "lodsb\n\t"
 	    "stosb\n\t"
 	    "testb %%al,%%al\n\t"
 	    "jne 1b\n\t"
+	    "decl %2\n"
 	    "rep\n\t"
 	    "stosb\n"
 	    "2:"
@@ -93,14 +96,17 @@ char *strncat(char * dest,
 	    "scasb\n\t"
 	    "decl %1\n\t"
 	    "movl %8,%3\n"
+	    "incl %3\n"
 	    "1:\tdecl %3\n\t"
-	    "js 2f\n\t"
+	    "jz 2f\n"
 	    "lodsb\n\t"
 	    "stosb\n\t"
 	    "testb %%al,%%al\n\t"
 	    "jne 1b\n"
+	    "jmp 3f\n"
 	    "2:\txorl %2,%2\n\t"
-	    "stosb"
+	    "stosb\n"
+	    "3:"
 	    : "=&S" (d0), "=&D" (d1), "=&a" (d2), "=&c" (d3)
 	    : "0" (src),"1" (dest),"2" (0),"3" (0xffffffff), "g" (count)
 	    : "memory");
@@ -141,8 +147,9 @@ int strncmp(const char *cs, const char *ct, size_t count)
     register int __res;
     int d0, d1, d2;
     __asm__ __volatile__(
+	    "incl %3\n"
 	    "1:\tdecl %3\n\t"
-	    "js 2f\n\t"
+	    "jz 2f\n"
 	    "lodsb\n\t"
 	    "scasb\n\t"
 	    "jne 3f\n\t"
@@ -226,12 +233,12 @@ size_t strnlen(const char *s, size_t count)
     register int __res;
     __asm__ __volatile__(
 	    "movl %2,%0\n\t"
+	    "incl %1\n"
 	    "jmp 2f\n"
 	    "1:\tcmpb $0,(%0)\n\t"
 	    "je 3f\n\t"
 	    "incl %0\n"
 	    "2:\tdecl %1\n\t"
-	    "cmpl $-1,%1\n\t"
 	    "jne 1b\n"
 	    "3:\tsubl %2,%0"
 	    :"=a" (__res), "=&d" (d0)
