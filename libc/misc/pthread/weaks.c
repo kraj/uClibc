@@ -66,10 +66,10 @@ weak_alias (__pthread_return_0, pthread_mutex_init)
 weak_alias (__pthread_return_0, pthread_mutex_lock)
 /* weak_alias (__pthread_return_0, pthread_mutex_trylock) */
 weak_alias (__pthread_return_0, pthread_mutex_unlock)
-/* weak_alias (__pthread_return_0, pthread_mutexattr_destroy) */
+weak_alias (__pthread_return_0, pthread_mutexattr_destroy)
 /* weak_alias (__pthread_return_0, pthread_mutexattr_gettype) */
-/* weak_alias (__pthread_return_0, pthread_mutexattr_init) */
-/* weak_alias (__pthread_return_0, pthread_mutexattr_settype) */
+weak_alias (__pthread_return_0, pthread_mutexattr_init)
+weak_alias (__pthread_return_0, pthread_mutexattr_settype)
 /* weak_alias (__pthread_return_0, pthread_rwlock_destroy) */
 /* weak_alias (__pthread_return_0, pthread_rwlock_init) */
 /* weak_alias (__pthread_return_0, pthread_rwlock_rdlock) */

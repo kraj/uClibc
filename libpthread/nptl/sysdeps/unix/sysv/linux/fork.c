@@ -46,9 +46,20 @@ fresetlockfiles (void)
 {
 #ifdef __UCLIBC__
   FILE *fp;
-
+#ifdef __USE_STDIO_FUTEXES__
   for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen)
     _IO_lock_init(fp->_lock);
+# else
+  pthread_mutexattr_t attr;
+
+  pthread_mutexattr_init(&attr);
+  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+
+  for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen)
+    pthread_mutex_init(&fp->__lock, &attr);
+
+  pthread_mutexattr_destroy(&attr);
+# endif
 #else
   _IO_ITER i;
 
@@ -125,7 +136,11 @@ __libc_fork (void)
     }
 
 #ifdef __UCLIBC__
+#ifdef __USE_STDIO_FUTEXES__
   _IO_lock_lock (_stdio_openlist_lock);
+#else
+  __pthread_mutex_lock(&_stdio_openlist_lock);
+#endif
 #else
   _IO_list_lock ();
 #endif
@@ -173,7 +188,11 @@ __libc_fork (void)
 
       /* Reset locks in the I/O code.  */
 #ifdef __UCLIBC__
+# ifdef __USE_STDIO_FUTEXES__
       _IO_lock_init (_stdio_openlist_lock);
+# else
+      __stdio_init_mutex(&_stdio_openlist_lock);
+# endif
 #else
       _IO_list_resetlock ();
 #endif
@@ -214,7 +233,11 @@ __libc_fork (void)
 
       /* We execute this even if the 'fork' call failed.  */
 #ifdef __UCLIBC__
+# ifdef __USE_STDIO_FUTEXES__
       _IO_lock_unlock(_stdio_openlist_lock);
+# else
+      __pthread_mutex_unlock(&_stdio_openlist_lock);
+# endif
 #else
       _IO_list_unlock ();
 #endif
