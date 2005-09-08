@@ -163,7 +163,7 @@ enum
 /* Create a thread with given attributes ATTR (or default attributes
    if ATTR is NULL), and call function START_ROUTINE with given
    arguments ARG.  */
-extern int pthread_create (pthread_t *__restrict __thread_id,
+extern int pthread_create (pthread_t *__restrict __threadp,
 			   __const pthread_attr_t *__restrict __attr,
 			   void *(*__start_routine) (void *),
 			   void *__restrict __arg) __THROW;
@@ -267,9 +267,6 @@ extern int pthread_attr_getstackaddr (__const pthread_attr_t *__restrict
 				      __attr, void **__restrict __stackaddr)
      __THROW;
 
-#if 0
-/* Not yet implemented in uClibc! */
-
 #ifdef __USE_XOPEN2K
 /* The following two interfaces are intended to replace the last two.  They
    require setting the address as well as the size since only setting the
@@ -281,7 +278,6 @@ extern int pthread_attr_setstack (pthread_attr_t *__attr, void *__stackaddr,
 extern int pthread_attr_getstack (__const pthread_attr_t *__restrict __attr,
 				  void **__restrict __stackaddr,
 				  size_t *__restrict __stacksize) __THROW;
-#endif
 #endif
 
 /* Add information about the minimum stack size needed for the thread
