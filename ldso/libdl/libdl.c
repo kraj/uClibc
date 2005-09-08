@@ -450,6 +450,13 @@ void *dlsym(void *vhandle, const char *name)
 	return ret;
 }
 
+#if 0
+void *dlvsym(void *vhandle, const char *name, const char *version)
+{
+	return dlsym(vhandle, name);
+}
+#endif
+
 static int do_dlclose(void *vhandle, int need_fini)
 {
 	struct dyn_elf *rpnt, *rpnt1, *rpnt1_tmp;
