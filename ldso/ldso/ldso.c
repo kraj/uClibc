@@ -766,11 +766,13 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 #ifdef _DL_FINI_CRT_COMPAT
 	/* arches that have moved their ldso FINI handling should skip this part */
 	{
-		int (*_dl_atexit) (void *) = (int (*)(void *)) (intptr_t) _dl_find_hash("atexit",
+		void (*__set__dl_fini) (void *) = (void (*)(void *)) (intptr_t) _dl_find_hash("_set__dl_fini",
 				_dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
 
-		if (_dl_atexit)
-			(*_dl_atexit) (_dl_fini);
+		if (__set__dl_fini)
+			(*__set__dl_fini)(_dl_fini);
+		else
+			_dl_if_debug_dprint("_set__dl_fini not found\n");
 	}
 #endif
 

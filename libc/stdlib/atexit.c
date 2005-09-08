@@ -223,6 +223,11 @@ extern void (*__app_fini)(void);
 #endif
 
 extern void (*__rtld_fini)(void);
+
+#ifdef _DL_FINI_CRT_COMPAT
+extern void (*__dl_fini)(void);
+#endif
+
 /*
  * Normal program termination
  */
@@ -242,6 +247,9 @@ void exit(int rv)
 #ifndef _DL_FINI_CRT_COMPAT
 	if (__rtld_fini != NULL)
 		(__rtld_fini)();
+#else
+	if (__dl_fini != NULL)
+		(__dl_fini)();
 #endif
 
     /* If we are using stdio, try to shut it down.  At the very least,
