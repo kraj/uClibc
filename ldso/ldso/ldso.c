@@ -763,18 +763,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 			(*dl_elf_func) ();
 		}
 	}
-#ifdef _DL_FINI_CRT_COMPAT
-	/* arches that have moved their ldso FINI handling should skip this part */
-	{
-		void (*__set__dl_fini) (void *) = (void (*)(void *)) (intptr_t) _dl_find_hash("_set__dl_fini",
-				_dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
-
-		if (__set__dl_fini)
-			(*__set__dl_fini)(_dl_fini);
-		else
-			_dl_if_debug_dprint("_set__dl_fini not found\n");
-	}
-#endif
 
 	/* Find the real malloc function and make ldso functions use that from now on */
 	 _dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash("malloc",

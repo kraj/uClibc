@@ -111,7 +111,8 @@ endif
 TARGET_ARCH:=$(shell grep -s ^TARGET_ARCH $(TOPDIR)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
-export RUNTIME_PREFIX DEVEL_PREFIX
+KERNEL_SOURCE:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_SOURCE))))))
+export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_SOURCE
 
 ARFLAGS:=cr
 
@@ -324,10 +325,6 @@ endif
 CFLAGS_NOPIC:=$(CFLAGS)
 ifeq ($(DOPIC),y)
     CFLAGS += $(PICFLAG)
-endif
-
-ifeq ($(DL_FINI_CRT_COMPAT),y)
-CFLAGS += -D_DL_FINI_CRT_COMPAT
 endif
 
 # Keep the check_as from being needlessly executed

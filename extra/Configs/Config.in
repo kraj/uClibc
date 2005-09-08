@@ -277,13 +277,6 @@ config LDSO_RUNPATH
 	  Usage of RUNPATH tags is not too common, so disabling this feature 
 	  should be safe for most people.
 
-config DL_FINI_CRT_COMPAT
-	bool "uClibc 0.9.27 compatibility"
-	default n
-	help
-	  Allows to update a 0.9.27 based system to new crt/fini handling.
-	  After rebuilding all apps, this option can be disabled.
-
 config UCLIBC_CTOR_DTOR
 	bool "Support global constructors and destructors"
 	default y
