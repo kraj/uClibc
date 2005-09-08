@@ -13,7 +13,7 @@
 /* GNU Library General Public License for more details.                 */
 
 #ifndef _INTERNALS_H
-#define _INTERNALS_H   1
+#define _INTERNALS_H	1
 
 /* Internal data structures */
 
@@ -24,6 +24,7 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <unistd.h>
+#include <bits/stackinfo.h>
 #include <sys/types.h>
 #include "pt-machine.h"
 #include "semaphore.h"
@@ -279,6 +280,11 @@ extern int __pthread_manager_request;
 
 extern int __pthread_manager_reader;
 
+#ifdef FLOATING_STACKS
+/* Maximum stack size.  */
+extern size_t __pthread_max_stacksize;
+#endif
+
 /* Limits of the thread manager stack. */
 
 extern char *__pthread_manager_thread_bos;
@@ -298,6 +304,9 @@ extern volatile td_thr_events_t __pthread_threads_events;
 /* Pointer to descriptor of thread with last event.  */
 extern volatile pthread_descr __pthread_last_event;
 
+/* Flag which tells whether we are executing on SMP kernel. */
+extern int __pthread_smp_kernel;
+
 /* Return the handle corresponding to a thread id */
 
 static inline pthread_handle thread_handle(pthread_t id)
@@ -314,23 +323,17 @@ static inline int invalid_handle(pthread_handle h, pthread_t id)
 
 /* Fill in defaults left unspecified by pt-machine.h.  */
 
+/* We round up a value with page size. */
+#ifndef page_roundup
+#define page_roundup(v,p) ((((size_t) (v)) + (p) - 1) & ~((p) - 1))
+#endif
+
 /* The page size we can get from the system.  This should likely not be
    changed by the machine file but, you never know.  */
 extern size_t __pagesize;
 #include <bits/uClibc_page.h>
 #ifndef PAGE_SIZE
-#define PAGE_SIZE  (sysconf (_SC_PAGESIZE))
-#endif
-
-/* The max size of the thread stack segments.  If the default
-   THREAD_SELF implementation is used, this must be a power of two and
-   a multiple of PAGE_SIZE.  */
-#ifndef STACK_SIZE
-#ifdef __ARCH_HAS_MMU__
-#define STACK_SIZE  (2 * 1024 * 1024)
-#else
-#define STACK_SIZE  (4 * __pagesize)
-#endif
+#define PAGE_SIZE  (sysconf (_SC_PAGE_SIZE))
 #endif
 
 /* The initial size of the thread stack.  Must be a multiple of PAGE_SIZE.  */
@@ -342,6 +345,17 @@ extern size_t __pagesize;
    with some malloc() implementations. */
 #ifndef THREAD_MANAGER_STACK_SIZE
 #define THREAD_MANAGER_STACK_SIZE  (2 * __pagesize - 32)
+#endif
+
+/* The max size of the thread stack segments.  If the default
+   THREAD_SELF implementation is used, this must be a power of two and
+   a multiple of PAGE_SIZE.  */
+#ifndef STACK_SIZE
+#ifdef __ARCH_HAS_MMU__
+#define STACK_SIZE  (2 * 1024 * 1024)
+#else
+#define STACK_SIZE  (4 * __pagesize)
+#endif
 #endif
 
 /* The base of the "array" of thread stacks.  The array will grow down from
@@ -362,6 +376,7 @@ extern size_t __pagesize;
    x86).  Still we need the compiler to respect the barrier and emit
    all outstanding operations which modify memory.  Some architectures
    distinguish between full, read and write barriers.  */
+
 #ifndef MEMORY_BARRIER
 #define MEMORY_BARRIER() asm ("" : : : "memory")
 #endif
@@ -370,6 +385,30 @@ extern size_t __pagesize;
 #endif
 #ifndef WRITE_MEMORY_BARRIER
 #define WRITE_MEMORY_BARRIER() MEMORY_BARRIER()
+#endif
+
+/* Max number of times we must spin on a spinlock calling sched_yield().
+   After MAX_SPIN_COUNT iterations, we put the calling thread to sleep. */
+
+#ifndef MAX_SPIN_COUNT
+#define MAX_SPIN_COUNT 50
+#endif
+
+/* Max number of times the spinlock in the adaptive mutex implementation
+   spins actively on SMP systems.  */
+
+#ifndef MAX_ADAPTIVE_SPIN_COUNT
+#define MAX_ADAPTIVE_SPIN_COUNT 100
+#endif
+
+/* Duration of sleep (in nanoseconds) when we can't acquire a spinlock
+   after MAX_SPIN_COUNT iterations of sched_yield().
+   With the 2.0 and 2.1 kernels, this MUST BE > 2ms.
+   (Otherwise the kernel does busy-waiting for realtime threads,
+    giving other threads no chance to run.) */
+
+#ifndef SPIN_SLEEP_DURATION
+#define SPIN_SLEEP_DURATION 2000001
 #endif
 
 /* Recover thread descriptor for the current thread */
@@ -419,23 +458,6 @@ static inline pthread_descr thread_self (void)
 #endif /* __ARCH_HAS_MMU__ */
 #endif
 }
-
-/* Max number of times we must spin on a spinlock calling sched_yield().
-   After MAX_SPIN_COUNT iterations, we put the calling thread to sleep. */
-
-#ifndef MAX_SPIN_COUNT
-#define MAX_SPIN_COUNT 50
-#endif
-
-/* Duration of sleep (in nanoseconds) when we can't acquire a spinlock
-   after MAX_SPIN_COUNT iterations of sched_yield().
-   With the 2.0 and 2.1 kernels, this MUST BE > 2ms.
-   (Otherwise the kernel does busy-waiting for realtime threads,
-    giving other threads no chance to run.) */
-
-#ifndef SPIN_SLEEP_DURATION
-#define SPIN_SLEEP_DURATION 2000001
-#endif
 
 /* Debugging */
 
