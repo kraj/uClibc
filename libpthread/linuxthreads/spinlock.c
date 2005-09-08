@@ -108,7 +108,7 @@ void internal_function __pthread_lock(struct _pthread_fastlock * lock,
 #ifdef BUSY_WAIT_NOP
       BUSY_WAIT_NOP;
 #endif
-      __asm __volatile ("" : "=m" (lock->__status) : "0" (lock->__status));
+      __asm __volatile ("" : "=m" (lock->__status) : "m" (lock->__status));
     }
 
     lock->__spinlock += (spin_count - lock->__spinlock) / 8;
