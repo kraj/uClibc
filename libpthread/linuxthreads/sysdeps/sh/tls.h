@@ -1,5 +1,5 @@
 /* Definition for thread-local data handling.  linuxthreads/SH version.
-   Copyright (C) 2002 Free Software Foundation, Inc.
+   Copyright (C) 2002, 2003, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -20,10 +20,12 @@
 #ifndef _TLS_H
 #define _TLS_H
 
-#ifndef __ASSEMBLER__
-#include <stddef.h>
+# include <pt-machine.h>
 
-#include <pt-machine.h>
+#ifndef __ASSEMBLER__
+# include <stdbool.h>
+# include <stddef.h>
+# include <stdint.h>
 
 /* Type for the dtv.  */
 typedef union dtv

@@ -46,7 +46,7 @@ __BEGIN_DECLS
 
 #define PTHREAD_COND_INITIALIZER {__LOCK_INITIALIZER, 0}
 
-#ifdef __USE_UNIX98
+#if defined __USE_UNIX98 || defined __USE_XOPEN2K
 # define PTHREAD_RWLOCK_INITIALIZER \
   { __LOCK_INITIALIZER, 0, NULL, NULL, NULL,				      \
     PTHREAD_RWLOCK_DEFAULT_NP, PTHREAD_PROCESS_PRIVATE }
@@ -110,7 +110,7 @@ enum
 #define PTHREAD_PROCESS_SHARED	PTHREAD_PROCESS_SHARED
 };
 
-#ifdef __USE_UNIX98
+#if defined __USE_UNIX98 || defined __USE_XOPEN2K
 enum
 {
   PTHREAD_RWLOCK_PREFER_READER_NP,
@@ -175,13 +175,12 @@ extern pthread_t pthread_self (void) __THROW;
 extern int pthread_equal (pthread_t __thread1, pthread_t __thread2) __THROW;
 
 /* Terminate calling thread.  */
-extern void pthread_exit (void *__retval)
-     __THROW __attribute__ ((__noreturn__));
+extern void pthread_exit (void *__retval) __attribute__ ((__noreturn__));
 
 /* Make calling thread wait for termination of the thread TH.  The
    exit status of the thread is stored in *THREAD_RETURN, if THREAD_RETURN
    is not NULL.  */
-extern int pthread_join (pthread_t __th, void **__thread_return) __THROW;
+extern int pthread_join (pthread_t __th, void **__thread_return);
 
 /* Indicate that the thread TH is never to be joined with PTHREAD_JOIN.
    The resources of TH will therefore be freed immediately when it
@@ -300,7 +299,9 @@ extern int pthread_attr_getstacksize (__const pthread_attr_t *__restrict
 /* Not yet implemented in uClibc! */
 
 #ifdef __USE_GNU
-/* Get thread attributes corresponding to the already running thread TH.  */
+/* Initialize thread attribute *ATTR with attributes corresponding to the
+   already running thread TH.  It shall be called on unitialized ATTR
+   and destroyed with pthread_attr_destroy when no longer needed.  */
 extern int pthread_getattr_np (pthread_t __th, pthread_attr_t *__attr) __THROW;
 #endif
 #endif
@@ -418,7 +419,7 @@ extern int pthread_cond_broadcast (pthread_cond_t *__cond) __THROW;
 /* Wait for condition variable COND to be signaled or broadcast.
    MUTEX is assumed to be locked before.  */
 extern int pthread_cond_wait (pthread_cond_t *__restrict __cond,
-			      pthread_mutex_t *__restrict __mutex) __THROW;
+			      pthread_mutex_t *__restrict __mutex);
 
 /* Wait for condition variable COND to be signaled or broadcast until
    ABSTIME.  MUTEX is assumed to be locked before.  ABSTIME is an
@@ -427,7 +428,7 @@ extern int pthread_cond_wait (pthread_cond_t *__restrict __cond,
 extern int pthread_cond_timedwait (pthread_cond_t *__restrict __cond,
 				   pthread_mutex_t *__restrict __mutex,
 				   __const struct timespec *__restrict
-				   __abstime) __THROW;
+				   __abstime);
 
 /* Functions for handling condition variable attributes.  */
 
@@ -447,7 +448,7 @@ extern int pthread_condattr_setpshared (pthread_condattr_t *__attr,
 					int __pshared) __THROW;
 
 
-#ifdef __USE_UNIX98
+#if defined __USE_UNIX98 || defined __USE_XOPEN2K
 /* Functions for handling read-write locks.  */
 
 /* Initialize read-write lock RWLOCK using attributes ATTR, or use
@@ -593,28 +594,31 @@ extern void *pthread_getspecific (pthread_key_t __key) __THROW;
 /* Guarantee that the initialization function INIT_ROUTINE will be called
    only once, even if pthread_once is executed several times with the
    same ONCE_CONTROL argument. ONCE_CONTROL must point to a static or
-   extern variable initialized to PTHREAD_ONCE_INIT.  */
+   extern variable initialized to PTHREAD_ONCE_INIT.
+
+   The initialization functions might throw exception which is why
+   this function is not marked with __THROW.  */
 extern int pthread_once (pthread_once_t *__once_control,
-			 void (*__init_routine) (void)) __THROW;
+			 void (*__init_routine) (void));
 
 
 /* Functions for handling cancellation.  */
 
 /* Set cancelability state of current thread to STATE, returning old
    state in *OLDSTATE if OLDSTATE is not NULL.  */
-extern int pthread_setcancelstate (int __state, int *__oldstate) __THROW;
+extern int pthread_setcancelstate (int __state, int *__oldstate);
 
 /* Set cancellation state of current thread to TYPE, returning the old
    type in *OLDTYPE if OLDTYPE is not NULL.  */
-extern int pthread_setcanceltype (int __type, int *__oldtype) __THROW;
+extern int pthread_setcanceltype (int __type, int *__oldtype);
 
 /* Cancel THREAD immediately or at the next possibility.  */
-extern int pthread_cancel (pthread_t __thread_id) __THROW;
+extern int pthread_cancel (pthread_t __cancelthread);
 
 /* Test for pending cancellation for the current thread and terminate
    the thread as per pthread_exit(PTHREAD_CANCELED) if it has been
    cancelled.  */
-extern void pthread_testcancel (void) __THROW;
+extern void pthread_testcancel (void);
 
 
 /* Install a cleanup handler: ROUTINE will be called with arguments ARG
