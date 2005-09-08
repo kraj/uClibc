@@ -14,13 +14,14 @@
 
 #include <signal.h>
 #include <sys/syscall.h>
+#define __ASSUME_REALTIME_SIGNALS defined(__NR_rt_sigaction)
 
 /* Primitives for controlling thread execution */
 
 static inline void restart(pthread_descr th)
 {
   /* See pthread.c */
-#ifdef __NR_rt_sigaction
+#if __ASSUME_REALTIME_SIGNALS
   __pthread_restart_new(th);
 #else
   __pthread_restart(th);
@@ -30,7 +31,7 @@ static inline void restart(pthread_descr th)
 static inline void suspend(pthread_descr self)
 {
   /* See pthread.c */
-#ifdef __NR_rt_sigaction
+#if __ASSUME_REALTIME_SIGNALS
   __pthread_wait_for_restart_signal(self);
 #else
   __pthread_suspend(self);
@@ -41,7 +42,7 @@ static inline int timedsuspend(pthread_descr self,
 		const struct timespec *abstime)
 {
   /* See pthread.c */
-#ifdef __NR_rt_sigaction
+#if __ASSUME_REALTIME_SIGNALS
   return __pthread_timedsuspend_new(self, abstime);
 #else
   return __pthread_timedsuspend(self, abstime);
