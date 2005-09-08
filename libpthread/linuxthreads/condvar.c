@@ -25,19 +25,52 @@
 #include "queue.h"
 #include "restart.h"
 
-int pthread_cond_init(pthread_cond_t *cond,
-                      const pthread_condattr_t *cond_attr)
+/* glibc uses strong aliases, we wont bother */
+#undef strong_alias
+#define strong_alias(sym, alias)
+#define __pthread_cond_init         pthread_cond_init
+#define __pthread_cond_destroy      pthread_cond_destroy
+#define __pthread_cond_wait         pthread_cond_wait
+#define __pthread_cond_timedwait    pthread_cond_timedwait
+#define __pthread_cond_signal       pthread_cond_signal
+#define __pthread_cond_broadcast    pthread_cond_broadcast
+#define __pthread_condattr_init     pthread_condattr_init
+#define __pthread_condattr_destroy  pthread_condattr_destroy
+
+
+int __pthread_cond_init(pthread_cond_t *cond,
+                        const pthread_condattr_t *cond_attr)
 {
   __pthread_init_lock(&cond->__c_lock);
   cond->__c_waiting = NULL;
   return 0;
 }
+/* Don't bother with this version stuff in uClibc */
+#if 0
+versioned_symbol (libpthread, __pthread_cond_init, pthread_cond_init,
+		  GLIBC_2_3_2);
+#if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_3_2)
+strong_alias (__pthread_cond_init, __old_pthread_cond_init)
+compat_symbol (libpthread, __old_pthread_cond_init, pthread_cond_init,
+	       GLIBC_2_0);
+#endif
+#endif
 
-int pthread_cond_destroy(pthread_cond_t *cond)
+int __pthread_cond_destroy(pthread_cond_t *cond)
 {
   if (cond->__c_waiting != NULL) return EBUSY;
   return 0;
 }
+/* Don't bother with this version stuff in uClibc */
+#if 0
+versioned_symbol (libpthread, __pthread_cond_destroy, pthread_cond_destroy,
+		  GLIBC_2_3_2);
+#if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_3_2)
+strong_alias (__pthread_cond_destroy, __old_pthread_cond_destroy)
+compat_symbol (libpthread, __old_pthread_cond_destroy, pthread_cond_destroy,
+	       GLIBC_2_0);
+#endif
+#endif
 
 /* Function called by pthread_cancel to remove the thread from
    waiting on a condition variable queue. */
@@ -55,7 +88,7 @@ static int cond_extricate_func(void *obj, pthread_descr th)
   return did_remove;
 }
 
-int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
+int __pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
 {
   volatile pthread_descr self = thread_self();
   pthread_extricate_if extr;
@@ -93,7 +126,7 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
 
   if (already_canceled) {
     __pthread_set_own_extricate_if(self, 0);
-    pthread_exit(PTHREAD_CANCELED);
+    __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
   }
 
   pthread_mutex_unlock(mutex);
@@ -122,7 +155,7 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
       && THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE) {
     THREAD_SETMEM(self, p_woken_by_cancel, 0);
     pthread_mutex_lock(mutex);
-    pthread_exit(PTHREAD_CANCELED);
+    __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
   }
 
   /* Put back any resumes we caught that don't belong to us. */
@@ -132,6 +165,16 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
   pthread_mutex_lock(mutex);
   return 0;
 }
+/* Don't bother with this version stuff in uClibc */
+#if 0
+versioned_symbol (libpthread, __pthread_cond_wait, pthread_cond_wait,
+		  GLIBC_2_3_2);
+#if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_3_2)
+strong_alias (__pthread_cond_wait, __old_pthread_cond_wait)
+compat_symbol (libpthread, __old_pthread_cond_wait, pthread_cond_wait,
+	       GLIBC_2_0);
+#endif
+#endif
 
 static int
 pthread_cond_timedwait_relative(pthread_cond_t *cond,
@@ -168,7 +211,7 @@ pthread_cond_timedwait_relative(pthread_cond_t *cond,
 
   if (already_canceled) {
     __pthread_set_own_extricate_if(self, 0);
-    pthread_exit(PTHREAD_CANCELED);
+    __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
   }
 
   pthread_mutex_unlock(mutex);
@@ -216,7 +259,7 @@ pthread_cond_timedwait_relative(pthread_cond_t *cond,
       && THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE) {
     THREAD_SETMEM(self, p_woken_by_cancel, 0);
     pthread_mutex_lock(mutex);
-    pthread_exit(PTHREAD_CANCELED);
+    __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
   }
 
   /* Put back any resumes we caught that don't belong to us. */
@@ -227,14 +270,24 @@ pthread_cond_timedwait_relative(pthread_cond_t *cond,
   return 0;
 }
 
-int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
-                           const struct timespec * abstime)
+int __pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
+			     const struct timespec * abstime)
 {
   /* Indirect call through pointer! */
   return pthread_cond_timedwait_relative(cond, mutex, abstime);
 }
+/* Don't bother with this version stuff in uClibc */
+#if 0
+versioned_symbol (libpthread, __pthread_cond_timedwait, pthread_cond_timedwait,
+		  GLIBC_2_3_2);
+#if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_3_2)
+strong_alias (__pthread_cond_timedwait, __old_pthread_cond_timedwait)
+compat_symbol (libpthread, __old_pthread_cond_timedwait,
+	       pthread_cond_timedwait, GLIBC_2_0);
+#endif
+#endif
 
-int pthread_cond_signal(pthread_cond_t *cond)
+int __pthread_cond_signal(pthread_cond_t *cond)
 {
   pthread_descr th;
 
@@ -248,8 +301,18 @@ int pthread_cond_signal(pthread_cond_t *cond)
   }
   return 0;
 }
+/* Don't bother with this version stuff in uClibc */
+#if 0
+versioned_symbol (libpthread, __pthread_cond_signal, pthread_cond_signal,
+		  GLIBC_2_3_2);
+#if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_3_2)
+strong_alias (__pthread_cond_signal, __old_pthread_cond_signal)
+compat_symbol (libpthread, __old_pthread_cond_signal, pthread_cond_signal,
+	       GLIBC_2_0);
+#endif
+#endif
 
-int pthread_cond_broadcast(pthread_cond_t *cond)
+int __pthread_cond_broadcast(pthread_cond_t *cond)
 {
   pthread_descr tosignal, th;
 
@@ -266,16 +329,28 @@ int pthread_cond_broadcast(pthread_cond_t *cond)
   }
   return 0;
 }
+/* Don't bother with this version stuff in uClibc */
+#if 0
+versioned_symbol (libpthread, __pthread_cond_broadcast, pthread_cond_broadcast,
+		  GLIBC_2_3_2);
+#if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_3_2)
+strong_alias (__pthread_cond_broadcast, __old_pthread_cond_broadcast)
+compat_symbol (libpthread, __old_pthread_cond_broadcast,
+	       pthread_cond_broadcast, GLIBC_2_0);
+#endif
+#endif
 
-int pthread_condattr_init(pthread_condattr_t *attr)
+int __pthread_condattr_init(pthread_condattr_t *attr)
 {
   return 0;
 }
+strong_alias (__pthread_condattr_init, pthread_condattr_init)
 
-int pthread_condattr_destroy(pthread_condattr_t *attr)
+int __pthread_condattr_destroy(pthread_condattr_t *attr)
 {
   return 0;
 }
+strong_alias (__pthread_condattr_destroy, pthread_condattr_destroy)
 
 int pthread_condattr_getpshared (const pthread_condattr_t *attr, int *pshared)
 {
