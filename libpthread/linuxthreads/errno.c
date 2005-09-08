@@ -22,14 +22,16 @@
 #include "internals.h"
 #include <stdio.h>
 
-int * __errno_location()
+int *
+__errno_location (void)
 {
-    pthread_descr self = thread_self();
-    return THREAD_GETMEM (self, p_errnop);
+  pthread_descr self = thread_self();
+  return THREAD_GETMEM (self, p_errnop);
 }
 
-int * __h_errno_location()
+int *
+__h_errno_location (void)
 {
-    pthread_descr self = thread_self();
-    return THREAD_GETMEM (self, p_h_errnop);
+  pthread_descr self = thread_self();
+  return THREAD_GETMEM (self, p_h_errnop);
 }
