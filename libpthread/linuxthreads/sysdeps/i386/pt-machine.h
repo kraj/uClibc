@@ -36,7 +36,9 @@ extern int __compare_and_swap (long int *p, long int oldval, long int newval);
 
 
 /* See if we can optimize for newer cpus... */
-#if defined __GNUC__ && __GNUC__ >= 2 && defined __i486__ || defined __pentium__ || defined __pentiumpro__
+#if defined __GNUC__ && __GNUC__ >= 2 && \
+   (defined __i486__ || defined __pentium__ || defined __pentiumpro__ || defined __pentium4__ || \
+    defined __athlon__ || defined __k8__)
 
 /* Spinlock implementation; required.  */
 PT_EI long int
