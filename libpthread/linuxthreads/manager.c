@@ -107,13 +107,18 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 				 int report_events,
 				 td_thr_events_t *event_maskp);
 static void pthread_handle_free(pthread_t th_id);
-static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode);
+static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode)
+     __attribute__ ((noreturn));
 static void pthread_reap_children(void);
 static void pthread_kill_all_threads(int sig, int main_thread_also);
+static void pthread_for_each_thread(void *arg,
+    void (*fn)(void *, pthread_descr));
 
 /* The server thread managing requests for thread creation and termination */
 
-int __pthread_manager(void *arg)
+int
+__attribute__ ((noreturn))
+__pthread_manager(void *arg)
 {
   int reqfd = (int) (long int) arg;
 #ifdef USE_SELECT
@@ -247,6 +252,11 @@ int __pthread_manager(void *arg)
       case REQ_KICK:
 	/* This is just a prod to get the manager to reap some
 	   threads right away, avoiding a potential delay at shutdown. */
+	break;
+      case REQ_FOR_EACH_THREAD:
+	pthread_for_each_thread(request.req_args.for_each.arg,
+	                        request.req_args.for_each.fn);
+	restart(request.req_thread);
 	break;
       }
     }
@@ -837,6 +847,20 @@ static void pthread_kill_all_threads(int sig, int main_thread_also)
   if (main_thread_also) {
     kill(__pthread_main_thread->p_pid, sig);
   }
+}
+
+static void pthread_for_each_thread(void *arg,
+    void (*fn)(void *, pthread_descr))
+{
+  pthread_descr th;
+
+  for (th = __pthread_main_thread->p_nextlive;
+       th != __pthread_main_thread;
+       th = th->p_nextlive) {
+    fn(arg, th);
+  }
+
+  fn(arg, __pthread_main_thread);
 }
 
 /* Process-wide exit() */
