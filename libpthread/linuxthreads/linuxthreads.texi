@@ -19,7 +19,7 @@ use @var{errno}.
 * Thread Attributes::           Tuning thread scheduling.
 * Cancellation::                Stopping a thread before it's done.
 * Cleanup Handlers::            Deallocating resources when a thread is
-                                  cancelled.
+                                  canceled.
 * Mutexes::                     One way to synchronize threads.
 * Condition Variables::         Another way.
 * POSIX Semaphores::            And a third way.
@@ -27,6 +27,10 @@ use @var{errno}.
                                   different threads.
 * Threads and Signal Handling:: Why you should avoid mixing the two, and
                                   how to do it if you must.
+* Threads and Fork::            Interactions between threads and the
+                                  @code{fork} function.
+* Streams and Fork::            Interactions between stdio streams and
+                                  @code{fork}.
 * Miscellaneous Thread Functions:: A grab bag of utility routines.
 @end menu
 
@@ -98,12 +102,12 @@ returns 0. @xref{Cancellation}, for details.
 @deftypefun int pthread_join (pthread_t @var{th}, void **thread_@var{return})
 @code{pthread_join} suspends the execution of the calling thread until
 the thread identified by @var{th} terminates, either by calling
-@code{pthread_exit} or by being cancelled.
+@code{pthread_exit} or by being canceled.
 
 If @var{thread_return} is not @code{NULL}, the return value of @var{th}
 is stored in the location pointed to by @var{thread_return}.  The return
 value of @var{th} is either the argument it gave to @code{pthread_exit},
-or @code{PTHREAD_CANCELED} if @var{th} was cancelled.
+or @code{PTHREAD_CANCELED} if @var{th} was canceled.
 
 The joined thread @code{th} must be in the joinable state: it must not
 have been detached using @code{pthread_detach} or the
@@ -177,13 +181,18 @@ left in an undefined state, and you must not use it again in a call to
 any pthreads function until it has been reinitialized.
 @end deftypefun
 
+@findex pthread_attr_setdetachstate
+@findex pthread_attr_setguardsize
 @findex pthread_attr_setinheritsched
 @findex pthread_attr_setschedparam
 @findex pthread_attr_setschedpolicy
 @findex pthread_attr_setscope
+@findex pthread_attr_setstack
+@findex pthread_attr_setstackaddr
+@findex pthread_attr_setstacksize
 @comment pthread.h
 @comment POSIX
-@deftypefun int pthread_attr_set@var{attr} (pthread_attr_t *@var{obj}, int @var{value})
+@deftypefun int pthread_attr_setattr (pthread_attr_t *@var{obj}, int @var{value})
 Set attribute @var{attr} to @var{value} in the attribute object pointed
 to by @var{obj}.  See below for a list of possible attributes and the
 values they can take.
@@ -194,13 +203,18 @@ for the @var{attr} being modified, they will return the error code
 below.
 @end deftypefun
 
+@findex pthread_attr_getdetachstate
+@findex pthread_attr_getguardsize
 @findex pthread_attr_getinheritsched
 @findex pthread_attr_getschedparam
 @findex pthread_attr_getschedpolicy
 @findex pthread_attr_getscope
+@findex pthread_attr_getstack
+@findex pthread_attr_getstackaddr
+@findex pthread_attr_getstacksize
 @comment pthread.h
 @comment POSIX
-@deftypefun int pthread_attr_get@var{attr} (const pthread_attr_t *@var{obj}, int *@var{value})
+@deftypefun int pthread_attr_getattr (const pthread_attr_t *@var{obj}, int *@var{value})
 Store the current setting of @var{attr} in @var{obj} into the variable
 pointed to by @var{value}.
 
@@ -275,8 +289,45 @@ interpreted relative to the priorities of the other threads of the
 process, regardless of the priorities of other processes.
 
 @code{PTHREAD_SCOPE_PROCESS} is not supported in LinuxThreads.  If you
-try to set the scope to this value @code{pthread_attr_setscope} will
+try to set the scope to this value, @code{pthread_attr_setscope} will
 fail and return @code{ENOTSUP}.
+
+@item stackaddr
+Provide an address for an application managed stack.  The size of the
+stack must be at least @code{PTHREAD_STACK_MIN}.
+
+@item stacksize
+Change the size of the stack created for the thread.  The value defines
+the minimum stack size, in bytes.
+
+If the value exceeds the system's maximum stack size, or is smaller
+than @code{PTHREAD_STACK_MIN}, @code{pthread_attr_setstacksize} will
+fail and return @code{EINVAL}.
+
+@item stack
+Provide both the address and size of an application managed stack to
+use for the new thread.  The base of the memory area is @var{stackaddr}
+with the size of the memory area, @var{stacksize}, measured in bytes.
+
+If the value of @var{stacksize} is less than @code{PTHREAD_STACK_MIN},
+or greater than the system's maximum stack size, or if the value of
+@var{stackaddr} lacks the proper alignment, @code{pthread_attr_setstack}
+will fail and return @code{EINVAL}.
+
+@item guardsize
+Change the minimum size in bytes of the guard area for the thread's
+stack.  The default size is a single page.  If this value is set, it
+will be rounded up to the nearest page size.  If the value is set to 0,
+a guard area will not be created for this thread.  The space allocated
+for the guard area is used to catch stack overflow.  Therefore, when
+allocating large structures on the stack, a larger guard area may be
+required to catch a stack overflow.
+
+If the caller is managing their own stacks (if the @code{stackaddr}
+attribute has been set), then the @code{guardsize} attribute is ignored.
+
+If the value exceeds the @code{stacksize}, @code{pthread_atrr_setguardsize}
+will fail and return @code{EINVAL}.
 @end table
 
 @node Cancellation
@@ -294,7 +345,7 @@ When a thread eventually honors a cancellation request, it behaves as if
 @code{pthread_exit(PTHREAD_CANCELED)} was called.  All cleanup handlers
 are executed in reverse order, finalization functions for
 thread-specific data are called, and finally the thread stops executing.
-If the cancelled thread was joinable, the return value
+If the canceled thread was joinable, the return value
 @code{PTHREAD_CANCELED} is provided to whichever thread calls
 @var{pthread_join} on it. See @code{pthread_exit} for more information.
 
@@ -377,7 +428,7 @@ stack-like discipline.
 
 The purpose of cleanup handlers is to free the resources that a thread
 may hold at the time it terminates. In particular, if a thread exits or
-is cancelled while it owns a locked mutex, the mutex will remain locked
+is canceled while it owns a locked mutex, the mutex will remain locked
 forever and prevent other threads from executing normally. The best way
 to avoid this is, just before locking the mutex, to install a cleanup
 handler whose effect is to unlock the mutex. Cleanup handlers can be
@@ -493,7 +544,7 @@ The sequence
 @smallexample
 pthread_cleanup_push_defer_np(routine, arg);
 ...
-pthread_cleanup_pop_defer_np(execute);
+pthread_cleanup_pop_restore_np(execute);
 @end smallexample
 
 @noindent
@@ -546,15 +597,16 @@ calling thread.
 If @var{mutexattr} is @code{NULL}, default attributes are used instead.
 
 The LinuxThreads implementation supports only one mutex attribute,
-the @var{mutex kind}, which is either ``fast'', ``recursive'', or
-``error checking''. The kind of a mutex determines whether
+the @var{mutex type}, which is either ``fast'', ``recursive'', or
+``error checking''. The type of a mutex determines whether
 it can be locked again by a thread that already owns it.
-The default kind is ``fast''.
+The default type is ``fast''.
 
 Variables of type @code{pthread_mutex_t} can also be initialized
 statically, using the constants @code{PTHREAD_MUTEX_INITIALIZER} (for
-fast mutexes), @code{PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP} (for
-recursive mutexes), and @code{PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP}
+timed mutexes), @code{PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP} (for
+recursive mutexes), @code{PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP}
+(for fast mutexes(, and @code{PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP}
 (for error checking mutexes).
 
 @code{pthread_mutex_init} always returns 0.
@@ -570,16 +622,17 @@ already locked by another thread, @code{pthread_mutex_lock} suspends the
 calling thread until the mutex is unlocked.
 
 If the mutex is already locked by the calling thread, the behavior of
-@code{pthread_mutex_lock} depends on the kind of the mutex. If the mutex
-is of the ``fast'' kind, the calling thread is suspended.  It will
+@code{pthread_mutex_lock} depends on the type of the mutex. If the mutex
+is of the ``fast'' type, the calling thread is suspended.  It will
 remain suspended forever, because no other thread can unlock the mutex.
-If  the mutex is of the ``error checking'' kind, @code{pthread_mutex_lock}
+If  the mutex is of the ``error checking'' type, @code{pthread_mutex_lock}
 returns immediately with the error code @code{EDEADLK}.  If the mutex is
-of the ``recursive'' kind, @code{pthread_mutex_lock} succeeds and
+of the ``recursive'' type, @code{pthread_mutex_lock} succeeds and
 returns immediately, recording the number of times the calling thread
 has locked the mutex. An equal number of @code{pthread_mutex_unlock}
 operations must be performed before the mutex returns to the unlocked
 state.
+@c This doesn't discuss PTHREAD_MUTEX_TIMED_NP mutex attributes. FIXME
 @end deftypefun
 
 @comment pthread.h
@@ -595,12 +648,31 @@ calling thread in the case of a ``fast'' mutex). Instead,
 
 @comment pthread.h
 @comment POSIX
+@deftypefun int pthread_mutex_timedlock (pthread_mutex_t *@var{mutex}, const struct timespec *@var{abstime})
+The @code{pthread_mutex_timedlock} is similar to the
+@code{pthread_mutex_lock} function but instead of blocking for in
+indefinite time if the mutex is locked by another thread, it returns
+when the time specified in @var{abstime} is reached.
+
+This function can only be used on standard (``timed'') and ``error
+checking'' mutexes.  It behaves just like @code{pthread_mutex_lock} for
+all other types.
+
+If the mutex is successfully locked, the function returns zero.  If the
+time specified in @var{abstime} is reached without the mutex being locked,
+@code{ETIMEDOUT} is returned.
+
+This function was introduced in the POSIX.1d revision of the POSIX standard.
+@end deftypefun
+
+@comment pthread.h
+@comment POSIX
 @deftypefun int pthread_mutex_unlock (pthread_mutex_t *@var{mutex})
 @code{pthread_mutex_unlock} unlocks the given mutex. The mutex is
 assumed to be locked and owned by the calling thread on entrance to
-@code{pthread_mutex_unlock}. If the mutex is of the ``fast'' kind,
+@code{pthread_mutex_unlock}. If the mutex is of the ``fast'' type,
 @code{pthread_mutex_unlock} always returns it to the unlocked state. If
-it is of the ``recursive'' kind, it decrements the locking count of the
+it is of the ``recursive'' type, it decrements the locking count of the
 mutex (number of @code{pthread_mutex_lock} operations performed on it by
 the calling thread), and only when this count reaches zero is the mutex
 actually unlocked.
@@ -673,45 +745,52 @@ LinuxThreads implementation.
 This function always returns 0.
 @end deftypefun
 
-LinuxThreads supports only one mutex attribute: the mutex kind, which is
-either @code{PTHREAD_MUTEX_FAST_NP} for ``fast'' mutexes,
-@code{PTHREAD_MUTEX_RECURSIVE_NP} for ``recursive'' mutexes, or
+LinuxThreads supports only one mutex attribute: the mutex type, which is
+either @code{PTHREAD_MUTEX_ADAPTIVE_NP} for ``fast'' mutexes,
+@code{PTHREAD_MUTEX_RECURSIVE_NP} for ``recursive'' mutexes,
+@code{PTHREAD_MUTEX_TIMED_NP} for ``timed'' mutexes, or
 @code{PTHREAD_MUTEX_ERRORCHECK_NP} for ``error checking'' mutexes.  As
 the @code{NP} suffix indicates, this is a non-portable extension to the
 POSIX standard and should not be employed in portable programs.
 
-The mutex kind determines what happens if a thread attempts to lock a
+The mutex type determines what happens if a thread attempts to lock a
 mutex it already owns with @code{pthread_mutex_lock}. If the mutex is of
-the ``fast'' kind, @code{pthread_mutex_lock} simply suspends the calling
-thread forever.  If the mutex is of the ``error checking'' kind,
+the ``fast'' type, @code{pthread_mutex_lock} simply suspends the calling
+thread forever.  If the mutex is of the ``error checking'' type,
 @code{pthread_mutex_lock} returns immediately with the error code
-@code{EDEADLK}.  If the mutex is of the ``recursive'' kind, the call to
+@code{EDEADLK}.  If the mutex is of the ``recursive'' type, the call to
 @code{pthread_mutex_lock} returns immediately with a success return
 code. The number of times the thread owning the mutex has locked it is
 recorded in the mutex. The owning thread must call
 @code{pthread_mutex_unlock} the same number of times before the mutex
 returns to the unlocked state.
 
-The default mutex kind is ``fast'', that is, @code{PTHREAD_MUTEX_FAST_NP}.
+The default mutex type is ``timed'', that is, @code{PTHREAD_MUTEX_TIMED_NP}.
+@c This doesn't describe how a ``timed'' mutex behaves. FIXME
 
 @comment pthread.h
-@comment GNU
-@deftypefun int pthread_mutexattr_setkind_np (pthread_mutexattr_t *@var{attr}, int @var{kind})
-@code{pthread_mutexattr_setkind_np} sets the mutex kind attribute in
-@var{attr} to the value specified by @var{kind}.
+@comment POSIX
+@deftypefun int pthread_mutexattr_settype (pthread_mutexattr_t *@var{attr}, int @var{type})
+@code{pthread_mutexattr_settype} sets the mutex type attribute in
+@var{attr} to the value specified by @var{type}.
 
-If @var{kind} is not @code{PTHREAD_MUTEX_FAST_NP},
-@code{PTHREAD_MUTEX_RECURSIVE_NP}, or
+If @var{type} is not @code{PTHREAD_MUTEX_ADAPTIVE_NP},
+@code{PTHREAD_MUTEX_RECURSIVE_NP}, @code{PTHREAD_MUTEX_TIMED_NP}, or
 @code{PTHREAD_MUTEX_ERRORCHECK_NP}, this function will return
 @code{EINVAL} and leave @var{attr} unchanged.
+
+The standard Unix98 identifiers @code{PTHREAD_MUTEX_DEFAULT},
+@code{PTHREAD_MUTEX_NORMAL}, @code{PTHREAD_MUTEX_RECURSIVE},
+and @code{PTHREAD_MUTEX_ERRORCHECK} are also permitted.
+
 @end deftypefun
 
 @comment pthread.h
-@comment GNU
-@deftypefun int pthread_mutexattr_getkind_np (const pthread_mutexattr_t *@var{attr}, int *@var{kind})
-@code{pthread_mutexattr_getkind_np} retrieves the current value of the
-mutex kind attribute in @var{attr} and stores it in the location pointed
-to by @var{kind}.
+@comment POSIX
+@deftypefun int pthread_mutexattr_gettype (const pthread_mutexattr_t *@var{attr}, int *@var{type})
+@code{pthread_mutexattr_gettype} retrieves the current value of the
+mutex type attribute in @var{attr} and stores it in the location pointed
+to by @var{type}.
 
 This function always returns 0.
 @end deftypefun
@@ -820,7 +899,7 @@ nothing.
 @end deftypefun
 
 @code{pthread_cond_wait} and @code{pthread_cond_timedwait} are
-cancellation points. If a thread is cancelled while suspended in one of
+cancellation points. If a thread is canceled while suspended in one of
 these functions, the thread immediately resumes execution, relocks the
 mutex specified by  @var{mutex}, and finally executes the cancellation.
 Consequently, cleanup handlers are assured that @var{mutex} is locked
@@ -1237,6 +1316,141 @@ threads must not attach their own signal handlers to these signals, or
 alternatively they should all block these signals (which is recommended
 anyway).
 
+@node Threads and Fork
+@section Threads and Fork
+
+It's not intuitively obvious what should happen when a multi-threaded POSIX
+process calls @code{fork}. Not only are the semantics tricky, but you may
+need to write code that does the right thing at fork time even if that code
+doesn't use the @code{fork} function. Moreover, you need to be aware of
+interaction between @code{fork} and some library features like
+@code{pthread_once} and stdio streams.
+
+When @code{fork} is called by one of the threads of a process, it creates a new
+process which is copy of the  calling process. Effectively, in addition to
+copying certain system objects, the function takes a snapshot of the memory
+areas of the parent process, and creates identical areas in the child.
+To make matters more complicated, with threads it's possible for two or more
+threads to concurrently call fork to create two or more child processes.
+
+The child process has a copy of the address space of the parent, but it does
+not inherit any of its threads. Execution of the child process is carried out
+by a new thread which returns from @code{fork} function with a return value of
+zero; it is the only thread in the child process.  Because threads are not
+inherited across fork, issues arise. At the time of the call to @code{fork},
+threads in the parent process other than the one calling @code{fork} may have
+been executing critical regions of code.  As a result, the child process may
+get a copy of objects that are not in a well-defined state.  This potential
+problem affects all components of the program.
+
+Any program component which will continue being used in a child process must
+correctly handle its state during @code{fork}. For this purpose, the POSIX
+interface provides the special function @code{pthread_atfork} for installing
+pointers to handler functions which are called from within @code{fork}.
+
+@comment pthread.h
+@comment POSIX
+@deftypefun int pthread_atfork (void (*@var{prepare})(void), void (*@var{parent})(void), void (*@var{child})(void))
+
+@code{pthread_atfork} registers handler functions to be called just
+before and just after a new process is created with @code{fork}. The
+@var{prepare} handler will be called from the parent process, just
+before the new process is created. The @var{parent} handler will be
+called from the parent process, just before @code{fork} returns. The
+@var{child} handler will be called from the child process, just before
+@code{fork} returns.
+
+@code{pthread_atfork} returns 0 on success and a non-zero error code on
+error.
+
+One or more of the three handlers @var{prepare}, @var{parent} and
+@var{child} can be given as @code{NULL}, meaning that no handler needs
+to be called at the corresponding point.
+
+@code{pthread_atfork} can be called several times to install several
+sets of handlers. At @code{fork} time, the @var{prepare} handlers are
+called in LIFO order (last added with @code{pthread_atfork}, first
+called before @code{fork}), while the @var{parent} and @var{child}
+handlers are called in FIFO order (first added, first called).
+
+If there is insufficient memory available to register the handlers,
+@code{pthread_atfork} fails and returns @code{ENOMEM}.  Otherwise it
+returns 0.
+
+The functions @code{fork} and @code{pthread_atfork} must not be regarded as
+reentrant from the context of the handlers.  That is to say, if a
+@code{pthread_atfork} handler invoked from within @code{fork} calls
+@code{pthread_atfork} or @code{fork}, the behavior is undefined.
+
+Registering a triplet of handlers is an atomic operation with respect to fork.
+If new handlers are registered at about the same time as a fork occurs, either
+all three handlers will be called, or none of them will be called.
+
+The handlers are inherited by the child process, and there is no
+way to remove them, short of using @code{exec} to load a new
+pocess image.
+
+@end deftypefun
+
+To understand the purpose of @code{pthread_atfork}, recall that
+@code{fork} duplicates the whole memory space, including mutexes in
+their current locking state, but only the calling thread: other threads
+are not running in the child process.  The mutexes are not usable after
+the @code{fork} and must be initialized with @code{pthread_mutex_init}
+in the child process.  This is a limitation of the current
+implementation and might or might not be present in future versions.
+
+To avoid this, install handlers with @code{pthread_atfork} as follows: have the
+@var{prepare} handler lock the mutexes (in locking order), and the
+@var{parent} handler unlock the mutexes. The @var{child} handler should reset
+the mutexes using @code{pthread_mutex_init}, as well as any other
+synchronization objects such as condition variables.
+
+Locking the global mutexes before the fork ensures that all other threads are
+locked out of the critical regions of code protected by those mutexes.  Thus
+when @code{fork} takes a snapshot of the parent's address space, that snapshot
+will copy valid, stable data.  Resetting the synchronization objects in the
+child process will ensure they are properly cleansed of any artifacts from the
+threading subsystem of the parent process. For example, a mutex may inherit
+a wait queue of threads waiting for the lock; this wait queue makes no sense
+in the child process. Initializing the mutex takes care of this.
+
+@node Streams and Fork
+@section Streams and Fork
+
+The GNU standard I/O library has an internal mutex which guards the internal
+linked list of all standard C FILE objects. This mutex is properly taken care
+of during @code{fork} so that the child receives an intact copy of the list.
+This allows the @code{fopen} function, and related stream-creating functions,
+to work correctly in the child process, since these functions need to insert
+into the list.
+
+However, the individual stream locks are not completely taken care of.  Thus
+unless the multithreaded application takes special precautions in its use of
+@code{fork}, the child process might not be able to safely use the streams that
+it inherited from the parent.   In general, for any given open stream in the
+parent that is to be used by the child process, the application must ensure
+that that stream is not in use by another thread when @code{fork} is called.
+Otherwise an inconsistent copy of the stream object be produced. An easy way to
+ensure this is to use @code{flockfile} to lock the stream prior to calling
+@code{fork} and then unlock it with @code{funlockfile} inside the parent
+process, provided that the parent's threads properly honor these locks.
+Nothing special needs to be done in the child process, since the library
+internally resets all stream locks.
+
+Note that the stream locks are not shared between the parent and child.
+For example, even if you ensure that, say, the stream @code{stdout} is properly
+treated and can be safely used in the child, the stream locks do not provide
+an exclusion mechanism between the parent and child. If both processes write
+to @code{stdout}, strangely interleaved output may result regardless of
+the explicit use of @code{flockfile} or implicit locks.
+
+Also note that these provisions are a GNU extension; other systems might not
+provide any way for streams to be used in the child of a multithreaded process.
+POSIX requires that such a child process confines itself to calling only
+asynchronous safe functions, which excludes much of the library, including
+standard I/O.
+
 @node Miscellaneous Thread Functions
 @section Miscellaneous Thread Functions
 
@@ -1287,49 +1501,6 @@ The thread @var{th} is already in the detached state
 @end deftypefun
 
 @comment pthread.h
-@comment POSIX
-@deftypefun int pthread_atfork (void (*@var{prepare})(void), void (*@var{parent})(void), void (*@var{child})(void))
-
-@code{pthread_atfork} registers handler functions to be called just
-before and just after a new process is created with @code{fork}. The
-@var{prepare} handler will be called from the parent process, just
-before the new process is created. The @var{parent} handler will be
-called from the parent process, just before @code{fork} returns. The
-@var{child} handler will be called from the child process, just before
-@code{fork} returns.
-
-@code{pthread_atfork} returns 0 on success and a non-zero error code on
-error.
-
-One or more of the three handlers @var{prepare}, @var{parent} and
-@var{child} can be given as @code{NULL}, meaning that no handler needs
-to be called at the corresponding point.
-
-@code{pthread_atfork} can be called several times to install several
-sets of handlers. At @code{fork} time, the @var{prepare} handlers are
-called in LIFO order (last added with @code{pthread_atfork}, first
-called before @code{fork}), while the @var{parent} and @var{child}
-handlers are called in FIFO order (first added, first called).
-
-If there is insufficient memory available to register the handlers,
-@code{pthread_atfork} fails and returns @code{ENOMEM}.  Otherwise it
-returns 0.
-@end deftypefun
-
-To understand the purpose of @code{pthread_atfork}, recall that
-@code{fork} duplicates the whole memory space, including mutexes in
-their current locking state, but only the calling thread: other threads
-are not running in the child process. Thus, if a mutex is locked by a
-thread other than the thread calling @code{fork}, that mutex will remain
-locked forever in the child process, possibly blocking the execution of
-the child process. To avoid this, install handlers with
-@code{pthread_atfork} as follows: the @var{prepare} handler locks the
-global mutexes (in locking order), and the @var{parent} and @var{child}
-handlers unlock them (in reverse order). Alternatively, @var{prepare}
-and @var{parent} can be set to @code{NULL} and @var{child} to a function
-that calls @code{pthread_mutex_init} on the global mutexes.
-
-@comment pthread.h
 @comment GNU
 @deftypefun void pthread_kill_other_threads_np (@var{void})
 @code{pthread_kill_other_threads_np} is a non-portable LinuxThreads extension.
@@ -1367,6 +1538,15 @@ argument and changes the value of the @var{once_control} variable to
 record that initialization has been performed. Subsequent calls to
 @code{pthread_once} with the same @code{once_control} argument do
 nothing.
+
+If a thread is cancelled while executing @var{init_routine}
+the state of the @var{once_control} variable is reset so that
+a future call to @code{pthread_once} will call the routine again.
+
+If the process forks while one or more threads are executing
+@code{pthread_once} initialization routines, the states of their respective
+@var{once_control} variables will appear to be reset in the child process so
+that if the child calls @code{pthread_once}, the routines will be executed.
 
 @code{pthread_once} always returns 0.
 @end deftypefun
@@ -1425,4 +1605,23 @@ The @var{target_thread} is invalid or has already terminated.
 @var{policy} or @var{param} point outside the process memory space.
 
 @end table
+@end deftypefun
+
+@comment pthread.h
+@comment POSIX
+@deftypefun int pthread_setconcurrency (int @var{level})
+@code{pthread_setconcurrency} is unused in LinuxThreads due to the lack
+of a mapping of user threads to kernel threads.  It exists for source
+compatibility.  It does store the value @var{level} so that it can be
+returned by a subsequent call to @code{pthread_getconcurrency}.  It takes
+no other action however.
+@end deftypefun
+
+@comment pthread.h
+@comment POSIX
+@deftypefun int pthread_getconcurrency ()
+@code{pthread_getconcurrency} is unused in LinuxThreads due to the lack
+of a mapping of user threads to kernel threads.  It exists for source
+compatibility.  However, it will return the value that was set by the
+last call to @code{pthread_setconcurrency}.
 @end deftypefun
