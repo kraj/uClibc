@@ -73,7 +73,7 @@ int pthread_cancel(pthread_t thread)
   int already_canceled;
 
   __pthread_lock(&handle->h_lock, NULL);
-  if (invalid_handle(handle, thread)) {
+  if (nonexisting_handle(handle, thread)) {
     __pthread_unlock(&handle->h_lock);
     return ESRCH;
   }

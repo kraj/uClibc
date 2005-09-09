@@ -632,7 +632,7 @@ int pthread_setschedparam(pthread_t thread, int policy,
   pthread_descr th;
 
   __pthread_lock(&handle->h_lock, NULL);
-  if (invalid_handle(handle, thread)) {
+  if (nonexisting_handle(handle, thread)) {
     __pthread_unlock(&handle->h_lock);
     return ESRCH;
   }
@@ -655,7 +655,7 @@ int pthread_getschedparam(pthread_t thread, int *policy,
   int pid, pol;
 
   __pthread_lock(&handle->h_lock, NULL);
-  if (invalid_handle(handle, thread)) {
+  if (nonexisting_handle(handle, thread)) {
     __pthread_unlock(&handle->h_lock);
     return ESRCH;
   }
