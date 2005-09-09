@@ -18,6 +18,8 @@
 #define __getpagesize getpagesize
 #define __sched_get_priority_min sched_get_priority_min
 #define __sched_get_priority_max sched_get_priority_max
+#define __sched_getscheduler sched_getscheduler
+#define __sched_getparam sched_getparam
 
 #include <features.h>
 #define __USE_GNU
@@ -33,12 +35,27 @@
 #include "pthread.h"
 #include "internals.h"
 
+/* glibc uses strong aliases, we wont bother */
+#undef strong_alias
+#define strong_alias(sym, alias)
+#define __pthread_attr_destroy          pthread_attr_destroy
+#define __pthread_attr_setdetachstate   pthread_attr_setdetachstate
+#define __pthread_attr_getdetachstate   pthread_attr_getdetachstate
+#define __pthread_attr_setschedparam    pthread_attr_setschedparam
+#define __pthread_attr_getschedparam    pthread_attr_getschedparam
+#define __pthread_attr_setschedpolicy   pthread_attr_setschedpolicy
+#define __pthread_attr_getschedpolicy   pthread_attr_getschedpolicy
+#define __pthread_attr_setinheritsched  pthread_attr_setinheritsched
+#define __pthread_attr_getinheritsched  pthread_attr_getinheritsched
+#define __pthread_attr_setscope         pthread_attr_setscope
+#define __pthread_attr_getscope         pthread_attr_getscope
+
 /* NOTE: With uClibc I don't think we need this versioning stuff.
  * Therefore, define the function pthread_attr_init() here using
  * a strong symbol. */
 
-/*int __pthread_attr_init_2_1(pthread_attr_t *attr)*/
-int pthread_attr_init(pthread_attr_t *attr)
+#define __pthread_attr_init_2_1 pthread_attr_init
+int __pthread_attr_init_2_1(pthread_attr_t *attr)
 {
   size_t ps = __getpagesize ();
 
@@ -59,10 +76,11 @@ int pthread_attr_init(pthread_attr_t *attr)
 }
 
 /* uClibc: leave out this for now. */
-#if DO_PTHREAD_VERSIONING_WITH_UCLIBC
-#if defined __HAVE_ELF__ && defined __PIC__ && defined DO_VERSIONING
-default_symbol_version (__pthread_attr_init_2_1, pthread_attr_init, GLIBC_2.1);
+#if 0
+versioned_symbol (libpthread, __pthread_attr_init_2_1, pthread_attr_init,
+		  GLIBC_2_1);
 
+#if SHLIB_COMPAT(libpthread, GLIBC_2_0, GLIBC_2_1)
 int __pthread_attr_init_2_0(pthread_attr_t *attr)
 {
   attr->__detachstate = PTHREAD_CREATE_JOINABLE;
@@ -72,18 +90,18 @@ int __pthread_attr_init_2_0(pthread_attr_t *attr)
   attr->__scope = PTHREAD_SCOPE_SYSTEM;
   return 0;
 }
-symbol_version (__pthread_attr_init_2_0, pthread_attr_init, GLIBC_2.0);
-#else
-strong_alias (__pthread_attr_init_2_1, pthread_attr_init)
+compat_symbol (libpthread, __pthread_attr_init_2_0, pthread_attr_init,
+	       GLIBC_2_0);
 #endif
-#endif /* DO_PTHREAD_VERSIONING_WITH_UCLIBC */
+#endif
 
-int pthread_attr_destroy(pthread_attr_t *attr)
+int __pthread_attr_destroy(pthread_attr_t *attr)
 {
   return 0;
 }
+strong_alias (__pthread_attr_destroy, pthread_attr_destroy);
 
-int pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate)
+int __pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate)
 {
   if (detachstate < PTHREAD_CREATE_JOINABLE ||
       detachstate > PTHREAD_CREATE_DETACHED)
@@ -91,15 +109,17 @@ int pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate)
   attr->__detachstate = detachstate;
   return 0;
 }
+strong_alias (__pthread_attr_setdetachstate, pthread_attr_setdetachstate);
 
-int pthread_attr_getdetachstate(const pthread_attr_t *attr, int *detachstate)
+int __pthread_attr_getdetachstate(const pthread_attr_t *attr, int *detachstate)
 {
   *detachstate = attr->__detachstate;
   return 0;
 }
+strong_alias (__pthread_attr_getdetachstate, pthread_attr_getdetachstate);
 
-int pthread_attr_setschedparam(pthread_attr_t *attr,
-                               const struct sched_param *param)
+int __pthread_attr_setschedparam(pthread_attr_t *attr,
+                                 const struct sched_param *param)
 {
   int max_prio = __sched_get_priority_max(attr->__schedpolicy);
   int min_prio = __sched_get_priority_min(attr->__schedpolicy);
@@ -109,43 +129,49 @@ int pthread_attr_setschedparam(pthread_attr_t *attr,
   memcpy (&attr->__schedparam, param, sizeof (struct sched_param));
   return 0;
 }
+strong_alias (__pthread_attr_setschedparam, pthread_attr_setschedparam);
 
-int pthread_attr_getschedparam(const pthread_attr_t *attr,
-                               struct sched_param *param)
+int __pthread_attr_getschedparam(const pthread_attr_t *attr,
+                                 struct sched_param *param)
 {
   memcpy (param, &attr->__schedparam, sizeof (struct sched_param));
   return 0;
 }
+strong_alias (__pthread_attr_getschedparam, pthread_attr_getschedparam);
 
-int pthread_attr_setschedpolicy(pthread_attr_t *attr, int policy)
+int __pthread_attr_setschedpolicy(pthread_attr_t *attr, int policy)
 {
   if (policy != SCHED_OTHER && policy != SCHED_FIFO && policy != SCHED_RR)
     return EINVAL;
   attr->__schedpolicy = policy;
   return 0;
 }
+strong_alias (__pthread_attr_setschedpolicy, pthread_attr_setschedpolicy);
 
-int pthread_attr_getschedpolicy(const pthread_attr_t *attr, int *policy)
+int __pthread_attr_getschedpolicy(const pthread_attr_t *attr, int *policy)
 {
   *policy = attr->__schedpolicy;
   return 0;
 }
+strong_alias (__pthread_attr_getschedpolicy, pthread_attr_getschedpolicy);
 
-int pthread_attr_setinheritsched(pthread_attr_t *attr, int inherit)
+int __pthread_attr_setinheritsched(pthread_attr_t *attr, int inherit)
 {
   if (inherit != PTHREAD_INHERIT_SCHED && inherit != PTHREAD_EXPLICIT_SCHED)
     return EINVAL;
   attr->__inheritsched = inherit;
   return 0;
 }
+strong_alias (__pthread_attr_setinheritsched, pthread_attr_setinheritsched);
 
-int pthread_attr_getinheritsched(const pthread_attr_t *attr, int *inherit)
+int __pthread_attr_getinheritsched(const pthread_attr_t *attr, int *inherit)
 {
   *inherit = attr->__inheritsched;
   return 0;
 }
+strong_alias (__pthread_attr_getinheritsched, pthread_attr_getinheritsched);
 
-int pthread_attr_setscope(pthread_attr_t *attr, int scope)
+int __pthread_attr_setscope(pthread_attr_t *attr, int scope)
 {
   switch (scope) {
   case PTHREAD_SCOPE_SYSTEM:
@@ -157,12 +183,14 @@ int pthread_attr_setscope(pthread_attr_t *attr, int scope)
     return EINVAL;
   }
 }
+strong_alias (__pthread_attr_setscope, pthread_attr_setscope);
 
-int pthread_attr_getscope(const pthread_attr_t *attr, int *scope)
+int __pthread_attr_getscope(const pthread_attr_t *attr, int *scope)
 {
   *scope = attr->__scope;
   return 0;
 }
+strong_alias (__pthread_attr_getscope, pthread_attr_getscope);
 
 int __pthread_attr_setguardsize(pthread_attr_t *attr, size_t guardsize)
 {
@@ -206,6 +234,7 @@ weak_alias (__pthread_attr_getstackaddr, pthread_attr_getstackaddr)
 link_warning (pthread_attr_getstackaddr,
 	      "the use of `pthread_attr_getstackaddr' is deprecated, use `pthread_attr_getstack'")
 
+
 int __pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
 {
 #ifdef FLOATING_STACKS
@@ -230,7 +259,45 @@ int __pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
   attr->__stacksize = stacksize;
   return 0;
 }
+
+/* Don't bother with this version stuff in uClibc */
+#if 1 /*PTHREAD_STACK_MIN == 16384*/
 weak_alias (__pthread_attr_setstacksize, pthread_attr_setstacksize)
+#else
+versioned_symbol (libpthread, __pthread_attr_setstacksize,
+                  pthread_attr_setstacksize, GLIBC_2_3_3);
+
+# if SHLIB_COMPAT(libpthread, GLIBC_2_1, GLIBC_2_3_3)
+
+int __old_pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
+{
+#  ifdef FLOATING_STACKS
+  /* We have to check against the maximum allowed stack size.  This is no
+     problem if the manager is already started and we determined it.  If
+     this hasn't happened, we have to find the limit outself.  */
+  if (__pthread_max_stacksize == 0)
+    __pthread_init_max_stacksize ();
+
+  if (stacksize > __pthread_max_stacksize)
+    return EINVAL;
+#  else
+  /* We have a fixed size limit.  */
+  if (stacksize > STACK_SIZE)
+    return EINVAL;
+#  endif
+
+  /* We don't accept value smaller than old PTHREAD_STACK_MIN.  */
+  if (stacksize < 16384)
+    return EINVAL;
+
+  attr->__stacksize = stacksize;
+  return 0;
+}
+compat_symbol (libpthread, __old_pthread_attr_setstacksize,
+	       pthread_attr_setstacksize, GLIBC_2_1);
+# endif
+#endif
+
 
 int __pthread_attr_getstacksize(const pthread_attr_t *attr, size_t *stacksize)
 {
@@ -262,6 +329,42 @@ int __pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr,
   return err;
 }
 
+/* Don't bother with this version stuff in uClibc */
+#if 1 /*PTHREAD_STACK_MIN == 16384*/
+weak_alias (__pthread_attr_setstack, pthread_attr_setstack)
+#else
+versioned_symbol (libpthread, __pthread_attr_setstack, pthread_attr_setstack,
+                  GLIBC_2_3_3);
+# if SHLIB_COMPAT(libpthread, GLIBC_2_2, GLIBC_2_3_3)
+int __old_pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr,
+				 size_t stacksize)
+{
+  int err;
+
+  if ((((uintptr_t) stackaddr)
+       & (__alignof__ (struct _pthread_descr_struct) - 1)) != 0)
+    err = EINVAL;
+  else
+    err = __old_pthread_attr_setstacksize (attr, stacksize);
+  if (err == 0)
+    {
+#  ifndef _STACK_GROWS_UP
+      attr->__stackaddr = (char *) stackaddr + stacksize;
+#  else
+      attr->__stackaddr = stackaddr;
+#  endif
+      attr->__stackaddr_set = 1;
+    }
+
+  return err;
+}
+
+compat_symbol (libpthread, __old_pthread_attr_setstack, pthread_attr_setstack,
+               GLIBC_2_2);
+
+# endif
+#endif
+
 int __pthread_attr_getstack (const pthread_attr_t *attr, void **stackaddr,
 			     size_t *stacksize)
 {
@@ -277,3 +380,140 @@ int __pthread_attr_getstack (const pthread_attr_t *attr, void **stackaddr,
   return 0;
 }
 weak_alias (__pthread_attr_getstack, pthread_attr_getstack)
+
+/* can't fully support this just yet */
+#if 0
+int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
+{
+  pthread_handle handle = thread_handle (thread);
+  pthread_descr descr;
+  int ret = 0;
+
+  if (handle == NULL)
+    return ENOENT;
+
+  descr = handle->h_descr;
+
+  attr->__detachstate = (descr->p_detached
+			 ? PTHREAD_CREATE_DETACHED
+			 : PTHREAD_CREATE_JOINABLE);
+
+  attr->__schedpolicy = __sched_getscheduler (descr->p_pid);
+  if (attr->__schedpolicy == -1)
+    return errno;
+
+  if (__sched_getparam (descr->p_pid,
+			(struct sched_param *) &attr->__schedparam) != 0)
+    return errno;
+
+  attr->__inheritsched = descr->p_inheritsched;
+  attr->__scope = PTHREAD_SCOPE_SYSTEM;
+
+#ifdef _STACK_GROWS_DOWN
+# ifdef USE_TLS
+  attr->__stacksize = descr->p_stackaddr - (char *)descr->p_guardaddr
+		      - descr->p_guardsize;
+# else
+  attr->__stacksize = (char *)(descr + 1) - (char *)descr->p_guardaddr
+		      - descr->p_guardsize;
+# endif
+#else
+# ifdef USE_TLS
+  attr->__stacksize = (char *)descr->p_guardaddr - descr->p_stackaddr;
+# else
+  attr->__stacksize = (char *)descr->p_guardaddr - (char *)descr;
+# endif
+#endif
+  attr->__guardsize = descr->p_guardsize;
+  attr->__stackaddr_set = descr->p_userstack;
+#ifdef NEED_SEPARATE_REGISTER_STACK
+  if (descr->p_userstack == 0)
+    attr->__stacksize *= 2;
+  /* XXX This is awkward.  The guard pages are in the middle of the
+     two stacks.  We must count the guard size in the stack size since
+     otherwise the range of the stack area cannot be computed.  */
+  attr->__stacksize += attr->__guardsize;
+#endif
+#ifdef USE_TLS
+  attr->__stackaddr = descr->p_stackaddr;
+#else
+# ifndef _STACK_GROWS_UP
+  attr->__stackaddr = (char *)(descr + 1);
+# else
+  attr->__stackaddr = (char *)descr;
+# endif
+#endif
+
+#ifdef USE_TLS
+  if (attr->__stackaddr == NULL)
+#else
+  if (descr == &__pthread_initial_thread)
+#endif
+    {
+      /* Stack size limit.  */
+      struct rlimit rl;
+
+      /* The safest way to get the top of the stack is to read
+	 /proc/self/maps and locate the line into which
+	 __libc_stack_end falls.  */
+      FILE *fp = fopen ("/proc/self/maps", "rc");
+      if (fp == NULL)
+	ret = errno;
+      /* We need the limit of the stack in any case.  */
+      else if (getrlimit (RLIMIT_STACK, &rl) != 0)
+	ret = errno;
+      else
+	{
+	  /* We need no locking.  */
+	  __fsetlocking (fp, FSETLOCKING_BYCALLER);
+
+	  /* Until we found an entry (which should always be the case)
+	     mark the result as a failure.  */
+	  ret = ENOENT;
+
+	  char *line = NULL;
+	  size_t linelen = 0;
+	  uintptr_t last_to = 0;
+
+	  while (! feof_unlocked (fp))
+	    {
+	      if (__getdelim (&line, &linelen, '\n', fp) <= 0)
+		break;
+
+	      uintptr_t from;
+	      uintptr_t to;
+	      if (sscanf (line, "%" SCNxPTR "-%" SCNxPTR, &from, &to) != 2)
+		continue;
+	      if (from <= (uintptr_t) __libc_stack_end
+		  && (uintptr_t) __libc_stack_end < to)
+		{
+		  /* Found the entry.  Now we have the info we need.  */
+		  attr->__stacksize = rl.rlim_cur;
+#ifdef _STACK_GROWS_UP
+		  /* Don't check to enforce a limit on the __stacksize */
+		  attr->__stackaddr = (void *) from;
+#else
+		  attr->__stackaddr = (void *) to;
+
+		  /* The limit might be too high.  */
+		  if ((size_t) attr->__stacksize
+		      > (size_t) attr->__stackaddr - last_to)
+		    attr->__stacksize = (size_t) attr->__stackaddr - last_to;
+#endif
+
+		  /* We succeed and no need to look further.  */
+		  ret = 0;
+		  break;
+		}
+	      last_to = to;
+	    }
+
+	  fclose (fp);
+	  free (line);
+	}
+    }
+
+  return 0;
+
+}
+#endif
