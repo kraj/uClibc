@@ -19,6 +19,7 @@
 
 /* Includes */
 
+#include <features.h>
 #include <bits/libc-tsd.h> /* for _LIBC_TSD_KEY_N */
 #include <limits.h>
 #include <setjmp.h>
@@ -27,8 +28,10 @@
 #include <bits/stackinfo.h>
 #include <sys/types.h>
 #include "pt-machine.h"
+#include <ucontext.h>
+#include <bits/sigcontextinfo.h>
 #include "semaphore.h"
-#include "../linuxthreads_db/thread_dbP.h"
+#include "descr.h"
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <bits/uClibc_locale.h>
 #endif /* __UCLIBC_HAS_XLOCALE__ */
@@ -52,30 +55,14 @@
 # define THREAD_SETMEM_NC(descr, member, value) descr->member = (value)
 #endif
 
-/* Arguments passed to thread creation routine */
-
-struct pthread_start_args {
-  void * (*start_routine)(void *); /* function to run */
-  void * arg;                   /* its argument */
-  sigset_t mask;                /* initial signal mask for thread */
-  int schedpolicy;              /* initial scheduling policy (if any) */
-  struct sched_param schedparam; /* initial scheduling parameters (if any) */
-};
-
-
-/* We keep thread specific data in a special data structure, a two-level
-   array.  The top-level array contains pointers to dynamically allocated
-   arrays of a certain number of data pointers.  So we can implement a
-   sparse array.  Each dynamic second-level array has
-	PTHREAD_KEY_2NDLEVEL_SIZE
-   entries.  This value shouldn't be too large.  */
-#define PTHREAD_KEY_2NDLEVEL_SIZE	32
-
-/* We need to address PTHREAD_KEYS_MAX key with PTHREAD_KEY_2NDLEVEL_SIZE
-   keys in each subarray.  */
-#define PTHREAD_KEY_1STLEVEL_SIZE \
-  ((PTHREAD_KEYS_MAX + PTHREAD_KEY_2NDLEVEL_SIZE - 1) \
-   / PTHREAD_KEY_2NDLEVEL_SIZE)
+#if !defined NOT_IN_libc && defined FLOATING_STACKS
+# define LIBC_THREAD_GETMEM(descr, member) THREAD_GETMEM (descr, member)
+# define LIBC_THREAD_SETMEM(descr, member, value) \
+  THREAD_SETMEM (descr, member, value)
+#else
+# define LIBC_THREAD_GETMEM(descr, member) descr->member
+# define LIBC_THREAD_SETMEM(descr, member, value) descr->member = (value)
+#endif
 
 typedef void (*destr_function)(void *);
 
@@ -85,105 +72,9 @@ struct pthread_key_struct {
 };
 
 
-#define PTHREAD_START_ARGS_INITIALIZER { NULL, NULL, {{0, }}, 0, { 0 } }
+#define PTHREAD_START_ARGS_INITIALIZER(fct) \
+  { (void *(*) (void *)) fct, NULL, {{0, }}, 0, { 0 } }
 
-/* The type of thread descriptors */
-
-typedef struct _pthread_descr_struct * pthread_descr;
-
-/* Callback interface for removing the thread from waiting on an
-   object if it is cancelled while waiting or about to wait.
-   This hold a pointer to the object, and a pointer to a function
-   which ``extricates'' the thread from its enqueued state.
-   The function takes two arguments: pointer to the wait object,
-   and a pointer to the thread. It returns 1 if an extrication
-   actually occured, and hence the thread must also be signalled.
-   It returns 0 if the thread had already been extricated. */
-
-typedef struct _pthread_extricate_struct {
-    void *pu_object;
-    int (*pu_extricate_func)(void *, pthread_descr);
-} pthread_extricate_if;
-
-/* Atomic counter made possible by compare_and_swap */
-
-struct pthread_atomic {
-  long p_count;
-  int p_spinlock;
-};
-
-/* Context info for read write locks. The pthread_rwlock_info structure
-   is information about a lock that has been read-locked by the thread
-   in whose list this structure appears. The pthread_rwlock_context
-   is embedded in the thread context and contains a pointer to the
-   head of the list of lock info structures, as well as a count of
-   read locks that are untracked, because no info structure could be
-   allocated for them. */
-
-struct _pthread_rwlock_t;
-
-typedef struct _pthread_rwlock_info {
-  struct _pthread_rwlock_info *pr_next;
-  struct _pthread_rwlock_t *pr_lock;
-  int pr_lock_count;
-} pthread_readlock_info;
-
-struct _pthread_descr_struct {
-  pthread_descr p_nextlive, p_prevlive;
-                                /* Double chaining of active threads */
-  pthread_descr p_nextwaiting;  /* Next element in the queue holding the thr */
-  pthread_descr p_nextlock;	/* can be on a queue and waiting on a lock */
-  pthread_t p_tid;              /* Thread identifier */
-  int p_pid;                    /* PID of Unix process */
-  int p_priority;               /* Thread priority (== 0 if not realtime) */
-  struct _pthread_fastlock * p_lock; /* Spinlock for synchronized accesses */
-  int p_signal;                 /* last signal received */
-  sigjmp_buf * p_signal_jmp;    /* where to siglongjmp on a signal or NULL */
-  sigjmp_buf * p_cancel_jmp;    /* where to siglongjmp on a cancel or NULL */
-  char p_terminated;            /* true if terminated e.g. by pthread_exit */
-  char p_detached;              /* true if detached */
-  char p_exited;                /* true if the assoc. process terminated */
-  void * p_retval;              /* placeholder for return value */
-  int p_retcode;                /* placeholder for return code */
-  pthread_descr p_joining;      /* thread joining on that thread or NULL */
-  struct _pthread_cleanup_buffer * p_cleanup; /* cleanup functions */
-  char p_cancelstate;           /* cancellation state */
-  char p_canceltype;            /* cancellation type (deferred/async) */
-  char p_canceled;              /* cancellation request pending */
-  int * p_errnop;               /* pointer to used errno variable */
-  int p_errno;                  /* error returned by last system call */
-  int * p_h_errnop;             /* pointer to used h_errno variable */
-  int p_h_errno;                /* error returned by last netdb function */
-  char * p_in_sighandler;       /* stack address of sighandler, or NULL */
-  char p_sigwaiting;            /* true if a sigwait() is in progress */
-  struct pthread_start_args p_start_args; /* arguments for thread creation */
-  void ** p_specific[PTHREAD_KEY_1STLEVEL_SIZE]; /* thread-specific data */
-  void * p_libc_specific[_LIBC_TSD_KEY_N]; /* thread-specific data for libc */
-  int p_userstack;		/* nonzero if the user provided the stack */
-  void *p_guardaddr;		/* address of guard area or NULL */
-  size_t p_guardsize;		/* size of guard area */
-  pthread_descr p_self;		/* Pointer to this structure */
-  int p_nr;                     /* Index of descriptor in __pthread_handles */
-  int p_report_events;         /* Nonzero if events must be reported.  */
-  td_eventbuf_t p_eventbuf;     /* Data for event.  */
-  struct pthread_atomic p_resume_count; /* number of times restart() was
-					   called on thread */
-  char p_woken_by_cancel;       /* cancellation performed wakeup */
-  char p_condvar_avail;         /* flag if conditional variable became avail */
-  char p_sem_avail;             /* flag if semaphore became available */
-  pthread_extricate_if *p_extricate; /* See above */
-  pthread_readlock_info *p_readlock_list;  /* List of readlock info structs */
-  pthread_readlock_info *p_readlock_free;  /* Free list of structs */
-  int p_untracked_readlock_count;	/* Readlocks not tracked by list */
-  /* New elements must be added at the end.  */
-#ifdef __UCLIBC_HAS_XLOCALE__
-  __locale_t locale; /* thread-specific locale from uselocale() only! */
-#endif /* __UCLIBC_HAS_XLOCALE__ */
-} __attribute__ ((aligned(32))); /* We need to align the structure so that
-				    doubles are aligned properly.  This is 8
-				    bytes on MIPS and 16 bytes on MIPS64.
-				    32 bytes might give better cache
-				    utilization.  */
 
 /* The type of thread handles. */
 
@@ -225,6 +116,16 @@ struct pthread_request {
 };
 
 
+
+typedef void (*arch_sighandler_t) (int, SIGCONTEXT);
+union sighandler
+{
+  arch_sighandler_t old;
+  void (*rt) (int, struct siginfo *, struct ucontext *);
+};
+extern union sighandler __sighandler[NSIG];
+
+
 /* Signals used for suspend/restart and for cancellation notification.  */
 
 extern int __pthread_sig_restart;
@@ -240,40 +141,9 @@ extern int __pthread_sig_debug;
 
 extern struct pthread_handle_struct __pthread_handles[PTHREAD_THREADS_MAX];
 
-/* Descriptor of the initial thread */
-
-extern struct _pthread_descr_struct __pthread_initial_thread;
-
-/* Descriptor of the manager thread */
-
-extern struct _pthread_descr_struct __pthread_manager_thread;
-
 /* Descriptor of the main thread */
 
 extern pthread_descr __pthread_main_thread;
-
-/* Limit between the stack of the initial thread (above) and the
-   stacks of other threads (below). Aligned on a STACK_SIZE boundary.
-   Initially 0, meaning that the current thread is (by definition)
-   the initial thread. */
-
-/* For non-MMU systems also remember to stack top of the initial thread.
- * This is adapted when other stacks are malloc'ed since we don't know
- * the bounds a-priori. -StS */
-
-extern char *__pthread_initial_thread_bos;
-#ifndef __ARCH_HAS_MMU__
-extern char *__pthread_initial_thread_tos;
-#define NOMMU_INITIAL_THREAD_BOUNDS(tos,bos) if ((tos)>=__pthread_initial_thread_bos && (bos)<=__pthread_initial_thread_tos) __pthread_initial_thread_bos = (tos)+1
-#else
-#define NOMMU_INITIAL_THREAD_BOUNDS(tos,bos) /* empty */
-#endif /* __ARCH_HAS_MMU__ */
-
-
-/* Indicate whether at least one thread has a user-defined stack (if 1),
-   or all threads have stacks supplied by LinuxThreads (if 0). */
-
-extern int __pthread_nonstandard_stacks;
 
 /* File descriptor for sending requests to the thread manager.
    Initially -1, meaning that __pthread_initialize_manager must be called. */
@@ -288,11 +158,6 @@ extern int __pthread_manager_reader;
 /* Maximum stack size.  */
 extern size_t __pthread_max_stacksize;
 #endif
-
-/* Limits of the thread manager stack. */
-
-extern char *__pthread_manager_thread_bos;
-extern char *__pthread_manager_thread_tos;
 
 /* Pending request for a process-wide exit */
 
@@ -321,6 +186,11 @@ static inline pthread_handle thread_handle(pthread_t id)
 /* Validate a thread handle. Must have acquired h->h_spinlock before. */
 
 static inline int invalid_handle(pthread_handle h, pthread_t id)
+{
+  return h->h_descr == NULL || h->h_descr->p_tid != id || h->h_descr->p_terminated;
+}
+
+static inline int nonexisting_handle(pthread_handle h, pthread_t id)
 {
   return h->h_descr == NULL || h->h_descr->p_tid != id;
 }
@@ -351,28 +221,11 @@ extern size_t __pagesize;
 #define THREAD_MANAGER_STACK_SIZE  (2 * __pagesize - 32)
 #endif
 
-/* The max size of the thread stack segments.  If the default
-   THREAD_SELF implementation is used, this must be a power of two and
-   a multiple of PAGE_SIZE.  */
-#ifndef STACK_SIZE
-#ifdef __ARCH_HAS_MMU__
-#define STACK_SIZE  (2 * 1024 * 1024)
-#else
-#define STACK_SIZE  (4 * __pagesize)
-#endif
-#endif
-
 /* The base of the "array" of thread stacks.  The array will grow down from
    here.  Defaults to the calculated bottom of the initial application
    stack.  */
 #ifndef THREAD_STACK_START_ADDRESS
 #define THREAD_STACK_START_ADDRESS  __pthread_initial_thread_bos
-#endif
-
-/* Get some notion of the current stack.  Need not be exactly the top
-   of the stack, just something somewhere in the current frame.  */
-#ifndef CURRENT_STACK_FRAME
-#define CURRENT_STACK_FRAME  ({ char __csf; &__csf; })
 #endif
 
 /* If MEMORY_BARRIER isn't defined in pt-machine.h, assume the
@@ -414,54 +267,6 @@ extern size_t __pagesize;
 #ifndef SPIN_SLEEP_DURATION
 #define SPIN_SLEEP_DURATION 2000001
 #endif
-
-/* Recover thread descriptor for the current thread */
-
-extern pthread_descr __pthread_find_self (void) __attribute__ ((const));
-
-static inline pthread_descr thread_self (void) __attribute__ ((const));
-static inline pthread_descr thread_self (void)
-{
-#ifdef THREAD_SELF
-  return THREAD_SELF;
-#else
-  char *sp = CURRENT_STACK_FRAME;
-#ifdef __ARCH_HAS_MMU__
-  if (sp >= __pthread_initial_thread_bos)
-    return &__pthread_initial_thread;
-  else if (sp >= __pthread_manager_thread_bos
-	   && sp < __pthread_manager_thread_tos)
-    return &__pthread_manager_thread;
-  else if (__pthread_nonstandard_stacks)
-    return __pthread_find_self();
-  else
-    return (pthread_descr)(((unsigned long)sp | (STACK_SIZE-1))+1) - 1;
-#else
-  /* For non-MMU we need to be more careful about the initial thread stack.
-   * We refine the initial thread stack bounds dynamically as we allocate
-   * the other stack frame such that it doesn't overlap with them. Then
-   * we can be sure to pick the right thread according to the current SP */
-
-  /* Since we allow other stack frames to be above or below, we need to
-   * treat this case special. When pthread_initialize() wasn't called yet,
-   * only the initial thread is there. */
-  if (__pthread_initial_thread_bos == NULL) {
-      return &__pthread_initial_thread;
-  }
-  else if (sp >= __pthread_initial_thread_bos
-	   && sp < __pthread_initial_thread_tos) {
-      return &__pthread_initial_thread;
-  }
-  else if (sp >= __pthread_manager_thread_bos
-	   && sp < __pthread_manager_thread_tos) {
-      return &__pthread_manager_thread;
-  }
-  else {
-      return __pthread_find_self();
-  }
-#endif /* __ARCH_HAS_MMU__ */
-#endif
-}
 
 /* Debugging */
 

@@ -77,7 +77,6 @@ int pthread_kill(pthread_t thread, int signo)
 }
 
 /* User-provided signal handlers */
-typedef void (*arch_sighandler_t) __PMT ((int, SIGCONTEXT));
 static union
 {
   arch_sighandler_t old;
