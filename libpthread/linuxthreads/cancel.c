@@ -89,13 +89,12 @@ int pthread_cancel(pthread_t thread)
   }
 
   pextricate = th->p_extricate;
-  th->p_canceled = 1;
   pid = th->p_pid;
 
   /* If the thread has registered an extrication interface, then
      invoke the interface. If it returns 1, then we succeeded in
      dequeuing the thread from whatever waiting object it was enqueued
-     with. In that case, it is our responsibility to wake it up. 
+     with. In that case, it is our responsibility to wake it up.
      And also to set the p_woken_by_cancel flag so the woken thread
      can tell that it was woken by cancellation. */
 
