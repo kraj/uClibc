@@ -126,7 +126,7 @@ int __pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
 
   if (already_canceled) {
     __pthread_set_own_extricate_if(self, 0);
-    __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
+    pthread_exit(PTHREAD_CANCELED);
   }
 
   pthread_mutex_unlock(mutex);
@@ -155,7 +155,7 @@ int __pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
       && THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE) {
     THREAD_SETMEM(self, p_woken_by_cancel, 0);
     pthread_mutex_lock(mutex);
-    __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
+    pthread_exit(PTHREAD_CANCELED);
   }
 
   /* Put back any resumes we caught that don't belong to us. */
@@ -211,7 +211,7 @@ pthread_cond_timedwait_relative(pthread_cond_t *cond,
 
   if (already_canceled) {
     __pthread_set_own_extricate_if(self, 0);
-    __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
+    pthread_exit(PTHREAD_CANCELED);
   }
 
   pthread_mutex_unlock(mutex);
@@ -259,7 +259,7 @@ pthread_cond_timedwait_relative(pthread_cond_t *cond,
       && THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE) {
     THREAD_SETMEM(self, p_woken_by_cancel, 0);
     pthread_mutex_lock(mutex);
-    __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
+    pthread_exit(PTHREAD_CANCELED);
   }
 
   /* Put back any resumes we caught that don't belong to us. */
