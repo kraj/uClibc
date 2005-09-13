@@ -83,10 +83,8 @@ endif
 
 headers:
 	$(LN) -fs ../libc/sysdeps/linux/mips/sgidefs.h $(TOPDIR)/include/
-#	$(LN) -fs ../libc/sysdeps/linux/mips/regdef.h $(TOPDIR)/include/
 	$(LN) -fs ../libc/sysdeps/linux/mips/fpu_control.h $(TOPDIR)/include/
 	cp sysdep.h $(TOPDIR)/include/
-	cp sysdep-nptl.h $(TOPDIR)/include/
 
 clean:
 	$(RM) *.[oa] *~ core

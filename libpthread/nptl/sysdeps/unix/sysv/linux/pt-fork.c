@@ -22,10 +22,6 @@
 pid_t
 __fork (void)
 {
-#ifdef __UCLIBC__
   return __libc_fork_nptl ();
-#else
-  return __libc_fork ();
-#endif
 }
 strong_alias (__fork, fork)

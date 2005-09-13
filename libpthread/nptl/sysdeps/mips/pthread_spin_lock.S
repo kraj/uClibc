@@ -33,5 +33,6 @@ ENTRY (pthread_spin_lock)
 	MIPS_SYNC
 	.set	pop
 	li	v0, 0
-	ret
-PSEUDO_END (pthread_spin_lock)
+	j	ra
+	nop
+END (pthread_spin_lock)
