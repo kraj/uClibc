@@ -1,6 +1,6 @@
 /* Machine-dependent pthreads configuration and inline functions.
    SuperH version.
-   Copyright (C) 1999, 2000, 2001, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Niibe Yutaka <gniibe@m17n.org>.
 
@@ -24,7 +24,7 @@
 
 #ifndef __ASSEMBLER__
 #ifndef PT_EI
-# define PT_EI extern inline
+# define PT_EI extern inline __attribute__ ((always_inline))
 #endif
 
 extern long int testandset (int *spinlock);

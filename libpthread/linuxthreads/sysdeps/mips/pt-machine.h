@@ -1,6 +1,7 @@
 /* Machine-dependent pthreads configuration and inline functions.
 
-   Copyright (C) 1996, 1997, 1998, 2000, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997, 1998, 2000, 2002, 2003, 2004
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ralf Baechle <ralf@gnu.org>.
    Based on the Alpha version by Richard Henderson <rth@tamu.edu>.
@@ -55,7 +56,7 @@ _test_and_set (int *p, int v) __THROW
 
 
 #ifndef PT_EI
-# define PT_EI extern inline
+# define PT_EI extern inline __attribute__ ((always_inline))
 #endif
 
 extern long int testandset (int *spinlock);

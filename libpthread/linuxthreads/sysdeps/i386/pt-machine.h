@@ -1,6 +1,6 @@
 /* Machine-dependent pthreads configuration and inline functions.
    i386 version.
-   Copyright (C) 1996-2001, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1996-2001, 2002, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson <rth@tamu.edu>.
 
@@ -24,7 +24,7 @@
 
 #ifndef __ASSEMBLER__
 #ifndef PT_EI
-# define PT_EI extern inline
+# define PT_EI extern inline __attribute__ ((always_inline))
 #endif
 
 extern long int testandset (int *spinlock);
@@ -36,7 +36,9 @@ extern int __compare_and_swap (long int *p, long int oldval, long int newval);
 
 
 /* See if we can optimize for newer cpus... */
-#if defined __GNUC__ && __GNUC__ >= 2 && defined __i486__ || defined __pentium__ || defined __pentiumpro__
+#if defined __GNUC__ && __GNUC__ >= 2 && \
+   (defined __i486__ || defined __pentium__ || defined __pentiumpro__ || defined __pentium4__ || \
+    defined __athlon__ || defined __k8__)
 
 /* Spinlock implementation; required.  */
 PT_EI long int
