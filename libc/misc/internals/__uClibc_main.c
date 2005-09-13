@@ -266,13 +266,3 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
      */
     exit(main(argc, argv, __environ));
 }
-
-#ifdef _DL_FINI_CRT_COMPAT
-extern int weak_function main(int argc, char **argv, char **envp);
-void __attribute__ ((__noreturn__))
-__uClibc_start_main(int argc, char **argv, char **envp,
-		    void (*app_fini)(void), void (*app_init)(void))
-{
-	__uClibc_main(main, argc, argv, app_init, app_fini, NULL, NULL);
-}
-#endif

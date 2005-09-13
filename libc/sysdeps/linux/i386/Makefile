@@ -25,7 +25,7 @@ SCRT_OBJ = $(patsubst %,S%, $(CRT_OBJ))
 CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
 SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
-	bsd-_setjmp.S syscall.S mmap64.S
+	bsd-_setjmp.S syscall.S mmap.S mmap64.S
 SOBJS=$(patsubst %.S,%.o, $(SSRC))
 
 CSRC=brk.c sigaction.c __syscall_error.c

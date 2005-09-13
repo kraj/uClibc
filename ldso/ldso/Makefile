@@ -28,9 +28,6 @@ ASFLAGS+=$(call check_as,--noexecstack)
 endif
 
 XXFLAGS=$(XWARNINGS) $(SSP_DISABLE_FLAGS)
-ifeq ($(DL_FINI_CRT_COMPAT),y)
-XXFLAGS+=-D_DL_FINI_CRT_COMPAT
-endif
 
 ifeq ($(DODEBUG),y)
 # Not really much point in including debugging info, since gdb
