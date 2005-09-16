@@ -35,10 +35,11 @@
 .align 4
 
 strncmp:
-	/* if ((len - 1) < 0) return 0 */
+	/* if (len == 0) return 0 */
+	cmp	r2, #0
+	moveq	r0, #0
+	moveq	pc, lr
 	subs	r2, r2, #1
-	movmi	r0, #0
-	movmi	pc, lr
 
 	/* ip == last src address to compare */
 	add	ip, r0, r2
