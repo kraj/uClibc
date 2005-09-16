@@ -37,10 +37,10 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-		.text
-		.global memmove;
-		.type memmove,%function
-		.align 4;                                                               \
+.text
+.global memmove
+.type memmove,%function
+.align 4
 
 memmove:
 	stmfd	sp!, {r0, lr}

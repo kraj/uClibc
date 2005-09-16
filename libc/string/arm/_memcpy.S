@@ -71,10 +71,10 @@
  * Apologies for the state of the comments ;-)
  */
 
-		.text
-		.global _memcpy;
-		.type _memcpy,%function
-		.align 4;                                                               \
+.text
+.global _memcpy
+.type _memcpy,%function
+.align 4
 
 _memcpy:
 	/* Determine copy direction */

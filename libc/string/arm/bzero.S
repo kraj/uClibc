@@ -37,10 +37,10 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-		.text
-		.global __bzero;
-		.type __bzero,%function
-		.align 4;                                                               \
+.text
+.global __bzero
+.type __bzero,%function
+.align 4
 
 __bzero:
 	mov	r2, r1

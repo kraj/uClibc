@@ -19,10 +19,10 @@
 
 #include <sys/syscall.h>
 
-		.text
-		.global memset;
-		.type memset,%function
-		.align 4;                                                               \
+.text
+.global memset
+.type memset,%function
+.align 4
 
 memset:
 	mov	a4, a1
@@ -68,5 +68,4 @@ memset:
 	strb	a2, [a4], $1
 	mov	pc, lr
 
-.size memset,.-memset;
-
+.size memset,.-memset

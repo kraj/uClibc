@@ -30,10 +30,10 @@
  */
 
 
-		.text
-		.global memcmp;
-		.type memcmp,%function
-		.align 4;                                                               \
+.text
+.global memcmp
+.type memcmp,%function
+.align 4
 
 memcmp:
 	/* if ((len - 1) < 0) return 0 */
@@ -52,6 +52,4 @@ memcmp:
 	sub	r0, r2, r3
 	mov	pc, lr
 
-.weak  bcmp;
-    bcmp = memcmp
-
+.weak bcmp ; bcmp = memcmp

@@ -25,10 +25,10 @@
  * exit: r0 = len
  */
 
-		.text
-		.global strlen;
-		.type strlen,%function
-		.align 4;                                                               \
+.text
+.global strlen
+.type strlen,%function
+.align 4
 
 strlen:
 	bic     r1, r0, $3              @ addr of word containing first byte
@@ -76,5 +76,4 @@ Llastword:				@ drop through to here once we find a
 #endif
 	mov	pc,lr
 
-.size strlen,.-strlen;
-
+.size strlen,.-strlen

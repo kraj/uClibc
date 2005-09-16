@@ -29,10 +29,10 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-		.text
-		.global strncmp;
-		.type strncmp,%function
-		.align 4;                                                               \
+.text
+.global strncmp
+.type strncmp,%function
+.align 4
 
 strncmp:
 	/* if ((len - 1) < 0) return 0 */
