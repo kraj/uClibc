@@ -180,71 +180,6 @@ search_for_named_library(const char *name, int secure, const char *path_list,
 	return NULL;
 }
 
-/* Check if the named library is already loaded... */
-struct elf_resolve *_dl_check_if_named_library_is_loaded(const char *full_libname,
-		int trace_loaded_objects)
-{
-	const char *pnt, *pnt1;
-	struct elf_resolve *tpnt1;
-	const char *libname, *libname2;
-	static const char libc[] = "libc.so.";
-	static const char aborted_wrong_lib[] = "%s: aborted attempt to load %s!\n";
-
-	pnt = libname = full_libname;
-
-	_dl_if_debug_dprint("Checking if '%s' is already loaded\n", full_libname);
-	/* quick hack to ensure mylibname buffer doesn't overflow.  don't
-	   allow full_libname or any directory to be longer than 1024. */
-	if (_dl_strlen(full_libname) > 1024)
-		return NULL;
-
-	/* Skip over any initial initial './' and '/' stuff to
-	 * get the short form libname with no path garbage */
-	pnt1 = _dl_strrchr(pnt, '/');
-	if (pnt1) {
-		libname = pnt1 + 1;
-	}
-
-	/* Make sure they are not trying to load the wrong C library!
-	 * This sometimes happens esp with shared libraries when the
-	 * library path is somehow wrong! */
-#define isdigit(c)  (c >= '0' && c <= '9')
-	if ((_dl_strncmp(libname, libc, 8) == 0) &&  _dl_strlen(libname) >=8 &&
-			isdigit(libname[8]))
-	{
-		/* Abort attempts to load glibc, libc5, etc */
-		if ( libname[8]!='0') {
-			if (!trace_loaded_objects) {
-				_dl_dprintf(2, aborted_wrong_lib, libname, _dl_progname);
-				_dl_exit(1);
-			}
-			return NULL;
-		}
-	}
-
-	/* Critical step!  Weed out duplicates early to avoid
-	 * function aliasing, which wastes memory, and causes
-	 * really bad things to happen with weaks and globals. */
-	for (tpnt1 = _dl_loaded_modules; tpnt1; tpnt1 = tpnt1->next) {
-
-		/* Skip over any initial initial './' and '/' stuff to
-		 * get the short form libname with no path garbage */
-		libname2 = tpnt1->libname;
-		pnt1 = _dl_strrchr(libname2, '/');
-		if (pnt1) {
-			libname2 = pnt1 + 1;
-		}
-
-		if (_dl_strcmp(libname2, libname) == 0) {
-			/* Well, that was certainly easy */
-			return tpnt1;
-		}
-	}
-
-	return NULL;
-}
-
-
 /* Used to return error codes back to dlopen et. al.  */
 unsigned long _dl_error_number;
 unsigned long _dl_internal_error_number;
@@ -271,14 +206,6 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		libname = pnt + 1;
 	}
 
-	/* Critical step!  Weed out duplicates early to avoid
-	 * function aliasing, which wastes memory, and causes
-	 * really bad things to happen with weaks and globals. */
-	if ((tpnt1=_dl_check_if_named_library_is_loaded(libname, trace_loaded_objects))!=NULL) {
-		tpnt1->usage_count++;
-		return tpnt1;
-	}
-
 	_dl_if_debug_dprint("\tfind library='%s'; searching\n", libname);
 	/* If the filename has any '/', try it straight and leave it at that.
 	   For IBCS2 compatibility under linux, we substitute the string
@@ -290,7 +217,6 @@ struct elf_resolve *_dl_load_shared_library(int secure, struct dyn_elf **rpnt,
 		if (tpnt1) {
 			return tpnt1;
 		}
-		//goto goof;
 	}
 
 	/*
@@ -411,48 +337,37 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	int i, flags, piclib, infile;
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
-
-	/* If this file is already loaded, skip this step */
-	tpnt = _dl_check_hashed_files(libname);
-	if (tpnt) {
-		if (*rpnt) {
-			(*rpnt)->next = (struct dyn_elf *) _dl_malloc(sizeof(struct dyn_elf));
-			_dl_memset((*rpnt)->next, 0, sizeof(struct dyn_elf));
-			(*rpnt)->next->prev = (*rpnt);
-			*rpnt = (*rpnt)->next;
-			(*rpnt)->dyn = tpnt;
-			tpnt->symbol_scope = _dl_symbol_tables;
-		}
-		tpnt->usage_count++;
-		tpnt->libtype = elf_lib;
-		_dl_if_debug_dprint("file='%s';  already loaded\n", libname);
-		return tpnt;
-	}
-
-	/* If we are in secure mode (i.e. a setu/gid binary using LD_PRELOAD),
-	   we don't load the library if it isn't setuid. */
-
-	if (secure) {
-		struct stat st;
-
-		if (_dl_stat(libname, &st) || !(st.st_mode & S_ISUID))
-			return NULL;
-	}
+	struct stat st;
 
 	libaddr = 0;
 	infile = _dl_open(libname, O_RDONLY, 0);
 	if (infile < 0) {
-#if 0
-		/*
-		 * NO!  When we open shared libraries we may search several paths.
-		 * it is inappropriate to generate an error here.
-		 */
-		_dl_dprintf(2, "%s: can't open '%s'\n", _dl_progname, libname);
-#endif
 		_dl_internal_error_number = LD_ERROR_NOFILE;
 		return NULL;
 	}
 
+	if (_dl_fstat(infile, &st) < 0) {
+		_dl_internal_error_number = LD_ERROR_NOFILE;
+		_dl_close(infile);
+		return NULL;
+	}
+	/* If we are in secure mode (i.e. a setu/gid binary using LD_PRELOAD),
+	   we don't load the library if it isn't setuid. */
+	if (secure)
+		if (!(st.st_mode & S_ISUID)) {
+			_dl_close(infile);
+			return NULL;
+		}
+
+	/* Check if file is already loaded */
+	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
+		if(tpnt->st_dev == st.st_dev && tpnt->st_ino == st.st_ino) {
+			/* Already loaded */
+			tpnt->usage_count++;
+			_dl_close(infile);
+			return tpnt;
+		}
+	}
 	header = _dl_mmap((void *) 0, _dl_pagesize, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (_dl_mmap_check_error(header)) {
@@ -665,6 +580,8 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			dynamic_addr, 0);
 	tpnt->relro_addr = relro_addr;
 	tpnt->relro_size = relro_size;
+	tpnt->st_dev = st.st_dev;
+	tpnt->st_ino = st.st_ino;
 	tpnt->ppnt = (ElfW(Phdr) *)(intptr_t) (tpnt->loadaddr + epnt->e_phoff);
 	tpnt->n_phent = epnt->e_phnum;
 

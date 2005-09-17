@@ -49,6 +49,9 @@ struct elf_resolve{
   ElfW(Addr) relro_addr;
   size_t relro_size;
 
+  dev_t st_dev;      /* device */
+  ino_t st_ino;      /* inode */
+
 #ifdef __powerpc__
   /* this is used to store the address of relocation data words, so
    * we don't have to calculate it every time, which requires a divide */
