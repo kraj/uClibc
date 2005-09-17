@@ -37,10 +37,10 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-		.text
-		.global memcpy;
-		.type memcpy,%function
-		.align 4;                                                               \
+.text
+.global memcpy
+.type memcpy,%function
+.align 4
 
 memcpy:
 	stmfd	sp!, {r0, lr}

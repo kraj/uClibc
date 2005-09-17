@@ -29,10 +29,10 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-		.text
-		.global strcmp;
-		.type strcmp,%function
-		.align 4;                                                               \
+.text
+.global strcmp
+.type strcmp,%function
+.align 4
 
 strcmp:
 1:
@@ -44,6 +44,4 @@ strcmp:
 	sub	r0, r2, r3
 	mov	pc, lr
 
-.weak  strcoll;
-    strcoll = strcmp
-
+.weak strcoll ; strcoll = strcmp

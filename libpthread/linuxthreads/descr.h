@@ -214,7 +214,10 @@ struct _pthread_descr_struct
 extern char *__pthread_initial_thread_bos;
 #ifndef __ARCH_HAS_MMU__
 extern char *__pthread_initial_thread_tos;
-#define NOMMU_INITIAL_THREAD_BOUNDS(tos,bos) if ((tos)>=__pthread_initial_thread_bos && (bos)<=__pthread_initial_thread_tos) __pthread_initial_thread_bos = (tos)+1
+#define NOMMU_INITIAL_THREAD_BOUNDS(tos,bos) \
+    if ((tos)>=__pthread_initial_thread_bos \
+	&& (bos)<__pthread_initial_thread_tos) \
+	__pthread_initial_thread_bos = (tos)+1
 #else
 #define NOMMU_INITIAL_THREAD_BOUNDS(tos,bos) /* empty */
 #endif /* __ARCH_HAS_MMU__ */

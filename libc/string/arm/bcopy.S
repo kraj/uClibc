@@ -39,10 +39,10 @@
 
 /* bcopy = memcpy/memmove with arguments reversed. */
 
-		.text
-		.global bcopy;
-		.type bcopy,%function
-		.align 4;                                                               \
+.text
+.global bcopy
+.type bcopy,%function
+.align 4
 
 bcopy:
 	/* switch the source and destination registers */
