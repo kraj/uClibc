@@ -43,8 +43,10 @@ __BEGIN_DECLS
    variable.  This redeclaration using the macro still works, but it
    will be a function declaration without a prototype and may trigger
    a -Wstrict-prototypes warning.  */
-#ifndef	errno
+#ifndef __ASSEMBLER__
+# ifndef	errno
 extern int errno;
+# endif
 #endif
 
 #if 0 /*def __USE_GNU      uClibc note: not supported */
