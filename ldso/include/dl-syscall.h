@@ -11,9 +11,6 @@
 #define kernel_stat stat
 #include <bits/kernel_stat.h>
 #include <bits/kernel_types.h>
-#define _SYSCALL_H
-#include <bits/sysnum.h>
-#undef _SYSCALL_H
 
 /* _dl_open() parameters */
 #define O_RDONLY        0x0000
