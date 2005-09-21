@@ -6,7 +6,7 @@
  * Copyright (C) 2001-2004 Erik Andersen
  * Copyright (C) 2002-2004, Axis Communications AB
  * Copyright (C) 2003, 2004 Red Hat, Inc.
- * Copyright (C) 2002, Steven J. Hill (sjhill@realitydiluted.com)
+ * Copyright (C) 2002, 2005 Steven J. Hill (sjhill@realitydiluted.com)
  * Copyright (C) 2001-2002 David A. Schleef
  * Copyright (C) 2004 Joakim Tjernlund
  * Copyright (C) 2002, Stefan Allius <allius@atecom.com> and
@@ -52,11 +52,16 @@ static const char *_dl_reltypes(int type)
 
 	tabsize = (int)(sizeof(_dl_reltypes_tab) / sizeof(_dl_reltypes_tab[0]));
 
+#ifdef __mips__
+	_dl_populate_reltypes_tab();
+#endif
+
 	if (type >= tabsize || (str = _dl_reltypes_tab[type]) == NULL)
 		str = _dl_simple_ltoa(buf, (unsigned long)type);
 
 	return str;
 }
+
 static void debug_sym(ElfW(Sym) *symtab, char *strtab, int symtab_index)
 {
 	if (!_dl_debug_symbols || !symtab_index)
