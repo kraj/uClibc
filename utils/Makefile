@@ -39,6 +39,7 @@ endif
 
 headers:
 	@$(LN) -fs $(TOPDIR)include/elf.h
+	@$(LN) -fs $(TOPDIR)include/link.h
 
 readelf.c ldconfig.c ldd.c:	headers
 
@@ -58,15 +59,17 @@ ldconfig: ldconfig.c
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
+LDD_CFLAGS := $(PIEFLAG) $(LDPIEFLAG)
 ldd: ldd.c
-	$(CC) $(CFLAGS) $(PIEFLAG) $(LDPIEFLAG) \
+	$(CC) $(CFLAGS) $(LDD_CFLAGS) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
+ICONV_CFLAGS := $(PIEFLAG) $(LDPIEFLAG)
 iconv: ../libc/misc/wchar/wchar.c
-	$(CC) $(CFLAGS) $(PIEFLAG) $(LDPIEFLAG) \
+	$(CC) $(CFLAGS) $(ICONV_CFLAGS) \
 		-DL_iconv_main \
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
@@ -93,7 +96,7 @@ readelf.host: readelf.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s $^ -o $@
 
 clean:
-	$(RM) $(TARGETS) *.o *~ core *.target elf.h iconv *.host
+	$(RM) $(TARGETS) *.o *~ core *.target elf.h link.h iconv *.host
 
 install: all
 ifeq ($(strip $(HAVE_SHARED)),y)
