@@ -48,6 +48,9 @@ LIBTHREAD_DB_LDFLAGS := $(subst -z defs,,$(LDFLAGS))
 
 all: $(LIBPTHREAD) $(LIBTHREAD_DB)
 
+headers:
+	$(LN) -sf $(TOPDIR)libpthread/linuxthreads/sysdeps/pthread/pthread.h $(TOPDIR)include/pthread.h
+
 $(LIBPTHREAD): subdirs
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 	$(INSTALL) -d $(TOPDIR)lib
