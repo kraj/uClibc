@@ -127,6 +127,45 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 #endif
 
 		switch (reloc_type) {
+#if USE_TLS
+# if _MIPS_SIM == _ABI64
+		case R_MIPS_TLS_DTPMOD64:
+		case R_MIPS_TLS_DTPREL64:
+		case R_MIPS_TLS_TPREL64:
+# else
+		case R_MIPS_TLS_DTPMOD32:
+		case R_MIPS_TLS_DTPREL32:
+		case R_MIPS_TLS_TPREL32:
+# endif
+			{
+				switch (reloc_type)
+	  			{
+					case R_MIPS_TLS_DTPMOD64:
+					case R_MIPS_TLS_DTPMOD32:
+						if (symtab_index)
+							*(ElfW(Word) *)reloc_addr = tpnt->l_tls_modid;
+						break;
+
+					case R_MIPS_TLS_DTPREL64:
+					case R_MIPS_TLS_DTPREL32:
+						*(ElfW(Word) *)reloc_addr +=
+							(symtab[symtab_index].st_value -
+							TLS_DTV_OFFSET);
+						break;
+
+					case R_MIPS_TLS_TPREL32:
+					case R_MIPS_TLS_TPREL64:
+						CHECK_STATIC_TLS (tpnt);
+						*(ElfW(Word) *)reloc_addr +=
+							(tpnt->l_tls_offset +
+							symtab[symtab_index].st_value -
+							TLS_TP_OFFSET);
+						break;
+				}
+
+				break;
+			}
+#endif
 		case R_MIPS_REL32:
 			if (symtab_index) {
 				if (symtab_index < tpnt->dynamic_info[DT_MIPS_GOTSYM_IDX])

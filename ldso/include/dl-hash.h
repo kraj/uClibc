@@ -49,6 +49,29 @@ struct elf_resolve{
   ElfW(Addr) relro_addr;
   size_t relro_size;
 
+#if USE_TLS
+  /* Thread-local storage related info.  */
+
+  /* Start of the initialization image.  */
+  void *l_tls_initimage;
+  /* Size of the initialization image.  */
+  size_t l_tls_initimage_size;
+  /* Size of the TLS block.  */
+  size_t l_tls_blocksize;
+  /* Alignment requirement of the TLS block.  */
+  size_t l_tls_align;
+  /* Offset of first byte module alignment.  */
+  size_t l_tls_firstbyte_offset;
+# ifndef NO_TLS_OFFSET
+#  define NO_TLS_OFFSET	0
+# endif
+  /* For objects present at startup time: offset in the static TLS block.  */
+  ptrdiff_t l_tls_offset;
+  /* Index of the module in the dtv array.  */
+  size_t l_tls_modid;
+  /* Nonzero if _dl_init_static_tls should be called for this module */
+  unsigned int l_need_tls_init:1;
+#endif
 #ifdef __powerpc__
   /* this is used to store the address of relocation data words, so
    * we don't have to calculate it every time, which requires a divide */
@@ -101,5 +124,4 @@ static inline int _dl_symbol(char * name)
 
 
 #endif /* _LD_HASH_H_ */
-
 

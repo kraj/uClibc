@@ -80,10 +80,7 @@ XXFLAGS := $(XXFLAGS:-fomit-frame-pointer=)
 all: $(LDSO_FULLNAME)
 
 ifeq ($(PTHREADS_NATIVE),y)
-dl-tls.c dl-minimal.c:
-	$(LN) -sf $(TOPDIR)libpthread/nptl/sysdeps/generic/$@ $@
-
-$(LDSO_FULLNAME): dl-tls.c dl-minimal.c $(OBJS) $(DLINK_OBJS)
+$(LDSO_FULLNAME): dl-tls.c $(OBJS) $(DLINK_OBJS)
 else
 $(LDSO_FULLNAME): $(OBJS) $(DLINK_OBJS)
 endif
@@ -105,4 +102,4 @@ ldso.o: $(CSRC) dl-elf.c dl-hash.c dl-startup.c dl-debug.c \
 	$(TARGET_ARCH)/*.h $(TARGET_ARCH)/*.c $(TOPDIR)ldso/include/*.h
 
 clean:
-	$(RM) $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i ldso.h *~ dl-tls.c dl-minimal.c
+	$(RM) $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i ldso.h *~

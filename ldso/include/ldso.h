@@ -31,6 +31,8 @@
 /* Now the ldso specific headers */
 #include <dl-elf.h>
 #include <dl-hash.h>
+/* Defines USE_TLS */
+#include <tls.h>
 
 /* For INIT/FINI dependency sorting. */
 struct init_fini_list {

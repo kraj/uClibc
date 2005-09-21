@@ -1,4 +1,4 @@
-/* tHREAD-local storage handling in the ELF dynamic linker.  Generic version.
+/* Thread-local storage handling in the ELF dynamic linker.  Generic version.
    Copyright (C) 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -25,7 +25,6 @@
 #include <dl-tls.h>
 #include <ldsodefs.h>
 
-#ifndef IS_IN_rtld
 #include <assert.h>
 #include <link.h>
 #include <string.h>
@@ -37,7 +36,6 @@
 #define _dl_dprintf	fprintf
 #define _dl_debug_file	stderr
 #define _dl_exit	exit
-#endif
 
 /* Amount of excess space to allocate in the static TLS area
    to allow dynamic loading of modules defining IE-model TLS data.  */

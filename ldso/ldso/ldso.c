@@ -38,6 +38,10 @@
 
 #define ALLOW_ZERO_PLTGOT
 
+#if USE_TLS
+#include "dl-tls.c"
+#endif
+
 /* Pull in the value of _dl_progname */
 #include "dl-progname.h"
 
@@ -68,11 +72,6 @@ const char *_dl_progname = UCLIBC_LDSO;      /* The name of the executable being
 #include "dl-startup.c"
 /* Forward function declarations */
 static int _dl_suid_ok(void);
-
-#ifdef __PTHREADS_NATIVE__
-#include "dl-minimal.c"
-#include "dl-tls.c"
-#endif
 
 /*
  * This stub function is used by some debuggers.  The idea is that they
@@ -200,6 +199,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		/* SUID binaries can be exploited if they do LAZY relocation. */
 		unlazy = RTLD_NOW;
 	}
+
+#if defined USE_TLS && NO_TLS_OFFSET != 0
+	tpnt->l_tls_offset = NO_TLS_OFFSET;
+#endif 
 
 	/* At this point we are now free to examine the user application,
 	 * and figure out which libraries are supposed to be called.  Until
