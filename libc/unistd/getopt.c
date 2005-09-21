@@ -26,10 +26,13 @@
  * Modified once again for uClibc by Erik Andersen 8/7/02
  */
 
+#include <features.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#ifdef __UCLIBC_HAS_GETTEXT_AWARENESS__
 #include <libintl.h>
+#endif
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Enable gettext awareness.

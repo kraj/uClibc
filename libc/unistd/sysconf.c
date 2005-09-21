@@ -29,7 +29,9 @@
 #include <unistd.h>
 #include <sys/sysinfo.h>
 #include <sys/types.h>
+#ifdef __UCLIBC_HAS_REGEX__
 #include <regex.h>
+#endif
 
 #ifndef __UCLIBC_CLK_TCK_CONST
 #error __UCLIBC_CLK_TCK_CONST not defined!
