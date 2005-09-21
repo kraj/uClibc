@@ -3,7 +3,7 @@
  * Erik Andersen              2002-2004
  *
  * __uClibc_main is the routine to be called by all the arch-specific
- * versions of crt0.S in uClibc.
+ * versions of crt1.S in uClibc.
  *
  * It is meant to handle any special initialization needed by the library
  * such as setting the global variable(s) __environ (environ) and
@@ -116,7 +116,7 @@ static int __check_suid(void)
  * uClibc is the address of __uClibc_init
  *
  * In all other cases we call it from the main stub
- * __uClibc_start_main.
+ * __uClibc_main.
  */
 
 void __uClibc_init(void)
@@ -132,7 +132,7 @@ void __uClibc_init(void)
     __pagesize = PAGE_SIZE;
 
 #ifdef __UCLIBC_HAS_THREADS__
-    /* Before we start initialzing uClibc we have to call
+    /* Before we start initializing uClibc we have to call
      * __pthread_initialize_minimal so we can use pthread_locks
      * whenever they are needed.
      */
@@ -161,8 +161,8 @@ void attribute_hidden (*__app_fini)(void) = NULL;
 
 void attribute_hidden (*__rtld_fini)(void) = NULL;
 
-/* __uClibc_start_main is the new main stub for uClibc. This function is
- * called from crt0 (version 0.9.16 or newer), after ALL shared libraries
+/* __uClibc_main is the new main stub for uClibc. This function is
+ * called from crt1 (version 0.9.28 or newer), after ALL shared libraries
  * are initialized, just before we call the application's main function.
  */
 void __attribute__ ((__noreturn__))
