@@ -1,4 +1,5 @@
-/* Copyright (C) 1991,92,1994-1999,2000,2001 Free Software Foundation, Inc.
+/* bits/types.h -- definitions of __*_t types underlying *_t types.
+   Copyright (C) 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -24,6 +25,7 @@
 #define	_BITS_TYPES_H	1
 
 #include <features.h>
+#include <bits/wordsize.h>
 
 #define __need_size_t
 #include <stddef.h>
@@ -31,10 +33,14 @@
 
 /* Convenience types.  */
 typedef unsigned char __u_char;
-typedef unsigned short __u_short;
+typedef unsigned short int __u_short;
 typedef unsigned int __u_int;
-typedef unsigned long __u_long;
-#ifdef __GNUC__
+typedef unsigned long int __u_long;
+
+#if __WORDSIZE == 64
+typedef long int __quad_t;
+typedef unsigned long int __u_quad_t;
+#elif defined(__GNUC__)
 __extension__ typedef unsigned long long int __u_quad_t;
 __extension__ typedef long long int __quad_t;
 #else
@@ -53,11 +59,22 @@ typedef signed short int __int16_t;
 typedef unsigned short int __uint16_t;
 typedef signed int __int32_t;
 typedef unsigned int __uint32_t;
-#ifdef __GNUC__
+#if __WORDSIZE == 64
+typedef signed long int __int64_t;
+typedef unsigned long int __uint64_t;
+#elif defined(__GNUC__)
 __extension__ typedef signed long long int __int64_t;
 __extension__ typedef unsigned long long int __uint64_t;
 #endif
 typedef __quad_t *__qaddr_t;
+
+#if __WORDSIZE == 32
+# define __SWORD_TYPE		int
+#elif __WORDSIZE == 64
+# define __SWORD_TYPE		long int
+#else
+# error
+#endif
 
 typedef __u_quad_t __dev_t;		/* Type of device numbers.  */
 typedef __u_int __uid_t;		/* Type of user identifications.  */
@@ -68,7 +85,7 @@ typedef __u_int __nlink_t;		/* Type of file link counts.  */
 typedef long int __off_t;		/* Type of file sizes and offsets.  */
 typedef __quad_t __loff_t;		/* Type of file sizes and offsets.  */
 typedef int __pid_t;			/* Type of process identifications.  */
-typedef int __ssize_t;			/* Type of a byte count, or error.  */
+typedef __SWORD_TYPE __ssize_t;			/* Type of a byte count, or error.  */
 typedef __u_long __rlim_t;		/* Type of resource counts.  */
 typedef __u_quad_t __rlim64_t;		/* Type of resource counts (LFS).  */
 typedef __u_int __id_t;			/* General type for ID.  */
@@ -85,14 +102,14 @@ typedef long int __time_t;
 typedef unsigned int __useconds_t;
 typedef long int __suseconds_t;
 typedef long int __swblk_t;		/* Type of a swap block maybe?  */
-
+
 typedef long int __clock_t;
 
 /* Clock ID used in clock and timer functions.  */
 typedef int __clockid_t;
 
 /* Timer ID returned by `timer_create'.  */
-typedef int __timer_t;
+typedef void *__timer_t;
 
 
 /* Number of descriptors that can fit in an `fd_set'.  */
