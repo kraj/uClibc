@@ -5,6 +5,8 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
+#include <errno.h>
+
 /* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
  * header files.  It also defines the traditional `SYS_<name>' macros for older
  * programs.  */
@@ -19,7 +21,7 @@
    an error return status).  */
 
 # undef INLINE_SYSCALL
-#if 0
+#if 1
 # define INLINE_SYSCALL(name, nr, args...)				\
   ({									\
     INTERNAL_SYSCALL_DECL (sc_err);					\
@@ -31,8 +33,7 @@
       }									\
     sc_ret;								\
   })
-#endif
-
+#else
 # define INLINE_SYSCALL(name, nr, args...)				\
   ({									\
     INTERNAL_SYSCALL_DECL (sc_err);					\
@@ -43,6 +44,8 @@
       }									\
     sc_ret;								\
   })
+#endif
+
 /* Define a macro which expands inline into the wrapper code for a system
    call. This use is for internal calls that do not need to handle errors
    normally. It will never touch errno.
@@ -122,43 +125,43 @@
 #undef _syscall0
 #define _syscall0(type,name) \
 type name(void){ \
-  return INLINE_SYSCALL(name, 0); \
+  return (type) INLINE_SYSCALL(name, 0); \
 }
 
 #undef _syscall1
 #define _syscall1(type,name,type1,arg1) \
 type name(type1 arg1){  \
-  return INLINE_SYSCALL(name, 1, arg1); \
+  return (type) INLINE_SYSCALL(name, 1, arg1); \
 }
 
 #undef _syscall2
 #define _syscall2(type,name,type1,arg1,type2,arg2) \
 type name(type1 arg1, type2 arg2){      \
-  return INLINE_SYSCALL(name, 2, arg1, arg2); \
+  return (type) INLINE_SYSCALL(name, 2, arg1, arg2); \
 }
 
 #undef _syscall3
 #define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
 type name(type1 arg1, type2 arg2, type3 arg3){  \
-  return INLINE_SYSCALL(name, 3, arg1, arg2, arg3); \
+  return (type) INLINE_SYSCALL(name, 3, arg1, arg2, arg3); \
 }
 
 #undef _syscall4
 #define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
 type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4){      \
-  return INLINE_SYSCALL(name, 4, arg1, arg2, arg3, arg4); \
+  return (type) INLINE_SYSCALL(name, 4, arg1, arg2, arg3, arg4); \
 }
 
 #undef _syscall5
 #define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5) \
 type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5){  \
-  return INLINE_SYSCALL(name, 5, arg1, arg2, arg3, arg4, arg5); \
+  return (type) INLINE_SYSCALL(name, 5, arg1, arg2, arg3, arg4, arg5); \
 }
 
 #undef _syscall6
 #define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6) \
 type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5, type6 arg6){      \
-  return INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6); \
+  return (type) INLINE_SYSCALL(name, 6, arg1, arg2, arg3, arg4, arg5, arg6); \
 }
 
 #endif /* _BITS_SYSCALLS_H */
