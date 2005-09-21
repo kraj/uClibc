@@ -790,7 +790,7 @@ extern char *cuserid (char *__s);
 #endif /* Use X/Open, but not issue 6.  */
 
 
-#ifdef	__USE_GNU
+#if 0 /* def	__USE_GNU uClibc note: not supported */
 struct obstack;			/* See <obstack.h>.  */
 
 /* Write formatted output to an obstack.  */
