@@ -94,6 +94,12 @@
 # define attribute_hidden
 #endif
 
+#ifdef __UCLIBC_BUILD_RELRO__
+# define attribute_relro __attribute__ ((section (".data.rel.ro")))
+#else
+# define attribute_relro
+#endif
+
 /* --- this is added to integrate linuxthreads */
 #define __USE_UNIX98            1
 
