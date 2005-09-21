@@ -21,7 +21,7 @@ include $(TOPDIR)Rules.mak
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-TARGETS = ldd ldconfig readelf
+TARGETS = ldd ldconfig
 
 ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 TARGET_ICONV = iconv
