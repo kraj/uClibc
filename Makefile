@@ -28,7 +28,13 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 TOPDIR=./
 include Rules.mak
 
-DIRS = ldso libc libcrypt libresolv libnsl libutil libm libpthread librt
+DIRS = ldso libc libcrypt libresolv libnsl libutil librt
+ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
+	DIRS += libm
+endif
+ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
+	DIRS += libpthread
+endif
 ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
 	DIRS += libintl
 endif
@@ -40,23 +46,13 @@ all: headers pregen subdirs shared finished
 # In this section, we need .config
 -include .config.cmd
 
-shared: subdirs
+shared: $(patsubst %, _shared_dir_%, $(DIRS))
+$(patsubst %, _shared_dir_%, $(DIRS)): subdirs
 ifeq ($(strip $(HAVE_SHARED)),y)
 	$(SECHO)
 	$(SECHO) Building shared libraries ...
 	$(SECHO)
-	@$(MAKE) -C libc shared
-	@$(MAKE) -C ldso shared
-	@$(MAKE) -C libcrypt shared
-	@$(MAKE) -C libresolv shared
-	@$(MAKE) -C libnsl shared
-	@$(MAKE) -C libutil shared
-	@$(MAKE) -C libm shared
-	@$(MAKE) -C libpthread shared
-	@$(MAKE) -C librt shared
-ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
-	@$(MAKE) -C libintl shared
-endif
+	$(MAKE) -C $(patsubst _shared_dir_%, %, $@) shared
 else
 	$(SECHO)
 	$(SECHO) Not building shared libraries ...
