@@ -142,6 +142,7 @@ typedef struct
 #define ELFOSABI_HPUX		1	/* HP-UX */
 #define ELFOSABI_NETBSD		2	/* NetBSD.  */
 #define ELFOSABI_LINUX		3	/* Linux.  */
+#define ELFOSABI_HURD		4	/* GNU/Hurd */
 #define ELFOSABI_SOLARIS	6	/* Sun Solaris.  */
 #define ELFOSABI_AIX		7	/* IBM AIX.  */
 #define ELFOSABI_IRIX		8	/* SGI Irix.  */
@@ -149,6 +150,9 @@ typedef struct
 #define ELFOSABI_TRU64		10	/* Compaq TRU64 UNIX.  */
 #define ELFOSABI_MODESTO	11	/* Novell Modesto.  */
 #define ELFOSABI_OPENBSD	12	/* OpenBSD.  */
+#define ELFOSABI_OPENVMS	13	/* OpenVMS */
+#define ELFOSABI_NSK		14	/* Hewlett-Packard Non-Stop Kernel */
+#define ELFOSABI_AROS		15	/* Amiga Research OS */
 #define ELFOSABI_ARM		97	/* ARM */
 #define ELFOSABI_STANDALONE	255	/* Standalone (embedded) application */
 
