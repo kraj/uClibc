@@ -129,6 +129,8 @@ $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 clean: subdirs_clean
 	$(RM) *.[oa] *~ core $(LIBPTHREAD) $(LIBPTHREAD_SHARED_FULLNAME) \
 		$(LIBTHREAD_DB) $(LIBTHREAD_DB_SHARED_FULLNAME)		 \
-		$(RM) $(TOPDIR)include/pthread.h $(TOPDIR)include/semaphore.h
+		$(RM) $(TOPDIR)include/pthread.h $(TOPDIR)include/semaphore.h \
+		$(RM) $(TOPDIR)include/bits/pthreadtypes.h $(TOPDIR)include/bits/semaphore.h \
+		$(RM) $(TOPDIR)include/bits/libc-lock.h $(TOPDIR)include/bits/stdio-lock
 
 .PHONY: dummy

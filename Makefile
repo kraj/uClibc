@@ -166,6 +166,7 @@ install_dev:
 	fi ; \
 	tar -chf - include --exclude .svn --exclude CVS $$extra_exclude \
 		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/libc-internal.h
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	# Remove floating point related headers since float support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
@@ -173,6 +174,7 @@ ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ieee754.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/math.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tgmath.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/uClibc_fpmax.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_WCHAR)),y)
 	# Remove wide char headers since wide char support is disabled.
@@ -219,6 +221,16 @@ endif
 ifneq ($(strip $(HAS_SHADOW)),y)
 	# Remove shadow header since shadow password support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/shadow.h
+endif
+ifneq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	# Remove thread_db header since thread debug support is disabled.
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/thread_db.h
+endif
+ifneq ($(strip $(UCLIBC_HAS_THREADS)),y)
+	# Remove pthread headers since thread support is disabled.
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/*thread*.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/semaphore.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/*thread*.h
 endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod 755 $$i; chmod 644 $$i/*.h > /dev/null 2>&1; \
