@@ -1,4 +1,4 @@
-/* Copyright (C) 1991,92,93,95,96,97,98,99,2000,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1991-1993,1995-2003,2004,2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -31,7 +31,8 @@
    _POSIX_SOURCE	IEEE Std 1003.1.
    _POSIX_C_SOURCE	If ==1, like _POSIX_SOURCE; if >=2 add IEEE Std 1003.2;
 			if >=199309L, add IEEE Std 1003.1b-1993;
-			if >=199506L, add IEEE Std 1003.1c-1995
+			if >=199506L, add IEEE Std 1003.1c-1995;
+			if >=200112L, all of IEEE 1003.1-2004
    _XOPEN_SOURCE	Includes POSIX and XPG things.  Set to 500 if
 			Single Unix conformance is wanted, to 600 for the
 			upcoming sixth revision.
@@ -44,6 +45,8 @@
    _GNU_SOURCE		All of the above, plus GNU extensions.
    _REENTRANT		Select additionally reentrant object.
    _THREAD_SAFE		Same as _REENTRANT, often used by other systems.
+   _FORTIFY_SOURCE	If set to numeric value > 0 additional security
+			measures are defined, according to level.
 
    The `-ansi' switch to the GNU C compiler defines __STRICT_ANSI__.
    If none of these are defined, the default is to have _SVID_SOURCE,
@@ -72,6 +75,7 @@
    __USE_MISC		Define things common to BSD and System V Unix.
    __USE_GNU		Define GNU extensions.
    __USE_REENTRANT	Define reentrant/thread-safe *_r functions.
+   __USE_FORTIFY_LEVEL	Additional security measures used, according to level.
    __FAVOR_BSD		Favor 4.3BSD things in cases of conflict.
 
    The macros `__GNU_LIBRARY__', `__GLIBC__', and `__GLIBC_MINOR__' are
@@ -84,6 +88,7 @@
    Feature-test macros that are not defined by the user or compiler
    but are implied by the other feature-test macros defined (or by the
    lack of any definitions) are defined by the file.  */
+
 
 /* Undefine everything, so we get a clean slate.  */
 #undef	__USE_ISOC99
@@ -103,6 +108,7 @@
 #undef	__USE_MISC
 #undef	__USE_GNU
 #undef	__USE_REENTRANT
+#undef	__USE_FORTIFY_LEVEL
 #undef	__FAVOR_BSD
 #undef	__KERNEL_STRICT_NAMES
 
@@ -114,6 +120,20 @@
 
 /* Always use ISO C things.  */
 #define	__USE_ANSI	1
+
+/* Convenience macros to test the versions of glibc and gcc.
+   Use them like this:
+   #if __GNUC_PREREQ (2,8)
+   ... code requiring gcc 2.8 or later ...
+   #endif
+   Note - they won't work for gcc1 or glibc1, since the _MINOR macros
+   were not defined then.  */
+#if defined __GNUC__ && defined __GNUC_MINOR__
+# define __GNUC_PREREQ(maj, min) \
+	((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
+#else
+# define __GNUC_PREREQ(maj, min) 0
+#endif
 
 
 /* If _BSD_SOURCE was defined by the user, favor BSD over POSIX.  */
@@ -165,8 +185,8 @@
 
 /* If none of the ANSI/POSIX macros are defined, use POSIX.1 and POSIX.2
    (and IEEE Std 1003.1b-1993 unless _XOPEN_SOURCE is defined).  */
-#if (!defined __STRICT_ANSI__ && !defined _POSIX_SOURCE && \
-     !defined _POSIX_C_SOURCE)
+#if ((!defined __STRICT_ANSI__ || (_XOPEN_SOURCE - 0) >= 500) && \
+     !defined _POSIX_SOURCE && !defined _POSIX_C_SOURCE)
 # define _POSIX_SOURCE	1
 # if defined _XOPEN_SOURCE && (_XOPEN_SOURCE - 0) < 500
 #  define _POSIX_C_SOURCE	2
@@ -189,6 +209,10 @@
 
 #if (_POSIX_C_SOURCE - 0) >= 199506L
 # define __USE_POSIX199506	1
+#endif
+
+#if (_POSIX_C_SOURCE - 0) >= 200112L
+# define __USE_XOPEN2K		1
 #endif
 
 #ifdef	_XOPEN_SOURCE
@@ -242,6 +266,14 @@
 # define __USE_REENTRANT	1
 #endif
 
+#if _FORTIFY_SOURCE > 0 && __GNUC_PREREQ (4, 1) && __OPTIMIZE__ > 0
+# if _FORTIFY_SOURCE == 1
+#  define __USE_FORTIFY_LEVEL 1
+# elif _FORTIFY_SOURCE > 1
+#  define __USE_FORTIFY_LEVEL 2
+# endif
+#endif
+
 /* We do support the IEC 559 math functionality, real and complex.  */
 #define __STDC_IEC_559__		1
 #define __STDC_IEC_559_COMPLEX__	1
@@ -280,28 +312,14 @@
 #   define __GLIBC_MINOR__ 2
 #endif
 
-/* Convenience macros to test the versions of glibc and gcc.
-   Use them like this:
-   #if __GNUC_PREREQ (2,8)
-   ... code requiring gcc 2.8 or later ...
-   #endif
-   Note - they won't work for gcc1 or glibc1, since the _MINOR macros
-   were not defined then.  */
-#if defined __GNUC__ && defined __GNUC_MINOR__
-# define __GNUC_PREREQ(maj, min) \
-	((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
-#else
-# define __GNUC_PREREQ(maj, min) 0
-#endif
-
 #define __GLIBC_PREREQ(maj, min) \
 	((__GLIBC__ << 16) + __GLIBC_MINOR__ >= ((maj) << 16) + (min))
 
 /* This is here only because every header file already includes this one.  */
 #ifndef __ASSEMBLER__
-#ifndef _SYS_CDEFS_H
-# include <sys/cdefs.h>
-#endif
+# ifndef _SYS_CDEFS_H
+#  include <sys/cdefs.h>
+# endif
 
 /* If we don't have __REDIRECT, prototypes will be missing if
    __USE_FILE_OFFSET64 but not __USE_LARGEFILE[64]. */
@@ -352,89 +370,9 @@ uClibc was built without large file support enabled.
 #define __USE_LARGEFILE64       1
 #endif
 
-/* Some nice features only work properly with ELF */
-#if defined _LIBC 
-#if defined __HAVE_ELF__
-/* Define ALIASNAME as a weak alias for NAME. */
-#  define weak_alias(name, aliasname) _weak_alias (name, aliasname)
-#  define _weak_alias(name, aliasname) \
-      extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
-/* Define ALIASNAME as a strong alias for NAME.  */
-# define strong_alias(name, aliasname) _strong_alias(name, aliasname)
-# define _strong_alias(name, aliasname) \
-  extern __typeof (name) aliasname __attribute__ ((alias (#name)));
-/* This comes between the return type and function name in
- *    a function definition to make that definition weak.  */
-# define weak_function __attribute__ ((weak))
-# define weak_const_function __attribute__ ((weak, __const__))
-/* Tacking on "\n\t#" to the section name makes gcc put it's bogus
- * section attributes on what looks like a comment to the assembler. */
-#  if defined(__cris__) 
-#    define link_warning(symbol, msg)
-#  else
-#    define link_warning(symbol, msg)					      \
-	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");	      \
-	    static const char __evoke_link_warning_##symbol[]		      \
-	    __attribute__ ((unused, section (".gnu.warning." #symbol "\n\t#"))) = msg;
+#ifdef _LIBC
+# include <libc-internal.h>
 #endif
-#else /* !defined __HAVE_ELF__ */
-#  define strong_alias(name, aliasname) _strong_alias (name, aliasname)
-#  define weak_alias(name, aliasname) _strong_alias (name, aliasname)
-#  define _strong_alias(name, aliasname) \
-	__asm__(".global " __C_SYMBOL_PREFIX__ #aliasname "\n" \
-                ".set " __C_SYMBOL_PREFIX__ #aliasname "," __C_SYMBOL_PREFIX__ #name);
-#  define link_warning(symbol, msg) \
-	asm (".stabs \"" msg "\",30,0,0,0\n\t" \
-	      ".stabs \"" #symbol "\",1,0,0,0\n");
-#endif
-
-#ifndef weak_function
-/* If we do not have the __attribute__ ((weak)) syntax, there is no way we
-   can define functions as weak symbols.  The compiler will emit a `.globl'
-   directive for the function symbol, and a `.weak' directive in addition
-   will produce an error from the assembler.  */ 
-# define weak_function          /* empty */
-# define weak_const_function    /* empty */
-#endif
-
-/* On some platforms we can make internal function calls (i.e., calls of
-   functions not exported) a bit faster by using a different calling
-   convention.  */
-#ifndef internal_function
-# define internal_function      /* empty */
-#endif
-
-/* Prepare for the case that `__builtin_expect' is not available.  */
-#if __GNUC__ == 2 && __GNUC_MINOR__ < 96
-#define __builtin_expect(x, expected_value) (x)
-#endif
-#ifndef likely
-# define likely(x)	__builtin_expect((!!(x)),1)
-#endif
-#ifndef unlikely
-# define unlikely(x)	__builtin_expect((!!(x)),0)
-#endif
-#ifndef __LINUX_COMPILER_H
-#define __LINUX_COMPILER_H
-#endif
-#ifndef __cast__
-#define __cast__(_to)
-#endif
-
-/* Arrange to hide uClibc internals */
-#if __GNUC_PREREQ (3, 3)
-# define attribute_hidden __attribute__ ((visibility ("hidden")))
-#else
-# define attribute_hidden
-#endif
-
-/* Pull in things like __attribute_used__ */
-#include <sys/cdefs.h>
-
-/* --- this is added to integrate linuxthreads */
-#define __USE_UNIX98            1
-
-#endif /* _LIBC only stuff */
 
 #ifndef __linux__
 # define __linux__ 1
