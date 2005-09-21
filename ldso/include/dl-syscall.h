@@ -12,7 +12,6 @@
 #include <bits/kernel_stat.h>
 #include <bits/kernel_types.h>
 
-
 /* _dl_open() parameters */
 #define O_RDONLY        0x0000
 #define O_WRONLY	     01
@@ -81,6 +80,9 @@ static inline _syscall3(int, _dl_mprotect, const void *, addr, unsigned long, le
 
 #define __NR__dl_stat __NR_stat
 static inline _syscall2(int, _dl_stat, const char *, file_name, struct stat *, buf);
+
+#define __NR__dl_fstat __NR_fstat
+static inline _syscall2(int, _dl_fstat, int, fd, struct stat *, buf);
 
 #define __NR__dl_munmap __NR_munmap
 static inline _syscall2(int, _dl_munmap, void *, start, unsigned long, length);

@@ -77,21 +77,6 @@ static inline Elf_Symndx _dl_elf_hash(const char *name)
 	return hash;
 }
 
-/* Check to see if a library has already been added to the hash chain.  */
-struct elf_resolve *_dl_check_hashed_files(const char *libname)
-{
-	struct elf_resolve *tpnt;
-	int len = _dl_strlen(libname);
-
-	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-		if (_dl_strncmp(tpnt->libname, libname, len) == 0 &&
-		    (tpnt->libname[len] == '\0' || tpnt->libname[len] == '.'))
-			return tpnt;
-	}
-
-	return NULL;
-}
-
 /*
  * We call this function when we have just read an ELF library or executable.
  * We add the relevant info to the symbol chain, so that we can resolve all
