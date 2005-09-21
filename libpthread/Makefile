@@ -49,7 +49,18 @@ LIBTHREAD_DB_LDFLAGS := $(subst -z defs,,$(LDFLAGS))
 all: $(LIBPTHREAD) $(LIBTHREAD_DB)
 
 headers:
-	$(LN) -sf $(TOPDIR)libpthread/linuxthreads/sysdeps/pthread/pthread.h $(TOPDIR)include/pthread.h
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
+	$(LN) -sf $(TOPDIR)libpthread/nptl/sysdeps/pthread/pthread.h $(TOPDIR)include
+	$(LN) -sf $(TOPDIR)libpthread/nptl/semaphore.h $(TOPDIR)include
+	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/semaphore.h $(TOPDIR)include/bits
+	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h $(TOPDIR)include/bits
+	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/pthread/bits/libc-lock.h $(TOPDIR)include/bits
+	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/pthread/bits/stdio-lock.h $(TOPDIR)include/bits
+else
+	$(LN) -sf $(TOPDIR)libpthread/linuxthreads/sysdeps/pthread/pthread.h $(TOPDIR)include
+	$(LN) -sf $(TOPDIR)libpthread/linuxthreads/semaphore.h $(TOPDIR)include
+	$(LN) -sf ../$(TOPDIR)libpthread/linuxthreads/sysdeps/pthread/bits/pthreadtypes.h $(TOPDIR)include/bits
+endif
 
 $(LIBPTHREAD): subdirs
 ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
@@ -117,6 +128,7 @@ $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 
 clean: subdirs_clean
 	$(RM) *.[oa] *~ core $(LIBPTHREAD) $(LIBPTHREAD_SHARED_FULLNAME) \
-		$(LIBTHREAD_DB) $(LIBTHREAD_DB_SHARED_FULLNAME)
+		$(LIBTHREAD_DB) $(LIBTHREAD_DB_SHARED_FULLNAME)		 \
+		$(RM) $(TOPDIR)include/pthread.h $(TOPDIR)include/semaphore.h
 
 .PHONY: dummy

@@ -350,6 +350,7 @@ clean:
 	$(MAKE) -C libc/sysdeps/linux/common clean
 	$(MAKE) -C extra/locale clean
 	$(MAKE) -C utils clean
+	$(MAKE) -C libpthread clean
 	@set -e; \
 	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		$(RM) include/sys/$$i; \
