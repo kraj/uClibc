@@ -33,6 +33,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -40,15 +41,17 @@
 #include <sys/wait.h>
 
 #include "bswap.h"
-#if defined (sun)
 #include "link.h"
-#else
 #include "elf.h"
-#endif
 #include "dl-defs.h"
 
 #ifdef DMALLOC
 #include <dmalloc.h>
+#endif
+
+#if defined(__alpha__)
+#define MATCH_MACHINE(x) (x == EM_ALPHA)
+#define ELFCLASSM	ELFCLASS64
 #endif
 
 #if defined(__arm__) || defined(__thumb__)
@@ -61,6 +64,15 @@
 #define ELFCLASSM	ELFCLASS32
 #endif
 
+#if defined(__hppa__)
+#define MATCH_MACHINE(x) (x == EM_PARISC)
+#if defined(__LP64__)
+#define ELFCLASSM		ELFCLASS64
+#else
+#define ELFCLASSM		ELFCLASS32
+#endif
+#endif
+
 #if defined(__i386__)
 #ifndef EM_486
 #define MATCH_MACHINE(x) (x == EM_386)
@@ -68,6 +80,11 @@
 #define MATCH_MACHINE(x) (x == EM_386 || x == EM_486)
 #endif
 #define ELFCLASSM	ELFCLASS32
+#endif
+
+#if defined(__ia64__)
+#define MATCH_MACHINE(x) (x == EM_IA_64)
+#define ELFCLASSM	ELFCLASS64
 #endif
 
 #if defined(__mc68000__)
@@ -80,7 +97,10 @@
 #define ELFCLASSM	ELFCLASS32
 #endif
 
-#if defined(__powerpc__)
+#if defined(__powerpc64__)
+#define MATCH_MACHINE(x) (x == EM_PPC64)
+#define ELFCLASSM	ELFCLASS64
+#elif defined(__powerpc__)
 #define MATCH_MACHINE(x) (x == EM_PPC)
 #define ELFCLASSM	ELFCLASS32
 #endif
@@ -90,12 +110,12 @@
 #define ELFCLASSM	ELFCLASS32
 #endif
 
-#if defined (__v850e__)
+#if defined(__v850e__)
 #define MATCH_MACHINE(x) ((x) == EM_V850 || (x) == EM_CYGNUS_V850)
 #define ELFCLASSM	ELFCLASS32
 #endif
 
-#if defined (__sparc__)
+#if defined(__sparc__)
 #define MATCH_MACHINE(x) ((x) == EM_SPARC || (x) == EM_SPARC32PLUS)
 #define ELFCLASSM    ELFCLASS32
 #endif
@@ -105,8 +125,24 @@
 #define ELFCLASSM	ELFCLASS32
 #endif
 
+#if defined(__x86_64__)
+#define MATCH_MACHINE(x) (x == EM_X86_64)
+#define ELFCLASSM	ELFCLASS64
+#endif
+
 #ifndef MATCH_MACHINE
-#warning "You really should add a MATCH_MACHINE() macro for your architecture"
+# ifdef __linux__
+#  include <asm/elf.h>
+# endif
+# ifdef ELF_ARCH
+#  define MATCH_MACHINE(x) (x == ELF_ARCH)
+# endif
+# ifdef ELF_CLASS
+#  define ELFCLASSM ELF_CLASS
+# endif
+#endif
+#ifndef MATCH_MACHINE
+# warning "You really should add a MATCH_MACHINE() macro for your architecture"
 #endif
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -123,7 +159,7 @@ struct library {
 };
 struct library *lib_list = NULL;
 char not_found[] = "not found";
-char *interp = NULL;
+char *interp_name = NULL;
 char *interp_dir = NULL;
 int byteswap;
 static int interpreter_already_found=0;
@@ -136,26 +172,39 @@ inline uint32_t byteswap32_to_host(uint32_t value)
 		return(value);
 	}
 }
+inline uint64_t byteswap64_to_host(uint64_t value)
+{
+	if (byteswap==1) {
+		return(bswap_64(value));
+	} else {
+		return(value);
+	}
+}
+#if ELFCLASSM == ELFCLASS32
+# define byteswap_to_host(x) byteswap32_to_host(x)
+#else
+# define byteswap_to_host(x) byteswap64_to_host(x)
+#endif
 
-Elf32_Shdr * elf_find_section_type( int key, Elf32_Ehdr *ehdr)
+ElfW(Shdr) * elf_find_section_type( int key, ElfW(Ehdr) *ehdr)
 {
 	int j;
-	Elf32_Shdr *shdr;
-	shdr = (Elf32_Shdr *)(ehdr->e_shoff + (char *)ehdr);
+	ElfW(Shdr) *shdr;
+	shdr = (ElfW(Shdr) *)(ehdr->e_shoff + (char *)ehdr);
 	for (j = ehdr->e_shnum; --j>=0; ++shdr) {
-		if (key==(int)byteswap32_to_host(shdr->sh_type)) {
+		if (key==byteswap32_to_host(shdr->sh_type)) {
 			return shdr;
 		}
 	}
 	return NULL;
 }
 
-Elf32_Phdr * elf_find_phdr_type( int type, Elf32_Ehdr *ehdr)
+ElfW(Phdr) * elf_find_phdr_type( int type, ElfW(Ehdr) *ehdr)
 {
 	int j;
-	Elf32_Phdr *phdr = (Elf32_Phdr *)(ehdr->e_phoff + (char *)ehdr);
+	ElfW(Phdr) *phdr = (ElfW(Phdr) *)(ehdr->e_phoff + (char *)ehdr);
 	for (j = ehdr->e_phnum; --j>=0; ++phdr) {
-		if (type==(int)byteswap32_to_host(phdr->p_type)) {
+		if (type==byteswap32_to_host(phdr->p_type)) {
 			return phdr;
 		}
 	}
@@ -163,40 +212,40 @@ Elf32_Phdr * elf_find_phdr_type( int type, Elf32_Ehdr *ehdr)
 }
 
 /* Returns value if return_val==1, ptr otherwise */
-void * elf_find_dynamic(int const key, Elf32_Dyn *dynp,
-	Elf32_Ehdr *ehdr, int return_val)
+void * elf_find_dynamic(int const key, ElfW(Dyn) *dynp,
+	ElfW(Ehdr) *ehdr, int return_val)
 {
-	Elf32_Phdr *pt_text = elf_find_phdr_type(PT_LOAD, ehdr);
-	unsigned tx_reloc = byteswap32_to_host(pt_text->p_vaddr) - byteswap32_to_host(pt_text->p_offset);
-	for (; DT_NULL!=byteswap32_to_host(dynp->d_tag); ++dynp) {
-		if (key == (int)byteswap32_to_host(dynp->d_tag)) {
+	ElfW(Phdr) *pt_text = elf_find_phdr_type(PT_LOAD, ehdr);
+	unsigned tx_reloc = byteswap_to_host(pt_text->p_vaddr) - byteswap_to_host(pt_text->p_offset);
+	for (; DT_NULL!=byteswap_to_host(dynp->d_tag); ++dynp) {
+		if (key == byteswap_to_host(dynp->d_tag)) {
 			if (return_val == 1)
-				return (void *)(intptr_t)byteswap32_to_host(dynp->d_un.d_val);
+				return (void *)byteswap_to_host(dynp->d_un.d_val);
 			else
-				return (void *)(byteswap32_to_host(dynp->d_un.d_val) - tx_reloc + (char *)ehdr );
+				return (void *)(byteswap_to_host(dynp->d_un.d_val) - tx_reloc + (char *)ehdr );
 		}
 	}
 	return NULL;
 }
 
-static char * elf_find_rpath(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic)
+static char * elf_find_rpath(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic)
 {
-	Elf32_Dyn  *dyns;
+	ElfW(Dyn)  *dyns;
 
-	for (dyns=dynamic; byteswap32_to_host(dyns->d_tag)!=DT_NULL; ++dyns) {
-		if (DT_RPATH == byteswap32_to_host(dyns->d_tag)) {
+	for (dyns=dynamic; byteswap_to_host(dyns->d_tag)!=DT_NULL; ++dyns) {
+		if (DT_RPATH == byteswap_to_host(dyns->d_tag)) {
 			char *strtab;
 			strtab = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
-			return ((char*)strtab + byteswap32_to_host(dyns->d_un.d_val));
+			return ((char*)strtab + byteswap_to_host(dyns->d_un.d_val));
 		}
 	}
 	return NULL;
 }
 
-int check_elf_header(Elf32_Ehdr *const ehdr)
+int check_elf_header(ElfW(Ehdr) *const ehdr)
 {
-	if (! ehdr || strncmp((void *)ehdr, ELFMAG, SELFMAG) != 0 ||
-			ehdr->e_ident[EI_CLASS] != ELFCLASS32 ||
+	if (! ehdr || strncmp((char *)ehdr, ELFMAG, SELFMAG) != 0 ||
+			ehdr->e_ident[EI_CLASS] != ELFCLASSM ||
 			ehdr->e_ident[EI_VERSION] != EV_CURRENT)
 	{
 		return 1;
@@ -220,11 +269,11 @@ int check_elf_header(Elf32_Ehdr *const ehdr)
 
 	/* Be vary lazy, and only byteswap the stuff we use */
 	if (byteswap==1) {
-		ehdr->e_type=bswap_16(ehdr->e_type);
-		ehdr->e_phoff=bswap_32(ehdr->e_phoff);
-		ehdr->e_shoff=bswap_32(ehdr->e_shoff);
-		ehdr->e_phnum=bswap_16(ehdr->e_phnum);
-		ehdr->e_shnum=bswap_16(ehdr->e_shnum);
+		ehdr->e_type = bswap_16(ehdr->e_type);
+		ehdr->e_phoff = byteswap_to_host(ehdr->e_phoff);
+		ehdr->e_shoff = byteswap_to_host(ehdr->e_shoff);
+		ehdr->e_phnum = bswap_16(ehdr->e_phnum);
+		ehdr->e_shnum = bswap_16(ehdr->e_shnum);
 	}
 
 	return 0;
@@ -357,7 +406,7 @@ static void search_for_named_library(char *name, char *result, const char *path_
 	*result = '\0';
 }
 
-void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_suid, struct library *lib)
+void locate_library_file(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic, int is_suid, struct library *lib)
 {
 	char *buf;
 	char *path;
@@ -452,7 +501,7 @@ void locate_library_file(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_suid, stru
 	}
 }
 
-static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_setuid, char *s)
+static int add_library(ElfW(Ehdr)* ehdr, ElfW(Dyn)* dynamic, int is_setuid, char *s)
 {
 	char *tmp, *tmp1, *tmp2;
 	struct library *cur, *newlib=lib_list;
@@ -468,10 +517,10 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_setuid, char
 	}
 
 	/* We add ldso elsewhere */
-	if (interpreter_already_found && (tmp=strrchr(interp, '/')) != NULL)
+	if (interpreter_already_found && (tmp=strrchr(interp_name, '/')) != NULL)
 	{
 		int len = strlen(interp_dir);
-		if (strcmp(s, interp+1+len)==0)
+		if (strcmp(s, interp_name+1+len)==0)
 			return 1;
 	}
 
@@ -512,41 +561,41 @@ static int add_library(Elf32_Ehdr* ehdr, Elf32_Dyn* dynamic, int is_setuid, char
 	return 0;
 }
 
-static void find_needed_libraries(Elf32_Ehdr* ehdr,
-		Elf32_Dyn* dynamic, int is_setuid)
+static void find_needed_libraries(ElfW(Ehdr)* ehdr,
+		ElfW(Dyn)* dynamic, int is_setuid)
 {
-	Elf32_Dyn  *dyns;
+	ElfW(Dyn)  *dyns;
 
-	for (dyns=dynamic; byteswap32_to_host(dyns->d_tag)!=DT_NULL; ++dyns) {
-		if (DT_NEEDED == byteswap32_to_host(dyns->d_tag)) {
+	for (dyns=dynamic; byteswap_to_host(dyns->d_tag)!=DT_NULL; ++dyns) {
+		if (DT_NEEDED == byteswap_to_host(dyns->d_tag)) {
 			char *strtab;
 			strtab = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
 			add_library(ehdr, dynamic, is_setuid,
-					(char*)strtab + byteswap32_to_host(dyns->d_un.d_val));
+					(char*)strtab + byteswap_to_host(dyns->d_un.d_val));
 		}
 	}
 }
 
-static struct library * find_elf_interpreter(Elf32_Ehdr* ehdr)
+static struct library * find_elf_interpreter(ElfW(Ehdr)* ehdr)
 {
-	Elf32_Phdr *phdr;
+	ElfW(Phdr) *phdr;
 
-	if (interpreter_already_found==1)
+	if (interpreter_already_found == 1)
 		return NULL;
 	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
 	if (phdr) {
 		struct library *cur, *newlib=NULL;
-		char *s = (char*)ehdr + byteswap32_to_host(phdr->p_offset);
+		char *s = (char*)ehdr + byteswap_to_host(phdr->p_offset);
 
 		char *tmp, *tmp1;
-		interp = strdup(s);
+		interp_name = strdup(s);
 		interp_dir = strdup(s);
 		tmp = strrchr(interp_dir, '/');
 		if (*tmp)
 			*tmp = '\0';
 		else {
 			free(interp_dir);
-			interp_dir = interp;
+			interp_dir = interp_name;
 		}
 		tmp1 = tmp = s;
 		while (*tmp) {
@@ -587,7 +636,7 @@ static struct library * find_elf_interpreter(Elf32_Ehdr* ehdr)
 			cur->next = newlib;
 		}
 #endif
-		interpreter_already_found=1;
+		interpreter_already_found = 1;
 		return newlib;
 	}
 	return NULL;
@@ -598,11 +647,11 @@ int find_dependancies(char* filename)
 {
 	int is_suid = 0;
 	FILE *thefile;
-	struct stat statbuf;
-	Elf32_Ehdr *ehdr = NULL;
-	Elf32_Shdr *dynsec = NULL;
-	Elf32_Dyn *dynamic = NULL;
 	struct library *interp;
+	struct stat statbuf;
+	ElfW(Ehdr) *ehdr = NULL;
+	ElfW(Shdr) *dynsec = NULL;
+	ElfW(Dyn) *dynamic = NULL;
 
 	if (filename == not_found)
 		return 0;
@@ -621,14 +670,14 @@ int find_dependancies(char* filename)
 		return -1;
 	}
 
-	if ((size_t)statbuf.st_size < sizeof(Elf32_Ehdr))
+	if ((size_t)statbuf.st_size < sizeof(ElfW(Ehdr)))
 		goto foo;
 
 	if (!S_ISREG(statbuf.st_mode))
 		goto foo;
 
 	/* mmap the file to make reading stuff from it effortless */
-	ehdr = (Elf32_Ehdr *)mmap(0, statbuf.st_size,
+	ehdr = (ElfW(Ehdr) *)mmap(0, statbuf.st_size,
 			PROT_READ|PROT_WRITE, MAP_PRIVATE, fileno(thefile), 0);
 	if (ehdr == MAP_FAILED) {
 		fclose(thefile);
@@ -659,7 +708,7 @@ foo:
 			fprintf(stderr, "%s: is setuid\n", filename);
 	}
 
-	interpreter_already_found=0;
+	interpreter_already_found = 0;
 	interp = find_elf_interpreter(ehdr);
 
 #ifdef __LDSO_LDD_SUPPORT__
@@ -700,7 +749,7 @@ foo:
 
 	dynsec = elf_find_section_type(SHT_DYNAMIC, ehdr);
 	if (dynsec) {
-		dynamic = (Elf32_Dyn*)(byteswap32_to_host(dynsec->sh_offset) + (intptr_t)ehdr);
+		dynamic = (ElfW(Dyn)*)(byteswap_to_host(dynsec->sh_offset) + (char *)ehdr);
 		find_needed_libraries(ehdr, dynamic, is_suid);
 	}
 
@@ -731,7 +780,7 @@ int main( int argc, char** argv)
 			continue;
 		}
 
-		if(strcmp(*argv, "--help")==0) {
+		if (strcmp(*argv, "--help") == 0 || strcmp(*argv, "-h") == 0) {
 			fprintf(stderr, "Usage: ldd [OPTION]... FILE...\n");
 			fprintf(stderr, "\t--help\t\tprint this help and exit\n");
 			exit(EXIT_FAILURE);
@@ -773,8 +822,8 @@ int main( int argc, char** argv)
 			got_em_all=1;
 			printf("\t%s => %s (0x00000000)\n", cur->name, cur->path);
 		}
-		if (interp && interpreter_already_found==1)
-			printf("\t%s => %s (0x00000000)\n", interp, interp);
+		if (interp_name && interpreter_already_found==1)
+			printf("\t%s => %s (0x00000000)\n", interp_name, interp_name);
 		else
 			printf("\tnot a dynamic executable\n");
 
@@ -791,4 +840,3 @@ int main( int argc, char** argv)
 
 	return 0;
 }
-
