@@ -249,10 +249,12 @@ ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 endif
 #	# If we build shared libraries then the static libs are PIC...
 #	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
+	if [ -d lib ] ; then \
 	for i in `find lib/  -type f -name '*.a' | sed -e 's/lib\///'` ; do \
 		$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
 			| sed -e 's/\.a$$/_pic.a/'`; \
-	done;
+	done ; \
+	fi
 	# Ugh!!! Remember that libdl.a and libdl_pic.a are different.  Since
 	# libdl is pretty small, and not likely to benefit from mklibs.py and
 	# similar, lets just remove libdl_pic.a and avoid the issue
