@@ -207,6 +207,11 @@ int abs(int j)
 /**********************************************************************/
 #ifdef L_labs
 
+long int labs(long int j)
+{
+	return (j >= 0) ? j : -j;
+}
+
 #if UINT_MAX == ULONG_MAX
 strong_alias(labs,abs)
 #endif
@@ -219,25 +224,20 @@ strong_alias(labs,llabs)
 strong_alias(labs,imaxabs)
 #endif
 
-long int labs(long int j)
-{
-	return (j >= 0) ? j : -j;
-}
-
 #endif
 /**********************************************************************/
 #ifdef L_llabs
 
 #if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
-#if (ULLONG_MAX == UINTMAX_MAX)
-strong_alias(llabs,imaxabs)
-#endif
-
 long long int llabs(long long int j)
 {
 	return (j >= 0) ? j : -j;
 }
+
+#if (ULLONG_MAX == UINTMAX_MAX)
+strong_alias(llabs,imaxabs)
+#endif
 
 #endif /* defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX) */
 
@@ -258,6 +258,11 @@ int atoi(const char *nptr)
 /**********************************************************************/
 #ifdef L_atol
 
+long atol(const char *nptr)
+{
+	return strtol(nptr, (char **) NULL, 10);
+}
+
 #if UINT_MAX == ULONG_MAX
 strong_alias(atol,atoi)
 #endif
@@ -265,11 +270,6 @@ strong_alias(atol,atoi)
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
 strong_alias(atol,atoll)
 #endif
-
-long atol(const char *nptr)
-{
-	return strtol(nptr, (char **) NULL, 10);
-}
 
 #endif
 /**********************************************************************/
@@ -288,6 +288,12 @@ long long atoll(const char *nptr)
 /**********************************************************************/
 #if defined(L_strtol) || defined(L_strtol_l)
 
+long __XL(strtol)(const char * __restrict str, char ** __restrict endptr,
+				  int base   __LOCALE_PARAM )
+{
+    return __XL_NPP(_stdlib_strto_l)(str, endptr, base, 1   __LOCALE_ARG );
+}
+
 #if (ULONG_MAX == UINTMAX_MAX) && !defined(L_strtol_l)
 strong_alias(strtol,strtoimax)
 #endif
@@ -295,12 +301,6 @@ strong_alias(strtol,strtoimax)
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
 strong_alias(__XL(strtol),__XL(strtoll))
 #endif
-
-long __XL(strtol)(const char * __restrict str, char ** __restrict endptr,
-				  int base   __LOCALE_PARAM )
-{
-    return __XL_NPP(_stdlib_strto_l)(str, endptr, base, 1   __LOCALE_ARG );
-}
 
 __XL_ALIAS(strtol)
 
@@ -310,13 +310,6 @@ __XL_ALIAS(strtol)
 
 #if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
-#if !defined(L_strtoll_l)
-#if (ULLONG_MAX == UINTMAX_MAX)
-strong_alias(strtoll,strtoimax)
-#endif
-strong_alias(strtoll,strtoq)
-#endif
-
 long long __XL(strtoll)(const char * __restrict str,
 						char ** __restrict endptr, int base
 						__LOCALE_PARAM )
@@ -324,6 +317,13 @@ long long __XL(strtoll)(const char * __restrict str,
     return (long long) __XL_NPP(_stdlib_strto_ll)(str, endptr, base, 1
 												  __LOCALE_ARG );
 }
+
+#if !defined(L_strtoll_l)
+#if (ULLONG_MAX == UINTMAX_MAX)
+strong_alias(strtoll,strtoimax)
+#endif
+strong_alias(strtoll,strtoq)
+#endif
 
 __XL_ALIAS(strtoll)
 
@@ -333,6 +333,13 @@ __XL_ALIAS(strtoll)
 /**********************************************************************/
 #if defined(L_strtoul) || defined(L_strtoul_l)
 
+unsigned long __XL(strtoul)(const char * __restrict str,
+							char ** __restrict endptr, int base
+							__LOCALE_PARAM )
+{
+    return __XL_NPP(_stdlib_strto_l)(str, endptr, base, 0   __LOCALE_ARG );
+}
+
 #if (ULONG_MAX == UINTMAX_MAX) && !defined(L_strtoul_l)
 strong_alias(strtoul,strtoumax)
 #endif
@@ -340,13 +347,6 @@ strong_alias(strtoul,strtoumax)
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
 strong_alias(__XL(strtoul),__XL(strtoull))
 #endif
-
-unsigned long __XL(strtoul)(const char * __restrict str,
-							char ** __restrict endptr, int base
-							__LOCALE_PARAM )
-{
-    return __XL_NPP(_stdlib_strto_l)(str, endptr, base, 0   __LOCALE_ARG );
-}
 
 __XL_ALIAS(strtoul)
 
@@ -356,19 +356,19 @@ __XL_ALIAS(strtoul)
 
 #if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
-#if !defined(L_strtoull_l)
-#if (ULLONG_MAX == UINTMAX_MAX)
-strong_alias(strtoull,strtoumax)
-#endif
-strong_alias(strtoull,strtouq)
-#endif
-
 unsigned long long __XL(strtoull)(const char * __restrict str,
 								  char ** __restrict endptr, int base
 								  __LOCALE_PARAM )
 {
     return __XL_NPP(_stdlib_strto_ll)(str, endptr, base, 0   __LOCALE_ARG );
 }
+
+#if !defined(L_strtoull_l)
+#if (ULLONG_MAX == UINTMAX_MAX)
+strong_alias(strtoull,strtoumax)
+#endif
+strong_alias(strtoull,strtouq)
+#endif
 
 __XL_ALIAS(strtoull)
 
@@ -953,6 +953,12 @@ size_t wcstombs(char * __restrict s, const wchar_t * __restrict pwcs, size_t n)
 /**********************************************************************/
 #if defined(L_wcstol) || defined(L_wcstol_l)
 
+long __XL(wcstol)(const wchar_t * __restrict str,
+				  wchar_t ** __restrict endptr, int base   __LOCALE_PARAM )
+{
+    return __XL_NPP(_stdlib_wcsto_l)(str, endptr, base, 1   __LOCALE_ARG );
+}
+
 #if (ULONG_MAX == UINTMAX_MAX) && !defined(L_wcstol_l)
 strong_alias(wcstol,wcstoimax)
 #endif
@@ -960,12 +966,6 @@ strong_alias(wcstol,wcstoimax)
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
 strong_alias(__XL(wcstol),__XL(wcstoll))
 #endif
-
-long __XL(wcstol)(const wchar_t * __restrict str,
-				  wchar_t ** __restrict endptr, int base   __LOCALE_PARAM )
-{
-    return __XL_NPP(_stdlib_wcsto_l)(str, endptr, base, 1   __LOCALE_ARG );
-}
 
 __XL_ALIAS(wcstol)
 
@@ -975,13 +975,6 @@ __XL_ALIAS(wcstol)
 
 #if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
-#if !defined(L_wcstoll_l)
-#if (ULLONG_MAX == UINTMAX_MAX)
-strong_alias(wcstoll,wcstoimax)
-#endif
-strong_alias(wcstoll,wcstoq)
-#endif
-
 long long __XL(wcstoll)(const wchar_t * __restrict str,
 						wchar_t ** __restrict endptr, int base
 						__LOCALE_PARAM )
@@ -989,6 +982,13 @@ long long __XL(wcstoll)(const wchar_t * __restrict str,
     return (long long) __XL_NPP(_stdlib_wcsto_ll)(str, endptr, base, 1
 												  __LOCALE_ARG );
 }
+
+#if !defined(L_wcstoll_l)
+#if (ULLONG_MAX == UINTMAX_MAX)
+strong_alias(wcstoll,wcstoimax)
+#endif
+strong_alias(wcstoll,wcstoq)
+#endif
 
 __XL_ALIAS(wcstoll)
 
@@ -998,6 +998,13 @@ __XL_ALIAS(wcstoll)
 /**********************************************************************/
 #if defined(L_wcstoul) || defined(L_wcstoul_l)
 
+unsigned long __XL(wcstoul)(const wchar_t * __restrict str,
+							wchar_t ** __restrict endptr, int base
+							__LOCALE_PARAM )
+{
+    return __XL_NPP(_stdlib_wcsto_l)(str, endptr, base, 0   __LOCALE_ARG );
+}
+
 #if (ULONG_MAX == UINTMAX_MAX) && !defined(L_wcstoul_l)
 strong_alias(wcstoul,wcstoumax)
 #endif
@@ -1005,13 +1012,6 @@ strong_alias(wcstoul,wcstoumax)
 #if defined(ULLONG_MAX) && (ULLONG_MAX == ULONG_MAX)
 strong_alias(__XL(wcstoul),__XL(wcstoull))
 #endif
-
-unsigned long __XL(wcstoul)(const wchar_t * __restrict str,
-							wchar_t ** __restrict endptr, int base
-							__LOCALE_PARAM )
-{
-    return __XL_NPP(_stdlib_wcsto_l)(str, endptr, base, 0   __LOCALE_ARG );
-}
 
 __XL_ALIAS(wcstoul)
 
@@ -1021,19 +1021,19 @@ __XL_ALIAS(wcstoul)
 
 #if defined(ULLONG_MAX) && (LLONG_MAX > LONG_MAX)
 
-#if !defined(L_wcstoull_l)
-#if (ULLONG_MAX == UINTMAX_MAX)
-strong_alias(wcstoull,wcstoumax)
-#endif
-strong_alias(wcstoull,wcstouq)
-#endif
-
 unsigned long long __XL(wcstoull)(const wchar_t * __restrict str,
 								  wchar_t ** __restrict endptr, int base
 								  __LOCALE_PARAM )
 {
     return __XL_NPP(_stdlib_wcsto_ll)(str, endptr, base, 0   __LOCALE_ARG );
 }
+
+#if !defined(L_wcstoull_l)
+#if (ULLONG_MAX == UINTMAX_MAX)
+strong_alias(wcstoull,wcstoumax)
+#endif
+strong_alias(wcstoull,wcstouq)
+#endif
 
 __XL_ALIAS(wcstoull)
 

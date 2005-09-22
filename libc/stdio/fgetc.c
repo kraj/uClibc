@@ -12,16 +12,7 @@
 #undef getc
 #undef getc_unlocked
 
-extern int __fgetc_unlocked(FILE *stream);
-
 #ifdef __DO_UNLOCKED
-
-weak_alias(__fgetc_unlocked,fgetc_unlocked);
-weak_alias(__fgetc_unlocked,getc_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fgetc_unlocked,fgetc);
-weak_alias(__fgetc_unlocked,getc);
-#endif
 
 int __fgetc_unlocked(FILE *stream)
 {
@@ -78,9 +69,14 @@ int __fgetc_unlocked(FILE *stream)
 	return EOF;
 }
 
-#elif defined __UCLIBC_HAS_THREADS__
+weak_alias(__fgetc_unlocked,fgetc_unlocked);
+weak_alias(__fgetc_unlocked,getc_unlocked);
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__fgetc_unlocked,fgetc);
+weak_alias(__fgetc_unlocked,getc);
+#endif
 
-weak_alias(fgetc,getc);
+#elif defined __UCLIBC_HAS_THREADS__
 
 int fgetc(register FILE *stream)
 {
@@ -94,5 +90,7 @@ int fgetc(register FILE *stream)
 		return retval;
 	}
 }
+
+weak_alias(fgetc,getc);
 
 #endif

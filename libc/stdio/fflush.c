@@ -7,18 +7,11 @@
 
 #include "_stdio.h"
 
-extern int __fflush_unlocked(register FILE *stream);
-
 #ifdef __DO_UNLOCKED
 
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning WISHLIST: Add option to test for undefined behavior of fflush.
 #endif /* __UCLIBC_MJN3_ONLY__ */
-
-weak_alias(__fflush_unlocked,fflush_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fflush_unlocked,fflush);
-#endif
 
 #ifdef __UCLIBC_HAS_THREADS__
 /* Even if the stream is set to user-locking, we still need to lock
@@ -132,6 +125,11 @@ int __fflush_unlocked(register FILE *stream)
 	return 0;
 #endif /* __STDIO_BUFFERS */
 }
+
+weak_alias(__fflush_unlocked,fflush_unlocked);
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__fflush_unlocked,fflush);
+#endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 

@@ -19,14 +19,10 @@
 # define FSEEK				__fseeko64
 # define OFFSET_TYPE		__off64_t
 
-weak_alias(__fseeko64,fseeko64);
-
 #else
 
 # define FSEEK				fseek
 # define OFFSET_TYPE		long int
-
-weak_alias(fseek,fseeko);
 
 #endif
 
@@ -87,3 +83,9 @@ int FSEEK(register FILE *stream, OFFSET_TYPE offset, int whence)
 
 #endif
 }
+
+#ifdef __DO_LARGEFILE
+weak_alias(__fseeko64,fseeko64);
+#else
+weak_alias(fseek,fseeko);
+#endif

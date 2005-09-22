@@ -12,11 +12,6 @@ extern wchar_t *__fgetws_unlocked(wchar_t *__restrict ws, int n,
 
 #ifdef __DO_UNLOCKED
 
-weak_alias(__fgetws_unlocked,fgetws_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fgetws_unlocked,fgetws);
-#endif
-
 wchar_t *__fgetws_unlocked(wchar_t *__restrict ws, int n,
 						   FILE *__restrict stream)
 {
@@ -41,6 +36,11 @@ wchar_t *__fgetws_unlocked(wchar_t *__restrict ws, int n,
 	*p = 0;
 	return ws;
 }
+
+weak_alias(__fgetws_unlocked,fgetws_unlocked);
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__fgetws_unlocked,fgetws);
+#endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 

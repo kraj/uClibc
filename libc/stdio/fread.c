@@ -9,11 +9,6 @@
 
 #ifdef __DO_UNLOCKED
 
-weak_alias(__fread_unlocked,fread_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fread_unlocked,fread);
-#endif
-
 size_t __fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
 						FILE * __restrict stream)
 {
@@ -87,6 +82,11 @@ size_t __fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
 	__STDIO_STREAM_VALIDATE(stream);
 	return 0;
 }
+
+weak_alias(__fread_unlocked,fread_unlocked);
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__fread_unlocked,fread);
+#endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 

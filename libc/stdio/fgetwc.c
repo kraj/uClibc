@@ -9,13 +9,6 @@
 
 #ifdef __DO_UNLOCKED
 
-weak_alias(__fgetwc_unlocked,fgetwc_unlocked);
-weak_alias(__fgetwc_unlocked,getwc_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fgetwc_unlocked,fgetwc);
-weak_alias(__fgetwc_unlocked,getwc);
-#endif
-
 static void munge_stream(register FILE *stream, unsigned char *buf)
 {
 	stream->__bufend = stream->__bufstart = buf;
@@ -113,9 +106,14 @@ wint_t __fgetwc_unlocked(register FILE *stream)
 	return wi;
 }
 
-#elif defined __UCLIBC_HAS_THREADS__
+weak_alias(__fgetwc_unlocked,fgetwc_unlocked);
+weak_alias(__fgetwc_unlocked,getwc_unlocked);
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__fgetwc_unlocked,fgetwc);
+weak_alias(__fgetwc_unlocked,getwc);
+#endif
 
-weak_alias(fgetwc,getwc);
+#elif defined __UCLIBC_HAS_THREADS__
 
 wint_t fgetwc(register FILE *stream)
 {
@@ -130,5 +128,7 @@ wint_t fgetwc(register FILE *stream)
 
 	return retval;
 }
+
+weak_alias(fgetwc,getwc);
 
 #endif

@@ -23,10 +23,6 @@
 
 #undef strcmp
 
-#ifdef __LOCALE_C_ONLY
-weak_alias(strcmp,strcoll);
-#endif /* __LOCALE_C_ONLY */
-
 /* Compare S1 and S2, returning less than, equal to or
    greater than zero if S1 is lexicographically less than,
    equal to or greater than S2.  */
@@ -50,3 +46,7 @@ strcmp (p1, p2)
 
   return c1 - c2;
 }
+
+#ifdef __LOCALE_C_ONLY
+weak_alias(strcmp,strcoll);
+#endif /* __LOCALE_C_ONLY */

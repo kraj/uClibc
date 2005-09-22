@@ -18,8 +18,6 @@
  * a reading.  So space may be allocated even if initially at EOF.
  */
 
-weak_alias(__getdelim,getdelim);
-
 #define GETDELIM_GROWBY		64
 
 ssize_t __getdelim(char **__restrict lineptr, size_t *__restrict n,
@@ -75,3 +73,5 @@ ssize_t __getdelim(char **__restrict lineptr, size_t *__restrict n,
 
 	return pos;
 }
+
+weak_alias(__getdelim,getdelim);

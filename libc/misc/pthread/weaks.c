@@ -24,6 +24,18 @@
 static int __pthread_return_0 __P ((void));
 static int __pthread_return_1 __P ((void));
 
+static int
+__pthread_return_0 (void)
+{
+  return 0;
+}
+
+static int
+__pthread_return_1 (void)
+{
+  return 1;
+}
+
 /**********************************************************************/
 /* Weaks for application/library use.
  *
@@ -105,15 +117,3 @@ weak_alias (__pthread_return_0, __pthread_mutex_trylock)
 weak_alias (__pthread_return_0, __pthread_mutex_unlock)
 
 /**********************************************************************/
-
-static int
-__pthread_return_0 (void)
-{
-  return 0;
-}
-
-static int
-__pthread_return_1 (void)
-{
-  return 1;
-}

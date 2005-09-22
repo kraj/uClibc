@@ -14,11 +14,6 @@
 
 #ifdef __DO_UNLOCKED
 
-weak_alias(__fputs_unlocked,fputs_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fputs_unlocked,fputs);
-#endif
-
 int __fputs_unlocked(register const char * __restrict s,
 					 FILE * __restrict stream)
 {
@@ -26,6 +21,11 @@ int __fputs_unlocked(register const char * __restrict s,
 
 	return ((__fwrite_unlocked(s, 1, n, stream) == n) ? n : EOF);
 }
+
+weak_alias(__fputs_unlocked,fputs_unlocked);
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__fputs_unlocked,fputs);
+#endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
