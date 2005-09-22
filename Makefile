@@ -28,6 +28,8 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 TOPDIR=./
 include Rules.mak
 
+ALL_SUBDIRS = ldso libc libcrypt libresolv libnsl libutil librt libm libpthread libintl test utils # extra
+
 DIRS = ldso libc libcrypt libresolv libnsl libutil librt
 ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	DIRS += libm
@@ -116,7 +118,9 @@ headers: include/bits/uClibc_config.h
 	else \
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
+ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 	$(MAKE) -C libpthread headers
+endif
 	$(MAKE) -C libc/sysdeps/linux/common headers
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
 
@@ -337,19 +341,18 @@ defconfig: extra/config/conf
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -d extra/Configs/Config.in
 
-clean:
+subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
+$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)): dummy
+	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+
+clean: subdirs_clean
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec $(RM) {} \;
-	@$(RM) -r tmp lib include/bits libc/tmp _install
-	$(RM) libc/obj.* headers
-	$(MAKE) -C test clean
-	$(MAKE) -C ldso clean
+	@$(RM) -r lib include/bits
 	$(MAKE) -C libc/misc/internals clean
 	$(MAKE) -C libc/misc/wchar clean
 	$(MAKE) -C libc/unistd clean
 	$(MAKE) -C libc/sysdeps/linux/common clean
 	$(MAKE) -C extra/locale clean
-	$(MAKE) -C utils clean
-	$(MAKE) -C libpthread clean
 	@set -e; \
 	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		$(RM) include/sys/$$i; \

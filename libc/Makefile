@@ -98,8 +98,6 @@ tags:
 	ctags -R
 
 clean: subdirs_clean halfclean
-	@$(RM) -r tmp
-	$(RM) include/asm include/linux include/bits
 	$(RM) obj.*
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
