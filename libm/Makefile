@@ -93,25 +93,16 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS) $(FL_MOBJ)
 
 
-ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
-all:
-else
 all: $(LIBM) subdirs
-endif
 
-ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
-$(LIBM) ar-target:
-else
 ar-target: $(OBJS)
 	$(AR) $(ARFLAGS) $(LIBM) $(OBJS)
 $(LIBM): ar-target
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBM)
 	$(INSTALL) -m 644 $(LIBM) $(TOPDIR)lib
-endif
 
 shared: all
-ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	$(LD) $(LDFLAGS) -soname=$(LIBM_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBM_SHARED_FULLNAME) --whole-archive $(LIBM) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
@@ -121,7 +112,6 @@ ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	$(INSTALL) -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib
 	$(LN) -sf $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED)
 	$(LN) -sf $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION)
-endif
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -131,13 +121,11 @@ $(FL_MOBJ): $(FL_MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(OBJ): Makefile
-
 tags:
 	ctags -R
 
 clean: subdirs_clean
-	$(RM) *.[oa] *~ core $(LIBM_SHARED)* $(LIBM_SHARED_FULLNAME)*
+	$(RM) *.[oa] *~ core $(LIBM) $(LIBM_SHARED_FULLNAME)
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))

@@ -258,7 +258,7 @@ endif
 	# Ugh!!! Remember that libdl.a and libdl_pic.a are different.  Since
 	# libdl is pretty small, and not likely to benefit from mklibs.py and
 	# similar, lets just remove libdl_pic.a and avoid the issue
-	rm -f $(PREFIX)$(DEVEL_PREFIX)lib/libdl_pic.a
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libdl_pic.a
 endif
 
 
@@ -277,7 +277,6 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	fi;
 endif
 
-.PHONY: utils
 utils:
 	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils
 
@@ -351,9 +350,6 @@ clean: subdirs_clean
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec $(RM) {} \;
 	@$(RM) -r lib include/bits
 	$(MAKE) -C libc/misc/internals clean
-	$(MAKE) -C libc/misc/wchar clean
-	$(MAKE) -C libc/unistd clean
-	$(MAKE) -C libc/sysdeps/linux/common clean
 	$(MAKE) -C extra/locale clean
 	@set -e; \
 	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \

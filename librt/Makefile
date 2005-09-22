@@ -33,7 +33,7 @@ shared: all
 	$(LD) $(LDFLAGS) -soname=$(LIBRT_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBRT_SHARED_FULLNAME) --whole-archive $(LIBRT) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC);
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBRT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRT_SHARED).$(MAJOR_VERSION)
 	$(INSTALL) -m 644 $(LIBRT_SHARED_FULLNAME) $(TOPDIR)lib
@@ -41,4 +41,4 @@ shared: all
 	$(LN) -sf $(LIBRT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRT_SHARED).$(MAJOR_VERSION)
 
 clean:
-	$(RM) *.[oa] *~ core $(LIBRT_SHARED)* $(LIBRT_SHARED_FULLNAME)*
+	$(RM) *.[oa] *~ core $(LIBRT) $(LIBRT_SHARED_FULLNAME)

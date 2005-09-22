@@ -66,11 +66,9 @@ endif
 endif
 
 $(LIBPTHREAD): subdirs
-ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBPTHREAD)
 	$(INSTALL) -m 644 $(LIBPTHREAD) $(TOPDIR)lib
-endif
 
 $(LIBTHREAD_DB): subdirs
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
@@ -84,10 +82,7 @@ $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(OBJ): Makefile
-
 shared: all
-ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
@@ -101,7 +96,6 @@ ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 		$(TOPDIR)lib/$(LIBPTHREAD_SHARED)
 	$(LN) -sf $(LIBPTHREAD_SHARED_FULLNAME) \
 		$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
-endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	$(LD) $(LIBTHREAD_DB_LDFLAGS) --warn-unresolved-symbols -soname=$(LIBTHREAD_DB_SHARED).1 \
 		-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \

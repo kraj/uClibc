@@ -23,8 +23,6 @@
 
 TOPDIR=../
 include $(TOPDIR)Rules.mak
-LIBC=$(TOPDIR)libc.a
-
 
 DIRS = 
 EXTRA_DIRS_TO_CLEAN = config

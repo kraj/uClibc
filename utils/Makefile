@@ -96,14 +96,14 @@ readelf.host: readelf.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s $^ -o $@
 
 clean:
-	$(RM) $(TARGETS) *.o *~ core *.target elf.h link.h iconv *.host
+	$(RM) $(TARGETS) *.o *~ core elf.h link.h readelf iconv *.host
 
 install: all
 ifeq ($(strip $(HAVE_SHARED)),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)sbin
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)usr/bin
 	$(INSTALL) -m 755 ldd $(PREFIX)$(RUNTIME_PREFIX)usr/bin/ldd
-	$(INSTALL) -m 755 ldconfig $(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig;
+	$(INSTALL) -m 755 ldconfig $(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig
 	#$(INSTALL) -m 755 readelf $(PREFIX)$(RUNTIME_PREFIX)usr/bin/readelf
 endif
 ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)

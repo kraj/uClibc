@@ -39,7 +39,7 @@ VERSION_SCRIPT:=${shell if [ -f sysdeps/linux/$(TARGET_ARCH)/libc.map ] ; then \
 
 LIBNAME_TARGET:=$(TOPDIR)lib/$(LIBNAME)
 
-all: halfclean $(LIBNAME_TARGET) $(DO_SHARED)
+all: halfclean $(LIBNAME_TARGET)
 
 # Some functions are duplicated across subdirs, and when you pass $(AR)
 # the same object file more than once, it'll add it to the archive multiple 
@@ -83,7 +83,6 @@ shared: shared_$(LIBNAME)
 		--whole-archive shared_$(LIBNAME) \
 		$(TOPDIR)libc/misc/internals/interp.o --no-whole-archive \
 		-init __uClibc_init $(TOPDIR)lib/$(UCLIBC_LDSO) $(LIBGCC) $(LDADD_LIBFLOAT)
-	@true #$(RM) -r tmp
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(SHARED_FULLNAME)
 	$(INSTALL) -m 644 $(SHARED_FULLNAME) $(TOPDIR)lib
@@ -91,8 +90,7 @@ shared: shared_$(LIBNAME)
 	$(LN) -sf $(SHARED_FULLNAME) $(TOPDIR)lib/$(SHARED_MAJORNAME)
 
 halfclean:
-	@$(RM) $(LIBNAME) shared_$(LIBNAME) uClibc_config.h
-	@$(RM) $(SHARED_FULLNAME) $(SHARED_MAJORNAME) uClibc-0.* libc.so*
+	$(RM) $(LIBNAME) shared_$(LIBNAME) $(SHARED_FULLNAME)
 
 tags:
 	ctags -R
