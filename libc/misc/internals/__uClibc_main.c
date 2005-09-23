@@ -26,9 +26,10 @@
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 #ifdef __UCLIBC_HAS_SSP__
-extern void __guard_setup(void);
-#endif
+#include <ssp-internal.h>
 
+unsigned long __guard = 0UL;
+#endif
 
 /*
  * Prototypes.
@@ -105,6 +106,62 @@ static int __check_suid(void)
     return 1;
 }
 
+#ifdef __UCLIBC_HAS_SSP__
+static __always_inline void __guard_setup(void)
+{
+	if (__guard != 0UL)
+		return;
+
+#ifndef __SSP_QUICK_CANARY__
+
+	size_t size;
+
+# ifdef __SSP_USE_ERANDOM__
+	{
+		int mib[3];
+		/* Random is another depth in Linux, hence an array of 3. */
+		mib[0] = CTL_KERN;
+		mib[1] = KERN_RANDOM;
+		mib[2] = RANDOM_ERANDOM;
+
+		size = sizeof(unsigned long);
+		if (SYSCTL(mib, 3, &__guard, &size, NULL, 0) != (-1))
+			if (__guard != 0UL)
+				return;
+	}
+# endif /* ifdef __SSP_USE_ERANDOM__ */
+	{
+		int fd;
+
+# ifdef __SSP_USE_ERANDOM__
+		/* 
+		 * Attempt to open kernel pseudo random device if one exists before 
+		 * opening urandom to avoid system entropy depletion.
+		 */
+		if ((fd = OPEN("/dev/erandom", O_RDONLY)) == (-1))
+# endif
+			fd = OPEN("/dev/urandom", O_RDONLY);
+		if (fd != (-1)) {
+			size = READ(fd, (char *) &__guard, sizeof(__guard));
+			CLOSE(fd);
+			if (size == sizeof(__guard))
+				return;
+		}
+	}
+#endif /* ifndef __SSP_QUICK_CANARY__ */
+
+	/* Start with the "terminator canary". */
+	__guard = 0xFF0A0D00UL;
+
+	/* Everything failed? Or we are using a weakened model of the 
+	 * terminator canary */
+	{
+		struct timeval tv;
+		GETTIMEOFDAY(&tv, NULL);
+		__guard ^= tv.tv_usec ^ tv.tv_sec;
+	}
+}
+#endif /* __UCLIBC_HAS_SSP__ */
 
 /* __uClibc_init completely initialize uClibc so it is ready to use.
  *
@@ -138,6 +195,10 @@ void __uClibc_init(void)
      */
     if (likely(__pthread_initialize_minimal!=NULL))
 	__pthread_initialize_minimal();
+#endif
+
+#ifdef __UCLIBC_HAS_SSP__
+    __guard_setup ();
 #endif
 
 #ifdef __UCLIBC_HAS_LOCALE__
@@ -233,10 +294,6 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     if (app_init!=NULL) {
 	app_init();
     }
-#endif
-
-#ifdef __UCLIBC_HAS_SSP__
-    __guard_setup ();
 #endif
 
     /* Note: It is possible that any initialization done above could
