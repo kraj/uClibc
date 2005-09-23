@@ -134,7 +134,7 @@ static inline char * _dl_strstr(const char *s1, const char *s2)
     } while (1);
 }
 
-static inline void * _dl_memcpy(void * dst, const void * src, size_t len)
+static __always_inline void * _dl_memcpy(void * dst, const void * src, size_t len)
 {
 	register char *a = dst-1;
 	register const char *b = src-1;
