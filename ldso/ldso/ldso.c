@@ -200,9 +200,9 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		unlazy = RTLD_NOW;
 	}
 
-#if defined USE_TLS && NO_TLS_OFFSET != 0
-	tpnt->l_tls_offset = NO_TLS_OFFSET;
-#endif 
+#if USE_TLS
+	_dl_init_static_tls = &_dl_nothread_init_static_tls;
+#endif
 
 	/* At this point we are now free to examine the user application,
 	 * and figure out which libraries are supposed to be called.  Until
