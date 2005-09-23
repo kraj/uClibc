@@ -1,6 +1,6 @@
 /*
- * Distributed under the terms of the GNU General Public License v2
- * $Header: /var/cvs/uClibc/libc/sysdeps/linux/common/ssp.c,v 1.6 2005/01/11 17:01:53 vapier Exp $
+ * Distributed under the terms of the GNU Lesser General Public License
+ * $Header: $
  *
  * This is a modified version of Hiroaki Etoh's stack smashing routines
  * implemented for glibc.
@@ -12,13 +12,9 @@
  * Peter S. Mazinger - <ps.m[@]gmx.net>
  * Yoann Vandoorselaere - <yoann[@]prelude-ids.org>
  * Robert Connolly - <robert[@]linuxfromscratch.org>
- * Cory Visi <cory@visi.name>
- *
+ * Cory Visi <cory[@]visi.name>
+ * Mike Frysinger <vapier[@]gentoo.org>
  */
-
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
 
 #include <string.h>
 #include <unistd.h>
