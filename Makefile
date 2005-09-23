@@ -166,7 +166,6 @@ install_dev:
 	fi ; \
 	tar -chf - include --exclude .svn --exclude CVS $$extra_exclude \
 		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/libc-internal.h
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	# Remove floating point related headers since float support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
