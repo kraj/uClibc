@@ -19,7 +19,7 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-CFLAGS+=$(SSP_ALL_CFLAGS)
+CFLAGS += $(SSP_ALL_CFLAGS) -L$(TOPDIR)lib
 
 TARGETS = ldd ldconfig
 
