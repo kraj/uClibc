@@ -39,7 +39,7 @@
 
 #include "bswap.h"
 #include "elf.h"
-
+#include "link.h"
 
 int byteswap;
 inline uint32_t byteswap32_to_host(uint32_t value)
@@ -50,25 +50,38 @@ inline uint32_t byteswap32_to_host(uint32_t value)
 		return(value);
 	}
 }
+inline uint64_t byteswap64_to_host(uint64_t value)
+{
+	if (byteswap==1) {
+		return(bswap_64(value));
+	} else {
+		return(value);
+	}
+}
+#if __WORDSIZE == 64
+# define byteswap_to_host(x) byteswap64_to_host(x)
+#else
+# define byteswap_to_host(x) byteswap32_to_host(x)
+#endif
 
-Elf32_Shdr * elf_find_section_type( int key, Elf32_Ehdr *ehdr)
+ElfW(Shdr) * elf_find_section_type( int key, ElfW(Ehdr) *ehdr)
 {
 	int j;
-	Elf32_Shdr *shdr = (Elf32_Shdr *)(ehdr->e_shoff + (char *)ehdr);
+	ElfW(Shdr) *shdr = (ElfW(Shdr) *)(ehdr->e_shoff + (char *)ehdr);
 	for (j = ehdr->e_shnum; --j>=0; ++shdr) {
-		if (key==(int)byteswap32_to_host(shdr->sh_type)) {
+		if (key==byteswap32_to_host(shdr->sh_type)) {
 			return shdr;
 		}
 	}
 	return NULL;
 }
 
-Elf32_Phdr * elf_find_phdr_type( int type, Elf32_Ehdr *ehdr)
+ElfW(Phdr) * elf_find_phdr_type( int type, ElfW(Ehdr) *ehdr)
 {
 	int j;
-	Elf32_Phdr *phdr = (Elf32_Phdr *)(ehdr->e_phoff + (char *)ehdr);
+	ElfW(Phdr) *phdr = (ElfW(Phdr) *)(ehdr->e_phoff + (char *)ehdr);
 	for (j = ehdr->e_phnum; --j>=0; ++phdr) {
-		if (type==(int)byteswap32_to_host(phdr->p_type)) {
+		if (type==byteswap32_to_host(phdr->p_type)) {
 			return phdr;
 		}
 	}
@@ -76,26 +89,27 @@ Elf32_Phdr * elf_find_phdr_type( int type, Elf32_Ehdr *ehdr)
 }
 
 /* Returns value if return_val==1, ptr otherwise */ 
-void * elf_find_dynamic(int const key, Elf32_Dyn *dynp, 
-	Elf32_Ehdr *ehdr, int return_val)
+void * elf_find_dynamic(int const key, ElfW(Dyn) *dynp, 
+	ElfW(Ehdr) *ehdr, int return_val)
 {
-	Elf32_Phdr *pt_text = elf_find_phdr_type(PT_LOAD, ehdr);
-	unsigned tx_reloc = byteswap32_to_host(pt_text->p_vaddr) - byteswap32_to_host(pt_text->p_offset);
-	for (; DT_NULL!=byteswap32_to_host(dynp->d_tag); ++dynp) {
-		if (key == (int)byteswap32_to_host(dynp->d_tag)) {
+	ElfW(Phdr) *pt_text = elf_find_phdr_type(PT_LOAD, ehdr);
+	ElfW(Addr) tx_reloc = byteswap_to_host(pt_text->p_vaddr) - byteswap_to_host(pt_text->p_offset);
+	for (; DT_NULL!=byteswap_to_host(dynp->d_tag); ++dynp) {
+		if (key == byteswap_to_host(dynp->d_tag)) {
 			if (return_val == 1)
-				return (void *)(intptr_t)byteswap32_to_host(dynp->d_un.d_val);
+				return (void *)byteswap_to_host(dynp->d_un.d_val);
 			else
-				return (void *)(byteswap32_to_host(dynp->d_un.d_val) - tx_reloc + (char *)ehdr );
+				return (void *)(byteswap_to_host(dynp->d_un.d_val) - tx_reloc + (char *)ehdr );
 		}
 	}
 	return NULL;
 }
 
-int check_elf_header(Elf32_Ehdr *const ehdr)
+int check_elf_header(ElfW(Ehdr) *const ehdr)
 {
 	if (! ehdr || strncmp((void *)ehdr, ELFMAG, SELFMAG) != 0 ||  
-			ehdr->e_ident[EI_CLASS] != ELFCLASS32 ||
+			(ehdr->e_ident[EI_CLASS] != ELFCLASS32 &&
+			 ehdr->e_ident[EI_CLASS] != ELFCLASS64) ||
 			ehdr->e_ident[EI_VERSION] != EV_CURRENT) 
 	{
 		return 1;
@@ -119,8 +133,8 @@ int check_elf_header(Elf32_Ehdr *const ehdr)
 	if (byteswap==1) {
 		ehdr->e_type=bswap_16(ehdr->e_type);
 		ehdr->e_machine=bswap_16(ehdr->e_machine);
-		ehdr->e_phoff=bswap_32(ehdr->e_phoff);
-		ehdr->e_shoff=bswap_32(ehdr->e_shoff);
+		ehdr->e_phoff=byteswap_to_host(ehdr->e_phoff);
+		ehdr->e_shoff=byteswap_to_host(ehdr->e_shoff);
 		ehdr->e_phnum=bswap_16(ehdr->e_phnum);
 		ehdr->e_shnum=bswap_16(ehdr->e_shnum);
 	}
@@ -128,21 +142,7 @@ int check_elf_header(Elf32_Ehdr *const ehdr)
 }
 
 
-#define ELFOSABI_NONE   0       /* UNIX System V ABI */
-#define ELFOSABI_HPUX   1       /* HP-UX operating system */
-#define ELFOSABI_NETBSD 2       /* NetBSD */
-#define ELFOSABI_LINUX  3       /* GNU/Linux */
-#define ELFOSABI_HURD   4       /* GNU/Hurd */
-#define ELFOSABI_SOLARIS 6      /* Solaris */
-#define ELFOSABI_AIX    7       /* AIX */
-#define ELFOSABI_IRIX   8       /* IRIX */
-#define ELFOSABI_FREEBSD 9      /* FreeBSD */
-#define ELFOSABI_TRU64  10      /* TRU64 UNIX */
-#define ELFOSABI_MODESTO 11     /* Novell Modesto */
-#define ELFOSABI_OPENBSD 12     /* OpenBSD */
-#define ELFOSABI_STANDALONE 255 /* Standalone (embedded) application */
-#define ELFOSABI_ARM   97       /* ARM */
-static void describe_elf_hdr(Elf32_Ehdr* ehdr)
+static void describe_elf_hdr(ElfW(Ehdr)* ehdr)
 {
 	char *tmp, *tmp1;
 
@@ -275,24 +275,24 @@ static void describe_elf_hdr(Elf32_Ehdr* ehdr)
 	printf( "ABI Version:\t%d\n", ehdr->e_ident[EI_ABIVERSION]);
 }
 
-static void list_needed_libraries(Elf32_Dyn* dynamic, char *strtab)
+static void list_needed_libraries(ElfW(Dyn)* dynamic, char *strtab)
 {
-	Elf32_Dyn  *dyns;
+	ElfW(Dyn)  *dyns;
 
 	printf("Dependancies:\n");
-	for (dyns=dynamic; byteswap32_to_host(dyns->d_tag)!=DT_NULL; ++dyns) {
+	for (dyns=dynamic; byteswap_to_host(dyns->d_tag)!=DT_NULL; ++dyns) {
 		if (dyns->d_tag == DT_NEEDED) {
-			printf("\t%s\n", (char*)strtab + byteswap32_to_host(dyns->d_un.d_val));
+			printf("\t%s\n", (char*)strtab + byteswap_to_host(dyns->d_un.d_val));
 		}
 	}
 }
     
-static void describe_elf_interpreter(Elf32_Ehdr* ehdr)
+static void describe_elf_interpreter(ElfW(Ehdr)* ehdr)
 {
-	Elf32_Phdr *phdr;
+	ElfW(Phdr) *phdr;
 	phdr = elf_find_phdr_type(PT_INTERP, ehdr);
 	if (phdr) {
-		printf("Interpreter:\t%s\n", (char*)ehdr + byteswap32_to_host(phdr->p_offset));
+		printf("Interpreter:\t%s\n", (char*)ehdr + byteswap_to_host(phdr->p_offset));
 	}
 }
 
@@ -303,9 +303,9 @@ int main( int argc, char** argv)
 	char *thefilename = argv[1];
 	FILE *thefile;
 	struct stat statbuf;
-	Elf32_Ehdr *ehdr = 0;
-	Elf32_Shdr *dynsec;
-	Elf32_Dyn *dynamic;
+	ElfW(Ehdr) *ehdr = 0;
+	ElfW(Shdr) *dynsec;
+	ElfW(Dyn) *dynamic;
 
 	if (argc < 2 || !thefilename) {
 		fprintf(stderr, "No filename specified.\n");
@@ -320,11 +320,11 @@ int main( int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 
-	if ((size_t)statbuf.st_size < sizeof(Elf32_Ehdr))
+	if ((size_t)statbuf.st_size < sizeof(ElfW(Ehdr)))
 		goto foo;
 
 	/* mmap the file to make reading stuff from it effortless */
-	ehdr = (Elf32_Ehdr *)mmap(0, statbuf.st_size, 
+	ehdr = (ElfW(Ehdr) *)mmap(0, statbuf.st_size, 
 			PROT_READ|PROT_WRITE, MAP_PRIVATE, fileno(thefile), 0);
 
 foo:
@@ -338,7 +338,7 @@ foo:
 
 	dynsec = elf_find_section_type(SHT_DYNAMIC, ehdr);
 	if (dynsec) {
-		dynamic = (Elf32_Dyn*)(byteswap32_to_host(dynsec->sh_offset) + (intptr_t)ehdr);
+		dynamic = (ElfW(Dyn)*)(byteswap_to_host(dynsec->sh_offset) + (char *)ehdr);
 		dynstr = (char *)elf_find_dynamic(DT_STRTAB, dynamic, ehdr, 0);
 		list_needed_libraries(dynamic, dynstr);
 	}

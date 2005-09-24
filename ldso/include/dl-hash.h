@@ -49,6 +49,9 @@ struct elf_resolve{
   ElfW(Addr) relro_addr;
   size_t relro_size;
 
+  dev_t st_dev;      /* device */
+  ino_t st_ino;      /* inode */
+
 #if USE_TLS
   /* Thread-local storage related info.  */
 

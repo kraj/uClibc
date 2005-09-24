@@ -4,9 +4,8 @@
 **      Contains: C source code for implementations of floating-point
 **                functions which round to integral value or format, as
 **                defined in header <fp.h>.  In particular, this file
-**                contains implementations of functions rint, nearbyint,
-**                rinttol, round, roundtol, trunc, modf and modfl.  This file
-**                targets PowerPC or Power platforms.
+**                contains implementations of functions rinttol, roundtol,
+**                modf and modfl.  This file targets PowrPC or Power platforms.
 **
 **      Written by: A. Sazegari, Apple AltiVec Group
 **	    Created originally by Jon Okada, Apple Numerics Group
@@ -66,41 +65,8 @@ typedef union
 static const unsigned long int signMask = 0x80000000ul;
 static const double twoTo52      = 4503599627370496.0;
 static const double doubleToLong = 4503603922337792.0;	            // 2^52
-static const DblInHex Huge       = {{ 0x7FF00000, 0x00000000 }};
 static const DblInHex TOWARDZERO = {{ 0x00000000, 0x00000001 }};
 
-
-/*******************************************************************************
-*                                                                              *
-*     The function nearbyint rounds its double argument to integral value      *
-*     according to the current rounding direction and returns the result in    *
-*     double format.  This function does not signal inexact.                   *
-*                                                                              *
-********************************************************************************
-*                                                                              *
-*     This function calls fabs and copysign.		                         *
-*                                                                              *
-*******************************************************************************/
-
-double nearbyint ( double x )
-      {
-	double y;
-	double OldEnvironment;
-
-	y = twoTo52;
-
-	asm ("mffs %0" : "=f" (OldEnvironment));	/* get the environement */
-
-      if ( fabs ( x ) >= y )                          /* huge case is exact */
-            return x;
-      if ( x < 0 ) y = -y;                                   /* negative case */
-      y = ( x + y ) - y;                                    /* force rounding */
-      if ( y == 0.0 )                        /* zero results mirror sign of x */
-            y = copysign ( y, x );
-//	restore old flags
-	asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment ));
-      return ( y );
-	}
 
 /*******************************************************************************
 *                                                                              *
@@ -193,99 +159,6 @@ long int rinttol ( double x )
             }
       argument.dbl = y + doubleToLong;                       // in range
       return ( ( long ) argument.words.lo );           // return result & flags
-      }
-
-/*******************************************************************************
-*                                                                              *
-*     The function round rounds its double argument to integral value          *
-*     according to the "add half to the magnitude and truncate" rounding of    *
-*     Pascal's Round function and FORTRAN's ANINT function and returns the     *
-*     result in double format.  This function signals inexact if an ordered    *
-*     return value is not equal to the operand.                                *
-*                                                                              *
-*******************************************************************************/
-
-double round ( double x )
-      {
-      DblInHex argument, OldEnvironment;
-      register double y, z;
-      register unsigned long int xHead;
-      register long int target;
-
-      argument.dbl = x;
-      xHead = argument.words.hi & 0x7fffffffUL;      // xHead <- high half of |x|
-      target = ( argument.words.hi < signMask );     // flag positive sign
-
-      if ( xHead < 0x43300000ul )
-/*******************************************************************************
-*     Is |x| < 2.0^52?                                                        *
-*******************************************************************************/
-            {
-            if ( xHead < 0x3ff00000ul )
-/*******************************************************************************
-*     Is |x| < 1.0?                                                           *
-*******************************************************************************/
-                  {
-			asm ("mffs %0" : "=f" (OldEnvironment.dbl));	// get environment
-                  if ( xHead < 0x3fe00000ul )
-/*******************************************************************************
-*     Is |x| < 0.5?                                                           *
-*******************************************************************************/
-                        {
-                        if ( ( xHead | argument.words.lo ) != 0ul )
-                              OldEnvironment.words.lo |= 0x02000000ul;
-				asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
-                        if ( target )
-                              return ( 0.0 );
-                        else
-                              return ( -0.0 );
-                        }
-/*******************************************************************************
-*     Is 0.5 ² |x| < 1.0?                                                      *
-*******************************************************************************/
-                  OldEnvironment.words.lo |= 0x02000000ul;
-			asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
-                  if ( target )
-                        return ( 1.0 );
-                  else
-                        return ( -1.0 );
-                  }
-/*******************************************************************************
-*     Is 1.0 < |x| < 2.0^52?                                                   *
-*******************************************************************************/
-            if ( target )
-                  {                                     // positive x
-                  y = ( x + twoTo52 ) - twoTo52;        // round at binary point
-                  if ( y == x )                         // exact case
-                        return ( x );
-                  z = x + 0.5;                          // inexact case
-                  y = ( z + twoTo52 ) - twoTo52;        // round at binary point
-                  if ( y > z )
-                        return ( y - 1.0 );
-                  else
-                        return ( y );
-                  }
-
-/*******************************************************************************
-*     Is x < 0?                                                                *
-*******************************************************************************/
-            else
-                  {
-                  y = ( x - twoTo52 ) + twoTo52;        // round at binary point
-                  if ( y == x )
-                        return ( x );
-                  z = x - 0.5;
-                  y = ( z - twoTo52 ) + twoTo52;        // round at binary point
-                  if ( y < z )
-                        return ( y + 1.0 );
-                  else
-                  return ( y );
-                  }
-            }
-/*******************************************************************************
-*      |x| >= 2.0^52 or x is a NaN.                                            *
-*******************************************************************************/
-      return ( x );
       }
 
 /*******************************************************************************
@@ -389,73 +262,6 @@ long int roundtol ( double x )
 	OldEnvironment.words.lo |= SET_INVALID;
 	asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
 	return ( LONG_MIN );			              	// return pinned result
-	}
-
-/*******************************************************************************
-*                                                                              *
-*     The function trunc truncates its double argument to integral value       *
-*     and returns the result in double format.  This function signals          *
-*     inexact if an ordered return value is not equal to the operand.          *
-*                                                                              *
-*******************************************************************************/
-
-double trunc ( double x )
-      {
-	DblInHex argument,OldEnvironment;
-	register double y;
-	register unsigned long int xhi;
-	register long int target;
-
-	argument.dbl = x;
-	xhi = argument.words.hi & 0x7fffffffUL;	      	// xhi <- high half of |x|
-	target = ( argument.words.hi < signMask );	      	// flag positive sign
-
-	if ( xhi < 0x43300000ul )
-/*******************************************************************************
-*     Is |x| < 2.0^53?                                                         *
-*******************************************************************************/
-		{
-		if ( xhi < 0x3ff00000ul )
-/*******************************************************************************
-*     Is |x| < 1.0?                                                            *
-*******************************************************************************/
-			{
-			if ( ( xhi | argument.words.lo ) != 0ul )
-				{                             	// raise deserved INEXACT
-				asm ("mffs %0" : "=f" (OldEnvironment.dbl));
-				OldEnvironment.words.lo |= 0x02000000ul;
-				asm ("mtfsf 255,%0" : /*NULLOUT*/ : /*IN*/ "f" ( OldEnvironment.dbl ));
-				}
-			if ( target )	                  	// return properly signed zero
-				return ( 0.0 );
-			else
-				return ( -0.0 );
-			}
-/*******************************************************************************
-*     Is 1.0 < |x| < 2.0^52?                                                   *
-*******************************************************************************/
-		if ( target )
-			{
-			y = ( x + twoTo52 ) - twoTo52;      	// round at binary point
-			if ( y > x )
-				return ( y - 1.0 );
-			else
-				return ( y );
-			}
-
-		else
-			{
-			y = ( x - twoTo52 ) + twoTo52;      	// round at binary point.
-			if ( y < x )
-				return ( y + 1.0 );
-			else
-				return ( y );
-			}
-		}
-/*******************************************************************************
-*      Is |x| >= 2.0^52 or x is a NaN.                                         *
-*******************************************************************************/
-	return ( x );
 	}
 
 /*******************************************************************************

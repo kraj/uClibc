@@ -41,7 +41,10 @@
 #include <ctype.h>
 #include <pwd.h>
 #include <grp.h>
+#include <paths.h>
+#ifdef __HAS_SHADOW__
 #include <shadow.h>
+#endif
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 #endif

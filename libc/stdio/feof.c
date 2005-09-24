@@ -9,17 +9,17 @@
 
 #ifdef __DO_UNLOCKED
 
-weak_alias(__feof_unlocked,feof_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__feof_unlocked,feof);
-#endif
-
 int __feof_unlocked(register FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 
 	return __FEOF_UNLOCKED(stream);
 }
+
+weak_alias(__feof_unlocked,feof_unlocked);
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__feof_unlocked,feof);
+#endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 

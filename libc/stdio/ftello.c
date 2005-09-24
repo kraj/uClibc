@@ -15,14 +15,10 @@
 # define FTELL				__ftello64
 # define OFFSET_TYPE		__off64_t
 
-weak_alias(__ftello64,ftello64);
-
 #else
 
 # define FTELL				ftell
 # define OFFSET_TYPE		long int
-
-weak_alias(ftell,ftello);
 
 #endif
 
@@ -59,3 +55,9 @@ OFFSET_TYPE FTELL(register FILE *stream)
 
 #endif
 }
+
+#ifdef __DO_LARGEFILE
+weak_alias(__ftello64,ftello64);
+#else
+weak_alias(ftell,ftello);
+#endif

@@ -9,11 +9,6 @@
 
 #ifdef __DO_UNLOCKED
 
-weak_alias(__fwrite_unlocked,fwrite_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fwrite_unlocked,fwrite);
-#endif
-
 size_t __fwrite_unlocked(const void * __restrict ptr, size_t size,
 						 size_t nmemb, register FILE * __restrict stream)
 {
@@ -38,6 +33,11 @@ size_t __fwrite_unlocked(const void * __restrict ptr, size_t size,
 
 	return 0;
 }
+
+weak_alias(__fwrite_unlocked,fwrite_unlocked);
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__fwrite_unlocked,fwrite);
+#endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 

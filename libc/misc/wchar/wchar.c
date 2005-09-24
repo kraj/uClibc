@@ -261,15 +261,15 @@ int mbsinit(const mbstate_t *ps)
 /**********************************************************************/
 #ifdef L_mbrlen
 
-size_t mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
-	 __attribute__ ((__weak__, __alias__("__mbrlen")));
-
 size_t __mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
 {
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
 
 	return mbrtowc(NULL, s, n, (ps != NULL) ? ps : &mbstate);
 }
+
+size_t mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
+	 __attribute__ ((__weak__, __alias__("__mbrlen")));
 
 #endif
 /**********************************************************************/
@@ -679,10 +679,6 @@ size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 
 /* WARNING: We treat len as SIZE_MAX when dst is NULL! */
 
-size_t mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
-				  size_t NMC, size_t len, mbstate_t *__restrict ps)
-	 __attribute__ ((__weak__, __alias__("__mbsnrtowcs")));
-
 size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 					size_t NMC, size_t len, mbstate_t *__restrict ps)
 {
@@ -782,6 +778,10 @@ size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 	return len - count;
 }
 
+size_t mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
+				  size_t NMC, size_t len, mbstate_t *__restrict ps)
+	 __attribute__ ((__weak__, __alias__("__mbsnrtowcs")));
+
 #endif
 /**********************************************************************/
 #ifdef L___wcsnrtombs
@@ -790,10 +790,6 @@ size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 
 /* Note: We completely ignore ps in all currently supported conversions.
  * TODO: Check for valid state anyway? */
-
-size_t wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
-				  size_t NWC, size_t len, mbstate_t *__restrict ps)
-	 __attribute__ ((__weak__, __alias__("__wcsnrtombs")));
 
 size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 					size_t NWC, size_t len, mbstate_t *__restrict ps)
@@ -903,6 +899,10 @@ size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 	}
 	return len - count;
 }
+
+size_t wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
+				  size_t NWC, size_t len, mbstate_t *__restrict ps)
+	 __attribute__ ((__weak__, __alias__("__wcsnrtombs")));
 
 #endif
 /**********************************************************************/

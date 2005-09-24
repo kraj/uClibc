@@ -1217,9 +1217,6 @@ choice
 	  "segfault" use SIGSEGV to block offending programs.
 	  Use this for debugging.
 
-	  "kill" use SIGKILL to block offending programs.
-	  Perhaps the best for security.
-
 	  If unsure, answer "abort".
 
 config PROPOLICE_BLOCK_ABRT
@@ -1227,9 +1224,6 @@ config PROPOLICE_BLOCK_ABRT
 
 config PROPOLICE_BLOCK_SEGV
 	bool "segfault"
-
-config PROPOLICE_BLOCK_KILL
-	bool "kill"
 
 endchoice
 

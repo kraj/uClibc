@@ -12,17 +12,17 @@
 
 #ifdef __DO_UNLOCKED
 
-weak_alias(__getchar_unlocked,getchar_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__getchar_unlocked,getchar);
-#endif
-
 int __getchar_unlocked(void)
 {
 	register FILE *stream = stdin;
 
 	return __GETC_UNLOCKED_MACRO(stream);
 }
+
+weak_alias(__getchar_unlocked,getchar_unlocked);
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__getchar_unlocked,getchar);
+#endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 

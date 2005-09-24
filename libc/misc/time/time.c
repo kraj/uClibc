@@ -713,14 +713,14 @@ struct tm *__time_localtime_tzi(register const time_t *__restrict timer,
 /**********************************************************************/
 #ifdef L_mktime
 
-/* Another name for `mktime'.  */
-/* time_t timelocal(struct tm *tp) */
-weak_alias(mktime,timelocal);
-
 time_t mktime(struct tm *timeptr)
 {
 	return  _time_mktime(timeptr, 1);
 }
+
+/* Another name for `mktime'.  */
+/* time_t timelocal(struct tm *tp) */
+weak_alias(mktime,timelocal);
 
 #endif
 /**********************************************************************/

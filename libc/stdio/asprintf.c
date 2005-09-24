@@ -12,8 +12,6 @@
 #warning Skipping asprintf and __asprintf since no vsnprintf!
 #else
 
-weak_alias(__asprintf,asprintf)
-
 int __asprintf(char **__restrict buf, const char * __restrict format, ...)
 {
 	va_list arg;
@@ -25,5 +23,7 @@ int __asprintf(char **__restrict buf, const char * __restrict format, ...)
 
 	return rv;
 }
+
+weak_alias(__asprintf,asprintf)
 
 #endif

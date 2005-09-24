@@ -35,18 +35,15 @@ LIBTHREAD_DB_SHARED=libthread_db.so
 LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 DIRS=
-ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 ifeq ($(strip $(PTHREADS_NATIVE)),y)
 	DIRS+=nptl
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	DIRS+=nptl_db
+endif
 else
 	DIRS+=linuxthreads
-endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
-	DIRS+=nptl_db
-else
 	DIRS+=linuxthreads_db
-endif
 endif
 endif
 
@@ -66,12 +63,27 @@ LIBTHREAD_DB_LDFLAGS := $(subst -z defs,,$(LDFLAGS))
 
 all: $(LIBPTHREAD) $(LIBTHREAD_DB)
 
+headers:
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
+	$(LN) -sf $(TOPDIR)libpthread/nptl/sysdeps/pthread/pthread.h $(TOPDIR)include/
+	$(LN) -sf $(TOPDIR)libpthread/nptl/semaphore.h $(TOPDIR)include/
+	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/semaphore.h $(TOPDIR)include/bits/
+	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h $(TOPDIR)include/bits/
+	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/pthread/bits/libc-lock.h $(TOPDIR)include/bits/
+	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/pthread/bits/stdio-lock.h $(TOPDIR)include/bits/
+else
+	$(LN) -sf $(TOPDIR)libpthread/linuxthreads/sysdeps/pthread/pthread.h $(TOPDIR)include/
+	$(LN) -sf $(TOPDIR)libpthread/linuxthreads/semaphore.h $(TOPDIR)include/
+	$(LN) -sf ../$(TOPDIR)libpthread/linuxthreads/sysdeps/pthread/bits/pthreadtypes.h $(TOPDIR)include/bits/
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(LN) -sf $(TOPDIR)libpthread/linuxthreads_db/thread_db.h $(TOPDIR)include/
+endif
+endif
+
 $(LIBPTHREAD): subdirs
-ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(LIBPTHREAD)
 	$(INSTALL) -m 644 $(LIBPTHREAD) $(TOPDIR)lib
-endif
 
 $(LIBTHREAD_DB): subdirs
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
@@ -92,10 +104,7 @@ $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(OBJ): Makefile
-
 shared: all
-ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 ifeq ($(strip $(PTHREADS_NATIVE)),y)
 	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD_SHARED_ARCHIVE) \
@@ -119,7 +128,6 @@ endif
 		$(TOPDIR)lib/$(LIBPTHREAD_SHARED)
 	$(LN) -sf $(LIBPTHREAD_SHARED_FULLNAME) \
 		$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
-endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	$(LD) $(LIBTHREAD_DB_LDFLAGS) --warn-unresolved-symbols -soname=$(LIBTHREAD_DB_SHARED).1 \
 		-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \
@@ -149,6 +157,10 @@ $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 
 clean: subdirs_clean
 	$(RM) *.[oa] *~ core $(LIBPTHREAD) $(LIBPTHREAD_SHARED_FULLNAME) \
-		$(LIBTHREAD_DB) $(LIBTHREAD_DB_SHARED_FULLNAME)
+		$(LIBTHREAD_DB) $(LIBTHREAD_DB_SHARED_FULLNAME)		 \
+		$(TOPDIR)include/pthread.h $(TOPDIR)include/semaphore.h \
+		$(TOPDIR)include/thread_db.h \
+		$(TOPDIR)include/bits/pthreadtypes.h $(TOPDIR)include/bits/semaphore.h \
+		$(TOPDIR)include/bits/libc-lock.h $(TOPDIR)include/bits/stdio-lock
 
 .PHONY: dummy

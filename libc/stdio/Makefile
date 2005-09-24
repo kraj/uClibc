@@ -58,9 +58,7 @@ CSRC += fopencookie.c fmemopen.c open_memstream.c
 endif
 
 # pthread functions
-ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
 CSRC += flockfile.c ftrylockfile.c funlockfile.c
-endif
 ifeq ($(strip $(PTHREADS_NATIVE)),y)
 CSRC += fatal.c
 endif

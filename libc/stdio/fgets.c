@@ -9,12 +9,6 @@
 
 #ifdef __DO_UNLOCKED
 
-weak_alias(__fgets_unlocked,fgets_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fgets_unlocked,fgets);
-#endif
-
-
 char *__fgets_unlocked(char *__restrict s, int n,
 					   register FILE * __restrict stream)
 {
@@ -63,6 +57,12 @@ char *__fgets_unlocked(char *__restrict s, int n,
  ERROR:
 	return NULL;
 }
+
+weak_alias(__fgets_unlocked,fgets_unlocked);
+
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__fgets_unlocked,fgets);
+#endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 

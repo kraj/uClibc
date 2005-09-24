@@ -28,7 +28,15 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 TOPDIR=./
 include Rules.mak
 
-DIRS = ldso libc libcrypt libresolv libnsl libutil libm libpthread librt
+ALL_SUBDIRS = ldso libc libcrypt libresolv libnsl libutil librt libm libpthread libintl test utils # extra
+
+DIRS = ldso libc libcrypt libresolv libnsl libutil librt
+ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
+	DIRS += libm
+endif
+ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
+	DIRS += libpthread
+endif
 ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
 	DIRS += libintl
 endif
@@ -40,23 +48,13 @@ all: headers pregen subdirs shared finished
 # In this section, we need .config
 -include .config.cmd
 
-shared: subdirs
+shared: $(patsubst %, _shared_dir_%, $(DIRS))
+$(patsubst %, _shared_dir_%, $(DIRS)): subdirs
 ifeq ($(strip $(HAVE_SHARED)),y)
 	$(SECHO)
 	$(SECHO) Building shared libraries ...
 	$(SECHO)
-	@$(MAKE) -C libc shared
-	@$(MAKE) -C ldso shared
-	@$(MAKE) -C libcrypt shared
-	@$(MAKE) -C libresolv shared
-	@$(MAKE) -C libnsl shared
-	@$(MAKE) -C libutil shared
-	@$(MAKE) -C libm shared
-	@$(MAKE) -C libpthread shared
-	@$(MAKE) -C librt shared
-ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
-	@$(MAKE) -C libintl shared
-endif
+	$(MAKE) -C $(patsubst _shared_dir_%, %, $@) shared
 else
 	$(SECHO)
 	$(SECHO) Not building shared libraries ...
@@ -120,24 +118,11 @@ headers: include/bits/uClibc_config.h
 	else \
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
+ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
+	$(MAKE) -C libpthread headers
+endif
 	$(MAKE) -C libc/sysdeps/linux/common headers
 	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
-	(cd include; \
-	$(LN) -fs ../libpthread/nptl/sysdeps/pthread/pthread.h .; \
-	$(LN) -fs ../libpthread/nptl/semaphore.h .);
-	(cd include/bits; \
-	$(LN) -fs ../../libpthread/nptl/sysdeps/pthread/bits/libc-lock.h .; \
-	$(LN) -fs ../../libpthread/nptl/sysdeps/pthread/bits/stdio-lock.h .; \
-	$(LN) -fs ../../libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h .; \
-	$(LN) -fs ../../libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/semaphore.h .);
-else
-	(cd include; \
-	$(LN) -fs ../libpthread/linuxthreads/sysdeps/pthread/pthread.h .; \
-	$(LN) -fs ../libpthread/linuxthreads/semaphore.h .);
-	(cd include/bits; \
-	$(LN) -fs ../../libpthread/linuxthreads/sysdeps/pthread/bits/pthreadtypes.h .);
-endif
 
 # Command used to download source code
 WGET:=wget --passive-ftp
@@ -181,6 +166,7 @@ install_dev:
 	fi ; \
 	tar -chf - include --exclude .svn --exclude CVS $$extra_exclude \
 		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ssp-internal.h
 ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	# Remove floating point related headers since float support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
@@ -188,6 +174,7 @@ ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ieee754.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/math.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tgmath.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/uClibc_fpmax.h
 endif
 ifneq ($(strip $(UCLIBC_HAS_WCHAR)),y)
 	# Remove wide char headers since wide char support is disabled.
@@ -232,8 +219,18 @@ ifneq ($(strip $(UCLIBC_HAS_GNU_GETOPT)),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/getopt.h
 endif
 ifneq ($(strip $(HAS_SHADOW)),y)
-	# Remove getopt header since shadow password support is disabled.
+	# Remove shadow header since shadow password support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/shadow.h
+endif
+ifneq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	# Remove thread_db header since thread debug support is disabled.
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/thread_db.h
+endif
+ifneq ($(strip $(UCLIBC_HAS_THREADS)),y)
+	# Remove pthread headers since thread support is disabled.
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/*thread*.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/semaphore.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/*thread*.h
 endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod 755 $$i; chmod 644 $$i/*.h > /dev/null 2>&1; \
@@ -252,14 +249,16 @@ ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 endif
 #	# If we build shared libraries then the static libs are PIC...
 #	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
+	if [ -d lib ] ; then \
 	for i in `find lib/  -type f -name '*.a' | sed -e 's/lib\///'` ; do \
 		$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
 			| sed -e 's/\.a$$/_pic.a/'`; \
-	done;
+	done ; \
+	fi
 	# Ugh!!! Remember that libdl.a and libdl_pic.a are different.  Since
 	# libdl is pretty small, and not likely to benefit from mklibs.py and
 	# similar, lets just remove libdl_pic.a and avoid the issue
-	rm -f $(PREFIX)$(DEVEL_PREFIX)lib/libdl_pic.a
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libdl_pic.a
 endif
 
 
@@ -278,22 +277,12 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	fi;
 endif
 
-.PHONY: utils
-ifeq ($(strip $(HAVE_SHARED)),y)
 utils:
 	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils
-else
-utils: dummy
-endif
 
 # Installs helper applications, such as 'ldd' and 'ldconfig'
 install_utils: utils
 	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils install
-#ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
-#	@$(MAKE) -C libc/misc/wchar iconv.target
-#	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)/usr/bin;
-#	$(INSTALL) -m 755 libc/misc/wchar/iconv.target $(PREFIX)$(RUNTIME_PREFIX)/usr/bin/iconv
-#endif
 
 finished2:
 	$(SECHO)
@@ -316,6 +305,7 @@ menuconfig: extra/config/mconf
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/mconf extra/Configs/Config.in
+	$(MAKE) headers
 
 config: extra/config/conf
 	$(RM) -r include/bits
@@ -353,19 +343,15 @@ defconfig: extra/config/conf
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -d extra/Configs/Config.in
 
-clean:
+subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
+$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)): dummy
+	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+
+clean: subdirs_clean
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec $(RM) {} \;
-	@$(RM) -r tmp lib include/bits libc/tmp _install
-	$(RM) libc/obj.* libc/obj-* headers
-	$(MAKE) -C test clean
-	$(MAKE) -C ldso clean
+	@$(RM) -r lib include/bits
 	$(MAKE) -C libc/misc/internals clean
-	$(MAKE) -C libc/misc/wchar clean
-	$(MAKE) -C libc/unistd clean
-	$(MAKE) -C libc/sysdeps/linux/common clean
 	$(MAKE) -C extra/locale clean
-	$(MAKE) -C utils clean
-	$(MAKE) -C libpthread clean
 	@set -e; \
 	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		$(RM) include/sys/$$i; \
@@ -376,7 +362,6 @@ clean:
 		done; \
 	fi;
 	@$(RM) include/linux include/asm*
-	@$(RM) include/pthread.h include/semaphore.h
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi;

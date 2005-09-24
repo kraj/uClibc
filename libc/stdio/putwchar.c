@@ -7,19 +7,17 @@
 
 #include "_stdio.h"
 
-extern wint_t __putwchar_unlocked(wchar_t wc);
-
 #ifdef __DO_UNLOCKED
-
-weak_alias(__putwchar_unlocked,putwchar_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__putwchar_unlocked,putwchar);
-#endif
 
 wint_t __putwchar_unlocked(wchar_t wc)
 {
 	return __fputwc_unlocked(wc, stdout);
 }
+
+weak_alias(__putwchar_unlocked,putwchar_unlocked);
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__putwchar_unlocked,putwchar);
+#endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 

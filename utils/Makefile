@@ -21,7 +21,7 @@ include $(TOPDIR)Rules.mak
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-TARGETS = ldd ldconfig readelf
+TARGETS = ldd ldconfig
 
 ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 TARGET_ICONV = iconv
@@ -39,6 +39,7 @@ endif
 
 headers:
 	@$(LN) -fs $(TOPDIR)include/elf.h
+	@$(LN) -fs $(TOPDIR)include/link.h
 
 readelf.c ldconfig.c ldd.c:	headers
 
@@ -58,15 +59,17 @@ ldconfig: ldconfig.c
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
+LDD_CFLAGS := $(PIEFLAG) $(LDPIEFLAG)
 ldd: ldd.c
-	$(CC) $(CFLAGS) $(PIEFLAG) $(LDPIEFLAG) \
+	$(CC) $(CFLAGS) $(LDD_CFLAGS) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
+ICONV_CFLAGS := $(PIEFLAG) $(LDPIEFLAG)
 iconv: ../libc/misc/wchar/wchar.c
-	$(CC) $(CFLAGS) $(PIEFLAG) $(LDPIEFLAG) \
+	$(CC) $(CFLAGS) $(ICONV_CFLAGS) \
 		-DL_iconv_main \
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
@@ -93,14 +96,14 @@ readelf.host: readelf.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s $^ -o $@
 
 clean:
-	$(RM) $(TARGETS) *.o *~ core *.target elf.h iconv *.host
+	$(RM) $(TARGETS) *.o *~ core elf.h link.h readelf iconv *.host
 
 install: all
 ifeq ($(strip $(HAVE_SHARED)),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)sbin
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)usr/bin
 	$(INSTALL) -m 755 ldd $(PREFIX)$(RUNTIME_PREFIX)usr/bin/ldd
-	$(INSTALL) -m 755 ldconfig $(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig;
+	$(INSTALL) -m 755 ldconfig $(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig
 	#$(INSTALL) -m 755 readelf $(PREFIX)$(RUNTIME_PREFIX)usr/bin/readelf
 endif
 ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)

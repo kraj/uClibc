@@ -12,11 +12,6 @@ extern int __fputws_unlocked(const wchar_t *__restrict ws,
 
 #ifdef __DO_UNLOCKED
 
-weak_alias(__fputws_unlocked,fputws_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fputws_unlocked,fputws);
-#endif
-
 int __fputws_unlocked(const wchar_t *__restrict ws,
 					  register FILE *__restrict stream)
 {
@@ -24,6 +19,11 @@ int __fputws_unlocked(const wchar_t *__restrict ws,
 
 	return (_wstdio_fwrite(ws, n, stream) == n) ? 0 : -1;
 }
+
+weak_alias(__fputws_unlocked,fputws_unlocked);
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__fputws_unlocked,fputws);
+#endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 

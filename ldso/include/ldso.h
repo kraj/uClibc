@@ -32,7 +32,9 @@
 #include <dl-elf.h>
 #include <dl-hash.h>
 /* Defines USE_TLS */
+#if defined(__PTHREADS_NATIVE__)
 #include <tls.h>
+#endif
 
 /* For INIT/FINI dependency sorting. */
 struct init_fini_list {

@@ -38,7 +38,8 @@ LIBM=../libm.a
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
 ifeq ($(strip $(DO_C99_MATH)),y)
-CSRC = s_ceil.c s_floor.c s_ldexp.c s_frexp.c s_logb.c s_modf.c w_scalb.c s_copysign.c s_rint.c
+CSRC = s_ceil.c s_copysign.c s_floor.c s_frexp.c s_ldexp.c s_logb.c s_modf.c \
+	s_nearbyint.c s_rint.c s_round.c s_trunc.c w_scalb.c
 else
 CSRC =
 endif

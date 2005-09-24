@@ -612,10 +612,6 @@ Wchar *Wstrncat(Wchar * __restrict s1, register const Wchar * __restrict s2,
 
 #ifdef L_memcmp
 
-#ifndef L_wmemcmp
-weak_alias(memcmp,bcmp);
-#endif
-
 int Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
 {
 	register const Wuchar *r1 = (const Wuchar *) s1;
@@ -638,6 +634,10 @@ int Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
 #endif
 }
 
+#ifndef L_wmemcmp
+weak_alias(memcmp,bcmp);
+#endif
+
 #endif
 /**********************************************************************/
 #ifdef L_wcscmp
@@ -648,14 +648,6 @@ int Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
 #endif
 
 #ifdef L_strcmp
-
-#ifdef __LOCALE_C_ONLY
-#ifdef L_wcscmp
-weak_alias(wcscmp,wcscoll);
-#else  /* L_wcscmp */
-weak_alias(strcmp,strcoll);
-#endif /* L_wcscmp */
-#endif /* __LOCALE_C_ONLY */
 
 int Wstrcmp(register const Wchar *s1, register const Wchar *s2)
 {
@@ -677,6 +669,15 @@ int Wstrcmp(register const Wchar *s1, register const Wchar *s2)
 	return r;
 #endif
 }
+
+#ifdef __LOCALE_C_ONLY
+#ifdef L_wcscmp
+weak_alias(wcscmp,wcscoll);
+#else  /* L_wcscmp */
+weak_alias(strcmp,strcoll);
+#endif /* L_wcscmp */
+#endif /* __LOCALE_C_ONLY */
+
 #endif
 /**********************************************************************/
 #ifdef L_wcsncmp
@@ -756,10 +757,6 @@ Wvoid *Wmemchr(const Wvoid *s, Wint c, size_t n)
 
 #ifdef L_strchr
 
-#ifndef L_wcschr
-weak_alias(strchr,index);
-#endif
-
 Wchar *Wstrchr(register const Wchar *s, Wint c)
 {
 	do {
@@ -770,6 +767,10 @@ Wchar *Wstrchr(register const Wchar *s, Wint c)
 
 	return NULL;
 }
+
+#ifndef L_wcschr
+weak_alias(strchr,index);
+#endif
 
 #endif
 /**********************************************************************/
@@ -830,10 +831,6 @@ Wchar *Wstrpbrk(const Wchar *s1, const Wchar *s2)
 
 #ifdef L_strrchr
 
-#ifndef L_wcsrchr
-weak_alias(strrchr,rindex);
-#endif
-
 Wchar *Wstrrchr(register const  Wchar *s, Wint c)
 {
 	register const Wchar *p;
@@ -847,6 +844,10 @@ Wchar *Wstrrchr(register const  Wchar *s, Wint c)
 
 	return (Wchar *) p;			/* silence the warning */
 }
+
+#ifndef L_wcsrchr
+weak_alias(strrchr,rindex);
+#endif
 
 #endif
 /**********************************************************************/
@@ -886,10 +887,6 @@ size_t Wstrspn(const Wchar *s1, const Wchar *s2)
 
 /* NOTE: This is the simple-minded O(len(s1) * len(s2)) worst-case approach. */
 
-#ifdef L_wcsstr
-weak_alias(wcsstr,wcswcs);
-#endif
-
 Wchar *Wstrstr(const Wchar *s1, const Wchar *s2)
 {
 	register const Wchar *s = s1;
@@ -912,6 +909,10 @@ Wchar *Wstrstr(const Wchar *s1, const Wchar *s2)
 	} while (1);
 }
 
+#ifdef L_wcsstr
+weak_alias(wcsstr,wcswcs);
+#endif
+
 #endif
 /**********************************************************************/
 #undef Wstrspn
@@ -929,10 +930,6 @@ Wchar *Wstrstr(const Wchar *s1, const Wchar *s2)
 #endif
 
 #ifdef L_strtok_r
-
-#ifndef L_wcstok
-weak_alias(__strtok_r,strtok_r);
-#endif
 
 Wchar *Wstrtok_r(Wchar * __restrict s1, const Wchar * __restrict s2,
 				 Wchar ** __restrict next_start)
@@ -966,6 +963,10 @@ Wchar *Wstrtok_r(Wchar * __restrict s1, const Wchar * __restrict s2,
 	return NULL;				/* TODO: set *next_start = NULL for safety? */
 #endif
 }
+
+#ifndef L_wcstok
+weak_alias(__strtok_r,strtok_r);
+#endif
 
 #endif
 /**********************************************************************/
@@ -1571,8 +1572,6 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 /**********************************************************************/
 #ifdef L___glibc_strerror_r
 
-weak_alias(__glibc_strerror_r,__strerror_r);
-
 char *__glibc_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {
     __xpg_strerror_r(errnum, strerrbuf, buflen);
@@ -1580,6 +1579,7 @@ char *__glibc_strerror_r(int errnum, char *strerrbuf, size_t buflen)
     return strerrbuf;
 }
 
+weak_alias(__glibc_strerror_r,__strerror_r);
 #endif
 /**********************************************************************/
 #ifdef L_memmem
@@ -1625,10 +1625,6 @@ void *memmem(const void *haystack, size_t haystacklen,
 
 #ifdef L_mempcpy
 
-#ifndef L_wmempcpy
-weak_alias(__mempcpy,mempcpy);
-#endif
-
 Wvoid *Wmempcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
 {
 	register Wchar *r1 = s1;
@@ -1647,6 +1643,10 @@ Wvoid *Wmempcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
 
 	return r1;
 }
+
+#ifndef L_wmempcpy
+weak_alias(__mempcpy,mempcpy);
+#endif
 
 #endif
 /**********************************************************************/
@@ -1737,7 +1737,6 @@ Wchar *Wstpncpy(register Wchar * __restrict s1,
 /**********************************************************************/
 #ifdef L_bzero
 
-weak_alias(__bzero,bzero);
 void __bzero(void *s, size_t n)
 {
 	register unsigned char *p = s;
@@ -1753,6 +1752,7 @@ void __bzero(void *s, size_t n)
 		--np;
 	}
 }
+weak_alias(__bzero,bzero);
 #undef np
 
 #endif
@@ -1902,15 +1902,13 @@ char *strsep(char ** __restrict s1, const char * __restrict s2)
 
 #ifdef L_strchrnul
 
-extern Wchar *__Wstrchrnul(register const Wchar *s, Wint c);
-weak_alias(__Wstrchrnul, Wstrchrnul);
-
 Wchar *__Wstrchrnul(register const Wchar *s, Wint c)
 {
 	--s;
 	while (*++s && (*s != ((Wchar)c)));
 	return (Wchar *) s;
 }
+weak_alias(__Wstrchrnul, Wstrchrnul);
 
 #endif
 /**********************************************************************/
@@ -2069,18 +2067,12 @@ extern size_t __wcslcpy(wchar_t *__restrict dst,
 #ifdef L___wcslcpy
 #define L_strlcpy
 #define Wstrlcpy __wcslcpy
-#ifdef __LOCALE_C_ONLY
-weak_alias(__wcslcpy,wcsxfrm);
-#endif
 #endif
 
 #ifdef L_strlcpy
 
 #ifndef L___wcslcpy
 #define Wstrlcpy strlcpy
-#ifdef __LOCALE_C_ONLY
-weak_alias(strlcpy,strxfrm);
-#endif
 #endif
 
 /* OpenBSD function:
@@ -2110,6 +2102,14 @@ size_t Wstrlcpy(register Wchar *__restrict dst,
 
 	return src - src0;
 }
+
+#ifdef __LOCALE_C_ONLY
+#ifdef L___wcslcpy
+weak_alias(__wcslcpy,wcsxfrm);
+#else
+weak_alias(strlcpy,strxfrm);
+#endif
+#endif
 
 #endif
 /**********************************************************************/

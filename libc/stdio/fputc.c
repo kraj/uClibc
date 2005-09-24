@@ -14,13 +14,6 @@
 
 #ifdef __DO_UNLOCKED
 
-weak_alias(__fputc_unlocked,fputc_unlocked);
-weak_alias(__fputc_unlocked,putc_unlocked);
-#ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fputc_unlocked,fputc);
-weak_alias(__fputc_unlocked,putc);
-#endif
-
 int __fputc_unlocked(int c, register FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
@@ -76,9 +69,14 @@ int __fputc_unlocked(int c, register FILE *stream)
 	return EOF;
 }
 
-#elif defined __UCLIBC_HAS_THREADS__
+weak_alias(__fputc_unlocked,fputc_unlocked);
+weak_alias(__fputc_unlocked,putc_unlocked);
+#ifndef __UCLIBC_HAS_THREADS__
+weak_alias(__fputc_unlocked,fputc);
+weak_alias(__fputc_unlocked,putc);
+#endif
 
-weak_alias(fputc,putc);
+#elif defined __UCLIBC_HAS_THREADS__
 
 int fputc(int c, register FILE *stream)
 {
@@ -92,5 +90,7 @@ int fputc(int c, register FILE *stream)
 		return retval;
 	}
 }
+
+weak_alias(fputc,putc);
 
 #endif

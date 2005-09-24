@@ -9,6 +9,11 @@
 
 #ifdef __DO_UNLOCKED
 
+wint_t __fputwc_unlocked(wchar_t wc, FILE *stream)
+{
+	return _wstdio_fwrite(&wc, 1, stream) ? wc : WEOF;
+}
+
 weak_alias(__fputwc_unlocked,fputwc_unlocked);
 weak_alias(__fputwc_unlocked,putwc_unlocked);
 #ifndef __UCLIBC_HAS_THREADS__
@@ -16,14 +21,7 @@ weak_alias(__fputwc_unlocked,fputwc);
 weak_alias(__fputwc_unlocked,putwc);
 #endif
 
-wint_t __fputwc_unlocked(wchar_t wc, FILE *stream)
-{
-	return _wstdio_fwrite(&wc, 1, stream) ? wc : WEOF;
-}
-
 #elif defined __UCLIBC_HAS_THREADS__
-
-weak_alias(fputwc,putwc);
 
 wint_t fputwc(wchar_t wc, register FILE *stream)
 {
@@ -38,5 +36,7 @@ wint_t fputwc(wchar_t wc, register FILE *stream)
 
 	return retval;
 }
+
+weak_alias(fputwc,putwc);
 
 #endif
