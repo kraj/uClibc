@@ -28,12 +28,9 @@ LIBTHREAD_DB=libthread_db.a
 LIBTHREAD_DB_SHARED=libthread_db.so
 LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-DIRS=
-ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
-	DIRS+=linuxthreads
+DIRS=linuxthreads
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	DIRS+=linuxthreads_db
-endif
 endif
 
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
