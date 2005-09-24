@@ -37,7 +37,7 @@ XXFLAGS+=-Os -g
 else
 XXFLAGS+=$(OPTIMIZATION)
 endif
-ifeq ($(PTHREADS_NATIVE),y)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 XXFLAGS+= -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFLAG) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include $(PTINC) -DSHARED -DIS_IN_rtld
@@ -79,7 +79,7 @@ XXFLAGS := $(XXFLAGS:-fomit-frame-pointer=)
 
 all: $(LDSO_FULLNAME)
 
-ifeq ($(PTHREADS_NATIVE),y)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 $(LDSO_FULLNAME): dl-tls.c $(OBJS) $(DLINK_OBJS)
 else
 $(LDSO_FULLNAME): $(OBJS) $(DLINK_OBJS)

@@ -27,7 +27,7 @@ XXFLAGS+=-O0 -g3
 else
 XXFLAGS+=$(OPTIMIZATION)
 endif
-ifeq ($(PTHREADS_NATIVE),y)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso -I. -I$(TOPDIR)include $(PTINC) -DIS_IN_rtld

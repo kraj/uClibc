@@ -1,7 +1,7 @@
 #include <features.h>
 #undef errno
 
-#if __PTHREADS_NATIVE__
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <tls.h>
 extern int errno;
 extern __thread int _h_errno;

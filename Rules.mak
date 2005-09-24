@@ -309,7 +309,7 @@ endif
 #
 # Thread includes are needed to compile some files.
 #
-ifeq ($(PTHREADS_NATIVE),y)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 PTDIR	:= $(TOPDIR)libpthread/nptl/
 PTINC	:= -I$(PTDIR)compat					\
 	   -I$(PTDIR)sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
@@ -335,7 +335,7 @@ PTCOBJSH := $(TOPDIR)libc/obj-pthread-libc_shared
 #
 # Test for TLS if NPTL support was selected.
 #
-ifeq ($(PTHREADS_NATIVE),y)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 GCC_HAS_TLS=$(shell \
 	echo "extern __thread int foo;" | $(CC) -o /dev/null -S -xc - 2>&1)
 ifneq ($(GCC_HAS_TLS),)

@@ -57,7 +57,7 @@ __BEGIN_DECLS
    We use a macro to access always the thread-specific `h_errno' variable.
    We always need the extern int here in case internal libc code undefines 
    the macro because it needs access to the underlying storage. */
-#if !defined(__PTHREADS_NATIVE__)
+#if !defined(__UCLIBC_HAS_THREADS_NATIVE__)
 extern int h_errno;
 #endif
 #if defined(__UCLIBC_HAS_THREADS__)
@@ -658,7 +658,7 @@ extern int getnameinfo (__const struct sockaddr *__restrict __sa,
 __END_DECLS
 
 #ifdef _LIBC
-# ifdef __PTHREADS_NATIVE__
+# ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #  include <tls.h>
 #  undef h_errno
 #  define h_errno h_errno     /* For #ifndef h_errno tests.  */

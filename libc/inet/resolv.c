@@ -1104,7 +1104,7 @@ struct __res_state * weak_const_function __res_state (void)
 	return &_res;
 }
 
-#ifdef __PTHREADS_NATIVE__
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <tls.h>
 __thread struct __res_state *__resp = &_res;
 #endif

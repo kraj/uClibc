@@ -22,7 +22,7 @@
 
 /* This routine is jumped to by all the syscall handlers, to stash
  * an error number into errno.  */
-#ifdef __PTHREADS_NATIVE__
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 int __syscall_error(int err_no)
 #else
 int attribute_hidden __syscall_error(int err_no)

@@ -310,7 +310,7 @@ config UCLIBC_HAS_THREADS
 
 	  If your applications require pthreads, answer Y.
 
-config PTHREADS_NATIVE
+config UCLIBC_HAS_THREADS_NATIVE
 	bool "Native POSIX Threading (NPTL) Support"
 	depends on UCLIBC_HAS_THREADS
 	default n
@@ -1035,7 +1035,7 @@ config UCLIBC_HAS_GNU_GETOPT
 config UCLIBC_HAS_STDIO_FUTEXES
 	bool "Use futexes for multithreaded I/O locking"
 	default y
-	depends on PTHREADS_NATIVE
+	depends on UCLIBC_HAS_THREADS_NATIVE
 	help
 	  If you want to compile uClibc to use futexes for low-level
 	  I/O locking, answer Y.  Otherwise, answer N.

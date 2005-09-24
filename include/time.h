@@ -191,7 +191,7 @@ extern double difftime (time_t __time1, time_t __time0)
      __THROW __attribute__ ((__const__));
 #endif /* __UCLIBC_HAS_FLOATS__ */
 
-#ifdef __PTHREADS_NATIVE__
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
 # define CLOCK_IDFIELD_SIZE	3
 #endif
 

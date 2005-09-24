@@ -32,7 +32,7 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(SOBJS) $(COBJS)
 
-ifeq ($(PTHREADS_NATIVE),y)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 COBJS += $(PTDIR)sysdeps/$(TARGET_ARCH)/libc-tls.o
 endif
 
@@ -80,7 +80,7 @@ $(TOPDIR)lib/crtn.o:
 	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
 endif
 
-ifeq ($(PTHREADS_NATIVE),y)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 $(PTDIR)sysdeps/$(TARGET_ARCH)/libc-tls.o:
 	$(MAKE) -C $(PTDIR)sysdeps/$(TARGET_ARCH) libc-tls.o
 endif

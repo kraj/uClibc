@@ -389,7 +389,7 @@ __END_DECLS
 
 #endif /* _RESOLV_H_ */
 
-#if defined(__PTHREADS_NATIVE__) && defined(IS_IN_libpthread)
+#if defined(__UCLIBC_HAS_THREADS_NATIVE__) && defined(IS_IN_libpthread)
 # include <tls.h>
 # undef _res
 # define _res (*__resp)

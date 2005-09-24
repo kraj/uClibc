@@ -59,7 +59,7 @@ endif
 
 # pthread functions
 CSRC += flockfile.c ftrylockfile.c funlockfile.c
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
 CSRC += fatal.c
 endif
 

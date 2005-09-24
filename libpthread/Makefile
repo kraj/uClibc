@@ -18,7 +18,7 @@
 
 TOPDIR=../
 include $(TOPDIR)Rules.mak
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
 include nptl/Rules.mak
 endif
 
@@ -35,7 +35,7 @@ LIBTHREAD_DB_SHARED=libthread_db.so
 LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 DIRS=
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
 	DIRS+=nptl
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	DIRS+=nptl_db
@@ -52,7 +52,7 @@ ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 	SHARED_END_FILES = $(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
 endif
 
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
 ALL_SUBDIRS = nptl nptl_db
 else
 ALL_SUBDIRS = linuxthreads linuxthreads_db
@@ -93,7 +93,7 @@ ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 endif
 
 objs-pthread-libc:
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
 	$(MAKE) -C nptl $@
 else
 	touch $(PTCOBJST) $(PTCOBJSH)
@@ -105,7 +105,7 @@ $(OBJS): %.o : %.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 shared: all
-ifeq ($(strip $(PTHREADS_NATIVE)),y)
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
 	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
 		-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD_SHARED_ARCHIVE) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
