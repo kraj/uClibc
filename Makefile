@@ -305,6 +305,7 @@ menuconfig: extra/config/mconf
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/mconf extra/Configs/Config.in
+	$(MAKE) headers
 
 config: extra/config/conf
 	$(RM) -r include/bits
