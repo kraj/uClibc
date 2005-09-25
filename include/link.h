@@ -25,8 +25,9 @@
 #include <elf.h>
 #include <dlfcn.h>
 #include <sys/types.h>
+/* Defines USE_TLS */
 #if defined(IS_IN_libpthread) || defined(IS_IN_rtld)
-#include <tls.h>		/* Defines USE_TLS.  */
+#include <tls.h>
 #endif
 
 /* We use this macro to refer to ELF types independent of the native wordsize.
@@ -114,12 +115,8 @@ struct link_map
     ptrdiff_t l_tls_offset;
     /* Index of the module in the dtv array.  */
     size_t l_tls_modid;
-    enum			/* Where this object came from.  */
-      {
-	lt_executable,		/* The main executable program.  */
-	lt_library,		/* Library needed by main executable.  */
-	lt_loaded		/* Extra run-time loaded shared object.  */
-      } l_type:2;
+    /* Nonzero if _dl_init_static_tls should be called for this module */
+    unsigned int l_need_tls_init:1;
 #endif
   };
 

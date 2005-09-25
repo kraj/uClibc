@@ -62,38 +62,32 @@ rtld_hidden_proto (_dl_allocate_tls_init)
 extern void _dl_deallocate_tls (void *tcb, bool dealloc_tcb) internal_function;
 rtld_hidden_proto (_dl_deallocate_tls)
 
-#if defined USE_TLS
 extern void _dl_nothread_init_static_tls (struct link_map *) attribute_hidden;
-#endif
-  /* Keep the conditional TLS members at the end so the layout of the
-     structure used by !USE_TLS code matches the prefix of the layout in
-     the USE_TLS rtld.  Note that `struct link_map' is conditionally
-     defined as well, so _dl_rtld_map needs to be last before this.  */
-#ifdef USE_TLS
-  /* Highest dtv index currently needed.  */
-  EXTERN size_t _dl_tls_max_dtv_idx;
-  /* Flag signalling whether there are gaps in the module ID allocation.  */
-  EXTERN bool _dl_tls_dtv_gaps;
-  /* Information about the dtv slots.  */
-  EXTERN struct dtv_slotinfo_list
+
+/* Highest dtv index currently needed.  */
+EXTERN size_t _dl_tls_max_dtv_idx;
+/* Flag signalling whether there are gaps in the module ID allocation.  */
+EXTERN bool _dl_tls_dtv_gaps;
+/* Information about the dtv slots.  */
+EXTERN struct dtv_slotinfo_list
+{
+  size_t len;
+  struct dtv_slotinfo_list *next;
+  struct dtv_slotinfo
   {
-    size_t len;
-    struct dtv_slotinfo_list *next;
-    struct dtv_slotinfo
-    {
-      size_t gen;
-      bool is_static;
-      struct link_map *map;
-    } slotinfo[0];
-  } *_dl_tls_dtv_slotinfo_list;
-  /* Number of modules in the static TLS block.  */
-  EXTERN size_t _dl_tls_static_nelem;
-  /* Size of the static TLS block.  */
-  EXTERN size_t _dl_tls_static_size;
-  /* Size actually allocated in the static TLS block.  */
-  EXTERN size_t _dl_tls_static_used;
-  /* Alignment requirement of the static TLS block.  */
-  EXTERN size_t _dl_tls_static_align;
+    size_t gen;
+    bool is_static;
+    struct link_map *map;
+  } slotinfo[0];
+} *_dl_tls_dtv_slotinfo_list;
+/* Number of modules in the static TLS block.  */
+EXTERN size_t _dl_tls_static_nelem;
+/* Size of the static TLS block.  */
+EXTERN size_t _dl_tls_static_size;
+/* Size actually allocated in the static TLS block.  */
+EXTERN size_t _dl_tls_static_used;
+/* Alignment requirement of the static TLS block.  */
+EXTERN size_t _dl_tls_static_align;
 
 /* Number of additional entries in the slotinfo array of each slotinfo
    list element.  A large number makes it almost certain take we never
@@ -109,6 +103,5 @@ extern void _dl_nothread_init_static_tls (struct link_map *) attribute_hidden;
   EXTERN size_t _dl_tls_generation;
 
   EXTERN void (*_dl_init_static_tls) (struct link_map *);
-#endif
 
 #endif

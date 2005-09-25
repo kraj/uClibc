@@ -155,7 +155,7 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 
 					case R_MIPS_TLS_TPREL32:
 					case R_MIPS_TLS_TPREL64:
-						CHECK_STATIC_TLS (tpnt);
+						CHECK_STATIC_TLS ((struct link_map *) tpnt);
 						*(ElfW(Word) *)reloc_addr +=
 							(tpnt->l_tls_offset +
 							symtab[symtab_index].st_value -

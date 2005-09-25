@@ -229,6 +229,47 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	}
 
 	/*
+	 * This adds another loop in the non-NPTL case, but we have to
+	 * catch the stupid user who tries to run a binary with TLS data
+	 * in it. For NPTL, we fill in the TLS data for the application
+	 * like we are supposed to.
+	 */
+	{
+		int i;
+		ElfW(Phdr) *ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
+
+		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
+			if (ppnt->p_type == PT_TLS) {
+#if USE_TLS
+				if (ppnt->p_memsz > 0) {
+					/*
+					 * Note that in the case the dynamic linker we duplicate
+					 * work here since we read the PT_TLS entry already in
+					 * _dl_start_final. But the result is repeatable so do
+					 * not check for this special but unimportant case. 
+					 */
+					app_tpnt->l_tls_blocksize = ppnt->p_memsz;
+					app_tpnt->l_tls_align = ppnt->p_align;
+					if (ppnt->p_align == 0)
+						app_tpnt->l_tls_firstbyte_offset = 0;
+					else
+						app_tpnt->l_tls_firstbyte_offset =
+							(ppnt->p_vaddr & (ppnt->p_align - 1));
+					app_tpnt->l_tls_initimage_size = ppnt->p_filesz;
+					app_tpnt->l_tls_initimage = (void *) ppnt->p_vaddr;
+
+					/* This image gets the ID one.  */
+					_dl_tls_max_dtv_idx = app_tpnt->l_tls_modid = 1;
+				}
+				break;
+#else
+				_dl_dprintf(_dl_debug_file, "Program uses TLS, but ld-uClibc.so does not support it!\n");
+				_dl_exit(1);
+#endif
+			}
+	}
+
+	/*
 	 * This is used by gdb to locate the chain of shared libraries that are
 	 * currently loaded.
 	 */

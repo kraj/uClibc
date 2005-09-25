@@ -30,11 +30,11 @@
 #include <bits/uClibc_page.h>
 /* Now the ldso specific headers */
 #include <dl-elf.h>
-#include <dl-hash.h>
-/* Defines USE_TLS */
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
+/* Defines USE_TLS */
 #include <tls.h>
 #endif
+#include <dl-hash.h>
 
 /* For INIT/FINI dependency sorting. */
 struct init_fini_list {
