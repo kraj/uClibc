@@ -79,7 +79,10 @@ endif
 # wcstod wcstof wcstold
 
 MSRC2 = atexit.c
-MOBJ2 = atexit.o on_exit.o __exit_handler.o exit.o
+MOBJ2 = on_exit.o __cxa_atexit.o __cxa_finalize.o __exit_handler.o exit.o
+ifeq ($(COMPAT_ATEXIT),y)
+MOBJ2 += old_atexit.o
+endif
 
 CSRC = \
 	abort.c getenv.c mkdtemp.c mktemp.c realpath.c mkstemp.c mkstemp64.c \
@@ -95,12 +98,19 @@ COBJS=$(patsubst %.c,%.o, $(CSRC))
 
 OBJS=$(MOBJ) $(MOBJx) $(MOBJ1) $(MOBJ1x) $(MOBJ2) $(COBJS)
 
+NONSHARED_OBJS=atexit.o
+
 OBJ_LIST=../obj.stdlib
 
-all: $(OBJ_LIST) subdirs
+NONSHARED_OBJ_LIST=../nonshared_obj.stdlib
+
+all: $(OBJ_LIST) $(NONSHARED_OBJ_LIST) subdirs
 
 $(OBJ_LIST): $(OBJS)
 	echo $(patsubst %, stdlib/%, $(OBJS)) > $(OBJ_LIST)
+
+$(NONSHARED_OBJ_LIST): $(NONSHARED_OBJS)
+	echo $(patsubst %, stdlib/%, $(NONSHARED_OBJS)) > $(NONSHARED_OBJ_LIST)
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
@@ -118,7 +128,7 @@ $(MOBJ1x): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(MOBJ2): $(MSRC2)
+$(MOBJ2) atexit.o: $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 

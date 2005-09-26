@@ -419,6 +419,12 @@ config UCLIBC_DYNAMIC_ATEXIT
 
 	  Unless you use uClibc with C++, you should probably answer N.
 
+config COMPAT_ATEXIT
+	bool "Old (visible) atexit Support"
+	default n
+	help
+	  Enable this option if you want to update from 0.9.28 to svn/0.9.29, else
+	  you will be missing atexit() until you rebuild all apps.
 
 config HAS_SHADOW
 	bool "Shadow Password Support"

@@ -243,6 +243,15 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
 	done;
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so
+	sed -e '/^GROUP/d' $(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so
+ifeq ($(strip $(COMPAT_ATEXIT)),y)
+	echo "GROUP ( $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) )" >> \
+		$(PREFIX)$(DEVEL_PREFIX)lib/libc.so
+else
+	echo "GROUP ( $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) )" >> \
+		$(PREFIX)$(DEVEL_PREFIX)lib/libc.so
+endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
 		$(PREFIX)$(DEVEL_PREFIX)lib/libthread_db.so
@@ -255,6 +264,7 @@ endif
 			| sed -e 's/\.a$$/_pic.a/'`; \
 	done ; \
 	fi
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/uclibc_nonshared_pic.a
 	# Ugh!!! Remember that libdl.a and libdl_pic.a are different.  Since
 	# libdl is pretty small, and not likely to benefit from mklibs.py and
 	# similar, lets just remove libdl_pic.a and avoid the issue

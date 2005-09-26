@@ -32,6 +32,9 @@
  * August 2002    Erik Andersen
  *   Added locking so atexit and friends can be thread safe
  *
+ * August 2005    Stephen Warren
+ *   Added __cxa_atexit and __cxa_finalize support
+ *
  */
 
 #define _GNU_SOURCE
@@ -39,7 +42,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
-
+#include <atomic.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
@@ -54,9 +57,12 @@ extern pthread_mutex_t mylock;
 
 typedef void (*aefuncp) (void);         /* atexit function pointer */
 typedef void (*oefuncp) (int, void *);  /* on_exit function pointer */
+typedef void (*cxaefuncp) (void *);     /* __cxa_atexit function pointer */
 typedef enum {
-	ef_atexit,
-	ef_on_exit
+    ef_free,
+    ef_in_use,
+    ef_on_exit,
+    ef_cxa_atexit
 } ef_type; /* exit function types */
 
 /* this is in the L_exit object */
@@ -67,13 +73,21 @@ extern int __exit_slots;
 extern int __exit_count;
 extern void __exit_handler(int);
 struct exit_function {
-	ef_type type;	/* ef_atexit or ef_on_exit */
+        /*
+         * 'type' should be of type of the 'enum ef_type' above but since we
+         * need this element in an atomic operation we have to use 'long int'.
+         */
+        long int type; /* enum ef_type */
 	union {
-		aefuncp atexit;
-		struct {
-			oefuncp func;
-			void *arg;
-		} on_exit;
+                struct {
+                        oefuncp func;
+                        void *arg;
+                } on_exit;
+                struct {
+                        cxaefuncp func;
+                        void *arg;
+                        void* dso_handle;
+                } cxa_atexit;
 	} funcs;
 };
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
@@ -81,46 +95,37 @@ extern struct exit_function *__exit_function_table;
 #else
 extern struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT];
 #endif
+extern struct exit_function *__new_exitfn (void);
 
-#ifdef L_atexit
-	/*
+/* this is in the L___cxa_atexit object */
+extern int __cxa_atexit (cxaefuncp, void *arg, void *dso_handle);
+
+
+/* remove old_atexit after 0.9.29 */
+#if defined(L_atexit) || defined(L_old_atexit)
+extern void *__dso_handle __attribute__ ((__weak__));
+
+/*
  * register a function to be called at normal program termination
  * (the registered function takes no arguments)
-	 */
-int atexit(aefuncp func)
-{
-    struct exit_function *efp;
-
-    LOCK;
-    if (func) {
-#ifdef __UCLIBC_DYNAMIC_ATEXIT__
-	/* If we are out of function table slots, make some more */
-	if (__exit_slots < __exit_count+1) {
-	    efp=realloc(__exit_function_table, 
-					(__exit_slots+20)*sizeof(struct exit_function));
-	    if (efp==NULL) {
-		UNLOCK;
-		__set_errno(ENOMEM);
-		return -1;
-	    }
-		__exit_function_table = efp;
-	    __exit_slots+=20;
-	}
+ */
+#ifdef L_atexit
+int attribute_hidden atexit(aefuncp func)
 #else
-	if (__exit_count >= __UCLIBC_MAX_ATEXIT) {
-	    UNLOCK;
-	    __set_errno(ENOMEM);
-	    return -1;
-	}
+int old_atexit(aefuncp func)
 #endif
-	__exit_cleanup = __exit_handler; /* enable cleanup */
-	efp = &__exit_function_table[__exit_count++];
-	efp->type = ef_atexit;
-	efp->funcs.atexit = func;
-    }
-    UNLOCK;
-    return 0;
+{
+    /*
+     * glibc casts aefuncp to cxaefuncp.
+     * This seems dodgy, but I guess callling a function with more
+     * parameters than it needs will work everywhere?
+     */
+    return __cxa_atexit((cxaefuncp)func, NULL,
+                        &__dso_handle == NULL ? NULL : __dso_handle);
 }
+#ifndef L_atexit
+weak_alias(old_atexit,atexit);
+#endif
 #endif
 
 #ifdef L_on_exit
@@ -133,38 +138,89 @@ int atexit(aefuncp func)
 int on_exit(oefuncp func, void *arg)
 {
     struct exit_function *efp;
+    
+    if (func == NULL) {
+        return 0;
+    }
 
-    LOCK;
-    if (func) {
-#ifdef __UCLIBC_DYNAMIC_ATEXIT__
-	/* If we are out of function table slots, make some more */
-	if (__exit_slots < __exit_count+1) {
-	    efp=realloc(__exit_function_table, 
-					(__exit_slots+20)*sizeof(struct exit_function));
-	    if (efp==NULL) {
-		UNLOCK;
-		__set_errno(ENOMEM);
-		return -1;
-	    }
-		__exit_function_table=efp;
-	    __exit_slots+=20;
-	}
-#else
-	if (__exit_count >= __UCLIBC_MAX_ATEXIT) {
-	    UNLOCK;
-	    __set_errno(ENOMEM);
-	    return -1;
-	}
+    efp = __new_exitfn();
+    if (efp == NULL) {
+        return -1;
+    }
+
+    efp->funcs.on_exit.func = func;
+    efp->funcs.on_exit.arg = arg;
+    /* assign last for thread safety, since we're now unlocked */
+    efp->type = ef_on_exit;
+
+    return 0;
+}
 #endif
 
-	__exit_cleanup = __exit_handler; /* enable cleanup */
-	efp = &__exit_function_table[__exit_count++];
-	efp->type = ef_on_exit;
-	efp->funcs.on_exit.func = func;
-	efp->funcs.on_exit.arg = arg;
+#ifdef L___cxa_atexit
+extern int __cxa_atexit (cxaefuncp func, void *arg, void *dso_handle)
+{
+    struct exit_function *efp;
+    
+    if (func == NULL) {
+        return 0;
     }
-    UNLOCK;
+
+    efp = __new_exitfn();
+    if (efp == NULL) {
+        return -1;
+    }
+
+    efp->funcs.cxa_atexit.func = func;
+    efp->funcs.cxa_atexit.arg = arg;
+    efp->funcs.cxa_atexit.dso_handle = dso_handle;
+    /* assign last for thread safety, since we're now unlocked */
+    efp->type = ef_cxa_atexit;
+
     return 0;
+}
+#endif
+
+#ifdef L___cxa_finalize
+/*
+ * If D is non-NULL, call all functions registered with `__cxa_atexit'
+ *  with the same dso handle.  Otherwise, if D is NULL, call all of the
+ *  registered handlers.
+ */
+void __cxa_finalize (void *dso_handle)
+{
+    struct exit_function *efp;
+    int exit_count_snapshot = __exit_count;
+
+    /* In reverse order */
+    while (exit_count_snapshot) {
+        efp = &__exit_function_table[--exit_count_snapshot];
+
+        /*
+         * We check dso_handle match before we verify the type of the union entry.
+         * However, the atomic_exchange will validate that we were really "allowed"
+         * to read dso_handle...
+         */
+        if ((dso_handle == NULL || dso_handle == efp->funcs.cxa_atexit.dso_handle)
+            /* We don't want to run this cleanup more than once. */
+            && !atomic_compare_and_exchange_bool_acq(&efp->type, ef_free, ef_cxa_atexit)
+           ) {
+            /* glibc passes status (0) too, but that's not in the prototype */
+            (*efp->funcs.cxa_atexit.func)(efp->funcs.cxa_atexit.arg);
+        }
+    }
+
+#if 0 /* haven't looked into this yet... */
+    /*
+     * Remove the registered fork handlers. We do not have to
+     * unregister anything if the program is going to terminate anyway.
+     */
+#ifdef UNREGISTER_ATFORK
+    if (d != NULL) {
+        UNREGISTER_ATFORK (d);
+    }
+#endif
+#endif
 }
 #endif
 
@@ -177,6 +233,45 @@ int __exit_slots = 0; /* Size of __exit_function_table */
 struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT];
 #endif
 
+/*
+ * Find and return a new exit_function pointer, for atexit,
+ * onexit and __cxa_atexit to initialize
+ */
+struct exit_function *__new_exitfn(void)
+{
+    struct exit_function *efp;
+
+    LOCK;
+
+#ifdef __UCLIBC_DYNAMIC_ATEXIT__
+    /* If we are out of function table slots, make some more */
+    if (__exit_slots < __exit_count+1) {
+        efp=realloc(__exit_function_table, 
+                    (__exit_slots+20)*sizeof(struct exit_function));
+        if (efp == NULL) {
+            UNLOCK;
+            __set_errno(ENOMEM);
+            return 0;
+        }
+        __exit_function_table = efp;
+        __exit_slots += 20;
+    }
+#else
+    if (__exit_count >= __UCLIBC_MAX_ATEXIT) {
+        UNLOCK;
+        __set_errno(ENOMEM);
+        return 0;
+    }
+#endif
+
+    __exit_cleanup = __exit_handler; /* enable cleanup */
+    efp = &__exit_function_table[__exit_count++];
+    efp->type = ef_in_use;
+
+    UNLOCK;
+
+    return efp;
+}
 
 /*
  * Handle the work of executing the registered exit functions
@@ -196,11 +291,12 @@ void __exit_handler(int status)
 				(efp->funcs.on_exit.func) (status, efp->funcs.on_exit.arg);
 			}
 			break;
-		case ef_atexit:
-			if (efp->funcs.atexit) {
-				(efp->funcs.atexit) ();
-			}
-			break;
+                case ef_cxa_atexit:
+                        if (efp->funcs.cxa_atexit.func) {
+                                /* glibc passes status too, but that's not in the prototype */
+                                (efp->funcs.cxa_atexit.func) (efp->funcs.cxa_atexit.arg);
+                        }
+                        break;
 		}
 	}
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__

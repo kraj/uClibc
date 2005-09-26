@@ -86,8 +86,19 @@ shared: shared_$(LIBNAME)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(TOPDIR)lib/$(SHARED_FULLNAME)
 	$(INSTALL) -m 644 $(SHARED_FULLNAME) $(TOPDIR)lib
-	$(LN) -sf $(SHARED_FULLNAME) $(TOPDIR)lib/libc.so
 	$(LN) -sf $(SHARED_FULLNAME) $(TOPDIR)lib/$(SHARED_MAJORNAME)
+	$(AR) $(ARFLAGS) $(TOPDIR)lib/$(NONSHARED_LIBNAME) `cat nonshared_obj.*`
+	$(RANLIB) $(TOPDIR)lib/$(NONSHARED_LIBNAME)
+	echo "/* GNU ld script" > $(TOPDIR)lib/libc.so
+	echo " * Use the shared library, but some functions are only in" >> $(TOPDIR)lib/libc.so
+	echo " * the static library, so try that secondarily. */" >> $(TOPDIR)lib/libc.so
+	#OUT_FORMAT:=$(shell $(LD) --verbose | grep OUTPUT_FORMAT | awk -F '"' '{print $2}')
+	#echo "OUTPUT_FORMAT($(OUT_FORMAT))" >> $(TOPDIR)lib/libc.so
+ifeq ($(strip $(COMPAT_ATEXIT)),y)
+	echo "GROUP ( $(TOPDIR)lib/$(NONSHARED_LIBNAME) $(TOPDIR)lib/$(SHARED_MAJORNAME) )" >> $(TOPDIR)lib/libc.so
+else
+	echo "GROUP ( $(TOPDIR)lib/$(SHARED_MAJORNAME) $(TOPDIR)lib/$(NONSHARED_LIBNAME) )" >> $(TOPDIR)lib/libc.so
+endif
 
 halfclean:
 	$(RM) $(LIBNAME) shared_$(LIBNAME) $(SHARED_FULLNAME)
@@ -96,7 +107,7 @@ tags:
 	ctags -R
 
 clean: subdirs_clean halfclean
-	$(RM) obj.*
+	$(RM) obj.* nonshared_obj.*
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
