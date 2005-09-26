@@ -69,7 +69,7 @@ finished: shared
 include/bits/uClibc_config.h: .config
 	@if [ ! -x ./extra/config/conf ] ; then \
 	    $(MAKE) -C extra/config conf; \
-	fi;
+	fi
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -o extra/Configs/Config.in
@@ -134,7 +134,7 @@ ifeq ($(strip $(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA)),y)
 	(cd extra/locale; \
 	if [ ! -f $(LOCALE_DATA_FILENAME) ] ; then \
 	$(WGET) http://www.uclibc.org/downloads/$(LOCALE_DATA_FILENAME) ; \
-	fi );
+	fi )
 endif
 ifeq ($(strip $(UCLIBC_PREGENERATED_LOCALE_DATA)),y)
 	(cd extra/locale; zcat $(LOCALE_DATA_FILENAME) | tar -xvf -)
@@ -234,8 +234,8 @@ ifneq ($(strip $(UCLIBC_HAS_THREADS)),y)
 endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod 755 $$i; chmod 644 $$i/*.h > /dev/null 2>&1; \
-	done;
-	-find $(PREFIX)$(DEVEL_PREFIX) -name .svn | xargs $(RM) -r;
+	done
+	-find $(PREFIX)$(DEVEL_PREFIX) -name .svn | xargs $(RM) -r
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1:\2/'` $(PREFIX)$(DEVEL_PREFIX)
 ifeq ($(strip $(HAVE_SHARED)),y)
 	for i in `find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
@@ -284,7 +284,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 		$(SHELL_SET_X); \
 	    $(INSTALL) -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	    		$(PREFIX)$(RUNTIME_PREFIX)lib; \
-	fi;
+	fi
 endif
 
 utils:
@@ -370,11 +370,11 @@ clean: subdirs_clean
 		for i in `(cd libc/sysdeps/linux/$(TARGET_ARCH)/sys; ls *.h)` ; do \
 			$(RM) include/sys/$$i; \
 		done; \
-	fi;
+	fi
 	@$(RM) include/linux include/asm*
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
-	fi;
+	fi
 
 distclean: clean
 	$(RM) .config .config.old .config.cmd
@@ -389,11 +389,11 @@ release: distclean
 	find uClibc-$(VERSION)/ -type d		\
 	    -name .svn -exec $(RM) -r {} \; ;	\
 						\
-	tar -cvzf uClibc-$(VERSION).tar.gz uClibc-$(VERSION)/;
+	tar -cvzf uClibc-$(VERSION).tar.gz uClibc-$(VERSION)/
 
 endif # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
 check:
 	$(MAKE) -C test
 
-.PHONY: dummy subdirs release distclean clean config oldconfig menuconfig
+.PHONY: dummy subdirs release distclean clean config oldconfig menuconfig utils
