@@ -155,7 +155,7 @@ install: install_runtime install_dev finished2
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
 
 # Installs header files and development library links.
-install_dev: shared
+install_dev:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
@@ -273,7 +273,7 @@ endif
 
 
 # Installs run-time libraries
-install_runtime: shared
+install_runtime:
 ifeq ($(strip $(HAVE_SHARED)),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
 	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
