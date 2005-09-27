@@ -240,15 +240,21 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 	sed -e 's/lib\///'` ; do \
 		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
-	done;
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so
-	sed -e '/^GROUP/d' $(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so
+	done
 ifeq ($(strip $(COMPAT_ATEXIT)),y)
-	echo "GROUP ( $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) )" >> \
-		$(PREFIX)$(DEVEL_PREFIX)lib/libc.so
+	if [ -f $(PREFIX)$(DEVEL_PREFIX)lib/libc.so ] ; then \
+		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+		sed -e '/^GROUP/d' $(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+		echo "GROUP ( $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) )" \
+			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+	fi
 else
-	echo "GROUP ( $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) )" >> \
-		$(PREFIX)$(DEVEL_PREFIX)lib/libc.so
+	if [ -f $(PREFIX)$(DEVEL_PREFIX)lib/libc.so ] ; then \
+		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+		sed -e '/^GROUP/d' $(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+		echo "GROUP ( $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) )" \
+			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+	fi
 endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
@@ -257,12 +263,11 @@ endif
 #	# If we build shared libraries then the static libs are PIC...
 #	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
 	if [ -d lib ] ; then \
-	for i in `find lib/  -type f -name '*.a' | sed -e 's/lib\///'` ; do \
+	for i in `find lib/  -type f -name 'lib*.a' | sed -e 's/lib\///'` ; do \
 		$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
 			| sed -e 's/\.a$$/_pic.a/'`; \
 	done ; \
 	fi
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/uclibc_nonshared_pic.a
 	# Ugh!!! Remember that libdl.a and libdl_pic.a are different.  Since
 	# libdl is pretty small, and not likely to benefit from mklibs.py and
 	# similar, lets just remove libdl_pic.a and avoid the issue
