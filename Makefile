@@ -28,8 +28,6 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 TOPDIR=./
 include Rules.mak
 
-ALL_SUBDIRS = ldso libc libcrypt libresolv libnsl libutil librt libm libpthread libintl test utils # extra
-
 DIRS = ldso libc libcrypt libresolv libnsl libutil librt
 ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	DIRS += libm
@@ -353,15 +351,16 @@ defconfig: extra/config/conf
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -d extra/Configs/Config.in
 
-subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
-$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)): dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-clean: subdirs_clean
+clean:
 	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec $(RM) {} \;
 	@$(RM) -r lib include/bits
-	$(MAKE) -C libc/misc/internals clean
+	$(RM) libc/misc/internals/interp.c
+	$(RM) include/fpu_control.h
 	$(MAKE) -C extra/locale clean
+	$(MAKE) -C ldso clean
+	$(MAKE) -C libpthread clean
+	$(MAKE) -C test clean
+	$(MAKE) -C utils clean
 	@set -e; \
 	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		$(RM) include/sys/$$i; \

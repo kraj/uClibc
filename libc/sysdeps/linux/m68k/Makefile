@@ -96,7 +96,6 @@ endif
 
 clean:
 	$(RM) *.[oa] *~ core
-	$(RM) bits/sysnum.h
 ifneq ($(strip $(HAVE_ELF)),y)
 	$(RM) $(TOPDIR)/include/float.h
 endif

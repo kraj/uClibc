@@ -80,5 +80,3 @@ headers:
 
 clean:
 	$(RM) *.[oa] *~ core
-	$(RM) bits/sysnum.h
-	$(RM) $(TOPDIR)lib/crt0.o

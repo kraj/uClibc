@@ -88,4 +88,3 @@ headers:
 
 clean:
 	$(RM) *.[oa] *~ core
-	$(RM) bits/sysnum.h
