@@ -100,6 +100,9 @@
 # define attribute_relro
 #endif
 
+/* Pull in things like __attribute_used__ */
+#include <sys/cdefs.h>
+
 /* --- this is added to integrate linuxthreads */
 #define __USE_UNIX98            1
 
