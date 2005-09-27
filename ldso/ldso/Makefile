@@ -52,7 +52,7 @@ endif
 
 CSRC= ldso.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
-ASRC=$(shell ls $(TARGET_ARCH)/*.S)
+ASRC=$(shell ls $(TARGET_ARCH)/*.S 2>/dev/null)
 AOBJS=$(patsubst %.S,%.o, $(ASRC))
 OBJS=$(AOBJS) $(COBJS)
 
@@ -92,4 +92,4 @@ ldso.o: $(CSRC) dl-elf.c dl-hash.c dl-startup.c dl-debug.c \
 	$(TARGET_ARCH)/*.h $(TARGET_ARCH)/*.c $(TOPDIR)ldso/include/*.h
 
 clean:
-	$(RM) $(UCLIBC_LDSO)* $(OBJS) $(LDSO_FULLNAME)* core *.o *.a *.s *.i ldso.h *~
+	$(RM) $(UCLIBC_LDSO) $(LDSO_FULLNAME) core *.o */*.o *.a *.s *.i ldso.h *~
