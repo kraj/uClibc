@@ -352,8 +352,8 @@ defconfig: extra/config/conf
 	@./extra/config/conf -d extra/Configs/Config.in
 
 clean:
-	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec $(RM) {} \;
 	@$(RM) -r lib include/bits
+	$(RM) */*.so */*.a
 	$(RM) libc/misc/internals/interp.c
 	$(RM) include/fpu_control.h
 	$(MAKE) -C extra/locale clean
@@ -374,9 +374,11 @@ clean:
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi
+	- find . \( -name \*.o -o -name core -o -name .\#\* \) -exec $(RM) {} \;
 
 distclean: clean
 	$(RM) .config .config.old .config.cmd
+	$(RM) extra/locale/*.txt
 	$(MAKE) -C extra clean
 
 release: distclean
