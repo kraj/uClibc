@@ -242,14 +242,14 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
 	done
 ifeq ($(strip $(COMPAT_ATEXIT)),y)
-	if [ -f $(PREFIX)$(DEVEL_PREFIX)lib/libc.so ] ; then \
+	if [ -f $(TOPDIR)lib/libc.so ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 		sed -e '/^GROUP/d' $(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 		echo "GROUP ( $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) )" \
 			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
 else
-	if [ -f $(PREFIX)$(DEVEL_PREFIX)lib/libc.so ] ; then \
+	if [ -f $(TOPDIR)lib/libc.so ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 		sed -e '/^GROUP/d' $(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 		echo "GROUP ( $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) )" \
