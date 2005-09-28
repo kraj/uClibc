@@ -34,39 +34,32 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-LIBM=../libm.a
+CFLAGS+=$(SSP_ALL_CFLAGS)
+
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
+LIB_NAME=libm
+AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
+
 ifeq ($(strip $(DO_C99_MATH)),y)
-CSRC = s_ceil.c s_copysign.c s_floor.c s_frexp.c s_ldexp.c s_logb.c s_modf.c \
-	s_nearbyint.c s_rint.c s_round.c s_trunc.c w_scalb.c
+CSRC = $(wildcard *.c)
 else
 CSRC =
 endif
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
 
+OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
-all:  clean
-else
-all: $(OBJS) $(LIBM)
-endif
+all: add_to_archive
 
-$(LIBM): ar-target
+add_to_archive: $(OBJS)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBM) $(OBJS)
-
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(OBJ): Makefile
 
 tags:
 	ctags -R
 
 clean:
-	$(RM) *.[oa] *~ core
-
+	$(RM) *.o *~ core

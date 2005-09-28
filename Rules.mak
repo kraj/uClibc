@@ -43,7 +43,6 @@ CC         = $(CROSS)gcc
 AR         = $(CROSS)ar
 LD         = $(CROSS)ld
 NM         = $(CROSS)nm
-RANLIB     = $(CROSS)ranlib
 STRIPTOOL  = $(CROSS)strip
 
 INSTALL    = install
@@ -67,12 +66,9 @@ VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 LC_ALL := C
 export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_ALL
 
-SHARED_FULLNAME:=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 SHARED_MAJORNAME:=libc.so.$(MAJOR_VERSION)
 UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
 NONSHARED_LIBNAME:=uclibc_nonshared.a
-LIBNAME:=libc.a
-LIBC:=$(TOPDIR)libc/$(LIBNAME)
 
 # Make sure DESTDIR and PREFIX can be used to install
 # PREFIX is a uClibcism while DESTDIR is a common GNUism

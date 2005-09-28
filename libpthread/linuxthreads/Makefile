@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU Library General Public License
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-# Makefile for uClibc
 
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
@@ -26,46 +25,62 @@ include $(TOPDIR)Rules.mak
 # $(AR)'s in subdirs running on linuxthreads.a.
 DIRS = sysdeps
 
-#Adjust the soname version to avoid namespace collisions with glibc's libpthread
-LIBPTHREAD:=../libpthread.a
-ifeq ($(strip $(TARGET_ARCH)),sparc)
-SYSDEPS_DIR:=$(TARGET_ARCH)/sparc32
-else
-SYSDEPS_DIR:=$(TARGET_ARCH)
-endif
-CFLAGS += $(SSP_ALL_CFLAGS)
+CFLAGS+=$(SSP_ALL_CFLAGS)
+
 #This stuff will not compile without at least -O1
 CFLAGS :=$(CFLAGS:-O0=-O1)
 
-
 # set up system dependencies include dirs (NOTE: order matters!)
+# psm: don't think that the last include makes sense
+# they all should be already linked to $(TOPDIR)include
 PTDIR = $(TOPDIR)libpthread/linuxthreads/
 SYSDEPINC = -I$(PTDIR)sysdeps/pthread \
             -I$(PTDIR)sysdeps/$(TARGET_ARCH) \
             -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
 CFLAGS += $(SYSDEPINC)
 
-CSRC=attr.c cancel.c condvar.c errno.c events.c join.c lockfile.c manager.c \
-	mutex.c oldsemaphore.c pt-machine.c ptfork.c pthread.c \
-	ptlongjmp.c rwlock.c semaphore.c signals.c specific.c spinlock.c
-
-ifeq ($(UCLIBC_HAS_XLOCALE),y)
-	CSRC += locale.c
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+	SHARED_START_FILES = $(TOPDIR)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
+	SHARED_END_FILES = $(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
 endif
 
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+LIB_NAME=libpthread
+AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+
+CSRC  = $(wildcard *.c)
+ifneq ($(strip $(UCLIBC_HAS_XLOCALE)),y)
+CSRC := $(filter-out locale.c,$(CSRC))
+endif
+
+OBJS=$(patsubst %.c,%.o, $(CSRC))
 
 # We need to make sure that we put all the top-level $(OBJS) into
 # our archive before executing subdirs.  That way, when $(AR) is 
 # run in the subdirs, it'll bump the generic top-level objects 
 # out of our archive in favor of the machine-specific ones.
-all: $(LIBPTHREAD) subdirs
+ifeq ($(strip $(HAVE_SHARED)),y)
+all: $(SO_LIB_NAME)
+else
+all: subdirs
+endif
 
-$(LIBPTHREAD) ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBPTHREAD) $(OBJS)
+$(AR_LIB_NAME): $(OBJS)
+	$(INSTALL) -d $(TOPDIR)lib
+	$(RM) $(AR_LIB_NAME)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
 
-$(COBJS): %.o : %.c
+$(SO_LIB_NAME): subdirs
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
+	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) $(SHARED_START_FILES) --whole-archive $(AR_LIB_NAME) \
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) $(SHARED_END_FILES)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
+
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $*.o
@@ -74,15 +89,15 @@ else
 endif
 
 clean: subdirs_clean
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
 
-$(patsubst %, _dir_%, $(DIRS)): $(LIBPTHREAD)
+$(patsubst %, _dir_%, $(DIRS)): $(AR_LIB_NAME)
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
-$(patsubst %, _dirclean_%, $(DIRS)):
+$(patsubst %, _dirclean_%, $(DIRS)): dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy

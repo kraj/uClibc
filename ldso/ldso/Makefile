@@ -16,16 +16,8 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
-LDSO_FULLNAME=ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
-
-# reset to initial (disabling predefined CFLAGS)
-ASFLAGS=
-ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
-ASFLAGS+=$(call check_as,--noexecstack)
-endif
 
 XXFLAGS=$(XWARNINGS) $(SSP_DISABLE_FLAGS)
 
@@ -44,21 +36,6 @@ XXFLAGS+= -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFL
 # BEWARE!!! At least mips* will die if -O0 is used!!!
 XXFLAGS:=$(XXFLAGS:-O0=-O1)
 XXFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
-LDFLAGS=$(CPU_LDFLAGS-y) -e _start -z now -Bsymbolic -shared --warn-common --export-dynamic --sort-common \
-	-z combreloc --discard-locals --discard-all --no-undefined
-ifeq ($(UCLIBC_BUILD_RELRO),y)
-	LDFLAGS+=-z relro
-endif
-
-CSRC= ldso.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-ASRC=$(shell ls $(TARGET_ARCH)/*.S 2>/dev/null)
-AOBJS=$(patsubst %.S,%.o, $(ASRC))
-OBJS=$(AOBJS) $(COBJS)
-
-ifneq ($(strip $(SUPPORT_LD_DEBUG)),y)
-LDFLAGS+=-s
-endif
 
 ifeq ($(strip $(SUPPORT_LD_DEBUG)),y)
 XXFLAGS+=-D__SUPPORT_LD_DEBUG__
@@ -71,25 +48,50 @@ endif
 #This stuff will not work with -fomit-frame-pointer
 XXFLAGS := $(XXFLAGS:-fomit-frame-pointer=)
 
-all: $(LDSO_FULLNAME)
+ASFLAGS=$(XXFLAGS)
+ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
+ASFLAGS+=$(call check_as,--noexecstack)
+endif
 
-$(LDSO_FULLNAME): $(OBJS) $(DLINK_OBJS)
-	$(LD) $(LDFLAGS) -soname=$(UCLIBC_LDSO) \
-		-o $(LDSO_FULLNAME) $(OBJS) $(LIBGCC)
+LDFLAGS=$(CPU_LDFLAGS-y) -e _start -z now -Bsymbolic -shared --warn-common --export-dynamic --sort-common \
+	-z combreloc --discard-locals --discard-all --no-undefined
+
+ifeq ($(UCLIBC_BUILD_RELRO),y)
+LDFLAGS+=-z relro
+endif
+
+ifneq ($(strip $(SUPPORT_LD_DEBUG)),y)
+LDFLAGS+=-s
+endif
+
+LIB_NAME=ld-uClibc
+SO_LIB_NAME=$(TOPDIR)lib/$(UCLIBC_LDSO)
+SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+
+CSRC= ldso.c
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+
+ASRC=$(wildcard $(TARGET_ARCH)/*.S)
+AOBJS=$(patsubst %.S,%.o, $(ASRC))
+
+OBJS=$(AOBJS) $(COBJS)
+
+all: $(SO_LIB_NAME)
+
+$(SO_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	$(INSTALL) -m 755 $(LDSO_FULLNAME) $(TOPDIR)lib
-	$(LN) -sf $(LDSO_FULLNAME) $(TOPDIR)lib/$(UCLIBC_LDSO)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME)
+	$(LD) $(LDFLAGS) -soname=$(UCLIBC_LDSO) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) $(OBJS) $(LIBGCC)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
 
 $(COBJS): %.o : %.c
 	$(CC) $(XXFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(AOBJS): %.o : %.S
-	$(CC) $(XXFLAGS) $(ASFLAGS) -c $< -o $@
+	$(CC) $(ASFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-ldso.o: $(CSRC) dl-elf.c dl-hash.c dl-startup.c dl-debug.c \
-	$(TARGET_ARCH)/*.h $(TARGET_ARCH)/*.c $(TOPDIR)ldso/include/*.h
-
 clean:
-	$(RM) $(UCLIBC_LDSO) $(LDSO_FULLNAME) core *.o */*.o *.a *.s *.i ldso.h *~
+	$(RM) *.o */*.o *~ core

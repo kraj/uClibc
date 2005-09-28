@@ -21,35 +21,38 @@ include $(TOPDIR)Rules.mak
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-LIBNSL=libnsl.a
-LIBNSL_SHARED=libnsl.so
-LIBNSL_SHARED_FULLNAME=libnsl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME=libnsl
+AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-CSRC = nsl.c
+CSRC = $(wildcard *.c)
+
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(LIBNSL)
+ifeq ($(strip $(HAVE_SHARED)),y)
+all: $(SO_LIB_NAME)
+else
+all: $(AR_LIB_NAME)
+endif
 
-$(LIBNSL) ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBNSL) $(OBJS)
+$(AR_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBNSL)
-	$(INSTALL) -m 644 $(LIBNSL) $(TOPDIR)lib
+	$(RM) $(AR_LIB_NAME)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
+
+$(SO_LIB_NAME): $(AR_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
+	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
 
 $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-shared: all
-	$(LD) $(LDFLAGS) -soname=$(LIBNSL_SHARED).$(MAJOR_VERSION) \
-		-o $(LIBNSL_SHARED_FULLNAME) --whole-archive $(LIBNSL) \
-		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBNSL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBNSL_SHARED).$(MAJOR_VERSION)
-	$(INSTALL) -m 644 $(LIBNSL_SHARED_FULLNAME) $(TOPDIR)lib
-	$(LN) -sf $(LIBNSL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBNSL_SHARED)
-	$(LN) -sf $(LIBNSL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBNSL_SHARED).$(MAJOR_VERSION)
-
-clean: 
-	$(RM) *.[oa] *~ core $(LIBNSL) $(LIBNSL_SHARED_FULLNAME)
+clean:
+	$(RM) *.o *~ core

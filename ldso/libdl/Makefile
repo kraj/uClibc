@@ -29,57 +29,62 @@ XXFLAGS+=$(OPTIMIZATION)
 endif
 XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) \
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso -I. -I$(TOPDIR)include
+	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso -I$(TOPDIR)include
 
 XXFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
+ifeq ($(strip $(SUPPORT_LD_DEBUG)),y)
+XXFLAGS+=-D__SUPPORT_LD_DEBUG__
+endif
 XXFLAGS_NOPIC:=$(XXFLAGS)
 ifeq ($(DOPIC),y)
     XXFLAGS += $(PICFLAG) -D__LIBDL_SHARED__
 endif
-ifeq ($(strip $(SUPPORT_LD_DEBUG)),y)
-XXFLAGS+=-D__SUPPORT_LD_DEBUG__
-endif
 
-LIBDL=libdl.a
-LIBDL_PIC=libdl_pic.a
-LIBDL_SHARED=libdl.so
-LIBDL_SHARED_FULLNAME=libdl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME=libdl
+AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-CSRC=libdl.c
-OBJS=libdl.o
-PIC_OBJS=libdl_pic.o
+CSRC = libdl.c
+OBJS = libdl.o
+PIC_OBJS = libdl_pic.o
 
-all: $(LIBDL) $(LIBDL_PIC)
+# we do not get here, do we need a libdl.a, if ld.so is not ours?
+#ifeq ($(strip $(HAVE_SHARED)),y)
+all: $(AR_LIB_NAME) $(SO_LIB_NAME)
+#else
+#all: $(AR_LIB_NAME)
+#endif
 
-ar-target: $(LIBDL) $(LIBDL_PIC)
-
-$(LIBDL): $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBDL) ../ldso/$(TARGET_ARCH)/resolve.o $(OBJS)
+$(AR_LIB_NAME): $(OBJS) ../ldso/$(TARGET_ARCH)/resolve.o
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBDL)
-	$(INSTALL) -m 644 $(LIBDL) $(TOPDIR)lib
+	$(RM) $(AR_LIB_NAME)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS) ../ldso/$(TARGET_ARCH)/resolve.o
 
-$(LIBDL_PIC): $(PIC_OBJS)
-	$(AR) $(ARFLAGS) $(LIBDL_PIC) $(PIC_OBJS)
+shared_$(LIB_NAME).a: $(PIC_OBJS)
+	$(RM) shared_$(LIB_NAME).a
+	$(AR) $(ARFLAGS) shared_$(LIB_NAME).a $(PIC_OBJS)
 
-libdl.o: libdl.c $(TOPDIR)ldso/include/*.h
-	$(CC) $(XXFLAGS_NOPIC) -c libdl.c -o libdl.o
+# this will be built only on the second round, when libc.so is present,
+# else we would link against libc.a
+$(SO_LIB_NAME): shared_$(LIB_NAME).a
+	if [ -f $(TOPDIR)lib/libc.so ] ; then \
+		$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME) ; \
+		$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
+			-o $(TOPDIR)lib/$(SO_FULL_NAME) -fini dl_cleanup --whole-archive shared_$(LIB_NAME).a \
+			--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+			-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(TOPDIR)lib/$(UCLIBC_LDSO) $(LIBGCC) ; \
+		$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) ; \
+		$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME) ; \
+	fi
+
+$(OBJS): %.o : %.c
+	$(CC) $(XXFLAGS_NOPIC) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-libdl_pic.o: libdl.c $(TOPDIR)ldso/include/*.h
-	$(CC) $(XXFLAGS) -c libdl.c -o libdl_pic.o
+libdl_pic.o: libdl.c
+	$(CC) $(XXFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-shared: $(LIBDL_PIC)
-	$(LD) $(LDFLAGS) -soname=$(LIBDL_SHARED).$(MAJOR_VERSION) \
-		-o $(LIBDL_SHARED_FULLNAME) -fini dl_cleanup --whole-archive $(LIBDL_PIC) \
-		--no-whole-archive $(TOPDIR)/libc/misc/internals/interp.o \
-		-L$(TOPDIR)/lib -lc $(LDADD_LIBFLOAT) $(TOPDIR)lib/$(UCLIBC_LDSO) $(LIBGCC);
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED).$(MAJOR_VERSION)
-	$(INSTALL) -m 644 $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib
-	$(LN) -sf $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED)
-	$(LN) -sf $(LIBDL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBDL_SHARED).$(MAJOR_VERSION)
 
 clean:
-	$(RM) .depend $(LIBDL_SHARED)* $(LIBDL_SHARED_FULLNAME) core *.o *.a *.s *.i tmp_make foo *~
+	$(RM) *.o *~ core *.a

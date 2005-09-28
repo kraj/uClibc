@@ -26,35 +26,38 @@ include $(TOPDIR)Rules.mak
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-LIBCRYPT=libcrypt.a
-LIBCRYPT_SHARED=libcrypt.so
-LIBCRYPT_SHARED_FULLNAME=libcrypt-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME=libcrypt
+AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-CSRC = crypt.c des.c md5.c
+CSRC = $(wildcard *.c)
+
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(LIBCRYPT)
+ifeq ($(strip $(HAVE_SHARED)),y)
+all: $(SO_LIB_NAME)
+else
+all: $(AR_LIB_NAME)
+endif
 
-$(LIBCRYPT) ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBCRYPT) $(OBJS)
+$(AR_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBCRYPT)
-	$(INSTALL) -m 644 $(LIBCRYPT) $(TOPDIR)lib
+	$(RM) $(AR_LIB_NAME)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
+
+$(SO_LIB_NAME): $(AR_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
+	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
 
 $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-shared: all
-	$(LD) $(LDFLAGS) -soname=$(LIBCRYPT_SHARED).$(MAJOR_VERSION) \
-		-o $(LIBCRYPT_SHARED_FULLNAME) --whole-archive $(LIBCRYPT) \
-		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBCRYPT_SHARED).$(MAJOR_VERSION)
-	$(INSTALL) -m 644 $(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib
-	$(LN) -sf $(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBCRYPT_SHARED)
-	$(LN) -sf $(LIBCRYPT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBCRYPT_SHARED).$(MAJOR_VERSION)
-
-clean: 
-	$(RM) *.[oa] *~ core $(LIBCRYPT) $(LIBCRYPT_SHARED_FULLNAME)
+clean:
+	$(RM) *.o *~ core

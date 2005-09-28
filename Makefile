@@ -24,11 +24,13 @@
 #--------------------------------------------------------------
 noconfig_targets := menuconfig config oldconfig randconfig \
 	defconfig allyesconfig allnoconfig clean distclean \
-	release tags TAGS
+	release tags
 TOPDIR=./
 include Rules.mak
 
-DIRS = ldso libc libcrypt libresolv libnsl libutil librt
+# need to have libc.so built, before we can build the others
+PRE_DIRS = ldso libc
+DIRS = ldso libcrypt libresolv libnsl libutil librt
 ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	DIRS += libm
 endif
@@ -41,25 +43,12 @@ endif
 
 ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
-all: headers pregen subdirs shared finished
+all: finished
 
 # In this section, we need .config
 -include .config.cmd
 
-shared: $(patsubst %, _shared_dir_%, $(DIRS))
-$(patsubst %, _shared_dir_%, $(DIRS)): subdirs
-ifeq ($(strip $(HAVE_SHARED)),y)
-	$(SECHO)
-	$(SECHO) Building shared libraries ...
-	$(SECHO)
-	$(MAKE) -C $(patsubst _shared_dir_%, %, $@) shared
-else
-	$(SECHO)
-	$(SECHO) Not building shared libraries ...
-	$(SECHO)
-endif
-
-finished: shared
+finished: subdirs
 	$(SECHO)
 	$(SECHO) Finally finished compiling ...
 	$(SECHO)
@@ -139,9 +128,12 @@ ifeq ($(strip $(UCLIBC_PREGENERATED_LOCALE_DATA)),y)
 	$(MAKE) -C extra/locale pregen
 endif
 
+pre_subdirs: $(patsubst %, _pre_dir_%, $(PRE_DIRS))
+$(patsubst %, _pre_dir_%, $(PRE_DIRS)): pregen
+	$(MAKE) -C $(patsubst _pre_dir_%, %, $@)
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
-$(patsubst %, _dir_%, $(DIRS)): headers
+$(patsubst %, _dir_%, $(DIRS)): pre_subdirs
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 tags:
@@ -241,17 +233,17 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
 	done
-ifeq ($(strip $(COMPAT_ATEXIT)),y)
 	if [ -f $(TOPDIR)lib/libc.so ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 		sed -e '/^GROUP/d' $(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+	fi
+ifeq ($(strip $(COMPAT_ATEXIT)),y)
+	if [ -f $(TOPDIR)lib/libc.so ] ; then \
 		echo "GROUP ( $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) )" \
 			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
 else
 	if [ -f $(TOPDIR)lib/libc.so ] ; then \
-		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
-		sed -e '/^GROUP/d' $(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 		echo "GROUP ( $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) )" \
 			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
@@ -263,15 +255,11 @@ endif
 #	# If we build shared libraries then the static libs are PIC...
 #	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
 	if [ -d lib ] ; then \
-	for i in `find lib/  -type f -name 'lib*.a' | sed -e 's/lib\///'` ; do \
-		$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
-			| sed -e 's/\.a$$/_pic.a/'`; \
-	done ; \
+		for i in `find lib/  -type f -name 'lib*.a' | sed -e 's/lib\///'` ; do \
+			$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
+				| sed -e 's/\.a$$/_pic.a/'`; \
+		done ; \
 	fi
-	# Ugh!!! Remember that libdl.a and libdl_pic.a are different.  Since
-	# libdl is pretty small, and not likely to benefit from mklibs.py and
-	# similar, lets just remove libdl_pic.a and avoid the issue
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libdl_pic.a
 endif
 
 

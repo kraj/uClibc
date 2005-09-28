@@ -26,38 +26,41 @@ include $(TOPDIR)Rules.mak
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-LIBUTIL=libutil.a
-LIBUTIL_SHARED=libutil.so
-LIBUTIL_SHARED_FULLNAME=libutil-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME=libutil
+AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-CSRC=login.c login_tty.c logout.c logwtmp.c openpty.c
-ifeq ($(strip $(ARCH_HAS_MMU)),y)
-    CSRC+=forkpty.c
+CSRC=$(wildcard *.c)
+ifneq ($(strip $(ARCH_HAS_MMU)),y)
+CSRC := $(filter-out forkpty.c,$(CSRC))
 endif
+
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(LIBUTIL)
+ifeq ($(strip $(HAVE_SHARED)),y)
+all: $(SO_LIB_NAME)
+else
+all: $(AR_LIB_NAME)
+endif
 
-$(LIBUTIL) ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBUTIL) $(OBJS)
+$(AR_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBUTIL)
-	$(INSTALL) -m 644 $(LIBUTIL) $(TOPDIR)lib/
+	$(RM) $(AR_LIB_NAME)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
+
+$(SO_LIB_NAME): $(AR_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
+	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
 
 $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-shared: all
-	$(LD) $(LDFLAGS) -soname=$(LIBUTIL_SHARED).$(MAJOR_VERSION) \
-		-o $(LIBUTIL_SHARED_FULLNAME) --whole-archive $(LIBUTIL) \
-		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBUTIL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBUTIL_SHARED).$(MAJOR_VERSION)
-	$(INSTALL) -m 644 $(LIBUTIL_SHARED_FULLNAME) $(TOPDIR)lib
-	$(LN) -sf $(LIBUTIL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBUTIL_SHARED)
-	$(LN) -sf $(LIBUTIL_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBUTIL_SHARED).$(MAJOR_VERSION)
-
 clean:
-	$(RM) *.[oa] *~ core $(LIBUTIL) $(LIBUTIL_SHARED_FULLNAME)
+	$(RM) *.o *~ core

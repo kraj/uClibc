@@ -19,31 +19,25 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
-LIBPTHREAD=../../../libpthread.a
-SOBJS = $(patsubst %.S,%.o, $(SSRC))
-CSRC = pt-machine.c
-COBJS = $(patsubst %.c,%.o, $(CSRC))
+CFLAGS+=$(SSP_ALL_CFLAGS)
 
 # We need to build as SHcompact for tas..
 CFLAGS := $(subst 32media,compact,$(CFLAGS))
 
-OBJS = $(SOBJS) $(COBJS)
+LIB_NAME=libpthread
+AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
 
-all: $(OBJS) $(LIBC)
+CSRC = pt-machine.c
+OBJS = $(patsubst %.c,%.o, $(CSRC))
 
-$(LIBC): ar-target
+all: add_to_archive
 
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBPTHREAD) $(OBJS)
+add_to_archive: $(OBJS)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
 
-$(SOBJS): %.o : %.S
-	$(CC) $(ASFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
-
+	$(RM) *.o *~ core

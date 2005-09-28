@@ -15,53 +15,55 @@
 # You should have received a copy of the GNU Library General Public License
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-# Makefile for uClibc
 
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-#Adjust the soname version to avoid namespace collisions with glibc's libpthread
-LIBTHREAD_DB:=../libthread_db.a
-ifeq ($(strip $(TARGET_ARCH)),sparc)
-SYSDEPS_DIR:=$(TARGET_ARCH)/sparc32
-else
-SYSDEPS_DIR:=$(TARGET_ARCH)
-endif
+#CFLAGS+=$(SSP_ALL_CFLAGS)
+
+LIB_NAME=libthread_db
+AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 # set up system dependencies include dirs (NOTE: order matters!)
 PTDIR = $(TOPDIR)libpthread/linuxthreads/
 SYSDEPINC = -I$(PTDIR)sysdeps/pthread \
             -I$(PTDIR)sysdeps/$(TARGET_ARCH) \
             -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
-#CFLAGS += $(SSP_ALL_CFLAGS)
+
 CFLAGS += $(SYSDEPINC) -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 
-CSRC=	td_init.c td_log.c td_ta_delete.c td_ta_get_nthreads.c		\
-	td_ta_get_ph.c td_ta_map_id2thr.c td_ta_map_lwp2thr.c		\
-	td_ta_new.c td_ta_thr_iter.c td_ta_tsd_iter.c			\
-	td_thr_get_info.c td_thr_getfpregs.c td_thr_getgregs.c		\
-	td_thr_getxregs.c td_thr_getxregsize.c td_thr_setfpregs.c	\
-	td_thr_setgregs.c td_thr_setprio.c td_thr_setsigpending.c	\
-	td_thr_setxregs.c td_thr_sigsetmask.c td_thr_tsd.c		\
-	td_thr_validate.c td_thr_dbsuspend.c td_thr_dbresume.c		\
-	td_ta_setconcurrency.c td_ta_enable_stats.c			\
-	td_ta_reset_stats.c td_ta_get_stats.c td_ta_event_addr.c	\
-	td_thr_event_enable.c td_thr_set_event.c			\
-	td_thr_clear_event.c td_thr_event_getmsg.c			\
-	td_ta_set_event.c td_ta_event_getmsg.c				\
-	td_ta_clear_event.c td_symbol_list.c td_thr_tls_get_addr.c
+# Remove any -z defs since this lib will have undefined symbols
+LDFLAGS := $(subst -z defs,,$(LDFLAGS)) --warn-unresolved-symbols
 
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+CSRC=$(wildcard *.c)
 
-all: $(LIBTHREAD_DB)
+OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-$(LIBTHREAD_DB) ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBTHREAD_DB) $(OBJS)
+ifeq ($(strip $(HAVE_SHARED)),y)
+all: $(SO_LIB_NAME)
+else
+all: $(AR_LIB_NAME)
+endif
 
-$(COBJS): %.o : %.c
+$(AR_LIB_NAME): $(OBJS)
+	$(INSTALL) -d $(TOPDIR)lib
+	$(RM) $(AR_LIB_NAME)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
+
+$(SO_LIB_NAME): $(AR_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).1 $(SO_LIB_NAME)
+	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.1 \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).1
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
+
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

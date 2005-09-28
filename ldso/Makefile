@@ -21,33 +21,38 @@ include $(TOPDIR)Rules.mak
 
 DIRS = ldso libdl
 
-all: ldso libdl
-
 ifeq ($(strip $(BUILD_UCLIBC_LDSO)),y)
-ldso: headers
-	$(MAKE) -C ldso
-libdl: ldso headers
-	$(MAKE) -C libdl
-shared: libdl
-	$(MAKE) -C libdl shared
+all: subdirs
 else
-ldso libdl shared:
-	echo "Skipping $@ target"
+all:
 endif
 
 LN_HEADERS      := $(patsubst %, include/%, elf.h)
 LN_ARCH_HEADERS := $(patsubst %, include/%, dl-startup.h dl-syscalls.h dl-sysdep.h dl-debug.h)
 HEADERS         := $(LN_HEADERS) $(LN_ARCH_HEADERS) include/dl-progname.h
+
 headers: $(HEADERS)
+
 $(LN_HEADERS):
-	$(LN) -fs $(TOPDIR)../$@ $@
+	$(LN) -sf $(TOPDIR)../$@ $@
+
 $(LN_ARCH_HEADERS):
-	$(LN) -fs ../ldso/$(TARGET_ARCH)/$(patsubst include/%,%,$@) $@
+	$(LN) -sf ../ldso/$(TARGET_ARCH)/$(patsubst include/%,%,$@) $@
+
 include/dl-progname.h:
 	echo '#include "$(TARGET_ARCH)/elfinterp.c"' \
 		> include/dl-progname.h
 
-clean:
-	set -e ; for d in $(DIRS) ; do $(MAKE) -C $$d $@ ; done
-	-find . -name '*~' | xargs $(RM)
+clean: subdirs_clean
 	$(RM) $(HEADERS)
+
+subdirs: $(patsubst %, _dir_%, $(DIRS))
+subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
+
+$(patsubst %, _dir_%, $(DIRS)): headers
+	$(MAKE) -C $(patsubst _dir_%, %, $@)
+
+$(patsubst %, _dirclean_%, $(DIRS)): dummy
+	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
+
+.PHONY: dummy

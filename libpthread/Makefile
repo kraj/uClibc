@@ -19,31 +19,14 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-#Adjust the soname version to avoid namespace collisions with glibc's libpthread
-LIBPTHREAD=libpthread.a
-LIBPTHREAD_SHARED=libpthread.so
-LIBPTHREAD_SHARED_FULLNAME=libpthread-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
-
-LIBTHREAD_DB=libthread_db.a
-LIBTHREAD_DB_SHARED=libthread_db.so
-LIBTHREAD_DB_SHARED_FULLNAME=libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+ALL_SUBDIRS = linuxthreads linuxthreads_db
 
 DIRS=linuxthreads
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	DIRS+=linuxthreads_db
 endif
 
-ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
-	SHARED_START_FILES = $(TOPDIR)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
-	SHARED_END_FILES = $(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
-endif
-
-ALL_SUBDIRS = linuxthreads linuxthreads_db
-
-# Remove any -z defs since this lib will have undefined symbols
-LIBTHREAD_DB_LDFLAGS := $(subst -z defs,,$(LDFLAGS))
-
-all: $(LIBPTHREAD) $(LIBTHREAD_DB)
+all: subdirs
 
 headers:
 ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
@@ -53,6 +36,9 @@ ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
 	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h $(TOPDIR)include/bits/
 	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/pthread/bits/libc-lock.h $(TOPDIR)include/bits/
 	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/pthread/bits/stdio-lock.h $(TOPDIR)include/bits/
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(LN) -sf $(TOPDIR)libpthread/nptl_db/thread_db.h $(TOPDIR)include/
+endif
 else
 	$(LN) -sf $(TOPDIR)libpthread/linuxthreads/sysdeps/pthread/pthread.h $(TOPDIR)include/
 	$(LN) -sf $(TOPDIR)libpthread/linuxthreads/semaphore.h $(TOPDIR)include/
@@ -60,52 +46,6 @@ else
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	$(LN) -sf $(TOPDIR)libpthread/linuxthreads_db/thread_db.h $(TOPDIR)include/
 endif
-endif
-
-$(LIBPTHREAD): subdirs
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBPTHREAD)
-	$(INSTALL) -m 644 $(LIBPTHREAD) $(TOPDIR)lib
-
-$(LIBTHREAD_DB): subdirs
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBTHREAD_DB)
-	$(INSTALL) -m 644 $(LIBTHREAD_DB) $(TOPDIR)lib
-endif
-
-
-$(OBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-shared: all
-	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIBPTHREAD_SHARED).$(MAJOR_VERSION) \
-		-o $(LIBPTHREAD_SHARED_FULLNAME) $(SHARED_START_FILES) --whole-archive $(LIBPTHREAD) \
-		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
-		$(SHARED_END_FILES)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBPTHREAD_SHARED_FULLNAME) \
-		$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
-	$(INSTALL) -m 644 $(LIBPTHREAD_SHARED_FULLNAME) $(TOPDIR)lib
-	$(LN) -sf $(LIBPTHREAD_SHARED_FULLNAME) \
-		$(TOPDIR)lib/$(LIBPTHREAD_SHARED)
-	$(LN) -sf $(LIBPTHREAD_SHARED_FULLNAME) \
-		$(TOPDIR)lib/$(LIBPTHREAD_SHARED).$(MAJOR_VERSION)
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(LD) $(LIBTHREAD_DB_LDFLAGS) --warn-unresolved-symbols -soname=$(LIBTHREAD_DB_SHARED).1 \
-		-o $(LIBTHREAD_DB_SHARED_FULLNAME) --whole-archive $(LIBTHREAD_DB) \
-		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBTHREAD_DB_SHARED_FULLNAME) \
-		$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).1
-	$(INSTALL) -m 644 $(LIBTHREAD_DB_SHARED_FULLNAME) $(TOPDIR)lib
-	$(LN) -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
-		$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED)
-	$(LN) -sf $(LIBTHREAD_DB_SHARED_FULLNAME) \
-		$(TOPDIR)lib/$(LIBTHREAD_DB_SHARED).1
 endif
 
 tags:
@@ -121,9 +61,7 @@ $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 clean: subdirs_clean
-	$(RM) *.[oa] *~ core $(LIBPTHREAD) $(LIBPTHREAD_SHARED_FULLNAME) \
-		$(LIBTHREAD_DB) $(LIBTHREAD_DB_SHARED_FULLNAME)		 \
-		$(TOPDIR)include/pthread.h $(TOPDIR)include/semaphore.h \
+	$(RM)	$(TOPDIR)include/pthread.h $(TOPDIR)include/semaphore.h \
 		$(TOPDIR)include/thread_db.h \
 		$(TOPDIR)include/bits/pthreadtypes.h $(TOPDIR)include/bits/semaphore.h \
 		$(TOPDIR)include/bits/libc-lock.h $(TOPDIR)include/bits/stdio-lock
