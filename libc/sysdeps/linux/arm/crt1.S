@@ -75,9 +75,16 @@ ARM register quick reference:
     pc      r15          program counter
 */
 
-	.text
-	.globl _start
-	.type _start,#function
+#include <features.h>
+
+.text
+	.globl	_start
+	.type	_start,#function
+#ifndef __UCLIBC_CTOR_DTOR__
+	.weak	_init
+	.weak	_fini
+#endif
+
 _start:
 	/* Clear the frame pointer and link register since this is the outermost frame.  */
 	mov fp, #0
@@ -133,13 +140,8 @@ _start:
 	.word _init(GOT)
 	.word main(GOT)
 #else
-# ifdef __UCLIBC_CTOR_DTOR__
 	.type _init,%function
 	.type _fini,%function
-# else
-	.weak _fini
-	.weak _init
-# endif
 #endif
 
 /* Define a symbol for the first piece of initialized data.  */
