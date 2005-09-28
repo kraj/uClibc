@@ -60,7 +60,7 @@ Scrtreloc.o: crtreloc.c
 	$(CC) $(CFLAGS) $(PIEFLAG) -c $< -o $@
 
 $(CTOR_TARGETS): %.o : %.S
-	$(CC) $(ASFLAGS) -c $< -o $@
+	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SOBJS): %.o : %.S
@@ -75,5 +75,5 @@ headers:
 	$(LN) -fs ../libc/sysdeps/linux/frv/link.h $(TOPDIR)/include/
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core
 	$(RM) $(TOPDIR)/include/link.h
