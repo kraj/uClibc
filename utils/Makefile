@@ -19,7 +19,9 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-CFLAGS += $(SSP_ALL_CFLAGS) -L$(TOPDIR)lib
+CFLAGS += \
+	$(SSP_ALL_CFLAGS) -L$(TOPDIR)lib \
+	-I. -I../ldso/include -I../include
 
 TARGETS = ldd ldconfig
 
@@ -55,7 +57,7 @@ endif
 ldconfig: ldconfig.c
 	$(CC) $(CFLAGS) $(LDCONFIG_CFLAGS) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
+		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
@@ -63,7 +65,7 @@ LDD_CFLAGS := $(PIEFLAG) $(LDPIEFLAG)
 ldd: ldd.c
 	$(CC) $(CFLAGS) $(LDD_CFLAGS) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
+		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
