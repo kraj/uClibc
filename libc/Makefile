@@ -84,7 +84,7 @@ $(AR_LIB_NAME): shared_$(LIB_NAME).a
 	cp shared_$(LIB_NAME).a $(AR_LIB_NAME)
 	$(AR) $(ARFLAGS) $(AR_LIB_NAME) misc/internals/static.o `cat nonshared_obj.*`
 
-$(SO_LIB_NAME): shared_$(LIB_NAME).a
+$(SO_LIB_NAME): $(AR_LIB_NAME)
 	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(TOPDIR)lib/$(SHARED_MAJORNAME) $(SO_LIB_NAME)
 	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) \
 		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive shared_$(LIB_NAME).a \
