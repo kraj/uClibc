@@ -106,7 +106,7 @@ $(AR_LIB_NAME): $(OBJS)
 	$(RM) $(AR_LIB_NAME)
 	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
 
-$(SO_LIB_NAME): subdirs
+$(SO_LIB_NAME): $(AR_LIB_NAME) subdirs
 	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
 	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
 		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
