@@ -38,15 +38,6 @@ CFLAGS+=$(SSP_ALL_CFLAGS)
 
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
-ALL_SUBDIRS = powerpc
-
-DIRS =
-ifeq ($(strip $(HAS_FPU)),y)
-ifeq ($(TARGET_ARCH),$(wildcard $(TARGET_ARCH)))
-DIRS = $(TARGET_ARCH)
-endif
-endif
-
 LIB_NAME=libm
 AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
 SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
@@ -92,21 +83,29 @@ CSRC+=   s_expm1.c s_scalbn.c s_copysign.c e_acos.c e_asin.c e_atan2.c \
 FL_MOBJ = sqrtf.o
 endif
 
+ifeq ($(strip $(HAS_FPU)),y)
+ifeq ($(strip $(DO_C99_MATH)),y)
+ARCH_CSRC=$(wildcard $(TARGET_ARCH)/*.c)
+ARCH_OBJS=$(patsubst %.c,%.o, $(ARCH_CSRC))
+endif
+endif
+
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS) $(FL_MOBJ)
 
 ifeq ($(strip $(HAVE_SHARED)),y)
 all: $(SO_LIB_NAME)
 else
-all: $(AR_LIB_NAME) subdirs
+all: $(AR_LIB_NAME)
 endif
 
-$(AR_LIB_NAME): $(OBJS)
+$(AR_LIB_NAME): $(OBJS) $(ARCH_OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(AR_LIB_NAME)
-	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS) && \
+		$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(ARCH_OBJS)
 
-$(SO_LIB_NAME): $(AR_LIB_NAME) subdirs
+$(SO_LIB_NAME): $(AR_LIB_NAME)
 	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
 	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
 		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
@@ -115,7 +114,7 @@ $(SO_LIB_NAME): $(AR_LIB_NAME) subdirs
 	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
 	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
 
-$(COBJS): %.o : %.c
+$(COBJS) $(ARCH_OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
@@ -126,16 +125,5 @@ $(FL_MOBJ): $(FL_MSRC)
 tags:
 	ctags -R
 
-clean: subdirs_clean
-	$(RM) *.o *~ core
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
-
-$(patsubst %, _dir_%, $(DIRS)): $(AR_LIB_NAME)
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)): dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-.PHONY: dummy
+clean:
+	$(RM) *.o */*.o *~ core
