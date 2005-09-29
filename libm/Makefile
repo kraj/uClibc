@@ -98,7 +98,7 @@ OBJS=$(COBJS) $(FL_MOBJ)
 ifeq ($(strip $(HAVE_SHARED)),y)
 all: $(SO_LIB_NAME)
 else
-all: subdirs
+all: $(AR_LIB_NAME) subdirs
 endif
 
 $(AR_LIB_NAME): $(OBJS)
