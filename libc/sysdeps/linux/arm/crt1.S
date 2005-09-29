@@ -79,7 +79,9 @@ ARM register quick reference:
 
 .text
 	.globl	_start
-	.type	_start,#function
+	.type	_start,%function
+	.type	_init,%function
+	.type	_fini,%function
 #ifndef __UCLIBC_CTOR_DTOR__
 	.weak	_init
 	.weak	_fini
@@ -139,9 +141,6 @@ _start:
 	.word _fini(GOT)
 	.word _init(GOT)
 	.word main(GOT)
-#else
-	.type _init,%function
-	.type _fini,%function
 #endif
 
 /* Define a symbol for the first piece of initialized data.  */
