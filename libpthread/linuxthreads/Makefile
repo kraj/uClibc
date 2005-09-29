@@ -20,11 +20,6 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-# As long as there is only one subdir, we don't 
-# have to worry about race conditions with multiple 
-# $(AR)'s in subdirs running on linuxthreads.a.
-DIRS = sysdeps
-
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
 #This stuff will not compile without at least -O1
@@ -39,6 +34,12 @@ SYSDEPINC = -I$(PTDIR)sysdeps/pthread \
             -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
 CFLAGS += $(SYSDEPINC)
 
+ARCH_CFLAGS = $(CFLAGS)
+ifeq ($(strip $(TARGET_ARCH)),sh64)
+# We need to build as SHcompact for tas..
+ARCH_CFLAGS := $(subst 32media,compact,$(ARCH_CFLAGS))
+endif
+
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 	SHARED_START_FILES = $(TOPDIR)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
 	SHARED_END_FILES = $(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
@@ -49,6 +50,9 @@ AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
 SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
 SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
+ARCH_CSRC=$(wildcard sysdeps/$(TARGET_ARCH)/*.c)
+ARCH_OBJS=$(patsubst %.c,%.o, $(ARCH_CSRC))
+
 CSRC  = $(wildcard *.c)
 ifneq ($(strip $(UCLIBC_HAS_XLOCALE)),y)
 CSRC := $(filter-out locale.c,$(CSRC))
@@ -56,22 +60,19 @@ endif
 
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-# We need to make sure that we put all the top-level $(OBJS) into
-# our archive before executing subdirs.  That way, when $(AR) is 
-# run in the subdirs, it'll bump the generic top-level objects 
-# out of our archive in favor of the machine-specific ones.
 ifeq ($(strip $(HAVE_SHARED)),y)
 all: $(SO_LIB_NAME)
 else
-all: subdirs
+all: $(AR_LIB_NAME)
 endif
 
-$(AR_LIB_NAME): $(OBJS)
+$(AR_LIB_NAME): $(OBJS) $(ARCH_OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(AR_LIB_NAME)
 	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(ARCH_OBJS)
 
-$(SO_LIB_NAME): subdirs
+$(SO_LIB_NAME): $(AR_LIB_NAME)
 	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
 	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
 		-o $(TOPDIR)lib/$(SO_FULL_NAME) $(SHARED_START_FILES) --whole-archive $(AR_LIB_NAME) \
@@ -88,16 +89,13 @@ else
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 endif
 
-clean: subdirs_clean
-	$(RM) *.o *~ core
+$(ARCH_OBJS): %.o : %.c
+	$(CC) $(ARCH_CFLAGS) -c $< -o $@
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $*.o
+else
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
+endif
 
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
-
-$(patsubst %, _dir_%, $(DIRS)): $(AR_LIB_NAME)
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(DIRS)): dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-.PHONY: dummy
+clean:
+	$(RM) *.o sysdeps/*/*.o *~ core
