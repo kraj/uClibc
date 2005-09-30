@@ -144,11 +144,9 @@ install: install_runtime install_dev finished2
 
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
 
-# Installs header files and development library links.
-install_dev:
-	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
+# Installs header files.
+install_headers:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
-	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
 	if [ "$(KERNEL_SOURCE)" == "$(DEVEL_PREFIX)" ] ; then \
 		extra_exclude="--exclude include/linux --exclude include/asm'*'" ; \
 	else \
@@ -227,23 +225,28 @@ endif
 	done
 	-find $(PREFIX)$(DEVEL_PREFIX) -name .svn | xargs $(RM) -r
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1:\2/'` $(PREFIX)$(DEVEL_PREFIX)
+
+# Installs development library links.
+install_dev: install_headers
+	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
+	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
 ifeq ($(strip $(HAVE_SHARED)),y)
 	for i in `find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
 	sed -e 's/lib\///'` ; do \
 		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
 	done
-	if [ -f $(TOPDIR)lib/libc.so ] ; then \
+	if [ -f $(TOPDIR)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 		sed -e '/^GROUP/d' $(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
 ifeq ($(strip $(COMPAT_ATEXIT)),y)
-	if [ -f $(TOPDIR)lib/libc.so ] ; then \
+	if [ -f $(TOPDIR)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
 		echo "GROUP ( $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) )" \
 			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
 else
-	if [ -f $(TOPDIR)lib/libc.so ] ; then \
+	if [ -f $(TOPDIR)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
 		echo "GROUP ( $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) )" \
 			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
@@ -261,7 +264,6 @@ endif
 		done ; \
 	fi
 endif
-
 
 # Installs run-time libraries
 install_runtime:
