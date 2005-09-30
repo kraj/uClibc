@@ -31,6 +31,12 @@ else
 TARGET_ICONV =
 endif
 
+ifeq ($(strip $(LDSO_CACHE_SUPPORT)),y)
+HOST_LDSO_CACHE_FLAG = -D__LDSO_CACHE_SUPPORT__=1
+else
+HOST_LDSO_CACHE_FLAG =
+endif
+
 # NOTE: We build the utils AFTER we have a uClibc-targeted toolchain.
 
 ifeq ($(strip $(HAVE_SHARED)),y)
@@ -84,13 +90,13 @@ endif
 
 ldd.host: ldd.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
-		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
+ 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" $(HOST_LDSO_CACHE_FLAG) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 
-ldconfig.host: ldconfig.c
+ldconfig.host: ldconfig.c chroot_realpath.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
-		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
+ 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" $(HOST_LDSO_CACHE_FLAG) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 

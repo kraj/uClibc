@@ -22,6 +22,8 @@
  *
  * This program may be used for any purpose as long as this
  * copyright notice is kept.
+ *
+ * 2005/09/16: Dan Howell (modified for cross-development)
  */
 
 #include <stdio.h>
@@ -37,6 +39,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include "bswap.h"
 #include "dl-defs.h"
 
 #define BUFFER_SIZE 4096
@@ -56,6 +59,7 @@ struct exec
 #if !defined (N_MAGIC)
 #define N_MAGIC(exec) ((exec).a_info & 0xffff)
 #endif
+#define N_MAGIC_SWAP(exec) (bswap_32((exec).a_info) & 0xffff)
 /* Code indicating object file or impure executable.  */
 #define OMAGIC 0407
 /* Code indicating pure executable.  */
@@ -97,6 +101,8 @@ void cache_dolib(const char *dir, const char *so, int libtype);
 char *conffile = LDSO_CONF;	/* default conf file */
 char *cachefile = LDSO_CACHE;	/* default cache file */
 #endif
+char *chroot_dir = NULL;
+int byteswap = 0;
 
 struct needed_tab
 {
@@ -116,6 +122,8 @@ struct needed_tab needed_tab[] = {
   { "libdl.so.2",   LIB_ELF_LIBC6 },
   { NULL,           LIB_ELF }
 };
+
+extern char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]);
 
 
 /* These two are used internally -- you shouldn't need to use them */
@@ -242,6 +250,8 @@ char *is_shlib(const char *dir, const char *name, int *type,
     ElfW(Ehdr) *elf_hdr;
     struct stat statbuf;
     char buff[BUFFER_SIZE];
+    char real[BUFFER_SIZE];
+    static int byteswapflag = -1;	/* start with byte-order unknown */
 
     /* see if name is of the form *.so* */
     if (name[strlen(name)-1] != '~' && (cp = strstr(name, ".so")))
@@ -256,8 +266,12 @@ char *is_shlib(const char *dir, const char *name, int *type,
 	sprintf(buff, "%s%s%s", dir, (*dir && strcmp(dir, "/")) ?
 		"/" : "", name);
 
+	/* get real path in case of chroot */
+	if (!chroot_realpath(chroot_dir, buff, real))
+	    warn("can't resolve %s in chroot %s", buff, chroot_dir);
+
 	/* first, make sure it's a regular file */
-	if (lstat(buff, &statbuf))
+	if (lstat(real, &statbuf))
 	    warn("skipping %s", buff);
 	else if (!S_ISREG(statbuf.st_mode) && !S_ISLNK(statbuf.st_mode))
 	    warnx("%s is not a regular file or symlink, skipping", buff);
@@ -267,14 +281,15 @@ char *is_shlib(const char *dir, const char *name, int *type,
 	    *islink = S_ISLNK(statbuf.st_mode);
 
 	    /* then try opening it */
-	    if (!(file = fopen(buff, "rb")))
+	    if (!(file = fopen(real, "rb")))
 		warn("skipping %s", buff);
 	    else
 	    {
 		/* now make sure it's a shared library */
 		if (fread(&exec, sizeof exec, 1, file) < 1)
 		    warnx("can't read header from %s, skipping", buff);
-		else if (N_MAGIC(exec) != ZMAGIC && N_MAGIC(exec) != QMAGIC)
+		else if (N_MAGIC(exec) != ZMAGIC && N_MAGIC(exec) != QMAGIC &&
+			 N_MAGIC_SWAP(exec) != ZMAGIC && N_MAGIC_SWAP(exec) != QMAGIC)
 		{
 		    elf_hdr = (ElfW(Ehdr) *) &exec;
 		    if (elf_hdr->e_ident[0] != 0x7f ||
@@ -294,6 +309,9 @@ char *is_shlib(const char *dir, const char *name, int *type,
 			*type = LIB_ELF;
 			good = readsoname(buff, file, expected_type, type, 
 				elf_hdr->e_ident[EI_CLASS]);
+			if (byteswapflag == -1)
+			    /* byte-order detected */
+			    byteswapflag = byteswap;
 			if (good == NULL || *islink)
 			{
 			    if (good != NULL)
@@ -313,6 +331,12 @@ char *is_shlib(const char *dir, const char *name, int *type,
 		}
 		else
 		{
+		    /* Determine byte-order */
+		    byteswap = (N_MAGIC(exec) == ZMAGIC || N_MAGIC(exec) == QMAGIC) ? 0 : 1;
+		    if (byteswapflag == -1)
+			/* byte-order detected */
+			byteswapflag = byteswap;
+
 		    if (*islink)
 			good = xstrdup(name);
 		    else
@@ -330,6 +354,14 @@ char *is_shlib(const char *dir, const char *name, int *type,
 		    *type = LIB_DLL;
 		}
 		fclose(file);
+
+		if (byteswapflag >= 0 && byteswap != byteswapflag)
+		{
+		    byteswapflag = -2;
+		    warnx("mixed byte-order detected, using host byte-order...");
+		}
+		if (byteswapflag == -2)
+		    byteswap = 0;
 	    }
 	}
     }
@@ -343,18 +375,24 @@ void link_shlib(const char *dir, const char *file, const char *so)
     int change = 1;
     char libname[BUFFER_SIZE];
     char linkname[BUFFER_SIZE];
+    char reallibname[BUFFER_SIZE];
+    char reallinkname[BUFFER_SIZE];
     struct stat libstat;
     struct stat linkstat;
 
     /* construct the full path names */
     sprintf(libname, "%s/%s", dir, file);
     sprintf(linkname, "%s/%s", dir, so);
+    if (!chroot_realpath(chroot_dir, libname, reallibname))
+	warn("can't resolve %s in chroot %s", libname, chroot_dir);
+    if (!chroot_realpath(chroot_dir, linkname, reallinkname))
+	warn("can't resolve %s in chroot %s", linkname, chroot_dir);
 
     /* see if a link already exists */
-    if (!stat(linkname, &linkstat))
+    if (!stat(reallinkname, &linkstat))
     {
 	/* now see if it's the one we want */
-	if (stat(libname, &libstat))
+	if (stat(reallibname, &libstat))
 	    warn("can't stat %s", libname);
 	else if (libstat.st_dev == linkstat.st_dev &&
 		libstat.st_ino == linkstat.st_ino)
@@ -364,14 +402,14 @@ void link_shlib(const char *dir, const char *file, const char *so)
     /* then update the link, if required */
     if (change > 0 && !nolinks)
     {
-	if (!lstat(linkname, &linkstat))
+	if (!lstat(reallinkname, &linkstat))
 	{
 	    if (!S_ISLNK(linkstat.st_mode))
 	    {
 		warnx("%s is not a symlink", linkname);
 		change = -1;
 	    }
-	    else if (remove(linkname))
+	    else if (remove(reallinkname))
 	    {
 		warn("can't unlink %s", linkname);
 		change = -1;
@@ -379,7 +417,7 @@ void link_shlib(const char *dir, const char *file, const char *so)
 	}
 	if (change > 0)
 	{
-	    if (symlink(file, linkname))
+	    if (symlink(file, reallinkname))
 	    {
 		warn("can't link %s to %s", linkname, file);
 		change = -1;
@@ -441,6 +479,7 @@ void scan_dir(const char *rawname)
     char *so, *path, *path_n;
     struct lib *lp, *libs = NULL;
     int i, libtype, islink, expected_type = LIB_ANY;
+    char realname[BUFFER_SIZE];
 
     /* We need a writable copy of this string */
     path = strdup(rawname);
@@ -500,8 +539,12 @@ void scan_dir(const char *rawname)
     if (verbose > 0)
 	printf("%s:\n", name);
 
+    /* get real path in case of chroot */
+    if (!chroot_realpath(chroot_dir, name, realname))
+	warn("can't resolve %s in chroot %s", name, chroot_dir);
+
     /* if we can't open it, we can't do anything */
-    if ((dir = opendir(name)) == NULL)
+    if ((dir = opendir(realname)) == NULL)
     {
 	warn("skipping %s", name);
 	free(path);
@@ -596,8 +639,12 @@ char *get_extpath(void)
     char *res = NULL, *cp;
     FILE *file;
     struct stat stat;
+    char realconffile[BUFFER_SIZE];
 
-    if ((file = fopen(conffile, "r")) != NULL)
+    if (!chroot_realpath(chroot_dir, conffile, realconffile))
+	return NULL;
+
+    if ((file = fopen(realconffile, "r")) != NULL)
     {
 	fstat(fileno(file), &stat);
 	res = xmalloc(stat.st_size + 1);
@@ -678,22 +725,38 @@ void cache_write(void)
 {
     int cachefd;
     int stroffset = 0;
+    char realcachefile[BUFFER_SIZE];
     char tempfile[BUFFER_SIZE];
+    header_t swap_magic;
+    header_t *magic_ptr;
+    libentry_t swap_lib;
+    libentry_t *lib_ptr;
     liblist_t *cur_lib;
 
     if (!magic.nlibs)
 	return;
 
-    sprintf(tempfile, "%s~", cachefile);
+    if (!chroot_realpath(chroot_dir, cachefile, realcachefile))
+	err(EXIT_FATAL,"can't resolve %s in chroot %s (%s)",
+	    cachefile, chroot_dir, strerror(errno));
+
+    sprintf(tempfile, "%s~", realcachefile);
 
     if (unlink(tempfile) && errno != ENOENT)
-	err(EXIT_FATAL,"can't unlink %s (%s)", tempfile, strerror(errno));
+	err(EXIT_FATAL,"can't unlink %s~ (%s)", cachefile, strerror(errno));
 
     if ((cachefd = creat(tempfile, 0644)) < 0)
-	err(EXIT_FATAL,"can't create %s (%s)", tempfile, strerror(errno));
+	err(EXIT_FATAL,"can't create %s~ (%s)", cachefile, strerror(errno));
 
-    if (write(cachefd, &magic, sizeof (header_t)) != sizeof (header_t))
-	err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
+    if (byteswap) {
+	swap_magic = magic;
+	swap_magic.nlibs = bswap_32(swap_magic.nlibs);
+	magic_ptr = &swap_magic;
+    } else {
+	magic_ptr = &magic;
+    }
+    if (write(cachefd, magic_ptr, sizeof (header_t)) != sizeof (header_t))
+	err(EXIT_FATAL,"can't write %s~ (%s)", cachefile, strerror(errno));
 
     for (cur_lib = lib_head; cur_lib != NULL; cur_lib = cur_lib->next)
     {
@@ -701,29 +764,37 @@ void cache_write(void)
 	stroffset += strlen(cur_lib->soname) + 1;
 	cur_lib->liboffset = stroffset;
 	stroffset += strlen(cur_lib->libname) + 1;
-	if (write(cachefd, cur_lib, sizeof (libentry_t)) !=
-		sizeof (libentry_t))
-	    err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
+	if (byteswap) {
+	    swap_lib.flags = bswap_32(cur_lib->flags);
+	    swap_lib.sooffset = bswap_32(cur_lib->sooffset);
+	    swap_lib.liboffset = bswap_32(cur_lib->liboffset);
+	    lib_ptr = &swap_lib;
+	} else {
+	    lib_ptr = (libentry_t *)cur_lib;
+	}
+	if (write(cachefd, lib_ptr, sizeof (libentry_t)) !=
+	    sizeof (libentry_t))
+	err(EXIT_FATAL,"can't write %s~ (%s)", cachefile, strerror(errno));
     }
 
     for (cur_lib = lib_head; cur_lib != NULL; cur_lib = cur_lib->next)
     {
 	if (write(cachefd, cur_lib->soname, strlen(cur_lib->soname) + 1)
 		!= strlen(cur_lib->soname) + 1)
-	    err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
+	    err(EXIT_FATAL,"can't write %s~ (%s)", cachefile, strerror(errno));
 	if (write(cachefd, cur_lib->libname, strlen(cur_lib->libname) + 1)
 		!= strlen(cur_lib->libname) + 1)
-	    err(EXIT_FATAL,"can't write %s (%s)", tempfile, strerror(errno));
+	    err(EXIT_FATAL,"can't write %s~ (%s)", cachefile, strerror(errno));
     }
 
     if (close(cachefd))
-	err(EXIT_FATAL,"can't close %s (%s)", tempfile, strerror(errno));
+	err(EXIT_FATAL,"can't close %s~ (%s)", cachefile, strerror(errno));
 
     if (chmod(tempfile, 0644))
-	err(EXIT_FATAL,"can't chmod %s (%s)", tempfile, strerror(errno));
+	err(EXIT_FATAL,"can't chmod %s~ (%s)", cachefile, strerror(errno));
 
-    if (rename(tempfile, cachefile))
-	err(EXIT_FATAL,"can't rename %s (%s)", tempfile, strerror(errno));
+    if (rename(tempfile, realcachefile))
+	err(EXIT_FATAL,"can't rename %s~ (%s)", cachefile, strerror(errno));
 }
 
 void cache_print(void)
@@ -734,8 +805,13 @@ void cache_print(void)
     char *strs;
     header_t *header;
     libentry_t *libent;
+    char realcachefile[BUFFER_SIZE];
 
-    if (stat(cachefile, &st) || (fd = open(cachefile, O_RDONLY))<0)
+    if (!chroot_realpath(chroot_dir, cachefile, realcachefile))
+	err(EXIT_FATAL,"can't resolve %s in chroot %s (%s)",
+	    cachefile, chroot_dir, strerror(errno));
+
+    if (stat(realcachefile, &st) || (fd = open(realcachefile, O_RDONLY))<0)
 	err(EXIT_FATAL,"can't read %s (%s)", cachefile, strerror(errno));
     if ((c = mmap(0,st.st_size, PROT_READ, MAP_SHARED ,fd, 0)) == (caddr_t)-1)
 	err(EXIT_FATAL,"can't map %s (%s)", cachefile, strerror(errno));
@@ -828,7 +904,6 @@ int main(int argc, char **argv)
     int nodefault = 0;
     char *cp, *dir, *so;
     int libtype, islink;
-    char *chroot_dir = NULL;
     int printcache = 0;
 #ifdef __LDSO_CACHE_SUPPORT__
     char *extpath;
@@ -891,10 +966,16 @@ int main(int argc, char **argv)
 	}
 
     if (chroot_dir && *chroot_dir) {
-	if (chroot(chroot_dir) < 0)
-	    err(EXIT_FATAL,"couldn't chroot to %s (%s)", chroot_dir, strerror(errno));
-	if (chdir("/") < 0)
-	    err(EXIT_FATAL,"couldn't chdir to / (%s)", strerror(errno));
+	if (chroot(chroot_dir) < 0) {
+	    if (chdir(chroot_dir) < 0)
+		err(EXIT_FATAL,"couldn't chroot to %s (%s)", chroot_dir, strerror(errno));
+	}
+	else
+	{
+	    if (chdir("/") < 0)
+		err(EXIT_FATAL,"couldn't chdir to / (%s)", strerror(errno));
+	    chroot_dir = NULL;
+	}
     }
 
     /* allow me to introduce myself, hi, my name is ... */
