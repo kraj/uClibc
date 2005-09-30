@@ -35,10 +35,6 @@ SYSDEPINC = -I$(PTDIR)sysdeps/pthread \
 CFLAGS += $(SYSDEPINC)
 
 ARCH_CFLAGS = $(CFLAGS)
-ifeq ($(strip $(TARGET_ARCH)),sh64)
-# We need to build as SHcompact for tas..
-ARCH_CFLAGS := $(subst 32media,compact,$(ARCH_CFLAGS))
-endif
 
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 	SHARED_START_FILES = $(TOPDIR)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
@@ -52,6 +48,7 @@ SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 ARCH_CSRC=$(wildcard sysdeps/$(TARGET_ARCH)/*.c)
 ARCH_OBJS=$(patsubst %.c,%.o, $(ARCH_CSRC))
+-include sysdeps/$(TARGET_ARCH)/Makefile.in
 
 CSRC  = $(wildcard *.c)
 ifneq ($(strip $(UCLIBC_HAS_XLOCALE)),y)
