@@ -121,9 +121,10 @@ static inline int _dl_symbol(char * name)
 #define LD_ERROR_NOTDYN 5
 #define LD_ERROR_MMAP_FAILED 6
 #define LD_ERROR_NODYNAMIC 7
-#define LD_WRONG_RELOCS 8
-#define LD_BAD_HANDLE 9
-#define LD_NO_SYMBOL 10
+#define LD_ERROR_TLS_FAILED 8
+#define LD_WRONG_RELOCS 9
+#define LD_BAD_HANDLE 10
+#define LD_NO_SYMBOL 11
 
 
 

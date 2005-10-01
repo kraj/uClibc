@@ -26,15 +26,78 @@
  * SUCH DAMAGE.
  */
 
+/*
+ * The big TODO list:
+ *
+ *    - Environment variables LD_TRACE_LOADED_OBJECTS and LD_PRELOAD
+ *      need to be supported.
+ *    - Config option LDSO_PRELOAD_FILE_SUPPORT needs to be supported.
+ *    - Support TLS information for 'ldd' command.
+ *
+ */
+
 #include <tls.h>
 #include <dl-tls.h>
 #include <ldsodefs.h>
 
-#define calloc(a, b) NULL
-#define malloc(a) NULL
-#define realloc(a, b) NULL
-#define free(a)
-#define _dl_memalign(a, b) NULL
+void *(*_dl_calloc_function) (size_t __nmemb, size_t __size) = NULL;
+void *(*_dl_realloc_function) (void *__ptr, size_t __size) = NULL;
+void *(*_dl_memalign_function) (size_t __boundary, size_t __size) = NULL;
+void (*_dl_free_function) (void *__ptr) = NULL;
+
+void *_dl_memalign (size_t __boundary, size_t __size);
+
+
+void *
+_dl_calloc (size_t __nmemb, size_t __size)
+{
+	void *result;
+	size_t size = (__size * __nmemb); 
+
+	if (_dl_calloc_function) {
+#if 1 
+		_dl_debug_early("Calling libc version\n");
+#endif
+		return (*_dl_calloc_function) (__nmemb, __size);
+	}
+
+	_dl_debug_early("allocating memory and zeroing\n");
+	if (__nmemb && __size != (size / __nmemb)) {
+			_dl_dprintf(2, "%si:%i: unaligned structures\n",
+				__FUNCTION__, __LINE__);
+			_dl_exit(1);
+	}
+	if ((result = _dl_malloc(__size)) != NULL) {
+		_dl_memset(result, 0, size);
+	}
+	return result;
+}
+
+void *
+_dl_realloc (void * __ptr, size_t __size)
+{
+	_dl_debug_early("NOT IMPLEMENTED PROPERLY!!!\n");
+	if (_dl_realloc_function) {
+#if 1 
+		_dl_debug_early("Calling libc version\n");
+#endif
+		return (*_dl_realloc_function) (__ptr, __size);
+	}
+	return NULL;
+}
+
+void
+_dl_free (void *__ptr)
+{
+	_dl_debug_early("NOT IMPLEMENTED PROPERLY!!!\n");
+	if (_dl_free_function) {
+#if 1 
+		_dl_debug_early("Calling libc version\n");
+#endif
+		(*_dl_free_function) (__ptr);
+	}
+}
+
 
 /* The __tls_get_addr function has two basic forms which differ in the
    arguments.  The IA-64 form takes two parameters, the module ID and
@@ -62,6 +125,15 @@
 /* Value used for dtv entries for which the allocation is delayed. */
 #define TLS_DTV_UNALLOCATED	((void *) -1l)
 
+/* Thread control block pointer. */
+void *tcbp = NULL;
+
+#define _dl_fatal_printf(fmt, args...)									\
+{																		\
+	do {																\
+		_dl_dprintf(2, "%s:%i: " fmt, __FUNCTION__, __LINE__, ## args);	\
+	} while (1);														\
+}
 
 /* Taken from glibc/elf/dl-reloc.c */
 #define CHECK_STATIC_TLS(sym_map)											\
@@ -114,11 +186,7 @@ static void
 __attribute__ ((__noreturn__))
 oom (void)
 {
-	do {
-		_dl_dprintf (_dl_debug_file,
-			"cannot allocate thread-local memory: ABORT\n");
-		_dl_exit (127);
-	} while (1);
+	_dl_fatal_printf("cannot allocate thread-local memory: ABORT\n");
 }
 
 size_t
@@ -338,7 +406,7 @@ _dl_tls_setup (void)
   const size_t nelem = 2 + TLS_SLOTINFO_SURPLUS;
 
   _dl_tls_dtv_slotinfo_list
-    = calloc (1, (sizeof (struct dtv_slotinfo_list)
+    = _dl_calloc (1, (sizeof (struct dtv_slotinfo_list)
 		  + nelem * sizeof (struct dtv_slotinfo)));
   if (_dl_tls_dtv_slotinfo_list == NULL)
     return -1;
@@ -367,7 +435,11 @@ allocate_dtv (void *result)
      initial set of modules.  This should avoid in most cases expansions
      of the dtv.  */
   dtv_length = _dl_tls_max_dtv_idx + DTV_SURPLUS;
+#ifndef __UCLIBC__
   dtv = calloc (dtv_length + 2, sizeof (dtv_t));
+#else
+  dtv = _dl_calloc (dtv_length + 2, sizeof (dtv_t));
+#endif
   if (dtv != NULL)
     {
       /* This is the initial length of the dtv.  */
@@ -435,7 +507,7 @@ _dl_allocate_tls_storage (void)
 
       result = allocate_dtv (result);
       if (result == NULL)
-	free (allocated);
+	_dl_free (allocated);
     }
 
   return result;
@@ -545,11 +617,11 @@ _dl_deallocate_tls (void *tcb, bool dealloc_tcb)
   for (cnt = 0; cnt < dtv[-1].counter; ++cnt)
     if (! dtv[1 + cnt].pointer.is_static
 	&& dtv[1 + cnt].pointer.val != TLS_DTV_UNALLOCATED)
-      free (dtv[1 + cnt].pointer.val);
+      _dl_free (dtv[1 + cnt].pointer.val);
 
   /* The array starts with dtv[-1].  */
   if (dtv != _dl_initial_dtv)
-    free (dtv - 1);
+    _dl_free (dtv - 1);
 
   if (dealloc_tcb)
     {
@@ -561,7 +633,7 @@ _dl_deallocate_tls (void *tcb, bool dealloc_tcb)
       tcb -= (TLS_PRE_TCB_SIZE + _dl_tls_static_align - 1)
 	     & ~(_dl_tls_static_align - 1);
 # endif
-      free (tcb);
+      _dl_free (tcb);
     }
 }
 rtld_hidden_def (_dl_deallocate_tls)
@@ -655,7 +727,7 @@ _dl_update_slotinfo (unsigned long int req_modid)
 		  if (! dtv[total + cnt].pointer.is_static
 		      && dtv[total + cnt].pointer.val != TLS_DTV_UNALLOCATED)
 		    {
-		      free (dtv[total + cnt].pointer.val);
+		      _dl_free (dtv[total + cnt].pointer.val);
 		      dtv[total + cnt].pointer.val = TLS_DTV_UNALLOCATED;
 		    }
 
@@ -681,14 +753,14 @@ _dl_update_slotinfo (unsigned long int req_modid)
 			 malloc instead of the real malloc.  We can't
 			 free it, we have to abandon the old storage.  */
 
-		      newp = malloc ((2 + newsize) * sizeof (dtv_t));
+		      newp = _dl_malloc ((2 + newsize) * sizeof (dtv_t));
 		      if (newp == NULL)
 			oom ();
 		      _dl_memcpy (newp, &dtv[-1], oldsize * sizeof (dtv_t));
 		    }
 		  else
 		    {
-		      newp = realloc (&dtv[-1],
+		      newp = _dl_realloc (&dtv[-1],
 				      (2 + newsize) * sizeof (dtv_t));
 		      if (newp == NULL)
 			oom ();
@@ -718,7 +790,7 @@ _dl_update_slotinfo (unsigned long int req_modid)
 		   deallocate even if it is this dtv entry we are
 		   supposed to load.  The reason is that we call
 		   memalign and not malloc.  */
-		free (dtv[modid].pointer.val);
+		_dl_free (dtv[modid].pointer.val);
 
 	      /* This module is loaded dynamically- We defer memory
 		 allocation.  */
@@ -812,7 +884,7 @@ _dl_add_to_slotinfo (struct link_map  *l)
       assert (idx == 0);
 
       listp = prevp->next = (struct dtv_slotinfo_list *)
-	malloc (sizeof (struct dtv_slotinfo_list)
+	_dl_malloc (sizeof (struct dtv_slotinfo_list)
 		+ TLS_SLOTINFO_SURPLUS * sizeof (struct dtv_slotinfo));
       if (listp == NULL)
 	{
@@ -840,4 +912,99 @@ _dl_add_to_slotinfo (struct link_map  *l)
   /* Add the information into the slotinfo data structure.  */
   listp->slotinfo[idx].map = l;
   listp->slotinfo[idx].gen = _dl_tls_generation + 1;
+}
+
+/* Taken from glibc/elf/rtld.c */
+static bool tls_init_tp_called;
+
+/* _dl_error_catch_tsd points to this for the single-threaded case.
+   It's reset by the thread library for multithreaded programs.  */
+void ** __attribute__ ((const))
+_dl_initial_error_catch_tsd (void)
+{
+	static void *data;
+	return &data;
+}
+
+static void *
+init_tls (void)
+{
+	/* Number of elements in the static TLS block.  */
+	_dl_tls_static_nelem = _dl_tls_max_dtv_idx;
+
+	/* Do not do this twice.  The audit interface might have required
+	   the DTV interfaces to be set up early.  */
+	if (_dl_initial_dtv != NULL)
+		return NULL;
+
+	/* Allocate the array which contains the information about the
+	   dtv slots.  We allocate a few entries more than needed to
+	   avoid the need for reallocation.  */
+	size_t nelem = _dl_tls_max_dtv_idx + 1 + TLS_SLOTINFO_SURPLUS;
+
+	/* Allocate.  */
+	_dl_tls_dtv_slotinfo_list = (struct dtv_slotinfo_list *)
+		_dl_calloc (sizeof (struct dtv_slotinfo_list)
+			+ nelem * sizeof (struct dtv_slotinfo), 1);
+	/* No need to check the return value.  If memory allocation failed
+	   the program would have been terminated.  */
+
+	struct dtv_slotinfo *slotinfo = _dl_tls_dtv_slotinfo_list->slotinfo;
+	_dl_tls_dtv_slotinfo_list->len = nelem;
+	_dl_tls_dtv_slotinfo_list->next = NULL;
+
+	/* Fill in the information from the loaded modules.  No namespace
+	   but the base one can be filled at this time.  */
+#ifndef __UCLIBC__
+	assert (_dl_ns[LM_ID_BASE + 1]._ns_loaded == NULL);
+	int i = 0;
+	struct link_map *l;
+	for (l = _dl_ns[LM_ID_BASE]._ns_loaded; l != NULL; l = l->l_next)
+		if (l->l_tls_blocksize != 0)
+		{
+			/* This is a module with TLS data.  Store the map reference.
+			   The generation counter is zero.  */
+			slotinfo[i].map = l;
+			/* slotinfo[i].gen = 0; */
+		++i;
+		}
+#else
+	int i = 0;
+	struct link_map *l;
+	for (l =  (struct link_map *) _dl_loaded_modules; l != NULL; l = l->l_next)
+		if (l->l_tls_blocksize != 0)
+		{
+			/* This is a module with TLS data.  Store the map reference.
+			   The generation counter is zero.  */
+			slotinfo[i].map = l;
+			/* slotinfo[i].gen = 0; */
+		++i;
+		}
+#endif
+	assert (i == _dl_tls_max_dtv_idx);
+
+	/* Compute the TLS offsets for the various blocks.  */
+	_dl_determine_tlsoffset ();
+
+	/* Construct the static TLS block and the dtv for the initial
+	   thread.  For some platforms this will include allocating memory
+	   for the thread descriptor.  The memory for the TLS block will
+	   never be freed.  It should be allocated accordingly.  The dtv
+	   array can be changed if dynamic loading requires it.  */
+	void *tcbp = _dl_allocate_tls_storage ();
+	if (tcbp == NULL)
+		_dl_fatal_printf ("\ncannot allocate TLS data structures for initial thread");
+
+	/* Store for detection of the special case by __tls_get_addr
+	   so it knows not to pass this dtv to the normal realloc.  */
+	_dl_initial_dtv = GET_DTV (tcbp);
+
+	/* And finally install it for the main thread.  If ld.so itself uses
+	   TLS we know the thread pointer was initialized earlier.  */
+	const char *lossage = TLS_INIT_TP (tcbp, USE___THREAD);
+	if (__builtin_expect (lossage != NULL, 0))
+		_dl_fatal_printf ("cannot set up thread-local storage: %s\n", lossage);
+	tls_init_tp_called = true;
+
+	return tcbp;
 }

@@ -228,11 +228,21 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 					"app_tpnt->loadaddr=%x\n", app_tpnt->loadaddr);
 	}
 
+#if USE_TLS
 	/*
-	 * This adds another loop in the non-NPTL case, but we have to
-	 * catch the stupid user who tries to run a binary with TLS data
-	 * in it. For NPTL, we fill in the TLS data for the application
-	 * like we are supposed to.
+	 * Adjust the address of the TLS initialization image in case
+	 * the executable is actually an ET_DYN object.
+	 */
+	if (app_tpnt->l_tls_initimage != NULL)
+		app_tpnt->l_tls_initimage =
+			(char *) app_tpnt->l_tls_initimage + app_tpnt->loadaddr;
+#endif
+
+	/*
+	 * This adds another loop, but we have to catch the stupid user who
+	 * tries to run a binary with TLS data and the linker does not support
+	 * it. Otherwise, we fill in the TLS data for the application like we
+	 * are supposed to.
 	 */
 	{
 		int i;
@@ -263,11 +273,23 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				}
 				break;
 #else
-				_dl_dprintf(_dl_debug_file, "Program uses TLS, but ld-uClibc.so does not support it!\n");
-				_dl_exit(1);
+				_dl_fatal_printf("Program uses TLS, but ld-uClibc.so does not support it!\n");
 #endif
 			}
 	}
+
+#if USE_TLS
+	/* We do not initialize any of the TLS functionality unless any of the
+	 * initial modules uses TLS.  This makes dynamic loading of modules with
+	 * TLS impossible, but to support it requires either eagerly doing setup
+	 * now or lazily doing it later.  Doing it now makes us incompatible with
+	 * an old kernel that can't perform TLS_INIT_TP, even if no TLS is ever
+	 * used.  Trying to do it lazily is too hairy to try when there could be
+	 * multiple threads (from a non-TLS-using libpthread).  */
+	bool was_tls_init_tp_called = tls_init_tp_called;
+	if (tcbp == NULL)
+		tcbp = init_tls ();
+#endif
 
 	/*
 	 * This is used by gdb to locate the chain of shared libraries that are
@@ -817,6 +839,36 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 _dl_malloc_function = (void* (*)(size_t)) (intptr_t) _dl_find_hash("malloc",
 			 _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
 
+#if USE_TLS
+	/* Find the real functions and make ldso functions use them from now on */
+	_dl_calloc_function = (void* (*)(size_t, size_t)) (intptr_t)
+		_dl_find_hash("calloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
+	_dl_realloc_function = (void* (*)(void *, size_t)) (intptr_t)
+		_dl_find_hash("recalloc", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
+	_dl_free_function = (void (*)(void *)) (intptr_t)
+		_dl_find_hash("free", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
+	_dl_memalign_function = (void* (*)(size_t, size_t)) (intptr_t)
+		_dl_find_hash("memalign", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT);
+
+	if (!was_tls_init_tp_called && _dl_tls_max_dtv_idx > 0)
+		++_dl_tls_generation;
+
+	/* Now that we have completed relocation, the initializer data
+	   for the TLS blocks has its final values and we can copy them
+	   into the main thread's TLS area, which we allocated above.  */
+	_dl_allocate_tls_init (tcbp);
+
+	/* And finally install it for the main thread.  If ld.so itself uses
+	   TLS we know the thread pointer was initialized earlier.  */
+	if (! tls_init_tp_called)
+	{
+		const char *lossage = TLS_INIT_TP (tcbp, USE___THREAD);
+		if (__builtin_expect (lossage != NULL, 0))
+			_dl_fatal_printf ("cannot set up thread-local storage: %s\n",
+				lossage);
+	}
+#endif
+
 	/* Notify the debugger that all objects are now mapped in.  */
 	_dl_debug_addr->r_state = RT_CONSISTENT;
 	_dl_debug_state();
@@ -901,6 +953,33 @@ void *_dl_malloc(int size)
 	_dl_malloc_addr = (unsigned char *) (((unsigned long) _dl_malloc_addr + 3) & ~(3));
 	return retval;
 }
+
+#if USE_TLS
+void * _dl_memalign (size_t __boundary, size_t __size)
+{
+	void *result;
+	int i = 0;
+	size_t delta;
+	size_t rounded = 0;
+
+	if (_dl_memalign_function) {
+#if 1
+		_dl_debug_early("Calling libc version\n");
+#endif
+		return (*_dl_memalign_function) (__boundary, __size);
+	}
+
+	_dl_debug_early("allocating aligned memory\n");
+	while (rounded < __boundary) {
+		rounded = (1 << i++);
+	}
+	delta = (((size_t) _dl_malloc_addr + __size) % rounded);
+	if ((result = _dl_malloc(rounded - delta)) == NULL)
+		return result;
+	result = _dl_malloc(__size);
+	return result;
+}
+#endif
 
 #include "dl-hash.c"
 #include "dl-elf.c"

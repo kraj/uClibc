@@ -88,6 +88,8 @@ EXTERN size_t _dl_tls_static_size;
 EXTERN size_t _dl_tls_static_used;
 /* Alignment requirement of the static TLS block.  */
 EXTERN size_t _dl_tls_static_align;
+/* Function pointer for catching TLS errors.  */
+EXTERN void **(*_dl_error_catch_tsd) (void) __attribute__ ((const));
 
 /* Number of additional entries in the slotinfo array of each slotinfo
    list element.  A large number makes it almost certain take we never
