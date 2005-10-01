@@ -19,11 +19,18 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-ALL_SUBDIRS = linuxthreads linuxthreads_db
-
-DIRS=linuxthreads
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
+ALL_SUBDIRS = nptl nptl_db
+DIRS = nptl
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	DIRS+=linuxthreads_db
+	DIRS += nptl_db
+endif
+else
+ALL_SUBDIRS = linuxthreads linuxthreads_db
+DIRS = linuxthreads
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+        DIRS += linuxthreads_db
+endif
 endif
 
 all: subdirs
