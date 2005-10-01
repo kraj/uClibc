@@ -61,12 +61,43 @@ void __attribute__ ((noreturn)) __stack_smash_handler(char func[], int damaged _
 void __attribute__ ((noreturn)) __stack_smash_handler(char func[], int damaged)
 {
 	extern char *__progname;
-	const char message[] = ": stack smashing attack in function ";
+	static const char message[] = ": stack smashing attack in function ";
 
 	block_signals();
 
 	ssp_write(STDERR_FILENO, __progname, message, func);
 
+	/* The loop is added only to keep gcc happy. */
+	while(1)
+		terminate();
+}
+
+void __attribute__ ((noreturn)) __stack_chk_fail(void)
+{
+	extern char *__progname;
+	static const char msg1[] = "stack smashing detected: ";
+	static const char msg3[] = " terminated";
+
+	block_signals();
+
+	ssp_write(STDERR_FILENO, msg1, __progname, msg3);
+
+	/* The loop is added only to keep gcc happy. */
+	while(1)
+		terminate();
+}
+
+void __attribute__ ((noreturn)) __chk_fail(void)
+{
+	extern char *__progname;
+	static const char msg1[] = "buffer overflow detected: ";
+	static const char msg3[] = " terminated";
+
+	block_signals();
+
+	ssp_write(STDERR_FILENO, msg1, __progname, msg3);
+
+	/* The loop is added only to keep gcc happy. */
 	while(1)
 		terminate();
 }

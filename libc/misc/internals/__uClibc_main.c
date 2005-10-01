@@ -27,8 +27,12 @@
 #include <sys/sysmacros.h>
 #ifdef __UCLIBC_HAS_SSP__
 #include <ssp-internal.h>
+#include <stdint.h>
 
-unsigned long __guard = 0UL;
+/* for gcc-3.x + Etoh ssp */
+uintptr_t __guard /* segfaults with attribute_relro */;
+/* for gcc-4.1 non-TLS */
+uintptr_t __stack_chk_guard /* attribute_relro */;
 #endif
 
 /*
@@ -107,11 +111,9 @@ static int __check_suid(void)
 }
 
 #ifdef __UCLIBC_HAS_SSP__
-static __always_inline void __guard_setup(void)
+static __always_inline uintptr_t _dl_guard_setup(void)
 {
-	if (__guard != 0UL)
-		return;
-
+	uintptr_t ret;
 #ifndef __SSP_QUICK_CANARY__
 
 	size_t size;
@@ -124,10 +126,9 @@ static __always_inline void __guard_setup(void)
 		mib[1] = KERN_RANDOM;
 		mib[2] = RANDOM_ERANDOM;
 
-		size = sizeof(unsigned long);
-		if (SYSCTL(mib, 3, &__guard, &size, NULL, 0) != (-1))
-			if (__guard != 0UL)
-				return;
+		if (SYSCTL(mib, 3, &ret, &size, NULL, 0) != (-1))
+			if (size == (size_t) sizeof(ret))
+				return ret;
 	}
 # endif /* ifdef __SSP_USE_ERANDOM__ */
 	{
@@ -141,25 +142,26 @@ static __always_inline void __guard_setup(void)
 		if ((fd = OPEN("/dev/erandom", O_RDONLY)) == (-1))
 # endif
 			fd = OPEN("/dev/urandom", O_RDONLY);
-		if (fd != (-1)) {
-			size = READ(fd, (char *) &__guard, sizeof(__guard));
+		if (fd >= 0) {
+			size = READ(fd, &ret, sizeof(ret));
 			CLOSE(fd);
-			if (size == sizeof(__guard))
-				return;
+			if (size == (size_t) sizeof(ret))
+				return ret;
 		}
 	}
 #endif /* ifndef __SSP_QUICK_CANARY__ */
 
 	/* Start with the "terminator canary". */
-	__guard = 0xFF0A0D00UL;
+	ret = 0xFF0A0D00UL;
 
 	/* Everything failed? Or we are using a weakened model of the 
 	 * terminator canary */
 	{
 		struct timeval tv;
-		GETTIMEOFDAY(&tv, NULL);
-		__guard ^= tv.tv_usec ^ tv.tv_sec;
+		if (GETTIMEOFDAY(&tv, NULL) != (-1))
+			ret ^= tv.tv_usec ^ tv.tv_sec;
 	}
+	return ret;
 }
 #endif /* __UCLIBC_HAS_SSP__ */
 
@@ -198,7 +200,11 @@ void __uClibc_init(void)
 #endif
 
 #ifdef __UCLIBC_HAS_SSP__
-    __guard_setup ();
+    uintptr_t stack_chk_guard = _dl_guard_setup();
+    /* for gcc-3.x + Etoh ssp */
+    __guard = stack_chk_guard;
+    /* for gcc-4.1 non-TLS */
+    __stack_chk_guard = stack_chk_guard;
 #endif
 
 #ifdef __UCLIBC_HAS_LOCALE__
