@@ -60,7 +60,7 @@ LDCONFIG_CFLAGS := -static
 else
 LDCONFIG_CFLAGS := $(PIEFLAG) $(LDPIEFLAG)
 endif
-ldconfig: ldconfig.c
+ldconfig: ldconfig.c chroot_realpath.c
 	$(CC) $(CFLAGS) $(LDCONFIG_CFLAGS) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
