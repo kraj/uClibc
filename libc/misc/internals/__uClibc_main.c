@@ -242,10 +242,6 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     ElfW(auxv_t) auxvt[AT_EGID + 1];
 #endif
     __libc_stack_end = stack_end;
-    /* We need to initialize uClibc.  If we are dynamically linked this
-     * may have already been completed by the shared lib loader.  We call
-     * __uClibc_init() regardless, to be sure the right thing happens. */
-    __uClibc_init();
 
     __rtld_fini = rtld_fini;
 
@@ -273,6 +269,11 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
 	}
 	aux_dat += 2;
     }
+
+    /* We need to initialize uClibc.  If we are dynamically linked this
+     * may have already been completed by the shared lib loader.  We call
+     * __uClibc_init() regardless, to be sure the right thing happens. */
+    __uClibc_init();
 
     /* Make certain getpagesize() gives the correct answer */
     __pagesize = (auxvt[AT_PAGESZ].a_un.a_val)? auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
