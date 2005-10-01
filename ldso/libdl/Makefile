@@ -40,6 +40,11 @@ ifeq ($(DOPIC),y)
     XXFLAGS += $(PICFLAG) -D__LIBDL_SHARED__
 endif
 
+# BEWARE!!! At least mips* will die if -O0 is used!!!
+ifeq ($(strip $(TARGET_ARCH)),mips)
+XXFLAGS := $(XXFLAGS:-O0=-O1)
+endif
+
 LIB_NAME=libdl
 AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
 SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so

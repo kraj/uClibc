@@ -33,8 +33,6 @@ XXFLAGS+= -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFL
 	-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I. -I$(TOPDIR)include
 
-# BEWARE!!! At least mips* will die if -O0 is used!!!
-XXFLAGS:=$(XXFLAGS:-O0=-O1)
 XXFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 
 ifeq ($(strip $(SUPPORT_LD_DEBUG)),y)
@@ -47,6 +45,11 @@ endif
 
 #This stuff will not work with -fomit-frame-pointer
 XXFLAGS := $(XXFLAGS:-fomit-frame-pointer=)
+
+# BEWARE!!! At least mips* will die if -O0 is used!!!
+ifeq ($(strip $(TARGET_ARCH)),mips)
+XXFLAGS := $(XXFLAGS:-O0=-O1)
+endif
 
 ASFLAGS=$(XXFLAGS)
 ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
