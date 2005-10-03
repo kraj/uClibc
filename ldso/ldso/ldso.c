@@ -705,14 +705,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	if (_dl_symbol_tables)
 		goof += _dl_fixup(_dl_symbol_tables, unlazy);
 
-	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-		if (tpnt->relro_size)
-			_dl_protect_relro (tpnt);
-	}
-
-
-
-
 	/* OK, at this point things are pretty much ready to run.  Now we need
 	 * to touch up a few items that are required, and then we can let the
 	 * user application have at it.  Note that the dynamic linker itself
@@ -762,6 +754,11 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 			(*dl_elf_func) ();
 		}
+	}
+
+	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
+		if (tpnt->relro_size)
+			_dl_protect_relro (tpnt);
 	}
 
 	/* Find the real malloc function and make ldso functions use that from now on */
