@@ -27,9 +27,7 @@ CSRC=	sleep.c usleep.c ualarm.c getpass.c sysconf.c getlogin.c \
 	fpathconf.c confstr.c pathconf.c swab.c usershell.c \
 	getsubopt.c
 
-ifeq ($(strip $(ARCH_HAS_MMU)),y)
-	CSRC += daemon.c
-else
+ifneq ($(strip $(ARCH_HAS_MMU)),y)
 	MOBJ1 += __exec_alloc.o
 endif
 

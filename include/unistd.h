@@ -632,10 +632,12 @@ extern int setresgid (__gid_t __egid, __gid_t __rgid, __gid_t __sgid);
 #endif
 
 
+#ifdef __ARCH_HAS_MMU__
 /* Clone the calling process, creating an exact copy.
    Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
 extern __pid_t fork (void) __THROW;
+#endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 /* Clone the calling process, but without copying the whole address space.
@@ -752,10 +754,12 @@ extern void endusershell (void) __THROW; /* Discard cached info.  */
 extern void setusershell (void) __THROW; /* Rewind and re-read the file.  */
 
 
+#if defined __ARCH_HAS_MMU__
 /* Put the program in the background, and dissociate from the controlling
    terminal.  If NOCHDIR is zero, do `chdir ("/")'.  If NOCLOSE is zero,
    redirects stdin, stdout, and stderr to /dev/null.  */
 extern int daemon (int __nochdir, int __noclose) __THROW;
+#endif
 #endif /* Use BSD || X/Open.  */
 
 
