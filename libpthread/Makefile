@@ -27,7 +27,8 @@ endif
 
 all: subdirs
 
-# NPTL does not have a generic pthreadtypes.h ?
+# NPTL does not have a generic pthreadtypes.h
+# and each arch has to have both semaphore.h/pthreadtypes.h ?
 headers:
 	$(LN) -sf $(PTDIR)/sysdeps/pthread/pthread.h $(TOPDIR)include/
 	$(LN) -sf $(PTDIR)/semaphore.h $(TOPDIR)include/
