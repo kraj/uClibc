@@ -92,4 +92,4 @@ libdl_pic.o: libdl.c
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.o *~ core *.a
+	$(RM) *.[oa] *~ core

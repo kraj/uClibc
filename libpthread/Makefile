@@ -67,10 +67,12 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
-clean: subdirs_clean
+headers_clean:
 	$(RM)	$(TOPDIR)include/pthread.h $(TOPDIR)include/semaphore.h \
 		$(TOPDIR)include/thread_db.h \
 		$(TOPDIR)include/bits/pthreadtypes.h $(TOPDIR)include/bits/semaphore.h \
 		$(TOPDIR)include/bits/libc-lock.h $(TOPDIR)include/bits/stdio-lock
+
+clean: subdirs_clean headers_clean
 
 .PHONY: dummy

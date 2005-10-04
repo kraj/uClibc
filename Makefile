@@ -348,13 +348,13 @@ defconfig: extra/config/conf
 
 clean:
 	@$(RM) -r lib include/bits
-	$(RM) */*.so */*.a
+	$(RM) libc/*.a libc/obj.* libc/nonshared_obj.*
 	$(RM) libc/misc/internals/interp.c
+	$(RM) ldso/libdl/*.a
 	$(RM) include/fpu_control.h
 	$(MAKE) -C extra/locale clean
-	$(MAKE) -C ldso clean
-	$(MAKE) -C libc clean
-	$(MAKE) -C libpthread clean
+	$(MAKE) -C ldso headers_clean
+	$(MAKE) -C libpthread headers_clean
 	$(MAKE) -C test clean
 	$(MAKE) -C utils clean
 	@set -e; \
@@ -370,9 +370,10 @@ clean:
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi
-	- find . \( -name \*.o -o -name core -o -name .\#\* \) -exec $(RM) {} \;
+	-find . -name \*.o -exec $(RM) {} \;
 
 distclean: clean
+	-find . \( -name core -o -name \*.orig -o -name \*~ -o -name .\#\* \) -exec $(RM) {} \;
 	$(RM) .config .config.old .config.cmd
 	$(RM) extra/locale/*.txt
 	$(MAKE) -C extra clean
