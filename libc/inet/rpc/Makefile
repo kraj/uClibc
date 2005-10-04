@@ -46,7 +46,13 @@ CSRC:=create_xid.c pmap_clnt.c pmap_getmaps.c pmap_getport.c \
 	rpc_thread.c rcmd.c rexec.c sa_len.c ruserpass.c rtime.c \
 	getrpcent.c
 endif
+
 COBJS=$(patsubst %.c,%.o, $(CSRC))
+
+ifeq ($(UCLIBC_HAS_THREADS),y)
+CFLAGS += $(PTINC)
+endif
+
 OBJS=$(COBJS)
 
 OBJ_LIST=../../obj.inet.rpc
