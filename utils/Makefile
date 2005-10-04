@@ -19,7 +19,9 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-CFLAGS += $(SSP_ALL_CFLAGS) -L$(TOPDIR)lib
+CFLAGS += \
+	$(SSP_ALL_CFLAGS) -L$(TOPDIR)lib \
+	-I. -I../ldso/include -I../include
 
 TARGETS = ldd ldconfig
 
@@ -27,6 +29,12 @@ ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
 TARGET_ICONV = iconv
 else
 TARGET_ICONV =
+endif
+
+ifeq ($(strip $(LDSO_CACHE_SUPPORT)),y)
+HOST_LDSO_CACHE_FLAG = -D__LDSO_CACHE_SUPPORT__=1
+else
+HOST_LDSO_CACHE_FLAG =
 endif
 
 # NOTE: We build the utils AFTER we have a uClibc-targeted toolchain.
@@ -52,10 +60,10 @@ LDCONFIG_CFLAGS := -static
 else
 LDCONFIG_CFLAGS := $(PIEFLAG) $(LDPIEFLAG)
 endif
-ldconfig: ldconfig.c
+ldconfig: ldconfig.c chroot_realpath.c
 	$(CC) $(CFLAGS) $(LDCONFIG_CFLAGS) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
+		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
@@ -63,7 +71,7 @@ LDD_CFLAGS := $(PIEFLAG) $(LDPIEFLAG)
 ldd: ldd.c
 	$(CC) $(CFLAGS) $(LDD_CFLAGS) \
 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
-		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
+		-DUCLIBC_LDSO=$(UCLIBC_LDSO) \
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
@@ -82,13 +90,13 @@ endif
 
 ldd.host: ldd.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
-		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
+ 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" $(HOST_LDSO_CACHE_FLAG) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 
-ldconfig.host: ldconfig.c
+ldconfig.host: ldconfig.c chroot_realpath.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
-		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" \
+ 		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" $(HOST_LDSO_CACHE_FLAG) \
 		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I../ldso/include \
 		$^ -o $@
 
