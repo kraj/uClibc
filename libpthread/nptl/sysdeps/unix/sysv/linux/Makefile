@@ -21,35 +21,32 @@ TOPDIR=../../../../../../
 include $(TOPDIR)Rules.mak
 include ../../../../Rules.mak
 
-CSRC-LIBP-ST = pt-raise.c pthread_attr_getaffinity.c		\
+AR_LIBP_CSRC = pt-raise.c pthread_attr_getaffinity.c		\
 	       pthread_attr_setaffinity.c pthread_getaffinity.c	\
 	       pthread_getcpuclockid.c pthread_kill.c		\
 	       pthread_mutex_cond_lock.c pthread_setaffinity.c	\
 	       pthread_yield.c sem_post.c sem_timedwait.c	\
 	       sem_trywait.c sem_wait.c pt-fork.c
-
-CSRC-LIBP-SH = $(CSRC-LIBP-ST) 
-
-CSRC-LIBC-ST = libc_pthread_init.c libc_multiple_threads.c	\
+SO_LIBP_CSRC = $(AR_LIBP_CSRC) 
+AR_LIBC_CSRC = libc_pthread_init.c libc_multiple_threads.c	\
 	       register-atfork.c unregister-atfork.c
-
-CSRC-LIBC-SH = $(CSRC-LIBC-ST)
+SO_LIBC_CSRC = $(AR_LIBC_CSRC)
 
 ifeq ($(strip $(TARGET_ARCH)),alpha)
-CSRC-LIBC-ST += libc-lowlevellock.c
-CSRC-LIBP-ST += rtld-libc-lowlevellock.c
+AR_LIBC_CSRC += libc-lowlevellock.c
+AR_LIBP_CSRC += rtld-libc-lowlevellock.c
 endif
 ifeq ($(strip $(TARGET_ARCH)),mips)
-CSRC-LIBC-ST += libc-lowlevellock.c
-CSRC-LIBP-ST += rtld-libc-lowlevellock.c
+AR_LIBC_CSRC += libc-lowlevellock.c
+AR_LIBP_CSRC += rtld-libc-lowlevellock.c
 endif
 ifeq ($(strip $(TARGET_ARCH)),powerpc)
-CSRC-LIBC-ST += libc-lowlevellock.c
-CSRC-LIBP-ST += rtld-libc-lowlevellock.c
+AR_LIBC_CSRC += libc-lowlevellock.c
+AR_LIBP_CSRC += rtld-libc-lowlevellock.c
 endif
 ifeq ($(strip $(TARGET_ARCH)),sparc)
-CSRC-LIBC-ST += libc-lowlevellock.c
-CSRC-LIBP-ST += rtld-libc-lowlevellock.c
+AR_LIBC_CSRC += libc-lowlevellock.c
+AR_LIBP_CSRC += rtld-libc-lowlevellock.c
 endif
 
 #
@@ -57,51 +54,67 @@ endif
 #
 CFLAGS-pt-fork.c = -D_GNU_SOURCE
 
-COBJ-LIBP-ST = $(patsubst %.c, %.o, $(CSRC-LIBP-ST))
-COBJ-LIBP-SH = $(patsubst %.c, %.os, $(CSRC-LIBP-SH))
-COBJ-LIBC-ST = $(patsubst %.c, %.o, $(CSRC-LIBC-ST))
-COBJ-LIBC-SH = $(patsubst %.c, %.os, $(CSRC-LIBC-SH))
+AR_LIBP_COBJS = $(patsubst %.c, %.o, $(AR_LIBP_CSRC))
+SO_LIBP_COBJS = $(patsubst %.c, %.os, $(SO_LIBP_CSRC))
+AR_LIBC_COBJS = $(patsubst %.c, %.o, $(AR_LIBC_CSRC))
+SO_LIBC_COBJS = $(patsubst %.c, %.os, $(SO_LIBC_CSRC))
 
-ar-target all: $(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
+all: $(AR_LIB_NAME) $(AR_SO_LIB_NAME)
+
+$(AR_LIB_NAME): $(AR_LIBP_COBJS)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
-		$(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(AR_LIBP_COBJS)
 else
-	$(STRIPTOOL) -x -R .note -R .comment			\
-		$(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
+	$(STRIPTOOL) -x -R .note -R .comment $(AR_LIBP_COBJS)
 endif
-	$(AR) $(ARFLAGS) $(PTDIR)../$(LIBPTHREAD_STATIC_ARCHIVE) $(COBJ-LIBP-ST)
-	$(AR) $(ARFLAGS) $(PTDIR)../$(LIBPTHREAD_SHARED_ARCHIVE) $(COBJ-LIBP-SH)
+	 $(AR) $(ARFLAGS) $(AR_LIB_NAME) $(AR_LIBP_COBJS)
 
-$(COBJ-LIBP-ST): %.o : %.c
+$(AR_SO_LIB_NAME): $(SO_LIBP_COBJS)
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(SO_LIBP_COBJS)
+else
+	$(STRIPTOOL) -x -R .note -R .comment $(SO_LIBP_COBJS)
+endif
+	 $(AR) $(ARFLAGS) $(AR_SO_LIB_NAME) $(SO_LIBP_COBJS)
+
+obj.pthread.ar: $(AR_LIBC_COBJS)
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(AR_LIBC_COBJS)
+else
+	$(STRIPTOOL) -x -R .note -R .comment $(AR_LIBC_COBJS)
+endif
+	@for objfile in $(AR_LIBC_COBJS); do \
+		echo ../libpthread/nptl/sysdeps/unix/sysv/linux/$$objfile >> \
+			$(TOPDIR)libc/$@; \
+	done
+
+obj.pthread.so: $(SO_LIBC_COBJS)
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(SO_LIBC_COBJS)
+else
+	$(STRIPTOOL) -x -R .note -R .comment $(SO_LIBC_COBJS)
+endif
+	@for objfile in $(SO_LIBC_COBJS); do \
+		echo ../libpthread/nptl/sysdeps/unix/sysv/linux/$$objfile >> \
+			$(TOPDIR)libc/$@; \
+	done
+
+$(AR_LIBP_COBJS): %.o : %.c
 	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -c $< -o $@
 
-$(COBJ-LIBP-SH): %.os : %.c
+$(SO_LIBP_COBJS): %.os : %.c
 	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
 
-$(COBJ-LIBC-ST): %.o : %.c
+$(AR_LIBC_COBJS): %.o : %.c
 	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -c $< -o $@
 
-$(COBJ-LIBC-SH): %.os : %.c
+$(SO_LIBC_COBJS): %.os : %.c
 	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -DSHARED -c $< -o $@
-
-objs-pthread-libc: $(COBJ-LIBC-ST) $(COBJ-LIBC-SH)
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
-		$(COBJ-LIBC-ST) $(COBJ-LIBC-SH)
-else
-	$(STRIPTOOL) -x -R .note -R .comment			\
-		$(COBJ-LIBC-ST) $(COBJ-LIBC-SH)
-endif
-	@for objfile in $(COBJ-LIBC-ST); do \
-		echo ../libpthread/nptl/sysdeps/unix/sysv/linux/$$objfile >> $(PTCOBJST); \
-	done
-	@for objfile in $(COBJ-LIBC-SH); do \
-		echo ../libpthread/nptl/sysdeps/unix/sysv/linux/$$objfile >> $(PTCOBJSH); \
-	done
 
 rtld-libc-lowlevellock.c: libc-lowlevellock.c
 	$(LN) -fs $< $@
 
 clean:
 	$(RM) *.o *.os *~ core rtld-libc-lowlevellock.c
+
+.PHONY: $(AR_LIB_NAME) $(AR_SO_LIB_NAME)

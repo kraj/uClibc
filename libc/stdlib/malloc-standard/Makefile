@@ -32,11 +32,17 @@ endif
 # calloc.c can be found at uClibc/libc/stdlib/calloc.c
 # valloc.c can be found at uClibc/libc/stdlib/valloc.c
 CSRC=malloc.c calloc.c realloc.c free.c memalign.c mallopt.c mallinfo.c
+
+COBJS=$(patsubst %.c,%.o, $(CSRC))
+
+OBJS=$(COBJS)
+
+ifeq ($(UCLIBC_HAS_THREADS),y)
+CFLAGS += $(PTINC)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 CSRC += thread-freeres.c
 endif
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+endif
 
 OBJ_LIST=../../obj.stdlib.malloc-standard
 

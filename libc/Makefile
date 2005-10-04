@@ -37,9 +37,17 @@ DIRS = misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd
 VERSION_SCRIPT:=${shell if [ -f sysdeps/linux/$(TARGET_ARCH)/libc.map ] ; then \
         echo "--version-script sysdeps/linux/$(TARGET_ARCH)/libc.map"; fi}
 
-LIBNAME_TARGET:=$(TOPDIR)lib/$(LIBNAME)
+# we have SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION) defined in Rules.mak
+LIB_NAME=libc
+AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-all: halfclean $(LIBNAME_TARGET)
+ifeq ($(strip $(HAVE_SHARED)),y)
+all: $(SO_LIB_NAME)
+else
+all: $(AR_LIB_NAME)
+endif
 
 # Some functions are duplicated across subdirs, and when you pass $(AR)
 # the same object file more than once, it'll add it to the archive multiple 
@@ -52,53 +60,63 @@ all: halfclean $(LIBNAME_TARGET)
 # the wildcard will be evaluated when `make` is run instead of when the make 
 # target is evaluated.  That means if you run `rm obj.* ; make`, the wildcard 
 # will evaluate to no files :(.
-$(LIBNAME) shared_$(LIBNAME) ar-target: subdirs objs-pthread-libc
-	$(RM) $(LIBNAME) shared_$(LIBNAME)
+shared_$(LIB_NAME).a: subdirs
+	$(RM) shared_$(LIB_NAME).a obj.pthread.*
 	objs=`cat obj.*` ; \
-	$(AR) $(ARFLAGS) $(LIBNAME) $$objs && \
-	$(AR) dN 2 $(LIBNAME) $$objs && \
-	$(AR) dN 2 $(LIBNAME) $$objs
+	$(AR) $(ARFLAGS) shared_$(LIB_NAME).a $$objs && \
+	$(AR) dN 2 shared_$(LIB_NAME).a $$objs && \
+	$(AR) dN 2 shared_$(LIB_NAME).a $$objs
 	@for objfile in obj.signal \
 	                obj.string.generic obj.string.$(TARGET_ARCH) obj.string \
 	                obj.sysdeps.common obj.sysdeps.$(TARGET_ARCH) ; do \
 		if [ -e $$objfile ] ; then \
 			if [ "$(MAKE_IS_SILENT)" = "n" ] ; then \
-				echo $(AR) $(ARFLAGS) $(LIBNAME) $$objfile ; \
+				echo $(AR) $(ARFLAGS) shared_$(LIB_NAME).a $$objfile ; \
 			fi ; \
 			objs=`cat $$objfile` ; \
 		fi ; \
-		$(AR) $(ARFLAGS) $(LIBNAME) $$objs || exit 1 ; \
+		$(AR) $(ARFLAGS) shared_$(LIB_NAME).a $$objs || exit 1 ; \
 	done
-	cp $(LIBNAME) shared_$(LIBNAME)
-	$(AR) $(ARFLAGS) $(LIBNAME) misc/internals/static.o
-	$(AR) $(ARFLAGS) $(LIBNAME) `cat "$(PTCOBJST)"`
-	$(RANLIB) $(LIBNAME)
 
-$(LIBNAME_TARGET): $(LIBNAME)
+$(AR_LIB_NAME): shared_$(LIB_NAME).a
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBNAME)
-	$(INSTALL) -m 644 $(LIBNAME) $(TOPDIR)lib
+	$(RM) $(AR_LIB_NAME)
+	cp shared_$(LIB_NAME).a $(AR_LIB_NAME)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) misc/internals/static.o `cat nonshared_obj.*`
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+	$(MAKE) -C $(TOPDIR)libpthread/nptl obj.pthread.ar
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) `cat obj.pthread.ar`
+endif
 
-shared: shared_$(LIBNAME)
-	$(AR) $(ARFLAGS) shared_$(LIBNAME) `cat "$(PTCOBJSH)"`
-	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) -o $(SHARED_FULLNAME) \
-		--whole-archive shared_$(LIBNAME) \
-		$(TOPDIR)libc/misc/internals/interp.o --no-whole-archive \
-		-init __uClibc_init $(TOPDIR)lib/$(UCLIBC_LDSO) $(LIBGCC) $(LDADD_LIBFLOAT)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(SHARED_FULLNAME)
-	$(INSTALL) -m 644 $(SHARED_FULLNAME) $(TOPDIR)lib
-	$(LN) -sf $(SHARED_FULLNAME) $(TOPDIR)lib/libc.so
-	$(LN) -sf $(SHARED_FULLNAME) $(TOPDIR)lib/$(SHARED_MAJORNAME)
-
-halfclean:
-	$(RM) $(LIBNAME) shared_$(LIBNAME) $(SHARED_FULLNAME)
+$(SO_LIB_NAME): $(AR_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(TOPDIR)lib/$(SHARED_MAJORNAME) $(SO_LIB_NAME)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+	$(MAKE) -C $(TOPDIR)libpthread/nptl obj.pthread.so
+	$(AR) $(ARFLAGS) shared_$(LIB_NAME).a `cat obj.pthread.so`
+endif
+	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive shared_$(LIB_NAME).a \
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-init __uClibc_init $(TOPDIR)lib/$(UCLIBC_LDSO) $(LDADD_LIBFLOAT) $(LIBGCC)
+	$(LN) -sf $(SO_FULL_NAME) $(TOPDIR)lib/$(SHARED_MAJORNAME)
+	$(RM) $(TOPDIR)lib/$(NONSHARED_LIBNAME)
+	$(AR) $(ARFLAGS) $(TOPDIR)lib/$(NONSHARED_LIBNAME) `cat nonshared_obj.*`
+	echo "/* GNU ld script" > $(SO_LIB_NAME)
+	echo " * Use the shared library, but some functions are only in" >> $(SO_LIB_NAME)
+	echo " * the static library, so try that secondarily. */" >> $(SO_LIB_NAME)
+	#OUT_FORMAT:=$(shell $(LD) --verbose | grep OUTPUT_FORMAT | awk -F '"' '{print $2}')
+	#echo "OUTPUT_FORMAT($(OUT_FORMAT))" >> $(SO_LIB_NAME)
+ifeq ($(strip $(COMPAT_ATEXIT)),y)
+	echo "GROUP ( $(TOPDIR)lib/$(NONSHARED_LIBNAME) $(TOPDIR)lib/$(SHARED_MAJORNAME) )" >> $(SO_LIB_NAME)
+else
+	echo "GROUP ( $(TOPDIR)lib/$(SHARED_MAJORNAME) $(TOPDIR)lib/$(NONSHARED_LIBNAME) )" >> $(SO_LIB_NAME)
+endif
 
 tags:
 	ctags -R
 
-clean: subdirs_clean halfclean
-	$(RM) obj.* obj-*
+clean: subdirs_clean
+	$(RM) *.a obj.* nonshared_obj.*
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
@@ -108,9 +126,5 @@ $(patsubst %, _dir_%, $(DIRS)) : dummy
 
 $(patsubst %, _dirclean_%, $(DIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-objs-pthread-libc:
-	$(RM) $(PTCOBJST) $(PTCOBJSH)
-	$(MAKE) -C ../libpthread $@
 
 .PHONY: dummy subdirs

@@ -21,71 +21,87 @@ TOPDIR=../../../../../../../
 include $(TOPDIR)Rules.mak
 include ../../../../../Rules.mak
 
-ASRC-LIBP-ST = pt-vfork.S clone.S
-ASRC-LIBP-SH = $(ASRC-LIBP-ST)
+AR_LIBP_ASRC = pt-vfork.S clone.S
+SO_LIBP_ASRC = $(AR_LIBP_ASRC)
+AR_LIBP_CSRC = pthread_once.c
+SO_LIBP_CSRC = $(AR_LIBP_CSRC)
+AR_LIBC_CSRC = fork-nptl.c
+SO_LIBC_CSRC = $(AR_LIBC_CSRC)
 
-CSRC-LIBP-ST = pthread_once.c
-CSRC-LIBP-SH = $(CSRC-LIBP-ST)
-
-CSRC-LIBC-ST = fork-nptl.c
-CSRC-LIBC-SH = $(CSRC-LIBC-ST)
-
-AOBJ-LIBP-ST = $(patsubst %.S, %.o, $(ASRC-LIBP-ST))
-AOBJ-LIBP-SH = $(patsubst %.S, %.os, $(ASRC-LIBP-SH))
-COBJ-LIBP-ST = $(patsubst %.c, %.o, $(CSRC-LIBP-ST))
-COBJ-LIBP-SH = $(patsubst %.c, %.os, $(CSRC-LIBP-ST))
-COBJ-LIBC-ST = $(patsubst %.c, %.o, $(CSRC-LIBC-ST))
-COBJ-LIBC-SH = $(patsubst %.c, %.os, $(CSRC-LIBC-SH))
+AR_LIBP_AOBJS = $(patsubst %.S, %.o, $(AR_LIBP_ASRC))
+SO_LIBP_AOBJS = $(patsubst %.S, %.os, $(SO_LIBP_ASRC))
+AR_LIBP_COBJS = $(patsubst %.c, %.o, $(AR_LIBP_CSRC))
+SO_LIBP_COBJS = $(patsubst %.c, %.os, $(SO_LIBP_CSRC))
+AR_LIBC_COBJS = $(patsubst %.c, %.o, $(AR_LIBC_CSRC))
+SO_LIBC_COBJS = $(patsubst %.c, %.os, $(SO_LIBC_CSRC))
 
 ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
 CFLAGS-fork-nptl.c = -D__USE_STDIO_FUTEXES__
 endif
 
-ar-target all: $(AOBJ-LIBP-ST) $(AOBJ-LIBP-SH) $(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
+all: $(AR_LIB_NAME) $(AR_SO_LIB_NAME)
+
+$(AR_LIB_NAME): $(AR_LIBP_AOBJS) $(AR_LIBP_COBJS)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
-		$(AOBJ-LIBP-ST) $(AOBJ-LIBP-SH) $(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
+		$(AR_LIBP_AOBJS) $(AR_LIBP_COBJS)
 else
 	$(STRIPTOOL) -x -R .note -R .comment			\
-		$(AOBJ-LIBP-ST) $(AOBJ-LIBP-SH) $(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
+		$(AR_LIBP_AOBJS) $(AR_LIBP_COBJS)
 endif
-	$(AR) $(ARFLAGS) $(PTDIR)../$(LIBPTHREAD_STATIC_ARCHIVE)	\
-		$(AOBJ-LIBP-ST) $(COBJ-LIBP-ST)
-	$(AR) $(ARFLAGS) $(PTDIR)../$(LIBPTHREAD_SHARED_ARCHIVE)	\
-		$(AOBJ-LIBP-SH) $(COBJ-LIBP-SH)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(AR_LIBP_AOBJS) $(AR_LIBP_COBJS)
 
-$(AOBJ-LIBP-ST): %.o : %.S
+$(AR_SO_LIB_NAME): $(SO_LIBP_AOBJS) $(SO_LIBP_COBJS)
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
+		$(SO_LIBP_AOBJS) $(SO_LIBP_COBJS)
+else
+	$(STRIPTOOL) -x -R .note -R .comment			\
+		$(SO_LIBP_AOBJS) $(SO_LIBP_COBJS)
+endif
+	$(AR) $(ARFLAGS) $(AR_SO_LIB_NAME) $(SO_LIBP_AOBJS) $(SO_LIBP_COBJS)
+
+obj.pthread.ar: $(AR_LIBC_COBJS)
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(AR_LIBC_COBJS)
+else
+	$(STRIPTOOL) -x -R .note -R .comment $(AR_LIBC_COBJS)
+endif
+	@for objfile in $(AR_LIBC_COBJS); do \
+		echo ../libpthread/nptl/sysdeps/unix/sysv/linux/mips/$$objfile \
+			>> $(TOPDIR)libc/$@; \
+	done
+
+obj.pthread.so: $(SO_LIBC_COBJS)
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(SO_LIBC_COBJS)
+else
+	$(STRIPTOOL) -x -R .note -R .comment $(SO_LIBC_COBJS)
+endif
+	@for objfile in $(SO_LIBC_COBJS); do \
+		echo ../libpthread/nptl/sysdeps/unix/sysv/linux/mips/$$objfile \
+			>> $(TOPDIR)libc/$@; \
+	done
+
+$(AR_LIBP_AOBJS): %.o : %.S
 	$(CC) $(ASFLAGS-LIBP) -c $< -o $@
 
-$(AOBJ-LIBP-SH): %.os : %.S
+$(SO_LIBP_AOBJS): %.os : %.S
 	$(CC) $(ASFLAGS-LIBP) -DSHARED -c $< -o $@
 
-$(COBJ-LIBP-ST): %.o : %.c
+$(AR_LIBP_COBJS): %.o : %.c
 	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -c $< -o $@
 
-$(COBJ-LIBP-SH): %.os : %.c
+$(SO_LIBP_COBJS): %.os : %.c
 	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
 
-$(COBJ-LIBC-ST): %.o : %.c
+$(AR_LIBC_COBJS): %.o : %.c
 	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -c $< -o $@
 
-$(COBJ-LIBC-SH): %.os : %.c
+$(SO_LIBC_COBJS): %.os : %.c
 	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -DSHARED -c $< -o $@
-
-objs-pthread-libc: $(COBJ-LIBC-ST) $(COBJ-LIBC-SH)
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
-		$(COBJ-LIBC-ST) $(COBJ-LIBC-SH)
-else
-	$(STRIPTOOL) -x -R .note -R .comment			\
-		$(COBJ-LIBC-ST) $(COBJ-LIBC-SH)
-endif
-	@for objfile in $(COBJ-LIBC-ST); do \
-		echo ../libpthread/nptl/sysdeps/unix/sysv/linux/mips/$$objfile >> $(PTCOBJST); \
-	done
-	@for objfile in $(COBJ-LIBC-SH); do \
-		echo ../libpthread/nptl/sysdeps/unix/sysv/linux/mips/$$objfile >> $(PTCOBJSH); \
-	done
 
 clean:
 	$(RM) *.o *.os *~ core
+
+.PHONY: $(AR_LIB_NAME) $(AR_SO_LIB_NAME)

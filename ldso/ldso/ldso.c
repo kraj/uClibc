@@ -273,7 +273,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 				}
 				break;
 #else
-				_dl_fatal_printf("Program uses TLS, but ld-uClibc.so does not support it!\n");
+				_dl_debug_early("Program uses unsupported TLS data!!!\n");
+				_dl_exit(1);
 #endif
 			}
 	}

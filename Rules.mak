@@ -43,7 +43,6 @@ CC         = $(CROSS)gcc
 AR         = $(CROSS)ar
 LD         = $(CROSS)ld
 NM         = $(CROSS)nm
-RANLIB     = $(CROSS)ranlib
 STRIPTOOL  = $(CROSS)strip
 
 INSTALL    = install
@@ -67,11 +66,9 @@ VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 LC_ALL := C
 export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_ALL
 
-SHARED_FULLNAME:=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 SHARED_MAJORNAME:=libc.so.$(MAJOR_VERSION)
 UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
-LIBNAME:=libc.a
-LIBC:=$(TOPDIR)libc/$(LIBNAME)
+NONSHARED_LIBNAME:=uclibc_nonshared.a
 
 # Make sure DESTDIR and PREFIX can be used to install
 # PREFIX is a uClibcism while DESTDIR is a common GNUism
@@ -134,11 +131,11 @@ ifeq ($(strip $(TARGET_ARCH)),i386)
 	CPU_CFLAGS-$(CONFIG_PENTIUMIII)+=$(call check_gcc,-march=pentium3,-march=i686)
 	CPU_CFLAGS-$(CONFIG_PENTIUM4)+=$(call check_gcc,-march=pentium4,-march=i686)
 	CPU_CFLAGS-$(CONFIG_K6)+=$(call check_gcc,-march=k6,-march=i586)
-	CPU_CFLAGS-$(CONFIG_K7)+=$(call check_gcc,-march=athlon,-malign-functions=4 -march=i686)
-	CPU_CFLAGS-$(CONFIG_CRUSOE)+=-march=i686 -malign-functions=0 -malign-jumps=0 -malign-loops=0
+	CPU_CFLAGS-$(CONFIG_K7)+=$(call check_gcc,-march=athlon,-march=i686) $(call check_gcc,-falign-functions=4,-malign-functions=4)
+	CPU_CFLAGS-$(CONFIG_CRUSOE)+=-march=i686 $(call check_gcc,-falign-functions=0,-malign-functions=0)
 	CPU_CFLAGS-$(CONFIG_WINCHIPC6)+=$(call check_gcc,-march=winchip-c6,-march=i586)
 	CPU_CFLAGS-$(CONFIG_WINCHIP2)+=$(call check_gcc,-march=winchip2,-march=i586)
-	CPU_CFLAGS-$(CONFIG_CYRIXIII)+=$(call check_gcc,-march=c3,-march=i486) -malign-functions=0 -malign-jumps=0 -malign-loops=0
+	CPU_CFLAGS-$(CONFIG_CYRIXIII)+=$(call check_gcc,-march=c3,-march=i486) $(call check_gcc,-falign-functions=0,-malign-functions=0)
 	CPU_CFLAGS-$(CONFIG_NEHEMIAH)+=$(call check_gcc,-march=c3-2,-march=i686)
 endif
 
@@ -306,9 +303,11 @@ else
     LDFLAGS := $(LDFLAGS_NOSTRIP) -s
 endif
 
-#
-# Thread includes are needed to compile some files.
-#
+ifeq ($(UCLIBC_HAS_THREADS),y)
+# set up system dependencies include dirs (NOTE: order matters!)
+PTDIR   := $(TOPDIR)libpthread/linuxthreads/
+PTINC   := -I$(PTDIR)sysdeps/pthread \
+           -I$(PTDIR)sysdeps/$(TARGET_ARCH)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 PTDIR	:= $(TOPDIR)libpthread/nptl/
 PTINC	:= -I$(PTDIR)compat					\
@@ -319,23 +318,9 @@ PTINC	:= -I$(PTDIR)compat					\
 	   -I$(PTDIR)sysdeps/pthread/bits			\
 	   -I$(PTDIR)sysdeps/generic				\
 	   -include $(PTDIR)compat/libc-symbols.h
-CFLAGS	+= $(PTINC)
-else
-PTDIR	:= $(TOPDIR)libpthread/linuxthreads/
-PTINC	:= -I$(PTDIR)sysdeps/$(TARGET_ARCH)			\
-	   -I$(PTDIR)sysdeps/pthread
-endif
-
-#
-# Thread objects linked into C library.
-#
-PTCOBJST := $(TOPDIR)libc/obj-pthread-libc
-PTCOBJSH := $(TOPDIR)libc/obj-pthread-libc_shared
-
 #
 # Test for TLS if NPTL support was selected.
 #
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 GCC_HAS_TLS=$(shell \
 	echo "extern __thread int foo;" | $(CC) -o /dev/null -S -xc - 2>&1)
 ifneq ($(GCC_HAS_TLS),)
@@ -351,7 +336,7 @@ gcc_tls_test_fail:
 	@exit 1;
 endif
 endif
-
+endif
 
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 LDFLAGS+=-z relro

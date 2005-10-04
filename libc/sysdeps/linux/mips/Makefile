@@ -60,14 +60,14 @@ $(COBJS): %.o : %.c
 
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
 crti.o: crti.S
-	$(CC) $(ASFLAGS) -c crti.S -o crti.o
+	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c crti.S -o crti.o
 
 $(TOPDIR)lib/crti.o: crti.o
 	$(INSTALL) -d $(TOPDIR)lib/
 	cp crti.o $(TOPDIR)lib/
 
 crtn.o: crtn.S
-	$(CC) $(ASFLAGS) -c crtn.S -o crtn.o
+	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c crtn.S -o crtn.o
 
 $(TOPDIR)lib/crtn.o: crtn.o
 	$(INSTALL) -d $(TOPDIR)lib/
@@ -87,9 +87,5 @@ headers:
 	cp sysdep.h $(TOPDIR)/include/
 
 clean:
-	$(RM) *.[oa] *~ core
-	$(RM) bits/sysnum.h
-	$(RM) $(TOPDIR)/include/fpu_control.h
-	$(RM) $(TOPDIR)/include/sgidefs.h
-	$(RM) $(TOPDIR)/include/sysdep.h
-	$(RM) $(TOPDIR)/include/sysdep-nptl.h
+	$(RM) *.o *~ core
+	$(RM) $(TOPDIR)/include/sgidefs.h $(TOPDIR)/include/sysdep.h

@@ -56,6 +56,10 @@ CSRC =getservice.c getproto.c hostid.c getnetent.c getnetbynm.c getnetbyad.c \
 
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
+ifeq ($(UCLIBC_HAS_THREADS),y)
+CFLAGS += $(PTINC)
+endif
+
 OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
 
 OBJ_LIST=../obj.inet

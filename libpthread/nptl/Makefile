@@ -1,4 +1,4 @@
-# Makefile for uClibc's NPTL pthread library (Portions stolen from glibc.)
+# Makefile for uClibc's native pthread library (Portions stolen from glibc.)
 #
 # Copyright (C) 2005 Steven J. Hill <sjhill@realitydiluted.com>
 #
@@ -226,36 +226,26 @@ libpthread-misc-routines = pthread_rwlock_rdlock pthread_rwlock_timedrdlock \
 DIRS := sysdeps/pthread sysdeps/$(TARGET_ARCH) sysdeps/unix/sysv/linux	\
 	sysdeps/unix/sysv/linux/$(TARGET_ARCH)
 
-CSRC-LIBP-ST = $(patsubst %, %.c, $(filter-out $(libpthread-os-routines) \
+AR_LIBP_CSRC = $(patsubst %, %.c, $(filter-out $(libpthread-os-routines) \
 	       $(libpthread-misc-routines)				 \
 	       $(libpthread-shared-only-routines),			 \
 	       $(libpthread-routines)))
-
-CSRC-LIBP-SH = $(patsubst %, %.c, $(filter-out $(libpthread-os-routines) \
+SO_LIBP_CSRC = $(patsubst %, %.c, $(filter-out $(libpthread-os-routines) \
 	       $(libpthread-misc-routines)				 \
 	       $(libpthread-static-only-routines) pt-allocrtsig,	 \
 	       $(libpthread-routines)))
-
-CSRC-LIBC-ST = $(patsubst %, %.c, $(filter-out $(shared-only-routines)	 \
+AR_LIBC_CSRC = $(patsubst %, %.c, $(filter-out $(shared-only-routines)	 \
 	       libc-lowlevellock, $(routines)))
+SO_LIBC_CSRC = $(patsubst %, %.c, $(filter-out libc-lowlevellock, $(routines)))
 
-CSRC-LIBC-SH = $(patsubst %, %.c, $(filter-out libc-lowlevellock, $(routines)))
+AR_LIBP_COBJS = $(patsubst %.c, %.o, $(AR_LIBP_CSRC))
+SO_LIBP_COBJS = $(patsubst %.c, %.os, $(SO_LIBP_CSRC))
+AR_LIBC_COBJS = $(patsubst %.c, %.o, $(AR_LIBC_CSRC))
+SO_LIBC_COBJS = $(patsubst %.c, %.os, $(SO_LIBC_CSRC))
 
-COBJ-LIBP-ST = $(patsubst %.c, %.o, $(CSRC-LIBP-ST))
-COBJ-LIBP-SH = $(patsubst %.c, %.os, $(CSRC-LIBP-SH))
-COBJ-LIBC-ST = $(patsubst %.c, %.o, $(CSRC-LIBC-ST))
-COBJ-LIBC-SH = $(patsubst %.c, %.os, $(CSRC-LIBC-SH))
+all: headers $(AR_LIB_NAME) $(SO_LIB_NAME)
 
-ar-target all: version.h banner.h $(COBJ-LIBP-ST) $(COBJ-LIBP-SH) subdirs
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
-		$(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
-else
-	$(STRIPTOOL) -x -R .note -R .comment			\
-		$(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
-endif
-	$(AR) $(ARFLAGS) $(PTDIR)../$(LIBPTHREAD_STATIC_ARCHIVE) $(COBJ-LIBP-ST)
-	$(AR) $(ARFLAGS) $(PTDIR)../$(LIBPTHREAD_SHARED_ARCHIVE) $(COBJ-LIBP-SH)
+headers: version.h banner.h
 
 version.h:
 	@echo "#define VERSION \""$(VERSION)"\"" > $@
@@ -263,35 +253,77 @@ version.h:
 banner.h: Banner
 	sed 's/\(.*\)/"\1\\n"/' $< > $@
 
-$(COBJ-LIBP-ST): %.o : %.c
-	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -c $< -o $@
-
-$(COBJ-LIBP-SH): %.os : %.c
-	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
-
-$(COBJ-LIBC-ST): %.o : %.c
-	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -c $< -o $@
-
-$(COBJ-LIBC-SH): %.os : %.c
-	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -DSHARED -c $< -o $@
-
-objs-pthread-libc: $(COBJ-LIBC-ST) $(COBJ-LIBC-SH)
+$(AR_LIB_NAME): $(AR_LIBP_COBJS)
+	$(INSTALL) -d $(TOPDIR)lib
+	$(RM) $(AR_LIB_NAME)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
-		$(COBJ-LIBC-ST) $(COBJ-LIBC-SH)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(AR_LIBP_COBJS)
 else
-	$(STRIPTOOL) -x -R .note -R .comment			\
-		$(COBJ-LIBC-ST) $(COBJ-LIBC-SH)
+	$(STRIPTOOL) -x -R .note -R .comment $(AR_LIBP_COBJS)
 endif
-	@for objfile in $(COBJ-LIBC-ST); do \
-		echo ../libpthread/nptl/$$objfile >> $(PTCOBJST); \
-	done
-	@for objfile in $(COBJ-LIBC-SH); do \
-		echo ../libpthread/nptl/$$objfile >> $(PTCOBJSH); \
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(AR_LIBP_COBJS)
+
+$(AR_SO_LIB_NAME): $(SO_LIBP_COBJS)
+	$(INSTALL) -d $(TOPDIR)lib
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) \
+		$(SO_LIB_NAME) $(AR_SO_LIB_NAME)
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(SO_LIBP_COBJS)
+else
+	$(STRIPTOOL) -x -R .note -R .comment $(SO_LIBP_COBJS)
+endif
+	$(AR) $(ARFLAGS) $(AR_SO_LIB_NAME) $(SO_LIBP_COBJS)
+
+$(SO_LIB_NAME): $(AR_SO_LIB_NAME) subdirs
+	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIB_NAME).$(MAJOR_VERSION) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) $(SHARED_START_FILES) --whole-archive $(AR_SO_LIB_NAME) \
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
+		$(TOPDIR)lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
+		-L$(TOPDIR)ldso/libdl -ldl \
+		$(SHARED_END_FILES)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
+	$(RM) $(AR_SO_LIB_NAME)
+
+obj.pthread.ar: $(AR_LIBC_COBJS)
+	$(RM) $(TOPDIR)libc/$@
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(AR_LIBC_COBJS)
+else
+	$(STRIPTOOL) -x -R .note -R .comment $(AR_LIBC_COBJS)
+endif
+	@for objfile in $(AR_LIBC_COBJS); do \
+		echo ../libpthread/nptl/$$objfile >> $(TOPDIR)libc/$@; \
 	done
 	$(MAKE) -C sysdeps/$(TARGET_ARCH) $@
 	$(MAKE) -C sysdeps/unix/sysv/linux $@
 	$(MAKE) -C sysdeps/unix/sysv/linux/$(TARGET_ARCH) $@
+
+obj.pthread.so: $(SO_LIBC_COBJS)
+	$(RM) $(TOPDIR)libc/$@
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(SO_LIBC_COBJS)
+else
+	$(STRIPTOOL) -x -R .note -R .comment $(SO_LIBC_COBJS)
+endif
+	@for objfile in $(SO_LIBC_COBJS); do \
+		echo ../libpthread/nptl/$$objfile >> $(TOPDIR)libc/$@; \
+	done
+	$(MAKE) -C sysdeps/unix/sysv/linux $@
+	$(MAKE) -C sysdeps/unix/sysv/linux/$(TARGET_ARCH) $@
+
+$(AR_LIBP_COBJS): %.o : %.c
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -c $< -o $@
+
+$(SO_LIBP_COBJS): %.os : %.c
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
+
+$(AR_LIBC_COBJS): %.o : %.c
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -c $< -o $@
+
+$(SO_LIBC_COBJS): %.os : %.c
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -DSHARED -c $< -o $@
 
 clean: subdirs_clean
 	$(RM) *.o *.os *~ core banner.h version.h

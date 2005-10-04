@@ -22,17 +22,11 @@ include $(TOPDIR)Rules.mak
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-#This stuff will not compile without at least -O1
+# This stuff will not compile without at least -O1
 CFLAGS :=$(CFLAGS:-O0=-O1)
 
-# set up system dependencies include dirs (NOTE: order matters!)
-# psm: don't think that the last include makes sense
-# they all should be already linked to $(TOPDIR)include
-PTDIR = $(TOPDIR)libpthread/linuxthreads/
-SYSDEPINC = -I$(PTDIR)sysdeps/pthread \
-            -I$(PTDIR)sysdeps/$(TARGET_ARCH) \
-            -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
-CFLAGS += $(SYSDEPINC)
+# Get the thread include dependencies
+CFLAGS += $(PTINC)
 
 ARCH_CFLAGS = $(CFLAGS)
 

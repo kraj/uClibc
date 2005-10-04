@@ -119,6 +119,10 @@ ifeq ($(strip $(UCLIBC_HAS_LFS)),y)
 OBJS += $(CLOBJS)
 endif
 
+ifeq ($(UCLIBC_HAS_THREADS),y)
+CFLAGS += $(PTINC)
+endif
+
 ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
 CFLAGS += -D__USE_STDIO_FUTEXES__
 endif

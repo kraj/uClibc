@@ -42,25 +42,34 @@ CFLAGS-pthread_spin_destroy.c = -D_GNU_SOURCE
 CFLAGS-pthread_spin_init.c = -D_GNU_SOURCE
 CFLAGS-pthread_spin_unlock.c = -D_GNU_SOURCE
 
-COBJ-LIBP-ST = $(patsubst %.c, %.o, $(CSRC))
-COBJ-LIBP-SH = $(patsubst %.c, %.os, $(CSRC))
+AR_LIBP_COBJS = $(patsubst %.c, %.o, $(CSRC))
+SO_LIBP_COBJS = $(patsubst %.c, %.os, $(CSRC))
 
-ar-target all: $(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
+all: $(AR_LIB_NAME) $(AR_SO_LIB_NAME)
+
+$(AR_LIB_NAME): $(AR_LIBP_COBJS)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
-		$(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(AR_LIBP_COBJS)
 else
-	$(STRIPTOOL) -x -R .note -R .comment			\
-		$(COBJ-LIBP-ST) $(COBJ-LIBP-SH)
+	$(STRIPTOOL) -x -R .note -R .comment $(AR_LIBP_COBJS)
 endif
-	$(AR) $(ARFLAGS) $(PTDIR)../$(LIBPTHREAD_STATIC_ARCHIVE) $(COBJ-LIBP-ST)
-	$(AR) $(ARFLAGS) $(PTDIR)../$(LIBPTHREAD_SHARED_ARCHIVE) $(COBJ-LIBP-SH)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(AR_LIBP_COBJS)
 
-$(COBJ-LIBP-ST): %.o : %.c
+$(AR_SO_LIB_NAME): $(SO_LIBP_COBJS)
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(SO_LIBP_COBJS)
+else
+	$(STRIPTOOL) -x -R .note -R .comment $(SO_LIBP_COBJS)
+endif
+	$(AR) $(ARFLAGS) $(AR_SO_LIB_NAME) $(SO_LIBP_COBJS)
+
+$(AR_LIBP_COBJS): %.o : %.c
 	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -c $< -o $@
 
-$(COBJ-LIBP-SH): %.os : %.c
+$(SO_LIBP_COBJS): %.os : %.c
 	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
 
 clean:
 	$(RM) *.o *.os *~ core
+
+.PHONY: $(AR_LIB_NAME) $(AR_SO_LIB_NAME)

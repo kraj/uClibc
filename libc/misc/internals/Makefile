@@ -31,6 +31,10 @@ __uClibc_main.o: CFLAGS += $(SSP_DISABLE_FLAGS)
 
 OBJS=$(COBJS)
 
+ifeq ($(UCLIBC_HAS_THREADS),y)
+CFLAGS += $(PTINC)
+endif
+
 OBJ_LIST=../../obj.misc.internals
 
 all: $(OBJ_LIST) interp.o static.o
