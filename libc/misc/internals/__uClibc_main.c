@@ -30,9 +30,9 @@
 #include <stdint.h>
 
 /* for gcc-3.x + Etoh ssp */
-uintptr_t __guard /* segfaults with attribute_relro */;
+uintptr_t __guard attribute_relro;
 /* for gcc-4.1 non-TLS */
-uintptr_t __stack_chk_guard /* attribute_relro */;
+uintptr_t __stack_chk_guard attribute_relro;
 #endif
 
 /*
@@ -48,7 +48,6 @@ extern void weak_function _locale_init(void);
 #ifdef __UCLIBC_HAS_THREADS__
 extern void weak_function __pthread_initialize_minimal(void);
 #endif
-
 
 
 
