@@ -303,6 +303,13 @@ else
     LDFLAGS := $(LDFLAGS_NOSTRIP) -s
 endif
 
+ifeq ($(UCLIBC_HAS_THREADS),y)
+# set up system dependencies include dirs (NOTE: order matters!)
+PTDIR   := $(TOPDIR)libpthread/linuxthreads/
+PTINC   := -I$(PTDIR)sysdeps/pthread \
+           -I$(PTDIR)sysdeps/$(TARGET_ARCH)
+endif
+
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 LDFLAGS+=-z relro
 endif

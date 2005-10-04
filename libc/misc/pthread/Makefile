@@ -19,16 +19,6 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-PTDIR = $(TOPDIR)libpthread/linuxthreads/
-SYSDEPINC = -I$(PTDIR)sysdeps/unix/sysv/linux \
-            -I$(PTDIR)sysdeps/pthread \
-            -I$(PTDIR)sysdeps/unix/sysv \
-            -I$(PTDIR)sysdeps/unix/unix \
-            -I$(PTDIR)sysdeps/$(TARGET_ARCH) \
-            -I$(PTDIR)sysdeps \
-            -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
-CFLAGS += $(SYSDEPINC) -D_GNU_SOURCE
-
 CSRC=no-tsd.c weaks.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
@@ -41,7 +31,7 @@ $(OBJ_LIST): $(OBJS)
 	echo $(patsubst %, misc/pthread/%, $(OBJS)) > $(OBJ_LIST)
 
 $(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(PTINC) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

@@ -353,6 +353,7 @@ clean:
 	$(RM) include/fpu_control.h
 	$(MAKE) -C extra/locale clean
 	$(MAKE) -C ldso clean
+	$(MAKE) -C libc clean
 	$(MAKE) -C libpthread clean
 	$(MAKE) -C test clean
 	$(MAKE) -C utils clean

@@ -116,6 +116,10 @@ ifeq ($(strip $(UCLIBC_HAS_LFS)),y)
 OBJS += $(CLOBJS)
 endif
 
+ifeq ($(UCLIBC_HAS_THREADS),y)
+CFLAGS += $(PTINC)
+endif
+
 OBJ_LIST=../obj.stdio
 
 all: $(OBJ_LIST)

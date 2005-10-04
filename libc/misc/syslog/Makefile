@@ -28,6 +28,10 @@ CSRC=syslog.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS)
 
+ifeq ($(UCLIBC_HAS_THREADS),y)
+CFLAGS += $(PTINC)
+endif
+
 OBJ_LIST=../../obj.misc.syslog
 
 all: $(OBJ_LIST)

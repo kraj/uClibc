@@ -23,7 +23,6 @@
 
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
-CFLAGS+=-I$(TOPDIR)libpthread/linuxthreads/sysdeps/pthread
 
 ifeq ($(strip $(UCLIBC_HAS_FULL_RPC)),y)
 CSRC :=auth_none.c auth_unix.c authunix_prot.c bindresvport.c \
@@ -58,7 +57,7 @@ $(OBJ_LIST): $(OBJS)
 	echo $(patsubst %, inet/rpc/%, $(OBJS)) > $(OBJ_LIST)
 
 $(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(PTINC) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:

@@ -26,13 +26,8 @@ AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
 SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
 SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-# set up system dependencies include dirs (NOTE: order matters!)
-PTDIR = $(TOPDIR)libpthread/linuxthreads/
-SYSDEPINC = -I$(PTDIR)sysdeps/pthread \
-            -I$(PTDIR)sysdeps/$(TARGET_ARCH) \
-            -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH)
-
-CFLAGS += $(SYSDEPINC) -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
+# Get the thread include dependencies and shared object name
+CFLAGS += $(PTINC) -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 
 # Remove any -z defs since this lib will have undefined symbols
 LDFLAGS := $(subst -z defs,,$(LDFLAGS)) --warn-unresolved-symbols
