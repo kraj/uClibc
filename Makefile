@@ -24,13 +24,13 @@
 #--------------------------------------------------------------
 noconfig_targets := menuconfig config oldconfig randconfig \
 	defconfig allyesconfig allnoconfig clean distclean \
-	release tags TAGS
+	release tags
 TOPDIR=./
 include Rules.mak
 
-ALL_SUBDIRS = ldso libc libcrypt libresolv libnsl libutil librt libm libpthread libintl test utils # extra
-
-DIRS = ldso libc libcrypt libresolv libnsl libutil librt
+# need to have libc.so built, before we can build the others
+PRE_DIRS = ldso libc
+DIRS = ldso libcrypt libresolv libnsl libutil librt
 ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	DIRS += libm
 endif
@@ -43,25 +43,12 @@ endif
 
 ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
-all: headers pregen subdirs shared finished
+all: finished
 
 # In this section, we need .config
 -include .config.cmd
 
-shared: $(patsubst %, _shared_dir_%, $(DIRS))
-$(patsubst %, _shared_dir_%, $(DIRS)): subdirs
-ifeq ($(strip $(HAVE_SHARED)),y)
-	$(SECHO)
-	$(SECHO) Building shared libraries ...
-	$(SECHO)
-	$(MAKE) -C $(patsubst _shared_dir_%, %, $@) shared
-else
-	$(SECHO)
-	$(SECHO) Not building shared libraries ...
-	$(SECHO)
-endif
-
-finished: shared
+finished: subdirs
 	$(SECHO)
 	$(SECHO) Finally finished compiling ...
 	$(SECHO)
@@ -69,7 +56,7 @@ finished: shared
 include/bits/uClibc_config.h: .config
 	@if [ ! -x ./extra/config/conf ] ; then \
 	    $(MAKE) -C extra/config conf; \
-	fi;
+	fi
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -o extra/Configs/Config.in
@@ -134,16 +121,19 @@ ifeq ($(strip $(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA)),y)
 	(cd extra/locale; \
 	if [ ! -f $(LOCALE_DATA_FILENAME) ] ; then \
 	$(WGET) http://www.uclibc.org/downloads/$(LOCALE_DATA_FILENAME) ; \
-	fi );
+	fi )
 endif
 ifeq ($(strip $(UCLIBC_PREGENERATED_LOCALE_DATA)),y)
 	(cd extra/locale; zcat $(LOCALE_DATA_FILENAME) | tar -xvf -)
 	$(MAKE) -C extra/locale pregen
 endif
 
+pre_subdirs: $(patsubst %, _pre_dir_%, $(PRE_DIRS))
+$(patsubst %, _pre_dir_%, $(PRE_DIRS)): pregen
+	$(MAKE) -C $(patsubst _pre_dir_%, %, $@)
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
-$(patsubst %, _dir_%, $(DIRS)): headers
+$(patsubst %, _dir_%, $(DIRS)): pre_subdirs
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 tags:
@@ -154,11 +144,9 @@ install: install_runtime install_dev finished2
 
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
 
-# Installs header files and development library links.
-install_dev:
-	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
+# Installs header files.
+install_headers:
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)include
-	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
 	if [ "$(KERNEL_SOURCE)" == "$(DEVEL_PREFIX)" ] ; then \
 		extra_exclude="--exclude include/linux --exclude include/asm'*'" ; \
 	else \
@@ -234,15 +222,35 @@ ifneq ($(strip $(UCLIBC_HAS_THREADS)),y)
 endif
 	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod 755 $$i; chmod 644 $$i/*.h > /dev/null 2>&1; \
-	done;
-	-find $(PREFIX)$(DEVEL_PREFIX) -name .svn | xargs $(RM) -r;
+	done
+	-find $(PREFIX)$(DEVEL_PREFIX) -name .svn | xargs $(RM) -r
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1:\2/'` $(PREFIX)$(DEVEL_PREFIX)
+
+# Installs development library links.
+install_dev: install_headers
+	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
+	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
 ifeq ($(strip $(HAVE_SHARED)),y)
 	for i in `find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
 	sed -e 's/lib\///'` ; do \
 		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
-	done;
+	done
+	if [ -f $(TOPDIR)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
+		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+		sed -e '/^GROUP/d' $(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+	fi
+ifeq ($(strip $(COMPAT_ATEXIT)),y)
+	if [ -f $(TOPDIR)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
+		echo "GROUP ( $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) )" \
+			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+	fi
+else
+	if [ -f $(TOPDIR)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
+		echo "GROUP ( $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) )" \
+			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+	fi
+endif
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
 	$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
 		$(PREFIX)$(DEVEL_PREFIX)lib/libthread_db.so
@@ -250,17 +258,12 @@ endif
 #	# If we build shared libraries then the static libs are PIC...
 #	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
 	if [ -d lib ] ; then \
-	for i in `find lib/  -type f -name '*.a' | sed -e 's/lib\///'` ; do \
-		$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
-			| sed -e 's/\.a$$/_pic.a/'`; \
-	done ; \
+		for i in `find lib/  -type f -name 'lib*.a' | sed -e 's/lib\///'` ; do \
+			$(LN) -sf $$i $(PREFIX)$(DEVEL_PREFIX)lib/`echo $$i \
+				| sed -e 's/\.a$$/_pic.a/'`; \
+		done ; \
 	fi
-	# Ugh!!! Remember that libdl.a and libdl_pic.a are different.  Since
-	# libdl is pretty small, and not likely to benefit from mklibs.py and
-	# similar, lets just remove libdl_pic.a and avoid the issue
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libdl_pic.a
 endif
-
 
 # Installs run-time libraries
 install_runtime:
@@ -274,7 +277,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 		$(SHELL_SET_X); \
 	    $(INSTALL) -m 755 lib/ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 	    		$(PREFIX)$(RUNTIME_PREFIX)lib; \
-	fi;
+	fi
 endif
 
 utils:
@@ -343,15 +346,16 @@ defconfig: extra/config/conf
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -d extra/Configs/Config.in
 
-subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
-$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)): dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-clean: subdirs_clean
-	- find . \( -name \*.o -o -name \*.a -o -name \*.so -o -name core -o -name .\#\* \) -exec $(RM) {} \;
+clean:
 	@$(RM) -r lib include/bits
-	$(MAKE) -C libc/misc/internals clean
+	$(RM) */*.so */*.a
+	$(RM) libc/misc/internals/interp.c
+	$(RM) include/fpu_control.h
 	$(MAKE) -C extra/locale clean
+	$(MAKE) -C ldso clean
+	$(MAKE) -C libpthread clean
+	$(MAKE) -C test clean
+	$(MAKE) -C utils clean
 	@set -e; \
 	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		$(RM) include/sys/$$i; \
@@ -360,14 +364,16 @@ clean: subdirs_clean
 		for i in `(cd libc/sysdeps/linux/$(TARGET_ARCH)/sys; ls *.h)` ; do \
 			$(RM) include/sys/$$i; \
 		done; \
-	fi;
+	fi
 	@$(RM) include/linux include/asm*
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
-	fi;
+	fi
+	- find . \( -name \*.o -o -name core -o -name .\#\* \) -exec $(RM) {} \;
 
 distclean: clean
 	$(RM) .config .config.old .config.cmd
+	$(RM) extra/locale/*.txt
 	$(MAKE) -C extra clean
 
 release: distclean
@@ -379,11 +385,11 @@ release: distclean
 	find uClibc-$(VERSION)/ -type d		\
 	    -name .svn -exec $(RM) -r {} \; ;	\
 						\
-	tar -cvzf uClibc-$(VERSION).tar.gz uClibc-$(VERSION)/;
+	tar -cvzf uClibc-$(VERSION).tar.gz uClibc-$(VERSION)/
 
 endif # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
 
 check:
 	$(MAKE) -C test
 
-.PHONY: dummy subdirs release distclean clean config oldconfig menuconfig
+.PHONY: dummy subdirs release distclean clean config oldconfig menuconfig utils

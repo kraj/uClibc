@@ -1,44 +1,60 @@
+# Makefile for uClibc
 #
-# Makefile for librt
+# Copyright (C) 2002-2003 Erik Andersen <andersen@uclibc.org>
 #
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Library General Public License
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-LIBRT=librt.a
-LIBRT_SHARED=librt.so
-LIBRT_SHARED_FULLNAME=librt-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+CFLAGS+=$(SSP_ALL_CFLAGS)
+
+LIB_NAME=librt
+AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 # uClibc's librt lacks all aio routines, all clock routines,
 # and all shm routines
-CSRC=mq_open.c mq_close.c mq_unlink.c mq_getsetattr.c \
-     mq_send.c mq_receive.c mq_notify.c \
-     timer_create.c timer_delete.c \
-     timer_settime.c timer_gettime.c timer_getoverr.c
+CSRC=$(wildcard *.c)
+
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(LIBRT)
+ifeq ($(strip $(HAVE_SHARED)),y)
+all: $(SO_LIB_NAME)
+else
+all: $(AR_LIB_NAME)
+endif
 
-$(LIBRT) ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBRT) $(OBJS)
+$(AR_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBRT)
-	$(INSTALL) -m 644 $(LIBRT) $(TOPDIR)lib/
+	$(RM) $(AR_LIB_NAME)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
+
+$(SO_LIB_NAME): $(AR_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
+	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
 
 $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-shared: all
-	$(LD) $(LDFLAGS) -soname=$(LIBRT_SHARED).$(MAJOR_VERSION) \
-		-o $(LIBRT_SHARED_FULLNAME) --whole-archive $(LIBRT) \
-		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBRT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRT_SHARED).$(MAJOR_VERSION)
-	$(INSTALL) -m 644 $(LIBRT_SHARED_FULLNAME) $(TOPDIR)lib
-	$(LN) -sf $(LIBRT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRT_SHARED)
-	$(LN) -sf $(LIBRT_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRT_SHARED).$(MAJOR_VERSION)
-
 clean:
-	$(RM) *.[oa] *~ core $(LIBRT) $(LIBRT_SHARED_FULLNAME)
+	$(RM) *.o *~ core

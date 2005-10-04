@@ -25,21 +25,31 @@ ifeq ($(strip $(EXCLUDE_BRK)),y)
 SRCS := $(filter-out sbrk.c,$(SRCS))
 endif
 
+SRCS := $(filter-out ssp-local.c,$(SRCS))
 ifneq ($(strip $(UCLIBC_HAS_SSP)),y)
 SRCS := $(filter-out ssp.c,$(SRCS))
+NONSHARED_OBJ_LIST=
+else
+NONSHARED_OBJ_LIST=../../../nonshared_obj.sysdeps.common
 endif
 ssp.o: CFLAGS += $(SSP_DISABLE_FLAGS)
+ssp-local.o: CFLAGS += $(SSP_DISABLE_FLAGS)
 
 OBJS  = $(patsubst %.c,%.o, $(SRCS))
 
+NONSHARED_OBJS = ssp-local.o
+
 OBJ_LIST=../../../obj.sysdeps.common
 
-all: $(OBJ_LIST)
+all: $(OBJ_LIST) $(NONSHARED_OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
 	echo $(patsubst %, sysdeps/linux/common/%, $(OBJS)) > $(OBJ_LIST)
 
-$(OBJS): %.o : %.c
+$(NONSHARED_OBJ_LIST): $(NONSHARED_OBJS)
+	echo $(patsubst %, sysdeps/linux/common/%, $(NONSHARED_OBJS)) > $(NONSHARED_OBJ_LIST)
+
+$(OBJS) $(NONSHARED_OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
@@ -47,4 +57,4 @@ headers:
 	$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h $(TOPDIR)/include/
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

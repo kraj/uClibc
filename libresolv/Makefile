@@ -20,42 +20,44 @@
 # Derived in part from the Linux-8086 C library, the GNU C Library, and several
 # other sundry sources.  Files within this library are copyright by their
 # respective copyright holders.
-# Makefile for uClibc
 
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-LIBRESOLV=libresolv.a
-LIBRESOLV_SHARED=libresolv.so
-LIBRESOLV_SHARED_FULLNAME=libresolv-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME=libresolv
+AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-CSRC = resolv.c
+CSRC = $(wildcard *.c)
+
 OBJS=$(patsubst %.c,%.o, $(CSRC))
 
-all: $(LIBRESOLV)
+ifeq ($(strip $(HAVE_SHARED)),y)
+all: $(SO_LIB_NAME)
+else
+all: $(AR_LIB_NAME)
+endif
 
-$(LIBRESOLV) ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBRESOLV) $(OBJS)
+$(AR_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBRESOLV)
-	$(INSTALL) -m 644 $(LIBRESOLV) $(TOPDIR)lib
+	$(RM) $(AR_LIB_NAME)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
+
+$(SO_LIB_NAME): $(AR_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
+	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
+		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
+		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
 
 $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-shared: all
-	$(LD) $(LDFLAGS) -soname=$(LIBRESOLV_SHARED).$(MAJOR_VERSION) \
-		-o $(LIBRESOLV_SHARED_FULLNAME) --whole-archive $(LIBRESOLV) \
-		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
-		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRESOLV_SHARED).$(MAJOR_VERSION)
-	$(INSTALL) -m 644 $(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib
-	$(LN) -sf $(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRESOLV_SHARED)
-	$(LN) -sf $(LIBRESOLV_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBRESOLV_SHARED).$(MAJOR_VERSION)
-
-clean: 
-	$(RM) *.[oa] *~ core $(LIBRESOLV) $(LIBRESOLV_SHARED_FULLNAME)
+clean:
+	$(RM) *.o *~ core

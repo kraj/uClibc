@@ -36,19 +36,13 @@ include $(TOPDIR)Rules.mak
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-DIRS =
-ifeq ($(strip $(HAS_FPU)),y)
-ifeq ($(TARGET_ARCH),$(wildcard $(TARGET_ARCH)))
-DIRS = $(TARGET_ARCH)
-endif
-endif
-ALL_SUBDIRS = powerpc
-
-
-LIBM=libm.a
-LIBM_SHARED=libm.so
-LIBM_SHARED_FULLNAME=libm-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
+
+LIB_NAME=libm
+AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+
 FL_MSRC = float_wrappers.c
 
 ifeq ($(strip $(DO_C99_MATH)),y)
@@ -89,31 +83,38 @@ CSRC+=   s_expm1.c s_scalbn.c s_copysign.c e_acos.c e_asin.c e_atan2.c \
 FL_MOBJ = sqrtf.o
 endif
 
+ifeq ($(strip $(HAS_FPU)),y)
+ifeq ($(strip $(DO_C99_MATH)),y)
+ARCH_CSRC=$(wildcard $(TARGET_ARCH)/*.c)
+ARCH_OBJS=$(patsubst %.c,%.o, $(ARCH_CSRC))
+endif
+endif
+
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 OBJS=$(COBJS) $(FL_MOBJ)
 
+ifeq ($(strip $(HAVE_SHARED)),y)
+all: $(SO_LIB_NAME)
+else
+all: $(AR_LIB_NAME)
+endif
 
-all: $(LIBM) subdirs
-
-ar-target: $(OBJS)
-	$(AR) $(ARFLAGS) $(LIBM) $(OBJS)
-$(LIBM): ar-target
+$(AR_LIB_NAME): $(OBJS) $(ARCH_OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBM)
-	$(INSTALL) -m 644 $(LIBM) $(TOPDIR)lib
+	$(RM) $(AR_LIB_NAME)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(ARCH_OBJS)
 
-shared: all
-	$(LD) $(LDFLAGS) -soname=$(LIBM_SHARED).$(MAJOR_VERSION) \
-		-o $(LIBM_SHARED_FULLNAME) --whole-archive $(LIBM) \
+$(SO_LIB_NAME): $(AR_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
+	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION)
-	$(INSTALL) -m 644 $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib
-	$(LN) -sf $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED)
-	$(LN) -sf $(LIBM_SHARED_FULLNAME) $(TOPDIR)lib/$(LIBM_SHARED).$(MAJOR_VERSION)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
 
-$(COBJS): %.o : %.c
+$(COBJS) $(ARCH_OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
@@ -124,16 +125,5 @@ $(FL_MOBJ): $(FL_MSRC)
 tags:
 	ctags -R
 
-clean: subdirs_clean
-	$(RM) *.[oa] *~ core $(LIBM) $(LIBM_SHARED_FULLNAME)
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
-
-$(patsubst %, _dir_%, $(DIRS)): ar-target
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)): dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-.PHONY: dummy
+clean:
+	$(RM) *.o */*.o *~ core

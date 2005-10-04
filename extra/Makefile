@@ -33,7 +33,6 @@ tags:
 	ctags -R
 
 clean: subdirs_clean
-	$(RM) *.[oa] *~ core
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS) $(EXTRA_DIRS_TO_CLEAN))
@@ -45,4 +44,3 @@ $(patsubst %, _dirclean_%, $(DIRS) $(EXTRA_DIRS_TO_CLEAN)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 .PHONY: dummy
-

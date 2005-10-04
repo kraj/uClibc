@@ -86,7 +86,7 @@ pregen:
 	cat uClibc_locale_data.h | awk 'BEGIN{i=1}{ if ( /WANT_/ ) i = /endif/ ; else if (i) print $0 }' > ../../include/bits/uClibc_locale_data.h
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core
 	$(RM) gen_wc8bit gen_wctype gen_locale gen_ldc gen_collate
 	$(RM) c8tables.h wctables.h locale_tables.h lt_defines.h locale_collate.h
 	$(RM) gen_mmap locale.mmap lmmtolso
