@@ -19,40 +19,28 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
-ALL_SUBDIRS = nptl nptl_db
-DIRS = nptl
+ALL_SUBDIRS = $(PTNAME) $(PTNAME)_db
+DIRS = $(PTNAME)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	DIRS += nptl_db
-endif
-else
-ALL_SUBDIRS = linuxthreads linuxthreads_db
-DIRS = linuxthreads
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-        DIRS += linuxthreads_db
-endif
+	DIRS += $(PTNAME)_db
 endif
 
 all: subdirs
 
+# NPTL does not have a generic pthreadtypes.h ?
 headers:
+	$(LN) -sf $(PTDIR)/sysdeps/pthread/pthread.h $(TOPDIR)include/
+	$(LN) -sf $(PTDIR)/semaphore.h $(TOPDIR)include/
+ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+	$(LN) -sf $(PTDIR)_db/thread_db.h $(TOPDIR)include/
+endif
 ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
-	$(LN) -sf $(TOPDIR)libpthread/nptl/sysdeps/pthread/pthread.h $(TOPDIR)include/
-	$(LN) -sf $(TOPDIR)libpthread/nptl/semaphore.h $(TOPDIR)include/
-	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/semaphore.h $(TOPDIR)include/bits/
-	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h $(TOPDIR)include/bits/
-	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/pthread/bits/libc-lock.h $(TOPDIR)include/bits/
-	$(LN) -sf ../$(TOPDIR)libpthread/nptl/sysdeps/pthread/bits/stdio-lock.h $(TOPDIR)include/bits/
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(LN) -sf $(TOPDIR)libpthread/nptl_db/thread_db.h $(TOPDIR)include/
-endif
+	$(LN) -sf ../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/semaphore.h $(TOPDIR)include/bits/
+	$(LN) -sf ../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h $(TOPDIR)include/bits/
+	$(LN) -sf ../$(PTDIR)/sysdeps/pthread/bits/libc-lock.h $(TOPDIR)include/bits/
+	$(LN) -sf ../$(PTDIR)/sysdeps/pthread/bits/stdio-lock.h $(TOPDIR)include/bits/
 else
-	$(LN) -sf $(TOPDIR)libpthread/linuxthreads/sysdeps/pthread/pthread.h $(TOPDIR)include/
-	$(LN) -sf $(TOPDIR)libpthread/linuxthreads/semaphore.h $(TOPDIR)include/
-	$(LN) -sf ../$(TOPDIR)libpthread/linuxthreads/sysdeps/pthread/bits/pthreadtypes.h $(TOPDIR)include/bits/
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(LN) -sf $(TOPDIR)libpthread/linuxthreads_db/thread_db.h $(TOPDIR)include/
-endif
+	$(LN) -sf ../$(PTDIR)/sysdeps/pthread/bits/pthreadtypes.h $(TOPDIR)include/bits/
 endif
 
 tags:

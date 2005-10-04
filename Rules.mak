@@ -304,10 +304,17 @@ else
 endif
 
 ifeq ($(UCLIBC_HAS_THREADS),y)
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
+	PTNAME := nptl
+else
+	PTNAME := linuxthreads
+endif
+PTDIR := $(TOPDIR)libpthread/$(PTNAME)
 # set up system dependencies include dirs (NOTE: order matters!)
-PTDIR   := $(TOPDIR)libpthread/linuxthreads/
-PTINC   := -I$(PTDIR)sysdeps/pthread \
-           -I$(PTDIR)sysdeps/$(TARGET_ARCH)
+# psm: the next 2 are probably incorrect, the generic header will
+# win over the arch specific one
+PTINC := -I$(PTDIR)/sysdeps/pthread \
+	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)
 endif
 
 ifeq ($(UCLIBC_BUILD_RELRO),y)
