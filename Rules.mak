@@ -309,12 +309,40 @@ ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
 else
 	PTNAME := linuxthreads
 endif
-PTDIR := $(TOPDIR)libpthread/$(PTNAME)
+PTDIR := $(TOPDIR)libpthread/$(PTNAME)/
 # set up system dependencies include dirs (NOTE: order matters!)
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
+PTINC := -I$(PTDIR)compat					\
+	 -I$(PTDIR)sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
+	 -I$(PTDIR)sysdeps/$(TARGET_ARCH)			\
+	 -I$(PTDIR)sysdeps/unix/sysv/linux			\
+	 -I$(PTDIR)sysdeps/pthread				\
+	 -I$(PTDIR)sysdeps/pthread/bits				\
+	 -I$(PTDIR)sysdeps/generic				\
+	 -include $(PTDIR)compat/libc-symbols.h
+#
+# Test for TLS if NPTL support was selected.
+#
+GCC_HAS_TLS=$(shell \
+	echo "extern __thread int foo;" | $(CC) -o /dev/null -S -xc - 2>&1)
+ifneq ($(GCC_HAS_TLS),)
+gcc_tls_test_fail:
+	@echo "####";
+	@echo "#### Your compiler does not support TLS and you are trying to build uClibc";
+	@echo "#### with NPTL support. Upgrade your binutils and gcc to versions which";
+	@echo "#### support TLS for your architecture. Do not contact uClibc maintainers";
+	@echo "#### about this problem.";
+	@echo "####";
+	@echo "#### Exiting...";
+	@echo "####";
+	@exit 1;
+endif
+else
 # psm: the next 2 are probably incorrect, the generic header will
 # win over the arch specific one
-PTINC := -I$(PTDIR)/sysdeps/pthread \
-	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)
+PTINC := -I$(PTDIR)sysdeps/pthread				\
+         -I$(PTDIR)sysdeps/$(TARGET_ARCH)
+endif
 endif
 
 ifeq ($(UCLIBC_BUILD_RELRO),y)
