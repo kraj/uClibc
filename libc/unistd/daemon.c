@@ -29,8 +29,7 @@
 #include <paths.h>
 #include <unistd.h>
 
-/* Note that this file should not be compiled in 
- * unless __ARCH_HAS_MMU__ is defined */
+#if defined __ARCH_HAS_MMU__
 
 int daemon( int nochdir, int noclose )
 {
@@ -66,7 +65,7 @@ int daemon( int nochdir, int noclose )
 	return(0);
 }
 
-
+#endif
 
 /*-
  * Copyright (c) 1990, 1993

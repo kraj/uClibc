@@ -727,7 +727,7 @@ foo:
 				NULL
 			};
 
-			if ((pid = fork()) == 0) {
+			if ((pid = vfork()) == 0) {
 				/* Cool, it looks like we should be able to actually
 				 * run this puppy.  Do so now... */
 				execle(filename, filename, NULL, environment);

@@ -304,20 +304,22 @@ else
 endif
 
 ifeq ($(UCLIBC_HAS_THREADS),y)
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
+	PTNAME := nptl
+else
+	PTNAME := linuxthreads
+endif
+PTDIR := $(TOPDIR)libpthread/$(PTNAME)/
 # set up system dependencies include dirs (NOTE: order matters!)
-PTDIR   := $(TOPDIR)libpthread/linuxthreads/
-PTINC   := -I$(PTDIR)sysdeps/pthread \
-           -I$(PTDIR)sysdeps/$(TARGET_ARCH)
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-PTDIR	:= $(TOPDIR)libpthread/nptl/
-PTINC	:= -I$(PTDIR)compat					\
-	   -I$(PTDIR)sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
-	   -I$(PTDIR)sysdeps/$(TARGET_ARCH)			\
-	   -I$(PTDIR)sysdeps/unix/sysv/linux			\
-	   -I$(PTDIR)sysdeps/pthread				\
-	   -I$(PTDIR)sysdeps/pthread/bits			\
-	   -I$(PTDIR)sysdeps/generic				\
-	   -include $(PTDIR)compat/libc-symbols.h
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
+PTINC := -I$(PTDIR)compat					\
+	 -I$(PTDIR)sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
+	 -I$(PTDIR)sysdeps/$(TARGET_ARCH)			\
+	 -I$(PTDIR)sysdeps/unix/sysv/linux			\
+	 -I$(PTDIR)sysdeps/pthread				\
+	 -I$(PTDIR)sysdeps/pthread/bits				\
+	 -I$(PTDIR)sysdeps/generic				\
+	 -include $(PTDIR)compat/libc-symbols.h
 #
 # Test for TLS if NPTL support was selected.
 #
@@ -335,6 +337,11 @@ gcc_tls_test_fail:
 	@echo "####";
 	@exit 1;
 endif
+else
+# psm: the next 2 are probably incorrect, the generic header will
+# win over the arch specific one
+PTINC := -I$(PTDIR)sysdeps/pthread				\
+         -I$(PTDIR)sysdeps/$(TARGET_ARCH)
 endif
 endif
 

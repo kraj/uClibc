@@ -43,8 +43,10 @@ include/dl-progname.h:
 	echo '#include "$(TARGET_ARCH)/elfinterp.c"' \
 		> include/dl-progname.h
 
-clean: subdirs_clean
+headers_clean:
 	$(RM) $(HEADERS)
+
+clean: subdirs_clean headers_clean
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))

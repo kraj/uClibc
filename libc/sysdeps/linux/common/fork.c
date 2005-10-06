@@ -13,11 +13,5 @@
 #ifdef __ARCH_HAS_MMU__
 #define __NR___libc_fork __NR_fork
 _syscall0(pid_t, __libc_fork);
-#else
-pid_t __libc_fork(void)
-{
-	__set_errno(ENOSYS);
-	return -1;
-}
-#endif
 weak_alias(__libc_fork, fork);
+#endif

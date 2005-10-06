@@ -96,6 +96,7 @@ extern int madvise (void *__addr, size_t __len, int __advice) __THROW;
 extern int posix_madvise (void *__addr, size_t __len, int __advice) __THROW;
 #endif
 
+#if defined __ARCH_HAS_MMU__
 /* Guarantee all whole pages mapped by the range [ADDR,ADDR+LEN) to
    be memory resident.  */
 extern int mlock (__const void *__addr, size_t __len) __THROW;
@@ -111,6 +112,7 @@ extern int mlockall (int __flags) __THROW;
 /* All currently mapped pages of the process' address space become
    unlocked.  */
 extern int munlockall (void) __THROW;
+#endif
 
 #ifdef __USE_MISC
 /* Remap pages mapped by the range [ADDR,ADDR+OLD_LEN) to new length

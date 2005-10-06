@@ -9,6 +9,6 @@
 
 #include "syscalls.h"
 #include <sys/mman.h>
-#	if defined __ARCH_HAS_MMU__ && defined __NR_mlockall
+#if defined __ARCH_HAS_MMU__ && defined __NR_mlockall
 _syscall1(int, mlockall, int, flags);
-#	endif
+#endif
