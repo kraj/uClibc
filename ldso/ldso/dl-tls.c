@@ -926,6 +926,7 @@ _dl_initial_error_catch_tsd (void)
 	return &data;
 }
 
+#if !defined(SHARED)
 static void *
 init_tls (void)
 {
@@ -1008,3 +1009,4 @@ init_tls (void)
 
 	return tcbp;
 }
+#endif

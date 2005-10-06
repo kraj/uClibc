@@ -329,6 +329,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 	ElfW(Dyn) *dpnt;
 	struct elf_resolve *tpnt;
 	ElfW(Phdr) *ppnt;
+#if USE_TLS
+	ElfW(Phdr) *tlsppnt = NULL;
+#endif
 	char *status, *header;
 	unsigned long dynamic_info[DYNAMIC_SIZE];
 	unsigned long *lpnt;
@@ -439,66 +442,9 @@ struct elf_resolve *_dl_load_elf_shared_library(int secure,
 			if (ppnt->p_memsz == 0)
 				/* Nothing to do for an empty segment.  */
 				continue;
-
-			tpnt->l_tls_blocksize = ppnt->p_memsz;
-			tpnt->l_tls_align = ppnt->p_align;
-			if (ppnt->p_align == 0)
-				tpnt->l_tls_firstbyte_offset = 0;
 			else
-				tpnt->l_tls_firstbyte_offset = ppnt->p_vaddr &
-					(ppnt->p_align - 1);
-			tpnt->l_tls_initimage_size = ppnt->p_filesz;
-			/* Since we don't know the load address yet only store the
-			   offset.  We will adjust it later.  */
-			tpnt->l_tls_initimage = (void *) ppnt->p_vaddr;
-
-			/* If _dl_tls_dtv_slotinfo_list == NULL, then ldso.c did
-			   not set up TLS data structures, so don't use them now.  */
-			if (__builtin_expect (_dl_tls_dtv_slotinfo_list != NULL, 1))
-			{
-				/* Assign the next available module ID.  */
-				tpnt->l_tls_modid = _dl_next_tls_modid ();
-				continue;
-			}
-
-# ifdef SHARED
-			if (tpnt->prev == NULL)
-				/* We are loading the executable itself when the dynamic linker
-				   was executed directly.  The setup will happen later.  */
-				continue;
-
-			/* In a static binary there is no way to tell if we dynamically
-			   loaded libpthread.  */
-			if (_dl_error_catch_tsd == &_dl_initial_error_catch_tsd)
-# endif
-			{
-				/* We have not yet loaded libpthread.
-				   We can do the TLS setup right now!  */
-
-				void *tcb;
-
-				/* The first call allocates TLS bookkeeping data structures.
-				   Then we allocate the TCB for the initial thread.  */
-				if (__builtin_expect (_dl_tls_setup (), 0)
-					|| __builtin_expect ((tcb = _dl_allocate_tls(NULL)) == NULL, 0))
-				{
-					_dl_dprintf(2, "%s: '%s' cannot allocate TLS data structures for initial thread\n", _dl_progname, libname);
-					goto tls_failed;	/* I'm using a goto, so shoot me. */
-				}
-
-				/* Now we install the TCB in the thread register.  */
-				if (__builtin_expect (TLS_INIT_TP (tcb, 0) == NULL, 1))
-				{
-					/* Now we are all good.  */
-					tpnt->l_tls_modid = ++_dl_tls_max_dtv_idx;
-					continue;
-				}
-
-				/* The kernel is too old or somesuch.  */
-				_dl_dprintf(2, "%s: '%s' unknown TLS error\n", _dl_progname, libname);
-				_dl_deallocate_tls (tcb, 1);
-			}
-tls_failed:
+				/* Save for after 'tpnt' is actually allocated. */
+				tlsppnt = ppnt;
 #else
 			/*
 			 * Yup, the user was an idiot and tried to sneak in a library with
@@ -507,11 +453,11 @@ tls_failed:
 			 */
 			_dl_dprintf(2, "%s: '%s' library contains unsupported TLS\n",
 				_dl_progname, libname);
-#endif
 			_dl_internal_error_number = LD_ERROR_TLS_FAILED;
 			_dl_close(infile);
 			_dl_munmap(header, _dl_pagesize);
 			return NULL;
+#endif
 		}
 		ppnt++;
 	};
@@ -667,9 +613,74 @@ tls_failed:
 	tpnt->n_phent = epnt->e_phnum;
 
 #if USE_TLS
-	/* Adjust the address of the TLS initialization image.  */
-	if (tpnt->l_tls_initimage != NULL)
-		tpnt->l_tls_initimage = (char *) tpnt->l_tls_initimage + tpnt->loadaddr;
+	if (tlsppnt)
+	{
+		tpnt->l_tls_blocksize = tlsppnt->p_memsz;
+		tpnt->l_tls_align = tlsppnt->p_align;
+		if (tlsppnt->p_align == 0)
+			tpnt->l_tls_firstbyte_offset = 0;
+		else
+			tpnt->l_tls_firstbyte_offset = tlsppnt->p_vaddr &
+				(tlsppnt->p_align - 1);
+		tpnt->l_tls_initimage_size = tlsppnt->p_filesz;
+		/* We know the load address, so add it to the offset. */
+		if ((void *) tlsppnt->p_vaddr != NULL)
+			tpnt->l_tls_initimage = (void *) tlsppnt->p_vaddr + tpnt->loadaddr;
+		else
+			tpnt->l_tls_initimage = NULL;
+
+		/* If _dl_tls_dtv_slotinfo_list == NULL, then ldso.c did
+		   not set up TLS data structures, so don't use them now.  */
+		if (__builtin_expect (_dl_tls_dtv_slotinfo_list != NULL, 1))
+		{
+			/* Assign the next available module ID.  */
+			tpnt->l_tls_modid = _dl_next_tls_modid ();
+			goto tls_success;
+		}
+
+# ifdef SHARED
+		/* In a static binary there is no way to tell if we dynamically
+		   loaded libpthread.  */
+		if (_dl_error_catch_tsd == &_dl_initial_error_catch_tsd)
+# endif
+		{
+			/* We have not yet loaded libpthread.
+			   We can do the TLS setup right now!  */
+			void *tcb;
+
+			/* The first call allocates TLS bookkeeping data structures.
+			   Then we allocate the TCB for the initial thread.  */
+			if (__builtin_expect (_dl_tls_setup (), 0)
+				|| __builtin_expect ((tcb = _dl_allocate_tls(NULL)) == NULL, 0))
+			{
+				_dl_dprintf(2, "%s: '%s' cannot allocate TLS data structures for initial thread\n", _dl_progname, libname);
+				goto tls_fail;
+			}
+
+			/* Now we install the TCB in the thread register.  */
+			if (__builtin_expect (TLS_INIT_TP (tcb, 0) == NULL, 1))
+			{
+				/* Now we are all good.  */
+				tpnt->l_tls_modid = ++_dl_tls_max_dtv_idx;
+				goto tls_success;
+			}
+
+			/* The kernel is too old or somesuch.  */
+			_dl_dprintf(2, "%s: '%s' unknown TLS error\n", _dl_progname, libname);
+			_dl_deallocate_tls (tcb, 1);
+		}
+
+tls_fail:
+		_dl_dprintf(2, "%s: '%s' library contains unsupported TLS\n",
+			_dl_progname, libname);
+		_dl_internal_error_number = LD_ERROR_TLS_FAILED;
+		_dl_close(infile);
+		_dl_munmap(header, _dl_pagesize);
+		return NULL;
+
+tls_success:
+		_dl_debug_early("parsed TLS program header\n");
+	}
 #endif
 
 	/*
