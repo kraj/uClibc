@@ -370,7 +370,8 @@ clean:
 	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
 	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
 	fi
-	-find . -name \*.o* -exec $(RM) {} \;
+	-find . -name \*.o -exec $(RM) {} \;
+	-find . -name \*.os -exec $(RM) {} \;
 
 distclean: clean
 	-find . \( -name core -o -name \*.orig -o -name \*~ -o -name .\#\* \) -exec $(RM) {} \;
