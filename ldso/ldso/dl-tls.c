@@ -926,8 +926,8 @@ _dl_initial_error_catch_tsd (void)
 	return &data;
 }
 
-#if !defined(SHARED)
-static void *
+void *
+internal_function
 init_tls (void)
 {
 	/* Number of elements in the static TLS block.  */
@@ -1009,4 +1009,4 @@ init_tls (void)
 
 	return tcbp;
 }
-#endif
+rtld_hidden_def (init_tls)
