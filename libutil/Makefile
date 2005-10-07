@@ -36,31 +36,29 @@ ifneq ($(strip $(ARCH_HAS_MMU)),y)
 CSRC := $(filter-out forkpty.c,$(CSRC))
 endif
 
-OBJS=$(patsubst %.c,%.o, $(CSRC))
-
 ifeq ($(strip $(HAVE_SHARED)),y)
 all: $(SO_LIB_NAME)
 else
 all: $(AR_LIB_NAME)
 endif
 
-$(AR_LIB_NAME): $(OBJS)
+$(AR_LIB_NAME): $(LIB_NAME).o
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(AR_LIB_NAME)
-	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
+	$(RM) $@
+	$(AR) $(ARFLAGS) $@ $<
 
 $(SO_LIB_NAME): $(AR_LIB_NAME)
-	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $@
 	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
-		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $< \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
 	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
-	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
+	$(LN) -sf $(SO_FULL_NAME) $@
 
-$(OBJS): %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
+$(LIB_NAME).o: $(CSRC)
+	$(CC) $(CFLAGS) -o $@ -c $^
+	$(STRIPTOOL) -x -R .note -R .comment $@
 
 clean:
 	$(RM) *.o *~ core
