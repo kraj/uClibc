@@ -61,6 +61,10 @@ headers_clean:
 		$(TOPDIR)include/thread_db.h \
 		$(TOPDIR)include/bits/pthreadtypes.h $(TOPDIR)include/bits/semaphore.h \
 		$(TOPDIR)include/bits/libc-lock.h $(TOPDIR)include/bits/stdio-lock
+ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
+	$(RM)	$(PTNAME)/version.h $(PTDIR)/banner.h \
+		$(PTDIR)/sysdeps/unix/sysv/linux/rtld-libc-lowlevellock.c
+endif
 
 clean: subdirs_clean headers_clean
 
