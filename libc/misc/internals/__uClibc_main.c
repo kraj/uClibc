@@ -29,10 +29,10 @@
 #include <ssp-internal.h>
 #include <stdint.h>
 
-/* for gcc-3.x + Etoh ssp */
-uintptr_t __guard attribute_relro;
 /* for gcc-4.1 non-TLS */
 uintptr_t __stack_chk_guard attribute_relro;
+/* for gcc-3.x + Etoh ssp */
+strong_alias(__stack_chk_guard,__guard)
 #endif
 
 /*
@@ -201,8 +201,6 @@ void __uClibc_init(void)
 
 #ifdef __UCLIBC_HAS_SSP__
     uintptr_t stack_chk_guard = _dl_guard_setup();
-    /* for gcc-3.x + Etoh ssp */
-    __guard = stack_chk_guard;
     /* for gcc-4.1 non-TLS */
     __stack_chk_guard = stack_chk_guard;
 #endif
