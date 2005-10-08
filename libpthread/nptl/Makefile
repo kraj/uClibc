@@ -275,7 +275,7 @@ endif
 	$(AR) $(ARFLAGS) $(AR_SO_LIB_NAME) $(SO_LIBP_COBJS)
 
 $(SO_LIB_NAME): $(AR_SO_LIB_NAME) subdirs
-	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIB_NAME).$(MAJOR_VERSION) \
+	$(LD) $(LDFLAGS_NOSTRIP) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
 		-o $(TOPDIR)lib/$(SO_FULL_NAME) $(SHARED_START_FILES) --whole-archive $(AR_SO_LIB_NAME) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC) \
@@ -284,7 +284,6 @@ $(SO_LIB_NAME): $(AR_SO_LIB_NAME) subdirs
 		$(SHARED_END_FILES)
 	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
 	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
-	$(RM) $(AR_SO_LIB_NAME)
 
 obj.pthread.ar: $(AR_LIBC_COBJS)
 	$(RM) $(TOPDIR)libc/$@
