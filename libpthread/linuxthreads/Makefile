@@ -31,8 +31,8 @@ CFLAGS += $(PTINC)
 ARCH_CFLAGS := $(CFLAGS)
 
 ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
-SHARED_START_FILES := $(TOPDIR)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
-SHARED_END_FILES := $(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
+SHARED_START_FILES = $(TOPDIR)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
+SHARED_END_FILES = $(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
 endif
 
 LIB_NAME := libpthread
