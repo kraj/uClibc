@@ -27,7 +27,9 @@ include $(TOPDIR)Rules.mak
 CSRC=__uClibc_main.c tempname.c errno.c __errno_location.c __h_errno_location.c
 COBJS=$(patsubst %.c,%.o, $(CSRC))
 
+ifeq ($(UCLIBC_HAS_SSP),y)
 __uClibc_main.o: CFLAGS += $(SSP_DISABLE_FLAGS)
+endif
 
 OBJS=$(COBJS)
 

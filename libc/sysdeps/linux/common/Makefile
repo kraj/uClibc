@@ -31,9 +31,9 @@ SRCS := $(filter-out ssp.c,$(SRCS))
 NONSHARED_OBJ_LIST=
 else
 NONSHARED_OBJ_LIST=../../../nonshared_obj.sysdeps.common
-endif
 ssp.o: CFLAGS += $(SSP_DISABLE_FLAGS)
 ssp-local.o: CFLAGS += $(SSP_DISABLE_FLAGS)
+endif
 
 OBJS  = $(patsubst %.c,%.o, $(SRCS))
 
