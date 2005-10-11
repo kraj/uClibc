@@ -39,10 +39,13 @@ else
 all: $(AR_LIB_NAME)
 endif
 
-$(AR_LIB_NAME): $(LIB_NAME).o
+# psm: 20051007 gcc-4.1-head optimizes crypt()/__des_crypt() away
+# $(AR_LIB_NAME): $(LIB_NAME).o
+
+$(AR_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $@
-	$(AR) $(ARFLAGS) $@ $<
+	$(AR) $(ARFLAGS) $@ $^
 
 $(SO_LIB_NAME): $(AR_LIB_NAME)
 	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $@
@@ -56,6 +59,10 @@ $(SO_LIB_NAME): $(AR_LIB_NAME)
 $(LIB_NAME).o: $(CSRC)
 	$(CC) $(CFLAGS) -o $@ -c $^
 	$(STRIPTOOL) -x -R .note -R .comment $@
+
+$(OBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	$(RM) *.o *~ core
