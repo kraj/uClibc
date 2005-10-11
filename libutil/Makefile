@@ -26,15 +26,17 @@ include $(TOPDIR)Rules.mak
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-LIB_NAME=libutil
-AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
-SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
-SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME := libutil
+AR_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME := $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-CSRC=$(wildcard *.c)
+CSRC = $(wildcard *.c)
 ifneq ($(strip $(ARCH_HAS_MMU)),y)
 CSRC := $(filter-out forkpty.c,$(CSRC))
 endif
+
+OBJS := $(patsubst %.c,%.o, $(CSRC))
 
 ifeq ($(strip $(HAVE_SHARED)),y)
 all: $(SO_LIB_NAME)
