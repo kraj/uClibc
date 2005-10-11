@@ -38,10 +38,10 @@ VERSION_SCRIPT:=${shell if [ -f sysdeps/linux/$(TARGET_ARCH)/libc.map ] ; then \
         echo "--version-script sysdeps/linux/$(TARGET_ARCH)/libc.map"; fi}
 
 # we have SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION) defined in Rules.mak
-LIB_NAME=libc
-AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
-SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
-SO_FULL_NAME=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME := libc
+AR_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME = $(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME = libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 ifeq ($(strip $(HAVE_SHARED)),y)
 all: $(SO_LIB_NAME)
@@ -61,31 +61,31 @@ endif
 # target is evaluated.  That means if you run `rm obj.* ; make`, the wildcard 
 # will evaluate to no files :(.
 shared_$(LIB_NAME).a: subdirs
-	$(RM) shared_$(LIB_NAME).a
+	$(RM) $@
 	objs=`cat obj.*` ; \
-	$(AR) $(ARFLAGS) shared_$(LIB_NAME).a $$objs && \
-	$(AR) dN 2 shared_$(LIB_NAME).a $$objs && \
-	$(AR) dN 2 shared_$(LIB_NAME).a $$objs
+	$(AR) $(ARFLAGS) $@ $$objs && \
+	$(AR) dN 2 $@ $$objs && \
+	$(AR) dN 2 $@ $$objs
 	@for objfile in obj.signal \
 	                obj.string.generic obj.string.$(TARGET_ARCH) obj.string \
 	                obj.sysdeps.common obj.sysdeps.$(TARGET_ARCH) ; do \
 		if [ -e $$objfile ] ; then \
 			if [ "$(MAKE_IS_SILENT)" = "n" ] ; then \
-				echo $(AR) $(ARFLAGS) shared_$(LIB_NAME).a $$objfile ; \
+				echo $(AR) $(ARFLAGS) $@ $$objfile ; \
 			fi ; \
 			objs=`cat $$objfile` ; \
 		fi ; \
-		$(AR) $(ARFLAGS) shared_$(LIB_NAME).a $$objs || exit 1 ; \
+		$(AR) $(ARFLAGS) $@ $$objs || exit 1 ; \
 	done
 
 $(AR_LIB_NAME): shared_$(LIB_NAME).a
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(AR_LIB_NAME)
-	cp shared_$(LIB_NAME).a $(AR_LIB_NAME)
-	$(AR) $(ARFLAGS) $(AR_LIB_NAME) misc/internals/static.o `cat nonshared_obj.*`
+	$(RM) $@
+	cp $< $@
+	$(AR) $(ARFLAGS) $@ misc/internals/static.o `cat nonshared_obj.*`
 
 $(SO_LIB_NAME): $(AR_LIB_NAME)
-	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(TOPDIR)lib/$(SHARED_MAJORNAME) $(SO_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(TOPDIR)lib/$(SHARED_MAJORNAME) $@
 	$(LD) $(LDFLAGS) $(VERSION_SCRIPT) -soname=$(SHARED_MAJORNAME) \
 		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive shared_$(LIB_NAME).a \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
@@ -93,15 +93,15 @@ $(SO_LIB_NAME): $(AR_LIB_NAME)
 	$(LN) -sf $(SO_FULL_NAME) $(TOPDIR)lib/$(SHARED_MAJORNAME)
 	$(RM) $(TOPDIR)lib/$(NONSHARED_LIBNAME)
 	$(AR) $(ARFLAGS) $(TOPDIR)lib/$(NONSHARED_LIBNAME) `cat nonshared_obj.*`
-	echo "/* GNU ld script" > $(SO_LIB_NAME)
-	echo " * Use the shared library, but some functions are only in" >> $(SO_LIB_NAME)
-	echo " * the static library, so try that secondarily. */" >> $(SO_LIB_NAME)
+	echo "/* GNU ld script" > $@
+	echo " * Use the shared library, but some functions are only in" >> $@
+	echo " * the static library, so try that secondarily. */" >> $@
 	#OUT_FORMAT:=$(shell $(LD) --verbose | grep OUTPUT_FORMAT | awk -F '"' '{print $2}')
-	#echo "OUTPUT_FORMAT($(OUT_FORMAT))" >> $(SO_LIB_NAME)
+	#echo "OUTPUT_FORMAT($(OUT_FORMAT))" >> $@
 ifeq ($(strip $(COMPAT_ATEXIT)),y)
-	echo "GROUP ( $(TOPDIR)lib/$(NONSHARED_LIBNAME) $(TOPDIR)lib/$(SHARED_MAJORNAME) )" >> $(SO_LIB_NAME)
+	echo "GROUP ( $(TOPDIR)lib/$(NONSHARED_LIBNAME) $(TOPDIR)lib/$(SHARED_MAJORNAME) )" >> $@
 else
-	echo "GROUP ( $(TOPDIR)lib/$(SHARED_MAJORNAME) $(TOPDIR)lib/$(NONSHARED_LIBNAME) )" >> $(SO_LIB_NAME)
+	echo "GROUP ( $(TOPDIR)lib/$(SHARED_MAJORNAME) $(TOPDIR)lib/$(NONSHARED_LIBNAME) )" >> $@
 endif
 
 tags:

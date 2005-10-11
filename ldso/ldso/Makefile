@@ -67,34 +67,33 @@ ifneq ($(strip $(SUPPORT_LD_DEBUG)),y)
 LDFLAGS+=-s
 endif
 
-LIB_NAME=ld-uClibc
-SO_LIB_NAME=$(TOPDIR)lib/$(UCLIBC_LDSO)
-SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME := ld-uClibc
+SO_LIB_NAME := $(TOPDIR)lib/$(UCLIBC_LDSO)
+SO_FULL_NAME := $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-CSRC= ldso.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+CSRC := ldso.c
+COBJS := $(patsubst %.c,%.o, $(CSRC))
 
-ASRC=$(wildcard $(TARGET_ARCH)/*.S)
-AOBJS=$(patsubst %.S,%.o, $(ASRC))
+ASRC := $(wildcard $(TARGET_ARCH)/*.S)
+AOBJS := $(patsubst %.S,%.o, $(ASRC))
 
-OBJS=$(AOBJS) $(COBJS)
+OBJS := $(AOBJS) $(COBJS)
 
 all: $(SO_LIB_NAME)
 
 $(SO_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $@
+	$(STRIPTOOL) -x -R .note -R .comment $^
 	$(LD) $(LDFLAGS) -soname=$(UCLIBC_LDSO) \
-		-o $(TOPDIR)lib/$(SO_FULL_NAME) $(OBJS) $(LIBGCC)
-	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) $^ $(LIBGCC)
+	$(LN) -sf $(SO_FULL_NAME) $@
 
 $(COBJS): %.o : %.c
 	$(CC) $(XXFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(AOBJS): %.o : %.S
 	$(CC) $(ASFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	$(RM) *.o */*.o *~ core

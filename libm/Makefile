@@ -38,15 +38,15 @@ CFLAGS+=$(SSP_ALL_CFLAGS)
 
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
-LIB_NAME=libm
-AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
-SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
-SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME := libm
+AR_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME = $(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME = $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-FL_MSRC = float_wrappers.c
+FL_MSRC := float_wrappers.c
 
 ifeq ($(strip $(DO_C99_MATH)),y)
-CSRC =   e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
+CSRC :=  e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
          e_exp.c e_fmod.c e_gamma.c e_gamma_r.c e_hypot.c e_j0.c\
          e_j1.c e_jn.c e_lgamma.c e_lgamma_r.c e_log.c e_log10.c\
          e_pow.c e_remainder.c e_rem_pio2.c e_scalb.c e_sinh.c\
@@ -61,7 +61,7 @@ CSRC =   e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
          w_hypot.c w_j0.c w_j1.c w_jn.c w_lgamma.c w_lgamma_r.c\
          w_log.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c\
          w_sqrt.c fpmacros.c nan.c s_ceilf.c s_floorf.c
-FL_MOBJ = acosf.o acoshf.o asinf.o asinhf.o atan2f.o atanf.o atanhf.o cbrtf.o \
+FL_MOBJ := acosf.o acoshf.o asinf.o asinhf.o atan2f.o atanf.o atanhf.o cbrtf.o \
 	ceilf.o copysignf.o cosf.o coshf.o erfcf.o erff.o exp2f.o expf.o \
 	expm1f.o fabsf.o fdimf.o floorf.o fmaf.o fmaxf.o fminf.o fmodf.o \
 	frexpf.o hypotf.o ilogbf.o ldexpf.o lgammaf.o log10f.o log1pf.o \
@@ -71,27 +71,27 @@ FL_MOBJ = acosf.o acoshf.o asinf.o asinhf.o atan2f.o atanf.o atanhf.o cbrtf.o \
 	tgammaf.o truncf.o
 else
 # This list of math functions was taken from POSIX/IEEE 1003.1b-1993
-CSRC =   w_acos.c w_asin.c s_atan.c w_atan2.c s_ceil.c s_cos.c \
+CSRC :=  w_acos.c w_asin.c s_atan.c w_atan2.c s_ceil.c s_cos.c \
 	 w_cosh.c w_exp.c s_fabs.c s_floor.c w_fmod.c s_frexp.c \
 	 s_ldexp.c w_log.c w_log10.c s_modf.c w_pow.c s_sin.c \
-	 w_sinh.c w_sqrt.c s_tan.c s_tanh.c
-CSRC+=   s_expm1.c s_scalbn.c s_copysign.c e_acos.c e_asin.c e_atan2.c \
+	 w_sinh.c w_sqrt.c s_tan.c s_tanh.c \
+	 s_expm1.c s_scalbn.c s_copysign.c e_acos.c e_asin.c e_atan2.c \
 	 k_cos.c e_cosh.c e_exp.c e_fmod.c e_log.c e_log10.c e_pow.c \
 	 k_sin.c e_sinh.c e_sqrt.c k_tan.c e_rem_pio2.c k_rem_pio2.c \
 	 s_finite.c
 # We'll add sqrtf to avoid problems with libstdc++
-FL_MOBJ = sqrtf.o
+FL_MOBJ := sqrtf.o
 endif
 
 ifeq ($(strip $(HAS_FPU)),y)
 ifeq ($(strip $(DO_C99_MATH)),y)
-ARCH_CSRC=$(wildcard $(TARGET_ARCH)/*.c)
-ARCH_OBJS=$(patsubst %.c,%.o, $(ARCH_CSRC))
+ARCH_CSRC := $(wildcard $(TARGET_ARCH)/*.c)
+ARCH_OBJS := $(patsubst %.c,%.o, $(ARCH_CSRC))
 endif
 endif
 
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS) $(FL_MOBJ)
+COBJS := $(patsubst %.c,%.o, $(CSRC))
+OBJS := $(COBJS) $(FL_MOBJ)
 
 ifeq ($(strip $(HAVE_SHARED)),y)
 all: $(SO_LIB_NAME)
@@ -101,26 +101,25 @@ endif
 
 $(AR_LIB_NAME): $(OBJS) $(ARCH_OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(AR_LIB_NAME)
-	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
-	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(ARCH_OBJS)
+	$(RM) $@
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(ARCH_OBJS)
 
 $(SO_LIB_NAME): $(AR_LIB_NAME)
-	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $@
 	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
-		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $< \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
 	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
-	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
+	$(LN) -sf $(SO_FULL_NAME) $@
 
 $(COBJS) $(ARCH_OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(FL_MOBJ): $(FL_MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 tags:
 	ctags -R

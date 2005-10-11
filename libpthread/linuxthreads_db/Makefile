@@ -21,20 +21,20 @@ include $(TOPDIR)Rules.mak
 
 #CFLAGS+=$(SSP_ALL_CFLAGS)
 
-LIB_NAME=libthread_db
-AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
-SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
-SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME := libthread_db
+AR_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME = $(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME = $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 # Get the thread include dependencies and shared object name
 CFLAGS += $(PTINC) -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 
 # Remove any -z defs since this lib will have undefined symbols
-LDFLAGS := $(subst -z defs,,$(LDFLAGS)) --warn-unresolved-symbols
+LDFLAGS = $(subst -z defs,,$(LDFLAGS)) --warn-unresolved-symbols
 
-CSRC=$(wildcard *.c)
+CSRC := $(wildcard *.c)
 
-OBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS := $(patsubst %.c,%.o, $(CSRC))
 
 ifeq ($(strip $(HAVE_SHARED)),y)
 all: $(SO_LIB_NAME)
@@ -44,21 +44,21 @@ endif
 
 $(AR_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(AR_LIB_NAME)
-	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
+	$(RM) $@
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	$(AR) $(ARFLAGS) $@ $^
 
 $(SO_LIB_NAME): $(AR_LIB_NAME)
-	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).1 $(SO_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).1 $@
 	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.1 \
-		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $< \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
 	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).1
-	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
+	$(LN) -sf $(SO_FULL_NAME) $@
 
 $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	$(RM) *.o *~ core

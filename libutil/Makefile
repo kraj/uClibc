@@ -28,8 +28,8 @@ CFLAGS+=$(SSP_ALL_CFLAGS)
 
 LIB_NAME := libutil
 AR_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).a
-SO_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).so
-SO_FULL_NAME := $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+SO_LIB_NAME = $(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME = $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 CSRC = $(wildcard *.c)
 ifneq ($(strip $(ARCH_HAS_MMU)),y)
@@ -50,6 +50,7 @@ endif
 $(AR_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $@
+	$(STRIPTOOL) -x -R .note -R .comment $^
 	$(AR) $(ARFLAGS) $@ $^
 
 $(SO_LIB_NAME): $(AR_LIB_NAME)
@@ -63,11 +64,9 @@ $(SO_LIB_NAME): $(AR_LIB_NAME)
 
 $(LIB_NAME).o: $(CSRC)
 	$(CC) $(CFLAGS) -o $@ -c $^
-	$(STRIPTOOL) -x -R .note -R .comment $@
 
 $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	$(RM) *.o *~ core

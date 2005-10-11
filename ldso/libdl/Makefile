@@ -45,14 +45,14 @@ ifeq ($(strip $(TARGET_ARCH)),mips)
 XXFLAGS := $(XXFLAGS:-O0=-O1)
 endif
 
-LIB_NAME=libdl
-AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
-SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
-SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME := libdl
+AR_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME := $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-CSRC = libdl.c
-OBJS = libdl.o
-PIC_OBJS = libdl_pic.o
+CSRC := libdl.c
+OBJS := libdl.o
+PIC_OBJS := libdl_pic.o
 
 # we do not get here, do we need a libdl.a, if ld.so is not ours?
 #ifeq ($(strip $(HAVE_SHARED)),y)
@@ -63,24 +63,25 @@ all: $(AR_LIB_NAME) $(SO_LIB_NAME)
 
 $(AR_LIB_NAME): $(OBJS) ../ldso/$(TARGET_ARCH)/resolve.o
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(AR_LIB_NAME)
-	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS) ../ldso/$(TARGET_ARCH)/resolve.o
+	$(RM) $@
+	$(AR) $(ARFLAGS) $@ $^
 
 shared_$(LIB_NAME).a: $(PIC_OBJS)
-	$(RM) shared_$(LIB_NAME).a
-	$(AR) $(ARFLAGS) shared_$(LIB_NAME).a $(PIC_OBJS)
+	$(RM) $@
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	$(AR) $(ARFLAGS) $@ $^
 
 # this will be built only on the second round, when libc.so is present,
 # else we would link against libc.a
 $(SO_LIB_NAME): shared_$(LIB_NAME).a
 	if [ -f $(TOPDIR)lib/libc.so ] ; then \
-		$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME) ; \
+		$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $@ ; \
 		$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
-			-o $(TOPDIR)lib/$(SO_FULL_NAME) -fini dl_cleanup --whole-archive shared_$(LIB_NAME).a \
+			-o $(TOPDIR)lib/$(SO_FULL_NAME) -fini dl_cleanup --whole-archive $< \
 			--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 			-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(TOPDIR)lib/$(UCLIBC_LDSO) $(LIBGCC) ; \
 		$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) ; \
-		$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME) ; \
+		$(LN) -sf $(SO_FULL_NAME) $@ ; \
 	fi
 
 $(OBJS): %.o : %.c
@@ -89,7 +90,6 @@ $(OBJS): %.o : %.c
 
 libdl_pic.o: libdl.c
 	$(CC) $(XXFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	$(RM) *.[oa] *~ core

@@ -26,17 +26,17 @@ include $(TOPDIR)Rules.mak
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-LIB_NAME=libintl
-AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
-SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
-SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME := libintl
+AR_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME = $(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME = $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-MSRC= intl.c
-MOBJ= gettext.o ngettext.o  dgettext.o dcgettext.o dngettext.o dcngettext.o \
+MSRC := intl.c
+MOBJ := gettext.o ngettext.o  dgettext.o dcgettext.o dngettext.o dcngettext.o \
 	textdomain.o bindtextdomain.o bind_textdomain_codeset.o \
 	_nl_expand_alias.o _nl_msg_cat_cntr.o # glibc-isms
 
-OBJS=$(MOBJ)
+OBJS := $(MOBJ)
 
 ifeq ($(strip $(HAVE_SHARED)),y)
 all: $(SO_LIB_NAME)
@@ -46,21 +46,21 @@ endif
 
 $(AR_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(AR_LIB_NAME)
-	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
+	$(RM) $@
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	$(AR) $(ARFLAGS) $@ $^
 
 $(SO_LIB_NAME): $(AR_LIB_NAME)
-	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $@
 	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
-		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $< \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
 	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
-	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
+	$(LN) -sf $(SO_FULL_NAME) $@
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	$(RM) *.o *~ core
