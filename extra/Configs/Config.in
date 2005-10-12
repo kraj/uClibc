@@ -1171,17 +1171,6 @@ config SSP_QUICK_CANARY
 	  	attacks.
 	  Most people will answer N.
 
-config SSP_USE_ERANDOM
-	bool "Use erandom for setting guard value if /dev/urandom fails"
-	depends on UCLIBC_HAS_SSP && !SSP_QUICK_CANARY
-	default n
-	help
-	  Use /dev/erandom to define the guard if /dev/urandom fails (chroot).
-	  This requires a modified kernel.
-	  More information at:
-	  <http://frandom.sourceforge.net/>
-	  Most people will answer N.
-
 choice
 	prompt "Propolice protection blocking signal"
 	depends on UCLIBC_HAS_SSP

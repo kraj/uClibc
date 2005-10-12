@@ -21,17 +21,6 @@
 #include <signal.h>
 #include <linux/unistd.h>
 
-#ifdef __SSP_USE_ERANDOM__
-# include <sys/sysctl.h>
-#if 1
-# define SYSCTL __sysctl
-#else
-#define __NR__kernel_sysctl		__NR_sysctl
-static __always_inline _syscall6(int,__kernel_sysctl,int *,name,int,nlen,void *,oldval,size_t *,oldlenp,void *,newval,size_t,newlen);
-#define SYSCTL(name,nlen,oldval,oldlenp,newval,newlen) __kernel_sysctl(name,nlen,oldval,oldlenp,newval,newlen)
-#endif
-#endif
-
 #ifndef __SSP_QUICK_CANARY__
 #define __NR___kernel_open		__NR_open
 static __always_inline _syscall2(int,__kernel_open,const char *,path,int,flags);

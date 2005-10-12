@@ -115,35 +115,10 @@ static __always_inline uintptr_t _dl_guard_setup(void)
 {
 	uintptr_t ret;
 #ifndef __SSP_QUICK_CANARY__
-
-	size_t size;
-
-# ifdef __SSP_USE_ERANDOM__
 	{
-		int mib[3];
-		/* Random is another depth in Linux, hence an array of 3. */
-		mib[0] = CTL_KERN;
-		mib[1] = KERN_RANDOM;
-		mib[2] = RANDOM_ERANDOM;
-
-		if (SYSCTL(mib, 3, &ret, &size, NULL, 0) != (-1))
-			if (size == (size_t) sizeof(ret))
-				return ret;
-	}
-# endif /* ifdef __SSP_USE_ERANDOM__ */
-	{
-		int fd;
-
-# ifdef __SSP_USE_ERANDOM__
-		/* 
-		 * Attempt to open kernel pseudo random device if one exists before 
-		 * opening urandom to avoid system entropy depletion.
-		 */
-		if ((fd = OPEN("/dev/erandom", O_RDONLY)) == (-1))
-# endif
-			fd = OPEN("/dev/urandom", O_RDONLY);
+		int fd = OPEN("/dev/urandom", O_RDONLY);
 		if (fd >= 0) {
-			size = READ(fd, &ret, sizeof(ret));
+			size_t size = READ(fd, &ret, sizeof(ret));
 			CLOSE(fd);
 			if (size == (size_t) sizeof(ret))
 				return ret;
