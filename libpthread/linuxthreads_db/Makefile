@@ -30,7 +30,7 @@ SO_FULL_NAME = $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 CFLAGS += $(PTINC) -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 
 # Remove any -z defs since this lib will have undefined symbols
-LDFLAGS = $(subst -z defs,,$(LDFLAGS)) --warn-unresolved-symbols
+LDFLAGS := $(subst -z defs,,$(LDFLAGS)) --warn-unresolved-symbols
 
 CSRC := $(wildcard *.c)
 
