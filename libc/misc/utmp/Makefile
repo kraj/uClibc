@@ -24,20 +24,19 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=utent.c wtent.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+CSRC := utent.c wtent.c
+OBJS := $(patsubst %.c,%.o, $(CSRC))
 
-OBJ_LIST=../../obj.misc.utmp
+OBJ_LIST := ../../obj.misc.utmp
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/utmp/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/utmp/%, $^) > $@
 
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

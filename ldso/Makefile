@@ -21,7 +21,7 @@ include $(TOPDIR)Rules.mak
 
 DIRS = ldso libdl
 
-ifeq ($(strip $(BUILD_UCLIBC_LDSO)),y)
+ifeq ($(BUILD_UCLIBC_LDSO),y)
 all: subdirs
 else
 all:

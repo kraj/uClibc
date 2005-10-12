@@ -19,20 +19,19 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=wordexp.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+CSRC := wordexp.c
+OBJS := $(patsubst %.c,%.o, $(CSRC))
 
-OBJ_LIST=../../obj.misc.wordexp
+OBJ_LIST := ../../obj.misc.wordexp
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/wordexp/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/wordexp/%, $^) > $@
 
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

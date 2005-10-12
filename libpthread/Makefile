@@ -21,7 +21,7 @@ include $(TOPDIR)Rules.mak
 
 ALL_SUBDIRS = $(PTNAME) $(PTNAME)_db
 DIRS = $(PTNAME)
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 	DIRS += $(PTNAME)_db
 endif
 
@@ -32,10 +32,10 @@ all: subdirs
 headers:
 	$(LN) -sf $(PTDIR)/sysdeps/pthread/pthread.h $(TOPDIR)include/
 	$(LN) -sf $(PTDIR)/semaphore.h $(TOPDIR)include/
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 	$(LN) -sf $(PTDIR)_db/thread_db.h $(TOPDIR)include/
 endif
-ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	$(LN) -sf ../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/semaphore.h $(TOPDIR)include/bits/
 	$(LN) -sf ../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h $(TOPDIR)include/bits/
 	$(LN) -sf ../$(PTDIR)/sysdeps/pthread/bits/libc-lock.h $(TOPDIR)include/bits/
@@ -61,7 +61,7 @@ headers_clean:
 		$(TOPDIR)include/thread_db.h \
 		$(TOPDIR)include/bits/pthreadtypes.h $(TOPDIR)include/bits/semaphore.h \
 		$(TOPDIR)include/bits/libc-lock.h $(TOPDIR)include/bits/stdio-lock
-ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	$(RM)	$(PTNAME)/version.h $(PTDIR)/banner.h \
 		$(PTDIR)/sysdeps/unix/sysv/linux/rtld-libc-lowlevellock.c
 endif

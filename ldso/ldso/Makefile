@@ -35,11 +35,11 @@ XXFLAGS+= -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\" $(XARCH_CFLAGS) $(CPU_CFLAGS) $(PICFL
 
 XXFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 
-ifeq ($(strip $(SUPPORT_LD_DEBUG)),y)
+ifeq ($(SUPPORT_LD_DEBUG),y)
 XXFLAGS+=-D__SUPPORT_LD_DEBUG__
 endif
 
-ifeq ($(strip $(SUPPORT_LD_DEBUG_EARLY)),y)
+ifeq ($(SUPPORT_LD_DEBUG_EARLY),y)
 XXFLAGS+=-D__SUPPORT_LD_DEBUG_EARLY__
 endif
 
@@ -63,7 +63,7 @@ ifeq ($(UCLIBC_BUILD_RELRO),y)
 LDFLAGS+=-z relro
 endif
 
-ifneq ($(strip $(SUPPORT_LD_DEBUG)),y)
+ifneq ($(SUPPORT_LD_DEBUG),y)
 LDFLAGS+=-s
 endif
 
@@ -72,12 +72,12 @@ SO_LIB_NAME := $(TOPDIR)lib/$(UCLIBC_LDSO)
 SO_FULL_NAME := $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 CSRC := ldso.c
-COBJS := $(patsubst %.c,%.o, $(CSRC))
+COBJ := $(patsubst %.c,%.o, $(CSRC))
 
-ASRC := $(wildcard $(TARGET_ARCH)/*.S)
-AOBJS := $(patsubst %.S,%.o, $(ASRC))
+SSRC := $(wildcard $(TARGET_ARCH)/*.S)
+SOBJ := $(patsubst %.S,%.o, $(SSRC))
 
-OBJS := $(AOBJS) $(COBJS)
+OBJS := $(SOBJ) $(COBJ)
 
 all: $(SO_LIB_NAME)
 
@@ -89,10 +89,10 @@ $(SO_LIB_NAME): $(OBJS)
 		-o $(TOPDIR)lib/$(SO_FULL_NAME) $^ $(LIBGCC)
 	$(LN) -sf $(SO_FULL_NAME) $@
 
-$(COBJS): %.o : %.c
+$(COBJ): %.o : %.c
 	$(CC) $(XXFLAGS) -c $< -o $@
 
-$(AOBJS): %.o : %.S
+$(SOBJ): %.o : %.S
 	$(CC) $(ASFLAGS) -c $< -o $@
 
 clean:

@@ -29,28 +29,26 @@ ifeq ($(UCLIBC_MALLOC_DEBUGGING),y)
 CFLAGS += -D__MALLOC_DEBUGGING
 endif
 
-# calloc.c can be found at uClibc/libc/stdlib/calloc.c
-# valloc.c can be found at uClibc/libc/stdlib/valloc.c
-CSRC=malloc.c calloc.c realloc.c free.c memalign.c mallopt.c mallinfo.c
-
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-
-OBJS=$(COBJS)
-
 ifeq ($(UCLIBC_HAS_THREADS),y)
 CFLAGS += $(PTINC)
 endif
 
-OBJ_LIST=../../obj.stdlib.malloc-standard
+# calloc.c can be found at uClibc/libc/stdlib/calloc.c
+# valloc.c can be found at uClibc/libc/stdlib/valloc.c
+CSRC := malloc.c calloc.c realloc.c free.c memalign.c mallopt.c mallinfo.c
+
+OBJS := $(patsubst %.c,%.o, $(CSRC))
+
+OBJ_LIST := ../../obj.stdlib.malloc-standard
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, stdlib/malloc-standard/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, stdlib/malloc-standard/%, $^) > $@
 
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

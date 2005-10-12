@@ -24,31 +24,28 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-DIRS:=
+DIRS =
 ifeq ($(MALLOC),y)
-    DIRS+=malloc
+    DIRS += malloc
 endif
 ifeq ($(MALLOC_SIMPLE),y)
-    DIRS+=malloc-simple
+    DIRS += malloc-simple
 endif
 ifeq ($(MALLOC_STANDARD),y)
-    DIRS+=malloc-standard
+    DIRS += malloc-standard
 endif
 
-
-MSRC = stdlib.c
+MSRC := stdlib.c
 MOBJ = abs.o labs.o atoi.o atol.o strtol.o strtoul.o _stdlib_strto_l.o \
        qsort.o bsearch.o \
        llabs.o atoll.o strtoll.o strtoull.o _stdlib_strto_ll.o
 # (aliases) strtoq.o strtouq.o
 ifeq ($(UCLIBC_HAS_XLOCALE),y)
-
-MOBJx =
-MOBJx += strtol_l.o strtoul_l.o _stdlib_strto_l_l.o \
+MOBJx = strtol_l.o strtoul_l.o _stdlib_strto_l_l.o \
 	 strtoll_l.o strtoull_l.o _stdlib_strto_ll_l.o
 endif
 
-MSRC1 = strtod.c
+MSRC1 := strtod.c
 MOBJ1 = 
 MOBJ1x =
 
@@ -78,7 +75,7 @@ endif
 # (aliases) wcstoq.o wcstouq.o
 # wcstod wcstof wcstold
 
-MSRC2 = atexit.c
+MSRC2 := atexit.c
 MOBJ2 = on_exit.o __cxa_atexit.o __cxa_finalize.o __exit_handler.o exit.o
 ifeq ($(COMPAT_ATEXIT),y)
 MOBJ2 += old_atexit.o
@@ -94,49 +91,43 @@ CSRC = \
 ifeq ($(UCLIBC_HAS_FLOATS),y)
 	CSRC += drand48.c drand48_r.c erand48.c erand48_r.c
 endif
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+COBJ := $(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(MOBJ) $(MOBJx) $(MOBJ1) $(MOBJ1x) $(MOBJ2) $(COBJS)
+OBJS := $(MOBJ) $(MOBJx) $(MOBJ1) $(MOBJ1x) $(MOBJ2) $(COBJ)
 
-NONSHARED_OBJS=atexit.o
+NONSHARED_OBJS := atexit.o
 
-OBJ_LIST=../obj.stdlib
+OBJ_LIST := ../obj.stdlib
 
-NONSHARED_OBJ_LIST=../nonshared_obj.stdlib
+NONSHARED_OBJ_LIST := ../nonshared_obj.stdlib
 
 all: $(OBJ_LIST) $(NONSHARED_OBJ_LIST) subdirs
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, stdlib/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, stdlib/%, $^) > $@
 
 $(NONSHARED_OBJ_LIST): $(NONSHARED_OBJS)
-	echo $(patsubst %, stdlib/%, $(NONSHARED_OBJS)) > $(NONSHARED_OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, stdlib/%, $^) > $@
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJx): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ1): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ1x): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ2) atexit.o: $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS): %.o : %.c
+$(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(OBJ): Makefile
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
@@ -148,6 +139,6 @@ $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
 	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
 
 clean: subdirs_clean
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core
 
 .PHONY: dummy

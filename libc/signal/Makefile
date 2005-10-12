@@ -19,26 +19,25 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-CSRC= allocrtsig.c killpg.c raise.c sigaction.c sigaddset.c sigandset.c \
+CSRC := allocrtsig.c killpg.c raise.c sigaction.c sigaddset.c sigandset.c \
 	sigblock.c sigdelset.c sigempty.c sigfillset.c siggetmask.c sighold.c \
 	sigignore.c sigintr.c sigisempty.c sigismem.c sigjmp.c signal.c \
 	sigorset.c sigpause.c sigrelse.c sigset.c sigsetmask.c sigsetops.c \
 	sysv_signal.c sigwait.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(COBJS)
+OBJS := $(patsubst %.c,%.o, $(CSRC))
 
-OBJ_LIST=../obj.signal
+OBJ_LIST := ../obj.signal
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, signal/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, signal/%, $^) > $@
 
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core
 

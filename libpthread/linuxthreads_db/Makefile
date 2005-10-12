@@ -36,7 +36,7 @@ CSRC := $(wildcard *.c)
 
 OBJS := $(patsubst %.c,%.o, $(CSRC))
 
-ifeq ($(strip $(HAVE_SHARED)),y)
+ifeq ($(HAVE_SHARED),y)
 all: $(SO_LIB_NAME)
 else
 all: $(AR_LIB_NAME)

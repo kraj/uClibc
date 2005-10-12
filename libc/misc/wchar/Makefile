@@ -24,13 +24,13 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-MSRC1=  wchar.c
-MOBJ1=  btowc.o wctob.o mbsinit.o mbrlen.o mbrtowc.o wcrtomb.o mbsrtowcs.o \
+MSRC := wchar.c
+MOBJ =	btowc.o wctob.o mbsinit.o mbrlen.o mbrtowc.o wcrtomb.o mbsrtowcs.o \
 	wcsrtombs.o _wchar_utf8sntowcs.o _wchar_wcsntoutf8s.o \
 	__mbsnrtowcs.o __wcsnrtombs.o wcwidth.o wcswidth.o
 
 ifeq ($(UCLIBC_HAS_LOCALE),y)
-	MOBJ1 += iconv.o
+	MOBJ += iconv.o
 endif
 
 # The stdio and time related wide functions are now built in the normal
@@ -43,22 +43,18 @@ endif
 # time:
 # wcsftime
 
-OBJS=$(MOBJ1)
+OBJS := $(MOBJ)
 
-OBJ_LIST=../../obj.misc.wchar
+OBJ_LIST := ../../obj.misc.wchar
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/wchar/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/wchar/%, $^) > $@
 
-$(MOBJ1): $(MSRC1)
+$(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(MOBJ2): $(MSRC2)
-	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

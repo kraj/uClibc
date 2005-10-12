@@ -24,24 +24,23 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-ifeq ($(strip $(UCLIBC_HAS_LFS)),y)
-CSRC = lockf.c lockf64.c
-else
 CSRC = lockf.c
+ifeq ($(UCLIBC_HAS_LFS),y)
+CSRC += lockf64.c
 endif
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
 
-OBJ_LIST=../../obj.misc.file
+OBJS=$(patsubst %.c,%.o, $(CSRC))
+
+OBJ_LIST := ../../obj.misc.file
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/file/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/file/%, $^) > $@
 
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

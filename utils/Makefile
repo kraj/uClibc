@@ -25,13 +25,13 @@ CFLAGS += \
 
 TARGETS = ldd ldconfig
 
-ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
+ifeq ($(UCLIBC_HAS_LOCALE),y)
 TARGET_ICONV = iconv
 else
 TARGET_ICONV =
 endif
 
-ifeq ($(strip $(LDSO_CACHE_SUPPORT)),y)
+ifeq ($(LDSO_CACHE_SUPPORT),y)
 HOST_LDSO_CACHE_FLAG = -D__LDSO_CACHE_SUPPORT__=1
 else
 HOST_LDSO_CACHE_FLAG =
@@ -39,7 +39,7 @@ endif
 
 # NOTE: We build the utils AFTER we have a uClibc-targeted toolchain.
 
-ifeq ($(strip $(HAVE_SHARED)),y)
+ifeq ($(HAVE_SHARED),y)
 all: $(TARGETS) $(TARGET_ICONV)
 else
 all: $(TARGET_ICONV)
@@ -55,7 +55,7 @@ readelf: readelf.c
 	$(CC) $(CFLAGS) $^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
-ifeq ($(strip $(UCLIBC_STATIC_LDCONFIG)),y)
+ifeq ($(UCLIBC_STATIC_LDCONFIG),y)
 LDCONFIG_CFLAGS := -static
 else
 LDCONFIG_CFLAGS := $(PIEFLAG) $(LDPIEFLAG)
@@ -82,7 +82,7 @@ iconv: ../libc/misc/wchar/wchar.c
 		$^ -o $@
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
-ifeq ($(strip $(HAVE_SHARED)),y)
+ifeq ($(HAVE_SHARED),y)
 hostutils: ldd.host ldconfig.host readelf.host
 else
 hostutils: readelf.host
@@ -107,13 +107,13 @@ clean:
 	$(RM) $(TARGETS) *.o *~ core elf.h link.h readelf iconv *.host
 
 install: all
-ifeq ($(strip $(HAVE_SHARED)),y)
+ifeq ($(HAVE_SHARED),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)sbin
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)usr/bin
 	$(INSTALL) -m 755 ldd $(PREFIX)$(RUNTIME_PREFIX)usr/bin/ldd
 	$(INSTALL) -m 755 ldconfig $(PREFIX)$(RUNTIME_PREFIX)sbin/ldconfig
 	#$(INSTALL) -m 755 readelf $(PREFIX)$(RUNTIME_PREFIX)usr/bin/readelf
 endif
-ifeq ($(strip $(UCLIBC_HAS_LOCALE)),y)
+ifeq ($(UCLIBC_HAS_LOCALE),y)
 	$(INSTALL) -m 755 iconv $(PREFIX)$(RUNTIME_PREFIX)usr/bin/iconv
 endif

@@ -28,25 +28,25 @@ include $(TOPDIR)Rules.mak
 DIRS = assert ctype dirent file fnmatch internals \
        mntent syslog time utmp sysvipc statfs \
        error ttyent gnu search locale
-ifeq ($(strip $(UCLIBC_HAS_REGEX)),y)
+ifeq ($(UCLIBC_HAS_REGEX),y)
 DIRS += regex
 endif
-ifeq ($(strip $(UCLIBC_HAS_WORDEXP)),y)
+ifeq ($(UCLIBC_HAS_WORDEXP),y)
 DIRS += wordexp
 endif
-ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
+ifeq ($(UCLIBC_HAS_THREADS),y)
 DIRS += pthread
 endif
-ifeq ($(strip $(UCLIBC_HAS_WCHAR)),y)
+ifeq ($(UCLIBC_HAS_WCHAR),y)
 DIRS += wctype wchar
 endif
-ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
+ifeq ($(UCLIBC_HAS_GETTEXT_AWARENESS),y)
 DIRS += intl
 endif
-ifeq ($(strip $(UCLIBC_HAS_FTW)),y)
+ifeq ($(UCLIBC_HAS_FTW),y)
 DIRS += ftw
 endif
-ifeq ($(strip $(UCLIBC_HAS_GLOB)),y)
+ifeq ($(UCLIBC_HAS_GLOB),y)
 DIRS += glob
 endif
 
@@ -56,7 +56,6 @@ tags:
 	ctags -R
 
 clean: subdirs_clean
-	$(RM) *.[oa] *~ core
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))

@@ -24,22 +24,22 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=alphasort.c closedir.c dirfd.c opendir.c readdir.c rewinddir.c scandir.c \
+CSRC := alphasort.c closedir.c dirfd.c opendir.c readdir.c rewinddir.c scandir.c \
      	seekdir.c telldir.c readdir64.c alphasort64.c scandir64.c readdir_r.c \
 	readdir64_r.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
 
-OBJ_LIST=../../obj.misc.dirent
+OBJS := $(patsubst %.c,%.o, $(CSRC))
+
+OBJ_LIST := ../../obj.misc.dirent
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/dirent/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/dirent/%, $^) > $@
 
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

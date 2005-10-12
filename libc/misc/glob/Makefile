@@ -24,22 +24,21 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=glob.c glob64.c glob-hooks.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+CSRC := glob.c glob64.c glob-hooks.c
+OBJS := $(patsubst %.c,%.o, $(CSRC))
 
-OBJ_LIST=../../obj.misc.glob
+OBJ_LIST := ../../obj.misc.glob
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/glob/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/glob/%, $^) > $@
 
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 glob64.o: glob64.c glob.c
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

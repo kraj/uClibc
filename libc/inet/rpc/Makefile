@@ -24,8 +24,12 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-ifeq ($(strip $(UCLIBC_HAS_FULL_RPC)),y)
-CSRC :=auth_none.c auth_unix.c authunix_prot.c bindresvport.c \
+ifeq ($(UCLIBC_HAS_THREADS),y)
+CFLAGS += $(PTINC)
+endif
+
+ifeq ($(UCLIBC_HAS_FULL_RPC),y)
+CSRC := auth_none.c auth_unix.c authunix_prot.c bindresvport.c \
 	clnt_generic.c clnt_perror.c clnt_raw.c clnt_simple.c clnt_tcp.c \
 	clnt_udp.c rpc_dtablesize.c get_myaddress.c getrpcent.c getrpcport.c \
 	pmap_clnt.c pmap_getmaps.c pmap_getport.c pmap_prot.c \
@@ -37,7 +41,7 @@ CSRC :=auth_none.c auth_unix.c authunix_prot.c bindresvport.c \
 	rexec.c sa_len.c ruserpass.c rpc_thread.c
 else
 # For now, only compile the stuff needed to do an NFS mount....
-CSRC:=create_xid.c pmap_clnt.c pmap_getmaps.c pmap_getport.c \
+CSRC := create_xid.c pmap_clnt.c pmap_getmaps.c pmap_getport.c \
 	pmap_prot.c pmap_prot2.c clnt_simple.c clnt_perror.c \
 	clnt_tcp.c clnt_udp.c bindresvport.c authunix_prot.c \
 	auth_none.c auth_unix.c xdr.c xdr_array.c xdr_rec.c \
@@ -47,24 +51,18 @@ CSRC:=create_xid.c pmap_clnt.c pmap_getmaps.c pmap_getport.c \
 	getrpcent.c
 endif
 
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS := $(patsubst %.c,%.o, $(CSRC))
 
-ifeq ($(UCLIBC_HAS_THREADS),y)
-CFLAGS += $(PTINC)
-endif
-
-OBJS=$(COBJS)
-
-OBJ_LIST=../../obj.inet.rpc
+OBJ_LIST := ../../obj.inet.rpc
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, inet/rpc/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, inet/rpc/%, $^) > $@
 
-$(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) $(PTINC) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
+$(OBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

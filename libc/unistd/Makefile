@@ -18,57 +18,40 @@
 
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
-DIRS:=
 
-MSRC1 = exec.c
-MOBJ1 = execl.o execv.o execle.o execlp.o execvp.o
+MSRC := exec.c
+MOBJ = execl.o execv.o execle.o execlp.o execvp.o
 
-CSRC=	sleep.c usleep.c ualarm.c getpass.c sysconf.c getlogin.c \
+CSRC =	sleep.c usleep.c ualarm.c getpass.c sysconf.c getlogin.c \
 	fpathconf.c confstr.c pathconf.c swab.c usershell.c \
 	getsubopt.c daemon.c
 
-ifneq ($(strip $(ARCH_HAS_MMU)),y)
-	MOBJ1 += __exec_alloc.o
+ifneq ($(ARCH_HAS_MMU),y)
+MOBJ += __exec_alloc.o
 endif
 
-ifeq ($(strip $(UCLIBC_HAS_GNU_GETOPT)),y)
-	CSRC += getopt.c
+ifeq ($(UCLIBC_HAS_GNU_GETOPT),y)
+CSRC += getopt.c
 else
-	CSRC += getopt-susv3.c
+CSRC += getopt-susv3.c
 endif
 
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS) $(MOBJ1)
+COBJ := $(patsubst %.c,%.o, $(CSRC))
+OBJS := $(COBJ) $(MOBJ)
 
-OBJ_LIST=../obj.unistd
+OBJ_LIST := ../obj.unistd
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, unistd/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, unistd/%, $^) > $@
 
-$(MOBJ1): $(MSRC1)
+$(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS): %.o : %.c
+$(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(OBJ): Makefile
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
-
-$(patsubst %, _dir_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-.PHONY: dummy
-dummy:
 
 clean:
-	$(RM) *.[oa] *~ core
-
+	$(RM) *.o *~ core

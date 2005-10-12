@@ -22,24 +22,22 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-ifeq ($(strip $(UCLIBC_HAS_LFS)),y)
-CSRC = fstatfs64.c statfs64.c statvfs.c statvfs64.c fstatvfs.c fstatvfs64.c
-else
 CSRC = statvfs.c fstatvfs.c
+ifeq ($(UCLIBC_HAS_LFS),y)
+CSRC += fstatfs64.c statfs64.c statvfs64.c fstatvfs64.c
 endif
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+OBJS := $(patsubst %.c,%.o, $(CSRC))
 
-OBJ_LIST=../../obj.misc.statfs
+OBJ_LIST := ../../obj.misc.statfs
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/statfs/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/statfs/%, $^) > $@
 
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

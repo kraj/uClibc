@@ -32,7 +32,7 @@ XXFLAGS+= $(XARCH_CFLAGS) $(CPU_CFLAGS) \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)ldso/include -I$(TOPDIR)ldso/ldso -I$(TOPDIR)include
 
 XXFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
-ifeq ($(strip $(SUPPORT_LD_DEBUG)),y)
+ifeq ($(SUPPORT_LD_DEBUG),y)
 XXFLAGS+=-D__SUPPORT_LD_DEBUG__
 endif
 XXFLAGS_NOPIC:=$(XXFLAGS)
@@ -41,7 +41,7 @@ ifeq ($(DOPIC),y)
 endif
 
 # BEWARE!!! At least mips* will die if -O0 is used!!!
-ifeq ($(strip $(TARGET_ARCH)),mips)
+ifeq ($(TARGET_ARCH),mips)
 XXFLAGS := $(XXFLAGS:-O0=-O1)
 endif
 
@@ -55,7 +55,7 @@ OBJS := libdl.o
 PIC_OBJS := libdl_pic.o
 
 # we do not get here, do we need a libdl.a, if ld.so is not ours?
-#ifeq ($(strip $(HAVE_SHARED)),y)
+#ifeq ($(HAVE_SHARED),y)
 all: $(AR_LIB_NAME) $(SO_LIB_NAME)
 #else
 #all: $(AR_LIB_NAME)

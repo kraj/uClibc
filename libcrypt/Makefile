@@ -24,7 +24,7 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-CFLAGS+=$(SSP_ALL_CFLAGS)
+CFLAGS += $(SSP_ALL_CFLAGS)
 
 LIB_NAME := libcrypt
 AR_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).a
@@ -35,7 +35,7 @@ CSRC := $(wildcard *.c)
 
 OBJS := $(patsubst %.c,%.o, $(CSRC))
 
-ifeq ($(strip $(HAVE_SHARED)),y)
+ifeq ($(HAVE_SHARED),y)
 all: $(SO_LIB_NAME)
 else
 all: $(AR_LIB_NAME)

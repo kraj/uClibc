@@ -24,25 +24,23 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=__uClibc_main.c tempname.c errno.c __errno_location.c __h_errno_location.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+ifeq ($(UCLIBC_HAS_THREADS),y)
+CFLAGS += $(PTINC)
+endif
+
+CSRC := __uClibc_main.c tempname.c errno.c __errno_location.c __h_errno_location.c
+OBJS := $(patsubst %.c,%.o, $(CSRC))
 
 ifeq ($(UCLIBC_HAS_SSP),y)
 __uClibc_main.o: CFLAGS += $(SSP_DISABLE_FLAGS)
 endif
 
-OBJS=$(COBJS)
-
-ifeq ($(UCLIBC_HAS_THREADS),y)
-CFLAGS += $(PTINC)
-endif
-
-OBJ_LIST=../../obj.misc.internals
+OBJ_LIST := ../../obj.misc.internals
 
 all: $(OBJ_LIST) interp.o static.o
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/internals/%, $(OBJS)) > $(OBJ_LIST)
+	echo $(patsubst %, misc/internals/%, $^) > $@
 
 interp.c: Makefile
 	echo "/* Force shared libraries to know about the correct library loader */" > interp.c
@@ -52,9 +50,9 @@ interp.c: Makefile
 		"(\".interp\"))) =\""$(SHARED_LIB_LOADER_PREFIX)/$(UCLIBC_LDSO)"\";" >> interp.c
 	echo "#endif" >> interp.c
 
-$(COBJS) interp.o static.o: %.o : %.c
+$(OBJS) interp.o static.o: %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] interp.c *~ core
+	$(RM) *.o interp.c *~ core

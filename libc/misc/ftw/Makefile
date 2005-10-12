@@ -19,24 +19,21 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=ftw.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+MSRC := ftw.c
+MOBJ := ftw.o ftw64.o
 
-MSRC=ftw.c
-MOBJ=ftw.o ftw64.o
-OBJS=$(MOBJ)
+OBJS := $(MOBJ)
 
-OBJ_LIST=../../obj.misc.ftw
+OBJ_LIST := ../../obj.misc.ftw
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/ftw/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/ftw/%, $^) > $@
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

@@ -24,12 +24,12 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-MSRC= time.c
-MOBJ= asctime.o asctime_r.o clock.o ctime.o ctime_r.o gmtime.o gmtime_r.o \
+MSRC := time.c
+MOBJ =	asctime.o asctime_r.o clock.o ctime.o ctime_r.o gmtime.o gmtime_r.o \
 	localtime.o localtime_r.o mktime.o strftime.o strptime.o tzset.o \
 	_time_t2tm.o __time_tm.o _time_mktime.o dysize.o timegm.o \
 	_time_mktime_tzi.o _time_localtime_tzi.o
-MOBJx=
+MOBJx =
 
 ifeq ($(UCLIBC_HAS_FLOATS),y)
 	MOBJ += difftime.o 
@@ -45,29 +45,27 @@ ifeq ($(UCLIBC_HAS_XLOCALE),y)
 endif
 endif
 
-CSRC= adjtime.c ftime.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+CSRC := adjtime.c ftime.c
+COBJS := $(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(COBJS) $(MOBJ) $(MOBJx)
+OBJS := $(COBJS) $(MOBJ) $(MOBJx)
 
-OBJ_LIST=../../obj.misc.time
+OBJ_LIST := ../../obj.misc.time
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/time/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/time/%, $^) > $@
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJx): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

@@ -19,28 +19,22 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=	memchr.c memcmp.c memcpy.c memmem.c memmove.c mempcpy.c memrchr.c \
+CSRC :=	memchr.c memcmp.c memcpy.c memmem.c memmove.c mempcpy.c memrchr.c \
 	memset.c rawmemchr.c strcat.c strchr.c strchrnul.c strcmp.c strcpy.c \
 	strcspn.c strlen.c strncat.c strncmp.c strncpy.c strnlen.c \
 	strrchr.c strsep.c strspn.c strstr.c strtok_r.c
-
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+OBJS := $(patsubst %.c,%.o, $(CSRC))
 
 OBJ_LIST=../../obj.string.generic
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, string/generic/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, string/generic/%, $(OBJS)) > $@
 
-# $(MOBJ): $(MSRC)
-# 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-# 	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

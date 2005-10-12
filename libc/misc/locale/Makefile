@@ -24,9 +24,9 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-MSRC= locale.c
-MOBJ= setlocale.o localeconv.o _locale_init.o nl_langinfo.o
-MOBJx=
+MSRC := locale.c
+MOBJ = setlocale.o localeconv.o _locale_init.o nl_langinfo.o
+MOBJx =
 
 ifeq ($(UCLIBC_HAS_LOCALE),y)
 	MOBJ += newlocale.o __locale_mbrtowc_l.o
@@ -41,31 +41,27 @@ ifeq ($(UCLIBC_HAS_LOCALE),y)
 	DATA = locale_data.o
 endif
 
-OBJS= $(MOBJ) $(MOBJx) $(DATA)
+OBJS := $(MOBJ) $(MOBJx) $(DATA)
 
-OBJ_LIST=../../obj.misc.locale
+OBJ_LIST := ../../obj.misc.locale
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/locale/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/locale/%, $^) > $@
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJx): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 locale_data.o:
 	$(LN) -sf ../../../extra/locale/locale_data.c
 	$(CC) $(CFLAGS) -c -D__WCHAR_ENABLED -I../../../extra/locale locale_data.c -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(OBJS): Makefile
 
 clean:
-	$(RM) *.[oa] *~ core locale_data.c
+	$(RM) *.o *~ core locale_data.c
 
 .PHONY: data

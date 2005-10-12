@@ -184,7 +184,7 @@ ifeq ($(strip $(TARGET_ARCH)),sh)
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mb
 	CPU_CFLAGS-$(CONFIG_SH2)+=-m2
 	CPU_CFLAGS-$(CONFIG_SH3)+=-m3
-ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
+ifeq ($(UCLIBC_HAS_FLOATS),y)
 	CPU_CFLAGS-$(CONFIG_SH2A)+=-m2a
 	CPU_CFLAGS-$(CONFIG_SH4)+=-m4
 else
@@ -266,7 +266,7 @@ XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
 CPU_CFLAGS=$(subst ",, $(strip $(CPU_CFLAGS-y)))
 
 LDADD_LIBFLOAT=
-ifeq ($(strip $(UCLIBC_HAS_SOFT_FLOAT)),y)
+ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
 # Add -msoft-float to the CPU_FLAGS since ldso and libdl ignore CFLAGS.
 # If -msoft-float isn't supported, we want an error anyway.
 # Hmm... might need to revisit this for arm since it has 2 different
@@ -304,14 +304,14 @@ else
 endif
 
 ifeq ($(UCLIBC_HAS_THREADS),y)
-ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	PTNAME := nptl
 else
 	PTNAME := linuxthreads
 endif
 PTDIR := $(TOPDIR)libpthread/$(PTNAME)
 # set up system dependencies include dirs (NOTE: order matters!)
-ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 PTINC := -I$(PTDIR)/compat					\
 	 -I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
 	 -I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\

@@ -24,26 +24,25 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-MSRC= intl.c
-MOBJ= __uClibc_dgettext.o __uClibc_dcgettext.o \
+MSRC := intl.c
+MOBJ := __uClibc_dgettext.o __uClibc_dcgettext.o \
 	__uClibc_textdomain.o __uClibc_bindtextdomain.o # for libstd++
 
-OBJS=$(MOBJ)
+OBJS := $(MOBJ)
 
-OBJ_LIST=../../obj.misc.intl
+OBJ_LIST := ../../obj.misc.intl
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/intl/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/intl/%, $^) > $@
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

@@ -8,24 +8,27 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRCS = $(wildcard *.c)
-COBJS = $(patsubst %.c,%.o,$(CSRCS))
+CSRC := $(wildcard *.c)
+COBJ := $(patsubst %.c,%.o,$(CSRC))
 
-SSRCS = $(wildcard *.S)
-SOBJS = $(patsubst %.S,%.o,$(SSRCS))
+SSRC := $(wildcard *.S)
+SOBJ := $(patsubst %.S,%.o,$(SSRC))
 
-OBJS = $(COBJS) $(SOBJS)
+OBJS := $(COBJ) $(SOBJ)
 
-OBJ_LIST = ../../obj.string.$(TARGET_ARCH)
+OBJ_LIST := ../../obj.string.$(TARGET_ARCH)
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, string/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, string/$(TARGET_ARCH)/%, $^) > $@
 
-$(COBJS): %.o : %.c
+$(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
+
+$(SOBJ): %.o : %.S
+	$(CC) $(ASFLAGS) -c $< -o $@
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

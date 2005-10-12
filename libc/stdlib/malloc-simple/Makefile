@@ -23,20 +23,21 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-MSRC=alloc.c
-MOBJ=malloc.o realloc.o free.o calloc.o memalign.o
-OBJS=$(MOBJ)
+MSRC := alloc.c
+MOBJ := malloc.o realloc.o free.o calloc.o memalign.o
 
-OBJ_LIST=../../obj.stdlib.malloc-simple
+OBJS := $(MOBJ)
+
+OBJ_LIST := ../../obj.stdlib.malloc-simple
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, stdlib/malloc-simple/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, stdlib/malloc-simple/%, $^) > $@
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

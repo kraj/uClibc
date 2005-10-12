@@ -19,21 +19,22 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-SSRC= _memcpy.S bcopy.S bzero.S memcmp.S memcpy.S memmove.S memset.S \
+SSRC := _memcpy.S bcopy.S bzero.S memcmp.S memcpy.S memmove.S memset.S \
 	strcmp.S strlen.S strncmp.S
-SOBJS=$(patsubst %.S,%.o, $(SSRC))
-OBJS=$(SOBJS)
+SOBJ :=	$(patsubst %.S,%.o, $(SSRC))
 
-OBJ_LIST=../../obj.string.$(TARGET_ARCH)
+OBJS := $(SOBJ)
+
+OBJ_LIST := ../../obj.string.$(TARGET_ARCH)
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, string/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, string/$(TARGET_ARCH)/%, $^) > $@
 
-$(SOBJS): %.o : %.S
+$(SOBJ): %.o : %.S
 	$(CC) $(ASFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

@@ -31,17 +31,17 @@ include Rules.mak
 # need to have libc.so built, before we can build the others
 PRE_DIRS = ldso libc
 DIRS = ldso libcrypt libresolv libnsl libutil librt
-ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
+ifeq ($(UCLIBC_HAS_FLOATS),y)
 	DIRS += libm
 endif
-ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
+ifeq ($(UCLIBC_HAS_THREADS),y)
 	DIRS += libpthread
 endif
-ifeq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
+ifeq ($(UCLIBC_HAS_GETTEXT_AWARENESS),y)
 	DIRS += libintl
 endif
 
-ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
+ifeq ($(HAVE_DOT_CONFIG),y)
 
 all: finished
 
@@ -66,7 +66,7 @@ include/bits/uClibc_config.h: .config
 # in order to generate the headers correctly :(.  That 
 # means we can't use the $(HOSTCC) in order to get the 
 # correct output.
-ifeq ($(strip $(ARCH_HAS_MMU)),y)
+ifeq ($(ARCH_HAS_MMU),y)
 export header_extra_args = 
 else
 export header_extra_args = -n
@@ -105,7 +105,7 @@ headers: include/bits/uClibc_config.h
 	else \
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
-ifeq ($(strip $(UCLIBC_HAS_THREADS)),y)
+ifeq ($(UCLIBC_HAS_THREADS),y)
 	$(MAKE) -C libpthread headers
 endif
 	$(MAKE) -C libc/sysdeps/linux/common headers
@@ -117,13 +117,13 @@ WGET:=wget --passive-ftp
 LOCALE_DATA_FILENAME:=uClibc-locale-030818.tgz
 
 pregen: headers
-ifeq ($(strip $(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA)),y)
+ifeq ($(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA),y)
 	(cd extra/locale; \
 	if [ ! -f $(LOCALE_DATA_FILENAME) ] ; then \
 	$(WGET) http://www.uclibc.org/downloads/$(LOCALE_DATA_FILENAME) ; \
 	fi )
 endif
-ifeq ($(strip $(UCLIBC_PREGENERATED_LOCALE_DATA)),y)
+ifeq ($(UCLIBC_PREGENERATED_LOCALE_DATA),y)
 	(cd extra/locale; zcat $(LOCALE_DATA_FILENAME) | tar -xvf -)
 	$(MAKE) -C extra/locale pregen
 endif
@@ -155,7 +155,7 @@ install_headers:
 	tar -chf - include --exclude .svn --exclude CVS $$extra_exclude \
 		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ssp-internal.h
-ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
+ifneq ($(UCLIBC_HAS_FLOATS),y)
 	# Remove floating point related headers since float support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/fpu_control.h
@@ -164,57 +164,57 @@ ifneq ($(strip $(UCLIBC_HAS_FLOATS)),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/tgmath.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/uClibc_fpmax.h
 endif
-ifneq ($(strip $(UCLIBC_HAS_WCHAR)),y)
+ifneq ($(UCLIBC_HAS_WCHAR),y)
 	# Remove wide char headers since wide char support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/wctype.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/wchar.h
 endif
-ifneq ($(strip $(UCLIBC_HAS_LOCALE)),y)
+ifneq ($(UCLIBC_HAS_LOCALE),y)
 	# Remove iconv header since locale support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/iconv.h
 endif
-ifneq ($(strip $(UCLIBC_HAS_GLIBC_CUSTOM_PRINTF)),y)
+ifneq ($(UCLIBC_HAS_GLIBC_CUSTOM_PRINTF),y)
 	# Remove printf header since custom print specifier support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/printf.h
 endif
-ifneq ($(strip $(UCLIBC_HAS_XLOCALE)),y)
+ifneq ($(UCLIBC_HAS_XLOCALE),y)
 	# Remove xlocale header since extended locale support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/xlocale.h
 endif
-ifneq ($(strip $(UCLIBC_HAS_GETTEXT_AWARENESS)),y)
+ifneq ($(UCLIBC_HAS_GETTEXT_AWARENESS),y)
 	# Remove libintl header since gettext support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/libintl.h
 endif
-ifneq ($(strip $(UCLIBC_HAS_REGEX)),y)
+ifneq ($(UCLIBC_HAS_REGEX),y)
 	# Remove regex headers since regex support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/regex.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/regexp.h
 endif
-ifneq ($(strip $(UCLIBC_HAS_WORDEXP)),y)
+ifneq ($(UCLIBC_HAS_WORDEXP),y)
 	# Remove wordexp header since wordexp support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/wordexp.h
 endif
-ifneq ($(strip $(UCLIBC_HAS_FTW)),y)
+ifneq ($(UCLIBC_HAS_FTW),y)
 	# Remove ftw header since ftw support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ftw.h
 endif
-ifneq ($(strip $(UCLIBC_HAS_GLOB)),y)
+ifneq ($(UCLIBC_HAS_GLOB),y)
 	# Remove glob header since glob support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/glob.h
 endif
-ifneq ($(strip $(UCLIBC_HAS_GNU_GETOPT)),y)
+ifneq ($(UCLIBC_HAS_GNU_GETOPT),y)
 	# Remove getopt header since gnu getopt support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/getopt.h
 endif
-ifneq ($(strip $(HAS_SHADOW)),y)
+ifneq ($(HAS_SHADOW),y)
 	# Remove shadow header since shadow password support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/shadow.h
 endif
-ifneq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+ifneq ($(PTHREADS_DEBUG_SUPPORT),y)
 	# Remove thread_db header since thread debug support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/thread_db.h
 endif
-ifneq ($(strip $(UCLIBC_HAS_THREADS)),y)
+ifneq ($(UCLIBC_HAS_THREADS),y)
 	# Remove pthread headers since thread support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/*thread*.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/semaphore.h
@@ -230,7 +230,7 @@ endif
 install_dev: install_headers
 	$(INSTALL) -d $(PREFIX)$(DEVEL_PREFIX)lib
 	-$(INSTALL) -m 644 lib/*.[ao] $(PREFIX)$(DEVEL_PREFIX)lib/
-ifeq ($(strip $(HAVE_SHARED)),y)
+ifeq ($(HAVE_SHARED),y)
 	for i in `find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
 	sed -e 's/lib\///'` ; do \
 		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
@@ -240,7 +240,7 @@ ifeq ($(strip $(HAVE_SHARED)),y)
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 		sed -e '/^GROUP/d' $(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
-ifeq ($(strip $(COMPAT_ATEXIT)),y)
+ifeq ($(COMPAT_ATEXIT),y)
 	if [ -f $(TOPDIR)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
 		echo "GROUP ( $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) )" \
 			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
@@ -251,7 +251,7 @@ else
 			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
 endif
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 	$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
 		$(PREFIX)$(DEVEL_PREFIX)lib/libthread_db.so
 endif
@@ -267,7 +267,7 @@ endif
 
 # Installs run-time libraries
 install_runtime:
-ifeq ($(strip $(HAVE_SHARED)),y)
+ifeq ($(HAVE_SHARED),y)
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)lib
 	$(INSTALL) -m 644 lib/lib*-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so \
 		$(PREFIX)$(RUNTIME_PREFIX)lib
@@ -292,7 +292,7 @@ finished2:
 	$(SECHO) Finished installing ...
 	$(SECHO)
 
-else # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
+else # ifeq ($(HAVE_DOT_CONFIG),y)
 
 all: menuconfig
 
@@ -349,6 +349,7 @@ defconfig: extra/config/conf
 clean:
 	@$(RM) -r lib include/bits
 	$(RM) libc/*.a libc/obj.* libc/nonshared_obj.*
+	$(RM) libc/misc/locale/locale_data.c
 	$(RM) libc/misc/internals/interp.c
 	$(RM) ldso/libdl/*.a
 	$(RM) include/fpu_control.h
@@ -389,7 +390,7 @@ release: distclean
 						\
 	tar -cvzf uClibc-$(VERSION).tar.gz uClibc-$(VERSION)/
 
-endif # ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
+endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 check:
 	$(MAKE) -C test

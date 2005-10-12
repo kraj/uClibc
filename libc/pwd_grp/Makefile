@@ -24,8 +24,8 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-MSRC=pwd_grp.c
-MOBJ=	fgetpwent_r.o fgetgrent_r.o fgetpwent.o fgetgrent.o \
+MSRC := pwd_grp.c
+MOBJ =	fgetpwent_r.o fgetgrent_r.o fgetpwent.o fgetgrent.o \
 	getpwnam_r.o getgrnam_r.o getpwuid_r.o getgrgid_r.o \
 	getpwuid.o getgrgid.o getpwnam.o getgrnam.o getpw.o \
 	getpwent_r.o getgrent_r.o getpwent.o getgrent.o \
@@ -33,35 +33,32 @@ MOBJ=	fgetpwent_r.o fgetgrent_r.o fgetpwent.o fgetgrent.o \
 	__parsepwent.o __parsegrent.o __pgsreader.o
 
 ifeq ($(HAS_SHADOW),y)
-MOBJ+=	fgetspent_r.o fgetspent.o sgetspent_r.o getspnam_r.o \
+MOBJ +=	fgetspent_r.o fgetspent.o sgetspent_r.o getspnam_r.o \
 	getspnam.o getspent_r.o getspent.o sgetspent.o \
 	putspent.o __parsespent.o # getspuid_r.o getspuid.o
 endif
 
-CSRC=
+CSRC =
 ifeq ($(HAS_SHADOW),y)
-CSRC+= lckpwdf.c
+CSRC += lckpwdf.c
 endif
 
-COBJ=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(MOBJ) $(COBJ)
+COBJ := $(patsubst %.c,%.o, $(CSRC))
+OBJS := $(MOBJ) $(COBJ)
 
-OBJ_LIST=../obj.pwd_grp
+OBJ_LIST := ../obj.pwd_grp
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, pwd_grp/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, pwd_grp/%, $^) > $@
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(OBJ): Makefile
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

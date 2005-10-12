@@ -44,7 +44,7 @@ CSRC = fclose.c fcloseall.c fdopen.c fgetpos.c fopen.c freopen.c \
 CSRC += _READ.c _WRITE.c _adjust_pos.c _fopen.c _fwrite.c \
 	_rfill.c _stdio.c _trans2r.c _trans2w.c _wcommit.c \
 	_cs_funcs.c _load_inttype.c _store_inttype.c _uintmaxtostr.c
-ifeq ($(strip $(UCLIBC_HAS_FLOATS)),y)
+ifeq ($(UCLIBC_HAS_FLOATS),y)
 CSRC += _fpmaxtostr.c
 endif
 
@@ -53,7 +53,7 @@ CSRC += __fbufsize.c __flbf.c __fpending.c __fpurge.c __freadable.c \
 	__freading.c __fsetlocking.c __fwritable.c __fwriting.c _flushlbf.c
 
 # Other glibc extensions
-ifeq ($(strip $(UCLIBC_HAS_GLIBC_CUSTOM_STREAMS)),y)
+ifeq ($(UCLIBC_HAS_GLIBC_CUSTOM_STREAMS),y)
 CSRC += fopencookie.c fmemopen.c open_memstream.c
 endif
 
@@ -102,17 +102,17 @@ endif
 
 CSRC += $(CUSRC)
 
-COBJS  = $(patsubst %.c,%.o, $(CSRC))
+COBJ  = $(patsubst %.c,%.o, $(CSRC))
 CUOBJS = $(patsubst %.c,%_unlocked.o, $(CUSRC))
 CWOBJS = $(patsubst %.c,%.o, $(CWSRC))
 
-ifeq ($(strip $(UCLIBC_HAS_WCHAR)),y)
-COBJS += $(CWOBJS)
+ifeq ($(UCLIBC_HAS_WCHAR),y)
+COBJ += $(CWOBJS)
 endif
 
-OBJS = $(COBJS) $(CUOBJS) $(MOBJ2) $(MOBJ3) $(MWOBJ)
+OBJS = $(COBJ) $(CUOBJS) $(MOBJ2) $(MOBJ3) $(MWOBJ)
 
-ifeq ($(strip $(UCLIBC_HAS_LFS)),y)
+ifeq ($(UCLIBC_HAS_LFS),y)
 OBJS += $(CLOBJS)
 endif
 
@@ -120,38 +120,31 @@ ifeq ($(UCLIBC_HAS_THREADS),y)
 CFLAGS += $(PTINC)
 endif
 
-OBJ_LIST=../obj.stdio
+OBJ_LIST := ../obj.stdio
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, stdio/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, stdio/%, $^) > $@
 
-$(COBJS): %.o : %.c
+$(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
 
 %_unlocked.o : %.c
 	$(CC) $(CFLAGS) -D__DO_UNLOCKED -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
 
 %64.o : %.c
 	$(CC) $(CFLAGS) -D__DO_LARGEFILE -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $@
 
 $(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ3): $(MSRC3)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MWOBJ): $(MWSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(OBJ): Makefile
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

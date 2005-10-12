@@ -19,66 +19,54 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
-CRT_SRC = crt1.S
-CRT_OBJ = crt1.o
-SCRT_OBJ = $(patsubst %,S%, $(CRT_OBJ))
-CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
+CRT_SRC := crt1.S
+CRT_OBJ := crt1.o
+SCRT_OBJ := Scrt1.o
+CTOR_TARGETS := $(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
-SSRC=__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
+SSRC :=	__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
 	bsd-_setjmp.S syscall.S mmap.S mmap64.S
-SOBJS=$(patsubst %.S,%.o, $(SSRC))
+SOBJ :=	$(patsubst %.S,%.o, $(SSRC))
 
-CSRC=brk.c sigaction.c __syscall_error.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+CSRC :=	brk.c sigaction.c __syscall_error.c
+COBJ :=	$(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(SOBJS) $(COBJS)
+OBJS := $(SOBJ) $(COBJ)
 
-OBJ_LIST=../../../obj.sysdeps.$(TARGET_ARCH)
+OBJ_LIST := ../../../obj.sysdeps.$(TARGET_ARCH)
 
-all: $(OBJ_LIST)
+all: $(OBJ_LIST) $(CTOR_TARGETS)
 
-$(OBJ_LIST): $(OBJS) $(CRT_OBJ) $(SCRT_OBJ) $(CTOR_TARGETS)
-	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
+$(OBJ_LIST): $(OBJS) $(CRT_OBJ) $(SCRT_OBJ)
+	$(STRIPTOOL) -x -R .note -R .comment $^
 	$(INSTALL) -d $(TOPDIR)lib/
 	cp $(CRT_OBJ) $(SCRT_OBJ) $(TOPDIR)lib/
+	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $@
 
 $(CRT_OBJ): $(CRT_SRC)
 	$(CC) $(ASFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(SCRT_OBJ): $(CRT_SRC)
 	$(CC) $(ASFLAGS) $(PIEFLAG) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(SOBJS): %.o : %.S
+$(SOBJ): %.o : %.S
 	$(CC) $(ASFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS): %.o : %.c
+$(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
-crti.o: crti.S
-	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c crti.S -o crti.o
-
-$(TOPDIR)lib/crti.o: crti.o
+ifeq ($(UCLIBC_CTOR_DTOR),y)
+$(TOPDIR)lib/crti.o: crti.S
 	$(INSTALL) -d $(TOPDIR)lib/
-	cp crti.o $(TOPDIR)lib/
+	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c $< -o $@
 
-crtn.o: crtn.S
-	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c crtn.S -o crtn.o
-
-$(TOPDIR)lib/crtn.o: crtn.o
+$(TOPDIR)lib/crtn.o: crtn.S
 	$(INSTALL) -d $(TOPDIR)lib/
-	cp crtn.o $(TOPDIR)lib/
+	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c $< -o $@
 else
-$(TOPDIR)lib/crti.o:
+$(CTOR_TARGETS):
 	$(INSTALL) -d $(TOPDIR)lib/
-	$(AR) $(ARFLAGS) $(TOPDIR)lib/crti.o
-$(TOPDIR)lib/crtn.o:
-	$(INSTALL) -d $(TOPDIR)lib/
-	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
+	$(AR) $(ARFLAGS) $@
 endif
 
 headers:

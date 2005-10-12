@@ -19,61 +19,35 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
-CRT0_SRC = crt0.S
-CRT0_OBJ = crt0.o crt1.o
-CTOR_TARGETS=
+CRT_SRC := crt0.S
+CRT_OBJ := crt0.o crt1.o
 
-SSRC= __longjmp.S bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S vfork.S
-SOBJS=$(patsubst %.S,%.o, $(SSRC))
+SSRC := __longjmp.S bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S vfork.S
+SOBJ := $(patsubst %.S,%.o, $(SSRC))
 
-CSRC= brk.c crtbegin.c crtend.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+CSRC := brk.c crtbegin.c crtend.c
+COBJ := $(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(SOBJS) $(MOBJ) $(COBJS)
+OBJS := $(SOBJ) $(COBJ)
 
-OBJ_LIST=../../../obj.sysdeps.$(TARGET_ARCH)
+OBJ_LIST := ../../../obj.sysdeps.$(TARGET_ARCH)
 
 all: $(OBJ_LIST)
 
-$(OBJ_LIST): $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
-	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
+$(OBJ_LIST): $(OBJS) $(CRT_OBJ)
+	$(STRIPTOOL) -x -R .note -R .comment $^
 	$(INSTALL) -d $(TOPDIR)lib/
-	cp $(CRT0_OBJ) $(TOPDIR)lib/
+	cp $(CRT_OBJ) $(TOPDIR)lib/
+	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $@
 
-$(CRT0_OBJ): $(CRT0_SRC)
+$(CRT_OBJ): $(CRT_SRC)
 	$(CC) $(ASFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(SOBJS): %.o : %.S
+$(SOBJ): %.o : %.S
 	$(CC) $(ASFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS): %.o : %.c
+$(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
-crti.o: crti.S
-	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c crti.S -o crti.o
-
-$(TOPDIR)lib/crti.o: crti.o
-	$(INSTALL) -d $(TOPDIR)lib/
-	cp crti.o $(TOPDIR)lib/
-
-crtn.o: crtn.S
-	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c crtn.S -o crtn.o
-
-$(TOPDIR)lib/crtn.o: crtn.o
-	$(INSTALL) -d $(TOPDIR)lib/
-	cp crtn.o $(TOPDIR)lib/
-else
-$(TOPDIR)lib/crti.o:
-	$(INSTALL) -d $(TOPDIR)lib/
-	$(AR) $(ARFLAGS) $(TOPDIR)lib/crti.o
-$(TOPDIR)lib/crtn.o:
-	$(INSTALL) -d $(TOPDIR)lib/
-	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
-endif
 
 headers:
 	$(LN) -fs ../libc/sysdeps/linux/nios/fpu_control.h $(TOPDIR)/include/

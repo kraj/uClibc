@@ -24,8 +24,8 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-MSRC=ctype.c
-MOBJ=	isalnum.o isalpha.o isascii.o iscntrl.o isdigit.o \
+MSRC := ctype.c
+MOBJ =	isalnum.o isalpha.o isascii.o iscntrl.o isdigit.o \
 	isgraph.o islower.o isprint.o ispunct.o isspace.o \
 	isupper.o isxdigit.o toascii.o tolower.o toupper.o \
 	isblank.o isxlower.o isxupper.o
@@ -36,33 +36,30 @@ MOBJ += __C_ctype_b.o __C_ctype_tolower.o __C_ctype_toupper.o \
 	__ctype_assert.o isctype.o
 endif
 
-MOBJx=	isalnum_l.o isalpha_l.o isascii_l.o iscntrl_l.o isdigit_l.o \
+MOBJx:=	isalnum_l.o isalpha_l.o isascii_l.o iscntrl_l.o isdigit_l.o \
 	isgraph_l.o islower_l.o isprint_l.o ispunct_l.o isspace_l.o \
 	isupper_l.o isxdigit_l.o toascii_l.o tolower_l.o toupper_l.o \
 	isblank_l.o # isxlower_l.o isxupper_l.o
 
-OBJS=$(MOBJ)
+OBJS = $(MOBJ)
 
 ifeq ($(UCLIBC_HAS_XLOCALE),y)
 	OBJS += $(MOBJx)
 endif
 
-OBJ_LIST=../../obj.misc.ctype
+OBJ_LIST := ../../obj.misc.ctype
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/ctype/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/ctype/%, $^) > $@
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJx): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
-
-$(OBJS): Makefile
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

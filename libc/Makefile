@@ -43,7 +43,7 @@ AR_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).a
 SO_LIB_NAME = $(TOPDIR)lib/$(LIB_NAME).so
 SO_FULL_NAME = libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-ifeq ($(strip $(HAVE_SHARED)),y)
+ifeq ($(HAVE_SHARED),y)
 all: $(SO_LIB_NAME)
 else
 all: $(AR_LIB_NAME)
@@ -98,7 +98,7 @@ $(SO_LIB_NAME): $(AR_LIB_NAME)
 	echo " * the static library, so try that secondarily. */" >> $@
 	#OUT_FORMAT:=$(shell $(LD) --verbose | grep OUTPUT_FORMAT | awk -F '"' '{print $2}')
 	#echo "OUTPUT_FORMAT($(OUT_FORMAT))" >> $@
-ifeq ($(strip $(COMPAT_ATEXIT)),y)
+ifeq ($(COMPAT_ATEXIT),y)
 	echo "GROUP ( $(TOPDIR)lib/$(NONSHARED_LIBNAME) $(TOPDIR)lib/$(SHARED_MAJORNAME) )" >> $@
 else
 	echo "GROUP ( $(TOPDIR)lib/$(SHARED_MAJORNAME) $(TOPDIR)lib/$(NONSHARED_LIBNAME) )" >> $@

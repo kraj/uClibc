@@ -24,30 +24,29 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-MSRC=termios.c
-MOBJ= tcdrain.o tcflow.o tcflush.o tcsendbreak.o tcsetpgrp.o tcgetpgrp.o \
+MSRC := termios.c
+MOBJ := tcdrain.o tcflow.o tcflush.o tcsendbreak.o tcsetpgrp.o tcgetpgrp.o \
 	isatty.o cfgetospeed.o cfgetispeed.o cfsetospeed.o cfsetispeed.o \
 	cfmakeraw.o cfsetspeed.o
 
+CSRC := tcgetattr.c tcgetsid.c tcsetattr.c ttyname.c
+COBJ := $(patsubst %.c,%.o, $(CSRC))
 
-CSRC=tcgetattr.c tcgetsid.c tcsetattr.c ttyname.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(MOBJ) $(COBJS)
+OBJS := $(MOBJ) $(COBJ)
 
-OBJ_LIST=../obj.termios
+OBJ_LIST := ../obj.termios
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, termios/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, termios/%, $^) > $@
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS): %.o : %.c
+$(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

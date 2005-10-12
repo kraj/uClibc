@@ -22,8 +22,8 @@ endif
 
 ALL_SUBDIRS = generic arm frv i386 mips powerpc sh64 sparc x86_64
 
-MSRC= wstring.c
-MOBJ=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
+MSRC := wstring.c
+MOBJ := basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
 	memcpy.o memmove.o mempcpy.o memrchr.o 	memset.o rawmemchr.o stpcpy.o \
 	stpncpy.o strcasecmp.o strcasestr.o strcat.o strchrnul.o strchr.o \
 	strcmp.o strcpy.o strcspn.o strdup.o strlen.o strncasecmp.o strncat.o \
@@ -33,15 +33,15 @@ MOBJ=  basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
 	_string_syssigmsgs.o sys_siglist.o strsignal.o psignal.o \
 	 __xpg_basename.o strlcat.o strlcpy.o sys_errlist.o memmem.o
 
-MOBJW= wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
+MOBJW = wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
 	wcsdup.o wcslen.o wcsncasecmp.o wcsncat.o wcsncmp.o wcsncpy.o \
 	wcsnlen.o wcspbrk.o wcsrchr.o wcsspn.o wcsstr.o wcstok.o wmemchr.o \
 	wmemcmp.o wmemcpy.o wmemmove.o wmempcpy.o wmemset.o wcpcpy.o wcpncpy.o \
 	__wcslcpy.o \
 	wcsxfrm.o strxfrm.o # wcscoll strcoll.o
 
-MOBJx=
-MOBJWx=
+MOBJx =
+MOBJWx =
 
 ifeq ($(UCLIBC_HAS_XLOCALE),y)
 	MOBJx += strcasecmp_l.o strncasecmp_l.o
@@ -50,46 +50,42 @@ endif
 
 #ffsl ffsll
 
-OBJS=$(MOBJ) $(MOBJx)
+OBJS = $(MOBJ) $(MOBJx)
 
 ifeq ($(UCLIBC_HAS_WCHAR),y)
 	OBJS += $(MOBJW) $(MOBJWx)
 endif
 
-OBJ_LIST=../obj.string
+OBJ_LIST := ../obj.string
 
-all: $(OBJ_LIST) subdirs
+all: subdirs
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, string/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, string/%, $^) > $@
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJx): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJW): $(MSRC)
 	$(CC) $(CFLAGS) -DWANT_WIDE -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJWx): $(MSRC)
 	$(CC) $(CFLAGS) -DWANT_WIDE -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean: subdirs_clean
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 
-$(patsubst %, _dir_%, $(DIRS)) : $(OBJS)
+$(patsubst %, _dir_%, $(DIRS)) : $(OBJ_LIST)
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy

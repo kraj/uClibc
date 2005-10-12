@@ -19,20 +19,19 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=error.c err.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+CSRC := error.c err.c
+OBJS := $(patsubst %.c,%.o, $(CSRC))
 
-OBJ_LIST=../../obj.misc.error
+OBJ_LIST := ../../obj.misc.error
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/error/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/error/%, $^) > $@
 
-$(COBJS): %.o : %.c
+$(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

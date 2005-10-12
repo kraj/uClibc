@@ -24,49 +24,45 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-MSRC1=tsearch.c
-MOBJ1=tsearch.o tfind.o tdelete.o twalk.o tdestroy.o
+MSRC1 := tsearch.c
+MOBJ1 := tsearch.o tfind.o tdelete.o twalk.o tdestroy.o
 
-MSRC2=lsearch.c
-MOBJ2=lfind.o lsearch.o
+MSRC2 := lsearch.c
+MOBJ2 := lfind.o lsearch.o
 
-MSRC3=insremque.c
-MOBJ3=insque.o remque.o
+MSRC3 := insremque.c
+MOBJ3 := insque.o remque.o
 
-MSRC4=hsearch_r.c
-MOBJ4=hcreate_r.o hdestroy_r.o hsearch_r.o
+MSRC4 := hsearch_r.c
+MOBJ4 := hcreate_r.o hdestroy_r.o hsearch_r.o
 
-CSRC=hsearch.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+CSRC := hsearch.c
+COBJ := $(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(COBJS) $(MOBJ1) $(MOBJ2) $(MOBJ3) $(MOBJ4)
+OBJS := $(COBJ) $(MOBJ1) $(MOBJ2) $(MOBJ3) $(MOBJ4)
 
-OBJ_LIST=../../obj.misc.search
+OBJ_LIST := ../../obj.misc.search
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/search/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/search/%, $^) > $@
 
 $(MOBJ1): $(MSRC1)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ3): $(MSRC3)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ4): $(MSRC4)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS): %.o : %.c
+$(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

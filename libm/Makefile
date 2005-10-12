@@ -34,9 +34,9 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-CFLAGS+=$(SSP_ALL_CFLAGS)
+CFLAGS += $(SSP_ALL_CFLAGS)
 
-CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
+CFLAGS += -D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
 LIB_NAME := libm
 AR_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).a
@@ -45,7 +45,7 @@ SO_FULL_NAME = $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 FL_MSRC := float_wrappers.c
 
-ifeq ($(strip $(DO_C99_MATH)),y)
+ifeq ($(DO_C99_MATH),y)
 CSRC :=  e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c\
          e_exp.c e_fmod.c e_gamma.c e_gamma_r.c e_hypot.c e_j0.c\
          e_j1.c e_jn.c e_lgamma.c e_lgamma_r.c e_log.c e_log10.c\
@@ -83,17 +83,17 @@ CSRC :=  w_acos.c w_asin.c s_atan.c w_atan2.c s_ceil.c s_cos.c \
 FL_MOBJ := sqrtf.o
 endif
 
-ifeq ($(strip $(HAS_FPU)),y)
-ifeq ($(strip $(DO_C99_MATH)),y)
+ifeq ($(HAS_FPU),y)
+ifeq ($(DO_C99_MATH),y)
 ARCH_CSRC := $(wildcard $(TARGET_ARCH)/*.c)
 ARCH_OBJS := $(patsubst %.c,%.o, $(ARCH_CSRC))
 endif
 endif
 
-COBJS := $(patsubst %.c,%.o, $(CSRC))
-OBJS := $(COBJS) $(FL_MOBJ)
+COBJ := $(patsubst %.c,%.o, $(CSRC))
+OBJS := $(COBJ) $(FL_MOBJ)
 
-ifeq ($(strip $(HAVE_SHARED)),y)
+ifeq ($(HAVE_SHARED),y)
 all: $(SO_LIB_NAME)
 else
 all: $(AR_LIB_NAME)
@@ -115,7 +115,7 @@ $(SO_LIB_NAME): $(AR_LIB_NAME)
 	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
 	$(LN) -sf $(SO_FULL_NAME) $@
 
-$(COBJS) $(ARCH_OBJS): %.o : %.c
+$(COBJ) $(ARCH_OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(FL_MOBJ): $(FL_MSRC)

@@ -19,20 +19,21 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-CSRC=no-tsd.c weaks.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+CFLAGS += $(PTINC)
 
-OBJ_LIST=../../obj.misc.pthread
+CSRC := no-tsd.c weaks.c
+OBJS := $(patsubst %.c,%.o, $(CSRC))
+
+OBJ_LIST := ../../obj.misc.pthread
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/pthread/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/pthread/%, $^) > $@
 
-$(COBJS): %.o : %.c
-	$(CC) $(CFLAGS) $(PTINC) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
+$(OBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core

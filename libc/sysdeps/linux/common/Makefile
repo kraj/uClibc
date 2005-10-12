@@ -19,39 +19,40 @@
 TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
-SRCS  = $(wildcard *.c)
+SRCS = $(wildcard *.c)
 
-ifeq ($(strip $(EXCLUDE_BRK)),y)
+ifeq ($(EXCLUDE_BRK),y)
 SRCS := $(filter-out sbrk.c,$(SRCS))
 endif
 
 SRCS := $(filter-out ssp-local.c,$(SRCS))
-ifneq ($(strip $(UCLIBC_HAS_SSP)),y)
+ifneq ($(UCLIBC_HAS_SSP),y)
 SRCS := $(filter-out ssp.c,$(SRCS))
-NONSHARED_OBJ_LIST=
+NONSHARED_OBJ_LIST :=
 else
-NONSHARED_OBJ_LIST=../../../nonshared_obj.sysdeps.common
+NONSHARED_OBJ_LIST := ../../../nonshared_obj.sysdeps.common
 ssp.o: CFLAGS += $(SSP_DISABLE_FLAGS)
 ssp-local.o: CFLAGS += $(SSP_DISABLE_FLAGS)
 endif
 
-OBJS  = $(patsubst %.c,%.o, $(SRCS))
+OBJS := $(patsubst %.c,%.o, $(SRCS))
 
-NONSHARED_OBJS = ssp-local.o
+NONSHARED_OBJS := ssp-local.o
 
-OBJ_LIST=../../../obj.sysdeps.common
+OBJ_LIST := ../../../obj.sysdeps.common
 
 all: $(OBJ_LIST) $(NONSHARED_OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, sysdeps/linux/common/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, sysdeps/linux/common/%, $^) > $@
 
 $(NONSHARED_OBJ_LIST): $(NONSHARED_OBJS)
-	echo $(patsubst %, sysdeps/linux/common/%, $(NONSHARED_OBJS)) > $(NONSHARED_OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, sysdeps/linux/common/%, $^) > $@
 
 $(OBJS) $(NONSHARED_OBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 headers:
 	$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h $(TOPDIR)/include/

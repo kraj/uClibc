@@ -30,7 +30,7 @@ CFLAGS += $(PTINC)
 
 ARCH_CFLAGS := $(CFLAGS)
 
-ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+ifeq ($(UCLIBC_CTOR_DTOR),y)
 SHARED_START_FILES = $(TOPDIR)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
 SHARED_END_FILES = $(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
 endif
@@ -45,13 +45,13 @@ ARCH_OBJS := $(patsubst %.c,%.o, $(ARCH_CSRC))
 -include sysdeps/$(TARGET_ARCH)/Makefile.in
 
 CSRC = $(wildcard *.c)
-ifneq ($(strip $(UCLIBC_HAS_XLOCALE)),y)
+ifneq ($(UCLIBC_HAS_XLOCALE),y)
 CSRC := $(filter-out locale.c,$(CSRC))
 endif
 
 OBJS := $(patsubst %.c,%.o, $(CSRC))
 
-ifeq ($(strip $(HAVE_SHARED)),y)
+ifeq ($(HAVE_SHARED),y)
 all: $(SO_LIB_NAME)
 else
 all: $(AR_LIB_NAME)
@@ -60,7 +60,7 @@ endif
 $(AR_LIB_NAME): $(OBJS) $(ARCH_OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $@
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $^
 else
 	$(STRIPTOOL) -x -R .note -R .comment $^

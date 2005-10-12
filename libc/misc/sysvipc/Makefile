@@ -24,55 +24,39 @@
 TOPDIR=../../../
 include $(TOPDIR)Rules.mak
 
-DIRS=
+MSRC := sem.c
+MOBJ := semget.o semctl.o semop.o
 
-MSRC=sem.c
-MOBJ=semget.o semctl.o semop.o
+MSRC2 := shm.c
+MOBJ2 := shmat.o shmctl.o shmdt.o shmget.o
 
-MSRC2=shm.c
-MOBJ2=shmat.o shmctl.o shmdt.o shmget.o
+MSRC3 := msgq.c
+MOBJ3 := msgctl.o msgget.o msgrcv.o msgsnd.o
 
-MSRC3=msgq.c
-MOBJ3=msgctl.o msgget.o msgrcv.o msgsnd.o
+CSRC := ftok.c 
+COBJ := $(patsubst %.c,%.o, $(CSRC))
 
-CSRC = ftok.c 
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+OBJS := $(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJ)
 
-OBJS=$(MOBJ) $(MOBJ2) $(MOBJ3) $(COBJS)
-
-OBJ_LIST=../../obj.misc.sysvipc
+OBJ_LIST := ../../obj.misc.sysvipc
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, misc/sysvipc/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, misc/sysvipc/%, $^) > $@
 
 $(MOBJ): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ2): $(MSRC2)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 $(MOBJ3): $(MSRC3)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS): %.o : %.c
+$(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-clean: subdirs_clean
-	$(RM) *.[oa] *~ core
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
-
-$(patsubst %, _dir_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-.PHONY: dummy
+clean:
+	$(RM) *.o *~ core

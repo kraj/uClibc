@@ -36,23 +36,22 @@ CFLAGS += -DMALLOC_MMB_DEBUGGING
 endif
 endif
 
-COBJS=$(patsubst %.c,%.o, $(CSRC))
-OBJS=$(COBJS)
+OBJS := $(patsubst %.c,%.o, $(CSRC))
 
-OBJ_LIST=../../obj.stdlib.malloc
+OBJ_LIST := ../../obj.stdlib.malloc
 
 all: $(OBJ_LIST)
 
 $(OBJ_LIST): $(OBJS)
-	echo $(patsubst %, stdlib/malloc/%, $(OBJS)) > $(OBJ_LIST)
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	echo $(patsubst %, stdlib/malloc/%, $^) > $@
 
 malloc.o free.o realloc.o memalign.o: malloc.h
-$(COBJS): heap.h
+$(OBJS): heap.h
 
 # Depend on uClinux_config.h to cache changes in __UCLIBC_MALLOC_DEBUGGING__
-$(COBJS): %.o : %.c ../../../include/bits/uClibc_config.h
+$(OBJS): %.o : %.c ../../../include/bits/uClibc_config.h
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
-	$(RM) *.[oa] *~ core
+	$(RM) *.o *~ core
