@@ -28,9 +28,13 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 TOPDIR=./
 include Rules.mak
 
-# need to have libc.so built, before we can build the others
-PRE_DIRS = ldso libc
-DIRS = ldso libcrypt libresolv libnsl libutil librt
+RTLD_DIR =
+ifeq ($(HAVE_SHARED),y)
+RTLD_DIR = ldso
+endif
+# need to have libc built, before we can build the others
+PRE_DIRS = $(RTLD_DIR) libc
+DIRS = $(RTLD_DIR) libcrypt libresolv libnsl libutil librt
 ifeq ($(UCLIBC_HAS_FLOATS),y)
 	DIRS += libm
 endif
