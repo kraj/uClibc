@@ -37,7 +37,7 @@ XXFLAGS+=-D__SUPPORT_LD_DEBUG__
 endif
 XXFLAGS_NOPIC:=$(XXFLAGS)
 ifeq ($(DOPIC),y)
-    XXFLAGS += $(PICFLAG) -D__LIBDL_SHARED__
+    XXFLAGS += $(PICFLAG) -DSHARED
 endif
 
 # BEWARE!!! At least mips* will die if -O0 is used!!!
