@@ -35,7 +35,7 @@
 #include <stdio.h>
 
 
-#if defined (__LIBDL_SHARED__)
+#ifdef SHARED
 
 /* When libdl is loaded as a shared library, we need to load in
  * and use a pile of symbols from ldso... */
@@ -64,7 +64,7 @@ extern char *_dl_debug;
 #endif
 
 
-#else /* __LIBDL_SHARED__ */
+#else /* SHARED */
 
 /* When libdl is linked as a static library, we need to replace all
  * the symbols that otherwise would have been loaded in from ldso... */
@@ -85,7 +85,7 @@ struct r_debug *_dl_debug_addr = NULL;
 #include "../ldso/dl-hash.c"
 #define _dl_trace_loaded_objects    0
 #include "../ldso/dl-elf.c"
-#endif /* __LIBDL_SHARED__ */
+#endif /* SHARED */
 
 #ifdef __SUPPORT_LD_DEBUG__
 # define _dl_if_debug_print(fmt, args...) \
@@ -358,7 +358,7 @@ void *dlopen(const char *libname, int flag)
 		}
 	}
 
-#if defined (__LIBDL_SHARED__)
+#ifdef SHARED
 	/* Run the ctors and setup the dtors */
 	for (i = nlist; i; --i) {
 		tpnt = init_fini_list[i-1];
