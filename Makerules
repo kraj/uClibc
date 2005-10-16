@@ -1,6 +1,12 @@
 #
+# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+#
+top_srcdir = $(TOPDIR)
+top_builddir = $(TOPDIR)
+
 compile.c = $(CC) -c $< -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$@) $(CFLAGS-$<)
 compile.S = $(compile.c) $(S_CPPFLAGS) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$@) $(ASFLAGS-$<)
+compile.m = $(compile.c) -DL_$(patsubst %.$(suffix $@),%, $@)
 
 #S_CPPFLAGS = -D__ASSEMBLER__ $(asm-CPPFLAGS)
 
@@ -20,6 +26,8 @@ COBJ_PIC = $(COBJ:.o=.os)
 #MSRC = some.c
 #MOBJ = has to be defined if used
 MOBJ_PIC = $(MOBJ:.o=.os)
+MOBJ2_PIC = $(MOBJ2:.o=.os)
+MOBJ3_PIC = $(MOBJ3:.o=.os)
 
 #SSRC = $(wildcard *.S)
 SOBJ = $(SSRC:.S=.o)
@@ -34,8 +42,8 @@ ARCH_COBJ_PIC = $(ARCH_COBJ:.o=.os)
 ARCH_SOBJ = $(ARCH_SSRC:.S=.o)
 ARCH_SOBJ_PIC = $(ARCH_SOBJ:.o=.os)
 
-OBJS = $(COBJ) $(SOBJ) $(MOBJ)
-OBJS_PIC = $(COBJ_PIC) $(SOBJ_PIC) $(MOBJ_PIC)
+OBJS = $(COBJ) $(SOBJ) $(MOBJ) $(MOBJ2) $(MOBJ3)
+OBJS_PIC = $(COBJ_PIC) $(SOBJ_PIC) $(MOBJ_PIC) $(MOBJ2_PIC) $(MOBJ3_PIC)
 
 ARCH_OBJS = $(ARCH_COBJ) $(ARCH_SOBJ)
 ARCH_OBJS_PIC = $(ARCH_COBJ_PIC) $(ARCH_SOBJ_PIC)
@@ -44,7 +52,13 @@ $(COBJ): %.o : %.c
 	$(compile.c) $(DISABLE_PIC)
 
 $(MOBJ): $(MSRC)
-	$(compile.c) $(DISABLE_PIC) -DL_$(patsubst %.o,%, $@)
+	$(compile.m) $(DISABLE_PIC)
+
+$(MOBJ2): $(MSRC2)
+	$(compile.m) $(DISABLE_PIC)
+
+$(MOBJ3): $(MSRC3)
+	$(compile.m) $(DISABLE_PIC)
 
 $(SOBJ): %.o : %.S
 	$(compile.S) $(DISABLE_PIC)
@@ -52,8 +66,14 @@ $(SOBJ): %.o : %.S
 $(COBJ_PIC): %.os : %.c
 	$(compile.c) $(PICFLAG)
 
-$(MOBJ_PIC): $(MSRC%)
-	$(compile.c) $(PICFLAG) -DL_$(patsubst %.os,%, $@)
+$(MOBJ_PIC): $(MSRC)
+	$(compile.m) $(PICFLAG)
+
+$(MOBJ2_PIC): $(MSRC2)
+	$(compile.m) $(PICFLAG)
+
+$(MOBJ3_PIC): $(MSRC3)
+	$(compile.m) $(PICFLAG)
 
 $(SOBJ_PIC): %.os : %.S
 	$(compile.S) $(PICFLAG)
@@ -105,7 +125,8 @@ ifeq ($(strip $(SO_MAJOR_NAME)),)
 SO_MAJOR_NAME = $(LIB_NAME).so.$(MAJOR_VERSION)
 endif
 
-interp := $(TOPDIR)libc/misc/internals/interp.os
+# this should be changed to .os after libc/misc/internals/ is done
+interp := $(TOPDIR)libc/misc/internals/interp.o
 ifeq ($(strip $(EXTRA_LINK_LIBS)),)
 EXTRA_LINK_LIBS = $(interp) -L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
 endif
