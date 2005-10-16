@@ -260,6 +260,9 @@ OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 # Use the gcc 3.4 -funit-at-a-time optimization when available
 OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
 
+# gcc-4.1 fails if -combine is not used and we compile all .c to one object
+CFLAGS_FAIL := $(call check_gcc,-combine,)
+
 # Add a bunch of extra pedantic annoyingly strict checks
 XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
 XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
@@ -289,7 +292,7 @@ SSP_CFLAGS:=$(SSP_DISABLE_FLAGS)
 endif
 
 # Some nice CFLAGS to work with
-CFLAGS:=$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
+CFLAGS:=$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) $(CFLAGS_FAIL) \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc -z defs
 
