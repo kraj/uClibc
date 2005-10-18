@@ -1,237 +1,34 @@
 #
 # Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
 #
-top_srcdir = $(TOPDIR)
-top_builddir = $(TOPDIR)
+.SUFFIXES: .c .S .o .os .so .a .s
 
-compile.c = $(CC) -c $< -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$@) $(CFLAGS-$<)
-compile.S = $(compile.c) $(S_CPPFLAGS) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$@) $(ASFLAGS-$<)
-compile.m = $(compile.c) -DL_$(patsubst %.$(suffix $@),%, $@)
-
-#S_CPPFLAGS = -D__ASSEMBLER__ $(asm-CPPFLAGS)
-
-ifeq ($(DOPIC),y)
-DISABLE_PIC := $(PICFLAG)
-else
-DISABLE_PIC := -fno-PIC
+ifndef top_srcdir
+top_srcdir=$(CURDIR)
 endif
 
-# objects
-ifeq ($(strip $(CSRC)),)
-CSRC = $(wildcard *.c)
-endif
-COBJ = $(CSRC:.c=.o)
-COBJ_PIC = $(COBJ:.o=.os)
-
-#MSRC = some.c
-#MOBJ = has to be defined if used
-MOBJ_PIC = $(MOBJ:.o=.os)
-MOBJ2_PIC = $(MOBJ2:.o=.os)
-MOBJ3_PIC = $(MOBJ3:.o=.os)
-
-#SSRC = $(wildcard *.S)
-SOBJ = $(SSRC:.S=.o)
-SOBJ_PIC = $(SOBJ:.o=.os)
-
-#ARCH_DIR = $(TARGET_ARCH)
-#ARCH_CSRC = $(wildcard $(ARCH_DIR)/*.c)
-ARCH_COBJ = $(ARCH_CSRC:.c=.o)
-ARCH_COBJ_PIC = $(ARCH_COBJ:.o=.os)
-
-#ARCH_SSRC = $(wildcard $(TARGET_ARCH)/*.S)
-ARCH_SOBJ = $(ARCH_SSRC:.S=.o)
-ARCH_SOBJ_PIC = $(ARCH_SOBJ:.o=.os)
-
-OBJS = $(COBJ) $(SOBJ) $(MOBJ) $(MOBJ2) $(MOBJ3)
-OBJS_PIC = $(COBJ_PIC) $(SOBJ_PIC) $(MOBJ_PIC) $(MOBJ2_PIC) $(MOBJ3_PIC)
-
-ARCH_OBJS = $(ARCH_COBJ) $(ARCH_SOBJ)
-ARCH_OBJS_PIC = $(ARCH_COBJ_PIC) $(ARCH_SOBJ_PIC)
-
-$(COBJ): %.o : %.c
-	$(compile.c) $(DISABLE_PIC)
-
-$(MOBJ): $(MSRC)
-	$(compile.m) $(DISABLE_PIC)
-
-$(MOBJ2): $(MSRC2)
-	$(compile.m) $(DISABLE_PIC)
-
-$(MOBJ3): $(MSRC3)
-	$(compile.m) $(DISABLE_PIC)
-
-$(SOBJ): %.o : %.S
-	$(compile.S) $(DISABLE_PIC)
-
-$(COBJ_PIC): %.os : %.c
-	$(compile.c) $(PICFLAG)
-
-$(MOBJ_PIC): $(MSRC)
-	$(compile.m) $(PICFLAG)
-
-$(MOBJ2_PIC): $(MSRC2)
-	$(compile.m) $(PICFLAG)
-
-$(MOBJ3_PIC): $(MSRC3)
-	$(compile.m) $(PICFLAG)
-
-$(SOBJ_PIC): %.os : %.S
-	$(compile.S) $(PICFLAG)
-
-$(ARCH_COBJ): %.o : %.c
-	$(compile.c) $(DISABLE_PIC)
-
-$(ARCH_SOBJ): %.o : %.S
-	$(compile.S) $(DISABLE_PIC)
-
-$(ARCH_COBJ_PIC): %.os : %.c
-	$(compile.c) $(PICFLAG)
-
-$(ARCH_SOBJ_PIC): %.os : %.S
-	$(compile.S) $(PICFLAG)
-
-#ifeq ($(strip $(OBJ_DIR)),)
-#OBJ_DIR = $(patsubst %libc/,, $(shell pwd))
-#endif
-OBJ_FILE = $(subst /,., $(OBJ_DIR))
-OBJ_LIST = $(patsubst %,$(TOPDIR)libc/obj.%, $(OBJ_FILE))
-OBJ_LIST_PIC = $(patsubst %,$(TOPDIR)libc/obj_pic.%, $(OBJ_FILE))
-
-ifeq ($(DOPIC),y)
-objs: $(OBJ_LIST_PIC)
-else
-objs: $(OBJ_LIST) $(OBJ_LIST_PIC)
+ifndef top_builddir
+top_builddir=$(CURDIR)
 endif
 
-$(OBJ_LIST): $(OBJS)
-	$(STRIPTOOL) -x -R .note -R .comment $^
-	echo $(patsubst %,$(OBJ_DIR)/%, $^) > $@
+top_srcdir:=$(shell echo "$(top_srcdir)/" | sed -e 's://:/:')
+top_builddir:=$(shell echo "$(top_builddir)/" | sed -e 's://:/:')
 
-$(OBJ_LIST_PIC): $(OBJS_PIC)
-	$(STRIPTOOL) -x -R .note -R .comment $^
-	echo $(patsubst %,$(OBJ_DIR)/%, $^) > $@
-
-# libraries
-#LIB_NAME=libsome
-AR_LIB_NAME = $(TOPDIR)lib/$(LIB_NAME).a
-AR_PIC_LIB_NAME = $(LIB_NAME)_pic.a
-ifeq ($(strip $(SO_LIB_NAME)),)
-SO_LIB_NAME = $(TOPDIR)lib/$(LIB_NAME).so
-endif
-ifeq ($(strip $(SO_FULL_NAME)),)
-SO_FULL_NAME = $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
-endif
-ifeq ($(strip $(SO_MAJOR_NAME)),)
-SO_MAJOR_NAME = $(LIB_NAME).so.$(MAJOR_VERSION)
-endif
-
-# this should be changed to .os after libc/misc/internals/ is done
-interp := $(TOPDIR)libc/misc/internals/interp.o
-ifeq ($(strip $(EXTRA_LINK_LIBS)),)
-EXTRA_LINK_LIBS = $(interp) -L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
-endif
-
-libs: libs_shared $(AR_LIB_NAME)
 ifeq ($(HAVE_SHARED),y)
-libs_shared: $(SO_LIB_NAME)
+.LIBPATTERNS: "lib%.so"
+libs: libso-y liba-y
 else
-libs_shared:
+.LIBPATTERNS: "lib%.a"
+libs: liba-y
 endif
 
-$(AR_PIC_LIB_NAME): $(OBJS_PIC) $(ARCH_OBJS_PIC)
-	$(RM) $@
-ifneq ($(strip $(STRIP_FLAGS)),)
-	$(STRIPTOOL) $(STRIP_FLAGS) $^
-else
-	$(STRIPTOOL) -x -R .note -R .comment $^
-endif
-	$(AR) $(ARFLAGS) $@ $(OBJS_PIC)
-ifneq ($(strip $(ARCH_OBJS_PIC)),)
-	$(AR) $(ARFLAGS) $@ $(ARCH_OBJS_PIC)
-endif
+libso-y: $(libso-y)
+liba-y: $(liba-y)
+libclean-y: $(libclean-y)
 
-ifeq ($(DOPIC),y)
-$(AR_LIB_NAME): $(AR_PIC_LIB_NAME)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $@
-	cp $< $@
-else
-$(AR_LIB_NAME): $(OBJS) $(ARCH_OBJS)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $@
-ifneq ($(strip $(STRIP_FLAGS)),)
-	$(STRIPTOOL) $(STRIP_FLAGS) $^
-else
-	$(STRIPTOOL) -x -R .note -R .comment $^
-endif
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-ifneq ($(strip $(ARCH_OBJS)),)
-	$(AR) $(ARFLAGS) $@ $(ARCH_OBJS)
-endif
-endif
+compile.c=$(CC) -c $< -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$@) $(CFLAGS-$<)
+compile.S=$(compile.c) $(S_CPPFLAGS) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$@) $(ASFLAGS-$<)
+compile.m=$(compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
 
-$(SO_LIB_NAME): $(AR_PIC_LIB_NAME)
-	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(TOPDIR)lib/$(SO_MAJOR_NAME) $@
-	$(LD) $(LDFLAGS) -soname=$(SO_MAJOR_NAME) -o $(TOPDIR)lib/$(SO_FULL_NAME) \
-		$(EXTRA_LINK_OPTS) $(SHARED_START_FILES) --whole-archive $< \
-		--no-whole-archive $(EXTRA_LINK_LIBS) $(SHARED_END_FILES)
-	$(LN) -sf $(SO_FULL_NAME) $(TOPDIR)lib/$(SO_MAJOR_NAME)
-	$(LN) -sf $(SO_FULL_NAME) $@
-
-# crt stuff
-ifeq ($(HAVE_ELF),y)
-CRT = crt1
-else
-CRT = crt0
-endif
-
-CTOR_TARGETS := $(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
-
-crts: $(TOPDIR)lib/$(CRT).o $(TOPDIR)lib/S$(CRT).o $(CTOR_TARGETS)
-
-$(TOPDIR)lib/$(CRT).o: $(CRT).S
-	$(compile.S) $(DISABLE_PIC) -DL_$*
-	$(STRIPTOOL) -x -R .note -R .comment $@
-
-$(TOPDIR)lib/S$(CRT).o: $(CRT).S
-	$(compile.S) $(PIEFLAG) -DL_$*
-	$(STRIPTOOL) -x -R .note -R .comment $@
-
-ifeq ($(UCLIBC_CTOR_DTOR),y)
-$(TOPDIR)lib/crti.o: crti.S
-	$(INSTALL) -d $(TOPDIR)lib/
-	$(compile.S) $(PICFLAG) $(SSP_DISABLE_FLAGS)
-
-$(TOPDIR)lib/crtn.o: crtn.S
-	$(INSTALL) -d $(TOPDIR)lib/
-	$(compile.S) $(PICFLAG) $(SSP_DISABLE_FLAGS)
-else
-$(CTOR_TARGETS):
-	$(INSTALL) -d $(TOPDIR)lib/
-	$(AR) $(ARFLAGS) $@
-endif
-
-# addons
-headers:
-
-tags:
-	ctags -R
-
-clean:
-	$(RM) *.o *.os *.a
-ifneq ($(strip $(ARCH_DIR)),)
-	$(RM) $(ARCH_DIR)/*.o $(ARCH_DIR)/*.os
-endif
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
-
-$(patsubst %, _dir_%, $(DIRS)) : dummy
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-.PHONY: dummy
-#
+.PHONY: clean
+clean: libclean-y
