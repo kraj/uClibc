@@ -1,0 +1,13 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2002-2003 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+#
+
+CFLAGS+=$(SSP_ALL_CFLAGS)
+
+LIB_NAME:=libcrypt
+srcdir=$(top_srcdir)$(LIB_NAME)
+include $(top_srcdir)Makefile.libs
+include $(top_srcdir)Makerules
