@@ -1,0 +1,28 @@
+# Makefile for uClibc's pthread library
+#
+# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+#
+
+#CFLAGS+=$(SSP_ALL_CFLAGS)
+
+PT_MAJOR_VERSION:=$(MAJOR_VERSION)
+# Get the thread include dependencies and shared object name
+CFLAGS+=$(PTINC) -DLIBPTHREAD_SO="\"libpthread.so.$(PT_MAJOR_VERSION)\""
+
+# Remove any -z defs since this lib will have undefined symbols
+LDFLAGS:=$(subst -z defs,,$(LDFLAGS)) --warn-unresolved-symbols
+
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+STRIP_FLAGS:=-X --strip-debug -R .note -R .comment
+endif
+
+LIB_NAME:=libthread_db
+srcdir=$(top_srcdir)libpthread/linuxthreads_db
+$(LIB_NAME)_DIR:=$(top_builddir)libpthread/linuxthreads_db
+MAJOR_VERSION:=1
+
+libso-$(UCLIBC_HAS_THREADS)+=$(top_builddir)lib/$(LIB_NAME).so
+liba-$(UCLIBC_HAS_THREADS)+=$(top_builddir)lib/$(LIB_NAME).a
+libclean-y+=$(LIB_NAME)_clean
+
+include $(top_srcdir)Makefile.libs
