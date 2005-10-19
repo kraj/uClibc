@@ -1,7 +1,7 @@
 #
 # Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
 #
-.SUFFIXES: .c .S .o .os .so .a .s
+.SUFFIXES: .c .S .o .os .so .a .s .i
 
 ifndef top_srcdir
 top_srcdir=$(CURDIR)

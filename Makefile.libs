@@ -31,6 +31,8 @@ $(LIB_NAME)_OBJ_PIC:=$(patsubst %.o,%.os,$($(LIB_NAME)_OBJ))
 
 $(LIB_NAME)_MOBJ_PIC:=$(patsubst %.o,%.os,$($(LIB_NAME)_MOBJ))
 
+$(LIB_NAME)_SOBJ_PIC:=$(patsubst %.o,%.os,$($(LIB_NAME)_SOBJ))
+
 #libso-y+=$(top_builddir)lib/$(LIB_NAME).so
 #liba-y+=$(top_builddir)lib/$(LIB_NAME).a
 #libclean-y+=$(LIB_NAME)_clean
@@ -47,49 +49,56 @@ $($(LIB_NAME)_MOBJ): $($(LIB_NAME)_MSRC)
 $($(LIB_NAME)_MOBJ_PIC): $($(LIB_NAME)_MSRC)
 	$(compile.m) $(PICFLAG)
 
+$($(LIB_NAME)_SOBJ): %.o : %.S
+	$(compile.S)
+
+$($(LIB_NAME)_SOBJ_PIC): %.os : %.S
+	$(compile.S) $(PICFLAG)
+
 # this should be changed to .os after libc/misc/internals/ is done
+libc:=$(top_builddir)lib/libc.so
 interp:=$(top_builddir)libc/misc/internals/interp.o
 ifeq ($(strip $(EXTRA_LINK_LIBS)),)
-EXTRA_LINK_LIBS=$(interp) -L$(top_builddir)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
+#EXTRA_LINK_LIBS:=$(interp) -L$(top_builddir)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
+EXTRA_LINK_LIBS:=$(interp) $(libc) $(LDADD_LIBFLOAT) $(LIBGCC)
 endif
 
-$(top_builddir)lib/$(LIB_NAME).so: $($(LIB_NAME)_DIR)/$(LIB_NAME)_pic.a $(interp)
+$(top_builddir)lib/$(LIB_NAME).so: $($(LIB_NAME)_DIR)/$(LIB_NAME)_pic.a $(interp) $(libc)
 	$(INSTALL) -d $(top_builddir)lib
 	$(RM) $@ $@.$(MAJOR_VERSION) $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME)
-	$(LD) $(LDFLAGS) -soname=$(notdir $@).$(MAJOR_VERSION) -o $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME) \
-		$(EXTRA_LINK_OPTS) $(SHARED_START_FILES) --whole-archive $(firstword $^) \
-		--no-whole-archive $(EXTRA_LINK_LIBS) $(SHARED_END_FILES)
-	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@.$(MAJOR_VERSION)
-	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@
-
-$(top_builddir)lib/$(LIB_NAME).so1: $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PIC)
-	$(INSTALL) -d $(top_builddir)lib
-	$(RM) $@ $@.$(MAJOR_VERSION) $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME)
-	$(LD) $(LDFLAGS) -soname=$(notdir $@).$(MAJOR_VERSION) -o $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME) \
-		$(EXTRA_LINK_OPTS) $(SHARED_START_FILES) $^ \
+	$(LD) $(LDFLAGS) $(EXTRA_LINK_OPTS) -soname=$(notdir $@).$(MAJOR_VERSION) \
+		-o $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME) $(SHARED_START_FILES) \
+		--whole-archive $(firstword $^) --no-whole-archive \
 		$(EXTRA_LINK_LIBS) $(SHARED_END_FILES)
 	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@.$(MAJOR_VERSION)
 	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@
 
-$($(LIB_NAME)_DIR)/$(LIB_NAME)_pic.a: $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PIC)
-ifneq ($(strip $(STRIP_FLAGS)),)
-	$(STRIPTOOL) $(STRIP_FLAGS) $^
+$(top_builddir)lib/$(LIB_NAME).so1: $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PIC) $($(LIB_NAME)_SOBJ_PIC) $($(LIB_NAME)_SO_ADD)
+	$(INSTALL) -d $(top_builddir)lib
+	$(RM) $@ $@.$(MAJOR_VERSION) $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME)
+	$(LD) $(LDFLAGS) $(EXTRA_LINK_OPTS) -soname=$(notdir $@).$(MAJOR_VERSION) \
+		-o $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME) $(SHARED_START_FILES) $^ \
+		$(EXTRA_LINK_LIBS) $(SHARED_END_FILES)
+	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@.$(MAJOR_VERSION)
+	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@
+
+$($(LIB_NAME)_DIR)/$(LIB_NAME)_pic.a: $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PIC) $($(LIB_NAME)_SOBJ_PIC) $($(LIB_NAME)_SO_ADD)
+ifneq ($(strip $($(LIB_NAME)_STRIP_FLAGS)),)
+	$(STRIPTOOL) $($(LIB_NAME)_STRIP_FLAGS) $^
 else
 	$(STRIPTOOL) -x -R .note -R .comment $^
 endif
 	$(AR) $(ARFLAGS) $@ $^
-	#(AR) $(ARFLAGS) $@ $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PIC)
 
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)_DIR)/$(LIB_NAME)_pic.a
 	$(RM) $@
 	cp $< $@
 else
-$(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)_OBJ) $($(LIB_NAME)_MOBJ)
+$(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)_OBJ) $($(LIB_NAME)_MOBJ) $($(LIB_NAME)_SOBJ) $($(LIB_NAME)_A_ADD)
 	$(RM) $@
 	$(STRIPTOOL) -x -R .note -R .comment $^
 	$(AR) $(ARFLAGS) $@ $^
-	#(AR) $(ARFLAGS) $@ $($(LIB_NAME)_OBJ) $($(LIB_NAME)_MOBJ)
 endif
 
 $(LIB_NAME)_clean:

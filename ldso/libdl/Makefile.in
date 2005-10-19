@@ -3,7 +3,13 @@
 # Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
 #
 
-CFLAGS+=$(SSP_ALL_CFLAGS) -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\"
+LIB_NAME:=libdl
+
+# psm: I do not know if the order of includes is relevant
+# to be sure I added them first
+CFLAGS:=-I$(top_builddir)ldso/include -I$(top_builddir)ldso/ldso $(CFLAGS) $(SSP_ALL_CFLAGS)
+
+CFLAGS+=-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\"
 
 ifeq ($(SUPPORT_LD_DEBUG),y)
 CFLAGS+=-D__SUPPORT_LD_DEBUG__
@@ -14,29 +20,27 @@ ifeq ($(TARGET_ARCH),mips)
 CFLAGS:=$(CFLAGS:-O0=-O1)
 endif
 
-CFLAGS:=-I$(top_srcdir)ldso/include -I$(top_srcdir)ldso/ldso $(CFLAGS)
-
 CFLAGS-.os=-DSHARED
 # we adapt CFLAGS, because libdl.a has an additional object
 ifeq ($(DOPIC),y)
 CFLAGS-.o=$(PICFLAG)
-resolv:=$(top_builddir)ldso/$(TARGET_ARCH)/resolv.os
+resolv:=$(top_builddir)ldso/ldso/$(TARGET_ARCH)/resolve.os
 else
-resolv:=$(top_builddir)ldso/$(TARGET_ARCH)/resolv.o
+resolv:=$(top_builddir)ldso/ldso/$(TARGET_ARCH)/resolve.o
 endif
 
 EXTRA_LINK_OPTS:=-fini dl_cleanup
-#EXTRA_LINK_LIBS:=$(interp) -L$(top_builddir)lib -lc $(LDADD_LIBFLOAT) $(top_builddir)lib/$(UCLIBC_LDSO) $(LIBGCC)
 
 # we need for all cases a "full" libdl.a the pic version used to build libdl.so misses $(resolv)
 # because it is linked against ld.so
 DOPIC=n
 
-LIB_NAME:=libdl
 srcdir=$(top_srcdir)ldso/$(LIB_NAME)
 $(LIB_NAME)_DIR:=$(top_builddir)ldso/$(LIB_NAME)
 
 $(LIB_NAME)_SRC:=$(srcdir)/libdl.c
+
+$(LIB_NAME)_A_ADD:=$(resolv)
 
 libso-$(HAVE_SHARED)+=$(top_builddir)lib/$(LIB_NAME).so
 liba-$(HAVE_SHARED)+=$(top_builddir)lib/$(LIB_NAME).a
@@ -46,6 +50,3 @@ include $(top_srcdir)Makefile.libs
 
 # !!! these lines have to come after including Makefile.libs !!!
 EXTRA_LINK_LIBS+=$(top_builddir)lib/$(UCLIBC_LDSO)
-
-# should only go into libdl.a, OBJ_PIC is not modified here
-$(LIB_NAME)_OBJ+=$(resolv)

@@ -1,0 +1,59 @@
+# Makefile for uClibc
+#
+# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+#
+
+LIB_NAME:=ld-uClibc
+
+# psm: I do not know if the order of includes is relevant
+# to be sure I have put them first
+CFLAGS:=-I$(top_srcdir)ldso/include -I. $(CFLAGS) $(PICFLAG) $(SSP_DISABLE_FLAGS)
+
+CFLAGS+=-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\"
+
+ifeq ($(SUPPORT_LD_DEBUG),y)
+CFLAGS+=-D__SUPPORT_LD_DEBUG__
+endif
+
+ifeq ($(SUPPORT_LD_DEBUG_EARLY),y)
+CFLAGS+=-D__SUPPORT_LD_DEBUG_EARLY__
+endif
+
+ifeq ($(DODEBUG),y)
+# Not really much point in including debugging info, since gdb
+# can't really debug ldso, since gdb requires help from ldso to
+# debug things....
+# psm: keep this in sync w/ Rules.mak
+CFLAGS:=$(CFLAGS:-O0 -g3=-Os -g)
+endif
+
+# BEWARE!!! At least mips* will die if -O0 is used!!!
+ifeq ($(TARGET_ARCH),mips)
+CFLAGS:=$(CFLAGS:-O0=-O1)
+endif
+
+# This stuff will not work with -fomit-frame-pointer
+CFLAGS:=$(CFLAGS:-fomit-frame-pointer=)
+
+ifeq ($(SUPPORT_LD_DEBUG),y)
+LDFLAGS:=$(LDFLAGS_NOSTRIP)
+endif
+
+srcdir=$(top_srcdir)ldso/ldso
+$(LIB_NAME)_DIR:=$(top_builddir)ldso/ldso
+
+$(LIB_NAME)_SRC:=$(srcdir)/ldso.c
+
+$(LIB_NAME)_SSRC:=$(wildcard $(srcdir)/$(TARGET_ARCH)/*.S)
+$(LIB_NAME)_SOBJ:=$(patsubst $(srcdir)/$(TARGET_ARCH)/%.S,$($(LIB_NAME)_DIR)/$(TARGET_ARCH)/%.o,$($(LIB_NAME)_SSRC))
+
+EXTRA_LINK_OPTS:=-e _start -z now -Bsymbolic --export-dynamic --sort-common --discard-locals --discard-all --no-undefined
+EXTRA_LINK_LIBS:=$(LIBGCC) # $(LDADD_LIBFLOAT)
+
+libso-$(HAVE_SHARED)+=$(top_builddir)lib/$(LIB_NAME).so
+libclean-y+=$(LIB_NAME)_clean $(LIB_NAME)_arch_clean
+
+$(LIB_NAME)_arch_clean:
+	$(RM) $($(LIB_NAME)_DIR)/*/*.{o,os}
+
+include $(top_srcdir)Makefile.libs

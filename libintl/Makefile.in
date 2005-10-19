@@ -1,0 +1,23 @@
+# Makefile.in for uClibc
+#
+# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+#
+
+CFLAGS+=$(SSP_ALL_CFLAGS)
+
+LIB_NAME:=libintl
+
+srcdir=$(top_srcdir)$(LIB_NAME)
+$(LIB_NAME)_DIR:=$(top_builddir)$(LIB_NAME)
+
+$(LIB_NAME)_MSRC:=$(srcdir)/intl.c
+MOBJ:=gettext.o ngettext.o  dgettext.o dcgettext.o dngettext.o dcngettext.o \
+	textdomain.o bindtextdomain.o bind_textdomain_codeset.o \
+	_nl_expand_alias.o _nl_msg_cat_cntr.o # glibc-isms
+$(LIB_NAME)_MOBJ:=$(patsubst %.o,$($(LIB_NAME)_DIR)/%.o,$(MOBJ))
+
+libso-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(top_builddir)lib/$(LIB_NAME).so
+liba-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(top_builddir)lib/$(LIB_NAME).a
+libclean-y+=$(LIB_NAME)_clean
+
+include $(top_srcdir)Makefile.libs
