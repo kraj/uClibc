@@ -50,7 +50,7 @@ tags:
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 subdirs_clean: $(patsubst %, _dirclean_%, $(ALL_SUBDIRS))
 
-$(patsubst %, _dir_%, $(DIRS)) : dummy
+$(patsubst %, _dir_%, $(DIRS)) : headers
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 $(patsubst %, _dirclean_%, $(ALL_SUBDIRS)) : dummy
