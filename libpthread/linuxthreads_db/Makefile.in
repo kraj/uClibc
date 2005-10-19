@@ -21,8 +21,8 @@ srcdir=$(top_srcdir)libpthread/linuxthreads_db
 $(LIB_NAME)_DIR:=$(top_builddir)libpthread/linuxthreads_db
 MAJOR_VERSION:=1
 
-libso-$(UCLIBC_HAS_THREADS)+=$(top_builddir)lib/$(LIB_NAME).so
-liba-$(UCLIBC_HAS_THREADS)+=$(top_builddir)lib/$(LIB_NAME).a
+libso-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/$(LIB_NAME).so
+liba-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/$(LIB_NAME).a
 libclean-y+=$(LIB_NAME)_clean
 
 include $(top_srcdir)Makefile.libs
