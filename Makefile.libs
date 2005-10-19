@@ -83,8 +83,8 @@ $(top_builddir)lib/$(LIB_NAME).so1: $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PI
 	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@
 
 $($(LIB_NAME)_DIR)/$(LIB_NAME)_pic.a: $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PIC) $($(LIB_NAME)_SOBJ_PIC) $($(LIB_NAME)_SO_ADD)
-ifneq ($(strip $($(LIB_NAME)_STRIP_FLAGS)),)
-	$(STRIPTOOL) $($(LIB_NAME)_STRIP_FLAGS) $^
+ifneq ($(strip $(STRIP_FLAGS)),)
+	$(STRIPTOOL) $(STRIP_FLAGS) $^
 else
 	$(STRIPTOOL) -x -R .note -R .comment $^
 endif
