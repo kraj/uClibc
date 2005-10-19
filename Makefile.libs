@@ -8,6 +8,7 @@
 #LIB_NAME:=libsome
 
 ifneq ($(strip $(LIB_NAME)),)
+
 ifeq ($(strip $(srcdir)),)
 srcdir=$(top_srcdir)$(LIB_NAME)
 endif
@@ -22,20 +23,17 @@ ifeq ($(strip $($(LIB_NAME)_SRC)),)
 ifeq ($(strip $($(LIB_NAME)_MSRC)),)
 $(LIB_NAME)_SRC:=$(wildcard $(srcdir)/*.c)
 endif
-else
+endif
 ifeq ($(strip $($(LIB_NAME)_OBJ)),)
 $(LIB_NAME)_OBJ:=$(patsubst $(srcdir)/%.c,$($(LIB_NAME)_DIR)/%.o,$($(LIB_NAME)_SRC))
-endif
 endif
 $(LIB_NAME)_OBJ_PIC:=$(patsubst %.o,%.os,$($(LIB_NAME)_OBJ))
 
 $(LIB_NAME)_MOBJ_PIC:=$(patsubst %.o,%.os,$($(LIB_NAME)_MOBJ))
 
-$(LIB_NAME)_ARCH_OBJ_PIC:=$(patsubst %.o,%.os,$($(LIB_NAME)_ARCH_OBJ))
-
-libso-y+=$(top_builddir)lib/$(LIB_NAME).so
-liba-y+=$(top_builddir)lib/$(LIB_NAME).a
-libclean-y+=$(LIB_NAME)_clean
+#libso-y+=$(top_builddir)lib/$(LIB_NAME).so
+#liba-y+=$(top_builddir)lib/$(LIB_NAME).a
+#libclean-y+=$(LIB_NAME)_clean
 
 $($(LIB_NAME)_OBJ): %.o : %.c
 	$(compile.c)
@@ -48,12 +46,6 @@ $($(LIB_NAME)_MOBJ): $($(LIB_NAME)_MSRC)
 
 $($(LIB_NAME)_MOBJ_PIC): $($(LIB_NAME)_MSRC)
 	$(compile.m) $(PICFLAG)
-
-$($(LIB_NAME)_ARCH_OBJ): %.o : %.c
-	$(compile.c)
-
-$($(LIB_NAME)_ARCH_OBJ_PIC): %.os : %.c
-	$(compile.c) $(PICFLAG)
 
 # this should be changed to .os after libc/misc/internals/ is done
 interp:=$(top_builddir)libc/misc/internals/interp.o
@@ -70,7 +62,7 @@ $(top_builddir)lib/$(LIB_NAME).so: $($(LIB_NAME)_DIR)/$(LIB_NAME)_pic.a $(interp
 	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@.$(MAJOR_VERSION)
 	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@
 
-$(top_builddir)lib/$(LIB_NAME).so1: $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PIC) $($(LIB_NAME)_ARCH_OBJ_PIC)
+$(top_builddir)lib/$(LIB_NAME).so1: $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PIC)
 	$(INSTALL) -d $(top_builddir)lib
 	$(RM) $@ $@.$(MAJOR_VERSION) $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME)
 	$(LD) $(LDFLAGS) -soname=$(notdir $@).$(MAJOR_VERSION) -o $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME) \
@@ -79,7 +71,7 @@ $(top_builddir)lib/$(LIB_NAME).so1: $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PI
 	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@.$(MAJOR_VERSION)
 	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@
 
-$($(LIB_NAME)_DIR)/$(LIB_NAME)_pic.a: $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PIC) $($(LIB_NAME)_ARCH_OBJ_PIC)
+$($(LIB_NAME)_DIR)/$(LIB_NAME)_pic.a: $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PIC)
 ifneq ($(strip $(STRIP_FLAGS)),)
 	$(STRIPTOOL) $(STRIP_FLAGS) $^
 else
@@ -87,22 +79,22 @@ else
 endif
 	$(AR) $(ARFLAGS) $@ $^
 	#(AR) $(ARFLAGS) $@ $($(LIB_NAME)_OBJ_PIC) $($(LIB_NAME)_MOBJ_PIC)
-	#(AR) $(ARFLAGS) $@ $($(LIB_NAME)_ARCH_OBJ_PIC)
 
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)_DIR)/$(LIB_NAME)_pic.a
 	$(RM) $@
 	cp $< $@
 else
-$(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)_OBJ) $($(LIB_NAME)_MOBJ) $($(LIB_NAME)_ARCH_OBJ)
+$(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)_OBJ) $($(LIB_NAME)_MOBJ)
 	$(RM) $@
 	$(STRIPTOOL) -x -R .note -R .comment $^
 	$(AR) $(ARFLAGS) $@ $^
 	#(AR) $(ARFLAGS) $@ $($(LIB_NAME)_OBJ) $($(LIB_NAME)_MOBJ)
-	#(AR) $(ARFLAGS) $@ $($(LIB_NAME)_ARCH_OBJ)
 endif
 
 $(LIB_NAME)_clean:
 	rm -f $($(LIB_NAME)_DIR)/*.{o,os,a}
 
 endif
+
+include $(top_srcdir)Makerules
