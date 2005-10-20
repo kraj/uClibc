@@ -647,16 +647,19 @@ int __form_query(int id, const char *name, int type, unsigned char *packet,
 }
 #endif
 
-#ifdef L_dnslookup
+#if defined(L_dnslookup) || defined(L_gethostent)
 
 #ifdef __UCLIBC_HAS_THREADS__
-static pthread_mutex_t dns_mylock = PTHREAD_MUTEX_INITIALIZER;
-# define DNS_LOCK	__pthread_mutex_lock(&dns_mylock)
-# define DNS_UNLOCK	__pthread_mutex_unlock(&dns_mylock);
+static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
+# define LOCK	__pthread_mutex_lock(&mylock)
+# define UNLOCK	__pthread_mutex_unlock(&mylock);
 #else
-# define DNS_LOCK
-# define DNS_UNLOCK
+# define LOCK
+# define UNLOCK
 #endif
+#endif
+
+#ifdef L_dnslookup
 
 /* Just for the record, having to lock __dns_lookup() just for these two globals
  * is pretty lame.  I think these two variables can probably be de-global-ized,
@@ -693,10 +696,10 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 	DPRINTF("Looking up type %d answer for '%s'\n", type, name);
 
 	/* Mess with globals while under lock */
-	DNS_LOCK;
+	LOCK;
 	local_ns = ns % nscount;
 	local_id = id;
-	DNS_UNLOCK;
+	UNLOCK;
 
 	while (retries < MAX_RETRIES) {
 		if (fd != -1)
@@ -900,10 +903,10 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		free(lookup);
 
 		/* Mess with globals while under lock */
-		DNS_LOCK;
+		LOCK;
 		ns = local_ns;
 		id = local_id;
-		DNS_UNLOCK;
+		UNLOCK;
 
 		return (len);				/* success! */
 
@@ -951,10 +954,10 @@ fail:
 	h_errno = NETDB_INTERNAL;
 	/* Mess with globals while under lock */
 	if (local_ns != -1) {
-	    DNS_LOCK;
+	    LOCK;
 	    ns = local_ns;
 	    id = local_id;
-	    DNS_UNLOCK;
+	    UNLOCK;
 	}
 	return -1;
 }
@@ -1575,15 +1578,6 @@ int __read_etc_hosts_r(FILE * fp, const char * name, int type,
 
 
 #ifdef L_gethostent
-
-#ifdef __UCLIBC_HAS_THREADS__
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	__pthread_mutex_lock(&mylock)
-# define UNLOCK	__pthread_mutex_unlock(&mylock);
-#else
-# define LOCK
-# define UNLOCK
-#endif
 
 static int __stay_open;
 static FILE * __gethostent_fp;
