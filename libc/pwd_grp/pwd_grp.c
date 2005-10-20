@@ -446,16 +446,19 @@ int getpw(uid_t uid, char *buf)
 
 #endif
 /**********************************************************************/
-#ifdef L_getpwent_r
+#if defined(L_getpwent_r) || defined(L_getgrent_r) || defined(L_getspent_r)
 
 #ifdef __UCLIBC_HAS_THREADS__
 static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 # define LOCK		__pthread_mutex_lock(&mylock)
 # define UNLOCK		__pthread_mutex_unlock(&mylock);
-#else       
+#else
 # define LOCK		((void) 0)
 # define UNLOCK		((void) 0)
-#endif      
+#endif
+#endif
+
+#ifdef L_getpwent_r
 
 static FILE *pwf /*= NULL*/;
 
@@ -512,15 +515,6 @@ int getpwent_r(struct passwd *__restrict resultbuf,
 /**********************************************************************/
 #ifdef L_getgrent_r
 
-#ifdef __UCLIBC_HAS_THREADS__
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK		__pthread_mutex_lock(&mylock)
-# define UNLOCK		__pthread_mutex_unlock(&mylock);
-#else       
-# define LOCK		((void) 0)
-# define UNLOCK		((void) 0)
-#endif      
-
 static FILE *grf /*= NULL*/;
 
 void setgrent(void)
@@ -574,15 +568,6 @@ int getgrent_r(struct group *__restrict resultbuf,
 #endif
 /**********************************************************************/
 #ifdef L_getspent_r
-
-#ifdef __UCLIBC_HAS_THREADS__
-static pthread_mutex_t mylock =  PTHREAD_MUTEX_INITIALIZER;
-# define LOCK		__pthread_mutex_lock(&mylock)
-# define UNLOCK		__pthread_mutex_unlock(&mylock);
-#else       
-# define LOCK		((void) 0)
-# define UNLOCK		((void) 0)
-#endif      
 
 static FILE *spf /*= NULL*/;
 
