@@ -650,12 +650,12 @@ int __form_query(int id, const char *name, int type, unsigned char *packet,
 #ifdef L_dnslookup
 
 #ifdef __UCLIBC_HAS_THREADS__
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	__pthread_mutex_lock(&mylock)
-# define UNLOCK	__pthread_mutex_unlock(&mylock);
+static pthread_mutex_t dns_mylock = PTHREAD_MUTEX_INITIALIZER;
+# define DNS_LOCK	__pthread_mutex_lock(&dns_mylock)
+# define DNS_UNLOCK	__pthread_mutex_unlock(&dns_mylock);
 #else
-# define LOCK
-# define UNLOCK
+# define DNS_LOCK
+# define DNS_UNLOCK
 #endif
 
 /* Just for the record, having to lock __dns_lookup() just for these two globals
@@ -693,10 +693,10 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 	DPRINTF("Looking up type %d answer for '%s'\n", type, name);
 
 	/* Mess with globals while under lock */
-	LOCK;
+	DNS_LOCK;
 	local_ns = ns % nscount;
 	local_id = id;
-	UNLOCK;
+	DNS_UNLOCK;
 
 	while (retries < MAX_RETRIES) {
 		if (fd != -1)
@@ -900,10 +900,10 @@ int __dns_lookup(const char *name, int type, int nscount, char **nsip,
 		free(lookup);
 
 		/* Mess with globals while under lock */
-		LOCK;
+		DNS_LOCK;
 		ns = local_ns;
 		id = local_id;
-		UNLOCK;
+		DNS_UNLOCK;
 
 		return (len);				/* success! */
 
@@ -951,10 +951,10 @@ fail:
 	h_errno = NETDB_INTERNAL;
 	/* Mess with globals while under lock */
 	if (local_ns != -1) {
-	    LOCK;
+	    DNS_LOCK;
 	    ns = local_ns;
 	    id = local_id;
-	    UNLOCK;
+	    DNS_UNLOCK;
 	}
 	return -1;
 }

@@ -71,7 +71,7 @@ extern __const char *inet_ntop (int __af, __const void *__restrict __cp,
 #ifdef __USE_MISC
 /* Convert Internet host address from numbers-and-dots notation in CP
    into binary data and store the result in the structure INP.  */
-extern in_addr_t inet_aton (__const char *__cp, struct in_addr *__inp) __THROW;
+extern int inet_aton (__const char *__cp, struct in_addr *__inp) __THROW;
 
 /* Format a network number NET into presentation format and place result
    in buffer starting at BUF with length of LEN bytes.  */
