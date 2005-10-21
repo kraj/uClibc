@@ -23,7 +23,9 @@
 
 
 #if defined (__UCLIBC_HAS_LFS__) && defined L_ftw64
+#ifndef L_ftw
 #define L_ftw
+#endif
 
 /* If Large file support is enabled, transparently remap
  * things to use the 64-bit interfaces */
