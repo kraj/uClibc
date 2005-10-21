@@ -1,18 +1,7 @@
-/*  Copyright (C) 2003     Manuel Novoa III
+/*
+ * Copyright (C) 2003     Manuel Novoa III
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public
- *  License as published by the Free Software Foundation; either
- *  version 2 of the License, or (at your option) any later version.
- *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Library General Public License for more details.
- *
- *  You should have received a copy of the GNU Library General Public
- *  License along with this library; if not, write to the Free
- *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
  */
 
 /*  Nov 6, 2003  Initial version.
@@ -229,6 +218,7 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #define GETXXKEY_R_TEST(ENT)	(!strcmp((ENT)->pw_name, key))
 #define DO_GETXXKEY_R_KEYTYPE	const char *__restrict
 #define DO_GETXXKEY_R_PATHNAME  _PATH_PASSWD
+#include "pwd_grp_internal.c"
 #endif
 
 #ifdef L_getgrnam_r
@@ -238,6 +228,7 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #define GETXXKEY_R_TEST(ENT)	(!strcmp((ENT)->gr_name, key))
 #define DO_GETXXKEY_R_KEYTYPE	const char *__restrict
 #define DO_GETXXKEY_R_PATHNAME  _PATH_GROUP
+#include "pwd_grp_internal.c"
 #endif
 
 #ifdef L_getspnam_r
@@ -247,6 +238,7 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #define GETXXKEY_R_TEST(ENT)	(!strcmp((ENT)->sp_namp, key))
 #define DO_GETXXKEY_R_KEYTYPE	const char *__restrict
 #define DO_GETXXKEY_R_PATHNAME  _PATH_SHADOW
+#include "pwd_grp_internal.c"
 #endif
 
 #ifdef L_getpwuid_r
@@ -256,6 +248,7 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #define GETXXKEY_R_TEST(ENT)	((ENT)->pw_uid == key)
 #define DO_GETXXKEY_R_KEYTYPE	uid_t
 #define DO_GETXXKEY_R_PATHNAME  _PATH_PASSWD
+#include "pwd_grp_internal.c"
 #endif
 
 #ifdef L_getgrgid_r
@@ -265,47 +258,9 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #define GETXXKEY_R_TEST(ENT)	((ENT)->gr_gid == key)
 #define DO_GETXXKEY_R_KEYTYPE	gid_t
 #define DO_GETXXKEY_R_PATHNAME  _PATH_GROUP
+#include "pwd_grp_internal.c"
 #endif
 
-/**********************************************************************/
-#ifdef GETXXKEY_R_FUNC
-
-int GETXXKEY_R_FUNC(DO_GETXXKEY_R_KEYTYPE key,
-					GETXXKEY_R_ENTTYPE *__restrict resultbuf,
-					char *__restrict buffer, size_t buflen,
-					GETXXKEY_R_ENTTYPE **__restrict result)
-{
-	FILE *stream;
-	int rv;
-
-	*result = NULL;
-
-	if (!(stream = fopen(DO_GETXXKEY_R_PATHNAME, "r"))) {
-		rv = errno;
-	} else {
-		__STDIO_SET_USER_LOCKING(stream);
-		do {
-			if (!(rv = __pgsreader(GETXXKEY_R_PARSER, resultbuf,
-								   buffer, buflen, stream))
-				) {
-				if (GETXXKEY_R_TEST(resultbuf)) { /* Found key? */
-					*result = resultbuf;
-					break;
-				}
-			} else {
-				if (rv == ENOENT) {	/* end-of-file encountered. */
-					rv = 0;
-				}
-				break;
-			}
-		} while (1);
-		fclose(stream);
-	}
-
-	return rv;
-}
-
-#endif
 /**********************************************************************/
 #ifdef L_getpwuid
 
@@ -680,7 +635,7 @@ struct spwd *sgetspent(const char *string)
 
 int initgroups(const char *user, gid_t gid)
 {
-	FILE *grf;
+	FILE *grfile;
 	gid_t *group_list;
 	int num_groups, rv;
 	char **m;
@@ -691,15 +646,15 @@ int initgroups(const char *user, gid_t gid)
 
 	/* We alloc space for 8 gids at a time. */
 	if (((group_list = (gid_t *) malloc(8*sizeof(gid_t *))) != NULL)
-		&& ((grf = fopen(_PATH_GROUP, "r")) != NULL)
+		&& ((grfile = fopen(_PATH_GROUP, "r")) != NULL)
 		) {
 
-		__STDIO_SET_USER_LOCKING(grf);
+		__STDIO_SET_USER_LOCKING(grfile);
 
 		*group_list = gid;
 		num_groups = 1;
 
-		while (!__pgsreader(__parsegrent, &group, buff, sizeof(buff), grf)) {
+		while (!__pgsreader(__parsegrent, &group, buff, sizeof(buff), grfile)) {
 			assert(group.gr_mem); /* Must have at least a NULL terminator. */
 			if (group.gr_gid != gid) {
 				for (m=group.gr_mem ; *m ; m++) {
@@ -723,7 +678,7 @@ int initgroups(const char *user, gid_t gid)
 
 		rv = setgroups(num_groups, group_list);
 	DO_CLOSE:
-		fclose(grf);
+		fclose(grfile);
 	}
 
 	/* group_list will be NULL if initial malloc failed, which may trigger
