@@ -765,7 +765,7 @@ int putgrent(const struct group *__restrict p, FILE *__restrict f)
 /**********************************************************************/
 #ifdef L_putspent
 
-static const unsigned char sp_off[] = {
+static const unsigned char _sp_off[] = {
 	offsetof(struct spwd, sp_lstchg),	/* 2 - not a char ptr */
 	offsetof(struct spwd, sp_min), 		/* 3 - not a char ptr */
 	offsetof(struct spwd, sp_max),		/* 4 - not a char ptr */
@@ -793,9 +793,9 @@ int putspent(const struct spwd *p, FILE *stream)
 		goto DO_UNLOCK;
 	}
 
-	for (i=0 ; i < sizeof(sp_off) ; i++) {
+	for (i=0 ; i < sizeof(_sp_off) ; i++) {
 		f = ld_format;
-		if ((x = *(const long int *)(((const char *) p) + sp_off[i])) == -1) {
+		if ((x = *(const long int *)(((const char *) p) + _sp_off[i])) == -1) {
 			f += 3;
 		}
 		if (fprintf(stream, f, x) < 0) {
