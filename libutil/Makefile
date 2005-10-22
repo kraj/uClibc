@@ -24,28 +24,34 @@
 TOPDIR=../
 include $(TOPDIR)Rules.mak
 
-CFLAGS+=$(SSP_ALL_CFLAGS)
+CFLAGS += $(SSP_ALL_CFLAGS)
 
-LIB_NAME=libutil
-AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
-SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
-SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+LIB_NAME := libutil
+AR_LIB_NAME := $(TOPDIR)lib/$(LIB_NAME).a
+SO_LIB_NAME = $(TOPDIR)lib/$(LIB_NAME).so
+SO_FULL_NAME = $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-CSRC=$(wildcard *.c)
-ifneq ($(strip $(ARCH_HAS_MMU)),y)
+CSRC = $(wildcard *.c)
+ifneq ($(ARCH_HAS_MMU),y)
 CSRC := $(filter-out forkpty.c,$(CSRC))
 endif
 
-ifeq ($(strip $(HAVE_SHARED)),y)
+OBJS := $(patsubst %.c,%.o, $(CSRC))
+
+ifeq ($(HAVE_SHARED),y)
 all: $(SO_LIB_NAME)
 else
 all: $(AR_LIB_NAME)
 endif
 
-$(AR_LIB_NAME): $(LIB_NAME).o
+# psm: 20051007 gcc-4.1-head optimizes crypt()/__des_crypt() away
+# $(AR_LIB_NAME): $(LIB_NAME).o
+
+$(AR_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $@
-	$(AR) $(ARFLAGS) $@ $<
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	$(AR) $(ARFLAGS) $@ $^
 
 $(SO_LIB_NAME): $(AR_LIB_NAME)
 	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $@
@@ -58,7 +64,9 @@ $(SO_LIB_NAME): $(AR_LIB_NAME)
 
 $(LIB_NAME).o: $(CSRC)
 	$(CC) $(CFLAGS) -o $@ -c $^
-	$(STRIPTOOL) -x -R .note -R .comment $@
+
+$(OBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	$(RM) *.o *~ core
