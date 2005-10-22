@@ -1,0 +1,21 @@
+# Makefile.in for uClibc
+#
+# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+#
+
+CFLAGS+=$(SSP_ALL_CFLAGS)
+
+LIB_NAME:=libutil
+
+srcdir=$(top_srcdir)$(LIB_NAME)
+
+$(LIB_NAME)_SRC:=$(wildcard $(srcdir)/*.c)
+ifneq ($(ARCH_HAS_MMU),y)
+$(LIB_NAME)_SRC:=$(filter-out $(srcdir)/forkpty.c,$($(LIB_NAME)_SRC))
+endif
+
+libso-y+=$(top_builddir)lib/$(LIB_NAME).so
+liba-y+=$(top_builddir)lib/$(LIB_NAME).a
+libclean-y+=$(LIB_NAME)_clean
+
+include $(top_srcdir)Makefile.libs
