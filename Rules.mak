@@ -259,6 +259,8 @@ endif
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 # Use the gcc 3.4 -funit-at-a-time optimization when available
 OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
+# gcc 4.x needs -fcombine, else building all sources at once fails
+OPTIMIZATION+=$(call check_gcc,-fcombine,)
 
 # Add a bunch of extra pedantic annoyingly strict checks
 XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
