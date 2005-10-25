@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
-#include <sysdep.h>
+#include "sysdep.h"
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
