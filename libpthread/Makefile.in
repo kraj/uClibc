@@ -1,0 +1,57 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+DIRS:= $(PTNAME) $(PTNAME)_db
+libs: subdirs
+else
+# both do not work at once
+include $(PTDIR)/Makefile.in
+#include $(PTDIR)_db/Makefile.in
+endif
+
+headers-y+=threads_headers
+
+# NPTL does not have a generic pthreadtypes.h
+# and each arch has to have both semaphore.h/pthreadtypes.h ?
+threads_headers:
+	$(LN) -sf $(PTDIR)/sysdeps/pthread/pthread.h $(top_builddir)include/
+	$(LN) -sf $(PTDIR)/semaphore.h $(top_builddir)include/
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+	$(LN) -sf $(PTDIR)_db/thread_db.h $(top_builddir)include/
+endif
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+	$(LN) -sf ../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/semaphore.h $(top_builddir)include/bits/
+	$(LN) -sf ../$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)/bits/pthreadtypes.h $(top_builddir)include/bits/
+	$(LN) -sf ../$(PTDIR)/sysdeps/pthread/bits/libc-lock.h $(top_builddir)include/bits/
+	$(LN) -sf ../$(PTDIR)/sysdeps/pthread/bits/stdio-lock.h $(top_builddir)include/bits/
+else
+	$(LN) -sf ../$(PTDIR)/sysdeps/pthread/bits/pthreadtypes.h $(top_builddir)include/bits/
+endif
+
+headers_clean-y+=threads_headers_clean
+
+threads_headers_clean:
+	$(RM)	$(top_builddir)include/pthread.h $(top_builddir)include/semaphore.h \
+		$(top_builddir)include/thread_db.h \
+		$(top_builddir)include/bits/pthreadtypes.h $(top_builddir)include/bits/semaphore.h \
+		$(top_builddir)include/bits/libc-lock.h $(top_builddir)include/bits/stdio-lock
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+	$(RM)	$(PTNAME)/version.h $(PTDIR)/banner.h \
+		$(PTDIR)/sysdeps/unix/sysv/linux/rtld-libc-lowlevellock.c
+endif
+
+objclean-y+=libpthread_gen_clean
+
+libpthread_gen_clean:
+	$(RM) $(top_builddir)libpthread/*/*.{o,os,a}
+
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+subdirs: $(patsubst %, _dir_%, $(DIRS))
+$(patsubst %, _dir_%, $(DIRS)):
+	$(MAKE) -C $(patsubst _dir_%, %, $@)
+endif

@@ -1,0 +1,49 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+# The stdio and time related wide functions are now built in the normal
+# directories.
+#
+# stdio: 
+#	fwide fgetwc getwchar fgetws fputwc putwchar fputws ungetwc
+#	getwc (fgetwc alias) getwc_unlocked (fgetwc_unlocked alias)
+#	putwc (fputwc alias) putwc_unlocked (fputwc_unlocked alias)
+# time:
+# wcsftime
+#
+
+MSRC:=wchar.c
+MOBJ:=	btowc.o wctob.o mbsinit.o mbrlen.o mbrtowc.o wcrtomb.o mbsrtowcs.o \
+	wcsrtombs.o _wchar_utf8sntowcs.o _wchar_wcsntoutf8s.o \
+	__mbsnrtowcs.o __wcsnrtombs.o wcwidth.o wcswidth.o
+
+ifeq ($(UCLIBC_HAS_LOCALE),y)
+MOBJ+=iconv.o
+endif
+
+MISC_WCHAR_DIR:=$(top_srcdir)libc/misc/wchar
+MISC_WCHAR_OUT:=$(top_builddir)libc/misc/wchar
+
+MISC_WCHAR_MSRC:=$(MISC_WCHAR_DIR)/$(MSRC)
+MISC_WCHAR_MOBJ:=$(patsubst %.o,$(MISC_WCHAR_OUT)/%.o,$(MOBJ))
+MISC_WCHAR_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_WCHAR_MOBJ))))
+
+$(MISC_WCHAR_MOBJ) $(MISC_WCHAR_MOBJ:.o=.os): $(MISC_WCHAR_MSRC)
+	$(compile.m)
+
+libc-a-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MOBJ)
+libc-a-pic-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MOBJ:.o=.os)
+libc-so-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MOBJ:.o=.os)
+
+CFLAGS-multi-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_DEF)
+libc-multi-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MSRC)
+
+objclean-y+=misc_wchar_objclean
+
+misc_wchar_objclean:
+	$(RM) $(MISC_WCHAR_OUT)/*.{o,os}

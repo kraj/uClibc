@@ -1,0 +1,36 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+MSRC:=string.c
+MOBJ:=	strcpy.o strncpy.o strcat.o strncat.o strcmp.o \
+	strncmp.o strchr.o strrchr.o strlen.o strnlen.o \
+	memcpy.o memmove.o memchr.o memset.o 
+
+STRING_ARCH_DIR:=$(top_srcdir)libc/string/i386
+STRING_ARCH_OUT:=$(top_builddir)libc/string/i386
+
+STRING_ARCH_MSRC:=$(patsubst %.c,$(STRING_ARCH_DIR)/%.c,$(MSRC))
+STRING_ARCH_MOBJ:=$(patsubst %.o,$(STRING_ARCH_OUT)/%.o,$(MOBJ))
+
+STRING_ARCH_OBJS:=$(STRING_ARCH_MOBJ)
+
+STRING_ARCH_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(STRING_ARCH_OBJS))))
+
+$(STRING_ARCH_MOBJ) $(STRING_ARCH_MOBJ:.o=.os): $(STRING_ARCH_MSRC)
+	$(compile.m)
+
+libc-a-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS)
+libc-a-pic-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS:.o=.os)
+libc-so-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS:.o=.os)
+
+CFLAGS-multi-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_DEF)
+libc-multi-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_MSRC)
+
+objclean-y+=string_arch_objclean
+
+string_arch_objclean:
+	$(RM) $(STRING_ARCH_OUT)/*.{o,os}

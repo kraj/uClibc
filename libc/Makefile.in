@@ -1,0 +1,57 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+DOMULTI=n
+
+# we have SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION) defined in Rules.mak
+LIB_NAME:=libc
+
+libc_DIR:=$(top_srcdir)libc
+libc_OUT:=$(top_builddir)libc
+
+libc_FULL_NAME:=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+
+#DIRS:=misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd
+
+# this comes first, so duplicate removal works correctly
+include $(libc_DIR)/sysdeps/Makefile.in
+
+include $(libc_DIR)/misc/Makefile.in
+include $(libc_DIR)/pwd_grp/Makefile.in
+include $(libc_DIR)/stdio/Makefile.in
+include $(libc_DIR)/string/Makefile.in
+include $(libc_DIR)/termios/Makefile.in
+include $(libc_DIR)/inet/Makefile.in
+include $(libc_DIR)/signal/Makefile.in
+include $(libc_DIR)/stdlib/Makefile.in
+include $(libc_DIR)/unistd/Makefile.in
+
+# Check if the target architecture has a version script for
+# libc, and if so, include it when linking.
+VERSION_SCRIPT:=${shell if [ -f $(libc_DIR)/sysdeps/linux/$(TARGET_ARCH)/libc.map ] ; then \
+        echo "--version-script $(libc_DIR)/sysdeps/linux/$(TARGET_ARCH)/libc.map"; fi}
+
+EXTRA_LINK_OPTS:=$(VERSION_SCRIPT) -init __uClibc_init
+EXTRA_LINK_LIBS:=$(libc_OUT)/misc/internals/interp.os $(top_builddir)lib/$(UCLIBC_LDSO) $(LIBGCC) # $(LDADD_LIBFLOAT)
+
+ifeq ($(DOPIC),y)
+libc-a-y: $(libc-a-pic-y)
+else
+libc-a-y: $(libc-a-y)
+endif
+
+libc-so-y: $(libc-so-y)
+
+crt-y: $(crt-y)
+other-y: $(other-y)
+
+objclean-y+=libc_clean
+
+lib-a-y+=$(top_builddir)lib/libc.a
+lib-a-pic-y+=$(top_builddir)lib/libc.a
+lib-so-y+=$(top_builddir)lib/libc.so $(top_builddir)lib/$(NONSHARED_LIBNAME) crt-y

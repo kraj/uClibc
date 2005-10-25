@@ -1,0 +1,33 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+MSRC:=intl.c
+MOBJ:=	__uClibc_dgettext.o __uClibc_dcgettext.o \
+	__uClibc_textdomain.o __uClibc_bindtextdomain.o # for libstd++
+
+MISC_INTL_DIR:=$(top_srcdir)libc/misc/intl
+MISC_INTL_OUT:=$(top_builddir)libc/misc/intl
+
+MISC_INTL_MSRC:=$(MISC_INTL_DIR)/$(MSRC)
+MISC_INTL_MOBJ:=$(patsubst %.o,$(MISC_INTL_OUT)/%.o,$(MOBJ))
+MISC_INTL_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_INTL_MOBJ))))
+
+$(MISC_INTL_MOBJ) $(MISC_INTL_MOBJ:.o=.os): $(MISC_INTL_MSRC)
+	$(compile.m)
+
+libc-a-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(MISC_INTL_MOBJ)
+libc-a-pic-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(MISC_INTL_MOBJ:.o=.os)
+libc-so-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(MISC_INTL_MOBJ:.o=.os)
+
+CFLAGS-multi-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(MISC_INTL_DEF)
+libc-multi-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(MISC_INTL_MSRC)
+
+objclean-y+=misc_intl_objclean
+
+misc_intl_objclean:
+	$(RM) $(MISC_INTL_OUT)/*.{o,os}

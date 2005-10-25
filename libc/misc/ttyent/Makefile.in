@@ -1,0 +1,25 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+CSRC:=getttyent.c
+
+MISC_TTYENT_DIR:=$(top_srcdir)libc/misc/ttyent
+MISC_TTYENT_OUT:=$(top_builddir)libc/misc/ttyent
+
+MISC_TTYENT_SRC:=$(patsubst %.c,$(MISC_TTYENT_DIR)/%.c,$(CSRC))
+MISC_TTYENT_OBJ:=$(patsubst %.c,$(MISC_TTYENT_OUT)/%.o,$(CSRC))
+
+libc-a-y+=$(MISC_TTYENT_OBJ)
+libc-a-pic-y+=$(MISC_TTYENT_OBJ:.o=.os)
+libc-so-y+=$(MISC_TTYENT_OBJ:.o=.os)
+
+libc-multi-y+=$(MISC_TTYENT_SRC)
+
+objclean-y+=misc_ttyent_objclean
+
+misc_ttyent_objclean:
+	$(RM) $(MISC_TTYENT_OUT)/*.{o,os}

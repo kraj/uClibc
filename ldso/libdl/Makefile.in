@@ -1,12 +1,13 @@
 # Makefile.in for uClibc
 #
-# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-LIB_NAME:=libdl
-
 # psm: I do not know if the order of includes is relevant
-# to be sure I added them first
+# to be sure I added them first, Jocke please cleanup if needed
 CFLAGS:=-I$(top_builddir)ldso/include -I$(top_builddir)ldso/ldso $(CFLAGS) $(SSP_ALL_CFLAGS)
 
 CFLAGS+=-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\"
@@ -20,33 +21,39 @@ ifeq ($(TARGET_ARCH),mips)
 CFLAGS:=$(CFLAGS:-O0=-O1)
 endif
 
-CFLAGS-.os=-DSHARED
-# we adapt CFLAGS, because libdl.a has an additional object
-ifeq ($(DOPIC),y)
-CFLAGS-.o=$(PICFLAG)
-resolv:=$(top_builddir)ldso/ldso/$(TARGET_ARCH)/resolve.os
-else
-resolv:=$(top_builddir)ldso/ldso/$(TARGET_ARCH)/resolve.o
-endif
+# useless, only 1 source file
+DOMULTI=n
+
+LIB_NAME:=libdl
 
 EXTRA_LINK_OPTS:=-fini dl_cleanup
+# keep in sync w/ Makerules
+EXTRA_LINK_LIBS:=$(top_builddir)libc/misc/internals/interp.os $(top_builddir)lib/libc.so $(LIBGCC) $(top_builddir)lib/$(UCLIBC_LDSO)
 
-# we need for all cases a "full" libdl.a the pic version used to build libdl.so misses $(resolv)
-# because it is linked against ld.so
-DOPIC=n
+libdl_DIR:=$(top_srcdir)ldso/libdl
+libdl_OUT:=$(top_builddir)ldso/libdl
 
-srcdir=$(top_srcdir)ldso/$(LIB_NAME)
-$(LIB_NAME)_DIR:=$(top_builddir)ldso/$(LIB_NAME)
+libdl_SRC:=$(libdl_DIR)/libdl.c
+libdl_OBJ:=$(patsubst $(libdl_DIR)/%.c,$(libdl_OUT)/%.o,$(libdl_SRC))
 
-$(LIB_NAME)_SRC:=$(srcdir)/libdl.c
+# use other suffixes, so that it does not pick up the multi rule from Makerules
+$(libdl_OUT)/libdl.oS: $(libdl_DIR)/libdl.c
+	$(compile.c) -DSHARED
 
-$(LIB_NAME)_A_ADD:=$(resolv)
+resolve:=$(top_builddir)ldso/ldso/$(TARGET_ARCH)/resolve.o
 
-libso-$(HAVE_SHARED)+=$(top_builddir)lib/$(LIB_NAME).so
-liba-$(HAVE_SHARED)+=$(top_builddir)lib/$(LIB_NAME).a
-libclean-y+=$(LIB_NAME)_clean
+libdl-a-$(HAVE_SHARED):=$(libdl_OBJ) $(resolve)
+libdl-a-pic-$(HAVE_SHARED):=$(libdl_OBJ:.o=.os) $(resolve:.o=.os)
+libdl-so-$(HAVE_SHARED):=$(libdl_OBJ:.o=.oS)
 
-include $(top_srcdir)Makefile.libs
+# we enable this although no use of multi, else libdl.o gets empty sources
+libdl-multi-$(HAVE_SHARED):=$(libdl_SRC)
 
-# !!! these lines have to come after including Makefile.libs !!!
-EXTRA_LINK_LIBS+=$(top_builddir)lib/$(UCLIBC_LDSO)
+objclean-y+=libdl_clean libdl_extra_clean
+
+libdl_extra_clean:
+	$(RM) $(libdl_OUT)/*.oS
+
+lib-a-$(HAVE_SHARED)+=$(top_builddir)lib/libdl.a
+lib-a-pic-$(HAVE_SHARED)+=$(top_builddir)lib/libdl.a
+lib-so-$(HAVE_SHARED)+=$(top_builddir)lib/libdl.so

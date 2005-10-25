@@ -1,0 +1,61 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+MSRC:=locale.c
+MOBJ:=setlocale.o localeconv.o _locale_init.o nl_langinfo.o
+MOBJx=
+
+ifeq ($(UCLIBC_HAS_LOCALE),y)
+MOBJ+=newlocale.o __locale_mbrtowc_l.o
+endif
+
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+MOBJx+=nl_langinfo_l.o duplocale.o freelocale.o uselocale.o __curlocale.o
+endif
+
+DATA=
+ifeq ($(UCLIBC_HAS_LOCALE),y)
+DATA:=locale_data.o
+endif
+
+MISC_LOCALE_DIR:=$(top_srcdir)libc/misc/locale
+MISC_LOCALE_OUT:=$(top_builddir)libc/misc/locale
+
+MISC_LOCALE_MSRC:=$(MISC_LOCALE_DIR)/$(MSRC)
+MISC_LOCALE_MOBJ:=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(MOBJ))
+MISC_LOCALE_MOBJx=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(MOBJx))
+MISC_LOCALE_DATA=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(DATA))
+
+MISC_LOCALE_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_LOCALE_MOBJ))))
+
+$(MISC_LOCALE_MOBJ) $(MISC_LOCALE_MOBJ:.o=.os): $(MISC_LOCALE_MSRC)
+	$(compile.m)
+
+$(MISC_LOCALE_MOBJx) $(MISC_LOCALE_MOBJx:.o=.os): $(MISC_LOCALE_MSRC)
+	$(compile.m) -D__UCLIBC_DO_XLOCALE
+
+$(MISC_LOCALE_DATA) $(MISC_LOCALE_DATA:.o=.os): $(top_builddir)extra/locale/$(notdir $(MISC_LOCALE_DATA:.o=.c))
+	$(compile.c) -D__WCHAR_ENABLED -I$<
+
+libc-a-y+=$(MISC_LOCALE_MOBJ)
+libc-a-$(UCLIBC_HAS_XLOCALE)+=$(MISC_LOCALE_MOBJx)
+libc-a-pic-y+=$(MISC_LOCALE_MOBJ:.o=.os)
+libc-a-pic-$(UCLIBC_HAS_XLOCALE)+=$(MISC_LOCALE_MOBJx:.o=.os)
+libc-so-y+=$(MISC_LOCALE_MOBJ:.o=.os)
+libc-so-$(UCLIBC_HAS_XLOCALE)+=$(MISC_LOCALE_MOBJx:.o=.os)
+
+#CFLAGS-multi-y+=$(MISC_LOCALE_DEF)
+#libc-multi-y+=$(MISC_LOCALE_MSRC)
+libc-nomulti-y+=$(MISC_LOCALE_MOBJ)
+libc-nomulti-$(UCLIBC_HAS_LOCALE)+=$(MISC_LOCALE_DATA)
+libc-nomulti-$(UCLIBC_HAS_XLOCALE)+=$(MISC_LOCALE_MOBJx)
+
+objclean-y+=misc_locale_objclean
+
+misc_locale_objclean:
+	$(RM) $(MISC_LOCALE_OUT)/{*.{o,os},locale_data.c}

@@ -1,0 +1,122 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+include $(top_srcdir)libc/stdlib/malloc/Makefile.in
+include $(top_srcdir)libc/stdlib/malloc-simple/Makefile.in
+include $(top_srcdir)libc/stdlib/malloc-standard/Makefile.in
+
+MSRC1:=stdlib.c
+MOBJ1:=	abs.o labs.o atoi.o atol.o strtol.o strtoul.o _stdlib_strto_l.o \
+	qsort.o bsearch.o \
+	llabs.o atoll.o strtoll.o strtoull.o _stdlib_strto_ll.o
+# (aliases) strtoq.o strtouq.o
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+MOBJ1x:=strtol_l.o strtoul_l.o _stdlib_strto_l_l.o \
+	strtoll_l.o strtoull_l.o _stdlib_strto_ll_l.o
+endif
+
+MSRC2:=strtod.c
+MOBJ2:=
+MOBJ2x:=
+
+ifeq ($(UCLIBC_HAS_FLOATS),y)
+MOBJ1+=atof.o
+MOBJ2+=strtod.o strtof.o strtold.o __strtofpmax.o __fp_range_check.o
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+MOBJ2x+=strtod_l.o strtof_l.o strtold_l.o __strtofpmax_l.o
+endif
+ifeq ($(UCLIBC_HAS_WCHAR),y)
+MOBJ2+=wcstod.o wcstof.o wcstold.o __wcstofpmax.o
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+MOBJ2x+=wcstod_l.o wcstof_l.o wcstold_l.o __wcstofpmax_l.o
+endif
+endif
+endif
+
+ifeq ($(UCLIBC_HAS_WCHAR),y)
+MOBJ1+=	mblen.o mbtowc.o wctomb.o mbstowcs.o wcstombs.o \
+	_stdlib_mb_cur_max.o _stdlib_wcsto_l.o _stdlib_wcsto_ll.o \
+	wcstol.o wcstoul.o wcstoll.o wcstoull.o
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+MOBJ1x+=_stdlib_wcsto_l_l.o _stdlib_wcsto_ll_l.o \
+	wcstol_l.o wcstoul_l.o wcstoll_l.o wcstoull_l.o
+endif
+endif
+# (aliases) wcstoq.o wcstouq.o
+# wcstod wcstof wcstold
+
+MSRC3:=atexit.c
+MOBJ3:=on_exit.o __cxa_atexit.o __cxa_finalize.o __exit_handler.o exit.o
+ifeq ($(COMPAT_ATEXIT),y)
+MOBJ3+=old_atexit.o
+endif
+
+CSRC:= \
+	abort.c getenv.c mkdtemp.c mktemp.c realpath.c mkstemp.c mkstemp64.c \
+	rand.c random.c random_r.c setenv.c system.c div.c ldiv.c lldiv.c \
+	getpt.c ptsname.c grantpt.c unlockpt.c gcvt.c drand48-iter.c jrand48.c \
+	jrand48_r.c lrand48.c lrand48_r.c mrand48.c mrand48_r.c nrand48.c \
+	nrand48_r.c rand_r.c srand48.c srand48_r.c seed48.c seed48_r.c \
+	valloc.c posix_memalign.c a64l.c l64a.c
+ifeq ($(UCLIBC_HAS_FLOATS),y)
+CSRC+=drand48.c drand48_r.c erand48.c erand48_r.c
+endif
+
+STDLIB_DIR:=$(top_srcdir)libc/stdlib
+STDLIB_OUT:=$(top_builddir)libc/stdlib
+
+STDLIB_SRC:=$(patsubst %.c,$(STDLIB_DIR)/%.c,$(CSRC))
+STDLIB_OBJ:=$(patsubst %.c,$(STDLIB_OUT)/%.o,$(CSRC))
+
+STDLIB_MSRC1:=$(patsubst %.c,$(STDLIB_DIR)/%.c,$(MSRC1))
+STDLIB_MSRC2:=$(patsubst %.c,$(STDLIB_DIR)/%.c,$(MSRC2))
+STDLIB_MSRC3:=$(patsubst %.c,$(STDLIB_DIR)/%.c,$(MSRC3))
+STDLIB_MOBJ1:=$(patsubst %.o,$(STDLIB_OUT)/%.o,$(MOBJ1))
+STDLIB_MOBJ2:=$(patsubst %.o,$(STDLIB_OUT)/%.o,$(MOBJ2))
+STDLIB_MOBJ3:=$(patsubst %.o,$(STDLIB_OUT)/%.o,$(MOBJ3))
+STDLIB_MOBJ1x:=$(patsubst %.o,$(STDLIB_OUT)/%.o,$(MOBJ1x))
+STDLIB_MOBJ2x:=$(patsubst %.o,$(STDLIB_OUT)/%.o,$(MOBJ2x))
+
+STDLIB_MSRC:=$(STDLIB_MSRC1) $(STDLIB_MSRC2) $(STDLIB_MSRC3)
+STDLIB_MOBJ:=$(STDLIB_MOBJ1) $(STDLIB_MOBJ2) $(STDLIB_MOBJ3)
+
+STDLIB_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(STDLIB_MOBJ))))
+
+STDLIB_MOBJx:=$(STDLIB_MOBJ1x) $(STDLIB_MOBJ2x)
+
+STDLIB_OBJS:=$(STDLIB_OBJ) $(STDLIB_MOBJ) $(STDLIB_MOBJx)
+
+$(STDLIB_MOBJ1) $(STDLIB_MOBJ1:.o=.os): $(STDLIB_MSRC1)
+	$(compile.m)
+
+$(STDLIB_MOBJ2) $(STDLIB_MOBJ2:.o=.os): $(STDLIB_MSRC2)
+	$(compile.m)
+
+$(STDLIB_MOBJ3) $(STDLIB_MOBJ3:.o=.os) $(STDLIB_OUT)/atexit.os: $(STDLIB_MSRC3)
+	$(compile.m)
+
+$(STDLIB_MOBJ1x) $(STDLIB_MOBJ1x:.o=.os): $(STDLIB_MSRC1)
+	$(compile.m) -D__UCLIBC_DO_XLOCALE
+
+$(STDLIB_MOBJ2x) $(STDLIB_MOBJ2x:.o=.os): $(STDLIB_MSRC2)
+	$(compile.m) -D__UCLIBC_DO_XLOCALE
+
+libc-a-y+=$(STDLIB_OBJS) $(STDLIB_OUT)/atexit.o
+libc-a-pic-y+=$(STDLIB_OBJS:.o=.os) $(STDLIB_OUT)/atexit.os
+libc-so-y+=$(STDLIB_OBJS:.o=.os)
+# this should always be the PIC version, because it could be used in shared libs
+libc-nonshared-y+=$(STDLIB_OUT)/atexit.os
+
+CFLAGS-multi-y+=$(STDLIB_DEF)
+libc-multi-y+=$(STDLIB_SRC) $(STDLIB_MSRC)
+libc-nomulti-y+=$(STDLIB_MOBJx)
+
+objclean-y+=stdlib_objclean
+
+stdlib_objclean:
+	$(RM) $(STDLIB_OUT)/*.{o,os}

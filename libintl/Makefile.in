@@ -1,23 +1,41 @@
-# Makefile.in for uClibc
+# Makefile for uClibc
 #
-# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
+#DOMULTI=y
+
 LIB_NAME:=libintl
 
-srcdir=$(top_srcdir)$(LIB_NAME)
-$(LIB_NAME)_DIR:=$(top_builddir)$(LIB_NAME)
-
-$(LIB_NAME)_MSRC:=$(srcdir)/intl.c
 MOBJ:=gettext.o ngettext.o  dgettext.o dcgettext.o dngettext.o dcngettext.o \
 	textdomain.o bindtextdomain.o bind_textdomain_codeset.o \
 	_nl_expand_alias.o _nl_msg_cat_cntr.o # glibc-isms
-$(LIB_NAME)_MOBJ:=$(patsubst %.o,$($(LIB_NAME)_DIR)/%.o,$(MOBJ))
 
-libso-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(top_builddir)lib/$(LIB_NAME).so
-liba-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(top_builddir)lib/$(LIB_NAME).a
-libclean-y+=$(LIB_NAME)_clean
+libintl_DIR:=$(top_srcdir)libintl
+libintl_OUT:=$(top_builddir)libintl
 
-include $(top_srcdir)Makefile.libs
+libintl_MSRC:=$(libintl_DIR)/intl.c
+libintl_MOBJ:=$(patsubst %.o,$(libintl_OUT)/%.o,$(MOBJ))
+
+libintl_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(libintl_MOBJ))))
+
+$(libintl_MOBJ) $(libintl_MOBJ:.o=.os): $(libintl_MSRC)
+	$(compile.m)
+
+libintl-a-$(UCLIBC_HAS_GETTEXT_AWARENESS):=$(libintl_MOBJ)
+libintl-a-pic-$(UCLIBC_HAS_GETTEXT_AWARENESS):=$(libintl_MOBJ:.o=.os)
+libintl-so-$(UCLIBC_HAS_GETTEXT_AWARENESS):=$(libintl_MOBJ:.o=.os)
+
+CFLAGS-multi-$(UCLIBC_HAS_GETTEXT_AWARENESS):=$(libintl_DEF)
+libintl-multi-$(UCLIBC_HAS_GETTEXT_AWARENESS):=$(libintl_MSRC)
+
+objclean-y+=libintl_clean
+
+lib-a-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(top_builddir)lib/libintl.a
+lib-a-pic-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(top_builddir)lib/libintl.a
+lib-so-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(top_builddir)lib/libintl.so

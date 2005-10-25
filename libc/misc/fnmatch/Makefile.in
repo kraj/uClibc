@@ -1,0 +1,24 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+MISC_FNMATCH_DIR:=$(top_srcdir)libc/misc/fnmatch
+MISC_FNMATCH_OUT:=$(top_builddir)libc/misc/fnmatch
+
+MISC_FNMATCH_SRC:=$(MISC_FNMATCH_DIR)/fnmatch.c
+MISC_FNMATCH_OBJ:=$(MISC_FNMATCH_OUT)/fnmatch.o
+
+libc-a-y+=$(MISC_FNMATCH_OBJ)
+libc-a-pic-y+=$(MISC_FNMATCH_OBJ:.o=.os)
+libc-so-y+=$(MISC_FNMATCH_OBJ:.o=.os)
+
+libc-multi-y+=$(MISC_FNMATCH_SRC)
+
+objclean-y+=misc_fnmatch_objclean
+
+misc_fnmatch_objclean:
+	$(RM) $(MISC_FNMATCH_OUT)/*.{o,os}

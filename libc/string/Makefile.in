@@ -1,0 +1,95 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+# order is relevant
+-include $(top_srcdir)libc/string/$(TARGET_ARCH)/Makefile.in
+include $(top_srcdir)libc/string/generic/Makefile.in
+
+MSRC:=wstring.c
+MOBJ:=	basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
+	memcpy.o memmove.o mempcpy.o memrchr.o 	memset.o rawmemchr.o stpcpy.o \
+	stpncpy.o strcasecmp.o strcasestr.o strcat.o strchrnul.o strchr.o \
+	strcmp.o strcpy.o strcspn.o strdup.o strlen.o strncasecmp.o strncat.o \
+	strncmp.o strncpy.o strndup.o strnlen.o strpbrk.o strrchr.o strsep.o \
+	strspn.o strstr.o strtok.o strtok_r.o strerror.o __xpg_strerror_r.o \
+	_string_syserrmsgs.o __glibc_strerror_r.o \
+	_string_syssigmsgs.o sys_siglist.o strsignal.o psignal.o \
+	 __xpg_basename.o strlcat.o strlcpy.o sys_errlist.o memmem.o
+
+MOBJW=
+ifeq ($(UCLIBC_HAS_WCHAR),y)
+MOBJW=	wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
+	wcsdup.o wcslen.o wcsncasecmp.o wcsncat.o wcsncmp.o wcsncpy.o \
+	wcsnlen.o wcspbrk.o wcsrchr.o wcsspn.o wcsstr.o wcstok.o wmemchr.o \
+	wmemcmp.o wmemcpy.o wmemmove.o wmempcpy.o wmemset.o wcpcpy.o wcpncpy.o \
+	__wcslcpy.o \
+	wcsxfrm.o strxfrm.o # wcscoll strcoll.o
+endif
+
+MOBJx=
+MOBJWx=
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+MOBJx+=strcasecmp_l.o strncasecmp_l.o
+ifeq ($(UCLIBC_HAS_WCHAR),y)
+MOBJWx+=wcscasecmp_l.o wcsncasecmp_l.o wcsxfrm_l.o strxfrm_l.o
+endif
+endif
+
+#ffsl ffsll
+
+ifeq ($(UCLIBC_HAS_STRING_ARCH_OPT),y)
+ifneq ($(strip $(STRING_ARCH_OBJS)),)
+MOBJ:=$(filter-out $(notdir $(STRING_ARCH_OBJS)),$(MOBJ))
+endif
+endif
+
+ifeq ($(UCLIBC_HAS_STRING_GENERIC_OPT),y)
+ifneq ($(strip $(STRING_GENERIC_OBJS)),)
+MOBJ:=$(filter-out $(notdir $(STRING_GENERIC_OBJS)),$(MOBJ))
+endif
+endif
+
+STRING_DIR:=$(top_srcdir)libc/string
+STRING_OUT:=$(top_builddir)libc/string
+
+STRING_MSRC:=$(patsubst %.c,$(STRING_DIR)/%.c,$(MSRC))
+STRING_MOBJ:=$(patsubst %.o,$(STRING_OUT)/%.o,$(MOBJ))
+STRING_MOBJW=$(patsubst %.o,$(STRING_OUT)/%.o,$(MOBJW))
+STRING_MOBJx=$(patsubst %.o,$(STRING_OUT)/%.o,$(MOBJx))
+STRING_MOBJWx=$(patsubst %.o,$(STRING_OUT)/%.o,$(MOBJWx))
+
+#STRING_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(STRING_MOBJ))))
+
+STRING_Wx=$(STRING_MOBJW) $(STRING_MOBJx) $(STRING_MOBJWx)
+STRING_OBJS:=$(STRING_MOBJ) $(STRING_Wx)
+
+$(STRING_MOBJ) $(STRING_MOBJ:.o=.os): $(STRING_MSRC)
+	$(compile.m)
+
+$(STRING_MOBJW) $(STRING_MOBJW:.o=.os): $(STRING_MSRC)
+	$(compile.m) -DWANT_WIDE
+
+$(STRING_MOBJx) $(STRING_MOBJx:.o=.os): $(STRING_MSRC)
+	$(compile.m) -D__UCLIBC_DO_XLOCALE
+
+$(STRING_MOBJWx) $(STRING_MOBJWx:.o=.os): $(STRING_MSRC)
+	$(compile.m) -DWANT_WIDE -D__UCLIBC_DO_XLOCALE
+
+libc-a-y+=$(STRING_OBJS)
+libc-a-pic-y+=$(STRING_OBJS:.o=.os)
+libc-so-y+=$(STRING_OBJS:.o=.os)
+
+# multi does not work here, because arch/Makefile.in uses the same L_* defines
+#CFLAGS-multi-y+=$(STRING_DEF)
+#libc-multi-y+=$(STRING_MSRC)
+#libc-nomulti-y+=$(STRING_Wx)
+libc-nomulti-y+=$(STRING_OBJS)
+
+objclean-y+=string_objclean
+
+string_objclean:
+	$(RM) $(STRING_OUT)/{,*/}*.{o,os}

@@ -1,34 +1,263 @@
 #
 # Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
 #
-.SUFFIXES: .c .S .o .os .so .a .s .i
 
-ifndef top_srcdir
-top_srcdir=$(CURDIR)
+.SUFFIXES: .c .S .o .os .oS .so .a .s .i
+
+ifeq ($(DOPIC),y)
+lib-a-y: $(lib-a-pic-y)
+else
+lib-a-y: $(lib-a-y)
 endif
+lib-so-y: $(lib-so-y)
 
-ifndef top_builddir
-top_builddir=$(CURDIR)
-endif
-
-top_srcdir:=$(shell echo "$(top_srcdir)/" | sed -e 's://:/:')
-top_builddir:=$(shell echo "$(top_builddir)/" | sed -e 's://:/:')
-
+# order is important, the stripping uses STRIP_FLAGS for lib-so, but not for lib-a
 ifeq ($(HAVE_SHARED),y)
 .LIBPATTERNS: "lib%.so"
-libs: libso-y liba-y
+libs: lib-so-y lib-a-y
 else
 .LIBPATTERNS: "lib%.a"
-libs: liba-y
+libs: lib-a-y
 endif
 
-libso-y: $(libso-y)
-liba-y: $(liba-y)
-libclean-y: $(libclean-y)
+crt-y: $(crt-y)
+other-y: $(other-y)
+objclean-y: $(objclean-y)
 
-compile.c=$(CC) -c $< -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$@) $(CFLAGS-$<)
-compile.S=$(compile.c) $(S_CPPFLAGS) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$@) $(ASFLAGS-$<)
+lib-multi-y: $(lib-multi-y)
+ifeq ($(DOPIC),y)
+lib-nomulti-y: $(lib-nomulti-y:.o=.os)
+else
+lib-nomulti-y: $(lib-nomulti-y) $(lib-nomulti-y:.o=.os)
+endif
+
+libc-nonshared-y: $(libc-nonshared-y)
+
+$(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
+	$(INSTALL) -d $(top_builddir)lib
+	$(AR) $(ARFLAGS) $@ $^
+
+compile.c=$(CC) -c $< -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $@)) $(CFLAGS-$(notdir $<))
+compile.S=$(compile.c) $(S_CPPFLAGS) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $@)) $(ASFLAGS-$(notdir $<))
 compile.m=$(compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
 
-.PHONY: clean
-clean: libclean-y
+#compile.i=$(compile.m) -E
+
+compile-m=$(CC) $^ -c -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $@)) $(CFLAGS-$(notdir $<)) $(S_CPPFLAGS) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $@)) $(ASFLAGS-$(notdir $<)) $(CFLAGS-multi-y)
+
+CFLAGS-.os+=$(PICFLAG)
+
+%.o: %.c
+	$(compile.c)
+
+%.os: %.c
+	$(compile.c)
+
+%.oS: %.c
+	$(compile.c) -DSHARED
+
+%.o: %.S
+	$(compile.S)
+
+%.os: %.S
+	$(compile.S)
+
+#ifeq ($(HAVE_ELF),y)
+CRT=crt1
+#else
+#CRT=crt0.o
+#endif
+
+CRTS=$(top_builddir)lib/$(CRT).o $(top_builddir)lib/S$(CRT).o
+
+$(top_builddir)lib/$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
+	$(INSTALL) -d $(dir $@)
+	$(compile.S) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
+	$(STRIPTOOL) -x -R .note -R .comment $@
+
+$(top_builddir)lib/S$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
+	$(INSTALL) -d $(dir $@)
+	$(compile.S) $(PIEFLAG) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
+	$(STRIPTOOL) -x -R .note -R .comment $@
+
+CTOR_TARGETS=$(top_builddir)lib/crti.o $(top_builddir)lib/crtn.o
+
+ifeq ($(UCLIBC_CTOR_DTOR),y)
+$(top_builddir)lib/crti.o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/crti.S
+	$(INSTALL) -d $(dir $@)
+	$(compile.S) $(PICFLAG) $(SSP_DISABLE_FLAGS)
+
+$(top_builddir)lib/crtn.o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/crtn.S
+	$(INSTALL) -d $(dir $@)
+	$(compile.S) $(PICFLAG) $(SSP_DISABLE_FLAGS)
+else
+$(CTOR_TARGETS):
+	$(INSTALL) -d $(top_builddir)lib
+	$(AR) $(ARFLAGS) $@
+endif
+
+$(crt-y): $(CRTS) $(CTOR_TARGETS)
+
+.PHONY: clean headers dummy create
+clean: objclean-y headers_clean-y
+headers: $(headers-y)
+
+headers_clean-y: $(headers_clean-y)
+
+ifneq ($(strip $(LIB_NAME)),)
+
+ifeq ($(strip $($(LIB_NAME)_FULL_NAME)),)
+$(LIB_NAME)_FULL_NAME:=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+endif
+
+ifeq ($(DOPIC),y)
+$(LIB_NAME)-a-y: $($(LIB_NAME)-a-pic-y)
+else
+$(LIB_NAME)-a-y: $($(LIB_NAME)-a-y)
+endif
+$(LIB_NAME)-so-y: $($(LIB_NAME)-so-y)
+
+ifeq ($(HAVE_SHARED),y)
+objs: $(LIB_NAME)-a-y $(LIB_NAME)-so-y
+else
+objs: $(LIB_NAME)-a-y
+endif
+
+$($(LIB_NAME)_OUT)/$(LIB_NAME).o $($(LIB_NAME)_OUT)/$(LIB_NAME).os: $($(LIB_NAME)-multi-y)
+	$(compile-m)
+
+libc=$(top_builddir)lib/libc.so
+interp=$(top_builddir)libc/misc/internals/interp.os
+ifeq ($(strip $(EXTRA_LINK_LIBS)),)
+#EXTRA_LINK_LIBS:=$(interp) -L$(top_builddir)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
+EXTRA_LINK_LIBS:=$(interp) $(libc) $(LDADD_LIBFLOAT) $(LIBGCC)
+endif
+
+ifneq ($(strip $(LIB_NAME)),libc)
+ifneq ($(strip $(LIB_NAME)),ld-uClibc)
+$(top_builddir)lib/$(LIB_NAME).so: $($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a $(interp) $(libc)
+else
+$(top_builddir)lib/$(LIB_NAME).so: $($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a
+endif
+else
+$(top_builddir)lib/$(LIB_NAME).so: $($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a $(interp)
+endif
+	$(INSTALL) -d $(dir $@)
+	$(RM) $@ $@.$(MAJOR_VERSION) $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME)
+	$(LD) $(LDFLAGS) $(EXTRA_LINK_OPTS) -soname=$(notdir $@).$(MAJOR_VERSION) \
+		-o $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME) $(SHARED_START_FILES) \
+		--whole-archive $(firstword $^) --no-whole-archive \
+		$(EXTRA_LINK_LIBS) $(SHARED_END_FILES)
+	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@.$(MAJOR_VERSION)
+ifneq ($(strip $(LIB_NAME)),libc)
+ifneq ($(strip $(LIB_NAME)),ld-uClibc)
+	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@
+endif
+else
+	echo "/* GNU ld script" > $@
+	echo " * Use the shared library, but some functions are only in" >> $@
+	echo " * the static library, so try that secondarily. */" >> $@
+ifeq ($(COMPAT_ATEXIT),y)
+	echo "GROUP ( $(top_builddir)lib/$(NONSHARED_LIBNAME) $(top_builddir)lib/$(SHARED_MAJORNAME) )" >> $@
+else
+	echo "GROUP ( $(top_builddir)lib/$(SHARED_MAJORNAME) $(top_builddir)lib/$(NONSHARED_LIBNAME) )" >> $@
+endif
+endif
+
+$(top_builddir)lib/$(LIB_NAME).so.notused: $($(LIB_NAME)-so-y)
+ifneq ($(strip $(STRIP_FLAGS)),)
+	$(STRIPTOOL) $(STRIP_FLAGS) $^
+else
+	$(STRIPTOOL) -x -R .note -R .comment $^
+endif
+	$(INSTALL) -d $(dir $@)
+	$(RM) $@ $@.$(MAJOR_VERSION) $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME)
+	$(LD) $(LDFLAGS) $(EXTRA_LINK_OPTS) -soname=$(notdir $@).$(MAJOR_VERSION) \
+		-o $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME) $(SHARED_START_FILES) $^ \
+		$(EXTRA_LINK_LIBS) $(SHARED_END_FILES)
+	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@.$(MAJOR_VERSION)
+ifneq ($(strip $(LIB_NAME)),libc)
+	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@
+else
+	echo "/* GNU ld script" > $@
+	echo " * Use the shared library, but some functions are only in" >> $@
+	echo " * the static library, so try that secondarily. */" >> $@
+ifeq ($(COMPAT_ATEXIT),y)
+	echo "GROUP ( $(top_builddir)lib/$(NONSHARED_LIBNAME) $(top_builddir)lib/$(SHARED_MAJORNAME) )" >> $@
+else
+	echo "GROUP ( $(top_builddir)lib/$(SHARED_MAJORNAME) $(top_builddir)lib/$(NONSHARED_LIBNAME) )" >> $@
+endif
+endif
+
+ifeq ($(DOMULTI),y)
+
+$($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a: $($(LIB_NAME)_OUT)/$(LIB_NAME).os $($(LIB_NAME)-nomulti-y:.o=.os)
+	$(RM) $@
+ifneq ($(strip $(STRIP_FLAGS)),)
+	$(STRIPTOOL) $(STRIP_FLAGS) $^
+else
+	$(STRIPTOOL) -x -R .note -R .comment $^
+endif
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)_OUT)/$(LIB_NAME).os $($(LIB_NAME)-nomulti-y:.o=.os)
+else
+$(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)_OUT)/$(LIB_NAME).o $($(LIB_NAME)-nomulti-y)
+endif
+	$(INSTALL) -d $(dir $@)
+	$(RM) $@
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	$(AR) $(ARFLAGS) $@ $^
+
+else # DOMULTI
+
+$($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a: $($(LIB_NAME)-so-y)
+	$(RM) $@
+ifneq ($(strip $(STRIP_FLAGS)),)
+	$(STRIPTOOL) $(STRIP_FLAGS) $^
+else
+	$(STRIPTOOL) -x -R .note -R .comment $^
+endif
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)-a-pic-y)
+else
+$(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)-a-y)
+endif
+	$(INSTALL) -d $(dir $@)
+	$(RM) $@
+	$(STRIPTOOL) -x -R .note -R .comment $^
+	$(AR) $(ARFLAGS) $@ $^
+
+endif # DOMULTI
+
+$(LIB_NAME)_clean:
+	rm -f $($(LIB_NAME)_OUT)/*.{o,os,a}
+
+else # LIB_NAME
+
+ifeq ($(DOPIC),y)
+libc-a-y: $(libc-a-pic-y)
+libc-nomulti-y: $(libc-nomulti-y:.o=.os)
+else
+libc-a-y: $(libc-a-y)
+libc-nomulti-y: $(libc-nomulti-y) $(libc-nomulti-y:.o=.os)
+endif
+libc-so-y: $(libc-so-y)
+
+libc-multi-y: $(libc-multi-y)
+	$(compile-m)
+
+ifeq ($(HAVE_SHARED),y)
+objs: libc-a-y libc-so-y crt-y other-y
+else
+objs: libc-a-y crt-y other-y
+endif
+
+# only for local multi testing
+libc.o libc.os: $(libc-multi-y)
+	$(compile-m)
+
+endif # LIB_NAME

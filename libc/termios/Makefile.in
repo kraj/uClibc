@@ -1,0 +1,41 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+CSRC:=tcgetattr.c tcgetsid.c tcsetattr.c ttyname.c
+
+MSRC:=	termios.c
+MOBJ:=	tcdrain.o tcflow.o tcflush.o tcsendbreak.o tcsetpgrp.o tcgetpgrp.o \
+	isatty.o cfgetospeed.o cfgetispeed.o cfsetospeed.o cfsetispeed.o \
+	cfmakeraw.o cfsetspeed.o
+
+TERMIOS_DIR:=$(top_srcdir)libc/termios
+TERMIOS_OUT:=$(top_builddir)libc/termios
+
+TERMIOS_SRC:=$(patsubst %.c,$(TERMIOS_DIR)/%.c,$(CSRC))
+TERMIOS_OBJ:=$(patsubst %.c,$(TERMIOS_OUT)/%.o,$(CSRC))
+
+TERMIOS_MSRC:=$(patsubst %.c,$(TERMIOS_DIR)/%.c,$(MSRC))
+TERMIOS_MOBJ:=$(patsubst %.o,$(TERMIOS_OUT)/%.o,$(MOBJ))
+TERMIOS_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(TERMIOS_MOBJ))))
+
+TERMIOS_OBJS:=$(TERMIOS_OBJ) $(TERMIOS_MOBJ)
+
+$(TERMIOS_MOBJ) $(TERMIOS_MOBJ:.o=.os): $(TERMIOS_MSRC)
+	$(compile.m)
+
+libc-a-y+=$(TERMIOS_OBJS)
+libc-a-pic-y+=$(TERMIOS_OBJS:.o=.os)
+libc-so-y+=$(TERMIOS_OBJS:.o=.os)
+
+CFLAGS-multi-y+=$(TERMIOS_DEF)
+libc-multi-y+=$(TERMIOS_SRC) $(TERMIOS_MSRC)
+
+objclean-y+=termios_objclean
+
+termios_objclean:
+	$(RM) $(TERMIOS_OUT)/*.{o,os}

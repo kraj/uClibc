@@ -1,16 +1,31 @@
-# Makefile.in for uClibc
+# Makefile for uClibc
 #
-# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
+#DOMULTI=y
+
 LIB_NAME:=libcrypt
 
-srcdir=$(top_srcdir)$(LIB_NAME)
+libcrypt_DIR:=$(top_srcdir)libcrypt
+libcrypt_OUT:=$(top_builddir)libcrypt
 
-libso-y+=$(top_builddir)lib/$(LIB_NAME).so
-liba-y+=$(top_builddir)lib/$(LIB_NAME).a
-libclean-y+=$(LIB_NAME)_clean
+libcrypt_SRC:=$(wildcard $(libcrypt_DIR)/*.c)
+libcrypt_OBJ:=$(patsubst $(libcrypt_DIR)/%.c,$(libcrypt_OUT)/%.o,$(libcrypt_SRC))
 
-include $(top_srcdir)Makefile.libs
+libcrypt-a-y:=$(libcrypt_OBJ)
+libcrypt-a-pic-y:=$(libcrypt_OBJ:.o=.os)
+libcrypt-so-y:=$(libcrypt_OBJ:.o=.os)
+
+libcrypt-multi-y:=$(libcrypt_SRC)
+
+objclean-y+=libcrypt_clean
+
+lib-a-y+=$(top_builddir)lib/libcrypt.a
+lib-a-pic-y+=$(top_builddir)lib/libcrypt.a
+lib-so-y+=$(top_builddir)lib/libcrypt.so

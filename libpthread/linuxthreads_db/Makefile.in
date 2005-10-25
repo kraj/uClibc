@@ -1,13 +1,15 @@
-# Makefile for uClibc's pthread library
+# Makefile for uClibc
 #
-# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
 #CFLAGS+=$(SSP_ALL_CFLAGS)
 
 PT_MAJOR_VERSION:=$(MAJOR_VERSION)
 # Get the thread include dependencies and shared object name
-CFLAGS+=$(PTINC) -DLIBPTHREAD_SO="\"libpthread.so.$(PT_MAJOR_VERSION)\""
+CFLAGS+=-DLIBPTHREAD_SO="\"libpthread.so.$(PT_MAJOR_VERSION)\""
 
 # Remove any -z defs since this lib will have undefined symbols
 LDFLAGS:=$(subst -z defs,,$(LDFLAGS)) --warn-unresolved-symbols
@@ -16,13 +18,26 @@ ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 STRIP_FLAGS:=-X --strip-debug -R .note -R .comment
 endif
 
+#DOMULTI=y
+
 LIB_NAME:=libthread_db
-srcdir=$(top_srcdir)libpthread/linuxthreads_db
-$(LIB_NAME)_DIR:=$(top_builddir)libpthread/linuxthreads_db
+libthread_db_FULL_NAME:=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+
 MAJOR_VERSION:=1
 
-libso-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/$(LIB_NAME).so
-liba-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/$(LIB_NAME).a
-libclean-y+=$(LIB_NAME)_clean
+libthread_db_DIR:=$(top_srcdir)libpthread/linuxthreads_db
+libthread_db_OUT:=$(top_builddir)libpthread/linuxthreads_db
 
-include $(top_srcdir)Makefile.libs
+libthread_db_SRC:=$(wildcard $(libthread_db_DIR)/*.c)
+
+libthread_db_OBJ:=$(patsubst $(libthread_db_DIR)/%.c,$(libthread_db_OUT)/%.o,$(libthread_db_SRC))
+
+libthread_db-a-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_OBJ)
+libthread_db-a-pic-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_OBJ:.o=.os)
+libthread_db-so-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_OBJ:.o=.os)
+
+libthread_db-multi-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_SRC)
+
+lib-a-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/libthread_db.a
+lib-a-pic-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/libthread_db.a
+lib-so-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/libthread_db.so

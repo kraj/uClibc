@@ -1,16 +1,31 @@
-# Makefile.in for uClibc
+# Makefile for uClibc
 #
-# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
+# useless, only 1 source file
+DOMULTI=n
+
 LIB_NAME:=libnsl
 
-srcdir=$(top_srcdir)$(LIB_NAME)
+libnsl_DIR:=$(top_srcdir)libnsl
+libnsl_OUT:=$(top_builddir)libnsl
 
-libso-y+=$(top_builddir)lib/$(LIB_NAME).so
-liba-y+=$(top_builddir)lib/$(LIB_NAME).a
-libclean-y+=$(LIB_NAME)_clean
+libnsl_SRC:=$(libnsl_DIR)/nsl.c
+libnsl_OBJ:=$(patsubst $(libnsl_DIR)/%.c,$(libnsl_OUT)/%.o,$(libnsl_SRC))
 
-include $(top_srcdir)Makefile.libs
+libnsl-a-y:=$(libnsl_OBJ)
+libnsl-a-pic-y:=$(libnsl_OBJ:.o=.os)
+libnsl-so-y:=$(libnsl_OBJ:.o=.os)
+
+#libnsl-multi-y:=$(libnsl_SRC)
+
+objclean-y+=libnsl_clean
+
+lib-a-y+=$(top_builddir)lib/libnsl.a
+lib-a-pic-y+=$(top_builddir)lib/libnsl.a
+lib-so-y+=$(top_builddir)lib/libnsl.so

@@ -1,16 +1,31 @@
-# Makefile.in for uClibc
+# Makefile for uClibc
 #
-# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
+# all files are syscall related
+DOMULTI=n
+
 LIB_NAME:=librt
 
-srcdir=$(top_srcdir)$(LIB_NAME)
+librt_DIR:=$(top_srcdir)librt
+librt_OUT:=$(top_builddir)librt
 
-libso-y+=$(top_builddir)lib/$(LIB_NAME).so
-liba-y+=$(top_builddir)lib/$(LIB_NAME).a
-libclean-y+=$(LIB_NAME)_clean
+librt_SRC:=$(wildcard $(librt_DIR)/*.c)
+librt_OBJ:=$(patsubst $(librt_DIR)/%.c,$(librt_OUT)/%.o,$(librt_SRC))
 
-include $(top_srcdir)Makefile.libs
+librt-a-y:=$(librt_OBJ)
+librt-a-pic-y:=$(librt_OBJ:.o=.os)
+librt-so-y:=$(librt_OBJ:.o=.os)
+
+#librt-multi-y+=$(librt_SRC)
+
+objclean-y+=librt_clean
+
+lib-a-y+=$(top_builddir)lib/librt.a
+lib-a-pic-y+=$(top_builddir)lib/librt.a
+lib-so-y+=$(top_builddir)lib/librt.so

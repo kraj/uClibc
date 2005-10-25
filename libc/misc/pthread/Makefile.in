@@ -1,0 +1,26 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+CSRC:=no-tsd.c weaks.c
+
+MISC_PTHREAD_DIR:=$(top_srcdir)libc/misc/pthread
+MISC_PTHREAD_OUT:=$(top_builddir)libc/misc/pthread
+
+MISC_PTHREAD_SRC:=$(patsubst %.c,$(MISC_PTHREAD_DIR)/%.c,$(CSRC))
+MISC_PTHREAD_OBJ:=$(patsubst %.c,$(MISC_PTHREAD_OUT)/%.o,$(CSRC))
+
+libc-a-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_OBJ)
+libc-a-pic-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_OBJ:.o=.os)
+libc-so-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_OBJ:.o=.os)
+
+#libc-multi-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_SRC)
+libc-nomulti-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_OBJ)
+
+objclean-y+=misc_pthread_objclean
+
+misc_pthread_objclean:
+	$(RM) $(MISC_PTHREAD_OUT)/*.{o,os}

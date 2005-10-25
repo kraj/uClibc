@@ -340,9 +340,10 @@ endif
 else
 # psm: the next 2 are probably incorrect, the generic header will
 # win over the arch specific one
-PTINC := -I$(PTDIR)/sysdeps/pthread				\
-         -I$(PTDIR)/sysdeps/$(TARGET_ARCH)
+PTINC := -I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
+         -I$(PTDIR)/sysdeps/pthread
 endif
+CFLAGS+=$(PTINC)
 endif
 
 ifeq ($(UCLIBC_BUILD_RELRO),y)

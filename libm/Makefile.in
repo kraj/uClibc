@@ -1,16 +1,36 @@
-# Makefile.in for uClibc
+# Makefile for uClibc
 #
-# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+# The routines included in this math library are derived from the
+# math library for Apple's MacOS X/Darwin math library, which was
+# itself swiped from FreeBSD.  The original copyright information
+# is as follows:
+#
+#     Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+#
+#     Developed at SunPro, a Sun Microsystems, Inc. business.
+#     Permission to use, copy, modify, and distribute this
+#     software is freely granted, provided that this notice
+#     is preserved.
+#
+# It has been ported to work with uClibc and generally behave
+# by Erik Andersen <andersen@codepoet.org>
 #
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
+#DOMULTI=y
+
 LIB_NAME:=libm
 
-srcdir=$(top_srcdir)$(LIB_NAME)
-$(LIB_NAME)_DIR:=$(top_builddir)$(LIB_NAME)
+ifeq ($(HAS_FPU),y)
+-include $(top_srcdir)libm/$(TARGET_ARCH)/Makefile.in
+endif
 
 FL_MSRC:=float_wrappers.c
 
@@ -52,33 +72,49 @@ CSRC:=	w_acos.c w_asin.c s_atan.c w_atan2.c s_ceil.c s_cos.c \
 FL_MOBJ:=sqrtf.o
 endif
 
-$(LIB_NAME)_SRC:=$(patsubst %.c,$(srcdir)/%.c,$(CSRC))
+libm_DIR:=$(top_srcdir)libm
+libm_OUT:=$(top_builddir)libm
 
-$(LIB_NAME)_MSRC:=$(srcdir)/$(FL_MSRC)
-$(LIB_NAME)_MOBJ:=$(patsubst %.o,$($(LIB_NAME)_DIR)/%.o,$(FL_MOBJ))
-
+# assume that arch specific versions are provided as single sources/objects
 ifeq ($(HAS_FPU),y)
-ifeq ($(DO_C99_MATH),y)
-$(LIB_NAME)_ARCH_SRC:=$(wildcard $(srcdir)/$(TARGET_ARCH)/*.c)
-$(LIB_NAME)_ARCH_OBJ:=$(patsubst $(srcdir)/$(TARGET_ARCH)/%.c,$($(LIB_NAME)_DIR)/$(TARGET_ARCH)/%.o,$($(LIB_NAME)_ARCH_SRC))
+ifneq ($(strip $(libm_ARCH_OBJS)),)
 
 # remove generic sources, if arch specific version is present
-$(LIB_NAME)_NO_SRC:=$(patsubst $(srcdir)/$(TARGET_ARCH)/%.c,$(srcdir)/%.c,$($(LIB_NAME)_ARCH_SRC))
-$(LIB_NAME)_SRC:=$(filter-out $($(LIB_NAME)_NO_SRC),$($(LIB_NAME)_SRC))
-# add arch specific sources (assumed that these are not multi-sources)
-$(LIB_NAME)_SRC+=$($(LIB_NAME)_ARCH_SRC)
+ifneq ($(strip $(libm_ARCH_SRC)),)
+CSRC:=$(filter-out $(notdir $(libm_ARCH_SRC)),$(CSRC))
+endif
 
-# remove generic objects produced from multi-sources, if arch specific version is present
-$(LIB_NAME)_NO_MOBJ:=$(patsubst $($(LIB_NAME)_DIR)/$(TARGET_ARCH)/%.o,$($(LIB_NAME)_DIR)/%.o,$($(LIB_NAME)_ARCH_OBJ))
-$(LIB_NAME)_MOBJ:=$(filter-out $($(LIB_NAME)_NO_MOBJ),$($(LIB_NAME)_MOBJ))
+# remove generic objects built from multi-sources, if arch specific version is present
+FL_MOBJ:=$(filter-out $(notdir $(libm_ARCH_OBJS)),$(FL_MOBJ))
+
+# we also try to remove % if s_% is in arch specific subdir
+FL_MOBJ:=$(filter-out $(patsubst s_%.o,%.o,$(notdir $(libm_ARCH_OBJS))),$(FL_MOBJ))
 endif
 endif
 
-$(LIB_NAME)_arch_clean:
-	$(RM) $($(LIB_NAME)_DIR)/$(TARGET_ARCH)/*.{o,os}
+libm_SRC:=$(patsubst %.c,$(libm_DIR)/%.c,$(CSRC))
+libm_OBJ:=$(patsubst $(libm_DIR)/%.c,$(libm_OUT)/%.o,$(libm_SRC))
 
-libso-$(UCLIBC_HAS_FLOATS)+=$(top_builddir)lib/$(LIB_NAME).so
-liba-$(UCLIBC_HAS_FLOATS)+=$(top_builddir)lib/$(LIB_NAME).a
-libclean-y+=$(LIB_NAME)_clean $(LIB_NAME)_arch_clean
+libm_MSRC:=$(libm_DIR)/$(FL_MSRC)
+libm_MOBJ:=$(patsubst %.o,$(libm_OUT)/%.o,$(FL_MOBJ))
 
-include $(top_srcdir)Makefile.libs
+libm_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ))))
+
+libm_OBJS:=$(libm_OBJ) $(libm_MOBJ)
+
+$(libm_MOBJ) $(libm_MOBJ:.o=.os): $(libm_MSRC)
+	$(compile.m)
+
+libm-a-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJS)
+libm-a-pic-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJS:.o=.os)
+libm-so-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJS:.o=.os)
+
+CFLAGS-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_DEF)
+libm-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_MSRC)
+libm-nomulti-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJ)
+
+objclean-y+=libm_clean
+
+lib-a-$(UCLIBC_HAS_FLOATS)+=$(top_builddir)lib/libm.a
+lib-a-pic-$(UCLIBC_HAS_FLOATS)+=$(top_builddir)lib/libm.a
+lib-so-$(UCLIBC_HAS_FLOATS)+=$(top_builddir)lib/libm.so

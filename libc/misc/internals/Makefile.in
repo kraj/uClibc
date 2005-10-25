@@ -1,0 +1,41 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+CFLAGS-__uClibc_main.c=$(SSP_DISABLE_FLAGS)
+
+CSRC:=__uClibc_main.c tempname.c errno.c __errno_location.c __h_errno_location.c
+
+MISC_INTERNALS_DIR:=$(top_srcdir)libc/misc/internals
+MISC_INTERNALS_OUT:=$(top_builddir)libc/misc/internals
+
+MISC_INTERNALS_SRC:=$(patsubst %.c,$(MISC_INTERNALS_DIR)/%.c,$(CSRC))
+MISC_INTERNALS_OBJ:=$(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(CSRC))
+
+MISC_INTERNALS_OBJS:=$(MISC_INTERNALS_OBJ) $(MISC_INTERNALS_OUT)/static.o
+
+$(MISC_INTERNALS_OUT)/interp.c: $(MISC_INTERNALS_DIR)/Makefile.in
+	echo "/* Force shared libraries to know about the correct library loader */" > $@
+	echo "#include <features.h>" >> $@
+	echo "#ifdef __HAVE_ELF__" >> $@
+	echo "const char __dl_ldso__[] __attribute__ ((section " \
+		"(\".interp\"))) =\""$(SHARED_LIB_LOADER_PREFIX)/$(UCLIBC_LDSO)"\";" >> $@
+	echo "#endif" >> $@
+
+libc-a-y+=$(MISC_INTERNALS_OBJS)
+libc-a-pic-y+=$(MISC_INTERNALS_OBJS:.o=.os)
+# this is OBJ, not OBJS !!!, static does not go into .so
+libc-so-y+=$(MISC_INTERNALS_OBJ:.o=.os)
+other-y+=$(MISC_INTERNALS_OUT)/interp.os
+
+libc-multi-y+=$(filter-out $(MISC_INTERNALS_DIR)/__uClibc_main.c,$(MISC_INTERNALS_SRC))
+libc-nomulti-y+=$(MISC_INTERNALS_OUT)/__uClibc_main.o
+
+objclean-y+=misc_internals_objclean
+
+misc_internals_objclean:
+	$(RM) $(MISC_INTERNALS_OUT)/{*.{o,os},interp.c}

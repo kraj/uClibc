@@ -1,0 +1,13 @@
+# Makefile for uClibc
+#
+# Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
+#
+
+TOPDIR=../../../
+
+top_srcdir=$(TOPDIR)
+top_builddir=../../../
+all: objs
+include $(top_builddir)Rules.mak
+include Makefile.in
+include $(top_srcdir)Makerules
