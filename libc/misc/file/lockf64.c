@@ -38,8 +38,10 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/syscall.h>
 
 #ifdef __NR_fcntl64
+extern int fcntl64 (int fd, int cmd, ...);
 #define flock flock64
 #define fcntl fcntl64
 #define F_GETLK F_GETLK64
