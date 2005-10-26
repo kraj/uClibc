@@ -24,7 +24,7 @@ CFLAGS+=$(SSP_ALL_CFLAGS)
 
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
-DOMULTI=n
+#DOMULTI=n
 
 LIB_NAME:=libm
 
@@ -49,7 +49,7 @@ CSRC:=	e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c \
 	w_cosh.c w_drem.c w_exp.c w_fmod.c w_gamma.c w_gamma_r.c \
 	w_hypot.c w_j0.c w_j1.c w_jn.c w_lgamma.c w_lgamma_r.c \
 	w_log.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c \
-	w_sqrt.c fpmacros.c nan.c s_ceilf.c s_floorf.c
+	w_sqrt.c fpmacros.c nan.c
 FL_MOBJ:=acosf.o acoshf.o asinf.o asinhf.o atan2f.o atanf.o atanhf.o cbrtf.o \
 	ceilf.o copysignf.o cosf.o coshf.o erfcf.o erff.o exp2f.o expf.o \
 	expm1f.o fabsf.o fdimf.o floorf.o fmaf.o fmaxf.o fminf.o fmodf.o \
@@ -92,6 +92,9 @@ FL_MOBJ:=$(filter-out $(patsubst s_%.o,%.o,$(notdir $(libm_ARCH_OBJS))),$(FL_MOB
 endif
 endif
 
+LIBM_NO_MULTI:=s_lib_version.c w_cabs.c
+CSRC:=$(filter-out $(LIBM_NO_MULTI),$(CSRC))
+
 libm_SRC:=$(patsubst %.c,$(libm_DIR)/%.c,$(CSRC))
 libm_OBJ:=$(patsubst $(libm_DIR)/%.c,$(libm_OUT)/%.o,$(libm_SRC))
 
@@ -100,7 +103,7 @@ libm_MOBJ:=$(patsubst %.o,$(libm_OUT)/%.o,$(FL_MOBJ))
 
 libm_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ))))
 
-libm_OBJS:=$(libm_OBJ) $(libm_MOBJ)
+libm_OBJS:=$(libm_OBJ) $(libm_MOBJ) $(patsubst %.c,$(libm_OUT)/%.o,$(LIBM_NO_MULTI))
 
 $(libm_MOBJ) $(libm_MOBJ:.o=.os): $(libm_MSRC)
 	$(compile.m)
@@ -113,6 +116,7 @@ CFLAGS-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_DEF)
 libm-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_SRC) $(libm_MSRC)
 #libm-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_MSRC)
 #libm-nomulti-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJ)
+libm-nomulti-$(UCLIBC_HAS_FLOATS)+=$(patsubst %.c,$(libm_OUT)/%.o,$(LIBM_NO_MULTI))
 
 objclean-y+=libm_clean
 
