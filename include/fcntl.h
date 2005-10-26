@@ -1,4 +1,4 @@
-/* Copyright (C) 1991,92,94,95,96,97,98,99,2000,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1991,1992,1994-2001,2003,2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -56,13 +56,15 @@ __BEGIN_DECLS
 #endif	/* XPG */
 
 /* Do the file control operation described by CMD on FD.
-   The remaining arguments are interpreted depending on CMD.  */
+   The remaining arguments are interpreted depending on CMD.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
 #ifndef __USE_FILE_OFFSET64
-extern int fcntl (int __fd, int __cmd, ...) __THROW;
+extern int fcntl (int __fd, int __cmd, ...);
 #else
 # ifdef __REDIRECT
-extern int __REDIRECT (fcntl, (int __fd, int __cmd, ...) __THROW,
-		       fcntl64);
+extern int __REDIRECT (fcntl, (int __fd, int __cmd, ...), fcntl64);
 # else
 #  define fcntl fcntl64
 # endif
@@ -70,36 +72,41 @@ extern int __REDIRECT (fcntl, (int __fd, int __cmd, ...) __THROW,
 
 /* Open FILE and return a new file descriptor for it, or -1 on error.
    OFLAG determines the type of access used.  If O_CREAT is on OFLAG,
-   the third argument is taken as a `mode_t', the mode of the created file.  */
+   the third argument is taken as a `mode_t', the mode of the created file.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
 #ifndef __USE_FILE_OFFSET64
-extern int open (__const char *__file, int __oflag, ...) __THROW;
+extern int open (__const char *__file, int __oflag, ...) __nonnull ((1));
 #else
 # ifdef __REDIRECT
-extern int __REDIRECT (open, (__const char *__file, int __oflag, ...) __THROW,
-		       open64);
+extern int __REDIRECT (open, (__const char *__file, int __oflag, ...), open64)
+     __nonnull ((1));
 # else
 #  define open open64
 # endif
 #endif
 #ifdef __USE_LARGEFILE64
-extern int open64 (__const char *__file, int __oflag, ...) __THROW;
+extern int open64 (__const char *__file, int __oflag, ...) __nonnull ((1));
 #endif
 
-/* Create and open FILE, with mode MODE.
-   This takes an `int' MODE argument because that is
-   what `mode_t' will be widened to.  */
+/* Create and open FILE, with mode MODE.  This takes an `int' MODE
+   argument because that is what `mode_t' will be widened to.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
 #ifndef __USE_FILE_OFFSET64
-extern int creat (__const char *__file, __mode_t __mode) __THROW;
+extern int creat (__const char *__file, __mode_t __mode) __nonnull ((1));
 #else
 # ifdef __REDIRECT
-extern int __REDIRECT (creat, (__const char *__file, __mode_t __mode) __THROW,
-		       creat64);
+extern int __REDIRECT (creat, (__const char *__file, __mode_t __mode),
+		       creat64) __nonnull ((1));
 # else
 #  define creat creat64
 # endif
 #endif
 #ifdef __USE_LARGEFILE64
-extern int creat64 (__const char *__file, __mode_t __mode) __THROW;
+extern int creat64 (__const char *__file, __mode_t __mode) __nonnull ((1));
 #endif
 
 #if !defined F_LOCK && (defined __USE_MISC || (defined __USE_XOPEN_EXTENDED \
@@ -118,20 +125,18 @@ extern int creat64 (__const char *__file, __mode_t __mode) __THROW;
 # define F_TEST  3	/* Test a region for other processes locks.  */
 
 # ifndef __USE_FILE_OFFSET64
-extern int lockf (int __fd, int __cmd, __off_t __len) __THROW;
+extern int lockf (int __fd, int __cmd, __off_t __len);
 # else
 # ifdef __REDIRECT
-extern int __REDIRECT (lockf, (int __fd, int __cmd, __off64_t __len) __THROW,
-		       lockf64);
+extern int __REDIRECT (lockf, (int __fd, int __cmd, __off64_t __len), lockf64);
 # else
 #  define lockf lockf64
 # endif
 # endif
 # ifdef __USE_LARGEFILE64
-extern int lockf64 (int __fd, int __cmd, __off64_t __len) __THROW;
+extern int lockf64 (int __fd, int __cmd, __off64_t __len);
 # endif
 #endif
-
 
 #ifdef __USE_XOPEN2K
 /* Advice the system about the expected behaviour of the application with
@@ -142,7 +147,7 @@ extern int posix_fadvise (int __fd, __off_t __offset, __off_t __len,
 # else
 # ifdef __REDIRECT
 extern int __REDIRECT (posix_fadvise, (int __fd, __off64_t __offset,
-				       __off64_t __len, int __advise) __THROW,
+				       __off64_t __len, int __advise),
 		       posix_fadvise64);
 # else
 #  define posix_fadvise posix_fadvise64
@@ -159,23 +164,24 @@ extern int posix_fadvise64 (int __fd, __off64_t __offset, __off64_t __len,
 
 /* FIXME -- uClibc should probably implement these... */
 
-/* Reserve storage for the data of the file associated with FD.  */
+/* Reserve storage for the data of the file associated with FD.
+
+   This function is a possible cancellation points and therefore not
+   marked with __THROW.  */
 # ifndef __USE_FILE_OFFSET64
-extern int posix_fallocate (int __fd, __off_t __offset, size_t __len) __THROW;
+extern int posix_fallocate (int __fd, __off_t __offset, __off_t __len);
 # else
 # ifdef __REDIRECT
 extern int __REDIRECT (posix_fallocate, (int __fd, __off64_t __offset,
-					 size_t __len) __THROW,
+					 __off64_t __len),
 		       posix_fallocate64);
 # else
 #  define posix_fallocate posix_fallocate64
 # endif
 # endif
 # ifdef __USE_LARGEFILE64
-extern int posix_fallocate64 (int __fd, __off64_t __offset, size_t __len)
-     __THROW;
+extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 # endif
-
 #endif
 
 __END_DECLS
