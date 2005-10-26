@@ -21,7 +21,7 @@ ifeq ($(TARGET_ARCH),mips)
 CFLAGS:=$(CFLAGS:-O0=-O1)
 endif
 
-# useless, only 1 source file
+# we need special .oS file created, do not enable this
 DOMULTI=n
 
 LIB_NAME:=libdl
@@ -46,7 +46,7 @@ libdl-a-$(HAVE_SHARED):=$(libdl_OBJ) $(resolve)
 libdl-a-pic-$(HAVE_SHARED):=$(libdl_OBJ:.o=.os) $(resolve:.o=.os)
 libdl-so-$(HAVE_SHARED):=$(libdl_OBJ:.o=.oS)
 
-# we enable this although no use of multi, else libdl.o gets empty sources
+# do not disable this
 libdl-multi-$(HAVE_SHARED):=$(libdl_SRC)
 
 objclean-y+=libdl_clean libdl_extra_clean

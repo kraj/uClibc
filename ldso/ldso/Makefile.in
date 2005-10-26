@@ -39,7 +39,7 @@ ifeq ($(SUPPORT_LD_DEBUG),y)
 LDFLAGS:=$(LDFLAGS_NOSTRIP)
 endif
 
-# useless, only 1 source file
+# can't combine .c w/ .S
 DOMULTI=n
 
 LIB_NAME:=ld-uClibc
@@ -60,7 +60,7 @@ EXTRA_LINK_LIBS:=$(LIBGCC) # $(LDADD_LIBFLOAT)
 
 ld-uClibc-so-$(HAVE_SHARED):=$(ld-uClibc_OBJS:.o=.os)
 
-#ld-uClibc-multi-$(HAVE_SHARED):=$(ld-uClibc_SRC)
+ld-uClibc-multi-$(HAVE_SHARED):=$(ld-uClibc_SRC) $(ld-uClibc_SSRC)
 
 objclean-y+=ld-uClibc_clean ld-uClibc_arch_clean
 

@@ -8,8 +8,6 @@
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-#DOMULTI=y
-
 LIB_NAME:=libintl
 
 MOBJ:=gettext.o ngettext.o  dgettext.o dcgettext.o dngettext.o dcngettext.o \

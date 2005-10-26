@@ -8,8 +8,6 @@
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-#DOMULTI=y
-
 LIB_NAME:=libcrypt
 
 libcrypt_DIR:=$(top_srcdir)libcrypt

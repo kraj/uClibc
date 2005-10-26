@@ -7,8 +7,6 @@
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-#DOMULTI=y
-
 LIB_NAME:=libutil
 
 libutil_DIR:=$(top_srcdir)libutil

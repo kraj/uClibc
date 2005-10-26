@@ -18,8 +18,6 @@ ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 STRIP_FLAGS:=-X --strip-debug -R .note -R .comment
 endif
 
-#DOMULTI=y
-
 LIB_NAME:=libthread_db
 libthread_db_FULL_NAME:=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
@@ -37,6 +35,8 @@ libthread_db-a-pic-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_OBJ:.o=.os)
 libthread_db-so-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_OBJ:.o=.os)
 
 libthread_db-multi-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_SRC)
+
+objclean-y+=libthread_db_clean
 
 lib-a-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/libthread_db.a
 lib-a-pic-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/libthread_db.a

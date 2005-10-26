@@ -7,9 +7,6 @@
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-# useless, only 1 source file
-DOMULTI=n
-
 LIB_NAME:=libresolv
 
 libresolv_DIR:=$(top_srcdir)libresolv
@@ -22,7 +19,7 @@ libresolv-a-y:=$(libresolv_OBJ)
 libresolv-a-pic-y:=$(libresolv_OBJ:.o=.os)
 libresolv-so-y:=$(libresolv_OBJ:.o=.os)
 
-#libresolv-multi-y:=$(libresolv_SRC)
+libresolv-multi-y:=$(libresolv_SRC)
 
 objclean-y+=libresolv_clean
 

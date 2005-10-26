@@ -1,4 +1,4 @@
-# Makefile for uClibc's pthread library
+# Makefile for uClibc
 #
 # Copyright (C) 2003 Paul Mundt <lethal@linux-sh.org>
 # Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
@@ -50,6 +50,8 @@ libpthread-a-pic-$(UCLIBC_HAS_THREADS)+=$(libpthread_OBJ:.o=.os)
 libpthread-so-$(UCLIBC_HAS_THREADS)+=$(libpthread_OBJ:.o=.os)
 
 libpthread-multi-$(UCLIBC_HAS_THREADS)+=$(libpthread_SRC)
+
+objclean-y+=libpthread_clean
 
 lib-a-$(UCLIBC_HAS_THREADS)+=$(top_builddir)lib/libpthread.a
 lib-a-pic-$(UCLIBC_HAS_THREADS)+=$(top_builddir)lib/libpthread.a

@@ -1,4 +1,4 @@
-# Makefile for uClibc's sh64 pthread backend
+# Makefile for uClibc
 #
 # Copyright (C) 2003 Paul Mundt <lethal@linux-sh.org>
 # Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>

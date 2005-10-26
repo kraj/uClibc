@@ -24,7 +24,7 @@ CFLAGS+=$(SSP_ALL_CFLAGS)
 
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
-#DOMULTI=y
+DOMULTI=n
 
 LIB_NAME:=libm
 
@@ -110,8 +110,9 @@ libm-a-pic-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJS:.o=.os)
 libm-so-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJS:.o=.os)
 
 CFLAGS-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_DEF)
-libm-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_MSRC)
-libm-nomulti-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJ)
+libm-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_SRC) $(libm_MSRC)
+#libm-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_MSRC)
+#libm-nomulti-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJ)
 
 objclean-y+=libm_clean
 

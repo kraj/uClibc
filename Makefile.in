@@ -341,7 +341,7 @@ defconfig: extra/config/conf
 
 clean:
 	@$(RM) -r lib include/bits
-	$(RM) lib*/*.a ldso/*/*.a
+	$(RM) lib*/*.a ldso/*/*.a libpthread/*/*.a
 	$(RM) libc/misc/locale/locale_data.c
 	$(RM) libc/misc/internals/interp.c
 	$(RM) include/fpu_control.h

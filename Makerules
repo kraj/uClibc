@@ -189,7 +189,7 @@ else
 endif
 endif
 
-ifeq ($(DOMULTI),y)
+ifneq ($(DOMULTI),n)
 
 $($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a: $($(LIB_NAME)_OUT)/$(LIB_NAME).os $($(LIB_NAME)-nomulti-y:.o=.os)
 	$(RM) $@
