@@ -24,7 +24,7 @@ CFLAGS+=$(SSP_ALL_CFLAGS)
 
 CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
-#DOMULTI=n
+CFLAGS-s_lib_version.c=-D_POSIX_MODE
 
 LIB_NAME:=libm
 
@@ -92,8 +92,10 @@ FL_MOBJ:=$(filter-out $(patsubst s_%.o,%.o,$(notdir $(libm_ARCH_OBJS))),$(FL_MOB
 endif
 endif
 
-LIBM_NO_MULTI:=s_lib_version.c w_cabs.c
+ifeq ($(DO_C99_MATH),y)
+LIBM_NO_MULTI:=s_lib_version.c
 CSRC:=$(filter-out $(LIBM_NO_MULTI),$(CSRC))
+endif
 
 libm_SRC:=$(patsubst %.c,$(libm_DIR)/%.c,$(CSRC))
 libm_OBJ:=$(patsubst $(libm_DIR)/%.c,$(libm_OUT)/%.o,$(libm_SRC))
@@ -103,7 +105,10 @@ libm_MOBJ:=$(patsubst %.o,$(libm_OUT)/%.o,$(FL_MOBJ))
 
 libm_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ))))
 
-libm_OBJS:=$(libm_OBJ) $(libm_MOBJ) $(patsubst %.c,$(libm_OUT)/%.o,$(LIBM_NO_MULTI))
+libm_OBJS:=$(libm_OBJ) $(libm_MOBJ)
+ifeq ($(DO_C99_MATH),y)
+libm_OBJS+=$(patsubst %.c,$(libm_OUT)/%.o,$(LIBM_NO_MULTI))
+endif
 
 $(libm_MOBJ) $(libm_MOBJ:.o=.os): $(libm_MSRC)
 	$(compile.m)
@@ -114,9 +119,9 @@ libm-so-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJS:.o=.os)
 
 CFLAGS-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_DEF)
 libm-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_SRC) $(libm_MSRC)
-#libm-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_MSRC)
-#libm-nomulti-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJ)
+ifeq ($(DO_C99_MATH),y)
 libm-nomulti-$(UCLIBC_HAS_FLOATS)+=$(patsubst %.c,$(libm_OUT)/%.o,$(LIBM_NO_MULTI))
+endif
 
 objclean-y+=libm_clean
 
