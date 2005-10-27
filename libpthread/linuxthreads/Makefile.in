@@ -46,7 +46,6 @@ endif
 libpthread_OBJ:=$(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpthread_SRC))
 
 libpthread-a-$(UCLIBC_HAS_THREADS)+=$(libpthread_OBJ)
-libpthread-a-pic-$(UCLIBC_HAS_THREADS)+=$(libpthread_OBJ:.o=.os)
 libpthread-so-$(UCLIBC_HAS_THREADS)+=$(libpthread_OBJ:.o=.os)
 
 libpthread-multi-$(UCLIBC_HAS_THREADS)+=$(libpthread_SRC)
@@ -54,5 +53,4 @@ libpthread-multi-$(UCLIBC_HAS_THREADS)+=$(libpthread_SRC)
 objclean-y+=libpthread_clean
 
 lib-a-$(UCLIBC_HAS_THREADS)+=$(top_builddir)lib/libpthread.a
-lib-a-pic-$(UCLIBC_HAS_THREADS)+=$(top_builddir)lib/libpthread.a
 lib-so-$(UCLIBC_HAS_THREADS)+=$(top_builddir)lib/libpthread.so

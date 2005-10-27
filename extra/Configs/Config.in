@@ -1152,10 +1152,12 @@ config UCLIBC_HAS_SSP
 	default n
 	help
 	  Add propolice smashing stack protector to the library.
-	  This requires a patched version of GCC, supporting the
+	  This requires a patched version of GCC or GCC 4.1, supporting the
 	  -fstack-protector[-all] options, with the __guard and
-	  __stack_smash_handler functions removed from libgcc.
+	  __stack_smash_handler, respectively __stack_chk_guard and
+	  __stack_chk_fail functions removed from libgcc.
 	  These functions are added to libc instead.
+	  Only binutils 2.16.1 and newer are supported.
 	  More information at:
 	  <http://www.research.ibm.com/trl/projects/security/ssp/>
 	  Most people will answer N.

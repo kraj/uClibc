@@ -19,13 +19,11 @@ librt_SRC:=$(wildcard $(librt_DIR)/*.c)
 librt_OBJ:=$(patsubst $(librt_DIR)/%.c,$(librt_OUT)/%.o,$(librt_SRC))
 
 librt-a-y:=$(librt_OBJ)
-librt-a-pic-y:=$(librt_OBJ:.o=.os)
 librt-so-y:=$(librt_OBJ:.o=.os)
 
-#librt-multi-y+=$(librt_SRC)
+librt-multi-y+=$(librt_SRC)
 
 objclean-y+=librt_clean
 
 lib-a-y+=$(top_builddir)lib/librt.a
-lib-a-pic-y+=$(top_builddir)lib/librt.a
 lib-so-y+=$(top_builddir)lib/librt.so

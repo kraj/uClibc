@@ -21,7 +21,7 @@ ifeq ($(TARGET_ARCH),mips)
 CFLAGS:=$(CFLAGS:-O0=-O1)
 endif
 
-# we need special .oS file created, do not enable this
+# can't combine .c w/ .S
 DOMULTI=n
 
 LIB_NAME:=libdl
@@ -36,18 +36,11 @@ libdl_OUT:=$(top_builddir)ldso/libdl
 libdl_SRC:=$(libdl_DIR)/libdl.c
 libdl_OBJ:=$(patsubst $(libdl_DIR)/%.c,$(libdl_OUT)/%.o,$(libdl_SRC))
 
-# use other suffixes, so that it does not pick up the multi rule from Makerules
-$(libdl_OUT)/libdl.oS: $(libdl_DIR)/libdl.c
-	$(compile.c) -DSHARED
-
 resolve:=$(top_builddir)ldso/ldso/$(TARGET_ARCH)/resolve.o
 
-libdl-a-$(HAVE_SHARED):=$(libdl_OBJ) $(resolve)
-libdl-a-pic-$(HAVE_SHARED):=$(libdl_OBJ:.o=.os) $(resolve:.o=.os)
-libdl-so-$(HAVE_SHARED):=$(libdl_OBJ:.o=.oS)
-
-# do not disable this
-libdl-multi-$(HAVE_SHARED):=$(libdl_SRC)
+libdl-a-$(HAVE_SHARED):=$(libdl_OBJ)
+libdl-static-$(HAVE_SHARED):=$(resolve)
+libdl-shared-$(HAVE_SHARED):=$(libdl_OUT)/libdl.oS
 
 objclean-y+=libdl_clean libdl_extra_clean
 
@@ -55,5 +48,4 @@ libdl_extra_clean:
 	$(RM) $(libdl_OUT)/*.oS
 
 lib-a-$(HAVE_SHARED)+=$(top_builddir)lib/libdl.a
-lib-a-pic-$(HAVE_SHARED)+=$(top_builddir)lib/libdl.a
 lib-so-$(HAVE_SHARED)+=$(top_builddir)lib/libdl.so

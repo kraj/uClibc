@@ -17,7 +17,6 @@ libcrypt_SRC:=$(wildcard $(libcrypt_DIR)/*.c)
 libcrypt_OBJ:=$(patsubst $(libcrypt_DIR)/%.c,$(libcrypt_OUT)/%.o,$(libcrypt_SRC))
 
 libcrypt-a-y:=$(libcrypt_OBJ)
-libcrypt-a-pic-y:=$(libcrypt_OBJ:.o=.os)
 libcrypt-so-y:=$(libcrypt_OBJ:.o=.os)
 
 libcrypt-multi-y:=$(libcrypt_SRC)
@@ -25,5 +24,4 @@ libcrypt-multi-y:=$(libcrypt_SRC)
 objclean-y+=libcrypt_clean
 
 lib-a-y+=$(top_builddir)lib/libcrypt.a
-lib-a-pic-y+=$(top_builddir)lib/libcrypt.a
 lib-so-y+=$(top_builddir)lib/libcrypt.so

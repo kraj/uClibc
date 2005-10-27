@@ -8,7 +8,7 @@
 
 CFLAGS-__uClibc_main.c=$(SSP_DISABLE_FLAGS)
 
-CSRC:=__uClibc_main.c tempname.c errno.c __errno_location.c __h_errno_location.c
+CSRC:=tempname.c errno.c __errno_location.c __h_errno_location.c
 
 MISC_INTERNALS_DIR:=$(top_srcdir)libc/misc/internals
 MISC_INTERNALS_OUT:=$(top_builddir)libc/misc/internals
@@ -16,7 +16,7 @@ MISC_INTERNALS_OUT:=$(top_builddir)libc/misc/internals
 MISC_INTERNALS_SRC:=$(patsubst %.c,$(MISC_INTERNALS_DIR)/%.c,$(CSRC))
 MISC_INTERNALS_OBJ:=$(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(CSRC))
 
-MISC_INTERNALS_OBJS:=$(MISC_INTERNALS_OBJ) $(MISC_INTERNALS_OUT)/static.o
+STATIC_SRC:=__uClibc_main.c static.c
 
 $(MISC_INTERNALS_OUT)/interp.c: $(MISC_INTERNALS_DIR)/Makefile.in
 	echo "/* Force shared libraries to know about the correct library loader */" > $@
@@ -26,16 +26,15 @@ $(MISC_INTERNALS_OUT)/interp.c: $(MISC_INTERNALS_DIR)/Makefile.in
 		"(\".interp\"))) =\""$(SHARED_LIB_LOADER_PREFIX)/$(UCLIBC_LDSO)"\";" >> $@
 	echo "#endif" >> $@
 
-libc-a-y+=$(MISC_INTERNALS_OBJS)
-libc-a-pic-y+=$(MISC_INTERNALS_OBJS:.o=.os)
-# this is OBJ, not OBJS !!!, static does not go into .so
+libc-a-y+=$(MISC_INTERNALS_OBJ)
 libc-so-y+=$(MISC_INTERNALS_OBJ:.o=.os)
+libc-shared-y+=$(MISC_INTERNALS_OUT)/__uClibc_main.oS
+libc-static-y+=$(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(STATIC_SRC))
 other-y+=$(MISC_INTERNALS_OUT)/interp.os
 
-libc-multi-y+=$(filter-out $(MISC_INTERNALS_DIR)/__uClibc_main.c,$(MISC_INTERNALS_SRC))
-libc-nomulti-y+=$(MISC_INTERNALS_OUT)/__uClibc_main.o
+libc-multi-y+=$(MISC_INTERNALS_SRC)
 
 objclean-y+=misc_internals_objclean
 
 misc_internals_objclean:
-	$(RM) $(MISC_INTERNALS_OUT)/{*.{o,os},interp.c}
+	$(RM) $(MISC_INTERNALS_OUT)/{*.{o,os,oS},interp.c}

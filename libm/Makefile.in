@@ -114,7 +114,6 @@ $(libm_MOBJ) $(libm_MOBJ:.o=.os): $(libm_MSRC)
 	$(compile.m)
 
 libm-a-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJS)
-libm-a-pic-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJS:.o=.os)
 libm-so-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJS:.o=.os)
 
 CFLAGS-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_DEF)
@@ -126,5 +125,4 @@ endif
 objclean-y+=libm_clean
 
 lib-a-$(UCLIBC_HAS_FLOATS)+=$(top_builddir)lib/libm.a
-lib-a-pic-$(UCLIBC_HAS_FLOATS)+=$(top_builddir)lib/libm.a
 lib-so-$(UCLIBC_HAS_FLOATS)+=$(top_builddir)lib/libm.so

@@ -56,6 +56,7 @@ $(OBJS) $(NONSHARED_OBJS): %.o : %.c
 
 headers:
 	$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h $(TOPDIR)/include/
+	$(LN) -fs ../libc/sysdeps/linux/common/dl-osinfo.h $(TOPDIR)/include/
 
 clean:
 	$(RM) *.o *~ core

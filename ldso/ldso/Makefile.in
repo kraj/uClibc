@@ -19,6 +19,8 @@ ifeq ($(SUPPORT_LD_DEBUG_EARLY),y)
 CFLAGS+=-D__SUPPORT_LD_DEBUG_EARLY__
 endif
 
+CFLAGS+=-DNOT_IN_libc
+
 ifeq ($(DODEBUG),y)
 # Not really much point in including debugging info, since gdb
 # can't really debug ldso, since gdb requires help from ldso to
@@ -59,8 +61,6 @@ EXTRA_LINK_OPTS:=-e _start -z now -Bsymbolic --export-dynamic --sort-common --di
 EXTRA_LINK_LIBS:=$(LIBGCC) # $(LDADD_LIBFLOAT)
 
 ld-uClibc-so-$(HAVE_SHARED):=$(ld-uClibc_OBJS:.o=.os)
-
-ld-uClibc-multi-$(HAVE_SHARED):=$(ld-uClibc_SRC) $(ld-uClibc_SSRC)
 
 objclean-y+=ld-uClibc_clean ld-uClibc_arch_clean
 

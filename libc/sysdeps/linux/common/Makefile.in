@@ -31,9 +31,7 @@ COMMON_SRC:=$(patsubst %.c,$(COMMON_DIR)/%.c,$(CSRC))
 COMMON_OBJ:=$(patsubst %.c,$(COMMON_OUT)/%.o,$(CSRC))
 
 libc-a-y+=$(COMMON_OBJ)
-libc-a-$(UCLIBC_HAS_SSP)+=$(COMMON_OUT)/ssp-local.o
-libc-a-pic-y+=$(COMMON_OBJ:.o=.os)
-libc-a-pic-$(UCLIBC_HAS_SSP)+=$(COMMON_OUT)/ssp-local.os
+libc-a-static-$(UCLIBC_HAS_SSP)+=$(COMMON_OUT)/ssp-local.o
 libc-so-y+=$(COMMON_OBJ:.o=.os)
 libc-nonshared-$(UCLIBC_HAS_SSP)+=$(COMMON_OUT)/ssp-local.os
 
@@ -50,3 +48,4 @@ headers-y+=common_headers
 
 common_headers:
 	$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h $(top_builddir)include/
+	$(LN) -fs ../libc/sysdeps/linux/common/dl-osinfo.h $(top_builddir)include/

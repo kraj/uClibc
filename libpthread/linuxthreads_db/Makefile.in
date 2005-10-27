@@ -31,7 +31,6 @@ libthread_db_SRC:=$(wildcard $(libthread_db_DIR)/*.c)
 libthread_db_OBJ:=$(patsubst $(libthread_db_DIR)/%.c,$(libthread_db_OUT)/%.o,$(libthread_db_SRC))
 
 libthread_db-a-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_OBJ)
-libthread_db-a-pic-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_OBJ:.o=.os)
 libthread_db-so-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_OBJ:.o=.os)
 
 libthread_db-multi-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_SRC)
@@ -39,5 +38,4 @@ libthread_db-multi-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_SRC)
 objclean-y+=libthread_db_clean
 
 lib-a-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/libthread_db.a
-lib-a-pic-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/libthread_db.a
 lib-so-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/libthread_db.so

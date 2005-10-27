@@ -16,7 +16,6 @@ libresolv_SRC:=$(libresolv_DIR)/resolv.c
 libresolv_OBJ:=$(patsubst $(libresolv_DIR)/%.c,$(libresolv_OUT)/%.o,$(libresolv_SRC))
 
 libresolv-a-y:=$(libresolv_OBJ)
-libresolv-a-pic-y:=$(libresolv_OBJ:.o=.os)
 libresolv-so-y:=$(libresolv_OBJ:.o=.os)
 
 libresolv-multi-y:=$(libresolv_SRC)
@@ -24,5 +23,4 @@ libresolv-multi-y:=$(libresolv_SRC)
 objclean-y+=libresolv_clean
 
 lib-a-y+=$(top_builddir)lib/libresolv.a
-lib-a-pic-y+=$(top_builddir)lib/libresolv.a
 lib-so-y+=$(top_builddir)lib/libresolv.so

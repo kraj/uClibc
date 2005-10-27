@@ -85,6 +85,16 @@ static struct elf_resolve **init_fini_list;
 static int nlist; /* # items in init_fini_list */
 extern void _start(void);
 
+#ifdef __UCLIBC_HAS_SSP__
+#include <dl-osinfo.h>
+#ifndef THREAD_SET_STACK_GUARD
+/* Only exported for architectures that don't store the stack guard canary
+ * in local thread area.  */
+uintptr_t __stack_chk_guard attribute_relro;
+strong_alias(__stack_chk_guard,__guard)
+#endif
+#endif
+
 static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 {
 	int i;
@@ -195,6 +205,17 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 		/* SUID binaries can be exploited if they do LAZY relocation. */
 		unlazy = RTLD_NOW;
 	}
+
+	/* sjhill: your TLS init should go before this */
+#ifdef __UCLIBC_HAS_SSP__
+	/* Set up the stack checker's canary.  */
+	uintptr_t stack_chk_guard = _dl_setup_stack_chk_guard ();
+# ifdef THREAD_SET_STACK_GUARD
+	THREAD_SET_STACK_GUARD (stack_chk_guard);
+# else
+	__stack_chk_guard = stack_chk_guard;
+# endif
+#endif
 
 	/* At this point we are now free to examine the user application,
 	 * and figure out which libraries are supposed to be called.  Until
@@ -705,6 +726,11 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	if (_dl_symbol_tables)
 		goof += _dl_fixup(_dl_symbol_tables, unlazy);
 
+	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
+		if (tpnt->relro_size)
+			_dl_protect_relro (tpnt);
+	}
+
 	/* OK, at this point things are pretty much ready to run.  Now we need
 	 * to touch up a few items that are required, and then we can let the
 	 * user application have at it.  Note that the dynamic linker itself
@@ -754,11 +780,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 			(*dl_elf_func) ();
 		}
-	}
-
-	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-		if (tpnt->relro_size)
-			_dl_protect_relro (tpnt);
 	}
 
 	/* Find the real malloc function and make ldso functions use that from now on */

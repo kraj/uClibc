@@ -159,6 +159,7 @@ install_headers:
 	tar -chf - include --exclude .svn --exclude CVS $$extra_exclude \
 		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ssp-internal.h
+	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/dl-osinfo.h
 ifneq ($(UCLIBC_HAS_FLOATS),y)
 	# Remove floating point related headers since float support is disabled.
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/complex.h
@@ -356,7 +357,7 @@ clean:
 	$(RM) libc/misc/locale/locale_data.c
 	$(RM) libc/misc/internals/interp.c
 	$(RM) ldso/libdl/*.a
-	$(RM) include/fpu_control.h
+	$(RM) include/fpu_control.h include/dl-osinfo.h
 	$(MAKE) -C extra/locale clean
 	$(MAKE) -C ldso headers_clean
 	$(MAKE) -C libpthread headers_clean

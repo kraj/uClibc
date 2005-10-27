@@ -19,7 +19,7 @@
 TOPDIR=../../
 include $(TOPDIR)Rules.mak
 
-XXFLAGS=$(XWARNINGS) $(SSP_DISABLE_FLAGS)
+XXFLAGS=$(XWARNINGS) $(SSP_DISABLE_FLAGS) -DNOT_IN_libc
 
 ifeq ($(DODEBUG),y)
 # Not really much point in including debugging info, since gdb

@@ -19,7 +19,6 @@ endif
 libutil_OBJ:=$(patsubst $(libutil_DIR)/%.c,$(libutil_OUT)/%.o,$(libutil_SRC))
 
 libutil-a-y:=$(libutil_OBJ)
-libutil-a-pic-y:=$(libutil_OBJ:.o=.os)
 libutil-so-y:=$(libutil_OBJ:.o=.os)
 
 libutil-multi-y:=$(libutil_SRC)
@@ -27,5 +26,4 @@ libutil-multi-y:=$(libutil_SRC)
 objclean-y+=libutil_clean
 
 lib-a-y+=$(top_builddir)lib/libutil.a
-lib-a-pic-y+=$(top_builddir)lib/libutil.a
 lib-so-y+=$(top_builddir)lib/libutil.so

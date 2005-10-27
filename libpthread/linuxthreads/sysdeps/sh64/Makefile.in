@@ -16,7 +16,6 @@ libpthread_ARCH_SRC:=$(wildcard $(libpthread_ARCH_DIR)/*.c)
 libpthread_ARCH_OBJ:=$(patsubst $(libpthread_ARCH_DIR)/%.c,$(libpthread_ARCH_OUT)/%.o,$(libpthread_ARCH_SRC))
 
 libpthread-a-$(UCLIBC_HAS_THREADS)+=$(libpthread_ARCH_OBJ)
-libpthread-a-pic-$(UCLIBC_HAS_THREADS)+=$(libpthread_ARCH_OBJ:.o=.os)
 libpthread-so-$(UCLIBC_HAS_THREADS)+=$(libpthread_ARCH_OBJ:.o=.os)
 
 libpthread-multi-$(UCLIBC_HAS_THREADS)+=$(libpthread_ARCH_SRC)

@@ -23,8 +23,8 @@
 
 #ifndef __SSP_QUICK_CANARY__
 #define __NR___kernel_open		__NR_open
-static __always_inline _syscall2(int,__kernel_open,const char *,path,int,flags);
-#define OPEN(path, flags)		__kernel_open(path, flags)
+static __always_inline _syscall3(int,__kernel_open,const char *,path,int,flags,__kernel_mode_t,mode);
+#define OPEN(path, flags, mode)		__kernel_open(path, flags, mode)
 
 /* void * = __ptr_t */
 #define __NR___kernel_read		__NR_read

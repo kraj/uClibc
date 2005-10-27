@@ -25,14 +25,20 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
+#ifndef SHARED
+/* probably all the weak_*function stuff below should be in here */
 #ifdef __UCLIBC_HAS_SSP__
-#include <ssp-internal.h>
+#include <dl-osinfo.h>
+#ifndef THREAD_SET_STACK_GUARD
+/* Only exported for architectures that don't store the stack guard canary
+ * in thread local area. */
 #include <stdint.h>
-
 /* for gcc-4.1 non-TLS */
 uintptr_t __stack_chk_guard attribute_relro;
 /* for gcc-3.x + Etoh ssp */
 strong_alias(__stack_chk_guard,__guard)
+#endif
+#endif
 #endif
 
 /*
@@ -49,10 +55,6 @@ extern void weak_function _locale_init(void);
 extern void weak_function __pthread_initialize_minimal(void);
 #endif
 
-
-
-
-
 /*
  * Declare the __environ global variable and create a weak alias environ.
  * Note: Apparently we must initialize __environ to ensure that the weak
@@ -63,7 +65,6 @@ weak_alias(__environ, environ);
 
 size_t __pagesize = 0;
 const char *__progname = 0;
-
 
 #ifndef O_NOFOLLOW
 # define O_NOFOLLOW	0
@@ -110,36 +111,6 @@ static int __check_suid(void)
     return 1;
 }
 
-#ifdef __UCLIBC_HAS_SSP__
-static __always_inline uintptr_t _dl_guard_setup(void)
-{
-	uintptr_t ret;
-#ifndef __SSP_QUICK_CANARY__
-	{
-		int fd = OPEN("/dev/urandom", O_RDONLY);
-		if (fd >= 0) {
-			size_t size = READ(fd, &ret, sizeof(ret));
-			CLOSE(fd);
-			if (size == (size_t) sizeof(ret))
-				return ret;
-		}
-	}
-#endif /* ifndef __SSP_QUICK_CANARY__ */
-
-	/* Start with the "terminator canary". */
-	ret = 0xFF0A0D00UL;
-
-	/* Everything failed? Or we are using a weakened model of the 
-	 * terminator canary */
-	{
-		struct timeval tv;
-		if (GETTIMEOFDAY(&tv, NULL) != (-1))
-			ret ^= tv.tv_usec ^ tv.tv_sec;
-	}
-	return ret;
-}
-#endif /* __UCLIBC_HAS_SSP__ */
-
 /* __uClibc_init completely initialize uClibc so it is ready to use.
  *
  * On ELF systems (with a dynamic loader) this function must be called
@@ -174,10 +145,16 @@ void __uClibc_init(void)
 	__pthread_initialize_minimal();
 #endif
 
-#ifdef __UCLIBC_HAS_SSP__
-    uintptr_t stack_chk_guard = _dl_guard_setup();
-    /* for gcc-4.1 non-TLS */
+#ifndef SHARED
+# ifdef __UCLIBC_HAS_SSP__
+    /* Set up the stack checker's canary.  */
+    uintptr_t stack_chk_guard = _dl_setup_stack_chk_guard();
+#  ifdef THREAD_SET_STACK_GUARD
+    THREAD_SET_STACK_GUARD (stack_chk_guard);
+#  else
     __stack_chk_guard = stack_chk_guard;
+#  endif
+# endif
 #endif
 
 #ifdef __UCLIBC_HAS_LOCALE__

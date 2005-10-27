@@ -346,6 +346,15 @@ void *dlopen(const char *libname, int flag)
 	if (_dl_fixup(dyn_chain, now_flag))
 		goto oops;
 
+	if (relro_ptr) {
+		for (rpnt = relro_ptr->next; rpnt; rpnt = rpnt->next) {
+			if (rpnt->dyn->relro_size)
+				_dl_protect_relro(rpnt->dyn);
+		}
+	}
+	/* TODO:  Should we set the protections of all pages back to R/O now ? */
+
+
 	/* Notify the debugger we have added some objects. */
 	if (_dl_debug_addr) {
 		dl_brk = (void (*)(void)) _dl_debug_addr->r_brk;
@@ -376,15 +385,7 @@ void *dlopen(const char *libname, int flag)
 			}
 		}
 	}
-#endif
-
-	if (relro_ptr) {
-		for (rpnt = relro_ptr->next; rpnt; rpnt = rpnt->next) {
-			if (rpnt->dyn->relro_size)
-				_dl_protect_relro(rpnt->dyn);
-		}
-	}
-	/* TODO:  Should we set the protections of all pages back to R/O now ? */
+#endif /* SHARED */
 
 	_dl_unmap_cache();
 	return (void *) dyn_chain;

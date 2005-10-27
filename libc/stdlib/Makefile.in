@@ -106,15 +106,18 @@ $(STDLIB_MOBJ1x) $(STDLIB_MOBJ1x:.o=.os): $(STDLIB_MSRC1)
 $(STDLIB_MOBJ2x) $(STDLIB_MOBJ2x:.o=.os): $(STDLIB_MSRC2)
 	$(compile.m) -D__UCLIBC_DO_XLOCALE
 
-libc-a-y+=$(STDLIB_OBJS) $(STDLIB_OUT)/atexit.o
-libc-a-pic-y+=$(STDLIB_OBJS:.o=.os) $(STDLIB_OUT)/atexit.os
+libc-a-y+=$(STDLIB_OBJS)
+libc-static-y+=$(STDLIB_OUT)/atexit.o
 libc-so-y+=$(STDLIB_OBJS:.o=.os)
 # this should always be the PIC version, because it could be used in shared libs
 libc-nonshared-y+=$(STDLIB_OUT)/atexit.os
 
-CFLAGS-multi-y+=$(STDLIB_DEF)
-libc-multi-y+=$(STDLIB_SRC) $(STDLIB_MSRC)
-libc-nomulti-y+=$(STDLIB_MOBJx)
+#CFLAGS-multi-y+=$(STDLIB_DEF)
+#libc-multi-y+=$(STDLIB_SRC) $(STDLIB_MSRC)
+#libc-nomulti-y+=$(STDLIB_MOBJx)
+#libc-multi-y+=$(STDLIB_MSRC)
+#libc-nomulti-y+=$(STDLIB_OBJ) $(STDLIB_MOBJx)
+libc-nomulti-y+=$(STDLIB_OBJS)
 
 objclean-y+=stdlib_objclean
 

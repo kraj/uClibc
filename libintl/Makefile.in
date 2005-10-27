@@ -26,7 +26,6 @@ $(libintl_MOBJ) $(libintl_MOBJ:.o=.os): $(libintl_MSRC)
 	$(compile.m)
 
 libintl-a-$(UCLIBC_HAS_GETTEXT_AWARENESS):=$(libintl_MOBJ)
-libintl-a-pic-$(UCLIBC_HAS_GETTEXT_AWARENESS):=$(libintl_MOBJ:.o=.os)
 libintl-so-$(UCLIBC_HAS_GETTEXT_AWARENESS):=$(libintl_MOBJ:.o=.os)
 
 CFLAGS-multi-$(UCLIBC_HAS_GETTEXT_AWARENESS):=$(libintl_DEF)
@@ -35,5 +34,4 @@ libintl-multi-$(UCLIBC_HAS_GETTEXT_AWARENESS):=$(libintl_MSRC)
 objclean-y+=libintl_clean
 
 lib-a-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(top_builddir)lib/libintl.a
-lib-a-pic-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(top_builddir)lib/libintl.a
 lib-so-$(UCLIBC_HAS_GETTEXT_AWARENESS)+=$(top_builddir)lib/libintl.so
