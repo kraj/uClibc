@@ -340,8 +340,6 @@ gcc_tls_test_fail:
 	@exit 1;
 endif
 else
-# psm: the next 2 are probably incorrect, the generic header will
-# win over the arch specific one
 PTINC := -I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
          -I$(PTDIR)/sysdeps/pthread
 endif
