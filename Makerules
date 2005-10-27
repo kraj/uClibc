@@ -143,9 +143,9 @@ else
 	echo " * the static library, so try that secondarily. */" >> $@
 ifeq ($(UCLIBC_HAS_SSP),y)
 ifeq ($(COMPAT_ATEXIT),y)
-	echo "GROUP ( $(top_builddir)lib/$(NONSHARED_LIBNAME) $(top_builddir)lib/$(SHARED_MAJORNAME) AS_NEEDED ($(top_builddir)lib/$(UCLIBC_LDSO) ) )" >> $@
+	echo "GROUP ( $(top_builddir)lib/$(NONSHARED_LIBNAME) $(top_builddir)lib/$(SHARED_MAJORNAME) AS_NEEDED ( $(top_builddir)lib/$(UCLIBC_LDSO) ) )" >> $@
 else
-	echo "GROUP ( $(top_builddir)lib/$(SHARED_MAJORNAME) $(top_builddir)lib/$(NONSHARED_LIBNAME) AS_NEEDED ($(top_builddir)lib/$(UCLIBC_LDSO) ) )" >> $@
+	echo "GROUP ( $(top_builddir)lib/$(SHARED_MAJORNAME) $(top_builddir)lib/$(NONSHARED_LIBNAME) AS_NEEDED ( $(top_builddir)lib/$(UCLIBC_LDSO) ) )" >> $@
 endif
 else
 ifeq ($(COMPAT_ATEXIT),y)

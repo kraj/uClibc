@@ -245,6 +245,19 @@ ifeq ($(HAVE_SHARED),y)
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 		sed -e '/^GROUP/d' $(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
+ifeq ($(UCLIBC_HAS_SSP),y)
+ifeq ($(COMPAT_ATEXIT),y)
+	if [ -f $(TOPDIR)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
+		echo "GROUP ( $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) AS_NEEDED ( $(RUNTIME_PREFIX)lib/$(UCLIBC_LDSO) ) )" \
+			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+	fi
+else
+	if [ -f $(TOPDIR)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
+		echo "GROUP ( $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) AS_NEEDED $(RUNTIME_PREFIX)lib/$(UCLIBC_LDSO) ) )" \
+			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+	fi
+endif
+else
 ifeq ($(COMPAT_ATEXIT),y)
 	if [ -f $(TOPDIR)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
 		echo "GROUP ( $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) )" \
@@ -255,6 +268,7 @@ else
 		echo "GROUP ( $(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) $(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME) )" \
 			>> $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
+endif
 endif
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 	$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \

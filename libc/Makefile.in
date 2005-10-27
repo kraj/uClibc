@@ -41,5 +41,5 @@ EXTRA_LINK_LIBS:=$(libc_OUT)/misc/internals/interp.os $(top_builddir)lib/$(UCLIB
 
 objclean-y+=libc_clean
 
-lib-a-y+=$(top_builddir)lib/libc.a
+lib-a-y+=$(top_builddir)lib/libc.a crt-y
 lib-so-y+=$(top_builddir)lib/libc.so $(top_builddir)lib/$(NONSHARED_LIBNAME) crt-y other-y
