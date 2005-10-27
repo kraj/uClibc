@@ -346,8 +346,8 @@ clean:
 	$(RM) libc/misc/internals/interp.c
 	$(RM) include/fpu_control.h
 	$(MAKE) -C extra/locale clean
-	$(MAKE) -C ldso ldso_headers_clean
-	$(MAKE) -C libpthread threads_headers_clean
+	$(MAKE) -C ldso headers_clean-y
+	$(MAKE) -C libpthread headers_clean-y
 	$(MAKE) -C test clean
 	$(MAKE) -C utils clean
 	@set -e; \

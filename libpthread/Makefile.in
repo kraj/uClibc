@@ -5,6 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+ifeq ($(UCLIBC_HAS_THREADS),y)
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 DIRS:= $(PTNAME) $(PTNAME)_db
 libs: subdirs
@@ -33,6 +34,8 @@ else
 	$(LN) -sf ../$(PTDIR)/sysdeps/pthread/bits/pthreadtypes.h $(top_builddir)include/bits/
 endif
 
+endif
+
 headers_clean-y+=threads_headers_clean
 
 threads_headers_clean:
@@ -40,6 +43,7 @@ threads_headers_clean:
 		$(top_builddir)include/thread_db.h \
 		$(top_builddir)include/bits/pthreadtypes.h $(top_builddir)include/bits/semaphore.h \
 		$(top_builddir)include/bits/libc-lock.h $(top_builddir)include/bits/stdio-lock
+# note to sjhill: the clean target shouldn't depend on PTNAME/PTDIR
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	$(RM)	$(PTNAME)/version.h $(PTDIR)/banner.h \
 		$(PTDIR)/sysdeps/unix/sysv/linux/rtld-libc-lowlevellock.c
