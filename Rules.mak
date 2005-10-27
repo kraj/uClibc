@@ -259,8 +259,19 @@ endif
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 # Use the gcc 3.4 -funit-at-a-time optimization when available
 OPTIMIZATION+=$(call check_gcc,-funit-at-a-time,)
-# gcc 4.x needs -fcombine, else building all sources at once fails
-OPTIMIZATION+=$(call check_gcc,-fcombine,)
+
+# we try to compile all sources at once into an object (IMA), but
+# gcc-3.3.x does not support it
+# gcc-3.4.x supports it, but does not need and support --combine
+# gcc-4.0.x supports it, supports the --combine flag, but does not need it
+# gcc-4.1(200506xx) supports it, but needs the --combine flag, else libs are useless
+GCC_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1,2)
+ifeq ($(GCC_VER),3.3)
+# not supported
+DOMULTI=n
+else
+OPTIMIZATION+=$(call check_gcc,--combine,)
+endif
 
 # Add a bunch of extra pedantic annoyingly strict checks
 XWARNINGS=$(subst ",, $(strip $(WARNINGS))) -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
