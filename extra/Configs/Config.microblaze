@@ -11,7 +11,6 @@ config HAVE_ELF
 	select ARCH_HAS_NO_MMU
 	select ARCH_HAS_C_SYMBOL_PREFIX
 	select HAVE_NO_SHARED
-	select ARCH_HAS_NO_LDSO
 	default y
 
 config ARCH_SUPPORTS_BIG_ENDIAN
