@@ -11,7 +11,6 @@ config HAVE_ELF
 	select ARCH_HAS_NO_MMU
 	select ARCH_LITTLE_ENDIAN
 	select HAVE_NO_PIC
-	select HAVE_NO_SHARED
 	default y
 
 config ARCH_CFLAGS

@@ -181,7 +181,7 @@ config HAVE_NO_SHARED
 
 config HAVE_SHARED
 	bool "Enable support for shared libraries"
-	depends on !HAVE_NO_SHARED && !ARCH_HAS_NO_LDSO
+	depends on !HAVE_NO_SHARED
 	default y
 	help
 	  If you wish to build uClibc with support for shared libraries then
@@ -190,6 +190,7 @@ config HAVE_SHARED
 
 config ARCH_HAS_NO_LDSO
 	bool
+	select HAVE_NO_SHARED
 	default n
 
 config FORCE_SHAREABLE_TEXT_SEGMENTS

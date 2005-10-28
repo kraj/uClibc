@@ -10,7 +10,6 @@ config HAVE_ELF
 	bool
 	select ARCH_HAS_NO_MMU
 	select ARCH_HAS_C_SYMBOL_PREFIX
-	select HAVE_NO_SHARED
 	default y
 
 config ARCH_SUPPORTS_BIG_ENDIAN
