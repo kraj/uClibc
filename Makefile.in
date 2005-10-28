@@ -153,7 +153,7 @@ install_headers:
 	else \
 		extra_exclude="" ; \
 	fi ; \
-	tar -chf - include --exclude .svn --exclude CVS $$extra_exclude \
+	tar -chf - include --exclude .svn $$extra_exclude \
 		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ssp-internal.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/dl-osinfo.h
