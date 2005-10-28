@@ -40,13 +40,13 @@ $(MISC_LOCALE_MOBJx) $(MISC_LOCALE_MOBJx:.o=.os): $(MISC_LOCALE_MSRC)
 	$(compile.m) -D__UCLIBC_DO_XLOCALE
 
 $(MISC_LOCALE_DATA) $(MISC_LOCALE_DATA:.o=.os): $(top_builddir)extra/locale/$(notdir $(MISC_LOCALE_DATA:.o=.c))
-	$(compile.c) -D__WCHAR_ENABLED -I$<
+	$(compile.c) -D__WCHAR_ENABLED -I$(dir $<)
 
 libc-a-y+=$(MISC_LOCALE_MOBJ)
+libc-a-$(UCLIBC_HAS_LOCALE)+=$(MISC_LOCALE_DATA)
 libc-a-$(UCLIBC_HAS_XLOCALE)+=$(MISC_LOCALE_MOBJx)
-libc-a-pic-y+=$(MISC_LOCALE_MOBJ:.o=.os)
-libc-a-pic-$(UCLIBC_HAS_XLOCALE)+=$(MISC_LOCALE_MOBJx:.o=.os)
 libc-so-y+=$(MISC_LOCALE_MOBJ:.o=.os)
+libc-so-$(UCLIBC_HAS_LOCALE)+=$(MISC_LOCALE_DATA:.o=.os)
 libc-so-$(UCLIBC_HAS_XLOCALE)+=$(MISC_LOCALE_MOBJx:.o=.os)
 
 #CFLAGS-multi-y+=$(MISC_LOCALE_DEF)

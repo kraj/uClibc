@@ -57,11 +57,10 @@ $(MOBJ): $(MSRC)
 $(MOBJx): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
 
-locale_data.o:
-	$(LN) -sf ../../../extra/locale/locale_data.c
-	$(CC) $(CFLAGS) -c -D__WCHAR_ENABLED -I../../../extra/locale locale_data.c -o $@
+locale_data.o: ../../../extra/locale/locale_data.c
+	$(CC) $(CFLAGS) -c -D__WCHAR_ENABLED -I$(notdir $<) $< -o $@
 
 clean:
-	$(RM) *.o *~ core locale_data.c
+	$(RM) *.o *~ core
 
 .PHONY: data
