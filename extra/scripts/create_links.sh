@@ -1,6 +1,11 @@
 #! /bin/sh
 #
-# Creates the minimally necessary links to build w/ the Makefile.in files
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+# Creates the necessary links to build w/ the Makefile.in files
 
 DIRS="ldso libc libcrypt libintl libm libnsl libpthread libresolv librt libutil"
 DIRS2="ldso/ldso ldso/libdl libpthread/linuxthreads libpthread/linuxthreads_db"

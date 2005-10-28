@@ -1,4 +1,10 @@
 #!/bin/sh
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
 # Script to replicate the `getent` binary that comes with glibc
 
 search_entry() {
