@@ -58,7 +58,7 @@ $(MOBJx): $(MSRC)
 	$(CC) $(CFLAGS) -DL_$* -D__UCLIBC_DO_XLOCALE $< -c -o $*.o
 
 locale_data.o: ../../../extra/locale/locale_data.c
-	$(CC) $(CFLAGS) -c -D__WCHAR_ENABLED -I$(notdir $<) $< -o $@
+	$(CC) $(CFLAGS) -c -D__WCHAR_ENABLED -I$(dir $<) $< -o $@
 
 clean:
 	$(RM) *.o *~ core
