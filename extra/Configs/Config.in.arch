@@ -21,7 +21,7 @@ endchoice
 
 config ARCH_HAS_NO_MMU
 	bool "Target CPU does not have a memory management unit (MMU)"
-	select ARCH_HAS_NO_LDSO
+	select ARCH_HAS_NO_LDSO if !TARGET_frv
 	default n
 
 config ARCH_HAS_MMU
