@@ -255,6 +255,15 @@ export LDPIEFLAG:=$(shell $(LD) --help | grep -q pie && echo "-Wl,-pie")
 endif
 endif
 
+# Check for AS_NEEDED support in linker script (binutils>=2.16.1 has it)
+ifndef ASNEEDED
+ifneq ($(UCLIBC_HAS_SSP),y)
+export ASNEEDED:=
+else
+export ASNEEDED:=$(shell (LD_TMP=$(mktemp LD_XXXXXX) ; echo "GROUP ( AS_NEEDED ( /usr/lib/libc.so ) )" > $LD_TMP && if $(LD) -T $LD_TMP > /dev/null 2>&1; then echo "AS_NEEDED ( $(UCLIBC_LDSO) )"; else echo "$(UCLIBC_LDSO)"; fi; rm -f $LD_TMP ) )
+endif
+endif
+
 # Use '-Os' optimization if available, else use -O2, allow Config to override
 OPTIMIZATION+=$(call check_gcc,-Os,-O2)
 # Use the gcc 3.4 -funit-at-a-time optimization when available
