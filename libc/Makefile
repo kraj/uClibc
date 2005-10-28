@@ -96,12 +96,10 @@ $(SO_LIB_NAME): $(AR_LIB_NAME)
 	echo "/* GNU ld script" > $@
 	echo " * Use the shared library, but some functions are only in" >> $@
 	echo " * the static library, so try that secondarily. */" >> $@
-	#OUT_FORMAT:=$(shell $(LD) --verbose | grep OUTPUT_FORMAT | awk -F '"' '{print $2}')
-	#echo "OUTPUT_FORMAT($(OUT_FORMAT))" >> $@
 ifeq ($(COMPAT_ATEXIT),y)
-	echo "GROUP ( $(TOPDIR)lib/$(NONSHARED_LIBNAME) $(TOPDIR)lib/$(SHARED_MAJORNAME) )" >> $@
+	echo "GROUP ( $(NONSHARED_LIBNAME) $(SHARED_MAJORNAME) $(ASNEEDED) )" >> $@
 else
-	echo "GROUP ( $(TOPDIR)lib/$(SHARED_MAJORNAME) $(TOPDIR)lib/$(NONSHARED_LIBNAME) )" >> $@
+	echo "GROUP ( $(SHARED_MAJORNAME) $(NONSHARED_LIBNAME) $(ASNEEDED) )" >> $@
 endif
 
 tags:
