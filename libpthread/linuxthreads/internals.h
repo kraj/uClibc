@@ -31,10 +31,10 @@
 #include <ucontext.h>
 #include <bits/sigcontextinfo.h>
 #include "semaphore.h"
-#include "descr.h"
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <bits/uClibc_locale.h>
 #endif /* __UCLIBC_HAS_XLOCALE__ */
+#include "descr.h"
 
 /* Use a funky version in a probably vein attempt at preventing gdb 
  * from dlopen()'ing glibc's libthread_db library... */
