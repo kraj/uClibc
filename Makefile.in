@@ -107,11 +107,13 @@ headers: $(top_srcdir)include/bits/uClibc_config.h
 		$(RM) include/bits/sysnum.h; \
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
-ifeq ($(UCLIBC_HAS_THREADS),y)
-	$(MAKE) -C libpthread threads_headers
+ifeq ($(HAVE_SHARED),y)
+	$(MAKE) -C ldso headers-y
 endif
-	$(MAKE) -C libc/sysdeps/linux/common common_headers
-	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) arch_headers
+ifeq ($(UCLIBC_HAS_THREADS),y)
+	$(MAKE) -C libpthread headers-y
+endif
+	$(MAKE) -C libc/sysdeps/linux headers-y
 
 # Command used to download source code
 WGET:=wget --passive-ftp
@@ -369,6 +371,7 @@ clean:
 	$(MAKE) -C extra/locale clean
 	$(MAKE) -C ldso headers_clean-y
 	$(MAKE) -C libpthread headers_clean-y
+	$(MAKE) -C libc/sysdeps/linux headers_clean-y
 	$(MAKE) -C test clean
 	$(MAKE) -C utils clean
 	@set -e; \
@@ -381,9 +384,6 @@ clean:
 		done; \
 	fi
 	@$(RM) include/linux include/asm*
-	@if [ -f libc/sysdeps/linux/$(TARGET_ARCH)/Makefile.arch ]; then \
-	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers_clean-y; \
-	fi
 	-find . \( -name \*.o -o -name \*.os -o -name \*.oS \) -exec $(RM) {} \;
 
 distclean: clean

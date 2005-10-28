@@ -76,7 +76,7 @@ crt-y: $(crt-y)
 $(crt-y): $(CRTS) $(CTOR_TARGETS)
 
 other-y: $(other-y)
-headers: $(headers-y)
+headers-y: $(headers-y)
 
 objclean-y: $(objclean-y)
 headers_clean-y: $(headers_clean-y)
