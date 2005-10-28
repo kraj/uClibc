@@ -27,7 +27,7 @@ ALL_SUBDIRS = \
 	#misc
 DIRS := $(ALL_SUBDIRS)
 
-ifeq ($(HAVE_SHARED)$(BUILD_UCLIBC_LDSO),yy)
+ifeq ($(HAVE_SHARED),y)
 	DIRS += dlopen
 endif
 ifeq ($(UCLIBC_HAS_THREADS),y)

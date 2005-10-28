@@ -181,7 +181,7 @@ config HAVE_NO_SHARED
 
 config HAVE_SHARED
 	bool "Enable support for shared libraries"
-	depends on DOPIC && !HAVE_NO_SHARED
+	depends on !HAVE_NO_SHARED && !ARCH_HAS_NO_LDSO
 	default y
 	help
 	  If you wish to build uClibc with support for shared libraries then
@@ -192,19 +192,9 @@ config ARCH_HAS_NO_LDSO
 	bool
 	default n
 
-config BUILD_UCLIBC_LDSO
-	bool "Compile native shared library loader"
-	depends on HAVE_SHARED && !ARCH_HAS_NO_LDSO
-	default y
-	help
-	  uClibc has a native shared library loader for some architectures.
-	  If you answer Y here, the uClibc native shared library loader will
-	  be built for your target architecture.  If this option is available,
-	  to you, then you almost certainly want to answer Y.
-
 config FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "Only load shared libraries which can share their text segment"
-	depends on BUILD_UCLIBC_LDSO
+	depends on HAVE_SHARED
 	default n
 	help
 	  If you answer Y here, the uClibc native shared library loader will
@@ -219,7 +209,7 @@ config FORCE_SHAREABLE_TEXT_SEGMENTS
 
 config LDSO_LDD_SUPPORT
 	bool "Native shared library loader 'ldd' support"
-	depends on BUILD_UCLIBC_LDSO
+	depends on HAVE_SHARED
 	default y
 	help
 	  Enable this to enable all the code needed to support traditional ldd,
@@ -230,7 +220,7 @@ config LDSO_LDD_SUPPORT
 
 config LDSO_CACHE_SUPPORT
 	bool "Enable shared library loader cache"
-	depends on BUILD_UCLIBC_LDSO
+	depends on HAVE_SHARED
 	default y
 	help
 	  Enable this to make use of /etc/ld.so.conf, the shared library loader
@@ -240,7 +230,7 @@ config LDSO_CACHE_SUPPORT
 
 config LDSO_PRELOAD_FILE_SUPPORT
 	bool "Enable shared library loader preload file support"
-	depends on BUILD_UCLIBC_LDSO
+	depends on HAVE_SHARED
 	default n
 	help
 	  Enable this to make use of /etc/ld.so.preload. This file contains a
@@ -249,7 +239,7 @@ config LDSO_PRELOAD_FILE_SUPPORT
 
 config LDSO_BASE_FILENAME
 	string "Shared library loader naming prefix"
-	depends on BUILD_UCLIBC_LDSO && (LDSO_CACHE_SUPPORT || LDSO_PRELOAD_FILE_SUPPORT)
+	depends on HAVE_SHARED && (LDSO_CACHE_SUPPORT || LDSO_PRELOAD_FILE_SUPPORT)
 	default "ld.so"
 	help
 	  If you wish to support both uClibc and glibc on the same system, it
@@ -266,7 +256,7 @@ config LDSO_BASE_FILENAME
 
 config LDSO_RUNPATH
 	bool "Enable ELF RUNPATH tag support"
-	depends on BUILD_UCLIBC_LDSO
+	depends on HAVE_SHARED
 	default y
 	help
 	  ELF's may have dynamic RPATH/RUNPATH tags.  These tags list paths 
@@ -1073,7 +1063,7 @@ menu "Library Installation Options"
 
 config SHARED_LIB_LOADER_PREFIX
 	string "Shared library loader path"
-	depends on BUILD_UCLIBC_LDSO
+	depends on HAVE_SHARED
 	default "$(DEVEL_PREFIX)/lib"
 	help
 	  When using shared libraries, this path is the location where the
@@ -1136,7 +1126,7 @@ config UCLIBC_BUILD_PIE
 	depends on UCLIBC_SECURITY
 	depends on HAVE_SHARED
 	depends on TARGET_arm || TARGET_frv || TARGET_i386 || TARGET_mips || TARGET_powerpc
-	select FORCE_SHAREABLE_TEXT_SEGMENTS if BUILD_UCLIBC_LDSO
+	select FORCE_SHAREABLE_TEXT_SEGMENTS
 	default y
 	help
 	  If you answer Y here, ldd and iconv are built as ET_DYN/PIE executables.
@@ -1205,7 +1195,7 @@ config UCLIBC_BUILD_SSP
 config UCLIBC_BUILD_RELRO
 	bool "Build uClibc with RELRO"
 	depends on UCLIBC_SECURITY
-	depends on BUILD_UCLIBC_LDSO
+	depends on HAVE_SHARED
 	default y
 	help
 	  Build all libraries and executables with -z relro.
@@ -1213,7 +1203,7 @@ config UCLIBC_BUILD_RELRO
 config UCLIBC_BUILD_NOW
 	bool "Build uClibc with NOW"
 	depends on UCLIBC_SECURITY
-	depends on BUILD_UCLIBC_LDSO
+	depends on HAVE_SHARED
 	default y
 	help
 	  Build all libraries and executables with -z now.
@@ -1273,7 +1263,7 @@ config DOASSERTS
 
 config SUPPORT_LD_DEBUG
 	bool "Build the shared library loader with debugging support"
-	depends on BUILD_UCLIBC_LDSO
+	depends on HAVE_SHARED
 	default n
 	help
 	  Answer Y here to enable all the extra code needed to debug the uClibc
@@ -1307,7 +1297,7 @@ config SUPPORT_LD_DEBUG
 
 config SUPPORT_LD_DEBUG_EARLY
 	bool "Build the shared library loader with early debugging support"
-	depends on BUILD_UCLIBC_LDSO
+	depends on HAVE_SHARED
 	default n
 	help
 	  Answer Y here to if you find the uClibc shared library loader is
