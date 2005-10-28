@@ -30,7 +30,7 @@ libpthread_DIR:=$(top_srcdir)libpthread/linuxthreads
 libpthread_OUT:=$(top_builddir)libpthread/linuxthreads
 
 ARCH_CFLAGS:=$(CFLAGS)
--include $(libpthread_DIR)/sysdeps/$(TARGET_ARCH)/Makefile.in
+-include $(libpthread_DIR)/sysdeps/$(TARGET_ARCH)/Makefile.arch
 CFLAGS:=$(ARCH_CFLAGS)
 
 libpthread_SRC:=$(wildcard $(libpthread_DIR)/*.c)

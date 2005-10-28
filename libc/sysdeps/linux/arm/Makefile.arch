@@ -5,12 +5,12 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC:=brk.c sigaction.c __syscall_error.c mmap.c
+CSRC:=brk.c syscall.c ioperm.c iopl.c sigaction.c __syscall_error.c
+SSRC:=	__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
+	bsd-_setjmp.S sigrestorer.S mmap64.S
 
-SSRC:=__longjmp.S vfork.S setjmp.S syscall.S bsd-setjmp.S bsd-_setjmp.S clone.S
-
-ARCH_DIR:=$(top_srcdir)libc/sysdeps/linux/x86_64
-ARCH_OUT:=$(top_builddir)libc/sysdeps/linux/x86_64
+ARCH_DIR:=$(top_srcdir)libc/sysdeps/linux/arm
+ARCH_OUT:=$(top_builddir)libc/sysdeps/linux/arm
 
 ARCH_CSRC:=$(patsubst %.c,$(ARCH_DIR)/%.c,$(CSRC))
 ARCH_COBJ:=$(patsubst %.c,$(ARCH_OUT)/%.o,$(CSRC))
@@ -21,7 +21,6 @@ ARCH_OBJS:=$(ARCH_COBJ) $(ARCH_SOBJ)
 
 crt-y:=create
 libc-a-y+=$(ARCH_OBJS)
-libc-a-pic-y+=$(ARCH_OBJS:.o=.os)
 libc-so-y+=$(ARCH_OBJS:.o=.os)
 
 #libc-multi-y+=$(ARCH_CSRC)
@@ -31,8 +30,3 @@ objclean-y+=arch_objclean
 
 arch_objclean:
 	$(RM) $(ARCH_OUT)/*.{o,os}
-
-headers-y+=arch_headers
-
-arch_headers:
-	$(LN) -fs ../libc/sysdeps/linux/x86_64/fpu_control.h $(top_builddir)include/

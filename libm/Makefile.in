@@ -29,7 +29,7 @@ CFLAGS-s_lib_version.c=-D_POSIX_MODE
 LIB_NAME:=libm
 
 ifeq ($(HAS_FPU),y)
--include $(top_srcdir)libm/$(TARGET_ARCH)/Makefile.in
+-include $(top_srcdir)libm/$(TARGET_ARCH)/Makefile.arch
 endif
 
 FL_MSRC:=float_wrappers.c

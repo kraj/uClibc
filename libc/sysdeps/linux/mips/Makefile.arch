@@ -5,12 +5,14 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC:=brk.c syscall.c ioperm.c iopl.c sigaction.c __syscall_error.c
-SSRC:=	__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
-	bsd-_setjmp.S sigrestorer.S mmap64.S
+CSRC:=	__longjmp.c  brk.c setjmp_aux.c mmap.c __syscall_error.c \
+	cacheflush.c pread_write.c sysmips.c _test_and_set.c sigaction.c
 
-ARCH_DIR:=$(top_srcdir)libc/sysdeps/linux/arm
-ARCH_OUT:=$(top_builddir)libc/sysdeps/linux/arm
+SSRC:=bsd-_setjmp.S bsd-setjmp.S setjmp.S clone.S syscall.S pipe.S
+
+
+ARCH_DIR:=$(top_srcdir)libc/sysdeps/linux/mips
+ARCH_OUT:=$(top_builddir)libc/sysdeps/linux/mips
 
 ARCH_CSRC:=$(patsubst %.c,$(ARCH_DIR)/%.c,$(CSRC))
 ARCH_COBJ:=$(patsubst %.c,$(ARCH_OUT)/%.o,$(CSRC))
@@ -21,7 +23,6 @@ ARCH_OBJS:=$(ARCH_COBJ) $(ARCH_SOBJ)
 
 crt-y:=create
 libc-a-y+=$(ARCH_OBJS)
-libc-a-pic-y+=$(ARCH_OBJS:.o=.os)
 libc-so-y+=$(ARCH_OBJS:.o=.os)
 
 #libc-multi-y+=$(ARCH_CSRC)
@@ -32,7 +33,14 @@ objclean-y+=arch_objclean
 arch_objclean:
 	$(RM) $(ARCH_OUT)/*.{o,os}
 
+headers_clean-y+=arch_headers_clean
+
+arch_headers_clean:
+	$(RM) $(top_builddir)include/sgidefs.h
+	#$(RM) $(top_builddir)include/regdef.h
+
 headers-y+=arch_headers
 
 arch_headers:
-	$(LN) -fs ../libc/sysdeps/linux/arm/fpu_control.h $(top_builddir)include/
+	$(LN) -fs ../libc/sysdeps/linux/mips/sgidefs.h $(top_builddir)include/
+#	$(LN) -fs ../libc/sysdeps/linux/mips/regdef.h $(top_builddir)include/

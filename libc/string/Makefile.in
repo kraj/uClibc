@@ -6,7 +6,7 @@
 #
 
 # order is relevant
--include $(top_srcdir)libc/string/$(TARGET_ARCH)/Makefile.in
+-include $(top_srcdir)libc/string/$(TARGET_ARCH)/Makefile.arch
 include $(top_srcdir)libc/string/generic/Makefile.in
 
 MSRC:=wstring.c

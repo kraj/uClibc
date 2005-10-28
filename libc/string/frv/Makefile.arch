@@ -1,15 +1,15 @@
 # Makefile for uClibc
 #
+# Copyright (C) 2004 Alexandre Oliva <aoliva@redhat.com>
 # Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-SSRC:=	_memcpy.S bcopy.S bzero.S memcmp.S memcpy.S memmove.S memset.S \
-	strcmp.S strlen.S strncmp.S
+SSRC:=memcpy.S memset.S
 
-STRING_ARCH_DIR:=$(top_srcdir)libc/string/arm
-STRING_ARCH_OUT:=$(top_builddir)libc/string/arm
+STRING_ARCH_DIR:=$(top_srcdir)libc/string/frv
+STRING_ARCH_OUT:=$(top_builddir)libc/string/frv
 
 STRING_ARCH_SRC:=$(patsubst %.S,$(STRING_ARCH_DIR)/%.S,$(SSRC))
 STRING_ARCH_OBJ:=$(patsubst %.S,$(STRING_ARCH_OUT)/%.o,$(SSRC))
@@ -17,7 +17,6 @@ STRING_ARCH_OBJ:=$(patsubst %.S,$(STRING_ARCH_OUT)/%.o,$(SSRC))
 STRING_ARCH_OBJS:=$(STRING_ARCH_OBJ)
 
 libc-a-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS)
-libc-a-pic-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS:.o=.os)
 libc-so-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS:.o=.os)
 
 libc-multi-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_SRC)

@@ -6,5 +6,5 @@
 #
 
 # order is relevant
-include $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/Makefile.in
+-include $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/Makefile.arch
 include $(top_srcdir)libc/sysdeps/linux/common/Makefile.in

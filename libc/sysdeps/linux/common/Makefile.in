@@ -43,9 +43,3 @@ objclean-y+=common_objclean
 
 common_objclean:
 	$(RM) $(COMMON_OUT)/*.{o,os}
-
-headers-y+=common_headers
-
-common_headers:
-	$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h $(top_builddir)include/
-	$(LN) -fs ../libc/sysdeps/linux/common/dl-osinfo.h $(top_builddir)include/

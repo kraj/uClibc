@@ -71,6 +71,12 @@ headers: $(top_srcdir)include/bits/uClibc_config.h
 	$(top_srcdir)extra/scripts/fix_includes.sh \
 		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
 		$(header_extra_args)
+	if [ -f libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h ] ; then \
+		$(LN) -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h include/ ; \
+	else \
+		$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h include/ ; \
+	fi
+	$(LN) -fs ../libc/sysdeps/linux/common/dl-osinfo.h include/
 	@cd $(top_builddir)include/bits; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
@@ -366,7 +372,7 @@ clean:
 	$(MAKE) -C test clean
 	$(MAKE) -C utils clean
 	@set -e; \
-	for i in `(cd $(top_builddir)libc/sysdeps/linux/common/sys; ls *.h)` ; do \
+	for i in `(cd libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		$(RM) include/sys/$$i; \
 	done; \
 	if [ -d libc/sysdeps/linux/$(TARGET_ARCH)/sys ] ; then \
@@ -375,8 +381,8 @@ clean:
 		done; \
 	fi
 	@$(RM) include/linux include/asm*
-	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
-	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
+	@if [ -f libc/sysdeps/linux/$(TARGET_ARCH)/Makefile.arch ]; then \
+	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers_clean-y; \
 	fi
 	-find . \( -name \*.o -o -name \*.os -o -name \*.oS \) -exec $(RM) {} \;
 
