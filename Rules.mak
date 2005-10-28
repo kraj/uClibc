@@ -279,11 +279,11 @@ ifeq ($(strip $(TARGET_ARCH)),arm)
 endif
 endif
 
-SSP_DISABLE_FLAGS:=$(call check_gcc,-fno-stack-protector,)
+SSP_DISABLE_FLAGS?=$(call check_gcc,-fno-stack-protector,)
 ifeq ($(UCLIBC_BUILD_SSP),y)
 SSP_CFLAGS:=$(call check_gcc,-fno-stack-protector-all,)
 SSP_CFLAGS+=$(call check_gcc,-fstack-protector,)
-SSP_ALL_CFLAGS:=$(call check_gcc,-fstack-protector-all,)
+SSP_ALL_CFLAGS?=$(call check_gcc,-fstack-protector-all,)
 else
 SSP_CFLAGS:=$(SSP_DISABLE_FLAGS)
 endif
@@ -310,7 +310,6 @@ endif
 # gcc-4.1(200506xx) supports it, but needs the --combine flag, else libs are useless
 GCC_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1,2)
 ifeq ($(GCC_VER),3.3)
-# not supported
 DOMULTI=n
 else
 CFLAGS+=$(call check_gcc,--combine,)
@@ -325,14 +324,14 @@ endif
 PTDIR := $(TOPDIR)libpthread/$(PTNAME)
 # set up system dependencies include dirs (NOTE: order matters!)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-PTINC := -I$(PTDIR)/compat					\
-	 -I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
-	 -I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
-	 -I$(PTDIR)/sysdeps/unix/sysv/linux			\
-	 -I$(PTDIR)/sysdeps/pthread				\
-	 -I$(PTDIR)/sysdeps/pthread/bits			\
-	 -I$(PTDIR)/sysdeps/generic				\
-	 -include $(PTDIR)/compat/libc-symbols.h
+PTINC:=	-I$(PTDIR)/compat					\
+	-I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
+	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
+	-I$(PTDIR)/sysdeps/unix/sysv/linux			\
+	-I$(PTDIR)/sysdeps/pthread				\
+	-I$(PTDIR)/sysdeps/pthread/bits				\
+	-I$(PTDIR)/sysdeps/generic				\
+	-include $(PTDIR)/compat/libc-symbols.h
 #
 # Test for TLS if NPTL support was selected.
 #
@@ -351,8 +350,8 @@ gcc_tls_test_fail:
 	@exit 1;
 endif
 else
-PTINC := -I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
-         -I$(PTDIR)/sysdeps/pthread
+PTINC:=	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
+	-I$(PTDIR)/sysdeps/pthread
 endif
 CFLAGS+=$(PTINC)
 endif
@@ -370,12 +369,11 @@ endif
 CFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 
 ifneq ($(DOASSERTS),y)
-    CFLAGS += -DNDEBUG
+CFLAGS+=-DNDEBUG
 endif
 
-CFLAGS_NOPIC:=$(CFLAGS)
 ifeq ($(DOPIC),y)
-    CFLAGS += $(PICFLAG)
+CFLAGS+=$(PICFLAG)
 endif
 
 # Keep the check_as from being needlessly executed
