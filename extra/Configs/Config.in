@@ -1149,7 +1149,6 @@ config UCLIBC_HAS_SSP
 	  __stack_smash_handler, respectively __stack_chk_guard and
 	  __stack_chk_fail functions removed from libgcc.
 	  These functions are added to libc instead.
-	  Only binutils 2.16.1 and newer are supported.
 	  More information at:
 	  <http://www.research.ibm.com/trl/projects/security/ssp/>
 	  Most people will answer N.
