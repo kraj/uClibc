@@ -21,7 +21,7 @@ include $(TOPDIR)Rules.mak
 
 DIRS = ldso libdl
 
-ifeq ($(BUILD_UCLIBC_LDSO),y)
+ifeq ($(HAVE_SHARED),y)
 all: subdirs
 else
 all:
