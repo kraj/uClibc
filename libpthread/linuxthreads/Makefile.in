@@ -22,7 +22,7 @@ ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 STRIP_FLAGS:=-X --strip-debug -R .note -R .comment
 endif
 
-DOMULTI=n
+#DOMULTI=n
 
 LIB_NAME:=libpthread
 
@@ -38,6 +38,13 @@ ifneq ($(UCLIBC_HAS_XLOCALE),y)
 libpthread_SRC:=$(filter-out $(libpthread_DIR)/locale.c,$(libpthread_SRC))
 endif
 
+ifneq ($(DOMULTI),n)
+# full list, we added the biggest one to IMA
+#libpthread_NO_MULTI:=cancel.c condvar.c join.c manager.c mutex.c oldsemaphore.c pt-machine.c pthread.c rwlock.c semaphore.c specific.c spinlock.c
+libpthread_NO_MULTI:=cancel.c condvar.c join.c manager.c mutex.c oldsemaphore.c pt-machine.c rwlock.c semaphore.c specific.c spinlock.c
+libpthread_SRC:=$(filter-out $(patsubst %.c,$(libpthread_DIR)/%.c,$(libpthread_NO_MULTI)),$(libpthread_SRC))
+endif
+
 # remove generic sources, if arch specific version is present
 ifneq ($(strip $(libpthread_ARCH_SRC)),)
 libpthread_SRC:=$(filter-out $(patsubst %.c,$(libpthread_DIR)/%.c,$(notdir $(libpthread_ARCH_SRC))),$(libpthread_SRC))
@@ -49,6 +56,7 @@ libpthread-a-$(UCLIBC_HAS_THREADS)+=$(libpthread_OBJ)
 libpthread-so-$(UCLIBC_HAS_THREADS)+=$(libpthread_OBJ:.o=.os)
 
 libpthread-multi-$(UCLIBC_HAS_THREADS)+=$(libpthread_SRC)
+libpthread-nomulti-$(UCLIBC_HAS_THREADS)+=$(patsubst %.c,$(libpthread_OUT)/%.o,$(libpthread_NO_MULTI))
 
 objclean-y+=libpthread_clean
 
