@@ -393,7 +393,7 @@ clean:
 	-find . \( -name \*.o -o -name \*.os \) -exec $(RM) {} \;
 
 distclean: clean
-	-find . \( -name core -o -name \*.orig -o -name \*~ -o -name .\#\* \) -exec $(RM) {} \;
+	-find . \( -name core -o -name \*.orig -o -name \*~ \) -exec $(RM) {} \;
 	$(RM) .config .config.old .config.cmd
 	$(RM) extra/locale/*.txt
 	$(MAKE) -C extra clean

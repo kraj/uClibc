@@ -42,7 +42,7 @@ SO_FULL_NAME = $(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 ARCH_CSRC := $(wildcard sysdeps/$(TARGET_ARCH)/*.c)
 ARCH_OBJS := $(patsubst %.c,%.o, $(ARCH_CSRC))
--include sysdeps/$(TARGET_ARCH)/Makefile.in
+-include sysdeps/$(TARGET_ARCH)/Makefile.arch
 
 CSRC = $(wildcard *.c)
 ifneq ($(UCLIBC_HAS_XLOCALE),y)
