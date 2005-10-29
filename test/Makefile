@@ -29,11 +29,16 @@ DIRS := $(ALL_SUBDIRS)
 
 ifeq ($(HAVE_SHARED)$(BUILD_UCLIBC_LDSO),yy)
 	DIRS += dlopen
+ALL_SUBDIRS  += dlopen
 endif
 ifeq ($(UCLIBC_HAS_THREADS),y)
 	DIRS += pthread
+ALL_SUBDIRS  += pthread
 endif
-ALL_SUBDIRS += pthread dlopen
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+	DIRS += tls
+ALL_SUBDIRS  += tls
+endif
 
 
 all: subdirs
