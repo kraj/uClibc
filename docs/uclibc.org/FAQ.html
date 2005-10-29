@@ -26,6 +26,8 @@ have additions to this FAQ document, we would love to add them,
 <li><a href="#bugs">I think I found a bug in uClibc!  What should I do?!</a>
 <li><a href="#miscompile">My package builds fine but link fails with errors like "undefined reference 
 	to __fputc_unlocked", who do I blame?!</a>
+<li><a href="#gnu_malloc">My package builds fine but link fails with errors like "undefined reference
+	to rpl_realloc / rpl_malloc", who do I blame?!</a>
 <li><a href="#job_control">Why do I keep getting "sh: can't access tty; job control
 	turned off" errors?  Why doesn't Control-C work within my shell?</a>
 <li><a href="#autoconf">How do I make autoconf and automake behave?</a>
@@ -394,6 +396,24 @@ How could it be smaller and not suck?</a></h2>
     the correct compiler.  Many build systems incorrectly force things like 
     -I/usr/include or -I/usr/local/include or -I${prefix}/include (which usually 
     just expands to -I/usr/include).
+
+
+<hr />
+<p>
+<h2><a name="gnu_malloc">My package builds fine but link fails with errors like "undefined reference
+	to rpl_realloc / rpl_malloc", who do I blame?!</h2>
+<p>
+
+    This error crops up because you didn't enable MALLOC_GLIBC_COMPAT support.
+    Configure scripts detect whether your libc supports "GNU malloc" features by
+    seeing whether malloc(0) returns NULL (glibc malloc(0) will return a non NULL
+    pointer).  uClibc defaults to malloc(0) returning NULL so autoconf will assume
+    malloc from your libc sucks and procede to try and compile the malloc replacement
+    version in the gnulib addon.  However, since not many packages include gnulib,
+    they will fail to link with rpl_realloc / rpl_malloc errors.  You could force
+    configure to assume working behavior by exporting the variables 'jm_cv_func_working_malloc'
+    (older autoconf) and 'ac_cv_func_malloc_0_nonnull' (newer autoconf) to 'yes'
+    before running `./configure`.
 
 
 <hr />
