@@ -25,8 +25,12 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
+
 #ifndef SHARED
+void *__libc_stack_end=NULL;
+
 /* probably all the weak_*function stuff below should be in here */
+
 #ifdef __UCLIBC_HAS_SSP__
 #include <dl-osinfo.h>
 #ifndef THREAD_SET_STACK_GUARD
@@ -39,12 +43,12 @@ uintptr_t __stack_chk_guard attribute_relro;
 strong_alias(__stack_chk_guard,__guard)
 #endif
 #endif
-#endif
+
+#endif /* !SHARED */
 
 /*
  * Prototypes.
  */
-extern void *__libc_stack_end;
 extern void weak_function _stdio_init(void);
 extern int *weak_const_function __errno_location(void);
 extern int *weak_const_function __h_errno_location(void);
@@ -191,7 +195,10 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     unsigned long *aux_dat;
     ElfW(auxv_t) auxvt[AT_EGID + 1];
 #endif
+
+#ifndef SHARED
     __libc_stack_end = stack_end;
+#endif
 
     __rtld_fini = rtld_fini;
 
