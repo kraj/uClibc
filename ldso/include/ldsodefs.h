@@ -4,10 +4,14 @@
 #include <features.h>
 #include <tls.h>
 
-#ifdef IS_IN_rtld
-# define EXTERN
-#else
+#ifndef SHARED
 # define EXTERN extern
+#else
+# ifdef IS_IN_rtld
+#  define EXTERN
+# else
+#  define EXTERN extern
+# endif
 #endif
 
 /* Non-shared code has no support for multiple namespaces.  */
