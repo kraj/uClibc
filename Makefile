@@ -11,16 +11,21 @@
 noconfig_targets := menuconfig config oldconfig randconfig \
 	defconfig allyesconfig allnoconfig clean distclean \
 	release dist tags
-TOPDIR=./
-include Rules.mak
 
-RTLD_DIR =
+TOPDIR=./
+
+top_srcdir=$(TOPDIR)
+top_builddir=./
+include $(top_builddir)Rules.mak
+
+# need to have libc.so built, before we can build the others
 ifeq ($(HAVE_SHARED),y)
-RTLD_DIR = ldso
+PRE_DIRS = ldso libc
+DIRS = ldso libcrypt libresolv libnsl libutil librt
+else
+PRE_DIRS = libc
+DIRS = libcrypt libresolv libnsl libutil librt
 endif
-# need to have libc built, before we can build the others
-PRE_DIRS = $(RTLD_DIR) libc
-DIRS = $(RTLD_DIR) libcrypt libresolv libnsl libutil librt
 ifeq ($(UCLIBC_HAS_FLOATS),y)
 	DIRS += libm
 endif
@@ -44,12 +49,12 @@ finished: subdirs
 	$(SECHO)
 
 include/bits/uClibc_config.h: .config
-	@if [ ! -x ./extra/config/conf ] ; then \
-	    $(MAKE) -C extra/config conf; \
+	@if [ ! -x $(top_builddir)extra/config/conf ] ; then \
+	    $(MAKE) -C $(top_builddir)extra/config conf; \
 	fi
-	$(RM) -r include/bits
-	$(INSTALL) -d include/bits
-	@./extra/config/conf -o extra/Configs/Config.in
+	$(RM) -r $(top_builddir)include/bits
+	$(INSTALL) -d $(top_builddir)include/bits
+	@$(top_builddir)extra/config/conf -o $(top_srcdir)extra/Configs/Config.in
 
 # For the moment, we have to keep re-running this target 
 # because the fix includes scripts rely on pre-processers 
@@ -61,12 +66,18 @@ export header_extra_args =
 else
 export header_extra_args = -n
 endif
-headers: include/bits/uClibc_config.h
+headers: $(top_srcdir)include/bits/uClibc_config.h
 	@$(SHELL_SET_X); \
-	./extra/scripts/fix_includes.sh \
+	$(top_srcdir)extra/scripts/fix_includes.sh \
 		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
 		$(header_extra_args)
-	@cd include/bits; \
+	if [ -f libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h ] ; then \
+		$(LN) -fs ../libc/sysdeps/linux/$(TARGET_ARCH)/fpu_control.h include/ ; \
+	else \
+		$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h include/ ; \
+	fi
+	$(LN) -fs ../libc/sysdeps/linux/common/dl-osinfo.h include/
+	@cd $(top_builddir)include/bits; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
 		$(LN) -fs $$i .; \
@@ -76,7 +87,7 @@ headers: include/bits/uClibc_config.h
 			$(LN) -fs $$i .; \
 		done; \
 	fi
-	@cd include/sys; \
+	@cd $(top_builddir)include/sys; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/sys/*.h` ; do \
 		$(LN) -fs $$i .; \
@@ -86,20 +97,23 @@ headers: include/bits/uClibc_config.h
 			$(LN) -fs $$i .; \
 		done; \
 	fi
-	@cd $(TOPDIR); \
+	@cd $(top_builddir); \
 	set -e; \
 	$(SHELL_SET_X); \
 	TOPDIR=. CC="$(CC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
 	if cmp include/bits/sysnum.h include/bits/sysnum.h.new >/dev/null 2>&1; then \
 		$(RM) include/bits/sysnum.h.new; \
 	else \
+		$(RM) include/bits/sysnum.h; \
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
-ifeq ($(UCLIBC_HAS_THREADS),y)
-	$(MAKE) -C libpthread headers
+ifeq ($(HAVE_SHARED),y)
+	$(MAKE) -C ldso headers-y
 endif
-	$(MAKE) -C libc/sysdeps/linux/common headers
-	$(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) headers
+ifeq ($(UCLIBC_HAS_THREADS),y)
+	$(MAKE) -C libpthread headers-y
+endif
+	$(MAKE) -C libc/sysdeps/linux headers-y
 
 # Command used to download source code
 WGET:=wget --passive-ftp
@@ -108,14 +122,14 @@ LOCALE_DATA_FILENAME:=uClibc-locale-030818.tgz
 
 pregen: headers
 ifeq ($(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA),y)
-	(cd extra/locale; \
+	(cd $(top_builddir)extra/locale; \
 	if [ ! -f $(LOCALE_DATA_FILENAME) ] ; then \
 	$(WGET) http://www.uclibc.org/downloads/$(LOCALE_DATA_FILENAME) ; \
 	fi )
 endif
 ifeq ($(UCLIBC_PREGENERATED_LOCALE_DATA),y)
-	(cd extra/locale; zcat $(LOCALE_DATA_FILENAME) | tar -xvf -)
-	$(MAKE) -C extra/locale pregen
+	(cd $(top_builddir)extra/locale; zcat $(LOCALE_DATA_FILENAME) | tar -xvf -)
+	$(MAKE) -C $(top_srcdir)extra/locale pregen
 endif
 
 pre_subdirs: $(patsubst %, _pre_dir_%, $(PRE_DIRS))
@@ -126,13 +140,10 @@ subdirs: $(patsubst %, _dir_%, $(DIRS))
 $(patsubst %, _dir_%, $(DIRS)): pre_subdirs
 	$(MAKE) -C $(patsubst _dir_%, %, $@)
 
-tags:
-	ctags -R
-
 install: install_runtime install_dev finished2
 
 
-RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
+RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
 
 # Installs header files.
 install_headers:
@@ -227,12 +238,12 @@ ifeq ($(HAVE_SHARED),y)
 		$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)$$i.$(MAJOR_VERSION) \
 		$(PREFIX)$(DEVEL_PREFIX)lib/$$i; \
 	done
-	if [ -f $(TOPDIR)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
+	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME) ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 		sed 	-e 's:$(NONSHARED_LIBNAME):$(DEVEL_PREFIX)lib/$(NONSHARED_LIBNAME):' \
 			-e 's:$(SHARED_MAJORNAME):$(RUNTIME_PREFIX)lib/$(SHARED_MAJORNAME):' \
 			-e 's:$(UCLIBC_LDSO):$(RUNTIME_PREFIX)lib/$(UCLIBC_LDSO):' \
-			$(TOPDIR)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
+			$(top_builddir)lib/libc.so > $(PREFIX)$(DEVEL_PREFIX)lib/libc.so; \
 	fi
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 	$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
@@ -331,17 +342,17 @@ defconfig: extra/config/conf
 
 clean:
 	@$(RM) -r lib include/bits
-	$(RM) libc/*.a libc/obj.* libc/nonshared_obj.*
+	$(RM) lib*/*.a ldso/*/*.a libpthread/*/*.a
 	$(RM) libc/misc/internals/interp.c
-	$(RM) ldso/libdl/*.a
 	$(RM) include/fpu_control.h include/dl-osinfo.h
 	$(MAKE) -C extra/locale clean
-	$(MAKE) -C ldso headers_clean
-	$(MAKE) -C libpthread headers_clean
+	$(MAKE) -C ldso headers_clean-y
+	$(MAKE) -C libpthread headers_clean-y
+	$(MAKE) -C libc/sysdeps/linux headers_clean-y
 	$(MAKE) -C test clean
 	$(MAKE) -C utils clean
 	@set -e; \
-	for i in `(cd $(TOPDIR)/libc/sysdeps/linux/common/sys; ls *.h)` ; do \
+	for i in `(cd libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		$(RM) include/sys/$$i; \
 	done; \
 	if [ -d libc/sysdeps/linux/$(TARGET_ARCH)/sys ] ; then \
@@ -350,10 +361,7 @@ clean:
 		done; \
 	fi
 	@$(RM) include/linux include/asm*
-	@if [ -d libc/sysdeps/linux/$(TARGET_ARCH) ]; then		\
-	    $(MAKE) -C libc/sysdeps/linux/$(TARGET_ARCH) clean;		\
-	fi
-	-find . \( -name \*.o -o -name \*.os \) -exec $(RM) {} \;
+	-find . \( -name \*.o -o -name \*.os -o -name \*.oS \) -exec $(RM) {} \;
 
 distclean: clean
 	-find . \( -name core -o -name \*.orig -o -name \*~ \) -exec $(RM) {} \;
@@ -369,6 +377,8 @@ dist release:
 	du -b ../uClibc-$(VERSION).tar.gz
 
 endif # ifeq ($(HAVE_DOT_CONFIG),y)
+
+include $(top_srcdir)Makerules
 
 check:
 	$(MAKE) -C test
