@@ -44,6 +44,9 @@ endif
 XXFLAGS_NOPIC:=$(XXFLAGS)
 ifeq ($(DOPIC),y)
     XXFLAGS += $(PICFLAG) -D__LIBDL_SHARED__
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+    XXFLAGS += -DSHARED
+endif
 endif
 
 # BEWARE!!! At least mips* will die if -O0 is used!!!
