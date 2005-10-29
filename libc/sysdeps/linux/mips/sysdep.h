@@ -17,7 +17,9 @@ not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
 #include <sys/syscall.h>
+#ifdef __ASSEMBLER__
 #include <sys/regdef.h>
+#endif
 #include <features.h>
 
 /* Not that using a `PASTE' macro loses.  */
