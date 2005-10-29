@@ -10,7 +10,7 @@
 #--------------------------------------------------------------
 noconfig_targets := menuconfig config oldconfig randconfig \
 	defconfig allyesconfig allnoconfig clean distclean \
-	release tags
+	release dist tags
 
 TOPDIR=./
 
@@ -369,16 +369,12 @@ distclean: clean
 	$(RM) extra/locale/*.txt
 	$(MAKE) -C extra clean
 
-release: distclean
-	cd ..;					\
-	$(RM) -r uClibc-$(VERSION);		\
-	cp -dRf uClibc uClibc-$(VERSION);	\
-	find uClibc-$(VERSION)/ -type f		\
-	    -name .\#* -exec $(RM) -r {} \; ;	\
-	find uClibc-$(VERSION)/ -type d		\
-	    -name .svn -exec $(RM) -r {} \; ;	\
-						\
-	tar -cvzf uClibc-$(VERSION).tar.gz uClibc-$(VERSION)/
+dist release:
+	$(MAKE) -s distclean
+	$(RM) -r ../uClibc-$(VERSION) ../uClibc-$(VERSION).tar.gz
+	svn -q export . ../uClibc-$(VERSION)
+	tar czf ../uClibc-$(VERSION).tar.gz -C .. uClibc-$(VERSION)
+	du -b ../uClibc-$(VERSION).tar.gz
 
 endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
@@ -387,4 +383,4 @@ include $(top_srcdir)Makerules
 check:
 	$(MAKE) -C test
 
-.PHONY: dummy subdirs release distclean clean config oldconfig menuconfig utils
+.PHONY: dummy subdirs release dist distclean clean config oldconfig menuconfig utils
