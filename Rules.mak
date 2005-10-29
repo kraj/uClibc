@@ -312,6 +312,7 @@ else
     LDFLAGS := $(LDFLAGS_NOSTRIP) -s
 endif
 
+ifeq ($(DOMULTI),y)
 # we try to compile all sources at once into an object (IMA), but
 # gcc-3.3.x does not support it
 # gcc-3.4.x supports it, but does not need and support --combine
@@ -319,9 +320,12 @@ endif
 # gcc-4.1(200506xx) supports it, but needs the --combine flag, else libs are useless
 GCC_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1,2)
 ifeq ($(GCC_VER),3.3)
-DOMULTI=n
+DOMULTI:=n
 else
 CFLAGS+=$(call check_gcc,--combine,)
+endif
+else
+DOMULTI:=n
 endif
 
 ifeq ($(UCLIBC_HAS_THREADS),y)

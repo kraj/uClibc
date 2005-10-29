@@ -1335,6 +1335,12 @@ config WARNINGS
 	help
 	  Set this to the set of gcc warnings you wish to see while compiling.
 
+config DOMULTI
+	bool "Compile all sources at once into an object"
+	default n
+	help
+	  Set this to compile all sources at once into an object (IMA).
+
 config UCLIBC_MJN3_ONLY
 	bool "Manuel's hidden warnings"
 	default n
