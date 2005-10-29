@@ -47,55 +47,45 @@ void (*_dl_free_function) (void *__ptr) = NULL;
 
 void *_dl_memalign (size_t __boundary, size_t __size);
 
-
 void *
 _dl_calloc (size_t __nmemb, size_t __size)
 {
 	void *result;
 	size_t size = (__size * __nmemb); 
 
-	if (_dl_calloc_function) {
-#if 1 
-		_dl_debug_early("Calling libc version\n");
-#endif
+	if (_dl_calloc_function)
 		return (*_dl_calloc_function) (__nmemb, __size);
-	}
 
-	_dl_debug_early("allocating memory and zeroing\n");
 	if (__nmemb && __size != (size / __nmemb)) {
 			_dl_dprintf(2, "%si:%i: unaligned structures\n",
 				__FUNCTION__, __LINE__);
 			_dl_exit(1);
 	}
+	
 	if ((result = _dl_malloc(__size)) != NULL) {
 		_dl_memset(result, 0, size);
 	}
+
 	return result;
 }
 
 void *
 _dl_realloc (void * __ptr, size_t __size)
 {
-	_dl_debug_early("NOT IMPLEMENTED PROPERLY!!!\n");
-	if (_dl_realloc_function) {
-#if 1 
-		_dl_debug_early("Calling libc version\n");
-#endif
+	if (_dl_realloc_function)
 		return (*_dl_realloc_function) (__ptr, __size);
-	}
+
+	_dl_debug_early("NOT IMPLEMENTED PROPERLY!!!\n");
 	return NULL;
 }
 
 void
 _dl_free (void *__ptr)
 {
-	_dl_debug_early("NOT IMPLEMENTED PROPERLY!!!\n");
-	if (_dl_free_function) {
-#if 1 
-		_dl_debug_early("Calling libc version\n");
-#endif
+	if (_dl_free_function)
 		(*_dl_free_function) (__ptr);
-	}
+
+	_dl_debug_early("Unable to free memory used for TLS\n");
 }
 
 
@@ -124,16 +114,6 @@ _dl_free (void *__ptr)
 
 /* Value used for dtv entries for which the allocation is delayed. */
 #define TLS_DTV_UNALLOCATED	((void *) -1l)
-
-/* Thread control block pointer. */
-void *tcbp = NULL;
-
-#define _dl_fatal_printf(fmt, args...)									\
-{																		\
-	do {																\
-		_dl_dprintf(2, "%s:%i: " fmt, __FUNCTION__, __LINE__, ## args);	\
-	} while (1);														\
-}
 
 /* Taken from glibc/elf/dl-reloc.c */
 #define CHECK_STATIC_TLS(sym_map)											\
@@ -183,10 +163,10 @@ _dl_nothread_init_static_tls (struct link_map *map)
 
 /* Taken from glibc/sysdeps/generic/dl-tls.c */
 static void
-__attribute__ ((__noreturn__))
 oom (void)
 {
-	_dl_fatal_printf("cannot allocate thread-local memory: ABORT\n");
+	_dl_debug_early("cannot allocate thread-local memory: ABORT\n");
+	_dl_exit(30);
 }
 
 size_t
@@ -217,7 +197,7 @@ _dl_next_tls_modid (void)
 		  break;
 
 		++result;
-		assert (result <= _dl_tls_max_dtv_idx + 1);
+		_dl_assert (result <= _dl_tls_max_dtv_idx + 1);
 	      }
 
 	    if (result - disp < runp->len)
@@ -231,7 +211,7 @@ _dl_next_tls_modid (void)
 	{
 	  /* The new index must indeed be exactly one higher than the
 	     previous high.  */
-	  assert (result == _dl_tls_max_dtv_idx + 1);
+	  _dl_assert (result == _dl_tls_max_dtv_idx + 1);
 	  /* There is no gap anymore.  */
 	  _dl_tls_dtv_gaps = false;
 
@@ -258,10 +238,10 @@ _dl_determine_tlsoffset (void)
   size_t freebottom = 0;
 
   /* The first element of the dtv slot info list is allocated.  */
-  assert (_dl_tls_dtv_slotinfo_list != NULL);
+  _dl_assert (_dl_tls_dtv_slotinfo_list != NULL);
   /* There is at this point only one element in the
      dl_tls_dtv_slotinfo_list list.  */
-  assert (_dl_tls_dtv_slotinfo_list->next == NULL);
+  _dl_assert (_dl_tls_dtv_slotinfo_list->next == NULL);
 
   struct dtv_slotinfo *slotinfo = _dl_tls_dtv_slotinfo_list->slotinfo;
 
@@ -299,7 +279,7 @@ _dl_determine_tlsoffset (void)
 
   for (size_t cnt = 0; slotinfo[cnt].map != NULL; ++cnt)
     {
-      assert (cnt < _dl_tls_dtv_slotinfo_list->len);
+      _dl_assert (cnt < _dl_tls_dtv_slotinfo_list->len);
 
       size_t firstbyte = (-slotinfo[cnt].map->l_tls_firstbyte_offset
 			  & (slotinfo[cnt].map->l_tls_align - 1));
@@ -347,7 +327,7 @@ _dl_determine_tlsoffset (void)
 
   for (cnt = 0; slotinfo[cnt].map != NULL; ++cnt)
     {
-      assert (cnt < _dl_tls_dtv_slotinfo_list->len);
+      _dl_assert (cnt < _dl_tls_dtv_slotinfo_list->len);
 
       size_t firstbyte = (-slotinfo[cnt].map->l_tls_firstbyte_offset
 			  & (slotinfo[cnt].map->l_tls_align - 1));
@@ -400,8 +380,8 @@ int
 internal_function
 _dl_tls_setup (void)
 {
-  assert (_dl_tls_dtv_slotinfo_list == NULL);
-  assert (_dl_tls_max_dtv_idx == 0);
+  _dl_assert (_dl_tls_dtv_slotinfo_list == NULL);
+  _dl_assert (_dl_tls_max_dtv_idx == 0);
 
   const size_t nelem = 2 + TLS_SLOTINFO_SURPLUS;
 
@@ -561,10 +541,10 @@ _dl_allocate_tls_init (void *result)
 	      continue;
 	    }
 
-	  assert (map->l_tls_modid == cnt);
-	  assert (map->l_tls_blocksize >= map->l_tls_initimage_size);
+	  _dl_assert (map->l_tls_modid == cnt);
+	  _dl_assert (map->l_tls_blocksize >= map->l_tls_initimage_size);
 # if TLS_TCB_AT_TP
-	  assert ((size_t) map->l_tls_offset >= map->l_tls_blocksize);
+	  _dl_assert ((size_t) map->l_tls_offset >= map->l_tls_blocksize);
 	  dest = (char *) result - map->l_tls_offset;
 # elif TLS_DTV_AT_TP
 	  dest = (char *) result + map->l_tls_offset;
@@ -586,7 +566,7 @@ _dl_allocate_tls_init (void *result)
 	break;
 
       listp = listp->next;
-      assert (listp != NULL);
+      _dl_assert (listp != NULL);
     }
 
   /* The DTV version is up-to-date now.  */
@@ -736,7 +716,7 @@ _dl_update_slotinfo (unsigned long int req_modid)
 
 	      /* Check whether the current dtv array is large enough.  */
 	      size_t modid = map->l_tls_modid;
-	      assert (total + cnt == modid);
+	      _dl_assert (total + cnt == modid);
 	      if (dtv[-1].counter < modid)
 		{
 		  /* Reallocate the dtv.  */
@@ -744,7 +724,7 @@ _dl_update_slotinfo (unsigned long int req_modid)
 		  size_t newsize = _dl_tls_max_dtv_idx + DTV_SURPLUS;
 		  size_t oldsize = dtv[-1].counter;
 
-		  assert (map->l_tls_modid <= newsize);
+		  _dl_assert (map->l_tls_modid <= newsize);
 
 		  if (dtv == _dl_initial_dtv)
 		    {
@@ -881,7 +861,7 @@ _dl_add_to_slotinfo (struct link_map  *l)
       /* When we come here it means we have to add a new element
 	 to the slotinfo list.  And the new module must be in
 	 the first slot.  */
-      assert (idx == 0);
+      _dl_assert (idx == 0);
 
       listp = prevp->next = (struct dtv_slotinfo_list *)
 	_dl_malloc (sizeof (struct dtv_slotinfo_list)
@@ -957,7 +937,7 @@ init_tls (void)
 	/* Fill in the information from the loaded modules.  No namespace
 	   but the base one can be filled at this time.  */
 #ifndef __UCLIBC__
-	assert (_dl_ns[LM_ID_BASE + 1]._ns_loaded == NULL);
+	_dl_assert (_dl_ns[LM_ID_BASE + 1]._ns_loaded == NULL);
 	int i = 0;
 	struct link_map *l;
 	for (l = _dl_ns[LM_ID_BASE]._ns_loaded; l != NULL; l = l->l_next)
@@ -982,7 +962,7 @@ init_tls (void)
 		++i;
 		}
 #endif
-	assert (i == _dl_tls_max_dtv_idx);
+	_dl_assert (i == _dl_tls_max_dtv_idx);
 
 	/* Compute the TLS offsets for the various blocks.  */
 	_dl_determine_tlsoffset ();
@@ -993,8 +973,10 @@ init_tls (void)
 	   never be freed.  It should be allocated accordingly.  The dtv
 	   array can be changed if dynamic loading requires it.  */
 	void *tcbp = _dl_allocate_tls_storage ();
-	if (tcbp == NULL)
-		_dl_fatal_printf ("\ncannot allocate TLS data structures for initial thread");
+	if (tcbp == NULL) {
+		_dl_debug_early("\ncannot allocate TLS data structures for initial thread");
+		_dl_exit(30);
+	}
 
 	/* Store for detection of the special case by __tls_get_addr
 	   so it knows not to pass this dtv to the normal realloc.  */
@@ -1003,8 +985,10 @@ init_tls (void)
 	/* And finally install it for the main thread.  If ld.so itself uses
 	   TLS we know the thread pointer was initialized earlier.  */
 	const char *lossage = TLS_INIT_TP (tcbp, USE___THREAD);
-	if (__builtin_expect (lossage != NULL, 0))
-		_dl_fatal_printf ("cannot set up thread-local storage: %s\n", lossage);
+	if(__builtin_expect (lossage != NULL, 0)) {
+		_dl_debug_early("cannot set up thread-local storage: %s\n", lossage);
+		_dl_exit(30);
+	}
 	tls_init_tp_called = true;
 
 	return tcbp;
