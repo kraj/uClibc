@@ -315,11 +315,11 @@ endif
 ifeq ($(DOMULTI),y)
 # we try to compile all sources at once into an object (IMA), but
 # gcc-3.3.x does not support it
-# gcc-3.4.x supports it, but does not need and support --combine
+# gcc-3.4.x supports it, but does not need and support --combine. though fails on many sources
 # gcc-4.0.x supports it, supports the --combine flag, but does not need it
 # gcc-4.1(200506xx) supports it, but needs the --combine flag, else libs are useless
-GCC_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1,2)
-ifeq ($(GCC_VER),3.3)
+GCC_VER?=$(shell $(CC) -dumpversion | cut -d . -f 1)
+ifeq ($(GCC_VER),3)
 DOMULTI:=n
 else
 CFLAGS+=$(call check_gcc,--combine,)
