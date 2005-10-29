@@ -631,7 +631,9 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 	ElfW(Addr) reloc_addr;
 
 	if (rpnt->next)
-		goof += _dl_fixup(rpnt->next, now_flag);
+		goof = _dl_fixup(rpnt->next, now_flag);
+	if (goof)
+		return goof;
 	tpnt = rpnt->dyn;
 
 	if(!(tpnt->init_flag & RELOCS_DONE)) 

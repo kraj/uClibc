@@ -122,7 +122,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	ElfW(Phdr) *ppnt;
 	ElfW(Dyn) *dpnt;
 	char *lpntstr;
-	int i, goof = 0, unlazy = 0, trace_loaded_objects = 0;
+	int i, unlazy = 0, trace_loaded_objects = 0;
 	struct dyn_elf *rpnt;
 	struct elf_resolve *tcurr;
 	struct elf_resolve *tpnt1;
@@ -724,7 +724,8 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 * order so that COPY directives work correctly.
 	 */
 	if (_dl_symbol_tables)
-		goof += _dl_fixup(_dl_symbol_tables, unlazy);
+		if (_dl_fixup(_dl_symbol_tables, unlazy))
+			_dl_exit(-1);
 
 	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
 		if (tpnt->relro_size)
