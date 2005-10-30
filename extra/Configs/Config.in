@@ -1117,15 +1117,10 @@ config DEVEL_PREFIX
 endmenu
 
 
-menu "uClibc security related options"
-
-config UCLIBC_SECURITY
-	bool "Enable security options"
-	default n
+menu "Security options"
 
 config UCLIBC_BUILD_PIE
 	bool "Build utilities as ET_DYN/PIE executables"
-	depends on UCLIBC_SECURITY
 	depends on HAVE_SHARED
 	depends on TARGET_arm || TARGET_frv || TARGET_i386 || TARGET_mips || TARGET_powerpc
 	select FORCE_SHAREABLE_TEXT_SEGMENTS
@@ -1140,7 +1135,6 @@ config UCLIBC_BUILD_PIE
 
 config UCLIBC_HAS_SSP
 	bool "Support for propolice smashing stack protector"
-	depends on UCLIBC_SECURITY
 	default n
 	help
 	  Add propolice smashing stack protector to the library.
@@ -1195,7 +1189,6 @@ config UCLIBC_BUILD_SSP
 
 config UCLIBC_BUILD_RELRO
 	bool "Build uClibc with RELRO"
-	depends on UCLIBC_SECURITY
 	depends on HAVE_SHARED
 	default y
 	help
@@ -1203,7 +1196,6 @@ config UCLIBC_BUILD_RELRO
 
 config UCLIBC_BUILD_NOW
 	bool "Build uClibc with NOW"
-	depends on UCLIBC_SECURITY
 	depends on HAVE_SHARED
 	default y
 	help
@@ -1211,7 +1203,6 @@ config UCLIBC_BUILD_NOW
 
 config UCLIBC_BUILD_NOEXECSTACK
 	bool "Build uClibc with noexecstack marking"
-	depends on UCLIBC_SECURITY
 	default y
 	help
 	  Mark all assembler files as noexecstack. This will result in marking
