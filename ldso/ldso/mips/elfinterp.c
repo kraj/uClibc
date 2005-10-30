@@ -55,8 +55,8 @@ unsigned long __dl_runtime_resolve(unsigned long sym_index,
 	new_addr = (unsigned long) _dl_find_hash(symname,
 			tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
 	if (unlikely(!new_addr)) {
-		_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
-				_dl_progname, symname);
+		_dl_dprintf(2, "%s: can't resolve symbol '%s' in lib '%s'.\n",
+			_dl_progname, symname, tpnt->libname);
 		_dl_exit (1);
 	}
 
@@ -185,16 +185,15 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 			break;
 		default:
 			{
-				int reloc_type = ELF32_R_TYPE(rpnt->r_info);
 				_dl_dprintf(2, "\n%s: ",_dl_progname);
 
 				if (symtab_index)
 					_dl_dprintf(2, "symbol '%s': ", strtab + symtab[symtab_index].st_name);
 
 #if defined (__SUPPORT_LD_DEBUG__)
-				_dl_dprintf(2, "can't handle reloc type %s\n ", _dl_reltypes(reloc_type));
+				_dl_dprintf(2, "can't handle reloc type '%s' in lib '%s'\n", _dl_reltypes(reloc_type), tpnt->libname);
 #else
-				_dl_dprintf(2, "can't handle reloc type %x\n", reloc_type);
+				_dl_dprintf(2, "can't handle reloc type %x in lib '%s'\n", reloc_type, tpnt->libname);
 #endif
 				_dl_exit(1);
 			}
