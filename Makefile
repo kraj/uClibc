@@ -304,6 +304,10 @@ menuconfig: extra/config/mconf
 	@./extra/config/mconf extra/Configs/Config.in
 	$(MAKE) headers
 
+headers:
+	@echo "Need to make a config file first, run: make menuconfig"
+	@false
+
 config: extra/config/conf
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
@@ -340,6 +344,8 @@ defconfig: extra/config/conf
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -d extra/Configs/Config.in
 
+endif # ifeq ($(HAVE_DOT_CONFIG),y)
+
 clean:
 	@$(RM) -r lib include/bits
 	$(RM) lib*/*.a ldso/*/*.a libpthread/*/*.a
@@ -375,8 +381,6 @@ dist release:
 	svn -q export . ../uClibc-$(VERSION)
 	tar czf ../uClibc-$(VERSION).tar.gz -C .. uClibc-$(VERSION)
 	du -b ../uClibc-$(VERSION).tar.gz
-
-endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 include $(top_srcdir)Makerules
 
