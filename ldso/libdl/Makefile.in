@@ -1,0 +1,51 @@
+# Makefile.in for uClibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+# psm: I do not know if the order of includes is relevant
+# to be sure I added them first, Jocke please cleanup if needed
+CFLAGS:=-I$(top_builddir)ldso/include -I$(top_builddir)ldso/ldso $(CFLAGS) $(SSP_ALL_CFLAGS)
+
+CFLAGS+=-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\"
+
+ifeq ($(SUPPORT_LD_DEBUG),y)
+CFLAGS+=-D__SUPPORT_LD_DEBUG__
+endif
+
+# BEWARE!!! At least mips* will die if -O0 is used!!!
+ifeq ($(TARGET_ARCH),mips)
+CFLAGS:=$(CFLAGS:-O0=-O1)
+endif
+
+# can't combine .c w/ .S
+DOMULTI=n
+
+LIB_NAME:=libdl
+
+EXTRA_LINK_OPTS:=-fini dl_cleanup
+# keep in sync w/ Makerules
+EXTRA_LINK_LIBS:=$(top_builddir)libc/misc/internals/interp.os $(top_builddir)lib/libc.so $(LIBGCC) $(top_builddir)lib/$(UCLIBC_LDSO)
+
+libdl_DIR:=$(top_srcdir)ldso/libdl
+libdl_OUT:=$(top_builddir)ldso/libdl
+
+libdl_SRC:=$(libdl_DIR)/libdl.c
+libdl_OBJ:=$(patsubst $(libdl_DIR)/%.c,$(libdl_OUT)/%.o,$(libdl_SRC))
+
+resolve:=$(top_builddir)ldso/ldso/$(TARGET_ARCH)/resolve.o
+
+libdl-a-$(HAVE_SHARED):=$(libdl_OBJ)
+libdl-static-$(HAVE_SHARED):=$(resolve)
+libdl-shared-$(HAVE_SHARED):=$(libdl_OUT)/libdl.oS
+
+objclean-y+=libdl_clean libdl_extra_clean
+
+libdl_extra_clean:
+	$(RM) $(libdl_OUT)/*.oS
+
+lib-a-$(HAVE_SHARED)+=$(top_builddir)lib/libdl.a
+lib-so-$(HAVE_SHARED)+=$(top_builddir)lib/libdl.so
