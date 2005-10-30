@@ -179,6 +179,11 @@ config HAVE_NO_SHARED
 	bool
 	default n
 
+config ARCH_HAS_NO_LDSO
+	bool
+	select HAVE_NO_SHARED
+	default n
+
 config HAVE_SHARED
 	bool "Enable support for shared libraries"
 	depends on !HAVE_NO_SHARED
@@ -187,11 +192,6 @@ config HAVE_SHARED
 	  If you wish to build uClibc with support for shared libraries then
 	  answer Y here.  If you only want to build uClibc as a static library,
 	  then answer N.
-
-config ARCH_HAS_NO_LDSO
-	bool
-	select HAVE_NO_SHARED
-	default n
 
 config FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "Only load shared libraries which can share their text segment"
