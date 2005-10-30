@@ -1,0 +1,48 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+MSRC:=pwd_grp.c
+MOBJ:=	fgetpwent_r.o fgetgrent_r.o fgetpwent.o fgetgrent.o \
+	getpwnam_r.o getgrnam_r.o getpwuid_r.o getgrgid_r.o \
+	getpwuid.o getgrgid.o getpwnam.o getgrnam.o getpw.o \
+	getpwent_r.o getgrent_r.o getpwent.o getgrent.o \
+	initgroups.o putpwent.o putgrent.o \
+	__parsepwent.o __parsegrent.o __pgsreader.o
+
+ifeq ($(HAS_SHADOW),y)
+MOBJ+=	fgetspent_r.o fgetspent.o sgetspent_r.o getspnam_r.o \
+	getspnam.o getspent_r.o getspent.o sgetspent.o \
+	putspent.o __parsespent.o # getspuid_r.o getspuid.o
+endif
+
+PWDGRP_DIR:=$(top_srcdir)libc/pwd_grp
+PWDGRP_OUT:=$(top_builddir)libc/pwd_grp
+
+PWDGRP_MSRC:=$(PWDGRP_DIR)/$(MSRC)
+PWDGRP_MOBJ:=$(patsubst %.o,$(PWDGRP_OUT)/%.o,$(MOBJ))
+
+PWDGRP_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(PWDGRP_MOBJ))))
+
+$(PWDGRP_MOBJ) $(PWDGRP_MOBJ:.o=.os): $(PWDGRP_MSRC)
+	$(compile.m)
+
+libc-a-y+=$(PWDGRP_MOBJ)
+libc-a-$(HAS_SHADOW)+=$(PWDGRP_OUT)/lckpwdf.o
+libc-a-pic-y+=$(PWDGRP_MOBJ:.o=.os)
+libc-a-pic-$(HAS_SHADOW)+=$(PWDGRP_OUT)/lckpwdf.os
+libc-so-y+=$(PWDGRP_MOBJ:.o=.os)
+libc-so-$(HAS_SHADOW)+=$(PWDGRP_OUT)/lckpwdf.os
+
+CFLAGS-multi-y+=$(PWDGRP_DEF)
+libc-multi-y+=$(PWDGRP_MSRC)
+libc-multi-$(HAS_SHADOW)+=$(PWDGRP_DIR)/lckpwdf.c
+
+objclean-y+=pwdgrp_objclean
+
+pwdgrp_objclean:
+	$(RM) $(PWDGRP_OUT)/*.{o,os}
