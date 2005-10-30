@@ -1,0 +1,66 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+MSRC1:=tsearch.c
+MOBJ1:=tsearch.o tfind.o tdelete.o twalk.o tdestroy.o
+
+MSRC2:=lsearch.c
+MOBJ2:=lfind.o lsearch.o
+
+MSRC3:=insremque.c
+MOBJ3:=insque.o remque.o
+
+MSRC4:=hsearch_r.c
+MOBJ4:=hcreate_r.o hdestroy_r.o hsearch_r.o
+
+CSRC:=hsearch.c
+
+MISC_SEARCH_DIR:=$(top_srcdir)libc/misc/search
+MISC_SEARCH_OUT:=$(top_builddir)libc/misc/search
+
+MISC_SEARCH_SRC:=$(patsubst %.c,$(MISC_SEARCH_DIR)/%.c,$(CSRC))
+MISC_SEARCH_OBJ:=$(patsubst %.c,$(MISC_SEARCH_OUT)/%.o,$(CSRC))
+
+MISC_SEARCH_MSRC1:=$(MISC_SEARCH_DIR)/$(MSRC1)
+MISC_SEARCH_MSRC2:=$(MISC_SEARCH_DIR)/$(MSRC2)
+MISC_SEARCH_MSRC3:=$(MISC_SEARCH_DIR)/$(MSRC3)
+MISC_SEARCH_MSRC4:=$(MISC_SEARCH_DIR)/$(MSRC4)
+MISC_SEARCH_MOBJ1:=$(patsubst %.o,$(MISC_SEARCH_OUT)/%.o,$(MOBJ1))
+MISC_SEARCH_MOBJ2:=$(patsubst %.o,$(MISC_SEARCH_OUT)/%.o,$(MOBJ2))
+MISC_SEARCH_MOBJ3:=$(patsubst %.o,$(MISC_SEARCH_OUT)/%.o,$(MOBJ3))
+MISC_SEARCH_MOBJ4:=$(patsubst %.o,$(MISC_SEARCH_OUT)/%.o,$(MOBJ4))
+
+MISC_SEARCH_MSRC:=$(MISC_SEARCH_MSRC1) $(MISC_SEARCH_MSRC2) $(MISC_SEARCH_MSRC3) $(MISC_SEARCH_MSRC4)
+MISC_SEARCH_MOBJ:=$(MISC_SEARCH_MOBJ1) $(MISC_SEARCH_MOBJ2) $(MISC_SEARCH_MOBJ3) $(MISC_SEARCH_MOBJ4)
+MISC_SEARCH_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_SEARCH_MOBJ))))
+
+MISC_SEARCH_OBJS:=$(MISC_SEARCH_OBJ) $(MISC_SEARCH_MOBJ)
+
+$(MISC_SEARCH_MOBJ1) $(MISC_SEARCH_MOBJ1:.o=.os): $(MISC_SEARCH_MSRC1)
+	$(compile.m)
+
+$(MISC_SEARCH_MOBJ2) $(MISC_SEARCH_MOBJ2:.o=.os): $(MISC_SEARCH_MSRC2)
+	$(compile.m)
+
+$(MISC_SEARCH_MOBJ3) $(MISC_SEARCH_MOBJ3:.o=.os): $(MISC_SEARCH_MSRC3)
+	$(compile.m)
+
+$(MISC_SEARCH_MOBJ4) $(MISC_SEARCH_MOBJ4:.o=.os): $(MISC_SEARCH_MSRC4)
+	$(compile.m)
+
+libc-a-y+=$(MISC_SEARCH_OBJS)
+libc-a-pic-y+=$(MISC_SEARCH_OBJS:.o=.os)
+libc-so-y+=$(MISC_SEARCH_OBJS:.o=.os)
+
+CFLAGS-multi-y+=$(MISC_SEARCH_DEF)
+libc-multi-y+=$(MISC_SEARCH_SRC) $(MISC_SEARCH_MSRC)
+
+objclean-y+=misc_search_objclean
+
+misc_search_objclean:
+	$(RM) $(MISC_SEARCH_OUT)/*.{o,os}
