@@ -25,20 +25,30 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
-#ifdef __UCLIBC_HAS_SSP__
-#include <ssp-internal.h>
-#include <stdint.h>
 
-/* for gcc-3.x + Etoh ssp */
-uintptr_t __guard attribute_relro;
+#ifndef SHARED
+void *__libc_stack_end=NULL;
+
+/* probably all the weak_*function stuff below should be in here */
+
+#ifdef __UCLIBC_HAS_SSP__
+#include <dl-osinfo.h>
+#ifndef THREAD_SET_STACK_GUARD
+/* Only exported for architectures that don't store the stack guard canary
+ * in thread local area. */
+#include <stdint.h>
 /* for gcc-4.1 non-TLS */
 uintptr_t __stack_chk_guard attribute_relro;
+/* for gcc-3.x + Etoh ssp */
+strong_alias(__stack_chk_guard,__guard)
 #endif
+#endif
+
+#endif /* !SHARED */
 
 /*
  * Prototypes.
  */
-extern void *__libc_stack_end;
 extern void weak_function _stdio_init(void);
 extern int *weak_const_function __errno_location(void);
 extern int *weak_const_function __h_errno_location(void);
@@ -48,10 +58,6 @@ extern void weak_function _locale_init(void);
 #ifdef __UCLIBC_HAS_THREADS__
 extern void weak_function __pthread_initialize_minimal(void);
 #endif
-
-
-
-
 
 /*
  * Declare the __environ global variable and create a weak alias environ.
@@ -63,7 +69,6 @@ weak_alias(__environ, environ);
 
 size_t __pagesize = 0;
 const char *__progname = 0;
-
 
 #ifndef O_NOFOLLOW
 # define O_NOFOLLOW	0
@@ -110,61 +115,6 @@ static int __check_suid(void)
     return 1;
 }
 
-#ifdef __UCLIBC_HAS_SSP__
-static __always_inline uintptr_t _dl_guard_setup(void)
-{
-	uintptr_t ret;
-#ifndef __SSP_QUICK_CANARY__
-
-	size_t size;
-
-# ifdef __SSP_USE_ERANDOM__
-	{
-		int mib[3];
-		/* Random is another depth in Linux, hence an array of 3. */
-		mib[0] = CTL_KERN;
-		mib[1] = KERN_RANDOM;
-		mib[2] = RANDOM_ERANDOM;
-
-		if (SYSCTL(mib, 3, &ret, &size, NULL, 0) != (-1))
-			if (size == (size_t) sizeof(ret))
-				return ret;
-	}
-# endif /* ifdef __SSP_USE_ERANDOM__ */
-	{
-		int fd;
-
-# ifdef __SSP_USE_ERANDOM__
-		/* 
-		 * Attempt to open kernel pseudo random device if one exists before 
-		 * opening urandom to avoid system entropy depletion.
-		 */
-		if ((fd = OPEN("/dev/erandom", O_RDONLY)) == (-1))
-# endif
-			fd = OPEN("/dev/urandom", O_RDONLY);
-		if (fd >= 0) {
-			size = READ(fd, &ret, sizeof(ret));
-			CLOSE(fd);
-			if (size == (size_t) sizeof(ret))
-				return ret;
-		}
-	}
-#endif /* ifndef __SSP_QUICK_CANARY__ */
-
-	/* Start with the "terminator canary". */
-	ret = 0xFF0A0D00UL;
-
-	/* Everything failed? Or we are using a weakened model of the 
-	 * terminator canary */
-	{
-		struct timeval tv;
-		if (GETTIMEOFDAY(&tv, NULL) != (-1))
-			ret ^= tv.tv_usec ^ tv.tv_sec;
-	}
-	return ret;
-}
-#endif /* __UCLIBC_HAS_SSP__ */
-
 /* __uClibc_init completely initialize uClibc so it is ready to use.
  *
  * On ELF systems (with a dynamic loader) this function must be called
@@ -199,12 +149,16 @@ void __uClibc_init(void)
 	__pthread_initialize_minimal();
 #endif
 
-#ifdef __UCLIBC_HAS_SSP__
-    uintptr_t stack_chk_guard = _dl_guard_setup();
-    /* for gcc-3.x + Etoh ssp */
-    __guard = stack_chk_guard;
-    /* for gcc-4.1 non-TLS */
+#ifndef SHARED
+# ifdef __UCLIBC_HAS_SSP__
+    /* Set up the stack checker's canary.  */
+    uintptr_t stack_chk_guard = _dl_setup_stack_chk_guard();
+#  ifdef THREAD_SET_STACK_GUARD
+    THREAD_SET_STACK_GUARD (stack_chk_guard);
+#  else
     __stack_chk_guard = stack_chk_guard;
+#  endif
+# endif
 #endif
 
 #ifdef __UCLIBC_HAS_LOCALE__
@@ -241,7 +195,10 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     unsigned long *aux_dat;
     ElfW(auxv_t) auxvt[AT_EGID + 1];
 #endif
+
+#ifndef SHARED
     __libc_stack_end = stack_end;
+#endif
 
     __rtld_fini = rtld_fini;
 

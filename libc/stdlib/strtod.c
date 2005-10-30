@@ -1,20 +1,8 @@
-/*  Copyright (C) 2000, 2003     Manuel Novoa III
+/*
+ * Copyright (C) 2000-2005     Manuel Novoa III
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public
- *  License as published by the Free Software Foundation; either
- *  version 2 of the License, or (at your option) any later version.
- *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Library General Public License for more details.
- *
- *  You should have received a copy of the GNU Library General Public
- *  License along with this library; if not, write to the Free
- *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
-
 
 /* Notes:
  *
@@ -201,7 +189,7 @@ extern void __fp_range_check(__fpmax_t y, __fpmax_t x);
 #define ISSPACE(C) iswspace((C))
 #endif
 
-#else  /* defined(L___wcstofpmax) || defined(L___wcstofpmax) */
+#else  /* defined(L___wcstofpmax) || defined(L___wcstofpmax_l) */
 
 #define Wchar char
 #ifdef __UCLIBC_DO_XLOCALE
@@ -210,7 +198,7 @@ extern void __fp_range_check(__fpmax_t y, __fpmax_t x);
 #define ISSPACE(C) isspace((C))
 #endif
 
-#endif /* defined(L___wcstofpmax) || defined(L___wcstofpmax) */
+#endif /* defined(L___wcstofpmax) || defined(L___wcstofpmax_l) */
 
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
@@ -238,10 +226,10 @@ __fpmax_t __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endptr, int exponent_
 	int num_digits;
 #endif
 #ifdef __UCLIBC_HAS_LOCALE__
-	const char *decpt = __LOCALE_PTR->decimal_point;
-#if defined(L___wcstofpmax) || defined(L___wcstofpmax)
+#if defined(L___wcstofpmax) || defined(L___wcstofpmax_l)
 	wchar_t decpt_wc = __LOCALE_PTR->decimal_point;
 #else
+	const char *decpt = __LOCALE_PTR->decimal_point;
 	int decpt_len = __LOCALE_PTR->decimal_point_len;
 #endif
 #endif
@@ -320,7 +308,7 @@ __fpmax_t __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endptr, int exponent_
 	}
 
 #ifdef __UCLIBC_HAS_LOCALE__
-#if defined(L___wcstofpmax) || defined(L___wcstofpmax)
+#if defined(L___wcstofpmax) || defined(L___wcstofpmax_l)
 	if (!pos0 && (*pos == decpt_wc)) { /* First decimal point? */
 		pos0 = ++pos;
 		goto LOOP;

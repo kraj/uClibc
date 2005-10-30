@@ -22,7 +22,7 @@
 #include <features.h>
 #include <errno.h>
 #include <unistd.h>
-#include <sysdep.h>
+#include "sysdep.h"
 #include <sys/mman.h>
 
 

@@ -5,7 +5,6 @@
 
 config HAVE_ELF
 	select ARCH_HAS_MMU
-	select HAVE_NO_SHARED
 	select ARCH_HAS_NO_LDSO
 	select HAS_NO_THREADS
 	select UCLIBC_HAS_LFS

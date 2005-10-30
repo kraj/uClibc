@@ -23,72 +23,60 @@ include $(TOPDIR)Rules.mak
 
 
 ifeq ($(ARCH_HAS_MMU),y)
-CRT0_SRC = crt0.c
+CRT_SRC := crt0.c
 else
-CRT0_SRC = crt0.S
+CRT_SRC := crt0.S
 endif
-CRT0_OBJ = crt0.o crt1.o
-CTOR_TARGETS=$(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
+CRT_OBJ := crt0.o crt1.o
+CTOR_TARGETS := $(TOPDIR)lib/crti.o $(TOPDIR)lib/crtn.o
 
-SSRC= __longjmp.S bsd-_setjmp.S bsd-setjmp.S clone.S setjmp.S vfork.S
-SOBJS=$(patsubst %.S,%.o, $(SSRC))
+SSRC := __longjmp.S bsd-_setjmp.S bsd-setjmp.S clone.S setjmp.S vfork.S
+SOBJ := $(patsubst %.S,%.o, $(SSRC))
 
-CSRC=ptrace.c brk.c
-COBJS=$(patsubst %.c,%.o, $(CSRC))
+CSRC := ptrace.c brk.c
+COBJ := $(patsubst %.c,%.o, $(CSRC))
 
-OBJS=$(SOBJS) $(MOBJ) $(COBJS)
+OBJS := $(SOBJ) $(COBJ)
 
-OBJ_LIST=../../../obj.sysdeps.$(TARGET_ARCH)
+OBJ_LIST := ../../../obj.sysdeps.$(TARGET_ARCH)
 
-all: $(OBJ_LIST)
+all: $(OBJ_LIST) $(CTOR_TARGETS)
 
-$(OBJ_LIST): $(OBJS) $(CRT0_OBJ) $(CTOR_TARGETS)
-	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $(OBJ_LIST)
+$(OBJ_LIST): $(OBJS) $(CRT_OBJ)
+	$(STRIPTOOL) -x -R .note -R .comment $^
 	$(INSTALL) -d $(TOPDIR)lib/
-	cp $(CRT0_OBJ) $(TOPDIR)lib/
+	cp $(CRT_OBJ) $(TOPDIR)lib/
+	echo $(patsubst %, sysdeps/linux/$(TARGET_ARCH)/%, $(OBJS)) > $@
 
-$(CRT0_OBJ): $(CRT0_SRC)
+$(CRT_OBJ): $(CRT_SRC)
 ifeq ($(ARCH_HAS_MMU),y)
 	$(CC) $(CFLAGS) -DL_$* $< -c -o $*.o
 else
 	$(CC) $(ASFLAGS) -DL_$* $< -c -o $*.o
 endif
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(SOBJS): %.o : %.S
+$(SOBJ): %.o : %.S
 	$(CC) $(ASFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-$(COBJS): %.o : %.c
+$(COBJ): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
-ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
-crti.o: crti.S
-	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c crti.S -o crti.o
-
-$(TOPDIR)lib/crti.o: crti.o
+ifeq ($(UCLIBC_CTOR_DTOR),y)
+$(TOPDIR)lib/crti.o: crti.S
 	$(INSTALL) -d $(TOPDIR)lib/
-	cp crti.o $(TOPDIR)lib/
+	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c $< -o $@
 
-crtn.o: crtn.S
-	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c crtn.S -o crtn.o
-
-$(TOPDIR)lib/crtn.o: crtn.o
+$(TOPDIR)lib/crtn.o: crtn.S
 	$(INSTALL) -d $(TOPDIR)lib/
-	cp crtn.o $(TOPDIR)lib/
+	$(CC) $(ASFLAGS) $(SSP_DISABLE_FLAGS) -c $< -o $@
 else
-$(TOPDIR)lib/crti.o:
+$(CTOR_TARGETS):
 	$(INSTALL) -d $(TOPDIR)lib/
-	$(AR) $(ARFLAGS) $(TOPDIR)lib/crti.o
-$(TOPDIR)lib/crtn.o:
-	$(INSTALL) -d $(TOPDIR)lib/
-	$(AR) $(ARFLAGS) $(TOPDIR)lib/crtn.o
+	$(AR) $(ARFLAGS) $@
 endif
 
-
 headers:
-ifneq ($(strip $(HAVE_ELF)),y)
+ifneq ($(HAVE_ELF),y)
 	echo "Working around compiler bug in the m68k-pic-coff toolchain"
 	$(LN) -fs ../libc/sysdeps/linux/m68k/float.h $(TOPDIR)/include/
 endif
@@ -96,6 +84,6 @@ endif
 
 clean:
 	$(RM) *.o *~ core
-ifneq ($(strip $(HAVE_ELF)),y)
+ifneq ($(HAVE_ELF),y)
 	$(RM) $(TOPDIR)/include/float.h
 endif

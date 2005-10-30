@@ -89,6 +89,16 @@ static struct elf_resolve **init_fini_list;
 static int nlist; /* # items in init_fini_list */
 extern void _start(void);
 
+#ifdef __UCLIBC_HAS_SSP__
+#include <dl-osinfo.h>
+#ifndef THREAD_SET_STACK_GUARD
+/* Only exported for architectures that don't store the stack guard canary
+ * in local thread area.  */
+uintptr_t __stack_chk_guard attribute_relro;
+strong_alias(__stack_chk_guard,__guard)
+#endif
+#endif
+
 static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 {
 	int i;
@@ -116,7 +126,7 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	ElfW(Phdr) *ppnt;
 	ElfW(Dyn) *dpnt;
 	char *lpntstr;
-	int i, goof = 0, unlazy = 0, trace_loaded_objects = 0;
+	int i, unlazy = 0, trace_loaded_objects = 0;
 	struct dyn_elf *rpnt;
 	struct elf_resolve *tcurr;
 	struct elf_resolve *tpnt1;
@@ -201,7 +211,18 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	}
 
 #if USE_TLS
+	_dl_error_catch_tsd = &_dl_initial_error_catch_tsd;
 	_dl_init_static_tls = &_dl_nothread_init_static_tls;
+#endif
+
+#ifdef __UCLIBC_HAS_SSP__
+	/* Set up the stack checker's canary.  */
+	uintptr_t stack_chk_guard = _dl_setup_stack_chk_guard ();
+# ifdef THREAD_SET_STACK_GUARD
+	THREAD_SET_STACK_GUARD (stack_chk_guard);
+# else
+	__stack_chk_guard = stack_chk_guard;
+# endif
 #endif
 
 	/* At this point we are now free to examine the user application,
@@ -775,7 +796,13 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	 * order so that COPY directives work correctly.
 	 */
 	if (_dl_symbol_tables)
-		goof += _dl_fixup(_dl_symbol_tables, unlazy);
+		if (_dl_fixup(_dl_symbol_tables, unlazy))
+			_dl_exit(-1);
+
+	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
+		if (tpnt->relro_size)
+			_dl_protect_relro (tpnt);
+	}
 
 	/* OK, at this point things are pretty much ready to run.  Now we need
 	 * to touch up a few items that are required, and then we can let the
@@ -826,11 +853,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 			(*dl_elf_func) ();
 		}
-	}
-
-	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-		if (tpnt->relro_size)
-			_dl_protect_relro (tpnt);
 	}
 
 	/* Find the real malloc function and make ldso functions use that from now on */

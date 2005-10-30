@@ -396,7 +396,9 @@ __XL_ALIAS(strtoull)
 
 /**********************************************************************/
 #if defined(L__stdlib_wcsto_l) || defined(L__stdlib_wcsto_l_l)
+#ifndef L__stdlib_strto_l
 #define L__stdlib_strto_l
+#endif
 #endif
 
 #if defined(L__stdlib_strto_l) || defined(L__stdlib_strto_l_l)
@@ -538,7 +540,9 @@ unsigned long __XL_NPP(_stdlib_strto_l)(register const Wchar * __restrict str,
 #endif
 /**********************************************************************/
 #if defined(L__stdlib_wcsto_ll) || defined(L__stdlib_wcsto_ll_l)
+#ifndef L__stdlib_strto_ll
 #define L__stdlib_strto_ll
+#endif
 #endif
 
 #if defined(L__stdlib_strto_ll) || defined(L__stdlib_strto_ll_l)

@@ -87,6 +87,7 @@ void __attribute__ ((noreturn)) __stack_chk_fail(void)
 		terminate();
 }
 
+#if 0
 void __attribute__ ((noreturn)) __chk_fail(void)
 {
 	extern char *__progname;
@@ -101,3 +102,4 @@ void __attribute__ ((noreturn)) __chk_fail(void)
 	while(1)
 		terminate();
 }
+#endif

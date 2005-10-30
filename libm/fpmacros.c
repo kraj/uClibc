@@ -160,11 +160,13 @@ int __finitef ( float x )
 }
 weak_alias (__finitef, finitef)
 
+#if 0 /* use __finite in s_finite.c */
 int __finite ( double x )
 {
 	return ( __fpclassify ( x ) >= FP_ZERO );
 }
 weak_alias (__finite, finite)
+#endif
 
 
 /***********************************************************************

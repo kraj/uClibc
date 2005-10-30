@@ -2,10 +2,11 @@
 #include <features.h>
 #include <stdio.h>
 #include <assert.h>
-#include <bits/libc-tsd.h>
 #include "rpc_private.h"
 
 #ifdef __UCLIBC_HAS_THREADS__
+
+#include <bits/libc-tsd.h>
 
 /* Variable used in non-threaded applications or for the first thread.  */
 static struct rpc_thread_variables __libc_tsd_RPC_VARS_mem;

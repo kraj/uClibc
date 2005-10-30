@@ -70,6 +70,10 @@
 # define internal_function      /* empty */
 #endif
 
+#ifndef NOT_IN_libc
+# define IS_IN_libc 1
+#endif
+
 /* Prepare for the case that `__builtin_expect' is not available.  */
 #if __GNUC__ == 2 && __GNUC_MINOR__ < 96
 #define __builtin_expect(x, expected_value) (x)

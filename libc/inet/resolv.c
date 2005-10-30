@@ -647,7 +647,7 @@ int __form_query(int id, const char *name, int type, unsigned char *packet,
 }
 #endif
 
-#ifdef L_dnslookup
+#if defined(L_dnslookup) || defined(L_gethostent)
 
 #ifdef __UCLIBC_HAS_THREADS__
 static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
@@ -657,6 +657,9 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 # define LOCK
 # define UNLOCK
 #endif
+#endif
+
+#ifdef L_dnslookup
 
 /* Just for the record, having to lock __dns_lookup() just for these two globals
  * is pretty lame.  I think these two variables can probably be de-global-ized,
@@ -1586,15 +1589,6 @@ int __read_etc_hosts_r(FILE * fp, const char * name, int type,
 
 
 #ifdef L_gethostent
-
-#ifdef __UCLIBC_HAS_THREADS__
-static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	__pthread_mutex_lock(&mylock)
-# define UNLOCK	__pthread_mutex_unlock(&mylock);
-#else
-# define LOCK
-# define UNLOCK
-#endif
 
 static int __stay_open;
 static FILE * __gethostent_fp;

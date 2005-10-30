@@ -48,13 +48,11 @@ choice
 
 config CONFIG_SH2A
 	select ARCH_HAS_NO_MMU
-	select ARCH_HAS_NO_LDSO
 	select HAVE_NO_PIC
 	bool "SH2A"
 
 config CONFIG_SH2
 	select ARCH_HAS_NO_MMU
-	select ARCH_HAS_NO_LDSO
 	bool "SH2"
 
 config CONFIG_SH3

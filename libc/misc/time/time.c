@@ -2005,7 +2005,7 @@ int utimes(const char *filename, register const struct timeval *tvp)
 /**********************************************************************/
 #ifdef L__time_t2tm
 
-static const uint16_t vals[] = {
+static const uint16_t _vals[] = {
 	60, 60, 24, 7 /* special */, 36524, 1461, 365, 0
 };
 
@@ -2037,7 +2037,7 @@ struct tm *_time_t2tm(const time_t *__restrict timer,
 		t = *timer;
 		p = (int *) result;
 		p[7] = 0;
-		vp = vals;
+		vp = _vals;
 		do {
 			if ((v = *vp) == 7) {
 				/* Overflow checking, assuming time_t is long int... */
@@ -2182,7 +2182,7 @@ time_t _time_mktime(struct tm *timeptr, int store_on_success)
 /**********************************************************************/
 #ifdef L__time_mktime_tzi
 
-static const unsigned char vals[] = {
+static const unsigned char __vals[] = {
 	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, /* non-leap */
 	    29,
 };
@@ -2221,7 +2221,7 @@ time_t _time_mktime_tzi(struct tm *timeptr, int store_on_success,
 		--p[5];
 	}
 
-	s = vals;
+	s = __vals;
 	d = (p[5] += 1900);			/* Correct year.  Now between 1900 and 2300. */
 	if (__isleap(d)) {
 		s += 11;
