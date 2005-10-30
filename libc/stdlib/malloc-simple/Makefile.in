@@ -1,0 +1,31 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+MSRC:=alloc.c
+MOBJ:=malloc.o realloc.o free.o calloc.o memalign.o
+
+STDLIB_MALLOC_SIMPLE_DIR:=$(top_srcdir)libc/stdlib/malloc-simple
+STDLIB_MALLOC_SIMPLE_OUT:=$(top_builddir)libc/stdlib/malloc-simple
+
+STDLIB_MALLOC_SIMPLE_MSRC:=$(STDLIB_MALLOC_SIMPLE_DIR)/$(MSRC)
+STDLIB_MALLOC_SIMPLE_MOBJ:=$(patsubst %.o,$(STDLIB_MALLOC_SIMPLE_OUT)/%.o,$(MOBJ))
+STDLIB_MALLOC_SIMPLE_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(STDLIB_MALLOC_SIMPLE_MOBJ))))
+
+libc-a-$(MALLOC_SIMPLE)+=$(STDLIB_MALLOC_SIMPLE_MOBJ)
+libc-a-pic-$(MALLOC_SIMPLE)+=$(STDLIB_MALLOC_SIMPLE_MOBJ:.o=.os)
+libc-so-$(MALLOC_SIMPLE)+=$(STDLIB_MALLOC_SIMPLE_MOBJ:.o=.os)
+
+CFLAGS-multi-$(MALLOC_SIMPLE)+=$(STDLIB_MALLOC_SIMPLE_DEF)
+libc-multi-$(MALLOC_SIMPLE)+=$(STDLIB_MALLOC_SIMPLE_MSRC)
+
+$(STDLIB_MALLOC_SIMPLE_MOBJ) $(STDLIB_MALLOC_SIMPLE_MOBJ:.o=.os): $(STDLIB_MALLOC_SIMPLE_MSRC)
+	$(compile.m)
+
+objclean-y+=stdlib_malloc_simple_objclean
+
+stdlib_malloc_simple_objclean:
+	$(RM) $(STDLIB_MALLOC_SIMPLE_OUT)/*.{o,os}
