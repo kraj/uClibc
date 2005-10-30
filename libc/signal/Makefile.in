@@ -1,0 +1,36 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+CSRC:=	allocrtsig.c killpg.c raise.c sigaction.c sigaddset.c sigandset.c \
+	sigblock.c sigdelset.c sigempty.c sigfillset.c siggetmask.c sighold.c \
+	sigignore.c sigintr.c sigisempty.c sigismem.c sigjmp.c signal.c \
+	sigorset.c sigpause.c sigrelse.c sigset.c sigsetmask.c sigsetops.c \
+	sysv_signal.c sigwait.c
+
+ifneq ($(strip $(ARCH_OBJS)),)
+CSRC:=$(filter-out $(notdir $(ARCH_OBJS:.o=.c)),$(CSRC))
+endif
+
+SIGNAL_DIR:=$(top_srcdir)libc/signal
+SIGNAL_OUT:=$(top_builddir)libc/signal
+
+SIGNAL_SRC:=$(patsubst %.c,$(SIGNAL_DIR)/%.c,$(CSRC))
+
+SIGNAL_OBJ:=$(patsubst $(SIGNAL_DIR)/%.c,$(SIGNAL_OUT)/%.o,$(SIGNAL_SRC))
+
+libc-a-y+=$(SIGNAL_OBJ)
+libc-a-pic-y+=$(SIGNAL_OBJ:.o=.os)
+libc-so-y+=$(SIGNAL_OBJ:.o=.os)
+
+# either sigaction or allocrtsig have to be removed
+#libc-multi-y+=$(SIGNAL_SRC)
+libc-nomulti-y+=$(SIGNAL_OBJ)
+
+objclean-y+=signal_objclean
+
+signal_objclean:
+	$(RM) $(SIGNAL_OUT)/*.{o,os}
