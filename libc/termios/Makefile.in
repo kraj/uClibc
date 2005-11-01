@@ -25,7 +25,10 @@ TERMIOS_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(TERMIOS_MOBJ))))
 
 TERMIOS_OBJS:=$(TERMIOS_OBJ) $(TERMIOS_MOBJ)
 
-$(TERMIOS_MOBJ) $(TERMIOS_MOBJ:.o=.os): $(TERMIOS_MSRC)
+$(TERMIOS_MOBJ): $(TERMIOS_MSRC)
+	$(compile.m)
+
+$(TERMIOS_MOBJ:.o=.os): $(TERMIOS_MSRC)
 	$(compile.m)
 
 libc-a-y+=$(TERMIOS_OBJS)

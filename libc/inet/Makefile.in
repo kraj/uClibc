@@ -50,13 +50,22 @@ INET_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(INET_MOBJ))))
 
 INET_OBJS:=$(INET_OBJ) $(INET_MOBJ)
 
-$(INET_MOBJ1) $(INET_MOBJ1:.o=.os): $(INET_MSRC1)
+$(INET_MOBJ1): $(INET_MSRC1)
 	$(compile.m)
 
-$(INET_MOBJ2) $(INET_MOBJ2:.o=.os): $(INET_MSRC2)
+$(INET_MOBJ1:.o=.os): $(INET_MSRC1)
 	$(compile.m)
 
-$(INET_MOBJ3) $(INET_MOBJ3:.o=.os): $(INET_MSRC3)
+$(INET_MOBJ2): $(INET_MSRC2)
+	$(compile.m)
+
+$(INET_MOBJ2:.o=.os): $(INET_MSRC2)
+	$(compile.m)
+
+$(INET_MOBJ3): $(INET_MSRC3)
+	$(compile.m)
+
+$(INET_MOBJ3:.o=.os): $(INET_MSRC3)
 	$(compile.m)
 
 libc-a-y+=$(INET_OBJS)

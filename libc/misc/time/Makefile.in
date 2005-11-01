@@ -45,10 +45,16 @@ MISC_TIME_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(filter-out $(MISC_TIME_
 
 MISC_TIME_OBJS:=$(MISC_TIME_OBJ) $(MISC_TIME_MOBJ)
 
-$(MISC_TIME_MOBJ) $(MISC_TIME_MOBJ:.o=.os): $(MISC_TIME_MSRC)
+$(MISC_TIME_MOBJ): $(MISC_TIME_MSRC)
 	$(compile.m)
 
-$(MISC_TIME_MOBJx) $(MISC_TIME_MOBJx:.o=.os): $(MISC_TIME_MSRC)
+$(MISC_TIME_MOBJ:.o=.os): $(MISC_TIME_MSRC)
+	$(compile.m)
+
+$(MISC_TIME_MOBJx): $(MISC_TIME_MSRC)
+	$(compile.m) -D__UCLIBC_DO_XLOCALE
+
+$(MISC_TIME_MOBJx:.o=.os): $(MISC_TIME_MSRC)
 	$(compile.m) -D__UCLIBC_DO_XLOCALE
 
 libc-a-y+=$(MISC_TIME_OBJS)

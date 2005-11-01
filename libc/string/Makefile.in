@@ -67,16 +67,28 @@ STRING_MOBJWx=$(patsubst %.o,$(STRING_OUT)/%.o,$(MOBJWx))
 STRING_Wx=$(STRING_MOBJW) $(STRING_MOBJx) $(STRING_MOBJWx)
 STRING_OBJS:=$(STRING_MOBJ) $(STRING_Wx)
 
-$(STRING_MOBJ) $(STRING_MOBJ:.o=.os): $(STRING_MSRC)
+$(STRING_MOBJ): $(STRING_MSRC)
 	$(compile.m)
 
-$(STRING_MOBJW) $(STRING_MOBJW:.o=.os): $(STRING_MSRC)
+$(STRING_MOBJ:.o=.os): $(STRING_MSRC)
+	$(compile.m)
+
+$(STRING_MOBJW): $(STRING_MSRC)
 	$(compile.m) -DWANT_WIDE
 
-$(STRING_MOBJx) $(STRING_MOBJx:.o=.os): $(STRING_MSRC)
+$(STRING_MOBJW:.o=.os): $(STRING_MSRC)
+	$(compile.m) -DWANT_WIDE
+
+$(STRING_MOBJx): $(STRING_MSRC)
 	$(compile.m) -D__UCLIBC_DO_XLOCALE
 
-$(STRING_MOBJWx) $(STRING_MOBJWx:.o=.os): $(STRING_MSRC)
+$(STRING_MOBJx:.o=.os): $(STRING_MSRC)
+	$(compile.m) -D__UCLIBC_DO_XLOCALE
+
+$(STRING_MOBJWx): $(STRING_MSRC)
+	$(compile.m) -DWANT_WIDE -D__UCLIBC_DO_XLOCALE
+
+$(STRING_MOBJWx:.o=.os): $(STRING_MSRC)
 	$(compile.m) -DWANT_WIDE -D__UCLIBC_DO_XLOCALE
 
 libc-a-y+=$(STRING_OBJS)

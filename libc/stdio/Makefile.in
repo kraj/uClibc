@@ -109,7 +109,10 @@ STDIO_OBJS:=$(STDIO_OBJ) $(STDIO_MOBJ) $(STDIO_CUOBJ) $(STDIO_CLOBJ)
 
 # these need special handling or rewrite to support multi-build
 # CUOBJ
-%_unlocked.o %_unlocked.os: %.c
+%_unlocked.o: %.c
+	$(compile.c) -D__DO_UNLOCKED
+
+%_unlocked.os: %.c
 	$(compile.c) -D__DO_UNLOCKED
 
 # need this, else the other %64 files will get false rules
@@ -122,10 +125,16 @@ $(STDIO_CLOBJ): %.o : %.c
 $(STDIO_CLOBJ:.o=.os): %.os : %.c
 	$(compile.c) -D__DO_LARGEFILE
 
-$(STDIO_MOBJ1) $(STDIO_MOBJ1:.o=.os): $(STDIO_MSRC1)
+$(STDIO_MOBJ1): $(STDIO_MSRC1)
 	$(compile.m)
 
-$(STDIO_MOBJ2) $(STDIO_MOBJ2:.o=.os): $(STDIO_MSRC2)
+$(STDIO_MOBJ1:.o=.os): $(STDIO_MSRC1)
+	$(compile.m)
+
+$(STDIO_MOBJ2): $(STDIO_MSRC2)
+	$(compile.m)
+
+$(STDIO_MOBJ2:.o=.os): $(STDIO_MSRC2)
 	$(compile.m)
 
 libc-a-y+=$(STDIO_OBJS)

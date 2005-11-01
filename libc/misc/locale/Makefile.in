@@ -33,13 +33,22 @@ MISC_LOCALE_DATA=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(DATA))
 
 MISC_LOCALE_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_LOCALE_MOBJ))))
 
-$(MISC_LOCALE_MOBJ) $(MISC_LOCALE_MOBJ:.o=.os): $(MISC_LOCALE_MSRC)
+$(MISC_LOCALE_MOBJ): $(MISC_LOCALE_MSRC)
 	$(compile.m)
 
-$(MISC_LOCALE_MOBJx) $(MISC_LOCALE_MOBJx:.o=.os): $(MISC_LOCALE_MSRC)
+$(MISC_LOCALE_MOBJ:.o=.os): $(MISC_LOCALE_MSRC)
+	$(compile.m)
+
+$(MISC_LOCALE_MOBJx): $(MISC_LOCALE_MSRC)
 	$(compile.m) -D__UCLIBC_DO_XLOCALE
 
-$(MISC_LOCALE_DATA) $(MISC_LOCALE_DATA:.o=.os): $(top_builddir)extra/locale/$(notdir $(MISC_LOCALE_DATA:.o=.c))
+$(MISC_LOCALE_MOBJx:.o=.os): $(MISC_LOCALE_MSRC)
+	$(compile.m) -D__UCLIBC_DO_XLOCALE
+
+$(MISC_LOCALE_DATA): $(top_builddir)extra/locale/$(notdir $(MISC_LOCALE_DATA:.o=.c))
+	$(compile.c) -D__WCHAR_ENABLED -I$(dir $<)
+
+$(MISC_LOCALE_DATA:.o=.os): $(top_builddir)extra/locale/$(notdir $(MISC_LOCALE_DATA:.o=.c))
 	$(compile.c) -D__WCHAR_ENABLED -I$(dir $<)
 
 libc-a-y+=$(MISC_LOCALE_MOBJ)

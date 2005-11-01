@@ -28,7 +28,10 @@ PWDGRP_MOBJ:=$(patsubst %.o,$(PWDGRP_OUT)/%.o,$(MOBJ))
 
 PWDGRP_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(PWDGRP_MOBJ))))
 
-$(PWDGRP_MOBJ) $(PWDGRP_MOBJ:.o=.os): $(PWDGRP_MSRC)
+$(PWDGRP_MOBJ): $(PWDGRP_MSRC)
+	$(compile.m)
+
+$(PWDGRP_MOBJ:.o=.os): $(PWDGRP_MSRC)
 	$(compile.m)
 
 libc-a-y+=$(PWDGRP_MOBJ)

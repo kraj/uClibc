@@ -35,7 +35,10 @@ UNISTD_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(UNISTD_MOBJ))))
 
 UNISTD_OBJS:=$(UNISTD_OBJ) $(UNISTD_MOBJ)
 
-$(UNISTD_MOBJ) $(UNISTD_MOBJ:.o=.os): $(UNISTD_MSRC)
+$(UNISTD_MOBJ): $(UNISTD_MSRC)
+	$(compile.m)
+
+$(UNISTD_MOBJ:.o=.os): $(UNISTD_MSRC)
 	$(compile.m)
 
 libc-a-y+=$(UNISTD_OBJS)

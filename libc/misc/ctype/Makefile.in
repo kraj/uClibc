@@ -33,10 +33,16 @@ MISC_CTYPE_MOBJx=$(patsubst %.o,$(MISC_CTYPE_OUT)/%.o,$(MOBJx))
 # adapt this if MOBJx is done for multi
 MISC_CTYPE_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_CTYPE_MOBJ))))
 
-$(MISC_CTYPE_MOBJ) $(MISC_CTYPE_MOBJ:.o=.os): $(MISC_CTYPE_MSRC)
+$(MISC_CTYPE_MOBJ): $(MISC_CTYPE_MSRC)
 	$(compile.m)
 
-$(MISC_CTYPE_MOBJx) $(MISC_CTYPE_MOBJx:.o=.os): $(MISC_CTYPE_MSRC)
+$(MISC_CTYPE_MOBJ:.o=.os): $(MISC_CTYPE_MSRC)
+	$(compile.m)
+
+$(MISC_CTYPE_MOBJx): $(MISC_CTYPE_MSRC)
+	$(compile.m) -D__UCLIBC_DO_XLOCALE
+
+$(MISC_CTYPE_MOBJx:.o=.os): $(MISC_CTYPE_MSRC)
 	$(compile.m) -D__UCLIBC_DO_XLOCALE
 
 libc-a-y+=$(MISC_CTYPE_MOBJ)

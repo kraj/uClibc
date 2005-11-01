@@ -91,19 +91,34 @@ STDLIB_MOBJx:=$(STDLIB_MOBJ1x) $(STDLIB_MOBJ2x)
 
 STDLIB_OBJS:=$(STDLIB_OBJ) $(STDLIB_MOBJ) $(STDLIB_MOBJx)
 
-$(STDLIB_MOBJ1) $(STDLIB_MOBJ1:.o=.os): $(STDLIB_MSRC1)
+$(STDLIB_MOBJ1): $(STDLIB_MSRC1)
 	$(compile.m)
 
-$(STDLIB_MOBJ2) $(STDLIB_MOBJ2:.o=.os): $(STDLIB_MSRC2)
+$(STDLIB_MOBJ1:.o=.os): $(STDLIB_MSRC1)
 	$(compile.m)
 
-$(STDLIB_MOBJ3) $(STDLIB_MOBJ3:.o=.os) $(STDLIB_OUT)/atexit.os: $(STDLIB_MSRC3)
+$(STDLIB_MOBJ2): $(STDLIB_MSRC2)
 	$(compile.m)
 
-$(STDLIB_MOBJ1x) $(STDLIB_MOBJ1x:.o=.os): $(STDLIB_MSRC1)
+$(STDLIB_MOBJ2:.o=.os): $(STDLIB_MSRC2)
+	$(compile.m)
+
+$(STDLIB_MOBJ3): $(STDLIB_MSRC3)
+	$(compile.m)
+
+$(STDLIB_MOBJ3:.o=.os) $(STDLIB_OUT)/atexit.os: $(STDLIB_MSRC3)
+	$(compile.m)
+
+$(STDLIB_MOBJ1x): $(STDLIB_MSRC1)
 	$(compile.m) -D__UCLIBC_DO_XLOCALE
 
-$(STDLIB_MOBJ2x) $(STDLIB_MOBJ2x:.o=.os): $(STDLIB_MSRC2)
+$(STDLIB_MOBJ1x:.o=.os): $(STDLIB_MSRC1)
+	$(compile.m) -D__UCLIBC_DO_XLOCALE
+
+$(STDLIB_MOBJ2x): $(STDLIB_MSRC2)
+	$(compile.m) -D__UCLIBC_DO_XLOCALE
+
+$(STDLIB_MOBJ2x:.o=.os): $(STDLIB_MSRC2)
 	$(compile.m) -D__UCLIBC_DO_XLOCALE
 
 libc-a-y+=$(STDLIB_OBJS)

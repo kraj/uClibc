@@ -21,7 +21,10 @@ MISC_FTW_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_FTW_MOBJ))))
 
 MISC_FTW_OBJS:=$(MISC_FTW_MOBJ) $(MISC_FTW_OUT)/$(MISC_FTW_NO_MULTI)
 
-$(MISC_FTW_OBJS) $(MISC_FTW_OBJS:.o=.os): $(MISC_FTW_MSRC)
+$(MISC_FTW_OBJS): $(MISC_FTW_MSRC)
+	$(compile.m)
+
+$(MISC_FTW_OBJS:.o=.os): $(MISC_FTW_MSRC)
 	$(compile.m)
 
 libc-a-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_OBJS)
