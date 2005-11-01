@@ -12,12 +12,6 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 	defconfig allyesconfig allnoconfig clean distclean \
 	release dist tags
 
-TOPDIR=./
-
-top_srcdir=$(TOPDIR)
-top_builddir=./
-include $(top_builddir)Rules.mak
-
 # need to have libc.so built, before we can build the others
 ifeq ($(HAVE_SHARED),y)
 PRE_DIRS = ldso libc
@@ -381,8 +375,6 @@ dist release:
 	svn -q export . ../uClibc-$(VERSION)
 	tar czf ../uClibc-$(VERSION).tar.gz -C .. uClibc-$(VERSION)
 	du -b ../uClibc-$(VERSION).tar.gz
-
-include $(top_srcdir)Makerules
 
 check:
 	$(MAKE) -C test
