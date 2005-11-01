@@ -28,7 +28,7 @@ $(MISC_INTERNALS_OUT)/interp.c: $(MISC_INTERNALS_DIR)/Makefile.in
 
 libc-a-y+=$(MISC_INTERNALS_OBJ)
 libc-so-y+=$(MISC_INTERNALS_OBJ:.o=.os)
-libc-shared-y+=$(MISC_INTERNALS_OUT)/__uClibc_main.os
+libc-shared-y+=$(MISC_INTERNALS_OUT)/__uClibc_main.oS
 libc-static-y+=$(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(STATIC_SRC))
 other-y+=$(MISC_INTERNALS_OUT)/interp.os
 
