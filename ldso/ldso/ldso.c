@@ -86,6 +86,9 @@ static int nlist; /* # items in init_fini_list */
 extern void _start(void);
 
 #ifdef __UCLIBC_HAS_SSP__
+#ifdef __SSP__
+#error "file must not be compiled with stack protection enabled on it. Use -fno-stack-protector"
+#endif
 #include <dl-osinfo.h>
 #ifndef THREAD_SET_STACK_GUARD
 /* Only exported for architectures that don't store the stack guard canary
