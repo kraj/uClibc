@@ -1,0 +1,32 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2001 by Hewlett-Packard Australia
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+CSRC:=mmap.c longjmp.c pipe.c __init_brk.c brk.c sbrk.c syscall.c pread_write.c
+SSRC:=setjmp.S __longjmp.S vfork.S clone.S ___fpscr_values.S
+
+ARCH_DIR:=$(top_srcdir)libc/sysdeps/linux/sh
+ARCH_OUT:=$(top_builddir)libc/sysdeps/linux/sh
+
+ARCH_CSRC:=$(patsubst %.c,$(ARCH_DIR)/%.c,$(CSRC))
+ARCH_COBJ:=$(patsubst %.c,$(ARCH_OUT)/%.o,$(CSRC))
+ARCH_SSRC:=$(patsubst %.S,$(ARCH_DIR)/%.S,$(SSRC))
+ARCH_SOBJ:=$(patsubst %.S,$(ARCH_OUT)/%.o,$(SSRC))
+
+ARCH_OBJS:=$(ARCH_COBJ) $(ARCH_SOBJ)
+
+crt-y:=create
+libc-a-y+=$(ARCH_OBJS)
+libc-so-y+=$(ARCH_OBJS:.o=.os)
+
+#libc-multi-y+=$(ARCH_CSRC)
+libc-nomulti-y+=$(ARCH_OBJS)
+
+objclean-y+=arch_objclean
+
+arch_objclean:
+	$(RM) $(ARCH_OUT)/*.{o,os}
