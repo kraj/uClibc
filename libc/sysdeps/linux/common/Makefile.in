@@ -14,8 +14,8 @@ ifeq ($(EXCLUDE_BRK),y)
 CSRC:=$(filter-out sbrk.c,$(CSRC))
 endif
 
-CSRC:=$(filter-out ssp-local.c,$(CSRC))
 ifneq ($(UCLIBC_HAS_SSP),y)
+CSRC:=$(filter-out ssp-local.c,$(CSRC))
 CSRC:=$(filter-out ssp.c,$(CSRC))
 endif
 
@@ -31,7 +31,6 @@ COMMON_SRC:=$(patsubst %.c,$(COMMON_DIR)/%.c,$(CSRC))
 COMMON_OBJ:=$(patsubst %.c,$(COMMON_OUT)/%.o,$(CSRC))
 
 libc-a-y+=$(COMMON_OBJ)
-libc-a-static-$(UCLIBC_HAS_SSP)+=$(COMMON_OUT)/ssp-local.o
 libc-so-y+=$(COMMON_OBJ:.o=.os)
 libc-nonshared-$(UCLIBC_HAS_SSP)+=$(COMMON_OUT)/ssp-local.os
 
