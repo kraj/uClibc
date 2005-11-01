@@ -385,10 +385,6 @@ ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG
 endif
 
-ifeq ($(DOPIC),y)
-CFLAGS+=$(PICFLAG)
-endif
-
 # Keep the check_as from being needlessly executed
 ASFLAGS = $(CFLAGS)
 ifndef ASFLAGS_NOEXEC
