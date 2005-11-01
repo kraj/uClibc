@@ -25,13 +25,19 @@ compile-m=$(CC) $^ -c -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suff
 CFLAGS-.os+=$(PICFLAG)
 CFLAGS-.oS+=$(PICFLAG) -DSHARED
 
-%.o %.os: %.c
+%.o: %.c
+	$(compile.c)
+
+%.os: %.c
 	$(compile.c)
 
 %.oS: %.c
 	$(compile.c)
 
-%.o %.os: %.S
+%.o: %.S
+	$(compile.S)
+
+%.os: %.S
 	$(compile.S)
 
 #ifeq ($(HAVE_ELF),y)

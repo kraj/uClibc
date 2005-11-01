@@ -116,7 +116,10 @@ libm_OBJS+=$(patsubst %.c,$(libm_OUT)/%.o,$(LIBM_NO_MULTI))
 endif
 endif
 
-$(libm_MOBJ) $(libm_MOBJ:.o=.os): $(libm_MSRC)
+$(libm_MOBJ): $(libm_MSRC)
+	$(compile.m)
+
+$(libm_MOBJ:.o=.os): $(libm_MSRC)
 	$(compile.m)
 
 libm-a-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJS)

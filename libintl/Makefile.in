@@ -22,7 +22,10 @@ libintl_MOBJ:=$(patsubst %.o,$(libintl_OUT)/%.o,$(MOBJ))
 
 libintl_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(libintl_MOBJ))))
 
-$(libintl_MOBJ) $(libintl_MOBJ:.o=.os): $(libintl_MSRC)
+$(libintl_MOBJ): $(libintl_MSRC)
+	$(compile.m)
+
+$(libintl_MOBJ:.o=.os): $(libintl_MSRC)
 	$(compile.m)
 
 libintl-a-$(UCLIBC_HAS_GETTEXT_AWARENESS):=$(libintl_MOBJ)
