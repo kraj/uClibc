@@ -38,7 +38,6 @@ INET_RPC_SRC:=$(patsubst %.c,$(INET_RPC_DIR)/%.c,$(CSRC))
 INET_RPC_OBJ:=$(patsubst %.c,$(INET_RPC_OUT)/%.o,$(CSRC))
 
 libc-a-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OBJ)
-libc-a-pic-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OBJ:.o=.os)
 libc-so-$(UCLIBC_HAS_RPC)+=$(INET_RPC_OBJ:.o=.os)
 
 libc-multi-$(UCLIBC_HAS_RPC)+=$(filter-out $(patsubst %.c,$(INET_RPC_DIR)/%.c,$(INET_RPC_NO_MULTI)),$(INET_RPC_SRC))

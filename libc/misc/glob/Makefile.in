@@ -17,7 +17,6 @@ MISC_GLOB_OBJ:=$(patsubst %.c,$(MISC_GLOB_OUT)/%.o,$(CSRC))
 $(MISC_GLOB_OUT)/glob64.o $(MISC_GLOB_OUT)/glob64.os: $(MISC_GLOB_DIR)/glob64.c $(MISC_GLOB_DIR)/glob.c
 
 libc-a-$(UCLIBC_HAS_GLOB)+=$(MISC_GLOB_OBJ)
-libc-a-pic-$(UCLIBC_HAS_GLOB)+=$(MISC_GLOB_OBJ:.o=.os)
 libc-so-$(UCLIBC_HAS_GLOB)+=$(MISC_GLOB_OBJ:.o=.os)
 
 # glob has to be rewritten to allow multi

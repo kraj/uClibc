@@ -13,7 +13,6 @@ MISC_FNMATCH_SRC:=$(MISC_FNMATCH_DIR)/fnmatch.c
 MISC_FNMATCH_OBJ:=$(MISC_FNMATCH_OUT)/fnmatch.o
 
 libc-a-y+=$(MISC_FNMATCH_OBJ)
-libc-a-pic-y+=$(MISC_FNMATCH_OBJ:.o=.os)
 libc-so-y+=$(MISC_FNMATCH_OBJ:.o=.os)
 
 libc-multi-y+=$(MISC_FNMATCH_SRC)

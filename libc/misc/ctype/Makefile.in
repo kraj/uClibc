@@ -41,8 +41,6 @@ $(MISC_CTYPE_MOBJx) $(MISC_CTYPE_MOBJx:.o=.os): $(MISC_CTYPE_MSRC)
 
 libc-a-y+=$(MISC_CTYPE_MOBJ)
 libc-a-$(UCLIBC_HAS_XLOCALE)+=$(MISC_CTYPE_MOBJx)
-libc-a-pic-y+=$(MISC_CTYPE_MOBJ:.o=.os)
-libc-a-pic-$(UCLIBC_HAS_XLOCALE)+=$(MISC_CTYPE_MOBJx:.o=.os)
 libc-so-y+=$(MISC_CTYPE_MOBJ:.o=.os)
 libc-so-$(UCLIBC_HAS_XLOCALE)+=$(MISC_CTYPE_MOBJx:.o=.os)
 

@@ -80,7 +80,6 @@ $(STRING_MOBJWx) $(STRING_MOBJWx:.o=.os): $(STRING_MSRC)
 	$(compile.m) -DWANT_WIDE -D__UCLIBC_DO_XLOCALE
 
 libc-a-y+=$(STRING_OBJS)
-libc-a-pic-y+=$(STRING_OBJS:.o=.os)
 libc-so-y+=$(STRING_OBJS:.o=.os)
 
 # multi does not work here, because arch/Makefile.in uses the same L_* defines

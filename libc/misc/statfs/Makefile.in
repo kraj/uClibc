@@ -17,7 +17,6 @@ MISC_STATFS_SRC:=$(patsubst %.c,$(MISC_STATFS_DIR)/%.c,$(CSRC))
 MISC_STATFS_OBJ:=$(patsubst %.c,$(MISC_STATFS_OUT)/%.o,$(CSRC))
 
 libc-a-y+=$(MISC_STATFS_OBJ)
-libc-a-pic-y+=$(MISC_STATFS_OBJ:.o=.os)
 libc-so-y+=$(MISC_STATFS_OBJ:.o=.os)
 
 libc-multi-y+=$(MISC_STATFS_SRC)

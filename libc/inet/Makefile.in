@@ -60,7 +60,6 @@ $(INET_MOBJ3) $(INET_MOBJ3:.o=.os): $(INET_MSRC3)
 	$(compile.m)
 
 libc-a-y+=$(INET_OBJS)
-libc-a-pic-y+=$(INET_OBJS:.o=.os)
 libc-so-y+=$(INET_OBJS:.o=.os)
 
 CFLAGS-multi-y+=$(INET_DEF)

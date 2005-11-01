@@ -15,7 +15,6 @@ MISC_REGEX_SRC:=$(patsubst %.c,$(MISC_REGEX_DIR)/%.c,$(CSRC))
 MISC_REGEX_OBJ:=$(patsubst %.c,$(MISC_REGEX_OUT)/%.o,$(CSRC))
 
 libc-a-$(UCLIBC_HAS_REGEX)+=$(MISC_REGEX_OBJ)
-libc-a-pic-$(UCLIBC_HAS_REGEX)+=$(MISC_REGEX_OBJ:.o=.os)
 libc-so-$(UCLIBC_HAS_REGEX)+=$(MISC_REGEX_OBJ:.o=.os)
 
 libc-multi-$(UCLIBC_HAS_REGEX)+=$(MISC_REGEX_SRC)

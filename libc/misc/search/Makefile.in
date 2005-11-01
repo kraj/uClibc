@@ -54,7 +54,6 @@ $(MISC_SEARCH_MOBJ4) $(MISC_SEARCH_MOBJ4:.o=.os): $(MISC_SEARCH_MSRC4)
 	$(compile.m)
 
 libc-a-y+=$(MISC_SEARCH_OBJS)
-libc-a-pic-y+=$(MISC_SEARCH_OBJS:.o=.os)
 libc-so-y+=$(MISC_SEARCH_OBJS:.o=.os)
 
 CFLAGS-multi-y+=$(MISC_SEARCH_DEF)

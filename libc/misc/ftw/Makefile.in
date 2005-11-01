@@ -25,7 +25,6 @@ $(MISC_FTW_OBJS) $(MISC_FTW_OBJS:.o=.os): $(MISC_FTW_MSRC)
 	$(compile.m)
 
 libc-a-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_OBJS)
-libc-a-pic-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_OBJS:.o=.os)
 libc-so-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_OBJS:.o=.os)
 
 CFLAGS-multi-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_DEF)

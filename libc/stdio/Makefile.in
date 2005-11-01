@@ -129,7 +129,6 @@ $(STDIO_MOBJ2) $(STDIO_MOBJ2:.o=.os): $(STDIO_MSRC2)
 	$(compile.m)
 
 libc-a-y+=$(STDIO_OBJS)
-libc-a-pic-y+=$(STDIO_OBJS:.o=.os)
 libc-so-y+=$(STDIO_OBJS:.o=.os)
 
 #CFLAGS-multi-y+=$(STDIO_DEF)

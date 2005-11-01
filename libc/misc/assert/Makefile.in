@@ -15,7 +15,6 @@ MISC_ASSERT_SRC:=$(MISC_ASSERT_DIR)/__assert.c
 MISC_ASSERT_OBJ:=$(MISC_ASSERT_OUT)/__assert.o
 
 libc-a-y+=$(MISC_ASSERT_OBJ)
-libc-a-pic-y+=$(MISC_ASSERT_OBJ:.o=.os)
 libc-so-y+=$(MISC_ASSERT_OBJ:.o=.os)
 
 libc-multi-y+=$(MISC_ASSERT_SRC)

@@ -15,7 +15,6 @@ MISC_SYSLOG_SRC:=$(patsubst %.c,$(MISC_SYSLOG_DIR)/%.c,$(CSRC))
 MISC_SYSLOG_OBJ:=$(patsubst %.c,$(MISC_SYSLOG_OUT)/%.o,$(CSRC))
 
 libc-a-y+=$(MISC_SYSLOG_OBJ)
-libc-a-pic-y+=$(MISC_SYSLOG_OBJ:.o=.os)
 libc-so-y+=$(MISC_SYSLOG_OBJ:.o=.os)
 
 libc-multi-y+=$(MISC_SYSLOG_SRC)

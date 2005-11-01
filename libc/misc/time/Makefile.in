@@ -53,8 +53,6 @@ $(MISC_TIME_MOBJx) $(MISC_TIME_MOBJx:.o=.os): $(MISC_TIME_MSRC)
 
 libc-a-y+=$(MISC_TIME_OBJS)
 libc-a-$(UCLIBC_HAS_XLOCALE)+=$(MISC_TIME_MOBJx)
-libc-a-pic-y+=$(MISC_TIME_OBJS:.o=.os)
-libc-a-pic-$(UCLIBC_HAS_XLOCALE)+=$(MISC_TIME_MOBJx:.o=.os)
 libc-so-y+=$(MISC_TIME_OBJS:.o=.os)
 libc-so-$(UCLIBC_HAS_XLOCALE)+=$(MISC_TIME_MOBJx:.o=.os)
 

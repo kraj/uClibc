@@ -23,7 +23,6 @@ SIGNAL_SRC:=$(patsubst %.c,$(SIGNAL_DIR)/%.c,$(CSRC))
 SIGNAL_OBJ:=$(patsubst $(SIGNAL_DIR)/%.c,$(SIGNAL_OUT)/%.o,$(SIGNAL_SRC))
 
 libc-a-y+=$(SIGNAL_OBJ)
-libc-a-pic-y+=$(SIGNAL_OBJ:.o=.os)
 libc-so-y+=$(SIGNAL_OBJ:.o=.os)
 
 # either sigaction or allocrtsig have to be removed

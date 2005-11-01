@@ -49,7 +49,6 @@ $(MISC_SYSVIPC_MOBJ3) $(MISC_SYSVIPC_MOBJ3:.o=.os): $(MISC_SYSVIPC_MSRC3)
 	$(compile.m)
 
 libc-a-y+=$(MISC_SYSVIPC_OBJS)
-libc-a-pic-y+=$(MISC_SYSVIPC_OBJS:.o=.os)
 libc-so-y+=$(MISC_SYSVIPC_OBJS:.o=.os)
 
 CFLAGS-multi-y+=$(MISC_SYSVIPC_DEF)

@@ -16,7 +16,6 @@ endif
 MISC_FILE_OBJ:=$(patsubst $(MISC_FILE_DIR)/%.c,$(MISC_FILE_OUT)/%.o,$(MISC_FILE_SRC))
 
 libc-a-y+=$(MISC_FILE_OBJ)
-libc-a-pic-y+=$(MISC_FILE_OBJ:.o=.os)
 libc-so-y+=$(MISC_FILE_OBJ:.o=.os)
 
 libc-multi-y+=$(MISC_FILE_DIR)/lockf.c

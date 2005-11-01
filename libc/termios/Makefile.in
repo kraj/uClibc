@@ -29,7 +29,6 @@ $(TERMIOS_MOBJ) $(TERMIOS_MOBJ:.o=.os): $(TERMIOS_MSRC)
 	$(compile.m)
 
 libc-a-y+=$(TERMIOS_OBJS)
-libc-a-pic-y+=$(TERMIOS_OBJS:.o=.os)
 libc-so-y+=$(TERMIOS_OBJS:.o=.os)
 
 CFLAGS-multi-y+=$(TERMIOS_DEF)

@@ -33,8 +33,6 @@ $(PWDGRP_MOBJ) $(PWDGRP_MOBJ:.o=.os): $(PWDGRP_MSRC)
 
 libc-a-y+=$(PWDGRP_MOBJ)
 libc-a-$(HAS_SHADOW)+=$(PWDGRP_OUT)/lckpwdf.o
-libc-a-pic-y+=$(PWDGRP_MOBJ:.o=.os)
-libc-a-pic-$(HAS_SHADOW)+=$(PWDGRP_OUT)/lckpwdf.os
 libc-so-y+=$(PWDGRP_MOBJ:.o=.os)
 libc-so-$(HAS_SHADOW)+=$(PWDGRP_OUT)/lckpwdf.os
 

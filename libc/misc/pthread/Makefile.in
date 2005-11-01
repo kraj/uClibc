@@ -14,7 +14,6 @@ MISC_PTHREAD_SRC:=$(patsubst %.c,$(MISC_PTHREAD_DIR)/%.c,$(CSRC))
 MISC_PTHREAD_OBJ:=$(patsubst %.c,$(MISC_PTHREAD_OUT)/%.o,$(CSRC))
 
 libc-a-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_OBJ)
-libc-a-pic-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_OBJ:.o=.os)
 libc-so-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_OBJ:.o=.os)
 
 #libc-multi-$(UCLIBC_HAS_THREADS)+=$(MISC_PTHREAD_SRC)

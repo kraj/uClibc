@@ -39,7 +39,6 @@ $(UNISTD_MOBJ) $(UNISTD_MOBJ:.o=.os): $(UNISTD_MSRC)
 	$(compile.m)
 
 libc-a-y+=$(UNISTD_OBJS)
-libc-a-pic-y+=$(UNISTD_OBJS:.o=.os)
 libc-so-y+=$(UNISTD_OBJS:.o=.os)
 
 CFLAGS-multi-y+=$(UNISTD_DEF)

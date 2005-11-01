@@ -14,7 +14,6 @@ MISC_ERROR_SRC:=$(patsubst %.c,$(MISC_ERROR_DIR)/%.c,$(CSRC))
 MISC_ERROR_OBJ:=$(patsubst %.c,$(MISC_ERROR_OUT)/%.o,$(CSRC))
 
 libc-a-y+=$(MISC_ERROR_OBJ)
-libc-a-pic-y+=$(MISC_ERROR_OBJ:.o=.os)
 libc-so-y+=$(MISC_ERROR_OBJ:.o=.os)
 
 libc-multi-y+=$(MISC_ERROR_SRC)

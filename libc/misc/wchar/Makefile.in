@@ -37,7 +37,6 @@ $(MISC_WCHAR_MOBJ) $(MISC_WCHAR_MOBJ:.o=.os): $(MISC_WCHAR_MSRC)
 	$(compile.m)
 
 libc-a-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MOBJ)
-libc-a-pic-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MOBJ:.o=.os)
 libc-so-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MOBJ:.o=.os)
 
 CFLAGS-multi-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_DEF)
