@@ -243,6 +243,7 @@ ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 	$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
 		$(PREFIX)$(DEVEL_PREFIX)lib/libthread_db.so
 endif
+ifeq ($(DOPIC),y)
 #	# If we build shared libraries then the static libs are PIC...
 #	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
 	if [ -d lib ] ; then \
@@ -251,6 +252,7 @@ endif
 				| sed -e 's/\.a$$/_pic.a/'`; \
 		done ; \
 	fi
+endif
 endif
 
 # Installs run-time libraries
