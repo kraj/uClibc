@@ -37,7 +37,7 @@ CFLAGS-.oS+=$(PICFLAG) -DSHARED
 #ifeq ($(HAVE_ELF),y)
 CRT=crt1
 #else
-#CRT=crt0.o
+#CRT=crt0
 #endif
 
 ifeq ($(HAVE_SHARED),y)

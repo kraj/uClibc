@@ -386,7 +386,6 @@ CFLAGS+=-DNDEBUG
 endif
 
 # Keep the check_as from being needlessly executed
-ASFLAGS = $(CFLAGS)
 ifndef ASFLAGS_NOEXEC
 ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
 export ASFLAGS_NOEXEC := $(call check_as,--noexecstack)
@@ -394,7 +393,7 @@ else
 export ASFLAGS_NOEXEC :=
 endif
 endif
-ASFLAGS += $(ASFLAGS_NOEXEC)
+ASFLAGS = $(ASFLAGS_NOEXEC)
 
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
