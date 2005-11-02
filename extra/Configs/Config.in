@@ -167,13 +167,12 @@ config HAVE_NO_PIC
 	default n
 
 config DOPIC
-	bool "Generate Position Independent Code (PIC)"
+	bool "Generate only Position Independent Code (PIC)"
 	default y
 	depends !HAVE_NO_PIC
 	help
-	  If you wish to build uClibc with support for shared libraries then
-	  answer Y here.  If you only want to build uClibc as a static library,
-	  then answer N.
+	  If you wish to build all of uClibc as PIC objects, then answer Y here.
+	  If you are unsure, then you should answer N.
 
 config HAVE_NO_SHARED
 	bool
