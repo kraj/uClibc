@@ -24,6 +24,9 @@
 #define GETTIMEOFDAY gettimeofday
 #endif
 #else
+#ifdef __SSP__
+#error "file must not be compiled with stack protection enabled on it. Use -fno-stack-protector"
+#endif
 #ifndef __SSP_QUICK_CANARY__
 #define OPEN _dl_open
 #define READ _dl_read
