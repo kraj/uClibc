@@ -286,6 +286,12 @@ else # ifeq ($(HAVE_DOT_CONFIG),y)
 
 all: menuconfig
 
+headers:
+	@echo "Need to make a config file first, run: make menuconfig"
+	@false
+
+endif # ifeq ($(HAVE_DOT_CONFIG),y)
+
 # configuration
 # ---------------------------------------------------------------------------
 extra/config/conf:
@@ -299,10 +305,6 @@ menuconfig: extra/config/mconf
 	$(INSTALL) -d include/bits
 	@./extra/config/mconf extra/Configs/Config.in
 	$(MAKE) headers
-
-headers:
-	@echo "Need to make a config file first, run: make menuconfig"
-	@false
 
 config: extra/config/conf
 	$(RM) -r include/bits
@@ -339,8 +341,6 @@ defconfig: extra/config/conf
 	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@./extra/config/conf -d extra/Configs/Config.in
-
-endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 clean:
 	@$(RM) -r lib include/bits
