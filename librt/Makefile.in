@@ -7,9 +7,6 @@
 
 CFLAGS+=$(SSP_ALL_CFLAGS)
 
-# all files are syscall related
-DOMULTI=n
-
 LIB_NAME:=librt
 
 librt_DIR:=$(top_srcdir)librt
