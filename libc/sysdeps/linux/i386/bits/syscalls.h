@@ -28,8 +28,6 @@ asm (".L__X'%ebx = 1\n\t"
      ".L__X'%edi = 3\n\t"
      ".L__X'%ebp = 3\n\t"
      ".L__X'%esp = 3\n\t"
-     ".ifndef _BITS_SYSCALLS_ASM\n\t"
-     ".set _BITS_SYSCALLS_ASM,1\n\t"
      ".macro bpushl name reg\n\t"
      ".if 1 - \\name\n\t"
      ".if 2 - \\name\n\t"
@@ -54,8 +52,7 @@ asm (".L__X'%ebx = 1\n\t"
      "movl \\reg, %ebx\n\t"
      ".endif\n\t"
      ".endif\n\t"
-     ".endm\n\t"
-     ".endif\n\t");
+     ".endm\n\t");
 
 
 #undef _syscall0
@@ -147,6 +144,9 @@ return (type) (INLINE_SYSCALL(name, 5, arg1, arg2, arg3, arg4, arg5)); \
 #define ASMFMT_5(arg1, arg2, arg3, arg4, arg5) \
 	, "a" (arg1), "c" (arg2), "d" (arg3), "S" (arg4), "D" (arg5)
 
+asm(".purgem bpushl\n\t"
+    ".purgem bpopl\n\t"
+    ".purgem bmovl\n\t");
 
 #endif /* __ASSEMBLER__ */
 #endif /* _BITS_SYSCALLS_H */
