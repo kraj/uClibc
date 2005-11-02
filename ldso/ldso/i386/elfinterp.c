@@ -81,7 +81,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	/* Get the address of the GOT entry. */
 	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
 	if (unlikely(!new_addr)) {
-		_dl_dprintf(2, "%s: Can't resolve symbol '%s'\n", _dl_progname, symname);
+		_dl_dprintf(2, "%s: can't resolve symbol '%s' in lib '%s'.\n", _dl_progname, symname, tpnt->libname);
 		_dl_exit(1);
 	}
 
@@ -147,15 +147,15 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			int reloc_type = ELF32_R_TYPE(rpnt->r_info);
 
 #if defined (__SUPPORT_LD_DEBUG__)
-			_dl_dprintf(2, "can't handle reloc type %s\n",
-				    _dl_reltypes(reloc_type));
+			_dl_dprintf(2, "can't handle reloc type '%s' in lib '%s'\n",
+				    _dl_reltypes(reloc_type), tpnt->libname);
 #else
-			_dl_dprintf(2, "can't handle reloc type %x\n",
-				    reloc_type);
+			_dl_dprintf(2, "can't handle reloc type %x in lib '%s'\n",
+				    reloc_type, tpnt->libname);
 #endif
-			_dl_exit(-res);
+			return res;
 		} else if (unlikely(res > 0)) {
-			_dl_dprintf(2, "can't resolve symbol\n");
+			_dl_dprintf(2, "can't resolve symbol in lib '%s'.\n", tpnt->libname);
 			return res;
 		}
 	}
