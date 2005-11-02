@@ -12,6 +12,8 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 	defconfig allyesconfig allnoconfig clean distclean \
 	release dist tags
 
+include $(top_builddir)Rules.mak
+
 # need to have libc.so built, before we can build the others
 ifeq ($(HAVE_SHARED),y)
 PRE_DIRS = ldso libc

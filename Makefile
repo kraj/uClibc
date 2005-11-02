@@ -9,7 +9,7 @@ TOPDIR=./
 
 top_srcdir=$(TOPDIR)
 top_builddir=./
-include $(top_builddir)Rules.mak
+#include $(top_builddir)Rules.mak
 #all: libs
 include Makefile.in
 include $(top_srcdir)Makerules
