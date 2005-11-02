@@ -117,13 +117,12 @@ STDIO_OBJS:=$(STDIO_OBJ) $(STDIO_MOBJ) $(STDIO_CUOBJ) $(STDIO_CLOBJ)
 
 # need this, else the other %64 files will get false rules
 $(STDIO_CLSRC): $(STDIO_OUT)/%64.c : $(STDIO_DIR)/%.c
-	cp $< $@
 
 $(STDIO_CLOBJ): %.o : %.c
-	$(compile.c) -D__DO_LARGEFILE
+	$(compile.c:64.c=.c) -D__DO_LARGEFILE
 
 $(STDIO_CLOBJ:.o=.os): %.os : %.c
-	$(compile.c) -D__DO_LARGEFILE
+	$(compile.c:64.c=.c) -D__DO_LARGEFILE
 
 $(STDIO_MOBJ1): $(STDIO_MSRC1)
 	$(compile.m)
