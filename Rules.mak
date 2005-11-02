@@ -49,6 +49,8 @@ INSTALL    = install
 LN         = ln
 RM         = rm -f
 
+STRIP_FLAGS ?= -x -R .note -R .comment
+
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
 HOSTCFLAGS = -O2 -Wall
@@ -94,7 +96,7 @@ check_as=$(shell \
 	then echo "-Wa,$(1)"; fi)
 
 # Setup some shortcuts so that silent mode is silent like it should be
-ifeq ($(subst s,,$(MAKEFLAGS)),$(MAKEFLAGS))
+ifeq ($(findstring s,$(MAKEFLAGS)),)
 export MAKE_IS_SILENT=n
 SECHO=@echo
 SHELL_SET_X=set -x
