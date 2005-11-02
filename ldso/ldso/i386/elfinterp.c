@@ -67,12 +67,6 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + symtab[symtab_index].st_name;
 
-	if (unlikely(reloc_type != R_386_JMP_SLOT)) {
-		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n",
-		            _dl_progname);
-		_dl_exit(1);
-	}
-
 	/* Address of the jump instruction to fix up. */
 	instr_addr = ((unsigned long)this_reloc->r_offset +
 		      (unsigned long)tpnt->loadaddr);
