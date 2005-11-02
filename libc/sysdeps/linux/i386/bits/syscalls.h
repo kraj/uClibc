@@ -30,6 +30,8 @@ asm (".L__X'%ebx = 1\n\t"
      ".L__X'%edi = 3\n\t"
      ".L__X'%ebp = 3\n\t"
      ".L__X'%esp = 3\n\t"
+     ".ifndef _BITS_SYSCALLS_ASM\n\t"
+     ".set _BITS_SYSCALLS_ASM,1\n\t"
      ".macro bpushl name reg\n\t"
      ".if 1 - \\name\n\t"
      ".if 2 - \\name\n\t"
@@ -54,7 +56,8 @@ asm (".L__X'%ebx = 1\n\t"
      "movl \\reg, %ebx\n\t"
      ".endif\n\t"
      ".endif\n\t"
-     ".endm\n\t");
+     ".endm\n\t"
+     ".endif\n\t");
 
 
 #undef _syscall0
