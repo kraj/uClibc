@@ -22,8 +22,6 @@ ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 STRIP_FLAGS:=-X --strip-debug -R .note -R .comment
 endif
 
-#DOMULTI=n
-
 LIB_NAME:=libpthread
 
 libpthread_DIR:=$(top_srcdir)libpthread/linuxthreads
@@ -39,9 +37,7 @@ libpthread_SRC:=$(filter-out $(libpthread_DIR)/locale.c,$(libpthread_SRC))
 endif
 
 ifneq ($(DOMULTI),n)
-# full list, we added the biggest one to IMA
-#libpthread_NO_MULTI:=cancel.c condvar.c join.c manager.c mutex.c oldsemaphore.c pt-machine.c pthread.c rwlock.c semaphore.c specific.c spinlock.c
-libpthread_NO_MULTI:=cancel.c condvar.c join.c manager.c mutex.c oldsemaphore.c pt-machine.c rwlock.c semaphore.c specific.c spinlock.c
+libpthread_NO_MULTI:=manager.c pt-machine.c
 libpthread_SRC:=$(filter-out $(patsubst %.c,$(libpthread_DIR)/%.c,$(libpthread_NO_MULTI)),$(libpthread_SRC))
 endif
 

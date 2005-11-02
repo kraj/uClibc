@@ -26,8 +26,6 @@ CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
 CFLAGS-s_lib_version.c=-D_POSIX_MODE
 
-#DOMULTI=n
-
 LIB_NAME:=libm
 
 ifeq ($(HAS_FPU),y)
@@ -110,11 +108,6 @@ libm_MOBJ:=$(patsubst %.o,$(libm_OUT)/%.o,$(FL_MOBJ))
 libm_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ))))
 
 libm_OBJS:=$(libm_OBJ) $(libm_MOBJ)
-ifneq ($(DOMULTI),n)
-ifeq ($(DO_C99_MATH),y)
-libm_OBJS+=$(patsubst %.c,$(libm_OUT)/%.o,$(LIBM_NO_MULTI))
-endif
-endif
 
 $(libm_MOBJ): $(libm_MSRC)
 	$(compile.m)
