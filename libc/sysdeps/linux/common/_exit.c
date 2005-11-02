@@ -34,6 +34,8 @@ static inline _syscall1(void, __syscall_exit, int, status);
 
 void _exit(int status)
 {
-	INLINE_SYSCALL(exit, 1, status);
+	/* The loop is added only to keep gcc happy. */
+	while(1)
+		INLINE_SYSCALL(exit, 1, status);
 }
 
