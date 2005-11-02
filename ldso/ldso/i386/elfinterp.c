@@ -191,10 +191,8 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		 * might have been intentional.  We should not be linking local
 		 * symbols here, so all bases should be covered.
 		 */
-		if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
-			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
-			_dl_exit(1);
-		};
+		if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK))
+			return 1;
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -233,7 +231,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			}
 			break;
 		default:
-			return -1;	/* Calls _dl_exit(1). */
+			return -1;
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -273,7 +271,7 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			*reloc_addr += (unsigned long)tpnt->loadaddr;
 			break;
 		default:
-			return -1;	/* Calls _dl_exit(1). */
+			return -1;
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
