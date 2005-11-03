@@ -24,7 +24,6 @@ MISC_WCTYPE_MSRC:=$(MISC_WCTYPE_DIR)/$(MSRC)
 MISC_WCTYPE_MOBJ:=$(patsubst %.o,$(MISC_WCTYPE_OUT)/%.o,$(MOBJ))
 MISC_WCTYPE_MOBJx=$(patsubst %.o,$(MISC_WCTYPE_OUT)/%.o,$(MOBJx))
 
-# adapt this if MOBJx is done for multi
 MISC_WCTYPE_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_WCTYPE_MOBJ))))
 
 $(MISC_WCTYPE_MOBJ): $(MISC_WCTYPE_MSRC)

@@ -19,7 +19,7 @@ libc-a-y+=$(MISC_FILE_OBJ)
 libc-so-y+=$(MISC_FILE_OBJ:.o=.os)
 
 libc-multi-y+=$(MISC_FILE_DIR)/lockf.c
-libc-nomulti-y+=$(MISC_FILE_OUT)/lockf64.o
+libc-nomulti-$(UCLIBC_HAS_LFS)+=$(MISC_FILE_OUT)/lockf64.o
 
 objclean-y+=misc_file_objclean
 

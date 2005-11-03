@@ -58,9 +58,8 @@ libc-so-y+=$(MISC_LOCALE_MOBJ:.o=.os)
 libc-so-$(UCLIBC_HAS_LOCALE)+=$(MISC_LOCALE_DATA:.o=.os)
 libc-so-$(UCLIBC_HAS_XLOCALE)+=$(MISC_LOCALE_MOBJx:.o=.os)
 
-#CFLAGS-multi-y+=$(MISC_LOCALE_DEF)
-#libc-multi-y+=$(MISC_LOCALE_MSRC)
-libc-nomulti-y+=$(MISC_LOCALE_MOBJ)
+CFLAGS-multi-y+=$(MISC_LOCALE_DEF)
+libc-multi-y+=$(MISC_LOCALE_MSRC)
 libc-nomulti-$(UCLIBC_HAS_LOCALE)+=$(MISC_LOCALE_DATA)
 libc-nomulti-$(UCLIBC_HAS_XLOCALE)+=$(MISC_LOCALE_MOBJx)
 

@@ -32,7 +32,10 @@ CSRC:=adjtime.c ftime.c
 MISC_TIME_DIR:=$(top_srcdir)libc/misc/time
 MISC_TIME_OUT:=$(top_builddir)libc/misc/time
 
+ifndef ($(DOMULTI),n)
 MISC_TIME_NO_MULTI:=strftime.o
+MOBJ:=$(filter-out $(MISC_TIME_NO_MULTI),$(MOBJ))
+endif
 
 MISC_TIME_SRC:=$(patsubst %.c,$(MISC_TIME_DIR)/%.c,$(CSRC))
 MISC_TIME_OBJ:=$(patsubst %.c,$(MISC_TIME_OUT)/%.o,$(CSRC))
@@ -41,7 +44,7 @@ MISC_TIME_MSRC:=$(patsubst %.c,$(MISC_TIME_DIR)/%.c,$(MSRC))
 MISC_TIME_MOBJ:=$(patsubst %.o,$(MISC_TIME_OUT)/%.o,$(MOBJ))
 MISC_TIME_MOBJx=$(patsubst %.o,$(MISC_TIME_OUT)/%.o,$(MOBJx))
 
-MISC_TIME_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(filter-out $(MISC_TIME_OUT)/$(MISC_TIME_NO_MULTI),$(MISC_TIME_MOBJ)))))
+MISC_TIME_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_TIME_MOBJ))))
 
 MISC_TIME_OBJS:=$(MISC_TIME_OBJ) $(MISC_TIME_MOBJ)
 
@@ -64,7 +67,7 @@ libc-so-$(UCLIBC_HAS_XLOCALE)+=$(MISC_TIME_MOBJx:.o=.os)
 
 CFLAGS-multi-y+=$(MISC_TIME_DEF)
 libc-multi-y+=$(MISC_TIME_MSRC)
-libc-nomulti-y+=$(MISC_TIME_OUT)/$(MISC_TIME_NO_MULTI)
+libc-nomulti-y+=$(patsubst %.o,$(MISC_TIME_OUT)/%.o,$(MISC_TIME_NO_MULTI))
 libc-nomulti-$(UCLIBC_HAS_XLOCALE)+=$(MISC_TIME_MOBJx)
 
 objclean-y+=misc_time_objclean
