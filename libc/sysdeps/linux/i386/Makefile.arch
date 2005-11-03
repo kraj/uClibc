@@ -25,6 +25,7 @@ libc-a-y+=$(ARCH_OBJS)
 libc-so-y+=$(ARCH_OBJS:.o=.os)
 
 libc-multi-y+=$(ARCH_CSRC)
+libc-nomulti-y+=$(ARCH_SOBJ)
 
 objclean-y+=arch_objclean
 

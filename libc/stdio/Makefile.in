@@ -83,6 +83,14 @@ endif
 
 CSRC+=$(CUSRC) $(CWSRC)
 
+ifneq ($(DOMULTI),n)
+STDIO_CSRC_NO_MULTI:=fwrite.c fputc.c fputs.c fprintf.c _fpmaxtostr.c
+CSRC:=$(filter-out $(STDIO_CSRC_NO_MULTI),$(CSRC))
+endif
+STDIO_MOBJ1_NO_MULTI:=vfprintf.o vfwprintf.o register_printf_function.o
+STDIO_MOBJ2_NO_MULTI:=vfscanf.o vfwscanf.o fscanf.o
+STDIO_MOBJ_NO_MULTI:=$(STDIO_MOBJ1_NO_MULTI) $(STDIO_MOBJ2_NO_MULTI)
+
 STDIO_DIR:=$(top_srcdir)libc/stdio
 STDIO_OUT:=$(top_builddir)libc/stdio
 
@@ -101,11 +109,11 @@ STDIO_MOBJ2:=$(patsubst %.o,$(STDIO_OUT)/%.o,$(MOBJ2))
 STDIO_MSRC:=$(STDIO_MSRC1) $(STDIO_MSRC2)
 STDIO_MOBJ:=$(STDIO_MOBJ1) $(STDIO_MOBJ2)
 
-#STDIO_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(STDIO_MOBJ))))
+STDIO_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(filter-out $(STDIO_MOBJ_NO_MULTI),$(notdir $(STDIO_MOBJ)))))
 
 STDIO_OBJS:=$(STDIO_OBJ) $(STDIO_MOBJ) $(STDIO_CUOBJ) $(STDIO_CLOBJ)
 
-#STDIO_NO_MULTI:=$(STDIO_CUOBJ) $(STDIO_CLOBJ)
+STDIO_NO_MULTI:=$(STDIO_CUOBJ) $(STDIO_CLOBJ)
 
 # these need special handling or rewrite to support multi-build
 # CUOBJ
@@ -117,12 +125,13 @@ STDIO_OBJS:=$(STDIO_OBJ) $(STDIO_MOBJ) $(STDIO_CUOBJ) $(STDIO_CLOBJ)
 
 # need this, else the other %64 files will get false rules
 $(STDIO_CLSRC): $(STDIO_OUT)/%64.c : $(STDIO_DIR)/%.c
+	cp $< $@
 
 $(STDIO_CLOBJ): %.o : %.c
-	$(compile.c:64.c=.c) -D__DO_LARGEFILE
+	$(compile.c) -D__DO_LARGEFILE
 
 $(STDIO_CLOBJ:.o=.os): %.os : %.c
-	$(compile.c:64.c=.c) -D__DO_LARGEFILE
+	$(compile.c) -D__DO_LARGEFILE
 
 $(STDIO_MOBJ1): $(STDIO_MSRC1)
 	$(compile.m)
@@ -139,10 +148,11 @@ $(STDIO_MOBJ2:.o=.os): $(STDIO_MSRC2)
 libc-a-y+=$(STDIO_OBJS)
 libc-so-y+=$(STDIO_OBJS:.o=.os)
 
-#CFLAGS-multi-y+=$(STDIO_DEF)
-#libc-multi-y+=$(STDIO_SRC) $(STDIO_MSRC)
-#libc-nomulti-y+=$(STDIO_NO_MULTI)
-libc-nomulti-y+=$(STDIO_OBJS)
+CFLAGS-multi-y+=$(STDIO_DEF)
+libc-multi-y+=$(STDIO_SRC) $(STDIO_MSRC)
+libc-nomulti-y+=$(STDIO_NO_MULTI)
+libc-nomulti-y+=$(patsubst %.c,$(STDIO_OUT)/%.o,$(STDIO_CSRC_NO_MULTI))
+libc-nomulti-y+=$(patsubst %.o,$(STDIO_OUT)/%.o,$(STDIO_MOBJ_NO_MULTI))
 
 objclean-y+=stdio_objclean
 

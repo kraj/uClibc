@@ -23,6 +23,8 @@ ifeq ($(UCLIBC_HAS_LOCALE),y)
 DATA:=locale_data.o
 endif
 
+MISC_LOCALE_NO_MULTI=localeconv.o
+
 MISC_LOCALE_DIR:=$(top_srcdir)libc/misc/locale
 MISC_LOCALE_OUT:=$(top_builddir)libc/misc/locale
 
@@ -31,7 +33,7 @@ MISC_LOCALE_MOBJ:=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(MOBJ))
 MISC_LOCALE_MOBJx=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(MOBJx))
 MISC_LOCALE_DATA=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(DATA))
 
-MISC_LOCALE_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_LOCALE_MOBJ))))
+MISC_LOCALE_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(filter-out $(MISC_LOCALE_NO_MULTI),$(notdir $(MISC_LOCALE_MOBJ)))))
 
 $(MISC_LOCALE_MOBJ): $(MISC_LOCALE_MSRC)
 	$(compile.m)
@@ -60,6 +62,7 @@ libc-so-$(UCLIBC_HAS_XLOCALE)+=$(MISC_LOCALE_MOBJx:.o=.os)
 
 CFLAGS-multi-y+=$(MISC_LOCALE_DEF)
 libc-multi-y+=$(MISC_LOCALE_MSRC)
+libc-nomulti-y+=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(MISC_LOCALE_NO_MULTI))
 libc-nomulti-$(UCLIBC_HAS_LOCALE)+=$(MISC_LOCALE_DATA)
 libc-nomulti-$(UCLIBC_HAS_XLOCALE)+=$(MISC_LOCALE_MOBJx)
 

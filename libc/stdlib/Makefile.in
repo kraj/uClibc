@@ -67,6 +67,10 @@ ifeq ($(UCLIBC_HAS_FLOATS),y)
 CSRC+=drand48.c drand48_r.c erand48.c erand48_r.c
 endif
 
+STDLIB_MOBJ1_NO_MULTI:=_stdlib_strto_l.o _stdlib_strto_ll.o
+STDLIB_MOBJ2_NO_MULTI:=strtod.o strtof.o __strtofpmax.o
+STDLIB_MOBJ_NO_MULTI:=$(STDLIB_MOBJ1_NO_MULTI) $(STDLIB_MOBJ2_NO_MULTI)
+
 STDLIB_DIR:=$(top_srcdir)libc/stdlib
 STDLIB_OUT:=$(top_builddir)libc/stdlib
 
@@ -85,7 +89,7 @@ STDLIB_MOBJ2x:=$(patsubst %.o,$(STDLIB_OUT)/%.o,$(MOBJ2x))
 STDLIB_MSRC:=$(STDLIB_MSRC1) $(STDLIB_MSRC2) $(STDLIB_MSRC3)
 STDLIB_MOBJ:=$(STDLIB_MOBJ1) $(STDLIB_MOBJ2) $(STDLIB_MOBJ3)
 
-STDLIB_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(STDLIB_MOBJ))))
+STDLIB_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(filter-out $(STDLIB_MOBJ_NO_MULTI),$(notdir $(STDLIB_MOBJ)))))
 
 STDLIB_MOBJx:=$(STDLIB_MOBJ1x) $(STDLIB_MOBJ2x)
 
@@ -129,6 +133,7 @@ libc-nonshared-y+=$(STDLIB_OUT)/atexit.os
 
 CFLAGS-multi-y+=$(STDLIB_DEF)
 libc-multi-y+=$(STDLIB_SRC) $(STDLIB_MSRC)
+libc-nomulti-y+=$(patsubst %.o,$(STDLIB_OUT)/%.o,$(STDLIB_MOBJ_NO_MULTI))
 libc-nomulti-$(UCLIBC_HAS_XLOCALE)+=$(STDLIB_MOBJx)
 
 objclean-y+=stdlib_objclean

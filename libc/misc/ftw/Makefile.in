@@ -11,16 +11,13 @@ MOBJ:=ftw.o ftw64.o
 MISC_FTW_DIR:=$(top_srcdir)libc/misc/ftw
 MISC_FTW_OUT:=$(top_builddir)libc/misc/ftw
 
-ifneq ($(DOMULTI),n)
 # ftw.c has to be rewritten to allow multi
 MISC_FTW_NO_MULTI:=ftw64.o
-MOBJ:=$(filter-out $(MISC_FTW_NO_MULTI),$(MOBJ))
-endif
 
 MISC_FTW_MSRC:=$(MISC_FTW_DIR)/$(MSRC)
 MISC_FTW_MOBJ:=$(patsubst %.o,$(MISC_FTW_OUT)/%.o,$(MOBJ))
 
-MISC_FTW_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_FTW_MOBJ))))
+MISC_FTW_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(filter-out $(MISC_FTW_NO_MULTI),$(notdir $(MISC_FTW_MOBJ)))))
 
 MISC_FTW_OBJS:=$(MISC_FTW_MOBJ)
 
@@ -35,7 +32,7 @@ libc-so-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_OBJS:.o=.os)
 
 CFLAGS-multi-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_DEF)
 libc-multi-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_MSRC)
-libc-nomulti-$(UCLIBC_HAS_FTW)+=$(MISC_FTW_OUT)/$(MISC_FTW_NO_MULTI)
+libc-nomulti-$(UCLIBC_HAS_FTW)+=$(patsubst %.o,$(MISC_FTW_OUT)/%.o,$(MISC_FTW_NO_MULTI))
 
 objclean-y+=misc_ftw_objclean
 

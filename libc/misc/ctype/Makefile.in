@@ -30,7 +30,6 @@ MISC_CTYPE_MSRC:=$(MISC_CTYPE_DIR)/$(MSRC)
 MISC_CTYPE_MOBJ:=$(patsubst %.o,$(MISC_CTYPE_OUT)/%.o,$(MOBJ))
 MISC_CTYPE_MOBJx=$(patsubst %.o,$(MISC_CTYPE_OUT)/%.o,$(MOBJx))
 
-# adapt this if MOBJx is done for multi
 MISC_CTYPE_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_CTYPE_MOBJ))))
 
 $(MISC_CTYPE_MOBJ): $(MISC_CTYPE_MSRC)

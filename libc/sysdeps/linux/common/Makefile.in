@@ -18,7 +18,6 @@ COMMON_SSP:=ssp.c ssp-local.c
 
 # full list
 #COMMON_NO_MULTI:=getcwd.c getrlimit.c getrlimit64.c setrlimit.c setrlimit64.c getpriority.c getpriority64.c setpriority.c getrusage.c wait4.c getitimer.c setitimer.c open.c open64.c uname.c __syscall_fcntl.c __syscall_fcntl64.c
-#COMMON_NO_MULTI:=getcwd.c getrlimit.c getrlimit64.c setrlimit.c setrlimit64.c getpriority.c setpriority.c getrusage.c wait4.c getitimer.c setitimer.c open.c uname.c __syscall_fcntl.c __syscall_rt_sigaction.c
 COMMON_NO_MULTI:=getrlimit.c getrlimit64.c setrlimit.c setrlimit64.c getpriority.c setpriority.c getrusage.c getitimer.c setitimer.c uname.c __syscall_rt_sigaction.c
 
 ifneq ($(UCLIBC_HAS_SSP),y)
