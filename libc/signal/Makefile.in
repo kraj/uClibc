@@ -25,9 +25,7 @@ SIGNAL_OBJ:=$(patsubst $(SIGNAL_DIR)/%.c,$(SIGNAL_OUT)/%.o,$(SIGNAL_SRC))
 libc-a-y+=$(SIGNAL_OBJ)
 libc-so-y+=$(SIGNAL_OBJ:.o=.os)
 
-# either sigaction or allocrtsig have to be removed
-#libc-multi-y+=$(SIGNAL_SRC)
-libc-nomulti-y+=$(SIGNAL_OBJ)
+libc-multi-y+=$(SIGNAL_SRC)
 
 objclean-y+=signal_objclean
 
