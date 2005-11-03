@@ -9,23 +9,19 @@ STRING_GENERIC_DIR:=$(top_srcdir)libc/string/generic
 STRING_GENERIC_OUT:=$(top_builddir)libc/string/generic
 
 STRING_GENERIC_SRC:=$(wildcard $(STRING_GENERIC_DIR)/*.c)
-MOBJ:=$(patsubst $(STRING_GENERIC_DIR)/%.c,%.o,$(STRING_GENERIC_SRC))
 
 ifeq ($(UCLIBC_HAS_STRING_ARCH_OPT),y)
 ifneq ($(strip $(STRING_ARCH_OBJS)),)
-MOBJ:=$(filter-out $(notdir $(STRING_ARCH_OBJS)),$(MOBJ))
+STRING_GENERIC_SRC:=$(filter-out $(patsubst %.o,$(STRING_GENERIC_DIR)/%.c,$(notdir $(STRING_ARCH_OBJS))),$(STRING_GENERIC_SRC))
 endif
 endif
 
-STRING_GENERIC_OBJ:=$(patsubst %.o,$(STRING_GENERIC_OUT)/%.o,$(MOBJ))
-
-STRING_GENERIC_OBJS:=$(STRING_GENERIC_OBJ)
+STRING_GENERIC_OBJS:=$(patsubst $(STRING_GENERIC_DIR)/%.c,$(STRING_GENERIC_OUT)/%.o,$(STRING_GENERIC_SRC))
 
 libc-a-$(UCLIBC_HAS_STRING_GENERIC_OPT)+=$(STRING_GENERIC_OBJS)
 libc-so-$(UCLIBC_HAS_STRING_GENERIC_OPT)+=$(STRING_GENERIC_OBJS:.o=.os)
 
-#libc-multi-$(UCLIBC_HAS_STRING_GENERIC_OPT)+=$(STRING_GENERIC_SRC)
-libc-nomulti-$(UCLIBC_HAS_STRING_GENERIC_OPT)+=$(STRING_GENERIC_OBJS)
+libc-multi-$(UCLIBC_HAS_STRING_GENERIC_OPT)+=$(STRING_GENERIC_SRC)
 
 objclean-y+=string_generic_objclean
 

@@ -94,7 +94,7 @@ $(STRING_MOBJWx:.o=.os): $(STRING_MSRC)
 libc-a-y+=$(STRING_OBJS)
 libc-so-y+=$(STRING_OBJS:.o=.os)
 
-# multi does not work here, because arch/Makefile.in uses the same L_* defines
+# multi does not work here, because arch/Makefile.arch uses the same L_* defines
 #CFLAGS-multi-y+=$(STRING_DEF)
 #libc-multi-y+=$(STRING_MSRC)
 #libc-nomulti-y+=$(STRING_Wx)
