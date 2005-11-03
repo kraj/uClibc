@@ -28,8 +28,7 @@ STDLIB_MALLOC_OBJ:=$(patsubst %.c,$(STDLIB_MALLOC_OUT)/%.o,$(CSRC))
 libc-a-$(MALLOC)+=$(STDLIB_MALLOC_OBJ)
 libc-so-$(MALLOC)+=$(STDLIB_MALLOC_OBJ:.o=.os)
 
-#libc-multi-$(MALLOC)+=$(STDLIB_MALLOC_SRC)
-libc-nomulti-$(MALLOC)+=$(STDLIB_MALLOC_OBJ)
+libc-multi-$(MALLOC)+=$(STDLIB_MALLOC_SRC)
 
 objclean-y+=stdlib_malloc_objclean
 
