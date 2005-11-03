@@ -18,6 +18,8 @@ ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 STRIP_FLAGS:=-X --strip-debug -R .note -R .comment
 endif
 
+DOMULTI=n
+
 LIB_NAME:=libthread_db
 libthread_db_FULL_NAME:=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 

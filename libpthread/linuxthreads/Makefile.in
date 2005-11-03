@@ -22,6 +22,8 @@ ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 STRIP_FLAGS:=-X --strip-debug -R .note -R .comment
 endif
 
+DOMULTI=n
+
 LIB_NAME:=libpthread
 
 libpthread_DIR:=$(top_srcdir)libpthread/linuxthreads
