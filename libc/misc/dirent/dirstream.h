@@ -71,9 +71,9 @@ struct __dirstream {
 };				/* stream data from opendir() */
 
 
-extern int __getdents(unsigned int fd, struct dirent *dirp, unsigned int count);
+extern ssize_t __getdents(int fd, char *buf, size_t count);
 #ifdef __UCLIBC_HAS_LFS__
-extern int __getdents64 (unsigned int fd, struct dirent64 *dirp, unsigned int count);
+extern ssize_t __getdents64 (int fd, char *buf, size_t count);
 #endif
 
 #endif /* dirent.h  */
