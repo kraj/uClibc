@@ -1,5 +1,5 @@
 /* `fd_set' type and related macros, and `select'/`pselect' declarations.
-   Copyright (C) 1996,1997,1998,1999,2000,2001 Free Software Foundation, Inc.
+   Copyright (C) 1996,97,98,99,2000,01,02,2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -39,15 +39,25 @@ typedef __sigset_t sigset_t;
 #endif
 
 /* Get definition of timer specification structures.  */
+#define __need_time_t
 #define __need_timespec
 #include <time.h>
 #define __need_timeval
 #include <bits/time.h>
 
+#ifndef __suseconds_t_defined
+typedef __suseconds_t suseconds_t;
+# define __suseconds_t_defined
+#endif
+
 
 /* The fd_set member is required to be an array of longs.  */
 typedef long int __fd_mask;
 
+/* Some versions of <linux/posix_types.h> define these macros.  */
+#undef	__NFDBITS
+#undef	__FDELT
+#undef	__FDMASK
 /* It's easier to assume 8-bit bytes than to get CHAR_BIT.  */
 #define __NFDBITS	(8 * sizeof (__fd_mask))
 #define	__FDELT(d)	((d) / __NFDBITS)
@@ -92,21 +102,27 @@ __BEGIN_DECLS
    readiness, in WRITEFDS (if not NULL) for write readiness, and in EXCEPTFDS
    (if not NULL) for exceptional conditions.  If TIMEOUT is not NULL, time out
    after waiting the interval specified therein.  Returns the number of ready
-   descriptors, or -1 for errors.  */
+   descriptors, or -1 for errors.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
 extern int select (int __nfds, fd_set *__restrict __readfds,
 		   fd_set *__restrict __writefds,
 		   fd_set *__restrict __exceptfds,
-		   struct timeval *__restrict __timeout) __THROW;
+		   struct timeval *__restrict __timeout);
 
 #ifdef __USE_XOPEN2K
 /* Same as above only that the TIMEOUT value is given with higher
    resolution and a sigmask which is been set temporarily.  This version
-   should be used.  */
+   should be used.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
 extern int pselect (int __nfds, fd_set *__restrict __readfds,
 		    fd_set *__restrict __writefds,
 		    fd_set *__restrict __exceptfds,
 		    const struct timespec *__restrict __timeout,
-		    const __sigset_t *__restrict __sigmask) __THROW;
+		    const __sigset_t *__restrict __sigmask);
 #endif
 
 __END_DECLS
