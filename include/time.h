@@ -143,10 +143,10 @@ struct tm
 #ifdef __UCLIBC_HAS_TM_EXTENSIONS__
 #ifdef	__USE_BSD
   long int tm_gmtoff;		/* Seconds east of UTC.  */
-  __const char *tm_zone;	/* Timezone abbreviation. */
+  __const char *tm_zone;	/* Timezone abbreviation.  */
 #else
   long int __tm_gmtoff;		/* Seconds east of UTC.  */
-  __const char *__tm_zone;	/* Timezone abbreviation. */
+  __const char *__tm_zone;	/* Timezone abbreviation.  */
 #endif
 #endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
 };
@@ -225,17 +225,6 @@ extern size_t strftime_l (char *__restrict __s, size_t __maxsize,
 extern char *strptime_l (__const char *__restrict __s,
 			 __const char *__restrict __fmt, struct tm *__tp,
 			 __locale_t __loc) __THROW;
-
-
-extern size_t __strftime_l (char *__restrict __s, size_t __maxsize,
-							__const char *__restrict __format,
-							__const struct tm *__restrict __tp,
-							__locale_t __loc) __THROW;
-
-extern char *__strptime_l (__const char *__restrict __s,
-						   __const char *__restrict __fmt, struct tm *__tp,
-						   __locale_t __loc) __THROW;
-
 # endif
 #endif
 
