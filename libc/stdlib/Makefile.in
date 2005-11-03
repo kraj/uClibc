@@ -127,12 +127,9 @@ libc-so-y+=$(STDLIB_OBJS:.o=.os)
 # this should always be the PIC version, because it could be used in shared libs
 libc-nonshared-y+=$(STDLIB_OUT)/atexit.os
 
-#CFLAGS-multi-y+=$(STDLIB_DEF)
-#libc-multi-y+=$(STDLIB_SRC) $(STDLIB_MSRC)
-#libc-nomulti-y+=$(STDLIB_MOBJx)
-#libc-multi-y+=$(STDLIB_MSRC)
-#libc-nomulti-y+=$(STDLIB_OBJ) $(STDLIB_MOBJx)
-libc-nomulti-y+=$(STDLIB_OBJS)
+CFLAGS-multi-y+=$(STDLIB_DEF)
+libc-multi-y+=$(STDLIB_SRC) $(STDLIB_MSRC)
+libc-nomulti-$(UCLIBC_HAS_XLOCALE)+=$(STDLIB_MOBJx)
 
 objclean-y+=stdlib_objclean
 
