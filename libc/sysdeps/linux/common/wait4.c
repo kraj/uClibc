@@ -12,9 +12,9 @@
 
 #define __NR___syscall_wait4 __NR_wait4
 static inline _syscall4(int, __syscall_wait4, __kernel_pid_t, pid,
-		int *, status, int, opts, void *, rusage);
+		int *, status, int, opts, struct rusage *, rusage);
 
-int wait4(pid_t pid, int *status, int opts, struct rusage *rusage)
+pid_t wait4(pid_t pid, int *status, int opts, struct rusage *rusage)
 {
 	return (__syscall_wait4(pid, status, opts, rusage));
 }
