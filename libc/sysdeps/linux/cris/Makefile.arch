@@ -5,30 +5,11 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC:=__init_brk.c brk.c sbrk.c
-SSRC:=setjmp.S __longjmp.S clone.S sysdep.S syscall.S
+CSRC := __init_brk.c brk.c sbrk.c
+
+SSRC := setjmp.S __longjmp.S clone.S sysdep.S syscall.S
 ifeq ($(UNIFIED_SYSCALL),y)
-SSRC+=__uClibc_syscall.S
+SSRC += __uClibc_syscall.S
 endif
 
-ARCH_DIR:=$(top_srcdir)libc/sysdeps/linux/cris
-ARCH_OUT:=$(top_builddir)libc/sysdeps/linux/cris
-
-ARCH_CSRC:=$(patsubst %.c,$(ARCH_DIR)/%.c,$(CSRC))
-ARCH_COBJ:=$(patsubst %.c,$(ARCH_OUT)/%.o,$(CSRC))
-ARCH_SSRC:=$(patsubst %.S,$(ARCH_DIR)/%.S,$(SSRC))
-ARCH_SOBJ:=$(patsubst %.S,$(ARCH_OUT)/%.o,$(SSRC))
-
-ARCH_OBJS:=$(ARCH_COBJ) $(ARCH_SOBJ)
-
-crt-y:=create
-libc-a-y+=$(ARCH_OBJS)
-libc-so-y+=$(ARCH_OBJS:.o=.os)
-
-libc-multi-y+=$(ARCH_CSRC)
-libc-nomulti-y+=$(ARCH_SOBJ)
-
-objclean-y+=arch_objclean
-
-arch_objclean:
-	$(RM) $(ARCH_OUT)/*.{o,os}
+include $(top_srcdir)libc/sysdeps/linux/Makefile.arch
