@@ -16,11 +16,58 @@ endif
 lib-a-y: $(lib-a-y)
 lib-so-y: $(lib-so-y)
 
-compile.c=$(CC) -c $< -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $@)) $(CFLAGS-$(notdir $<))
-compile.S=$(compile.c) $(S_CPPFLAGS) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $@)) $(ASFLAGS-$(notdir $<))
-compile.m=$(compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
+ifneq ($(findstring s,$(MAKEFLAGS)),)
+DISP := sil
+Q := @
+else
+ifneq ($(V)$(VERBOSE),)
+DISP := ver
+Q := 
+else
+DISP := pur
+Q := @
+endif
+endif
 
-compile-m=$(CC) $^ -c -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $@)) $(CFLAGS-$(notdir $<)) $(CFLAGS-multi-y)
+pur_show_objs = $(subst ../,,$@)
+pur_disp_compile.c = echo "  "CC $(pur_show_objs)
+pur_disp_compile.S = echo "  "AS $(pur_show_objs)
+pur_disp_compile.m = $(pur_disp_compile.c)
+pur_disp_compile-m = echo "  "CC-m $(pur_show_objs)
+pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS)
+pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
+pur_disp_ld        = echo "  "LD $($(LIB_NAME)_FULL_NAME)
+
+sil_disp_compile.c = true
+sil_disp_compile.S = true
+sil_disp_compile.m = true
+sil_disp_compile-m = true
+sil_disp_strip     = true
+sil_disp_ar        = true
+sil_disp_ld        = true
+
+ver_disp_compile.c = echo $(cmd_compile.c)
+ver_disp_compile.S = echo $(cmd_compile.S)
+ver_disp_compile.m = echo $(cmd_compile.m)
+ver_disp_compile-m = echo $(cmd_compile-m)
+ver_disp_strip     = echo $(cmd_strip)
+ver_disp_ar        = echo $(cmd_ar)
+ver_disp_ld        = 
+
+cmd_compile.c = $(CC) -c $< -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $@)) $(CFLAGS-$(notdir $<))
+cmd_compile.S = $(cmd_compile.c) $(S_CPPFLAGS) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $@)) $(ASFLAGS-$(notdir $<))
+cmd_compile.m = $(cmd_compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
+cmd_compile-m = $(CC) $^ -c -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $@)) $(CFLAGS-$(notdir $<)) $(CFLAGS-multi-y)
+cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
+cmd_ar        = $(AR) $(ARFLAGS) $@ $^
+
+compile.c = @$($(DISP)_disp_compile.c) ; $(cmd_compile.c)
+compile.S = @$($(DISP)_disp_compile.S) ; $(cmd_compile.S)
+compile.m = @$($(DISP)_disp_compile.m) ; $(cmd_compile.m)
+compile-m = @$($(DISP)_disp_compile-m) ; $(cmd_compile-m)
+do_strip  = @$($(DISP)_disp_strip)     ; $(cmd_strip)
+do_ar     = @$($(DISP)_disp_ar)        ; $(cmd_ar)
+disp_ld   = $($(DISP)_disp_ld)
 
 CFLAGS-.os+=$(PICFLAG)
 CFLAGS-.oS+=$(PICFLAG) -DSHARED
@@ -53,12 +100,12 @@ CRTS=$(top_builddir)lib/$(CRT).o
 endif
 
 $(top_builddir)lib/$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
-	$(INSTALL) -d $(dir $@)
+	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
 $(top_builddir)lib/S$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
-	$(INSTALL) -d $(dir $@)
+	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) $(PIEFLAG) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
 	$(STRIPTOOL) -x -R .note -R .comment $@
 
@@ -66,16 +113,16 @@ CTOR_TARGETS=$(top_builddir)lib/crti.o $(top_builddir)lib/crtn.o
 
 ifeq ($(UCLIBC_CTOR_DTOR),y)
 $(top_builddir)lib/crti.o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/crti.S
-	$(INSTALL) -d $(dir $@)
+	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) $(PICFLAG) $(SSP_DISABLE_FLAGS)
 
 $(top_builddir)lib/crtn.o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/crtn.S
-	$(INSTALL) -d $(dir $@)
+	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) $(PICFLAG) $(SSP_DISABLE_FLAGS)
 else
 $(CTOR_TARGETS):
-	$(INSTALL) -d $(top_builddir)lib
-	$(AR) $(ARFLAGS) $@
+	$(Q)$(INSTALL) -d $(top_builddir)lib
+	$(do_ar)
 endif
 
 crt-y: $(crt-y)
@@ -88,8 +135,8 @@ objclean-y: $(objclean-y)
 headers_clean-y: $(headers_clean-y)
 
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
-	$(INSTALL) -d $(dir $@)
-	$(AR) $(ARFLAGS) $@ $^
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(do_ar)
 
 .PHONY: dummy create
 clean: objclean-y headers_clean-y
@@ -132,25 +179,26 @@ endif
 else
 $(top_builddir)lib/$(LIB_NAME).so: $($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a $(interp)
 endif
-	$(INSTALL) -d $(dir $@)
-	$(RM) $@ $@.$(MAJOR_VERSION) $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME)
-	$(LD) $(LDFLAGS) $(EXTRA_LINK_OPTS) -soname=$(notdir $@).$(MAJOR_VERSION) \
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@ $@.$(MAJOR_VERSION) $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME)
+	@$(disp_ld)
+	$(Q)$(LD) $(LDFLAGS) $(EXTRA_LINK_OPTS) -soname=$(notdir $@).$(MAJOR_VERSION) \
 		-o $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME) $(SHARED_START_FILES) \
 		--whole-archive $(firstword $^) --no-whole-archive \
 		$(EXTRA_LINK_LIBS) $(SHARED_END_FILES)
-	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@.$(MAJOR_VERSION)
+	$(Q)$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@.$(MAJOR_VERSION)
 ifneq ($(strip $(LIB_NAME)),libc)
 ifneq ($(strip $(LIB_NAME)),ld-uClibc)
-	$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@
+	$(Q)$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@
 endif
 else
-	echo "/* GNU ld script" > $@
-	echo " * Use the shared library, but some functions are only in" >> $@
-	echo " * the static library, so try that secondarily. */" >> $@
+	$(Q)echo "/* GNU ld script" > $@
+	$(Q)echo " * Use the shared library, but some functions are only in" >> $@
+	$(Q)echo " * the static library, so try that secondarily. */" >> $@
 ifeq ($(COMPAT_ATEXIT),y)
-	echo "GROUP ( $(NONSHARED_LIBNAME) $(SHARED_MAJORNAME) $(ASNEEDED) )" >> $@
+	$(Q)echo "GROUP ( $(NONSHARED_LIBNAME) $(SHARED_MAJORNAME) $(ASNEEDED) )" >> $@
 else
-	echo "GROUP ( $(SHARED_MAJORNAME) $(NONSHARED_LIBNAME) $(ASNEEDED) )" >> $@
+	$(Q)echo "GROUP ( $(SHARED_MAJORNAME) $(NONSHARED_LIBNAME) $(ASNEEDED) )" >> $@
 endif
 endif
 
@@ -164,46 +212,38 @@ libc_m.os: $(libc-multi-y)
 ifneq ($(DOMULTI),n)
 
 $($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a: $($(LIB_NAME)_OUT)/$(LIB_NAME)_m.os $($(LIB_NAME)-nomulti-y:.o=.os) $($(LIB_NAME)-shared-y)
-	$(RM) $@
-ifneq ($(strip $(STRIP_FLAGS)),)
-	$(STRIPTOOL) $(STRIP_FLAGS) $^
-else
-	$(STRIPTOOL) -x -R .note -R .comment $^
-endif
-	$(AR) $(ARFLAGS) $@ $^
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
 
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)_OUT)/$(LIB_NAME)_m.os $($(LIB_NAME)-nomulti-y:.o=.os) $($(LIB_NAME)-static-y:.o=.os)
 else
 $(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)_OUT)/$(LIB_NAME)_m.o $($(LIB_NAME)-nomulti-y) $($(LIB_NAME)-static-y)
 endif
-	$(INSTALL) -d $(dir $@)
-	$(RM) $@
-	$(STRIPTOOL) -x -R .note -R .comment $^
-	$(AR) $(ARFLAGS) $@ $^
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
 
 else # DOMULTI
 
 $($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a: $($(LIB_NAME)-SHARED_OBJS)
-	$(RM) $@
-ifneq ($(strip $(STRIP_FLAGS)),)
-	$(STRIPTOOL) $(STRIP_FLAGS) $^
-else
-	$(STRIPTOOL) -x -R .note -R .comment $^
-endif
-	$(AR) $(ARFLAGS) $@ $^
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
 
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)-ARCHIVE_OBJS:.o=.os)
 else
 $(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)-ARCHIVE_OBJS)
 endif
-	$(INSTALL) -d $(dir $@)
-	$(RM) $@
-	$(STRIPTOOL) -x -R .note -R .comment $^
-	$(AR) $(ARFLAGS) $@ $^
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
 
 endif # DOMULTI
 
 $(LIB_NAME)_clean:
-	rm -f $($(LIB_NAME)_OUT)/*.{o,os,a}
+	$(RM) $($(LIB_NAME)_OUT)/*.{o,os,a}
