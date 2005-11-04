@@ -32,7 +32,7 @@
 static inline _syscall1(void, __syscall_exit, int, status);
 #endif
 
-void __attribute__ ((noreturn)) _exit(int status)
+void attribute_noreturn _exit(int status)
 {
 	/* The loop is added only to keep gcc happy. */
 	while(1)

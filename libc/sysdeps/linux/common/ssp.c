@@ -57,8 +57,8 @@ static __always_inline void terminate(void)
 	EXIT(127);
 }
 
-void __attribute__ ((noreturn)) __stack_smash_handler(char func[], int damaged __attribute__ ((unused)));
-void __attribute__ ((noreturn)) __stack_smash_handler(char func[], int damaged)
+void attribute_noreturn __stack_smash_handler(char func[], int damaged __attribute__ ((unused)));
+void attribute_noreturn __stack_smash_handler(char func[], int damaged)
 {
 	extern char *__progname;
 	static const char message[] = ": stack smashing attack in function ";
@@ -72,7 +72,7 @@ void __attribute__ ((noreturn)) __stack_smash_handler(char func[], int damaged)
 		terminate();
 }
 
-void __attribute__ ((noreturn)) __stack_chk_fail(void)
+void attribute_noreturn __stack_chk_fail(void)
 {
 	extern char *__progname;
 	static const char msg1[] = "stack smashing detected: ";
@@ -88,7 +88,7 @@ void __attribute__ ((noreturn)) __stack_chk_fail(void)
 }
 
 #if 0
-void __attribute__ ((noreturn)) __chk_fail(void)
+void attribute_noreturn __chk_fail(void)
 {
 	extern char *__progname;
 	static const char msg1[] = "buffer overflow detected: ";
