@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-1999, 2000, 2001 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2003, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -37,7 +37,9 @@ __BEGIN_DECLS
 #if defined __need_sig_atomic_t || defined _SIGNAL_H
 # ifndef __sig_atomic_t_defined
 #  define __sig_atomic_t_defined
+__BEGIN_NAMESPACE_STD
 typedef __sig_atomic_t sig_atomic_t;
+__END_NAMESPACE_STD
 # endif
 # undef __need_sig_atomic_t
 #endif
@@ -55,10 +57,12 @@ typedef __sigset_t sigset_t;
 #include <bits/types.h>
 #include <bits/signum.h>
 
-#ifdef __USE_XOPEN
+#if defined __USE_XOPEN || defined __USE_XOPEN2K
 # ifndef __pid_t_defined
 typedef __pid_t pid_t;
 #  define __pid_t_defined
+#endif
+#ifdef __USE_XOPEN
 # endif
 # ifndef __uid_t_defined
 typedef __uid_t uid_t;
@@ -83,24 +87,27 @@ extern __sighandler_t sysv_signal (int __sig, __sighandler_t __handler)
 /* Set the handler for the signal SIG to HANDLER, returning the old
    handler, or SIG_ERR on error.
    By default `signal' has the BSD semantic.  */
+__BEGIN_NAMESPACE_STD
 #ifdef __USE_BSD
-extern __sighandler_t signal (int __sig, __sighandler_t __handler) __THROW;
+extern __sighandler_t signal (int __sig, __sighandler_t __handler)
+     __THROW;
 #else
 /* Make sure the used `signal' implementation is the SVID version. */
 # ifdef __REDIRECT
 extern __sighandler_t __REDIRECT (signal,
-				  (int __sig,
-				   __sighandler_t __handler) __THROW,
-				  __sysv_signal);
+				      (int __sig, __sighandler_t __handler),
+				      __sysv_signal);
 # else
 #  define signal __sysv_signal
 # endif
 #endif
+__END_NAMESPACE_STD
 
 #ifdef __USE_XOPEN
 /* The X/Open definition of `signal' conflicts with the BSD version.
    So they defined another function `bsd_signal'.  */
-extern __sighandler_t bsd_signal (int __sig, __sighandler_t __handler) __THROW;
+extern __sighandler_t bsd_signal (int __sig, __sighandler_t __handler)
+     __THROW;
 #endif
 
 /* Send signal SIG to process number PID.  If PID is zero,
@@ -117,18 +124,21 @@ extern int kill (__pid_t __pid, int __sig) __THROW;
 extern int killpg (__pid_t __pgrp, int __sig) __THROW;
 #endif /* Use BSD || X/Open Unix.  */
 
+__BEGIN_NAMESPACE_STD
 /* Raise signal SIG, i.e., send SIG to yourself.  */
 extern int raise (int __sig) __THROW;
+__END_NAMESPACE_STD
 
 #ifdef __USE_SVID
 /* SVID names for the same things.  */
-extern __sighandler_t ssignal (int __sig, __sighandler_t __handler) __THROW;
+extern __sighandler_t ssignal (int __sig, __sighandler_t __handler)
+     __THROW;
 extern int gsignal (int __sig) __THROW;
 #endif /* Use SVID.  */
 
 #ifdef __USE_MISC
 /* Print a message describing the meaning of the given signal number.  */
-extern void psignal (int __sig, __const char *__s) __THROW;
+extern void psignal (int __sig, __const char *__s);
 #endif /* Use misc.  */
 
 
@@ -136,21 +146,25 @@ extern void psignal (int __sig, __const char *__s) __THROW;
    BSD definition defines the argument as a mask of the signal, while
    the more modern interface in X/Open defines it as the signal
    number.  We go with the BSD version unless the user explicitly
-   selects the X/Open version.  */
-extern int __sigpause (int __sig_or_mask, int __is_sig) __THROW;
+   selects the X/Open version.
 
-#ifdef __USE_BSD
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int __sigpause (int __sig_or_mask, int __is_sig);
+
+#ifdef __FAVOR_BSD
 /* Set the mask of blocked signals to MASK,
    wait for a signal to arrive, and then restore the mask.  */
-extern int sigpause (int __mask) __THROW;
 # define sigpause(mask) __sigpause ((mask), 0)
+extern int sigpause (int __mask) __THROW __attribute_deprecated__;
 #else
 # ifdef __USE_XOPEN
 #  ifdef __GNUC__
-extern int sigpause (int __sig) __THROW __asm__ ("__xpg_sigpause");
-#  endif
+extern int sigpause (int __sig) __asm__ ("__xpg_sigpause");
+#  else
 /* Remove a signal from the signal mask and suspend the process.  */
-#  define sigpause(sig) __sigpause ((sig), 1)
+#   define sigpause(sig) __sigpause ((sig), 1)
+#  endif
 # endif
 #endif
 
@@ -165,13 +179,13 @@ extern int sigpause (int __sig) __THROW __asm__ ("__xpg_sigpause");
 # define sigmask(sig)	__sigmask(sig)
 
 /* Block signals in MASK, returning the old mask.  */
-extern int sigblock (int __mask) __THROW;
+extern int sigblock (int __mask) __THROW __attribute_deprecated__;
 
 /* Set the mask of blocked signals to MASK, returning the old mask.  */
-extern int sigsetmask (int __mask) __THROW;
+extern int sigsetmask (int __mask) __THROW __attribute_deprecated__;
 
 /* Return currently selected signal mask.  */
-extern int siggetmask (void) __THROW;
+extern int siggetmask (void) __THROW __attribute_deprecated__;
 #endif /* Use BSD.  */
 
 
@@ -200,31 +214,32 @@ typedef __sighandler_t sig_t;
 # endif
 
 /* Clear all signals from SET.  */
-extern int sigemptyset (sigset_t *__set) __THROW;
+extern int sigemptyset (sigset_t *__set) __THROW __nonnull ((1));
 
 /* Set all signals in SET.  */
-extern int sigfillset (sigset_t *__set) __THROW;
+extern int sigfillset (sigset_t *__set) __THROW __nonnull ((1));
 
 /* Add SIGNO to SET.  */
-extern int sigaddset (sigset_t *__set, int __signo) __THROW;
+extern int sigaddset (sigset_t *__set, int __signo) __THROW __nonnull ((1));
 
 /* Remove SIGNO from SET.  */
-extern int sigdelset (sigset_t *__set, int __signo) __THROW;
+extern int sigdelset (sigset_t *__set, int __signo) __THROW __nonnull ((1));
 
 /* Return 1 if SIGNO is in SET, 0 if not.  */
-extern int sigismember (__const sigset_t *__set, int __signo) __THROW;
+extern int sigismember (__const sigset_t *__set, int __signo)
+     __THROW __nonnull ((1));
 
 # ifdef __USE_GNU
 /* Return non-empty value is SET is not empty.  */
-extern int sigisemptyset (__const sigset_t *__set) __THROW;
+extern int sigisemptyset (__const sigset_t *__set) __THROW __nonnull ((1));
 
 /* Build new signal set by combining the two inputs set using logical AND.  */
 extern int sigandset (sigset_t *__set, __const sigset_t *__left,
-		      __const sigset_t *__right) __THROW;
+		      __const sigset_t *__right) __THROW __nonnull ((1, 2, 3));
 
 /* Build new signal set by combining the two inputs set using logical OR.  */
 extern int sigorset (sigset_t *__set, __const sigset_t *__left,
-		     __const sigset_t *__right) __THROW;
+		     __const sigset_t *__right) __THROW __nonnull ((1, 2, 3));
 # endif /* GNU */
 
 /* Get the system-specific definitions of `struct sigaction'
@@ -236,32 +251,44 @@ extern int sigprocmask (int __how, __const sigset_t *__restrict __set,
 			sigset_t *__restrict __oset) __THROW;
 
 /* Change the set of blocked signals to SET,
-   wait until a signal arrives, and restore the set of blocked signals.  */
-extern int sigsuspend (__const sigset_t *__set) __THROW;
+   wait until a signal arrives, and restore the set of blocked signals.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int sigsuspend (__const sigset_t *__set) __nonnull ((1));
 
 /* Get and/or set the action for signal SIG.  */
 extern int sigaction (int __sig, __const struct sigaction *__restrict __act,
 		      struct sigaction *__restrict __oact) __THROW;
 
 /* Put in SET all signals that are blocked and waiting to be delivered.  */
-extern int sigpending (sigset_t *__set) __THROW;
+extern int sigpending (sigset_t *__set) __THROW __nonnull ((1));
 
 
-/* Select any of pending signals from SET or wait for any to arrive.  */
+/* Select any of pending signals from SET or wait for any to arrive.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
 extern int sigwait (__const sigset_t *__restrict __set, int *__restrict __sig)
-     __THROW;
+     __nonnull ((1, 2));
 
 # ifdef __USE_POSIX199309
-/* Select any of pending signals from SET and place information in INFO.  */
+/* Select any of pending signals from SET and place information in INFO.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
 extern int sigwaitinfo (__const sigset_t *__restrict __set,
-			siginfo_t *__restrict __info) __THROW;
+			siginfo_t *__restrict __info) __nonnull ((1));
 
 /* Select any of pending signals from SET and place information in INFO.
-   Wait the imte specified by TIMEOUT if no signal is pending.  */
+   Wait the time specified by TIMEOUT if no signal is pending.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
 extern int sigtimedwait (__const sigset_t *__restrict __set,
 			 siginfo_t *__restrict __info,
 			 __const struct timespec *__restrict __timeout)
-     __THROW;
+     __nonnull ((1));
 
 /* Send signal SIG to the process PID.  Associate data in VAL with the
    signal.  */
@@ -323,13 +350,15 @@ extern int siginterrupt (int __sig, int __interrupt) __THROW;
 
 # include <bits/sigstack.h>
 # ifdef __USE_XOPEN
+/* This will define `ucontext_t' and `mcontext_t'.  */
 #  include <ucontext.h>
 # endif
 
 /* Run signals handlers on the stack specified by SS (if not NULL).
    If OSS is not NULL, it is filled in with the old signal stack status.
    This interface is obsolete and on many platform not implemented.  */
-extern int sigstack (struct sigstack *__ss, struct sigstack *__oss) __THROW;
+extern int sigstack (struct sigstack *__ss, struct sigstack *__oss)
+     __THROW __attribute_deprecated__;
 
 /* Alternate signal handler stack interface.
    This interface should always be preferred over `sigstack'.  */
@@ -338,7 +367,7 @@ extern int sigaltstack (__const struct sigaltstack *__restrict __ss,
 
 #endif /* use BSD or X/Open Unix.  */
 
-#ifdef __USE_UNIX98
+#ifdef __USE_XOPEN_EXTENDED
 /* Simplified interface for signal management.  */
 
 /* Add SIG to the calling process' signal mask.  */
@@ -357,6 +386,7 @@ extern __sighandler_t sigset (int __sig, __sighandler_t __disp) __THROW;
 #if defined __UCLIBC_HAS_THREADS__ && (defined __USE_POSIX199506 || defined __USE_UNIX98)
 /* Some of the functions for handling signals in threaded programs must
    be defined here.  */
+# include <bits/pthreadtypes.h>
 # include <bits/sigthread.h>
 #endif /* use Unix98 */
 

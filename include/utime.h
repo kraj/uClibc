@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 92, 96, 97, 98, 99 Free Software Foundation, Inc.
+/* Copyright (C) 1991, 92, 96, 97, 98, 99, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ __BEGIN_DECLS
 
 #include <bits/types.h>
 
-#ifdef __USE_XOPEN
+#if defined __USE_XOPEN || defined __USE_XOPEN2K
 # define __need_time_t
 # include <time.h>
 #endif
@@ -44,7 +44,8 @@ struct utimbuf
 /* Set the access and modification times of FILE to those given in
    *FILE_TIMES.  If FILE_TIMES is NULL, set them to the current time.  */
 extern int utime (__const char *__file,
-		  __const struct utimbuf *__file_times) __THROW;
+		  __const struct utimbuf *__file_times)
+     __THROW __nonnull ((1));
 
 __END_DECLS
 
