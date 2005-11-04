@@ -76,7 +76,7 @@
 
 /* Prepare for the case that `__builtin_expect' is not available.  */
 #if __GNUC__ == 2 && __GNUC_MINOR__ < 96
-#define __builtin_expect(x, expected_value) (x)
+# define __builtin_expect(x, expected_value) (x)
 #endif
 #ifndef likely
 # define likely(x)	__builtin_expect((!!(x)),1)
@@ -85,10 +85,10 @@
 # define unlikely(x)	__builtin_expect((!!(x)),0)
 #endif
 #ifndef __LINUX_COMPILER_H
-#define __LINUX_COMPILER_H
+# define __LINUX_COMPILER_H
 #endif
 #ifndef __cast__
-#define __cast__(_to)
+# define __cast__(_to)
 #endif
 
 /* Arrange to hide uClibc internals */
@@ -102,6 +102,12 @@
 # define attribute_relro __attribute__ ((section (".data.rel.ro")))
 #else
 # define attribute_relro
+#endif
+
+#ifdef __GNUC__
+# define attribute_noreturn __attribute__ ((__noreturn__))
+#else
+# define attribute_noreturn
 #endif
 
 /* Pull in things like __attribute_used__ */
