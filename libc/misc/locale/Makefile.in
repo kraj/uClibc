@@ -8,17 +8,17 @@
 
 MSRC:=locale.c
 MOBJ:=setlocale.o localeconv.o _locale_init.o nl_langinfo.o
-MOBJx=
+MOBJx:=
 
 ifeq ($(UCLIBC_HAS_LOCALE),y)
 MOBJ+=newlocale.o __locale_mbrtowc_l.o
 endif
 
 ifeq ($(UCLIBC_HAS_XLOCALE),y)
-MOBJx+=nl_langinfo_l.o duplocale.o freelocale.o uselocale.o __curlocale.o
+MOBJx:=nl_langinfo_l.o duplocale.o freelocale.o uselocale.o __curlocale.o
 endif
 
-DATA=
+DATA:=
 ifeq ($(UCLIBC_HAS_LOCALE),y)
 DATA:=locale_data.o
 endif
@@ -30,8 +30,8 @@ MISC_LOCALE_OUT:=$(top_builddir)libc/misc/locale
 
 MISC_LOCALE_MSRC:=$(MISC_LOCALE_DIR)/$(MSRC)
 MISC_LOCALE_MOBJ:=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(MOBJ))
-MISC_LOCALE_MOBJx=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(MOBJx))
-MISC_LOCALE_DATA=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(DATA))
+MISC_LOCALE_MOBJx:=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(MOBJx))
+MISC_LOCALE_DATA:=$(patsubst %.o,$(MISC_LOCALE_OUT)/%.o,$(DATA))
 
 MISC_LOCALE_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(filter-out $(MISC_LOCALE_NO_MULTI),$(notdir $(MISC_LOCALE_MOBJ)))))
 

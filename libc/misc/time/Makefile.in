@@ -11,13 +11,13 @@ MOBJ:=	asctime.o asctime_r.o clock.o ctime.o ctime_r.o gmtime.o gmtime_r.o \
 	localtime.o localtime_r.o mktime.o strftime.o strptime.o tzset.o \
 	_time_t2tm.o __time_tm.o _time_mktime.o dysize.o timegm.o \
 	_time_mktime_tzi.o _time_localtime_tzi.o
-MOBJx=
+MOBJx:=
 
 ifeq ($(UCLIBC_HAS_FLOATS),y)
 MOBJ+=difftime.o 
 endif
 ifeq ($(UCLIBC_HAS_XLOCALE),y)
-MOBJx+=strftime_l.o strptime_l.o
+MOBJx:=strftime_l.o strptime_l.o
 endif
 
 ifeq ($(UCLIBC_HAS_WCHAR),y)
@@ -39,7 +39,7 @@ MISC_TIME_OBJ:=$(patsubst %.c,$(MISC_TIME_OUT)/%.o,$(CSRC))
 
 MISC_TIME_MSRC:=$(patsubst %.c,$(MISC_TIME_DIR)/%.c,$(MSRC))
 MISC_TIME_MOBJ:=$(patsubst %.o,$(MISC_TIME_OUT)/%.o,$(MOBJ))
-MISC_TIME_MOBJx=$(patsubst %.o,$(MISC_TIME_OUT)/%.o,$(MOBJx))
+MISC_TIME_MOBJx:=$(patsubst %.o,$(MISC_TIME_OUT)/%.o,$(MOBJx))
 
 MISC_TIME_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(filter-out $(MISC_TIME_NO_MULTI),$(notdir $(MISC_TIME_MOBJ)))))
 

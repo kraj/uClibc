@@ -18,7 +18,7 @@ MOBJ+=	__C_ctype_b.o __C_ctype_tolower.o __C_ctype_toupper.o \
 	__ctype_assert.o isctype.o
 endif
 
-MOBJx=	isalnum_l.o isalpha_l.o isascii_l.o iscntrl_l.o isdigit_l.o \
+MOBJx:=	isalnum_l.o isalpha_l.o isascii_l.o iscntrl_l.o isdigit_l.o \
 	isgraph_l.o islower_l.o isprint_l.o ispunct_l.o isspace_l.o \
 	isupper_l.o isxdigit_l.o toascii_l.o tolower_l.o toupper_l.o \
 	isblank_l.o # isxlower_l.o isxupper_l.o
@@ -28,7 +28,7 @@ MISC_CTYPE_OUT:=$(top_builddir)libc/misc/ctype
 
 MISC_CTYPE_MSRC:=$(MISC_CTYPE_DIR)/$(MSRC)
 MISC_CTYPE_MOBJ:=$(patsubst %.o,$(MISC_CTYPE_OUT)/%.o,$(MOBJ))
-MISC_CTYPE_MOBJx=$(patsubst %.o,$(MISC_CTYPE_OUT)/%.o,$(MOBJx))
+MISC_CTYPE_MOBJx:=$(patsubst %.o,$(MISC_CTYPE_OUT)/%.o,$(MOBJx))
 
 MISC_CTYPE_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_CTYPE_MOBJ))))
 
