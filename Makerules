@@ -29,11 +29,12 @@ Q := @
 endif
 endif
 
-pur_show_objs = $(subst ../,,$@)
-pur_disp_compile.c = echo "  "CC $(pur_show_objs)
-pur_disp_compile.S = echo "  "AS $(pur_show_objs)
+show_objs = $(subst ../,,$@)
+
+pur_disp_compile.c = echo "  "CC $(show_objs)
+pur_disp_compile.S = echo "  "AS $(show_objs)
 pur_disp_compile.m = $(pur_disp_compile.c)
-pur_disp_compile-m = echo "  "CC-m $(pur_show_objs)
+pur_disp_compile-m = echo "  "CC-m $(show_objs)
 pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS)
 pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
 pur_disp_ld        = echo "  "LD $($(LIB_NAME)_FULL_NAME)
@@ -54,6 +55,14 @@ ver_disp_strip     = echo $(cmd_strip)
 ver_disp_ar        = echo $(cmd_ar)
 ver_disp_ld        = 
 
+disp_compile.c = $($(DISP)_disp_compile.c)
+disp_compile.S = $($(DISP)_disp_compile.S)
+disp_compile.m = $($(DISP)_disp_compile.m)
+disp_compile-m = $($(DISP)_disp_compile-m)
+disp_strip     = $($(DISP)_disp_strip)
+disp_ar        = $($(DISP)_disp_ar)
+disp_ld        = $($(DISP)_disp_ld)
+
 cmd_compile.c = $(CC) -c $< -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $@)) $(CFLAGS-$(notdir $<))
 cmd_compile.S = $(cmd_compile.c) $(S_CPPFLAGS) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $@)) $(ASFLAGS-$(notdir $<))
 cmd_compile.m = $(cmd_compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
@@ -61,13 +70,12 @@ cmd_compile-m = $(CC) $^ -c -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-
 cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
 cmd_ar        = $(AR) $(ARFLAGS) $@ $^
 
-compile.c = @$($(DISP)_disp_compile.c) ; $(cmd_compile.c)
-compile.S = @$($(DISP)_disp_compile.S) ; $(cmd_compile.S)
-compile.m = @$($(DISP)_disp_compile.m) ; $(cmd_compile.m)
-compile-m = @$($(DISP)_disp_compile-m) ; $(cmd_compile-m)
-do_strip  = @$($(DISP)_disp_strip)     ; $(cmd_strip)
-do_ar     = @$($(DISP)_disp_ar)        ; $(cmd_ar)
-disp_ld   = $($(DISP)_disp_ld)
+compile.c = @$(disp_compile.c) ; $(cmd_compile.c)
+compile.S = @$(disp_compile.S) ; $(cmd_compile.S)
+compile.m = @$(disp_compile.m) ; $(cmd_compile.m)
+compile-m = @$(disp_compile-m) ; $(cmd_compile-m)
+do_strip  = @$(disp_strip)     ; $(cmd_strip)
+do_ar     = @$(disp_ar)        ; $(cmd_ar)
 
 CFLAGS-.os+=$(PICFLAG)
 CFLAGS-.oS+=$(PICFLAG) -DSHARED
@@ -102,12 +110,14 @@ endif
 $(top_builddir)lib/$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
-	$(STRIPTOOL) -x -R .note -R .comment $@
+	@$(disp_strip) $(show_objs)
+	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
 $(top_builddir)lib/S$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) $(PIEFLAG) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
-	$(STRIPTOOL) -x -R .note -R .comment $@
+	@$(disp_strip) $(show_objs)
+	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
 CTOR_TARGETS=$(top_builddir)lib/crti.o $(top_builddir)lib/crtn.o
 
