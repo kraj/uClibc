@@ -19,7 +19,7 @@ typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
  *
  * Function: 
  *
- *     size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+ *     ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
  *                         __fp_outfunc_t fp_outfunc);
  *
  * This is derived from the old _dtostr, whic I wrote for uClibc to provide
