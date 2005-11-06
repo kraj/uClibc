@@ -137,6 +137,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	unsigned long *_dl_envp;		/* The environment address */
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
+#if USE_TLS
+	void *tcbp = NULL;
+#endif
+	
 
 	/* Wahoo!!! We managed to make a function call!  Get malloc
 	 * setup so we can use _dl_dprintf() to print debug noise
@@ -249,70 +253,6 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 					"app_tpnt->loadaddr=%x\n", app_tpnt->loadaddr);
 	}
 
-#if USE_TLS
-	/*
-	 * Adjust the address of the TLS initialization image in case
-	 * the executable is actually an ET_DYN object.
-	 */
-	if (app_tpnt->l_tls_initimage != NULL)
-		app_tpnt->l_tls_initimage =
-			(char *) app_tpnt->l_tls_initimage + app_tpnt->loadaddr;
-#endif
-
-	/*
-	 * This adds another loop, but we have to catch the stupid user who
-	 * tries to run a binary with TLS data and the linker does not support
-	 * it. Otherwise, we fill in the TLS data for the application like we
-	 * are supposed to.
-	 */
-	{
-		int i;
-		ElfW(Phdr) *ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
-
-		for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++)
-			if (ppnt->p_type == PT_TLS) {
-#if USE_TLS
-				if (ppnt->p_memsz > 0) {
-					/*
-					 * Note that in the case the dynamic linker we duplicate
-					 * work here since we read the PT_TLS entry already in
-					 * _dl_start_final. But the result is repeatable so do
-					 * not check for this special but unimportant case. 
-					 */
-					app_tpnt->l_tls_blocksize = ppnt->p_memsz;
-					app_tpnt->l_tls_align = ppnt->p_align;
-					if (ppnt->p_align == 0)
-						app_tpnt->l_tls_firstbyte_offset = 0;
-					else
-						app_tpnt->l_tls_firstbyte_offset =
-							(ppnt->p_vaddr & (ppnt->p_align - 1));
-					app_tpnt->l_tls_initimage_size = ppnt->p_filesz;
-					app_tpnt->l_tls_initimage = (void *) ppnt->p_vaddr;
-
-					/* This image gets the ID one.  */
-					_dl_tls_max_dtv_idx = app_tpnt->l_tls_modid = 1;
-				}
-				break;
-#else
-				_dl_debug_early("Program uses unsupported TLS data!!!\n");
-				_dl_exit(1);
-#endif
-			}
-	}
-
-#if USE_TLS
-	/* We do not initialize any of the TLS functionality unless any of the
-	 * initial modules uses TLS.  This makes dynamic loading of modules with
-	 * TLS impossible, but to support it requires either eagerly doing setup
-	 * now or lazily doing it later.  Doing it now makes us incompatible with
-	 * an old kernel that can't perform TLS_INIT_TP, even if no TLS is ever
-	 * used.  Trying to do it lazily is too hairy to try when there could be
-	 * multiple threads (from a non-TLS-using libpthread).  */
-	bool was_tls_init_tp_called = tls_init_tp_called;
-	if (tcbp == NULL)
-		tcbp = init_tls ();
-#endif
-
 	/*
 	 * This is used by gdb to locate the chain of shared libraries that are
 	 * currently loaded.
@@ -389,9 +329,45 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 
 			_dl_debug_early("Lib Loader: (%x) %s\n", tpnt->loadaddr, tpnt->libname);
 		}
+
+		/* Discover any TLS sections if the target supports them. */
+		if (ppnt->p_type == PT_TLS) {
+#if USE_TLS
+			if (ppnt->p_memsz > 0) {
+				app_tpnt->l_tls_blocksize = ppnt->p_memsz;
+				app_tpnt->l_tls_align = ppnt->p_align;
+				if (ppnt->p_align == 0)
+					app_tpnt->l_tls_firstbyte_offset = 0;
+				else
+					app_tpnt->l_tls_firstbyte_offset =
+						(ppnt->p_vaddr & (ppnt->p_align - 1));
+				app_tpnt->l_tls_initimage_size = ppnt->p_filesz;
+				app_tpnt->l_tls_initimage = (void *) ppnt->p_vaddr;
+
+				/* This image gets the ID one.  */
+				_dl_tls_max_dtv_idx = app_tpnt->l_tls_modid = 1;
+
+			}
+			_dl_debug_early("Found TLS header for appplication program\n");
+			break;
+#else
+			_dl_dprintf(_dl_debug_file, "Program uses unsupported TLS data!\n");
+			_dl_exit(1);
+#endif
+		}
 	}
 	app_tpnt->relro_addr = relro_addr;
 	app_tpnt->relro_size = relro_size;
+
+#if USE_TLS
+	/*
+	 * Adjust the address of the TLS initialization image in
+	 * case the executable is actually an ET_DYN object.
+	 */
+	if (app_tpnt->l_tls_initimage != NULL)
+		app_tpnt->l_tls_initimage =
+			(char *) app_tpnt->l_tls_initimage + app_tpnt->loadaddr;
+#endif
 
 #ifdef __SUPPORT_LD_DEBUG__
 	_dl_debug = _dl_getenv("LD_DEBUG", envp);
@@ -779,6 +755,19 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	}
 #endif
 
+#if USE_TLS
+	/* We do not initialize any of the TLS functionality unless any of the
+	 * initial modules uses TLS.  This makes dynamic loading of modules with
+	 * TLS impossible, but to support it requires either eagerly doing setup
+	 * now or lazily doing it later.  Doing it now makes us incompatible with
+	 * an old kernel that can't perform TLS_INIT_TP, even if no TLS is ever
+	 * used.  Trying to do it lazily is too hairy to try when there could be
+	 * multiple threads (from a non-TLS-using libpthread).  */
+	bool was_tls_init_tp_called = tls_init_tp_called;
+	if (tcbp == NULL)
+		tcbp = init_tls ();
+#endif
+
 	_dl_debug_early("Beginning relocation fixups\n");
 
 #ifdef __mips__
@@ -884,8 +873,10 @@ void _dl_get_ready_to_run(struct elf_resolve *tpnt, unsigned long load_addr,
 	{
 		const char *lossage = TLS_INIT_TP (tcbp, USE___THREAD);
 		if (__builtin_expect (lossage != NULL, 0))
-			_dl_fatal_printf ("cannot set up thread-local storage: %s\n",
-				lossage);
+		{
+			_dl_debug_early("cannot set up thread-local storage: %s\n", lossage);
+			_dl_exit(30);
+		}
 	}
 #endif
 
@@ -982,21 +973,20 @@ void * _dl_memalign (size_t __boundary, size_t __size)
 	size_t delta;
 	size_t rounded = 0;
 
-	if (_dl_memalign_function) {
-#if 1
-		_dl_debug_early("Calling libc version\n");
-#endif
+	if (_dl_memalign_function)
 		return (*_dl_memalign_function) (__boundary, __size);
-	}
 
-	_dl_debug_early("allocating aligned memory\n");
 	while (rounded < __boundary) {
 		rounded = (1 << i++);
 	}
+
 	delta = (((size_t) _dl_malloc_addr + __size) % rounded);
+
 	if ((result = _dl_malloc(rounded - delta)) == NULL)
 		return result;
+
 	result = _dl_malloc(__size);
+
 	return result;
 }
 #endif

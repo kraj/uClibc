@@ -752,7 +752,6 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 #endif
 	if (tpnt->dynamic_info[DT_RELOC_TABLE_ADDR] &&
 	    !(tpnt->init_flag & RELOCS_DONE)) {
-		tpnt->init_flag |= RELOCS_DONE;
 		reloc_addr = tpnt->dynamic_info[DT_RELOC_TABLE_ADDR];
 		relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
 		if (relative_count) { /* Optimize the XX_RELATIVE relocations if possible */
@@ -763,6 +762,7 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 		goof += _dl_parse_relocation_information(rpnt,
 				reloc_addr,
 				reloc_size);
+		tpnt->init_flag |= RELOCS_DONE;
 	}
 	if (tpnt->dynamic_info[DT_BIND_NOW])
 		now_flag = RTLD_NOW;
@@ -770,7 +770,6 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 	    (!(tpnt->init_flag & JMP_RELOCS_DONE) ||
 	     (now_flag && !(tpnt->rtld_flags & now_flag)))) {
 		tpnt->rtld_flags |= now_flag; 
-		tpnt->init_flag |= JMP_RELOCS_DONE;
 		if (!(tpnt->rtld_flags & RTLD_NOW)) {
 			_dl_parse_lazy_relocation_information(rpnt,
 					tpnt->dynamic_info[DT_JMPREL],
@@ -780,10 +779,11 @@ int _dl_fixup(struct dyn_elf *rpnt, int now_flag)
 					tpnt->dynamic_info[DT_JMPREL],
 					tpnt->dynamic_info[DT_PLTRELSZ]);
 		}
+		tpnt->init_flag |= JMP_RELOCS_DONE;
 	}
 
-#ifdef USE_TLS
-	/* Add object to slot information data if necessasy.  */
+#if USE_TLS
+	/* Add object to slot information data if necessasy. */
 	if (tpnt->l_tls_blocksize != 0 && tls_init_tp_called)
 		_dl_add_to_slotinfo ((struct link_map *) tpnt);
 #endif
