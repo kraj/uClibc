@@ -50,7 +50,7 @@ interp.c: Makefile
 		"(\".interp\"))) =\""$(SHARED_LIB_LOADER_PREFIX)/$(UCLIBC_LDSO)"\";" >> interp.c
 	echo "#endif" >> interp.c
 
-$(COBJS) interp.o static.o: %.o : %.c
+$(COBJS) interp.o: %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	$(STRIPTOOL) -x -R .note -R .comment $*.o
 

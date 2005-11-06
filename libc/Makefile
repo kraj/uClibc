@@ -82,7 +82,7 @@ $(AR_LIB_NAME): shared_$(LIB_NAME).a
 	$(INSTALL) -d $(TOPDIR)lib
 	$(RM) $(AR_LIB_NAME)
 	cp shared_$(LIB_NAME).a $(AR_LIB_NAME)
-	$(AR) $(ARFLAGS) $(AR_LIB_NAME) misc/internals/static.o `cat nonshared_obj.*`
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) `cat nonshared_obj.*`
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	$(MAKE) -C $(TOPDIR)libpthread/nptl obj.pthread.ar
 	$(AR) $(ARFLAGS) $(AR_LIB_NAME) `cat obj.pthread.ar`

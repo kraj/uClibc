@@ -21,7 +21,8 @@ int __libc_posix_fadvise(int fd, off_t offset, off_t len, int advice)
 }
 weak_alias(__libc_posix_fadvise, posix_fadvise);
 
-#if defined __UCLIBC_HAS_LFS__ && !defined __NR_fadvise64_64
+#if defined __UCLIBC_HAS_LFS__ && !defined __NR_fadvise64_64 && \
+    !defined __USE_LARGEFILE64
 weak_alias(__libc_posix_fadvise, posix_fadvise64);
 #endif
 
