@@ -4,6 +4,10 @@
 
 #include <link.h>
 #include <tls.h>
+#ifdef __UCLIBC__
+#include "dl-elf.h"
+#include "dl-hash.h"
+#endif
 
 
 #define TEST_FUNCTION do_test ()
@@ -35,6 +39,19 @@ do_test (void)
       /* Dirty test code here: we peek into a private data structure.
 	 We make sure that the module gets assigned the same ID every
 	 time.  The value of the first round is used.  */
+#ifdef __UCLIBC__
+      if (modid1 == (size_t) -1)
+	modid1 = ((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid;
+      else if (((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid
+        != (size_t) modid1)
+	{
+	  printf ("round %d: modid now %zd, initially %zd\n",
+		  i,
+		  ((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid,
+		  modid1);
+	  result = 1;
+	}
+#else
       if (modid1 == (size_t) -1)
 	modid1 = ((struct link_map *) h1)->l_tls_modid;
       else if (((struct link_map *) h1)->l_tls_modid != modid1)
@@ -43,6 +60,7 @@ do_test (void)
 		  i, ((struct link_map *) h1)->l_tls_modid, modid1);
 	  result = 1;
 	}
+#endif
 
       fp1 = dlsym (h1, "in_dso2");
       if (fp1 == NULL)
@@ -65,6 +83,19 @@ do_test (void)
       /* Dirty test code here: we peek into a private data structure.
 	 We make sure that the module gets assigned the same ID every
 	 time.  The value of the first round is used.  */
+#ifdef __UCLIBC__
+      if (modid2 == (size_t) -1)
+	modid2 = ((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid;
+      else if (((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid
+        != (size_t) modid2)
+	{
+	  printf ("round %d: modid now %zd, initially %zd\n",
+		  i,
+		  ((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid,
+		  modid2);
+	  result = 1;
+	}
+#else
       if (modid2 == (size_t) -1)
 	modid2 = ((struct link_map *) h1)->l_tls_modid;
       else if (((struct link_map *) h1)->l_tls_modid != modid2)
@@ -73,6 +104,7 @@ do_test (void)
 		  i, ((struct link_map *) h1)->l_tls_modid, modid2);
 	  result = 1;
 	}
+#endif
 
       bazp = dlsym (h2, "baz");
       if (bazp == NULL)
@@ -106,12 +138,24 @@ do_test (void)
       /* Dirty test code here: we peek into a private data structure.
 	 We make sure that the module gets assigned the same ID every
 	 time.  The value of the first round is used.  */
+#ifdef __UCLIBC__
+      if (((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid
+        != modid1)
+	{
+	  printf ("round %d: modid now %zd, initially %zd\n",
+		  i,
+		  ((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid,
+		  modid1);
+	  result = 1;
+	}
+#else
       if (((struct link_map *) h1)->l_tls_modid != modid1)
 	{
 	  printf ("round %d: modid now %zd, initially %zd\n",
 		  i, ((struct link_map *) h1)->l_tls_modid, modid1);
 	  result = 1;
 	}
+#endif
 
       fp1 = dlsym (h1, "in_dso2");
       if (fp1 == NULL)
@@ -134,12 +178,24 @@ do_test (void)
       /* Dirty test code here: we peek into a private data structure.
 	 We make sure that the module gets assigned the same ID every
 	 time.  The value of the first round is used.  */
+#ifdef __UCLIBC__
+      if (((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid
+        != modid2)
+	{
+	  printf ("round %d: modid now %zd, initially %zd\n",
+		  i,
+		  ((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid,
+		  modid2);
+	  result = 1;
+	}
+#else
       if (((struct link_map *) h1)->l_tls_modid != modid2)
 	{
 	  printf ("round %d: modid now %zd, initially %zd\n",
 		  i, ((struct link_map *) h1)->l_tls_modid, modid2);
 	  result = 1;
 	}
+#endif
 
       bazp = dlsym (h2, "baz");
       if (bazp == NULL)

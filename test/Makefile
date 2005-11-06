@@ -36,8 +36,8 @@ ifeq ($(UCLIBC_HAS_THREADS),y)
 ALL_SUBDIRS  += pthread
 endif
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-	DIRS += tls
-ALL_SUBDIRS  += tls
+	DIRS += tls nptl
+ALL_SUBDIRS  += tls nptl
 endif
 
 
