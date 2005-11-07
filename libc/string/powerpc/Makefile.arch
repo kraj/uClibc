@@ -16,7 +16,7 @@ STRING_ARCH_MOBJ:=$(patsubst %.o,$(STRING_ARCH_OUT)/%.o,$(MOBJ))
 
 STRING_ARCH_OBJS:=$(STRING_ARCH_MOBJ)
 
-STRING_ARCH_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(STRING_ARCH_MOBJ))))
+#STRING_ARCH_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(STRING_ARCH_MOBJ))))
 
 $(STRING_ARCH_MOBJ): $(STRING_ARCH_MSRC)
 	$(compile.m)
@@ -27,8 +27,9 @@ $(STRING_ARCH_MOBJ:.o=.os): $(STRING_ARCH_MSRC)
 libc-a-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS)
 libc-so-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS:.o=.os)
 
-CFLAGS-multi-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_DEF)
-libc-multi-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_MSRC)
+#CFLAGS-multi-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_DEF)
+#libc-multi-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_MSRC)
+libc-nomulti-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS)
 
 objclean-y+=string_arch_objclean
 
