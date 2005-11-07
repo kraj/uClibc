@@ -283,6 +283,7 @@ extern size_t __pagesize;
 
 void __pthread_destroy_specifics(void);
 void __pthread_perform_cleanup(void);
+void __pthread_init_max_stacksize (void);
 int __pthread_initialize_manager(void);
 void __pthread_message(char * fmt, ...);
 int __pthread_manager(void *reqfd);

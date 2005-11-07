@@ -214,6 +214,9 @@ char *__pthread_manager_thread_tos = NULL;
 int __pthread_exit_requested = 0;
 int __pthread_exit_code = 0;
 
+/* Maximum stack size.  */
+size_t __pthread_max_stacksize;
+
 /* Communicate relevant LinuxThreads constants to gdb */
 
 const int __pthread_threads_max = PTHREAD_THREADS_MAX;
@@ -311,6 +314,50 @@ void __pthread_initialize_minimal(void)
 #ifdef INIT_THREAD_SELF
     INIT_THREAD_SELF(&__pthread_initial_thread, 0);
 #endif
+}
+
+
+void
+__pthread_init_max_stacksize(void)
+{
+  struct rlimit limit;
+  size_t max_stack;
+
+  getrlimit(RLIMIT_STACK, &limit);
+#ifdef FLOATING_STACKS
+  if (limit.rlim_cur == RLIM_INFINITY)
+    limit.rlim_cur = ARCH_STACK_MAX_SIZE;
+# ifdef NEED_SEPARATE_REGISTER_STACK
+  max_stack = limit.rlim_cur / 2;
+# else
+  max_stack = limit.rlim_cur;
+# endif
+#else
+  /* Play with the stack size limit to make sure that no stack ever grows
+     beyond STACK_SIZE minus one page (to act as a guard page). */
+# ifdef NEED_SEPARATE_REGISTER_STACK
+  /* STACK_SIZE bytes hold both the main stack and register backing
+     store. The rlimit value applies to each individually.  */
+  max_stack = STACK_SIZE/2 - __getpagesize ();
+# else
+  max_stack = STACK_SIZE - __getpagesize();
+# endif
+  if (limit.rlim_cur > max_stack) {
+    limit.rlim_cur = max_stack;
+    setrlimit(RLIMIT_STACK, &limit);
+  }
+#endif
+  __pthread_max_stacksize = max_stack;
+#define __MAX_ALLOCA_CUTOFF 65536
+  if (max_stack / 4 < __MAX_ALLOCA_CUTOFF)
+    {
+#ifdef USE_TLS
+      pthread_descr self = THREAD_SELF;
+      self->p_alloca_cutoff = max_stack / 4;
+#else
+      __pthread_initial_thread.p_alloca_cutoff = max_stack / 4;
+#endif
+    }
 }
 
 
