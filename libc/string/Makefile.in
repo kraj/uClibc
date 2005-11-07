@@ -62,7 +62,7 @@ STRING_MOBJW:=$(patsubst %.o,$(STRING_OUT)/%.o,$(MOBJW))
 STRING_MOBJx:=$(patsubst %.o,$(STRING_OUT)/%.o,$(MOBJx))
 STRING_MOBJWx:=$(patsubst %.o,$(STRING_OUT)/%.o,$(MOBJWx))
 
-#STRING_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(STRING_MOBJ))))
+STRING_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(STRING_MOBJ))))
 
 STRING_Wx:=$(STRING_MOBJW) $(STRING_MOBJx) $(STRING_MOBJWx)
 STRING_OBJS:=$(STRING_MOBJ) $(STRING_Wx)
@@ -94,11 +94,9 @@ $(STRING_MOBJWx:.o=.os): $(STRING_MSRC)
 libc-a-y+=$(STRING_OBJS)
 libc-so-y+=$(STRING_OBJS:.o=.os)
 
-# multi does not work here, because arch/Makefile.arch uses the same L_* defines
-#CFLAGS-multi-y+=$(STRING_DEF)
-#libc-multi-y+=$(STRING_MSRC)
-#libc-nomulti-y+=$(STRING_Wx)
-libc-nomulti-y+=$(STRING_OBJS)
+CFLAGS-multi-y+=$(STRING_DEF)
+libc-multi-y+=$(STRING_MSRC)
+libc-nomulti-y+=$(STRING_Wx)
 
 objclean-y+=string_objclean
 
