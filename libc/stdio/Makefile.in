@@ -125,7 +125,7 @@ STDIO_NO_MULTI:=$(STDIO_CUOBJ) $(STDIO_CLOBJ)
 
 # need this, else the other %64 files will get false rules
 $(STDIO_CLSRC): $(STDIO_OUT)/%64.c : $(STDIO_DIR)/%.c
-	cp $< $@
+	@cp $< $@
 
 $(STDIO_CLOBJ): %.o : %.c
 	$(compile.c) -D__DO_LARGEFILE
@@ -157,4 +157,4 @@ libc-nomulti-y+=$(patsubst %.o,$(STDIO_OUT)/%.o,$(STDIO_MOBJ_NO_MULTI))
 objclean-y+=stdio_objclean
 
 stdio_objclean:
-	$(RM) $(STDIO_OUT)/*.{o,os}
+	$(RM) $(STDIO_OUT)/*.{o,os} $(STDIO_OUT)/*64.c
