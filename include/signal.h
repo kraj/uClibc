@@ -155,8 +155,8 @@ extern int __sigpause (int __sig_or_mask, int __is_sig);
 #ifdef __FAVOR_BSD
 /* Set the mask of blocked signals to MASK,
    wait for a signal to arrive, and then restore the mask.  */
-# define sigpause(mask) __sigpause ((mask), 0)
 extern int sigpause (int __mask) __THROW __attribute_deprecated__;
+# define sigpause(mask) __sigpause ((mask), 0)
 #else
 # ifdef __USE_XOPEN
 #  ifdef __GNUC__
