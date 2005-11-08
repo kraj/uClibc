@@ -26,7 +26,6 @@
  * Copyright (C) 2004 Joakim Tjernlund
  */
 
-#define _STDIO_UTILITY
 #define _GNU_SOURCE
 #include <string.h>
 #include <locale.h> /* for __LOCALE_C_ONLY */

@@ -91,7 +91,6 @@
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE
-#define _STDIO_UTILITY			/* We're using _uintmaxtostr. */
 #include <features.h>
 #include "_stdio.h"
 #include <stdlib.h>
