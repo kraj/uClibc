@@ -1,5 +1,5 @@
 /* System-specific socket constants and types.  Linux version.
-   Copyright (C) 1991,1992,1994-1999,2000,2001 Free Software Foundation, Inc.
+   Copyright (C) 1991,1992,1994-2001, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -212,6 +212,9 @@ enum
 
 /* Structure describing messages sent by
    `sendmsg' and received by `recvmsg'.  */
+/* Note: do not change these members to match glibc; these match the
+   SuSv3 spec already (e.g. msg_iovlen/msg_controllen).
+   http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/socket.h.html */
 struct msghdr
   {
     void *msg_name;		/* Address to send to/receive from.  */

@@ -37,22 +37,7 @@ typedef unsigned short int __u_short;
 typedef unsigned int __u_int;
 typedef unsigned long int __u_long;
 
-#if __WORDSIZE == 64
-typedef long int __quad_t;
-typedef unsigned long int __u_quad_t;
-#elif defined(__GNUC__)
-__extension__ typedef unsigned long long int __u_quad_t;
-__extension__ typedef long long int __quad_t;
-#else
-typedef struct
-  {
-    long int __val[2];
-  } __quad_t;
-typedef struct
-  {
-    __u_long __val[2];
-  } __u_quad_t;
-#endif
+/* Fixed-size types, underlying types depend on word size and compiler.  */
 typedef signed char __int8_t;
 typedef unsigned char __uint8_t;
 typedef signed short int __int16_t;
@@ -66,7 +51,24 @@ typedef unsigned long int __uint64_t;
 __extension__ typedef signed long long int __int64_t;
 __extension__ typedef unsigned long long int __uint64_t;
 #endif
-typedef __quad_t *__qaddr_t;
+
+/* quad_t is also 64 bits.  */
+#if __WORDSIZE == 64
+typedef long int __quad_t;
+typedef unsigned long int __u_quad_t;
+#elif defined(__GNUC__)
+__extension__ typedef long long int __quad_t;
+__extension__ typedef unsigned long long int __u_quad_t;
+#else
+typedef struct
+{
+  long __val[2];
+} __quad_t;
+typedef struct
+{
+  __u_long __val[2];
+} __u_quad_t;
+#endif
 
 #if __WORDSIZE == 32
 # define __SWORD_TYPE		int
@@ -97,6 +99,7 @@ typedef struct
 
 /* Everythin' else.  */
 typedef int __daddr_t;			/* The type of a disk address.  */
+typedef __quad_t *__rqaddr_t;
 typedef char *__caddr_t;
 typedef long int __time_t;
 typedef unsigned int __useconds_t;
