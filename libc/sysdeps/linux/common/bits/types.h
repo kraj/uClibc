@@ -150,7 +150,7 @@ typedef long int __t_scalar_t;
 typedef unsigned long int __t_uscalar_t;
 
 /* Duplicates info from stdint.h but this is used in unistd.h.  */
-typedef int __intptr_t;
+typedef __SWORD_TYPE __intptr_t;
 
 /* Duplicate info from sys/socket.h.  */
 typedef unsigned int __socklen_t;
