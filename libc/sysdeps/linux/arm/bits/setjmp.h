@@ -25,7 +25,11 @@
 #ifndef _ASM
 /* Jump buffer contains v1-v6, sl, fp, sp and pc.  Other registers are not
    saved.  */
+#ifdef __MAVERICK__
+typedef int __jmp_buf[34];
+#else
 typedef int __jmp_buf[22];
+#endif
 #endif
 
 #define __JMP_BUF_SP		20
