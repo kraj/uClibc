@@ -166,8 +166,8 @@ static char *firstwhite(char *s)
 {
 	char *s1, *s2;
 
-	s1 = index(s, ' ');
-	s2 = index(s, '\t');
+	s1 = strchr(s, ' ');
+	s2 = strchr(s, '\t');
 	if (s1) {
 		if (s2)
 			return (s1 < s2) ? s1 : s2;
@@ -187,9 +187,9 @@ static struct rpcent *interpret(register struct rpcdata *d)
 	d->line[strlen(p)-1] = '\n';
 	if (*p == '#')
 		return __get_next_rpcent(d);
-	cp = index(p, '#');
+	cp = strchr(p, '#');
 	if (cp == NULL) {
-		cp = index(p, '\n');
+		cp = strchr(p, '\n');
 		if (cp == NULL)
 			return __get_next_rpcent(d);
 	}
@@ -200,9 +200,9 @@ static struct rpcent *interpret(register struct rpcdata *d)
 	else
 		return __get_next_rpcent(d);
 #else
-	cp = index(p, ' ');
+	cp = strchr(p, ' ');
 	if (cp == NULL) {
-		cp = index(p, '\t');
+		cp = strchr(p, '\t');
 		if (cp == NULL)
 			return __get_next_rpcent(d);
 	}
@@ -218,11 +218,11 @@ static struct rpcent *interpret(register struct rpcdata *d)
 	if ((cp = firstwhite(cp)))
 		*cp++ = '\0';
 #else
-	cp = index(p, ' ');
+	cp = strchr(p, ' ');
 	if (cp != NULL)
 		*cp++ = '\0';
 	else {
-		cp = index(p, '\t');
+		cp = strchr(p, '\t');
 		if (cp != NULL)
 			*cp++ = '\0';
 	}
@@ -238,11 +238,11 @@ static struct rpcent *interpret(register struct rpcdata *d)
 		if ((cp = firstwhite(cp)))
 			*cp++ = '\0';
 #else
-		cp = index(p, ' ');
+		cp = strchr(p, ' ');
 		if (cp != NULL)
 			*cp++ = '\0';
 		else {
-			cp = index(p, '\t');
+			cp = strchr(p, '\t');
 			if (cp != NULL)
 				*cp++ = '\0';
 		}
