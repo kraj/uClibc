@@ -63,3 +63,9 @@ int sigpause (int mask)
 {
   return __sigpause (mask, 0);
 }
+
+int __xpg_sigpause (int sig)
+{
+  return __sigpause (sig, 1);
+}
+
