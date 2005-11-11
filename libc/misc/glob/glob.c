@@ -426,7 +426,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
 	  if (! (d->d_ino != 0))
 	    continue;
 	  name = d->d_name;
-#ifdef	HAVE_D_NAMLEN
+#ifdef _DIRENT_HAVE_D_NAMLEN
 	  len = d->d_namlen;
 #else
 	  len = 0;
