@@ -111,4 +111,3 @@ config C_SYMBOL_PREFIX
 config HAVE_DOT_CONFIG
 	bool
 	default y
-

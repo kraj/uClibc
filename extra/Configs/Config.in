@@ -2,6 +2,7 @@
 # For a description of the syntax of this configuration file,
 # see extra/config/Kconfig-language.txt
 #
+
 mainmenu "uClibc C Library Configuration"
 
 choice
@@ -742,8 +743,8 @@ config UCLIBC_HAS_GLIBC_CUSTOM_PRINTF
 
 	  NOTE: This implementation limits the number or registered specifiers to 10.
 	  NOTE: This implementation requires new conversion specifiers to be ASCII
-                characters (0-0x7f).  This is to avoid problems with processing
-                format strings in locales with different multibyte conversions.
+	        characters (0-0x7f).  This is to avoid problems with processing
+	        format strings in locales with different multibyte conversions.
 
 	  Most people will answer N.
 

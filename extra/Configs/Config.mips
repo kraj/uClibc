@@ -14,9 +14,6 @@ config ARCH_CFLAGS
 	string
 	default "-mno-split-addresses"
 
-config ARCH_LDFLAGS
-	string
-
 config LIBGCC_CFLAGS
 	string
 

@@ -17,13 +17,9 @@ config ARCH_CFLAGS
 	string
 	default "-m32 -funaligned-struct-hack"
 
-config ARCH_LDFLAGS
-	string
-
 config LIBGCC_CFLAGS
 	string
 
 config CROSS
-        string
+	string
 	default nios-elf-
-
