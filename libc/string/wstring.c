@@ -1739,6 +1739,9 @@ Wchar *Wstpncpy(register Wchar * __restrict s1,
 
 void __bzero(void *s, size_t n)
 {
+#if 1
+	(void)memset(s, 0, n);
+#else
 	register unsigned char *p = s;
 #ifdef __BCC__
 	/* bcc can optimize the counter if it thinks it is a pointer... */
@@ -1751,6 +1754,7 @@ void __bzero(void *s, size_t n)
 		*p++ = 0;
 		--np;
 	}
+#endif
 }
 weak_alias(__bzero,bzero);
 #undef np
