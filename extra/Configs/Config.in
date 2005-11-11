@@ -18,40 +18,40 @@ config TARGET_arm
 	bool "arm"
 
 config TARGET_bfin
-	bool "bfin"
+	bool "bfin (BROKEN)"
 
 config TARGET_cris
-	bool "cris"
+	bool "cris (BROKEN)"
 
 config TARGET_e1
-	bool "e1"
+	bool "e1 (BROKEN)"
 
 config TARGET_frv
-	bool "frv"
+	bool "frv (BROKEN)"
 
 config TARGET_h8300
-	bool "h8300"
+	bool "h8300 (BROKEN)"
 
 config TARGET_i386
 	bool "i386"
 
 config TARGET_i960
-	bool "i960"
+	bool "i960 (BROKEN)"
 
 config TARGET_m68k
 	bool "m68k"
 
 config TARGET_microblaze
-	bool "microblaze"
+	bool "microblaze (BROKEN)"
 
 config TARGET_mips
 	bool "mips"
 
 config TARGET_nios
-	bool "nios"
+	bool "nios (BROKEN)"
 
 config TARGET_nios2
-	bool "nios2"
+	bool "nios2 (BROKEN)"
 
 config TARGET_powerpc
 	bool "powerpc"
@@ -66,7 +66,7 @@ config TARGET_sparc
 	bool "sparc"
 
 config TARGET_v850
-	bool "v850"
+	bool "v850 (BROKEN)"
 
 config TARGET_x86_64
 	bool "x86_64"
