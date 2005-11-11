@@ -29,12 +29,15 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-.text
 .global strcmp
-.type strcmp,%function
+.set strcmp,__strcmp
+.text
+.global __strcmp
+.hidden __strcmp
+.type __strcmp,%function
 .align 4
 
-strcmp:
+__strcmp:
 1:
 	ldrb	r2, [r0], #1
 	ldrb	r3, [r1], #1
@@ -44,4 +47,5 @@ strcmp:
 	sub	r0, r2, r3
 	mov	pc, lr
 
+.size __strcmp,.-__strcmp
 .weak strcoll ; strcoll = strcmp

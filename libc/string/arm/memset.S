@@ -19,12 +19,15 @@
 
 #include <sys/syscall.h>
 
-.text
 .global memset
-.type memset,%function
+.set memset,__memset
+.text
+.global __memset
+.hidden __memset
+.type __memset,%function
 .align 4
 
-memset:
+__memset:
 	mov	a4, a1
 	cmp	a3, $8		@ at least 8 bytes to do?
 	blt	2f
@@ -68,4 +71,4 @@ memset:
 	strb	a2, [a4], $1
 	mov	pc, lr
 
-.size memset,.-memset
+.size __memset,.-__memset

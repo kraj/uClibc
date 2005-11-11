@@ -37,12 +37,17 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-.text
 .global memmove
-.type memmove,%function
+.set memmove,__memmove
+.text
+.global __memmove
+.hidden __memmove
+.type __memmove,%function
 .align 4
 
-memmove:
+__memmove:
 	stmfd	sp!, {r0, lr}
 	bl	_memcpy (PLT)
 	ldmfd	sp!, {r0, pc}
+
+.size __memmove,.-__memmove
