@@ -5,33 +5,18 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-MSRC:=string.c
-MOBJ:=	strcpy.o strncpy.o strcat.o strncat.o strcmp.o \
-	strncmp.o strchr.o strrchr.o strlen.o strnlen.o \
-	memcpy.o memmove.o memchr.o memset.o 
-
 STRING_ARCH_DIR:=$(top_srcdir)libc/string/i386
 STRING_ARCH_OUT:=$(top_builddir)libc/string/i386
 
-STRING_ARCH_MSRC:=$(patsubst %.c,$(STRING_ARCH_DIR)/%.c,$(MSRC))
-STRING_ARCH_MOBJ:=$(patsubst %.o,$(STRING_ARCH_OUT)/%.o,$(MOBJ))
+STRING_ARCH_CSRC:=$(wildcard $(STRING_ARCH_DIR)/*.c)
+STRING_ARCH_COBJ:=$(patsubst $(STRING_ARCH_DIR)/%.c,$(STRING_ARCH_OUT)/%.o,$(STRING_ARCH_CSRC))
 
-STRING_ARCH_OBJS:=$(STRING_ARCH_MOBJ)
-
-#STRING_ARCH_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(STRING_ARCH_OBJS))))
-
-$(STRING_ARCH_MOBJ): $(STRING_ARCH_MSRC)
-	$(compile.m)
-
-$(STRING_ARCH_MOBJ:.o=.os): $(STRING_ARCH_MSRC)
-	$(compile.m)
+STRING_ARCH_OBJS:=$(STRING_ARCH_COBJ)
 
 libc-a-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS)
 libc-so-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS:.o=.os)
 
-#CFLAGS-multi-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_DEF)
-#libc-multi-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_MSRC)
-libc-nomulti-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_OBJS)
+libc-multi-$(UCLIBC_HAS_STRING_ARCH_OPT)+=$(STRING_ARCH_CSRC)
 
 objclean-y+=string_arch_objclean
 
