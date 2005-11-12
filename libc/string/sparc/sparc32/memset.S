@@ -62,7 +62,10 @@ ENTRY(__bzero)
 	 sub		%o0, %o2, %o0
 END(__bzero)
 
-ENTRY(memset)
+.globl memset
+.set memset,__memset
+.hidden __memset
+ENTRY(__memset)
 	and		%o1, 0xff, %g3
 	sll		%g3, 8, %g2
 	or		%g3, %g2, %g3
@@ -147,6 +150,6 @@ ENTRY(memset)
 	stb		%g3, [%o0 + 6]
 0:	retl
 	 nop
-END(memset)
+END(__memset)
 
 weak_alias (__bzero, bzero)

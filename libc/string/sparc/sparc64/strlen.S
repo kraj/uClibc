@@ -39,7 +39,10 @@
 
 	.text
 	.align		32
-ENTRY(strlen)
+.globl strlen
+.set strlen,__strlen
+.hidden __strlen
+ENTRY(__strlen)
 	sethi		%hi(0x01010101), %g1		/* IEU0		Group		*/
 	ldub		[%o0], %o3			/* Load				*/
 	or		%g1, %lo(0x01010101), %g1	/* IEU0		Group		*/
@@ -169,4 +172,4 @@ ENTRY(strlen)
 	add		%o0, -1, %o0			/* IEU0		Group		*/
 	retl						/* CTI+IEU1	Group		*/
 	 sub		%o0, %o1, %o0			/* IEU0				*/
-END(strlen)
+END(__strlen)

@@ -161,12 +161,19 @@
 	b		3f
 	 sub		%o0, 2, %o0
 
-ENTRY(bcopy)
+.globl bcopy
+.set bcopy,__bcopy
+.hidden __bcopy
+ENTRY(__bcopy)
 	mov		%o0, %o3
 	mov		%o1, %o0
 	mov		%o3, %o1
-END(bcopy)
-ENTRY(memmove)
+END(__bcopy)
+
+.globl memmove
+.set memmove,__memmove
+.hidden __memmove
+ENTRY(__memmove)
 	cmp		%o0, %o1
 	st		%o0, [%sp + 64]
 	bleu		9f
@@ -446,9 +453,12 @@ ENTRY(memmove)
 	sub		%o2, 2, %o2
 	b		3f
 	 add		%o0, 2, %o0
-END(memmove)
+END(__memmove)
 
-ENTRY(memcpy)		/* %o0=dst %o1=src %o2=len */
+.globl memcpy
+.set memcpy,__memcpy
+.hidden __memcpy
+ENTRY(__memcpy)		/* %o0=dst %o1=src %o2=len */
 	sub		%o0, %o1, %o4
 	st		%o0, [%sp + 64]
 9:	andcc		%o4, 3, %o5
@@ -963,4 +973,4 @@ ENTRY(memcpy)		/* %o0=dst %o1=src %o2=len */
 	 sub		%o7, %o4, %o5
 110:	retl
 	 sub		%o7, %g6, %o5
-END(memcpy)
+END(__memcpy)
