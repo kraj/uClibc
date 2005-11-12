@@ -16,10 +16,13 @@
 
 	.section .text..SHmedia32,"ax"
 	.globl	strcpy
-	.type	strcpy, @function
+	.set	strcpy,__strcpy
+	.globl	__strcpy
+	.hidden	__strcpy
+	.type	__strcpy, @function
 
 	.align 5
-strcpy:
+__strcpy:
 
 	pta/l shortstring,tr1
 	ldlo.q r3,0,r4
@@ -94,5 +97,4 @@ loop:
 	addi r0, 8, r0
 	blink tr1, r63 // shortstring
 
-	.size	strcpy, . - strcpy
-
+	.size	__strcpy,.-__strcpy

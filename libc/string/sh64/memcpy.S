@@ -38,10 +38,13 @@
 
 	.section .text..SHmedia32,"ax"
 	.globl	memcpy
-	.type	memcpy, @function
+	.set	memcpy,__memcpy
+	.globl	__memcpy
+	.hidden	__memcpy
+	.type	__memcpy, @function
 
 	.align	5
-memcpy:
+__memcpy:
 
 #define LDUAQ(P,O,D0,D1) ldlo.q P,O,D0; ldhi.q P,O+7,D1
 #define STUAQ(P,O,D0,D1) stlo.q P,O,D0; sthi.q P,O+7,D1
@@ -198,5 +201,4 @@ Loop_ua:
 	stlo.q r5, 8, r1
 	blink tr1, r63
 
-	.size memcpy, . - memcpy
-
+	.size __memcpy,.-__memcpy

@@ -32,10 +32,13 @@
 
 	.section .text..SHmedia32,"ax"
 	.globl	strlen
-	.type	strlen,@function
+	.set	strlen,__strlen
+	.globl	__strlen
+	.hidden	__strlen
+	.type	__strlen,@function
 
 	.balign 16
-strlen:
+__strlen:
 	ptabs	r18, tr4
 
 	/*
@@ -56,5 +59,4 @@ loop:
 	or	r0, r63, r2
 	blink	tr4, r63
 
-	.size	strlen, . - strlen
-
+	.size	__strlen,.-__strlen
