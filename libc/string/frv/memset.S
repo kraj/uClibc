@@ -32,8 +32,11 @@
 #
 ###############################################################################
         .globl		memset
-        .type		memset,@function
-memset:
+	.set		memset,__memset
+        .globl		__memset
+        .hidden		__memset
+        .type		__memset,@function
+__memset:
 	orcc.p		gr10,gr0,gr5,icc3		; GR5 = count
 	andi		gr9,#0xff,gr9
 	or.p		gr8,gr0,gr4			; GR4 = address
@@ -152,4 +155,4 @@ memset:
 	cknc		icc0,cc7
 	cstb.p		gr12,@(gr4,gr0)		,cc7,#1
 	bralr
-	.size		memset, .-memset
+	.size		__memset, .-__memset
