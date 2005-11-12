@@ -26,7 +26,10 @@
 #include "_glibc_inc.h"
 
 	.text
-ENTRY (strspn)
+.global strspn
+.set strspn,__strspn
+.hidden __strspn
+ENTRY (__strspn)
 
 	movq %rdi, %rdx		/* Save SRC.  */
 
@@ -111,4 +114,4 @@ L(4):	addq $256, %rsp		/* remove stopset */
 				   characters, so compute distance to first
 				   non-valid character */
 	ret
-END (strspn)
+END (__strspn)

@@ -32,7 +32,10 @@ ENTRY (__memcpy_chk)
 	jb	HIDDEN_JUMPTARGET (__chk_fail)
 END (__memcpy_chk)
 #endif
-ENTRY (BP_SYM (memcpy))
+.global memcpy
+.set memcpy,__memcpy
+.hidden __memcpy
+ENTRY (BP_SYM (__memcpy))
 	/* Cutoff for the big loop is a size of 32 bytes since otherwise
 	   the loop will never be entered.  */
 	cmpq	$32, %rdx
@@ -92,4 +95,4 @@ ENTRY (BP_SYM (memcpy))
 #endif
 	ret
 
-END (BP_SYM (memcpy))
+END (BP_SYM (__memcpy))

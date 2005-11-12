@@ -22,7 +22,10 @@
 
 
 	.text
-ENTRY (strlen)
+.global strlen
+.set strlen,__strlen
+.hidden __strlen
+ENTRY (__strlen)
 	movq %rdi, %rcx		/* Duplicate source pointer. */
 	andl $7, %ecx		/* mask alignment bits */
 	movq %rdi, %rax		/* duplicate destination.  */
@@ -132,4 +135,4 @@ ENTRY (strlen)
 2:
 	subq %rdi, %rax		/* compute difference to string start */
 	ret
-END (strlen)
+END (__strlen)
