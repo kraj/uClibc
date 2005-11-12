@@ -32,6 +32,9 @@ config TARGET_frv
 config TARGET_h8300
 	bool "h8300 (BROKEN)"
 
+config TARGET_hppa
+	bool "hppa"
+
 config TARGET_i386
 	bool "i386"
 
@@ -102,6 +105,10 @@ endif
 
 if TARGET_h8300
 source "extra/Configs/Config.h8300"
+endif
+
+if TARGET_hppa
+source "extra/Configs/Config.hppa"
 endif
 
 if TARGET_i386
@@ -1133,8 +1140,13 @@ config UCLIBC_BUILD_PIE
 		libraries have to be built with -fPIC or -fpic, and all assembler
 		functions must be written as position independent code (PIC).
 
+config HAVE_NO_SSP
+	bool
+	default n
+
 config UCLIBC_HAS_SSP
 	bool "Support for propolice smashing stack protector"
+	depends on !HAVE_NO_SSP
 	default n
 	help
 	  Add propolice smashing stack protector to the library.
