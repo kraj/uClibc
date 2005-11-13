@@ -130,11 +130,11 @@ endif
 
 pre_subdirs: $(patsubst %, _pre_dir_%, $(PRE_DIRS))
 $(patsubst %, _pre_dir_%, $(PRE_DIRS)): pregen
-	$(MAKE) -C $(patsubst _pre_dir_%, %, $@)
+	@$(MAKE) -C $(patsubst _pre_dir_%, %, $@)
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 $(patsubst %, _dir_%, $(DIRS)): pre_subdirs
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
+	@$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 install: install_runtime install_dev finished2
 
