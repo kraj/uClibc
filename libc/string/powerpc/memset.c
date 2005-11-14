@@ -31,6 +31,8 @@ static inline int expand_byte_word(int c){
 	    : "=r" (c) : "0" (c));
 	return c;
 }
+
+#undef memset
 void attribute_hidden *__memset(void *to, int c, size_t n)
 {
 	unsigned long rem, chunks;

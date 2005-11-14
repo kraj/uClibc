@@ -21,6 +21,7 @@
 
 #include <string.h>
 
+#undef memmove
 void attribute_hidden *__memmove(void *to, const void *from, size_t n)
 {
 	unsigned long rem, chunks, tmp1, tmp2;
