@@ -159,12 +159,8 @@ extern int sigpause (int __mask) __THROW __attribute_deprecated__;
 # define sigpause(mask) __sigpause ((mask), 0)
 #else
 # ifdef __USE_XOPEN
-#  ifdef __GNUC__
-extern int sigpause (int __sig) __asm__ ("__xpg_sigpause");
-#  else
 /* Remove a signal from the signal mask and suspend the process.  */
-#   define sigpause(sig) __sigpause ((sig), 1)
-#  endif
+#  define sigpause(sig) __sigpause ((sig), 1)
 # endif
 #endif
 
