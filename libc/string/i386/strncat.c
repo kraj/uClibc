@@ -30,9 +30,9 @@
  *  -Erik
  */
 
-#define _GNU_SOURCE
 #include <string.h>
 
+#undef strncat
 char attribute_hidden *__strncat(char * dest, 
 	const char * src, size_t count)
 {

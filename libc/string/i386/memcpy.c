@@ -30,9 +30,9 @@
  *  -Erik
  */
 
-#define _GNU_SOURCE
 #include <string.h>
 
+#undef memcpy
 void attribute_hidden *__memcpy(void * to, const void * from, size_t n)
 {
     int d0, d1, d2;

@@ -30,9 +30,9 @@
  *  -Erik
  */
 
-#define _GNU_SOURCE
 #include <string.h>
 
+#undef strchr
 char attribute_hidden *__strchr(const char *s, int c)
 {
     int d0;

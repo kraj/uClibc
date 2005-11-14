@@ -30,9 +30,9 @@
  *  -Erik
  */
 
-#define _GNU_SOURCE
 #include <string.h>
 
+#undef strcpy
 char attribute_hidden *__strcpy(char * dest, const char * src)
 {
     int d0, d1, d2;

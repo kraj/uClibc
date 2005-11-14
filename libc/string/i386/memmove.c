@@ -30,9 +30,9 @@
  *  -Erik
  */
 
-#define _GNU_SOURCE
 #include <string.h>
 
+#undef memmove
 void attribute_hidden *__memmove(void *dest, const void *src, size_t n)
 {
     int d0, d1, d2;

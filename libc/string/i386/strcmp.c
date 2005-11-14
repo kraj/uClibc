@@ -30,10 +30,10 @@
  *  -Erik
  */
 
-#define _GNU_SOURCE
 #include <string.h>
 #include <locale.h> /* for __LOCALE_C_ONLY */
 
+#undef strcmp
 int attribute_hidden __strcmp(const char *cs, const char *ct)
 {
     int d0, d1;
@@ -57,5 +57,6 @@ int attribute_hidden __strcmp(const char *cs, const char *ct)
 strong_alias(__strcmp, strcmp)
 
 #ifdef __LOCALE_C_ONLY
-weak_alias(strcmp, strcoll)
+weak_alias(__strcmp, __strcoll)
+strong_alias(__strcoll, strcoll)
 #endif /* __LOCALE_C_ONLY */

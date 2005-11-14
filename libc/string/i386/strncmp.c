@@ -30,9 +30,9 @@
  *  -Erik
  */
 
-#define _GNU_SOURCE
 #include <string.h>
 
+#undef strncmp
 int attribute_hidden __strncmp(const char *cs, const char *ct, size_t count)
 {
     register int __res;

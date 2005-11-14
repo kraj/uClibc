@@ -30,9 +30,9 @@
  *  -Erik
  */
 
-#define _GNU_SOURCE
 #include <string.h>
 
+#undef strrchr
 char attribute_hidden *__strrchr(const char *s, int c)
 {
     int d0, d1;
@@ -51,4 +51,4 @@ char attribute_hidden *__strrchr(const char *s, int c)
 
 strong_alias(__strrchr, strrchr)
 
-weak_alias(__strrchr, rindex)
+weak_alias(strrchr, rindex)

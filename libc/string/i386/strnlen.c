@@ -33,6 +33,7 @@
 #define _GNU_SOURCE
 #include <string.h>
 
+#undef strnlen
 size_t attribute_hidden __strnlen(const char *s, size_t count)
 {
     int d0;

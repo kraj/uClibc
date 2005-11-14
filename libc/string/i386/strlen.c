@@ -30,9 +30,9 @@
  *  -Erik
  */
 
-#define _GNU_SOURCE
 #include <string.h>
 
+#undef strlen
 size_t attribute_hidden __strlen(const char *s)
 {
     int d0;

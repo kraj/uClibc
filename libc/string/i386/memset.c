@@ -30,9 +30,9 @@
  *  -Erik
  */
 
-#define _GNU_SOURCE
 #include <string.h>
 
+#undef memset
 void attribute_hidden *__memset(void *s, int c, size_t count)
 {
     int d0, d1;

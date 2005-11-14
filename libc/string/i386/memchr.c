@@ -30,9 +30,9 @@
  *  -Erik
  */
 
-#define _GNU_SOURCE
 #include <string.h>
 
+#undef memchr
 void attribute_hidden *__memchr(const void *cs, int c, size_t count)
 {
     int d0;
