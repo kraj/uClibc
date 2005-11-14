@@ -22,7 +22,8 @@
 #include <signal.h>
 #include <string.h>
 
-int sigwait (const sigset_t *set, int *sig)
+#undef sigwait
+int attribute_hidden __sigwait (const sigset_t *set, int *sig)
 {
     int ret = 1;
     if ((ret = sigwaitinfo(set, NULL)) != -1) {
@@ -31,3 +32,6 @@ int sigwait (const sigset_t *set, int *sig)
     }
     return 1;
 }
+
+/* psm: keep this weak, because the one in libpthread.so could overwrite it */
+weak_alias(__sigwait, sigwait)
