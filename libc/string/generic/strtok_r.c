@@ -21,7 +21,6 @@
 #include <string.h>
 
 #undef strtok_r
-#undef __strtok_r
 
 /* Parse S into tokens separated by characters in DELIM.
    If S is NULL, the saved pointer in SAVE_PTR is used as
@@ -33,8 +32,7 @@
 	x = strtok_r(NULL, "=", &sp);	// x = NULL
 		// s = "abc\0-def\0"
 */
-char *
-__strtok_r (s, delim, save_ptr)
+char attribute_hidden *__strtok_r (s, delim, save_ptr)
      char *s;
      const char *delim;
      char **save_ptr;
@@ -66,4 +64,5 @@ __strtok_r (s, delim, save_ptr)
     }
   return token;
 }
-weak_alias (__strtok_r, strtok_r)
+
+strong_alias(__strtok_r, strtok_r)

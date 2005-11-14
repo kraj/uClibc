@@ -21,8 +21,7 @@
 
 #undef strncpy
 
-char *
-strncpy (s1, s2, n)
+char attribute_hidden *__strncpy (s1, s2, n)
      char *s1;
      const char *s2;
      size_t n;
@@ -84,3 +83,5 @@ strncpy (s1, s2, n)
 
   return s;
 }
+
+strong_alias(__strncpy, strncpy)

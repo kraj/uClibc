@@ -26,8 +26,7 @@
 /* Compare S1 and S2, returning less than, equal to or
    greater than zero if S1 is lexicographically less than,
    equal to or greater than S2.  */
-int
-strcmp (p1, p2)
+int attribute_hidden __strcmp (p1, p2)
      const char *p1;
      const char *p2;
 {
@@ -47,6 +46,9 @@ strcmp (p1, p2)
   return c1 - c2;
 }
 
+strong_alias(__strcmp, strcmp)
+
 #ifdef __LOCALE_C_ONLY
-weak_alias(strcmp,strcoll);
+weak_alias(__strcmp, __strcoll)
+strong_alias(__strcoll, strcoll)
 #endif /* __LOCALE_C_ONLY */

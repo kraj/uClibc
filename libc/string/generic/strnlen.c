@@ -24,9 +24,11 @@
 #include <string.h>
 #include <stdlib.h>
 
+#undef strnlen
+
 /* Find the length of S, but scan at most MAXLEN characters.  If no
    '\0' terminator is found in that many characters, return MAXLEN.  */
-size_t strnlen (const char *str, size_t maxlen)
+size_t attribute_hidden __strnlen (const char *str, size_t maxlen)
 {
   const char *char_ptr, *end_ptr = str + maxlen;
   const unsigned long int *longword_ptr;
@@ -156,3 +158,5 @@ size_t strnlen (const char *str, size_t maxlen)
     char_ptr = end_ptr;
   return char_ptr - str;
 }
+
+strong_alias(__strnlen, strnlen)

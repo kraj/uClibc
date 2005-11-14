@@ -26,8 +26,7 @@
 
 /* Return the length of the null-terminated string STR.  Scan for
    the null terminator quickly by testing four bytes at a time.  */
-size_t
-strlen (str)
+size_t attribute_hidden __strlen (str)
      const char *str;
 {
   const char *char_ptr;
@@ -150,3 +149,5 @@ strlen (str)
 	}
     }
 }
+
+strong_alias(__strlen, strlen)

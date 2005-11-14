@@ -21,8 +21,7 @@
 
 #undef memset
 
-void *
-memset (dstpp, c, len)
+void attribute_hidden *__memset (dstpp, c, len)
      void *dstpp;
      int c;
      size_t len;
@@ -88,3 +87,5 @@ memset (dstpp, c, len)
 
   return dstpp;
 }
+
+strong_alias(__memset, memset)

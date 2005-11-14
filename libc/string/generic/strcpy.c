@@ -25,8 +25,7 @@
 #undef strcpy
 
 /* Copy SRC to DEST.  */
-char *
-strcpy (dest, src)
+char attribute_hidden *__strcpy (dest, src)
      char *dest;
      const char *src;
 {
@@ -48,3 +47,5 @@ strcpy (dest, src)
 
   return dest;
 }
+
+strong_alias(__strcpy, strcpy)

@@ -29,8 +29,7 @@
 #undef strchr
 
 /* Find the first occurrence of C in S.  */
-char *
-strchr (s, c_in)
+char attribute_hidden *__strchr (s, c_in)
      const char *s;
      int c_in;
 {
@@ -184,7 +183,6 @@ strchr (s, c_in)
   return NULL;
 }
 
-#ifdef weak_alias
-#undef index
-weak_alias (strchr, index)
-#endif
+strong_alias(__strchr, strchr)
+
+weak_alias(strchr, index)

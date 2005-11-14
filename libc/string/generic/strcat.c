@@ -22,8 +22,7 @@
 #undef strcat
 
 /* Append SRC on the end of DEST.  */
-char *
-strcat (dest, src)
+char attribute_hidden *__strcat (dest, src)
      char *dest;
      const char *src;
 {
@@ -49,3 +48,5 @@ strcat (dest, src)
 
   return dest;
 }
+
+strong_alias(__strcat, strcat)

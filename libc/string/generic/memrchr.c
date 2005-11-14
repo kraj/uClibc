@@ -33,7 +33,7 @@
 #undef memrchr
 
 /* Search no more than N bytes of S for C.  */
-void *memrchr (const void * s, int c_in, size_t n)
+void attribute_hidden *__memrchr (const void * s, int c_in, size_t n)
 {
   const unsigned char *char_ptr;
   const unsigned long int *longword_ptr;
@@ -172,3 +172,5 @@ void *memrchr (const void * s, int c_in, size_t n)
 
   return 0;
 }
+
+strong_alias(__memrchr, memrchr)

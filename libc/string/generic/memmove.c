@@ -206,7 +206,9 @@ static void _wordcopy_bwd_dest_aligned (long int dstp, long int srcp, size_t len
   ((op_t *) dstp)[3] = MERGE (a0, sh_1, a1, sh_2);
 }
 
-void *memmove (void *dest, const void *src, size_t len)
+#undef memmove
+
+void attribute_hidden *__memmove (void *dest, const void *src, size_t len)
 {
   unsigned long int dstp = (long int) dest;
   unsigned long int srcp = (long int) src;
@@ -276,3 +278,5 @@ void *memmove (void *dest, const void *src, size_t len)
 
   return (dest);
 }
+
+strong_alias(__memmove, memmove)

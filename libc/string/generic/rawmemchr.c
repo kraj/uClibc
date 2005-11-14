@@ -32,7 +32,7 @@
 #undef rawmemchr
 
 /* Find the first occurrence of C in S.  */
-void *rawmemchr (const void * s, int c_in)
+void attribute_hidden *__rawmemchr (const void * s, int c_in)
 {
   const unsigned char *char_ptr;
   const unsigned long int *longword_ptr;
@@ -158,3 +158,5 @@ void *rawmemchr (const void * s, int c_in)
 	}
     }
 }
+
+strong_alias(__rawmemchr, rawmemchr)
