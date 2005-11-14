@@ -10,23 +10,17 @@
 include $(top_srcdir)libc/string/generic/Makefile.in
 
 MSRC:=wstring.c
-MOBJ:=	basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o memchr.o memcmp.o \
-	memcpy.o memmove.o mempcpy.o memrchr.o 	memset.o rawmemchr.o stpcpy.o \
-	stpncpy.o strcasecmp.o strcasestr.o strcat.o strchrnul.o strchr.o \
-	strcmp.o strcpy.o strcspn.o strdup.o strlen.o strncasecmp.o strncat.o \
-	strncmp.o strncpy.o strndup.o strnlen.o strpbrk.o strrchr.o strsep.o \
-	strspn.o strstr.o strtok.o strtok_r.o strerror.o __xpg_strerror_r.o \
+MOBJ:=	basename.o bcopy.o bzero.o dirname.o ffs.o memccpy.o \
+	memrchr.o rawmemchr.o strcasecmp.o strcasestr.o \
+	strncasecmp.o strndup.o strsep.o \
+	strtok.o strerror.o __xpg_strerror_r.o \
 	_string_syserrmsgs.o __glibc_strerror_r.o \
 	_string_syssigmsgs.o sys_siglist.o strsignal.o psignal.o \
-	 __xpg_basename.o strlcat.o strlcpy.o sys_errlist.o memmem.o
+	 __xpg_basename.o strlcat.o sys_errlist.o memmem.o
 
 MOBJW:=
 ifeq ($(UCLIBC_HAS_WCHAR),y)
-MOBJW:=	wcscasecmp.o wcscat.o wcschrnul.o wcschr.o wcscmp.o wcscpy.o wcscspn.o \
-	wcsdup.o wcslen.o wcsncasecmp.o wcsncat.o wcsncmp.o wcsncpy.o \
-	wcsnlen.o wcspbrk.o wcsrchr.o wcsspn.o wcsstr.o wcstok.o wmemchr.o \
-	wmemcmp.o wmemcpy.o wmemmove.o wmempcpy.o wmemset.o wcpcpy.o wcpncpy.o \
-	__wcslcpy.o \
+MOBJW:=	wcscasecmp.o wcsncasecmp.o \
 	wcsxfrm.o strxfrm.o # wcscoll strcoll.o
 endif
 
@@ -56,6 +50,30 @@ endif
 STRING_DIR:=$(top_srcdir)libc/string
 STRING_OUT:=$(top_builddir)libc/string
 
+STRING_WSRC:=$(filter-out $(STRING_DIR)/wstring.c,$(wildcard $(STRING_DIR)/w*.c))
+STRING_CSRC:=$(filter-out $(STRING_DIR)/wstring.c $(STRING_WSRC),$(wildcard $(STRING_DIR)/*.c))
+
+ifeq ($(UCLIBC_HAS_STRING_ARCH_OPT),y)
+ifneq ($(strip $(STRING_ARCH_OBJS)),)
+MOBJ:=$(filter-out $(notdir $(STRING_ARCH_OBJS)),$(MOBJ))
+STRING_CSRC:=$(filter-out $(patsubst %.o,$(STRING_DIR)/%.c,$(notdir $(STRING_ARCH_OBJS))),$(STRING_CSRC))
+STRING_WSRC:=$(filter-out $(patsubst %.o,$(STRING_DIR)/%.c,$(notdir $(STRING_ARCH_OBJS))),$(STRING_WSRC))
+endif
+endif
+
+ifeq ($(UCLIBC_HAS_STRING_GENERIC_OPT),y)
+ifneq ($(strip $(STRING_GENERIC_OBJS)),)
+MOBJ:=$(filter-out $(notdir $(STRING_GENERIC_OBJS)),$(MOBJ))
+STRING_CSRC:=$(filter-out $(patsubst %.o,$(STRING_DIR)/%.c,$(notdir $(STRING_GENERIC_OBJS))),$(STRING_CSRC))
+STRING_WSRC:=$(filter-out $(patsubst %.o,$(STRING_DIR)/%.c,$(notdir $(STRING_GENERIC_OBJS))),$(STRING_WSRC))
+endif
+endif
+
+
+STRING_COBJ:=$(patsubst $(STRING_DIR)/%.c,$(STRING_OUT)/%.o,$(STRING_CSRC))
+ifeq ($(UCLIBC_HAS_WCHAR),y)
+STRING_WOBJ:=$(patsubst $(STRING_DIR)/%.c,$(STRING_OUT)/%.o,$(STRING_WSRC))
+endif
 STRING_MSRC:=$(patsubst %.c,$(STRING_DIR)/%.c,$(MSRC))
 STRING_MOBJ:=$(patsubst %.o,$(STRING_OUT)/%.o,$(MOBJ))
 STRING_MOBJW:=$(patsubst %.o,$(STRING_OUT)/%.o,$(MOBJW))
@@ -65,7 +83,7 @@ STRING_MOBJWx:=$(patsubst %.o,$(STRING_OUT)/%.o,$(MOBJWx))
 STRING_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(STRING_MOBJ))))
 
 STRING_Wx:=$(STRING_MOBJW) $(STRING_MOBJx) $(STRING_MOBJWx)
-STRING_OBJS:=$(STRING_MOBJ) $(STRING_Wx)
+STRING_OBJS:=$(STRING_COBJ) $(STRING_WOBJ) $(STRING_MOBJ) $(STRING_Wx)
 
 $(STRING_MOBJ): $(STRING_MSRC)
 	$(compile.m)
@@ -95,7 +113,7 @@ libc-a-y+=$(STRING_OBJS)
 libc-so-y+=$(STRING_OBJS:.o=.os)
 
 CFLAGS-multi-y+=$(STRING_DEF)
-libc-multi-y+=$(STRING_MSRC)
+libc-multi-y+=$(STRING_MSRC) $(STRING_CSRC) $(STRING_WSRC)
 libc-nomulti-y+=$(STRING_Wx)
 
 objclean-y+=string_objclean

@@ -1,18 +1,8 @@
-/*  Copyright (C) 2002     Manuel Novoa III
+/*
+ * Copyright (C) 2002     Manuel Novoa III
+ * Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public
- *  License as published by the Free Software Foundation; either
- *  version 2 of the License, or (at your option) any later version.
- *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Library General Public License for more details.
- *
- *  You should have received a copy of the GNU Library General Public
- *  License along with this library; if not, write to the Free
- *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 /*  ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!   ATTENTION!
@@ -412,16 +402,23 @@ int sys_nerr = sizeof(sys_errlist)/sizeof(sys_errlist[0]);
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wmemcpy
 #define L_memcpy
 #define Wmemcpy wmemcpy
 #else
 #define Wmemcpy memcpy
 #endif
+#endif
 
 #ifdef L_memcpy
 
-Wvoid *Wmemcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
+#ifndef WANT_WIDE
+#undef memcpy
+#else
+#undef wmemcpy
+#endif
+Wvoid attribute_hidden *Wmemcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
 {
 	register Wchar *r1 = s1;
 	register const Wchar *r2 = s2;
@@ -442,16 +439,23 @@ Wvoid *Wmemcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wmemmove
 #define L_memmove
 #define Wmemmove wmemmove
 #else
 #define Wmemmove memmove
 #endif
+#endif
 
 #ifdef L_memmove
 
-Wvoid *Wmemmove(Wvoid *s1, const Wvoid *s2, size_t n)
+#ifndef WANT_WIDE
+#undef memmove
+#else
+#undef wmemmove
+#endif
+Wvoid attribute_hidden *Wmemmove(Wvoid *s1, const Wvoid *s2, size_t n)
 {
 #ifdef __BCC__
 	register Wchar *s = (Wchar *) s1;
@@ -492,16 +496,23 @@ Wvoid *Wmemmove(Wvoid *s1, const Wvoid *s2, size_t n)
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcscpy
 #define L_strcpy
 #define Wstrcpy wcscpy
 #else
 #define Wstrcpy strcpy
 #endif
+#endif
 
 #ifdef L_strcpy
 
-Wchar *Wstrcpy(Wchar * __restrict s1, const Wchar * __restrict s2)
+#ifndef WANT_WIDE
+#undef strcpy
+#else
+#undef wcscpy
+#endif
+Wchar attribute_hidden *Wstrcpy(Wchar * __restrict s1, const Wchar * __restrict s2)
 {
 	register Wchar *s = s1;
 
@@ -518,16 +529,23 @@ Wchar *Wstrcpy(Wchar * __restrict s1, const Wchar * __restrict s2)
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcsncpy
 #define L_strncpy
 #define Wstrncpy wcsncpy
 #else
 #define Wstrncpy strncpy
 #endif
+#endif
 
 #ifdef L_strncpy
 
-Wchar *Wstrncpy(Wchar * __restrict s1, register const Wchar * __restrict s2,
+#ifndef WANT_WIDE
+#undef strncpy
+#else
+#undef wcsncpy
+#endif
+Wchar attribute_hidden *Wstrncpy(Wchar * __restrict s1, register const Wchar * __restrict s2,
 				size_t n)
 {
 	register Wchar *s = s1;
@@ -550,16 +568,23 @@ Wchar *Wstrncpy(Wchar * __restrict s1, register const Wchar * __restrict s2,
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcscat
 #define L_strcat
 #define Wstrcat wcscat
 #else
 #define Wstrcat strcat
 #endif
+#endif
 
 #ifdef L_strcat
 
-Wchar *Wstrcat(Wchar * __restrict s1, register const Wchar * __restrict s2)
+#ifndef WANT_WIDE
+#undef strcat
+#else
+#undef wcscat
+#endif
+Wchar attribute_hidden *Wstrcat(Wchar * __restrict s1, register const Wchar * __restrict s2)
 {
 	register Wchar *s = s1;
 
@@ -572,16 +597,23 @@ Wchar *Wstrcat(Wchar * __restrict s1, register const Wchar * __restrict s2)
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcsncat
 #define L_strncat
 #define Wstrncat wcsncat
 #else
 #define Wstrncat strncat
 #endif
+#endif
 
 #ifdef L_strncat
 
-Wchar *Wstrncat(Wchar * __restrict s1, register const Wchar * __restrict s2,
+#ifndef WANT_WIDE
+#undef strncat
+#else
+#undef wcsncat
+#endif
+Wchar attribute_hidden *Wstrncat(Wchar * __restrict s1, register const Wchar * __restrict s2,
 				size_t n)
 {
 	register Wchar *s = s1;
@@ -603,16 +635,23 @@ Wchar *Wstrncat(Wchar * __restrict s1, register const Wchar * __restrict s2,
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wmemcmp
 #define L_memcmp
 #define Wmemcmp wmemcmp
 #else
 #define Wmemcmp memcmp
 #endif
+#endif
 
 #ifdef L_memcmp
 
-int Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
+#ifndef WANT_WIDE
+#undef memcmp
+#else
+#undef wmemcmp
+#endif
+int attribute_hidden Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
 {
 	register const Wuchar *r1 = (const Wuchar *) s1;
 	register const Wuchar *r2 = (const Wuchar *) s2;
@@ -634,22 +673,29 @@ int Wmemcmp(const Wvoid *s1, const Wvoid *s2, size_t n)
 #endif
 }
 
-#ifndef L_wmemcmp
-weak_alias(memcmp,bcmp);
+#if 0 /* ndef L_wmemcmp */
+weak_alias(memcmp, bcmp)
 #endif
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcscmp
 #define L_strcmp
 #define Wstrcmp wcscmp
 #else
 #define Wstrcmp strcmp
 #endif
+#endif
 
 #ifdef L_strcmp
 
-int Wstrcmp(register const Wchar *s1, register const Wchar *s2)
+#ifndef WANT_WIDE
+#undef strcmp
+#else
+#undef wcscmp
+#endif
+int attribute_hidden Wstrcmp(register const Wchar *s1, register const Wchar *s2)
 {
 #ifdef WANT_WIDE
 	while (*((Wuchar *)s1) == *((Wuchar *)s2)) {
@@ -670,26 +716,33 @@ int Wstrcmp(register const Wchar *s1, register const Wchar *s2)
 #endif
 }
 
-#ifdef __LOCALE_C_ONLY
+#if 0 /* def __LOCALE_C_ONLY */
 #ifdef L_wcscmp
-weak_alias(wcscmp,wcscoll);
+weak_alias(wcscmp, wcscoll)
 #else  /* L_wcscmp */
-weak_alias(strcmp,strcoll);
+weak_alias(strcmp, strcoll)
 #endif /* L_wcscmp */
 #endif /* __LOCALE_C_ONLY */
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcsncmp
 #define L_strncmp
 #define Wstrncmp wcsncmp
 #else
 #define Wstrncmp strncmp
 #endif
+#endif
 
 #ifdef L_strncmp
 
-int Wstrncmp(register const Wchar *s1, register const Wchar *s2, size_t n)
+#ifndef WANT_WIDE
+#undef strncmp
+#else
+#undef wcsncmp
+#endif
+int attribute_hidden Wstrncmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 {
 #ifdef WANT_WIDE
 	while (n && (*((Wuchar *)s1) == *((Wuchar *)s2))) {
@@ -715,16 +768,23 @@ int Wstrncmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wmemchr
 #define L_memchr
 #define Wmemchr wmemchr
 #else
 #define Wmemchr memchr
 #endif
+#endif
 
 #ifdef L_memchr
 
-Wvoid *Wmemchr(const Wvoid *s, Wint c, size_t n)
+#ifndef WANT_WIDE
+#undef memchr
+#else
+#undef wmemchr
+#endif
+Wvoid attribute_hidden *Wmemchr(const Wvoid *s, Wint c, size_t n)
 {
 	register const Wuchar *r = (const Wuchar *) s;
 #ifdef __BCC__
@@ -748,16 +808,23 @@ Wvoid *Wmemchr(const Wvoid *s, Wint c, size_t n)
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcschr
 #define L_strchr
 #define Wstrchr wcschr
 #else
 #define Wstrchr strchr
 #endif
+#endif
 
 #ifdef L_strchr
 
-Wchar *Wstrchr(register const Wchar *s, Wint c)
+#ifndef WANT_WIDE
+#undef strchr
+#else
+#undef wcschr
+#endif
+Wchar attribute_hidden *Wstrchr(register const Wchar *s, Wint c)
 {
 	do {
 		if (*s == ((Wchar)c)) {
@@ -768,22 +835,29 @@ Wchar *Wstrchr(register const Wchar *s, Wint c)
 	return NULL;
 }
 
-#ifndef L_wcschr
-weak_alias(strchr,index);
+#if 0 /* ndef L_wcschr */
+weak_alias(strchr, index)
 #endif
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcscspn
 #define L_strcspn
 #define Wstrcspn wcscspn
 #else
 #define Wstrcspn strcspn
 #endif
+#endif
 
 #ifdef L_strcspn
 
-size_t Wstrcspn(const Wchar *s1, const Wchar *s2)
+#ifndef WANT_WIDE
+#undef strcspn
+#else
+#undef wcscspn
+#endif
+size_t attribute_hidden Wstrcspn(const Wchar *s1, const Wchar *s2)
 {
 	register const Wchar *s;
 	register const Wchar *p;
@@ -799,16 +873,23 @@ size_t Wstrcspn(const Wchar *s1, const Wchar *s2)
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcspbrk
 #define L_strpbrk
 #define Wstrpbrk wcspbrk
 #else
 #define Wstrpbrk strpbrk
 #endif
+#endif
 
 #ifdef L_strpbrk
 
-Wchar *Wstrpbrk(const Wchar *s1, const Wchar *s2)
+#ifndef WANT_WIDE
+#undef strpbrk
+#else
+#undef wcspbrk
+#endif
+Wchar attribute_hidden *Wstrpbrk(const Wchar *s1, const Wchar *s2)
 {
 	register const Wchar *s;
 	register const Wchar *p;
@@ -822,16 +903,23 @@ Wchar *Wstrpbrk(const Wchar *s1, const Wchar *s2)
 }
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcsrchr
 #define L_strrchr
 #define Wstrrchr wcsrchr
 #else
 #define Wstrrchr strrchr
 #endif
+#endif
 
 #ifdef L_strrchr
 
-Wchar *Wstrrchr(register const  Wchar *s, Wint c)
+#ifndef WANT_WIDE
+#undef strrchr
+#else
+#undef wcsrchr
+#endif
+Wchar attribute_hidden *Wstrrchr(register const  Wchar *s, Wint c)
 {
 	register const Wchar *p;
 
@@ -845,22 +933,29 @@ Wchar *Wstrrchr(register const  Wchar *s, Wint c)
 	return (Wchar *) p;			/* silence the warning */
 }
 
-#ifndef L_wcsrchr
-weak_alias(strrchr,rindex);
+#if 0 /* ndef L_wcsrchr */
+weak_alias(strrchr, rindex)
 #endif
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcsspn
 #define L_strspn
 #define Wstrspn wcsspn
 #else
 #define Wstrspn strspn
 #endif
+#endif
 
 #ifdef L_strspn
 
-size_t Wstrspn(const Wchar *s1, const Wchar *s2)
+#ifndef WANT_WIDE
+#undef strspn
+#else
+#undef wcsspn
+#endif
+size_t attribute_hidden Wstrspn(const Wchar *s1, const Wchar *s2)
 {
 	register const Wchar *s = s1;
 	register const Wchar *p = s2;
@@ -876,18 +971,25 @@ size_t Wstrspn(const Wchar *s1, const Wchar *s2)
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcsstr
 #define L_strstr
 #define Wstrstr wcsstr
 #else
 #define Wstrstr strstr
 #endif
+#endif
 
 #ifdef L_strstr
 
 /* NOTE: This is the simple-minded O(len(s1) * len(s2)) worst-case approach. */
 
-Wchar *Wstrstr(const Wchar *s1, const Wchar *s2)
+#ifndef WANT_WIDE
+#undef strstr
+#else
+#undef wcsstr
+#endif
+Wchar attribute_hidden *Wstrstr(const Wchar *s1, const Wchar *s2)
 {
 	register const Wchar *s = s1;
 	register const Wchar *p = s2;
@@ -909,12 +1011,13 @@ Wchar *Wstrstr(const Wchar *s1, const Wchar *s2)
 	} while (1);
 }
 
-#ifdef L_wcsstr
-weak_alias(wcsstr,wcswcs);
+#if 0 /* def L_wcsstr */
+weak_alias(wcsstr, wcswcs)
 #endif
 
 #endif
 /**********************************************************************/
+#if 0
 #undef Wstrspn
 #undef Wstrpbrk
 
@@ -928,10 +1031,16 @@ weak_alias(wcsstr,wcswcs);
 #define Wstrspn strspn
 #define Wstrpbrk strpbrk
 #endif
+#endif
 
 #ifdef L_strtok_r
 
-Wchar *Wstrtok_r(Wchar * __restrict s1, const Wchar * __restrict s2,
+#ifndef WANT_WIDE
+#undef strtok_r
+#else
+#undef wcstok
+#endif
+Wchar attribute_hidden *Wstrtok_r(Wchar * __restrict s1, const Wchar * __restrict s2,
 				 Wchar ** __restrict next_start)
 {
 	register Wchar *s;
@@ -964,8 +1073,8 @@ Wchar *Wstrtok_r(Wchar * __restrict s1, const Wchar * __restrict s2,
 #endif
 }
 
-#ifndef L_wcstok
-weak_alias(__strtok_r,strtok_r);
+#if 0 /* ndef L_wcstok */
+weak_alias(__strtok_r, strtok_r)
 #endif
 
 #endif
@@ -991,16 +1100,23 @@ Wchar *Wstrtok(Wchar * __restrict s1, const Wchar * __restrict s2)
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wmemset
 #define L_memset
 #define Wmemset wmemset
 #else
 #define Wmemset memset
 #endif
+#endif
 
 #ifdef L_memset
 
-Wvoid *Wmemset(Wvoid *s, Wint c, size_t n)
+#ifndef WANT_WIDE
+#undef memset
+#else
+#undef wmemset
+#endif
+Wvoid attribute_hidden *Wmemset(Wvoid *s, Wint c, size_t n)
 {
 	register Wuchar *p = (Wuchar *) s;
 #ifdef __BCC__
@@ -1021,16 +1137,23 @@ Wvoid *Wmemset(Wvoid *s, Wint c, size_t n)
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcslen
 #define L_strlen
 #define Wstrlen wcslen
 #else
 #define Wstrlen strlen
 #endif
+#endif
 
 #ifdef L_strlen
 
-size_t Wstrlen(const Wchar *s)
+#ifndef WANT_WIDE
+#undef strlen
+#else
+#undef wcslen
+#endif
+size_t attribute_hidden Wstrlen(const Wchar *s)
 {
 	register const Wchar *p;
 
@@ -1045,7 +1168,8 @@ size_t Wstrlen(const Wchar *s)
 /**********************************************************************/
 #ifdef L_ffs
 
-int ffs(int i)
+#undef ffs
+int attribute_hidden __ffs(int i)
 {
 #if 1
 	/* inlined binary search method */
@@ -1086,6 +1210,8 @@ int ffs(int i)
 	return n;
 #endif
 }
+
+strong_alias(__ffs, ffs)
 
 #endif
 /**********************************************************************/
@@ -1220,16 +1346,23 @@ __XL_ALIAS(strncasecmp)
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcsnlen
 #define L_strnlen
 #define Wstrnlen wcsnlen
 #else
 #define Wstrnlen strnlen
 #endif
+#endif
 
 #ifdef L_strnlen
 
-size_t Wstrnlen(const Wchar *s, size_t max)
+#ifndef WANT_WIDE
+#undef strnlen
+#else
+#undef wcsnlen
+#endif
+size_t attribute_hidden Wstrnlen(const Wchar *s, size_t max)
 {
 	register const Wchar *p = s;
 #ifdef __BCC__
@@ -1253,7 +1386,8 @@ size_t Wstrnlen(const Wchar *s, size_t max)
 
 #ifdef L_memccpy
 
-void *memccpy(void * __restrict s1, const void * __restrict s2, int c, size_t n)
+#undef memccpy
+void attribute_hidden *__memccpy(void * __restrict s1, const void * __restrict s2, int c, size_t n)
 {
 	register char *r1 = s1;
 	register const char *r2 = s2;
@@ -1263,8 +1397,11 @@ void *memccpy(void * __restrict s1, const void * __restrict s2, int c, size_t n)
 	return (n == (size_t) -1) ? NULL : r1;
 }
 
+strong_alias(__memccpy, memccpy)
+
 #endif
 /**********************************************************************/
+#if 0
 #undef Wstrlen
 #undef Wstrcpy
 
@@ -1278,10 +1415,16 @@ void *memccpy(void * __restrict s1, const void * __restrict s2, int c, size_t n)
 #define Wstrlen strlen
 #define Wstrcpy strcpy
 #endif
+#endif
 
 #ifdef L_strdup
 
-Wchar *Wstrdup(register const Wchar *s1)
+#ifndef WANT_WIDE
+#undef strdup
+#else
+#undef wcsdup
+#endif
+Wchar attribute_hidden *Wstrdup(register const Wchar *s1)
 {
 	register Wchar *s;
 
@@ -1296,7 +1439,8 @@ Wchar *Wstrdup(register const Wchar *s1)
 /**********************************************************************/
 #ifdef L_strerror
 
-char *strerror(int errnum)
+#undef strerror
+char attribute_hidden *__strerror(int errnum)
 {
     static char buf[_STRERROR_BUFSIZE];
 
@@ -1304,6 +1448,8 @@ char *strerror(int errnum)
 
 	return buf;
 }
+
+strong_alias(__strerror, strerror)
 
 #endif
 /**********************************************************************/
@@ -1579,12 +1725,13 @@ char *__glibc_strerror_r(int errnum, char *strerrbuf, size_t buflen)
     return strerrbuf;
 }
 
-weak_alias(__glibc_strerror_r,__strerror_r);
+weak_alias(__glibc_strerror_r, __strerror_r)
 #endif
 /**********************************************************************/
 #ifdef L_memmem
 
-void *memmem(const void *haystack, size_t haystacklen,
+#undef memmem
+void attribute_hidden *__memmem(const void *haystack, size_t haystacklen,
 		     const void *needle, size_t needlelen)
 {
 	register const char *ph;
@@ -1614,18 +1761,27 @@ void *memmem(const void *haystack, size_t haystacklen,
 	return NULL;
 }
 
+strong_alias(__memmem, memmem)
+
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wmempcpy
 #define L_mempcpy
 #define Wmempcpy wmempcpy
 #else
 #define Wmempcpy __mempcpy
 #endif
+#endif
 
 #ifdef L_mempcpy
 
-Wvoid *Wmempcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
+#ifndef WANT_WIDE
+#undef mempcpy
+#else
+#undef wmempcpy
+#endif
+Wvoid attribute_hidden *Wmempcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
 {
 	register Wchar *r1 = s1;
 	register const Wchar *r2 = s2;
@@ -1644,15 +1800,16 @@ Wvoid *Wmempcpy(Wvoid * __restrict s1, const Wvoid * __restrict s2, size_t n)
 	return r1;
 }
 
-#ifndef L_wmempcpy
-weak_alias(__mempcpy,mempcpy);
+#if 0 /* ndef L_wmempcpy */
+weak_alias(__mempcpy, mempcpy)
 #endif
 
 #endif
 /**********************************************************************/
 #ifdef L_memrchr
 
-void *memrchr(const void *s, int c, size_t n)
+#undef memrchr
+void attribute_hidden *__memrchr(const void *s, int c, size_t n)
 {
 	register const unsigned char *r;
 #ifdef __BCC__
@@ -1675,18 +1832,27 @@ void *memrchr(const void *s, int c, size_t n)
 }
 #undef np
 
+strong_alias(__memrchr, memrchr)
+
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcpcpy
 #define L_stpcpy
 #define Wstpcpy wcpcpy
 #else
 #define Wstpcpy stpcpy
 #endif
+#endif
 
 #ifdef L_stpcpy
 
-Wchar *Wstpcpy(register Wchar * __restrict s1, const Wchar * __restrict s2)
+#ifndef WANT_WIDE
+#undef stpcpy
+#else
+#undef wcpcpy
+#endif
+Wchar attribute_hidden *Wstpcpy(register Wchar * __restrict s1, const Wchar * __restrict s2)
 {
 #ifdef __BCC__
 	do {
@@ -1701,16 +1867,23 @@ Wchar *Wstpcpy(register Wchar * __restrict s1, const Wchar * __restrict s2)
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcpncpy
 #define L_stpncpy
 #define Wstpncpy wcpncpy
 #else
 #define Wstpncpy stpncpy
 #endif
+#endif
 
 #ifdef L_stpncpy
 
-Wchar *Wstpncpy(register Wchar * __restrict s1,
+#ifndef WANT_WIDE
+#undef stpncpy
+#else
+#undef wcpncpy
+#endif
+Wchar attribute_hidden *Wstpncpy(register Wchar * __restrict s1,
 				register const Wchar * __restrict s2,
 				size_t n)
 {
@@ -1737,7 +1910,8 @@ Wchar *Wstpncpy(register Wchar * __restrict s1,
 /**********************************************************************/
 #ifdef L_bzero
 
-void __bzero(void *s, size_t n)
+#undef bzero
+void attribute_hidden __bzero(void *s, size_t n)
 {
 #if 1
 	(void)memset(s, 0, n);
@@ -1756,14 +1930,19 @@ void __bzero(void *s, size_t n)
 	}
 #endif
 }
-weak_alias(__bzero,bzero);
+#if 0
+weak_alias(__bzero, bzero)
+#else
+strong_alias(__bzero, bzero)
+#endif
 #undef np
 
 #endif
 /**********************************************************************/
 #ifdef L_bcopy
 
-void bcopy(const void *s2, void *s1, size_t n)
+#undef bcopy
+void attribute_hidden __bcopy(const void *s2, void *s1, size_t n)
 {
 #if 1
 	memmove(s1, s2, n);
@@ -1806,11 +1985,14 @@ void bcopy(const void *s2, void *s1, size_t n)
 #endif
 }
 
+strong_alias(__bcopy, bcopy)
+
 #endif
 /**********************************************************************/
 #ifdef L_strcasestr
 
-char *strcasestr(const char *s1, const char *s2)
+#undef strcasestr
+char attribute_hidden *__strcasestr(const char *s1, const char *s2)
 {
 	register const char *s = s1;
 	register const char *p = s2;
@@ -1850,11 +2032,14 @@ char *strcasestr(const char *s1, const char *s2)
 #endif
 }
 
+strong_alias(__strcasestr, strcasestr)
+
 #endif
 /**********************************************************************/
 #ifdef L_strndup
 
-char *strndup(register const char *s1, size_t n)
+#undef strndup
+char attribute_hidden *__strndup(register const char *s1, size_t n)
 {
 	register char *s;
 
@@ -1868,11 +2053,14 @@ char *strndup(register const char *s1, size_t n)
 	return s;
 }
 
+strong_alias(__strndup, strndup)
+
 #endif
 /**********************************************************************/
 #ifdef L_strsep
 
-char *strsep(char ** __restrict s1, const char * __restrict s2)
+#undef strsep
+char attribute_hidden *__strsep(char ** __restrict s1, const char * __restrict s2)
 {
 	register char *s = *s1;
 	register char *p;
@@ -1893,8 +2081,11 @@ char *strsep(char ** __restrict s1, const char * __restrict s2)
 	return s;
 }
 
+strong_alias(__strsep, strsep)
+
 #endif
 /**********************************************************************/
+#if 0
 #ifdef L_wcschrnul
 #define L_strchrnul
 #define __Wstrchrnul __wcschrnul
@@ -1903,22 +2094,31 @@ char *strsep(char ** __restrict s1, const char * __restrict s2)
 #define __Wstrchrnul __strchrnul
 #define Wstrchrnul strchrnul
 #endif
+#endif
 
 #ifdef L_strchrnul
 
-Wchar *__Wstrchrnul(register const Wchar *s, Wint c)
+#ifndef WANT_WIDE
+#undef strchrnul
+#else
+#undef wcschrnul
+#endif
+Wchar attribute_hidden *Wstrchrnul(register const Wchar *s, Wint c)
 {
 	--s;
 	while (*++s && (*s != ((Wchar)c)));
 	return (Wchar *) s;
 }
-weak_alias(__Wstrchrnul, Wstrchrnul);
+#if 0
+weak_alias(__Wstrchrnul, Wstrchrnul)
+#endif
 
 #endif
 /**********************************************************************/
 #ifdef L_rawmemchr
 
-void *rawmemchr(const void *s, int c)
+#undef rawmemchr
+void attribute_hidden *__rawmemchr(const void *s, int c)
 {
 	register const unsigned char *r = s;
 
@@ -1927,11 +2127,14 @@ void *rawmemchr(const void *s, int c)
 	return (void *) r;	/* silence the warning */
 }
 
+strong_alias(__rawmemchr, rawmemchr)
+
 #endif
 /**********************************************************************/
 #ifdef L_basename
 
-char *basename(const char *path)
+#undef basename
+char attribute_hidden *__basename(const char *path)
 {
 	register const char *s;
 	register const char *p;
@@ -1946,6 +2149,8 @@ char *basename(const char *path)
 
 	return (char *) p;
 }
+
+strong_alias(__basename, basename)
 
 #endif
 /**********************************************************************/
@@ -2061,6 +2266,7 @@ size_t strlcat(register char *__restrict dst,
 
 #endif
 /**********************************************************************/
+#if 0
 #ifdef WANT_WIDE
 extern size_t __wcslcpy(wchar_t *__restrict dst,
 						const wchar_t *__restrict src,
@@ -2071,19 +2277,23 @@ extern size_t __wcslcpy(wchar_t *__restrict dst,
 #ifdef L___wcslcpy
 #define L_strlcpy
 #define Wstrlcpy __wcslcpy
+#else
+#define Wstrlcpy strlcpy
+#endif
 #endif
 
 #ifdef L_strlcpy
-
-#ifndef L___wcslcpy
-#define Wstrlcpy strlcpy
-#endif
 
 /* OpenBSD function:
  * Copy at most n-1 chars from src to dst and nul-terminate dst.
  * Returns strlen(src), so truncation occurred if the return value is >= n. */
 
-size_t Wstrlcpy(register Wchar *__restrict dst,
+#ifndef WANT_WIDE
+#undef strlcpy
+#else
+#undef wcslcpy
+#endif
+size_t attribute_hidden Wstrlcpy(register Wchar *__restrict dst,
 				  register const Wchar *__restrict src,
 				  size_t n)
 {
@@ -2107,7 +2317,7 @@ size_t Wstrlcpy(register Wchar *__restrict dst,
 	return src - src0;
 }
 
-#ifdef __LOCALE_C_ONLY
+#if 0 /* def __LOCALE_C_ONLY */
 #ifdef L___wcslcpy
 weak_alias(__wcslcpy,wcsxfrm);
 #else
@@ -2208,6 +2418,7 @@ const char *const sys_siglist[_NSIG] = {
 
 /* TODO: make a threadsafe version? */
 
+#undef strsignal
 #ifdef __UCLIBC_HAS_SIGNUM_MESSAGES__
 
 #if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
@@ -2254,7 +2465,7 @@ static const unsigned char sstridx[] = {
 };
 #endif
 
-char *strsignal(int signum)
+char attribute_hidden *__strsignal(int signum)
 {
     register char *s;
     int i;
@@ -2301,7 +2512,7 @@ char *strsignal(int signum)
 
 #else  /* __UCLIBC_HAS_SIGNUM_MESSAGES__ */
 
-char *strsignal(int signum)
+char attribute_hidden *__strsignal(int signum)
 {
     static char buf[_STRSIGNAL_BUFSIZE];
     static const char unknown[] = {
@@ -2314,6 +2525,8 @@ char *strsignal(int signum)
 }
 
 #endif /* __UCLIBC_HAS_SIGNUM_MESSAGES__ */
+
+strong_alias(__strsignal, strsignal)
 
 #endif
 /**********************************************************************/
@@ -2374,12 +2587,12 @@ void psignal(int signum, register const char *message)
 
 int wcscoll (const Wchar *s0, const Wchar *s1)
 {
-	return __wcscoll_l(s0, s1, __UCLIBC_CURLOCALE );
+	return wcscoll_l(s0, s1, __UCLIBC_CURLOCALE );
 }
 
 size_t wcsxfrm(Wchar *__restrict ws1, const Wchar *__restrict ws2, size_t n)
 {
-	return __wcsxfrm_l(ws1, ws2, n, __UCLIBC_CURLOCALE );
+	return wcsxfrm_l(ws1, ws2, n, __UCLIBC_CURLOCALE );
 }
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
@@ -2864,7 +3077,7 @@ size_t __XL(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
 	int pass;
 
 	if (!CUR_COLLATE->num_weights) { /* C locale */
-		return __wcslcpy(ws1, ws2, n);
+		return wcslcpy(ws1, ws2, n);
 	}
 
 #ifdef __UCLIBC_MJN3_ONLY__
