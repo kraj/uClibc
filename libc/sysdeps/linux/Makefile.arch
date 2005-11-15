@@ -5,6 +5,10 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+ifeq ($(TARGET_ARCH),)
+$(error TARGET_ARCH is not set, no .config exists in topdir)
+endif
+
 ARCH_DIR  := $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)
 ARCH_OUT  := $(top_builddir)libc/sysdeps/linux/$(TARGET_ARCH)
 
