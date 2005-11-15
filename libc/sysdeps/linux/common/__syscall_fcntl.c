@@ -12,14 +12,14 @@
 #include <fcntl.h>
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
-extern int __libc_fcntl64(int fd, int cmd, ...);
+extern int __libc_fcntl64(int fd, int cmd, ...) attribute_hidden;
 #endif
 
 #define __NR___syscall_fcntl __NR_fcntl
 static inline
 _syscall3(int, __syscall_fcntl, int, fd, int, cmd, long, arg);
 
-int __libc_fcntl(int fd, int cmd, ...)
+int attribute_hidden __libc_fcntl(int fd, int cmd, ...)
 {
 	long arg;
 	va_list list;
@@ -39,7 +39,7 @@ int __libc_fcntl(int fd, int cmd, ...)
 	return (__syscall_fcntl(fd, cmd, arg));
 }
 
-weak_alias(__libc_fcntl, fcntl);
+strong_alias(__libc_fcntl, fcntl)
 #if ! defined __NR_fcntl64 && defined __UCLIBC_HAS_LFS__
-weak_alias(__libc_fcntl, fcntl64);
+strong_alias(__libc_fcntl, fcntl64)
 #endif
