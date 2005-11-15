@@ -17,11 +17,10 @@
    02111-1307 USA.  */
 
 #include <errno.h>
-#define __USE_GNU
 #include <signal.h>
 
 /* Block signals in MASK, returning the old mask.  */
-int sigblock (int mask)
+int __sigblock (int mask)
 {
     register unsigned int sig;
     sigset_t set, oset;
@@ -53,3 +52,4 @@ int sigblock (int mask)
     return mask;
 }
 
+strong_alias (__sigblock, sigblock)
