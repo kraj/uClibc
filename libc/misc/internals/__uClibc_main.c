@@ -1,6 +1,8 @@
 /*
- * Manuel Novoa III           Feb 2001
- * Erik Andersen              2002-2004
+ * Copyright (C) Feb 2001 Manuel Novoa III
+ * Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+ *
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  *
  * __uClibc_main is the routine to be called by all the arch-specific
  * versions of crt1.S in uClibc.

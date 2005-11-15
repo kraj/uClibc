@@ -1,6 +1,6 @@
-/* Copyright (C) 2004       Manuel Novoa III    <mjn3@codepoet.org>
+/* Copyright (C) 2004-2005 Manuel Novoa III    <mjn3@codepoet.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  *
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
