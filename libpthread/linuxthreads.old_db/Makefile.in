@@ -25,8 +25,8 @@ libthread_db_FULL_NAME:=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL
 
 MAJOR_VERSION:=1
 
-libthread_db_DIR:=$(top_srcdir)libpthread/linuxthreads_db
-libthread_db_OUT:=$(top_builddir)libpthread/linuxthreads_db
+libthread_db_DIR:=$(top_srcdir)libpthread/linuxthreads.old_db
+libthread_db_OUT:=$(top_builddir)libpthread/linuxthreads.old_db
 
 libthread_db_SRC:=$(wildcard $(libthread_db_DIR)/*.c)
 

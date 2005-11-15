@@ -26,8 +26,8 @@ DOMULTI=n
 
 LIB_NAME:=libpthread
 
-libpthread_DIR:=$(top_srcdir)libpthread/linuxthreads
-libpthread_OUT:=$(top_builddir)libpthread/linuxthreads
+libpthread_DIR:=$(top_srcdir)libpthread/linuxthreads.old
+libpthread_OUT:=$(top_builddir)libpthread/linuxthreads.old
 
 ARCH_CFLAGS:=$(CFLAGS)
 -include $(libpthread_DIR)/sysdeps/$(TARGET_ARCH)/Makefile.arch

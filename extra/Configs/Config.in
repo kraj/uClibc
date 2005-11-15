@@ -326,6 +326,20 @@ config PTHREADS_DEBUG_SUPPORT
 	  If you are doing development and want to debug applications using
 	  uClibc's pthread library, answer Y.  Otherwise, answer N.
 
+config LINUXTHREADS_OLD
+	bool "Use the older (stable) version of linuxthreads"
+	default y
+	depends on UCLIBC_HAS_THREADS
+	help
+	  There are two versions of linuxthreads.  The older (stable) version
+	  has been in uClibc for quite a long time but hasn't seen too many
+	  updates other than bugfixes.
+
+	  The new version has not been tested much, and lacks ports for arches
+	  which glibc does not support (like bfin/frv/etc...), but is based on
+	  the latest code from glibc, so it may be the only choice for the
+	  newer ports (like alpha/amd64/64bit arches and hppa).
+
 config UCLIBC_HAS_LFS
 	bool "Large File Support"
 	default y

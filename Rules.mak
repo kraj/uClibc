@@ -334,7 +334,11 @@ ifeq ($(UCLIBC_HAS_THREADS),y)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	PTNAME := nptl
 else
+ifeq ($(LINUXTHREADS_OLD),y)
+	PTNAME := linuxthreads.old
+else
 	PTNAME := linuxthreads
+endif
 endif
 PTDIR := $(TOPDIR)libpthread/$(PTNAME)
 # set up system dependencies include dirs (NOTE: order matters!)

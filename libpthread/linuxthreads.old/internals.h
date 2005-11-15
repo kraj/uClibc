@@ -27,7 +27,7 @@
 #include <sys/types.h>
 #include "pt-machine.h"
 #include "semaphore.h"
-#include "../linuxthreads_db/thread_dbP.h"
+#include "../linuxthreads.old_db/thread_dbP.h"
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <bits/uClibc_locale.h>
 #endif /* __UCLIBC_HAS_XLOCALE__ */

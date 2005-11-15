@@ -19,7 +19,7 @@
    02111-1307 USA.  */
 
 #include "thread_dbP.h"
-#include "../linuxthreads/internals.h"
+#include "../linuxthreads.old/internals.h"
 #include <alloca.h>
 
 static int
