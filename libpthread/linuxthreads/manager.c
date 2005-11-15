@@ -14,12 +14,9 @@
 
 /* The "thread manager" thread: manages creation and termination of threads */
 
-/* mods for uClibc */
+/* mods for uClibc: getpwd and getpagesize are the syscalls */
 #define __getpid getpid
 #define __getpagesize getpagesize
-#define __sched_get_priority_max sched_get_priority_max
-#define __sched_getscheduler sched_getscheduler
-#define __sched_getparam sched_getparam
 
 #include <features.h>
 #define __USE_GNU
@@ -84,13 +81,8 @@ volatile pthread_descr __pthread_last_event;
 
 static inline pthread_descr thread_segment(int seg)
 {
-# ifdef _STACK_GROWS_UP
-  return (pthread_descr)(THREAD_STACK_START_ADDRESS + (seg - 1) * STACK_SIZE)
-         + 1;
-# else
   return (pthread_descr)(THREAD_STACK_START_ADDRESS - (seg - 1) * STACK_SIZE)
          - 1;
-# endif
 }
 
 /* Flag set in signal handler to record child termination */
@@ -115,18 +107,13 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 				 int report_events,
 				 td_thr_events_t *event_maskp);
 static void pthread_handle_free(pthread_t th_id);
-static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode)
-     __attribute__ ((noreturn));
+static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode);
 static void pthread_reap_children(void);
 static void pthread_kill_all_threads(int sig, int main_thread_also);
-static void pthread_for_each_thread(void *arg,
-    void (*fn)(void *, pthread_descr));
 
 /* The server thread managing requests for thread creation and termination */
 
-int
-__attribute__ ((noreturn))
-__pthread_manager(void *arg)
+int __pthread_manager(void *arg)
 {
   int reqfd = (int) (long int) arg;
 #ifdef USE_SELECT
@@ -157,7 +144,7 @@ __pthread_manager(void *arg)
   sigdelset(&manager_mask, __pthread_sig_cancel); /* for thread termination */
   sigdelset(&manager_mask, SIGTRAP);            /* for debugging purposes */
   if (__pthread_threads_debug && __pthread_sig_debug > 0)
-    sigdelset(&manager_mask, __pthread_sig_debug);
+      sigdelset(&manager_mask, __pthread_sig_debug);
   sigprocmask(SIG_SETMASK, &manager_mask, NULL);
   /* Raise our priority to match that of main thread */
   __pthread_manager_adjust_prio(__pthread_main_thread->p_priority);
@@ -253,20 +240,13 @@ __pthread_manager(void *arg)
         PDEBUG("got REQ_DEBUG\n");
 	/* Make gdb aware of new thread and gdb will restart the
 	   new thread when it is ready to handle the new thread. */
-	if (__pthread_threads_debug && __pthread_sig_debug > 0)
-	{
-	  PDEBUG("about to call raise(__pthread_sig_debug)\n");
+	if (__pthread_threads_debug && __pthread_sig_debug > 0) {
+      PDEBUG("about to call raise(__pthread_sig_debug)\n");
 	  raise(__pthread_sig_debug);
 	}
-        break;
       case REQ_KICK:
 	/* This is just a prod to get the manager to reap some
 	   threads right away, avoiding a potential delay at shutdown. */
-	break;
-      case REQ_FOR_EACH_THREAD:
-	pthread_for_each_thread(request.req_args.for_each.arg,
-	                        request.req_args.for_each.fn);
-	restart(request.req_thread);
 	break;
       }
     }
@@ -289,7 +269,6 @@ int __pthread_manager_event(void *arg)
 }
 
 /* Process creation */
-
 static int
 __attribute__ ((noreturn))
 pthread_start_thread(void *arg)
@@ -297,16 +276,9 @@ pthread_start_thread(void *arg)
   pthread_descr self = (pthread_descr) arg;
   struct pthread_request request;
   void * outcome;
-#if HP_TIMING_AVAIL
-  hp_timing_t tmpclock;
-#endif
   /* Initialize special thread_self processing, if any.  */
 #ifdef INIT_THREAD_SELF
   INIT_THREAD_SELF(self, self->p_nr);
-#endif
-#if HP_TIMING_AVAIL
-  HP_TIMING_NOW (tmpclock);
-  THREAD_SETMEM (self, p_cpuclock_offset, tmpclock);
 #endif
   PDEBUG("\n");
   /* Make sure our pid field is initialized, just in case we get there
@@ -381,39 +353,12 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 
   if (attr != NULL && attr->__stackaddr_set)
     {
-#ifdef _STACK_GROWS_UP
       /* The user provided a stack. */
-# ifdef USE_TLS
-      /* This value is not needed.  */
-      new_thread = (pthread_descr) attr->__stackaddr;
-      new_thread_bottom = (char *) new_thread;
-# else
-      new_thread = (pthread_descr) attr->__stackaddr;
-      new_thread_bottom = (char *) (new_thread + 1);
-# endif
-      guardaddr = attr->__stackaddr + attr->__stacksize;
-      guardsize = 0;
-#else
-      /* The user provided a stack.  For now we interpret the supplied
-	 address as 1 + the highest addr. in the stack segment.  If a
-	 separate register stack is needed, we place it at the low end
-	 of the segment, relying on the associated stacksize to
-	 determine the low end of the segment.  This differs from many
-	 (but not all) other pthreads implementations.  The intent is
-	 that on machines with a single stack growing toward higher
-	 addresses, stackaddr would be the lowest address in the stack
-	 segment, so that it is consistently close to the initial sp
-	 value. */
-# ifdef USE_TLS
-      new_thread = (pthread_descr) attr->__stackaddr;
-# else
       new_thread =
         (pthread_descr) ((long)(attr->__stackaddr) & -sizeof(void *)) - 1;
-# endif
       new_thread_bottom = (char *) attr->__stackaddr - attr->__stacksize;
       guardaddr = NULL;
       guardsize = 0;
-#endif
       __pthread_nonstandard_stacks = 1;
     }
   else
@@ -538,7 +483,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 
   /* First check whether we have to change the policy and if yes, whether
      we can  do this.  Normally this should be done by examining the
-     return value of the __sched_setscheduler call in pthread_start_thread
+     return value of the sched_setscheduler call in pthread_start_thread
      but this is hard to implement.  FIXME  */
   if (attr != NULL && attr->__schedpolicy != SCHED_OTHER && geteuid () != 0)
     return EPERM;
@@ -591,8 +536,8 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 	      sizeof (struct sched_param));
       break;
     case PTHREAD_INHERIT_SCHED:
-      new_thread->p_start_args.schedpolicy = __sched_getscheduler(father_pid);
-      __sched_getparam(father_pid, &new_thread->p_start_args.schedparam);
+      new_thread->p_start_args.schedpolicy = sched_getscheduler(father_pid);
+      sched_getparam(father_pid, &new_thread->p_start_args.schedparam);
       break;
     }
     new_thread->p_priority =
@@ -633,36 +578,17 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 	  __pthread_lock(new_thread->p_lock, NULL);
 
 	  /* We have to report this event.  */
-#ifdef NEED_SEPARATE_REGISTER_STACK
-	  /* Perhaps this version should be used on all platforms. But
-	   this requires that __clone2 be uniformly supported
-	   everywhere.
-
-	   And there is some argument for changing the __clone2
-	   interface to pass sp and bsp instead, making it more IA64
-	   specific, but allowing stacks to grow outward from each
-	   other, to get less paging and fewer mmaps.  */
-	  pid = __clone2(pthread_start_thread_event,
-  		 (void **)new_thread_bottom,
-			 (char *)stack_addr - new_thread_bottom,
-			 CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
-			 __pthread_sig_cancel, new_thread);
-#elif _STACK_GROWS_UP
-	  pid = clone(pthread_start_thread_event, (void *) new_thread_bottom,
-			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
-			__pthread_sig_cancel, new_thread);
-#else
 	  pid = clone(pthread_start_thread_event, (void **) new_thread,
 			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 			__pthread_sig_cancel, new_thread);
-#endif
+
 	  saved_errno = errno;
 	  if (pid != -1)
 	    {
 	      /* Now fill in the information about the new thread in
-		 the newly created thread's data structure.  We cannot let
-		 the new thread do this since we don't know whether it was
-		 already scheduled when we send the event.  */
+	         the newly created thread's data structure.  We cannot let
+	         the new thread do this since we don't know whether it was
+	         already scheduled when we send the event.  */
 	      new_thread->p_eventbuf.eventdata = new_thread;
 	      new_thread->p_eventbuf.eventnum = TD_CREATE;
 	      __pthread_last_event = new_thread;
@@ -683,21 +609,9 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   if (pid == 0)
     {
       PDEBUG("cloning new_thread = %p\n", new_thread);
-#ifdef NEED_SEPARATE_REGISTER_STACK
-      pid = __clone2(pthread_start_thread,
-		     (void **)new_thread_bottom,
-                     (char *)stack_addr - new_thread_bottom,
-		     CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
-		     __pthread_sig_cancel, new_thread);
-#elif _STACK_GROWS_UP
-      pid = clone(pthread_start_thread, (void *) new_thread_bottom,
-		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
-		    __pthread_sig_cancel, new_thread);
-#else
       pid = clone(pthread_start_thread, (void **) new_thread,
 		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 		    __pthread_sig_cancel, new_thread);
-#endif /* !NEED_SEPARATE_REGISTER_STACK */
       saved_errno = errno;
     }
   /* Check if cloning succeeded */
@@ -891,7 +805,7 @@ static void pthread_handle_free(pthread_t th_id)
   pthread_descr th;
 
   __pthread_lock(&handle->h_lock, NULL);
-  if (nonexisting_handle(handle, th_id)) {
+  if (invalid_handle(handle, th_id)) {
     /* pthread_reap_children has deallocated the thread already,
        nothing needs to be done */
     __pthread_unlock(&handle->h_lock);
@@ -923,20 +837,6 @@ static void pthread_kill_all_threads(int sig, int main_thread_also)
   if (main_thread_also) {
     kill(__pthread_main_thread->p_pid, sig);
   }
-}
-
-static void pthread_for_each_thread(void *arg,
-    void (*fn)(void *, pthread_descr))
-{
-  pthread_descr th;
-
-  for (th = __pthread_main_thread->p_nextlive;
-       th != __pthread_main_thread;
-       th = th->p_nextlive) {
-    fn(arg, th);
-  }
-
-  fn(arg, __pthread_main_thread);
 }
 
 /* Process-wide exit() */
@@ -998,7 +898,7 @@ void __pthread_manager_adjust_prio(int thread_prio)
 
   if (thread_prio <= __pthread_manager_thread.p_priority) return;
   param.sched_priority =
-    thread_prio < __sched_get_priority_max(SCHED_FIFO)
+    thread_prio < sched_get_priority_max(SCHED_FIFO)
     ? thread_prio + 1 : thread_prio;
   sched_setscheduler(__pthread_manager_thread.p_pid, SCHED_FIFO, &param);
   __pthread_manager_thread.p_priority = thread_prio;

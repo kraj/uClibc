@@ -54,63 +54,55 @@ extern int _h_errno;
 /* Descriptor of the initial thread */
 
 struct _pthread_descr_struct __pthread_initial_thread = {
-  .p_nextlive = &__pthread_initial_thread,
-  .p_prevlive = &__pthread_initial_thread,
-  .p_nextwaiting = NULL,
-  .p_nextlock = NULL,
-  .p_tid = PTHREAD_THREADS_MAX,
-  .p_pid = 0,
-  .p_priority = 0,
-  .p_lock = &__pthread_handles[0].h_lock,
-  .p_signal = 0,
-  .p_signal_jmp = NULL,
-  .p_cancel_jmp = NULL,
-  .p_terminated = 0,
-  .p_detached = 0,
-  .p_exited = 0,
-  .p_retval = NULL,
-  .p_retcode = 0,
-  .p_joining = NULL,
-  .p_cleanup = NULL,
-  .p_cancelstate = 0,
-  .p_canceltype = 0,
-  .p_canceled = 0,
-  .p_errnop = &_errno,
-  .p_errno = 0,
-  .p_h_errnop = &_h_errno,
-  .p_h_errno = 0,
-  .p_in_sighandler = NULL,
-  .p_sigwaiting = 0,
-  .p_start_args = PTHREAD_START_ARGS_INITIALIZER(NULL),
-  .p_specific = {NULL},
-  .p_libc_specific = {NULL},
-  .p_userstack = 0,
-  .p_guardaddr = NULL,
-  .p_guardsize = 0,
-  .p_self = &__pthread_initial_thread,
-  .p_nr = 0,
-  .p_report_events = 0,
-  .p_eventbuf = {{{0, }}, 0, NULL},
-  .p_resume_count = __ATOMIC_INITIALIZER,
-  .p_woken_by_cancel = 0,
-  .p_condvar_avail = 0,
-  .p_sem_avail = 0,
-  .p_extricate = NULL,
-  .p_readlock_list = NULL,
-  .p_readlock_free = NULL,
-  .p_untracked_readlock_count = 0,
-  .p_inheritsched = 0,
-#if HP_TIMING_AVAIL
-  .p_cpuclock_offset = 0,
-#endif
-#ifdef USE_TLS
-  .p_stackaddr = NULL,
-#endif
-  .p_alloca_cutoff = 0
+  &__pthread_initial_thread,  /* pthread_descr p_nextlive */
+  &__pthread_initial_thread,  /* pthread_descr p_prevlive */
+  NULL,                       /* pthread_descr p_nextwaiting */
+  NULL,			      /* pthread_descr p_nextlock */
+  PTHREAD_THREADS_MAX,        /* pthread_t p_tid */
+  0,                          /* int p_pid */
+  0,                          /* int p_priority */
+  &__pthread_handles[0].h_lock, /* struct _pthread_fastlock * p_lock */
+  0,                          /* int p_signal */
+  NULL,                       /* sigjmp_buf * p_signal_buf */
+  NULL,                       /* sigjmp_buf * p_cancel_buf */
+  0,                          /* char p_terminated */
+  0,                          /* char p_detached */
+  0,                          /* char p_exited */
+  NULL,                       /* void * p_retval */
+  0,                          /* int p_retval */
+  NULL,                       /* pthread_descr p_joining */
+  NULL,                       /* struct _pthread_cleanup_buffer * p_cleanup */
+  0,                          /* char p_cancelstate */
+  0,                          /* char p_canceltype */
+  0,                          /* char p_canceled */
+  &_errno,                       /* int *p_errnop */
+  0,                          /* int p_errno */
+  &_h_errno,                       /* int *p_h_errnop */
+  0,                          /* int p_h_errno */
+  NULL,                       /* char * p_in_sighandler */
+  0,                          /* char p_sigwaiting */
+  PTHREAD_START_ARGS_INITIALIZER, /* struct pthread_start_args p_start_args */
+  {NULL},                     /* void ** p_specific[PTHREAD_KEY_1STLEVEL_SIZE] */
+  {NULL},                     /* void * p_libc_specific[_LIBC_TSD_KEY_N] */
+  0,                          /* int p_userstack */
+  NULL,                       /* void * p_guardaddr */
+  0,                          /* size_t p_guardsize */
+  &__pthread_initial_thread,  /* pthread_descr p_self */
+  0,                          /* Always index 0 */
+  0,                          /* int p_report_events */
+  {{{0, }}, 0, NULL},         /* td_eventbuf_t p_eventbuf */
+  __ATOMIC_INITIALIZER,         /* struct pthread_atomic p_resume_count */
+  0,                          /* char p_woken_by_cancel */
+  0,                          /* char p_condvar_avail */
+  0,                          /* char p_sem_avail */
+  NULL,                       /* struct pthread_extricate_if *p_extricate */
+  NULL,	                      /* pthread_readlock_info *p_readlock_list; */
+  NULL,                       /* pthread_readlock_info *p_readlock_free; */
+  0                           /* int p_untracked_readlock_count; */
 #ifdef __UCLIBC_HAS_XLOCALE__
   ,
-  .locale = &__global_locale_data
-#endif
+  &__global_locale_data,      /* __locale_t locale; */
+#endif /* __UCLIBC_HAS_XLOCALE__ */
 };
 
 /* Descriptor of the manager thread; none of this is used but the error
@@ -118,63 +110,55 @@ struct _pthread_descr_struct __pthread_initial_thread = {
    and the address for identification.  */
 #define manager_thread (&__pthread_manager_thread)
 struct _pthread_descr_struct __pthread_manager_thread = {
-  .p_nextlive = NULL,
-  .p_prevlive = NULL,
-  .p_nextwaiting = NULL,
-  .p_nextlock = NULL,
-  .p_tid = 0,
-  .p_pid = 0,
-  .p_priority = 0,
-  .p_lock = &__pthread_handles[1].h_lock,
-  .p_signal = 0,
-  .p_signal_jmp = NULL,
-  .p_cancel_jmp = NULL,
-  .p_terminated = 0,
-  .p_detached = 0,
-  .p_exited = 0,
-  .p_retval = NULL,
-  .p_retcode = 0,
-  .p_joining = NULL,
-  .p_cleanup = NULL,
-  .p_cancelstate = 0,
-  .p_canceltype = 0,
-  .p_canceled = 0,
-  .p_errnop = &__pthread_manager_thread.p_errno,
-  .p_errno = 0,
-  .p_h_errnop = NULL,
-  .p_h_errno = 0,
-  .p_in_sighandler = NULL,
-  .p_sigwaiting = 0,
-  .p_start_args = PTHREAD_START_ARGS_INITIALIZER(__pthread_manager),
-  .p_specific = {NULL},
-  .p_libc_specific = {NULL},
-  .p_userstack = 0,
-  .p_guardaddr = NULL,
-  .p_guardsize = 0,
-  .p_self = &__pthread_manager_thread,
-  .p_nr = 1,
-  .p_report_events = 0,
-  .p_eventbuf = {{{0, }}, 0, NULL},
-  .p_resume_count = __ATOMIC_INITIALIZER,
-  .p_woken_by_cancel = 0,
-  .p_condvar_avail = 0,
-  .p_sem_avail = 0,
-  .p_extricate = NULL,
-  .p_readlock_list = NULL,
-  .p_readlock_free = NULL,
-  .p_untracked_readlock_count = 0,
-  .p_inheritsched = 0,
-#if HP_TIMING_AVAIL
-  .p_cpuclock_offset = 0,
-#endif
-#ifdef USE_TLS
-  .p_stackaddr = NULL,
-#endif
-  .p_alloca_cutoff = 0
+  NULL,                       /* pthread_descr p_nextlive */
+  NULL,                       /* pthread_descr p_prevlive */
+  NULL,                       /* pthread_descr p_nextwaiting */
+  NULL,			      /* pthread_descr p_nextlock */
+  0,                          /* int p_tid */
+  0,                          /* int p_pid */
+  0,                          /* int p_priority */
+  &__pthread_handles[1].h_lock, /* struct _pthread_fastlock * p_lock */
+  0,                          /* int p_signal */
+  NULL,                       /* sigjmp_buf * p_signal_buf */
+  NULL,                       /* sigjmp_buf * p_cancel_buf */
+  0,                          /* char p_terminated */
+  0,                          /* char p_detached */
+  0,                          /* char p_exited */
+  NULL,                       /* void * p_retval */
+  0,                          /* int p_retval */
+  NULL,                       /* pthread_descr p_joining */
+  NULL,                       /* struct _pthread_cleanup_buffer * p_cleanup */
+  0,                          /* char p_cancelstate */
+  0,                          /* char p_canceltype */
+  0,                          /* char p_canceled */
+  &__pthread_manager_thread.p_errno, /* int *p_errnop */
+  0,                          /* int p_errno */
+  NULL,                       /* int *p_h_errnop */
+  0,                          /* int p_h_errno */
+  NULL,                       /* char * p_in_sighandler */
+  0,                          /* char p_sigwaiting */
+  PTHREAD_START_ARGS_INITIALIZER, /* struct pthread_start_args p_start_args */
+  {NULL},                     /* void ** p_specific[PTHREAD_KEY_1STLEVEL_SIZE] */
+  {NULL},                     /* void * p_libc_specific[_LIBC_TSD_KEY_N] */
+  0,                          /* int p_userstack */
+  NULL,                       /* void * p_guardaddr */
+  0,                          /* size_t p_guardsize */
+  &__pthread_manager_thread,  /* pthread_descr p_self */
+  1,                          /* Always index 1 */
+  0,                          /* int p_report_events */
+  {{{0, }}, 0, NULL},         /* td_eventbuf_t p_eventbuf */
+  __ATOMIC_INITIALIZER,         /* struct pthread_atomic p_resume_count */
+  0,                          /* char p_woken_by_cancel */
+  0,                          /* char p_condvar_avail */
+  0,                          /* char p_sem_avail */
+  NULL,                       /* struct pthread_extricate_if *p_extricate */
+  NULL,	                      /* pthread_readlock_info *p_readlock_list; */
+  NULL,                       /* pthread_readlock_info *p_readlock_free; */
+  0                           /* int p_untracked_readlock_count; */
 #ifdef __UCLIBC_HAS_XLOCALE__
   ,
-  &__global_locale_data
-#endif
+  &__global_locale_data,      /* __locale_t locale; */
+#endif /* __UCLIBC_HAS_XLOCALE__ */
 };
 
 /* Pointer to the main thread (the father of the thread manager thread) */
@@ -213,9 +197,6 @@ char *__pthread_manager_thread_tos = NULL;
 
 int __pthread_exit_requested = 0;
 int __pthread_exit_code = 0;
-
-/* Maximum stack size.  */
-size_t __pthread_max_stacksize;
 
 /* Communicate relevant LinuxThreads constants to gdb */
 
@@ -314,50 +295,6 @@ void __pthread_initialize_minimal(void)
 #ifdef INIT_THREAD_SELF
     INIT_THREAD_SELF(&__pthread_initial_thread, 0);
 #endif
-}
-
-
-void
-__pthread_init_max_stacksize(void)
-{
-  struct rlimit limit;
-  size_t max_stack;
-
-  getrlimit(RLIMIT_STACK, &limit);
-#ifdef FLOATING_STACKS
-  if (limit.rlim_cur == RLIM_INFINITY)
-    limit.rlim_cur = ARCH_STACK_MAX_SIZE;
-# ifdef NEED_SEPARATE_REGISTER_STACK
-  max_stack = limit.rlim_cur / 2;
-# else
-  max_stack = limit.rlim_cur;
-# endif
-#else
-  /* Play with the stack size limit to make sure that no stack ever grows
-     beyond STACK_SIZE minus one page (to act as a guard page). */
-# ifdef NEED_SEPARATE_REGISTER_STACK
-  /* STACK_SIZE bytes hold both the main stack and register backing
-     store. The rlimit value applies to each individually.  */
-  max_stack = STACK_SIZE/2 - __getpagesize ();
-# else
-  max_stack = STACK_SIZE - __getpagesize();
-# endif
-  if (limit.rlim_cur > max_stack) {
-    limit.rlim_cur = max_stack;
-    setrlimit(RLIMIT_STACK, &limit);
-  }
-#endif
-  __pthread_max_stacksize = max_stack;
-#define __MAX_ALLOCA_CUTOFF 65536
-  if (max_stack / 4 < __MAX_ALLOCA_CUTOFF)
-    {
-#ifdef USE_TLS
-      pthread_descr self = THREAD_SELF;
-      self->p_alloca_cutoff = max_stack / 4;
-#else
-      __pthread_initial_thread.p_alloca_cutoff = max_stack / 4;
-#endif
-    }
 }
 
 
@@ -679,7 +616,7 @@ int pthread_setschedparam(pthread_t thread, int policy,
   pthread_descr th;
 
   __pthread_lock(&handle->h_lock, NULL);
-  if (nonexisting_handle(handle, thread)) {
+  if (invalid_handle(handle, thread)) {
     __pthread_unlock(&handle->h_lock);
     return ESRCH;
   }
@@ -702,7 +639,7 @@ int pthread_getschedparam(pthread_t thread, int *policy,
   int pid, pol;
 
   __pthread_lock(&handle->h_lock, NULL);
-  if (nonexisting_handle(handle, thread)) {
+  if (invalid_handle(handle, thread)) {
     __pthread_unlock(&handle->h_lock);
     return ESRCH;
   }

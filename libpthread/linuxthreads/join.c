@@ -124,7 +124,7 @@ int pthread_join(pthread_t thread_id, void ** thread_return)
   extr.pu_extricate_func = join_extricate_func;
 
   __pthread_lock(&handle->h_lock, self);
-  if (nonexisting_handle(handle, thread_id)) {
+  if (invalid_handle(handle, thread_id)) {
     __pthread_unlock(&handle->h_lock);
     return ESRCH;
   }
@@ -190,7 +190,7 @@ int pthread_detach(pthread_t thread_id)
   pthread_descr th;
 
   __pthread_lock(&handle->h_lock, NULL);
-  if (nonexisting_handle(handle, thread_id)) {
+  if (invalid_handle(handle, thread_id)) {
     __pthread_unlock(&handle->h_lock);
     return ESRCH;
   }

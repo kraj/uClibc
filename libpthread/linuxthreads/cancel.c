@@ -26,14 +26,6 @@
 extern void __rpc_thread_destroy(void);
 #endif
 
-#ifdef _STACK_GROWS_DOWN
-# define FRAME_LEFT(frame, other) ((char *) frame >= (char *) other)
-#elif _STACK_GROWS_UP
-# define FRAME_LEFT(frame, other) ((char *) frame <= (char *) other)
-#else
-# error "Define either _STACK_GROWS_DOWN or _STACK_GROWS_UP"
-#endif
-
 
 int pthread_setcancelstate(int state, int * oldstate)
 {
@@ -70,31 +62,28 @@ int pthread_cancel(pthread_t thread)
   int dorestart = 0;
   pthread_descr th;
   pthread_extricate_if *pextricate;
-  int already_canceled;
 
   __pthread_lock(&handle->h_lock, NULL);
-  if (nonexisting_handle(handle, thread)) {
+  if (invalid_handle(handle, thread)) {
     __pthread_unlock(&handle->h_lock);
     return ESRCH;
   }
 
   th = handle->h_descr;
 
-  already_canceled = th->p_canceled;
-  th->p_canceled = 1;
-
-  if (th->p_cancelstate == PTHREAD_CANCEL_DISABLE || already_canceled) {
+  if (th->p_canceled) {
     __pthread_unlock(&handle->h_lock);
     return 0;
   }
 
   pextricate = th->p_extricate;
+  th->p_canceled = 1;
   pid = th->p_pid;
 
   /* If the thread has registered an extrication interface, then
      invoke the interface. If it returns 1, then we succeeded in
      dequeuing the thread from whatever waiting object it was enqueued
-     with. In that case, it is our responsibility to wake it up.
+     with. In that case, it is our responsibility to wake it up. 
      And also to set the p_woken_by_cancel flag so the woken thread
      can tell that it was woken by cancellation. */
 
@@ -136,8 +125,6 @@ void _pthread_cleanup_push(struct _pthread_cleanup_buffer * buffer,
   buffer->__routine = routine;
   buffer->__arg = arg;
   buffer->__prev = THREAD_GETMEM(self, p_cleanup);
-  if (buffer->__prev != NULL && FRAME_LEFT (buffer, buffer->__prev))
-    buffer->__prev = NULL;
   THREAD_SETMEM(self, p_cleanup, buffer);
 }
 
@@ -157,8 +144,6 @@ void _pthread_cleanup_push_defer(struct _pthread_cleanup_buffer * buffer,
   buffer->__arg = arg;
   buffer->__canceltype = THREAD_GETMEM(self, p_canceltype);
   buffer->__prev = THREAD_GETMEM(self, p_cleanup);
-  if (buffer->__prev != NULL && FRAME_LEFT (buffer, buffer->__prev))
-    buffer->__prev = NULL;
   THREAD_SETMEM(self, p_canceltype, PTHREAD_CANCEL_DEFERRED);
   THREAD_SETMEM(self, p_cleanup, buffer);
 }
