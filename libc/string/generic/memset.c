@@ -21,10 +21,7 @@
 
 #undef memset
 
-void attribute_hidden *__memset (dstpp, c, len)
-     void *dstpp;
-     int c;
-     size_t len;
+void attribute_hidden *__memset (void *dstpp, int c, size_t len)
 {
   long int dstp = (long int) dstpp;
 

@@ -22,9 +22,7 @@
 #undef strcat
 
 /* Append SRC on the end of DEST.  */
-char attribute_hidden *__strcat (dest, src)
-     char *dest;
-     const char *src;
+char attribute_hidden *__strcat (char *dest, const char *src)
 {
   char *s1 = dest;
   const char *s2 = src;

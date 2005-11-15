@@ -29,9 +29,7 @@
 #undef strchr
 
 /* Find the first occurrence of C in S.  */
-char attribute_hidden *__strchr (s, c_in)
-     const char *s;
-     int c_in;
+char attribute_hidden *__strchr (const char *s, int c_in)
 {
   const unsigned char *char_ptr;
   const unsigned long int *longword_ptr;

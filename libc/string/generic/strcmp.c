@@ -26,9 +26,7 @@
 /* Compare S1 and S2, returning less than, equal to or
    greater than zero if S1 is lexicographically less than,
    equal to or greater than S2.  */
-int attribute_hidden __strcmp (p1, p2)
-     const char *p1;
-     const char *p2;
+int attribute_hidden __strcmp (const char *p1, const char *p2)
 {
   register const unsigned char *s1 = (const unsigned char *) p1;
   register const unsigned char *s2 = (const unsigned char *) p2;

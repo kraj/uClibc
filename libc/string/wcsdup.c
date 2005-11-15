@@ -10,8 +10,8 @@
 
 #undef Wstrlen
 #undef Wstrcpy
-#define Wstrlen __wcslen
-#define Wstrcpy __wcscpy
+#define Wstrlen wcslen
+#define Wstrcpy wcscpy
 
 #include "wstring.c"
 

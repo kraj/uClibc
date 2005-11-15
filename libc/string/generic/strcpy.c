@@ -25,9 +25,7 @@
 #undef strcpy
 
 /* Copy SRC to DEST.  */
-char attribute_hidden *__strcpy (dest, src)
-     char *dest;
-     const char *src;
+char attribute_hidden *__strcpy (char *dest, const char *src)
 {
   reg_char c;
   char *__unbounded s = (char *__unbounded) CHECK_BOUNDS_LOW (src);

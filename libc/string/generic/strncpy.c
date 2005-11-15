@@ -21,10 +21,7 @@
 
 #undef strncpy
 
-char attribute_hidden *__strncpy (s1, s2, n)
-     char *s1;
-     const char *s2;
-     size_t n;
+char attribute_hidden *__strncpy (char *s1, const char *s2, size_t n)
 {
   reg_char c;
   char *s = s1;
