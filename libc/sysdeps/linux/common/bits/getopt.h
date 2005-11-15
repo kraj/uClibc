@@ -20,6 +20,8 @@
 
 #ifndef _GETOPT_H
 
+#include <features.h>
+
 #ifndef __need_getopt
 # define _GETOPT_H 1
 #endif
