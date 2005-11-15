@@ -22,7 +22,14 @@ U_TARGETS := $(TESTS)
 G_TARGETS := $(patsubst %,%_glibc,$(U_TARGETS))
 U_TARGETS += $(U_TESTS)
 G_TARGETS += $(G_TESTS)
-TARGETS    = $(U_TARGETS) $(G_TARGETS)
+
+TARGETS    = 
+ifeq ($(GLIBC_ONLY),)
+TARGETS   += $(U_TARGETS)
+endif
+ifeq ($(UCLIBC_ONLY),)
+TARGETS   += $(G_TARGETS)
+endif
 
 all: $(TARGETS)
 
