@@ -648,7 +648,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 			 CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 			 __pthread_sig_cancel, new_thread);
 #elif _STACK_GROWS_UP
-	  pid = __clone(pthread_start_thread_event, (void *) new_thread_bottom,
+	  pid = clone(pthread_start_thread_event, (void *) new_thread_bottom,
 			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 			__pthread_sig_cancel, new_thread);
 #else
@@ -690,7 +690,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 		     CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 		     __pthread_sig_cancel, new_thread);
 #elif _STACK_GROWS_UP
-      pid = __clone(pthread_start_thread, (void *) new_thread_bottom,
+      pid = clone(pthread_start_thread, (void *) new_thread_bottom,
 		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
 		    __pthread_sig_cancel, new_thread);
 #else
