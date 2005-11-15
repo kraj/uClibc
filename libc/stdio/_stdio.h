@@ -46,10 +46,10 @@
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
 
-extern __ssize_t _cs_read(void *cookie, char *buf, size_t bufsize);
-extern __ssize_t _cs_write(void *cookie, const char *buf, size_t bufsize);
-extern int _cs_seek(void *cookie, __offmax_t *pos, int whence);
-extern int _cs_close(void *cookie);
+extern __ssize_t _cs_read(void *cookie, char *buf, size_t bufsize) attribute_hidden;
+extern __ssize_t _cs_write(void *cookie, const char *buf, size_t bufsize) attribute_hidden;
+extern int _cs_seek(void *cookie, __offmax_t *pos, int whence) attribute_hidden;
+extern int _cs_close(void *cookie) attribute_hidden;
 
 #define __STDIO_STREAM_RESET_GCS(S) \
 	(S)->__cookie = &((S)->__filedes); \
@@ -74,7 +74,7 @@ extern int _cs_close(void *cookie);
 
 #else  /* __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__ */
 
-extern int __stdio_seek(FILE *stream, register __offmax_t *pos, int whence);
+extern int __stdio_seek(FILE *stream, register __offmax_t *pos, int whence) attribute_hidden;
 
 #define __STDIO_STREAM_RESET_GCS(S) ((void)0)
 
