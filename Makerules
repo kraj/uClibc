@@ -71,6 +71,7 @@ cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
 cmd_ar        = $(AR) $(ARFLAGS) $@ $^
 
 compile.c = @$(disp_compile.c) ; $(cmd_compile.c)
+compile.E = $(cmd_compile.c:-c=-E)
 compile.S = @$(disp_compile.S) ; $(cmd_compile.S)
 compile.m = @$(disp_compile.m) ; $(cmd_compile.m)
 compile-m = @$(disp_compile-m) ; $(cmd_compile-m)
@@ -82,18 +83,22 @@ CFLAGS-.oS+=$(PICFLAG) -DSHARED
 
 %.o: %.c
 	$(compile.c)
-
 %.os: %.c
 	$(compile.c)
-
 %.oS: %.c
 	$(compile.c)
-
 %.o: %.S
 	$(compile.S)
-
 %.os: %.S
 	$(compile.S)
+%.o: %.s
+	$(compile.S)
+%.os: %.s
+	$(compile.S)
+%.E: %.c
+	$(compile.E)
+%.E: %.S
+	$(compile.E)
 
 #ifeq ($(HAVE_ELF),y)
 CRT=crt1
