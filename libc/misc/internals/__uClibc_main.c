@@ -76,7 +76,7 @@ const char *__progname = 0;
 # define O_NOFOLLOW	0
 #endif
 
-extern int __libc_fcntl(int fd, int cmd, ...) attribute_hidden;
+extern int __libc_fcntl(int fd, int cmd, ...);
 extern int __libc_open(const char *file, int flags, ...);
 
 static void __check_one_fd(int fd, int mode)

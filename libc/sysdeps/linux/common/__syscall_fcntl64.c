@@ -14,7 +14,7 @@
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
 #define __NR___syscall_fcntl64 __NR_fcntl64
 static inline _syscall3(int, __syscall_fcntl64, int, fd, int, cmd, long, arg);
-int attribute_hidden __libc_fcntl64(int fd, int cmd, ...)
+int __libc_fcntl64(int fd, int cmd, ...)
 {
 	long arg;
 	va_list list;
@@ -26,5 +26,5 @@ int attribute_hidden __libc_fcntl64(int fd, int cmd, ...)
 	return (__syscall_fcntl64(fd, cmd, arg));
 }
 
-strong_alias(__libc_fcntl64, fcntl64)
+weak_alias(__libc_fcntl64, fcntl64)
 #endif
