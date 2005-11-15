@@ -413,16 +413,16 @@ typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
 								intptr_t buf);
 
 extern ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
-						   __fp_outfunc_t fp_outfunc);
+						   __fp_outfunc_t fp_outfunc) attribute_hidden;
 #endif
 
-extern int _ppfs_init(ppfs_t *ppfs, const char *fmt0); /* validates */
-extern void _ppfs_prepargs(ppfs_t *ppfs, va_list arg); /* sets posargptrs */
-extern void _ppfs_setargs(ppfs_t *ppfs); /* sets argptrs for current spec */
-extern int _ppfs_parsespec(ppfs_t *ppfs); /* parses specifier */
+extern int _ppfs_init(ppfs_t *ppfs, const char *fmt0) attribute_hidden; /* validates */
+extern void _ppfs_prepargs(ppfs_t *ppfs, va_list arg) attribute_hidden; /* sets posargptrs */
+extern void _ppfs_setargs(ppfs_t *ppfs) attribute_hidden; /* sets argptrs for current spec */
+extern int _ppfs_parsespec(ppfs_t *ppfs) attribute_hidden; /* parses specifier */
 
-extern void _store_inttype(void *dest, int desttype, uintmax_t val);
-extern uintmax_t _load_inttype(int desttype, const void *src, int uflag);
+extern void _store_inttype(void *dest, int desttype, uintmax_t val) attribute_hidden;
+extern uintmax_t _load_inttype(int desttype, const void *src, int uflag) attribute_hidden;
 
 /**********************************************************************/
 #ifdef L_parse_printf_format
@@ -497,7 +497,7 @@ size_t parse_printf_format(register const char *template,
 /**********************************************************************/
 #ifdef L__ppfs_init
 
-int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
+int attribute_hidden _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 {
 	int r;
 
@@ -587,7 +587,7 @@ int _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 #endif
 /**********************************************************************/
 #ifdef L__ppfs_prepargs
-void _ppfs_prepargs(register ppfs_t *ppfs, va_list arg)
+void attribute_hidden _ppfs_prepargs(register ppfs_t *ppfs, va_list arg)
 {
 	int i;
 
@@ -606,7 +606,7 @@ void _ppfs_prepargs(register ppfs_t *ppfs, va_list arg)
 /**********************************************************************/
 #ifdef L__ppfs_setargs
 
-void _ppfs_setargs(register ppfs_t *ppfs)
+void attribute_hidden _ppfs_setargs(register ppfs_t *ppfs)
 {
 #ifdef __va_arg_ptr
 	register void **p = ppfs->argptr;
@@ -820,7 +820,7 @@ printf_arginfo_function *_custom_printf_arginfo[MAX_USER_SPEC];
 printf_function _custom_printf_handler[MAX_USER_SPEC];
 #endif /* __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__ */
 
-extern int _ppfs_parsespec(ppfs_t *ppfs)
+int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 {
 	register const char *fmt;
 	register const char *p;

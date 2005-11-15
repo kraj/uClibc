@@ -162,7 +162,7 @@ int _stdio_openlist_delflag = 0;
 /* 2 if threading not initialized and 0 otherwise; */
 int _stdio_user_locking = 2;
 
-void __stdio_init_mutex(pthread_mutex_t *m)
+void attribute_hidden __stdio_init_mutex(pthread_mutex_t *m)
 {
 	static const pthread_mutex_t __stdio_mutex_initializer
 		= PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;

@@ -20,7 +20,7 @@
  *   NOT THREADSAFE!  Assumes stream already locked if necessary.
  */
 
-size_t __stdio_READ(register FILE *stream,
+size_t attribute_hidden __stdio_READ(register FILE *stream,
 					unsigned char *buf, size_t bufsize)
 {
 	ssize_t rv = 0;

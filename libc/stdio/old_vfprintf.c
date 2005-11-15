@@ -217,7 +217,7 @@ typedef void (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
 							  intptr_t buf);
 
 extern size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
-						  __fp_outfunc_t fp_outfunc);
+						  __fp_outfunc_t fp_outfunc) attribute_hidden;
 
 static void _charpad(FILE * __restrict stream, int padchar, size_t numpad)
 {
@@ -261,8 +261,8 @@ static const char spec[] = "+-#0 ";
 
 /**********************************************************************/
 
-extern void _store_inttype(void *dest, int desttype, uintmax_t val);
-extern uintmax_t _load_inttype(int desttype, const void *src, int uflag);
+extern void _store_inttype(void *dest, int desttype, uintmax_t val) attribute_hidden;
+extern uintmax_t _load_inttype(int desttype, const void *src, int uflag) attribute_hidden;
 
 /*
  * In order to ease translation to what arginfo and _print_info._flags expect,

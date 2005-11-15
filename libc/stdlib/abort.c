@@ -81,6 +81,7 @@ static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
 
+extern int __raise (int __sig) __THROW attribute_hidden;
 /* Cause an abnormal program termination with core-dump */
 void abort(void)
 {
@@ -111,7 +112,7 @@ void abort(void)
 
 abort_it:
 			UNLOCK;
-			raise(SIGABRT);
+			__raise(SIGABRT);
 			LOCK;
 		}
 

@@ -27,7 +27,7 @@
 
 /* Internal function -- reentrant (locks open file list) */
 
-FILE *_stdio_fopen(intptr_t fname_or_mode,
+FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 				   register const char * __restrict mode,
 				   register FILE * __restrict stream, int filedes)
 {

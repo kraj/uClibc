@@ -49,7 +49,7 @@ struct kernel_dirent64
 static inline _syscall3(int, __syscall_getdents64, int, fd, unsigned char *, dirp, size_t, count);
 
 
-ssize_t __getdents64 (int fd, char *buf, size_t nbytes)
+ssize_t attribute_hidden __getdents64 (int fd, char *buf, size_t nbytes)
 {
     struct dirent64 *dp;
     off64_t last_offset = -1;
@@ -104,8 +104,8 @@ ssize_t __getdents64 (int fd, char *buf, size_t nbytes)
     return (char *) dp - buf;
 }
 #else
-ssize_t __getdents (int fd, char *buf, size_t nbytes);
-ssize_t __getdents64 (int fd, char *buf, size_t nbytes)
+extern ssize_t __getdents (int fd, char *buf, size_t nbytes) attribute_hidden;
+ssize_t attribute_hidden __getdents64 (int fd, char *buf, size_t nbytes)
 {
     return(__getdents(fd, buf, nbytes));
 }

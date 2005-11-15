@@ -1,4 +1,4 @@
-/* Copyright (C) 2004-2005 Manuel Novoa III <mjn3@codepoet.org>
+/* Copyright (C) 2004-2005 Manuel Novoa III    <mjn3@codepoet.org>
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  *
@@ -236,13 +236,13 @@ extern int __stdio_seek(FILE *stream, register __offmax_t *pos, int whence) attr
 /* Assume stream in valid writing state.  Do not reset writing flag
  * or disble putc macro unless error. */
 /* Should we assume that buffer is not empty to avoid a check? */
-extern size_t __stdio_wcommit(FILE *__restrict stream);
+extern size_t __stdio_wcommit(FILE *__restrict stream) attribute_hidden;
 
 /* Remember to fail if at EOF! */
-extern size_t __stdio_rfill(FILE *__restrict stream);
+extern size_t __stdio_rfill(FILE *__restrict stream) attribute_hidden;
 
 extern size_t __stdio_fwrite(const unsigned char *__restrict buffer,
-							 size_t bytes, FILE *__restrict stream);
+				 size_t bytes, FILE *__restrict stream) attribute_hidden;
 #else
 
 #define __stdio_fwrite(B,N,S)  __stdio_WRITE((S),(B),(N))
@@ -250,14 +250,14 @@ extern size_t __stdio_fwrite(const unsigned char *__restrict buffer,
 #endif
 
 extern size_t __stdio_WRITE(FILE *stream, const unsigned char *buf,
-							size_t bufsize);
-extern size_t __stdio_READ(FILE *stream, unsigned char *buf, size_t bufsize);
+							size_t bufsize) attribute_hidden;
+extern size_t __stdio_READ(FILE *stream, unsigned char *buf, size_t bufsize) attribute_hidden;
 
-extern int __stdio_trans2r(FILE *__restrict stream);
-extern int __stdio_trans2w(FILE *__restrict stream);
+extern int __stdio_trans2r(FILE *__restrict stream) attribute_hidden;
+extern int __stdio_trans2w(FILE *__restrict stream) attribute_hidden;
 
-extern int __stdio_trans2r_o(FILE *__restrict stream, int oflag);
-extern int __stdio_trans2w_o(FILE *__restrict stream, int oflag);
+extern int __stdio_trans2r_o(FILE *__restrict stream, int oflag) attribute_hidden;
+extern int __stdio_trans2w_o(FILE *__restrict stream, int oflag) attribute_hidden;
 
 /**********************************************************************/
 #ifdef __STDIO_BUFFERS
@@ -361,7 +361,7 @@ extern int __fputc_unlocked(int c, FILE *stream);
 
 extern int __fflush_unlocked(FILE *stream);
 
-extern int __stdio_adjust_position(FILE *__restrict stream, __offmax_t *pos);
+extern int __stdio_adjust_position(FILE *__restrict stream, __offmax_t *pos) attribute_hidden;
 
 extern void __clearerr_unlocked(FILE *stream);
 extern int __feof_unlocked(FILE *stream);
@@ -414,8 +414,8 @@ extern size_t _stdio_fread(unsigned char *buffer, size_t bytes,
 						   FILE *stream);
 
 extern FILE *_stdio_fopen(intptr_t fname_or_mode,
-						  const char *__restrict mode,
-						  FILE *__restrict stream, int filedes);
+				  const char *__restrict mode,
+				  FILE *__restrict stream, int filedes) attribute_hidden;
 
 #ifdef __UCLIBC_HAS_WCHAR__
 extern size_t _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,

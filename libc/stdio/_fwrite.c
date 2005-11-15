@@ -11,7 +11,7 @@
 
 /* Either buffer data or (commit buffer if necessary and) write. */
 
-size_t __stdio_fwrite(const unsigned char * __restrict buffer,
+size_t attribute_hidden __stdio_fwrite(const unsigned char * __restrict buffer,
 					  size_t bytes,
 					  register FILE * __restrict stream)
 {

@@ -28,7 +28,7 @@
 
 /* We assume int may be short or long, but short and long are different. */
 
-void _store_inttype(register void *dest, int desttype, uintmax_t val)
+void attribute_hidden _store_inttype(register void *dest, int desttype, uintmax_t val)
 {
 	if (desttype == __PA_FLAG_CHAR) { /* assume char not int */
 		*((unsigned char *) dest) = val;

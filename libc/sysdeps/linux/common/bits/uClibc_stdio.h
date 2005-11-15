@@ -374,7 +374,9 @@ extern struct __STDIO_FILE_STRUCT *_stdio_openlist;
 extern pthread_mutex_t _stdio_openlist_lock;
 extern int _stdio_openlist_delflag;
 extern int _stdio_user_locking;
-extern void __stdio_init_mutex(pthread_mutex_t *m);
+#ifdef _LIBC
+extern void __stdio_init_mutex(pthread_mutex_t *m) attribute_hidden;
+#endif
 #endif
 
 #endif
