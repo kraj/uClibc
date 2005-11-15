@@ -3077,7 +3077,7 @@ size_t __XL(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
 	int pass;
 
 	if (!CUR_COLLATE->num_weights) { /* C locale */
-		return wcslcpy(ws1, ws2, n);
+		return wcsxfrm(ws1, ws2, n);
 	}
 
 #ifdef __UCLIBC_MJN3_ONLY__
