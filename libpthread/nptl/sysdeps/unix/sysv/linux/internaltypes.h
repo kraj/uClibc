@@ -21,9 +21,7 @@
 #define _INTERNALTYPES_H	1
 
 #include <stdint.h>
-#ifdef __UCLIBC__
 #include <sched.h>
-#endif
 
 
 struct pthread_attr

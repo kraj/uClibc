@@ -264,21 +264,13 @@ __pthread_initialize_minimal_internal (void)
   sa.sa_flags = SA_SIGINFO;
   __sigemptyset (&sa.sa_mask);
 
-#ifdef __UCLIBC__
-  (void) sigaction (SIGCANCEL, &sa, NULL);
-#else
   (void) __libc_sigaction (SIGCANCEL, &sa, NULL);
-#endif
 
   /* Install the handle to change the threads' uid/gid.  */
   sa.sa_sigaction = sighandler_setxid;
   sa.sa_flags = SA_SIGINFO | SA_RESTART;
 
-#ifdef __UCLIBC__
-  (void) sigaction (SIGSETXID, &sa, NULL);
-#else
   (void) __libc_sigaction (SIGSETXID, &sa, NULL);
-#endif
 
   /* The parent process might have left the signals blocked.  Just in
      case, unblock it.  We reuse the signal mask in the sigaction
@@ -304,11 +296,7 @@ __pthread_initialize_minimal_internal (void)
   else
     {
       /* Round the resource limit up to page size.  */
-#ifdef __UCLIBC__
-      const uintptr_t pagesz = sysconf (_SC_PAGESIZE);
-#else
       const uintptr_t pagesz = __sysconf (_SC_PAGESIZE);
-#endif
       __default_stacksize = (limit.rlim_cur + pagesz - 1) & -pagesz;
     }
 

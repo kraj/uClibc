@@ -22,9 +22,9 @@
 
 /* These are defined in libc.  We want to have only one definition
    so we "forward" the calls.  */
-extern int __libc_current_sigrtmin_private (void);
-extern int __libc_current_sigrtmax_private (void);
-extern int __libc_allocate_rtsig_private (int high);
+extern int __libc_current_sigrtmin (void);
+extern int __libc_current_sigrtmax (void);
+extern int __libc_allocate_rtsig (int high);
 
 
 /* We reserve __SIGRTMIN for use as the cancellation signal and
@@ -33,19 +33,19 @@ extern int __libc_allocate_rtsig_private (int high);
 int
 __libc_current_sigrtmin (void)
 {
-  return __libc_current_sigrtmin_private ();
+  return __libc_current_sigrtmin ();
 }
 
 
 int
 __libc_current_sigrtmax (void)
 {
-  return __libc_current_sigrtmax_private ();
+  return __libc_current_sigrtmax ();
 }
 
 
 int
 __libc_allocate_rtsig (int high)
 {
-  return __libc_allocate_rtsig_private (high);
+  return __libc_allocate_rtsig (high);
 }

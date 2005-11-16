@@ -34,25 +34,26 @@ SO_LIBC_CSRC = $(AR_LIBC_CSRC)
 
 ifeq ($(strip $(TARGET_ARCH)),alpha)
 AR_LIBC_CSRC += libc-lowlevellock.c
-AR_LIBP_CSRC += rtld-libc-lowlevellock.c
+AR_LIBP_CSRC += lowlevellock.c
 endif
 ifeq ($(strip $(TARGET_ARCH)),mips)
 AR_LIBC_CSRC += libc-lowlevellock.c
-AR_LIBP_CSRC += rtld-libc-lowlevellock.c
+AR_LIBP_CSRC += lowlevellock.c
 endif
 ifeq ($(strip $(TARGET_ARCH)),powerpc)
 AR_LIBC_CSRC += libc-lowlevellock.c
-AR_LIBP_CSRC += rtld-libc-lowlevellock.c
+AR_LIBP_CSRC += lowlevellock.c
 endif
 ifeq ($(strip $(TARGET_ARCH)),sparc)
 AR_LIBC_CSRC += libc-lowlevellock.c
-AR_LIBP_CSRC += rtld-libc-lowlevellock.c
+AR_LIBP_CSRC += lowlevellock.c
 endif
 
 #
 # Needed to get pthread types.
 #
 CFLAGS-pt-fork.c = -D_GNU_SOURCE
+CFLAGS-pthread_getcpuclockid.c = -I$(TOPDIR)/librt
 
 AR_LIBP_COBJS = $(patsubst %.c, %.o, $(AR_LIBP_CSRC))
 SO_LIBP_COBJS = $(patsubst %.c, %.os, $(SO_LIBP_CSRC))
@@ -111,10 +112,7 @@ $(AR_LIBC_COBJS): %.o : %.c
 $(SO_LIBC_COBJS): %.os : %.c
 	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -DSHARED -c $< -o $@
 
-rtld-libc-lowlevellock.c: libc-lowlevellock.c
-	$(LN) -fs $< $@
-
 clean:
-	$(RM) *.o *.os *~ core rtld-libc-lowlevellock.c
+	$(RM) *.o *.os *~ core
 
 .PHONY: $(AR_LIB_NAME) $(AR_SO_LIB_NAME)

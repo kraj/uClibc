@@ -20,6 +20,9 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#define RESET_PID
+#endif
 #include <sys/asm.h>
 #include <sysdep.h>
 #define _ERRNO_H	1

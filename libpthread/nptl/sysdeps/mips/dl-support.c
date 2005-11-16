@@ -1,1 +1,1 @@
-#include <sysdeps/generic/dl-support.c>
+#include <../generic/dl-support.c>

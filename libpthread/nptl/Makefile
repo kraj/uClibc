@@ -111,10 +111,6 @@ libpthread-routines = init vars events version \
 		      pthread_getaffinity pthread_setaffinity \
 		      pthread_attr_getaffinity pthread_attr_setaffinity \
 		      cleanup_routine unwind-forcedunwind
-#		      pthread_setuid pthread_seteuid pthread_setreuid \
-#		      pthread_setresuid \
-#		      pthread_setgid pthread_setegid pthread_setregid \
-#		      pthread_setresgid
 
 libpthread-shared-only-routines = version pt-allocrtsig unwind-forcedunwind
 libpthread-static-only-routines = pthread_atfork
@@ -216,7 +212,6 @@ libpthread-misc-routines = pthread_rwlock_rdlock pthread_rwlock_timedrdlock \
 			   ptw-msgrcv ptw-msgsnd ptw-sigwait \
 			   pt-raise flockfile ftrylockfile \
 			   funlockfile sigaction \
-			   pthread_kill_other_threads \
 			   pthread_getaffinity \
 			   pthread_setaffinity \
 			   pthread_attr_getaffinity \
@@ -232,8 +227,7 @@ AR_LIBP_CSRC = $(patsubst %, %.c, $(filter-out $(libpthread-os-routines) \
 	       $(libpthread-routines)))
 SO_LIBP_CSRC = $(patsubst %, %.c, $(filter-out $(libpthread-os-routines) \
 	       $(libpthread-misc-routines)				 \
-	       $(libpthread-static-only-routines) pt-allocrtsig,	 \
-	       $(libpthread-routines)))
+	       $(libpthread-static-only-routines), $(libpthread-routines)))
 AR_LIBC_CSRC = $(patsubst %, %.c, $(filter-out $(shared-only-routines)	 \
 	       libc-lowlevellock, $(routines)))
 SO_LIBC_CSRC = $(patsubst %, %.c, $(filter-out libc-lowlevellock, $(routines)))
@@ -242,6 +236,11 @@ AR_LIBP_COBJS = $(patsubst %.c, %.o, $(AR_LIBP_CSRC))
 SO_LIBP_COBJS = $(patsubst %.c, %.os, $(SO_LIBP_CSRC))
 AR_LIBC_COBJS = $(patsubst %.c, %.o, $(AR_LIBC_CSRC))
 SO_LIBC_COBJS = $(patsubst %.c, %.os, $(SO_LIBC_CSRC))
+
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+SHARED_START_FILES = sysdeps/pthread/crti.o $(LIBGCC_DIR)crtbeginS.o
+SHARED_END_FILES   = $(LIBGCC_DIR)crtendS.o sysdeps/pthread/crtn.o
+endif
 
 all: headers $(AR_LIB_NAME) $(SO_LIB_NAME)
 

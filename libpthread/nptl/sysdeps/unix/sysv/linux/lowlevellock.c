@@ -50,11 +50,7 @@ __lll_timedlock_wait (int *futex, const struct timespec *abstime)
       struct timespec rt;
 
       /* Get the current time.  */
-#ifdef __UCLIBC__
       (void) gettimeofday (&tv, NULL);
-#else
-      (void) __gettimeofday (&tv, NULL);
-#endif
 
       /* Compute relative timeout.  */
       rt.tv_sec = abstime->tv_sec - tv.tv_sec;
@@ -109,11 +105,7 @@ __lll_timedwait_tid (int *tidp, const struct timespec *abstime)
       struct timespec rt;
 
       /* Get the current time.  */
-#ifdef __UCLIBC__
       (void) gettimeofday (&tv, NULL);
-#else
-      (void) __gettimeofday (&tv, NULL);
-#endif
 
       /* Compute relative timeout.  */
       rt.tv_sec = abstime->tv_sec - tv.tv_sec;

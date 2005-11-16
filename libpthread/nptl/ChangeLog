@@ -1,3 +1,72 @@
+2005-08-23  Ulrich Drepper  <drepper@redhat.com>
+
+	* sysdeps/unix/sysv/linux/timer_routines.c: Don't block SIGSETXID ever.
+
+2005-07-11  Jakub Jelinek  <jakub@redhat.com>
+
+	[BZ #1102]
+	* sysdeps/pthread/pthread.h (PTHREAD_MUTEX_INITIALIZER,
+	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
+	PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP,
+	PTHREAD_MUTEX_ADAPTIVE_NP, PTHREAD_RWLOCK_INITIALIZER,
+	PTHREAD_RWLOCK_WRITER_NONRECURSIVE_INITIALIZER_NP,
+	PTHREAD_COND_INITIALIZER): Supply zeros for all fields
+	in the structure.
+	* Makefile (tests): Add tst-initializers1.
+	(CFLAGS-tst-initializers1.c): Set.
+	* tst-initializers1.c: New test.
+
+2005-07-11  Jakub Jelinek  <jakub@redhat.com>
+
+	* sysdeps/unix/sysv/linux/alpha/bits/pthreadtypes.h (pthread_rwlock_t):
+	Make sure __flags are located at offset 48 from the start of the
+	structure.
+
+2005-07-02  Roland McGrath  <roland@redhat.com>
+
+	* Makeconfig: Comment fix.
+
+2005-07-05  Jakub Jelinek  <jakub@redhat.com>
+
+	* descr.h (PTHREAD_STRUCT_END_PADDING): Define.
+	* sysdeps/ia64/tls.h (TLS_PRE_TCB_SIZE): If PTHREAD_STRUCT_END_PADDING
+	is smaller than 8 bytes, increase TLS_PRE_TCB_SIZE by 16 bytes.
+	(THREAD_SYSINFO, THREAD_SELF, DB_THREAD_SELF): Don't assume
+	TLS_PRE_TCB_SIZE is sizeof (struct pthread).
+	(THREAD_SET_STACK_GUARD, THREAD_COPY_STACK_GUARD): Define.
+	* sysdeps/ia64/tcb-offsets.sym (PID, TID, MULTIPLE_THREADS_OFFSET):
+	Use TLS_PRE_TCB_SIZE instead of sizeof (struct pthread).
+	* sysdeps/unix/sysv/linux/ia64/createthread.c (TLS_VALUE): Don't
+	assume TLS_PRE_TCB_SIZE is sizeof (struct pthread).
+
+2005-06-25  Jakub Jelinek  <jakub@redhat.com>
+
+	* sysdeps/i386/tls.h (tcbhead_t): Add stack_guard field.
+	(THREAD_SET_STACK_GUARD, THREAD_COPY_STACK_GUARD): Define.
+	* sysdeps/x86_64/tls.h (tcbhead_t): Add sysinfo and stack_guard
+	fields.
+	(THREAD_SET_STACK_GUARD, THREAD_COPY_STACK_GUARD): Define.
+	* sysdeps/s390/tls.h (tcbhead_t): Add stack_guard
+	field.  Put in sysinfo field unconditionally.
+	(THREAD_SET_STACK_GUARD, THREAD_COPY_STACK_GUARD): Define.
+	* sysdeps/powerpc/tls.h (tcbhead_t): Add stack_guard field.
+	(THREAD_SET_STACK_GUARD, THREAD_COPY_STACK_GUARD): Define.
+	* sysdeps/sparc/tls.h (tcbhead_t): Add sysinfo and stack_guard
+	fields.
+	(THREAD_SET_STACK_GUARD, THREAD_COPY_STACK_GUARD): Define.
+	* pthread_create.c (__pthread_create_2_1): Use
+	THREAD_COPY_STACK_GUARD macro.
+	* Makefile: Add rules to build and run tst-stackguard1{,-static}
+	tests.
+	* tst-stackguard1.c: New file.
+	* tst-stackguard1-static.c: New file.
+
+2005-06-14  Alan Modra  <amodra@bigpond.net.au>
+
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/sysdep-cancel.h (PSEUDO):
+	Invoke CGOTSETUP and CGOTRESTORE.
+	(CGOTSETUP, CGOTRESTORE): Define.
+
 2005-05-29  Richard Henderson  <rth@redhat.com>
 
 	* tst-cancel4.c (WRITE_BUFFER_SIZE): New.
@@ -50,6 +119,7 @@
 
 2005-04-27  Ulrich Drepper  <drepper@redhat.com>
 
+	[BZ #1075]
 	* tst-cancel17.c (do_test): Add arbitrary factor to make sure
 	aio_write blocks.
 
@@ -77,6 +147,7 @@
 
 2005-04-05  Jakub Jelinek  <jakub@redhat.com>
 
+	[BZ #1102]
 	* sysdeps/pthread/pthread.h (__pthread_cleanup_routine): Use
 	__inline instead of inline.
 	* sysdeps/pthread/bits/libc-lock.h (__libc_cleanup_routine): Likewise.
@@ -126,6 +197,7 @@
 
 2005-03-23  Ulrich Drepper  <drepper@redhat.com>
 
+	[BZ #1112]
 	* pthread_create.c (__pthread_create_2_1): Rename syscall error
 	variable to scerr.
 

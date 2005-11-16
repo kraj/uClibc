@@ -34,11 +34,7 @@ is_smp_system (void)
   size_t reslen = sizeof (buf);
 
   /* Try reading the number using `sysctl' first.  */
-#ifdef __UCLIBC__
   if (sysctl ((int *) sysctl_args,
-#else
-  if (__sysctl ((int *) sysctl_args,
-#endif
 		sizeof (sysctl_args) / sizeof (sysctl_args[0]),
 		buf, &reslen, NULL, 0) < 0)
     {

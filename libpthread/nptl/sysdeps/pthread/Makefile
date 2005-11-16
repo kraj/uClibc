@@ -32,20 +32,26 @@ CSRC = pthread_barrier_wait.c pthread_cond_broadcast.c pthread_cond_signal.c \
        pthread_rwlock_timedwrlock.c pthread_rwlock_unlock.c		     \
        pthread_rwlock_wrlock.c pthread_sigmask.c pthread_spin_destroy.c      \
        pthread_spin_init.c pthread_spin_unlock.c sigaction.c		     \
-       unwind-forcedunwind.c
+       sigfillset.c sigprocmask.c unwind-forcedunwind.c
 
-#
-# Needed to get pthread types.
-#
 CFLAGS-pthread_barrier_wait.c = -D_GNU_SOURCE
 CFLAGS-pthread_spin_destroy.c = -D_GNU_SOURCE
 CFLAGS-pthread_spin_init.c = -D_GNU_SOURCE
 CFLAGS-pthread_spin_unlock.c = -D_GNU_SOURCE
+CFLAGS-sigaction.c = -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH) \
+		     -I$(TOPDIR)libc/signal
+CFLAGS-sigfillset.c = -I$(TOPDIR)libc/sysdeps/linux/$(TARGET_ARCH) \
+		      -I$(TOPDIR)libc/signal
+CFLAGS-sigprocmask.c = -I$(TOPDIR)libc/sysdeps/linux/common
 
 AR_LIBP_COBJS = $(patsubst %.c, %.o, $(CSRC))
 SO_LIBP_COBJS = $(patsubst %.c, %.os, $(CSRC))
 
+ifeq ($(strip $(UCLIBC_CTOR_DTOR)),y)
+all: $(AR_LIB_NAME) $(AR_SO_LIB_NAME) crti.o crtn.o
+else
 all: $(AR_LIB_NAME) $(AR_SO_LIB_NAME)
+endif
 
 $(AR_LIB_NAME): $(AR_LIBP_COBJS)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
@@ -64,12 +70,39 @@ endif
 	$(AR) $(ARFLAGS) $(AR_SO_LIB_NAME) $(SO_LIBP_COBJS)
 
 $(AR_LIBP_COBJS): %.o : %.c
-	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -c $< -o $@
+	$(CC) $(CFLAGS-LIBP) $(CFLAGS-$<) -c $< -o $@
 
 $(SO_LIBP_COBJS): %.os : %.c
-	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
+	$(CC) $(CFLAGS-LIBP) $(CFLAGS-$<) -DSHARED -c $< -o $@
+
+pt-initfini.s: pt-initfini.c
+	$(CC) -S $(CFLAGS-LIBP) -g0 -fPIC -fno-inline-functions		\
+		$(call check_gcc,-fno-unit-at-a-time,)			\
+		-finhibit-size-directive				\
+		$(patsubst -f%,-fno-%,$(call check_gcc,-fexceptions,))	\
+		$< -o $@
+
+crti.S: pt-initfini.s
+	sed -n -e '1,/@HEADER_ENDS/p' \
+	       -e '/@_.*_PROLOG_BEGINS/,/@_.*_PROLOG_ENDS/p' \
+	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
+
+crtn.S: pt-initfini.s
+	sed -n -e '1,/@HEADER_ENDS/p' \
+	       -e '/@_.*_EPILOG_BEGINS/,/@_.*_EPILOG_ENDS/p' \
+	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
+
+defs.h: pt-initfini.s defs.awk
+	sed -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
+		awk -f defs.awk > $@
+
+crti.o: crti.S defs.h
+	$(CC) -g0 $(ASFLAGS-LIBC) -c $< -o $@
+
+crtn.o: crtn.S defs.h
+	$(CC) -g0 $(ASFLAGS-LIBC) -c $< -o $@
 
 clean:
-	$(RM) *.o *.os *~ core
+	$(RM) *.o *.os *.s crt* *~ core defs.h
 
 .PHONY: $(AR_LIB_NAME) $(AR_SO_LIB_NAME)

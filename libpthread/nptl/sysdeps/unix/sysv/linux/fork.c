@@ -22,9 +22,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sysdep.h>
-#ifndef __UCLIBC__
-#include <libio/libioP.h>
-#endif
 #include <tls.h>
 #include "fork.h"
 #include <hp-timing.h>
@@ -70,11 +67,7 @@ fresetlockfiles (void)
 
 
 pid_t
-#ifdef __UCLIBC__
 __libc_fork_nptl (void)
-#else
-__libc_fork (void)
-#endif
 {
   pid_t pid;
   struct used_handler
@@ -258,8 +251,3 @@ __libc_fork (void)
 
   return pid;
 }
-#ifndef __UCLIBC__
-weak_alias (__libc_fork, __fork)
-libc_hidden_def (__fork)
-weak_alias (__libc_fork, fork)
-#endif

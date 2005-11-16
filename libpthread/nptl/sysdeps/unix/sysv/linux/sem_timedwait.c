@@ -56,11 +56,7 @@ sem_timedwait (sem_t *sem, const struct timespec *abstime)
       int sec, nsec;
 
       /* Get the current time.  */
-#ifdef __UCLIBC__
       gettimeofday (&tv, NULL);
-#else
-      __gettimeofday (&tv, NULL);
-#endif
 
       /* Compute relative timeout.  */
       sec = abstime->tv_sec - tv.tv_sec;

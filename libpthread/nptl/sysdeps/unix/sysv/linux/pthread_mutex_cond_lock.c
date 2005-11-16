@@ -5,8 +5,4 @@
 #define __pthread_mutex_lock __pthread_mutex_cond_lock
 #define NO_INCR
 
-#ifdef __UCLIBC__
 #include <pthread_mutex_lock.c>
-#else
-#include <nptl/pthread_mutex_lock.c>
-#endif

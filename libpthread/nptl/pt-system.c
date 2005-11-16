@@ -22,15 +22,11 @@
 #include <sysdep.h>
 #include "pthreadP.h"
 
-/* Compatibility define. */
-#ifdef __UCLIBC__
-#define __libc_system	system
-#endif
 
 int
 system (const char *line)
 {
-  return __libc_system (line);
+  return system (line);
 }
 
 /* __libc_system in libc.so handles cancellation.  */

@@ -25,25 +25,32 @@ CFLAGS-dl-support.c = -D_GNU_SOURCE
 
 AR_LIBP_AOBJS = $(patsubst %.S, %.o, $(wildcard *.S))
 SO_LIBP_AOBJS = $(patsubst %.S, %.os, $(wildcard *.S))
-AR_LIBC_COBJS = $(patsubst %.c, %.o, $(wildcard *.c))
+AR_LIBP_COBJS = $(patsubst %.c, %.o, pt-raise.c)
+SO_LIBP_COBJS = $(patsubst %.c, %.os, pt-raise.c)
+
+AR_LIBC_COBJS = $(patsubst %.c, %.o, dl-support.c dl-tls.c libc-tls.c)
 
 all: $(AR_LIB_NAME) $(AR_SO_LIB_NAME)
 
-$(AR_LIB_NAME): $(AR_LIBP_AOBJS)
+$(AR_LIB_NAME): $(AR_LIBP_AOBJS) $(AR_LIBP_COBJS)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(AR_LIBP_AOBJS)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
+		$(AR_LIBP_AOBJS) $(AR_LIBP_COBJS)
 else
-	$(STRIPTOOL) -x -R .note -R .comment $(AR_LIBP_AOBJS) $(AR_LIBP_AOBJS)
+	$(STRIPTOOL) -x -R .note -R .comment			\
+		$(AR_LIBP_AOBJS) $(AR_LIBP_COBJS)
 endif
-	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(AR_LIBP_AOBJS)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(AR_LIBP_AOBJS) $(AR_LIBP_COBJS)
 
-$(AR_SO_LIB_NAME): $(SO_LIBP_AOBJS)
+$(AR_SO_LIB_NAME): $(SO_LIBP_AOBJS) $(SO_LIBP_COBJS)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(SO_LIBP_AOBJS)
+	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
+		$(SO_LIBP_AOBJS) $(SO_LIBP_COBJS)
 else
-	$(STRIPTOOL) -x -R .note -R .comment $(AR_LIBP_AOBJS) $(SO_LIBP_AOBJS)
+	$(STRIPTOOL) -x -R .note -R .comment			\
+		$(SO_LIBP_AOBJS) $(SO_LIBP_COBJS)
 endif
-	$(AR) $(ARFLAGS) $(AR_SO_LIB_NAME) $(SO_LIBP_AOBJS)
+	$(AR) $(ARFLAGS) $(AR_SO_LIB_NAME) $(SO_LIBP_AOBJS) $(SO_LIBP_COBJS)
 
 obj.pthread.ar: $(AR_LIBC_COBJS)
 ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
@@ -57,13 +64,19 @@ endif
 	done
 
 $(AR_LIBP_AOBJS): %.o : %.S
-	$(CC) $(ASFLAGS) $(ASFLAGS-NPTL) -c $< -o $@
+	$(CC) $(ASFLAGS-NPTL) -c $< -o $@
 
 $(SO_LIBP_AOBJS): %.os : %.S
-	$(CC) $(ASFLAGS) $(ASFLAGS-NPTL) -DSHARED -c $< -o $@
+	$(CC) $(ASFLAGS-NPTL) -DSHARED -c $< -o $@
+
+$(AR_LIBP_COBJS): %.o : %.c
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -c $< -o $@
+
+$(SO_LIBP_COBJS): %.os : %.c
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
 
 $(AR_LIBC_COBJS): %.o : %.c
-	$(CC) $(CFLAGS-LIBC) $(CFLAGS-$<) -c $< -o $@
+	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -c $< -o $@
 
 clean:
 	$(RM) *.o *.os *~ core

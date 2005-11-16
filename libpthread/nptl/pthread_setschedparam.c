@@ -46,11 +46,7 @@ __pthread_setschedparam (threadid, policy, param)
   lll_lock (pd->lock);
 
   /* Try to set the scheduler information.  */
-#ifdef __UCLIBC__
   if (__builtin_expect (sched_setscheduler (pd->tid, policy,
-#else
-  if (__builtin_expect (__sched_setscheduler (pd->tid, policy,
-#endif
 					      param) == -1, 0))
     result = errno;
   else

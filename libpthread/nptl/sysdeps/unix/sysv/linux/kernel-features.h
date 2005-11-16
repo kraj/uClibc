@@ -25,10 +25,8 @@
 # include <sgidefs.h>
 #endif
 
-#if __UCLIBC__
 # include <linux/version.h>
 # define __LINUX_KERNEL_VERSION		LINUX_VERSION_CODE
-#endif
 
 #ifndef __LINUX_KERNEL_VERSION
 /* We assume the worst; all kernels should be supported.  */

@@ -57,11 +57,3 @@ __libc_pthread_init (ptr, reclaim, functions)
   return &__libc_multiple_threads;
 #endif
 }
-
-/* I would rather not talk about this. */
-#ifdef SHARED
-#include <link.h>
-void _dl_aux_init (ElfW(auxv_t) *av)
-{
-}
-#endif

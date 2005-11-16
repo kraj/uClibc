@@ -28,11 +28,9 @@
 #include <dl-sysdep.h>
 #include <tls.h>
 #include <lowlevellock.h>
-
-#ifdef __UCLIBC__
 #include <link.h>
+
 #define __getpagesize getpagesize
-#endif
 
 #ifndef NEED_SEPARATE_REGISTER_STACK
 
@@ -393,10 +391,10 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
       size_t reqsize;
       void *mem;
       const int prot = (PROT_READ | PROT_WRITE
-#ifdef __UCLIBC__
-		        );
-#else
+#ifndef __UCLIBC__
 			| ((GL(dl_stack_flags) & PF_X) ? PROT_EXEC : 0));
+#else
+		        );
 #endif
 
 #if COLORING_INCREMENT != 0
@@ -681,10 +679,10 @@ internal_function
 __make_stacks_executable (void **stack_endp)
 {
   /* First the main thread's stack.  */
-#ifdef __UCLIBC__
-  int err = EPERM;
-#else
+#ifndef __UCLIBC__
   int err = _dl_make_stack_executable (stack_endp);
+#else
+  int err = EPERM;
 #endif
   if (err != 0)
     return err;
@@ -924,10 +922,6 @@ __nptl_setxid (struct xid_command *cmdp)
 static inline void __attribute__((always_inline))
 init_one_static_tls (struct pthread *curp, struct link_map *map)
 {
-#ifdef __UCLIBC__
-  extern void *__mempcpy (void *dstpp, const void *srcpp, size_t len);
-#endif
-
   dtv_t *dtv = GET_DTV (TLS_TPADJ (curp));
 # if TLS_TCB_AT_TP
   void *dest = (char *) curp - map->l_tls_offset;
@@ -942,11 +936,7 @@ init_one_static_tls (struct pthread *curp, struct link_map *map)
   dtv[map->l_tls_modid].pointer.is_static = true;
 
   /* Initialize the memory.  */
-#ifdef __UCLIBC__
-  memset ((void *) __mempcpy (dest, map->l_tls_initimage, map->l_tls_initimage_size),
-#else
   memset (__mempcpy (dest, map->l_tls_initimage, map->l_tls_initimage_size),
-#endif
 	  '\0', map->l_tls_blocksize - map->l_tls_initimage_size);
 }
 

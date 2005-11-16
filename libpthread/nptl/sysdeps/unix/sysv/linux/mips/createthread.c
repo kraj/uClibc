@@ -21,8 +21,4 @@
 		   + TLS_TCB_OFFSET + TLS_PRE_TCB_SIZE)
 
 /* Get the real implementation.	 */
-#ifdef __UCLIBC__
 #include <sysdeps/pthread/createthread.c>
-#else
-#include <nptl/sysdeps/pthread/createthread.c>
-#endif
