@@ -25,8 +25,13 @@ AR_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).a
 SO_LIB_NAME=$(TOPDIR)lib/$(LIB_NAME).so
 SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
+ifeq ($(strip $(TARGET_ARCH)),mips)
+CFLAGS := $(CFLAGS:-O1=-O2) -DNOT_IN_libc=1 -DIS_IN_libthread_db=1 $(PTINC) \
+	  -std=gnu99 -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
+else
 CFLAGS := $(CFLAGS:-O0=-O2) -DNOT_IN_libc=1 -DIS_IN_libthread_db=1 $(PTINC) \
 	  -std=gnu99 -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
+endif
 
 # Remove any -z defs since this lib will have undefined symbols
 LDFLAGS := $(subst -z defs,,$(LDFLAGS)) --warn-unresolved-symbols

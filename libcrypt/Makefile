@@ -33,29 +33,31 @@ SO_FULL_NAME=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 CSRC = $(wildcard *.c)
 
+OBJS=$(patsubst %.c,%.o, $(CSRC))
+
 ifeq ($(strip $(HAVE_SHARED)),y)
 all: $(SO_LIB_NAME)
 else
 all: $(AR_LIB_NAME)
 endif
 
-$(AR_LIB_NAME): $(LIB_NAME).o
+$(AR_LIB_NAME): $(OBJS)
 	$(INSTALL) -d $(TOPDIR)lib
-	$(RM) $@
-	$(AR) $(ARFLAGS) $@ $<
+	$(RM) $(AR_LIB_NAME)
+	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(OBJS)
 
 $(SO_LIB_NAME): $(AR_LIB_NAME)
-	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $@
+	$(RM) $(TOPDIR)lib/$(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION) $(SO_LIB_NAME)
 	$(LD) $(LDFLAGS) -soname=$(LIB_NAME).so.$(MAJOR_VERSION) \
-		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $< \
+		-o $(TOPDIR)lib/$(SO_FULL_NAME) --whole-archive $(AR_LIB_NAME) \
 		--no-whole-archive $(TOPDIR)libc/misc/internals/interp.o \
 		-L$(TOPDIR)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
 	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME).$(MAJOR_VERSION)
-	$(LN) -sf $(SO_FULL_NAME) $@
+	$(LN) -sf $(SO_FULL_NAME) $(SO_LIB_NAME)
 
-$(LIB_NAME).o: $(CSRC)
-	$(CC) $(CFLAGS) -o $@ -c $^
-	$(STRIPTOOL) -x -R .note -R .comment $@
+$(OBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIPTOOL) -x -R .note -R .comment $*.o
 
 clean:
 	$(RM) *.o *~ core

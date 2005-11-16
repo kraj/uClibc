@@ -72,7 +72,11 @@ check_gcc=$(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; 
 # use '-Os' optimization if available, else use -O2, allow Config to override
 # Override optimization settings when debugging
 ifeq ($(DODEBUG),y)
+ ifeq ($(strip $(TARGET_ARCH)),mips)
+OPTIMIZATION    = -O1
+ else
 OPTIMIZATION    = -O0
+ endif
 else
 OPTIMIZATION   += $(call check_gcc,-Os,-O2)
 endif

@@ -294,8 +294,11 @@ CFLAGS:=$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc -z defs
 
 ifeq ($(DODEBUG),y)
-    #CFLAGS += -g3
+ifeq ($(strip $(TARGET_ARCH)),mips)
+    CFLAGS += -O1 -g3
+else
     CFLAGS += -O0 -g3
+endif
     LDFLAGS := $(LDFLAGS_NOSTRIP)
     STRIPTOOL:= true -Since_we_are_debugging
 else
