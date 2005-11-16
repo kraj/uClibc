@@ -18,8 +18,30 @@
 _syscall4(int, __rt_sigprocmask, int, how, const sigset_t *, set,
 		  sigset_t *, oldset, size_t, size);
 
-int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
+int __sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 {
+#ifdef SIGCANCEL
+	sigset_t local_newmask;
+
+	/*
+	 * The only thing we have to make sure here is that SIGCANCEL and
+	 * SIGSETXID are not blocked.
+	 */
+	if (set != NULL && (__builtin_expect (__sigismember (set, SIGCANCEL), 0)
+# ifdef SIGSETXID
+		|| __builtin_expect (__sigismember (set, SIGSETXID), 0)
+# endif
+		))
+	{
+		local_newmask = *set;
+		__sigdelset (&local_newmask, SIGCANCEL);
+# ifdef SIGSETXID
+		__sigdelset (&local_newmask, SIGSETXID);
+# endif
+		set = &local_newmask;
+	}
+#endif
+
 	if (set &&
 #if (SIG_BLOCK == 0) && (SIG_UNBLOCK == 1) && (SIG_SETMASK == 2)
 		(((unsigned int) how) > 2)
@@ -43,8 +65,30 @@ static inline
 _syscall3(int, __syscall_sigprocmask, int, how, const sigset_t *, set,
 		  sigset_t *, oldset);
 
-int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
+int __sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 {
+#ifdef SIGCANCEL
+	sigset_t local_newmask;
+
+	/*
+	 * The only thing we have to make sure here is that SIGCANCEL and
+	 * SIGSETXID are not blocked.
+	 */
+	if (set != NULL && (__builtin_expect (__sigismember (set, SIGCANCEL), 0)
+# ifdef SIGSETXID
+		|| __builtin_expect (__sigismember (set, SIGSETXID), 0)
+# endif
+		))
+	{
+		local_newmask = *set;
+		__sigdelset (&local_newmask, SIGCANCEL);
+# ifdef SIGSETXID
+		__sigdelset (&local_newmask, SIGSETXID);
+# endif
+		set = &local_newmask;
+	}
+#endif
+
 	if (set &&
 #if (SIG_BLOCK == 0) && (SIG_UNBLOCK == 1) && (SIG_SETMASK == 2)
 		(((unsigned int) how) > 2)
@@ -60,3 +104,5 @@ int sigprocmask(int how, const sigset_t * set, sigset_t * oldset)
 	return (__syscall_sigprocmask(how, set, oldset));
 }
 #endif
+
+weak_alias (__sigprocmask, sigprocmask)

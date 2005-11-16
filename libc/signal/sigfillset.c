@@ -31,5 +31,14 @@ int sigfillset (sigset_t *set)
 
     memset (set, 0xff, sizeof (sigset_t));
 
+	/* If implementation uses a cancellation signal don't set the bit. */
+#ifdef SIGCANCEL
+	__sigdelset (set, SIGCANCEL);
+#endif
+	/* Likewise for the signal to implement setxid. */
+#ifdef SIGSETXID
+	__sigdelset (set, SIGSETXID);
+#endif
+
     return 0;
 }

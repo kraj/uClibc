@@ -32,7 +32,7 @@
 static int current_rtmin = -1;
 static int current_rtmax = -1;
 #else
-static int current_rtmin = __SIGRTMIN;
+static int current_rtmin = __SIGRTMIN + 2;
 static int current_rtmax = __SIGRTMAX;
 #endif
 
