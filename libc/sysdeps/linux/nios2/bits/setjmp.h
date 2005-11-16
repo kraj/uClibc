@@ -17,7 +17,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#ifndef _SETJMP_H
+#ifndef _BITS_SETJMP_H
+#define _BITS_SETJMP_H	1
+
+#if !defined _SETJMP_H && !defined _PTHREAD_H
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
@@ -65,3 +68,5 @@ typedef struct
    containing a local variable at ADDRESS.  */
 #define _JMPBUF_UNWINDS(jmpbuf, address) \
   ((void *) (address) < (void*)(jmpbuf)->__sp)
+
+#endif	/* bits/setjmp.h */

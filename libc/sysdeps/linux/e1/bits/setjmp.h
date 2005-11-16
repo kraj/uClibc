@@ -3,7 +3,10 @@
  *                             Yannis Mitsos <yannis.mitsos@gdt.gr>
  */
 
-#ifndef _SETJMP_H
+#ifndef _BITS_SETJMP_H
+#define _BITS_SETJMP_H	1
+
+#if !defined _SETJMP_H && !defined _PTHREAD_H
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
@@ -16,3 +19,4 @@ typedef struct {
 	unsigned long ReturnValue;
 } __jmp_buf[1];
 
+#endif	/* bits/setjmp.h */

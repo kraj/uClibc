@@ -18,7 +18,7 @@
 
 /* Define the machine-dependent type `jmp_buf'.  SH version. */
 #ifndef _BITS_SETJMP_H
-#define _BITS_SETJMP_H  1
+#define _BITS_SETJMP_H	1
 
 #if !defined _SETJMP_H && !defined _PTHREAD_H
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
@@ -53,4 +53,4 @@ typedef struct
 #define _JMPBUF_UNWINDS(jmpbuf, address) \
   ((void *) (address) < (void *) &(jmpbuf)[0].__regs[7])
 
-#endif  /* bits/setjmp.h */
+#endif	/* bits/setjmp.h */

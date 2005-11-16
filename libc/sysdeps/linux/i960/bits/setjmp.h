@@ -1,6 +1,9 @@
 /* Define the machine-dependent type `jmp_buf'.  i960 version.  */
 
-#ifndef _SETJMP_H
+#ifndef _BITS_SETJMP_H
+#define _BITS_SETJMP_H	1
+
+#if !defined _SETJMP_H && !defined _PTHREAD_H
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
@@ -29,5 +32,7 @@ typedef struct __jmp_buf__ {
 /* Test if longjmp to JMPBUF would unwind the frame
    containing a local variable at ADDRESS.  */
 #define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (jmpbuf)[0].__sp)
+  ((void *) (address) < (void *) (jmpbuf)[0].__sp)
 #endif
+
+#endif	/* bits/setjmp.h */

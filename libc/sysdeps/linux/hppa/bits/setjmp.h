@@ -17,8 +17,8 @@
    02111-1307 USA.  */
 
 /* Define the machine-dependent type `jmp_buf'.  HPPA version.  */
-#ifndef _BITS_SETJMP_H_
-#define _BITS_SETJMP_H_
+#ifndef _BITS_SETJMP_H
+#define _BITS_SETJMP_H	1
 
 #if !defined _SETJMP_H && !defined _PTHREAD_H
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
@@ -40,7 +40,6 @@ typedef double __jmp_buf[21];
 /* Test if longjmp to JMPBUF would unwind the frame containing a local
    variable at ADDRESS.  */
 #define _JMPBUF_UNWINDS(_jmpbuf, _address)				\
-     ((void *)(_address) > (void *)(((unsigned long *) _jmpbuf)[JB_SP]))
+     ((void *)(_address) > (void *)(_jmpbuf[JB_SP]))
 
-#endif
-
+#endif	/* bits/setjmp.h */

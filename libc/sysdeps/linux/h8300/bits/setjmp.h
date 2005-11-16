@@ -2,7 +2,10 @@
 /* Copyright (C) 2004, Yoshinori Sato <ysato@users.sourceforge.jp> */
 /* Define the machine-dependent type `jmp_buf'.  H8/300 version.  */
 
-#ifndef _SETJMP_H
+#ifndef _BITS_SETJMP_H
+#define _BITS_SETJMP_H	1
+
+#if !defined _SETJMP_H && !defined _PTHREAD_H
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
@@ -25,3 +28,5 @@ typedef struct
    containing a local variable at ADDRESS.  */
 #define _JMPBUF_UNWINDS(jmpbuf, address) \
   ((void *) (address) < (void *) (jmpbuf)->__regs[3])
+
+#endif	/* bits/setjmp.h */
