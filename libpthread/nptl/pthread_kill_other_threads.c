@@ -17,17 +17,16 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <errno.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <bits/stdio-lock.h>
+#ifdef SHARED
+/* This function does not serve a useful purpose in the thread library
+   implementation anymore.  It used to be necessary when then kernel
+   could not shut down "processes" but this is not the case anymore.
 
-
-int
-__ftrylockfile (stream)
-     FILE *stream;
+   We could theoretically provide an equivalent implementation but
+   this is not necessary since the kernel already does a much better
+   job than we ever could.  */
+void
+__pthread_kill_other_threads_np (void)
 {
-  return _IO_lock_trylock (*stream->_lock);
 }
-strong_alias (__ftrylockfile, _IO_ftrylockfile)
-weak_alias (__ftrylockfile, ftrylockfile)
+#endif
