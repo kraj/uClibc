@@ -200,7 +200,7 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
 #  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
 # endif
   if (__builtin_expect (lossage != NULL, 0))
-    __libc_fatal (lossage);
+    abort();
 
   /* We have to create a fake link map which normally would be created
      by the dynamic linker.  It just has to have enough information to

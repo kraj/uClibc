@@ -39,9 +39,6 @@ OBJS=$(COBJS)
 
 ifeq ($(UCLIBC_HAS_THREADS),y)
 CFLAGS += $(PTINC)
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CSRC += thread-freeres.c
-endif
 endif
 
 OBJ_LIST=../../obj.stdlib.malloc-standard

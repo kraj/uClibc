@@ -27,13 +27,6 @@ extern void __cyg_profile_func_exit (void *this_fn, void *call_site);
 /* Get frequency of the system processor.  */
 extern hp_timing_t __get_clockfreq (void);
 
-/* Free all allocated resources.  */
-extern void __libc_freeres (void);
-libc_hidden_proto (__libc_freeres)
-
-/* Free resources stored in thread-local variables on thread exit.  */
-extern void __libc_thread_freeres (void);
-
 /* Define and initialize `__progname' et. al.  */
 extern void __init_misc (int, char **, char **);
 

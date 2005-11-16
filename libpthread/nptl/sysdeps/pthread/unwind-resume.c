@@ -37,7 +37,10 @@ init (void)
   if (handle == NULL
       || (resume = __libc_dlsym (handle, "_Unwind_Resume")) == NULL
       || (personality = __libc_dlsym (handle, "__gcc_personality_v0")) == NULL)
-    __libc_fatal ("libgcc_s.so.1 must be installed for pthread_cancel to work\n");
+  {
+    printf("libgcc_s.so.1 must be installed for pthread_cancel to work\n");
+    abort();
+  }
 
   libgcc_s_resume = resume;
   libgcc_s_personality = personality;

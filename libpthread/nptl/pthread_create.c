@@ -26,6 +26,7 @@
 #include <ldsodefs.h>
 #include <atomic.h>
 #include <libc-internal.h>
+#include <resolv.h>
 
 #include <shlib-compat.h>
 
@@ -266,8 +267,10 @@ start_thread (void *arg)
   /* Run the destructor for the thread-local data.  */
   __nptl_deallocate_tsd ();
 
+#ifndef __UCLIBC__
   /* Clean up any state libc stored in thread-local variables.  */
   __libc_thread_freeres ();
+#endif
 
   /* If this is the last thread we terminate the process now.  We
      do not notify the debugger, it might just irritate it if there
@@ -397,6 +400,11 @@ __pthread_create_2_1 (newthread, attr, start_routine, arg)
      is valid and what is not.  */
   pd->schedpolicy = self->schedpolicy;
   pd->schedparam = self->schedparam;
+
+  /* Copy the stack guard canary.  */
+#ifdef THREAD_COPY_STACK_GUARD
+  THREAD_COPY_STACK_GUARD (pd);
+#endif
 
   /* Determine scheduling parameters for the thread.  */
   if (attr != NULL

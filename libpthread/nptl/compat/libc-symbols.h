@@ -50,12 +50,6 @@
 
 #define text_set_element(set, symbol) _elf_set_element(set, symbol)
 #define __sec_comment "\n\t#"
-#define __libc_freeres_fn_section \
-  __attribute__ ((section ("__libc_freeres_fn")))
-#define libc_freeres_fn(name)	\
-  static void name (void) __attribute_used__ __libc_freeres_fn_section;	\
-  text_set_element (__libc_subfreeres, name);				\
-  static void name (void)
 
 #if 0
 # ifndef __ASSEMBLER__
@@ -162,12 +156,6 @@
 # define attribute_tls_model_ie __attribute__ ((tls_model ("initial-exec")))
 #else
 # define attribute_tls_model_ie
-#endif
-
-#ifdef HAVE_Z_RELRO
-# define attribute_relro __attribute__ ((section (".data.rel.ro")))
-#else
-# define attribute_relro
 #endif
 
 /* Define SET as a symbol set.  This may be required (it is in a.out) to

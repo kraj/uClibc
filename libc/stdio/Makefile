@@ -59,9 +59,6 @@ endif
 
 # pthread functions
 CSRC += flockfile.c ftrylockfile.c funlockfile.c
-ifeq ($(strip $(UCLIBC_HAS_THREADS_NATIVE)),y)
-CSRC += fatal.c
-endif
 
 # Functions with unlocked versions
 CUSRC = clearerr.c feof.c ferror.c fflush.c fgetc.c fgets.c fileno.c \

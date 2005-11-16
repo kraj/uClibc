@@ -109,6 +109,7 @@ __register_atfork (prepare, parent, child, dso_handle)
 libc_hidden_def (__register_atfork)
 
 
+#ifndef __UCLIBC__
 libc_freeres_fn (free_mem)
 {
   /* Get the lock to not conflict with running forks.  */
@@ -133,3 +134,4 @@ libc_freeres_fn (free_mem)
       free (oldp);
     }
 }
+#endif
