@@ -81,24 +81,15 @@ do_ar     = @$(disp_ar)        ; $(cmd_ar)
 CFLAGS-.os+=$(PICFLAG)
 CFLAGS-.oS+=$(PICFLAG) -DSHARED
 
-%.o: %.c
-	$(compile.c)
-%.os: %.c
-	$(compile.c)
-%.oS: %.c
-	$(compile.c)
-%.o: %.S
-	$(compile.S)
-%.os: %.S
-	$(compile.S)
-%.o: %.s
-	$(compile.S)
-%.os: %.s
-	$(compile.S)
-%.E: %.c
-	$(compile.E)
-%.E: %.S
-	$(compile.E)
+%.o:  %.c ; $(compile.c)
+%.os: %.c ; $(compile.c)
+%.oS: %.c ; $(compile.c)
+%.o:  %.S ; $(compile.S)
+%.os: %.S ; $(compile.S)
+%.o:  %.s ; $(compile.S)
+%.os: %.s ; $(compile.S)
+%.E:  %.c ; $(compile.E)
+%.E:  %.S ; $(compile.E)
 
 #ifeq ($(HAVE_ELF),y)
 CRT=crt1
