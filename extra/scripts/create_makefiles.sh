@@ -20,7 +20,7 @@ fi
 
 RM="rm -f"
 ${RM} Makefile
-${USE_CMD} Makefile.in Makefile
+${USE_CMD} extra/scripts/Makefile.libs.lvl0 Makefile
 
 #for x in ${DIRS} ; do
 #	find ./${x} -name Makefile -exec rm -f {} \;

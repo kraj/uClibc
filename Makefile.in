@@ -12,10 +12,6 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 	defconfig allyesconfig allnoconfig clean distclean \
 	release dist tags
 
-TOPDIR=./
-
-top_srcdir=$(TOPDIR)
-top_builddir=./
 include $(top_builddir)Rules.mak
 
 # need to have libc.so built, before we can build the others
@@ -134,11 +130,11 @@ endif
 
 pre_subdirs: $(patsubst %, _pre_dir_%, $(PRE_DIRS))
 $(patsubst %, _pre_dir_%, $(PRE_DIRS)): pregen
-	$(MAKE) -C $(patsubst _pre_dir_%, %, $@)
+	@$(MAKE) -C $(patsubst _pre_dir_%, %, $@)
 
 subdirs: $(patsubst %, _dir_%, $(DIRS))
 $(patsubst %, _dir_%, $(DIRS)): pre_subdirs
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
+	@$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 install: install_runtime install_dev finished2
 
@@ -222,10 +218,9 @@ ifneq ($(UCLIBC_HAS_THREADS),y)
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/semaphore.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/bits/*thread*.h
 endif
-	-@for i in `find  $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
+	-@for i in `find $(PREFIX)$(DEVEL_PREFIX) -type d` ; do \
 	    chmod 755 $$i; chmod 644 $$i/*.h > /dev/null 2>&1; \
 	done
-	-find $(PREFIX)$(DEVEL_PREFIX) -name .svn | xargs $(RM) -r
 	-chown -R `id | sed 's/^uid=\([0-9]*\).*gid=\([0-9]*\).*$$/\1:\2/'` $(PREFIX)$(DEVEL_PREFIX)
 
 # Installs development library links.
@@ -249,6 +244,7 @@ ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 	$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
 		$(PREFIX)$(DEVEL_PREFIX)lib/libthread_db.so
 endif
+ifeq ($(DOPIC),y)
 #	# If we build shared libraries then the static libs are PIC...
 #	# Make _pic.a symlinks to make mklibs.py and similar tools happy.
 	if [ -d lib ] ; then \
@@ -257,6 +253,7 @@ endif
 				| sed -e 's/\.a$$/_pic.a/'`; \
 		done ; \
 	fi
+endif
 endif
 
 # Installs run-time libraries
@@ -289,6 +286,12 @@ finished2:
 else # ifeq ($(HAVE_DOT_CONFIG),y)
 
 all: menuconfig
+
+headers:
+	@echo "Need to make a config file first, run: make menuconfig"
+	@false
+
+endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 # configuration
 # ---------------------------------------------------------------------------
@@ -344,6 +347,7 @@ clean:
 	@$(RM) -r lib include/bits
 	$(RM) lib*/*.a ldso/*/*.a libpthread/*/*.a
 	$(RM) libc/misc/internals/interp.c
+	$(RM) libc/stdio/*64.c
 	$(RM) include/fpu_control.h include/dl-osinfo.h
 	$(MAKE) -C extra/locale clean
 	$(MAKE) -C ldso headers_clean-y
@@ -375,10 +379,6 @@ dist release:
 	svn -q export . ../uClibc-$(VERSION)
 	tar czf ../uClibc-$(VERSION).tar.gz -C .. uClibc-$(VERSION)
 	du -b ../uClibc-$(VERSION).tar.gz
-
-endif # ifeq ($(HAVE_DOT_CONFIG),y)
-
-include $(top_srcdir)Makerules
 
 check:
 	$(MAKE) -C test
