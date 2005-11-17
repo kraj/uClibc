@@ -45,12 +45,12 @@ finished: subdirs
 	$(SECHO)
 
 include/bits/uClibc_config.h: .config
-	@if [ ! -x $(top_builddir)extra/config/conf ] ; then \
-	    $(MAKE) -C $(top_builddir)extra/config conf; \
+	$(RM) -r include/bits
+	$(INSTALL) -d include/bits
+	@if [ ! -x extra/config/conf ] ; then \
+	    $(MAKE) -C extra/config conf; \
 	fi
-	$(RM) -r $(top_builddir)include/bits
-	$(INSTALL) -d $(top_builddir)include/bits
-	@$(top_builddir)extra/config/conf -o $(top_srcdir)extra/Configs/Config.in
+	@extra/config/conf -o $(top_srcdir)extra/Configs/Config.in
 
 # For the moment, we have to keep re-running this target 
 # because the fix includes scripts rely on pre-processers 
@@ -62,7 +62,7 @@ export header_extra_args =
 else
 export header_extra_args = -n
 endif
-headers: $(top_srcdir)include/bits/uClibc_config.h
+headers: include/bits/uClibc_config.h
 	@$(SHELL_SET_X); \
 	$(top_srcdir)extra/scripts/fix_includes.sh \
 		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
@@ -73,7 +73,7 @@ headers: $(top_srcdir)include/bits/uClibc_config.h
 		$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h include/ ; \
 	fi
 	$(LN) -fs ../libc/sysdeps/linux/common/dl-osinfo.h include/
-	@cd $(top_builddir)include/bits; \
+	@cd include/bits; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
 		$(LN) -fs $$i .; \
@@ -83,7 +83,7 @@ headers: $(top_srcdir)include/bits/uClibc_config.h
 			$(LN) -fs $$i .; \
 		done; \
 	fi
-	@cd $(top_builddir)include/sys; \
+	@cd include/sys; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/sys/*.h` ; do \
 		$(LN) -fs $$i .; \
