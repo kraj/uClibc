@@ -31,8 +31,11 @@
 #
 ###############################################################################
         .globl		memcpy
-        .type		memcpy,@function
-memcpy:
+	.set		memcpy,__memcpy
+        .globl		__memcpy
+        .hidden		__memcpy
+        .type		__memcpy,@function
+__memcpy:
 	or.p		gr8,gr9,gr4
 	orcc		gr10,gr0,gr0,icc3
 	or.p		gr10,gr4,gr4
@@ -121,4 +124,4 @@ memcpy_32:
 	bne		icc0,#2,0b
 	bralr
 
-	.size		memcpy, .-memcpy
+	.size		__memcpy, .-__memcpy

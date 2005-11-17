@@ -37,12 +37,17 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-.text
 .global memcpy
-.type memcpy,%function
+.set memcpy,__memcpy
+.text
+.global __memcpy
+.hidden __memcpy
+.type __memcpy,%function
 .align 4
 
-memcpy:
+__memcpy:
 	stmfd	sp!, {r0, lr}
 	bl	_memcpy (PLT)
 	ldmfd	sp!, {r0, pc}
+
+.size __memcpy,.-__memcpy

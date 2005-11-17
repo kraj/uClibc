@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-1999, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2000, 2003, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -128,12 +128,18 @@ enum
 typedef struct __dirstream DIR;
 
 /* Open a directory stream on NAME.
-   Return a DIR stream on the directory, or NULL if it could not be opened.  */
-extern DIR *opendir (__const char *__name) __THROW;
+   Return a DIR stream on the directory, or NULL if it could not be opened.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
+extern DIR *opendir (__const char *__name) __nonnull ((1));
 
 /* Close the directory stream DIRP.
-   Return 0 if successful, -1 if not.  */
-extern int closedir (DIR *__dirp) __THROW;
+   Return 0 if successful, -1 if not.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
+extern int closedir (DIR *__dirp) __nonnull ((1));
 
 /* Read a directory entry from DIRP.  Return a pointer to a `struct
    dirent' describing the entry, or NULL for EOF or error.  The
@@ -141,35 +147,43 @@ extern int closedir (DIR *__dirp) __THROW;
    same DIR stream.
 
    If the Large File Support API is selected we have to use the
-   appropriate interface.  */
+   appropriate interface.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
 #ifndef __USE_FILE_OFFSET64
-extern struct dirent *readdir (DIR *__dirp) __THROW;
+extern struct dirent *readdir (DIR *__dirp) __nonnull ((1));
 #else
 # ifdef __REDIRECT
-extern struct dirent *__REDIRECT (readdir, (DIR *__dirp) __THROW, readdir64);
+extern struct dirent *__REDIRECT (readdir, (DIR *__dirp), readdir64)
+     __nonnull ((1));
 # else
 #  define readdir readdir64
 # endif
 #endif
 
 #ifdef __USE_LARGEFILE64
-extern struct dirent64 *readdir64 (DIR *__dirp) __THROW;
+extern struct dirent64 *readdir64 (DIR *__dirp) __nonnull ((1));
 #endif
 
 #if defined __USE_POSIX || defined __USE_MISC
 /* Reentrant version of `readdir'.  Return in RESULT a pointer to the
-   next entry.  */
+   next entry.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
 # ifndef __USE_FILE_OFFSET64
 extern int readdir_r (DIR *__restrict __dirp,
 		      struct dirent *__restrict __entry,
-		      struct dirent **__restrict __result) __THROW;
+		      struct dirent **__restrict __result)
+     __nonnull ((1, 2, 3));
 # else
 #  ifdef __REDIRECT
 extern int __REDIRECT (readdir_r,
 		       (DIR *__restrict __dirp,
 			struct dirent *__restrict __entry,
-			struct dirent **__restrict __result) __THROW,
-		       readdir64_r);
+			struct dirent **__restrict __result),
+		       readdir64_r) __nonnull ((1, 2, 3));
 #  else
 #   define readdir_r readdir64_r
 #  endif
@@ -178,27 +192,32 @@ extern int __REDIRECT (readdir_r,
 # ifdef __USE_LARGEFILE64
 extern int readdir64_r (DIR *__restrict __dirp,
 			struct dirent64 *__restrict __entry,
-			struct dirent64 **__restrict __result) __THROW;
+			struct dirent64 **__restrict __result)
+     __nonnull ((1, 2, 3));
 # endif
 #endif	/* POSIX or misc */
 
 /* Rewind DIRP to the beginning of the directory.  */
-extern void rewinddir (DIR *__dirp) __THROW;
+extern void rewinddir (DIR *__dirp) __THROW __nonnull ((1));
 
 #if defined __USE_BSD || defined __USE_MISC || defined __USE_XOPEN
 # include <bits/types.h>
 
 /* Seek to position POS on DIRP.  */
-extern void seekdir (DIR *__dirp, long int __pos) __THROW;
+extern void seekdir (DIR *__dirp, long int __pos) __THROW __nonnull ((1));
 
 /* Return the current position of DIRP.  */
-extern long int telldir (DIR *__dirp) __THROW;
+extern long int telldir (DIR *__dirp) __THROW __nonnull ((1));
 #endif
 
 #if defined __USE_BSD || defined __USE_MISC
 
 /* Return the file descriptor used by DIRP.  */
-extern int dirfd (DIR *__dirp) __THROW;
+extern int dirfd (DIR *__dirp) __THROW __nonnull ((1));
+
+# if 0 /* defined __OPTIMIZE__ && defined _DIR_dirfd */
+#  define dirfd(dirp)	_DIR_dirfd (dirp)
+# endif
 
 # ifndef MAXNAMLEN
 /* Get the definitions of the POSIX.1 limits.  */
@@ -223,15 +242,16 @@ extern int dirfd (DIR *__dirp) __THROW;
 extern int scandir (__const char *__restrict __dir,
 		    struct dirent ***__restrict __namelist,
 		    int (*__selector) (__const struct dirent *),
-		    int (*__cmp) (__const void *, __const void *)) __THROW;
+		    int (*__cmp) (__const void *, __const void *))
+     __nonnull ((1, 2));
 # else
 #  ifdef __REDIRECT
 extern int __REDIRECT (scandir,
 		       (__const char *__restrict __dir,
 			struct dirent ***__restrict __namelist,
 			int (*__selector) (__const struct dirent *),
-			int (*__cmp) (__const void *, __const void *)) __THROW,
-		       scandir64);
+			int (*__cmp) (__const void *, __const void *)),
+		       scandir64) __nonnull ((1, 2));
 #  else
 #   define scandir scandir64
 #  endif
@@ -243,19 +263,19 @@ extern int __REDIRECT (scandir,
 extern int scandir64 (__const char *__restrict __dir,
 		      struct dirent64 ***__restrict __namelist,
 		      int (*__selector) (__const struct dirent64 *),
-		      int (*__cmp) (__const void *, __const void *)) __THROW;
+		      int (*__cmp) (__const void *, __const void *))
+     __nonnull ((1, 2));
 # endif
 
 /* Function to compare two `struct dirent's alphabetically.  */
 # ifndef __USE_FILE_OFFSET64
 extern int alphasort (__const void *__e1, __const void *__e2)
-     __THROW __attribute_pure__;
+     __THROW __attribute_pure__ __nonnull ((1, 2));
 # else
 #  ifdef __REDIRECT
 extern int __REDIRECT (alphasort,
-		       (__const void *__e1, __const void *__e2)
-		       __THROW,
-		       alphasort64) __attribute_pure__;
+			   (__const void *__e1, __const void *__e2),
+			   alphasort64) __attribute_pure__ __nonnull ((1, 2));
 #  else
 #   define alphasort alphasort64
 #  endif
@@ -263,9 +283,8 @@ extern int __REDIRECT (alphasort,
 
 # if defined __USE_GNU && defined __USE_LARGEFILE64
 extern int alphasort64 (__const void *__e1, __const void *__e2)
-     __THROW __attribute_pure__;
+     __THROW __attribute_pure__ __nonnull ((1, 2));
 # endif
-
 
 #endif /* Use BSD or misc.  */
 

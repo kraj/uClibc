@@ -47,4 +47,6 @@ __bzero:
 	mov	r1, #0
 	b	memset (PLT)
 
+.size __bzero,.-__bzero
+
 .weak bzero ; bzero = __bzero

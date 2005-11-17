@@ -280,8 +280,8 @@ extern int __xpg_strerror_r (int __errnum, char *__buf, size_t __buflen)
 # if defined __USE_XOPEN2K && !defined __USE_GNU
 /* Fill BUF with a string describing the meaning of the `errno' code in
    ERRNUM.  */
-#  ifdef __REDIRECT_NTH
-extern int __REDIRECT_NTH (strerror_r,
+#  ifdef __REDIRECT
+extern int __REDIRECT (strerror_r,
 			   (int __errnum, char *__buf, size_t __buflen),
 			   __xpg_strerror_r) __nonnull ((2));
 #  else
@@ -290,8 +290,8 @@ extern int __REDIRECT_NTH (strerror_r,
 # else
 /* If a temporary buffer is required, at most BUFLEN bytes of BUF will be
    used.  */
-#  ifdef __REDIRECT_NTH
-extern char * __REDIRECT_NTH (strerror_r,
+#  ifdef __REDIRECT
+extern char * __REDIRECT (strerror_r,
 			   (int __errnum, char *__buf, size_t __buflen),
 			   __glibc_strerror_r) __nonnull ((2));
 #  else

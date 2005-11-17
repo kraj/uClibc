@@ -39,14 +39,19 @@
 
 /* bcopy = memcpy/memmove with arguments reversed. */
 
-.text
 .global bcopy
-.type bcopy,%function
+.set bcopy,__bcopy
+.text
+.global __bcopy
+.hidden __bcopy
+.type __bcopy,%function
 .align 4
 
-bcopy:
+__bcopy:
 	/* switch the source and destination registers */
 	eor     r0, r1, r0 
 	eor     r1, r0, r1 
 	eor     r0, r1, r0 
 	b	_memcpy (PLT)
+	
+.size __bcopy,.-__bcopy

@@ -79,6 +79,19 @@ extern struct utmp *getutline (__const struct utmp *__line) __THROW;
 /* Write out entry pointed to by UTMP_PTR into the utmp file.  */
 extern struct utmp *pututline (__const struct utmp *__utmp_ptr) __THROW;
 
+
+#if 0 /* def	__USE_MISC */
+/* Reentrant versions of the file for handling utmp files.  */
+extern int getutent_r (struct utmp *__buffer, struct utmp **__result) __THROW;
+
+extern int getutid_r (__const struct utmp *__id, struct utmp *__buffer,
+		      struct utmp **__result) __THROW;
+
+extern int getutline_r (__const struct utmp *__line,
+			struct utmp *__buffer, struct utmp **__result) __THROW;
+
+#endif	/* Use misc.  */
+
 __END_DECLS
 
 #endif /* utmp.h  */

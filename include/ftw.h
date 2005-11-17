@@ -1,4 +1,4 @@
-/* Copyright (C) 1992,1996,1997,1998,1999,2003 Free Software Foundation, Inc.
+/* Copyright (C) 1992,1996-1999,2003,2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -74,7 +74,33 @@ enum
 # define FTW_CHDIR	FTW_CHDIR
   FTW_DEPTH = 8		/* Report files in directory before directory itself.*/
 # define FTW_DEPTH	FTW_DEPTH
+# if 0 /* def __USE_GNU */
+  ,
+  FTW_ACTIONRETVAL = 16	/* Assume callback to return FTW_* values instead of
+			   zero to continue and non-zero to terminate.  */
+#  define FTW_ACTIONRETVAL FTW_ACTIONRETVAL
+# endif
 };
+
+#if 0 /* def __USE_GNU */
+/* Return values from callback functions.  */
+enum
+{
+  FTW_CONTINUE = 0,	/* Continue with next sibling or for FTW_D with the
+			   first child.  */
+# define FTW_CONTINUE	FTW_CONTINUE
+  FTW_STOP = 1,		/* Return from `ftw' or `nftw' with FTW_STOP as return
+			   value.  */
+# define FTW_STOP	FTW_STOP
+  FTW_SKIP_SUBTREE = 2,	/* Only meaningful for FTW_D: Don't walk through the
+			   subtree, instead just continue with its next
+			   sibling. */
+# define FTW_SKIP_SUBTREE FTW_SKIP_SUBTREE
+  FTW_SKIP_SIBLINGS = 3,/* Continue with FTW_DP callback for current directory
+			    (if FTW_DEPTH) and then its siblings.  */
+# define FTW_SKIP_SIBLINGS FTW_SKIP_SIBLINGS
+};
+#endif
 
 /* Structure used for fourth argument to callback function for `nftw'.  */
 struct FTW
@@ -108,18 +134,19 @@ typedef int (*__nftw64_func_t) (__const char *__filename,
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 #ifndef __USE_FILE_OFFSET64
-extern int ftw (__const char *__dir, __ftw_func_t __func, int __descriptors);
+extern int ftw (__const char *__dir, __ftw_func_t __func, int __descriptors)
+     __nonnull ((1, 2));
 #else
 # ifdef __REDIRECT
 extern int __REDIRECT (ftw, (__const char *__dir, __ftw_func_t __func,
-			     int __descriptors), ftw64);
+			     int __descriptors), ftw64) __nonnull ((1, 2));
 # else
 #  define ftw ftw64
 # endif
 #endif
 #ifdef __USE_LARGEFILE64
 extern int ftw64 (__const char *__dir, __ftw64_func_t __func,
-		  int __descriptors);
+		  int __descriptors) __nonnull ((1, 2));
 #endif
 
 #ifdef __USE_XOPEN_EXTENDED
@@ -130,18 +157,19 @@ extern int ftw64 (__const char *__dir, __ftw64_func_t __func,
    marked with __THROW.  */
 # ifndef __USE_FILE_OFFSET64
 extern int nftw (__const char *__dir, __nftw_func_t __func, int __descriptors,
-		 int __flag);
+		 int __flag) __nonnull ((1, 2));
 # else
 #  ifdef __REDIRECT
 extern int __REDIRECT (nftw, (__const char *__dir, __nftw_func_t __func,
-			      int __descriptors, int __flag), nftw64);
+			      int __descriptors, int __flag), nftw64)
+     __nonnull ((1, 2));
 #  else
 #   define nftw nftw64
 #  endif
 # endif
 # ifdef __USE_LARGEFILE64
 extern int nftw64 (__const char *__dir, __nftw64_func_t __func,
-		   int __descriptors, int __flag);
+		   int __descriptors, int __flag) __nonnull ((1, 2));
 # endif
 #endif
 

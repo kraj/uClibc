@@ -29,12 +29,15 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-.text
 .global strncmp
-.type strncmp,%function
+.set strncmp,__strncmp
+.text
+.global __strncmp
+.hidden __strncmp
+.type __strncmp,%function
 .align 4
 
-strncmp:
+__strncmp:
 	/* if (len == 0) return 0 */
 	cmp	r2, #0
 	moveq	r0, #0
@@ -52,3 +55,5 @@ strncmp:
 	beq	1b
 	sub	r0, r2, r3
 	mov	pc, lr
+
+.size __strncmp,.-__strncmp

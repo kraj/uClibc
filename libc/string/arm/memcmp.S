@@ -30,12 +30,15 @@
  */
 
 
-.text
 .global memcmp
-.type memcmp,%function
+.set memcmp,__memcmp
+.text
+.global __memcmp
+.hidden __memcmp
+.type __memcmp,%function
 .align 4
 
-memcmp:
+__memcmp:
 	/* if ((len - 1) < 0) return 0 */
 	subs	r2, r2, #1
 	movmi	r0, #0
@@ -52,4 +55,5 @@ memcmp:
 	sub	r0, r2, r3
 	mov	pc, lr
 
+.size __memcmp,.-__memcmp
 .weak bcmp ; bcmp = memcmp

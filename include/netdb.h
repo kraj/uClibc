@@ -394,7 +394,7 @@ extern int getprotobynumber_r (int __proto,
 			       struct protoent **__restrict __result);
 
 
-#if defined(__UCLIBC_HAS_NETGROUP__)
+#ifdef __UCLIBC_HAS_NETGROUP__
 /* Establish network group NETGROUP for enumeration.
 
    This function is not part of POSIX and therefore no official
