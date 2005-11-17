@@ -16,13 +16,9 @@ config HAVE_ELF
 config ARCH_CFLAGS
 	string
 
-config ARCH_LDFLAGS
-	string
-
 config LIBGCC_CFLAGS
 	string
 
 config CROSS
-    string
+	string
 	default nios2-elf-
-

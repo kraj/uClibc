@@ -1,5 +1,4 @@
-
-
+#
 # For a description of the syntax of this configuration file,
 # see extra/config/Kconfig-language.txt
 #
@@ -25,9 +24,5 @@ config ARCH_CFLAGS
 	string
 	default "-mgnu-param"
 
-config ARCH_LDFLAGS
-	string
-
 config LIBGCC_CFLAGS
 	string
-

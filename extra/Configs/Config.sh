@@ -13,14 +13,11 @@ config HAVE_ELF
 config ARCH_CFLAGS
 	string
 
-config ARCH_LDFLAGS
-	string
-
 config LIBGCC_CFLAGS
 	string
 
 config HAVE_DOT_HIDDEN
-        bool
+	bool
 	default y
 
 config ARCH_SUPPORTS_BIG_ENDIAN
@@ -64,4 +61,3 @@ config CONFIG_SH4
 	bool "SH4"
 
 endchoice
-

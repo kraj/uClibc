@@ -26,24 +26,20 @@
 
 /* For the time being, do _NOT_ implement these functions
  * that are defined by SuSv3 */
-#if 0
-float       exp2f(float);
-float       fmaf(float, float, float);
-float       fmaxf(float, float);
-float       fminf(float, float);
-float       fdimf(float, float);
-long long   llrintf(float);
-long long   llroundf(float);
-long        lroundf(float);
-float       log2f(float);
-long        lrintf(float);
-float       nexttowardf(float, long double);
-float       remquof(float, float, int *);
-float       roundf(float);
-float       scalblnf(float, long);
-float       truncf(float);
-float       tgammaf(float);
-#endif
+#undef L_exp2f         /*float       exp2f(float);*/
+#undef L_fdimf         /*float       fdimf(float, float);*/
+#undef L_fmaf          /*float       fmaf(float, float, float);*/
+#undef L_fmaxf         /*float       fmaxf(float, float);*/
+#undef L_fminf         /*float       fminf(float, float);*/
+#undef L_llrintf       /*long long   llrintf(float);*/
+#undef L_log2f         /*float       log2f(float);*/
+#undef L_lrintf        /*long        lrintf(float);*/
+#undef L_nearbyintf    /*float       nearbyintf(float);*/
+#undef L_nexttowardf   /*float       nexttowardf(float, long double);*/
+#undef L_remquof       /*float       remquof(float, float, int *);*/
+#undef L_scalblnf      /*float       scalblnf(float, long);*/
+#undef L_tgammaf       /*float       tgammaf(float);*/
+#undef L_truncf        /*float       truncf(float);*/
 
 /* Implement the following, as defined by SuSv3 */
 #if 0
@@ -71,16 +67,18 @@ float       hypotf(float, float);
 int         ilogbf(float);
 float       ldexpf(float, int);
 float       lgammaf(float);
+long long   llroundf(float);
 float       log10f(float);
 float       log1pf(float);
 float       logbf(float);
 float       logf(float);
+long        lroundf(float);
 float       modff(float, float *);
-float       nearbyintf(float);
 float       nextafterf(float, float);
 float       powf(float, float);
 float       remainderf(float, float);
 float       rintf(float);
+float       roundf(float);
 float       scalbnf(float, int);
 float       sinf(float);
 float       sinhf(float);
@@ -88,6 +86,7 @@ float       sqrtf(float);
 float       tanf(float);
 float       tanhf(float);
 #endif
+
 
 #ifdef L_acosf
 float acosf (float x)
@@ -201,13 +200,11 @@ float erff (float x)
 #endif
 
 
-#if 0
 #ifdef L_exp2f
 float exp2f (float x)
 {
 	return (float) exp2( (double)x );
 }
-#endif
 #endif
 
 
@@ -235,13 +232,11 @@ float fabsf (float x)
 #endif
 
 
-#if 0
 #ifdef L_fdimf
 float fdimf (float x, float y)
 {
 	return (float) fdim( (double)x, (double)y );
 }
-#endif
 #endif
 
 
@@ -253,7 +248,6 @@ float floorf (float x)
 #endif
 
 
-#if 0
 #ifdef L_fmaf
 float fmaf (float x, float y, float z)
 {
@@ -275,7 +269,6 @@ float fminf (float x, float y)
 {
 	return (float) fmin( (double)x, (double)y );
 }
-#endif
 #endif
 
 
@@ -327,7 +320,6 @@ float lgammaf (float x)
 #endif
 
 
-#if 0
 #ifdef L_llrintf
 long long llrintf (float x)
 {
@@ -342,7 +334,7 @@ long long llroundf (float x)
 	return (float) llround( (double)x );
 }
 #endif
-#endif
+
 
 #ifdef L_log10f
 float log10f (float x)
@@ -360,13 +352,11 @@ float log1pf (float x)
 #endif
 
 
-#if 0
 #ifdef L_log2f
 float log2f (float x)
 {
 	return (float) log2( (double)x );
 }
-#endif
 #endif
 
 
@@ -386,7 +376,6 @@ float logf (float x)
 #endif
 
 
-#if 0
 #ifdef L_lrintf
 long lrintf (float x)
 {
@@ -400,7 +389,6 @@ long lroundf (float x)
 {
 	return (float) lround( (double)x );
 }
-#endif
 #endif
 
 
@@ -416,13 +404,11 @@ float modff (float x, float *iptr)
 #endif
 
 
-#if 0
 #ifdef L_nearbyintf
 float nearbyintf (float x)
 {
 	return (float) nearbyint( (double)x );
 }
-#endif
 #endif
 
 
@@ -434,14 +420,13 @@ float nextafterf (float x, float y)
 #endif
 
 
-#if 0
 #ifdef L_nexttowardf
 float nexttowardf (float x, long double y)
 {
 	return (float) nexttoward( (double)x, (double)y );
 }
 #endif
-#endif
+
 
 #ifdef L_powf
 float powf (float x, float y)
@@ -459,13 +444,11 @@ float remainderf (float x, float y)
 #endif
 
 
-#if 0
 #ifdef L_remquof
 float remquof (float x, float y, int *quo)
 {
 	return (float) remquo( (double)x, (double)y, quo );
 }
-#endif
 #endif
 
 
@@ -477,7 +460,6 @@ float rintf (float x)
 #endif
 
 
-#if 0
 #ifdef L_roundf
 float roundf (float x)
 {
@@ -491,7 +473,6 @@ float scalblnf (float x, long exp)
 {
 	return (float) scalbln( (double)x, exp );
 }
-#endif
 #endif
 
 
@@ -543,7 +524,6 @@ float tanhf (float x)
 #endif
 
 
-#if 0
 #ifdef L_tgammaf
 float tgammaf (float x)
 {
@@ -558,6 +538,3 @@ float truncf (float x)
 	return (float) trunc( (double)x );
 }
 #endif
-#endif
-
-
