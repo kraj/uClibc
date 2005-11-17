@@ -407,6 +407,12 @@ LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
 LIBGCC:=$(shell $(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name)
 LIBGCC_DIR:=$(dir $(LIBGCC))
 
+# moved from libpthread/linuxthreads
+ifeq ($(UCLIBC_CTOR_DTOR),y)
+SHARED_START_FILES:=$(TOPDIR)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
+SHARED_END_FILES:=$(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
+endif
+
 ########################################
 #
 # uClinux shared lib support

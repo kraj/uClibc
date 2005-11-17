@@ -5,41 +5,5 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-DIRS=$(shell if test -f $(top_builddir)lib/libc.so ; then echo "ldso libdl" ; else echo "ldso" ; fi)
-
-libs: subdirs
-
-LN_HEADERS      := $(patsubst %, include/%, elf.h)
-LN_ARCH_HEADERS := $(patsubst %, include/%, dl-startup.h dl-syscalls.h dl-sysdep.h dl-debug.h)
-HEADERS         := $(LN_HEADERS) $(LN_ARCH_HEADERS) include/dl-progname.h
-
-headers-y+=ldso_headers
-
-ldso_headers: $(HEADERS)
-
-$(LN_HEADERS):
-	$(LN) -sf $(top_builddir)../$@ $@
-
-$(LN_ARCH_HEADERS):
-	$(LN) -sf ../ldso/$(TARGET_ARCH)/$(patsubst include/%,%,$@) $@
-
-include/dl-progname.h:
-	echo '#include "$(TARGET_ARCH)/elfinterp.c"' > $@
-
-headers_clean-y+=ldso_headers_clean
-
-ldso_headers_clean:
-	$(RM) $(HEADERS)
-
-clean: subdirs_clean ldso_headers_clean
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-subdirs_clean: $(patsubst %, _dirclean_%, $(DIRS))
-
-$(patsubst %, _dir_%, $(DIRS)): ldso_headers
-	$(MAKE) -C $(patsubst _dir_%, %, $@)
-
-$(patsubst %, _dirclean_%, $(DIRS)): dummy
-	$(MAKE) -C $(patsubst _dirclean_%, %, $@) clean
-
-.PHONY: dummy
+include $(top_srcdir)ldso/ldso/Makefile.in
+include $(top_srcdir)ldso/libdl/Makefile.in

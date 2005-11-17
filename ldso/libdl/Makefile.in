@@ -6,41 +6,54 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-# psm: I do not know if the order of includes is relevant
-# to be sure I added them first, Jocke please cleanup if needed
-CFLAGS:=-I$(top_builddir)ldso/include -I$(top_builddir)ldso/ldso $(CFLAGS) $(SSP_ALL_CFLAGS)
+CFLAGS-libdl := -DNOT_IN_libc
 
-CFLAGS+=-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\"
+CFLAGS-libdl +=-I$(top_builddir)ldso/include -I$(top_builddir)ldso/ldso $(SSP_ALL_CFLAGS)
+
+CFLAGS-libdl += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\"
 
 ifeq ($(SUPPORT_LD_DEBUG),y)
-CFLAGS+=-D__SUPPORT_LD_DEBUG__
+CFLAGS-libdl += -D__SUPPORT_LD_DEBUG__
 endif
 
-# can't combine .c w/ .S
-DOMULTI=n
+LDFLAGS-libdl.so := $(LDFLAGS) -fini dl_cleanup
 
-LIB_NAME:=libdl
+LIBS-libdl.so := $(LIBS) $(top_builddir)lib/$(UCLIBC_LDSO)
 
-EXTRA_LINK_OPTS:=-fini dl_cleanup
-# keep in sync w/ Makerules
-EXTRA_LINK_LIBS:=$(top_builddir)libc/misc/internals/interp.os -L$(top_builddir)lib $(top_builddir)lib/libc.so $(LIBGCC) $(top_builddir)lib/$(UCLIBC_LDSO)
+libdl_FULL_NAME := libdl-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-libdl_DIR:=$(top_srcdir)ldso/libdl
-libdl_OUT:=$(top_builddir)ldso/libdl
+libdl_DIR := $(top_srcdir)ldso/libdl
+libdl_OUT := $(top_builddir)ldso/libdl
 
-libdl_SRC:=$(libdl_DIR)/libdl.c
-libdl_OBJ:=$(patsubst $(libdl_DIR)/%.c,$(libdl_OUT)/%.o,$(libdl_SRC))
+libdl_SRC := $(libdl_DIR)/libdl.c
+libdl_OBJ := $(patsubst $(libdl_DIR)/%.c,$(libdl_OUT)/%.o,$(libdl_SRC))
 
-resolve:=$(top_builddir)ldso/ldso/$(TARGET_ARCH)/resolve.o
+resolve := $(top_builddir)ldso/ldso/$(TARGET_ARCH)/resolve.o
 
-libdl-a-$(HAVE_SHARED):=$(libdl_OBJ)
-libdl-static-$(HAVE_SHARED):=$(resolve)
-libdl-shared-$(HAVE_SHARED):=$(libdl_OUT)/libdl.oS
+libdl-a-y := $(libdl_OBJ) $(resolve)
+libdl-so-y := $(libdl_OUT)/libdl.oS
 
-objclean-y+=libdl_clean libdl_extra_clean
+lib-a-$(HAVE_SHARED) += $(top_builddir)lib/libdl.a
+lib-so-y += $(top_builddir)lib/libdl.so
+objclean-y += libdl_clean
 
-libdl_extra_clean:
-	$(RM) $(libdl_OUT)/*.oS
+$(top_builddir)lib/libdl.so: $(libdl_OUT)/libdl_so.a ld-uClibc-y libc-y
+	$(call link.so,$(libdl_FULL_NAME),$(MAJOR_VERSION))
 
-lib-a-$(HAVE_SHARED)+=$(top_builddir)lib/libdl.a
-lib-so-$(HAVE_SHARED)+=$(top_builddir)lib/libdl.so
+$(libdl_OUT)/libdl_so.a: $(libdl-so-y)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libdl.a: $(libdl-a-y:.o=.os)
+else
+$(top_builddir)lib/libdl.a: $(libdl-a-y)
+endif
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+libdl_clean:
+	$(RM) $(libdl_OUT)/*.{o,os,a,oS}

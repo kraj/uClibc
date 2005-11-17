@@ -5,39 +5,56 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-#CFLAGS+=$(SSP_ALL_CFLAGS)
-
-PT_MAJOR_VERSION:=$(MAJOR_VERSION)
 # Get the thread include dependencies and shared object name
-CFLAGS+=-DLIBPTHREAD_SO="\"libpthread.so.$(PT_MAJOR_VERSION)\""
+CFLAGS-linuxthreads_db.old := -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 
-# Remove any -z defs since this lib will have undefined symbols
-LDFLAGS:=$(LDFLAGS_NOSTRIP) -s --warn-unresolved-symbols
+LDFLAGS-libthread_db.so := $(LDFLAGS_NOSTRIP) -s --warn-unresolved-symbols
 
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-STRIP_FLAGS:=-X --strip-debug -R .note -R .comment
+LIBS-libthread_db.so := $(LIBS)
+
+libthread_db_FULL_NAME := libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+
+libthread_db_DIR := $(top_srcdir)libpthread/linuxthreads_db.old
+libthread_db_OUT := $(top_builddir)libpthread/linuxthreads_db.old
+
+libthread_db_SRC := $(wildcard $(libthread_db_DIR)/*.c)
+
+libthread_db_OBJ := $(patsubst $(libthread_db_DIR)/%.c,$(libthread_db_OUT)/%.o,$(libthread_db_SRC))
+
+libthread_db-a-y := $(libthread_db_OBJ)
+libthread_db-so-y := $(libthread_db_OBJ:.o=.os)
+
+libthread_db-multi-y := $(libthread_db_SRC)
+
+lib-a-$(PTHREADS_DEBUG_SUPPORT) += $(top_builddir)lib/libthread_db.a
+lib-so-$(PTHREADS_DEBUG_SUPPORT) += $(top_builddir)lib/libthread_db.so
+objclean-y += libthread_db_clean
+headers-$(PTHREADS_DEBUG_SUPPORT) += linuxthreads_db_headers
+headers_clean-y += linuxthreads_db_headers_clean
+
+$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db_so.a libc-y
+	$(call link.so,$(libthread_db_FULL_NAME),1,,$(EXTRA_LINK_LIBS),,)
+
+$(libthread_db_OUT)/libthread_db_so.a: $(libthread_db-so-y)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libthread_db.a: $(libthread_db-a-y:.o=.os)
+else
+$(top_builddir)lib/libthread_db.a: $(libpthread_db-a-y)
 endif
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
 
-DOMULTI=n
+linuxthreads_db_headers:
+	$(LN) -sf ../$(PTDIR)_db/thread_db.h $(top_builddir)include/
 
-LIB_NAME:=libthread_db
-libthread_db_FULL_NAME:=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+linuxthreads_db_headers_clean:
+	$(RM) $(top_builddir)include/thread_db.h
 
-MAJOR_VERSION:=1
-
-libthread_db_DIR:=$(top_srcdir)libpthread/linuxthreads.old_db
-libthread_db_OUT:=$(top_builddir)libpthread/linuxthreads.old_db
-
-libthread_db_SRC:=$(wildcard $(libthread_db_DIR)/*.c)
-
-libthread_db_OBJ:=$(patsubst $(libthread_db_DIR)/%.c,$(libthread_db_OUT)/%.o,$(libthread_db_SRC))
-
-libthread_db-a-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_OBJ)
-libthread_db-so-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_OBJ:.o=.os)
-
-libthread_db-multi-$(PTHREADS_DEBUG_SUPPORT)+=$(libthread_db_SRC)
-
-objclean-y+=libthread_db_clean
-
-lib-a-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/libthread_db.a
-lib-so-$(PTHREADS_DEBUG_SUPPORT)+=$(top_builddir)lib/libthread_db.so
+libthread_db_clean:
+	$(RM) $(libthread_db_OUT)/*.{o,os,a}

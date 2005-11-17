@@ -20,22 +20,27 @@
 # by Erik Andersen <andersen@codepoet.org>
 #
 
-CFLAGS+=$(SSP_ALL_CFLAGS)
+CFLAGS-libm := -DNOT_IN_libc $(SSP_ALL_CFLAGS)
+CFLAGS-libm += -D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
-CFLAGS+=-D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
+CFLAGS-libm/$(TARGET_ARCH)/ := $(CFLAGS-libm)
 
-CFLAGS-s_lib_version.c=-D_POSIX_MODE
+CFLAGS-s_lib_version.c := -D_POSIX_MODE
 
-LIB_NAME:=libm
+LDFLAGS-libm.so := $(LDFLAGS)
+
+LIBS-libm.so := $(LIBS)
+
+libm_FULL_NAME := libm-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
 ifeq ($(HAS_FPU),y)
 -include $(top_srcdir)libm/$(TARGET_ARCH)/Makefile.arch
 endif
 
-FL_MSRC:=float_wrappers.c
+FL_MSRC := float_wrappers.c
 
 ifeq ($(DO_C99_MATH),y)
-CSRC:= \
+CSRC := \
 	e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c \
 	e_exp.c e_fmod.c e_gamma.c e_gamma_r.c e_hypot.c e_j0.c \
 	e_j1.c e_jn.c e_lgamma.c e_lgamma_r.c e_log.c e_log10.c \
@@ -51,7 +56,7 @@ CSRC:= \
 	w_hypot.c w_j0.c w_j1.c w_jn.c w_lgamma.c w_lgamma_r.c \
 	w_log.c w_log10.c w_pow.c w_remainder.c w_scalb.c w_sinh.c \
 	w_sqrt.c fpmacros.c nan.c
-FL_MOBJ:= \
+FL_MOBJ := \
 	acosf.o acoshf.o asinf.o asinhf.o atan2f.o atanf.o atanhf.o cbrtf.o \
 	ceilf.o copysignf.o cosf.o coshf.o erfcf.o erff.o exp2f.o expf.o \
 	expm1f.o fabsf.o fdimf.o floorf.o fmaf.o fmaxf.o fminf.o fmodf.o \
@@ -62,7 +67,7 @@ FL_MOBJ:= \
 	tgammaf.o truncf.o
 else
 # This list of math functions was taken from POSIX/IEEE 1003.1b-1993
-CSRC:= \
+CSRC := \
 	w_acos.c w_asin.c s_atan.c w_atan2.c s_ceil.c s_cos.c \
 	w_cosh.c w_exp.c s_fabs.c s_floor.c w_fmod.c s_frexp.c \
 	s_ldexp.c w_log.c w_log10.c s_modf.c w_pow.c s_sin.c \
@@ -72,11 +77,11 @@ CSRC:= \
 	k_sin.c e_sinh.c e_sqrt.c k_tan.c e_rem_pio2.c k_rem_pio2.c \
 	s_finite.c
 # We'll add sqrtf to avoid problems with libstdc++
-FL_MOBJ:=sqrtf.o
+FL_MOBJ := sqrtf.o
 endif
 
-libm_DIR:=$(top_srcdir)libm
-libm_OUT:=$(top_builddir)libm
+libm_DIR := $(top_srcdir)libm
+libm_OUT := $(top_builddir)libm
 
 # assume that arch specific versions are provided as single sources/objects
 ifeq ($(HAS_FPU),y)
@@ -84,33 +89,62 @@ ifneq ($(strip $(libm_ARCH_OBJS)),)
 
 # remove generic sources, if arch specific version is present
 ifneq ($(strip $(libm_ARCH_SRC)),)
-CSRC:=$(filter-out $(notdir $(libm_ARCH_SRC)),$(CSRC))
+CSRC := $(filter-out $(notdir $(libm_ARCH_SRC)),$(CSRC))
 endif
 
 # remove generic objects built from multi-sources, if arch specific version is present
-FL_MOBJ:=$(filter-out $(notdir $(libm_ARCH_OBJS)),$(FL_MOBJ))
+FL_MOBJ := $(filter-out $(notdir $(libm_ARCH_OBJS)),$(FL_MOBJ))
 
 # we also try to remove % if s_% is in arch specific subdir
-FL_MOBJ:=$(filter-out $(patsubst s_%.o,%.o,$(notdir $(libm_ARCH_OBJS))),$(FL_MOBJ))
+FL_MOBJ := $(filter-out $(patsubst s_%.o,%.o,$(notdir $(libm_ARCH_OBJS))),$(FL_MOBJ))
 endif
 endif
 
 ifneq ($(DOMULTI),n)
 ifeq ($(DO_C99_MATH),y)
-LIBM_NO_MULTI:=s_lib_version.c
-CSRC:=$(filter-out $(LIBM_NO_MULTI),$(CSRC))
+LIBM_NO_MULTI := s_lib_version.c
+CSRC := $(filter-out $(LIBM_NO_MULTI),$(CSRC))
 endif
 endif
 
-libm_SRC:=$(patsubst %.c,$(libm_DIR)/%.c,$(CSRC))
-libm_OBJ:=$(patsubst $(libm_DIR)/%.c,$(libm_OUT)/%.o,$(libm_SRC))
+libm_SRC := $(patsubst %.c,$(libm_DIR)/%.c,$(CSRC))
+libm_OBJ := $(patsubst $(libm_DIR)/%.c,$(libm_OUT)/%.o,$(libm_SRC))
 
-libm_MSRC:=$(libm_DIR)/$(FL_MSRC)
-libm_MOBJ:=$(patsubst %.o,$(libm_OUT)/%.o,$(FL_MOBJ))
+libm_MSRC := $(libm_DIR)/$(FL_MSRC)
+libm_MOBJ := $(patsubst %.o,$(libm_OUT)/%.o,$(FL_MOBJ))
 
-libm_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ))))
+libm_DEF := $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ))))
 
-libm_OBJS:=$(libm_OBJ) $(libm_MOBJ)
+libm_OBJS := $(libm_OBJ) $(libm_MOBJ)
+
+libm-a-y += $(libm_OBJS)
+libm-so-y += $(libm_OBJS:.o=.os)
+
+CFLAGS-multi-y := $(libm_DEF)
+libm-multi-y += $(libm_SRC) $(libm_MSRC)
+libm-nomulti-$(DO_C99_MATH) += $(patsubst %.c,$(libm_OUT)/%.o,$(LIBM_NO_MULTI))
+
+lib-a-$(UCLIBC_HAS_FLOATS) += $(top_builddir)lib/libm.a
+lib-so-$(UCLIBC_HAS_FLOATS) += $(top_builddir)lib/libm.so
+objclean-y += libm_clean
+
+$(top_builddir)lib/libm.so: $(libm_OUT)/libm_so.a libc-y
+	$(call link.so,$(libm_FULL_NAME),$(MAJOR_VERSION))
+
+$(libm_OUT)/libm_so.a: $(libm-so-y)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libm.a: $(libm-a-y:.o=.os)
+else
+$(top_builddir)lib/libm.a: $(libm-a-y)
+endif
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
 
 $(libm_MOBJ): $(libm_MSRC)
 	$(compile.m)
@@ -118,16 +152,5 @@ $(libm_MOBJ): $(libm_MSRC)
 $(libm_MOBJ:.o=.os): $(libm_MSRC)
 	$(compile.m)
 
-libm-a-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJS)
-libm-so-$(UCLIBC_HAS_FLOATS)+=$(libm_OBJS:.o=.os)
-
-CFLAGS-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_DEF)
-libm-multi-$(UCLIBC_HAS_FLOATS)+=$(libm_SRC) $(libm_MSRC)
-ifeq ($(DO_C99_MATH),y)
-libm-nomulti-$(UCLIBC_HAS_FLOATS)+=$(patsubst %.c,$(libm_OUT)/%.o,$(LIBM_NO_MULTI))
-endif
-
-objclean-y+=libm_clean
-
-lib-a-$(UCLIBC_HAS_FLOATS)+=$(top_builddir)lib/libm.a
-lib-so-$(UCLIBC_HAS_FLOATS)+=$(top_builddir)lib/libm.so
+libm_clean:
+	$(RM) $(libm_OUT)/*.{o,os,a}

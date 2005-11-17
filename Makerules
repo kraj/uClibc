@@ -8,13 +8,36 @@
 ifeq ($(HAVE_SHARED),y)
 .LIBPATTERNS: "lib%.so"
 libs: lib-so-y lib-a-y
+objs: shared_objs ar_objs
 else
 .LIBPATTERNS: "lib%.a"
 libs: lib-a-y
+objs: ar_objs
 endif
 
-lib-a-y: $(lib-a-y)
-lib-so-y: $(lib-so-y)
+shared_objs-y =  $(lduClibc-so-y) $(libc-so-y) $(libc-nonshared-y) $(libdl-so-y)
+shared_objs-y += $(libcrypt-so-y) $(libintl-so-y) $(libm-so-y) $(libnsl-so-y) $(libpthread-so-y)
+shared_objs-y += $(libresolv-so-y) $(librt-so-y) $(libutil-so-y)
+ar_objs-y =  $(libc-a-y) $(libcrypt-a-y) $(libintl-a-y) $(libm-a-y) $(libnsl-a-y)
+ar_objs-y += $(libpthread-a-y) $(libresolv-a-y) $(librt-a-y) $(libutil-a-y)
+
+shared_objs: $(shared_objs-y)
+ifeq ($(DOPIC),y)
+ar_objs: $(ar_objs-y:.o=.os)
+else
+ar_objs: $(ar_objs-y)
+endif
+
+headers-y: $(headers-y)
+ld-uClibc-y: $(ld-uClibc-y)
+interp-y: $(interp)
+pre-y: interp-y ld-uClibc-y
+libc-y: pre-y $(libc) crt-y
+lib-a-y: headers_root crt-y $(lib-a-y)
+lib-so-y: libc-y $(lib-so-y)
+
+headers_root:
+	@cd $(top_builddir); $(MAKE) headers
 
 ifneq ($(findstring s,$(MAKEFLAGS)),)
 DISP := sil
@@ -37,7 +60,7 @@ pur_disp_compile.m = $(pur_disp_compile.c)
 pur_disp_compile-m = echo "  "CC-m $(show_objs)
 pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS) $@:*
 pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
-pur_disp_ld        = echo "  "LD $($(LIB_NAME)_FULL_NAME)
+pur_disp_ld        = echo "  "LD $(1)
 
 sil_disp_compile.c = true
 sil_disp_compile.S = true
@@ -146,12 +169,6 @@ endif
 crt-y: $(crt-y)
 $(crt-y): $(CRTS) $(CTOR_TARGETS)
 
-other-y: $(other-y)
-headers-y: $(headers-y)
-
-objclean-y: $(objclean-y)
-headers_clean-y: $(headers_clean-y)
-
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(do_ar)
@@ -159,109 +176,5 @@ $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
 .PHONY: dummy create
 clean: objclean-y headers_clean-y
 
-ifeq ($(strip $(LIB_NAME)),)
-LIB_NAME=libc
-endif
-
-ifeq ($(strip $($(LIB_NAME)_FULL_NAME)),)
-$(LIB_NAME)_FULL_NAME:=$(LIB_NAME)-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
-endif
-
-$(LIB_NAME)-SHARED_OBJS=$($(LIB_NAME)-so-y) $($(LIB_NAME)-shared-y)
-ifeq ($(HAVE_SHARED),y)
-shared: $($(LIB_NAME)-SHARED_OBJS)
-else
-shared:
-endif
-
-$(LIB_NAME)-ARCHIVE_OBJS=$($(LIB_NAME)-a-y) $($(LIB_NAME)-static-y)
-ifeq ($(DOPIC),y)
-objs: shared $($(LIB_NAME)-ARCHIVE_OBJS:.o=.os) $(crt-y) $(other-y)
-else
-objs: shared $($(LIB_NAME)-ARCHIVE_OBJS) $(crt-y) $(other-y)
-endif
-
-libc=$(top_builddir)lib/libc.so
-interp=$(top_builddir)libc/misc/internals/interp.os
-ifeq ($(strip $(EXTRA_LINK_LIBS)),)
-#EXTRA_LINK_LIBS:=$(interp) -L$(top_builddir)lib -lc $(LDADD_LIBFLOAT) $(LIBGCC)
-EXTRA_LINK_LIBS:=$(interp) -L$(top_builddir)lib $(libc) $(LDADD_LIBFLOAT) $(LIBGCC)
-endif
-
-ifneq ($(strip $(LIB_NAME)),libc)
-ifneq ($(strip $(LIB_NAME)),ld-uClibc)
-$(top_builddir)lib/$(LIB_NAME).so: $($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a $(interp) $(libc)
-else
-$(top_builddir)lib/$(LIB_NAME).so: $($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a
-endif
-else
-$(top_builddir)lib/$(LIB_NAME).so: $($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a $(interp)
-endif
-	$(Q)$(INSTALL) -d $(dir $@)
-	$(Q)$(RM) $@ $@.$(MAJOR_VERSION) $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME)
-	@$(disp_ld)
-	$(Q)$(LD) $(LDFLAGS) $(EXTRA_LINK_OPTS) -soname=$(notdir $@).$(MAJOR_VERSION) \
-		-o $(top_builddir)lib/$($(LIB_NAME)_FULL_NAME) $(SHARED_START_FILES) \
-		--whole-archive $(firstword $^) --no-whole-archive \
-		$(EXTRA_LINK_LIBS) $(SHARED_END_FILES)
-	$(Q)$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@.$(MAJOR_VERSION)
-ifneq ($(strip $(LIB_NAME)),libc)
-ifneq ($(strip $(LIB_NAME)),ld-uClibc)
-	$(Q)$(LN) -sf $($(LIB_NAME)_FULL_NAME) $@
-endif
-else
-	$(Q)echo "/* GNU ld script" > $@
-	$(Q)echo " * Use the shared library, but some functions are only in" >> $@
-	$(Q)echo " * the static library, so try that secondarily. */" >> $@
-ifeq ($(COMPAT_ATEXIT),y)
-	$(Q)echo "GROUP ( $(NONSHARED_LIBNAME) $(SHARED_MAJORNAME) $(ASNEEDED) )" >> $@
-else
-	$(Q)echo "GROUP ( $(SHARED_MAJORNAME) $(NONSHARED_LIBNAME) $(ASNEEDED) )" >> $@
-endif
-endif
-
-$($(LIB_NAME)_OUT)/$(LIB_NAME)_m.o $($(LIB_NAME)_OUT)/$(LIB_NAME)_m.os: $($(LIB_NAME)-multi-y)
-	$(compile-m)
-
-# local testing only until libc is multi-capable
-libc_m.os: $(libc-multi-y)
-	$(compile-m)
-
-ifneq ($(DOMULTI),n)
-
-$($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a: $($(LIB_NAME)_OUT)/$(LIB_NAME)_m.os $($(LIB_NAME)-nomulti-y:.o=.os) $($(LIB_NAME)-shared-y)
-	$(Q)$(RM) $@
-	$(do_strip)
-	$(do_ar)
-
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)_OUT)/$(LIB_NAME)_m.os $($(LIB_NAME)-nomulti-y:.o=.os) $($(LIB_NAME)-static-y:.o=.os)
-else
-$(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)_OUT)/$(LIB_NAME)_m.o $($(LIB_NAME)-nomulti-y) $($(LIB_NAME)-static-y)
-endif
-	$(Q)$(INSTALL) -d $(dir $@)
-	$(Q)$(RM) $@
-	$(do_strip)
-	$(do_ar)
-
-else # DOMULTI
-
-$($(LIB_NAME)_OUT)/$(LIB_NAME)_so.a: $($(LIB_NAME)-SHARED_OBJS)
-	$(Q)$(RM) $@
-	$(do_strip)
-	$(do_ar)
-
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)-ARCHIVE_OBJS:.o=.os)
-else
-$(top_builddir)lib/$(LIB_NAME).a: $($(LIB_NAME)-ARCHIVE_OBJS)
-endif
-	$(Q)$(INSTALL) -d $(dir $@)
-	$(Q)$(RM) $@
-	$(do_strip)
-	$(do_ar)
-
-endif # DOMULTI
-
-$(LIB_NAME)_clean:
-	$(RM) $($(LIB_NAME)_OUT)/*.{o,os,a}
+objclean-y: $(objclean-y)
+headers_clean-y: $(headers_clean-y)

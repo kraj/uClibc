@@ -5,25 +5,49 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS+=$(SSP_ALL_CFLAGS)
+CFLAGS-libutil := -DNOT_IN_libc $(SSP_ALL_CFLAGS)
 
-LIB_NAME:=libutil
+LDFLAGS-libutil.so := $(LDFLAGS)
 
-libutil_DIR:=$(top_srcdir)libutil
-libutil_OUT:=$(top_builddir)libutil
+LIBS-libutil.so := $(LIBS)
 
-libutil_SRC:=$(wildcard $(libutil_DIR)/*.c)
+libutil_FULL_NAME := libutil-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+
+libutil_DIR := $(top_srcdir)libutil
+libutil_OUT := $(top_builddir)libutil
+
+libutil_SRC := $(wildcard $(libutil_DIR)/*.c)
 ifneq ($(ARCH_HAS_MMU),y)
-libutil_SRC:=$(filter-out $(libutil_DIR)/forkpty.c,$(libutil_SRC))
+libutil_SRC := $(filter-out $(libutil_DIR)/forkpty.c,$(libutil_SRC))
 endif
-libutil_OBJ:=$(patsubst $(libutil_DIR)/%.c,$(libutil_OUT)/%.o,$(libutil_SRC))
+libutil_OBJ := $(patsubst $(libutil_DIR)/%.c,$(libutil_OUT)/%.o,$(libutil_SRC))
 
-libutil-a-y:=$(libutil_OBJ)
-libutil-so-y:=$(libutil_OBJ:.o=.os)
+libutil-a-y := $(libutil_OBJ)
+libutil-so-y := $(libutil_OBJ:.o=.os)
 
-libutil-multi-y:=$(libutil_SRC)
+libutil-multi-y := $(libutil_SRC)
 
-objclean-y+=libutil_clean
+lib-a-y += $(top_builddir)lib/libutil.a
+lib-so-y += $(top_builddir)lib/libutil.so
+objclean-y += libutil_clean
 
-lib-a-y+=$(top_builddir)lib/libutil.a
-lib-so-y+=$(top_builddir)lib/libutil.so
+$(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil_so.a libc-y
+	$(call link.so,$(libutil_FULL_NAME),$(MAJOR_VERSION))
+
+$(libutil_OUT)/libutil_so.a: $(libutil-so-y)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libutil.a: $(libutil-a-y:.o=.os)
+else
+$(top_builddir)lib/libutil.a: $(libutil-a-y)
+endif
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+libutil_clean:
+	$(RM) $(libutil_OUT)/*.{o,os,a}

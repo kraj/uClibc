@@ -5,61 +5,85 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-# psm: I do not know if the order of includes is relevant
-# to be sure I have put them first
-CFLAGS:=-I$(top_builddir)ldso/include -I. $(CFLAGS) $(PICFLAG) $(SSP_DISABLE_FLAGS)
+CFLAGS-ldso := -DNOT_IN_libc #-DIS_IN_rtld
 
-CFLAGS+=-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\"
+# This stuff will not work with -fomit-frame-pointer
+CFLAGS-ldso += -fno-omit-frame-pointer
+
+CFLAGS-ldso += -I$(top_builddir)ldso/include -I$(top_builddir)ldso/ldso $(SSP_DISABLE_FLAGS)
+CFLAGS-ldso += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\"
 
 ifeq ($(SUPPORT_LD_DEBUG),y)
-CFLAGS+=-D__SUPPORT_LD_DEBUG__
+CFLAGS-ldso += -D__SUPPORT_LD_DEBUG__
 endif
 
 ifeq ($(SUPPORT_LD_DEBUG_EARLY),y)
-CFLAGS+=-D__SUPPORT_LD_DEBUG_EARLY__
+CFLAGS-ldso += -D__SUPPORT_LD_DEBUG_EARLY__
 endif
-
-CFLAGS+=-DNOT_IN_libc
 
 ifeq ($(DODEBUG),y)
 # Not really much point in including debugging info, since gdb
 # can't really debug ldso, since gdb requires help from ldso to
 # debug things....
-# psm: keep this in sync w/ Rules.mak
-CFLAGS:=$(CFLAGS:-O0 -g3=-Os -g)
+CFLAGS-ldso += -Os -g
 endif
 
-# This stuff will not work with -fomit-frame-pointer
-CFLAGS:=$(CFLAGS:-fomit-frame-pointer=)
+CFLAGS-ldso/ldso/$(TARGET_ARCH)/ := $(CFLAGS-ldso)
 
-ifeq ($(SUPPORT_LD_DEBUG),y)
-LDFLAGS:=$(LDFLAGS_NOSTRIP)
+ifneq ($(SUPPORT_LD_DEBUG),y)
+LDFLAGS-ld-uClibc.so := $(LDFLAGS)
+else
+LDFLAGS-ld-uClibc.so := $(LDFLAGS_NOSTRIP) -z defs
 endif
+LDFLAGS-ld-uClibc.so += -e _start -z now -Bsymbolic --export-dynamic --sort-common --discard-locals --discard-all --no-undefined
 
-# can't combine .c w/ .S
-DOMULTI=n
+ldso_FULL_NAME := ld-uClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-LIB_NAME:=ld-uClibc
+ld-uClibc_DIR := $(top_srcdir)ldso/ldso
+ld-uClibc_OUT := $(top_builddir)ldso/ldso
 
-ld-uClibc_DIR:=$(top_srcdir)ldso/ldso
-ld-uClibc_OUT:=$(top_builddir)ldso/ldso
+ld-uClibc_CSRC := $(ld-uClibc_DIR)/ldso.c
+ld-uClibc_COBJ := $(patsubst $(ld-uClibc_DIR)/%.c,$(ld-uClibc_OUT)/%.o,$(ld-uClibc_CSRC))
 
-ld-uClibc_SRC:=$(ld-uClibc_DIR)/ldso.c
-ld-uClibc_OBJ:=$(patsubst $(ld-uClibc_DIR)/%.c,$(ld-uClibc_OUT)/%.o,$(ld-uClibc_SRC))
+ld-uClibc_SSRC := $(wildcard $(ld-uClibc_DIR)/$(TARGET_ARCH)/*.S)
+ld-uClibc_SOBJ := $(patsubst $(ld-uClibc_DIR)/$(TARGET_ARCH)/%.S,$(ld-uClibc_OUT)/$(TARGET_ARCH)/%.o,$(ld-uClibc_SSRC))
 
-ld-uClibc_SSRC:=$(wildcard $(ld-uClibc_DIR)/$(TARGET_ARCH)/*.S)
-ld-uClibc_SOBJ:=$(patsubst $(ld-uClibc_DIR)/$(TARGET_ARCH)/%.S,$(ld-uClibc_OUT)/$(TARGET_ARCH)/%.o,$(ld-uClibc_SSRC))
+ld-uClibc_OBJS := $(ld-uClibc_COBJ) $(ld-uClibc_SOBJ)
 
-ld-uClibc_OBJS:=$(ld-uClibc_OBJ) $(ld-uClibc_SOBJ)
+ld-uClibc-so-y := $(ld-uClibc_OBJS:.o=.os)
 
-EXTRA_LINK_OPTS:=-e _start -z now -Bsymbolic --export-dynamic --sort-common --discard-locals --discard-all --no-undefined
-EXTRA_LINK_LIBS:=$(LIBGCC) # $(LDADD_LIBFLOAT)
+LN_HEADERS      := $(patsubst %, $(top_builddir)ldso/include/%, elf.h)
+LN_ARCH_HEADERS := $(patsubst %, $(top_builddir)ldso/include/%, dl-startup.h dl-syscalls.h dl-sysdep.h dl-debug.h)
+HEADERS         := $(LN_HEADERS) $(LN_ARCH_HEADERS) $(top_builddir)ldso/include/dl-progname.h
 
-ld-uClibc-so-$(HAVE_SHARED):=$(ld-uClibc_OBJS:.o=.os)
+#lib-so-y := $(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO))
+ld-uClibc-y := $(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO))
+objclean-y += ld-uClibc_clean
+headers-$(HAVE_SHARED) += ldso_headers
+headers_clean-y += ldso_headers_clean
 
-objclean-y+=ld-uClibc_clean ld-uClibc_arch_clean
+$(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO)): $(ld-uClibc_OUT)/ld-uClibc_so.a headers_root
+	$(call link.so,$(ldso_FULL_NAME),$(MAJOR_VERSION))
+	#(RM) $@
 
-ld-uClibc_arch_clean:
-	$(RM) $(ld-uClibc_OUT)/*/*.{o,os}
+$(ld-uClibc_OUT)/ld-uClibc_so.a: $(ld-uClibc-so-y)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
 
-lib-so-$(HAVE_SHARED)+=$(top_builddir)lib/ld-uClibc.so
+ldso_headers: $(HEADERS)
+
+$(LN_HEADERS):
+	$(LN) -sf ../../$(top_srcdir)include/$(notdir $@) $@
+
+$(LN_ARCH_HEADERS):
+	$(LN) -sf ../../$(top_srcdir)ldso/ldso/$(TARGET_ARCH)/$(notdir $@) $@
+
+$(top_builddir)ldso/include/dl-progname.h:
+	echo '#include "$(TARGET_ARCH)/elfinterp.c"' > $@
+
+ldso_headers_clean:
+	$(RM) $(HEADERS)
+
+ld-uClibc_clean:
+	$(RM) $(ld-uClibc_OUT)/*.{o,os,a} $(ld-uClibc_OUT)/*/*.{o,os}

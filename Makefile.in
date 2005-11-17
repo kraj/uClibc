@@ -14,24 +14,6 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 
 include $(top_builddir)Rules.mak
 
-# need to have libc.so built, before we can build the others
-ifeq ($(HAVE_SHARED),y)
-PRE_DIRS = ldso libc
-DIRS = ldso libcrypt libresolv libnsl libutil librt
-else
-PRE_DIRS = libc
-DIRS = libcrypt libresolv libnsl libutil librt
-endif
-ifeq ($(UCLIBC_HAS_FLOATS),y)
-	DIRS += libm
-endif
-ifeq ($(UCLIBC_HAS_THREADS),y)
-	DIRS += libpthread
-endif
-ifeq ($(UCLIBC_HAS_GETTEXT_AWARENESS),y)
-	DIRS += libintl
-endif
-
 ifeq ($(HAVE_DOT_CONFIG),y)
 
 all: finished
@@ -39,7 +21,19 @@ all: finished
 # In this section, we need .config
 -include .config.cmd
 
-finished: subdirs
+include $(top_srcdir)ldso/ldso/Makefile.in
+include $(top_srcdir)libc/Makefile.in
+include $(top_srcdir)ldso/libdl/Makefile.in
+include $(top_srcdir)libcrypt/Makefile.in
+include $(top_srcdir)libintl/Makefile.in
+include $(top_srcdir)libm/Makefile.in
+include $(top_srcdir)libnsl/Makefile.in
+include $(top_srcdir)libresolv/Makefile.in
+include $(top_srcdir)librt/Makefile.in
+include $(top_srcdir)libutil/Makefile.in
+include $(top_srcdir)libpthread/Makefile.in
+
+finished: pregen libs
 	$(SECHO)
 	$(SECHO) Finally finished compiling ...
 	$(SECHO)
@@ -103,13 +97,7 @@ headers: include/bits/uClibc_config.h
 		$(RM) include/bits/sysnum.h; \
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
-ifeq ($(HAVE_SHARED),y)
-	$(MAKE) -C ldso headers-y
-endif
-ifeq ($(UCLIBC_HAS_THREADS),y)
-	$(MAKE) -C libpthread headers-y
-endif
-	$(MAKE) -C libc/sysdeps/linux headers-y
+	$(MAKE) headers-y
 
 # Command used to download source code
 WGET:=wget --passive-ftp
@@ -127,14 +115,6 @@ ifeq ($(UCLIBC_PREGENERATED_LOCALE_DATA),y)
 	(cd $(top_builddir)extra/locale; zcat $(LOCALE_DATA_FILENAME) | tar -xvf -)
 	$(MAKE) -C $(top_srcdir)extra/locale pregen
 endif
-
-pre_subdirs: $(patsubst %, _pre_dir_%, $(PRE_DIRS))
-$(patsubst %, _pre_dir_%, $(PRE_DIRS)): pregen
-	@$(MAKE) -C $(patsubst _pre_dir_%, %, $@)
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-$(patsubst %, _dir_%, $(DIRS)): pre_subdirs
-	@$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 install: install_runtime install_dev finished2
 
@@ -350,9 +330,7 @@ clean:
 	$(RM) libc/stdio/*64.c
 	$(RM) include/fpu_control.h include/dl-osinfo.h
 	$(MAKE) -C extra/locale clean
-	$(MAKE) -C ldso headers_clean-y
-	$(MAKE) -C libpthread headers_clean-y
-	$(MAKE) -C libc/sysdeps/linux headers_clean-y
+	$(MAKE) headers_clean-y
 	$(MAKE) -C test clean
 	$(MAKE) -C utils clean
 	@set -e; \

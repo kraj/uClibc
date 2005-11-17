@@ -6,17 +6,22 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-DOMULTI=n
+# Check if the target architecture has a version script for
+# libc, and if so, include it when linking.
+VERSION_SCRIPT := $(wildcard $(libc_DIR)/sysdeps/linux/$(TARGET_ARCH)/libc.map)
+ifneq ($(VERSION_SCRIPT),)
+VERSION_SCRIPT := --version-script $(VERSION_SCRIPT)
+endif
+
+LDFLAGS-libc.so := $(LDFLAGS) $(VERSION_SCRIPT) -init __uClibc_init
+
+LIBS-libc.so := $(interp) $(top_builddir)lib/$(UCLIBC_LDSO)
 
 # we have SHARED_MAJORNAME=libc.so.$(MAJOR_VERSION) defined in Rules.mak
-LIB_NAME:=libc
+libc_FULL_NAME := libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-libc_DIR:=$(top_srcdir)libc
-libc_OUT:=$(top_builddir)libc
-
-libc_FULL_NAME:=libuClibc-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
-
-#DIRS:=misc pwd_grp stdio string termios inet signal stdlib sysdeps unistd
+libc_DIR := $(top_srcdir)libc
+libc_OUT := $(top_builddir)libc
 
 # this comes first, so duplicate removal works correctly
 include $(libc_DIR)/sysdeps/Makefile.in
@@ -31,17 +36,41 @@ include $(libc_DIR)/signal/Makefile.in
 include $(libc_DIR)/stdlib/Makefile.in
 include $(libc_DIR)/unistd/Makefile.in
 
-# Check if the target architecture has a version script for
-# libc, and if so, include it when linking.
-VERSION_SCRIPT := $(wildcard $(libc_DIR)/sysdeps/linux/$(TARGET_ARCH)/libc.map)
-ifneq ($(VERSION_SCRIPT),)
-VERSION_SCRIPT := --version-script $(VERSION_SCRIPT)
+libc-a-y += $(libc-static-y)
+libc-so-y += $(libc-shared-y)
+
+libc-nomulti-y += $(libc-shared-y)
+
+lib-a-y += $(top_builddir)lib/libc.a crt-y
+lib-so-y += libc-y $(top_builddir)lib/$(NONSHARED_LIBNAME) crt-y
+objclean-y += libc_clean
+
+$(top_builddir)lib/libc.so: $(libc_OUT)/libc_so.a pre-y
+	$(call link.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
+	$(Q)$(RM) $@
+	$(Q)echo "/* GNU ld script" > $@
+	$(Q)echo " * Use the shared library, but some functions are only in" >> $@
+	$(Q)echo " * the static library, so try that secondarily. */" >> $@
+ifeq ($(COMPAT_ATEXIT),y)
+	$(Q)echo "GROUP ( $(NONSHARED_LIBNAME) $(SHARED_MAJORNAME) $(ASNEEDED) )" >> $@
+else
+	$(Q)echo "GROUP ( $(SHARED_MAJORNAME) $(NONSHARED_LIBNAME) $(ASNEEDED) )" >> $@
 endif
 
-EXTRA_LINK_OPTS:=$(VERSION_SCRIPT) -init __uClibc_init
-EXTRA_LINK_LIBS:=$(libc_OUT)/misc/internals/interp.os $(top_builddir)lib/$(UCLIBC_LDSO) $(LIBGCC) # $(LDADD_LIBFLOAT)
+$(libc_OUT)/libc_so.a: $(libc-so-y)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
 
-objclean-y+=libc_clean
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libc.a: $(libc-a-y:.o=.os)
+else
+$(top_builddir)lib/libc.a: $(libc-a-y)
+endif
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
 
-lib-a-y+=$(top_builddir)lib/libc.a crt-y
-lib-so-y+=$(top_builddir)lib/libc.so $(top_builddir)lib/$(NONSHARED_LIBNAME) crt-y other-y
+libc_clean:
+	$(RM) $(libc_OUT)/*.{o,os,a}
