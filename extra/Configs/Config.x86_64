@@ -6,7 +6,7 @@
 config HAVE_ELF
 	bool
 	select ARCH_HAS_MMU
-	select HAS_NO_THREADS
+	select UCLIBC_HAS_LFS
 	default y
 
 config TARGET_ARCH
