@@ -29,11 +29,6 @@ ifeq ($(DODEBUG),y)
 CFLAGS:=$(CFLAGS:-O0 -g3=-Os -g)
 endif
 
-# BEWARE!!! At least mips* will die if -O0 is used!!!
-ifeq ($(TARGET_ARCH),mips)
-CFLAGS:=$(CFLAGS:-O0=-O1)
-endif
-
 # This stuff will not work with -fomit-frame-pointer
 CFLAGS:=$(CFLAGS:-fomit-frame-pointer=)
 

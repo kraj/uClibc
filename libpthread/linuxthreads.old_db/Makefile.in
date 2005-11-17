@@ -12,7 +12,7 @@ PT_MAJOR_VERSION:=$(MAJOR_VERSION)
 CFLAGS+=-DLIBPTHREAD_SO="\"libpthread.so.$(PT_MAJOR_VERSION)\""
 
 # Remove any -z defs since this lib will have undefined symbols
-LDFLAGS:=$(subst -z defs,,$(LDFLAGS)) --warn-unresolved-symbols
+LDFLAGS:=$(LDFLAGS_NOSTRIP) -s --warn-unresolved-symbols
 
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 STRIP_FLAGS:=-X --strip-debug -R .note -R .comment

@@ -16,11 +16,6 @@ ifeq ($(SUPPORT_LD_DEBUG),y)
 CFLAGS+=-D__SUPPORT_LD_DEBUG__
 endif
 
-# BEWARE!!! At least mips* will die if -O0 is used!!!
-ifeq ($(TARGET_ARCH),mips)
-CFLAGS:=$(CFLAGS:-O0=-O1)
-endif
-
 # can't combine .c w/ .S
 DOMULTI=n
 

@@ -1,22 +1,10 @@
 # Rules.make for uClibc
 #
 # Copyright (C) 2000 by Lineo, inc.
-# Copyright (C) 2000-2002 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
 #
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-
 
 #-----------------------------------------------------------
 # This file contains rules which are shared between multiple
@@ -68,9 +56,15 @@ VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 LC_ALL := C
 export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION LC_ALL
 
-SHARED_MAJORNAME:=libc.so.$(MAJOR_VERSION)
-UCLIBC_LDSO:=ld-uClibc.so.$(MAJOR_VERSION)
-NONSHARED_LIBNAME:=uclibc_nonshared.a
+LIBC := libc
+SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
+UCLIBC_LDSO := ld-uClibc.so.$(MAJOR_VERSION)
+NONSHARED_LIBNAME := uclibc_nonshared.a
+libc := $(TOPDIR)lib/$(LIBC).so
+interp := $(TOPDIR)libc/misc/internals/interp.os
+
+#LIBS :=$(interp) -L$(TOPDIR)lib -lc
+LIBS := $(interp) -L$(TOPDIR)lib $(libc)
 
 # Make sure DESTDIR and PREFIX can be used to install
 # PREFIX is a uClibcism while DESTDIR is a common GNUism
@@ -108,6 +102,7 @@ endif
 
 # Make certain these contain a final "/", but no "//"s.
 TARGET_ARCH:=$(shell grep -s ^TARGET_ARCH $(TOPDIR)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
+TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
 KERNEL_SOURCE:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(KERNEL_SOURCE))))))
@@ -120,7 +115,7 @@ PICFLAG:=-fPIC
 PIEFLAG_NAME:=-fPIE
 
 # Some nice CPU specific optimizations
-ifeq ($(strip $(TARGET_ARCH)),i386)
+ifeq ($(TARGET_ARCH),i386)
 	OPTIMIZATION+=$(call check_gcc,-mpreferred-stack-boundary=2,)
 	OPTIMIZATION+=$(call check_gcc,-falign-jumps=0 -falign-loops=0,-malign-jumps=0 -malign-loops=0)
 	CPU_CFLAGS-$(CONFIG_386)+=-march=i386
@@ -141,14 +136,14 @@ ifeq ($(strip $(TARGET_ARCH)),i386)
 	CPU_CFLAGS-$(CONFIG_NEHEMIAH)+=$(call check_gcc,-march=c3-2,-march=i686)
 endif
 
-ifeq ($(strip $(TARGET_ARCH)),sparc)
+ifeq ($(TARGET_ARCH),sparc)
 	CPU_CFLAGS-$(CONFIG_SPARC_V7)+=-mcpu=v7
 	CPU_CFLAGS-$(CONFIG_SPARC_V8)+=-mcpu=v8
 	CPU_CFLAGS-$(CONFIG_SPARC_V9)+=-mcpu=v9
 	CPU_CFLAGS-$(CONFIG_SPARC_V9B)+=$(call check_gcc,-mcpu=v9b,-mcpu=ultrasparc)
 endif
 
-ifeq ($(strip $(TARGET_ARCH)),arm)
+ifeq ($(TARGET_ARCH),arm)
 	OPTIMIZATION+=-fstrict-aliasing
 	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-EL
 	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN)+=-EB
@@ -168,7 +163,7 @@ ifeq ($(strip $(TARGET_ARCH)),arm)
 	CPU_CFLAGS-$(CONFIG_ARM_XSCALE)+=-march=armv4 -Wa,-mcpu=xscale
 endif
 
-ifeq ($(strip $(TARGET_ARCH)),mips)
+ifeq ($(TARGET_ARCH),mips)
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_1)+=-mips1
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_2)+=-mips2 -mtune=mips2
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_3)+=-mips3 -mtune=mips3
@@ -177,7 +172,7 @@ ifeq ($(strip $(TARGET_ARCH)),mips)
 	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS64)+=-mips64 -mtune=mips32
 endif
 
-ifeq ($(strip $(TARGET_ARCH)),sh)
+ifeq ($(TARGET_ARCH),sh)
 	OPTIMIZATION+=-fstrict-aliasing
 	OPTIMIZATION+= $(call check_gcc,-mprefergot,)
 	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN)+=-EL
@@ -195,7 +190,7 @@ else
 endif
 endif
 
-ifeq ($(strip $(TARGET_ARCH)),sh64)
+ifeq ($(TARGET_ARCH),sh64)
 	OPTIMIZATION+=-fstrict-aliasing
 	CPU_LDFLAGS-$(ARCH_LITTLE_ENDIAN):=-EL
 	CPU_LDFLAGS-$(ARCH_BIG_ENDIAN):=-EB
@@ -204,21 +199,21 @@ ifeq ($(strip $(TARGET_ARCH)),sh64)
 	CPU_CFLAGS-$(CONFIG_SH5)+=-m5-32media
 endif
 
-ifeq ($(strip $(TARGET_ARCH)),h8300)
+ifeq ($(TARGET_ARCH),h8300)
 	CPU_LDFLAGS-$(CONFIG_H8300H)+= -ms8300h
 	CPU_LDFLAGS-$(CONFIG_H8S)   += -ms8300s
 	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32 -fsigned-char
 	CPU_CFLAGS-$(CONFIG_H8S)    += -ms -mint32 -fsigned-char
 endif
 
-ifeq ($(strip $(TARGET_ARCH)),cris)
+ifeq ($(TARGET_ARCH),cris)
 	CPU_LDFLAGS-$(CONFIG_CRIS)+=-mcrislinux
 	CPU_CFLAGS-$(CONFIG_CRIS)+=-mlinux
 	PICFLAG:=-fpic
 	PIEFLAG_NAME:=-fpie
 endif
 
-ifeq ($(strip $(TARGET_ARCH)),powerpc)
+ifeq ($(TARGET_ARCH),powerpc)
 # PowerPC can hold 8192 entries in its GOT with -fpic which is more than
 # enough. Therefore use -fpic which will reduce code size and generates
 # faster code.
@@ -226,7 +221,7 @@ ifeq ($(strip $(TARGET_ARCH)),powerpc)
 	PIEFLAG_NAME:=-fpie
 endif
 
-ifeq ($(strip $(TARGET_ARCH)),frv)
+ifeq ($(TARGET_ARCH),frv)
 	CPU_LDFLAGS-$(CONFIG_FRV)+=-melf32frvfd
 	CPU_CFLAGS-$(CONFIG_FRV)+=-mfdpic
 	# Using -pie causes the program to have an interpreter, which is
@@ -283,7 +278,7 @@ ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
 # Hmm... might need to revisit this for arm since it has 2 different
 # soft float encodings.
     CPU_CFLAGS += -msoft-float
-ifeq ($(strip $(TARGET_ARCH)),arm)
+ifeq ($(TARGET_ARCH),arm)
 # No longer needed with current toolchains, but leave it here for now.
 # If anyone is actually still using gcc 2.95 (say), they can uncomment it.
 #    LDADD_LIBFLOAT=-lfloat
@@ -302,16 +297,25 @@ endif
 # Some nice CFLAGS to work with
 CFLAGS:=$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
 	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
-LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc -z defs
 
+LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
+
+ifeq ($(UCLIBC_BUILD_RELRO),y)
+LDFLAGS_NOSTRIP+=-z relro
+endif
+
+ifeq ($(UCLIBC_BUILD_NOW),y)
+LDFLAGS_NOSTRIP+=-z now
+endif
+
+LDFLAGS:=$(LDFLAGS_NOSTRIP) -z defs
 ifeq ($(DODEBUG),y)
     #CFLAGS += -g3
     CFLAGS += -O0 -g3
-    LDFLAGS := $(LDFLAGS_NOSTRIP)
     STRIPTOOL:= true -Since_we_are_debugging
 else
     CFLAGS += $(OPTIMIZATION) $(XARCH_CFLAGS)
-    LDFLAGS := $(LDFLAGS_NOSTRIP) -s
+    LDFLAGS += -s
 endif
 
 ifeq ($(DOMULTI),y)
@@ -375,20 +379,18 @@ endif
 CFLAGS+=$(PTINC)
 endif
 
-ifeq ($(UCLIBC_BUILD_RELRO),y)
-LDFLAGS+=-z relro
-endif
-
-ifeq ($(UCLIBC_BUILD_NOW),y)
-LDFLAGS+=-z now
-endif
-
 # Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
 #CFLAGS+=-iwithprefix include
 CFLAGS+=-isystem $(shell $(CC) -print-file-name=include)
 
 ifneq ($(DOASSERTS),y)
 CFLAGS+=-DNDEBUG
+endif
+
+# moved from ldso/{ldso,libdl}
+# BEWARE!!! At least mips* will die if -O0 is used!!!
+ifeq ($(TARGET_ARCH),mips)
+CFLAGS:=$(CFLAGS:-O0=-O1)
 endif
 
 # Keep the check_as from being needlessly executed
@@ -417,5 +419,3 @@ ifeq ($(CONFIG_BINFMT_SHARED_FLAT),y)
   export LIBID FLTFLAGS
   SHARED_TARGET = lib/libc
 endif
-
-TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
