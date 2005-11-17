@@ -96,7 +96,7 @@ headers: include/bits/uClibc_config.h
 	@cd $(top_builddir); \
 	set -e; \
 	$(SHELL_SET_X); \
-	TOPDIR=. CC="$(CC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
+	top_builddir=. CC="$(CC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
 	if cmp include/bits/sysnum.h include/bits/sysnum.h.new >/dev/null 2>&1; then \
 		$(RM) include/bits/sysnum.h.new; \
 	else \
