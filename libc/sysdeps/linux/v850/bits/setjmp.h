@@ -37,6 +37,6 @@ typedef struct
 /* Test if longjmp to JMPBUF would unwind the frame
    containing a local variable at ADDRESS.  */
 #define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (void *) &(jmpbuf)[0].__sp)
+  ((void *) (address) < (void *) (jmpbuf)[0].__sp)
 
 #endif	/* bits/setjmp.h */
