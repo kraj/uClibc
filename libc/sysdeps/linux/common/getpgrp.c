@@ -9,4 +9,7 @@
 
 #include "syscalls.h"
 #include <unistd.h>
+
+#ifdef __NR_getpgrp
 _syscall0(pid_t, getpgrp);
+#endif
