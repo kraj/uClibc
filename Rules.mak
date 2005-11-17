@@ -60,11 +60,11 @@ LIBC := libc
 SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
 UCLIBC_LDSO := ld-uClibc.so.$(MAJOR_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
-libc := $(TOPDIR)lib/$(LIBC).so
-interp := $(TOPDIR)libc/misc/internals/interp.os
+libc := $(top_builddir)lib/$(LIBC).so
+interp := $(top_builddir)libc/misc/internals/interp.os
 
-#LIBS :=$(interp) -L$(TOPDIR)lib -lc
-LIBS := $(interp) -L$(TOPDIR)lib $(libc)
+#LIBS :=$(interp) -L$(top_builddir)lib -lc
+LIBS := $(interp) -L$(top_builddir)lib $(libc)
 
 # Make sure DESTDIR and PREFIX can be used to install
 # PREFIX is a uClibcism while DESTDIR is a common GNUism
@@ -74,7 +74,7 @@ endif
 
 # Pull in the user's uClibc configuration
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
--include $(TOPDIR).config
+-include $(top_builddir).config
 endif
 
 ifndef CROSS
@@ -101,7 +101,7 @@ SHELL_SET_X=set +x
 endif
 
 # Make certain these contain a final "/", but no "//"s.
-TARGET_ARCH:=$(shell grep -s ^TARGET_ARCH $(TOPDIR)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
+TARGET_ARCH:=$(shell grep -s ^TARGET_ARCH $(top_builddir)/.config | sed -e 's/^TARGET_ARCH=//' -e 's/"//g')
 TARGET_ARCH:=$(strip $(subst ",, $(strip $(TARGET_ARCH))))
 RUNTIME_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(RUNTIME_PREFIX))))))
 DEVEL_PREFIX:=$(strip $(subst //,/, $(subst ,/, $(subst ",, $(strip $(DEVEL_PREFIX))))))
@@ -296,7 +296,7 @@ endif
 
 # Some nice CFLAGS to work with
 CFLAGS:=$(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
-	-fno-builtin -nostdinc -D_LIBC -I$(TOPDIR)include -I.
+	-fno-builtin -nostdinc -D_LIBC -I$(top_builddir)include -I.
 
 LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared --warn-common --warn-once -z combreloc
 
@@ -344,7 +344,7 @@ else
 	PTNAME := linuxthreads
 endif
 endif
-PTDIR := $(TOPDIR)libpthread/$(PTNAME)
+PTDIR := $(top_builddir)libpthread/$(PTNAME)
 # set up system dependencies include dirs (NOTE: order matters!)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 PTINC:=	-I$(PTDIR)/compat					\
@@ -409,8 +409,8 @@ LIBGCC_DIR:=$(dir $(LIBGCC))
 
 # moved from libpthread/linuxthreads
 ifeq ($(UCLIBC_CTOR_DTOR),y)
-SHARED_START_FILES:=$(TOPDIR)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
-SHARED_END_FILES:=$(LIBGCC_DIR)crtendS.o $(TOPDIR)lib/crtn.o
+SHARED_START_FILES:=$(top_builddir)lib/crti.o $(LIBGCC_DIR)crtbeginS.o
+SHARED_END_FILES:=$(LIBGCC_DIR)crtendS.o $(top_builddir)lib/crtn.o
 endif
 
 ########################################
