@@ -11,13 +11,13 @@ MOBJ:=	asctime.o asctime_r.o clock.o ctime.o ctime_r.o gmtime.o gmtime_r.o \
 	localtime.o localtime_r.o mktime.o strftime.o strptime.o tzset.o \
 	_time_t2tm.o __time_tm.o _time_mktime.o dysize.o timegm.o \
 	_time_mktime_tzi.o _time_localtime_tzi.o
-MOBJx=
+MOBJx:=
 
 ifeq ($(UCLIBC_HAS_FLOATS),y)
 MOBJ+=difftime.o 
 endif
 ifeq ($(UCLIBC_HAS_XLOCALE),y)
-MOBJx+=strftime_l.o strptime_l.o
+MOBJx:=strftime_l.o strptime_l.o
 endif
 
 ifeq ($(UCLIBC_HAS_WCHAR),y)
@@ -32,35 +32,39 @@ CSRC:=adjtime.c ftime.c
 MISC_TIME_DIR:=$(top_srcdir)libc/misc/time
 MISC_TIME_OUT:=$(top_builddir)libc/misc/time
 
-MISC_TIME_NO_MULTI:=strftime.o
+MISC_TIME_NO_MULTI:=strftime.o mktime.o strptime.o gmtime.o localtime.o asctime.o asctime_r.o gmtime_r.o localtime_r.o
 
 MISC_TIME_SRC:=$(patsubst %.c,$(MISC_TIME_DIR)/%.c,$(CSRC))
 MISC_TIME_OBJ:=$(patsubst %.c,$(MISC_TIME_OUT)/%.o,$(CSRC))
 
 MISC_TIME_MSRC:=$(patsubst %.c,$(MISC_TIME_DIR)/%.c,$(MSRC))
 MISC_TIME_MOBJ:=$(patsubst %.o,$(MISC_TIME_OUT)/%.o,$(MOBJ))
-MISC_TIME_MOBJx=$(patsubst %.o,$(MISC_TIME_OUT)/%.o,$(MOBJx))
+MISC_TIME_MOBJx:=$(patsubst %.o,$(MISC_TIME_OUT)/%.o,$(MOBJx))
 
-MISC_TIME_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(filter-out $(MISC_TIME_OUT)/$(MISC_TIME_NO_MULTI),$(MISC_TIME_MOBJ)))))
+MISC_TIME_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(filter-out $(MISC_TIME_NO_MULTI),$(notdir $(MISC_TIME_MOBJ)))))
 
 MISC_TIME_OBJS:=$(MISC_TIME_OBJ) $(MISC_TIME_MOBJ)
 
-$(MISC_TIME_MOBJ) $(MISC_TIME_MOBJ:.o=.os): $(MISC_TIME_MSRC)
+$(MISC_TIME_MOBJ): $(MISC_TIME_MSRC)
 	$(compile.m)
 
-$(MISC_TIME_MOBJx) $(MISC_TIME_MOBJx:.o=.os): $(MISC_TIME_MSRC)
+$(MISC_TIME_MOBJ:.o=.os): $(MISC_TIME_MSRC)
+	$(compile.m)
+
+$(MISC_TIME_MOBJx): $(MISC_TIME_MSRC)
+	$(compile.m) -D__UCLIBC_DO_XLOCALE
+
+$(MISC_TIME_MOBJx:.o=.os): $(MISC_TIME_MSRC)
 	$(compile.m) -D__UCLIBC_DO_XLOCALE
 
 libc-a-y+=$(MISC_TIME_OBJS)
 libc-a-$(UCLIBC_HAS_XLOCALE)+=$(MISC_TIME_MOBJx)
-libc-a-pic-y+=$(MISC_TIME_OBJS:.o=.os)
-libc-a-pic-$(UCLIBC_HAS_XLOCALE)+=$(MISC_TIME_MOBJx:.o=.os)
 libc-so-y+=$(MISC_TIME_OBJS:.o=.os)
 libc-so-$(UCLIBC_HAS_XLOCALE)+=$(MISC_TIME_MOBJx:.o=.os)
 
 CFLAGS-multi-y+=$(MISC_TIME_DEF)
 libc-multi-y+=$(MISC_TIME_MSRC)
-libc-nomulti-y+=$(MISC_TIME_OUT)/$(MISC_TIME_NO_MULTI)
+libc-nomulti-y+=$(patsubst %.o,$(MISC_TIME_OUT)/%.o,$(MISC_TIME_NO_MULTI))
 libc-nomulti-$(UCLIBC_HAS_XLOCALE)+=$(MISC_TIME_MOBJx)
 
 objclean-y+=misc_time_objclean

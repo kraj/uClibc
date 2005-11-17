@@ -33,11 +33,13 @@ MISC_WCHAR_MSRC:=$(MISC_WCHAR_DIR)/$(MSRC)
 MISC_WCHAR_MOBJ:=$(patsubst %.o,$(MISC_WCHAR_OUT)/%.o,$(MOBJ))
 MISC_WCHAR_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_WCHAR_MOBJ))))
 
-$(MISC_WCHAR_MOBJ) $(MISC_WCHAR_MOBJ:.o=.os): $(MISC_WCHAR_MSRC)
+$(MISC_WCHAR_MOBJ): $(MISC_WCHAR_MSRC)
+	$(compile.m)
+
+$(MISC_WCHAR_MOBJ:.o=.os): $(MISC_WCHAR_MSRC)
 	$(compile.m)
 
 libc-a-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MOBJ)
-libc-a-pic-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MOBJ:.o=.os)
 libc-so-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_MOBJ:.o=.os)
 
 CFLAGS-multi-$(UCLIBC_HAS_WCHAR)+=$(MISC_WCHAR_DEF)

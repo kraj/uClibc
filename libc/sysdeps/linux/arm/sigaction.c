@@ -132,7 +132,5 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 }
 
 #endif
-
-#ifndef LIBC_SIGACTION
 weak_alias(__libc_sigaction, sigaction)
-#endir
+

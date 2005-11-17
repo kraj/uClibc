@@ -4,14 +4,12 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
+#include <errno.h>
+
 /* This includes the `__NR_<name>' syscall numbers taken from the Linux kernel
  * header files.  It also defines the traditional `SYS_<name>' macros for older
  * programs.  */
 #include <bits/sysnum.h>
-
-#ifndef __set_errno
-# define __set_errno(val) (*__errno_location ()) = (val)
-#endif
 
 /*
    Some of the sneaky macros in the code were taken from 
@@ -30,6 +28,8 @@ asm (".L__X'%ebx = 1\n\t"
      ".L__X'%edi = 3\n\t"
      ".L__X'%ebp = 3\n\t"
      ".L__X'%esp = 3\n\t"
+     ".ifndef _BITS_SYSCALLS_ASM\n\t"
+     ".set _BITS_SYSCALLS_ASM,1\n\t"
      ".macro bpushl name reg\n\t"
      ".if 1 - \\name\n\t"
      ".if 2 - \\name\n\t"
@@ -54,7 +54,8 @@ asm (".L__X'%ebx = 1\n\t"
      "movl \\reg, %ebx\n\t"
      ".endif\n\t"
      ".endif\n\t"
-     ".endm\n\t");
+     ".endm\n\t"
+     ".endif\n\t");
 
 
 #undef _syscall0
@@ -145,7 +146,6 @@ return (type) (INLINE_SYSCALL(name, 5, arg1, arg2, arg3, arg4, arg5)); \
 	, "aD" (arg1), "c" (arg2), "d" (arg3), "S" (arg4)
 #define ASMFMT_5(arg1, arg2, arg3, arg4, arg5) \
 	, "a" (arg1), "c" (arg2), "d" (arg3), "S" (arg4), "D" (arg5)
-
 
 #endif /* __ASSEMBLER__ */
 #endif /* _BITS_SYSCALLS_H */

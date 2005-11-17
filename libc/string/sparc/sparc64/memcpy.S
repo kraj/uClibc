@@ -191,7 +191,10 @@
 	.text
 	.align		32
 
-ENTRY(bcopy)
+.globl bcopy
+.set bcopy,__bcopy
+.hidden __bcopy
+ENTRY(__bcopy)
 	sub		%o1, %o0, %o4			/* IEU0		Group		*/
 	mov		%o0, %g3			/* IEU1				*/
 	cmp		%o4, %o2			/* IEU1		Group		*/
@@ -205,7 +208,7 @@ ENTRY(bcopy)
 	 add		%o0, %o2, %o0			/* IEU0				*/
 	retl
 	 nop
-END(bcopy)
+END(__bcopy)
 
 	.align		32
 200:	be,pt		%xcc, 201f			/* CTI				*/
@@ -503,7 +506,10 @@ END(__align_cpy_16)
 #endif
 
 	.align		32
-ENTRY(memcpy)
+.globl memcpy
+.set memcpy,__memcpy
+.hidden __memcpy
+ENTRY(__memcpy)
 210:
 #ifndef USE_BPR
 	srl		%o2, 0, %o2			/* IEU1		Group		*/
@@ -694,7 +700,7 @@ ENTRY(memcpy)
 214:	wr		%g0, FPRS_FEF, %fprs
 	retl
 	 mov		%g4, %o0
-END(memcpy)
+END(__memcpy)
 
 	.align		32
 228:	andcc		%o2, 1, %g0			/* IEU1		Group		*/
@@ -719,7 +725,10 @@ END(memcpy)
 	 nop
 
 	.align		32
-ENTRY(memmove)
+.globl memmove
+.set memmove,__memmove
+.hidden __memmove
+ENTRY(__memmove)
 #ifndef USE_BPR
 	srl		%o2, 0, %o2			/* IEU1		Group		*/
 #endif
@@ -910,7 +919,7 @@ ENTRY(memmove)
 234:	wr		%g0, FPRS_FEF, %fprs
 	retl
 	 mov		%g4, %o0
-END(memmove)
+END(__memmove)
 
 #ifdef USE_BPR
 weak_alias (memcpy, __align_cpy_1)

@@ -33,8 +33,10 @@ include $(libc_DIR)/unistd/Makefile.in
 
 # Check if the target architecture has a version script for
 # libc, and if so, include it when linking.
-VERSION_SCRIPT:=${shell if [ -f $(libc_DIR)/sysdeps/linux/$(TARGET_ARCH)/libc.map ] ; then \
-        echo "--version-script $(libc_DIR)/sysdeps/linux/$(TARGET_ARCH)/libc.map"; fi}
+VERSION_SCRIPT := $(wildcard $(libc_DIR)/sysdeps/linux/$(TARGET_ARCH)/libc.map)
+ifneq ($(VERSION_SCRIPT),)
+VERSION_SCRIPT := --version-script $(VERSION_SCRIPT)
+endif
 
 EXTRA_LINK_OPTS:=$(VERSION_SCRIPT) -init __uClibc_init
 EXTRA_LINK_LIBS:=$(libc_OUT)/misc/internals/interp.os $(top_builddir)lib/$(UCLIBC_LDSO) $(LIBGCC) # $(LDADD_LIBFLOAT)

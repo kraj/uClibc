@@ -20,6 +20,45 @@
 # error "Never use <bits/fenv.h> directly; include <fenv.h> instead."
 #endif
 
+#ifdef __MAVERICK__
+
+/* Define bits representing exceptions in the FPU status word.  */
+enum
+  {
+    FE_INVALID = 1,
+#define FE_INVALID FE_INVALID
+    FE_OVERFLOW = 4,
+#define FE_OVERFLOW FE_OVERFLOW
+    FE_UNDERFLOW = 8,
+#define FE_UNDERFLOW FE_UNDERFLOW
+    FE_INEXACT = 16,
+#define FE_INEXACT FE_INEXACT
+  };
+
+/* Amount to shift by to convert an exception to a mask bit.  */
+#define FE_EXCEPT_SHIFT    5
+
+/* All supported exceptions.  */
+#define FE_ALL_EXCEPT  \
+	(FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT)
+
+/* IEEE rounding modes.  */
+enum
+  {
+    FE_TONEAREST = 0,
+#define FE_TONEAREST    FE_TONEAREST
+    FE_TOWARDZERO = 0x400,
+#define FE_TOWARDZERO   FE_TOWARDZERO
+    FE_DOWNWARD = 0x800,
+#define FE_DOWNWARD     FE_DOWNWARD
+    FE_UPWARD = 0xc00,
+#define FE_UPWARD       FE_UPWARD
+  };
+
+#define FE_ROUND_MASK (FE_UPWARD)
+
+#else /* !__MAVERICK__ */
+
 /* Define bits representing exceptions in the FPU status word.  */
 enum
   {
@@ -43,6 +82,8 @@ enum
 /* The ARM FPU basically only supports round-to-nearest.  Other rounding
    modes exist, but you have to encode them in the actual instruction.  */
 #define FE_TONEAREST	0
+
+#endif /* __MAVERICK__ */
 
 /* Type representing exception flags. */
 typedef unsigned long int fexcept_t;

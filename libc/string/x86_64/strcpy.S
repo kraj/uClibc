@@ -21,7 +21,10 @@
 #include "_glibc_inc.h"
 
 #ifndef USE_AS_STPCPY
-# define STRCPY strcpy
+# define STRCPY __strcpy
+.global strcpy
+.set strcpy,__strcpy
+.hidden __strcpy
 #endif
 
 	.text

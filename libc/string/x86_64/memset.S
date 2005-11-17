@@ -35,7 +35,10 @@ ENTRY (__memset_chk)
 	jb	HIDDEN_JUMPTARGET (__chk_fail)
 END (__memset_chk)
 #endif
-ENTRY (memset)
+.global memset
+.set memset,__memset
+.hidden __memset
+ENTRY (__memset)
 #if BZERO_P
 	mov	%rsi,%rdx	/* Adjust parameter.  */
 	xorl	%esi,%esi	/* Fill with 0s.  */
@@ -131,7 +134,7 @@ ENTRY (memset)
 	jne	11b
 	jmp	4b
 
-END (memset)
+END (__memset)
 
 #if !BZERO_P && defined PIC && !defined NOT_IN_libc
 strong_alias (__memset_chk, __memset_zero_constant_len_parameter)

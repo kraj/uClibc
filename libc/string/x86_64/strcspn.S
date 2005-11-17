@@ -26,10 +26,16 @@
 #include "_glibc_inc.h"
 
 /* BEWARE: `#ifdef strcspn' means that strcspn is redefined as `strpbrk' */
-#define STRPBRK_P (defined strcspn)
+#define STRPBRK_P (defined __strcspn)
 
 	.text
-ENTRY (strcspn)
+#if STRPBRK_P
+#else
+.global strcspn
+.set strcspn,__strcspn
+.hidden __strcspn
+#endif
+ENTRY (__strcspn)
 
 	movq %rdi, %rdx		/* Save SRC.  */
 
@@ -120,4 +126,4 @@ L(4):	addq $256, %rsp		/* remove skipset */
 				   non-valid character */
 #endif
 	ret
-END (strcspn)
+END (__strcspn)

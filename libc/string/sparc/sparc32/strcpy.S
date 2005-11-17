@@ -63,7 +63,10 @@
 	b		6f
 	 andcc		%o0, 3, %g3
 
-ENTRY(strcpy)
+.globl strcpy
+.set strcpy,__strcpy
+.hidden __strcpy
+ENTRY(__strcpy)
 	mov		%o0, %g2
 	andcc		%o1, 3, %g0
 	bne		1b
@@ -269,4 +272,4 @@ ENTRY(strcpy)
 	 srl		%o5, 16, %o4
 	retl
 	 mov		%g2, %o0
-END(strcpy)
+END(__strcpy)

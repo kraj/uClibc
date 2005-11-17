@@ -19,11 +19,14 @@
 
 	.section .text..SHmedia32,"ax"
 	.globl	memset
-	.type	memset, @function
+	.set	memset,__memset
+	.globl	__memset
+	.hidden	__memset
+	.type	__memset, @function
 
 	.align 5
 
-memset:
+__memset:
 	pta/l multiquad, tr0
 	andi r2, 7, r22
 	ptabs r18, tr2
@@ -88,5 +91,4 @@ loop:
 	sthi.q r5, -1, r3
 	blink tr2,r63
 
-	.size	memset, . - memset
-
+	.size	__memset,.-__memset

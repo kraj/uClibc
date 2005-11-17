@@ -17,7 +17,6 @@ MISC_DIRENT_SRC:=$(patsubst %.c,$(MISC_DIRENT_DIR)/%.c,$(CSRC))
 MISC_DIRENT_OBJ:=$(patsubst %.c,$(MISC_DIRENT_OUT)/%.o,$(CSRC))
 
 libc-a-y+=$(MISC_DIRENT_OBJ)
-libc-a-pic-y+=$(MISC_DIRENT_OBJ:.o=.os)
 libc-so-y+=$(MISC_DIRENT_OBJ:.o=.os)
 
 libc-multi-y+=$(MISC_DIRENT_SRC)

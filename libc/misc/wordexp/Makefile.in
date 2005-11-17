@@ -14,7 +14,6 @@ MISC_WORDEXP_SRC:=$(patsubst %.c,$(MISC_WORDEXP_DIR)/%.c,$(CSRC))
 MISC_WORDEXP_OBJ:=$(patsubst %.c,$(MISC_WORDEXP_OUT)/%.o,$(CSRC))
 
 libc-a-$(UCLIBC_HAS_WORDEXP)+=$(MISC_WORDEXP_OBJ)
-libc-a-pic-$(UCLIBC_HAS_WORDEXP)+=$(MISC_WORDEXP_OBJ:.o=.os)
 libc-so-$(UCLIBC_HAS_WORDEXP)+=$(MISC_WORDEXP_OBJ:.o=.os)
 
 libc-multi-$(UCLIBC_HAS_WORDEXP)+=$(MISC_WORDEXP_SRC)

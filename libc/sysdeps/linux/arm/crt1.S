@@ -1,5 +1,6 @@
 /* Startup code for ARM & ELF
-   Copyright (C) 1995, 1996, 1997, 1998, 2001, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1995, 1996, 1997, 1998, 2001, 2002, 2005
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -148,9 +149,13 @@ _start:
 	ldr a4, =_init
 
 	/* __uClibc_main (main, argc, argv, init, fini, rtld_fini, stack_end) */
+
 	/* Let the libc call main and exit with its return code.  */
 	b __uClibc_main
 #endif
+
+	/* should never get here....*/
+	bl abort
 
 #ifdef __PIC__
 .L_GOT:

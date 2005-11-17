@@ -28,7 +28,7 @@ LIB_NAME:=libdl
 
 EXTRA_LINK_OPTS:=-fini dl_cleanup
 # keep in sync w/ Makerules
-EXTRA_LINK_LIBS:=$(top_builddir)libc/misc/internals/interp.os $(top_builddir)lib/libc.so $(LIBGCC) $(top_builddir)lib/$(UCLIBC_LDSO)
+EXTRA_LINK_LIBS:=$(top_builddir)libc/misc/internals/interp.os -L$(top_builddir)lib $(top_builddir)lib/libc.so $(LIBGCC) $(top_builddir)lib/$(UCLIBC_LDSO)
 
 libdl_DIR:=$(top_srcdir)ldso/libdl
 libdl_OUT:=$(top_builddir)ldso/libdl

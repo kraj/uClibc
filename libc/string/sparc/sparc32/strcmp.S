@@ -74,7 +74,10 @@
 2:	retl
 	 mov		%o4, %o0
 
-ENTRY(strcmp)
+.globl strcmp
+.set strcmp,__strcmp
+.hidden __strcmp
+ENTRY(__strcmp)
 	andcc		%o0, 3, %g0
 	bne		10b
 	 sethi		%hi(0x80808080), %g1
@@ -252,4 +255,4 @@ ENTRY(strcmp)
 	 ld		[%i0], %i4
 	jmpl		%i7 + 8, %g0
 	 restore	%g4, %g0, %o0
-END(strcmp)
+END(__strcmp)

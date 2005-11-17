@@ -67,12 +67,6 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + symtab[symtab_index].st_name;
 
-	if (unlikely(reloc_type != R_386_JMP_SLOT)) {
-		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocations\n",
-		            _dl_progname);
-		_dl_exit(1);
-	}
-
 	/* Address of the jump instruction to fix up. */
 	instr_addr = ((unsigned long)this_reloc->r_offset +
 		      (unsigned long)tpnt->loadaddr);
@@ -81,7 +75,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	/* Get the address of the GOT entry. */
 	new_addr = _dl_find_hash(symname, tpnt->symbol_scope, tpnt, ELF_RTYPE_CLASS_PLT);
 	if (unlikely(!new_addr)) {
-		_dl_dprintf(2, "%s: Can't resolve symbol '%s'\n", _dl_progname, symname);
+		_dl_dprintf(2, "%s: can't resolve symbol '%s' in lib '%s'.\n", _dl_progname, symname, tpnt->libname);
 		_dl_exit(1);
 	}
 
@@ -147,15 +141,15 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			int reloc_type = ELF32_R_TYPE(rpnt->r_info);
 
 #if defined (__SUPPORT_LD_DEBUG__)
-			_dl_dprintf(2, "can't handle reloc type %s\n",
-				    _dl_reltypes(reloc_type));
+			_dl_dprintf(2, "can't handle reloc type '%s' in lib '%s'\n",
+				    _dl_reltypes(reloc_type), tpnt->libname);
 #else
-			_dl_dprintf(2, "can't handle reloc type %x\n",
-				    reloc_type);
+			_dl_dprintf(2, "can't handle reloc type %x in lib '%s'\n",
+				    reloc_type, tpnt->libname);
 #endif
-			_dl_exit(-res);
+			return res;
 		} else if (unlikely(res > 0)) {
-			_dl_dprintf(2, "can't resolve symbol\n");
+			_dl_dprintf(2, "can't resolve symbol in lib '%s'.\n", tpnt->libname);
 			return res;
 		}
 	}
@@ -191,10 +185,8 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		 * might have been intentional.  We should not be linking local
 		 * symbols here, so all bases should be covered.
 		 */
-		if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
-			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
-			_dl_exit(1);
-		};
+		if (unlikely(!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK))
+			return 1;
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -233,7 +225,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			}
 			break;
 		default:
-			return -1;	/* Calls _dl_exit(1). */
+			return -1;
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -273,7 +265,7 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct dyn_elf *scope,
 			*reloc_addr += (unsigned long)tpnt->loadaddr;
 			break;
 		default:
-			return -1;	/* Calls _dl_exit(1). */
+			return -1;
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)

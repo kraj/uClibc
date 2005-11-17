@@ -14,7 +14,6 @@ MISC_TTYENT_SRC:=$(patsubst %.c,$(MISC_TTYENT_DIR)/%.c,$(CSRC))
 MISC_TTYENT_OBJ:=$(patsubst %.c,$(MISC_TTYENT_OUT)/%.o,$(CSRC))
 
 libc-a-y+=$(MISC_TTYENT_OBJ)
-libc-a-pic-y+=$(MISC_TTYENT_OBJ:.o=.os)
 libc-so-y+=$(MISC_TTYENT_OBJ:.o=.os)
 
 libc-multi-y+=$(MISC_TTYENT_SRC)

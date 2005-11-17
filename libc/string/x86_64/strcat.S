@@ -23,7 +23,10 @@
 
 
 	.text
-ENTRY (BP_SYM (strcat))
+.global strcat
+.set strcat,__strcat
+.hidden __strcat
+ENTRY (BP_SYM (__strcat))
 	movq %rdi, %rcx		/* Dest. register. */
 	andl $7, %ecx		/* mask alignment bits */
 	movq %rdi, %rax		/* Duplicate destination pointer.  */
@@ -253,4 +256,4 @@ ENTRY (BP_SYM (strcat))
 24:
 	movq	%rdi, %rax	/* Source is return value.  */
 	retq
-END (BP_SYM (strcat))
+END (BP_SYM (__strcat))

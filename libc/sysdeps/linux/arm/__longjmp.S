@@ -33,9 +33,28 @@ __longjmp:
 	moveq	r0, #1		/* can't let setjmp() return zero! */
 
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
+# ifdef __MAVERICK__
+	cfldrd	mvd4,  [ip], #8 ; nop
+	cfldrd	mvd5,  [ip], #8 ; nop
+	cfldrd	mvd6,  [ip], #8 ; nop
+	cfldrd	mvd7,  [ip], #8 ; nop
+	cfldrd	mvd8,  [ip], #8 ; nop
+	cfldrd	mvd9,  [ip], #8 ; nop
+	cfldrd	mvd10, [ip], #8 ; nop
+	cfldrd	mvd11, [ip], #8 ; nop
+	cfldrd	mvd12, [ip], #8 ; nop
+	cfldrd	mvd13, [ip], #8 ; nop
+	cfldrd	mvd14, [ip], #8 ; nop
+	cfldrd	mvd15, [ip], #8
+# else
 	lfmfd	f4, 4, [ip] !	/* load the floating point regs */
+# endif
 #else
+# ifdef __MAVERICK__
+	add		ip, ip, #96		/* skip the FP registers */
+# else
 	add		ip, ip, #48		/* skip the FP registers */
+# endif
 #endif	
 
 	ldmia     ip ,  {v1-v6, sl, fp, sp, pc}

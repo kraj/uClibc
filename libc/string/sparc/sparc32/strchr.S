@@ -67,7 +67,10 @@
 1:	retl
 	 sub		%o0, 1, %o0
 
-ENTRY(strchr)
+.globl strchr
+.set strchr,__strchr
+.hidden __strchr
+ENTRY(__strchr)
 	andcc		%o1, 0xff, %o1
 	be		12f
 	 sll		%o1, 8, %o2
@@ -215,9 +218,12 @@ ENTRY(strchr)
 1:	 or		%o4, %lo(0x01010101), %o2
 	b		7f
 	 ld		[%o0], %g4
-END(strchr)
+END(__strchr)
 
-ENTRY(strrchr)
+.globl strrchr
+.set strrchr,__strrchr
+.hidden __strrchr
+ENTRY(__strrchr)
 	andcc		%o1, 0xff, %o1
 	clr		%o5
 	be		12b
@@ -274,7 +280,7 @@ ENTRY(strrchr)
 	 ld		[%o0], %g4
 9:	retl
 	 mov		%o5, %o0
-END(strrchr)
+END(__strrchr)
 
 weak_alias (strchr, index)
 weak_alias (strrchr, rindex)

@@ -47,7 +47,10 @@
 
 	.text
 	.align		32
-ENTRY(strchr)
+.globl strchr
+.set strchr,__strchr
+.hidden __strchr
+ENTRY(__strchr)
 	andcc		%o1, 0xff, %o1			/* IEU1		Group		*/
 	be,pn		%icc, 17f			/* CTI				*/
 	 sllx		%o1, 8, %g3			/* IEU0		Group		*/
@@ -327,10 +330,13 @@ ENTRY(strchr)
 	 lduba		[%o0] ASI_PNF, %o3		/* Load				*/
 	retl						/* CTI+IEU1	Group		*/
 	 add		%o0, -1, %o0			/* IEU0				*/
-END(strchr)
+END(__strchr)
 
 	.align		32
-ENTRY(strrchr)
+.globl strrchr
+.set strrchr,__strrchr
+.hidden __strrchr
+ENTRY(__strrchr)
 	andcc		%o1, 0xff, %o1			/* IEU1		Group		*/
 	be,pn		%icc, 17b			/* CTI				*/
 	 clr		%g4				/* IEU0				*/
@@ -474,7 +480,7 @@ ENTRY(strrchr)
 	ba,pt		%xcc, 1b			/* CTI		Group		*/
 
 	 ldx		[%o0], %o3			/* Load				*/
-END(strrchr)
+END(__strrchr)
 
 weak_alias (strchr, index)
 weak_alias (strrchr, rindex)

@@ -18,7 +18,7 @@ MOBJ+=	__C_ctype_b.o __C_ctype_tolower.o __C_ctype_toupper.o \
 	__ctype_assert.o isctype.o
 endif
 
-MOBJx=	isalnum_l.o isalpha_l.o isascii_l.o iscntrl_l.o isdigit_l.o \
+MOBJx:=	isalnum_l.o isalpha_l.o isascii_l.o iscntrl_l.o isdigit_l.o \
 	isgraph_l.o islower_l.o isprint_l.o ispunct_l.o isspace_l.o \
 	isupper_l.o isxdigit_l.o toascii_l.o tolower_l.o toupper_l.o \
 	isblank_l.o # isxlower_l.o isxupper_l.o
@@ -28,21 +28,24 @@ MISC_CTYPE_OUT:=$(top_builddir)libc/misc/ctype
 
 MISC_CTYPE_MSRC:=$(MISC_CTYPE_DIR)/$(MSRC)
 MISC_CTYPE_MOBJ:=$(patsubst %.o,$(MISC_CTYPE_OUT)/%.o,$(MOBJ))
-MISC_CTYPE_MOBJx=$(patsubst %.o,$(MISC_CTYPE_OUT)/%.o,$(MOBJx))
+MISC_CTYPE_MOBJx:=$(patsubst %.o,$(MISC_CTYPE_OUT)/%.o,$(MOBJx))
 
-# adapt this if MOBJx is done for multi
 MISC_CTYPE_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(notdir $(MISC_CTYPE_MOBJ))))
 
-$(MISC_CTYPE_MOBJ) $(MISC_CTYPE_MOBJ:.o=.os): $(MISC_CTYPE_MSRC)
+$(MISC_CTYPE_MOBJ): $(MISC_CTYPE_MSRC)
 	$(compile.m)
 
-$(MISC_CTYPE_MOBJx) $(MISC_CTYPE_MOBJx:.o=.os): $(MISC_CTYPE_MSRC)
+$(MISC_CTYPE_MOBJ:.o=.os): $(MISC_CTYPE_MSRC)
+	$(compile.m)
+
+$(MISC_CTYPE_MOBJx): $(MISC_CTYPE_MSRC)
+	$(compile.m) -D__UCLIBC_DO_XLOCALE
+
+$(MISC_CTYPE_MOBJx:.o=.os): $(MISC_CTYPE_MSRC)
 	$(compile.m) -D__UCLIBC_DO_XLOCALE
 
 libc-a-y+=$(MISC_CTYPE_MOBJ)
 libc-a-$(UCLIBC_HAS_XLOCALE)+=$(MISC_CTYPE_MOBJx)
-libc-a-pic-y+=$(MISC_CTYPE_MOBJ:.o=.os)
-libc-a-pic-$(UCLIBC_HAS_XLOCALE)+=$(MISC_CTYPE_MOBJx:.o=.os)
 libc-so-y+=$(MISC_CTYPE_MOBJ:.o=.os)
 libc-so-$(UCLIBC_HAS_XLOCALE)+=$(MISC_CTYPE_MOBJx:.o=.os)
 
