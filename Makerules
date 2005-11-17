@@ -63,10 +63,10 @@ disp_strip     = $($(DISP)_disp_strip)
 disp_ar        = $($(DISP)_disp_ar)
 disp_ld        = $($(DISP)_disp_ld)
 
-cmd_compile.c = $(CC) -c $< -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $@)) $(CFLAGS-$(notdir $<))
-cmd_compile.S = $(cmd_compile.c) $(S_CPPFLAGS) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $@)) $(ASFLAGS-$(notdir $<))
+cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) $(CFLAGS-$(notdir $<)) $(CFLAGS-$(notdir $@))
+cmd_compile.S = $(cmd_compile.c) $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $<)) $(ASFLAGS-$(notdir $@))
 cmd_compile.m = $(cmd_compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
-cmd_compile-m = $(CC) $^ -c -o $@ $(CPPFLAGS) $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $@)) $(CFLAGS-$(notdir $<)) $(CFLAGS-multi-y)
+cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $@)) $(CFLAGS-multi-y)
 cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
 cmd_ar        = $(AR) $(ARFLAGS) $@ $^
 
@@ -77,6 +77,18 @@ compile.m = @$(disp_compile.m) ; $(cmd_compile.m)
 compile-m = @$(disp_compile-m) ; $(cmd_compile-m)
 do_strip  = @$(disp_strip)     ; $(cmd_strip)
 do_ar     = @$(disp_ar)        ; $(cmd_ar)
+
+define link.so
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
+	@$(disp_ld)
+	$(Q)$(LD) $(LDFLAGS-$(notdir $@)) -soname=$(notdir $@).$(2) \
+		-o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
+		--whole-archive $(firstword $^) --no-whole-archive \
+		$(LIBS-$(notdir $@)) $(LIBGCC) $(END_FILE-$(notdir $@))
+	$(Q)$(LN) -sf $(1) $@.$(2)
+	$(Q)$(LN) -sf $(1) $@
+endef
 
 CFLAGS-.os+=$(PICFLAG)
 CFLAGS-.oS+=$(PICFLAG) -DSHARED
