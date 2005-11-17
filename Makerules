@@ -35,7 +35,7 @@ pur_disp_compile.c = echo "  "CC $(show_objs)
 pur_disp_compile.S = echo "  "AS $(show_objs)
 pur_disp_compile.m = $(pur_disp_compile.c)
 pur_disp_compile-m = echo "  "CC-m $(show_objs)
-pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS)
+pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS) $@:*
 pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
 pur_disp_ld        = echo "  "LD $($(LIB_NAME)_FULL_NAME)
 
