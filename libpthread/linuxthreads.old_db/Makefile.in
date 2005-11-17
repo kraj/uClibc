@@ -6,7 +6,7 @@
 #
 
 # Get the thread include dependencies and shared object name
-CFLAGS-linuxthreads_db.old := -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
+CFLAGS-linuxthreads.old_db := -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
 
 LDFLAGS-libthread_db.so := $(LDFLAGS_NOSTRIP) -s --warn-unresolved-symbols
 
@@ -14,8 +14,8 @@ LIBS-libthread_db.so := $(LIBS)
 
 libthread_db_FULL_NAME := libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-libthread_db_DIR := $(top_srcdir)libpthread/linuxthreads_db.old
-libthread_db_OUT := $(top_builddir)libpthread/linuxthreads_db.old
+libthread_db_DIR := $(top_srcdir)libpthread/linuxthreads.old_db
+libthread_db_OUT := $(top_builddir)libpthread/linuxthreads.old_db
 
 libthread_db_SRC := $(wildcard $(libthread_db_DIR)/*.c)
 
@@ -33,7 +33,7 @@ headers-$(PTHREADS_DEBUG_SUPPORT) += linuxthreads_db_headers
 headers_clean-y += linuxthreads_db_headers_clean
 
 $(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db_so.a libc-y
-	$(call link.so,$(libthread_db_FULL_NAME),1,,$(EXTRA_LINK_LIBS),,)
+	$(call link.so,$(libthread_db_FULL_NAME),1)
 
 $(libthread_db_OUT)/libthread_db_so.a: $(libthread_db-so-y)
 	$(Q)$(RM) $@
@@ -43,7 +43,7 @@ $(libthread_db_OUT)/libthread_db_so.a: $(libthread_db-so-y)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libthread_db.a: $(libthread_db-a-y:.o=.os)
 else
-$(top_builddir)lib/libthread_db.a: $(libpthread_db-a-y)
+$(top_builddir)lib/libthread_db.a: $(libthread_db-a-y)
 endif
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
