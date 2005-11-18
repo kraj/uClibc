@@ -27,19 +27,17 @@
 #include <sys/syscall.h>
 
 
-//#define __NR_create_module    127
-
 #ifdef __NR_create_module
 
 #if defined(__i386__) || defined(__m68k__) || defined(__arm__) || defined(__thumb__) || defined(__cris__) || defined(__i960__)
-#define __NR___create_module  __NR_create_module
-#ifdef __STR_NR_create_module
-#define __STR_NR___create_module  __STR_NR_create_module
-#endif
+# define __NR___create_module  __NR_create_module
+# ifdef __STR_NR_create_module
+#  define __STR_NR___create_module  __STR_NR_create_module
+# endif
 _syscall2(long, __create_module, const char *, name, size_t, size);
 /* By checking the value of errno, we know if we have been fooled 
  * by the syscall2 macro making a very high address look like a 
- * negaitive, so we we fix it up here.  */
+ * negative, so we we fix it up here.  */
 unsigned long create_module(const char *name, size_t size)
 {
 	long ret = __create_module(name, size);
@@ -52,7 +50,7 @@ unsigned long create_module(const char *name, size_t size)
 	return ret;
 }
 #elif defined(__alpha__)
-#define __NR___create_module  __NR_create_module
+# define __NR___create_module  __NR_create_module
 /* Alpha doesn't have the same problem, exactly, but a bug in older
    kernels fails to clear the error flag.  Clear it here explicitly.  */
 _syscall4(unsigned long, __create_module, const char *, name,
@@ -66,11 +64,10 @@ unsigned long create_module(const char *name, size_t size)
 _syscall2(unsigned long, create_module, const char *, name, size_t, size);
 #endif
 
-#else
-unsigned long create_module(const char *name, size_t size)
+#else /* !__NR_create_module */
+caddr_t create_module(const char *name, size_t size)
 {
 	__set_errno(ENOSYS);
-	return (unsigned long)-1;
+	return (caddr_t)-1;
 }
 #endif
-
