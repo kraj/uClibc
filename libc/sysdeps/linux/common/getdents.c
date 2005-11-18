@@ -44,7 +44,7 @@ struct kernel_dirent
 static inline _syscall3(int, __syscall_getdents, int, fd, unsigned char *, kdirp, size_t, count);
 
 
-ssize_t __getdents (int fd, char *buf, size_t nbytes)
+ssize_t attribute_hidden __getdents (int fd, char *buf, size_t nbytes)
 {
     struct dirent *dp;
     off_t last_offset = -1;

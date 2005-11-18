@@ -25,10 +25,7 @@
 #undef strcpy
 
 /* Copy SRC to DEST.  */
-char *
-strcpy (dest, src)
-     char *dest;
-     const char *src;
+char attribute_hidden *__strcpy (char *dest, const char *src)
 {
   reg_char c;
   char *__unbounded s = (char *__unbounded) CHECK_BOUNDS_LOW (src);
@@ -48,3 +45,5 @@ strcpy (dest, src)
 
   return dest;
 }
+
+strong_alias(__strcpy, strcpy)

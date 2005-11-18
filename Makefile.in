@@ -14,24 +14,6 @@ noconfig_targets := menuconfig config oldconfig randconfig \
 
 include $(top_builddir)Rules.mak
 
-# need to have libc.so built, before we can build the others
-ifeq ($(HAVE_SHARED),y)
-PRE_DIRS = ldso libc
-DIRS = ldso libcrypt libresolv libnsl libutil librt
-else
-PRE_DIRS = libc
-DIRS = libcrypt libresolv libnsl libutil librt
-endif
-ifeq ($(UCLIBC_HAS_FLOATS),y)
-	DIRS += libm
-endif
-ifeq ($(UCLIBC_HAS_THREADS),y)
-	DIRS += libpthread
-endif
-ifeq ($(UCLIBC_HAS_GETTEXT_AWARENESS),y)
-	DIRS += libintl
-endif
-
 ifeq ($(HAVE_DOT_CONFIG),y)
 
 all: finished
@@ -39,18 +21,30 @@ all: finished
 # In this section, we need .config
 -include .config.cmd
 
-finished: subdirs
+include $(top_srcdir)ldso/ldso/Makefile.in
+include $(top_srcdir)libc/Makefile.in
+include $(top_srcdir)ldso/libdl/Makefile.in
+include $(top_srcdir)libcrypt/Makefile.in
+include $(top_srcdir)libintl/Makefile.in
+include $(top_srcdir)libm/Makefile.in
+include $(top_srcdir)libnsl/Makefile.in
+include $(top_srcdir)libresolv/Makefile.in
+include $(top_srcdir)librt/Makefile.in
+include $(top_srcdir)libutil/Makefile.in
+include $(top_srcdir)libpthread/Makefile.in
+
+finished: pregen libs
 	$(SECHO)
 	$(SECHO) Finally finished compiling ...
 	$(SECHO)
 
 include/bits/uClibc_config.h: .config
-	@if [ ! -x $(top_builddir)extra/config/conf ] ; then \
-	    $(MAKE) -C $(top_builddir)extra/config conf; \
+	$(RM) -r include/bits
+	$(INSTALL) -d include/bits
+	@if [ ! -x extra/config/conf ] ; then \
+	    $(MAKE) -C extra/config conf; \
 	fi
-	$(RM) -r $(top_builddir)include/bits
-	$(INSTALL) -d $(top_builddir)include/bits
-	@$(top_builddir)extra/config/conf -o $(top_srcdir)extra/Configs/Config.in
+	@extra/config/conf -o $(top_srcdir)extra/Configs/Config.in
 
 # For the moment, we have to keep re-running this target 
 # because the fix includes scripts rely on pre-processers 
@@ -62,7 +56,7 @@ export header_extra_args =
 else
 export header_extra_args = -n
 endif
-headers: $(top_srcdir)include/bits/uClibc_config.h
+headers: include/bits/uClibc_config.h
 	@$(SHELL_SET_X); \
 	$(top_srcdir)extra/scripts/fix_includes.sh \
 		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
@@ -73,7 +67,7 @@ headers: $(top_srcdir)include/bits/uClibc_config.h
 		$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h include/ ; \
 	fi
 	$(LN) -fs ../libc/sysdeps/linux/common/dl-osinfo.h include/
-	@cd $(top_builddir)include/bits; \
+	@cd include/bits; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
 		$(LN) -fs $$i .; \
@@ -83,7 +77,7 @@ headers: $(top_srcdir)include/bits/uClibc_config.h
 			$(LN) -fs $$i .; \
 		done; \
 	fi
-	@cd $(top_builddir)include/sys; \
+	@cd include/sys; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/sys/*.h` ; do \
 		$(LN) -fs $$i .; \
@@ -96,20 +90,14 @@ headers: $(top_srcdir)include/bits/uClibc_config.h
 	@cd $(top_builddir); \
 	set -e; \
 	$(SHELL_SET_X); \
-	TOPDIR=. CC="$(CC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
+	top_builddir=. CC="$(CC)" /bin/sh extra/scripts/gen_bits_syscall_h.sh > include/bits/sysnum.h.new; \
 	if cmp include/bits/sysnum.h include/bits/sysnum.h.new >/dev/null 2>&1; then \
 		$(RM) include/bits/sysnum.h.new; \
 	else \
 		$(RM) include/bits/sysnum.h; \
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
-ifeq ($(HAVE_SHARED),y)
-	$(MAKE) -C ldso headers-y
-endif
-ifeq ($(UCLIBC_HAS_THREADS),y)
-	$(MAKE) -C libpthread headers-y
-endif
-	$(MAKE) -C libc/sysdeps/linux headers-y
+	$(MAKE) headers-y
 
 # Command used to download source code
 WGET:=wget --passive-ftp
@@ -127,14 +115,6 @@ ifeq ($(UCLIBC_PREGENERATED_LOCALE_DATA),y)
 	(cd $(top_builddir)extra/locale; zcat $(LOCALE_DATA_FILENAME) | tar -xvf -)
 	$(MAKE) -C $(top_srcdir)extra/locale pregen
 endif
-
-pre_subdirs: $(patsubst %, _pre_dir_%, $(PRE_DIRS))
-$(patsubst %, _pre_dir_%, $(PRE_DIRS)): pregen
-	@$(MAKE) -C $(patsubst _pre_dir_%, %, $@)
-
-subdirs: $(patsubst %, _dir_%, $(DIRS))
-$(patsubst %, _dir_%, $(DIRS)): pre_subdirs
-	@$(MAKE) -C $(patsubst _dir_%, %, $@)
 
 install: install_runtime install_dev finished2
 
@@ -350,9 +330,7 @@ clean:
 	$(RM) libc/stdio/*64.c
 	$(RM) include/fpu_control.h include/dl-osinfo.h
 	$(MAKE) -C extra/locale clean
-	$(MAKE) -C ldso headers_clean-y
-	$(MAKE) -C libpthread headers_clean-y
-	$(MAKE) -C libc/sysdeps/linux headers_clean-y
+	$(MAKE) headers_clean-y
 	$(MAKE) -C test clean
 	$(MAKE) -C utils clean
 	@set -e; \

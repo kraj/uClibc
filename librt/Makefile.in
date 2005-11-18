@@ -5,22 +5,46 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS+=$(SSP_ALL_CFLAGS)
+CFLAGS-librt := -DNOT_IN_libc $(SSP_ALL_CFLAGS)
 
-LIB_NAME:=librt
+LDFLAGS-librt.so := $(LDFLAGS)
 
-librt_DIR:=$(top_srcdir)librt
-librt_OUT:=$(top_builddir)librt
+LIBS-librt.so := $(LIBS)
 
-librt_SRC:=$(wildcard $(librt_DIR)/*.c)
-librt_OBJ:=$(patsubst $(librt_DIR)/%.c,$(librt_OUT)/%.o,$(librt_SRC))
+librt_FULL_NAME := librt-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-librt-a-y:=$(librt_OBJ)
-librt-so-y:=$(librt_OBJ:.o=.os)
+librt_DIR := $(top_srcdir)librt
+librt_OUT := $(top_builddir)librt
 
-librt-multi-y+=$(librt_SRC)
+librt_SRC := $(wildcard $(librt_DIR)/*.c)
+librt_OBJ := $(patsubst $(librt_DIR)/%.c,$(librt_OUT)/%.o,$(librt_SRC))
 
-objclean-y+=librt_clean
+librt-a-y := $(librt_OBJ)
+librt-so-y := $(librt_OBJ:.o=.os)
 
-lib-a-y+=$(top_builddir)lib/librt.a
-lib-so-y+=$(top_builddir)lib/librt.so
+librt-multi-y += $(librt_SRC)
+
+lib-a-y += $(top_builddir)lib/librt.a
+lib-so-y += $(top_builddir)lib/librt.so
+objclean-y += librt_clean
+
+$(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a libc-y
+	$(call link.so,$(librt_FULL_NAME),$(MAJOR_VERSION))
+
+$(librt_OUT)/librt_so.a: $(librt-so-y)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/librt.a: $(librt-a-y:.o=.os)
+else
+$(top_builddir)lib/librt.a: $(librt-a-y)
+endif
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+librt_clean:
+	$(RM) $(librt_OUT)/*.{o,os,a}

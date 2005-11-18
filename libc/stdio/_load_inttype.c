@@ -8,7 +8,7 @@
 #include "_stdio.h"
 #include <printf.h>
 
-uintmax_t _load_inttype(int desttype, register const void *src, int uflag)
+uintmax_t attribute_hidden _load_inttype(int desttype, register const void *src, int uflag)
 {
 	if (uflag >= 0) {			/* unsigned */
 #if LONG_MAX != INT_MAX

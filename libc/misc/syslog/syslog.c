@@ -254,7 +254,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	/* should mode be `O_WRONLY | O_NOCTTY' ? -- Uli */
 	if (LogStat & LOG_CONS &&
 	    (fd = open(_PATH_CONSOLE, O_WRONLY, 0)) >= 0) {
-		p = index(tbuf, '>') + 1;
+		p = strchr(tbuf, '>') + 1;
 		last_chr[0] = '\r';
 		last_chr[1] = '\n';
 		(void)write(fd, p, last_chr - p + 2);

@@ -6,7 +6,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS-__uClibc_main.c=$(SSP_DISABLE_FLAGS)
+CFLAGS-__uClibc_main.c:=$(SSP_DISABLE_FLAGS)
 
 CSRC:=tempname.c errno.c __errno_location.c __h_errno_location.c
 
@@ -16,9 +16,7 @@ MISC_INTERNALS_OUT:=$(top_builddir)libc/misc/internals
 MISC_INTERNALS_SRC:=$(patsubst %.c,$(MISC_INTERNALS_DIR)/%.c,$(CSRC))
 MISC_INTERNALS_OBJ:=$(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(CSRC))
 
-STATIC_SRC:=__uClibc_main.c
-
-$(MISC_INTERNALS_OUT)/interp.c: $(MISC_INTERNALS_DIR)/Makefile.in
+$(MISC_INTERNALS_OUT)/interp.c: headers_root
 	$(Q)echo "/* Force shared libraries to know about the correct library loader */" > $@
 	$(Q)echo "#include <features.h>" >> $@
 	$(Q)echo "#ifdef __HAVE_ELF__" >> $@
@@ -29,8 +27,7 @@ $(MISC_INTERNALS_OUT)/interp.c: $(MISC_INTERNALS_DIR)/Makefile.in
 libc-a-y+=$(MISC_INTERNALS_OBJ)
 libc-so-y+=$(MISC_INTERNALS_OBJ:.o=.os)
 libc-shared-y+=$(MISC_INTERNALS_OUT)/__uClibc_main.oS
-libc-static-y+=$(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(STATIC_SRC))
-other-y+=$(MISC_INTERNALS_OUT)/interp.os
+libc-static-y+=$(MISC_INTERNALS_OUT)/__uClibc_main.o
 
 libc-multi-y+=$(MISC_INTERNALS_SRC)
 

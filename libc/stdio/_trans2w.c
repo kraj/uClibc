@@ -21,9 +21,9 @@
  */
 
 #ifdef __UCLIBC_HAS_WCHAR__
-int __stdio_trans2w_o(FILE * __restrict stream, int oflag)
+int attribute_hidden __stdio_trans2w_o(FILE * __restrict stream, int oflag)
 #else
-int __stdio_trans2w(FILE * __restrict stream)
+int attribute_hidden __stdio_trans2w(FILE * __restrict stream)
 #endif
 {
 	__STDIO_STREAM_VALIDATE(stream);

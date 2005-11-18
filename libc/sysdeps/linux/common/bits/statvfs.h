@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1998, 2000, 2001 Free Software Foundation, Inc.
+/* Copyright (C) 1997, 1998, 2000, 2001, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -22,6 +22,10 @@
 
 #include <bits/types.h>  /* For __fsblkcnt_t and __fsfilcnt_t.  */
 
+#if __WORDSIZE == 32
+#define _STATVFSBUF_F_UNUSED
+#endif
+
 struct statvfs
   {
     unsigned long int f_bsize;
@@ -42,12 +46,13 @@ struct statvfs
     __fsfilcnt64_t f_favail;
 #endif
     unsigned long int f_fsid;
+#ifdef _STATVFSBUF_F_UNUSED
     int __f_unused;
+#endif
     unsigned long int f_flag;
     unsigned long int f_namemax;
     int __f_spare[6];
   };
-#define _STATVFSBUF_F_UNUSED
 
 #ifdef __USE_LARGEFILE64
 struct statvfs64
@@ -61,7 +66,9 @@ struct statvfs64
     __fsfilcnt64_t f_ffree;
     __fsfilcnt64_t f_favail;
     unsigned long int f_fsid;
+#ifdef _STATVFSBUF_F_UNUSED
     int __f_unused;
+#endif
     unsigned long int f_flag;
     unsigned long int f_namemax;
     int __f_spare[6];
@@ -69,14 +76,15 @@ struct statvfs64
 #endif
 
 /* Definitions for the flag in `f_flag'.  These definitions should be
-   kept in sync which the definitions in <sys/mount.h>.  */
+   kept in sync with the definitions in <sys/mount.h>.  */
 enum
 {
   ST_RDONLY = 1,		/* Mount read-only.  */
 #define ST_RDONLY	ST_RDONLY
-  ST_NOSUID = 2,		/* Ignore suid and sgid bits.  */
+  ST_NOSUID = 2			/* Ignore suid and sgid bits.  */
 #define ST_NOSUID	ST_NOSUID
 #ifdef __USE_GNU
+  ,
   ST_NODEV = 4,			/* Disallow access to device special files.  */
 # define ST_NODEV	ST_NODEV
   ST_NOEXEC = 8,		/* Disallow program execution.  */
@@ -93,7 +101,7 @@ enum
 # define ST_IMMUTABLE	ST_IMMUTABLE
   ST_NOATIME = 1024,		/* Do not update access times.  */
 # define ST_NOATIME	ST_NOATIME
-  ST_NODIRATIME			/* Do not update directory access times.  */
+  ST_NODIRATIME = 2048		/* Do not update directory access times.  */
 # define ST_NODIRATIME	ST_NODIRATIME
 #endif	/* Use GNU.  */
 };

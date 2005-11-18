@@ -19,7 +19,7 @@
  * Side effects are those of _stdio_READ.
  */
 
-size_t __stdio_rfill(register FILE *__restrict stream)
+size_t attribute_hidden __stdio_rfill(register FILE *__restrict stream)
 {
 	size_t rv;
 

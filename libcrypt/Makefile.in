@@ -6,22 +6,46 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS+=$(SSP_ALL_CFLAGS)
+CFLAGS-libcrypt := -DNOT_IN_libc $(SSP_ALL_CFLAGS)
 
-LIB_NAME:=libcrypt
+LDFLAGS-libcrypt.so := $(LDFLAGS)
 
-libcrypt_DIR:=$(top_srcdir)libcrypt
-libcrypt_OUT:=$(top_builddir)libcrypt
+LIBS-libcrypt.so := $(LIBS)
 
-libcrypt_SRC:=$(wildcard $(libcrypt_DIR)/*.c)
-libcrypt_OBJ:=$(patsubst $(libcrypt_DIR)/%.c,$(libcrypt_OUT)/%.o,$(libcrypt_SRC))
+libcrypt_FULL_NAME := libcrypt-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-libcrypt-a-y:=$(libcrypt_OBJ)
-libcrypt-so-y:=$(libcrypt_OBJ:.o=.os)
+libcrypt_DIR := $(top_srcdir)libcrypt
+libcrypt_OUT := $(top_builddir)libcrypt
 
-libcrypt-multi-y:=$(libcrypt_SRC)
+libcrypt_SRC := $(wildcard $(libcrypt_DIR)/*.c)
+libcrypt_OBJ := $(patsubst $(libcrypt_DIR)/%.c,$(libcrypt_OUT)/%.o,$(libcrypt_SRC))
 
-objclean-y+=libcrypt_clean
+libcrypt-a-y := $(libcrypt_OBJ)
+libcrypt-so-y := $(libcrypt_OBJ:.o=.os)
 
-lib-a-y+=$(top_builddir)lib/libcrypt.a
-lib-so-y+=$(top_builddir)lib/libcrypt.so
+libcrypt-multi-y := $(libcrypt_SRC)
+
+lib-a-y += $(top_builddir)lib/libcrypt.a
+lib-so-y += $(top_builddir)lib/libcrypt.so
+objclean-y += libcrypt_clean
+
+$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a libc-y
+	$(call link.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
+
+$(libcrypt_OUT)/libcrypt_so.a: $(libcrypt-so-y)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libcrypt.a: $(libcrypt-a-y:.o=.os)
+else
+$(top_builddir)lib/libcrypt.a: $(libcrypt-a-y)
+endif
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+libcrypt_clean:
+	$(RM) $(libcrypt_OUT)/*.{o,os,a}

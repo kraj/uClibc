@@ -22,7 +22,7 @@
 #undef memmem
 
 /* Return the first occurrence of NEEDLE in HAYSTACK.  */
-void *memmem (const void *haystack, size_t haystack_len,
+void attribute_hidden *__memmem (const void *haystack, size_t haystack_len,
 			  const void *needle,  size_t needle_len)
 {
   const char *begin;
@@ -48,3 +48,5 @@ void *memmem (const void *haystack, size_t haystack_len,
 
   return NULL;
 }
+
+strong_alias(__memmem, memmem)

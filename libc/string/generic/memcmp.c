@@ -275,10 +275,7 @@ memcmp_not_common_alignment (srcp1, srcp2, len)
 }
 
 int
-memcmp (s1, s2, len)
-     const __ptr_t s1;
-     const __ptr_t s2;
-     size_t len;
+attribute_hidden __memcmp (const __ptr_t s1, const __ptr_t s2, size_t len)
 {
   op_t a0;
   op_t b0;
@@ -334,7 +331,7 @@ memcmp (s1, s2, len)
 
   return 0;
 }
-#ifdef weak_alias
-# undef bcmp
-weak_alias (memcmp, bcmp)
-#endif
+
+strong_alias(__memcmp, memcmp)
+
+weak_alias(memcmp, bcmp)

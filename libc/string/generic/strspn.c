@@ -22,10 +22,7 @@
 
 /* Return the length of the maximum initial segment
    of S which contains only characters in ACCEPT.  */
-size_t
-strspn (s, accept)
-     const char *s;
-     const char *accept;
+size_t attribute_hidden __strspn (const char *s, const char *accept)
 {
   const char *p;
   const char *a;
@@ -44,3 +41,5 @@ strspn (s, accept)
 
   return count;
 }
+
+strong_alias(__strspn, strspn)

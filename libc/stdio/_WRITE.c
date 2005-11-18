@@ -28,7 +28,7 @@
  *   NOT THREADSAFE!  Assumes stream already locked if necessary.
  */
 
-size_t __stdio_WRITE(register FILE *stream,
+size_t attribute_hidden __stdio_WRITE(register FILE *stream,
 					 register const unsigned char *buf, size_t bufsize)
 {
 	size_t todo;

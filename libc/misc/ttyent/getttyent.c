@@ -96,7 +96,7 @@ static char * skip(register char *p)
 static char * value(register char *p)
 {
 
-    return ((p = index(p, '=')) ? ++p : NULL);
+    return ((p = strchr(p, '=')) ? ++p : NULL);
 }
 
 struct ttyent * getttyent(void)
@@ -122,7 +122,7 @@ struct ttyent * getttyent(void)
 	    return (NULL);
 	}
 	/* skip lines that are too big */
-	if (!index(p, '\n')) {
+	if (!strchr(p, '\n')) {
 	    while ((c = getc_unlocked(tf)) != '\n' && c != EOF)
 		;
 	    continue;
@@ -171,7 +171,7 @@ struct ttyent * getttyent(void)
     tty.ty_comment = p;
     if (*p == 0)
 	tty.ty_comment = 0;
-    if ((p = index(p, '\n')))
+    if ((p = strchr(p, '\n')))
 	*p = '\0';
     return (&tty);
 }

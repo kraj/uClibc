@@ -2,9 +2,9 @@
 /*
  * __syscall_fcntl() for uClibc
  *
- * Copyright (C) 2000-2004 by Erik Andersen <andersen@codepoet.org>
+ * Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
  *
- * GNU Library General Public License (LGPL) version 2 or later.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include "syscalls.h"
@@ -12,7 +12,7 @@
 #include <fcntl.h>
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64
-extern int __libc_fcntl64(int fd, int cmd, long arg);
+extern int __libc_fcntl64(int fd, int cmd, ...);
 #endif
 
 #define __NR___syscall_fcntl __NR_fcntl
@@ -39,7 +39,7 @@ int __libc_fcntl(int fd, int cmd, ...)
 	return (__syscall_fcntl(fd, cmd, arg));
 }
 
-weak_alias(__libc_fcntl, fcntl);
+weak_alias(__libc_fcntl, fcntl)
 #if ! defined __NR_fcntl64 && defined __UCLIBC_HAS_LFS__
-weak_alias(__libc_fcntl, fcntl64);
+weak_alias(__libc_fcntl, fcntl64)
 #endif

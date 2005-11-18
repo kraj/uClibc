@@ -16,7 +16,7 @@
  * If position is unrepresentable, set errno to EOVERFLOW.
  */
 
-int __stdio_adjust_position(register FILE * __restrict stream,
+int attribute_hidden __stdio_adjust_position(register FILE * __restrict stream,
 							register __offmax_t *pos)
 {
 	__offmax_t oldpos;

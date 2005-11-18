@@ -46,7 +46,6 @@
 
 #define _ISOC99_SOURCE			/* for LLONG_MAX primarily... */
 #define _GNU_SOURCE
-#define _STDIO_UTILITY
 #include <features.h>
 #include "_stdio.h"
 #include <stdlib.h>
@@ -661,16 +660,16 @@ typedef struct {
 /**********************************************************************/
 
 extern void __init_scan_cookie(register struct scan_cookie *sc,
-							   register FILE *fp);
-extern int __scan_getc(register struct scan_cookie *sc);
-extern void __scan_ungetc(register struct scan_cookie *sc);
+							   register FILE *fp) attribute_hidden;
+extern int __scan_getc(register struct scan_cookie *sc) attribute_hidden;
+extern void __scan_ungetc(register struct scan_cookie *sc) attribute_hidden;
 
 #ifdef __UCLIBC_HAS_FLOATS__
 extern int __scan_strtold(long double *ld, struct scan_cookie *sc);
 #endif /* __UCLIBC_HAS_FLOATS__ */
 
-extern int __psfs_parse_spec(psfs_t *psfs);
-extern int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc);
+extern int __psfs_parse_spec(psfs_t *psfs) attribute_hidden;
+extern int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc) attribute_hidden;
 
 /**********************************************************************/
 #ifdef L___scan_cookie
@@ -682,7 +681,7 @@ extern int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc);
 static const char decpt_str[] = ".";
 #endif
 
-void __init_scan_cookie(register struct scan_cookie *sc,
+void attribute_hidden __init_scan_cookie(register struct scan_cookie *sc,
 						register FILE *fp)
 {
 	sc->fp = fp;
@@ -723,7 +722,7 @@ void __init_scan_cookie(register struct scan_cookie *sc,
 
 }
 
-int __scan_getc(register struct scan_cookie *sc)
+int attribute_hidden __scan_getc(register struct scan_cookie *sc)
 {
 	int c;
 
@@ -771,7 +770,7 @@ int __scan_getc(register struct scan_cookie *sc)
 	return sc->cc = sc->ungot_char;
 }
 
-void __scan_ungetc(register struct scan_cookie *sc)
+void attribute_hidden __scan_ungetc(register struct scan_cookie *sc)
 {
 	++sc->width;
 	if (sc->ungot_flag == 2) {	/* last was EOF */
@@ -797,7 +796,7 @@ static const unsigned char qual_chars[] = QUAL_CHARS;
 static const unsigned char spec_ranges[] = SPEC_RANGES;
 static const unsigned short spec_allowed[] = SPEC_ALLOWED_FLAGS;
 
-int __psfs_parse_spec(register psfs_t *psfs)
+int attribute_hidden __psfs_parse_spec(register psfs_t *psfs)
 {
 	const unsigned char *p;
 	const unsigned char *fmt0 = psfs->fmt;
@@ -1756,7 +1755,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 static const unsigned char spec_base[] = SPEC_BASE;
 static const unsigned char nil_string[] = "(nil)";
 
-int __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
+int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 {
 	unsigned char *b;
 	const unsigned char *p;

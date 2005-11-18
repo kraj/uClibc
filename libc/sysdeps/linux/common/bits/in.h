@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-1999, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1991-1999, 2000, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -30,8 +30,8 @@
 #define IP_HDRINCL         3	/* int; Header is included with data.  */
 #define IP_OPTIONS         4	/* ip_opts; IP per-packet options.  */
 #define IP_ROUTER_ALERT    5	/* bool */
-#define IP_RECVOPTS        6	/* bool */
-#define IP_RETOPTS         7	/* bool */
+#define IP_RECVOPTS        6	/* bool; Receive all IP options w/datagram.  */
+#define IP_RETOPTS         7	/* bool; Set/get IP per-packet options.  */
 #define IP_PKTINFO         8	/* bool */
 #define IP_PKTOPTIONS      9
 #define IP_PMTUDISC        10	/* obsolete name? */
@@ -44,9 +44,24 @@
 #define IP_MULTICAST_LOOP  34	/* i_char; set/get IP multicast loopback */
 #define IP_ADD_MEMBERSHIP  35	/* ip_mreq; add an IP group membership */
 #define IP_DROP_MEMBERSHIP 36	/* ip_mreq; drop an IP group membership */
+#define IP_UNBLOCK_SOURCE  37	/* ip_mreq_source: unblock data from source */
+#define IP_BLOCK_SOURCE    38	/* ip_mreq_source: block data from source */
+#define IP_ADD_SOURCE_MEMBERSHIP  39	/* ip_mreq_source: join source group */
+#define IP_DROP_SOURCE_MEMBERSHIP 40	/* ip_mreq_source: leave source group */
+#define IP_MSFILTER               41
+#define MCAST_JOIN_GROUP          42	/* group_req: join any-source group */
+#define MCAST_BLOCK_SOURCE        43	/* group_source_req: block from given group */
+#define MCAST_UNBLOCK_SOURCE      44	/* group_source_req: unblock from given group*/
+#define MCAST_LEAVE_GROUP         45	/* group_req: leave any-source group */
+#define MCAST_JOIN_SOURCE_GROUP   46	/* group_source_req: join source-spec gr */
+#define MCAST_LEAVE_SOURCE_GROUP  47	/* group_source_req: leave source-spec gr*/
+#define MCAST_MSFILTER            48
+
+#define MCAST_EXCLUDE   0
+#define MCAST_INCLUDE   1
 
 /* For BSD compatibility.  */
-#define IP_RECVRETOPTS	IP_RETOPTS
+#define IP_RECVRETOPTS     IP_RETOPTS	/* bool; Receive IP options for response.  */
 
 /* IP_MTU_DISCOVER arguments.  */
 #define IP_PMTUDISC_DONT   0	/* Never send DF frames.  */
@@ -60,9 +75,9 @@
 #define IP_DEFAULT_MULTICAST_LOOP       1
 #define IP_MAX_MEMBERSHIPS              20
 
-/* Structure used to describe IP options for IP_OPTIONS. The `ip_dst'
-   field is used for the first-hop gateway when using a source route
-   (this gets put into the header proper).  */
+/* Structure used to describe IP options for IP_OPTIONS and IP_RETOPTS.
+   The `ip_dst' field is used for the first-hop gateway when using a
+   source route (this gets put into the header proper).  */
 struct ip_opts
   {
     struct in_addr ip_dst;	/* First hop; zero without source route.  */
@@ -115,15 +130,19 @@ struct in_pktinfo
 #define IPV6_MTU_DISCOVER	23
 #define IPV6_MTU		24
 #define IPV6_RECVERR		25
+#define IPV6_V6ONLY		26
+#define IPV6_JOIN_ANYCAST	27
+#define IPV6_LEAVE_ANYCAST	28
+#define IPV6_IPSEC_POLICY	34
+#define IPV6_XFRM_POLICY	35
 
 #define SCM_SRCRT		IPV6_RXSRCRT
 
 /* Obsolete synonyms for the above.  */
-#define IPV6_RXHOPOPTS		IPV6_HOPOPTS
-#define IPV6_RXDSTOPTS		IPV6_DSTOPTS
 #define IPV6_ADD_MEMBERSHIP	IPV6_JOIN_GROUP
 #define IPV6_DROP_MEMBERSHIP	IPV6_LEAVE_GROUP
-
+#define IPV6_RXHOPOPTS		IPV6_HOPOPTS
+#define IPV6_RXDSTOPTS		IPV6_DSTOPTS
 
 /* IPV6_MTU_DISCOVER values.  */
 #define IPV6_PMTUDISC_DONT	0	/* Never send DF frames.  */

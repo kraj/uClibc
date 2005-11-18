@@ -22,10 +22,7 @@
 
 /* Return the length of the maximum initial segment of S
    which contains no characters from REJECT.  */
-size_t
-strcspn (s, reject)
-     const char *s;
-     const char *reject;
+size_t attribute_hidden __strcspn (const char *s, const char *reject)
 {
   size_t count = 0;
 
@@ -37,3 +34,5 @@ strcspn (s, reject)
 
   return count;
 }
+
+strong_alias(__strcspn, strcspn)

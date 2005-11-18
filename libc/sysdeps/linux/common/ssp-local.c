@@ -23,12 +23,12 @@
 
 #include <features.h>
 
-extern void __stack_chk_fail (void) __attribute__ ((noreturn));
+extern void __stack_chk_fail (void) attribute_noreturn;
 
 /* On some architectures, this helps needless PIC pointer setup
    that would be needed just for the __stack_chk_fail call.  */
 
-void __attribute__ ((noreturn)) attribute_hidden
+void attribute_noreturn attribute_hidden
 __stack_chk_fail_local (void)
 {
   __stack_chk_fail ();

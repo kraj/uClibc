@@ -22,11 +22,7 @@
 
 #undef strncat
 
-char *
-strncat (s1, s2, n)
-     char *s1;
-     const char *s2;
-     size_t n;
+char attribute_hidden *__strncat (char *s1, const char *s2, size_t n)
 {
   reg_char c;
   char *s = s1;
@@ -79,3 +75,5 @@ strncat (s1, s2, n)
 
   return s;
 }
+
+strong_alias(__strncat, strncat)

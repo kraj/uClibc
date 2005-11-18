@@ -7,8 +7,11 @@
 #include <signal.h>
 #include <sys/types.h>
 
-int raise(int signo)
+#undef raise
+int attribute_hidden __raise(int signo)
 {
     return kill(getpid(), signo);
 }
 
+/* psm: keep this weak, because the one in libpthread.so could overwrite it */
+weak_alias(__raise, raise)

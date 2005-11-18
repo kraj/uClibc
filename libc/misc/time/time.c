@@ -1239,9 +1239,7 @@ __XL_ALIAS(strftime)
 /**********************************************************************/
 #if defined(L_strptime) || defined(L_strptime_l)
 
-#if defined(L_strptime) || defined(L_strptime_l)
 #define ISDIGIT(C) __isdigit_char((C))
-#endif
 
 #ifdef __UCLIBC_DO_XLOCALE
 #define ISSPACE(C) isspace_l((C), locale_arg)

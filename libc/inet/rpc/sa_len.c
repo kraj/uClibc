@@ -31,7 +31,7 @@
 #include <netrose/rose.h>
 #endif
 
-int __libc_sa_len (sa_family_t af)
+int attribute_hidden __libc_sa_len (sa_family_t af)
 {
   switch (af)
     {

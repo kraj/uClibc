@@ -19,7 +19,7 @@ typedef size_t (__fp_outfunc_t)(FILE *fp, intptr_t type, intptr_t len,
  *
  * Function: 
  *
- *     size_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+ *     ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
  *                         __fp_outfunc_t fp_outfunc);
  *
  * This is derived from the old _dtostr, whic I wrote for uClibc to provide
@@ -198,7 +198,7 @@ static const __fpmax_t exp16_table[] = {
 #define FPO_STR_WIDTH   (0x80 | ' ');
 #define FPO_STR_PREC    'p'
 
-ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
+ssize_t attribute_hidden _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 					__fp_outfunc_t fp_outfunc)
 {
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__

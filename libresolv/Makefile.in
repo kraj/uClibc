@@ -5,22 +5,46 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS+=$(SSP_ALL_CFLAGS)
+CFLAGS-libresolv := -DNOT_IN_libc $(SSP_ALL_CFLAGS)
 
-LIB_NAME:=libresolv
+LDFLAGS-libresolv.so := $(LDFLAGS)
 
-libresolv_DIR:=$(top_srcdir)libresolv
-libresolv_OUT:=$(top_builddir)libresolv
+LIBS-libresolv.so := $(LIBS)
 
-libresolv_SRC:=$(libresolv_DIR)/resolv.c
-libresolv_OBJ:=$(patsubst $(libresolv_DIR)/%.c,$(libresolv_OUT)/%.o,$(libresolv_SRC))
+libresolv_FULL_NAME := libresolv-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
 
-libresolv-a-y:=$(libresolv_OBJ)
-libresolv-so-y:=$(libresolv_OBJ:.o=.os)
+libresolv_DIR := $(top_srcdir)libresolv
+libresolv_OUT := $(top_builddir)libresolv
 
-libresolv-multi-y:=$(libresolv_SRC)
+libresolv_SRC := $(libresolv_DIR)/resolv.c
+libresolv_OBJ := $(patsubst $(libresolv_DIR)/%.c,$(libresolv_OUT)/%.o,$(libresolv_SRC))
 
-objclean-y+=libresolv_clean
+libresolv-a-y := $(libresolv_OBJ)
+libresolv-so-y := $(libresolv_OBJ:.o=.os)
 
-lib-a-y+=$(top_builddir)lib/libresolv.a
-lib-so-y+=$(top_builddir)lib/libresolv.so
+libresolv-multi-y := $(libresolv_SRC)
+
+lib-a-y += $(top_builddir)lib/libresolv.a
+lib-so-y += $(top_builddir)lib/libresolv.so
+objclean-y += libresolv_clean
+
+$(top_builddir)lib/libresolv.so: $(libresolv_OUT)/libresolv_so.a libc-y
+	$(call link.so,$(libresolv_FULL_NAME),$(MAJOR_VERSION))
+
+$(libresolv_OUT)/libresolv_so.a: $(libresolv-so-y)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libresolv.a: $(libresolv-a-y:.o=.os)
+else
+$(top_builddir)lib/libresolv.a: $(libresolv-a-y)
+endif
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+libresolv_clean:
+	$(RM) $(libresolv_OUT)/*.{o,os,a}

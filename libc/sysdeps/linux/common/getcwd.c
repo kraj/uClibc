@@ -153,7 +153,7 @@ int __syscall_getcwd(char * buf, unsigned long size)
 
 #endif
 
-char *getcwd(char *buf, int size)
+char *getcwd(char *buf, size_t size)
 {
     int ret;
     char *path;

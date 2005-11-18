@@ -32,6 +32,7 @@
 typedef unsigned long int msgqnum_t;
 typedef unsigned long int msglen_t;
 
+
 /* Structure of record for one message inside the kernel.
    The type `struct msg' is opaque.  */
 struct msqid_ds
