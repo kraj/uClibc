@@ -5,5 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+ifneq ($(PTNAME),)
 include $(PTDIR)/Makefile.in
 include $(PTDIR)_db/Makefile.in
+endif
