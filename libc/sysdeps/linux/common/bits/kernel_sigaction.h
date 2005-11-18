@@ -6,36 +6,7 @@
 
 #undef NO_OLD_SIGACTION
 
-#if defined(__alpha__)
-#undef HAVE_SA_RESTORER
-/* This is the sigaction struction from the Linux 2.1.20 kernel.  */
-struct old_kernel_sigaction {
-    __sighandler_t k_sa_handler;
-    unsigned long sa_mask;
-    unsigned int sa_flags;
-};
-/* This is the sigaction structure from the Linux 2.1.68 kernel.  */
-struct kernel_sigaction {
-    __sighandler_t k_sa_handler;
-    unsigned int sa_flags;
-    sigset_t sa_mask;
-};
-#elif defined(__hppa__)
-#undef HAVE_SA_RESTORER
-/* This is the sigaction struction from the Linux 2.1.20 kernel.  */
-/* Blah.  This is bogus.  We don't ever use it. */
-struct old_kernel_sigaction {
-    __sighandler_t k_sa_handler;
-    unsigned long sa_mask;
-    unsigned long sa_flags;
-};
-/* This is the sigaction structure from the Linux 2.1.68 kernel.  */
-struct kernel_sigaction {
-    __sighandler_t k_sa_handler;
-    unsigned long sa_flags;
-    sigset_t sa_mask;
-};
-#elif defined(__mips__)
+#if defined(__mips__)
 #undef HAVE_SA_RESTORER
 /* This is the sigaction structure from the Linux 2.1.24 kernel.  */
 #include <sgidefs.h>
