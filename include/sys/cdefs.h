@@ -42,7 +42,7 @@
    gcc 2.8.x and egcs.  For gcc 3.2 and up we even mark C functions
    as non-throwing using a function attribute since programs can use
    the -fexceptions options for C code as well.  */
-# if 0 //!defined __cplusplus && __GNUC_PREREQ (3, 3)
+# if !defined __cplusplus && __GNUC_PREREQ (3, 3)
 #  define __THROW	__attribute__ ((__nothrow__))
 #  define __NTH(fct)	__attribute__ ((__nothrow__)) fct
 # else
@@ -164,8 +164,6 @@
 #if defined __GNUC__ && __GNUC__ >= 2
 
 # define __REDIRECT(name, proto, alias) name proto __asm__ (__ASMNAME (#alias))
-# define __ASMNAME(cname) __C_SYMBOL_PREFIX__ cname
-/*
 # ifdef __cplusplus
 #  define __REDIRECT_NTH(name, proto, alias) \
      name proto __THROW __asm__ (__ASMNAME (#alias))
@@ -175,7 +173,6 @@
 # endif
 # define __ASMNAME(cname)  __ASMNAME2 (__USER_LABEL_PREFIX__, cname)
 # define __ASMNAME2(prefix, cname) __STRING (prefix) cname
-*/
 
 /*
 #elif __SOME_OTHER_COMPILER__
