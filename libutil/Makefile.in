@@ -5,7 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS-libutil := -DNOT_IN_libc $(SSP_ALL_CFLAGS)
+CFLAGS-libutil := -DNOT_IN_libc -DIS_IN_libutil $(SSP_ALL_CFLAGS)
 
 LDFLAGS-libutil.so := $(LDFLAGS)
 

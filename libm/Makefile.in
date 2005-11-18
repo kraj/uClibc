@@ -20,7 +20,7 @@
 # by Erik Andersen <andersen@codepoet.org>
 #
 
-CFLAGS-libm := -DNOT_IN_libc $(SSP_ALL_CFLAGS)
+CFLAGS-libm := -DNOT_IN_libc -DIS_IN_libm $(SSP_ALL_CFLAGS)
 CFLAGS-libm += -D_IEEE_LIBM -D_ISOC99_SOURCE -D_SVID_SOURCE
 
 CFLAGS-libm/$(TARGET_ARCH)/ := $(CFLAGS-libm)
