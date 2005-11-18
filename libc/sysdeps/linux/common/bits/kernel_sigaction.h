@@ -4,6 +4,8 @@
 /* This file provides whatever this particular arch's kernel thinks 
  * the sigaction struct should look like... */
 
+#undef NO_OLD_SIGACTION
+
 #if defined(__alpha__)
 #undef HAVE_SA_RESTORER
 /* This is the sigaction struction from the Linux 2.1.20 kernel.  */
@@ -58,6 +60,14 @@ struct kernel_sigaction {
     void            (*sa_restorer)(void);
     int             s_resv[1]; /* reserved */
 };
+#elif defined(__ia64__)
+#define NO_OLD_SIGACTION
+#undef HAVE_SA_RESTORER
+struct kernel_sigaction {
+	__sighandler_t k_sa_handler;
+	unsigned long sa_flags;
+	sigset_t sa_mask;
+};
 #else
 #define HAVE_SA_RESTORER
 /* This is the sigaction structure from the Linux 2.1.20 kernel.  */
@@ -76,8 +86,10 @@ struct kernel_sigaction {
 };
 #endif
 
+#ifndef NO_OLD_SIGACTION
 extern int __syscall_sigaction (int, const struct old_kernel_sigaction *__unbounded,
 	struct old_kernel_sigaction *__unbounded);
+#endif
 
 extern int __syscall_rt_sigaction (int, const struct kernel_sigaction *__unbounded,
 	struct kernel_sigaction *__unbounded, size_t);
