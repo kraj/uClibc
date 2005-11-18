@@ -62,9 +62,8 @@ objclean-y += ld-uClibc_clean
 headers-$(HAVE_SHARED) += ldso_headers
 headers_clean-y += ldso_headers_clean
 
-$(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO)): $(ld-uClibc_OUT)/ld-uClibc_so.a headers_root
+$(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO)): $(ld-uClibc_OUT)/ld-uClibc_so.a $(top_builddir)include/headers_done
 	$(call link.so,$(ldso_FULL_NAME),$(MAJOR_VERSION))
-	#(RM) $@
 
 $(ld-uClibc_OUT)/ld-uClibc_so.a: $(ld-uClibc-so-y)
 	$(Q)$(RM) $@

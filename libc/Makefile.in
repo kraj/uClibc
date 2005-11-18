@@ -45,7 +45,7 @@ lib-a-y += $(top_builddir)lib/libc.a crt-y
 lib-so-y += libc-y $(top_builddir)lib/$(NONSHARED_LIBNAME) crt-y
 objclean-y += libc_clean
 
-$(top_builddir)lib/libc.so: $(libc_OUT)/libc_so.a pre-y
+$(top_builddir)lib/libc.so: $(libc_OUT)/libc_so.a $(top_builddir)include/headers_done $(interp)
 	$(call link.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
 	$(Q)$(RM) $@
 	$(Q)echo "/* GNU ld script" > $@
