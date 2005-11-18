@@ -6,9 +6,12 @@
 #
 
 TOPDIR=../
-include $(TOPDIR)Rules.mak
 
-CFLAGS += $(SSP_ALL_CFLAGS) -B$(TOPDIR)lib -I$(TOPDIR)ldso/include
+top_srcdir=$(TOPDIR)
+top_builddir=../
+include $(top_builddir)Rules.mak
+
+CFLAGS += $(SSP_ALL_CFLAGS) -B$(top_builddir)lib -I$(top_builddir)ldso/include
 
 TARGETS = ldd ldconfig
 
@@ -33,8 +36,8 @@ all: $(TARGET_ICONV)
 endif
 
 headers:
-	@$(LN) -fs $(TOPDIR)include/elf.h
-	@$(LN) -fs $(TOPDIR)include/link.h
+	@$(LN) -fs $(top_builddir)include/elf.h
+	@$(LN) -fs $(top_builddir)include/link.h
 
 readelf.c ldconfig.c ldd.c:	headers
 
@@ -63,7 +66,7 @@ ldd: ldd.c
 	$(STRIPTOOL) -s -x -R .note -R .comment $@
 
 ICONV_CFLAGS := $(PIEFLAG) $(LDPIEFLAG)
-iconv: $(TOPDIR)libc/misc/wchar/wchar.c
+iconv: $(top_srcdir)libc/misc/wchar/wchar.c
 	$(CC) $(CFLAGS) $(ICONV_CFLAGS) \
 		-DL_iconv_main \
 		$^ -o $@
@@ -78,13 +81,13 @@ endif
 ldd.host: ldd.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
  		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" $(HOST_LDSO_CACHE_FLAG) \
-		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I$(TOPDIR)ldso/include \
+		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I$(top_builddir)ldso/include \
 		$^ -o $@
 
 ldconfig.host: ldconfig.c chroot_realpath.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
  		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" $(HOST_LDSO_CACHE_FLAG) \
-		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I$(TOPDIR)ldso/include \
+		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I$(top_builddir)ldso/include \
 		$^ -o $@
 
 readelf.host: readelf.c
