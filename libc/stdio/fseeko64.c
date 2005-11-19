@@ -7,11 +7,9 @@
 
 #include "_stdio.h"
 
-#ifndef __DO_LARGEFILE
-# define FILEDES_ARG    (-1)
+#ifdef __UCLIBC_HAS_LFS__
+# define __DO_LARGEFILE
+# define FSEEK				__fseeko64
+# define OFFSET_TYPE		__off64_t
+# include "fseeko.c"
 #endif
-
-FILE *fopen(const char * __restrict filename, const char * __restrict mode)
-{
-	return _stdio_fopen(((intptr_t) filename), mode, NULL, FILEDES_ARG);
-}

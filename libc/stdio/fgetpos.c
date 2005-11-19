@@ -7,16 +7,6 @@
 
 #include "_stdio.h"
 
-#ifdef __DO_LARGEFILE
-# ifndef __UCLIBC_HAS_LFS__
-#  error large file support is not enabled!
-# endif
-
-# define fgetpos	fgetpos64
-# define fpos_t		fpos64_t
-# define ftell		ftello64
-#endif
-
 int fgetpos(FILE * __restrict stream, register fpos_t * __restrict pos)
 {
 #ifdef __STDIO_MBSTATE

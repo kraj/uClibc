@@ -7,8 +7,6 @@
 # Licensed under LGPL v2.1, see the file COPYING.LIB in this tarball for details.
 #
 
-# Note: The *64.o objects are empty when compiled without large file support.
-
 # SUSv3 functions
 CSRC := \
 	fclose.c fcloseall.c fdopen.c fgetpos.c fopen.c freopen.c \
@@ -18,6 +16,9 @@ CSRC := \
 	printf.c vprintf.c vsprintf.c fprintf.c snprintf.c dprintf.c \
 	asprintf.c sprintf.c vasprintf.c vdprintf.c vsnprintf.c \
 	tmpfile.c tmpnam.c tmpnam_r.c popen.c tempnam.c ctermid.c
+
+# Note: The *64.o objects are empty when compiled without large file support
+CSRC += fgetpos64.c fopen64.c freopen64.c fseeko64.c fsetpos64.c ftello64.c
 
 # getc -> alias for fgetc
 # putc -> alias for fputc
@@ -51,12 +52,6 @@ CUSRC := \
 	fputc.c fputs.c fread.c fwrite.c getchar.c putchar.c
 # getc_unlocked -> alias for fgetc_unlocked
 # putc_unlocked -> alias for fputc_unlocked
-
-# Largefile functions (%64.o)
-CLSRC :=
-ifeq ($(UCLIBC_HAS_LFS),y)
-CLSRC := fgetpos.c fopen.c freopen.c fseeko.c fsetpos.c ftello.c # tmpfile
-endif
 
 # vfprintf and support functions
 MSRC1 := vfprintf.c
@@ -104,8 +99,6 @@ STDIO_SRC := $(patsubst %.c,$(STDIO_DIR)/%.c,$(CSRC))
 STDIO_OBJ := $(patsubst %.c,$(STDIO_OUT)/%.o,$(CSRC))
 STDIO_CUSRC := $(patsubst %.c,$(STDIO_DIR)/%.c,$(CUSRC))
 STDIO_CUOBJ := $(patsubst %.c,$(STDIO_OUT)/%_unlocked.o,$(CUSRC))
-STDIO_CLSRC := $(patsubst %.c,$(STDIO_OUT)/%64.c,$(CLSRC))
-STDIO_CLOBJ := $(patsubst %.c,$(STDIO_OUT)/%64.o,$(CLSRC))
 
 STDIO_MSRC1 := $(patsubst %.c,$(STDIO_DIR)/%.c,$(MSRC1))
 STDIO_MSRC2 := $(patsubst %.c,$(STDIO_DIR)/%.c,$(MSRC2))
@@ -128,16 +121,6 @@ STDIO_NO_MULTI := $(STDIO_CUOBJ) $(STDIO_CLOBJ)
 
 %_unlocked.os: %.c
 	$(compile.c) -D__DO_UNLOCKED
-
-# need this, else the other %64 files will get false rules
-$(STDIO_CLSRC): $(STDIO_OUT)/%64.c : $(STDIO_DIR)/%.c
-	@cp $< $@
-
-$(STDIO_CLOBJ): %.o : %.c
-	$(compile.c) -D__DO_LARGEFILE
-
-$(STDIO_CLOBJ:.o=.os): %.os : %.c
-	$(compile.c) -D__DO_LARGEFILE
 
 $(STDIO_MOBJ1): $(STDIO_MSRC1)
 	$(compile.m)

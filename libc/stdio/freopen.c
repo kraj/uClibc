@@ -7,14 +7,7 @@
 
 #include "_stdio.h"
 
-#ifdef __DO_LARGEFILE
-# ifndef __UCLIBC_HAS_LFS__
-#  error large file support is not enabled!
-# endif
-
-# define freopen		freopen64
-# define FILEDES_ARG    (-2)
-#else
+#ifndef __DO_LARGEFILE
 # define FILEDES_ARG    (-1)
 #endif
 
