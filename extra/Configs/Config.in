@@ -2,6 +2,7 @@
 # For a description of the syntax of this configuration file,
 # see extra/config/Kconfig-language.txt
 #
+
 mainmenu "uClibc C Library Configuration"
 
 choice
@@ -17,40 +18,43 @@ config TARGET_arm
 	bool "arm"
 
 config TARGET_bfin
-	bool "bfin"
+	bool "bfin (BROKEN)"
 
 config TARGET_cris
-	bool "cris"
+	bool "cris (BROKEN)"
 
 config TARGET_e1
-	bool "e1"
+	bool "e1 (BROKEN)"
 
 config TARGET_frv
-	bool "frv"
+	bool "frv (BROKEN)"
 
 config TARGET_h8300
-	bool "h8300"
+	bool "h8300 (BROKEN)"
+
+config TARGET_hppa
+	bool "hppa"
 
 config TARGET_i386
 	bool "i386"
 
 config TARGET_i960
-	bool "i960"
+	bool "i960 (BROKEN)"
 
 config TARGET_m68k
 	bool "m68k"
 
 config TARGET_microblaze
-	bool "microblaze"
+	bool "microblaze (BROKEN)"
 
 config TARGET_mips
 	bool "mips"
 
 config TARGET_nios
-	bool "nios"
+	bool "nios (BROKEN)"
 
 config TARGET_nios2
-	bool "nios2"
+	bool "nios2 (BROKEN)"
 
 config TARGET_powerpc
 	bool "powerpc"
@@ -65,7 +69,7 @@ config TARGET_sparc
 	bool "sparc"
 
 config TARGET_v850
-	bool "v850"
+	bool "v850 (BROKEN)"
 
 config TARGET_x86_64
 	bool "x86_64"
@@ -101,6 +105,10 @@ endif
 
 if TARGET_h8300
 source "extra/Configs/Config.h8300"
+endif
+
+if TARGET_hppa
+source "extra/Configs/Config.hppa"
 endif
 
 if TARGET_i386
@@ -167,16 +175,20 @@ config HAVE_NO_PIC
 	default n
 
 config DOPIC
-	bool "Generate Position Independent Code (PIC)"
+	bool "Generate only Position Independent Code (PIC)"
 	default y
 	depends !HAVE_NO_PIC
 	help
-	  If you wish to build uClibc with support for shared libraries then
-	  answer Y here.  If you only want to build uClibc as a static library,
-	  then answer N.
+	  If you wish to build all of uClibc as PIC objects, then answer Y here.
+	  If you are unsure, then you should answer N.
 
 config HAVE_NO_SHARED
 	bool
+	default n
+
+config ARCH_HAS_NO_LDSO
+	bool
+	select HAVE_NO_SHARED
 	default n
 
 config HAVE_SHARED
@@ -187,11 +199,6 @@ config HAVE_SHARED
 	  If you wish to build uClibc with support for shared libraries then
 	  answer Y here.  If you only want to build uClibc as a static library,
 	  then answer N.
-
-config ARCH_HAS_NO_LDSO
-	bool
-	select HAVE_NO_SHARED
-	default n
 
 config FORCE_SHAREABLE_TEXT_SEGMENTS
 	bool "Only load shared libraries which can share their text segment"
@@ -339,6 +346,20 @@ config PTHREADS_DEBUG_SUPPORT
 
 	  If you are doing development and want to debug applications using
 	  uClibc's pthread library, answer Y.  Otherwise, answer N.
+
+config LINUXTHREADS_OLD
+	bool "Use the older (stable) version of linuxthreads"
+	default y
+	depends on UCLIBC_HAS_THREADS && !UCLIBC_HAS_THREADS_NATIVE
+	help
+	  There are two versions of linuxthreads.  The older (stable) version
+	  has been in uClibc for quite a long time but hasn't seen too many
+	  updates other than bugfixes.
+
+	  The new version has not been tested much, and lacks ports for arches
+	  which glibc does not support (like bfin/frv/etc...), but is based on
+	  the latest code from glibc, so it may be the only choice for the
+	  newer ports (like alpha/amd64/64bit arches and hppa).
 
 config UCLIBC_HAS_LFS
 	bool "Large File Support"
@@ -764,8 +785,8 @@ config UCLIBC_HAS_GLIBC_CUSTOM_PRINTF
 
 	  NOTE: This implementation limits the number or registered specifiers to 10.
 	  NOTE: This implementation requires new conversion specifiers to be ASCII
-                characters (0-0x7f).  This is to avoid problems with processing
-                format strings in locales with different multibyte conversions.
+	        characters (0-0x7f).  This is to avoid problems with processing
+	        format strings in locales with different multibyte conversions.
 
 	  Most people will answer N.
 
@@ -1146,15 +1167,10 @@ config DEVEL_PREFIX
 endmenu
 
 
-menu "uClibc security related options"
-
-config UCLIBC_SECURITY
-	bool "Enable security options"
-	default n
+menu "Security options"
 
 config UCLIBC_BUILD_PIE
 	bool "Build utilities as ET_DYN/PIE executables"
-	depends on UCLIBC_SECURITY
 	depends on HAVE_SHARED
 	depends on TARGET_arm || TARGET_frv || TARGET_i386 || TARGET_mips || TARGET_powerpc
 	select FORCE_SHAREABLE_TEXT_SEGMENTS
@@ -1167,9 +1183,13 @@ config UCLIBC_BUILD_PIE
 		libraries have to be built with -fPIC or -fpic, and all assembler
 		functions must be written as position independent code (PIC).
 
+config HAVE_NO_SSP
+	bool
+	default n
+
 config UCLIBC_HAS_SSP
 	bool "Support for propolice smashing stack protector"
-	depends on UCLIBC_SECURITY
+	depends on !HAVE_NO_SSP
 	default n
 	help
 	  Add propolice smashing stack protector to the library.
@@ -1224,7 +1244,6 @@ config UCLIBC_BUILD_SSP
 
 config UCLIBC_BUILD_RELRO
 	bool "Build uClibc with RELRO"
-	depends on UCLIBC_SECURITY
 	depends on HAVE_SHARED
 	default y
 	help
@@ -1232,7 +1251,6 @@ config UCLIBC_BUILD_RELRO
 
 config UCLIBC_BUILD_NOW
 	bool "Build uClibc with NOW"
-	depends on UCLIBC_SECURITY
 	depends on HAVE_SHARED
 	default y
 	help
@@ -1240,7 +1258,6 @@ config UCLIBC_BUILD_NOW
 
 config UCLIBC_BUILD_NOEXECSTACK
 	bool "Build uClibc with noexecstack marking"
-	depends on UCLIBC_SECURITY
 	default y
 	help
 	  Mark all assembler files as noexecstack. This will result in marking

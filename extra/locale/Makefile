@@ -1,11 +1,18 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
 
-TOPDIR = ../../
-EXTRA_LOCALE_DIR:=${shell cd $(TOPDIR)/extra/locale && pwd}
-include $(TOPDIR)Rules.mak
+top_builddir=../../
+include $(top_builddir)Rules.mak
+
+EXTRA_LOCALE_DIR:=${shell cd $(top_builddir)extra/locale && pwd}
 
 CFLAGS_wc8bit=-DCTYPE_PACKED=1
 CFLAGS_mmap=
-ifeq ($(strip $(UCLIBC_HAS_WCHAR)),y)
+ifeq ($(UCLIBC_HAS_WCHAR),y)
     CFLAGS_wc8bit += -DDO_WIDE_CHAR=1
     CFLAGS_mmap += -D__WCHAR_ENABLED=1
 endif
