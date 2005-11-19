@@ -146,4 +146,4 @@ libc-nomulti-y+=$(patsubst %.o,$(STDIO_OUT)/%.o,$(STDIO_MOBJ_NO_MULTI))
 objclean-y+=stdio_objclean
 
 stdio_objclean:
-	$(RM) $(STDIO_OUT)/*.{o,os} $(STDIO_OUT)/*64.c
+	$(RM) $(STDIO_OUT)/*.{o,os}
