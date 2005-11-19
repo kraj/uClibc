@@ -10,7 +10,8 @@
 # Note: The *64.o objects are empty when compiled without large file support.
 
 # SUSv3 functions
-CSRC:=	fclose.c fcloseall.c fdopen.c fgetpos.c fopen.c freopen.c \
+CSRC := \
+	fclose.c fcloseall.c fdopen.c fgetpos.c fopen.c freopen.c \
 	fseeko.c fsetpos.c ftello.c getdelim.c getline.c gets.c getw.c \
 	perror.c puts.c putw.c remove.c rewind.c setbuf.c setbuffer.c \
 	setlinebuf.c setvbuf.c ungetc.c \
@@ -23,97 +24,102 @@ CSRC:=	fclose.c fcloseall.c fdopen.c fgetpos.c fopen.c freopen.c \
 # rename is a syscall
 
 # Implementation support functions
-CSRC+=	_READ.c _WRITE.c _adjust_pos.c _fopen.c _fwrite.c \
+CSRC += \
+	_READ.c _WRITE.c _adjust_pos.c _fopen.c _fwrite.c \
 	_rfill.c _stdio.c _trans2r.c _trans2w.c _wcommit.c \
 	_cs_funcs.c _load_inttype.c _store_inttype.c _uintmaxtostr.c
 ifeq ($(UCLIBC_HAS_FLOATS),y)
-CSRC+=_fpmaxtostr.c
+CSRC += _fpmaxtostr.c
 endif
 
 # stdio_ext.h functions
-CSRC+=	__fbufsize.c __flbf.c __fpending.c __fpurge.c __freadable.c \
+CSRC += \
+	__fbufsize.c __flbf.c __fpending.c __fpurge.c __freadable.c \
 	__freading.c __fsetlocking.c __fwritable.c __fwriting.c _flushlbf.c
 
 # Other glibc extensions
 ifeq ($(UCLIBC_HAS_GLIBC_CUSTOM_STREAMS),y)
-CSRC+=fopencookie.c fmemopen.c open_memstream.c
+CSRC += fopencookie.c fmemopen.c open_memstream.c
 endif
 
 # pthread functions
-CSRC+=flockfile.c ftrylockfile.c funlockfile.c
+CSRC += flockfile.c ftrylockfile.c funlockfile.c
 
 # Functions with unlocked versions
-CUSRC:=	clearerr.c feof.c ferror.c fflush.c fgetc.c fgets.c fileno.c \
+CUSRC := \
+	clearerr.c feof.c ferror.c fflush.c fgetc.c fgets.c fileno.c \
 	fputc.c fputs.c fread.c fwrite.c getchar.c putchar.c
 # getc_unlocked -> alias for fgetc_unlocked
 # putc_unlocked -> alias for fputc_unlocked
 
 # Largefile functions (%64.o)
-CLSRC:=
+CLSRC :=
 ifeq ($(UCLIBC_HAS_LFS),y)
-CLSRC:=fgetpos.c fopen.c freopen.c fseeko.c fsetpos.c ftello.c # tmpfile
+CLSRC := fgetpos.c fopen.c freopen.c fseeko.c fsetpos.c ftello.c # tmpfile
 endif
 
 # vfprintf and support functions
-MSRC1:=vfprintf.c
+MSRC1 := vfprintf.c
 ifneq ($(USE_OLD_VFPRINTF),y)
-MOBJ1:=	vfprintf.o \
+MOBJ1 := \
+	vfprintf.o \
 	_ppfs_init.o _ppfs_prepargs.o _ppfs_setargs.o _ppfs_parsespec.o \
 	register_printf_function.o parse_printf_format.o
 else
-MOBJ1:=
-CSRC+=old_vfprintf.c
+MOBJ1 :=
+CSRC += old_vfprintf.c
 endif
 
 # vfscanf and support functions plus other *scanf funcs
-MSRC2:=scanf.c
-MOBJ2:=	vfscanf.o __scan_cookie.o __psfs_parse_spec.o __psfs_do_numeric.o \
+MSRC2 := scanf.c
+MOBJ2 := \
+	vfscanf.o __scan_cookie.o __psfs_parse_spec.o __psfs_do_numeric.o \
 	scanf.o sscanf.o fscanf.o vscanf.o vsscanf.o
 
-CWSRC:=
+CWSRC :=
 ifeq ($(UCLIBC_HAS_WCHAR),y)
-CWSRC+=_wfwrite.c fwprintf.c swprintf.c vswprintf.c vwprintf.c wprintf.c \
+CWSRC += _wfwrite.c fwprintf.c swprintf.c vswprintf.c vwprintf.c wprintf.c \
 	fwide.c ungetwc.c
-CUSRC+=fgetwc.c getwchar.c fgetws.c fputwc.c putwchar.c fputws.c
+CUSRC += fgetwc.c getwchar.c fgetws.c fputwc.c putwchar.c fputws.c
 # getwc (fgetwc alias) getwc_unlocked (fgetwc_unlocked alias)
 # putwc (fputwc alias) putwc_unlocked (fputwc_unlocked alias)
-MOBJ1+=vfwprintf.o
-MOBJ2+=wscanf.o swscanf.o fwscanf.o vwscanf.o vswscanf.o vfwscanf.o
+MOBJ1 += vfwprintf.o
+MOBJ2 += wscanf.o swscanf.o fwscanf.o vwscanf.o vswscanf.o vfwscanf.o
 endif
 
-CSRC+=$(CUSRC) $(CWSRC)
+CSRC += $(CUSRC) $(CWSRC)
 
 ifneq ($(DOMULTI),n)
-STDIO_CSRC_NO_MULTI:=fwrite.c fputc.c fputs.c fprintf.c _fpmaxtostr.c
-CSRC:=$(filter-out $(STDIO_CSRC_NO_MULTI),$(CSRC))
+STDIO_CSRC_NO_MULTI := fwrite.c fputc.c fputs.c fprintf.c _fpmaxtostr.c
+CSRC := $(filter-out $(STDIO_CSRC_NO_MULTI),$(CSRC))
 endif
-STDIO_MOBJ1_NO_MULTI:=vfprintf.o vfwprintf.o register_printf_function.o
-STDIO_MOBJ2_NO_MULTI:=vfscanf.o vfwscanf.o fscanf.o
-STDIO_MOBJ_NO_MULTI:=$(STDIO_MOBJ1_NO_MULTI) $(STDIO_MOBJ2_NO_MULTI)
+STDIO_MOBJ1_NO_MULTI := vfprintf.o vfwprintf.o register_printf_function.o
+STDIO_MOBJ2_NO_MULTI := vfscanf.o vfwscanf.o fscanf.o
+STDIO_MOBJ_NO_MULTI := $(STDIO_MOBJ1_NO_MULTI) $(STDIO_MOBJ2_NO_MULTI)
 
-STDIO_DIR:=$(top_srcdir)libc/stdio
-STDIO_OUT:=$(top_builddir)libc/stdio
+STDIO_DIR := $(top_srcdir)libc/stdio
+STDIO_OUT := $(top_builddir)libc/stdio
 
-STDIO_SRC:=$(patsubst %.c,$(STDIO_DIR)/%.c,$(CSRC))
-STDIO_OBJ:=$(patsubst %.c,$(STDIO_OUT)/%.o,$(CSRC))
-STDIO_CUSRC:=$(patsubst %.c,$(STDIO_DIR)/%.c,$(CUSRC))
-STDIO_CUOBJ:=$(patsubst %.c,$(STDIO_OUT)/%_unlocked.o,$(CUSRC))
-STDIO_CLSRC:=$(patsubst %.c,$(STDIO_OUT)/%64.c,$(CLSRC))
-STDIO_CLOBJ:=$(patsubst %.c,$(STDIO_OUT)/%64.o,$(CLSRC))
+STDIO_SRC := $(patsubst %.c,$(STDIO_DIR)/%.c,$(CSRC))
+STDIO_OBJ := $(patsubst %.c,$(STDIO_OUT)/%.o,$(CSRC))
+STDIO_CUSRC := $(patsubst %.c,$(STDIO_DIR)/%.c,$(CUSRC))
+STDIO_CUOBJ := $(patsubst %.c,$(STDIO_OUT)/%_unlocked.o,$(CUSRC))
+STDIO_CLSRC := $(patsubst %.c,$(STDIO_OUT)/%64.c,$(CLSRC))
+STDIO_CLOBJ := $(patsubst %.c,$(STDIO_OUT)/%64.o,$(CLSRC))
 
-STDIO_MSRC1:=$(patsubst %.c,$(STDIO_DIR)/%.c,$(MSRC1))
-STDIO_MSRC2:=$(patsubst %.c,$(STDIO_DIR)/%.c,$(MSRC2))
-STDIO_MOBJ1:=$(patsubst %.o,$(STDIO_OUT)/%.o,$(MOBJ1))
-STDIO_MOBJ2:=$(patsubst %.o,$(STDIO_OUT)/%.o,$(MOBJ2))
+STDIO_MSRC1 := $(patsubst %.c,$(STDIO_DIR)/%.c,$(MSRC1))
+STDIO_MSRC2 := $(patsubst %.c,$(STDIO_DIR)/%.c,$(MSRC2))
+STDIO_MOBJ1 := $(patsubst %.o,$(STDIO_OUT)/%.o,$(MOBJ1))
+STDIO_MOBJ2 := $(patsubst %.o,$(STDIO_OUT)/%.o,$(MOBJ2))
 
-STDIO_MSRC:=$(STDIO_MSRC1) $(STDIO_MSRC2)
-STDIO_MOBJ:=$(STDIO_MOBJ1) $(STDIO_MOBJ2)
+STDIO_MSRC := $(STDIO_MSRC1) $(STDIO_MSRC2)
+STDIO_MOBJ := $(STDIO_MOBJ1) $(STDIO_MOBJ2)
 
-STDIO_DEF:=$(patsubst %,-DL_%,$(subst .o,,$(filter-out $(STDIO_MOBJ_NO_MULTI),$(notdir $(STDIO_MOBJ)))))
+STDIO_DEF := $(patsubst %,-DL_%,$(subst .o,,$(filter-out $(STDIO_MOBJ_NO_MULTI),$(notdir $(STDIO_MOBJ)))))
 
-STDIO_OBJS:=$(STDIO_OBJ) $(STDIO_MOBJ) $(STDIO_CUOBJ) $(STDIO_CLOBJ)
+STDIO_OBJS := $(STDIO_OBJ) $(STDIO_MOBJ) $(STDIO_CUOBJ) $(STDIO_CLOBJ)
 
-STDIO_NO_MULTI:=$(STDIO_CUOBJ) $(STDIO_CLOBJ)
+STDIO_NO_MULTI := $(STDIO_CUOBJ) $(STDIO_CLOBJ)
 
 # these need special handling or rewrite to support multi-build
 # CUOBJ
