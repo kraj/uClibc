@@ -7,19 +7,9 @@
 
 #include "_stdio.h"
 
-#ifdef __DO_LARGEFILE
-# ifndef __UCLIBC_HAS_LFS__
-#  error large file support is not enabled!
-# endif
-
-# define FTELL				__ftello64
-# define OFFSET_TYPE		__off64_t
-
-#else
-
+#ifndef __DO_LARGEFILE
 # define FTELL				ftell
 # define OFFSET_TYPE		long int
-
 #endif
 
 OFFSET_TYPE FTELL(register FILE *stream)

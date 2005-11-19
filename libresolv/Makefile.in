@@ -5,7 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS-libresolv := -DNOT_IN_libc $(SSP_ALL_CFLAGS)
+CFLAGS-libresolv := -DNOT_IN_libc -DIS_IN_libresolv $(SSP_ALL_CFLAGS)
 
 LDFLAGS-libresolv.so := $(LDFLAGS)
 

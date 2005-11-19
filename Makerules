@@ -32,11 +32,11 @@ headers-y: $(headers-y)
 ld-uClibc-y: $(ld-uClibc-y)
 interp-y: $(interp)
 pre-y: interp-y ld-uClibc-y
-libc-y: pre-y $(libc) crt-y
-lib-a-y: headers_root crt-y $(lib-a-y)
+libc-y: pre-y $(libc) crt-y $(top_builddir)lib/$(NONSHARED_LIBNAME)
 lib-so-y: libc-y $(lib-so-y)
+lib-a-y: $(top_builddir)include/headers_done crt-y $(lib-a-y)
 
-headers_root:
+$(top_builddir)include/headers_done:
 	@cd $(top_builddir); $(MAKE) headers
 
 ifneq ($(findstring s,$(MAKEFLAGS)),)

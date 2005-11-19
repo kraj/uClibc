@@ -12,4 +12,4 @@ ifeq ($(UNIFIED_SYSCALL),y)
 SSRC += __uClibc_syscall.S
 endif
 
-include $(top_srcdir)libc/sysdeps/linux/Makefile.arch
+include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch

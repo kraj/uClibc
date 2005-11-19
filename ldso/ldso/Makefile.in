@@ -5,12 +5,12 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS-ldso := -DNOT_IN_libc #-DIS_IN_rtld
+CFLAGS-ldso := -DNOT_IN_libc -DIS_IN_rtld $(SSP_DISABLE_FLAGS)
 
 # This stuff will not work with -fomit-frame-pointer
 CFLAGS-ldso += -fno-omit-frame-pointer
 
-CFLAGS-ldso += -I$(top_builddir)ldso/include -I$(top_builddir)ldso/ldso $(SSP_DISABLE_FLAGS)
+CFLAGS-ldso += -I$(top_builddir)ldso/include -I$(top_builddir)ldso/ldso
 CFLAGS-ldso += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\"
 
 ifeq ($(SUPPORT_LD_DEBUG),y)
@@ -62,9 +62,8 @@ objclean-y += ld-uClibc_clean
 headers-$(HAVE_SHARED) += ldso_headers
 headers_clean-y += ldso_headers_clean
 
-$(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO)): $(ld-uClibc_OUT)/ld-uClibc_so.a headers_root
+$(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO)): $(ld-uClibc_OUT)/ld-uClibc_so.a $(top_builddir)include/headers_done
 	$(call link.so,$(ldso_FULL_NAME),$(MAJOR_VERSION))
-	#(RM) $@
 
 $(ld-uClibc_OUT)/ld-uClibc_so.a: $(ld-uClibc-so-y)
 	$(Q)$(RM) $@

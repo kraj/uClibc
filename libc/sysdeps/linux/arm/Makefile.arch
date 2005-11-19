@@ -11,4 +11,4 @@ SSRC := \
 	__longjmp.S vfork.S clone.S setjmp.S bsd-setjmp.S \
 	bsd-_setjmp.S sigrestorer.S mmap64.S
 
-include $(top_srcdir)libc/sysdeps/linux/Makefile.arch
+include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch

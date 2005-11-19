@@ -7,16 +7,6 @@
 
 #include "_stdio.h"
 
-#ifdef __DO_LARGEFILE
-# ifndef __UCLIBC_HAS_LFS__
-#  error large file support is not enabled!
-# endif
-
-# define fsetpos	fsetpos64
-# define fpos_t		fpos64_t
-# define fseek		fseeko64
-#endif
-
 int fsetpos(FILE *stream, register const fpos_t *pos)
 {
 #ifdef __STDIO_MBSTATE
@@ -41,4 +31,3 @@ int fsetpos(FILE *stream, register const fpos_t *pos)
 
 #endif
 }
-

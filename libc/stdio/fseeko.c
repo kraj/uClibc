@@ -11,21 +11,10 @@
 # error Assumption violated -- values of SEEK_SET, SEEK_CUR, SEEK_END
 #endif
 
-#ifdef __DO_LARGEFILE
-# ifndef __UCLIBC_HAS_LFS__
-#  error large file support is not enabled!
-# endif
-
-# define FSEEK				__fseeko64
-# define OFFSET_TYPE		__off64_t
-
-#else
-
+#ifndef __DO_LARGEFILE
 # define FSEEK				fseek
 # define OFFSET_TYPE		long int
-
 #endif
-
 
 int FSEEK(register FILE *stream, OFFSET_TYPE offset, int whence)
 {

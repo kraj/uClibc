@@ -15,4 +15,4 @@ else
 ARCH_HEADERS := fpu_control.h
 endif
 
-include $(top_srcdir)libc/sysdeps/linux/Makefile.arch
+include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch

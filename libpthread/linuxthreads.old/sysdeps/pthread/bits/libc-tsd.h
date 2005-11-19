@@ -40,11 +40,10 @@ enum __libc_tsd_key_t { _LIBC_TSD_KEY_MALLOC = 0,
 
 #else
 
-extern void *(*__libc_internal_tsd_get) (enum __libc_tsd_key_t) __THROW;
-extern int (*__libc_internal_tsd_set) (enum __libc_tsd_key_t,
-				       __const void *)  __THROW;
+extern void *(*__libc_internal_tsd_get) (enum __libc_tsd_key_t);
+extern int (*__libc_internal_tsd_set) (enum __libc_tsd_key_t, __const void *);
 extern void **(*const __libc_internal_tsd_address) (enum __libc_tsd_key_t)
-     __THROW __attribute__ ((__const__));
+     __attribute__ ((__const__));
 
 #define __libc_tsd_address(KEY) \
   (__libc_internal_tsd_address != NULL \
