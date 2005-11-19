@@ -11,4 +11,4 @@ CSRC := \
 
 SSRC := setjmp.S __longjmp.S vfork.S clone.S ___fpscr_values.S
 
-include $(top_srcdir)libc/sysdeps/linux/Makefile.arch
+include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch

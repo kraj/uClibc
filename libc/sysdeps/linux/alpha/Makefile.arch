@@ -11,4 +11,4 @@ SSRC := \
 	__longjmp.S brk.S bsd-_setjmp.S bsd-setjmp.S clone.S \
 	divl.S divq.S reml.S remq.S setjmp.S
 
-include $(top_srcdir)libc/sysdeps/linux/Makefile.arch
+include $(top_srcdir)libc/sysdeps/linux/Makefile.commonarch
