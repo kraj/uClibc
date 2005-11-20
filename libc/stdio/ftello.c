@@ -8,7 +8,7 @@
 #include "_stdio.h"
 
 #ifndef __DO_LARGEFILE
-# define FTELL				ftell
+# define FTELL			ftell
 # define OFFSET_TYPE		long int
 #endif
 

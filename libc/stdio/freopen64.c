@@ -9,7 +9,7 @@
 
 #ifdef __UCLIBC_HAS_LFS__
 # define __DO_LARGEFILE
-# define freopen		freopen64
+# define freopen	freopen64
 # define FILEDES_ARG    (-2)
 # include "freopen.c"
 #endif
