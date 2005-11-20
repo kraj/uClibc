@@ -354,6 +354,7 @@ PTINC:=	-I$(PTDIR)/compat					\
 	-I$(PTDIR)/sysdeps/pthread				\
 	-I$(PTDIR)/sysdeps/pthread/bits				\
 	-I$(PTDIR)/sysdeps/generic				\
+	-Ildso/include						\
 	-include $(PTDIR)/compat/libc-symbols.h
 #
 # Test for TLS if NPTL support was selected.
