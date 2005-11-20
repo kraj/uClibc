@@ -12,7 +12,7 @@
 #endif
 
 #ifndef __DO_LARGEFILE
-# define FSEEK				fseek
+# define FSEEK			fseek
 # define OFFSET_TYPE		long int
 #endif
 

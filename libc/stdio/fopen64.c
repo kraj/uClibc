@@ -9,7 +9,7 @@
 
 #ifdef __UCLIBC_HAS_LFS__
 # define __DO_LARGEFILE
-# define fopen			fopen64
+# define fopen		fopen64
 # define FILEDES_ARG    (-2)
 # include "fopen.c"
 #endif
