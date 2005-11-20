@@ -16,6 +16,10 @@ ifeq ($(SUPPORT_LD_DEBUG),y)
 CFLAGS-libdl += -D__SUPPORT_LD_DEBUG__
 endif
 
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+CFLAGS-libdl += $(PTINC) -DSHARED -DIS_IN_rtld
+endif
+
 LDFLAGS-libdl.so := $(LDFLAGS) -fini dl_cleanup
 
 LIBS-libdl.so := $(LIBS) $(top_builddir)lib/$(UCLIBC_LDSO)

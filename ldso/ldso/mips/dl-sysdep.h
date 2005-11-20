@@ -126,4 +126,3 @@ elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 	/* No REALTIVE relocs in MIPS? */
 }
 #endif /* !_ARCH_DL_SYSDEP */
-

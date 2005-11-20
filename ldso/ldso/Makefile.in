@@ -28,6 +28,10 @@ ifeq ($(DODEBUG),y)
 CFLAGS-ldso += -Os -g
 endif
 
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+CFLAGS-ldso += $(PTINC) -DSHARED
+endif
+
 CFLAGS-ldso/ldso/$(TARGET_ARCH)/ := $(CFLAGS-ldso)
 
 ifneq ($(SUPPORT_LD_DEBUG),y)

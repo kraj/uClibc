@@ -79,3 +79,62 @@ elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 		*reloc_addr += load_off;
 	} while (--relative_count);
 }
+
+/*
+ * These were taken from the 'dl-sysdep.h' files in the 'nptl' directory
+ * in glibc.
+ */
+#if USE_TLS
+# ifdef CONFIG_686
+/* Traditionally system calls have been made using int $0x80.  A
+   second method was introduced which, if possible, will use the
+   sysenter/syscall instructions.  To signal the presence and where to
+   find the code the kernel passes an AT_SYSINFO value in the
+   auxiliary vector to the application.  */
+#  define NEED_DL_SYSINFO	1
+#  define USE_DL_SYSINFO	1
+
+#  if defined NEED_DL_SYSINFO && !defined __ASSEMBLER__
+extern void _dl_sysinfo_int80 (void) attribute_hidden;
+#   define DL_SYSINFO_DEFAULT (uintptr_t) _dl_sysinfo_int80
+#   define DL_SYSINFO_IMPLEMENTATION \
+  asm (".text\n\t"							      \
+       ".type _dl_sysinfo_int80,@function\n\t"				      \
+       ".hidden _dl_sysinfo_int80\n"					      \
+       CFI_STARTPROC "\n"						      \
+       "_dl_sysinfo_int80:\n\t"						      \
+       "int $0x80;\n\t"							      \
+       "ret;\n\t"							      \
+       CFI_ENDPROC "\n"							      \
+       ".size _dl_sysinfo_int80,.-_dl_sysinfo_int80\n\t"		      \
+       ".previous");
+#  endif
+# else
+/* Traditionally system calls have been made using int $0x80.  A
+   second method was introduced which, if possible, will use the
+   sysenter/syscall instructions.  To signal the presence and where to
+   find the code the kernel passes an AT_SYSINFO value in the
+   auxiliary vector to the application.
+   sysenter/syscall is not useful on i386 through i586, but the dynamic
+   linker and dl code in libc.a has to be able to load i686 compiled
+   libraries.  */
+#  define NEED_DL_SYSINFO	1
+#  undef USE_DL_SYSINFO
+
+#  if defined NEED_DL_SYSINFO && !defined __ASSEMBLER__
+extern void _dl_sysinfo_int80 (void) attribute_hidden;
+#  define DL_SYSINFO_DEFAULT (uintptr_t) _dl_sysinfo_int80
+#  define DL_SYSINFO_IMPLEMENTATION \
+  asm (".text\n\t"							      \
+       ".type _dl_sysinfo_int80,@function\n\t"				      \
+       ".hidden _dl_sysinfo_int80\n\t"					      \
+       CFI_STARTPROC "\n"						      \
+       "_dl_sysinfo_int80:\n\t"						      \
+       "int $0x80;\n\t"							      \
+       "ret;\n\t"							      \
+       CFI_ENDPROC "\n"							      \
+       ".size _dl_sysinfo_int80,.-_dl_sysinfo_int80\n\t"		      \
+       ".previous;");
+#  endif
+# endif /* CONFIG_686 */
+#endif /* USE_TLS */
