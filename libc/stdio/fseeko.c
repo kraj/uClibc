@@ -12,8 +12,8 @@
 #endif
 
 #ifndef __DO_LARGEFILE
-# define FSEEK			fseek
-# define OFFSET_TYPE		long int
+# define FSEEK         fseek
+# define OFFSET_TYPE   long int
 #endif
 
 int FSEEK(register FILE *stream, OFFSET_TYPE offset, int whence)

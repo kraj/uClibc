@@ -9,7 +9,7 @@
 
 #ifdef __UCLIBC_HAS_LFS__
 # define __DO_LARGEFILE
-# define FTELL			__ftello64
-# define OFFSET_TYPE		__off64_t
+# define FTELL         __ftello64
+# define OFFSET_TYPE   __off64_t
 # include "ftello.c"
 #endif

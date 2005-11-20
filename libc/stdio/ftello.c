@@ -8,8 +8,8 @@
 #include "_stdio.h"
 
 #ifndef __DO_LARGEFILE
-# define FTELL			ftell
-# define OFFSET_TYPE		long int
+# define FTELL         ftell
+# define OFFSET_TYPE   long int
 #endif
 
 OFFSET_TYPE FTELL(register FILE *stream)

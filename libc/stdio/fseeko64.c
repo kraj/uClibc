@@ -9,7 +9,7 @@
 
 #ifdef __UCLIBC_HAS_LFS__
 # define __DO_LARGEFILE
-# define FSEEK			__fseeko64
-# define OFFSET_TYPE		__off64_t
+# define FSEEK         __fseeko64
+# define OFFSET_TYPE   __off64_t
 # include "fseeko.c"
 #endif
