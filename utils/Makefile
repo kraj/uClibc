@@ -9,7 +9,7 @@ top_srcdir=../
 top_builddir=../
 include $(top_builddir)Rules.mak
 
-CFLAGS += $(SSP_ALL_CFLAGS) -B$(top_builddir)lib -I$(top_builddir)ldso/include
+CFLAGS += $(SSP_ALL_CFLAGS) -B$(top_builddir)lib -I$(top_srcdir)ldso/include
 
 TARGETS = ldd ldconfig
 
@@ -32,12 +32,6 @@ all: $(TARGETS) $(TARGET_ICONV)
 else
 all: $(TARGET_ICONV)
 endif
-
-headers:
-	@$(LN) -fs $(top_builddir)include/elf.h
-	@$(LN) -fs $(top_builddir)include/link.h
-
-readelf.c ldconfig.c ldd.c:	headers
 
 readelf: readelf.c
 	$(CC) $(CFLAGS) $^ -o $@
@@ -79,20 +73,20 @@ endif
 ldd.host: ldd.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
  		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" $(HOST_LDSO_CACHE_FLAG) \
-		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I$(top_builddir)ldso/include \
+		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I$(top_srcdir)ldso/include \
 		$^ -o $@
 
 ldconfig.host: ldconfig.c chroot_realpath.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
  		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" $(HOST_LDSO_CACHE_FLAG) \
-		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I. -I$(top_builddir)ldso/include \
+		-DUCLIBC_LDSO=$(UCLIBC_LDSO) -I$(top_srcdir)ldso/include \
 		$^ -o $@
 
 readelf.host: readelf.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s $^ -o $@
 
 clean:
-	$(RM) $(TARGETS) *.o *~ core elf.h link.h readelf iconv *.host
+	$(RM) $(TARGETS) *.o *~ core readelf iconv *.host
 
 install: all
 ifeq ($(HAVE_SHARED),y)

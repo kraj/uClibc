@@ -10,7 +10,7 @@ CFLAGS-ldso := -DNOT_IN_libc -DIS_IN_rtld $(SSP_DISABLE_FLAGS) -D_GNU_SOURCE
 # This stuff will not work with -fomit-frame-pointer
 CFLAGS-ldso += -fno-omit-frame-pointer
 
-CFLAGS-ldso += -I$(top_builddir)ldso/include -I$(top_builddir)ldso/ldso
+CFLAGS-ldso += -I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) -I$(top_srcdir)ldso/include -I$(top_builddir)ldso/ldso
 CFLAGS-ldso += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\"
 
 ifeq ($(SUPPORT_LD_DEBUG),y)
@@ -52,9 +52,7 @@ ld-uClibc_OBJS := $(ld-uClibc_COBJ) $(ld-uClibc_SOBJ)
 
 ld-uClibc-so-y := $(ld-uClibc_OBJS:.o=.os)
 
-LN_HEADERS      := $(patsubst %, $(top_builddir)ldso/include/%, elf.h)
-LN_ARCH_HEADERS := $(patsubst %, $(top_builddir)ldso/include/%, dl-startup.h dl-syscalls.h dl-sysdep.h dl-debug.h)
-HEADERS         := $(LN_HEADERS) $(LN_ARCH_HEADERS) $(top_builddir)ldso/include/dl-progname.h
+HEADERS         := $(top_builddir)ldso/ldso/dl-progname.h
 
 #lib-so-y := $(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO))
 ld-uClibc-y := $(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO))
@@ -72,13 +70,7 @@ $(ld-uClibc_OUT)/ld-uClibc_so.a: $(ld-uClibc-so-y)
 
 ldso_headers: $(HEADERS)
 
-$(LN_HEADERS):
-	$(LN) -sf ../../$(top_srcdir)include/$(notdir $@) $@
-
-$(LN_ARCH_HEADERS):
-	$(LN) -sf ../../$(top_srcdir)ldso/ldso/$(TARGET_ARCH)/$(notdir $@) $@
-
-$(top_builddir)ldso/include/dl-progname.h:
+$(top_builddir)ldso/ldso/dl-progname.h:
 	echo '#include "$(TARGET_ARCH)/elfinterp.c"' > $@
 
 ldso_headers_clean:

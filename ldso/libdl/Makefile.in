@@ -8,7 +8,7 @@
 
 CFLAGS-libdl := -DNOT_IN_libc -DIS_IN_libdl $(SSP_ALL_CFLAGS)
 
-CFLAGS-libdl +=-I$(top_builddir)ldso/include -I$(top_builddir)ldso/ldso
+CFLAGS-libdl += -I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) -I$(top_srcdir)ldso/include -I$(top_builddir)ldso/ldso
 
 CFLAGS-libdl += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\"
 
