@@ -1,5 +1,5 @@
 /* Globally disable events.
-   Copyright (C) 1999, 2001 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2001, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1999.
 
@@ -37,7 +37,7 @@ td_ta_clear_event (ta, event)
 
   /* Write the new value into the thread data structure.  */
   if (ps_pdread (ta->ph, ta->pthread_threads_eventsp,
-		 &old_event, sizeof (td_thrhandle_t)) != PS_OK)
+		 &old_event, sizeof (td_thr_events_t)) != PS_OK)
     return TD_ERR;	/* XXX Other error value?  */
 
   /* Remove the set bits in.  */
@@ -46,7 +46,7 @@ td_ta_clear_event (ta, event)
 
   /* Write the new value into the thread data structure.  */
   if (ps_pdwrite (ta->ph, ta->pthread_threads_eventsp,
-		  &old_event, sizeof (td_thrhandle_t)) != PS_OK)
+		  &old_event, sizeof (td_thr_events_t)) != PS_OK)
     return TD_ERR;	/* XXX Other error value?  */
 
   return TD_OK;
