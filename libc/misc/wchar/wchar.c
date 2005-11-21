@@ -176,12 +176,12 @@ extern size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 /* glibc extensions. */
 
 extern size_t __mbsnrtowcs(wchar_t *__restrict dst,
-						   const char **__restrict src,
-						   size_t NMC, size_t len, mbstate_t *__restrict ps);
+				   const char **__restrict src,
+				   size_t NMC, size_t len, mbstate_t *__restrict ps) attribute_hidden;
 
 extern size_t __wcsnrtombs(char *__restrict dst,
-						   const wchar_t **__restrict src,
-						   size_t NWC, size_t len, mbstate_t *__restrict ps);
+				   const wchar_t **__restrict src,
+				   size_t NWC, size_t len, mbstate_t *__restrict ps) attribute_hidden;
 
 /**********************************************************************/
 #ifdef L_btowc
@@ -679,7 +679,7 @@ size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 
 /* WARNING: We treat len as SIZE_MAX when dst is NULL! */
 
-size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
+size_t attribute_hidden __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 					size_t NMC, size_t len, mbstate_t *__restrict ps)
 {
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
@@ -791,7 +791,7 @@ size_t mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 /* Note: We completely ignore ps in all currently supported conversions.
  * TODO: Check for valid state anyway? */
 
-size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
+size_t attribute_hidden __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 					size_t NWC, size_t len, mbstate_t *__restrict ps)
 {
 	const __uwchar_t *s;
