@@ -23,12 +23,16 @@
 #include <utmp.h>
 #include <pty.h>
 
+extern int __openpty (int *amaster, int *aslave, char *name, struct termios *termp,
+						struct winsize *winp) attribute_hidden;
+extern int __login_tty(int fd) attribute_hidden;
+
 int forkpty (int *amaster, char *name, 
 	struct termios *termp, struct winsize *winp)
 {
     int master, slave, pid;
 
-    if (openpty (&master, &slave, name, termp, winp) == -1)
+    if (__openpty (&master, &slave, name, termp, winp) == -1)
 	return -1;
 
     switch (pid = fork ())
@@ -38,7 +42,7 @@ int forkpty (int *amaster, char *name,
 	case 0:
 	    /* Child.  */
 	    close (master);
-	    if (login_tty (slave))
+	    if (__login_tty (slave))
 		_exit (1);
 
 	    return 0;

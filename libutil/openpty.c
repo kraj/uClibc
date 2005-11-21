@@ -90,8 +90,8 @@ pts_name (int fd, char **pts, size_t buf_len)
 /* Create pseudo tty master slave pair and set terminal attributes
    according to TERMP and WINP.  Return handles for both ends in
    AMASTER and ASLAVE, and return the name of the slave end in NAME.  */
-int
-openpty (int *amaster, int *aslave, char *name, struct termios *termp,
+int attribute_hidden
+__openpty (int *amaster, int *aslave, char *name, struct termios *termp,
 	 struct winsize *winp)
 {
 #if 0
@@ -158,3 +158,5 @@ openpty (int *amaster, int *aslave, char *name, struct termios *termp,
   close (master);
   return -1;
 }
+
+strong_alias(__openpty,openpty)
