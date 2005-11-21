@@ -39,7 +39,7 @@
 #define ALLOW_ZERO_PLTGOT
 
 /* Pull in the value of _dl_progname */
-#include "dl-progname.h"
+#include LDSO_ELFINTERP
 
 /* Global variables used within the shared library loader */
 char *_dl_library_path         = 0;	/* Where we look for libraries */

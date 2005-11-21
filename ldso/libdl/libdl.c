@@ -81,7 +81,7 @@ size_t _dl_pagesize            = PAGE_SIZE; /* Store the page size for use later
 struct r_debug *_dl_debug_addr = NULL;
 #define _dl_malloc malloc
 #include "../ldso/dl-debug.c"
-#include "dl-progname.h"
+#include LDSO_ELFINTERP
 #include "../ldso/dl-hash.c"
 #define _dl_trace_loaded_objects    0
 #include "../ldso/dl-elf.c"
