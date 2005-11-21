@@ -122,8 +122,10 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
 
+#if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab, strtab, symtab_index);
 		debug_reloc(symtab, strtab, rpnt);
+#endif
 
 		/* Pass over to actual relocation function. */
 		res = reloc_fnc(tpnt, scope, rpnt, symtab, strtab);

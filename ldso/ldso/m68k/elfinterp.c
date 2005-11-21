@@ -40,6 +40,8 @@
    a more than adequate job of explaining everything required to get this
    working. */
 
+#include "ldso.h"
+
 extern int _dl_linux_resolve(void);
 
 unsigned int

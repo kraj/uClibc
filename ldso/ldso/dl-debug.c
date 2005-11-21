@@ -98,9 +98,4 @@ static void debug_reloc(ElfW(Sym) *symtab, char *strtab, ELF_RELOC *rpnt)
 	_dl_dprintf(_dl_debug_file, "\n");
 }
 
-#else
-
-#define debug_sym(symtab, strtab, symtab_index)
-#define debug_reloc(symtab, strtab, rpnt)
-
 #endif /* __SUPPORT_LD_DEBUG__ */

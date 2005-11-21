@@ -29,6 +29,8 @@
  * SUCH DAMAGE.
  */
 
+#include "ldso.h"
+
 extern int _dl_linux_resolve(void);
 
 void _dl_init_got(unsigned long *plt,struct elf_resolve *tpnt)
@@ -116,10 +118,10 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 	strtab = (char *)tpnt->dynamic_info[DT_STRTAB];
 	symname = strtab + symtab[symtab_index].st_name;
 
+#if defined (__SUPPORT_LD_DEBUG__)
 	debug_sym(symtab,strtab,symtab_index);
 	debug_reloc(symtab,strtab,this_reloc);
 
-#if defined (__SUPPORT_LD_DEBUG__)
 	if (unlikely(ELF32_R_TYPE(this_reloc->r_info) != R_PPC_JMP_SLOT)) {
 		_dl_dprintf(2, "%s: Incorrect relocation type in jump relocation\n", _dl_progname);
 		_dl_exit(1);
@@ -363,8 +365,10 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
 
+#if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
+#endif
 
 		res = reloc_fnc (tpnt, scope, rpnt, symtab, strtab);
 

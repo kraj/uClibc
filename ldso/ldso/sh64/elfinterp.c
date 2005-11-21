@@ -41,6 +41,8 @@
    a more than adequate job of explaining everything required to get this
    working. */
 
+#include "ldso.h"
+
 extern int _dl_linux_resolve(void);
 
 unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
@@ -132,8 +134,11 @@ static int _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		int res;
 
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
+
+#ifdef __SUPPORT_LD_DEBUG__
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
+#endif
 
 		res = reloc_fnc (tpnt, scope, rpnt, symtab, strtab);
 		if (res == 0)
