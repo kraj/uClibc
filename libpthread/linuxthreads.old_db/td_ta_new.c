@@ -1,5 +1,5 @@
 /* Attach to target process.
-   Copyright (C) 1999, 2001, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2001, 2002, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1999.
 
@@ -128,8 +128,7 @@ td_ta_new (struct ps_prochandle *ps, td_thragent_t **ta)
 	goto free_return;
       /* Don't let bogons in the inferior make us mess ourselves.  */
       if ((*ta)->sizeof_descr > sizeof (struct _pthread_descr_struct))
-	  (*ta)->sizeof_descr = sizeof (struct _pthread_descr_struct);
-
+	(*ta)->sizeof_descr = sizeof (struct _pthread_descr_struct);
     }
 
   /* Now add the new agent descriptor to the list.  */
