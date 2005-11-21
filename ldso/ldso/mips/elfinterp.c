@@ -121,9 +121,9 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
 		symbol_addr = 0;
 
-#if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
+#if defined (__SUPPORT_LD_DEBUG__)
 		if (reloc_addr)
 			old_val = *reloc_addr;
 #endif

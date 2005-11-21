@@ -124,11 +124,8 @@ _dl_parse(struct elf_resolve *tpnt, struct dyn_elf *scope,
 		int res;
 
 		symtab_index = ELF32_R_SYM(rpnt->r_info);
-
-#if defined (__SUPPORT_LD_DEBUG__)
 		debug_sym(symtab,strtab,symtab_index);
 		debug_reloc(symtab,strtab,rpnt);
-#endif
 
 		res = reloc_fnc(tpnt, scope, rpnt, symtab, strtab);
 
