@@ -1,14 +1,17 @@
 # Rules.mak for uClibc test subdirs
 #
 # Copyright (C) 2001 by Lineo, inc.
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 # Note: This does not read the top level Rules.mak file
 #
 
-TOPDIR = ../../
-TESTDIR=$(TOPDIR)test/
+top_builddir = ../../
+TESTDIR=$(top_builddir)test/
 
--include $(TOPDIR).config
+-include $(top_builddir).config
 
 ifndef UCLIBC_LDSO
 UCLIBC_LDSO := ld-uClibc.so.0
@@ -51,7 +54,7 @@ CC         = $(CROSS)gcc
 STRIPTOOL  = strip
 RM         = rm -f
 ifeq ($(LDSO_LDD_SUPPORT),y)
-LDD        = $(TOPDIR)utils/ldd
+LDD        = $(top_builddir)utils/ldd
 else
 LDD        = @true
 endif
@@ -99,5 +102,5 @@ ifneq ($(strip $(HAVE_SHARED)),y)
 	LDFLAGS       += -static
 	GLIBC_LDFLAGS += -static
 else
-	LDFLAGS       += -Wl,-dynamic-linker,$(TOPDIR)lib/$(UCLIBC_LDSO)
+	LDFLAGS       += -Wl,-dynamic-linker,$(top_builddir)lib/$(UCLIBC_LDSO)
 endif
