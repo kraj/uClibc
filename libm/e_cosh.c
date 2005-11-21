@@ -45,9 +45,9 @@ static double one = 1.0, half=0.5, huge = 1.0e300;
 #endif
 
 #ifdef __STDC__
-	double __ieee754_cosh(double x)
+	double attribute_hidden __ieee754_cosh(double x)
 #else
-	double __ieee754_cosh(x)
+	double attribute_hidden __ieee754_cosh(x)
 	double x;
 #endif
 {

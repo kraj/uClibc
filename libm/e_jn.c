@@ -59,9 +59,9 @@ static double zero  =  0.00000000000000000000e+00;
 #endif
 
 #ifdef __STDC__
-	double __ieee754_jn(int n, double x)
+	double attribute_hidden __ieee754_jn(int n, double x)
 #else
-	double __ieee754_jn(n,x)
+	double attribute_hidden __ieee754_jn(n,x)
 	int n; double x;
 #endif
 {
@@ -219,9 +219,9 @@ static double zero  =  0.00000000000000000000e+00;
 }
 
 #ifdef __STDC__
-	double __ieee754_yn(int n, double x)
+	double attribute_hidden __ieee754_yn(int n, double x)
 #else
-	double __ieee754_yn(n,x)
+	double attribute_hidden __ieee754_yn(n,x)
 	int n; double x;
 #endif
 {

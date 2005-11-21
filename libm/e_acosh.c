@@ -40,9 +40,9 @@ one	= 1.0,
 ln2	= 6.93147180559945286227e-01;  /* 0x3FE62E42, 0xFEFA39EF */
 
 #ifdef __STDC__
-	double __ieee754_acosh(double x)
+	double attribute_hidden __ieee754_acosh(double x)
 #else
-	double __ieee754_acosh(x)
+	double attribute_hidden __ieee754_acosh(x)
 	double x;
 #endif
 {

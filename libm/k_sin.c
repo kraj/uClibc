@@ -59,9 +59,9 @@ S5  = -2.50507602534068634195e-08, /* 0xBE5AE5E6, 0x8A2B9CEB */
 S6  =  1.58969099521155010221e-10; /* 0x3DE5D93A, 0x5ACFD57C */
 
 #ifdef __STDC__
-	double __kernel_sin(double x, double y, int iy)
+	double attribute_hidden __kernel_sin(double x, double y, int iy)
 #else
-	double __kernel_sin(x, y, iy)
+	double attribute_hidden __kernel_sin(x, y, iy)
 	double x,y; int iy;		/* iy=0 if y is zero */
 #endif
 {

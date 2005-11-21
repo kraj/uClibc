@@ -42,9 +42,9 @@ static double one = 1.0, shuge = 1.0e307;
 #endif
 
 #ifdef __STDC__
-	double __ieee754_sinh(double x)
+	double attribute_hidden __ieee754_sinh(double x)
 #else
-	double __ieee754_sinh(x)
+	double attribute_hidden __ieee754_sinh(x)
 	double x;
 #endif
 {
