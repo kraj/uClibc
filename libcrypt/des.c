@@ -638,7 +638,7 @@ encrypt(char *block, int flag)
 			block[(i << 5) | j] = (io[i] & bits32[j]) ? 1 : 0;
 }
 
-char *
+char attribute_hidden *
 __des_crypt(const char *key, const char *setting)
 {
 	u_int32_t	count, salt, l, r0, r1, keybuf[2];
