@@ -8,11 +8,11 @@
 #include "_stdio.h"
 
 #ifndef __DO_LARGEFILE
-# define FTELL         ftell
+# define FTELL         __ftell
 # define OFFSET_TYPE   long int
 #endif
 
-OFFSET_TYPE FTELL(register FILE *stream)
+OFFSET_TYPE attribute_hidden FTELL(register FILE *stream)
 {
 #if defined(__UCLIBC_HAS_LFS__) && !defined(__DO_LARGEFILE)
 
@@ -47,7 +47,8 @@ OFFSET_TYPE FTELL(register FILE *stream)
 }
 
 #ifdef __DO_LARGEFILE
-weak_alias(__ftello64,ftello64);
+weak_alias(__ftello64,ftello64)
 #else
-weak_alias(ftell,ftello);
+weak_alias(__ftell,ftell)
+weak_alias(ftell,ftello)
 #endif

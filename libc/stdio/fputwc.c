@@ -9,7 +9,7 @@
 
 #ifdef __DO_UNLOCKED
 
-wint_t __fputwc_unlocked(wchar_t wc, FILE *stream)
+wint_t attribute_hidden __fputwc_unlocked(wchar_t wc, FILE *stream)
 {
 	return _wstdio_fwrite(&wc, 1, stream) ? wc : WEOF;
 }

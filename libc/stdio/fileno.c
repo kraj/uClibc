@@ -9,7 +9,7 @@
 
 #ifdef __DO_UNLOCKED
 
-int __fileno_unlocked(register FILE *stream)
+int attribute_hidden __fileno_unlocked(register FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 

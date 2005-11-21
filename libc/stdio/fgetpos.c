@@ -7,6 +7,10 @@
 
 #include "_stdio.h"
 
+#ifndef __DO_LARGEFILE
+#define FTELL __ftell
+#endif
+
 int fgetpos(FILE * __restrict stream, register fpos_t * __restrict pos)
 {
 #ifdef __STDIO_MBSTATE
@@ -16,7 +20,7 @@ int fgetpos(FILE * __restrict stream, register fpos_t * __restrict pos)
 
 	__STDIO_AUTO_THREADLOCK(stream);
 
-	if ((pos->__pos = ftell(stream)) >= 0) {
+	if ((pos->__pos = FTELL(stream)) >= 0) {
 		__COPY_MBSTATE(&(pos->__mbstate), &(stream->__state));
 		pos->__mblen_pending = stream->__ungot_width[0];
 		retval = 0;
@@ -28,7 +32,7 @@ int fgetpos(FILE * __restrict stream, register fpos_t * __restrict pos)
 
 #else
 
-	return ((pos->__pos = ftell(stream)) >= 0) ? 0 : -1;
+	return ((pos->__pos = FTELL(stream)) >= 0) ? 0 : -1;
 
 #endif
 }

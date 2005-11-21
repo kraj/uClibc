@@ -8,11 +8,11 @@
 #include "_stdio.h"
 
 extern int __fputws_unlocked(const wchar_t *__restrict ws,
-							 FILE *__restrict stream);
+					FILE *__restrict stream) attribute_hidden;
 
 #ifdef __DO_UNLOCKED
 
-int __fputws_unlocked(const wchar_t *__restrict ws,
+int attribute_hidden __fputws_unlocked(const wchar_t *__restrict ws,
 					  register FILE *__restrict stream)
 {
 	size_t n = wcslen(ws);
@@ -20,9 +20,9 @@ int __fputws_unlocked(const wchar_t *__restrict ws,
 	return (_wstdio_fwrite(ws, n, stream) == n) ? 0 : -1;
 }
 
-weak_alias(__fputws_unlocked,fputws_unlocked);
+weak_alias(__fputws_unlocked,fputws_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fputws_unlocked,fputws);
+weak_alias(__fputws_unlocked,fputws)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__

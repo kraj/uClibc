@@ -9,7 +9,7 @@
 
 #ifdef __DO_UNLOCKED
 
-char *__fgets_unlocked(char *__restrict s, int n,
+char attribute_hidden *__fgets_unlocked(char *__restrict s, int n,
 					   register FILE * __restrict stream)
 {
 	register char *p;

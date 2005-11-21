@@ -19,7 +19,7 @@ extern size_t __wcsnrtombs(char *__restrict dst,
 						   const wchar_t **__restrict src,
 						   size_t NWC, size_t len, mbstate_t *__restrict ps);
 
-size_t _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
+size_t attribute_hidden _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
 					  register FILE *__restrict stream)
 {
 	size_t r, count;

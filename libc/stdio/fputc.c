@@ -14,7 +14,7 @@
 
 #ifdef __DO_UNLOCKED
 
-int __fputc_unlocked(int c, register FILE *stream)
+int attribute_hidden __fputc_unlocked(int c, register FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 

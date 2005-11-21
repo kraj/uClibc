@@ -1015,7 +1015,7 @@ static int sc_getc(register struct scan_cookie *sc)
 			sc->fp->__modeflags |= __FLAG_EOF;
 			return EOF;
 		}
-	} else if ((wc = fgetwc_unlocked(sc->fp)) == WEOF) {
+	} else if ((wc = __fgetwc_unlocked(sc->fp)) == WEOF) {
 		return EOF;
 	}
 
@@ -1061,7 +1061,7 @@ static int scan_getwc(register struct scan_cookie *sc)
 				sc->ungot_flag |= 2;
 				return -1;
 			}
-		} else if ((wc = fgetwc_unlocked(sc->fp)) == WEOF) {
+		} else if ((wc = __fgetwc_unlocked(sc->fp)) == WEOF) {
 			sc->ungot_flag |= 2;
 			return -1;
 		}

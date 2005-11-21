@@ -17,7 +17,7 @@ static void munge_stream(register FILE *stream, unsigned char *buf)
 	__STDIO_STREAM_DISABLE_PUTC(stream);
 }
 
-wint_t __fgetwc_unlocked(register FILE *stream)
+wint_t attribute_hidden __fgetwc_unlocked(register FILE *stream)
 {
 	wint_t wi;
 	wchar_t wc[1];

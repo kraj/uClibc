@@ -14,7 +14,7 @@
 
 #ifdef __DO_UNLOCKED
 
-int __fgetc_unlocked(FILE *stream)
+int attribute_hidden __fgetc_unlocked(FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 

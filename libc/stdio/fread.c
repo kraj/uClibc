@@ -9,7 +9,7 @@
 
 #ifdef __DO_UNLOCKED
 
-size_t __fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
+size_t attribute_hidden __fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
 						FILE * __restrict stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);

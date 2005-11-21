@@ -347,20 +347,20 @@ extern int __stdio_trans2w_o(FILE *__restrict stream, int oflag) attribute_hidde
 #endif /* __STDIO_BUFFERS */
 /**********************************************************************/
 
-extern int __fputs_unlocked(const char *__restrict s, FILE *__restrict stream);
+extern int __fputs_unlocked(const char *__restrict s, FILE *__restrict stream) attribute_hidden;
 
 extern int __putchar_unlocked(int c);
 
 
 extern size_t __fwrite_unlocked(const void *__restrict ptr, size_t size,
-								size_t nmemb, FILE *__restrict stream);
+						size_t nmemb, FILE *__restrict stream) attribute_hidden;
 
 extern size_t __fread_unlocked(void *__restrict ptr, size_t size,
-							   size_t nmemb, FILE *__restrict stream);
+						size_t nmemb, FILE *__restrict stream) attribute_hidden;
 
-extern int __fputc_unlocked(int c, FILE *stream);
+extern int __fputc_unlocked(int c, FILE *stream) attribute_hidden;
 
-extern int __fflush_unlocked(FILE *stream);
+extern int __fflush_unlocked(FILE *stream) attribute_hidden;
 
 extern int __stdio_adjust_position(FILE *__restrict stream, __offmax_t *pos) attribute_hidden;
 
@@ -368,17 +368,19 @@ extern void __clearerr_unlocked(FILE *stream);
 extern int __feof_unlocked(FILE *stream);
 extern int __ferror_unlocked(FILE *stream);
 
-extern int __fgetc_unlocked(FILE *stream);
+extern int __fgetc_unlocked(FILE *stream) attribute_hidden;
 extern char *__fgets_unlocked(char *__restrict s, int n,
-							  FILE * __restrict stream);
+					FILE * __restrict stream) attribute_hidden;
 
-extern int __fileno_unlocked(FILE *stream);
+extern int __fileno_unlocked(FILE *stream) attribute_hidden;
 
-extern int __getchar_unlocked(void);
+extern int __getchar_unlocked(void) attribute_hidden;
 
+extern int __fseek(FILE *stream, long int offset, int whence) attribute_hidden;
+extern long int __ftell(FILE *stream) attribute_hidden;
 #ifdef __UCLIBC_HAS_LFS__
-extern int __fseeko64(FILE *stream, __off64_t offset, int whence);
-extern __off64_t __ftello64(FILE *stream);
+extern int __fseeko64(FILE *stream, __off64_t offset, int whence) attribute_hidden;
+extern __off64_t __ftello64(FILE *stream) attribute_hidden;
 #endif
 
 #ifdef __STDIO_HAS_OPENLIST
@@ -420,10 +422,10 @@ extern FILE *_stdio_fopen(intptr_t fname_or_mode,
 
 #ifdef __UCLIBC_HAS_WCHAR__
 extern size_t _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
-							 FILE *__restrict stream);
+						 FILE *__restrict stream) attribute_hidden;
 
-extern wint_t __fgetwc_unlocked(register FILE *stream);
-extern wint_t __fputwc_unlocked(wchar_t wc, FILE *stream);
+extern wint_t __fgetwc_unlocked(register FILE *stream) attribute_hidden;
+extern wint_t __fputwc_unlocked(wchar_t wc, FILE *stream) attribute_hidden;
 #endif
 
 /**********************************************************************/
