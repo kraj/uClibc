@@ -1,3 +1,10 @@
+/* vi: set sw=4 ts=4: */
+/*
+ * Copyright (C) 2000-2005 by Erik Andersen <andersen@codepoet.org>
+ *
+ * GNU Library General Public License (LGPL) version 2 or later.
+ */
+
 /* 
  * Environment variable to be removed for SUID programs.  The names are all
  * stuffed in a single string which means they have to be terminated with a
