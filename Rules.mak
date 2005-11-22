@@ -347,7 +347,8 @@ endif
 PTDIR := $(top_builddir)libpthread/$(PTNAME)
 # set up system dependencies include dirs (NOTE: order matters!)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-PTINC:=	-I$(PTDIR)/compat					\
+PTINC := \
+	-I$(PTDIR)/compat					\
 	-I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
 	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
 	-I$(PTDIR)/sysdeps/unix/sysv/linux			\
@@ -374,10 +375,15 @@ gcc_tls_test_fail:
 	@exit 1;
 endif
 else
-PTINC:=	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
-	-I$(PTDIR)/sysdeps/pthread
+PTINC := \
+	-I$(PTDIR)/sysdeps/$(TARGET_ARCH) \
+	-I$(PTDIR)/sysdeps/pthread \
+	-I$(top_builddir)libpthread
 endif
 CFLAGS+=$(PTINC)
+else
+	PTNAME := 
+	PTINC  := 
 endif
 
 # Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'
