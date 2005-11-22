@@ -70,6 +70,8 @@ else
 hostutils: readelf.host
 endif
 
+HOSTCFLAGS += -include $(top_srcdir)include/elf.h
+
 ldd.host: ldd.c
 	$(HOSTCC) $(HOSTCFLAGS) -Wl,-s \
  		-DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" $(HOST_LDSO_CACHE_FLAG) \
