@@ -58,7 +58,7 @@ pur_disp_compile.c = echo "  "CC $(show_objs)
 pur_disp_compile.S = echo "  "AS $(show_objs)
 pur_disp_compile.m = $(pur_disp_compile.c)
 pur_disp_compile-m = echo "  "CC-m $(show_objs)
-pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS) $@:*
+pur_disp_strip     = echo "  "STRIP $(STRIP_FLAGS) $@
 pur_disp_ar        = echo "  "AR $(ARFLAGS) $@
 pur_disp_ld        = echo "  "LD $(1)
 
@@ -141,13 +141,13 @@ endif
 $(top_builddir)lib/$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
-	@$(disp_strip) $(show_objs)
+	@$(disp_strip)
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
 $(top_builddir)lib/S$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) $(PIEFLAG) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
-	@$(disp_strip) $(show_objs)
+	@$(disp_strip)
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
 CTOR_TARGETS=$(top_builddir)lib/crti.o $(top_builddir)lib/crtn.o
@@ -178,3 +178,8 @@ clean: objclean-y headers_clean-y
 
 objclean-y: $(objclean-y)
 headers_clean-y: $(headers_clean-y)
+
+.PHONY: \
+	all check clean distclean test \
+	config dist menuconfig oldconfig release \
+	subdirs utils

@@ -16,7 +16,7 @@ include $(top_builddir)Rules.mak
 
 ifeq ($(HAVE_DOT_CONFIG),y)
 
-all: finished
+all: pregen libs
 
 # In this section, we need .config
 -include .config.cmd
@@ -32,11 +32,6 @@ include $(top_srcdir)libresolv/Makefile.in
 include $(top_srcdir)librt/Makefile.in
 include $(top_srcdir)libutil/Makefile.in
 include $(top_srcdir)libpthread/Makefile.in
-
-finished: pregen libs
-	$(SECHO)
-	$(SECHO) Finally finished compiling ...
-	$(SECHO)
 
 include/bits/uClibc_config.h: .config
 	$(RM) -r include/bits
@@ -119,7 +114,7 @@ ifeq ($(UCLIBC_PREGENERATED_LOCALE_DATA),y)
 	$(MAKE) -C $(top_srcdir)extra/locale pregen
 endif
 
-install: install_runtime install_dev finished2
+install: install_runtime install_dev
 
 
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
@@ -262,11 +257,6 @@ utils:
 install_utils: utils
 	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils install
 
-finished2:
-	$(SECHO)
-	$(SECHO) Finished installing ...
-	$(SECHO)
-
 else # ifeq ($(HAVE_DOT_CONFIG),y)
 
 all: menuconfig
@@ -363,5 +353,3 @@ dist release:
 
 check:
 	$(MAKE) -C test
-
-.PHONY: dummy subdirs release dist distclean clean config oldconfig menuconfig utils
