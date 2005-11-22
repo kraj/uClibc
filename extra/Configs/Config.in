@@ -1145,7 +1145,7 @@ config UCLIBC_BUILD_PIE
 	depends on HAVE_SHARED
 	depends on TARGET_arm || TARGET_frv || TARGET_i386 || TARGET_mips || TARGET_powerpc
 	select FORCE_SHAREABLE_TEXT_SEGMENTS
-	default y
+	default n
 	help
 	  If you answer Y here, ldd and iconv are built as ET_DYN/PIE executables.
 	  It requires gcc-3.4 and binutils-2.15 (for arm 2.16) or later.
