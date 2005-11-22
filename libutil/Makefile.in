@@ -22,7 +22,11 @@ libutil_SRC := $(filter-out $(libutil_DIR)/forkpty.c,$(libutil_SRC))
 endif
 libutil_OBJ := $(patsubst $(libutil_DIR)/%.c,$(libutil_OUT)/%.o,$(libutil_SRC))
 
+ifeq ($(DOPIC),y)
+libutil-a-y := $(libutil_OBJ:.o=.os)
+else
 libutil-a-y := $(libutil_OBJ)
+endif
 libutil-so-y := $(libutil_OBJ:.o=.os)
 
 libutil-multi-y := $(libutil_SRC)
@@ -31,7 +35,11 @@ lib-a-y += $(top_builddir)lib/libutil.a
 lib-so-y += $(top_builddir)lib/libutil.so
 objclean-y += libutil_clean
 
-$(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil_so.a $(libc-so-dep)
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libutil.so: $(top_builddir)lib/libutil.a $(libc)
+else
+$(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil_so.a $(libc)
+endif
 	$(call link.so,$(libutil_FULL_NAME),$(MAJOR_VERSION))
 
 $(libutil_OUT)/libutil_so.a: $(libutil-so-y)
@@ -39,16 +47,10 @@ $(libutil_OUT)/libutil_so.a: $(libutil-so-y)
 	$(do_strip)
 	$(do_ar)
 
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/libutil.a: $(libutil-a-y:.o=.os)
-else
-$(top_builddir)lib/libutil.a: $(libutil-a-y) $(libutil_OUT)/libutil_so.a
-endif
+$(top_builddir)lib/libutil.a: $(libutil-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-ifneq ($(DOPIC),y)
 	$(do_strip)
-endif
 	$(do_ar)
 
 libutil_clean:

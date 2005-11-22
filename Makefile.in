@@ -51,7 +51,10 @@ export header_extra_args =
 else
 export header_extra_args = -n
 endif
-headers: include/bits/uClibc_config.h
+headers: include/bits/sysnum.h
+
+include/bits/sysnum.h: include/bits/uClibc_config.h
+	$(MAKE) headers-y
 	@$(SHELL_SET_X); \
 	$(top_srcdir)extra/scripts/fix_includes.sh \
 		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
@@ -92,7 +95,6 @@ headers: include/bits/uClibc_config.h
 		$(RM) include/bits/sysnum.h; \
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
-	$(MAKE) headers-y
 
 # Command used to download source code
 WGET:=wget --passive-ftp
@@ -316,7 +318,6 @@ defconfig: extra/config/conf
 clean:
 	@$(RM) -r lib include/bits
 	$(RM) lib*/*.a ldso/*/*.a libpthread/*/*.a
-	$(RM) libc/misc/internals/interp.c
 	$(RM) include/fpu_control.h include/dl-osinfo.h
 	$(MAKE) -C extra/locale clean
 	$(MAKE) headers_clean-y

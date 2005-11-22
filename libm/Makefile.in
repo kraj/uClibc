@@ -117,7 +117,11 @@ libm_DEF := $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ))))
 
 libm_OBJS := $(libm_OBJ) $(libm_MOBJ)
 
+ifeq ($(DOPIC),y)
+libm-a-y += $(libm_OBJS:.o=.os)
+else
 libm-a-y += $(libm_OBJS)
+endif
 libm-so-y += $(libm_OBJS:.o=.os)
 
 CFLAGS-multi-y := $(libm_DEF)
@@ -128,7 +132,11 @@ lib-a-$(UCLIBC_HAS_FLOATS) += $(top_builddir)lib/libm.a
 lib-so-$(UCLIBC_HAS_FLOATS) += $(top_builddir)lib/libm.so
 objclean-y += libm_clean
 
-$(top_builddir)lib/libm.so: $(libm_OUT)/libm_so.a $(libc-so-dep)
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libm.so: $(top_builddir)lib/libm.a $(libc)
+else
+$(top_builddir)lib/libm.so: $(libm_OUT)/libm_so.a $(libc)
+endif
 	$(call link.so,$(libm_FULL_NAME),$(MAJOR_VERSION))
 
 $(libm_OUT)/libm_so.a: $(libm-so-y)
@@ -136,16 +144,10 @@ $(libm_OUT)/libm_so.a: $(libm-so-y)
 	$(do_strip)
 	$(do_ar)
 
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/libm.a: $(libm-a-y:.o=.os)
-else
-$(top_builddir)lib/libm.a: $(libm-a-y) $(libm_OUT)/libm_so.a
-endif
+$(top_builddir)lib/libm.a: $(libm-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-ifneq ($(DOPIC),y)
 	$(do_strip)
-endif
 	$(do_ar)
 
 $(libm_MOBJ): $(libm_MSRC)

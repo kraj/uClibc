@@ -61,7 +61,8 @@ SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
 UCLIBC_LDSO := ld-uClibc.so.$(MAJOR_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
 libc := $(top_builddir)lib/$(LIBC).so
-interp := $(top_builddir)libc/misc/internals/interp.os
+interp := $(top_builddir)lib/interp.os
+ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
 
 #LIBS :=$(interp) -L$(top_builddir)lib -lc
 LIBS := $(interp) -L$(top_builddir)lib $(libc)

@@ -50,7 +50,11 @@ endif
 
 libpthread_OBJ := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpthread_SRC))
 
+ifeq ($(DOPIC),y)
+libpthread-a-y += $(libpthread_OBJ:.o=.os)
+else
 libpthread-a-y += $(libpthread_OBJ)
+endif
 libpthread-so-y += $(libpthread_OBJ:.o=.os)
 
 libpthread-multi-y += $(libpthread_SRC)
@@ -62,7 +66,11 @@ objclean-y += libpthread_clean
 headers-$(UCLIBC_HAS_THREADS) += linuxthreads_headers
 headers_clean-y += linuxthreads_headers_clean
 
-$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc-so-dep)
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libpthread.so: $(top_builddir)lib/libpthread.a $(libc)
+else
+$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc)
+endif
 	$(call link.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
 
 $(libpthread_OUT)/libpthread_so.a: $(libpthread-so-y)
@@ -74,14 +82,12 @@ else
 endif
 	$(do_ar)
 
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/libpthread.a: $(libpthread-a-y:.o=.os)
-else
-$(top_builddir)lib/libpthread.a: $(libpthread-a-y) $(libpthread_OUT)/libpthread_so.a
-endif
+$(top_builddir)lib/libpthread.a: $(libpthread-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-ifneq ($(DOPIC),y)
+ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
+	$(do_strip:-x=-X --strip-debug)
+else
 	$(do_strip)
 endif
 	$(do_ar)

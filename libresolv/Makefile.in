@@ -19,7 +19,11 @@ libresolv_OUT := $(top_builddir)libresolv
 libresolv_SRC := $(libresolv_DIR)/resolv.c
 libresolv_OBJ := $(patsubst $(libresolv_DIR)/%.c,$(libresolv_OUT)/%.o,$(libresolv_SRC))
 
+ifeq ($(DOPIC),y)
+libresolv-a-y := $(libresolv_OBJ:.o=.os)
+else
 libresolv-a-y := $(libresolv_OBJ)
+endif
 libresolv-so-y := $(libresolv_OBJ:.o=.os)
 
 libresolv-multi-y := $(libresolv_SRC)
@@ -28,7 +32,11 @@ lib-a-y += $(top_builddir)lib/libresolv.a
 lib-so-y += $(top_builddir)lib/libresolv.so
 objclean-y += libresolv_clean
 
-$(top_builddir)lib/libresolv.so: $(libresolv_OUT)/libresolv_so.a $(libc-so-dep)
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libresolv.so: $(top_builddir)lib/libresolv.a $(libc)
+else
+$(top_builddir)lib/libresolv.so: $(libresolv_OUT)/libresolv_so.a $(libc)
+endif
 	$(call link.so,$(libresolv_FULL_NAME),$(MAJOR_VERSION))
 
 $(libresolv_OUT)/libresolv_so.a: $(libresolv-so-y)
@@ -36,16 +44,10 @@ $(libresolv_OUT)/libresolv_so.a: $(libresolv-so-y)
 	$(do_strip)
 	$(do_ar)
 
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/libresolv.a: $(libresolv-a-y:.o=.os)
-else
-$(top_builddir)lib/libresolv.a: $(libresolv-a-y) $(libresolv_OUT)/libresolv_so.a
-endif
+$(top_builddir)lib/libresolv.a: $(libresolv-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-ifneq ($(DOPIC),y)
 	$(do_strip)
-endif
 	$(do_ar)
 
 libresolv_clean:

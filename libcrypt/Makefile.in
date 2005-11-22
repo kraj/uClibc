@@ -20,7 +20,11 @@ libcrypt_OUT := $(top_builddir)libcrypt
 libcrypt_SRC := $(wildcard $(libcrypt_DIR)/*.c)
 libcrypt_OBJ := $(patsubst $(libcrypt_DIR)/%.c,$(libcrypt_OUT)/%.o,$(libcrypt_SRC))
 
+ifeq ($(DOPIC),y)
+libcrypt-a-y := $(libcrypt_OBJ:.o=.os)
+else
 libcrypt-a-y := $(libcrypt_OBJ)
+endif
 libcrypt-so-y := $(libcrypt_OBJ:.o=.os)
 
 libcrypt-multi-y := $(libcrypt_SRC)
@@ -29,7 +33,11 @@ lib-a-y += $(top_builddir)lib/libcrypt.a
 lib-so-y += $(top_builddir)lib/libcrypt.so
 objclean-y += libcrypt_clean
 
-$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a $(libc-so-dep)
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libcrypt.so: $(top_builddir)lib/libcrypt.a $(libc)
+else
+$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a $(libc)
+endif
 	$(call link.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
 
 $(libcrypt_OUT)/libcrypt_so.a: $(libcrypt-so-y)
@@ -37,16 +45,10 @@ $(libcrypt_OUT)/libcrypt_so.a: $(libcrypt-so-y)
 	$(do_strip)
 	$(do_ar)
 
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/libcrypt.a: $(libcrypt-a-y:.o=.os)
-else
-$(top_builddir)lib/libcrypt.a: $(libcrypt-a-y) $(libcrypt_OUT)/libcrypt_so.a
-endif
+$(top_builddir)lib/libcrypt.a: $(libcrypt-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-ifneq ($(DOPIC),y)
 	$(do_strip)
-endif
 	$(do_ar)
 
 libcrypt_clean:

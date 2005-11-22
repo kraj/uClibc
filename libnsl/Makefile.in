@@ -19,7 +19,11 @@ libnsl_OUT := $(top_builddir)libnsl
 libnsl_SRC := $(libnsl_DIR)/nsl.c
 libnsl_OBJ := $(patsubst $(libnsl_DIR)/%.c,$(libnsl_OUT)/%.o,$(libnsl_SRC))
 
+ifeq ($(DOPIC),y)
+libnsl-a-y := $(libnsl_OBJ:.o=.os)
+else
 libnsl-a-y := $(libnsl_OBJ)
+endif
 libnsl-so-y := $(libnsl_OBJ:.o=.os)
 
 libnsl-multi-y := $(libnsl_SRC)
@@ -28,7 +32,11 @@ lib-a-y += $(top_builddir)lib/libnsl.a
 lib-so-y += $(top_builddir)lib/libnsl.so
 objclean-y += libnsl_clean
 
-$(top_builddir)lib/libnsl.so: $(libnsl_OUT)/libnsl_so.a $(libc-so-dep)
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libnsl.so: $(top_builddir)lib/libnsl.a $(libc)
+else
+$(top_builddir)lib/libnsl.so: $(libnsl_OUT)/libnsl_so.a $(libc)
+endif
 	$(call link.so,$(libnsl_FULL_NAME),$(MAJOR_VERSION))
 
 $(libnsl_OUT)/libnsl_so.a: $(libnsl-so-y)
@@ -36,16 +44,10 @@ $(libnsl_OUT)/libnsl_so.a: $(libnsl-so-y)
 	$(do_strip)
 	$(do_ar)
 
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/libnsl.a: $(libnsl-a-y:.o=.os)
-else
-$(top_builddir)lib/libnsl.a: $(libnsl-a-y) $(libnsl_OUT)/libnsl_so.a
-endif
+$(top_builddir)lib/libnsl.a: $(libnsl-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-ifneq ($(DOPIC),y)
 	$(do_strip)
-endif
 	$(do_ar)
 
 libnsl_clean:
