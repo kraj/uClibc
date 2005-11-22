@@ -8,18 +8,26 @@
 ifeq ($(HAVE_SHARED),y)
 .LIBPATTERNS: "lib%.so"
 libs: $(lib-so-y) $(lib-a-y)
-objs: $(sort $(shared_objs) $(ar_objs))
 else
 .LIBPATTERNS: "lib%.a"
 libs: $(lib-a-y)
-objs: $(ar_objs)
 endif
+objs: all_objs
 
-shared_objs =  $(lduClibc-so-y) $(libc-so-y) $(libc-nonshared-y) $(libdl-so-y)
+shared_objs =  $(ld-uClibc-so-y) $(libc-so-y) $(libc-nonshared-y) $(libdl-so-y)
 shared_objs += $(libcrypt-so-y) $(libintl-so-y) $(libm-so-y) $(libnsl-so-y) $(libpthread-so-y)
 shared_objs += $(libresolv-so-y) $(librt-so-y) $(libutil-so-y)
 ar_objs =  $(libc-a-y) $(libcrypt-a-y) $(libintl-a-y) $(libm-a-y) $(libnsl-a-y)
 ar_objs += $(libpthread-a-y) $(libresolv-a-y) $(librt-a-y) $(libutil-a-y)
+ifeq ($(DOPIC),y)
+ar_objs := $(ar_objs:.o=.os)
+endif
+
+ifeq ($(HAVE_SHARED),y)
+all_objs: $(sort $(shared_objs) $(ar_objs))
+else
+all_objs: $(ar_objs)
+endif
 
 headers-y: $(headers-y)
 
