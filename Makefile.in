@@ -52,7 +52,6 @@ else
 export header_extra_args = -n
 endif
 headers: include/bits/uClibc_config.h
-ifeq ($(wildcard include/headers_done),)
 	@$(SHELL_SET_X); \
 	$(top_srcdir)extra/scripts/fix_includes.sh \
 		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
@@ -94,8 +93,6 @@ ifeq ($(wildcard include/headers_done),)
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
 	$(MAKE) headers-y
-	touch include/headers_done
-endif
 
 # Command used to download source code
 WGET:=wget --passive-ftp
@@ -129,7 +126,6 @@ install_headers:
 	fi ; \
 	tar -chf - include --exclude .svn $$extra_exclude \
 		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/headers_done
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ssp-internal.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/dl-osinfo.h
 ifneq ($(UCLIBC_HAS_FLOATS),y)
@@ -321,7 +317,7 @@ clean:
 	@$(RM) -r lib include/bits
 	$(RM) lib*/*.a ldso/*/*.a libpthread/*/*.a
 	$(RM) libc/misc/internals/interp.c
-	$(RM) include/fpu_control.h include/dl-osinfo.h include/headers_done
+	$(RM) include/fpu_control.h include/dl-osinfo.h
 	$(MAKE) -C extra/locale clean
 	$(MAKE) headers_clean-y
 	$(MAKE) -C test clean

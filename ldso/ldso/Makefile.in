@@ -58,7 +58,7 @@ ld-uClibc-so-y := $(ld-uClibc_OBJS:.o=.os)
 ld-uClibc-y := $(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO))
 objclean-y += ld-uClibc_clean
 
-$(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO)): $(ld-uClibc_OUT)/ld-uClibc_so.a $(top_builddir)include/headers_done
+$(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO)): $(ld-uClibc_OUT)/ld-uClibc_so.a
 	$(call link.so,$(ldso_FULL_NAME),$(MAJOR_VERSION))
 
 $(ld-uClibc_OUT)/ld-uClibc_so.a: $(ld-uClibc-so-y)

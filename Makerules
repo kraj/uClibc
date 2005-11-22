@@ -34,10 +34,7 @@ interp-y: $(interp)
 pre-y: interp-y ld-uClibc-y
 libc-y: pre-y $(libc) crt-y $(top_builddir)lib/$(NONSHARED_LIBNAME)
 lib-so-y: libc-y $(lib-so-y)
-lib-a-y: $(top_builddir)include/headers_done crt-y $(lib-a-y)
-
-$(top_builddir)include/headers_done:
-	@cd $(top_builddir); $(MAKE) headers
+lib-a-y: crt-y $(lib-a-y)
 
 ifneq ($(findstring s,$(MAKEFLAGS)),)
 DISP := sil
