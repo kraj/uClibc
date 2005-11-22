@@ -31,7 +31,7 @@ lib-a-y += $(top_builddir)lib/libutil.a
 lib-so-y += $(top_builddir)lib/libutil.so
 objclean-y += libutil_clean
 
-$(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil_so.a libc-y
+$(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil_so.a $(libc-so-dep)
 	$(call link.so,$(libutil_FULL_NAME),$(MAJOR_VERSION))
 
 $(libutil_OUT)/libutil_so.a: $(libutil-so-y)
@@ -42,11 +42,13 @@ $(libutil_OUT)/libutil_so.a: $(libutil-so-y)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libutil.a: $(libutil-a-y:.o=.os)
 else
-$(top_builddir)lib/libutil.a: $(libutil-a-y)
+$(top_builddir)lib/libutil.a: $(libutil-a-y) $(libutil_OUT)/libutil_so.a
 endif
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
+ifneq ($(DOPIC),y)
 	$(do_strip)
+endif
 	$(do_ar)
 
 libutil_clean:

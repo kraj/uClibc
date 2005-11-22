@@ -37,7 +37,7 @@ lib-a-$(UCLIBC_HAS_GETTEXT_AWARENESS) += $(top_builddir)lib/libintl.a
 lib-so-$(UCLIBC_HAS_GETTEXT_AWARENESS) += $(top_builddir)lib/libintl.so
 objclean-y += libintl_clean
 
-$(top_builddir)lib/libintl.so: $(libintl_OUT)/libintl_so.a libc-y
+$(top_builddir)lib/libintl.so: $(libintl_OUT)/libintl_so.a $(libc-so-dep)
 	$(call link.so,$(libintl_FULL_NAME),$(MAJOR_VERSION))
 
 $(libintl_OUT)/libintl_so.a: $(libintl-so-y)
@@ -48,11 +48,13 @@ $(libintl_OUT)/libintl_so.a: $(libintl-so-y)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libintl.a: $(libintl-a-y:.o=.os)
 else
-$(top_builddir)lib/libintl.a: $(libintl-a-y)
+$(top_builddir)lib/libintl.a: $(libintl-a-y) $(libintl_OUT)/libintl_so.a
 endif
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
+ifneq ($(DOPIC),y)
 	$(do_strip)
+endif
 	$(do_ar)
 
 $(libintl_MOBJ): $(libintl_MSRC)

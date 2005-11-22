@@ -62,7 +62,7 @@ objclean-y += libpthread_clean
 headers-$(UCLIBC_HAS_THREADS) += linuxthreads_headers
 headers_clean-y += linuxthreads_headers_clean
 
-$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a libc-y
+$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc-so-dep)
 	$(call link.so,$(libpthread_FULL_NAME),$(MAJOR_VERSION))
 
 $(libpthread_OUT)/libpthread_so.a: $(libpthread-so-y)
@@ -77,11 +77,13 @@ endif
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libpthread.a: $(libpthread-a-y:.o=.os)
 else
-$(top_builddir)lib/libpthread.a: $(libpthread-a-y)
+$(top_builddir)lib/libpthread.a: $(libpthread-a-y) $(libpthread_OUT)/libpthread_so.a
 endif
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
+ifneq ($(DOPIC),y)
 	$(do_strip)
+endif
 	$(do_ar)
 
 linuxthreads_headers:

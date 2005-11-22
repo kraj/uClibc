@@ -28,7 +28,7 @@ lib-a-y += $(top_builddir)lib/libresolv.a
 lib-so-y += $(top_builddir)lib/libresolv.so
 objclean-y += libresolv_clean
 
-$(top_builddir)lib/libresolv.so: $(libresolv_OUT)/libresolv_so.a libc-y
+$(top_builddir)lib/libresolv.so: $(libresolv_OUT)/libresolv_so.a $(libc-so-dep)
 	$(call link.so,$(libresolv_FULL_NAME),$(MAJOR_VERSION))
 
 $(libresolv_OUT)/libresolv_so.a: $(libresolv-so-y)
@@ -39,11 +39,13 @@ $(libresolv_OUT)/libresolv_so.a: $(libresolv-so-y)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libresolv.a: $(libresolv-a-y:.o=.os)
 else
-$(top_builddir)lib/libresolv.a: $(libresolv-a-y)
+$(top_builddir)lib/libresolv.a: $(libresolv-a-y) $(libresolv_OUT)/libresolv_so.a
 endif
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
+ifneq ($(DOPIC),y)
 	$(do_strip)
+endif
 	$(do_ar)
 
 libresolv_clean:

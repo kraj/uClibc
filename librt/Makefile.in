@@ -28,7 +28,7 @@ lib-a-y += $(top_builddir)lib/librt.a
 lib-so-y += $(top_builddir)lib/librt.so
 objclean-y += librt_clean
 
-$(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a libc-y
+$(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a $(libc-so-dep)
 	$(call link.so,$(librt_FULL_NAME),$(MAJOR_VERSION))
 
 $(librt_OUT)/librt_so.a: $(librt-so-y)
@@ -39,11 +39,13 @@ $(librt_OUT)/librt_so.a: $(librt-so-y)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/librt.a: $(librt-a-y:.o=.os)
 else
-$(top_builddir)lib/librt.a: $(librt-a-y)
+$(top_builddir)lib/librt.a: $(librt-a-y) $(librt_OUT)/librt_so.a
 endif
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
+ifneq ($(DOPIC),y)
 	$(do_strip)
+endif
 	$(do_ar)
 
 librt_clean:

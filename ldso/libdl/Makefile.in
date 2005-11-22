@@ -39,7 +39,7 @@ lib-a-$(HAVE_SHARED) += $(top_builddir)lib/libdl.a
 lib-so-y += $(top_builddir)lib/libdl.so
 objclean-y += libdl_clean
 
-$(top_builddir)lib/libdl.so: $(libdl_OUT)/libdl_so.a ld-uClibc-y libc-y
+$(top_builddir)lib/libdl.so: $(libdl_OUT)/libdl_so.a $(ld-uClibc-y) $(libc-so-dep)
 	$(call link.so,$(libdl_FULL_NAME),$(MAJOR_VERSION))
 
 $(libdl_OUT)/libdl_so.a: $(libdl-so-y)
@@ -50,11 +50,13 @@ $(libdl_OUT)/libdl_so.a: $(libdl-so-y)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libdl.a: $(libdl-a-y:.o=.os)
 else
-$(top_builddir)lib/libdl.a: $(libdl-a-y)
+$(top_builddir)lib/libdl.a: $(libdl-a-y) $(libdl_OUT)/libdl_so.a
 endif
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
+ifneq ($(DOPIC),y)
 	$(do_strip)
+endif
 	$(do_ar)
 
 libdl_clean:

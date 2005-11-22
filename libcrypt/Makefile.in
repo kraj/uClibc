@@ -29,7 +29,7 @@ lib-a-y += $(top_builddir)lib/libcrypt.a
 lib-so-y += $(top_builddir)lib/libcrypt.so
 objclean-y += libcrypt_clean
 
-$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a libc-y
+$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a $(libc-so-dep)
 	$(call link.so,$(libcrypt_FULL_NAME),$(MAJOR_VERSION))
 
 $(libcrypt_OUT)/libcrypt_so.a: $(libcrypt-so-y)
@@ -40,11 +40,13 @@ $(libcrypt_OUT)/libcrypt_so.a: $(libcrypt-so-y)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libcrypt.a: $(libcrypt-a-y:.o=.os)
 else
-$(top_builddir)lib/libcrypt.a: $(libcrypt-a-y)
+$(top_builddir)lib/libcrypt.a: $(libcrypt-a-y) $(libcrypt_OUT)/libcrypt_so.a
 endif
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
+ifneq ($(DOPIC),y)
 	$(do_strip)
+endif
 	$(do_ar)
 
 libcrypt_clean:

@@ -7,11 +7,11 @@
 # order is important, the stripping uses STRIP_FLAGS for lib-so, but not for lib-a
 ifeq ($(HAVE_SHARED),y)
 .LIBPATTERNS: "lib%.so"
-libs: lib-so-y lib-a-y
+libs: $(lib-so-y) $(lib-a-y)
 objs: shared_objs ar_objs
 else
 .LIBPATTERNS: "lib%.a"
-libs: lib-a-y
+libs: $(lib-a-y)
 objs: ar_objs
 endif
 
@@ -29,12 +29,13 @@ ar_objs: $(ar_objs-y)
 endif
 
 headers-y: $(headers-y)
-ld-uClibc-y: $(ld-uClibc-y)
 interp-y: $(interp)
-pre-y: interp-y ld-uClibc-y
-libc-y: pre-y $(libc) crt-y $(top_builddir)lib/$(NONSHARED_LIBNAME)
-lib-so-y: libc-y $(lib-so-y)
-lib-a-y: crt-y $(lib-a-y)
+pre-y: $(interp) $(ld-uClibc-y)
+libc-y: pre-y $(libc) $(crt-y) $(top_builddir)lib/$(NONSHARED_LIBNAME)
+ldso-dep = 
+libc-so-dep = $(top_builddir)lib/libc.so $(interp)
+lib-so-y = $(libc-so-dep) $(lib-so-y)
+lib-a-y = $(crt-y) $(lib-a-y)
 
 ifneq ($(findstring s,$(MAKEFLAGS)),)
 DISP := sil
@@ -163,7 +164,6 @@ $(CTOR_TARGETS):
 	$(do_ar)
 endif
 
-crt-y: $(crt-y)
 $(crt-y): $(CRTS) $(CTOR_TARGETS)
 
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)

@@ -43,11 +43,13 @@ $(libthread_db_OUT)/libthread_db_so.a: $(libthread_db-so-y)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libthread_db.a: $(libthread_db-a-y:.o=.os)
 else
-$(top_builddir)lib/libthread_db.a: $(libthread_db-a-y)
+$(top_builddir)lib/libthread_db.a: $(libthread_db-a-y) $(libthread_db_OUT)/libthread_db_so.a
 endif
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
+ifneq ($(DOPIC),y)
 	$(do_strip)
+endif
 	$(do_ar)
 
 linuxthreads_db_headers:

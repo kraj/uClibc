@@ -41,11 +41,11 @@ libc-so-y += $(libc-shared-y)
 
 libc-nomulti-y += $(libc-shared-y)
 
-lib-a-y += $(top_builddir)lib/libc.a crt-y
-lib-so-y += libc-y $(top_builddir)lib/$(NONSHARED_LIBNAME) crt-y
+lib-a-y += $(top_builddir)lib/libc.a $(crt-y)
+lib-so-y += libc-y $(top_builddir)lib/$(NONSHARED_LIBNAME) $(crt-y)
 objclean-y += libc_clean
 
-$(top_builddir)lib/libc.so: $(libc_OUT)/libc_so.a $(top_builddir)include/headers_done $(interp)
+$(top_builddir)lib/libc.so: $(libc_OUT)/libc_so.a $(interp)
 	$(call link.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
 	$(Q)$(RM) $@
 	$(Q)echo "/* GNU ld script" > $@
@@ -65,12 +65,18 @@ $(libc_OUT)/libc_so.a: $(libc-so-y)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libc.a: $(libc-a-y:.o=.os)
 else
-$(top_builddir)lib/libc.a: $(libc-a-y)
+$(top_builddir)lib/libc.a: $(libc-a-y) $(libc_OUT)/libc_so.a
 endif
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
+ifeq ($(DOPIC),y)
+	$(Q)$(STRIPTOOL) $(STRIP_FLAGS) $(filter-out $(libc-so-y),$^)
+else
 	$(do_strip)
+endif
 	$(do_ar)
+
+$(top_builddir)lib/$(NONSHARED_LIBNAME): $(top_builddir)lib/libc.a
 
 libc_clean:
 	$(RM) $(libc_OUT)/*.{o,os,a}
