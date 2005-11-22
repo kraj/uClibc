@@ -133,7 +133,7 @@ $(interp): $(top_builddir)lib/interp.c
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
 $(ldso):
-	cd $(top_builddir); $(MAKE) $(ldso:.$(MAJOR_VERSION)=)
+	cd $(top_builddir); $(MAKE) $(patsubst $(top_builddir)%.$(MAJOR_VERSION),%,$@)
 
 #ifeq ($(HAVE_ELF),y)
 CRT=crt1
