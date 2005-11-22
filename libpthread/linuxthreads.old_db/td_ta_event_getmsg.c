@@ -22,7 +22,7 @@
 #include <string.h>
 
 #include "thread_dbP.h"
-#include "../linuxthreads.old/internals.h"
+#include <linuxthreads/internals.h>
 
 
 td_err_e
