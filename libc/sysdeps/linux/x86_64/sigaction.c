@@ -17,23 +17,35 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+
 #include <errno.h>
+#include <stddef.h>
 #include <signal.h>
 #include <string.h>
+
+
 #include <sys/syscall.h>
+
+
+
+/* The difference here is that the sigaction structure used in the
+   kernel is not the same as we use in the libc.  Therefore we must
+   translate it here.  */
 #include <bits/kernel_sigaction.h>
 
+/* We do not globally define the SA_RESTORER flag so do it here.  */
 #define SA_RESTORER 0x04000000
 
-
 #if defined __NR_rt_sigaction
-#warning Yes there are two warnings here.  Don't worry about it.
-static void restore_rt (void) asm ("__restore_rt");
-static void restore (void) asm ("__restore");
+/* Using the hidden attribute here does not change the code but it
+   helps to avoid warnings.  */
+extern void restore_rt (void) asm ("__restore_rt") attribute_hidden;
+extern void restore (void) asm ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+int
+__libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
 	int result;
 	struct kernel_sigaction kact, koact;
@@ -61,12 +73,12 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 }
 #else
 
-#warning "Yes there is a warning here.  Don't worry about it."
-static void restore (void) asm ("__restore");
+extern void restore (void) asm ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+int
+__libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
 	int result;
 	struct old_kernel_sigaction kact, koact;
