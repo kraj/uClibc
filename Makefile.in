@@ -21,9 +21,8 @@ all: pregen libs
 # In this section, we need .config
 -include .config.cmd
 
-include $(top_srcdir)ldso/ldso/Makefile.in
+include $(top_srcdir)ldso/Makefile.in
 include $(top_srcdir)libc/Makefile.in
-include $(top_srcdir)ldso/libdl/Makefile.in
 include $(top_srcdir)libcrypt/Makefile.in
 include $(top_srcdir)libintl/Makefile.in
 include $(top_srcdir)libm/Makefile.in
