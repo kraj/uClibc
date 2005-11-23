@@ -85,6 +85,12 @@ cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(ARCH_CFLAGS) $(CFLAGS-$(suffix $@)
 cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
 cmd_ar        = $(AR) $(ARFLAGS) $@ $^
 
+define compile.u
+	$(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@))
+	$(STRIPTOOL) $(STRIP_FLAGS) $@
+endef
+hcompile.u = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -o $@ -Wl,-s $(HOSTCFLAGS) $(HOSTCFLAGS-$(notdir $(^D))) $(HOSTCFLAGS-$(notdir $@))
+
 compile.c = @$(disp_compile.c) ; $(cmd_compile.c)
 compile.E = $(cmd_compile.c:-c=-E)
 compile.S = @$(disp_compile.S) ; $(cmd_compile.S)
