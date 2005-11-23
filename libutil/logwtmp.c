@@ -37,7 +37,16 @@ void logwtmp (const char *line, const char *name, const char *host)
     strncpy(lutmp.ut_line, line, sizeof(lutmp.ut_line)-1);
     strncpy(lutmp.ut_name, name, sizeof(lutmp.ut_name)-1);
     strncpy(lutmp.ut_host, host, sizeof(lutmp.ut_host)-1);
+#if __WORDSIZE_COMPAT32 == 0
     gettimeofday(&(lutmp.ut_tv), NULL);
+#else
+    {
+      struct timeval tv;
+      gettimeofday (&tv, NULL);
+      lutmp.ut_tv.tv_sec = tv.tv_sec;
+      lutmp.ut_tv.tv_usec = tv.tv_usec;
+    }
+#endif
 
     updwtmp(_PATH_WTMP, &(lutmp));
 }

@@ -51,7 +51,16 @@ logout (const char *line)
       memset (ut->ut_host, 0, sizeof ut->ut_host);
 #endif
 #if _HAVE_UT_TV - 0
+# if __WORDSIZE_COMPAT32 == 0
       gettimeofday (&ut->ut_tv, NULL);
+# else
+    {
+      struct timeval tv;
+      gettimeofday (&tv, NULL);
+      ut->ut_tv.tv_sec = tv.tv_sec;
+      ut->ut_tv.tv_usec = tv.tv_usec;
+    }
+# endif
 #else
       time (&ut->ut_time);
 #endif
