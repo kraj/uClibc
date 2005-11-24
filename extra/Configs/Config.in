@@ -1087,7 +1087,7 @@ menu "Library Installation Options"
 config SHARED_LIB_LOADER_PREFIX
 	string "Shared library loader path"
 	depends on HAVE_SHARED
-	default "$(DEVEL_PREFIX)/lib"
+	default "$(RUNTIME_PREFIX)lib"
 	help
 	  When using shared libraries, this path is the location where the
 	  shared library will be invoked.  This value will be compiled into
