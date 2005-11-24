@@ -5,6 +5,7 @@
    and invokes a function in the right context after its all over.  */
 
 #define _ERRNO_H
+#include <features.h>
 #include <bits/errno.h>
 #include <sys/syscall.h>
 
@@ -12,9 +13,6 @@
 
 .text
 .align 4
-.type	clone,@function
-.globl	clone;
-clone:
 .type	__clone,@function
 .globl	__clone;
 __clone:
@@ -82,4 +80,3 @@ thread_start:
 #else
 	.set clone,__clone
 #endif
-
