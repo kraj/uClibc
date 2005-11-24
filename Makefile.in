@@ -50,9 +50,7 @@ export header_extra_args =
 else
 export header_extra_args = -n
 endif
-headers: include/bits/sysnum.h
-
-include/bits/sysnum.h: include/bits/uClibc_config.h
+headers: include/bits/uClibc_config.h
 	$(MAKE) headers-y
 	@$(SHELL_SET_X); \
 	$(top_srcdir)extra/scripts/fix_includes.sh \
