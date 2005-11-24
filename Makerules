@@ -89,7 +89,7 @@ define compile.u
 	$(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@))
 	$(STRIPTOOL) $(STRIP_FLAGS) $@
 endef
-hcompile.u = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -o $@ -Wl,-s $(HOSTCFLAGS) $(HOSTCFLAGS-$(notdir $(^D))) $(HOSTCFLAGS-$(notdir $@))
+hcompile.u = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -o $@ $(NATIVE_LDFLAGS) $(NATIVE_LDFLAGS-$(notdir $(^D))) $(HOSTCFLAGS) $(HOSTCFLAGS-$(notdir $(^D))) $(HOSTCFLAGS-$(notdir $@))
 
 compile.c = @$(disp_compile.c) ; $(cmd_compile.c)
 compile.E = $(cmd_compile.c:-c=-E)
