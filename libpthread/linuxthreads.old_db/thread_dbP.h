@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include "proc_service.h"
 #include "thread_db.h"
-#include "../linuxthreads.old/internals.h"
+#include "internals.h"
 
 
 /* Indeces for the symbol names.  */

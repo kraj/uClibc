@@ -19,7 +19,6 @@
    02111-1307 USA.  */
 
 #include "thread_dbP.h"
-#include <linuxthreads/internals.h>
 
 
 td_err_e

@@ -379,7 +379,7 @@ else
 PTINC := \
 	-I$(PTDIR)/sysdeps/$(TARGET_ARCH) \
 	-I$(PTDIR)/sysdeps/pthread \
-	-I$(top_builddir)libpthread
+	-I$(PTDIR)
 endif
 CFLAGS+=$(PTINC)
 else
