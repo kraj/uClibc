@@ -155,7 +155,7 @@ else
 $(locale_SRC): $(locale_OUT)/gen_ldc
 	$<
 
-$(locale_OUT)/uClibc_locale_data.h: $(locale_OUT)/lt_defines.h $(locale_OUT)/c8tables.h $(locale_OUT)/wctables.h $(locale_DIR)/locale_mmap.h | $(locale_OUT)/uClibc_locale_data.h
+$(locale_OUT)/uClibc_locale_data.h: $(locale_OUT)/lt_defines.h $(locale_OUT)/c8tables.h $(locale_OUT)/wctables.h $(locale_DIR)/locale_mmap.h | $(locale_SRC)
 	grep -v "define __LC" $< > $@
 	cat $(wordlist 2,3,4,$^) >> $@
 
