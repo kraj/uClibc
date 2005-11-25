@@ -36,7 +36,7 @@ HOSTCFLAGS-ldconfig.host := $(HOSTCFLAGS-utils-common)
 
 HOSTCFLAGS-ldd.host := $(HOSTCFLAGS-utils-common) -D_GNU_SOURCE
 
-NATIVE_LDFLAGS-utils := -Wl,-s
+BUILD_LDFLAGS-utils := -Wl,-s
 
 utils_DIR := $(top_srcdir)utils
 utils_OUT := $(top_builddir)utils
