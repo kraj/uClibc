@@ -237,7 +237,7 @@ utils:
 
 # Installs helper applications, such as 'ldd' and 'ldconfig'
 install_utils: utils
-	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils install
+	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install
 
 else # ifeq ($(HAVE_DOT_CONFIG),y)
 
@@ -306,7 +306,7 @@ clean:
 	$(MAKE) -C extra/locale locale_clean
 	$(MAKE) headers_clean-y
 	$(MAKE) -C test clean
-	$(MAKE) -C utils clean
+	$(MAKE) -C utils utils_clean
 	@set -e; \
 	for i in `(cd libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		$(RM) include/sys/$$i; \

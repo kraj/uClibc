@@ -73,13 +73,9 @@ hostutils: $(hostutils_OBJ)
 $(hostutils_OBJ): $(utils_OUT)/%.host : $(utils_DIR)/%.c
 	$(hcompile.u)
 
-# to be removed after included by main Makefile.in
-install: install_utils
-clean: utils_clean
+install-y += utils_install
 
-install-y += install_utils
-
-install_utils: utils
+utils_install: utils
 	$(INSTALL) -d $(PREFIX)$(RUNTIME_PREFIX)usr/bin
 	#$(INSTALL) -m 755 $(utils_OUT)/readelf $(PREFIX)$(RUNTIME_PREFIX)usr/bin/readelf
 ifeq ($(HAVE_SHARED),y)
