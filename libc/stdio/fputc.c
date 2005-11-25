@@ -14,7 +14,7 @@
 
 #ifdef __DO_UNLOCKED
 
-int attribute_hidden __fputc_unlocked(int c, register FILE *stream)
+int attribute_hidden __libc_fputc_unlocked(int c, register FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 
@@ -69,11 +69,12 @@ int attribute_hidden __fputc_unlocked(int c, register FILE *stream)
 	return EOF;
 }
 
-weak_alias(__fputc_unlocked,fputc_unlocked);
-weak_alias(__fputc_unlocked,putc_unlocked);
+strong_alias(__libc_fputc_unlocked,__fputc_unlocked)
+weak_alias(__fputc_unlocked,fputc_unlocked)
+weak_alias(__fputc_unlocked,putc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fputc_unlocked,fputc);
-weak_alias(__fputc_unlocked,putc);
+weak_alias(__fputc_unlocked,fputc)
+weak_alias(__fputc_unlocked,putc)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
@@ -91,6 +92,6 @@ int fputc(int c, register FILE *stream)
 	}
 }
 
-weak_alias(fputc,putc);
+weak_alias(fputc,putc)
 
 #endif
