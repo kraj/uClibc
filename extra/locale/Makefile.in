@@ -5,6 +5,11 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+# command used to download source code
+WGET := wget --passive-ftp
+
+LOCALE_DATA_FILENAME := uClibc-locale-030818.tgz
+
 HOSTCFLAGS-locale-common := -D__UCLIBC_GEN_LOCALE
 
 HOSTCFLAGS-gen_wc8bit := $(HOSTCFLAGS-locale-common) -DCTYPE_PACKED=1
@@ -24,17 +29,21 @@ DEPH-gen_ldc := c8tables.h wctables.h locale_tables.h locale_collate.h
 locale_DIR := $(top_srcdir)extra/locale
 locale_OUT := $(top_builddir)extra/locale
 
-#locale_OBJ := gen_collate gen_ldc gen_locale gen_wc8bit gen_wctype
-locale_OBJ := gen_collate gen_wc8bit gen_wctype
-locale_OBJ := $(patsubst %,$(locale_OUT)/%,$(locale_OBJ))
+#locale_HOBJ := gen_collate gen_ldc gen_locale gen_wc8bit gen_wctype
+locale_HOBJ := gen_collate gen_wc8bit gen_wctype
+locale_HOBJ := $(patsubst %,$(locale_OUT)/%,$(locale_HOBJ))
 
-ifeq ($(UCLIBC_HAS_LOCALE),y)
-locale_objs: locale_build
-else
-locale_objs:
-endif
+locale_SRC := $(locale_OUT)/locale_data.c
+locale_OBJ := $(locale_OUT)/locale_data.o
 
-objs: locale_objs
+CFLAGS-locale_data.c := -D__WCHAR_ENABLED -I$(locale_OUT) -I$(locale_DIR)
+
+headers-$(UCLIBC_HAS_LOCALE) += locale_headers
+
+libc-a-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ)
+libc-so-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ:.o=.os)
+
+locale_headers: $(top_builddir)include/bits/uClibc_locale_data.h
 
 # make sure that the host system has locales (this check is ok for uClibc/glibc)
 # we do not know though which locales were really enabled for libc at build time
@@ -95,7 +104,7 @@ endif
 
 endif
 
-$(locale_OBJ): $(locale_OUT)/% : $(locale_DIR)/%.c | $(DEPH-locale)
+$(locale_HOBJ): $(locale_OUT)/% : $(locale_DIR)/%.c | $(DEPH-locale)
 	$(hcompile.u)
 
 $(locale_OUT)/gen_locale : $(locale_DIR)/gen_locale.c | $(DEPH-locale) $(patsubst %,$(locale_OUT)/%,$(DEPH-gen_locale))
@@ -104,7 +113,7 @@ $(locale_OUT)/gen_locale : $(locale_DIR)/gen_locale.c | $(DEPH-locale) $(patsubs
 $(locale_OUT)/gen_ldc : $(locale_DIR)/gen_ldc.c | $(DEPH-locale) $(patsubst %,$(locale_OUT)/%,$(DEPH-gen_ldc))
 	$(hcompile.u)
 
-# code needs to be modified to support top_builddir in almost all apps that right directly to a file
+# code needs to be modified to support top_builddir in almost all apps that write directly to a file
 # grep fopen *.c
 $(locale_OUT)/c8tables.h: $(locale_OUT)/gen_wc8bit $(locale_OUT)/codesets.txt
 	$< `cat $(word 2,$^)`
@@ -124,33 +133,41 @@ $(locale_OUT)/locale_collate.h: $(locale_OUT)/gen_collate $(locale_OUT)/locale_t
 	grep COL_IDX_ $(word 2,$^) | sed -e "s/^.*COL_IDX_\([^, ]*\).*$$/\1/" | \
 		sort | uniq | xargs $<
 
-$(locale_OUT)/locale_data.c: $(locale_OUT)/gen_ldc
-	$<
+$(locale_OUT)/$(LOCALE_DATA_FILENAME):
+ifeq ($(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA),y)
+	( cd $(dir $@); $(WGET) http://www.uclibc.org/downloads/$(notdir $@) )
+endif
 
 ifeq ($(UCLIBC_PREGENERATED_LOCALE_DATA),y)
 
-#$(locale_OUT)/uClibc_locale_data.h:
-#	cp $(locale_DIR)/full/common/*.h $(locale_OUT)/
-#ifeq ($(wildcard $(locale_DIR)/full/$(TARGET_ARCH)/*.c),)
-#	cp $(locale_DIR)/full/orig/*.{c,h} $(locale_OUT)/
-#else
-#	# we need here support for endian versions
-#	cp $(locale_DIR)/full/$(TARGET_ARCH)/*.{h,c} $(locale_OUT)/
-#endif
+$(locale_SRC): $(locale_OUT)/$(LOCALE_DATA_FILENAME)
+	zcat $< | tar -xv -C $(dir $@) -f -
+	touch $@
+	# we use the one in locale_DIR
+	#$(RM) $(locale_OUT)/locale_mmap.h
 
-locale_build: $(top_builddir)include/bits/uClibc_locale_data.h
+# for arch specific versions we have to at least overwrite lt_defines.h/locale_data.c/uClibc_locale_data.h
+
+$(locale_OUT)/uClibc_locale_data.h: $(locale_SRC)
 
 else
 
-$(locale_OUT)/uClibc_locale_data.h: $(locale_OUT)/lt_defines.h $(locale_OUT)/c8tables.h $(locale_OUT)/wctables.h $(locale_OUT)/locale_mmap.h
+$(locale_SRC): $(locale_OUT)/gen_ldc
+	$<
+
+$(locale_OUT)/uClibc_locale_data.h: $(locale_OUT)/lt_defines.h $(locale_OUT)/c8tables.h $(locale_OUT)/wctables.h $(locale_DIR)/locale_mmap.h | $(locale_OUT)/uClibc_locale_data.h
 	grep -v "define __LC" $< > $@
 	cat $(wordlist 2,3,4,$^) >> $@
 
-locale_build: $(top_builddir)include/bits/uClibc_locale_data.h $(locale_OUT)/locale_data.c
-
 endif
 
-$(top_builddir)include/bits/uClibc_locale_data.h: $(locale_OUT)/uClibc_locale_data.h $(top_builddir)include/bits/sysnum.h
+$(locale_OBJ): $(locale_SRC) | $(headers_dep)
+	$(compile.c)
+
+$(locale_OBJ:.o=.os): $(locale_SRC) | $(headers_dep)
+	$(compile.c)
+
+$(top_builddir)include/bits/uClibc_locale_data.h: $(locale_OUT)/uClibc_locale_data.h | $(top_builddir)include/bits/uClibc_config.h
 	cat $< | awk 'BEGIN{i=1}{ if ( /WANT_/ ) i = /endif/ ; else if (i) print $0 }' > $@
 
 # to be removed after included by top Makefile.in
@@ -160,6 +177,6 @@ objclean-y += locale_clean
 
 # lmmtolso.c/gen_mmap.c/tst-*.c not used
 locale_clean:
-	$(RM) $(locale_OBJ) $(locale_OUT)/{*.txt,locale_data.c,gen_locale,gen_ldc}
+	$(RM) $(locale_HOBJ) $(locale_SRC) $(locale_OUT)/{*.{o,os,txt},gen_locale,gen_ldc}
 	$(RM) $(locale_OUT)/{uClibc_locale_data,lt_defines,c8tables,wctables,locale_tables,locale_collate}.h
 	$(RM) $(locale_OUT)/{lmmtolso,gen_mmap,locale.mmap}
