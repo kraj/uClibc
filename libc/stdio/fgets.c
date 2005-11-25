@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define __fgetc_unlocked __libc_fgetc_unlocked
+
 #include "_stdio.h"
 
 #ifdef __DO_UNLOCKED
