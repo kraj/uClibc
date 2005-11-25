@@ -35,7 +35,6 @@ include $(top_srcdir)libpthread/Makefile.in
 include $(top_srcdir)libc/Makefile.in
 
 include/bits/uClibc_config.h: .config
-	$(RM) -r include/bits
 	$(INSTALL) -d include/bits
 	@if [ ! -x extra/config/conf ] ; then \
 	    $(MAKE) -C extra/config conf; \
