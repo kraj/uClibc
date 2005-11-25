@@ -107,7 +107,9 @@ ifeq ($(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA),y)
 endif
 ifeq ($(UCLIBC_PREGENERATED_LOCALE_DATA),y)
 	(cd $(top_builddir)extra/locale; zcat $(LOCALE_DATA_FILENAME) | tar -xvf -)
-	$(MAKE) -C $(top_srcdir)extra/locale pregen
+endif
+ifeq ($(UCLIBC_HAS_LOCALE),y)
+	$(MAKE) -C $(top_builddir)extra/locale locale_objs
 endif
 
 install: install_runtime install_dev
@@ -335,8 +337,8 @@ clean:
 distclean: clean
 	-find . \( -name core -o -name \*.orig -o -name \*~ \) -exec $(RM) {} \;
 	$(RM) .config .config.old .config.cmd
-	$(RM) extra/locale/*.txt
-	$(MAKE) -C extra clean
+	$(RM) extra/locale/*.{txt,tgz}
+	$(MAKE) -C extra/config clean
 
 dist release:
 	$(MAKE) -s distclean
