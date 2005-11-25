@@ -32,10 +32,10 @@ endif
 endif
 endif
 
-HOSTCFLAGS-config   := -I.
+BUILD_CFLAGS-config   := -I.
 
-HOSTCFLAGS-mconf.o  := $(HOSTNCURSES)
-HOSTCFLAGS-lxdialog := $(HOSTNCURSES)
+BUILD_CFLAGS-mconf.o  := $(HOSTNCURSES)
+BUILD_CFLAGS-lxdialog := $(HOSTNCURSES)
 
 BUILD_LDFLAGS-mconf := $(HOSTLIBNCURSES)
 

@@ -24,17 +24,17 @@ CFLAGS-iconv := $(CFLAGS-utils-shared) -DL_iconv_main
 
 CFLAGS-readelf := $(CFLAGS-utils-shared)
 
-HOSTCFLAGS-utils := -include $(top_srcdir)include/elf.h
+BUILD_CFLAGS-utils := -include $(top_srcdir)include/elf.h
 
-HOSTCFLAGS-utils-common := $(CFLAGS-utils-common)
+BUILD_CFLAGS-utils-common := $(CFLAGS-utils-common)
 
 ifeq ($(LDSO_CACHE_SUPPORT),y)
-HOSTCFLAGS-utils-common += -D__LDSO_CACHE_SUPPORT__=1
+BUILD_CFLAGS-utils-common += -D__LDSO_CACHE_SUPPORT__=1
 endif
 
-HOSTCFLAGS-ldconfig.host := $(HOSTCFLAGS-utils-common)
+BUILD_CFLAGS-ldconfig.host := $(BUILD_CFLAGS-utils-common)
 
-HOSTCFLAGS-ldd.host := $(HOSTCFLAGS-utils-common) -D_GNU_SOURCE
+BUILD_CFLAGS-ldd.host := $(BUILD_CFLAGS-utils-common) -D_GNU_SOURCE
 
 BUILD_LDFLAGS-utils := -Wl,-s
 

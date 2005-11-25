@@ -41,7 +41,7 @@ STRIP_FLAGS ?= -x -R .note -R .comment
 
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
-HOSTCFLAGS = -O2 -Wall
+BUILD_CFLAGS = -O2 -Wall
 
 
 #---------------------------------------------------------

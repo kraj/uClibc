@@ -10,16 +10,16 @@ WGET := wget --passive-ftp
 
 LOCALE_DATA_FILENAME := uClibc-locale-030818.tgz
 
-HOSTCFLAGS-locale-common := -D__UCLIBC_GEN_LOCALE
+BUILD_CFLAGS-locale-common := -D__UCLIBC_GEN_LOCALE
 
-HOSTCFLAGS-gen_wc8bit := $(HOSTCFLAGS-locale-common) -DCTYPE_PACKED=1
+BUILD_CFLAGS-gen_wc8bit := $(BUILD_CFLAGS-locale-common) -DCTYPE_PACKED=1
 
-HOSTCFLAGS-gen_wctype := $(HOSTCFLAGS-locale-common)
+BUILD_CFLAGS-gen_wctype := $(BUILD_CFLAGS-locale-common)
 
-HOSTCFLAGS-gen_ldc :=
+BUILD_CFLAGS-gen_ldc :=
 ifeq ($(UCLIBC_HAS_WCHAR),y)
-HOSTCFLAGS-gen_wc8bit += -DDO_WIDE_CHAR=1
-HOSTCFLAGS-gen_ldc += -D__WCHAR_ENABLED=1
+BUILD_CFLAGS-gen_wc8bit += -DDO_WIDE_CHAR=1
+BUILD_CFLAGS-gen_ldc += -D__WCHAR_ENABLED=1
 endif
 
 DEPH-locale := $(top_builddir)include/bits/sysnum.h
