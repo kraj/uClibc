@@ -60,12 +60,12 @@ LIBC := libc
 SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
 UCLIBC_LDSO := ld-uClibc.so.$(MAJOR_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
-libc := $(top_builddir)lib/$(LIBC).so
+libc := $(top_builddir)lib/$(SHARED_MAJORNAME)
 interp := $(top_builddir)lib/interp.os
 ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
 
 #LIBS :=$(interp) -L$(top_builddir)lib -lc
-LIBS := $(interp) -L$(top_builddir)lib $(libc)
+LIBS := $(interp) -L$(top_builddir)lib $(libc:.$(MAJOR_VERSION)=)
 
 # Make sure DESTDIR and PREFIX can be used to install
 # PREFIX is a uClibcism while DESTDIR is a common GNUism

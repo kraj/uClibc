@@ -49,7 +49,7 @@ lib-a-y += $(top_builddir)lib/libc.a
 lib-so-y += $(libc)
 objclean-y += libc_clean
 
-$(libc): $(libc_OUT)/libc_so.a $(LIBS-libc.so)
+$(libc:.$(MAJOR_VERSION)=): $(libc_OUT)/libc_so.a $(LIBS-libc.so)
 	$(call link.so,$(libc_FULL_NAME),$(MAJOR_VERSION))
 	$(Q)$(RM) $@
 	$(Q)echo "/* GNU ld script" > $@

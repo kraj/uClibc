@@ -141,6 +141,9 @@ $(interp): $(top_builddir)lib/interp.c
 $(ldso):
 	cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(MAJOR_VERSION),%,$(notdir $@))
 
+$(libc):
+	cd $(top_builddir); $(MAKE) lib/$(patsubst %.$(MAJOR_VERSION),%,$(notdir $@))
+
 #ifeq ($(HAVE_ELF),y)
 CRT=crt1
 #else
