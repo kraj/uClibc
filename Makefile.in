@@ -337,7 +337,7 @@ clean:
 distclean: clean
 	-find . \( -name core -o -name \*.orig -o -name \*~ \) -exec $(RM) {} \;
 	$(RM) .config .config.old .config.cmd
-	$(RM) extra/locale/*.{txt,tgz}
+	$(RM) extra/locale/*.tgz
 	$(MAKE) -C extra/config clean
 
 dist release:
