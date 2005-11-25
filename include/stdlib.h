@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2003, 2004, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -140,11 +140,11 @@ __END_NAMESPACE_C99
 /* Maximum length of a multibyte character in the current locale.  */
 #if 0
 #define	MB_CUR_MAX	(__ctype_get_mb_cur_max ())
-extern size_t __ctype_get_mb_cur_max (void) __THROW;
+extern size_t __ctype_get_mb_cur_max (void) __THROW __wur;
 #endif
 #ifdef __UCLIBC_HAS_WCHAR__
 #define	MB_CUR_MAX	(_stdlib_mb_cur_max ())
-extern size_t _stdlib_mb_cur_max (void) __THROW;
+extern size_t _stdlib_mb_cur_max (void) __THROW __wur;
 #endif
 
 
@@ -152,21 +152,21 @@ __BEGIN_NAMESPACE_STD
 #ifdef __UCLIBC_HAS_FLOATS__
 /* Convert a string to a floating-point number.  */
 extern double atof (__const char *__nptr)
-     __THROW __attribute_pure__ __nonnull ((1));
+     __THROW __attribute_pure__ __nonnull ((1)) __wur;
 #endif /* __UCLIBC_HAS_FLOATS__ */
 /* Convert a string to an integer.  */
 extern int atoi (__const char *__nptr)
-     __THROW __attribute_pure__ __nonnull ((1));
+     __THROW __attribute_pure__ __nonnull ((1)) __wur;
 /* Convert a string to a long integer.  */
 extern long int atol (__const char *__nptr)
-     __THROW __attribute_pure__ __nonnull ((1));
+     __THROW __attribute_pure__ __nonnull ((1)) __wur;
 __END_NAMESPACE_STD
 
 #if defined __USE_ISOC99 || defined __USE_MISC
 __BEGIN_NAMESPACE_C99
 /* Convert a string to a long long integer.  */
 __extension__ extern long long int atoll (__const char *__nptr)
-     __THROW __attribute_pure__ __nonnull ((1));
+     __THROW __attribute_pure__ __nonnull ((1)) __wur;
 __END_NAMESPACE_C99
 #endif
 
@@ -174,18 +174,19 @@ __END_NAMESPACE_C99
 __BEGIN_NAMESPACE_STD
 /* Convert a string to a floating-point number.  */
 extern double strtod (__const char *__restrict __nptr,
-		      char **__restrict __endptr) __THROW __nonnull ((1));
+		      char **__restrict __endptr)
+     __THROW __nonnull ((1)) __wur;
 __END_NAMESPACE_STD
 
 #ifdef	__USE_ISOC99
 __BEGIN_NAMESPACE_C99
 /* Likewise for `float' and `long double' sizes of floating-point numbers.  */
 extern float strtof (__const char *__restrict __nptr,
-		     char **__restrict __endptr) __THROW __nonnull ((1));
+		     char **__restrict __endptr) __THROW __nonnull ((1)) __wur;
 
 extern long double strtold (__const char *__restrict __nptr,
 			    char **__restrict __endptr)
-     __THROW __nonnull ((1));
+     __THROW __nonnull ((1)) __wur;
 __END_NAMESPACE_C99
 #endif
 #endif /* __UCLIBC_HAS_FLOATS__ */
@@ -194,11 +195,11 @@ __BEGIN_NAMESPACE_STD
 /* Convert a string to a long integer.  */
 extern long int strtol (__const char *__restrict __nptr,
 			char **__restrict __endptr, int __base)
-     __THROW __nonnull ((1));
+     __THROW __nonnull ((1)) __wur;
 /* Convert a string to an unsigned long integer.  */
 extern unsigned long int strtoul (__const char *__restrict __nptr,
 				  char **__restrict __endptr, int __base)
-     __THROW __nonnull ((1));
+     __THROW __nonnull ((1)) __wur;
 __END_NAMESPACE_STD
 
 #ifdef __USE_BSD
@@ -206,12 +207,12 @@ __END_NAMESPACE_STD
 __extension__
 extern long long int strtoq (__const char *__restrict __nptr,
 			     char **__restrict __endptr, int __base)
-     __THROW __nonnull ((1));
+     __THROW __nonnull ((1)) __wur;
 /* Convert a string to an unsigned quadword integer.  */
 __extension__
 extern unsigned long long int strtouq (__const char *__restrict __nptr,
 				       char **__restrict __endptr, int __base)
-     __THROW __nonnull ((1));
+     __THROW __nonnull ((1)) __wur;
 #endif /* GCC and use BSD.  */
 
 #if defined __USE_ISOC99 || defined __USE_MISC
@@ -220,12 +221,12 @@ __BEGIN_NAMESPACE_C99
 __extension__
 extern long long int strtoll (__const char *__restrict __nptr,
 			      char **__restrict __endptr, int __base)
-     __THROW __nonnull ((1));
+     __THROW __nonnull ((1)) __wur;
 /* Convert a string to an unsigned quadword integer.  */
 __extension__
 extern unsigned long long int strtoull (__const char *__restrict __nptr,
 					char **__restrict __endptr, int __base)
-     __THROW __nonnull ((1));
+     __THROW __nonnull ((1)) __wur;
 __END_NAMESPACE_C99
 #endif /* ISO C99 or GCC and use MISC.  */
 
@@ -251,37 +252,38 @@ __END_NAMESPACE_C99
    use as an additional parameter.  */
 extern long int strtol_l (__const char *__restrict __nptr,
 			  char **__restrict __endptr, int __base,
-			  __locale_t __loc) __THROW __nonnull ((1, 4));
+			  __locale_t __loc) __THROW __nonnull ((1, 4)) __wur;
 
 extern unsigned long int strtoul_l (__const char *__restrict __nptr,
 				    char **__restrict __endptr,
 				    int __base, __locale_t __loc)
-     __THROW __nonnull ((1, 4));
+     __THROW __nonnull ((1, 4)) __wur;
 
 __extension__
 extern long long int strtoll_l (__const char *__restrict __nptr,
 				char **__restrict __endptr, int __base,
 				__locale_t __loc)
-     __THROW __nonnull ((1, 4));
+     __THROW __nonnull ((1, 4)) __wur;
 
 __extension__
 extern unsigned long long int strtoull_l (__const char *__restrict __nptr,
 					  char **__restrict __endptr,
 					  int __base, __locale_t __loc)
-     __THROW __nonnull ((1, 4));
+     __THROW __nonnull ((1, 4)) __wur;
 
 #ifdef __UCLIBC_HAS_FLOATS__
 extern double strtod_l (__const char *__restrict __nptr,
 			char **__restrict __endptr, __locale_t __loc)
-     __THROW __nonnull ((1, 3));
+     __THROW __nonnull ((1, 3)) __wur;
 
 extern float strtof_l (__const char *__restrict __nptr,
 		       char **__restrict __endptr, __locale_t __loc)
-     __THROW __nonnull ((1, 3));
+     __THROW __nonnull ((1, 3)) __wur;
 
 extern long double strtold_l (__const char *__restrict __nptr,
 			      char **__restrict __endptr,
-			      __locale_t __loc) __THROW __nonnull ((1, 3));
+			      __locale_t __loc)
+     __THROW __nonnull ((1, 3)) __wur;
 #endif /* __UCLIBC_HAS_FLOATS__ */
 
 /* Internal names to support libstd++. */
@@ -327,11 +329,11 @@ extern long double __strtold_l (__const char *__restrict __nptr,
 /* Convert N to base 64 using the digits "./0-9A-Za-z", least-significant
    digit first.  Returns a pointer to static storage overwritten by the
    next call.  */
-extern char *l64a (long int __n) __THROW;
+extern char *l64a (long int __n) __THROW __wur;
 
 /* Read a number from a string S in base 64 as above.  */
 extern long int a64l (__const char *__s)
-     __THROW __attribute_pure__ __nonnull ((1));
+     __THROW __attribute_pure__ __nonnull ((1)) __wur;
 
 #endif	/* Use SVID || extended X/Open.  */
 
@@ -491,10 +493,10 @@ extern int lcong48_r (unsigned short int __param[7],
 # define __malloc_and_calloc_defined
 __BEGIN_NAMESPACE_STD
 /* Allocate SIZE bytes of memory.  */
-extern void *malloc (size_t __size) __THROW __attribute_malloc__;
+extern void *malloc (size_t __size) __THROW __attribute_malloc__ __wur;
 /* Allocate NMEMB elements of SIZE bytes each, all initialized to 0.  */
 extern void *calloc (size_t __nmemb, size_t __size)
-     __THROW __attribute_malloc__;
+     __THROW __attribute_malloc__ __wur;
 __END_NAMESPACE_STD
 #endif
 
@@ -502,7 +504,8 @@ __END_NAMESPACE_STD
 __BEGIN_NAMESPACE_STD
 /* Re-allocate the previously allocated block
    in PTR, making the new block SIZE bytes long.  */
-extern void *realloc (void *__ptr, size_t __size) __THROW __attribute_malloc__;
+extern void *realloc (void *__ptr, size_t __size)
+     __THROW __attribute_malloc__ __attribute_warn_unused_result__;
 /* Free a block allocated by `malloc', `realloc' or `calloc'.  */
 extern void free (void *__ptr) __THROW;
 __END_NAMESPACE_STD
@@ -518,13 +521,13 @@ extern void cfree (void *__ptr) __THROW;
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 /* Allocate SIZE bytes on a page boundary.  The storage cannot be freed.  */
-extern void *valloc (size_t __size) __THROW __attribute_malloc__;
+extern void *valloc (size_t __size) __THROW __attribute_malloc__ __wur;
 #endif
 
 #ifdef __USE_XOPEN2K
 /* Allocate memory of SIZE bytes with an alignment of ALIGNMENT.  */
 extern int posix_memalign (void **__memptr, size_t __alignment, size_t __size)
-     __THROW __attribute_malloc__ __nonnull ((1));
+     __THROW __nonnull ((1)) __wur;
 #endif
 
 __BEGIN_NAMESPACE_STD
@@ -561,12 +564,13 @@ __END_NAMESPACE_C99
 
 __BEGIN_NAMESPACE_STD
 /* Return the value of envariable NAME, or NULL if it doesn't exist.  */
-extern char *getenv (__const char *__name) __THROW __nonnull ((1));
+extern char *getenv (__const char *__name) __THROW __nonnull ((1)) __wur;
 __END_NAMESPACE_STD
 
 /* This function is similar to the above but returns NULL if the
    programs is running with SUID or SGID enabled.  */
-extern char *__secure_getenv (__const char *__name) __THROW __nonnull ((1));
+extern char *__secure_getenv (__const char *__name)
+     __THROW __nonnull ((1)) __wur;
 
 #if defined __USE_SVID || defined __USE_XOPEN
 /* The SVID says this is in <stdio.h>, but this seems a better place.	*/
@@ -607,7 +611,7 @@ extern int clearenv (void) __THROW;
    The last six characters of TEMPLATE must be "XXXXXX";
    they are replaced with a string that makes the file name unique.
    Returns TEMPLATE, or a null pointer if it cannot get a unique file name.  */
-extern char *mktemp (char *__template) __THROW __nonnull ((1));
+extern char *mktemp (char *__template) __THROW __nonnull ((1)) __wur;
 
 /* Generate a unique temporary file name from TEMPLATE.
    The last six characters of TEMPLATE must be "XXXXXX";
@@ -618,16 +622,17 @@ extern char *mktemp (char *__template) __THROW __nonnull ((1));
    This function is a possible cancellation points and therefore not
    marked with __THROW.  */
 # ifndef __USE_FILE_OFFSET64
-extern int mkstemp (char *__template) __nonnull ((1));
+extern int mkstemp (char *__template) __nonnull ((1)) __wur;
 # else
 #  ifdef __REDIRECT
-extern int __REDIRECT (mkstemp, (char *__template), mkstemp64) __nonnull ((1));
+extern int __REDIRECT (mkstemp, (char *__template), mkstemp64)
+     __nonnull ((1)) __wur;
 #  else
 #   define mkstemp mkstemp64
 #  endif
 # endif
 # ifdef __USE_LARGEFILE64
-extern int mkstemp64 (char *__template) __nonnull ((1));
+extern int mkstemp64 (char *__template) __nonnull ((1)) __wur;
 # endif
 #endif
 
@@ -637,7 +642,7 @@ extern int mkstemp64 (char *__template) __nonnull ((1));
    they are replaced with a string that makes the directory name unique.
    Returns TEMPLATE, or a null pointer if it cannot get a unique name.
    The directory is created mode 700.  */
-extern char *mkdtemp (char *__template) __THROW __nonnull ((1));
+extern char *mkdtemp (char *__template) __THROW __nonnull ((1)) __wur;
 #endif
 
 
@@ -646,7 +651,7 @@ __BEGIN_NAMESPACE_STD
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern int system (__const char *__command);
+extern int system (__const char *__command) __wur;
 __END_NAMESPACE_STD
 
 
@@ -655,7 +660,7 @@ __END_NAMESPACE_STD
    named file.  The last file name component need not exist, and may be a
    symlink to a nonexistent file.  */
 extern char *canonicalize_file_name (__const char *__name)
-     __THROW __nonnull ((1));
+     __THROW __nonnull ((1)) __wur;
 #endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
@@ -666,7 +671,7 @@ extern char *canonicalize_file_name (__const char *__name)
    ENAMETOOLONG; if the name fits in fewer than PATH_MAX chars, returns the
    name in RESOLVED.  */
 extern char *realpath (__const char *__restrict __name,
-		       char *__restrict __resolved) __THROW;
+		       char *__restrict __resolved) __THROW __wur;
 #endif
 
 
@@ -685,7 +690,7 @@ __BEGIN_NAMESPACE_STD
    of SIZE bytes each, using COMPAR to perform the comparisons.  */
 extern void *bsearch (__const void *__key, __const void *__base,
 		      size_t __nmemb, size_t __size, __compar_fn_t __compar)
-     __nonnull ((1, 2, 5));
+     __nonnull ((1, 2, 5)) __wur;
 
 /* Sort NMEMB elements of BASE, of SIZE bytes each,
    using COMPAR to perform the comparisons.  */
@@ -694,13 +699,13 @@ extern void qsort (void *__base, size_t __nmemb, size_t __size,
 
 
 /* Return the absolute value of X.  */
-extern int abs (int __x) __THROW __attribute__ ((__const__));
-extern long int labs (long int __x) __THROW __attribute__ ((__const__));
+extern int abs (int __x) __THROW __attribute__ ((__const__)) __wur;
+extern long int labs (long int __x) __THROW __attribute__ ((__const__)) __wur;
 __END_NAMESPACE_STD
 
 #ifdef __USE_ISOC99
 __extension__ extern long long int llabs (long long int __x)
-     __THROW __attribute__ ((__const__));
+     __THROW __attribute__ ((__const__)) __wur;
 #endif
 
 
@@ -709,16 +714,16 @@ __BEGIN_NAMESPACE_STD
    of the value of NUMER over DENOM. */
 /* GCC may have built-ins for these someday.  */
 extern div_t div (int __numer, int __denom)
-     __THROW __attribute__ ((__const__));
+     __THROW __attribute__ ((__const__)) __wur;
 extern ldiv_t ldiv (long int __numer, long int __denom)
-     __THROW __attribute__ ((__const__));
+     __THROW __attribute__ ((__const__)) __wur;
 __END_NAMESPACE_STD
 
 #ifdef __USE_ISOC99
 __BEGIN_NAMESPACE_C99
 __extension__ extern lldiv_t lldiv (long long int __numer,
 				    long long int __denom)
-     __THROW __attribute__ ((__const__));
+     __THROW __attribute__ ((__const__)) __wur;
 __END_NAMESPACE_C99
 #endif
 
@@ -731,31 +736,31 @@ __END_NAMESPACE_C99
    this.  Set *DECPT with the position of the decimal character and *SIGN
    with the sign of the number.  */
 extern char *ecvt (double __value, int __ndigit, int *__restrict __decpt,
-		   int *__restrict __sign) __THROW __nonnull ((3, 4));
+		   int *__restrict __sign) __THROW __nonnull ((3, 4)) __wur;
 
 /* Convert VALUE to a string rounded to NDIGIT decimal digits.  Set *DECPT
    with the position of the decimal character and *SIGN with the sign of
    the number.  */
 extern char *fcvt (double __value, int __ndigit, int *__restrict __decpt,
-		   int *__restrict __sign) __THROW __nonnull ((3, 4));
+		   int *__restrict __sign) __THROW __nonnull ((3, 4)) __wur;
 
 /* If possible convert VALUE to a string with NDIGIT significant digits.
    Otherwise use exponential representation.  The resulting string will
    be written to BUF.  */
 extern char *gcvt (double __value, int __ndigit, char *__buf)
-     __THROW __nonnull ((3));
+     __THROW __nonnull ((3)) __wur;
 
 
 # ifdef __USE_MISC
 /* Long double versions of above functions.  */
 extern char *qecvt (long double __value, int __ndigit,
 		    int *__restrict __decpt, int *__restrict __sign)
-     __THROW __nonnull ((3, 4));
+     __THROW __nonnull ((3, 4)) __wur;
 extern char *qfcvt (long double __value, int __ndigit,
 		    int *__restrict __decpt, int *__restrict __sign)
-     __THROW __nonnull ((3, 4));
+     __THROW __nonnull ((3, 4)) __wur;
 extern char *qgcvt (long double __value, int __ndigit, char *__buf)
-     __THROW __nonnull ((3));
+     __THROW __nonnull ((3)) __wur;
 
 
 /* Reentrant version of the functions above which provide their own
@@ -782,14 +787,14 @@ extern int qfcvt_r (long double __value, int __ndigit,
 __BEGIN_NAMESPACE_STD
 /* Return the length of the multibyte character
    in S, which is no longer than N.  */
-extern int mblen (__const char *__s, size_t __n) __THROW;
+extern int mblen (__const char *__s, size_t __n) __THROW __wur;
 /* Return the length of the given multibyte character,
    putting its `wchar_t' representation in *PWC.  */
 extern int mbtowc (wchar_t *__restrict __pwc,
-		   __const char *__restrict __s, size_t __n) __THROW;
+		   __const char *__restrict __s, size_t __n) __THROW __wur;
 /* Put the multibyte character represented
    by WCHAR in S, returning its length.  */
-extern int wctomb (char *__s, wchar_t __wchar) __THROW;
+extern int wctomb (char *__s, wchar_t __wchar) __THROW __wur;
 
 
 /* Convert a multibyte string to a wide char string.  */
@@ -808,7 +813,7 @@ __END_NAMESPACE_STD
    or negative response expression as specified by the LC_MESSAGES category
    in the program's current locale.  Returns 1 if affirmative, 0 if
    negative, and -1 if not matching.  */
-extern int rpmatch (__const char *__response) __THROW __nonnull ((1));
+extern int rpmatch (__const char *__response) __THROW __nonnull ((1)) __wur;
 #endif
 
 
@@ -822,7 +827,7 @@ extern int rpmatch (__const char *__response) __THROW __nonnull ((1));
 extern int getsubopt (char **__restrict __optionp,
 		      char *__const *__restrict __tokens,
 		      char **__restrict __valuep)
-     __THROW __nonnull ((1, 2, 3));
+     __THROW __nonnull ((1, 2, 3)) __wur;
 #endif
 
 
@@ -836,7 +841,7 @@ extern void setkey (__const char *__key) __THROW __nonnull ((1));
 
 #ifdef __USE_XOPEN2K
 /* Return a master pseudo-terminal handle.  */
-extern int posix_openpt (int __oflag);
+extern int posix_openpt (int __oflag) __wur;
 #endif
 
 #ifdef __USE_XOPEN
@@ -853,7 +858,7 @@ extern int unlockpt (int __fd) __THROW;
 /* Return the pathname of the pseudo terminal slave assoicated with
    the master FD is open on, or NULL on errors.
    The returned storage is good until the next call to this function.  */
-extern char *ptsname (int __fd) __THROW;
+extern char *ptsname (int __fd) __THROW __wur;
 #endif
 
 #ifdef __USE_GNU
