@@ -22,7 +22,6 @@ all: pregen libs
 -include .config.cmd
 
 include $(top_srcdir)ldso/Makefile.in
-include $(top_srcdir)libc/Makefile.in
 include $(top_srcdir)libcrypt/Makefile.in
 include $(top_srcdir)libintl/Makefile.in
 include $(top_srcdir)libm/Makefile.in
@@ -31,6 +30,9 @@ include $(top_srcdir)libresolv/Makefile.in
 include $(top_srcdir)librt/Makefile.in
 include $(top_srcdir)libutil/Makefile.in
 include $(top_srcdir)libpthread/Makefile.in
+
+# last included to catch all the objects added by others (locales/threads)
+include $(top_srcdir)libc/Makefile.in
 
 include/bits/uClibc_config.h: .config
 	$(RM) -r include/bits
