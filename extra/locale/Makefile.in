@@ -170,9 +170,6 @@ $(locale_OBJ:.o=.os): $(locale_SRC) | $(headers_dep)
 $(top_builddir)include/bits/uClibc_locale_data.h: $(locale_OUT)/uClibc_locale_data.h | $(top_builddir)include/bits/uClibc_config.h
 	cat $< | awk 'BEGIN{i=1}{ if ( /WANT_/ ) i = /endif/ ; else if (i) print $0 }' > $@
 
-# to be removed after included by top Makefile.in
-clean:	locale_clean
-
 objclean-y += locale_clean
 
 # lmmtolso.c/gen_mmap.c/tst-*.c not used
