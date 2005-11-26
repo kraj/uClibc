@@ -358,7 +358,7 @@ extern size_t __fwrite_unlocked(const void *__restrict ptr, size_t size,
 extern size_t __fread_unlocked(void *__restrict ptr, size_t size,
 						size_t nmemb, FILE *__restrict stream) attribute_hidden;
 
-extern int __fputc_unlocked(int c, FILE *stream) attribute_hidden;
+extern int __libc_fputc_unlocked(int c, FILE *stream) attribute_hidden;
 
 extern int __fflush_unlocked(FILE *stream) attribute_hidden;
 
@@ -368,7 +368,7 @@ extern void __clearerr_unlocked(FILE *stream);
 extern int __feof_unlocked(FILE *stream);
 extern int __ferror_unlocked(FILE *stream);
 
-extern int __fgetc_unlocked(FILE *stream) attribute_hidden;
+extern int __libc_fgetc_unlocked(FILE *stream) attribute_hidden;
 extern char *__fgets_unlocked(char *__restrict s, int n,
 					FILE * __restrict stream) attribute_hidden;
 
