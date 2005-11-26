@@ -50,6 +50,8 @@ static char sccsid[] = "@(#)clnt_tcp.c 1.37 87/10/05 Copyr 1984 Sun Micro";
  * Now go hang yourself.
  */
 
+#define authnone_create __authnone_create
+
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -65,7 +67,7 @@ static char sccsid[] = "@(#)clnt_tcp.c 1.37 87/10/05 Copyr 1984 Sun Micro";
 # include <wchar.h>
 #endif
 
-extern u_long _create_xid (void);
+extern u_long _create_xid (void) attribute_hidden;
 
 #define MCALL_MSG_SIZE 24
 

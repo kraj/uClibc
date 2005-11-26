@@ -49,12 +49,12 @@
 /**********************************************************************/
 /* Prototypes for internal functions. */
 
-extern int __parsepwent(void *pw, char *line);
-extern int __parsegrent(void *gr, char *line);
-extern int __parsespent(void *sp, char *line);
+extern int __parsepwent(void *pw, char *line) attribute_hidden;
+extern int __parsegrent(void *gr, char *line) attribute_hidden;
+extern int __parsespent(void *sp, char *line) attribute_hidden;
 
 extern int __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
-					   char *__restrict line_buff, size_t buflen, FILE *f);
+			   char *__restrict line_buff, size_t buflen, FILE *f) attribute_hidden;
 
 /**********************************************************************/
 /* For the various fget??ent_r funcs, return
@@ -833,7 +833,7 @@ static const unsigned char pw_off[] = {
 	offsetof(struct passwd, pw_shell) 	/* 6 */
 };
 
-int __parsepwent(void *data, char *line)
+int attribute_hidden __parsepwent(void *data, char *line)
 {
 	char *endptr;
 	char *p;
@@ -888,7 +888,7 @@ static const unsigned char gr_off[] = {
 	offsetof(struct group, gr_gid)		/* 2 - not a char ptr */
 };
 
-int __parsegrent(void *data, char *line)
+int attribute_hidden __parsegrent(void *data, char *line)
 {
 	char *endptr;
 	char *p;
@@ -992,7 +992,7 @@ static const unsigned char sp_off[] = {
 	offsetof(struct spwd, sp_flag) 		/* 8 - not a char ptr */
 };
 
-int __parsespent(void *data, char * line)
+int attribute_hidden __parsespent(void *data, char * line)
 {
 	char *endptr;
 	char *p;
@@ -1058,7 +1058,7 @@ int __parsespent(void *data, char * line)
  * Returns 0 on success and ENOENT for end-of-file (glibc concession).
  */
 
-int __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
+int attribute_hidden __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
 				char *__restrict line_buff, size_t buflen, FILE *f)
 {
 	int line_len;

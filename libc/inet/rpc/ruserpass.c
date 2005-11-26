@@ -27,6 +27,8 @@
  * SUCH DAMAGE.
  */
 
+#define __fsetlocking __libc_fsetlocking
+
 #define __FORCE_GLIBC
 #include <features.h>
 #include <sys/types.h>

@@ -16,6 +16,8 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#define getpagesize __libc_getpagesize
+
 #define _XOPEN_SOURCE  500
 #include <features.h>
 #include <errno.h>
@@ -36,9 +38,6 @@
 #ifndef __UCLIBC_CLK_TCK_CONST
 #error __UCLIBC_CLK_TCK_CONST not defined!
 #endif
-
-extern int getpagesize (void);
-extern int getdtablesize (void);
 
 /***********************************************************************/
 /*

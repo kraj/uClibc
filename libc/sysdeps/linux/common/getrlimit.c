@@ -13,7 +13,7 @@
 
 #ifdef __NR_ugetrlimit
 #define __NR___ugetrlimit __NR_ugetrlimit
-_syscall2(int, __ugetrlimit, enum __rlimit_resource, resource,
+attribute_hidden _syscall2(int, __ugetrlimit, enum __rlimit_resource, resource,
 		  struct rlimit *, rlim);
 int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 {

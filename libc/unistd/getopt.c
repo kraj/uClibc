@@ -62,7 +62,7 @@
 #include "getopt.h"
 
 extern int _getopt_internal (int argc, char *const *argv, const char *optstring, 
-	const struct option *longopts, int *longind, int long_only);
+	const struct option *longopts, int *longind, int long_only) attribute_hidden;
 
 
 /* For communication from `getopt' to the caller.
@@ -311,7 +311,7 @@ static const char *_getopt_initialize (int argc, char *const * argv, const char 
    If LONG_ONLY is nonzero, '-' as well as '--' can introduce
    long-named options.  */
 
-int _getopt_internal (int argc, char *const *argv, const char *optstring, 
+int attribute_hidden _getopt_internal (int argc, char *const *argv, const char *optstring, 
 	const struct option *longopts, int *longind, int long_only)
 {
     int print_errors = opterr;

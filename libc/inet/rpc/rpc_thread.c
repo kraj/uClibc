@@ -63,7 +63,7 @@ rpc_thread_multi (void)
 }
 
 
-struct rpc_thread_variables *
+struct rpc_thread_variables attribute_hidden *
 __rpc_thread_variables (void)
 {
 	__libc_once_define (static, once);
@@ -94,8 +94,8 @@ __rpc_thread_variables (void)
 #undef svc_pollfd
 #undef svc_max_pollfd
 
-fd_set *
-__rpc_thread_svc_fdset (void)
+fd_set attribute_hidden *
+__libc_rpc_thread_svc_fdset (void)
 {
 	struct rpc_thread_variables *tvp;
 
@@ -104,6 +104,7 @@ __rpc_thread_svc_fdset (void)
 		return &svc_fdset;
 	return &tvp->svc_fdset_s;
 }
+strong_alias(__libc_rpc_thread_svc_fdset,__rpc_thread_svc_fdset)
 
 struct rpc_createerr *
 __rpc_thread_createerr (void)
@@ -116,8 +117,8 @@ __rpc_thread_createerr (void)
 	return &tvp->rpc_createerr_s;
 }
 
-struct pollfd **
-__rpc_thread_svc_pollfd (void)
+struct pollfd attribute_hidden **
+__libc_rpc_thread_svc_pollfd (void)
 {
 	struct rpc_thread_variables *tvp;
 
@@ -126,9 +127,10 @@ __rpc_thread_svc_pollfd (void)
 		return &svc_pollfd;
 	return &tvp->svc_pollfd_s;
 }
+strong_alias(__libc_rpc_thread_svc_pollfd,__rpc_thread_svc_pollfd)
 
-int *
-__rpc_thread_svc_max_pollfd (void)
+int attribute_hidden *
+__libc_rpc_thread_svc_max_pollfd (void)
 {
 	struct rpc_thread_variables *tvp;
 
@@ -137,6 +139,7 @@ __rpc_thread_svc_max_pollfd (void)
 		return &svc_max_pollfd;
 	return &tvp->svc_max_pollfd_s;
 }
+strong_alias(__libc_rpc_thread_svc_max_pollfd,__rpc_thread_svc_max_pollfd)
 #else
 
 #undef svc_fdset
@@ -144,11 +147,12 @@ __rpc_thread_svc_max_pollfd (void)
 #undef svc_pollfd
 #undef svc_max_pollfd
 
-fd_set * __rpc_thread_svc_fdset (void)
+fd_set attribute_hidden * __libc_rpc_thread_svc_fdset (void)
 {
     extern fd_set svc_fdset;
     return &(svc_fdset);
 }
+strong_alias(__libc_rpc_thread_svc_fdset,__rpc_thread_svc_fdset)
 
 struct rpc_createerr * __rpc_thread_createerr (void)
 {
@@ -156,17 +160,19 @@ struct rpc_createerr * __rpc_thread_createerr (void)
     return &(rpc_createerr);
 }
 
-struct pollfd ** __rpc_thread_svc_pollfd (void)
+struct pollfd attribute_hidden ** __libc_rpc_thread_svc_pollfd (void)
 {
     extern struct pollfd *svc_pollfd;
     return &(svc_pollfd);
 }
+strong_alias(__libc_rpc_thread_svc_pollfd,__rpc_thread_svc_pollfd)
 
-int * __rpc_thread_svc_max_pollfd (void)
+int attribute_hidden * __libc_rpc_thread_svc_max_pollfd (void)
 {
     extern int svc_max_pollfd;
     return &(svc_max_pollfd);
 }
+strong_alias(__libc_rpc_thread_svc_max_pollfd,__rpc_thread_svc_max_pollfd)
 
 #endif /* __UCLIBC_HAS_THREADS__ */
 

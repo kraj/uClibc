@@ -37,6 +37,11 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
+/* CMSG_NXTHDR is using it */
+#define __cmsg_nxthdr __libc_cmsg_nxthdr
+
+#define authnone_create __authnone_create
+
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -62,7 +67,7 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #endif
 
 extern bool_t xdr_opaque_auth (XDR *, struct opaque_auth *);
-extern u_long _create_xid (void);
+extern u_long _create_xid (void) attribute_hidden;
 
 /*
  * UDP bases client side rpc operations

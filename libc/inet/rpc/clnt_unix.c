@@ -46,6 +46,8 @@
  * Now go hang yourself.
  */
 
+#define authnone_create __authnone_create
+
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -62,7 +64,7 @@
 # include <wchar.h>
 #endif
 
-extern u_long _create_xid (void);
+extern u_long _create_xid (void) attribute_hidden;
 
 #define MCALL_MSG_SIZE 24
 

@@ -88,6 +88,7 @@
  *   treats this as an error.
  */
 
+#define _uintmaxtostr __libc__uintmaxtostr
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE

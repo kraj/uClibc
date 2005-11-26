@@ -127,6 +127,8 @@
 
 /**************************************************************************/
 
+#define _uintmaxtostr __libc__uintmaxtostr
+
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE				/* for strnlen */
 #include "_stdio.h"

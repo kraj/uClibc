@@ -150,8 +150,7 @@ callrpc (const char *host, u_long prognum, u_long versnum, u_long procnum,
 }
 
 #ifdef __UCLIBC_HAS_THREADS__
-void
-__rpc_thread_clnt_cleanup (void)
+void attribute_hidden __rpc_thread_clnt_cleanup (void)
 {
 	struct callrpc_private_s *rcp = RPC_THREAD_VARIABLE(callrpc_private_s);
 

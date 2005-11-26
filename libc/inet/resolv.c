@@ -244,7 +244,7 @@ extern int __read_etc_hosts_r(FILE *fp, const char * name, int type,
 			    struct hostent * result_buf,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
-			    int * h_errnop);
+			    int * h_errnop) attribute_hidden;
 extern int __dns_lookup(const char * name, int type, int nscount,
 	char ** nsip, unsigned char ** outpacket, struct resolv_answer * a) attribute_hidden;
 
@@ -267,11 +267,11 @@ extern int __open_nameservers(void) attribute_hidden;
 extern void __close_nameservers(void) attribute_hidden;
 extern int __dn_expand(const u_char *, const u_char *, const u_char *,
 	char *, int);
-extern int __ns_name_uncompress(const u_char *, const u_char *,
-		const u_char *, char *, size_t);
-extern int __ns_name_ntop(const u_char *, char *, size_t);
-extern int __ns_name_unpack(const u_char *, const u_char *, const u_char *,
-               u_char *, size_t);
+extern int __libc_ns_name_uncompress(const u_char *, const u_char *,
+		const u_char *, char *, size_t) attribute_hidden;
+extern int __libc_ns_name_ntop(const u_char *, char *, size_t) attribute_hidden;
+extern int __libc_ns_name_unpack(const u_char *, const u_char *, const u_char *,
+               u_char *, size_t) attribute_hidden;
 
 
 #ifdef L_encodeh
@@ -1427,7 +1427,7 @@ void attribute_hidden __open_etc_hosts(FILE **fp)
 	return;
 }
 
-int __read_etc_hosts_r(FILE * fp, const char * name, int type,
+int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 		     enum etc_hosts_action action,
 		     struct hostent * result_buf,
 		     char * buf, size_t buflen,
@@ -2377,7 +2377,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 int __dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
           char *dst, int dstsiz)
 {
-	int n = ns_name_uncompress(msg, eom, src, dst, (size_t)dstsiz);
+	int n = __libc_ns_name_uncompress(msg, eom, src, dst, (size_t)dstsiz);
 
 	if (n > 0 && dst[0] == '.')
 		dst[0] = '\0';
@@ -2429,18 +2429,19 @@ static int special(int ch)
  * note:
  *      Root domain returns as "." not "".
  */
-int __ns_name_uncompress(const u_char *msg, const u_char *eom,
+int attribute_hidden __libc_ns_name_uncompress(const u_char *msg, const u_char *eom,
 		const u_char *src, char *dst, size_t dstsiz)
 {
 	u_char tmp[NS_MAXCDNAME];
 	int n;
 
-	if ((n = ns_name_unpack(msg, eom, src, tmp, sizeof tmp)) == -1)
+	if ((n = __libc_ns_name_unpack(msg, eom, src, tmp, sizeof tmp)) == -1)
 		return (-1);
-	if (ns_name_ntop(tmp, dst, dstsiz) == -1)
+	if (__libc_ns_name_ntop(tmp, dst, dstsiz) == -1)
 		return (-1);
 	return (n);
 }
+strong_alias(__libc_ns_name_uncompress,__ns_name_uncompress)
 
 
 /*
@@ -2452,7 +2453,7 @@ int __ns_name_uncompress(const u_char *msg, const u_char *eom,
  *      The root is returned as "."
  *      All other domains are returned in non absolute form
  */
-int __ns_name_ntop(const u_char *src, char *dst, size_t dstsiz) {
+int attribute_hidden __libc_ns_name_ntop(const u_char *src, char *dst, size_t dstsiz) {
 	const u_char *cp;
 	char *dn, *eom;
 	u_char c;
@@ -2521,6 +2522,7 @@ int __ns_name_ntop(const u_char *src, char *dst, size_t dstsiz) {
 	*dn++ = '\0';
         return (dn - dst);
 }
+strong_alias(__libc_ns_name_ntop,__ns_name_ntop)
 
 /*
  * ns_name_unpack(msg, eom, src, dst, dstsiz)
@@ -2528,7 +2530,7 @@ int __ns_name_ntop(const u_char *src, char *dst, size_t dstsiz) {
  * return:
  *      -1 if it fails, or consumed octets if it succeeds.
  */
-int __ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
+int attribute_hidden __libc_ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
                u_char *dst, size_t dstsiz)
 {
 	const u_char *srcp, *dstlim;
@@ -2595,4 +2597,5 @@ int __ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
 		len = srcp - src;
 	return (len);
 }
+strong_alias(__libc_ns_name_unpack,__ns_name_unpack)
 #endif /* L_ns_name */

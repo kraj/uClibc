@@ -210,16 +210,16 @@ extern pthread_mutex_t _time_tzlock;
 extern rule_struct _time_tzinfo[2];
 
 extern struct tm *_time_t2tm(const time_t *__restrict timer,
-							 int offset, struct tm *__restrict result);
+					int offset, struct tm *__restrict result) attribute_hidden;
 
-extern time_t _time_mktime(struct tm *timeptr, int store_on_success);
+extern time_t _time_mktime(struct tm *timeptr, int store_on_success) attribute_hidden;
 
 extern struct tm *__time_localtime_tzi(const time_t *__restrict timer,
-									   struct tm *__restrict result,
-									   rule_struct *tzi);
+					struct tm *__restrict result,
+					rule_struct *tzi) attribute_hidden;
 
 extern time_t _time_mktime_tzi(struct tm *timeptr, int store_on_success,
-							   rule_struct *tzi);
+					rule_struct *tzi) attribute_hidden;
 
 /**********************************************************************/
 #ifdef L_asctime
@@ -679,7 +679,7 @@ static int tm_isdst(register const struct tm *__restrict ptm,
 	return (isdst & 1);
 }
 
-struct tm *__time_localtime_tzi(register const time_t *__restrict timer,
+struct tm attribute_hidden *__time_localtime_tzi(register const time_t *__restrict timer,
 								register struct tm *__restrict result,
 								rule_struct *tzi)
 {
@@ -2023,7 +2023,7 @@ static const char utc_string[] = "UTC";
 
 /* Note: offset is the correction in _days_ to *timer! */
 
-struct tm *_time_t2tm(const time_t *__restrict timer,
+struct tm attribute_hidden *_time_t2tm(const time_t *__restrict timer,
 					  int offset, struct tm *__restrict result)
 {
 	register int *p;
@@ -2161,7 +2161,7 @@ struct tm __time_tm;	/* Global shared by gmtime() and localtime(). */
 /**********************************************************************/
 #ifdef L__time_mktime
 
-time_t _time_mktime(struct tm *timeptr, int store_on_success)
+time_t attribute_hidden _time_mktime(struct tm *timeptr, int store_on_success)
 {
 	time_t t;
 
@@ -2185,7 +2185,7 @@ static const unsigned char __vals[] = {
 	    29,
 };
 
-time_t _time_mktime_tzi(struct tm *timeptr, int store_on_success,
+time_t attribute_hidden _time_mktime_tzi(struct tm *timeptr, int store_on_success,
 						rule_struct *tzi)
 {
 #ifdef __BCC__

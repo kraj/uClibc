@@ -59,7 +59,7 @@ static int direxists (const char *dir)
    for use with mk[s]temp.  Will fail (-1) if DIR is non-null and
    doesn't exist, none of the searched dirs exists, or there's not
    enough space in TMPL. */
-int __path_search (char *tmpl, size_t tmpl_len, const char *dir,
+int attribute_hidden __path_search (char *tmpl, size_t tmpl_len, const char *dir,
 	const char *pfx, int try_tmpdir)
 {
     //const char *d;

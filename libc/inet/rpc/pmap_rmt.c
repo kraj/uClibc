@@ -39,6 +39,8 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
+#define authunix_create_default __authunix_create_default
+
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -59,7 +61,7 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 #include <arpa/inet.h>
 #define MAX_BROADCAST_SIZE 1400
 
-extern u_long _create_xid (void);
+extern u_long _create_xid (void) attribute_hidden;
 
 static const struct timeval timeout = {3, 0};
 
