@@ -175,7 +175,7 @@ static void brain_damaged_fillrand(unsigned char *buf, unsigned int len)
    __GT_DIR:            create a directory, which will be mode 0700.
 
 */
-int __gen_tempname (char *tmpl, int kind)
+int attribute_hidden __gen_tempname (char *tmpl, int kind)
 {
     char *XXXXXX;
     unsigned int k;

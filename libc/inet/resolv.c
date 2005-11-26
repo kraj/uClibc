@@ -232,13 +232,13 @@ extern int __get_hosts_byname_r(const char * name, int type,
 			      struct hostent * result_buf,
 			      char * buf, size_t buflen,
 			      struct hostent ** result,
-			      int * h_errnop);
+			      int * h_errnop) attribute_hidden;
 extern int __get_hosts_byaddr_r(const char * addr, int len, int type,
 			      struct hostent * result_buf,
 			      char * buf, size_t buflen,
 			      struct hostent ** result,
-			      int * h_errnop);
-extern void __open_etc_hosts(FILE **fp);
+			      int * h_errnop) attribute_hidden;
+extern void __open_etc_hosts(FILE **fp) attribute_hidden;
 extern int __read_etc_hosts_r(FILE *fp, const char * name, int type,
 			    enum etc_hosts_action action,
 			    struct hostent * result_buf,
@@ -246,25 +246,25 @@ extern int __read_etc_hosts_r(FILE *fp, const char * name, int type,
 			    struct hostent ** result,
 			    int * h_errnop);
 extern int __dns_lookup(const char * name, int type, int nscount,
-	char ** nsip, unsigned char ** outpacket, struct resolv_answer * a);
+	char ** nsip, unsigned char ** outpacket, struct resolv_answer * a) attribute_hidden;
 
-extern int __encode_dotted(const char * dotted, unsigned char * dest, int maxlen);
+extern int __encode_dotted(const char * dotted, unsigned char * dest, int maxlen) attribute_hidden;
 extern int __decode_dotted(const unsigned char * message, int offset,
-	char * dest, int maxlen);
-extern int __length_dotted(const unsigned char * message, int offset);
-extern int __encode_header(struct resolv_header * h, unsigned char * dest, int maxlen);
-extern int __decode_header(unsigned char * data, struct resolv_header * h);
+	char * dest, int maxlen) attribute_hidden;
+extern int __length_dotted(const unsigned char * message, int offset) attribute_hidden;
+extern int __encode_header(struct resolv_header * h, unsigned char * dest, int maxlen) attribute_hidden;
+extern int __decode_header(unsigned char * data, struct resolv_header * h) attribute_hidden;
 extern int __encode_question(struct resolv_question * q,
-	unsigned char * dest, int maxlen);
+	unsigned char * dest, int maxlen) attribute_hidden;
 extern int __decode_question(unsigned char * message, int offset,
 	struct resolv_question * q);
 extern int __encode_answer(struct resolv_answer * a,
-	unsigned char * dest, int maxlen);
+	unsigned char * dest, int maxlen) attribute_hidden;
 extern int __decode_answer(unsigned char * message, int offset,
-	struct resolv_answer * a);
-extern int __length_question(unsigned char * message, int offset);
-extern int __open_nameservers(void);
-extern void __close_nameservers(void);
+	struct resolv_answer * a) attribute_hidden;
+extern int __length_question(unsigned char * message, int offset) attribute_hidden;
+extern int __open_nameservers(void) attribute_hidden;
+extern void __close_nameservers(void) attribute_hidden;
 extern int __dn_expand(const u_char *, const u_char *, const u_char *,
 	char *, int);
 extern int __ns_name_uncompress(const u_char *, const u_char *,
@@ -275,7 +275,7 @@ extern int __ns_name_unpack(const u_char *, const u_char *, const u_char *,
 
 
 #ifdef L_encodeh
-int __encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
+int attribute_hidden __encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
 {
 	if (maxlen < HFIXEDSZ)
 		return -1;
@@ -302,7 +302,7 @@ int __encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
 #endif
 
 #ifdef L_decodeh
-int __decode_header(unsigned char *data, struct resolv_header *h)
+int attribute_hidden __decode_header(unsigned char *data, struct resolv_header *h)
 {
 	h->id = (data[0] << 8) | data[1];
 	h->qr = (data[2] & 0x80) ? 1 : 0;
@@ -326,7 +326,7 @@ int __decode_header(unsigned char *data, struct resolv_header *h)
    This routine is fairly dumb, and doesn't attempt to compress
    the data */
 
-int __encode_dotted(const char *dotted, unsigned char *dest, int maxlen)
+int attribute_hidden __encode_dotted(const char *dotted, unsigned char *dest, int maxlen)
 {
 	int used = 0;
 
@@ -360,7 +360,7 @@ int __encode_dotted(const char *dotted, unsigned char *dest, int maxlen)
 /* Decode a dotted string from nameserver transport-level encoding.
    This routine understands compressed data. */
 
-int __decode_dotted(const unsigned char *data, int offset,
+int attribute_hidden __decode_dotted(const unsigned char *data, int offset,
 				  char *dest, int maxlen)
 {
 	int l;
@@ -411,7 +411,7 @@ int __decode_dotted(const unsigned char *data, int offset,
 
 #ifdef L_lengthd
 
-int __length_dotted(const unsigned char *data, int offset)
+int attribute_hidden __length_dotted(const unsigned char *data, int offset)
 {
 	int orig_offset = offset;
 	int l;
@@ -434,7 +434,7 @@ int __length_dotted(const unsigned char *data, int offset)
 #endif
 
 #ifdef L_encodeq
-int __encode_question(struct resolv_question *q,
+int attribute_hidden __encode_question(struct resolv_question *q,
 					unsigned char *dest, int maxlen)
 {
 	int i;
@@ -480,7 +480,7 @@ int __decode_question(unsigned char *message, int offset,
 #endif
 
 #ifdef L_lengthq
-int __length_question(unsigned char *message, int offset)
+int attribute_hidden __length_question(unsigned char *message, int offset)
 {
 	int i;
 
@@ -493,7 +493,7 @@ int __length_question(unsigned char *message, int offset)
 #endif
 
 #ifdef L_encodea
-int __encode_answer(struct resolv_answer *a, unsigned char *dest, int maxlen)
+int attribute_hidden __encode_answer(struct resolv_answer *a, unsigned char *dest, int maxlen)
 {
 	int i;
 
@@ -524,7 +524,7 @@ int __encode_answer(struct resolv_answer *a, unsigned char *dest, int maxlen)
 #endif
 
 #ifdef L_decodea
-int __decode_answer(unsigned char *message, int offset,
+int attribute_hidden __decode_answer(unsigned char *message, int offset,
 				  struct resolv_answer *a)
 {
 	char temp[256];
@@ -667,7 +667,7 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
  * look anyways. */
 static int ns=0, id=1;
 
-int __dns_lookup(const char *name, int type, int nscount, char **nsip,
+int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char **nsip,
 			   unsigned char **outpacket, struct resolv_answer *a)
 {
 	int i, j, len, fd, pos, rc;
@@ -978,7 +978,7 @@ pthread_mutex_t __resolv_lock = PTHREAD_MUTEX_INITIALIZER;
  *	unix systems, we can have a list of nameservers after the keyword.
  */
 
-int __open_nameservers()
+int attribute_hidden __open_nameservers()
 {
 	FILE *fp;
 	int i;
@@ -1045,7 +1045,7 @@ int __open_nameservers()
 
 #ifdef L_closenameservers
 
-void __close_nameservers(void)
+void attribute_hidden __close_nameservers(void)
 {
 	BIGLOCK;
 	while (__nameservers > 0) {
@@ -1419,7 +1419,7 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 
 #ifdef L_read_etc_hosts_r
 
-void __open_etc_hosts(FILE **fp)
+void attribute_hidden __open_etc_hosts(FILE **fp)
 {
 	if ((*fp = fopen("/etc/hosts", "r")) == NULL) {
 		*fp = fopen("/etc/config/hosts", "r");
@@ -1645,7 +1645,7 @@ struct hostent *gethostent (void)
 
 #ifdef L_get_hosts_byname_r
 
-int __get_hosts_byname_r(const char * name, int type,
+int attribute_hidden __get_hosts_byname_r(const char * name, int type,
 			    struct hostent * result_buf,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
@@ -1658,7 +1658,7 @@ int __get_hosts_byname_r(const char * name, int type,
 
 #ifdef L_get_hosts_byaddr_r
 
-int __get_hosts_byaddr_r(const char * addr, int len, int type,
+int attribute_hidden __get_hosts_byaddr_r(const char * addr, int len, int type,
 			    struct hostent * result_buf,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,

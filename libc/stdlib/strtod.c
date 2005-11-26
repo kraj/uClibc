@@ -152,7 +152,7 @@
 
 #endif
 
-extern void __fp_range_check(__fpmax_t y, __fpmax_t x);
+extern void __fp_range_check(__fpmax_t y, __fpmax_t x) attribute_hidden;
 
 /**********************************************************************/
 
@@ -491,7 +491,7 @@ __fpmax_t __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endptr, int exponent_
 #ifdef L___fp_range_check
 #if defined(NEED_STRTOF_WRAPPER) || defined(NEED_STRTOD_WRAPPER)
 
-extern void __fp_range_check(__fpmax_t y, __fpmax_t x)
+void attribute_hidden __fp_range_check(__fpmax_t y, __fpmax_t x)
 {
 	if (__FPMAX_ZERO_OR_INF_CHECK(y) /* y is 0 or +/- infinity */
 		&& (y != 0)	/* y is not 0 (could have x>0, y==0 if underflow) */
