@@ -43,6 +43,7 @@
  * standards and from an official C standard defect report.
  */
 
+#define wcslen __wcslen
 
 #define _ISOC99_SOURCE			/* for LLONG_MAX primarily... */
 #define _GNU_SOURCE

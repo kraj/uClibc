@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define wcslen __wcslen
+
 #include "_stdio.h"
 
 extern int __fputws_unlocked(const wchar_t *__restrict ws,

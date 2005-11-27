@@ -26,6 +26,7 @@
 #define memcmp __memcmp
 #define strcmp __strcmp
 #define strlen __strlen
+#define wcslen __wcslen
 /* for some reason this does not work */
 #define memcpy __memcpy
 

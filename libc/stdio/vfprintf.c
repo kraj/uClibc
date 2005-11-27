@@ -90,6 +90,8 @@
 
 #define _uintmaxtostr __libc__uintmaxtostr
 #define strnlen __strnlen
+#define wcslen __wcslen
+#define wcsnlen __wcsnlen
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE
