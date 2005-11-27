@@ -19,6 +19,10 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#define mempcpy __libc_mempcpy
+#define strndup __strndup
+#define strspn __strspn
+
 #define _GNU_SOURCE
 #include <sys/cdefs.h>
 #include <sys/types.h>

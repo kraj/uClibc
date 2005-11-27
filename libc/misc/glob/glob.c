@@ -15,6 +15,9 @@ License along with this library; see the file COPYING.LIB.  If
 not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
+#define strrchr __strrchr
+#define strcoll __strcoll
+
 #include <features.h>
 #include <stdlib.h>
 #include <string.h>

@@ -7,6 +7,7 @@
 
 #define _GNU_SOURCE
 
+#include <features.h>
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -17,7 +18,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <features.h>
 
 #ifdef __UCLIBC_HAS_WCHAR__
 #include <wchar.h>

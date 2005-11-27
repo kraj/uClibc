@@ -8,9 +8,9 @@
 #define Wstrtok_r __strtok_r
 
 #undef Wstrspn
-#define Wstrspn strspn
+#define Wstrspn __strspn
 #undef Wstrpbrk
-#define Wstrpbrk strpbrk
+#define Wstrpbrk __strpbrk
 
 #include "wstring.c"
 

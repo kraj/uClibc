@@ -17,6 +17,8 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#define _uintmaxtostr __libc__uintmaxtostr
+
 #define _ISOC99_SOURCE
 #include <stdio.h>
 #include <errno.h>

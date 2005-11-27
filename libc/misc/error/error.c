@@ -22,6 +22,8 @@
 /* Written by David MacKenzie <djm@gnu.ai.mit.edu>.  */
 /* Adjusted slightly by Erik Andersen <andersen@uclibc.org> */
 
+#define strerror __strerror
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>

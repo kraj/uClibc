@@ -98,6 +98,8 @@
  * Manuel
  */
 
+#define memmove __memmove
+
 #define _GNU_SOURCE
 #define _ISOC99_SOURCE
 #include <errno.h>

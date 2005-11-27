@@ -46,6 +46,8 @@
  *    locale support had (8-bit codesets only).
  */
 
+#define strtok_r __strtok_r
+
 #define _GNU_SOURCE
 
 #define __CTYPE_HAS_8_BIT_LOCALES 1

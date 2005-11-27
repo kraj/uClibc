@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define wmemcpy __wmemcpy
+
 #include "_stdio.h"
 #include <wchar.h>
 

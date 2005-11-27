@@ -15,6 +15,8 @@
  * SOFTWARE.
  */
 
+#define memmove __memmove
+
 #define __FORCE_GLIBC
 #include <features.h>
 #include <sys/param.h>

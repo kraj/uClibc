@@ -19,6 +19,8 @@
    modified for uClibc by Erik Andersen <andersen@codepoet.org>
    */
 
+#define strndup __strndup
+
 #define _GNU_SOURCE
 #include <features.h>
 #include <errno.h>

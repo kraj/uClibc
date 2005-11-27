@@ -44,6 +44,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* This software is Copyright 1996 by Craig Metz, All Rights Reserved.  */
 
+#define memcpy __memcpy
+
 #define _GNU_SOURCE
 #define __FORCE_GLIBC
 #include <features.h>

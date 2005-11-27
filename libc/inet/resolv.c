@@ -133,6 +133,11 @@
  *
  */
 
+#define memmove __memmove
+#define strnlen __strnlen
+#define strncat __strncat
+#define strstr __strstr
+
 #define __FORCE_GLIBC
 #include <features.h>
 #include <string.h>

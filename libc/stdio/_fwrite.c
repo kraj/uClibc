@@ -5,6 +5,9 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define memrchr __memrchr
+#define memchr __memchr
+
 #include "_stdio.h"
 
 #ifdef __STDIO_BUFFERS

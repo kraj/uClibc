@@ -51,6 +51,7 @@
 ** SUCH DAMAGE.
 */
 
+#define strpbrk __strpbrk
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE

@@ -16,6 +16,10 @@
  * Changed to use _int10tostr.
  */
 
+#define _uintmaxtostr __libc__uintmaxtostr
+/* for some reason this does not work here */
+#define memmove __memmove
+
 #define _GNU_SOURCE
 #define __FORCE_GLIBC
 #include <features.h>

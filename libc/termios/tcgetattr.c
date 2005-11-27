@@ -16,6 +16,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define mempcpy __libc_mempcpy
+
 #include <features.h>
 #define __USE_GNU
 #include <string.h>
