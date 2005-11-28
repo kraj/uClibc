@@ -6,7 +6,11 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+ifeq ($(UCLIBC_HAS_REGEX_OLD),y)
 CSRC:=regex_old.c
+else
+CSRC:=regex.c
+endif
 
 MISC_REGEX_DIR:=$(top_srcdir)libc/misc/regex
 MISC_REGEX_OUT:=$(top_builddir)libc/misc/regex

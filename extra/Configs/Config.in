@@ -1039,7 +1039,7 @@ config UCLIBC_HAS_REGEX
 	bool "Regular Expression Support"
 	default y
 	help
-	  POSIX regular expression code is really big -- 27k all by itself.
+	  POSIX regular expression code is really big -- 53k all by itself.
 	  If you don't use regular expressions, turn this off and save space.
 	  Of course, if you only staticly link, leave this on, since it will
 	  only be included in your apps if you use regular expressions.
