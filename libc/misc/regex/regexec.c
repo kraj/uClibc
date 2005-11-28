@@ -274,6 +274,8 @@ __compat_regexec (const regex_t *__restrict preg,
 }
 compat_symbol (libc, __compat_regexec, regexec, GLIBC_2_0);
 # endif
+#elif __UCLIBC__
+weak_alias(__regexec,regexec)
 #endif
 
 /* Entry points for GNU code.  */
