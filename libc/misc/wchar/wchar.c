@@ -166,6 +166,13 @@
 
 #define KUHN 1
 
+extern size_t __mbrtowc (wchar_t *__restrict __pwc,
+		       __const char *__restrict __s, size_t __n,
+		       mbstate_t *__p) attribute_hidden;
+
+extern size_t __wcrtomb (char *__restrict __s, wchar_t __wc,
+		       mbstate_t *__restrict __ps) attribute_hidden;
+
 /* Implementation-specific work functions. */
 
 extern size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
@@ -188,7 +195,7 @@ extern size_t __wcsnrtombs(char *__restrict dst,
 /**********************************************************************/
 #ifdef L_btowc
 
-wint_t btowc(int c)
+wint_t attribute_hidden __btowc(int c)
 {
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
 
@@ -199,7 +206,7 @@ wint_t btowc(int c)
 	if (c != EOF) {
 		*buf = (unsigned char) c;
 		mbstate.__mask = 0;		/* Initialize the mbstate. */
-		if (mbrtowc(&wc, buf, 1, &mbstate) <= 1) {
+		if (__mbrtowc(&wc, buf, 1, &mbstate) <= 1) {
 			return wc;
 		}
 	}
@@ -218,6 +225,7 @@ wint_t btowc(int c)
 
 #endif /*  __CTYPE_HAS_8_BIT_LOCALES */
 }
+strong_alias(__btowc,btowc)
 
 #endif
 /**********************************************************************/
@@ -231,7 +239,7 @@ int wctob(wint_t c)
 
 	unsigned char buf[MB_LEN_MAX];
 
-	return (wcrtomb(buf, c, NULL) == 1) ? *buf : EOF;
+	return (__wcrtomb(buf, c, NULL) == 1) ? *buf : EOF;
 
 #else  /*  __CTYPE_HAS_8_BIT_LOCALES */
 
@@ -267,7 +275,7 @@ size_t __mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
 {
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
 
-	return mbrtowc(NULL, s, n, (ps != NULL) ? ps : &mbstate);
+	return __mbrtowc(NULL, s, n, (ps != NULL) ? ps : &mbstate);
 }
 
 size_t mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
@@ -277,7 +285,7 @@ size_t mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
 /**********************************************************************/
 #ifdef L_mbrtowc
 
-size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
+size_t attribute_hidden __mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 			   size_t n, mbstate_t *__restrict ps)
 {
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
@@ -327,6 +335,7 @@ size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 	}
 	return (size_t) r;
 }
+strong_alias(__mbrtowc,mbrtowc)
 
 #endif
 /**********************************************************************/
@@ -335,7 +344,7 @@ size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 /* Note: We completely ignore ps in all currently supported conversions. */
 /* TODO: Check for valid state anyway? */
 
-size_t wcrtomb(register char *__restrict s, wchar_t wc,
+size_t attribute_hidden __wcrtomb(register char *__restrict s, wchar_t wc,
 			   mbstate_t *__restrict ps)
 {
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -357,6 +366,7 @@ size_t wcrtomb(register char *__restrict s, wchar_t wc,
 	r = __wcsnrtombs(s, &pwc, 1, MB_LEN_MAX, ps);
 	return (r != 0) ? r : 1;
 }
+strong_alias(__wcrtomb,wcrtomb)
 
 #endif
 /**********************************************************************/
