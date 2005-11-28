@@ -27,7 +27,6 @@
 
 #ifdef __UCLIBC__
 #undef _LIBC
-#undef internal_function
 #define _REGEX_RE_COMP
 #include <stdbool.h>
 #include <stdint.h>
