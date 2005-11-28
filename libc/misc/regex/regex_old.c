@@ -651,12 +651,12 @@ typedef enum
 #  ifdef MBS_SUPPORT
 #   define WCHAR
 #   define INSIDE_RECURSION
-#   include "regex.c"
+#   include "regex_old.c"
 #   undef INSIDE_RECURSION
 #  endif
 #  define BYTE
 #  define INSIDE_RECURSION
-#  include "regex.c"
+#  include "regex_old.c"
 #  undef INSIDE_RECURSION
 # endif
 #endif
