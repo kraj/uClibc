@@ -52,7 +52,7 @@ ld-uClibc_SOBJ := $(patsubst $(ld-uClibc_DIR)/$(TARGET_ARCH)/%.S,$(ld-uClibc_OUT
 
 ld-uClibc_OBJS := $(ld-uClibc_COBJ) $(ld-uClibc_SOBJ)
 
-ld-uClibc-so-y := $(ld-uClibc_OBJS:.o=.os)
+ld-uClibc-so-y := $(ld-uClibc_OBJS:.o=.oS)
 
 lib-so-y += $(ldso)
 objclean-y += ld-uClibc_clean
