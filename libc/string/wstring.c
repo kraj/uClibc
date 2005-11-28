@@ -72,12 +72,15 @@ extern size_t __strnlen (__const char *__string, size_t __maxlen) attribute_hidd
 extern char *__strpbrk (__const char *__s, __const char *__accept) attribute_hidden;
 extern size_t __strspn (__const char *__s, __const char *__accept) attribute_hidden;
 extern char *__strsignal (int __sig) attribute_hidden;
+
+#ifdef WANT_WIDE
 extern wchar_t *__wcsdup (__const wchar_t *__s) attribute_hidden;
 extern size_t __wcslen (__const wchar_t *__s) attribute_hidden;
 extern wchar_t *__wcscpy (wchar_t *__restrict __dest,
 			__const wchar_t *__restrict __src) attribute_hidden;
 extern size_t __wcsspn (__const wchar_t *__wcs, __const wchar_t *__accept) attribute_hidden;
 extern wchar_t *__wcspbrk (__const wchar_t *__wcs, __const wchar_t *__accept) attribute_hidden;
+#endif
 
 /**********************************************************************/
 /* NOTE: If we ever do internationalized syserr messages, this will
