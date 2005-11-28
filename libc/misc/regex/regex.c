@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define STDC_HEADERS
+#define RE_TRANSLATE_TYPE char *
 
 extern void *__libc_mempcpy (void *__restrict __dest,
 			__const void *__restrict __src, size_t __n) /*attribute_hidden*/;
