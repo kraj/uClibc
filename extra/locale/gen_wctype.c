@@ -20,7 +20,7 @@
 #ifndef _WCTYPE_H
 #define _WCTYPE_H
 #endif
-#include "../../libc/sysdeps/linux/common/bits/uClibc_ctype.h"
+#include <bits/uClibc_ctype.h>
 
 /*       0x9 : space  blank */
 /*       0xa : space */
