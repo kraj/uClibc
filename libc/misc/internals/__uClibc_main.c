@@ -82,6 +82,7 @@ const char *__progname = 0;
 extern int __libc_fcntl(int fd, int cmd, ...);
 extern int __libc_open(const char *file, int flags, ...);
 
+#ifdef __ARCH_HAS_MMU__
 static void __check_one_fd(int fd, int mode)
 {
     /* Check if the specified fd is already open */
@@ -119,6 +120,7 @@ static int __check_suid(void)
     }
     return 1;
 }
+#endif
 
 /* __uClibc_init completely initialize uClibc so it is ready to use.
  *
