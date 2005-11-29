@@ -1,0 +1,129 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+ifeq ($(shell uname),SunOS)
+HOSTLIBNCURSES = -lcurses
+else
+HOSTLIBNCURSES = -lncurses
+endif
+ifeq (/usr/include/ncurses/ncurses.h, $(wildcard /usr/include/ncurses/ncurses.h))
+	HOSTNCURSES = -I/usr/include/ncurses -DCURSES_LOC="<ncurses.h>"
+else
+ifeq (/usr/include/ncurses/curses.h, $(wildcard /usr/include/ncurses/curses.h))
+	HOSTNCURSES = -I/usr/include/ncurses -DCURSES_LOC="<curses.h>"
+else
+ifeq (/usr/local/include/ncurses/ncurses.h, $(wildcard /usr/local/include/ncurses/ncurses.h))
+	HOSTNCURSES = -I/usr/local/include/ncurses -DCURSES_LOC="<ncurses.h>"
+else
+ifeq (/usr/local/include/ncurses/curses.h, $(wildcard /usr/local/include/ncurses/curses.h))
+	HOSTNCURSES = -I/usr/local/include/ncurses -DCURSES_LOC="<curses.h>"
+else
+ifeq (/usr/include/ncurses.h, $(wildcard /usr/include/ncurses.h))
+	HOSTNCURSES = -DCURSES_LOC="<ncurses.h>"
+else
+	HOSTNCURSES = -DCURSES_LOC="<curses.h>"
+endif
+endif
+endif
+endif
+endif
+
+BUILD_CFLAGS-config   := -I.
+
+BUILD_CFLAGS-mconf.o  := $(HOSTNCURSES)
+BUILD_CFLAGS-lxdialog := $(HOSTNCURSES)
+
+BUILD_LDFLAGS-mconf := $(HOSTLIBNCURSES)
+
+config_DIR := $(top_srcdir)extra/config
+config_OUT := $(top_builddir)extra/config
+
+config_SHIPPED_SRC := $(patsubst %,$(config_OUT)/%,lex.zconf.c zconf.tab.c zconf.tab.h)
+
+config_CONF_SRC    := conf.c
+config_MCONF_SRC   := mconf.c
+config_LXD_SRC := \
+		lxdialog/checklist.c lxdialog/menubox.c lxdialog/textbox.c \
+		lxdialog/yesno.c lxdialog/inputbox.c lxdialog/util.c \
+		lxdialog/msgbox.c
+config_SHARED_SRC  := $(config_OUT)/zconf.tab.c
+config_SHARED_DEP1 := $(patsubst %,$(config_DIR)/%,lkc.h lkc_proto.h expr.h)
+config_SHARED_DEP2 := $(patsubst %,$(config_OUT)/%,lkc_defs.h zconf.tab.h)
+config_SHARED_DEPS := $(config_SHARED_DEP1) $(config_SHARED_DEP2)
+config_CONF_OBJS   := $(patsubst %.c,$(config_OUT)/%.o,$(config_CONF_SRC))
+config_MCONF_OBJS  := $(patsubst %.c,$(config_OUT)/%.o,$(config_MCONF_SRC) $(config_LXD_SRC))
+config_SHARED_OBJS := $(patsubst %.c,%.o,$(config_SHARED_SRC))
+
+objs: ncurses $(config_OUT)/conf $(config_OUT)/mconf
+
+conf $(config_OUT)/conf: $(config_CONF_OBJS) $(config_SHARED_OBJS)
+	$(hcompile.u)
+
+mconf $(config_OUT)/mconf: $(config_MCONF_OBJS) $(config_SHARED_OBJS) | ncurses
+	$(hcompile.u)
+
+$(config_CONF_OBJS) $(config_MCONF_OBJS): $(config_OUT)/%.o : $(config_DIR)/%.c | $(config_SHARED_DEPS)
+	$(hcompile.o)
+
+$(config_OUT)/lkc_defs.h: $(config_DIR)/lkc_proto.h
+	@sed < $< > $@ 's/P(\([^,]*\),.*/#define \1 (\*\1_p)/'
+
+###
+# The following requires flex/bison
+# By default we use the _shipped versions, uncomment the 
+# following line if you are modifying the flex/bison src.
+#LKC_GENPARSER := 1
+
+ifdef LKC_GENPARSER
+
+%.tab.c %.tab.h: %.y
+	bison -t -d -v -b $* -p $(notdir $*) $<
+
+lex.%.c: %.l
+	flex -P$(notdir $*) -o$@ $<
+else
+
+$(config_OUT)/lex.zconf.o: $(config_OUT)/lex.zconf.c | $(config_SHARED_DEPS)
+	$(hcompile.o)
+
+$(config_SHIPPED_SRC): $(config_OUT)/% : $(config_DIR)/%_shipped
+	cp $< $@
+
+$(config_OUT)/zconf.tab.o: $(config_SHARED_SRC) | $(config_OUT)/lex.zconf.c $(patsubst %,$(config_DIR)/%,confdata.c expr.c symbol.c menu.c) $(config_SHARED_DEPS)
+	$(hcompile.o)
+
+endif
+
+.PHONY: ncurses
+
+ncurses:
+	@echo "main() {}" > $(config_OUT)/lxtemp.c
+	@if $(HOSTCC) $(config_OUT)/lxtemp.c -o $(config_OUT)/a.out $(HOSTLIBNCURSES) ; then \
+		$(RM) $(config_OUT)/{lxtemp.c,a.out}; \
+	else \
+		$(RM) $(config_OUT)/lxtemp.c; \
+		echo -e "\007" ;\
+		echo ">> Unable to find the Ncurses libraries." ;\
+		echo ">>" ;\
+		echo ">> You must have Ncurses installed in order" ;\
+		echo ">> to use 'make menuconfig'" ;\
+		echo ">>" ;\
+		echo ">> Maybe you want to try 'make config', which" ;\
+		echo ">> doesn't depend on the Ncurses libraries." ;\
+		echo ;\
+		exit 1 ;\
+	fi
+
+objclean-y += config_clean
+
+# to be removed after including into top Makefile.in
+clean: config_clean
+
+config_clean:
+	$(RM) $(config_OUT)/*.o $(config_SHIPPED_SRC) $(MCONF_OBJS) $(CONF_OBJS) \
+		conf mconf lkc_defs.h
+
