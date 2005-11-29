@@ -123,6 +123,66 @@ static const struct random_poly_info random_poly_info =
 
 
 
+/* If we are using the trivial TYPE_0 R.N.G., just do the old linear
+   congruential bit.  Otherwise, we do our fancy trinomial stuff, which is the
+   same in all the other cases due to all the global variables that have been
+   set up.  The basic operation is to add the number at the rear pointer into
+   the one at the front pointer.  Then both pointers are advanced to the next
+   location cyclically in the table.  The value returned is the sum generated,
+   reduced to 31 bits by throwing away the "least random" low bit.
+   Note: The code takes advantage of the fact that both the front and
+   rear pointers can't wrap on the same call by not testing the rear
+   pointer if the front one has wrapped.  Returns a 31-bit random number.  */
+
+int attribute_hidden __random_r(struct random_data *buf, int32_t *result)
+{
+    int32_t *state;
+
+    if (buf == NULL || result == NULL)
+	goto fail;
+
+    state = buf->state;
+
+    if (buf->rand_type == TYPE_0)
+    {
+	int32_t val = state[0];
+	val = ((state[0] * 1103515245) + 12345) & 0x7fffffff;
+	state[0] = val;
+	*result = val;
+    }
+    else
+    {
+	int32_t *fptr = buf->fptr;
+	int32_t *rptr = buf->rptr;
+	int32_t *end_ptr = buf->end_ptr;
+	int32_t val;
+
+	val = *fptr += *rptr;
+	/* Chucking least random bit.  */
+	*result = (val >> 1) & 0x7fffffff;
+	++fptr;
+	if (fptr >= end_ptr)
+	{
+	    fptr = state;
+	    ++rptr;
+	}
+	else
+	{
+	    ++rptr;
+	    if (rptr >= end_ptr)
+		rptr = state;
+	}
+	buf->fptr = fptr;
+	buf->rptr = rptr;
+    }
+    return 0;
+
+fail:
+    __set_errno (EINVAL);
+    return -1;
+}
+strong_alias(__random_r,random_r)
+
 /* Initialize the random number generator based on the given seed.  If the
    type is the trivial no-state-information type, just remember the seed.
    Otherwise, initializes state[] based on the given "seed" via a linear
@@ -302,65 +362,3 @@ fail:
     __set_errno (EINVAL);
     return -1;
 }
-
-/* If we are using the trivial TYPE_0 R.N.G., just do the old linear
-   congruential bit.  Otherwise, we do our fancy trinomial stuff, which is the
-   same in all the other cases due to all the global variables that have been
-   set up.  The basic operation is to add the number at the rear pointer into
-   the one at the front pointer.  Then both pointers are advanced to the next
-   location cyclically in the table.  The value returned is the sum generated,
-   reduced to 31 bits by throwing away the "least random" low bit.
-   Note: The code takes advantage of the fact that both the front and
-   rear pointers can't wrap on the same call by not testing the rear
-   pointer if the front one has wrapped.  Returns a 31-bit random number.  */
-
-int attribute_hidden __random_r (buf, result)
-     struct random_data *buf;
-     int32_t *result;
-{
-    int32_t *state;
-
-    if (buf == NULL || result == NULL)
-	goto fail;
-
-    state = buf->state;
-
-    if (buf->rand_type == TYPE_0)
-    {
-	int32_t val = state[0];
-	val = ((state[0] * 1103515245) + 12345) & 0x7fffffff;
-	state[0] = val;
-	*result = val;
-    }
-    else
-    {
-	int32_t *fptr = buf->fptr;
-	int32_t *rptr = buf->rptr;
-	int32_t *end_ptr = buf->end_ptr;
-	int32_t val;
-
-	val = *fptr += *rptr;
-	/* Chucking least random bit.  */
-	*result = (val >> 1) & 0x7fffffff;
-	++fptr;
-	if (fptr >= end_ptr)
-	{
-	    fptr = state;
-	    ++rptr;
-	}
-	else
-	{
-	    ++rptr;
-	    if (rptr >= end_ptr)
-		rptr = state;
-	}
-	buf->fptr = fptr;
-	buf->rptr = rptr;
-    }
-    return 0;
-
-fail:
-    __set_errno (EINVAL);
-    return -1;
-}
-strong_alias(__random_r,random_r)
