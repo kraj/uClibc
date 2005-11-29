@@ -151,7 +151,7 @@ struct utmp *getutline(const struct utmp *utmp_entry)
     return NULL;
 }
 
-extern struct utmp *getutid (__const struct utmp *__id) attribute_hidden;
+extern struct utmp *__getutid (__const struct utmp *__id) attribute_hidden;
 
 struct utmp *pututline (const struct utmp *utmp_entry)
 {
