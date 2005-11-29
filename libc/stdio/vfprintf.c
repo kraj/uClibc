@@ -92,6 +92,8 @@
 #define strnlen __strnlen
 #define wcslen __wcslen
 #define wcsnlen __wcsnlen
+#define wcsrtombs __wcsrtombs
+#define mbsrtowcs __mbsrtowcs
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE

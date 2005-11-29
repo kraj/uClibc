@@ -41,6 +41,9 @@ static char sccsid[] = "@(#)svc_tcp.c 1.21 87/08/11 Copyr 1984 Sun Micro";
  * and a record/tcp stream.
  */
 
+#define xdrrec_create __xdrrec_create
+#define xprt_register __xprt_register
+
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>

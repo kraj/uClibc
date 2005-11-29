@@ -47,6 +47,8 @@
  */
 
 #define authnone_create __authnone_create
+#define xdrrec_create __xdrrec_create
+#define getegid __getegid
 
 #define __FORCE_GLIBC
 #include <features.h>

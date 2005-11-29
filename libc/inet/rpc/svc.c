@@ -85,8 +85,8 @@ static struct svc_callout *svc_head;
 /* ***************  SVCXPRT related stuff **************** */
 
 /* Activate a transport handle. */
-void
-xprt_register (SVCXPRT *xprt)
+void attribute_hidden
+__xprt_register (SVCXPRT *xprt)
 {
   register int sock = xprt->xp_sock;
   register int i;
@@ -125,6 +125,7 @@ xprt_register (SVCXPRT *xprt)
 					       POLLRDNORM | POLLRDBAND);
     }
 }
+strong_alias(__xprt_register,xprt_register)
 
 /* De-activate a transport handle. */
 void

@@ -38,6 +38,7 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 # define UNLOCK
 #endif
 
+extern int __unsetenv (__const char *__name) attribute_hidden;
 
 /* If this variable is not a null pointer we allocated the current
    environment.  */
@@ -139,7 +140,7 @@ int setenv (const char *name, const char *value, int replace)
     return __add_to_environ (name, value, NULL, replace);
 }
 
-int unsetenv (const char *name)
+int attribute_hidden __unsetenv (const char *name)
 {
     size_t len;
     char **ep;
@@ -167,6 +168,7 @@ int unsetenv (const char *name)
     UNLOCK;
     return 0;
 }
+strong_alias(__unsetenv,unsetenv)
 
 /* The `clearenv' was planned to be added to POSIX.1 but probably
    never made it.  Nevertheless the POSIX.9 standard (POSIX bindings
@@ -197,7 +199,7 @@ int putenv (char *string)
 	free(name);
 	return(result);
     }
-    unsetenv (string);
+    __unsetenv (string);
     return 0;
 }
 

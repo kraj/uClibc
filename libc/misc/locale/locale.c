@@ -1415,8 +1415,8 @@ __locale_t weak_function __curlocale_set(__locale_t newloc)
 #define Cc2wc_ROW_LEN		__LOCALE_DATA_Cc2wc_ROW_LEN
 
 extern size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
-								 const char **__restrict src, size_t n,
-								 mbstate_t *ps, int allow_continuation);
+						 const char **__restrict src, size_t n,
+						 mbstate_t *ps, int allow_continuation) attribute_hidden;
 
 int __locale_mbrtowc_l(wchar_t *__restrict dst,
 					   const char *__restrict src,

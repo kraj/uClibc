@@ -44,6 +44,8 @@
  */
 
 #define wcslen __wcslen
+#define mbsrtowcs __mbsrtowcs
+#define mbrtowc __mbrtowc
 
 #define _ISOC99_SOURCE			/* for LLONG_MAX primarily... */
 #define _GNU_SOURCE

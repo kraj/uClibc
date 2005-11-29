@@ -28,6 +28,8 @@
  */
 
 #define __fsetlocking __libc_fsetlocking
+#define getgid __getgid
+#define getegid __getegid
 
 #define __FORCE_GLIBC
 #include <features.h>

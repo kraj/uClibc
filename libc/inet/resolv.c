@@ -137,6 +137,7 @@
 #define strnlen __strnlen
 #define strncat __strncat
 #define strstr __strstr
+#define random __random
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -278,6 +279,11 @@ extern int __libc_ns_name_ntop(const u_char *, char *, size_t) attribute_hidden;
 extern int __libc_ns_name_unpack(const u_char *, const u_char *, const u_char *,
                u_char *, size_t) attribute_hidden;
 
+
+extern int __gethostent_r (struct hostent *__restrict __result_buf,
+			 char *__restrict __buf, size_t __buflen,
+			 struct hostent **__restrict __result,
+			 int *__restrict __h_errnop) attribute_hidden;
 
 #ifdef L_encodeh
 int attribute_hidden __encode_header(struct resolv_header *h, unsigned char *dest, int maxlen)
@@ -1604,7 +1610,7 @@ void sethostent (int stay_open)
     UNLOCK;
 }
 
-int gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
+int attribute_hidden __gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
 	struct hostent **result, int *h_errnop)
 {
     int ret;
@@ -1627,6 +1633,7 @@ int gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
     UNLOCK;
     return(ret);
 }
+strong_alias(__gethostent_r,gethostent_r)
 
 struct hostent *gethostent (void)
 {
@@ -1642,7 +1649,7 @@ struct hostent *gethostent (void)
     struct hostent *host;
 
     LOCK;
-    gethostent_r(&h, buf, sizeof(buf), &host, &h_errno);
+    __gethostent_r(&h, buf, sizeof(buf), &host, &h_errno);
     UNLOCK;
     return(host);
 }

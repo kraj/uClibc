@@ -176,11 +176,11 @@ extern size_t __wcrtomb (char *__restrict __s, wchar_t __wc,
 /* Implementation-specific work functions. */
 
 extern size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
-								 const char **__restrict src, size_t n,
-								 mbstate_t *ps, int allow_continuation);
+					const char **__restrict src, size_t n,
+					mbstate_t *ps, int allow_continuation) attribute_hidden;
 
 extern size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
-								 const wchar_t **__restrict src, size_t wn);
+					const wchar_t **__restrict src, size_t wn) attribute_hidden;
 
 /* glibc extensions. */
 
@@ -271,15 +271,13 @@ int mbsinit(const mbstate_t *ps)
 /**********************************************************************/
 #ifdef L_mbrlen
 
-size_t __mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
+size_t attribute_hidden __mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
 {
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
 
 	return __mbrtowc(NULL, s, n, (ps != NULL) ? ps : &mbstate);
 }
-
-size_t mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
-	 __attribute__ ((__weak__, __alias__("__mbrlen")));
+strong_alias(__mbrlen,mbrlen)
 
 #endif
 /**********************************************************************/
@@ -372,7 +370,7 @@ strong_alias(__wcrtomb,wcrtomb)
 /**********************************************************************/
 #ifdef L_mbsrtowcs
 
-size_t mbsrtowcs(wchar_t *__restrict dst, const char **__restrict src,
+size_t attribute_hidden __mbsrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 				 size_t len, mbstate_t *__restrict ps)
 {
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
@@ -380,6 +378,7 @@ size_t mbsrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 	return __mbsnrtowcs(dst, src, SIZE_MAX, len,
 						((ps != NULL) ? ps : &mbstate));
 }
+strong_alias(__mbsrtowcs,mbsrtowcs)
 
 #endif
 /**********************************************************************/
@@ -389,11 +388,12 @@ size_t mbsrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 
  * TODO: Check for valid state anyway? */
 
-size_t wcsrtombs(char *__restrict dst, const wchar_t **__restrict src,
+size_t attribute_hidden __wcsrtombs(char *__restrict dst, const wchar_t **__restrict src,
 				 size_t len, mbstate_t *__restrict ps)
 {
 	return __wcsnrtombs(dst, src, SIZE_MAX, len, ps);
 }
+strong_alias(__wcsrtombs,wcsrtombs)
 
 #endif
 /**********************************************************************/
@@ -410,7 +410,7 @@ size_t wcsrtombs(char *__restrict dst, const wchar_t **__restrict src,
 #endif
 #endif
 
-size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
+size_t attribute_hidden _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 						  const char **__restrict src, size_t n,
 						  mbstate_t *ps, int allow_continuation)
 {
@@ -581,7 +581,7 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 /**********************************************************************/
 #ifdef L__wchar_wcsntoutf8s
 
-size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
+size_t attribute_hidden _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 						  const wchar_t **__restrict src, size_t wn)
 {
 	register char *p;
@@ -1034,7 +1034,7 @@ static const signed char new_wtbl[] = {
 	0,    2,    1,    2,    1,    0,    1, 
 };
 
-int wcswidth(const wchar_t *pwcs, size_t n)
+int attribute_hidden __wcswidth(const wchar_t *pwcs, size_t n)
 {
     int h, l, m, count;
     wchar_t wc;
@@ -1131,7 +1131,7 @@ int wcswidth(const wchar_t *pwcs, size_t n)
 
 #else  /*  __UCLIBC_HAS_LOCALE__ */
 
-int wcswidth(const wchar_t *pwcs, size_t n)
+int attribute_hidden __wcswidth(const wchar_t *pwcs, size_t n)
 {
 	int count;
 	wchar_t wc;
@@ -1154,13 +1154,17 @@ int wcswidth(const wchar_t *pwcs, size_t n)
 
 #endif /*  __UCLIBC_HAS_LOCALE__ */
 
+strong_alias(__wcswidth,wcswidth)
+
 #endif
 /**********************************************************************/
 #ifdef L_wcwidth
 
+extern int __wcswidth (__const wchar_t *__s, size_t __n) attribute_hidden;
+
 int wcwidth(wchar_t wc)
 {
-    return wcswidth(&wc, 1);
+    return __wcswidth(&wc, 1);
 }
 
 #endif

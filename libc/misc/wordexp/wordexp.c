@@ -22,6 +22,7 @@
 #define mempcpy __libc_mempcpy
 #define strndup __strndup
 #define strspn __strspn
+#define unsetenv __unsetenv
 
 #define _GNU_SOURCE
 #include <sys/cdefs.h>

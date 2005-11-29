@@ -18,6 +18,8 @@
  *
  */
 
+#define sysconf __sysconf
+
 #define _GNU_SOURCE
 #define _LARGEFILE64_SOURCE
 #include <features.h>

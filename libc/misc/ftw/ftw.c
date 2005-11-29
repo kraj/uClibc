@@ -19,6 +19,7 @@
    02111-1307 USA.  */
 
 #define mempcpy __libc_mempcpy
+#define tsearch __tsearch
 
 #define _GNU_SOURCE
 #include <features.h>

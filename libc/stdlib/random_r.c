@@ -131,7 +131,7 @@ static const struct random_poly_info random_poly_info =
    information a given number of times to get rid of any initial dependencies
    introduced by the L.C.R.N.G.  Note that the initialization of randtbl[]
    for default usage relies on values produced by this routine.  */
-int srandom_r (unsigned int seed, struct random_data *buf)
+int attribute_hidden __srandom_r (unsigned int seed, struct random_data *buf)
 {
     int type;
     int32_t *state;
@@ -176,7 +176,7 @@ int srandom_r (unsigned int seed, struct random_data *buf)
     while (--kc >= 0)
     {
 	int32_t discard;
-	(void) random_r (buf, &discard);
+	(void) __random_r (buf, &discard);
     }
 
 done:
@@ -185,6 +185,7 @@ done:
 fail:
     return -1;
 }
+strong_alias(__srandom_r,srandom_r)
 
 /* Initialize the state information in the given array of N bytes for
    future random number generation.  Based on the number of bytes we
@@ -237,7 +238,7 @@ int initstate_r (seed, arg_state, n, buf)
 
     buf->state = state;
 
-    srandom_r (seed, buf);
+    __srandom_r (seed, buf);
 
     state[-1] = TYPE_0;
     if (type != TYPE_0)
@@ -313,7 +314,7 @@ fail:
    rear pointers can't wrap on the same call by not testing the rear
    pointer if the front one has wrapped.  Returns a 31-bit random number.  */
 
-int random_r (buf, result)
+int attribute_hidden __random_r (buf, result)
      struct random_data *buf;
      int32_t *result;
 {
@@ -362,4 +363,4 @@ fail:
     __set_errno (EINVAL);
     return -1;
 }
-
+strong_alias(__random_r,random_r)

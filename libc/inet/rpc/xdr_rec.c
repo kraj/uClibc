@@ -142,8 +142,8 @@ static bool_t get_input_bytes (RECSTREAM *, caddr_t, int) internal_function;
  * write respectively.   They are like the system
  * calls expect that they take an opaque handle rather than an fd.
  */
-void
-xdrrec_create (XDR *xdrs, u_int sendsize,
+void attribute_hidden
+__xdrrec_create (XDR *xdrs, u_int sendsize,
 	       u_int recvsize, caddr_t tcp_handle,
 	       int (*readit) (char *, char *, int),
 	       int (*writeit) (char *, char *, int))
@@ -204,6 +204,7 @@ xdrrec_create (XDR *xdrs, u_int sendsize,
   rstrm->fbtbc = 0;
   rstrm->last_frag = TRUE;
 }
+strong_alias(__xdrrec_create,xdrrec_create)
 
 
 /*

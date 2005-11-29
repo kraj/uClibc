@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define mbrtowc __mbrtowc
+
 #include "_stdio.h"
 
 #ifdef __DO_UNLOCKED

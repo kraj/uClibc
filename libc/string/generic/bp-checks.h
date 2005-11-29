@@ -92,7 +92,7 @@ extern void *__unbounded __ubp_memchr (const void *__unbounded, int, unsigned);
    cover a region of NBYTES.  Such a vector occupies one byte per page
    of memory.  */
 # define CHECK_N_PAGES(ARG, NBYTES)				\
-  ({ int _page_size_ = sysconf (_SC_PAGE_SIZE);			\
+  ({ int _page_size_ = __sysconf (_SC_PAGE_SIZE);			\
      CHECK_N ((const char *) (ARG),				\
 	      ((NBYTES) + _page_size_ - 1) / _page_size_); })
 

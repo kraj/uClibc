@@ -38,6 +38,9 @@
  * for the credentials.
  */
 
+#define sysconf __sysconf
+#define getegid __getegid
+
 #define __FORCE_GLIBC
 #include <features.h>
 

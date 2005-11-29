@@ -18,6 +18,7 @@
    Boston, MA 02111-1307, USA.  */
 
 #define memchr __memchr
+#define getgid __getgid
 
 #include <assert.h>
 #include <errno.h>

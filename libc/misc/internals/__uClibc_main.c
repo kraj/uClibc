@@ -13,6 +13,9 @@
  * avoided in the static library case.
  */
 
+#define getgid __getgid
+#define getegid __getegid
+
 #define	_ERRNO_H
 #include <features.h>
 #include <unistd.h>

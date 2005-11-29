@@ -37,6 +37,10 @@
  * and a record/unix stream.
  */
 
+#define xdrrec_create __xdrrec_create
+#define xprt_register __xprt_register
+#define getegid __getegid
+
 #define __FORCE_GLIBC
 #include <features.h>
 

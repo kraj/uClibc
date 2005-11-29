@@ -70,7 +70,7 @@
 #endif /* _UCLIBC_GENERATE_SYSCONF_ARCH */
 
 /* Get the value of the system variable NAME.  */
-long int __sysconf(int name)
+long int attribute_hidden __sysconf(int name)
 {
   switch (name)
     {
@@ -882,5 +882,4 @@ long int __sysconf(int name)
 #endif
     }
 }
-weak_alias(__sysconf, sysconf);
-
+strong_alias(__sysconf,sysconf)

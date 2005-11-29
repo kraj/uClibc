@@ -50,6 +50,8 @@
 */
 
 #define wcslen __wcslen
+#define wcsrtombs __wcsrtombs
+#define mbrtowc __mbrtowc
 
 #define _GNU_SOURCE
 #include <stdio.h>

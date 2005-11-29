@@ -14,6 +14,8 @@
   Hacked up for uClibc by Erik Andersen <andersen@codepoet.org>
 */
 
+#define sysconf __sysconf
+
 #include <features.h>
 #include <stddef.h>
 #include <unistd.h>

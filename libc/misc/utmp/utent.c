@@ -108,7 +108,7 @@ struct utmp *getutent(void)
 }
 
 /* Locking is done in __getutent */
-struct utmp *getutid (const struct utmp *utmp_entry)
+struct utmp attribute_hidden *__getutid (const struct utmp *utmp_entry)
 {
     struct utmp *lutmp;
 
@@ -133,6 +133,7 @@ struct utmp *getutid (const struct utmp *utmp_entry)
 
     return NULL;
 }
+strong_alias(__getutid,getutid)
 
 /* Locking is done in __getutent */
 struct utmp *getutline(const struct utmp *utmp_entry)
@@ -150,6 +151,8 @@ struct utmp *getutline(const struct utmp *utmp_entry)
     return NULL;
 }
 
+extern struct utmp *getutid (__const struct utmp *__id) attribute_hidden;
+
 struct utmp *pututline (const struct utmp *utmp_entry)
 {
     LOCK;
@@ -157,7 +160,7 @@ struct utmp *pututline (const struct utmp *utmp_entry)
        the file pointer where they want it, everything will work out. */
     lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
 
-    if (getutid(utmp_entry) != NULL) {
+    if (__getutid(utmp_entry) != NULL) {
 	lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
 	if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
 	    return NULL;

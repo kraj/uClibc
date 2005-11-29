@@ -131,6 +131,7 @@
 
 #define _uintmaxtostr __libc__uintmaxtostr
 #define strnlen __strnlen
+#define memcpy __memcpy
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -224,15 +225,21 @@ extern struct tm *__time_localtime_tzi(const time_t *__restrict timer,
 extern time_t _time_mktime_tzi(struct tm *timeptr, int store_on_success,
 					rule_struct *tzi) attribute_hidden;
 
+extern char *__asctime (__const struct tm *__tp) attribute_hidden;
+
+extern char *__asctime_r (__const struct tm *__restrict __tp,
+			char *__restrict __buf) attribute_hidden;
+
 /**********************************************************************/
 #ifdef L_asctime
 
 static char __time_str[26];
 
-char *asctime(const struct tm *__restrict ptm)
+char attribute_hidden *__asctime(const struct tm *ptm)
 {
-	return asctime_r(ptm, __time_str);
+	return __asctime_r(ptm, __time_str);
 }
+strong_alias(__asctime,asctime)
 
 #endif
 /**********************************************************************/
@@ -300,7 +307,7 @@ static const unsigned char at_data[] = {
 	' ', '?', '?', '?', '?', '\n', 0
 };
 
-char *asctime_r(register const struct tm *__restrict ptm,
+char attribute_hidden *__asctime_r(register const struct tm *__restrict ptm,
 				register char *__restrict buffer)
 {
 	int tmp;
@@ -374,6 +381,7 @@ char *asctime_r(register const struct tm *__restrict ptm,
 
 	return buffer - 8;
 }
+strong_alias(__asctime_r,asctime_r)
 
 #endif
 /**********************************************************************/
@@ -448,7 +456,7 @@ clock_t clock(void)
 char *ctime(const time_t *clock)
 {
 	/* ANSI/ISO/SUSv3 say that ctime is equivalent to the following. */
-	return asctime(localtime(clock));
+	return __asctime(localtime(clock));
 }
 
 #endif
@@ -459,7 +467,7 @@ char *ctime_r(const time_t *clock, char *buf)
 {
 	struct tm xtm;
 
-	return asctime_r(localtime_r(clock, &xtm), buf);
+	return __asctime_r(localtime_r(clock, &xtm), buf);
 }
 
 #endif
