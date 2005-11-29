@@ -5,12 +5,12 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS-ldso := -DNOT_IN_libc -DIS_IN_rtld $(SSP_DISABLE_FLAGS)
+CFLAGS-ldso := -DNOT_IN_libc -DIS_IN_rtld $(SSP_DISABLE_FLAGS) -D_GNU_SOURCE
 
 # This stuff will not work with -fomit-frame-pointer
 CFLAGS-ldso += -fno-omit-frame-pointer
 
-CFLAGS-ldso += -I$(top_builddir)ldso/include -I$(top_builddir)ldso/ldso
+CFLAGS-ldso += -I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) -I$(top_srcdir)ldso/include -I$(top_srcdir)ldso/ldso
 CFLAGS-ldso += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\"
 
 ifeq ($(SUPPORT_LD_DEBUG),y)
@@ -28,11 +28,9 @@ ifeq ($(DODEBUG),y)
 CFLAGS-ldso += -Os -g
 endif
 
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-CFLAGS-ldso += $(PTINC) -DSHARED
-endif
-
 CFLAGS-ldso/ldso/$(TARGET_ARCH)/ := $(CFLAGS-ldso)
+
+CFLAGS-ldso.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\"
 
 ifneq ($(SUPPORT_LD_DEBUG),y)
 LDFLAGS-ld-uClibc.so := $(LDFLAGS)
@@ -54,39 +52,18 @@ ld-uClibc_SOBJ := $(patsubst $(ld-uClibc_DIR)/$(TARGET_ARCH)/%.S,$(ld-uClibc_OUT
 
 ld-uClibc_OBJS := $(ld-uClibc_COBJ) $(ld-uClibc_SOBJ)
 
-ld-uClibc-so-y := $(ld-uClibc_OBJS:.o=.os)
+ld-uClibc-so-y := $(ld-uClibc_OBJS:.o=.oS)
 
-LN_HEADERS      := $(patsubst %, $(top_builddir)ldso/include/%, elf.h)
-LN_ARCH_HEADERS := $(patsubst %, $(top_builddir)ldso/include/%, dl-startup.h dl-syscalls.h dl-sysdep.h dl-debug.h)
-HEADERS         := $(LN_HEADERS) $(LN_ARCH_HEADERS) $(top_builddir)ldso/include/dl-progname.h
-
-#lib-so-y := $(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO))
-ld-uClibc-y := $(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO))
+lib-so-y += $(ldso)
 objclean-y += ld-uClibc_clean
-headers-$(HAVE_SHARED) += ldso_headers
-headers_clean-y += ldso_headers_clean
 
-$(top_builddir)lib/$(patsubst %.$(MAJOR_VERSION),%,$(UCLIBC_LDSO)): $(ld-uClibc_OUT)/ld-uClibc_so.a $(top_builddir)include/headers_done
+$(ldso:.$(MAJOR_VERSION)=): $(ld-uClibc_OUT)/ld-uClibc_so.a
 	$(call link.so,$(ldso_FULL_NAME),$(MAJOR_VERSION))
 
 $(ld-uClibc_OUT)/ld-uClibc_so.a: $(ld-uClibc-so-y)
 	$(Q)$(RM) $@
 	$(do_strip)
 	$(do_ar)
-
-ldso_headers: $(HEADERS)
-
-$(LN_HEADERS):
-	$(LN) -sf ../../$(top_srcdir)include/$(notdir $@) $@
-
-$(LN_ARCH_HEADERS):
-	$(LN) -sf ../../$(top_srcdir)ldso/ldso/$(TARGET_ARCH)/$(notdir $@) $@
-
-$(top_builddir)ldso/include/dl-progname.h:
-	echo '#include "$(TARGET_ARCH)/elfinterp.c"' > $@
-
-ldso_headers_clean:
-	$(RM) $(HEADERS)
 
 ld-uClibc_clean:
 	$(RM) $(ld-uClibc_OUT)/*.{o,os,a} $(ld-uClibc_OUT)/*/*.{o,os}

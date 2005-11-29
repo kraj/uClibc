@@ -41,7 +41,7 @@ STRIP_FLAGS ?= -x -R .note -R .comment
 
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
-HOSTCFLAGS = -O2 -Wall
+BUILD_CFLAGS = -O2 -Wall
 
 
 #---------------------------------------------------------
@@ -60,11 +60,13 @@ LIBC := libc
 SHARED_MAJORNAME := $(LIBC).so.$(MAJOR_VERSION)
 UCLIBC_LDSO := ld-uClibc.so.$(MAJOR_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
-libc := $(top_builddir)lib/$(LIBC).so
-interp := $(top_builddir)libc/misc/internals/interp.os
+libc := $(top_builddir)lib/$(SHARED_MAJORNAME)
+interp := $(top_builddir)lib/interp.os
+ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
+headers_dep := $(top_builddir)include/bits/sysnum.h
 
 #LIBS :=$(interp) -L$(top_builddir)lib -lc
-LIBS := $(interp) -L$(top_builddir)lib $(libc)
+LIBS := $(interp) -L$(top_builddir)lib $(libc:.$(MAJOR_VERSION)=)
 
 # Make sure DESTDIR and PREFIX can be used to install
 # PREFIX is a uClibcism while DESTDIR is a common GNUism
@@ -347,14 +349,16 @@ endif
 PTDIR := $(top_builddir)libpthread/$(PTNAME)
 # set up system dependencies include dirs (NOTE: order matters!)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-PTINC:=	-I$(PTDIR)/compat					\
+PTINC:=	-I$(PTDIR)						\
+	-I$(PTDIR)/compat					\
 	-I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
 	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
 	-I$(PTDIR)/sysdeps/unix/sysv/linux			\
 	-I$(PTDIR)/sysdeps/pthread				\
 	-I$(PTDIR)/sysdeps/pthread/bits				\
 	-I$(PTDIR)/sysdeps/generic				\
-	-Ildso/include						\
+	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH)			\
+	-I$(top_srcdir)ldso/include				\
 	-include $(PTDIR)/compat/libc-symbols.h
 #
 # Test for TLS if NPTL support was selected.
@@ -374,10 +378,15 @@ gcc_tls_test_fail:
 	@exit 1;
 endif
 else
-PTINC:=	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
-	-I$(PTDIR)/sysdeps/pthread
+PTINC := \
+	-I$(PTDIR)/sysdeps/$(TARGET_ARCH) \
+	-I$(PTDIR)/sysdeps/pthread \
+	-I$(PTDIR)
 endif
 CFLAGS+=$(PTINC)
+else
+	PTNAME := 
+	PTINC  := 
 endif
 
 # Sigh, some stupid versions of gcc can't seem to cope with '-iwithprefix include'

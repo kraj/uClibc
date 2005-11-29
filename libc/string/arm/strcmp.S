@@ -49,3 +49,4 @@ __strcmp:
 
 .size __strcmp,.-__strcmp
 .weak strcoll ; strcoll = strcmp
+.global __strcoll ; __strcoll = strcoll

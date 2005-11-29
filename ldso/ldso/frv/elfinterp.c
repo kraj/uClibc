@@ -24,7 +24,7 @@ License along with uClibc; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
 USA.  */
 
-#include <sys/cdefs.h>	    /* __attribute_used__ */
+#include <features.h>
 
 /* Program to load an ELF binary on a linux system, and run it.
    References to symbols in sharable libraries can be resolved by either
@@ -37,7 +37,7 @@ USA.  */
    a more than adequate job of explaining everything required to get this
    working. */
 
-struct funcdesc_value volatile *__attribute__((__visibility__("hidden")))
+struct funcdesc_value volatile attribute_hidden *
 _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 {
 	int reloc_type;

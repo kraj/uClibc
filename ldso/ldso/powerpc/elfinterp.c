@@ -29,6 +29,8 @@
  * SUCH DAMAGE.
  */
 
+#include "ldso.h"
+
 extern int _dl_linux_resolve(void);
 
 void _dl_init_got(unsigned long *plt,struct elf_resolve *tpnt)

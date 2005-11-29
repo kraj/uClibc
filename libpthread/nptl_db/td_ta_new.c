@@ -21,11 +21,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef __UCLIBC__
-#include <../nptl/version.h>
-#else
+//#ifdef __UCLIBC__
+//#include <../nptl/version.h>
+//#else
 #include <version.h>
-#endif
+//#endif
 
 #include "thread_dbP.h"
 

@@ -719,6 +719,8 @@ _dl_update_slotinfo (unsigned long int req_modid)
   unsigned long int idx = req_modid;
   struct dtv_slotinfo_list *listp = _dl_tls_dtv_slotinfo_list;
 
+  _dl_debug_early ("Updating slotinfo for module %d\n", req_modid);
+
   while (idx >= listp->len)
     {
       idx -= listp->len;
@@ -898,6 +900,8 @@ _dl_add_to_slotinfo (struct link_map  *l)
   struct dtv_slotinfo_list *listp;
   struct dtv_slotinfo_list *prevp;
   size_t idx = l->l_tls_modid;
+
+  _dl_debug_early("Adding to slotinfo for %s\n", l->l_name);
 
   /* Find the place in the dtv slotinfo list.  */
   listp = _dl_tls_dtv_slotinfo_list;

@@ -1,5 +1,5 @@
 /* Enable specific event for thread.
-   Copyright (C) 1999, 2001, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2001, 2002, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1999.
 
@@ -43,7 +43,7 @@ td_thr_set_event (th, event)
 		 ((char *) th->th_unique
 		  + offsetof (struct _pthread_descr_struct,
 			      p_eventbuf.eventmask)),
-		 &old_event, sizeof (td_thrhandle_t)) != PS_OK)
+		 &old_event, sizeof (td_thr_events_t)) != PS_OK)
     return TD_ERR;	/* XXX Other error value?  */
 
   /* Or the new bits in.  */
@@ -55,7 +55,7 @@ td_thr_set_event (th, event)
 		  ((char *) th->th_unique
 		   + offsetof (struct _pthread_descr_struct,
 			       p_eventbuf.eventmask)),
-		  &old_event, sizeof (td_thrhandle_t)) != PS_OK)
+		  &old_event, sizeof (td_thr_events_t)) != PS_OK)
     return TD_ERR;	/* XXX Other error value?  */
 
   return TD_OK;

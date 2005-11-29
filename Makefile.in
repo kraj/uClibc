@@ -16,14 +16,12 @@ include $(top_builddir)Rules.mak
 
 ifeq ($(HAVE_DOT_CONFIG),y)
 
-all: finished
+all: pregen libs
 
 # In this section, we need .config
 -include .config.cmd
 
-include $(top_srcdir)ldso/ldso/Makefile.in
-include $(top_srcdir)libc/Makefile.in
-include $(top_srcdir)ldso/libdl/Makefile.in
+include $(top_srcdir)ldso/Makefile.in
 include $(top_srcdir)libcrypt/Makefile.in
 include $(top_srcdir)libintl/Makefile.in
 include $(top_srcdir)libm/Makefile.in
@@ -32,18 +30,13 @@ include $(top_srcdir)libresolv/Makefile.in
 include $(top_srcdir)librt/Makefile.in
 include $(top_srcdir)libutil/Makefile.in
 include $(top_srcdir)libpthread/Makefile.in
+include $(top_srcdir)extra/locale/Makefile.in
 
-finished: pregen libs
-	$(SECHO)
-	$(SECHO) Finally finished compiling ...
-	$(SECHO)
+# last included to catch all the objects added by others (locales/threads)
+include $(top_srcdir)libc/Makefile.in
 
-include/bits/uClibc_config.h: .config
-	$(RM) -r include/bits
+include/bits/uClibc_config.h: .config extra/config/conf
 	$(INSTALL) -d include/bits
-	@if [ ! -x extra/config/conf ] ; then \
-	    $(MAKE) -C extra/config conf; \
-	fi
 	@extra/config/conf -o $(top_srcdir)extra/Configs/Config.in
 
 # For the moment, we have to keep re-running this target 
@@ -57,7 +50,7 @@ else
 export header_extra_args = -n
 endif
 headers: include/bits/uClibc_config.h
-ifeq ($(wildcard include/headers_done),)
+	$(MAKE) headers-y
 	@$(SHELL_SET_X); \
 	$(top_srcdir)extra/scripts/fix_includes.sh \
 		-k $(KERNEL_SOURCE) -t $(TARGET_ARCH) \
@@ -98,28 +91,10 @@ ifeq ($(wildcard include/headers_done),)
 		$(RM) include/bits/sysnum.h; \
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
-	$(MAKE) headers-y
-	touch include/headers_done
-endif
-
-# Command used to download source code
-WGET:=wget --passive-ftp
-
-LOCALE_DATA_FILENAME:=uClibc-locale-030818.tgz
 
 pregen: headers
-ifeq ($(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA),y)
-	(cd $(top_builddir)extra/locale; \
-	if [ ! -f $(LOCALE_DATA_FILENAME) ] ; then \
-	$(WGET) http://www.uclibc.org/downloads/$(LOCALE_DATA_FILENAME) ; \
-	fi )
-endif
-ifeq ($(UCLIBC_PREGENERATED_LOCALE_DATA),y)
-	(cd $(top_builddir)extra/locale; zcat $(LOCALE_DATA_FILENAME) | tar -xvf -)
-	$(MAKE) -C $(top_srcdir)extra/locale pregen
-endif
 
-install: install_runtime install_dev finished2
+install: install_runtime install_dev
 
 
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)lib $(RUNTIME_PREFIX)lib)
@@ -132,9 +107,8 @@ install_headers:
 	else \
 		extra_exclude="" ; \
 	fi ; \
-	tar -chf - include --exclude .svn $$extra_exclude \
+	tar -chf - --exclude .svn $$extra_exclude include \
 		| tar -xf - -C $(PREFIX)$(DEVEL_PREFIX)
-	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/headers_done
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/ssp-internal.h
 	$(RM) $(PREFIX)$(DEVEL_PREFIX)include/dl-osinfo.h
 ifneq ($(UCLIBC_HAS_FLOATS),y)
@@ -260,12 +234,7 @@ utils:
 
 # Installs helper applications, such as 'ldd' and 'ldconfig'
 install_utils: utils
-	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils install
-
-finished2:
-	$(SECHO)
-	$(SECHO) Finished installing ...
-	$(SECHO)
+	$(MAKE) CROSS="$(CROSS)" CC="$(CC)" -C utils utils_install
 
 else # ifeq ($(HAVE_DOT_CONFIG),y)
 
@@ -279,11 +248,8 @@ endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
 # configuration
 # ---------------------------------------------------------------------------
-extra/config/conf:
-	$(MAKE) -C extra/config conf
-
-extra/config/mconf:
-	$(MAKE) -C extra/config ncurses mconf
+extra/config/conf extra/config/mconf:
+	$(MAKE) -C extra/config $(notdir $@)
 
 menuconfig: extra/config/mconf
 	$(RM) -r include/bits
@@ -330,12 +296,11 @@ defconfig: extra/config/conf
 clean:
 	@$(RM) -r lib include/bits
 	$(RM) lib*/*.a ldso/*/*.a libpthread/*/*.a
-	$(RM) libc/misc/internals/interp.c
-	$(RM) include/fpu_control.h include/dl-osinfo.h include/headers_done
-	$(MAKE) -C extra/locale clean
+	$(RM) include/fpu_control.h include/dl-osinfo.h
+	$(MAKE) -C extra/locale locale_clean
 	$(MAKE) headers_clean-y
 	$(MAKE) -C test clean
-	$(MAKE) -C utils clean
+	$(MAKE) -C utils utils_clean
 	@set -e; \
 	for i in `(cd libc/sysdeps/linux/common/sys; ls *.h)` ; do \
 		$(RM) include/sys/$$i; \
@@ -351,8 +316,8 @@ clean:
 distclean: clean
 	-find . \( -name core -o -name \*.orig -o -name \*~ \) -exec $(RM) {} \;
 	$(RM) .config .config.old .config.cmd
-	$(RM) extra/locale/*.txt
-	$(MAKE) -C extra clean
+	$(RM) extra/locale/*.tgz
+	$(MAKE) -C extra/config config_clean
 
 dist release:
 	$(MAKE) -s distclean
@@ -363,5 +328,3 @@ dist release:
 
 check:
 	$(MAKE) -C test
-
-.PHONY: dummy subdirs release dist distclean clean config oldconfig menuconfig utils
