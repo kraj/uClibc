@@ -95,9 +95,9 @@ static double zero    = 0.0;
 #endif
 
 #ifdef __STDC__
-	double __ieee754_j1(double x)
+	double attribute_hidden __ieee754_j1(double x)
 #else
-	double __ieee754_j1(x)
+	double attribute_hidden __ieee754_j1(x)
 	double x;
 #endif
 {
@@ -164,9 +164,9 @@ static double V0[5] = {
 };
 
 #ifdef __STDC__
-	double __ieee754_y1(double x)
+	double attribute_hidden __ieee754_y1(double x)
 #else
-	double __ieee754_y1(x)
+	double attribute_hidden __ieee754_y1(x)
 	double x;
 #endif
 {

@@ -36,7 +36,7 @@
 #include <fcntl.h>
 #include <utmp.h>
 
-int login_tty(int fd)
+int attribute_hidden __login_tty(int fd)
 {
 	(void) setsid();
 #ifdef TIOCSCTTY
@@ -67,3 +67,5 @@ int login_tty(int fd)
 		(void) close(fd);
 	return (0);
 }
+
+strong_alias(__login_tty,login_tty)

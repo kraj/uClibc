@@ -100,9 +100,9 @@ ivln2_h  =  1.44269502162933349609e+00, /* 0x3FF71547, 0x60000000 =24b 1/ln2*/
 ivln2_l  =  1.92596299112661746887e-08; /* 0x3E54AE0B, 0xF85DDF44 =1/ln2 tail*/
 
 #ifdef __STDC__
-	double __ieee754_pow(double x, double y)
+	double attribute_hidden __ieee754_pow(double x, double y)
 #else
-	double __ieee754_pow(x,y)
+	double attribute_hidden __ieee754_pow(x,y)
 	double x, y;
 #endif
 {

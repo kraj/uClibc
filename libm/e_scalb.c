@@ -25,16 +25,16 @@ static char rcsid[] = "$NetBSD: e_scalb.c,v 1.6 1995/05/10 20:46:09 jtc Exp $";
 
 #ifdef _SCALB_INT
 #ifdef __STDC__
-	double __ieee754_scalb(double x, int fn)
+	double attribute_hidden __ieee754_scalb(double x, int fn)
 #else
-	double __ieee754_scalb(x,fn)
+	double attribute_hidden __ieee754_scalb(x,fn)
 	double x; int fn;
 #endif
 #else
 #ifdef __STDC__
-	double __ieee754_scalb(double x, double fn)
+	double attribute_hidden __ieee754_scalb(double x, double fn)
 #else
-	double __ieee754_scalb(x,fn)
+	double attribute_hidden __ieee754_scalb(x,fn)
 	double x, fn;
 #endif
 #endif

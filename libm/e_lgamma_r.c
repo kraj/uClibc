@@ -217,9 +217,9 @@ __inline__
 
 
 #ifdef __STDC__
-	double __ieee754_lgamma_r(double x, int *signgamp)
+	double attribute_hidden __ieee754_lgamma_r(double x, int *signgamp)
 #else
-	double __ieee754_lgamma_r(x,signgamp)
+	double attribute_hidden __ieee754_lgamma_r(x,signgamp)
 	double x; int *signgamp;
 #endif
 {

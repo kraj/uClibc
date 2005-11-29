@@ -75,9 +75,9 @@ T[] =  {
 };
 
 #ifdef __STDC__
-	double __kernel_tan(double x, double y, int iy)
+	double attribute_hidden __kernel_tan(double x, double y, int iy)
 #else
-	double __kernel_tan(x, y, iy)
+	double attribute_hidden __kernel_tan(x, y, iy)
 	double x,y; int iy;
 #endif
 {

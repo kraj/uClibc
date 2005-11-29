@@ -50,9 +50,9 @@ static char rcsid[] = "$NetBSD: e_hypot.c,v 1.9 1995/05/12 04:57:27 jtc Exp $";
 #include "math_private.h"
 
 #ifdef __STDC__
-	double __ieee754_hypot(double x, double y)
+	double attribute_hidden __ieee754_hypot(double x, double y)
 #else
-	double __ieee754_hypot(x,y)
+	double attribute_hidden __ieee754_hypot(x,y)
 	double x, y;
 #endif
 {

@@ -30,9 +30,9 @@ static double one = 1.0, Zero[] = {0.0, -0.0,};
 #endif
 
 #ifdef __STDC__
-	double __ieee754_fmod(double x, double y)
+	double attribute_hidden __ieee754_fmod(double x, double y)
 #else
-	double __ieee754_fmod(x,y)
+	double attribute_hidden __ieee754_fmod(x,y)
 	double x,y ;
 #endif
 {

@@ -94,9 +94,9 @@ static double zero = 0.0;
 #endif
 
 #ifdef __STDC__
-	double __ieee754_j0(double x)
+	double attribute_hidden __ieee754_j0(double x)
 #else
-	double __ieee754_j0(x)
+	double attribute_hidden __ieee754_j0(x)
 	double x;
 #endif
 {
@@ -163,9 +163,9 @@ v03  =  2.59150851840457805467e-07, /* 0x3E91642D, 0x7FF202FD */
 v04  =  4.41110311332675467403e-10; /* 0x3DFE5018, 0x3BD6D9EF */
 
 #ifdef __STDC__
-	double __ieee754_y0(double x)
+	double attribute_hidden __ieee754_y0(double x)
 #else
-	double __ieee754_y0(x)
+	double attribute_hidden __ieee754_y0(x)
 	double x;
 #endif
 {

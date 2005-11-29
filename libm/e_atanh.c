@@ -48,9 +48,9 @@ static double zero = 0.0;
 #endif
 
 #ifdef __STDC__
-	double __ieee754_atanh(double x)
+	double attribute_hidden __ieee754_atanh(double x)
 #else
-	double __ieee754_atanh(x)
+	double attribute_hidden __ieee754_atanh(x)
 	double x;
 #endif
 {

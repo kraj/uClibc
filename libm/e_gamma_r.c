@@ -23,9 +23,9 @@
 
 #ifdef __STDC__
 	//__private_extern__
-	double __ieee754_gamma_r(double x, int *signgamp)
+	double attribute_hidden __ieee754_gamma_r(double x, int *signgamp)
 #else
-	double __ieee754_gamma_r(x,signgamp)
+	double attribute_hidden __ieee754_gamma_r(x,signgamp)
 	double x; int *signgamp;
 #endif
 {
