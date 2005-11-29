@@ -98,6 +98,8 @@
  * Manuel
  */
 
+#define memmove __memmove
+
 #define _GNU_SOURCE
 #define _ISOC99_SOURCE
 #include <errno.h>
@@ -164,29 +166,36 @@
 
 #define KUHN 1
 
+extern size_t __mbrtowc (wchar_t *__restrict __pwc,
+		       __const char *__restrict __s, size_t __n,
+		       mbstate_t *__p) attribute_hidden;
+
+extern size_t __wcrtomb (char *__restrict __s, wchar_t __wc,
+		       mbstate_t *__restrict __ps) attribute_hidden;
+
 /* Implementation-specific work functions. */
 
 extern size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
-								 const char **__restrict src, size_t n,
-								 mbstate_t *ps, int allow_continuation);
+					const char **__restrict src, size_t n,
+					mbstate_t *ps, int allow_continuation) attribute_hidden;
 
 extern size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
-								 const wchar_t **__restrict src, size_t wn);
+					const wchar_t **__restrict src, size_t wn) attribute_hidden;
 
 /* glibc extensions. */
 
 extern size_t __mbsnrtowcs(wchar_t *__restrict dst,
-						   const char **__restrict src,
-						   size_t NMC, size_t len, mbstate_t *__restrict ps);
+				   const char **__restrict src,
+				   size_t NMC, size_t len, mbstate_t *__restrict ps) attribute_hidden;
 
 extern size_t __wcsnrtombs(char *__restrict dst,
-						   const wchar_t **__restrict src,
-						   size_t NWC, size_t len, mbstate_t *__restrict ps);
+				   const wchar_t **__restrict src,
+				   size_t NWC, size_t len, mbstate_t *__restrict ps) attribute_hidden;
 
 /**********************************************************************/
 #ifdef L_btowc
 
-wint_t btowc(int c)
+wint_t attribute_hidden __btowc(int c)
 {
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
 
@@ -197,7 +206,7 @@ wint_t btowc(int c)
 	if (c != EOF) {
 		*buf = (unsigned char) c;
 		mbstate.__mask = 0;		/* Initialize the mbstate. */
-		if (mbrtowc(&wc, buf, 1, &mbstate) <= 1) {
+		if (__mbrtowc(&wc, buf, 1, &mbstate) <= 1) {
 			return wc;
 		}
 	}
@@ -216,6 +225,7 @@ wint_t btowc(int c)
 
 #endif /*  __CTYPE_HAS_8_BIT_LOCALES */
 }
+strong_alias(__btowc,btowc)
 
 #endif
 /**********************************************************************/
@@ -229,7 +239,7 @@ int wctob(wint_t c)
 
 	unsigned char buf[MB_LEN_MAX];
 
-	return (wcrtomb(buf, c, NULL) == 1) ? *buf : EOF;
+	return (__wcrtomb(buf, c, NULL) == 1) ? *buf : EOF;
 
 #else  /*  __CTYPE_HAS_8_BIT_LOCALES */
 
@@ -261,21 +271,19 @@ int mbsinit(const mbstate_t *ps)
 /**********************************************************************/
 #ifdef L_mbrlen
 
-size_t __mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
+size_t attribute_hidden __mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
 {
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
 
-	return mbrtowc(NULL, s, n, (ps != NULL) ? ps : &mbstate);
+	return __mbrtowc(NULL, s, n, (ps != NULL) ? ps : &mbstate);
 }
-
-size_t mbrlen(const char *__restrict s, size_t n, mbstate_t *__restrict ps)
-	 __attribute__ ((__weak__, __alias__("__mbrlen")));
+strong_alias(__mbrlen,mbrlen)
 
 #endif
 /**********************************************************************/
 #ifdef L_mbrtowc
 
-size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
+size_t attribute_hidden __mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 			   size_t n, mbstate_t *__restrict ps)
 {
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
@@ -325,6 +333,7 @@ size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 	}
 	return (size_t) r;
 }
+strong_alias(__mbrtowc,mbrtowc)
 
 #endif
 /**********************************************************************/
@@ -333,7 +342,7 @@ size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 /* Note: We completely ignore ps in all currently supported conversions. */
 /* TODO: Check for valid state anyway? */
 
-size_t wcrtomb(register char *__restrict s, wchar_t wc,
+size_t attribute_hidden __wcrtomb(register char *__restrict s, wchar_t wc,
 			   mbstate_t *__restrict ps)
 {
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -355,12 +364,13 @@ size_t wcrtomb(register char *__restrict s, wchar_t wc,
 	r = __wcsnrtombs(s, &pwc, 1, MB_LEN_MAX, ps);
 	return (r != 0) ? r : 1;
 }
+strong_alias(__wcrtomb,wcrtomb)
 
 #endif
 /**********************************************************************/
 #ifdef L_mbsrtowcs
 
-size_t mbsrtowcs(wchar_t *__restrict dst, const char **__restrict src,
+size_t attribute_hidden __mbsrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 				 size_t len, mbstate_t *__restrict ps)
 {
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
@@ -368,6 +378,7 @@ size_t mbsrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 	return __mbsnrtowcs(dst, src, SIZE_MAX, len,
 						((ps != NULL) ? ps : &mbstate));
 }
+strong_alias(__mbsrtowcs,mbsrtowcs)
 
 #endif
 /**********************************************************************/
@@ -377,11 +388,12 @@ size_t mbsrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 
  * TODO: Check for valid state anyway? */
 
-size_t wcsrtombs(char *__restrict dst, const wchar_t **__restrict src,
+size_t attribute_hidden __wcsrtombs(char *__restrict dst, const wchar_t **__restrict src,
 				 size_t len, mbstate_t *__restrict ps)
 {
 	return __wcsnrtombs(dst, src, SIZE_MAX, len, ps);
 }
+strong_alias(__wcsrtombs,wcsrtombs)
 
 #endif
 /**********************************************************************/
@@ -398,7 +410,7 @@ size_t wcsrtombs(char *__restrict dst, const wchar_t **__restrict src,
 #endif
 #endif
 
-size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
+size_t attribute_hidden _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 						  const char **__restrict src, size_t n,
 						  mbstate_t *ps, int allow_continuation)
 {
@@ -569,7 +581,7 @@ size_t _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 /**********************************************************************/
 #ifdef L__wchar_wcsntoutf8s
 
-size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
+size_t attribute_hidden _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 						  const wchar_t **__restrict src, size_t wn)
 {
 	register char *p;
@@ -679,7 +691,7 @@ size_t _wchar_wcsntoutf8s(char *__restrict s, size_t n,
 
 /* WARNING: We treat len as SIZE_MAX when dst is NULL! */
 
-size_t __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
+size_t attribute_hidden __mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 					size_t NMC, size_t len, mbstate_t *__restrict ps)
 {
 	static mbstate_t mbstate;	/* Rely on bss 0-init. */
@@ -791,7 +803,7 @@ size_t mbsnrtowcs(wchar_t *__restrict dst, const char **__restrict src,
 /* Note: We completely ignore ps in all currently supported conversions.
  * TODO: Check for valid state anyway? */
 
-size_t __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
+size_t attribute_hidden __wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 					size_t NWC, size_t len, mbstate_t *__restrict ps)
 {
 	const __uwchar_t *s;
@@ -1022,7 +1034,7 @@ static const signed char new_wtbl[] = {
 	0,    2,    1,    2,    1,    0,    1, 
 };
 
-int wcswidth(const wchar_t *pwcs, size_t n)
+int attribute_hidden __wcswidth(const wchar_t *pwcs, size_t n)
 {
     int h, l, m, count;
     wchar_t wc;
@@ -1119,7 +1131,7 @@ int wcswidth(const wchar_t *pwcs, size_t n)
 
 #else  /*  __UCLIBC_HAS_LOCALE__ */
 
-int wcswidth(const wchar_t *pwcs, size_t n)
+int attribute_hidden __wcswidth(const wchar_t *pwcs, size_t n)
 {
 	int count;
 	wchar_t wc;
@@ -1142,13 +1154,17 @@ int wcswidth(const wchar_t *pwcs, size_t n)
 
 #endif /*  __UCLIBC_HAS_LOCALE__ */
 
+strong_alias(__wcswidth,wcswidth)
+
 #endif
 /**********************************************************************/
 #ifdef L_wcwidth
 
+extern int __wcswidth (__const wchar_t *__s, size_t __n) attribute_hidden;
+
 int wcwidth(wchar_t wc)
 {
-    return wcswidth(&wc, 1);
+    return __wcswidth(&wc, 1);
 }
 
 #endif

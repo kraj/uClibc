@@ -49,6 +49,9 @@
  * Should auto_wr_transition init the mbstate object?
 */
 
+#define wcslen __wcslen
+#define wcsrtombs __wcsrtombs
+#define mbrtowc __mbrtowc
 
 #define _GNU_SOURCE
 #include <stdio.h>

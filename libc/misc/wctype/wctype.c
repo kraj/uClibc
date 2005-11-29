@@ -38,6 +38,8 @@
 #include <stdint.h>
 #include <bits/uClibc_uwchar.h>
 
+extern wctype_t __wctype (__const char *__property) attribute_hidden;
+
 #if defined(__LOCALE_C_ONLY) && defined(__UCLIBC_DO_XLOCALE)
 #error xlocale functionality is not supported in stub locale mode.
 #endif
@@ -480,7 +482,7 @@ weak_alias(__towupper_l, towupper_l)
 static const unsigned char typestring[] = __CTYPE_TYPESTRING;
 /*  extern const unsigned char typestring[]; */
 
-wctype_t wctype(const char *property)
+wctype_t attribute_hidden __wctype(const char *property)
 {
 	const unsigned char *p;
 	int i;
@@ -498,6 +500,7 @@ wctype_t wctype(const char *property)
 	/* TODO - Add locale-specific classifications. */
 	return 0;
 }
+strong_alias(__wctype,wctype)
 
 #endif
 /**********************************************************************/
@@ -509,7 +512,7 @@ wctype_t wctype(const char *property)
 
 wctype_t __wctype_l (const char *property, __locale_t locale)
 {
-	return wctype(property);
+	return __wctype(property);
 }
 
 weak_alias(__wctype_l, wctype_l)
