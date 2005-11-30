@@ -1,4 +1,4 @@
-/* Copyright (C) 2000 Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2002, 2003, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Maciej W. Rozycki <macro@ds2.pg.gda.pl>, 2000.
 
@@ -22,7 +22,6 @@
 
 #include <features.h>
 #include <sgidefs.h>
-#include <sys/sysmips.h>
 
 __BEGIN_DECLS
 
@@ -34,40 +33,32 @@ extern int _test_and_set (int *p, int v) __THROW;
 #  define _EXTERN_INLINE extern __inline
 # endif
 
-# if (_MIPS_ISA >= _MIPS_ISA_MIPS2)
-
 _EXTERN_INLINE int
-_test_and_set (int *p, int v) __THROW
+__NTH (_test_and_set (int *p, int v))
 {
   int r, t;
 
   __asm__ __volatile__
-    ("1:\n\t"
-     "ll	%0,%3\n\t"
+    ("/* Inline test and set */\n"
+     "1:\n\t"
      ".set	push\n\t"
-     ".set	noreorder\n\t"
+#if _MIPS_SIM == _ABIO32
+     ".set	mips2\n\t"
+#endif
+     "ll	%0,%3\n\t"
+     "move	%1,%4\n\t"
      "beq	%0,%4,2f\n\t"
-     " move	%1,%4\n\t"
-     ".set	pop\n\t"
      "sc	%1,%2\n\t"
+     ".set	pop\n\t"
      "beqz	%1,1b\n"
-     "2:\n"
+     "2:\n\t"
+     "/* End test and set */"
      : "=&r" (r), "=&r" (t), "=m" (*p)
      : "m" (*p), "r" (v)
      : "memory");
 
   return r;
 }
-
-# else /* !(_MIPS_ISA >= _MIPS_ISA_MIPS2) */
-
-_EXTERN_INLINE int
-_test_and_set (int *p, int v) __THROW
-{
-  return sysmips (MIPS_ATOMIC_SET, (int) p, v, 0);
-}
-
-# endif /* !(_MIPS_ISA >= _MIPS_ISA_MIPS2) */
 
 #endif /* __USE_EXTERN_INLINES */
 
