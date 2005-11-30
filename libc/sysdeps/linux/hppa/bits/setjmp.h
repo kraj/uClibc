@@ -40,6 +40,6 @@ typedef double __jmp_buf[21];
 /* Test if longjmp to JMPBUF would unwind the frame containing a local
    variable at ADDRESS.  */
 #define _JMPBUF_UNWINDS(_jmpbuf, _address)				\
-     ((void *)(_address) > (void *)(_jmpbuf[JB_SP]))
+     ((void *)(_address) > (void *)(((unsigned long *) _jmpbuf)[JB_SP]))
 
 #endif	/* bits/setjmp.h */
