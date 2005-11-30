@@ -15,6 +15,7 @@
 #ifdef __NR_rt_sigprocmask
 
 #define __NR___rt_sigprocmask __NR_rt_sigprocmask
+static inline
 _syscall4(int, __rt_sigprocmask, int, how, const sigset_t *, set,
 		  sigset_t *, oldset, size_t, size);
 
