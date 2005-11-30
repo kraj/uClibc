@@ -246,7 +246,7 @@ char * setstate (char *arg_state)
    rear pointers can't wrap on the same call by not testing the rear
    pointer if the front one has wrapped.  Returns a 31-bit random number.  */
 
-long int attribute_hidden __random ()
+long int attribute_hidden __random (void)
 {
   int32_t retval;
 
