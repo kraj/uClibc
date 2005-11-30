@@ -1,4 +1,5 @@
-/* Copyright (C) 1991,1992,1994-2001,2003,2004 Free Software Foundation, Inc.
+/* Copyright (C) 1991,1992,1994-2001,2003,2004,2005
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -55,6 +56,15 @@ __BEGIN_DECLS
 # define SEEK_END	2	/* Seek from end of file.  */
 #endif	/* XPG */
 
+#if 0 /*def __USE_GNU*/
+# define AT_FDCWD		-100	/* Special value used to indicate
+					   openat should use the current
+					   working directory. */
+# define AT_SYMLINK_NOFOLLOW	0x100	/* Do not follow symbolic links.  */
+# define AT_REMOVEDIR		0x200	/* Remove directory instead of
+					   unlinking file.  */
+#endif
+
 /* Do the file control operation described by CMD on FD.
    The remaining arguments are interpreted depending on CMD.
 
@@ -88,6 +98,32 @@ extern int __REDIRECT (open, (__const char *__file, int __oflag, ...), open64)
 #endif
 #ifdef __USE_LARGEFILE64
 extern int open64 (__const char *__file, int __oflag, ...) __nonnull ((1));
+#endif
+
+#if 0 /*def __USE_GNU*/
+/* Similar to OPEN but a relative path name is interpreted relative to
+   the directory for which FD is a descriptor.
+
+   NOTE: some other OPENAT implementation support additional functionality
+   through this interface, especially using the O_XATTR flag.  This is not
+   yet supported here.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+# ifndef __USE_FILE_OFFSET64
+extern int openat (int __fd, __const char *__file, int __oflag, ...)
+     __nonnull ((2));
+# else
+#  ifdef __REDIRECT
+extern int __REDIRECT (openat, (int __fd, __const char *__file, int __oflag,
+				...), openat64) __nonnull ((2));
+#  else
+#   define openat openat64
+#  endif
+# endif
+
+extern int openat64 (int __fd, __const char *__file, int __oflag, ...)
+     __nonnull ((2));
 #endif
 
 /* Create and open FILE, with mode MODE.  This takes an `int' MODE
@@ -145,8 +181,8 @@ extern int lockf64 (int __fd, int __cmd, __off64_t __len);
 extern int posix_fadvise (int __fd, __off_t __offset, __off_t __len,
 			  int __advise) __THROW;
 # else
-# ifdef __REDIRECT
-extern int __REDIRECT (posix_fadvise, (int __fd, __off64_t __offset,
+# ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (posix_fadvise, (int __fd, __off64_t __offset,
 				       __off64_t __len, int __advise),
 		       posix_fadvise64);
 # else
