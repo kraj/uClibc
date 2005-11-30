@@ -51,9 +51,9 @@ endif
 libpthread_OBJ := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpthread_SRC))
 
 ifeq ($(DOPIC),y)
-libpthread-a-y += $(libpthread_OBJ:.o=.os)
+libpthread-a-y  += $(libpthread_OBJ:.o=.os)
 else
-libpthread-a-y += $(libpthread_OBJ)
+libpthread-a-y  += $(libpthread_OBJ)
 endif
 libpthread-so-y += $(libpthread_OBJ:.o=.os)
 
@@ -98,9 +98,8 @@ linuxthreads_headers:
 	$(INSTALL) -d $(top_builddir)include/bits
 	$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/pthreadtypes.h $(top_builddir)include/bits/
 
-
 linuxthreads_headers_clean:
-	$(RM)	$(top_builddir)include/pthread.h $(top_builddir)include/semaphore.h \
+	$(RM) $(top_builddir)include/pthread.h $(top_builddir)include/semaphore.h \
 		$(top_builddir)include/bits/pthreadtypes.h
 
 libpthread_clean:
