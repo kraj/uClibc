@@ -32,7 +32,7 @@ _syscall4(int, posix_fadvise64, int, fd, __off64_t, offset,
 
 #ifdef _syscall6 /* workaround until everyone has _syscall6() */
 #define __NR___syscall_fadvise64_64 __NR_fadvise64_64
-_syscall6(int, __syscall_fadvise64_64, int, fd,
+static inline _syscall6(int, __syscall_fadvise64_64, int, fd,
           unsigned long, high_offset, unsigned long, low_offset,
           unsigned long, high_len, unsigned long, low_len,
           int, advice);
