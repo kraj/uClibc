@@ -60,7 +60,9 @@ headers: include/bits/uClibc_config.h
 	else \
 		$(LN) -fs ../libc/sysdeps/linux/common/fpu_control.h include/ ; \
 	fi
-	$(LN) -fs ../libc/sysdeps/linux/common/dl-osinfo.h include/
+	for f in dl-osinfo.h hp-timing.h ; do \
+		$(LN) -fs ../libc/sysdeps/linux/common/$$f include/ ; \
+	done
 	@cd include/bits; \
 	set -e; \
 	for i in `ls ../../libc/sysdeps/linux/common/bits/*.h` ; do \
