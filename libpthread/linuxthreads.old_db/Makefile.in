@@ -21,12 +21,12 @@ libthread_db_SRC := $(wildcard $(libthread_db_DIR)/*.c)
 
 libthread_db_OBJ := $(patsubst $(libthread_db_DIR)/%.c,$(libthread_db_OUT)/%.o,$(libthread_db_SRC))
 
-ifeq ($(DOPIC),y)
-libthread_db-a-y := $(libthread_db_OBJ:.o=.os)
-else
-libthread_db-a-y := $(libthread_db_OBJ)
-endif
 libthread_db-so-y := $(libthread_db_OBJ:.o=.os)
+ifeq ($(DOPIC),y)
+libthread_db-a-y  := $(libthread_db-so-y)
+else
+libthread_db-a-y  := $(libthread_db_OBJ)
+endif
 
 libthread_db-multi-y := $(libthread_db_SRC)
 

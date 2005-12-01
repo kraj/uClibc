@@ -22,8 +22,12 @@ libthread_db_SRC := $(wildcard $(libthread_db_DIR)/*.c)
 
 libthread_db_OBJ := $(patsubst $(libthread_db_DIR)/%.c,$(libthread_db_OUT)/%.o,$(libthread_db_SRC))
 
-libthread_db-a-y := $(libthread_db_OBJ)
 libthread_db-so-y := $(libthread_db_OBJ:.o=.os)
+ifeq ($(DOPIC),y)
+libthread_db-a-y  := $(libthread_db-so-y)
+else
+libthread_db-a-y  := $(libthread_db_OBJ)
+endif
 
 libthread_db-multi-y := $(libthread_db_SRC)
 
@@ -33,7 +37,11 @@ objclean-y += libthread_db_clean
 headers-$(PTHREADS_DEBUG_SUPPORT) += linuxthreads_db_headers
 headers_clean-y += linuxthreads_db_headers_clean
 
-$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db_so.a libc-y
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libthread_db.so: $(top_builddir)lib/libthread_db.a $(libc)
+else
+$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db_so.a $(libc)
+endif
 	$(call link.so,$(libthread_db_FULL_NAME),1)
 
 $(libthread_db_OUT)/libthread_db_so.a: $(libthread_db-so-y)
@@ -41,16 +49,10 @@ $(libthread_db_OUT)/libthread_db_so.a: $(libthread_db-so-y)
 	$(do_strip)
 	$(do_ar)
 
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/libthread_db.a: $(libthread_db-a-y:.o=.os)
-else
-$(top_builddir)lib/libthread_db.a: $(libthread_db-a-y) $(libthread_db_OUT)/libthread_db_so.a
-endif
+$(top_builddir)lib/libthread_db.a: $(libthread_db-a-y)
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(Q)$(RM) $@
-ifneq ($(DOPIC),y)
 	$(do_strip)
-endif
 	$(do_ar)
 
 linuxthreads_db_headers:

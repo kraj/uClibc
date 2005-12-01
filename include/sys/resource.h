@@ -51,8 +51,8 @@ typedef int __priority_which_t;
 extern int getrlimit (__rlimit_resource_t __resource,
 		      struct rlimit *__rlimits) __THROW;
 #else
-# ifdef __REDIRECT
-extern int __REDIRECT (getrlimit, (__rlimit_resource_t __resource,
+# ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (getrlimit, (__rlimit_resource_t __resource,
 				       struct rlimit *__rlimits), getrlimit64);
 # else
 #  define getrlimit getrlimit64
@@ -70,8 +70,8 @@ extern int getrlimit64 (__rlimit_resource_t __resource,
 extern int setrlimit (__rlimit_resource_t __resource,
 		      __const struct rlimit *__rlimits) __THROW;
 #else
-# ifdef __REDIRECT
-extern int __REDIRECT (setrlimit, (__rlimit_resource_t __resource,
+# ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (setrlimit, (__rlimit_resource_t __resource,
 				       __const struct rlimit *__rlimits),
 			   setrlimit64);
 # else

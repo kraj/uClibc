@@ -25,7 +25,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
-#include "sysdep.h"
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
@@ -110,4 +109,3 @@ ssize_t attribute_hidden __getdents64 (int fd, char *buf, size_t nbytes)
     return(__getdents(fd, buf, nbytes));
 }
 #endif /* __UCLIBC_HAS_LFS__ */
-
