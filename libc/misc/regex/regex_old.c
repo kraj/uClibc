@@ -40,7 +40,7 @@
 #define RE_TRANSLATE_TYPE char *
 
 extern void *__mempcpy (void *__restrict __dest,
-			__const void *__restrict __src, size_t __n) attribute_hidden;
+			__const void *__restrict __src, size_t __n) /*attribute_hidden*/;
 
 /* AIX requires this to be the first thing in the file. */
 #if defined _AIX && !defined REGEX_MALLOC
