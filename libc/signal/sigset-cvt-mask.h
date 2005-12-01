@@ -1,5 +1,8 @@
-/* Copyright (C) 1991,1994-1997,2001-2002 Free Software Foundation, Inc.
+/* Convert between lowlevel sigmask and libc representation of sigset_t.
+   Linux version.
+   Copyright (C) 1998, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
+   Contributed by Joe Keane <jgk@jgk.org>.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -16,25 +19,26 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <errno.h>
-#include <signal.h>
-
-#include "sigset-cvt-mask.h"
-
-/* Set the mask of blocked signals to MASK, returning the old mask.  */
-int
-__sigsetmask (int mask)
+static inline int __attribute__ ((unused))
+sigset_set_old_mask (sigset_t *set, int mask)
 {
-  sigset_t set, oset;
+  unsigned long int *ptr;
+  int cnt;
 
-  if (sigset_set_old_mask (&set, mask) < 0)
-    return -1;
+  ptr = &set->__val[0];
 
-  if (sigprocmask (SIG_SETMASK, &set, &oset) < 0)
-    return -1;
+  *ptr++ = (unsigned int) mask;
 
+  cnt = _SIGSET_NWORDS - 2;
+  do
+    *ptr++ = 0ul;
+  while (--cnt >= 0);
 
-  return sigset_get_old_mask (&oset);
+  return 0;
 }
 
-weak_alias (__sigsetmask, sigsetmask)
+static inline int __attribute__ ((unused))
+sigset_get_old_mask (const sigset_t *set)
+{
+  return (unsigned int) set->__val[0];
+}
