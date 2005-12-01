@@ -35,9 +35,9 @@ include $(top_srcdir)extra/locale/Makefile.in
 # last included to catch all the objects added by others (locales/threads)
 include $(top_srcdir)libc/Makefile.in
 
-include/bits/uClibc_config.h: .config extra/config/conf
-	$(INSTALL) -d include/bits
-	@extra/config/conf -o $(top_srcdir)extra/Configs/Config.in
+include/bits/uClibc_config.h: extra/config/conf .config
+	$(INSTALL) -d $@
+	@< -o $(top_srcdir)extra/Configs/Config.in
 
 # For the moment, we have to keep re-running this target 
 # because the fix includes scripts rely on pre-processers 
