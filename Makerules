@@ -94,6 +94,7 @@ hcompile.o = $(HOSTCC) $^ $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_
 
 compile.c = @$(disp_compile.c) ; $(cmd_compile.c)
 compile.E = $(cmd_compile.c:-c=-E)
+compile.s = $(cmd_compile.c:-c=-S)
 compile.S = @$(disp_compile.S) ; $(cmd_compile.S)
 compile.m = @$(disp_compile.m) ; $(cmd_compile.m)
 compile-m = @$(disp_compile-m) ; $(cmd_compile-m)
@@ -126,6 +127,8 @@ CFLAGS-.oS+=$(PICFLAG) -DSHARED
 %.oS: %.s ; $(compile.S)
 %.E:  %.c ; $(compile.E)
 %.E:  %.S ; $(compile.E)
+%.s:  %.c ; $(compile.s)
+%.s:  %.S ; $(compile.s)
 
 $(top_builddir)lib/interp.c:
 	$(Q)$(INSTALL) -d $(dir $@)
