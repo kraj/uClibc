@@ -133,7 +133,6 @@
  *
  */
 
-#define memmove __memmove
 #define strnlen __strnlen
 #define strncat __strncat
 #define strstr __strstr
@@ -342,14 +341,14 @@ int attribute_hidden __encode_dotted(const char *dotted, unsigned char *dest, in
 	int used = 0;
 
 	while (dotted && *dotted) {
-		char *c = strchr(dotted, '.');
-		int l = c ? c - dotted : strlen(dotted);
+		char *c = __strchr(dotted, '.');
+		int l = c ? c - dotted : __strlen(dotted);
 
 		if (l >= (maxlen - used - 1))
 			return -1;
 
 		dest[used++] = l;
-		memcpy(dest + used, dotted, l);
+		__memcpy(dest + used, dotted, l);
 		used += l;
 
 		if (c)
@@ -397,7 +396,7 @@ int attribute_hidden __decode_dotted(const unsigned char *data, int offset,
 		if ((used + l + 1) >= maxlen)
 			return -1;
 
-		memcpy(dest + used, data + offset, l);
+		__memcpy(dest + used, data + offset, l);
 		offset += l;
 		used += l;
 		if (measure)
@@ -482,7 +481,7 @@ int __decode_question(unsigned char *message, int offset,
 
 	offset += i;
 
-	q->dotted = strdup(temp);
+	q->dotted = __strdup(temp);
 	q->qtype = (message[offset + 0] << 8) | message[offset + 1];
 	q->qclass = (message[offset + 2] << 8) | message[offset + 3];
 
@@ -528,7 +527,7 @@ int attribute_hidden __encode_answer(struct resolv_answer *a, unsigned char *des
 	*dest++ = (a->ttl & 0x000000ff) >> 0;
 	*dest++ = (a->rdlength & 0xff00) >> 8;
 	*dest++ = (a->rdlength & 0x00ff) >> 0;
-	memcpy(dest, a->rdata, a->rdlength);
+	__memcpy(dest, a->rdata, a->rdlength);
 
 	return i + RRFIXEDSZ + a->rdlength;
 }
@@ -547,7 +546,7 @@ int attribute_hidden __decode_answer(unsigned char *message, int offset,
 
 	message += offset + i;
 
-	a->dotted = strdup(temp);
+	a->dotted = __strdup(temp);
 	a->atype = (message[0] << 8) | message[1];
 	message += 2;
 	a->aclass = (message[0] << 8) | message[1];
@@ -638,7 +637,7 @@ int __form_query(int id, const char *name, int type, unsigned char *packet,
 	struct resolv_question q;
 	int i, j;
 
-	memset(&h, 0, sizeof(h));
+	__memset(&h, 0, sizeof(h));
 	h.id = id;
 	h.qdcount = 1;
 
@@ -714,11 +713,11 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 	while (retries < MAX_RETRIES) {
 		if (fd != -1)
-			close(fd);
+			__close(fd);
 
-		memset(packet, 0, PACKETSZ);
+		__memset(packet, 0, PACKETSZ);
 
-		memset(&h, 0, sizeof(h));
+		__memset(&h, 0, sizeof(h));
 
 		++local_id;
 		local_id &= 0xffff;
@@ -734,7 +733,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		if (i < 0)
 			goto fail;
 
-		strncpy(lookup,name,MAXDNAME);
+		__strncpy(lookup,name,MAXDNAME);
 		if (variant >= 0) {
                         BIGLOCK;
                         if (variant < __searchdomains) {
@@ -865,7 +864,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 			ma.buf = a->buf;
 			ma.buflen = a->buflen;
 			ma.add_count = a->add_count;
-			memcpy(a, &ma, sizeof(ma));
+			__memcpy(a, &ma, sizeof(ma));
 			if (a->atype != T_SIG && (0 == a->buf || (type != T_A && type != T_AAAA)))
 			{
 			    break;
@@ -897,7 +896,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 				    ma.rdlength, a->rdlength);
 			    goto again;
 			}
-			memcpy(a->buf + (a->add_count * ma.rdlength), ma.rdata, ma.rdlength);
+			__memcpy(a->buf + (a->add_count * ma.rdlength), ma.rdata, ma.rdlength);
 			++a->add_count;
 		    }
 		}
@@ -905,7 +904,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 		DPRINTF("Answer name = |%s|\n", a->dotted);
 		DPRINTF("Answer type = |%d|\n", a->atype);
 
-		close(fd);
+		__close(fd);
 
 		if (outpacket)
 			*outpacket = packet;
@@ -957,7 +956,7 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 fail:
 	if (fd != -1)
-	    close(fd);
+	    __close(fd);
 	if (lookup)
 	    free(lookup);
 	if (packet)
@@ -1022,21 +1021,21 @@ int attribute_hidden __open_nameservers()
 					*p++ = '\0';
 			}
 
-			if (strcmp(argv[0], "nameserver") == 0) {
+			if (__strcmp(argv[0], "nameserver") == 0) {
 				for (i = 1; i < argc && __nameservers < MAX_SERVERS; i++) {
-					__nameserver[__nameservers++] = strdup(argv[i]);
+					__nameserver[__nameservers++] = __strdup(argv[i]);
 					DPRINTF("adding nameserver %s\n", argv[i]);
 				}
 			}
 
 			/* domain and search are mutually exclusive, the last one wins */
-			if (strcmp(argv[0],"domain")==0 || strcmp(argv[0],"search")==0) {
+			if (__strcmp(argv[0],"domain")==0 || __strcmp(argv[0],"search")==0) {
 				while (__searchdomains > 0) {
 					free(__searchdomain[--__searchdomains]);
 					__searchdomain[__searchdomains] = NULL;
 				}
 				for (i=1; i < argc && __searchdomains < MAX_SEARCH; i++) {
-					__searchdomain[__searchdomains++] = strdup(argv[i]);
+					__searchdomain[__searchdomains++] = __strdup(argv[i]);
 					DPRINTF("adding search %s\n", argv[i]);
 				}
 			}
@@ -1187,7 +1186,7 @@ int res_query(const char *dname, int class, int type,
 		return(-1);
 	}
 
-	memset((char *) &a, '\0', sizeof(a));
+	__memset((char *) &a, '\0', sizeof(a));
 
 	BIGLOCK;
 	__nameserversXX=__nameservers;
@@ -1204,7 +1203,7 @@ int res_query(const char *dname, int class, int type,
 
 	if (a.atype == type) { /* CNAME*/
 		int len = MIN(anslen, i);
-		memcpy(answer, packet, len);
+		__memcpy(answer, packet, len);
 		if (packet)
 			free(packet);
 		return(len);
@@ -1380,19 +1379,19 @@ int res_querydomain(name, domain, class, type, answer, anslen)
 		 * Check for trailing '.';
 		 * copy without '.' if present.
 		 */
-		n = strlen(name);
+		n = __strlen(name);
 		if (n + 1 > sizeof(nbuf)) {
 			h_errno = NO_RECOVERY;
 			return (-1);
 		}
 		if (n > 0 && name[--n] == '.') {
-			strncpy(nbuf, name, n);
+			__strncpy(nbuf, name, n);
 			nbuf[n] = '\0';
 		} else
 			longname = name;
 	} else {
-		n = strlen(name);
-		d = strlen(domain);
+		n = __strlen(name);
+		d = __strlen(domain);
 		if (n + 1 + d + 1 > sizeof(nbuf)) {
 			h_errno = NO_RECOVERY;
 			return (-1);
@@ -1509,7 +1508,7 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 
 	*h_errnop=HOST_NOT_FOUND;
 	while (fgets(buf, buflen, fp)) {
-		if ((cp = strchr(buf, '#')))
+		if ((cp = __strchr(buf, '#')))
 			*cp = '\0';
 		DPRINTF("Looking at: %s\n", buf);
 		aliases = 0;
@@ -1534,7 +1533,7 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 			/* Return whatever the next entry happens to be. */
 			break;
 		} else if (action==GET_HOSTS_BYADDR) {
-			if (strcmp(name, alias[0]) != 0)
+			if (__strcmp(name, alias[0]) != 0)
 				continue;
 		} else {
 			/* GET_HOSTS_BYNAME */
@@ -1765,12 +1764,12 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 					    && (getdomainname (domain, sizeof(domain)) == 0)
 					    && (c = strstr (h->h_name, domain))
 					    && (c != h->h_name) && (*(--c) == '.')) {
-						strncpy (host, h->h_name,
+						__strncpy (host, h->h_name,
 							min(hostlen, (size_t) (c - h->h_name)));
 						host[min(hostlen - 1, (size_t) (c - h->h_name))] = '\0';
 						ok = 1;
 					} else {
-						strncpy (host, h->h_name, hostlen);
+						__strncpy (host, h->h_name, hostlen);
 						ok = 1;
 					}
 				 }
@@ -1811,7 +1810,7 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 								if (if_indextoname (scopeid, scopeptr) == NULL)
 									++ni_numericscope;
 								else
-									scopelen = strlen (scopebuf);
+									scopelen = __strlen (scopebuf);
 							} else {
 								++ni_numericscope;
 							}
@@ -1825,7 +1824,7 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 
 							if (real_hostlen + scopelen + 1 > hostlen)
 								return EAI_SYSTEM;
-							memcpy (host + real_hostlen, scopebuf, scopelen + 1);
+							__memcpy (host + real_hostlen, scopebuf, scopelen + 1);
 						}
 #endif
 					} else
@@ -1848,7 +1847,7 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 				struct utsname utsname;
 
 				if (!uname (&utsname)) {
-					strncpy (host, utsname.nodename, hostlen);
+					__strncpy (host, utsname.nodename, hostlen);
 					break;
 				};
 			};
@@ -1858,7 +1857,7 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 				return EAI_NONAME;
 			}
 
-			strncpy (host, "localhost", hostlen);
+			__strncpy (host, "localhost", hostlen);
 			break;
 
 		default:
@@ -1876,7 +1875,7 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 				s = getservbyport (((const struct sockaddr_in *) sa)->sin_port,
 				      ((flags & NI_DGRAM) ? "udp" : "tcp"));
 				if (s) {
-					strncpy (serv, s->s_name, servlen);
+					__strncpy (serv, s->s_name, servlen);
 					break;
 				}
 			}
@@ -1885,7 +1884,7 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 			break;
 
 		case AF_LOCAL:
-			strncpy (serv, ((const struct sockaddr_un *) sa)->sun_path, servlen);
+			__strncpy (serv, ((const struct sockaddr_un *) sa)->sun_path, servlen);
 			break;
 		}
 	}
@@ -1970,7 +1969,7 @@ int gethostbyname_r(const char * name,
 
 	if (buflen<256)
 		return ERANGE;
-	strncpy(buf, name, buflen);
+	__strncpy(buf, name, buflen);
 
 	alias[0] = buf;
 	alias[1] = NULL;
@@ -2014,7 +2013,7 @@ int gethostbyname_r(const char * name,
 	    }
 	    else if(a.add_count > 0)
 	    {
-		memmove(buf - sizeof(struct in_addr*)*2, buf, a.add_count * a.rdlength);
+		__memmove(buf - sizeof(struct in_addr*)*2, buf, a.add_count * a.rdlength);
 		addr_list = (struct in_addr**)(buf + a.add_count * a.rdlength);
 		addr_list[0] = in;
 		for (i = a.add_count-1; i>=0; --i)
@@ -2024,11 +2023,11 @@ int gethostbyname_r(const char * name,
 		buf = (char*)&addr_list[a.add_count + 2];
 	    }
 
-	    strncpy(buf, a.dotted, buflen);
+	    __strncpy(buf, a.dotted, buflen);
 	    free(a.dotted);
 
 	    if (a.atype == T_A) { /* ADDRESS */
-		memcpy(in, a.rdata, sizeof(*in));
+		__memcpy(in, a.rdata, sizeof(*in));
 		result_buf->h_name = buf;
 		result_buf->h_addrtype = AF_INET;
 		result_buf->h_length = sizeof(*in);
@@ -2127,7 +2126,7 @@ int gethostbyname2_r(const char *name, int family,
 
 	if (buflen<256)
 		return ERANGE;
-	strncpy(buf, name, buflen);
+	__strncpy(buf, name, buflen);
 
 	/* First check if this is already an address */
 	if (inet_pton(AF_INET6, name, in)) {
@@ -2140,7 +2139,7 @@ int gethostbyname2_r(const char *name, int family,
 	    return NETDB_SUCCESS;
 	}
 
-	memset((char *) &a, '\0', sizeof(a));
+	__memset((char *) &a, '\0', sizeof(a));
 
 	for (;;) {
 	BIGLOCK;
@@ -2155,7 +2154,7 @@ int gethostbyname2_r(const char *name, int family,
 			return TRY_AGAIN;
 		}
 
-		strncpy(buf, a.dotted, buflen);
+		__strncpy(buf, a.dotted, buflen);
 		free(a.dotted);
 
 		if (a.atype == T_CNAME) {		/* CNAME */
@@ -2173,7 +2172,7 @@ int gethostbyname2_r(const char *name, int family,
 			}
 			continue;
 		} else if (a.atype == T_AAAA) {	/* ADDRESS */
-			memcpy(in, a.rdata, sizeof(*in));
+			__memcpy(in, a.rdata, sizeof(*in));
 			result_buf->h_name = buf;
 			result_buf->h_addrtype = AF_INET6;
 			result_buf->h_length = sizeof(*in);
@@ -2221,7 +2220,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 	if (!addr)
 		return EINVAL;
 
-	memset((char *) &a, '\0', sizeof(a));
+	__memset((char *) &a, '\0', sizeof(a));
 
 	switch (type) {
 		case AF_INET:
@@ -2295,7 +2294,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 	if(type == AF_INET) {
 		unsigned char *tmp_addr = (unsigned char *)addr;
 
-		memcpy(&in->s_addr, addr, len);
+		__memcpy(&in->s_addr, addr, len);
 
 		addr_list[0] = in;
 
@@ -2303,7 +2302,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 			tmp_addr[3], tmp_addr[2], tmp_addr[1], tmp_addr[0]);
 #ifdef __UCLIBC_HAS_IPV6__
 	} else {
-		memcpy(in6->s6_addr, addr, len);
+		__memcpy(in6->s6_addr, addr, len);
 
 		addr_list6[0] = in6;
 		qp = buf;
@@ -2312,7 +2311,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 			qp += sprintf(qp, "%x.%x.", in6->s6_addr[i] & 0xf,
 				(in6->s6_addr[i] >> 4) & 0xf);
     	}
-    	strcpy(qp, "ip6.int");
+    	__strcpy(qp, "ip6.int");
 #endif /* __UCLIBC_HAS_IPV6__ */
 	}
 
@@ -2331,7 +2330,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 			return TRY_AGAIN;
 		}
 
-		strncpy(buf, a.dotted, buflen);
+		__strncpy(buf, a.dotted, buflen);
 		free(a.dotted);
 
 		if (a.atype == T_CNAME) {		/* CNAME */
@@ -2570,7 +2569,7 @@ int attribute_hidden __libc_ns_name_unpack(const u_char *msg, const u_char *eom,
 			}
 			checked += n + 1;
 			*dstp++ = n;
-			memcpy(dstp, srcp, n);
+			__memcpy(dstp, srcp, n);
 			dstp += n;
 			srcp += n;
 			break;

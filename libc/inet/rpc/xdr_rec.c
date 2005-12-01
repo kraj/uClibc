@@ -297,7 +297,7 @@ xdrrec_putbytes (XDR *xdrs, const char *addr, u_int len)
     {
       current = rstrm->out_boundry - rstrm->out_finger;
       current = (len < current) ? len : current;
-      memcpy (rstrm->out_finger, addr, current);
+      __memcpy (rstrm->out_finger, addr, current);
       rstrm->out_finger += current;
       addr += current;
       len -= current;
@@ -599,7 +599,7 @@ get_input_bytes (RECSTREAM *rstrm, caddr_t addr, int len)
 	  continue;
 	}
       current = (len < current) ? len : current;
-      memcpy (addr, rstrm->in_finger, current);
+      __memcpy (addr, rstrm->in_finger, current);
       rstrm->in_finger += current;
       addr += current;
       len -= current;

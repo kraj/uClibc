@@ -38,6 +38,6 @@ tempnam (const char *dir, const char *pfx)
   if (__gen_tempname (buf, __GT_NOCREATE))
     return NULL;
 
-  return strdup (buf);
+  return __strdup (buf);
 }
 

@@ -136,7 +136,7 @@ svcudp_bufcreate (sock, sendsz, recvsz)
 	}
       madesock = TRUE;
     }
-  memset ((char *) &addr, 0, sizeof (addr));
+  __memset ((char *) &addr, 0, sizeof (addr));
   addr.sin_family = AF_INET;
   if (bindresvport (sock, &addr))
     {
@@ -147,7 +147,7 @@ svcudp_bufcreate (sock, sendsz, recvsz)
     {
       perror (_("svcudp_create - cannot getsockname"));
       if (madesock)
-	(void) close (sock);
+	(void) __close (sock);
       return (SVCXPRT *) NULL;
     }
   xprt = (SVCXPRT *) mem_alloc (sizeof (SVCXPRT));
@@ -200,7 +200,7 @@ svcudp_bufcreate (sock, sendsz, recvsz)
 #endif
     /* Clear the padding. */
     pad = 0;
-  memset (&xprt->xp_pad [0], pad, sizeof (xprt->xp_pad));
+  __memset (&xprt->xp_pad [0], pad, sizeof (xprt->xp_pad));
 
   xprt_register (xprt);
   return xprt;
@@ -375,7 +375,7 @@ svcudp_destroy (xprt)
   struct svcudp_data *su = su_data (xprt);
 
   xprt_unregister (xprt);
-  (void) close (xprt->xp_sock);
+  (void) __close (xprt->xp_sock);
   XDR_DESTROY (&(su->su_xdrs));
   mem_free (rpc_buffer (xprt), su->su_iosz);
   mem_free ((caddr_t) su, sizeof (struct svcudp_data));
@@ -408,7 +408,7 @@ svcudp_destroy (xprt)
 	(type *) mem_alloc((unsigned) (sizeof(type) * (size)))
 
 #define BZERO(addr, type, size)	 \
-	memset((char *) addr, 0, sizeof(type) * (int) (size))
+	__memset((char *) addr, 0, sizeof(type) * (int) (size))
 
 /*
  * An entry in the cache
@@ -586,7 +586,7 @@ cache_get (xprt, msg, replyp, replylenp)
   struct svcudp_data *su = su_data (xprt);
   struct udp_cache *uc = (struct udp_cache *) su->su_cache;
 
-#define EQADDR(a1, a2)	(memcmp((char*)&a1, (char*)&a2, sizeof(a1)) == 0)
+#define EQADDR(a1, a2)	(__memcmp((char*)&a1, (char*)&a2, sizeof(a1)) == 0)
 
   loc = CACHE_LOC (xprt, su->su_xid);
   for (ent = uc->uc_entries[loc]; ent != NULL; ent = ent->cache_next)
@@ -609,6 +609,6 @@ cache_get (xprt, msg, replyp, replylenp)
   uc->uc_proc = msg->rm_call.cb_proc;
   uc->uc_vers = msg->rm_call.cb_vers;
   uc->uc_prog = msg->rm_call.cb_prog;
-  memcpy (&uc->uc_addr, &xprt->xp_raddr, sizeof (uc->uc_addr));
+  __memcpy (&uc->uc_addr, &xprt->xp_raddr, sizeof (uc->uc_addr));
   return 0;
 }

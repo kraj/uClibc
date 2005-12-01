@@ -117,7 +117,7 @@ xdr_array (xdrs, addrp, sizep, maxsize, elsize, elproc)
 	      (void) fputs (_("xdr_array: out of memory\n"), stderr);
 	    return FALSE;
 	  }
-	memset (target, 0, nodesize);
+	__memset (target, 0, nodesize);
 	break;
 
       case XDR_FREE:

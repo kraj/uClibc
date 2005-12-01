@@ -158,10 +158,10 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
 	}
       madesock = TRUE;
     }
-  memset (&addr, '\0', sizeof (addr));
+  __memset (&addr, '\0', sizeof (addr));
   addr.sun_family = AF_UNIX;
-  len = strlen (path) + 1;
-  memcpy (addr.sun_path, path, len);
+  len = __strlen (path) + 1;
+  __memcpy (addr.sun_path, path, len);
   len += sizeof (addr.sun_family);
 
   bind (sock, (struct sockaddr *) &addr, len);
@@ -171,7 +171,7 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
     {
       perror (_("svc_unix.c - cannot getsockname or listen"));
       if (madesock)
-	close (sock);
+	__close (sock);
       return (SVCXPRT *) NULL;
     }
 
@@ -268,10 +268,10 @@ again:
   /*
    * make a new transporter (re-uses xprt)
    */
-  memset (&in_addr, '\0', sizeof (in_addr));
+  __memset (&in_addr, '\0', sizeof (in_addr));
   in_addr.sin_family = AF_UNIX;
   xprt = makefd_xprt (sock, r->sendsize, r->recvsize);
-  memcpy (&xprt->xp_raddr, &in_addr, sizeof (in_addr));
+  __memcpy (&xprt->xp_raddr, &in_addr, sizeof (in_addr));
   xprt->xp_addrlen = len;
   return FALSE;		/* there is never an rpc msg to be processed */
 }
@@ -288,7 +288,7 @@ svcunix_destroy (SVCXPRT *xprt)
   struct unix_conn *cd = (struct unix_conn *) xprt->xp_p1;
 
   xprt_unregister (xprt);
-  close (xprt->xp_sock);
+  __close (xprt->xp_sock);
   if (xprt->xp_port != 0)
     {
       /* a rendezvouser socket */
@@ -380,7 +380,7 @@ __msgwrite (int sock, void *data, size_t cnt)
   cred.uid = geteuid ();
   cred.gid = getegid ();
 
-  memcpy (CMSG_DATA(cmsg), &cred, sizeof (struct ucred));
+  __memcpy (CMSG_DATA(cmsg), &cred, sizeof (struct ucred));
   cmsg->cmsg_level = SOL_SOCKET;
   cmsg->cmsg_type = SCM_CREDENTIALS;
   cmsg->cmsg_len = sizeof(*cmsg) + sizeof(struct ucred);

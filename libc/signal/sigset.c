@@ -46,7 +46,7 @@ sigset (sig, disp)
 	return SIG_ERR;
 
       /* Add the signal set to the current signal mask.  */
-      if (sigprocmask (SIG_BLOCK, &set, NULL) < 0)
+      if (__sigprocmask (SIG_BLOCK, &set, NULL) < 0)
 	return SIG_ERR;
 
       return SIG_HOLD;
@@ -76,7 +76,7 @@ sigset (sig, disp)
     return SIG_ERR;
 
   /* Remove the signal set from the current signal mask.  */
-  if (sigprocmask (SIG_UNBLOCK, &set, NULL) < 0)
+  if (__sigprocmask (SIG_UNBLOCK, &set, NULL) < 0)
     return SIG_ERR;
 
   return oact.sa_handler;

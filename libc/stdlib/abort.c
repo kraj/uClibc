@@ -92,7 +92,7 @@ void abort(void)
 
 	/* Unmask SIGABRT to be sure we can get it */
 	if (__sigemptyset(&sigset) == 0 && __sigaddset(&sigset, SIGABRT) == 0) {
-		sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
+		__sigprocmask(SIG_UNBLOCK, &sigset, (sigset_t *) NULL);
 	}
 
 	while (1) {
@@ -121,7 +121,7 @@ abort_it:
 			struct sigaction act;
 
 			been_there_done_that++;
-			memset(&act, '\0', sizeof(struct sigaction));
+			__memset(&act, '\0', sizeof(struct sigaction));
 			act.sa_handler = SIG_DFL;
 			__sigfillset(&act.sa_mask);
 			act.sa_flags = 0;

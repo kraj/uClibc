@@ -13,9 +13,10 @@
 
 #ifdef __NR_ugetrlimit
 #define __NR___ugetrlimit __NR_ugetrlimit
-attribute_hidden _syscall2(int, __ugetrlimit, enum __rlimit_resource, resource,
+static inline
+_syscall2(int, __ugetrlimit, enum __rlimit_resource, resource,
 		  struct rlimit *, rlim);
-int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
+int attribute_hidden __getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 {
 	return (__ugetrlimit(resource, rlimits));
 }
@@ -23,15 +24,15 @@ int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 #else							/* __NR_ugetrlimit */
 
 /* Only include the old getrlimit if the new one (ugetrlimit) is not around */
-#define __NR___getrlimit __NR_getrlimit
+#define __NR___syscall_getrlimit __NR_getrlimit
 static inline
-_syscall2(int, __getrlimit, int, resource, struct rlimit *, rlim);
+_syscall2(int, __syscall_getrlimit, int, resource, struct rlimit *, rlim);
 
-int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
+int attribute_hidden __getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 {
 	int result;
 
-	result = __getrlimit(resource, rlimits);
+	result = __syscall_getrlimit(resource, rlimits);
 
 	if (result == -1)
 		return result;
@@ -45,3 +46,5 @@ int getrlimit(__rlimit_resource_t resource, struct rlimit *rlimits)
 	return result;
 }
 #endif
+
+strong_alias(__getrlimit,getrlimit)

@@ -30,10 +30,10 @@ static __always_inline void block_signals(void)
 	sigfillset(&mask);
 
 	sigdelset(&mask, SSP_SIGTYPE);	/* Block all signal handlers */
-	SIGPROCMASK(SIG_BLOCK, &mask, NULL);	/* except SSP_SIGTYPE */
+	__sigprocmask(SIG_BLOCK, &mask, NULL);	/* except SSP_SIGTYPE */
 
 	/* Make the default handler associated with the signal handler */
-	memset(&sa, 0, sizeof(struct sigaction));
+	__memset(&sa, 0, sizeof(struct sigaction));
 	sigfillset(&sa.sa_mask);	/* Block all signals */
 	sa.sa_flags = 0;
 	sa.sa_handler = SIG_DFL;
@@ -42,10 +42,10 @@ static __always_inline void block_signals(void)
 
 static __always_inline void ssp_write(int fd, const char *msg1, const char *msg2, const char *msg3)
 {
-	WRITE(fd, msg1, strlen(msg1));
-	WRITE(fd, msg2, strlen(msg2));
-	WRITE(fd, msg3, strlen(msg3));
-	WRITE(fd, "()\n", 3);
+	__write(fd, msg1, __strlen(msg1));
+	__write(fd, msg2, __strlen(msg2));
+	__write(fd, msg3, __strlen(msg3));
+	__write(fd, "()\n", 3);
 	openlog("ssp", LOG_CONS | LOG_PID, LOG_USER);
 	syslog(LOG_INFO, "%s%s%s()", msg1, msg2, msg3);
 	closelog();

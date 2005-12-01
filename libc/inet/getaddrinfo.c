@@ -44,7 +44,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* This software is Copyright 1996 by Craig Metz, All Rights Reserved.  */
 
+/* strdupa is using these */
+#if 0
 #define memcpy __memcpy
+#define strlen __strlen
+#endif
 
 #define _GNU_SOURCE
 #define __FORCE_GLIBC
@@ -151,7 +155,7 @@ static int addrconfig (sa_family_t af)
 	ret = (errno == EMFILE) ? 1 : 0;
     else
     {
-	close(s);
+	__close(s);
 	ret = 1;
     }
     __set_errno (saved_errno);
@@ -175,10 +179,10 @@ gaih_local (const char *name, const struct gaih_service *service,
 
     if (name != NULL)
     {
-	if (strcmp(name, "localhost") &&
-	    strcmp(name, "local") &&
-	    strcmp(name, "unix") &&
-	    strcmp(name, utsname.nodename))
+	if (__strcmp(name, "localhost") &&
+	    __strcmp(name, "local") &&
+	    __strcmp(name, "unix") &&
+	    __strcmp(name, utsname.nodename))
 	    return GAIH_OKIFUNSPEC | -EAI_NONAME;
     }
 
@@ -205,7 +209,7 @@ gaih_local (const char *name, const struct gaih_service *service,
 
     *pai = malloc (sizeof (struct addrinfo) + sizeof (struct sockaddr_un)
 		   + ((req->ai_flags & AI_CANONNAME)
-		      ? (strlen(utsname.nodename) + 1): 0));
+		      ? (__strlen(utsname.nodename) + 1): 0));
     if (*pai == NULL)
 	return -EAI_MEMORY;
 
@@ -223,22 +227,22 @@ gaih_local (const char *name, const struct gaih_service *service,
 #endif /* SALEN */
 
     ((struct sockaddr_un *)(*pai)->ai_addr)->sun_family = AF_LOCAL;
-    memset(((struct sockaddr_un *)(*pai)->ai_addr)->sun_path, 0, UNIX_PATH_MAX);
+    __memset(((struct sockaddr_un *)(*pai)->ai_addr)->sun_path, 0, UNIX_PATH_MAX);
 
     if (service)
     {
 	struct sockaddr_un *sunp = (struct sockaddr_un *) (*pai)->ai_addr;
 
-	if (strchr (service->name, '/') != NULL)
+	if (__strchr (service->name, '/') != NULL)
 	{
-	    if (strlen (service->name) >= sizeof (sunp->sun_path))
+	    if (__strlen (service->name) >= sizeof (sunp->sun_path))
 		return GAIH_OKIFUNSPEC | -EAI_SERVICE;
 
-	    strcpy (sunp->sun_path, service->name);
+	    __strcpy (sunp->sun_path, service->name);
 	}
 	else
 	{
-	    if (strlen (P_tmpdir "/") + 1 + strlen (service->name) >=
+	    if (__strlen (P_tmpdir "/") + 1 + __strlen (service->name) >=
 		sizeof (sunp->sun_path))
 		return GAIH_OKIFUNSPEC | -EAI_SERVICE;
 
@@ -260,7 +264,7 @@ gaih_local (const char *name, const struct gaih_service *service,
     }
 
     if (req->ai_flags & AI_CANONNAME)
-	(*pai)->ai_canonname = strcpy ((char *) *pai + sizeof (struct addrinfo)
+	(*pai)->ai_canonname = __strcpy ((char *) *pai + sizeof (struct addrinfo)
 				       + sizeof (struct sockaddr_un),
 				       utsname.nodename);
     else
@@ -340,7 +344,7 @@ gaih_inet_serv (const char *servicename, const struct gaih_typeproto *tp,
 	    }								\
 	    (*pat)->next = NULL;					\
 		(*pat)->family = _family;				\
-		memcpy ((*pat)->addr, h->h_addr_list[i],		\
+		__memcpy ((*pat)->addr, h->h_addr_list[i],		\
 			sizeof(_type));					\
 		pat = &((*pat)->next);					\
 	}								\
@@ -491,7 +495,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	    char *namebuf = strdupa (name);
 	    char *scope_delim;
 
-	    scope_delim = strchr (namebuf, SCOPE_DELIMITER);
+	    scope_delim = __strchr (namebuf, SCOPE_DELIMITER);
 	    if (scope_delim != NULL)
 		*scope_delim = '\0';
 
@@ -574,12 +578,12 @@ gaih_inet (const char *name, const struct gaih_service *service,
     {
 	struct gaih_addrtuple *atr;
 	atr = at = alloca (sizeof (struct gaih_addrtuple));
-	memset (at, '\0', sizeof (struct gaih_addrtuple));
+	__memset (at, '\0', sizeof (struct gaih_addrtuple));
 
 	if (req->ai_family == 0)
 	{
 	    at->next = alloca (sizeof (struct gaih_addrtuple));
-	    memset (at->next, '\0', sizeof (struct gaih_addrtuple));
+	    __memset (at->next, '\0', sizeof (struct gaih_addrtuple));
 	}
 
 #if __UCLIBC_HAS_IPV6__
@@ -588,7 +592,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	    extern const struct in6_addr __in6addr_loopback;
 	    at->family = AF_INET6;
 	    if ((req->ai_flags & AI_PASSIVE) == 0)
-		memcpy (at->addr, &__in6addr_loopback, sizeof (struct in6_addr));
+		__memcpy (at->addr, &__in6addr_loopback, sizeof (struct in6_addr));
 	    atr = at->next;
 	}
 #endif
@@ -660,7 +664,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		if (c == NULL)
 		    return GAIH_OKIFUNSPEC | -EAI_NONAME;
 
-		namelen = strlen (c) + 1;
+		namelen = __strlen (c) + 1;
 	    }
 	    else
 		namelen = 0;
@@ -704,7 +708,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		    sin6p->sin6_flowinfo = 0;
 		    if (at2->family == AF_INET6)
 		    {
-			memcpy (&sin6p->sin6_addr,
+			__memcpy (&sin6p->sin6_addr,
 				at2->addr, sizeof (struct in6_addr));
 		    }
 		    else
@@ -712,7 +716,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 			sin6p->sin6_addr.s6_addr32[0] = 0;
 			sin6p->sin6_addr.s6_addr32[1] = 0;
 			sin6p->sin6_addr.s6_addr32[2] = htonl(0x0000ffff);
-			memcpy(&sin6p->sin6_addr.s6_addr32[3], 
+			__memcpy(&sin6p->sin6_addr.s6_addr32[3], 
 			       at2->addr, sizeof (sin6p->sin6_addr.s6_addr32[3]));
 		    }
 		    sin6p->sin6_port = st2->port;
@@ -724,17 +728,17 @@ gaih_inet (const char *name, const struct gaih_service *service,
 		    struct sockaddr_in *sinp =
 			(struct sockaddr_in *) (*pai)->ai_addr;
 
-		    memcpy (&sinp->sin_addr,
+		    __memcpy (&sinp->sin_addr,
 			    at2->addr, sizeof (struct in_addr));
 		    sinp->sin_port = st2->port;
-		    memset (sinp->sin_zero, '\0', sizeof (sinp->sin_zero));
+		    __memset (sinp->sin_zero, '\0', sizeof (sinp->sin_zero));
 		}
 
 		if (c)
 		{
 		    (*pai)->ai_canonname = ((void *) (*pai) +
 					    sizeof (struct addrinfo) + socklen);
-		    strcpy ((*pai)->ai_canonname, c);
+		    __strcpy ((*pai)->ai_canonname, c);
 		}
 		else
 		    (*pai)->ai_canonname = NULL;

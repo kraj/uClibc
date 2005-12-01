@@ -508,7 +508,7 @@ int attribute_hidden _ppfs_init(register ppfs_t *ppfs, const char *fmt0)
 	int r;
 
 	/* First, zero out everything... argnumber[], argtype[], argptr[] */
-	memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
+	__memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
 #ifdef NL_ARGMAX
 	--ppfs->maxposarg;			/* set to -1 */
 #endif /* NL_ARGMAX */
@@ -1114,7 +1114,7 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 	} else {
 #endif /* NL_ARGMAX */
 		ppfs->argnumber[2] = 1;
-		memcpy(ppfs->argtype, argtype + 2, ppfs->num_data_args * sizeof(int));
+		__memcpy(ppfs->argtype, argtype + 2, ppfs->num_data_args * sizeof(int));
 #ifdef NL_ARGMAX
 	}
 
@@ -1197,7 +1197,7 @@ static size_t _charpad(FILE * __restrict stream, int padchar, size_t numpad);
 #define VFPRINTF vfprintf
 #define FMT_TYPE char
 #define OUTNSTR _outnstr
-#define STRLEN  strlen
+#define STRLEN  __strlen
 #define _PPFS_init _ppfs_init
 #define OUTPUT(F,S)			__fputs_unlocked(S,F)
 /* #define _outnstr(stream, string, len)	__stdio_fwrite(string, len, stream) */
@@ -1211,7 +1211,7 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 	size_t r = 0;
 
 	if (type & 0x80) {			/* Some type of padding needed. */
-		int buflen = strlen((const char *) buf);
+		int buflen = __strlen((const char *) buf);
 		if ((len -= buflen) > 0) {
 			if ((r = _charpad(fp, (type & 0x7f), len)) != len) {
 				return r;
@@ -1281,7 +1281,7 @@ static size_t _fp_out_wide(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 	int i;
 
 	if (type & 0x80) {			/* Some type of padding needed */
-		int buflen = strlen(s);
+		int buflen = __strlen(s);
 		if ((len -= buflen) > 0) {
 			if ((r = _charpad(fp, (type & 0x7f), len)) != len) {
 				return r;
@@ -1325,7 +1325,7 @@ static int _ppwfs_init(register ppfs_t *ppfs, const wchar_t *fmt0)
 	int r;
 
 	/* First, zero out everything... argnumber[], argtype[], argptr[] */
-	memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
+	__memset(ppfs, 0, sizeof(ppfs_t)); /* TODO: nonportable???? */
 #ifdef NL_ARGMAX
 	--ppfs->maxposarg;			/* set to -1 */
 #endif /* NL_ARGMAX */

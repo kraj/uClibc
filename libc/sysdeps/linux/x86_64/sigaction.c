@@ -52,7 +52,7 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 
 	if (act) {
 		kact.k_sa_handler = act->sa_handler;
-		memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
+		__memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
 		kact.sa_flags = act->sa_flags | SA_RESTORER;
 
 		kact.sa_restorer = &restore_rt;
@@ -65,7 +65,7 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 	                         oact ? __ptrvalue (&koact) : NULL, _NSIG / 8);
 	if (oact && result >= 0) {
 		oact->sa_handler = koact.k_sa_handler;
-		memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
+		__memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
 		oact->sa_flags = koact.sa_flags;
 		oact->sa_restorer = koact.sa_restorer;
 	}

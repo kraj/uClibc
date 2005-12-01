@@ -30,10 +30,10 @@ char attribute_hidden *__strrchr (const char *s, int c)
   /* Since strchr is fast, we use it rather than the obvious loop.  */
 
   if (c == '\0')
-    return strchr (s, '\0');
+    return __strchr (s, '\0');
 
   found = NULL;
-  while ((p = strchr (s, c)) != NULL)
+  while ((p = __strchr (s, c)) != NULL)
     {
       found = p;
       s = p + 1;

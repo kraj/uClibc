@@ -31,6 +31,8 @@
  * Use brain damaged getpid() if real random fails.
  */
 
+#define open64 __open64
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -72,7 +74,7 @@ int attribute_hidden __path_search (char *tmpl, size_t tmpl_len, const char *dir
     }
     else
     {
-	plen = strlen (pfx);
+	plen = __strlen (pfx);
 	if (plen > 5)
 	    plen = 5;
     }
@@ -94,7 +96,7 @@ int attribute_hidden __path_search (char *tmpl, size_t tmpl_len, const char *dir
     {
 	if (direxists (P_tmpdir))
 	    dir = P_tmpdir;
-	else if (strcmp (P_tmpdir, "/tmp") != 0 && direxists ("/tmp"))
+	else if (__strcmp (P_tmpdir, "/tmp") != 0 && direxists ("/tmp"))
 	    dir = "/tmp";
 	else
 	{
@@ -103,7 +105,7 @@ int attribute_hidden __path_search (char *tmpl, size_t tmpl_len, const char *dir
 	}
     }
 
-    dlen = strlen (dir);
+    dlen = __strlen (dir);
     while (dlen > 1 && dir[dlen - 1] == '/')
 	dlen--;			/* remove trailing slashes */
 
@@ -126,13 +128,13 @@ static unsigned int fillrand(unsigned char *buf, unsigned int len)
 {
     int fd;
     unsigned int result = -1;
-    fd = open("/dev/urandom", O_RDONLY);
+    fd = __open("/dev/urandom", O_RDONLY);
     if (fd < 0) {
-	fd = open("/dev/random", O_RDONLY | O_NONBLOCK);
+	fd = __open("/dev/random", O_RDONLY | O_NONBLOCK);
     }
     if (fd >= 0) {
-	result = read(fd, buf, len);
-	close(fd);
+	result = __read(fd, buf, len);
+	__close(fd);
     }
     return result;
 }
@@ -182,8 +184,8 @@ int attribute_hidden __gen_tempname (char *tmpl, int kind)
     int len, i, count, fd, save_errno = errno;
     unsigned char randomness[6];
 
-    len = strlen (tmpl);
-    if (len < 6 || strcmp (&tmpl[len - 6], "XXXXXX"))
+    len = __strlen (tmpl);
+    if (len < 6 || __strcmp (&tmpl[len - 6], "XXXXXX"))
     {
 	__set_errno (EINVAL);
 	return -1;
@@ -223,7 +225,7 @@ int attribute_hidden __gen_tempname (char *tmpl, int kind)
 			continue;
 		}
 	    case __GT_FILE:
-		fd = open (tmpl, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+		fd = __open (tmpl, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
 		break;
 #if defined __UCLIBC_HAS_LFS__
 	    case __GT_BIGFILE:

@@ -18,7 +18,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define mempcpy __libc_mempcpy
+/* used by D_EXACT_NAMLEN */
+#define strlen __strlen
+
+#define mempcpy __mempcpy
 #define tsearch __tsearch
 
 #define _GNU_SOURCE
@@ -424,7 +427,7 @@ ftw_dir (struct ftw_data *data, struct STAT *st)
 
     /* Next, update the `struct FTW' information.  */
     ++data->ftw.level;
-    startp = strchr (data->dirbuf, '\0');
+    startp = __strchr (data->dirbuf, '\0');
     /* There always must be a directory name.  */
     assert (startp != data->dirbuf);
     if (startp[-1] != '/')
@@ -460,7 +463,7 @@ ftw_dir (struct ftw_data *data, struct STAT *st)
 
 	while (result == 0 && *runp != '\0')
 	{
-	    char *endp = strchr (runp, '\0');
+	    char *endp = __strchr (runp, '\0');
 
 	    result = process_entry (data, &dir, runp, endp - runp);
 
@@ -501,7 +504,7 @@ ftw_startup (const char *dir, int is_nftw, void *func, int descriptors, int flag
 	__set_errno (ENOENT);
 	return -1;
     }
-    if ((strlen(dir)+1) > NAME_MAX) {
+    if ((__strlen(dir)+1) > NAME_MAX) {
 	__set_errno(ENAMETOOLONG);
 	return -1;
     }
@@ -510,10 +513,10 @@ ftw_startup (const char *dir, int is_nftw, void *func, int descriptors, int flag
     data.actdir = 0;
     data.dirstreams = (struct dir_data **) alloca (data.maxdir
 	    * sizeof (struct dir_data *));
-    memset (data.dirstreams, '\0', data.maxdir * sizeof (struct dir_data *));
+    __memset (data.dirstreams, '\0', data.maxdir * sizeof (struct dir_data *));
 
     /* PATH_MAX is always defined when we get here.  */
-    data.dirbufsize = MAX (2 * strlen (dir), PATH_MAX);
+    data.dirbufsize = MAX (2 * __strlen (dir), PATH_MAX);
     data.dirbuf = (char *) malloc (data.dirbufsize);
     if (data.dirbuf == NULL)
 	return -1;

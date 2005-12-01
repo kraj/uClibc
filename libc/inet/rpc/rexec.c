@@ -70,7 +70,7 @@ rexec_af(ahost, rport, name, pass, cmd, fd2p, af)
 	snprintf(servbuff, sizeof(servbuff), "%d", ntohs(rport));
 	servbuff[sizeof(servbuff) - 1] = '\0';
 
-	memset(&hints, 0, sizeof(hints));
+	__memset(&hints, 0, sizeof(hints));
 	hints.ai_family = af;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_CANONNAME;
@@ -81,7 +81,7 @@ rexec_af(ahost, rport, name, pass, cmd, fd2p, af)
 	}
 
 	if (res0->ai_canonname){
-		strncpy(ahostbuf, res0->ai_canonname, sizeof(ahostbuf));
+		__strncpy(ahostbuf, res0->ai_canonname, sizeof(ahostbuf));
 		ahostbuf[sizeof(ahostbuf)-1] = '\0';
 		*ahost = ahostbuf;
 	}
@@ -97,7 +97,7 @@ retry:
 	}
 	if (connect(s, res0->ai_addr, res0->ai_addrlen) < 0) {
 		if (errno == ECONNREFUSED && timo <= 16) {
-			(void) close(s);
+			(void) __close(s);
 			sleep(timo);
 			timo *= 2;
 			goto retry;
@@ -106,7 +106,7 @@ retry:
 		return (-1);
 	}
 	if (fd2p == 0) {
-		(void) write(s, "", 1);
+		(void) __write(s, "", 1);
 		port = 0;
 	} else {
 		char num[32];
@@ -114,18 +114,18 @@ retry:
 
 		s2 = socket(res0->ai_family, res0->ai_socktype, 0);
 		if (s2 < 0) {
-			(void) close(s);
+			(void) __close(s);
 			return (-1);
 		}
 		listen(s2, 1);
 		sa2len = sizeof (sa2);
 		if (getsockname(s2, (struct sockaddr *)&sa2, &sa2len) < 0) {
 			perror("getsockname");
-			(void) close(s2);
+			(void) __close(s2);
 			goto bad;
 		} else if (sa2len != SA_LEN((struct sockaddr *)&sa2)) {
 			__set_errno(EINVAL);
-			(void) close(s2);
+			(void) __close(s2);
 			goto bad;
 		}
 		port = 0;
@@ -134,10 +134,10 @@ retry:
 				 NI_NUMERICSERV))
 			port = atoi(servbuff);
 		(void) sprintf(num, "%u", port);
-		(void) write(s, num, strlen(num)+1);
+		(void) __write(s, num, __strlen(num)+1);
 		{ socklen_t len = sizeof (from);
 		  s3 = accept(s2, (struct sockaddr *)&from, &len);
-		  close(s2);
+		  __close(s2);
 		  if (s3 < 0) {
 			perror("accept");
 			port = 0;
@@ -146,10 +146,10 @@ retry:
 		}
 		*fd2p = s3;
 	}
-	(void) write(s, name, strlen(name) + 1);
+	(void) __write(s, name, __strlen(name) + 1);
 	/* should public key encypt the password here */
-	(void) write(s, pass, strlen(pass) + 1);
-	(void) write(s, cmd, strlen(cmd) + 1);
+	(void) __write(s, pass, __strlen(pass) + 1);
+	(void) __write(s, cmd, __strlen(cmd) + 1);
 
 	/* We don't need the memory allocated for the name and the password
 	   in ruserpass anymore.  */
@@ -158,13 +158,13 @@ retry:
 	if (pass != orig_pass)
 	  free ((char *) pass);
 
-	if (read(s, &c, 1) != 1) {
+	if (__read(s, &c, 1) != 1) {
 		perror(*ahost);
 		goto bad;
 	}
 	if (c != 0) {
-		while (read(s, &c, 1) == 1) {
-			(void) write(2, &c, 1);
+		while (__read(s, &c, 1) == 1) {
+			(void) __write(2, &c, 1);
 			if (c == '\n')
 				break;
 		}
@@ -174,8 +174,8 @@ retry:
 	return (s);
 bad:
 	if (port)
-		(void) close(*fd2p);
-	(void) close(s);
+		(void) __close(*fd2p);
+	(void) __close(s);
 	freeaddrinfo(res0);
 	return (-1);
 }

@@ -405,13 +405,13 @@ send_again:
 	  msg.msg_controllen = 256;
 	  ret = recvmsg (cu->cu_sock, &msg, MSG_ERRQUEUE);
 	  if (ret >= 0
-	      && memcmp (cbuf + 256, cu->cu_outbuf, ret) == 0
+	      && __memcmp (cbuf + 256, cu->cu_outbuf, ret) == 0
 	      && (msg.msg_flags & MSG_ERRQUEUE)
 	      && ((msg.msg_namelen == 0
 		   && ret >= 12)
 		  || (msg.msg_namelen == sizeof (err_addr)
 		      && err_addr.sin_family == AF_INET
-		      && memcmp (&err_addr.sin_addr, &cu->cu_raddr.sin_addr,
+		      && __memcmp (&err_addr.sin_addr, &cu->cu_raddr.sin_addr,
 				 sizeof (err_addr.sin_addr)) == 0
 		      && err_addr.sin_port == cu->cu_raddr.sin_port)))
 	    for (cmsg = CMSG_FIRSTHDR (&msg); cmsg;
@@ -606,7 +606,7 @@ clntudp_destroy (CLIENT *cl)
 
   if (cu->cu_closeit)
     {
-      (void) close (cu->cu_sock);
+      (void) __close (cu->cu_sock);
     }
   XDR_DESTROY (&(cu->cu_outxdrs));
   mem_free ((caddr_t) cu, (sizeof (*cu) + cu->cu_sendsz + cu->cu_recvsz));

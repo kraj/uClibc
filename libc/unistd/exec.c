@@ -232,7 +232,7 @@ int execvp(const char *path, char *const argv[])
 		return -1;
 	}
 
-	if (strchr(path, '/')) {
+	if (__strchr(path, '/')) {
 		execve(path, argv, __environ);
 	CHECK_ENOEXEC:
 		if (errno == ENOEXEC) {
@@ -245,7 +245,7 @@ int execvp(const char *path, char *const argv[])
 			nargv = (char **) EXEC_ALLOC((n+2) * sizeof(char *), size2);
 			nargv[0] = argv[0];
 			nargv[1] = (char *)path;
-			memcpy(nargv+2, argv+1, n*sizeof(char *));
+			__memcpy(nargv+2, argv+1, n*sizeof(char *));
 			execve("/bin/sh", nargv, __environ);
 			EXEC_FREE(nargv, size2);
 		}
@@ -258,7 +258,7 @@ int execvp(const char *path, char *const argv[])
 			p = (char *) default_path;
 		}
 
-		plen = strlen(path);
+		plen = __strlen(path);
 		if (plen > (FILENAME_MAX - 1)) {
 		ALL_TOO_LONG:
 			__set_errno(ENAMETOOLONG);
@@ -269,7 +269,7 @@ int execvp(const char *path, char *const argv[])
 		if ((buf = EXEC_ALLOC(FILENAME_MAX, size)) != NULL) {
 			int seen_small = 0;
 			s0 = buf + len;
-			memcpy(s0, path, plen+1);
+			__memcpy(s0, path, plen+1);
 
 			do {
 				s = s0;
@@ -283,7 +283,7 @@ int execvp(const char *path, char *const argv[])
 						goto NEXT;
 					}
 					s -= plen;
-					memcpy(s, p, plen);
+					__memcpy(s, p, plen);
 					s[plen-1] = '/';
 				}
 

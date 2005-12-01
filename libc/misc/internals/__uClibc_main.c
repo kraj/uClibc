@@ -80,9 +80,9 @@ const char *__progname = 0;
 #endif
 
 extern int __libc_fcntl(int fd, int cmd, ...);
-extern int __libc_open(const char *file, int flags, ...);
 
 #ifdef __ARCH_HAS_MMU__
+
 static void __check_one_fd(int fd, int mode)
 {
     /* Check if the specified fd is already open */
@@ -90,7 +90,7 @@ static void __check_one_fd(int fd, int mode)
     {
 	/* The descriptor is probably not open, so try to use /dev/null */
 	struct stat st;
-	int nullfd = __libc_open(_PATH_DEVNULL, mode);
+	int nullfd = __open(_PATH_DEVNULL, mode);
 	/* /dev/null is major=1 minor=3.  Make absolutely certain
 	 * that is in fact the device that we have opened and not
 	 * some other wierd file... */
@@ -229,7 +229,7 @@ __uClibc_main(int (*main)(int, char **, char **), int argc,
     while (*aux_dat) {
 	ElfW(auxv_t) *auxv_entry = (ElfW(auxv_t) *) aux_dat;
 	if (auxv_entry->a_type <= AT_EGID) {
-	    memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(ElfW(auxv_t)));
+	    __memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(ElfW(auxv_t)));
 	}
 	aux_dat += 2;
     }

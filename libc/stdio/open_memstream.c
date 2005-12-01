@@ -51,7 +51,7 @@ static ssize_t oms_write(register void *cookie, const char *buf, size_t bufsize)
 		}
 	}
 
-	memcpy(COOKIE->buf + COOKIE->pos, buf, bufsize);
+	__memcpy(COOKIE->buf + COOKIE->pos, buf, bufsize);
 	COOKIE->pos += bufsize;
 
 	if (COOKIE->pos > COOKIE->eof) {
@@ -90,7 +90,7 @@ static int oms_seek(register void *cookie, __offmax_t *pos, int whence)
 		if (buf) {
 			*COOKIE->bufloc = COOKIE->buf = buf;
 			COOKIE->len = leastlen;
-			memset(buf + COOKIE->eof, leastlen - COOKIE->eof, 0); /* 0-fill */
+			__memset(buf + COOKIE->eof, leastlen - COOKIE->eof, 0); /* 0-fill */
 		} else {
 			/* TODO: check glibc errno setting... */
 			return -1;
@@ -100,7 +100,7 @@ static int oms_seek(register void *cookie, __offmax_t *pos, int whence)
 	*pos = COOKIE->pos = --leastlen;
 
 	if (leastlen > COOKIE->eof) {
-		memset(COOKIE->buf + COOKIE->eof, leastlen - COOKIE->eof, 0);
+		__memset(COOKIE->buf + COOKIE->eof, leastlen - COOKIE->eof, 0);
 		*COOKIE->sizeloc = COOKIE->eof;
 	}
 

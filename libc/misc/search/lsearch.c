@@ -37,7 +37,7 @@ void *lsearch(const void *key, void *base, size_t *nmemb,
 	register char *p;
 
 	if ((p = lfind(key, base, nmemb, size, compar)) == NULL) {
-		p = memcpy((base + (size * (*nmemb))), key, size);
+		p = __memcpy((base + (size * (*nmemb))), key, size);
 		++(*nmemb);
 	}
 	return (p);

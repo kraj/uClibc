@@ -246,7 +246,7 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 	f.__bufstart = 
 	f.__bufpos = (unsigned char *) ((void *) sp);
 	f.__bufread =
-	f.__bufend = f.__bufstart + strlen(sp);
+	f.__bufend = f.__bufstart + __strlen(sp);
 	__STDIO_STREAM_ENABLE_GETC(&f);
 	__STDIO_STREAM_DISABLE_PUTC(&f);
 
@@ -260,7 +260,7 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 	__FILE_vsscanf f;
 
 	f.bufpos = (unsigned char *) ((void *) sp);
-	f.bufread = f.bufpos + strlen(sp);
+	f.bufread = f.bufpos + __strlen(sp);
 
 /* 	__STDIO_STREAM_RESET_GCS(&f.f); */
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
@@ -298,7 +298,7 @@ int vsscanf(__const char *sp, __const char *fmt, va_list ap)
 	FILE *f;
 	int rv = EOF;
 
-	if ((f = fmemopen((char *)sp, strlen(sp), "r")) != NULL) {
+	if ((f = fmemopen((char *)sp, __strlen(sp), "r")) != NULL) {
 		rv = vfscanf(f, fmt, ap);
 		fclose(f);
 	}
@@ -1188,7 +1188,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 #if defined(NL_ARGMAX) && (NL_ARGMAX > 0)
 	psfs.num_pos_args = -1;		/* Must start at -1. */
 	/* Initialize positional arg ptrs to NULL. */
-	memset(psfs.pos_args, 0, sizeof(psfs.pos_args));
+	__memset(psfs.pos_args, 0, sizeof(psfs.pos_args));
 #endif /* defined(NL_ARGMAX) && (NL_ARGMAX > 0) */
 
 	__STDIO_AUTO_THREADLOCK(fp);
@@ -1420,7 +1420,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 						++fmt;
 						invert = 1;
  					}
-					memset(scanset, invert, sizeof(scanset));
+					__memset(scanset, invert, sizeof(scanset));
 					invert = 1-invert;
 
 					if (*fmt == ']') {
@@ -1969,14 +1969,14 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 
 							if ((psfs->conv_num > CONV_i) /* float conversion */
 								&& (!pass || (i == nblk1)) /* possible last */
-								&& !memcmp(sc->thousands_sep, sc->fake_decpt, k)
+								&& !__memcmp(sc->thousands_sep, sc->fake_decpt, k)
 								/* and prefix matched, so could be decpt */
 								) {
 								__scan_getc(sc);
 								p = sc->fake_decpt + k;
 								do {
 									if (!*++p) {
-										strcpy(b, sc->decpt);
+										__strcpy(b, sc->decpt);
 										b += sc->decpt_len;
 										goto GOT_DECPT;
 									}
@@ -2070,7 +2070,7 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 	p = sc->fake_decpt;
 	do {
 		if (!*p) {
-			strcpy(b, sc->decpt);
+			__strcpy(b, sc->decpt);
 			b += sc->decpt_len;
 			break;
 		}

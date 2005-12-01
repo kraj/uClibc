@@ -5,11 +5,10 @@
  */
 
 #define L_mempcpy
-#define Wmempcpy __libc_mempcpy
+#define Wmempcpy __mempcpy
 
 #include "wstring.c"
 
-strong_alias(__libc_mempcpy, __mempcpy)
 strong_alias(__mempcpy,mempcpy)
 
 #undef L_mempcpy

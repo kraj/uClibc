@@ -54,7 +54,7 @@ void* calloc(size_t n_elements, size_t elem_size)
 	    assert(nclears >= 3);
 
 	    if (nclears > 9)
-		memset(d, 0, clearsize);
+		__memset(d, 0, clearsize);
 
 	    else {
 		*(d+0) = 0;
@@ -83,7 +83,7 @@ void* calloc(size_t n_elements, size_t elem_size)
 	    d = (size_t*)mem;
 	    /* Note the additional (sizeof(size_t)) */
 	    clearsize = chunksize(p) - 2*(sizeof(size_t));
-	    memset(d, 0, clearsize);
+	    __memset(d, 0, clearsize);
 	}
 #endif
     }

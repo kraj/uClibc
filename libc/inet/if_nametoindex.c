@@ -51,15 +51,15 @@ unsigned int if_nametoindex(const char* ifname)
     fd = __opensock();
     if (fd < 0)
 	return 0;
-    strncpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
+    __strncpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
     if (ioctl(fd,SIOCGIFINDEX,&ifr) < 0) {
 	int saved_errno = errno;
-	close(fd);
+	__close(fd);
 	if (saved_errno == EINVAL)
 	    __set_errno(ENOSYS);
 	return 0;
     }
-    close(fd);
+    __close(fd);
     return ifr.ifr_ifindex;
 
 #endif /* SIOCGIFINDEX */
@@ -103,7 +103,7 @@ struct if_nameindex * if_nameindex (void)
     do {
 	ifc.ifc_buf = realloc(ifc.ifc_buf, ifc.ifc_len = rq_len);
 	if (ifc.ifc_buf == NULL || ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
-	    close(fd);
+	    __close(fd);
 	    return NULL;
 	}
 	rq_len *= 2;
@@ -113,21 +113,21 @@ struct if_nameindex * if_nameindex (void)
 
     idx = malloc ((nifs + 1) * sizeof(struct if_nameindex));
     if (idx == NULL) {
-	close(fd);
+	__close(fd);
 	__set_errno(ENOBUFS);
 	return NULL;
     }
 
     for (i = 0; i < nifs; ++i) {
 	struct ifreq *ifr = &ifc.ifc_req[i];
-	idx[i].if_name = strdup (ifr->ifr_name);
+	idx[i].if_name = __strdup (ifr->ifr_name);
 	if (idx[i].if_name == NULL || ioctl(fd,SIOCGIFINDEX,ifr) < 0) {
 	    int saved_errno = errno;
 	    unsigned int j;
 	    for (j =  0; j < i; ++j)
 		free (idx[j].if_name);
 	    free(idx);
-	    close(fd);
+	    __close(fd);
 	    if (saved_errno == EINVAL)
 		saved_errno = ENOSYS;
 	    else if (saved_errno == ENOMEM)
@@ -141,7 +141,7 @@ struct if_nameindex * if_nameindex (void)
     idx[i].if_index = 0;
     idx[i].if_name = NULL;
 
-    close(fd);
+    __close(fd);
     return idx;
 #endif
 }
@@ -161,13 +161,13 @@ char * if_indextoname (unsigned int ifindex, char *ifname)
   ifr.ifr_ifindex = ifindex;
   if (ioctl (fd, SIOCGIFNAME, &ifr) < 0) {
       saved_errno = errno;
-      close (fd);
+      __close (fd);
       __set_errno (saved_errno);
       return NULL;
   }
-  close (fd);
+  __close (fd);
 
-  return strncpy (ifname, ifr.ifr_name, IFNAMSIZ);
+  return __strncpy (ifname, ifr.ifr_name, IFNAMSIZ);
 #else
     struct if_nameindex *idx;
     struct if_nameindex *p;
@@ -177,7 +177,7 @@ char * if_indextoname (unsigned int ifindex, char *ifname)
     if (idx != NULL) {
 	for (p = idx; p->if_index || p->if_name; ++p) {
 	    if (p->if_index == ifindex) {
-		result = strncpy (ifname, p->if_name, IFNAMSIZ);
+		result = __strncpy (ifname, p->if_name, IFNAMSIZ);
 		break;
 	    }
 	}

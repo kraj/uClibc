@@ -41,7 +41,7 @@ int getlogin_r(char *name, size_t len)
 	if (! foo)
 		return -1;
 
-	strncpy(name, foo, len);
+	__strncpy(name, foo, len);
 	name[len-1] = '\0';
 	return 0;
 }
@@ -50,7 +50,7 @@ char *cuserid(char *s)
 {
 	char *name = getlogin();
 	if (s) {
-		return(strcpy(s, name ? name : ""));
+		return(__strcpy(s, name ? name : ""));
 	}
 	return name;
 }

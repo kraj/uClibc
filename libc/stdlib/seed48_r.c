@@ -17,8 +17,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define memcpy __memcpy
-
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -26,7 +24,7 @@
 int attribute_hidden __seed48_r (unsigned short int seed16v[3], struct drand48_data *buffer)
 {
     /* Save old value at a private place to be used as return value.  */
-    memcpy (buffer->__old_x, buffer->__x, sizeof (buffer->__x));
+    __memcpy (buffer->__old_x, buffer->__x, sizeof (buffer->__x));
 
     /* Install new state.  */
     buffer->__x[2] = seed16v[2];

@@ -19,6 +19,8 @@
  */
 
 #define sysconf __sysconf
+#define getrlimit __getrlimit
+#define setrlimit __setrlimit
 
 #define _GNU_SOURCE
 #define _LARGEFILE64_SOURCE

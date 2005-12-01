@@ -21,6 +21,6 @@ char *ctermid(register char *s)
 	return s;
 #else
 	/* glibc always returns /dev/tty for linux. */
-	return strcpy((s ? s : sbuf), "/dev/tty");
+	return __strcpy((s ? s : sbuf), "/dev/tty");
 #endif
 }

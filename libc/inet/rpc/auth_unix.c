@@ -152,7 +152,7 @@ no_memory:
   au->au_origcred.oa_base = mem_alloc ((u_int) len);
   if (au->au_origcred.oa_base == NULL)
     goto no_memory;
-  memcpy(au->au_origcred.oa_base, mymem, (u_int) len);
+  __memcpy(au->au_origcred.oa_base, mymem, (u_int) len);
 
   /*
    * set auth handle to reflect new cred.

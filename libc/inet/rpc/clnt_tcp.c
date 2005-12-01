@@ -175,7 +175,7 @@ clnttcp_create (struct sockaddr_in *raddr, u_long prog, u_long vers,
 	  ce->cf_stat = RPC_SYSTEMERROR;
 	  ce->cf_error.re_errno = errno;
 	  if (*sockp >= 0)
-	    (void) close (*sockp);
+	    (void) __close (*sockp);
 	  goto fooy;
 	}
       ct->ct_closeit = TRUE;
@@ -211,7 +211,7 @@ clnttcp_create (struct sockaddr_in *raddr, u_long prog, u_long vers,
     {
       if (ct->ct_closeit)
 	{
-	  (void) close (*sockp);
+	  (void) __close (*sockp);
 	}
       goto fooy;
     }
@@ -464,7 +464,7 @@ clnttcp_destroy (CLIENT *h)
 
   if (ct->ct_closeit)
     {
-      (void) close (ct->ct_sock);
+      (void) __close (ct->ct_sock);
     }
   XDR_DESTROY (&(ct->ct_xdrs));
   mem_free ((caddr_t) ct, sizeof (struct ct_data));
@@ -506,7 +506,7 @@ readtcp (char *ctptr, char *buf, int len)
 	}
       break;
     }
-  switch (len = read (ct->ct_sock, buf, len))
+  switch (len = __read (ct->ct_sock, buf, len))
     {
 
     case 0:
@@ -532,7 +532,7 @@ writetcp (char *ctptr, char *buf, int len)
 
   for (cnt = len; cnt > 0; cnt -= i, buf += i)
     {
-      if ((i = write (ct->ct_sock, buf, cnt)) == -1)
+      if ((i = __write (ct->ct_sock, buf, cnt)) == -1)
 	{
 	  ct->ct_error.re_errno = errno;
 	  ct->ct_error.re_status = RPC_CANTSEND;

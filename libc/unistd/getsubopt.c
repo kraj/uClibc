@@ -50,7 +50,7 @@ int getsubopt(char **optionp, char *const *tokens, char **valuep)
   /* Try to match the characters between *OPTIONP and VSTART against
      one of the TOKENS.  */
   for (cnt = 0; tokens[cnt] != NULL; ++cnt)
-    if (memcmp (*optionp, tokens[cnt], vstart - *optionp) == 0
+    if (__memcmp (*optionp, tokens[cnt], vstart - *optionp) == 0
 	&& tokens[cnt][vstart - *optionp] == '\0')
       {
 	/* We found the current option in TOKENS.  */

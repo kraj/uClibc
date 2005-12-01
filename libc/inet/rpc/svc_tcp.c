@@ -164,7 +164,7 @@ svctcp_create (int sock, u_int sendsize, u_int recvsize)
 	}
       madesock = TRUE;
     }
-  memset ((char *) &addr, 0, sizeof (addr));
+  __memset ((char *) &addr, 0, sizeof (addr));
   addr.sin_family = AF_INET;
   if (bindresvport (sock, &addr))
     {
@@ -176,7 +176,7 @@ svctcp_create (int sock, u_int sendsize, u_int recvsize)
     {
       perror (_("svc_tcp.c - cannot getsockname or listen"));
       if (madesock)
-	(void) close (sock);
+	(void) __close (sock);
       return (SVCXPRT *) NULL;
     }
   r = (struct tcp_rendezvous *) mem_alloc (sizeof (*r));
@@ -272,7 +272,7 @@ again:
    * make a new transporter (re-uses xprt)
    */
   xprt = makefd_xprt (sock, r->sendsize, r->recvsize);
-  memcpy (&xprt->xp_raddr, &addr, sizeof (addr));
+  __memcpy (&xprt->xp_raddr, &addr, sizeof (addr));
   xprt->xp_addrlen = len;
   return FALSE;		/* there is never an rpc msg to be processed */
 }
@@ -289,7 +289,7 @@ svctcp_destroy (SVCXPRT *xprt)
   struct tcp_conn *cd = (struct tcp_conn *) xprt->xp_p1;
 
   xprt_unregister (xprt);
-  (void) close (xprt->xp_sock);
+  (void) __close (xprt->xp_sock);
   if (xprt->xp_port != 0)
     {
       /* a rendezvouser socket */
@@ -339,7 +339,7 @@ readtcp (char *xprtptr, char *buf, int len)
     }
   while ((pollfd.revents & POLLIN) == 0);
 
-  if ((len = read (sock, buf, len)) > 0)
+  if ((len = __read (sock, buf, len)) > 0)
     return len;
 
  fatal_err:
@@ -359,7 +359,7 @@ writetcp (char *xprtptr, char * buf, int len)
 
   for (cnt = len; cnt > 0; cnt -= i, buf += i)
     {
-      if ((i = write (xprt->xp_sock, buf, cnt)) < 0)
+      if ((i = __write (xprt->xp_sock, buf, cnt)) < 0)
 	{
 	  ((struct tcp_conn *) (xprt->xp_p1))->strm_stat = XPRT_DIED;
 	  return -1;

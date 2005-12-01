@@ -213,10 +213,10 @@ int getprotobyname_r(const char *name,
     LOCK;
     setprotoent(proto_stayopen);
     while (!(ret=getprotoent_r(result_buf, buf, buflen, result))) {
-	if (strcmp(result_buf->p_name, name) == 0)
+	if (__strcmp(result_buf->p_name, name) == 0)
 	    break;
 	for (cp = result_buf->p_aliases; *cp != 0; cp++)
-	    if (strcmp(*cp, name) == 0)
+	    if (__strcmp(*cp, name) == 0)
 		goto found;
     }
 found:

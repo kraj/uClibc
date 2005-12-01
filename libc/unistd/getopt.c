@@ -149,7 +149,7 @@ static enum
 } ordering;
 
 # include <string.h>
-# define my_index	strchr
+# define my_index	__strchr
 
 /* Handle permutation of arguments.  */
 
@@ -371,7 +371,7 @@ int attribute_hidden _getopt_internal (int argc, char *const *argv, const char *
 	   then exchange with previous non-options as if it were an option,
 	   then skip everything else like a non-option.  */
 
-	if (optind != argc && !strcmp (argv[optind], "--"))
+	if (optind != argc && !__strcmp (argv[optind], "--"))
 	{
 	    optind++;
 
@@ -447,10 +447,10 @@ int attribute_hidden _getopt_internal (int argc, char *const *argv, const char *
 	/* Test all long options for either exact match
 	   or abbreviated matches.  */
 	for (p = longopts, option_index = 0; p->name; p++, option_index++)
-	    if (!strncmp (p->name, nextchar, nameend - nextchar))
+	    if (!__strncmp (p->name, nextchar, nameend - nextchar))
 	    {
 		if ((unsigned int) (nameend - nextchar)
-			== (unsigned int) strlen (p->name))
+			== (unsigned int) __strlen (p->name))
 		{
 		    /* Exact match found.  */
 		    pfound = p;
@@ -479,7 +479,7 @@ int attribute_hidden _getopt_internal (int argc, char *const *argv, const char *
 		fprintf (stderr, _("%s: option `%s' is ambiguous\n"),
 			argv[0], argv[optind]);
 	    }
-	    nextchar += strlen (nextchar);
+	    nextchar += __strlen (nextchar);
 	    optind++;
 	    optopt = 0;
 	    return '?';
@@ -517,7 +517,7 @@ int attribute_hidden _getopt_internal (int argc, char *const *argv, const char *
 
 		    }
 
-		    nextchar += strlen (nextchar);
+		    nextchar += __strlen (nextchar);
 
 		    optopt = pfound->val;
 		    return '?';
@@ -535,12 +535,12 @@ int attribute_hidden _getopt_internal (int argc, char *const *argv, const char *
 				_("%s: option `%s' requires an argument\n"),
 				argv[0], argv[optind - 1]);
 		    }
-		    nextchar += strlen (nextchar);
+		    nextchar += __strlen (nextchar);
 		    optopt = pfound->val;
 		    return optstring[0] == ':' ? ':' : '?';
 		}
 	    }
-	    nextchar += strlen (nextchar);
+	    nextchar += __strlen (nextchar);
 	    if (longind != NULL)
 		*longind = option_index;
 	    if (pfound->flag)
@@ -651,9 +651,9 @@ int attribute_hidden _getopt_internal (int argc, char *const *argv, const char *
 	    /* Test all long options for either exact match
 	       or abbreviated matches.  */
 	    for (p = longopts, option_index = 0; p->name; p++, option_index++)
-		if (!strncmp (p->name, nextchar, nameend - nextchar))
+		if (!__strncmp (p->name, nextchar, nameend - nextchar))
 		{
-		    if ((unsigned int) (nameend - nextchar) == strlen (p->name))
+		    if ((unsigned int) (nameend - nextchar) == __strlen (p->name))
 		    {
 			/* Exact match found.  */
 			pfound = p;
@@ -678,7 +678,7 @@ int attribute_hidden _getopt_internal (int argc, char *const *argv, const char *
 		    fprintf (stderr, _("%s: option `-W %s' is ambiguous\n"),
 			    argv[0], argv[optind]);
 		}
-		nextchar += strlen (nextchar);
+		nextchar += __strlen (nextchar);
 		optind++;
 		return '?';
 	    }
@@ -700,7 +700,7 @@ int attribute_hidden _getopt_internal (int argc, char *const *argv, const char *
 				    argv[0], pfound->name);
 			}
 
-			nextchar += strlen (nextchar);
+			nextchar += __strlen (nextchar);
 			return '?';
 		    }
 		}
@@ -716,11 +716,11 @@ int attribute_hidden _getopt_internal (int argc, char *const *argv, const char *
 				    _("%s: option `%s' requires an argument\n"),
 				    argv[0], argv[optind - 1]);
 			}
-			nextchar += strlen (nextchar);
+			nextchar += __strlen (nextchar);
 			return optstring[0] == ':' ? ':' : '?';
 		    }
 		}
-		nextchar += strlen (nextchar);
+		nextchar += __strlen (nextchar);
 		if (longind != NULL)
 		    *longind = option_index;
 		if (pfound->flag)

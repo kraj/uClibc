@@ -490,7 +490,7 @@ wctype_t attribute_hidden __wctype(const char *property)
 	p = typestring;
 	i = 1;
 	do {
-		if (!strcmp(property, ++p)) {
+		if (!__strcmp(property, ++p)) {
 			return i;
 		}
 		++i;
@@ -886,7 +886,7 @@ wctrans_t wctrans(const char *property)
 	p = transstring;
 	i = 1;
 	do {
-		if (!strcmp(property, ++p)) {
+		if (!__strcmp(property, ++p)) {
 			return i;
 		}
 		++i;

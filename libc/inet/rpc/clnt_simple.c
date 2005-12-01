@@ -87,7 +87,7 @@ callrpc (const char *host, u_long prognum, u_long versnum, u_long procnum,
       crp->socket = RPC_ANYSOCK;
     }
   if (crp->valid && crp->oldprognum == prognum && crp->oldversnum == versnum
-      && strcmp (crp->oldhost, host) == 0)
+      && __strcmp (crp->oldhost, host) == 0)
     {
       /* reuse old client */
     }
@@ -100,7 +100,7 @@ callrpc (const char *host, u_long prognum, u_long versnum, u_long procnum,
       crp->valid = 0;
       if (crp->socket != RPC_ANYSOCK)
 	{
-	  (void) close (crp->socket);
+	  (void) __close (crp->socket);
 	  crp->socket = RPC_ANYSOCK;
 	}
       if (crp->client)
@@ -125,7 +125,7 @@ callrpc (const char *host, u_long prognum, u_long versnum, u_long procnum,
 
       timeout.tv_usec = 0;
       timeout.tv_sec = 5;
-      memcpy ((char *) &server_addr.sin_addr, hp->h_addr, hp->h_length);
+      __memcpy ((char *) &server_addr.sin_addr, hp->h_addr, hp->h_length);
       server_addr.sin_family = AF_INET;
       server_addr.sin_port = 0;
       if ((crp->client = clntudp_create (&server_addr, (u_long) prognum,
@@ -134,7 +134,7 @@ callrpc (const char *host, u_long prognum, u_long versnum, u_long procnum,
       crp->valid = 1;
       crp->oldprognum = prognum;
       crp->oldversnum = versnum;
-      (void) strncpy (crp->oldhost, host, 255);
+      (void) __strncpy (crp->oldhost, host, 255);
       crp->oldhost[255] = '\0';
     }
   tottimeout.tv_sec = 25;

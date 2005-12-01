@@ -18,10 +18,10 @@ int sethostid(long int new_id)
 	int ret;
 
 	if (geteuid() || getuid()) return __set_errno(EPERM);
-	if ((fd=open(HOSTID,O_CREAT|O_WRONLY,0644))<0) return -1;
-	ret = write(fd,(void *)&new_id,sizeof(new_id)) == sizeof(new_id)
+	if ((fd=__open(HOSTID,O_CREAT|O_WRONLY,0644))<0) return -1;
+	ret = __write(fd,(void *)&new_id,sizeof(new_id)) == sizeof(new_id)
 		? 0 : -1;
-	close (fd);
+	__close (fd);
 	return ret;
 }
 
@@ -34,12 +34,12 @@ long int gethostid(void)
 	 * It is not an error if we cannot read this file. It is not even an
 	 * error if we cannot read all the bytes, we just carry on trying...
 	 */
-	if ((fd=open(HOSTID,O_RDONLY))>=0 && read(fd,(void *)&id,sizeof(id)))
+	if ((fd=__open(HOSTID,O_RDONLY))>=0 && __read(fd,(void *)&id,sizeof(id)))
 	{
-		close (fd);
+		__close (fd);
 		return id;
 	}
-	if (fd >= 0) close (fd);
+	if (fd >= 0) __close (fd);
 
 	/* Try some methods of returning a unique 32 bit id. Clearly IP
 	 * numbers, if on the internet, will have a unique address. If they
@@ -65,7 +65,7 @@ long int gethostid(void)
 		 */
 			return 0;
 		else {
-			memcpy((char *) &in, (char *) hp->h_addr, hp->h_length);
+			__memcpy((char *) &in, (char *) hp->h_addr, hp->h_length);
 
 			/* Just so it doesn't look exactly like the IP addr */
 			return(in.s_addr<<16|in.s_addr>>16);

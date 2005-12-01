@@ -116,4 +116,68 @@
 /* --- this is added to integrate linuxthreads */
 #define __USE_UNIX98            1
 
+#ifndef __ASSEMBLER__
+# ifdef IS_IN_libc
+
+#  include <bits/types.h>
+
+#  ifndef __ssize_t_defined
+typedef __ssize_t ssize_t;
+#   define __ssize_t_defined
+#  endif
+
+#  define __need_size_t
+#  include <stddef.h>
+
+#  include <bits/sigset.h>
+
+/* prototypes for internal use, please keep these in sync w/ updated headers */
+/* #include <fcntl.h> */
+extern int __open(__const char *__file, int __oflag, ...) attribute_hidden;
+
+/* #include <string.h> */
+extern int __memcmp (__const void *__s1, __const void *__s2, size_t __n) attribute_hidden;
+extern void *__memcpy (void *__restrict __dest,
+		     __const void *__restrict __src, size_t __n) attribute_hidden;
+extern void *__memmove (void *__dest, __const void *__src, size_t __n) attribute_hidden;
+extern void *__memset (void *__s, int __c, size_t __n) attribute_hidden;
+extern char *__strcpy (char *__restrict __dest, __const char *__restrict __src) attribute_hidden;
+extern size_t __strlen (__const char *__s) attribute_hidden;
+extern int __strcmp (__const char *__s1, __const char *__s2) attribute_hidden;
+extern char *__strcat (char *__restrict __dest, __const char *__restrict __src) attribute_hidden;
+extern char *__strncpy (char *__restrict __dest,
+		      __const char *__restrict __src, size_t __n) attribute_hidden;
+extern char *__strchr (__const char *__s, int __c) attribute_hidden;
+extern int __strncmp (__const char *__s1, __const char *__s2, size_t __n) attribute_hidden;
+extern char *__strdup (__const char *__s) attribute_hidden;
+
+/* #include <unistd.h> */
+extern ssize_t __read(int __fd, void *__buf, size_t __nbytes) attribute_hidden;
+extern ssize_t __write(int __fd, __const void *__buf, size_t __n) attribute_hidden;
+extern int __close(int __fd) attribute_hidden;
+
+/* #include <signal.h> */
+extern int __sigprocmask (int __how, __const __sigset_t *__restrict __set,
+			__sigset_t *__restrict __oset) attribute_hidden;
+
+/* #include <sys/time.h> */
+#  if 0 /* undoable here */
+#   define __need_timeval
+#   include <bits/time.h>
+extern int __gettimeofday(struct timeval *__restrict __tv, *__restrict __timezone__ptr_t __tz) attribute_hidden;
+#  else
+#   define gettimeofday __gettimeofday
+#  endif
+
+# elif IS_IN_libpthread
+
+#  define gettimeofday __libc_gettimeofday
+
+# else
+
+#  define open __libc_open
+
+# endif
+#endif
+
 #endif /* _LIBC_INTERNAL_H */

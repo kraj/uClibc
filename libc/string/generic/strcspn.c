@@ -27,7 +27,7 @@ size_t attribute_hidden __strcspn (const char *s, const char *reject)
   size_t count = 0;
 
   while (*s != '\0')
-    if (strchr (reject, *s++) == NULL)
+    if (__strchr (reject, *s++) == NULL)
       ++count;
     else
       return count;

@@ -30,7 +30,7 @@ __sigsetmask (int mask)
   if (sigset_set_old_mask (&set, mask) < 0)
     return -1;
 
-  if (sigprocmask (SIG_SETMASK, &set, &oset) < 0)
+  if (__sigprocmask (SIG_SETMASK, &set, &oset) < 0)
     return -1;
 
 

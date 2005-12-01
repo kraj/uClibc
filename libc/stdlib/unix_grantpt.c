@@ -19,6 +19,7 @@
 
 #define memchr __memchr
 #define getgid __getgid
+#define setrlimit __setrlimit
 
 #include <assert.h>
 #include <errno.h>

@@ -87,7 +87,7 @@ int scandir64(const char *dir, struct dirent64 ***namelist,
 	    if (vnew == NULL)
 		break;
 
-	    names[pos++] = (struct dirent64 *) memcpy (vnew, current, dsize);
+	    names[pos++] = (struct dirent64 *) __memcpy (vnew, current, dsize);
 	}
 
     if (unlikely(errno != 0))

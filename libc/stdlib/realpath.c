@@ -59,11 +59,11 @@ char resolved_path[];
 	int n;
 
 	/* Make a copy of the source path since we may need to modify it. */
-	if (strlen(path) >= PATH_MAX - 2) {
+	if (__strlen(path) >= PATH_MAX - 2) {
 		__set_errno(ENAMETOOLONG);
 		return NULL;
 	}
-	strcpy(copy_path, path);
+	__strcpy(copy_path, path);
 	path = copy_path;
 	max_path = copy_path + PATH_MAX - 2;
 	/* If it's a relative pathname use getwd for starters. */
@@ -75,7 +75,7 @@ char resolved_path[];
 #else
 		getwd(new_path);
 #endif
-		new_path += strlen(new_path);
+		new_path += __strlen(new_path);
 		if (new_path[-1] != '/')
 			*new_path++ = '/';
 	} else {
@@ -129,7 +129,7 @@ char resolved_path[];
 			if (errno != EINVAL) {
 				/* Make sure it's null terminated. */
 				*new_path = '\0';
-				strcpy(resolved_path, got_path);
+				__strcpy(resolved_path, got_path);
 				return NULL;
 			}
 		} else {
@@ -142,13 +142,13 @@ char resolved_path[];
 				/* Otherwise back up over this component. */
 				while (*(--new_path) != '/');
 			/* Safe sex check. */
-			if (strlen(path) + n >= PATH_MAX - 2) {
+			if (__strlen(path) + n >= PATH_MAX - 2) {
 				__set_errno(ENAMETOOLONG);
 				return NULL;
 			}
 			/* Insert symlink contents into path. */
-			strcat(link_path, path);
-			strcpy(copy_path, link_path);
+			__strcat(link_path, path);
+			__strcpy(copy_path, link_path);
 			path = copy_path;
 		}
 #endif							/* S_IFLNK */
@@ -159,6 +159,6 @@ char resolved_path[];
 		new_path--;
 	/* Make sure it's null terminated. */
 	*new_path = '\0';
-	strcpy(resolved_path, got_path);
+	__strcpy(resolved_path, got_path);
 	return resolved_path;
 }

@@ -30,7 +30,7 @@ sighold (sig)
   sigset_t set;
 
   /* Retrieve current signal set.  */
-  if (sigprocmask (SIG_SETMASK, NULL, &set) < 0)
+  if (__sigprocmask (SIG_SETMASK, NULL, &set) < 0)
     return -1;
 
   /* Add the specified signal.  */
@@ -38,5 +38,5 @@ sighold (sig)
     return -1;
 
   /* Set the new mask.  */
-  return sigprocmask (SIG_SETMASK, &set, NULL);
+  return __sigprocmask (SIG_SETMASK, &set, NULL);
 }

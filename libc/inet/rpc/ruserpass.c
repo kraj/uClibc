@@ -112,9 +112,9 @@ int ruserpass(const char *host, const char **aname, const char **apass)
 	  	return -1;
 	}
 
-	buf = alloca (strlen(hdir) + 8);
-	strcpy(buf, hdir);
-	strcat(buf, "/.netrc");
+	buf = alloca (__strlen(hdir) + 8);
+	__strcpy(buf, hdir);
+	__strcat(buf, "/.netrc");
 	cfile = fopen(buf, "r");
 	if (cfile == NULL) {
 		if (errno != ENOENT)
@@ -127,9 +127,9 @@ int ruserpass(const char *host, const char **aname, const char **apass)
 #endif
 	if (gethostname(myname, sizeof(myname)) < 0)
 		myname[0] = '\0';
-	mydomain = strchr(myname, '.');
+	mydomain = __strchr(myname, '.');
 	if (mydomain==NULL) {
-	    mydomain=myname + strlen(myname);
+	    mydomain=myname + __strlen(myname);
 	}
 next:
 	while ((t = token())) switch(t) {
@@ -151,12 +151,12 @@ next:
 				goto match;
 /*			if (__strcasecmp(hostname, tokval) == 0)
 				goto match;
-			if ((tmp = strchr(hostname, '.')) != NULL &&
+			if ((tmp = __strchr(hostname, '.')) != NULL &&
 			    __strcasecmp(tmp, mydomain) == 0 &&
 			    __strncasecmp(hostname, tokval, tmp-hostname) == 0 &&
 			    tokval[tmp - hostname] == '\0')
 				goto match; */
-			if ((tmp = strchr(host, '.')) != NULL &&
+			if ((tmp = __strchr(host, '.')) != NULL &&
 			    strcasecmp(tmp, mydomain) == 0 &&
 			    strncasecmp(host, tokval, tmp - host) == 0 &&
 			    tokval[tmp - host] == '\0')
@@ -170,21 +170,21 @@ next:
 			if (token()) {
 				if (*aname == 0) {
 				  char *newp;
-				  newp = malloc((unsigned) strlen(tokval) + 1);
+				  newp = malloc((unsigned) __strlen(tokval) + 1);
 				  if (newp == NULL)
 				    {
 				      printf(_("out of memory"));
 				      goto bad;
 				    }
-				  *aname = strcpy(newp, tokval);
+				  *aname = __strcpy(newp, tokval);
 				} else {
-					if (strcmp(*aname, tokval))
+					if (__strcmp(*aname, tokval))
 						goto next;
 				}
 			}
 			break;
 		case PASSWD:
-			if (strcmp(*aname, "anonymous") &&
+			if (__strcmp(*aname, "anonymous") &&
 			    fstat(fileno(cfile), &stb) >= 0 &&
 			    (stb.st_mode & 077) != 0) {
 	printf(_("Error: .netrc file is readable by others."));
@@ -193,13 +193,13 @@ next:
 			}
 			if (token() && *apass == 0) {
 				char *newp;
-				newp = malloc((unsigned) strlen(tokval) + 1);
+				newp = malloc((unsigned) __strlen(tokval) + 1);
 				if (newp == NULL)
 				  {
 				    printf(_("out of memory"));
 				    goto bad;
 				  }
-				*apass = strcpy(newp, tokval);
+				*apass = __strcpy(newp, tokval);
 			}
 			break;
 		case ACCOUNT:
@@ -211,8 +211,8 @@ next:
 				goto bad;
 			}
 			if (token() && *aacct == 0) {
-				*aacct = malloc((unsigned) strlen(tokval) + 1);
-				(void) strcpy(*aacct, tokval);
+				*aacct = malloc((unsigned) __strlen(tokval) + 1);
+				(void) __strcpy(*aacct, tokval);
 			}
 #endif
 			break;
@@ -327,7 +327,7 @@ token()
 	if (tokval[0] == 0)
 		return (0);
 	for (i = 0; i < (int) (sizeof (toktab) / sizeof (toktab[0])); ++i)
-		if (!strcmp(&tokstr[toktab[i].tokstr_off], tokval))
+		if (!__strcmp(&tokstr[toktab[i].tokstr_off], tokval))
 			return toktab[i].tval;
 	return (ID);
 }

@@ -155,7 +155,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 		sin.sin_port = rport;
 		if (connect(s, (struct sockaddr *)&sin, sizeof(sin)) >= 0) /* __connect */
 			break;
-		(void)close(s); /* __close */
+		(void)__close(s);
 		if (errno == EADDRINUSE) {
 			lport--;
 			continue;
@@ -185,7 +185,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	}
 	lport--;
 	if (fd2p == 0) {
-		write(s, "", 1); /* __write */		    
+		__write(s, "", 1);
 		lport = 0;
 	} else {
 		char num[8];
@@ -196,10 +196,10 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 			goto bad;
 		listen(s2, 1);
 		(void)snprintf(num, sizeof(num), "%d", lport); /* __snprintf */
-		if (write(s, num, strlen(num)+1) != strlen(num)+1) {
+		if (__write(s, num, __strlen(num)+1) != __strlen(num)+1) {
 			(void)fprintf(stderr,
 				      "rcmd: write (setting up stderr): %m\n");
-			(void)close(s2); /* __close */
+			(void)__close(s2);
 			goto bad;
 		}
 		pfd[0].fd = s;
@@ -210,11 +210,11 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 			(void)fprintf(stderr, "rcmd: poll (setting up stderr): %m\n");
 		    else
 			(void)fprintf(stderr, "poll: protocol failure in circuit setup\n");
-			(void)close(s2);
+			(void)__close(s2);
 			goto bad;
 		}
 		s3 = accept(s2, (struct sockaddr *)&from, &len);
-		(void)close(s2);
+		(void)__close(s2);
 		if (s3 < 0) {
 			(void)fprintf(stderr,
 			    "rcmd: accept: %m\n");
@@ -231,17 +231,17 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 			goto bad2;
 		}
 	}
-	(void)write(s, locuser, strlen(locuser)+1);
-	(void)write(s, remuser, strlen(remuser)+1);
-	(void)write(s, cmd, strlen(cmd)+1);
-	if (read(s, &c, 1) != 1) {
+	(void)__write(s, locuser, __strlen(locuser)+1);
+	(void)__write(s, remuser, __strlen(remuser)+1);
+	(void)__write(s, cmd, __strlen(cmd)+1);
+	if (__read(s, &c, 1) != 1) {
 		(void)fprintf(stderr,
 		    "rcmd: %s: %m\n", *ahost);
 		goto bad2;
 	}
 	if (c != 0) {
-		while (read(s, &c, 1) == 1) {
-			(void)write(STDERR_FILENO, &c, 1);
+		while (__read(s, &c, 1) == 1) {
+			(void)__write(STDERR_FILENO, &c, 1);
 			if (c == '\n')
 				break;
 		}
@@ -251,9 +251,9 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	return s;
 bad2:
 	if (lport)
-		(void)close(*fd2p);
+		(void)__close(*fd2p);
 bad:
-	(void)close(s);
+	(void)__close(s);
 	sigsetmask(oldmask);
 	return -1;
 }
@@ -273,12 +273,12 @@ int rresvport(int *alport)
 	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) >= 0)
 	    return s;
 	if (errno != EADDRINUSE) {
-	    (void)close(s);
+	    (void)__close(s);
 	    return -1;
 	}
 	(*alport)--;
 	if (*alport == IPPORT_RESERVED/2) {
-	    (void)close(s);
+	    (void)__close(s);
 	    __set_errno (EAGAIN);		/* close */
 	    return -1;
 	}
@@ -455,10 +455,10 @@ iruserok2 (raddr, superuser, ruser, luser, rhost)
 			return -1;
 #endif
 
-		dirlen = strlen (pwd->pw_dir);
+		dirlen = __strlen (pwd->pw_dir);
 		pbuf = malloc (dirlen + sizeof "/.rhosts");
-		strcpy (pbuf, pwd->pw_dir);
-		strcat (pbuf, "/.rhosts");
+		__strcpy (pbuf, pwd->pw_dir);
+		__strcat (pbuf, "/.rhosts");
 
 		/* Change effective uid while reading .rhosts.  If root and
 		   reading an NFS mounted file system, can't read files that
@@ -523,18 +523,18 @@ __icheckhost (u_int32_t raddr, char *lhost, const char *rhost)
 
 #ifdef HAVE_NETGROUP
 	/* Check nis netgroup.  */
-	if (strncmp ("+@", lhost, 2) == 0)
+	if (__strncmp ("+@", lhost, 2) == 0)
 		return innetgr (&lhost[2], rhost, NULL, NULL);
 
-	if (strncmp ("-@", lhost, 2) == 0)
+	if (__strncmp ("-@", lhost, 2) == 0)
 		return -innetgr (&lhost[2], rhost, NULL, NULL);
 #endif /* HAVE_NETGROUP */
 
 	/* -host */
-	if (strncmp ("-", lhost,1) == 0) {
+	if (__strncmp ("-", lhost,1) == 0) {
 		negate = -1;
 		lhost++;
-	} else if (strcmp ("+",lhost) == 0) {
+	} else if (__strcmp ("+",lhost) == 0) {
 		return 1;                    /* asking for trouble, but ok.. */
 	}
 
@@ -564,7 +564,7 @@ __icheckhost (u_int32_t raddr, char *lhost, const char *rhost)
 
 	/* Spin through ip addresses. */
 	for (pp = hp->h_addr_list; *pp; ++pp)
-		if (!memcmp (&raddr, *pp, sizeof (u_int32_t)))
+		if (!__memcmp (&raddr, *pp, sizeof (u_int32_t)))
 			return negate;
 
 	/* No match. */
@@ -583,23 +583,23 @@ __icheckuser (const char *luser, const char *ruser)
 
 #ifdef HAVE_NETGROUP
     /* [-+]@netgroup */
-    if (strncmp ("+@", luser, 2) == 0)
+    if (__strncmp ("+@", luser, 2) == 0)
 	return innetgr (&luser[2], NULL, ruser, NULL);
 
-    if (strncmp ("-@", luser,2) == 0)
+    if (__strncmp ("-@", luser,2) == 0)
 	return -innetgr (&luser[2], NULL, ruser, NULL);
 #endif /* HAVE_NETGROUP */
 
     /* -user */
-    if (strncmp ("-", luser, 1) == 0)
-	return -(strcmp (&luser[1], ruser) == 0);
+    if (__strncmp ("-", luser, 1) == 0)
+	return -(__strcmp (&luser[1], ruser) == 0);
 
     /* + */
-    if (strcmp ("+", luser) == 0)
+    if (__strcmp ("+", luser) == 0)
 	return 1;
 
     /* simple string match */
-    return strcmp (ruser, luser) == 0;
+    return __strcmp (ruser, luser) == 0;
 }
 
 /*
@@ -641,7 +641,7 @@ __ivaliduser2(hostf, raddr, luser, ruser, rhost)
 	}
 
 	/* Skip lines that are too long. */
-	if (strchr (p, '\n') == NULL) {
+	if (__strchr (p, '\n') == NULL) {
 	    int ch = getc_unlocked (hostf);
 
 	    while (ch != '\n' && ch != EOF)

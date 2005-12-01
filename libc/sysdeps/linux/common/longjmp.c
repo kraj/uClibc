@@ -36,7 +36,7 @@ void __libc_longjmp (sigjmp_buf env, int val)
 
   if (env[0].__mask_was_saved)
     /* Restore the saved signal mask.  */
-    (void) sigprocmask (SIG_SETMASK, &env[0].__saved_mask,
+    (void) __sigprocmask (SIG_SETMASK, &env[0].__saved_mask,
 			  (sigset_t *) NULL);
 
   /* Call the machine-dependent function to restore machine state.  */

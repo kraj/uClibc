@@ -41,7 +41,7 @@ char * tmpnam (char *s)
 	return NULL;
 
     if (s == NULL)
-	return (char *) memcpy (tmpnam_buffer, tmpbuf, L_tmpnam);
+	return (char *) __memcpy (tmpnam_buffer, tmpbuf, L_tmpnam);
 
     return s;
 }

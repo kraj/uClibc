@@ -239,14 +239,14 @@ int getservbyname_r(const char *name, const char *proto,
     LOCK;
     setservent(serv_stayopen);
     while (!(ret=getservent_r(result_buf, buf, buflen, result))) {
-	if (strcmp(name, result_buf->s_name) == 0)
+	if (__strcmp(name, result_buf->s_name) == 0)
 	    goto gotname;
 	for (cp = result_buf->s_aliases; *cp; cp++)
-	    if (strcmp(name, *cp) == 0)
+	    if (__strcmp(name, *cp) == 0)
 		goto gotname;
 	continue;
 gotname:
-	if (proto == 0 || strcmp(result_buf->s_proto, proto) == 0)
+	if (proto == 0 || __strcmp(result_buf->s_proto, proto) == 0)
 	    break;
     }
     if (!serv_stayopen)
@@ -266,7 +266,7 @@ int getservbyport_r(int port, const char *proto,
     while (!(ret=getservent_r(result_buf, buf, buflen, result))) {
 	if (result_buf->s_port != port)
 	    continue;
-	if (proto == 0 || strcmp(result_buf->s_proto, proto) == 0)
+	if (proto == 0 || __strcmp(result_buf->s_proto, proto) == 0)
 	    break;
     }
     if (!serv_stayopen)

@@ -128,7 +128,7 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 										& O_LARGEFILE) );
 	} else {
 		__STDIO_WHEN_LFS( if (filedes < -1) open_mode |= O_LARGEFILE );
-		if ((stream->__filedes = open(((const char *) fname_or_mode),
+		if ((stream->__filedes = __open(((const char *) fname_or_mode),
 									  open_mode, 0666)) < 0) {
 			goto FREE_STREAM;
 		}

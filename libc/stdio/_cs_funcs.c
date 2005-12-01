@@ -13,14 +13,14 @@
 
 ssize_t attribute_hidden _cs_read(void *cookie, char *buf, size_t bufsize)
 {
-	return read(*((int *) cookie), buf, bufsize);
+	return __read(*((int *) cookie), buf, bufsize);
 }
 
 /**********************************************************************/
 
 ssize_t attribute_hidden _cs_write(void *cookie, const char *buf, size_t bufsize)
 {
-	return write(*((int *) cookie), (char *) buf, bufsize);
+	return __write(*((int *) cookie), (char *) buf, bufsize);
 }
 
 /**********************************************************************/
@@ -42,7 +42,7 @@ int attribute_hidden _cs_seek(void *cookie, register __offmax_t *pos, int whence
 
 int attribute_hidden _cs_close(void *cookie)
 {
-	return close(*((int *) cookie));
+	return __close(*((int *) cookie));
 }
 
 /**********************************************************************/

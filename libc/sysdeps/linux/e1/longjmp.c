@@ -43,7 +43,7 @@ void longjmp(jmp_buf state, int value )
 void siglongjmp(sigjmp_buf state, int value )
 {
 	if( state->__mask_was_saved )
-		sigprocmask(SIG_SETMASK, &state->__saved_mask, NULL);
+		__sigprocmask(SIG_SETMASK, &state->__saved_mask, NULL);
 
 	if(!value)
 		state->__jmpbuf->ReturnValue = 1;

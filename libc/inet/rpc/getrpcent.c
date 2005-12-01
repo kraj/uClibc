@@ -96,10 +96,10 @@ struct rpcent *getrpcbyname(const char *name)
 
 	setrpcent(0);
 	while ((rpc = getrpcent())) {
-		if (strcmp(rpc->r_name, name) == 0)
+		if (__strcmp(rpc->r_name, name) == 0)
 			return rpc;
 		for (rp = rpc->r_aliases; *rp != NULL; rp++) {
-			if (strcmp(*rp, name) == 0)
+			if (__strcmp(*rp, name) == 0)
 				return rpc;
 		}
 	}
@@ -166,8 +166,8 @@ static char *firstwhite(char *s)
 {
 	char *s1, *s2;
 
-	s1 = strchr(s, ' ');
-	s2 = strchr(s, '\t');
+	s1 = __strchr(s, ' ');
+	s2 = __strchr(s, '\t');
 	if (s1) {
 		if (s2)
 			return (s1 < s2) ? s1 : s2;
@@ -184,12 +184,12 @@ static struct rpcent *interpret(register struct rpcdata *d)
 	register char *cp, **q;
 
 	p = d->line;
-	d->line[strlen(p)-1] = '\n';
+	d->line[__strlen(p)-1] = '\n';
 	if (*p == '#')
 		return __get_next_rpcent(d);
-	cp = strchr(p, '#');
+	cp = __strchr(p, '#');
 	if (cp == NULL) {
-		cp = strchr(p, '\n');
+		cp = __strchr(p, '\n');
 		if (cp == NULL)
 			return __get_next_rpcent(d);
 	}
@@ -200,9 +200,9 @@ static struct rpcent *interpret(register struct rpcdata *d)
 	else
 		return __get_next_rpcent(d);
 #else
-	cp = strchr(p, ' ');
+	cp = __strchr(p, ' ');
 	if (cp == NULL) {
-		cp = strchr(p, '\t');
+		cp = __strchr(p, '\t');
 		if (cp == NULL)
 			return __get_next_rpcent(d);
 	}
@@ -218,11 +218,11 @@ static struct rpcent *interpret(register struct rpcdata *d)
 	if ((cp = firstwhite(cp)))
 		*cp++ = '\0';
 #else
-	cp = strchr(p, ' ');
+	cp = __strchr(p, ' ');
 	if (cp != NULL)
 		*cp++ = '\0';
 	else {
-		cp = strchr(p, '\t');
+		cp = __strchr(p, '\t');
 		if (cp != NULL)
 			*cp++ = '\0';
 	}
@@ -238,11 +238,11 @@ static struct rpcent *interpret(register struct rpcdata *d)
 		if ((cp = firstwhite(cp)))
 			*cp++ = '\0';
 #else
-		cp = strchr(p, ' ');
+		cp = __strchr(p, ' ');
 		if (cp != NULL)
 			*cp++ = '\0';
 		else {
-			cp = strchr(p, '\t');
+			cp = __strchr(p, '\t');
 			if (cp != NULL)
 				*cp++ = '\0';
 		}
@@ -275,8 +275,8 @@ static int __copy_rpcent(struct rpcent *r, struct rpcent *result_buf, char *buff
 		return ENOENT;
 
 	/* copy the struct from the shared mem */
-	memset(result_buf, 0x00, sizeof(*result_buf));
-	memset(buffer, 0x00, buflen);
+	__memset(result_buf, 0x00, sizeof(*result_buf));
+	__memset(buffer, 0x00, buflen);
 
 	result_buf->r_number = r->r_number;
 
@@ -293,21 +293,21 @@ static int __copy_rpcent(struct rpcent *r, struct rpcent *result_buf, char *buff
 	buflen -= s;
 
 	while (i-- > 0) {
-		s = strlen(r->r_aliases[i]) + 1;
+		s = __strlen(r->r_aliases[i]) + 1;
 		if (buflen < s)
 			goto err_out;
 		result_buf->r_aliases[i] = buffer;
 		buffer += s;
 		buflen -= s;
-		memcpy(result_buf->r_aliases[i], r->r_aliases[i], s);
+		__memcpy(result_buf->r_aliases[i], r->r_aliases[i], s);
 	}
 
 	/* copy the name */
-	i = strlen(r->r_name);
+	i = __strlen(r->r_name);
 	if (buflen <= i)
 		goto err_out;
 	result_buf->r_name = buffer;
-	memcpy(result_buf->r_name, r->r_name, i);
+	__memcpy(result_buf->r_name, r->r_name, i);
 
 	/* that was a hoot eh ? */
 	*result = result_buf;

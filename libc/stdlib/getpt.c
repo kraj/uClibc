@@ -55,7 +55,7 @@ getpt (void)
   if (!have_no_dev_ptmx)
 #endif
     {
-      fd = open (_PATH_DEVPTMX, O_RDWR);
+      fd = __open (_PATH_DEVPTMX, O_RDWR);
       if (fd != -1)
 	{
 #if defined __ASSUME_DEVPTS__
@@ -79,7 +79,7 @@ getpt (void)
 
 	  /* If /dev/pts is not mounted then the UNIX98 pseudo terminals
              are not usable.  */
-	  close (fd);
+	  __close (fd);
 #if !defined __UNIX98PTY_ONLY__
 	  have_no_dev_ptmx = 1;
 #endif

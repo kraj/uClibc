@@ -9,11 +9,10 @@
 
 #undef mempcpy
 
-void attribute_hidden *__libc_mempcpy (void *dstpp, const void *srcpp, size_t len)
+void attribute_hidden *__mempcpy (void *dstpp, const void *srcpp, size_t len)
 {
-  memcpy(dstpp, srcpp, len);
+  __memcpy(dstpp, srcpp, len);
   return (void *)(((char *)dstpp) + len);
 }
 
-strong_alias(__libc_mempcpy, __mempcpy)
-strong_alias(__mempcpy, mempcpy)
+strong_alias(__mempcpy,mempcpy)

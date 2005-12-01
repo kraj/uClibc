@@ -63,11 +63,6 @@ typedef unsigned char	__string_uchar_t;
 #endif
 
 
-extern void *__memcpy (void *__restrict __dest,
-		     __const void *__restrict __src, size_t __n) attribute_hidden;
-extern void *__memmove (void *__dest, __const void *__src, size_t __n) attribute_hidden;
-extern void *__memset (void *__s, int __c, size_t __n) attribute_hidden;
-extern int __memcmp (__const void *__s1, __const void *__s2, size_t __n) attribute_hidden;
 extern size_t __strnlen (__const char *__string, size_t __maxlen) attribute_hidden;
 extern char *__strpbrk (__const char *__s, __const char *__accept) attribute_hidden;
 extern size_t __strspn (__const char *__s, __const char *__accept) attribute_hidden;
@@ -1678,7 +1673,7 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
     if (!strerrbuf) {		/* SUSv3  */
 		buflen = 0;
     }
-    i = strlen(s) + 1;
+    i = __strlen(s) + 1;
     if (i > buflen) {
 		i = buflen;
 		retval = ERANGE;
@@ -2008,7 +2003,7 @@ void attribute_hidden __bcopy(const void *s2, void *s1, size_t n)
 #endif
 }
 
-strong_alias(__bcopy, bcopy)
+//strong_alias(__bcopy, bcopy)
 
 #endif
 /**********************************************************************/
@@ -3063,7 +3058,7 @@ int __XL(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
 #ifdef WANT_WIDE
 		return wcscmp(s0, s1);
 #else  /* WANT_WIDE */
-		return strcmp(s0, s1);
+		return __strcmp(s0, s1);
 #endif /* WANT_WIDE */
 	}
 

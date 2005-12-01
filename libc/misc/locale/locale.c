@@ -155,7 +155,7 @@ char *setlocale(int category, register const char *locale)
 			 && ( (!locale)		/* Request for locale category string. */
 				  || (!*locale)	/* Implementation-defined default is C. */
 				  || ((*locale == 'C') && !locale[1])
-				  || (!strcmp(locale, "POSIX"))) )
+				  || (!__strcmp(locale, "POSIX"))) )
 		? (char *) C_string		/* Always in C/POSIX locale. */
 		: NULL;
 }
@@ -226,7 +226,7 @@ static void update_hr_locale(const unsigned char *spec)
 					*n = 0;
 				} else {
 					char at = 0;
-					memcpy(n, LOCALE_NAMES + 5*((*loc)-1), 5);
+					__memcpy(n, LOCALE_NAMES + 5*((*loc)-1), 5);
 					if (n[2] != '_') {
 						at = n[2];
 						n[2] = '_';
@@ -455,7 +455,7 @@ static int init_cur_collate(int der_num, __collate_t *cur_collate)
 								+ cdd->base_idx * sizeof(coldata_base_t)
 								)/2 );
 
-	memcpy(cur_collate, cdb, offsetof(coldata_base_t,index2weight_offset));
+	__memcpy(cur_collate, cdb, offsetof(coldata_base_t,index2weight_offset));
 	cur_collate->undefined_idx = cdd->undefined_idx;
 
 	cur_collate->ti_mask = (1 << cur_collate->ti_shift)-1;
@@ -507,9 +507,9 @@ static int init_cur_collate(int der_num, __collate_t *cur_collate)
 	cur_collate->index2ruleidx = cur_collate->index2weight
 		+ cur_collate->max_col_index + 1;
 
-	memcpy(cur_collate->index2weight, cur_collate->index2weight_tbl,
+	__memcpy(cur_collate->index2weight, cur_collate->index2weight_tbl,
 		   cur_collate->num_col_base * sizeof(uint16_t));
-	memcpy(cur_collate->index2ruleidx, cur_collate->index2ruleidx_tbl,
+	__memcpy(cur_collate->index2ruleidx, cur_collate->index2ruleidx_tbl,
 		   cur_collate->num_col_base * sizeof(uint16_t));
 
 	/* now do the overrides */
@@ -594,7 +594,7 @@ int _locale_set_l(const unsigned char *p, __locale_t base)
 			return 0;			/* calloc failed. */
 		}
 		free(base->collate.index2weight);
-		memcpy(&base->collate, &newcol, sizeof(__collate_t));
+		__memcpy(&base->collate, &newcol, sizeof(__collate_t));
 	}
 
 	do {
@@ -664,15 +664,15 @@ int _locale_set_l(const unsigned char *p, __locale_t base)
 					 * All of this will be replaced in the next generation
 					 * of locale support anyway... */
 
-					memcpy(base->__ctype_b_data,
+					__memcpy(base->__ctype_b_data,
 						   __C_ctype_b - __UCLIBC_CTYPE_B_TBL_OFFSET,
 						   (256 + __UCLIBC_CTYPE_B_TBL_OFFSET)
 						   * sizeof(__ctype_mask_t));
-					memcpy(base->__ctype_tolower_data,
+					__memcpy(base->__ctype_tolower_data,
 						   __C_ctype_tolower - __UCLIBC_CTYPE_TO_TBL_OFFSET,
 						   (256 + __UCLIBC_CTYPE_TO_TBL_OFFSET)
 						   * sizeof(__ctype_touplow_t));
-					memcpy(base->__ctype_toupper_data,
+					__memcpy(base->__ctype_toupper_data,
 						   __C_ctype_toupper - __UCLIBC_CTYPE_TO_TBL_OFFSET,
 						   (256 + __UCLIBC_CTYPE_TO_TBL_OFFSET)
 						   * sizeof(__ctype_touplow_t));
@@ -782,7 +782,7 @@ int _locale_set_l(const unsigned char *p, __locale_t base)
 				d = base->outdigit_length;
 				x = &base->outdigit0_mb;
 				for (c = 0 ; c < 10 ; c++) {
-					((unsigned char *)d)[c] = strlen(x[c]);
+					((unsigned char *)d)[c] = __strlen(x[c]);
 					assert(d[c] > 0);
 				}
 			} else if (i == LC_NUMERIC) {
@@ -847,10 +847,10 @@ static const uint16_t __code2flag[16] = {
 
 void _locale_init_l(__locale_t base)
 {
-	memset(base->cur_locale, 0, LOCALE_SELECTOR_SIZE);
+	__memset(base->cur_locale, 0, LOCALE_SELECTOR_SIZE);
 	base->cur_locale[0] = '#';
 
-	memcpy(base->category_item_count,
+	__memcpy(base->category_item_count,
 		   __locale_mmap->lc_common_item_offsets_LEN,
 		   LC_ALL);
 
@@ -1072,14 +1072,14 @@ static int find_locale(int category_mask, const char *p,
 	char buf[18];	/* TODO: 7+{max codeset name length} */
 	const char *q;
 
-	if ((q = strchr(p,'@')) != NULL) {
+	if ((q = __strchr(p,'@')) != NULL) {
 		if ((((size_t)((q-p)-5)) > (sizeof(buf) - 5)) || (p[2] != '_')) {
 			return 0;
 		}
 		/* locale name at least 5 chars long and 3rd char is '_' */
 		s = LOCALE_AT_MODIFIERS;
 		do {
-			if (!strcmp(s+2, q+1)) {
+			if (!__strcmp(s+2, q+1)) {
 				break;
 			}
 			s += 2 + *s;		/* TODO - fix this throughout */
@@ -1088,7 +1088,7 @@ static int find_locale(int category_mask, const char *p,
 			return 0;
 		}
 		assert(q - p < sizeof(buf));
-		memcpy(buf, p, q-p);
+		__memcpy(buf, p, q-p);
 		buf[q-p] = 0;
 		buf[2] = s[1];
 		p = buf;
@@ -1096,19 +1096,19 @@ static int find_locale(int category_mask, const char *p,
 #endif
 
 	lang_cult = codeset = 0;	/* Assume C and default codeset.  */
-	if (((*p == 'C') && !p[1]) || !strcmp(p, posix)) {
+	if (((*p == 'C') && !p[1]) || !__strcmp(p, posix)) {
 		goto FIND_LOCALE;
 	}
 
-	if ((strlen(p) > 5) && (p[5] == '.')) {	/* Codeset in locale name? */
+	if ((__strlen(p) > 5) && (p[5] == '.')) {	/* Codeset in locale name? */
 		/* TODO: maybe CODESET_LIST + *s ??? */
 		/* 7bit is 1, UTF-8 is 2, 8-bit is >= 3 */
 		codeset = 2;
-		if (strcmp(utf8,p+6) != 0) {/* TODO - fix! */
+		if (__strcmp(utf8,p+6) != 0) {/* TODO - fix! */
 			s = CODESET_LIST;
 			do {
 				++codeset;		/* Increment codeset first. */
-				if (!strcmp(CODESET_LIST+*s, p+6)) {
+				if (!__strcmp(CODESET_LIST+*s, p+6)) {
 					goto FIND_LANG_CULT;
 				}
 			} while (*++s);
@@ -1121,7 +1121,7 @@ static int find_locale(int category_mask, const char *p,
 	do {						/* TODO -- do a binary search? */
 		/* TODO -- fix gen_mmap!*/
 		++lang_cult;			/* Increment first since C/POSIX is 0. */
-		if (!strncmp(s,p,5)) { /* Found a matching locale name; */
+		if (!__strncmp(s,p,5)) { /* Found a matching locale name; */
 			goto FIND_LOCALE;
 		}
 		s += 5;
@@ -1163,14 +1163,14 @@ static unsigned char *composite_locale(int category_mask, const char *locale,
 	int c;
 	int component_mask;
 
-	if (!strchr(locale,'=')) {
+	if (!__strchr(locale,'=')) {
 		if (!find_locale(category_mask, locale, new_locale)) {
 			return NULL;
 		}
 		return new_locale;
 	}
 
-	if (strlen(locale) >= sizeof(buf)) {
+	if (__strlen(locale) >= sizeof(buf)) {
 		return NULL;
 	}
 	stpcpy(buf, locale);
@@ -1179,7 +1179,7 @@ static unsigned char *composite_locale(int category_mask, const char *locale,
 	t = strtok_r(buf, "=", &e);	/* This can't fail because of strchr test above. */
 	do {
 		c = 0;
-		while (strcmp(CATEGORY_NAMES + (int) CATEGORY_NAMES[c], t)) {
+		while (__strcmp(CATEGORY_NAMES + (int) CATEGORY_NAMES[c], t)) {
 			if (++c == LC_ALL) { /* Unknown category name! */
 				return NULL;
 			}
@@ -1221,7 +1221,7 @@ __locale_t __newlocale(int category_mask, const char *locale, __locale_t base)
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning TODO: Rename cur_locale to locale_selector.
 #endif
-	strcpy((char *) new_selector,
+	__strcpy((char *) new_selector,
 		   (base ? (char *) base->cur_locale : C_LOCALE_SELECTOR));
 
 	if (!*locale) {			 /* locale == "", so check environment. */
@@ -1310,9 +1310,9 @@ __locale_t __duplocale(__locale_t dataset)
 		if ((i2w = calloc(n, sizeof(uint16_t)))
 			!= NULL
 			) {
-			memcpy(r, dataset, sizeof(__uclibc_locale_t));
+			__memcpy(r, dataset, sizeof(__uclibc_locale_t));
 			r->collate.index2weight = i2w;
-			memcpy(i2w, dataset->collate.index2weight, n * sizeof(uint16_t));
+			__memcpy(i2w, dataset->collate.index2weight, n * sizeof(uint16_t));
 		} else {
 			free(r);
 			r = NULL;

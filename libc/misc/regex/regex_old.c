@@ -21,7 +21,6 @@
    02111-1307 USA.  */
 
 #define HAVE_MEMPCPY
-#define __mempcpy __libc_mempcpy
 #define memset __memset
 #define memcmp __memcmp
 #define strcmp __strcmp
@@ -40,8 +39,8 @@
 #define STDC_HEADERS
 #define RE_TRANSLATE_TYPE char *
 
-extern void *__libc_mempcpy (void *__restrict __dest,
-			__const void *__restrict __src, size_t __n) /*attribute_hidden*/;
+extern void *__mempcpy (void *__restrict __dest,
+			__const void *__restrict __src, size_t __n) attribute_hidden;
 
 /* AIX requires this to be the first thing in the file. */
 #if defined _AIX && !defined REGEX_MALLOC

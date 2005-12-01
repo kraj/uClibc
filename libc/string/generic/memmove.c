@@ -19,8 +19,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define memcpy __memcpy
-
 #include <string.h>
 
 #include "memcopy.h"
@@ -221,7 +219,7 @@ void attribute_hidden *__memmove (void *dest, const void *src, size_t len)
     {
 #if 1
 #warning REMINDER: generic-opt memmove assumes memcpy does forward copying!
-      memcpy(dest, src, len);
+      __memcpy(dest, src, len);
 #else
       /* Copy from the beginning to the end.  */
 

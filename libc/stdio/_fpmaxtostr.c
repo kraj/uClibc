@@ -417,7 +417,7 @@ ssize_t attribute_hidden _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info 
 	if (mode == 'f') {
 		round += exp;
 		if (round < -1) {
-			memset(buf, '0', DECIMAL_DIG); /* OK, since 'f' -> decimal case. */
+			__memset(buf, '0', DECIMAL_DIG); /* OK, since 'f' -> decimal case. */
 		    exp = -1;
 		    round = -1;
 		}

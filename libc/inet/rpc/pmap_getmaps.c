@@ -74,7 +74,7 @@ pmap_getmaps (struct sockaddr_in *address)
 	}
       CLNT_DESTROY (client);
     }
-  /* (void)close(socket); CLNT_DESTROY already closed it */
+  /* (void)__close(socket); CLNT_DESTROY already closed it */
   address->sin_port = 0;
   return head;
 }

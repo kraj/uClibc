@@ -167,7 +167,7 @@ void attribute_hidden __stdio_init_mutex(pthread_mutex_t *m)
 	static const pthread_mutex_t __stdio_mutex_initializer
 		= PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-	memcpy(m, &__stdio_mutex_initializer, sizeof(__stdio_mutex_initializer));
+	__memcpy(m, &__stdio_mutex_initializer, sizeof(__stdio_mutex_initializer));
 }
 
 #endif

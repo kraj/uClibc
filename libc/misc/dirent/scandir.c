@@ -72,7 +72,7 @@ int scandir(const char *dir, struct dirent ***namelist,
 	    if (vnew == NULL)
 		break;
 
-	    names[pos++] = (struct dirent *) memcpy (vnew, current, dsize);
+	    names[pos++] = (struct dirent *) __memcpy (vnew, current, dsize);
 	}
 
     if (unlikely(errno != 0))

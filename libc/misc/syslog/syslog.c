@@ -31,8 +31,6 @@
  * SUCH DAMAGE.
  */
 
-#define memmove __memmove
-
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -114,7 +112,7 @@ closelog_intern(int to_default)
 {
 	LOCK;
 	if (LogFile != -1) {
-	    (void) close(LogFile);
+	    (void) __close(LogFile);
 	}
 	LogFile = -1;
 	connected = 0;
@@ -160,7 +158,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 
 	struct sigaction action, oldaction;
 	int sigpipe;
-	memset (&action, 0, sizeof (action));
+	__memset (&action, 0, sizeof (action));
 	action.sa_handler = sigpipe_handler;
 	sigemptyset (&action.sa_mask);
 	sigpipe = sigaction (SIGPIPE, &action, &oldaction);
@@ -186,7 +184,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	(void)time(&now);
 	stdp = p = tbuf + sprintf(tbuf, "<%d>%.15s ", pri, ctime(&now) + 4);
 	if (LogTag) {
-		if (strlen(LogTag) < sizeof(tbuf) - 64)
+		if (__strlen(LogTag) < sizeof(tbuf) - 64)
 			p += sprintf(p, "%s", LogTag);
 		else
 			p += sprintf(p, "<BUFFER OVERRUN ATTEMPT>");
@@ -209,9 +207,9 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	p += vsnprintf(p, end - p, fmt, ap);
 	if (p >= end || p < head_end) {	/* Returned -1 in case of error... */
 		static const char truncate_msg[12] = "[truncated] ";
-		memmove(head_end + sizeof(truncate_msg), head_end,
+		__memmove(head_end + sizeof(truncate_msg), head_end,
 			end - head_end - sizeof(truncate_msg));
-		memcpy(head_end, truncate_msg, sizeof(truncate_msg));
+		__memcpy(head_end, truncate_msg, sizeof(truncate_msg));
 		if (p < head_end) {
 			while (p < end && *p) {
 				p++;
@@ -227,14 +225,14 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	/* Output to stderr if requested. */
 	if (LogStat & LOG_PERROR) {
 		*last_chr = '\n';
-		(void)write(STDERR_FILENO, stdp, last_chr - stdp + 1);
+		(void)__write(STDERR_FILENO, stdp, last_chr - stdp + 1);
 	}
 
 	/* Output the message to the local logger using NUL as a message delimiter. */
 	p = tbuf;
 	*last_chr = 0;
 	do {
-		rc = write(LogFile, p, last_chr + 1 - p);
+		rc = __write(LogFile, p, last_chr + 1 - p);
 		if (rc < 0) {
 			if ((errno==EAGAIN) || (errno==EINTR))
 				rc=0;
@@ -255,12 +253,12 @@ vsyslog( int pri, const char *fmt, va_list ap )
 	 */
 	/* should mode be `O_WRONLY | O_NOCTTY' ? -- Uli */
 	if (LogStat & LOG_CONS &&
-	    (fd = open(_PATH_CONSOLE, O_WRONLY, 0)) >= 0) {
-		p = strchr(tbuf, '>') + 1;
+	    (fd = __open(_PATH_CONSOLE, O_WRONLY, 0)) >= 0) {
+		p = __strchr(tbuf, '>') + 1;
 		last_chr[0] = '\r';
 		last_chr[1] = '\n';
-		(void)write(fd, p, last_chr - p + 2);
-		(void)close(fd);
+		(void)__write(fd, p, last_chr - p + 2);
+		(void)__close(fd);
 	}
 
 getout:
@@ -287,7 +285,7 @@ openlog( const char *ident, int logstat, int logfac )
 	LogFacility = logfac;
     if (LogFile == -1) {
 	SyslogAddr.sa_family = AF_UNIX;
-	(void)strncpy(SyslogAddr.sa_data, _PATH_LOG,
+	(void)__strncpy(SyslogAddr.sa_data, _PATH_LOG,
 		      sizeof(SyslogAddr.sa_data));
 retry:
 	if (LogStat & LOG_NDELAY) {
@@ -301,19 +299,19 @@ retry:
 
     if (LogFile != -1 && !connected) {
 	if (connect(LogFile, &SyslogAddr, sizeof(SyslogAddr) - 
-		    sizeof(SyslogAddr.sa_data) + strlen(SyslogAddr.sa_data)) != -1)
+		    sizeof(SyslogAddr.sa_data) + __strlen(SyslogAddr.sa_data)) != -1)
 	{
 	    connected = 1;
 	} else if (logType == SOCK_DGRAM) {
 	    logType = SOCK_STREAM;
 	    if (LogFile != -1) {
-		close(LogFile);
+		__close(LogFile);
 		LogFile = -1;
 	    }
 	    goto retry;
 	} else {
 	    if (LogFile != -1) {
-		close(LogFile);
+		__close(LogFile);
 		LogFile = -1;
 	    }
 	}

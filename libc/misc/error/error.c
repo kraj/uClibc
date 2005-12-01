@@ -70,7 +70,7 @@ void __error_at_line (int status, int errnum, const char *file_name,
 	static unsigned int old_line_number;
 
 	if (old_line_number == line_number &&
-		(file_name == old_file_name || !strcmp (old_file_name, file_name)))
+		(file_name == old_file_name || !__strcmp (old_file_name, file_name)))
 	    /* Simply return and print nothing.  */
 	    return;
 

@@ -42,7 +42,7 @@ FILE * tmpfile (void)
     (void) remove (buf);
 
     if ((f = fdopen (fd, "w+b")) == NULL)
-	close (fd);
+	__close (fd);
 
     return f;
 }

@@ -56,8 +56,8 @@ int attribute_hidden __add_to_environ (const char *name, const char *value,
 {
     register char **ep;
     register size_t size;
-    const size_t namelen = strlen (name);
-    const size_t vallen = value != NULL ? strlen (value) + 1 : 0;
+    const size_t namelen = __strlen (name);
+    const size_t vallen = value != NULL ? __strlen (value) + 1 : 0;
 
     LOCK;
 
@@ -68,7 +68,7 @@ int attribute_hidden __add_to_environ (const char *name, const char *value,
     size = 0;
     if (ep != NULL) {
 	for (; *ep != NULL; ++ep) {
-	    if (!strncmp (*ep, name, namelen) && (*ep)[namelen] == '=')
+	    if (!__strncmp (*ep, name, namelen) && (*ep)[namelen] == '=')
 		break;
 	    else
 		++size;
@@ -100,13 +100,13 @@ int attribute_hidden __add_to_environ (const char *name, const char *value,
 		return -1;
 	    }
 
-	    memcpy (new_environ[size], name, namelen);
+	    __memcpy (new_environ[size], name, namelen);
 	    new_environ[size][namelen] = '=';
-	    memcpy (&new_environ[size][namelen + 1], value, vallen);
+	    __memcpy (&new_environ[size][namelen + 1], value, vallen);
 	}
 
 	if (__environ != last_environ) {
-	    memcpy ((char *) new_environ, (char *) __environ,
+	    __memcpy ((char *) new_environ, (char *) __environ,
 		    size * sizeof (char *));
 	}
 
@@ -124,9 +124,9 @@ int attribute_hidden __add_to_environ (const char *name, const char *value,
 		UNLOCK;
 		return -1;
 	    }
-	    memcpy (np, name, namelen);
+	    __memcpy (np, name, namelen);
 	    np[namelen] = '=';
-	    memcpy (&np[namelen + 1], value, vallen);
+	    __memcpy (&np[namelen + 1], value, vallen);
 	}
 	*ep = np;
     }
@@ -145,16 +145,16 @@ int attribute_hidden __unsetenv (const char *name)
     size_t len;
     char **ep;
 
-    if (name == NULL || *name == '\0' || strchr (name, '=') != NULL) {
+    if (name == NULL || *name == '\0' || __strchr (name, '=') != NULL) {
 	__set_errno (EINVAL);
 	return -1;
     }
 
-    len = strlen (name);
+    len = __strlen (name);
     LOCK;
     ep = __environ;
     while (*ep != NULL) {
-	if (!strncmp (*ep, name, len) && (*ep)[len] == '=') {
+	if (!__strncmp (*ep, name, len) && (*ep)[len] == '=') {
 	    /* Found it.  Remove this pointer by moving later ones back.  */
 	    char **dp = ep;
 	    do {
@@ -191,7 +191,7 @@ int clearenv (void)
 int putenv (char *string)
 {
     int result;
-    const char *const name_end = strchr (string, '=');
+    const char *const name_end = __strchr (string, '=');
 
     if (name_end != NULL) {
 	char *name = strndup(string, name_end - string);

@@ -146,7 +146,7 @@ char *inet_ntoa(struct in_addr in)
  * Formulate an Internet address from network + host.  Used in
  * building addresses stored in the ifnet structure.
  */
-struct in_addr inet_makeaddr(in_addr_t net, in_addr_t host)
+struct in_addr attribute_hidden __inet_makeaddr(in_addr_t net, in_addr_t host)
 {
 	in_addr_t addr;
 
@@ -161,6 +161,7 @@ struct in_addr inet_makeaddr(in_addr_t net, in_addr_t host)
 	addr = htonl(addr);
 	return (*(struct in_addr *)&addr);
 }
+strong_alias(__inet_makeaddr,inet_makeaddr)
 
 #endif
 

@@ -17,7 +17,7 @@
 int attribute_hidden __fputs_unlocked(register const char * __restrict s,
 					 FILE * __restrict stream)
 {
-	size_t n = strlen(s);
+	size_t n = __strlen(s);
 
 	return ((__fwrite_unlocked(s, 1, n, stream) == n) ? n : EOF);
 }

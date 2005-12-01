@@ -66,7 +66,7 @@ realloc (void *mem, size_t new_size)
 	  void *new_mem = malloc (new_size - MALLOC_HEADER_SIZE);
 	  if (new_mem)
 	    {
-	      memcpy (new_mem, mem, size - MALLOC_HEADER_SIZE);
+	      __memcpy (new_mem, mem, size - MALLOC_HEADER_SIZE);
 	      free (mem);
 	    }
 	  mem = new_mem;

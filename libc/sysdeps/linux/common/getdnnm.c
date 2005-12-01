@@ -18,10 +18,10 @@ getdomainname(char *name, size_t len)
 
   if (uname(&uts) == -1) return -1;
 
-  if (strlen(uts.domainname)+1 > len) {
+  if (__strlen(uts.domainname)+1 > len) {
     __set_errno(EINVAL);
     return -1;
   }
-  strcpy(name, uts.domainname);
+  __strcpy(name, uts.domainname);
   return 0;
 }

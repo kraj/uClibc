@@ -19,7 +19,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define mempcpy __libc_mempcpy
+#define mempcpy __mempcpy
 #define strndup __strndup
 #define strspn __strspn
 #define unsetenv __unsetenv
@@ -135,7 +135,7 @@ static char *w_addstr(char *buffer, size_t * actlen, size_t * maxlen,
 {
 	size_t len;
 	assert(str != NULL);		/* w_addstr only called from this file */
-	len = strlen(str);
+	len = __strlen(str);
 
 	return w_addmem(buffer, actlen, maxlen, str, len);
 }
@@ -150,7 +150,7 @@ static int w_addword(wordexp_t * pwordexp, char *word)
 	 * the caller sees them.
 	 */
 	if (word == NULL) {
-		word = strdup("");
+		word = __strdup("");
 		if (word == NULL)
 			goto no_space;
 	}
@@ -252,7 +252,7 @@ parse_tilde(char **word, size_t * word_length, size_t * max_length,
 	if (*word_length != 0) {
 		if (!((*word)[*word_length - 1] == '=' && wordc == 0)) {
 			if (!((*word)[*word_length - 1] == ':'
-				  && strchr(*word, '=') && wordc == 0)) {
+				  && __strchr(*word, '=') && wordc == 0)) {
 				*word = w_addchar(*word, word_length, max_length, '~');
 				return *word ? 0 : WRDE_NOSPACE;
 			}
@@ -377,7 +377,7 @@ do_parse_glob(const char *glob_word, char **word, size_t * word_length,
 	}
 
 	for (match = 0; match < globbuf.gl_pathc; ++match) {
-		char *matching_word = strdup(globbuf.gl_pathv[match]);
+		char *matching_word = __strdup(globbuf.gl_pathv[match]);
 
 		if (matching_word == NULL || w_addword(pwordexp, matching_word)) {
 			globfree(&globbuf);
@@ -404,8 +404,8 @@ parse_glob(char **word, size_t * word_length, size_t * max_length,
 	glob_list.we_wordv = NULL;
 	glob_list.we_offs = 0;
 	for (; words[*offset] != '\0'; ++*offset) {
-		if ((ifs && strchr(ifs, words[*offset])) ||
-			(!ifs && strchr(" \t\n", words[*offset])))
+		if ((ifs && __strchr(ifs, words[*offset])) ||
+			(!ifs && __strchr(" \t\n", words[*offset])))
 			/* Reached IFS */
 			break;
 
@@ -762,24 +762,24 @@ exec_comm_child(char *comm, int *fildes, int showerr, int noexec)
 
 	/* Redirect output.  */
 	dup2(fildes[1], 1);
-	close(fildes[1]);
+	__close(fildes[1]);
 
 	/* Redirect stderr to /dev/null if we have to.  */
 	if (showerr == 0) {
 		int fd;
 
-		close(2);
-		fd = open(_PATH_DEVNULL, O_WRONLY);
+		__close(2);
+		fd = __open(_PATH_DEVNULL, O_WRONLY);
 		if (fd >= 0 && fd != 2) {
 			dup2(fd, 2);
-			close(fd);
+			__close(fd);
 		}
 	}
 
 	/* Make sure the subshell doesn't field-split on our behalf. */
 	unsetenv("IFS");
 
-	close(fildes[0]);
+	__close(fildes[0]);
 	execve(_PATH_BSHELL, (char *const *) args, __environ);
 
 	/* Bad.  What now?  */
@@ -812,8 +812,8 @@ exec_comm(char *comm, char **word, size_t * word_length,
 
 	if ((pid = fork()) < 0) {
 		/* Bad */
-		close(fildes[0]);
-		close(fildes[1]);
+		__close(fildes[0]);
+		__close(fildes[1]);
 		return WRDE_NOSPACE;
 	}
 
@@ -822,17 +822,17 @@ exec_comm(char *comm, char **word, size_t * word_length,
 
 	/* Parent */
 
-	close(fildes[1]);
+	__close(fildes[1]);
 	buffer = alloca(bufsize);
 
 	if (!pwordexp)
 		/* Quoted - no field splitting */
 	{
 		while (1) {
-			if ((buflen = read(fildes[0], buffer, bufsize)) < 1) {
+			if ((buflen = __read(fildes[0], buffer, bufsize)) < 1) {
 				if (waitpid(pid, &status, WNOHANG) == 0)
 					continue;
-				if ((buflen = read(fildes[0], buffer, bufsize)) < 1)
+				if ((buflen = __read(fildes[0], buffer, bufsize)) < 1)
 					break;
 			}
 
@@ -855,17 +855,17 @@ exec_comm(char *comm, char **word, size_t * word_length,
 		 */
 
 		while (1) {
-			if ((buflen = read(fildes[0], buffer, bufsize)) < 1) {
+			if ((buflen = __read(fildes[0], buffer, bufsize)) < 1) {
 				if (waitpid(pid, &status, WNOHANG) == 0)
 					continue;
-				if ((buflen = read(fildes[0], buffer, bufsize)) < 1)
+				if ((buflen = __read(fildes[0], buffer, bufsize)) < 1)
 					break;
 			}
 
 			for (i = 0; i < buflen; ++i) {
-				if (strchr(ifs, buffer[i]) != NULL) {
+				if (__strchr(ifs, buffer[i]) != NULL) {
 					/* Current character is IFS */
-					if (strchr(ifs_white, buffer[i]) == NULL) {
+					if (__strchr(ifs_white, buffer[i]) == NULL) {
 						/* Current character is IFS but not whitespace */
 						if (copying == 2) {
 							/*            current character
@@ -959,7 +959,7 @@ exec_comm(char *comm, char **word, size_t * word_length,
 		}
 	}
 
-	close(fildes[0]);
+	__close(fildes[0]);
 
 	/* Check for syntax error (re-execute but with "-n" flag) */
 	if (buflen < 1 && status != 0) {
@@ -982,7 +982,7 @@ exec_comm(char *comm, char **word, size_t * word_length,
   no_space:
 	kill(pid, SIGKILL);
 	waitpid(pid, NULL, 0);
-	close(fildes[0]);
+	__close(fildes[0]);
 	return WRDE_NOSPACE;
 }
 
@@ -1181,7 +1181,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 				goto envsubst;
 		}
 		while (isdigit(words[++*offset]));
-	} else if (strchr("*@$", words[*offset]) != NULL) {
+	} else if (__strchr("*@$", words[*offset]) != NULL) {
 		/* Special parameter. */
 		special = 1;
 		env = w_addchar(env, &env_length, &env_maxlen, words[*offset]);
@@ -1217,7 +1217,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 			break;
 
 		case ':':
-			if (strchr("-=?+", words[1 + *offset]) == NULL)
+			if (__strchr("-=?+", words[1 + *offset]) == NULL)
 				goto syntax;
 
 			colon_seen = 1;
@@ -1349,7 +1349,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 
 			/* Build up value parameter by parameter (copy them) */
 			for (p = 1; __libc_argv[p]; ++p)
-				plist_len += strlen(__libc_argv[p]) + 1;	/* for space */
+				plist_len += __strlen(__libc_argv[p]) + 1;	/* for space */
 			value = malloc(plist_len);
 			if (value == NULL)
 				goto no_space;
@@ -1379,7 +1379,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 					goto no_space;
 
 				for (p = 2; __libc_argv[p + 1]; p++) {
-					char *newword = strdup(__libc_argv[p]);
+					char *newword = __strdup(__libc_argv[p]);
 
 					if (newword == NULL || w_addword(pwordexp, newword))
 						goto no_space;
@@ -1559,7 +1559,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 			if (value == NULL || pattern == NULL || *pattern == '\0')
 				break;
 
-			end = value + strlen(value);
+			end = value + __strlen(value);
 
 			switch (action) {
 			case ACT_RP_SHORT_LEFT:
@@ -1569,7 +1569,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 					if (fnmatch(pattern, value, 0) != FNM_NOMATCH) {
 						*p = c;
 						if (free_value) {
-							char *newval = strdup(p);
+							char *newval = __strdup(p);
 
 							if (newval == NULL) {
 								free(value);
@@ -1593,7 +1593,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 					if (fnmatch(pattern, value, 0) != FNM_NOMATCH) {
 						*p = c;
 						if (free_value) {
-							char *newval = strdup(p);
+							char *newval = __strdup(p);
 
 							if (newval == NULL) {
 								free(value);
@@ -1697,7 +1697,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 				/* Substitute NULL */
 				goto success;
 
-			value = pattern ? strdup(pattern) : pattern;
+			value = pattern ? __strdup(pattern) : pattern;
 			free_value = 1;
 
 			if (pattern && !value)
@@ -1710,7 +1710,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 				if (free_value && value)
 					free(value);
 
-				value = pattern ? strdup(pattern) : pattern;
+				value = pattern ? __strdup(pattern) : pattern;
 				free_value = 1;
 
 				if (pattern && !value)
@@ -1739,7 +1739,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 			if (free_value && value)
 				free(value);
 
-			value = pattern ? strdup(pattern) : pattern;
+			value = pattern ? __strdup(pattern) : pattern;
 			free_value = 1;
 
 			if (pattern && !value)
@@ -1763,7 +1763,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 
 		param_length[20] = '\0';
 		*word = w_addstr(*word, word_length, max_length,
-						 _itoa(value ? strlen(value) : 0,
+						 _itoa(value ? __strlen(value) : 0,
 									&param_length[20]));
 		if (free_value) {
 			assert(value != NULL);
@@ -1785,7 +1785,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 		return *word ? 0 : WRDE_NOSPACE;
 	} else {
 		/* Need to field-split */
-		char *value_copy = strdup(value);	/* Don't modify value */
+		char *value_copy = __strdup(value);	/* Don't modify value */
 		char *field_begin = value_copy;
 		int seen_nonws_ifs = 0;
 
@@ -1825,7 +1825,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 
 			/* Skip at most one non-whitespace IFS character after the field */
 			seen_nonws_ifs = 0;
-			if (*next_field && strchr(ifs, *next_field)) {
+			if (*next_field && __strchr(ifs, *next_field)) {
 				seen_nonws_ifs = 1;
 				next_field++;
 			}
@@ -2071,7 +2071,7 @@ int wordexp(const char *words, wordexp_t * we, int flags)
 
 	if (!ifs)
 		/* IFS unset - use <space><tab><newline>. */
-		ifs = strcpy(ifs_white, " \t\n");
+		ifs = __strcpy(ifs_white, " \t\n");
 	else {
 		char *ifsch = ifs;
 		char *whch = ifs_white;
@@ -2190,11 +2190,11 @@ int wordexp(const char *words, wordexp_t * we, int flags)
 
 		default:
 			/* Is it a word separator? */
-			if (strchr(" \t", words[words_offset]) == NULL) {
+			if (__strchr(" \t", words[words_offset]) == NULL) {
 				char ch = words[words_offset];
 
 				/* Not a word separator -- but is it a valid word char? */
-				if (strchr("\n|&;<>(){}", ch)) {
+				if (__strchr("\n|&;<>(){}", ch)) {
 					/* Fail */
 					error = WRDE_BADCHAR;
 					goto do_error;

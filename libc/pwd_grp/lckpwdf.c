@@ -64,7 +64,7 @@ int lckpwdf (void)
 
 	LOCK;
 
-	lock_fd = open (_PATH_PASSWD, O_WRONLY);
+	lock_fd = __open (_PATH_PASSWD, O_WRONLY);
 	if (lock_fd == -1) {
 		/* Cannot create lock file.  */
 		UNLOCK;
@@ -75,7 +75,7 @@ int lckpwdf (void)
 	flags = fcntl (lock_fd, F_GETFD, 0);
 	if (flags == -1) {
 		/* Cannot get file flags.  */
-		close(lock_fd);
+		__close(lock_fd);
 		lock_fd = -1;
 		UNLOCK;
 		return -1;
@@ -83,7 +83,7 @@ int lckpwdf (void)
 	flags |= FD_CLOEXEC;		/* Close on exit.  */
 	if (fcntl (lock_fd, F_SETFD, flags) < 0) {
 		/* Cannot set new flags.  */
-		close(lock_fd);
+		__close(lock_fd);
 		lock_fd = -1;
 		UNLOCK;
 		return -1;
@@ -97,7 +97,7 @@ int lckpwdf (void)
 
 	   It is important that we don't change the signal state.  We must
 	   restore the old signal behaviour.  */
-	memset (&new_act, '\0', sizeof (struct sigaction));
+	__memset (&new_act, '\0', sizeof (struct sigaction));
 	new_act.sa_handler = noop_handler;
 	sigfillset (&new_act.sa_mask);
 	new_act.sa_flags = 0ul;
@@ -105,7 +105,7 @@ int lckpwdf (void)
 	/* Install new action handler for alarm and save old.  */
 	if (sigaction (SIGALRM, &new_act, &saved_act) < 0) {
 		/* Cannot install signal handler.  */
-		close(lock_fd);
+		__close(lock_fd);
 		lock_fd = -1;
 		UNLOCK;
 		return -1;
@@ -114,9 +114,9 @@ int lckpwdf (void)
 	/* Now make sure the alarm signal is not blocked.  */
 	sigemptyset (&new_set);
 	sigaddset (&new_set, SIGALRM);
-	if (sigprocmask (SIG_UNBLOCK, &new_set, &saved_set) < 0) {
+	if (__sigprocmask (SIG_UNBLOCK, &new_set, &saved_set) < 0) {
 		sigaction (SIGALRM, &saved_act, NULL);
-		close(lock_fd);
+		__close(lock_fd);
 		lock_fd = -1;
 		UNLOCK;
 		return -1;
@@ -127,7 +127,7 @@ int lckpwdf (void)
 	alarm (TIMEOUT);
 
 	/* Try to get the lock.  */
-	memset (&fl, '\0', sizeof (struct flock));
+	__memset (&fl, '\0', sizeof (struct flock));
 	fl.l_type = F_WRLCK;
 	fl.l_whence = SEEK_SET;
 	result = fcntl (lock_fd, F_SETLKW, &fl);
@@ -137,14 +137,14 @@ int lckpwdf (void)
 
 	/* Restore old set of handled signals.  We don't need to know
 	   about the current one.*/
-	sigprocmask (SIG_SETMASK, &saved_set, NULL);
+	__sigprocmask (SIG_SETMASK, &saved_set, NULL);
 
 	/* Restore old action handler for alarm.  We don't need to know
 	   about the current one.  */
 	sigaction (SIGALRM, &saved_act, NULL);
 
 	if (result < 0) {
-		close(lock_fd);
+		__close(lock_fd);
 		lock_fd = -1;
 		UNLOCK;
 		return -1;
@@ -165,7 +165,7 @@ int ulckpwdf (void)
 	}
 	else {
 		LOCK;
-		result = close (lock_fd);
+		result = __close (lock_fd);
 		/* Mark descriptor as unused.  */
 		lock_fd = -1;
 		UNLOCK;

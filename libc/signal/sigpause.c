@@ -32,7 +32,7 @@ int __sigpause (int sig_or_mask, int is_sig)
   if (is_sig != 0)
     {
       /* The modern X/Open implementation is requested.  */
-      if (sigprocmask (0, NULL, &set) < 0
+      if (__sigprocmask (0, NULL, &set) < 0
 	  /* Yes, we call `sigdelset' and not `__sigdelset'.  */
 	  || sigdelset (&set, sig_or_mask) < 0)
 	return -1;

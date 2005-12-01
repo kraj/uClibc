@@ -46,7 +46,7 @@ char attribute_hidden *__strsep (char **stringp, const char *delim)
 	  else if (*begin == '\0')
 	    end = NULL;
 	  else
-	    end = strchr (begin + 1, ch);
+	    end = __strchr (begin + 1, ch);
 	}
     }
   else

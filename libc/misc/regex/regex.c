@@ -44,6 +44,15 @@ extern wctype_t __wctype (__const char *__property) attribute_hidden;
 
 extern int __iswctype (wint_t __wc, wctype_t __desc) /*attribute_hidden*/;
 #endif
+
+#define memcmp __memcmp
+#define memcpy __memcpy
+#define memmove __memmove
+#define memset __memset
+#define strchr __strchr
+#define strcmp __strcmp
+#define strlen __strlen
+#define strncpy __strncpy
 #endif
 
 /* Make sure noone compiles this code with a C++ compiler.  */

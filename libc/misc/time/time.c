@@ -131,7 +131,6 @@
 
 #define _uintmaxtostr __libc__uintmaxtostr
 #define strnlen __strnlen
-#define memcpy __memcpy
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -316,23 +315,23 @@ char attribute_hidden *__asctime_r(register const struct tm *__restrict ptm,
 	assert(buffer);
 
 #ifdef SAFE_ASCTIME_R
-	memcpy(buffer, at_data + 3*(7 + 12), sizeof(at_data) - 3*(7 + 12));
+	__memcpy(buffer, at_data + 3*(7 + 12), sizeof(at_data) - 3*(7 + 12));
 
 	if (((unsigned int)(ptm->tm_wday)) <= 6) {
-		memcpy(buffer, at_data + 3 * ptm->tm_wday, 3);
+		__memcpy(buffer, at_data + 3 * ptm->tm_wday, 3);
 	}
 
 	if (((unsigned int)(ptm->tm_mon)) <= 11) {
-		memcpy(buffer + 4, at_data + 3*7 + 3 * ptm->tm_mon, 3);
+		__memcpy(buffer + 4, at_data + 3*7 + 3 * ptm->tm_mon, 3);
 	}
 #else
 	assert(((unsigned int)(ptm->tm_wday)) <= 6);
 	assert(((unsigned int)(ptm->tm_mon)) <= 11);
 
-	memcpy(buffer, at_data + 3*(7 + 12) - 3, sizeof(at_data) + 3 - 3*(7 + 12));
+	__memcpy(buffer, at_data + 3*(7 + 12) - 3, sizeof(at_data) + 3 - 3*(7 + 12));
 
-	memcpy(buffer, at_data + 3 * ptm->tm_wday, 3);
-	memcpy(buffer + 4, at_data + 3*7 + 3 * ptm->tm_mon, 3);
+	__memcpy(buffer, at_data + 3 * ptm->tm_wday, 3);
+	__memcpy(buffer + 4, at_data + 3*7 + 3 * ptm->tm_mon, 3);
 #endif
 
 #ifdef SAFE_ASCTIME_R
@@ -587,7 +586,7 @@ static const char *lookup_tzname(const char *key)
 	ll_tzname_item_t *p;
 
 	for (p=ll_tzname ; p ; p=p->next) {
-		if (!strcmp(p->tzname, key)) {
+		if (!__strcmp(p->tzname, key)) {
 			return p->tzname;
 		}
 	}
@@ -598,7 +597,7 @@ static const char *lookup_tzname(const char *key)
 			/* Insert as 3rd item in the list. */
 			p->next = ll_tzname[1].next;
 			ll_tzname[1].next = p;
-			strcpy(p->tzname, key);
+			__strcpy(p->tzname, key);
 			return p->tzname;
 		}
 	}
@@ -742,8 +741,8 @@ time_t timegm(struct tm *timeptr)
 {
 	rule_struct gmt_tzinfo[2];
 
-	memset(gmt_tzinfo, 0, sizeof(gmt_tzinfo));
-	strcpy(gmt_tzinfo[0].tzname, "GMT"); /* Match glibc behavior here. */
+	__memset(gmt_tzinfo, 0, sizeof(gmt_tzinfo));
+	__strcpy(gmt_tzinfo[0].tzname, "GMT"); /* Match glibc behavior here. */
 
 	return  _time_mktime_tzi(timeptr, 1, gmt_tzinfo);
 }
@@ -1503,7 +1502,7 @@ char *__XL(strptime)(const char *__restrict buf, const char *__restrict format,
 			do {
 				--j;
 				o = __XL(nl_langinfo)(i+j   __LOCALE_ARG);
-				if (!__XL(strncasecmp)(buf,o,strlen(o)   __LOCALE_ARG) && *o) {
+				if (!__XL(strncasecmp)(buf,o,__strlen(o)   __LOCALE_ARG) && *o) {
 					do {		/* Found a match. */
 						++buf;
 					} while (*++o);
@@ -1758,11 +1757,11 @@ static char *read_TZ_file(char *buf)
 	size_t todo;
 	char *p = NULL;
 
-	if ((fd = open(__UCLIBC_TZ_FILE_PATH__, O_RDONLY)) >= 0) {
+	if ((fd = __open(__UCLIBC_TZ_FILE_PATH__, O_RDONLY)) >= 0) {
 		todo = TZ_BUFLEN;
 		p = buf;
 		do {
-			if ((r = read(fd, p, todo)) < 0) {
+			if ((r = __read(fd, p, todo)) < 0) {
 				goto ERROR;
 			}
 			if (r == 0) {
@@ -1782,7 +1781,7 @@ static char *read_TZ_file(char *buf)
 		ERROR:
 			p = NULL;
 		}
-		close(fd);
+		__close(fd);
 	}
 	return p;
 }
@@ -1834,8 +1833,8 @@ void tzset(void)
 #ifdef __UCLIBC_HAS_TZ_CACHING__
 		*oldval = 0;			/* Set oldval to an empty string. */
 #endif /* __UCLIBC_HAS_TZ_CACHING__ */
-		memset(_time_tzinfo, 0, 2*sizeof(rule_struct));
-		strcpy(_time_tzinfo[0].tzname, UTC);
+		__memset(_time_tzinfo, 0, 2*sizeof(rule_struct));
+		__strcpy(_time_tzinfo[0].tzname, UTC);
 		goto DONE;
 	}
 
@@ -1844,13 +1843,13 @@ void tzset(void)
 	}
 
 #ifdef __UCLIBC_HAS_TZ_CACHING__
-	if (strcmp(e, oldval) == 0) { /* Same string as last time... */
+	if (__strcmp(e, oldval) == 0) { /* Same string as last time... */
 		goto FAST_DONE;			/* So nothing to do. */
 	}
 	/* Make a copy of the TZ env string.  It won't be nul-terminated if
 	 * it is too long, but it that case it will be illegal and will be reset
 	 * to the empty string anyway. */
-	strncpy(oldval, e, TZ_BUFLEN);
+	__strncpy(oldval, e, TZ_BUFLEN);
 #endif /* __UCLIBC_HAS_TZ_CACHING__ */
 	
 	count = 0;
@@ -1964,7 +1963,7 @@ void tzset(void)
 		}
 	}
 
-	memcpy(_time_tzinfo, new_rules, sizeof(new_rules));
+	__memcpy(_time_tzinfo, new_rules, sizeof(new_rules));
  DONE:
 	tzname[0] = _time_tzinfo[0].tzname;
 	tzname[1] = _time_tzinfo[1].tzname;
@@ -2211,7 +2210,7 @@ time_t attribute_hidden _time_mktime_tzi(struct tm *timeptr, int store_on_succes
 	register const unsigned char *s;
 	int d, default_dst;
 
-	memcpy(p, timeptr, sizeof(struct tm));
+	__memcpy(p, timeptr, sizeof(struct tm));
 
 	if (!tzi[1].tzname[0]) { /* No dst in this timezone, */
 		p[8] = 0;				/* so set tm_isdst to 0. */
@@ -2301,7 +2300,7 @@ time_t attribute_hidden _time_mktime_tzi(struct tm *timeptr, int store_on_succes
 
 
 	if (store_on_success) {
-		memcpy(timeptr, p, sizeof(struct tm));
+		__memcpy(timeptr, p, sizeof(struct tm));
 	}
 
 

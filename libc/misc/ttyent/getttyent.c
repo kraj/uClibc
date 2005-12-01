@@ -52,7 +52,7 @@ struct ttyent * getttynam(const char *tty)
 
     setttyent();
     while ((t = getttyent()))
-	if (!strcmp(tty, t->ty_name))
+	if (!__strcmp(tty, t->ty_name))
 	    break;
     endttyent();
     return (t);
@@ -98,7 +98,7 @@ static char * skip(register char *p)
 static char * value(register char *p)
 {
 
-    return ((p = strchr(p, '=')) ? ++p : NULL);
+    return ((p = __strchr(p, '=')) ? ++p : NULL);
 }
 
 struct ttyent * getttyent(void)
@@ -124,7 +124,7 @@ struct ttyent * getttyent(void)
 	    return (NULL);
 	}
 	/* skip lines that are too big */
-	if (!strchr(p, '\n')) {
+	if (!__strchr(p, '\n')) {
 	    while ((c = getc_unlocked(tf)) != '\n' && c != EOF)
 		;
 	    continue;
@@ -150,8 +150,8 @@ struct ttyent * getttyent(void)
     tty.ty_status = 0;
     tty.ty_window = NULL;
 
-#define	scmp(e)	!strncmp(p, e, sizeof(e) - 1) && isspace(p[sizeof(e) - 1])
-#define	vcmp(e)	!strncmp(p, e, sizeof(e) - 1) && p[sizeof(e) - 1] == '='
+#define	scmp(e)	!__strncmp(p, e, sizeof(e) - 1) && isspace(p[sizeof(e) - 1])
+#define	vcmp(e)	!__strncmp(p, e, sizeof(e) - 1) && p[sizeof(e) - 1] == '='
     for (; *p; p = skip(p)) {
 	if (scmp(_TTYS_OFF))
 	    tty.ty_status &= ~TTY_ON;
@@ -173,7 +173,7 @@ struct ttyent * getttyent(void)
     tty.ty_comment = p;
     if (*p == 0)
 	tty.ty_comment = 0;
-    if ((p = strchr(p, '\n')))
+    if ((p = __strchr(p, '\n')))
 	*p = '\0';
     return (&tty);
 }

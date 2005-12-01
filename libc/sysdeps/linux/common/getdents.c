@@ -90,7 +90,7 @@ ssize_t attribute_hidden __getdents (int fd, char *buf, size_t nbytes)
 	dp->d_off = kdp->d_off;
 	dp->d_reclen = new_reclen;
 	dp->d_type = DT_UNKNOWN;
-	memcpy (dp->d_name, kdp->d_name,
+	__memcpy (dp->d_name, kdp->d_name,
 		kdp->d_reclen - offsetof (struct kernel_dirent, d_name));
 	dp = (struct dirent *) ((char *) dp + new_reclen);
 	kdp = (struct kernel_dirent *) (((char *) kdp) + kdp->d_reclen);

@@ -103,8 +103,8 @@ int ptsname_r (int fd, char *buf, size_t buflen)
 	  return ERANGE;
 	}
 
-      strcpy (buf, devpts);
-      strcat (buf, p);
+      __strcpy (buf, devpts);
+      __strcat (buf, p);
       /* Note: Don't bother with stat on the slave name and checking the
 	 driver's major device number - the ioctl above succeeded so
 	 we know the fd was a Unix'98 master and the /dev/pts/ prefix
@@ -130,7 +130,7 @@ int ptsname_r (int fd, char *buf, size_t buflen)
     {
       char *p;
 
-      if (buflen < strlen (_PATH_TTY) + 3)
+      if (buflen < __strlen (_PATH_TTY) + 3)
 	{
 	  errno = ERANGE;
 	  return ERANGE;
@@ -152,14 +152,14 @@ int ptsname_r (int fd, char *buf, size_t buflen)
       if (major (st.st_rdev) == 4)
 	ptyno -= 128;
 
-      if (ptyno / 16 >= strlen (_ptyname1))
+      if (ptyno / 16 >= __strlen (_ptyname1))
 	{
 	  errno = ENOTTY;
 	  return ENOTTY;
 	}
 
-      strcpy (buf, _PATH_TTY);
-      p = buf + strlen (buf);
+      __strcpy (buf, _PATH_TTY);
+      p = buf + __strlen (buf);
       p[0] = _ptyname1[ptyno / 16];
       p[1] = _ptyname2[ptyno % 16];
       p[2] = '\0';

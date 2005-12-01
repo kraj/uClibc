@@ -314,7 +314,7 @@ __fpmax_t __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endptr, int exponent_
 		goto LOOP;
 	}
 #else
-	if (!pos0 && !memcmp(pos, decpt, decpt_len)) { /* First decimal point? */
+	if (!pos0 && !__memcmp(pos, decpt, decpt_len)) { /* First decimal point? */
 		pos0 = (pos += decpt_len);
 		goto LOOP;
 	}

@@ -84,7 +84,7 @@ _svcauth_unix (struct svc_req *rqst, struct rpc_msg *msg)
 	  stat = AUTH_BADCRED;
 	  goto done;
 	}
-      memcpy (aup->aup_machname, (caddr_t) buf, (u_int) str_len);
+      __memcpy (aup->aup_machname, (caddr_t) buf, (u_int) str_len);
       aup->aup_machname[str_len] = 0;
       str_len = RNDUP (str_len);
       buf = (int32_t *) ((char *) buf + str_len);

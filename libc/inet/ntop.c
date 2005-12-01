@@ -15,8 +15,6 @@
  * SOFTWARE.
  */
 
-#define memmove __memmove
-
 #define __FORCE_GLIBC
 #include <features.h>
 #include <sys/param.h>
@@ -78,12 +76,12 @@ inet_ntop4(const u_char *src, char *dst, size_t size)
 	}
 	tmp[i - 1] = '\0';
 
-	if (strlen (tmp) > size) {
+	if (__strlen (tmp) > size) {
 		__set_errno (ENOSPC);
 		return (NULL);
 	}
 
-	return strcpy(dst, tmp);
+	return __strcpy(dst, tmp);
 }
 
 
@@ -116,7 +114,7 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 	 *	Copy the input (bytewise) array into a wordwise array.
 	 *	Find the longest run of 0x00's in src[] for :: shorthanding.
 	 */
-	memset(words, '\0', sizeof words);
+	__memset(words, '\0', sizeof words);
 	for (i = 0; i < 16; i += 2)
 		words[i / 2] = (src[i] << 8) | src[i + 1];
 	best.base = -1;
@@ -162,7 +160,7 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 		    (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
 			if (!inet_ntop4(src+12, tp, sizeof tmp - (tp - tmp)))
 				return (NULL);
-			tp += strlen(tp);
+			tp += __strlen(tp);
 			break;
 		}
 		tp += sprintf(tp, "%x", words[i]);
@@ -179,7 +177,7 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 		__set_errno (ENOSPC);
 		return (NULL);
 	}
-	return strcpy(dst, tmp);
+	return __strcpy(dst, tmp);
 }
 #endif /* __UCLIBC_HAS_IPV6__ */
 
@@ -226,7 +224,7 @@ inet_pton4(const char *src, u_char *dst)
 	}
 	if (octets < 4)
 		return (0);
-	memcpy(dst, tmp, 4);
+	__memcpy(dst, tmp, 4);
 	return (1);
 }
 
@@ -263,7 +261,7 @@ inet_pton6(const char *src, u_char *dst)
 	u_int val;
 
 
-	tp = memset(tmp, '\0', 16);
+	tp = __memset(tmp, '\0', 16);
 	endp = tp + 16;
 	colonp = NULL;
 	/* Leading :: requires some special handling. */
@@ -276,7 +274,7 @@ inet_pton6(const char *src, u_char *dst)
 	while ((ch = tolower (*src++)) != '\0') {
 		const char *pch;
 
-		pch = strchr(xdigits, ch);
+		pch = __strchr(xdigits, ch);
 		if (pch != NULL) {
 			val <<= 4;
 			val |= (pch - xdigits);
@@ -335,7 +333,7 @@ inet_pton6(const char *src, u_char *dst)
 	}
 	if (tp != endp)
 		return (0);
-	memcpy(dst, tmp, 16);
+	__memcpy(dst, tmp, 16);
 	return (1);
 }
 

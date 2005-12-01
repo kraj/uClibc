@@ -64,7 +64,7 @@ void * calloc(size_t nmemb, size_t lsize)
 	 * doesn't need to actually zero anything....
 	 */
 	if (result != NULL) {
-		memset(result, 0, size);
+		__memset(result, 0, size);
 	}
 #endif
 	return result;
@@ -85,7 +85,7 @@ void *realloc(void *ptr, size_t size)
 
 	newptr = malloc(size);
 	if (newptr) {
-		memcpy(newptr, ptr, *((size_t *) (ptr - sizeof(size_t))));
+		__memcpy(newptr, ptr, *((size_t *) (ptr - sizeof(size_t))));
 		free(ptr);
 	}
 	return newptr;

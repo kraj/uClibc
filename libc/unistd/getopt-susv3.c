@@ -87,7 +87,7 @@ int getopt(int argc, char * const argv[], const char *optstring)
 #endif
 	retval = (unsigned char) *o; /* Avoid problems for char val of -1. */
 
-	if ((*o == ':') || !(s = strchr(optstring, *o))) { /* Illegal option? */
+	if ((*o == ':') || !(s = __strchr(optstring, *o))) { /* Illegal option? */
 		s = illegal;
 		retval = '?';
 		goto BAD;

@@ -127,7 +127,7 @@ glob (pattern, flags, errfunc, pglob)
     {
       dirlen = filename - pattern;
       dirname = (char *) alloca (dirlen + 1);
-      memcpy (dirname, pattern, dirlen);
+      __memcpy (dirname, pattern, dirlen);
       dirname[dirlen] = '\0';
       ++filename;
     }
@@ -219,11 +219,11 @@ glob (pattern, flags, errfunc, pglob)
 	/* No matches.  */
 	if (flags & GLOB_NOCHECK)
 	{
-	    size_t len = strlen (pattern) + 1;
+	    size_t len = __strlen (pattern) + 1;
 	    char *patcopy = (char *) malloc (len);
 	    if (patcopy == NULL)
 	      return GLOB_NOSPACE;
-	    memcpy (patcopy, pattern, len);
+	    __memcpy (patcopy, pattern, len);
 
 	    pglob->gl_pathv
 	      = (char **) realloc (pglob->gl_pathv,
@@ -281,7 +281,7 @@ glob (pattern, flags, errfunc, pglob)
       for (i = oldcount; i < pglob->gl_pathc; ++i)
 	if (lstat (pglob->gl_pathv[i], &st) == 0 &&
 	    S_ISDIR (st.st_mode))
-	  strcat (pglob->gl_pathv[i], "/");
+	  __strcat (pglob->gl_pathv[i], "/");
     }
 
   if (!(flags & GLOB_NOSORT))
@@ -343,7 +343,7 @@ prefix_array (dirname, array, n, add_slash)
      int add_slash;
 {
   register size_t i;
-  size_t dirlen = strlen (dirname);
+  size_t dirlen = __strlen (dirname);
 
   if (dirlen == 1 && dirname[0] == '/')
     /* DIRNAME is just "/", so normal prepending would get us "//foo".
@@ -352,7 +352,7 @@ prefix_array (dirname, array, n, add_slash)
 
   for (i = 0; i < n; ++i)
     {
-      size_t eltlen = strlen (array[i]) + 1;
+      size_t eltlen = __strlen (array[i]) + 1;
       char *new = (char *) malloc (dirlen + 1 + eltlen + (add_slash ? 1 : 0));
       if (new == NULL)
 	{
@@ -361,9 +361,9 @@ prefix_array (dirname, array, n, add_slash)
 	  return 1;
 	}
 
-      memcpy (new, dirname, dirlen);
+      __memcpy (new, dirname, dirlen);
       new[dirlen] = '/';
-      memcpy (&new[dirlen + 1], array[i], eltlen);
+      __memcpy (&new[dirlen + 1], array[i], eltlen);
       free ((__ptr_t) array[i]);
       array[i] = new;
     }
@@ -436,7 +436,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
 #endif
 	}
 		
-      if ((!meta && strcmp (pattern, name) == 0)
+      if ((!meta && __strcmp (pattern, name) == 0)
 	  || fnmatch (pattern, name,
 		      (!(flags & GLOB_PERIOD) ? FNM_PERIOD : 0) |
 		      ((flags & GLOB_NOESCAPE) ? FNM_NOESCAPE : 0)) == 0)
@@ -444,12 +444,12 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
 	  struct globlink *new
 	    = (struct globlink *) alloca (sizeof (struct globlink));
 	  if (len == 0)
-	    len = strlen (name);
+	    len = __strlen (name);
 	  new->name
 	    = (char *) malloc (len + ((flags & GLOB_MARK) ? 1 : 0) + 1);
 	  if (new->name == NULL)
 	    goto memory_error;
-	  memcpy ((__ptr_t) new->name, name, len);
+	  __memcpy ((__ptr_t) new->name, name, len);
 	  new->name[len] = '\0';
 	  new->next = names;
 	  names = new;
@@ -461,14 +461,14 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
 
   if (nfound == 0 && (flags & GLOB_NOCHECK))
     {
-      size_t len = strlen (pattern);
+      size_t len = __strlen (pattern);
       nfound = 1;
       names = (struct globlink *) alloca (sizeof (struct globlink));
       names->next = NULL;
       names->name = (char *) malloc (len + (flags & GLOB_MARK ? 1 : 0) + 1);
       if (names->name == NULL)
 	goto memory_error;
-      memcpy (names->name, pattern, len);
+      __memcpy (names->name, pattern, len);
       names->name[len] = '\0';
     }
 

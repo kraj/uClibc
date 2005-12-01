@@ -85,7 +85,7 @@ xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
 	  IXDR_PUT_INT32 (buf, oa->oa_length);
 	  if (oa->oa_length)
 	    {
-	      memcpy ((caddr_t) buf, oa->oa_base, oa->oa_length);
+	      __memcpy ((caddr_t) buf, oa->oa_base, oa->oa_length);
 	      buf = (int32_t *) ((char *) buf + RNDUP (oa->oa_length));
 	    }
 	  oa = &cmsg->rm_call.cb_verf;
@@ -93,7 +93,7 @@ xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
 	  IXDR_PUT_INT32 (buf, oa->oa_length);
 	  if (oa->oa_length)
 	    {
-	      memcpy ((caddr_t) buf, oa->oa_base, oa->oa_length);
+	      __memcpy ((caddr_t) buf, oa->oa_base, oa->oa_length);
 	      /* no real need....
 	         buf = (long *) ((char *) buf + RNDUP(oa->oa_length));
 	       */
@@ -141,7 +141,7 @@ xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
 		}
 	      else
 		{
-		  memcpy (oa->oa_base, (caddr_t) buf, oa->oa_length);
+		  __memcpy (oa->oa_base, (caddr_t) buf, oa->oa_length);
 		  /* no real need....
 		     buf = (long *) ((char *) buf
 		     + RNDUP(oa->oa_length));
@@ -181,7 +181,7 @@ xdr_callmsg (XDR *xdrs, struct rpc_msg *cmsg)
 		}
 	      else
 		{
-		  memcpy (oa->oa_base, (caddr_t) buf, oa->oa_length);
+		  __memcpy (oa->oa_base, (caddr_t) buf, oa->oa_length);
 		  /* no real need...
 		     buf = (long *) ((char *) buf
 		     + RNDUP(oa->oa_length));

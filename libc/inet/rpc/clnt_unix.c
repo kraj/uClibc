@@ -149,7 +149,7 @@ clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
   if (*sockp < 0)
     {
       *sockp = socket (AF_UNIX, SOCK_STREAM, 0);
-      len = strlen (raddr->sun_path) + sizeof (raddr->sun_family) + 1;
+      len = __strlen (raddr->sun_path) + sizeof (raddr->sun_family) + 1;
       if (*sockp < 0
 	  || connect (*sockp, (struct sockaddr *) raddr, len) < 0)
 	{
@@ -157,7 +157,7 @@ clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
 	  ce->cf_stat = RPC_SYSTEMERROR;
 	  ce->cf_error.re_errno = errno;
 	  if (*sockp != -1)
-	    close (*sockp);
+	    __close (*sockp);
 	  goto fooy;
 	}
       ct->ct_closeit = TRUE;
@@ -191,7 +191,7 @@ clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
   if (!xdr_callhdr (&(ct->ct_xdrs), &call_msg))
     {
       if (ct->ct_closeit)
-	close (*sockp);
+	__close (*sockp);
       goto fooy;
     }
   ct->ct_mpos = XDR_GETPOS (&(ct->ct_xdrs));
@@ -437,7 +437,7 @@ clntunix_destroy (CLIENT *h)
 
   if (ct->ct_closeit)
     {
-      (void) close (ct->ct_sock);
+      (void) __close (ct->ct_sock);
     }
   XDR_DESTROY (&(ct->ct_xdrs));
   mem_free ((caddr_t) ct, sizeof (struct ct_data));
@@ -510,7 +510,7 @@ __msgwrite (int sock, void *data, size_t cnt)
   cred.uid = geteuid ();
   cred.gid = getegid ();
 
-  memcpy (CMSG_DATA(cmsg), &cred, sizeof (struct ucred));
+  __memcpy (CMSG_DATA(cmsg), &cred, sizeof (struct ucred));
   cmsg->cmsg_level = SOL_SOCKET;
   cmsg->cmsg_type = SCM_CREDENTIALS;
   cmsg->cmsg_len = sizeof(*cmsg) + sizeof(struct ucred);

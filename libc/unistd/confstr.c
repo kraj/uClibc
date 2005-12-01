@@ -48,10 +48,10 @@ size_t confstr ( int name, char *buf, size_t len)
   if (len > 0 && buf != NULL)
     {
       if (string_len <= len)
-	memcpy (buf, string, string_len);
+	__memcpy (buf, string, string_len);
       else
 	{
-	  memcpy (buf, string, len - 1);
+	  __memcpy (buf, string, len - 1);
 	  buf[len - 1] = '\0';
 	}
     }
