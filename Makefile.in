@@ -36,7 +36,7 @@ include $(top_srcdir)extra/locale/Makefile.in
 include $(top_srcdir)libc/Makefile.in
 
 include/bits/uClibc_config.h: extra/config/conf .config
-	$(INSTALL) -d $@
+	$(INSTALL) -d $(dir $@)
 	@< -o $(top_srcdir)extra/Configs/Config.in
 
 # For the moment, we have to keep re-running this target 
