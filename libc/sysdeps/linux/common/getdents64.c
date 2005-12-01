@@ -31,7 +31,7 @@
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64 
 
-
+#undef offsetof
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
 struct kernel_dirent64 
