@@ -10,7 +10,7 @@
 #define vfork fork	
 #endif
 
-int __libc_system(__const char *command)
+int __libc_system(char *command)
 {
 	int wait_val, pid;
 	__sighandler_t save_quit, save_int, save_chld;

@@ -17,6 +17,10 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#define memchr __memchr
+#define getgid __getgid
+#define setrlimit __setrlimit
+
 #include <assert.h>
 #include <errno.h>
 #include <grp.h>

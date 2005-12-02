@@ -29,9 +29,9 @@ char *getenv(const char *var)
 
     if (!(ep=__environ))
 	return NULL;
-    len = strlen(var);
+    len = __strlen(var);
     while(*ep) {
-	if (memcmp(var, *ep, len) == 0 && (*ep)[len] == '=') {
+	if (__memcmp(var, *ep, len) == 0 && (*ep)[len] == '=') {
 	    return *ep + len + 1;
 	}
 	ep++;

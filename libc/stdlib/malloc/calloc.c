@@ -34,7 +34,7 @@ void * calloc(size_t nmemb, size_t lsize)
 		return NULL;
 	}
 	if ((result=malloc(size)) != NULL) {
-		memset(result, 0, size);
+		__memset(result, 0, size);
 	}
 	return result;
 }

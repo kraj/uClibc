@@ -126,7 +126,7 @@ void* realloc(void* oldmem, size_t bytes)
 		    assert(ncopies >= 3);
 
 		    if (ncopies > 9)
-			memcpy(d, s, copysize);
+			__memcpy(d, s, copysize);
 
 		    else {
 			*(d+0) = *(s+0);
@@ -226,7 +226,7 @@ void* realloc(void* oldmem, size_t bytes)
 	    /* Must alloc, copy, free. */
 	    newmem = malloc(nb - MALLOC_ALIGN_MASK);
 	    if (newmem != 0) {
-		memcpy(newmem, oldmem, oldsize - 2*(sizeof(size_t)));
+		__memcpy(newmem, oldmem, oldsize - 2*(sizeof(size_t)));
 		free(oldmem);
 	    }
 	}

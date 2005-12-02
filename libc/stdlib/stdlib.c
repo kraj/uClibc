@@ -32,6 +32,11 @@
  * Add wscto{inttype} functions.
  */
 
+#define wcsrtombs __wcsrtombs
+#define mbsrtowcs __mbsrtowcs
+#define mbrtowc __mbrtowc
+#define mbrlen __mbrlen
+
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE
 #include <limits.h>

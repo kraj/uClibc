@@ -95,7 +95,7 @@ extern struct exit_function *__exit_function_table;
 #else
 extern struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT];
 #endif
-extern struct exit_function *__new_exitfn (void);
+extern struct exit_function *__new_exitfn (void) attribute_hidden;
 
 /* this is in the L___cxa_atexit object */
 extern int __cxa_atexit (cxaefuncp, void *arg, void *dso_handle);
@@ -237,7 +237,7 @@ struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT];
  * Find and return a new exit_function pointer, for atexit,
  * onexit and __cxa_atexit to initialize
  */
-struct exit_function *__new_exitfn(void)
+struct exit_function attribute_hidden *__new_exitfn(void)
 {
     struct exit_function *efp;
 

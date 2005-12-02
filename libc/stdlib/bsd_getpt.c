@@ -48,8 +48,8 @@ __getpt (void)
   const char *p, *q;
   char *s;
 
-  memcpy (buf, _PATH_PTY, sizeof (_PATH_PTY));
-  s = buf + strlen (buf);
+  __memcpy (buf, _PATH_PTY, sizeof (_PATH_PTY));
+  s = buf + __strlen (buf);
 
   /* s[0] and s[1] will be filled in the loop.  */
   s[2] = '\0';
@@ -64,7 +64,7 @@ __getpt (void)
 
 	  s[1] = *q;
 
-	  fd = open (buf, O_RDWR);
+	  fd = __open (buf, O_RDWR);
 	  if (fd != -1)
 	    return fd;
 
