@@ -25,7 +25,9 @@
 #include <elf.h>
 #include <dlfcn.h>
 #include <sys/types.h>
+#ifdef _LIBC
 #include <tls.h>
+#endif
 
 /* We use this macro to refer to ELF types independent of the native wordsize.
    `ElfW(TYPE)' is used in place of `Elf32_TYPE' or `Elf64_TYPE'.  */
