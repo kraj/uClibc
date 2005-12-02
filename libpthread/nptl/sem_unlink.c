@@ -56,7 +56,7 @@ sem_unlink (name)
 
   /* Create the name of the file.  */
   fname = (char *) alloca (mountpoint.dirlen + namelen + 1);
-  __mempcpy (__mempcpy (fname, mountpoint.dir, mountpoint.dirlen),
+  mempcpy (mempcpy (fname, mountpoint.dir, mountpoint.dirlen),
 	     name, namelen + 1);
 
   /* Now try removing it.  */

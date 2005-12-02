@@ -296,7 +296,7 @@ __pthread_initialize_minimal_internal (void)
   else
     {
       /* Round the resource limit up to page size.  */
-      const uintptr_t pagesz = __sysconf (_SC_PAGESIZE);
+      const uintptr_t pagesz = sysconf (_SC_PAGESIZE);
       __default_stacksize = (limit.rlim_cur + pagesz - 1) & -pagesz;
     }
 

@@ -1,84 +1,13 @@
-# Makefile for uClibc NPTL pthread library (MIPS)
+# Makefile for uClibc NPTL
 #
-# Copyright (C) 2005 Steven J. Hill <sjhill@realitydiluted.com>
+# Copyright (C) 2005 Steven J. Hill <sjhill@uclibc.org>
 #
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-# Makefile for uClibc
 
-TOPDIR=../../../../
-include $(TOPDIR)Rules.mak
-include ../../Rules.mak
-
-CFLAGS-dl-support.c = -D_GNU_SOURCE
-
-AR_LIBP_AOBJS = $(patsubst %.S, %.o, $(wildcard *.S))
-SO_LIBP_AOBJS = $(patsubst %.S, %.os, $(wildcard *.S))
-AR_LIBP_COBJS = $(patsubst %.c, %.o, pt-raise.c)
-SO_LIBP_COBJS = $(patsubst %.c, %.os, pt-raise.c)
-
-AR_LIBC_COBJS = $(patsubst %.c, %.o, dl-support.c dl-tls.c libc-tls.c)
-
-all: $(AR_LIB_NAME) $(AR_SO_LIB_NAME)
-
-$(AR_LIB_NAME): $(AR_LIBP_AOBJS) $(AR_LIBP_COBJS)
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
-		$(AR_LIBP_AOBJS) $(AR_LIBP_COBJS)
-else
-	$(STRIPTOOL) -x -R .note -R .comment			\
-		$(AR_LIBP_AOBJS) $(AR_LIBP_COBJS)
-endif
-	$(AR) $(ARFLAGS) $(AR_LIB_NAME) $(AR_LIBP_AOBJS) $(AR_LIBP_COBJS)
-
-$(AR_SO_LIB_NAME): $(SO_LIBP_AOBJS) $(SO_LIBP_COBJS)
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(STRIPTOOL) -X --strip-debug -R .note -R .comment	\
-		$(SO_LIBP_AOBJS) $(SO_LIBP_COBJS)
-else
-	$(STRIPTOOL) -x -R .note -R .comment			\
-		$(SO_LIBP_AOBJS) $(SO_LIBP_COBJS)
-endif
-	$(AR) $(ARFLAGS) $(AR_SO_LIB_NAME) $(SO_LIBP_AOBJS) $(SO_LIBP_COBJS)
-
-obj.pthread.ar: $(AR_LIBC_COBJS)
-ifeq ($(strip $(PTHREADS_DEBUG_SUPPORT)),y)
-	$(STRIPTOOL) -X --strip-debug -R .note -R .comment $(AR_LIBC_COBJS)
-else
-	$(STRIPTOOL) -x -R .note -R .comment $(AR_LIBC_COBJS)
-endif
-	@for objfile in $(AR_LIBC_COBJS); do \
-		echo ../libpthread/nptl/sysdeps/mips/$$objfile >> \
-			$(TOPDIR)libc/$@; \
-	done
-
-$(AR_LIBP_AOBJS): %.o : %.S
-	$(CC) $(ASFLAGS-NPTL) -c $< -o $@
-
-$(SO_LIBP_AOBJS): %.os : %.S
-	$(CC) $(ASFLAGS-NPTL) -DSHARED -c $< -o $@
-
-$(AR_LIBP_COBJS): %.o : %.c
-	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -c $< -o $@
-
-$(SO_LIBP_COBJS): %.os : %.c
-	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBP) -DSHARED -c $< -o $@
-
-$(AR_LIBC_COBJS): %.o : %.c
-	$(CC) $(CFLAGS-$<) $(CFLAGS-LIBC) -c $< -o $@
-
-clean:
-	$(RM) *.o *.os *~ core
-
-.PHONY: $(AR_LIB_NAME) $(AR_SO_LIB_NAME)
+top_srcdir=../../../../
+top_builddir=../../../../
+all: objs
+include $(top_builddir)Rules.mak
+include Makefile.arch
+include $(top_srcdir)Makerules

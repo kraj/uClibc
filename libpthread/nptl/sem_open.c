@@ -117,7 +117,7 @@ __where_is_shmfs (void)
 	mountpoint.dir = (char *) malloc (namelen + 4 + 2);
 	if (mountpoint.dir != NULL)
 	  {
-	    char *cp = __mempcpy (mountpoint.dir, mp->mnt_dir, namelen);
+	    char *cp = mempcpy (mountpoint.dir, mp->mnt_dir, namelen);
 	    if (cp[-1] != '/')
 	      *cp++ = '/';
 	    cp = stpcpy (cp, "sem.");
@@ -264,7 +264,7 @@ sem_open (const char *name, int oflag, ...)
 
   /* Create the name of the final file.  */
   finalname = (char *) alloca (mountpoint.dirlen + namelen);
-  __mempcpy (__mempcpy (finalname, mountpoint.dir, mountpoint.dirlen),
+  mempcpy (mempcpy (finalname, mountpoint.dir, mountpoint.dirlen),
 	     name, namelen);
 
   /* If the semaphore object has to exist simply open it.  */
@@ -321,7 +321,7 @@ sem_open (const char *name, int oflag, ...)
 	      sizeof (sem_t) - sizeof (struct sem));
 
       tmpfname = (char *) alloca (mountpoint.dirlen + 6 + 1);
-      char *xxxxxx = __mempcpy (tmpfname, mountpoint.dir, mountpoint.dirlen);
+      char *xxxxxx = mempcpy (tmpfname, mountpoint.dir, mountpoint.dirlen);
 
       int retries = 0;
 #define NRETRIES 50

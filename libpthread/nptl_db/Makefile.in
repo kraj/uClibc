@@ -1,0 +1,67 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2005 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+# Get the thread include dependencies and shared object name
+CFLAGS-nptl_db := -DLIBPTHREAD_SO="\"libpthread.so.$(MAJOR_VERSION)\""
+CFLAGS-nptl_db += -I$(top_srcdir)libpthread/nptl -D_GNU_SOURCE
+CFLAGS-nptl_db += -DIS_IN_libthread_db=1 -std=gnu99 -I$(top_srcdir)ldso/include
+
+LDFLAGS-libthread_db.so := $(LDFLAGS_NOSTRIP) -s --warn-unresolved-symbols
+
+LIBS-libthread_db.so := $(LIBS)
+
+libthread_db_FULL_NAME := libthread_db-$(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL).so
+
+libthread_db_DIR := $(top_srcdir)libpthread/nptl_db
+libthread_db_OUT := $(top_builddir)libpthread/nptl_db
+
+libthread_db_SRC := $(wildcard $(libthread_db_DIR)/td_*.c)	\
+		    $(libthread_db_DIR)/fetch-value.c
+
+libthread_db_OBJ := $(patsubst $(libthread_db_DIR)/%.c,$(libthread_db_OUT)/%.o,$(libthread_db_SRC))
+
+libthread_db-so-y := $(libthread_db_OBJ:.o=.oS)
+ifeq ($(DOPIC),y)
+libthread_db-a-y := $(libthread_db-so-y)
+else
+libthread_db-a-y := $(libthread_db_OBJ)
+endif
+
+libthread_db-multi-y := $(libthread_db_SRC)
+
+lib-a-$(PTHREADS_DEBUG_SUPPORT) += $(top_builddir)lib/libthread_db.a
+lib-so-$(PTHREADS_DEBUG_SUPPORT) += $(top_builddir)lib/libthread_db.so
+objclean-y += libthread_db_clean
+headers-$(PTHREADS_DEBUG_SUPPORT) += nptl_db_headers
+headers_clean-y += nptl_db_headers_clean
+
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libthread_db.so: $(top_builddir)lib/libthread_db.a $(libc)
+else
+$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db_so.a $(libc)
+endif
+	$(call link.so,$(libthread_db_FULL_NAME),1)
+
+$(libthread_db_OUT)/libthread_db_so.a: $(libthread_db-so-y)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+$(top_builddir)lib/libthread_db.a: $(libthread_db-a-y)
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_strip)
+	$(do_ar)
+
+nptl_db_headers:
+	$(LN) -sf ../$(PTDIR)_db/thread_db.h $(top_builddir)include/
+
+nptl_db_headers_clean:
+	$(RM) $(top_builddir)include/thread_db.h
+
+libthread_db_clean:
+	$(RM) $(libthread_db_OUT)/*.{o,oS,a}

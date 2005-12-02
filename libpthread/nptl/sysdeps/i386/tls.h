@@ -20,7 +20,6 @@
 #ifndef _TLS_H
 #define _TLS_H	1
 
-#include <dl-sysdep.h>
 #ifndef __ASSEMBLER__
 # include <stdbool.h>
 # include <stddef.h>

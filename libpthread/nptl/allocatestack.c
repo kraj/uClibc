@@ -25,7 +25,6 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/param.h>
-#include <dl-sysdep.h>
 #include <tls.h>
 #include <lowlevellock.h>
 #include <link.h>
@@ -936,7 +935,7 @@ init_one_static_tls (struct pthread *curp, struct link_map *map)
   dtv[map->l_tls_modid].pointer.is_static = true;
 
   /* Initialize the memory.  */
-  memset (__mempcpy (dest, map->l_tls_initimage, map->l_tls_initimage_size),
+  memset (mempcpy (dest, map->l_tls_initimage, map->l_tls_initimage_size),
 	  '\0', map->l_tls_blocksize - map->l_tls_initimage_size);
 }
 

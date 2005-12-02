@@ -20,8 +20,6 @@
 #ifndef _TLS_H
 #define _TLS_H	1
 
-#include <dl-sysdep.h>
-
 #ifndef __ASSEMBLER__
 # include <stdbool.h>
 # include <stddef.h>
@@ -55,21 +53,10 @@ typedef union dtv
 	.set	pop
 #endif /* __ASSEMBLER__ */
 
-
 /* We require TLS support in the tools.  */
-/*
- * NPTL - These defines would normally be handled by the top-level
- *        configure script in glibc.
- */
-#ifdef __UCLIBC__
 #define HAVE_TLS_SUPPORT		1
 #define HAVE_TLS_MODEL_ATTRIBUTE	1
 #define HAVE___THREAD			1
-#endif
-
-#ifndef HAVE_TLS_SUPPORT
-# error "TLS support is required."
-#endif
 
 /* Signal that TLS support is available.  */
 #define USE_TLS	1
@@ -83,12 +70,8 @@ typedef union dtv
 # define TLS_DTV_AT_TP	1
 
 /* Get the thread descriptor definition.  */
-#ifdef __UCLIBC__
-# include <libc-symbols.h>
-# include <../../descr.h>
-#else
-# include <nptl/descr.h>
-#endif
+#include <libc-symbols.h>
+#include <../../descr.h>
 
 typedef struct
 {

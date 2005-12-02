@@ -20,7 +20,6 @@
 #include <unistd.h>
 #include <list.h>
 #include "fork.h"
-#include <dl-sysdep.h>
 #include <tls.h>
 #include <string.h>
 #include <pthreadP.h>
