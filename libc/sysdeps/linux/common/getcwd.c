@@ -47,13 +47,13 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 		slow_search = 1;
 #endif
 
-	slen = strlen(path_buf);
+	slen = __strlen(path_buf);
 	ptr = path_buf + slen - 1;
 	if (*ptr != '/') {
 		if (slen + 2 > path_size) {
 			goto oops;
 		}
-		strcpy(++ptr, "/");
+		__strcpy(++ptr, "/");
 		slen++;
 	}
 	slen++;
@@ -67,10 +67,10 @@ static char *search_dir(dev_t this_dev, ino_t this_ino, char *path_buf, int path
 #ifdef FAST_DIR_SEARCH_POSSIBLE
 		if (slow_search || this_ino == d->d_ino) {
 #endif
-			if (slen + strlen(d->d_name) > path_size) {
+			if (slen + __strlen(d->d_name) > path_size) {
 			    goto oops;
 			}
-			strcpy(ptr + 1, d->d_name);
+			__strcpy(ptr + 1, d->d_name);
 			if (stat(path_buf, &st) < 0)
 				continue;
 			if (st.st_ino == this_ino && st.st_dev == this_dev) {
@@ -108,13 +108,13 @@ static char *recurser(char *path_buf, int path_size, dev_t root_dev, ino_t root_
 		if (path_size < 2) {
 		    goto oops;
 		}
-		strcpy(path_buf, "/");
+		__strcpy(path_buf, "/");
 		return path_buf;
 	}
-	if (strlen(path_buf) + 4 > path_size) {
+	if (__strlen(path_buf) + 4 > path_size) {
 	    goto oops;
 	}
-	strcat(path_buf, "/..");
+	__strcat(path_buf, "/..");
 	if (recurser(path_buf, path_size, root_dev, root_ino) == 0)
 		return 0;
 
@@ -141,11 +141,11 @@ int __syscall_getcwd(char * buf, unsigned long size)
 	return -1;
     }
     /* start with actual dir */
-    if (buf) strncpy(buf, ".", size);
+    if (buf) __strncpy(buf, ".", size);
 
     cwd = recurser(buf, size, st.st_dev, st.st_ino);
     if (cwd) {
-	len = strlen(buf);
+	len = __strlen(buf);
 	__set_errno(olderrno);
     }
     return len;

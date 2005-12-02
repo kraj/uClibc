@@ -17,8 +17,9 @@ CSRC := \
 	asprintf.c sprintf.c vasprintf.c vdprintf.c vsnprintf.c \
 	tmpfile.c tmpnam.c tmpnam_r.c popen.c tempnam.c ctermid.c
 
-# Note: The *64.o objects are empty when compiled without large file support
+ifeq ($(UCLIBC_HAS_LFS),y)
 CSRC += fgetpos64.c fopen64.c freopen64.c fseeko64.c fsetpos64.c ftello64.c
+endif
 
 # getc -> alias for fgetc
 # putc -> alias for fputc
@@ -110,9 +111,9 @@ STDIO_MOBJ := $(STDIO_MOBJ1) $(STDIO_MOBJ2)
 
 STDIO_DEF := $(patsubst %,-DL_%,$(subst .o,,$(filter-out $(STDIO_MOBJ_NO_MULTI),$(notdir $(STDIO_MOBJ)))))
 
-STDIO_OBJS := $(STDIO_OBJ) $(STDIO_MOBJ) $(STDIO_CUOBJ) $(STDIO_CLOBJ)
+STDIO_OBJS := $(STDIO_OBJ) $(STDIO_MOBJ) $(STDIO_CUOBJ)
 
-STDIO_NO_MULTI := $(STDIO_CUOBJ) $(STDIO_CLOBJ)
+STDIO_NO_MULTI := $(STDIO_CUOBJ)
 
 # these need special handling or rewrite to support multi-build
 # CUOBJ

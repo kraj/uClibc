@@ -9,7 +9,7 @@
 
 #ifdef __DO_UNLOCKED
 
-size_t __fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
+size_t attribute_hidden __fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
 						FILE * __restrict stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
@@ -44,7 +44,7 @@ size_t __fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
 				if (avail > todo) {
 					avail = todo;
 				}
-				memcpy(buffer, stream->__bufpos, avail);
+				__memcpy(buffer, stream->__bufpos, avail);
 				buffer += avail;
 				stream->__bufpos += avail;
 				if (!(todo -= avail)) {

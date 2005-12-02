@@ -16,6 +16,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define mempcpy __mempcpy
+
 #include <features.h>
 #define __USE_GNU
 #include <string.h>
@@ -53,18 +55,18 @@ int tcgetattr (int fd, struct termios *termios_p)
     if (sizeof (cc_t) == 1 || _POSIX_VDISABLE == 0
 	    || (unsigned char) _POSIX_VDISABLE == (unsigned char) -1)
     {
-	memset (mempcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
+	__memset (mempcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
 		    __KERNEL_NCCS * sizeof (cc_t)),
 		_POSIX_VDISABLE, (NCCS - __KERNEL_NCCS) * sizeof (cc_t));
 #if 0	
-	memset ( (memcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
+	__memset ( (__memcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
 			__KERNEL_NCCS * sizeof (cc_t)) + (__KERNEL_NCCS * sizeof (cc_t))) , 
 		_POSIX_VDISABLE, (NCCS - __KERNEL_NCCS) * sizeof (cc_t));
 #endif
     } else {
 	size_t cnt;
 
-	memcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
+	__memcpy (&termios_p->c_cc[0], &k_termios.c_cc[0],
 		__KERNEL_NCCS * sizeof (cc_t));
 
 	for (cnt = __KERNEL_NCCS; cnt < NCCS; ++cnt)

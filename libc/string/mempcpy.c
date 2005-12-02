@@ -9,6 +9,6 @@
 
 #include "wstring.c"
 
-strong_alias(__mempcpy, mempcpy)
+strong_alias(__mempcpy,mempcpy)
 
 #undef L_mempcpy

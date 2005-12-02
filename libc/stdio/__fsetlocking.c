@@ -15,7 +15,7 @@
  *   glibc treats invalid locking_mode args as FSETLOCKING_INTERNAL.
  */
 
-int __fsetlocking(FILE *stream, int locking_mode)
+int attribute_hidden __libc_fsetlocking(FILE *stream, int locking_mode)
 {
 #ifdef __UCLIBC_HAS_THREADS__
 	int current = 1 + (stream->__user_locking & 1);
@@ -43,3 +43,5 @@ int __fsetlocking(FILE *stream, int locking_mode)
 	return FSETLOCKING_INTERNAL;
 #endif
 }
+
+strong_alias(__libc_fsetlocking,__fsetlocking)

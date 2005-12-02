@@ -31,7 +31,7 @@
 
 #if defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64 
 
-
+#undef offsetof
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
 struct kernel_dirent64 
@@ -95,7 +95,7 @@ ssize_t attribute_hidden __getdents64 (int fd, char *buf, size_t nbytes)
 	dp->d_off = kdp->d_off;
 	dp->d_reclen = new_reclen;
 	dp->d_type = DT_UNKNOWN;
-	memcpy (dp->d_name, kdp->d_name,
+	__memcpy (dp->d_name, kdp->d_name,
 		kdp->d_reclen - offsetof (struct kernel_dirent64, d_name));
 	dp = (struct dirent64 *) ((char *) dp + new_reclen);
 	kdp = (struct kernel_dirent64 *) (((char *) kdp) + kdp->d_reclen);

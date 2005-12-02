@@ -12,7 +12,7 @@
 
 #ifdef __DO_UNLOCKED
 
-int __getchar_unlocked(void)
+int attribute_hidden __getchar_unlocked(void)
 {
 	register FILE *stream = stdin;
 

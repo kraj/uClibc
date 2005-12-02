@@ -9,8 +9,8 @@
 
 #undef Wstrlen
 #undef Wstrcpy
-#define Wstrlen strlen
-#define Wstrcpy strcpy
+#define Wstrlen __strlen
+#define Wstrcpy __strcpy
 
 #include "wstring.c"
 

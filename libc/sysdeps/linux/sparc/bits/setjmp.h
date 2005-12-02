@@ -17,7 +17,7 @@
    02111-1307 USA.  */
 
 #ifndef _BITS_SETJMP_H
-#define _BITS_SETJMP_H	1
+#define _BITS_SETJMP_H  1
 
 #if !defined _SETJMP_H && !defined _PTHREAD_H
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
@@ -77,8 +77,8 @@ typedef int __jmp_buf[3];
 /* Test if longjmp to JMPBUF would unwind the frame
    containing a local variable at ADDRESS.  */
 #define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) < (void *) (jmpbuf)[JB_SP])
+  ((int) (address) < (jmpbuf)[JB_SP])
 
 #endif
 
-#endif	/* bits/setjmp.h */
+#endif  /* bits/setjmp.h */

@@ -21,35 +21,24 @@
 #include <signal.h>
 #include <stddef.h>		/* For NULL.  */
 
+#include "sigset-cvt-mask.h"
+
 /* Set the mask of blocked signals to MASK,
    wait for a signal to arrive, and then restore the mask.  */
 int __sigpause (int sig_or_mask, int is_sig)
 {
   sigset_t set;
-  int sig;
 
   if (is_sig != 0)
     {
       /* The modern X/Open implementation is requested.  */
-      if (sigprocmask (0, NULL, &set) < 0
+      if (__sigprocmask (0, NULL, &set) < 0
 	  /* Yes, we call `sigdelset' and not `__sigdelset'.  */
 	  || sigdelset (&set, sig_or_mask) < 0)
 	return -1;
     }
-  else
-    {
-      if (sigemptyset (&set) < 0)
-	return -1;
-
-      if (sizeof (sig_or_mask) == sizeof (set))
-	*(int *) &set = sig_or_mask;
-      else if (sizeof (unsigned long int) == sizeof (set))
-	*(unsigned long int *) &set = (unsigned int) sig_or_mask;
-      else
-	for (sig = 1; sig < NSIG; ++sig)
-	  if ((sig_or_mask & sigmask (sig)) && __sigaddset (&set, sig) < 0)
-	    return -1;
-    }
+  else if (sigset_set_old_mask (&set, sig_or_mask) < 0)
+    return -1;
 
   return sigsuspend (&set);
 }

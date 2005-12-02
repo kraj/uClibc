@@ -26,7 +26,10 @@
  *  mapping of signal strings (alpha, mips, hppa, sparc).
  */
 
+#define _uintmaxtostr __libc__uintmaxtostr
+
 #define _GNU_SOURCE
+#include <features.h>
 #include <string.h>
 #include <strings.h>
 #include <stdio.h>
@@ -57,6 +60,21 @@ typedef unsigned char	__string_uchar_t;
 #define Wuchar			__string_uchar_t
 #define Wint			int
 
+#endif
+
+
+extern size_t __strnlen (__const char *__string, size_t __maxlen) attribute_hidden;
+extern char *__strpbrk (__const char *__s, __const char *__accept) attribute_hidden;
+extern size_t __strspn (__const char *__s, __const char *__accept) attribute_hidden;
+extern char *__strsignal (int __sig) attribute_hidden;
+
+#ifdef WANT_WIDE
+extern wchar_t *__wcsdup (__const wchar_t *__s) attribute_hidden;
+extern size_t __wcslen (__const wchar_t *__s) attribute_hidden;
+extern wchar_t *__wcscpy (wchar_t *__restrict __dest,
+			__const wchar_t *__restrict __src) attribute_hidden;
+extern size_t __wcsspn (__const wchar_t *__wcs, __const wchar_t *__accept) attribute_hidden;
+extern wchar_t *__wcspbrk (__const wchar_t *__wcs, __const wchar_t *__accept) attribute_hidden;
 #endif
 
 /**********************************************************************/
@@ -1649,20 +1667,20 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 #endif /* __UCLIBC_HAS_ERRNO_MESSAGES__ */
 
     s = _int10tostr(buf+sizeof(buf)-1, errnum) - sizeof(unknown);
-    memcpy(s, unknown, sizeof(unknown));
+    __memcpy(s, unknown, sizeof(unknown));
 
  GOT_MESG:
     if (!strerrbuf) {		/* SUSv3  */
 		buflen = 0;
     }
-    i = strlen(s) + 1;
+    i = __strlen(s) + 1;
     if (i > buflen) {
 		i = buflen;
 		retval = ERANGE;
     }
 
     if (i) {
-		memcpy(strerrbuf, s, i);
+		__memcpy(strerrbuf, s, i);
 		strerrbuf[i-1] = 0;	/* In case buf was too small. */
     }
 
@@ -1685,7 +1703,7 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
     };
 
     s = _int10tostr(buf+sizeof(buf)-1, errnum) - sizeof(unknown);
-    memcpy(s, unknown, sizeof(unknown));
+    __memcpy(s, unknown, sizeof(unknown));
 
     if (!strerrbuf) {		/* SUSv3  */
 		buflen = 0;
@@ -1701,7 +1719,7 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
     }
 
     if (i) {
-		memcpy(strerrbuf, s, i);
+		__memcpy(strerrbuf, s, i);
 		strerrbuf[i-1] = 0;	/* In case buf was too small. */
     }
 
@@ -1914,7 +1932,7 @@ Wchar attribute_hidden *Wstpncpy(register Wchar * __restrict s1,
 void attribute_hidden __bzero(void *s, size_t n)
 {
 #if 1
-	(void)memset(s, 0, n);
+	(void)__memset(s, 0, n);
 #else
 	register unsigned char *p = s;
 #ifdef __BCC__
@@ -1945,7 +1963,7 @@ strong_alias(__bzero, bzero)
 void attribute_hidden __bcopy(const void *s2, void *s1, size_t n)
 {
 #if 1
-	memmove(s1, s2, n);
+	__memmove(s1, s2, n);
 #else
 #ifdef __BCC__
 	register char *s;
@@ -1985,7 +2003,7 @@ void attribute_hidden __bcopy(const void *s2, void *s1, size_t n)
 #endif
 }
 
-strong_alias(__bcopy, bcopy)
+//strong_alias(__bcopy, bcopy)
 
 #endif
 /**********************************************************************/
@@ -2043,10 +2061,10 @@ char attribute_hidden *__strndup(register const char *s1, size_t n)
 {
 	register char *s;
 
-	n = strnlen(s1,n);			/* Avoid problems if s1 not nul-terminated. */
+	n = __strnlen(s1,n);			/* Avoid problems if s1 not nul-terminated. */
 
     if ((s = malloc(n + 1)) != NULL) {
-		memcpy(s, s1, n);
+		__memcpy(s, s1, n);
 		s[n] = 0;
 	}
 
@@ -2067,7 +2085,7 @@ char attribute_hidden *__strsep(char ** __restrict s1, const char * __restrict s
 
 #if 1
 	p = NULL;
-	if (s && *s && (p = strpbrk(s, s2))) {
+	if (s && *s && (p = __strpbrk(s, s2))) {
 		*p++ = 0;
 	}
 #else
@@ -2504,7 +2522,7 @@ char attribute_hidden *__strsignal(int signum)
     }
 
     s = _int10tostr(buf+sizeof(buf)-1, signum) - sizeof(unknown);
-    memcpy(s, unknown, sizeof(unknown));
+    __memcpy(s, unknown, sizeof(unknown));
 
  DONE:
 	return s;
@@ -2519,7 +2537,7 @@ char attribute_hidden *__strsignal(int signum)
 		'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 's', 'i', 'g', 'n', 'a', 'l', ' '
     };
 
-    return (char *) memcpy(_int10tostr(buf+sizeof(buf)-1, signum)
+    return (char *) __memcpy(_int10tostr(buf+sizeof(buf)-1, signum)
 						   - sizeof(unknown),
 						   unknown, sizeof(unknown));
 }
@@ -2547,7 +2565,7 @@ void psignal(int signum, register const char *message)
 		message = (sep += 2);	/* or passed an empty string. */
 	}
 
-	fprintf(stderr, "%s%s%s\n", message, sep, strsignal(signum));
+	fprintf(stderr, "%s%s%s\n", message, sep, __strsignal(signum));
 }
 
 #endif
@@ -2674,7 +2692,7 @@ static int lookup(wchar_t wc   __LOCALE_PARAM )
 
 static void init_col_state(col_state_t *cs, const Wchar *wcs)
 {
-	memset(cs, 0, sizeof(col_state_t));
+	__memset(cs, 0, sizeof(col_state_t));
 	cs->s = wcs;
 	cs->bp = cs->back_buf = cs->ibb;
 	cs->bb_size = 128;
@@ -2906,7 +2924,7 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 								cs->weight = 0;
 								return;
 							}
-							memcpy(cs->bp, cs->back_buf, cs->bb_size);
+							__memcpy(cs->bp, cs->back_buf, cs->bb_size);
 
 						} else {
 							cs->bp = realloc(cs->back_buf, cs->bb_size + 128);
@@ -3040,7 +3058,7 @@ int __XL(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
 #ifdef WANT_WIDE
 		return wcscmp(s0, s1);
 #else  /* WANT_WIDE */
-		return strcmp(s0, s1);
+		return __strcmp(s0, s1);
 #endif /* WANT_WIDE */
 	}
 

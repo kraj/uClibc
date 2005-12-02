@@ -19,6 +19,8 @@
  *
  */
 
+#define sysconf __sysconf
+
 #define _GNU_SOURCE
 #include "syscalls.h"
 #include <time.h>

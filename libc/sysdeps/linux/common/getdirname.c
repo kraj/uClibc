@@ -49,7 +49,7 @@ get_current_dir_name (void)
 		&& pwdstat.st_dev == dotstat.st_dev
 		&& pwdstat.st_ino == dotstat.st_ino)
 		/* The PWD value is correct.  Use it.  */
-		return strdup (pwd);
+		return __strdup (pwd);
 
 	return getcwd ((char *) NULL, 0);
 }

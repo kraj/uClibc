@@ -22,7 +22,7 @@
 extern size_t __pagesize;
 
 /* Return the system page size.  */
-int __getpagesize(void)
+int attribute_hidden __libc_getpagesize(void)
 {
   if (__pagesize != 0)
     return __pagesize;
@@ -40,5 +40,6 @@ int __getpagesize(void)
 #endif	/* NBPG.  */
 #endif	/* EXEC_PAGESIZE.  */
 }
-weak_alias(__getpagesize, getpagesize);
+strong_alias(__libc_getpagesize, __getpagesize)
+weak_alias(__getpagesize, getpagesize)
 

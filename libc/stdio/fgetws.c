@@ -8,11 +8,11 @@
 #include "_stdio.h"
 
 extern wchar_t *__fgetws_unlocked(wchar_t *__restrict ws, int n,
-								  FILE *__restrict stream);
+						FILE *__restrict stream) attribute_hidden;
 
 #ifdef __DO_UNLOCKED
 
-wchar_t *__fgetws_unlocked(wchar_t *__restrict ws, int n,
+wchar_t attribute_hidden *__fgetws_unlocked(wchar_t *__restrict ws, int n,
 						   FILE *__restrict stream)
 {
 	register wchar_t *p = ws;

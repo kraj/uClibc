@@ -17,7 +17,7 @@
 #define INTERNAL_DIV_MOD
 #endif
 
-char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
+char attribute_hidden *__libc__uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 					int base, __UIM_CASE alphacase)
 {
     int negative;
@@ -61,7 +61,7 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 #ifndef __LOCALE_C_ONLY
 		if (!grouping) {		/* Finished a group. */
 			bufend -= __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
-			memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
+			__memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
 				   __UCLIBC_CURLOCALE_DATA.thousands_sep_len);
 			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
 				/* Note: g[1] == -1 means no further grouping.  But since
@@ -79,7 +79,7 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 #ifndef __LOCALE_C_ONLY
 		if (unlikely(outdigit)) {
 			bufend -= __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
-			memcpy(bufend,
+			__memcpy(bufend,
 				   (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit],
 				   __UCLIBC_CURLOCALE_DATA.outdigit_length[digit]);
 		} else
@@ -104,7 +104,7 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 #ifndef __LOCALE_C_ONLY
 		if (!grouping) {		/* Finished a group. */
 			bufend -= __UCLIBC_CURLOCALE_DATA.thousands_sep_len;
-			memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
+			__memcpy(bufend, __UCLIBC_CURLOCALE_DATA.thousands_sep,
 				   __UCLIBC_CURLOCALE_DATA.thousands_sep_len);
 			if (g[1] != 0) { 	/* g[1] == 0 means repeat last grouping. */
 				/* Note: g[1] == -1 means no further grouping.  But since
@@ -131,7 +131,7 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 #ifndef __LOCALE_C_ONLY
 		if (unlikely(outdigit)) {
 			bufend -= __UCLIBC_CURLOCALE_DATA.outdigit_length[digit];
-			memcpy(bufend,
+			__memcpy(bufend,
 				   (&__UCLIBC_CURLOCALE_DATA.outdigit0_mb)[digit],
 				   __UCLIBC_CURLOCALE_DATA.outdigit_length[digit]);
 		} else
@@ -149,3 +149,4 @@ char *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 
     return bufend;
 }
+strong_alias(__libc__uintmaxtostr,_uintmaxtostr)

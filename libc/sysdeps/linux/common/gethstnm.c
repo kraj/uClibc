@@ -15,10 +15,10 @@ gethostname(char *name, size_t len)
 
   if (uname(&uts) == -1) return -1;
 
-  if (strlen(uts.nodename)+1 > len) {
+  if (__strlen(uts.nodename)+1 > len) {
     __set_errno(EINVAL);
     return -1;
   }
-  strcpy(name, uts.nodename);
+  __strcpy(name, uts.nodename);
   return 0;
 }

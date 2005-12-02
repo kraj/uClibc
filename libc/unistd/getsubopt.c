@@ -18,6 +18,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define memchr __memchr
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -48,7 +50,7 @@ int getsubopt(char **optionp, char *const *tokens, char **valuep)
   /* Try to match the characters between *OPTIONP and VSTART against
      one of the TOKENS.  */
   for (cnt = 0; tokens[cnt] != NULL; ++cnt)
-    if (memcmp (*optionp, tokens[cnt], vstart - *optionp) == 0
+    if (__memcmp (*optionp, tokens[cnt], vstart - *optionp) == 0
 	&& tokens[cnt][vstart - *optionp] == '\0')
       {
 	/* We found the current option in TOKENS.  */

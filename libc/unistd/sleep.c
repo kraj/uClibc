@@ -56,7 +56,7 @@ unsigned int sleep (unsigned int seconds)
        in libc.  We block SIGCHLD first.  */
     if (__sigemptyset (&set) < 0
 	    || __sigaddset (&set, SIGCHLD) < 0
-	    || sigprocmask (SIG_BLOCK, &set, &oset))
+	    || __sigprocmask (SIG_BLOCK, &set, &oset))
 	return -1;
 
     /* If SIGCHLD is already blocked, we don't have to do anything.  */
@@ -73,7 +73,7 @@ unsigned int sleep (unsigned int seconds)
 	{
 	    saved_errno = errno;
 	    /* Restore the original signal mask.  */
-	    (void) sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
+	    (void) __sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
 	    __set_errno (saved_errno);
 	    return -1;
 	}
@@ -85,13 +85,13 @@ unsigned int sleep (unsigned int seconds)
 
 	    saved_errno = errno;
 	    /* Restore the original signal mask.  */
-	    (void) sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
+	    (void) __sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
 	    __set_errno (saved_errno);
 	}
 	else
 	{
 	    /* We should unblock SIGCHLD.  Restore the original signal mask.  */
-	    (void) sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
+	    (void) __sigprocmask (SIG_SETMASK, &oset, (sigset_t *) NULL);
 	    result = nanosleep (&ts, &ts);
 	}
     }

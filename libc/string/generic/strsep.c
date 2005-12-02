@@ -16,6 +16,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define strpbrk __strpbrk
+
 #include <string.h>
 
 #undef strsep
@@ -44,7 +46,7 @@ char attribute_hidden *__strsep (char **stringp, const char *delim)
 	  else if (*begin == '\0')
 	    end = NULL;
 	  else
-	    end = strchr (begin + 1, ch);
+	    end = __strchr (begin + 1, ch);
 	}
     }
   else

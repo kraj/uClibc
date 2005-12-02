@@ -30,6 +30,8 @@
  * November 2002, Erik Andersen <andersen@codepoet.org> 
  */
 
+#define __fsetlocking __libc_fsetlocking
+
 #define _GNU_SOURCE
 #include <sys/param.h>
 #include <sys/file.h>

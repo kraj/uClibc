@@ -80,7 +80,7 @@ getpass (prompt)
   fgets (buf, PWD_BUFFER_SIZE-1, in);
   if (buf != NULL)
     {
-      nread = strlen(buf);
+      nread = __strlen(buf);
       if (nread < 0)
 	buf[0] = '\0';
       else if (buf[nread - 1] == '\n')

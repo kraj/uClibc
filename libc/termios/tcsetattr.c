@@ -80,7 +80,7 @@ int tcsetattr (int fd, int optional_actions, const struct termios *termios_p)
 #ifdef _HAVE_C_OSPEED
     k_termios.c_ospeed = termios_p->c_ospeed;
 #endif
-    memcpy (&k_termios.c_cc[0], &termios_p->c_cc[0],
+    __memcpy (&k_termios.c_cc[0], &termios_p->c_cc[0],
 	    __KERNEL_NCCS * sizeof (cc_t));
 
     retval = ioctl (fd, cmd, &k_termios);

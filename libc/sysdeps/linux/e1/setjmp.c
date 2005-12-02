@@ -32,7 +32,7 @@ int sigsetjmp( sigjmp_buf state , int savesigs)
 	if(savesigs) {
 		state->__mask_was_saved = 1;
 		/* how arg in <sigprocmask> is not significant */
-		sigprocmask(SIG_SETMASK, NULL, &state->__saved_mask);
+		__sigprocmask(SIG_SETMASK, NULL, &state->__saved_mask);
 	} else
 		state->__mask_was_saved = 0;
 

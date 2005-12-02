@@ -29,9 +29,8 @@
 
 
 #if defined __NR_rt_sigaction
-#warning "Yes there are two warnings here.  Don't worry about it."
-static void restore_rt (void) asm ("__restore_rt");
-static void restore (void) asm ("__restore");
+extern void restore_rt (void) asm ("__restore_rt") attribute_hidden;
+extern void restore (void) asm ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
@@ -49,7 +48,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     if (act) {
 	kact.k_sa_handler = act->sa_handler;
-	memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
+	__memcpy (&kact.sa_mask, &act->sa_mask, sizeof (kact.sa_mask));
 	kact.sa_flags = act->sa_flags;
 
 	kact.sa_flags = act->sa_flags | SA_RESTORER;
@@ -64,7 +63,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
     if (oact && result >= 0) {
 	oact->sa_handler = koact.k_sa_handler;
-	memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
+	__memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (oact->sa_mask));
 	oact->sa_flags = koact.sa_flags;
 	oact->sa_restorer = koact.sa_restorer;
     }
@@ -73,8 +72,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
 
 #else
-#warning "Yes there is a warning here.  Don't worry about it."
-static void restore (void) asm ("__restore");
+extern void restore (void) asm ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
@@ -121,10 +119,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 }
 
 #endif
-
-#ifndef LIBC_SIGACTION
 weak_alias (__libc_sigaction, sigaction)
-#endif
 
 
 

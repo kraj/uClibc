@@ -68,7 +68,7 @@ int ttyname_r(int fd, char *ubuf, size_t ubuflen)
 
 		assert(len + 2 <= TTYNAME_BUFLEN); /* dirname + 1 char + nul */
 
-		strcpy(buf, p);
+		__strcpy(buf, p);
 		s = buf + len;
 		len =  (TTYNAME_BUFLEN-2) - len; /* Available non-nul space. */
 
@@ -79,11 +79,11 @@ int ttyname_r(int fd, char *ubuf, size_t ubuflen)
 		while ((d = readdir(fp)) != NULL) {
 			/* This should never trigger for standard names, but we
 			 * check it to be safe.  */
-			if (strlen(d->d_name) > len) { /* Too big? */
+			if (__strlen(d->d_name) > len) { /* Too big? */
 				continue;
 			}
 
-			strcpy(s, d->d_name);
+			__strcpy(s, d->d_name);
 
 			if ((lstat(buf, &dst) == 0)
 #if 0
@@ -100,8 +100,8 @@ int ttyname_r(int fd, char *ubuf, size_t ubuflen)
 
 				/* We treat NULL buf as ERANGE rather than EINVAL. */
 				rv = ERANGE;
-				if (ubuf && (strlen(buf) <= ubuflen)) {
-					strcpy(ubuf, buf);
+				if (ubuf && (__strlen(buf) <= ubuflen)) {
+					__strcpy(ubuf, buf);
 					rv = 0;
 				}
 				goto DONE;

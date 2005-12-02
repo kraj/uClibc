@@ -10,35 +10,35 @@
 #include <features.h>
 
 #ifdef __UCLIBC_HAS_SSP__
-#include <stdint.h>
-#include <sys/time.h>
+# if defined IS_IN_libc || defined IS_IN_rtld
 
-#ifdef IS_IN_libc
-#include <ssp-internal.h>
-#if 0
-#ifndef __SSP_QUICK_CANARY__
-#define OPEN __libc_open
-#define READ __libc_read
-#define CLOSE __libc_close
-#endif
-#define GETTIMEOFDAY gettimeofday
-#endif
-#else
-#ifdef __SSP__
-#error "file must not be compiled with stack protection enabled on it. Use -fno-stack-protector"
-#endif
-#ifndef __SSP_QUICK_CANARY__
-#define OPEN _dl_open
-#define READ _dl_read
-#define CLOSE _dl_close
-#endif
-#define GETTIMEOFDAY _dl_gettimeofday
-#endif
+#  if defined __SSP__ || defined __SSP_ALL__
+#   error "file must not be compiled with stack protection enabled on it. Use -fno-stack-protector"
+#  endif
+
+#  include <stdint.h>
+#  include <sys/time.h>
+
+#  ifdef IS_IN_libc
+#   ifndef __SSP_QUICK_CANARY__
+#     define OPEN __open
+#     define READ __read
+#     define CLOSE __close
+#   endif
+#   define GETTIMEOFDAY gettimeofday
+#  else
+#   ifndef __SSP_QUICK_CANARY__
+#    define OPEN _dl_open
+#    define READ _dl_read
+#    define CLOSE _dl_close
+#   endif
+#   define GETTIMEOFDAY _dl_gettimeofday
+#  endif
 
 static __always_inline uintptr_t _dl_setup_stack_chk_guard(void)
 {
 	uintptr_t ret;
-#ifndef __SSP_QUICK_CANARY__
+#  ifndef __SSP_QUICK_CANARY__
 	{
 		int fd = OPEN("/dev/urandom", O_RDONLY, 0);
 		if (fd >= 0) {
@@ -48,7 +48,7 @@ static __always_inline uintptr_t _dl_setup_stack_chk_guard(void)
 				return ret;
 		}
 	}
-#endif /* !__SSP_QUICK_CANARY__ */
+#  endif /* !__SSP_QUICK_CANARY__ */
 
 	/* Start with the "terminator canary". */
 	ret = 0xFF0A0D00UL;
@@ -62,6 +62,7 @@ static __always_inline uintptr_t _dl_setup_stack_chk_guard(void)
 	}
 	return ret;
 }
+# endif /* libc || rtld */
 #endif /* __UCLIBC_HAS_SSP__ */
 
 #endif /* _DL_OSINFO_H */

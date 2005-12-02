@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define __getdelim __libc_getdelim
+
 #include "_stdio.h"
 
 ssize_t getline(char **__restrict lineptr, size_t *__restrict n,

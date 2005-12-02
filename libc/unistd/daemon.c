@@ -55,12 +55,12 @@ int daemon( int nochdir, int noclose )
 	if (!nochdir)
 		chdir("/");
 
-	if (!noclose && (fd = open(_PATH_DEVNULL, O_RDWR, 0)) != -1) {
+	if (!noclose && (fd = __open(_PATH_DEVNULL, O_RDWR, 0)) != -1) {
 		dup2(fd, STDIN_FILENO);
 		dup2(fd, STDOUT_FILENO);
 		dup2(fd, STDERR_FILENO);
 		if (fd > 2)
-			close(fd);
+			__close(fd);
 	}
 	return(0);
 }

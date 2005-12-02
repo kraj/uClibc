@@ -17,30 +17,42 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+
 #include <errno.h>
+#include <stddef.h>
 #include <signal.h>
 #include <string.h>
+
+
 #include <sys/syscall.h>
+
+
+
+/* The difference here is that the sigaction structure used in the
+   kernel is not the same as we use in the libc.  Therefore we must
+   translate it here.  */
 #include <bits/kernel_sigaction.h>
 
+/* We do not globally define the SA_RESTORER flag so do it here.  */
 #define SA_RESTORER 0x04000000
 
-
 #if defined __NR_rt_sigaction
-#warning Yes there are two warnings here.  Don't worry about it.
-static void restore_rt (void) asm ("__restore_rt");
-static void restore (void) asm ("__restore");
+/* Using the hidden attribute here does not change the code but it
+   helps to avoid warnings.  */
+extern void restore_rt (void) asm ("__restore_rt") attribute_hidden;
+extern void restore (void) asm ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+int
+__libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
 	int result;
 	struct kernel_sigaction kact, koact;
 
 	if (act) {
 		kact.k_sa_handler = act->sa_handler;
-		memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
+		__memcpy (&kact.sa_mask, &act->sa_mask, sizeof (sigset_t));
 		kact.sa_flags = act->sa_flags | SA_RESTORER;
 
 		kact.sa_restorer = &restore_rt;
@@ -53,7 +65,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 	                         oact ? __ptrvalue (&koact) : NULL, _NSIG / 8);
 	if (oact && result >= 0) {
 		oact->sa_handler = koact.k_sa_handler;
-		memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
+		__memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
 		oact->sa_flags = koact.sa_flags;
 		oact->sa_restorer = koact.sa_restorer;
 	}
@@ -61,12 +73,12 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 }
 #else
 
-#warning "Yes there is a warning here.  Don't worry about it."
-static void restore (void) asm ("__restore");
+extern void restore (void) asm ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+int
+__libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
 	int result;
 	struct old_kernel_sigaction kact, koact;
@@ -106,9 +118,7 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 }
 #endif
 
-#ifndef LIBC_SIGACTION
 weak_alias (__libc_sigaction, sigaction)
-#endif
 
 /* NOTE: Please think twice before making any changes to the bits of
    code below.  GDB needs some intimate knowledge about it to

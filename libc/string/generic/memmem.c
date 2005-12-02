@@ -41,7 +41,7 @@ void attribute_hidden *__memmem (const void *haystack, size_t haystack_len,
 
   for (begin = (const char *) haystack; begin <= last_possible; ++begin)
     if (begin[0] == ((const char *) needle)[0] &&
-	!memcmp ((const void *) &begin[1],
+	!__memcmp ((const void *) &begin[1],
 		 (const void *) ((const char *) needle + 1),
 		 needle_len - 1))
       return (void *) begin;

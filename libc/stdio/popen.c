@@ -84,23 +84,23 @@ FILE *popen(const char *command, const char *modes)
 	parent_fd = pipe_fd[1-child_writing];
 
 	if (!(fp = fdopen(parent_fd, modes))) {
-		close(parent_fd);
-		close(child_fd);
+		__close(parent_fd);
+		__close(child_fd);
 		goto FREE_PI;
 	}
 
 	VFORK_LOCK;
 	if ((pid = vfork()) == 0) {	/* Child of vfork... */
-		close(parent_fd);
+		__close(parent_fd);
 		if (child_fd != child_writing) {
 			dup2(child_fd, child_writing);
-			close(child_fd);
+			__close(child_fd);
 		}
 
 		/* SUSv3 requires that any previously popen()'d streams in the
 		 * parent shall be closed in the child. */
 		for (po = popen_list ; po ; po = po->next) {
-			close(po->f->__filedes);
+			__close(po->f->__filedes);
 		}
 
 		execl("/bin/sh", "sh", "-c", command, (char *)0);
@@ -113,7 +113,7 @@ FILE *popen(const char *command, const char *modes)
 
 	/* We need to close the child filedes whether vfork failed or
 	 * it succeeded and we're in the parent. */
-	close(child_fd);
+	__close(child_fd);
 
 	if (pid > 0) {				/* Parent of vfork... */
 		pi->pid = pid;

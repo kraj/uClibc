@@ -19,35 +19,22 @@
 #include <errno.h>
 #include <signal.h>
 
+#include "sigset-cvt-mask.h"
+
 /* Set the mask of blocked signals to MASK, returning the old mask.  */
-int sigsetmask (int mask)
+int
+__sigsetmask (int mask)
 {
-    register unsigned int sig;
-    sigset_t set, oset;
+  sigset_t set, oset;
 
-    if (__sigemptyset (&set) < 0)
-	return -1;
+  if (sigset_set_old_mask (&set, mask) < 0)
+    return -1;
 
-    if (sizeof (mask) == sizeof (set))
-	*(int *) &set = mask;
-    else if (sizeof (unsigned long int) == sizeof (set))
-	*(unsigned long int *) &set = (unsigned int) mask;
-    else
-	for (sig = 1; sig < NSIG && sig <= sizeof (mask) * 8; ++sig)
-	    if ((mask & sigmask (sig)) && __sigaddset (&set, sig) < 0)
-		return -1;
+  if (__sigprocmask (SIG_SETMASK, &set, &oset) < 0)
+    return -1;
 
-    if (sigprocmask (SIG_SETMASK, &set, &oset) < 0)
-	return -1;
 
-    if (sizeof (mask) == sizeof (oset))
-	mask = *(int *) &oset;
-    else if (sizeof (unsigned long int) == sizeof (oset))
-	mask = *(unsigned long int *) &oset;
-    else
-	for (sig = 1, mask = 0; sig < NSIG && sig <= sizeof (mask) * 8; ++sig)
-	    if (__sigismember (&oset, sig))
-		mask |= sigmask (sig);
-
-    return mask;
+  return sigset_get_old_mask (&oset);
 }
+
+weak_alias (__sigsetmask, sigsetmask)

@@ -16,6 +16,8 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#define getpagesize __libc_getpagesize
+
 #define _XOPEN_SOURCE  500
 #include <features.h>
 #include <errno.h>
@@ -36,9 +38,6 @@
 #ifndef __UCLIBC_CLK_TCK_CONST
 #error __UCLIBC_CLK_TCK_CONST not defined!
 #endif
-
-extern int getpagesize (void);
-extern int getdtablesize (void);
 
 /***********************************************************************/
 /*
@@ -71,7 +70,7 @@ extern int getdtablesize (void);
 #endif /* _UCLIBC_GENERATE_SYSCONF_ARCH */
 
 /* Get the value of the system variable NAME.  */
-long int __sysconf(int name)
+long int attribute_hidden __sysconf(int name)
 {
   switch (name)
     {
@@ -883,5 +882,4 @@ long int __sysconf(int name)
 #endif
     }
 }
-weak_alias(__sysconf, sysconf);
-
+strong_alias(__sysconf,sysconf)

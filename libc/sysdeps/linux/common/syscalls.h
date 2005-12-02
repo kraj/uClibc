@@ -29,10 +29,8 @@
 #include <endian.h>
 
 #undef __OPTIMIZE__
-/*
- * We absolutely do _NOT_ want interfaces silently
- * renamed under us or very bad things will happen...
- */
+/* We absolutely do _NOT_ want interfaces silently
+ *  *  * renamed under us or very bad things will happen... */
 #ifdef __USE_FILE_OFFSET64
 # undef __USE_FILE_OFFSET64
 #endif

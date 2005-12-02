@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define __fputc_unlocked __libc_fputc_unlocked
+
 #include "_stdio.h"
 
 int puts(register const char * __restrict s)

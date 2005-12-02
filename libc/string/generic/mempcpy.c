@@ -11,8 +11,8 @@
 
 void attribute_hidden *__mempcpy (void *dstpp, const void *srcpp, size_t len)
 {
-  memcpy(dstpp, srcpp, len);
+  __memcpy(dstpp, srcpp, len);
   return (void *)(((char *)dstpp) + len);
 }
 
-strong_alias (__mempcpy, mempcpy)
+strong_alias(__mempcpy,mempcpy)

@@ -12,12 +12,13 @@
 #ifndef __NR_ugetrlimit
 /* Only wrap setrlimit if the new ugetrlimit is not present */
 
-#define __NR___setrlimit __NR_setrlimit
+#define __NR___syscall_setrlimit __NR_setrlimit
 #include <unistd.h>
 #include <sys/resource.h>
 #define RMIN(x, y) ((x) < (y) ? (x) : (y))
-_syscall2(int, __setrlimit, int, resource, const struct rlimit *, rlim);
-int setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
+static inline
+_syscall2(int, __syscall_setrlimit, int, resource, const struct rlimit *, rlim);
+int attribute_hidden __setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
 {
 	struct rlimit rlimits_small;
 
@@ -27,7 +28,7 @@ int setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
 								  RLIM_INFINITY >> 1);
 	rlimits_small.rlim_max = RMIN((unsigned long int) rlimits->rlim_max,
 								  RLIM_INFINITY >> 1);
-	return (__setrlimit(resource, &rlimits_small));
+	return (__syscall_setrlimit(resource, &rlimits_small));
 }
 
 #undef RMIN
@@ -36,6 +37,9 @@ int setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
 
 #include <unistd.h>
 struct rlimit;
-_syscall2(int, setrlimit, unsigned int, resource,
+#define __NR___setrlimit __NR_setrlimit
+attribute_hidden _syscall2(int, __setrlimit, unsigned int, resource,
 		const struct rlimit *, rlim);
 #endif
+
+strong_alias(__setrlimit,setrlimit)

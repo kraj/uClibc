@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define wmemcpy __wmemcpy
+
 #include "_stdio.h"
 #include <wchar.h>
 
@@ -16,10 +18,10 @@
 #warning TODO: Fix prototype.
 #endif
 extern size_t __wcsnrtombs(char *__restrict dst,
-						   const wchar_t **__restrict src,
-						   size_t NWC, size_t len, mbstate_t *__restrict ps);
+			   const wchar_t **__restrict src,
+			   size_t NWC, size_t len, mbstate_t *__restrict ps) attribute_hidden;
 
-size_t _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
+size_t attribute_hidden _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
 					  register FILE *__restrict stream)
 {
 	size_t r, count;

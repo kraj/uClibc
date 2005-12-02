@@ -127,6 +127,9 @@
 
 /**************************************************************************/
 
+#define _uintmaxtostr __libc__uintmaxtostr
+#define strnlen __strnlen
+
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE				/* for strnlen */
 #include "_stdio.h"
@@ -188,7 +191,7 @@ static void _outnstr(FILE *stream, const unsigned char *s, size_t n)
 		if (r > n) {
 			r = n;
 		}
-		memcpy(f->bufpos, s, r);
+		__memcpy(f->bufpos, s, r);
 		f->bufpos += r;
 	}
 }
@@ -234,7 +237,7 @@ static void _charpad(FILE * __restrict stream, int padchar, size_t numpad)
 static void _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 {
 	if (type & 0x80) {			/* Some type of padding needed. */
-		int buflen = strlen((const char *) buf);
+		int buflen = __strlen((const char *) buf);
 		if ((len -= buflen) > 0) {
 			_charpad(fp, (type & 0x7f), len);
 		}

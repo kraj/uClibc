@@ -43,9 +43,9 @@
 #endif
 
 #ifdef libc_hidden_builtin_def
-#error WHOA!!! libc_hidden_builtin_def is defined
+#error "WHOA!!! libc_hidden_builtin_def is defined"
 #else
-#define libc_hidden_builtin_def(name)
+#define libc_hidden_builtin_def(name) .global __ ## name ; __ ## name = name
 #endif
 
 #endif

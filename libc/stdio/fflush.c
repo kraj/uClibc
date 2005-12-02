@@ -31,7 +31,7 @@
 #endif
 
 
-int __fflush_unlocked(register FILE *stream)
+int attribute_hidden __fflush_unlocked(register FILE *stream)
 {
 #ifdef __STDIO_BUFFERS
 

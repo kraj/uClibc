@@ -35,7 +35,7 @@ static ssize_t fmo_read(register void *cookie, char *buf, size_t bufsize)
 		bufsize = count;
 	}
 
-	memcpy(buf, COOKIE->buf + COOKIE->pos, bufsize);
+	__memcpy(buf, COOKIE->buf + COOKIE->pos, bufsize);
 	COOKIE->pos += bufsize;
 
 	return bufsize;
@@ -62,7 +62,7 @@ static ssize_t fmo_write(register void *cookie, const char *buf, size_t bufsize)
 		}
 	}
 
-	memcpy(COOKIE->buf + COOKIE->pos, buf, bufsize);
+	__memcpy(COOKIE->buf + COOKIE->pos, buf, bufsize);
 	COOKIE->pos += bufsize;
 
 	if (COOKIE->pos > COOKIE->eof) {

@@ -1,4 +1,4 @@
-/* Copyright (C) 1992,95,96,97,98,99,2000,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1992,95,96,97,98,99,2000,2001,2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -61,11 +61,11 @@ struct stat
     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
 #endif
     __time_t st_atime;			/* Time of last access.  */
-    unsigned long int __unused1;
+    unsigned long int st_atimensec;	/* Nscecs of last access.  */
     __time_t st_mtime;			/* Time of last modification.  */
-    unsigned long int __unused2;
+    unsigned long int st_mtimensec;	/* Nsecs of last modification.  */
     __time_t st_ctime;			/* Time of last status change.  */
-    unsigned long int __unused3;
+    unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
     unsigned long int __unused4;
     unsigned long int __unused5;
   };
@@ -89,11 +89,11 @@ struct stat64
 
     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
     __time_t st_atime;			/* Time of last access.  */
-    unsigned long int __unused1;
+    unsigned long int st_atimensec;	/* Nscecs of last access.  */
     __time_t st_mtime;			/* Time of last modification.  */
-    unsigned long int __unused2;
+    unsigned long int st_mtimensec;	/* Nsecs of last modification.  */
     __time_t st_ctime;			/* Time of last status change.  */
-    unsigned long int __unused3;
+    unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
     unsigned long int __unused4;
     unsigned long int __unused5;
   };
@@ -102,6 +102,8 @@ struct stat64
 /* Tell code we have these members.  */
 #define	_STATBUF_ST_BLKSIZE
 #define _STATBUF_ST_RDEV
+/* Nanosecond resolution time values are supported.  */
+#define _STATBUF_ST_NSEC
 
 /* Encoding of the file mode.  */
 

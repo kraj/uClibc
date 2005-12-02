@@ -9,7 +9,7 @@
 
 #ifdef __DO_UNLOCKED
 
-size_t __fwrite_unlocked(const void * __restrict ptr, size_t size,
+size_t attribute_hidden __fwrite_unlocked(const void * __restrict ptr, size_t size,
 						 size_t nmemb, register FILE * __restrict stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);

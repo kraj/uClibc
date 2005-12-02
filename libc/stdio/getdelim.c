@@ -20,7 +20,7 @@
 
 #define GETDELIM_GROWBY		64
 
-ssize_t __getdelim(char **__restrict lineptr, size_t *__restrict n,
+ssize_t attribute_hidden __libc_getdelim(char **__restrict lineptr, size_t *__restrict n,
 				   int delimiter, register FILE *__restrict stream)
 {
 	register char *buf;
@@ -74,4 +74,5 @@ ssize_t __getdelim(char **__restrict lineptr, size_t *__restrict n,
 	return pos;
 }
 
-weak_alias(__getdelim,getdelim);
+strong_alias(__libc_getdelim,__getdelim)
+weak_alias(__getdelim,getdelim)

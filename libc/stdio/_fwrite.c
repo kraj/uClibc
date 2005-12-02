@@ -5,6 +5,9 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define memrchr __memrchr
+#define memchr __memchr
+
 #include "_stdio.h"
 
 #ifdef __STDIO_BUFFERS
@@ -32,7 +35,7 @@ size_t attribute_hidden __stdio_fwrite(const unsigned char * __restrict buffer,
 			if (pending > bytes) {
 				pending = bytes;
 			}
-			memcpy(stream->__bufpos, buffer, pending);
+			__memcpy(stream->__bufpos, buffer, pending);
 			stream->__bufpos += pending;
 			__STDIO_STREAM_VALIDATE(stream);
 			return bytes;
@@ -40,7 +43,7 @@ size_t attribute_hidden __stdio_fwrite(const unsigned char * __restrict buffer,
 
 /* 	RETRY: */
 		if (bytes <= __STDIO_STREAM_BUFFER_WAVAIL(stream)) {
-			memcpy(stream->__bufpos, buffer, bytes);
+			__memcpy(stream->__bufpos, buffer, bytes);
 			stream->__bufpos += bytes;
 			if (__STDIO_STREAM_IS_LBF(stream)
 				&& memrchr(buffer, '\n', bytes)	/* Search backwards. */

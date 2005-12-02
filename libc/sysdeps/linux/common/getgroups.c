@@ -7,6 +7,8 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
+#define sysconf __sysconf
+
 #include "syscalls.h"
 #include <unistd.h>
 

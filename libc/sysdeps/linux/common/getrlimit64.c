@@ -16,6 +16,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define getrlimit __getrlimit
+
 #include <features.h>
 
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64 
