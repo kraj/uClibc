@@ -2003,7 +2003,7 @@ void attribute_hidden __bcopy(const void *s2, void *s1, size_t n)
 #endif
 }
 
-//strong_alias(__bcopy, bcopy)
+strong_alias(__bcopy, bcopy)
 
 #endif
 /**********************************************************************/
