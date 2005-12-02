@@ -49,12 +49,12 @@
 /**********************************************************************/
 /* Prototypes for internal functions. */
 
-extern int __parsepwent(void *pw, char *line);
-extern int __parsegrent(void *gr, char *line);
-extern int __parsespent(void *sp, char *line);
+extern int __parsepwent(void *pw, char *line) attribute_hidden;
+extern int __parsegrent(void *gr, char *line) attribute_hidden;
+extern int __parsespent(void *sp, char *line) attribute_hidden;
 
 extern int __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
-					   char *__restrict line_buff, size_t buflen, FILE *f);
+			   char *__restrict line_buff, size_t buflen, FILE *f) attribute_hidden;
 
 /**********************************************************************/
 /* For the various fget??ent_r funcs, return
@@ -190,10 +190,10 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 	}
 
 	if (string != buffer) {
-		if (strlen(string) >= buflen) {
+		if (__strlen(string) >= buflen) {
 			goto DO_ERANGE;
 		}
-		strcpy(buffer, string);
+		__strcpy(buffer, string);
 	}
 
 	if (!(rv = __parsespent(result_buf, buffer))) {
@@ -215,7 +215,7 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #define GETXXKEY_R_FUNC			getpwnam_r
 #define GETXXKEY_R_PARSER   	__parsepwent
 #define GETXXKEY_R_ENTTYPE		struct passwd
-#define GETXXKEY_R_TEST(ENT)	(!strcmp((ENT)->pw_name, key))
+#define GETXXKEY_R_TEST(ENT)	(!__strcmp((ENT)->pw_name, key))
 #define DO_GETXXKEY_R_KEYTYPE	const char *__restrict
 #define DO_GETXXKEY_R_PATHNAME  _PATH_PASSWD
 #include "pwd_grp_internal.c"
@@ -225,7 +225,7 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #define GETXXKEY_R_FUNC			getgrnam_r
 #define GETXXKEY_R_PARSER   	__parsegrent
 #define GETXXKEY_R_ENTTYPE		struct group
-#define GETXXKEY_R_TEST(ENT)	(!strcmp((ENT)->gr_name, key))
+#define GETXXKEY_R_TEST(ENT)	(!__strcmp((ENT)->gr_name, key))
 #define DO_GETXXKEY_R_KEYTYPE	const char *__restrict
 #define DO_GETXXKEY_R_PATHNAME  _PATH_GROUP
 #include "pwd_grp_internal.c"
@@ -235,7 +235,7 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #define GETXXKEY_R_FUNC			getspnam_r
 #define GETXXKEY_R_PARSER   	__parsespent
 #define GETXXKEY_R_ENTTYPE		struct spwd
-#define GETXXKEY_R_TEST(ENT)	(!strcmp((ENT)->sp_namp, key))
+#define GETXXKEY_R_TEST(ENT)	(!__strcmp((ENT)->sp_namp, key))
 #define DO_GETXXKEY_R_KEYTYPE	const char *__restrict
 #define DO_GETXXKEY_R_PATHNAME  _PATH_SHADOW
 #include "pwd_grp_internal.c"
@@ -658,7 +658,7 @@ int initgroups(const char *user, gid_t gid)
 			assert(group.gr_mem); /* Must have at least a NULL terminator. */
 			if (group.gr_gid != gid) {
 				for (m=group.gr_mem ; *m ; m++) {
-					if (!strcmp(*m, user)) {
+					if (!__strcmp(*m, user)) {
 						if (!(num_groups & 7)) {
 							gid_t *tmp = (gid_t *)
 								realloc(group_list,
@@ -833,7 +833,7 @@ static const unsigned char pw_off[] = {
 	offsetof(struct passwd, pw_shell) 	/* 6 */
 };
 
-int __parsepwent(void *data, char *line)
+int attribute_hidden __parsepwent(void *data, char *line)
 {
 	char *endptr;
 	char *p;
@@ -851,7 +851,7 @@ int __parsepwent(void *data, char *line)
 			/* NOTE: glibc difference - glibc allows omission of
 			 * ':' seperators after the gid field if all remaining
 			 * entries are empty.  We require all separators. */
-			if (!(line = strchr(line, ':'))) {
+			if (!(line = __strchr(line, ':'))) {
 				break;
 			}
 		} else {
@@ -888,7 +888,7 @@ static const unsigned char gr_off[] = {
 	offsetof(struct group, gr_gid)		/* 2 - not a char ptr */
 };
 
-int __parsegrent(void *data, char *line)
+int attribute_hidden __parsegrent(void *data, char *line)
 {
 	char *endptr;
 	char *p;
@@ -903,7 +903,7 @@ int __parsegrent(void *data, char *line)
 
 		if (i < 2) {
 			*((char **) p) = line;
-			if (!(line = strchr(line, ':'))) {
+			if (!(line = __strchr(line, ':'))) {
 				break;
 			}
 			*line++ = 0;
@@ -992,7 +992,7 @@ static const unsigned char sp_off[] = {
 	offsetof(struct spwd, sp_flag) 		/* 8 - not a char ptr */
 };
 
-int __parsespent(void *data, char * line)
+int attribute_hidden __parsespent(void *data, char * line)
 {
 	char *endptr;
 	char *p;
@@ -1003,7 +1003,7 @@ int __parsespent(void *data, char * line)
 		p = ((char *) ((struct spwd *) data)) + sp_off[i];
 		if (i < 2) {
 			*((char **) p) = line;
-			if (!(line = strchr(line, ':'))) {
+			if (!(line = __strchr(line, ':'))) {
 				break;
 			}
 		} else {
@@ -1058,7 +1058,7 @@ int __parsespent(void *data, char * line)
  * Returns 0 on success and ENOENT for end-of-file (glibc concession).
  */
 
-int __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
+int attribute_hidden __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
 				char *__restrict line_buff, size_t buflen, FILE *f)
 {
 	int line_len;
@@ -1080,7 +1080,7 @@ int __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
 				break;
 			}
 
-			line_len = strlen(line_buff) - 1; /* strlen() must be > 0. */
+			line_len = __strlen(line_buff) - 1; /* strlen() must be > 0. */
 			if (line_buff[line_len] == '\n') {
 				line_buff[line_len] = 0;
 			} else if (line_len + 2 == buflen) { /* line too long */

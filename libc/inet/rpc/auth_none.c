@@ -69,8 +69,8 @@ struct authnone_private_s {
 static struct authnone_private_s *authnone_private;
 #endif
 
-AUTH *
-authnone_create (void)
+AUTH attribute_hidden *
+__authnone_create (void)
 {
   struct authnone_private_s *ap;
   XDR xdr_stream;
@@ -98,6 +98,7 @@ authnone_create (void)
     }
   return (&ap->no_client);
 }
+strong_alias(__authnone_create,authnone_create)
 
 /*ARGSUSED */
 static bool_t

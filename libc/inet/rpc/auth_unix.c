@@ -38,6 +38,9 @@
  * for the credentials.
  */
 
+#define sysconf __sysconf
+#define getegid __getegid
+
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -92,8 +95,8 @@ static bool_t marshal_new_auth (AUTH *) internal_function;
  * Create a unix style authenticator.
  * Returns an auth handle with the given stuff in it.
  */
-AUTH *
-authunix_create (char *machname, uid_t uid, gid_t gid, int len,
+AUTH attribute_hidden *
+__authunix_create (char *machname, uid_t uid, gid_t gid, int len,
 		 gid_t *aup_gids)
 {
   struct authunix_parms aup;
@@ -149,7 +152,7 @@ no_memory:
   au->au_origcred.oa_base = mem_alloc ((u_int) len);
   if (au->au_origcred.oa_base == NULL)
     goto no_memory;
-  memcpy(au->au_origcred.oa_base, mymem, (u_int) len);
+  __memcpy(au->au_origcred.oa_base, mymem, (u_int) len);
 
   /*
    * set auth handle to reflect new cred.
@@ -158,13 +161,14 @@ no_memory:
   marshal_new_auth (auth);
   return auth;
 }
+strong_alias(__authunix_create,authunix_create)
 
 /*
  * Returns an auth handle with parameters determined by doing lots of
  * syscalls.
  */
-AUTH *
-authunix_create_default (void)
+AUTH attribute_hidden *
+__authunix_create_default (void)
 {
   int len;
   char machname[MAX_MACHINE_NAME + 1];
@@ -184,8 +188,9 @@ authunix_create_default (void)
   /* This braindamaged Sun code forces us here to truncate the
      list of groups to NGRPS members since the code in
      authuxprot.c transforms a fixed array.  Grrr.  */
-  return authunix_create (machname, uid, gid, MIN (NGRPS, len), gids);
+  return __authunix_create (machname, uid, gid, MIN (NGRPS, len), gids);
 }
+strong_alias(__authunix_create_default,authunix_create_default)
 
 /*
  * authunix operations

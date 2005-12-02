@@ -62,7 +62,7 @@ int lockf64 (int fd, int cmd, off64_t len64)
 	return -1;
     }
 
-    memset((char *) &fl, '\0', sizeof (fl));
+    __memset((char *) &fl, '\0', sizeof (fl));
 
     /* lockf is always relative to the current file position.  */
     fl.l_whence = SEEK_CUR;

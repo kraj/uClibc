@@ -19,7 +19,7 @@
 
 int alphasort64(const void * a, const void * b)
 {
-    return strcmp ((*(const struct dirent64 **) a)->d_name,
+    return __strcmp ((*(const struct dirent64 **) a)->d_name,
 	    (*(const struct dirent64 **) b)->d_name);
 }
 #endif /* __UCLIBC_HAS_LFS__ */

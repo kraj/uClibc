@@ -1,3 +1,6 @@
+#define strtok_r __strtok_r
+#define strstr __strstr
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

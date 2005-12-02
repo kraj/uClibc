@@ -36,6 +36,16 @@
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
+#define _authenticate __libc__authenticate
+#define _rpc_dtablesize __libc__rpc_dtablesize
+
+/* used by svc_[max_]pollfd */
+#define __rpc_thread_svc_pollfd __libc_rpc_thread_svc_pollfd
+#define __rpc_thread_svc_max_pollfd __libc_rpc_thread_svc_max_pollfd
+
+/* used by svc_fdset */
+#define __rpc_thread_svc_fdset __libc_rpc_thread_svc_fdset
+
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -75,8 +85,8 @@ static struct svc_callout *svc_head;
 /* ***************  SVCXPRT related stuff **************** */
 
 /* Activate a transport handle. */
-void
-xprt_register (SVCXPRT *xprt)
+void attribute_hidden
+__xprt_register (SVCXPRT *xprt)
 {
   register int sock = xprt->xp_sock;
   register int i;
@@ -115,6 +125,7 @@ xprt_register (SVCXPRT *xprt)
 					       POLLRDNORM | POLLRDBAND);
     }
 }
+strong_alias(__xprt_register,xprt_register)
 
 /* De-activate a transport handle. */
 void
@@ -480,8 +491,7 @@ svc_getreq_common (const int fd)
 
 #ifdef __UCLIBC_HAS_THREADS__
 
-void
-__rpc_thread_svc_cleanup (void)
+void attribute_hidden __rpc_thread_svc_cleanup (void)
 {
   struct svc_callout *svcp;
 

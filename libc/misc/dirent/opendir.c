@@ -24,7 +24,7 @@ DIR *opendir(const char *name)
 		__set_errno(ENOTDIR);
 		return NULL;
 	}
-	if ((fd = open(name, O_RDONLY)) < 0)
+	if ((fd = __open(name, O_RDONLY)) < 0)
 		return NULL;
 	/* According to POSIX, directory streams should be closed when
 	 * exec. From "Anna Pluzhnikov" <besp@midway.uchicago.edu>.
@@ -32,7 +32,7 @@ DIR *opendir(const char *name)
 	if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0)
 		return NULL;
 	if (!(ptr = malloc(sizeof(*ptr)))) {
-		close(fd);
+		__close(fd);
 		__set_errno(ENOMEM);
 		return NULL;
 	}
@@ -45,7 +45,7 @@ DIR *opendir(const char *name)
 		ptr->dd_max = 512;
 
 	if (!(buf = calloc(1, ptr->dd_max))) {
-		close(fd);
+		__close(fd);
 		free(ptr);
 		__set_errno(ENOMEM);
 		return NULL;

@@ -48,7 +48,7 @@ int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 	if (de == NULL) {
 	    *result = NULL;
 	} else {
-	    *result = memcpy (entry, de, de->d_reclen);
+	    *result = __memcpy (entry, de, de->d_reclen);
 	}
 	ret = 0;
 

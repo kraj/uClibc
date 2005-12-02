@@ -9,4 +9,8 @@
 
 #include "syscalls.h"
 #include <sys/time.h>
-_syscall2(int, gettimeofday, struct timeval *, tv, struct timezone *, tz);
+#undef gettimeofday
+#define __NR___gettimeofday __NR_gettimeofday
+attribute_hidden _syscall2(int, __gettimeofday, struct timeval *, tv, struct timezone *, tz);
+strong_alias(__gettimeofday,gettimeofday)
+weak_alias(__gettimeofday,__libc_gettimeofday)

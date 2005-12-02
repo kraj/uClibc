@@ -39,6 +39,9 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
+#define authunix_create_default __authunix_create_default
+#define inet_makeaddr __inet_makeaddr
+
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -59,7 +62,7 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 #include <arpa/inet.h>
 #define MAX_BROADCAST_SIZE 1400
 
-extern u_long _create_xid (void);
+extern u_long _create_xid (void) attribute_hidden;
 
 static const struct timeval timeout = {3, 0};
 
@@ -279,7 +282,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
   fd.fd = sock;
   fd.events = POLLIN;
   nets = getbroadcastnets (addrs, sock, inbuf);
-  memset ((char *) &baddr, 0, sizeof (baddr));
+  __memset ((char *) &baddr, 0, sizeof (baddr));
   baddr.sin_family = AF_INET;
   baddr.sin_port = htons (PMAPPORT);
   baddr.sin_addr.s_addr = htonl (INADDR_ANY);
@@ -407,7 +410,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	}
     }
 done_broad:
-  (void) close (sock);
+  (void) __close (sock);
   AUTH_DESTROY (unix_auth);
   return stat;
 }

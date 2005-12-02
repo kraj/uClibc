@@ -30,10 +30,10 @@ getnetbyname(const char *name)
 
 	setnetent(_net_stayopen);
 	while ((p = getnetent())) {
-		if (strcmp(p->n_name, name) == 0)
+		if (__strcmp(p->n_name, name) == 0)
 			break;
 		for (cp = p->n_aliases; *cp != 0; cp++)
-			if (strcmp(*cp, name) == 0)
+			if (__strcmp(*cp, name) == 0)
 				goto found;
 	}
 found:

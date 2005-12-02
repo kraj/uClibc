@@ -94,7 +94,7 @@ get_myaddress (struct sockaddr_in *addr)
 	{
 	  *addr = *((struct sockaddr_in *) &ifr->ifr_addr);
 	  addr->sin_port = htons (PMAPPORT);
-	  close (s);
+	  __close (s);
 	  return;
 	}
       ifr++;
@@ -104,5 +104,5 @@ get_myaddress (struct sockaddr_in *addr)
       loopback = 1;
       goto again;
     }
-  close (s);
+  __close (s);
 }

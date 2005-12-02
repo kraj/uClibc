@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 
 #ifdef __NR_socketcall
-extern int __socketcall(int call, unsigned long *args);
+extern int __socketcall(int call, unsigned long *args) attribute_hidden;
 
 /* Various socketcall numbers */
 #define SYS_SOCKET      1

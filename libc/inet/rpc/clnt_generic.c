@@ -63,11 +63,11 @@ clnt_create (const char *hostname, u_long prog, u_long vers,
   CLIENT *client;
   int herr;
 
-  if (strcmp (proto, "unix") == 0)
+  if (__strcmp (proto, "unix") == 0)
     {
-      memset ((char *)&sun, 0, sizeof (sun));
+      __memset ((char *)&sun, 0, sizeof (sun));
       sun.sun_family = AF_UNIX;
-      strcpy (sun.sun_path, hostname);
+      __strcpy (sun.sun_path, hostname);
       sock = RPC_ANYSOCK;
       client = clntunix_create (&sun, prog, vers, &sock, 0, 0);
       if (client == NULL)
@@ -112,8 +112,8 @@ clnt_create (const char *hostname, u_long prog, u_long vers,
     }
   sin.sin_family = h->h_addrtype;
   sin.sin_port = 0;
-  memset (sin.sin_zero, 0, sizeof (sin.sin_zero));
-  memcpy ((char *) &sin.sin_addr, h->h_addr, h->h_length);
+  __memset (sin.sin_zero, 0, sizeof (sin.sin_zero));
+  __memcpy ((char *) &sin.sin_addr, h->h_addr, h->h_length);
 
   prtbuflen = 1024;
   prttmpbuf = alloca (prtbuflen);

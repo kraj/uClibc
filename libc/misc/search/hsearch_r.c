@@ -140,7 +140,7 @@ int hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
 {
   unsigned int hval;
   unsigned int count;
-  unsigned int len = strlen (item.key);
+  unsigned int len = __strlen (item.key);
   unsigned int idx;
 
   /* Compute an value for the given string. Perhaps use a better method. */
@@ -166,7 +166,7 @@ int hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
       unsigned hval2;
 
       if (htab->table[idx].used == hval
-	  && strcmp (item.key, htab->table[idx].entry.key) == 0)
+	  && __strcmp (item.key, htab->table[idx].entry.key) == 0)
 	{
 	  *retval = &htab->table[idx].entry;
 	  return 1;
@@ -190,7 +190,7 @@ int hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
 
             /* If entry is found use it. */
           if (htab->table[idx].used == hval
-	      && strcmp (item.key, htab->table[idx].entry.key) == 0)
+	      && __strcmp (item.key, htab->table[idx].entry.key) == 0)
 	    {
 	      *retval = &htab->table[idx].entry;
 	      return 1;

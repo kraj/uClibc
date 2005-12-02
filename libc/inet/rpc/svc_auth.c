@@ -101,8 +101,8 @@ svcauthsw[] =
  * There is an assumption that any flavour less than AUTH_NULL is
  * invalid.
  */
-enum auth_stat
-_authenticate (register struct svc_req *rqst, struct rpc_msg *msg)
+enum auth_stat attribute_hidden
+__libc__authenticate (register struct svc_req *rqst, struct rpc_msg *msg)
 {
   register int cred_flavor;
 
@@ -115,6 +115,7 @@ _authenticate (register struct svc_req *rqst, struct rpc_msg *msg)
 
   return AUTH_REJECTEDCRED;
 }
+strong_alias(__libc__authenticate,_authenticate)
 
 static enum auth_stat
 _svcauth_null (struct svc_req *rqst, struct rpc_msg *msg)

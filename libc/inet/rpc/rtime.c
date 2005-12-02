@@ -68,7 +68,7 @@ do_close (int s)
   int save;
 
   save = errno;
-  close (s);
+  __close (s);
   __set_errno (save);
 }
 
@@ -132,7 +132,7 @@ rtime (struct sockaddr_in *addrp, struct rpc_timeval *timep,
 	  do_close (s);
 	  return -1;
 	}
-      res = read (s, (char *) &thetime, sizeof (thetime));
+      res = __read (s, (char *) &thetime, sizeof (thetime));
       do_close (s);
       if (res < 0)
 	return (-1);

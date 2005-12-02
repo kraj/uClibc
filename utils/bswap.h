@@ -32,23 +32,19 @@
 #ifdef __linux__
 #include <byteswap.h>
 #else
-#include <string.h>
-static __inline__ uint32_t bswap_32(uint32_t x)
-     {
-       uint32_t res;
 
-       swab((void*)&x, (void*)&res, sizeof(uint32_t));
-
-       return res;
-     }
-
-static __inline__ uint16_t bswap_16(uint16_t x)
-     {
-       uint16_t res;
-
-       swab((void*)&x, (void*)&res, sizeof(uint16_t));
-       return res;
-     }
+static inline uint32_t bswap_32(uint32_t x)
+{
+	return ((((x) & 0xff00) >> 8) | \
+	        (((x) & 0x00ff) << 8));
+}
+static inline uint16_t bswap_16(uint16_t x)
+{
+	return ((((x) & 0xff000000) >> 24) | \
+	        (((x) & 0x00ff0000) >>  8) | \
+	        (((x) & 0x0000ff00) <<  8) | \
+	        (((x) & 0x000000ff) << 24));
+}
 #endif
 
 #endif

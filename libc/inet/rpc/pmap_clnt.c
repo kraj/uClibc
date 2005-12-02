@@ -90,7 +90,7 @@ __get_myaddress (struct sockaddr_in *addr)
         {
           *addr = *((struct sockaddr_in *) &ifr->ifr_addr);
           addr->sin_port = htons (PMAPPORT);
-          close (s);
+          __close (s);
           return TRUE;
         }
       ifr++;
@@ -100,7 +100,7 @@ __get_myaddress (struct sockaddr_in *addr)
       loopback = 0;
       goto again;
     }
-  close (s);
+  __close (s);
   return FALSE;
 }
 
@@ -139,7 +139,7 @@ pmap_set (u_long program, u_long version, int protocol, u_short port)
       return FALSE;
     }
   CLNT_DESTROY (client);
-  /* (void)close(socket); CLNT_DESTROY closes it */
+  /* (void)__close(socket); CLNT_DESTROY closes it */
   return rslt;
 }
 
@@ -168,6 +168,6 @@ pmap_unset (u_long program, u_long version)
   CLNT_CALL (client, PMAPPROC_UNSET, (xdrproc_t)xdr_pmap, (caddr_t)&parms,
 	     (xdrproc_t)xdr_bool, (caddr_t)&rslt, tottimeout);
   CLNT_DESTROY (client);
-  /* (void)close(socket); CLNT_DESTROY already closed it */
+  /* (void)__close(socket); CLNT_DESTROY already closed it */
   return rslt;
 }

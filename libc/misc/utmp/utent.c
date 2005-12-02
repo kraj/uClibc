@@ -53,7 +53,7 @@ static struct utmp *__getutent(int utmp_fd)
     }
 
     LOCK;
-    if (read(utmp_fd, (char *) &static_utmp, sizeof(struct utmp)) != sizeof(struct utmp)) 
+    if (__read(utmp_fd, (char *) &static_utmp, sizeof(struct utmp)) != sizeof(struct utmp)) 
     {
 	return NULL;
     }
@@ -68,8 +68,8 @@ void setutent(void)
 
     LOCK;
     if (static_fd == -1) {
-	if ((static_fd = open(static_ut_name, O_RDWR)) < 0) {
-	    if ((static_fd = open(static_ut_name, O_RDONLY)) < 0) {
+	if ((static_fd = __open(static_ut_name, O_RDWR)) < 0) {
+	    if ((static_fd = __open(static_ut_name, O_RDONLY)) < 0) {
 		goto bummer;
 	    }
 	}
@@ -82,7 +82,7 @@ void setutent(void)
 bummer:
 	    UNLOCK;
 	    static_fd = -1;
-	    close(static_fd);
+	    __close(static_fd);
 	    return;
 	}
     }
@@ -95,7 +95,7 @@ void endutent(void)
 {
     LOCK;
     if (static_fd != -1) {
-	close(static_fd);
+	__close(static_fd);
     }
     static_fd = -1;
     UNLOCK;
@@ -125,7 +125,7 @@ struct utmp attribute_hidden *__getutid (const struct utmp *utmp_entry)
 		 utmp_entry->ut_type == DEAD_PROCESS ||
 		 utmp_entry->ut_type == LOGIN_PROCESS ||
 		 utmp_entry->ut_type == USER_PROCESS) &&
-		!strncmp(lutmp->ut_id, utmp_entry->ut_id, sizeof(lutmp->ut_id))) 
+		!__strncmp(lutmp->ut_id, utmp_entry->ut_id, sizeof(lutmp->ut_id))) 
 	{
 	    return lutmp;
 	}
@@ -142,7 +142,7 @@ struct utmp *getutline(const struct utmp *utmp_entry)
 
     while ((lutmp = __getutent(static_fd)) != NULL) {
 	if ((lutmp->ut_type == USER_PROCESS || lutmp->ut_type == LOGIN_PROCESS) &&
-		!strcmp(lutmp->ut_line, utmp_entry->ut_line))
+		!__strcmp(lutmp->ut_line, utmp_entry->ut_line))
 	{
 	    return lutmp;
 	}
@@ -162,11 +162,11 @@ struct utmp *pututline (const struct utmp *utmp_entry)
 
     if (__getutid(utmp_entry) != NULL) {
 	lseek(static_fd, (off_t) - sizeof(struct utmp), SEEK_CUR);
-	if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
+	if (__write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
 	    return NULL;
     } else {
 	lseek(static_fd, (off_t) 0, SEEK_END);
-	if (write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
+	if (__write(static_fd, utmp_entry, sizeof(struct utmp)) != sizeof(struct utmp))
 	    return NULL;
     }
 
@@ -180,7 +180,7 @@ int utmpname (const char *new_ut_name)
     if (new_ut_name != NULL) {
 	if (static_ut_name != default_file_name)
 	    free((char *)static_ut_name);
-	static_ut_name = strdup(new_ut_name);
+	static_ut_name = __strdup(new_ut_name);
 	if (static_ut_name == NULL) {
 	    /* We should probably whine about out-of-memory 
 	     * errors here...  Instead just reset to the default */
@@ -189,7 +189,7 @@ int utmpname (const char *new_ut_name)
     }
 
     if (static_fd != -1)
-	close(static_fd);
+	__close(static_fd);
     UNLOCK;
     return 0;
 }

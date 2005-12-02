@@ -21,6 +21,10 @@
 #include <signal.h>
 #include <linux/unistd.h>
 
+#ifndef errno
+extern int errno;
+#endif
+
 #ifndef __SSP_QUICK_CANARY__
 #define __NR___kernel_open		__NR_open
 static __always_inline _syscall3(int,__kernel_open,const char *,path,int,flags,__kernel_mode_t,mode);

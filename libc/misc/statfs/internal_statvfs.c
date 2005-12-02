@@ -39,7 +39,7 @@
   buf->__f_unused = 0;
 #endif
   buf->f_namemax = fsbuf.f_namelen;
-  memset (buf->__f_spare, '\0', 6 * sizeof (int));
+  __memset (buf->__f_spare, '\0', 6 * sizeof (int));
 
   /* What remains to do is to fill the fields f_favail and f_flag.  */
 
@@ -79,21 +79,21 @@
 		  char *opt;
 
 		  while ((opt = strsep (&cp, ",")) != NULL)
-		    if (strcmp (opt, "ro") == 0)
+		    if (__strcmp (opt, "ro") == 0)
 		      buf->f_flag |= ST_RDONLY;
-		    else if (strcmp (opt, "nosuid") == 0)
+		    else if (__strcmp (opt, "nosuid") == 0)
 		      buf->f_flag |= ST_NOSUID;
-		    else if (strcmp (opt, "noexec") == 0)
+		    else if (__strcmp (opt, "noexec") == 0)
 		      buf->f_flag |= ST_NOEXEC;
-		    else if (strcmp (opt, "nodev") == 0)
+		    else if (__strcmp (opt, "nodev") == 0)
 		      buf->f_flag |= ST_NODEV;
-		    else if (strcmp (opt, "sync") == 0)
+		    else if (__strcmp (opt, "sync") == 0)
 		      buf->f_flag |= ST_SYNCHRONOUS;
-		    else if (strcmp (opt, "mand") == 0)
+		    else if (__strcmp (opt, "mand") == 0)
 		      buf->f_flag |= ST_MANDLOCK;
-		    else if (strcmp (opt, "noatime") == 0)
+		    else if (__strcmp (opt, "noatime") == 0)
 		      buf->f_flag |= ST_NOATIME;
-		    else if (strcmp (opt, "nodiratime") == 0)
+		    else if (__strcmp (opt, "nodiratime") == 0)
 		      buf->f_flag |= ST_NODIRATIME;
 
 		  /* We can stop looking for more entries.  */

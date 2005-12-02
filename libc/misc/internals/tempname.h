@@ -4,8 +4,8 @@
 #define	__need_size_t
 #include <stddef.h>
 extern int __path_search (char *tmpl, size_t tmpl_len, const char *dir, 
-	        const char *pfx, int try_tmpdir);
-extern int __gen_tempname (char *__tmpl, int __kind);
+	        const char *pfx, int try_tmpdir) attribute_hidden;
+extern int __gen_tempname (char *__tmpl, int __kind) attribute_hidden;
 
 /* The __kind argument to __gen_tempname may be one of: */
 #define __GT_FILE     0       /* create a file */

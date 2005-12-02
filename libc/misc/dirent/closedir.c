@@ -29,5 +29,5 @@ int closedir(DIR * dir)
 #endif
 	free(dir->dd_buf);
 	free(dir);
-	return close(fd);
+	return __close(fd);
 }

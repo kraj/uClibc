@@ -49,13 +49,6 @@
 /**********************************************************************/
 /* Prototypes for internal functions. */
 
-extern int __parsepwent(void *pw, char *line);
-extern int __parsegrent(void *gr, char *line);
-extern int __parsespent(void *sp, char *line);
-
-extern int __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
-					   char *__restrict line_buff, size_t buflen, FILE *f);
-
 #ifndef GETXXKEY_R_FUNC
 #error GETXXKEY_R_FUNC is not defined!
 #endif

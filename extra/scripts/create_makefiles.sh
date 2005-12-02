@@ -31,6 +31,11 @@ for x in */Makefile.in ; do
 	${USE_CMD} extra/scripts/Makefile.libs.lvl1 $(dirname ${x})/Makefile
 done
 
+for x in utils/Makefile.in ; do
+	${RM} $(dirname ${x})/Makefile
+	${USE_CMD} extra/scripts/Makefile.utils.lvl1 $(dirname ${x})/Makefile
+done
+
 for x in */*/Makefile.in ; do
 	${RM} $(dirname ${x})/Makefile
 	${USE_CMD} extra/scripts/Makefile.objs.lvl2 $(dirname ${x})/Makefile

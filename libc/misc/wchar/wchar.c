@@ -98,8 +98,6 @@
  * Manuel
  */
 
-#define memmove __memmove
-
 #define _GNU_SOURCE
 #define _ISOC99_SOURCE
 #include <errno.h>
@@ -1620,7 +1618,7 @@ int main(int argc, char **argv)
 			break;
 		}
 		do {
-			if ((s = strchr(opt_chars,*p)) == NULL) {
+			if ((s = __strchr(opt_chars,*p)) == NULL) {
 			USAGE:
 				s = basename(progname);
 				fprintf(stderr,
@@ -1697,7 +1695,7 @@ int main(int argc, char **argv)
 				}
 			}
 			if (ni) {			/* still bytes in buffer! */
-				memmove(ibuf, pi, ni);
+				__memmove(ibuf, pi, ni);
 			}
 		}
 

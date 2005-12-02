@@ -51,7 +51,7 @@ register node	**rootp;	 address of tree root
 int	(*compar)();		 ordering function
 */
 
-void *tsearch(__const void *key, void **vrootp, __compar_fn_t compar)
+void attribute_hidden *__tsearch(__const void *key, void **vrootp, __compar_fn_t compar)
 {
     register node *q;
     register node **rootp = (node **) vrootp;
@@ -77,6 +77,7 @@ void *tsearch(__const void *key, void **vrootp, __compar_fn_t compar)
     }
     return (q);
 }
+strong_alias(__tsearch,tsearch)
 #endif
 
 #ifdef L_tfind

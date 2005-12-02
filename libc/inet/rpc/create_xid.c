@@ -40,8 +40,7 @@ static pthread_mutex_t createxid_lock = PTHREAD_MUTEX_INITIALIZER;
 static int is_initialized;
 static struct drand48_data __rpc_lrand48_data;
 
-unsigned long
-_create_xid (void)
+u_long attribute_hidden _create_xid (void)
 {
   unsigned long res;
 

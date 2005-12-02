@@ -91,8 +91,8 @@ clnt_sperror (CLIENT * rpch, const char *msg)
   len = sprintf (str, "%s: ", msg);
   str += len;
 
-  (void) strcpy(str, clnt_sperrno(e.re_status));
-  str += strlen(str);
+  (void) __strcpy(str, clnt_sperrno(e.re_status));
+  str += __strlen(str);
 
   switch (e.re_status)
     {
@@ -126,13 +126,13 @@ clnt_sperror (CLIENT * rpch, const char *msg)
 
     case RPC_AUTHERROR:
       err = auth_errmsg (e.re_why);
-      (void) strcpy(str, _("; why = "));
-      str += strlen(str);
+      (void) __strcpy(str, _("; why = "));
+      str += __strlen(str);
 
       if (err != NULL)
 	{
-	  (void) strcpy(str, err);
-	  str += strlen(str);
+	  (void) __strcpy(str, err);
+	  str += __strlen(str);
 	}
       else
 	{
@@ -316,27 +316,27 @@ clnt_spcreateerror (const char *msg)
   ce = &get_rpc_createerr ();
   len = sprintf (str, "%s: ", msg);
   cp = str + len;
-  (void) strcpy(cp, clnt_sperrno (ce->cf_stat));
-  cp += strlen(cp);
+  (void) __strcpy(cp, clnt_sperrno (ce->cf_stat));
+  cp += __strlen(cp);
 
   switch (ce->cf_stat)
     {
     case RPC_PMAPFAILURE:
-      (void) strcpy(cp, " - ");
-      cp += strlen(cp);
+      (void) __strcpy(cp, " - ");
+      cp += __strlen(cp);
 
-      (void) strcpy(cp, clnt_sperrno (ce->cf_error.re_status));
-      cp += strlen(cp);
+      (void) __strcpy(cp, clnt_sperrno (ce->cf_error.re_status));
+      cp += __strlen(cp);
 
       break;
 
     case RPC_SYSTEMERROR:
-      (void) strcpy(cp, " - ");
-      cp += strlen(cp);
+      (void) __strcpy(cp, " - ");
+      cp += __strlen(cp);
 
       strerror_r (ce->cf_error.re_errno, chrbuf, sizeof chrbuf);
-      (void) strcpy(cp, chrbuf);
-      cp += strlen(cp);
+      (void) __strcpy(cp, chrbuf);
+      cp += __strlen(cp);
       break;
     default:
       break;

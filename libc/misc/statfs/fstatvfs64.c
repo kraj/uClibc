@@ -17,6 +17,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define strsep __strsep
+
 #include <features.h>
 
 #ifdef __UCLIBC_HAS_LFS__
