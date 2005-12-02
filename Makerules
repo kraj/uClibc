@@ -141,7 +141,6 @@ $(top_builddir)lib/interp.c:
 
 $(interp): $(top_builddir)lib/interp.c
 	$(compile.c)
-	@$(disp_strip)
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
 $(ldso):
