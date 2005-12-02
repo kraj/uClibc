@@ -9,7 +9,7 @@
 
 #undef mempcpy
 
-void attribute_hidden *__mempcpy (void *dstpp, const void *srcpp, size_t len)
+void *__mempcpy (void *dstpp, const void *srcpp, size_t len)
 {
   __memcpy(dstpp, srcpp, len);
   return (void *)(((char *)dstpp) + len);
