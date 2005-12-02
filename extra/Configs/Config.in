@@ -1068,6 +1068,16 @@ config UCLIBC_HAS_REGEX
 	bool "Regular Expression Support"
 	default y
 	help
+	  POSIX regular expression code is really big -- 53k all by itself.
+	  If you don't use regular expressions, turn this off and save space.
+	  Of course, if you only staticly link, leave this on, since it will
+	  only be included in your apps if you use regular expressions.
+
+config UCLIBC_HAS_REGEX_OLD
+	bool "Use the older (stable) Regular Expression Support"
+	depends on UCLIBC_HAS_REGEX
+	default y
+	help
 	  POSIX regular expression code is really big -- 27k all by itself.
 	  If you don't use regular expressions, turn this off and save space.
 	  Of course, if you only staticly link, leave this on, since it will
@@ -1116,7 +1126,7 @@ menu "Library Installation Options"
 config SHARED_LIB_LOADER_PREFIX
 	string "Shared library loader path"
 	depends on HAVE_SHARED
-	default "$(DEVEL_PREFIX)/lib"
+	default "$(RUNTIME_PREFIX)lib"
 	help
 	  When using shared libraries, this path is the location where the
 	  shared library will be invoked.  This value will be compiled into
@@ -1174,7 +1184,7 @@ config UCLIBC_BUILD_PIE
 	depends on HAVE_SHARED
 	depends on TARGET_arm || TARGET_frv || TARGET_i386 || TARGET_mips || TARGET_powerpc
 	select FORCE_SHAREABLE_TEXT_SEGMENTS
-	default y
+	default n
 	help
 	  If you answer Y here, ldd and iconv are built as ET_DYN/PIE executables.
 	  It requires gcc-3.4 and binutils-2.15 (for arm 2.16) or later.

@@ -25,10 +25,7 @@
 #include <elf.h>
 #include <dlfcn.h>
 #include <sys/types.h>
-/* Defines USE_TLS */
-#if defined(IS_IN_libpthread) || defined(IS_IN_rtld)
 #include <tls.h>
-#endif
 
 /* We use this macro to refer to ELF types independent of the native wordsize.
    `ElfW(TYPE)' is used in place of `Elf32_TYPE' or `Elf64_TYPE'.  */

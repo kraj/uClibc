@@ -5,7 +5,9 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-top_srcdir=../../../../
+TOPDIR=../../../../
+
+top_srcdir=$(TOPDIR)
 top_builddir=../../../../
 all: objs
 include $(top_builddir)Rules.mak
