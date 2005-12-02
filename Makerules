@@ -167,13 +167,11 @@ endif
 $(top_builddir)lib/$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
-	@$(disp_strip)
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
 $(top_builddir)lib/S$(CRT).o: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
 	$(Q)$(INSTALL) -d $(dir $@)
 	$(compile.S) $(PIEFLAG) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
-	@$(disp_strip)
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@
 
 CTOR_TARGETS=$(top_builddir)lib/crti.o $(top_builddir)lib/crtn.o
