@@ -1,0 +1,68 @@
+# Makefile for uClibc NPTL
+#
+# Copyright (C) 2005 Steven J. Hill <sjhill@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+#
+# NOTE: glibc puts flockfile.c, ftrylockfile.c, funlockfile.c, and
+#       pt-longjmp.c in libc and libpthread. For uClibc, they are
+#       in libc only.
+#
+CSRC = pthread_barrier_wait.c pthread_cond_broadcast.c pthread_cond_signal.c \
+       pthread_cond_timedwait.c pthread_cond_wait.c  \
+       pthread_rwlock_rdlock.c pthread_rwlock_timedrdlock.c   \
+       pthread_rwlock_timedwrlock.c pthread_rwlock_unlock.c		     \
+       pthread_rwlock_wrlock.c pthread_sigmask.c pthread_spin_destroy.c      \
+       pthread_spin_init.c pthread_spin_unlock.c sigaction.c		     \
+       sigfillset.c sigprocmask.c unwind-forcedunwind.c
+
+CFLAGS-pthread_barrier_wait.c = -D_GNU_SOURCE
+CFLAGS-pthread_spin_destroy.c = -D_GNU_SOURCE
+CFLAGS-pthread_spin_init.c = -D_GNU_SOURCE
+CFLAGS-pthread_spin_unlock.c = -D_GNU_SOURCE
+CFLAGS-sigaction.c = -I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH) \
+		     -I$(top_srcdir)libc/signal
+CFLAGS-sigfillset.c = -I$(top_srcdir)libc/signal
+CFLAGS-sigprocmask.c = -I$(top_srcdir)libc/sysdeps/linux/common
+
+CFLAGS-pthread = -DNOT_IN_libc=1 $(SSP_ALL_CFLAGS) -DIS_IN_libpthread=1
+
+pthread_DIR := $(top_srcdir)/libpthread/nptl/sysdeps/pthread
+pthread_OUT := $(top_builddir)/libpthread/nptl/sysdeps/pthread
+
+PTHREAD_SRC = $(patsubst %.c, $(pthread_DIR)/%.c, $(CSRC))
+PTHREAD_OBJ = $(patsubst %.c, $(pthread_OUT)/%.o, $(CSRC))
+
+libpthread-a-y += $(PTHREAD_OBJ)
+libpthread-so-y += $(PTHREAD_OBJ:.o=.oS)
+
+ifeq ($(UCLIBC_CTOR_DTOR),y)
+CFLAGS-pt-initfini.c = -S -g0 -fPIC -fno-inline-functions	\
+		       $(call check_gcc,-fno-unit-at-a-time,)	\
+		       -finhibit-size-directive			\
+		       $(patsubst -f%,-fno-%,$(call check_gcc,-fexceptions,))
+ASFLAGS-crti.S = -g0
+ASFLAGS-crtn.S = -g0
+
+$(pthread_OUT)/pt-initfini.s: $(pthread_DIR)/pt-initfini.c
+	$(compile.c)
+	sed -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
+		awk -f $(pthread_DIR)/defs.awk > $(pthread_OUT)/defs.h
+
+$(pthread_OUT)/crti.S: $(pthread_OUT)/pt-initfini.s
+	sed -n -e '1,/@HEADER_ENDS/p' \
+	       -e '/@_.*_PROLOG_BEGINS/,/@_.*_PROLOG_ENDS/p' \
+	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
+
+$(pthread_OUT)/crtn.S: $(pthread_OUT)/pt-initfini.s
+	sed -n -e '1,/@HEADER_ENDS/p' \
+	       -e '/@_.*_EPILOG_BEGINS/,/@_.*_EPILOG_ENDS/p' \
+	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
+endif
+
+objclean-y += pthread_objclean
+
+pthread_objclean:
+	$(RM) $(pthread_OUT)/*.{o,os,oS,s,S} $(pthread_OUT)/defs.h

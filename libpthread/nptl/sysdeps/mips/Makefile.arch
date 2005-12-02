@@ -1,0 +1,39 @@
+# Makefile for uClibc NPTL
+#
+# Copyright (C) 2005 Steven J. Hill <sjhill@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+libpthread_SSRC = pthread_spin_lock.S pthread_spin_trylock.S
+
+libc_a_CSRC = dl-support.c dl-tls.c libc-tls.c
+
+CFLAGS-pt-raise.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-dl-support.c = -D_GNU_SOURCE
+
+ASFLAGS-pthread_spin_lock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+
+CFLAGS-mips = $(SSP_ALL_CFLAGS)
+
+PTHREAD_ARCH_DIR:=$(top_srcdir)libpthread/nptl/sysdeps/mips
+PTHREAD_ARCH_OUT:=$(top_builddir)libpthread/nptl/sysdeps/mips
+
+PTHREAD_ARCH_OBJ:=$(patsubst %.S,$(PTHREAD_ARCH_OUT)/%.o,$(libpthread_SSRC))
+
+libpthread-a-y += $(PTHREAD_ARCH_OBJ)
+libpthread-so-y += $(PTHREAD_ARCH_OBJ:.o=.oS)
+
+libpthread-nomulti-y+=$(PTHREAD_ARCH_OBJ)
+
+LIBC_ARCH_OBJ:=$(patsubst %.c,$(PTHREAD_ARCH_OUT)/%.o,$(libc_a_CSRC))
+
+libc-a-y+=$(LIBC_ARCH_OBJ)
+
+libc-nomulti-y+=$(LIBC_ARCH_OBJ)
+
+objclean-y+=pthread_arch_objclean
+
+pthread_arch_objclean:
+	$(RM) $(PTHREAD_ARCH_OUT)/*.{o,os,oS}

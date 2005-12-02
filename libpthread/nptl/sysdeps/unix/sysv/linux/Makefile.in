@@ -1,0 +1,68 @@
+# Makefile for uClibc NPTL
+#
+# Copyright (C) 2005 Steven J. Hill <sjhill@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+libpthread_CSRC = pt-raise.c pthread_attr_getaffinity.c			\
+		  pthread_attr_setaffinity.c pthread_getaffinity.c	\
+		  pthread_getcpuclockid.c pthread_kill.c		\
+		  pthread_mutex_cond_lock.c pthread_setaffinity.c	\
+		  pthread_yield.c sem_post.c sem_timedwait.c		\
+		  sem_trywait.c sem_wait.c pt-fork.c
+
+libc_CSRC = libc_pthread_init.c libc_multiple_threads.c			\
+	    register-atfork.c unregister-atfork.c
+
+ifeq ($(TARGET_ARCH),alpha)
+libpthread_CSRC += lowlevellock.c
+libc_CSRC += libc-lowlevellock.c
+endif
+
+ifeq ($(TARGET_ARCH),mips)
+libpthread_CSRC += lowlevellock.c
+libc_CSRC += libc-lowlevellock.c
+endif
+
+ifeq ($(TARGET_ARCH),powerpc)
+libpthread_CSRC += lowlevellock.c
+libc_CSRC += libc-lowlevellock.c
+endif
+
+ifeq ($(TARGET_ARCH),sparc)
+libpthread_CSRC += lowlevellock.c
+libc_CSRC += libc-lowlevellock.c
+endif
+
+CFLAGS-pt-fork.c = -D_GNU_SOURCE
+CFLAGS-pthread_getcpuclockid.c = -I$(top_srcdir)/librt
+
+CFLAGS-linux = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 $(SSP_ALL_CFLAGS)
+
+CFLAGS-OMIT-libc_pthread_init.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-libc_multiple_threads.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-register-atfork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-unregister-atfork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+
+pthread_DIR := $(top_srcdir)/libpthread/nptl/sysdeps/unix/sysv/linux
+pthread_OUT := $(top_builddir)/libpthread/nptl/sysdeps/unix/sysv/linux
+
+PTHREAD_OBJ = $(patsubst %.c, $(pthread_OUT)/%.o, $(libpthread_CSRC))
+
+libpthread-a-y += $(PTHREAD_OBJ)
+libpthread-so-y += $(PTHREAD_OBJ:.o=.oS)
+
+#
+# Special suffix rules.
+#
+LIBC_OBJ = $(patsubst %.c, $(pthread_OUT)/%.o, $(libc_CSRC))
+
+
+libc-a-y += $(LIBC_OBJ)
+libc-so-y += $(LIBC_OBJ:.o=.oS)
+
+objclean-y += pthread_linux_objclean
+
+pthread_linux_objclean:
+	$(RM) $(pthread_OUT)/*.{o,os,oS}
