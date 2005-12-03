@@ -24,6 +24,7 @@
 
 #define random_r __random_r
 #define srandom_r __srandom_r
+#define setstate_r __setstate_r
 
 #define _GNU_SOURCE
 #include <features.h>
