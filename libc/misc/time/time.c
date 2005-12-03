@@ -129,7 +129,6 @@
  *            differs (intentionally) from glibc's behavior.
  */
 
-#define _uintmaxtostr __libc__uintmaxtostr
 #define strnlen __strnlen
 
 #define _GNU_SOURCE

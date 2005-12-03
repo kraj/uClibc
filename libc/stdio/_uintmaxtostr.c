@@ -17,7 +17,7 @@
 #define INTERNAL_DIV_MOD
 #endif
 
-char attribute_hidden *__libc__uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
+char attribute_hidden *_uintmaxtostr(register char * __restrict bufend, uintmax_t uval,
 					int base, __UIM_CASE alphacase)
 {
     int negative;
@@ -149,4 +149,3 @@ char attribute_hidden *__libc__uintmaxtostr(register char * __restrict bufend, u
 
     return bufend;
 }
-strong_alias(__libc__uintmaxtostr,_uintmaxtostr)

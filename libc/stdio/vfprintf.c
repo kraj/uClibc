@@ -88,7 +88,6 @@
  *   treats this as an error.
  */
 
-#define _uintmaxtostr __libc__uintmaxtostr
 #define strnlen __strnlen
 #define wcslen __wcslen
 #define wcsnlen __wcsnlen

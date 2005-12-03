@@ -100,7 +100,7 @@ typedef enum {
  *          Otherwise, you could overflow your buffer.
  */
 extern char *_uintmaxtostr(char * __restrict bufend, uintmax_t uval,
-						   int base, __UIM_CASE alphacase);
+					int base, __UIM_CASE alphacase) attribute_hidden;
 
 /* TODO -- make this either a (possibly inline) function? */
 #ifndef __BCC__
