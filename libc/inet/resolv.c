@@ -273,10 +273,10 @@ extern int __open_nameservers(void) attribute_hidden;
 extern void __close_nameservers(void) attribute_hidden;
 extern int __dn_expand(const u_char *, const u_char *, const u_char *,
 	char *, int);
-extern int __libc_ns_name_uncompress(const u_char *, const u_char *,
+extern int __ns_name_uncompress_internal(const u_char *, const u_char *,
 		const u_char *, char *, size_t) attribute_hidden;
-extern int __libc_ns_name_ntop(const u_char *, char *, size_t) attribute_hidden;
-extern int __libc_ns_name_unpack(const u_char *, const u_char *, const u_char *,
+extern int __ns_name_ntop_internal(const u_char *, char *, size_t) attribute_hidden;
+extern int __ns_name_unpack_internal(const u_char *, const u_char *, const u_char *,
                u_char *, size_t) attribute_hidden;
 
 
@@ -2389,7 +2389,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 int __dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
           char *dst, int dstsiz)
 {
-	int n = __libc_ns_name_uncompress(msg, eom, src, dst, (size_t)dstsiz);
+	int n = __ns_name_uncompress_internal(msg, eom, src, dst, (size_t)dstsiz);
 
 	if (n > 0 && dst[0] == '.')
 		dst[0] = '\0';
@@ -2441,19 +2441,19 @@ static int special(int ch)
  * note:
  *      Root domain returns as "." not "".
  */
-int attribute_hidden __libc_ns_name_uncompress(const u_char *msg, const u_char *eom,
+int attribute_hidden __ns_name_uncompress_internal(const u_char *msg, const u_char *eom,
 		const u_char *src, char *dst, size_t dstsiz)
 {
 	u_char tmp[NS_MAXCDNAME];
 	int n;
 
-	if ((n = __libc_ns_name_unpack(msg, eom, src, tmp, sizeof tmp)) == -1)
+	if ((n = __ns_name_unpack_internal(msg, eom, src, tmp, sizeof tmp)) == -1)
 		return (-1);
-	if (__libc_ns_name_ntop(tmp, dst, dstsiz) == -1)
+	if (__ns_name_ntop_internal(tmp, dst, dstsiz) == -1)
 		return (-1);
 	return (n);
 }
-strong_alias(__libc_ns_name_uncompress,__ns_name_uncompress)
+strong_alias(__ns_name_uncompress_internal,__ns_name_uncompress)
 
 
 /*
@@ -2465,7 +2465,7 @@ strong_alias(__libc_ns_name_uncompress,__ns_name_uncompress)
  *      The root is returned as "."
  *      All other domains are returned in non absolute form
  */
-int attribute_hidden __libc_ns_name_ntop(const u_char *src, char *dst, size_t dstsiz) {
+int attribute_hidden __ns_name_ntop_internal(const u_char *src, char *dst, size_t dstsiz) {
 	const u_char *cp;
 	char *dn, *eom;
 	u_char c;
@@ -2534,7 +2534,7 @@ int attribute_hidden __libc_ns_name_ntop(const u_char *src, char *dst, size_t ds
 	*dn++ = '\0';
         return (dn - dst);
 }
-strong_alias(__libc_ns_name_ntop,__ns_name_ntop)
+strong_alias(__ns_name_ntop_internal,__ns_name_ntop)
 
 /*
  * ns_name_unpack(msg, eom, src, dst, dstsiz)
@@ -2542,7 +2542,7 @@ strong_alias(__libc_ns_name_ntop,__ns_name_ntop)
  * return:
  *      -1 if it fails, or consumed octets if it succeeds.
  */
-int attribute_hidden __libc_ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
+int attribute_hidden __ns_name_unpack_internal(const u_char *msg, const u_char *eom, const u_char *src,
                u_char *dst, size_t dstsiz)
 {
 	const u_char *srcp, *dstlim;
@@ -2609,5 +2609,5 @@ int attribute_hidden __libc_ns_name_unpack(const u_char *msg, const u_char *eom,
 		len = srcp - src;
 	return (len);
 }
-strong_alias(__libc_ns_name_unpack,__ns_name_unpack)
+strong_alias(__ns_name_unpack_internal,__ns_name_unpack)
 #endif /* L_ns_name */

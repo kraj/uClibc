@@ -27,7 +27,7 @@
  * SUCH DAMAGE.
  */
 
-#define __fsetlocking __libc_fsetlocking
+#define __fsetlocking __fsetlocking_internal
 
 #define _GNU_SOURCE
 #include <features.h>

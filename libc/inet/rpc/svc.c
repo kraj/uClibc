@@ -38,15 +38,15 @@
 
 #define pmap_set __pmap_set
 
-#define _authenticate __libc__authenticate
-#define _rpc_dtablesize __libc__rpc_dtablesize
+#define _authenticate _authenticate_internal
+#define _rpc_dtablesize _rpc_dtablesize_internal
 
 /* used by svc_[max_]pollfd */
-#define __rpc_thread_svc_pollfd __libc_rpc_thread_svc_pollfd
-#define __rpc_thread_svc_max_pollfd __libc_rpc_thread_svc_max_pollfd
+#define __rpc_thread_svc_pollfd __rpc_thread_svc_pollfd_internal
+#define __rpc_thread_svc_max_pollfd __rpc_thread_svc_max_pollfd_internal
 
 /* used by svc_fdset */
-#define __rpc_thread_svc_fdset __libc_rpc_thread_svc_fdset
+#define __rpc_thread_svc_fdset __rpc_thread_svc_fdset_internal
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE

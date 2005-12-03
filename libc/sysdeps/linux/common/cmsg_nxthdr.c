@@ -21,9 +21,8 @@
 #include <features.h>
 #include <sys/socket.h>
 
-
 struct cmsghdr attribute_hidden *
-__libc_cmsg_nxthdr (struct msghdr *mhdr, struct cmsghdr *cmsg)
+__cmsg_nxthdr_internal (struct msghdr *mhdr, struct cmsghdr *cmsg)
 {
   if ((size_t) cmsg->cmsg_len < sizeof (struct cmsghdr))
     /* The kernel header does this so there may be a reason.  */
@@ -39,4 +38,4 @@ __libc_cmsg_nxthdr (struct msghdr *mhdr, struct cmsghdr *cmsg)
     return NULL;
   return cmsg;
 }
-strong_alias(__libc_cmsg_nxthdr,__cmsg_nxthdr)
+strong_alias(__cmsg_nxthdr_internal,__cmsg_nxthdr)

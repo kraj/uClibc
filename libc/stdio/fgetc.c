@@ -14,7 +14,7 @@
 
 #ifdef __DO_UNLOCKED
 
-int attribute_hidden __libc_fgetc_unlocked(FILE *stream)
+int attribute_hidden __fgetc_unlocked_internal(FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
 
@@ -69,12 +69,12 @@ int attribute_hidden __libc_fgetc_unlocked(FILE *stream)
 	return EOF;
 }
 
-strong_alias(__libc_fgetc_unlocked,__fgetc_unlocked)
-weak_alias(__fgetc_unlocked,fgetc_unlocked)
-weak_alias(__fgetc_unlocked,getc_unlocked)
+strong_alias(__fgetc_unlocked_internal,__fgetc_unlocked)
+weak_alias(__fgetc_unlocked_internal,fgetc_unlocked)
+weak_alias(__fgetc_unlocked_internal,getc_unlocked)
 #ifndef __UCLIBC_HAS_THREADS__
-weak_alias(__fgetc_unlocked,fgetc)
-weak_alias(__fgetc_unlocked,getc)
+weak_alias(__fgetc_unlocked_internal,fgetc)
+weak_alias(__fgetc_unlocked_internal,getc)
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
