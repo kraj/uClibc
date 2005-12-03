@@ -173,14 +173,6 @@ extern int __gettimeofday(struct timeval *__restrict __tv, *__restrict __timezon
 #   define gettimeofday __gettimeofday
 #  endif
 
-# elif IS_IN_libpthread
-
-#  define gettimeofday __libc_gettimeofday
-
-# else
-
-#  define open __libc_open
-
 # endif
 #endif
 
