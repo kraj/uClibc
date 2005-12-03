@@ -34,7 +34,7 @@ void logwtmp (const char *line, const char *name, const char *host)
     __memset (&(lutmp), 0, sizeof (struct utmp));
 
     lutmp.ut_type = (name && *name)? USER_PROCESS : DEAD_PROCESS;
-    lutmp.ut_pid = getpid();
+    lutmp.ut_pid = __getpid();
     __strncpy(lutmp.ut_line, line, sizeof(lutmp.ut_line)-1);
     __strncpy(lutmp.ut_name, name, sizeof(lutmp.ut_name)-1);
     __strncpy(lutmp.ut_host, host, sizeof(lutmp.ut_host)-1);

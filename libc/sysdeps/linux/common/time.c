@@ -11,9 +11,10 @@
 #include <time.h>
 #include <sys/time.h>
 #ifdef __NR_time
-_syscall1(time_t, time, time_t *, t);
+#define __NR___time __NR_time
+attribute_hidden _syscall1(time_t, __time, time_t *, t);
 #else
-time_t time(time_t * t)
+time_t attribute_hidden __time(time_t * t)
 {
 	time_t result;
 	struct timeval tv;
@@ -29,3 +30,4 @@ time_t time(time_t * t)
 	return result;
 }
 #endif
+strong_alias(__time,time)

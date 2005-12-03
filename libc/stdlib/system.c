@@ -1,3 +1,5 @@
+#define wait4 __wait4
+
 #include <stdio.h>
 #include <stddef.h>
 #include <signal.h>

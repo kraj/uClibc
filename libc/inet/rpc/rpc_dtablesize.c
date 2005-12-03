@@ -31,6 +31,8 @@
 static char sccsid[] = "@(#)rpc_dtablesize.c 1.2 87/08/11 Copyr 1987 Sun Micro";
 #endif
 
+#define getdtablesize __getdtablesize
+
 #define __FORCE_GLIBC
 #define __USE_BSD
 #include <features.h>

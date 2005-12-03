@@ -14,6 +14,6 @@ _syscall0(pid_t, getppid);
 #	else
 pid_t getppid(void)
 {
-	return (getpid());
+	return (__getpid());
 }
 #	endif

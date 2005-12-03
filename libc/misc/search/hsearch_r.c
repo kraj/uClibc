@@ -67,7 +67,7 @@ static int isprime (unsigned int number)
    indexing as explained in the comment for the hsearch function.
    The contents of the table is zeroed, especially the field used
    becomes zero.  */
-int hcreate_r (size_t nel, struct hsearch_data *htab)
+int attribute_hidden __hcreate_r (size_t nel, struct hsearch_data *htab)
 {
   /* Test for correct arguments.  */
   if (htab == NULL)
@@ -96,13 +96,13 @@ int hcreate_r (size_t nel, struct hsearch_data *htab)
   /* everything went alright */
   return 1;
 }
-/* libc_hidden_def (hcreate_r) */
+strong_alias(__hcreate_r,hcreate_r)
 #endif
 
 #ifdef L_hdestroy_r
 /* After using the hash table it has to be destroyed. The used memory can
    be freed and the local static variable can be marked as not used.  */
-void hdestroy_r (struct hsearch_data *htab)
+void attribute_hidden __hdestroy_r (struct hsearch_data *htab)
 {
   /* Test for correct arguments.  */
   if (htab == NULL)
@@ -118,7 +118,7 @@ void hdestroy_r (struct hsearch_data *htab)
   /* the sign for an existing table is an value != NULL in htable */
   htab->table = NULL;
 }
-/* libc_hidden_def (hdestroy_r) */
+strong_alias(__hdestroy_r,hdestroy_r)
 #endif
 
 #ifdef L_hsearch_r
@@ -135,7 +135,7 @@ void hdestroy_r (struct hsearch_data *htab)
    means used. The used field can be used as a first fast comparison for
    equality of the stored and the parameter value. This helps to prevent
    unnecessary expensive calls of strcmp.  */
-int hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
+int attribute_hidden __hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
 	       struct hsearch_data *htab)
 {
   unsigned int hval;
@@ -224,5 +224,5 @@ int hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
   *retval = NULL;
   return 0;
 }
-/* libc_hidden_def (hsearch_r) */
+strong_alias(__hsearch_r,hsearch_r)
 #endif

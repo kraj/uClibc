@@ -15,6 +15,10 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+#define setnetent __setnetent
+#define getnetent __getnetent
+#define endnetent __endnetent
+
 #define __FORCE_GLIBC
 #include <features.h>
 #include <netdb.h>

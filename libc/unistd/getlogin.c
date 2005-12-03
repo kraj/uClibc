@@ -29,14 +29,15 @@
  * the user specify whatever they want via the LOGNAME environment
  * variable, or we return NULL if getenv() fails to find anything */
 
-char * getlogin(void)
+extern char attribute_hidden * __getlogin(void)
 {
-	return (getenv("LOGNAME"));
+	return (__getenv("LOGNAME"));
 }
+strong_alias(__getlogin,getlogin)
 
 int getlogin_r(char *name, size_t len)
 {
-	char * foo = getenv("LOGNAME");
+	char * foo = __getenv("LOGNAME");
 
 	if (! foo)
 		return -1;
@@ -48,7 +49,7 @@ int getlogin_r(char *name, size_t len)
 
 char *cuserid(char *s)
 {
-	char *name = getlogin();
+	char *name = __getlogin();
 	if (s) {
 		return(__strcpy(s, name ? name : ""));
 	}

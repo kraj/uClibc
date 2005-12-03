@@ -44,7 +44,7 @@ static char *net_aliases[MAXALIASES];
 
 int _net_stayopen;
 
-void setnetent(int f)
+void attribute_hidden __setnetent(int f)
 {
     LOCK;
     if (netf == NULL)
@@ -55,8 +55,9 @@ void setnetent(int f)
     UNLOCK;
     return;
 }
+strong_alias(__setnetent,setnetent)
 
-void endnetent(void)
+void attribute_hidden __endnetent(void)
 {
     LOCK;
     if (netf) {
@@ -66,6 +67,7 @@ void endnetent(void)
     _net_stayopen = 0;
     UNLOCK;
 }
+strong_alias(__endnetent,endnetent)
 
 static char * any(register char *cp, char *match)
 {
@@ -80,7 +82,7 @@ static char * any(register char *cp, char *match)
     return ((char *)0);
 }
 
-struct netent * getnetent(void)
+struct netent attribute_hidden * __getnetent(void)
 {
     char *p;
     register char *cp, **q;
@@ -139,4 +141,4 @@ again:
     UNLOCK;
     return (&net);
 }
-
+strong_alias(__getnetent,getnetent)

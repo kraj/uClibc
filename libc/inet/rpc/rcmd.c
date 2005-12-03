@@ -37,6 +37,7 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 
 #define bcopy __bcopy
 #define sysconf __sysconf
+#define getline __getline
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -88,7 +89,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	int s, lport, timo;
 	char c;
 
-	pid = getpid();
+	pid = __getpid();
 
 #ifdef __UCLIBC_HAS_REENTRANT_RPC__
 	hstbuflen = 1024;

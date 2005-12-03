@@ -22,7 +22,7 @@
 
 /* IEEE Std 1003.1-2001 says getenv need not be thread safe, so 
  * don't bother locking access to __environ */
-char *getenv(const char *var)
+char attribute_hidden *__getenv(const char *var)
 {
     int len;
     char **ep;
@@ -39,3 +39,4 @@ char *getenv(const char *var)
     return NULL;
 }
 
+strong_alias(__getenv,getenv)

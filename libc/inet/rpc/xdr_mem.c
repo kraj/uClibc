@@ -75,8 +75,8 @@ static const struct xdr_ops xdrmem_ops =
  * The procedure xdrmem_create initializes a stream descriptor for a
  * memory buffer.
  */
-void
-xdrmem_create (XDR *xdrs, const caddr_t addr, u_int size, enum xdr_op op)
+void attribute_hidden
+__xdrmem_create (XDR *xdrs, const caddr_t addr, u_int size, enum xdr_op op)
 {
   xdrs->x_op = op;
   /* We have to add the const since the `struct xdr_ops' in `struct XDR'
@@ -85,6 +85,7 @@ xdrmem_create (XDR *xdrs, const caddr_t addr, u_int size, enum xdr_op op)
   xdrs->x_private = xdrs->x_base = addr;
   xdrs->x_handy = size;
 }
+strong_alias(__xdrmem_create,xdrmem_create)
 
 /*
  * Nothing needs to be done for the memory case.  The argument is clearly

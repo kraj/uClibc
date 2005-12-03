@@ -19,6 +19,8 @@
  *
  */
 
+#define settimeofday __settimeofday
+
 #define _GNU_SOURCE
 #include "syscalls.h"
 #include <time.h>

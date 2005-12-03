@@ -17,8 +17,8 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-/* SHMLBA is using it */
-#define __getpagesize __libc_getpagesize
+/* SHMLBA uses it */
+#define __getpagesize __getpagesize_internal
 
 #include <stdlib.h>
 #include <errno.h>

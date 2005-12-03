@@ -155,6 +155,10 @@ extern char *__strdup (__const char *__s) attribute_hidden;
 extern ssize_t __read(int __fd, void *__buf, size_t __nbytes) attribute_hidden;
 extern ssize_t __write(int __fd, __const void *__buf, size_t __n) attribute_hidden;
 extern int __close(int __fd) attribute_hidden;
+extern __pid_t __getpid (void) attribute_hidden;
+
+/* #include <stdlib.h> */
+extern char *__getenv (__const char *__name) attribute_hidden;
 
 /* #include <signal.h> */
 extern int __sigprocmask (int __how, __const __sigset_t *__restrict __set,

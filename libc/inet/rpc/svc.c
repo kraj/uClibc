@@ -36,6 +36,8 @@
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
+#define pmap_set __pmap_set
+
 #define _authenticate __libc__authenticate
 #define _rpc_dtablesize __libc__rpc_dtablesize
 

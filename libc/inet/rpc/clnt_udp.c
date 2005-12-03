@@ -41,6 +41,7 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #define __cmsg_nxthdr __libc_cmsg_nxthdr
 
 #define authnone_create __authnone_create
+#define xdrmem_create __xdrmem_create
 
 #define __FORCE_GLIBC
 #include <features.h>

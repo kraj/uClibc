@@ -1,3 +1,5 @@
+#define adjtimex __adjtimex
+
 #include <limits.h>
 #include <sys/time.h>
 #include <sys/timex.h>
@@ -49,4 +51,3 @@ adjtime(const struct timeval * itv, struct timeval * otv)
   }
   return 0;
 }
-

@@ -48,6 +48,7 @@
 
 #define authnone_create __authnone_create
 #define xdrrec_create __xdrrec_create
+#define xdrmem_create __xdrmem_create
 #define getegid __getegid
 
 #define __FORCE_GLIBC
@@ -506,7 +507,7 @@ __msgwrite (int sock, void *data, size_t cnt)
   /* XXX I'm not sure, if gete?id() is always correct, or if we should use
      get?id(). But since keyserv needs geteuid(), we have no other chance.
      It would be much better, if the kernel could pass both to the server. */
-  cred.pid = getpid ();
+  cred.pid = __getpid ();
   cred.uid = geteuid ();
   cred.gid = getegid ();
 

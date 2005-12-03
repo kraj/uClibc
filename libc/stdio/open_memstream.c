@@ -124,7 +124,7 @@ static const cookie_io_functions_t _oms_io_funcs = {
  * (ie replace the FILE buffer with the cookie buffer and update FILE bufstart,
  * etc. whenever we seek). */
 
-FILE *open_memstream(char **__restrict bufloc, size_t *__restrict sizeloc)
+FILE attribute_hidden *__open_memstream(char **__restrict bufloc, size_t *__restrict sizeloc)
 {
 	register __oms_cookie *cookie;
 	register FILE *fp;
@@ -160,3 +160,4 @@ FILE *open_memstream(char **__restrict bufloc, size_t *__restrict sizeloc)
 
 	return NULL;
 }
+strong_alias(__open_memstream,open_memstream)

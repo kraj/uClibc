@@ -9,7 +9,9 @@
 
 #include "syscalls.h"
 #include <sys/timex.h>
-_syscall1(int, adjtimex, struct timex *, buf);
 
-weak_alias(adjtimex, __adjtimex);
-weak_alias(adjtimex, ntp_adjtime);
+#define __NR___adjtimex __NR_adjtimex
+attribute_hidden _syscall1(int, __adjtimex, struct timex *, buf);
+
+strong_alias(__adjtimex, adjtimex)
+weak_alias(__adjtimex, ntp_adjtime)

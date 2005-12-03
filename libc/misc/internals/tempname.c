@@ -146,7 +146,7 @@ static void brain_damaged_fillrand(unsigned char *buf, unsigned int len)
 	uint32_t high, low, rh;
 	static uint64_t value;
 	gettimeofday(&tv, NULL);
-	value += ((uint64_t) tv.tv_usec << 16) ^ tv.tv_sec ^ getpid();
+	value += ((uint64_t) tv.tv_usec << 16) ^ tv.tv_sec ^ __getpid();
 	low = value & UINT32_MAX;
 	high = value >> 32;
 	for (i = 0; i < len; ++i) {

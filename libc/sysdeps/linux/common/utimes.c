@@ -7,14 +7,17 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
+#define utime __utime
+
 #include "syscalls.h"
 #include <utime.h>
 #ifdef __NR_utimes
-_syscall2(int, utimes, const char *, file, const struct timeval *, tvp);
+#define __NR___utimes __NR_utimes
+attribute_hidden _syscall2(int, __utimes, const char *, file, const struct timeval *, tvp);
 #else
 #include <stdlib.h>
 #include <sys/time.h>
-int utimes(const char *file, const struct timeval tvp[2])
+int attribute_hidden __utimes(const char *file, const struct timeval tvp[2])
 {
 	struct utimbuf buf, *times;
 
@@ -28,3 +31,4 @@ int utimes(const char *file, const struct timeval tvp[2])
 	return utime(file, times);
 }
 #endif
+strong_alias(__utimes,utimes)

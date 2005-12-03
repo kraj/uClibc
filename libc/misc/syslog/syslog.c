@@ -31,6 +31,10 @@
  * SUCH DAMAGE.
  */
 
+#define time __time
+#define ctime __ctime
+#define sigaction __sigaction_internal
+
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>
@@ -136,18 +140,8 @@ sigpipe_handler (int sig)
  * syslog, vsyslog --
  *     print message on log file; output is intended for syslogd(8).
  */
-void
-syslog(int pri, const char *fmt, ...)
-{
-	va_list ap;
-
-	va_start(ap, fmt);
-	vsyslog(pri, fmt, ap);
-	va_end(ap);
-}
-
-void
-vsyslog( int pri, const char *fmt, va_list ap )
+void attribute_hidden
+__vsyslog( int pri, const char *fmt, va_list ap )
 {
 	register char *p;
 	char *last_chr, *head_end, *end, *stdp;
@@ -190,7 +184,7 @@ vsyslog( int pri, const char *fmt, va_list ap )
 			p += sprintf(p, "<BUFFER OVERRUN ATTEMPT>");
 	}
 	if (LogStat & LOG_PID)
-		p += sprintf(p, "[%d]", getpid());
+		p += sprintf(p, "[%d]", __getpid());
 	if (LogTag) {
 		*p++ = ':';
 		*p++ = ' ';
@@ -267,12 +261,24 @@ getout:
 		sigaction (SIGPIPE, &oldaction,
 			(struct sigaction *) NULL);
 }
+strong_alias(__vsyslog,vsyslog)
+
+void attribute_hidden
+__syslog(int pri, const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	__vsyslog(pri, fmt, ap);
+	va_end(ap);
+}
+strong_alias(__syslog,syslog)
 
 /*
  * OPENLOG -- open system log
  */
-void
-openlog( const char *ident, int logstat, int logfac )
+void attribute_hidden
+__openlog( const char *ident, int logstat, int logfac )
 {
     int logType = SOCK_DGRAM;
 
@@ -319,15 +325,17 @@ retry:
 
     UNLOCK;
 }
+strong_alias(__openlog,openlog)
 
 /*
  * CLOSELOG -- close the system log
  */
-void
-closelog( void )
+void attribute_hidden
+__closelog( void )
 {
 	closelog_intern(1);
 }
+strong_alias(__closelog,closelog)
 
 /* setlogmask -- set the log mask level */
 int setlogmask(int pmask)

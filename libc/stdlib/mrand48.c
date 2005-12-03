@@ -17,6 +17,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define jrand48_r __jrand48_r
+
 #include <stdlib.h>
 
 /* Global state for non-reentrant functions.  Defined in drand48-iter.c.  */

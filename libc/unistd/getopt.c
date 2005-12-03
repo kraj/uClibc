@@ -247,7 +247,7 @@ static const char *_getopt_initialize (int argc, char *const * argv, const char 
 	ordering = REQUIRE_ORDER;
 	++optstring;
     }
-    else if (getenv ("POSIXLY_CORRECT") != NULL)
+    else if (__getenv ("POSIXLY_CORRECT") != NULL)
 	ordering = REQUIRE_ORDER;
     else
 	ordering = PERMUTE;

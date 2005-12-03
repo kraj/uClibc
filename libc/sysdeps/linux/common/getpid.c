@@ -11,9 +11,10 @@
 #include <unistd.h>
 
 #if defined (__alpha__)
-#define __NR_getpid     __NR_getxpid
+#define __NR___getpid __NR_getxpid
 #endif
-#define __NR___libc_getpid __NR_getpid
-_syscall0(pid_t, __libc_getpid);
-weak_alias(__libc_getpid, getpid);
-weak_alias(__libc_getpid, __getpid);
+#define __NR___getpid __NR_getpid
+attribute_hidden _syscall0(pid_t, __getpid);
+strong_alias(__getpid, getpid)
+/* not used in libpthread */
+/* weak_alias(__getpid, __libc_getpid) */

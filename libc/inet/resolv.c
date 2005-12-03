@@ -137,6 +137,7 @@
 #define strncat __strncat
 #define strstr __strstr
 #define random __random
+#define getservbyport __getservbyport
 
 #define __FORCE_GLIBC
 #include <features.h>

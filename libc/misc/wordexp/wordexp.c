@@ -20,9 +20,12 @@
    Boston, MA 02111-1307, USA.  */
 
 #define mempcpy __mempcpy
+#define stpcpy __stpcpy
 #define strndup __strndup
 #define strspn __strspn
 #define unsetenv __unsetenv
+#define waitpid __waitpid
+#define kill __kill
 
 #define _GNU_SOURCE
 #include <sys/cdefs.h>
@@ -283,7 +286,7 @@ parse_tilde(char **word, size_t * word_length, size_t * max_length,
 		   results are unspecified.  We do a lookup on the uid if
 		   HOME is unset. */
 
-		home = getenv("HOME");
+		home = __getenv("HOME");
 		if (home != NULL) {
 			*word = w_addstr(*word, word_length, max_length, home);
 			if (*word == NULL)
@@ -1328,7 +1331,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 		/* Is it `$$'? */
 		if (*env == '$') {
 			buffer[20] = '\0';
-			value = _itoa(getpid(), &buffer[20]);
+			value = _itoa(__getpid(), &buffer[20]);
 		}
 		/* Is it `${#*}' or `${#@}'? */
 		else if ((*env == '*' || *env == '@') && seen_hash) {
@@ -1395,7 +1398,7 @@ parse_param(char **word, size_t * word_length, size_t * max_length,
 			}
 		}
 	} else
-		value = getenv(env);
+		value = __getenv(env);
 
 	if (value == NULL && (flags & WRDE_UNDEF)) {
 		/* Variable not defined. */
@@ -2067,7 +2070,7 @@ int wordexp(const char *words, wordexp_t * we, int flags)
 	/* Find out what the field separators are.
 	 * There are two types: whitespace and non-whitespace.
 	 */
-	ifs = getenv("IFS");
+	ifs = __getenv("IFS");
 
 	if (!ifs)
 		/* IFS unset - use <space><tab><newline>. */

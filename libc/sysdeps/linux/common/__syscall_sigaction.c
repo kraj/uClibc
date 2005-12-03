@@ -13,7 +13,7 @@
 #define __NR___syscall_sigaction __NR_sigaction
 #include <signal.h>
 #undef sigaction
-_syscall3(int, __syscall_sigaction, int, signum, const struct sigaction *,
+attribute_hidden _syscall3(int, __syscall_sigaction, int, signum, const struct sigaction *,
 		  act, struct sigaction *, oldact);
 #endif
 

@@ -1,3 +1,5 @@
+#define wait4 __wait4
+
 #include <syscall.h>
 #include <sys/types.h>
 #include <sys/wait.h>

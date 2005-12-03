@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define open_memstream __open_memstream
+
 #include "_stdio.h"
 #include <stdarg.h>
 #include <bits/uClibc_va_copy.h>

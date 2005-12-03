@@ -14,6 +14,7 @@
  *   Fix failure exit code for failed execve().
  */
 
+#define waitpid __waitpid
 
 #include <stdio.h>
 #include <stdlib.h>

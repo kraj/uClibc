@@ -37,7 +37,7 @@ get_current_dir_name (void)
 	struct stat dotstat, pwdstat;
 #endif
 
-	pwd = getenv ("PWD");
+	pwd = __getenv ("PWD");
 	if (pwd != NULL
 #if defined __UCLIBC_HAS_LFS__
 		&& stat64 (".", &dotstat) == 0

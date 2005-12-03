@@ -250,7 +250,7 @@ int execvp(const char *path, char *const argv[])
 			EXEC_FREE(nargv, size2);
 		}
 	} else {
-		if ((p = getenv("PATH")) != NULL) {
+		if ((p = __getenv("PATH")) != NULL) {
 			if (!*p) {
 				goto BAD;
 			}

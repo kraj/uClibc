@@ -77,7 +77,7 @@ int lockf64 (int fd, int cmd, off64_t len64)
 	    fl.l_type = F_RDLCK;
 	    if (fcntl (fd, F_GETLK, &fl) < 0)
 		return -1;
-	    if (fl.l_type == F_UNLCK || fl.l_pid == getpid ())
+	    if (fl.l_type == F_UNLCK || fl.l_pid == __getpid ())
 		return 0;
 	    __set_errno(EACCES);
 	    return -1;

@@ -69,7 +69,7 @@ bindresvport (int sd, struct sockaddr_in *sin)
 
   if (port == 0)
     {
-      port = (getpid () % NPORTS) + STARTPORT;
+      port = (__getpid () % NPORTS) + STARTPORT;
     }
   res = -1;
   __set_errno (EADDRINUSE);

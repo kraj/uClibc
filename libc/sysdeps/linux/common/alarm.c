@@ -7,6 +7,8 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
+#define setitimer __setitimer
+
 #include "syscalls.h"
 #include <unistd.h>
 #ifdef __NR_alarm

@@ -105,7 +105,7 @@ int ruserpass(const char *host, const char **aname, const char **apass)
 	/* Give up when running a setuid or setgid app. */
 	if ((getuid() != geteuid()) || getgid() != getegid())
 	    return -1;
-	hdir = getenv("HOME");
+	hdir = __getenv("HOME");
 	if (hdir == NULL) {
 		/* If we can't get HOME, fail instead of trying ".",
 		   which is no improvement. */

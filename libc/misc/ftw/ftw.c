@@ -22,7 +22,9 @@
 #define strlen __strlen
 
 #define mempcpy __mempcpy
+#define stpcpy __stpcpy
 #define tsearch __tsearch
+#define tdestroy __tdestroy
 
 #define _GNU_SOURCE
 #include <features.h>

@@ -16,11 +16,28 @@
  * Mike Frysinger <vapier[@]gentoo.org>
  */
 
+#if defined __SSP__ || defined __SSP_ALL__
+#error "file must not be compiled with stack protection enabled on it. Use -fno-stack-protector"
+#endif
+
+#ifdef __PROPOLICE_BLOCK_SEGV__
+# define SSP_SIGTYPE SIGSEGV
+#else
+# define SSP_SIGTYPE SIGABRT
+#endif
+
+#define openlog __openlog
+#define syslog __syslog
+#define closelog __closelog
+#define sigfillset __sigfillset_internal
+#define sigdelset __sigdelset_internal
+#define sigaction __sigaction_internal
+#define kill __kill
+
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/syslog.h>
-
-#include <ssp-internal.h>
 
 static __always_inline void block_signals(void)
 {
@@ -37,7 +54,7 @@ static __always_inline void block_signals(void)
 	sigfillset(&sa.sa_mask);	/* Block all signals */
 	sa.sa_flags = 0;
 	sa.sa_handler = SIG_DFL;
-	SIGACTION(SSP_SIGTYPE, &sa, NULL);
+	sigaction(SSP_SIGTYPE, &sa, NULL);
 }
 
 static __always_inline void ssp_write(int fd, const char *msg1, const char *msg2, const char *msg3)
@@ -46,15 +63,15 @@ static __always_inline void ssp_write(int fd, const char *msg1, const char *msg2
 	__write(fd, msg2, __strlen(msg2));
 	__write(fd, msg3, __strlen(msg3));
 	__write(fd, "()\n", 3);
-	openlog("ssp", LOG_CONS | LOG_PID, LOG_USER);
-	syslog(LOG_INFO, "%s%s%s()", msg1, msg2, msg3);
-	closelog();
+	__openlog("ssp", LOG_CONS | LOG_PID, LOG_USER);
+	__syslog(LOG_INFO, "%s%s%s()", msg1, msg2, msg3);
+	__closelog();
 }
 
-static __always_inline void terminate(void)
+static __always_inline attribute_noreturn void terminate(void)
 {
-	(void) KILL(GETPID(), SSP_SIGTYPE);
-	EXIT(127);
+	(void) kill(__getpid(), SSP_SIGTYPE);
+	_exit(127);
 }
 
 void attribute_noreturn __stack_smash_handler(char func[], int damaged __attribute__ ((unused)));

@@ -9,5 +9,7 @@
 
 #include "syscalls.h"
 #include <sys/time.h>
-_syscall3(int, setitimer, __itimer_which_t, which,
+#define __NR___setitimer __NR_setitimer
+attribute_hidden _syscall3(int, __setitimer, __itimer_which_t, which,
 		  const struct itimerval *, new, struct itimerval *, old);
+strong_alias(__setitimer,setitimer)

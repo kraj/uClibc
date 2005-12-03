@@ -35,6 +35,8 @@
  * credentials and verifiers to remote systems.
  */
 
+#define xdrmem_create __xdrmem_create
+
 #define __FORCE_GLIBC
 #include <features.h>
 #include "rpc_private.h"
