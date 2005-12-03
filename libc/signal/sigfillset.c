@@ -21,9 +21,8 @@
 #include <string.h>
 
 /* Set all signals in SET.  */
-int
-sigfillset (set)
-     sigset_t *set;
+int attribute_hidden
+__sigfillset_internal (sigset_t *set)
 {
   if (set == NULL)
     {
@@ -44,3 +43,4 @@ sigfillset (set)
 
   return 0;
 }
+strong_alias(__sigfillset_internal,sigfillset)
