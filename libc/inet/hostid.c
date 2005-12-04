@@ -1,3 +1,6 @@
+#define geteuid __geteuid
+#define getuid __getuid
+
 #define __FORCE_GLIBC
 #include <features.h>
 #include <stdio.h>

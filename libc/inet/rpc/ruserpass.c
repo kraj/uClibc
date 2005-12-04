@@ -29,7 +29,9 @@
 
 #define __fsetlocking __fsetlocking_internal
 #define getgid __getgid
+#define getuid __getuid
 #define getegid __getegid
+#define geteuid __geteuid
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -95,7 +97,7 @@ static const struct toktab {
 
 
 
-int ruserpass(const char *host, const char **aname, const char **apass)
+int attribute_hidden __ruserpass(const char *host, const char **aname, const char **apass)
 {
 	char *hdir, *buf, *tmp;
 	char myname[1024], *mydomain;
@@ -292,6 +294,7 @@ bad:
 	(void) fclose(cfile);
 	return (-1);
 }
+strong_alias(__ruserpass,ruserpass)
 
 static int
 token()

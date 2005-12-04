@@ -26,6 +26,8 @@
 #define unsetenv __unsetenv
 #define waitpid __waitpid
 #define kill __kill
+#define getuid __getuid
+#define execve __execve
 
 #define _GNU_SOURCE
 #include <sys/cdefs.h>

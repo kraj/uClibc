@@ -15,6 +15,7 @@
  */
 
 #define waitpid __waitpid
+#define execl __execl
 
 #include <stdio.h>
 #include <stdlib.h>

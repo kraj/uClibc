@@ -14,7 +14,7 @@
 #error Assumption violated for buffering mode flags
 #endif
 
-int setvbuf(register FILE * __restrict stream, register char * __restrict buf,
+int attribute_hidden __setvbuf(register FILE * __restrict stream, register char * __restrict buf,
 			int mode, size_t size)
 {
 #ifdef __STDIO_BUFFERS
@@ -104,3 +104,4 @@ int setvbuf(register FILE * __restrict stream, register char * __restrict buf,
 
 #endif
 }
+strong_alias(__setvbuf,setvbuf)

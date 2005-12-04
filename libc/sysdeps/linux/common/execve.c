@@ -16,7 +16,8 @@
 static inline _syscall3(int, __syscall_execve, const char *, filename,
 		  char *const *, argv, char *const *, envp);
 
-int execve(const char * filename, char *const * argv, char *const * envp)
+int attribute_hidden __execve(const char * filename, char *const * argv, char *const * envp)
 {
 	return __syscall_execve(filename, argv, envp);
 }
+strong_alias(__execve,execve)

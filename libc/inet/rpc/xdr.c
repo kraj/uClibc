@@ -220,8 +220,8 @@ xdr_u_long (XDR *xdrs, u_long *ulp)
  * XDR hyper integers
  * same as xdr_u_hyper - open coded to save a proc call!
  */
-bool_t
-xdr_hyper (XDR *xdrs, quad_t *llp)
+bool_t attribute_hidden
+__xdr_hyper (XDR *xdrs, quad_t *llp)
 {
   long t1;
   unsigned long int t2;
@@ -247,14 +247,15 @@ xdr_hyper (XDR *xdrs, quad_t *llp)
 
   return FALSE;
 }
+strong_alias(__xdr_hyper,xdr_hyper)
 
 
 /*
  * XDR hyper integers
  * same as xdr_hyper - open coded to save a proc call!
  */
-bool_t
-xdr_u_hyper (XDR *xdrs, u_quad_t *ullp)
+bool_t attribute_hidden
+__xdr_u_hyper (XDR *xdrs, u_quad_t *ullp)
 {
   unsigned long t1;
   unsigned long t2;
@@ -280,17 +281,18 @@ xdr_u_hyper (XDR *xdrs, u_quad_t *ullp)
 
   return FALSE;
 }
+strong_alias(__xdr_u_hyper,xdr_u_hyper)
 
 bool_t
 xdr_longlong_t (XDR *xdrs, quad_t *llp)
 {
-  return xdr_hyper (xdrs, llp);
+  return __xdr_hyper (xdrs, llp);
 }
 
 bool_t
 xdr_u_longlong_t (XDR *xdrs, u_quad_t *ullp)
 {
-  return xdr_u_hyper (xdrs, ullp);
+  return __xdr_u_hyper (xdrs, ullp);
 }
 
 /*

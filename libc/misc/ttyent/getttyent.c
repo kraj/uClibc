@@ -46,19 +46,6 @@ static FILE *tf;
 static struct ttyent tty;
 
 
-struct ttyent * getttynam(const char *tty)
-{
-    register struct ttyent *t;
-
-    setttyent();
-    while ((t = getttyent()))
-	if (!__strcmp(tty, t->ty_name))
-	    break;
-    endttyent();
-    return (t);
-}
-
-
 /* Skip over the current field, removing quotes, and return 
  * a pointer to the next field.
  */
@@ -101,13 +88,30 @@ static char * value(register char *p)
     return ((p = __strchr(p, '=')) ? ++p : NULL);
 }
 
-struct ttyent * getttyent(void)
+int attribute_hidden __setttyent(void)
+{
+
+    if (tf) {
+	rewind(tf);
+	return (1);
+    } else if ((tf = fopen(_PATH_TTYS, "r"))) {
+	/* We do the locking ourselves.  */
+#ifdef __UCLIBC_HAS_THREADS__
+	__fsetlocking (tf, FSETLOCKING_BYCALLER);
+#endif
+	return (1);
+    }
+    return (0);
+}
+strong_alias(__setttyent,setttyent)
+
+struct ttyent attribute_hidden * __getttyent(void)
 {
     register int c;
     register char *p;
     static char *line = NULL;
 
-    if (!tf && !setttyent())
+    if (!tf && !__setttyent())
 	return (NULL);
 
     if (!line) {
@@ -177,24 +181,9 @@ struct ttyent * getttyent(void)
 	*p = '\0';
     return (&tty);
 }
+strong_alias(__getttyent,getttyent)
 
-int setttyent(void)
-{
-
-    if (tf) {
-	rewind(tf);
-	return (1);
-    } else if ((tf = fopen(_PATH_TTYS, "r"))) {
-	/* We do the locking ourselves.  */
-#ifdef __UCLIBC_HAS_THREADS__
-	__fsetlocking (tf, FSETLOCKING_BYCALLER);
-#endif
-	return (1);
-    }
-    return (0);
-}
-
-int endttyent(void)
+int attribute_hidden __endttyent(void)
 {
     int rval;
 
@@ -204,4 +193,17 @@ int endttyent(void)
 	return (rval);
     }
     return (1);
+}
+strong_alias(__endttyent,endttyent)
+
+struct ttyent * getttynam(const char *tty)
+{
+    register struct ttyent *t;
+
+    __setttyent();
+    while ((t = __getttyent()))
+	if (!__strcmp(tty, t->ty_name))
+	    break;
+    __endttyent();
+    return (t);
 }

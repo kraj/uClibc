@@ -9,4 +9,6 @@
 
 #include "syscalls.h"
 #include <unistd.h>
-_syscall1(int, fchdir, int, fd);
+#define __NR___fchdir __NR_fchdir
+attribute_hidden _syscall1(int, __fchdir, int, fd);
+strong_alias(__fchdir,fchdir)

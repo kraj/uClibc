@@ -30,6 +30,9 @@
  * to free the storage allocated for the copy.  Better ideas anyone?
  */
 
+#define munmap __munmap
+#define execve __execve
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,7 +94,7 @@ void __exec_free(void *ptr, size_t size)
 /**********************************************************************/
 #ifdef L_execl
 
-int execl(const char *path, const char *arg, ...)
+int attribute_hidden __execl(const char *path, const char *arg, ...)
 {
 	EXEC_ALLOC_SIZE(size)		/* Do NOT add a semicolon! */
 	int n;
@@ -122,6 +125,7 @@ int execl(const char *path, const char *arg, ...)
 
 	return n;
 }
+strong_alias(__execl,execl)
 
 #endif
 /**********************************************************************/
@@ -174,6 +178,8 @@ int execle(const char *path, const char *arg, ...)
 /**********************************************************************/
 #ifdef L_execlp
 
+extern int __execvp(const char *path, char *const argv[]) attribute_hidden;
+	
 int execlp(const char *file, const char *arg, ...)
 {
 	EXEC_ALLOC_SIZE(size)		/* Do NOT add a semicolon! */
@@ -215,7 +221,7 @@ int execlp(const char *file, const char *arg, ...)
  * /bin, and then /usr/bin. */
 static const char default_path[] = ":/bin:/usr/bin";
 
-int execvp(const char *path, char *const argv[])
+int attribute_hidden __execvp(const char *path, char *const argv[])
 {
 	char *buf = NULL;
 	char *p;
@@ -312,6 +318,7 @@ int execvp(const char *path, char *const argv[])
 
 	return -1;
 }
+strong_alias(__execvp,execvp)
 
 #endif
 /**********************************************************************/

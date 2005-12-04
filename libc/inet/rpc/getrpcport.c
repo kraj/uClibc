@@ -35,6 +35,8 @@ static  char sccsid[] = "@(#)getrpcport.c 1.3 87/08/11 SMI";
  * Copyright (c) 1985 by Sun Microsystems, Inc.
  */
 
+#define pmap_getport __pmap_getport
+
 #define __FORCE_GLIBC
 #include <features.h>
 

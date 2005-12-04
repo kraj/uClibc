@@ -19,6 +19,7 @@
 
 #define memchr __memchr
 #define getgid __getgid
+#define getuid __getuid
 #define setrlimit __setrlimit
 #define waitpid __waitpid
 

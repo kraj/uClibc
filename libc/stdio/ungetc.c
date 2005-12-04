@@ -24,7 +24,7 @@
  *     (See section 7.19.6.2 of the C9X rationale -- WG14/N897.)
  */
 
-int ungetc(int c, register FILE *stream)
+int attribute_hidden __ungetc(int c, register FILE *stream)
 {
 	__STDIO_AUTO_THREADLOCK_VAR;
 
@@ -75,3 +75,4 @@ int ungetc(int c, register FILE *stream)
 
 	return c;
 }
+strong_alias(__ungetc,ungetc)

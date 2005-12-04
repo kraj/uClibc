@@ -6,6 +6,8 @@
  * Parts of the memalign code were stolen from malloc-930716.
  */
 
+#define munmap __munmap
+
 #define _GNU_SOURCE
 #include <features.h>
 #include <unistd.h>

@@ -750,7 +750,7 @@ void *bsearch(const void *key, const void *base, size_t /* nmemb */ high,
  * calculation, as well as to reduce the generated code size with
  * bcc and gcc. */
 
-void qsort (void  *base,
+void attribute_hidden __qsort (void  *base,
             size_t nel,
             size_t width,
             int (*comp)(const void *, const void *))
@@ -795,6 +795,7 @@ void qsort (void  *base,
 		} while (wgap);
 	}
 }
+strong_alias(__qsort,qsort)
 
 /* ---------- original snippets version below ---------- */
 

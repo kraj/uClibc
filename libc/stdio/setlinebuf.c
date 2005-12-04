@@ -15,6 +15,6 @@
 void setlinebuf(FILE * __restrict stream)
 {
 #ifdef __STDIO_BUFFERS
-	setvbuf(stream, NULL, _IOLBF, (size_t) 0);
+	__setvbuf(stream, NULL, _IOLBF, (size_t) 0);
 #endif
 }

@@ -50,6 +50,7 @@
 #define xdrrec_create __xdrrec_create
 #define xdrmem_create __xdrmem_create
 #define getegid __getegid
+#define geteuid __geteuid
 
 #define __FORCE_GLIBC
 #include <features.h>

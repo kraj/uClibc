@@ -260,6 +260,8 @@ extern int __stdio_trans2w(FILE *__restrict stream) attribute_hidden;
 extern int __stdio_trans2r_o(FILE *__restrict stream, int oflag) attribute_hidden;
 extern int __stdio_trans2w_o(FILE *__restrict stream, int oflag) attribute_hidden;
 
+extern int __setvbuf (FILE *__restrict __stream, char *__restrict __buf,
+		    int __modes, size_t __n) __THROW attribute_hidden;
 /**********************************************************************/
 #ifdef __STDIO_BUFFERS
 

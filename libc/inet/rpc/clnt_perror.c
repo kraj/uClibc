@@ -302,8 +302,8 @@ clnt_perrno (enum clnt_stat num)
 }
 
 
-char *
-clnt_spcreateerror (const char *msg)
+char attribute_hidden *
+__clnt_spcreateerror (const char *msg)
 {
   char chrbuf[1024];
   char *str = _buf ();
@@ -345,16 +345,17 @@ clnt_spcreateerror (const char *msg)
   *++cp = '\0';
   return str;
 }
+strong_alias(__clnt_spcreateerror,clnt_spcreateerror)
 
 void
 clnt_pcreateerror (const char *msg)
 {
 #ifdef USE_IN_LIBIO
   if (_IO_fwide (stderr, 0) > 0)
-    (void) __fwprintf (stderr, L"%s", clnt_spcreateerror (msg));
+    (void) __fwprintf (stderr, L"%s", __clnt_spcreateerror (msg));
   else
 #endif
-    (void) fputs (clnt_spcreateerror (msg), stderr);
+    (void) fputs (__clnt_spcreateerror (msg), stderr);
 }
 
 struct auth_errtab

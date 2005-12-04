@@ -20,6 +20,8 @@
 /* Modified for uClibc by Erik Andersen
    */
 
+#define qsort __qsort
+
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>

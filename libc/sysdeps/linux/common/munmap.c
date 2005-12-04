@@ -10,4 +10,6 @@
 #include "syscalls.h"
 #include <unistd.h>
 #include <sys/mman.h>
-_syscall2(int, munmap, void *, start, size_t, length);
+#define __NR___munmap __NR_munmap
+attribute_hidden _syscall2(int, __munmap, void *, start, size_t, length);
+strong_alias(__munmap,munmap)

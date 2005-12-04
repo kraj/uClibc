@@ -14,7 +14,9 @@
  */
 
 #define getgid __getgid
+#define getuid __getuid
 #define getegid __getegid
+#define geteuid __geteuid
 
 #define	_ERRNO_H
 #include <features.h>
