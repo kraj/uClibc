@@ -73,6 +73,10 @@ extern wchar_t *__wcscpy (wchar_t *__restrict __dest,
 			__const wchar_t *__restrict __src) attribute_hidden;
 extern size_t __wcsspn (__const wchar_t *__wcs, __const wchar_t *__accept) attribute_hidden;
 extern wchar_t *__wcspbrk (__const wchar_t *__wcs, __const wchar_t *__accept) attribute_hidden;
+extern int __strcoll_l (__const char *__s1, __const char *__s2, __locale_t __l) attribute_hidden;
+extern size_t __strxfrm_l (char *__dest, __const char *__src, size_t __n, __locale_t) attribute_hidden;
+extern int __strcasecmp_l (__const char *__s1, __const char *__s2, __locale_t __loc) attribute_hidden;
+extern int __strncasecmp_l (__const char *__s1, __const char *__s2, size_t __n, __locale_t __loc) attribute_hidden;
 #endif
 
 /**********************************************************************/
