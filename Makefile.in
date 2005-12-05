@@ -298,7 +298,7 @@ defconfig: extra/config/conf
 clean:
 	@$(RM) -r lib include/bits
 	$(RM) lib*/*.a ldso/*/*.a libpthread/*/*.a
-	$(RM) include/fpu_control.h include/dl-osinfo.h
+	$(RM) include/fpu_control.h include/dl-osinfo.h include/hp-timing.h
 	$(MAKE) -C extra/locale locale_clean
 	$(MAKE) headers_clean-y
 	$(MAKE) -C test clean
