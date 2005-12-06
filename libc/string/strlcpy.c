@@ -12,7 +12,8 @@
 strong_alias(__strlcpy, strlcpy)
 
 #ifdef __LOCALE_C_ONLY
-weak_alias(strlcpy, strxfrm)
+weak_alias(__strlcpy, __strxfrm)
+strong_alias(__strxfrm, strxfrm)
 #endif
 
 #undef L_strlcpy
