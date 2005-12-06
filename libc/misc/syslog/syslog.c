@@ -31,7 +31,6 @@
  * SUCH DAMAGE.
  */
 
-#define time __time
 #define ctime __ctime
 #define sigaction __sigaction_internal
 
@@ -84,6 +83,7 @@
 #include <ctype.h>
 #include <signal.h>
 
+extern time_t __time (time_t *__timer) attribute_hidden;
 
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
@@ -172,7 +172,7 @@ __vsyslog( int pri, const char *fmt, va_list ap )
 	 * no longer than 64 characters plus length of the LogTag. So it's
 	 * safe to test only LogTag and use normal sprintf everywhere else.
 	 */
-	(void)time(&now);
+	(void)__time(&now);
 	stdp = p = tbuf + sprintf(tbuf, "<%d>%.15s ", pri, ctime(&now) + 4);
 	if (LogTag) {
 		if (__strlen(LogTag) < sizeof(tbuf) - 64)
