@@ -36,10 +36,7 @@
 	x = strtok_r(NULL, "=", &sp);	// x = NULL
 		// s = "abc\0-def\0"
 */
-char attribute_hidden *__strtok_r (s, delim, save_ptr)
-     char *s;
-     const char *delim;
-     char **save_ptr;
+char attribute_hidden *__strtok_r (char *s, const char *delim, char **save_ptr)
 {
   char *token;
 
