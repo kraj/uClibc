@@ -1535,7 +1535,7 @@ int attribute_hidden __read_etc_hosts_r(FILE * fp, const char * name, int type,
 		} else {
 			/* GET_HOSTS_BYNAME */
 			for (i = 1; i < aliases; i++)
-				if (strcasecmp(name, alias[i]) == 0)
+				if (__strcasecmp(name, alias[i]) == 0)
 					break;
 			if (i >= aliases)
 				continue;

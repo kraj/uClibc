@@ -149,18 +149,11 @@ next:
 			 * or official hostname.  Also allow match of
 			 * incompletely-specified host in local domain.
 			 */
-			if (strcasecmp(host, tokval) == 0)
+			if (__strcasecmp(host, tokval) == 0)
 				goto match;
-/*			if (__strcasecmp(hostname, tokval) == 0)
-				goto match;
-			if ((tmp = __strchr(hostname, '.')) != NULL &&
-			    __strcasecmp(tmp, mydomain) == 0 &&
-			    __strncasecmp(hostname, tokval, tmp-hostname) == 0 &&
-			    tokval[tmp - hostname] == '\0')
-				goto match; */
 			if ((tmp = __strchr(host, '.')) != NULL &&
-			    strcasecmp(tmp, mydomain) == 0 &&
-			    strncasecmp(host, tokval, tmp - host) == 0 &&
+			    __strcasecmp(tmp, mydomain) == 0 &&
+			    __strncasecmp(host, tokval, tmp - host) == 0 &&
 			    tokval[tmp - host] == '\0')
 				goto match;
 			continue;

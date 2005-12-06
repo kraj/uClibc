@@ -28,6 +28,7 @@
 #define wcslen __wcslen
 /* for some reason this does not work */
 #define memcpy __memcpy
+#define wcscoll __wcscoll
 
 /* To exclude some unwanted junk.... */
 #undef _LIBC

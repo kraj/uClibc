@@ -1267,7 +1267,7 @@ static int find_codeset(const char *name)
 	int codeset;
 
 	for (s = __iconv_codesets ; *s ; s += *s) {
-		if (!strcasecmp(s+2, name)) {
+		if (!__strcasecmp(s+2, name)) {
 			return s[1];
 		}
 	}
@@ -1280,7 +1280,7 @@ static int find_codeset(const char *name)
 	s = __LOCALE_DATA_CODESET_LIST;
 	do {
 		++codeset;		/* Increment codeset first. */
-		if (!strcasecmp(__LOCALE_DATA_CODESET_LIST+*s, name)) {
+		if (!__strcasecmp(__LOCALE_DATA_CODESET_LIST+*s, name)) {
 			return codeset;
 		}
 	} while (*++s);

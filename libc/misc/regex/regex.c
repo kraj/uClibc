@@ -54,6 +54,8 @@ extern int __iswctype (wint_t __wc, wctype_t __desc) /*attribute_hidden*/;
 #define strlen __strlen
 #define strncpy __strncpy
 #define getenv __getenv
+#define strcasecmp __strcasecmp
+#define wcscoll __wcscoll
 
 extern void *__mempcpy (void *__restrict __dest,
 			__const void *__restrict __src, size_t __n) /*attribute_hidden*/;
