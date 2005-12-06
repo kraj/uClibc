@@ -120,6 +120,16 @@
 #ifndef __ASSEMBLER__
 # ifdef IS_IN_libc
 
+#  define __UC(N) __ ## N
+#  define __UC_ALIAS(N) strong_alias( __ ## N , N )
+#  if defined __UCLIBC_HAS_XLOCALE__ && defined __UCLIBC_DO_XLOCALE
+#   define __UCXL(N) __ ## N ## _l
+#   define __UCXL_ALIAS(N) strong_alias ( __ ## N ## _l , N ## _l )
+#  else
+#   define __UCXL(N) __UC(N)
+#   define __UCXL_ALIAS(N) __UC_ALIAS(N)
+#  endif
+
 #  include <bits/types.h>
 
 #  ifndef __ssize_t_defined
@@ -131,6 +141,9 @@ typedef __ssize_t ssize_t;
 #  include <stddef.h>
 
 #  include <bits/sigset.h>
+
+/* sources are built w/ _GNU_SOURCE, this gets undefined */
+extern int __xpg_strerror_r (int __errnum, char *__buf, size_t __buflen);
 
 /* prototypes for internal use, please keep these in sync w/ updated headers */
 /* #include <fcntl.h> */
@@ -151,6 +164,8 @@ extern char *__strncpy (char *__restrict __dest,
 extern char *__strchr (__const char *__s, int __c) attribute_hidden;
 extern int __strncmp (__const char *__s1, __const char *__s2, size_t __n) attribute_hidden;
 extern char *__strdup (__const char *__s) attribute_hidden;
+extern int __strcasecmp (__const char *__s1, __const char *__s2) attribute_hidden;
+extern int __strncasecmp (__const char *__s1, __const char *__s2, size_t __n) attribute_hidden;
 
 /* #include <unistd.h> */
 extern ssize_t __read(int __fd, void *__buf, size_t __nbytes) attribute_hidden;
