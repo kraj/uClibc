@@ -349,7 +349,7 @@ endif
 PTDIR := $(top_builddir)libpthread/$(PTNAME)
 # set up system dependencies include dirs (NOTE: order matters!)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-PTINC := \
+PTINC:=	-I$(PTDIR)						\
 	-I$(PTDIR)/compat					\
 	-I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH)	\
 	-I$(PTDIR)/sysdeps/$(TARGET_ARCH)			\
@@ -357,7 +357,8 @@ PTINC := \
 	-I$(PTDIR)/sysdeps/pthread				\
 	-I$(PTDIR)/sysdeps/pthread/bits				\
 	-I$(PTDIR)/sysdeps/generic				\
-	-Ildso/include						\
+	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH)			\
+	-I$(top_srcdir)ldso/include				\
 	-include $(PTDIR)/compat/libc-symbols.h
 #
 # Test for TLS if NPTL support was selected.
