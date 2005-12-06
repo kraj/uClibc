@@ -22,9 +22,9 @@
 /* Some nice features only work properly with ELF */
 #if defined __HAVE_ELF__
 /* Define ALIASNAME as a weak alias for NAME. */
-#  define weak_alias(name, aliasname) _weak_alias (name, aliasname)
-#  define _weak_alias(name, aliasname) \
-      extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
+# define weak_alias(name, aliasname) _weak_alias (name, aliasname)
+# define _weak_alias(name, aliasname) \
+  extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
 /* Define ALIASNAME as a strong alias for NAME.  */
 # define strong_alias(name, aliasname) _strong_alias(name, aliasname)
 # define _strong_alias(name, aliasname) \
@@ -35,21 +35,21 @@
 # define weak_const_function __attribute__ ((weak, __const__))
 /* Tacking on "\n\t#" to the section name makes gcc put it's bogus
  * section attributes on what looks like a comment to the assembler. */
-#  if defined(__cris__) 
-#    define link_warning(symbol, msg)
-#  else
-#    define link_warning(symbol, msg)					      \
+# if defined(__cris__) 
+#   define link_warning(symbol, msg)
+# else
+#   define link_warning(symbol, msg)					      \
 	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");	      \
 	    static const char __evoke_link_warning_##symbol[]		      \
 	    __attribute__ ((unused, section (".gnu.warning." #symbol "\n\t#"))) = msg;
-#endif
+# endif
 #else /* !defined __HAVE_ELF__ */
-#  define strong_alias(name, aliasname) _strong_alias (name, aliasname)
-#  define weak_alias(name, aliasname) _strong_alias (name, aliasname)
-#  define _strong_alias(name, aliasname) \
+# define strong_alias(name, aliasname) _strong_alias (name, aliasname)
+# define weak_alias(name, aliasname) _strong_alias (name, aliasname)
+# define _strong_alias(name, aliasname) \
 	__asm__(".global " __C_SYMBOL_PREFIX__ #aliasname "\n" \
                 ".set " __C_SYMBOL_PREFIX__ #aliasname "," __C_SYMBOL_PREFIX__ #name);
-#  define link_warning(symbol, msg) \
+# define link_warning(symbol, msg) \
 	asm (".stabs \"" msg "\",30,0,0,0\n\t" \
 	      ".stabs \"" #symbol "\",1,0,0,0\n");
 #endif
@@ -173,7 +173,7 @@ extern int __gettimeofday(struct timeval *__restrict __tv, *__restrict __timezon
 #   define gettimeofday __gettimeofday
 #  endif
 
-# endif
-#endif
+# endif /* IS_IN_libc */
+#endif /* __ASSEMBLER__ */
 
 #endif /* _LIBC_INTERNAL_H */
