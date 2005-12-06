@@ -11,12 +11,8 @@ void rewinddir(DIR * dir)
 		__set_errno(EBADF);
 		return;
 	}
-#ifdef __UCLIBC_HAS_THREADS__
 	__pthread_mutex_lock(&(dir->dd_lock));
-#endif
 	lseek(dir->dd_fd, 0, SEEK_SET);
 	dir->dd_nextoff = dir->dd_nextloc = dir->dd_size = 0;
-#ifdef __UCLIBC_HAS_THREADS__
 	__pthread_mutex_unlock(&(dir->dd_lock));
-#endif
 }

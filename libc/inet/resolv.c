@@ -186,15 +186,13 @@ extern char * __nameserver[MAX_SERVERS];
 extern int __searchdomains;
 extern char * __searchdomain[MAX_SEARCH];
 
+
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
+# include <pthread.h>
 extern pthread_mutex_t __resolv_lock;
-# define BIGLOCK	__pthread_mutex_lock(&__resolv_lock)
-# define BIGUNLOCK	__pthread_mutex_unlock(&__resolv_lock);
-#else
-# define BIGLOCK
-# define BIGUNLOCK
 #endif
+#define BIGLOCK	__pthread_mutex_lock(&__resolv_lock)
+#define BIGUNLOCK	__pthread_mutex_unlock(&__resolv_lock)
 
 
 
@@ -659,15 +657,12 @@ int __form_query(int id, const char *name, int type, unsigned char *packet,
 #endif
 
 #if defined(L_dnslookup) || defined(L_gethostent)
-
 #ifdef __UCLIBC_HAS_THREADS__
+# include <pthread.h>
 static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	__pthread_mutex_lock(&mylock)
-# define UNLOCK	__pthread_mutex_unlock(&mylock);
-#else
-# define LOCK
-# define UNLOCK
 #endif
+#define LOCK	__pthread_mutex_lock(&mylock)
+#define UNLOCK	__pthread_mutex_unlock(&mylock)
 #endif
 
 #ifdef L_dnslookup
@@ -981,6 +976,7 @@ char * __nameserver[MAX_SERVERS];
 int __searchdomains;
 char * __searchdomain[MAX_SEARCH];
 #ifdef __UCLIBC_HAS_THREADS__
+# include <pthread.h>
 pthread_mutex_t __resolv_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 

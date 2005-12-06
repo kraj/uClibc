@@ -199,20 +199,11 @@ typedef struct {
 } rule_struct;
 
 #ifdef __UCLIBC_HAS_THREADS__
-
-#include <pthread.h>
-
+# include <pthread.h>
 extern pthread_mutex_t _time_tzlock;
-
+#endif
 #define TZLOCK		__pthread_mutex_lock(&_time_tzlock)
 #define TZUNLOCK	__pthread_mutex_unlock(&_time_tzlock)
-
-#else
-
-#define TZLOCK		((void) 0)
-#define TZUNLOCK	((void) 0)
-
-#endif
 
 extern rule_struct _time_tzinfo[2];
 

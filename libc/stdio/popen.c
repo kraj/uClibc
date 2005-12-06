@@ -32,14 +32,11 @@
 #endif
 
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
+# include <pthread.h>
 static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK			__pthread_mutex_lock(&mylock)
-# define UNLOCK			__pthread_mutex_unlock(&mylock);
-#else
-# define LOCK			((void) 0)
-# define UNLOCK			((void) 0)
-#endif      
+#endif
+#define LOCK			__pthread_mutex_lock(&mylock)
+#define UNLOCK			__pthread_mutex_unlock(&mylock)
 
 #ifndef VFORK_LOCK
 # define VFORK_LOCK		LOCK

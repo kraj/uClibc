@@ -31,14 +31,11 @@
 /* The RPC code is not threadsafe, but new code should be threadsafe. */
 
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
+# include <pthread.h>
 static pthread_mutex_t createxid_lock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	__pthread_mutex_lock(&createxid_lock)
-# define UNLOCK	__pthread_mutex_unlock(&createxid_lock);
-#else
-# define LOCK
-# define UNLOCK
 #endif
+#define LOCK	__pthread_mutex_lock(&createxid_lock)
+#define UNLOCK	__pthread_mutex_unlock(&createxid_lock)
 
 static int is_initialized;
 static struct drand48_data __rpc_lrand48_data;

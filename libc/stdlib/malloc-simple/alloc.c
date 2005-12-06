@@ -111,14 +111,11 @@ void free(void *ptr)
 
 #ifdef L_memalign
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
+# include <pthread.h>
 pthread_mutex_t __malloc_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-# define LOCK	__pthread_mutex_lock(&__malloc_lock)
-# define UNLOCK	__pthread_mutex_unlock(&__malloc_lock);
-#else
-# define LOCK
-# define UNLOCK
 #endif
+#define LOCK	__pthread_mutex_lock(&__malloc_lock)
+#define UNLOCK	__pthread_mutex_unlock(&__malloc_lock)
 
 /* List of blocks allocated with memalign or valloc */
 struct alignlist

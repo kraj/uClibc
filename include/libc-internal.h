@@ -174,6 +174,14 @@ extern int __gettimeofday(struct timeval *__restrict __tv, *__restrict __timezon
 #   define gettimeofday __gettimeofday
 #  endif
 
+/* #include <pthread.h> */
+#  ifndef __UCLIBC_HAS_THREADS__
+#   define __pthread_mutex_init(mutex, mutexattr)         ((void)0)
+#   define __pthread_mutex_lock(mutex)                    ((void)0)
+#   define __pthread_mutex_trylock(mutex)                 ((void)0)
+#   define __pthread_mutex_unlock(mutex)                  ((void)0)
+#  endif
+
 # endif /* IS_IN_libc */
 #endif /* __ASSEMBLER__ */
 

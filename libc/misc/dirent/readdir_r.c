@@ -5,7 +5,6 @@
 #include <dirent.h>
 #include "dirstream.h"
 
-
 int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 {
 	int ret;
@@ -18,9 +17,7 @@ int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 	}
 	de = NULL;
 
-#ifdef __UCLIBC_HAS_THREADS__
 	__pthread_mutex_lock(&(dir->dd_lock));
-#endif
 
 	do {
 	    if (dir->dd_size <= dir->dd_nextloc) {
@@ -54,8 +51,7 @@ int readdir_r(DIR *dir, struct dirent *entry, struct dirent **result)
 
 all_done:
 
-#ifdef __UCLIBC_HAS_THREADS__
 	__pthread_mutex_unlock(&(dir->dd_lock));
-#endif
-        return((de != NULL)? 0 : ret);
+
+	return((de != NULL)? 0 : ret);
 }

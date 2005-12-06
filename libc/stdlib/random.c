@@ -31,15 +31,13 @@
 #include <limits.h>
 #include <stddef.h>
 #include <stdlib.h>
+
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
+# include <pthread.h>
 /* POSIX.1c requires that there is mutual exclusion for the `rand' and
    `srand' functions to prevent concurrent calls from modifying common
    data.  */
 static pthread_mutex_t lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-#else
-#define __pthread_mutex_lock(x)
-#define __pthread_mutex_unlock(x)
 #endif
 
 /* An improved random number generation package.  In addition to the standard

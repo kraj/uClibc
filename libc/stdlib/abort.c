@@ -75,12 +75,9 @@ static int been_there_done_that = 0;
 #ifdef __UCLIBC_HAS_THREADS__
 # include <pthread.h>
 static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-# define LOCK	__pthread_mutex_lock(&mylock)
-# define UNLOCK	__pthread_mutex_unlock(&mylock)
-#else
-# define LOCK
-# define UNLOCK
 #endif
+#define LOCK	__pthread_mutex_lock(&mylock)
+#define UNLOCK	__pthread_mutex_unlock(&mylock)
 
 
 extern int __raise (int __sig) __THROW attribute_hidden;
