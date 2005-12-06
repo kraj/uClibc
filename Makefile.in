@@ -93,6 +93,9 @@ headers: include/bits/uClibc_config.h
 		$(RM) include/bits/sysnum.h; \
 		mv -f include/bits/sysnum.h.new include/bits/sysnum.h; \
 	fi
+ifeq ($(UCLIBC_HAS_LOCALE),y)
+	$(MAKE) locale_headers
+endif
 
 pregen: headers
 

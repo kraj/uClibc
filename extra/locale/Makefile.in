@@ -38,7 +38,8 @@ locale_OBJ := $(locale_OUT)/locale_data.o
 
 CFLAGS-locale_data.c := -D__WCHAR_ENABLED -I$(locale_OUT) -I$(locale_DIR)
 
-headers-$(UCLIBC_HAS_LOCALE) += locale_headers
+# produces a loop
+#headers-$(UCLIBC_HAS_LOCALE) += locale_headers
 
 libc-a-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ)
 libc-so-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ:.o=.os)
