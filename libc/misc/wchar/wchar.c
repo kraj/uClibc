@@ -1618,7 +1618,7 @@ int main(int argc, char **argv)
 			break;
 		}
 		do {
-			if ((s = __strchr(opt_chars,*p)) == NULL) {
+			if ((s = strchr(opt_chars,*p)) == NULL) {
 			USAGE:
 				s = basename(progname);
 				fprintf(stderr,
@@ -1695,7 +1695,7 @@ int main(int argc, char **argv)
 				}
 			}
 			if (ni) {			/* still bytes in buffer! */
-				__memmove(ibuf, pi, ni);
+				memmove(ibuf, pi, ni);
 			}
 		}
 
