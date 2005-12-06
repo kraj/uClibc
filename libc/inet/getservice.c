@@ -67,16 +67,12 @@
 #include <errno.h>
 
 
-
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
+# include <pthread.h>
 static pthread_mutex_t mylock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-# define LOCK	__pthread_mutex_lock(&mylock)
-# define UNLOCK	__pthread_mutex_unlock(&mylock);
-#else
-# define LOCK
-# define UNLOCK
 #endif
+#define LOCK	__pthread_mutex_lock(&mylock)
+#define UNLOCK	__pthread_mutex_unlock(&mylock)
 
 
 
@@ -98,7 +94,7 @@ static void __initbuf(void)
     }
 }
 
-void setservent(int f)
+extern void attribute_hidden __setservent(int f)
 {
     LOCK;
     if (servf == NULL)
@@ -108,8 +104,9 @@ void setservent(int f)
     serv_stayopen |= f;
     UNLOCK;
 }
+strong_alias(__setservent,setservent)
 
-void endservent(void)
+extern void attribute_hidden __endservent(void)
 {
     LOCK;
     if (servf) {
@@ -119,37 +116,9 @@ void endservent(void)
     serv_stayopen = 0;
     UNLOCK;
 }
+strong_alias(__endservent,endservent)
 
-struct servent * getservent(void)
-{
-    struct servent *result;
-
-    __initbuf();
-    getservent_r(&serv, servbuf, SBUFSIZE, &result);
-    return result;
-}
-
-
-struct servent *getservbyname(const char *name, const char *proto)
-{
-    struct servent *result;
-
-    __initbuf();
-    getservbyname_r(name, proto, &serv, servbuf, SBUFSIZE, &result);
-    return result;
-}
-
-
-struct servent * getservbyport(int port, const char *proto)
-{
-    struct servent *result;
-
-    __initbuf();
-    getservbyport_r(port, proto, &serv, servbuf, SBUFSIZE, &result);
-    return result;
-}
-
-int getservent_r(struct servent * result_buf,
+extern int attribute_hidden __getservent_r(struct servent * result_buf,
 		 char * buf, size_t buflen,
 		 struct servent ** result)
 {
@@ -228,8 +197,18 @@ again:
     UNLOCK;
     return 0;
 }
+strong_alias(__getservent_r,getservent_r)
 
-int getservbyname_r(const char *name, const char *proto,
+struct servent * getservent(void)
+{
+    struct servent *result;
+
+    __initbuf();
+    __getservent_r(&serv, servbuf, SBUFSIZE, &result);
+    return result;
+}
+
+extern int attribute_hidden __getservbyname_r(const char *name, const char *proto,
 	struct servent * result_buf, char * buf, size_t buflen,
 	struct servent ** result)
 {
@@ -237,8 +216,8 @@ int getservbyname_r(const char *name, const char *proto,
     int ret;
 
     LOCK;
-    setservent(serv_stayopen);
-    while (!(ret=getservent_r(result_buf, buf, buflen, result))) {
+    __setservent(serv_stayopen);
+    while (!(ret=__getservent_r(result_buf, buf, buflen, result))) {
 	if (__strcmp(name, result_buf->s_name) == 0)
 	    goto gotname;
 	for (cp = result_buf->s_aliases; *cp; cp++)
@@ -250,27 +229,49 @@ gotname:
 	    break;
     }
     if (!serv_stayopen)
-	endservent();
+	__endservent();
     UNLOCK;
     return *result?0:ret;
 }
+strong_alias(__getservbyname_r,getservbyname_r)
 
-int getservbyport_r(int port, const char *proto,
+struct servent *getservbyname(const char *name, const char *proto)
+{
+    struct servent *result;
+
+    __initbuf();
+    __getservbyname_r(name, proto, &serv, servbuf, SBUFSIZE, &result);
+    return result;
+}
+
+
+extern int attribute_hidden __getservbyport_r(int port, const char *proto,
 	struct servent * result_buf, char * buf,
 	size_t buflen, struct servent ** result)
 {
     int ret;
 
     LOCK;
-    setservent(serv_stayopen);
-    while (!(ret=getservent_r(result_buf, buf, buflen, result))) {
+    __setservent(serv_stayopen);
+    while (!(ret=__getservent_r(result_buf, buf, buflen, result))) {
 	if (result_buf->s_port != port)
 	    continue;
 	if (proto == 0 || __strcmp(result_buf->s_proto, proto) == 0)
 	    break;
     }
     if (!serv_stayopen)
-	endservent();
+	__endservent();
     UNLOCK;
     return *result?0:ret;
 }
+strong_alias(__getservbyport_r,getservbyport_r)
+
+struct servent attribute_hidden * __getservbyport(int port, const char *proto)
+{
+    struct servent *result;
+
+    __initbuf();
+    __getservbyport_r(port, proto, &serv, servbuf, SBUFSIZE, &result);
+    return result;
+}
+strong_alias(__getservbyport,getservbyport)

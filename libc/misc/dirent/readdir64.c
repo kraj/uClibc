@@ -31,9 +31,7 @@ struct dirent64 *readdir64(DIR * dir)
 		return NULL;
 	}
 
-#ifdef __UCLIBC_HAS_THREADS__
 	__pthread_mutex_lock(&(dir->dd_lock));
-#endif
 
 	do {
 	    if (dir->dd_size <= dir->dd_nextloc) {
@@ -59,9 +57,7 @@ struct dirent64 *readdir64(DIR * dir)
 	} while (de->d_ino == 0);
 
 all_done:
-#ifdef __UCLIBC_HAS_THREADS__
 	__pthread_mutex_unlock(&(dir->dd_lock));
-#endif
 
 	return de;
 }

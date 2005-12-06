@@ -20,7 +20,7 @@ Cambridge, MA 02139, USA.
    The author may be reached (Email) at the address mike@@ai.mit.edu,
    or (US mail) as Mike Haertel c/o Free Software Foundation.  */
 
-#define getpagesize __libc_getpagesize
+#define getpagesize __getpagesize_internal
 
 #include <stdlib.h>
 #include <unistd.h>

@@ -23,14 +23,11 @@
 
 
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
+# include <pthread.h>
 static pthread_mutex_t utmplock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK	__pthread_mutex_lock(&utmplock)
-# define UNLOCK	__pthread_mutex_unlock(&utmplock)
-#else
-# define LOCK
-# define UNLOCK
 #endif
+#define LOCK	__pthread_mutex_lock(&utmplock)
+#define UNLOCK	__pthread_mutex_unlock(&utmplock)
 
 
 

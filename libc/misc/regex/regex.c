@@ -53,6 +53,10 @@ extern int __iswctype (wint_t __wc, wctype_t __desc) /*attribute_hidden*/;
 #define strcmp __strcmp
 #define strlen __strlen
 #define strncpy __strncpy
+#define getenv __getenv
+
+extern void *__mempcpy (void *__restrict __dest,
+			__const void *__restrict __src, size_t __n) /*attribute_hidden*/;
 #endif
 
 /* Make sure noone compiles this code with a C++ compiler.  */

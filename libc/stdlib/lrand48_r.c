@@ -17,9 +17,11 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define nrand48_r __nrand48_r
+
 #include <stdlib.h>
 
-int lrand48_r (struct drand48_data *buffer, long int *result)
+int attribute_hidden __lrand48_r (struct drand48_data *buffer, long int *result)
 {
     /* Be generous for the arguments, detect some errors.  */
     if (buffer == NULL)
@@ -27,3 +29,4 @@ int lrand48_r (struct drand48_data *buffer, long int *result)
 
     return nrand48_r (buffer->__x, buffer, result);
 }
+strong_alias(__lrand48_r,lrand48_r)

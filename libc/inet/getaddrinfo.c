@@ -44,8 +44,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* This software is Copyright 1996 by Craig Metz, All Rights Reserved.  */
 
-/* strdupa is using these */
+#define getservbyname_r __getservbyname_r
 #if 0
+#define stpcpy __stpcpy
+/* strdupa is using these */
 #define memcpy __memcpy
 #define strlen __strlen
 #endif
@@ -246,7 +248,7 @@ gaih_local (const char *name, const struct gaih_service *service,
 		sizeof (sunp->sun_path))
 		return GAIH_OKIFUNSPEC | -EAI_SERVICE;
 
-	    __stpcpy (__stpcpy (sunp->sun_path, P_tmpdir "/"), service->name);
+	    stpcpy (stpcpy (sunp->sun_path, P_tmpdir "/"), service->name);
 	}
     }
     else

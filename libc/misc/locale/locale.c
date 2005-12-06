@@ -46,6 +46,7 @@
  *    locale support had (8-bit codesets only).
  */
 
+#define stpcpy __stpcpy
 #define strtok_r __strtok_r
 
 #define _GNU_SOURCE
@@ -1241,7 +1242,7 @@ __locale_t __newlocale(int category_mask, const char *locale, __locale_t base)
 				j = 0;
 				do {
 					p = envstr[j];
-				} while ((++j < 4) && (!(p = getenv(p)) || !*p));
+				} while ((++j < 4) && (!(p = __getenv(p)) || !*p));
 
 
 				/* The user set something... is it valid? */

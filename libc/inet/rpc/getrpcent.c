@@ -257,12 +257,9 @@ static struct rpcent *interpret(register struct rpcdata *d)
 #if defined(__UCLIBC_HAS_THREADS__)
 # include <pthread.h>
 static pthread_mutex_t rpcdata_lock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK    __pthread_mutex_lock(&rpcdata_lock)
-# define UNLOCK  __pthread_mutex_unlock(&rpcdata_lock);
-#else
-# define LOCK
-# define UNLOCK
 #endif
+#define LOCK    __pthread_mutex_lock(&rpcdata_lock)
+#define UNLOCK  __pthread_mutex_unlock(&rpcdata_lock)
 
 static int __copy_rpcent(struct rpcent *r, struct rpcent *result_buf, char *buffer, 
 		size_t buflen, struct rpcent **result)

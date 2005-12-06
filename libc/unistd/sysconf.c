@@ -16,7 +16,8 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define getpagesize __libc_getpagesize
+#define getpagesize __getpagesize_internal
+#define getdtablesize __getdtablesize
 
 #define _XOPEN_SOURCE  500
 #include <features.h>

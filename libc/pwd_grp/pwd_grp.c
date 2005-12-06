@@ -402,15 +402,12 @@ int getpw(uid_t uid, char *buf)
 #endif
 /**********************************************************************/
 #if defined(L_getpwent_r) || defined(L_getgrent_r) || defined(L_getspent_r)
-
 #ifdef __UCLIBC_HAS_THREADS__
+# include <pthread.h>
 static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK		__pthread_mutex_lock(&mylock)
-# define UNLOCK		__pthread_mutex_unlock(&mylock);
-#else
-# define LOCK		((void) 0)
-# define UNLOCK		((void) 0)
 #endif
+#define LOCK		__pthread_mutex_lock(&mylock)
+#define UNLOCK		__pthread_mutex_unlock(&mylock)
 #endif
 
 #ifdef L_getpwent_r

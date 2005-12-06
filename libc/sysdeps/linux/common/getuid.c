@@ -17,7 +17,8 @@
 
 static inline _syscall0(int, __syscall_getuid);
 
-uid_t getuid(void)
+uid_t attribute_hidden __getuid(void)
 {
 	return (__syscall_getuid());
 }
+strong_alias(__getuid,getuid)

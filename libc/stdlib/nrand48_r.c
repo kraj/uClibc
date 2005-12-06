@@ -22,10 +22,7 @@
 extern int __drand48_iterate(unsigned short xsubi[3], 
 	struct drand48_data *buffer) attribute_hidden;
 
-int nrand48_r (xsubi, buffer, result)
-     unsigned short int xsubi[3];
-     struct drand48_data *buffer;
-     long int *result;
+int attribute_hidden __nrand48_r (unsigned short int xsubi[3], struct drand48_data *buffer, long int *result)
 {
     /* Compute next state.  */
     if (__drand48_iterate (xsubi, buffer) < 0)
@@ -39,3 +36,4 @@ int nrand48_r (xsubi, buffer, result)
 
     return 0;
 }
+strong_alias(__nrand48_r,nrand48_r)

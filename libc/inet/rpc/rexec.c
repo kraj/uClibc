@@ -47,15 +47,10 @@ extern int __libc_sa_len (sa_family_t __af) __THROW attribute_hidden;
 
 int	rexecoptions;
 char	ahostbuf[NI_MAXHOST];
-extern int ruserpass(const char *host, const char **aname, const char **apass);
+extern int __ruserpass(const char *host, const char **aname, const char **apass) attribute_hidden;
 
-int
-rexec_af(ahost, rport, name, pass, cmd, fd2p, af)
-	char **ahost;
-	int rport;
-	const char *name, *pass, *cmd;
-	int *fd2p;
-	sa_family_t af;
+int attribute_hidden
+__rexec_af(char **ahost, int rport, const char *name, const char *pass, const char *cmd, int *fd2p, sa_family_t af)
 {
 	struct sockaddr_storage sa2, from;
 	struct addrinfo hints, *res0;
@@ -88,7 +83,7 @@ rexec_af(ahost, rport, name, pass, cmd, fd2p, af)
 	else{
 		*ahost = NULL;
 	}
-	ruserpass(res0->ai_canonname, &name, &pass);
+	__ruserpass(res0->ai_canonname, &name, &pass);
 retry:
 	s = socket(res0->ai_family, res0->ai_socktype, 0);
 	if (s < 0) {
@@ -179,6 +174,7 @@ bad:
 	freeaddrinfo(res0);
 	return (-1);
 }
+strong_alias(__rexec_af,rexec_af)
 
 int
 rexec(ahost, rport, name, pass, cmd, fd2p)
@@ -187,5 +183,5 @@ rexec(ahost, rport, name, pass, cmd, fd2p)
 	const char *name, *pass, *cmd;
 	int *fd2p;
 {
-	return rexec_af(ahost, rport, name, pass, cmd, fd2p, AF_INET);
+	return __rexec_af(ahost, rport, name, pass, cmd, fd2p, AF_INET);
 }

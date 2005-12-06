@@ -11,6 +11,8 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
+#define munmap __munmap
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/mman.h>

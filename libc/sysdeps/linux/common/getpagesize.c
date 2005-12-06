@@ -22,7 +22,8 @@
 extern size_t __pagesize;
 
 /* Return the system page size.  */
-int attribute_hidden __libc_getpagesize(void)
+/* couldn't make __getpagesize hidden, because shm.h uses it in a macro */
+int attribute_hidden __getpagesize_internal(void)
 {
   if (__pagesize != 0)
     return __pagesize;
@@ -40,6 +41,6 @@ int attribute_hidden __libc_getpagesize(void)
 #endif	/* NBPG.  */
 #endif	/* EXEC_PAGESIZE.  */
 }
-strong_alias(__libc_getpagesize, __getpagesize)
-weak_alias(__getpagesize, getpagesize)
+strong_alias(__getpagesize_internal, __getpagesize)
+weak_alias(__getpagesize_internal, getpagesize)
 

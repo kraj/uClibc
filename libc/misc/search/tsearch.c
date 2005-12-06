@@ -205,13 +205,14 @@ tdestroy_recurse (node *root, __free_fn_t freefct)
     free (root);
 }
 
-void tdestroy (void *vroot, __free_fn_t freefct)
+void attribute_hidden __tdestroy (void *vroot, __free_fn_t freefct)
 {
     node *root = (node *) vroot;
     if (root != NULL) {
 	tdestroy_recurse (root, freefct);
     }
 }
+strong_alias(__tdestroy,tdestroy)
 #endif
 
 /* tsearch.c ends here */

@@ -1,3 +1,5 @@
+#define setitimer __setitimer
+
 #define _GNU_SOURCE
 #include <time.h>
 #include <sys/time.h>

@@ -319,7 +319,7 @@ fail:
    to the order in which things are done, it is OK to call setstate with the
    same state as the current state
    Returns a pointer to the old state information.  */
-int setstate_r (char *arg_state, struct random_data *buf)
+int attribute_hidden __setstate_r (char *arg_state, struct random_data *buf)
 {
     int32_t *new_state = 1 + (int32_t *) arg_state;
     int type;
@@ -362,3 +362,4 @@ fail:
     __set_errno (EINVAL);
     return -1;
 }
+strong_alias(__setstate_r,setstate_r)

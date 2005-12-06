@@ -27,9 +27,11 @@
  * SUCH DAMAGE.
  */
 
-#define __fsetlocking __libc_fsetlocking
+#define __fsetlocking __fsetlocking_internal
 #define getgid __getgid
+#define getuid __getuid
 #define getegid __getegid
+#define geteuid __geteuid
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -95,7 +97,7 @@ static const struct toktab {
 
 
 
-int ruserpass(const char *host, const char **aname, const char **apass)
+int attribute_hidden __ruserpass(const char *host, const char **aname, const char **apass)
 {
 	char *hdir, *buf, *tmp;
 	char myname[1024], *mydomain;
@@ -105,7 +107,7 @@ int ruserpass(const char *host, const char **aname, const char **apass)
 	/* Give up when running a setuid or setgid app. */
 	if ((getuid() != geteuid()) || getgid() != getegid())
 	    return -1;
-	hdir = getenv("HOME");
+	hdir = __getenv("HOME");
 	if (hdir == NULL) {
 		/* If we can't get HOME, fail instead of trying ".",
 		   which is no improvement. */
@@ -292,6 +294,7 @@ bad:
 	(void) fclose(cfile);
 	return (-1);
 }
+strong_alias(__ruserpass,ruserpass)
 
 static int
 token()

@@ -102,7 +102,7 @@ svcauthsw[] =
  * invalid.
  */
 enum auth_stat attribute_hidden
-__libc__authenticate (register struct svc_req *rqst, struct rpc_msg *msg)
+_authenticate_internal (register struct svc_req *rqst, struct rpc_msg *msg)
 {
   register int cred_flavor;
 
@@ -115,7 +115,7 @@ __libc__authenticate (register struct svc_req *rqst, struct rpc_msg *msg)
 
   return AUTH_REJECTEDCRED;
 }
-strong_alias(__libc__authenticate,_authenticate)
+strong_alias(_authenticate_internal,_authenticate)
 
 static enum auth_stat
 _svcauth_null (struct svc_req *rqst, struct rpc_msg *msg)

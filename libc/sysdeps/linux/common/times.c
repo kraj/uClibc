@@ -9,4 +9,6 @@
 
 #include "syscalls.h"
 #include <sys/times.h>
-_syscall1(clock_t, times, struct tms *, buf);
+#define __NR___times __NR_times
+attribute_hidden _syscall1(clock_t, __times, struct tms *, buf);
+strong_alias(__times,times)

@@ -32,8 +32,8 @@
  */
 
 /* used by svc_[max_]pollfd */
-#define __rpc_thread_svc_pollfd __libc_rpc_thread_svc_pollfd
-#define __rpc_thread_svc_max_pollfd __libc_rpc_thread_svc_max_pollfd
+#define __rpc_thread_svc_pollfd __rpc_thread_svc_pollfd_internal
+#define __rpc_thread_svc_max_pollfd __rpc_thread_svc_max_pollfd_internal
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE

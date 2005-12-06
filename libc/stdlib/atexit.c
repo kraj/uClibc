@@ -45,14 +45,11 @@
 #include <atomic.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
+# include <pthread.h>
 extern pthread_mutex_t mylock;
-# define LOCK	__pthread_mutex_lock(&mylock)
-# define UNLOCK	__pthread_mutex_unlock(&mylock);
-#else
-# define LOCK
-# define UNLOCK
 #endif
+#define LOCK	__pthread_mutex_lock(&mylock)
+#define UNLOCK	__pthread_mutex_unlock(&mylock)
 
 
 typedef void (*aefuncp) (void);         /* atexit function pointer */

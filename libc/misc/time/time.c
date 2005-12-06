@@ -129,7 +129,6 @@
  *            differs (intentionally) from glibc's behavior.
  */
 
-#define _uintmaxtostr __libc__uintmaxtostr
 #define strnlen __strnlen
 
 #define _GNU_SOURCE
@@ -184,6 +183,11 @@
 
 extern struct tm __time_tm;
 
+extern struct tm *__localtime_r (__const time_t *__restrict __timer,
+			       struct tm *__restrict __tp) attribute_hidden;
+
+extern struct tm *__localtime (__const time_t *__timer) attribute_hidden;
+
 typedef struct {
 	long gmt_offset;
 	long dst_offset;
@@ -195,20 +199,11 @@ typedef struct {
 } rule_struct;
 
 #ifdef __UCLIBC_HAS_THREADS__
-
-#include <pthread.h>
-
+# include <pthread.h>
 extern pthread_mutex_t _time_tzlock;
-
+#endif
 #define TZLOCK		__pthread_mutex_lock(&_time_tzlock)
 #define TZUNLOCK	__pthread_mutex_unlock(&_time_tzlock)
-
-#else
-
-#define TZLOCK		((void) 0)
-#define TZUNLOCK	((void) 0)
-
-#endif
 
 extern rule_struct _time_tzinfo[2];
 
@@ -386,6 +381,8 @@ strong_alias(__asctime_r,asctime_r)
 /**********************************************************************/
 #ifdef L_clock
 
+#define times __times
+
 #include <sys/times.h>
 
 #ifndef __BCC__
@@ -452,12 +449,12 @@ clock_t clock(void)
 /**********************************************************************/
 #ifdef L_ctime
 
-char *ctime(const time_t *clock)
+char attribute_hidden *__ctime(const time_t *clock)
 {
 	/* ANSI/ISO/SUSv3 say that ctime is equivalent to the following. */
-	return __asctime(localtime(clock));
+	return __asctime(__localtime(clock));
 }
-
+strong_alias(__ctime,ctime)
 #endif
 /**********************************************************************/
 #ifdef L_ctime_r
@@ -466,7 +463,7 @@ char *ctime_r(const time_t *clock, char *buf)
 {
 	struct tm xtm;
 
-	return __asctime_r(localtime_r(clock, &xtm), buf);
+	return __asctime_r(__localtime_r(clock, &xtm), buf);
 }
 
 #endif
@@ -534,22 +531,23 @@ struct tm *gmtime_r(const time_t *__restrict timer,
 /**********************************************************************/
 #ifdef L_localtime
 
-struct tm *localtime(const time_t *timer)
+struct tm attribute_hidden *__localtime(const time_t *timer)
 {
 	register struct tm *ptm = &__time_tm;
 
 	/* In this implementation, tzset() is called by localtime_r().  */
 
-	localtime_r(timer, ptm);	/* Can return NULL... */
+	__localtime_r(timer, ptm);	/* Can return NULL... */
 
 	return ptm;
 }
+strong_alias(__localtime,localtime)
 
 #endif
 /**********************************************************************/
 #ifdef L_localtime_r
 
-struct tm *localtime_r(register const time_t *__restrict timer,
+struct tm attribute_hidden *__localtime_r(register const time_t *__restrict timer,
 					   register struct tm *__restrict result)
 {
 	TZLOCK;
@@ -562,6 +560,7 @@ struct tm *localtime_r(register const time_t *__restrict timer,
 
 	return result;
 }
+strong_alias(__localtime_r,localtime_r)
 
 #endif
 /**********************************************************************/
@@ -1542,7 +1541,7 @@ char *__XL(strptime)(const char *__restrict buf, const char *__restrict format,
 				buf = o;
 
 				if (!code) {	/* s */
-					localtime_r(&t, tm); /* TODO: check for failure? */
+					__localtime_r(&t, tm); /* TODO: check for failure? */
 					i = 0;
 					do {		/* Now copy values from tm to fields. */
 						 fields[i] = ((int *) tm)[i];
@@ -1806,7 +1805,7 @@ void tzset(void)
 
 	TZLOCK;
 
-	e = getenv(TZ);				/* TZ env var always takes precedence. */
+	e = __getenv(TZ);				/* TZ env var always takes precedence. */
 
 #if defined(__UCLIBC_HAS_TZ_FILE__) && !defined(__UCLIBC_HAS_TZ_FILE_READ_MANY__)
 	/* Put this inside the lock to prevent the possiblity of two different

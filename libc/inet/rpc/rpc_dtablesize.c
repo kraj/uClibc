@@ -31,6 +31,8 @@
 static char sccsid[] = "@(#)rpc_dtablesize.c 1.2 87/08/11 Copyr 1987 Sun Micro";
 #endif
 
+#define getdtablesize __getdtablesize
+
 #define __FORCE_GLIBC
 #define __USE_BSD
 #include <features.h>
@@ -43,7 +45,7 @@ static char sccsid[] = "@(#)rpc_dtablesize.c 1.2 87/08/11 Copyr 1987 Sun Micro";
  * expensive system call every time.
  */
 int attribute_hidden
-__libc__rpc_dtablesize (void)
+_rpc_dtablesize_internal (void)
 {
   static int size;
 
@@ -52,4 +54,4 @@ __libc__rpc_dtablesize (void)
 
   return size;
 }
-strong_alias(__libc__rpc_dtablesize,_rpc_dtablesize)
+strong_alias(_rpc_dtablesize_internal,_rpc_dtablesize)

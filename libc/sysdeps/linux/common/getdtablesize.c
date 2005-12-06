@@ -27,7 +27,7 @@
 
 /* Return the maximum number of file descriptors
    the current process could possibly have.  */
-int getdtablesize (void)
+int attribute_hidden __getdtablesize (void)
 {
   struct rlimit ru;
 
@@ -36,4 +36,4 @@ int getdtablesize (void)
      returns -1.  */
   return getrlimit (RLIMIT_NOFILE, &ru) < 0 ? __LOCAL_OPEN_MAX : ru.rlim_cur;
 }
-
+strong_alias(__getdtablesize,getdtablesize)

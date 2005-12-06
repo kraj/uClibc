@@ -40,6 +40,8 @@
 
 #define sysconf __sysconf
 #define getegid __getegid
+#define geteuid __geteuid
+#define xdrmem_create __xdrmem_create
 
 #define __FORCE_GLIBC
 #include <features.h>

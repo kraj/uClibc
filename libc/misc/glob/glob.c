@@ -17,6 +17,7 @@ Cambridge, MA 02139, USA.  */
 
 #define strrchr __strrchr
 #define strcoll __strcoll
+#define qsort __qsort
 
 #include <features.h>
 #include <stdlib.h>

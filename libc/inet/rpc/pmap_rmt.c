@@ -40,6 +40,7 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
  */
 
 #define authunix_create_default __authunix_create_default
+#define xdrmem_create __xdrmem_create
 #define inet_makeaddr __inet_makeaddr
 
 #define __FORCE_GLIBC

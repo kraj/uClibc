@@ -19,6 +19,9 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#define sigfillset __sigfillset_internal
+#define sigaction __sigaction_internal
+
 #include <features.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -28,14 +31,11 @@
 #include <paths.h>
 
 #ifdef __UCLIBC_HAS_THREADS__
-#include <pthread.h>
+# include <pthread.h>
 static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
-# define LOCK   __pthread_mutex_lock(&mylock)
-# define UNLOCK __pthread_mutex_unlock(&mylock);
-#else       
-# define LOCK
-# define UNLOCK
-#endif      
+#endif
+#define LOCK   __pthread_mutex_lock(&mylock)
+#define UNLOCK __pthread_mutex_unlock(&mylock)
 
 /* How long to wait for getting the lock before returning with an
    error.  */

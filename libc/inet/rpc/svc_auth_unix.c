@@ -38,6 +38,8 @@
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
+#define xdrmem_create __xdrmem_create
+
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>

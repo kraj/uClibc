@@ -36,15 +36,17 @@
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#define _authenticate __libc__authenticate
-#define _rpc_dtablesize __libc__rpc_dtablesize
+#define pmap_set __pmap_set
+
+#define _authenticate _authenticate_internal
+#define _rpc_dtablesize _rpc_dtablesize_internal
 
 /* used by svc_[max_]pollfd */
-#define __rpc_thread_svc_pollfd __libc_rpc_thread_svc_pollfd
-#define __rpc_thread_svc_max_pollfd __libc_rpc_thread_svc_max_pollfd
+#define __rpc_thread_svc_pollfd __rpc_thread_svc_pollfd_internal
+#define __rpc_thread_svc_max_pollfd __rpc_thread_svc_max_pollfd_internal
 
 /* used by svc_fdset */
-#define __rpc_thread_svc_fdset __libc_rpc_thread_svc_fdset
+#define __rpc_thread_svc_fdset __rpc_thread_svc_fdset_internal
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
@@ -228,8 +230,8 @@ svc_unregister (rpcprog_t prog, rpcvers_t vers)
 /* ******************* REPLY GENERATION ROUTINES  ************ */
 
 /* Send a reply to an rpc request */
-bool_t
-svc_sendreply (register SVCXPRT *xprt, xdrproc_t xdr_results,
+bool_t attribute_hidden
+__svc_sendreply (register SVCXPRT *xprt, xdrproc_t xdr_results,
 	       caddr_t xdr_location)
 {
   struct rpc_msg rply;
@@ -242,6 +244,7 @@ svc_sendreply (register SVCXPRT *xprt, xdrproc_t xdr_results,
   rply.acpted_rply.ar_results.proc = xdr_results;
   return SVC_REPLY (xprt, &rply);
 }
+strong_alias(__svc_sendreply,svc_sendreply)
 
 /* No procedure error reply */
 void
@@ -283,8 +286,8 @@ svcerr_systemerr (register SVCXPRT *xprt)
 }
 
 /* Authentication error reply */
-void
-svcerr_auth (SVCXPRT *xprt, enum auth_stat why)
+void attribute_hidden
+__svcerr_auth (SVCXPRT *xprt, enum auth_stat why)
 {
   struct rpc_msg rply;
 
@@ -294,12 +297,13 @@ svcerr_auth (SVCXPRT *xprt, enum auth_stat why)
   rply.rjcted_rply.rj_why = why;
   SVC_REPLY (xprt, &rply);
 }
+strong_alias(__svcerr_auth,svcerr_auth)
 
 /* Auth too weak error reply */
 void
 svcerr_weakauth (SVCXPRT *xprt)
 {
-  svcerr_auth (xprt, AUTH_TOOWEAK);
+  __svcerr_auth (xprt, AUTH_TOOWEAK);
 }
 
 /* Program unavailable error reply */
@@ -444,7 +448,7 @@ svc_getreq_common (const int fd)
 	    }
 	  else if ((why = _authenticate (&r, &msg)) != AUTH_OK)
 	    {
-	      svcerr_auth (xprt, why);
+	      __svcerr_auth (xprt, why);
 	      goto call_done;
 	    }
 

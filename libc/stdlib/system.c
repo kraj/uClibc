@@ -1,3 +1,6 @@
+#define wait4 __wait4
+#define execl __execl
+
 #include <stdio.h>
 #include <stddef.h>
 #include <signal.h>

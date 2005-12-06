@@ -40,6 +40,7 @@ static char sccsid[] = "@(#)svc_udp.c 1.24 87/08/11 Copyr 1984 Sun Micro";
  */
 
 #define xprt_register __xprt_register
+#define xdrmem_create __xdrmem_create
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE

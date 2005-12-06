@@ -37,6 +37,9 @@ static char sccsid[] = "@(#)svc_simple.c 1.18 87/08/11 Copyr 1984 Sun Micro";
  *
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
+
+#define svc_sendreply __svc_sendreply
+
 #define __FORCE_GLIBC
 #define _GNU_SOURCE
 #include <features.h>

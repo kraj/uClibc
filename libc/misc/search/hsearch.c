@@ -17,6 +17,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define hdestroy_r __hdestroy_r
+#define hsearch_r __hsearch_r
+#define hcreate_r __hcreate_r
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif

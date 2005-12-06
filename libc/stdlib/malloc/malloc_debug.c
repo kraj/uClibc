@@ -55,7 +55,7 @@ __malloc_debug_printf (int indent, const char *fmt, ...)
 void
 __malloc_debug_init (void)
 {
-  char *ev = getenv ("MALLOC_DEBUG");
+  char *ev = __getenv ("MALLOC_DEBUG");
   if (ev)
     {
       int val = atoi (ev);
