@@ -65,6 +65,11 @@ extern size_t __strnlen (__const char *__string, size_t __maxlen) attribute_hidd
 extern char *__strpbrk (__const char *__s, __const char *__accept) attribute_hidden;
 extern size_t __strspn (__const char *__s, __const char *__accept) attribute_hidden;
 extern char *__strsignal (int __sig) attribute_hidden;
+extern char *__strtok_r (char *__restrict __s,
+			 __const char *__restrict __delim,
+			 char **__restrict __save_ptr) attribute_hidden;
+extern size_t __strlcpy(char *__restrict dst, const char *__restrict src,
+                      size_t n) attribute_hidden;
 
 #ifdef WANT_WIDE
 extern wchar_t *__wcsdup (__const wchar_t *__s) attribute_hidden;
@@ -73,10 +78,22 @@ extern wchar_t *__wcscpy (wchar_t *__restrict __dest,
 			__const wchar_t *__restrict __src) attribute_hidden;
 extern size_t __wcsspn (__const wchar_t *__wcs, __const wchar_t *__accept) attribute_hidden;
 extern wchar_t *__wcspbrk (__const wchar_t *__wcs, __const wchar_t *__accept) attribute_hidden;
+extern int __wcscmp (__const wchar_t *__s1, __const wchar_t *__s2) attribute_hidden;
+extern size_t __wcsxfrm (wchar_t *__restrict __s1,
+		       __const wchar_t *__restrict __s2, size_t __n) attribute_hidden;
+#endif
+#ifdef __UCLIBC_HAS_XLOCALE__
 extern int __strcoll_l (__const char *__s1, __const char *__s2, __locale_t __l) attribute_hidden;
-extern size_t __strxfrm_l (char *__dest, __const char *__src, size_t __n, __locale_t) attribute_hidden;
+extern size_t __strxfrm_l (char *__dest, __const char *__src, size_t __n, __locale_t __l) attribute_hidden;
 extern int __strcasecmp_l (__const char *__s1, __const char *__s2, __locale_t __loc) attribute_hidden;
 extern int __strncasecmp_l (__const char *__s1, __const char *__s2, size_t __n, __locale_t __loc) attribute_hidden;
+extern int __wcscasecmp_l (__const wchar_t *__s1, __const wchar_t *__s2, __locale_t __loc) attribute_hidden;
+extern int __wcsncasecmp_l (__const wchar_t *__s1, __const wchar_t *__s2, size_t __n, __locale_t __loc) attribute_hidden;
+extern int __wcscoll_l (__const wchar_t *__s1, __const wchar_t *__s2, __locale_t __loc) attribute_hidden;
+extern size_t __wcsxfrm_l (wchar_t *__s1, __const wchar_t *__s2, size_t __n, __locale_t __loc) attribute_hidden;
+#ifdef __UCLIBC_DO_XLOCALE
+extern wint_t __towlower_l(wint_t __wc, __locale_t __locale) __THROW;
+#endif
 #endif
 
 /**********************************************************************/
@@ -1240,6 +1257,7 @@ strong_alias(__ffs, ffs)
 #if defined(L_wcscasecmp) || defined(L_wcscasecmp_l)
 
 #define strcasecmp wcscasecmp
+#define __strcasecmp __wcscasecmp
 #define strcasecmp_l wcscasecmp_l
 #define __strcasecmp_l __wcscasecmp_l
 #ifdef __UCLIBC_DO_XLOCALE
@@ -1261,14 +1279,15 @@ strong_alias(__ffs, ffs)
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-int strcasecmp(register const Wchar *s1, register const Wchar *s2)
+int attribute_hidden __strcasecmp(register const Wchar *s1, register const Wchar *s2)
 {
 	return __strcasecmp_l(s1, s2, __UCLIBC_CURLOCALE);
 }
+strong_alias(__strcasecmp,strcasecmp)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-int __XL(strcasecmp)(register const Wchar *s1, register const Wchar *s2
+int attribute_hidden __UCXL(strcasecmp)(register const Wchar *s1, register const Wchar *s2
 					  __LOCALE_PARAM )
 {
 #ifdef WANT_WIDE
@@ -1292,8 +1311,7 @@ int __XL(strcasecmp)(register const Wchar *s1, register const Wchar *s2
 	return r;
 #endif
 }
-
-__XL_ALIAS(strcasecmp)
+__UCXL_ALIAS(strcasecmp)
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -1304,6 +1322,7 @@ __XL_ALIAS(strcasecmp)
 #if defined(L_wcsncasecmp) || defined(L_wcsncasecmp_l)
 
 #define strncasecmp wcsncasecmp
+#define __strncasecmp __wcsncasecmp
 #define strncasecmp_l wcsncasecmp_l
 #define __strncasecmp_l __wcsncasecmp_l
 #ifdef __UCLIBC_DO_XLOCALE
@@ -1325,14 +1344,15 @@ __XL_ALIAS(strcasecmp)
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-int strncasecmp(register const Wchar *s1, register const Wchar *s2, size_t n)
+int attribute_hidden __strncasecmp(register const Wchar *s1, register const Wchar *s2, size_t n)
 {
 	return __strncasecmp_l(s1, s2, n, __UCLIBC_CURLOCALE);
 }
+strong_alias(__strncasecmp,strncasecmp)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-int __XL(strncasecmp)(register const Wchar *s1, register const Wchar *s2,
+int attribute_hidden __UCXL(strncasecmp)(register const Wchar *s1, register const Wchar *s2,
 					  size_t n   __LOCALE_PARAM )
 {
 #ifdef WANT_WIDE
@@ -1359,8 +1379,7 @@ int __XL(strncasecmp)(register const Wchar *s1, register const Wchar *s2,
 	return r;
 #endif
 }
-
-__XL_ALIAS(strncasecmp)
+__UCXL_ALIAS(strncasecmp)
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -2587,9 +2606,11 @@ void psignal(int signum, register const char *message)
 #if defined(L_strxfrm) || defined(L_strxfrm_l)
 
 #define wcscoll   strcoll
+#define __wcscoll   __strcoll
 #define wcscoll_l strcoll_l
 #define __wcscoll_l __strcoll_l
 #define wcsxfrm   strxfrm
+#define __wcsxfrm   __strxfrm
 #define wcsxfrm_l strxfrm_l
 #define __wcsxfrm_l __strxfrm_l
 
@@ -2605,15 +2626,17 @@ void psignal(int signum, register const char *message)
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-int wcscoll (const Wchar *s0, const Wchar *s1)
+int attribute_hidden __wcscoll (const Wchar *s0, const Wchar *s1)
 {
-	return wcscoll_l(s0, s1, __UCLIBC_CURLOCALE );
+	return __wcscoll_l(s0, s1, __UCLIBC_CURLOCALE );
 }
+strong_alias(__wcscoll,wcscoll)
 
-size_t wcsxfrm(Wchar *__restrict ws1, const Wchar *__restrict ws2, size_t n)
+size_t attribute_hidden __wcsxfrm(Wchar *__restrict ws1, const Wchar *__restrict ws2, size_t n)
 {
-	return wcsxfrm_l(ws1, ws2, n, __UCLIBC_CURLOCALE );
+	return __wcsxfrm_l(ws1, ws2, n, __UCLIBC_CURLOCALE );
 }
+strong_alias(__wcsxfrm,wcsxfrm)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -3051,14 +3074,14 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 	} while (1);
 }
 
-int __XL(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
+int attribute_hidden __UCXL(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
 {
 	col_state_t ws[2];
 	int pass;
 
 	if (!CUR_COLLATE->num_weights) { /* C locale */
 #ifdef WANT_WIDE
-		return wcscmp(s0, s1);
+		return __wcscmp(s0, s1);
 #else  /* WANT_WIDE */
 		return __strcmp(s0, s1);
 #endif /* WANT_WIDE */
@@ -3084,12 +3107,11 @@ int __XL(wcscoll) (const Wchar *s0, const Wchar *s1   __LOCALE_PARAM )
 
 	return 0;
 }
-
-__XL_ALIAS(wcscoll)
+__UCXL_ALIAS(wcscoll)
 
 #ifdef WANT_WIDE
 
-size_t __XL(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
+size_t attribute_hidden __UCXL(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
 					 size_t n   __LOCALE_PARAM )
 {
 	col_state_t cs;
@@ -3097,7 +3119,7 @@ size_t __XL(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
 	int pass;
 
 	if (!CUR_COLLATE->num_weights) { /* C locale */
-		return wcsxfrm(ws1, ws2, n);
+		return __wcsxfrm(ws1, ws2, n);
 	}
 
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -3127,7 +3149,7 @@ size_t __XL(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
 	return count-1;
 }
 
-__XL_ALIAS(wcsxfrm)
+__UCXL_ALIAS(wcsxfrm)
 
 #else  /* WANT_WIDE */
 
@@ -3171,7 +3193,7 @@ static size_t store(unsigned char *s, size_t count, size_t n, __uwchar_t weight)
 	return r;
 }
 
-size_t __XL(strxfrm)(char *__restrict ws1, const char *__restrict ws2, size_t n
+size_t attribute_hidden __UCXL(strxfrm)(char *__restrict ws1, const char *__restrict ws2, size_t n
 					 __LOCALE_PARAM )
 {
 	col_state_t cs;
@@ -3179,7 +3201,7 @@ size_t __XL(strxfrm)(char *__restrict ws1, const char *__restrict ws2, size_t n
 	int pass;
 
 	if (!CUR_COLLATE->num_weights) { /* C locale */
-		return strlcpy(ws1, ws2, n);
+		return __strlcpy(ws1, ws2, n);
 	}
 
 #ifdef __UCLIBC_MJN3_ONLY__
@@ -3209,7 +3231,7 @@ size_t __XL(strxfrm)(char *__restrict ws1, const char *__restrict ws2, size_t n
 	return count-1;
 }
 
-__XL_ALIAS(strxfrm)
+__UCXL_ALIAS(strxfrm)
 
 #endif /* WANT_WIDE */
 
