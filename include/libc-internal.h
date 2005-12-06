@@ -22,9 +22,9 @@
 /* Some nice features only work properly with ELF */
 #if defined __HAVE_ELF__
 /* Define ALIASNAME as a weak alias for NAME. */
-#  define weak_alias(name, aliasname) _weak_alias (name, aliasname)
-#  define _weak_alias(name, aliasname) \
-      extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
+# define weak_alias(name, aliasname) _weak_alias (name, aliasname)
+# define _weak_alias(name, aliasname) \
+  extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
 /* Define ALIASNAME as a strong alias for NAME.  */
 # define strong_alias(name, aliasname) _strong_alias(name, aliasname)
 # define _strong_alias(name, aliasname) \
@@ -35,21 +35,21 @@
 # define weak_const_function __attribute__ ((weak, __const__))
 /* Tacking on "\n\t#" to the section name makes gcc put it's bogus
  * section attributes on what looks like a comment to the assembler. */
-#  if defined(__cris__) 
-#    define link_warning(symbol, msg)
-#  else
-#    define link_warning(symbol, msg)					      \
+# if defined(__cris__) 
+#   define link_warning(symbol, msg)
+# else
+#   define link_warning(symbol, msg)					      \
 	asm (".section "  ".gnu.warning." #symbol  "\n\t.previous");	      \
 	    static const char __evoke_link_warning_##symbol[]		      \
 	    __attribute__ ((unused, section (".gnu.warning." #symbol "\n\t#"))) = msg;
-#endif
+# endif
 #else /* !defined __HAVE_ELF__ */
-#  define strong_alias(name, aliasname) _strong_alias (name, aliasname)
-#  define weak_alias(name, aliasname) _strong_alias (name, aliasname)
-#  define _strong_alias(name, aliasname) \
+# define strong_alias(name, aliasname) _strong_alias (name, aliasname)
+# define weak_alias(name, aliasname) _strong_alias (name, aliasname)
+# define _strong_alias(name, aliasname) \
 	__asm__(".global " __C_SYMBOL_PREFIX__ #aliasname "\n" \
                 ".set " __C_SYMBOL_PREFIX__ #aliasname "," __C_SYMBOL_PREFIX__ #name);
-#  define link_warning(symbol, msg) \
+# define link_warning(symbol, msg) \
 	asm (".stabs \"" msg "\",30,0,0,0\n\t" \
 	      ".stabs \"" #symbol "\",1,0,0,0\n");
 #endif
@@ -97,6 +97,7 @@
 #else
 # define attribute_hidden
 #endif
+#define hidden_def(name) extern __typeof (name) name attribute_hidden;
 
 #ifdef __UCLIBC_BUILD_RELRO__
 # define attribute_relro __attribute__ ((section (".data.rel.ro")))
@@ -155,6 +156,10 @@ extern char *__strdup (__const char *__s) attribute_hidden;
 extern ssize_t __read(int __fd, void *__buf, size_t __nbytes) attribute_hidden;
 extern ssize_t __write(int __fd, __const void *__buf, size_t __n) attribute_hidden;
 extern int __close(int __fd) attribute_hidden;
+extern __pid_t __getpid (void) attribute_hidden;
+
+/* #include <stdlib.h> */
+extern char *__getenv (__const char *__name) attribute_hidden;
 
 /* #include <signal.h> */
 extern int __sigprocmask (int __how, __const __sigset_t *__restrict __set,
@@ -169,15 +174,15 @@ extern int __gettimeofday(struct timeval *__restrict __tv, *__restrict __timezon
 #   define gettimeofday __gettimeofday
 #  endif
 
-# elif IS_IN_libpthread
+/* #include <pthread.h> */
+#  ifndef __UCLIBC_HAS_THREADS__
+#   define __pthread_mutex_init(mutex, mutexattr)         ((void)0)
+#   define __pthread_mutex_lock(mutex)                    ((void)0)
+#   define __pthread_mutex_trylock(mutex)                 ((void)0)
+#   define __pthread_mutex_unlock(mutex)                  ((void)0)
+#  endif
 
-#  define gettimeofday __libc_gettimeofday
-
-# else
-
-#  define open __libc_open
-
-# endif
-#endif
+# endif /* IS_IN_libc */
+#endif /* __ASSEMBLER__ */
 
 #endif /* _LIBC_INTERNAL_H */
