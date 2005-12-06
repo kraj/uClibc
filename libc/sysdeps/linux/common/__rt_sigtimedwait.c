@@ -13,19 +13,21 @@
 #include <stddef.h>
 #ifdef __NR_rt_sigtimedwait
 #define __NR___rt_sigtimedwait __NR_rt_sigtimedwait
-_syscall4(int, __rt_sigtimedwait, const sigset_t *, set, siginfo_t *, info,
+static _syscall4(int, __rt_sigtimedwait, const sigset_t *, set, siginfo_t *, info,
 		  const struct timespec *, timeout, size_t, setsize);
 
-int sigwaitinfo(const sigset_t * set, siginfo_t * info)
+int attribute_hidden __sigwaitinfo(const sigset_t * set, siginfo_t * info)
 {
 	return __rt_sigtimedwait(set, info, NULL, _NSIG / 8);
 }
 
-int sigtimedwait(const sigset_t * set, siginfo_t * info,
+int attribute_hidden __sigtimedwait(const sigset_t * set, siginfo_t * info,
 				 const struct timespec *timeout)
 {
 	return __rt_sigtimedwait(set, info, timeout, _NSIG / 8);
 }
+weak_alias (__sigtimedwait, sigtimedwait)
+weak_alias (__sigwaitinfo, sigwaitinfo)
 #else
 int sigwaitinfo(const sigset_t * set, siginfo_t * info)
 {

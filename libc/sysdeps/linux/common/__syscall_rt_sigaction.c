@@ -14,7 +14,7 @@
 
 #define __NR___syscall_rt_sigaction __NR_rt_sigaction
 #undef sigaction
-_syscall4(int, __syscall_rt_sigaction, int, signum,
+attribute_hidden _syscall4(int, __syscall_rt_sigaction, int, signum,
 		  const struct sigaction *, act, struct sigaction *, oldact,
 		  size_t, size);
 
