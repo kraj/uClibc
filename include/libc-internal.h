@@ -97,6 +97,7 @@
 #else
 # define attribute_hidden
 #endif
+#define hidden_def(name) extern __typeof (name) name attribute_hidden;
 
 #ifdef __UCLIBC_BUILD_RELRO__
 # define attribute_relro __attribute__ ((section (".data.rel.ro")))
