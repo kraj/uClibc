@@ -147,6 +147,17 @@
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
+extern int __strncasecmp_l (__const char *__s1, __const char *__s2,
+			  size_t __n, __locale_t __loc)
+     __THROW __attribute_pure__ __nonnull ((1, 2, 4)) attribute_hidden;
+extern size_t __strftime_l (char *__restrict __s, size_t __maxsize,
+			  __const char *__restrict __format,
+			  __const struct tm *__restrict __tp,
+			  __locale_t __loc) __THROW attribute_hidden;
+
+extern char *__strptime_l (__const char *__restrict __s,
+			 __const char *__restrict __fmt, struct tm *__tp,
+			 __locale_t __loc) __THROW attribute_hidden;
 #endif
 
 #ifndef __isleap
@@ -752,12 +763,13 @@ time_t timegm(struct tm *timeptr)
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-size_t strftime(char *__restrict s, size_t maxsize,
+size_t attribute_hidden __strftime(char *__restrict s, size_t maxsize,
 				const char *__restrict format,
 				const struct tm *__restrict timeptr)
 {
 	return __strftime_l(s, maxsize, format, timeptr, __UCLIBC_CURLOCALE);
 }
+strong_alias(__strftime,strftime)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -957,7 +969,7 @@ static int load_field(int k, const struct tm *__restrict timeptr)
 #warning TODO: Check multibyte format string validity.
 #endif
 
-size_t __XL(strftime)(char *__restrict s, size_t maxsize,
+size_t attribute_hidden __UCXL(strftime)(char *__restrict s, size_t maxsize,
 					  const char *__restrict format,
 					  const struct tm *__restrict timeptr   __LOCALE_PARAM )
 {
@@ -1240,7 +1252,7 @@ size_t __XL(strftime)(char *__restrict s, size_t maxsize,
 	goto LOOP;
 }
 
-__XL_ALIAS(strftime)
+__UCXL_ALIAS(strftime)
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -1258,11 +1270,12 @@ __XL_ALIAS(strftime)
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-char *strptime(const char *__restrict buf, const char *__restrict format,
+char attribute_hidden *__strptime(const char *__restrict buf, const char *__restrict format,
 			   struct tm *__restrict tm)
 {
 	return __strptime_l(buf, format, tm, __UCLIBC_CURLOCALE);
 }
+strong_alias(__strptime,strptime)
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -1408,7 +1421,7 @@ static const unsigned char spec[] = {
 
 #define MAX_PUSH 4
 
-char *__XL(strptime)(const char *__restrict buf, const char *__restrict format,
+char attribute_hidden *__UCXL(strptime)(const char *__restrict buf, const char *__restrict format,
 					 struct tm *__restrict tm   __LOCALE_PARAM)
 {
 	register const char *p;
@@ -1501,7 +1514,7 @@ char *__XL(strptime)(const char *__restrict buf, const char *__restrict format,
 			do {
 				--j;
 				o = __XL(nl_langinfo)(i+j   __LOCALE_ARG);
-				if (!__XL(strncasecmp)(buf,o,__strlen(o)   __LOCALE_ARG) && *o) {
+				if (!__UCXL(strncasecmp)(buf,o,__strlen(o)   __LOCALE_ARG) && *o) {
 					do {		/* Found a match. */
 						++buf;
 					} while (*++o);
@@ -1618,7 +1631,7 @@ char *__XL(strptime)(const char *__restrict buf, const char *__restrict format,
 	return NULL;
 }
 
-__XL_ALIAS(strptime)
+__UCXL_ALIAS(strptime)
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
@@ -2316,7 +2329,7 @@ time_t attribute_hidden _time_mktime_tzi(struct tm *timeptr, int store_on_succes
 extern size_t __wcsftime_l (wchar_t *__restrict __s, size_t __maxsize,
 			  __const wchar_t *__restrict __format,
 			  __const struct tm *__restrict __timeptr,
-			  __locale_t __loc) __THROW;
+			  __locale_t __loc) __THROW attribute_hidden;
 
 size_t wcsftime(wchar_t *__restrict s, size_t maxsize,
 				const wchar_t *__restrict format,
@@ -2327,7 +2340,7 @@ size_t wcsftime(wchar_t *__restrict s, size_t maxsize,
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-size_t __XL(wcsftime)(wchar_t *__restrict s, size_t maxsize,
+size_t attribute_hidden __UCXL(wcsftime)(wchar_t *__restrict s, size_t maxsize,
 					  const wchar_t *__restrict format,
 					  const struct tm *__restrict timeptr   __LOCALE_PARAM )
 {
@@ -2335,7 +2348,7 @@ size_t __XL(wcsftime)(wchar_t *__restrict s, size_t maxsize,
 	return 0;					/* always fail */
 }
 
-__XL_ALIAS(wcsftime)
+__UCXL_ALIAS(wcsftime)
 
 #endif /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
