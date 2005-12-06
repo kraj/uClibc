@@ -20,11 +20,11 @@ librt_SRC := $(wildcard $(librt_DIR)/*.c)
 librt_OBJ := $(patsubst $(librt_DIR)/%.c,$(librt_OUT)/%.o,$(librt_SRC))
 
 ifeq ($(DOPIC),y)
-librt-a-y := $(librt_OBJ:.o=.os)
+librt-a-y += $(librt_OBJ:.o=.os)
 else
-librt-a-y := $(librt_OBJ)
+librt-a-y += $(librt_OBJ)
 endif
-librt-so-y := $(librt_OBJ:.o=.os)
+librt-so-y += $(librt_OBJ:.o=.os)
 
 librt-multi-y += $(librt_SRC)
 
