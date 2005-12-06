@@ -36,6 +36,7 @@ __rpc_thread_destroy (void)
 }
 
 
+/* XXX: maybe turn this into a normal __pthread_once() via pthreads/weaks.c ? */
 extern int weak_function __pthread_once (pthread_once_t *__once_control,
 			   void (*__init_routine) (void));
 
