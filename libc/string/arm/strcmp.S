@@ -29,6 +29,8 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
+#include <locale.h>
+
 .global strcmp
 .set strcmp,__strcmp
 .text
@@ -48,5 +50,7 @@ __strcmp:
 	mov	pc, lr
 
 .size __strcmp,.-__strcmp
-.weak strcoll ; strcoll = strcmp
-.global __strcoll ; __strcoll = strcoll
+#ifdef __LOCALE_C_ONLY
+.weak __strcoll ; __strcoll = __strcmp
+.global strcoll ; .set strcoll,__strcoll
+#endif
