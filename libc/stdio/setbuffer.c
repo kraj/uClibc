@@ -16,6 +16,6 @@ void setbuffer(FILE * __restrict stream, register char * __restrict buf,
 			   size_t size)
 {
 #ifdef __STDIO_BUFFERS
-	setvbuf(stream, buf, (buf ? _IOFBF : _IONBF), size);
+	__setvbuf(stream, buf, (buf ? _IOFBF : _IONBF), size);
 #endif
 }

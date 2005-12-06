@@ -5,12 +5,13 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define __getdelim __libc_getdelim
+#define getdelim __getdelim
 
 #include "_stdio.h"
 
-ssize_t getline(char **__restrict lineptr, size_t *__restrict n,
+ssize_t attribute_hidden __getline(char **__restrict lineptr, size_t *__restrict n,
 				FILE *__restrict stream)
 {
-	return __getdelim(lineptr, n, '\n', stream);
+	return getdelim(lineptr, n, '\n', stream);
 }
+strong_alias(__getline,getline)

@@ -26,8 +26,6 @@
  *  mapping of signal strings (alpha, mips, hppa, sparc).
  */
 
-#define _uintmaxtostr __libc__uintmaxtostr
-
 #define _GNU_SOURCE
 #include <features.h>
 #include <string.h>

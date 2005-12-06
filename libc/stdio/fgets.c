@@ -5,8 +5,6 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
-#define __fgetc_unlocked __libc_fgetc_unlocked
-
 #include "_stdio.h"
 
 #ifdef __DO_UNLOCKED
@@ -36,7 +34,7 @@ char attribute_hidden *__fgets_unlocked(char *__restrict s, int n,
 				break;
 			}
 		} else {
-			if ((c = __fgetc_unlocked(stream)) == EOF) {
+			if ((c = __fgetc_unlocked_internal(stream)) == EOF) {
 				if (__FERROR_UNLOCKED(stream)) {
 					goto ERROR;
 				}

@@ -127,7 +127,6 @@
 
 /**************************************************************************/
 
-#define _uintmaxtostr __libc__uintmaxtostr
 #define strnlen __strnlen
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
