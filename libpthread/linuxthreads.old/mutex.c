@@ -35,6 +35,7 @@ int __pthread_mutex_init(pthread_mutex_t * mutex,
   return 0;
 }
 strong_alias (__pthread_mutex_init, pthread_mutex_init)
+hidden_def (__pthread_mutex_init)
 
 int __pthread_mutex_destroy(pthread_mutex_t * mutex)
 {
@@ -54,6 +55,7 @@ int __pthread_mutex_destroy(pthread_mutex_t * mutex)
   }
 }
 strong_alias (__pthread_mutex_destroy, pthread_mutex_destroy)
+hidden_def (__pthread_mutex_destroy)
 
 int __pthread_mutex_trylock(pthread_mutex_t * mutex)
 {
@@ -90,6 +92,7 @@ int __pthread_mutex_trylock(pthread_mutex_t * mutex)
   }
 }
 strong_alias (__pthread_mutex_trylock, pthread_mutex_trylock)
+hidden_def (__pthread_mutex_trylock)
 
 int __pthread_mutex_lock(pthread_mutex_t * mutex)
 {
@@ -123,6 +126,7 @@ int __pthread_mutex_lock(pthread_mutex_t * mutex)
   }
 }
 strong_alias (__pthread_mutex_lock, pthread_mutex_lock)
+hidden_def (__pthread_mutex_lock)
 
 int __pthread_mutex_timedlock (pthread_mutex_t *mutex,
 			       const struct timespec *abstime)
@@ -167,6 +171,7 @@ int __pthread_mutex_timedlock (pthread_mutex_t *mutex,
   }
 }
 strong_alias (__pthread_mutex_timedlock, pthread_mutex_timedlock)
+hidden_def (__pthread_mutex_timedlock)
 
 int __pthread_mutex_unlock(pthread_mutex_t * mutex)
 {
@@ -198,6 +203,7 @@ int __pthread_mutex_unlock(pthread_mutex_t * mutex)
   }
 }
 strong_alias (__pthread_mutex_unlock, pthread_mutex_unlock)
+hidden_def (__pthread_mutex_unlock)
 
 int __pthread_mutexattr_init(pthread_mutexattr_t *attr)
 {
