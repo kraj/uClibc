@@ -30,7 +30,7 @@ __sigfillset_internal (sigset_t *set)
       return -1;
     }
 
-  memset (set, 0xff, sizeof (sigset_t));
+  __memset (set, 0xff, sizeof (sigset_t));
 
   /* If the implementation uses a cancellation signal don't set the bit.  */
 #ifdef SIGCANCEL
