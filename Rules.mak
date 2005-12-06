@@ -378,9 +378,12 @@ gcc_tls_test_fail:
 endif
 else
 PTINC := \
+	-I$(PTDIR)/sysdeps/unix/sysv/linux/$(TARGET_ARCH) \
 	-I$(PTDIR)/sysdeps/$(TARGET_ARCH) \
+	-I$(PTDIR)/sysdeps/unix/sysv/linux \
 	-I$(PTDIR)/sysdeps/pthread \
-	-I$(PTDIR)
+	-I$(PTDIR) \
+	-I$(top_builddir)libpthread
 endif
 CFLAGS+=$(PTINC)
 else
