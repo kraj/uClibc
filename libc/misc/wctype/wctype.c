@@ -46,6 +46,10 @@ extern wctype_t __wctype (__const char *__property) attribute_hidden;
 
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
+extern wint_t __towlower_l(wint_t __wc, __locale_t __locale) __THROW;
+extern wint_t __towupper_l(wint_t __wc, __locale_t __locale) __THROW;
+extern int __iswctype_l(wint_t __wc, wctype_t __desc, __locale_t __locale) __THROW;
+extern wint_t __towctrans_l(wint_t __wc, wctrans_t __desc, __locale_t __locale) __THROW;
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
 /* We know wide char support is enabled.  We wouldn't be here otherwise. */
