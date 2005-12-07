@@ -9,4 +9,6 @@
 
 #include "syscalls.h"
 #include <sys/resource.h>
-_syscall3(int, setpriority, __priority_which_t, which, id_t, who, int, prio);
+#define __NR___setpriority __NR_setpriority
+attribute_hidden _syscall3(int, __setpriority, __priority_which_t, which, id_t, who, int, prio);
+strong_alias(__setpriority,setpriority)

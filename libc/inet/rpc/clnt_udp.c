@@ -45,8 +45,8 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #define xdr_callhdr __xdr_callhdr
 #define xdr_replymsg __xdr_replymsg
 #define xdr_opaque_auth __xdr_opaque_auth
-
 #define pmap_getport __pmap_getport
+#define _seterr_reply __seterr_reply
 
 #define __FORCE_GLIBC
 #include <features.h>

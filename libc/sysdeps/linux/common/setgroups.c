@@ -17,7 +17,7 @@
 static inline _syscall2(int, __syscall_setgroups,
 		size_t, size, const __kernel_gid_t *, list);
 
-int setgroups(size_t n, const gid_t * groups)
+int attribute_hidden __setgroups(size_t n, const gid_t * groups)
 {
 	if (n > (size_t) sysconf(_SC_NGROUPS_MAX)) {
 		__set_errno(EINVAL);
@@ -36,3 +36,4 @@ int setgroups(size_t n, const gid_t * groups)
 		return (__syscall_setgroups(n, kernel_groups));
 	}
 }
+strong_alias(__setgroups,setgroups)

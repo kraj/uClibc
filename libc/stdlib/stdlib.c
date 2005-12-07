@@ -38,6 +38,7 @@
 #define mbrlen __mbrlen
 #define iswspace __iswspace
 #define iswspace_l __iswspace_l
+#define wcrtomb __wcrtomb
 
 #define _ISOC99_SOURCE			/* for ULLONG primarily... */
 #define _GNU_SOURCE

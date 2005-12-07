@@ -62,7 +62,7 @@ extern const char _ptyname2[];
 /* Store at most BUFLEN characters of the pathname of the slave pseudo
    terminal associated with the master FD is open on in BUF.
    Return 0 on success, otherwise an error number.  */
-int ptsname_r (int fd, char *buf, size_t buflen)
+int attribute_hidden __ptsname_r (int fd, char *buf, size_t buflen)
 {
   int save_errno = errno;
 #if !defined __UNIX98PTY_ONLY__
@@ -179,6 +179,7 @@ int ptsname_r (int fd, char *buf, size_t buflen)
   errno = save_errno;
   return 0;
 }
+strong_alias(__ptsname_r,ptsname_r)
 
 /* Return the pathname of the pseudo terminal slave assoicated with
    the master FD is open on, or NULL on errors.
@@ -188,5 +189,5 @@ ptsname (int fd)
 {
   static char buffer[sizeof (_PATH_DEVPTS) + 20];
 
-  return ptsname_r (fd, buffer, sizeof (buffer)) != 0 ? NULL : buffer;
+  return __ptsname_r (fd, buffer, sizeof (buffer)) != 0 ? NULL : buffer;
 }

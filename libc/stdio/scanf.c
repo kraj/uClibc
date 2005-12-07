@@ -47,7 +47,9 @@
 #define mbsrtowcs __mbsrtowcs
 #define mbrtowc __mbrtowc
 #define ungetc __ungetc
+#define ungetwc __ungetwc
 #define iswspace __iswspace
+#define wcrtomb __wcrtomb
 
 #define _ISOC99_SOURCE			/* for LLONG_MAX primarily... */
 #define _GNU_SOURCE

@@ -1,3 +1,5 @@
+#define setpgid __setpgid
+
 #include <syscall.h>
 #include <unistd.h>
 

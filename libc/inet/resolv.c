@@ -138,6 +138,8 @@
 #define strstr __strstr
 #define random __random
 #define getservbyport __getservbyport
+#define getdomainname __getdomainname
+#define uname __uname
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -159,6 +161,14 @@
 #include <sys/utsname.h>
 #include <sys/un.h>
 
+extern int __gethostbyname_r (__const char *__restrict __name,
+			    struct hostent *__restrict __result_buf,
+			    char *__restrict __buf, size_t __buflen,
+			    struct hostent **__restrict __result,
+			    int *__restrict __h_errnop) attribute_hidden;
+
+extern struct hostent *__gethostbyaddr (__const void *__addr, __socklen_t __len,
+				      int __type) attribute_hidden;
 #define MAX_RECURSE 5
 #define REPLY_TIMEOUT 10
 #define MAX_RETRIES 3
@@ -1069,7 +1079,7 @@ void attribute_hidden __close_nameservers(void)
 
 #ifdef L_gethostbyname
 
-struct hostent *gethostbyname(const char *name)
+struct hostent attribute_hidden *__gethostbyname(const char *name)
 {
 	static struct hostent h;
 	static char buf[sizeof(struct in_addr) +
@@ -1077,18 +1087,29 @@ struct hostent *gethostbyname(const char *name)
 			sizeof(char *)*(ALIAS_DIM) + 384/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
-	gethostbyname_r(name, &h, buf, sizeof(buf), &hp, &h_errno);
+	__gethostbyname_r(name, &h, buf, sizeof(buf), &hp, &h_errno);
 
 	return hp;
 }
+strong_alias(__gethostbyname,gethostbyname)
 #endif
 
 #ifdef L_gethostbyname2
 
+#ifndef __UCLIBC_HAS_IPV6__
+extern struct hostent *__gethostbyname (__const char *__name) attribute_hidden;
+#else
+extern int __gethostbyname2_r (__const char *__restrict __name, int __af,
+			     struct hostent *__restrict __result_buf,
+			     char *__restrict __buf, size_t __buflen,
+			     struct hostent **__restrict __result,
+			     int *__restrict __h_errnop) attribute_hidden;
+#endif
+
 struct hostent *gethostbyname2(const char *name, int family)
 {
 #ifndef __UCLIBC_HAS_IPV6__
-	return family == AF_INET ? gethostbyname(name) : (struct hostent*)0;
+	return family == AF_INET ? __gethostbyname(name) : (struct hostent*)0;
 #else /* __UCLIBC_HAS_IPV6__ */
 	static struct hostent h;
 	static char buf[sizeof(struct in6_addr) +
@@ -1096,7 +1117,7 @@ struct hostent *gethostbyname2(const char *name, int family)
 			sizeof(char *)*(ALIAS_DIM) + 384/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
-	gethostbyname2_r(name, family, &h, buf, sizeof(buf), &hp, &h_errno);
+	__gethostbyname2_r(name, family, &h, buf, sizeof(buf), &hp, &h_errno);
 
 	return hp;
 #endif /* __UCLIBC_HAS_IPV6__ */
@@ -1405,7 +1426,14 @@ int res_querydomain(name, domain, class, type, answer, anslen)
 #endif
 
 #ifdef L_gethostbyaddr
-struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
+extern int __gethostbyaddr_r (__const void *__restrict __addr, __socklen_t __len,
+			    int __type,
+			    struct hostent *__restrict __result_buf,
+			    char *__restrict __buf, size_t __buflen,
+			    struct hostent **__restrict __result,
+			    int *__restrict __h_errnop) attribute_hidden;
+
+struct hostent attribute_hidden *__gethostbyaddr (const void *addr, socklen_t len, int type)
 {
 	static struct hostent h;
 	static char buf[
@@ -1417,10 +1445,11 @@ struct hostent *gethostbyaddr (const void *addr, socklen_t len, int type)
 		sizeof(char *)*(ALIAS_DIM) + 384/*namebuffer*/ + 32/* margin */];
 	struct hostent *hp;
 
-	gethostbyaddr_r(addr, len, type, &h, buf, sizeof(buf), &hp, &h_errno);
+	__gethostbyaddr_r(addr, len, type, &h, buf, sizeof(buf), &hp, &h_errno);
 
 	return hp;
 }
+strong_alias(__gethostbyaddr,gethostbyaddr)
 #endif
 
 
@@ -1706,7 +1735,7 @@ int attribute_hidden __get_hosts_byaddr_r(const char * addr, int len, int type,
 # define min(x,y) (((x) > (y)) ? (y) : (x))
 #endif /* min */
 
-int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
+int attribute_hidden __getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 	     socklen_t hostlen, char *serv, socklen_t servlen,
 	     unsigned int flags)
 {
@@ -1747,12 +1776,12 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 			if (!(flags & NI_NUMERICHOST)) {
 #ifdef __UCLIBC_HAS_IPV6__
 				if (sa->sa_family == AF_INET6)
-					h = gethostbyaddr ((const void *)
+					h = __gethostbyaddr ((const void *)
 						&(((const struct sockaddr_in6 *) sa)->sin6_addr),
 						sizeof(struct in6_addr), AF_INET6);
 				else
 #endif /* __UCLIBC_HAS_IPV6__ */
-                    h = gethostbyaddr ((const void *) &(((const struct sockaddr_in *)sa)->sin_addr),
+                    h = __gethostbyaddr ((const void *) &(((const struct sockaddr_in *)sa)->sin_addr),
 					  sizeof(struct in_addr), AF_INET);
 
 				if (h) {
@@ -1892,12 +1921,13 @@ int getnameinfo (const struct sockaddr *sa, socklen_t addrlen, char *host,
 	errno = serrno;
 	return 0;
 }
+strong_alias(__getnameinfo,getnameinfo)
 #endif
 
 
 #ifdef L_gethostbyname_r
 
-int gethostbyname_r(const char * name,
+int attribute_hidden __gethostbyname_r(const char * name,
 			    struct hostent * result_buf,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
@@ -2046,18 +2076,19 @@ int gethostbyname_r(const char * name,
 	*h_errnop = NETDB_SUCCESS;
 	return NETDB_SUCCESS;
 }
+strong_alias(__gethostbyname_r,gethostbyname_r)
 #endif
 
 #ifdef L_gethostbyname2_r
 
-int gethostbyname2_r(const char *name, int family,
+int attribute_hidden __gethostbyname2_r(const char *name, int family,
 			    struct hostent * result_buf,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
 			    int * h_errnop)
 {
 #ifndef __UCLIBC_HAS_IPV6__
-	return family == (AF_INET)? gethostbyname_r(name, result_buf,
+	return family == (AF_INET)? __gethostbyname_r(name, result_buf,
 		buf, buflen, result, h_errnop) : HOST_NOT_FOUND;
 #else /* __UCLIBC_HAS_IPV6__ */
 	struct in6_addr *in;
@@ -2070,7 +2101,7 @@ int gethostbyname2_r(const char *name, int family,
 	char ** __nameserverXX;
 
 	if (family == AF_INET)
-		return gethostbyname_r(name, result_buf, buf, buflen, result, h_errnop);
+		return __gethostbyname_r(name, result_buf, buf, buflen, result, h_errnop);
 
 	if (family != AF_INET6)
 		return EINVAL;
@@ -2188,10 +2219,11 @@ int gethostbyname2_r(const char *name, int family,
 	return NETDB_SUCCESS;
 #endif /* __UCLIBC_HAS_IPV6__ */
 }
+strong_alias(__gethostbyname2_r,gethostbyname2_r)
 #endif
 
 #ifdef L_gethostbyaddr_r
-int gethostbyaddr_r (const void *addr, socklen_t len, int type,
+int attribute_hidden __gethostbyaddr_r (const void *addr, socklen_t len, int type,
 			    struct hostent * result_buf,
 			    char * buf, size_t buflen,
 			    struct hostent ** result,
@@ -2372,6 +2404,7 @@ int gethostbyaddr_r (const void *addr, socklen_t len, int type,
 	*h_errnop = NETDB_SUCCESS;
 	return NETDB_SUCCESS;
 }
+strong_alias(__gethostbyaddr_r,gethostbyaddr_r)
 #endif
 
 #ifdef L_res_comp

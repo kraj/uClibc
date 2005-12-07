@@ -13,7 +13,8 @@
 #define __NR___syscall_getsid __NR_getsid
 static inline _syscall1(__kernel_pid_t, __syscall_getsid, __kernel_pid_t, pid);
 
-pid_t getsid(pid_t pid)
+pid_t attribute_hidden __getsid(pid_t pid)
 {
 	return (__syscall_getsid(pid));
 }
+strong_alias(__getsid,getsid)

@@ -240,8 +240,8 @@ rejected (enum reject_stat rjct_stat,
 /*
  * given a reply message, fills in the error
  */
-void
-_seterr_reply (struct rpc_msg *msg,
+void attribute_hidden
+__seterr_reply (struct rpc_msg *msg,
 	       struct rpc_err *error)
 {
   /* optimized for normal, SUCCESSful case */
@@ -285,3 +285,4 @@ _seterr_reply (struct rpc_msg *msg,
       break;
     }
 }
+strong_alias(__seterr_reply,_seterr_reply)

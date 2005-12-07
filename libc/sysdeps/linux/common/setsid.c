@@ -9,4 +9,6 @@
 
 #include "syscalls.h"
 #include <unistd.h>
-_syscall0(pid_t, setsid);
+#define __NR___setsid __NR_setsid
+attribute_hidden _syscall0(pid_t, __setsid);
+strong_alias(__setsid,setsid)

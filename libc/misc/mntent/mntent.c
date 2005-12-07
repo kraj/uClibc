@@ -14,7 +14,7 @@ static pthread_mutex_t mylock = PTHREAD_MUTEX_INITIALIZER;
 #define UNLOCK	__pthread_mutex_unlock(&mylock)
 
 /* Reentrant version of getmntent.  */
-struct mntent *getmntent_r (FILE *filep, 
+struct mntent attribute_hidden *__getmntent_r (FILE *filep, 
 	struct mntent *mnt, char *buff, int bufsize)
 {
 	char *cp, *ptrptr;
@@ -61,6 +61,7 @@ struct mntent *getmntent_r (FILE *filep,
 
 	return mnt;
 }
+strong_alias(__getmntent_r,getmntent_r)
 
 struct mntent *getmntent(FILE * filep)
 {
@@ -75,7 +76,7 @@ struct mntent *getmntent(FILE * filep)
 		    abort();
     }
     
-    tmp = getmntent_r(filep, &mnt, buff, BUFSIZ);
+    tmp = __getmntent_r(filep, &mnt, buff, BUFSIZ);
     UNLOCK;
     return(tmp);
 }
@@ -97,14 +98,16 @@ char *hasmntopt(const struct mntent *mnt, const char *opt)
 	return strstr(mnt->mnt_opts, opt);
 }
 
-FILE *setmntent(const char *name, const char *mode)
+FILE attribute_hidden *__setmntent(const char *name, const char *mode)
 {
 	return fopen(name, mode);
 }
+strong_alias(__setmntent,setmntent)
 
-int endmntent(FILE * filep)
+int attribute_hidden __endmntent(FILE * filep)
 {
 	if (filep != NULL)
 		fclose(filep);
 	return 1;
 }
+strong_alias(__endmntent,endmntent)

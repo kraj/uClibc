@@ -27,6 +27,10 @@
  * SUCH DAMAGE.
  */
 
+#define getnameinfo __getnameinfo
+#define getaddrinfo __getaddrinfo
+#define getsockname __getsockname
+
 #define __FORCE_GLIBC
 #include <features.h>
 #include <sys/types.h>

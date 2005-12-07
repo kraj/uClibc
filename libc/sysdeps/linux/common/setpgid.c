@@ -14,7 +14,8 @@
 static inline _syscall2(int, __syscall_setpgid,
 		__kernel_pid_t, pid, __kernel_pid_t, pgid);
 
-int setpgid(pid_t pid, pid_t pgid)
+int attribute_hidden __setpgid(pid_t pid, pid_t pgid)
 {
 	return (__syscall_setpgid(pid, pgid));
 }
+strong_alias(__setpgid,setpgid)

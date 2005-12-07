@@ -46,6 +46,7 @@
 #define xprt_register __xprt_register
 #define getegid __getegid
 #define geteuid __geteuid
+#define getsockname __getsockname
 
 #define __FORCE_GLIBC
 #include <features.h>

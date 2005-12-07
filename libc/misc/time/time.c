@@ -145,6 +145,8 @@
 #include <locale.h>
 #include <bits/uClibc_uintmaxtostr.h>
 
+extern void __tzset (void) __THROW attribute_hidden;
+
 #ifdef __UCLIBC_HAS_XLOCALE__
 #include <xlocale.h>
 extern int __strncasecmp_l (__const char *__s1, __const char *__s2,
@@ -563,7 +565,7 @@ struct tm attribute_hidden *__localtime_r(register const time_t *__restrict time
 {
 	TZLOCK;
 
-	tzset();
+	__tzset();
 
 	__time_localtime_tzi(timer, result, _time_tzinfo);
 
@@ -989,7 +991,7 @@ size_t attribute_hidden __UCXL(strftime)(char *__restrict s, size_t maxsize,
 	unsigned char mod;
 	unsigned char code;
 
-	tzset();					/* We'll, let's get this out of the way. */
+	__tzset();					/* We'll, let's get this out of the way. */
 
 	lvl = 0;
 	p = format;
@@ -1800,7 +1802,7 @@ static char *read_TZ_file(char *buf)
 
 #endif /* __UCLIBC_HAS_TZ_FILE__ */
 
-void tzset(void)
+void attribute_hidden __tzset(void)
 {
 	register const char *e;
 	register char *s;
@@ -1987,7 +1989,7 @@ void tzset(void)
 #endif
 	TZUNLOCK;
 }
-
+strong_alias(__tzset,tzset)
 #endif
 /**********************************************************************/
 /*  #ifdef L_utime */
@@ -2189,7 +2191,7 @@ time_t attribute_hidden _time_mktime(struct tm *timeptr, int store_on_success)
 
 	TZLOCK;
 
-	tzset();
+	__tzset();
 
 	t = _time_mktime_tzi(timeptr, store_on_success, _time_tzinfo);
 

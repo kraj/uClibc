@@ -26,6 +26,7 @@
 #define tsearch __tsearch
 #define tdestroy __tdestroy
 #define fchdir __fchdir
+#define getcwd __getcwd
 
 #define _GNU_SOURCE
 #include <features.h>

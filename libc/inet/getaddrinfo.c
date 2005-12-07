@@ -45,7 +45,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* This software is Copyright 1996 by Craig Metz, All Rights Reserved.  */
 
 #define getservbyname_r __getservbyname_r
+#define gethostbyname_r __gethostbyname_r
+#define gethostbyname2_r __gethostbyname2_r
+#define gethostbyaddr_r __gethostbyaddr_r
 #if 0
+#define uname __uname
 #define stpcpy __stpcpy
 /* strdupa is using these */
 #define memcpy __memcpy
@@ -767,8 +771,8 @@ static struct gaih gaih[] =
     { PF_UNSPEC, NULL }
 };
 
-int
-getaddrinfo (const char *name, const char *service,
+int attribute_hidden
+__getaddrinfo (const char *name, const char *service,
 	     const struct addrinfo *hints, struct addrinfo **pai)
 {
     int i = 0, j = 0, last_i = 0;
@@ -866,6 +870,7 @@ getaddrinfo (const char *name, const char *service,
 
     return last_i ? -(last_i & GAIH_EAI) : EAI_NONAME;
 }
+strong_alias(__getaddrinfo,getaddrinfo)
 
 void
 freeaddrinfo (struct addrinfo *ai)

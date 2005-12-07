@@ -14,7 +14,7 @@
 static inline _syscall2(int, __syscall_setreuid,
 		__kernel_uid_t, ruid, __kernel_uid_t, euid);
 
-int setreuid(uid_t ruid, uid_t euid)
+int attribute_hidden __setreuid(uid_t ruid, uid_t euid)
 {
 	if (((ruid + 1) > (uid_t) ((__kernel_uid_t) - 1U))
 		|| ((euid + 1) > (uid_t) ((__kernel_uid_t) - 1U))) {
@@ -23,3 +23,4 @@ int setreuid(uid_t ruid, uid_t euid)
 	}
 	return (__syscall_setreuid(ruid, euid));
 }
+strong_alias(__setreuid,setreuid)

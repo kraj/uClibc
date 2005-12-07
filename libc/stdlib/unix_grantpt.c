@@ -44,7 +44,7 @@
 #define vfork fork	
 #endif
 
-extern int ptsname_r (int fd, char *buf, size_t buflen);
+extern int __ptsname_r (int fd, char *buf, size_t buflen) attribute_hidden;
 
 /* Return the result of ptsname_r in the buffer pointed to by PTS,
    which should be of length BUF_LEN.  If it is too long to fit in
@@ -62,7 +62,7 @@ pts_name (int fd, char **pts, size_t buf_len)
 
       if (buf_len)
 	{
-	  rv = ptsname_r (fd, buf, buf_len);
+	  rv = __ptsname_r (fd, buf, buf_len);
 
 	  if (rv != 0 || memchr (buf, '\0', buf_len))
 	    /* We either got an error, or we succeeded and the

@@ -41,6 +41,8 @@
 #define sysconf __sysconf
 #define getegid __getegid
 #define geteuid __geteuid
+#define getgroups __getgroups
+#define gethostname __gethostname
 #define xdrmem_create __xdrmem_create
 #define xdr_authunix_parms __xdr_authunix_parms
 #define xdr_opaque_auth __xdr_opaque_auth

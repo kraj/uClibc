@@ -56,6 +56,7 @@
 #define xdrmem_create __xdrmem_create
 #define getegid __getegid
 #define geteuid __geteuid
+#define _seterr_reply __seterr_reply
 
 #define __FORCE_GLIBC
 #include <features.h>

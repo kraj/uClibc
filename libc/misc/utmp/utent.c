@@ -37,29 +37,7 @@ static struct utmp static_utmp;
 static const char default_file_name[] = _PATH_UTMP;
 static const char *static_ut_name = (const char *) default_file_name;
 
-
-
-static struct utmp *__getutent(int utmp_fd)
-
-{
-    if (utmp_fd == -1) {
-	setutent();
-    }
-    if (utmp_fd == -1) {
-	return NULL;
-    }
-
-    LOCK;
-    if (__read(utmp_fd, (char *) &static_utmp, sizeof(struct utmp)) != sizeof(struct utmp)) 
-    {
-	return NULL;
-    }
-
-    UNLOCK;
-    return &static_utmp;
-}
-
-void setutent(void)
+void attribute_hidden __setutent(void)
 {
     int ret;
 
@@ -86,6 +64,26 @@ bummer:
     lseek(static_fd, 0, SEEK_SET);
     UNLOCK;
     return;
+}
+strong_alias(__setutent,setutent)
+
+static struct utmp *__getutent(int utmp_fd)
+{
+    if (utmp_fd == -1) {
+	__setutent();
+    }
+    if (utmp_fd == -1) {
+	return NULL;
+    }
+
+    LOCK;
+    if (__read(utmp_fd, (char *) &static_utmp, sizeof(struct utmp)) != sizeof(struct utmp)) 
+    {
+	return NULL;
+    }
+
+    UNLOCK;
+    return &static_utmp;
 }
 
 void endutent(void)
@@ -148,8 +146,6 @@ struct utmp *getutline(const struct utmp *utmp_entry)
     return NULL;
 }
 
-extern struct utmp *__getutid (__const struct utmp *__id) attribute_hidden;
-
 struct utmp *pututline (const struct utmp *utmp_entry)
 {
     LOCK;
@@ -190,4 +186,3 @@ int utmpname (const char *new_ut_name)
     UNLOCK;
     return 0;
 }
-

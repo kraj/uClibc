@@ -36,6 +36,7 @@ static  char sccsid[] = "@(#)getrpcport.c 1.3 87/08/11 SMI";
  */
 
 #define pmap_getport __pmap_getport
+#define gethostbyname_r __gethostbyname_r
 
 #define __FORCE_GLIBC
 #include <features.h>

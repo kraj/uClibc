@@ -8,6 +8,9 @@
  * GNU Library General Public License (LGPL) version 2 or later.
  */
 
+#define getpriority __getpriority
+#define setpriority __setpriority
+
 #include "syscalls.h"
 #include <unistd.h>
 #include <sys/resource.h>

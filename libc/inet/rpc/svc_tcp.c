@@ -48,6 +48,7 @@ static char sccsid[] = "@(#)svc_tcp.c 1.21 87/08/11 Copyr 1984 Sun Micro";
 #define xdr_callmsg __xdr_callmsg
 #define xdr_replymsg __xdr_replymsg
 #define xprt_register __xprt_register
+#define getsockname __getsockname
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE

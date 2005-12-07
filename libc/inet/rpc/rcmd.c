@@ -39,6 +39,10 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #define sysconf __sysconf
 #define getline __getline
 #define geteuid __geteuid
+#define seteuid __seteuid
+#define getpwnam_r __getpwnam_r
+#define gethostbyname __gethostbyname
+#define gethostbyname_r __gethostbyname_r
 
 #define __FORCE_GLIBC
 #include <features.h>

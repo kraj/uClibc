@@ -39,6 +39,7 @@ static char sccsid[] = "@(#)clnt_simple.c 1.35 87/08/11 Copyr 1984 Sun Micro";
  */
 
 #define clntudp_create __clntudp_create
+#define gethostbyname_r __gethostbyname_r
 
 #define __FORCE_GLIBC
 #include <features.h>

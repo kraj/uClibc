@@ -48,6 +48,7 @@ static char sccsid[] = "@(#)clnt_raw.c 1.22 87/08/11 Copyr 1984 Sun Micro";
 #define xdr_replymsg __xdr_replymsg
 #define xdr_opaque_auth __xdr_opaque_auth
 #define svc_getreq __svc_getreq
+#define _seterr_reply __seterr_reply
 
 #define __FORCE_GLIBC
 #include <features.h>

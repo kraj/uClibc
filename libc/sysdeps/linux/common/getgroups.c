@@ -18,7 +18,7 @@
 static inline _syscall2(int, __syscall_getgroups,
 		int, size, __kernel_gid_t *, list);
 
-int getgroups(int n, gid_t * groups)
+int attribute_hidden __getgroups(int n, gid_t * groups)
 {
 	if (unlikely(n < 0)) {
 		__set_errno(EINVAL);
@@ -36,3 +36,4 @@ int getgroups(int n, gid_t * groups)
 		return ngids;
 	}
 }
+strong_alias(__getgroups,getgroups)

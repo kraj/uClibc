@@ -33,6 +33,7 @@
 #ifdef __UCLIBC_HAS_WCHAR__
 #define RE_ENABLE_I18N
 #define wcscoll __wcscoll
+#define wcrtomb __wcrtomb
 #define mbrtowc __mbrtowc
 #define iswctype __iswctype
 #define iswlower __iswlower

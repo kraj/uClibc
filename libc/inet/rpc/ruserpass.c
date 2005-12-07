@@ -32,6 +32,7 @@
 #define getuid __getuid
 #define getegid __getegid
 #define geteuid __geteuid
+#define gethostname __gethostname
 
 #define __FORCE_GLIBC
 #include <features.h>

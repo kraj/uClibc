@@ -1,3 +1,5 @@
+#define uname __uname
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -6,8 +8,8 @@
 #include <sys/utsname.h>
 
 
-int
-getdomainname(char *name, size_t len)
+int attribute_hidden
+__getdomainname(char *name, size_t len)
 {
   struct utsname uts;
 
@@ -25,3 +27,4 @@ getdomainname(char *name, size_t len)
   __strcpy(name, uts.domainname);
   return 0;
 }
+strong_alias(__getdomainname,getdomainname)
