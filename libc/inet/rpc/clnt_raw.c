@@ -44,6 +44,9 @@ static char sccsid[] = "@(#)clnt_raw.c 1.22 87/08/11 Copyr 1984 Sun Micro";
 
 #define authnone_create __authnone_create
 #define xdrmem_create __xdrmem_create
+#define xdr_callhdr __xdr_callhdr
+#define xdr_replymsg __xdr_replymsg
+#define xdr_opaque_auth __xdr_opaque_auth
 #define svc_getreq __svc_getreq
 
 #define __FORCE_GLIBC

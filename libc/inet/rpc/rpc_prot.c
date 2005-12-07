@@ -46,6 +46,9 @@ static char sccsid[] = "@(#)rpc_prot.c 1.36 87/08/11 Copyr 1984 Sun Micro";
 
 #define xdr_bytes __xdr_bytes
 #define xdr_union __xdr_union
+#define xdr_enum __xdr_enum
+#define xdr_opaque __xdr_opaque
+#define xdr_u_long __xdr_u_long
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -60,8 +63,8 @@ static char sccsid[] = "@(#)rpc_prot.c 1.36 87/08/11 Copyr 1984 Sun Micro";
  * XDR an opaque authentication struct
  * (see auth.h)
  */
-bool_t
-xdr_opaque_auth (XDR *xdrs, struct opaque_auth *ap)
+bool_t attribute_hidden
+__xdr_opaque_auth (XDR *xdrs, struct opaque_auth *ap)
 {
 
   if (xdr_enum (xdrs, &(ap->oa_flavor)))
@@ -69,6 +72,7 @@ xdr_opaque_auth (XDR *xdrs, struct opaque_auth *ap)
 		      &ap->oa_length, MAX_AUTH_BYTES);
   return FALSE;
 }
+strong_alias(__xdr_opaque_auth,xdr_opaque_auth)
 
 /*
  * XDR a DES block
@@ -88,7 +92,7 @@ bool_t
 xdr_accepted_reply (XDR *xdrs, struct accepted_reply *ar)
 {
   /* personalized union, rather than calling xdr_union */
-  if (!xdr_opaque_auth (xdrs, &(ar->ar_verf)))
+  if (!__xdr_opaque_auth (xdrs, &(ar->ar_verf)))
     return FALSE;
   if (!xdr_enum (xdrs, (enum_t *) & (ar->ar_stat)))
     return FALSE;
@@ -137,10 +141,8 @@ static const struct xdr_discrim reply_dscrm[3] =
 /*
  * XDR a reply message
  */
-bool_t
-xdr_replymsg (xdrs, rmsg)
-     XDR *xdrs;
-     struct rpc_msg *rmsg;
+bool_t attribute_hidden
+__xdr_replymsg (XDR *xdrs, struct rpc_msg *rmsg)
 {
   if (xdr_u_long (xdrs, &(rmsg->rm_xid)) &&
       xdr_enum (xdrs, (enum_t *) & (rmsg->rm_direction)) &&
@@ -150,6 +152,7 @@ xdr_replymsg (xdrs, rmsg)
 		      NULL_xdrproc_t);
   return FALSE;
 }
+strong_alias(__xdr_replymsg,xdr_replymsg)
 
 
 /*
@@ -157,10 +160,8 @@ xdr_replymsg (xdrs, rmsg)
  * The fields include: rm_xid, rm_direction, rpcvers, prog, and vers.
  * The rm_xid is not really static, but the user can easily munge on the fly.
  */
-bool_t
-xdr_callhdr (xdrs, cmsg)
-     XDR *xdrs;
-     struct rpc_msg *cmsg;
+bool_t attribute_hidden
+__xdr_callhdr (XDR *xdrs, struct rpc_msg *cmsg)
 {
 
   cmsg->rm_direction = CALL;
@@ -174,6 +175,7 @@ xdr_callhdr (xdrs, cmsg)
     return xdr_u_long (xdrs, &(cmsg->rm_call.cb_vers));
   return FALSE;
 }
+strong_alias(__xdr_callhdr,xdr_callhdr)
 
 /* ************************** Client utility routine ************* */
 

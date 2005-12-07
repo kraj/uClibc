@@ -39,6 +39,7 @@
  */
 
 #define xdrmem_create __xdrmem_create
+#define xdr_authunix_parms __xdr_authunix_parms
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE

@@ -42,6 +42,8 @@
 #define getegid __getegid
 #define geteuid __geteuid
 #define xdrmem_create __xdrmem_create
+#define xdr_authunix_parms __xdr_authunix_parms
+#define xdr_opaque_auth __xdr_opaque_auth
 
 #define __FORCE_GLIBC
 #include <features.h>

@@ -41,6 +41,10 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 
 #define authunix_create_default __authunix_create_default
 #define xdrmem_create __xdrmem_create
+#define xdr_callmsg __xdr_callmsg
+#define xdr_replymsg __xdr_replymsg
+#define xdr_reference __xdr_reference
+#define xdr_u_long __xdr_u_long
 #define inet_makeaddr __inet_makeaddr
 #define clntudp_create __clntudp_create
 
@@ -67,6 +71,37 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 extern u_long _create_xid (void) attribute_hidden;
 
 static const struct timeval timeout = {3, 0};
+
+/*
+ * XDR remote call arguments
+ * written for XDR_ENCODE direction only
+ */
+bool_t attribute_hidden
+__xdr_rmtcall_args (XDR *xdrs, struct rmtcallargs *cap)
+{
+  u_int lenposition, argposition, position;
+
+  if (xdr_u_long (xdrs, &(cap->prog)) &&
+      xdr_u_long (xdrs, &(cap->vers)) &&
+      xdr_u_long (xdrs, &(cap->proc)))
+    {
+      lenposition = XDR_GETPOS (xdrs);
+      if (!xdr_u_long (xdrs, &(cap->arglen)))
+	return FALSE;
+      argposition = XDR_GETPOS (xdrs);
+      if (!(*(cap->xdr_args)) (xdrs, cap->args_ptr))
+	return FALSE;
+      position = XDR_GETPOS (xdrs);
+      cap->arglen = (u_long) position - (u_long) argposition;
+      XDR_SETPOS (xdrs, lenposition);
+      if (!xdr_u_long (xdrs, &(cap->arglen)))
+	return FALSE;
+      XDR_SETPOS (xdrs, position);
+      return TRUE;
+    }
+  return FALSE;
+}
+strong_alias(__xdr_rmtcall_args,xdr_rmtcall_args)
 
 /*
  * pmapper remote-call-service interface.
@@ -102,7 +137,7 @@ pmap_rmtcall (addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_p
       r.port_ptr = port_ptr;
       r.results_ptr = resp;
       r.xdr_results = xdrres;
-      stat = CLNT_CALL (client, PMAPPROC_CALLIT, (xdrproc_t)xdr_rmtcall_args,
+      stat = CLNT_CALL (client, PMAPPROC_CALLIT, (xdrproc_t)__xdr_rmtcall_args,
 			(caddr_t)&a, (xdrproc_t)xdr_rmtcallres,
 			(caddr_t)&r, tout);
       CLNT_DESTROY (client);
@@ -116,36 +151,6 @@ pmap_rmtcall (addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_p
   return stat;
 }
 
-
-/*
- * XDR remote call arguments
- * written for XDR_ENCODE direction only
- */
-bool_t
-xdr_rmtcall_args (XDR *xdrs, struct rmtcallargs *cap)
-{
-  u_int lenposition, argposition, position;
-
-  if (xdr_u_long (xdrs, &(cap->prog)) &&
-      xdr_u_long (xdrs, &(cap->vers)) &&
-      xdr_u_long (xdrs, &(cap->proc)))
-    {
-      lenposition = XDR_GETPOS (xdrs);
-      if (!xdr_u_long (xdrs, &(cap->arglen)))
-	return FALSE;
-      argposition = XDR_GETPOS (xdrs);
-      if (!(*(cap->xdr_args)) (xdrs, cap->args_ptr))
-	return FALSE;
-      position = XDR_GETPOS (xdrs);
-      cap->arglen = (u_long) position - (u_long) argposition;
-      XDR_SETPOS (xdrs, lenposition);
-      if (!xdr_u_long (xdrs, &(cap->arglen)))
-	return FALSE;
-      XDR_SETPOS (xdrs, position);
-      return TRUE;
-    }
-  return FALSE;
-}
 
 /*
  * XDR remote call results
@@ -307,7 +312,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
   r.xdr_results = xresults;
   r.results_ptr = resultsp;
   xdrmem_create (xdrs, outbuf, MAX_BROADCAST_SIZE, XDR_ENCODE);
-  if ((!xdr_callmsg (xdrs, &msg)) || (!xdr_rmtcall_args (xdrs, &a)))
+  if ((!xdr_callmsg (xdrs, &msg)) || (!__xdr_rmtcall_args (xdrs, &a)))
     {
       stat = RPC_CANTENCODEARGS;
       goto done_broad;

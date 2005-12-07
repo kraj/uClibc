@@ -91,10 +91,63 @@ xdr_void (void)
 }
 
 /*
+ * XDR long integers
+ * The definition of xdr_long() is kept for backward
+ * compatibility. Instead xdr_int() should be used.
+ */
+bool_t attribute_hidden
+__xdr_long (XDR *xdrs, long *lp)
+{
+
+  if (xdrs->x_op == XDR_ENCODE
+      && (sizeof (int32_t) == sizeof (long)
+	  || (int32_t) *lp == *lp))
+    return XDR_PUTLONG (xdrs, lp);
+
+  if (xdrs->x_op == XDR_DECODE)
+    return XDR_GETLONG (xdrs, lp);
+
+  if (xdrs->x_op == XDR_FREE)
+    return TRUE;
+
+  return FALSE;
+}
+strong_alias(__xdr_long,xdr_long)
+
+/*
+ * XDR short integers
+ */
+bool_t attribute_hidden
+__xdr_short (XDR *xdrs, short *sp)
+{
+  long l;
+
+  switch (xdrs->x_op)
+    {
+    case XDR_ENCODE:
+      l = (long) *sp;
+      return XDR_PUTLONG (xdrs, &l);
+
+    case XDR_DECODE:
+      if (!XDR_GETLONG (xdrs, &l))
+	{
+	  return FALSE;
+	}
+      *sp = (short) l;
+      return TRUE;
+
+    case XDR_FREE:
+      return TRUE;
+    }
+  return FALSE;
+}
+strong_alias(__xdr_short,xdr_short)
+
+/*
  * XDR integers
  */
-bool_t
-xdr_int (XDR *xdrs, int *ip)
+bool_t attribute_hidden
+__xdr_int (XDR *xdrs, int *ip)
 {
 
 #if INT_MAX < LONG_MAX
@@ -117,78 +170,22 @@ xdr_int (XDR *xdrs, int *ip)
     }
   return FALSE;
 #elif INT_MAX == LONG_MAX
-  return xdr_long (xdrs, (long *) ip);
+  return __xdr_long (xdrs, (long *) ip);
 #elif INT_MAX == SHRT_MAX
-  return xdr_short (xdrs, (short *) ip);
+  return __xdr_short (xdrs, (short *) ip);
 #else
-#error unexpected integer sizes in_xdr_int()
+#error unexpected integer sizes in xdr_int()
 #endif
 }
-
-/*
- * XDR unsigned integers
- */
-bool_t
-xdr_u_int (XDR *xdrs, u_int *up)
-{
-#if UINT_MAX < ULONG_MAX
-  u_long l;
-
-  switch (xdrs->x_op)
-    {
-    case XDR_ENCODE:
-      l = (u_long) * up;
-      return XDR_PUTLONG (xdrs, &l);
-
-    case XDR_DECODE:
-      if (!XDR_GETLONG (xdrs, &l))
-	{
-	  return FALSE;
-	}
-      *up = (u_int) l;
-    case XDR_FREE:
-      return TRUE;
-    }
-  return FALSE;
-#elif UINT_MAX == ULONG_MAX
-  return xdr_u_long (xdrs, (u_long *) up);
-#elif UINT_MAX == USHRT_MAX
-  return xdr_short (xdrs, (short *) up);
-#else
-#error unexpected integer sizes in_xdr_u_int()
-#endif
-}
-
-/*
- * XDR long integers
- * The definition of xdr_long() is kept for backward
- * compatibility. Instead xdr_int() should be used.
- */
-bool_t
-xdr_long (XDR *xdrs, long *lp)
-{
-
-  if (xdrs->x_op == XDR_ENCODE
-      && (sizeof (int32_t) == sizeof (long)
-	  || (int32_t) *lp == *lp))
-    return XDR_PUTLONG (xdrs, lp);
-
-  if (xdrs->x_op == XDR_DECODE)
-    return XDR_GETLONG (xdrs, lp);
-
-  if (xdrs->x_op == XDR_FREE)
-    return TRUE;
-
-  return FALSE;
-}
+strong_alias(__xdr_int,xdr_int)
 
 /*
  * XDR unsigned long integers
  * The definition of xdr_u_long() is kept for backward
  * compatibility. Instead xdr_u_int() should be used.
  */
-bool_t
-xdr_u_long (XDR *xdrs, u_long *ulp)
+bool_t attribute_hidden
+__xdr_u_long (XDR *xdrs, u_long *ulp)
 {
   switch (xdrs->x_op)
     {
@@ -215,6 +212,42 @@ xdr_u_long (XDR *xdrs, u_long *ulp)
     }
   return FALSE;
 }
+strong_alias(__xdr_u_long,xdr_u_long)
+
+/*
+ * XDR unsigned integers
+ */
+bool_t attribute_hidden
+__xdr_u_int (XDR *xdrs, u_int *up)
+{
+#if UINT_MAX < ULONG_MAX
+  u_long l;
+
+  switch (xdrs->x_op)
+    {
+    case XDR_ENCODE:
+      l = (u_long) * up;
+      return XDR_PUTLONG (xdrs, &l);
+
+    case XDR_DECODE:
+      if (!XDR_GETLONG (xdrs, &l))
+	{
+	  return FALSE;
+	}
+      *up = (u_int) l;
+    case XDR_FREE:
+      return TRUE;
+    }
+  return FALSE;
+#elif UINT_MAX == ULONG_MAX
+  return __xdr_u_long (xdrs, (u_long *) up);
+#elif UINT_MAX == USHRT_MAX
+  return __xdr_short (xdrs, (short *) up);
+#else
+#error unexpected integer sizes in xdr_u_int()
+#endif
+}
+strong_alias(__xdr_u_int,xdr_u_int)
 
 /*
  * XDR hyper integers
@@ -296,34 +329,6 @@ xdr_u_longlong_t (XDR *xdrs, u_quad_t *ullp)
 }
 
 /*
- * XDR short integers
- */
-bool_t
-xdr_short (XDR *xdrs, short *sp)
-{
-  long l;
-
-  switch (xdrs->x_op)
-    {
-    case XDR_ENCODE:
-      l = (long) *sp;
-      return XDR_PUTLONG (xdrs, &l);
-
-    case XDR_DECODE:
-      if (!XDR_GETLONG (xdrs, &l))
-	{
-	  return FALSE;
-	}
-      *sp = (short) l;
-      return TRUE;
-
-    case XDR_FREE:
-      return TRUE;
-    }
-  return FALSE;
-}
-
-/*
  * XDR unsigned short integers
  */
 bool_t
@@ -361,7 +366,7 @@ xdr_char (XDR *xdrs, char *cp)
   int i;
 
   i = (*cp);
-  if (!xdr_int (xdrs, &i))
+  if (!__xdr_int (xdrs, &i))
     {
       return FALSE;
     }
@@ -378,7 +383,7 @@ xdr_u_char (XDR *xdrs, u_char *cp)
   u_int u;
 
   u = (*cp);
-  if (!xdr_u_int (xdrs, &u))
+  if (!__xdr_u_int (xdrs, &u))
     {
       return FALSE;
     }
@@ -389,8 +394,8 @@ xdr_u_char (XDR *xdrs, u_char *cp)
 /*
  * XDR booleans
  */
-bool_t
-xdr_bool (XDR *xdrs, bool_t *bp)
+bool_t attribute_hidden
+__xdr_bool (XDR *xdrs, bool_t *bp)
 {
   long lb;
 
@@ -413,12 +418,13 @@ xdr_bool (XDR *xdrs, bool_t *bp)
     }
   return FALSE;
 }
+strong_alias(__xdr_bool,xdr_bool)
 
 /*
  * XDR enumerations
  */
-bool_t
-xdr_enum (XDR *xdrs, enum_t *ep)
+bool_t attribute_hidden
+__xdr_enum (XDR *xdrs, enum_t *ep)
 {
   enum sizecheck
     {
@@ -451,26 +457,27 @@ xdr_enum (XDR *xdrs, enum_t *ep)
 	}
       return FALSE;
 #else
-      return xdr_long (xdrs, (long *) ep);
+      return __xdr_long (xdrs, (long *) ep);
 #endif
     }
   else if (sizeof (enum sizecheck) == sizeof (short))
     {
-      return xdr_short (xdrs, (short *) ep);
+      return __xdr_short (xdrs, (short *) ep);
     }
   else
     {
       return FALSE;
     }
 }
+strong_alias(__xdr_enum,xdr_enum)
 
 /*
  * XDR opaque data
  * Allows the specification of a fixed size sequence of opaque bytes.
  * cp points to the opaque object and cnt gives the byte length.
  */
-bool_t
-xdr_opaque (XDR *xdrs, caddr_t cp, u_int cnt)
+bool_t attribute_hidden
+__xdr_opaque (XDR *xdrs, caddr_t cp, u_int cnt)
 {
   u_int rndup;
   static char crud[BYTES_PER_XDR_UNIT];
@@ -513,6 +520,7 @@ xdr_opaque (XDR *xdrs, caddr_t cp, u_int cnt)
     }
   return FALSE;
 }
+strong_alias(__xdr_opaque,xdr_opaque)
 
 /*
  * XDR counted bytes
@@ -528,7 +536,7 @@ __xdr_bytes (XDR *xdrs, char **cpp, u_int *sizep, u_int maxsize)
   /*
    * first deal with the length since xdr bytes are counted
    */
-  if (!xdr_u_int (xdrs, sizep))
+  if (!__xdr_u_int (xdrs, sizep))
     {
       return FALSE;
     }
@@ -565,7 +573,7 @@ __xdr_bytes (XDR *xdrs, char **cpp, u_int *sizep, u_int maxsize)
       /* fall into ... */
 
     case XDR_ENCODE:
-      return xdr_opaque (xdrs, sp, nodesize);
+      return __xdr_opaque (xdrs, sp, nodesize);
 
     case XDR_FREE:
       if (sp != NULL)
@@ -610,7 +618,7 @@ __xdr_union (XDR *xdrs, enum_t *dscmp, char *unp, const struct xdr_discrim *choi
   /*
    * we deal with the discriminator;  it's an enum
    */
-  if (!xdr_enum (xdrs, dscmp))
+  if (!__xdr_enum (xdrs, dscmp))
     {
       return FALSE;
     }
@@ -648,11 +656,8 @@ strong_alias(__xdr_union,xdr_union)
  * storage is allocated.  The last parameter is the max allowed length
  * of the string as specified by a protocol.
  */
-bool_t
-xdr_string (xdrs, cpp, maxsize)
-     XDR *xdrs;
-     char **cpp;
-     u_int maxsize;
+bool_t attribute_hidden
+__xdr_string (XDR *xdrs, char **cpp, u_int maxsize)
 {
   char *sp = *cpp;	/* sp is the actual string pointer */
   u_int size;
@@ -677,7 +682,7 @@ xdr_string (xdrs, cpp, maxsize)
     case XDR_DECODE:
       break;
     }
-  if (!xdr_u_int (xdrs, &size))
+  if (!__xdr_u_int (xdrs, &size))
     {
       return FALSE;
     }
@@ -714,7 +719,7 @@ xdr_string (xdrs, cpp, maxsize)
       /* fall into ... */
 
     case XDR_ENCODE:
-      return xdr_opaque (xdrs, sp, size);
+      return __xdr_opaque (xdrs, sp, size);
 
     case XDR_FREE:
       mem_free (sp, nodesize);
@@ -733,7 +738,7 @@ xdr_wrapstring (xdrs, cpp)
      XDR *xdrs;
      char **cpp;
 {
-  if (xdr_string (xdrs, cpp, LASTUNSIGNED))
+  if (__xdr_string (xdrs, cpp, LASTUNSIGNED))
     {
       return TRUE;
     }

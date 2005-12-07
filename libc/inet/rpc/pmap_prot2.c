@@ -38,6 +38,9 @@ static char sccsid[] = "@(#)pmap_prot2.c 1.3 87/08/11 Copyr 1984 Sun Micro";
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
+#define xdr_bool __xdr_bool
+#define xdr_reference __xdr_reference
+
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 #include <rpc/pmap_prot.h>

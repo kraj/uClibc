@@ -36,6 +36,7 @@
 
 #define clnt_perror __clnt_perror
 #define clntudp_bufcreate __clntudp_bufcreate
+#define xdr_bool __xdr_bool
 
 #define __FORCE_GLIBC
 #include <features.h>

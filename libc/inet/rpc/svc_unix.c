@@ -38,6 +38,11 @@
  */
 
 #define xdrrec_create __xdrrec_create
+#define xdrrec_endofrecord __xdrrec_endofrecord
+#define xdrrec_skiprecord __xdrrec_skiprecord
+#define xdrrec_eof __xdrrec_eof
+#define xdr_callmsg __xdr_callmsg
+#define xdr_replymsg __xdr_replymsg
 #define xprt_register __xprt_register
 #define getegid __getegid
 #define geteuid __geteuid

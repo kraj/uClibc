@@ -52,6 +52,11 @@ static char sccsid[] = "@(#)clnt_tcp.c 1.37 87/10/05 Copyr 1984 Sun Micro";
 
 #define authnone_create __authnone_create
 #define xdrrec_create __xdrrec_create
+#define xdrrec_endofrecord __xdrrec_endofrecord
+#define xdrrec_skiprecord __xdrrec_skiprecord
+#define xdr_callhdr __xdr_callhdr
+#define xdr_replymsg __xdr_replymsg
+#define xdr_opaque_auth __xdr_opaque_auth
 #define xdrmem_create __xdrmem_create
 #define pmap_getport __pmap_getport
 

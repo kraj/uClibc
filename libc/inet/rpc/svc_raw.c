@@ -41,6 +41,8 @@ static char sccsid[] = "@(#)svc_raw.c 1.15 87/08/11 Copyr 1984 Sun Micro";
  */
 
 #define xdrmem_create __xdrmem_create
+#define xdr_callmsg __xdr_callmsg
+#define xdr_replymsg __xdr_replymsg
 
 #define __FORCE_GLIBC
 #include <features.h>
