@@ -519,12 +519,8 @@ xdr_opaque (XDR *xdrs, caddr_t cp, u_int cnt)
  * *cpp is a pointer to the bytes, *sizep is the count.
  * If *cpp is NULL maxsize bytes are allocated
  */
-bool_t
-xdr_bytes (xdrs, cpp, sizep, maxsize)
-     XDR *xdrs;
-     char **cpp;
-     u_int *sizep;
-     u_int maxsize;
+bool_t attribute_hidden
+__xdr_bytes (XDR *xdrs, char **cpp, u_int *sizep, u_int maxsize)
 {
   char *sp = *cpp;	/* sp is the actual string pointer */
   u_int nodesize;
@@ -581,6 +577,7 @@ xdr_bytes (xdrs, cpp, sizep, maxsize)
     }
   return FALSE;
 }
+strong_alias(__xdr_bytes,xdr_bytes)
 
 /*
  * Implemented here due to commonality of the object.
@@ -591,7 +588,7 @@ xdr_netobj (xdrs, np)
      struct netobj *np;
 {
 
-  return xdr_bytes (xdrs, &np->n_bytes, &np->n_len, MAX_NETOBJ_SZ);
+  return __xdr_bytes (xdrs, &np->n_bytes, &np->n_len, MAX_NETOBJ_SZ);
 }
 
 /*
@@ -605,13 +602,8 @@ xdr_netobj (xdrs, np)
  * routine may be called.
  * If there is no specific or default routine an error is returned.
  */
-bool_t
-xdr_union (xdrs, dscmp, unp, choices, dfault)
-     XDR *xdrs;
-     enum_t *dscmp;		/* enum to decide which arm to work on */
-     char *unp;			/* the union itself */
-     const struct xdr_discrim *choices;	/* [value, xdr proc] for each arm */
-     xdrproc_t dfault;		/* default xdr routine */
+bool_t attribute_hidden
+__xdr_union (XDR *xdrs, enum_t *dscmp, char *unp, const struct xdr_discrim *choices, xdrproc_t dfault)
 {
   enum_t dscm;
 
@@ -640,7 +632,7 @@ xdr_union (xdrs, dscmp, unp, choices, dfault)
   return ((dfault == NULL_xdrproc_t) ? FALSE :
 	  (*dfault) (xdrs, unp, LASTUNSIGNED));
 }
-
+strong_alias(__xdr_union,xdr_union)
 
 /*
  * Non-portable xdr primitives.

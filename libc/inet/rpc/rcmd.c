@@ -173,7 +173,7 @@ int rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 			(void)fprintf(stderr, "connect to address %s: ",
 			    inet_ntoa(sin.sin_addr));
 			__set_errno (oerrno);
-			perror(0);
+			__perror(0);
 			hp->h_addr_list++;
 			bcopy(hp->h_addr_list[0], &sin.sin_addr,
 			      MIN (sizeof (sin.sin_addr), hp->h_length));

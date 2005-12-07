@@ -9,4 +9,6 @@
 
 #include "syscalls.h"
 #include <unistd.h>
-_syscall2(int, dup2, int, oldfd, int, newfd);
+#define __NR___dup2 __NR_dup2
+attribute_hidden _syscall2(int, __dup2, int, oldfd, int, newfd);
+strong_alias(__dup2,dup2)

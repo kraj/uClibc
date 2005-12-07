@@ -39,6 +39,10 @@ static char sccsid[] = "@(#)svc_simple.c 1.18 87/08/11 Copyr 1984 Sun Micro";
  */
 
 #define svc_sendreply __svc_sendreply
+#define svc_register __svc_register
+#define svcerr_decode __svcerr_decode
+#define svcudp_create __svcudp_create
+#define pmap_unset __pmap_unset
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE

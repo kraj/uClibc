@@ -173,6 +173,9 @@ extern ssize_t __write(int __fd, __const void *__buf, size_t __n) attribute_hidd
 extern int __close(int __fd) attribute_hidden;
 extern __pid_t __getpid (void) attribute_hidden;
 
+/* #include <stdio.h> */
+extern void __perror (__const char *__s) attribute_hidden;
+
 /* #include <stdlib.h> */
 extern char *__getenv (__const char *__name) attribute_hidden;
 

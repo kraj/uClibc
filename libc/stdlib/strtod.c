@@ -95,6 +95,9 @@
 
 /**********************************************************************/
 
+#define iswspace __iswspace
+#define iswspace_l __iswspace_l
+
 #define _ISOC99_SOURCE 1
 #define _GNU_SOURCE
 #include <stdlib.h>

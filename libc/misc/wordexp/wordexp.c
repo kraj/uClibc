@@ -28,6 +28,7 @@
 #define kill __kill
 #define getuid __getuid
 #define execve __execve
+#define dup2 __dup2
 
 #define _GNU_SOURCE
 #include <sys/cdefs.h>

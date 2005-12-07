@@ -22,6 +22,7 @@
 #define getuid __getuid
 #define setrlimit __setrlimit
 #define waitpid __waitpid
+#define dup2 __dup2
 
 #include <assert.h>
 #include <errno.h>

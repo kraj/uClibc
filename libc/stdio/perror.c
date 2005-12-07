@@ -11,7 +11,7 @@
 #warning CONSIDER: Increase buffer size for error message (non-%m case)?
 #endif
 
-void perror(register const char *s)
+void attribute_hidden __perror(register const char *s)
 {
 	/* If the program is calling perror, it's a safe bet that printf and
 	 * friends are used as well.  It is also possible that the calling
@@ -34,3 +34,4 @@ void perror(register const char *s)
 	}
 #endif
 }
+strong_alias(__perror,perror)

@@ -13,6 +13,8 @@
  * GNU Library Public License for more details.
  */
 
+#define readlink __readlink
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif

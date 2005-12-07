@@ -87,7 +87,7 @@ __rexec_af(char **ahost, int rport, const char *name, const char *pass, const ch
 retry:
 	s = socket(res0->ai_family, res0->ai_socktype, 0);
 	if (s < 0) {
-		perror("rexec: socket");
+		__perror("rexec: socket");
 		return (-1);
 	}
 	if (connect(s, res0->ai_addr, res0->ai_addrlen) < 0) {
@@ -97,7 +97,7 @@ retry:
 			timo *= 2;
 			goto retry;
 		}
-		perror(res0->ai_canonname);
+		__perror(res0->ai_canonname);
 		return (-1);
 	}
 	if (fd2p == 0) {
@@ -115,7 +115,7 @@ retry:
 		listen(s2, 1);
 		sa2len = sizeof (sa2);
 		if (getsockname(s2, (struct sockaddr *)&sa2, &sa2len) < 0) {
-			perror("getsockname");
+			__perror("getsockname");
 			(void) __close(s2);
 			goto bad;
 		} else if (sa2len != SA_LEN((struct sockaddr *)&sa2)) {
@@ -134,7 +134,7 @@ retry:
 		  s3 = accept(s2, (struct sockaddr *)&from, &len);
 		  __close(s2);
 		  if (s3 < 0) {
-			perror("accept");
+			__perror("accept");
 			port = 0;
 			goto bad;
 		  }
@@ -154,7 +154,7 @@ retry:
 	  free ((char *) pass);
 
 	if (__read(s, &c, 1) != 1) {
-		perror(*ahost);
+		__perror(*ahost);
 		goto bad;
 	}
 	if (c != 0) {

@@ -33,6 +33,8 @@
    the area affected (this is a kernel limitation).  So we now just
    enable all the ports all of the time.  */
 
+#define readlink __readlink
+
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>

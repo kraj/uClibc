@@ -34,6 +34,9 @@
  * Client interface to pmap rpc service.
  */
 
+#define clnt_perror __clnt_perror
+#define clntudp_bufcreate __clntudp_bufcreate
+
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -64,14 +67,14 @@ __get_myaddress (struct sockaddr_in *addr)
 
   if ((s = socket (AF_INET, SOCK_DGRAM, 0)) < 0)
     {
-      perror ("__get_myaddress: socket");
+      __perror ("__get_myaddress: socket");
       exit (1);
     }
   ifc.ifc_len = sizeof (buf);
   ifc.ifc_buf = buf;
   if (ioctl (s, SIOCGIFCONF, (char *) &ifc) < 0)
     {
-      perror (_("__get_myaddress: ioctl (get interface configuration)"));
+      __perror (_("__get_myaddress: ioctl (get interface configuration)"));
       exit (1);
     }
 
@@ -82,7 +85,7 @@ __get_myaddress (struct sockaddr_in *addr)
       ifreq = *ifr;
       if (ioctl (s, SIOCGIFFLAGS, (char *) &ifreq) < 0)
         {
-          perror ("__get_myaddress: ioctl");
+          __perror ("__get_myaddress: ioctl");
           exit (1);
         }
       if ((ifreq.ifr_flags & IFF_UP) && (ifr->ifr_addr.sa_family == AF_INET)
@@ -148,8 +151,8 @@ strong_alias(__pmap_set,pmap_set)
  * Remove the mapping between program,version and port.
  * Calls the pmap service remotely to do the un-mapping.
  */
-bool_t
-pmap_unset (u_long program, u_long version)
+bool_t attribute_hidden
+__pmap_unset (u_long program, u_long version)
 {
   struct sockaddr_in myaddress;
   int socket = -1;
@@ -172,3 +175,4 @@ pmap_unset (u_long program, u_long version)
   /* (void)__close(socket); CLNT_DESTROY already closed it */
   return rslt;
 }
+strong_alias(__pmap_unset,pmap_unset)

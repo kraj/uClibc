@@ -115,10 +115,8 @@ struct svcudp_data
  * see (svc.h, xprt_register).
  * The routines returns NULL if a problem occurred.
  */
-SVCXPRT *
-svcudp_bufcreate (sock, sendsz, recvsz)
-     int sock;
-     u_int sendsz, recvsz;
+SVCXPRT attribute_hidden *
+__svcudp_bufcreate (int sock, u_int sendsz, u_int recvsz)
 {
   bool_t madesock = FALSE;
   SVCXPRT *xprt;
@@ -132,7 +130,7 @@ svcudp_bufcreate (sock, sendsz, recvsz)
     {
       if ((sock = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
 	{
-	  perror (_("svcudp_create: socket creation problem"));
+	  __perror (_("svcudp_create: socket creation problem"));
 	  return (SVCXPRT *) NULL;
 	}
       madesock = TRUE;
@@ -146,7 +144,7 @@ svcudp_bufcreate (sock, sendsz, recvsz)
     }
   if (getsockname (sock, (struct sockaddr *) &addr, &len) != 0)
     {
-      perror (_("svcudp_create - cannot getsockname"));
+      __perror (_("svcudp_create - cannot getsockname"));
       if (madesock)
 	(void) __close (sock);
       return (SVCXPRT *) NULL;
@@ -206,14 +204,15 @@ svcudp_bufcreate (sock, sendsz, recvsz)
   xprt_register (xprt);
   return xprt;
 }
+strong_alias(__svcudp_bufcreate,svcudp_bufcreate)
 
-SVCXPRT *
-svcudp_create (sock)
-     int sock;
+SVCXPRT attribute_hidden *
+__svcudp_create (int sock)
 {
 
-  return svcudp_bufcreate (sock, UDPMSGSIZE, UDPMSGSIZE);
+  return __svcudp_bufcreate (sock, UDPMSGSIZE, UDPMSGSIZE);
 }
+strong_alias(__svcudp_create,svcudp_create)
 
 static enum xprt_stat
 svcudp_stat (xprt)

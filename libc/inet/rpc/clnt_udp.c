@@ -129,8 +129,8 @@ struct cu_data
  * sendsz and recvsz are the maximum allowable packet sizes that can be
  * sent and received.
  */
-CLIENT *
-clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
+CLIENT attribute_hidden *
+__clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
 		   struct timeval wait, int *sockp, u_int sendsz,
 		   u_int recvsz)
 {
@@ -227,19 +227,16 @@ fooy:
     mem_free ((caddr_t) cl, sizeof (CLIENT));
   return (CLIENT *) NULL;
 }
+strong_alias(__clntudp_bufcreate,clntudp_bufcreate)
 
-CLIENT *
-clntudp_create (raddr, program, version, wait, sockp)
-     struct sockaddr_in *raddr;
-     u_long program;
-     u_long version;
-     struct timeval wait;
-     int *sockp;
+CLIENT attribute_hidden *
+__clntudp_create (struct sockaddr_in *raddr, u_long program, u_long version, struct timeval wait, int *sockp)
 {
 
-  return clntudp_bufcreate (raddr, program, version, wait, sockp,
+  return __clntudp_bufcreate (raddr, program, version, wait, sockp,
 			    UDPMSGSIZE, UDPMSGSIZE);
 }
+strong_alias(__clntudp_create,clntudp_create)
 
 static int
 is_network_up (int sock)

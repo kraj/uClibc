@@ -44,6 +44,7 @@ static char sccsid[] = "@(#)clnt_raw.c 1.22 87/08/11 Copyr 1984 Sun Micro";
 
 #define authnone_create __authnone_create
 #define xdrmem_create __xdrmem_create
+#define svc_getreq __svc_getreq
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -116,7 +117,7 @@ clntraw_create (u_long prog, u_long vers)
   xdrmem_create (xdrs, clp->mashl_callmsg, MCALL_MSG_SIZE, XDR_ENCODE);
   if (!xdr_callhdr (xdrs, &call_msg))
     {
-      perror (_ ("clnt_raw.c - Fatal header serialization error."));
+      __perror (_ ("clnt_raw.c - Fatal header serialization error."));
     }
   clp->mcnt = XDR_GETPOS (xdrs);
   XDR_DESTROY (xdrs);

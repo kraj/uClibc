@@ -48,7 +48,7 @@ extern wctype_t __wctype (__const char *__property) attribute_hidden;
 #include <xlocale.h>
 extern wint_t __towlower_l(wint_t __wc, __locale_t __locale) __THROW;
 extern wint_t __towupper_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswctype_l(wint_t __wc, wctype_t __desc, __locale_t __locale) __THROW;
+//extern int __iswctype_l(wint_t __wc, wctype_t __desc, __locale_t __locale) __THROW attribute_hidden;
 extern wint_t __towctrans_l(wint_t __wc, wctrans_t __desc, __locale_t __locale) __THROW;
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
@@ -181,10 +181,10 @@ enum {
 #ifdef __UCLIBC_DO_XLOCALE
 
 extern int __iswctype_l (wint_t __wc, wctype_t __desc, __locale_t __locale)
-     __THROW;
+     __THROW attribute_hidden;
 
 #define ISW_FUNC_BODY(NAME) \
-int __PASTE3(__isw,NAME,_l) (wint_t wc, __locale_t l) \
+int attribute_hidden __PASTE3(__isw,NAME,_l) (wint_t wc, __locale_t l) \
 { \
 	return __iswctype_l(wc, __PASTE2(_CTYPE_is,NAME), l); \
 } \
@@ -192,13 +192,14 @@ weak_alias(__PASTE3(__isw,NAME,_l), __PASTE3(isw,NAME,_l))
 
 #else  /* __UCLIBC_DO_XLOCALE */
 
-extern int __iswctype (wint_t __wc, wctype_t __desc) __THROW;
+extern int __iswctype (wint_t __wc, wctype_t __desc) __THROW attribute_hidden;
 
 #define ISW_FUNC_BODY(NAME) \
-int __PASTE2(isw,NAME) (wint_t wc) \
+int attribute_hidden __PASTE2(__isw,NAME) (wint_t wc) \
 { \
 	return __iswctype(wc, __PASTE2(_CTYPE_is,NAME)); \
-}
+} \
+weak_alias(__PASTE2(__isw,NAME), __PASTE2(isw,NAME))
 
 #endif /* __UCLIBC_DO_XLOCALE */
 /**********************************************************************/
@@ -514,7 +515,7 @@ strong_alias(__wctype,wctype)
 #warning REMINDER: Currently wctype_l simply calls wctype.
 #endif /* __UCLIBC_MJN3_ONLY__ */
 
-wctype_t __wctype_l (const char *property, __locale_t locale)
+wctype_t attribute_hidden __wctype_l (const char *property, __locale_t locale)
 {
 	return __wctype(property);
 }
@@ -568,7 +569,7 @@ static const unsigned short int desc2flag[] = {
 
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 
-int __iswctype(wint_t wc, wctype_t desc)
+int attribute_hidden __iswctype(wint_t wc, wctype_t desc)
 {
 	/* Note... wctype_t is unsigned. */
 
@@ -582,7 +583,7 @@ int __iswctype(wint_t wc, wctype_t desc)
 
 #else  /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
-int __iswctype(wint_t wc, wctype_t desc)
+int attribute_hidden __iswctype(wint_t wc, wctype_t desc)
 {
 	/* This is lame, but it is here just to get it working for now. */
 
@@ -641,14 +642,14 @@ int __iswctype(wint_t wc, wctype_t desc)
 
 #if defined(L_iswctype) && defined(__UCLIBC_HAS_XLOCALE__)
 
-int __iswctype(wint_t wc, wctype_t desc)
+int attribute_hidden __iswctype(wint_t wc, wctype_t desc)
 {
 	return __iswctype_l(wc, desc, __UCLIBC_CURLOCALE);
 }
 
 #else  /* defined(L_iswctype) && defined(__UCLIBC_HAS_XLOCALE__) */
 
-int ISWCTYPE(wint_t wc, wctype_t desc)
+int attribute_hidden ISWCTYPE(wint_t wc, wctype_t desc)
 {
 	unsigned int sc, n, i0, i1;
 	unsigned char d = __CTYPE_unclassified;

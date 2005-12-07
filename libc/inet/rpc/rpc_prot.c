@@ -44,6 +44,9 @@ static char sccsid[] = "@(#)rpc_prot.c 1.36 87/08/11 Copyr 1984 Sun Micro";
  * routines are also in this program.
  */
 
+#define xdr_bytes __xdr_bytes
+#define xdr_union __xdr_union
+
 #define __FORCE_GLIBC
 #include <features.h>
 

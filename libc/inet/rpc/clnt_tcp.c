@@ -122,8 +122,8 @@ static struct clnt_ops tcp_ops =
  * NB: The rpch->cl_auth is set null authentication.  Caller may wish to set this
  * something more useful.
  */
-CLIENT *
-clnttcp_create (struct sockaddr_in *raddr, u_long prog, u_long vers,
+CLIENT attribute_hidden *
+__clnttcp_create (struct sockaddr_in *raddr, u_long prog, u_long vers,
 		int *sockp, u_int sendsz, u_int recvsz)
 {
   CLIENT *h;
@@ -239,6 +239,7 @@ fooy:
   mem_free ((caddr_t) h, sizeof (CLIENT));
   return ((CLIENT *) NULL);
 }
+strong_alias(__clnttcp_create,clnttcp_create)
 
 static enum clnt_stat
 clnttcp_call (h, proc, xdr_args, args_ptr, xdr_results, results_ptr, timeout)

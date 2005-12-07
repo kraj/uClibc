@@ -32,8 +32,16 @@
 #include <stdint.h>
 #ifdef __UCLIBC_HAS_WCHAR__
 #define RE_ENABLE_I18N
+#define wcscoll __wcscoll
+#define mbrtowc __mbrtowc
+#define iswctype __iswctype
+#define iswlower __iswlower
+#define iswalnum __iswalnum
 #include <wchar.h>
 #include <wctype.h>
+
+/* attribute_hidden produces text relocation */
+//extern int __wcscoll (__const wchar_t *__s1, __const wchar_t *__s2) __THROW /*attribute_hidden*/;
 
 extern size_t __wcrtomb (char *__restrict __s, wchar_t __wc,
 		       mbstate_t *__restrict __ps) attribute_hidden;
@@ -42,7 +50,7 @@ extern wint_t __btowc (int __c) attribute_hidden;
 
 extern wctype_t __wctype (__const char *__property) attribute_hidden;
 
-extern int __iswctype (wint_t __wc, wctype_t __desc) /*attribute_hidden*/;
+//extern int __iswctype (wint_t __wc, wctype_t __desc) /*attribute_hidden*/;
 #endif
 
 #define memcmp __memcmp
@@ -55,10 +63,9 @@ extern int __iswctype (wint_t __wc, wctype_t __desc) /*attribute_hidden*/;
 #define strncpy __strncpy
 #define getenv __getenv
 #define strcasecmp __strcasecmp
-#define wcscoll __wcscoll
 
 extern void *__mempcpy (void *__restrict __dest,
-			__const void *__restrict __src, size_t __n) /*attribute_hidden*/;
+			__const void *__restrict __src, size_t __n) attribute_hidden;
 #endif
 
 /* Make sure noone compiles this code with a C++ compiler.  */
