@@ -29,7 +29,7 @@
  * by Erik Andersen <andersen@codepoet.org>
  */
 
-#include <locale.h>
+#include <features.h>
 
 .global strcmp
 .set strcmp,__strcmp
@@ -50,7 +50,7 @@ __strcmp:
 	mov	pc, lr
 
 .size __strcmp,.-__strcmp
-#ifdef __LOCALE_C_ONLY
+#ifndef __UCLIBC_HAS_LOCALE__
 .global __strcoll ; .hidden __strcoll ; __strcoll = __strcmp
 .global strcoll ; .set strcoll,__strcmp
 #endif
