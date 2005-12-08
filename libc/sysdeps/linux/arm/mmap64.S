@@ -53,7 +53,6 @@ mmap64:
 	teq	r5, $0
 	ldmeqfd	sp!, {r4, r5, lr}
 	beq	__mmap
-#endif
 .Linval:
 	mov	r0, $-EINVAL
 	ldmfd	sp!, {r4, r5, lr}
