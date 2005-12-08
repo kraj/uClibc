@@ -18,7 +18,7 @@
 
 
 /* ------------------------------ mallinfo ------------------------------ */
-struct mallinfo mallinfo(void)
+struct mallinfo attribute_hidden __mallinfo(void)
 {
     mstate av;
     struct mallinfo mi;
@@ -78,6 +78,7 @@ struct mallinfo mallinfo(void)
     UNLOCK;
     return mi;
 }
+strong_alias(__mallinfo,mallinfo)
 
 void malloc_stats(FILE *file)
 {
@@ -87,7 +88,7 @@ void malloc_stats(FILE *file)
 	file = stderr;
     }
 
-    mi = mallinfo();
+    mi = __mallinfo();
     fprintf(file, "total bytes allocated             = %10u\n", (unsigned int)(mi.arena + mi.hblkhd));
     fprintf(file, "total bytes in use bytes          = %10u\n", (unsigned int)(mi.uordblks + mi.hblkhd));
     fprintf(file, "total non-mmapped bytes allocated = %10d\n", mi.arena);
