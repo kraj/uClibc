@@ -264,13 +264,13 @@ __pthread_initialize_minimal_internal (void)
   sa.sa_flags = SA_SIGINFO;
   __sigemptyset (&sa.sa_mask);
 
-  (void) __libc_sigaction (SIGCANCEL, &sa, NULL);
+  (void) __sigaction_internal (SIGCANCEL, &sa, NULL);
 
   /* Install the handle to change the threads' uid/gid.  */
   sa.sa_sigaction = sighandler_setxid;
   sa.sa_flags = SA_SIGINFO | SA_RESTART;
 
-  (void) __libc_sigaction (SIGSETXID, &sa, NULL);
+  (void) __sigaction_internal (SIGSETXID, &sa, NULL);
 
   /* The parent process might have left the signals blocked.  Just in
      case, unblock it.  We reuse the signal mask in the sigaction

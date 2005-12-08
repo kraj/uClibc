@@ -42,10 +42,9 @@ __sigaction (sig, act, oact)
       return -1;
     }
 
-  return __libc_sigaction (sig, act, oact);
+  return __sigaction_internal (sig, act, oact);
 }
-libc_hidden_weak (__sigaction)
-weak_alias (__sigaction, sigaction)
+weak_alias(__sigaction, sigaction)
 
 #else
 

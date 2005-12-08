@@ -25,14 +25,14 @@
 #include <sys/syscall.h>
 #include <bits/kernel_sigaction.h>
 
+#define SA_RESTORER	0x04000000
+
 
 #if defined __NR_rt_sigaction
-#warning "Yes there is a warning here.  Don't worry about it."
-static void restore_rt (void) asm ("__restore_rt");
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+int attribute_hidden __sigaction_internal (int sig, const struct sigaction *act, struct sigaction *oact)
 {
     int result;
     struct kernel_sigaction kact, koact;
@@ -68,12 +68,11 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 
 
 #else
-#warning "Yes there is a warning here.  Don't worry about it."
-static void restore (void) asm ("__restore");
+extern void restore (void) asm ("__restore") attribute_hidden;
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
-int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+int attribute_hidden __sigaction_internal (int sig, const struct sigaction *act, struct sigaction *oact)
 {
     int result;
     struct old_kernel_sigaction kact, koact;
@@ -113,5 +112,5 @@ int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oa
 #endif
 
 #ifndef LIBC_SIGACTION
-weak_alias (__libc_sigaction, sigaction)
+weak_alias(__sigaction_internal,sigaction)
 #endif

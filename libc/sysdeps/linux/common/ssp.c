@@ -31,7 +31,6 @@
 #define closelog __closelog
 #define sigfillset __sigfillset_internal
 #define sigdelset __sigdelset_internal
-#define sigaction __sigaction_internal
 #define kill __kill
 
 #include <string.h>
