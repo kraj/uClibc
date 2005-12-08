@@ -8,6 +8,7 @@
  */
 
 #define utimes __utimes
+#define gettimeofday __gettimeofday
 
 #include "syscalls.h"
 #include <utime.h>
