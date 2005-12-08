@@ -23,6 +23,8 @@
  * to an internal conversion from a double to a long double, thereby losing
  * tons of precision.  But this is small, and works for now... */
 
+#define strtod __strtod
+
 #include <stdlib.h>
 
 long double strtold (const char *str, char **endptr)

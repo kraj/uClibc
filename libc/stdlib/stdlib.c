@@ -201,9 +201,13 @@ _stdlib_wcsto_ll(register const wchar_t * __restrict str,
 /**********************************************************************/
 #ifdef L_atof
 
+extern double __strtod (__const char *__restrict __nptr,
+		      char **__restrict __endptr)
+     __THROW __nonnull ((1)) __wur attribute_hidden;
+
 double atof(const char *nptr)
 {
-	return strtod(nptr, (char **) NULL);
+	return __strtod(nptr, (char **) NULL);
 }
 
 #endif
