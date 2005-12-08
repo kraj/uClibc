@@ -1,3 +1,5 @@
+#define nanosleep __nanosleep
+
 #include <time.h>
 #include <sys/time.h>
 #include <sys/types.h>

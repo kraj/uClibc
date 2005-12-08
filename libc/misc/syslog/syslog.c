@@ -32,7 +32,7 @@
  */
 
 #define ctime __ctime
-#define sigaction __sigaction_internal
+#define sigaction __sigaction
 #define connect __connect
 
 #define __FORCE_GLIBC

@@ -18,7 +18,8 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#define sigaction __sigaction_internal
+#define sigaction __sigaction
+#define nanosleep __nanosleep
 
 #include <errno.h>
 #include <time.h>
@@ -107,4 +108,4 @@ unsigned int attribute_hidden __sleep (unsigned int seconds)
     return result;
 }
 #endif
-strong_alias(__sleep,sleep)
+weak_alias(__sleep,sleep)

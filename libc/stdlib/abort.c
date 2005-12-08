@@ -18,7 +18,7 @@ Cambridge, MA 02139, USA.  */
 
 /* Hacked up for uClibc by Erik Andersen */
 
-#define sigaction __sigaction_internal
+#define sigaction __sigaction
 
 #define _GNU_SOURCE
 #include <features.h>

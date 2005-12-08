@@ -145,6 +145,7 @@
 #define inet_pton __inet_pton
 #define inet_ntop __inet_ntop
 #define connect __connect
+#define select __select
 
 #define __FORCE_GLIBC
 #include <features.h>
