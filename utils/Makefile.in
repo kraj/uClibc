@@ -5,7 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CFLAGS-utils := $(SSP_ALL_CFLAGS) -B$(top_builddir)lib
+CFLAGS-utils := -DNOT_IN_libc $(SSP_ALL_CFLAGS) -B$(top_builddir)lib
 
 CFLAGS-utils-common := -I$(top_srcdir)ldso/include -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=$(UCLIBC_LDSO)
 CFLAGS-utils-shared := $(PIEFLAG) $(LDPIEFLAG)
