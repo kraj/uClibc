@@ -18,6 +18,7 @@
    02111-1307 USA.  */
 
 #define getdtablesize __getdtablesize
+#define select __select
 
 #include "syscalls.h"
 #include <sys/poll.h>
