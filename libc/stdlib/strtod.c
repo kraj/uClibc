@@ -206,14 +206,14 @@ extern void __fp_range_check(__fpmax_t y, __fpmax_t x) attribute_hidden;
 
 #if defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE)
 
-__fpmax_t __strtofpmax(const Wchar *str, Wchar **endptr, int exponent_power)
+__fpmax_t attribute_hidden __strtofpmax(const Wchar *str, Wchar **endptr, int exponent_power)
 {
 	return __strtofpmax_l(str, endptr, exponent_power, __UCLIBC_CURLOCALE);
 }
 
 #else  /* defined(__UCLIBC_HAS_XLOCALE__) && !defined(__UCLIBC_DO_XLOCALE) */
 
-__fpmax_t __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endptr, int exponent_power
+__fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endptr, int exponent_power
 								 __LOCALE_PARAM )
 {
 	__fpmax_t number;
@@ -523,7 +523,7 @@ void attribute_hidden __fp_range_check(__fpmax_t y, __fpmax_t x)
 #endif
 
 
-float __XL(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
+float attribute_hidden __UCXL(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 1
 	return __XL_NPP(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
@@ -540,7 +540,7 @@ float __XL(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 #endif
 }
 
-__XL_ALIAS(strtof)
+__UCXL_ALIAS(strtof)
 
 #endif
 #endif
@@ -560,7 +560,7 @@ __XL_ALIAS(strtof)
 #define Wchar char
 #endif
 
-double __XL(strtod)(const Wchar *__restrict str,
+double attribute_hidden __UCXL(strtod)(const Wchar *__restrict str,
 					Wchar **__restrict endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 2
@@ -578,7 +578,7 @@ double __XL(strtod)(const Wchar *__restrict str,
 #endif
 }
 
-__XL_ALIAS(strtod)
+__UCXL_ALIAS(strtod)
 
 #endif
 #endif
@@ -598,7 +598,7 @@ __XL_ALIAS(strtod)
 #define Wchar char
 #endif
 
-long double __XL(strtold)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
+long double attribute_hidden __UCXL(strtold)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 {
 #if FPMAX_TYPE == 3
 	return __XL_NPP(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
@@ -615,7 +615,7 @@ long double __XL(strtold)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 #endif
 }
 
-__XL_ALIAS(strtold)
+__UCXL_ALIAS(strtold)
 
 #endif
 #endif
