@@ -23,6 +23,8 @@
    much more current.
  */
 
+#define tcgetattr __tcgetattr
+
 #include <errno.h>
 #include <stddef.h>
 #include <sys/ioctl.h>
@@ -100,7 +102,7 @@ int tcsetpgrp ( int fd, pid_t pgrp_id)
 
 #ifdef L_tcgetpgrp
 /* Return the foreground process group ID of FD.  */
-pid_t tcgetpgrp ( int fd)
+pid_t attribute_hidden __tcgetpgrp ( int fd)
 {
     int pgrp;
 
@@ -108,6 +110,7 @@ pid_t tcgetpgrp ( int fd)
 	return (pid_t) -1;
     return (pid_t) pgrp;
 }
+strong_alias(__tcgetpgrp,tcgetpgrp)
 #endif
 
 /* This is a gross hack around a kernel bug.  If the cfsetispeed functions is
@@ -143,7 +146,7 @@ speed_t cfgetispeed (const struct termios *termios_p)
 
 #ifdef L_cfsetospeed
 /* Set the output baud rate stored in *TERMIOS_P to SPEED.  */
-int cfsetospeed  (struct termios *termios_p, speed_t speed)
+int attribute_hidden __cfsetospeed  (struct termios *termios_p, speed_t speed)
 {
     if ((speed & ~CBAUD) != 0
 	    && (speed < B57600 || speed > B460800))
@@ -157,6 +160,7 @@ int cfsetospeed  (struct termios *termios_p, speed_t speed)
 
     return 0;
 }
+strong_alias(__cfsetospeed,cfsetospeed)
 #endif
 
 #ifdef L_cfsetispeed
@@ -164,7 +168,7 @@ int cfsetospeed  (struct termios *termios_p, speed_t speed)
  *    Although for Linux there is no difference between input and output
  *       speed, the numerical 0 is a special case for the input baud rate.  It
  *          should set the input baud rate to the output baud rate.  */
-int cfsetispeed ( struct termios *termios_p, speed_t speed)
+int attribute_hidden __cfsetispeed ( struct termios *termios_p, speed_t speed)
 {
     if ((speed & ~CBAUD) != 0
 	    && (speed < B57600 || speed > B460800))
@@ -184,9 +188,14 @@ int cfsetispeed ( struct termios *termios_p, speed_t speed)
 
     return 0;
 }
+strong_alias(__cfsetispeed,cfsetispeed)
 #endif
 
 #ifdef L_cfsetspeed
+
+extern int __cfsetospeed (struct termios *__termios_p, speed_t __speed) __THROW attribute_hidden;
+extern int __cfsetispeed (struct termios *__termios_p, speed_t __speed) __THROW attribute_hidden;
+
 struct speed_struct
 {
   speed_t value;
@@ -278,14 +287,14 @@ int cfsetspeed (struct termios *termios_p, speed_t speed)
   for (cnt = 0; cnt < sizeof (speeds) / sizeof (speeds[0]); ++cnt)
     if (speed == speeds[cnt].internal)
       {
-	cfsetispeed (termios_p, speed);
-	cfsetospeed (termios_p, speed);
+	__cfsetispeed (termios_p, speed);
+	__cfsetospeed (termios_p, speed);
 	return 0;
       }
     else if (speed == speeds[cnt].value)
       {
-	cfsetispeed (termios_p, speeds[cnt].internal);
-	cfsetospeed (termios_p, speeds[cnt].internal);
+	__cfsetispeed (termios_p, speeds[cnt].internal);
+	__cfsetospeed (termios_p, speeds[cnt].internal);
 	return 0;
       }
 

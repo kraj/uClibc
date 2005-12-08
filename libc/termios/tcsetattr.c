@@ -47,7 +47,7 @@
 
 
 /* Set the state of FD to *TERMIOS_P.  */
-int tcsetattr (int fd, int optional_actions, const struct termios *termios_p)
+int attribute_hidden __tcsetattr (int fd, int optional_actions, const struct termios *termios_p)
 {
     struct __kernel_termios k_termios;
     unsigned long int cmd;
@@ -114,3 +114,4 @@ int tcsetattr (int fd, int optional_actions, const struct termios *termios_p)
 
     return retval;
 }
+strong_alias(__tcsetattr,tcsetattr)

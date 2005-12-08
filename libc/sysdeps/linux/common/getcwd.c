@@ -153,7 +153,7 @@ int __syscall_getcwd(char * buf, unsigned long size)
 
 #endif
 
-char *getcwd(char *buf, size_t size)
+char attribute_hidden *__getcwd(char *buf, size_t size)
 {
     int ret;
     char *path;
@@ -185,4 +185,4 @@ char *getcwd(char *buf, size_t size)
 	free (path);
     return NULL;
 }
-
+strong_alias(__getcwd,getcwd)

@@ -65,7 +65,7 @@ utils: $(utils_OBJ) $(utils_ICONV_OBJ)
 $(utils_OBJ): $(utils_OUT)/% : $(utils_DIR)/%.c | $(libc)
 	$(compile.u)
 
-$(utils_OUT)/iconv.c: $(top_srcdir)libc/misc/wchar/wchar.c | $(libc)
+$(utils_OUT)/iconv: $(top_srcdir)libc/misc/wchar/wchar.c | $(libc)
 	$(compile.u)
 
 hostutils: $(hostutils_OBJ)

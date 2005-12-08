@@ -55,7 +55,7 @@
 /**********************************************************************/
 #ifdef GETXXKEY_R_FUNC
 
-int GETXXKEY_R_FUNC(DO_GETXXKEY_R_KEYTYPE key,
+int attribute_hidden GETXXKEY_R_FUNC_HIDDEN(DO_GETXXKEY_R_KEYTYPE key,
 					GETXXKEY_R_ENTTYPE *__restrict resultbuf,
 					char *__restrict buffer, size_t buflen,
 					GETXXKEY_R_ENTTYPE **__restrict result)
@@ -89,9 +89,11 @@ int GETXXKEY_R_FUNC(DO_GETXXKEY_R_KEYTYPE key,
 
 	return rv;
 }
+strong_alias(GETXXKEY_R_FUNC_HIDDEN,GETXXKEY_R_FUNC)
 
 #endif
 /**********************************************************************/
+#undef GETXXKEY_R_FUNC_HIDDEN
 #undef GETXXKEY_R_FUNC
 #undef GETXXKEY_R_PARSER
 #undef GETXXKEY_R_ENTTYPE

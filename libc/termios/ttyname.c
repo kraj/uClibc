@@ -26,13 +26,6 @@
  */
 #define TTYNAME_BUFLEN		32
 
-char *ttyname(int fd)
-{
-	static char name[TTYNAME_BUFLEN];
-
-	return ttyname_r(fd, name, TTYNAME_BUFLEN) ? NULL : name;
-}
-
 static const char dirlist[] =
 /*   12345670123 */
 "\010/dev/vc/\0"	/* Try /dev/vc first (be devfs compatible) */
@@ -41,7 +34,7 @@ static const char dirlist[] =
 "\011/dev/pts/\0"	/* and try /dev/pts next */
 "\005/dev/\0";		/* and try walking through /dev last */
 
-int ttyname_r(int fd, char *ubuf, size_t ubuflen)
+int attribute_hidden __ttyname_r(int fd, char *ubuf, size_t ubuflen)
 {
 	struct dirent *d;
 	struct stat st;
@@ -115,4 +108,12 @@ int ttyname_r(int fd, char *ubuf, size_t ubuflen)
 	__set_errno(rv);
 
 	return rv;
+}
+strong_alias(__ttyname_r,ttyname_r)
+
+char *ttyname(int fd)
+{
+	static char name[TTYNAME_BUFLEN];
+
+	return __ttyname_r(fd, name, TTYNAME_BUFLEN) ? NULL : name;
 }

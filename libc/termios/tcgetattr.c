@@ -32,7 +32,7 @@
 #include "kernel_termios.h"
 
 /* Put the state of FD into *TERMIOS_P.  */
-int tcgetattr (int fd, struct termios *termios_p)
+int attribute_hidden __tcgetattr (int fd, struct termios *termios_p)
 {
     struct __kernel_termios k_termios;
     int retval;
@@ -75,4 +75,4 @@ int tcgetattr (int fd, struct termios *termios_p)
 
     return retval;
 }
-
+strong_alias(__tcgetattr,tcgetattr)

@@ -17,6 +17,8 @@
    Boston, MA 02111-1307, USA.  */
 
 #define setvbuf __setvbuf
+#define tcsetattr __tcsetattr
+#define tcgetattr __tcgetattr
 
 #include <stdio.h>
 #include <string.h>

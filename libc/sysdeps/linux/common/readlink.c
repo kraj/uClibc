@@ -9,4 +9,6 @@
 
 #include "syscalls.h"
 #include <unistd.h>
-_syscall3(int, readlink, const char *, path, char *, buf, size_t, bufsiz);
+#define __NR___readlink __NR_readlink
+attribute_hidden _syscall3(int, __readlink, const char *, path, char *, buf, size_t, bufsiz);
+strong_alias(__readlink,readlink)

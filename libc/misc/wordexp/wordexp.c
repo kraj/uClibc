@@ -27,7 +27,10 @@
 #define waitpid __waitpid
 #define kill __kill
 #define getuid __getuid
+#define getpwnam_r __getpwnam_r
+#define getpwuid_r __getpwuid_r
 #define execve __execve
+#define dup2 __dup2
 
 #define _GNU_SOURCE
 #include <sys/cdefs.h>

@@ -48,7 +48,6 @@ typedef unsigned int wint_t;
 #  ifdef __USE_ISOC99
 __USING_NAMESPACE_C99(wint_t)
 #  endif
-__END_NAMESPACE_C99
 # endif
 
 /* Constant expression of type `wint_t' whose value does not correspond
@@ -322,23 +321,6 @@ extern wctrans_t wctrans_l (__const char *__property, __locale_t __locale)
 extern wint_t towctrans_l (wint_t __wc, wctrans_t __desc,
 			   __locale_t __locale) __THROW;
 
-extern int __iswalnum_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswalpha_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswblank_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswcntrl_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswdigit_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswgraph_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswlower_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswprint_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswpunct_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswspace_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswupper_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswxdigit_l(wint_t __wc, __locale_t __locale) __THROW;
-extern wint_t __towlower_l(wint_t __wc, __locale_t __locale) __THROW;
-extern wint_t __towupper_l(wint_t __wc, __locale_t __locale) __THROW;
-extern int __iswctype_l(wint_t __wc, wctype_t __desc, __locale_t __locale) __THROW;
-extern wctrans_t __wctrans_l(const char *__property, __locale_t __locale) __THROW;
-extern wint_t __towctrans_l(wint_t __wc, wctrans_t __desc, __locale_t __locale) __THROW;
 # endif /* Use GNU.  */
 
 __END_DECLS

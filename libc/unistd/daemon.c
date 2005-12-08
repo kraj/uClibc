@@ -23,6 +23,9 @@
  * Original copyright notice is retained at the end of this file.
  */
 
+#define dup2 __dup2
+#define setsid __setsid
+
 #include <stdio.h>
 #include <features.h>
 #include <fcntl.h>

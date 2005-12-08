@@ -18,6 +18,8 @@
  *
  */
 
+#define setgroups __setgroups
+
 #define _GNU_SOURCE
 #include <features.h>
 #include <stdio.h>
@@ -37,6 +39,15 @@
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
 #endif
+
+extern int __getspnam_r (__const char *__name, struct spwd *__result_buf,
+		       char *__buffer, size_t __buflen,
+		       struct spwd **__result) attribute_hidden;
+
+extern int __getpwuid_r (__uid_t __uid,
+		       struct passwd *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct passwd **__restrict __result) attribute_hidden;
 
 /**********************************************************************/
 /* Sizes for staticly allocated buffers. */
@@ -73,7 +84,7 @@ extern int __pgsreader(int (*__parserfunc)(void *d, char *line), void *data,
 /**********************************************************************/
 #ifdef L_fgetpwent_r
 
-int fgetpwent_r(FILE *__restrict stream, struct passwd *__restrict resultbuf,
+int attribute_hidden __fgetpwent_r(FILE *__restrict stream, struct passwd *__restrict resultbuf,
 				char *__restrict buffer, size_t buflen,
 				struct passwd **__restrict result)
 {
@@ -87,12 +98,13 @@ int fgetpwent_r(FILE *__restrict stream, struct passwd *__restrict resultbuf,
 
 	return rv;
 }
+strong_alias(__fgetpwent_r,fgetpwent_r)
 
 #endif
 /**********************************************************************/
 #ifdef L_fgetgrent_r
 
-int fgetgrent_r(FILE *__restrict stream, struct group *__restrict resultbuf,
+int attribute_hidden __fgetgrent_r(FILE *__restrict stream, struct group *__restrict resultbuf,
 				char *__restrict buffer, size_t buflen,
 				struct group **__restrict result)
 {
@@ -106,12 +118,13 @@ int fgetgrent_r(FILE *__restrict stream, struct group *__restrict resultbuf,
 
 	return rv;
 }
+strong_alias(__fgetgrent_r,fgetgrent_r)
 
 #endif
 /**********************************************************************/
 #ifdef L_fgetspent_r
 
-int fgetspent_r(FILE *__restrict stream, struct spwd *__restrict resultbuf,
+int attribute_hidden __fgetspent_r(FILE *__restrict stream, struct spwd *__restrict resultbuf,
 				char *__restrict buffer, size_t buflen,
 				struct spwd **__restrict result)
 {
@@ -125,6 +138,7 @@ int fgetspent_r(FILE *__restrict stream, struct spwd *__restrict resultbuf,
 
 	return rv;
 }
+strong_alias(__fgetspent_r,fgetspent_r)
 
 #endif
 /**********************************************************************/
@@ -134,13 +148,18 @@ int fgetspent_r(FILE *__restrict stream, struct spwd *__restrict resultbuf,
 /**********************************************************************/
 #ifdef L_fgetpwent
 
+extern int __fgetpwent_r (FILE *__restrict __stream,
+			struct passwd *__restrict __resultbuf,
+			char *__restrict __buffer, size_t __buflen,
+			struct passwd **__restrict __result) attribute_hidden;
+
 struct passwd *fgetpwent(FILE *stream)
 {
 	static char buffer[PWD_BUFFER_SIZE];
 	static struct passwd resultbuf;
 	struct passwd *result;
 
-	fgetpwent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
+	__fgetpwent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -148,13 +167,18 @@ struct passwd *fgetpwent(FILE *stream)
 /**********************************************************************/
 #ifdef L_fgetgrent
 
+extern int __fgetgrent_r (FILE *__restrict __stream,
+			struct group *__restrict __resultbuf,
+			char *__restrict __buffer, size_t __buflen,
+			struct group **__restrict __result) attribute_hidden;
+
 struct group *fgetgrent(FILE *stream)
 {
 	static char buffer[GRP_BUFFER_SIZE];
 	static struct group resultbuf;
 	struct group *result;
 
-	fgetgrent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
+	__fgetgrent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -162,13 +186,17 @@ struct group *fgetgrent(FILE *stream)
 /**********************************************************************/
 #ifdef L_fgetspent
 
+extern int __fgetspent_r (FILE *__stream, struct spwd *__result_buf,
+			char *__buffer, size_t __buflen,
+			struct spwd **__result) attribute_hidden;
+
 struct spwd *fgetspent(FILE *stream)
 {
 	static char buffer[PWD_BUFFER_SIZE];
 	static struct spwd resultbuf;
 	struct spwd *result;
 
-	fgetspent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
+	__fgetspent_r(stream, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -176,7 +204,7 @@ struct spwd *fgetspent(FILE *stream)
 /**********************************************************************/
 #ifdef L_sgetspent_r
 
-int sgetspent_r(const char *string, struct spwd *result_buf,
+int attribute_hidden __sgetspent_r(const char *string, struct spwd *result_buf,
 				char *buffer, size_t buflen, struct spwd **result)
 {
 	int rv = ERANGE;
@@ -203,6 +231,7 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
  DONE:
 	return rv;
 }
+strong_alias(__sgetspent_r,sgetspent_r)
 
 #endif
 /**********************************************************************/
@@ -212,9 +241,10 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #endif
 
 #ifdef L_getpwnam_r
-#define GETXXKEY_R_FUNC			getpwnam_r
+#define GETXXKEY_R_FUNC_HIDDEN	__getpwnam_r
+#define GETXXKEY_R_FUNC		getpwnam_r
 #define GETXXKEY_R_PARSER   	__parsepwent
-#define GETXXKEY_R_ENTTYPE		struct passwd
+#define GETXXKEY_R_ENTTYPE	struct passwd
 #define GETXXKEY_R_TEST(ENT)	(!__strcmp((ENT)->pw_name, key))
 #define DO_GETXXKEY_R_KEYTYPE	const char *__restrict
 #define DO_GETXXKEY_R_PATHNAME  _PATH_PASSWD
@@ -222,9 +252,10 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #endif
 
 #ifdef L_getgrnam_r
-#define GETXXKEY_R_FUNC			getgrnam_r
+#define GETXXKEY_R_FUNC_HIDDEN	__getgrnam_r
+#define GETXXKEY_R_FUNC		getgrnam_r
 #define GETXXKEY_R_PARSER   	__parsegrent
-#define GETXXKEY_R_ENTTYPE		struct group
+#define GETXXKEY_R_ENTTYPE	struct group
 #define GETXXKEY_R_TEST(ENT)	(!__strcmp((ENT)->gr_name, key))
 #define DO_GETXXKEY_R_KEYTYPE	const char *__restrict
 #define DO_GETXXKEY_R_PATHNAME  _PATH_GROUP
@@ -232,9 +263,10 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #endif
 
 #ifdef L_getspnam_r
-#define GETXXKEY_R_FUNC			getspnam_r
+#define GETXXKEY_R_FUNC_HIDDEN	__getspnam_r
+#define GETXXKEY_R_FUNC		getspnam_r
 #define GETXXKEY_R_PARSER   	__parsespent
-#define GETXXKEY_R_ENTTYPE		struct spwd
+#define GETXXKEY_R_ENTTYPE	struct spwd
 #define GETXXKEY_R_TEST(ENT)	(!__strcmp((ENT)->sp_namp, key))
 #define DO_GETXXKEY_R_KEYTYPE	const char *__restrict
 #define DO_GETXXKEY_R_PATHNAME  _PATH_SHADOW
@@ -242,9 +274,10 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #endif
 
 #ifdef L_getpwuid_r
-#define GETXXKEY_R_FUNC			getpwuid_r
+#define GETXXKEY_R_FUNC_HIDDEN	__getpwuid_r
+#define GETXXKEY_R_FUNC		getpwuid_r
 #define GETXXKEY_R_PARSER   	__parsepwent
-#define GETXXKEY_R_ENTTYPE		struct passwd
+#define GETXXKEY_R_ENTTYPE	struct passwd
 #define GETXXKEY_R_TEST(ENT)	((ENT)->pw_uid == key)
 #define DO_GETXXKEY_R_KEYTYPE	uid_t
 #define DO_GETXXKEY_R_PATHNAME  _PATH_PASSWD
@@ -252,9 +285,10 @@ int sgetspent_r(const char *string, struct spwd *result_buf,
 #endif
 
 #ifdef L_getgrgid_r
-#define GETXXKEY_R_FUNC			getgrgid_r
+#define GETXXKEY_R_FUNC_HIDDEN	__getgrgid_r
+#define GETXXKEY_R_FUNC		getgrgid_r
 #define GETXXKEY_R_PARSER   	__parsegrent
-#define GETXXKEY_R_ENTTYPE		struct group
+#define GETXXKEY_R_ENTTYPE	struct group
 #define GETXXKEY_R_TEST(ENT)	((ENT)->gr_gid == key)
 #define DO_GETXXKEY_R_KEYTYPE	gid_t
 #define DO_GETXXKEY_R_PATHNAME  _PATH_GROUP
@@ -270,7 +304,7 @@ struct passwd *getpwuid(uid_t uid)
 	static struct passwd resultbuf;
 	struct passwd *result;
 
-	getpwuid_r(uid, &resultbuf, buffer, sizeof(buffer), &result);
+	__getpwuid_r(uid, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -278,13 +312,17 @@ struct passwd *getpwuid(uid_t uid)
 /**********************************************************************/
 #ifdef L_getgrgid
 
+extern int __getgrgid_r (__gid_t __gid, struct group *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct group **__restrict __result) attribute_hidden;
+
 struct group *getgrgid(gid_t gid)
 {
 	static char buffer[GRP_BUFFER_SIZE];
 	static struct group resultbuf;
 	struct group *result;
 
-	getgrgid_r(gid, &resultbuf, buffer, sizeof(buffer), &result);
+	__getgrgid_r(gid, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -306,8 +344,8 @@ int getspuid_r(uid_t uid, struct spwd *__restrict resultbuf,
 	char pwd_buff[PWD_BUFFER_SIZE];
 
 	*result = NULL;
-	if (!(rv = getpwuid_r(uid, &password, pwd_buff, sizeof(pwd_buff), &pp))) {
-		rv = getspnam_r(password.pw_name, resultbuf, buffer, buflen, result);
+	if (!(rv = __getpwuid_r(uid, &password, pwd_buff, sizeof(pwd_buff), &pp))) {
+		rv = __getspnam_r(password.pw_name, resultbuf, buffer, buflen, result);
 	}
 
 	return rv;
@@ -334,13 +372,18 @@ struct spwd *getspuid(uid_t uid)
 /**********************************************************************/
 #ifdef L_getpwnam
 
+extern int __getpwnam_r (__const char *__restrict __name,
+		       struct passwd *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct passwd **__restrict __result) attribute_hidden;
+
 struct passwd *getpwnam(const char *name)
 {
 	static char buffer[PWD_BUFFER_SIZE];
 	static struct passwd resultbuf;
 	struct passwd *result;
 
-	getpwnam_r(name, &resultbuf, buffer, sizeof(buffer), &result);
+	__getpwnam_r(name, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -348,13 +391,18 @@ struct passwd *getpwnam(const char *name)
 /**********************************************************************/
 #ifdef L_getgrnam
 
+extern int __getgrnam_r (__const char *__restrict __name,
+		       struct group *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct group **__restrict __result) attribute_hidden;
+
 struct group *getgrnam(const char *name)
 {
 	static char buffer[GRP_BUFFER_SIZE];
 	static struct group resultbuf;
 	struct group *result;
 
-	getgrnam_r(name, &resultbuf, buffer, sizeof(buffer), &result);
+	__getgrnam_r(name, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -368,7 +416,7 @@ struct spwd *getspnam(const char *name)
 	static struct spwd resultbuf;
 	struct spwd *result;
 
-	getspnam_r(name, &resultbuf, buffer, sizeof(buffer), &result);
+	__getspnam_r(name, &resultbuf, buffer, sizeof(buffer), &result);
 	return result;
 }
 
@@ -384,7 +432,7 @@ int getpw(uid_t uid, char *buf)
 
 	if (!buf) {
 		__set_errno(EINVAL);
-	} else if (!getpwuid_r(uid, &resultbuf, buffer, sizeof(buffer), &result)) {
+	} else if (!__getpwuid_r(uid, &resultbuf, buffer, sizeof(buffer), &result)) {
 		if (sprintf(buf, "%s:%s:%lu:%lu:%s:%s:%s\n",
 					resultbuf.pw_name, resultbuf.pw_passwd,
 					(unsigned long)(resultbuf.pw_uid),
@@ -434,7 +482,7 @@ void endpwent(void)
 }
 
 
-int getpwent_r(struct passwd *__restrict resultbuf, 
+int attribute_hidden __getpwent_r(struct passwd *__restrict resultbuf, 
 			   char *__restrict buffer, size_t buflen,
 			   struct passwd **__restrict result)
 {
@@ -462,6 +510,7 @@ int getpwent_r(struct passwd *__restrict resultbuf,
 
 	return rv;
 }
+strong_alias(__getpwent_r,getpwent_r)
 
 #endif
 /**********************************************************************/
@@ -488,7 +537,7 @@ void endgrent(void)
 	UNLOCK;
 }
 
-int getgrent_r(struct group *__restrict resultbuf,
+int attribute_hidden __getgrent_r(struct group *__restrict resultbuf,
 			   char *__restrict buffer, size_t buflen,
 			   struct group **__restrict result)
 {
@@ -516,6 +565,7 @@ int getgrent_r(struct group *__restrict resultbuf,
 
 	return rv;
 }
+strong_alias(__getgrent_r,getgrent_r)
 
 #endif
 /**********************************************************************/
@@ -542,7 +592,7 @@ void endspent(void)
 	UNLOCK;
 }
 
-int getspent_r(struct spwd *resultbuf, char *buffer, 
+int attribute_hidden __getspent_r(struct spwd *resultbuf, char *buffer, 
 			   size_t buflen, struct spwd **result)
 {
 	int rv;
@@ -569,10 +619,15 @@ int getspent_r(struct spwd *resultbuf, char *buffer,
 
 	return rv;
 }
+strong_alias(__getspent_r,getspent_r)
 
 #endif
 /**********************************************************************/
 #ifdef L_getpwent
+	
+extern int __getpwent_r (struct passwd *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct passwd **__restrict __result) attribute_hidden;
 
 struct passwd *getpwent(void)
 {
@@ -580,7 +635,7 @@ struct passwd *getpwent(void)
 	static struct passwd pwd;
 	struct passwd *result;
 
-	getpwent_r(&pwd, line_buff, sizeof(line_buff), &result);
+	__getpwent_r(&pwd, line_buff, sizeof(line_buff), &result);
 	return result;
 }
 
@@ -588,13 +643,17 @@ struct passwd *getpwent(void)
 /**********************************************************************/
 #ifdef L_getgrent
 
+extern int __getgrent_r (struct group *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct group **__restrict __result) attribute_hidden;
+
 struct group *getgrent(void)
 {
 	static char line_buff[GRP_BUFFER_SIZE];
 	static struct group gr;
 	struct group *result;
 
-	getgrent_r(&gr, line_buff, sizeof(line_buff), &result);
+	__getgrent_r(&gr, line_buff, sizeof(line_buff), &result);
 	return result;
 }
 
@@ -602,13 +661,16 @@ struct group *getgrent(void)
 /**********************************************************************/
 #ifdef L_getspent
 
+extern int __getspent_r (struct spwd *__result_buf, char *__buffer,
+		       size_t __buflen, struct spwd **__result) attribute_hidden;
+
 struct spwd *getspent(void)
 {
 	static char line_buff[PWD_BUFFER_SIZE];
 	static struct spwd spwd;
 	struct spwd *result;
 
-	getspent_r(&spwd, line_buff, sizeof(line_buff), &result);
+	__getspent_r(&spwd, line_buff, sizeof(line_buff), &result);
 	return result;
 }
 
@@ -616,13 +678,17 @@ struct spwd *getspent(void)
 /**********************************************************************/
 #ifdef L_sgetspent
 
+extern int __sgetspent_r (__const char *__string, struct spwd *__result_buf,
+			char *__buffer, size_t __buflen,
+			struct spwd **__result) attribute_hidden;
+
 struct spwd *sgetspent(const char *string)
 {
 	static char line_buff[PWD_BUFFER_SIZE];
 	static struct spwd spwd;
 	struct spwd *result;
 
-	sgetspent_r(string, &spwd, line_buff, sizeof(line_buff), &result);
+	__sgetspent_r(string, &spwd, line_buff, sizeof(line_buff), &result);
 	return result;
 }
 

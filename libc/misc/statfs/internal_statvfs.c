@@ -17,6 +17,13 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+extern FILE *__setmntent (__const char *__file, __const char *__mode) __THROW attribute_hidden;
+extern struct mntent *__getmntent_r (FILE *__restrict __stream,
+				   struct mntent *__restrict __result,
+				   char *__restrict __buffer,
+				   int __bufsize) __THROW attribute_hidden;
+extern int __endmntent (FILE *__stream) __THROW attribute_hidden;
+
   /* Now fill in the fields we have information for.  */
   buf->f_bsize = fsbuf.f_bsize;
   /* Linux does not support f_frsize, so set it to the full block size.  */
@@ -57,15 +64,15 @@
       struct mntent mntbuf;
       FILE *mtab;
 
-      mtab = setmntent ("/proc/mounts", "r");
+      mtab = __setmntent ("/proc/mounts", "r");
       if (mtab == NULL)
-	mtab = setmntent (_PATH_MOUNTED, "r");
+	mtab = __setmntent (_PATH_MOUNTED, "r");
 
       if (mtab != NULL)
 	{
 	  char tmpbuf[1024];
 
-	  while (getmntent_r (mtab, &mntbuf, tmpbuf, sizeof (tmpbuf)))
+	  while (__getmntent_r (mtab, &mntbuf, tmpbuf, sizeof (tmpbuf)))
 	    {
 	      struct stat fsst;
 
@@ -102,7 +109,7 @@
 	    }
 
 	  /* Close the file.  */
-	  endmntent (mtab);
+	  __endmntent (mtab);
 	}
 
       __set_errno (save_errno);
