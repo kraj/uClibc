@@ -93,7 +93,7 @@ __rexec_af(char **ahost, int rport, const char *name, const char *pass, const ch
 	}
 	__ruserpass(res0->ai_canonname, &name, &pass);
 retry:
-	s = socket(res0->ai_family, res0->ai_socktype, 0);
+	s = __socket(res0->ai_family, res0->ai_socktype, 0);
 	if (s < 0) {
 		__perror("rexec: socket");
 		return (-1);
@@ -115,7 +115,7 @@ retry:
 		char num[32];
 		int s2, sa2len;
 
-		s2 = socket(res0->ai_family, res0->ai_socktype, 0);
+		s2 = __socket(res0->ai_family, res0->ai_socktype, 0);
 		if (s2 < 0) {
 			(void) __close(s);
 			return (-1);

@@ -14,5 +14,7 @@
 #endif
 #endif
 
-_syscall6 (__ptr_t, mmap, __ptr_t, addr, size_t, len, int, prot,
+#define __NR___mmap __NR_mmap
+attribute_hidden _syscall6 (__ptr_t, __mmap, __ptr_t, addr, size_t, len, int, prot,
 	   int, flags, int, fd, __off_t, offset);
+strong_alias(__mmap,mmap)

@@ -166,7 +166,7 @@ svctcp_create (int sock, u_int sendsize, u_int recvsize)
 
   if (sock == RPC_ANYSOCK)
     {
-      if ((sock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+      if ((sock = __socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 	{
 	  __perror (_("svc_tcp.c - tcp socket creation problem"));
 	  return (SVCXPRT *) NULL;

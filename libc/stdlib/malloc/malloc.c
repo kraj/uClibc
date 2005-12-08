@@ -11,6 +11,8 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
+#define mmap __mmap
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>

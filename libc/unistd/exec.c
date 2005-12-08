@@ -30,6 +30,7 @@
  * to free the storage allocated for the copy.  Better ideas anyone?
  */
 
+#define mmap __mmap
 #define munmap __munmap
 #define execve __execve
 

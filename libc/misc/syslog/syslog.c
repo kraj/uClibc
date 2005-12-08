@@ -148,7 +148,7 @@ __openlog( const char *ident, int logstat, int logfac )
 		      sizeof(SyslogAddr.sa_data));
 retry:
 	if (LogStat & LOG_NDELAY) {
-	    if ((LogFile = socket(AF_UNIX, logType, 0)) == -1){
+	    if ((LogFile = __socket(AF_UNIX, logType, 0)) == -1){
 		UNLOCK;
 		return;
 	    }

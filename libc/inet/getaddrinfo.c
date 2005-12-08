@@ -159,7 +159,7 @@ static int addrconfig (sa_family_t af)
     int s;
     int ret;
     int saved_errno = errno;
-    s = socket(af, SOCK_DGRAM, 0);
+    s = __socket(af, SOCK_DGRAM, 0);
     if (s < 0)
 	ret = (errno == EMFILE) ? 1 : 0;
     else

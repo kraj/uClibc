@@ -198,6 +198,9 @@ extern int __sigprocmask (int __how, __const __sigset_t *__restrict __set,
 /* #include <sys/ioctl.h> */
 extern int __ioctl (int __fd, unsigned long int __request, ...) attribute_hidden;
 
+/* #include <sys/socket.h> */
+extern int __socket (int __domain, int __type, int __protocol) attribute_hidden;
+
 #  if 0 /* undoable here */
 /* #include <dirent.h> */
 typedef struct __dirstream DIR;

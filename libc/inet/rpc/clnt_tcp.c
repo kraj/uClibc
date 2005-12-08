@@ -175,7 +175,7 @@ __clnttcp_create (struct sockaddr_in *raddr, u_long prog, u_long vers,
    */
   if (*sockp < 0)
     {
-      *sockp = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
+      *sockp = __socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
       (void) bindresvport (*sockp, (struct sockaddr_in *) 0);
       if ((*sockp < 0)
 	  || (connect (*sockp, (struct sockaddr *) raddr,

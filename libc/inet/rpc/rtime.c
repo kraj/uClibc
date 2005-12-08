@@ -44,6 +44,8 @@ static char sccsid[] = "@(#)rtime.c	2.2 88/08/10 4.0 RPCSRC; from 1.8 88/02/08 S
  */
 
 #define connect __connect
+#define recvfrom __recvfrom
+#define sendto __sendto
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -93,7 +95,7 @@ rtime (struct sockaddr_in *addrp, struct rpc_timeval *timep,
   else
     type = SOCK_DGRAM;
 
-  s = socket (AF_INET, type, 0);
+  s = __socket (AF_INET, type, 0);
   if (s < 0)
     return (-1);
 

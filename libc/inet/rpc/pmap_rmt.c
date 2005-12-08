@@ -49,6 +49,8 @@ static char sccsid[] = "@(#)pmap_rmt.c 1.21 87/08/27 Copyr 1984 Sun Micro";
 #define inet_netof __inet_netof
 #define clntudp_create __clntudp_create
 #define setsockopt __setsockopt
+#define recvfrom __recvfrom
+#define sendto __sendto
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -274,7 +276,7 @@ clnt_broadcast (prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
    * initialization: create a socket, a broadcast address, and
    * preserialize the arguments into a send buffer.
    */
-  if ((sock = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+  if ((sock = __socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
     {
       __perror (_("Cannot create socket for broadcast rpc"));
       stat = RPC_CANTSEND;

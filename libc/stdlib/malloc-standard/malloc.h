@@ -14,6 +14,7 @@
   Hacked up for uClibc by Erik Andersen <andersen@codepoet.org>
 */
 
+#define mmap __mmap
 #define sysconf __sysconf
 
 #include <features.h>

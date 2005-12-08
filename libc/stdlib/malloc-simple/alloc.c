@@ -6,6 +6,7 @@
  * Parts of the memalign code were stolen from malloc-930716.
  */
 
+#define mmap __mmap
 #define munmap __munmap
 
 #define _GNU_SOURCE

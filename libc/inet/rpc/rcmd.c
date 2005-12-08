@@ -280,7 +280,7 @@ int attribute_hidden __rresvport(int *alport)
 
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = INADDR_ANY;
-    s = socket(AF_INET, SOCK_STREAM, 0);
+    s = __socket(AF_INET, SOCK_STREAM, 0);
     if (s < 0)
 	return -1;
     for (;;) {

@@ -20,6 +20,7 @@
 
 #define setgroups __setgroups
 #define strtoul __strtoul
+#define rewind __rewind
 
 #define _GNU_SOURCE
 #include <features.h>

@@ -52,10 +52,7 @@ mmap64:
 	mov	r0, ip			@ first arg was clobbered
 	teq	r5, $0
 	ldmeqfd	sp!, {r4, r5, lr}
-#ifdef __PIC__
-	beq	mmap(PLT)
-#else
-	beq	mmap
+	beq	__mmap
 #endif
 .Linval:
 	mov	r0, $-EINVAL

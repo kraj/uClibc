@@ -16,6 +16,7 @@
  */
 
 #define inet_network __inet_network
+#define rewind __rewind
 
 #define __FORCE_GLIBC
 #include <features.h>

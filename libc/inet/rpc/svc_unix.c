@@ -50,6 +50,8 @@
 #define getsockname __getsockname
 #define setsockopt __setsockopt
 #define bind __bind
+#define recvmsg __recvmsg
+#define sendmsg __sendmsg
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -161,7 +163,7 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
 
   if (sock == RPC_ANYSOCK)
     {
-      if ((sock = socket (AF_UNIX, SOCK_STREAM, 0)) < 0)
+      if ((sock = __socket (AF_UNIX, SOCK_STREAM, 0)) < 0)
 	{
 	  __perror (_("svc_unix.c - AF_UNIX socket creation problem"));
 	  return (SVCXPRT *) NULL;

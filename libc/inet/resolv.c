@@ -146,6 +146,8 @@
 #define inet_ntop __inet_ntop
 #define connect __connect
 #define select __select
+#define recv __recv
+#define send __send
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -770,9 +772,9 @@ int attribute_hidden __dns_lookup(const char *name, int type, int nscount, char 
 
 #ifdef __UCLIBC_HAS_IPV6__
 		v6 = inet_pton(AF_INET6, dns, &sa6.sin6_addr) > 0;
-		fd = socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		fd = __socket(v6 ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #else
-		fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		fd = __socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #endif
 		if (fd < 0) {
                     retries++;

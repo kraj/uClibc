@@ -32,10 +32,10 @@ static int __opensock(void)
 {
     int fd;
 #ifdef __UCLIBC_HAS_IPV6__
-    fd=socket(AF_INET6,SOCK_DGRAM,0);
+    fd=__socket(AF_INET6,SOCK_DGRAM,0);
     if (fd<0)
 #endif /* __UCLIBC_HAS_IPV6__ */
-	fd=socket(AF_INET,SOCK_DGRAM,0);
+	fd=__socket(AF_INET,SOCK_DGRAM,0);
     return(fd);
 }
 

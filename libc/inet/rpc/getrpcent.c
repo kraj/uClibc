@@ -34,6 +34,7 @@
  */
 
 #define atoi __atoi
+#define rewind __rewind
 
 #define __FORCE_GLIBC
 #include <features.h>

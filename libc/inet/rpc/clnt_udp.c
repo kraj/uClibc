@@ -49,6 +49,9 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #define _seterr_reply __seterr_reply
 #define setsockopt __setsockopt
 #define bindresvport __bindresvport
+#define recvfrom __recvfrom
+#define sendto __sendto
+#define recvmsg __recvmsg
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -197,7 +200,7 @@ __clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
     {
       int dontblock = 1;
 
-      *sockp = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+      *sockp = __socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
       if (*sockp < 0)
 	{
 	  struct rpc_createerr *ce = &get_rpc_createerr ();

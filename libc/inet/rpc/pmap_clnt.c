@@ -66,7 +66,7 @@ __get_myaddress (struct sockaddr_in *addr)
   struct ifreq ifreq, *ifr;
   int len, loopback = 1;
 
-  if ((s = socket (AF_INET, SOCK_DGRAM, 0)) < 0)
+  if ((s = __socket (AF_INET, SOCK_DGRAM, 0)) < 0)
     {
       __perror ("__get_myaddress: socket");
       exit (1);

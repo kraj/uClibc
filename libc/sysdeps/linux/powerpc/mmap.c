@@ -10,7 +10,7 @@
 	return (__sc_err & 0x10000000 ? errno = __sc_ret, __sc_ret = -1 : 0), \
 	       (type) __sc_ret
 
-void * mmap(void *start, size_t length, int prot, int flags, int fd,
+void attribute_hidden * __mmap(void *start, size_t length, int prot, int flags, int fd,
 	off_t offset)
 {
 	unsigned long __sc_ret, __sc_err;
@@ -45,4 +45,4 @@ void * mmap(void *start, size_t length, int prot, int flags, int fd,
 
 	__syscall_return (void *);
 }
-
+strong_alias(__mmap,mmap)
