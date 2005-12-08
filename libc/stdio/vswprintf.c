@@ -13,7 +13,7 @@
 #warning Skipping vswprintf since no buffering!
 #else  /* __STDIO_BUFFERS */
 
-int vswprintf(wchar_t *__restrict buf, size_t size,
+int attribute_hidden __vswprintf(wchar_t *__restrict buf, size_t size,
 			  const wchar_t * __restrict format, va_list arg)
 {
 	FILE f;
@@ -66,5 +66,6 @@ int vswprintf(wchar_t *__restrict buf, size_t size,
 	}
 	return rv;
 }
+strong_alias(__vswprintf,vswprintf)
 
 #endif /* __STDIO_BUFFERS */

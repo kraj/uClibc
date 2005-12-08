@@ -7,7 +7,7 @@
 
 #include "_stdio.h"
 
-FILE *fdopen(int filedes, const char *mode)
+FILE attribute_hidden *__fdopen(int filedes, const char *mode)
 {
 	intptr_t cur_mode;
 
@@ -15,3 +15,4 @@ FILE *fdopen(int filedes, const char *mode)
 		? _stdio_fopen(cur_mode, mode, NULL, filedes) 
 		: NULL;
 }
+strong_alias(__fdopen,fdopen)

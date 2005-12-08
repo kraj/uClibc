@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define isatty __isatty
+
 #include "_stdio.h"
 
 /* This is pretty much straight from uClibc, but with one important

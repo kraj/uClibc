@@ -23,12 +23,13 @@ int attribute_hidden __fileno_unlocked(register FILE *stream)
 
 weak_alias(__fileno_unlocked,fileno_unlocked);
 #ifndef __UCLIBC_HAS_THREADS__
+hidden_weak_alias(__fileno_unlocked,__fileno);
 weak_alias(__fileno_unlocked,fileno);
 #endif
 
 #elif defined __UCLIBC_HAS_THREADS__
 
-int fileno(register FILE *stream)
+int attribute_hidden __fileno(register FILE *stream)
 {
 	int retval;
 	__STDIO_AUTO_THREADLOCK_VAR;
@@ -41,5 +42,5 @@ int fileno(register FILE *stream)
 
 	return retval;
 }
-
+strong_alias(__fileno,fileno)
 #endif

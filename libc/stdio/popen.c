@@ -17,6 +17,7 @@
 #define waitpid __waitpid
 #define execl __execl
 #define dup2 __dup2
+#define fdopen __fdopen
 
 #include <stdio.h>
 #include <stdlib.h>

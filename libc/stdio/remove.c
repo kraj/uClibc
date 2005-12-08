@@ -5,6 +5,9 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define rmdir __rmdir
+#define unlink __unlink
+
 #include "_stdio.h"
 
 #include <unistd.h>

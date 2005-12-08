@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define vasprintf __vasprintf
+
 #include "_stdio.h"
 #include <stdarg.h>
 
@@ -12,7 +14,7 @@
 #warning Skipping asprintf and __asprintf since no vsnprintf!
 #else
 
-int __asprintf(char **__restrict buf, const char * __restrict format, ...)
+int attribute_hidden __asprintf(char **__restrict buf, const char * __restrict format, ...)
 {
 	va_list arg;
 	int rv;
@@ -24,6 +26,6 @@ int __asprintf(char **__restrict buf, const char * __restrict format, ...)
 	return rv;
 }
 
-weak_alias(__asprintf,asprintf)
+strong_alias(__asprintf,asprintf)
 
 #endif

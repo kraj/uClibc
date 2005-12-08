@@ -5,6 +5,8 @@
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
 
+#define fopencookie __fopencookie
+
 #include "_stdio.h"
 
 #ifndef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__

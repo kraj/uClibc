@@ -20,7 +20,7 @@
 #warning Skipping vasprintf since no vsnprintf!
 #else
 
-int vasprintf(char **__restrict buf, const char * __restrict format,
+int attribute_hidden __vasprintf(char **__restrict buf, const char * __restrict format,
 			 va_list arg)
 {
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
@@ -73,6 +73,7 @@ int vasprintf(char **__restrict buf, const char * __restrict format,
 	return rv;
 
 #endif /* __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__ */
+strong_alias(__vasprintf,vasprintf)
 }
 
 #endif

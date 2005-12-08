@@ -8,7 +8,7 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
-int vdprintf(int filedes, const char * __restrict format, va_list arg)
+int attribute_hidden __vdprintf(int filedes, const char * __restrict format, va_list arg)
 {
 	FILE f;
 	int rv;
@@ -60,3 +60,4 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 
 	return rv;
 }
+strong_alias(__vdprintf,vdprintf)
