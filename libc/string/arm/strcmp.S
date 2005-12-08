@@ -51,6 +51,6 @@ __strcmp:
 
 .size __strcmp,.-__strcmp
 #ifdef __LOCALE_C_ONLY
-.weak __strcoll ; __strcoll = __strcmp
-.global strcoll ; .set strcoll,__strcoll
+.global __strcoll ; .hidden __strcoll ; __strcoll = __strcmp
+.global strcoll ; .set strcoll,__strcmp
 #endif

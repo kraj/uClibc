@@ -12,8 +12,8 @@
 strong_alias(__strcmp, strcmp)
 
 #ifdef __LOCALE_C_ONLY
-weak_alias(__strcmp, __strcoll)
-weak_alias(__strcmp, strcoll)
+hidden_strong_alias(__strcmp, __strcoll)
+strong_alias(__strcmp, strcoll)
 #endif
 
 #undef L_strcmp
