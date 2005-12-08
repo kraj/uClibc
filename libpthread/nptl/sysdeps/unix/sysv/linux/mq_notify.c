@@ -282,6 +282,4 @@ mq_notify (mqd_t mqdes, const struct sigevent *notification)
   return retval;
 }
 
-#else
-# include <sysdeps/generic/mq_notify.c>
 #endif

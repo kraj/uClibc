@@ -22,6 +22,10 @@ else
 CSRC+=getopt-susv3.c
 endif
 
+ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+CSRC:=$(filter-out sleep.c,$(CSRC))
+endif
+
 UNISTD_DIR:=$(top_srcdir)libc/unistd
 UNISTD_OUT:=$(top_builddir)libc/unistd
 

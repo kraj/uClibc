@@ -10,10 +10,12 @@ libpthread_CSRC = pt-raise.c pthread_attr_getaffinity.c			\
 		  pthread_getcpuclockid.c pthread_kill.c		\
 		  pthread_mutex_cond_lock.c pthread_setaffinity.c	\
 		  pthread_yield.c sem_post.c sem_timedwait.c		\
-		  sem_trywait.c sem_wait.c pt-fork.c
+		  sem_trywait.c sem_wait.c pt-fork.c			\
+		  sigtimedwait.c sigwaitinfo.c sigwait.c sleep.c
 
 libc_CSRC = libc_pthread_init.c libc_multiple_threads.c			\
-	    register-atfork.c unregister-atfork.c
+	    register-atfork.c unregister-atfork.c getpid.c		\
+	    raise.c sleep.c
 
 ifeq ($(TARGET_ARCH),alpha)
 libpthread_CSRC += lowlevellock.c
@@ -39,16 +41,20 @@ CFLAGS-pt-fork.c = -D_GNU_SOURCE
 CFLAGS-pthread_getcpuclockid.c = -I$(top_srcdir)/librt
 
 CFLAGS-linux = -DNOT_IN_libc=1 -DIS_IN_libpthread=1 $(SSP_ALL_CFLAGS)
+#CFLAGS:=$(CFLAGS:-O1=-O2)
 
 CFLAGS-OMIT-libc_pthread_init.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-OMIT-libc_multiple_threads.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-OMIT-register-atfork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-OMIT-unregister-atfork.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-getpid.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-raise.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
+CFLAGS-OMIT-sleep.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 
-pthread_DIR := $(top_srcdir)/libpthread/nptl/sysdeps/unix/sysv/linux
-pthread_OUT := $(top_builddir)/libpthread/nptl/sysdeps/unix/sysv/linux
+linux_DIR := $(top_srcdir)/libpthread/nptl/sysdeps/unix/sysv/linux
+linux_OUT := $(top_builddir)/libpthread/nptl/sysdeps/unix/sysv/linux
 
-PTHREAD_OBJ = $(patsubst %.c, $(pthread_OUT)/%.o, $(libpthread_CSRC))
+PTHREAD_OBJ = $(patsubst %.c, $(linux_OUT)/%.o, $(libpthread_CSRC))
 
 libpthread-a-y += $(PTHREAD_OBJ)
 libpthread-so-y += $(PTHREAD_OBJ:.o=.oS)
@@ -56,13 +62,13 @@ libpthread-so-y += $(PTHREAD_OBJ:.o=.oS)
 #
 # Special suffix rules.
 #
-LIBC_OBJ = $(patsubst %.c, $(pthread_OUT)/%.o, $(libc_CSRC))
+LIBC_OBJ = $(patsubst %.c, $(linux_OUT)/%.o, $(libc_CSRC))
 
 
 libc-a-y += $(LIBC_OBJ)
-libc-so-y += $(LIBC_OBJ:.o=.oS)
+libc-so-y += $(LIBC_OBJ:.o=.os)
 
 objclean-y += pthread_linux_objclean
 
 pthread_linux_objclean:
-	$(RM) $(pthread_OUT)/*.{o,os,oS}
+	$(RM) $(linux_OUT)/*.{o,os,oS}

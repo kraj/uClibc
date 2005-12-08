@@ -25,13 +25,8 @@
 # include <sgidefs.h>
 #endif
 
-# include <linux/version.h>
-# define __LINUX_KERNEL_VERSION		LINUX_VERSION_CODE
-
-#ifndef __LINUX_KERNEL_VERSION
-/* We assume the worst; all kernels should be supported.  */
-# define __LINUX_KERNEL_VERSION	0
-#endif
+#include <linux/version.h>
+#define __LINUX_KERNEL_VERSION		LINUX_VERSION_CODE
 
 /* We assume for __LINUX_KERNEL_VERSION the same encoding used in
    linux/version.h.  I.e., the major, minor, and subminor all get a

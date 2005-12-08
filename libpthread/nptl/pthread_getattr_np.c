@@ -100,7 +100,7 @@ pthread_getattr_np (thread_id, attr)
 
 	  while (! feof_unlocked (fp))
 	    {
-	      if (__getdelim (&line, &linelen, '\n', fp) <= 0)
+	      if (getdelim (&line, &linelen, '\n', fp) <= 0)
 		break;
 
 	      uintptr_t from;

@@ -16,6 +16,7 @@ ASFLAGS-pthread_spin_lock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 
 CFLAGS-mips = $(SSP_ALL_CFLAGS)
+#CFLAGS:=$(CFLAGS:-O1=-O2)
 
 PTHREAD_ARCH_DIR:=$(top_srcdir)libpthread/nptl/sysdeps/mips
 PTHREAD_ARCH_OUT:=$(top_builddir)libpthread/nptl/sysdeps/mips

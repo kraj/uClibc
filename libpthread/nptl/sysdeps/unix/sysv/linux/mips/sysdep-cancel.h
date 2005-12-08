@@ -17,10 +17,9 @@
    02111-1307 USA.  */
 
 #include <sysdep.h>
-#include <sysdeps/generic/sysdep.h>
 #include <tls.h>
 #ifndef __ASSEMBLER__
-# include <nptl/pthreadP.h>
+# include <pthreadP.h>
 #endif
 
 #if !defined NOT_IN_libc || defined IS_IN_libpthread || defined IS_IN_librt

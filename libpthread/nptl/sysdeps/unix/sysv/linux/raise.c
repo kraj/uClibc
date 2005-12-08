@@ -21,7 +21,7 @@
 #include <limits.h>
 #include <signal.h>
 #include <sysdep.h>
-#include <nptl/pthreadP.h>
+#include <pthreadP.h>
 #include <kernel-features.h>
 
 

@@ -87,7 +87,7 @@ libpthread-routines = init vars events version \
 		      pt-raise pt-system \
 		      flockfile ftrylockfile funlockfile \
 		      sigaction \
-		      herrno res pt-allocrtsig \
+		      herrno res \
 		      pthread_kill_other_threads \
 		      pthread_getaffinity pthread_setaffinity \
 		      pthread_attr_getaffinity pthread_attr_setaffinity \
@@ -168,6 +168,7 @@ CFLAGS-pthread_barrierattr_setpshared.c = -D_GNU_SOURCE
 CFLAGS-sem_open.c = -D_GNU_SOURCE
 
 CFLAGS-nptl = -DNOT_IN_libc=1 $(SSP_ALL_CFLAGS) -DIS_IN_libpthread=1
+#CFLAGS:=$(CFLAGS:-O1=-O2)
 
 CFLAGS-OMIT-alloca_cutoff.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 CFLAGS-OMIT-forward.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
@@ -238,7 +239,8 @@ libpthread_so_SRC = $(patsubst %, $(libpthread_DIR)/%.c,		\
 
 libc-a-y += $(patsubst %.c, $(libpthread_OUT)/%.o, alloca_cutoff.c	\
 	    forward.c libc-cancellation.c)
-libc-so-y += $(patsubst %.c, $(libpthread_OUT)/%.oS, forward.c)
+libc-so-y += $(patsubst %.c, $(libpthread_OUT)/%.oS, forward.c		\
+	    libc-cancellation.c)
 
 libpthread-a-y := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpthread_a_SRC))
 libpthread-so-y := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.oS,$(libpthread_so_SRC))
@@ -252,7 +254,6 @@ lib-a-y += $(top_builddir)lib/libpthread.a
 lib-so-y += $(top_builddir)lib/libpthread.so
 
 objclean-y += libpthread_clean
-
 headers-y += nptl_headers
 headers_clean-y += nptl_headers_clean
 
@@ -290,8 +291,8 @@ nptl_headers:
 	$(LN) -sf ../../$(PTDIR)/sysdeps/pthread/bits/stdio-lock.h $(top_builddir)include/bits/
 
 nptl_headers_clean:
-	$(RM) ../$(PTDIR)/banner.h $(top_builddir)include/pthread.h	\
-	      ../$(PTDIR)/version.h $(top_builddir)include/semaphore.h
+	$(RM) $(PTDIR)/banner.h $(top_builddir)include/pthread.h	\
+	      $(PTDIR)/version.h $(top_builddir)include/semaphore.h
 
 libpthread_clean:
 	$(RM) $(libpthread_OUT)/*.{o,os,oS}

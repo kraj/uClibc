@@ -18,6 +18,7 @@ CFLAGS-pthread_once.c = -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 ASFLAGS += -DNOT_IN_libc=1 -DIS_IN_libpthread=1
 
 CFLAGS += $(SSP_ALL_CFLAGS)
+#CFLAGS:=$(CFLAGS:-O1=-O2)
 
 LINUX_ARCH_DIR:=$(top_srcdir)libpthread/nptl/sysdeps/unix/sysv/linux/mips
 LINUX_ARCH_OUT:=$(top_builddir)libpthread/nptl/sysdeps/unix/sysv/linux/mips

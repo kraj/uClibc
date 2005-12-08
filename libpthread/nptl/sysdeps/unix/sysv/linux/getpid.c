@@ -46,7 +46,7 @@ really_getpid (pid_t oldval)
 }
 #endif
 
-pid_t
+pid_t attribute_hidden
 __getpid (void)
 {
 #ifdef NOT_IN_libc
@@ -60,6 +60,4 @@ __getpid (void)
   return result;
 }
 
-libc_hidden_def (__getpid)
 weak_alias (__getpid, getpid)
-libc_hidden_def (getpid)
