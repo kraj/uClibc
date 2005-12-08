@@ -8,7 +8,7 @@
 
 /* The actual system call: all functions are multiplexed by this.  */
 extern int __syscall_ipc __P((unsigned int __call, int __first, int __second,
-					  int __third, void *__ptr));
+					  int __third, void *__ptr)) attribute_hidden;
 
 
 /* The codes for the functions to use the multiplexer `__syscall_ipc'.  */
