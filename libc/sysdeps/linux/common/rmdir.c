@@ -9,4 +9,6 @@
 
 #include "syscalls.h"
 #include <unistd.h>
-_syscall1(int, rmdir, const char *, pathname);
+#define __NR___rmdir __NR_rmdir
+attribute_hidden _syscall1(int, __rmdir, const char *, pathname);
+strong_alias(__rmdir,rmdir)
