@@ -1,6 +1,4 @@
 /* @(#)getrpcent.c	2.2 88/07/29 4.0 RPCSRC */
-#define __FORCE_GLIBC
-#include <features.h>
 
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for
@@ -35,6 +33,10 @@
  * Copyright (c) 1985 by Sun Microsystems, Inc.
  */
 
+#define atoi __atoi
+
+#define __FORCE_GLIBC
+#include <features.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>

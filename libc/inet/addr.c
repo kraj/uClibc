@@ -28,8 +28,6 @@
 #include <netinet/in.h>
 #include <bits/uClibc_uintmaxtostr.h>
 
-int inet_aton(const char *cp, struct in_addr *addrptr);
-
 #ifdef L_inet_aton
 /*
  * More undocumented inet_aton features.
@@ -47,9 +45,7 @@ int inet_aton(const char *cp, struct in_addr *addrptr);
  * leading 0   -> octal
  * all else    -> decimal
  */
-int inet_aton(cp, addrptr)
-const char *cp;
-struct in_addr *addrptr;
+int attribute_hidden __inet_aton(const char *cp, struct in_addr *addrptr)
 {
 	in_addr_t addr;
 	int value;
@@ -95,25 +91,29 @@ struct in_addr *addrptr;
 
 	return 1;
 }
+strong_alias(__inet_aton,inet_aton)
 #endif
 
 #ifdef L_inet_addr
-in_addr_t inet_addr(const char *cp)
+extern int __inet_aton (__const char *__cp, struct in_addr *__inp) __THROW attribute_hidden;
+
+in_addr_t attribute_hidden __inet_addr(const char *cp)
 {
 	struct in_addr a;
 
-	if (!inet_aton(cp, &a))
+	if (!__inet_aton(cp, &a))
 		return INADDR_NONE;
 	else
 		return a.s_addr;
 }
+strong_alias(__inet_addr,inet_addr)
 #endif
 
 #ifdef L_inet_ntoa
 
 #define INET_NTOA_MAX_LEN	16	/* max 12 digits + 3 '.'s + 1 nul */
 
-char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
+char attribute_hidden *__inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
 {
 	in_addr_t addr = ntohl(in.s_addr);
 	int i;
@@ -132,12 +132,14 @@ char *inet_ntoa_r(struct in_addr in, char buf[INET_NTOA_MAX_LEN])
 
 	return p+1;
 }
+strong_alias(__inet_ntoa_r,inet_ntoa_r)
 
-char *inet_ntoa(struct in_addr in)
+char attribute_hidden *__inet_ntoa(struct in_addr in)
 {
 	static char buf[INET_NTOA_MAX_LEN];
-	return(inet_ntoa_r(in, buf));
+	return(__inet_ntoa_r(in, buf));
 }
+strong_alias(__inet_ntoa,inet_ntoa)
 #endif
 
 #ifdef L_inet_makeaddr
@@ -189,8 +191,8 @@ in_addr_t inet_lnaof(struct in_addr in)
  * Return the network number from an internet
  * address; handles class a/b/c network #'s.
  */
-in_addr_t
-inet_netof(struct in_addr in)
+in_addr_t attribute_hidden
+__inet_netof(struct in_addr in)
 {
 	in_addr_t i = ntohl(in.s_addr);
 
@@ -201,5 +203,6 @@ inet_netof(struct in_addr in)
 	else
 	return (((i)&IN_CLASSC_NET) >> IN_CLASSC_NSHIFT);
 }
+strong_alias(__inet_netof,inet_netof)
 
 #endif

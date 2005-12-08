@@ -349,12 +349,8 @@ inet_pton6(const char *src, u_char *dst)
  * author:
  *	Paul Vixie, 1996.
  */
-extern const char *
-inet_ntop(af, src, dst, size)
-	int af;
-	const void *src;
-	char *dst;
-	socklen_t size;
+const char attribute_hidden *
+__inet_ntop(int af, const void *src, char *dst, socklen_t size)
 {
 	switch (af) {
 	case AF_INET:
@@ -369,6 +365,7 @@ inet_ntop(af, src, dst, size)
 	}
 	/* NOTREACHED */
 }
+strong_alias(__inet_ntop,inet_ntop)
 
 
 /* int
@@ -382,11 +379,8 @@ inet_ntop(af, src, dst, size)
  * author:
  *	Paul Vixie, 1996.
  */
-extern int
-inet_pton(af, src, dst)
-	int af;
-	const char *src;
-	void *dst;
+int attribute_hidden
+__inet_pton(int af, const char *src, void *dst)
 {
 	switch (af) {
 	case AF_INET:
@@ -401,4 +395,4 @@ inet_pton(af, src, dst)
 	}
 	/* NOTREACHED */
 }
-
+strong_alias(__inet_pton,inet_pton)

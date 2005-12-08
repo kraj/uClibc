@@ -32,14 +32,7 @@
 #include <netinet/ether.h>
 #include <netinet/if_ether.h>
 
-struct ether_addr *ether_aton(const char *asc)
-{
-	static struct ether_addr result;
-
-	return ether_aton_r(asc, &result);
-}
-
-struct ether_addr *ether_aton_r(const char *asc, struct ether_addr *addr)
+struct ether_addr attribute_hidden *__ether_aton_r(const char *asc, struct ether_addr *addr)
 {
 	size_t cnt;
 
@@ -75,19 +68,28 @@ struct ether_addr *ether_aton_r(const char *asc, struct ether_addr *addr)
 
 	return addr;
 }
+strong_alias(__ether_aton_r,ether_aton_r)
 
-char *ether_ntoa(const struct ether_addr *addr)
+struct ether_addr *ether_aton(const char *asc)
 {
-	static char asc[18];
+	static struct ether_addr result;
 
-	return ether_ntoa_r(addr, asc);
+	return __ether_aton_r(asc, &result);
 }
 
-char *ether_ntoa_r(const struct ether_addr *addr, char *buf)
+char attribute_hidden *__ether_ntoa_r(const struct ether_addr *addr, char *buf)
 {
 	sprintf(buf, "%x:%x:%x:%x:%x:%x",
 			addr->ether_addr_octet[0], addr->ether_addr_octet[1],
 			addr->ether_addr_octet[2], addr->ether_addr_octet[3],
 			addr->ether_addr_octet[4], addr->ether_addr_octet[5]);
 	return buf;
+}
+strong_alias(__ether_ntoa_r,ether_ntoa_r)
+
+char *ether_ntoa(const struct ether_addr *addr)
+{
+	static char asc[18];
+
+	return __ether_ntoa_r(addr, asc);
 }

@@ -52,6 +52,7 @@
 */
 
 #define strpbrk __strpbrk
+#define atoi __atoi
 
 #define __FORCE_GLIBC
 #define _GNU_SOURCE

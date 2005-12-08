@@ -30,6 +30,8 @@
  * Copyright (c) 1987 by Sun Microsystems, Inc.
  */
 
+#define bind __bind
+
 #define __FORCE_GLIBC
 #include <features.h>
 
@@ -43,8 +45,8 @@
 /*
  * Bind a socket to a privileged IP port
  */
-int
-bindresvport (int sd, struct sockaddr_in *sin)
+int attribute_hidden
+__bindresvport (int sd, struct sockaddr_in *sin)
 {
   int res;
   static short port;
@@ -86,3 +88,4 @@ bindresvport (int sd, struct sockaddr_in *sin)
 
   return res;
 }
+strong_alias(__bindresvport,bindresvport)

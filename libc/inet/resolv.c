@@ -140,6 +140,11 @@
 #define getservbyport __getservbyport
 #define getdomainname __getdomainname
 #define uname __uname
+#define inet_addr __inet_addr
+#define inet_aton __inet_aton
+#define inet_pton __inet_pton
+#define inet_ntop __inet_ntop
+#define connect __connect
 
 #define __FORCE_GLIBC
 #include <features.h>

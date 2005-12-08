@@ -48,6 +48,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define gethostbyname_r __gethostbyname_r
 #define gethostbyname2_r __gethostbyname2_r
 #define gethostbyaddr_r __gethostbyaddr_r
+#define inet_pton __inet_pton
+#define inet_ntop __inet_ntop
+#define strtoul __strtoul
 #if 0
 #define uname __uname
 #define stpcpy __stpcpy
@@ -771,6 +774,20 @@ static struct gaih gaih[] =
     { PF_UNSPEC, NULL }
 };
 
+void attribute_hidden
+__freeaddrinfo (struct addrinfo *ai)
+{
+    struct addrinfo *p;
+
+    while (ai != NULL)
+    {
+	p = ai;
+	ai = ai->ai_next;
+	free (p);
+    }
+}
+strong_alias(__freeaddrinfo,freeaddrinfo)
+
 int attribute_hidden
 __getaddrinfo (const char *name, const char *service,
 	     const struct addrinfo *hints, struct addrinfo **pai)
@@ -842,7 +859,7 @@ __getaddrinfo (const char *name, const char *service,
 			continue;
 
 		    if (p)
-			freeaddrinfo (p);
+			__freeaddrinfo (p);
 
 		    return -(i & GAIH_EAI);
 		}
@@ -866,21 +883,8 @@ __getaddrinfo (const char *name, const char *service,
 	return 0;
 
     if (p)
-	freeaddrinfo (p);
+	__freeaddrinfo (p);
 
     return last_i ? -(last_i & GAIH_EAI) : EAI_NONAME;
 }
 strong_alias(__getaddrinfo,getaddrinfo)
-
-void
-freeaddrinfo (struct addrinfo *ai)
-{
-    struct addrinfo *p;
-
-    while (ai != NULL)
-    {
-	p = ai;
-	ai = ai->ai_next;
-	free (p);
-    }
-}

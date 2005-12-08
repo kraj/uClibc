@@ -52,7 +52,7 @@ unsigned int if_nametoindex(const char* ifname)
     if (fd < 0)
 	return 0;
     __strncpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
-    if (ioctl(fd,SIOCGIFINDEX,&ifr) < 0) {
+    if (__ioctl(fd,SIOCGIFINDEX,&ifr) < 0) {
 	int saved_errno = errno;
 	__close(fd);
 	if (saved_errno == EINVAL)
@@ -102,7 +102,7 @@ struct if_nameindex * if_nameindex (void)
     /* Read all the interfaces out of the kernel.  */
     do {
 	ifc.ifc_buf = realloc(ifc.ifc_buf, ifc.ifc_len = rq_len);
-	if (ifc.ifc_buf == NULL || ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
+	if (ifc.ifc_buf == NULL || __ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
 	    __close(fd);
 	    return NULL;
 	}
@@ -121,7 +121,7 @@ struct if_nameindex * if_nameindex (void)
     for (i = 0; i < nifs; ++i) {
 	struct ifreq *ifr = &ifc.ifc_req[i];
 	idx[i].if_name = __strdup (ifr->ifr_name);
-	if (idx[i].if_name == NULL || ioctl(fd,SIOCGIFINDEX,ifr) < 0) {
+	if (idx[i].if_name == NULL || __ioctl(fd,SIOCGIFINDEX,ifr) < 0) {
 	    int saved_errno = errno;
 	    unsigned int j;
 	    for (j =  0; j < i; ++j)
@@ -159,7 +159,7 @@ char * if_indextoname (unsigned int ifindex, char *ifname)
       return NULL;
 
   ifr.ifr_ifindex = ifindex;
-  if (ioctl (fd, SIOCGIFNAME, &ifr) < 0) {
+  if (__ioctl (fd, SIOCGIFNAME, &ifr) < 0) {
       saved_errno = errno;
       __close (fd);
       __set_errno (saved_errno);

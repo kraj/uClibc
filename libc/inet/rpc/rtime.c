@@ -42,6 +42,9 @@ static char sccsid[] = "@(#)rtime.c	2.2 88/08/10 4.0 RPCSRC; from 1.8 88/02/08 S
  * subtract seconds before Jan 1, 1970 to get
  * what unix uses.
  */
+
+#define connect __connect
+
 #define __FORCE_GLIBC
 #include <features.h>
 

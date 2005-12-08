@@ -47,6 +47,8 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 #define xdr_opaque_auth __xdr_opaque_auth
 #define pmap_getport __pmap_getport
 #define _seterr_reply __seterr_reply
+#define setsockopt __setsockopt
+#define bindresvport __bindresvport
 
 #define __FORCE_GLIBC
 #include <features.h>
@@ -206,7 +208,7 @@ __clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
       /* attempt to bind to prov port */
       (void) bindresvport (*sockp, (struct sockaddr_in *) 0);
       /* the sockets rpc controls are non-blocking */
-      (void) ioctl (*sockp, FIONBIO, (char *) &dontblock);
+      (void) __ioctl (*sockp, FIONBIO, (char *) &dontblock);
 #ifdef IP_RECVERR
       {
 	int on = 1;
@@ -250,13 +252,13 @@ is_network_up (int sock)
 
   ifc.ifc_len = sizeof (buf);
   ifc.ifc_buf = buf;
-  if (ioctl(sock, SIOCGIFCONF, (char *) &ifc) == 0)
+  if (__ioctl(sock, SIOCGIFCONF, (char *) &ifc) == 0)
     {
       ifr = ifc.ifc_req;
       for (n = ifc.ifc_len / sizeof (struct ifreq); n > 0; n--, ifr++)
 	{
 	  ifreq = *ifr;
-	  if (ioctl (sock, SIOCGIFFLAGS, (char *) &ifreq) < 0)
+	  if (__ioctl (sock, SIOCGIFFLAGS, (char *) &ifreq) < 0)
 	    break;
 
 	  if ((ifreq.ifr_flags & IFF_UP)

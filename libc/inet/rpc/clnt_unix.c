@@ -57,6 +57,8 @@
 #define getegid __getegid
 #define geteuid __geteuid
 #define _seterr_reply __seterr_reply
+#define setsockopt __setsockopt
+#define connect __connect
 
 #define __FORCE_GLIBC
 #include <features.h>

@@ -27,9 +27,13 @@
  * SUCH DAMAGE.
  */
 
+#define getsockname __getsockname
 #define getnameinfo __getnameinfo
 #define getaddrinfo __getaddrinfo
-#define getsockname __getsockname
+#define freeaddrinfo __freeaddrinfo
+#define sleep __sleep
+#define atoi __atoi
+#define connect __connect
 
 #define __FORCE_GLIBC
 #include <features.h>

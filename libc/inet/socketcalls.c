@@ -48,9 +48,11 @@ weak_alias(__libc_accept, accept);
 
 #ifdef L_bind
 #ifdef __NR_bind
-_syscall3(int, bind, int, sockfd, const struct sockaddr *, myaddr, socklen_t, addrlen);
+#define __NR___bind __NR_bind
+attribute_hidden _syscall3(int, __bind, int, sockfd, const struct sockaddr *, myaddr, socklen_t, addrlen);
+strong_alias(__bind,bind)
 #elif defined(__NR_socketcall)
-int bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
+int attribute_hidden __bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
 {
 	unsigned long args[3];
 
@@ -59,15 +61,18 @@ int bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
 	args[2] = addrlen;
 	return __socketcall(SYS_BIND, args);
 }
+strong_alias(__bind,bind)
 #endif
 #endif
 
 #ifdef L_connect
 #ifdef __NR_connect
-#define __NR___libc_connect __NR_connect
-_syscall3(int, __libc_connect, int, sockfd, const struct sockaddr *, saddr, socklen_t, addrlen);
+#define __NR___connect __NR_connect
+attribute_hidden _syscall3(int, __connect, int, sockfd, const struct sockaddr *, saddr, socklen_t, addrlen);
+strong_alias(__connect,connect)
+weak_alias(__connect,__libc_connect)
 #elif defined(__NR_socketcall)
-int __libc_connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
+int attribute_hidden __connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
 {
 	unsigned long args[3];
 
@@ -76,8 +81,9 @@ int __libc_connect(int sockfd, const struct sockaddr *saddr, socklen_t addrlen)
 	args[2] = addrlen;
 	return __socketcall(SYS_CONNECT, args);
 }
+strong_alias(__connect,connect)
+weak_alias(__connect,__libc_connect)
 #endif
-weak_alias(__libc_connect, connect);
 #endif
 
 #ifdef L_getpeername
@@ -289,10 +295,12 @@ weak_alias(__libc_sendto, sendto);
 
 #ifdef L_setsockopt
 #ifdef __NR_setsockopt
-_syscall5(int, setsockopt, int, fd, int, level, int, optname, const void *, optval, socklen_t, optlen);
+#define __NR___setsockopt __NR_setsockopt
+attribute_hidden _syscall5(int, __setsockopt, int, fd, int, level, int, optname, const void *, optval, socklen_t, optlen);
+strong_alias(__setsockopt,setsockopt)
 #elif defined(__NR_socketcall)
 /* [sg]etsockoptions by bir7@leland.stanford.edu */
-int setsockopt(int fd, int level, int optname, const void *optval,
+int attribute_hidden __setsockopt(int fd, int level, int optname, const void *optval,
 		   socklen_t optlen)
 {
 	unsigned long args[5];
@@ -304,6 +312,7 @@ int setsockopt(int fd, int level, int optname, const void *optval,
 	args[4] = optlen;
 	return (__socketcall(SYS_SETSOCKOPT, args));
 }
+strong_alias(__setsockopt,setsockopt)
 #endif
 #endif
 

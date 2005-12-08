@@ -44,9 +44,12 @@
 #define xdr_callmsg __xdr_callmsg
 #define xdr_replymsg __xdr_replymsg
 #define xprt_register __xprt_register
+#define xprt_unregister __xprt_unregister
 #define getegid __getegid
 #define geteuid __geteuid
 #define getsockname __getsockname
+#define setsockopt __setsockopt
+#define bind __bind
 
 #define __FORCE_GLIBC
 #include <features.h>

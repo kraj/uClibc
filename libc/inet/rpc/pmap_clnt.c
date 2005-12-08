@@ -73,7 +73,7 @@ __get_myaddress (struct sockaddr_in *addr)
     }
   ifc.ifc_len = sizeof (buf);
   ifc.ifc_buf = buf;
-  if (ioctl (s, SIOCGIFCONF, (char *) &ifc) < 0)
+  if (__ioctl (s, SIOCGIFCONF, (char *) &ifc) < 0)
     {
       __perror (_("__get_myaddress: ioctl (get interface configuration)"));
       exit (1);
@@ -84,7 +84,7 @@ __get_myaddress (struct sockaddr_in *addr)
   for (len = ifc.ifc_len; len; len -= sizeof ifreq)
     {
       ifreq = *ifr;
-      if (ioctl (s, SIOCGIFFLAGS, (char *) &ifreq) < 0)
+      if (__ioctl (s, SIOCGIFFLAGS, (char *) &ifreq) < 0)
         {
           __perror ("__get_myaddress: ioctl");
           exit (1);
