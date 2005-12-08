@@ -1,5 +1,8 @@
 /* These functions find the absolute path to the current working directory.  */
 
+#define opendir __opendir
+#define closedir __closedir
+
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/stat.h>
