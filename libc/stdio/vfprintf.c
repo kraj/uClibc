@@ -1736,7 +1736,7 @@ static int _do_one_spec(FILE * __restrict stream,
 
 #ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
 		} else if (ppfs->conv_num == CONV_m) {
-			s = __glibc_strerror_r(errno, buf, sizeof(buf));
+			s = __glibc_strerror_r_internal(errno, buf, sizeof(buf));
 			goto SET_STRING_LEN;
 #endif
 		} else {
