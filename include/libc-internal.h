@@ -176,7 +176,8 @@ extern int __strcasecmp (__const char *__s1, __const char *__s2) attribute_hidde
 extern int __strncasecmp (__const char *__s1, __const char *__s2, size_t __n) attribute_hidden;
 
 /* sources are built w/ _GNU_SOURCE, this gets undefined */
-extern int __xpg_strerror_r (int __errnum, char *__buf, size_t __buflen);
+extern int __xpg_strerror_r_internal (int __errnum, char *__buf, size_t __buflen) attribute_hidden;
+extern char *__glibc_strerror_r_internal (int __errnum, char *__buf, size_t __buflen) attribute_hidden;
 
 /* #include <unistd.h> */
 extern ssize_t __read(int __fd, void *__buf, size_t __nbytes) attribute_hidden;
