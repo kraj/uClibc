@@ -63,9 +63,9 @@ static __always_inline void ssp_write(int fd, const char *msg1, const char *msg2
 	__write(fd, msg2, __strlen(msg2));
 	__write(fd, msg3, __strlen(msg3));
 	__write(fd, "()\n", 3);
-	__openlog("ssp", LOG_CONS | LOG_PID, LOG_USER);
-	__syslog(LOG_INFO, "%s%s%s()", msg1, msg2, msg3);
-	__closelog();
+	openlog("ssp", LOG_CONS | LOG_PID, LOG_USER);
+	syslog(LOG_INFO, "%s%s%s()", msg1, msg2, msg3);
+	closelog();
 }
 
 static __always_inline attribute_noreturn void terminate(void)
